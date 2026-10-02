@@ -49,7 +49,13 @@ description: ตัดต่อคลิปพูดหน้ากล้อง�
    render.js ออกด้วย exit code 2 ถ้ามี JavaScript error — แก้ก่อนไปต่อ.
 8. **เรนเดอร์ + เสียง + ไฟล์** — `pipeline.sh $P <video> render`, `... audio`, `... encode` (หรือ `all` ถ้ายังไม่ได้แยกเฟรม).
    ~50 วินาทีใช้เวลาเรนเดอร์ราว 5–8 นาทีบน 4 คอร์ — รันแบบ background ได้.
-9. **QC รอบสุดท้ายแล้วส่ง** — ดู `$P/qc_sheet.jpg`, ส่ง `$P/edit.mp4` พร้อมตารางสรุปสิ่งที่ใส่ในแต่ละช่วง และขอฟีดแบ็กแบบระบุวินาที.
+9. **QC รอบสุดท้ายแล้วส่ง** — ดู `$P/qc_sheet.jpg`, ส่ง `$P/edit.mp4` (≤ ~30 MB สำหรับดูในแชท) พร้อมตารางสรุปสิ่งที่ใส่ในแต่ละช่วง และขอฟีดแบ็กแบบระบุวินาที.
+   **ไฟล์คุณภาพสูงสำหรับโพสต์จริง** — ส่งทุกครั้งเมื่อ session มี GitHub repo (ไม่ต้องรอให้ผู้ใช้ขอ):
+   `bash $SK/scripts/pipeline.sh $P <video> hq` (ได้ `edit_hq.mp4` ≈8–12 Mbps, ≤95 MB) แล้ว
+   รันจากในโฟลเดอร์ repo: `bash $SK/scripts/deliver_github.sh $P/edit_hq.mp4 <ชื่อคลิป>_hq.mp4` → ส่งลิงก์ `DOWNLOAD:` ให้ผู้ใช้
+   พร้อมบอกว่า "เปิดลิงก์ในเบราว์เซอร์ที่ล็อกอิน GitHub แล้ว ไฟล์จะดาวน์โหลดลงเครื่อง". branch `exports` เก็บเฉพาะไฟล์ล่าสุด
+   (ไฟล์ก่อนหน้าถูกแทนที่) — ถ้าผู้ใช้ต้องการเก็บหลายไฟล์ ให้บอกให้ดาวน์โหลดก่อนส่งงานชิ้นถัดไป.
+   ไม่มี repo ใน session → แจ้งว่าได้แค่ไฟล์ในแชท (คุณภาพต่ำกว่า) และแนะนำให้เปิด session ใหม่โดยเลือก repo.
    ตั้งชื่อเวอร์ชันถัดไป edit_v2.mp4, … เมื่อแก้ตามฟีดแบ็ก ให้แก้เฉพาะจุด แล้ว preview จุดนั้นก่อนเรนเดอร์ทั้งคลิป.
 
 ## หลักที่ทำให้งานออกมา "โปร" (และเหตุผล)
@@ -71,7 +77,8 @@ description: ตัดต่อคลิปพูดหน้ากล้อง�
 | `references/standards.md` | สี ฟอนต์ ขนาด motion เสียง QC checklist และการตั้งค่าแบรนด์ |
 | `examples/timeline_example.js` | ต้นแบบเต็มคลิป (ไทย 52 วินาที) |
 | `scripts/fetch_video.sh` | ดึงคลิปจากไฟล์แนบ / ลิงก์ Drive / หลายท่อน → input |
-| `scripts/pipeline.sh` | frames · build · preview · render · audio · encode |
+| `scripts/pipeline.sh` | frames · build · preview · render · audio · encode · hq |
+| `scripts/deliver_github.sh` | ส่งไฟล์คุณภาพสูง (>30 MB) ผ่าน GitHub → ลิงก์ดาวน์โหลด |
 | `scripts/make_timeline.py` | บทพูด/.srt → chunks.json + chunks.md |
 | `scripts/build_scene.py` | ประกอบ scene.html จาก engine + timeline + brand |
 | `assets/engine_*.html` | เอนจิน (ไม่ต้องแก้) |

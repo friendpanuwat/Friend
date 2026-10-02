@@ -6,6 +6,7 @@
 #   render  – all frames, 4 parallel workers
 #   audio   – SFX cues → synth → mix under voice → loudnorm -14 LUFS / -1.5 dBTP
 #   encode  – x264 2-pass ≈3.2 Mbps (≈22 MB / 50 s) + QC sheet qc_sheet.jpg
+#   hq      – high-quality master edit_hq.mp4 (≈8–12 Mbps, kept ≤ 95 MB for GitHub) — deliver with deliver_github.sh
 #   all     – frames build render audio encode
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -49,4 +50,14 @@ encode() {
   ffmpeg -y -loglevel error -i edit.mp4 -vf "fps=1/2,scale=150:-1,tile=13x3" -frames:v 1 qc_sheet.jpg
   ls -la edit.mp4; echo "QC sheet: $PROJ/qc_sheet.jpg"
 }
-case "$STEP" in frames|build|preview|render|audio|encode) $STEP;; all) frames; build; render; audio; encode;; *) echo "unknown step $STEP"; exit 1;; esac
+hq() {
+  cd "$PROJ"
+  # bitrate so the file stays under 95 MB (GitHub hard limit 100 MB), capped at 12 Mbps
+  VB=$(python3 -c "print(int(min(12000, 95*8000/float('$DUR') - 256 - 300)))")
+  [ "$VB" -lt 2000 ] && { echo "clip too long for a ≤95 MB HQ file ($DUR s)"; exit 1; }
+  ffmpeg -y -loglevel error -framerate 30 -i out_frames/o%05d.jpg -c:v libx264 -preset slow -tune film -b:v ${VB}k -maxrate $((VB*3/2))k -bufsize $((VB*3))k -pass 1 -an -f null /dev/null
+  ffmpeg -y -loglevel error -framerate 30 -i out_frames/o%05d.jpg -i master.wav -map 0:v -map 1:a -c:v libx264 -preset slow -tune film -b:v ${VB}k -maxrate $((VB*3/2))k -bufsize $((VB*3))k -pass 2 -pix_fmt yuv420p -c:a aac -b:a 256k -movflags +faststart -shortest edit_hq.mp4
+  rm -f ffmpeg2pass-0.log*
+  ls -la edit_hq.mp4; echo "HQ video bitrate: ${VB} kbps"
+}
+case "$STEP" in frames|build|preview|render|audio|encode|hq) $STEP;; all) frames; build; render; audio; encode;; *) echo "unknown step $STEP"; exit 1;; esac
