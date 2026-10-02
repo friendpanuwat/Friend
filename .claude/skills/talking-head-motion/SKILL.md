@@ -26,7 +26,12 @@ description: ตัดต่อคลิปพูดหน้ากล้อง�
 ตั้ง `SK=<path ของ skill นี้>` และ `P=<โฟลเดอร์งาน>` (ชื่อสั้น ไม่มีช่องว่าง).
 
 1. **ตรวจเครื่อง** — `bash $SK/scripts/check_env.sh`
-2. **รับไฟล์** — วิดีโอ (แนวตั้ง, ตัดโลโก้ CapCut ท้ายคลิปออกแล้วถ้ามี), บทพูดพร้อมเวลา, และแบรนด์ (ถ้าผู้ใช้มีสี/ฟอนต์ของตัวเอง
+2. **รับไฟล์** — `bash $SK/scripts/fetch_video.sh $P <ไฟล์แนบ | ลิงก์ Google Drive | หลายท่อนเรียงลำดับ>` → `$P/input.*`
+   (แนบในแชทได้ไม่เกิน ~30 MB; คลิปใหญ่กว่านั้นให้ผู้ใช้ส่งลิงก์ Drive แบบ "ทุกคนที่มีลิงก์" หรือแบ่งเป็นหลายท่อน — สคริปต์ต่อให้เอง).
+   ถ้าดาวน์โหลดไม่ได้ ให้บอกผู้ใช้ตามข้อความที่สคริปต์พิมพ์ (ตั้งแชร์ลิงก์ / environment ต้องเป็น Network access = Full
+   ซึ่งตั้งได้ในแอปมือถือ: เลือก environment → Create new environment → Full แล้วเปิด session ใหม่).
+   คลิปแนวตั้ง ตัดโลโก้ CapCut ท้ายคลิปออกแล้วถ้ามี; 60fps / HEVC / .mov ใช้ได้ (pipeline แปลงเป็น 30fps ให้). ใช้ `$P/input.*` เป็น <video> ในทุกขั้นถัดไป.
+   นอกจากนี้ต้องมีบทพูดพร้อมเวลา และแบรนด์ (ถ้าผู้ใช้มีสี/ฟอนต์ของตัวเอง
    ให้คัดลอก `$SK/assets/brand.default.json` เป็น `$P/brand.json` แล้วแก้ — ดู `references/standards.md` หัวข้อ Brand).
 3. **แปลงบทเป็นช่วงเวลา** — `python3 $SK/scripts/make_timeline.py <video> <transcript> $P` → `chunks.md` / `chunks.json`
    (เวลาเริ่มแต่ละวลีถูกดูดเข้ากับจุดหยุดหายใจจริงในเสียง).
@@ -65,6 +70,7 @@ description: ตัดต่อคลิปพูดหน้ากล้อง�
 | `references/scene-library.md` | เลือก/ดัดแปลงฉากเต็มจอ 10 แบบ |
 | `references/standards.md` | สี ฟอนต์ ขนาด motion เสียง QC checklist และการตั้งค่าแบรนด์ |
 | `examples/timeline_example.js` | ต้นแบบเต็มคลิป (ไทย 52 วินาที) |
+| `scripts/fetch_video.sh` | ดึงคลิปจากไฟล์แนบ / ลิงก์ Drive / หลายท่อน → input |
 | `scripts/pipeline.sh` | frames · build · preview · render · audio · encode |
 | `scripts/make_timeline.py` | บทพูด/.srt → chunks.json + chunks.md |
 | `scripts/build_scene.py` | ประกอบ scene.html จาก engine + timeline + brand |

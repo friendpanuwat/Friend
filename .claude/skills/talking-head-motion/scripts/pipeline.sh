@@ -16,7 +16,7 @@ SFX_DB=$(python3 -c "import json,os;p='$PROJ/brand.json';print(json.load(open(p)
 
 frames() {
   rm -rf "$PROJ/src_frames" && mkdir -p "$PROJ/src_frames"
-  ffmpeg -y -loglevel error -i "$IN" -vf "hqdn3d=1.5:1.5:3:3,scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos,crop=1080:1920,unsharp=5:5:0.6" -q:v 2 "$PROJ/src_frames/s%05d.jpg"
+  ffmpeg -y -loglevel error -i "$IN" -vf "fps=30,hqdn3d=1.5:1.5:3:3,scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos,crop=1080:1920,unsharp=5:5:0.6" -q:v 2 "$PROJ/src_frames/s%05d.jpg"
   END=$(python3 -c "print(max(0,round($DUR-0.5,2)))")
   ffmpeg -y -loglevel error -i "$IN" -vn -af "aresample=48000,highpass=f=80,afftdn=nf=-28,acompressor=threshold=-22dB:ratio=3:attack=8:release=120:makeup=4dB,equalizer=f=3500:t=q:w=1:g=2,afade=t=out:st=$END:d=0.5" -ac 2 "$PROJ/voice.wav"
   echo "frames: $(ls "$PROJ/src_frames" | wc -l)  duration: $DUR s"
