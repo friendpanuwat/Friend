@@ -1,0 +1,22 @@
+/* ===================== ENGINE ===================== */
+const ease = p => 1 - Math.pow(1 - p, 3);
+ZOOM.sort((a, b) => a.t - b.t);
+function zoomAt(t) { let z = 1; for (const k of ZOOM) { if (t < k.t) break; z += (k.z - z) * ease(Math.min(1, (t - k.t) / k.d)); } return z; }
+const V = document.getElementById('v'), GR = document.getElementById('grain'), gx = GR.getContext('2d');
+const gimg = gx.createImageData(360, 640);
+function grain(f) {   // deterministic per-frame film grain
+  let s = (f * 2654435761) >>> 0; const d = gimg.data;
+  for (let i = 0; i < d.length; i += 4) { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; const v = 128 + ((s >>> 0) % 255 - 127) * .9; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+  gx.putImageData(gimg, 0, 0);
+}
+window.seek = async (t, src) => {
+  if (!window.__fitted) { window.__fitted = true; FITS.forEach(f => f()); }
+  if (src) { V.src = src; await V.decode(); }
+  V.style.transform = `scale(${zoomAt(t) * (1 + .014 * Math.sin(t * .3))})`;
+  document.getAnimations().forEach(a => { a.pause(); a.currentTime = ms(t); });
+  HOOKS.forEach(h => h(t));
+  grain(Math.round(t * 30));
+};
+window.SFX = SFX;
+</script>
+</body></html>
