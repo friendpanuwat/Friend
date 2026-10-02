@@ -1,0 +1,5 @@
+work/**/*
+!work/**/
+!work/**/timeline.js
+!work/**/transcript.txt
+!work/**/chunks.json
