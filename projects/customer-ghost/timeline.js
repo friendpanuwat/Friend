@@ -1,7 +1,26 @@
 /* Clip: "ลูกค้าทักมาแล้วหายไป" (41.9 s) */
 scenes([[1.0, 2.30], [5.0, 9.55], [13.18, 15.06], [19.0, 22.98], [26.0, 29.87], [35.41, 37.48], [39.58, 43]]);
 
-IC.search = 'M68 42a26 26 0 1 1-52 0a26 26 0 1 1 52 0M61 61L84 84';
+/* v2: scene background = the source footage, blurred + darkened (no aurora / dot grid / particles) */
+aurora = () => {};
+const _scene = scene;
+scene = function (t0, t1, o = {}) {
+  const cam = _scene(t0, t1, o), root = cam.parentElement.parentElement;
+  const cv = document.createElement('canvas'); cv.width = 270; cv.height = 480;
+  cv.style.cssText = 'position:absolute;left:-60px;top:-100px;width:1200px;height:2120px';
+  root.insertBefore(cv, root.firstChild);
+  const tint = div('inset:0;background:linear-gradient(180deg,rgba(5,7,13,.45),rgba(5,7,13,.25) 45%,rgba(5,7,13,.55))', root);
+  root.insertBefore(tint, cv.nextSibling);
+  const ctx = cv.getContext('2d');
+  HOOKS.push(t => {
+    if (t < t0 - .1 || t > t1 + .05) return;
+    ctx.filter = 'blur(6px) brightness(.6) saturate(.85)';
+    ctx.drawImage(document.getElementById('v'), 0, 0, 270, 480);
+  });
+  return cam;
+};
+
+IC.search ='M68 42a26 26 0 1 1-52 0a26 26 0 1 1 52 0M61 61L84 84';
 const QMARK = 'M36 36c0-10 6-17 14-17s14 6 14 15c0 12-14 13-14 26v4M50 80v1';
 
 /* ===================== A-ROLL TEXT ===================== */
