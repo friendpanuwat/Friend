@@ -1,0 +1,15 @@
+{
+  "_comment": "M4 clip — text white + light green, no grain (no colour treatment on the footage).",
+  "text": "#FFFFFF",
+  "accent": "#A8F5B2",
+  "accent2": "#3FCF84",
+  "ink": "#05070D",
+  "fonts": {
+    "key":   "fonts/Mitr-Bold.ttf",
+    "mid":   "fonts/Mitr-SemiBold.ttf",
+    "body":  "fonts/Mitr-Medium.ttf",
+    "small": "fonts/Sriracha-Regular.ttf"
+  },
+  "grain": 0,
+  "sfx_db": -11
+}
