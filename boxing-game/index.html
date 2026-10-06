@@ -165,6 +165,7 @@ h1 em{font-style:normal;color:var(--red)}
       <button type="button" data-d="hard" aria-pressed="false">ยาก</button>
     </div>
     <div class="row"><button class="go" id="startBtn" type="button">ขึ้นชก</button></div>
+    <p class="lede" id="loadErr" hidden></p>
     <div class="keys">
       <kbd>จอยซ้าย</kbd><span>ฟุตเวิร์ค ก้าวหน้า-ลากหลัง วนรอบคู่ชก</span>
       <kbd>กด LEAN ค้าง + จอย</kbd><span>ซ้าย/ขวา = slip · ลง = เอนหลบ · ปัดข้ามกลาง = ก้มส่าย (weave) · หลบพ้นแล้วสวนแรงขึ้น</span>
@@ -198,7 +199,6 @@ h1 em{font-style:normal;color:var(--red)}
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
-import {MeshoptDecoder} from 'three/addons/libs/meshopt_decoder.module.js';
 
 /* ================================================================
    Utilities
@@ -404,9 +404,21 @@ const REACT={ // hit-reaction clips grouped by where and how hard
   body:{light:['b_light1','b_light2','b_light3'],med:['b_med1','b_med2','b_med3','b_med4'],big:['b_big1','b_big2'],stag:['b_big1','b_big2']},
 };
 const RIG={src:null,clips:{},ready:false};
-function loadRig(){
-  const l=new GLTFLoader(); l.setMeshoptDecoder(MeshoptDecoder);
-  return l.loadAsync('assets/fighter.json').then(g=>{ RIG.src=g.scene; for(const c of g.animations) RIG.clips[c.name]=c; RIG.ready=true; });
+async function loadRig(onProgress){
+  // The model ships as base64 of a gzipped GLB in a plain text file: no data: URLs and no WebAssembly,
+  // both of which a strict page policy can block. The browser's own gzip stream unpacks it.
+  const res=await fetch('assets/fighter.txt'); if(!res.ok) throw new Error('HTTP '+res.status);
+  const total=+res.headers.get('content-length')||4.2e6; const rd=res.body.getReader(); const parts=[]; let got=0;
+  for(;;){ const {done,value}=await rd.read(); if(done) break; parts.push(value); got+=value.length; onProgress&&onProgress(Math.min(1,got/total)); }
+  const txt=new TextDecoder().decode(await new Blob(parts).arrayBuffer());
+  const bin=Uint8Array.from(atob(txt.trim()),c=>c.charCodeAt(0));
+  if(!('DecompressionStream' in window)) throw new Error('เบราว์เซอร์นี้ไม่รองรับการคลายไฟล์ (DecompressionStream)');
+  const glb=await new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+  // GLTFLoader decodes textures with fetch(blob:) when createImageBitmap exists; a strict connect-src blocks that.
+  // Hiding it while the parser is built makes three.js use plain <img> elements, which blob: images are allowed for.
+  const cib=window.createImageBitmap; try{ window.createImageBitmap=undefined; }catch(e){}
+  const g=await new Promise((ok,fail)=>{ try{ new GLTFLoader().parse(glb,'',ok,fail); }finally{ try{ window.createImageBitmap=cib; }catch(e){} } });
+  RIG.src=g.scene; for(const c of g.animations) RIG.clips[c.name]=c; RIG.ready=true;
 }
 function rootAt(meta,t,out){ // clip root motion (metres, character frame: +x left, +z forward)
   const r=meta.root; if(!r) return out.set(0,0,0);
@@ -1121,8 +1133,9 @@ function resize(){ const w=innerWidth,h=innerHeight; renderer.setSize(w,h,false)
 addEventListener('resize',resize); resize();
 requestAnimationFrame(frame);
 $('#startBtn').disabled=true; $('#startBtn').textContent='กำลังโหลดนักชก…';
-loadRig().then(()=>{ player.attachRig(); enemy.attachRig(); resetFighters(true); $('#startBtn').disabled=false; $('#startBtn').textContent='ขึ้นชก'; })
-  .catch(e=>{ console.error('fighter assets',e); $('#startBtn').textContent='โหลดนักชกไม่สำเร็จ ลองรีเฟรช'; });
+loadRig(p=>{ $('#startBtn').textContent='กำลังโหลดนักชก… '+Math.round(p*100)+'%'; })
+  .then(()=>{ player.attachRig(); enemy.attachRig(); resetFighters(true); $('#startBtn').disabled=false; $('#startBtn').textContent='ขึ้นชก'; })
+  .catch(e=>{ console.error('fighter assets',e); $('#startBtn').textContent='โหลดนักชกไม่สำเร็จ'; $('#loadErr').textContent='สาเหตุ: '+(e&&e.message||e); $('#loadErr').hidden=false; });
 window.__game={G,player,enemy,PUNCH,checkHits,simStep,cam,RIG,updateCount};
 </script>
 </body>
