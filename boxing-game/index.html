@@ -1334,7 +1334,7 @@ function frame(now){
 function resize(){ const w=innerWidth,h=innerHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.fov=w/h<1.5?60:52; camera.updateProjectionMatrix(); }
 addEventListener('resize',resize); resize();
 requestAnimationFrame(frame);
-new GLTFLoader().load('assets/mannequin.glb',g=>{ try{ prepareSkin(g); window.__skin=SKIN_SRC; player.attachSkin(new Skin(player.col)); enemy.attachSkin(new Skin(enemy.col)); }catch(e){ console.warn('skin',e); } },undefined,e=>console.warn('mannequin not loaded',e));
+new GLTFLoader().load('assets/mannequin.json',g=>{ try{ prepareSkin(g); window.__skin=SKIN_SRC; player.attachSkin(new Skin(player.col)); enemy.attachSkin(new Skin(enemy.col)); }catch(e){ console.warn('skin',e); } },undefined,e=>console.warn('mannequin not loaded',e));
 window.__game={G,player,enemy,PUNCH,checkHits,simStep,cam};
 </script>
 </body>
