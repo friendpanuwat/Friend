@@ -6,7 +6,12 @@ ZOOM.sort((a, b) => a.t - b.t);
 function zoomAt(t) { let z = 1; for (const k of ZOOM) { if (t < k.t) break; z += (k.z - z) * ease(Math.min(1, (t - k.t) / k.d)); } return z; }
 const V = document.getElementById('v');
 window.seek = async (t, src) => {
-  if (!window.__fitted) { window.__fitted = true; FITS.forEach(f => f()); }
+  if (!window.__fitted) {
+    window.__fitted = true; FITS.forEach(f => f());
+    // a window declared in cards() with no card() hides the captions over bare footage — fail loudly (render exits 2)
+    const miss = CARD_WIN.filter(([a]) => !MADE.some(m => Math.abs(m - a) < .005));
+    if (miss.length) throw new Error('cards() windows without a card()/frame(): ' + miss.map(w => w.join('-')).join(', '));
+  }
   if (src) { V.src = src; await V.decode(); }
   const F = FRAMES.find(f => t >= f.t0 && t < f.t1);
   if (F) {   // shrink-to-card

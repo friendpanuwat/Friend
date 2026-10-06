@@ -6,10 +6,10 @@
   "ink": "#000000",
   "pill": "#1B2A52",
   "fonts": {
-    "key_sans":  "fonts/Kanit-ExtraBold.ttf",
-    "key_serif": "fonts/Trirong-SemiBoldItalic.ttf",
-    "lead":      "fonts/Kanit-Medium.ttf",
-    "card_sans": "fonts/Kanit-Bold.ttf"
+    "key_sans":  "fonts/Mitr-Bold.ttf",
+    "key_serif": "fonts/Sriracha-Regular.ttf",
+    "lead":      "fonts/Mitr-Regular.ttf",
+    "card_sans": "fonts/Mitr-SemiBold.ttf"
   },
   "sfx_db": -11
 }

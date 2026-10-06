@@ -34,7 +34,8 @@ def main():
         else:
             sys.exit(f'font not found for {slot}: {src}')
         dst = os.path.join('fonts', os.path.basename(cand))
-        shutil.copy(cand, os.path.join(proj, dst))
+        out = os.path.join(proj, dst)
+        if not (os.path.exists(out) and os.path.samefile(cand, out)): shutil.copy(cand, out)   # brand.json inside the project already points here
         html = re.sub(r'(@font-face\{font-family:"%s";src:url\()[^)]*(\))' % fam, r'\g<1>%s\2' % dst, html)
 
     for key, default in PALETTE.items():

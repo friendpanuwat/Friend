@@ -1,10 +1,10 @@
 <!doctype html>
 <html><head><meta charset="utf-8">
 <style>
-@font-face{font-family:"KeySans";src:url(fonts/Kanit-ExtraBold.ttf)}
-@font-face{font-family:"KeySerif";src:url(fonts/Trirong-SemiBoldItalic.ttf)}
-@font-face{font-family:"Lead";src:url(fonts/Kanit-Medium.ttf)}
-@font-face{font-family:"CardSans";src:url(fonts/Kanit-Bold.ttf)}
+@font-face{font-family:"KeySans";src:url(fonts/Mitr-Bold.ttf)}
+@font-face{font-family:"KeySerif";src:url(fonts/Sriracha-Regular.ttf)}
+@font-face{font-family:"Lead";src:url(fonts/Mitr-Regular.ttf)}
+@font-face{font-family:"CardSans";src:url(fonts/Mitr-SemiBold.ttf)}
 /* editorial palette — accent is the ONLY colour; everything else is white / navy / cream / black */
 :root{--acc:#DDFF45;--navy:#14213D;--cream:#F2EDE2;--ink:#050505;--pill:#1B2A52}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -20,11 +20,11 @@ body{position:relative;color:#fff;font-family:"Lead",sans-serif}
 .g{display:inline-block}
 .l {font-family:"Lead";font-size:54px;line-height:1.2;color:#fff}
 .m {font-family:"CardSans";font-size:84px;line-height:1.12;color:#fff;letter-spacing:-1px}
-.k ,.kw{font-family:"KeySans";font-size:150px;line-height:1.12;letter-spacing:-4px;color:var(--acc)}
+.k ,.kw{font-family:"KeySans";font-size:146px;line-height:1.12;letter-spacing:-2px;color:var(--acc)}
 .kw{color:#fff}
-.i ,.iw{font-family:"KeySerif";font-size:140px;line-height:1.18;color:var(--acc)}
+.i ,.iw{font-family:"KeySerif";font-size:150px;line-height:1.2;color:var(--acc)}
 .iw{color:#fff}
-.hl{font-family:"KeySans";font-size:120px;line-height:1.08;letter-spacing:-3px;color:#0A0A0A;background:var(--acc);padding:0 .16em .04em;border-radius:12px}
+.hl{font-family:"KeySans";font-size:116px;line-height:1.1;letter-spacing:-2px;color:#0A0A0A;background:var(--acc);padding:0 .16em .04em;border-radius:12px}
 .aroll .ch{text-shadow:0 4px 26px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.45)}
 .aroll .hl{text-shadow:none;box-shadow:0 10px 30px rgba(0,0,0,.35)}
 
@@ -102,12 +102,13 @@ function fit(el, W, H) {
 const keyHit = (t, db = -22) => sfx('softswish', t - .04, db);
 
 /* ===================== CARDS (full-screen inserts) ===================== */
-const CARD_WIN = [];
+const CARD_WIN = [], MADE = [];   // MADE = t0 of every card()/frame() actually built (checked against CARD_WIN on first seek)
 const cards = w => CARD_WIN.push(...w);           // declare every card/frame window FIRST
 const inCard = t => CARD_WIN.some(([a, b]) => t >= a - .01 && t < b);
 const BG = {black: INK, white: '#FFFFFF', cream: CREAM, navy: '#0B1530'};
 /* card(): hard cut in at t0, hard cut out at t1; contents settle 1.035→1 */
 function card(t0, t1, {bg = 'black', sound = 'whoosh', db = -24} = {}) {
+  MADE.push(t0);
   const root = div(`inset:0;background:${BG[bg] ?? bg}`, S); root.className = 'card';
   visible(root, t0, t1);
   const st = div('inset:0', root); st.className = 'stage';
@@ -160,11 +161,6 @@ function num(c, n, t, css) {
   A(b, [{opacity: 0, transform: 'scale(.4) rotate(-30deg)'}, {opacity: 1, transform: 'none'}], t, .34, {e: SPRING});
   sfx('pop', t, -26); return b;
 }
-function barcode(c, css, color = '#111') {   // decorative poster barcode (seeded, deterministic)
-  let s = 11, r = () => (s = (s * 16807) % 2147483647) / 2147483647, x = 0, bars = '';
-  while (x < 150) { const w = 2 + Math.floor(r() * 6); if (r() > .35) bars += `<rect x="${x}" y="0" width="${w}" height="64" fill="${color}"/>`; x += w + 1; }
-  return div(css, c, `<svg width="150" height="64">${bars}</svg>`);
-}
 function curl(c, t, color = '#000') {        // thin black page-curl crescents in two corners (poster look)
   const tr = div('right:0;top:0', c, `<svg width="170" height="170" viewBox="0 0 170 170"><path d="M170 0H0Q140 22 170 170Z" fill="${color}"/></svg>`);
   const bl = div('left:0;bottom:0', c, `<svg width="210" height="210" viewBox="0 0 210 210"><path d="M0 0V210H210Q34 180 0 0Z" fill="${color}"/></svg>`);
@@ -173,6 +169,7 @@ function curl(c, t, color = '#000') {        // thin black page-curl crescents i
 /* frame(): the talking head shrinks into a rounded card on a flat background (ref transition).
    Returns a transparent container (above the video) for text around the card. */
 function frame(t0, t1, {bg = 'cream', s = .5, y = 1040, r = 44, d = .38} = {}) {
+  MADE.push(t0);
   const back = div(`inset:0;background:${BG[bg] ?? bg};opacity:0`, B); visible(back, t0, t1);
   const sh = div('opacity:0;border-radius:44px;box-shadow:0 40px 90px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.2);background:#000', B); visible(sh, t0, t1);
   FRAMES.push({t0, t1, s, y, r, d, sh});

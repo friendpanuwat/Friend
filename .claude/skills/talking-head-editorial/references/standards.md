@@ -11,21 +11,21 @@
 | `cream` | `#F2EDE2` | พื้นโปสเตอร์ / frame() |
 | `ink` | `#000000` | พื้นการ์ดดำ (ต้องดำสนิทถ้าใช้รูปพื้นดำ) |
 | `pill` | `#1B2A52` | ป้ายเม็ดยา |
-| `fonts.key_sans / key_serif / lead / card_sans` | Kanit ExtraBold / Trirong SemiBold Italic / Kanit Medium / Kanit Bold | ไฟล์ .ttf — path อิงจาก brand.json แล้วจึง assets/ |
+| `fonts.key_sans / key_serif / lead / card_sans` | Mitr Bold / Sriracha / Mitr Regular / Mitr SemiBold | ไฟล์ .ttf — path อิงจาก brand.json แล้วจึง assets/ |
 | `sfx_db` | `-11` | ระดับแทร็กเสียงประกอบทั้งหมด |
 
 accent ต้องอ่านออกบนพื้นดำและบนหน้าคนพูด (สีสว่างอิ่ม). ฟอนต์ไทยต้องรองรับสระ/วรรณยุกต์ครบ และใช้เชิงพาณิชย์ได้
-(Kanit, Trirong = OFL — ไฟล์ license อยู่ใน `assets/licenses/`; ไอคอน Lucide = ISC).
+(Mitr, Sriracha = OFL — ไฟล์ license อยู่ใน `assets/licenses/`; ไอคอน Lucide = ISC).
 
 ## ตัวอักษร
 
 | ชั้น | ฟอนต์ | ขนาด | สี |
 |---|---|---|---|
-| คำนำ `l` | Kanit Medium | 54 (บนการ์ด 60–70) | ขาว / กรมท่า |
-| คำสำคัญ `k` | Kanit ExtraBold, letter-spacing −4 | 150 (statement 170–190) | accent |
-| คำสำคัญเอียง `i` | Trirong SemiBold Italic | 140 | accent / ขาว / กรมท่า |
-| ไฮไลต์ `hl` | Kanit ExtraBold บนกล่อง accent มุม 12 | 90–120 | ดำ |
-| ป้ายเม็ดยา | Trirong Italic | 58 | ขาวบน pill |
+| คำนำ `l` | Mitr Regular | 54 (บนการ์ด 60–70) | ขาว / กรมท่า |
+| คำสำคัญ `k` | Mitr Bold, letter-spacing −2 | 146 (statement 170–190) | accent |
+| คำสำคัญลายมือ `i` | Sriracha | 150 | accent / ขาว / กรมท่า |
+| ไฮไลต์ `hl` | Mitr Bold บนกล่อง accent มุม 12 | 90–120 | ดำ |
+| ป้ายเม็ดยา | Sriracha | 58 | ขาวบน pill |
 
 Motion: คำนำ = ลอยขึ้น 16 px + เบลอ 7→0 ใน 0.2 วิ; คำสำคัญ = ย่อ 1.16→1 + เบลอ 14→0 ใน 0.26 วิ; ก้อนหายแบบตัดทันที.
 ซับ A-roll มีเงาดำนุ่ม (ไม่มีกล่องพื้นหลัง).
@@ -64,7 +64,8 @@ Motion: คำนำ = ลอยขึ้น 16 px + เบลอ 7→0 ใน 0
 - [ ] การ์ด 40–55% ของคลิป, ไม่ติดกันเกิน 3 ใบ, ชนิดการ์ดสลับกัน
 - [ ] การ์ดทุกใบสื่อความหมายของประโยค; MG มีเหตุการณ์ตรงคำสำคัญ; ไม่มีตัวเลข/ข้อมูลที่ผู้พูดไม่ได้พูด; ไม่มีโลโก้จริง
 - [ ] ใช้แต่สีจาก brand.json (+ แดงเฉพาะความหมายลบ); ฟุตเทจไม่ถูกเกรดสี
-- [ ] ภาพพื้นดำไม่มีขอบ; ไม่มี element ค้างนอกเวลา
+- [ ] ภาพพื้นดำไม่มีขอบ; ไม่มี element ค้างนอกเวลา; ไม่มีบาร์โค้ด
+- [ ] preview ครบทุกการ์ดใน `cards()` (การ์ดที่หายไปจะเห็นเป็นหน้าคนพูดเปล่า)
 - [ ] เสียง −14 LUFS ±0.5, peak ≤ −1.5 dBTP; คลิปไม่จบก่อนการ์ดสุดท้าย (ใช้ HOLD)
 - [ ] 1080×1920, 30 fps, H.264 + AAC, ≤ 30 MB
 

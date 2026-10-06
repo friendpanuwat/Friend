@@ -66,7 +66,6 @@ keyHit(39.45);
 {
   const c = card(10.82, 13.16, {bg: 'cream'});
   curl(c, 10.82);
-  barcode(c, 'right:90px;top:96px');
   pic(c, 'img/i06.jpg', 10.82, 'left:170px;top:430px;width:740px;height:986px;border-radius:30px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.35)', {anim: 'up', drift: .05});
   txt(c, [[['เจ้าของธุรกิจ', 'iw', 10.86, NS(124)]]], 'top:200px');
   txt(c, [[['พอเห็นลูกค้า', 'l', 11.42, N], ['น้อยลง', 'hl', 11.8, {size: 96}]], [['หรือเงียบไป', 'iw', 12.10, NS(92)]]], 'top:1440px');
@@ -95,7 +94,6 @@ keyHit(39.45);
 {
   const c = card(23.54, 25.00, {bg: 'cream', sound: 'swipe'});
   curl(c, 23.54);
-  barcode(c, 'left:90px;top:96px');
   pic(c, 'img/i04.jpg', 23.54, 'left:170px;top:430px;width:740px;height:986px;border-radius:30px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.35)', {anim: 'right', drift: .05});
   txt(c, [[['บางคนอาจจะ', 'l', 23.54, N]], [['ไม่มั่นใจ', 'iw', 23.95, NS(110)]]], 'top:150px');
   txt(c, [[['เรื่อง', 'l', 24.34, N], ['คุณภาพ', 'hl', 24.50, {size: 100}]]], 'top:1450px');

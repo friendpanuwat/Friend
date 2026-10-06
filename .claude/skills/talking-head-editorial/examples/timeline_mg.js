@@ -80,7 +80,6 @@ keyHit(39.45);
 {
   const c = card(10.82, 13.16, {bg: 'cream'});
   curl(c, 10.82);
-  barcode(c, 'right:90px;top:96px');
   const p = panel(c, 'left:170px;top:430px;width:740px;height:986px', 10.82);
   const st = div('left:56px;top:56px;width:120px;height:120px;border-radius:34px;display:flex;align-items:center;justify-content:center;background:' + NAVY, p, ico('store', 64, '#fff'));
   popIn(st, 10.95);
@@ -90,6 +89,18 @@ keyHit(39.45);
   txt(c, [[['เจ้าของธุรกิจ', 'iw', 10.86, NS(124)]]], 'top:200px');
   txt(c, [[['พอเห็นลูกค้า', 'l', 11.42, N], ['น้อยลง', 'hl', 11.8, {size: 96}]], [['หรือเงียบไป', 'iw', 12.10, NS(92)]]], 'top:1440px');
   keyHit(11.8);
+}
+/* ---------- C5 white · words build: "สิ่งที่ลูกค้าต้องการ อาจจะไม่ใช่ ส่วนลด" ---------- */
+{
+  const c = card(14.88, 17.64, {bg: 'white', sound: 'swipe'});
+  const t = txt(c, [[['ทั้งที่บางครั้ง', 'l', 14.88, N]], [['สิ่งที่ลูกค้าต้องการ', 'kw', 15.60, NS(104)]], [['อาจจะ', 'l', 16.56, N], ['ไม่ใช่', 'iw', 16.80, NS(110)], ['ส่วนลด', 'hl', 17.10, {size: 110}]]], 'top:700px');
+  strike(t.querySelectorAll('.ch')[4], 17.32, '#111');
+  keyHit(17.10);
+}
+/* ---------- C6 navy · "ต่อให้ลดราคา เยอะแค่ไหน" — colour wipe ---------- */
+{
+  const c = card(19.74, 21.02, {bg: 'navy'});
+  txt(c, [[['ต่อให้ลดราคา', 'l', 19.74, {size: 66}]], [['เยอะแค่ไหน', 'kw', 20.42, {wipe: true, step: .05}]]], 'top:780px');
 }
 /* ---------- C7 dark · checkout: cursor hovers the pay button, then backs off ---------- */
 {
@@ -110,7 +121,6 @@ keyHit(39.45);
 {
   const c = card(23.54, 25.00, {bg: 'cream', sound: 'swipe'});
   curl(c, 23.54);
-  barcode(c, 'left:90px;top:96px');
   const p = panel(c, 'left:170px;top:430px;width:740px;height:986px', 23.54);
   tile(p, 'package', 23.62, 'left:190px;top:120px', {size: 360, bg: NAVY, color: '#fff', sound: null});
   tile(p, 'circle-help', 23.98, 'left:480px;top:70px', {size: 150, bg: ACC, color: '#0A0A0A'});

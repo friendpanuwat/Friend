@@ -1,6 +1,6 @@
 ---
 name: talking-head-editorial
-description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้ง (TikTok / Reels / Shorts) สไตล์ editorial แบบงานรับตัดต่อสาย "raw vs edited" — ซับขึ้นทีละคำ มีคำสำคัญคำเดียวตัวใหญ่ (ตัวหนาแน่น หรือเซอริฟเอียง) สี accent สีเดียว, ตัดสลับการ์ดเต็มจอทุก 2–4 วินาที (การ์ดขาว/ดำ/กรมท่า, โปสเตอร์ครีม, หน้าคนพูดย่อเป็นการ์ด), ใช้ B-roll/รูปที่ผู้ใช้ส่งมา หรือถ้าไม่มี ใช้ motion graphics สไตล์ Jitter × Swishy, ไม่เกรดสี, เสียง -14 LUFS, ส่งออก MP4 1080×1920. Use this skill when the user asks for "talking-head-editorial", สไตล์ editorial / สไตล์การ์ด / สไตล์ blycreativs / สไตล์ใหม่, or a talking-head edit with big single-word captions and full-screen cards. If the user just says "ตัดต่อคลิปพูดหน้ากล้อง" without naming a style, ask whether they want this editorial style or the Swishy style (talking-head-motion).
+description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้ง (TikTok / Reels / Shorts) สไตล์ editorial แบบงานรับตัดต่อสาย "raw vs edited" — ซับขึ้นทีละคำ มีคำสำคัญคำเดียวตัวใหญ่ (ตัวหนา Mitr หรือลายมือ Sriracha) สี accent สีเดียว, ตัดสลับการ์ดเต็มจอทุก 2–4 วินาที (การ์ดขาว/ดำ/กรมท่า, โปสเตอร์ครีม, หน้าคนพูดย่อเป็นการ์ด), ใช้ B-roll/รูปที่ผู้ใช้ส่งมา หรือถ้าไม่มี ใช้ motion graphics สไตล์ Jitter × Swishy, ไม่เกรดสี, เสียง -14 LUFS, ส่งออก MP4 1080×1920. Use this skill when the user asks for "talking-head-editorial", สไตล์ editorial / สไตล์การ์ด / สไตล์ blycreativs / สไตล์ใหม่, or a talking-head edit with big single-word captions and full-screen cards. If the user just says "ตัดต่อคลิปพูดหน้ากล้อง" without naming a style, ask whether they want this editorial style or the Swishy style (talking-head-motion).
 ---
 
 # Talking-Head Editorial
@@ -23,6 +23,7 @@ description: ตัดต่อคลิปพูดหน้ากล้อง�
   ห้ามขอให้ผู้ใช้ติดตั้งหรือรันคำสั่งเอง. รัน `scripts/check_env.sh` ก่อนเสมอ.
 - ไฟล์ที่ส่งในแชทต้อง ≤ ~30 MB (pipeline เข้ารหัสให้แล้ว); ไฟล์คุณภาพสูงส่งผ่าน GitHub (ขั้น 9).
 - **ห้ามเกรดสีฟุตเทจ** — ผู้ใช้สั่งไว้: ไม่ใส่ filter สี / vignette / grain ใด ๆ บนวิดีโอคนพูด.
+- **ฟอนต์ Mitr + Sriracha เท่านั้น** (ผู้ใช้เลือก) และ **ไม่ใส่บาร์โค้ด** บนการ์ดโปสเตอร์ — ผู้ใช้ไม่เอา.
 
 ## Workflow
 
@@ -61,7 +62,7 @@ description: ตัดต่อคลิปพูดหน้ากล้อง�
 ## จังหวะ (หัวใจของสไตล์)
 
 - **ซับ A-roll ทุกก้อน = คำนำเล็ก + คำสำคัญคำเดียวตัวใหญ่.** คำนำขึ้นทีละวลีตามเสียง, คำสำคัญเด้งเข้า (เบลอ→คม, ย่อ 1.16→1).
-  สลับคำสำคัญระหว่าง **ตัวหนาแน่น** (`k`) กับ **เซอริฟเอียง** (`i`) ให้มีจังหวะ; ไฮไลต์กล่องสี (`hl`) ใช้กับคำที่เป็น "การกระทำ/ตัวปัญหา".
+  สลับคำสำคัญระหว่าง **ตัวหนา Mitr** (`k`) กับ **ลายมือ Sriracha** (`i`) ให้มีจังหวะ; ไฮไลต์กล่องสี (`hl`) ใช้กับคำที่เป็น "การกระทำ/ตัวปัญหา".
 - **สี accent สีเดียวทั้งคลิป** (ค่าเริ่มเขียวมะนาว) — ที่เหลือขาว / กรมท่า / ครีม / ดำ. แดง `#FF3B30` ใช้ได้เฉพาะความหมายลบ (กราฟร่วง, กากบาท).
 - **การ์ดเต็มจอทุก 2–4 วินาที รวม ~40–55% ของคลิป**, แต่ละการ์ดยาว 0.6–3 วินาที, เข้า-ออกแบบตัดชน (hard cut) —
   ความเคลื่อนไหวอยู่ในการ์ด ไม่ใช่ทรานสิชัน. การ์ดติดกันได้ไม่เกิน 3 ใบ แล้วต้องกลับมาหน้าคนพูด.
@@ -85,4 +86,4 @@ description: ตัดต่อคลิปพูดหน้ากล้อง�
 | `scripts/pipeline.sh` | frames · build · preview · render · audio · encode · hq (`HOLD=` ค้างภาพท้าย) |
 | `scripts/deliver_github.sh` | ส่งไฟล์คุณภาพสูงผ่าน GitHub → ลิงก์ดาวน์โหลด |
 | `assets/engine_*.html` | เอนจิน + ชุดการ์ด + MG kit (ไม่ต้องแก้) |
-| `assets/brand.default.json` | ค่าแบรนด์เริ่มต้น (accent เขียวมะนาว, Kanit + Trirong Italic) |
+| `assets/brand.default.json` | ค่าแบรนด์เริ่มต้น (accent เขียวมะนาว, ฟอนต์ Mitr + Sriracha) |
