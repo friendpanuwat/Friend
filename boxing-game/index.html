@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Iron Ring Boxing</title>
+<title>Boxing Game</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Kanit:wght@400;600&display=swap">
@@ -156,9 +156,7 @@ h1 em{font-style:normal;color:var(--red)}
 
 <div class="ov" id="menu">
   <div class="card">
-    <div class="eyebrow">3 ยก · ยกละ 90 วินาที</div>
-    <h1>Iron <em>Ring</em><br>Boxing</h1>
-    <p class="lede">มวยสากล 3D ท่าหมัดมาจาก motion capture ผสมกับฟิสิกส์ ฟุตเวิร์คก้าวแล้วลากเท้า หมัดวืดแล้วเสียหลัก โดนหนักแล้วขาอ่อน ล้มแล้วกรรมการนับ 10</p>
+    <h1>Boxing <em>Game</em></h1>
     <div class="row seg" id="diff" role="group" aria-label="ระดับความยาก">
       <button type="button" data-d="easy" aria-pressed="false">ง่าย</button>
       <button type="button" data-d="normal" aria-pressed="true">ปกติ</button>
@@ -166,12 +164,6 @@ h1 em{font-style:normal;color:var(--red)}
     </div>
     <div class="row"><button class="go" id="startBtn" type="button">ขึ้นชก</button></div>
     <p class="lede" id="loadErr" hidden></p>
-    <div class="keys">
-      <kbd>จอยซ้าย</kbd><span>ฟุตเวิร์ค ก้าวหน้า-ลากหลัง วนรอบคู่ชก</span>
-      <kbd>กด LEAN ค้าง + จอย</kbd><span>ซ้าย/ขวา = slip · ลง = เอนหลบ · ปัดข้ามกลาง = ก้มส่าย (weave) · หลบพ้นแล้วสวนแรงขึ้น</span>
-      <kbd>LEAN + หมัด</kbd><span>ต่อยลำตัว ทำลายสตามินาคู่ชก</span>
-      <kbd>คีย์บอร์ด</kbd><span>WASD เดิน · J แย็บ · K ตรงขวา · U ฮุค · I อัปเปอร์ · L/Space การ์ด · Shift ก้ม</span>
-    </div>
   </div>
 </div>
 
@@ -289,20 +281,24 @@ const canvas=$('#gl');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
 renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 1.75));
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.3;
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x070a14); scene.fog=new THREE.Fog(0x070a14,9,26);
+scene.background=new THREE.Color(0x141a2a); scene.fog=new THREE.Fog(0x141a2a,12,30);
 const camera=new THREE.PerspectiveCamera(52,1,0.05,80);
 
-scene.add(new THREE.HemisphereLight(0x9fb3ff,0x1a1208,0.55));
-const key=new THREE.SpotLight(0xfff1dc,260,30,0.62,0.55,1.6);
+scene.add(new THREE.HemisphereLight(0xf2f4ff,0x5a4a3a,1.5));
+const key=new THREE.SpotLight(0xfff4e6,520,30,0.75,0.6,1.4);
 key.position.set(0.4,8.5,0.6); key.target.position.set(0,0,0);
 key.castShadow=true; key.shadow.mapSize.set(1024,1024); key.shadow.camera.near=3; key.shadow.camera.far=14; key.shadow.bias=-0.0004; key.shadow.normalBias=0.02;
 scene.add(key,key.target);
 const rimR=new THREE.PointLight(0xff5a48,9,9,1.4); rimR.position.set(-3.6,2.6,-3.6); scene.add(rimR);
 const rimB=new THREE.PointLight(0x4a86ff,9,9,1.4); rimB.position.set(3.6,2.6,3.6); scene.add(rimB);
-const fill=new THREE.DirectionalLight(0xc8d4ff,0.5); fill.position.set(-4,5,-6); scene.add(fill);
+const fill=new THREE.DirectionalLight(0xe6ecff,1.3); fill.position.set(-5,4,-4); scene.add(fill);
+// broadcast-style side lights so the fighters read clearly from the camera side
+const sideA=new THREE.DirectionalLight(0xffffff,1.4); sideA.position.set(6,3.5,0); scene.add(sideA);
+const sideB=new THREE.DirectionalLight(0xffffff,1.0); sideB.position.set(-6,3.5,0); scene.add(sideB);
+const front=new THREE.DirectionalLight(0xfff2e0,0.8); front.position.set(0,3,6); scene.add(front);
 
 const RING=3.1, LIMIT=2.72;
 function ringTexture(){
@@ -315,7 +311,7 @@ function ringTexture(){
   g.translate(512,512); g.rotate(Math.PI); g.strokeStyle='#1a2140aa'; g.lineWidth=10; g.beginPath(); g.arc(0,0,200,0,Math.PI*2); g.stroke();
   g.lineWidth=3; g.beginPath(); g.arc(0,0,178,0,Math.PI*2); g.stroke();
   g.fillStyle='#1a2140cc'; g.font='900 92px "Big Shoulders Display", Impact, sans-serif'; g.textAlign='center'; g.textBaseline='middle';
-  g.fillText('IRON RING',0,-14); g.font='600 36px Kanit, sans-serif'; g.fillStyle='#b82826cc'; g.fillText('BOXING CLUB',0,58);
+  g.fillText('BOXING',0,-14); g.font='600 40px Kanit, sans-serif'; g.fillStyle='#b82826cc'; g.fillText('GAME',0,58);
   const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=4; return t;
 }
 const ringMat=new THREE.MeshStandardMaterial({map:ringTexture(),roughness:.85});
@@ -1039,7 +1035,7 @@ function showResult(){
   const win=G.winner===player;
   $('#resEyebrow').textContent=G.how==='ko'?'ชนะด้วยการน็อก · ยก '+G.round:'ตัดสินคะแนน · ครบ '+ROUNDS+' ยก';
   const t=$('#resTitle'); t.textContent=win?(G.how==='ko'?'K.O. Win':'You Win'):(G.how==='ko'?'K.O.':'You Lose'); t.className=win?'win':'';
-  $('#resText').textContent=win?'แชมป์คนใหม่ของเวที Iron Ring':'ลุกขึ้นมาแก้มือกันอีกยก';
+  $('#resText').textContent=win?'แชมป์คนใหม่ของเวทีนี้':'ลุกขึ้นมาแก้มือกันอีกยก';
   const acc=s=>s.thrown?Math.round(s.landed/s.thrown*100)+'%':'–';
   const P=player.stats,E=enemy.stats;
   $('#resStats').innerHTML=`<span class="h"></span><span class="h">คุณ</span><span class="h">CPU</span>

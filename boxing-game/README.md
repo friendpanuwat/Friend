@@ -1,4 +1,4 @@
-# Iron Ring Boxing — มวยสากล 3D (เล่นแนวนอน)
+# Boxing Game — มวยสากล 3D (เล่นแนวนอน)
 
 เกมต่อยมวย 3D บนเว็บ เปิด `index.html` บนมือถือ/คอมได้เลย (ใช้ Three.js จาก CDN ไม่ต้อง build)
 
