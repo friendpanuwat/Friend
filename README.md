@@ -5,6 +5,9 @@
 - `.claude/skills/talking-head-editorial/` — สไตล์ editorial (ซับทีละคำ + คำสำคัญตัวใหญ่, การ์ดเต็มจอ, ไม่เกรดสี;
   ใช้รูป/คลิป B-roll ที่ส่งมา หรือ motion graphics สไตล์ Jitter × Swishy ถ้าไม่มี B-roll).
   สั่ง: "ตัดต่อคลิปนี้ตาม skill talking-head-editorial" + ลิงก์คลิป + บทพูดพร้อมเวลา (+ รูป/คลิป B-roll ถ้ามี)
+- `.claude/skills/talking-head-editorial-overlay/` — สไตล์ editorial แบบ overlay: เห็นหน้าคนพูดตลอด ไม่มีการ์ดเต็มจอ,
+  ซับคำใหญ่แบบ editorial + วิดเจ็ต motion graphics เล็ก ๆ สไตล์ Jitter เด้งเหนือหัว.
+  สั่ง: "ตัดต่อคลิปนี้ตาม skill talking-head-editorial-overlay" + ลิงก์คลิป + บทพูดพร้อมเวลา
 - เปิด Claude Code โดยเลือก repo นี้ แล้ว skill จะโหลดเองอัตโนมัติ — ขั้นตอนใช้งานของทั้งสองสกิลเหมือนกัน
 - `product/TalkingHeadMotion-v9-product.zip` — แพ็กเกจสำหรับขาย (skill + คู่มือ + หน้าขาย + License + คลิป before/after)
 - `product/docs/` — คู่มือ, หน้าขาย, License, before_after.mp4, edit_v9_final.mp4 (คลิปต้นแบบ v9)
