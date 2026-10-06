@@ -37,7 +37,8 @@ def asr(video, proj, prompt, model):
     m = WhisperModel(model, device='cpu', compute_type='int8', cpu_threads=os.cpu_count() or 4)
     import wave, numpy as np   # pass samples, not a path: newer PyAV breaks faster-whisper's own decoder
     with wave.open(wav) as f: audio = np.frombuffer(f.readframes(f.getnframes()), np.int16).astype(np.float32) / 32768
-    segs, _ = m.transcribe(audio, language='th', word_timestamps=True, initial_prompt=prompt, beam_size=5)
+    segs, _ = m.transcribe(audio, language='th', word_timestamps=True, initial_prompt=prompt[:200], beam_size=5,
+                          vad_filter=True, condition_on_previous_text=False)   # without these Whisper drops 10 s+ stretches of Thai
     return [[round(w.start, 3), round(w.end, 3), w.word] for s in segs for w in s.words]
 
 
