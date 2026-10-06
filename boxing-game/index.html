@@ -136,7 +136,7 @@ h1 em{font-style:normal;color:var(--red)}
       <div class="st"><i id="st2"></i></div>
     </div>
   </div>
-  <div class="tools2"><button id="camBtn" type="button">มุมกล้อง: หลังไหล่</button></div>
+  <div class="tools2"><button id="camBtn" type="button">มุมกล้อง: ด้านข้าง</button></div>
   <div class="tools"><button id="pauseBtn" type="button">พัก ❚❚</button></div>
   <div id="combo"></div>
 
@@ -340,23 +340,7 @@ for(let i=0;i<4;i++){ const [ax,az]=corners[i],[bx,bz]=corners[(i+1)%4];
   ropeH.forEach((h,j)=>{ const r=new THREE.Mesh(new THREE.CylinderGeometry(.022,.022,RING*2,8),ropeMats[j]);
     r.position.set((ax+bx)/2*RING,h,(az+bz)/2*RING); r.rotation.set(ax===bx?Math.PI/2:0,0,ax===bx?0:Math.PI/2); r.castShadow=true; scene.add(r); });
 }
-// crowd
-const crowdN=420;
-const crowd=new THREE.InstancedMesh(new THREE.CapsuleGeometry(.2,.45,3,8),new THREE.MeshStandardMaterial({roughness:.9}),crowdN);
-const crowdData=[]; const _m4=new THREE.Matrix4(), _cc=new THREE.Color();
-for(let i=0;i<crowdN;i++){
-  const tier=Math.floor(Math.random()*5), a=Math.random()*Math.PI*2, r=5.2+tier*1.1+Math.random()*.4;
-  const sq=Math.max(Math.abs(Math.cos(a)),Math.abs(Math.sin(a)));
-  crowdData.push({x:Math.cos(a)*r/sq*.85,z:Math.sin(a)*r/sq*.85,y:-.35+tier*.55,ph:Math.random()*9,amp:rand(.5,1.2)});
-  _cc.setHSL(Math.random(),rand(.15,.45),rand(.12,.3)); crowd.setColorAt(i,_cc);
-}
-scene.add(crowd);
 let crowdExcite=0;
-function updateCrowd(t){
-  for(let i=0;i<crowdN;i++){const c=crowdData[i]; const b=Math.max(0,Math.sin(t*(3+crowdExcite*5)+c.ph))*(.02+crowdExcite*.12)*c.amp;
-    _m4.makeTranslation(c.x,c.y+b,c.z); crowd.setMatrixAt(i,_m4);}
-  crowd.instanceMatrix.needsUpdate=true;
-}
 
 /* ---------- FX: impact flashes + sweat ---------- */
 function glowTex(){const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');const gr=g.createRadialGradient(32,32,0,32,32,32);
@@ -970,9 +954,11 @@ function updateCount(){ // referee's ten count
 const input={x:0,y:0,kx:0,ky:0,block:false,duck:false,kblock:false,kduck:false};
 const zone=$('#stickZone'), base=$('#stickBase'), knob=$('#stickKnob');
 let stickId=null, stickO={x:0,y:0};
-zone.addEventListener('pointerdown',e=>{ if(stickId!==null) return; stickId=e.pointerId; try{zone.setPointerCapture(e.pointerId);}catch(_){}
-  const r=zone.getBoundingClientRect(); stickO={x:e.clientX,y:e.clientY};
-  base.style.left=(e.clientX-r.left)+'px'; base.style.top=(e.clientY-r.top)+'px'; zone.classList.remove('idle'); moveStick(e); e.preventDefault(); });
+zone.addEventListener('pointerdown',e=>{ if(stickId!==null) return;
+  const br=base.getBoundingClientRect(); stickO={x:br.left+br.width/2,y:br.top+br.height/2}; // fixed joystick: always measured from its centre
+  if(Math.hypot(e.clientX-stickO.x,e.clientY-stickO.y)>br.width*.9) return;          // ignore touches far from the stick
+  stickId=e.pointerId; try{zone.setPointerCapture(e.pointerId);}catch(_){}
+  zone.classList.remove('idle'); moveStick(e); e.preventDefault(); });
 zone.addEventListener('pointermove',e=>{ if(e.pointerId===stickId) moveStick(e); });
 const endStick=e=>{ if(e.pointerId!==stickId) return; stickId=null; input.x=input.y=0; knob.style.transform=''; zone.classList.add('idle'); };
 zone.addEventListener('pointerup',endStick); zone.addEventListener('pointercancel',endStick);
@@ -1005,7 +991,7 @@ function readKeys(){
 /* ================================================================
    Camera
    ================================================================ */
-const cam={mode:0,pos:V3(0,2.2,-4),look:V3(0,1.2,0),shake:0,orbit:0,koA:0};
+const cam={mode:1,pos:V3(0,2.2,-4),look:V3(0,1.2,0),shake:0,orbit:0,koA:0};
 const CAM_NAMES=['หลังไหล่','ด้านข้าง','ทีวี'];
 function cycleCam(){ cam.mode=(cam.mode+1)%3; $('#camBtn').textContent='มุมกล้อง: '+CAM_NAMES[cam.mode]; }
 $('#camBtn').addEventListener('click',cycleCam);
@@ -1124,7 +1110,7 @@ function frame(now){
     else { acc+=dt*G.timeScale; let n=0; while(acc>=SIM_DT&&n<12){ simStep(SIM_DT); acc-=SIM_DT; n++; } if(n>=12) acc=0; }
   }
   player.render(); enemy.render();
-  updateFx(dt*(G.state==='ko'?G.timeScale:1)); updateCrowd(elapsed); updateCamera(dt,elapsed);
+  updateFx(dt*(G.state==='ko'?G.timeScale:1)); updateCamera(dt,elapsed);
   if(!$('#hud').hidden) updateHUD(dt);
   renderer.render(scene,camera);
   requestAnimationFrame(frame);
