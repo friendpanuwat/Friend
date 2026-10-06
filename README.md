@@ -2,6 +2,8 @@
 
 - `.claude/skills/talking-head-motion/` — สไตล์ Swishy (ตัวอักษรพลิก 3D, ฉากกระจกฝ้า + แสงออโรร่า, มาตรฐาน v9).
   สั่ง: "ตัดต่อคลิปนี้ตาม skill talking-head-motion"
+- `.claude/skills/talking-head-overlay/` — สไตล์ Swishy แบบ overlay: เห็นหน้าคนพูดตลอด ไม่มีฉากเต็มจอ,
+  ซับพลิก 3D + วิดเจ็ตการ์ดมืดเล็ก ๆ เด้งเหนือหัว. สั่ง: "ตัดต่อคลิปนี้ตาม skill talking-head-overlay"
 - `.claude/skills/talking-head-editorial/` — สไตล์ editorial (ซับทีละคำ + คำสำคัญตัวใหญ่, การ์ดเต็มจอ, ไม่เกรดสี;
   ใช้รูป/คลิป B-roll ที่ส่งมา หรือ motion graphics สไตล์ Jitter × Swishy ถ้าไม่มี B-roll).
   สั่ง: "ตัดต่อคลิปนี้ตาม skill talking-head-editorial" + ลิงก์คลิป + บทพูดพร้อมเวลา (+ รูป/คลิป B-roll ถ้ามี)
