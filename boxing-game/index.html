@@ -143,7 +143,7 @@ h1 em{font-style:normal;color:var(--red)}
   <div id="stickZone" class="idle"><div id="stickBase"><div id="stickKnob"></div></div></div>
 
   <div id="pad">
-    <button class="pb def" id="bDuck" data-hold="duck" type="button"><b>DUCK</b><small>ก้ม/หลบ</small></button>
+    <button class="pb def" id="bDuck" data-hold="duck" type="button"><b>LEAN</b><small>ก้ม/เอียงหลบ</small></button>
     <button class="pb def" id="bBlock" data-hold="block" type="button"><b>BLOCK</b><small>การ์ด</small></button>
     <button class="pb atk" id="bHook" data-act="hook" type="button"><b>HOOK</b><small>ฮุคซ้าย</small></button>
     <button class="pb atk" id="bUpper" data-act="upper" type="button"><b>UPPER</b><small>อัปเปอร์ขวา</small></button>
@@ -158,7 +158,7 @@ h1 em{font-style:normal;color:var(--red)}
   <div class="card">
     <div class="eyebrow">3 ยก · ยกละ 90 วินาที</div>
     <h1>Iron <em>Ring</em><br>Boxing</h1>
-    <p class="lede">มวยสากล 3D ที่ร่างกายขยับด้วยฟิสิกส์ — สะโพกบิดส่งแรงหมัด เท้าก้าวจริงตามน้ำหนักตัว หัวสะบัดตามแรงกระแทก และล้มแบบ ragdoll เมื่อโดนน็อก หลบได้จริงด้วยการก้มหรือเอียงตัวให้หมัดวืด</p>
+    <p class="lede">มวยสากล 3D ที่ร่างกายขยับด้วยฟิสิกส์ ฟุตเวิร์คก้าวแล้วลากเท้า สะโพกนำไหล่ส่งแรงหมัด หมัดวืดแล้วเสียหลัก โดนหนักแล้วขาอ่อน ล้มแล้วกรรมการนับ 10</p>
     <div class="row seg" id="diff" role="group" aria-label="ระดับความยาก">
       <button type="button" data-d="easy" aria-pressed="false">ง่าย</button>
       <button type="button" data-d="normal" aria-pressed="true">ปกติ</button>
@@ -166,8 +166,9 @@ h1 em{font-style:normal;color:var(--red)}
     </div>
     <div class="row"><button class="go" id="startBtn" type="button">ขึ้นชก</button></div>
     <div class="keys">
-      <kbd>จอยซ้าย</kbd><span>เดินหน้า/ถอย/วนรอบคู่ชก · ระหว่างกด DUCK ใช้เอียงหลบซ้าย-ขวา</span>
-      <kbd>DUCK + หมัด</kbd><span>ต่อยลำตัว (ทำลายสตามินาคู่ต่อสู้)</span>
+      <kbd>จอยซ้าย</kbd><span>ฟุตเวิร์ค ก้าวหน้า-ลากหลัง วนรอบคู่ชก</span>
+      <kbd>กด LEAN ค้าง + จอย</kbd><span>ซ้าย/ขวา = slip · ลง = เอนหลบ · ปัดข้ามกลาง = ก้มส่าย (weave) · หลบพ้นแล้วสวนแรงขึ้น</span>
+      <kbd>LEAN + หมัด</kbd><span>ต่อยลำตัว ทำลายสตามินาคู่ชก</span>
       <kbd>คีย์บอร์ด</kbd><span>WASD เดิน · J แย็บ · K ตรงขวา · U ฮุค · I อัปเปอร์ · L/Space การ์ด · Shift ก้ม</span>
     </div>
   </div>
@@ -268,6 +269,7 @@ const SFX={ctx:null,noise:null,crowdGain:null,
   whoosh(p){ this._n(.12,1800+p*900,.8,.06+p*.05,'bandpass'); },
   hit(p){ this._n(.16,900+p*400,.7,.5+p*.35); this._tone(150,48,.16,.5+p*.3); if(p>.7)this.cheer(.5); },
   body(p){ this._n(.2,420,.9,.55+p*.3); this._tone(95,40,.2,.6); },
+  tick(){ this._tone(1200,1150,.09,.18,'square'); },
   block(){ this._n(.09,2400,1.2,.25,'bandpass'); this._tone(260,120,.07,.15,'triangle'); },
   bell(){ const C=this.ctx; if(!C) return; [1,2.76,5.4].forEach((m,i)=>{ const t=C.currentTime;
       for(let k=0;k<3;k++){ const o=C.createOscillator(); o.frequency.value=880*m*(1+k*.002); const g=C.createGain();
@@ -379,6 +381,8 @@ function updateFx(dt){
 
 /* ================================================================
    Fighter: procedural, spring-driven human body
+   Movement benchmark: Undisputed / UFC — step-drag footwork, weight transfer,
+   kinetic-chain punches, lean-based head movement, graded hit reactions.
    ================================================================ */
 const L_UP=0.30,L_FO=0.29,L_TH=0.46,L_SH=0.46, REACH=L_UP+L_FO;
 const GLOVE_R=0.075, HEAD_R=0.11;
@@ -387,11 +391,27 @@ let PID=0;
 
 // Punch library. Times in seconds; body terms are added to spring targets through an envelope
 // (negative = anticipation/wind-up, 1 = full commitment). antic = how far the body loads before firing.
+// wt = weight transfer (+ onto the lead foot, - onto the rear foot), stepLen = step-in with the lead foot,
+// thumb = fist rotation at full extension (in = palm down corkscrew, up = vertical fist, out = palm facing self).
 const PUNCH={
-  jab:  {hand:'L',w:.06,s:.10,h:.03,r:.17,dmg:4.5,ref:4.2,stam:3.5,hip:-.06,chest:-.24,leanF:.07,leanS:.00,dip:0,  lunge:.07,step:.55,antic:.25,path:'straight',pole:[.55,-1,-.2],wind:[0,-.02,-.05]},
-  cross:{hand:'R',w:.08,s:.12,h:.04,r:.23,dmg:9.0,ref:4.4,stam:7.0,hip:.48,chest:.42,leanF:.16,leanS:-.08,dip:-.02,lunge:.16,step:.35,antic:.3,path:'straight',pole:[.55,-1,-.25],wind:[0,-.02,-.06]},
-  hook: {hand:'L',w:.12,s:.15,h:.04,r:.27,dmg:11, ref:4.6,stam:8.0,hip:-.42,chest:-.58,leanF:.05,leanS:.11,dip:-.03,lunge:.04,step:.15,antic:.6,path:'hook',pole:[1,.4,-.35],wind:[.10,-.04,-.10]},
-  upper:{hand:'R',w:.16,s:.14,h:.05,r:.29,dmg:13, ref:4.6,stam:9.0,hip:.32,chest:.26,leanF:-.05,leanS:-.04,dip:.075,lunge:.06,step:.2,antic:.85,path:'upper',pole:[.25,-1,.45],wind:[.02,-.26,.02]},
+  jab:  {hand:'L',w:.06,s:.10,h:.03,r:.17,dmg:4.5,ref:4.2,stam:3.5,hip:-.06,chest:-.24,leanF:.07,leanS:.00,dip:0,   lunge:.05,wt:.30,stepLen:.12,antic:.25,path:'straight',pole:[.55,-1,-.2], wind:[0,-.02,-.05], thumb:'in'},
+  cross:{hand:'R',w:.08,s:.12,h:.04,r:.23,dmg:9.0,ref:4.4,stam:7.0,hip:.48, chest:.42, leanF:.16,leanS:-.08,dip:-.02,lunge:.10,wt:.65,stepLen:.05,antic:.3, path:'straight',pole:[.55,-1,-.25],wind:[0,-.02,-.06], thumb:'in'},
+  hook: {hand:'L',w:.12,s:.15,h:.04,r:.27,dmg:11, ref:4.6,stam:8.0,hip:-.42,chest:-.58,leanF:.05,leanS:.11, dip:-.03,lunge:.02,wt:-.20,stepLen:0,  antic:.6, path:'hook',    pole:[1,.4,-.35],  wind:[.10,-.04,-.10],thumb:'up'},
+  upper:{hand:'R',w:.16,s:.14,h:.05,r:.29,dmg:13, ref:4.6,stam:9.0,hip:.32, chest:.26, leanF:-.05,leanS:-.04,dip:.075,lunge:.04,wt:.45,stepLen:.03,antic:.85,path:'upper',   pole:[.25,-1,.45], wind:[.02,-.26,.02], thumb:'out'},
+};
+function envelope(D,t){ // body-commitment curve of a punch over time
+  const w=D.w,s=D.s,h=D.h,r=D.r;
+  if(t<=0) return 0;
+  if(t<w) return -D.antic*smooth(t/w);
+  if(t<w+s) return lerp(-D.antic,1,easeOut((t-w)/s));
+  if(t<w+s+h) return 1;
+  if(t<w+s+h+r) return 1-smooth((t-w-s-h)/r);
+  return 0;
+}
+// Fighting styles: how a boxer carries himself between exchanges
+const STYLE={
+  outboxer:{bounce:.012,freq:1.7, rock:.22,crouch:0,  lean:0,  wide:1},
+  pressure:{bounce:.004,freq:1.25,rock:.12,crouch:.035,lean:.06,wide:1.08},
 };
 
 const LINKS=[['head','neck'],['neck','chest'],['chest','pelvis'],['shL','shR'],['shL','neck'],['shR','neck'],['shL','chest'],['shR','chest'],
@@ -400,7 +420,7 @@ const LINKS=[['head','neck'],['neck','chest'],['chest','pelvis'],['shL','shR'],[
 const MINLINKS=[['hipL','anL',.6],['hipR','anR',.6],['shL','haL',.32],['shR','haR',.32],['head','shL',.2],['head','shR',.2],['knL','knR',.12]];
 const RAD={head:.11,haL:.075,haR:.075,pelvis:.12,chest:.13};
 
-class Ragdoll{ // Verlet particle ragdoll that takes over from the live pose on a knockout
+class Ragdoll{ // Verlet particle ragdoll that takes over from the live pose on a knockdown
   constructor(J,Jp,impulse,dt){
     this.p={};this.o={};
     const w={head:1,neck:.85,chest:.6,shL:.6,shR:.6,elL:.5,elR:.5,haL:.45,haR:.45,pelvis:.25,hipL:.2,hipR:.2,knL:.1,knR:.1,anL:0,anR:0};
@@ -427,30 +447,38 @@ class Ragdoll{ // Verlet particle ragdoll that takes over from the live pose on 
 const _t1=V3(),_t2=V3(),_t3=V3(),_t4=V3(),_q1=new THREE.Quaternion(),_m1=new THREE.Matrix4();
 class Fighter{
   constructor(o){
-    this.name=o.name; this.isAI=!!o.ai; this.col=o.colors; this.speedMul=1; this.dmgMul=1;
-    this.pos=V3(); this.vel=V3(); this.yaw=0; this.stanceYaw=-0.45;
-    this.moveDir=V3(); this.block=false; this.duck=false; this.slip=0;
+    this.name=o.name; this.isAI=!!o.ai; this.col=o.colors; this.style=STYLE[o.style||'outboxer']; this.speedMul=1; this.dmgMul=1;
+    this.pos=V3(); this.prevPos=V3(); this.vel=V3(); this.push=V3(); this.yaw=0; this.stanceYaw=-0.45;
+    this.moveDir=V3(); this.block=false; this.duck=false; this.lean={x:0,y:0};
     this.J={}; this.Jp={}; for(const k of JOINTS){this.J[k]=V3();this.Jp[k]=V3();}
     this.qT=new THREE.Quaternion(); this.qG=new THREE.Quaternion(); this.qYaw=new THREE.Quaternion(); this.qHip=new THREE.Quaternion();
-    this.s={pelvisH:new Spring(.935,160,16),hipYaw:new Spring(0,420,36),chestYaw:new Spring(0,480,38),leanF:new Spring(.07,240,22),
-            leanS:new Spring(0,160,16),sway:new VSpring(260,28),head:new VSpring(150,9)};
-    this.hands={L:{x:V3(),v:V3(),t:V3(),k:500,d:40,pole:V3()},R:{x:V3(),v:V3(),t:V3(),k:500,d:40,pole:V3()}};
-    this.feet={L:{p:V3(),from:V3(),to:V3(),t:0,step:false,dur:.2,h:.06,yaw:0},R:{p:V3(),from:V3(),to:V3(),t:0,step:false,dur:.2,h:.06,yaw:0}};
+    this.s={pelvisH:new Spring(.935,160,16),hipYaw:new Spring(0,420,36),chestYaw:new Spring(0,480,38),leanF:new Spring(.07,280,24),
+            leanS:new Spring(0,260,22),sway:new VSpring(200,26),head:new VSpring(150,9)};
+    const hand=()=>({x:V3(),v:V3(),t:V3(),k:500,d:40,pole:V3(),ext:0,thumb:'up'});
+    this.hands={L:hand(),R:hand()};
+    const foot=()=>({p:V3(),from:V3(),to:V3(),t:0,step:false,dur:.2,h:.06,yaw:0});
+    this.feet={L:foot(),R:foot()}; this.heel={L:0,R:0};
     this.buildMeshes();
   }
   reset(pos,yaw,full=true){
-    this.pos.copy(pos); this.vel.set(0,0,0); this.yaw=yaw;
-    if(full){ this.hp=100; this.stats={thrown:0,landed:0,dmg:0,body:0}; }
-    this.hpGhost=this.hp; this.stamina=100; this.stun=0; this.ragdoll=null; this.koT=0;
+    this.pos.copy(pos); this.prevPos.copy(pos); this.vel.set(0,0,0); this.push.set(0,0,0); this.yaw=yaw;
+    if(full){ this.hp=100; this.knockdowns=0; this.stats={thrown:0,landed:0,dmg:0,body:0}; }
+    this.hpGhost=this.hp; this.stamina=100; this.stun=0; this.rocked=0; this.stumbleT=0; this.counterT=0; this.overT=0;
+    this.ragdoll=null; this.getup=null; this.gait=null; this.koT=0;
     this.punch={L:null,R:null}; this.buffer=null; this.time=Math.random()*10; this.bouncePh=Math.random()*6; this.hurtT=0;
     for(const k in this.s){ const s=this.s[k]; if(s instanceof VSpring) s.snap(V3()); else s.snap(k==='pelvisH'?.935:k==='leanF'?.07:0); }
+    this.s.pelvisH.k=160; this.s.pelvisH.d=16;
     quat(yaw,0,0,this.qYaw);
-    for(const side of ['L','R']){ const sg=side==='L'?1:-1; const F=this.feet[side];
-      F.p.copy(pos).add(lv(this.qYaw,sg*.15,0,sg*.21)); F.step=false; F.yaw=yaw+(side==='L'?-.15:-.65); }
+    for(const side of ['L','R']){ const F=this.feet[side];
+      this.footHome(side,pos,F.p); F.step=false; F.yaw=yaw+(side==='L'?-.15:-.65); this.heel[side]=0; }
     this.pose(); // provisional pose to seed hands
-    for(const side of ['L','R']){ const H=this.hands[side]; this.guardTarget(side,H.t); H.x.copy(H.t); H.v.set(0,0,0); }
+    for(const side of ['L','R']){ const H=this.hands[side]; this.guardTarget(side,H.t); H.x.copy(H.t); H.v.set(0,0,0); H.ext=0; }
     this.pose(); for(const k of JOINTS) this.Jp[k].copy(this.J[k]);
     this.setVisible(true);
+  }
+  footHome(side,root,out){ // where a foot belongs in the stance (orthodox: left foot leads)
+    const sg=side==='L'?1:-1, w=this.style.wide;
+    out.copy(root).add(lv(this.qYaw,sg*.15*w,0,sg*.21*w,_t4)); out.y=0; return out;
   }
 
   /* ---------- meshes ---------- */
@@ -491,23 +519,27 @@ class Fighter{
   }
   setVisible(v){ for(const o of this.m.all) o.visible=v; }
 
-  /* ---------- per-frame body ---------- */
+  /* ---------- guard / punches ---------- */
   guardTarget(side,out){
     const sg=side==='L'?1:-1, st=this.stamina/100; let x,y,z;
     if(this.block && !this.punch[side]){ x=.08*sg; y=.70; z=.21; }
     else if(side==='L'){ x=.12; y=.60; z=.31; } else { x=-.115; y=.61; z=.20; }
-    y-=(1-st)*.10; if(this.stun>0){ y-=.22; z+=.03; }
+    // the hand that is not punching stays glued to the chin
+    if(!this.block && !this.punch[side] && this.punch[side==='L'?'R':'L']){ x=.06*sg; y=.645; z=.17; }
+    y-=(1-st)*.10;
+    if(this.stun>0){ y-=.22; z+=.03; } else if(this.rocked>0){ y-=.12; z+=.02; }
+    if(this.duck){ y+=.015; z-=.02; }
     const ph=this.time*2.3+(sg>0?0:1.7); x+=Math.sin(ph)*.012; y+=Math.cos(ph*1.3)*.012; z+=Math.sin(ph*.7)*.01;
     return out.copy(this.J.pelvis).add(lv(this.qG,x,y,z,_t4));
   }
   tryPunch(type,body){
-    if(this.ragdoll||this.stun>0) return false;
+    if(this.ragdoll||this.stun>0||(this.getup&&this.getup.t<1.1)) return false;
     const D=PUNCH[type], side=D.hand, other=side==='L'?'R':'L';
     const cur=this.punch[side]; if(cur && !(cur.phase==='recover'&&cur.u>.35)) return false;
     const ot=this.punch[other]; if(ot && (ot.phase==='wind'||ot.phase==='strike')) return false;
     if(this.stamina<D.stam*.4) return false;
-    this.punch[side]={def:D,type,t:0,u:0,phase:'wind',hit:false,body:!!body,id:++PID,
-      speed:(.7+.3*this.stamina/100)*this.speedMul,start:V3(),ctrl:V3(),end:V3()};
+    this.punch[side]={def:D,type,t:0,u:0,phase:'wind',hit:false,body:!!body,id:++PID,minD:9,
+      speed:(.7+.3*this.stamina/100)*this.speedMul*(this.rocked>0?.78:1),start:V3(),ctrl:V3(),end:V3()};
     this.stamina=Math.max(0,this.stamina-D.stam); this.stats.thrown++;
     return true;
   }
@@ -522,27 +554,42 @@ class Fighter{
     const H=this.hands[side], P=this.punch[side], sg=side==='L'?1:-1;
     const guard=this.guardTarget(side,_t1);
     const gp=_t2.set(sg*.5,-1,-.35);
-    if(!P){ H.t.copy(guard); H.k=520; H.d=42; H.pole.copy(lv(this.qT,gp.x,gp.y,gp.z,_t3)); return; }
+    if(!P){ H.t.copy(guard); H.k=520; H.d=42; H.ext=0; H.pole.copy(lv(this.qT,gp.x,gp.y,gp.z,_t3)); return; }
     const D=P.def; P.t+=dt*P.speed;
-    const w=D.w,s=D.s,h=D.h,r=D.r; let c, pb;
-    if(P.t<w){ P.phase='wind'; const u=P.t/w; c=-D.antic*smooth(u); pb=smooth(u);
+    if(!P.aim) P.aim=this.aimPoint(P,opp,V3()); // committed to where the target was when the punch started
+    const w=D.w,s=D.s,h=D.h,r=D.r; let pb;
+    if(P.t<w){ P.phase='wind'; const u=P.t/w; pb=smooth(u);
       H.t.copy(guard).add(lv(this.qT,D.wind[0]*sg,D.wind[1],D.wind[2],_t3).multiplyScalar(smooth(u))); H.k=700; H.d=50; }
     else if(P.t<w+s){
       if(P.phase!=='strike'){ P.phase='strike'; P.start.copy(H.x); this.computeAim(P,opp,sg);
-        this.vel.addScaledVector(lv(this.qYaw,0,0,1,_t3),D.step); SFX.whoosh(D.dmg/13); }
-      const u=(P.t-w)/s; c=lerp(-D.antic,1,easeOut(u)); pb=1;
+        if(D.stepLen>0 && !this.gait && !this.duck) this.startGait(lv(this.qYaw,0,0,1,V3()),.8,D.stepLen); // step in behind the jab
+        SFX.whoosh(D.dmg/13); }
+      const u=(P.t-w)/s; pb=1;
       bez(P.start,P.ctrl,P.end,1-(1-u)*(1-u),H.t); H.k=2300; H.d=92; }
-    else if(P.t<w+s+h){ P.phase='hold'; c=1; pb=1; H.t.copy(P.end); H.k=1500; H.d=75; }
-    else if(P.t<w+s+h+r){ P.phase='recover'; const u=P.u=(P.t-w-s-h)/r; c=1-smooth(u); pb=1-smooth(u);
+    else if(P.t<w+s+h){ P.phase='hold'; pb=1; H.t.copy(P.end); H.k=1500; H.d=75; }
+    else if(P.t<w+s+h+r){ if(P.phase!=='recover'){ P.phase='recover'; this.onPunchEnd(P,opp); }
+      const u=P.u=(P.t-w-s-h)/r; pb=1-smooth(u);
       H.t.lerpVectors(P.end,guard,smooth(u)); H.k=650; H.d=48; }
-    else { this.punch[side]=null; H.t.copy(guard); c=0; pb=0; }
+    else { this.punch[side]=null; H.t.copy(guard); pb=0; }
+    if(P.phase==='strike'||P.phase==='hold'){ const dd=this.J['ha'+side].distanceTo(opp.J.head); if(dd<P.minD) P.minD=dd; }
+    H.ext=pb; H.thumb=D.thumb;
     const pol=_t3.set(lerp(gp.x,D.pole[0]*sg,pb),lerp(gp.y,D.pole[1],pb),lerp(gp.z,D.pole[2],pb));
     H.pole.copy(pol.applyQuaternion(this.qT));
-    sum.hip+=D.hip*c; sum.chest+=D.chest*c; sum.leanF+=D.leanF*c; sum.leanS+=D.leanS*c; sum.dip+=D.dip*c; sum.lunge+=D.lunge*Math.max(0,c);
+    // kinetic chain: hips fire first, shoulders follow, weight transfer lands last
+    const cH=envelope(D,P.t+.035), cC=envelope(D,P.t), cW=envelope(D,P.t+.05);
+    sum.hip+=D.hip*cH; sum.chest+=D.chest*cC; sum.leanF+=D.leanF*cC; sum.leanS+=D.leanS*cC; sum.dip+=D.dip*cH;
+    sum.lunge+=D.lunge*Math.max(0,cC); sum.wt+=D.wt*cW;
+  }
+  onPunchEnd(P,opp){ // a clean miss on a head that was there: the defender earned a counter, the attacker over-committed
+    if(P.hit||P.body) return;
+    if(P.minD<.46 && (opp.duck||opp.vel.length()>.35)){
+      opp.counterT=.75; if(opp===player) showTag('SLIP!  สวนกลับ');
+      if(P.def.dmg>=9){ this.overT=.4; P.speed*=.65; this.s.leanF.v+=1.3; this.push.addScaledVector(lv(this.qYaw,0,0,1,V3()),.35); }
+    }
   }
   computeAim(P,opp,sg){
     const D=P.def, sh=this.J['sh'+(sg>0?'L':'R')];
-    const tgt=this.aimPoint(P,opp,_t3);
+    const tgt=_t3.copy(P.aim);
     const dir=_t4.subVectors(tgt,sh); const dist=dir.length(); dir.divideScalar(dist||1);
     // End point = target plus punch-through. The arm length is enforced by IK from wherever the
     // shoulder really is, so hip rotation and the weight shift are what add reach.
@@ -550,6 +597,7 @@ class Fighter{
       const side=lv(this.qT,sg,0,0,V3()); // outward
       P.end.copy(tgt).addScaledVector(side,-.08).addScaledVector(dir,.04);
       P.ctrl.copy(sh).add(lv(this.qT,sg*.48,.04,.16,V3()));
+      P.ctrl.y=Math.max(P.ctrl.y,tgt.y+.02); // a hook travels flat at the target's height
     } else if(D.path==='upper'){
       P.end.copy(tgt).addScaledVector(dir,.05).add(V3(0,.12,0));
       P.ctrl.copy(this.J.pelvis).add(lv(this.qT,sg*.06,.2,.34,V3()));
@@ -558,75 +606,126 @@ class Fighter{
       P.ctrl.lerpVectors(P.start,P.end,.5).add(V3(0,-.02,0));
     }
   }
+
+  /* ---------- footwork: step-drag shuffles, never a glide ---------- */
+  startGait(dir,m,len){
+    const fwd=lv(this.qYaw,0,0,1,V3()), right=lv(this.qYaw,-1,0,0,V3());
+    const d=V3(dir.x,0,dir.z); if(d.lengthSq()<1e-6) return; d.normalize();
+    const f=d.dot(fwd), r=d.dot(right);
+    // the foot nearest the direction of travel moves first: forward/left = lead (left) foot, back/right = rear foot
+    const lead=Math.abs(f)>=Math.abs(r)*.8?(f>=0?'L':'R'):(r<0?'L':'R');
+    const st=.75+.25*this.stamina/100;
+    const punching=!!(this.punch.L||this.punch.R);
+    const stride=len!==undefined?len:lerp(.10,.30,m)*st*(this.block?.6:1)*(punching?.6:1);
+    const dur=len!==undefined?.2:lerp(.34,.24,m)/(.85+.15*st);
+    const to=this.pos.clone().addScaledVector(d,stride); to.x=clamp(to.x,-LIMIT,LIMIT); to.z=clamp(to.z,-LIMIT,LIMIT); to.y=0;
+    this.gait={lead,trail:lead==='L'?'R':'L',t:0,k:0,dur,from:this.pos.clone(),to,f,r,m,leadGo:false,trailGo:false};
+  }
+  stepGait(dt){
+    const g=this.gait; g.t+=dt/g.dur; const u=Math.min(1,g.t);
+    // push off the trail foot, travel mid-step, settle as the trail foot drags in
+    const k=smooth((u-.05)/.8);
+    this.pos.x+=(g.to.x-g.from.x)*(k-g.k); this.pos.z+=(g.to.z-g.from.z)*(k-g.k); g.k=k;
+    if(!g.leadGo){ g.leadGo=true; this.beginStep(g.lead,this.footHome(g.lead,g.to,V3()),g.dur*.55,.045+.025*g.m); }
+    if(!g.trailGo && u>=.38){ g.trailGo=true; this.beginStep(g.trail,this.footHome(g.trail,g.to,V3()),g.dur*.6,.018); }
+    if(g.t>=1) this.gait=null;
+  }
+  beginStep(side,to,dur,h){ const F=this.feet[side]; F.step=true; F.t=0; F.from.copy(F.p); F.from.y=0; F.to.copy(to); F.to.y=0; F.dur=dur; F.h=h; }
+
+  /* ---------- per-step body simulation ---------- */
   update(dt,opp){
     this.time+=dt;
     if(this.ragdoll){ this.ragdoll.step(dt); this.ragdoll.write(this.J); this.koT+=dt; return; }
-    const s=this.s;
-    this.stun=Math.max(0,this.stun-dt); this.hurtT=Math.max(0,this.hurtT-dt);
-    // --- facing the opponent (feet have to catch up, the body does not snap)
+    const s=this.s, st=this.style;
+    this.stun=Math.max(0,this.stun-dt); this.hurtT=Math.max(0,this.hurtT-dt); this.rocked=Math.max(0,this.rocked-dt);
+    this.counterT=Math.max(0,this.counterT-dt); this.overT=Math.max(0,this.overT-dt);
+    const gu=this.getup; if(gu){ gu.t+=dt; if(gu.t>1.4) this.getup=null; }
+    const rising=!!(gu&&gu.t<1.1);
+    // --- facing the opponent (feet pivot to catch up, the body never snaps)
     const tYaw=Math.atan2(opp.pos.x-this.pos.x,opp.pos.z-this.pos.z);
-    const mt=(this.stun>0?2.5:8)*dt; this.yaw=wrap(this.yaw+clamp(wrap(tYaw-this.yaw),-mt,mt));
+    const mt=(rising?1.5:this.stun>0?2.5:this.rocked>0?4:8)*dt; this.yaw=wrap(this.yaw+clamp(wrap(tYaw-this.yaw),-mt,mt));
     quat(this.yaw,0,0,this.qYaw);
-    // --- locomotion: acceleration-limited, momentum carries
-    const punching=!!(this.punch.L||this.punch.R);
-    let maxSp=1.9*(.7+.3*this.stamina/100);
-    if(this.block) maxSp*=.55; if(this.duck) maxSp*=.45; if(punching) maxSp*=.6; if(this.stun>0) maxSp=0;
-    const acc=1-Math.exp(-(this.stun>0?2.5:9)*dt);
-    this.vel.x+=(this.moveDir.x*maxSp-this.vel.x)*acc; this.vel.z+=(this.moveDir.z*maxSp-this.vel.z)*acc;
-    this.pos.addScaledVector(this.vel,dt);
-    for(const ax of ['x','z']){ if(this.pos[ax]>LIMIT){this.pos[ax]=LIMIT; if(this.vel[ax]>0)this.vel[ax]*=-.5;} if(this.pos[ax]<-LIMIT){this.pos[ax]=-LIMIT; if(this.vel[ax]<0)this.vel[ax]*=-.5;} }
+    // --- footwork
+    this.prevPos.copy(this.pos);
+    let m=Math.min(1,this.moveDir.length());
+    if(this.stun>0||rising||this.duck) m=0; if(this.rocked>0) m*=.55;
+    if(!this.gait && m>.2) this.startGait(this.moveDir,m);
+    if(this.gait) this.stepGait(dt);
+    // external forces: knockback, rope bounce, stumbling while rocked
+    this.pos.addScaledVector(this.push,dt); this.push.multiplyScalar(Math.exp(-5.5*dt));
+    if(this.rocked>0){ this.stumbleT-=dt; if(this.stumbleT<=0){ this.stumbleT=rand(.3,.65);
+      this.push.add(V3(rand(-1,1),0,rand(-1,1)).multiplyScalar(.55*Math.min(1,this.rocked))); } }
+    for(const ax of ['x','z']){ if(this.pos[ax]>LIMIT){this.pos[ax]=LIMIT; if(this.push[ax]>0)this.push[ax]*=-.6;}
+      if(this.pos[ax]<-LIMIT){this.pos[ax]=-LIMIT; if(this.push[ax]<0)this.push[ax]*=-.6;} }
+    _t3.subVectors(this.pos,this.prevPos).divideScalar(dt); this.vel.lerp(_t3,1-Math.exp(-12*dt));
     // --- stamina
-    const moving=this.vel.length()>.3;
-    let regen=punching?2:(this.block?7:(moving?9:14)); if(this.duck) regen=-1.5;
+    const punching=!!(this.punch.L||this.punch.R);
+    let regen=punching?2:(this.block?7:(this.gait?9:14)); if(this.duck) regen=-1.2; if(this.rocked>0) regen*=.5;
     this.stamina=clamp(this.stamina+regen*dt,0,100);
     // --- input buffer
     if(this.buffer){ this.buffer.t-=dt; if(this.tryPunch(this.buffer.type,this.buffer.body)||this.buffer.t<=0) this.buffer=null; }
     // --- punches drive hands + body
-    const sum={hip:0,chest:0,leanF:0,leanS:0,dip:0,lunge:0};
+    const sum={hip:0,chest:0,leanF:0,leanS:0,dip:0,lunge:0,wt:0};
     this.updatePunch('L',dt,opp,sum); this.updatePunch('R',dt,opp,sum);
-    // --- body spring targets: stance, bounce, lean into motion, defence
-    const fwd=lv(this.qYaw,0,0,1,_t1), right=lv(this.qYaw,-1,0,0,_t2);
+    // --- body spring targets
+    const fwd=lv(this.qYaw,0,0,1,V3()), right=lv(this.qYaw,-1,0,0,V3());
     const vF=this.vel.dot(fwd), vR=this.vel.dot(right), speed=this.vel.length();
-    this.bouncePh+=dt*Math.PI*2*(1.6+speed*.9);
-    const bounce=(this.stun>0||this.duck?0:.011+speed*.006)*Math.sin(this.bouncePh);
-    const duck=this.duck?1:0, low=1-this.stamina/100;
-    const rocked=this.hp<25? Math.sin(this.time*2.1)*.05*(1-this.hp/25):0;
-    s.pelvisH.t=.935+bounce-duck*.15+sum.dip-low*.03-(this.stun>0?.05:0);
-    s.leanF.t=.07+duck*.3+sum.leanF+vF*.035+(this.stun>0?.08:0)+low*.04;
-    s.leanS.t=duck*clamp(this.slip,-1,1)*.4+sum.leanS+vR*.03+rocked;
-    s.hipYaw.t=sum.hip+(this.duck?-this.slip*.12:0);
-    s.chestYaw.t=sum.chest;
-    s.sway.t.set(-rocked*.4,0,sum.lunge-vF*.02);
+    this.bouncePh+=dt*Math.PI*2*(st.freq+speed*.8);
+    const bounce=(this.stun>0||this.duck||this.rocked>0?0:st.bounce+speed*.005)*Math.sin(this.bouncePh);
+    const low=1-this.stamina/100;
+    let wt=sum.wt, wX=0, duckD=0, leanFx=0, leanSx=0, twist=0;
+    if(!punching&&!this.gait) wt+=st.rock*Math.sin(this.bouncePh*.5);   // rhythmic rocking between exchanges
+    if(this.gait){ const g=this.gait, b=Math.sin(Math.PI*Math.min(1,g.t)); wt+=g.f*.45*b; wX+=g.r*.5*b; }
+    if(this.duck){ // head movement (lean): slip left/right, duck, pull back, bob & weave
+      const lx=clamp(this.lean.x,-1,1), ly=clamp(this.lean.y,-1,1);
+      if(ly<-.35){ const k=-ly; leanFx=-.30*k; duckD=.02; wt-=.9*k; leanSx=lx*.18; }
+      else { const dk=ly>.35?1:0; duckD=.19*(1-Math.abs(lx)*.45)+.03*dk; leanFx=.13*(1-Math.abs(lx)*.3)+.15*dk; leanSx=lx*.42; wX+=lx*.75; wt-=.25*(1-dk); twist=-lx*.12; } // duck = bend the knees and sit back, not lean in
+      duckD+=Math.min(.07,Math.abs(s.leanS.v)*.04); // crossing the centre line dips the head: a U-shaped weave
+    }
+    const wob=this.rocked>0?Math.min(1,this.rocked):0;
+    s.pelvisH.t=.935-st.crouch+bounce-duckD+sum.dip-low*.03-(this.stun>0?.05:0)-Math.abs(wt)*.012-wob*(.04+.03*Math.sin(this.time*6.3));
+    s.leanF.t=.07+st.lean+leanFx+sum.leanF+vF*.035+(this.stun>0?.08:0)+low*.04+(this.overT>0?.12:0)+wob*.06;
+    s.leanS.t=leanSx+sum.leanS+vR*.03+wob*.09*Math.sin(this.time*2.7);
+    s.hipYaw.t=sum.hip+twist+(punching?0:.035*Math.sin(this.bouncePh*.5));
+    s.chestYaw.t=sum.chest+twist*.8;
+    s.sway.t.set(-wX*.075+wob*.05*Math.sin(this.time*3.1),0,clamp(wt,-1,1)*.085+sum.lunge*.5);
     s.head.t.set(0,0,0);
+    if(rising){ s.pelvisH.k=28; s.pelvisH.d=10; } else if(this.duck){ s.pelvisH.k=340; s.pelvisH.d=32; } else { s.pelvisH.k=160; s.pelvisH.d=16; }
     s.pelvisH.step(dt); s.leanF.step(dt); s.leanS.step(dt); s.hipYaw.step(dt); s.chestYaw.step(dt); s.sway.step(dt); s.head.step(dt);
     if(s.head.x.length()>.13) s.head.x.setLength(.13);
-    // --- hands follow their targets through stiff springs (gives real acceleration + overshoot)
+    // heels: the rear heel rises as the hip drives the cross, the lead heel as it pivots on the hook
+    this.heel.R=clamp(.12+s.hipYaw.x*.9+s.sway.x.z*2.5,0,.7);
+    this.heel.L=clamp(-s.hipYaw.x*.6,0,.45);
+    // --- hands follow their targets through stiff springs (real acceleration + overshoot)
     for(const side of ['L','R']){ const H=this.hands[side];
       _t3.subVectors(H.t,H.x).multiplyScalar(H.k).addScaledVector(H.v,-H.d); H.v.addScaledVector(_t3,dt); H.x.addScaledVector(H.v,dt); }
     this.updateFeet(dt);
     for(const k of JOINTS) this.Jp[k].copy(this.J[k]);
     this.pose();
+    if(gu&&gu.t<.6){ const k=smooth(gu.t/.6); for(const j of JOINTS) this.J[j].lerpVectors(gu.from[j],this.J[j],k); }
   }
   updateFeet(dt){
-    const speed=this.vel.length();
+    const s=this.s;
     for(const side of ['L','R']){ const F=this.feet[side];
-      const wantYaw=this.yaw+(side==='L'?-.15:-.65);
-      F.yaw+=wrap(wantYaw-F.yaw)*(1-Math.exp(-(F.step?14:3.5)*dt));
+      const piv=side==='L'?Math.min(0,s.hipYaw.x)*.8:Math.max(0,s.hipYaw.x)*.9; // pivot on the ball of the foot
+      const wantYaw=this.yaw+(side==='L'?-.15:-.65)+piv;
+      F.yaw+=wrap(wantYaw-F.yaw)*(1-Math.exp(-(F.step?14:6)*dt));
       if(F.step){ F.t+=dt/F.dur; const u=smooth(F.t);
         F.p.lerpVectors(F.from,F.to,u); F.p.y=Math.sin(Math.PI*Math.min(1,F.t))*F.h;
         if(F.t>=1){F.step=false;F.p.y=0;} }
     }
-    const err={};
-    for(const side of ['L','R']){ const sg=side==='L'?1:-1, F=this.feet[side];
-      const des=_t3.copy(this.pos).add(lv(this.qYaw,sg*.15,0,sg*.21,_t4)).addScaledVector(this.vel,.17); des.y=0;
-      err[side]={d:F.step?0:Math.hypot(F.p.x-des.x,F.p.z-des.z),des:des.clone()}; }
+    if(this.gait||(this.moveDir.lengthSq()>.04&&!this.duck&&this.stun<=0)) return; // intentional footwork owns the feet
+    // reactive balance steps: after a push, a turn or a stumble the feet re-plant under the body
+    const speed=this.vel.length(), err={};
+    for(const side of ['L','R']){ const F=this.feet[side];
+      const des=this.footHome(side,this.pos,V3()).addScaledVector(this.vel,.15); des.y=0;
+      err[side]={d:F.step?0:Math.hypot(F.p.x-des.x,F.p.z-des.z),des}; }
     const busy=(this.feet.L.step&&this.feet.L.t<.6)||(this.feet.R.step&&this.feet.R.t<.6);
     if(busy) return;
-    const thr=speed>.4?.09:.15;
+    const thr=speed>.4?.09:.13;
     const side=err.L.d>err.R.d?'L':'R'; const e=err[side];
-    if(e.d>thr && !this.feet[side].step){ const F=this.feet[side];
-      F.step=true; F.t=0; F.from.copy(F.p); F.from.y=0; F.to.copy(e.des).addScaledVector(this.vel,.06); F.to.y=0;
-      F.dur=clamp(.24-speed*.045,.12,.24); F.h=.035+Math.min(.05,speed*.025)+Math.min(.04,e.d*.08); }
+    if(e.d>thr && !this.feet[side].step)
+      this.beginStep(side,e.des.addScaledVector(this.vel,.05),clamp(.24-speed*.045,.12,.24),.03+Math.min(.05,speed*.025)+Math.min(.04,e.d*.08));
   }
   pose(){
     const J=this.J, s=this.s, yaw=this.yaw;
@@ -635,20 +734,34 @@ class Fighter{
     quat(yaw+this.stanceYaw*.7+s.hipYaw.x*.8,0,s.leanS.x*.25,this.qHip);
     quat(yaw+this.stanceYaw+s.hipYaw.x+s.chestYaw.x,s.leanF.x,s.leanS.x,this.qT);
     quat(yaw+(s.hipYaw.x+s.chestYaw.x)*.6,s.leanF.x,s.leanS.x,this.qG);
-    const qT=this.qT;
+    const qT=this.qT, eL=this.hands.L.ext, eR=this.hands.R.ext;
     J.chest.copy(J.pelvis).add(lv(qT,0,.40,0,_t1));
     J.neck.copy(J.pelvis).add(lv(qT,0,.56,0,_t1));
-    J.head.copy(J.pelvis).add(lv(qT,0,.70,.02,_t1)).add(s.head.x);
+    // chin tucks down behind the punching shoulder
+    J.head.copy(J.pelvis).add(lv(qT,.015*(eL-eR),.70-.015*Math.max(eL,eR),.02,_t1)).add(s.head.x);
     J.head.sub(J.neck).setLength(.14).add(J.neck);
-    J.shL.copy(J.pelvis).add(lv(qT,.19,.50,0,_t1)); J.shR.copy(J.pelvis).add(lv(qT,-.19,.50,0,_t1));
+    // punching shoulder rolls up and forward (protects the chin, adds reach)
+    J.shL.copy(J.pelvis).add(lv(qT,.19,.50+.03*eL,.06*eL,_t1)); J.shR.copy(J.pelvis).add(lv(qT,-.19,.50+.03*eR,.06*eR,_t1));
     J.hipL.copy(J.pelvis).add(lv(this.qHip,.095,-.05,0,_t1)); J.hipR.copy(J.pelvis).add(lv(this.qHip,-.095,-.05,0,_t1));
     for(const side of ['L','R']){ const sg=side==='L'?1:-1;
-      const F=this.feet[side]; const ank=_t2.copy(F.p); ank.y+=.075;
+      const F=this.feet[side]; const ank=_t2.copy(F.p); ank.y+=.075+(F.step?0:this.heel[side]*.07);
       const pole=lv(this.qHip,sg*.25,0,1,_t3);
       ik2(J['hip'+side],ank,L_TH,L_SH,pole,J['kn'+side],J['an'+side]);
       const H=this.hands[side];
       ik2(J['sh'+side],H.x,L_UP,L_FO,H.pole,J['el'+side],J['ha'+side]);
     }
+  }
+  standUp(opp){ // rise from the canvas: blend the floor pose into a deep crouch, then the legs push up
+    const from={}; for(const k of JOINTS) from[k]=this.J[k].clone();
+    const p=this.J.pelvis; const pos=V3(clamp(p.x,-LIMIT+.2,LIMIT-.2),0,clamp(p.z,-LIMIT+.2,LIMIT-.2));
+    const hp=this.hp, sta=this.stamina;
+    this.reset(pos,Math.atan2(opp.pos.x-pos.x,opp.pos.z-pos.z),false);
+    this.hp=hp; this.hpGhost=hp; this.stamina=Math.max(55,sta);
+    this.s.pelvisH.snap(.45); this.s.leanF.snap(.75);
+    this.pose(); for(const side of ['L','R']){ const H=this.hands[side]; this.guardTarget(side,H.t); H.x.copy(H.t); }
+    this.pose(); for(const k of JOINTS) this.Jp[k].copy(this.J[k]);
+    this.getup={t:0,from}; this.rocked=1.6;
+    for(const k of JOINTS) this.J[k].copy(from[k]);
   }
   /* ---------- skinning the skeleton with meshes ---------- */
   render(){
@@ -669,9 +782,10 @@ class Fighter{
     m.shorts.position.copy(J.pelvis).addScaledVector(hu,-.04); m.shorts.quaternion.copy(qh);
     m.belt.position.copy(J.pelvis).addScaledVector(hu,.09); m.belt.quaternion.copy(qh);
     limb(m.neck,J.neck,J.head);
-    // head orientation: looks at the opponent while upright, follows the body when limp
+    // head orientation: eyes on the opponent while upright, follows the body when limp
+    const limp=!!this.ragdoll||!!(this.getup&&this.getup.t<.6);
     const hu2=_t1.subVectors(J.head,J.neck).normalize();
-    const look=this.ragdoll?torsoFwd:lv(this.qYaw,0,0,1,_t2).lerp(torsoFwd,.15);
+    const look=limp?torsoFwd:lv(this.qYaw,0,0,1,_t2).lerp(torsoFwd,.15);
     const hx2=_t3.crossVectors(hu2,look).normalize(); const hz2=_t2.crossVectors(hx2,hu2).normalize();
     _m1.makeBasis(hx2,hu2,hz2); m.head.quaternion.setFromRotationMatrix(_m1); m.head.position.copy(J.head);
     for(const s of ['L','R']){
@@ -679,12 +793,20 @@ class Fighter{
       limb(m['ua'+s],J['sh'+s],J['el'+s]); limb(m['fa'+s],J['el'+s],J['ha'+s]);
       limb(m['th'+s],J['hip'+s],J['kn'+s]); limb(m['sn'+s],J['kn'+s],J['an'+s]);
       const lg=m['leg'+s]; lg.position.lerpVectors(J['hip'+s],J['kn'+s],.18); lg.quaternion.copy(m['th'+s].quaternion);
+      // glove: fist turns over at full extension (corkscrew), vertical on hooks, palm-in on uppercuts
       const fd=_t1.subVectors(J['ha'+s],J['el'+s]).normalize();
-      const g=m['gl'+s]; g.position.copy(J['ha'+s]).addScaledVector(fd,.03); g.quaternion.setFromUnitVectors(ZAX,fd);
+      const H=this.hands[s], e=limp?0:H.ext;
+      const inward=lv(this.qYaw,s==='L'?-1:1,0,0,V3());
+      const thumbT=H.thumb==='in'?inward:H.thumb==='out'?inward.clone().negate():YAX;
+      const thumb=V3().copy(YAX).addScaledVector(inward,.35).normalize().lerp(thumbT,e);
+      const xv=thumb.addScaledVector(fd,-thumb.dot(fd)); if(xv.lengthSq()<1e-5) xv.copy(inward); xv.normalize(); if(s==='R') xv.negate();
+      const yv=V3().crossVectors(fd,xv);
+      _m1.makeBasis(xv,yv,fd);
+      const g=m['gl'+s]; g.position.copy(J['ha'+s]).addScaledVector(fd,.03); g.quaternion.setFromRotationMatrix(_m1);
       const ft=m['ft'+s]; ft.position.copy(J['an'+s]);
-      if(this.ragdoll){ const sd=_t2.subVectors(J['an'+s],J['kn'+s]).normalize().negate(); const fx=_t3.crossVectors(sd,torsoFwd).normalize(); const fz=V3().crossVectors(fx,sd);
+      if(limp){ const sd=_t2.subVectors(J['an'+s],J['kn'+s]).normalize().negate(); const fx=_t3.crossVectors(sd,torsoFwd).normalize(); const fz=V3().crossVectors(fx,sd);
         _m1.makeBasis(fx,sd,fz); ft.quaternion.setFromRotationMatrix(_m1); }
-      else { const F=this.feet[s]; const heel=(s==='R'&&!F.step)?.1:(F.step?.15*Math.sin(Math.PI*F.t):0); quat(F.yaw,heel,0,ft.quaternion); }
+      else { const F=this.feet[s]; const pitch=F.step?.15*Math.sin(Math.PI*F.t):this.heel[s]*.6; quat(F.yaw,pitch,0,ft.quaternion); }
     }
   }
 }
@@ -692,52 +814,64 @@ class Fighter{
 /* ================================================================
    Game state
    ================================================================ */
-const player=new Fighter({name:'YOU',colors:{skin:0xc68d68,glove:0xc8201e,shorts:0xb51f1d,trim:0xf2e6c8,hair:0x1b120c}});
-const enemy=new Fighter({name:'CPU',ai:true,colors:{skin:0x8a5a3c,glove:0x1f56c8,shorts:0x1b47a8,trim:0xe8b84a,hair:0x0c0a08}});
+const player=new Fighter({name:'YOU',style:'outboxer',colors:{skin:0xc68d68,glove:0xc8201e,shorts:0xb51f1d,trim:0xf2e6c8,hair:0x1b120c}});
+const enemy=new Fighter({name:'CPU',ai:true,style:'pressure',colors:{skin:0x8a5a3c,glove:0x1f56c8,shorts:0x1b47a8,trim:0xe8b84a,hair:0x0c0a08}});
 const ROUND_TIME=90, ROUNDS=3;
-const G={state:'menu',round:1,clock:ROUND_TIME,stateT:0,hitstop:0,timeScale:1,paused:false,diff:'normal',winner:null,how:'',combo:0,comboT:0};
+const G={state:'menu',round:1,clock:ROUND_TIME,stateT:0,hitstop:0,timeScale:1,paused:false,diff:'normal',winner:null,how:'',combo:0,comboT:0,downF:null,count:0,getUpAt:0,mash:0};
 
 const AI_CFG={
-  easy:  {react:.36,defend:.25,atk:[1.4,2.6],guard:.08,speed:.75,punch:.85,dmg:.8},
-  normal:{react:.24,defend:.48,atk:[.8,1.7], guard:.18,speed:.9, punch:.95,dmg:1},
-  hard:  {react:.15,defend:.70,atk:[.35,1.0],guard:.3, speed:1,  punch:1.05,dmg:1.15},
+  easy:  {react:.36,defend:.25,atk:[1.4,2.6],guard:.08,speed:.75,punch:.85,dmg:.8, counter:.3},
+  normal:{react:.24,defend:.48,atk:[.8,1.7], guard:.18,speed:.9, punch:.95,dmg:1,  counter:.55},
+  hard:  {react:.15,defend:.70,atk:[.35,1.0],guard:.3, speed:1,  punch:1.05,dmg:1.15,counter:.8},
 };
 const COMBOS=[['jab'],['jab','jab'],['jab','cross'],['jab','cross','hook'],['cross','hook'],['jab','upper'],['hook','cross'],['jab','jab','cross'],['upper','hook']];
 class AIBrain{
   constructor(me,op){this.me=me;this.op=op;this.reset();}
-  reset(){this.atkT=rand(1,2);this.queue=[];this.qT=0;this.pending=null;this.seen=-1;this.strafe=1;this.strafeT=1.5;this.range=.8;this.blockT=0;this.duckT=0;this.backT=0;this.guardT=0;this.slip=0;}
+  reset(){this.atkT=rand(1,2);this.queue=[];this.qT=0;this.pending=null;this.seen=-1;this.strafe=1;this.strafeT=1.5;this.range=.8;
+    this.blockT=0;this.leanT=0;this.lean={x:0,y:0};this.weave=0;this.backT=0;this.guardT=0;}
   update(dt){
     const me=this.me, op=this.op, c=AI_CFG[G.diff];
     me.speedMul=c.punch; me.dmgMul=c.dmg;
-    if(me.ragdoll) return;
-    const d=_t1.subVectors(op.pos,me.pos); d.y=0; const dist=d.length(); d.normalize(); const right=_t2.set(-d.z,0,d.x);
-    // read the opponent's wind-up and react after a human-ish delay
+    if(me.ragdoll||me.getup){ me.moveDir.set(0,0,0); me.block=me.duck=false; return; }
+    const d=V3().subVectors(op.pos,me.pos); d.y=0; const dist=d.length(); d.normalize(); const right=V3(-d.z,0,d.x);
+    // read the opponent's wind-up and pick a defence that suits the punch, after a human-ish delay
     const th=op.activeThreat();
     if(th && th.id!==this.seen){ this.seen=th.id;
-      if(dist<1.3 && Math.random()<c.defend && !this.queue.length){
-        const r=Math.random(); this.pending={t:c.react*rand(.8,1.25),kind:r<.5?'block':r<.85?'duck':'back',slip:Math.random()<.5?-1:1}; } }
+      if(dist<1.3 && Math.random()<c.defend*(me.rocked>0?.6:1) && !this.queue.length){
+        const r=Math.random(); let kind;
+        if(th.type==='hook') kind=r<.55?'weave':r<.85?'block':'pull';
+        else if(th.type==='upper') kind=r<.5?'pull':'block';
+        else kind=r<.45?'slip':r<.7?'pull':'block';
+        this.pending={t:c.react*rand(.8,1.25),kind,side:Math.random()<.5?-1:1}; } }
     if(this.pending){ this.pending.t-=dt; if(this.pending.t<=0){ const p=this.pending; this.pending=null;
-      if(p.kind==='block') this.blockT=rand(.35,.6); else if(p.kind==='duck'){this.duckT=rand(.28,.42);this.slip=p.slip;} else this.backT=rand(.3,.5);
-      if(Math.random()<.45 && dist<1.05) { this.queue=[{type:Math.random()<.5?'cross':'hook'}]; this.qT=this.duckT>0?this.duckT*.6:.25; } } }
-    this.blockT-=dt; this.duckT-=dt; this.guardT-=dt;
+      if(p.kind==='block') this.blockT=rand(.35,.6);
+      else { this.leanT=rand(.32,.45); this.weave=p.kind==='weave'?p.side:0;
+        this.lean=p.kind==='slip'?{x:p.side,y:0}:p.kind==='pull'?{x:0,y:-1}:{x:p.side,y:0}; } } }
+    if(this.leanT>0 && this.weave) this.lean.x=this.weave*Math.cos(Math.PI*clamp(1-this.leanT/.4,0,1)); // sweep under the hook
+    this.blockT-=dt; this.leanT-=dt; this.guardT-=dt; if(this.leanT<=0) this.weave=0;
+    // made them miss: fire back
+    if(me.counterT>0 && dist<1.05 && !this.queue.length && Math.random()<c.counter){
+      this.queue=[{type:Math.random()<.5?'cross':'hook'}]; this.qT=.02; me.counterT=0; }
+    if(me.rocked>0 && Math.random()<dt*2) this.guardT=rand(.5,1);       // cover up when hurt
     if(this.guardT<-1.2 && dist<1.1 && Math.random()<c.guard*dt*4) this.guardT=rand(.6,1.3);
-    if(me.hp<30 && op.activeThreat() && Math.random()<.02) this.blockT=.5;
-    me.block=(this.blockT>0||this.guardT>0)&&!this.queue.length; me.duck=this.duckT>0; me.slip=this.slip;
+    me.block=(this.blockT>0||this.guardT>0)&&!this.queue.length;
+    me.duck=this.leanT>0; me.lean.x=this.lean.x; me.lean.y=this.lean.y;
     // footwork
     this.strafeT-=dt; if(this.strafeT<0){ this.strafe=Math.random()<.5?-1:1; if(Math.random()<.25)this.strafe=0; this.strafeT=rand(.9,2.4); this.range=rand(.72,.88); }
-    let f=clamp((dist-this.range)*2.6,-1,1);
+    const range=op.rocked>0?.7:this.range;
+    let f=clamp((dist-range)*2.6,-1,1);
     if(this.backT>0){this.backT-=dt; f=-1;}
-    if(me.stamina<18) f=Math.min(f,-.5);
+    if(me.stamina<18||me.rocked>0) f=Math.min(f,-.6);
     const nearRope=Math.max(Math.abs(me.pos.x),Math.abs(me.pos.z))>LIMIT-.35;
     me.moveDir.copy(d).multiplyScalar(f*c.speed).addScaledVector(right,this.strafe*(nearRope?.9:.5)*c.speed);
     if(me.moveDir.length()>1) me.moveDir.normalize();
-    // offence
-    this.atkT-=dt;
+    // offence: smell blood when the opponent is rocked
+    this.atkT-=dt*(op.rocked>0?2.5:1);
     if(this.queue.length){ this.qT-=dt; if(this.qT<=0){ const n=this.queue[0]; if(me.tryPunch(n.type,n.body)){ this.queue.shift(); this.qT=rand(.03,.12);} else this.qT=.02; } }
-    else if(this.atkT<=0 && dist<1.08 && me.stamina>15 && me.stun<=0){
+    else if(this.atkT<=0 && dist<1.08 && me.stamina>15 && me.stun<=0 && me.rocked<=0){
       const combo=COMBOS[Math.floor(Math.random()*COMBOS.length)]; const body=Math.random()<.22;
       this.queue=combo.map(t=>({type:t,body})); this.qT=0;
-      if(body){ this.duckT=.25+combo.length*.28; this.slip=Math.random()<.5?-.4:.4; }
+      if(body){ this.leanT=.25+combo.length*.28; this.weave=0; this.lean={x:rand(-.3,.3),y:.6}; }
       this.atkT=rand(c.atk[0],c.atk[1]);
     }
   }
@@ -752,7 +886,7 @@ resetFighters(true);
 /* ---------- hit detection: gloves are physical spheres ---------- */
 const _h1=V3(),_h2=V3(),_h3=V3();
 function checkHits(att,def){
-  if(def.ragdoll) return;
+  if(def.ragdoll||(def.getup&&def.getup.t<1.1)) return;
   for(const side of ['L','R']){
     const P=att.punch[side]; if(!P||P.hit) continue;
     if(P.phase!=='strike'&&P.phase!=='hold') continue;
@@ -773,26 +907,33 @@ function checkHits(att,def){
 }
 function resolveHit(att,def,P,side,type,point,gv,speed){
   P.hit=true;
-  const D=P.def, dir=gv.clone().normalize();
+  const D=P.def, dir=gv.clone().normalize(), flat=dir.clone().setY(0);
   let power=D.dmg*clamp(speed/D.ref,.35,1.3)*(.55+.45*att.stamina/100)*att.dmgMul;
-  const counter=!!def.activeThreat(); if(counter) power*=1.3;
+  let counter=!!def.activeThreat()||def.overT>0;
+  if(att.counterT>0 && type!=='guard'){ counter=true; att.counterT=0; if(att===player) showTag('COUNTER!'); }
+  if(counter) power*=1.3;
   const H=att.hands[side]; H.v.multiplyScalar(-.25); // glove rebounds off what it hit
   const p01=clamp(power/14,0,1.2);
   const sideTorque=dir.dot(lv(def.qYaw,-1,0,0,_h1));
   if(type==='guard'){
     const dmg=power*(def.block?.08:.3); def.hp-=dmg; att.stats.dmg+=dmg;
     def.stamina=Math.max(0,def.stamina-power*(def.block?.9:.4));
-    def.vel.addScaledVector(dir.clone().setY(0),.35+p01*.6);
+    def.push.addScaledVector(flat,.35+p01*.6);
     def.s.head.v.addScaledVector(dir,.6*p01); def.s.leanF.v-=p01*.8;
     for(const s of ['L','R']) def.hands[s].v.addScaledVector(dir,2+p01*3);
     SFX.block(); spawnImpact(point,dir,p01*.3); G.hitstop=.025;
   } else {
     const body=type==='body';
     const dmg=power*(body?.6:1); def.hp-=dmg; att.stats.dmg+=dmg; att.stats.landed++; if(body) att.stats.body++;
-    if(body){ def.stamina=Math.max(0,def.stamina-power*1.7); def.s.leanF.v+=2.5+p01*3; def.s.pelvisH.v-=.6*p01; def.s.chestYaw.v+=sideTorque*3*p01; SFX.body(p01); }
+    // graded reactions: flinch -> snap + stumble -> rocked (legs go) -> knockdown
+    if(body){ def.stamina=Math.max(0,def.stamina-power*1.7); def.s.leanF.v+=2.5+p01*3; def.s.pelvisH.v-=.6*p01; def.s.chestYaw.v+=sideTorque*3*p01; SFX.body(p01);
+      if(p01>.7) def.stun=Math.max(def.stun,.35); }
     else { def.s.head.v.addScaledVector(dir,2.6+p01*4.5); def.s.leanF.v+=dir.dot(lv(def.qYaw,0,0,1,_h1))*(1.5+p01*2.5);
-      def.s.chestYaw.v+=sideTorque*(2+5*p01); def.s.leanS.v+=sideTorque*2*p01; SFX.hit(p01); }
-    def.vel.addScaledVector(dir.clone().setY(0),.4+p01*1.1);
+      def.s.chestYaw.v+=sideTorque*(2+5*p01); def.s.leanS.v+=sideTorque*2*p01; SFX.hit(p01);
+      if(p01>.8 || (counter&&p01>.55) || (def.hp<40&&p01>.5)){
+        const was=def.rocked>0; def.rocked=Math.max(def.rocked,1.1+p01*1.3); def.gait=null;
+        if(!was){ showTag(def===player?'คุณมึน! ถอยออกมา':'ROCKED!'); SFX.cheer(.7); } } }
+    def.push.addScaledVector(flat,.4+p01*1.1);
     if(power>8.5 || (def.hp<35&&power>5)) def.stun=Math.max(def.stun,.18+p01*.35);
     def.hurtT=.4;
     spawnImpact(point,dir,p01);
@@ -801,19 +942,41 @@ function resolveHit(att,def,P,side,type,point,gv,speed){
     crowdExcite=Math.min(1,crowdExcite+p01*.6); if(p01>.6) SFX.cheer(p01);
     if(att===player){ G.combo++; G.comboT=1.2; if(G.combo>=2) showCombo(G.combo); }
     if(def===player){ const f=$('#flash'); f.style.opacity=.35+p01*.5; setTimeout(()=>f.style.opacity=0,90); }
-    // abort the defender's own punch on a clean shot (gets interrupted, realistic)
+    // a clean shot interrupts the defender's own punch
     if(p01>.45){ for(const s of ['L','R']){const Q=def.punch[s]; if(Q&&(Q.phase==='wind'||Q.phase==='strike')){Q.t=Q.def.w+Q.def.s+Q.def.h; Q.hit=true;}} }
   }
   def.hp=Math.max(0,def.hp);
-  if(def.hp<=0) knockout(def,att,dir,power);
+  if(def.hp<=0){ if(def.knockdowns>=2) knockout(def,att,dir,power); else knockdown(def,att,dir,power); }
+}
+function knockdown(def,att,dir,power){
+  def.knockdowns++;
+  def.ragdoll=new Ragdoll(def.J,def.Jp,dir.clone().multiplyScalar(1.6+power*.16).add(V3(0,.4,0)),SIM_DT);
+  def.punch={L:null,R:null}; def.gait=null;
+  G.state='down'; G.stateT=0; G.timeScale=.35; G.downF=def; G.winner=att; G.count=0; G.mash=0;
+  G.getUpAt=def.isAI?rand(4,7.5)+def.knockdowns*1.2:6.5+def.knockdowns*1.2;
+  if(def.isAI && Math.random()<(G.diff==='easy'?.25:.1)*def.knockdowns) G.getUpAt=11; // stays down
+  const ab=V3().subVectors(def.pos,att.pos); cam.koA=Math.atan2(-ab.z,ab.x);
+  SFX.cheer(1); crowdExcite=1; cam.shake=.1;
+  banner('Knockdown!',def===player?'กดปุ่มหมัดรัวๆ เพื่อลุก':'ไปมุมกลาง');
 }
 function knockout(def,att,dir,power){
-  def.ragdoll=new Ragdoll(def.J,def.Jp,dir.clone().multiplyScalar(2.2+power*.22).add(V3(0,.6,0)),SIM_DT);
-  def.punch={L:null,R:null};
+  if(!def.ragdoll) def.ragdoll=new Ragdoll(def.J,def.Jp,dir.clone().multiplyScalar(2.2+power*.22).add(V3(0,.6,0)),SIM_DT);
+  def.punch={L:null,R:null}; def.gait=null;
   G.state='ko'; G.stateT=0; G.timeScale=.28; G.winner=att; G.how='ko';
   const ab=V3().subVectors(def.pos,att.pos); cam.koA=Math.atan2(-ab.z,ab.x); // camera perpendicular to the fall line
   SFX.cheer(1.2); crowdExcite=1; cam.shake=.12;
-  banner('K.O.!',att===player?'น็อกเอาต์!':'คุณถูกน็อก');
+  banner('K.O.!',def.knockdowns>=2?'ล้ม 3 ครั้ง · TKO':(att===player?'น็อกเอาต์!':'คุณถูกน็อก'));
+}
+function updateCount(){ // referee's ten count
+  const ct=G.stateT-1.6, n=Math.floor(ct);
+  if(n>G.count && n>=1 && n<=10){ G.count=n; banner(String(n),G.downF===player?'กดปุ่มหมัดรัวๆ เพื่อลุก':''); SFX.tick(); }
+  const need=G.getUpAt-(G.downF===player?G.mash*.28:0);
+  if(ct>=10 || (need<10 && ct>=Math.max(3,need))){
+    const f=G.downF, o=f===player?enemy:player;
+    if(need>=10||ct>=10){ G.state='ko'; G.stateT=1.4; G.timeScale=1; G.how='ko'; banner('K.O.!','นับครบ 10'); SFX.cheer(1.2); }
+    else { f.hp=Math.max(15,55-f.knockdowns*18); f.standUp(o); G.state='fight'; G.stateT=0; G.timeScale=1;
+      banner('Fight!',f===player?'ลุกขึ้นมาได้!':'คู่ชกลุกขึ้นมาได้'); }
+  }
 }
 
 /* ================================================================
@@ -838,7 +1001,9 @@ document.querySelectorAll('.pb').forEach(b=>{
   const up=e=>{ b.classList.remove('on'); if(b.dataset.hold) input[b.dataset.hold]=false; };
   b.addEventListener('pointerup',up); b.addEventListener('pointercancel',up); b.addEventListener('lostpointercapture',up);
 });
-function queuePunch(type){ if(G.state!=='fight'||G.paused) return; SFX.init(); player.buffer={type,body:player.duck,t:.28}; }
+function queuePunch(type){ if(G.paused) return; SFX.init();
+  if(G.state==='down'&&G.downF===player){ G.mash++; return; }   // mash to beat the count
+  if(G.state!=='fight') return; player.buffer={type,body:player.duck&&player.lean.y>-.35,t:.28}; }
 const keys={};
 addEventListener('keydown',e=>{ if(e.repeat) return; keys[e.code]=true;
   const map={KeyJ:'jab',KeyK:'cross',KeyU:'hook',KeyI:'upper'}; if(map[e.code]) queuePunch(map[e.code]);
@@ -869,7 +1034,7 @@ function updateCamera(dt,t){
   else if(cam.mode===0){ want.copy(P).addScaledVector(d,-2.2).addScaledVector(right,1.0); want.y=1.8; look.copy(P).addScaledVector(d,dist*.62); look.y=1.32; }
   else if(cam.mode===1){ want.copy(mid).addScaledVector(right,3.1); want.y=1.45; look.copy(mid); look.y=1.15; }
   else { want.copy(mid).addScaledVector(right,4.2).addScaledVector(d,-2.2); want.y=2.9; look.copy(mid); look.y=1.0; }
-  if((G.state==='ko'||G.state==='result')&&G.how==='ko'){ // slow orbit around the fallen fighter, from the side
+  if(G.state==='down'||((G.state==='ko'||G.state==='result')&&G.how==='ko')){ // slow orbit around the fallen fighter, from the side
     const v=G.winner===player?enemy:player; const a=cam.koA+G.stateT*.25;
     look.copy(v.J.pelvis); look.y=.55; want.copy(v.J.pelvis).add(V3(Math.sin(a)*2.5,1.35,Math.cos(a)*2.5)); }
   const k=1-Math.exp(-(G.state==='menu'?2:5.5)*dt);
@@ -885,7 +1050,8 @@ function updateCamera(dt,t){
    ================================================================ */
 const fmt=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
 function banner(txt,sub){ const b=$('#banner'); b.innerHTML=txt+(sub?`<small>${sub}</small>`:''); b.classList.remove('show'); void b.offsetWidth; b.classList.add('show'); }
-let comboTimer=0; function showCombo(n){ const c=$('#combo'); c.textContent=n+' HIT COMBO'; c.style.opacity=1; clearTimeout(comboTimer); comboTimer=setTimeout(()=>c.style.opacity=0,900); }
+let tagTimer=0; function showTag(t){ const c=$('#combo'); c.textContent=t; c.style.opacity=1; clearTimeout(tagTimer); tagTimer=setTimeout(()=>c.style.opacity=0,1000); }
+function showCombo(n){ showTag(n+' HIT COMBO'); }
 function startFight(){
   SFX.init(); G.round=1; resetFighters(true); startRound();
   $('#menu').hidden=true; $('#result').hidden=true; $('#hud').hidden=false;
@@ -911,7 +1077,7 @@ function showResult(){
     <span>ดาเมจรวม</span><span>${Math.round(P.dmg)}</span><span>${Math.round(E.dmg)}</span>`;
   $('#hud').hidden=true; $('#result').hidden=false;
 }
-function togglePause(){ if(!['fight','intro','break'].includes(G.state)) return; G.paused=!G.paused; $('#pauseOv').hidden=!G.paused; }
+function togglePause(){ if(!['fight','intro','break','down'].includes(G.state)) return; G.paused=!G.paused; $('#pauseOv').hidden=!G.paused; }
 $('#pauseBtn').addEventListener('click',togglePause);
 $('#resumeBtn').addEventListener('click',togglePause);
 $('#quitBtn').addEventListener('click',()=>{ G.paused=false; $('#pauseOv').hidden=true; toMenu(); });
@@ -932,18 +1098,18 @@ function simStep(dt){
   readKeys();
   const ix=clamp(input.x+input.kx,-1,1), iy=clamp(input.y+input.ky,-1,1);
   player.block=fighting&&(input.block||input.kblock); player.duck=fighting&&(input.duck||input.kduck);
-  player.slip=ix;
+  player.lean.x=ix; player.lean.y=iy; // while LEAN is held the stick moves the head, not the feet
   if(fighting){ camera.getWorldDirection(_mv1); _mv1.y=0; _mv1.normalize(); _mv2.set(-_mv1.z,0,_mv1.x);
     player.moveDir.copy(_mv2).multiplyScalar(ix).addScaledVector(_mv1,iy); if(player.moveDir.length()>1) player.moveDir.normalize(); }
   else player.moveDir.set(0,0,0);
   if(fighting) brain.update(dt); else { enemy.moveDir.set(0,0,0); enemy.block=enemy.duck=false; }
-  if(G.state==='ko'||G.state==='result'){ const w=G.winner, l=w===player?enemy:player; if(w&&!w.ragdoll){
+  if(G.state==='ko'||G.state==='result'||G.state==='down'){ const w=G.winner, l=w===player?enemy:player; if(w&&!w.ragdoll){ // winner walks to a neutral corner
       const away=_mv1.subVectors(w.pos,l.J.pelvis); away.y=0; w.moveDir.copy(away.normalize()).multiplyScalar(G.stateT>.6?.45:0); w.block=w.duck=false; } }
   player.update(dt,enemy); enemy.update(dt,player);
   // body-to-body collision (no walking through each other)
   if(!player.ragdoll&&!enemy.ragdoll){ const d=_mv1.subVectors(enemy.pos,player.pos); d.y=0; const l=d.length(), min=.56;
     if(l<min&&l>1e-4){ d.divideScalar(l); const push=(min-l)*.5; player.pos.addScaledVector(d,-push); enemy.pos.addScaledVector(d,push);
-      const rv=_mv2.subVectors(enemy.vel,player.vel).dot(d); if(rv<0){ player.vel.addScaledVector(d,rv*.5); enemy.vel.addScaledVector(d,-rv*.5);} } }
+      const rv=_mv2.subVectors(enemy.push,player.push).dot(d); if(rv<0){ player.push.addScaledVector(d,rv*.5); enemy.push.addScaledVector(d,-rv*.5);} } }
   if(fighting){ checkHits(player,enemy); if(G.state==='fight') checkHits(enemy,player); }
 }
 function updateHUD(dt){
@@ -964,6 +1130,7 @@ function frame(now){
     if(G.state==='fight'){ G.clock-=dt; if(G.clock<=0) endRound(); }
     if(G.state==='break' && G.stateT>3.2){ G.round++; for(const f of [player,enemy]) f.hp=Math.min(100,f.hp+12);
       resetFighters(false); startRound(); }
+    if(G.state==='down'){ G.timeScale=lerp(.35,1,smooth((G.stateT-.6)/.6)); updateCount(); }
     if(G.state==='ko'){ G.timeScale=lerp(.28,1,smooth((G.stateT-1.2)/1)); if(G.stateT>3.6){ G.state='result'; G.stateT=0; showResult(); } }
     G.comboT-=dt; if(G.comboT<=0) G.combo=0;
     crowdExcite*=Math.exp(-.6*dt);
