@@ -279,26 +279,25 @@ const SFX={ctx:null,noise:null,crowdGain:null,
    ================================================================ */
 const canvas=$('#gl');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 1.75));
-renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const MOBILE=matchMedia('(pointer:coarse)').matches;
+const Q={max:Math.min(window.devicePixelRatio||1,MOBILE?1.35:1.75),pr:0,ms:16,t:0}; Q.pr=Q.max;
+renderer.setPixelRatio(Q.pr);
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFShadowMap;
 renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.3;
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x141a2a); scene.fog=new THREE.Fog(0x141a2a,12,30);
 const camera=new THREE.PerspectiveCamera(52,1,0.05,80);
 
-scene.add(new THREE.HemisphereLight(0xf2f4ff,0x5a4a3a,1.5));
+scene.add(new THREE.HemisphereLight(0xf2f4ff,0x5a4a3a,1.8));
 const key=new THREE.SpotLight(0xfff4e6,520,30,0.75,0.6,1.4);
 key.position.set(0.4,8.5,0.6); key.target.position.set(0,0,0);
 key.castShadow=true; key.shadow.mapSize.set(1024,1024); key.shadow.camera.near=3; key.shadow.camera.far=14; key.shadow.bias=-0.0004; key.shadow.normalBias=0.02;
 scene.add(key,key.target);
-const rimR=new THREE.PointLight(0xff5a48,9,9,1.4); rimR.position.set(-3.6,2.6,-3.6); scene.add(rimR);
-const rimB=new THREE.PointLight(0x4a86ff,9,9,1.4); rimB.position.set(3.6,2.6,3.6); scene.add(rimB);
 const fill=new THREE.DirectionalLight(0xe6ecff,1.3); fill.position.set(-5,4,-4); scene.add(fill);
 // broadcast-style side lights so the fighters read clearly from the camera side
-const sideA=new THREE.DirectionalLight(0xffffff,1.4); sideA.position.set(6,3.5,0); scene.add(sideA);
+const sideA=new THREE.DirectionalLight(0xffffff,1.6); sideA.position.set(6,3.5,0); scene.add(sideA);
 const sideB=new THREE.DirectionalLight(0xffffff,1.0); sideB.position.set(-6,3.5,0); scene.add(sideB);
-const front=new THREE.DirectionalLight(0xfff2e0,0.8); front.position.set(0,3,6); scene.add(front);
 
 const RING=3.1, LIMIT=2.72;
 function ringTexture(){
@@ -326,7 +325,7 @@ const postMat=new THREE.MeshStandardMaterial({color:0xb9bcc6,metalness:.8,roughn
 const ropeMats=[new THREE.MeshStandardMaterial({color:0xd8312f,roughness:.5}),new THREE.MeshStandardMaterial({color:0xeeeeee,roughness:.5}),new THREE.MeshStandardMaterial({color:0x2f6fd8,roughness:.5})];
 const corners=[[-1,-1],[1,-1],[1,1],[-1,1]];
 corners.forEach(([sx,sz],i)=>{
-  const p=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,1.55,12),postMat); p.position.set(sx*RING,.77,sz*RING); p.castShadow=true; scene.add(p);
+  const p=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,1.55,12),postMat); p.position.set(sx*RING,.77,sz*RING); scene.add(p);
   const padc=i===0?0xd8312f:i===2?0x2f6fd8:0xe9e4d8;
   const pad=new THREE.Mesh(new THREE.BoxGeometry(.2,1.0,.2),new THREE.MeshStandardMaterial({color:padc,roughness:.6}));
   pad.position.set(sx*(RING-.1),.85,sz*(RING-.1)); pad.rotation.y=Math.PI/4; scene.add(pad);
@@ -334,7 +333,7 @@ corners.forEach(([sx,sz],i)=>{
 const ropeH=[.45,.85,1.25];
 for(let i=0;i<4;i++){ const [ax,az]=corners[i],[bx,bz]=corners[(i+1)%4];
   ropeH.forEach((h,j)=>{ const r=new THREE.Mesh(new THREE.CylinderGeometry(.022,.022,RING*2,8),ropeMats[j]);
-    r.position.set((ax+bx)/2*RING,h,(az+bz)/2*RING); r.rotation.set(ax===bx?Math.PI/2:0,0,ax===bx?0:Math.PI/2); r.castShadow=true; scene.add(r); });
+    r.position.set((ax+bx)/2*RING,h,(az+bz)/2*RING); r.rotation.set(ax===bx?Math.PI/2:0,0,ax===bx?0:Math.PI/2); scene.add(r); });
 }
 let crowdExcite=0;
 
@@ -535,12 +534,12 @@ class Ragdoll{ // Verlet particle ragdoll that takes over from the live pose on 
     this.p={};this.o={};
     const w={head:1,neck:.85,chest:.6,shL:.6,shR:.6,elL:.5,elR:.5,haL:.45,haR:.45,pelvis:.25,hipL:.2,hipR:.2,knL:.1,knR:.1,anL:0,anR:0};
     for(const k of JOINTS){ this.p[k]=J[k].clone(); this.o[k]=Jp[k].clone().addScaledVector(impulse,-dt*w[k]); }
-    this.links=LINKS.map(([a,b])=>[a,b,J[a].distanceTo(J[b])]);
+    this.links=LINKS.map(([a,b])=>[a,b,J[a].distanceTo(J[b])]); this.lastDt=dt;
   }
   step(dt){
-    const g=-9.8*dt*dt;
+    const g=-9.8*dt*dt, r=(this.lastDt?dt/this.lastDt:1)*.996; this.lastDt=dt; // time-corrected Verlet
     for(const k of JOINTS){ const p=this.p[k],o=this.o[k];
-      const vx=(p.x-o.x)*.996, vy=(p.y-o.y)*.996, vz=(p.z-o.z)*.996; o.copy(p); p.x+=vx; p.y+=vy+g; p.z+=vz; }
+      const vx=(p.x-o.x)*r, vy=(p.y-o.y)*r, vz=(p.z-o.z)*r; o.copy(p); p.x+=vx; p.y+=vy+g; p.z+=vz; }
     for(let it=0;it<12;it++){
       for(const [a,b,r] of this.links) this._c(this.p[a],this.p[b],r,false);
       for(const [a,b,r] of MINLINKS) this._c(this.p[a],this.p[b],r,true);
@@ -688,12 +687,12 @@ class Fighter{
     // --- footwork: real stepping clips chained while the stick is held
     const mv=this.moveDir.length();
     if(!this.busy()&&(this.mode==='idle'||this.mode==='step')&&this.stun<=0){
-      const stepDone=this.mode==='step'&&this.stepA.time>=this.stepA.meta.dur-.14;
+      const stepDone=this.mode==='step'&&this.stepA.time>=this.stepA.meta.dur-.28;
       if(mv>.3&&(this.mode==='idle'||stepDone)){
         const fwd=lv(this.qYaw,0,0,1,_t1), right=lv(this.qYaw,-1,0,0,_t2), f=this.moveDir.dot(fwd), rr=this.moveDir.dot(right);
         const id=Math.abs(f)>=Math.abs(rr)?(f>0?'stepF':'stepB'):(rr>0?'stepR':'stepL');
-        const sp=(1.25+.25*mv)*(.8+.2*this.stamina/100)*(this.block?.8:1)*(this.rocked>0?.75:1);
-        this.stepA=r.play(id,{speed:sp,fade:this.mode==='step'?.12:.16}); this.mode='step';
+        const sp=(1.45+.3*mv)*(.8+.2*this.stamina/100)*(this.block?.8:1)*(this.rocked>0?.75:1);
+        this.stepA=r.play(id,{speed:sp,fade:this.mode==='step'?.2:.16}); this.mode='step';
       } else if(stepDone||(this.mode==='step'&&!this.stepA.isRunning())){ this.mode='idle'; r.play('idle',{loop:true,fade:.25}); }
     }
     // --- stamina
@@ -914,7 +913,7 @@ function resolveHit(att,def,P,side,type,point,gv,speed){
 function knockdown(def,att,dir,power,body){
   def.knockdowns++;
   if(body) def.knockdownBody(); // liver shot: down on one knee
-  else def.ragdoll=new Ragdoll(def.J,def.Jp,dir.clone().multiplyScalar(1.6+power*.16).add(V3(0,.4,0)),SIM_DT);
+  else def.ragdoll=new Ragdoll(def.J,def.Jp,dir.clone().multiplyScalar(1.6+power*.16).add(V3(0,.4,0)),G.lastH||SIM_DT);
   def.punch={L:null,R:null};
   G.state='down'; G.stateT=0; G.timeScale=.35; G.downF=def; G.winner=att; G.count=0; G.mash=0;
   G.getUpAt=def.isAI?rand(4,7.5)+def.knockdowns*1.2:6.5+def.knockdowns*1.2;
@@ -924,7 +923,7 @@ function knockdown(def,att,dir,power,body){
   banner('Knockdown!',def===player?'กดปุ่มหมัดรัวๆ เพื่อลุก':'ไปมุมกลาง');
 }
 function knockout(def,att,dir,power){
-  if(!def.ragdoll) def.ragdoll=new Ragdoll(def.J,def.Jp,dir.clone().multiplyScalar(2.2+power*.22).add(V3(0,.6,0)),SIM_DT);
+  if(!def.ragdoll) def.ragdoll=new Ragdoll(def.J,def.Jp,dir.clone().multiplyScalar(2.2+power*.22).add(V3(0,.6,0)),G.lastH||SIM_DT);
   def.punch={L:null,R:null};
   G.state='ko'; G.stateT=0; G.timeScale=.28; G.winner=att; G.how='ko';
   const ab=V3().subVectors(def.pos,att.pos); cam.koA=Math.atan2(-ab.z,ab.x); // camera perpendicular to the fall line
@@ -937,7 +936,7 @@ function updateCount(){ // referee's ten count
   const need=G.getUpAt-(G.downF===player?G.mash*.28:0);
   if(ct>=10 || (need<10 && ct>=Math.max(3,need))){
     const f=G.downF, o=f===player?enemy:player;
-    if(need>=10||ct>=10){ if(!f.ragdoll) f.ragdoll=new Ragdoll(f.J,f.Jp,V3(0,-.5,-.6).applyQuaternion(f.qYaw),SIM_DT);
+    if(need>=10||ct>=10){ if(!f.ragdoll) f.ragdoll=new Ragdoll(f.J,f.Jp,V3(0,-.5,-.6).applyQuaternion(f.qYaw),G.lastH||SIM_DT);
       G.state='ko'; G.stateT=1.4; G.timeScale=1; G.how='ko'; banner('K.O.!','นับครบ 10'); SFX.cheer(1.2); }
     else { f.hp=Math.max(15,55-f.knockdowns*18); if(f.ragdoll) f.standUp(o); else f.rise(); f.rocked=1.6; G.state='fight'; G.stateT=0; G.timeScale=1;
       banner('Fight!',f===player?'ลุกขึ้นมาได้!':'คู่ชกลุกขึ้นมาได้'); }
@@ -1061,6 +1060,7 @@ try{ const d=localStorage.getItem('ironring.diff'); if(d&&AI_CFG[d]) document.qu
 const SIM_DT=1/120;
 const _mv1=V3(),_mv2=V3();
 function simStep(dt){
+  G.lastH=dt;
   const fighting=G.state==='fight';
   // player controls (camera-relative so every camera mode feels natural)
   readKeys();
@@ -1080,18 +1080,24 @@ function simStep(dt){
       const rv=_mv2.subVectors(enemy.push,player.push).dot(d); if(rv<0){ player.push.addScaledVector(d,rv*.5); enemy.push.addScaledVector(d,-rv*.5);} } }
   if(fighting){ checkHits(player,enemy); if(G.state==='fight') checkHits(enemy,player); }
 }
+const HUDC={}, HUDE={};
+function hudSet(id,prop,v){ if(HUDC[id+prop]===v) return; HUDC[id+prop]=v; const e=HUDE[id]||(HUDE[id]=$('#'+id)); if(prop==='text') e.textContent=v; else e.style.transform=v; }
 function updateHUD(dt){
   for(const [f,i] of [[player,1],[enemy,2]]){
     f.hpGhost=f.hpGhost>f.hp?Math.max(f.hp,f.hpGhost-dt*25):f.hp;
-    $('#hp'+i).style.transform=`scaleX(${f.hp/100})`; $('#hp'+i+'g').style.transform=`scaleX(${f.hpGhost/100})`;
-    $('#st'+i).style.transform=`scaleX(${f.stamina/100})`;
+    hudSet('hp'+i,'tf',`scaleX(${(f.hp/100).toFixed(3)})`); hudSet('hp'+i+'g','tf',`scaleX(${(f.hpGhost/100).toFixed(3)})`);
+    hudSet('st'+i,'tf',`scaleX(${(f.stamina/100).toFixed(2)})`);
   }
-  $('#tm').textContent=fmt(G.clock);
+  hudSet('tm','text',fmt(G.clock));
 }
 
 let last=performance.now(), acc=0, elapsed=0;
 function frame(now){
-  const dt=Math.min(.05,(now-last)/1000); last=now; elapsed+=dt;
+  const raw=(now-last)/1000, dt=Math.min(.05,raw); last=now; elapsed+=dt;
+  // adaptive resolution: drop the render scale when frames run long, raise it back when there is headroom
+  Q.ms+=(raw*1000-Q.ms)*.05; Q.t+=dt;
+  if(Q.t>1.5){ Q.t=0; const want=Q.ms>21?Math.max(.75,Q.pr-.15):Q.ms<13?Math.min(Q.max,Q.pr+.1):Q.pr;
+    if(Math.abs(want-Q.pr)>.01){ Q.pr=want; renderer.setPixelRatio(Q.pr); resize(); } }
   if(!G.paused){
     G.stateT+=dt;
     if(G.state==='intro' && G.stateT>1.7){ G.state='fight'; G.stateT=0; SFX.bell(); banner('Fight!'); }
@@ -1103,7 +1109,8 @@ function frame(now){
     G.comboT-=dt; if(G.comboT<=0) G.combo=0;
     crowdExcite*=Math.exp(-.6*dt);
     if(G.hitstop>0) G.hitstop-=dt;
-    else { acc+=dt*G.timeScale; let n=0; while(acc>=SIM_DT&&n<12){ simStep(SIM_DT); acc-=SIM_DT; n++; } if(n>=12) acc=0; }
+    else { // split this frame's time into equal substeps (≤1/90 s) so motion advances evenly at any refresh rate
+      const T=dt*G.timeScale, n=clamp(Math.ceil(T/(1/90)),1,8); for(let i=0;i<n;i++) simStep(T/n); }
   }
   player.render(); enemy.render();
   updateFx(dt*(G.state==='ko'?G.timeScale:1)); updateCamera(dt,elapsed);
