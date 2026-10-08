@@ -386,22 +386,28 @@ const REACT={ // hit-reaction clips grouped by where and how hard
   head:{light:['h_light1','h_light2','h_light3','h_light4'],med:['h_med1','h_med2','h_med3','h_med4','h_med5','h_med6','h_med7'],big:['h_big1','h_big2','h_big3','h_big4'],stag:['h_stag1','h_stag2']},
   body:{light:['b_light1','b_light2','b_light3'],med:['b_med1','b_med2','b_med3','b_med4'],big:['b_big1','b_big2'],stag:['b_big1','b_big2']},
 };
-const RIG={src:null,clips:{},ready:false};
+const RIG={src:null,clips:{},ready:false}, RIG_VER='51j';
 async function loadRig(onProgress){
   // The model ships as base64 of a gzipped GLB in a plain text file: no data: URLs and no WebAssembly,
   // both of which a strict page policy can block. The browser's own gzip stream unpacks it.
-  const res=await fetch('assets/fighter.txt'); if(!res.ok) throw new Error('HTTP '+res.status);
-  const total=+res.headers.get('content-length')||4.2e6; const rd=res.body.getReader(); const parts=[]; let got=0;
+  // ?v= ties the file to this page version so a host or browser cache can't pair new code with an old model
+  const get=async(url,mode)=>{ const res=await fetch(url,{cache:mode}); if(!res.ok) throw new Error('HTTP '+res.status+' ('+url+')'); return res; };
+  let res; try{ res=await get('assets/fighter.txt?v='+RIG_VER,'default'); }
+  catch(e){ try{ res=await get('assets/fighter.txt','reload'); }catch(e2){ throw new Error('ดาวน์โหลด assets/fighter.txt ไม่ได้: '+(e2.message||e2)); } }
+  const total=+res.headers.get('content-length')||1.4e6; const rd=res.body.getReader(); const parts=[]; let got=0;
   for(;;){ const {done,value}=await rd.read(); if(done) break; parts.push(value); got+=value.length; onProgress&&onProgress(Math.min(1,got/total)); }
-  const txt=new TextDecoder().decode(await new Blob(parts).arrayBuffer());
-  const bin=Uint8Array.from(atob(txt.trim()),c=>c.charCodeAt(0));
+  const txt=atob(new TextDecoder().decode(await new Blob(parts).arrayBuffer()).trim());
+  const bin=new Uint8Array(txt.length); for(let i=0;i<txt.length;i++) bin[i]=txt.charCodeAt(i);
   if(!('DecompressionStream' in window)) throw new Error('เบราว์เซอร์นี้ไม่รองรับการคลายไฟล์ (DecompressionStream)');
   const glb=await new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
   // GLTFLoader decodes textures with fetch(blob:) when createImageBitmap exists; a strict connect-src blocks that.
   // Hiding it while the parser is built makes three.js use plain <img> elements, which blob: images are allowed for.
   const cib=window.createImageBitmap; try{ window.createImageBitmap=undefined; }catch(e){}
   const g=await new Promise((ok,fail)=>{ try{ new GLTFLoader().parse(glb,'',ok,fail); }finally{ try{ window.createImageBitmap=cib; }catch(e){} } });
-  RIG.src=g.scene; for(const c of g.animations) RIG.clips[c.name]=c; RIG.ready=true;
+  RIG.src=g.scene; for(const c of g.animations) RIG.clips[c.name]=c;
+  const miss=Object.keys(CLIPMETA).filter(k=>!RIG.clips[k]);
+  if(miss.length) throw new Error('ไฟล์ assets/fighter.txt เป็นเวอร์ชันเก่า (ไม่มีท่า '+miss.slice(0,3).join(', ')+') ให้อัปโหลดไฟล์ใหม่ทั้งคู่');
+  RIG.ready=true;
 }
 function rootAt(meta,t,out){ // clip root motion (metres, character frame: +x left, +z forward)
   const r=meta.root; if(!r) return out.set(0,0,0);
