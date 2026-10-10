@@ -109,7 +109,10 @@
     var p = M.POS[pos];
     var fee = Math.round((35000 + t[2] * 60) * p.dev / 1000) * 1000;
     if (!free) L.spend(state.fin, 'other_exp', fee);
-    var d = { id: 'd' + (b.nextSku++), type: type, pos: pos, n: t[1] + (pos === 'premium' ? ' (พรีเมียม)' : ''), need: t[5] * p.dev * 1.2, prog: 0, fee: fee, regLeft: null };
+    var base = t[1] + (pos === 'premium' ? ' (พรีเมียม)' : ''), nm = base, k = 2;
+    var taken = function (x) { return b.dev.some(function (o) { return o.n === x; }) || b.skus.some(function (o) { return o.n === x; }); };
+    while (taken(nm)) nm = base + ' สูตร ' + k++;
+    var d = { id: 'd' + (b.nextSku++), type: type, pos: pos, n: nm, need: t[5] * p.dev * 1.2, prog: 0, fee: fee, regLeft: null };
     b.dev.push(d);
     return d;
   };
@@ -221,7 +224,9 @@
     b.insight = U.clamp(b.insight + RW.Team.capOf(state, 'discovery') * 4 * (1 - b.insight / 110) + Math.log10(1 + b.customers) * 0.05, 0, 100);
     // creative freshness: decays, refreshed by content production
     var content = RW.Team.capOf(state, 'content') + RW.Team.capOf(state, 'f_market') * 0.4;
-    b.creative = U.clamp(b.creative * 0.93 + content * 0.09 + (b.ch.social.open ? RW.Team.capOf(state, 'live') * 0.03 : 0), 0.15, 1);
+    // ads only wear out when they're actually being shown to people
+    var adsLive = b.skus.some(function (k) { return k.active; }) && Object.keys(b.ch).some(function (k) { return b.ch[k].open && b.ch[k].ads > 0; });
+    b.creative = U.clamp(b.creative * (adsLive ? 0.93 : 0.995) + content * 0.09 + (b.ch.social.open ? RW.Team.capOf(state, 'live') * 0.03 : 0), 0.15, 1);
     var sellable = b.skus.filter(function (s) { return s.active && M.stock(s) > 0; });
     var listed = b.skus.filter(function (s) { return s.active; });
     var st = { orders: 0, newCust: 0, gmv: 0, rev: 0, units: 0, adSpend: 0, byCh: {}, stockout: 0 };
@@ -495,7 +500,7 @@
   };
   M.valuation = function (state) {
     var tr = M.traction(state);
-    var qual = RW.Models.saas.qualValue(tr.score);
+    var qual = RW.Models.saas.qualValue(tr.score) * 0.75; // consumer brands trade below software on the same story
     var revRun = (state.kpi.revenueMonthly || 0) * 12;
     if (revRun <= 0) return qual;
     var g = U.clamp(tr.growth, 0, 3);
@@ -522,7 +527,7 @@
     var nextMega = null;
     for (var i = 1; i <= 8; i++) if (M.isMega(w + i)) { nextMega = [i, M.isMega(w + i)[2]]; break; }
     if (nextMega && nextMega[0] >= 3) add('info', 'แคมเปญ ' + nextMega[1] + ' อีก ' + nextMega[0] + ' สัปดาห์ — ยอดขายมาร์เก็ตเพลสจะพุ่งหลายเท่า เตรียมสต็อกให้พอ');
-    if (b.creative < 0.35) add('warn', 'ครีเอทีฟโฆษณาเก่า คนเห็นซ้ำจนเบื่อ (creative fatigue) — ต้นทุนโฆษณาแพงขึ้น จ้าง Content creator หรือใช้เวลาทำการตลาด');
+    if (b.creative < 0.35 && b.skus.length) add('warn', 'ครีเอทีฟโฆษณาเก่า คนเห็นซ้ำจนเบื่อ (creative fatigue) — ต้นทุนโฆษณาแพงขึ้น จ้าง Content creator หรือใช้เวลาทำการตลาด');
     if (b.fulfil.backlog > 30) add('warn', 'แพ็กของไม่ทัน ออเดอร์ค้าง ' + Math.round(b.fulfil.backlog) + ' — เรตติ้งร้านจะตก จ้างพนักงานคลังหรือใช้ 3PL');
     if (b.chat.backlog > 200) add('warn', 'แชทลูกค้าค้างจำนวนมาก — อัตราการซื้อลดลง จ้างแอดมิน');
     if (b.rating < 4.2 && b.skus.length) add('warn', 'เรตติ้งร้าน ' + b.rating.toFixed(2) + ' — อันดับในมาร์เก็ตเพลสกำลังร่วง');
@@ -544,7 +549,8 @@
   M.onPermit = function (state, fast) { if (fast) state.flags.fastPermit = 1; };
   M.newEntrant = function (state) {
     var b = state.biz;
-    if (R.chance(0.4)) return { name: R.pick(['Dupe Factory', 'CopyCat Co.', 'ถูกและดี Shop']), desc: 'ร้านก๊อปสูตร/ดีไซน์สินค้าขายดีของคุณ ขายถูกกว่าครึ่ง', quality: R.int(30, 45), price: R.range(0.45, 0.6), mkt: R.int(50, 75), cash: R.range(2e6, 8e6), burn: R.range(0.2e6, 0.6e6), stage: 'bootstrap', aggr: 0.9 };
+    var hit = b.skus.some(function (k) { return k.sold > 300; });
+    if (R.chance(0.4)) return { name: R.pick(['Dupe Factory', 'CopyCat Co.', 'ถูกและดี Shop']), desc: hit ? 'ร้านก๊อปสูตร/ดีไซน์สินค้าขายดีของคุณ ขายถูกกว่าครึ่ง' : 'ร้านขายของเลียนแบบสินค้ายอดนิยมในตลาด ราคาถูกกว่าครึ่ง', quality: R.int(30, 45), price: R.range(0.45, 0.6), mkt: R.int(50, 75), cash: R.range(2e6, 8e6), burn: R.range(0.2e6, 0.6e6), stage: 'bootstrap', aggr: 0.9 };
     return { name: R.pick(['Pure', 'Nature', 'Siam', 'Velvet', 'Bloom', 'Mori']) + ' ' + R.pick(['Lab', 'Studio', 'Co.', 'Daily']), desc: 'แบรนด์ใหม่ที่ได้ทุนจาก VC อัดงบโฆษณาหนัก', quality: R.int(50, 70), price: R.range(0.8, 1.1), mkt: R.int(60, 85), cash: R.range(20e6, 60e6), burn: R.range(1.5e6, 3e6), stage: 'seed', aggr: R.range(0.5, 0.9) };
   };
 

@@ -3661,7 +3661,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     choices: function (s) {
       var amt = Math.round(rev(s) * 4 / 1000) * 1000;
       return [
-        { t: 'รับ — เงินก็คือเงิน', d: 'เงินสดก้อนใหญ่ทันที', fx: function () { L.post(s.fin, { cash: amt, rev_other: -amt }, 'op'); s.flags.grey = 1; E.later(s, R.int(20, 70), 'grey_amlo', { amt: amt }); return 'เงินเข้าบัญชี ' + F.b(amt) + ' — ทีมบางคนตั้งคำถามเงียบๆ'; } },
+        { t: 'รับ — เงินก็คือเงิน', d: 'เงินสดก้อนใหญ่ทันที', fx: function () { L.post(s.fin, { cash: amt, rev_oneoff: -amt }, 'op'); if (s.industry !== 'saas') L.spend(s.fin, s.industry === 'ecom' ? 'cogs_goods' : 'cogs_other', Math.round(amt * (s.industry === 'ecom' ? 0.5 : 0.4))); s.flags.grey = 1; E.later(s, R.int(20, 70), 'grey_amlo', { amt: amt }); return 'เงินเข้าบัญชี ' + F.b(amt) + ' — ทีมบางคนตั้งคำถามเงียบๆ'; } },
         { t: 'ปฏิเสธ', fx: function () { H.morale(s, 2, 8, 'ผู้ก่อตั้งยึดหลักจริยธรรม'); return 'คุณเลือกเงินที่สะอาด'; } }
       ];
     }
@@ -4608,7 +4608,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     if (state.company.registered) set('registered');
     if ((k.customers || 0) > 0) set('first_customer');
     var hc = RW.Team.headcount(state);
-    if (hc >= 1) set('first_hire');
+    if (hc >= 1 || (state.industry === 'fnb' && state.biz.branches.some(function (b) { return b.state === 'open'; }))) set('first_hire');
     if (hc >= 10) set('team10');
     if (hc >= 50) set('team50');
     if (hc >= 200) set('team200');
@@ -6208,7 +6208,10 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var p = M.POS[pos];
     var fee = Math.round((35000 + t[2] * 60) * p.dev / 1000) * 1000;
     if (!free) L.spend(state.fin, 'other_exp', fee);
-    var d = { id: 'd' + (b.nextSku++), type: type, pos: pos, n: t[1] + (pos === 'premium' ? ' (พรีเมียม)' : ''), need: t[5] * p.dev * 1.2, prog: 0, fee: fee, regLeft: null };
+    var base = t[1] + (pos === 'premium' ? ' (พรีเมียม)' : ''), nm = base, k = 2;
+    var taken = function (x) { return b.dev.some(function (o) { return o.n === x; }) || b.skus.some(function (o) { return o.n === x; }); };
+    while (taken(nm)) nm = base + ' สูตร ' + k++;
+    var d = { id: 'd' + (b.nextSku++), type: type, pos: pos, n: nm, need: t[5] * p.dev * 1.2, prog: 0, fee: fee, regLeft: null };
     b.dev.push(d);
     return d;
   };
@@ -6320,7 +6323,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     b.insight = U.clamp(b.insight + RW.Team.capOf(state, 'discovery') * 4 * (1 - b.insight / 110) + Math.log10(1 + b.customers) * 0.05, 0, 100);
     // creative freshness: decays, refreshed by content production
     var content = RW.Team.capOf(state, 'content') + RW.Team.capOf(state, 'f_market') * 0.4;
-    b.creative = U.clamp(b.creative * 0.93 + content * 0.09 + (b.ch.social.open ? RW.Team.capOf(state, 'live') * 0.03 : 0), 0.15, 1);
+    // ads only wear out when they're actually being shown to people
+    var adsLive = b.skus.some(function (k) { return k.active; }) && Object.keys(b.ch).some(function (k) { return b.ch[k].open && b.ch[k].ads > 0; });
+    b.creative = U.clamp(b.creative * (adsLive ? 0.93 : 0.995) + content * 0.09 + (b.ch.social.open ? RW.Team.capOf(state, 'live') * 0.03 : 0), 0.15, 1);
     var sellable = b.skus.filter(function (s) { return s.active && M.stock(s) > 0; });
     var listed = b.skus.filter(function (s) { return s.active; });
     var st = { orders: 0, newCust: 0, gmv: 0, rev: 0, units: 0, adSpend: 0, byCh: {}, stockout: 0 };
@@ -6594,7 +6599,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   };
   M.valuation = function (state) {
     var tr = M.traction(state);
-    var qual = RW.Models.saas.qualValue(tr.score);
+    var qual = RW.Models.saas.qualValue(tr.score) * 0.75; // consumer brands trade below software on the same story
     var revRun = (state.kpi.revenueMonthly || 0) * 12;
     if (revRun <= 0) return qual;
     var g = U.clamp(tr.growth, 0, 3);
@@ -6621,7 +6626,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var nextMega = null;
     for (var i = 1; i <= 8; i++) if (M.isMega(w + i)) { nextMega = [i, M.isMega(w + i)[2]]; break; }
     if (nextMega && nextMega[0] >= 3) add('info', 'แคมเปญ ' + nextMega[1] + ' อีก ' + nextMega[0] + ' สัปดาห์ — ยอดขายมาร์เก็ตเพลสจะพุ่งหลายเท่า เตรียมสต็อกให้พอ');
-    if (b.creative < 0.35) add('warn', 'ครีเอทีฟโฆษณาเก่า คนเห็นซ้ำจนเบื่อ (creative fatigue) — ต้นทุนโฆษณาแพงขึ้น จ้าง Content creator หรือใช้เวลาทำการตลาด');
+    if (b.creative < 0.35 && b.skus.length) add('warn', 'ครีเอทีฟโฆษณาเก่า คนเห็นซ้ำจนเบื่อ (creative fatigue) — ต้นทุนโฆษณาแพงขึ้น จ้าง Content creator หรือใช้เวลาทำการตลาด');
     if (b.fulfil.backlog > 30) add('warn', 'แพ็กของไม่ทัน ออเดอร์ค้าง ' + Math.round(b.fulfil.backlog) + ' — เรตติ้งร้านจะตก จ้างพนักงานคลังหรือใช้ 3PL');
     if (b.chat.backlog > 200) add('warn', 'แชทลูกค้าค้างจำนวนมาก — อัตราการซื้อลดลง จ้างแอดมิน');
     if (b.rating < 4.2 && b.skus.length) add('warn', 'เรตติ้งร้าน ' + b.rating.toFixed(2) + ' — อันดับในมาร์เก็ตเพลสกำลังร่วง');
@@ -6643,7 +6648,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   M.onPermit = function (state, fast) { if (fast) state.flags.fastPermit = 1; };
   M.newEntrant = function (state) {
     var b = state.biz;
-    if (R.chance(0.4)) return { name: R.pick(['Dupe Factory', 'CopyCat Co.', 'ถูกและดี Shop']), desc: 'ร้านก๊อปสูตร/ดีไซน์สินค้าขายดีของคุณ ขายถูกกว่าครึ่ง', quality: R.int(30, 45), price: R.range(0.45, 0.6), mkt: R.int(50, 75), cash: R.range(2e6, 8e6), burn: R.range(0.2e6, 0.6e6), stage: 'bootstrap', aggr: 0.9 };
+    var hit = b.skus.some(function (k) { return k.sold > 300; });
+    if (R.chance(0.4)) return { name: R.pick(['Dupe Factory', 'CopyCat Co.', 'ถูกและดี Shop']), desc: hit ? 'ร้านก๊อปสูตร/ดีไซน์สินค้าขายดีของคุณ ขายถูกกว่าครึ่ง' : 'ร้านขายของเลียนแบบสินค้ายอดนิยมในตลาด ราคาถูกกว่าครึ่ง', quality: R.int(30, 45), price: R.range(0.45, 0.6), mkt: R.int(50, 75), cash: R.range(2e6, 8e6), burn: R.range(0.2e6, 0.6e6), stage: 'bootstrap', aggr: 0.9 };
     return { name: R.pick(['Pure', 'Nature', 'Siam', 'Velvet', 'Bloom', 'Mori']) + ' ' + R.pick(['Lab', 'Studio', 'Co.', 'Daily']), desc: 'แบรนด์ใหม่ที่ได้ทุนจาก VC อัดงบโฆษณาหนัก', quality: R.int(50, 70), price: R.range(0.8, 1.1), mkt: R.int(60, 85), cash: R.range(20e6, 60e6), burn: R.range(1.5e6, 3e6), stage: 'seed', aggr: R.range(0.5, 0.9) };
   };
 
@@ -6896,15 +6902,15 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   M.sampleName = 'บ้านสวนคาเฟ่';
 
   var CONCEPTS = (M.CONCEPTS = {
-    cafe: { n: 'คาเฟ่กาแฟสเปเชียลตี้', d: 'ตั๋วเฉลี่ยต่ำ ต้นทุนวัตถุดิบต่ำ หมุนโต๊ะเร็ว แข่งกันดุทุกหัวมุม', ticket: 145, food: 0.28, capture: 0.06, turns: 5, staff: 4, fitSqm: 14000, util: 0.05, deliv: 30, sqm: [45, 110], seatsPerSqm: 0.45, menuQ: 55 },
-    thai: { n: 'ร้านอาหารไทยสตรีทฟู้ดพรีเมียม', d: 'ขายดีทั้งหน้าร้านและเดลิเวอรี ต้นทุนวัตถุดิบผันผวน ใช้คนเยอะ', ticket: 185, food: 0.35, capture: 0.045, turns: 4, staff: 6, fitSqm: 11000, util: 0.06, deliv: 60, sqm: [60, 130], seatsPerSqm: 0.5, menuQ: 55 },
-    bbq: { n: 'ปิ้งย่าง/ชาบูบุฟเฟ่ต์', d: 'ตั๋วสูง พื้นที่ใหญ่ ลงทุนหนัก ไฟฟ้าแพง ขายมื้อเย็นเป็นหลัก', ticket: 459, food: 0.42, capture: 0.022, turns: 2.4, staff: 10, fitSqm: 18000, util: 0.09, deliv: 8, sqm: [150, 260], seatsPerSqm: 0.55, menuQ: 50 },
-    bakery: { n: 'เบเกอรี่และขนมโฮมเมด', d: 'ของฝาก ของขวัญ ขายดีเทศกาล ครัวกลางช่วยได้มาก ของเหลือคือขยะ', ticket: 125, food: 0.30, capture: 0.05, turns: 6, staff: 5, fitSqm: 12000, util: 0.05, deliv: 35, sqm: [40, 90], seatsPerSqm: 0.35, menuQ: 55 }
+    cafe: { n: 'คาเฟ่กาแฟสเปเชียลตี้', d: 'ตั๋วเฉลี่ยต่ำ ต้นทุนวัตถุดิบต่ำ หมุนโต๊ะเร็ว แข่งกันดุทุกหัวมุม', ticket: 145, food: 0.31, capture: 0.05, turns: 5, take: 0.4, staff: 4, fitSqm: 14000, util: 0.05, deliv: 30, sqm: [45, 110], seatsPerSqm: 0.45, menuQ: 55 },
+    thai: { n: 'ร้านอาหารไทยสตรีทฟู้ดพรีเมียม', d: 'ขายดีทั้งหน้าร้านและเดลิเวอรี ต้นทุนวัตถุดิบผันผวน ใช้คนเยอะ', ticket: 185, food: 0.32, capture: 0.045, turns: 4, take: 0.15, staff: 6, fitSqm: 11000, util: 0.06, deliv: 60, sqm: [60, 130], seatsPerSqm: 0.5, menuQ: 55 },
+    bbq: { n: 'ปิ้งย่าง/ชาบูบุฟเฟ่ต์', d: 'ตั๋วสูง พื้นที่ใหญ่ ลงทุนหนัก ไฟฟ้าแพง ขายมื้อเย็นเป็นหลัก', ticket: 459, food: 0.42, capture: 0.022, turns: 2.4, take: 0, staff: 10, fitSqm: 18000, util: 0.09, deliv: 8, sqm: [150, 260], seatsPerSqm: 0.55, menuQ: 50 },
+    bakery: { n: 'เบเกอรี่และขนมโฮมเมด', d: 'ของฝาก ของขวัญ ขายดีเทศกาล ครัวกลางช่วยได้มาก ของเหลือคือขยะ', ticket: 125, food: 0.30, capture: 0.05, turns: 6, take: 0.65, staff: 4, fitSqm: 12000, util: 0.05, deliv: 35, sqm: [40, 90], seatsPerSqm: 0.35, menuQ: 55 }
   });
 
   var LOCS = (M.LOCS = {
     street: { n: 'ตึกแถวริมถนน', foot: 2200, rent: [28000, 62000], sqmMult: 1, fit: 1, weekend: 1, deliv: 1.0, d: 'ค่าเช่าถูก ลูกค้าแถวบ้าน ที่จอดรถน้อย', lease: 36 },
-    community: { n: 'คอมมูนิตี้มอลล์', foot: 3000, rentSqm: [450, 700], fit: 1.05, weekend: 1.25, deliv: 1.1, d: 'ครอบครัวและวันหยุด มีที่จอดรถ', lease: 36 },
+    community: { n: 'คอมมูนิตี้มอลล์', foot: 2700, rentSqm: [700, 1000], fit: 1.05, weekend: 1.25, deliv: 1.1, d: 'ครอบครัวและวันหยุด มีที่จอดรถ', lease: 36 },
     cbd: { n: 'อาคารสำนักงานย่าน CBD', foot: 4200, rentSqm: [900, 1300], fit: 1.15, weekend: 0.35, deliv: 1.3, d: 'มื้อกลางวันวันธรรมดาแน่นมาก วันหยุดเงียบสนิท', lease: 36 },
     mall: { n: 'ห้างสรรพสินค้าใหญ่', foot: 6500, rentSqm: [1600, 2600], fit: 1.35, weekend: 1.35, deliv: 0.9, d: 'คนเดินเยอะที่สุด ค่าเช่าและค่าตกแต่งแพงที่สุด ห้างกำหนดมาตรฐานเข้มงวด', lease: 36 },
     cloud: { n: 'คลาวด์คิทเช่น (เดลิเวอรีอย่างเดียว)', foot: 0, rent: [22000, 35000], fit: 0.35, weekend: 1, deliv: 1.6, d: 'ไม่มีหน้าร้าน ลงทุนต่ำ แต่ต้องพึ่งแอปเดลิเวอรีที่หัก GP ~30%', lease: 12, sqmFixed: 35 }
@@ -6967,11 +6973,19 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var L0 = LOCS[st.type];
     var deposit = st.rent * 3;
     var pre = 120000 + c.staff * 15000; // hiring, training, opening marketing
-    var leased = finance ? Math.round(st.fit * 0.5 / 10000) * 10000 : 0;
-    var need = deposit + st.fit + pre - leased;
-    if (state.fin.bal.cash < need) return { ok: false, msg: 'เงินสดไม่พอ (ต้องใช้ ' + F.b(need) + ' = มัดจำ ' + F.m(deposit) + ' + ตกแต่ง ' + F.m(st.fit - leased) + (leased ? ' (หลังเช่าซื้อ)' : '') + ' + ก่อนเปิด ' + F.m(pre) + ')' };
+    var partner = finance === 'partner';
+    if (partner && !M.partnerReady(state)) return { ok: false, msg: 'ยังไม่มีสาขาต้นแบบที่ทำกำไรต่อเนื่อง — หุ้นส่วนอยากเห็นตัวเลขจริงก่อนลงเงิน' };
+    var leased = finance && !partner ? Math.round(st.fit * 0.5 / 10000) * 10000 : 0;
+    var pIn = partner ? Math.round((deposit + st.fit + pre) * M.PARTNER.funds / 10000) * 10000 : 0;
+    var need = deposit + st.fit + pre - leased - pIn;
+    if (state.fin.bal.cash < need) return { ok: false, msg: 'เงินสดไม่พอ (ต้องใช้ ' + F.b(need) + ' = มัดจำ ' + F.m(deposit) + ' + ตกแต่ง ' + F.m(st.fit - leased) + (leased ? ' (หลังเช่าซื้อ)' : '') + ' + ก่อนเปิด ' + F.m(pre) + (pIn ? ' − หุ้นส่วนออก ' + F.m(pIn) : '') + ')' };
     if (!state.company.registered) return { ok: false, msg: 'ต้องจดทะเบียนบริษัทก่อนเซ็นสัญญาเช่าและขอใบอนุญาต' };
     if (leased) L.addLoan(state, { kind: 'lease', name: 'เช่าซื้ออุปกรณ์ครัว ' + st.area, amount: leased, rate: state.world.macro.rate + 0.07, months: 36 });
+    var pLoan = null;
+    if (pIn) {
+      pLoan = L.addLoan(state, { kind: 'partner', name: 'หุ้นส่วนสาขา ' + st.area + ' (ส่วนแบ่งกำไร ' + F.pct(M.PARTNER.share, 0) + ')', amount: pIn, rate: 0, months: 0 });
+      pLoan.feeLeft = Math.round(pIn * (M.PARTNER.buyout - 1)); // buying the partner out costs a premium
+    }
     L.post(state.fin, { prepaid: deposit, cash: -deposit }, 'op');
     L.buyAsset(state, 'ตกแต่งและครัว สาขา' + st.area, st.fit, Math.min(60, L0.lease * 1.5));
     var fid = state.fin.assets[state.fin.assets.length - 1].id;
@@ -6979,11 +6993,24 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var br = {
       id: 'b' + (b.nextB++), n: M.uniqueName(b, (st.type === 'cloud' ? 'ครัว ' : 'สาขา ') + st.area), type: st.type, sqm: st.sqm, rent: st.rent, foot: st.foot, seats: st.seats,
       deposit: deposit, fitId: fid, fit: st.fit, leaseEnd: state.time.w + Math.round(L0.lease * 4.33), state: 'building', ready: state.time.w + R.int(6, 10) + (state.flags.fastPermit ? -2 : 0), opened: null,
-      mgr: null, staff: st.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff, staffSkill: 45, rating: 0, reviews: 0, ms: M.blank(), last: null, util: 0
+      mgr: null, staff: st.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff, staffSkill: 45, rating: 0, reviews: 0, ms: M.blank(), last: null, util: 0,
+      partnerLoan: pLoan ? pLoan.id : null
     };
     b.branches.push(br);
     b.sites.list = b.sites.list.filter(function (x) { return x.id !== siteId; });
-    return { ok: true, msg: 'เซ็นสัญญาเช่า ' + br.n + ' — ตกแต่งและขอใบอนุญาต ~' + (br.ready - state.time.w) + ' สัปดาห์ (จ่ายแล้ว ' + F.b(need) + (leased ? ' · เช่าซื้ออุปกรณ์ ' + F.b(leased) + ' ผ่อน 36 เดือน' : '') + ')' };
+    return { ok: true, msg: 'เซ็นสัญญาเช่า ' + br.n + ' — ตกแต่งและขอใบอนุญาต ~' + (br.ready - state.time.w) + ' สัปดาห์ (จ่ายแล้ว ' + F.b(need) + (leased ? ' · เช่าซื้ออุปกรณ์ ' + F.b(leased) + ' ผ่อน 36 เดือน' : '') + (pIn ? ' · หุ้นส่วนออก ' + F.b(pIn) + ' แลกส่วนแบ่งกำไรสาขา ' + F.pct(M.PARTNER.share, 0) : '') + ')' };
+  };
+
+  // Branch partners (หุ้นส่วนสาขา): common way Thai chains fund expansion once a model branch is proven
+  M.PARTNER = { funds: 0.6, share: 0.45, buyout: 1.3 };
+  M.partnerReady = function (state) {
+    return M.openBranches(state.biz).some(function (br) {
+      var h = (br.hist || []).slice(-3);
+      return h.length >= 3 && h.every(function (v) { return v > 0; }) && br.last && br.last.wall / Math.max(1, br.last.rev) > 0.06;
+    });
+  };
+  M.partnerOf = function (state, br) {
+    return br.partnerLoan ? state.fin.loans.find(function (l) { return l.id === br.partnerLoan; }) : null;
   };
 
   M.uniqueName = function (b, n) {
@@ -7001,6 +7028,13 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var nbv = L.writeOffAsset(state, br.fitId);
     var sev = br.staff * b.wage * 1.2;
     L.spend(state.fin, 'severance', sev);
+    var pl = M.partnerOf(state, br);
+    if (pl) {
+      // the partner's capital was at risk in the branch and is lost with it
+      L.post(state.fin, { loans: pl.balance, gainloss: -pl.balance });
+      state.fin.loans = state.fin.loans.filter(function (l) { return l.id !== pl.id; });
+      br.partnerLoan = null;
+    }
     br.state = 'closed'; br.closedW = state.time.w;
     if (br.mgr) { var e = RW.Team.find(state, br.mgr); if (e) e.branch = null; br.mgr = null; }
     b.brand = Math.max(0, b.brand - 2);
@@ -7076,13 +7110,14 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       var A = menuF * priceVal * ratingF * brandF * compF * (0.85 + cons / 650);
       // staffing: required staff grows with volume
       var baseStaff = br.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff;
-      var required = baseStaff + (br.last ? (br.last.covers + br.last.deliv * 0.6) / 260 : 0);
+      var required = baseStaff + (br.last ? (br.last.covers + br.last.deliv * 0.6) / 4.33 / 320 : 0);
       var staffRatio = br.staff / Math.max(1, required);
       var serviceF = U.clamp(0.55 + 0.45 * staffRatio, 0.5, 1.08);
       // dine-in
       var footWeek = br.foot * (5 + 2 * L0.weekend) * sea.dine;
       var demand = footWeek * c.capture * A * ramp * (state.flags.pandemic && state.flags.pandemic > w ? 0.15 : 1);
-      var cap = br.seats * c.turns * 7 * U.clamp(staffRatio, 0.5, 1.05);
+      // seats only limit dine-in; takeaway customers (most of a bakery's trade) don't need a table
+      var cap = br.seats * c.turns * 7 * U.clamp(staffRatio, 0.5, 1.05) / (1 - (c.take || 0));
       var covers = R.poisson(Math.min(demand, cap));
       var lost = Math.max(0, demand - cap);
       br.util = cap > 0 ? covers / cap : 0;
@@ -7097,14 +7132,14 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       }
       var ticket = c.ticket * b.priceIdx;
       var dineRev = covers * ticket * vat;
-      var delGross = deliv * ticket * 1.15;
+      var delGross = deliv * ticket * 1.2;
       var delRev = delGross * vat * (1 - b.deliv.promo);
       L.earnCash(fin, 'rev_food', dineRev);
       if (delRev > 0) L.invoice(state, 'rev_deliv', delRev, w + 1, { name: 'แอปเดลิเวอรี', seg: 'delivery', sure: true });
       // variable costs
       var foodPct = Math.max(0.12, c.food + b.foodAdj - (ck ? 0.035 : 0) + (state.world.fx - 35.5) * 0.002 + (1 - Math.min(1, staffRatio)) * 0.02);
       var waste = 0.05 * (ck ? 0.7 : 1) * (1.3 - Math.min(0.3, RW.Team.capOf(state, 'data') * 0.15)) * (br.util < 0.4 ? 1.4 : 1);
-      // ingredients cost the same whether dine-in or delivery (app prices are marked up ~15% to cover GP)
+      // ingredients cost the same whether dine-in or delivery (app prices are marked up ~20% to cover GP)
       var food = (dineRev + deliv * ticket * vat) * foodPct * (1 + waste);
       L.spend(fin, 'cogs_goods', food);
       if (delGross > 0) {
@@ -7160,22 +7195,31 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       var labor = br.staff * b.wage * (br.type === 'mall' ? 1.08 : 1);
       L.spend(fin, 'cogs_staff', labor);
       L.spend(fin, 'benefits', br.staff * L.socialSecurity(b.wage));
-      var util = br.ms.rev * c.util + br.sqm * 180;
+      var util = br.ms.rev * c.util + br.sqm * 110;
       L.spend(fin, 'utilities', util);
       L.spend(fin, 'office', br.ms.rev * 0.015 + 4000); // maintenance, smallwares, cleaning
       // frontline turnover → recruiting & training cost; understaffing persists if HR weak
       var turnover = br.staff * (0.07 + (b.staffing > 1.1 ? -0.02 : b.staffing < 0.9 ? 0.04 : 0));
       L.spend(fin, 'recruit', turnover * 3500);
       br.staffSkill = Math.max(20, br.staffSkill - turnover / Math.max(1, br.staff) * 12);
-      var required = (br.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff) + (br.ms.covers + br.ms.deliv * 0.6) / 4.33 / 260;
+      var required = (br.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff) + (br.ms.covers + br.ms.deliv * 0.6) / 4.33 / 320;
       var hrF = Math.min(1, 0.75 + RW.Team.capOf(state, 'hr') * 0.2 + RW.Team.capOf(state, 'ops') * 0.1);
       br.staff = Math.max(2, Math.round(required * b.staffing * (R.chance(hrF) ? 1 : 0.9)));
       totalStaff += br.staff;
       var rent = br.rent + (br.type === 'mall' ? br.sqm * 120 : 0);
       var foodC = br.ms.food;
       var gp = br.ms.delivRev / (1 - b.deliv.promo) * 0.30;
-      br.last = { rev: br.ms.rev, covers: br.ms.covers, deliv: br.ms.deliv, food: foodC, labor: labor + br.staff * L.socialSecurity(b.wage), rent: rent, util: util, gp: gp, other: br.ms.rev * 0.015 + 4000 };
+      // the store manager is part of the shop's own P&L (true 4-wall)
+      var mgrE = br.mgr ? RW.Team.find(state, br.mgr) : null;
+      var mgrCost = mgrE && !mgrE.gone && mgrE.startW <= state.time.w ? mgrE.salary + L.socialSecurity(mgrE.salary) : 0;
+      br.last = { rev: br.ms.rev, covers: br.ms.covers, deliv: br.ms.deliv, food: foodC, labor: labor + br.staff * L.socialSecurity(b.wage) + mgrCost, rent: rent, util: util, gp: gp, other: br.ms.rev * 0.015 + 4000 };
       br.last.wall = br.last.rev - br.last.food - br.last.labor - br.last.rent - br.last.util - br.last.gp - br.last.other - br.ms.delivRev * 0.05;
+      var pl = M.partnerOf(state, br);
+      if (pl && br.last.wall > 0) {
+        var share = Math.round(br.last.wall * M.PARTNER.share * U.clamp(pl.balance / pl.principal, 0, 1)); // partial buybacks shrink the share
+        L.post(fin, { interest: share, cash: -share }, 'fin');
+        br.last.partner = share;
+      }
       br.hist = br.hist || [];
       br.hist.push(br.last.wall);
       if (br.hist.length > 12) br.hist.shift();
@@ -7254,7 +7298,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   };
   M.valuation = function (state) {
     var tr = M.traction(state);
-    var qual = RW.Models.saas.qualValue(tr.score);
+    var qual = RW.Models.saas.qualValue(tr.score) * 0.4; // restaurants rarely earn tech-style story premiums
     var revRun = (state.kpi.revenueMonthly || 0) * 12;
     if (revRun <= 0) return qual;
     var g = U.clamp(tr.growth, 0, 2);
@@ -8457,7 +8501,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
         (o.max > 0 ? '<div class="row" style="margin-top:6px">' + UI.numInput('debt_' + o.kind, amt, 'debtForm', [o.kind], 50000) + UI.btn(o.kind === 'founder' ? 'ให้ยืม' : 'กู้', 'takeDebt', [o.kind], 'primary sm') + '</div>' : '') + '</div>';
     }).join('');
     var loans = s.fin.loans.map(function (l) {
-      return [h(l.name), F.b(l.principal), F.b(l.balance + (l.feeLeft || 0)), l.kind === 'rbf' ? F.pct(l.revShare, 0) + ' ของรายได้' : F.pct(l.rate, 1) + '/ปี', l.payment ? F.b(l.payment) + '/ด.' : '–', UI.btn('ชำระ ฿500K', 'repayLoan', [l.id, 500000], 'sm')];
+      return [h(l.name), F.b(l.principal), F.b(l.balance + (l.feeLeft || 0)), l.kind === 'rbf' ? F.pct(l.revShare, 0) + ' ของรายได้' : l.kind === 'partner' ? F.pct(RW.Models.fnb.PARTNER.share * l.balance / l.principal, 0) + ' ของกำไรสาขา' : F.pct(l.rate, 1) + '/ปี', l.payment ? F.b(l.payment) + '/ด.' : '–', UI.btn(l.kind === 'partner' ? 'ซื้อหุ้นคืน ฿500K' : 'ชำระ ฿500K', 'repayLoan', [l.id, 500000], 'sm')];
     });
     return '<div class="grid g2">' + UI.panel('ทางเลือกเงินกู้', offerRows + '<p class="tiny muted" style="margin-top:6px">หนี้ไม่ทำให้เสียหุ้น แต่ต้องจ่ายคืนทุกเดือนไม่ว่าธุรกิจจะดีหรือแย่ ผิดนัดชำระ = ล้มละลายเร็วขึ้น</p>') + UI.panel('เงินกู้คงค้าง', UI.table(['ชื่อ', '#เงินต้น', '#คงเหลือ', 'ดอกเบี้ย', '#ผ่อน', ''], loans, { empty: 'ไม่มีหนี้' })) + '</div>';
   };
@@ -9372,7 +9416,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       var status = br.state === 'building' ? UI.pill('กำลังตกแต่ง — เปิด ' + RW.T.label(br.ready), 'accent') : UI.pill('เปิดมา ' + Math.round((s.time.w - br.opened) / 4.33) + ' เดือน', 'good');
       var sel = '<select data-act="fAssign" data-a=\'["' + br.id + '"]\' aria-label="ผู้จัดการสาขา"><option value="">' + (br.mgr ? '— ไม่มี —' : 'คุณดูแลเอง') + '</option>' + mgrs.map(function (e) { return '<option value="' + e.id + '"' + (br.mgr === e.id ? ' selected' : '') + '>' + h(e.name) + ' (' + Math.round(e.est) + ')</option>'; }).join('') + '</select>';
       return [
-        '<b>' + h(br.n) + '</b><div class="tiny muted">' + M.LOCS[br.type].n + ' · ' + br.sqm + ' ตร.ม. · ' + (br.seats || 0) + ' ที่นั่ง</div>' + status,
+        '<b>' + h(br.n) + '</b><div class="tiny muted">' + M.LOCS[br.type].n + ' · ' + br.sqm + ' ตร.ม. · ' + (br.seats || 0) + ' ที่นั่ง' + (c.take ? ' + ซื้อกลับ ~' + F.pct(c.take, 0) : '') + '</div>' + status,
         l ? F.m(l.rev) : '–', l ? F.num(l.covers) + ' / ' + F.num(l.deliv) : '–',
         l ? '<span class="' + (l.wall < 0 ? 'crit' : 'good') + '">' + F.m(l.wall) + '</span><div class="tiny muted">' + F.pct(l.wall / Math.max(1, l.rev), 0) + '</div>' : '–',
         br.state === 'open' ? (br.rating || 0).toFixed(2) + ' ★' : '–',
@@ -9383,17 +9427,18 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
         UI.btn('ปิดสาขา', 'fClose', [br.id], 'sm danger')
       ];
     });
-    var list = UI.panel('สาขาของคุณ (เดือนที่แล้ว)', UI.table(['สาขา', '#ยอดขาย', '#ลูกค้า หน้าร้าน/ส่ง', '#กำไรสาขา', '#เรตติ้ง', 'ใช้ที่นั่ง', '#พนักงาน', 'ผู้จัดการ', '#ค่าเช่า', ''], rows, { empty: 'ยังไม่มีสาขา' }) +
+    var list = UI.panel('สาขาของคุณ (เดือนที่แล้ว)', UI.table(['สาขา', '#ยอดขาย', '#ลูกค้า หน้าร้าน/ส่ง', '#กำไรสาขา', '#เรตติ้ง', UI.tip('ใช้กำลังร้าน', 'ลูกค้าที่รับได้เทียบกับความจุ (ที่นั่ง × รอบโต๊ะ + ซื้อกลับบ้าน) — เกิน 95% คือคิวยาว ลูกค้าหลุด'), '#พนักงาน', 'ผู้จัดการ', '#ค่าเช่า', ''], rows, { empty: 'ยังไม่มีสาขา' }) +
       UI.slider('จำนวนพนักงานต่อกะ (เทียบความจำเป็น)', Math.round(b.staffing * 100), 75, 130, 5, 'fStaffing', [], 'pct') + '<p class="tiny muted" style="margin:-2px 0 0">ค่าแรงเฉลี่ย ' + F.b(b.wage) + '/คน/เดือน (อิงค่าแรงขั้นต่ำ) · คนน้อยประหยัดแต่บริการช้า เรตติ้งตก คนลาออก · พนักงานหน้าร้านจ้างผ่านทีม Ops/HR โดยอัตโนมัติ</p>');
     var sites = b.sites ? b.sites.list : [];
+    var partnerOK = M.partnerReady(s);
     var siteRows = sites.map(function (x) {
       var L0 = M.LOCS[x.type];
       var deposit = x.rent * 3, pre = 120000 + c.staff * 15000;
-      return ['<b>' + M.LOCS[x.type].n + ' — ' + h(x.area) + '</b><div class="tiny muted">' + L0.d + '</div>', x.sqm + ' ตร.ม.', x.type === 'cloud' ? 'เดลิเวอรีอย่างเดียว' : F.num(x.quoted) + ' คน/วัน' + (x.counted ? '<div class="tiny ' + (x.counted < x.quoted * 0.9 ? 'warn' : 'good') + '">นับจริง ' + F.num(x.counted) + '</div>' : '<div style="margin-top:3px">' + UI.researchBtn('count', x.id, 'นับเอง') + '</div>'), F.b(x.rent), F.m(x.fit), F.m(deposit + x.fit + pre), '<div class="row" style="gap:4px;flex-wrap:nowrap">' + UI.btn('เซ็นสัญญา', 'fOpen', [x.id, false], 'sm primary') + UI.btn('+ เช่าซื้ออุปกรณ์ 50%', 'fOpen', [x.id, true], 'sm', 'title="ผ่อนค่าอุปกรณ์ครัวครึ่งหนึ่ง 36 เดือน ดอกเบี้ยสูง"') + '</div>'];
+      return ['<b>' + M.LOCS[x.type].n + ' — ' + h(x.area) + '</b><div class="tiny muted">' + L0.d + '</div>', x.sqm + ' ตร.ม.', x.type === 'cloud' ? 'เดลิเวอรีอย่างเดียว' : F.num(x.quoted) + ' คน/วัน' + (x.counted ? '<div class="tiny ' + (x.counted < x.quoted * 0.9 ? 'warn' : 'good') + '">นับจริง ' + F.num(x.counted) + '</div>' : '<div style="margin-top:3px">' + UI.researchBtn('count', x.id, 'นับเอง') + '</div>'), F.b(x.rent), F.m(x.fit), F.m(deposit + x.fit + pre), '<div class="row" style="gap:4px;flex-wrap:nowrap">' + UI.btn('เซ็นสัญญา', 'fOpen', [x.id, false], 'sm primary') + UI.btn('+ เช่าซื้ออุปกรณ์ 50%', 'fOpen', [x.id, true], 'sm', 'title="ผ่อนค่าอุปกรณ์ครัวครึ่งหนึ่ง 36 เดือน ดอกเบี้ยสูง"') + (partnerOK ? UI.btn('+ หุ้นส่วนสาขา', 'fOpen', [x.id, 'partner'], 'sm', 'title="หุ้นส่วนออกเงิน ' + F.pct(M.PARTNER.funds, 0) + ' ของเงินที่ต้องใช้ แลกส่วนแบ่ง ' + F.pct(M.PARTNER.share, 0) + ' ของกำไรสาขาทุกเดือน ซื้อคืนได้ที่ ' + M.PARTNER.buyout + ' เท่า"') : '') + '</div>'];
     });
     var scout = UI.panel('หาทำเลใหม่', '<div class="row" style="margin-bottom:10px">' + Object.keys(M.LOCS).map(function (k) { return UI.btn(M.LOCS[k].n, 'fScout', [k], 'sm' + (b.sites && b.sites.type === k ? ' primary' : '')); }).join('') + '</div>' +
       UI.table(['ทำเล', '#ขนาด', '#คนเดินผ่าน (โบรกเกอร์บอก)', '#ค่าเช่า/เดือน', '#ค่าตกแต่ง', '#เงินที่ต้องใช้', ''], siteRows, { empty: 'กดประเภททำเลเพื่อให้โบรกเกอร์หาที่ (ค่าสำรวจ ฿8,000 / ห้าง ฿30,000)' }) +
-      '<p class="tiny muted" style="margin-top:6px">เงินที่ต้องใช้ = มัดจำ 3 เดือน + ค่าตกแต่งและอุปกรณ์ครัว + ค่าจ้าง/อบรม/โปรโมตก่อนเปิด · ใช้เวลา 6–10 สัปดาห์ก่อนเปิด · ยอดขายช่วงแรก ~40% แล้วค่อยๆ โตใน 4 เดือน</p>');
+      '<p class="tiny muted" style="margin-top:6px">เงินที่ต้องใช้ = มัดจำ 3 เดือน + ค่าตกแต่งและอุปกรณ์ครัว + ค่าจ้าง/อบรม/โปรโมตก่อนเปิด · ใช้เวลา 6–10 สัปดาห์ก่อนเปิด · ยอดขายช่วงแรก ~40% แล้วค่อยๆ โตใน 4 เดือน · ' + (partnerOK ? 'มีนักลงทุนสนใจเป็นหุ้นส่วนสาขาแล้ว (ออกเงิน ' + F.pct(M.PARTNER.funds, 0) + ' รับส่วนแบ่งกำไรสาขา ' + F.pct(M.PARTNER.share, 0) + ' — ซื้อคืนได้ในหน้าการเงิน > เงินกู้)' : 'เมื่อมีสาขาต้นแบบที่ทำกำไรต่อเนื่อง 3 เดือน จะหาหุ้นส่วนลงทุนสาขาได้') + '</p>');
     return head + list + '<div style="margin-top:14px">' + scout + '</div>';
   };
   ui.acts.fAssign = function (br, emp) { return M.act.assign(UI.s, br, emp); };

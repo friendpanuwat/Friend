@@ -697,7 +697,7 @@
     if (state.company.registered) set('registered');
     if ((k.customers || 0) > 0) set('first_customer');
     var hc = RW.Team.headcount(state);
-    if (hc >= 1) set('first_hire');
+    if (hc >= 1 || (state.industry === 'fnb' && state.biz.branches.some(function (b) { return b.state === 'open'; }))) set('first_hire');
     if (hc >= 10) set('team10');
     if (hc >= 50) set('team50');
     if (hc >= 200) set('team200');

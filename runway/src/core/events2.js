@@ -13,7 +13,7 @@
     choices: function (s) {
       var amt = Math.round(rev(s) * 4 / 1000) * 1000;
       return [
-        { t: 'รับ — เงินก็คือเงิน', d: 'เงินสดก้อนใหญ่ทันที', fx: function () { L.post(s.fin, { cash: amt, rev_other: -amt }, 'op'); s.flags.grey = 1; E.later(s, R.int(20, 70), 'grey_amlo', { amt: amt }); return 'เงินเข้าบัญชี ' + F.b(amt) + ' — ทีมบางคนตั้งคำถามเงียบๆ'; } },
+        { t: 'รับ — เงินก็คือเงิน', d: 'เงินสดก้อนใหญ่ทันที', fx: function () { L.post(s.fin, { cash: amt, rev_oneoff: -amt }, 'op'); if (s.industry !== 'saas') L.spend(s.fin, s.industry === 'ecom' ? 'cogs_goods' : 'cogs_other', Math.round(amt * (s.industry === 'ecom' ? 0.5 : 0.4))); s.flags.grey = 1; E.later(s, R.int(20, 70), 'grey_amlo', { amt: amt }); return 'เงินเข้าบัญชี ' + F.b(amt) + ' — ทีมบางคนตั้งคำถามเงียบๆ'; } },
         { t: 'ปฏิเสธ', fx: function () { H.morale(s, 2, 8, 'ผู้ก่อตั้งยึดหลักจริยธรรม'); return 'คุณเลือกเงินที่สะอาด'; } }
       ];
     }

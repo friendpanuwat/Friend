@@ -239,8 +239,11 @@ function policyFnb(s) {
   if (w >= 3 && live.length === 0 && s.company.registered && w % 3 === 0) {
     if (!b.sites || !b.sites.list.length || w - b.sites.w > 8) M.act.scout(s, s.fin.bal.cash > 3e6 ? 'community' : 'street');
     const cost = (x, fin) => x.rent * 3 + x.fit * (fin ? 0.5 : 1) + 120000 + c.staff * 15000 + (x.rent + (c.staff + 2) * 13500) * 2.5 + 100000;
-    const ok = b.sites.list.filter(x => cost(x, true) < s.fin.bal.cash).sort((x, y) => (y.quoted / y.rent) - (x.quoted / x.rent));
-    const best = ok[0];
+    const smart = process.env.SMART === '1';
+    if (smart) b.sites.list.forEach(x => { if (!x.counted && x.type !== 'cloud') A.research(s, 'count', x.id); });
+    const foot = x => smart ? (x.counted || 0) : x.quoted;
+    const ok = b.sites.list.filter(x => cost(x, true) < s.fin.bal.cash && (!smart || x.counted || x.type === 'cloud')).sort((x, y) => (foot(y) / y.rent) - (foot(x) / x.rent));
+    const best = smart && ok[0] && foot(ok[0]) / ok[0].rent < 0.045 && w < 30 ? null : ok[0];
     if (best) { if (cost(best, false) < s.fin.bal.cash) M.openBranch(s, best.id, false); else M.openBranch(s, best.id, true); }
     else if (w > 12 && b.sites.type !== 'cloud' && b.concept !== 'bbq') M.act.scout(s, 'cloud');
   }
@@ -251,6 +254,11 @@ function policyFnb(s) {
     M.act.scout(s, s.fin.bal.cash > 12e6 ? 'mall' : 'community');
     const best = b.sites.list.slice().sort((x, y) => (y.quoted / y.rent) - (x.quoted / x.rent))[0];
     if (best && s.fin.bal.cash > best.fit * 1.6 + best.rent * 8) M.openBranch(s, best.id, s.fin.bal.cash < best.fit * 2.5);
+  } else if (process.env.NOPARTNER !== '1' && open.length && avgWall > 0.08 && live.length === open.length && w % 8 === 4 && M.partnerReady(s) && s.fin.bal.cash > 1.5e6) {
+    // can't self-fund: bring in a branch partner
+    M.act.scout(s, 'community');
+    const best = b.sites.list.slice().sort((x, y) => (y.quoted / y.rent) - (x.quoted / x.rent))[0];
+    if (best && s.fin.bal.cash > (best.fit + best.rent * 3) * 0.4 + best.rent * 6) M.openBranch(s, best.id, 'partner');
   }
   // close persistent losers
   open.forEach(br => { if (br.hist && br.hist.length >= 6 && br.hist.slice(-6).every(v => v < 0) && open.length > 1) M.closeBranch(s, br.id); });
@@ -263,9 +271,9 @@ function policyFnb(s) {
   if (open.length > 1 && s.founder.focus.build > 40) s.founder.focus = { build: 35, sell: 10, market: 20, discover: 10, team: 15, fundraise: s.founder.focus.fundraise, admin: 10 - 0, consult: 0 };
   return { hireWants: (count) => {
     const want = [];
-    const needMgr = live.length - (open.length <= 1 ? 1 : 0);
+    const needMgr = Math.max(0, live.length - 1); // the founder runs one shop
     if (count('branchmgr') < needMgr) want.push(['branchmgr', 2]);
-    if (open.length >= 2 && count('chef') < 1) want.push(['chef', 2]);
+    if (open.length >= 3 && count('chef') < 1) want.push(['chef', 2]);
     if (open.length >= 3 && count('marketer') < 1) want.push(['marketer', 2]);
     if (open.length >= 3 && count('ops') < 1) want.push(['ops', 3]);
     if (open.length >= 6 && count('branchmgr') < live.length + 1) want.push(['branchmgr', 5]);

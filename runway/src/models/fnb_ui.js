@@ -73,7 +73,7 @@
       var status = br.state === 'building' ? UI.pill('กำลังตกแต่ง — เปิด ' + RW.T.label(br.ready), 'accent') : UI.pill('เปิดมา ' + Math.round((s.time.w - br.opened) / 4.33) + ' เดือน', 'good');
       var sel = '<select data-act="fAssign" data-a=\'["' + br.id + '"]\' aria-label="ผู้จัดการสาขา"><option value="">' + (br.mgr ? '— ไม่มี —' : 'คุณดูแลเอง') + '</option>' + mgrs.map(function (e) { return '<option value="' + e.id + '"' + (br.mgr === e.id ? ' selected' : '') + '>' + h(e.name) + ' (' + Math.round(e.est) + ')</option>'; }).join('') + '</select>';
       return [
-        '<b>' + h(br.n) + '</b><div class="tiny muted">' + M.LOCS[br.type].n + ' · ' + br.sqm + ' ตร.ม. · ' + (br.seats || 0) + ' ที่นั่ง</div>' + status,
+        '<b>' + h(br.n) + '</b><div class="tiny muted">' + M.LOCS[br.type].n + ' · ' + br.sqm + ' ตร.ม. · ' + (br.seats || 0) + ' ที่นั่ง' + (c.take ? ' + ซื้อกลับ ~' + F.pct(c.take, 0) : '') + '</div>' + status,
         l ? F.m(l.rev) : '–', l ? F.num(l.covers) + ' / ' + F.num(l.deliv) : '–',
         l ? '<span class="' + (l.wall < 0 ? 'crit' : 'good') + '">' + F.m(l.wall) + '</span><div class="tiny muted">' + F.pct(l.wall / Math.max(1, l.rev), 0) + '</div>' : '–',
         br.state === 'open' ? (br.rating || 0).toFixed(2) + ' ★' : '–',
@@ -84,17 +84,18 @@
         UI.btn('ปิดสาขา', 'fClose', [br.id], 'sm danger')
       ];
     });
-    var list = UI.panel('สาขาของคุณ (เดือนที่แล้ว)', UI.table(['สาขา', '#ยอดขาย', '#ลูกค้า หน้าร้าน/ส่ง', '#กำไรสาขา', '#เรตติ้ง', 'ใช้ที่นั่ง', '#พนักงาน', 'ผู้จัดการ', '#ค่าเช่า', ''], rows, { empty: 'ยังไม่มีสาขา' }) +
+    var list = UI.panel('สาขาของคุณ (เดือนที่แล้ว)', UI.table(['สาขา', '#ยอดขาย', '#ลูกค้า หน้าร้าน/ส่ง', '#กำไรสาขา', '#เรตติ้ง', UI.tip('ใช้กำลังร้าน', 'ลูกค้าที่รับได้เทียบกับความจุ (ที่นั่ง × รอบโต๊ะ + ซื้อกลับบ้าน) — เกิน 95% คือคิวยาว ลูกค้าหลุด'), '#พนักงาน', 'ผู้จัดการ', '#ค่าเช่า', ''], rows, { empty: 'ยังไม่มีสาขา' }) +
       UI.slider('จำนวนพนักงานต่อกะ (เทียบความจำเป็น)', Math.round(b.staffing * 100), 75, 130, 5, 'fStaffing', [], 'pct') + '<p class="tiny muted" style="margin:-2px 0 0">ค่าแรงเฉลี่ย ' + F.b(b.wage) + '/คน/เดือน (อิงค่าแรงขั้นต่ำ) · คนน้อยประหยัดแต่บริการช้า เรตติ้งตก คนลาออก · พนักงานหน้าร้านจ้างผ่านทีม Ops/HR โดยอัตโนมัติ</p>');
     var sites = b.sites ? b.sites.list : [];
+    var partnerOK = M.partnerReady(s);
     var siteRows = sites.map(function (x) {
       var L0 = M.LOCS[x.type];
       var deposit = x.rent * 3, pre = 120000 + c.staff * 15000;
-      return ['<b>' + M.LOCS[x.type].n + ' — ' + h(x.area) + '</b><div class="tiny muted">' + L0.d + '</div>', x.sqm + ' ตร.ม.', x.type === 'cloud' ? 'เดลิเวอรีอย่างเดียว' : F.num(x.quoted) + ' คน/วัน' + (x.counted ? '<div class="tiny ' + (x.counted < x.quoted * 0.9 ? 'warn' : 'good') + '">นับจริง ' + F.num(x.counted) + '</div>' : '<div style="margin-top:3px">' + UI.researchBtn('count', x.id, 'นับเอง') + '</div>'), F.b(x.rent), F.m(x.fit), F.m(deposit + x.fit + pre), '<div class="row" style="gap:4px;flex-wrap:nowrap">' + UI.btn('เซ็นสัญญา', 'fOpen', [x.id, false], 'sm primary') + UI.btn('+ เช่าซื้ออุปกรณ์ 50%', 'fOpen', [x.id, true], 'sm', 'title="ผ่อนค่าอุปกรณ์ครัวครึ่งหนึ่ง 36 เดือน ดอกเบี้ยสูง"') + '</div>'];
+      return ['<b>' + M.LOCS[x.type].n + ' — ' + h(x.area) + '</b><div class="tiny muted">' + L0.d + '</div>', x.sqm + ' ตร.ม.', x.type === 'cloud' ? 'เดลิเวอรีอย่างเดียว' : F.num(x.quoted) + ' คน/วัน' + (x.counted ? '<div class="tiny ' + (x.counted < x.quoted * 0.9 ? 'warn' : 'good') + '">นับจริง ' + F.num(x.counted) + '</div>' : '<div style="margin-top:3px">' + UI.researchBtn('count', x.id, 'นับเอง') + '</div>'), F.b(x.rent), F.m(x.fit), F.m(deposit + x.fit + pre), '<div class="row" style="gap:4px;flex-wrap:nowrap">' + UI.btn('เซ็นสัญญา', 'fOpen', [x.id, false], 'sm primary') + UI.btn('+ เช่าซื้ออุปกรณ์ 50%', 'fOpen', [x.id, true], 'sm', 'title="ผ่อนค่าอุปกรณ์ครัวครึ่งหนึ่ง 36 เดือน ดอกเบี้ยสูง"') + (partnerOK ? UI.btn('+ หุ้นส่วนสาขา', 'fOpen', [x.id, 'partner'], 'sm', 'title="หุ้นส่วนออกเงิน ' + F.pct(M.PARTNER.funds, 0) + ' ของเงินที่ต้องใช้ แลกส่วนแบ่ง ' + F.pct(M.PARTNER.share, 0) + ' ของกำไรสาขาทุกเดือน ซื้อคืนได้ที่ ' + M.PARTNER.buyout + ' เท่า"') : '') + '</div>'];
     });
     var scout = UI.panel('หาทำเลใหม่', '<div class="row" style="margin-bottom:10px">' + Object.keys(M.LOCS).map(function (k) { return UI.btn(M.LOCS[k].n, 'fScout', [k], 'sm' + (b.sites && b.sites.type === k ? ' primary' : '')); }).join('') + '</div>' +
       UI.table(['ทำเล', '#ขนาด', '#คนเดินผ่าน (โบรกเกอร์บอก)', '#ค่าเช่า/เดือน', '#ค่าตกแต่ง', '#เงินที่ต้องใช้', ''], siteRows, { empty: 'กดประเภททำเลเพื่อให้โบรกเกอร์หาที่ (ค่าสำรวจ ฿8,000 / ห้าง ฿30,000)' }) +
-      '<p class="tiny muted" style="margin-top:6px">เงินที่ต้องใช้ = มัดจำ 3 เดือน + ค่าตกแต่งและอุปกรณ์ครัว + ค่าจ้าง/อบรม/โปรโมตก่อนเปิด · ใช้เวลา 6–10 สัปดาห์ก่อนเปิด · ยอดขายช่วงแรก ~40% แล้วค่อยๆ โตใน 4 เดือน</p>');
+      '<p class="tiny muted" style="margin-top:6px">เงินที่ต้องใช้ = มัดจำ 3 เดือน + ค่าตกแต่งและอุปกรณ์ครัว + ค่าจ้าง/อบรม/โปรโมตก่อนเปิด · ใช้เวลา 6–10 สัปดาห์ก่อนเปิด · ยอดขายช่วงแรก ~40% แล้วค่อยๆ โตใน 4 เดือน · ' + (partnerOK ? 'มีนักลงทุนสนใจเป็นหุ้นส่วนสาขาแล้ว (ออกเงิน ' + F.pct(M.PARTNER.funds, 0) + ' รับส่วนแบ่งกำไรสาขา ' + F.pct(M.PARTNER.share, 0) + ' — ซื้อคืนได้ในหน้าการเงิน > เงินกู้)' : 'เมื่อมีสาขาต้นแบบที่ทำกำไรต่อเนื่อง 3 เดือน จะหาหุ้นส่วนลงทุนสาขาได้') + '</p>');
     return head + list + '<div style="margin-top:14px">' + scout + '</div>';
   };
   ui.acts.fAssign = function (br, emp) { return M.act.assign(UI.s, br, emp); };

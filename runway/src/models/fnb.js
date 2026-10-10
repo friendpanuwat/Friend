@@ -8,15 +8,15 @@
   M.sampleName = 'บ้านสวนคาเฟ่';
 
   var CONCEPTS = (M.CONCEPTS = {
-    cafe: { n: 'คาเฟ่กาแฟสเปเชียลตี้', d: 'ตั๋วเฉลี่ยต่ำ ต้นทุนวัตถุดิบต่ำ หมุนโต๊ะเร็ว แข่งกันดุทุกหัวมุม', ticket: 145, food: 0.28, capture: 0.06, turns: 5, staff: 4, fitSqm: 14000, util: 0.05, deliv: 30, sqm: [45, 110], seatsPerSqm: 0.45, menuQ: 55 },
-    thai: { n: 'ร้านอาหารไทยสตรีทฟู้ดพรีเมียม', d: 'ขายดีทั้งหน้าร้านและเดลิเวอรี ต้นทุนวัตถุดิบผันผวน ใช้คนเยอะ', ticket: 185, food: 0.35, capture: 0.045, turns: 4, staff: 6, fitSqm: 11000, util: 0.06, deliv: 60, sqm: [60, 130], seatsPerSqm: 0.5, menuQ: 55 },
-    bbq: { n: 'ปิ้งย่าง/ชาบูบุฟเฟ่ต์', d: 'ตั๋วสูง พื้นที่ใหญ่ ลงทุนหนัก ไฟฟ้าแพง ขายมื้อเย็นเป็นหลัก', ticket: 459, food: 0.42, capture: 0.022, turns: 2.4, staff: 10, fitSqm: 18000, util: 0.09, deliv: 8, sqm: [150, 260], seatsPerSqm: 0.55, menuQ: 50 },
-    bakery: { n: 'เบเกอรี่และขนมโฮมเมด', d: 'ของฝาก ของขวัญ ขายดีเทศกาล ครัวกลางช่วยได้มาก ของเหลือคือขยะ', ticket: 125, food: 0.30, capture: 0.05, turns: 6, staff: 5, fitSqm: 12000, util: 0.05, deliv: 35, sqm: [40, 90], seatsPerSqm: 0.35, menuQ: 55 }
+    cafe: { n: 'คาเฟ่กาแฟสเปเชียลตี้', d: 'ตั๋วเฉลี่ยต่ำ ต้นทุนวัตถุดิบต่ำ หมุนโต๊ะเร็ว แข่งกันดุทุกหัวมุม', ticket: 145, food: 0.31, capture: 0.05, turns: 5, take: 0.4, staff: 4, fitSqm: 14000, util: 0.05, deliv: 30, sqm: [45, 110], seatsPerSqm: 0.45, menuQ: 55 },
+    thai: { n: 'ร้านอาหารไทยสตรีทฟู้ดพรีเมียม', d: 'ขายดีทั้งหน้าร้านและเดลิเวอรี ต้นทุนวัตถุดิบผันผวน ใช้คนเยอะ', ticket: 185, food: 0.32, capture: 0.045, turns: 4, take: 0.15, staff: 6, fitSqm: 11000, util: 0.06, deliv: 60, sqm: [60, 130], seatsPerSqm: 0.5, menuQ: 55 },
+    bbq: { n: 'ปิ้งย่าง/ชาบูบุฟเฟ่ต์', d: 'ตั๋วสูง พื้นที่ใหญ่ ลงทุนหนัก ไฟฟ้าแพง ขายมื้อเย็นเป็นหลัก', ticket: 459, food: 0.42, capture: 0.022, turns: 2.4, take: 0, staff: 10, fitSqm: 18000, util: 0.09, deliv: 8, sqm: [150, 260], seatsPerSqm: 0.55, menuQ: 50 },
+    bakery: { n: 'เบเกอรี่และขนมโฮมเมด', d: 'ของฝาก ของขวัญ ขายดีเทศกาล ครัวกลางช่วยได้มาก ของเหลือคือขยะ', ticket: 125, food: 0.30, capture: 0.05, turns: 6, take: 0.65, staff: 4, fitSqm: 12000, util: 0.05, deliv: 35, sqm: [40, 90], seatsPerSqm: 0.35, menuQ: 55 }
   });
 
   var LOCS = (M.LOCS = {
     street: { n: 'ตึกแถวริมถนน', foot: 2200, rent: [28000, 62000], sqmMult: 1, fit: 1, weekend: 1, deliv: 1.0, d: 'ค่าเช่าถูก ลูกค้าแถวบ้าน ที่จอดรถน้อย', lease: 36 },
-    community: { n: 'คอมมูนิตี้มอลล์', foot: 3000, rentSqm: [450, 700], fit: 1.05, weekend: 1.25, deliv: 1.1, d: 'ครอบครัวและวันหยุด มีที่จอดรถ', lease: 36 },
+    community: { n: 'คอมมูนิตี้มอลล์', foot: 2700, rentSqm: [700, 1000], fit: 1.05, weekend: 1.25, deliv: 1.1, d: 'ครอบครัวและวันหยุด มีที่จอดรถ', lease: 36 },
     cbd: { n: 'อาคารสำนักงานย่าน CBD', foot: 4200, rentSqm: [900, 1300], fit: 1.15, weekend: 0.35, deliv: 1.3, d: 'มื้อกลางวันวันธรรมดาแน่นมาก วันหยุดเงียบสนิท', lease: 36 },
     mall: { n: 'ห้างสรรพสินค้าใหญ่', foot: 6500, rentSqm: [1600, 2600], fit: 1.35, weekend: 1.35, deliv: 0.9, d: 'คนเดินเยอะที่สุด ค่าเช่าและค่าตกแต่งแพงที่สุด ห้างกำหนดมาตรฐานเข้มงวด', lease: 36 },
     cloud: { n: 'คลาวด์คิทเช่น (เดลิเวอรีอย่างเดียว)', foot: 0, rent: [22000, 35000], fit: 0.35, weekend: 1, deliv: 1.6, d: 'ไม่มีหน้าร้าน ลงทุนต่ำ แต่ต้องพึ่งแอปเดลิเวอรีที่หัก GP ~30%', lease: 12, sqmFixed: 35 }
@@ -79,11 +79,19 @@
     var L0 = LOCS[st.type];
     var deposit = st.rent * 3;
     var pre = 120000 + c.staff * 15000; // hiring, training, opening marketing
-    var leased = finance ? Math.round(st.fit * 0.5 / 10000) * 10000 : 0;
-    var need = deposit + st.fit + pre - leased;
-    if (state.fin.bal.cash < need) return { ok: false, msg: 'เงินสดไม่พอ (ต้องใช้ ' + F.b(need) + ' = มัดจำ ' + F.m(deposit) + ' + ตกแต่ง ' + F.m(st.fit - leased) + (leased ? ' (หลังเช่าซื้อ)' : '') + ' + ก่อนเปิด ' + F.m(pre) + ')' };
+    var partner = finance === 'partner';
+    if (partner && !M.partnerReady(state)) return { ok: false, msg: 'ยังไม่มีสาขาต้นแบบที่ทำกำไรต่อเนื่อง — หุ้นส่วนอยากเห็นตัวเลขจริงก่อนลงเงิน' };
+    var leased = finance && !partner ? Math.round(st.fit * 0.5 / 10000) * 10000 : 0;
+    var pIn = partner ? Math.round((deposit + st.fit + pre) * M.PARTNER.funds / 10000) * 10000 : 0;
+    var need = deposit + st.fit + pre - leased - pIn;
+    if (state.fin.bal.cash < need) return { ok: false, msg: 'เงินสดไม่พอ (ต้องใช้ ' + F.b(need) + ' = มัดจำ ' + F.m(deposit) + ' + ตกแต่ง ' + F.m(st.fit - leased) + (leased ? ' (หลังเช่าซื้อ)' : '') + ' + ก่อนเปิด ' + F.m(pre) + (pIn ? ' − หุ้นส่วนออก ' + F.m(pIn) : '') + ')' };
     if (!state.company.registered) return { ok: false, msg: 'ต้องจดทะเบียนบริษัทก่อนเซ็นสัญญาเช่าและขอใบอนุญาต' };
     if (leased) L.addLoan(state, { kind: 'lease', name: 'เช่าซื้ออุปกรณ์ครัว ' + st.area, amount: leased, rate: state.world.macro.rate + 0.07, months: 36 });
+    var pLoan = null;
+    if (pIn) {
+      pLoan = L.addLoan(state, { kind: 'partner', name: 'หุ้นส่วนสาขา ' + st.area + ' (ส่วนแบ่งกำไร ' + F.pct(M.PARTNER.share, 0) + ')', amount: pIn, rate: 0, months: 0 });
+      pLoan.feeLeft = Math.round(pIn * (M.PARTNER.buyout - 1)); // buying the partner out costs a premium
+    }
     L.post(state.fin, { prepaid: deposit, cash: -deposit }, 'op');
     L.buyAsset(state, 'ตกแต่งและครัว สาขา' + st.area, st.fit, Math.min(60, L0.lease * 1.5));
     var fid = state.fin.assets[state.fin.assets.length - 1].id;
@@ -91,11 +99,24 @@
     var br = {
       id: 'b' + (b.nextB++), n: M.uniqueName(b, (st.type === 'cloud' ? 'ครัว ' : 'สาขา ') + st.area), type: st.type, sqm: st.sqm, rent: st.rent, foot: st.foot, seats: st.seats,
       deposit: deposit, fitId: fid, fit: st.fit, leaseEnd: state.time.w + Math.round(L0.lease * 4.33), state: 'building', ready: state.time.w + R.int(6, 10) + (state.flags.fastPermit ? -2 : 0), opened: null,
-      mgr: null, staff: st.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff, staffSkill: 45, rating: 0, reviews: 0, ms: M.blank(), last: null, util: 0
+      mgr: null, staff: st.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff, staffSkill: 45, rating: 0, reviews: 0, ms: M.blank(), last: null, util: 0,
+      partnerLoan: pLoan ? pLoan.id : null
     };
     b.branches.push(br);
     b.sites.list = b.sites.list.filter(function (x) { return x.id !== siteId; });
-    return { ok: true, msg: 'เซ็นสัญญาเช่า ' + br.n + ' — ตกแต่งและขอใบอนุญาต ~' + (br.ready - state.time.w) + ' สัปดาห์ (จ่ายแล้ว ' + F.b(need) + (leased ? ' · เช่าซื้ออุปกรณ์ ' + F.b(leased) + ' ผ่อน 36 เดือน' : '') + ')' };
+    return { ok: true, msg: 'เซ็นสัญญาเช่า ' + br.n + ' — ตกแต่งและขอใบอนุญาต ~' + (br.ready - state.time.w) + ' สัปดาห์ (จ่ายแล้ว ' + F.b(need) + (leased ? ' · เช่าซื้ออุปกรณ์ ' + F.b(leased) + ' ผ่อน 36 เดือน' : '') + (pIn ? ' · หุ้นส่วนออก ' + F.b(pIn) + ' แลกส่วนแบ่งกำไรสาขา ' + F.pct(M.PARTNER.share, 0) : '') + ')' };
+  };
+
+  // Branch partners (หุ้นส่วนสาขา): common way Thai chains fund expansion once a model branch is proven
+  M.PARTNER = { funds: 0.6, share: 0.45, buyout: 1.3 };
+  M.partnerReady = function (state) {
+    return M.openBranches(state.biz).some(function (br) {
+      var h = (br.hist || []).slice(-3);
+      return h.length >= 3 && h.every(function (v) { return v > 0; }) && br.last && br.last.wall / Math.max(1, br.last.rev) > 0.06;
+    });
+  };
+  M.partnerOf = function (state, br) {
+    return br.partnerLoan ? state.fin.loans.find(function (l) { return l.id === br.partnerLoan; }) : null;
   };
 
   M.uniqueName = function (b, n) {
@@ -113,6 +134,13 @@
     var nbv = L.writeOffAsset(state, br.fitId);
     var sev = br.staff * b.wage * 1.2;
     L.spend(state.fin, 'severance', sev);
+    var pl = M.partnerOf(state, br);
+    if (pl) {
+      // the partner's capital was at risk in the branch and is lost with it
+      L.post(state.fin, { loans: pl.balance, gainloss: -pl.balance });
+      state.fin.loans = state.fin.loans.filter(function (l) { return l.id !== pl.id; });
+      br.partnerLoan = null;
+    }
     br.state = 'closed'; br.closedW = state.time.w;
     if (br.mgr) { var e = RW.Team.find(state, br.mgr); if (e) e.branch = null; br.mgr = null; }
     b.brand = Math.max(0, b.brand - 2);
@@ -188,13 +216,14 @@
       var A = menuF * priceVal * ratingF * brandF * compF * (0.85 + cons / 650);
       // staffing: required staff grows with volume
       var baseStaff = br.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff;
-      var required = baseStaff + (br.last ? (br.last.covers + br.last.deliv * 0.6) / 260 : 0);
+      var required = baseStaff + (br.last ? (br.last.covers + br.last.deliv * 0.6) / 4.33 / 320 : 0);
       var staffRatio = br.staff / Math.max(1, required);
       var serviceF = U.clamp(0.55 + 0.45 * staffRatio, 0.5, 1.08);
       // dine-in
       var footWeek = br.foot * (5 + 2 * L0.weekend) * sea.dine;
       var demand = footWeek * c.capture * A * ramp * (state.flags.pandemic && state.flags.pandemic > w ? 0.15 : 1);
-      var cap = br.seats * c.turns * 7 * U.clamp(staffRatio, 0.5, 1.05);
+      // seats only limit dine-in; takeaway customers (most of a bakery's trade) don't need a table
+      var cap = br.seats * c.turns * 7 * U.clamp(staffRatio, 0.5, 1.05) / (1 - (c.take || 0));
       var covers = R.poisson(Math.min(demand, cap));
       var lost = Math.max(0, demand - cap);
       br.util = cap > 0 ? covers / cap : 0;
@@ -209,14 +238,14 @@
       }
       var ticket = c.ticket * b.priceIdx;
       var dineRev = covers * ticket * vat;
-      var delGross = deliv * ticket * 1.15;
+      var delGross = deliv * ticket * 1.2;
       var delRev = delGross * vat * (1 - b.deliv.promo);
       L.earnCash(fin, 'rev_food', dineRev);
       if (delRev > 0) L.invoice(state, 'rev_deliv', delRev, w + 1, { name: 'แอปเดลิเวอรี', seg: 'delivery', sure: true });
       // variable costs
       var foodPct = Math.max(0.12, c.food + b.foodAdj - (ck ? 0.035 : 0) + (state.world.fx - 35.5) * 0.002 + (1 - Math.min(1, staffRatio)) * 0.02);
       var waste = 0.05 * (ck ? 0.7 : 1) * (1.3 - Math.min(0.3, RW.Team.capOf(state, 'data') * 0.15)) * (br.util < 0.4 ? 1.4 : 1);
-      // ingredients cost the same whether dine-in or delivery (app prices are marked up ~15% to cover GP)
+      // ingredients cost the same whether dine-in or delivery (app prices are marked up ~20% to cover GP)
       var food = (dineRev + deliv * ticket * vat) * foodPct * (1 + waste);
       L.spend(fin, 'cogs_goods', food);
       if (delGross > 0) {
@@ -272,22 +301,31 @@
       var labor = br.staff * b.wage * (br.type === 'mall' ? 1.08 : 1);
       L.spend(fin, 'cogs_staff', labor);
       L.spend(fin, 'benefits', br.staff * L.socialSecurity(b.wage));
-      var util = br.ms.rev * c.util + br.sqm * 180;
+      var util = br.ms.rev * c.util + br.sqm * 110;
       L.spend(fin, 'utilities', util);
       L.spend(fin, 'office', br.ms.rev * 0.015 + 4000); // maintenance, smallwares, cleaning
       // frontline turnover → recruiting & training cost; understaffing persists if HR weak
       var turnover = br.staff * (0.07 + (b.staffing > 1.1 ? -0.02 : b.staffing < 0.9 ? 0.04 : 0));
       L.spend(fin, 'recruit', turnover * 3500);
       br.staffSkill = Math.max(20, br.staffSkill - turnover / Math.max(1, br.staff) * 12);
-      var required = (br.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff) + (br.ms.covers + br.ms.deliv * 0.6) / 4.33 / 260;
+      var required = (br.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff) + (br.ms.covers + br.ms.deliv * 0.6) / 4.33 / 320;
       var hrF = Math.min(1, 0.75 + RW.Team.capOf(state, 'hr') * 0.2 + RW.Team.capOf(state, 'ops') * 0.1);
       br.staff = Math.max(2, Math.round(required * b.staffing * (R.chance(hrF) ? 1 : 0.9)));
       totalStaff += br.staff;
       var rent = br.rent + (br.type === 'mall' ? br.sqm * 120 : 0);
       var foodC = br.ms.food;
       var gp = br.ms.delivRev / (1 - b.deliv.promo) * 0.30;
-      br.last = { rev: br.ms.rev, covers: br.ms.covers, deliv: br.ms.deliv, food: foodC, labor: labor + br.staff * L.socialSecurity(b.wage), rent: rent, util: util, gp: gp, other: br.ms.rev * 0.015 + 4000 };
+      // the store manager is part of the shop's own P&L (true 4-wall)
+      var mgrE = br.mgr ? RW.Team.find(state, br.mgr) : null;
+      var mgrCost = mgrE && !mgrE.gone && mgrE.startW <= state.time.w ? mgrE.salary + L.socialSecurity(mgrE.salary) : 0;
+      br.last = { rev: br.ms.rev, covers: br.ms.covers, deliv: br.ms.deliv, food: foodC, labor: labor + br.staff * L.socialSecurity(b.wage) + mgrCost, rent: rent, util: util, gp: gp, other: br.ms.rev * 0.015 + 4000 };
       br.last.wall = br.last.rev - br.last.food - br.last.labor - br.last.rent - br.last.util - br.last.gp - br.last.other - br.ms.delivRev * 0.05;
+      var pl = M.partnerOf(state, br);
+      if (pl && br.last.wall > 0) {
+        var share = Math.round(br.last.wall * M.PARTNER.share * U.clamp(pl.balance / pl.principal, 0, 1)); // partial buybacks shrink the share
+        L.post(fin, { interest: share, cash: -share }, 'fin');
+        br.last.partner = share;
+      }
       br.hist = br.hist || [];
       br.hist.push(br.last.wall);
       if (br.hist.length > 12) br.hist.shift();
@@ -366,7 +404,7 @@
   };
   M.valuation = function (state) {
     var tr = M.traction(state);
-    var qual = RW.Models.saas.qualValue(tr.score);
+    var qual = RW.Models.saas.qualValue(tr.score) * 0.4; // restaurants rarely earn tech-style story premiums
     var revRun = (state.kpi.revenueMonthly || 0) * 12;
     if (revRun <= 0) return qual;
     var g = U.clamp(tr.growth, 0, 2);

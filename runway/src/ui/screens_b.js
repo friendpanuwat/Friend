@@ -119,7 +119,7 @@
         (o.max > 0 ? '<div class="row" style="margin-top:6px">' + UI.numInput('debt_' + o.kind, amt, 'debtForm', [o.kind], 50000) + UI.btn(o.kind === 'founder' ? 'ให้ยืม' : 'กู้', 'takeDebt', [o.kind], 'primary sm') + '</div>' : '') + '</div>';
     }).join('');
     var loans = s.fin.loans.map(function (l) {
-      return [h(l.name), F.b(l.principal), F.b(l.balance + (l.feeLeft || 0)), l.kind === 'rbf' ? F.pct(l.revShare, 0) + ' ของรายได้' : F.pct(l.rate, 1) + '/ปี', l.payment ? F.b(l.payment) + '/ด.' : '–', UI.btn('ชำระ ฿500K', 'repayLoan', [l.id, 500000], 'sm')];
+      return [h(l.name), F.b(l.principal), F.b(l.balance + (l.feeLeft || 0)), l.kind === 'rbf' ? F.pct(l.revShare, 0) + ' ของรายได้' : l.kind === 'partner' ? F.pct(RW.Models.fnb.PARTNER.share * l.balance / l.principal, 0) + ' ของกำไรสาขา' : F.pct(l.rate, 1) + '/ปี', l.payment ? F.b(l.payment) + '/ด.' : '–', UI.btn(l.kind === 'partner' ? 'ซื้อหุ้นคืน ฿500K' : 'ชำระ ฿500K', 'repayLoan', [l.id, 500000], 'sm')];
     });
     return '<div class="grid g2">' + UI.panel('ทางเลือกเงินกู้', offerRows + '<p class="tiny muted" style="margin-top:6px">หนี้ไม่ทำให้เสียหุ้น แต่ต้องจ่ายคืนทุกเดือนไม่ว่าธุรกิจจะดีหรือแย่ ผิดนัดชำระ = ล้มละลายเร็วขึ้น</p>') + UI.panel('เงินกู้คงค้าง', UI.table(['ชื่อ', '#เงินต้น', '#คงเหลือ', 'ดอกเบี้ย', '#ผ่อน', ''], loans, { empty: 'ไม่มีหนี้' })) + '</div>';
   };
