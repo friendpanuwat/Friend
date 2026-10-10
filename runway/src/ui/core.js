@@ -428,7 +428,7 @@
   UI.boot = function (hot) {
     var t = UI.store.get('runway.theme');
     if (t && t !== 'system') document.documentElement.setAttribute('data-theme', t);
-    if (hot && hot.state) { UI.s = hot.state; UI.tab = hot.tab || 'overview'; }
+    if (hot && hot.state) { try { UI.s = RW.Engine.migrate(hot.state); } catch (e) { UI.s = hot.state; } UI.tab = hot.tab || 'overview'; }
     UI.render();
     if (UI.s && !UI.s.over) UI.showEvent();
   };
