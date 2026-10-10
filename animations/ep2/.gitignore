@@ -1,0 +1,4 @@
+node_modules
+out/
+# the scanned character (from the user's zip) is kept out of git: put char.obj, char.mtl and texture_20250901.png here
+model/
