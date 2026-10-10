@@ -42,7 +42,7 @@ const IND = process.argv[3] || 'saas';
     await page.screenshot({ path: `${out}/${String(n++).padStart(2, '0')}-${t}.png`, fullPage: true });
   }
   // subtabs
-  for (const [tab, act, vals] of (process.env.QUICK ? [] : [['team', 'teamSub', ['hire', 'policy']], ['finance', 'finSub', ['bs', 'cf', 'debt', 'tax']], ['funding', 'fundSub', ['raise', 'investors', 'exit']]])) {
+  for (const [tab, act, vals] of (process.env.QUICK ? [] : [['team', 'teamSub', ['hire', 'policy']], ['finance', 'finSub', ['bs', 'cf', 'plan', 'debt', 'tax']], ['funding', 'fundSub', ['raise', 'investors', 'exit']]])) {
     await page.click(`.rail button[data-a='["${tab}"]']`);
     for (const v of vals) {
       await page.click(`button[data-act="${act}"][data-a='["${v}"]']`);

@@ -193,10 +193,7 @@
     if (!raw) return false;
     try { UI.s = UI.migrate(JSON.parse(raw)); UI.tab = 'overview'; return true; } catch (e) { return false; }
   };
-  UI.migrate = function (s) {
-    s.founder.focus.consult = s.founder.focus.consult || 0;
-    return s;
-  };
+  UI.migrate = function (s) { return RW.Engine.migrate(s); };
   UI.exportCode = function () {
     var json = JSON.stringify(UI.s);
     return btoa(unescape(encodeURIComponent(json)));
@@ -312,7 +309,7 @@
       '<div class="gauges">' +
       '<div class="gauge"><label>เงินสด</label><strong class="' + (k.cash < 0 ? 'crit' : '') + '">' + F.m(k.cash) + '</strong><span class="sub">Burn ' + (k.burn > 0 ? F.m(k.burn) + '/ด.' : 'กำไร') + '</span></div>' +
       '<div class="gauge"><label>' + UI.tip('Runway', 'จำนวนเดือนที่เงินสดจะหมดถ้าใช้จ่ายเท่าเดิม แต่ละไฟ = 1 เดือน') + '</label><strong class="' + runwayTone + '">' + F.months(rw) + '</strong><div class="lights" aria-hidden="true">' + lamps + '</div></div>' +
-      '<div class="gauge"><label>' + revLabel[0] + '</label><strong>' + revLabel[1] + '</strong><span class="sub">' + (k.momGrowth ? UI.delta(k.momGrowth) + ' MoM' : '&nbsp;') + '</span></div>' +
+      '<div class="gauge"><label>' + revLabel[0] + '</label><strong>' + revLabel[1] + '</strong><span class="sub">' + (revLabel.length > 2 ? (revLabel[2] != null ? UI.delta(revLabel[2]) + ' MoM' : '&nbsp;') : k.momGrowth ? UI.delta(k.momGrowth) + ' MoM' : '&nbsp;') + '</span></div>' +
       '<div class="gauge"><label>ทีม</label><strong>' + (RW.Team.headcount(s) + 1 + (s.cofounders || []).filter(function (c) { return c.active; }).length) + ' คน</strong><span class="sub">ขวัญ ' + (k.morale != null ? Math.round(k.morale) : '–') + '</span></div>' +
       '<div class="gauge"><label>พลังงานคุณ</label><strong class="' + (f.energy < 25 ? 'crit' : f.energy < 45 ? 'warn' : '') + '">' + Math.round(f.energy) + '</strong><span class="sub">เครียด ' + Math.round(f.stress) + (f.vacation ? ' · ลาพัก' : f.burnout ? ' · หมดไฟ' : '') + '</span></div>' +
       '</div>' +

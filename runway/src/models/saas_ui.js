@@ -22,7 +22,7 @@
     var b = s.biz;
     return b.product + ' · ' + (b.launched ? 'เปิดขายมา ' + Math.round((s.time.w - b.launchW) / 4.33) + ' เดือน · ลูกค้า ' + F.num(M.totalCustomers(b)) + ' ราย' : 'กำลังสร้าง MVP');
   };
-  M.topMetric = function (s) { return ['MRR', F.m(s.kpi.mrr || 0)]; };
+  M.topMetric = function (s) { var hm = s.hist.monthly, p = hm.length >= 2 ? hm[hm.length - 2].k.mrr : 0; return ['MRR', F.m(s.kpi.mrr || 0), p > 0 ? (s.kpi.mrr || 0) / p - 1 : null]; };
   M.snapshot = function (s) { return { cust: M.totalCustomers(s.biz), mrr: M.mrr(s.biz), life: s.biz.lifetime.customers }; };
   M.snapDiff = function (s, a, b) {
     var won = b.life - a.life, lost = won - (b.cust - a.cust);

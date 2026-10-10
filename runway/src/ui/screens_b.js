@@ -9,8 +9,8 @@
   UI.views.finance = function (s) {
     var sub = UI.sub.finance || 'pl';
     var head = '<div class="page-head"><div><h2>การเงิน</h2><p>บัญชีคู่ตามมาตรฐาน — กำไรไม่ใช่เงินสด ลูกค้าองค์กรจ่ายช้า 60 วัน รายได้รายปีเก็บเงินล่วงหน้าแต่ทยอยรับรู้</p></div>' +
-      UI.segBtns([['pl', 'งบกำไรขาดทุน'], ['bs', 'งบดุล'], ['cf', 'กระแสเงินสด'], ['debt', 'เงินกู้'], ['tax', 'ภาษีและลูกหนี้']], sub, 'finSub') + '</div>';
-    var body = { pl: UI.finPL, bs: UI.finBS, cf: UI.finCF, debt: UI.finDebt, tax: UI.finTax }[sub](s);
+      UI.segBtns([['pl', 'งบกำไรขาดทุน'], ['bs', 'งบดุล'], ['cf', 'กระแสเงินสด'], ['plan', 'ประมาณการ 12 เดือน'], ['debt', 'เงินกู้'], ['tax', 'ภาษีและลูกหนี้']], sub, 'finSub') + '</div>';
+    var body = { pl: UI.finPL, bs: UI.finBS, cf: UI.finCF, plan: UI.finPlan, debt: UI.finDebt, tax: UI.finTax }[sub](s);
     return head + body;
   };
   UI.acts.finSub = function (v) { UI.sub.finance = v; };
@@ -44,6 +44,55 @@
     return UI.panel('งบกำไรขาดทุนรายเดือน', UI.table(heads, rows) + '<p class="tiny muted" style="margin-top:6px">* เดือนปัจจุบันยังไม่ปิดงบ (ยังไม่รวมเงินเดือน ค่าเช่า และค่าใช้จ่ายสิ้นเดือน)</p>') +
       '<div class="grid g2" style="margin-top:14px">' + UI.panel('กำไร (ขาดทุน) สุทธิรายเดือน', chart) + ue + '</div>';
   };
+
+  // ---------- 12-month cash plan with what-if levers ----------
+  UI.finPlan = function (s) {
+    var EN = RW.Engine;
+    var pf = UI.form.plan;
+    if (!pf || pf.w0 == null) {
+      var d = EN.cashForecast(s, {});
+      var avgSal = RW.Team.all(s).length ? U.avg(RW.Team.all(s), function (e) { return e.salary; }) : 35000;
+      pf = UI.form.plan = { w0: s.time.w, g: Math.round(d.g * 100), cut: 0, hires: 0, salary: Math.round(avgSal / 1000) * 1000, freeze: false };
+    }
+    var opt = { g: pf.g / 100, cut: pf.cut / 100, hires: pf.hires, salary: pf.salary, freeze: pf.freeze };
+    var fc = EN.cashForecast(s, opt);
+    var flat = EN.cashForecast(s, { g: 0 });
+    var mo = fc.months;
+    var anyPending = RW.Team.all(s).some(function (e) { return e.startW > s.time.w; });
+    var controls = UI.panel('สมมติฐาน (ลองปรับดู)',
+      UI.slider('รายได้โตต่อเดือน', pf.g, -10, 30, 1, 'planSet', ['g'], 'pct') +
+      '<p class="tiny muted" style="margin:-2px 0 8px">3 เดือนล่าสุดโตเฉลี่ย ' + F.pct(s.kpi.cmgr3 || 0, 1) + '/เดือน · รายได้หลักฐาน ' + F.m(fc.base.rev) + '/เดือน' + (fc.base.side > 0 ? ' + งานที่ปรึกษา ' + F.m(fc.base.side) + ' (คงที่)' : '') + ' · ไม่รวมรายได้ครั้งเดียว</p>' +
+      UI.slider('ลดค่าใช้จ่ายที่ไม่ใช่เงินเดือน', pf.cut, 0, 60, 5, 'planSet', ['cut'], 'pct') +
+      '<p class="tiny muted" style="margin:-2px 0 8px">ค่าใช้จ่ายคงที่อื่นๆ (การตลาด ค่าเช่า ซอฟต์แวร์ ฯลฯ) ~' + F.m(fc.base.fixed) + '/เดือน</p>' +
+      UI.slider('จ้างเพิ่ม (เริ่มเดือนที่ 2)', pf.hires, 0, 20, 1, 'planSet', ['hires'], '') +
+      '<div class="row" style="margin:2px 0 8px"><span class="small ink2">เงินเดือนเฉลี่ยคนใหม่</span>' + UI.numInput('plan_sal', pf.salary, 'planSet', ['salary'], 1000) + '</div>' +
+      (anyPending ? '<label class="row small"><input type="checkbox" ' + (pf.freeze ? 'checked' : '') + ' data-act="planSet" data-a=\'["freeze"]\'> ยกเลิกคนที่รับแล้วแต่ยังไม่เริ่มงาน</label>' : '') +
+      '<div style="margin-top:8px">' + UI.btn('รีเซ็ตเป็นค่าปัจจุบัน', 'planReset', [], 'sm ghost') + '</div>');
+    var m6 = mo[5], m12 = mo[11];
+    var tiles = '<div class="tiles">' +
+      UI.tile('เงินสดตอนนี้', F.m(s.fin.bal.cash)) +
+      UI.tile('เงินสดใน 6 เดือน', F.m(m6.cash), '', m6.cash < 0 ? 'crit' : '') +
+      UI.tile('เงินสดใน 12 เดือน', F.m(m12.cash), '', m12.cash < 0 ? 'crit' : m12.cash > s.fin.bal.cash ? 'good' : '') +
+      UI.tile('เงินหมดประมาณ', fc.zeroAt ? mo[fc.zeroAt - 1].label : 'ไม่หมดใน 12 เดือน', fc.zeroAt ? 'อีก ~' + fc.zeroAt + ' เดือน' : '', fc.zeroAt ? (fc.zeroAt <= 6 ? 'crit' : 'warn') : 'good') +
+      UI.tile('รายได้ ≥ ค่าใช้จ่ายรายเดือน', fc.breakEven ? (fc.breakEven === 1 ? 'แล้ว' : mo[fc.breakEven - 1].label) : 'ยังไม่ถึงใน 12 เดือน', '', fc.breakEven ? 'good' : '') +
+      '</div>';
+    var chart = UI.chart({ labels: mo.map(function (m) { return m.label; }), series: [
+      { name: 'เงินสด (สมมติฐานของคุณ)', color: 'var(--s1)', data: mo.map(function (m) { return m.cash; }), area: true },
+      { name: 'เงินสด ถ้ารายได้ไม่โตเลย', color: 'var(--s2)', data: flat.months.map(function (m) { return m.cash; }), dash: true }
+    ], fmt: F.k, tipFmt: F.m });
+    var rows = mo.map(function (m) { return [m.label, F.k(m.inflow), F.k(m.cost), F.k(m.debt), '<span class="' + (m.net < 0 ? 'crit' : 'good') + '">' + F.k(m.net) + '</span>', '<span class="' + (m.cash < 0 ? 'crit' : '') + '">' + F.k(m.cash) + '</span>']; });
+    var po = s.industry === 'ecom' ? U.sum(s.biz.pos, function (p) { return p.total - p.deposit; }) : 0;
+    var notes = '<p class="tiny muted" style="margin-top:6px">ประมาณการแบบง่าย: ใช้ค่าเฉลี่ย 3 เดือนล่าสุด ต้นทุนผันแปร ~' + F.pct(fc.base.varR, 0) + ' ของรายได้ เก็บเงินได้ ~' + F.pct(fc.base.collect, 0) + ' ของรายได้ (สัญญารายปีจ่ายล่วงหน้าทำให้เกิน 100%, ลูกหนี้จ่ายช้าทำให้ต่ำกว่า) · เงินเดือนนับคนที่รับแล้วตามวันเริ่มงาน · ยังไม่รวมเงินระดมทุนใหม่ ภาษี การลงทุนในสินทรัพย์ และเหตุการณ์ไม่คาดฝัน' + (po > 0 ? ' · มีใบสั่งผลิตที่ต้องจ่ายส่วนที่เหลือเมื่อของถึงอีก ' + F.m(po) : '') + '</p>';
+    return '<div class="grid g-side"><div class="stack">' + tiles + UI.panel('เงินสดคาดการณ์', chart) + '</div>' + controls + '</div>' +
+      '<div style="margin-top:14px">' + UI.panel('ประมาณการรายเดือน', UI.table(['เดือน', '#เงินรับ', '#ค่าใช้จ่าย', '#ผ่อนหนี้', '#สุทธิ', '#เงินสดปลายเดือน'], rows) + notes) + '</div>';
+  };
+  UI.acts.planSet = function (k, v) {
+    var pf = UI.form.plan;
+    if (k === 'freeze') pf.freeze = !!v;
+    else if (k === 'salary') pf.salary = Math.max(15000, Number(v) || 0);
+    else pf[k] = Number(v);
+  };
+  UI.acts.planReset = function () { UI.form.plan = null; };
 
   UI.finBS = function (s) {
     var b = s.fin.bal, bs = L.balanceSheet(s.fin);

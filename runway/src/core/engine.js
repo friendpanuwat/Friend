@@ -59,6 +59,16 @@
     return state;
   };
 
+  // bring older saves up to date
+  EN.migrate = function (s) {
+    Object.keys(RW.ACCOUNTS).forEach(function (k) { if (s.fin.bal[k] == null) s.fin.bal[k] = 0; });
+    s.founder.focus.consult = s.founder.focus.consult || 0;
+    if (!s.research) s.research = [];
+    if (!s.challenge) s.challenge = 'none';
+    if (!s.maxW) s.maxW = RW.MAX_WEEKS;
+    return s;
+  };
+
   // ---------- Annual strategy themes ----------
   EN.THEMES = {
     blitz: { n: 'Blitzscaling — โตให้เร็วที่สุด', d: 'การตลาดได้ผลขึ้น 12% จ้างคนได้เร็วขึ้น แต่ทีมเครียดขึ้น บอร์ดชอบการเติบโต', mkt: 1.12, dev: 1, morale: -2, quit: 1.1, opex: 1, hire: 1.3, stress: 3 },
@@ -239,7 +249,7 @@
     var snap = {
       m: info.monthsElapsed, label: T.monthLabel(info.monthsElapsed), w: w, pl: U.deepCopy(pl), p: p, cf: U.deepCopy(fin.month.cf),
       bal: U.deepCopy(fin.bal), bs: bs, hc: RW.Team.headcount(state), cash: fin.bal.cash, k: mk,
-      morale: RW.Team.avgMorale(state), founderPct: RW.Funding.founderPct(state), valuation: state.funding.lastPost
+      morale: RW.Team.avgMorale(state), founderPct: RW.Funding.founderPct(state), valuation: state.funding.lastPost, payroll: pr.gross
     };
     state.hist.monthly.push(snap);
     if (state.hist.monthly.length > 132) state.hist.monthly.shift();
@@ -282,7 +292,7 @@
     k.runway = burn > 0 ? Math.max(0, k.cash) / burn : Infinity;
     var last = hm.length ? hm[hm.length - 1] : null;
     // operating KPIs exclude the founder's side consulting (investors don't count it as traction)
-    var core = function (m) { return m ? m.p.rev + (m.pl.rev_consult || 0) : 0; };
+    var core = function (m) { return m ? m.p.rev + (m.pl.rev_consult || 0) + (m.pl.rev_oneoff || 0) : 0; };
     k.revenueMonthly = core(last);
     k.revenueTotal = last ? last.p.rev : 0;
     k.revenueTTM = U.sum(U.last(hm, 12), core);
@@ -323,12 +333,72 @@
     return RW.Team.monthlyCost(state) + rent + (M.forecastCost ? M.forecastCost(state) : 0) + 8000;
   };
 
+  // 12-month cash projection for planning. opt: { g: monthly growth, cut: share of non-payroll fixed costs cut,
+  // freeze: cancel hires not yet started, hires: extra headcount, salary: their monthly salary }
+  EN.cashForecast = function (state, opt) {
+    opt = opt || {};
+    var hm = U.last(state.hist.monthly, 3), w = state.time.w, M = RW.Models[state.industry];
+    var pol = state.team.policy;
+    function empCost(sal) { return sal + L.socialSecurity(sal) + RW.POLICIES.benefits[pol.benefits].cost + RW.POLICIES.culture[pol.culture].cost; }
+    var rev0 = 0, varR = 0, fixed0, collect = 1, side0 = 0;
+    // cash collected per baht of revenue: annual prepayments raise it, slow-paying invoices lower it
+    var h4 = U.last(state.hist.monthly, 4);
+    if (h4.length >= 2) {
+      var rc = 0, rv = 0;
+      for (var j = 1; j < h4.length; j++) {
+        var a = h4[j], pv = h4[j - 1];
+        rv += a.p.rev;
+        rc += a.p.rev - ((a.bal.ar || 0) - (pv.bal.ar || 0)) - ((a.bal.deferred || 0) - (pv.bal.deferred || 0));
+      }
+      if (rv > 0) collect = U.clamp(1 + (rc / rv - 1) * 0.6, 0.8, 1.4); // damped: one lumpy month shouldn't dominate
+    }
+    if (hm.length) {
+      var R0 = 0, V0 = 0, Fx = 0, C0 = 0;
+      hm.forEach(function (m) {
+        var side = -(m.pl.rev_consult || 0), once = -(m.pl.rev_oneoff || 0);
+        C0 += side;
+        var cash = m.p.cogs + m.p.opex - (m.pl.depr || 0);
+        var variable = m.p.cogs - (state.industry === 'fnb' ? 0 : (m.pl.cogs_staff || 0));
+        var payroll = m.payroll != null ? m.payroll : (m.pl.sal_rnd || 0) + (m.pl.sal_sm || 0) + (m.pl.sal_ga || 0) + (m.pl.benefits || 0) + (m.pl.culture || 0) + (state.industry === 'fnb' ? 0 : (m.pl.cogs_staff || 0));
+        R0 += m.p.rev - side - once; V0 += variable; Fx += Math.max(0, cash - variable - payroll);
+      });
+      rev0 = R0 / hm.length; varR = R0 > 0 ? U.clamp(V0 / R0, 0, 1.5) : 0; fixed0 = Fx / hm.length; side0 = C0 / hm.length;
+    } else fixed0 = Math.max(0, EN.forecastMonthlyCost(state) - RW.Team.monthlyCost(state));
+    var g = opt.g != null ? opt.g : U.clamp(Math.round((state.kpi.cmgr3 || 0) * 100) / 100, -0.05, 0.15);
+    var cut = opt.cut || 0, cash = state.fin.bal.cash, out = [], zeroAt = null, beAt = null;
+    var info = T.info(w), m0 = info.monthsElapsed;
+    var loans = state.fin.loans.map(function (l) { return { kind: l.kind, bal: l.balance + (l.feeLeft || 0), pay: l.payment || 0, rate: l.rate, io: l.interestOnly, age: Math.floor((w - l.startW) / 4.33), months: l.months, share: l.revShare }; });
+    for (var i = 1; i <= 12; i++) {
+      var atW = w + i * 4.33;
+      var rev = rev0 * Math.pow(1 + g, i);
+      var payroll = 0;
+      RW.Team.all(state).forEach(function (e) { if (e.startW <= atW && !(opt.freeze && e.startW > w)) payroll += empCost(e.salary); });
+      (state.cofounders || []).forEach(function (c) { if (c.active) payroll += c.salary + L.socialSecurity(c.salary); });
+      payroll += state.founder.salary + (state.founder.salary > 0 ? L.socialSecurity(state.founder.salary) : 0);
+      if (opt.hires && i >= 2) payroll += opt.hires * empCost(opt.salary || 35000);
+      var debt = 0;
+      loans.forEach(function (l) {
+        if (l.kind === 'founder' || l.bal <= 1) return;
+        var pay = l.kind === 'rbf' ? Math.min(l.bal, rev * l.share) : (l.age + i <= l.io ? l.bal * l.rate / 12 : Math.min(l.bal * (1 + l.rate / 12), l.pay));
+        if (l.kind !== 'rbf' && l.age + i > l.io) l.bal -= Math.max(0, pay - l.bal * l.rate / 12); else if (l.kind === 'rbf') l.bal -= pay;
+        debt += pay;
+      });
+      var cost = rev * varR + payroll + fixed0 * (1 - cut);
+      var net = rev * collect + side0 - cost - debt;
+      cash += net;
+      out.push({ i: i, label: T.monthLabel(m0 + i - 1), rev: rev, inflow: rev * collect + side0, cost: cost, debt: debt, net: net, cash: cash });
+      if (zeroAt == null && cash < 0) zeroAt = i;
+      if (beAt == null && rev + side0 - cost >= 0 && rev + side0 > 0) beAt = i;
+    }
+    return { months: out, zeroAt: zeroAt, breakEven: beAt, g: g, base: { rev: rev0, side: side0, varR: varR, fixed: fixed0, collect: collect } };
+  };
+
   // Paul Graham's "default alive": with current expenses and growth, profitable before cash runs out?
   EN.defaultAlive = function (state) {
     var hm = state.hist.monthly;
     if (hm.length < 3) return null;
     var last = hm[hm.length - 1];
-    var rev = last.p.rev;
+    var rev = last.p.rev + (last.pl.rev_oneoff || 0); // one-off deals don't keep a company alive
     var exp = rev + Math.max(0, state.kpi.burn || 0);
     if (state.kpi.burn <= 0) return { alive: true, months: 0 };
     if (rev < 30000) return { alive: false, months: 0, tooEarly: true };
@@ -635,7 +705,7 @@
     if (k.revenueMonthly >= 10e6) set('rev10m');
     if (k.revenueMonthly >= 100e6) set('rev100m');
     var hm = state.hist.monthly;
-    if (hm.length && hm[hm.length - 1].cf.op > 0 && hm[hm.length - 1].p.rev > 50000) set('ramen');
+    if (hm.length && hm[hm.length - 1].cf.op + (hm[hm.length - 1].pl.rev_oneoff || 0) > 0 && hm[hm.length - 1].p.rev + (hm[hm.length - 1].pl.rev_oneoff || 0) > 50000) set('ramen');
     if (k.defaultAlive && k.defaultAlive.alive && k.burn > 0 && k.revenueMonthly > 100000 && k.runway > 6 && k.ebitdaMargin > -0.6) set('default_alive');
     ['seed', 'A', 'B', 'C'].forEach(function (s) { if (state.funding.rounds.some(function (r) { return r.stage === s; })) set('raised_' + s); });
     if (state.funding.lastPost >= 35e9) set('unicorn');

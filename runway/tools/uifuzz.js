@@ -27,7 +27,7 @@ const path = require('path');
         if (w % 13 === 0 || s.over) {
           for (const t of tabs) {
             RW.UI.tab = t;
-            const subs = { team: ['people', 'hire', 'policy'], finance: ['pl', 'bs', 'cf', 'debt', 'tax'], funding: ['overview', 'raise', 'investors', 'exit'], inbox: ['all', 'decisions'] }[t] || [null];
+            const subs = { team: ['people', 'hire', 'policy'], finance: ['pl', 'bs', 'cf', 'plan', 'debt', 'tax'], funding: ['overview', 'raise', 'investors', 'exit'], inbox: ['all', 'decisions'] }[t] || [null];
             for (const sb of subs) {
               if (sb) RW.UI.sub[t] = sb;
               RW.UI.render();

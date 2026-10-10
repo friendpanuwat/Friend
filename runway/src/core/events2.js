@@ -31,9 +31,9 @@
     id: 'gov_tender', cat: 'sales', weight: 0.7, cooldown: 70,
     cond: function (s) { return s.company.registered && s.time.w > 30 && (s.kpi.revenueMonthly || 0) > 200000 && s.industry !== 'fnb'; },
     title: 'งานประมูลภาครัฐ — มีคนเสนอ "ช่วยวิ่ง"',
-    body: function (s) { return 'หน่วยงานรัฐเปิดประมูลงานมูลค่า ' + F.b(rev(s) * 8) + ' นายหน้าคนหนึ่งบอกว่า "ผลถูกล็อกไว้แล้ว ถ้าอยากได้ต้องมีค่าดำเนินการ 15% จ่ายก่อนครึ่งหนึ่ง"'; },
+    body: function (s) { return 'หน่วยงานรัฐเปิดประมูลงานมูลค่า ' + F.b(tenderValue(s)) + ' นายหน้าคนหนึ่งบอกว่า "ผลถูกล็อกไว้แล้ว ถ้าอยากได้ต้องมีค่าดำเนินการ 15% จ่ายก่อนครึ่งหนึ่ง"'; },
     choices: function (s) {
-      var v = Math.round(rev(s) * 8 / 10000) * 10000;
+      var v = tenderValue(s);
       return [
         { t: 'จ่ายค่าวิ่งเต้น', d: 'ได้งานแน่ แต่ผิดกฎหมาย', fx: function () { L.spend(s.fin, 'other_exp', v * 0.075); s.flags.bribe = (s.flags.bribe || 0) + 1; E.later(s, 10, 'tender_win', { v: v, dirty: 1 }); if (R.chance(0.3)) E.later(s, R.int(30, 100), 'bribe_scandal', {}); return 'จ่ายงวดแรก ' + F.b(v * 0.075) + ' ไปแล้ว'; } },
         { t: 'ยื่นประมูลตามปกติ', d: 'โอกาสชนะต่ำ', fx: function () { L.spend(s.fin, 'prof', 40000); if (R.chance(0.18)) E.later(s, 10, 'tender_win', { v: v }); return 'ยื่นเอกสารแล้ว — ผลประกาศใน 10 สัปดาห์'; } },
@@ -41,11 +41,19 @@
       ];
     }
   });
+  // sized on smoothed revenue (a single mega-sale month shouldn't produce a giant contract), capped
+  function tenderValue(s) {
+    var base = Math.max(150000, (s.kpi.revenueTTM || 0) / Math.max(1, Math.min(12, s.hist.monthly.length)));
+    return Math.round(Math.min(12e6, base * 4) / 10000) * 10000;
+  }
   E.effect('tender_win', function (s, d) {
-    L.invoice(s, s.industry === 'ecom' ? 'rev_goods' : 'rev_svc', d.v, s.time.w + 13, { name: 'หน่วยงานรัฐ', wht: true });
+    L.invoice(s, 'rev_oneoff', d.v, s.time.w + 13, { name: 'หน่วยงานรัฐ', wht: true });
     if (d.dirty) L.spend(s.fin, 'other_exp', d.v * 0.075);
+    // delivering the contract costs real money up front, while the state pays ~90 days later
+    var cost = Math.round(d.v * (s.industry === 'ecom' ? 0.55 : 0.2));
+    L.spend(s.fin, s.industry === 'ecom' ? 'cogs_goods' : 'cogs_other', cost);
     if (s.industry === 'saas') s.biz.impl += 15;
-    H.mail(s, 'ชนะประมูลงานภาครัฐ ' + F.b(d.v), 'หน่วยงานรัฐจ่ายเงินช้า (~90 วัน)' + (d.dirty ? ' · จ่ายค่าดำเนินการงวดสองแล้ว' : '') + (s.industry === 'saas' ? ' · งานติดตั้ง 15 dev-weeks' : ''), 'good');
+    H.mail(s, 'ชนะประมูลงานภาครัฐ ' + F.b(d.v), 'ต้นทุนส่งมอบ ' + F.b(cost) + ' จ่ายทันที ส่วนหน่วยงานรัฐจ่ายเงินช้า (~90 วัน) — เตรียมเงินสดให้พอ' + (d.dirty ? ' · จ่ายค่าดำเนินการงวดสองแล้ว' : '') + (s.industry === 'saas' ? ' · งานติดตั้ง 15 dev-weeks' : ''), 'good');
   });
 
   E.register({
@@ -178,7 +186,7 @@
     choices: function (s) {
       var p = Math.round(s.biz.segs.micro.price * 8 / 100) * 100;
       return [
-        { t: 'ตกลง', fx: function () { var cash = Math.round(600 * p * 0.3); L.post(s.fin, { cash: cash, rev_svc: -cash }, 'op'); s.biz.ltd = (s.biz.ltd || 0) + 600; s.biz.brand += 3; return 'ได้เงิน ' + F.b(cash) + ' — ผู้ใช้ 600 รายจะสร้างงานซัพพอร์ตไปตลอด'; } },
+        { t: 'ตกลง', fx: function () { var cash = Math.round(600 * p * 0.3); L.post(s.fin, { cash: cash, rev_oneoff: -cash }, 'op'); s.biz.ltd = (s.biz.ltd || 0) + 600; s.biz.brand += 3; return 'ได้เงิน ' + F.b(cash) + ' — ผู้ใช้ 600 รายจะสร้างงานซัพพอร์ตไปตลอด'; } },
         { t: 'ปฏิเสธ', fx: function () { return 'รักษามูลค่าของสินค้าไว้'; } }
       ];
     }
