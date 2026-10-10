@@ -102,6 +102,7 @@
     k: function (n) {
       if (n == null || isNaN(n)) return '–';
       var a = Math.abs(n), s = n < 0 ? '−' : '';
+      if (a > 0 && a < 10 && Math.round(a) !== a) return s + a.toFixed(a < 1 ? 2 : 1);
       if (a >= 1e9) return s + (a / 1e9).toFixed(1) + 'B';
       if (a >= 1e6) return s + (a / 1e6).toFixed(a >= 1e7 ? 1 : 2) + 'M';
       if (a >= 1e4) return s + Math.round(a / 1e3) + 'K';

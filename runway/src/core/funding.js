@@ -109,7 +109,12 @@
     if (runway < 3) x -= 0.6; // desperation shows
     var bgNet = RW.BACKGROUNDS[state.founder.bg].net.investors;
     x += (bgNet - 1) * 1.5;
-    if (inv.type === 'accelerator') x += 0.8;
+    if (inv.type === 'accelerator') {
+      // accelerators bet on teams and progress, not revenue
+      var M2 = RW.Models[state.industry];
+      var prog = state.biz && (state.biz.launched || (state.biz.skus && state.biz.skus.length) || (state.biz.branches && state.biz.branches.length)) ? 0.6 : 0;
+      x = 0.2 + prog + (state.founder.skills.pitch - 50) / 40 + (state.founder.rep - 20) / 50 + ((state.cofounders || []).some(function (c) { return c.active; }) ? 0.4 : 0) - Math.max(0, askPre / fair - 1.5);
+    }
     if (inv.type === 'angel' && stage === 'preseed') x += 0.4;
     return U.clamp(U.sigmoid(x), 0.01, 0.97);
   };
@@ -439,6 +444,8 @@
     fund.lastPost = pre + total;
     fund.lastPPS = pps;
     if (ts.boardSeat) { fund.board.investorSeats++; fund.board.members.push({ who: lead.name, kind: 'investor' }); }
+    // at Series A founders typically secure a second common-holder seat; an independent chair joins
+    if (r.stage === 'A' && fund.board.founderSeats < 2) { fund.board.founderSeats = 2; fund.board.independent = 1; }
     if (ts.founderVesting) state.flags.founderVested = state.time.w;
     if (ts.flip) fund.flipped = true;
     if (lead.rofr) state.flags.rofr = lead.id;

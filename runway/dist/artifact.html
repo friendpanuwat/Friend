@@ -405,6 +405,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     k: function (n) {
       if (n == null || isNaN(n)) return '–';
       var a = Math.abs(n), s = n < 0 ? '−' : '';
+      if (a > 0 && a < 10 && Math.round(a) !== a) return s + a.toFixed(a < 1 ? 2 : 1);
       if (a >= 1e9) return s + (a / 1e9).toFixed(1) + 'B';
       if (a >= 1e6) return s + (a / 1e6).toFixed(a >= 1e7 ? 1 : 2) + 'M';
       if (a >= 1e4) return s + Math.round(a / 1e3) + 'K';
@@ -624,7 +625,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     if (!amt) return;
     var l = {}; l[acct] = -amt; l.ar = amt;
     L.post(fin, l);
-    fin.ar.push({ id: RW.R.id('inv'), amt: amt, due: dueWeek, wht: !!(opts && opts.wht), name: (opts && opts.name) || '', seg: (opts && opts.seg) || '', late: 0 });
+    fin.ar.push({ id: RW.R.id('inv'), amt: amt, due: dueWeek, wht: !!(opts && opts.wht), name: (opts && opts.name) || '', seg: (opts && opts.seg) || '', late: 0, sure: !!(opts && opts.sure) });
   };
 
   // Book revenue that is billed in advance (annual contracts): cash in, deferred liability
@@ -652,7 +653,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       var inv = fin.ar[i];
       if (inv.due <= w) {
         // probability to pay on time decreases in bad economy
-        var pPay = U.clamp(0.82 - macroDelay * 0.25 - inv.late * 0.04, 0.25, 0.97);
+        // platforms (marketplaces, delivery apps) settle on schedule; companies pay late
+        var pPay = inv.sure ? 0.99 : U.clamp(0.82 - macroDelay * 0.25 - inv.late * 0.04, 0.25, 0.97);
         if (RW.R.chance(pPay)) {
           var whtAmt = inv.wht ? inv.amt * 0.03 : 0;
           L.post(fin, { cash: inv.amt - whtAmt, whtc: whtAmt, ar: -inv.amt }, 'op');
@@ -1191,7 +1193,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   // Probability a candidate accepts an offer
   T.acceptProb = function (state, c, salary, equityPct) {
     var payRatio = salary / c.ask;
-    var x = (payRatio - 1) * 9 + c.interestBase;
+    var x = 0.9 + (payRatio - 1) * 9 + c.interestBase; // they applied: meeting the ask usually works
     x += (state.team.brand - 45) / 25;
     // stage credibility: funded companies are safer bets
     var stageIdx = RW.STAGE_ORDER.indexOf(state.funding.stage);
@@ -1408,7 +1410,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       var ch = CHANNELS[op.channel];
       var lam = ch.flow * (0.6 + team.brand / 80) * (state.world ? state.world.talentSupply : 1) * (op.channel === 'linkedin' ? 0.6 + (state.founder.focus.team || 0) / 25 : 1);
       lam *= state.founder.bg ? RW.BACKGROUNDS[state.founder.bg].net.talent : 1;
-      lam *= 1 + T.capOf(state, 'hr') * 0.35;
+      lam *= (1 + T.capOf(state, 'hr') * 0.35) * RW.Engine.tm(state, 'hire');
       if (op.level >= 4) lam *= 0.55;
       if (state.industry === 'fnb' && RW.ROLES[op.role].dept === 'cogs') lam *= 1.6;
       var n = R.poisson(lam);
@@ -1445,7 +1447,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       target += RW.OFFICES[state.company.office.type].morale;
       target += U.clamp(momentum, -10, 10);
       if (runway < 3) target -= 14; else if (runway < 6) target -= 6;
-      target += modT;
+      target += modT + RW.Engine.tm(state, 'morale');
       target += (state.founder.skills.leadership - 50) / 6;
       if (eff < 0.8) target -= (0.8 - eff) * 30;
       if (officeOver) target -= 5;
@@ -1459,7 +1461,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       e.mtarget = U.clamp(target, 0, 100);
       e.morale = U.clamp(U.approach(e.morale, e.mtarget, 0.14) + R.normal(0, 0.8), 0, 100);
       // stress
-      var st = RW.POLICIES.hours[pol.hours].stress * (e.traits.indexOf('hustler') >= 0 ? 1.6 : 1);
+      var st = RW.POLICIES.hours[pol.hours].stress * (e.traits.indexOf('hustler') >= 0 ? 1.6 : 1) + RW.Engine.tm(state, 'stress') * 0.15;
       var load = state.kpi && state.kpi.workload ? state.kpi.workload[RW.ROLES[e.role].dept] || 1 : 1;
       st += (load - 1) * 4;
       e.stress = U.clamp(e.stress + st - (e.stress > 30 ? 1.5 : 0.5), 0, 100);
@@ -1481,7 +1483,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
         var q = U.weeklyFromMonthly(annual / 12);
         q *= Math.exp((55 - e.morale) / 14);
         e.traits.forEach(function (tt) { if (RW.TRAITS[tt].quit) q *= RW.TRAITS[tt].quit; });
-        q *= state.world ? state.world.poach : 1;
+        q *= (state.world ? state.world.poach : 1) * RW.Engine.tm(state, 'quit');
         if (e.skill > 75) q *= 1.25; // good people get poached
         if (e.stress > 85) q *= 1.8;
         if (w - e.startW < 13) q *= 1.3;
@@ -1911,7 +1913,12 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     if (runway < 3) x -= 0.6; // desperation shows
     var bgNet = RW.BACKGROUNDS[state.founder.bg].net.investors;
     x += (bgNet - 1) * 1.5;
-    if (inv.type === 'accelerator') x += 0.8;
+    if (inv.type === 'accelerator') {
+      // accelerators bet on teams and progress, not revenue
+      var M2 = RW.Models[state.industry];
+      var prog = state.biz && (state.biz.launched || (state.biz.skus && state.biz.skus.length) || (state.biz.branches && state.biz.branches.length)) ? 0.6 : 0;
+      x = 0.2 + prog + (state.founder.skills.pitch - 50) / 40 + (state.founder.rep - 20) / 50 + ((state.cofounders || []).some(function (c) { return c.active; }) ? 0.4 : 0) - Math.max(0, askPre / fair - 1.5);
+    }
     if (inv.type === 'angel' && stage === 'preseed') x += 0.4;
     return U.clamp(U.sigmoid(x), 0.01, 0.97);
   };
@@ -2241,6 +2248,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     fund.lastPost = pre + total;
     fund.lastPPS = pps;
     if (ts.boardSeat) { fund.board.investorSeats++; fund.board.members.push({ who: lead.name, kind: 'investor' }); }
+    // at Series A founders typically secure a second common-holder seat; an independent chair joins
+    if (r.stage === 'A' && fund.board.founderSeats < 2) { fund.board.founderSeats = 2; fund.board.independent = 1; }
     if (ts.founderVesting) state.flags.founderVested = state.time.w;
     if (ts.flip) fund.flipped = true;
     if (lead.rofr) state.flags.rofr = lead.id;
@@ -2730,6 +2739,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       if (d.ind && d.ind.indexOf(state.industry) < 0) return false;
       if (d.once && ev.seen[d.id]) return false;
       if (ev.cooldown[d.id] && ev.cooldown[d.id] > w) return false;
+      if (d.cat === 'founder' && w < 10) return false;
       try { return !d.cond || d.cond(state); } catch (e) { return false; }
     });
     var pick = R.weighted(cands, function (d) {
@@ -3651,6 +3661,19 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     return state;
   };
 
+  // ---------- Annual strategy themes ----------
+  EN.THEMES = {
+    blitz: { n: 'Blitzscaling — โตให้เร็วที่สุด', d: 'การตลาดได้ผลขึ้น 12% จ้างคนได้เร็วขึ้น แต่ทีมเครียดขึ้น บอร์ดชอบการเติบโต', mkt: 1.12, dev: 1, morale: -2, quit: 1.1, opex: 1, hire: 1.3, stress: 3 },
+    alive: { n: 'Default alive — มุ่งสู่จุดคุ้มทุน', d: 'ค่าใช้จ่ายสำนักงานลด 15% ทุกคนประหยัด บอร์ดและนักลงทุนเห็นวินัย แต่ทีมรู้สึกว่าบริษัทไม่โต', mkt: 0.97, dev: 1, morale: -1, quit: 1, opex: 0.85, hire: 0.9, stress: 0 },
+    product: { n: 'Product excellence — สินค้าต้องดีที่สุด', d: 'ทีมพัฒนาสินค้า/R&D ทำงานได้ผลขึ้น 12% คุณภาพดีขึ้น แต่การขายไม่ได้แรงพิเศษ', mkt: 1, dev: 1.12, morale: 1, quit: 1, opex: 1, hire: 1, stress: 0 },
+    people: { n: 'People first — ทีมคือทุกอย่าง', d: 'ขวัญกำลังใจ +6 คนลาออกน้อยลง 25% และสรรหาคนง่ายขึ้น แต่ต้องใช้เวลาและงบดูแลคน', mkt: 1, dev: 1, morale: 6, quit: 0.75, opex: 1.05, hire: 1.15, stress: -2 }
+  };
+  EN.theme = function (state) {
+    var t = state.flags.theme;
+    return t && t.until > state.time.w ? EN.THEMES[t.k] : null;
+  };
+  EN.tm = function (state, key) { var t = EN.theme(state); return t ? t[key] : (key === 'morale' || key === 'stress' ? 0 : 1); };
+
   // ---------- Mail / inbox ----------
   EN.mail = function (state, cat, title, body, tone) {
     state.inbox.unshift({ id: R.id('m'), w: state.time.w, cat: cat, title: title, body: body || '', tone: tone || 'info', read: false });
@@ -3753,7 +3776,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     if (state.company.registered && !hasFinance) L.spend(fin, 'prof', 6500 + Math.min(25000, (state.kpi.revenueMonthly || 0) * 0.004));
     if (state.company.extraAdmin) L.spend(fin, 'prof', state.company.extraAdmin);
     if (state.company.insured) L.spend(fin, 'insurance', RW.Events.insuranceCost(state));
-    L.spend(fin, 'office', Math.round(hc * 600 + 1000));
+    L.spend(fin, 'office', Math.round((hc * 600 + 1000) * EN.tm(state, 'opex')));
     // model month end (hosting, inventory valuation, branch costs...)
     M.monthly(state, info);
     // loans & depreciation
@@ -3786,6 +3809,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       if (RW.Team.active(state).length > 0) RW.Events.queue(state, 'year_end_bonus', {});
     }
     if (info.month === 0 && state.time.w > 10 && RW.Team.active(state).length > 0) RW.Events.queue(state, 'annual_review', {});
+    if (info.month === 11) RW.Events.queue(state, 'annual_strategy', {}, state.time.w + 1);
     // VAT threshold
     var ttm = EN.revenueTTM(state) + revThisMonth;
     if (!fin.vat.registered && !fin.vat.required && ttm > 1.8e6) { fin.vat.required = true; RW.Events.queue(state, 'vat_register', {}); }
@@ -4349,6 +4373,24 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     }
   });
   RW.Events.register({
+    id: 'annual_strategy', cat: 'general',
+    title: function (s) { return 'วางกลยุทธ์ปี ' + (RW.T.info(s.time.w).be); },
+    body: function (s) {
+      var hm = s.hist.monthly, last12 = U.last(hm, 12), prev12 = hm.slice(Math.max(0, hm.length - 24), Math.max(0, hm.length - 12));
+      var r1 = U.sum(last12, function (m) { return m.p.rev; }), r0 = U.sum(prev12, function (m) { return m.p.rev; });
+      var ni = U.sum(last12, function (m) { return m.p.ni; });
+      return 'ปีที่ผ่านมา: รายได้ ' + F.m(r1) + (r0 > 0 ? ' (' + F.spct(r1 / r0 - 1, 0) + ' จากปีก่อน)' : '') + ' · กำไร(ขาดทุน)สุทธิ ' + F.m(ni) + ' · เงินสด ' + F.m(s.fin.bal.cash) + ' · ทีม ' + RW.Team.headcount(s) + ' คน · คุณถือหุ้น ' + F.pct(s.kpi.founderPct, 0) +
+        '\n\nทุกบริษัทต้องเลือกว่าปีนี้จะเอาอะไร — คุณเลือกได้หนึ่งธีมหลักซึ่งจะมีผลตลอดปี';
+    },
+    choices: function (s) {
+      return Object.keys(RW.Engine.THEMES).map(function (k) {
+        var t = RW.Engine.THEMES[k];
+        return { t: t.n, d: t.d, fx: function () { s.flags.theme = { k: k, until: s.time.w + 52 }; if (k === 'alive' && s.funding.rounds.length) s.funding.board.confidence = Math.min(100, s.funding.board.confidence + 6); if (k === 'blitz' && s.funding.rounds.length) s.funding.board.confidence = Math.min(100, s.funding.board.confidence + 4); return 'ธีมปีนี้: ' + t.n; } };
+      }).concat([{ t: 'ไม่กำหนดธีม — ทำงานแบบเดิม', fx: function () { s.flags.theme = null; return 'ไม่มีธีมพิเศษ'; } }]);
+    }
+  });
+
+  RW.Events.register({
     id: 'annual_review', cat: 'team',
     title: 'ปรับเงินเดือนประจำปี',
     body: function (s) {
@@ -4585,9 +4627,10 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     return m;
   };
   M.fitTerm = function (v) { return 0.15 + 0.85 * Math.pow(Math.max(0, v), 1.6); };
-  M.qAvg = function (by) {
+  M.qAvg = function (by, state) {
     var t = 0, q = 0;
-    for (var ch in by) { t += by[ch]; q += by[ch] * (CH[ch].q || 1); }
+    var sk = state ? 0.45 + state.founder.skills.sales / 90 : 1;
+    for (var ch in by) { t += by[ch]; q += by[ch] * (CH[ch].q || 1) * (ch === 'direct' ? sk : 1); }
     return t > 0 ? q / t : 1;
   };
   // innovators & early adopters buy immature products from founders they trust
@@ -4631,7 +4674,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var pm = 1 + Math.min(0.12, RW.Team.capOf(state, 'product') * 0.06);
     var debt = 1 - b.debt / 180;
     var mode = b.ship === 'fast' ? 1.2 : b.ship === 'careful' ? 0.82 : 1;
-    return dev * leadBoost * pm * debt * mode;
+    return dev * leadBoost * pm * debt * mode * RW.Engine.tm(state, 'dev');
   };
 
   M.engineering = function (state) {
@@ -4725,7 +4768,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var out = {};
     SEGS.forEach(function (k) { out[k] = { total: 0, by: {} }; });
     var mkt = RW.Team.capOf(state, 'mkt');
-    var eff = 1 / (1 + Math.min(1.2, mkt * 0.35)) * (mkt < 0.3 ? 1.3 : 1); // skilled marketers lower CPL
+    var eff = 1 / (1 + Math.min(1.2, mkt * 0.35)) * (mkt < 0.3 ? 1.3 : 1) / RW.Engine.tm(state, 'mkt'); // skilled marketers lower CPL
     var compInfl = 1 + U.sum(RW.World.aliveCompetitors(state), function (c) { return c.mkt / 100 * 0.12; });
     var brandF = (0.7 + b.brand / 100 * 0.8) * M.buzzMult(b) * b.hype;
     var on = SEGS.filter(function (k) { return b.segs[k].on; });
@@ -4772,7 +4815,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
         b.brand = Math.min(100, b.brand + st.stock / 200000);
       } else if (c.kind === 'founder') {
         if (prelaunch) return;
-        var fu = RW.Team.capOf(state, 'f_sell');
+        // meeting volume depends on time spent; sales skill shows up in the close rate (see qAvg)
+        var fo = state.founder;
+        var fu = (fo.focus.sell || 0) / 100 * Math.pow(fo.hours / 45, 0.85) * RW.Founder.effectiveness(state);
         if (fu <= 0) return;
         // a full-time founder-seller books ~12 qualified meetings a week
         var net = RW.BACKGROUNDS[state.founder.bg].net.customers;
@@ -4868,7 +4913,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
         s.trials = s.trials.filter(function (t) { return t.w > w - 2; });
         due.forEach(function (t) {
           var ux = 1 + b.feats.ux * 0.08;
-          var p = g.conv * M.fitTerm(v) * Math.pow(pf, 0.8) * Math.pow(cf, 0.7) * ux * M.qAvg(t.by) * M.earlyAdopter(b, k);
+          var p = g.conv * M.fitTerm(v) * Math.pow(pf, 0.8) * Math.pow(cf, 0.7) * ux * M.qAvg(t.by, state) * M.earlyAdopter(b, k);
           p = U.clamp(p, 0, 0.65);
           var won = R.binom(Math.round(t.n), p) + (R.f() < (t.n % 1) * p ? 1 : 0);
           if (won > 0) M.addCustomers(state, k, won, t.by, t.n);
@@ -4889,7 +4934,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
           var refs = g.refs ? 0.65 + 0.35 * Math.min(1, M.customers(b, k) / g.refs) : 1;
           var disc = 1 + b.maxDiscount * 1.6;
           var motionF = s.motion === 'field' ? 1.15 : 1;
-          var p = g.win * M.fitTerm(v) * Math.pow(pf, 0.7) * Math.pow(cf, 0.7) * salesSkill * refs * disc * overload * motionF * Math.min(1.6, M.qAvg(o.by)) * M.earlyAdopter(b, k);
+          var p = g.win * M.fitTerm(v) * Math.pow(pf, 0.7) * Math.pow(cf, 0.7) * salesSkill * refs * disc * overload * motionF * Math.min(1.6, M.qAvg(o.by, state)) * M.earlyAdopter(b, k);
           p = U.clamp(p, 0, 0.75);
           var n = R.binom(Math.round(o.n), p) + (R.f() < (o.n % 1) * p ? 1 : 0);
           if (n > 0) M.addCustomers(state, k, n, o.by, o.src);
@@ -5579,7 +5624,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 
   M.devWeekly = function (state) {
     var b = state.biz, c = CONCEPTS[b.concept];
-    var cap = RW.Team.capOf(state, 'rnd') * 1.0 + 0.35; // OEM's own formulation team helps a bit
+    var cap = (RW.Team.capOf(state, 'rnd') * 1.0 + 0.35) * RW.Engine.tm(state, 'dev'); // OEM's own formulation team helps a bit
     var active = b.dev.filter(function (d) { return d.regLeft == null; });
     active.forEach(function (d) { d.prog += cap / Math.max(1, active.length); });
     b.dev.forEach(function (d) {
@@ -5701,7 +5746,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var csF = 1 - Math.min(0.35, (b.chat.backlog || 0) / 600);
     var season = [1.0, 0.95, 1.0, 1.08, 0.95, 0.95, 0.95, 1.0, 1.0, 1.05, 1.2, 1.3][info.month];
     var mkt = RW.Team.capOf(state, 'mkt');
-    var adEff = (1 + Math.min(1, mkt * 0.3)) * (0.45 + 0.55 * b.creative);
+    var adEff = (1 + Math.min(1, mkt * 0.3)) * (0.45 + 0.55 * b.creative) * RW.Engine.tm(state, 'mkt');
     var orders = {};
     ['market', 'social', 'web'].forEach(function (k) {
       var ch = b.ch[k];
@@ -5767,7 +5812,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       var rtoCost = rto * (c.ship * 2 + 10);
       var rtoRev = rto / ordersFilled * netRev;
       var payoutRev = netRev - rtoRev;
-      if (ch.payout > 0) L.invoice(state, 'rev_goods', payoutRev, state.time.w + ch.payout, { name: ch.n, seg: k });
+      if (ch.payout > 0) L.invoice(state, 'rev_goods', payoutRev, state.time.w + ch.payout, { name: ch.n, seg: k, sure: true });
       else L.earnCash(fin, 'rev_goods', payoutRev);
       L.post(fin, { cogs_platform: payoutRev * feeRate, cash: -payoutRev * feeRate }, 'op');
       // goods returned by RTO go back to stock (approx: add cost back as a fresh lot on a random sku)
@@ -6366,7 +6411,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     b.insight = U.clamp(b.insight + RW.Team.capOf(state, 'discovery') * 4 * (1 - b.insight / 110), 0, 100);
     // menu R&D project
     if (b.menuProj) {
-      b.menuProj.prog += RW.Team.capOf(state, 'menu') + 0.15;
+      b.menuProj.prog += (RW.Team.capOf(state, 'menu') + 0.15) * RW.Engine.tm(state, 'dev');
       if (b.menuProj.prog >= b.menuProj.need) {
         var gain = R.range(4, 10) * (1 + b.insight / 150);
         b.menuQ = U.clamp(b.menuQ + gain, 0, 98);
@@ -6377,7 +6422,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     }
     var vat = fin.vat.registered ? 1 / 1.07 : 1;
     // walk-in trade depends mostly on location; brand adds on top
-    var brandF = (0.8 + b.brand / 200) * M.buzzMult(b) * state.world.macro.consumer * state.diff.market;
+    var brandF = (0.8 + b.brand / 200) * M.buzzMult(b) * state.world.macro.consumer * state.diff.market * (1 + (RW.Engine.tm(state, 'mkt') - 1) * 0.6);
     var priceVal = Math.pow(1 / b.priceIdx, 1.25);
     var compF = 1 / (1 + U.sum(RW.World.aliveCompetitors(state), function (x) { return x.mkt / 100 * 0.08; }));
     var ck = b.ck && b.ck.ready <= w;
@@ -6430,7 +6475,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       var delGross = deliv * ticket * 1.15;
       var delRev = delGross * vat * (1 - b.deliv.promo);
       L.earnCash(fin, 'rev_food', dineRev);
-      if (delRev > 0) L.invoice(state, 'rev_deliv', delRev, w + 1, { name: 'แอปเดลิเวอรี', seg: 'delivery' });
+      if (delRev > 0) L.invoice(state, 'rev_deliv', delRev, w + 1, { name: 'แอปเดลิเวอรี', seg: 'delivery', sure: true });
       // variable costs
       var foodPct = Math.max(0.12, c.food + b.foodAdj - (ck ? 0.035 : 0) + (state.world.fx - 35.5) * 0.002 + (1 - Math.min(1, staffRatio)) * 0.02);
       var waste = 0.05 * (ck ? 0.7 : 1) * (1.3 - Math.min(0.3, RW.Team.capOf(state, 'data') * 0.15)) * (br.util < 0.4 ? 1.4 : 1);
@@ -6879,6 +6924,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     opt.series.forEach(function (s) { s.data.forEach(function (v) { if (v != null && isFinite(v)) all.push(v); }); });
     if (!n || !all.length) return '<div class="empty">ยังไม่มีข้อมูลพอสำหรับกราฟ — เล่นต่ออีกสักเดือน</div>';
     var mn = Math.min.apply(null, all), mx = Math.max.apply(null, all);
+    if (mx === 0 && mn === 0) return '<div class="empty">ยังไม่มีข้อมูล — ตัวเลขจะเริ่มขึ้นเมื่อมียอดขาย</div>';
     if (opt.zero !== false) mn = Math.min(0, mn);
     if (mx === mn) mx = mn + 1;
     var ticks = UI.niceTicks(mn, mx, 4);
@@ -7071,7 +7117,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var M = RW.Models[s.industry];
     var t = [['overview', 'ภาพรวม'], ['founder', 'ผู้ก่อตั้ง']];
     M.ui.tabs.forEach(function (x) { t.push([x.id, x.n]); });
-    t.push(['team', 'ทีมงาน'], ['finance', 'การเงิน'], ['funding', 'ระดมทุน & หุ้น'], ['company', 'บริษัท & กฎหมาย'], ['sep'], ['inbox', 'กล่องข้อความ'], ['world', 'ตลาด & เศรษฐกิจ'], ['journal', 'บันทึก & ความสำเร็จ'], ['settings', 'เซฟ & ตั้งค่า']);
+    t.push(['team', 'ทีมงาน'], ['finance', 'การเงิน'], ['funding', 'ระดมทุน & หุ้น'], ['company', 'บริษัท & กฎหมาย'], ['sep'], ['inbox', 'กล่องข้อความ'], ['world', 'ตลาด & เศรษฐกิจ'], ['journal', 'บันทึก & ความสำเร็จ'], ['guide', 'คู่มือ & คำศัพท์'], ['settings', 'เซฟ & ตั้งค่า']);
     return t;
   };
 
@@ -7121,7 +7167,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var app = document.getElementById('app');
     UI.charts = {};
     if (!UI.s) { app.innerHTML = RW.UI.titleScreen(); return; }
-    if (UI.s.over) { app.innerHTML = RW.UI.endScreen(); return; }
+    if (UI.s.over) { UI.recordRun(UI.s); app.innerHTML = RW.UI.endScreen(); return; }
     var view = UI.views[UI.tab];
     var M = RW.Models[UI.s.industry];
     if (!view && M.ui.render[UI.tab]) view = M.ui.render[UI.tab];
@@ -7268,6 +7314,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
         return UI.btn((x.slot === 'auto' ? 'เซฟอัตโนมัติ' : 'ช่อง ' + x.slot) + ': ' + h(x.m.name) + ' · ' + h(x.m.label) + (x.m.over ? ' (จบแล้ว)' : ''), 'loadSlot', [x.slot], x.slot === 'auto' ? 'primary' : '');
       }).join('') + '</div></section>';
     }
+    html += UI.hofTable();
     html += '<section class="panel"><h3>เริ่มบริษัทใหม่</h3>';
     // step 1: founder
     html += '<div class="step"><h3><span class="n">01</span> คุณเป็นใคร</h3><div class="row" style="margin-bottom:8px"><label class="field" for="ng_name">ชื่อของคุณ<input type="text" id="ng_name" value="' + h(f.name) + '" placeholder="เช่น ภูมิ" data-act="ngSet" data-a=\'["name"]\'></label></div><div class="choices-grid">' +
@@ -7997,6 +8044,101 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   };
 })(globalThis.RW = globalThis.RW || {});
 
+/* ---- ui/guide.js ---- */
+/* RUNWAY — in-game guide, glossary, hall of fame */
+(function (RW) {
+  'use strict';
+  var UI = RW.UI, F = RW.F, h = UI.h;
+
+  var SECTIONS = [
+    ['เป้าหมายของเกม', [
+      'คะแนนคือ "ความมั่งคั่งสุทธิของคุณ" ตอนจบเกม = เงินส่วนตัว + มูลค่าหุ้นที่คุณได้จริงหลังหักสิทธิ์นักลงทุน (liquidation preference) ไม่ใช่ขนาดบริษัท',
+      'เกมจบเมื่อ: เงินสดติดลบนาน 6 สัปดาห์ (ล้มละลาย), เงินส่วนตัวติดลบหนัก, บอร์ดปลดคุณ, คุณขายกิจการ, IPO, ปิดบริษัทเอง หรือครบ 10 ปี',
+      'บริษัทที่เติบโตช้าแต่มีกำไร ก็อาจทำให้คุณรวยกว่าบริษัทที่ระดมทุนมหาศาลแล้วถูก dilute จนเหลือหุ้นนิดเดียว'
+    ]],
+    ['เวลาและการตัดสินใจ', [
+      '1 ตา = 1 สัปดาห์ · ปฏิทินบัญชีแบบ 4-4-5 (ไตรมาสละ 13 สัปดาห์) · ปลายเดือนจ่ายเงินเดือน ค่าเช่า ค่าเซิร์ฟเวอร์ และปิดงบ',
+      'เกมจะหยุดเมื่อมีเรื่องให้ตัดสินใจ ทุกทางเลือกมีผลระยะสั้นและผลที่ตามมาทีหลัง (บางเรื่องย้อนกลับมาหลายเดือนต่อมา)',
+      'ต้นปีจะให้เลือกธีมกลยุทธ์ประจำปี และตัดสินใจเรื่องขึ้นเงินเดือน/โบนัส — ตัวเลือกเหล่านี้มีผลทั้งปี'
+    ]],
+    ['ตัวคุณ (ผู้ก่อตั้ง)', [
+      'ช่วงแรกคุณคือพนักงานทุกตำแหน่ง: เวลาที่ใส่ในแต่ละด้านถูกแปลงเป็นผลงานจริง (สร้างสินค้า ขาย การตลาด คุยกับลูกค้า สรรหาคน ระดมทุน งานเอกสาร)',
+      'ทำงานเกิน ~60 ชั่วโมง/สัปดาห์ได้ผลเพิ่มน้อยลง แต่พลังงานและชีวิตส่วนตัวลดเร็ว พลังงานต่ำ = หมดไฟ ประสิทธิภาพเหลือครึ่ง',
+      'คุณมีเงินเก็บส่วนตัวและค่าใช้จ่ายส่วนตัวทุกเดือน ถ้าไม่รับเงินเดือนเลย คุณจะถังแตกก่อนบริษัท',
+      '"รับงานนอก/ที่ปรึกษา" หาเงินสดมาเลี้ยงบริษัทได้ แต่สินค้าไม่เดิน และนักลงทุนไม่นับเป็น traction'
+    ]],
+    ['คน', [
+      'จ้างงานต้องจดทะเบียนบริษัทก่อน ผู้สมัครเข้ามาทุกสัปดาห์ตามช่องทาง ภาพลักษณ์นายจ้าง และงบประมาณ ฝีมือที่เห็นตอนสัมภาษณ์มีความคลาดเคลื่อน (±)',
+      'คนใหม่ต้องแจ้งลาออกที่เก่า (~4 สัปดาห์) และใช้เวลาเรียนรู้อีก 8–12 สัปดาห์กว่าจะทำงานเต็มที่',
+      'นิสัยบางอย่างซ่อนอยู่ (อู้งาน เป็นพิษต่อทีม เปลี่ยนงานบ่อย) จะเห็นหลังทำงานไปสักพัก',
+      'ทดลองงานไม่เกิน 119 วัน เลิกจ้างได้โดยไม่ต้องจ่ายค่าชดเชย หลังจากนั้นต้องจ่ายตาม พ.ร.บ.คุ้มครองแรงงาน (30–400 วัน)',
+      'เกิน ~7 คนต่อหัวหน้าหนึ่งคน ทุกคนทำงานช้าลง — โปรโมตหรือจ้างหัวหน้าทีม (ระดับ 4–5)'
+    ]],
+    ['เงิน', [
+      'กำไรไม่ใช่เงินสด: ลูกค้าองค์กรจ่ายช้า 30–60 วัน มาร์เก็ตเพลสโอนเงิน 1–2 สัปดาห์ ค้าปลีก 75 วัน แต่ซัพพลายเออร์อยากได้มัดจำล่วงหน้า',
+      'Burn rate = เงินสดที่หายไปต่อเดือน · Runway = เงินสด ÷ burn · Default alive = ถ้าทุกอย่างโตเท่าเดิม จะมีกำไรก่อนเงินหมดไหม',
+      'ภาษี: นิติบุคคล SME 0/15/20% (ยกขาดทุนไปใช้ได้ 5 ปี) · VAT ต้องจดเมื่อรายได้เกิน 1.8 ล้าน/ปี · ลูกค้านิติบุคคลหัก ณ ที่จ่าย 3%',
+      'หนี้ไม่เสียหุ้นแต่ต้องจ่ายคืนทุกเดือน ธนาคารต้องการประวัติกำไร Venture debt ต้องผ่าน Series A ก่อน'
+    ]],
+    ['การระดมทุน', [
+      'SAFE: ได้เงินเร็ว ไม่ต้องตั้งราคา แต่จะแปลงเป็นหุ้นตาม valuation cap ในรอบ priced ถัดไป — SAFE หลายก้อนซ้อนกันกินหุ้นคุณเงียบๆ',
+      'Priced round: ต้องหา Lead investor ก่อน นักลงทุนอื่นจะตามเมื่อมี Lead · ปิดรอบใช้เวลา 3–6 สัปดาห์และ Due diligence อาจเจอปัญหา',
+      'Option pool shuffle: pool ESOP ที่นักลงทุนบังคับให้ตั้ง "ก่อนเงินเข้า" ทำให้ผู้ถือหุ้นเดิมโดนลดสัดส่วนคนเดียว',
+      'Liquidation preference: นักลงทุนได้เงินคืนก่อนเมื่อขายกิจการ แบบ participating ได้สองต่อ — ใช้แท็บ "Exit & Waterfall" ดูว่าขายที่ราคาเท่าไหร่คุณได้เท่าไหร่',
+      'Down round (ราคาต่ำกว่ารอบก่อน) ทำให้ anti-dilution ทำงาน นักลงทุนเดิมได้หุ้นเพิ่ม คุณโดนลดสัดส่วนหนักขึ้น',
+      'เมื่อนักลงทุนคุมบอร์ด ถ้าผลงานแย่ต่อเนื่อง บอร์ดปลดคุณออกจาก CEO ได้'
+    ]]
+  ];
+  var GLOSSARY = [
+    ['MRR / ARR', 'รายได้ประจำต่อเดือน / ต่อปี จากการสมัครสมาชิก'],
+    ['Churn', 'สัดส่วนลูกค้าที่ยกเลิกต่อเดือน'],
+    ['NRR', 'Net Revenue Retention — รายได้ปีนี้จากลูกค้ากลุ่มเดิมเทียบปีก่อน รวมการขยายและหักการยกเลิก'],
+    ['CAC', 'ต้นทุนหาลูกค้าใหม่หนึ่งราย (การตลาด + ทีมขาย)'],
+    ['LTV', 'กำไรขั้นต้นที่ได้จากลูกค้าหนึ่งรายตลอดอายุ'],
+    ['Payback', 'กี่เดือนกว่ากำไรจากลูกค้าจะคุ้มต้นทุนที่หามา'],
+    ['ROAS', 'รายได้ ÷ ค่าโฆษณา'],
+    ['AOV', 'ยอดซื้อเฉลี่ยต่อออเดอร์'],
+    ['MOQ', 'จำนวนสั่งผลิตขั้นต่ำของโรงงาน'],
+    ['GP (เดลิเวอรี)', 'ส่วนแบ่งที่แอปเดลิเวอรีหักจากยอดขาย (~30%)'],
+    ['4-wall margin', 'กำไรระดับหน้าร้าน ก่อนค่าใช้จ่ายสำนักงานใหญ่'],
+    ['Prime cost', 'ต้นทุนวัตถุดิบ + ค่าแรง ÷ ยอดขาย ร้านอาหารไม่ควรเกิน ~65%'],
+    ['Burn multiple', 'เงินที่เผา ÷ ARR ใหม่ที่ได้ — ต่ำกว่า 1.5 ถือว่าเผาเงินคุ้ม'],
+    ['Pre-money / Post-money', 'มูลค่าบริษัทก่อน / หลังเงินลงทุนรอบนั้นเข้า'],
+    ['Fully diluted', 'นับหุ้นทั้งหมดรวม option pool และ ESOP'],
+    ['Vesting / Cliff', 'หุ้นทยอยเป็นของคุณจริงตามเวลา (มาตรฐาน 4 ปี) ถ้าออกก่อน 1 ปี (cliff) ไม่ได้อะไรเลย'],
+    ['ROFR', 'สิทธิ์ซื้อก่อน — นักลงทุน CVC อาจขวางการขายบริษัทให้คู่แข่งของเขา'],
+    ['Due diligence', 'การตรวจสอบบัญชี สัญญา และกฎหมายก่อนนักลงทุนโอนเงิน']
+  ];
+
+  UI.views.guide = function (s) {
+    var M = RW.Models[s.industry];
+    var secs = SECTIONS.map(function (x) { return UI.panel(x[0], '<div class="stack small ink2">' + x[1].map(function (t) { return '<div>• ' + h(t) + '</div>'; }).join('') + '</div>'); }).join('');
+    var tips = M.guide ? UI.panel('กลยุทธ์สำหรับ ' + M.n, '<div class="stack small ink2">' + M.guide.map(function (t) { return '<div>• ' + h(t) + '</div>'; }).join('') + '</div>') : '';
+    var gl = UI.panel('คำศัพท์', UI.table(['คำ', 'ความหมาย'], GLOSSARY.map(function (g) { return ['<b>' + h(g[0]) + '</b>', '<span class="small ink2">' + h(g[1]) + '</span>']; })));
+    return '<div class="page-head"><div><h2>คู่มือ</h2><p>กลไกทั้งหมดในเกมอิงหลักการธุรกิจจริง ยิ่งเข้าใจ ยิ่งตัดสินใจได้ดี</p></div></div><div class="grid g2"><div class="stack">' + tips + secs + '</div><div class="stack">' + gl + '</div></div>';
+  };
+
+  // ---------- Hall of fame ----------
+  UI.hof = function () { try { return JSON.parse(UI.store.get('runway.hof') || '[]'); } catch (e) { return []; } };
+  UI.recordRun = function (s) {
+    if (!s.over || s.over.recorded) return;
+    s.over.recorded = 1;
+    var list = UI.hof();
+    list.push({ company: s.company.name, ind: s.industry, bg: s.founder.bg, diff: s.diff.key, reason: s.over.reason, wealth: s.over.wealth, years: s.over.years, rank: s.over.rank.title, seed: s.seed, at: Date.now() });
+    list.sort(function (a, b) { return b.wealth - a.wealth; });
+    UI.store.set('runway.hof', JSON.stringify(list.slice(0, 30)));
+    UI.save('auto');
+  };
+  UI.hofTable = function () {
+    var list = UI.hof();
+    if (!list.length) return '';
+    var reasons = { bankrupt: 'ล้มละลาย', personal: 'ถังแตกส่วนตัว', fired: 'ถูกปลด', quit: 'เลิกทำ', shutdown: 'ปิดบริษัท', acquired: 'ขายกิจการ', ipo: 'IPO', timeup: 'ครบ 10 ปี' };
+    return '<section class="panel" style="margin-bottom:18px"><h3>ทำเนียบผู้ก่อตั้ง (เครื่องนี้)</h3>' + UI.table(['บริษัท', 'ธุรกิจ', 'ความยาก', 'จบด้วย', '#ปี', '#ความมั่งคั่ง', 'ระดับ'], list.slice(0, 10).map(function (r) {
+      return [h(r.company), h(RW.Models[r.ind] ? RW.Models[r.ind].n : r.ind), h(RW.DIFFICULTY[r.diff] ? RW.DIFFICULTY[r.diff].n : r.diff), h(reasons[r.reason] || r.reason), r.years, F.m(r.wealth), h(r.rank)];
+    })) + '</section>';
+  };
+})(globalThis.RW = globalThis.RW || {});
+
 /* ---- models/saas_ui.js ---- */
 /* RUNWAY — SaaS screens */
 (function (RW) {
@@ -8005,6 +8147,18 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   var SEGS = M.SEGS, SEG = M.SEG, FEAT = M.FEAT;
 
   M.sampleName = 'Thaiflow';
+  M.guide = [
+    'ต้องมี MVP (Core ระดับ 1) ก่อนจึงขายได้ — ช่วงนี้อย่าเพิ่งเผาเงินกับโฆษณา',
+    'ความต้องการจริงของแต่ละกลุ่มลูกค้าซ่อนอยู่ ต้องใช้เวลา "คุยกับลูกค้า" (Discovery) เพื่อรู้ว่าควรสร้างฟีเจอร์อะไร สร้างผิดคือเผาเงิน',
+    'ลูกค้า 20 รายแรกของแต่ละกลุ่มซื้อเพราะเชื่อในตัวคุณ (early adopters) — ขายตรงด้วยตัวเองได้ผลที่สุดช่วงแรก',
+    'Product fit ต่ำ = ปิดการขายยากและลูกค้าหนี ตั้งราคาใกล้ "ยอมจ่าย" ที่ Discovery บอก',
+    'Micro/SME ซื้อเองผ่านเว็บ (self-serve) · Mid-market และ Enterprise ต้องมีทีมขาย รอบการขายยาวหลายเดือน และองค์กรใหญ่ต้องการ Security/Enterprise features',
+    'ลูกค้าองค์กรต้องการงาน implementation ที่กินเวลาวิศวกร ถ้าค้างนาน ลูกค้าจะไม่ต่อสัญญา',
+    'เร่งปล่อยฟีเจอร์ (Move fast) สะสมบั๊กและหนี้ทางเทคนิค ซึ่งทำให้ช้าลงและระบบล่มในอนาคต',
+    'ส่วนลดรายปีดึงเงินสดเข้ามาก่อน (รายได้รับล่วงหน้า) — ช่วยยืด runway ได้มาก',
+    'วัดทุกช่องทางด้วย CAC เทียบ LTV — ช่องทางที่ LTV:CAC < 1 คือการซื้อลูกค้าแบบขาดทุน',
+    'ตลาดไทยมีเพดาน การโตระดับ Series B+ มักต้องขยายไปเวียดนาม/อินโดนีเซีย (ต้องมีฟีเจอร์หลายภาษา)'
+  ];
   M.concepts = function () { return Object.keys(M.CONCEPTS).map(function (k) { return { id: k, n: M.CONCEPTS[k].n, d: M.CONCEPTS[k].d }; }); };
   M.headline = function (s) {
     var b = s.biz;
@@ -8231,6 +8385,17 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var act = b.skus.filter(function (k) { return k.active; }).length;
     return b.product + ' · ' + (act ? act + ' สินค้าวางขาย · ลูกค้าสะสม ' + F.num(Math.round(b.customers)) + ' คน · เรตติ้ง ' + b.rating.toFixed(2) : 'กำลังพัฒนาสินค้าตัวแรก');
   };
+  M.guide = [
+    'สินค้าใหม่ต้องพัฒนาสูตร/ตัวอย่าง และขอ อย. ก่อนขาย (ยกเว้นเสื้อผ้า) — วางแผนล่วงหน้าหลายเดือน',
+    'ความนิยมของสินค้าใหม่เป็นการเดิมพัน ยิ่งรู้จักลูกค้า (Insight) ยิ่งเดาแม่น',
+    'สั่งผลิตต้องจ่ายมัดจำ 50% และรอ 2–14 สัปดาห์ สต็อกคือเงินสดที่จมอยู่ — สั่งมากได้ราคาต่อชิ้นถูก แต่เสี่ยงหมดอายุและเงินจม',
+    'ของหมดสต็อก = เสียยอดขายและอันดับร้านในมาร์เก็ตเพลส ซึ่งโตตามยอดขายสะสมและรีวิว',
+    'วันเมกะเซล 11.11 / 12.12 ยอดขายพุ่งหลายเท่า ต้องเตรียมสต็อกล่วงหน้าตาม lead time',
+    'ครีเอทีฟโฆษณาเก่าลงทุกสัปดาห์ ต้องมีคนผลิตคอนเทนต์ใหม่ ไม่งั้นโฆษณาแพงขึ้นเรื่อยๆ',
+    'ลูกค้าซื้อซ้ำคือกำไรที่แท้จริง — CRM/LINE OA และคุณภาพสินค้าทำให้คนกลับมา',
+    'มาร์เก็ตเพลสคนเยอะแต่ค่าธรรมเนียมสูง เว็บไซต์ของตัวเองกำไรดีกว่าแต่ต้องพาคนมาเอง',
+    'จด VAT แล้วราคาที่ลูกค้าจ่ายรวม VAT — ถ้าไม่ขึ้นราคา รายได้สุทธิหายไป 6.5%'
+  ];
   M.milestones = function (s) {
     var b = s.biz;
     var orders = U.sum(b.stats, function (m) { return m.orders; }) + (b.mstats ? b.mstats.orders : 0);
@@ -8393,6 +8558,17 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   var M = RW.Models.fnb, UI = RW.UI, F = RW.F, U = RW.U, h = UI.h;
 
   M.capitalHint = 'ร้านแรกในตึกแถวใช้เงิน ~1–2 ล้าน (มัดจำ+ตกแต่ง+ก่อนเปิด) และควรมีเงินสำรองอีก 3–4 เดือน · เช่าซื้ออุปกรณ์ช่วยได้';
+  M.guide = [
+    'ตัวเลขคนเดินผ่านที่โบรกเกอร์บอกมักสวยเกินจริง ±30% — ทำเลแย่คือแผลที่แก้ไม่ได้ตลอดสัญญาเช่า 3 ปี',
+    'ร้านใหม่เริ่มที่ ~40% ของศักยภาพและใช้ 3–4 เดือนกว่าจะเต็มที่ ต้องมีเงินสำรองจ่ายค่าเช่าและค่าแรงช่วงนั้น',
+    'Prime cost (วัตถุดิบ + ค่าแรง) ไม่ควรเกิน ~65% · ค่าเช่าไม่ควรเกิน ~15% ของยอดขาย',
+    'เดลิเวอรีโดน GP ~30% ราคาบนแอปต้องสูงกว่าหน้าร้าน คลาวด์คิทเช่นลงทุนต่ำแต่กำไรบาง',
+    'คุณดูแลร้านเองได้ 1–2 สาขา หลังจากนั้นต้องมีผู้จัดการสาขาที่เก่ง ไม่งั้นคุณภาพไม่สม่ำเสมอ',
+    'จัดพนักงานน้อยประหยัดค่าแรงแต่บริการช้า เรตติ้งตก และคนลาออก',
+    'ครัวกลางคุ้มเมื่อมี 3–4 สาขา: ลดต้นทุนวัตถุดิบและทำให้รสชาติเหมือนกันทุกสาขา',
+    'แฟรนไชส์ขยายเร็วด้วยเงินคนอื่น แต่แฟรนไชส์ซีทำแย่ แบรนด์คุณพังด้วย',
+    'สาขาที่ขาดทุนต่อเนื่องหลายเดือน การปิดเร็วมักดีกว่าแบกต่อ (แต่จะเสียมัดจำถ้ายังไม่หมดสัญญา)'
+  ];
   M.headline = function (s) {
     var b = s.biz, n = M.openBranches(b).length, bl = b.branches.filter(function (x) { return x.state === 'building'; }).length;
     return b.product + ' · ' + (n ? n + ' สาขาเปิดอยู่' : 'ยังไม่มีร้าน') + (bl ? ' · กำลังสร้าง ' + bl : '') + (b.fr.units.length ? ' · แฟรนไชส์ ' + b.fr.units.length : '') + ' · เรตติ้ง ' + b.rating.toFixed(2);

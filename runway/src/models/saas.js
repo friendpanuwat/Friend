@@ -219,9 +219,10 @@
     return m;
   };
   M.fitTerm = function (v) { return 0.15 + 0.85 * Math.pow(Math.max(0, v), 1.6); };
-  M.qAvg = function (by) {
+  M.qAvg = function (by, state) {
     var t = 0, q = 0;
-    for (var ch in by) { t += by[ch]; q += by[ch] * (CH[ch].q || 1); }
+    var sk = state ? 0.45 + state.founder.skills.sales / 90 : 1;
+    for (var ch in by) { t += by[ch]; q += by[ch] * (CH[ch].q || 1) * (ch === 'direct' ? sk : 1); }
     return t > 0 ? q / t : 1;
   };
   // innovators & early adopters buy immature products from founders they trust
@@ -265,7 +266,7 @@
     var pm = 1 + Math.min(0.12, RW.Team.capOf(state, 'product') * 0.06);
     var debt = 1 - b.debt / 180;
     var mode = b.ship === 'fast' ? 1.2 : b.ship === 'careful' ? 0.82 : 1;
-    return dev * leadBoost * pm * debt * mode;
+    return dev * leadBoost * pm * debt * mode * RW.Engine.tm(state, 'dev');
   };
 
   M.engineering = function (state) {
@@ -359,7 +360,7 @@
     var out = {};
     SEGS.forEach(function (k) { out[k] = { total: 0, by: {} }; });
     var mkt = RW.Team.capOf(state, 'mkt');
-    var eff = 1 / (1 + Math.min(1.2, mkt * 0.35)) * (mkt < 0.3 ? 1.3 : 1); // skilled marketers lower CPL
+    var eff = 1 / (1 + Math.min(1.2, mkt * 0.35)) * (mkt < 0.3 ? 1.3 : 1) / RW.Engine.tm(state, 'mkt'); // skilled marketers lower CPL
     var compInfl = 1 + U.sum(RW.World.aliveCompetitors(state), function (c) { return c.mkt / 100 * 0.12; });
     var brandF = (0.7 + b.brand / 100 * 0.8) * M.buzzMult(b) * b.hype;
     var on = SEGS.filter(function (k) { return b.segs[k].on; });
@@ -406,7 +407,9 @@
         b.brand = Math.min(100, b.brand + st.stock / 200000);
       } else if (c.kind === 'founder') {
         if (prelaunch) return;
-        var fu = RW.Team.capOf(state, 'f_sell');
+        // meeting volume depends on time spent; sales skill shows up in the close rate (see qAvg)
+        var fo = state.founder;
+        var fu = (fo.focus.sell || 0) / 100 * Math.pow(fo.hours / 45, 0.85) * RW.Founder.effectiveness(state);
         if (fu <= 0) return;
         // a full-time founder-seller books ~12 qualified meetings a week
         var net = RW.BACKGROUNDS[state.founder.bg].net.customers;
@@ -502,7 +505,7 @@
         s.trials = s.trials.filter(function (t) { return t.w > w - 2; });
         due.forEach(function (t) {
           var ux = 1 + b.feats.ux * 0.08;
-          var p = g.conv * M.fitTerm(v) * Math.pow(pf, 0.8) * Math.pow(cf, 0.7) * ux * M.qAvg(t.by) * M.earlyAdopter(b, k);
+          var p = g.conv * M.fitTerm(v) * Math.pow(pf, 0.8) * Math.pow(cf, 0.7) * ux * M.qAvg(t.by, state) * M.earlyAdopter(b, k);
           p = U.clamp(p, 0, 0.65);
           var won = R.binom(Math.round(t.n), p) + (R.f() < (t.n % 1) * p ? 1 : 0);
           if (won > 0) M.addCustomers(state, k, won, t.by, t.n);
@@ -523,7 +526,7 @@
           var refs = g.refs ? 0.65 + 0.35 * Math.min(1, M.customers(b, k) / g.refs) : 1;
           var disc = 1 + b.maxDiscount * 1.6;
           var motionF = s.motion === 'field' ? 1.15 : 1;
-          var p = g.win * M.fitTerm(v) * Math.pow(pf, 0.7) * Math.pow(cf, 0.7) * salesSkill * refs * disc * overload * motionF * Math.min(1.6, M.qAvg(o.by)) * M.earlyAdopter(b, k);
+          var p = g.win * M.fitTerm(v) * Math.pow(pf, 0.7) * Math.pow(cf, 0.7) * salesSkill * refs * disc * overload * motionF * Math.min(1.6, M.qAvg(o.by, state)) * M.earlyAdopter(b, k);
           p = U.clamp(p, 0, 0.75);
           var n = R.binom(Math.round(o.n), p) + (R.f() < (o.n % 1) * p ? 1 : 0);
           if (n > 0) M.addCustomers(state, k, n, o.by, o.src);

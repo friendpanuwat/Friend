@@ -116,7 +116,7 @@
 
   M.devWeekly = function (state) {
     var b = state.biz, c = CONCEPTS[b.concept];
-    var cap = RW.Team.capOf(state, 'rnd') * 1.0 + 0.35; // OEM's own formulation team helps a bit
+    var cap = (RW.Team.capOf(state, 'rnd') * 1.0 + 0.35) * RW.Engine.tm(state, 'dev'); // OEM's own formulation team helps a bit
     var active = b.dev.filter(function (d) { return d.regLeft == null; });
     active.forEach(function (d) { d.prog += cap / Math.max(1, active.length); });
     b.dev.forEach(function (d) {
@@ -238,7 +238,7 @@
     var csF = 1 - Math.min(0.35, (b.chat.backlog || 0) / 600);
     var season = [1.0, 0.95, 1.0, 1.08, 0.95, 0.95, 0.95, 1.0, 1.0, 1.05, 1.2, 1.3][info.month];
     var mkt = RW.Team.capOf(state, 'mkt');
-    var adEff = (1 + Math.min(1, mkt * 0.3)) * (0.45 + 0.55 * b.creative);
+    var adEff = (1 + Math.min(1, mkt * 0.3)) * (0.45 + 0.55 * b.creative) * RW.Engine.tm(state, 'mkt');
     var orders = {};
     ['market', 'social', 'web'].forEach(function (k) {
       var ch = b.ch[k];
@@ -304,7 +304,7 @@
       var rtoCost = rto * (c.ship * 2 + 10);
       var rtoRev = rto / ordersFilled * netRev;
       var payoutRev = netRev - rtoRev;
-      if (ch.payout > 0) L.invoice(state, 'rev_goods', payoutRev, state.time.w + ch.payout, { name: ch.n, seg: k });
+      if (ch.payout > 0) L.invoice(state, 'rev_goods', payoutRev, state.time.w + ch.payout, { name: ch.n, seg: k, sure: true });
       else L.earnCash(fin, 'rev_goods', payoutRev);
       L.post(fin, { cogs_platform: payoutRev * feeRate, cash: -payoutRev * feeRate }, 'op');
       // goods returned by RTO go back to stock (approx: add cost back as a fresh lot on a random sku)

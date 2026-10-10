@@ -48,6 +48,7 @@
         return UI.btn((x.slot === 'auto' ? 'เซฟอัตโนมัติ' : 'ช่อง ' + x.slot) + ': ' + h(x.m.name) + ' · ' + h(x.m.label) + (x.m.over ? ' (จบแล้ว)' : ''), 'loadSlot', [x.slot], x.slot === 'auto' ? 'primary' : '');
       }).join('') + '</div></section>';
     }
+    html += UI.hofTable();
     html += '<section class="panel"><h3>เริ่มบริษัทใหม่</h3>';
     // step 1: founder
     html += '<div class="step"><h3><span class="n">01</span> คุณเป็นใคร</h3><div class="row" style="margin-bottom:8px"><label class="field" for="ng_name">ชื่อของคุณ<input type="text" id="ng_name" value="' + h(f.name) + '" placeholder="เช่น ภูมิ" data-act="ngSet" data-a=\'["name"]\'></label></div><div class="choices-grid">' +

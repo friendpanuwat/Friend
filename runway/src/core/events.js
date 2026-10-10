@@ -86,6 +86,7 @@
       if (d.ind && d.ind.indexOf(state.industry) < 0) return false;
       if (d.once && ev.seen[d.id]) return false;
       if (ev.cooldown[d.id] && ev.cooldown[d.id] > w) return false;
+      if (d.cat === 'founder' && w < 10) return false;
       try { return !d.cond || d.cond(state); } catch (e) { return false; }
     });
     var pick = R.weighted(cands, function (d) {

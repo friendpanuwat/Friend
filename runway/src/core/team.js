@@ -95,7 +95,7 @@
   // Probability a candidate accepts an offer
   T.acceptProb = function (state, c, salary, equityPct) {
     var payRatio = salary / c.ask;
-    var x = (payRatio - 1) * 9 + c.interestBase;
+    var x = 0.9 + (payRatio - 1) * 9 + c.interestBase; // they applied: meeting the ask usually works
     x += (state.team.brand - 45) / 25;
     // stage credibility: funded companies are safer bets
     var stageIdx = RW.STAGE_ORDER.indexOf(state.funding.stage);
@@ -312,7 +312,7 @@
       var ch = CHANNELS[op.channel];
       var lam = ch.flow * (0.6 + team.brand / 80) * (state.world ? state.world.talentSupply : 1) * (op.channel === 'linkedin' ? 0.6 + (state.founder.focus.team || 0) / 25 : 1);
       lam *= state.founder.bg ? RW.BACKGROUNDS[state.founder.bg].net.talent : 1;
-      lam *= 1 + T.capOf(state, 'hr') * 0.35;
+      lam *= (1 + T.capOf(state, 'hr') * 0.35) * RW.Engine.tm(state, 'hire');
       if (op.level >= 4) lam *= 0.55;
       if (state.industry === 'fnb' && RW.ROLES[op.role].dept === 'cogs') lam *= 1.6;
       var n = R.poisson(lam);
@@ -349,7 +349,7 @@
       target += RW.OFFICES[state.company.office.type].morale;
       target += U.clamp(momentum, -10, 10);
       if (runway < 3) target -= 14; else if (runway < 6) target -= 6;
-      target += modT;
+      target += modT + RW.Engine.tm(state, 'morale');
       target += (state.founder.skills.leadership - 50) / 6;
       if (eff < 0.8) target -= (0.8 - eff) * 30;
       if (officeOver) target -= 5;
@@ -363,7 +363,7 @@
       e.mtarget = U.clamp(target, 0, 100);
       e.morale = U.clamp(U.approach(e.morale, e.mtarget, 0.14) + R.normal(0, 0.8), 0, 100);
       // stress
-      var st = RW.POLICIES.hours[pol.hours].stress * (e.traits.indexOf('hustler') >= 0 ? 1.6 : 1);
+      var st = RW.POLICIES.hours[pol.hours].stress * (e.traits.indexOf('hustler') >= 0 ? 1.6 : 1) + RW.Engine.tm(state, 'stress') * 0.15;
       var load = state.kpi && state.kpi.workload ? state.kpi.workload[RW.ROLES[e.role].dept] || 1 : 1;
       st += (load - 1) * 4;
       e.stress = U.clamp(e.stress + st - (e.stress > 30 ? 1.5 : 0.5), 0, 100);
@@ -385,7 +385,7 @@
         var q = U.weeklyFromMonthly(annual / 12);
         q *= Math.exp((55 - e.morale) / 14);
         e.traits.forEach(function (tt) { if (RW.TRAITS[tt].quit) q *= RW.TRAITS[tt].quit; });
-        q *= state.world ? state.world.poach : 1;
+        q *= (state.world ? state.world.poach : 1) * RW.Engine.tm(state, 'quit');
         if (e.skill > 75) q *= 1.25; // good people get poached
         if (e.stress > 85) q *= 1.8;
         if (w - e.startW < 13) q *= 1.3;

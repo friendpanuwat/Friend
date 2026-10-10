@@ -79,6 +79,7 @@
     opt.series.forEach(function (s) { s.data.forEach(function (v) { if (v != null && isFinite(v)) all.push(v); }); });
     if (!n || !all.length) return '<div class="empty">ยังไม่มีข้อมูลพอสำหรับกราฟ — เล่นต่ออีกสักเดือน</div>';
     var mn = Math.min.apply(null, all), mx = Math.max.apply(null, all);
+    if (mx === 0 && mn === 0) return '<div class="empty">ยังไม่มีข้อมูล — ตัวเลขจะเริ่มขึ้นเมื่อมียอดขาย</div>';
     if (opt.zero !== false) mn = Math.min(0, mn);
     if (mx === mn) mx = mn + 1;
     var ticks = UI.niceTicks(mn, mx, 4);
@@ -271,7 +272,7 @@
     var M = RW.Models[s.industry];
     var t = [['overview', 'ภาพรวม'], ['founder', 'ผู้ก่อตั้ง']];
     M.ui.tabs.forEach(function (x) { t.push([x.id, x.n]); });
-    t.push(['team', 'ทีมงาน'], ['finance', 'การเงิน'], ['funding', 'ระดมทุน & หุ้น'], ['company', 'บริษัท & กฎหมาย'], ['sep'], ['inbox', 'กล่องข้อความ'], ['world', 'ตลาด & เศรษฐกิจ'], ['journal', 'บันทึก & ความสำเร็จ'], ['settings', 'เซฟ & ตั้งค่า']);
+    t.push(['team', 'ทีมงาน'], ['finance', 'การเงิน'], ['funding', 'ระดมทุน & หุ้น'], ['company', 'บริษัท & กฎหมาย'], ['sep'], ['inbox', 'กล่องข้อความ'], ['world', 'ตลาด & เศรษฐกิจ'], ['journal', 'บันทึก & ความสำเร็จ'], ['guide', 'คู่มือ & คำศัพท์'], ['settings', 'เซฟ & ตั้งค่า']);
     return t;
   };
 
@@ -321,7 +322,7 @@
     var app = document.getElementById('app');
     UI.charts = {};
     if (!UI.s) { app.innerHTML = RW.UI.titleScreen(); return; }
-    if (UI.s.over) { app.innerHTML = RW.UI.endScreen(); return; }
+    if (UI.s.over) { UI.recordRun(UI.s); app.innerHTML = RW.UI.endScreen(); return; }
     var view = UI.views[UI.tab];
     var M = RW.Models[UI.s.industry];
     if (!view && M.ui.render[UI.tab]) view = M.ui.render[UI.tab];

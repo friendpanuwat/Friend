@@ -56,6 +56,19 @@
     return state;
   };
 
+  // ---------- Annual strategy themes ----------
+  EN.THEMES = {
+    blitz: { n: 'Blitzscaling — โตให้เร็วที่สุด', d: 'การตลาดได้ผลขึ้น 12% จ้างคนได้เร็วขึ้น แต่ทีมเครียดขึ้น บอร์ดชอบการเติบโต', mkt: 1.12, dev: 1, morale: -2, quit: 1.1, opex: 1, hire: 1.3, stress: 3 },
+    alive: { n: 'Default alive — มุ่งสู่จุดคุ้มทุน', d: 'ค่าใช้จ่ายสำนักงานลด 15% ทุกคนประหยัด บอร์ดและนักลงทุนเห็นวินัย แต่ทีมรู้สึกว่าบริษัทไม่โต', mkt: 0.97, dev: 1, morale: -1, quit: 1, opex: 0.85, hire: 0.9, stress: 0 },
+    product: { n: 'Product excellence — สินค้าต้องดีที่สุด', d: 'ทีมพัฒนาสินค้า/R&D ทำงานได้ผลขึ้น 12% คุณภาพดีขึ้น แต่การขายไม่ได้แรงพิเศษ', mkt: 1, dev: 1.12, morale: 1, quit: 1, opex: 1, hire: 1, stress: 0 },
+    people: { n: 'People first — ทีมคือทุกอย่าง', d: 'ขวัญกำลังใจ +6 คนลาออกน้อยลง 25% และสรรหาคนง่ายขึ้น แต่ต้องใช้เวลาและงบดูแลคน', mkt: 1, dev: 1, morale: 6, quit: 0.75, opex: 1.05, hire: 1.15, stress: -2 }
+  };
+  EN.theme = function (state) {
+    var t = state.flags.theme;
+    return t && t.until > state.time.w ? EN.THEMES[t.k] : null;
+  };
+  EN.tm = function (state, key) { var t = EN.theme(state); return t ? t[key] : (key === 'morale' || key === 'stress' ? 0 : 1); };
+
   // ---------- Mail / inbox ----------
   EN.mail = function (state, cat, title, body, tone) {
     state.inbox.unshift({ id: R.id('m'), w: state.time.w, cat: cat, title: title, body: body || '', tone: tone || 'info', read: false });
@@ -158,7 +171,7 @@
     if (state.company.registered && !hasFinance) L.spend(fin, 'prof', 6500 + Math.min(25000, (state.kpi.revenueMonthly || 0) * 0.004));
     if (state.company.extraAdmin) L.spend(fin, 'prof', state.company.extraAdmin);
     if (state.company.insured) L.spend(fin, 'insurance', RW.Events.insuranceCost(state));
-    L.spend(fin, 'office', Math.round(hc * 600 + 1000));
+    L.spend(fin, 'office', Math.round((hc * 600 + 1000) * EN.tm(state, 'opex')));
     // model month end (hosting, inventory valuation, branch costs...)
     M.monthly(state, info);
     // loans & depreciation
@@ -191,6 +204,7 @@
       if (RW.Team.active(state).length > 0) RW.Events.queue(state, 'year_end_bonus', {});
     }
     if (info.month === 0 && state.time.w > 10 && RW.Team.active(state).length > 0) RW.Events.queue(state, 'annual_review', {});
+    if (info.month === 11) RW.Events.queue(state, 'annual_strategy', {}, state.time.w + 1);
     // VAT threshold
     var ttm = EN.revenueTTM(state) + revThisMonth;
     if (!fin.vat.registered && !fin.vat.required && ttm > 1.8e6) { fin.vat.required = true; RW.Events.queue(state, 'vat_register', {}); }

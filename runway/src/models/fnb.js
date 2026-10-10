@@ -142,7 +142,7 @@
     b.insight = U.clamp(b.insight + RW.Team.capOf(state, 'discovery') * 4 * (1 - b.insight / 110), 0, 100);
     // menu R&D project
     if (b.menuProj) {
-      b.menuProj.prog += RW.Team.capOf(state, 'menu') + 0.15;
+      b.menuProj.prog += (RW.Team.capOf(state, 'menu') + 0.15) * RW.Engine.tm(state, 'dev');
       if (b.menuProj.prog >= b.menuProj.need) {
         var gain = R.range(4, 10) * (1 + b.insight / 150);
         b.menuQ = U.clamp(b.menuQ + gain, 0, 98);
@@ -153,7 +153,7 @@
     }
     var vat = fin.vat.registered ? 1 / 1.07 : 1;
     // walk-in trade depends mostly on location; brand adds on top
-    var brandF = (0.8 + b.brand / 200) * M.buzzMult(b) * state.world.macro.consumer * state.diff.market;
+    var brandF = (0.8 + b.brand / 200) * M.buzzMult(b) * state.world.macro.consumer * state.diff.market * (1 + (RW.Engine.tm(state, 'mkt') - 1) * 0.6);
     var priceVal = Math.pow(1 / b.priceIdx, 1.25);
     var compF = 1 / (1 + U.sum(RW.World.aliveCompetitors(state), function (x) { return x.mkt / 100 * 0.08; }));
     var ck = b.ck && b.ck.ready <= w;
@@ -206,7 +206,7 @@
       var delGross = deliv * ticket * 1.15;
       var delRev = delGross * vat * (1 - b.deliv.promo);
       L.earnCash(fin, 'rev_food', dineRev);
-      if (delRev > 0) L.invoice(state, 'rev_deliv', delRev, w + 1, { name: 'แอปเดลิเวอรี', seg: 'delivery' });
+      if (delRev > 0) L.invoice(state, 'rev_deliv', delRev, w + 1, { name: 'แอปเดลิเวอรี', seg: 'delivery', sure: true });
       // variable costs
       var foodPct = Math.max(0.12, c.food + b.foodAdj - (ck ? 0.035 : 0) + (state.world.fx - 35.5) * 0.002 + (1 - Math.min(1, staffRatio)) * 0.02);
       var waste = 0.05 * (ck ? 0.7 : 1) * (1.3 - Math.min(0.3, RW.Team.capOf(state, 'data') * 0.15)) * (br.util < 0.4 ? 1.4 : 1);

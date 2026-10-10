@@ -247,6 +247,24 @@
     }
   });
   RW.Events.register({
+    id: 'annual_strategy', cat: 'general',
+    title: function (s) { return 'วางกลยุทธ์ปี ' + (RW.T.info(s.time.w).be); },
+    body: function (s) {
+      var hm = s.hist.monthly, last12 = U.last(hm, 12), prev12 = hm.slice(Math.max(0, hm.length - 24), Math.max(0, hm.length - 12));
+      var r1 = U.sum(last12, function (m) { return m.p.rev; }), r0 = U.sum(prev12, function (m) { return m.p.rev; });
+      var ni = U.sum(last12, function (m) { return m.p.ni; });
+      return 'ปีที่ผ่านมา: รายได้ ' + F.m(r1) + (r0 > 0 ? ' (' + F.spct(r1 / r0 - 1, 0) + ' จากปีก่อน)' : '') + ' · กำไร(ขาดทุน)สุทธิ ' + F.m(ni) + ' · เงินสด ' + F.m(s.fin.bal.cash) + ' · ทีม ' + RW.Team.headcount(s) + ' คน · คุณถือหุ้น ' + F.pct(s.kpi.founderPct, 0) +
+        '\n\nทุกบริษัทต้องเลือกว่าปีนี้จะเอาอะไร — คุณเลือกได้หนึ่งธีมหลักซึ่งจะมีผลตลอดปี';
+    },
+    choices: function (s) {
+      return Object.keys(RW.Engine.THEMES).map(function (k) {
+        var t = RW.Engine.THEMES[k];
+        return { t: t.n, d: t.d, fx: function () { s.flags.theme = { k: k, until: s.time.w + 52 }; if (k === 'alive' && s.funding.rounds.length) s.funding.board.confidence = Math.min(100, s.funding.board.confidence + 6); if (k === 'blitz' && s.funding.rounds.length) s.funding.board.confidence = Math.min(100, s.funding.board.confidence + 4); return 'ธีมปีนี้: ' + t.n; } };
+      }).concat([{ t: 'ไม่กำหนดธีม — ทำงานแบบเดิม', fx: function () { s.flags.theme = null; return 'ไม่มีธีมพิเศษ'; } }]);
+    }
+  });
+
+  RW.Events.register({
     id: 'annual_review', cat: 'team',
     title: 'ปรับเงินเดือนประจำปี',
     body: function (s) {

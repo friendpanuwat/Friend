@@ -131,7 +131,7 @@
     if (!amt) return;
     var l = {}; l[acct] = -amt; l.ar = amt;
     L.post(fin, l);
-    fin.ar.push({ id: RW.R.id('inv'), amt: amt, due: dueWeek, wht: !!(opts && opts.wht), name: (opts && opts.name) || '', seg: (opts && opts.seg) || '', late: 0 });
+    fin.ar.push({ id: RW.R.id('inv'), amt: amt, due: dueWeek, wht: !!(opts && opts.wht), name: (opts && opts.name) || '', seg: (opts && opts.seg) || '', late: 0, sure: !!(opts && opts.sure) });
   };
 
   // Book revenue that is billed in advance (annual contracts): cash in, deferred liability
@@ -159,7 +159,8 @@
       var inv = fin.ar[i];
       if (inv.due <= w) {
         // probability to pay on time decreases in bad economy
-        var pPay = U.clamp(0.82 - macroDelay * 0.25 - inv.late * 0.04, 0.25, 0.97);
+        // platforms (marketplaces, delivery apps) settle on schedule; companies pay late
+        var pPay = inv.sure ? 0.99 : U.clamp(0.82 - macroDelay * 0.25 - inv.late * 0.04, 0.25, 0.97);
         if (RW.R.chance(pPay)) {
           var whtAmt = inv.wht ? inv.amt * 0.03 : 0;
           L.post(fin, { cash: inv.amt - whtAmt, whtc: whtAmt, ar: -inv.amt }, 'op');
