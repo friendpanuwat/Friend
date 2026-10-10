@@ -15,6 +15,14 @@
     }).join('') + '</div>';
   };
   UI.pill = function (t, tone) { return '<span class="pill ' + (tone || '') + '">' + t + '</span>'; };
+  // paid research button (or a pending badge while the job runs)
+  UI.researchBtn = function (k, arg, label, cls) {
+    var s = UI.s, r = RW.Models[s.industry].RESEARCH[k];
+    var job = (s.research || []).find(function (j) { return j.k === k && j.arg === (arg == null ? null : arg); });
+    if (job) return UI.pill('กำลังวิจัย · อีก ' + Math.max(1, job.due - s.time.w) + ' สัปดาห์', 'warn');
+    var cost = typeof r.cost === 'function' ? r.cost(s, arg) : r.cost;
+    return UI.btn((label || r.n) + ' · ' + RW.F.m(cost), 'research', [k, arg == null ? null : arg], cls || 'sm', 'title="' + RW.U.esc(r.d) + '"');
+  };
   UI.tip = function (label, tip) { return '<span data-tip="' + h(tip) + '" tabindex="0">' + label + '</span>'; };
   UI.meter = function (v, max, tone) {
     var p = U.clamp(v / (max || 100), 0, 1) * 100;
@@ -211,6 +219,7 @@
     t.className = 'toast' + (bad ? ' bad' : '');
     t.textContent = msg;
     box.appendChild(t);
+    while (box.children.length > 3) box.removeChild(box.firstChild);
     setTimeout(function () { t.remove(); }, bad ? 5200 : 3600);
   };
   UI.result = function (r) {

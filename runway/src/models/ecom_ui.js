@@ -81,7 +81,7 @@
       var unit = M.unitCost(s, k, form.sup, form.qty);
       var margin = 1 - unit / (k.price / (s.fin.vat.registered ? 1.07 : 1));
       return [
-        '<b>' + h(k.n) + '</b><div class="tiny muted">คุณภาพ ' + Math.round(k.quality) + ' · ' + (k.appealSeen != null ? 'ความนิยม ' + (k.appealSeen > 1.1 ? 'สูง' : k.appealSeen > 0.85 ? 'ปานกลาง' : 'ต่ำ') : 'ยังไม่รู้ความนิยม') + (k.retail ? ' · วางขายหน้าร้าน' : '') + '</div>',
+        '<b>' + h(k.n) + '</b><div class="tiny muted">คุณภาพ ' + Math.round(k.quality) + ' · ' + (k.appealSeen != null ? 'ความนิยม ' + (k.appealSeen > 1.1 ? 'สูง' : k.appealSeen > 0.85 ? 'ปานกลาง' : 'ต่ำ') + (k.tested && k.sold <= 50 ? ' (จากการทดสอบ)' : '') : 'ยังไม่รู้ความนิยม') + (k.retail ? ' · วางขายหน้าร้าน' : '') + '</div>' + (k.appealSeen == null ? '<div style="margin-top:4px">' + UI.researchBtn('adtest', k.id, 'ทดสอบตลาด') + '</div>' : ''),
         UI.numInput('pr_' + k.id, k.price, 'ePrice', [k.id], 10) + '<div class="tiny muted">ทุน ~' + F.b(k.cost) + ' · GM ~' + F.pct(margin, 0) + '</div>',
         '<span class="' + (st === 0 ? 'crit' : cover != null && cover < 3 ? 'warn' : '') + '">' + F.num(st) + '</span>' + (inc ? '<div class="tiny muted">กำลังมา ' + F.num(inc) + '</div>' : ''),
         k.avg.toFixed(1) + '<div class="tiny muted">' + (cover != null ? 'พอ ' + (cover > 99 ? '99+' : cover.toFixed(0)) + ' สป.' : '') + '</div>',
@@ -99,7 +99,8 @@
     var dev = UI.panel('พัฒนาสินค้าใหม่', UI.table(['สินค้า', 'สถานะ', ''], devRows, { empty: 'ไม่มีสินค้าที่กำลังพัฒนา' }) +
       '<div class="row" style="margin-top:10px;align-items:flex-end"><label class="field" for="dv_t">ประเภท<select id="dv_t" data-act="devForm" data-a=\'["type"]\'>' + c.types.map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === df.type ? ' selected' : '') + '>' + x[1] + ' (~' + F.b(x[2]) + ')</option>'; }).join('') + '</select></label>' +
       '<label class="field" for="dv_p">ตำแหน่งสินค้า<select id="dv_p" data-act="devForm" data-a=\'["pos"]\'>' + Object.keys(M.POS).map(function (x) { return '<option value="' + x + '"' + (x === df.pos ? ' selected' : '') + '>' + M.POS[x].n + '</option>'; }).join('') + '</select></label>' + UI.btn('เริ่มพัฒนา (' + F.b(devFee) + ')', 'eDev', [], 'primary') + '</div>' +
-      '<p class="tiny muted" style="margin-top:6px">ความนิยมของสินค้าใหม่ไม่แน่นอน — ยิ่งรู้จักลูกค้า (Insight ' + Math.round(b.insight) + '%) ยิ่งเดาถูก · ' + (c.reg[1] ? 'ต้องขอ อย. ' + c.reg[0] + '–' + c.reg[1] + ' สัปดาห์' : 'ไม่ต้องขอ อย.') + ' · ทีม R&D ช่วยให้เร็วขึ้นและคุณภาพดีขึ้น</p>');
+      '<p class="tiny muted" style="margin-top:6px">ความนิยมของสินค้าใหม่ไม่แน่นอน — ยิ่งรู้จักลูกค้า (Insight ' + Math.round(b.insight) + '%) ยิ่งเดาถูก · ' + (c.reg[1] ? 'ต้องขอ อย. ' + c.reg[0] + '–' + c.reg[1] + ' สัปดาห์' : 'ไม่ต้องขอ อย.') + ' · ทีม R&D ช่วยให้เร็วขึ้นและคุณภาพดีขึ้น</p>' +
+      '<div class="row" style="margin-top:6px"><span class="tiny muted">เพิ่ม Insight ด้วยงานวิจัย:</span>' + UI.researchBtn('panel') + '</div>');
     return head + skus + '<div class="grid g2" style="margin-top:14px">' + dev + pos + '</div>';
   };
   ui.acts.ePrice = function (id, v) { return M.act.setPrice(UI.s, id, v); };

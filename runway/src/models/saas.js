@@ -923,6 +923,34 @@
   };
 
   // ---------- Actions ----------
+  // ---------- Paid research: buy customer knowledge with money instead of founder time ----------
+  M.RESEARCH = {
+    interviews: {
+      n: 'จ้างบริษัทวิจัยสัมภาษณ์ลูกค้า', weeks: 4,
+      d: 'สัมภาษณ์เชิงลึก 20 รายในกลุ่มที่เลือก — เร่ง Discovery โดยไม่ใช้เวลาคุณ แต่ได้ข้อมูลมือสองที่ตื้นกว่าคุยเอง',
+      cost: function (s, k) { return k === 'ent' || k === 'mid' ? 240000 : 140000; },
+      can: function (s, k) { return SEG[k] ? (s.biz.segs[k].disc >= 85 ? 'รู้จักกลุ่มนี้ดีแล้ว — วิจัยเพิ่มได้ข้อมูลใหม่น้อยมาก' : null) : 'เลือกกลุ่มลูกค้า'; },
+      done: function (s, k) {
+        var sg = s.biz.segs[k], gain = 28 * (1 - sg.disc / 110);
+        sg.disc = U.clamp(sg.disc + gain, 0, 100);
+        var top = Object.keys(sg.need).sort(function (a, b) { return sg.need[b].w - sg.need[a].w; }).slice(0, 2).map(function (f) { return FEAT[f].n; });
+        return 'รายงานสัมภาษณ์กลุ่ม ' + SEG[k].n + ' (+' + gain.toFixed(0) + '% Discovery → ' + Math.round(sg.disc) + '%) · สิ่งที่พูดถึงบ่อยที่สุด: ' + top.join(' และ ') + ' · ดูรายละเอียดในหน้า Discovery';
+      }
+    },
+    pricing: {
+      n: 'ศึกษาความเต็มใจจ่าย (Van Westendorp)', weeks: 3,
+      d: 'สำรวจราคาที่ลูกค้ามองว่าถูกเกินไป/แพงเกินไป — เห็นความเต็มใจจ่ายของกลุ่มนี้ทันที แม้ Discovery ยังต่ำ',
+      cost: function (s, k) { return k === 'ent' || k === 'mid' ? 150000 : 90000; },
+      can: function (s, k) { return !SEG[k] ? 'เลือกกลุ่มลูกค้า' : s.biz.segs[k].priceKnown || s.biz.segs[k].disc >= 40 ? 'รู้ความเต็มใจจ่ายของกลุ่มนี้แล้ว' : null; },
+      done: function (s, k) {
+        var sg = s.biz.segs[k];
+        sg.priceKnown = 1; sg.disc = Math.min(100, sg.disc + 4);
+        var w = s.biz.launched ? M.wtp(s, k) : CONCEPTS[s.biz.concept].price[k] * 0.9;
+        return 'ลูกค้ากลุ่ม ' + SEG[k].n + ' มองว่าราคาที่ "สมเหตุสมผล" สำหรับสินค้าตอนนี้อยู่ราว ' + F.b(Math.round(w / 10) * 10) + '/เดือน — ตั้งราคาสูงกว่านี้มากจะปิดการขายยาก ต่ำกว่านี้มากคือทิ้งเงินบนโต๊ะ (ความเต็มใจจ่ายจะเปลี่ยนตามคุณค่าของสินค้า)';
+      }
+    }
+  };
+
   M.act = {
     addRoadmap: function (s, f) {
       var b = s.biz;

@@ -125,7 +125,7 @@
     var rows = SEGS.map(function (k) {
       var sg = b.segs[k], g = SEG[k];
       var v = M.value(s, k);
-      var wtpKnown = sg.disc >= 40;
+      var wtpKnown = sg.disc >= 40 || sg.priceKnown;
       return [
         '<label class="row" style="gap:6px;flex-wrap:nowrap"><input type="checkbox" ' + (sg.on ? 'checked' : '') + ' data-act="sToggleSeg" data-a=\'["' + k + '"]\'><b>' + g.s + '</b></label><div class="tiny muted">' + g.n + '</div>',
         F.num(M.customers(b, k)), F.m(M.segMRR(b, k)),
@@ -142,6 +142,7 @@
     var t = b.discTarget;
     var disc = UI.panel('Discovery — สิ่งที่ลูกค้าต้องการจริงๆ', '<div class="row" style="margin-bottom:8px"><span class="small ink2">โฟกัสการสัมภาษณ์ลูกค้า:</span>' + UI.segBtns(SEGS.map(function (k) { return [k, SEG[k].s]; }), t, 'sDiscTarget') + '</div>' +
       '<p class="small ink2" style="margin:0 0 8px">ความเร็วขึ้นกับเวลาที่คุณใช้ "คุยกับลูกค้า" + PM + CSM · ลูกค้าที่ใช้งานอยู่ก็ให้ feedback</p>' +
+      '<div class="row" style="margin-bottom:10px"><span class="small ink2">หรือจ้างวิจัยกลุ่ม ' + SEG[t].s + ':</span>' + UI.researchBtn('interviews', t) + UI.researchBtn('pricing', t, 'ศึกษาความเต็มใจจ่าย') + '</div>' +
       '<div class="grid g2">' + SEGS.map(function (k) {
         var sg = b.segs[k];
         var needs = Object.keys(sg.need).map(function (f) { return { f: f, w: sg.need[f].w, lvl: sg.need[f].lvl }; }).sort(function (x, y) { return y.w - x.w; });

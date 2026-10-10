@@ -146,6 +146,14 @@
     brutal: { n: 'ชีวิตจริงฉบับไม่ปรุงแต่ง', d: 'เริ่มในช่วงเศรษฐกิจชะลอ ทุนหายาก ทุกอย่างพังได้ — 9 ใน 10 ไปไม่รอด', market: 0.75, churn: 1.25, vc: 0.7, harsh: 1.55, cash: 0, macro: 'slowdown' }
   };
 
+  // Optional challenge modifiers layered on top of difficulty
+  RW.CHALLENGES = {
+    none: { n: 'ไม่มีเงื่อนไขพิเศษ', d: 'เส้นทางปกติ ระดมทุนได้ เล่นได้ 10 ปี' },
+    bootstrap: { n: 'Bootstrap ล้วน', d: 'ห้ามขายหุ้นให้นักลงทุนตลอดเกม เงินทุนมาจากลูกค้า เงินกู้ และเงินส่วนตัวเท่านั้น' },
+    crisis: { n: 'เริ่มกลางวิกฤต', d: 'เปิดบริษัทวันที่เศรษฐกิจถดถอยและ VC หยุดลงทุน ลูกค้ารัดเข็มขัด แต่คนเก่งหางานอยู่เยอะ' },
+    sprint: { n: 'Sprint 5 ปี', d: 'มีเวลาแค่ 5 ปีพิสูจน์ตัวเอง วัดผลด้วยความมั่งคั่งเมื่อครบกำหนด' }
+  };
+
   // Funding stages: typical (normal climate) round sizes and pre-money valuations in THB
   RW.STAGES = {
     preseed: { n: 'Pre-seed', amt: [1.5e6, 8e6], pre: [12e6, 45e6], next: 'seed' },

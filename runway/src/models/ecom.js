@@ -549,6 +549,34 @@
   };
 
   // ---------- Actions ----------
+  // ---------- Paid research ----------
+  M.RESEARCH = {
+    panel: {
+      n: 'วิจัยผู้บริโภค + Focus group', weeks: 4,
+      d: 'จ้างเอเจนซีทำแบบสอบถาม 400 ชุดและ focus group 3 กลุ่ม — Insight ลูกค้าเพิ่ม สินค้าใหม่ที่พัฒนาจะเดาความนิยมแม่นขึ้น',
+      cost: 160000,
+      can: function (s) { return s.biz.insight >= 85 ? 'Insight สูงแล้ว — วิจัยเพิ่มได้ข้อมูลใหม่น้อยมาก' : null; },
+      done: function (s) {
+        var b = s.biz, gain = 20 * (1 - b.insight / 110);
+        b.insight = U.clamp(b.insight + gain, 0, 100);
+        return 'Insight ลูกค้า +' + gain.toFixed(0) + '% → ' + Math.round(b.insight) + '% · ผู้ตอบแบบสอบถามส่วนใหญ่ ' + R.pick(['ซื้อเพราะรีวิวจากคนจริงมากกว่าโฆษณา', 'ยอมจ่ายแพงขึ้นถ้าแพ็กเกจดูพรีเมียม', 'ซื้อซ้ำเมื่อมีโปรส่งฟรี', 'เลิกซื้อเพราะของหมดบ่อย']);
+      }
+    },
+    adtest: {
+      n: 'ทดสอบตลาด (ยิงโฆษณา + พรีออเดอร์)', weeks: 2,
+      d: 'ใช้งบโฆษณาเล็กๆ วัดความสนใจจริงก่อนสั่งผลิตล็อตใหญ่ — รู้ความนิยมของสินค้าโดยไม่ต้องรอขายได้ 50 ชิ้น',
+      cost: 45000,
+      can: function (s, id) { var k = s.biz.skus.find(function (x) { return x.id === id; }); return !k ? 'ไม่พบสินค้า' : k.appealSeen != null ? 'รู้ความนิยมของสินค้านี้แล้ว' : null; },
+      done: function (s, id) {
+        var k = s.biz.skus.find(function (x) { return x.id === id; });
+        if (!k) return 'สินค้าถูกยกเลิกไปก่อนผลทดสอบจะมา';
+        k.appealSeen = k.appeal * R.normal(1, 0.1);
+        k.tested = 1;
+        return '"' + k.n + '" ได้ผลตอบรับ ' + (k.appealSeen > 1.1 ? 'ดีมาก — คนกดพรีออเดอร์เกินคาด' : k.appealSeen > 0.85 ? 'ปานกลาง — มีคนสนใจแต่ไม่ล้นหลาม' : 'ต่ำ — คลิกเยอะแต่ไม่ค่อยมีคนจ่ายเงิน') + ' (ค่าประมาณจากการทดสอบ คลาดเคลื่อนได้ ±10%)';
+      }
+    }
+  };
+
   M.act = {
     develop: function (s, type, pos) {
       var b = s.biz;

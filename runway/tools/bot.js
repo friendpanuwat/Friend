@@ -299,7 +299,7 @@ function play(i, weeks, industry, diff, hook) {
   const bg = ['engineer', 'sales', 'consultant', 'serial'][i % 4];
   const CONC = { saas: ['hr', 'acct', 'pos', 'ai'], ecom: ['skincare', 'coffee', 'apparel', 'supplement'], fnb: ['cafe', 'thai', 'bbq', 'bakery'] }[industry];
   const concept = CONC[Math.floor(i / 4) % 4];
-  const s = RW.Engine.newGame({ seed: 1000 + i, industry, difficulty: diff, founderName: 'บอท', bg, companyName: 'Bot' + i, capital: Math.min(industry === 'fnb' ? 2500000 : 1500000, RW.BACKGROUNDS[bg].savings * (industry === 'fnb' ? 0.85 : 0.7)), concept, product: concept });
+  const s = RW.Engine.newGame({ seed: 1000 + i, industry, difficulty: diff, founderName: 'บอท', bg, companyName: 'Bot' + i, capital: Math.min(industry === 'fnb' ? 2500000 : 1500000, RW.BACKGROUNDS[bg].savings * (industry === 'fnb' ? 0.85 : 0.7)), concept, product: concept, challenge: process.env.CH });
   const yearly = [];
   for (let w = 0; w < weeks && !s.over; w++) {
     RW.R.bind(s.rng);

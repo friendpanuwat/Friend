@@ -173,6 +173,7 @@
 
   // ---------- Funding ----------
   A.startRaise = function (s, opt) {
+    if (s.challenge === 'bootstrap') return no('โหมด Bootstrap ล้วน: ห้ามขายหุ้นให้นักลงทุน — หาเงินจากลูกค้า เงินกู้ หรือเงินส่วนตัว');
     if (!s.company.registered) return no('ต้องจดทะเบียนบริษัทก่อน นักลงทุนลงทุนในบุคคลธรรมดาไม่ได้');
     if (s.funding.raise) return no('กำลังระดมทุนอยู่');
     if (!(opt.target > 0) || !(opt.ask > 0)) return no('กรอกจำนวนเงินและมูลค่า');
@@ -241,6 +242,20 @@
     s.founder.cash += loanBack + wf.founder;
     RW.Engine.gameOver(s, 'shutdown', 'คุณตัดสินใจปิดบริษัทอย่างมีระเบียบ จ่ายค่าชดเชยพนักงาน ' + F.b(sev) + ' ชำระหนี้ และคืนเงินที่เหลือให้ผู้ถือหุ้น' + (loanBack + wf.founder > 0 ? ' — คุณได้คืน ' + F.b(loanBack + wf.founder) : ''));
     return ok('ปิดบริษัทแล้ว');
+  };
+  A.research = function (s, k, arg) {
+    var M = RW.Models[s.industry], r = M.RESEARCH && M.RESEARCH[k];
+    if (!r) return no('ไม่มีงานวิจัยนี้');
+    s.research = s.research || [];
+    if (s.research.some(function (j) { return j.k === k && j.arg === arg; })) return no('งานวิจัยนี้กำลังดำเนินการอยู่');
+    if (s.research.length >= 3) return no('มีงานวิจัยค้างอยู่ 3 งานแล้ว — รอผลก่อน');
+    var why = r.can ? r.can(s, arg) : null;
+    if (why) return no(why);
+    var cost = typeof r.cost === 'function' ? r.cost(s, arg) : r.cost;
+    if (s.fin.bal.cash < cost) return no('เงินสดไม่พอจ้างวิจัย');
+    L.spend(s.fin, 'prof', cost);
+    s.research.push({ k: k, arg: arg == null ? null : arg, due: s.time.w + r.weeks, startW: s.time.w });
+    return ok('จ้างวิจัยแล้ว (' + F.b(cost) + ') — ผลจะมาในอีก ' + r.weeks + ' สัปดาห์');
   };
   A.continueEndless = function (s) { s.flags.endless = 1; return ok('โหมดเล่นต่อไม่จำกัดเวลา'); };
 

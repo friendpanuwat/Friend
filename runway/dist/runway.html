@@ -272,6 +272,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 
 .end { max-width: 760px; margin: 30px auto; }
 .end .rank { font-family: var(--f-display); font-size: 38px; }
+.epilogue { border-left: 2px solid var(--accent); padding: 2px 0 2px 14px; display: grid; gap: 10px; }
+.epi b { font-family: var(--f-display); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.epi p { margin: 2px 0 0; color: var(--ink2); line-height: 1.65; }
 
 /* responsive */
 @media (max-width: 1100px) {
@@ -1052,6 +1055,14 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     normal: { n: 'สมจริง', d: 'ใกล้เคียงโลกจริง ส่วนใหญ่ของสตาร์ทอัพไปไม่ถึงซีรีส์ A', market: 1.0, churn: 1.0, vc: 1.0, harsh: 1.0, cash: 0, macro: 'growth' },
     hard: { n: 'โหด', d: 'ตลาดเล็กกว่า ลูกค้าหนีง่ายกว่า นักลงทุนเลือกมาก', market: 0.85, churn: 1.15, vc: 0.85, harsh: 1.3, cash: 0, macro: 'slowdown' },
     brutal: { n: 'ชีวิตจริงฉบับไม่ปรุงแต่ง', d: 'เริ่มในช่วงเศรษฐกิจชะลอ ทุนหายาก ทุกอย่างพังได้ — 9 ใน 10 ไปไม่รอด', market: 0.75, churn: 1.25, vc: 0.7, harsh: 1.55, cash: 0, macro: 'slowdown' }
+  };
+
+  // Optional challenge modifiers layered on top of difficulty
+  RW.CHALLENGES = {
+    none: { n: 'ไม่มีเงื่อนไขพิเศษ', d: 'เส้นทางปกติ ระดมทุนได้ เล่นได้ 10 ปี' },
+    bootstrap: { n: 'Bootstrap ล้วน', d: 'ห้ามขายหุ้นให้นักลงทุนตลอดเกม เงินทุนมาจากลูกค้า เงินกู้ และเงินส่วนตัวเท่านั้น' },
+    crisis: { n: 'เริ่มกลางวิกฤต', d: 'เปิดบริษัทวันที่เศรษฐกิจถดถอยและ VC หยุดลงทุน ลูกค้ารัดเข็มขัด แต่คนเก่งหางานอยู่เยอะ' },
+    sprint: { n: 'Sprint 5 ปี', d: 'มีเวลาแค่ 5 ปีพิสูจน์ตัวเอง วัดผลด้วยความมั่งคั่งเมื่อครบกำหนด' }
   };
 
   // Funding stages: typical (normal climate) round sizes and pre-money valuations in THB
@@ -3911,16 +3922,19 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     R.bind(rng);
     var diff = U.deepCopy(RW.DIFFICULTY[opt.difficulty || 'normal']);
     diff.key = opt.difficulty || 'normal';
+    var ch = RW.CHALLENGES[opt.challenge] ? opt.challenge : 'none';
     var state = {
       v: RW.VERSION, seed: seed, rng: rng, industry: opt.industry, diff: diff,
       company: { name: opt.companyName || 'บริษัทของฉัน', registered: false, registerW: null, office: { type: 'home', seats: 3, rent: 0, leaseEnd: 0, deposit: 0 }, insured: false, extraAdmin: 0, foundedW: 0 },
       time: { w: 0 }, flags: {}, stats: { raised: 0, peakHC: 0, maxRevenueMonth: 0, layoffs: 0 },
-      inbox: [], hist: { weekly: [], monthly: [] }, achievements: {}, over: null, cofounders: [], kpi: {}
+      inbox: [], hist: { weekly: [], monthly: [] }, achievements: {}, over: null, cofounders: [], kpi: {},
+      challenge: ch, maxW: ch === 'sprint' ? 260 : RW.MAX_WEEKS, research: []
     };
     state.founder = RW.Founder.init({ name: opt.founderName, bg: opt.bg, extraCash: diff.cash });
     state.team = RW.Team.init();
     state.fin = L.init();
-    state.world = RW.World.init(state, diff.macro);
+    state.world = RW.World.init(state, ch === 'crisis' ? 'recession' : diff.macro);
+    if (ch === 'crisis') { state.world.vc = Math.min(state.world.vc, 0.5); state.world.talentSupply = 1.35; }
     state.events = RW.Events.init();
     state.funding = RW.Funding.init(state);
     var M = RW.Models[opt.industry];
@@ -3972,6 +3986,19 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     if (state.inbox.length > 250) state.inbox.length = 250;
   };
 
+  // ---------- Paid market research (results arrive after a few weeks) ----------
+  EN.researchWeekly = function (state) {
+    var M = RW.Models[state.industry], w = state.time.w;
+    if (!state.research || !state.research.length || !M.RESEARCH) return;
+    state.research = state.research.filter(function (j) {
+      if (j.due > w) return true;
+      var r = M.RESEARCH[j.k];
+      var msg = r ? r.done(state, j.arg) : '';
+      if (msg) EN.mail(state, 'product', 'ผลวิจัยมาแล้ว: ' + r.n, msg, 'good');
+      return false;
+    });
+  };
+
   // ---------- Weekly tick ----------
   EN.tick = function (state) {
     if (state.over) return;
@@ -4016,6 +4043,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     RW.Founder.cofounderWeekly(state);
     RW.Team.weekly(state);
     M.weekly(state, info);
+    EN.researchWeekly(state);
     var ci = RW.Founder.consultIncome(state);
     if (ci > 0) {
       if (state.company.registered) L.invoice(state, 'rev_consult', ci, w + 4, { wht: true, name: 'งานที่ปรึกษา/รับจ้าง' });
@@ -4040,7 +4068,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     EN.checkSolvency(state, info);
     EN.checkAchievements(state);
     state.stats.peakHC = Math.max(state.stats.peakHC, RW.Team.headcount(state));
-    if (w >= RW.MAX_WEEKS && !state.over && !state.flags.endless) EN.timeUp(state);
+    if (w >= EN.maxW(state) && !state.over && !state.flags.endless) EN.timeUp(state);
   };
 
   EN.monthEnd = function (state, info) {
@@ -4175,6 +4203,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var r1 = hm.length >= 2 ? core(hm[hm.length - 2]) : 0;
     k.momGrowth = r1 > 0 && last ? r0 / r1 - 1 : 0;
     k.cmgr3 = r3 > 0 && r0 > 0 ? Math.pow(r0 / r3, 1 / 3) - 1 : 0;
+    var prevTTM = hm.length >= 24 ? U.sum(hm.slice(-24, -12), core) : 0;
+    k.yoyGrowth = prevTTM > 0 ? k.revenueTTM / prevTTM - 1 : 0;
     k.headcount = RW.Team.headcount(state);
     k.morale = RW.Team.avgMorale(state);
     k.founderPct = RW.Funding.founderPct(state);
@@ -4235,10 +4265,24 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     if (f.cash < -Math.max(600000, f.burn * 10)) EN.gameOver(state, 'personal', 'หนี้ส่วนตัวพอกพูนจนคุณไม่สามารถทำบริษัทต่อได้ ต้องกลับไปหางานประจำเพื่อใช้หนี้');
   };
 
+  EN.founderLoan = function (state) {
+    return U.sum(state.fin.loans.filter(function (l) { return l.kind === 'founder'; }), function (l) { return l.balance; });
+  };
+
   EN.gameOver = function (state, reason, text) {
     if (state.over) return;
     var M = RW.Models[state.industry];
     var equityValue = 0;
+    if (reason === 'bankrupt') {
+      // SME loans carry the director's personal guarantee: the bank recovers what liquidation does not cover
+      var guaranteed = U.sum(state.fin.loans.filter(function (l) { return l.kind === 'bank'; }), function (l) { return l.balance; });
+      if (guaranteed > 0) {
+        var callOn = Math.round(guaranteed * 0.55);
+        state.founder.cash -= callOn;
+        state.stats.guaranteeCalled = callOn;
+        text += ' — ธนาคารเรียกให้คุณชำระหนี้ตามสัญญาค้ำประกันส่วนตัว ' + F.m(callOn);
+      }
+    }
     if (reason === 'fired' || reason === 'timeup') {
       var v = Math.max(M.valuation(state) * RW.Funding.climate(state), 0);
       var wf = RW.Funding.waterfall(state, v);
@@ -4251,8 +4295,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     EN.finalize(state);
   };
 
+  EN.maxW = function (state) { return state.maxW || RW.MAX_WEEKS; };
   EN.timeUp = function (state) {
-    EN.gameOver(state, 'timeup', 'ครบ 10 ปีของการเดินทาง — มาดูกันว่าคุณสร้างอะไรไว้');
+    EN.gameOver(state, 'timeup', 'ครบ ' + Math.round(EN.maxW(state) / 52) + ' ปีของการเดินทาง — มาดูกันว่าคุณสร้างอะไรไว้');
   };
 
   EN.exit = function (state, kind, offer) {
@@ -4262,8 +4307,10 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var stock = founderGross * (1 - offer.cash) * 0.8;
     // earn-out portion is uncertain: count half of it
     var proceeds = cash + stock - (offer.earnout ? founderGross * offer.earnout * 0.5 : 0);
-    state.founder.cash += proceeds;
-    state.over = { reason: kind, text: 'ขายกิจการให้ ' + offer.buyer + ' มูลค่า ' + F.m(offer.price), w: state.time.w, price: offer.price, waterfall: wf, equity: proceeds, personal: state.founder.cash - proceeds, wealth: state.founder.cash };
+    // buyer settles the company's debts at closing, including the founder's shareholder loan
+    var loanBack = EN.founderLoan(state);
+    state.founder.cash += proceeds + loanBack;
+    state.over = { reason: kind, text: 'ขายกิจการให้ ' + offer.buyer + ' มูลค่า ' + F.m(offer.price) + (loanBack > 0 ? ' (ได้เงินกู้ผู้ก่อตั้งคืน ' + F.m(loanBack) + ')' : ''), w: state.time.w, price: offer.price, waterfall: wf, equity: proceeds, personal: state.founder.cash - proceeds, wealth: state.founder.cash, buyer: offer.buyer, offerKind: offer.kind, earnout: offer.earnout || 0 };
     state.achievements.exit = state.time.w;
     EN.finalize(state);
   };
@@ -4309,7 +4356,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     // IPO: all preferred convert to common; new shares issued
     var founderStake = RW.Funding.founderShares(state) / fd * (v / (v + raise));
     var value = founderStake * (v + raise) * 0.85; // lock-up discount
-    state.founder.cash += 0;
+    state.founder.cash += EN.founderLoan(state); // repaid from IPO proceeds
     state.over = { reason: 'ipo', text: 'เข้าตลาดหลักทรัพย์สำเร็จ! มูลค่าตลาด ' + F.m(v + raise), w: state.time.w, price: v + raise, equity: value, personal: state.founder.cash, wealth: state.founder.cash + value };
     state.achievements.ipo = state.time.w;
     EN.finalize(state);
@@ -4337,7 +4384,120 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     o.peakHC = state.stats.peakHC;
     o.raised = state.stats.raised;
     o.maxRev = state.stats.maxRevenueMonth;
+    var a = state.achievements, w = state.time.w;
+    if (state.challenge === 'bootstrap' && o.wealth >= 30e6 && !state.stats.raised) a.ch_bootstrap = w;
+    if (state.challenge === 'sprint' && o.wealth >= 100e6) a.ch_sprint = w;
+    o.challenge = state.challenge || 'none';
+    o.epilogue = EN.epilogue(state);
     EN.mail(state, 'system', 'จบเกม: ' + o.rank.title, o.text, 'info');
+  };
+
+  // ---------- Epilogue: what happened next ----------
+  EN.epilogue = function (state) {
+    var o = state.over, k = state.kpi, f = state.founder, M = RW.Models[state.industry];
+    var name = state.company.name, yrs = o.w / 52, hc = RW.Team.headcount(state), peak = state.stats.peakHC || 0;
+    var cust = Math.round(k.customers || 0), revM = k.revenueMonthly || 0, maxRev = state.stats.maxRevenueMonth || 0;
+    var seedN = Math.abs(state.seed | 0);
+    function pick(arr, salt) { return arr[(seedN + (salt || 0)) % arr.length]; }
+    var ind = state.industry, b = state.biz, out = [];
+    var branches = ind === 'fnb' ? b.branches.filter(function (x) { return x.state !== 'closed'; }).length : 0;
+    var floor = ind === 'fnb' ? U.sum(b.branches.filter(function (x) { return x.state !== 'closed'; }), function (x) { return x.staff || 0; }) : 0;
+    hc += floor; peak = Math.max(peak, hc);
+    var profitable = (k.ebitdaTTM || 0) > 0, growth = k.yoyGrowth || 0;
+    var yearsTxt = yrs < 1 ? Math.max(1, Math.round(o.w / 4.33)) + ' เดือน' : yrs.toFixed(1) + ' ปี';
+    var wfH = o.waterfall ? o.waterfall.holders : null;
+    var esop = wfH ? U.sum(wfH.filter(function (x) { return x.kind === 'employee'; }), function (x) { return x.amount; }) : 0;
+    var invIn = U.sum(state.funding.holders.filter(function (x) { return x.kind === 'investor'; }), function (x) { return x.invested || 0; }) + U.sum(state.funding.safes, function (x) { return x.amount; });
+    var invOut = wfH ? U.sum(wfH.filter(function (x) { return x.kind === 'investor'; }), function (x) { return x.amount; }) : 0;
+
+    // 1) the company
+    var co;
+    switch (o.reason) {
+      case 'bankrupt':
+        co = name + ' ปิดตัวลงหลังดำเนินกิจการ ' + yearsTxt + ' ผู้ชำระบัญชีขายทรัพย์สินที่เหลือ' +
+          (ind === 'saas' ? (cust > 0 ? ' ลูกค้า ' + F.num(cust) + ' รายได้รับอีเมลแจ้งปิดระบบล่วงหน้า 30 วันพร้อมไฟล์ข้อมูลของตัวเอง' : '') + ' โค้ดทั้งหมดถูกขายให้บริษัทซอฟต์แวร์รายหนึ่งในราคาไม่ถึงค่าเซิร์ฟเวอร์หนึ่งเดือน' :
+            ind === 'ecom' ? ' สต็อกที่เหลือถูกขายเหมาให้พ่อค้าคนกลางในราคาราว 20% ของทุน หน้าร้านออนไลน์ถูกปิด' + (maxRev > 1e6 ? ' รีวิวห้าดาวหลายพันรายการหายไปพร้อมกับร้าน' : '') :
+              ' อุปกรณ์ครัวถูกขายต่อให้ร้านเปิดใหม่ในราคาเศษเหล็ก ป้ายหน้าร้านถูกปลดลง ไม่กี่เดือนต่อมามีร้านใหม่มาเช่าทำเลเดิม') +
+          (maxRev > 2.5e6 ? ' — คนในวงการหลายคนยังพูดถึงว่ามันเกือบไปได้แล้ว' : '');
+        break;
+      case 'personal':
+        co = 'คุณกลับไปทำงานประจำเพื่อใช้หนี้ ' + (revM > 300000 && hc > 0 ? 'ทีมที่เหลือพยายามประคอง ' + name + ' ต่ออีกพักหนึ่ง แต่บริษัทที่ไม่มีผู้ก่อตั้งคอยผลักดันก็ค่อยๆ หยุดเติบโต' : name + ' ค่อยๆ เงียบหายไป เว็บไซต์ยังออนไลน์อยู่อีกปีหนึ่งจนโดเมนหมดอายุ');
+        break;
+      case 'fired':
+        co = 'บอร์ดแต่งตั้ง CEO มืออาชีพจากภายนอก ' + pick(['ซึ่งตัดโปรเจกต์ที่คุณรักออกไปครึ่งหนึ่งภายใน 100 วันแรก', 'ซึ่งย้ายสำนักงานและเปลี่ยนวัฒนธรรมองค์กรจนคนรุ่นแรกแทบจำไม่ได้', 'ซึ่งโฟกัสกำไรมากกว่าการเติบโต บริษัทนิ่งขึ้นแต่ไม่ตื่นเต้นอีกต่อไป']) +
+          ' คุณยังถือหุ้นสามัญอยู่ แต่ไม่มีเสียงในการตัดสินใจอีกแล้ว';
+        break;
+      case 'quit':
+        co = 'คุณตัดสินใจเดินจาก ' + name + ' มา ' + (revM > 0 ? 'ลูกค้าที่เหลือถูกส่งต่อให้คู่แข่ง ' : '') + 'สิ่งที่สร้างไว้กลายเป็นแค่หนึ่งบรรทัดใน LinkedIn ของคุณ';
+        break;
+      case 'shutdown':
+        co = 'คุณปิด ' + name + ' อย่างเป็นระเบียบ จ่ายค่าชดเชยครบทุกคน ชำระหนี้ทุกบาท และส่งอีเมลขอบคุณลูกค้าด้วยตัวเอง — คนในวงการจดจำว่าคุณปิดบริษัทอย่างรับผิดชอบ ซึ่งหายากกว่าที่คิด และนั่นจะทำให้การเริ่มครั้งหน้าง่ายขึ้นมาก';
+        break;
+      case 'acquired':
+        co = (o.offerKind === 'acquihire' ? o.buyer + ' ซื้อ ' + name + ' เพื่อทีมงาน สินค้าถูกปิดภายในหกเดือน ทุกคนย้ายไปทำโปรเจกต์ใหม่ภายใต้แบรนด์ผู้ซื้อ' :
+          o.offerKind === 'pe' ? o.buyer + ' เข้ามาบริหาร ' + name + ' แบบเน้นกำไร ตัดต้นทุนทุกบรรทัด แล้ววางแผนขายต่อในอีก 4–5 ปี' :
+            name + ' กลายเป็นหนึ่งในหน่วยธุรกิจของ ' + o.buyer + ' แบรนด์ยังอยู่ แต่การตัดสินใจทั้งหมดต้องผ่านสำนักงานใหญ่') +
+          (o.earnout ? ' — เงื่อนไข earn-out ทำให้คุณต้องทำงานต่อให้ผู้ซื้ออีกสองปีเต็ม เป็นสองปีที่ยาวที่สุดในชีวิต' : '');
+        break;
+      case 'ipo':
+        co = 'เช้าวันแรกของการซื้อขาย หุ้น ' + name + ' ' + pick(['เปิดสูงกว่าราคาจองเกือบ 30%', 'ยืนเหนือราคาจองได้อย่างหวุดหวิด', 'ผันผวนตลอดวันก่อนปิดบวกเล็กน้อย']) + ' คุณกับทีมรุ่นแรกยืนเคาะระฆังด้วยกัน จากนี้ทุกไตรมาสคือการสอบต่อหน้านักลงทุนรายย่อยนับหมื่นคน';
+        break;
+      default:
+        if (profitable && growth > 0.2) co = 'ครบ ' + Math.round(yrs) + ' ปี ' + name + ' ยังโตแรงและมีกำไร ' + (ind === 'fnb' ? 'มี ' + branches + ' สาขา ' : '') + 'นักลงทุนและผู้ซื้อกิจการเริ่มเข้ามาเคาะประตูบ่อยขึ้น เกมจริงอาจเพิ่งเริ่มต้น';
+        else if (profitable) co = 'ครบ ' + Math.round(yrs) + ' ปี ' + name + ' กลายเป็นธุรกิจที่มั่นคงและมีกำไร ไม่หวือหวาแต่จ่ายเงินเดือนทุกคนตรงเวลาทุกเดือน — สิ่งที่สตาร์ทอัพส่วนใหญ่ไม่เคยทำได้';
+        else if ((k.runway || 0) < 6) co = 'ครบ ' + Math.round(yrs) + ' ปี ' + name + ' ยังมีลมหายใจ แต่เงินสดเหลืออีกไม่กี่เดือน ทุกคนรู้ดีว่าปีหน้าคือปีตัดสิน';
+        else co = 'ครบ ' + Math.round(yrs) + ' ปี ' + name + ' ยังไม่ทำกำไร และการเติบโตก็ช้าลง ภาษาวงการเรียกว่า "บริษัทซอมบี้" — ไม่ตาย แต่ก็ไม่โต';
+    }
+    out.push({ h: 'บริษัท', t: co });
+
+    // 2) the team
+    var team;
+    if (peak === 0) team = 'คุณทำทุกอย่างด้วยตัวเองมาตลอด ไม่เคยต้องจ่ายเงินเดือนใคร และไม่เคยต้องบอกใครว่าบริษัทไม่มีเงิน';
+    else if (o.reason === 'bankrupt') team = (hc > 0 ? 'พนักงาน ' + hc + ' คนสุดท้ายต้องหางานใหม่' + (state.stats.missedPayroll ? ' บางคนยังได้เงินเดือนเดือนสุดท้ายไม่ครบและต้องยื่นเรื่องต่อพนักงานตรวจแรงงาน' : ' ส่วนใหญ่ได้งานใหม่ภายในไม่กี่เดือน') : 'ทีมทยอยลาออกไปก่อนหน้านั้น คนสุดท้ายที่อยู่จนวันปิดคือตัวคุณเอง') + (peak >= 10 ? ' หลายคนยังเรียกช่วงเวลาที่ ' + name + ' ว่า "โรงเรียนที่แพงที่สุด"' : '');
+    else if (esop > 1e5) team = 'พนักงานที่ถือ ESOP ได้รับเงินรวม ' + F.m(esop) + ' — บางคนเอาไปดาวน์บ้านหลังแรก บางคนเอาไปเริ่มบริษัทของตัวเอง';
+    else team = 'ตลอดเส้นทางมีคนเคยทำงานกับคุณสูงสุด ' + peak + ' คนพร้อมกัน' + (state.stats.layoffs ? ' และคุณเคยต้องเลิกจ้าง ' + state.stats.layoffs + ' คน — ทุกครั้งยังจำหน้าได้' : '');
+    if (peak >= 12) team += ' · ศิษย์เก่าอย่างน้อย ' + (Math.floor(peak / 12) + 1) + ' คนออกไปเปิดบริษัทของตัวเองในภายหลัง';
+    var cofLeft = (state.cofounders || []).filter(function (c) { return !c.active; });
+    if (cofLeft.length) team += ' · ' + cofLeft[0].nick + ' ผู้ร่วมก่อตั้งที่แยกทางกันไป ' + pick(['ส่งข้อความมาแสดงความยินดี/ให้กำลังใจ', 'ยังไม่ได้คุยกับคุณอีกเลย', 'กลายเป็นเพื่อนกันอีกครั้งหลังผ่านไปหลายปี'], 3);
+    out.push({ h: 'ทีม', t: team });
+
+    // 3) the investors
+    if (invIn > 0) {
+      var inv;
+      if (o.reason === 'acquired') {
+        var mult = invOut / invIn;
+        inv = 'นักลงทุนลงเงินรวม ' + F.m(invIn) + ' ได้คืน ' + F.m(invOut) + ' (' + mult.toFixed(1) + 'x) ' + (mult >= 5 ? '— ดีลนี้จะถูกใช้เป็นตัวอย่างในพิตช์ระดมทุนกองต่อไปของพวกเขา' : mult >= 1 ? '— ไม่เลวร้าย แต่ไม่ใช่ผลตอบแทนที่ VC ฝันไว้' : '— ขาดทุน แต่ liquidation preference ช่วยให้ได้เงินคืนก่อนผู้ก่อตั้ง');
+      } else if (o.reason === 'ipo') inv = 'นักลงทุนทุกรอบได้ผลตอบแทนหลายเท่าบนกระดาษ หลังพ้น lock-up หลายรายทยอยขายหุ้นออก';
+      else if (o.reason === 'bankrupt' || o.reason === 'personal' || o.reason === 'quit') inv = 'เงินลงทุน ' + F.m(invIn) + ' ถูกตัดเป็นศูนย์ ' + (state.funding.board.confidence >= 50 ? 'นักลงทุนรายหนึ่งส่งข้อความว่า "ขอบคุณที่สู้จนวินาทีสุดท้าย ถ้าเปิดบริษัทใหม่ บอกผมเป็นคนแรก"' : 'บางรายไม่ตอบข้อความคุณอีกเลย');
+      else inv = 'นักลงทุนที่ลงเงินรวม ' + F.m(invIn) + ' ยังรอการ exit ที่จะทำให้ตัวเลขในพอร์ตเป็นจริง';
+      out.push({ h: 'นักลงทุน', t: inv });
+    }
+
+    // 4) the founder
+    var me = [];
+    if (f.health < 45) me.push('ร่างกายคุณใช้เวลาเกือบปีกว่าจะฟื้นตัวจากปีที่ทำงานหนัก');
+    else if (state.achievements.burnout) me.push('อาการหมดไฟที่เคยเป็นสอนให้คุณรู้ขีดจำกัดของตัวเอง');
+    if (f.life < 35) me.push('ความสัมพันธ์กับครอบครัวและคนใกล้ตัวต้องใช้เวลาซ่อมแซมนานกว่าบริษัทไหนๆ');
+    else if (f.life >= 65) me.push(pick(['คนที่คุณรักยังอยู่ข้างคุณตลอดทาง', 'คุณยังมีเวลาให้ครอบครัวแม้ในปีที่หนักที่สุด และนั่นคือสิ่งที่คุณภูมิใจที่สุด', 'เพื่อนเก่ายังนัดกินข้าวกับคุณเหมือนเดิม ไม่มีใครถามเรื่อง valuation'], 5));
+    if (state.stats.guaranteeCalled) me.push('หนี้ค้ำประกันธนาคาร ' + F.m(state.stats.guaranteeCalled) + ' จะตามคุณไปอีกหลายปี');
+    me.push('ความมั่งคั่งสุทธิตอนจบ ' + F.m(o.wealth) + ' — ' + o.rank.desc);
+    out.push({ h: 'ตัวคุณ', t: me.join(' · ') });
+
+    // 5) the lesson
+    var lesson;
+    var payrollHeavy = peak >= 6 && maxRev < peak * 60000;
+    if (o.reason === 'bankrupt' && maxRev < 150000) lesson = 'บริษัทส่วนใหญ่ไม่ได้ตายเพราะคู่แข่ง แต่ตายเพราะสร้างสิ่งที่คนไม่ยอมจ่ายเงินซื้อ — หาลูกค้าที่ยอมจ่ายจริงให้เร็วกว่านี้ แล้วค่อยขยาย';
+    else if ((o.reason === 'bankrupt' || o.reason === 'fired') && payrollHeavy) lesson = 'ทีมโตเร็วกว่ารายได้ การจ้างหนึ่งคนคือการผูกเงินสดไว้ 12–18 เดือน — จ้างเมื่อคอขวดชัด ไม่ใช่เมื่อรู้สึกว่าควรโต';
+    else if (o.reason === 'bankrupt' && state.stats.raised > 0) lesson = 'เงินหมดก่อนถึง milestone ถัดไป — เริ่มระดมทุนเมื่อยังเหลือ runway อย่างน้อย 9 เดือน และวางแผนให้ถึงเป้าหมายด้วยเงินแค่ 70% ของที่ระดมได้';
+    else if (o.reason === 'bankrupt') lesson = 'กระแสเงินสดสำคัญกว่ากำไรบนกระดาษ — ดูเงินสดรายสัปดาห์ เก็บหนี้ให้เร็ว และอย่าใช้เงินที่ยังไม่ได้รับ';
+    else if (o.reason === 'personal') lesson = 'ผู้ก่อตั้งก็มี runway ของตัวเอง เงินเดือนผู้ก่อตั้งที่พออยู่ได้ไม่ใช่ความฟุ่มเฟือย แต่คือสิ่งที่ทำให้บริษัทไม่ต้องจบเพราะคุณถังแตกก่อน';
+    else if (o.reason === 'fired') lesson = 'เมื่อนักลงทุนคุมบอร์ด ความเชื่อมั่นคือสกุลเงินของคุณ — สัญญาให้น้อย ทำให้ได้มากกว่า และอย่าปล่อยให้บอร์ดได้ยินข่าวร้ายจากคนอื่น';
+    else if (o.reason === 'acquired' || o.reason === 'ipo') lesson = 'จังหวะสำคัญพอๆ กับฝีมือ — คุณสร้างสิ่งที่คนอื่นยอมจ่ายเงินก้อนใหญ่เพื่อเป็นเจ้าของ และนั่นคือนิยามของการสร้างคุณค่า';
+    else if (o.reason === 'shutdown') lesson = 'การรู้ว่าเมื่อไรควรหยุดคือทักษะของผู้ก่อตั้งที่ไม่มีใครสอน — คุณหยุดได้ก่อนที่มันจะทำร้ายคนรอบตัว';
+    else if (profitable) lesson = 'ธุรกิจที่ดีคือธุรกิจที่ยังอยู่ ความอดทนและวินัยเรื่องเงินสดคือความได้เปรียบที่คนประเมินค่าต่ำที่สุด';
+    else lesson = 'การอยู่รอดไม่เท่ากับการชนะ — ถ้ายังหา product-market fit ไม่เจอหลังหลายปี การเปลี่ยนทิศอย่างกล้าหาญอาจดีกว่าการประคองต่อ';
+    out.push({ h: 'บทเรียน', t: lesson });
+    return out;
   };
 
   // ---------- Achievements ----------
@@ -4364,7 +4524,10 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     burnout: ['หมดไฟ', 'ร่างกายประท้วงครั้งแรก (ไม่ใช่สิ่งที่ควรภูมิใจ)'],
     missed_payroll: ['วันที่ทุกคนจำ', 'จ่ายเงินเดือนพนักงานไม่ได้'],
     exit: ['Exit!', 'ขายกิจการสำเร็จ'],
-    ipo: ['ตีระฆัง', 'นำบริษัทเข้าตลาดหลักทรัพย์']
+    ipo: ['ตีระฆัง', 'นำบริษัทเข้าตลาดหลักทรัพย์'],
+    ch_bootstrap: ['ยืนด้วยขาตัวเอง', 'โหมด Bootstrap ล้วน: จบเกมด้วยความมั่งคั่ง ≥ ฿30M โดยไม่ขายหุ้นให้นักลงทุน'],
+    ch_crisis: ['เกิดกลางพายุ', 'โหมดเริ่มกลางวิกฤต: บริษัทอยู่รอดครบ 3 ปี'],
+    ch_sprint: ['วิ่งสุดแรง', 'โหมด Sprint 5 ปี: ความมั่งคั่ง ≥ ฿100M เมื่อจบเกม']
   };
   EN.checkAchievements = function (state) {
     var a = state.achievements, w = state.time.w, k = state.kpi;
@@ -4384,6 +4547,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     if (k.defaultAlive && k.defaultAlive.alive && k.burn > 0 && k.revenueMonthly > 100000 && k.runway > 6 && k.ebitdaMargin > -0.6) set('default_alive');
     ['seed', 'A', 'B', 'C'].forEach(function (s) { if (state.funding.rounds.some(function (r) { return r.stage === s; })) set('raised_' + s); });
     if (state.funding.lastPost >= 35e9) set('unicorn');
+    if (state.challenge === 'crisis' && w >= 156) set('ch_crisis');
     if (k.revenueTTM >= 100e6 && state.funding.rounds.length === 0 && state.funding.safes.length === 0) set('bootstrapped');
     if (state.world.phase === 'recovery' && state.flags.sawRecession) set('survived_recession');
     if (state.world.phase === 'recession') state.flags.sawRecession = 1;
@@ -4595,6 +4759,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 
   // ---------- Funding ----------
   A.startRaise = function (s, opt) {
+    if (s.challenge === 'bootstrap') return no('โหมด Bootstrap ล้วน: ห้ามขายหุ้นให้นักลงทุน — หาเงินจากลูกค้า เงินกู้ หรือเงินส่วนตัว');
     if (!s.company.registered) return no('ต้องจดทะเบียนบริษัทก่อน นักลงทุนลงทุนในบุคคลธรรมดาไม่ได้');
     if (s.funding.raise) return no('กำลังระดมทุนอยู่');
     if (!(opt.target > 0) || !(opt.ask > 0)) return no('กรอกจำนวนเงินและมูลค่า');
@@ -4663,6 +4828,20 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     s.founder.cash += loanBack + wf.founder;
     RW.Engine.gameOver(s, 'shutdown', 'คุณตัดสินใจปิดบริษัทอย่างมีระเบียบ จ่ายค่าชดเชยพนักงาน ' + F.b(sev) + ' ชำระหนี้ และคืนเงินที่เหลือให้ผู้ถือหุ้น' + (loanBack + wf.founder > 0 ? ' — คุณได้คืน ' + F.b(loanBack + wf.founder) : ''));
     return ok('ปิดบริษัทแล้ว');
+  };
+  A.research = function (s, k, arg) {
+    var M = RW.Models[s.industry], r = M.RESEARCH && M.RESEARCH[k];
+    if (!r) return no('ไม่มีงานวิจัยนี้');
+    s.research = s.research || [];
+    if (s.research.some(function (j) { return j.k === k && j.arg === arg; })) return no('งานวิจัยนี้กำลังดำเนินการอยู่');
+    if (s.research.length >= 3) return no('มีงานวิจัยค้างอยู่ 3 งานแล้ว — รอผลก่อน');
+    var why = r.can ? r.can(s, arg) : null;
+    if (why) return no(why);
+    var cost = typeof r.cost === 'function' ? r.cost(s, arg) : r.cost;
+    if (s.fin.bal.cash < cost) return no('เงินสดไม่พอจ้างวิจัย');
+    L.spend(s.fin, 'prof', cost);
+    s.research.push({ k: k, arg: arg == null ? null : arg, due: s.time.w + r.weeks, startW: s.time.w });
+    return ok('จ้างวิจัยแล้ว (' + F.b(cost) + ') — ผลจะมาในอีก ' + r.weeks + ' สัปดาห์');
   };
   A.continueEndless = function (s) { s.flags.endless = 1; return ok('โหมดเล่นต่อไม่จำกัดเวลา'); };
 
@@ -5640,6 +5819,34 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   };
 
   // ---------- Actions ----------
+  // ---------- Paid research: buy customer knowledge with money instead of founder time ----------
+  M.RESEARCH = {
+    interviews: {
+      n: 'จ้างบริษัทวิจัยสัมภาษณ์ลูกค้า', weeks: 4,
+      d: 'สัมภาษณ์เชิงลึก 20 รายในกลุ่มที่เลือก — เร่ง Discovery โดยไม่ใช้เวลาคุณ แต่ได้ข้อมูลมือสองที่ตื้นกว่าคุยเอง',
+      cost: function (s, k) { return k === 'ent' || k === 'mid' ? 240000 : 140000; },
+      can: function (s, k) { return SEG[k] ? (s.biz.segs[k].disc >= 85 ? 'รู้จักกลุ่มนี้ดีแล้ว — วิจัยเพิ่มได้ข้อมูลใหม่น้อยมาก' : null) : 'เลือกกลุ่มลูกค้า'; },
+      done: function (s, k) {
+        var sg = s.biz.segs[k], gain = 28 * (1 - sg.disc / 110);
+        sg.disc = U.clamp(sg.disc + gain, 0, 100);
+        var top = Object.keys(sg.need).sort(function (a, b) { return sg.need[b].w - sg.need[a].w; }).slice(0, 2).map(function (f) { return FEAT[f].n; });
+        return 'รายงานสัมภาษณ์กลุ่ม ' + SEG[k].n + ' (+' + gain.toFixed(0) + '% Discovery → ' + Math.round(sg.disc) + '%) · สิ่งที่พูดถึงบ่อยที่สุด: ' + top.join(' และ ') + ' · ดูรายละเอียดในหน้า Discovery';
+      }
+    },
+    pricing: {
+      n: 'ศึกษาความเต็มใจจ่าย (Van Westendorp)', weeks: 3,
+      d: 'สำรวจราคาที่ลูกค้ามองว่าถูกเกินไป/แพงเกินไป — เห็นความเต็มใจจ่ายของกลุ่มนี้ทันที แม้ Discovery ยังต่ำ',
+      cost: function (s, k) { return k === 'ent' || k === 'mid' ? 150000 : 90000; },
+      can: function (s, k) { return !SEG[k] ? 'เลือกกลุ่มลูกค้า' : s.biz.segs[k].priceKnown || s.biz.segs[k].disc >= 40 ? 'รู้ความเต็มใจจ่ายของกลุ่มนี้แล้ว' : null; },
+      done: function (s, k) {
+        var sg = s.biz.segs[k];
+        sg.priceKnown = 1; sg.disc = Math.min(100, sg.disc + 4);
+        var w = s.biz.launched ? M.wtp(s, k) : CONCEPTS[s.biz.concept].price[k] * 0.9;
+        return 'ลูกค้ากลุ่ม ' + SEG[k].n + ' มองว่าราคาที่ "สมเหตุสมผล" สำหรับสินค้าตอนนี้อยู่ราว ' + F.b(Math.round(w / 10) * 10) + '/เดือน — ตั้งราคาสูงกว่านี้มากจะปิดการขายยาก ต่ำกว่านี้มากคือทิ้งเงินบนโต๊ะ (ความเต็มใจจ่ายจะเปลี่ยนตามคุณค่าของสินค้า)';
+      }
+    }
+  };
+
   M.act = {
     addRoadmap: function (s, f) {
       var b = s.biz;
@@ -6368,6 +6575,34 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   };
 
   // ---------- Actions ----------
+  // ---------- Paid research ----------
+  M.RESEARCH = {
+    panel: {
+      n: 'วิจัยผู้บริโภค + Focus group', weeks: 4,
+      d: 'จ้างเอเจนซีทำแบบสอบถาม 400 ชุดและ focus group 3 กลุ่ม — Insight ลูกค้าเพิ่ม สินค้าใหม่ที่พัฒนาจะเดาความนิยมแม่นขึ้น',
+      cost: 160000,
+      can: function (s) { return s.biz.insight >= 85 ? 'Insight สูงแล้ว — วิจัยเพิ่มได้ข้อมูลใหม่น้อยมาก' : null; },
+      done: function (s) {
+        var b = s.biz, gain = 20 * (1 - b.insight / 110);
+        b.insight = U.clamp(b.insight + gain, 0, 100);
+        return 'Insight ลูกค้า +' + gain.toFixed(0) + '% → ' + Math.round(b.insight) + '% · ผู้ตอบแบบสอบถามส่วนใหญ่ ' + R.pick(['ซื้อเพราะรีวิวจากคนจริงมากกว่าโฆษณา', 'ยอมจ่ายแพงขึ้นถ้าแพ็กเกจดูพรีเมียม', 'ซื้อซ้ำเมื่อมีโปรส่งฟรี', 'เลิกซื้อเพราะของหมดบ่อย']);
+      }
+    },
+    adtest: {
+      n: 'ทดสอบตลาด (ยิงโฆษณา + พรีออเดอร์)', weeks: 2,
+      d: 'ใช้งบโฆษณาเล็กๆ วัดความสนใจจริงก่อนสั่งผลิตล็อตใหญ่ — รู้ความนิยมของสินค้าโดยไม่ต้องรอขายได้ 50 ชิ้น',
+      cost: 45000,
+      can: function (s, id) { var k = s.biz.skus.find(function (x) { return x.id === id; }); return !k ? 'ไม่พบสินค้า' : k.appealSeen != null ? 'รู้ความนิยมของสินค้านี้แล้ว' : null; },
+      done: function (s, id) {
+        var k = s.biz.skus.find(function (x) { return x.id === id; });
+        if (!k) return 'สินค้าถูกยกเลิกไปก่อนผลทดสอบจะมา';
+        k.appealSeen = k.appeal * R.normal(1, 0.1);
+        k.tested = 1;
+        return '"' + k.n + '" ได้ผลตอบรับ ' + (k.appealSeen > 1.1 ? 'ดีมาก — คนกดพรีออเดอร์เกินคาด' : k.appealSeen > 0.85 ? 'ปานกลาง — มีคนสนใจแต่ไม่ล้นหลาม' : 'ต่ำ — คลิกเยอะแต่ไม่ค่อยมีคนจ่ายเงิน') + ' (ค่าประมาณจากการทดสอบ คลาดเคลื่อนได้ ±10%)';
+      }
+    }
+  };
+
   M.act = {
     develop: function (s, type, pos) {
       var b = s.biz;
@@ -6986,6 +7221,37 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   };
 
   // ---------- Actions ----------
+  // ---------- Paid research ----------
+  M.RESEARCH = {
+    count: {
+      n: 'จ้างคนนับคนเดินผ่านจริง', weeks: 1,
+      d: 'จ้างนักศึกษายืนนับคนหน้าทำเล 7 วันทั้งวันธรรมดาและวันหยุด — ตัวเลขจริงแทนตัวเลขสวยๆ ของโบรกเกอร์',
+      cost: 12000,
+      can: function (s, id) { var x = s.biz.sites && s.biz.sites.list.find(function (t) { return t.id === id; }); return !x ? 'ไม่พบทำเลนี้' : x.type === 'cloud' ? 'คลาวด์คิทเช่นไม่มีหน้าร้าน' : x.counted ? 'นับไปแล้ว' : null; },
+      done: function (s, id) {
+        var x = s.biz.sites && s.biz.sites.list.find(function (t) { return t.id === id; });
+        if (!x) return 'ทำเลนี้ถูกคนอื่นเช่าไปก่อนผลนับจะมา';
+        x.counted = Math.round(x.foot * R.normal(1, 0.06) / 50) * 50;
+        var gap = x.quoted / x.counted - 1;
+        return 'ทำเล ' + x.area + ': นับได้เฉลี่ย ' + F.num(x.counted) + ' คน/วัน เทียบกับที่โบรกเกอร์บอก ' + F.num(x.quoted) + (gap > 0.1 ? ' — โบรกเกอร์โม้ไป ' + F.pct(gap, 0) : gap < -0.1 ? ' — คนเดินจริงมากกว่าที่โบรกเกอร์บอก!' : ' — ใกล้เคียงกัน');
+      }
+    },
+    taste: {
+      n: 'Blind taste test + Mystery shopper', weeks: 2,
+      d: 'ให้ลูกค้าเป้าหมายชิมเทียบกับคู่แข่งแบบไม่รู้แบรนด์ และส่งคนแฝงตัวไปใช้บริการทุกสาขา — Insight เพิ่ม และรู้ว่าเมนูเราอยู่ตรงไหนในตลาด',
+      cost: 38000,
+      can: function (s) { return s.biz.insight >= 85 ? 'Insight สูงแล้ว' : null; },
+      done: function (s) {
+        var b = s.biz, gain = 16 * (1 - b.insight / 110);
+        b.insight = U.clamp(b.insight + gain, 0, 100);
+        var comps = RW.World.aliveCompetitors(s);
+        var cq = comps.length ? U.avg(comps, function (c) { return c.quality; }) : 60;
+        var rel = b.menuQ - cq;
+        return 'Insight +' + gain.toFixed(0) + '% · ผลชิมแบบปิดตา: ' + (rel > 8 ? 'เมนูเราชนะคู่แข่งชัดเจน' : rel > -3 ? 'สูสีกับคู่แข่ง — ต้องชนะด้วยบริการและทำเล' : 'คู่แข่งอร่อยกว่าในสายตาลูกค้า — ควรพัฒนาเมนู') + ' (คุณภาพเมนู ' + Math.round(b.menuQ) + ' vs คู่แข่งเฉลี่ย ' + Math.round(cq) + ')' + (M.openBranches(b).length ? ' · Mystery shopper: ' + R.pick(['พนักงานบางสาขาลืมทักทายลูกค้า', 'เวลารออาหารช่วงพีคนานเกิน 20 นาที', 'ความสะอาดห้องน้ำต่างกันมากระหว่างสาขา', 'บริการดีสม่ำเสมอเกือบทุกสาขา']) : '');
+      }
+    }
+  };
+
   M.act = {
     scout: function (s, type) {
       L.spend(s.fin, 'prof', type === 'mall' ? 30000 : 8000);
@@ -7177,6 +7443,14 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     }).join('') + '</div>';
   };
   UI.pill = function (t, tone) { return '<span class="pill ' + (tone || '') + '">' + t + '</span>'; };
+  // paid research button (or a pending badge while the job runs)
+  UI.researchBtn = function (k, arg, label, cls) {
+    var s = UI.s, r = RW.Models[s.industry].RESEARCH[k];
+    var job = (s.research || []).find(function (j) { return j.k === k && j.arg === (arg == null ? null : arg); });
+    if (job) return UI.pill('กำลังวิจัย · อีก ' + Math.max(1, job.due - s.time.w) + ' สัปดาห์', 'warn');
+    var cost = typeof r.cost === 'function' ? r.cost(s, arg) : r.cost;
+    return UI.btn((label || r.n) + ' · ' + RW.F.m(cost), 'research', [k, arg == null ? null : arg], cls || 'sm', 'title="' + RW.U.esc(r.d) + '"');
+  };
   UI.tip = function (label, tip) { return '<span data-tip="' + h(tip) + '" tabindex="0">' + label + '</span>'; };
   UI.meter = function (v, max, tone) {
     var p = U.clamp(v / (max || 100), 0, 1) * 100;
@@ -7373,6 +7647,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     t.className = 'toast' + (bad ? ' bad' : '');
     t.textContent = msg;
     box.appendChild(t);
+    while (box.children.length > 3) box.removeChild(box.firstChild);
     setTimeout(function () { t.remove(); }, bad ? 5200 : 3600);
   };
   UI.result = function (r) {
@@ -7675,6 +7950,10 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       '<div class="choices-grid">' + Object.keys(RW.DIFFICULTY).map(function (k) {
         var d = RW.DIFFICULTY[k];
         return '<button type="button" class="card-opt ' + (f.diff === k ? 'on' : '') + '" data-act="ngSet" data-a=\'["diff","' + k + '"]\'><b>' + d.n + '</b><span>' + d.d + '</span></button>';
+      }).join('') + '</div>' +
+      '<div class="small ink2" style="margin:12px 0 6px">โหมดท้าทาย (ไม่บังคับ)</div><div class="choices-grid">' + Object.keys(RW.CHALLENGES).map(function (k) {
+        var d = RW.CHALLENGES[k];
+        return '<button type="button" class="card-opt ' + ((f.challenge || 'none') === k ? 'on' : '') + '" data-act="ngSet" data-a=\'["challenge","' + k + '"]\'><b>' + d.n + '</b><span>' + d.d + '</span></button>';
       }).join('') + '</div></div>';
     html += '<div class="row" style="justify-content:flex-end">' + UI.btn('เริ่มต้นการเดินทาง →', 'startGame', [], 'primary go') + '</div></section>';
     html += '<p class="small muted" style="margin-top:14px">ทุกบริษัท นักลงทุน และบุคคลในเกมเป็นเรื่องสมมติ ตัวเลขอ้างอิงตลาดไทยโดยประมาณ ไม่ใช่คำแนะนำทางการเงิน · เกมเซฟอัตโนมัติทุกสัปดาห์ในเบราว์เซอร์นี้ · กด Space เพื่อเล่นสัปดาห์ถัดไป</p></div>';
@@ -7696,7 +7975,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var M = RW.Models[f.industry];
     UI.s = RW.Engine.newGame({
       seed: seed, industry: f.industry, difficulty: f.diff, founderName: f.name || 'คุณ', bg: f.bg,
-      companyName: f.company || M.sampleName || 'NovaWorks', capital: f.capital, concept: f.concept, product: f.concept, cofounder: cof, vesting: f.vesting
+      companyName: f.company || M.sampleName || 'NovaWorks', capital: f.capital, concept: f.concept, product: f.concept, cofounder: cof, vesting: f.vesting, challenge: f.challenge
     });
     UI.tab = 'overview';
     UI.form = {};
@@ -7712,14 +7991,17 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   // =====================================================================
   UI.endScreen = function () {
     var s = UI.s, o = s.over;
-    var reasons = { bankrupt: 'ล้มละลาย', personal: 'ถังแตกส่วนตัว', fired: 'ถูกบอร์ดปลด', quit: 'ลาออกไปทำงานประจำ', shutdown: 'ปิดบริษัทอย่างมีระเบียบ', acquired: 'ขายกิจการ', ipo: 'IPO', timeup: 'ครบ 10 ปี' };
+    var reasons = { bankrupt: 'ล้มละลาย', personal: 'ถังแตกส่วนตัว', fired: 'ถูกบอร์ดปลด', quit: 'ลาออกไปทำงานประจำ', shutdown: 'ปิดบริษัทอย่างมีระเบียบ', acquired: 'ขายกิจการ', ipo: 'IPO', timeup: 'ครบ ' + Math.round(RW.Engine.maxW(s) / 52) + ' ปี' };
+    var chal = s.challenge && s.challenge !== 'none' ? RW.CHALLENGES[s.challenge] : null;
+    var epi = (o.epilogue || []).map(function (p) { return '<div class="epi"><b>' + h(p.h) + '</b><p>' + h(p.t) + '</p></div>'; }).join('');
     var ach = Object.keys(s.achievements).filter(function (k) { return RW.Engine.ACH[k]; });
     var rounds = s.funding.rounds.map(function (r) { return [RW.T.label(r.w), h(RW.STAGES[r.stage] ? RW.STAGES[r.stage].n : r.stage), F.m(r.amount), F.m(r.pre), h(r.lead)]; });
     var hm = s.hist.monthly;
     var chart = UI.chart({ labels: hm.map(function (m) { return m.label; }), series: [{ name: 'รายได้/เดือน', color: 'var(--s1)', data: hm.map(function (m) { return m.p.rev; }), area: true }, { name: 'เงินสด', color: 'var(--s2)', data: hm.map(function (m) { return m.cash; }) }], fmt: F.k, tipFmt: F.m });
     var wf = o.waterfall ? '<h3 style="margin:14px 0 6px">ใครได้เงินเท่าไหร่จากการขาย</h3>' + UI.table(['ผู้ถือหุ้น', 'ประเภท', '#ได้รับ'], o.waterfall.holders.filter(function (x) { return x.amount > 1; }).sort(function (a, b) { return b.amount - a.amount; }).map(function (x) { return [h(x.name), h(x.cls), F.m(x.amount)]; })) : '';
-    return '<div class="end"><section class="panel"><div class="muted small">จบเกม · ' + h(reasons[o.reason] || o.reason) + ' · หลังจาก ' + o.years + ' ปี</div>' +
+    return '<div class="end"><section class="panel"><div class="muted small">จบเกม · ' + h(reasons[o.reason] || o.reason) + ' · หลังจาก ' + o.years + ' ปี' + (chal ? ' · โหมด ' + h(chal.n) : '') + '</div>' +
       '<div class="rank">' + h(o.rank.title) + '</div><p class="ink2">' + h(o.rank.desc) + '</p><p>' + h(o.text) + '</p>' +
+      (epi ? '<h3 style="margin:14px 0 6px">หลังจากนั้น…</h3><div class="epilogue">' + epi + '</div>' : '') +
       '<div class="tiles" style="margin:12px 0">' + UI.tile('ความมั่งคั่งสุทธิของคุณ', F.m(o.wealth), 'เงินส่วนตัว + มูลค่าหุ้น', o.wealth > 3e7 ? 'good' : '') + UI.tile('เงินจากหุ้น/Exit', F.m(o.equity)) + UI.tile('ระดมทุนรวม', F.m(o.raised)) + UI.tile('รายได้สูงสุด/เดือน', F.m(o.maxRev)) + UI.tile('พนักงานสูงสุด', o.peakHC + ' คน') + UI.tile('ความสำเร็จ', ach.length + '/' + Object.keys(RW.Engine.ACH).length) + '</div>' +
       chart + wf +
       (rounds.length ? '<h3 style="margin:14px 0 6px">การระดมทุน</h3>' + UI.table(['เมื่อ', 'รอบ', '#เงิน', '#Pre-money', 'Lead'], rounds) : '') +
@@ -7728,6 +8010,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   };
   UI.acts.newGame = function () { UI.s = null; UI.form = {}; UI.modal(''); };
   UI.acts.endless = function () { var s = UI.s; s.over = null; A.continueEndless(s); };
+  UI.acts.research = function (k, arg) { return A.research(UI.s, k, arg); };
 
   // =====================================================================
   //  OVERVIEW
@@ -8384,7 +8667,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   var SECTIONS = [
     ['เป้าหมายของเกม', [
       'คะแนนคือ "ความมั่งคั่งสุทธิของคุณ" ตอนจบเกม = เงินส่วนตัว + มูลค่าหุ้นที่คุณได้จริงหลังหักสิทธิ์นักลงทุน (liquidation preference) ไม่ใช่ขนาดบริษัท',
-      'เกมจบเมื่อ: เงินสดติดลบนาน 6 สัปดาห์ (ล้มละลาย), เงินส่วนตัวติดลบหนัก, บอร์ดปลดคุณ, คุณขายกิจการ, IPO, ปิดบริษัทเอง หรือครบ 10 ปี',
+      'เกมจบเมื่อ: เงินสดติดลบนาน 6 สัปดาห์ (ล้มละลาย), เงินส่วนตัวติดลบหนัก, บอร์ดปลดคุณ, คุณขายกิจการ, IPO, ปิดบริษัทเอง หรือครบ 10 ปี (5 ปีในโหมด Sprint)',
+      'งานวิจัยแบบจ่ายเงิน (สัมภาษณ์ลูกค้า ศึกษาราคา ทดสอบตลาด นับคนเดินผ่านทำเล) ใช้เงินแทนเวลาของคุณ — คุ้มมากเมื่อเวลาคุณมีค่ากว่าเงิน หรือเมื่อการตัดสินใจผิดจะแพง เช่น ก่อนเซ็นสัญญาเช่า 3 ปี',
+      'เงินกู้ SME มีผู้ก่อตั้งค้ำประกันส่วนตัว — ถ้าบริษัทล้มละลาย ธนาคารจะตามเก็บส่วนที่ขาดจากคุณ',
       'บริษัทที่เติบโตช้าแต่มีกำไร ก็อาจทำให้คุณรวยกว่าบริษัทที่ระดมทุนมหาศาลแล้วถูก dilute จนเหลือหุ้นนิดเดียว'
     ]],
     ['เวลาและการตัดสินใจ', [
@@ -8455,7 +8740,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     if (!s.over || s.over.recorded) return;
     s.over.recorded = 1;
     var list = UI.hof();
-    list.push({ company: s.company.name, ind: s.industry, bg: s.founder.bg, diff: s.diff.key, reason: s.over.reason, wealth: s.over.wealth, years: s.over.years, rank: s.over.rank.title, seed: s.seed, at: Date.now() });
+    list.push({ company: s.company.name, ind: s.industry, bg: s.founder.bg, diff: s.diff.key, ch: s.challenge || 'none', reason: s.over.reason, wealth: s.over.wealth, years: s.over.years, rank: s.over.rank.title, seed: s.seed, at: Date.now() });
     list.sort(function (a, b) { return b.wealth - a.wealth; });
     UI.store.set('runway.hof', JSON.stringify(list.slice(0, 30)));
     UI.save('auto');
@@ -8463,9 +8748,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   UI.hofTable = function () {
     var list = UI.hof();
     if (!list.length) return '';
-    var reasons = { bankrupt: 'ล้มละลาย', personal: 'ถังแตกส่วนตัว', fired: 'ถูกปลด', quit: 'เลิกทำ', shutdown: 'ปิดบริษัท', acquired: 'ขายกิจการ', ipo: 'IPO', timeup: 'ครบ 10 ปี' };
+    var reasons = { bankrupt: 'ล้มละลาย', personal: 'ถังแตกส่วนตัว', fired: 'ถูกปลด', quit: 'เลิกทำ', shutdown: 'ปิดบริษัท', acquired: 'ขายกิจการ', ipo: 'IPO', timeup: 'ครบกำหนด' };
     return '<section class="panel" style="margin-bottom:18px"><h3>ทำเนียบผู้ก่อตั้ง (เครื่องนี้)</h3>' + UI.table(['บริษัท', 'ธุรกิจ', 'ความยาก', 'จบด้วย', '#ปี', '#ความมั่งคั่ง', 'ระดับ'], list.slice(0, 10).map(function (r) {
-      return [h(r.company), h(RW.Models[r.ind] ? RW.Models[r.ind].n : r.ind), h(RW.DIFFICULTY[r.diff] ? RW.DIFFICULTY[r.diff].n : r.diff), h(reasons[r.reason] || r.reason), r.years, F.m(r.wealth), h(r.rank)];
+      return [h(r.company), h(RW.Models[r.ind] ? RW.Models[r.ind].n : r.ind), h(RW.DIFFICULTY[r.diff] ? RW.DIFFICULTY[r.diff].n : r.diff) + (r.ch && r.ch !== 'none' && RW.CHALLENGES[r.ch] ? '<div class="tiny muted">' + h(RW.CHALLENGES[r.ch].n) + '</div>' : ''), h(reasons[r.reason] || r.reason), r.years, F.m(r.wealth), h(r.rank)];
     })) + '</section>';
   };
 })(globalThis.RW = globalThis.RW || {});
@@ -8598,7 +8883,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var rows = SEGS.map(function (k) {
       var sg = b.segs[k], g = SEG[k];
       var v = M.value(s, k);
-      var wtpKnown = sg.disc >= 40;
+      var wtpKnown = sg.disc >= 40 || sg.priceKnown;
       return [
         '<label class="row" style="gap:6px;flex-wrap:nowrap"><input type="checkbox" ' + (sg.on ? 'checked' : '') + ' data-act="sToggleSeg" data-a=\'["' + k + '"]\'><b>' + g.s + '</b></label><div class="tiny muted">' + g.n + '</div>',
         F.num(M.customers(b, k)), F.m(M.segMRR(b, k)),
@@ -8615,6 +8900,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var t = b.discTarget;
     var disc = UI.panel('Discovery — สิ่งที่ลูกค้าต้องการจริงๆ', '<div class="row" style="margin-bottom:8px"><span class="small ink2">โฟกัสการสัมภาษณ์ลูกค้า:</span>' + UI.segBtns(SEGS.map(function (k) { return [k, SEG[k].s]; }), t, 'sDiscTarget') + '</div>' +
       '<p class="small ink2" style="margin:0 0 8px">ความเร็วขึ้นกับเวลาที่คุณใช้ "คุยกับลูกค้า" + PM + CSM · ลูกค้าที่ใช้งานอยู่ก็ให้ feedback</p>' +
+      '<div class="row" style="margin-bottom:10px"><span class="small ink2">หรือจ้างวิจัยกลุ่ม ' + SEG[t].s + ':</span>' + UI.researchBtn('interviews', t) + UI.researchBtn('pricing', t, 'ศึกษาความเต็มใจจ่าย') + '</div>' +
       '<div class="grid g2">' + SEGS.map(function (k) {
         var sg = b.segs[k];
         var needs = Object.keys(sg.need).map(function (f) { return { f: f, w: sg.need[f].w, lvl: sg.need[f].lvl }; }).sort(function (x, y) { return y.w - x.w; });
@@ -8794,7 +9080,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       var unit = M.unitCost(s, k, form.sup, form.qty);
       var margin = 1 - unit / (k.price / (s.fin.vat.registered ? 1.07 : 1));
       return [
-        '<b>' + h(k.n) + '</b><div class="tiny muted">คุณภาพ ' + Math.round(k.quality) + ' · ' + (k.appealSeen != null ? 'ความนิยม ' + (k.appealSeen > 1.1 ? 'สูง' : k.appealSeen > 0.85 ? 'ปานกลาง' : 'ต่ำ') : 'ยังไม่รู้ความนิยม') + (k.retail ? ' · วางขายหน้าร้าน' : '') + '</div>',
+        '<b>' + h(k.n) + '</b><div class="tiny muted">คุณภาพ ' + Math.round(k.quality) + ' · ' + (k.appealSeen != null ? 'ความนิยม ' + (k.appealSeen > 1.1 ? 'สูง' : k.appealSeen > 0.85 ? 'ปานกลาง' : 'ต่ำ') + (k.tested && k.sold <= 50 ? ' (จากการทดสอบ)' : '') : 'ยังไม่รู้ความนิยม') + (k.retail ? ' · วางขายหน้าร้าน' : '') + '</div>' + (k.appealSeen == null ? '<div style="margin-top:4px">' + UI.researchBtn('adtest', k.id, 'ทดสอบตลาด') + '</div>' : ''),
         UI.numInput('pr_' + k.id, k.price, 'ePrice', [k.id], 10) + '<div class="tiny muted">ทุน ~' + F.b(k.cost) + ' · GM ~' + F.pct(margin, 0) + '</div>',
         '<span class="' + (st === 0 ? 'crit' : cover != null && cover < 3 ? 'warn' : '') + '">' + F.num(st) + '</span>' + (inc ? '<div class="tiny muted">กำลังมา ' + F.num(inc) + '</div>' : ''),
         k.avg.toFixed(1) + '<div class="tiny muted">' + (cover != null ? 'พอ ' + (cover > 99 ? '99+' : cover.toFixed(0)) + ' สป.' : '') + '</div>',
@@ -8812,7 +9098,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var dev = UI.panel('พัฒนาสินค้าใหม่', UI.table(['สินค้า', 'สถานะ', ''], devRows, { empty: 'ไม่มีสินค้าที่กำลังพัฒนา' }) +
       '<div class="row" style="margin-top:10px;align-items:flex-end"><label class="field" for="dv_t">ประเภท<select id="dv_t" data-act="devForm" data-a=\'["type"]\'>' + c.types.map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === df.type ? ' selected' : '') + '>' + x[1] + ' (~' + F.b(x[2]) + ')</option>'; }).join('') + '</select></label>' +
       '<label class="field" for="dv_p">ตำแหน่งสินค้า<select id="dv_p" data-act="devForm" data-a=\'["pos"]\'>' + Object.keys(M.POS).map(function (x) { return '<option value="' + x + '"' + (x === df.pos ? ' selected' : '') + '>' + M.POS[x].n + '</option>'; }).join('') + '</select></label>' + UI.btn('เริ่มพัฒนา (' + F.b(devFee) + ')', 'eDev', [], 'primary') + '</div>' +
-      '<p class="tiny muted" style="margin-top:6px">ความนิยมของสินค้าใหม่ไม่แน่นอน — ยิ่งรู้จักลูกค้า (Insight ' + Math.round(b.insight) + '%) ยิ่งเดาถูก · ' + (c.reg[1] ? 'ต้องขอ อย. ' + c.reg[0] + '–' + c.reg[1] + ' สัปดาห์' : 'ไม่ต้องขอ อย.') + ' · ทีม R&D ช่วยให้เร็วขึ้นและคุณภาพดีขึ้น</p>');
+      '<p class="tiny muted" style="margin-top:6px">ความนิยมของสินค้าใหม่ไม่แน่นอน — ยิ่งรู้จักลูกค้า (Insight ' + Math.round(b.insight) + '%) ยิ่งเดาถูก · ' + (c.reg[1] ? 'ต้องขอ อย. ' + c.reg[0] + '–' + c.reg[1] + ' สัปดาห์' : 'ไม่ต้องขอ อย.') + ' · ทีม R&D ช่วยให้เร็วขึ้นและคุณภาพดีขึ้น</p>' +
+      '<div class="row" style="margin-top:6px"><span class="tiny muted">เพิ่ม Insight ด้วยงานวิจัย:</span>' + UI.researchBtn('panel') + '</div>');
     return head + skus + '<div class="grid g2" style="margin-top:14px">' + dev + pos + '</div>';
   };
   ui.acts.ePrice = function (id, v) { return M.act.setPrice(UI.s, id, v); };
@@ -8983,7 +9270,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var siteRows = sites.map(function (x) {
       var L0 = M.LOCS[x.type];
       var deposit = x.rent * 3, pre = 120000 + c.staff * 15000;
-      return ['<b>' + M.LOCS[x.type].n + ' — ' + h(x.area) + '</b><div class="tiny muted">' + L0.d + '</div>', x.sqm + ' ตร.ม.', x.type === 'cloud' ? 'เดลิเวอรีอย่างเดียว' : F.num(x.quoted) + ' คน/วัน', F.b(x.rent), F.m(x.fit), F.m(deposit + x.fit + pre), '<div class="row" style="gap:4px;flex-wrap:nowrap">' + UI.btn('เซ็นสัญญา', 'fOpen', [x.id, false], 'sm primary') + UI.btn('+ เช่าซื้ออุปกรณ์ 50%', 'fOpen', [x.id, true], 'sm', 'title="ผ่อนค่าอุปกรณ์ครัวครึ่งหนึ่ง 36 เดือน ดอกเบี้ยสูง"') + '</div>'];
+      return ['<b>' + M.LOCS[x.type].n + ' — ' + h(x.area) + '</b><div class="tiny muted">' + L0.d + '</div>', x.sqm + ' ตร.ม.', x.type === 'cloud' ? 'เดลิเวอรีอย่างเดียว' : F.num(x.quoted) + ' คน/วัน' + (x.counted ? '<div class="tiny ' + (x.counted < x.quoted * 0.9 ? 'warn' : 'good') + '">นับจริง ' + F.num(x.counted) + '</div>' : '<div style="margin-top:3px">' + UI.researchBtn('count', x.id, 'นับเอง') + '</div>'), F.b(x.rent), F.m(x.fit), F.m(deposit + x.fit + pre), '<div class="row" style="gap:4px;flex-wrap:nowrap">' + UI.btn('เซ็นสัญญา', 'fOpen', [x.id, false], 'sm primary') + UI.btn('+ เช่าซื้ออุปกรณ์ 50%', 'fOpen', [x.id, true], 'sm', 'title="ผ่อนค่าอุปกรณ์ครัวครึ่งหนึ่ง 36 เดือน ดอกเบี้ยสูง"') + '</div>'];
     });
     var scout = UI.panel('หาทำเลใหม่', '<div class="row" style="margin-bottom:10px">' + Object.keys(M.LOCS).map(function (k) { return UI.btn(M.LOCS[k].n, 'fScout', [k], 'sm' + (b.sites && b.sites.type === k ? ' primary' : '')); }).join('') + '</div>' +
       UI.table(['ทำเล', '#ขนาด', '#คนเดินผ่าน (โบรกเกอร์บอก)', '#ค่าเช่า/เดือน', '#ค่าตกแต่ง', '#เงินที่ต้องใช้', ''], siteRows, { empty: 'กดประเภททำเลเพื่อให้โบรกเกอร์หาที่ (ค่าสำรวจ ฿8,000 / ห้าง ฿30,000)' }) +
@@ -9008,7 +9295,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var menu = UI.panel('เมนูและราคา', '<div class="stack">' + UI.bar('คุณภาพเมนู', b.menuQ, 100, b.menuQ < 45 ? 'warn' : 'good', Math.round(b.menuQ)) + UI.bar('ความสม่ำเสมอ', b.consistency, 100, b.consistency < 50 ? 'warn' : 'good', Math.round(b.consistency)) + '</div>' +
       UI.slider('ระดับราคา (เทียบตลาด)', Math.round(b.priceIdx * 100), 70, 160, 5, 'fPrice', [], 'pct') +
       '<div class="kv" style="margin-top:6px"><span>ราคาเฉลี่ยต่อบิล</span><span>' + F.b(c.ticket * b.priceIdx) + '</span><span>ต้นทุนวัตถุดิบ (เป้าหมาย)</span><span>' + F.pct(foodPct, 1) + ' + ของเสีย</span></div>' +
-      '<div class="row" style="margin-top:10px">' + (b.menuProj ? UI.pill('กำลังพัฒนาเมนู ' + F.pct(b.menuProj.prog / b.menuProj.need, 0), 'accent') : UI.btn('พัฒนาเมนูใหม่ (฿60K)', 'fMenu', [])) + UI.btn('ลดต้นทุนสูตร', 'fCostCut', [], 'sm') + UI.btn('ใช้วัตถุดิบพรีเมียม', 'fPremium', [], 'sm') + '</div>');
+      '<div class="row" style="margin-top:10px">' + (b.menuProj ? UI.pill('กำลังพัฒนาเมนู ' + F.pct(b.menuProj.prog / b.menuProj.need, 0), 'accent') : UI.btn('พัฒนาเมนูใหม่ (฿60K)', 'fMenu', [])) + UI.btn('ลดต้นทุนสูตร', 'fCostCut', [], 'sm') + UI.btn('ใช้วัตถุดิบพรีเมียม', 'fPremium', [], 'sm') + '</div>' +
+      '<div class="row" style="margin-top:8px"><span class="tiny muted">Insight ลูกค้า ' + Math.round(b.insight) + '% (ช่วยให้เมนูใหม่ปังขึ้น):</span>' + UI.researchBtn('taste') + '</div>');
     var kitchen = UI.panel('ครัวกลาง', '<p class="small ink2" style="margin:0 0 8px">ผลิตซอส วัตถุดิบเตรียม และเบเกอรี่ส่งทุกสาขา: ต้นทุนวัตถุดิบ −3.5pp, ของเสีย −30%, รสชาติสม่ำเสมอขึ้นมาก — คุ้มเมื่อมี 3–4 สาขาขึ้นไป · ค่าดำเนินการ ~฿220K/เดือน</p>' + ck);
     var deliv = UI.panel('แอปเดลิเวอรี', '<label class="row small"><input type="checkbox" ' + (b.deliv.on ? 'checked' : '') + ' data-act="fDeliv"> ขายผ่านแอปเดลิเวอรี (GP ~30% + บรรจุภัณฑ์ 5%)</label>' + UI.slider('ส่วนลดโปรโมชันในแอป', Math.round(b.deliv.promo * 100), 0, 30, 1, 'fPromo', [], 'pct') + '<p class="tiny muted" style="margin:-2px 0 0">ส่วนลดช่วยดันอันดับในแอป แต่เงินมาจากกระเป๋าคุณ</p>');
     return head + '<div class="grid g2">' + menu + '<div class="stack">' + kitchen + deliv + '</div></div>';

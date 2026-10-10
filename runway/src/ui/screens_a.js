@@ -82,6 +82,10 @@
       '<div class="choices-grid">' + Object.keys(RW.DIFFICULTY).map(function (k) {
         var d = RW.DIFFICULTY[k];
         return '<button type="button" class="card-opt ' + (f.diff === k ? 'on' : '') + '" data-act="ngSet" data-a=\'["diff","' + k + '"]\'><b>' + d.n + '</b><span>' + d.d + '</span></button>';
+      }).join('') + '</div>' +
+      '<div class="small ink2" style="margin:12px 0 6px">โหมดท้าทาย (ไม่บังคับ)</div><div class="choices-grid">' + Object.keys(RW.CHALLENGES).map(function (k) {
+        var d = RW.CHALLENGES[k];
+        return '<button type="button" class="card-opt ' + ((f.challenge || 'none') === k ? 'on' : '') + '" data-act="ngSet" data-a=\'["challenge","' + k + '"]\'><b>' + d.n + '</b><span>' + d.d + '</span></button>';
       }).join('') + '</div></div>';
     html += '<div class="row" style="justify-content:flex-end">' + UI.btn('เริ่มต้นการเดินทาง →', 'startGame', [], 'primary go') + '</div></section>';
     html += '<p class="small muted" style="margin-top:14px">ทุกบริษัท นักลงทุน และบุคคลในเกมเป็นเรื่องสมมติ ตัวเลขอ้างอิงตลาดไทยโดยประมาณ ไม่ใช่คำแนะนำทางการเงิน · เกมเซฟอัตโนมัติทุกสัปดาห์ในเบราว์เซอร์นี้ · กด Space เพื่อเล่นสัปดาห์ถัดไป</p></div>';
@@ -103,7 +107,7 @@
     var M = RW.Models[f.industry];
     UI.s = RW.Engine.newGame({
       seed: seed, industry: f.industry, difficulty: f.diff, founderName: f.name || 'คุณ', bg: f.bg,
-      companyName: f.company || M.sampleName || 'NovaWorks', capital: f.capital, concept: f.concept, product: f.concept, cofounder: cof, vesting: f.vesting
+      companyName: f.company || M.sampleName || 'NovaWorks', capital: f.capital, concept: f.concept, product: f.concept, cofounder: cof, vesting: f.vesting, challenge: f.challenge
     });
     UI.tab = 'overview';
     UI.form = {};
@@ -119,14 +123,17 @@
   // =====================================================================
   UI.endScreen = function () {
     var s = UI.s, o = s.over;
-    var reasons = { bankrupt: 'ล้มละลาย', personal: 'ถังแตกส่วนตัว', fired: 'ถูกบอร์ดปลด', quit: 'ลาออกไปทำงานประจำ', shutdown: 'ปิดบริษัทอย่างมีระเบียบ', acquired: 'ขายกิจการ', ipo: 'IPO', timeup: 'ครบ 10 ปี' };
+    var reasons = { bankrupt: 'ล้มละลาย', personal: 'ถังแตกส่วนตัว', fired: 'ถูกบอร์ดปลด', quit: 'ลาออกไปทำงานประจำ', shutdown: 'ปิดบริษัทอย่างมีระเบียบ', acquired: 'ขายกิจการ', ipo: 'IPO', timeup: 'ครบ ' + Math.round(RW.Engine.maxW(s) / 52) + ' ปี' };
+    var chal = s.challenge && s.challenge !== 'none' ? RW.CHALLENGES[s.challenge] : null;
+    var epi = (o.epilogue || []).map(function (p) { return '<div class="epi"><b>' + h(p.h) + '</b><p>' + h(p.t) + '</p></div>'; }).join('');
     var ach = Object.keys(s.achievements).filter(function (k) { return RW.Engine.ACH[k]; });
     var rounds = s.funding.rounds.map(function (r) { return [RW.T.label(r.w), h(RW.STAGES[r.stage] ? RW.STAGES[r.stage].n : r.stage), F.m(r.amount), F.m(r.pre), h(r.lead)]; });
     var hm = s.hist.monthly;
     var chart = UI.chart({ labels: hm.map(function (m) { return m.label; }), series: [{ name: 'รายได้/เดือน', color: 'var(--s1)', data: hm.map(function (m) { return m.p.rev; }), area: true }, { name: 'เงินสด', color: 'var(--s2)', data: hm.map(function (m) { return m.cash; }) }], fmt: F.k, tipFmt: F.m });
     var wf = o.waterfall ? '<h3 style="margin:14px 0 6px">ใครได้เงินเท่าไหร่จากการขาย</h3>' + UI.table(['ผู้ถือหุ้น', 'ประเภท', '#ได้รับ'], o.waterfall.holders.filter(function (x) { return x.amount > 1; }).sort(function (a, b) { return b.amount - a.amount; }).map(function (x) { return [h(x.name), h(x.cls), F.m(x.amount)]; })) : '';
-    return '<div class="end"><section class="panel"><div class="muted small">จบเกม · ' + h(reasons[o.reason] || o.reason) + ' · หลังจาก ' + o.years + ' ปี</div>' +
+    return '<div class="end"><section class="panel"><div class="muted small">จบเกม · ' + h(reasons[o.reason] || o.reason) + ' · หลังจาก ' + o.years + ' ปี' + (chal ? ' · โหมด ' + h(chal.n) : '') + '</div>' +
       '<div class="rank">' + h(o.rank.title) + '</div><p class="ink2">' + h(o.rank.desc) + '</p><p>' + h(o.text) + '</p>' +
+      (epi ? '<h3 style="margin:14px 0 6px">หลังจากนั้น…</h3><div class="epilogue">' + epi + '</div>' : '') +
       '<div class="tiles" style="margin:12px 0">' + UI.tile('ความมั่งคั่งสุทธิของคุณ', F.m(o.wealth), 'เงินส่วนตัว + มูลค่าหุ้น', o.wealth > 3e7 ? 'good' : '') + UI.tile('เงินจากหุ้น/Exit', F.m(o.equity)) + UI.tile('ระดมทุนรวม', F.m(o.raised)) + UI.tile('รายได้สูงสุด/เดือน', F.m(o.maxRev)) + UI.tile('พนักงานสูงสุด', o.peakHC + ' คน') + UI.tile('ความสำเร็จ', ach.length + '/' + Object.keys(RW.Engine.ACH).length) + '</div>' +
       chart + wf +
       (rounds.length ? '<h3 style="margin:14px 0 6px">การระดมทุน</h3>' + UI.table(['เมื่อ', 'รอบ', '#เงิน', '#Pre-money', 'Lead'], rounds) : '') +
@@ -135,6 +142,7 @@
   };
   UI.acts.newGame = function () { UI.s = null; UI.form = {}; UI.modal(''); };
   UI.acts.endless = function () { var s = UI.s; s.over = null; A.continueEndless(s); };
+  UI.acts.research = function (k, arg) { return A.research(UI.s, k, arg); };
 
   // =====================================================================
   //  OVERVIEW

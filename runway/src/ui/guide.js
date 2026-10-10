@@ -6,7 +6,9 @@
   var SECTIONS = [
     ['เป้าหมายของเกม', [
       'คะแนนคือ "ความมั่งคั่งสุทธิของคุณ" ตอนจบเกม = เงินส่วนตัว + มูลค่าหุ้นที่คุณได้จริงหลังหักสิทธิ์นักลงทุน (liquidation preference) ไม่ใช่ขนาดบริษัท',
-      'เกมจบเมื่อ: เงินสดติดลบนาน 6 สัปดาห์ (ล้มละลาย), เงินส่วนตัวติดลบหนัก, บอร์ดปลดคุณ, คุณขายกิจการ, IPO, ปิดบริษัทเอง หรือครบ 10 ปี',
+      'เกมจบเมื่อ: เงินสดติดลบนาน 6 สัปดาห์ (ล้มละลาย), เงินส่วนตัวติดลบหนัก, บอร์ดปลดคุณ, คุณขายกิจการ, IPO, ปิดบริษัทเอง หรือครบ 10 ปี (5 ปีในโหมด Sprint)',
+      'งานวิจัยแบบจ่ายเงิน (สัมภาษณ์ลูกค้า ศึกษาราคา ทดสอบตลาด นับคนเดินผ่านทำเล) ใช้เงินแทนเวลาของคุณ — คุ้มมากเมื่อเวลาคุณมีค่ากว่าเงิน หรือเมื่อการตัดสินใจผิดจะแพง เช่น ก่อนเซ็นสัญญาเช่า 3 ปี',
+      'เงินกู้ SME มีผู้ก่อตั้งค้ำประกันส่วนตัว — ถ้าบริษัทล้มละลาย ธนาคารจะตามเก็บส่วนที่ขาดจากคุณ',
       'บริษัทที่เติบโตช้าแต่มีกำไร ก็อาจทำให้คุณรวยกว่าบริษัทที่ระดมทุนมหาศาลแล้วถูก dilute จนเหลือหุ้นนิดเดียว'
     ]],
     ['เวลาและการตัดสินใจ', [
@@ -77,7 +79,7 @@
     if (!s.over || s.over.recorded) return;
     s.over.recorded = 1;
     var list = UI.hof();
-    list.push({ company: s.company.name, ind: s.industry, bg: s.founder.bg, diff: s.diff.key, reason: s.over.reason, wealth: s.over.wealth, years: s.over.years, rank: s.over.rank.title, seed: s.seed, at: Date.now() });
+    list.push({ company: s.company.name, ind: s.industry, bg: s.founder.bg, diff: s.diff.key, ch: s.challenge || 'none', reason: s.over.reason, wealth: s.over.wealth, years: s.over.years, rank: s.over.rank.title, seed: s.seed, at: Date.now() });
     list.sort(function (a, b) { return b.wealth - a.wealth; });
     UI.store.set('runway.hof', JSON.stringify(list.slice(0, 30)));
     UI.save('auto');
@@ -85,9 +87,9 @@
   UI.hofTable = function () {
     var list = UI.hof();
     if (!list.length) return '';
-    var reasons = { bankrupt: 'ล้มละลาย', personal: 'ถังแตกส่วนตัว', fired: 'ถูกปลด', quit: 'เลิกทำ', shutdown: 'ปิดบริษัท', acquired: 'ขายกิจการ', ipo: 'IPO', timeup: 'ครบ 10 ปี' };
+    var reasons = { bankrupt: 'ล้มละลาย', personal: 'ถังแตกส่วนตัว', fired: 'ถูกปลด', quit: 'เลิกทำ', shutdown: 'ปิดบริษัท', acquired: 'ขายกิจการ', ipo: 'IPO', timeup: 'ครบกำหนด' };
     return '<section class="panel" style="margin-bottom:18px"><h3>ทำเนียบผู้ก่อตั้ง (เครื่องนี้)</h3>' + UI.table(['บริษัท', 'ธุรกิจ', 'ความยาก', 'จบด้วย', '#ปี', '#ความมั่งคั่ง', 'ระดับ'], list.slice(0, 10).map(function (r) {
-      return [h(r.company), h(RW.Models[r.ind] ? RW.Models[r.ind].n : r.ind), h(RW.DIFFICULTY[r.diff] ? RW.DIFFICULTY[r.diff].n : r.diff), h(reasons[r.reason] || r.reason), r.years, F.m(r.wealth), h(r.rank)];
+      return [h(r.company), h(RW.Models[r.ind] ? RW.Models[r.ind].n : r.ind), h(RW.DIFFICULTY[r.diff] ? RW.DIFFICULTY[r.diff].n : r.diff) + (r.ch && r.ch !== 'none' && RW.CHALLENGES[r.ch] ? '<div class="tiny muted">' + h(RW.CHALLENGES[r.ch].n) + '</div>' : ''), h(reasons[r.reason] || r.reason), r.years, F.m(r.wealth), h(r.rank)];
     })) + '</section>';
   };
 })(globalThis.RW = globalThis.RW || {});

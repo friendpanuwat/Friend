@@ -406,6 +406,37 @@
   };
 
   // ---------- Actions ----------
+  // ---------- Paid research ----------
+  M.RESEARCH = {
+    count: {
+      n: 'จ้างคนนับคนเดินผ่านจริง', weeks: 1,
+      d: 'จ้างนักศึกษายืนนับคนหน้าทำเล 7 วันทั้งวันธรรมดาและวันหยุด — ตัวเลขจริงแทนตัวเลขสวยๆ ของโบรกเกอร์',
+      cost: 12000,
+      can: function (s, id) { var x = s.biz.sites && s.biz.sites.list.find(function (t) { return t.id === id; }); return !x ? 'ไม่พบทำเลนี้' : x.type === 'cloud' ? 'คลาวด์คิทเช่นไม่มีหน้าร้าน' : x.counted ? 'นับไปแล้ว' : null; },
+      done: function (s, id) {
+        var x = s.biz.sites && s.biz.sites.list.find(function (t) { return t.id === id; });
+        if (!x) return 'ทำเลนี้ถูกคนอื่นเช่าไปก่อนผลนับจะมา';
+        x.counted = Math.round(x.foot * R.normal(1, 0.06) / 50) * 50;
+        var gap = x.quoted / x.counted - 1;
+        return 'ทำเล ' + x.area + ': นับได้เฉลี่ย ' + F.num(x.counted) + ' คน/วัน เทียบกับที่โบรกเกอร์บอก ' + F.num(x.quoted) + (gap > 0.1 ? ' — โบรกเกอร์โม้ไป ' + F.pct(gap, 0) : gap < -0.1 ? ' — คนเดินจริงมากกว่าที่โบรกเกอร์บอก!' : ' — ใกล้เคียงกัน');
+      }
+    },
+    taste: {
+      n: 'Blind taste test + Mystery shopper', weeks: 2,
+      d: 'ให้ลูกค้าเป้าหมายชิมเทียบกับคู่แข่งแบบไม่รู้แบรนด์ และส่งคนแฝงตัวไปใช้บริการทุกสาขา — Insight เพิ่ม และรู้ว่าเมนูเราอยู่ตรงไหนในตลาด',
+      cost: 38000,
+      can: function (s) { return s.biz.insight >= 85 ? 'Insight สูงแล้ว' : null; },
+      done: function (s) {
+        var b = s.biz, gain = 16 * (1 - b.insight / 110);
+        b.insight = U.clamp(b.insight + gain, 0, 100);
+        var comps = RW.World.aliveCompetitors(s);
+        var cq = comps.length ? U.avg(comps, function (c) { return c.quality; }) : 60;
+        var rel = b.menuQ - cq;
+        return 'Insight +' + gain.toFixed(0) + '% · ผลชิมแบบปิดตา: ' + (rel > 8 ? 'เมนูเราชนะคู่แข่งชัดเจน' : rel > -3 ? 'สูสีกับคู่แข่ง — ต้องชนะด้วยบริการและทำเล' : 'คู่แข่งอร่อยกว่าในสายตาลูกค้า — ควรพัฒนาเมนู') + ' (คุณภาพเมนู ' + Math.round(b.menuQ) + ' vs คู่แข่งเฉลี่ย ' + Math.round(cq) + ')' + (M.openBranches(b).length ? ' · Mystery shopper: ' + R.pick(['พนักงานบางสาขาลืมทักทายลูกค้า', 'เวลารออาหารช่วงพีคนานเกิน 20 นาที', 'ความสะอาดห้องน้ำต่างกันมากระหว่างสาขา', 'บริการดีสม่ำเสมอเกือบทุกสาขา']) : '');
+      }
+    }
+  };
+
   M.act = {
     scout: function (s, type) {
       L.spend(s.fin, 'prof', type === 'mall' ? 30000 : 8000);

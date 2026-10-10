@@ -14,16 +14,19 @@
     R.bind(rng);
     var diff = U.deepCopy(RW.DIFFICULTY[opt.difficulty || 'normal']);
     diff.key = opt.difficulty || 'normal';
+    var ch = RW.CHALLENGES[opt.challenge] ? opt.challenge : 'none';
     var state = {
       v: RW.VERSION, seed: seed, rng: rng, industry: opt.industry, diff: diff,
       company: { name: opt.companyName || 'บริษัทของฉัน', registered: false, registerW: null, office: { type: 'home', seats: 3, rent: 0, leaseEnd: 0, deposit: 0 }, insured: false, extraAdmin: 0, foundedW: 0 },
       time: { w: 0 }, flags: {}, stats: { raised: 0, peakHC: 0, maxRevenueMonth: 0, layoffs: 0 },
-      inbox: [], hist: { weekly: [], monthly: [] }, achievements: {}, over: null, cofounders: [], kpi: {}
+      inbox: [], hist: { weekly: [], monthly: [] }, achievements: {}, over: null, cofounders: [], kpi: {},
+      challenge: ch, maxW: ch === 'sprint' ? 260 : RW.MAX_WEEKS, research: []
     };
     state.founder = RW.Founder.init({ name: opt.founderName, bg: opt.bg, extraCash: diff.cash });
     state.team = RW.Team.init();
     state.fin = L.init();
-    state.world = RW.World.init(state, diff.macro);
+    state.world = RW.World.init(state, ch === 'crisis' ? 'recession' : diff.macro);
+    if (ch === 'crisis') { state.world.vc = Math.min(state.world.vc, 0.5); state.world.talentSupply = 1.35; }
     state.events = RW.Events.init();
     state.funding = RW.Funding.init(state);
     var M = RW.Models[opt.industry];
@@ -75,6 +78,19 @@
     if (state.inbox.length > 250) state.inbox.length = 250;
   };
 
+  // ---------- Paid market research (results arrive after a few weeks) ----------
+  EN.researchWeekly = function (state) {
+    var M = RW.Models[state.industry], w = state.time.w;
+    if (!state.research || !state.research.length || !M.RESEARCH) return;
+    state.research = state.research.filter(function (j) {
+      if (j.due > w) return true;
+      var r = M.RESEARCH[j.k];
+      var msg = r ? r.done(state, j.arg) : '';
+      if (msg) EN.mail(state, 'product', 'ผลวิจัยมาแล้ว: ' + r.n, msg, 'good');
+      return false;
+    });
+  };
+
   // ---------- Weekly tick ----------
   EN.tick = function (state) {
     if (state.over) return;
@@ -119,6 +135,7 @@
     RW.Founder.cofounderWeekly(state);
     RW.Team.weekly(state);
     M.weekly(state, info);
+    EN.researchWeekly(state);
     var ci = RW.Founder.consultIncome(state);
     if (ci > 0) {
       if (state.company.registered) L.invoice(state, 'rev_consult', ci, w + 4, { wht: true, name: 'งานที่ปรึกษา/รับจ้าง' });
@@ -143,7 +160,7 @@
     EN.checkSolvency(state, info);
     EN.checkAchievements(state);
     state.stats.peakHC = Math.max(state.stats.peakHC, RW.Team.headcount(state));
-    if (w >= RW.MAX_WEEKS && !state.over && !state.flags.endless) EN.timeUp(state);
+    if (w >= EN.maxW(state) && !state.over && !state.flags.endless) EN.timeUp(state);
   };
 
   EN.monthEnd = function (state, info) {
@@ -278,6 +295,8 @@
     var r1 = hm.length >= 2 ? core(hm[hm.length - 2]) : 0;
     k.momGrowth = r1 > 0 && last ? r0 / r1 - 1 : 0;
     k.cmgr3 = r3 > 0 && r0 > 0 ? Math.pow(r0 / r3, 1 / 3) - 1 : 0;
+    var prevTTM = hm.length >= 24 ? U.sum(hm.slice(-24, -12), core) : 0;
+    k.yoyGrowth = prevTTM > 0 ? k.revenueTTM / prevTTM - 1 : 0;
     k.headcount = RW.Team.headcount(state);
     k.morale = RW.Team.avgMorale(state);
     k.founderPct = RW.Funding.founderPct(state);
@@ -338,10 +357,24 @@
     if (f.cash < -Math.max(600000, f.burn * 10)) EN.gameOver(state, 'personal', 'หนี้ส่วนตัวพอกพูนจนคุณไม่สามารถทำบริษัทต่อได้ ต้องกลับไปหางานประจำเพื่อใช้หนี้');
   };
 
+  EN.founderLoan = function (state) {
+    return U.sum(state.fin.loans.filter(function (l) { return l.kind === 'founder'; }), function (l) { return l.balance; });
+  };
+
   EN.gameOver = function (state, reason, text) {
     if (state.over) return;
     var M = RW.Models[state.industry];
     var equityValue = 0;
+    if (reason === 'bankrupt') {
+      // SME loans carry the director's personal guarantee: the bank recovers what liquidation does not cover
+      var guaranteed = U.sum(state.fin.loans.filter(function (l) { return l.kind === 'bank'; }), function (l) { return l.balance; });
+      if (guaranteed > 0) {
+        var callOn = Math.round(guaranteed * 0.55);
+        state.founder.cash -= callOn;
+        state.stats.guaranteeCalled = callOn;
+        text += ' — ธนาคารเรียกให้คุณชำระหนี้ตามสัญญาค้ำประกันส่วนตัว ' + F.m(callOn);
+      }
+    }
     if (reason === 'fired' || reason === 'timeup') {
       var v = Math.max(M.valuation(state) * RW.Funding.climate(state), 0);
       var wf = RW.Funding.waterfall(state, v);
@@ -354,8 +387,9 @@
     EN.finalize(state);
   };
 
+  EN.maxW = function (state) { return state.maxW || RW.MAX_WEEKS; };
   EN.timeUp = function (state) {
-    EN.gameOver(state, 'timeup', 'ครบ 10 ปีของการเดินทาง — มาดูกันว่าคุณสร้างอะไรไว้');
+    EN.gameOver(state, 'timeup', 'ครบ ' + Math.round(EN.maxW(state) / 52) + ' ปีของการเดินทาง — มาดูกันว่าคุณสร้างอะไรไว้');
   };
 
   EN.exit = function (state, kind, offer) {
@@ -365,8 +399,10 @@
     var stock = founderGross * (1 - offer.cash) * 0.8;
     // earn-out portion is uncertain: count half of it
     var proceeds = cash + stock - (offer.earnout ? founderGross * offer.earnout * 0.5 : 0);
-    state.founder.cash += proceeds;
-    state.over = { reason: kind, text: 'ขายกิจการให้ ' + offer.buyer + ' มูลค่า ' + F.m(offer.price), w: state.time.w, price: offer.price, waterfall: wf, equity: proceeds, personal: state.founder.cash - proceeds, wealth: state.founder.cash };
+    // buyer settles the company's debts at closing, including the founder's shareholder loan
+    var loanBack = EN.founderLoan(state);
+    state.founder.cash += proceeds + loanBack;
+    state.over = { reason: kind, text: 'ขายกิจการให้ ' + offer.buyer + ' มูลค่า ' + F.m(offer.price) + (loanBack > 0 ? ' (ได้เงินกู้ผู้ก่อตั้งคืน ' + F.m(loanBack) + ')' : ''), w: state.time.w, price: offer.price, waterfall: wf, equity: proceeds, personal: state.founder.cash - proceeds, wealth: state.founder.cash, buyer: offer.buyer, offerKind: offer.kind, earnout: offer.earnout || 0 };
     state.achievements.exit = state.time.w;
     EN.finalize(state);
   };
@@ -412,7 +448,7 @@
     // IPO: all preferred convert to common; new shares issued
     var founderStake = RW.Funding.founderShares(state) / fd * (v / (v + raise));
     var value = founderStake * (v + raise) * 0.85; // lock-up discount
-    state.founder.cash += 0;
+    state.founder.cash += EN.founderLoan(state); // repaid from IPO proceeds
     state.over = { reason: 'ipo', text: 'เข้าตลาดหลักทรัพย์สำเร็จ! มูลค่าตลาด ' + F.m(v + raise), w: state.time.w, price: v + raise, equity: value, personal: state.founder.cash, wealth: state.founder.cash + value };
     state.achievements.ipo = state.time.w;
     EN.finalize(state);
@@ -440,7 +476,120 @@
     o.peakHC = state.stats.peakHC;
     o.raised = state.stats.raised;
     o.maxRev = state.stats.maxRevenueMonth;
+    var a = state.achievements, w = state.time.w;
+    if (state.challenge === 'bootstrap' && o.wealth >= 30e6 && !state.stats.raised) a.ch_bootstrap = w;
+    if (state.challenge === 'sprint' && o.wealth >= 100e6) a.ch_sprint = w;
+    o.challenge = state.challenge || 'none';
+    o.epilogue = EN.epilogue(state);
     EN.mail(state, 'system', 'จบเกม: ' + o.rank.title, o.text, 'info');
+  };
+
+  // ---------- Epilogue: what happened next ----------
+  EN.epilogue = function (state) {
+    var o = state.over, k = state.kpi, f = state.founder, M = RW.Models[state.industry];
+    var name = state.company.name, yrs = o.w / 52, hc = RW.Team.headcount(state), peak = state.stats.peakHC || 0;
+    var cust = Math.round(k.customers || 0), revM = k.revenueMonthly || 0, maxRev = state.stats.maxRevenueMonth || 0;
+    var seedN = Math.abs(state.seed | 0);
+    function pick(arr, salt) { return arr[(seedN + (salt || 0)) % arr.length]; }
+    var ind = state.industry, b = state.biz, out = [];
+    var branches = ind === 'fnb' ? b.branches.filter(function (x) { return x.state !== 'closed'; }).length : 0;
+    var floor = ind === 'fnb' ? U.sum(b.branches.filter(function (x) { return x.state !== 'closed'; }), function (x) { return x.staff || 0; }) : 0;
+    hc += floor; peak = Math.max(peak, hc);
+    var profitable = (k.ebitdaTTM || 0) > 0, growth = k.yoyGrowth || 0;
+    var yearsTxt = yrs < 1 ? Math.max(1, Math.round(o.w / 4.33)) + ' เดือน' : yrs.toFixed(1) + ' ปี';
+    var wfH = o.waterfall ? o.waterfall.holders : null;
+    var esop = wfH ? U.sum(wfH.filter(function (x) { return x.kind === 'employee'; }), function (x) { return x.amount; }) : 0;
+    var invIn = U.sum(state.funding.holders.filter(function (x) { return x.kind === 'investor'; }), function (x) { return x.invested || 0; }) + U.sum(state.funding.safes, function (x) { return x.amount; });
+    var invOut = wfH ? U.sum(wfH.filter(function (x) { return x.kind === 'investor'; }), function (x) { return x.amount; }) : 0;
+
+    // 1) the company
+    var co;
+    switch (o.reason) {
+      case 'bankrupt':
+        co = name + ' ปิดตัวลงหลังดำเนินกิจการ ' + yearsTxt + ' ผู้ชำระบัญชีขายทรัพย์สินที่เหลือ' +
+          (ind === 'saas' ? (cust > 0 ? ' ลูกค้า ' + F.num(cust) + ' รายได้รับอีเมลแจ้งปิดระบบล่วงหน้า 30 วันพร้อมไฟล์ข้อมูลของตัวเอง' : '') + ' โค้ดทั้งหมดถูกขายให้บริษัทซอฟต์แวร์รายหนึ่งในราคาไม่ถึงค่าเซิร์ฟเวอร์หนึ่งเดือน' :
+            ind === 'ecom' ? ' สต็อกที่เหลือถูกขายเหมาให้พ่อค้าคนกลางในราคาราว 20% ของทุน หน้าร้านออนไลน์ถูกปิด' + (maxRev > 1e6 ? ' รีวิวห้าดาวหลายพันรายการหายไปพร้อมกับร้าน' : '') :
+              ' อุปกรณ์ครัวถูกขายต่อให้ร้านเปิดใหม่ในราคาเศษเหล็ก ป้ายหน้าร้านถูกปลดลง ไม่กี่เดือนต่อมามีร้านใหม่มาเช่าทำเลเดิม') +
+          (maxRev > 2.5e6 ? ' — คนในวงการหลายคนยังพูดถึงว่ามันเกือบไปได้แล้ว' : '');
+        break;
+      case 'personal':
+        co = 'คุณกลับไปทำงานประจำเพื่อใช้หนี้ ' + (revM > 300000 && hc > 0 ? 'ทีมที่เหลือพยายามประคอง ' + name + ' ต่ออีกพักหนึ่ง แต่บริษัทที่ไม่มีผู้ก่อตั้งคอยผลักดันก็ค่อยๆ หยุดเติบโต' : name + ' ค่อยๆ เงียบหายไป เว็บไซต์ยังออนไลน์อยู่อีกปีหนึ่งจนโดเมนหมดอายุ');
+        break;
+      case 'fired':
+        co = 'บอร์ดแต่งตั้ง CEO มืออาชีพจากภายนอก ' + pick(['ซึ่งตัดโปรเจกต์ที่คุณรักออกไปครึ่งหนึ่งภายใน 100 วันแรก', 'ซึ่งย้ายสำนักงานและเปลี่ยนวัฒนธรรมองค์กรจนคนรุ่นแรกแทบจำไม่ได้', 'ซึ่งโฟกัสกำไรมากกว่าการเติบโต บริษัทนิ่งขึ้นแต่ไม่ตื่นเต้นอีกต่อไป']) +
+          ' คุณยังถือหุ้นสามัญอยู่ แต่ไม่มีเสียงในการตัดสินใจอีกแล้ว';
+        break;
+      case 'quit':
+        co = 'คุณตัดสินใจเดินจาก ' + name + ' มา ' + (revM > 0 ? 'ลูกค้าที่เหลือถูกส่งต่อให้คู่แข่ง ' : '') + 'สิ่งที่สร้างไว้กลายเป็นแค่หนึ่งบรรทัดใน LinkedIn ของคุณ';
+        break;
+      case 'shutdown':
+        co = 'คุณปิด ' + name + ' อย่างเป็นระเบียบ จ่ายค่าชดเชยครบทุกคน ชำระหนี้ทุกบาท และส่งอีเมลขอบคุณลูกค้าด้วยตัวเอง — คนในวงการจดจำว่าคุณปิดบริษัทอย่างรับผิดชอบ ซึ่งหายากกว่าที่คิด และนั่นจะทำให้การเริ่มครั้งหน้าง่ายขึ้นมาก';
+        break;
+      case 'acquired':
+        co = (o.offerKind === 'acquihire' ? o.buyer + ' ซื้อ ' + name + ' เพื่อทีมงาน สินค้าถูกปิดภายในหกเดือน ทุกคนย้ายไปทำโปรเจกต์ใหม่ภายใต้แบรนด์ผู้ซื้อ' :
+          o.offerKind === 'pe' ? o.buyer + ' เข้ามาบริหาร ' + name + ' แบบเน้นกำไร ตัดต้นทุนทุกบรรทัด แล้ววางแผนขายต่อในอีก 4–5 ปี' :
+            name + ' กลายเป็นหนึ่งในหน่วยธุรกิจของ ' + o.buyer + ' แบรนด์ยังอยู่ แต่การตัดสินใจทั้งหมดต้องผ่านสำนักงานใหญ่') +
+          (o.earnout ? ' — เงื่อนไข earn-out ทำให้คุณต้องทำงานต่อให้ผู้ซื้ออีกสองปีเต็ม เป็นสองปีที่ยาวที่สุดในชีวิต' : '');
+        break;
+      case 'ipo':
+        co = 'เช้าวันแรกของการซื้อขาย หุ้น ' + name + ' ' + pick(['เปิดสูงกว่าราคาจองเกือบ 30%', 'ยืนเหนือราคาจองได้อย่างหวุดหวิด', 'ผันผวนตลอดวันก่อนปิดบวกเล็กน้อย']) + ' คุณกับทีมรุ่นแรกยืนเคาะระฆังด้วยกัน จากนี้ทุกไตรมาสคือการสอบต่อหน้านักลงทุนรายย่อยนับหมื่นคน';
+        break;
+      default:
+        if (profitable && growth > 0.2) co = 'ครบ ' + Math.round(yrs) + ' ปี ' + name + ' ยังโตแรงและมีกำไร ' + (ind === 'fnb' ? 'มี ' + branches + ' สาขา ' : '') + 'นักลงทุนและผู้ซื้อกิจการเริ่มเข้ามาเคาะประตูบ่อยขึ้น เกมจริงอาจเพิ่งเริ่มต้น';
+        else if (profitable) co = 'ครบ ' + Math.round(yrs) + ' ปี ' + name + ' กลายเป็นธุรกิจที่มั่นคงและมีกำไร ไม่หวือหวาแต่จ่ายเงินเดือนทุกคนตรงเวลาทุกเดือน — สิ่งที่สตาร์ทอัพส่วนใหญ่ไม่เคยทำได้';
+        else if ((k.runway || 0) < 6) co = 'ครบ ' + Math.round(yrs) + ' ปี ' + name + ' ยังมีลมหายใจ แต่เงินสดเหลืออีกไม่กี่เดือน ทุกคนรู้ดีว่าปีหน้าคือปีตัดสิน';
+        else co = 'ครบ ' + Math.round(yrs) + ' ปี ' + name + ' ยังไม่ทำกำไร และการเติบโตก็ช้าลง ภาษาวงการเรียกว่า "บริษัทซอมบี้" — ไม่ตาย แต่ก็ไม่โต';
+    }
+    out.push({ h: 'บริษัท', t: co });
+
+    // 2) the team
+    var team;
+    if (peak === 0) team = 'คุณทำทุกอย่างด้วยตัวเองมาตลอด ไม่เคยต้องจ่ายเงินเดือนใคร และไม่เคยต้องบอกใครว่าบริษัทไม่มีเงิน';
+    else if (o.reason === 'bankrupt') team = (hc > 0 ? 'พนักงาน ' + hc + ' คนสุดท้ายต้องหางานใหม่' + (state.stats.missedPayroll ? ' บางคนยังได้เงินเดือนเดือนสุดท้ายไม่ครบและต้องยื่นเรื่องต่อพนักงานตรวจแรงงาน' : ' ส่วนใหญ่ได้งานใหม่ภายในไม่กี่เดือน') : 'ทีมทยอยลาออกไปก่อนหน้านั้น คนสุดท้ายที่อยู่จนวันปิดคือตัวคุณเอง') + (peak >= 10 ? ' หลายคนยังเรียกช่วงเวลาที่ ' + name + ' ว่า "โรงเรียนที่แพงที่สุด"' : '');
+    else if (esop > 1e5) team = 'พนักงานที่ถือ ESOP ได้รับเงินรวม ' + F.m(esop) + ' — บางคนเอาไปดาวน์บ้านหลังแรก บางคนเอาไปเริ่มบริษัทของตัวเอง';
+    else team = 'ตลอดเส้นทางมีคนเคยทำงานกับคุณสูงสุด ' + peak + ' คนพร้อมกัน' + (state.stats.layoffs ? ' และคุณเคยต้องเลิกจ้าง ' + state.stats.layoffs + ' คน — ทุกครั้งยังจำหน้าได้' : '');
+    if (peak >= 12) team += ' · ศิษย์เก่าอย่างน้อย ' + (Math.floor(peak / 12) + 1) + ' คนออกไปเปิดบริษัทของตัวเองในภายหลัง';
+    var cofLeft = (state.cofounders || []).filter(function (c) { return !c.active; });
+    if (cofLeft.length) team += ' · ' + cofLeft[0].nick + ' ผู้ร่วมก่อตั้งที่แยกทางกันไป ' + pick(['ส่งข้อความมาแสดงความยินดี/ให้กำลังใจ', 'ยังไม่ได้คุยกับคุณอีกเลย', 'กลายเป็นเพื่อนกันอีกครั้งหลังผ่านไปหลายปี'], 3);
+    out.push({ h: 'ทีม', t: team });
+
+    // 3) the investors
+    if (invIn > 0) {
+      var inv;
+      if (o.reason === 'acquired') {
+        var mult = invOut / invIn;
+        inv = 'นักลงทุนลงเงินรวม ' + F.m(invIn) + ' ได้คืน ' + F.m(invOut) + ' (' + mult.toFixed(1) + 'x) ' + (mult >= 5 ? '— ดีลนี้จะถูกใช้เป็นตัวอย่างในพิตช์ระดมทุนกองต่อไปของพวกเขา' : mult >= 1 ? '— ไม่เลวร้าย แต่ไม่ใช่ผลตอบแทนที่ VC ฝันไว้' : '— ขาดทุน แต่ liquidation preference ช่วยให้ได้เงินคืนก่อนผู้ก่อตั้ง');
+      } else if (o.reason === 'ipo') inv = 'นักลงทุนทุกรอบได้ผลตอบแทนหลายเท่าบนกระดาษ หลังพ้น lock-up หลายรายทยอยขายหุ้นออก';
+      else if (o.reason === 'bankrupt' || o.reason === 'personal' || o.reason === 'quit') inv = 'เงินลงทุน ' + F.m(invIn) + ' ถูกตัดเป็นศูนย์ ' + (state.funding.board.confidence >= 50 ? 'นักลงทุนรายหนึ่งส่งข้อความว่า "ขอบคุณที่สู้จนวินาทีสุดท้าย ถ้าเปิดบริษัทใหม่ บอกผมเป็นคนแรก"' : 'บางรายไม่ตอบข้อความคุณอีกเลย');
+      else inv = 'นักลงทุนที่ลงเงินรวม ' + F.m(invIn) + ' ยังรอการ exit ที่จะทำให้ตัวเลขในพอร์ตเป็นจริง';
+      out.push({ h: 'นักลงทุน', t: inv });
+    }
+
+    // 4) the founder
+    var me = [];
+    if (f.health < 45) me.push('ร่างกายคุณใช้เวลาเกือบปีกว่าจะฟื้นตัวจากปีที่ทำงานหนัก');
+    else if (state.achievements.burnout) me.push('อาการหมดไฟที่เคยเป็นสอนให้คุณรู้ขีดจำกัดของตัวเอง');
+    if (f.life < 35) me.push('ความสัมพันธ์กับครอบครัวและคนใกล้ตัวต้องใช้เวลาซ่อมแซมนานกว่าบริษัทไหนๆ');
+    else if (f.life >= 65) me.push(pick(['คนที่คุณรักยังอยู่ข้างคุณตลอดทาง', 'คุณยังมีเวลาให้ครอบครัวแม้ในปีที่หนักที่สุด และนั่นคือสิ่งที่คุณภูมิใจที่สุด', 'เพื่อนเก่ายังนัดกินข้าวกับคุณเหมือนเดิม ไม่มีใครถามเรื่อง valuation'], 5));
+    if (state.stats.guaranteeCalled) me.push('หนี้ค้ำประกันธนาคาร ' + F.m(state.stats.guaranteeCalled) + ' จะตามคุณไปอีกหลายปี');
+    me.push('ความมั่งคั่งสุทธิตอนจบ ' + F.m(o.wealth) + ' — ' + o.rank.desc);
+    out.push({ h: 'ตัวคุณ', t: me.join(' · ') });
+
+    // 5) the lesson
+    var lesson;
+    var payrollHeavy = peak >= 6 && maxRev < peak * 60000;
+    if (o.reason === 'bankrupt' && maxRev < 150000) lesson = 'บริษัทส่วนใหญ่ไม่ได้ตายเพราะคู่แข่ง แต่ตายเพราะสร้างสิ่งที่คนไม่ยอมจ่ายเงินซื้อ — หาลูกค้าที่ยอมจ่ายจริงให้เร็วกว่านี้ แล้วค่อยขยาย';
+    else if ((o.reason === 'bankrupt' || o.reason === 'fired') && payrollHeavy) lesson = 'ทีมโตเร็วกว่ารายได้ การจ้างหนึ่งคนคือการผูกเงินสดไว้ 12–18 เดือน — จ้างเมื่อคอขวดชัด ไม่ใช่เมื่อรู้สึกว่าควรโต';
+    else if (o.reason === 'bankrupt' && state.stats.raised > 0) lesson = 'เงินหมดก่อนถึง milestone ถัดไป — เริ่มระดมทุนเมื่อยังเหลือ runway อย่างน้อย 9 เดือน และวางแผนให้ถึงเป้าหมายด้วยเงินแค่ 70% ของที่ระดมได้';
+    else if (o.reason === 'bankrupt') lesson = 'กระแสเงินสดสำคัญกว่ากำไรบนกระดาษ — ดูเงินสดรายสัปดาห์ เก็บหนี้ให้เร็ว และอย่าใช้เงินที่ยังไม่ได้รับ';
+    else if (o.reason === 'personal') lesson = 'ผู้ก่อตั้งก็มี runway ของตัวเอง เงินเดือนผู้ก่อตั้งที่พออยู่ได้ไม่ใช่ความฟุ่มเฟือย แต่คือสิ่งที่ทำให้บริษัทไม่ต้องจบเพราะคุณถังแตกก่อน';
+    else if (o.reason === 'fired') lesson = 'เมื่อนักลงทุนคุมบอร์ด ความเชื่อมั่นคือสกุลเงินของคุณ — สัญญาให้น้อย ทำให้ได้มากกว่า และอย่าปล่อยให้บอร์ดได้ยินข่าวร้ายจากคนอื่น';
+    else if (o.reason === 'acquired' || o.reason === 'ipo') lesson = 'จังหวะสำคัญพอๆ กับฝีมือ — คุณสร้างสิ่งที่คนอื่นยอมจ่ายเงินก้อนใหญ่เพื่อเป็นเจ้าของ และนั่นคือนิยามของการสร้างคุณค่า';
+    else if (o.reason === 'shutdown') lesson = 'การรู้ว่าเมื่อไรควรหยุดคือทักษะของผู้ก่อตั้งที่ไม่มีใครสอน — คุณหยุดได้ก่อนที่มันจะทำร้ายคนรอบตัว';
+    else if (profitable) lesson = 'ธุรกิจที่ดีคือธุรกิจที่ยังอยู่ ความอดทนและวินัยเรื่องเงินสดคือความได้เปรียบที่คนประเมินค่าต่ำที่สุด';
+    else lesson = 'การอยู่รอดไม่เท่ากับการชนะ — ถ้ายังหา product-market fit ไม่เจอหลังหลายปี การเปลี่ยนทิศอย่างกล้าหาญอาจดีกว่าการประคองต่อ';
+    out.push({ h: 'บทเรียน', t: lesson });
+    return out;
   };
 
   // ---------- Achievements ----------
@@ -467,7 +616,10 @@
     burnout: ['หมดไฟ', 'ร่างกายประท้วงครั้งแรก (ไม่ใช่สิ่งที่ควรภูมิใจ)'],
     missed_payroll: ['วันที่ทุกคนจำ', 'จ่ายเงินเดือนพนักงานไม่ได้'],
     exit: ['Exit!', 'ขายกิจการสำเร็จ'],
-    ipo: ['ตีระฆัง', 'นำบริษัทเข้าตลาดหลักทรัพย์']
+    ipo: ['ตีระฆัง', 'นำบริษัทเข้าตลาดหลักทรัพย์'],
+    ch_bootstrap: ['ยืนด้วยขาตัวเอง', 'โหมด Bootstrap ล้วน: จบเกมด้วยความมั่งคั่ง ≥ ฿30M โดยไม่ขายหุ้นให้นักลงทุน'],
+    ch_crisis: ['เกิดกลางพายุ', 'โหมดเริ่มกลางวิกฤต: บริษัทอยู่รอดครบ 3 ปี'],
+    ch_sprint: ['วิ่งสุดแรง', 'โหมด Sprint 5 ปี: ความมั่งคั่ง ≥ ฿100M เมื่อจบเกม']
   };
   EN.checkAchievements = function (state) {
     var a = state.achievements, w = state.time.w, k = state.kpi;
@@ -487,6 +639,7 @@
     if (k.defaultAlive && k.defaultAlive.alive && k.burn > 0 && k.revenueMonthly > 100000 && k.runway > 6 && k.ebitdaMargin > -0.6) set('default_alive');
     ['seed', 'A', 'B', 'C'].forEach(function (s) { if (state.funding.rounds.some(function (r) { return r.stage === s; })) set('raised_' + s); });
     if (state.funding.lastPost >= 35e9) set('unicorn');
+    if (state.challenge === 'crisis' && w >= 156) set('ch_crisis');
     if (k.revenueTTM >= 100e6 && state.funding.rounds.length === 0 && state.funding.safes.length === 0) set('bootstrapped');
     if (state.world.phase === 'recovery' && state.flags.sawRecession) set('survived_recession');
     if (state.world.phase === 'recession') state.flags.sawRecession = 1;
