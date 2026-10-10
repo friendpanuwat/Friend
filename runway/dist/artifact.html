@@ -558,6 +558,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     other_exp: { t: 'X', n: 'ค่าใช้จ่ายอื่น', g: 'ga' },
     // Non-operating
     int_income: { t: 'R', n: 'ดอกเบี้ยรับ', g: 'nonop' },
+    other_income: { t: 'R', n: 'รายได้อื่น (ทุนให้เปล่า เงินชดเชย)', g: 'nonop' },
     interest: { t: 'X', n: 'ดอกเบี้ยจ่าย', g: 'nonop' },
     gainloss: { t: 'X', n: 'กำไร/ขาดทุนพิเศษ', g: 'nonop' },
     tax_exp: { t: 'X', n: 'ภาษีเงินได้นิติบุคคล', g: 'tax' }
@@ -927,8 +928,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     live: { n: 'Live Host / Creator', dept: 'sm', salary: [0, 18000, 30000, 50000, 80000, 120000], cap: { live: 1 }, ind: ['ecom'], exec: 'Head of Live Commerce' },
     cs: { n: 'แอดมินแชท / บริการลูกค้า', dept: 'cogs', salary: [0, 15000, 20000, 28000, 40000, 60000], cap: { chat: 1 }, ind: ['ecom', 'fnb'], exec: 'CX Manager' },
     // F&B
-    cook: { n: 'พ่อครัว/แม่ครัว', dept: 'cogs', salary: [0, 13500, 17000, 23000, 35000, 70000], cap: { kitchen: 1 }, ind: ['fnb'], exec: 'Executive Chef' },
-    service: { n: 'พนักงานบริการ/บาริสต้า', dept: 'cogs', salary: [0, 12500, 14500, 17500, 22000, 30000], cap: { service: 1 }, ind: ['fnb'], exec: 'Service Director' },
+    cook: { n: 'พ่อครัว/แม่ครัว', dept: 'cogs', salary: [0, 13500, 17000, 23000, 35000, 70000], cap: { kitchen: 1 }, ind: [], exec: 'Executive Chef' },
+    service: { n: 'พนักงานบริการ/บาริสต้า', dept: 'cogs', salary: [0, 12500, 14500, 17500, 22000, 30000], cap: { service: 1 }, ind: [], exec: 'Service Director' },
     branchmgr: { n: 'ผู้จัดการสาขา', dept: 'cogs', salary: [0, 25000, 32000, 40000, 55000, 95000], cap: { branch: 1 }, ind: ['fnb'], exec: 'Area Manager' },
     chef: { n: 'เชฟพัฒนาเมนู', dept: 'rnd', salary: [0, 30000, 45000, 65000, 90000, 150000], cap: { menu: 1 }, ind: ['fnb'], exec: 'Culinary Director' }
   };
@@ -1824,7 +1825,10 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   Fn.fullyDiluted = function (state) { return Fn.outstanding(state) + state.funding.pool; };
   Fn.holder = function (state, id) { return state.funding.holders.find(function (h) { return h.id === id; }); };
   Fn.founderShares = function (state) { var h = Fn.holder(state, 'founder'); return h ? h.shares : 0; };
-  Fn.founderPct = function (state) { return Fn.founderShares(state) / Math.max(1, Fn.fullyDiluted(state)); };
+  // ownership share taken by unconverted post-money SAFEs
+  Fn.safeShare = function (state) { return Math.min(0.9, U.sum(state.funding.safes, function (x) { return x.amount / x.cap; })); };
+  // founder ownership as-converted (SAFEs treated as converted at their caps)
+  Fn.founderPct = function (state) { return Fn.founderShares(state) / Math.max(1, Fn.fullyDiluted(state)) * (1 - Fn.safeShare(state)); };
   Fn.pps = function (state) {
     if (state.funding.lastPPS > 0) return state.funding.lastPPS;
     return 0;
@@ -2143,14 +2147,23 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       // rolling close: money arrives within ~2 weeks
       if (ts.kind === 'accelerator') {
         if (ts.fixedPct > 0) Fn.issuePriced(state, inv, ts.amount, ts.amount / ts.fixedPct - ts.amount, 'Accelerator', { pref: '1x' }, true);
-        else L.post(state.fin, { cash: ts.amount, rev_other: -ts.amount }, 'op');
+        else L.post(state.fin, { cash: ts.amount, other_income: -ts.amount }, 'op');
         state.flags.accelerator = { until: state.time.w + 12, inv: inv.id };
         state.founder.rep += 6;
         state.funding.investors.forEach(function (i) { if (i.type === 'vc' || i.type === 'angel') i.warm = Math.min(1.5, i.warm + 0.3); });
       } else {
+        var room = r.target * 1.2 - (r.raised || 0);
+        if (room < 100000) { if (p) p.status = 'passed'; Fn.raiseLog(state, 'รอบเต็มแล้ว — ขอบคุณ ' + inv.name); return { ok: false, msg: 'รอบนี้ระดมทุนครบแล้ว' }; }
+        ts.amount = Math.min(ts.amount, Math.round(room / 100000) * 100000);
         Fn.issueSafe(state, inv, ts.amount, ts.cap, ts.discount);
         r.raised = (r.raised || 0) + ts.amount;
-        if (r.raised >= r.target) { Fn.raiseLog(state, 'ระดมทุนครบเป้าแล้ว'); }
+        if (r.raised >= r.target) {
+          Fn.raiseLog(state, 'ระดมทุนครบเป้าแล้ว');
+          r.termSheets = [];
+          state.funding.raise = null;
+          RW.Engine.mail(state, 'funding', 'ปิดรอบ SAFE ครบเป้า', 'ได้รับเงินรวม ' + F.m(r.raised) + ' ที่ valuation cap ' + F.m(r.ask) + ' — SAFE จะแปลงเป็นหุ้นในรอบ priced ถัดไป', 'good');
+          state.events.pending = state.events.pending.filter(function (e) { return e.id !== 'term_sheet'; });
+        }
       }
       if (p) p.status = 'committed';
       inv.warm += 0.5;
@@ -2708,7 +2721,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     E.prune(state);
     // random events
     if (w < 3) return;
-    var rate = 0.34;
+    var rate = 0.27;
     if (ev.pending.length >= 3) return;
     if (!R.chance(rate)) return;
     var harsh = state.diff.harsh;
@@ -2736,7 +2749,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   var H = (E.H = {
     cash: function (state, amt, acct, memo) {
       if (amt < 0) L.spend(state.fin, acct || 'other_exp', -amt);
-      else if (amt > 0) L.post(state.fin, { cash: amt, rev_other: -amt }, 'op');
+      else if (amt > 0) L.post(state.fin, { cash: amt, other_income: -amt }, 'op');
     },
     personal: function (state, amt) { state.founder.cash += amt; },
     morale: function (state, v, weeks, why) { RW.Team.addMod(state, v, weeks || 12, why || ''); },
@@ -2753,7 +2766,12 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     },
     mail: function (state, title, body, tone) { RW.Engine.mail(state, 'event', title, body, tone); },
     M: function (state) { return RW.Models[state.industry]; },
-    pname: function (state) { return state.company.name; }
+    pname: function (state) { return state.company.name; },
+    // scale a 'typical mid-size company' cost to this company's size (revenue & headcount)
+    sc: function (state, base) {
+      var size = Math.max((state.kpi.revenueMonthly || 0) / 1.5e6, (RW.Team.headcount(state) + 1) / 15);
+      return Math.round(base * U.clamp(size, 0.2, 4) / 5000) * 5000;
+    }
   });
 
   // =====================================================================
@@ -2831,6 +2849,10 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       var ts = RW.Funding.findTS(s, d.ts);
       var base = ts.kind === 'priced' ? ts.pre : ts.cap;
       var out = [{ t: 'ตอบรับ', d: ts.kind === 'priced' ? 'ล็อก Lead แล้วหานักลงทุนร่วม' : 'เงินเข้าทันที', fx: function () { return RW.Funding.respondTS(s, d.ts, 'accept').msg; } }];
+      if (ts.kind === 'safe' && s.funding.raise) {
+        var room = s.funding.raise.target * 1.2 - (s.funding.raise.raised || 0);
+        if (room < 100000) out[0].d = 'รอบนี้ครบแล้ว — รับเพิ่มไม่ได้';
+      }
       if (!d.final && ts.kind !== 'accelerator') {
         out.push({ t: 'ต่อรองราคา +20% (' + F.m(base * 1.2) + ')', d: 'อาจได้ อาจเจอข้อเสนอกลับ หรืออาจเสียดีล', fx: function () { return RW.Funding.respondTS(s, d.ts, 'counter', Math.round(base * 1.2 / 1e5) * 1e5).msg; } });
         out.push({ t: 'ต่อรองเบาๆ +8% (' + F.m(base * 1.08) + ')', d: 'เสี่ยงน้อยกว่า', fx: function () { return RW.Funding.respondTS(s, d.ts, 'counter', Math.round(base * 1.08 / 1e5) * 1e5).msg; } });
@@ -3060,7 +3082,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     choices: function (s, d) {
       var e = H.emp(s, d.emp);
       return [
-        { t: 'จ้าง HR ภายนอกสอบสวนอย่างเป็นธรรม (฿120,000)', d: 'ถูกต้องตามหลัก', fx: function () { L.spend(s.fin, 'prof', 120000); if (R.chance(0.7)) { RW.Team.fire(s, e.id); H.morale(s, 4, 12, 'บริษัทจัดการเรื่องร้องเรียนอย่างจริงจัง'); return 'ผลสอบสวนพบมีมูลจริง เลิกจ้างแล้ว ทีมรู้สึกปลอดภัยขึ้น'; } H.morale(s, 1, 6, ''); return 'หลักฐานไม่เพียงพอ ทั้งสองฝ่ายยอมรับกระบวนการ'; } },
+        { t: 'จ้าง HR ภายนอกสอบสวนอย่างเป็นธรรม (' + F.b(H.sc(s, 120000)) + ')', d: 'ถูกต้องตามหลัก', fx: function () { L.spend(s.fin, 'prof', H.sc(s, 120000)); if (R.chance(0.7)) { RW.Team.fire(s, e.id); H.morale(s, 4, 12, 'บริษัทจัดการเรื่องร้องเรียนอย่างจริงจัง'); return 'ผลสอบสวนพบมีมูลจริง เลิกจ้างแล้ว ทีมรู้สึกปลอดภัยขึ้น'; } H.morale(s, 1, 6, ''); return 'หลักฐานไม่เพียงพอ ทั้งสองฝ่ายยอมรับกระบวนการ'; } },
         { t: 'ย้ายผู้ร้องเรียนไปทีมอื่นเงียบๆ', fx: function () { E.later(s, R.int(8, 30), 'harass_leak', { emp: e.id }); return 'เรื่องเงียบไปชั่วคราว'; } },
         { t: 'ไม่ดำเนินการ — "เรื่องส่วนตัว"', fx: function () { E.later(s, R.int(4, 20), 'harass_leak', { emp: e.id, worse: 1 }); H.morale(s, -5, 16, ''); return 'ผู้ร้องเรียนลาออกในเดือนถัดมา'; } }
       ];
@@ -3069,6 +3091,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   E.effect('harass_leak', function (s, d) {
     if (!R.chance(d.worse ? 0.7 : 0.45)) return;
     H.rep(s, -12); H.brand(s, -10); H.morale(s, -12, 20, 'ข่าวฉาวในบริษัท');
+    L.spend(s.fin, 'prof', H.sc(s, 200000));
     s.team.brand = Math.max(0, s.team.brand - 15);
     H.mail(s, 'ข่าวฉาวหลุดสู่โซเชียล', 'อดีตพนักงานโพสต์เรื่องการคุกคามทางเพศในบริษัทพร้อมหลักฐาน ยอดแชร์หลายหมื่น นักข่าวโทรมาขอสัมภาษณ์ ภาพลักษณ์บริษัทและผู้ก่อตั้งเสียหายหนัก', 'bad');
   });
@@ -3301,7 +3324,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       var q = E.booksQuality(s);
       var base = Math.max(80000, (s.kpi.revenueTTM || 0) * 0.02);
       return [
-        { t: 'จ้างที่ปรึกษาภาษีดูแล (฿180,000)', fx: function () { L.spend(s.fin, 'prof', 180000); var pen = Math.round(base * (1 - q) * 0.5); if (pen > 0) L.spend(s.fin, 'penalties', pen); return pen > 0 ? 'จบด้วยการจ่ายเพิ่ม ' + F.b(pen) : 'ผ่านการตรวจโดยไม่มีค่าปรับ'; } },
+        { t: 'จ้างที่ปรึกษาภาษีดูแล (' + F.b(H.sc(s, 180000)) + ')', fx: function () { L.spend(s.fin, 'prof', H.sc(s, 180000)); var pen = Math.round(base * (1 - q) * 0.5); if (pen > 0) L.spend(s.fin, 'penalties', pen); return pen > 0 ? 'จบด้วยการจ่ายเพิ่ม ' + F.b(pen) : 'ผ่านการตรวจโดยไม่มีค่าปรับ'; } },
         { t: 'จัดการเอง', d: 'ใช้เวลาคุณมาก', fx: function () { H.energy(s, -15); H.stress(s, 10); var pen = Math.round(base * (1 - q) * 1.4); if (pen > 0) L.spend(s.fin, 'penalties', pen); return pen > 0 ? 'โดนประเมินเพิ่ม ' + F.b(pen) : 'ผ่านไปได้'; } },
         { t: 'จ่าย "ค่าอำนวยความสะดวก" ให้เจ้าหน้าที่ ฿100,000', d: 'ผิดกฎหมาย', fx: function () { L.spend(s.fin, 'other_exp', 100000); s.flags.bribe = (s.flags.bribe || 0) + 1; E.later(s, R.int(20, 100), 'bribe_scandal', {}); return 'เรื่องจบเร็วผิดปกติ...'; } }
       ];
@@ -3314,7 +3337,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   };
   E.effect('bribe_scandal', function (s) {
     if (!R.chance(0.35)) return;
-    H.rep(s, -20); H.brand(s, -12); L.spend(s.fin, 'penalties', 800000);
+    H.rep(s, -20); H.brand(s, -12); L.spend(s.fin, 'penalties', H.sc(s, 800000));
     s.flags.fraudRisk = 1;
     H.mail(s, 'ป.ป.ช. สอบสวนกรณีให้สินบนเจ้าหน้าที่', 'เจ้าหน้าที่ที่รับเงินถูกจับในคดีอื่นและซัดทอดมาถึงบริษัทคุณ ค่าทนายและค่าปรับ ฿800,000 ชื่อเสียงเสียหายหนัก นักลงทุนตั้งคำถามเรื่องธรรมาภิบาล', 'bad');
   });
@@ -3339,19 +3362,19 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 
   E.register({
     id: 'data_breach', cat: 'admin', weight: function (s) { return s.biz && s.biz.security != null ? 2.4 - s.biz.security / 50 : 0.8; }, cooldown: 52, bad: true,
-    cond: function (s) { return s.time.w > 20 && (s.kpi.customers || 0) > 50; },
+    cond: function (s) { return s.time.w > 20 && (s.kpi.customers || 0) > 50 && (s.industry !== 'fnb' || s.biz.loyalty); },
     title: 'ข้อมูลลูกค้ารั่วไหล',
     body: function (s) { return 'ทีมเทคนิคตรวจพบว่ามีผู้ไม่ประสงค์ดีเข้าถึงฐานข้อมูลลูกค้าประมาณ ' + F.num(Math.round((s.kpi.customers || 100) * R.range(0.3, 1))) + ' รายการ (ชื่อ อีเมล เบอร์โทร)\n\nตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล (PDPA) ต้องแจ้งสำนักงานคณะกรรมการฯ ภายใน 72 ชั่วโมง และแจ้งเจ้าของข้อมูลหากมีความเสี่ยงสูง'; },
     choices: function (s) {
       return [
-        { t: 'แจ้งตามกฎหมายทันที + จ้างบริษัท security ตรวจสอบ (฿350,000)', fx: function () { L.spend(s.fin, 'prof', 350000); H.brand(s, -4); if (s.biz && s.biz.security != null) s.biz.security = Math.min(100, s.biz.security + 15); return 'สื่อรายงานข่าวเล็กน้อย ลูกค้าส่วนใหญ่ชื่นชมความโปร่งใส'; } },
+        { t: 'แจ้งตามกฎหมายทันที + จ้างบริษัท security ตรวจสอบ (' + F.b(H.sc(s, 350000)) + ')', fx: function () { L.spend(s.fin, 'prof', H.sc(s, 350000)); H.brand(s, -4); if (s.biz && s.biz.security != null) s.biz.security = Math.min(100, s.biz.security + 15); return 'สื่อรายงานข่าวเล็กน้อย ลูกค้าส่วนใหญ่ชื่นชมความโปร่งใส'; } },
         { t: 'แก้ช่องโหว่เงียบๆ ไม่แจ้งใคร', d: 'ผิดกฎหมาย PDPA โทษปรับสูงสุด 5 ล้านบาท', fx: function () { s.flags.pdpaHidden = 1; E.later(s, R.int(10, 60), 'pdpa_exposed', {}); return 'คุณหวังว่าจะไม่มีใครรู้'; } }
       ];
     }
   });
   E.effect('pdpa_exposed', function (s) {
     if (!R.chance(0.5)) return;
-    L.spend(s.fin, 'penalties', 3000000);
+    L.spend(s.fin, 'penalties', Math.min(5000000, H.sc(s, 3000000)));
     H.brand(s, -20); H.rep(s, -15);
     if (s.biz) H.buzz(s, 0.7, 12);
     H.mail(s, 'ข้อมูลรั่วถูกเปิดโปง + ค่าปรับ PDPA ฿3,000,000', 'ข้อมูลลูกค้าของคุณถูกนำไปขายใน dark web นักข่าวสืบพบว่าบริษัทรู้แต่ปกปิด คณะกรรมการฯ สั่งปรับทางปกครอง ลูกค้าจำนวนมากยกเลิก', 'bad');
@@ -3361,11 +3384,11 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     id: 'ex_emp_lawsuit', cat: 'admin', weight: 2, cooldown: 40, bad: true,
     cond: function (s) { return s.team.history.fired + s.team.history.laidOff > 0; },
     title: 'อดีตพนักงานฟ้องศาลแรงงาน',
-    body: 'อดีตพนักงานที่ถูกเลิกจ้างยื่นฟ้องศาลแรงงานว่าถูกเลิกจ้างไม่เป็นธรรม เรียกค่าเสียหาย ฿900,000 พร้อมค่าชดเชยเพิ่ม',
+    body: function (s) { return 'อดีตพนักงานที่ถูกเลิกจ้างยื่นฟ้องศาลแรงงานว่าถูกเลิกจ้างไม่เป็นธรรม เรียกค่าเสียหาย ' + F.b(H.sc(s, 900000)) + ' พร้อมค่าชดเชยเพิ่ม'; },
     choices: function (s) {
       return [
-        { t: 'ไกล่เกลี่ย จ่าย ฿300,000', fx: function () { L.spend(s.fin, 'penalties', 300000); return 'ยอมความกันได้ที่ศาล'; } },
-        { t: 'สู้คดี (ค่าทนาย ฿150,000)', fx: function () { L.spend(s.fin, 'prof', 150000); s.flags.lawsuit = 1; E.later(s, R.int(16, 40), 'lawsuit_verdict', { amt: 900000 }); return 'คดีจะใช้เวลาหลายเดือน'; } }
+        { t: 'ไกล่เกลี่ย จ่าย ' + F.b(H.sc(s, 300000)), fx: function () { L.spend(s.fin, 'penalties', H.sc(s, 300000)); return 'ยอมความกันได้ที่ศาล'; } },
+        { t: 'สู้คดี (ค่าทนาย ' + F.b(H.sc(s, 150000)) + ')', fx: function () { L.spend(s.fin, 'prof', H.sc(s, 150000)); s.flags.lawsuit = 1; E.later(s, R.int(16, 40), 'lawsuit_verdict', { amt: H.sc(s, 900000) }); return 'คดีจะใช้เวลาหลายเดือน'; } }
       ];
     }
   });
@@ -3379,12 +3402,12 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     id: 'trademark_troll', cat: 'admin', weight: 0.8, cooldown: 100, once: true, bad: true,
     cond: function (s) { return s.time.w > 30 && s.biz && s.biz.brand > 25; },
     title: 'มีคนอ้างสิทธิ์เครื่องหมายการค้าของคุณ',
-    body: function (s) { return 'บริษัทแห่งหนึ่งส่งหนังสือทนายอ้างว่าจดเครื่องหมายการค้าชื่อคล้าย "' + s.company.name + '" ไว้ก่อน เรียกร้องให้หยุดใช้ชื่อ หรือจ่ายค่าสิทธิ์ ฿1,500,000\n\nคุณไม่เคยจดเครื่องหมายการค้าเลย'; },
+    body: function (s) { return 'บริษัทแห่งหนึ่งส่งหนังสือทนายอ้างว่าจดเครื่องหมายการค้าชื่อคล้าย "' + s.company.name + '" ไว้ก่อน เรียกร้องให้หยุดใช้ชื่อ หรือจ่ายค่าสิทธิ์ ' + F.b(H.sc(s, 1500000)) + '\n\nคุณไม่เคยจดเครื่องหมายการค้าเลย'; },
     choices: function (s) {
       return [
-        { t: 'จ่ายซื้อสิทธิ์ ฿1,200,000 (ต่อรอง)', fx: function () { L.spend(s.fin, 'prof', 1200000); s.flags.tmOk = 1; return 'ได้สิทธิ์ในชื่อแบรนด์อย่างสมบูรณ์'; } },
-        { t: 'รีแบรนด์ชื่อใหม่ (฿400,000 + แบรนด์เสียความต่อเนื่อง)', fx: function () { L.spend(s.fin, 'mkt', 400000); H.brand(s, -12); s.flags.tmOk = 1; return 'เปลี่ยนชื่อสินค้าและโลโก้ ลูกค้าบางส่วนงง'; } },
-        { t: 'สู้ — เราใช้ชื่อนี้ในทางการค้าก่อน (฿250,000)', fx: function () { L.spend(s.fin, 'prof', 250000); if (R.chance(0.5)) { s.flags.tmOk = 1; return 'ชนะ! พิสูจน์ได้ว่าใช้ก่อน'; } L.spend(s.fin, 'penalties', 800000); H.brand(s, -8); return 'แพ้คดี ต้องจ่ายค่าเสียหายและเปลี่ยนชื่อ'; } }
+        { t: 'จ่ายซื้อสิทธิ์ ' + F.b(H.sc(s, 1200000)) + ' (ต่อรอง)', fx: function () { L.spend(s.fin, 'prof', H.sc(s, 1200000)); s.flags.tmOk = 1; return 'ได้สิทธิ์ในชื่อแบรนด์อย่างสมบูรณ์'; } },
+        { t: 'รีแบรนด์ชื่อใหม่ (' + F.b(H.sc(s, 400000)) + ' + แบรนด์เสียความต่อเนื่อง)', fx: function () { L.spend(s.fin, 'mkt', H.sc(s, 400000)); H.brand(s, -12); s.flags.tmOk = 1; return 'เปลี่ยนชื่อสินค้าและโลโก้ ลูกค้าบางส่วนงง'; } },
+        { t: 'สู้ — เราใช้ชื่อนี้ในทางการค้าก่อน (฿250,000)', fx: function () { L.spend(s.fin, 'prof', 250000); if (R.chance(0.5)) { s.flags.tmOk = 1; return 'ชนะ! พิสูจน์ได้ว่าใช้ก่อน'; } L.spend(s.fin, 'penalties', H.sc(s, 800000)); H.brand(s, -8); return 'แพ้คดี ต้องจ่ายค่าเสียหายและเปลี่ยนชื่อ'; } }
       ];
     }
   });
@@ -3434,13 +3457,13 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   E.effect('grant_result', function (s, d) {
     if (R.chance(d.p)) {
       var amt = R.pick([600000, 900000, 1200000, 1500000]);
-      L.post(s.fin, { cash: amt * 0.5, rev_other: -amt * 0.5 }, 'op');
+      L.post(s.fin, { cash: amt * 0.5, other_income: -amt * 0.5 }, 'op');
       E.later(s, 26, 'grant_tranche', { amt: amt * 0.5 });
       H.mail(s, 'ได้รับทุนนวัตกรรม ' + F.b(amt), 'งวดแรก 50% โอนเข้าบัญชีแล้ว งวดที่สองเมื่อส่งรายงานความก้าวหน้า', 'good');
     } else H.mail(s, 'ไม่ผ่านการพิจารณาทุน', 'คณะกรรมการเห็นว่าโครงการยังไม่ชัดเจนพอ');
   });
   E.effect('grant_tranche', function (s, d) {
-    L.post(s.fin, { cash: d.amt, rev_other: -d.amt }, 'op');
+    L.post(s.fin, { cash: d.amt, other_income: -d.amt }, 'op');
     H.mail(s, 'ได้รับทุนงวดที่สอง', F.b(d.amt) + ' โอนเข้าบัญชีแล้ว', 'good');
   });
 
@@ -3512,7 +3535,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     body: function (s) { return 'ลูกค้าคนหนึ่งโพสต์เล่าประสบการณ์ดีๆ กับ ' + s.company.name + ' จนมียอดแชร์หลายพัน คนเริ่มถามถึงสินค้าของคุณในคอมเมนต์'; },
     choices: function (s) {
       return [
-        { t: 'อัดโฆษณาต่อยอด ฿150,000', fx: function () { L.spend(s.fin, 'mkt', 150000); H.buzz(s, 1.6, 4); H.brand(s, 5); return 'กระแสพุ่งต่อเนื่อง'; } },
+        { t: 'อัดโฆษณาต่อยอด ' + F.b(H.sc(s, 150000)), fx: function () { L.spend(s.fin, 'mkt', H.sc(s, 150000)); H.buzz(s, 1.6, 4); H.brand(s, 5); return 'กระแสพุ่งต่อเนื่อง'; } },
         { t: 'ขอบคุณลูกค้าและให้ส่วนลดพิเศษ', fx: function () { H.buzz(s, 1.3, 3); H.brand(s, 4); return 'ลูกค้าประทับใจ'; } }
       ];
     }
@@ -4567,6 +4590,11 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     for (var ch in by) { t += by[ch]; q += by[ch] * (CH[ch].q || 1); }
     return t > 0 ? q / t : 1;
   };
+  // innovators & early adopters buy immature products from founders they trust
+  M.earlyAdopter = function (b, k) {
+    var n = M.customers(b, k);
+    return n >= 20 ? 1 : 1 + 1.5 * (1 - n / 20);
+  };
   M.annualShare = function (b, k) {
     if (k === 'ent') return 1;
     return U.clamp(0.06 + b.annualDiscount * 2.2, 0.03, 0.65) * (k === 'micro' ? 0.6 : 1);
@@ -4746,11 +4774,12 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
         if (prelaunch) return;
         var fu = RW.Team.capOf(state, 'f_sell');
         if (fu <= 0) return;
+        // a full-time founder-seller books ~12 qualified meetings a week
         var net = RW.BACKGROUNDS[state.founder.bg].net.customers;
-        var per = { micro: 5, sme: 3.5, mid: 1.0, ent: 0.22 };
+        var per = { micro: 1.5, sme: 1.0, mid: 0.6, ent: 0.25 };
         var wsum = U.sum(on, function (k) { return per[k]; });
         on.forEach(function (k) {
-          var n = fu * net * per[k] * per[k] / wsum * (on.length / 1.5);
+          var n = fu * 12 * net * per[k] / wsum;
           n = Math.min(n, M.inMarket(state, k) * 3);
           out[k].by[key] = (out[k].by[key] || 0) + n;
           st.leads += n;
@@ -4839,7 +4868,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
         s.trials = s.trials.filter(function (t) { return t.w > w - 2; });
         due.forEach(function (t) {
           var ux = 1 + b.feats.ux * 0.08;
-          var p = g.conv * M.fitTerm(v) * Math.pow(pf, 0.8) * Math.pow(cf, 0.7) * ux * M.qAvg(t.by);
+          var p = g.conv * M.fitTerm(v) * Math.pow(pf, 0.8) * Math.pow(cf, 0.7) * ux * M.qAvg(t.by) * M.earlyAdopter(b, k);
           p = U.clamp(p, 0, 0.65);
           var won = R.binom(Math.round(t.n), p) + (R.f() < (t.n % 1) * p ? 1 : 0);
           if (won > 0) M.addCustomers(state, k, won, t.by, t.n);
@@ -4860,7 +4889,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
           var refs = g.refs ? 0.65 + 0.35 * Math.min(1, M.customers(b, k) / g.refs) : 1;
           var disc = 1 + b.maxDiscount * 1.6;
           var motionF = s.motion === 'field' ? 1.15 : 1;
-          var p = g.win * M.fitTerm(v) * Math.pow(pf, 0.7) * Math.pow(cf, 0.7) * salesSkill * refs * disc * overload * motionF * Math.min(1.6, M.qAvg(o.by));
+          var p = g.win * M.fitTerm(v) * Math.pow(pf, 0.7) * Math.pow(cf, 0.7) * salesSkill * refs * disc * overload * motionF * Math.min(1.6, M.qAvg(o.by)) * M.earlyAdopter(b, k);
           p = U.clamp(p, 0, 0.75);
           var n = R.binom(Math.round(o.n), p) + (R.f() < (o.n % 1) * p ? 1 : 0);
           if (n > 0) M.addCustomers(state, k, n, o.by, o.src);
@@ -5431,6 +5460,1343 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   });
 })(globalThis.RW = globalThis.RW || {});
 
+/* ---- models/ecom.js ---- */
+/* RUNWAY — D2C e-commerce brand model */
+(function (RW) {
+  'use strict';
+  var R = RW.R, U = RW.U, F = RW.F, L = RW.Ledger;
+  var M = (RW.Models.ecom = { id: 'ecom', b2c: true });
+  M.n = 'แบรนด์สินค้าออนไลน์ (D2C)';
+  M.d = 'สร้างแบรนด์สินค้าของตัวเอง ผลิตกับ OEM ขายผ่านมาร์เก็ตเพลส โซเชียล และเว็บ — สต็อกคือเงินสดที่จมอยู่ในโกดัง';
+
+  // ---------- Concepts ----------
+  var CONCEPTS = (M.CONCEPTS = {
+    skincare: {
+      n: 'สกินแคร์แบรนด์ไทย', d: 'กำไรขั้นต้นสูง แข่งดุ ต้องพึ่ง KOL และรีวิว ต้องจดแจ้ง อย. ทุกสินค้า',
+      repeat: 0.016, upo: 1.5, ret: 0.02, ship: 38, reg: [3, 6], regFee: 8000, shelf: 104, decay: 0, cpc: 4.6, comp: 1.25,
+      organic: { market: 260, social: 200, web: 50 }, cvr: { market: 0.03, social: 0.022, web: 0.018 },
+      sup: { local: { n: 'OEM ในประเทศ', moq: 1000, lead: [5, 7], mult: 1 }, imp: { n: 'OEM เกาหลี/จีน (นำเข้า)', moq: 3000, lead: [9, 12], mult: 0.72, fx: true } },
+      types: [['serum', 'เซรั่มบำรุงผิวหน้า', 590, 95, 1.1, 8], ['sunscreen', 'กันแดด SPF50', 390, 70, 1.15, 10], ['cleanser', 'โฟมล้างหน้า', 290, 45, 0.9, 6], ['moist', 'มอยส์เจอไรเซอร์', 450, 80, 1.0, 8], ['toner', 'โทนเนอร์', 350, 55, 0.85, 6], ['acne', 'เจลแต้มสิว', 250, 32, 1.0, 7], ['body', 'โลชั่นบำรุงผิวกาย', 290, 52, 0.8, 6]],
+      comps: [['Glow Lab', 'แบรนด์สกินแคร์ที่ขายดีในมาร์เก็ตเพลส', 62, 0.95, 70], ['ผิวใสคลินิก', 'แบรนด์ของคลินิกความงาม มีฐานลูกค้าหน้าร้าน', 58, 1.2, 50], ['Seoul Beauty Import', 'ผู้นำเข้าแบรนด์เกาหลีหลายสิบแบรนด์', 66, 1.0, 65]]
+    },
+    coffee: {
+      n: 'กาแฟพิเศษคั่วสด', d: 'ลูกค้าซื้อซ้ำบ่อยมาก แต่กำไรขั้นต้นต่ำกว่า สินค้าหมดอายุเร็ว อย. อาหารใช้เวลานาน',
+      repeat: 0.032, upo: 1.8, ret: 0.01, ship: 42, reg: [5, 10], regFee: 12000, shelf: 26, decay: 0, cpc: 3.6, comp: 0.9,
+      organic: { market: 180, social: 150, web: 70 }, cvr: { market: 0.028, social: 0.018, web: 0.022 },
+      sup: { local: { n: 'โรงคั่วรับจ้างผลิต', moq: 300, lead: [2, 3], mult: 1 }, imp: { n: 'นำเข้าเมล็ดเขียว + คั่วเอง', moq: 1500, lead: [6, 9], mult: 0.78, fx: true } },
+      types: [['house', 'เฮาส์เบลนด์ 250g', 320, 120, 1.0, 5], ['single', 'Single origin ดอยไทย 200g', 450, 190, 1.05, 6], ['drip', 'กาแฟดริปซอง (10 ซอง)', 290, 95, 1.1, 6], ['coldbrew', 'Cold brew เข้มข้น', 260, 80, 0.95, 7, 8], ['capsule', 'แคปซูลกาแฟ (10 แคปซูล)', 390, 140, 0.9, 8], ['gift', 'กิฟต์เซ็ตเทศกาล', 990, 380, 0.7, 6]],
+      comps: [['Roast & Co.', 'โรงคั่วชื่อดังที่ขายออนไลน์มานาน', 64, 1.05, 50], ['ดอยดีคอฟฟี่', 'แบรนด์กาแฟดอยราคาเข้าถึงง่าย', 52, 0.8, 45]]
+    },
+    apparel: {
+      n: 'แฟชั่นแบรนด์ออนไลน์', d: 'เทรนด์เปลี่ยนเร็ว สต็อกตกรุ่นกลายเป็นขยะ คืนสินค้าเยอะ แต่ไม่ต้องขอ อย.',
+      repeat: 0.009, upo: 1.4, ret: 0.12, ship: 40, reg: [0, 0], regFee: 0, shelf: 0, decay: 0.018, cpc: 3.2, comp: 1.3,
+      organic: { market: 300, social: 260, web: 50 }, cvr: { market: 0.022, social: 0.02, web: 0.014 },
+      sup: { local: { n: 'โรงงานตัดเย็บโบ๊เบ๊/ประตูน้ำ', moq: 300, lead: [3, 5], mult: 1 }, imp: { n: 'โรงงานจีน (กวางโจว)', moq: 1200, lead: [7, 10], mult: 0.68, fx: true } },
+      types: [['tee', 'เสื้อยืดเบสิก', 290, 95, 0.9, 4], ['shirt', 'เชิ้ต Oversize', 490, 160, 1.0, 5], ['dress', 'เดรส', 790, 280, 1.1, 6], ['pants', 'กางเกงขายาว', 690, 240, 0.95, 5], ['jacket', 'แจ็กเก็ต', 1290, 480, 0.9, 7], ['set', 'ชุดเซ็ต', 990, 330, 1.05, 6]],
+      comps: [['Mellow Studio', 'แบรนด์มินิมอลยอดฮิตในไอจี', 60, 1.1, 60], ['Cheap Chic Import', 'ร้านนำเข้าเสื้อผ้าจีนราคาถูกมาก', 40, 0.55, 75], ['Urban Thread', 'แบรนด์ streetwear ที่มีหน้าร้านในห้าง', 64, 1.25, 50]]
+    },
+    supplement: {
+      n: 'อาหารเสริมเพื่อสุขภาพ', d: 'กำไรสูงมาก ซื้อซ้ำดี แต่ อย. ใช้เวลานาน และการโฆษณาเกินจริงมีโทษทางกฎหมาย',
+      repeat: 0.02, upo: 1.6, ret: 0.015, ship: 36, reg: [8, 16], regFee: 20000, shelf: 78, decay: 0, cpc: 5.2, comp: 1.2,
+      organic: { market: 220, social: 220, web: 45 }, cvr: { market: 0.026, social: 0.024, web: 0.016 },
+      sup: { local: { n: 'โรงงาน GMP ในประเทศ', moq: 1000, lead: [5, 8], mult: 1 }, imp: { n: 'นำเข้าวัตถุดิบ + ผลิตในประเทศ', moq: 3000, lead: [10, 14], mult: 0.75, fx: true } },
+      types: [['collagen', 'คอลลาเจนผง', 690, 120, 1.1, 8], ['vitc', 'วิตามินซีสูง', 390, 60, 0.95, 6], ['fishoil', 'น้ำมันปลา', 590, 130, 0.85, 7], ['probiotic', 'โพรไบโอติก', 790, 150, 1.05, 9], ['gummy', 'กัมมี่ช่วยนอนหลับ', 450, 75, 1.15, 8], ['fiber', 'ไฟเบอร์ดีท็อกซ์', 390, 55, 1.0, 6]],
+      comps: [['VitaPlus', 'แบรนด์อาหารเสริมในร้านขายยา', 60, 1.0, 55], ['ดาราเฮลท์', 'แบรนด์ของดาราที่มียอดขายถล่มทลาย', 50, 1.3, 85]]
+    }
+  });
+
+  // sales channels
+  var CHN = (M.CHN = {
+    market: { n: 'มาร์เก็ตเพลส (ร้าน Mall)', fee: 0.13, pay: 0.02, payout: 2, cod: 0.35, d: 'คนเข้าเยอะที่สุด ค่าคอมฯ ~13% + ค่าธรรมเนียม โอนเงินหลังลูกค้ารับของ ~2 สัปดาห์ อันดับร้านโตตามยอดขายและรีวิว' },
+    social: { n: 'Social commerce / Live', fee: 0.08, pay: 0.02, payout: 1, cod: 0.4, d: 'ไลฟ์ขายของและคลิปสั้น คอมฯ ~8% + ค่าคอมฯ ครีเอเตอร์ (affiliate) โตแบบไวรัล' },
+    web: { n: 'เว็บไซต์แบรนด์', fee: 0, pay: 0.03, payout: 0, cod: 0.15, d: 'ไม่เสียค่าคอมฯ เก็บข้อมูลลูกค้าได้ แต่ต้องพาคนมาเอง (โฆษณา/CRM) ต้องมีคนดูแลเว็บ' },
+    retail: { n: 'ร้านค้าปลีกสมัยใหม่', fee: 0, pay: 0, payout: 11, cod: 0, d: 'ขายส่งให้เชนร้านค้าปลีก (ร้านขายยา/ร้านสะดวกซื้อ) ได้ราคา ~62% ของราคาปลีก เครดิต 75 วัน ค่าวางสินค้าต่อ SKU' }
+  });
+
+  // mega sale days (month index, week-of-month) and multipliers
+  M.MEGA = [[2, 0, '3.3'], [5, 1, '6.6'], [8, 1, '9.9'], [9, 1, '10.10'], [10, 1, '11.11'], [11, 2, '12.12']];
+
+  M.founderMap = {
+    build: { rnd: 0.6, buying: 0.4, fulfil: 0.6 },
+    sell: { sales: 1, live: 0.6, chat: 0.6 },
+    market: { mkt: 0.8, content: 0.9 },
+    discover: { discovery: 1 },
+    team: { hr: 0.6 },
+    fundraise: {},
+    admin: { finance: 0.5, ops: 0.5 },
+    consult: {}
+  };
+
+  M.concepts = function () { return Object.keys(CONCEPTS).map(function (k) { return { id: k, n: CONCEPTS[k].n, d: CONCEPTS[k].d }; }); };
+  M.sampleName = 'Somboon';
+
+  // ---------- Init ----------
+  M.init = function (state, opt) {
+    var key = opt.concept || 'skincare';
+    var c = CONCEPTS[key];
+    var biz = {
+      concept: key, product: c.n, skus: [], nextSku: 1, pos: [], dev: [],
+      ch: {
+        market: { open: true, ads: 0, rank: 5, velocity: 0, rating: 0, reviews: 0, traffic: 0, orders: 0 },
+        social: { open: false, ads: 0, affiliate: 0.1, rank: 3, velocity: 0, rating: 0, reviews: 0, traffic: 0, orders: 0 },
+        web: { open: false, ads: 0, traffic: 0, orders: 0, seo: 0 },
+        retail: { open: false, stores: 0, chains: [], orders: 0 }
+      },
+      brand: 5, buzz: [], creative: 0.6, crm: false, cod: true, freeShip: 299, campaign: { disc: 0.15 },
+      customers: 0, active: 0, fulfil: { mode: 'self', backlog: 0, cap: 0 }, chat: { backlog: 0 },
+      rating: 4.5, quality: 60, weekRev: 0, weekStats: {}, mstats: M.blankStats(), stats: [], insight: 0,
+      lifetime: { orders: 0, customers: 0 }
+    };
+    state.biz = biz;
+    // first product idea is in development
+    M.startDev(state, c.types[0][0], 'mass', true);
+    c.comps.forEach(function (x) {
+      RW.World.addCompetitor(state, { name: x[0], desc: x[1], quality: x[2], price: x[3], mkt: x[4], cash: R.range(5e6, 40e6), burn: R.range(0.4e6, 1.5e6), stage: R.pick(['bootstrap', 'seed', 'A']), aggr: R.range(0.3, 0.8) });
+    });
+    return biz;
+  };
+  M.blankStats = function () { return { orders: 0, newCust: 0, gmv: 0, rev: 0, units: 0, adSpend: 0, byCh: { market: { o: 0, r: 0, t: 0 }, social: { o: 0, r: 0, t: 0 }, web: { o: 0, r: 0, t: 0 }, retail: { o: 0, r: 0, t: 0 } }, stockout: 0, rto: 0, returns: 0, expired: 0 }; };
+
+  M.welcome = function (state) {
+    var c = CONCEPTS[state.biz.concept];
+    return 'คุณลาออกมาสร้างแบรนด์ "' + c.n + '" — ' + c.d + '\n\nสิ่งที่ต้องทำช่วงแรก:\n1) จดทะเบียนบริษัท (จำเป็นสำหรับขอ อย. และเปิดร้าน Mall)\n2) พัฒนาสินค้าตัวแรกให้เสร็จ (หน้าสินค้า & สต็อก) แล้วสั่งผลิตล็อตแรก — ระวัง MOQ และเงินมัดจำ\n3) เปิดร้านในมาร์เก็ตเพลส ทดลองยิงโฆษณาเล็กๆ ดูว่าคนซื้อไหม\n4) วางแผนสต็อกล่วงหน้าก่อนแคมเปญใหญ่ 11.11 / 12.12\n\nเงินที่จมในสต็อกคือเงินที่จ่ายเงินเดือนไม่ได้';
+  };
+
+  M.typeOf = function (b, t) { return CONCEPTS[b.concept].types.find(function (x) { return x[0] === t; }); };
+
+  // ---------- Product development ----------
+  M.POS = { mass: { n: 'ตลาดแมส', price: 1, cost: 1, q: 55, dev: 1 }, premium: { n: 'พรีเมียม', price: 1.6, cost: 1.45, q: 75, dev: 1.5 } };
+  M.startDev = function (state, type, pos, free) {
+    var b = state.biz, c = CONCEPTS[b.concept];
+    var t = M.typeOf(b, type);
+    var p = M.POS[pos];
+    var fee = Math.round((35000 + t[2] * 60) * p.dev / 1000) * 1000;
+    if (!free) L.spend(state.fin, 'other_exp', fee);
+    var d = { id: 'd' + (b.nextSku++), type: type, pos: pos, n: t[1] + (pos === 'premium' ? ' (พรีเมียม)' : ''), need: t[5] * p.dev * 1.2, prog: 0, fee: fee, regLeft: null };
+    b.dev.push(d);
+    return d;
+  };
+
+  M.devWeekly = function (state) {
+    var b = state.biz, c = CONCEPTS[b.concept];
+    var cap = RW.Team.capOf(state, 'rnd') * 1.0 + 0.35; // OEM's own formulation team helps a bit
+    var active = b.dev.filter(function (d) { return d.regLeft == null; });
+    active.forEach(function (d) { d.prog += cap / Math.max(1, active.length); });
+    b.dev.forEach(function (d) {
+      if (d.regLeft == null && d.prog >= d.need) {
+        if (c.reg[1] > 0) {
+          if (!state.company.registered) return; // can't file without a company
+          d.regLeft = R.int(c.reg[0], c.reg[1]) - (state.flags.fastPermit ? 2 : 0);
+          L.spend(state.fin, 'prof', c.regFee);
+          RW.Engine.mail(state, 'product', 'สูตร/ต้นแบบ "' + d.n + '" เสร็จแล้ว — ยื่นขอ อย.', 'ค่าธรรมเนียม ' + F.b(c.regFee) + ' · รอผลประมาณ ' + d.regLeft + ' สัปดาห์');
+        } else d.regLeft = 0;
+      }
+      if (d.regLeft != null && d.regLeft > 0) d.regLeft--;
+      if (d.regLeft === 0) { M.launchSku(state, d); d.done = true; }
+    });
+    b.dev = b.dev.filter(function (d) { return !d.done; });
+  };
+
+  M.launchSku = function (state, d) {
+    var b = state.biz, c = CONCEPTS[b.concept];
+    var t = M.typeOf(b, d.type), p = M.POS[d.pos];
+    // true appeal is uncertain; customer insight narrows the spread
+    var spread = U.lerp(0.35, 0.12, U.clamp(b.insight / 100, 0, 1));
+    var appeal = Math.max(0.3, t[4] * R.normal(1 + b.insight / 500, spread));
+    var sku = {
+      id: d.id, type: d.type, n: d.n, pos: d.pos, price: Math.round(t[2] * p.price / 10) * 10 - 10, cost: Math.round(t[3] * p.cost),
+      quality: U.clamp(p.q + R.normal(0, 8) + RW.Team.capOf(state, 'rnd') * 4, 20, 98), appeal: appeal, appealSeen: null,
+      lots: [], born: state.time.w, active: true, sold: 0, week: 0, avg: 0, ret: c.ret, auto: false, cover: 8, shelf: t[6] || c.shelf, oos: 0
+    };
+    b.skus.push(sku);
+    RW.Engine.mail(state, 'product', 'สินค้าใหม่พร้อมขาย: ' + sku.n, 'ราคาตั้งต้น ' + F.b(sku.price) + ' · ต้นทุนผลิตต่อชิ้น ~' + F.b(sku.cost) + ' — สั่งผลิตล็อตแรกที่หน้าสินค้า & สต็อก (ขั้นต่ำ ' + F.num(c.sup.local.moq) + ' ชิ้น)', 'good');
+  };
+
+  // ---------- Purchasing ----------
+  M.unitCost = function (state, sku, sup, qty) {
+    var c = CONCEPTS[state.biz.concept], s = c.sup[sup];
+    var scale = 1 - 0.12 * Math.log10(Math.max(1, qty / s.moq));
+    var buy = 1 - Math.min(0.1, RW.Team.capOf(state, 'buying') * 0.05);
+    var fx = s.fx ? state.world.fx / 35.5 : 1;
+    return Math.max(sku.cost * 0.4, sku.cost * s.mult * scale * buy * fx);
+  };
+  M.placePO = function (state, skuId, qty, sup, auto) {
+    var b = state.biz, c = CONCEPTS[b.concept], s = c.sup[sup];
+    var sku = b.skus.find(function (x) { return x.id === skuId; });
+    if (!sku) return { ok: false, msg: 'ไม่พบสินค้า' };
+    qty = Math.max(s.moq, Math.round(qty / 50) * 50);
+    var unit = M.unitCost(state, sku, sup, qty);
+    var total = Math.round(unit * qty);
+    var deposit = Math.round(total * 0.5);
+    if (state.fin.bal.cash < deposit) return { ok: false, msg: 'เงินสดไม่พอจ่ายมัดจำ 50% (' + F.b(deposit) + ')' };
+    L.post(state.fin, { prepaid: deposit, cash: -deposit }, 'op');
+    var lead = R.int(s.lead[0], s.lead[1]);
+    b.pos.push({ id: R.id('po'), sku: skuId, qty: qty, unit: unit, total: total, deposit: deposit, arrive: state.time.w + lead, sup: sup, auto: !!auto });
+    return { ok: true, msg: 'สั่งผลิต ' + sku.n + ' ' + F.num(qty) + ' ชิ้น @' + F.b(unit) + ' รวม ' + F.b(total) + ' — จ่ายมัดจำ ' + F.b(deposit) + ' ของจะมาถึงใน ~' + lead + ' สัปดาห์' };
+  };
+  M.receivePOs = function (state) {
+    var b = state.biz, w = state.time.w, keep = [];
+    b.pos.forEach(function (po) {
+      if (po.arrive > w) { keep.push(po); return; }
+      var sku = b.skus.find(function (x) { return x.id === po.sku; });
+      var bal = po.total - po.deposit;
+      L.post(state.fin, { inventory: po.total, prepaid: -po.deposit, cash: -bal }, 'op');
+      var defect = R.chance(0.04 * (po.sup === 'imp' ? 1.5 : 1) / (1 + RW.Team.capOf(state, 'buying') * 0.5));
+      if (sku) {
+        sku.lots.push({ q: po.qty, c: po.unit, exp: sku.shelf ? w + sku.shelf : 0 });
+        if (defect) RW.Events.queue(state, 'ecom_defect', { sku: sku.id, qty: Math.round(po.qty * R.range(0.1, 0.35)) });
+      }
+      RW.Engine.mail(state, 'product', 'สินค้าเข้าคลัง: ' + (sku ? sku.n : 'สินค้า') + ' ' + F.num(po.qty) + ' ชิ้น', 'จ่ายส่วนที่เหลือ ' + F.b(bal));
+    });
+    b.pos = keep;
+  };
+  M.stock = function (sku) { return U.sum(sku.lots, function (l) { return l.q; }); };
+  M.incoming = function (b, id) { return U.sum(b.pos.filter(function (p) { return p.sku === id; }), function (p) { return p.qty; }); };
+  M.stockValue = function (b) { return U.sum(b.skus, function (s) { return U.sum(s.lots, function (l) { return l.q * l.c; }); }); };
+
+  // take units FIFO, returns cost
+  M.takeUnits = function (sku, n) {
+    var cost = 0, left = n;
+    sku.lots.sort(function (a, c) { return (a.exp || 1e9) - (c.exp || 1e9); });
+    for (var i = 0; i < sku.lots.length && left > 0; i++) {
+      var l = sku.lots[i];
+      var t = Math.min(l.q, left);
+      l.q -= t; left -= t; cost += t * l.c;
+    }
+    sku.lots = sku.lots.filter(function (l) { return l.q > 0; });
+    return { taken: n - left, cost: cost };
+  };
+
+  // ---------- Demand ----------
+  M.isMega = function (w) {
+    var i = RW.T.info(w);
+    return M.MEGA.find(function (m) { return m[0] === i.month && m[1] === i.weekOfMonth; }) || null;
+  };
+  M.buzzMult = function (b) { var m = 1; b.buzz.forEach(function (x) { m *= 1 + (x.m - 1) * (x.weeks / x.total); }); return m; };
+
+  M.weekly = function (state, info) {
+    var b = state.biz, c = CONCEPTS[b.concept], fin = state.fin, w = state.time.w;
+    b.buzz.forEach(function (x) { x.weeks--; });
+    b.buzz = b.buzz.filter(function (x) { return x.weeks > 0; });
+    M.devWeekly(state);
+    M.receivePOs(state);
+    // insight from talking to customers
+    b.insight = U.clamp(b.insight + RW.Team.capOf(state, 'discovery') * 4 * (1 - b.insight / 110) + Math.log10(1 + b.customers) * 0.05, 0, 100);
+    // creative freshness: decays, refreshed by content production
+    var content = RW.Team.capOf(state, 'content') + RW.Team.capOf(state, 'f_market') * 0.4;
+    b.creative = U.clamp(b.creative * 0.93 + content * 0.09 + (b.ch.social.open ? RW.Team.capOf(state, 'live') * 0.03 : 0), 0.15, 1);
+    var sellable = b.skus.filter(function (s) { return s.active && M.stock(s) > 0; });
+    var listed = b.skus.filter(function (s) { return s.active; });
+    var st = { orders: 0, newCust: 0, gmv: 0, rev: 0, units: 0, adSpend: 0, byCh: {}, stockout: 0 };
+    b.weekStats = st;
+    if (!listed.length) { b.weekRev = 0; M.fixedWeekly(state); return; }
+    var mega = M.isMega(w), preMega = M.isMega(w + 1);
+    var vat = fin.vat.registered ? 1 / 1.07 : 1;
+    // average attractiveness of the catalogue
+    var attr = U.avg(listed, function (s) { return s.appeal * (0.6 + s.quality / 250); });
+    var priceF = U.avg(listed, function (s) { var t = M.typeOf(b, s.type); var ref = t[2] * M.POS[s.pos].price; return Math.pow(ref / s.price, 1.4); });
+    var compF = 1 / (1 + U.sum(RW.World.aliveCompetitors(state), function (x) { return x.mkt / 100 * 0.12; }) * c.comp);
+    var brandF = (0.5 + b.brand / 60) * M.buzzMult(b) * state.world.macro.consumer * state.diff.market;
+    var ratingF = b.rating >= 4.7 ? 1.15 : b.rating >= 4.4 ? 1 : b.rating >= 4.0 ? 0.8 : 0.55;
+    var csF = 1 - Math.min(0.35, (b.chat.backlog || 0) / 600);
+    var season = [1.0, 0.95, 1.0, 1.08, 0.95, 0.95, 0.95, 1.0, 1.0, 1.05, 1.2, 1.3][info.month];
+    var mkt = RW.Team.capOf(state, 'mkt');
+    var adEff = (1 + Math.min(1, mkt * 0.3)) * (0.45 + 0.55 * b.creative);
+    var orders = {};
+    ['market', 'social', 'web'].forEach(function (k) {
+      var ch = b.ch[k];
+      if (!ch.open) return;
+      var org = c.organic[k] * brandF * (k === 'web' ? 1 + ch.seo / 50 : (1 + Math.log10(1 + ch.velocity) * 0.9) * (ch.rank / 5));
+      if (k === 'social') org *= 1 + RW.Team.capOf(state, 'live') * 0.8 + ch.affiliate * 3;
+      var paid = 0;
+      if (ch.ads > 0) {
+        L.spend(fin, 'mkt', ch.ads);
+        st.adSpend += ch.ads;
+        var cpc = c.cpc * Math.pow(1 + ch.ads / 120000, 0.55) / compF * (k === 'market' ? 0.85 : 1);
+        paid = ch.ads / cpc * adEff;
+      }
+      var traffic = org + paid;
+      var cvr = c.cvr[k] * attr * Math.pow(priceF, 0.8) * ratingF * csF * (k === 'web' ? 1 + (b.cod ? 0.25 : 0) : 1);
+      if (k === 'market' && mega) cvr *= 1 + b.campaign.disc * 10;
+      if (k === 'market' && preMega) cvr *= 0.85;
+      if (k === 'market' && info.weekOfMonth === info.weeksInMonth - 1) cvr *= 1.15; // payday sale
+      var n = R.poisson(traffic * cvr * season);
+      orders[k] = n;
+      ch.traffic = traffic;
+      st.byCh[k] = { o: 0, r: 0, t: traffic };
+    });
+    // repeat orders from active customer base
+    var crm = b.crm ? 1.35 : 1;
+    var repeat = R.poisson(b.active * c.repeat * crm * U.clamp(attr, 0.5, 1.4) * ratingF);
+    var repeatSplit = b.ch.web.open ? { web: 0.45, market: 0.45, social: 0.1 } : { market: 0.85, social: 0.15 };
+    Object.keys(repeatSplit).forEach(function (k) { if (b.ch[k].open) orders[k] = (orders[k] || 0) + Math.round(repeat * repeatSplit[k]); });
+    // fulfillment capacity
+    var totalOrders = U.sum(Object.keys(orders), function (k) { return orders[k]; });
+    var capF = M.fulfilCap(state);
+    b.fulfil.cap = capF;
+    var lateRatio = totalOrders + b.fulfil.backlog > capF ? (totalOrders + b.fulfil.backlog - capF) / Math.max(1, totalOrders + b.fulfil.backlog) : 0;
+    b.fulfil.backlog = Math.max(0, b.fulfil.backlog + totalOrders - capF) * 0.5; // half cancel/ship late
+    var chatCap = (RW.Team.capOf(state, 'chat') * 450 + 60);
+    b.chat.backlog = Math.max(0, b.chat.backlog * 0.5 + totalOrders * 0.6 - chatCap);
+    // allocate orders to SKUs by appeal, constrained by stock
+    var weekRev = 0, newCust = 0;
+    Object.keys(orders).forEach(function (k) {
+      var n = orders[k];
+      if (n <= 0) return;
+      var ch = CHN[k];
+      var revK = 0, units = 0, cogs = 0, ordersFilled = 0;
+      for (var i = 0; i < n; i++) {
+        var pool = b.skus.filter(function (s) { return s.active; });
+        var pick = R.weighted(pool, function (s) { return s.appeal; });
+        var sku = M.stock(pick) > 0 ? pick : (R.chance(0.35) ? R.weighted(pool.filter(function (s) { return M.stock(s) > 0; }), function (s) { return s.appeal; }) : null);
+        if (!sku) { st.stockout++; pick.oos++; continue; }
+        var u = Math.max(1, R.poisson(c.upo - 1) + 1);
+        var tk = M.takeUnits(sku, u);
+        if (tk.taken <= 0) { st.stockout++; continue; }
+        var price = sku.price * (k === 'market' && mega ? 1 - b.campaign.disc : 1);
+        revK += price * tk.taken; units += tk.taken; cogs += tk.cost; ordersFilled++;
+        sku.sold += tk.taken; sku.week += tk.taken;
+      }
+      if (ordersFilled <= 0) return;
+      var netRev = revK * vat;
+      // cash collection by channel
+      var feeRate = ch.fee + (k === 'market' ? b.feeAdj || 0 : 0) + ch.pay + (k === 'market' && mega ? 0.03 : 0) + (k === 'social' ? b.ch.social.affiliate * 0.5 : 0);
+      var shipCost = ordersFilled * (c.ship + 8) * (k === 'web' && revK / ordersFilled > b.freeShip ? 1 : 0.55);
+      var codShare = b.cod || k !== 'web' ? ch.cod : 0;
+      var rto = R.binom(Math.round(ordersFilled * codShare), 0.09);
+      var rtoCost = rto * (c.ship * 2 + 10);
+      var rtoRev = rto / ordersFilled * netRev;
+      var payoutRev = netRev - rtoRev;
+      if (ch.payout > 0) L.invoice(state, 'rev_goods', payoutRev, state.time.w + ch.payout, { name: ch.n, seg: k });
+      else L.earnCash(fin, 'rev_goods', payoutRev);
+      L.post(fin, { cogs_platform: payoutRev * feeRate, cash: -payoutRev * feeRate }, 'op');
+      // goods returned by RTO go back to stock (approx: add cost back as a fresh lot on a random sku)
+      var unitsKept = units * (1 - rto / ordersFilled);
+      L.post(fin, { cogs_goods: cogs * (1 - rto / ordersFilled), inventory: -cogs * (1 - rto / ordersFilled) });
+      if (rto > 0) { /* returned units restocked */ var anySku = b.skus.find(function (s) { return s.active; }); if (anySku) anySku.lots.push({ q: Math.round(units * rto / ordersFilled), c: cogs / units, exp: anySku.shelf ? w + Math.round(anySku.shelf / 2) : 0 }); }
+      L.spend(fin, 'cogs_fulfil', shipCost + rtoCost + (b.fulfil.mode === '3pl' ? ordersFilled * 25 : 0));
+      st.byCh[k].o += ordersFilled; st.byCh[k].r += payoutRev;
+      st.orders += ordersFilled; st.units += unitsKept; st.gmv += revK; st.rev += payoutRev; st.rto = (st.rto || 0) + rto;
+      weekRev += payoutRev;
+      b.ch[k].orders = ordersFilled;
+      if (b.ch[k].velocity != null) b.ch[k].velocity = b.ch[k].velocity * 0.85 + ordersFilled;
+    });
+    // retail channel
+    if (b.ch.retail.open && b.ch.retail.stores > 0) M.retailWeekly(state, st, vat);
+    // returns & refunds
+    var retUnits = st.units * c.ret;
+    if (retUnits > 0 && st.units > 0) {
+      var refund = st.rev * c.ret;
+      L.post(fin, { contra_rev: refund, cash: -refund }, 'op');
+      st.returns = retUnits; st.rev -= refund; weekRev -= refund;
+    }
+    // customers
+    newCust = Math.max(0, st.orders - repeat) * 0.85;
+    b.customers += newCust; b.active += newCust;
+    b.active *= 1 - U.weeklyFromMonthly(0.11);
+    st.newCust = newCust;
+    b.lifetime.orders += st.orders;
+    // rating & ranking
+    var quality = U.avg(listed, function (s) { return s.quality; });
+    var target = 3.6 + quality / 100 * 1.3 - lateRatio * 1.2 - (b.chat.backlog > 300 ? 0.3 : 0) - (st.stockout > st.orders * 0.3 ? 0.1 : 0);
+    b.rating = U.clamp(U.approach(b.rating, target, 0.05 + Math.min(0.1, st.orders / 5000)), 1, 5);
+    b.quality = quality;
+    ['market', 'social'].forEach(function (k) {
+      var ch = b.ch[k];
+      if (!ch.open) return;
+      ch.reviews += (st.byCh[k] ? st.byCh[k].o : 0) * 0.08;
+      ch.rating = b.rating;
+      var rt = 3 + Math.log10(1 + ch.velocity) * 1.8 + (b.rating - 4.4) * 3 + Math.log10(1 + ch.reviews) * 0.6;
+      ch.rank = U.clamp(U.approach(ch.rank, rt, 0.12), 1, 20);
+    });
+    b.ch.web.seo = Math.min(100, b.ch.web.seo * 0.995 + (b.ch.web.open ? RW.Team.capOf(state, 'content') * 0.3 + Math.log10(1 + b.customers) * 0.05 : 0));
+    // brand
+    b.brand = U.clamp(b.brand * 0.996 + st.adSpend / 1500000 + Math.log10(1 + st.orders) * 0.05 + (b.creative - 0.5) * 0.05, 0, 100);
+    M.fixedWeekly(state);
+    M.autoReplenish(state);
+    b.skus.forEach(function (s) { s.avg = s.avg * 0.8 + s.week * 0.2; s.week = 0; if (s.appealSeen == null && s.sold > 50) s.appealSeen = s.appeal; });
+    // month accumulators
+    var ms = b.mstats;
+    ['orders', 'newCust', 'gmv', 'rev', 'units', 'adSpend', 'stockout', 'returns'].forEach(function (k2) { ms[k2] += st[k2] || 0; });
+    ms.rto += st.rto || 0;
+    Object.keys(st.byCh).forEach(function (k3) { ms.byCh[k3].o += st.byCh[k3].o; ms.byCh[k3].r += st.byCh[k3].r; ms.byCh[k3].t += st.byCh[k3].t; });
+    b.weekRev = weekRev;
+  };
+
+  M.fulfilCap = function (state) {
+    var b = state.biz;
+    if (b.fulfil.mode === '3pl') return 1e6;
+    return RW.Team.capOf(state, 'fulfil') * 320 + RW.Team.capOf(state, 'ops') * 60 + 25;
+  };
+
+  M.retailWeekly = function (state, st, vat) {
+    var b = state.biz, c = CONCEPTS[b.concept];
+    var listed = b.skus.filter(function (s) { return s.active && s.retail; });
+    var rev = 0;
+    listed.forEach(function (sku) {
+      var vel = 0.35 * sku.appeal * (0.5 + b.brand / 80) * state.world.macro.consumer;
+      var units = R.poisson(b.ch.retail.stores * vel);
+      var tk = M.takeUnits(sku, units);
+      if (tk.taken < units) st.stockout += units - tk.taken;
+      if (tk.taken <= 0) return;
+      var wholesale = sku.price * 0.62 * tk.taken * vat;
+      L.invoice(state, 'rev_goods', wholesale, state.time.w + 11, { name: 'ร้านค้าปลีก', seg: 'retail', wht: true });
+      L.post(state.fin, { cogs_goods: tk.cost, inventory: -tk.cost });
+      L.spend(state.fin, 'mkt', wholesale * 0.05); // trade promotion support
+      sku.sold += tk.taken; sku.week += tk.taken;
+      rev += wholesale;
+    });
+    st.byCh.retail = { o: 0, r: rev, t: 0 };
+    st.rev += rev; st.gmv += rev;
+  };
+
+  M.fixedWeekly = function (state) {
+    var b = state.biz;
+    // storage cost for inventory
+    var units = U.sum(b.skus, function (s) { return M.stock(s); });
+    var storage = units * (b.fulfil.mode === '3pl' ? 0.6 : 0.25);
+    if (storage > 0) L.spend(state.fin, 'cogs_fulfil', storage);
+  };
+
+  M.forecastWeekly = function (sku) { return Math.max(sku.avg, 1); };
+
+  M.autoReplenish = function (state) {
+    var b = state.biz;
+    b.skus.forEach(function (s) {
+      if (!s.active || !s.auto) return;
+      var lead = CONCEPTS[b.concept].sup[s.autoSup || 'local'].lead[1];
+      var have = M.stock(s) + M.incoming(b, s.id);
+      var need = M.forecastWeekly(s) * (lead + s.cover);
+      if (have < need * 0.75) {
+        var r = M.placePO(state, s.id, need - have, s.autoSup || 'local', true);
+        if (!r.ok) { s.auto = false; RW.Engine.mail(state, 'product', 'สั่งผลิตอัตโนมัติไม่สำเร็จ: ' + s.n, r.msg + ' — ปิดการสั่งอัตโนมัติไว้ก่อน', 'warn'); }
+      }
+    });
+  };
+
+  // ---------- Monthly ----------
+  M.monthly = function (state, info) {
+    var b = state.biz, fin = state.fin, w = state.time.w, c = CONCEPTS[b.concept];
+    if (b.crm) L.spend(fin, 'software', 9000 + b.active * 0.4);
+    if (b.ch.web.open) L.spend(fin, 'software', 3500);
+    if (b.fulfil.mode === 'self' && RW.Team.capOf(state, 'fulfil') > 0.5) L.spend(fin, 'rent', 18000 + RW.Team.capOf(state, 'fulfil') * 4000);
+    // expiry & trend decay
+    var waste = 0;
+    b.skus.forEach(function (s) {
+      s.lots.forEach(function (l) {
+        if (l.exp && l.exp <= w + 4 && l.q > 0) { waste += l.q * l.c; b.mstats.expired += l.q; l.q = 0; }
+      });
+      s.lots = s.lots.filter(function (l) { return l.q > 0; });
+      if (c.decay && w - s.born > 12) s.appeal = Math.max(0.15, s.appeal * (1 - c.decay * 4.33));
+    });
+    if (waste > 0) {
+      L.post(fin, { cogs_waste: waste, inventory: -waste });
+      RW.Engine.mail(state, 'product', 'ตัดสต็อกสินค้าหมดอายุ ' + F.b(waste), 'สินค้าใกล้หมดอายุขายไม่ได้ ต้องทำลายทิ้ง — สั่งผลิตให้พอดีกับยอดขาย', 'warn');
+    }
+    // retail chains: monthly listing upkeep / rebate
+    if (b.ch.retail.open) L.spend(fin, 'mkt', b.ch.retail.stores * 120);
+    b.stats.push(b.mstats);
+    if (b.stats.length > 24) b.stats.shift();
+    b.mstats = M.blankStats();
+  };
+
+  // ---------- KPIs ----------
+  M.kpis = function (state) {
+    var b = state.biz;
+    var last3 = U.last(b.stats, 3);
+    var orders = U.sum(last3, function (m) { return m.orders; }), newC = U.sum(last3, function (m) { return m.newCust; });
+    var gmv = U.sum(last3, function (m) { return m.gmv; }), ad = U.sum(last3, function (m) { return m.adSpend; });
+    var rev = U.sum(last3, function (m) { return m.rev; });
+    var sm = U.sum(U.last(state.hist.monthly, 3), function (m) { return (m.pl.mkt || 0) + (m.pl.sal_sm || 0) + (m.pl.commission || 0); });
+    var inv = state.fin.bal.inventory;
+    var cogsM = U.avg(U.last(state.hist.monthly, 3), function (m) { return m.pl.cogs_goods || 0; });
+    var aov = orders > 0 ? gmv / orders : 0;
+    var repeatShare = orders > 0 ? 1 - newC / orders : 0;
+    var mo = b.stats.length ? b.stats[b.stats.length - 1] : null;
+    var stockout = mo && mo.orders + mo.stockout > 0 ? mo.stockout / (mo.orders + mo.stockout) : 0;
+    var c = CONCEPTS[b.concept];
+    var gm = state.kpi && state.kpi.gm ? state.kpi.gm : 0.5;
+    var cac = newC > 0 ? sm / newC : null;
+    var ltv = aov * gm * (1 + c.repeat * 4.33 * 12 * 1.2);
+    return {
+      customers: Math.round(b.customers), activeCustomers: Math.round(b.active), orders3: orders, aov: aov, roas: ad > 0 ? rev / ad : null,
+      cac: cac, ltv: ltv, ltvCac: cac ? ltv / cac : null, repeatShare: repeatShare, invDays: cogsM > 0 ? inv / cogsM * 30 : null, inventory: inv,
+      stockout: stockout, rating: b.rating, marketShare: Math.min(0.5, rev / 3 / 30e6),
+      workload: { cogs: 1 + Math.min(0.8, (b.fulfil.backlog || 0) / Math.max(50, b.fulfil.cap) + (b.chat.backlog || 0) / 800), sm: 1, rnd: 1 },
+      arr: 0, mrr: 0
+    };
+  };
+  M.monthKPIs = function (state) {
+    var b = state.biz, mo = b.stats.length ? b.stats[b.stats.length - 1] : null;
+    return { orders: mo ? mo.orders : 0, gmv: mo ? mo.gmv : 0, customers: Math.round(b.customers), inventory: state.fin.bal.inventory };
+  };
+  M.reportLine = function (state) {
+    var k = state.kpi, mo = state.biz.stats.length ? state.biz.stats[state.biz.stats.length - 1] : null;
+    return 'ออเดอร์ ' + F.num(mo ? mo.orders : 0) + ' · AOV ' + F.b(k.aov) + ' · ROAS ' + (k.roas ? k.roas.toFixed(1) + 'x' : '–') + ' · สต็อก ' + F.m(k.inventory) + (k.invDays ? ' (' + Math.round(k.invDays) + ' วัน)' : '') + ' · เรตติ้ง ' + state.biz.rating.toFixed(2);
+  };
+  M.forecastCost = function (state) {
+    var b = state.biz;
+    return (b.ch.market.ads + b.ch.social.ads + b.ch.web.ads) * 4.33;
+  };
+  M.forecastRevenue = function (state) { return state.kpi.revenueMonthly || 0; };
+  M.rbfEligible = function (state) { return state.hist.monthly.length >= 6 && (state.kpi.revenueMonthly || 0) > 300000; };
+
+  M.traction = function (state) {
+    var b = state.biz, k = state.kpi;
+    var revRun = (k.revenueMonthly || 0) * 12;
+    var eq = revRun * (0.3 + 0.45 * U.clamp(k.repeatShare || 0, 0, 0.8)) * U.clamp((k.gm || 0.4) / 0.55, 0.5, 1.3);
+    var prod = b.skus.length ? 5 + Math.min(5, b.skus.length) + (b.rating - 4) * 4 : (b.dev.length ? 3 : 0);
+    var arrPts = 20 * Math.log10(1 + eq / 250000);
+    var g = Math.pow(1 + (k.cmgr3 || 0), 12) - 1;
+    var growthPts = U.clamp(11 * Math.log2(1 + Math.max(-0.5, g)), -15, 24) * Math.min(1, revRun / 3e6);
+    var execs = RW.Team.active(state).filter(function (e) { return e.level >= 4; }).length + (state.cofounders || []).filter(function (c) { return c.active; }).length;
+    var team = Math.min(8, execs * 1.5 + state.founder.rep / 12);
+    var eff = revRun > 10e6 ? (k.ebitdaMargin > 0 ? 5 : k.burnMultiple > 4 ? -4 : 0) : 0;
+    var invPenalty = k.invDays > 150 ? -5 : 0;
+    var score = prod + arrPts + growthPts + team + eff + invPenalty + Math.min(6, b.brand / 10);
+    return { score: score, arr: eq, growth: g, lines: [['รายได้ (annualized)', F.m(revRun)], ['การเติบโต', revRun > 0 ? F.spct(g, 0) : '–'], ['ซื้อซ้ำ', F.pct(k.repeatShare || 0, 0)], ['เรตติ้ง', b.rating.toFixed(2)], ['ลูกค้าสะสม', F.num(Math.round(b.customers))]] };
+  };
+  M.valuation = function (state) {
+    var tr = M.traction(state);
+    var qual = RW.Models.saas.qualValue(tr.score);
+    var revRun = (state.kpi.revenueMonthly || 0) * 12;
+    if (revRun <= 0) return qual;
+    var g = U.clamp(tr.growth, 0, 3);
+    var mult = (0.8 + 1.6 * Math.pow(g, 0.6)) * (0.7 + (state.kpi.repeatShare || 0)) * Math.sqrt(Math.max(0.2, state.kpi.gm || 0.4) / 0.55);
+    var fund = revRun * mult;
+    if (state.kpi.ebitdaMargin > 0.08) fund = Math.max(fund, revRun * state.kpi.ebitdaMargin * 12);
+    var a = Math.sqrt(U.clamp(revRun / 60e6, 0, 1));
+    return Math.exp(a * Math.log(fund) + (1 - a) * Math.log(qual));
+  };
+
+  M.advice = function (state) {
+    var b = state.biz, out = [], k = state.kpi, c = CONCEPTS[b.concept];
+    function add(l, t) { out.push({ lvl: l, t: t }); }
+    var w = state.time.w;
+    if (!b.skus.length && b.dev.length && c.reg[1] > 0 && !state.company.registered) add('warn', 'ต้องจดทะเบียนบริษัทก่อนจึงยื่นขอ อย. ได้');
+    b.skus.forEach(function (s) {
+      if (!s.active) return;
+      var st = M.stock(s), inc = M.incoming(b, s.id), f = M.forecastWeekly(s);
+      var lead = c.sup.local.lead[1];
+      if (st === 0 && inc === 0) add('crit', s.n + ' สินค้าหมด และไม่มีของกำลังมา — ทุกออเดอร์ที่หลุดไปคือรายได้และอันดับร้านที่เสีย');
+      else if (st < f * lead && inc === 0 && s.avg > 2) add('warn', s.n + ' สต็อกพอขายอีก ~' + Math.round(st / f) + ' สัปดาห์ แต่สั่งผลิตต้องรอ ' + lead + ' สัปดาห์');
+      if (st > f * 30 && s.avg > 1) add('warn', s.n + ' สต็อกล้น (~' + Math.round(st / f) + ' สัปดาห์) — เงินจมและเสี่ยงหมดอายุ');
+    });
+    var nextMega = null;
+    for (var i = 1; i <= 8; i++) if (M.isMega(w + i)) { nextMega = [i, M.isMega(w + i)[2]]; break; }
+    if (nextMega && nextMega[0] >= 3) add('info', 'แคมเปญ ' + nextMega[1] + ' อีก ' + nextMega[0] + ' สัปดาห์ — ยอดขายมาร์เก็ตเพลสจะพุ่งหลายเท่า เตรียมสต็อกให้พอ');
+    if (b.creative < 0.35) add('warn', 'ครีเอทีฟโฆษณาเก่า คนเห็นซ้ำจนเบื่อ (creative fatigue) — ต้นทุนโฆษณาแพงขึ้น จ้าง Content creator หรือใช้เวลาทำการตลาด');
+    if (b.fulfil.backlog > 30) add('warn', 'แพ็กของไม่ทัน ออเดอร์ค้าง ' + Math.round(b.fulfil.backlog) + ' — เรตติ้งร้านจะตก จ้างพนักงานคลังหรือใช้ 3PL');
+    if (b.chat.backlog > 200) add('warn', 'แชทลูกค้าค้างจำนวนมาก — อัตราการซื้อลดลง จ้างแอดมิน');
+    if (b.rating < 4.2 && b.skus.length) add('warn', 'เรตติ้งร้าน ' + b.rating.toFixed(2) + ' — อันดับในมาร์เก็ตเพลสกำลังร่วง');
+    if (k.roas != null && k.roas < 1.5 && (b.ch.market.ads + b.ch.social.ads + b.ch.web.ads) > 0) add('warn', 'ROAS ' + k.roas.toFixed(1) + 'x — โฆษณาขาดทุนหลังหักต้นทุนสินค้าและค่าธรรมเนียม');
+    if (state.fin.vat.registered && !state.flags.vatRepriced) add('info', 'จด VAT แล้ว ราคาที่ลูกค้าจ่ายรวม VAT — ถ้าไม่ปรับราคา รายได้สุทธิหายไป 6.5%');
+    return out;
+  };
+
+  M.onEmployeeLeft = function () { };
+  M.onCompetitorDied = function (state) { state.biz.buzz.push({ m: 1.2, weeks: 6, total: 6 }); };
+  M.onPandemic = function (state, pivot) { state.biz.buzz.push({ m: pivot ? 1.5 : 1.3, weeks: 10, total: 10 }); state.flags.supplyShock = state.time.w + 10; };
+  M.onDisaster = function (state, sev) {
+    var b = state.biz;
+    if (b.fulfil.mode === '3pl') return;
+    var lost = 0;
+    b.skus.forEach(function (s) { s.lots.forEach(function (l) { var d = Math.round(l.q * sev * 0.4); l.q -= d; lost += d * l.c; }); });
+    if (lost > 0) { L.post(state.fin, { cogs_waste: lost, inventory: -lost }); RW.Engine.mail(state, 'product', 'สต็อกเสียหายจากน้ำท่วม ' + F.b(lost), 'น้ำเข้าที่เก็บสินค้า', 'bad'); }
+  };
+  M.onPermit = function (state, fast) { if (fast) state.flags.fastPermit = 1; };
+  M.newEntrant = function (state) {
+    var b = state.biz;
+    if (R.chance(0.4)) return { name: R.pick(['Dupe Factory', 'CopyCat Co.', 'ถูกและดี Shop']), desc: 'ร้านก๊อปสูตร/ดีไซน์สินค้าขายดีของคุณ ขายถูกกว่าครึ่ง', quality: R.int(30, 45), price: R.range(0.45, 0.6), mkt: R.int(50, 75), cash: R.range(2e6, 8e6), burn: R.range(0.2e6, 0.6e6), stage: 'bootstrap', aggr: 0.9 };
+    return { name: R.pick(['Pure', 'Nature', 'Siam', 'Velvet', 'Bloom', 'Mori']) + ' ' + R.pick(['Lab', 'Studio', 'Co.', 'Daily']), desc: 'แบรนด์ใหม่ที่ได้ทุนจาก VC อัดงบโฆษณาหนัก', quality: R.int(50, 70), price: R.range(0.8, 1.1), mkt: R.int(60, 85), cash: R.range(20e6, 60e6), burn: R.range(1.5e6, 3e6), stage: 'seed', aggr: R.range(0.5, 0.9) };
+  };
+
+  // ---------- Actions ----------
+  M.act = {
+    develop: function (s, type, pos) {
+      var b = s.biz;
+      if (b.dev.length >= 3) return { ok: false, msg: 'พัฒนาพร้อมกันได้สูงสุด 3 สินค้า' };
+      var d = M.startDev(s, type, pos);
+      return { ok: true, msg: 'เริ่มพัฒนา ' + d.n + ' (ค่าพัฒนาสูตร/ตัวอย่าง ' + F.b(d.fee) + ')' };
+    },
+    cancelDev: function (s, id) { s.biz.dev = s.biz.dev.filter(function (d) { return d.id !== id; }); return { ok: true }; },
+    order: function (s, id, qty, sup) { return M.placePO(s, id, qty, sup); },
+    setPrice: function (s, id, p) { var k = s.biz.skus.find(function (x) { return x.id === id; }); if (k) k.price = Math.max(10, Math.round(p)); if (s.fin.vat.registered) s.flags.vatRepriced = 1; return { ok: true }; },
+    setAuto: function (s, id, on, cover, sup) { var k = s.biz.skus.find(function (x) { return x.id === id; }); if (!k) return { ok: false }; k.auto = !!on; if (cover) k.cover = cover; if (sup) k.autoSup = sup; return { ok: true }; },
+    discontinue: function (s, id) {
+      var b = s.biz, k = b.skus.find(function (x) { return x.id === id; });
+      if (!k) return { ok: false };
+      var units = M.stock(k);
+      var cost = U.sum(k.lots, function (l) { return l.q * l.c; });
+      var cash = units * k.price * 0.3;
+      if (units > 0) { L.post(s.fin, { cash: cash, rev_goods: -cash }, 'op'); L.post(s.fin, { cogs_goods: cost, inventory: -cost }); }
+      k.lots = []; k.active = false;
+      return { ok: true, msg: 'เลิกขาย ' + k.n + (units ? ' — ล้างสต็อก ' + F.num(units) + ' ชิ้นให้พ่อค้าคนกลางที่ 30% ของราคา ได้ ' + F.b(cash) : '') };
+    },
+    clearance: function (s, id) {
+      var k = s.biz.skus.find(function (x) { return x.id === id; });
+      if (!k) return { ok: false };
+      var units = Math.round(M.stock(k) * 0.5);
+      if (!units) return { ok: false, msg: 'ไม่มีสต็อก' };
+      var tk = M.takeUnits(k, units);
+      var cash = tk.taken * k.price * 0.45;
+      L.post(s.fin, { cash: cash, rev_goods: -cash }, 'op');
+      L.post(s.fin, { cogs_goods: tk.cost, inventory: -tk.cost });
+      s.biz.brand = Math.max(0, s.biz.brand - 2);
+      return { ok: true, msg: 'เทขายลดราคา 55% ไป ' + F.num(tk.taken) + ' ชิ้น ได้เงินสด ' + F.b(cash) + ' (แบรนด์ดูถูกลงเล็กน้อย)' };
+    },
+    setAds: function (s, ch, v) { s.biz.ch[ch].ads = Math.max(0, Math.round(v / 1000) * 1000); return { ok: true }; },
+    openChannel: function (s, ch) {
+      var b = s.biz;
+      if (b.ch[ch].open) return { ok: false, msg: 'เปิดแล้ว' };
+      if (ch === 'web') {
+        var hasEng = RW.Team.capOf(s, 'dev') > 0.3;
+        var cost = hasEng ? 30000 : 120000;
+        L.spend(s.fin, hasEng ? 'software' : 'prof', cost);
+        b.ch.web.open = true;
+        return { ok: true, msg: 'เปิดเว็บไซต์แบรนด์ (' + (hasEng ? 'ทีมทำเอง' : 'จ้างเอเจนซีทำ') + ' ' + F.b(cost) + ')' };
+      }
+      if (ch === 'social') { b.ch.social.open = true; return { ok: true, msg: 'เปิดร้านใน Social commerce — ไลฟ์ขายของต้องมี Live host หรือคุณต้องไลฟ์เอง' }; }
+      if (ch === 'retail') {
+        if (b.brand < 30 || b.rating < 4.3 || (s.kpi.revenueMonthly || 0) < 600000) return { ok: false, msg: 'เชนค้าปลีกยังไม่สนใจ — ต้องมีแบรนด์ ≥30, เรตติ้ง ≥4.3 และยอดขาย ≥฿600K/เดือน' };
+        if (RW.Team.capOf(s, 'sales') < 0.3) return { ok: false, msg: 'ต้องมีคนดูแลการขายช่องทางค้าปลีก (Account Executive) หรือคุณต้องใช้เวลาขายเอง' };
+        b.ch.retail.open = true;
+        return { ok: true, msg: 'เปิดช่องทางค้าปลีก — เลือกสินค้าที่จะวางขาย (ค่าวางสินค้าต่อ SKU)' };
+      }
+      return { ok: false };
+    },
+    listRetail: function (s, id) {
+      var b = s.biz, k = b.skus.find(function (x) { return x.id === id; });
+      if (!k || !b.ch.retail.open) return { ok: false };
+      var fee = 150000;
+      if (s.fin.bal.cash < fee) return { ok: false, msg: 'เงินไม่พอค่าวางสินค้า ' + F.b(fee) };
+      L.spend(s.fin, 'mkt', fee);
+      k.retail = true;
+      b.ch.retail.stores = Math.max(b.ch.retail.stores, 120);
+      return { ok: true, msg: 'จ่ายค่าวางสินค้า ' + F.b(fee) + ' — ' + k.n + ' ขึ้นชั้นวาง ' + b.ch.retail.stores + ' สาขา' };
+    },
+    expandRetail: function (s) {
+      var b = s.biz;
+      if (!b.ch.retail.open) return { ok: false };
+      var fee = 400000;
+      if (s.fin.bal.cash < fee) return { ok: false, msg: 'เงินไม่พอ' };
+      L.spend(s.fin, 'mkt', fee);
+      b.ch.retail.stores = Math.min(4000, Math.round(b.ch.retail.stores * 1.8 + 150));
+      return { ok: true, msg: 'ขยายไปเชนใหม่ รวม ' + b.ch.retail.stores + ' สาขา' };
+    },
+    kol: function (s, tier) {
+      var t = { micro: [60000, 1.25, 3, 1], macro: [350000, 1.7, 4, 4], celeb: [1500000, 2.6, 6, 10] }[tier];
+      if (s.fin.bal.cash < t[0]) return { ok: false, msg: 'เงินไม่พอ' };
+      L.spend(s.fin, 'mkt', t[0]);
+      s.biz.buzz.push({ m: t[1], weeks: t[2], total: t[2] });
+      s.biz.brand = Math.min(100, s.biz.brand + t[3]);
+      if (tier === 'celeb' && R.chance(0.12)) RW.Events.queue(s, 'ecom_kol_scandal', {}, s.time.w + R.int(2, 10));
+      return { ok: true, msg: { micro: 'จ้างไมโครอินฟลูเอนเซอร์ 10 คนรีวิว', macro: 'จ้างอินฟลูเอนเซอร์ชื่อดังรีวิว', celeb: 'เซ็นสัญญาพรีเซนเตอร์ดารา' }[tier] + ' (' + F.b(t[0]) + ')' };
+    },
+    setCampaign: function (s, d) { s.biz.campaign.disc = U.clamp(d, 0, 0.5); return { ok: true }; },
+    setAffiliate: function (s, v) { s.biz.ch.social.affiliate = U.clamp(v, 0, 0.3); return { ok: true }; },
+    toggleCRM: function (s) { s.biz.crm = !s.biz.crm; return { ok: true, msg: s.biz.crm ? 'เปิดระบบ CRM/LINE OA — ลูกค้าเก่ากลับมาซื้อบ่อยขึ้น' : 'ปิด CRM' }; },
+    toggleCOD: function (s) { s.biz.cod = !s.biz.cod; return { ok: true }; },
+    setFulfil: function (s, m) { s.biz.fulfil.mode = m; return { ok: true, msg: m === '3pl' ? 'ใช้คลังสินค้าภายนอก (3PL) — ฿25/ออเดอร์ + ค่าเก็บรักษา รองรับไม่จำกัด' : 'แพ็กและส่งเอง' }; },
+    setFreeShip: function (s, v) { s.biz.freeShip = Math.max(0, Math.round(v)); return { ok: true }; }
+  };
+
+  // ---------- E-commerce events ----------
+  var E = RW.Events, H = E.H;
+  E.register({
+    id: 'ecom_defect', cat: 'product',
+    valid: function (s, d) { return s.biz.skus.some(function (x) { return x.id === d.sku; }); },
+    title: 'ล็อตสินค้ามีปัญหาคุณภาพ',
+    body: function (s, d) { var k = s.biz.skus.find(function (x) { return x.id === d.sku; }); return 'ล็อตล่าสุดของ ' + k.n + ' มีปัญหา ' + R.pick(['บรรจุภัณฑ์รั่ว', 'กลิ่น/สีผิดจากมาตรฐาน', 'ฉลากพิมพ์ผิด', 'ไซส์ไม่ตรงสเปก']) + ' ประมาณ ' + F.num(d.qty) + ' ชิ้น โรงงานบอกว่า "อยู่ในเกณฑ์ยอมรับได้"'; },
+    choices: function (s, d) {
+      var k = s.biz.skus.find(function (x) { return x.id === d.sku; });
+      return [
+        { t: 'คัดทิ้งทั้งหมด เรียกร้องโรงงานชดเชย', d: 'ได้คืนบางส่วน', fx: function () { var tk = M.takeUnits(k, d.qty); var back = tk.cost * (R.chance(0.6) ? 0.6 : 0.2); L.post(s.fin, { cogs_waste: tk.cost - back, inventory: -tk.cost, cash: back }, 'op'); return 'ทิ้งสินค้า ' + F.num(tk.taken) + ' ชิ้น ได้ชดเชยคืน ' + F.b(back); } },
+        { t: 'ขายไปตามปกติ', d: 'ประหยัด แต่ลูกค้าอาจเจอ', fx: function () { k.quality = Math.max(10, k.quality - 12); s.biz.rating -= 0.15; return 'ลูกค้าเริ่มรีวิวว่าสินค้าไม่เหมือนเดิม'; } }
+      ];
+    }
+  });
+  E.register({
+    id: 'ecom_kol_scandal', cat: 'market', bad: true,
+    title: 'พรีเซนเตอร์ของคุณมีข่าวฉาว',
+    body: 'ดาราที่คุณจ้างเป็นพรีเซนเตอร์ตกเป็นข่าวอื้อฉาว ชาวเน็ตเรียกร้องให้แบนแบรนด์ที่เกี่ยวข้อง',
+    choices: function (s) {
+      return [
+        { t: 'ยกเลิกสัญญาทันที แถลงจุดยืน', fx: function () { H.brand(s, -4); return 'กระแสลบไม่ลามมาถึงแบรนด์มากนัก'; } },
+        { t: 'เงียบ รอข่าวซา', fx: function () { H.brand(s, -12); s.biz.buzz.push({ m: 0.65, weeks: 8, total: 8 }); return 'ยอดขายตกหนักหลายสัปดาห์'; } }
+      ];
+    }
+  });
+  E.register({
+    id: 'ecom_fda', cat: 'admin', ind: ['ecom'], weight: function (s) { return s.biz.concept === 'supplement' ? 1.6 : s.biz.concept === 'skincare' ? 0.8 : 0.3; }, cooldown: 52, bad: true,
+    cond: function (s) { return s.biz.skus.length > 0 && s.time.w > 20; },
+    title: 'อย. ตรวจพบโฆษณาเกินจริง',
+    body: 'ทีมการตลาด/ครีเอเตอร์ใช้คำโฆษณาอย่าง "ขาวไวใน 7 วัน" "รักษาได้" ซึ่งผิดกฎหมาย อย. ส่งหนังสือเรียกพบ',
+    choices: function (s) {
+      return [
+        { t: 'ยอมรับ แก้ไขคอนเทนต์ทั้งหมด จ่ายค่าปรับ ฿50,000', fx: function () { L.spend(s.fin, 'penalties', 50000); s.biz.creative *= 0.6; return 'ต้องถอดโฆษณาทั้งหมดและทำใหม่'; } },
+        { t: 'โต้แย้งว่าเป็นคำพูดของครีเอเตอร์ ไม่ใช่บริษัท', fx: function () { if (R.chance(0.4)) return 'อย. รับฟังคำชี้แจง ตักเตือนครั้งแรก'; L.spend(s.fin, 'penalties', 200000); H.brand(s, -6); return 'แพ้ — ปรับ ฿200,000 และถูกสื่อนำไปเสนอข่าว'; } }
+      ];
+    }
+  });
+  E.register({
+    id: 'ecom_fake_reviews', cat: 'market', ind: ['ecom'], weight: 1.2, cooldown: 60,
+    cond: function (s) { return s.biz.skus.length > 0; },
+    title: 'ข้อเสนอปั๊มรีวิวและยอดขาย',
+    body: 'เอเจนซีแห่งหนึ่งเสนอ "แพ็กเกจปั๊มร้าน": รีวิว 5 ดาว 2,000 รีวิว + ออเดอร์ปลอมดันอันดับ ราคา ฿80,000 "ทุกแบรนด์ก็ทำ"',
+    choices: function (s) {
+      return [
+        { t: 'ซื้อแพ็กเกจ', d: 'อันดับพุ่ง แต่ถ้าแพลตฟอร์มจับได้...', fx: function () { L.spend(s.fin, 'mkt', 80000); s.biz.ch.market.rank += 4; s.biz.ch.market.reviews += 2000; s.flags.fakeReviews = 1; E.later(s, R.int(6, 30), 'ecom_fake_caught', {}); return 'ร้านขึ้นหน้าแรก ยอดขายพุ่ง'; } },
+        { t: 'ปฏิเสธ', fx: function () { return 'คุณเลือกโตแบบออร์แกนิก'; } }
+      ];
+    }
+  });
+  E.effect('ecom_fake_caught', function (s) {
+    if (!R.chance(0.45)) return;
+    var ch = s.biz.ch.market;
+    ch.rank = 1; ch.reviews *= 0.3; s.biz.rating = Math.max(1, s.biz.rating - 0.4);
+    s.biz.buzz.push({ m: 0.6, weeks: 8, total: 8 });
+    H.mail(s, 'แพลตฟอร์มจับได้ว่าปั๊มรีวิว', 'ร้านโดนลบรีวิว ลดอันดับ และห้ามเข้าร่วมแคมเปญ 2 เดือน', 'bad');
+  });
+  E.register({
+    id: 'ecom_platform_fee', cat: 'market', ind: ['ecom'], weight: 0.6, once: true, bad: true,
+    cond: function (s) { return s.time.w > 40; },
+    title: 'มาร์เก็ตเพลสขึ้นค่าธรรมเนียม',
+    body: 'แพลตฟอร์มประกาศขึ้นค่าคอมมิชชันร้าน Mall อีก 3% และเก็บค่าบริการส่งฟรีเพิ่ม มีผลเดือนหน้า ผู้ขายทั่วประเทศโวย',
+    choices: function (s) {
+      return [
+        { t: 'ขึ้นราคาสินค้า 5% ชดเชย', fx: function () { s.biz.feeAdj = (s.biz.feeAdj || 0) + 0.03; s.biz.skus.forEach(function (k) { k.price = Math.round(k.price * 1.05 / 10) * 10; }); return 'ราคาขึ้น ลูกค้าบางส่วนบ่น'; } },
+        { t: 'ยอมกินมาร์จิ้น และเร่งพาลูกค้าไปซื้อที่เว็บ', fx: function () { s.biz.feeAdj = (s.biz.feeAdj || 0) + 0.03; if (!s.biz.ch.web.open) return 'กำไรต่อออเดอร์ลดลง — คุณยังไม่มีเว็บไซต์ของตัวเอง'; s.biz.ch.web.seo += 10; return 'เริ่มแคมเปญย้ายลูกค้าไปซื้อตรง'; } }
+      ];
+    }
+  });
+  E.register({
+    id: 'ecom_viral_clip', cat: 'market', ind: ['ecom'], weight: 1, cooldown: 40,
+    cond: function (s) { return s.biz.skus.some(function (k) { return k.active; }); },
+    title: 'คลิปรีวิวสินค้าของคุณเป็นไวรัล',
+    body: 'ครีเอเตอร์คนหนึ่งรีวิวสินค้าคุณเองโดยไม่ได้รับเงิน ยอดวิว 3 ล้านในสองวัน คนแห่ถามหาในคอมเมนต์ — แต่สต็อกคุณพอไหม?',
+    choices: function (s) {
+      return [
+        { t: 'อัดโฆษณาตามกระแส ฿100,000', fx: function () { L.spend(s.fin, 'mkt', 100000); s.biz.buzz.push({ m: 2.4, weeks: 3, total: 3 }); s.biz.brand += 5; return 'ยอดขายพุ่งกระฉูด — ตรวจสต็อกด่วน'; } },
+        { t: 'ติดต่อครีเอเตอร์มาทำ affiliate', fx: function () { s.biz.ch.social.open = true; s.biz.buzz.push({ m: 1.9, weeks: 4, total: 4 }); s.biz.brand += 4; return 'ได้พาร์ทเนอร์ครีเอเตอร์ระยะยาว'; } }
+      ];
+    }
+  });
+  E.register({
+    id: 'ecom_counterfeit', cat: 'market', ind: ['ecom'], weight: 0.8, cooldown: 80, bad: true,
+    cond: function (s) { return s.biz.brand > 25; },
+    title: 'พบสินค้าปลอมแบรนด์คุณในมาร์เก็ตเพลส',
+    body: 'มีร้านค้าหลายสิบร้านขายสินค้าปลอมแบรนด์คุณในราคาครึ่งเดียว ลูกค้าที่ซื้อของปลอมมารีวิวด่าแบรนด์คุณ',
+    choices: function (s) {
+      return [
+        { t: 'จ้างทนายแจ้งแพลตฟอร์มและดำเนินคดี (฿150,000)', fx: function () { L.spend(s.fin, 'prof', 150000); return 'ร้านปลอมถูกลบส่วนใหญ่'; } },
+        { t: 'ทำ QR ตรวจสอบของแท้บนบรรจุภัณฑ์ (+฿3 ต่อชิ้น)', fx: function () { s.biz.skus.forEach(function (k) { k.cost += 3; }); H.brand(s, 2); return 'ลูกค้ามั่นใจขึ้น ต้นทุนเพิ่มเล็กน้อย'; } },
+        { t: 'ปล่อยไป', fx: function () { s.biz.rating -= 0.15; H.brand(s, -5); return 'ภาพลักษณ์แบรนด์เสียหาย'; } }
+      ];
+    }
+  });
+  E.register({
+    id: 'ecom_retail_offer', cat: 'sales', ind: ['ecom'], weight: 1, cooldown: 80,
+    cond: function (s) { return !s.biz.ch.retail.open && s.biz.brand > 25 && (s.kpi.revenueMonthly || 0) > 400000; },
+    title: 'เชนร้านขายยาอยากนำสินค้าคุณไปวางขาย',
+    body: 'Buyer ของเชนร้านค้าปลีก 800 สาขาติดต่อมา อยากทดลองวางสินค้า 2 SKU ใน 150 สาขา เงื่อนไข: ค่าวางสินค้า ฿150,000/SKU, ราคาส่ง 62% ของราคาปลีก, เครดิต 75 วัน, รับคืนสินค้าที่ขายไม่ออก',
+    choices: function (s) {
+      return [
+        { t: 'ตกลง', fx: function () { var b = s.biz; b.ch.retail.open = true; b.ch.retail.stores = 150; b.skus.filter(function (k) { return k.active; }).sort(function (x, y) { return y.appeal - x.appeal; }).slice(0, 2).forEach(function (k) { k.retail = true; L.spend(s.fin, 'mkt', 150000); }); return 'สินค้าขึ้นชั้นวาง 150 สาขา — เตรียมสต็อกเพิ่ม'; } },
+        { t: 'ยังไม่พร้อม', fx: function () { return 'ขอบคุณ Buyer และขอคุยใหม่ปีหน้า'; } }
+      ];
+    }
+  });
+  E.register({
+    id: 'ecom_supplier_hike', cat: 'product', ind: ['ecom'], weight: 0.8, cooldown: 60, bad: true,
+    cond: function (s) { return s.biz.skus.length > 0; },
+    title: 'โรงงานแจ้งขึ้นราคา',
+    body: 'OEM แจ้งว่าวัตถุดิบและค่าแรงขึ้น ขอปรับราคาต่อหน่วย +12% ทุกสินค้า มีผลกับการสั่งผลิตครั้งถัดไป',
+    choices: function (s) {
+      return [
+        { t: 'ยอมรับ', fx: function () { s.biz.skus.forEach(function (k) { k.cost = Math.round(k.cost * 1.12); }); return 'ต้นทุนเพิ่ม 12%'; } },
+        { t: 'ต่อรอง + ขู่ย้ายโรงงาน', fx: function () { var buy = RW.Team.capOf(s, 'buying'); if (R.chance(0.35 + buy * 0.2)) { s.biz.skus.forEach(function (k) { k.cost = Math.round(k.cost * 1.04); }); return 'ต่อรองเหลือ +4%'; } s.biz.skus.forEach(function (k) { k.cost = Math.round(k.cost * 1.12); }); return 'โรงงานไม่ยอม และล็อตถัดไปอาจได้คิวช้า'; } }
+      ];
+    }
+  });
+})(globalThis.RW = globalThis.RW || {});
+
+/* ---- models/fnb.js ---- */
+/* RUNWAY — Food & Beverage chain model */
+(function (RW) {
+  'use strict';
+  var R = RW.R, U = RW.U, F = RW.F, L = RW.Ledger;
+  var M = (RW.Models.fnb = { id: 'fnb', b2c: true });
+  M.n = 'ร้านอาหาร/คาเฟ่ (สร้างเชน)';
+  M.d = 'เปิดสาขาแรกด้วยเงินเก็บ ทำให้กำไรต่อสาขาดีพอ แล้วขยายเป็นเชน ครัวกลาง และแฟรนไชส์ — ทำเลคือทุกอย่าง';
+  M.sampleName = 'บ้านสวนคาเฟ่';
+
+  var CONCEPTS = (M.CONCEPTS = {
+    cafe: { n: 'คาเฟ่กาแฟสเปเชียลตี้', d: 'ตั๋วเฉลี่ยต่ำ ต้นทุนวัตถุดิบต่ำ หมุนโต๊ะเร็ว แข่งกันดุทุกหัวมุม', ticket: 145, food: 0.28, capture: 0.06, turns: 5, staff: 4, fitSqm: 14000, util: 0.05, deliv: 30, sqm: [45, 110], seatsPerSqm: 0.45, menuQ: 55 },
+    thai: { n: 'ร้านอาหารไทยสตรีทฟู้ดพรีเมียม', d: 'ขายดีทั้งหน้าร้านและเดลิเวอรี ต้นทุนวัตถุดิบผันผวน ใช้คนเยอะ', ticket: 185, food: 0.35, capture: 0.045, turns: 4, staff: 6, fitSqm: 11000, util: 0.06, deliv: 60, sqm: [60, 130], seatsPerSqm: 0.5, menuQ: 55 },
+    bbq: { n: 'ปิ้งย่าง/ชาบูบุฟเฟ่ต์', d: 'ตั๋วสูง พื้นที่ใหญ่ ลงทุนหนัก ไฟฟ้าแพง ขายมื้อเย็นเป็นหลัก', ticket: 459, food: 0.42, capture: 0.022, turns: 2.4, staff: 10, fitSqm: 18000, util: 0.09, deliv: 8, sqm: [150, 260], seatsPerSqm: 0.55, menuQ: 50 },
+    bakery: { n: 'เบเกอรี่และขนมโฮมเมด', d: 'ของฝาก ของขวัญ ขายดีเทศกาล ครัวกลางช่วยได้มาก ของเหลือคือขยะ', ticket: 125, food: 0.30, capture: 0.05, turns: 6, staff: 5, fitSqm: 12000, util: 0.05, deliv: 35, sqm: [40, 90], seatsPerSqm: 0.35, menuQ: 55 }
+  });
+
+  var LOCS = (M.LOCS = {
+    street: { n: 'ตึกแถวริมถนน', foot: 2200, rent: [28000, 62000], sqmMult: 1, fit: 1, weekend: 1, deliv: 1.0, d: 'ค่าเช่าถูก ลูกค้าแถวบ้าน ที่จอดรถน้อย', lease: 36 },
+    community: { n: 'คอมมูนิตี้มอลล์', foot: 3000, rentSqm: [450, 700], fit: 1.05, weekend: 1.25, deliv: 1.1, d: 'ครอบครัวและวันหยุด มีที่จอดรถ', lease: 36 },
+    cbd: { n: 'อาคารสำนักงานย่าน CBD', foot: 4200, rentSqm: [900, 1300], fit: 1.15, weekend: 0.35, deliv: 1.3, d: 'มื้อกลางวันวันธรรมดาแน่นมาก วันหยุดเงียบสนิท', lease: 36 },
+    mall: { n: 'ห้างสรรพสินค้าใหญ่', foot: 6500, rentSqm: [1600, 2600], fit: 1.35, weekend: 1.35, deliv: 0.9, d: 'คนเดินเยอะที่สุด ค่าเช่าและค่าตกแต่งแพงที่สุด ห้างกำหนดมาตรฐานเข้มงวด', lease: 36 },
+    cloud: { n: 'คลาวด์คิทเช่น (เดลิเวอรีอย่างเดียว)', foot: 0, rent: [22000, 35000], fit: 0.35, weekend: 1, deliv: 1.6, d: 'ไม่มีหน้าร้าน ลงทุนต่ำ แต่ต้องพึ่งแอปเดลิเวอรีที่หัก GP ~30%', lease: 12, sqmFixed: 35 }
+  });
+
+  M.founderMap = {
+    build: { branch: 0.9, kitchen: 0.5, menu: 0.35 },
+    sell: { sales: 1 },
+    market: { mkt: 0.8, content: 0.8 },
+    discover: { discovery: 1, menu: 0.2 },
+    team: { hr: 0.7 },
+    fundraise: {},
+    admin: { finance: 0.5, ops: 0.5 },
+    consult: {}
+  };
+
+  M.concepts = function () { return Object.keys(CONCEPTS).map(function (k) { return { id: k, n: CONCEPTS[k].n, d: CONCEPTS[k].d }; }); };
+
+  M.init = function (state, opt) {
+    var key = opt.concept || 'cafe';
+    var c = CONCEPTS[key];
+    var biz = {
+      concept: key, product: c.n, branches: [], nextB: 1, sites: null, menuQ: c.menuQ, priceIdx: 1.0, foodAdj: 0, menuProj: null,
+      deliv: { on: true, promo: 0.05 }, loyalty: false, brand: 4, buzz: [], ck: null, fr: { on: false, count: 0, fee: 600000, royalty: 0.05, units: [] },
+      insight: 0, weekRev: 0, mstats: M.blank(), stats: [], rating: 4.2, consistency: 60, staffing: 1.0, wage: 13500, lifetime: { covers: 0 }
+    };
+    state.biz = biz;
+    var comps = [['เชนร้านดังจากญี่ปุ่น', 'แบรนด์ต่างชาติเงินหนา ขยายสาขาเร็ว', 70, 1.2, 70], ['ร้านเจ้าเก่าแก่ 30 ปี', 'ลูกค้าประจำเหนียวแน่น ราคาย่อมเยา', 62, 0.85, 30], ['แบรนด์ไวรัลในโซเชียล', 'คิวยาวช่วงแรก แต่ไม่แน่ว่าจะอยู่ยาว', 55, 1.05, 65]];
+    comps.forEach(function (x) { RW.World.addCompetitor(state, { name: x[0], desc: x[1], quality: x[2], price: x[3], mkt: x[4], cash: R.range(10e6, 80e6), burn: R.range(0.5e6, 2e6), stage: R.pick(['bootstrap', 'A', 'B']), aggr: R.range(0.3, 0.7) }); });
+    M.scout(state, 'street');
+    return biz;
+  };
+  M.blank = function () { return { covers: 0, deliv: 0, rev: 0, dineRev: 0, delivRev: 0, food: 0, labor: 0, lost: 0, royalty: 0 }; };
+  M.welcome = function (state) {
+    var c = CONCEPTS[state.biz.concept];
+    return 'คุณลาออกมาเปิด "' + c.n + '" — ' + c.d + '\n\nสิ่งที่ต้องทำช่วงแรก:\n1) จดทะเบียนบริษัท\n2) ดูทำเลที่หน้า "สาขา" — ตัวเลขคนเดินผ่านจากโบรกเกอร์เป็นแค่ค่าประมาณ ของจริงอาจต่างไป ±30%\n3) จ่ายมัดจำ ค่าตกแต่ง เปิดร้าน แล้วทำให้สาขาแรกมีกำไรก่อนคิดขยาย\n4) ต้นทุนวัตถุดิบ + ค่าแรง (Prime cost) ไม่ควรเกิน ~60–65% ของยอดขาย\n\nร้านอาหารไทยส่วนใหญ่ปิดตัวภายใน 3 ปี — เพราะเปิดผิดทำเล และขยายเร็วเกินไป';
+  };
+
+  // ---------- Sites ----------
+  M.scout = function (state, type) {
+    var b = state.biz, c = CONCEPTS[b.concept], L0 = LOCS[type];
+    var sites = [];
+    for (var i = 0; i < 3; i++) {
+      var sqm = L0.sqmFixed || Math.round(R.range(c.sqm[0], c.sqm[1]) / 5) * 5;
+      var rent = L0.rent ? Math.round(R.range(L0.rent[0], L0.rent[1]) / 1000) * 1000 : Math.round(sqm * R.range(L0.rentSqm[0], L0.rentSqm[1]) / 1000) * 1000;
+      var trueFoot = L0.foot * R.range(0.6, 1.45);
+      var quoted = trueFoot * R.range(0.8, 1.3); // broker estimates are optimistic and noisy
+      var area = ['ลาดพร้าว', 'อารีย์', 'ทองหล่อ', 'บางนา', 'สีลม', 'รัชดา', 'พระราม 9', 'บางแค', 'งามวงศ์วาน', 'แจ้งวัฒนะ', 'สุขุมวิท', 'ปิ่นเกล้า', 'รามอินทรา', 'บางกะปิ'];
+      sites.push({ id: R.id('st'), type: type, area: R.pick(area), sqm: sqm, rent: rent, foot: trueFoot, quoted: Math.round(quoted / 50) * 50, seats: Math.round(sqm * c.seatsPerSqm), fit: Math.round(sqm * c.fitSqm * L0.fit / 10000) * 10000 + (type === 'cloud' ? 250000 : 0) });
+    }
+    b.sites = { type: type, list: sites, w: state.time.w };
+    return sites;
+  };
+
+  M.openBranch = function (state, siteId, finance) {
+    var b = state.biz, c = CONCEPTS[b.concept];
+    if (!b.sites) return { ok: false, msg: 'ยังไม่มีทำเล' };
+    var st = b.sites.list.find(function (x) { return x.id === siteId; });
+    if (!st) return { ok: false, msg: 'ทำเลนี้ถูกคนอื่นเช่าไปแล้ว' };
+    var L0 = LOCS[st.type];
+    var deposit = st.rent * 3;
+    var pre = 120000 + c.staff * 15000; // hiring, training, opening marketing
+    var leased = finance ? Math.round(st.fit * 0.5 / 10000) * 10000 : 0;
+    var need = deposit + st.fit + pre - leased;
+    if (state.fin.bal.cash < need) return { ok: false, msg: 'เงินสดไม่พอ (ต้องใช้ ' + F.b(need) + ' = มัดจำ ' + F.m(deposit) + ' + ตกแต่ง ' + F.m(st.fit - leased) + (leased ? ' (หลังเช่าซื้อ)' : '') + ' + ก่อนเปิด ' + F.m(pre) + ')' };
+    if (!state.company.registered) return { ok: false, msg: 'ต้องจดทะเบียนบริษัทก่อนเซ็นสัญญาเช่าและขอใบอนุญาต' };
+    if (leased) L.addLoan(state, { kind: 'lease', name: 'เช่าซื้ออุปกรณ์ครัว ' + st.area, amount: leased, rate: state.world.macro.rate + 0.07, months: 36 });
+    L.post(state.fin, { prepaid: deposit, cash: -deposit }, 'op');
+    L.buyAsset(state, 'ตกแต่งและครัว สาขา' + st.area, st.fit, Math.min(60, L0.lease * 1.5));
+    var fid = state.fin.assets[state.fin.assets.length - 1].id;
+    L.spend(state.fin, 'other_exp', pre);
+    var br = {
+      id: 'b' + (b.nextB++), n: (st.type === 'cloud' ? 'ครัว ' : 'สาขา ') + st.area, type: st.type, sqm: st.sqm, rent: st.rent, foot: st.foot, seats: st.seats,
+      deposit: deposit, fitId: fid, fit: st.fit, leaseEnd: state.time.w + Math.round(L0.lease * 4.33), state: 'building', ready: state.time.w + R.int(6, 10) + (state.flags.fastPermit ? -2 : 0), opened: null,
+      mgr: null, staff: st.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff, staffSkill: 45, rating: 0, reviews: 0, ms: M.blank(), last: null, util: 0
+    };
+    b.branches.push(br);
+    b.sites.list = b.sites.list.filter(function (x) { return x.id !== siteId; });
+    return { ok: true, msg: 'เซ็นสัญญาเช่า ' + br.n + ' — ตกแต่งและขอใบอนุญาต ~' + (br.ready - state.time.w) + ' สัปดาห์ (จ่ายแล้ว ' + F.b(need) + (leased ? ' · เช่าซื้ออุปกรณ์ ' + F.b(leased) + ' ผ่อน 36 เดือน' : '') + ')' };
+  };
+
+  M.closeBranch = function (state, id) {
+    var b = state.biz, br = b.branches.find(function (x) { return x.id === id; });
+    if (!br || br.state === 'closed') return { ok: false };
+    var early = br.leaseEnd > state.time.w;
+    if (early) L.post(state.fin, { penalties: br.deposit, prepaid: -br.deposit });
+    else L.post(state.fin, { cash: br.deposit, prepaid: -br.deposit }, 'op');
+    var nbv = L.writeOffAsset(state, br.fitId);
+    var sev = br.staff * b.wage * 1.2;
+    L.spend(state.fin, 'severance', sev);
+    br.state = 'closed'; br.closedW = state.time.w;
+    if (br.mgr) { var e = RW.Team.find(state, br.mgr); if (e) e.branch = null; br.mgr = null; }
+    b.brand = Math.max(0, b.brand - 2);
+    return { ok: true, msg: 'ปิด ' + br.n + (early ? ' — ยึดเงินมัดจำ ' + F.b(br.deposit) : '') + ' · ตัดค่าตกแต่งที่เหลือ ' + F.b(nbv) + ' · ค่าชดเชยพนักงาน ' + F.b(sev) };
+  };
+
+  M.openBranches = function (b) { return b.branches.filter(function (x) { return x.state === 'open'; }); };
+  M.liveBranches = function (b) { return b.branches.filter(function (x) { return x.state !== 'closed'; }); };
+
+  // ---------- Weekly ----------
+  M.buzzMult = function (b) { var m = 1; b.buzz.forEach(function (x) { m *= 1 + (x.m - 1) * (x.weeks / x.total); }); return m; };
+  M.season = function (info, type) {
+    var m = info.month;
+    var dine = [1.0, 0.98, 1.0, 0.92, 0.98, 0.94, 0.92, 0.95, 0.92, 0.95, 1.02, 1.12][m];
+    var del = [1.0, 1.0, 1.0, 1.0, 1.05, 1.1, 1.12, 1.12, 1.12, 1.08, 1.0, 1.05][m];
+    if (type === 'cbd' && m === 3) dine *= 0.75; // Songkran empties offices
+    return { dine: dine, del: del };
+  };
+
+  M.mgrQuality = function (state, br) {
+    var b = state.biz;
+    if (br.mgr) { var e = RW.Team.find(state, br.mgr); if (e && !e.gone && e.startW <= state.time.w) return U.clamp(e.skill * (0.7 + e.morale / 330), 20, 98); br.mgr = null; }
+    // founder can run one or two shops personally
+    var fb = RW.Team.capOf(state, 'f_build');
+    var n = M.openBranches(b).filter(function (x) { return !x.mgr; }).length;
+    return U.clamp(25 + fb * 70 / Math.max(1, n) + state.founder.skills.leadership * 0.15, 15, 85);
+  };
+
+  M.weekly = function (state, info) {
+    var b = state.biz, c = CONCEPTS[b.concept], fin = state.fin, w = state.time.w;
+    b.buzz.forEach(function (x) { x.weeks--; });
+    b.buzz = b.buzz.filter(function (x) { return x.weeks > 0; });
+    b.insight = U.clamp(b.insight + RW.Team.capOf(state, 'discovery') * 4 * (1 - b.insight / 110), 0, 100);
+    // menu R&D project
+    if (b.menuProj) {
+      b.menuProj.prog += RW.Team.capOf(state, 'menu') + 0.15;
+      if (b.menuProj.prog >= b.menuProj.need) {
+        var gain = R.range(4, 10) * (1 + b.insight / 150);
+        b.menuQ = U.clamp(b.menuQ + gain, 0, 98);
+        b.buzz.push({ m: 1.15, weeks: 4, total: 4 });
+        RW.Engine.mail(state, 'product', 'เปิดตัวเมนูใหม่', 'คุณภาพเมนู +' + gain.toFixed(1) + ' → ' + Math.round(b.menuQ) + ' · ลูกค้าเก่ากลับมาลอง', 'good');
+        b.menuProj = null;
+      }
+    }
+    var vat = fin.vat.registered ? 1 / 1.07 : 1;
+    // walk-in trade depends mostly on location; brand adds on top
+    var brandF = (0.8 + b.brand / 200) * M.buzzMult(b) * state.world.macro.consumer * state.diff.market;
+    var priceVal = Math.pow(1 / b.priceIdx, 1.25);
+    var compF = 1 / (1 + U.sum(RW.World.aliveCompetitors(state), function (x) { return x.mkt / 100 * 0.08; }));
+    var ck = b.ck && b.ck.ready <= w;
+    var st = { covers: 0, deliv: 0, rev: 0, food: 0, lost: 0 };
+    var weekRev = 0;
+    b.branches.forEach(function (br) {
+      if (br.state === 'building') {
+        if (w >= br.ready) {
+          br.state = 'open'; br.opened = w; br.rating = 4.0;
+          b.buzz.push({ m: 1.08, weeks: 3, total: 3 });
+          RW.Engine.mail(state, 'product', 'เปิด ' + br.n + ' อย่างเป็นทางการ', 'ช่วงแรกลูกค้ายังไม่รู้จัก ยอดขายจะค่อยๆ โตใน 3–4 เดือน · ' + br.seats + ' ที่นั่ง · ค่าเช่า ' + F.b(br.rent) + '/เดือน', 'good');
+        }
+        return;
+      }
+      if (br.state !== 'open') return;
+      var age = w - br.opened;
+      var ramp = Math.min(1, 0.4 + age / 18 * 0.6);
+      var mq = M.mgrQuality(state, br);
+      br.mq = mq;
+      var cons = U.clamp(mq * 0.7 + (ck ? 25 : 10) + br.staffSkill * 0.15, 10, 100);
+      br.cons = cons;
+      var sea = M.season(info, br.type);
+      var L0 = LOCS[br.type];
+      var ratingF = br.rating >= 4.6 ? 1.25 : br.rating >= 4.3 ? 1.08 : br.rating >= 4.0 ? 0.95 : br.rating >= 3.6 ? 0.75 : 0.5;
+      var menuF = Math.pow(b.menuQ / 60, 1.2);
+      var A = menuF * priceVal * ratingF * brandF * compF * (0.85 + cons / 650);
+      // staffing: required staff grows with volume
+      var baseStaff = br.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff;
+      var required = baseStaff + (br.last ? (br.last.covers + br.last.deliv * 0.6) / 260 : 0);
+      var staffRatio = br.staff / Math.max(1, required);
+      var serviceF = U.clamp(0.55 + 0.45 * staffRatio, 0.5, 1.08);
+      // dine-in
+      var footWeek = br.foot * (5 + 2 * L0.weekend) * sea.dine;
+      var demand = footWeek * c.capture * A * ramp * (state.flags.pandemic && state.flags.pandemic > w ? 0.15 : 1);
+      var cap = br.seats * c.turns * 7 * U.clamp(staffRatio, 0.5, 1.05);
+      var covers = R.poisson(Math.min(demand, cap));
+      var lost = Math.max(0, demand - cap);
+      br.util = cap > 0 ? covers / cap : 0;
+      if (lost > cap * 0.2) b.buzz.push({ m: 1.01, weeks: 1, total: 1 }); // queues create hype
+      // delivery
+      var deliv = 0;
+      if (b.deliv.on) {
+        var dBase = c.deliv * L0.deliv * 7 * (br.type === 'cloud' ? 2.2 : 1);
+        deliv = R.poisson(dBase * A * ramp * sea.del * (1 + b.deliv.promo * 6) * (state.flags.pandemic && state.flags.pandemic > w ? 2.5 : 1) * (b.delivAppBoost || 1));
+        var kitchenCap = (br.staff * 70 + 50) * (br.type === 'cloud' ? 1.6 : 1);
+        if (covers + deliv > kitchenCap) { var cut = covers + deliv - kitchenCap; deliv = Math.max(0, deliv - cut); }
+      }
+      var ticket = c.ticket * b.priceIdx;
+      var dineRev = covers * ticket * vat;
+      var delGross = deliv * ticket * 1.15;
+      var delRev = delGross * vat * (1 - b.deliv.promo);
+      L.earnCash(fin, 'rev_food', dineRev);
+      if (delRev > 0) L.invoice(state, 'rev_deliv', delRev, w + 1, { name: 'แอปเดลิเวอรี', seg: 'delivery' });
+      // variable costs
+      var foodPct = Math.max(0.12, c.food + b.foodAdj - (ck ? 0.035 : 0) + (state.world.fx - 35.5) * 0.002 + (1 - Math.min(1, staffRatio)) * 0.02);
+      var waste = 0.05 * (ck ? 0.7 : 1) * (1.3 - Math.min(0.3, RW.Team.capOf(state, 'data') * 0.15)) * (br.util < 0.4 ? 1.4 : 1);
+      // ingredients cost the same whether dine-in or delivery (app prices are marked up ~15% to cover GP)
+      var food = (dineRev + deliv * ticket * vat) * foodPct * (1 + waste);
+      L.spend(fin, 'cogs_goods', food);
+      if (delGross > 0) {
+        var gp = delGross * vat * 0.30;
+        L.post(fin, { cogs_platform: gp, cash: -gp }, 'op');
+        L.spend(fin, 'cogs_other', delGross * 0.05); // packaging
+      }
+      L.spend(fin, 'cogs_fees', dineRev * 0.4 * 0.016);
+      // rating dynamics
+      var target = 3.1 + b.menuQ / 100 * 1.2 + (serviceF - 0.8) * 1.5 + cons / 250 - (b.priceIdx - 1) * 0.6;
+      br.rating = U.clamp(U.approach(br.rating, target, 0.06), 1, 5);
+      br.reviews += (covers + deliv) * 0.02;
+      // staff skill improves with tenure & training
+      br.staffSkill = U.clamp(br.staffSkill + (RW.POLICIES.culture[state.team.policy.culture].train || 1) * 0.15 - 0.08, 20, 95);
+      br.ms.covers += covers; br.ms.deliv += deliv; br.ms.rev += dineRev + delRev; br.ms.dineRev += dineRev; br.ms.delivRev += delRev; br.ms.food += food;
+      st.covers += covers; st.deliv += deliv; st.rev += dineRev + delRev; st.food += food; st.lost += lost;
+      weekRev += dineRev + delRev;
+      b.lifetime.covers += covers + deliv;
+    });
+    // franchise royalties
+    if (b.fr.on && b.fr.units.length) {
+      var sys = U.sum(b.fr.units, function (u) { return u.weekly * (0.8 + b.brand / 250); });
+      var roy = sys * b.fr.royalty;
+      L.invoice(state, 'rev_franchise', roy, w + 4, { name: 'ค่ารอยัลตี้แฟรนไชส์', seg: 'franchise', wht: true });
+      b.mstats.royalty += roy; weekRev += roy;
+    }
+    // catering / corporate orders from sales capacity
+    var sales = RW.Team.capOf(state, 'sales');
+    if (sales > 0.1 && M.openBranches(b).length) {
+      var cat = R.poisson(sales * 3) * c.ticket * 40 * vat;
+      if (cat > 0) { L.invoice(state, 'rev_food', cat, w + 4, { name: 'งานจัดเลี้ยง/ข้าวกล่ององค์กร', seg: 'catering', wht: true }); L.spend(fin, 'cogs_goods', cat * c.food * 1.05); weekRev += cat; st.rev += cat; }
+    }
+    var ms = b.mstats;
+    ms.covers += st.covers; ms.deliv += st.deliv; ms.rev += st.rev; ms.food += st.food; ms.lost += st.lost;
+    // brand & overall rating
+    var ob = M.openBranches(b);
+    b.rating = ob.length ? U.sum(ob, function (x) { return x.rating * (x.reviews + 5); }) / U.sum(ob, function (x) { return x.reviews + 5; }) : b.rating;
+    b.consistency = ob.length ? U.avg(ob, function (x) { return x.cons || 50; }) : b.consistency;
+    b.brand = U.clamp(b.brand * 0.997 + ob.length * 0.12 + (b.rating - 4.2) * 0.3 + Math.log10(1 + st.covers) * 0.03, 0, 100);
+    b.weekRev = weekRev;
+  };
+
+  // ---------- Monthly ----------
+  M.monthly = function (state, info) {
+    var b = state.biz, fin = state.fin, c = CONCEPTS[b.concept];
+    var minWageIdx = state.world.wageIndex * (state.flags.minWage || 1);
+    b.wage = Math.round(13500 * minWageIdx / 100) * 100;
+    var totalStaff = 0;
+    b.branches.forEach(function (br) {
+      if (br.state === 'closed') return;
+      L.spend(fin, 'rent', br.rent + (br.type === 'mall' ? br.sqm * 120 : 0));
+      if (br.state !== 'open') { br.ms = M.blank(); return; }
+      var labor = br.staff * b.wage * (br.type === 'mall' ? 1.08 : 1);
+      L.spend(fin, 'cogs_staff', labor);
+      L.spend(fin, 'benefits', br.staff * L.socialSecurity(b.wage));
+      var util = br.ms.rev * c.util + br.sqm * 180;
+      L.spend(fin, 'utilities', util);
+      L.spend(fin, 'office', br.ms.rev * 0.015 + 4000); // maintenance, smallwares, cleaning
+      // frontline turnover → recruiting & training cost; understaffing persists if HR weak
+      var turnover = br.staff * (0.07 + (b.staffing > 1.1 ? -0.02 : b.staffing < 0.9 ? 0.04 : 0));
+      L.spend(fin, 'recruit', turnover * 3500);
+      br.staffSkill = Math.max(20, br.staffSkill - turnover / Math.max(1, br.staff) * 12);
+      var required = (br.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff) + (br.ms.covers + br.ms.deliv * 0.6) / 4.33 / 260;
+      var hrF = Math.min(1, 0.75 + RW.Team.capOf(state, 'hr') * 0.2 + RW.Team.capOf(state, 'ops') * 0.1);
+      br.staff = Math.max(2, Math.round(required * b.staffing * (R.chance(hrF) ? 1 : 0.9)));
+      totalStaff += br.staff;
+      var rent = br.rent + (br.type === 'mall' ? br.sqm * 120 : 0);
+      var foodC = br.ms.food;
+      var gp = br.ms.delivRev / (1 - b.deliv.promo) * 0.30;
+      br.last = { rev: br.ms.rev, covers: br.ms.covers, deliv: br.ms.deliv, food: foodC, labor: labor + br.staff * L.socialSecurity(b.wage), rent: rent, util: util, gp: gp, other: br.ms.rev * 0.015 + 4000 };
+      br.last.wall = br.last.rev - br.last.food - br.last.labor - br.last.rent - br.last.util - br.last.gp - br.last.other - br.ms.delivRev * 0.05;
+      br.hist = br.hist || [];
+      br.hist.push(br.last.wall);
+      if (br.hist.length > 12) br.hist.shift();
+      br.ms = M.blank();
+    });
+    b.staffTotal = totalStaff;
+    // central kitchen
+    if (b.ck && b.ck.ready <= state.time.w) { L.spend(fin, 'cogs_other', 160000); L.spend(fin, 'rent', 60000); }
+    if (b.loyalty) L.spend(fin, 'software', 15000 + M.openBranches(b).length * 2000);
+    // franchise program upkeep & new franchisees
+    if (b.fr.on) {
+      L.spend(fin, 'sal_ga', 60000);
+      var avgWall = U.avg(M.openBranches(b), function (x) { return x.last ? x.last.wall / Math.max(1, x.last.rev) : 0; });
+      var apps = (b.brand / 45) * (avgWall > 0.12 ? 1 : 0.3) * state.world.macro.consumer;
+      if (R.chance(Math.min(0.85, apps * 0.35))) {
+        b.fr.units.push({ w: state.time.w, weekly: c.ticket * c.capture * 3500 * 7 * R.range(0.6, 1.2), q: R.range(40, 80) });
+        L.post(fin, { cash: b.fr.fee, rev_franchise: -b.fr.fee }, 'op');
+        RW.Engine.mail(state, 'sales', 'แฟรนไชส์ซีรายใหม่เปิดสาขา', 'รับค่าแฟรนไชส์แรกเข้า ' + F.b(b.fr.fee) + ' · รวม ' + b.fr.units.length + ' สาขาแฟรนไชส์', 'good');
+      }
+      // franchisee quality drags the brand
+      var badQ = U.avg(b.fr.units, function (u) { return u.q; });
+      if (b.fr.units.length && badQ < 55) b.brand = Math.max(0, b.brand - 0.5);
+    }
+    b.stats.push(b.mstats);
+    if (b.stats.length > 24) b.stats.shift();
+    b.mstats = M.blank();
+  };
+
+  // ---------- KPIs / investor view ----------
+  M.kpis = function (state) {
+    var b = state.biz;
+    var ob = M.openBranches(b);
+    var walls = ob.filter(function (x) { return x.last; });
+    var revB = U.sum(walls, function (x) { return x.last.rev; });
+    var wallM = revB > 0 ? U.sum(walls, function (x) { return x.last.wall; }) / revB : null;
+    var primeC = revB > 0 ? U.sum(walls, function (x) { return x.last.food + x.last.labor; }) / revB : null;
+    var mo = b.stats.length ? b.stats[b.stats.length - 1] : null;
+    var avgFit = U.avg(ob, function (x) { return x.fit; });
+    var avgWall = walls.length ? U.avg(walls, function (x) { return x.last.wall; }) : 0;
+    return {
+      branches: ob.length, building: b.branches.filter(function (x) { return x.state === 'building'; }).length, franchise: b.fr.units.length,
+      wallMargin: wallM, primeCost: primeC, covers: mo ? mo.covers + mo.deliv : 0, rating: b.rating, customers: Math.round(b.lifetime.covers),
+      payback: avgWall > 0 ? avgFit / avgWall : null, marketShare: Math.min(0.5, ob.length / 400),
+      workload: { cogs: 1 + Math.max(0, 1 - b.staffing) * 1.5, sm: 1, rnd: 1 }, arr: 0, mrr: 0
+    };
+  };
+  M.monthKPIs = function (state) {
+    var b = state.biz, mo = b.stats.length ? b.stats[b.stats.length - 1] : null;
+    return { covers: mo ? mo.covers + mo.deliv : 0, branches: M.openBranches(b).length + b.fr.units.length };
+  };
+  M.reportLine = function (state) {
+    var k = state.kpi;
+    return 'สาขาเปิดอยู่ ' + k.branches + (k.franchise ? ' + แฟรนไชส์ ' + k.franchise : '') + ' · ลูกค้า/เดือน ' + F.num(k.covers) + ' · 4-wall margin ' + (k.wallMargin != null ? F.pct(k.wallMargin, 0) : '–') + ' · Prime cost ' + (k.primeCost != null ? F.pct(k.primeCost, 0) : '–') + ' · เรตติ้ง ' + state.biz.rating.toFixed(2);
+  };
+  M.forecastCost = function (state) {
+    var b = state.biz;
+    return U.sum(M.liveBranches(b), function (br) { return br.rent + br.staff * b.wage; });
+  };
+  M.forecastRevenue = function (state) { return state.kpi.revenueMonthly || 0; };
+  M.rbfEligible = function (state) { return state.hist.monthly.length >= 6 && (state.kpi.revenueMonthly || 0) > 400000; };
+
+  M.traction = function (state) {
+    var b = state.biz, k = state.kpi;
+    var revRun = (k.revenueMonthly || 0) * 12;
+    var wall = k.wallMargin != null ? k.wallMargin : 0;
+    var eq = revRun * U.clamp(0.25 + wall * 1.4, 0.1, 0.65) + b.fr.units.length * 2e6;
+    var prod = M.openBranches(b).length ? 5 + Math.min(6, M.openBranches(b).length) + (b.rating - 4) * 5 : (b.branches.length ? 3 : 0);
+    var arrPts = 20 * Math.log10(1 + eq / 250000);
+    var g = Math.pow(1 + (k.cmgr3 || 0), 12) - 1;
+    var growthPts = U.clamp(10 * Math.log2(1 + Math.max(-0.5, g)), -15, 20) * Math.min(1, revRun / 4e6);
+    var execs = RW.Team.active(state).filter(function (e) { return e.level >= 4; }).length + (state.cofounders || []).filter(function (c) { return c.active; }).length;
+    var team = Math.min(8, execs * 1.5 + state.founder.rep / 12);
+    var unit = wall > 0.18 ? 6 : wall > 0.1 ? 2 : wall < 0 ? -6 : 0;
+    var score = prod + arrPts + growthPts + team + unit + Math.min(5, b.brand / 12);
+    return { score: score, arr: eq, growth: g, lines: [['รายได้ (annualized)', F.m(revRun)], ['การเติบโต', revRun > 0 ? F.spct(g, 0) : '–'], ['สาขา', String(M.openBranches(b).length) + (b.fr.units.length ? ' + แฟรนไชส์ ' + b.fr.units.length : '')], ['4-wall margin', k.wallMargin != null ? F.pct(k.wallMargin, 0) : '–'], ['เรตติ้ง', b.rating.toFixed(2)]] };
+  };
+  M.valuation = function (state) {
+    var tr = M.traction(state);
+    var qual = RW.Models.saas.qualValue(tr.score);
+    var revRun = (state.kpi.revenueMonthly || 0) * 12;
+    if (revRun <= 0) return qual;
+    var g = U.clamp(tr.growth, 0, 2);
+    var ebitda = state.kpi.ebitdaTTM || 0;
+    var fund = Math.max(revRun * (0.6 + 1.2 * Math.pow(g, 0.6)) * U.clamp(0.6 + (state.kpi.wallMargin || 0) * 2, 0.4, 1.3), ebitda * 11);
+    var a = Math.sqrt(U.clamp(revRun / 80e6, 0, 1));
+    return Math.exp(a * Math.log(Math.max(1e6, fund)) + (1 - a) * Math.log(qual));
+  };
+
+  M.advice = function (state) {
+    var b = state.biz, k = state.kpi, out = [];
+    function add(l, t) { out.push({ lvl: l, t: t }); }
+    if (!b.branches.length) add('warn', 'ยังไม่มีร้าน — เลือกทำเลที่หน้า "สาขา" แล้วเซ็นสัญญาเช่า');
+    var fixedM = U.sum(M.liveBranches(b), function (br) { return br.rent + br.staff * b.wage; });
+    if (fixedM > 0 && state.fin.bal.cash < fixedM * 2 && (k.revenueMonthly || 0) < fixedM * 1.5) add('crit', 'เงินสดเหลือไม่ถึง 2 เดือนของค่าเช่า+ค่าแรง (' + F.m(fixedM) + '/เดือน) — ร้านใหม่ต้องใช้เวลา 3–4 เดือนกว่ายอดจะขึ้น');
+    if (k.primeCost != null && k.primeCost > 0.68) add('warn', 'Prime cost (วัตถุดิบ+ค่าแรง) ' + F.pct(k.primeCost, 0) + ' ของยอดขาย — สูงเกิน ~65% ร้านจะขาดทุน');
+    M.openBranches(b).forEach(function (br) {
+      if (br.last && br.last.wall < 0 && state.time.w - br.opened > 20) add('warn', br.n + ' ขาดทุนระดับสาขา (' + F.m(br.last.wall) + '/เดือน) หลังเปิดมา ' + Math.round((state.time.w - br.opened) / 4.33) + ' เดือน');
+      if (!br.mgr && M.openBranches(b).length > 1) add('info', br.n + ' ยังไม่มีผู้จัดการสาขา — คุณภาพไม่สม่ำเสมอ');
+      if (br.util > 0.95) add('info', br.n + ' ที่นั่งเต็มตลอด ลูกค้ารอคิวแล้วกลับบ้าน — ขึ้นราคาหรือขยายสาขาได้');
+      if (br.rating && br.rating < 3.8) add('warn', br.n + ' เรตติ้ง ' + br.rating.toFixed(1) + ' — ลูกค้าเริ่มหนี');
+    });
+    if (M.openBranches(b).length >= 4 && !b.ck) add('info', 'มี 4 สาขาขึ้นไป — ครัวกลางช่วยลดต้นทุนวัตถุดิบและทำให้รสชาติสม่ำเสมอ');
+    if (b.staffing < 0.9) add('warn', 'จัดพนักงานน้อยเกินไป — บริการช้า เรตติ้งตก คนลาออกเยอะ');
+    return out;
+  };
+
+  M.onEmployeeLeft = function (state, e) {
+    state.biz.branches.forEach(function (br) { if (br.mgr === e.id) { br.mgr = null; RW.Engine.mail(state, 'team', br.n + ' ไม่มีผู้จัดการแล้ว', e.name + ' ออกไป — คุณภาพร้านจะตกถ้าไม่หาคนแทน', 'warn'); } });
+  };
+  M.onCompetitorDied = function (state) { state.biz.buzz.push({ m: 1.12, weeks: 8, total: 8 }); };
+  M.onPandemic = function (state, pivot) { if (pivot) state.biz.delivAppBoost = 1.4; };
+  M.onDisaster = function (state, sev) { M.openBranches(state.biz).forEach(function (br) { if (R.chance(sev)) { br.ready = state.time.w + 2; br.state = 'building'; } }); };
+  M.onPermit = function (state, fast) { if (fast) state.flags.fastPermit = 1; else state.biz.branches.forEach(function (br) { if (br.state === 'building') br.ready += 2; }); };
+  M.newEntrant = function (state) {
+    return { name: R.pick(['ร้านดังจากเกาหลี', 'เชนคาเฟ่จีนราคาถูก', 'แบรนด์ลูกของบริษัทใหญ่', 'ร้านเชฟดังเปิดใหม่']), desc: 'เปิดสาขาใกล้ร้านคุณหลายแห่ง ทุนหนา', quality: R.int(55, 75), price: R.range(0.7, 1.2), mkt: R.int(55, 85), cash: R.range(30e6, 150e6), burn: R.range(1e6, 3e6), stage: 'B', aggr: R.range(0.4, 0.8) };
+  };
+
+  // ---------- Actions ----------
+  M.act = {
+    scout: function (s, type) {
+      L.spend(s.fin, 'prof', type === 'mall' ? 30000 : 8000);
+      M.scout(s, type);
+      return { ok: true, msg: 'โบรกเกอร์ส่งทำเล ' + LOCS[type].n + ' มา 3 แห่ง (ค่าสำรวจ ' + F.b(type === 'mall' ? 30000 : 8000) + ')' };
+    },
+    open: function (s, id, fin) { return M.openBranch(s, id, fin); },
+    close: function (s, id) { return M.closeBranch(s, id); },
+    setPrice: function (s, v) { s.biz.priceIdx = U.clamp(v, 0.7, 1.6); if (s.fin.vat.registered) s.flags.vatRepriced = 1; return { ok: true }; },
+    setStaffing: function (s, v) { s.biz.staffing = U.clamp(v, 0.75, 1.3); return { ok: true }; },
+    assign: function (s, brId, empId) {
+      var b = s.biz;
+      var br = b.branches.find(function (x) { return x.id === brId; });
+      b.branches.forEach(function (x) { if (x.mgr === empId) x.mgr = null; });
+      if (br) br.mgr = empId || null;
+      return { ok: true };
+    },
+    menuRD: function (s) {
+      var b = s.biz;
+      if (b.menuProj) return { ok: false, msg: 'กำลังพัฒนาเมนูอยู่' };
+      L.spend(s.fin, 'other_exp', 60000);
+      b.menuProj = { prog: 0, need: 6 };
+      return { ok: true, msg: 'เริ่มพัฒนาเมนูใหม่ (ค่าวัตถุดิบทดลอง ฿60,000) — เชฟช่วยให้เร็วและดีขึ้น' };
+    },
+    costCut: function (s) {
+      var b = s.biz;
+      if (s.flags.costCutW && s.time.w - s.flags.costCutW < 26) return { ok: false, msg: 'เพิ่งปรับสูตรไป' };
+      s.flags.costCutW = s.time.w;
+      b.foodAdj -= 0.02; b.menuQ = Math.max(10, b.menuQ - 4);
+      return { ok: true, msg: 'ปรับสูตร/เปลี่ยนซัพพลายเออร์ถูกลง — ต้นทุนวัตถุดิบ −2pp แต่คุณภาพเมนูลดลง' };
+    },
+    premiumIngredients: function (s) {
+      var b = s.biz;
+      b.foodAdj += 0.025; b.menuQ = Math.min(98, b.menuQ + 6);
+      return { ok: true, msg: 'ใช้วัตถุดิบเกรดดีขึ้น — คุณภาพเมนู +6 ต้นทุนวัตถุดิบ +2.5pp' };
+    },
+    toggleDelivery: function (s) { s.biz.deliv.on = !s.biz.deliv.on; return { ok: true }; },
+    setPromo: function (s, v) { s.biz.deliv.promo = U.clamp(v, 0, 0.3); return { ok: true }; },
+    toggleLoyalty: function (s) { s.biz.loyalty = !s.biz.loyalty; if (s.biz.loyalty) s.biz.buzz.push({ m: 1.08, weeks: 52, total: 52 }); return { ok: true, msg: s.biz.loyalty ? 'เปิดแอปสะสมแต้ม/LINE OA — ลูกค้าประจำกลับมาบ่อยขึ้น' : 'ปิดโปรแกรมสมาชิก' }; },
+    campaign: function (s, tier) {
+      var t = { blogger: [40000, 1.2, 3, 2], kol: [250000, 1.5, 4, 5], tv: [1200000, 1.9, 6, 10] }[tier];
+      if (s.fin.bal.cash < t[0]) return { ok: false, msg: 'เงินไม่พอ' };
+      L.spend(s.fin, 'mkt', t[0]);
+      s.biz.buzz.push({ m: t[1], weeks: t[2], total: t[2] });
+      s.biz.brand = Math.min(100, s.biz.brand + t[3]);
+      return { ok: true, msg: { blogger: 'เชิญฟู้ดบล็อกเกอร์ 8 คนมารีวิว', kol: 'จ้าง KOL สายกินชื่อดัง', tv: 'ออกรายการทีวีและโฆษณาออนไลน์ใหญ่' }[tier] + ' (' + F.b(t[0]) + ')' };
+    },
+    buildCK: function (s) {
+      var b = s.biz;
+      if (b.ck) return { ok: false, msg: 'มีครัวกลางแล้ว' };
+      var cost = 7500000;
+      if (s.fin.bal.cash < cost) return { ok: false, msg: 'ต้องใช้เงิน ' + F.m(cost) };
+      L.buyAsset(s, 'ครัวกลาง', cost, 84);
+      b.ck = { ready: s.time.w + 16 };
+      return { ok: true, msg: 'เริ่มสร้างครัวกลาง (' + F.m(cost) + ') เสร็จใน ~16 สัปดาห์ — ค่าดำเนินการ ~฿220K/เดือน' };
+    },
+    startFranchise: function (s) {
+      var b = s.biz;
+      if (b.fr.on) return { ok: false, msg: 'เปิดแฟรนไชส์แล้ว' };
+      if (M.openBranches(b).length < 4 || b.brand < 35) return { ok: false, msg: 'ต้องมีอย่างน้อย 4 สาขาที่มีกำไร และแบรนด์ ≥35 คนถึงจะอยากซื้อแฟรนไชส์' };
+      L.spend(s.fin, 'prof', 1500000);
+      b.fr.on = true;
+      return { ok: true, msg: 'จ้างที่ปรึกษาทำคู่มือ ระบบ และสัญญาแฟรนไชส์ (฿1.5M) — ค่าแรกเข้า ' + F.b(b.fr.fee) + ' + รอยัลตี้ ' + F.pct(b.fr.royalty, 0) };
+    }
+  };
+
+  // ---------- F&B events ----------
+  var E = RW.Events, H = E.H;
+  E.register({
+    id: 'fnb_poison', cat: 'admin', ind: ['fnb'], weight: function (s) { return 0.3 + (80 - s.biz.consistency) / 60; }, cooldown: 52, bad: true,
+    cond: function (s) { return M.openBranches(s.biz).length > 0 && s.time.w > 10; },
+    init: function (s) { return { br: R.pick(M.openBranches(s.biz)).id }; },
+    valid: function (s, d) { return s.biz.branches.some(function (x) { return x.id === d.br && x.state === 'open'; }); },
+    title: 'ลูกค้าอาหารเป็นพิษ',
+    body: function (s, d) { var br = s.biz.branches.find(function (x) { return x.id === d.br; }); return 'ลูกค้า 6 คนที่ทานที่ ' + br.n + ' เข้าโรงพยาบาลด้วยอาการอาหารเป็นพิษ หนึ่งในนั้นโพสต์ลงโซเชียลพร้อมรูปใบรับรองแพทย์ เจ้าหน้าที่สาธารณสุขเขตจะเข้าตรวจ'; },
+    choices: function (s, d) {
+      var br = s.biz.branches.find(function (x) { return x.id === d.br; });
+      return [
+        { t: 'ปิดสาขาชั่วคราว 1 สัปดาห์ ตรวจทั้งระบบ ชดเชยลูกค้าเต็มที่', fx: function () { br.ready = s.time.w + 1; br.state = 'building'; L.spend(s.fin, 'penalties', 80000); br.rating = Math.max(1, br.rating - 0.2); H.brand(s, -3); return 'ลูกค้าเห็นความรับผิดชอบ ความเสียหายจำกัด'; } },
+        { t: 'ชดเชยลูกค้าเงียบๆ เปิดร้านต่อ', fx: function () { L.spend(s.fin, 'penalties', 30000); if (R.chance(0.4)) { br.rating -= 0.6; H.brand(s, -10); s.biz.buzz.push({ m: 0.75, weeks: 8, total: 8 }); return 'เรื่องบานปลายในโซเชียล "ร้านปกปิดความจริง"'; } br.rating -= 0.15; return 'เรื่องเงียบไป'; } }
+      ];
+    }
+  });
+  E.register({
+    id: 'fnb_minwage', cat: 'market', ind: ['fnb'], weight: 0.5, once: true, bad: true,
+    cond: function (s) { return s.time.w > 30; },
+    title: 'รัฐบาลประกาศขึ้นค่าแรงขั้นต่ำ',
+    body: 'คณะกรรมการค่าจ้างประกาศขึ้นค่าแรงขั้นต่ำทั่วประเทศ ~8% มีผลเดือนหน้า ธุรกิจร้านอาหารที่ใช้แรงงานเข้มข้นได้รับผลกระทบโดยตรง',
+    choices: function (s) {
+      return [
+        { t: 'ขึ้นราคาเมนู 5%', fx: function () { s.flags.minWage = (s.flags.minWage || 1) * 1.08; s.biz.priceIdx *= 1.05; return 'ลูกค้าบางส่วนบ่นเรื่องราคา'; } },
+        { t: 'ลดจำนวนพนักงานต่อกะ', fx: function () { s.flags.minWage = (s.flags.minWage || 1) * 1.08; s.biz.staffing = Math.max(0.75, s.biz.staffing - 0.08); return 'ต้นทุนแรงงานคงที่ แต่บริการช้าลง'; } },
+        { t: 'ยอมรับต้นทุนเพิ่ม', fx: function () { s.flags.minWage = (s.flags.minWage || 1) * 1.08; return 'อัตรากำไรระดับสาขาลดลง'; } }
+      ];
+    }
+  });
+  E.register({
+    id: 'fnb_ingredient', cat: 'market', ind: ['fnb'], weight: 1, cooldown: 40, bad: true,
+    cond: function (s) { return M.openBranches(s.biz).length > 0; },
+    title: function (s) { return R.pick(['ราคาหมูพุ่งทำสถิติใหม่', 'ไข่ไก่และน้ำมันพืชขึ้นราคา', 'เมล็ดกาแฟโลกแพงขึ้น 40%', 'ภัยแล้งทำผักแพง']); },
+    body: 'ต้นทุนวัตถุดิบหลักของคุณเพิ่มขึ้นอย่างมาก คาดว่าจะยืดเยื้อหลายเดือน',
+    choices: function (s) {
+      return [
+        { t: 'ขึ้นราคา 6%', fx: function () { s.biz.foodAdj += 0.03; s.biz.priceIdx *= 1.06; return 'ส่งต่อต้นทุนให้ลูกค้า'; } },
+        { t: 'ปรับสูตร ลดปริมาณเล็กน้อย', fx: function () { s.biz.foodAdj += 0.01; s.biz.menuQ -= 3; return 'ลูกค้าบางคนสังเกตว่าจานเล็กลง'; } },
+        { t: 'ยอมกินมาร์จิ้น', fx: function () { s.biz.foodAdj += 0.04; E.later(s, 20, 'fnb_ingredient_end', {}); return 'ต้นทุนวัตถุดิบ +4pp ชั่วคราว'; } }
+      ];
+    }
+  });
+  E.effect('fnb_ingredient_end', function (s) { s.biz.foodAdj -= 0.03; H.mail(s, 'ราคาวัตถุดิบเริ่มกลับสู่ปกติ', 'ต้นทุนวัตถุดิบลดลง', 'good'); });
+  E.register({
+    id: 'fnb_landlord', cat: 'admin', ind: ['fnb'], weight: 0.8, cooldown: 52, bad: true,
+    cond: function (s) { return M.openBranches(s.biz).some(function (x) { return x.leaseEnd - s.time.w < 20; }); },
+    init: function (s) { var br = M.openBranches(s.biz).filter(function (x) { return x.leaseEnd - s.time.w < 20; }); return br.length ? { br: br[0].id } : null; },
+    valid: function (s, d) { return s.biz.branches.some(function (x) { return x.id === d.br && x.state === 'open'; }); },
+    title: 'สัญญาเช่าใกล้หมด — เจ้าของขอขึ้นค่าเช่า',
+    body: function (s, d) { var br = s.biz.branches.find(function (x) { return x.id === d.br; }); return 'เจ้าของพื้นที่ ' + br.n + ' เห็นว่าร้านขายดี ขอขึ้นค่าเช่า 25% (จาก ' + F.b(br.rent) + ') สำหรับสัญญาใหม่ 3 ปี'; },
+    choices: function (s, d) {
+      var br = s.biz.branches.find(function (x) { return x.id === d.br; });
+      return [
+        { t: 'ต่อสัญญา +25%', fx: function () { br.rent = Math.round(br.rent * 1.25 / 1000) * 1000; br.leaseEnd = s.time.w + 156; return 'ต่อสัญญาแล้ว'; } },
+        { t: 'ต่อรอง (+10%)', fx: function () { if (R.chance(0.55)) { br.rent = Math.round(br.rent * 1.1 / 1000) * 1000; br.leaseEnd = s.time.w + 156; return 'ตกลงที่ +10%'; } br.rent = Math.round(br.rent * 1.3 / 1000) * 1000; br.leaseEnd = s.time.w + 156; return 'เจ้าของไม่ยอม ขึ้น 30% ไม่งั้นให้ย้ายออก — คุณจำใจต่อ'; } },
+        { t: 'ไม่ต่อ ย้ายออกเมื่อหมดสัญญา', fx: function () { br.leaseEnd = s.time.w; return M.closeBranch(s, br.id).msg; } }
+      ];
+    }
+  });
+  E.register({
+    id: 'fnb_viral', cat: 'market', ind: ['fnb'], weight: 1, cooldown: 30,
+    cond: function (s) { return M.openBranches(s.biz).length > 0; },
+    title: 'ร้านของคุณดังในติ๊กต๊อก',
+    body: 'คลิปรีวิวเมนูของร้านมียอดวิวหลายล้าน คนแห่มาต่อคิวยาวเหยียด พนักงานเริ่มรับมือไม่ไหว',
+    choices: function (s) {
+      return [
+        { t: 'เพิ่มพนักงานชั่วคราวรับคิว (฿60,000)', fx: function () { L.spend(s.fin, 'cogs_staff', 60000); s.biz.buzz.push({ m: 1.6, weeks: 5, total: 5 }); s.biz.brand += 6; return 'รับลูกค้าได้เต็มที่ ได้ลูกค้าประจำใหม่จำนวนมาก'; } },
+        { t: 'ปล่อยให้คิวยาวไป (สร้างกระแส)', fx: function () { s.biz.buzz.push({ m: 1.4, weeks: 4, total: 4 }); M.openBranches(s.biz).forEach(function (br) { br.rating -= 0.1; }); s.biz.brand += 4; return 'คิวยาวกลายเป็นคอนเทนต์ แต่รีวิวบ่นเรื่องบริการ'; } }
+      ];
+    }
+  });
+  E.register({
+    id: 'fnb_guide', cat: 'market', ind: ['fnb'], weight: 0.4, once: true,
+    cond: function (s) { return s.biz.menuQ > 75 && s.biz.rating > 4.4; },
+    title: 'ร้านของคุณติดไกด์บุ๊กอาหารระดับโลก',
+    body: 'ไกด์บุ๊กร้านอาหารชื่อดังประกาศรายชื่อร้านแนะนำประจำปี ร้านของคุณได้รับรางวัลร้านอร่อยคุ้มค่า สื่อทั่วประเทศรายงาน',
+    choices: function (s) {
+      return [{ t: 'ฉลอง! ใช้โอกาสนี้ทำแคมเปญ', fx: function () { s.biz.brand = Math.min(100, s.biz.brand + 15); s.biz.buzz.push({ m: 1.5, weeks: 12, total: 12 }); H.rep(s, 6); return 'แบรนด์แข็งแกร่งขึ้นมาก'; } }];
+    }
+  });
+  E.register({
+    id: 'fnb_delivery_gp', cat: 'market', ind: ['fnb'], weight: 0.6, once: true,
+    cond: function (s) { return s.biz.deliv.on && s.time.w > 26; },
+    title: 'แอปเดลิเวอรีเสนอดีลพิเศษ',
+    body: 'แอปเดลิเวอรีรายใหญ่เสนอให้ร้านคุณเป็นพาร์ทเนอร์พิเศษ: ขึ้นหน้าแรก + ป้าย "ร้านแนะนำ" แลกกับ GP เพิ่มจาก 30% เป็น 35% และห้ามขึ้นแอปคู่แข่ง',
+    choices: function (s) {
+      return [
+        { t: 'ตกลง', fx: function () { s.biz.delivAppBoost = 1.45; s.biz.foodAdj += 0.01; return 'ยอดเดลิเวอรีพุ่ง แต่ GP แพงขึ้น'; } },
+        { t: 'ปฏิเสธ', fx: function () { return 'อยู่แบบเดิม'; } }
+      ];
+    }
+  });
+  E.register({
+    id: 'fnb_staff_walkout', cat: 'team', ind: ['fnb'], weight: function (s) { return s.biz.staffing < 0.9 ? 1.5 : 0.4; }, cooldown: 40, bad: true,
+    cond: function (s) { return M.openBranches(s.biz).length > 1; },
+    title: 'พนักงานหน้าร้านประท้วงเรื่องเซอร์วิสชาร์จ',
+    body: 'พนักงานหลายสาขารวมตัวเรียกร้องให้แบ่งเซอร์วิสชาร์จโปร่งใส และเพิ่มคนต่อกะเพราะทำงานหนักเกินไป ขู่จะหยุดงานพร้อมกันวันเสาร์นี้',
+    choices: function (s) {
+      return [
+        { t: 'เจรจา เพิ่มคน 10% และแบ่งเซอร์วิสชาร์จเต็มจำนวน', fx: function () { s.biz.staffing = Math.min(1.3, s.biz.staffing + 0.1); M.openBranches(s.biz).forEach(function (br) { br.staffSkill += 5; }); return 'พนักงานพอใจ บรรยากาศดีขึ้น'; } },
+        { t: 'ไม่ยอม — ใครไม่พอใจก็ลาออก', fx: function () { M.openBranches(s.biz).forEach(function (br) { br.staffSkill = Math.max(20, br.staffSkill - 15); br.rating -= 0.15; }); return 'พนักงานเก่าลาออกจำนวนมาก บริการแย่ลงหลายเดือน'; } }
+      ];
+    }
+  });
+})(globalThis.RW = globalThis.RW || {});
+
 /* ---- ui/core.js ---- */
 /* RUNWAY — UI framework: rendering shell, delegation, modal, toasts, charts, persistence */
 (function (RW) {
@@ -5885,7 +7251,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var concepts = M.concepts();
     if (!f.concept || !concepts.some(function (c) { return c.id === f.concept; })) f.concept = concepts[0].id;
     var bg = RW.BACKGROUNDS[f.bg];
-    if (f.capital == null || f.capital > bg.savings) f.capital = Math.round(bg.savings * 0.6 / 50000) * 50000;
+    if (f.capital == null || f.capital > bg.savings) f.capital = Math.round(bg.savings * (f.industry === 'fnb' ? 0.85 : 0.6) / 50000) * 50000;
     var saves = UI.SLOTS.map(function (sl) { var m = UI.slotMeta(sl); return m ? { slot: sl, m: m } : null; }).filter(Boolean);
     var lamps = ''; for (var i = 0; i < 18; i++) lamps += '<i style="animation-delay:' + (i * 0.12).toFixed(2) + 's"></i>';
     var html = '<div class="title-screen">' +
@@ -5931,7 +7297,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       '<label class="field" for="ng_company">ชื่อบริษัท/แบรนด์<input type="text" id="ng_company" value="' + h(f.company) + '" placeholder="เช่น ' + h(M.sampleName || 'NovaWorks') + '" data-act="ngSet" data-a=\'["company"]\'></label>' +
       '<label class="field" for="ng_seed">Seed (ว่าง = สุ่ม)<input type="text" id="ng_seed" value="' + h(f.seed) + '" data-act="ngSet" data-a=\'["seed"]\' style="width:120px"></label></div>' +
       UI.slider('เงินส่วนตัวที่ลงเป็นทุนจดทะเบียน', f.capital, 0, bg.savings, 50000, 'ngSet', ['capital'], 'b') +
-      '<p class="small muted" style="margin:4px 0 10px">เหลือเป็นเงินเก็บส่วนตัว ' + F.m(bg.savings - f.capital) + ' (ค่าใช้จ่ายส่วนตัวเดือนละ ' + F.m(bg.burn) + ' → อยู่ได้ ' + F.months((bg.savings - f.capital) / bg.burn) + ' ถ้าไม่รับเงินเดือน)</p>' +
+      '<p class="small muted" style="margin:4px 0 10px">เหลือเป็นเงินเก็บส่วนตัว ' + F.m(bg.savings - f.capital) + ' (ค่าใช้จ่ายส่วนตัวเดือนละ ' + F.m(bg.burn) + ' → อยู่ได้ ' + F.months((bg.savings - f.capital) / bg.burn) + ' ถ้าไม่รับเงินเดือน)' + (M.capitalHint ? ' · ' + M.capitalHint : '') + '</p>' +
       '<div class="choices-grid">' + Object.keys(RW.DIFFICULTY).map(function (k) {
         var d = RW.DIFFICULTY[k];
         return '<button type="button" class="card-opt ' + (f.diff === k ? 'on' : '') + '" data-act="ngSet" data-a=\'["diff","' + k + '"]\'><b>' + d.n + '</b><span>' + d.d + '</span></button>';
@@ -5946,7 +7312,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     if (key === 'vesting') { f.vesting = !!val; return; }
     f[key] = val;
     if (key === 'bg') { UI.genCofounders(); f.capital = null; }
-    if (key === 'industry') f.concept = null;
+    if (key === 'industry') { f.concept = null; f.capital = null; }
     if (key === 'name' || key === 'company' || key === 'seed') return { render: false };
   };
   UI.acts.startGame = function () {
@@ -6015,13 +7381,31 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       '</div>';
     var due = RW.Events.dueCount(s);
     var mails = s.inbox.slice(0, 6).map(function (m) { return UI.mailRow(m, true); }).join('');
-    var body = head + tiles + '<div class="grid g-side" style="margin-bottom:14px">' +
+    var ms = UI.milestones(s);
+    var body = head + (ms ? '<div style="margin-bottom:14px">' + ms + '</div>' : '') + tiles + '<div class="grid g-side" style="margin-bottom:14px">' +
       UI.panel('ที่ปรึกษาเตือน', '<div class="stack">' + UI.alerts(adv, 8) + '</div>', adv.length ? adv.length + ' เรื่อง' : '') +
       UI.panel('ล่าสุด', (due ? '<div class="row" style="margin-bottom:8px">' + UI.btn('มี ' + due + ' เรื่องรอคุณตัดสินใจ', 'openEvent', [], 'primary sm') + '</div>' : '') + '<div class="panel flush" style="border:0">' + (mails || '<div class="empty">ยังไม่มีข้อความ</div>') + '</div>' + '<div class="row" style="margin-top:6px">' + UI.btn('ดูทั้งหมด', 'tab', ['inbox'], 'sm ghost') + '</div>') +
       '</div>' + charts + (M.ui.overviewExtra ? M.ui.overviewExtra(s) : '');
     return body;
   };
   UI.acts.openEvent = function () { UI.showEvent(); return { render: false }; };
+
+  // early-game checklist: common steps + business-specific milestones
+  UI.milestones = function (s) {
+    var M = RW.Models[s.industry];
+    if (!M.milestones || s.flags.hideMilestones) return '';
+    var list = [['จดทะเบียนบริษัท', s.company.registered, 'company'], ['ตั้งเวลาทำงานของคุณให้เหมาะกับช่วงนี้ (หน้าผู้ก่อตั้ง)', !!s.flags.focusSet, 'founder']].concat(M.milestones(s));
+    list.push(['จ้างพนักงานคนแรก', RW.Team.headcount(s) > 0, 'team']);
+    list.push(['ได้เงินทุนก้อนแรก หรือมีกำไรทั้งเดือน', s.stats.raised > 0 || !!s.achievements.ramen, 'funding']);
+    var done = list.filter(function (x) { return x[1]; }).length;
+    if (done === list.length) return '';
+    var next = list.find(function (x) { return !x[1]; });
+    return '<section class="panel"><h3><span>เส้นทางช่วงแรก <small class="muted">' + done + '/' + list.length + '</small></span><small>' + UI.btn('ซ่อน', 'hideMilestones', [], 'sm ghost') + '</small></h3>' +
+      '<div class="row" style="gap:6px">' + list.map(function (x) {
+        return '<button type="button" class="pill ' + (x[1] ? 'good' : x === next ? 'accent' : '') + '" data-act="tab" data-a="' + h(JSON.stringify([x[2]])) + '" style="cursor:pointer">' + (x[1] ? '✓ ' : x === next ? '→ ' : '') + h(x[0]) + '</button>';
+      }).join('') + '</div></section>';
+  };
+  UI.acts.hideMilestones = function () { UI.s.flags.hideMilestones = 1; };
 
   UI.mailRow = function (m, compact) {
     var open = UI.mailOpen === m.id || !compact;
@@ -6078,8 +7462,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     }))) : '';
     return head + '<div class="grid g2">' + '<div class="stack">' + hours + money + '</div><div class="stack">' + focus + skills + cofs + '</div></div>';
   };
-  UI.acts.fHours = function (v) { return A.setHours(UI.s, v); };
-  UI.acts.fFocus = function (k, v) { return A.setFocus(UI.s, k, v); };
+  UI.acts.fHours = function (v) { UI.s.flags.focusSet = 1; return A.setHours(UI.s, v); };
+  UI.acts.fFocus = function (k, v) { UI.s.flags.focusSet = 1; return A.setFocus(UI.s, k, v); };
   UI.acts.fSalary = function (v) { return A.setFounderSalary(UI.s, v); };
   UI.acts.fVacation = function (w) { return A.vacation(UI.s, w); };
   UI.acts.fLend = function (a) { return A.lendToCompany(UI.s, a); };
@@ -6627,6 +8011,17 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     return b.product + ' · ' + (b.launched ? 'เปิดขายมา ' + Math.round((s.time.w - b.launchW) / 4.33) + ' เดือน · ลูกค้า ' + F.num(M.totalCustomers(b)) + ' ราย' : 'กำลังสร้าง MVP');
   };
   M.topMetric = function (s) { return ['MRR', F.m(s.kpi.mrr || 0)]; };
+  M.milestones = function (s) {
+    var b = s.biz;
+    var bestDisc = Math.max.apply(null, SEGS.map(function (k) { return b.segs[k].disc; }));
+    return [
+      ['สร้าง MVP (Core ระดับ 1) ให้เสร็จ', b.launched, 'product'],
+      ['คุยกับลูกค้าจนเข้าใจกลุ่มเป้าหมาย (Discovery ≥ 40% ในกลุ่มใดกลุ่มหนึ่ง)', bestDisc >= 40, 'market'],
+      ['ได้ลูกค้าจ่ายเงิน 10 ราย', M.totalCustomers(b) >= 10, 'growth'],
+      ['MRR ถึง ฿50,000', (s.kpi.mrr || 0) >= 50000, 'growth'],
+      ['LTV:CAC มากกว่า 3 เท่า', (s.kpi.ltvCac || 0) > 3, 'growth']
+    ];
+  };
 
   var ui = (M.ui = { tabs: [{ id: 'product', n: 'สินค้า & วิศวกรรม' }, { id: 'market', n: 'ลูกค้า & ราคา' }, { id: 'growth', n: 'การตลาด & ขาย' }], render: {}, acts: {} });
 
@@ -6822,6 +8217,311 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   ui.acts.sCommission = function (v) { return M.act.setCommission(UI.s, v / 100); };
   ui.acts.sReferral = function (v) { return M.act.setReferral(UI.s, v); };
   ui.acts.sPR = function () { return M.act.prLaunch(UI.s); };
+})(globalThis.RW = globalThis.RW || {});
+
+/* ---- models/ecom_ui.js ---- */
+/* RUNWAY — e-commerce screens */
+(function (RW) {
+  'use strict';
+  var M = RW.Models.ecom, UI = RW.UI, F = RW.F, U = RW.U, h = UI.h;
+  var CHN = M.CHN;
+
+  M.headline = function (s) {
+    var b = s.biz;
+    var act = b.skus.filter(function (k) { return k.active; }).length;
+    return b.product + ' · ' + (act ? act + ' สินค้าวางขาย · ลูกค้าสะสม ' + F.num(Math.round(b.customers)) + ' คน · เรตติ้ง ' + b.rating.toFixed(2) : 'กำลังพัฒนาสินค้าตัวแรก');
+  };
+  M.milestones = function (s) {
+    var b = s.biz;
+    var orders = U.sum(b.stats, function (m) { return m.orders; }) + (b.mstats ? b.mstats.orders : 0);
+    var openCh = ['market', 'social', 'web'].filter(function (k) { return b.ch[k].open; }).length;
+    return [
+      ['พัฒนาสินค้าตัวแรกและได้เลข อย./พร้อมขาย', b.skus.length > 0, 'products'],
+      ['สั่งผลิตล็อตแรก', b.skus.some(function (k) { return k.sold > 0 || M.stock(k) > 0; }) || b.pos.length > 0, 'products'],
+      ['ขายได้ 100 ออเดอร์', orders >= 100, 'channels'],
+      ['เปิดช่องทางขายที่ 2', openCh >= 2, 'channels'],
+      ['ROAS เกิน 3 เท่า', (s.kpi.roas || 0) > 3, 'marketing']
+    ];
+  };
+  M.topMetric = function (s) { var mo = s.biz.stats.length ? s.biz.stats[s.biz.stats.length - 1] : null; return ['ยอดขาย/เดือน', F.m(s.kpi.revenueMonthly)]; };
+
+  var ui = (M.ui = { tabs: [{ id: 'products', n: 'สินค้า & สต็อก' }, { id: 'channels', n: 'ช่องทางขาย & คลัง' }, { id: 'marketing', n: 'การตลาด' }], render: {}, acts: {} });
+
+  ui.tiles = function (s) {
+    var k = s.kpi;
+    return UI.tile('ออเดอร์ 3 เดือน', F.num(k.orders3 || 0), 'AOV ' + F.b(k.aov || 0)) +
+      UI.tile(UI.tip('ROAS', 'รายได้ ÷ ค่าโฆษณา ควรเกิน ~3 เท่าถึงจะคุ้มหลังหักต้นทุน'), k.roas ? k.roas.toFixed(1) + 'x' : '–', '', k.roas && k.roas < 1.5 ? 'crit' : k.roas > 3 ? 'good' : '') +
+      UI.tile('สต็อก (มูลค่าทุน)', F.m(k.inventory || 0), k.invDays ? 'พอขาย ~' + Math.round(k.invDays) + ' วัน' : '', k.invDays > 150 ? 'warn' : '') +
+      UI.tile('ซื้อซ้ำ', F.pct(k.repeatShare || 0, 0), 'ลูกค้า active ' + F.num(k.activeCustomers || 0));
+  };
+
+  ui.overviewExtra = function (s) {
+    var hm = s.hist.monthly;
+    return UI.panel('ออเดอร์และมูลค่าสต็อก', '<div class="grid g2"><div>' +
+      UI.chart({ labels: hm.map(function (m) { return m.label; }), series: [{ name: 'ออเดอร์/เดือน', color: 'var(--s1)', data: hm.map(function (m) { return m.k.orders || 0; }), area: true }], fmt: F.k, tipFmt: F.num }) + '</div><div>' +
+      UI.chart({ labels: hm.map(function (m) { return m.label; }), series: [{ name: 'มูลค่าสต็อก', color: 'var(--s2)', data: hm.map(function (m) { return m.k.inventory || 0; }), area: true }], fmt: F.k, tipFmt: F.m }) + '</div></div>');
+  };
+
+  ui.unitEconomics = function (s) {
+    var k = s.kpi, b = s.biz;
+    var mo = b.stats.length ? b.stats[b.stats.length - 1] : null;
+    var last = s.hist.monthly.length ? s.hist.monthly[s.hist.monthly.length - 1] : null;
+    var perOrder = function (acct) { return last && mo && mo.orders ? (last.pl[acct] || 0) / mo.orders : 0; };
+    return '<div class="kv"><span>AOV (ยอดต่อออเดอร์)</span><span>' + F.b(k.aov || 0) + '</span>' +
+      '<span>ต้นทุนสินค้า/ออเดอร์</span><span>' + F.b(perOrder('cogs_goods')) + '</span>' +
+      '<span>ค่าธรรมเนียมแพลตฟอร์ม/ออเดอร์</span><span>' + F.b(perOrder('cogs_platform')) + '</span>' +
+      '<span>ค่าส่ง+แพ็ก/ออเดอร์</span><span>' + F.b(perOrder('cogs_fulfil')) + '</span>' +
+      '<span>ค่าโฆษณา/ออเดอร์</span><span>' + F.b(perOrder('mkt')) + '</span>' +
+      '<span>' + UI.tip('CAC', 'ค่าการตลาดและทีมขาย ÷ ลูกค้าใหม่') + '</span><span>' + (k.cac ? F.b(k.cac) : '–') + '</span>' +
+      '<span>LTV (กำไรขั้นต้นตลอดอายุลูกค้า)</span><span>' + F.b(k.ltv || 0) + '</span>' +
+      '<span>ROAS</span><span>' + (k.roas ? k.roas.toFixed(2) + 'x' : '–') + '</span>' +
+      '<span>' + UI.tip('Inventory days', 'สต็อกที่มีพอขายได้กี่วัน — ยิ่งมากยิ่งเงินจม') + '</span><span>' + (k.invDays ? Math.round(k.invDays) + ' วัน' : '–') + '</span>' +
+      '<span>Stock-out (ออเดอร์ที่หลุดเพราะของหมด)</span><span>' + F.pct(k.stockout || 0, 0) + '</span></div>';
+  };
+
+  // ---------------- PRODUCTS ----------------
+  ui.render.products = function (s) {
+    var b = s.biz, c = M.CONCEPTS[b.concept];
+    var head = '<div class="page-head"><div><h2>สินค้า & สต็อก</h2><p>สั่งผลิตต้องจ่ายมัดจำ 50% ล่วงหน้าและรอหลายสัปดาห์ สั่งน้อยไปของขาด สั่งมากไปเงินจมและหมดอายุ</p></div></div>';
+    var rows = b.skus.filter(function (k) { return k.active; }).map(function (k) {
+      var st = M.stock(k), inc = M.incoming(b, k.id), f = M.forecastWeekly(k);
+      var cover = k.avg > 0.5 ? st / f : null;
+      var form = UI.form['po_' + k.id] || (UI.form['po_' + k.id] = { qty: c.sup.local.moq, sup: 'local' });
+      var unit = M.unitCost(s, k, form.sup, form.qty);
+      var margin = 1 - unit / (k.price / (s.fin.vat.registered ? 1.07 : 1));
+      return [
+        '<b>' + h(k.n) + '</b><div class="tiny muted">คุณภาพ ' + Math.round(k.quality) + ' · ' + (k.appealSeen != null ? 'ความนิยม ' + (k.appealSeen > 1.1 ? 'สูง' : k.appealSeen > 0.85 ? 'ปานกลาง' : 'ต่ำ') : 'ยังไม่รู้ความนิยม') + (k.retail ? ' · วางขายหน้าร้าน' : '') + '</div>',
+        UI.numInput('pr_' + k.id, k.price, 'ePrice', [k.id], 10) + '<div class="tiny muted">ทุน ~' + F.b(k.cost) + ' · GM ~' + F.pct(margin, 0) + '</div>',
+        '<span class="' + (st === 0 ? 'crit' : cover != null && cover < 3 ? 'warn' : '') + '">' + F.num(st) + '</span>' + (inc ? '<div class="tiny muted">กำลังมา ' + F.num(inc) + '</div>' : ''),
+        k.avg.toFixed(1) + '<div class="tiny muted">' + (cover != null ? 'พอ ' + (cover > 99 ? '99+' : cover.toFixed(0)) + ' สป.' : '') + '</div>',
+        '<div class="row" style="gap:4px;flex-wrap:nowrap">' + UI.numInput('poq_' + k.id, form.qty, 'poForm', [k.id, 'qty'], 50) + '<select data-act="poForm" data-a=\'["' + k.id + '","sup"]\' aria-label="โรงงาน">' + Object.keys(c.sup).map(function (x) { return '<option value="' + x + '"' + (x === form.sup ? ' selected' : '') + '>' + c.sup[x].n + '</option>'; }).join('') + '</select>' + UI.btn('สั่งผลิต', 'eOrder', [k.id], 'sm primary') + '</div><div class="tiny muted">@' + F.b(unit) + ' · รวม ' + F.m(unit * Math.max(form.qty, c.sup[form.sup].moq)) + ' · ขั้นต่ำ ' + F.num(c.sup[form.sup].moq) + ' · รอ ' + c.sup[form.sup].lead.join('–') + ' สป.</div>',
+        '<label class="row small" style="gap:4px;flex-wrap:nowrap"><input type="checkbox" ' + (k.auto ? 'checked' : '') + ' data-act="eAuto" data-a=\'["' + k.id + '"]\'> อัตโนมัติ</label><div class="tiny muted">เก็บ ' + k.cover + ' สป.</div>',
+        '<div class="row" style="gap:4px">' + UI.btn('เทขาย 50%', 'eClear', [k.id], 'sm') + UI.btn('เลิกขาย', 'eDisc', [k.id], 'sm danger') + '</div>'
+      ];
+    });
+    var skus = UI.panel('สินค้าที่วางขาย', UI.table(['สินค้า', 'ราคาขาย', '#สต็อก', '#ขาย/สป.', 'สั่งผลิต', 'เติมสต็อก', ''], rows, { empty: 'ยังไม่มีสินค้าพร้อมขาย' }) + '<p class="tiny muted" style="margin-top:6px">ราคาที่แสดงคือราคาที่ลูกค้าจ่าย' + (s.fin.vat.registered ? ' (รวม VAT 7% แล้ว — รายได้สุทธิของคุณคือ ÷1.07)' : '') + ' · สั่งจำนวนมากต่อครั้งได้ราคาต่อหน่วยถูกลง · นำเข้าถูกกว่าแต่รอนาน ขึ้นกับค่าเงินบาท และเสี่ยงล็อตเสีย</p>');
+    var pos = UI.panel('ใบสั่งผลิตที่รอรับ', UI.table(['สินค้า', '#จำนวน', '#มูลค่า', '#จ่ายมัดจำแล้ว', 'ถึง'], b.pos.map(function (p) { var k = b.skus.find(function (x) { return x.id === p.sku; }); return [h(k ? k.n : p.sku) + (p.auto ? ' <span class="tag">auto</span>' : ''), F.num(p.qty), F.b(p.total), F.b(p.deposit), RW.T.label(p.arrive)]; }), { empty: 'ไม่มี' }));
+    var devRows = b.dev.map(function (d) { return [h(d.n), d.regLeft == null ? UI.meter(d.prog, d.need) + '<div class="tiny muted">พัฒนาสูตร/ตัวอย่าง ' + d.prog.toFixed(1) + '/' + d.need.toFixed(1) + '</div>' : 'รอ อย. อีก ' + d.regLeft + ' สัปดาห์', UI.btn('ยกเลิก', 'eCancelDev', [d.id], 'sm ghost')]; });
+    var df = UI.form.dev || (UI.form.dev = { type: c.types[0][0], pos: 'mass' });
+    var t = c.types.find(function (x) { return x[0] === df.type; });
+    var devFee = Math.round((35000 + t[2] * 60) * M.POS[df.pos].dev / 1000) * 1000;
+    var dev = UI.panel('พัฒนาสินค้าใหม่', UI.table(['สินค้า', 'สถานะ', ''], devRows, { empty: 'ไม่มีสินค้าที่กำลังพัฒนา' }) +
+      '<div class="row" style="margin-top:10px;align-items:flex-end"><label class="field" for="dv_t">ประเภท<select id="dv_t" data-act="devForm" data-a=\'["type"]\'>' + c.types.map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === df.type ? ' selected' : '') + '>' + x[1] + ' (~' + F.b(x[2]) + ')</option>'; }).join('') + '</select></label>' +
+      '<label class="field" for="dv_p">ตำแหน่งสินค้า<select id="dv_p" data-act="devForm" data-a=\'["pos"]\'>' + Object.keys(M.POS).map(function (x) { return '<option value="' + x + '"' + (x === df.pos ? ' selected' : '') + '>' + M.POS[x].n + '</option>'; }).join('') + '</select></label>' + UI.btn('เริ่มพัฒนา (' + F.b(devFee) + ')', 'eDev', [], 'primary') + '</div>' +
+      '<p class="tiny muted" style="margin-top:6px">ความนิยมของสินค้าใหม่ไม่แน่นอน — ยิ่งรู้จักลูกค้า (Insight ' + Math.round(b.insight) + '%) ยิ่งเดาถูก · ' + (c.reg[1] ? 'ต้องขอ อย. ' + c.reg[0] + '–' + c.reg[1] + ' สัปดาห์' : 'ไม่ต้องขอ อย.') + ' · ทีม R&D ช่วยให้เร็วขึ้นและคุณภาพดีขึ้น</p>');
+    return head + skus + '<div class="grid g2" style="margin-top:14px">' + dev + pos + '</div>';
+  };
+  ui.acts.ePrice = function (id, v) { return M.act.setPrice(UI.s, id, v); };
+  ui.acts.poForm = function (id, k, v) { UI.form['po_' + id][k] = k === 'qty' ? Number(v) : v; };
+  ui.acts.eOrder = function (id) { var f = UI.form['po_' + id]; return M.act.order(UI.s, id, f.qty, f.sup); };
+  ui.acts.eAuto = function (id, v) { var f = UI.form['po_' + id] || {}; return M.act.setAuto(UI.s, id, v, null, f.sup); };
+  ui.acts.eClear = function (id) { return M.act.clearance(UI.s, id); };
+  ui.acts.eDisc = function (id) {
+    if (UI.sel.confirmDisc !== id) { UI.sel.confirmDisc = id; return { ok: false, msg: 'กดอีกครั้งเพื่อยืนยันเลิกขายสินค้านี้' }; }
+    UI.sel.confirmDisc = null; return M.act.discontinue(UI.s, id);
+  };
+  ui.acts.devForm = function (k, v) { UI.form.dev[k] = v; };
+  ui.acts.eDev = function () { var f = UI.form.dev; return M.act.develop(UI.s, f.type, f.pos); };
+  ui.acts.eCancelDev = function (id) { return M.act.cancelDev(UI.s, id); };
+
+  // ---------------- CHANNELS ----------------
+  ui.render.channels = function (s) {
+    var b = s.biz;
+    var mo = b.stats.length ? b.stats[b.stats.length - 1] : null;
+    var head = '<div class="page-head"><div><h2>ช่องทางขาย & คลังสินค้า</h2><p>แต่ละช่องทางกินค่าธรรมเนียมและโอนเงินช้าเร็วไม่เท่ากัน ยอดขายดี ≠ เงินเข้า</p></div></div>';
+    var rows = Object.keys(CHN).map(function (k) {
+      var ch = b.ch[k], d = CHN[k];
+      var m = mo ? mo.byCh[k] : null;
+      var status = ch.open ? UI.pill('เปิดอยู่', 'good') : UI.btn('เปิดช่องทาง', 'eOpen', [k], 'sm');
+      var extra = k === 'market' || k === 'social' ? '<div class="tiny muted">อันดับร้าน ' + ch.rank.toFixed(1) + '/20 · รีวิว ' + F.num(Math.round(ch.reviews)) + '</div>' : k === 'web' && ch.open ? '<div class="tiny muted">SEO ' + Math.round(ch.seo) + '</div>' : k === 'retail' && ch.open ? '<div class="tiny muted">' + ch.stores + ' สาขา ' + UI.btn('ขยายเชน (฿400K)', 'eRetailExp', [], 'sm') + '</div>' : '';
+      return ['<b>' + d.n + '</b><div class="tiny muted">' + d.d + '</div>', status + extra, m ? F.num(Math.round(m.t)) : '–', m ? F.num(m.o) : '–', m ? F.m(m.r) : '–', k === 'retail' ? '38% (ส่วนลดร้าน)' : F.pct(d.fee + d.pay + (k === 'market' ? b.feeAdj || 0 : 0), 0), d.payout ? d.payout + ' สป.' : 'ทันที'];
+    });
+    var chan = UI.panel('ช่องทางขาย (เดือนที่แล้ว)', UI.table(['ช่องทาง', 'สถานะ', '#ผู้เข้าชม', '#ออเดอร์', '#รายได้', '#ค่าธรรมเนียม', 'รับเงิน'], rows));
+    var retail = b.ch.retail.open ? UI.panel('สินค้าในร้านค้าปลีก', UI.table(['สินค้า', ''], b.skus.filter(function (k) { return k.active; }).map(function (k) { return [h(k.n), k.retail ? UI.pill('วางขายแล้ว', 'good') : UI.btn('วางขาย (฿150K)', 'eListRetail', [k.id], 'sm')]; }))) : '';
+    var nextMega = null;
+    for (var i = 0; i <= 10; i++) { var m = M.isMega(s.time.w + i); if (m) { nextMega = [i, m[2]]; break; } }
+    var camp = UI.panel('แคมเปญเมกะเซล (มาร์เก็ตเพลส)', '<p class="small ink2" style="margin:0 0 8px">วันลดราคาใหญ่ 3.3, 6.6, 9.9, 10.10, 11.11, 12.12 — ยอดขายพุ่งหลายเท่า แต่ต้องให้ส่วนลดและแพลตฟอร์มเก็บค่าธรรมเนียมเพิ่ม 3% สัปดาห์ก่อนแคมเปญคนจะรอซื้อ</p>' +
+      UI.slider('ส่วนลดที่เข้าร่วม', Math.round(b.campaign.disc * 100), 0, 50, 5, 'eCampaign', [], 'pct') +
+      '<div class="kv" style="margin-top:6px"><span>แคมเปญถัดไป</span><span>' + (nextMega ? nextMega[1] + (nextMega[0] ? ' (อีก ' + nextMega[0] + ' สัปดาห์)' : ' (สัปดาห์นี้!)') : '–') + '</span><span>ยอดขายคาดการณ์ช่วงแคมเปญ</span><span>×' + (1 + b.campaign.disc * 10).toFixed(1) + '</span></div>');
+    var cap = M.fulfilCap(s);
+    var ops = UI.panel('คลังสินค้าและบริการลูกค้า', '<div class="row" style="margin-bottom:8px">' + UI.segBtns([['self', 'แพ็กเอง'], ['3pl', 'จ้าง 3PL']], b.fulfil.mode, 'eFulfil') + '</div>' +
+      '<div class="kv"><span>ความสามารถแพ็กส่ง/สัปดาห์</span><span>' + (b.fulfil.mode === '3pl' ? 'ไม่จำกัด (฿25/ออเดอร์)' : F.num(Math.round(cap))) + '</span><span>ออเดอร์ค้างส่ง</span><span class="' + (b.fulfil.backlog > 30 ? 'crit' : '') + '">' + Math.round(b.fulfil.backlog) + '</span><span>แชทค้างตอบ</span><span class="' + (b.chat.backlog > 200 ? 'warn' : '') + '">' + Math.round(b.chat.backlog) + '</span><span>เรตติ้งร้าน</span><span>' + b.rating.toFixed(2) + ' ★</span><span>ตีกลับ (COD ไม่รับของ) เดือนที่แล้ว</span><span>' + (mo ? F.num(mo.rto || 0) : '–') + '</span><span>สินค้าหมดอายุทิ้งเดือนที่แล้ว</span><span>' + (mo ? F.num(mo.expired || 0) + ' ชิ้น' : '–') + '</span></div>' +
+      '<label class="row small" style="margin-top:8px"><input type="checkbox" ' + (b.cod ? 'checked' : '') + ' data-act="eCOD"> รับเก็บเงินปลายทาง (COD) บนเว็บไซต์ — ขายง่ายขึ้นแต่ของตีกลับ</label>' +
+      '<label class="field" for="fs" style="margin-top:8px">ส่งฟรีเมื่อซื้อครบ (เว็บไซต์)' + UI.numInput('fs', b.freeShip, 'eFreeShip', [], 50) + '</label>');
+    return head + chan + (retail ? '<div style="margin-top:14px">' + retail + '</div>' : '') + '<div class="grid g2" style="margin-top:14px">' + camp + ops + '</div>';
+  };
+  ui.acts.eOpen = function (k) { return M.act.openChannel(UI.s, k); };
+  ui.acts.eRetailExp = function () { return M.act.expandRetail(UI.s); };
+  ui.acts.eListRetail = function (id) { return M.act.listRetail(UI.s, id); };
+  ui.acts.eCampaign = function (v) { return M.act.setCampaign(UI.s, v / 100); };
+  ui.acts.eFulfil = function (m) { return M.act.setFulfil(UI.s, m); };
+  ui.acts.eCOD = function () { return M.act.toggleCOD(UI.s); };
+  ui.acts.eFreeShip = function (v) { return M.act.setFreeShip(UI.s, v); };
+
+  // ---------------- MARKETING ----------------
+  ui.render.marketing = function (s) {
+    var b = s.biz;
+    var mo = b.stats.length ? b.stats[b.stats.length - 1] : null;
+    var weekly = b.ch.market.ads + b.ch.social.ads + b.ch.web.ads;
+    var head = '<div class="page-head"><div><h2>การตลาด</h2><p>โฆษณาซื้อยอดขายได้ แต่ครีเอทีฟเก่าเร็ว ต้นทุนต่อคลิกแพงขึ้นเมื่ออัดงบ — ลูกค้าที่ซื้อซ้ำคือกำไรที่แท้จริง</p></div>' + UI.pill('โฆษณา ' + F.m(weekly) + '/สัปดาห์', 'accent') + '</div>';
+    var ads = UI.panel('งบโฆษณา (บาท/สัปดาห์)', ['market', 'social', 'web'].map(function (k) {
+      var lbl = { market: 'โฆษณาในมาร์เก็ตเพลส', social: 'โฆษณาวิดีโอสั้น/ไลฟ์', web: 'Social ads พาเข้าเว็บไซต์' }[k];
+      return '<div class="row between" style="padding:6px 0;border-bottom:1px solid var(--line2)"><span>' + lbl + (b.ch[k].open ? '' : ' <span class="tiny muted">(ยังไม่เปิดช่องทาง)</span>') + '</span>' + UI.numInput('ad_' + k, b.ch[k].ads, 'eAds', [k], 5000) + '</div>';
+    }).join('') +
+      '<div class="stack" style="margin-top:10px">' + UI.bar(UI.tip('ความสดของครีเอทีฟ', 'คลิป/ภาพโฆษณาที่คนเห็นซ้ำจะได้ผลลดลงทุกสัปดาห์ ต้องผลิตใหม่ตลอด'), b.creative * 100, 100, b.creative < 0.35 ? 'crit' : b.creative < 0.6 ? 'warn' : 'good', F.pct(b.creative, 0)) + UI.bar('แบรนด์', b.brand, 100, '', Math.round(b.brand)) + '</div>' +
+      '<div class="kv" style="margin-top:8px"><span>ค่าโฆษณาเดือนที่แล้ว</span><span>' + F.m(mo ? mo.adSpend : 0) + '</span><span>ROAS</span><span>' + (s.kpi.roas ? s.kpi.roas.toFixed(2) + 'x' : '–') + '</span><span>ลูกค้าใหม่เดือนที่แล้ว</span><span>' + F.num(Math.round(mo ? mo.newCust : 0)) + '</span></div>');
+    var kol = UI.panel('อินฟลูเอนเซอร์ & PR', '<div class="stack">' +
+      '<div class="row between"><span><b>ไมโครอินฟลูเอนเซอร์ 10 คน</b><div class="tiny muted">ฐานแฟนเล็กแต่เชื่อถือสูง กระแส 3 สัปดาห์</div></span>' + UI.btn('฿60,000', 'eKol', ['micro'], 'sm') + '</div>' +
+      '<div class="row between"><span><b>อินฟลูเอนเซอร์ชื่อดัง</b><div class="tiny muted">ยอดขายพุ่ง 4 สัปดาห์ แบรนด์โต</div></span>' + UI.btn('฿350,000', 'eKol', ['macro'], 'sm') + '</div>' +
+      '<div class="row between"><span><b>พรีเซนเตอร์ดารา</b><div class="tiny muted">แรงมาก แต่ถ้าดารามีข่าวฉาว แบรนด์โดนด้วย</div></span>' + UI.btn('฿1,500,000', 'eKol', ['celeb'], 'sm') + '</div>' +
+      '</div>');
+    var crm = UI.panel('ลูกค้าเก่า & Affiliate', '<div class="kv"><span>ลูกค้าสะสม</span><span>' + F.num(Math.round(b.customers)) + '</span><span>ลูกค้าที่ยัง active</span><span>' + F.num(Math.round(b.active)) + '</span><span>สัดส่วนออเดอร์ซื้อซ้ำ</span><span>' + F.pct(s.kpi.repeatShare || 0, 0) + '</span><span>Insight ลูกค้า</span><span>' + Math.round(b.insight) + '%</span></div>' +
+      '<label class="row small" style="margin-top:8px"><input type="checkbox" ' + (b.crm ? 'checked' : '') + ' data-act="eCRM"> ระบบ CRM / LINE OA (฿9,000+/เดือน) — ลูกค้าเก่าซื้อซ้ำเพิ่ม ~35%</label>' +
+      (b.ch.social.open ? UI.slider('ค่าคอมฯ ครีเอเตอร์ (affiliate)', Math.round(b.ch.social.affiliate * 100), 0, 30, 1, 'eAff', [], 'pct') : ''));
+    return head + '<div class="grid g2">' + ads + '<div class="stack">' + kol + crm + '</div></div>';
+  };
+  ui.acts.eAds = function (k, v) { return M.act.setAds(UI.s, k, v); };
+  ui.acts.eKol = function (t) { return M.act.kol(UI.s, t); };
+  ui.acts.eCRM = function () { return M.act.toggleCRM(UI.s); };
+  ui.acts.eAff = function (v) { return M.act.setAffiliate(UI.s, v / 100); };
+})(globalThis.RW = globalThis.RW || {});
+
+/* ---- models/fnb_ui.js ---- */
+/* RUNWAY — F&B screens */
+(function (RW) {
+  'use strict';
+  var M = RW.Models.fnb, UI = RW.UI, F = RW.F, U = RW.U, h = UI.h;
+
+  M.capitalHint = 'ร้านแรกในตึกแถวใช้เงิน ~1–2 ล้าน (มัดจำ+ตกแต่ง+ก่อนเปิด) และควรมีเงินสำรองอีก 3–4 เดือน · เช่าซื้ออุปกรณ์ช่วยได้';
+  M.headline = function (s) {
+    var b = s.biz, n = M.openBranches(b).length, bl = b.branches.filter(function (x) { return x.state === 'building'; }).length;
+    return b.product + ' · ' + (n ? n + ' สาขาเปิดอยู่' : 'ยังไม่มีร้าน') + (bl ? ' · กำลังสร้าง ' + bl : '') + (b.fr.units.length ? ' · แฟรนไชส์ ' + b.fr.units.length : '') + ' · เรตติ้ง ' + b.rating.toFixed(2);
+  };
+  M.topMetric = function (s) { return ['ยอดขาย/เดือน', F.m(s.kpi.revenueMonthly)]; };
+  M.milestones = function (s) {
+    var b = s.biz, ob = M.openBranches(b);
+    return [
+      ['เซ็นสัญญาเช่าร้านแรก', b.branches.length > 0, 'branches'],
+      ['เปิดร้านแรก', ob.length > 0, 'branches'],
+      ['สาขาแรกมีกำไรระดับหน้าร้าน (4-wall)', ob.some(function (x) { return x.last && x.last.wall > 0; }), 'branches'],
+      ['Prime cost ต่ำกว่า 62%', s.kpi.primeCost != null && s.kpi.primeCost < 0.62, 'menu'],
+      ['เปิดสาขาที่ 2', ob.length >= 2, 'branches']
+    ];
+  };
+
+  var ui = (M.ui = { tabs: [{ id: 'branches', n: 'สาขา & ทำเล' }, { id: 'menu', n: 'เมนู & ครัว' }, { id: 'fmarketing', n: 'การตลาด & แฟรนไชส์' }], render: {}, acts: {} });
+
+  ui.tiles = function (s) {
+    var k = s.kpi;
+    return UI.tile('สาขา', k.branches + (k.building ? ' (+' + k.building + ')' : ''), k.franchise ? 'แฟรนไชส์ ' + k.franchise : '') +
+      UI.tile(UI.tip('4-wall margin', 'กำไรระดับหน้าร้าน (ก่อนค่าใช้จ่ายสำนักงานใหญ่) ร้านดีควรได้ 15–25%'), k.wallMargin != null ? F.pct(k.wallMargin, 0) : '–', '', k.wallMargin != null && k.wallMargin < 0 ? 'crit' : k.wallMargin > 0.15 ? 'good' : '') +
+      UI.tile(UI.tip('Prime cost', 'ต้นทุนวัตถุดิบ + ค่าแรง ÷ ยอดขาย ไม่ควรเกิน ~65%'), k.primeCost != null ? F.pct(k.primeCost, 0) : '–', '', k.primeCost > 0.68 ? 'crit' : '') +
+      UI.tile('ลูกค้า/เดือน', F.num(k.covers || 0), 'เรตติ้ง ' + s.biz.rating.toFixed(2) + ' ★');
+  };
+
+  ui.overviewExtra = function (s) {
+    var hm = s.hist.monthly;
+    return UI.panel('จำนวนลูกค้าต่อเดือน', UI.chart({ labels: hm.map(function (m) { return m.label; }), series: [{ name: 'ลูกค้า (หน้าร้าน+เดลิเวอรี)', color: 'var(--s1)', data: hm.map(function (m) { return m.k.covers || 0; }), area: true }], fmt: F.k, tipFmt: F.num }));
+  };
+
+  ui.unitEconomics = function (s) {
+    var b = s.biz;
+    var walls = M.openBranches(b).filter(function (x) { return x.last; });
+    var rev = U.sum(walls, function (x) { return x.last.rev; });
+    function pct(f) { return rev > 0 ? F.pct(U.sum(walls, f) / rev, 1) : '–'; }
+    return '<div class="kv"><span>ยอดขายรวมสาขา (เดือนที่แล้ว)</span><span>' + F.b(rev) + '</span>' +
+      '<span>ต้นทุนวัตถุดิบ</span><span>' + pct(function (x) { return x.last.food; }) + '</span>' +
+      '<span>ค่าแรงหน้าร้าน</span><span>' + pct(function (x) { return x.last.labor; }) + '</span>' +
+      '<span>ค่าเช่า</span><span>' + pct(function (x) { return x.last.rent; }) + '</span>' +
+      '<span>ค่าน้ำไฟ</span><span>' + pct(function (x) { return x.last.util; }) + '</span>' +
+      '<span>GP แอปเดลิเวอรี</span><span>' + pct(function (x) { return x.last.gp; }) + '</span>' +
+      '<span>4-wall margin</span><span>' + pct(function (x) { return x.last.wall; }) + '</span>' +
+      '<span>' + UI.tip('คืนทุนค่าตกแต่ง', 'ค่าตกแต่งสาขาเฉลี่ย ÷ กำไรระดับสาขาต่อเดือน') + '</span><span>' + (s.kpi.payback ? s.kpi.payback.toFixed(0) + ' เดือน' : '–') + '</span></div>';
+  };
+
+  // ---------------- BRANCHES ----------------
+  ui.render.branches = function (s) {
+    var b = s.biz, c = M.CONCEPTS[b.concept];
+    var head = '<div class="page-head"><div><h2>สาขา & ทำเล</h2><p>ทำเลกำหนดชะตาร้าน สัญญาเช่า 3 ปีถอนตัวยาก — ตัวเลขคนเดินผ่านจากโบรกเกอร์มักสวยเกินจริง</p></div></div>';
+    var mgrs = RW.Team.all(s).filter(function (e) { return e.role === 'branchmgr' || e.role === 'ops'; });
+    var rows = b.branches.filter(function (x) { return x.state !== 'closed'; }).map(function (br) {
+      var l = br.last;
+      var status = br.state === 'building' ? UI.pill('กำลังตกแต่ง — เปิด ' + RW.T.label(br.ready), 'accent') : UI.pill('เปิดมา ' + Math.round((s.time.w - br.opened) / 4.33) + ' เดือน', 'good');
+      var sel = '<select data-act="fAssign" data-a=\'["' + br.id + '"]\' aria-label="ผู้จัดการสาขา"><option value="">' + (br.mgr ? '— ไม่มี —' : 'คุณดูแลเอง') + '</option>' + mgrs.map(function (e) { return '<option value="' + e.id + '"' + (br.mgr === e.id ? ' selected' : '') + '>' + h(e.name) + ' (' + Math.round(e.est) + ')</option>'; }).join('') + '</select>';
+      return [
+        '<b>' + h(br.n) + '</b><div class="tiny muted">' + M.LOCS[br.type].n + ' · ' + br.sqm + ' ตร.ม. · ' + (br.seats || 0) + ' ที่นั่ง</div>' + status,
+        l ? F.m(l.rev) : '–', l ? F.num(l.covers) + ' / ' + F.num(l.deliv) : '–',
+        l ? '<span class="' + (l.wall < 0 ? 'crit' : 'good') + '">' + F.m(l.wall) + '</span><div class="tiny muted">' + F.pct(l.wall / Math.max(1, l.rev), 0) + '</div>' : '–',
+        br.state === 'open' ? (br.rating || 0).toFixed(2) + ' ★' : '–',
+        br.state === 'open' ? '<div style="min-width:70px">' + UI.meter(br.util * 100, 100, br.util > 0.95 ? 'warn' : '') + '<div class="tiny muted">' + F.pct(br.util, 0) + '</div></div>' : '–',
+        br.staff + ' คน<div class="tiny muted">ฝีมือ ' + Math.round(br.staffSkill) + '</div>',
+        sel + (br.mq ? '<div class="tiny muted">คุณภาพการบริหาร ' + Math.round(br.mq) + '</div>' : ''),
+        F.b(br.rent) + '<div class="tiny muted">สัญญาถึง ' + RW.T.label(br.leaseEnd) + '</div>',
+        UI.btn('ปิดสาขา', 'fClose', [br.id], 'sm danger')
+      ];
+    });
+    var list = UI.panel('สาขาของคุณ (เดือนที่แล้ว)', UI.table(['สาขา', '#ยอดขาย', '#ลูกค้า หน้าร้าน/ส่ง', '#กำไรสาขา', '#เรตติ้ง', 'ใช้ที่นั่ง', '#พนักงาน', 'ผู้จัดการ', '#ค่าเช่า', ''], rows, { empty: 'ยังไม่มีสาขา' }) +
+      UI.slider('จำนวนพนักงานต่อกะ (เทียบความจำเป็น)', Math.round(b.staffing * 100), 75, 130, 5, 'fStaffing', [], 'pct') + '<p class="tiny muted" style="margin:-2px 0 0">ค่าแรงเฉลี่ย ' + F.b(b.wage) + '/คน/เดือน (อิงค่าแรงขั้นต่ำ) · คนน้อยประหยัดแต่บริการช้า เรตติ้งตก คนลาออก · พนักงานหน้าร้านจ้างผ่านทีม Ops/HR โดยอัตโนมัติ</p>');
+    var sites = b.sites ? b.sites.list : [];
+    var siteRows = sites.map(function (x) {
+      var L0 = M.LOCS[x.type];
+      var deposit = x.rent * 3, pre = 120000 + c.staff * 15000;
+      return ['<b>' + M.LOCS[x.type].n + ' — ' + h(x.area) + '</b><div class="tiny muted">' + L0.d + '</div>', x.sqm + ' ตร.ม.', x.type === 'cloud' ? 'เดลิเวอรีอย่างเดียว' : F.num(x.quoted) + ' คน/วัน', F.b(x.rent), F.m(x.fit), F.m(deposit + x.fit + pre), '<div class="row" style="gap:4px;flex-wrap:nowrap">' + UI.btn('เซ็นสัญญา', 'fOpen', [x.id, false], 'sm primary') + UI.btn('+ เช่าซื้ออุปกรณ์ 50%', 'fOpen', [x.id, true], 'sm', 'title="ผ่อนค่าอุปกรณ์ครัวครึ่งหนึ่ง 36 เดือน ดอกเบี้ยสูง"') + '</div>'];
+    });
+    var scout = UI.panel('หาทำเลใหม่', '<div class="row" style="margin-bottom:10px">' + Object.keys(M.LOCS).map(function (k) { return UI.btn(M.LOCS[k].n, 'fScout', [k], 'sm' + (b.sites && b.sites.type === k ? ' primary' : '')); }).join('') + '</div>' +
+      UI.table(['ทำเล', '#ขนาด', '#คนเดินผ่าน (โบรกเกอร์บอก)', '#ค่าเช่า/เดือน', '#ค่าตกแต่ง', '#เงินที่ต้องใช้', ''], siteRows, { empty: 'กดประเภททำเลเพื่อให้โบรกเกอร์หาที่ (ค่าสำรวจ ฿8,000 / ห้าง ฿30,000)' }) +
+      '<p class="tiny muted" style="margin-top:6px">เงินที่ต้องใช้ = มัดจำ 3 เดือน + ค่าตกแต่งและอุปกรณ์ครัว + ค่าจ้าง/อบรม/โปรโมตก่อนเปิด · ใช้เวลา 6–10 สัปดาห์ก่อนเปิด · ยอดขายช่วงแรก ~40% แล้วค่อยๆ โตใน 4 เดือน</p>');
+    return head + list + '<div style="margin-top:14px">' + scout + '</div>';
+  };
+  ui.acts.fAssign = function (br, emp) { return M.act.assign(UI.s, br, emp); };
+  ui.acts.fStaffing = function (v) { return M.act.setStaffing(UI.s, v / 100); };
+  ui.acts.fScout = function (t) { return M.act.scout(UI.s, t); };
+  ui.acts.fOpen = function (id, fin) { return M.act.open(UI.s, id, fin); };
+  ui.acts.fClose = function (id) {
+    if (UI.sel.confirmClose !== id) { UI.sel.confirmClose = id; return { ok: false, msg: 'กดอีกครั้งเพื่อยืนยันปิดสาขา (ถ้ายังไม่หมดสัญญาจะถูกยึดมัดจำ)' }; }
+    UI.sel.confirmClose = null; return M.act.close(UI.s, id);
+  };
+
+  // ---------------- MENU ----------------
+  ui.render.menu = function (s) {
+    var b = s.biz, c = M.CONCEPTS[b.concept];
+    var ck = b.ck ? (b.ck.ready <= s.time.w ? UI.pill('ครัวกลางเปิดใช้งาน', 'good') : UI.pill('กำลังสร้าง เสร็จ ' + RW.T.label(b.ck.ready), 'accent')) : UI.btn('สร้างครัวกลาง (฿7.5M)', 'fCK', [], '', M.openBranches(b).length < 2 ? 'disabled' : '');
+    var head = '<div class="page-head"><div><h2>เมนู & ครัว</h2><p>รสชาติดีพาลูกค้ามาครั้งแรก ความสม่ำเสมอพาเขากลับมา — และต้นทุนวัตถุดิบตัดสินว่ากำไรหรือขาดทุน</p></div></div>';
+    var foodPct = c.food + b.foodAdj - (b.ck && b.ck.ready <= s.time.w ? 0.035 : 0);
+    var menu = UI.panel('เมนูและราคา', '<div class="stack">' + UI.bar('คุณภาพเมนู', b.menuQ, 100, b.menuQ < 45 ? 'warn' : 'good', Math.round(b.menuQ)) + UI.bar('ความสม่ำเสมอ', b.consistency, 100, b.consistency < 50 ? 'warn' : 'good', Math.round(b.consistency)) + '</div>' +
+      UI.slider('ระดับราคา (เทียบตลาด)', Math.round(b.priceIdx * 100), 70, 160, 5, 'fPrice', [], 'pct') +
+      '<div class="kv" style="margin-top:6px"><span>ราคาเฉลี่ยต่อบิล</span><span>' + F.b(c.ticket * b.priceIdx) + '</span><span>ต้นทุนวัตถุดิบ (เป้าหมาย)</span><span>' + F.pct(foodPct, 1) + ' + ของเสีย</span></div>' +
+      '<div class="row" style="margin-top:10px">' + (b.menuProj ? UI.pill('กำลังพัฒนาเมนู ' + F.pct(b.menuProj.prog / b.menuProj.need, 0), 'accent') : UI.btn('พัฒนาเมนูใหม่ (฿60K)', 'fMenu', [])) + UI.btn('ลดต้นทุนสูตร', 'fCostCut', [], 'sm') + UI.btn('ใช้วัตถุดิบพรีเมียม', 'fPremium', [], 'sm') + '</div>');
+    var kitchen = UI.panel('ครัวกลาง', '<p class="small ink2" style="margin:0 0 8px">ผลิตซอส วัตถุดิบเตรียม และเบเกอรี่ส่งทุกสาขา: ต้นทุนวัตถุดิบ −3.5pp, ของเสีย −30%, รสชาติสม่ำเสมอขึ้นมาก — คุ้มเมื่อมี 3–4 สาขาขึ้นไป · ค่าดำเนินการ ~฿220K/เดือน</p>' + ck);
+    var deliv = UI.panel('แอปเดลิเวอรี', '<label class="row small"><input type="checkbox" ' + (b.deliv.on ? 'checked' : '') + ' data-act="fDeliv"> ขายผ่านแอปเดลิเวอรี (GP ~30% + บรรจุภัณฑ์ 5%)</label>' + UI.slider('ส่วนลดโปรโมชันในแอป', Math.round(b.deliv.promo * 100), 0, 30, 1, 'fPromo', [], 'pct') + '<p class="tiny muted" style="margin:-2px 0 0">ส่วนลดช่วยดันอันดับในแอป แต่เงินมาจากกระเป๋าคุณ</p>');
+    return head + '<div class="grid g2">' + menu + '<div class="stack">' + kitchen + deliv + '</div></div>';
+  };
+  ui.acts.fPrice = function (v) { return M.act.setPrice(UI.s, v / 100); };
+  ui.acts.fMenu = function () { return M.act.menuRD(UI.s); };
+  ui.acts.fCostCut = function () { return M.act.costCut(UI.s); };
+  ui.acts.fPremium = function () { return M.act.premiumIngredients(UI.s); };
+  ui.acts.fCK = function () { return M.act.buildCK(UI.s); };
+  ui.acts.fDeliv = function () { return M.act.toggleDelivery(UI.s); };
+  ui.acts.fPromo = function (v) { return M.act.setPromo(UI.s, v / 100); };
+
+  // ---------------- MARKETING & FRANCHISE ----------------
+  ui.render.fmarketing = function (s) {
+    var b = s.biz;
+    var head = '<div class="page-head"><div><h2>การตลาด & แฟรนไชส์</h2><p>คนลองครั้งแรกเพราะรีวิวและกระแส แต่ธุรกิจอยู่ได้เพราะลูกค้าประจำ</p></div></div>';
+    var mk = UI.panel('แคมเปญ', '<div class="stack">' +
+      '<div class="row between"><span><b>ฟู้ดบล็อกเกอร์ 8 คน</b><div class="tiny muted">กระแส 3 สัปดาห์</div></span>' + UI.btn('฿40,000', 'fCamp', ['blogger'], 'sm') + '</div>' +
+      '<div class="row between"><span><b>KOL สายกินชื่อดัง</b><div class="tiny muted">ลูกค้าใหม่หลั่งไหล 4 สัปดาห์</div></span>' + UI.btn('฿250,000', 'fCamp', ['kol'], 'sm') + '</div>' +
+      '<div class="row between"><span><b>ออกทีวี + โฆษณาใหญ่</b><div class="tiny muted">แบรนด์โตแรง 6 สัปดาห์</div></span>' + UI.btn('฿1,200,000', 'fCamp', ['tv'], 'sm') + '</div>' +
+      '<label class="row small"><input type="checkbox" ' + (b.loyalty ? 'checked' : '') + ' data-act="fLoyalty"> แอปสมาชิก/สะสมแต้ม (฿15K + ฿2K/สาขา ต่อเดือน)</label>' +
+      UI.bar('แบรนด์', b.brand, 100, '', Math.round(b.brand)) + '</div>');
+    var fr = b.fr;
+    var frP = UI.panel('แฟรนไชส์', '<p class="small ink2" style="margin:0 0 8px">ขยายเร็วด้วยเงินคนอื่น: รับค่าแรกเข้า ' + F.b(fr.fee) + ' และรอยัลตี้ ' + F.pct(fr.royalty, 0) + ' ของยอดขาย — แต่ถ้าแฟรนไชส์ซีทำร้านแย่ แบรนด์คุณเสียด้วย</p>' +
+      (fr.on ? '<div class="kv"><span>สาขาแฟรนไชส์</span><span>' + fr.units.length + '</span><span>รอยัลตี้เดือนที่แล้ว</span><span>' + F.b(b.stats.length ? b.stats[b.stats.length - 1].royalty : 0) + '</span><span>คุณภาพเฉลี่ยแฟรนไชส์ซี</span><span>' + (fr.units.length ? Math.round(U.avg(fr.units, function (u) { return u.q; })) : '–') + '</span></div>' : UI.btn('เริ่มขายแฟรนไชส์ (฿1.5M)', 'fFranchise', [], 'primary')));
+    return head + '<div class="grid g2">' + mk + frP + '</div>';
+  };
+  ui.acts.fCamp = function (t) { return M.act.campaign(UI.s, t); };
+  ui.acts.fLoyalty = function () { return M.act.toggleLoyalty(UI.s); };
+  ui.acts.fFranchise = function () { return M.act.startFranchise(UI.s); };
 })(globalThis.RW = globalThis.RW || {});
 
 /* ---- ui/boot.js ---- */

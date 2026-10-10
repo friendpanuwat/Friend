@@ -23,7 +23,10 @@
   Fn.fullyDiluted = function (state) { return Fn.outstanding(state) + state.funding.pool; };
   Fn.holder = function (state, id) { return state.funding.holders.find(function (h) { return h.id === id; }); };
   Fn.founderShares = function (state) { var h = Fn.holder(state, 'founder'); return h ? h.shares : 0; };
-  Fn.founderPct = function (state) { return Fn.founderShares(state) / Math.max(1, Fn.fullyDiluted(state)); };
+  // ownership share taken by unconverted post-money SAFEs
+  Fn.safeShare = function (state) { return Math.min(0.9, U.sum(state.funding.safes, function (x) { return x.amount / x.cap; })); };
+  // founder ownership as-converted (SAFEs treated as converted at their caps)
+  Fn.founderPct = function (state) { return Fn.founderShares(state) / Math.max(1, Fn.fullyDiluted(state)) * (1 - Fn.safeShare(state)); };
   Fn.pps = function (state) {
     if (state.funding.lastPPS > 0) return state.funding.lastPPS;
     return 0;
@@ -342,14 +345,23 @@
       // rolling close: money arrives within ~2 weeks
       if (ts.kind === 'accelerator') {
         if (ts.fixedPct > 0) Fn.issuePriced(state, inv, ts.amount, ts.amount / ts.fixedPct - ts.amount, 'Accelerator', { pref: '1x' }, true);
-        else L.post(state.fin, { cash: ts.amount, rev_other: -ts.amount }, 'op');
+        else L.post(state.fin, { cash: ts.amount, other_income: -ts.amount }, 'op');
         state.flags.accelerator = { until: state.time.w + 12, inv: inv.id };
         state.founder.rep += 6;
         state.funding.investors.forEach(function (i) { if (i.type === 'vc' || i.type === 'angel') i.warm = Math.min(1.5, i.warm + 0.3); });
       } else {
+        var room = r.target * 1.2 - (r.raised || 0);
+        if (room < 100000) { if (p) p.status = 'passed'; Fn.raiseLog(state, 'รอบเต็มแล้ว — ขอบคุณ ' + inv.name); return { ok: false, msg: 'รอบนี้ระดมทุนครบแล้ว' }; }
+        ts.amount = Math.min(ts.amount, Math.round(room / 100000) * 100000);
         Fn.issueSafe(state, inv, ts.amount, ts.cap, ts.discount);
         r.raised = (r.raised || 0) + ts.amount;
-        if (r.raised >= r.target) { Fn.raiseLog(state, 'ระดมทุนครบเป้าแล้ว'); }
+        if (r.raised >= r.target) {
+          Fn.raiseLog(state, 'ระดมทุนครบเป้าแล้ว');
+          r.termSheets = [];
+          state.funding.raise = null;
+          RW.Engine.mail(state, 'funding', 'ปิดรอบ SAFE ครบเป้า', 'ได้รับเงินรวม ' + F.m(r.raised) + ' ที่ valuation cap ' + F.m(r.ask) + ' — SAFE จะแปลงเป็นหุ้นในรอบ priced ถัดไป', 'good');
+          state.events.pending = state.events.pending.filter(function (e) { return e.id !== 'term_sheet'; });
+        }
       }
       if (p) p.status = 'committed';
       inv.warm += 0.5;

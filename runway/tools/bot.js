@@ -124,6 +124,155 @@ function policySaaS(s) {
   if (s.team.policy.benefits < 2 && hc > 10) s.team.policy.benefits = 2;
 }
 
+
+function policyEcom(s) {
+  const M = RW.Models.ecom, b = s.biz, w = s.time.w, k = s.kpi, c = M.CONCEPTS[b.concept];
+  if (w === 1) {
+    A.registerCompany(s); A.assignIP(s); A.setHours(s, 60);
+    s.founder.focus = { build: 40, sell: 20, market: 20, discover: 15, team: 0, fundraise: 0, admin: 5, consult: 0 };
+  }
+  const active = b.skus.filter(x => x.active);
+  active.forEach(sku => {
+    const st = M.stock(sku), inc = M.incoming(b, sku.id);
+    if (st + inc === 0) M.placePO(s, sku.id, c.sup.local.moq, 'local');
+    if (!sku.auto && sku.avg > 3) { sku.auto = true; sku.cover = 5; sku.autoSup = 'local'; }
+    // pricing: keep near reference
+  });
+  const rev = k.revenueMonthly || 0;
+  if (active.length) {
+    const roasOK = k.roas == null || k.roas > 2.2;
+    const budget = Math.max(0, Math.min(s.fin.bal.cash / 45, 300000));
+    b.ch.market.ads = Math.round(budget * (roasOK ? 0.6 : 0.25) / 1000) * 1000;
+    if (b.ch.social.open) b.ch.social.ads = Math.round(budget * (roasOK ? 0.3 : 0.1) / 1000) * 1000;
+    if (b.ch.web.open) b.ch.web.ads = Math.round(budget * (roasOK ? 0.2 : 0.05) / 1000) * 1000;
+    if (w > 16 && !b.ch.social.open) M.act.openChannel(s, 'social');
+    if (rev > 250000 && !b.ch.web.open) M.act.openChannel(s, 'web');
+    if (rev > 200000 && !b.crm) M.act.toggleCRM(s);
+    if (!b.ch.retail.open && rev > 800000) M.act.openChannel(s, 'retail');
+    if (b.ch.retail.open) active.filter(x => !x.retail).slice(0, 1).forEach(x => { if (s.fin.bal.cash > 3e6) M.act.listRetail(s, x.id); });
+    if (b.fulfil.backlog > 40 && RW.Team.capOf(s, 'fulfil') < 1) M.act.setFulfil(s, '3pl');
+  }
+  if (b.dev.length === 0 && active.length < Math.min(7, 1 + Math.floor(rev / 500000)) && s.fin.bal.cash > 800000 && w > 10) {
+    const t = c.types[(active.length + 1) % c.types.length];
+    M.act.develop(s, t[0], active.length > 3 ? 'premium' : 'mass');
+  }
+  return { hireWants: (count) => {
+    const want = [];
+    if (b.fulfil.mode === 'self' && b.fulfil.backlog > 10 && count('warehouse') < 1 + rev / 1.5e6) want.push(['warehouse', 1]);
+    if (b.chat.backlog > 80 && count('cs') < 1 + rev / 2e6) want.push(['cs', 1]);
+    if (rev > 300000 && count('content') < 1 + rev / 3e6) want.push(['content', 2]);
+    if (rev > 500000 && count('marketer') < 1) want.push(['marketer', 2]);
+    if (rev > 800000 && count('rnd') < 1) want.push(['rnd', 2]);
+    if (rev > 800000 && count('buyer') < 1) want.push(['buyer', 2]);
+    if (b.ch.social.open && rev > 600000 && count('live') < 1) want.push(['live', 2]);
+    if (b.ch.retail.open && count('ae') < 1) want.push(['ae', 2]);
+    return want;
+  } };
+}
+
+
+function policyGeneric(s, spec) {
+  const w = s.time.w, k = s.kpi;
+  const fr = s.funding.raise;
+  const stage = RW.Funding.stageOfRaise(s);
+  const ready = (k.traction || 0) / RW.Funding.BAR[stage];
+  if (!fr && s.company.registered && (k.runway < 9 || ready > 1.0) && w > 8 && !(s.flags.failedRaiseW && w - s.flags.failedRaiseW < 20)) {
+    const fair = RW.Funding.fairPre(s, stage);
+    const inst = stage === 'preseed' || (stage === 'seed' && ready < 1.1) ? 'safe' : 'priced';
+    const target = Math.max(RW.STAGES[stage].amt[0] * 0.5, Math.min(RW.STAGES[stage].amt[1], (k.burn > 0 ? k.burn : 300000) * 20, fair * (inst === 'safe' ? 0.18 : 0.25)));
+    A.startRaise(s, { stage, instrument: inst, target: Math.round(target / 1e5) * 1e5, ask: Math.round(fair * 0.95 / 1e5) * 1e5, minClose: target * 0.6 });
+    RW.Funding.eligibleInvestors(s, stage).sort((a, b) => b.warm - a.warm).slice(0, 12).forEach(i => A.pitch(s, i.id));
+  }
+  if (fr) {
+    if (s.founder.focus.fundraise < 20) RW.Founder.setFocus(s, 'fundraise', 25);
+    if (fr.instrument === 'safe' && RW.Funding.activePitches(s) < 3) RW.Funding.eligibleInvestors(s, fr.stage).filter(i => !fr.pipeline.some(p => p.invId === i.id)).slice(0, 4).forEach(i => A.pitch(s, i.id));
+    if (fr.leadId && fr.status === 'active') {
+      if (RW.Funding.committed(s) >= fr.minClose || w - fr.startW > 20) A.closeRound(s);
+      else RW.Funding.eligibleInvestors(s, fr.stage).filter(i => !fr.pipeline.some(p => p.invId === i.id)).slice(0, 3).forEach(i => A.pitch(s, i.id));
+    }
+    if (fr.instrument === 'safe') {
+      if ((fr.raised || 0) >= fr.target || w - fr.startW > 24) A.endSafeRound(s);
+    }
+  } else if (s.founder.focus.fundraise > 0) RW.Founder.setFocus(s, 'fundraise', 0);
+  if (s.founder.energy < 30 && s.founder.vacation === 0 && k.runway > 2) A.vacation(s, 1);
+  if (s.founder.stress > 75) A.setHours(s, 55); else if (s.founder.energy > 70) A.setHours(s, 60);
+  if (k.runway < 6 && !s.funding.raise && (s.founder.focus.consult || 0) === 0) RW.Founder.setFocus(s, 'consult', 30);
+  if ((k.runway > 10 || s.funding.raise) && s.founder.focus.consult > 0) RW.Founder.setFocus(s, 'consult', 0);
+  if (s.funding.stage !== 'bootstrap' && s.founder.salary === 0 && s.fin.bal.cash > 3e6) A.setFounderSalary(s, Math.max(45000, s.founder.burn * 1.1));
+  if (s.founder.cash < s.founder.burn * 2 && s.founder.salary < s.founder.burn) A.setFounderSalary(s, s.founder.burn * 1.1);
+  if (s.company.registered && w % 2 === 0) {
+    const cash = s.fin.bal.cash, burn = Math.max(1, k.burn || 1);
+    const count = r => RW.Team.all(s).filter(e => e.role === r).length + s.team.openings.filter(o => o.role === r).length;
+    const want = spec.hireWants(count);
+    const act = RW.Team.all(s);
+    if (act.length > 8 && count('hr') < 1) want.push(['hr', 2]);
+    if (act.length > 10 && count('finance') < 1) want.push(['finance', 3]);
+    want.slice(0, 2).forEach(([role, lvl]) => {
+      const sal = RW.ROLES[role].salary[lvl];
+      if (cash / Math.max(1, burn + sal * 1.3) > 10 && s.team.openings.length < 4) A.openPosition(s, role, lvl, 'board');
+    });
+  }
+  s.team.candidates.slice().sort((a, b) => b.est - a.est).forEach(c => {
+    if (c.est < 40) { A.rejectCandidate(s, c.id); return; }
+    const r = A.offer(s, c.id, c.ask, 0);
+    if (!r.ok && r.counter) A.offer(s, c.id, c.ask, 0);
+  });
+  if (k.runway < 2.5 && RW.Team.active(s).length > 3) {
+    const victims = RW.Team.active(s).sort((a, b) => a.lastOut - b.lastOut).slice(0, Math.ceil(RW.Team.active(s).length * 0.25));
+    A.layoff(s, victims.map(e => e.id));
+  }
+  const hc = RW.Team.headcount(s) + 1;
+  if (hc > RW.Team.officeCapacity(s) - 1) {
+    if (hc < 20) A.moveOffice(s, 'cowork', hc + 6);
+    else { A.setPolicy(s, 'workmode', 1); if (hc + 1 > RW.Team.officeCapacity(s)) A.moveOffice(s, 'small', Math.round(hc * 1.6)); }
+  }
+}
+
+function policyFnb(s) {
+  const M = RW.Models.fnb, b = s.biz, w = s.time.w, k = s.kpi, c = M.CONCEPTS[b.concept];
+  if (w === 1) {
+    A.registerCompany(s); A.assignIP(s); A.setHours(s, 60);
+    s.founder.focus = { build: 60, sell: 5, market: 15, discover: 10, team: 5, fundraise: 0, admin: 5, consult: 0 };
+  }
+  const open = M.openBranches(b), live = M.liveBranches(b);
+  // first shop: cheapest decent site
+  if (w >= 3 && live.length === 0 && s.company.registered && w % 3 === 0) {
+    if (!b.sites || !b.sites.list.length || w - b.sites.w > 8) M.act.scout(s, s.fin.bal.cash > 3e6 ? 'community' : 'street');
+    const cost = (x, fin) => x.rent * 3 + x.fit * (fin ? 0.5 : 1) + 120000 + c.staff * 15000 + (x.rent + (c.staff + 2) * 13500) * 2.5 + 100000;
+    const ok = b.sites.list.filter(x => cost(x, true) < s.fin.bal.cash).sort((x, y) => (y.quoted / y.rent) - (x.quoted / x.rent));
+    const best = ok[0];
+    if (best) { if (cost(best, false) < s.fin.bal.cash) M.openBranch(s, best.id, false); else M.openBranch(s, best.id, true); }
+    else if (w > 12 && b.sites.type !== 'cloud' && b.concept !== 'bbq') M.act.scout(s, 'cloud');
+  }
+  // expand when shops are profitable and cash allows
+  const walls = open.filter(x => x.last);
+  const avgWall = walls.length ? walls.reduce((a, x) => a + x.last.wall / Math.max(1, x.last.rev), 0) / walls.length : -1;
+  if (open.length && avgWall > 0.08 && live.length === open.length && s.fin.bal.cash > 3.5e6 && w % 8 === 0) {
+    M.act.scout(s, s.fin.bal.cash > 12e6 ? 'mall' : 'community');
+    const best = b.sites.list.slice().sort((x, y) => (y.quoted / y.rent) - (x.quoted / x.rent))[0];
+    if (best && s.fin.bal.cash > best.fit * 1.6 + best.rent * 8) M.openBranch(s, best.id, s.fin.bal.cash < best.fit * 2.5);
+  }
+  // close persistent losers
+  open.forEach(br => { if (br.hist && br.hist.length >= 6 && br.hist.slice(-6).every(v => v < 0) && open.length > 1) M.closeBranch(s, br.id); });
+  if (open.length >= 4 && !b.ck && s.fin.bal.cash > 12e6) M.act.buildCK(s);
+  if (open.length >= 5 && !b.fr.on && avgWall > 0.12 && s.fin.bal.cash > 4e6) M.act.startFranchise(s);
+  if (w % 26 === 13 && !b.menuProj && s.fin.bal.cash > 1e6) M.act.menuRD(s);
+  // assign managers
+  const mgrs = RW.Team.all(s).filter(e => e.role === 'branchmgr' && e.startW <= w);
+  open.forEach(br => { if (!br.mgr) { const free = mgrs.find(e => !b.branches.some(x => x.mgr === e.id)); if (free) br.mgr = free.id; } });
+  if (open.length > 1 && s.founder.focus.build > 40) s.founder.focus = { build: 35, sell: 10, market: 20, discover: 10, team: 15, fundraise: s.founder.focus.fundraise, admin: 10 - 0, consult: 0 };
+  return { hireWants: (count) => {
+    const want = [];
+    const needMgr = live.length - (open.length <= 1 ? 1 : 0);
+    if (count('branchmgr') < needMgr) want.push(['branchmgr', 2]);
+    if (open.length >= 2 && count('chef') < 1) want.push(['chef', 2]);
+    if (open.length >= 3 && count('marketer') < 1) want.push(['marketer', 2]);
+    if (open.length >= 3 && count('ops') < 1) want.push(['ops', 3]);
+    if (open.length >= 6 && count('branchmgr') < live.length + 1) want.push(['branchmgr', 5]);
+    return want;
+  } };
+}
+
 function resolveEvents(s) {
   let ev, guard = 0;
   while ((ev = RW.Events.current(s)) && guard++ < 20) {
@@ -148,12 +297,15 @@ function resolveEvents(s) {
 
 function play(i, weeks, industry, diff, hook) {
   const bg = ['engineer', 'sales', 'consultant', 'serial'][i % 4];
-  const concept = ['hr', 'acct', 'pos', 'ai'][Math.floor(i / 4) % 4];
-  const s = RW.Engine.newGame({ seed: 1000 + i, industry, difficulty: diff, founderName: 'บอท', bg, companyName: 'Bot' + i, capital: Math.min(1500000, RW.BACKGROUNDS[bg].savings * 0.7), concept, product: concept });
+  const CONC = { saas: ['hr', 'acct', 'pos', 'ai'], ecom: ['skincare', 'coffee', 'apparel', 'supplement'], fnb: ['cafe', 'thai', 'bbq', 'bakery'] }[industry];
+  const concept = CONC[Math.floor(i / 4) % 4];
+  const s = RW.Engine.newGame({ seed: 1000 + i, industry, difficulty: diff, founderName: 'บอท', bg, companyName: 'Bot' + i, capital: Math.min(industry === 'fnb' ? 2500000 : 1500000, RW.BACKGROUNDS[bg].savings * (industry === 'fnb' ? 0.85 : 0.7)), concept, product: concept });
   const yearly = [];
   for (let w = 0; w < weeks && !s.over; w++) {
     RW.R.bind(s.rng);
     if (industry === 'saas') policySaaS(s);
+    else if (industry === 'ecom') policyGeneric(s, policyEcom(s));
+    else if (industry === 'fnb') policyGeneric(s, policyFnb(s));
     else if (global.POLICY) global.POLICY(s);
     RW.Engine.tick(s);
     resolveEvents(s);

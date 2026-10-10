@@ -77,7 +77,7 @@
     E.prune(state);
     // random events
     if (w < 3) return;
-    var rate = 0.34;
+    var rate = 0.27;
     if (ev.pending.length >= 3) return;
     if (!R.chance(rate)) return;
     var harsh = state.diff.harsh;
@@ -105,7 +105,7 @@
   var H = (E.H = {
     cash: function (state, amt, acct, memo) {
       if (amt < 0) L.spend(state.fin, acct || 'other_exp', -amt);
-      else if (amt > 0) L.post(state.fin, { cash: amt, rev_other: -amt }, 'op');
+      else if (amt > 0) L.post(state.fin, { cash: amt, other_income: -amt }, 'op');
     },
     personal: function (state, amt) { state.founder.cash += amt; },
     morale: function (state, v, weeks, why) { RW.Team.addMod(state, v, weeks || 12, why || ''); },
@@ -122,7 +122,12 @@
     },
     mail: function (state, title, body, tone) { RW.Engine.mail(state, 'event', title, body, tone); },
     M: function (state) { return RW.Models[state.industry]; },
-    pname: function (state) { return state.company.name; }
+    pname: function (state) { return state.company.name; },
+    // scale a 'typical mid-size company' cost to this company's size (revenue & headcount)
+    sc: function (state, base) {
+      var size = Math.max((state.kpi.revenueMonthly || 0) / 1.5e6, (RW.Team.headcount(state) + 1) / 15);
+      return Math.round(base * U.clamp(size, 0.2, 4) / 5000) * 5000;
+    }
   });
 
   // =====================================================================
@@ -200,6 +205,10 @@
       var ts = RW.Funding.findTS(s, d.ts);
       var base = ts.kind === 'priced' ? ts.pre : ts.cap;
       var out = [{ t: 'ตอบรับ', d: ts.kind === 'priced' ? 'ล็อก Lead แล้วหานักลงทุนร่วม' : 'เงินเข้าทันที', fx: function () { return RW.Funding.respondTS(s, d.ts, 'accept').msg; } }];
+      if (ts.kind === 'safe' && s.funding.raise) {
+        var room = s.funding.raise.target * 1.2 - (s.funding.raise.raised || 0);
+        if (room < 100000) out[0].d = 'รอบนี้ครบแล้ว — รับเพิ่มไม่ได้';
+      }
       if (!d.final && ts.kind !== 'accelerator') {
         out.push({ t: 'ต่อรองราคา +20% (' + F.m(base * 1.2) + ')', d: 'อาจได้ อาจเจอข้อเสนอกลับ หรืออาจเสียดีล', fx: function () { return RW.Funding.respondTS(s, d.ts, 'counter', Math.round(base * 1.2 / 1e5) * 1e5).msg; } });
         out.push({ t: 'ต่อรองเบาๆ +8% (' + F.m(base * 1.08) + ')', d: 'เสี่ยงน้อยกว่า', fx: function () { return RW.Funding.respondTS(s, d.ts, 'counter', Math.round(base * 1.08 / 1e5) * 1e5).msg; } });
@@ -429,7 +438,7 @@
     choices: function (s, d) {
       var e = H.emp(s, d.emp);
       return [
-        { t: 'จ้าง HR ภายนอกสอบสวนอย่างเป็นธรรม (฿120,000)', d: 'ถูกต้องตามหลัก', fx: function () { L.spend(s.fin, 'prof', 120000); if (R.chance(0.7)) { RW.Team.fire(s, e.id); H.morale(s, 4, 12, 'บริษัทจัดการเรื่องร้องเรียนอย่างจริงจัง'); return 'ผลสอบสวนพบมีมูลจริง เลิกจ้างแล้ว ทีมรู้สึกปลอดภัยขึ้น'; } H.morale(s, 1, 6, ''); return 'หลักฐานไม่เพียงพอ ทั้งสองฝ่ายยอมรับกระบวนการ'; } },
+        { t: 'จ้าง HR ภายนอกสอบสวนอย่างเป็นธรรม (' + F.b(H.sc(s, 120000)) + ')', d: 'ถูกต้องตามหลัก', fx: function () { L.spend(s.fin, 'prof', H.sc(s, 120000)); if (R.chance(0.7)) { RW.Team.fire(s, e.id); H.morale(s, 4, 12, 'บริษัทจัดการเรื่องร้องเรียนอย่างจริงจัง'); return 'ผลสอบสวนพบมีมูลจริง เลิกจ้างแล้ว ทีมรู้สึกปลอดภัยขึ้น'; } H.morale(s, 1, 6, ''); return 'หลักฐานไม่เพียงพอ ทั้งสองฝ่ายยอมรับกระบวนการ'; } },
         { t: 'ย้ายผู้ร้องเรียนไปทีมอื่นเงียบๆ', fx: function () { E.later(s, R.int(8, 30), 'harass_leak', { emp: e.id }); return 'เรื่องเงียบไปชั่วคราว'; } },
         { t: 'ไม่ดำเนินการ — "เรื่องส่วนตัว"', fx: function () { E.later(s, R.int(4, 20), 'harass_leak', { emp: e.id, worse: 1 }); H.morale(s, -5, 16, ''); return 'ผู้ร้องเรียนลาออกในเดือนถัดมา'; } }
       ];
@@ -438,6 +447,7 @@
   E.effect('harass_leak', function (s, d) {
     if (!R.chance(d.worse ? 0.7 : 0.45)) return;
     H.rep(s, -12); H.brand(s, -10); H.morale(s, -12, 20, 'ข่าวฉาวในบริษัท');
+    L.spend(s.fin, 'prof', H.sc(s, 200000));
     s.team.brand = Math.max(0, s.team.brand - 15);
     H.mail(s, 'ข่าวฉาวหลุดสู่โซเชียล', 'อดีตพนักงานโพสต์เรื่องการคุกคามทางเพศในบริษัทพร้อมหลักฐาน ยอดแชร์หลายหมื่น นักข่าวโทรมาขอสัมภาษณ์ ภาพลักษณ์บริษัทและผู้ก่อตั้งเสียหายหนัก', 'bad');
   });
@@ -670,7 +680,7 @@
       var q = E.booksQuality(s);
       var base = Math.max(80000, (s.kpi.revenueTTM || 0) * 0.02);
       return [
-        { t: 'จ้างที่ปรึกษาภาษีดูแล (฿180,000)', fx: function () { L.spend(s.fin, 'prof', 180000); var pen = Math.round(base * (1 - q) * 0.5); if (pen > 0) L.spend(s.fin, 'penalties', pen); return pen > 0 ? 'จบด้วยการจ่ายเพิ่ม ' + F.b(pen) : 'ผ่านการตรวจโดยไม่มีค่าปรับ'; } },
+        { t: 'จ้างที่ปรึกษาภาษีดูแล (' + F.b(H.sc(s, 180000)) + ')', fx: function () { L.spend(s.fin, 'prof', H.sc(s, 180000)); var pen = Math.round(base * (1 - q) * 0.5); if (pen > 0) L.spend(s.fin, 'penalties', pen); return pen > 0 ? 'จบด้วยการจ่ายเพิ่ม ' + F.b(pen) : 'ผ่านการตรวจโดยไม่มีค่าปรับ'; } },
         { t: 'จัดการเอง', d: 'ใช้เวลาคุณมาก', fx: function () { H.energy(s, -15); H.stress(s, 10); var pen = Math.round(base * (1 - q) * 1.4); if (pen > 0) L.spend(s.fin, 'penalties', pen); return pen > 0 ? 'โดนประเมินเพิ่ม ' + F.b(pen) : 'ผ่านไปได้'; } },
         { t: 'จ่าย "ค่าอำนวยความสะดวก" ให้เจ้าหน้าที่ ฿100,000', d: 'ผิดกฎหมาย', fx: function () { L.spend(s.fin, 'other_exp', 100000); s.flags.bribe = (s.flags.bribe || 0) + 1; E.later(s, R.int(20, 100), 'bribe_scandal', {}); return 'เรื่องจบเร็วผิดปกติ...'; } }
       ];
@@ -683,7 +693,7 @@
   };
   E.effect('bribe_scandal', function (s) {
     if (!R.chance(0.35)) return;
-    H.rep(s, -20); H.brand(s, -12); L.spend(s.fin, 'penalties', 800000);
+    H.rep(s, -20); H.brand(s, -12); L.spend(s.fin, 'penalties', H.sc(s, 800000));
     s.flags.fraudRisk = 1;
     H.mail(s, 'ป.ป.ช. สอบสวนกรณีให้สินบนเจ้าหน้าที่', 'เจ้าหน้าที่ที่รับเงินถูกจับในคดีอื่นและซัดทอดมาถึงบริษัทคุณ ค่าทนายและค่าปรับ ฿800,000 ชื่อเสียงเสียหายหนัก นักลงทุนตั้งคำถามเรื่องธรรมาภิบาล', 'bad');
   });
@@ -708,19 +718,19 @@
 
   E.register({
     id: 'data_breach', cat: 'admin', weight: function (s) { return s.biz && s.biz.security != null ? 2.4 - s.biz.security / 50 : 0.8; }, cooldown: 52, bad: true,
-    cond: function (s) { return s.time.w > 20 && (s.kpi.customers || 0) > 50; },
+    cond: function (s) { return s.time.w > 20 && (s.kpi.customers || 0) > 50 && (s.industry !== 'fnb' || s.biz.loyalty); },
     title: 'ข้อมูลลูกค้ารั่วไหล',
     body: function (s) { return 'ทีมเทคนิคตรวจพบว่ามีผู้ไม่ประสงค์ดีเข้าถึงฐานข้อมูลลูกค้าประมาณ ' + F.num(Math.round((s.kpi.customers || 100) * R.range(0.3, 1))) + ' รายการ (ชื่อ อีเมล เบอร์โทร)\n\nตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล (PDPA) ต้องแจ้งสำนักงานคณะกรรมการฯ ภายใน 72 ชั่วโมง และแจ้งเจ้าของข้อมูลหากมีความเสี่ยงสูง'; },
     choices: function (s) {
       return [
-        { t: 'แจ้งตามกฎหมายทันที + จ้างบริษัท security ตรวจสอบ (฿350,000)', fx: function () { L.spend(s.fin, 'prof', 350000); H.brand(s, -4); if (s.biz && s.biz.security != null) s.biz.security = Math.min(100, s.biz.security + 15); return 'สื่อรายงานข่าวเล็กน้อย ลูกค้าส่วนใหญ่ชื่นชมความโปร่งใส'; } },
+        { t: 'แจ้งตามกฎหมายทันที + จ้างบริษัท security ตรวจสอบ (' + F.b(H.sc(s, 350000)) + ')', fx: function () { L.spend(s.fin, 'prof', H.sc(s, 350000)); H.brand(s, -4); if (s.biz && s.biz.security != null) s.biz.security = Math.min(100, s.biz.security + 15); return 'สื่อรายงานข่าวเล็กน้อย ลูกค้าส่วนใหญ่ชื่นชมความโปร่งใส'; } },
         { t: 'แก้ช่องโหว่เงียบๆ ไม่แจ้งใคร', d: 'ผิดกฎหมาย PDPA โทษปรับสูงสุด 5 ล้านบาท', fx: function () { s.flags.pdpaHidden = 1; E.later(s, R.int(10, 60), 'pdpa_exposed', {}); return 'คุณหวังว่าจะไม่มีใครรู้'; } }
       ];
     }
   });
   E.effect('pdpa_exposed', function (s) {
     if (!R.chance(0.5)) return;
-    L.spend(s.fin, 'penalties', 3000000);
+    L.spend(s.fin, 'penalties', Math.min(5000000, H.sc(s, 3000000)));
     H.brand(s, -20); H.rep(s, -15);
     if (s.biz) H.buzz(s, 0.7, 12);
     H.mail(s, 'ข้อมูลรั่วถูกเปิดโปง + ค่าปรับ PDPA ฿3,000,000', 'ข้อมูลลูกค้าของคุณถูกนำไปขายใน dark web นักข่าวสืบพบว่าบริษัทรู้แต่ปกปิด คณะกรรมการฯ สั่งปรับทางปกครอง ลูกค้าจำนวนมากยกเลิก', 'bad');
@@ -730,11 +740,11 @@
     id: 'ex_emp_lawsuit', cat: 'admin', weight: 2, cooldown: 40, bad: true,
     cond: function (s) { return s.team.history.fired + s.team.history.laidOff > 0; },
     title: 'อดีตพนักงานฟ้องศาลแรงงาน',
-    body: 'อดีตพนักงานที่ถูกเลิกจ้างยื่นฟ้องศาลแรงงานว่าถูกเลิกจ้างไม่เป็นธรรม เรียกค่าเสียหาย ฿900,000 พร้อมค่าชดเชยเพิ่ม',
+    body: function (s) { return 'อดีตพนักงานที่ถูกเลิกจ้างยื่นฟ้องศาลแรงงานว่าถูกเลิกจ้างไม่เป็นธรรม เรียกค่าเสียหาย ' + F.b(H.sc(s, 900000)) + ' พร้อมค่าชดเชยเพิ่ม'; },
     choices: function (s) {
       return [
-        { t: 'ไกล่เกลี่ย จ่าย ฿300,000', fx: function () { L.spend(s.fin, 'penalties', 300000); return 'ยอมความกันได้ที่ศาล'; } },
-        { t: 'สู้คดี (ค่าทนาย ฿150,000)', fx: function () { L.spend(s.fin, 'prof', 150000); s.flags.lawsuit = 1; E.later(s, R.int(16, 40), 'lawsuit_verdict', { amt: 900000 }); return 'คดีจะใช้เวลาหลายเดือน'; } }
+        { t: 'ไกล่เกลี่ย จ่าย ' + F.b(H.sc(s, 300000)), fx: function () { L.spend(s.fin, 'penalties', H.sc(s, 300000)); return 'ยอมความกันได้ที่ศาล'; } },
+        { t: 'สู้คดี (ค่าทนาย ' + F.b(H.sc(s, 150000)) + ')', fx: function () { L.spend(s.fin, 'prof', H.sc(s, 150000)); s.flags.lawsuit = 1; E.later(s, R.int(16, 40), 'lawsuit_verdict', { amt: H.sc(s, 900000) }); return 'คดีจะใช้เวลาหลายเดือน'; } }
       ];
     }
   });
@@ -748,12 +758,12 @@
     id: 'trademark_troll', cat: 'admin', weight: 0.8, cooldown: 100, once: true, bad: true,
     cond: function (s) { return s.time.w > 30 && s.biz && s.biz.brand > 25; },
     title: 'มีคนอ้างสิทธิ์เครื่องหมายการค้าของคุณ',
-    body: function (s) { return 'บริษัทแห่งหนึ่งส่งหนังสือทนายอ้างว่าจดเครื่องหมายการค้าชื่อคล้าย "' + s.company.name + '" ไว้ก่อน เรียกร้องให้หยุดใช้ชื่อ หรือจ่ายค่าสิทธิ์ ฿1,500,000\n\nคุณไม่เคยจดเครื่องหมายการค้าเลย'; },
+    body: function (s) { return 'บริษัทแห่งหนึ่งส่งหนังสือทนายอ้างว่าจดเครื่องหมายการค้าชื่อคล้าย "' + s.company.name + '" ไว้ก่อน เรียกร้องให้หยุดใช้ชื่อ หรือจ่ายค่าสิทธิ์ ' + F.b(H.sc(s, 1500000)) + '\n\nคุณไม่เคยจดเครื่องหมายการค้าเลย'; },
     choices: function (s) {
       return [
-        { t: 'จ่ายซื้อสิทธิ์ ฿1,200,000 (ต่อรอง)', fx: function () { L.spend(s.fin, 'prof', 1200000); s.flags.tmOk = 1; return 'ได้สิทธิ์ในชื่อแบรนด์อย่างสมบูรณ์'; } },
-        { t: 'รีแบรนด์ชื่อใหม่ (฿400,000 + แบรนด์เสียความต่อเนื่อง)', fx: function () { L.spend(s.fin, 'mkt', 400000); H.brand(s, -12); s.flags.tmOk = 1; return 'เปลี่ยนชื่อสินค้าและโลโก้ ลูกค้าบางส่วนงง'; } },
-        { t: 'สู้ — เราใช้ชื่อนี้ในทางการค้าก่อน (฿250,000)', fx: function () { L.spend(s.fin, 'prof', 250000); if (R.chance(0.5)) { s.flags.tmOk = 1; return 'ชนะ! พิสูจน์ได้ว่าใช้ก่อน'; } L.spend(s.fin, 'penalties', 800000); H.brand(s, -8); return 'แพ้คดี ต้องจ่ายค่าเสียหายและเปลี่ยนชื่อ'; } }
+        { t: 'จ่ายซื้อสิทธิ์ ' + F.b(H.sc(s, 1200000)) + ' (ต่อรอง)', fx: function () { L.spend(s.fin, 'prof', H.sc(s, 1200000)); s.flags.tmOk = 1; return 'ได้สิทธิ์ในชื่อแบรนด์อย่างสมบูรณ์'; } },
+        { t: 'รีแบรนด์ชื่อใหม่ (' + F.b(H.sc(s, 400000)) + ' + แบรนด์เสียความต่อเนื่อง)', fx: function () { L.spend(s.fin, 'mkt', H.sc(s, 400000)); H.brand(s, -12); s.flags.tmOk = 1; return 'เปลี่ยนชื่อสินค้าและโลโก้ ลูกค้าบางส่วนงง'; } },
+        { t: 'สู้ — เราใช้ชื่อนี้ในทางการค้าก่อน (฿250,000)', fx: function () { L.spend(s.fin, 'prof', 250000); if (R.chance(0.5)) { s.flags.tmOk = 1; return 'ชนะ! พิสูจน์ได้ว่าใช้ก่อน'; } L.spend(s.fin, 'penalties', H.sc(s, 800000)); H.brand(s, -8); return 'แพ้คดี ต้องจ่ายค่าเสียหายและเปลี่ยนชื่อ'; } }
       ];
     }
   });
@@ -803,13 +813,13 @@
   E.effect('grant_result', function (s, d) {
     if (R.chance(d.p)) {
       var amt = R.pick([600000, 900000, 1200000, 1500000]);
-      L.post(s.fin, { cash: amt * 0.5, rev_other: -amt * 0.5 }, 'op');
+      L.post(s.fin, { cash: amt * 0.5, other_income: -amt * 0.5 }, 'op');
       E.later(s, 26, 'grant_tranche', { amt: amt * 0.5 });
       H.mail(s, 'ได้รับทุนนวัตกรรม ' + F.b(amt), 'งวดแรก 50% โอนเข้าบัญชีแล้ว งวดที่สองเมื่อส่งรายงานความก้าวหน้า', 'good');
     } else H.mail(s, 'ไม่ผ่านการพิจารณาทุน', 'คณะกรรมการเห็นว่าโครงการยังไม่ชัดเจนพอ');
   });
   E.effect('grant_tranche', function (s, d) {
-    L.post(s.fin, { cash: d.amt, rev_other: -d.amt }, 'op');
+    L.post(s.fin, { cash: d.amt, other_income: -d.amt }, 'op');
     H.mail(s, 'ได้รับทุนงวดที่สอง', F.b(d.amt) + ' โอนเข้าบัญชีแล้ว', 'good');
   });
 
@@ -881,7 +891,7 @@
     body: function (s) { return 'ลูกค้าคนหนึ่งโพสต์เล่าประสบการณ์ดีๆ กับ ' + s.company.name + ' จนมียอดแชร์หลายพัน คนเริ่มถามถึงสินค้าของคุณในคอมเมนต์'; },
     choices: function (s) {
       return [
-        { t: 'อัดโฆษณาต่อยอด ฿150,000', fx: function () { L.spend(s.fin, 'mkt', 150000); H.buzz(s, 1.6, 4); H.brand(s, 5); return 'กระแสพุ่งต่อเนื่อง'; } },
+        { t: 'อัดโฆษณาต่อยอด ' + F.b(H.sc(s, 150000)), fx: function () { L.spend(s.fin, 'mkt', H.sc(s, 150000)); H.buzz(s, 1.6, 4); H.brand(s, 5); return 'กระแสพุ่งต่อเนื่อง'; } },
         { t: 'ขอบคุณลูกค้าและให้ส่วนลดพิเศษ', fx: function () { H.buzz(s, 1.3, 3); H.brand(s, 4); return 'ลูกค้าประทับใจ'; } }
       ];
     }

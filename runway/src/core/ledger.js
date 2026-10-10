@@ -65,6 +65,7 @@
     other_exp: { t: 'X', n: 'ค่าใช้จ่ายอื่น', g: 'ga' },
     // Non-operating
     int_income: { t: 'R', n: 'ดอกเบี้ยรับ', g: 'nonop' },
+    other_income: { t: 'R', n: 'รายได้อื่น (ทุนให้เปล่า เงินชดเชย)', g: 'nonop' },
     interest: { t: 'X', n: 'ดอกเบี้ยจ่าย', g: 'nonop' },
     gainloss: { t: 'X', n: 'กำไร/ขาดทุนพิเศษ', g: 'nonop' },
     tax_exp: { t: 'X', n: 'ภาษีเงินได้นิติบุคคล', g: 'tax' }

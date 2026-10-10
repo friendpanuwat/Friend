@@ -11,6 +11,17 @@
     return b.product + ' · ' + (b.launched ? 'เปิดขายมา ' + Math.round((s.time.w - b.launchW) / 4.33) + ' เดือน · ลูกค้า ' + F.num(M.totalCustomers(b)) + ' ราย' : 'กำลังสร้าง MVP');
   };
   M.topMetric = function (s) { return ['MRR', F.m(s.kpi.mrr || 0)]; };
+  M.milestones = function (s) {
+    var b = s.biz;
+    var bestDisc = Math.max.apply(null, SEGS.map(function (k) { return b.segs[k].disc; }));
+    return [
+      ['สร้าง MVP (Core ระดับ 1) ให้เสร็จ', b.launched, 'product'],
+      ['คุยกับลูกค้าจนเข้าใจกลุ่มเป้าหมาย (Discovery ≥ 40% ในกลุ่มใดกลุ่มหนึ่ง)', bestDisc >= 40, 'market'],
+      ['ได้ลูกค้าจ่ายเงิน 10 ราย', M.totalCustomers(b) >= 10, 'growth'],
+      ['MRR ถึง ฿50,000', (s.kpi.mrr || 0) >= 50000, 'growth'],
+      ['LTV:CAC มากกว่า 3 เท่า', (s.kpi.ltvCac || 0) > 3, 'growth']
+    ];
+  };
 
   var ui = (M.ui = { tabs: [{ id: 'product', n: 'สินค้า & วิศวกรรม' }, { id: 'market', n: 'ลูกค้า & ราคา' }, { id: 'growth', n: 'การตลาด & ขาย' }], render: {}, acts: {} });
 

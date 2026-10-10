@@ -31,7 +31,7 @@
     var concepts = M.concepts();
     if (!f.concept || !concepts.some(function (c) { return c.id === f.concept; })) f.concept = concepts[0].id;
     var bg = RW.BACKGROUNDS[f.bg];
-    if (f.capital == null || f.capital > bg.savings) f.capital = Math.round(bg.savings * 0.6 / 50000) * 50000;
+    if (f.capital == null || f.capital > bg.savings) f.capital = Math.round(bg.savings * (f.industry === 'fnb' ? 0.85 : 0.6) / 50000) * 50000;
     var saves = UI.SLOTS.map(function (sl) { var m = UI.slotMeta(sl); return m ? { slot: sl, m: m } : null; }).filter(Boolean);
     var lamps = ''; for (var i = 0; i < 18; i++) lamps += '<i style="animation-delay:' + (i * 0.12).toFixed(2) + 's"></i>';
     var html = '<div class="title-screen">' +
@@ -77,7 +77,7 @@
       '<label class="field" for="ng_company">ชื่อบริษัท/แบรนด์<input type="text" id="ng_company" value="' + h(f.company) + '" placeholder="เช่น ' + h(M.sampleName || 'NovaWorks') + '" data-act="ngSet" data-a=\'["company"]\'></label>' +
       '<label class="field" for="ng_seed">Seed (ว่าง = สุ่ม)<input type="text" id="ng_seed" value="' + h(f.seed) + '" data-act="ngSet" data-a=\'["seed"]\' style="width:120px"></label></div>' +
       UI.slider('เงินส่วนตัวที่ลงเป็นทุนจดทะเบียน', f.capital, 0, bg.savings, 50000, 'ngSet', ['capital'], 'b') +
-      '<p class="small muted" style="margin:4px 0 10px">เหลือเป็นเงินเก็บส่วนตัว ' + F.m(bg.savings - f.capital) + ' (ค่าใช้จ่ายส่วนตัวเดือนละ ' + F.m(bg.burn) + ' → อยู่ได้ ' + F.months((bg.savings - f.capital) / bg.burn) + ' ถ้าไม่รับเงินเดือน)</p>' +
+      '<p class="small muted" style="margin:4px 0 10px">เหลือเป็นเงินเก็บส่วนตัว ' + F.m(bg.savings - f.capital) + ' (ค่าใช้จ่ายส่วนตัวเดือนละ ' + F.m(bg.burn) + ' → อยู่ได้ ' + F.months((bg.savings - f.capital) / bg.burn) + ' ถ้าไม่รับเงินเดือน)' + (M.capitalHint ? ' · ' + M.capitalHint : '') + '</p>' +
       '<div class="choices-grid">' + Object.keys(RW.DIFFICULTY).map(function (k) {
         var d = RW.DIFFICULTY[k];
         return '<button type="button" class="card-opt ' + (f.diff === k ? 'on' : '') + '" data-act="ngSet" data-a=\'["diff","' + k + '"]\'><b>' + d.n + '</b><span>' + d.d + '</span></button>';
@@ -92,7 +92,7 @@
     if (key === 'vesting') { f.vesting = !!val; return; }
     f[key] = val;
     if (key === 'bg') { UI.genCofounders(); f.capital = null; }
-    if (key === 'industry') f.concept = null;
+    if (key === 'industry') { f.concept = null; f.capital = null; }
     if (key === 'name' || key === 'company' || key === 'seed') return { render: false };
   };
   UI.acts.startGame = function () {
@@ -161,13 +161,31 @@
       '</div>';
     var due = RW.Events.dueCount(s);
     var mails = s.inbox.slice(0, 6).map(function (m) { return UI.mailRow(m, true); }).join('');
-    var body = head + tiles + '<div class="grid g-side" style="margin-bottom:14px">' +
+    var ms = UI.milestones(s);
+    var body = head + (ms ? '<div style="margin-bottom:14px">' + ms + '</div>' : '') + tiles + '<div class="grid g-side" style="margin-bottom:14px">' +
       UI.panel('ที่ปรึกษาเตือน', '<div class="stack">' + UI.alerts(adv, 8) + '</div>', adv.length ? adv.length + ' เรื่อง' : '') +
       UI.panel('ล่าสุด', (due ? '<div class="row" style="margin-bottom:8px">' + UI.btn('มี ' + due + ' เรื่องรอคุณตัดสินใจ', 'openEvent', [], 'primary sm') + '</div>' : '') + '<div class="panel flush" style="border:0">' + (mails || '<div class="empty">ยังไม่มีข้อความ</div>') + '</div>' + '<div class="row" style="margin-top:6px">' + UI.btn('ดูทั้งหมด', 'tab', ['inbox'], 'sm ghost') + '</div>') +
       '</div>' + charts + (M.ui.overviewExtra ? M.ui.overviewExtra(s) : '');
     return body;
   };
   UI.acts.openEvent = function () { UI.showEvent(); return { render: false }; };
+
+  // early-game checklist: common steps + business-specific milestones
+  UI.milestones = function (s) {
+    var M = RW.Models[s.industry];
+    if (!M.milestones || s.flags.hideMilestones) return '';
+    var list = [['จดทะเบียนบริษัท', s.company.registered, 'company'], ['ตั้งเวลาทำงานของคุณให้เหมาะกับช่วงนี้ (หน้าผู้ก่อตั้ง)', !!s.flags.focusSet, 'founder']].concat(M.milestones(s));
+    list.push(['จ้างพนักงานคนแรก', RW.Team.headcount(s) > 0, 'team']);
+    list.push(['ได้เงินทุนก้อนแรก หรือมีกำไรทั้งเดือน', s.stats.raised > 0 || !!s.achievements.ramen, 'funding']);
+    var done = list.filter(function (x) { return x[1]; }).length;
+    if (done === list.length) return '';
+    var next = list.find(function (x) { return !x[1]; });
+    return '<section class="panel"><h3><span>เส้นทางช่วงแรก <small class="muted">' + done + '/' + list.length + '</small></span><small>' + UI.btn('ซ่อน', 'hideMilestones', [], 'sm ghost') + '</small></h3>' +
+      '<div class="row" style="gap:6px">' + list.map(function (x) {
+        return '<button type="button" class="pill ' + (x[1] ? 'good' : x === next ? 'accent' : '') + '" data-act="tab" data-a="' + h(JSON.stringify([x[2]])) + '" style="cursor:pointer">' + (x[1] ? '✓ ' : x === next ? '→ ' : '') + h(x[0]) + '</button>';
+      }).join('') + '</div></section>';
+  };
+  UI.acts.hideMilestones = function () { UI.s.flags.hideMilestones = 1; };
 
   UI.mailRow = function (m, compact) {
     var open = UI.mailOpen === m.id || !compact;
@@ -224,8 +242,8 @@
     }))) : '';
     return head + '<div class="grid g2">' + '<div class="stack">' + hours + money + '</div><div class="stack">' + focus + skills + cofs + '</div></div>';
   };
-  UI.acts.fHours = function (v) { return A.setHours(UI.s, v); };
-  UI.acts.fFocus = function (k, v) { return A.setFocus(UI.s, k, v); };
+  UI.acts.fHours = function (v) { UI.s.flags.focusSet = 1; return A.setHours(UI.s, v); };
+  UI.acts.fFocus = function (k, v) { UI.s.flags.focusSet = 1; return A.setFocus(UI.s, k, v); };
   UI.acts.fSalary = function (v) { return A.setFounderSalary(UI.s, v); };
   UI.acts.fVacation = function (w) { return A.vacation(UI.s, w); };
   UI.acts.fLend = function (a) { return A.lendToCompany(UI.s, a); };

@@ -29,8 +29,8 @@
     live: { n: 'Live Host / Creator', dept: 'sm', salary: [0, 18000, 30000, 50000, 80000, 120000], cap: { live: 1 }, ind: ['ecom'], exec: 'Head of Live Commerce' },
     cs: { n: 'แอดมินแชท / บริการลูกค้า', dept: 'cogs', salary: [0, 15000, 20000, 28000, 40000, 60000], cap: { chat: 1 }, ind: ['ecom', 'fnb'], exec: 'CX Manager' },
     // F&B
-    cook: { n: 'พ่อครัว/แม่ครัว', dept: 'cogs', salary: [0, 13500, 17000, 23000, 35000, 70000], cap: { kitchen: 1 }, ind: ['fnb'], exec: 'Executive Chef' },
-    service: { n: 'พนักงานบริการ/บาริสต้า', dept: 'cogs', salary: [0, 12500, 14500, 17500, 22000, 30000], cap: { service: 1 }, ind: ['fnb'], exec: 'Service Director' },
+    cook: { n: 'พ่อครัว/แม่ครัว', dept: 'cogs', salary: [0, 13500, 17000, 23000, 35000, 70000], cap: { kitchen: 1 }, ind: [], exec: 'Executive Chef' },
+    service: { n: 'พนักงานบริการ/บาริสต้า', dept: 'cogs', salary: [0, 12500, 14500, 17500, 22000, 30000], cap: { service: 1 }, ind: [], exec: 'Service Director' },
     branchmgr: { n: 'ผู้จัดการสาขา', dept: 'cogs', salary: [0, 25000, 32000, 40000, 55000, 95000], cap: { branch: 1 }, ind: ['fnb'], exec: 'Area Manager' },
     chef: { n: 'เชฟพัฒนาเมนู', dept: 'rnd', salary: [0, 30000, 45000, 65000, 90000, 150000], cap: { menu: 1 }, ind: ['fnb'], exec: 'Culinary Director' }
   };

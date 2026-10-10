@@ -2,6 +2,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const out = process.argv[2] || 'shots';
+const IND = process.argv[3] || 'saas';
 (async () => {
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1360, height: 900 } });
@@ -11,6 +12,8 @@ const out = process.argv[2] || 'shots';
   await page.goto('file://' + path.join(__dirname, '..', 'dist', 'runway.html'));
   await page.waitForTimeout(500);
   await page.screenshot({ path: out + '/01-title.png', fullPage: true });
+  await page.click(`button[data-act="ngSet"][data-a='["industry","${IND}"]']`);
+  await page.waitForTimeout(100);
   await page.fill('#ng_name', 'ภูมิ');
   await page.fill('#ng_company', 'Thaiflow');
   await page.click('button[data-act="startGame"]');
@@ -29,6 +32,7 @@ const out = process.argv[2] || 'shots';
   await page.click('button[data-act="tab"][data-a=\'["company"]\']');
   await page.click('button[data-act="register"]');
   for (let i = 0; i < 20; i++) { await clearModal(); await page.click('button[data-act="advance"][data-a=\'["week"]\']'); await page.waitForTimeout(40); }
+  if (process.env.SETUP) await page.evaluate(process.env.SETUP);
   await clearModal();
   const tabs = await page.$$eval('.rail button[data-act="tab"]', els => els.map(e => JSON.parse(e.getAttribute('data-a'))[0]));
   let n = 3;
@@ -38,7 +42,7 @@ const out = process.argv[2] || 'shots';
     await page.screenshot({ path: `${out}/${String(n++).padStart(2, '0')}-${t}.png`, fullPage: true });
   }
   // subtabs
-  for (const [tab, act, vals] of [['team', 'teamSub', ['hire', 'policy']], ['finance', 'finSub', ['bs', 'cf', 'debt', 'tax']], ['funding', 'fundSub', ['raise', 'investors', 'exit']]]) {
+  for (const [tab, act, vals] of (process.env.QUICK ? [] : [['team', 'teamSub', ['hire', 'policy']], ['finance', 'finSub', ['bs', 'cf', 'debt', 'tax']], ['funding', 'fundSub', ['raise', 'investors', 'exit']]])) {
     await page.click(`.rail button[data-a='["${tab}"]']`);
     for (const v of vals) {
       await page.click(`button[data-act="${act}"][data-a='["${v}"]']`);

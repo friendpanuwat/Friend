@@ -224,6 +224,11 @@
     for (var ch in by) { t += by[ch]; q += by[ch] * (CH[ch].q || 1); }
     return t > 0 ? q / t : 1;
   };
+  // innovators & early adopters buy immature products from founders they trust
+  M.earlyAdopter = function (b, k) {
+    var n = M.customers(b, k);
+    return n >= 20 ? 1 : 1 + 1.5 * (1 - n / 20);
+  };
   M.annualShare = function (b, k) {
     if (k === 'ent') return 1;
     return U.clamp(0.06 + b.annualDiscount * 2.2, 0.03, 0.65) * (k === 'micro' ? 0.6 : 1);
@@ -403,11 +408,12 @@
         if (prelaunch) return;
         var fu = RW.Team.capOf(state, 'f_sell');
         if (fu <= 0) return;
+        // a full-time founder-seller books ~12 qualified meetings a week
         var net = RW.BACKGROUNDS[state.founder.bg].net.customers;
-        var per = { micro: 5, sme: 3.5, mid: 1.0, ent: 0.22 };
+        var per = { micro: 1.5, sme: 1.0, mid: 0.6, ent: 0.25 };
         var wsum = U.sum(on, function (k) { return per[k]; });
         on.forEach(function (k) {
-          var n = fu * net * per[k] * per[k] / wsum * (on.length / 1.5);
+          var n = fu * 12 * net * per[k] / wsum;
           n = Math.min(n, M.inMarket(state, k) * 3);
           out[k].by[key] = (out[k].by[key] || 0) + n;
           st.leads += n;
@@ -496,7 +502,7 @@
         s.trials = s.trials.filter(function (t) { return t.w > w - 2; });
         due.forEach(function (t) {
           var ux = 1 + b.feats.ux * 0.08;
-          var p = g.conv * M.fitTerm(v) * Math.pow(pf, 0.8) * Math.pow(cf, 0.7) * ux * M.qAvg(t.by);
+          var p = g.conv * M.fitTerm(v) * Math.pow(pf, 0.8) * Math.pow(cf, 0.7) * ux * M.qAvg(t.by) * M.earlyAdopter(b, k);
           p = U.clamp(p, 0, 0.65);
           var won = R.binom(Math.round(t.n), p) + (R.f() < (t.n % 1) * p ? 1 : 0);
           if (won > 0) M.addCustomers(state, k, won, t.by, t.n);
@@ -517,7 +523,7 @@
           var refs = g.refs ? 0.65 + 0.35 * Math.min(1, M.customers(b, k) / g.refs) : 1;
           var disc = 1 + b.maxDiscount * 1.6;
           var motionF = s.motion === 'field' ? 1.15 : 1;
-          var p = g.win * M.fitTerm(v) * Math.pow(pf, 0.7) * Math.pow(cf, 0.7) * salesSkill * refs * disc * overload * motionF * Math.min(1.6, M.qAvg(o.by));
+          var p = g.win * M.fitTerm(v) * Math.pow(pf, 0.7) * Math.pow(cf, 0.7) * salesSkill * refs * disc * overload * motionF * Math.min(1.6, M.qAvg(o.by)) * M.earlyAdopter(b, k);
           p = U.clamp(p, 0, 0.75);
           var n = R.binom(Math.round(o.n), p) + (R.f() < (o.n % 1) * p ? 1 : 0);
           if (n > 0) M.addCustomers(state, k, n, o.by, o.src);
