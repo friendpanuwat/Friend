@@ -243,6 +243,16 @@
     RW.Engine.gameOver(s, 'shutdown', 'คุณตัดสินใจปิดบริษัทอย่างมีระเบียบ จ่ายค่าชดเชยพนักงาน ' + F.b(sev) + ' ชำระหนี้ และคืนเงินที่เหลือให้ผู้ถือหุ้น' + (loanBack + wf.founder > 0 ? ' — คุณได้คืน ' + F.b(loanBack + wf.founder) : ''));
     return ok('ปิดบริษัทแล้ว');
   };
+  A.applyBOI = function (s) {
+    var c = RW.Engine.boiCheck(s);
+    if (!c.cat) return no('ธุรกิจซื้อมาขาย/จ้างผลิตไม่อยู่ในประเภทกิจการที่ BOI ส่งเสริม');
+    if (s.flags.boi || s.flags.boiApp) return no('ยื่นไปแล้ว');
+    if (!c.ok) return no('ยังไม่ครบเงื่อนไข: ' + c.reqs.filter(function (r) { return !r.ok; }).map(function (r) { return r.t; }).join(', '));
+    L.spend(s.fin, 'prof', 180000);
+    s.flags.boiApp = { w: s.time.w + R.int(12, 20) };
+    s.founder.energy = Math.max(0, s.founder.energy - 6);
+    return ok('ยื่นขอรับการส่งเสริมแล้ว (ค่าที่ปรึกษาและเอกสาร ฿180,000) — ผลพิจารณาใน 3–5 เดือน');
+  };
   A.research = function (s, k, arg) {
     var M = RW.Models[s.industry], r = M.RESEARCH && M.RESEARCH[k];
     if (!r) return no('ไม่มีงานวิจัยนี้');

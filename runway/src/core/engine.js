@@ -88,6 +88,35 @@
     if (state.inbox.length > 250) state.inbox.length = 250;
   };
 
+  // ---------- BOI investment promotion ----------
+  EN.BOI = {
+    saas: { n: 'กิจการพัฒนาซอฟต์แวร์และบริการดิจิทัล', years: 5, cap: 1e15 }, // effectively uncapped (Infinity doesn't survive JSON saves)
+    fnb: { n: 'กิจการผลิตอาหารแปรรูป (ครัวกลาง)', years: 3, cap: 7.5e6 }
+  };
+  EN.boiCheck = function (state) {
+    var cat = EN.BOI[state.industry];
+    if (!cat) return { cat: null, reqs: [], ok: false };
+    var reqs = [
+      { t: 'จดทะเบียนบริษัทแล้ว', ok: state.company.registered },
+      { t: 'ทุนจดทะเบียนชำระแล้ว ≥ ฿1M', ok: -state.fin.bal.capital >= 1e6 },
+      { t: 'ระบบบัญชีเรียบร้อย', ok: !state.flags.booksMessy }
+    ];
+    if (state.industry === 'saas') {
+      var tech = RW.Team.active(state).filter(function (e) { return ['eng', 'data', 'design', 'pm'].indexOf(e.role) >= 0; }).length;
+      reqs.push({ t: 'ทีมพัฒนาที่เป็นพนักงานประจำ ≥ 3 คน (มี ' + tech + ')', ok: tech >= 3 });
+      reqs.push({ t: 'ทรัพย์สินทางปัญญาเป็นของบริษัท', ok: !state.flags.ipNotAssigned });
+    } else reqs.push({ t: 'มีครัวกลางที่เปิดใช้งานแล้ว', ok: !!(state.biz.ck && state.biz.ck.ready <= state.time.w) });
+    return { cat: cat, reqs: reqs, ok: reqs.every(function (r) { return r.ok; }) };
+  };
+  EN.boiDecision = function (state) {
+    var app = state.flags.boiApp, cat = EN.BOI[state.industry];
+    state.flags.boiApp = null;
+    if (EN.boiCheck(state).ok && R.chance(0.85)) {
+      state.flags.boi = { startW: state.time.w, until: state.time.w + cat.years * 52, cap: cat.cap, used: 0 };
+      EN.mail(state, 'admin', 'ได้รับบัตรส่งเสริมการลงทุน (BOI)', cat.n + ' — ยกเว้นภาษีเงินได้นิติบุคคล ' + cat.years + ' ปีนับจากวันนี้' + (cat.cap < 1e14 ? ' (สูงสุด ' + F.m(cat.cap) + ')' : '') + ' · ต้องส่งรายงานความก้าวหน้าทุกปี', 'good');
+    } else EN.mail(state, 'admin', 'BOI ยังไม่อนุมัติ', 'เจ้าหน้าที่ขอข้อมูลเพิ่มและเห็นว่าโครงการยังไม่ครบเงื่อนไข — ยื่นใหม่ได้เมื่อพร้อม', 'bad');
+  };
+
   // ---------- Paid market research (results arrive after a few weeks) ----------
   EN.researchWeekly = function (state) {
     var M = RW.Models[state.industry], w = state.time.w;
@@ -135,6 +164,7 @@
       state.flags.burnPromise = null;
     }
     if (state.flags.ipo && w >= state.flags.ipo.w) { EN.completeIPO(state); if (state.over) return; }
+    if (state.flags.boiApp && w >= state.flags.boiApp.w) EN.boiDecision(state);
 
     RW.Team.computeCaps(state);
     if (state.flags.companyOff && state.flags.companyOff >= w) {
@@ -198,6 +228,7 @@
     if (state.company.registered && !hasFinance) L.spend(fin, 'prof', 6500 + Math.min(25000, (state.kpi.revenueMonthly || 0) * 0.004));
     if (state.company.extraAdmin) L.spend(fin, 'prof', state.company.extraAdmin);
     if (state.company.insured) L.spend(fin, 'insurance', RW.Events.insuranceCost(state));
+    if (state.flags.boi && w < state.flags.boi.until) L.spend(fin, 'prof', 6000); // BOI progress reports & compliance
     L.spend(fin, 'office', Math.round((hc * 600 + 1000) * EN.tm(state, 'opex')));
     // model month end (hosting, inventory valuation, branch costs...)
     M.monthly(state, info);
@@ -226,7 +257,7 @@
       var tx = L.yearEndTax(state);
       L.closeYear(fin);
       state.ytdClosed = tx;
-      EN.mail(state, 'finance', 'ปิดงบประจำปี ' + info.be, 'กำไร(ขาดทุน)ก่อนภาษี ' + F.b(tx.profit) + (tx.tax > 0 ? ' · ภาษีที่ต้องจ่ายในเดือน พ.ค. ' + F.b(tx.tax) + (tx.sme ? ' (อัตรา SME)' : '') : ' · ขาดทุนสะสมยกไปใช้ลดภาษีได้ 5 ปี'), tx.profit > 0 ? 'good' : 'info');
+      EN.mail(state, 'finance', 'ปิดงบประจำปี ' + info.be, 'กำไร(ขาดทุน)ก่อนภาษี ' + F.b(tx.profit) + (tx.tax > 0 ? ' · ภาษีที่ต้องจ่ายในเดือน พ.ค. ' + F.b(tx.tax) + (tx.sme ? ' (อัตรา SME)' : '') : tx.exempt > 0 ? '' : ' · ขาดทุนสะสมยกไปใช้ลดภาษีได้ 5 ปี') + (tx.exempt > 0 ? ' · ได้รับยกเว้นภาษีจาก BOI ' + F.b(tx.exempt) : ''), tx.profit > 0 ? 'good' : 'info');
       if (tx.profit > 0) state.achievements.profitable_year = state.achievements.profitable_year || w;
       if (RW.Team.active(state).length > 0) RW.Events.queue(state, 'year_end_bonus', {});
     }

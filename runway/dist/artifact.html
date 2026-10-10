@@ -859,12 +859,17 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     }
     var sme = (-fin.bal.capital) <= 5000000 && p.rev <= 30000000;
     var tax = L.citFor(taxable, sme);
+    var exempt = 0, boi = state.flags.boi;
+    if (tax > 0 && boi && state.time.w < boi.until) {
+      exempt = Math.min(tax, boi.cap - boi.used); // BOI tax holiday (food category is capped at the investment)
+      boi.used += exempt; tax -= exempt;
+    }
     if (tax > 0) {
       L.post(fin, { tax_exp: tax, taxpay: -tax });
       fin.taxDue = { amt: tax, dueWeek: state.time.w + 21 }; // PND.50 due ~ end of May
     }
     fin.ytd = {};
-    return { profit: profit, taxable: taxable, tax: tax, sme: sme };
+    return { profit: profit, taxable: taxable, tax: tax, sme: sme, exempt: exempt };
   };
 
   // Pay corporate tax (WHT credits offset first)
@@ -3999,6 +4004,35 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     if (state.inbox.length > 250) state.inbox.length = 250;
   };
 
+  // ---------- BOI investment promotion ----------
+  EN.BOI = {
+    saas: { n: 'กิจการพัฒนาซอฟต์แวร์และบริการดิจิทัล', years: 5, cap: 1e15 }, // effectively uncapped (Infinity doesn't survive JSON saves)
+    fnb: { n: 'กิจการผลิตอาหารแปรรูป (ครัวกลาง)', years: 3, cap: 7.5e6 }
+  };
+  EN.boiCheck = function (state) {
+    var cat = EN.BOI[state.industry];
+    if (!cat) return { cat: null, reqs: [], ok: false };
+    var reqs = [
+      { t: 'จดทะเบียนบริษัทแล้ว', ok: state.company.registered },
+      { t: 'ทุนจดทะเบียนชำระแล้ว ≥ ฿1M', ok: -state.fin.bal.capital >= 1e6 },
+      { t: 'ระบบบัญชีเรียบร้อย', ok: !state.flags.booksMessy }
+    ];
+    if (state.industry === 'saas') {
+      var tech = RW.Team.active(state).filter(function (e) { return ['eng', 'data', 'design', 'pm'].indexOf(e.role) >= 0; }).length;
+      reqs.push({ t: 'ทีมพัฒนาที่เป็นพนักงานประจำ ≥ 3 คน (มี ' + tech + ')', ok: tech >= 3 });
+      reqs.push({ t: 'ทรัพย์สินทางปัญญาเป็นของบริษัท', ok: !state.flags.ipNotAssigned });
+    } else reqs.push({ t: 'มีครัวกลางที่เปิดใช้งานแล้ว', ok: !!(state.biz.ck && state.biz.ck.ready <= state.time.w) });
+    return { cat: cat, reqs: reqs, ok: reqs.every(function (r) { return r.ok; }) };
+  };
+  EN.boiDecision = function (state) {
+    var app = state.flags.boiApp, cat = EN.BOI[state.industry];
+    state.flags.boiApp = null;
+    if (EN.boiCheck(state).ok && R.chance(0.85)) {
+      state.flags.boi = { startW: state.time.w, until: state.time.w + cat.years * 52, cap: cat.cap, used: 0 };
+      EN.mail(state, 'admin', 'ได้รับบัตรส่งเสริมการลงทุน (BOI)', cat.n + ' — ยกเว้นภาษีเงินได้นิติบุคคล ' + cat.years + ' ปีนับจากวันนี้' + (cat.cap < 1e14 ? ' (สูงสุด ' + F.m(cat.cap) + ')' : '') + ' · ต้องส่งรายงานความก้าวหน้าทุกปี', 'good');
+    } else EN.mail(state, 'admin', 'BOI ยังไม่อนุมัติ', 'เจ้าหน้าที่ขอข้อมูลเพิ่มและเห็นว่าโครงการยังไม่ครบเงื่อนไข — ยื่นใหม่ได้เมื่อพร้อม', 'bad');
+  };
+
   // ---------- Paid market research (results arrive after a few weeks) ----------
   EN.researchWeekly = function (state) {
     var M = RW.Models[state.industry], w = state.time.w;
@@ -4046,6 +4080,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       state.flags.burnPromise = null;
     }
     if (state.flags.ipo && w >= state.flags.ipo.w) { EN.completeIPO(state); if (state.over) return; }
+    if (state.flags.boiApp && w >= state.flags.boiApp.w) EN.boiDecision(state);
 
     RW.Team.computeCaps(state);
     if (state.flags.companyOff && state.flags.companyOff >= w) {
@@ -4109,6 +4144,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     if (state.company.registered && !hasFinance) L.spend(fin, 'prof', 6500 + Math.min(25000, (state.kpi.revenueMonthly || 0) * 0.004));
     if (state.company.extraAdmin) L.spend(fin, 'prof', state.company.extraAdmin);
     if (state.company.insured) L.spend(fin, 'insurance', RW.Events.insuranceCost(state));
+    if (state.flags.boi && w < state.flags.boi.until) L.spend(fin, 'prof', 6000); // BOI progress reports & compliance
     L.spend(fin, 'office', Math.round((hc * 600 + 1000) * EN.tm(state, 'opex')));
     // model month end (hosting, inventory valuation, branch costs...)
     M.monthly(state, info);
@@ -4137,7 +4173,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       var tx = L.yearEndTax(state);
       L.closeYear(fin);
       state.ytdClosed = tx;
-      EN.mail(state, 'finance', 'ปิดงบประจำปี ' + info.be, 'กำไร(ขาดทุน)ก่อนภาษี ' + F.b(tx.profit) + (tx.tax > 0 ? ' · ภาษีที่ต้องจ่ายในเดือน พ.ค. ' + F.b(tx.tax) + (tx.sme ? ' (อัตรา SME)' : '') : ' · ขาดทุนสะสมยกไปใช้ลดภาษีได้ 5 ปี'), tx.profit > 0 ? 'good' : 'info');
+      EN.mail(state, 'finance', 'ปิดงบประจำปี ' + info.be, 'กำไร(ขาดทุน)ก่อนภาษี ' + F.b(tx.profit) + (tx.tax > 0 ? ' · ภาษีที่ต้องจ่ายในเดือน พ.ค. ' + F.b(tx.tax) + (tx.sme ? ' (อัตรา SME)' : '') : tx.exempt > 0 ? '' : ' · ขาดทุนสะสมยกไปใช้ลดภาษีได้ 5 ปี') + (tx.exempt > 0 ? ' · ได้รับยกเว้นภาษีจาก BOI ' + F.b(tx.exempt) : ''), tx.profit > 0 ? 'good' : 'info');
       if (tx.profit > 0) state.achievements.profitable_year = state.achievements.profitable_year || w;
       if (RW.Team.active(state).length > 0) RW.Events.queue(state, 'year_end_bonus', {});
     }
@@ -4901,6 +4937,16 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     s.founder.cash += loanBack + wf.founder;
     RW.Engine.gameOver(s, 'shutdown', 'คุณตัดสินใจปิดบริษัทอย่างมีระเบียบ จ่ายค่าชดเชยพนักงาน ' + F.b(sev) + ' ชำระหนี้ และคืนเงินที่เหลือให้ผู้ถือหุ้น' + (loanBack + wf.founder > 0 ? ' — คุณได้คืน ' + F.b(loanBack + wf.founder) : ''));
     return ok('ปิดบริษัทแล้ว');
+  };
+  A.applyBOI = function (s) {
+    var c = RW.Engine.boiCheck(s);
+    if (!c.cat) return no('ธุรกิจซื้อมาขาย/จ้างผลิตไม่อยู่ในประเภทกิจการที่ BOI ส่งเสริม');
+    if (s.flags.boi || s.flags.boiApp) return no('ยื่นไปแล้ว');
+    if (!c.ok) return no('ยังไม่ครบเงื่อนไข: ' + c.reqs.filter(function (r) { return !r.ok; }).map(function (r) { return r.t; }).join(', '));
+    L.spend(s.fin, 'prof', 180000);
+    s.flags.boiApp = { w: s.time.w + R.int(12, 20) };
+    s.founder.energy = Math.max(0, s.founder.energy - 6);
+    return ok('ยื่นขอรับการส่งเสริมแล้ว (ค่าที่ปรึกษาและเอกสาร ฿180,000) — ผลพิจารณาใน 3–5 เดือน');
   };
   A.research = function (s, k, arg) {
     var M = RW.Models[s.industry], r = M.RESEARCH && M.RESEARCH[k];
@@ -8726,10 +8772,18 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       '<div class="kv" style="margin:8px 0"><span>ค่าเช่า/เดือน</span><span>' + F.b(q.rent) + '</span><span>เงินมัดจำ</span><span>' + F.b(q.deposit) + '</span><span>ค่าตกแต่ง (ตัดค่าเสื่อม 3 ปี)</span><span>' + F.b(q.fitout) + '</span></div>' +
       (o.leaseEnd > s.time.w ? '<div class="alert warn"><span class="dot"></span><span>ยังติดสัญญาเช่า — ย้ายออกก่อนกำหนดจะถูกยึดเงินมัดจำ ' + F.b(o.deposit) + '</span></div>' : '') +
       '<div class="row" style="margin-top:8px">' + UI.btn('ย้ายไปที่นี่', 'moveOffice', [], 'primary') + '</div>');
+    var bc = RW.Engine.boiCheck(s), boi = fl.boi;
+    var boiBody = !bc.cat ? '<p class="small ink2" style="margin:0">ธุรกิจซื้อมาขายไป/จ้างโรงงานผลิตไม่อยู่ในประเภทกิจการที่ BOI ส่งเสริม</p>' :
+      boi ? (s.time.w < boi.until ? '<div class="alert good"><span class="dot"></span><div><b>ได้รับส่งเสริมแล้ว</b><div class="small ink2">' + h(bc.cat.n) + ' · ยกเว้นภาษีถึง ' + RW.T.label(boi.until) + (boi.cap < 1e14 ? ' · ใช้สิทธิ์ไปแล้ว ' + F.m(boi.used) + ' จาก ' + F.m(boi.cap) : boi.used > 0 ? ' · ประหยัดภาษีไปแล้ว ' + F.m(boi.used) : '') + '</div></div></div>' : '<p class="small ink2" style="margin:0">สิทธิยกเว้นภาษี BOI หมดอายุแล้ว</p>') :
+      fl.boiApp ? '<div class="alert"><span class="dot"></span><span>ยื่นแล้ว รอผลพิจารณา ~' + RW.T.label(fl.boiApp.w) + '</span></div>' :
+      '<p class="small ink2" style="margin:0 0 8px">' + h(bc.cat.n) + ': ยกเว้นภาษีเงินได้นิติบุคคล ' + bc.cat.years + ' ปี' + (bc.cat.cap < 1e14 ? ' (สูงสุด ' + F.m(bc.cat.cap) + ')' : '') + ' — มีค่าเมื่อเริ่มมีกำไร · ค่ายื่น ฿180,000 + ค่ารายงานประจำปี</p><div class="stack" style="gap:4px;margin-bottom:8px">' +
+      bc.reqs.map(function (r) { return '<div class="small"><span class="' + (r.ok ? 'good' : 'warn') + '">' + (r.ok ? '✓' : '✗') + '</span> ' + h(r.t) + '</div>'; }).join('') + '</div>' + UI.btn('ยื่นขอรับการส่งเสริม', 'applyBOI', [], bc.ok ? 'primary' : '', bc.ok ? '' : 'disabled');
+    var boiPanel = UI.panel('ส่งเสริมการลงทุน (BOI)', boiBody);
     var danger = UI.panel('ปิดกิจการ', '<p class="small ink2" style="margin:0 0 8px">ปิดบริษัทอย่างมีระเบียบ: จ่ายค่าชดเชยพนักงานทุกคน ชำระหนี้ แล้วแบ่งเงินที่เหลือตามลำดับสิทธิ์ผู้ถือหุ้น เกมจะจบ</p>' + UI.btn(UI.sel.confirmShutdown ? 'ยืนยัน: ปิดบริษัทตอนนี้' : 'ปิดบริษัท', 'shutdown', [], 'danger'));
-    return head + '<div class="grid g2"><div class="stack">' + legal + danger + '</div>' + office + '</div>';
+    return head + '<div class="grid g2"><div class="stack">' + legal + boiPanel + danger + '</div>' + office + '</div>';
   };
   UI.acts.register = function () { return A.registerCompany(UI.s); };
+  UI.acts.applyBOI = function () { return A.applyBOI(UI.s); };
   UI.acts.assignIP = function () { return A.assignIP(UI.s); };
   UI.acts.cleanBooks = function () { return A.cleanBooks(UI.s); };
   UI.acts.setAuditor = function (k) { return A.setAuditor(UI.s, k); };
@@ -8835,6 +8889,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       'เกมจบเมื่อ: เงินสดติดลบนาน 6 สัปดาห์ (ล้มละลาย), เงินส่วนตัวติดลบหนัก, บอร์ดปลดคุณ, คุณขายกิจการ, IPO, ปิดบริษัทเอง หรือครบ 10 ปี (5 ปีในโหมด Sprint)',
       'งานวิจัยแบบจ่ายเงิน (สัมภาษณ์ลูกค้า ศึกษาราคา ทดสอบตลาด นับคนเดินผ่านทำเล) ใช้เงินแทนเวลาของคุณ — คุ้มมากเมื่อเวลาคุณมีค่ากว่าเงิน หรือเมื่อการตัดสินใจผิดจะแพง เช่น ก่อนเซ็นสัญญาเช่า 3 ปี',
       'เงินกู้ SME มีผู้ก่อตั้งค้ำประกันส่วนตัว — ถ้าบริษัทล้มละลาย ธนาคารจะตามเก็บส่วนที่ขาดจากคุณ',
+      'BOI (หน้าบริษัท & กฎหมาย) ยกเว้นภาษีนิติบุคคลหลายปีให้บริษัทซอฟต์แวร์และกิจการผลิตอาหาร — ยื่นก่อนเริ่มมีกำไรจะคุ้มที่สุด',
       'บริษัทที่เติบโตช้าแต่มีกำไร ก็อาจทำให้คุณรวยกว่าบริษัทที่ระดมทุนมหาศาลแล้วถูก dilute จนเหลือหุ้นนิดเดียว'
     ]],
     ['เวลาและการตัดสินใจ', [

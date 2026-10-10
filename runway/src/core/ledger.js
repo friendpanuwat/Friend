@@ -362,12 +362,17 @@
     }
     var sme = (-fin.bal.capital) <= 5000000 && p.rev <= 30000000;
     var tax = L.citFor(taxable, sme);
+    var exempt = 0, boi = state.flags.boi;
+    if (tax > 0 && boi && state.time.w < boi.until) {
+      exempt = Math.min(tax, boi.cap - boi.used); // BOI tax holiday (food category is capped at the investment)
+      boi.used += exempt; tax -= exempt;
+    }
     if (tax > 0) {
       L.post(fin, { tax_exp: tax, taxpay: -tax });
       fin.taxDue = { amt: tax, dueWeek: state.time.w + 21 }; // PND.50 due ~ end of May
     }
     fin.ytd = {};
-    return { profit: profit, taxable: taxable, tax: tax, sme: sme };
+    return { profit: profit, taxable: taxable, tax: tax, sme: sme, exempt: exempt };
   };
 
   // Pay corporate tax (WHT credits offset first)

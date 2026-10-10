@@ -17,6 +17,7 @@ for (const ind of inds) for (const diff of diffs) for (let i = 0; i < N; i++) {
       if (R() < 0.004) RW.Act.setInsurance(s, R() < 0.5);
       if (R() < 0.003) RW.Act.claimWHT(s);
       if (R() < 0.003) RW.Act.startIPO(s);
+      if (R() < 0.004) RW.Act.applyBOI(s);
       if (R() < 0.01) {
         const M = RW.Models[s.industry], keys = Object.keys(M.RESEARCH), k = keys[Math.floor(R() * keys.length)];
         const arg = s.industry === 'saas' ? M.SEGS[Math.floor(R() * 4)] : k === 'adtest' ? (s.biz.skus[0] || {}).id : k === 'count' ? (s.biz.sites && s.biz.sites.list[0] || {}).id : null;

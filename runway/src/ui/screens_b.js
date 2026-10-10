@@ -342,10 +342,18 @@
       '<div class="kv" style="margin:8px 0"><span>ค่าเช่า/เดือน</span><span>' + F.b(q.rent) + '</span><span>เงินมัดจำ</span><span>' + F.b(q.deposit) + '</span><span>ค่าตกแต่ง (ตัดค่าเสื่อม 3 ปี)</span><span>' + F.b(q.fitout) + '</span></div>' +
       (o.leaseEnd > s.time.w ? '<div class="alert warn"><span class="dot"></span><span>ยังติดสัญญาเช่า — ย้ายออกก่อนกำหนดจะถูกยึดเงินมัดจำ ' + F.b(o.deposit) + '</span></div>' : '') +
       '<div class="row" style="margin-top:8px">' + UI.btn('ย้ายไปที่นี่', 'moveOffice', [], 'primary') + '</div>');
+    var bc = RW.Engine.boiCheck(s), boi = fl.boi;
+    var boiBody = !bc.cat ? '<p class="small ink2" style="margin:0">ธุรกิจซื้อมาขายไป/จ้างโรงงานผลิตไม่อยู่ในประเภทกิจการที่ BOI ส่งเสริม</p>' :
+      boi ? (s.time.w < boi.until ? '<div class="alert good"><span class="dot"></span><div><b>ได้รับส่งเสริมแล้ว</b><div class="small ink2">' + h(bc.cat.n) + ' · ยกเว้นภาษีถึง ' + RW.T.label(boi.until) + (boi.cap < 1e14 ? ' · ใช้สิทธิ์ไปแล้ว ' + F.m(boi.used) + ' จาก ' + F.m(boi.cap) : boi.used > 0 ? ' · ประหยัดภาษีไปแล้ว ' + F.m(boi.used) : '') + '</div></div></div>' : '<p class="small ink2" style="margin:0">สิทธิยกเว้นภาษี BOI หมดอายุแล้ว</p>') :
+      fl.boiApp ? '<div class="alert"><span class="dot"></span><span>ยื่นแล้ว รอผลพิจารณา ~' + RW.T.label(fl.boiApp.w) + '</span></div>' :
+      '<p class="small ink2" style="margin:0 0 8px">' + h(bc.cat.n) + ': ยกเว้นภาษีเงินได้นิติบุคคล ' + bc.cat.years + ' ปี' + (bc.cat.cap < 1e14 ? ' (สูงสุด ' + F.m(bc.cat.cap) + ')' : '') + ' — มีค่าเมื่อเริ่มมีกำไร · ค่ายื่น ฿180,000 + ค่ารายงานประจำปี</p><div class="stack" style="gap:4px;margin-bottom:8px">' +
+      bc.reqs.map(function (r) { return '<div class="small"><span class="' + (r.ok ? 'good' : 'warn') + '">' + (r.ok ? '✓' : '✗') + '</span> ' + h(r.t) + '</div>'; }).join('') + '</div>' + UI.btn('ยื่นขอรับการส่งเสริม', 'applyBOI', [], bc.ok ? 'primary' : '', bc.ok ? '' : 'disabled');
+    var boiPanel = UI.panel('ส่งเสริมการลงทุน (BOI)', boiBody);
     var danger = UI.panel('ปิดกิจการ', '<p class="small ink2" style="margin:0 0 8px">ปิดบริษัทอย่างมีระเบียบ: จ่ายค่าชดเชยพนักงานทุกคน ชำระหนี้ แล้วแบ่งเงินที่เหลือตามลำดับสิทธิ์ผู้ถือหุ้น เกมจะจบ</p>' + UI.btn(UI.sel.confirmShutdown ? 'ยืนยัน: ปิดบริษัทตอนนี้' : 'ปิดบริษัท', 'shutdown', [], 'danger'));
-    return head + '<div class="grid g2"><div class="stack">' + legal + danger + '</div>' + office + '</div>';
+    return head + '<div class="grid g2"><div class="stack">' + legal + boiPanel + danger + '</div>' + office + '</div>';
   };
   UI.acts.register = function () { return A.registerCompany(UI.s); };
+  UI.acts.applyBOI = function () { return A.applyBOI(UI.s); };
   UI.acts.assignIP = function () { return A.assignIP(UI.s); };
   UI.acts.cleanBooks = function () { return A.cleanBooks(UI.s); };
   UI.acts.setAuditor = function (k) { return A.setAuditor(UI.s, k); };
