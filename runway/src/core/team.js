@@ -130,11 +130,28 @@
     return { ok: false, msg: c.name + ' ปฏิเสธข้อเสนอ (' + R.pick(['ได้ข้อเสนอที่ดีกว่าจากบริษัทใหญ่', 'ไม่มั่นใจในความมั่นคงของบริษัท', 'ครอบครัวไม่อยากให้ย้ายไปสตาร์ทอัพ', 'เงินเดือนต่ำกว่าที่คาด']) + ')' };
   };
 
+  // second-round interview / work sample: sharper skill estimate, may reveal a hidden trait, costs founder energy
+  T.deepInterview = function (state, candId) {
+    var c = state.team.candidates.find(function (x) { return x.id === candId; });
+    if (!c) return { ok: false, msg: 'ผู้สมัครไม่อยู่แล้ว' };
+    if (c.deep) return { ok: false, msg: 'สัมภาษณ์เชิงลึกไปแล้ว' };
+    if (state.founder.energy < 6) return { ok: false, msg: 'คุณเหนื่อยเกินไป' };
+    state.founder.energy -= 4;
+    c.deep = true;
+    c.errSd = Math.max(2, Math.round(c.errSd / 2.2));
+    c.est = Math.round(U.clamp(c.skill + R.normal(0, c.errSd), 10, 99));
+    var hidden = c.traits.filter(function (t) { return RW.TRAITS[t].hidden; });
+    var found = hidden.length && R.chance(0.55) ? R.pick(hidden) : null;
+    if (found) c.seen = (c.seen || []).concat([found]);
+    if (R.chance(0.12)) { c.expires = state.time.w; return { ok: true, msg: c.name + ' รับข้อเสนอที่อื่นระหว่างรอขั้นตอนเพิ่ม — รีบตัดสินใจกว่านี้ครั้งหน้า' }; }
+    return { ok: true, msg: 'ทำแบบทดสอบงานจริงกับ ' + c.name + ': ฝีมือ ~' + c.est + ' ±' + c.errSd + (found ? ' · สังเกตเห็นว่า "' + RW.TRAITS[found].n + '"' : ' · ไม่พบสัญญาณอันตราย') };
+  };
+
   T.hire = function (state, c, salary, equityShares) {
     var op = state.team.openings.find(function (o) { return o.id === c.opId; });
     var e = {
       id: 'e' + (state.team.nextId++), name: c.name, nick: c.nick, role: c.role, level: c.level,
-      skill: c.skill, est: c.est, salary: salary, traits: c.traits.slice(), known: c.traits.filter(function (t) { return !RW.TRAITS[t].hidden; }),
+      skill: c.skill, est: c.est, salary: salary, traits: c.traits.slice(), known: c.traits.filter(function (t) { return !RW.TRAITS[t].hidden || (c.seen && c.seen.indexOf(t) >= 0); }),
       hiredW: state.time.w, startW: state.time.w + c.notice, ramp: 0, morale: 70, stress: 20,
       lastRaiseW: state.time.w, promoW: state.time.w, options: 0, gone: false, perf: 1
     };

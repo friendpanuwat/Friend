@@ -221,7 +221,9 @@
       UI.bar('ชื่อเสียงในวงการ', f.rep, 100, '', Math.round(f.rep)) +
       '</div><div class="row" style="margin-top:10px">' +
       (f.vacation ? UI.pill('ลาพักอีก ' + f.vacation + ' สัปดาห์', 'accent') : UI.btn('ลาพัก 1 สัปดาห์', 'fVacation', [1]) + UI.btn('ลาพัก 2 สัปดาห์', 'fVacation', [2])) +
-      (f.burnout ? UI.pill('หมดไฟ อีก ' + f.burnout + ' สัปดาห์', 'crit') : '') + '</div>');
+      (f.burnout ? UI.pill('หมดไฟ อีก ' + f.burnout + ' สัปดาห์', 'crit') : '') + '</div>' +
+      '<div class="divider"></div><div class="small ink2" style="margin-bottom:6px">พัฒนาตัวเอง (จ่ายจากเงินบริษัท ใช้เวลาช่วงเย็นและวันหยุด พลังงาน −10):</div><div class="row">' +
+      Object.keys(RW.SKILL_NAMES).map(function (k) { return UI.btn(RW.SKILL_NAMES[k], 'fCourse', [k], 'sm', s.flags.courseW && s.time.w - s.flags.courseW < 8 ? 'disabled title="เพิ่งเรียนไป รออีกสักพัก"' : 'title="คอร์ส/โค้ช ฿' + F.num(RW.Act.courseCost(s, k)) + '"'); }).join('') + '</div>');
     var focusRows = Object.keys(RW.FOCUS).map(function (k) {
       var fo = RW.FOCUS[k];
       var u = contrib['f_' + k] || 0;
@@ -250,6 +252,7 @@
   UI.acts.fLend = function (a) { return A.lendToCompany(UI.s, a); };
   UI.acts.fRepay = function (a) { return A.repayFounderLoan(UI.s, a); };
   UI.acts.fInject = function (a) { return A.injectEquity(UI.s, a); };
+  UI.acts.fCourse = function (k) { return A.course(UI.s, k); };
 
   // =====================================================================
   //  TEAM
@@ -351,13 +354,13 @@
     var form = UI.form['offer_' + c.id] || (UI.form['offer_' + c.id] = { salary: c.ask, eq: c.wantsEquity ? 0.0025 : 0 });
     var fd = RW.Funding.fullyDiluted(s);
     var p = RW.Team.acceptProb(s, c, form.salary, form.eq);
-    var traits = c.traits.filter(function (t) { return !RW.TRAITS[t].hidden; }).map(function (t) { return '<span class="pill ' + (RW.TRAITS[t].good ? 'good' : '') + '" title="' + h(RW.TRAITS[t].d) + '">' + RW.TRAITS[t].n + '</span>'; }).join(' ');
+    var traits = c.traits.filter(function (t) { return !RW.TRAITS[t].hidden || (c.seen && c.seen.indexOf(t) >= 0); }).map(function (t) { return '<span class="pill ' + (RW.TRAITS[t].good ? 'good' : RW.TRAITS[t].hidden ? 'crit' : '') + '" title="' + h(RW.TRAITS[t].d) + '">' + RW.TRAITS[t].n + '</span>'; }).join(' ');
     return '<div style="border-top:1px solid var(--line2);padding:10px 0" class="row between">' +
       '<div style="min-width:220px;flex:1"><b>' + h(c.name) + '</b> <span class="muted">(' + h(c.nick) + ')</span> ' + traits + '<div class="small ink2">ฝีมือจากการสัมภาษณ์ ' + c.est + ' ±' + c.errSd + ' · ขอเงินเดือน ' + F.b(c.ask) + (c.wantsEquity ? ' · อยากได้หุ้น' : '') + ' · เริ่มงานได้ใน ' + c.notice + ' สัปดาห์ · ตัดสินใจภายใน ' + Math.max(0, c.expires - s.time.w) + ' สัปดาห์' + (c.countered ? ' · ต่อรองมาแล้ว' : '') + '</div></div>' +
       '<div class="row"><label class="field" for="of_' + c.id + '">เงินเดือนที่เสนอ' + UI.numInput('of_' + c.id, form.salary, 'offerForm', [c.id, 'salary'], 1000) + '</label>' +
       '<label class="field" for="oe_' + c.id + '">หุ้น ESOP<select id="oe_' + c.id + '" data-act="offerForm" data-a=\'["' + c.id + '","eq"]\'>' + [0, 0.001, 0.0025, 0.005, 0.01, 0.02].map(function (x) { return '<option value="' + x + '"' + (x === form.eq ? ' selected' : '') + '>' + (x ? F.pct(x, 2) : 'ไม่ให้') + '</option>'; }).join('') + '</select></label>' +
       '<span class="pill ' + (p > 0.6 ? 'good' : p > 0.35 ? 'warn' : 'crit') + '" title="โอกาสตอบรับโดยประมาณ">ตอบรับ ~' + F.pct(p, 0) + '</span>' +
-      UI.btn('ยื่นข้อเสนอ', 'makeOffer', [c.id], 'primary sm') + UI.btn('ไม่รับ', 'rejectCand', [c.id], 'sm ghost') + '</div></div>';
+      (c.deep ? '' : UI.btn('ทดสอบงานจริง', 'deepInterview', [c.id], 'sm', 'title="ได้ค่าฝีมือแม่นขึ้น อาจเห็นนิสัยที่ซ่อนอยู่ แต่ใช้พลังงานคุณ และผู้สมัครอาจรอไม่ไหว"')) + UI.btn('ยื่นข้อเสนอ', 'makeOffer', [c.id], 'primary sm') + UI.btn('ไม่รับ', 'rejectCand', [c.id], 'sm ghost') + '</div></div>';
   };
   UI.acts.hireForm = function (k, v) { UI.form.hire[k] = k === 'level' ? Number(v) : v; };
   UI.acts.openPos = function () { var f = UI.form.hire; return A.openPosition(UI.s, f.role, f.level, f.channel); };
@@ -370,6 +373,7 @@
     return r;
   };
   UI.acts.rejectCand = function (id) { return A.rejectCandidate(UI.s, id); };
+  UI.acts.deepInterview = function (id) { return RW.Team.deepInterview(UI.s, id); };
 
   UI.teamPolicy = function (s) {
     var pol = s.team.policy, P = RW.POLICIES;

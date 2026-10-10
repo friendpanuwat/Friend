@@ -290,7 +290,8 @@
     var debtRate = b.ship === 'fast' ? 0.45 : b.ship === 'careful' ? 0.1 : 0.24;
     var perfectionists = RW.Team.active(state).filter(function (e) { return e.role === 'eng' && e.traits.indexOf('perfectionist') >= 0; }).length;
     if (perfectionists) bugRate *= 0.8;
-    var items = b.roadmap.slice(0, parallel);
+    // nothing else can ship before there is a working core product
+    var items = (b.launched ? b.roadmap : b.roadmap.filter(function (it) { return it.f === 'core'; })).slice(0, parallel);
     var leftover = featPts;
     items.forEach(function (it, idx) {
       if (leftover <= 0) return;
@@ -697,6 +698,7 @@
     var b = state.biz, sup = b.support;
     var t = 0;
     SEGS.forEach(function (k) { t += M.customers(b, k) * SEG[k].tickets; });
+    t += (b.ltd || 0) * 0.08; // lifetime-deal users
     t *= (1 + b.bugs / 60) * (1 - Math.min(0.3, b.feats.ux * 0.06));
     var cap = RW.Team.capOf(state, 'support') * 70 + RW.Team.capOf(state, 'cs') * 15 + (state.founder.focus.build > 0 ? 6 : 0) + RW.Team.capOf(state, 'f_sell') * 10 + 4;
     sup.tickets = t; sup.cap = cap;

@@ -93,6 +93,19 @@
     RW.Founder.takeVacation(s, weeks);
     return ok('ลาพักร้อน ' + weeks + ' สัปดาห์ บริษัทจะเดินโดยไม่มีคุณ');
   };
+  A.courseCost = function (s, k) { return Math.round((25000 + s.founder.skills[k] * 900) / 1000) * 1000; };
+  A.course = function (s, k) {
+    var f = s.founder;
+    if (s.flags.courseW && s.time.w - s.flags.courseW < 8) return no('เพิ่งเรียนไป — สมองต้องการเวลาย่อย');
+    if (f.energy < 20) return no('คุณเหนื่อยเกินไปที่จะเรียนเพิ่ม');
+    var cost = A.courseCost(s, k);
+    L.spend(s.fin, 'culture', cost);
+    var gain = U.clamp((95 - f.skills[k]) * 0.12, 1, 7);
+    f.skills[k] = Math.min(95, f.skills[k] + gain);
+    f.energy -= 10;
+    s.flags.courseW = s.time.w;
+    return ok({ tech: 'เรียนคอร์สเทคนิค/สถาปัตยกรรมระบบ', product: 'เรียนคอร์ส Product management', sales: 'เข้าคอร์ส B2B sales + ฝึกกับโค้ช', marketing: 'เรียนคอร์ส Growth marketing', finance: 'เรียนคอร์สการเงินสำหรับผู้บริหาร', leadership: 'จ้าง executive coach', pitch: 'ฝึกพิตช์กับนักลงทุนตัวจริง' }[k] + ' (' + F.b(cost) + ') — ' + RW.SKILL_NAMES[k] + ' +' + gain.toFixed(1));
+  };
   A.lendToCompany = function (s, amt) {
     amt = Math.floor(amt / 10000) * 10000;
     if (amt <= 0 || amt > s.founder.cash) return no('เงินส่วนตัวไม่พอ');

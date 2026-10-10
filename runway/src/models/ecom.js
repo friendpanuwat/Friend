@@ -183,7 +183,7 @@
         sku.lots.push({ q: po.qty, c: po.unit, exp: sku.shelf ? w + sku.shelf : 0 });
         if (defect) RW.Events.queue(state, 'ecom_defect', { sku: sku.id, qty: Math.round(po.qty * R.range(0.1, 0.35)) });
       }
-      RW.Engine.mail(state, 'product', 'สินค้าเข้าคลัง: ' + (sku ? sku.n : 'สินค้า') + ' ' + F.num(po.qty) + ' ชิ้น', 'จ่ายส่วนที่เหลือ ' + F.b(bal));
+      if (!po.auto) RW.Engine.mail(state, 'product', 'สินค้าเข้าคลัง: ' + (sku ? sku.n : 'สินค้า') + ' ' + F.num(po.qty) + ' ชิ้น', 'จ่ายส่วนที่เหลือ ' + F.b(bal));
     });
     b.pos = keep;
   };

@@ -121,7 +121,7 @@
     M.weekly(state, info);
     var ci = RW.Founder.consultIncome(state);
     if (ci > 0) {
-      if (state.company.registered) L.invoice(state, 'rev_svc', ci, w + 4, { wht: true, name: 'งานที่ปรึกษา/รับจ้าง' });
+      if (state.company.registered) L.invoice(state, 'rev_consult', ci, w + 4, { wht: true, name: 'งานที่ปรึกษา/รับจ้าง' });
       else state.founder.cash += ci * 0.9;
       state.stats.consult = (state.stats.consult || 0) + ci;
     }
@@ -264,16 +264,20 @@
     k.burn = burn;
     k.runway = burn > 0 ? Math.max(0, k.cash) / burn : Infinity;
     var last = hm.length ? hm[hm.length - 1] : null;
-    k.revenueMonthly = last ? last.p.rev : 0;
-    k.revenueTTM = EN.revenueTTM(state);
+    // operating KPIs exclude the founder's side consulting (investors don't count it as traction)
+    var core = function (m) { return m ? m.p.rev + (m.pl.rev_consult || 0) : 0; };
+    k.revenueMonthly = core(last);
+    k.revenueTotal = last ? last.p.rev : 0;
+    k.revenueTTM = U.sum(U.last(hm, 12), core);
     k.ebitdaTTM = U.sum(U.last(hm, 12), function (m) { return m.p.ebitda; });
     k.ebitdaMargin = last && last.p.rev > 0 ? last.p.ebitda / last.p.rev : -1;
     k.gm = last ? last.p.gm : 0;
-    var r3 = hm.length >= 4 ? hm[hm.length - 4].p.rev : 0;
-    k.qoqGrowth = r3 > 0 && last ? last.p.rev / r3 - 1 : 0;
-    var r1 = hm.length >= 2 ? hm[hm.length - 2].p.rev : 0;
-    k.momGrowth = r1 > 0 && last ? last.p.rev / r1 - 1 : 0;
-    k.cmgr3 = r3 > 0 && last && last.p.rev > 0 ? Math.pow(last.p.rev / r3, 1 / 3) - 1 : 0;
+    var r3 = hm.length >= 4 ? core(hm[hm.length - 4]) : 0;
+    var r0 = core(last);
+    k.qoqGrowth = r3 > 0 && last ? r0 / r3 - 1 : 0;
+    var r1 = hm.length >= 2 ? core(hm[hm.length - 2]) : 0;
+    k.momGrowth = r1 > 0 && last ? r0 / r1 - 1 : 0;
+    k.cmgr3 = r3 > 0 && r0 > 0 ? Math.pow(r0 / r3, 1 / 3) - 1 : 0;
     k.headcount = RW.Team.headcount(state);
     k.morale = RW.Team.avgMorale(state);
     k.founderPct = RW.Funding.founderPct(state);
@@ -283,7 +287,7 @@
     // momentum for morale: revenue growth and press
     k.momentum = U.clamp((k.cmgr3 || 0) * 60, -10, 10) + (state.funding.raise && state.funding.raise.leadId ? 3 : 0);
     // burn multiple: net burn / net new ARR (annualized revenue added)
-    var newRunRate = last && hm.length >= 4 ? (last.p.rev - hm[hm.length - 4].p.rev) * 12 / 3 : 0;
+    var newRunRate = last && hm.length >= 4 ? (r0 - r3) * 12 / 3 : 0;
     k.burnMultiple = newRunRate > 0 && burn > 0 ? burn * 12 / 3 / (newRunRate / 4) : (burn > 0 ? 99 : 0);
     k.defaultAlive = EN.defaultAlive(state);
     var tr = M.traction(state);
@@ -480,7 +484,7 @@
     if (k.revenueMonthly >= 100e6) set('rev100m');
     var hm = state.hist.monthly;
     if (hm.length && hm[hm.length - 1].cf.op > 0 && hm[hm.length - 1].p.rev > 50000) set('ramen');
-    if (k.defaultAlive && k.defaultAlive.alive && k.burn > 0 && k.revenueMonthly > 100000) set('default_alive');
+    if (k.defaultAlive && k.defaultAlive.alive && k.burn > 0 && k.revenueMonthly > 100000 && k.runway > 6 && k.ebitdaMargin > -0.6) set('default_alive');
     ['seed', 'A', 'B', 'C'].forEach(function (s) { if (state.funding.rounds.some(function (r) { return r.stage === s; })) set('raised_' + s); });
     if (state.funding.lastPost >= 35e9) set('unicorn');
     if (k.revenueTTM >= 100e6 && state.funding.rounds.length === 0 && state.funding.safes.length === 0) set('bootstrapped');

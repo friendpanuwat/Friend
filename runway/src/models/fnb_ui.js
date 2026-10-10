@@ -20,6 +20,8 @@
     return b.product + ' · ' + (n ? n + ' สาขาเปิดอยู่' : 'ยังไม่มีร้าน') + (bl ? ' · กำลังสร้าง ' + bl : '') + (b.fr.units.length ? ' · แฟรนไชส์ ' + b.fr.units.length : '') + ' · เรตติ้ง ' + b.rating.toFixed(2);
   };
   M.topMetric = function (s) { return ['ยอดขาย/เดือน', F.m(s.kpi.revenueMonthly)]; };
+  M.snapshot = function (s) { return { covers: s.biz.lifetime.covers }; };
+  M.snapDiff = function (s, a, b) { return 'ลูกค้า ' + F.num(Math.round(b.covers - a.covers)) + ' คน'; };
   M.milestones = function (s) {
     var b = s.biz, ob = M.openBranches(b);
     return [

@@ -23,6 +23,11 @@
     return b.product + ' · ' + (b.launched ? 'เปิดขายมา ' + Math.round((s.time.w - b.launchW) / 4.33) + ' เดือน · ลูกค้า ' + F.num(M.totalCustomers(b)) + ' ราย' : 'กำลังสร้าง MVP');
   };
   M.topMetric = function (s) { return ['MRR', F.m(s.kpi.mrr || 0)]; };
+  M.snapshot = function (s) { return { cust: M.totalCustomers(s.biz), mrr: M.mrr(s.biz), life: s.biz.lifetime.customers }; };
+  M.snapDiff = function (s, a, b) {
+    var won = b.life - a.life, lost = won - (b.cust - a.cust);
+    return 'ลูกค้าใหม่ +' + won + (lost > 0 ? ' / ยกเลิก −' + lost : '') + ' · MRR ' + (b.mrr - a.mrr >= 0 ? '+' : '') + F.m(b.mrr - a.mrr);
+  };
   M.milestones = function (s) {
     var b = s.biz;
     var bestDisc = Math.max.apply(null, SEGS.map(function (k) { return b.segs[k].disc; }));
@@ -92,7 +97,8 @@
       var f = FEAT[it.f], lvl = b.feats[it.f], cost = f.costs[lvl];
       var share = i < parallel ? featPts / Math.min(parallel, b.roadmap.length) : 0;
       var eta = share > 0 ? Math.ceil((cost - it.prog) / Math.min(share, cost / (2 + lvl))) : null;
-      return [(i < parallel ? UI.pill('กำลังทำ', 'accent') + ' ' : '') + '<b>' + f.n + '</b> → ระดับ ' + (lvl + 1), '<div style="min-width:120px">' + UI.meter(it.prog, cost) + '<div class="tiny muted">' + it.prog.toFixed(1) + '/' + cost + ' dev-weeks</div></div>', eta ? '~' + eta + ' สัปดาห์' : 'รอคิว',
+      var blocked = !b.launched && it.f !== 'core';
+      return [(blocked ? UI.pill('รอ MVP', 'warn') + ' ' : i < parallel ? UI.pill('กำลังทำ', 'accent') + ' ' : '') + '<b>' + f.n + '</b> → ระดับ ' + (lvl + 1), '<div style="min-width:120px">' + UI.meter(it.prog, cost) + '<div class="tiny muted">' + it.prog.toFixed(1) + '/' + cost + ' dev-weeks</div></div>', eta ? '~' + eta + ' สัปดาห์' : 'รอคิว',
         '<div class="row" style="gap:4px;flex-wrap:nowrap">' + UI.btn('↑', 'sMove', [i, -1], 'sm') + UI.btn('↓', 'sMove', [i, 1], 'sm') + UI.btn('ลบ', 'sRemove', [i], 'sm danger') + '</div>'];
     });
     var roadmap = UI.panel('Roadmap', UI.table(['งาน', 'ความคืบหน้า', '#ETA', ''], rm, { empty: 'Roadmap ว่าง — เพิ่มงานจากรายการด้านล่าง' }) + '<p class="tiny muted" style="margin-top:6px">ทำพร้อมกันได้ ' + parallel + ' งาน (เพิ่มเมื่อมีวิศวกรมากขึ้น) · แต่ละงานมีเวลาขั้นต่ำ เอาคนมาอัดเพิ่มไม่ได้เร็วขึ้นเสมอไป</p>');

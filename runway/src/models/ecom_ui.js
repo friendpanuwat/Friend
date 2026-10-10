@@ -20,6 +20,8 @@
     'มาร์เก็ตเพลสคนเยอะแต่ค่าธรรมเนียมสูง เว็บไซต์ของตัวเองกำไรดีกว่าแต่ต้องพาคนมาเอง',
     'จด VAT แล้วราคาที่ลูกค้าจ่ายรวม VAT — ถ้าไม่ขึ้นราคา รายได้สุทธิหายไป 6.5%'
   ];
+  M.snapshot = function (s) { return { orders: s.biz.lifetime.orders, cust: s.biz.customers }; };
+  M.snapDiff = function (s, a, b) { return 'ออเดอร์ ' + F.num(b.orders - a.orders) + ' · ลูกค้าใหม่ ' + F.num(Math.round(b.cust - a.cust)); };
   M.milestones = function (s) {
     var b = s.biz;
     var orders = U.sum(b.stats, function (m) { return m.orders; }) + (b.mstats ? b.mstats.orders : 0);

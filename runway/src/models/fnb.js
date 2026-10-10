@@ -89,13 +89,19 @@
     var fid = state.fin.assets[state.fin.assets.length - 1].id;
     L.spend(state.fin, 'other_exp', pre);
     var br = {
-      id: 'b' + (b.nextB++), n: (st.type === 'cloud' ? 'ครัว ' : 'สาขา ') + st.area, type: st.type, sqm: st.sqm, rent: st.rent, foot: st.foot, seats: st.seats,
+      id: 'b' + (b.nextB++), n: M.uniqueName(b, (st.type === 'cloud' ? 'ครัว ' : 'สาขา ') + st.area), type: st.type, sqm: st.sqm, rent: st.rent, foot: st.foot, seats: st.seats,
       deposit: deposit, fitId: fid, fit: st.fit, leaseEnd: state.time.w + Math.round(L0.lease * 4.33), state: 'building', ready: state.time.w + R.int(6, 10) + (state.flags.fastPermit ? -2 : 0), opened: null,
       mgr: null, staff: st.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff, staffSkill: 45, rating: 0, reviews: 0, ms: M.blank(), last: null, util: 0
     };
     b.branches.push(br);
     b.sites.list = b.sites.list.filter(function (x) { return x.id !== siteId; });
     return { ok: true, msg: 'เซ็นสัญญาเช่า ' + br.n + ' — ตกแต่งและขอใบอนุญาต ~' + (br.ready - state.time.w) + ' สัปดาห์ (จ่ายแล้ว ' + F.b(need) + (leased ? ' · เช่าซื้ออุปกรณ์ ' + F.b(leased) + ' ผ่อน 36 เดือน' : '') + ')' };
+  };
+
+  M.uniqueName = function (b, n) {
+    var name = n, i = 2;
+    while (b.branches.some(function (x) { return x.n === name; })) name = n + ' ' + (i++);
+    return name;
   };
 
   M.closeBranch = function (state, id) {

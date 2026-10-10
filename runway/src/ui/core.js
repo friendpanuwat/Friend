@@ -249,7 +249,8 @@
     var s = UI.s;
     if (!s || s.over) return;
     if (RW.Events.current(s)) { UI.showEvent(); return; }
-    var startM = RW.T.info(s.time.w).monthsElapsed;
+    var M = RW.Models[s.industry];
+    var before = { cash: s.fin.bal.cash, w: s.time.w, snap: M.snapshot ? M.snapshot(s) : null, hc: RW.Team.headcount(s) };
     var n = 0, max = mode === 'month' ? 6 : mode === 'quarter' ? 14 : 1;
     while (n < max) {
       RW.Engine.tick(s);
@@ -261,7 +262,16 @@
     }
     UI.save('auto');
     UI.render();
-    if (!s.over) UI.showEvent();
+    if (!s.over) {
+      var parts = [];
+      var dc = s.fin.bal.cash - before.cash;
+      parts.push('เงินสด ' + (dc >= 0 ? '+' : '') + F.m(dc).replace('฿-', '−฿'));
+      if (M.snapshot) { var d = M.snapDiff(s, before.snap, M.snapshot(s)); if (d) parts.push(d); }
+      var dh = RW.Team.headcount(s) - before.hc;
+      if (dh) parts.push('ทีม ' + (dh > 0 ? '+' : '') + dh);
+      UI.toast((n > 1 ? n + ' สัปดาห์ที่ผ่านมา: ' : 'สัปดาห์นี้: ') + parts.join(' · '));
+      UI.showEvent();
+    }
   };
 
   UI.unread = function () { return UI.s ? UI.s.inbox.filter(function (m) { return !m.read; }).length : 0; };

@@ -532,6 +532,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     rev_deliv: { t: 'R', n: 'รายได้ผ่านแอปเดลิเวอรี', g: 'rev' },
     rev_franchise: { t: 'R', n: 'ค่าแฟรนไชส์และรอยัลตี้', g: 'rev' },
     rev_other: { t: 'R', n: 'รายได้อื่น', g: 'rev' },
+    rev_consult: { t: 'R', n: 'รายได้งานรับจ้าง/ที่ปรึกษา (ผู้ก่อตั้ง)', g: 'rev' },
     contra_rev: { t: 'R', n: 'หัก ส่วนลด/คืนสินค้า', g: 'rev' },
     // COGS
     cogs_host: { t: 'X', n: 'ค่าเซิร์ฟเวอร์และคลาวด์', g: 'cogs' },
@@ -1069,8 +1070,13 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var list = [];
     function add(o) { o.id = R.id('iv'); o.warm = 0; o.passedUntil = -1; o.history = []; list.push(o); }
     var angelBios = ['อดีตผู้ก่อตั้งที่ขายบริษัทให้กลุ่มทุนญี่ปุ่น', 'ผู้บริหารธนาคารที่ชอบลงทุนสตาร์ทอัพ', 'ทายาทธุรกิจอสังหาฯ', 'อดีต CTO บริษัทเทคฯ ระดับภูมิภาค', 'นักลงทุนสายเทคฯ ที่ปรึกษาหลายบริษัท', 'แพทย์ผู้ร่ำรวยจากคลินิกเครือข่าย', 'เจ้าของโรงงานรุ่นสองที่อยากลอง new economy', 'อดีตผู้บริหารห้างค้าปลีก'];
+    var usedFirst = {};
+    function uniquePerson() {
+      for (var t = 0; t < 30; t++) { var n = RW.Names.person(); var f0 = n.split(' ')[0]; if (!usedFirst[f0]) { usedFirst[f0] = 1; return n; } }
+      return RW.Names.person();
+    }
     for (var i = 0; i < 7; i++) {
-      add({ name: 'คุณ' + RW.Names.person(), type: 'angel', bio: R.pick(angelBios), stages: ['preseed', 'seed'], check: [R.pick([3e5, 5e5, 1e6]), R.pick([1.5e6, 2e6, 3e6, 5e6])], lead: R.chance(0.3), rep: R.int(10, 45), friendly: R.int(55, 90), speed: R.int(1, 2), valueAdd: R.pick(['customers', 'talent', 'investors', 'none']), fit: { saas: R.range(0.6, 1.2), ecom: R.range(0.6, 1.2), fnb: R.range(0.5, 1.2) } });
+      add({ name: 'คุณ' + uniquePerson(), type: 'angel', bio: R.pick(angelBios), stages: ['preseed', 'seed'], check: [R.pick([3e5, 5e5, 1e6]), R.pick([1.5e6, 2e6, 3e6, 5e6])], lead: R.chance(0.3), rep: R.int(10, 45), friendly: R.int(55, 90), speed: R.int(1, 2), valueAdd: R.pick(['customers', 'talent', 'investors', 'none']), fit: { saas: R.range(0.6, 1.2), ecom: R.range(0.6, 1.2), fnb: R.range(0.5, 1.2) } });
     }
     add({ name: 'LaunchPad BKK Accelerator', type: 'accelerator', bio: 'โปรแกรมบ่มเพาะ 12 สัปดาห์ ให้เงินแลกหุ้นตายตัว พร้อม Demo Day', stages: ['preseed'], check: [1.5e6, 1.5e6], fixedPct: 0.07, lead: true, rep: 45, friendly: 80, speed: 1, valueAdd: 'investors', fit: { saas: 1.1, ecom: 1, fnb: 0.7 } });
     add({ name: 'Rocket Garage (โปรแกรมของธนาคาร)', type: 'accelerator', bio: 'Corporate accelerator ของธนาคารใหญ่ ไม่เอาหุ้น แต่ต้องทำ POC กับธนาคาร', stages: ['preseed'], check: [5e5, 5e5], fixedPct: 0, lead: true, rep: 35, friendly: 85, speed: 1, valueAdd: 'customers', fit: { saas: 1.2, ecom: 0.8, fnb: 0.4 } });
@@ -1234,11 +1240,28 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     return { ok: false, msg: c.name + ' ปฏิเสธข้อเสนอ (' + R.pick(['ได้ข้อเสนอที่ดีกว่าจากบริษัทใหญ่', 'ไม่มั่นใจในความมั่นคงของบริษัท', 'ครอบครัวไม่อยากให้ย้ายไปสตาร์ทอัพ', 'เงินเดือนต่ำกว่าที่คาด']) + ')' };
   };
 
+  // second-round interview / work sample: sharper skill estimate, may reveal a hidden trait, costs founder energy
+  T.deepInterview = function (state, candId) {
+    var c = state.team.candidates.find(function (x) { return x.id === candId; });
+    if (!c) return { ok: false, msg: 'ผู้สมัครไม่อยู่แล้ว' };
+    if (c.deep) return { ok: false, msg: 'สัมภาษณ์เชิงลึกไปแล้ว' };
+    if (state.founder.energy < 6) return { ok: false, msg: 'คุณเหนื่อยเกินไป' };
+    state.founder.energy -= 4;
+    c.deep = true;
+    c.errSd = Math.max(2, Math.round(c.errSd / 2.2));
+    c.est = Math.round(U.clamp(c.skill + R.normal(0, c.errSd), 10, 99));
+    var hidden = c.traits.filter(function (t) { return RW.TRAITS[t].hidden; });
+    var found = hidden.length && R.chance(0.55) ? R.pick(hidden) : null;
+    if (found) c.seen = (c.seen || []).concat([found]);
+    if (R.chance(0.12)) { c.expires = state.time.w; return { ok: true, msg: c.name + ' รับข้อเสนอที่อื่นระหว่างรอขั้นตอนเพิ่ม — รีบตัดสินใจกว่านี้ครั้งหน้า' }; }
+    return { ok: true, msg: 'ทำแบบทดสอบงานจริงกับ ' + c.name + ': ฝีมือ ~' + c.est + ' ±' + c.errSd + (found ? ' · สังเกตเห็นว่า "' + RW.TRAITS[found].n + '"' : ' · ไม่พบสัญญาณอันตราย') };
+  };
+
   T.hire = function (state, c, salary, equityShares) {
     var op = state.team.openings.find(function (o) { return o.id === c.opId; });
     var e = {
       id: 'e' + (state.team.nextId++), name: c.name, nick: c.nick, role: c.role, level: c.level,
-      skill: c.skill, est: c.est, salary: salary, traits: c.traits.slice(), known: c.traits.filter(function (t) { return !RW.TRAITS[t].hidden; }),
+      skill: c.skill, est: c.est, salary: salary, traits: c.traits.slice(), known: c.traits.filter(function (t) { return !RW.TRAITS[t].hidden || (c.seen && c.seen.indexOf(t) >= 0); }),
       hiredW: state.time.w, startW: state.time.w + c.notice, ramp: 0, morale: 70, stress: 20,
       lastRaiseW: state.time.w, promoW: state.time.w, options: 0, gone: false, perf: 1
     };
@@ -2378,7 +2401,15 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var M = RW.Models[state.industry];
     var g = state.kpi.qoqGrowth || 0;
     var expect = { preseed: 0.3, seed: 0.3, A: 0.2, B: 0.13, C: 0.09, D: 0.06, Accelerator: 0.3 }[fund.stage] || 0.15;
-    var delta = (g - expect) * 60;
+    var preRev = (state.kpi.revenueMonthly || 0) < 30000;
+    var delta;
+    if (preRev) {
+      // before revenue, boards judge progress toward a sellable product and first customers
+      var tr = state.kpi.traction || 0;
+      var lastTr = b.lastTraction || 0;
+      delta = U.clamp((tr - lastTr) * 2, -12, 15) - 4;
+      b.lastTraction = tr;
+    } else delta = (g - expect) * 60;
     var runway = state.kpi.runway;
     if (runway < 6) delta -= 12;
     if (state.kpi.burnMultiple > 3) delta -= 6;
@@ -2389,7 +2420,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     if (b.confidence < 30) b.lowQuarters++; else b.lowQuarters = 0;
     fund.boardPressure = Math.max(0, 50 - b.confidence);
     var mood = b.confidence >= 70 ? 'พอใจมาก' : b.confidence >= 50 ? 'พอใจ' : b.confidence >= 30 ? 'กังวล' : 'ไม่พอใจอย่างหนัก';
-    var body = 'การเติบโตไตรมาสนี้ ' + F.spct(g) + ' (คาดหวัง ' + F.spct(expect) + ') · Runway ' + F.months(runway) + ' · ความเชื่อมั่นของบอร์ด: ' + Math.round(b.confidence) + '/100 (' + mood + ')';
+    var body = (preRev ? 'ยังไม่มีรายได้ที่มีนัยสำคัญ — บอร์ดดูความคืบหน้าของสินค้าและลูกค้ารายแรก (Traction score ' + Math.round(state.kpi.traction || 0) + ')' : 'การเติบโตไตรมาสนี้ ' + F.spct(g) + ' (คาดหวัง ' + F.spct(expect) + ')') + ' · Runway ' + F.months(runway) + ' · ความเชื่อมั่นของบอร์ด: ' + Math.round(b.confidence) + '/100 (' + mood + ')';
     RW.Engine.mail(state, 'funding', 'ประชุมบอร์ดประจำไตรมาส', body, b.confidence < 40 ? 'warn' : 'info');
     if (b.confidence < 35 && b.investorSeats > 0) RW.Events.queue(state, 'board_pressure', {});
     if (Fn.investorControl(state) && b.lowQuarters >= 2 && b.confidence < 20) RW.Events.queue(state, 'ceo_replace', {});
@@ -3608,6 +3639,261 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   });
 })(globalThis.RW = globalThis.RW || {});
 
+/* ---- core/events2.js ---- */
+/* RUNWAY — more dilemmas: ethics, people, legal, industry-specific */
+(function (RW) {
+  'use strict';
+  var R = RW.R, U = RW.U, F = RW.F, L = RW.Ledger;
+  var E = RW.Events, H = E.H;
+  function rev(s) { return Math.max(150000, s.kpi.revenueMonthly || 0); }
+
+  E.register({
+    id: 'grey_client', cat: 'sales', weight: 0.7, cooldown: 80, once: true,
+    cond: function (s) { return s.time.w > 20 && (s.kpi.revenueMonthly || 0) > 100000; },
+    title: 'ลูกค้ารายใหญ่จากธุรกิจสีเทา',
+    body: function (s) { return 'บริษัทที่ "ทุกคนรู้" ว่าเป็นหน้าฉากของเว็บพนันออนไลน์ ติดต่อมาขอใช้บริการ/สั่งของล็อตใหญ่ จ่ายเงินสดล่วงหน้า ' + F.b(rev(s) * 4) + ' ทันที ไม่ต่อราคา\n\nเงินก้อนนี้เท่ากับรายได้ 4 เดือน แต่ถ้าวันหนึ่ง ปปง. ตามรอยเส้นทางการเงิน...'; },
+    choices: function (s) {
+      var amt = Math.round(rev(s) * 4 / 1000) * 1000;
+      return [
+        { t: 'รับ — เงินก็คือเงิน', d: 'เงินสดก้อนใหญ่ทันที', fx: function () { L.post(s.fin, { cash: amt, rev_other: -amt }, 'op'); s.flags.grey = 1; E.later(s, R.int(20, 70), 'grey_amlo', { amt: amt }); return 'เงินเข้าบัญชี ' + F.b(amt) + ' — ทีมบางคนตั้งคำถามเงียบๆ'; } },
+        { t: 'ปฏิเสธ', fx: function () { H.morale(s, 2, 8, 'ผู้ก่อตั้งยึดหลักจริยธรรม'); return 'คุณเลือกเงินที่สะอาด'; } }
+      ];
+    }
+  });
+  E.effect('grey_amlo', function (s, d) {
+    if (!R.chance(0.35)) return;
+    var frozen = Math.min(Math.max(0, s.fin.bal.cash), d.amt * 1.5);
+    if (frozen > 0) { s.flags.frozen = { amt: frozen, until: s.time.w + 16 }; L.post(s.fin, { cash: -frozen, prepaid: frozen }, 'op'); }
+    L.spend(s.fin, 'prof', 300000);
+    H.rep(s, -15); H.brand(s, -10);
+    H.mail(s, 'ปปง. อายัดบัญชีบริษัท', 'ลูกค้าธุรกิจสีเทารายนั้นถูกกวาดล้าง ปปง. อายัดบัญชีบริษัทคุณ ' + F.b(frozen) + ' ระหว่างตรวจสอบเส้นทางการเงิน 4 เดือน ค่าทนาย ฿300,000 สื่อลงข่าว', 'bad');
+  });
+
+  E.register({
+    id: 'gov_tender', cat: 'sales', weight: 0.7, cooldown: 70,
+    cond: function (s) { return s.company.registered && s.time.w > 30 && (s.kpi.revenueMonthly || 0) > 200000 && s.industry !== 'fnb'; },
+    title: 'งานประมูลภาครัฐ — มีคนเสนอ "ช่วยวิ่ง"',
+    body: function (s) { return 'หน่วยงานรัฐเปิดประมูลงานมูลค่า ' + F.b(rev(s) * 8) + ' นายหน้าคนหนึ่งบอกว่า "ผลถูกล็อกไว้แล้ว ถ้าอยากได้ต้องมีค่าดำเนินการ 15% จ่ายก่อนครึ่งหนึ่ง"'; },
+    choices: function (s) {
+      var v = Math.round(rev(s) * 8 / 10000) * 10000;
+      return [
+        { t: 'จ่ายค่าวิ่งเต้น', d: 'ได้งานแน่ แต่ผิดกฎหมาย', fx: function () { L.spend(s.fin, 'other_exp', v * 0.075); s.flags.bribe = (s.flags.bribe || 0) + 1; E.later(s, 10, 'tender_win', { v: v, dirty: 1 }); if (R.chance(0.3)) E.later(s, R.int(30, 100), 'bribe_scandal', {}); return 'จ่ายงวดแรก ' + F.b(v * 0.075) + ' ไปแล้ว'; } },
+        { t: 'ยื่นประมูลตามปกติ', d: 'โอกาสชนะต่ำ', fx: function () { L.spend(s.fin, 'prof', 40000); if (R.chance(0.18)) E.later(s, 10, 'tender_win', { v: v }); return 'ยื่นเอกสารแล้ว — ผลประกาศใน 10 สัปดาห์'; } },
+        { t: 'แจ้ง ป.ป.ช. และไม่ยื่น', fx: function () { H.rep(s, 4); return 'คุณยื่นเรื่องร้องเรียน ชื่อเสียงในหมู่ผู้ประกอบการดีขึ้น'; } }
+      ];
+    }
+  });
+  E.effect('tender_win', function (s, d) {
+    L.invoice(s, s.industry === 'ecom' ? 'rev_goods' : 'rev_svc', d.v, s.time.w + 13, { name: 'หน่วยงานรัฐ', wht: true });
+    if (d.dirty) L.spend(s.fin, 'other_exp', d.v * 0.075);
+    if (s.industry === 'saas') s.biz.impl += 15;
+    H.mail(s, 'ชนะประมูลงานภาครัฐ ' + F.b(d.v), 'หน่วยงานรัฐจ่ายเงินช้า (~90 วัน)' + (d.dirty ? ' · จ่ายค่าดำเนินการงวดสองแล้ว' : '') + (s.industry === 'saas' ? ' · งานติดตั้ง 15 dev-weeks' : ''), 'good');
+  });
+
+  E.register({
+    id: 'remote_move', cat: 'team', weight: 1, cooldown: 40,
+    cond: function (s) { return RW.Team.active(s).some(function (e) { return e.level >= 3 && s.time.w - e.startW > 26; }); },
+    init: function (s) { var e = H.pickEmp(s, function (e) { return e.level >= 3 && s.time.w - e.startW > 26; }); return e ? { emp: e.id } : null; },
+    valid: function (s, d) { var e = H.emp(s, d.emp); return e && !e.gone; },
+    title: function (s, d) { return H.emp(s, d.emp).name + ' ขอย้ายไปทำงานจากเชียงใหม่'; },
+    body: function (s, d) { var e = H.emp(s, d.emp); return e.nick + ' (' + RW.ROLES[e.role].n + ') บอกว่าแฟนได้งานที่เชียงใหม่ อยากย้ายไปแต่ยังอยากทำงานกับบริษัทแบบรีโมทเต็มเวลา ถ้าไม่ได้ก็คงต้องลาออก\n\nนโยบายบริษัทตอนนี้: ' + RW.POLICIES.workmode[s.team.policy.workmode].n; },
+    choices: function (s, d) {
+      var e = H.emp(s, d.emp);
+      return [
+        { t: 'อนุญาต', d: 'รักษาคนเก่งไว้ ทีมอาจขอบ้าง', fx: function () { e.morale = Math.min(100, e.morale + 15); e.remote = true; if (s.team.policy.workmode === 0) H.morale(s, -2, 10, 'คนอื่นอยากได้สิทธิ์แบบเดียวกัน'); return e.nick + ' ซาบซึ้งมาก ทำงานได้ดีเหมือนเดิม'; } },
+        { t: 'อนุญาตแต่ลดเงินเดือน 10% (ค่าครองชีพต่ำกว่า)', fx: function () { e.salary = Math.round(e.salary * 0.9 / 500) * 500; e.morale -= 8; return e.nick + ' ยอมรับแต่ไม่ค่อยพอใจ'; } },
+        { t: 'ไม่อนุญาต', fx: function () { if (R.chance(0.7)) { RW.Team.resign(s, e); return e.nick + ' ยื่นใบลาออก'; } e.morale -= 20; return e.nick + ' ยอมอยู่กรุงเทพฯ แต่หมดไฟ'; } }
+      ];
+    }
+  });
+
+  E.register({
+    id: 'list_theft', cat: 'admin', weight: 0.9, cooldown: 60, bad: true,
+    cond: function (s) { return s.team.history.quit > 0 && (s.kpi.customers || 0) > 30 && s.industry !== 'fnb'; },
+    title: 'อดีตพนักงานขายเอารายชื่อลูกค้าไปให้คู่แข่ง',
+    body: 'อดีตพนักงานที่เพิ่งลาออกไปอยู่กับคู่แข่ง โทรหาลูกค้าของคุณทีละรายพร้อมเสนอส่วนลด มีหลักฐานว่าเขาดาวน์โหลดฐานข้อมูลลูกค้าก่อนออก',
+    choices: function (s) {
+      return [
+        { t: 'ฟ้องละเมิดความลับทางการค้า (' + F.b(H.sc(s, 250000)) + ')', fx: function () { L.spend(s.fin, 'prof', H.sc(s, 250000)); if (R.chance(0.5)) { L.post(s.fin, { cash: H.sc(s, 400000), other_income: -H.sc(s, 400000) }, 'op'); return 'ชนะคดี ได้ค่าเสียหายคืน และคู่แข่งต้องหยุด'; } return 'คดียืดเยื้อ สุดท้ายยกฟ้องเพราะสัญญาจ้างไม่ได้เขียนเรื่องนี้ไว้'; } },
+        { t: 'โทรหาลูกค้าสำคัญทุกรายด้วยตัวเอง', d: 'ใช้เวลาและพลังงานคุณ', fx: function () { H.energy(s, -12); return 'รักษาลูกค้าไว้ได้เกือบทั้งหมด'; } },
+        { t: 'ปล่อยไป', fx: function () { if (s.industry === 'saas') { var seg = s.biz.segs.sme; seg.cohorts.forEach(function (c) { c.n = Math.round(c.n * 0.96); }); } H.brand(s, -2); return 'เสียลูกค้าบางส่วนให้คู่แข่ง'; } }
+      ];
+    }
+  });
+
+  E.register({
+    id: 'embezzle', cat: 'admin', weight: function (s) { return s.flags.booksMessy ? 1.2 : 0.4; }, cooldown: 120, once: true, bad: true,
+    cond: function (s) { return RW.Team.active(s).some(function (e) { return e.role === 'finance'; }) && s.time.w > 40; },
+    title: 'พบเงินหายจากบัญชีบริษัท',
+    body: function (s) { return 'ระหว่างกระทบยอดบัญชี พบว่ามีการโอนเงินเข้าบัญชีบุคคลภายนอกหลายครั้ง รวม ' + F.b(H.sc(s, 600000)) + ' ย้อนไป 8 เดือน ทุกรายการอนุมัติด้วยรหัสของพนักงานบัญชี'; },
+    choices: function (s) {
+      var amt = H.sc(s, 600000);
+      var acc = RW.Team.active(s).find(function (e) { return e.role === 'finance'; });
+      return [
+        { t: 'แจ้งความดำเนินคดี + เลิกจ้างทันที', fx: function () { L.spend(s.fin, 'other_exp', amt); if (acc) RW.Team.remove(s, acc, 'fire'); s.flags.booksMessy = 1; if (R.chance(0.35)) { L.post(s.fin, { cash: amt * 0.5, other_income: -amt * 0.5 }, 'op'); return 'ตำรวจตามเงินคืนได้ครึ่งหนึ่ง'; } return 'เงินหายไปแล้ว บทเรียนเรื่องระบบอนุมัติสองชั้น'; } },
+        { t: 'ให้ลาออกเงียบๆ แลกกับทยอยคืนเงิน', fx: function () { L.spend(s.fin, 'other_exp', amt); if (acc) RW.Team.remove(s, acc, 'quit'); if (R.chance(0.5)) { L.post(s.fin, { cash: amt * 0.7, other_income: -amt * 0.7 }, 'op'); return 'ได้เงินคืน 70%'; } return 'หลังลาออกก็ติดต่อไม่ได้อีกเลย'; } }
+      ];
+    }
+  });
+
+  E.register({
+    id: 'early_helper_claim', cat: 'admin', weight: 0.5, once: true, bad: true,
+    cond: function (s) { return s.funding.rounds.length > 0 && s.funding.lastPost > 50e6; },
+    title: 'เพื่อนเก่าอ้างว่าเคยถูกสัญญาว่าจะได้หุ้น',
+    body: 'เพื่อนที่ช่วยออกแบบโลโก้และให้คำปรึกษาช่วงแรกๆ ส่งหนังสือทนายมา อ้างว่าคุณเคยพูดในแชทว่า "ถ้าบริษัทไปได้ เดี๋ยวแบ่งหุ้นให้" ตอนนี้บริษัทมีมูลค่าหลายสิบล้าน เขาต้องการหุ้น 2%',
+    choices: function (s) {
+      return [
+        { t: 'ยอมให้หุ้น 0.75% ยุติเรื่อง', fx: function () { var sh = Math.round(RW.Funding.fullyDiluted(s) * 0.0075); RW.Funding.addHolder(s, { id: 'friend1', name: 'เพื่อนผู้ช่วยช่วงแรก', kind: 'advisor', cls: 'common', shares: sh }); return 'เคลียร์จบ ความสัมพันธ์ไม่เหมือนเดิม'; } },
+        { t: 'สู้คดี — แชทไม่ใช่สัญญา', fx: function () { L.spend(s.fin, 'prof', 200000); s.flags.lawsuit = 1; E.later(s, R.int(20, 40), 'helper_verdict', {}); return 'ทนายบอกว่าโอกาสชนะ 60%'; } }
+      ];
+    }
+  });
+  E.effect('helper_verdict', function (s) {
+    s.flags.lawsuit = 0;
+    if (R.chance(0.6)) H.mail(s, 'ชนะคดีเรื่องหุ้น', 'ศาลเห็นว่าข้อความในแชทไม่มีรายละเอียดพอจะเป็นสัญญา', 'good');
+    else { var sh = Math.round(RW.Funding.fullyDiluted(s) * 0.015); RW.Funding.addHolder(s, { id: 'friend1', name: 'เพื่อนผู้ช่วยช่วงแรก', kind: 'advisor', cls: 'common', shares: sh }); H.mail(s, 'แพ้คดีเรื่องหุ้น', 'ศาลสั่งให้โอนหุ้น 1.5% ให้โจทก์', 'bad'); }
+  });
+
+  E.register({
+    id: 'family_call', cat: 'founder', weight: 0.6, once: true,
+    cond: function (s) { return s.time.w > 40; },
+    title: 'ครอบครัวขอให้กลับไปช่วยกิจการที่บ้าน',
+    body: 'คุณแม่โทรมาร้องไห้ ธุรกิจครอบครัวที่ต่างจังหวัดกำลังมีปัญหาหนัก พี่ชายรับมือไม่ไหว อยากให้คุณกลับไปช่วยสักพัก "ทำบริษัทของตัวเองมาตั้งนาน ยังไม่เห็นได้อะไรเลย"',
+    choices: function (s) {
+      return [
+        { t: 'กลับไปช่วย 3 เดือน (ทำงานบริษัทได้ครึ่งเวลา)', fx: function () { s.founder.hours = Math.max(30, Math.round(s.founder.hours * 0.6)); H.life(s, 20); E.later(s, 13, 'family_back', {}); return 'คุณทำงานสองที่ เหนื่อยแต่ครอบครัวอุ่นใจ'; } },
+        { t: 'ส่งเงินช่วยแทน ฿300,000', fx: function () { H.personal(s, -300000); H.life(s, 5); return 'ครอบครัวเข้าใจ (บ้าง)'; } },
+        { t: 'ปฏิเสธ บริษัทกำลังสำคัญ', fx: function () { H.life(s, -20); H.stress(s, 8); return 'ครอบครัวผิดหวังในตัวคุณอย่างมาก'; } }
+      ];
+    }
+  });
+  E.effect('family_back', function (s) { s.founder.hours = Math.max(s.founder.hours, 55); H.mail(s, 'กลับมาทำงานเต็มเวลา', 'กิจการที่บ้านเริ่มตั้งตัวได้ คุณกลับมาทุ่มเทให้บริษัทเต็มที่', 'good'); });
+
+  E.register({
+    id: 'exec_offer_founder', cat: 'founder', weight: 0.5, once: true,
+    cond: function (s) { return s.funding.lastPost > 300e6 && s.time.w > 104; },
+    title: 'บริษัทข้ามชาติชวนคุณไปเป็นผู้บริหารระดับภูมิภาค',
+    body: 'Headhunter เสนอตำแหน่ง Managing Director ประจำ SEA ของบริษัทเทคฯ ระดับโลก เงินเดือน ฿900,000 ต่อเดือน + หุ้น RSU มูลค่า 30 ล้าน — "ทุกอย่างที่คุณพยายามสร้าง ได้มาทันทีโดยไม่ต้องเสี่ยง"',
+    choices: function (s) {
+      return [
+        { t: 'ปฏิเสธ — นี่คือบริษัทของฉัน', fx: function () { H.morale(s, 3, 10, 'ผู้ก่อตั้งเลือกอยู่กับทีม'); return 'ทีมรู้ข่าวและฮึกเหิม'; } },
+        { t: 'รับข้อเสนอ ส่งต่อบริษัทให้ CEO ใหม่', d: 'จบเกม (คุณยังถือหุ้นไว้)', fx: function () { s.founder.cash += 900000 * 12 * 0.65 + 30e6 * 0.5; RW.Engine.gameOver(s, 'fired', 'คุณลาออกไปเป็นผู้บริหารบริษัทข้ามชาติ และส่งต่อบริษัทให้ CEO มืออาชีพ'); return 'จบเกม'; } }
+      ];
+    }
+  });
+
+  E.register({
+    id: 'charity', cat: 'market', weight: 0.6, cooldown: 52,
+    cond: function (s) { return (s.kpi.revenueMonthly || 0) > 300000; },
+    title: 'ขอรับบริจาคช่วยผู้ประสบภัย',
+    body: 'เกิดน้ำป่าไหลหลากในภาคเหนือ ชุมชนหลายแห่งเดือดร้อน ทีมงานอยากให้บริษัทร่วมบริจาค บางคนเสนอให้ทำแคมเปญ "ทุกออเดอร์บริจาค 10 บาท"',
+    choices: function (s) {
+      return [
+        { t: 'บริจาคเงิน ' + F.b(H.sc(s, 100000)) + ' เงียบๆ', fx: function () { L.spend(s.fin, 'other_exp', H.sc(s, 100000)); H.morale(s, 3, 10, 'บริษัทช่วยสังคม'); return 'ทีมภูมิใจในบริษัท'; } },
+        { t: 'ทำแคมเปญประชาสัมพันธ์ + บริจาค', fx: function () { L.spend(s.fin, 'other_exp', H.sc(s, 100000)); if (R.chance(0.25)) { H.brand(s, -4); return 'ชาวเน็ตบางส่วนมองว่าหาประโยชน์จากภัยพิบัติ'; } H.brand(s, 4); H.buzz(s, 1.08, 3); return 'แบรนด์ได้ภาพลักษณ์ดี'; } },
+        { t: 'ไม่บริจาค', fx: function () { H.morale(s, -1, 6, ''); return 'ทีมบางคนผิดหวังเล็กน้อย'; } }
+      ];
+    }
+  });
+
+  E.register({
+    id: 'office_breakin', cat: 'admin', weight: 0.5, cooldown: 100, bad: true,
+    cond: function (s) { return s.company.office.type !== 'home' && s.company.office.type !== 'cowork' && RW.Team.headcount(s) > 5; },
+    title: 'ออฟฟิศถูกงัด',
+    body: function (s) { return 'ช่วงวันหยุดยาวมีคนงัดเข้าออฟฟิศ ขโมยโน้ตบุ๊ก ' + Math.min(12, RW.Team.headcount(s)) + ' เครื่อง' + (s.company.insured ? ' — มีประกันคุ้มครองบางส่วน' : ''); },
+    choices: function (s) {
+      var n = Math.min(12, RW.Team.headcount(s));
+      var cost = n * 38000 * (s.company.insured ? 0.2 : 1);
+      return [
+        { t: 'ซื้อเครื่องใหม่ + ติดระบบรักษาความปลอดภัย (' + F.b(cost + 60000) + ')', fx: function () { L.spend(s.fin, 'office', cost + 60000); return 'ทุกคนกลับมาทำงานได้ใน 2 วัน'; } },
+        { t: 'ซื้อเครื่องใหม่อย่างเดียว (' + F.b(cost) + ')', fx: function () { L.spend(s.fin, 'office', cost); if (s.biz && s.biz.security != null) s.biz.security -= 5; return 'เรียบร้อย แต่ข้อมูลในเครื่องที่หายอาจรั่ว'; } }
+      ];
+    }
+  });
+
+  // ---------- industry-specific ----------
+  E.register({
+    id: 'saas_ltd', cat: 'sales', ind: ['saas'], weight: 0.6, once: true,
+    cond: function (s) { return s.biz.launched && RW.Models.saas.totalCustomers(s.biz) > 20; },
+    title: 'แพลตฟอร์มดีลเสนอขาย "Lifetime deal"',
+    body: function (s) { var p = Math.round(s.biz.segs.micro.price * 8 / 100) * 100; return 'เว็บไซต์ดีลซอฟต์แวร์ชื่อดังเสนอขายแพ็กเกจจ่ายครั้งเดียวใช้ตลอดชีพราคา ' + F.b(p) + ' คาดว่าขายได้ ~600 สิทธิ์ (แพลตฟอร์มหัก 70%) — เงินสดก้อนใหญ่ แต่ลูกค้ากลุ่มนี้ไม่จ่ายอีกเลยและใช้ซัพพอร์ตหนัก'; },
+    choices: function (s) {
+      var p = Math.round(s.biz.segs.micro.price * 8 / 100) * 100;
+      return [
+        { t: 'ตกลง', fx: function () { var cash = Math.round(600 * p * 0.3); L.post(s.fin, { cash: cash, rev_svc: -cash }, 'op'); s.biz.ltd = (s.biz.ltd || 0) + 600; s.biz.brand += 3; return 'ได้เงิน ' + F.b(cash) + ' — ผู้ใช้ 600 รายจะสร้างงานซัพพอร์ตไปตลอด'; } },
+        { t: 'ปฏิเสธ', fx: function () { return 'รักษามูลค่าของสินค้าไว้'; } }
+      ];
+    }
+  });
+
+  E.register({
+    id: 'saas_platform_feature', cat: 'market', ind: ['saas'], weight: 0.4, once: true, bad: true,
+    cond: function (s) { return s.time.w > 80; },
+    title: 'แพลตฟอร์มยักษ์ใส่ฟีเจอร์แบบคุณให้ใช้ฟรี',
+    body: 'แอปแชทและแพลตฟอร์มคลาวด์ที่ธุรกิจไทยใช้กันทุกบริษัท ประกาศฟีเจอร์ใหม่ที่ทำได้ 60% ของสินค้าคุณ "ฟรี" สำหรับผู้ใช้ทุกคน นักวิเคราะห์บอกว่าลูกค้ารายเล็กจะไหลออก',
+    choices: function (s) {
+      return [
+        { t: 'ถอยจากลูกค้าจิ๋ว ไปเน้น SME ขึ้นไป', fx: function () { s.biz.segs.micro.on = false; s.biz.segs.micro.cohorts.forEach(function (c) { c.n = Math.round(c.n * 0.85); }); return 'เสียลูกค้าจิ๋วบางส่วน แต่โฟกัสชัดขึ้น'; } },
+        { t: 'ทำ integration กับแพลตฟอร์มนั้นแทนการแข่ง', fx: function () { var b = s.biz; if (b.feats.integ < 4) { b.roadmap = b.roadmap.filter(function (r) { return r.f !== 'integ'; }); b.roadmap.unshift({ f: 'integ', prog: 0 }); } b.buzz.push({ m: 0.9, weeks: 12, total: 12 }); return 'ทีมเร่งพัฒนา integration — ระยะสั้นกระทบ ระยะยาวได้พันธมิตร'; } },
+        { t: 'ไม่ทำอะไร', fx: function () { s.biz.buzz.push({ m: 0.75, weeks: 20, total: 20 }); s.biz.segs.micro.cohorts.forEach(function (c) { c.n = Math.round(c.n * 0.85); }); return 'ลูกค้ารายเล็กไหลออกต่อเนื่อง'; } }
+      ];
+    }
+  });
+
+  E.register({
+    id: 'ecom_ad_ban', cat: 'market', ind: ['ecom'], weight: 0.8, cooldown: 80, bad: true,
+    cond: function (s) { return s.biz.ch.web.ads + s.biz.ch.social.ads + s.biz.ch.market.ads > 0; },
+    title: 'บัญชีโฆษณาโดนแบน',
+    body: 'ระบบอัตโนมัติของแพลตฟอร์มโฆษณาแบนบัญชีของคุณ อ้างว่า "ละเมิดนโยบายการกล่าวอ้างทางสุขภาพ" ทั้งที่คุณไม่แน่ใจว่าผิดอะไร ยอดขายจากโฆษณาหายไปทันที',
+    choices: function (s) {
+      return [
+        { t: 'ยื่นอุทธรณ์และรอ', d: 'อาจใช้เวลาหลายสัปดาห์', fx: function () { s.biz.buzz.push({ m: 0.7, weeks: R.int(3, 8), total: 6 }); return 'ระหว่างรอ ยอดขายลดลงหนัก'; } },
+        { t: 'เปิดบัญชีใหม่ผ่านเอเจนซี (฿40,000)', d: 'เร็ว แต่ถ้าโดนจับจะแบนถาวร', fx: function () { L.spend(s.fin, 'prof', 40000); if (R.chance(0.25)) { s.biz.buzz.push({ m: 0.6, weeks: 12, total: 12 }); return 'โดนจับได้ว่าเลี่ยงการแบน — แบนถาวรทั้งเครือข่าย 3 เดือน'; } return 'กลับมายิงโฆษณาได้ใน 3 วัน'; } }
+      ];
+    }
+  });
+
+  E.register({
+    id: 'ecom_supplier_bankrupt', cat: 'product', ind: ['ecom'], weight: 0.5, once: true, bad: true,
+    cond: function (s) { return s.biz.skus.length > 1 && s.time.w > 40; },
+    title: 'โรงงาน OEM หลักล้มละลาย',
+    body: 'โรงงานที่ผลิตสินค้าให้คุณเกือบทั้งหมดถูกเจ้าหนี้ยื่นฟ้องล้มละลาย ใบสั่งผลิตที่จ่ายมัดจำไปแล้วอาจสูญ',
+    choices: function (s) {
+      var b = s.biz, dep = U.sum(b.pos.filter(function (p) { return p.sup === 'local'; }), function (p) { return p.deposit; });
+      return [
+        { t: 'ย้ายไปโรงงานใหม่ทันที (ต้นทุน +8%, ของล่าช้า 4 สัปดาห์)', fx: function () { b.skus.forEach(function (k) { k.cost = Math.round(k.cost * 1.08); }); b.pos.forEach(function (p) { if (p.sup === 'local') p.arrive += 4; }); if (dep > 0) { L.post(s.fin, { penalties: dep * 0.5, prepaid: -dep * 0.5 }); b.pos.forEach(function (p) { if (p.sup === 'local') { p.deposit *= 0.5; } }); } return 'ย้ายโรงงานแล้ว เสียมัดจำครึ่งหนึ่ง ' + F.b(dep * 0.5); } },
+        { t: 'ซื้อแม่พิมพ์และสูตรคืนจากผู้ดูแลทรัพย์ (฿350,000)', fx: function () { L.spend(s.fin, 'prof', 350000); b.pos.forEach(function (p) { if (p.sup === 'local') p.arrive += 2; }); return 'ได้สูตรและแม่พิมพ์คืน โรงงานใหม่ผลิตต่อได้เร็ว'; } }
+      ];
+    }
+  });
+
+  E.register({
+    id: 'fnb_popup', cat: 'sales', ind: ['fnb'], weight: 0.7, cooldown: 52,
+    cond: function (s) { var m = RW.T.info(s.time.w).month; return RW.Models.fnb.openBranches(s.biz).length > 0 && (m === 2 || m === 10); },
+    title: 'ห้างชวนเปิดบูธป๊อปอัพช่วงเทศกาล',
+    body: 'ห้างใหญ่ใจกลางเมืองชวนร้านคุณเปิดบูธ 3 สัปดาห์ในงานเทศกาล ค่าพื้นที่ ฿120,000 + พนักงานเพิ่ม คนเดินวันละหลายหมื่น',
+    choices: function (s) {
+      return [
+        { t: 'ไปออกบูธ', fx: function () { L.spend(s.fin, 'rent', 120000); L.spend(s.fin, 'cogs_staff', 60000); var c = RW.Models.fnb.CONCEPTS[s.biz.concept]; var sales = c.ticket * R.int(1500, 4000) * (0.8 + s.biz.brand / 100); L.earnCash(s.fin, 'rev_food', sales); L.spend(s.fin, 'cogs_goods', sales * c.food); s.biz.brand = Math.min(100, s.biz.brand + 5); return 'ขายได้ ' + F.b(sales) + ' และคนรู้จักแบรนด์มากขึ้น'; } },
+        { t: 'ไม่ไป ทีมไม่พอ', fx: function () { return 'โฟกัสหน้าร้านเดิม'; } }
+      ];
+    }
+  });
+
+  E.register({
+    id: 'fnb_staff_incident', cat: 'team', ind: ['fnb'], weight: 0.7, cooldown: 60, bad: true,
+    cond: function (s) { return RW.Models.fnb.openBranches(s.biz).length > 0; },
+    title: 'คลิปพนักงานทำอาหารไม่ถูกสุขลักษณะ',
+    body: 'ลูกค้าถ่ายคลิปพนักงานในครัวทำอาหารหล่นพื้นแล้วเก็บขึ้นมาใส่จานต่อ คลิปถูกแชร์ในกลุ่มรีวิวอาหารที่มีสมาชิกหลายแสนคน',
+    choices: function (s) {
+      return [
+        { t: 'ขอโทษ ปิดสาขาทำความสะอาด 2 วัน อบรมพนักงานทุกสาขา', fx: function () { L.spend(s.fin, 'culture', 50000); RW.Models.fnb.openBranches(s.biz).forEach(function (b) { b.staffSkill += 6; b.rating -= 0.05; }); H.brand(s, -2); return 'ลูกค้าส่วนใหญ่ให้โอกาส'; } },
+        { t: 'เลิกจ้างพนักงานคนนั้นแล้วจบ', fx: function () { RW.Models.fnb.openBranches(s.biz).forEach(function (b) { b.rating -= 0.12; }); H.brand(s, -5); return 'คนมองว่าโยนความผิดให้ลูกน้อง ไม่แก้ที่ระบบ'; } }
+      ];
+    }
+  });
+})(globalThis.RW = globalThis.RW || {});
+
 /* ---- core/engine.js ---- */
 /* RUNWAY — engine: new game, weekly tick, month close, KPIs, game over, exit, scoring, advisor, actions */
 (function (RW) {
@@ -3732,7 +4018,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     M.weekly(state, info);
     var ci = RW.Founder.consultIncome(state);
     if (ci > 0) {
-      if (state.company.registered) L.invoice(state, 'rev_svc', ci, w + 4, { wht: true, name: 'งานที่ปรึกษา/รับจ้าง' });
+      if (state.company.registered) L.invoice(state, 'rev_consult', ci, w + 4, { wht: true, name: 'งานที่ปรึกษา/รับจ้าง' });
       else state.founder.cash += ci * 0.9;
       state.stats.consult = (state.stats.consult || 0) + ci;
     }
@@ -3875,16 +4161,20 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     k.burn = burn;
     k.runway = burn > 0 ? Math.max(0, k.cash) / burn : Infinity;
     var last = hm.length ? hm[hm.length - 1] : null;
-    k.revenueMonthly = last ? last.p.rev : 0;
-    k.revenueTTM = EN.revenueTTM(state);
+    // operating KPIs exclude the founder's side consulting (investors don't count it as traction)
+    var core = function (m) { return m ? m.p.rev + (m.pl.rev_consult || 0) : 0; };
+    k.revenueMonthly = core(last);
+    k.revenueTotal = last ? last.p.rev : 0;
+    k.revenueTTM = U.sum(U.last(hm, 12), core);
     k.ebitdaTTM = U.sum(U.last(hm, 12), function (m) { return m.p.ebitda; });
     k.ebitdaMargin = last && last.p.rev > 0 ? last.p.ebitda / last.p.rev : -1;
     k.gm = last ? last.p.gm : 0;
-    var r3 = hm.length >= 4 ? hm[hm.length - 4].p.rev : 0;
-    k.qoqGrowth = r3 > 0 && last ? last.p.rev / r3 - 1 : 0;
-    var r1 = hm.length >= 2 ? hm[hm.length - 2].p.rev : 0;
-    k.momGrowth = r1 > 0 && last ? last.p.rev / r1 - 1 : 0;
-    k.cmgr3 = r3 > 0 && last && last.p.rev > 0 ? Math.pow(last.p.rev / r3, 1 / 3) - 1 : 0;
+    var r3 = hm.length >= 4 ? core(hm[hm.length - 4]) : 0;
+    var r0 = core(last);
+    k.qoqGrowth = r3 > 0 && last ? r0 / r3 - 1 : 0;
+    var r1 = hm.length >= 2 ? core(hm[hm.length - 2]) : 0;
+    k.momGrowth = r1 > 0 && last ? r0 / r1 - 1 : 0;
+    k.cmgr3 = r3 > 0 && r0 > 0 ? Math.pow(r0 / r3, 1 / 3) - 1 : 0;
     k.headcount = RW.Team.headcount(state);
     k.morale = RW.Team.avgMorale(state);
     k.founderPct = RW.Funding.founderPct(state);
@@ -3894,7 +4184,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     // momentum for morale: revenue growth and press
     k.momentum = U.clamp((k.cmgr3 || 0) * 60, -10, 10) + (state.funding.raise && state.funding.raise.leadId ? 3 : 0);
     // burn multiple: net burn / net new ARR (annualized revenue added)
-    var newRunRate = last && hm.length >= 4 ? (last.p.rev - hm[hm.length - 4].p.rev) * 12 / 3 : 0;
+    var newRunRate = last && hm.length >= 4 ? (r0 - r3) * 12 / 3 : 0;
     k.burnMultiple = newRunRate > 0 && burn > 0 ? burn * 12 / 3 / (newRunRate / 4) : (burn > 0 ? 99 : 0);
     k.defaultAlive = EN.defaultAlive(state);
     var tr = M.traction(state);
@@ -4091,7 +4381,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     if (k.revenueMonthly >= 100e6) set('rev100m');
     var hm = state.hist.monthly;
     if (hm.length && hm[hm.length - 1].cf.op > 0 && hm[hm.length - 1].p.rev > 50000) set('ramen');
-    if (k.defaultAlive && k.defaultAlive.alive && k.burn > 0 && k.revenueMonthly > 100000) set('default_alive');
+    if (k.defaultAlive && k.defaultAlive.alive && k.burn > 0 && k.revenueMonthly > 100000 && k.runway > 6 && k.ebitdaMargin > -0.6) set('default_alive');
     ['seed', 'A', 'B', 'C'].forEach(function (s) { if (state.funding.rounds.some(function (r) { return r.stage === s; })) set('raised_' + s); });
     if (state.funding.lastPost >= 35e9) set('unicorn');
     if (k.revenueTTM >= 100e6 && state.funding.rounds.length === 0 && state.funding.safes.length === 0) set('bootstrapped');
@@ -4224,6 +4514,19 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     if (s.founder.vacation > 0) return no('กำลังลาพักอยู่');
     RW.Founder.takeVacation(s, weeks);
     return ok('ลาพักร้อน ' + weeks + ' สัปดาห์ บริษัทจะเดินโดยไม่มีคุณ');
+  };
+  A.courseCost = function (s, k) { return Math.round((25000 + s.founder.skills[k] * 900) / 1000) * 1000; };
+  A.course = function (s, k) {
+    var f = s.founder;
+    if (s.flags.courseW && s.time.w - s.flags.courseW < 8) return no('เพิ่งเรียนไป — สมองต้องการเวลาย่อย');
+    if (f.energy < 20) return no('คุณเหนื่อยเกินไปที่จะเรียนเพิ่ม');
+    var cost = A.courseCost(s, k);
+    L.spend(s.fin, 'culture', cost);
+    var gain = U.clamp((95 - f.skills[k]) * 0.12, 1, 7);
+    f.skills[k] = Math.min(95, f.skills[k] + gain);
+    f.energy -= 10;
+    s.flags.courseW = s.time.w;
+    return ok({ tech: 'เรียนคอร์สเทคนิค/สถาปัตยกรรมระบบ', product: 'เรียนคอร์ส Product management', sales: 'เข้าคอร์ส B2B sales + ฝึกกับโค้ช', marketing: 'เรียนคอร์ส Growth marketing', finance: 'เรียนคอร์สการเงินสำหรับผู้บริหาร', leadership: 'จ้าง executive coach', pitch: 'ฝึกพิตช์กับนักลงทุนตัวจริง' }[k] + ' (' + F.b(cost) + ') — ' + RW.SKILL_NAMES[k] + ' +' + gain.toFixed(1));
   };
   A.lendToCompany = function (s, amt) {
     amt = Math.floor(amt / 10000) * 10000;
@@ -4704,7 +5007,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var debtRate = b.ship === 'fast' ? 0.45 : b.ship === 'careful' ? 0.1 : 0.24;
     var perfectionists = RW.Team.active(state).filter(function (e) { return e.role === 'eng' && e.traits.indexOf('perfectionist') >= 0; }).length;
     if (perfectionists) bugRate *= 0.8;
-    var items = b.roadmap.slice(0, parallel);
+    // nothing else can ship before there is a working core product
+    var items = (b.launched ? b.roadmap : b.roadmap.filter(function (it) { return it.f === 'core'; })).slice(0, parallel);
     var leftover = featPts;
     items.forEach(function (it, idx) {
       if (leftover <= 0) return;
@@ -5111,6 +5415,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var b = state.biz, sup = b.support;
     var t = 0;
     SEGS.forEach(function (k) { t += M.customers(b, k) * SEG[k].tickets; });
+    t += (b.ltd || 0) * 0.08; // lifetime-deal users
     t *= (1 + b.bugs / 60) * (1 - Math.min(0.3, b.feats.ux * 0.06));
     var cap = RW.Team.capOf(state, 'support') * 70 + RW.Team.capOf(state, 'cs') * 15 + (state.founder.focus.build > 0 ? 6 : 0) + RW.Team.capOf(state, 'f_sell') * 10 + 4;
     sup.tickets = t; sup.cap = cap;
@@ -5697,7 +6002,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
         sku.lots.push({ q: po.qty, c: po.unit, exp: sku.shelf ? w + sku.shelf : 0 });
         if (defect) RW.Events.queue(state, 'ecom_defect', { sku: sku.id, qty: Math.round(po.qty * R.range(0.1, 0.35)) });
       }
-      RW.Engine.mail(state, 'product', 'สินค้าเข้าคลัง: ' + (sku ? sku.n : 'สินค้า') + ' ' + F.num(po.qty) + ' ชิ้น', 'จ่ายส่วนที่เหลือ ' + F.b(bal));
+      if (!po.auto) RW.Engine.mail(state, 'product', 'สินค้าเข้าคลัง: ' + (sku ? sku.n : 'สินค้า') + ' ' + F.num(po.qty) + ' ชิ้น', 'จ่ายส่วนที่เหลือ ' + F.b(bal));
     });
     b.pos = keep;
   };
@@ -6364,13 +6669,19 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var fid = state.fin.assets[state.fin.assets.length - 1].id;
     L.spend(state.fin, 'other_exp', pre);
     var br = {
-      id: 'b' + (b.nextB++), n: (st.type === 'cloud' ? 'ครัว ' : 'สาขา ') + st.area, type: st.type, sqm: st.sqm, rent: st.rent, foot: st.foot, seats: st.seats,
+      id: 'b' + (b.nextB++), n: M.uniqueName(b, (st.type === 'cloud' ? 'ครัว ' : 'สาขา ') + st.area), type: st.type, sqm: st.sqm, rent: st.rent, foot: st.foot, seats: st.seats,
       deposit: deposit, fitId: fid, fit: st.fit, leaseEnd: state.time.w + Math.round(L0.lease * 4.33), state: 'building', ready: state.time.w + R.int(6, 10) + (state.flags.fastPermit ? -2 : 0), opened: null,
       mgr: null, staff: st.type === 'cloud' ? Math.ceil(c.staff * 0.5) : c.staff, staffSkill: 45, rating: 0, reviews: 0, ms: M.blank(), last: null, util: 0
     };
     b.branches.push(br);
     b.sites.list = b.sites.list.filter(function (x) { return x.id !== siteId; });
     return { ok: true, msg: 'เซ็นสัญญาเช่า ' + br.n + ' — ตกแต่งและขอใบอนุญาต ~' + (br.ready - state.time.w) + ' สัปดาห์ (จ่ายแล้ว ' + F.b(need) + (leased ? ' · เช่าซื้ออุปกรณ์ ' + F.b(leased) + ' ผ่อน 36 เดือน' : '') + ')' };
+  };
+
+  M.uniqueName = function (b, n) {
+    var name = n, i = 2;
+    while (b.branches.some(function (x) { return x.n === name; })) name = n + ' ' + (i++);
+    return name;
   };
 
   M.closeBranch = function (state, id) {
@@ -7100,7 +7411,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var s = UI.s;
     if (!s || s.over) return;
     if (RW.Events.current(s)) { UI.showEvent(); return; }
-    var startM = RW.T.info(s.time.w).monthsElapsed;
+    var M = RW.Models[s.industry];
+    var before = { cash: s.fin.bal.cash, w: s.time.w, snap: M.snapshot ? M.snapshot(s) : null, hc: RW.Team.headcount(s) };
     var n = 0, max = mode === 'month' ? 6 : mode === 'quarter' ? 14 : 1;
     while (n < max) {
       RW.Engine.tick(s);
@@ -7112,7 +7424,16 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     }
     UI.save('auto');
     UI.render();
-    if (!s.over) UI.showEvent();
+    if (!s.over) {
+      var parts = [];
+      var dc = s.fin.bal.cash - before.cash;
+      parts.push('เงินสด ' + (dc >= 0 ? '+' : '') + F.m(dc).replace('฿-', '−฿'));
+      if (M.snapshot) { var d = M.snapDiff(s, before.snap, M.snapshot(s)); if (d) parts.push(d); }
+      var dh = RW.Team.headcount(s) - before.hc;
+      if (dh) parts.push('ทีม ' + (dh > 0 ? '+' : '') + dh);
+      UI.toast((n > 1 ? n + ' สัปดาห์ที่ผ่านมา: ' : 'สัปดาห์นี้: ') + parts.join(' · '));
+      UI.showEvent();
+    }
   };
 
   UI.unread = function () { return UI.s ? UI.s.inbox.filter(function (m) { return !m.read; }).length : 0; };
@@ -7493,7 +7814,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       UI.bar('ชื่อเสียงในวงการ', f.rep, 100, '', Math.round(f.rep)) +
       '</div><div class="row" style="margin-top:10px">' +
       (f.vacation ? UI.pill('ลาพักอีก ' + f.vacation + ' สัปดาห์', 'accent') : UI.btn('ลาพัก 1 สัปดาห์', 'fVacation', [1]) + UI.btn('ลาพัก 2 สัปดาห์', 'fVacation', [2])) +
-      (f.burnout ? UI.pill('หมดไฟ อีก ' + f.burnout + ' สัปดาห์', 'crit') : '') + '</div>');
+      (f.burnout ? UI.pill('หมดไฟ อีก ' + f.burnout + ' สัปดาห์', 'crit') : '') + '</div>' +
+      '<div class="divider"></div><div class="small ink2" style="margin-bottom:6px">พัฒนาตัวเอง (จ่ายจากเงินบริษัท ใช้เวลาช่วงเย็นและวันหยุด พลังงาน −10):</div><div class="row">' +
+      Object.keys(RW.SKILL_NAMES).map(function (k) { return UI.btn(RW.SKILL_NAMES[k], 'fCourse', [k], 'sm', s.flags.courseW && s.time.w - s.flags.courseW < 8 ? 'disabled title="เพิ่งเรียนไป รออีกสักพัก"' : 'title="คอร์ส/โค้ช ฿' + F.num(RW.Act.courseCost(s, k)) + '"'); }).join('') + '</div>');
     var focusRows = Object.keys(RW.FOCUS).map(function (k) {
       var fo = RW.FOCUS[k];
       var u = contrib['f_' + k] || 0;
@@ -7522,6 +7845,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   UI.acts.fLend = function (a) { return A.lendToCompany(UI.s, a); };
   UI.acts.fRepay = function (a) { return A.repayFounderLoan(UI.s, a); };
   UI.acts.fInject = function (a) { return A.injectEquity(UI.s, a); };
+  UI.acts.fCourse = function (k) { return A.course(UI.s, k); };
 
   // =====================================================================
   //  TEAM
@@ -7623,13 +7947,13 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var form = UI.form['offer_' + c.id] || (UI.form['offer_' + c.id] = { salary: c.ask, eq: c.wantsEquity ? 0.0025 : 0 });
     var fd = RW.Funding.fullyDiluted(s);
     var p = RW.Team.acceptProb(s, c, form.salary, form.eq);
-    var traits = c.traits.filter(function (t) { return !RW.TRAITS[t].hidden; }).map(function (t) { return '<span class="pill ' + (RW.TRAITS[t].good ? 'good' : '') + '" title="' + h(RW.TRAITS[t].d) + '">' + RW.TRAITS[t].n + '</span>'; }).join(' ');
+    var traits = c.traits.filter(function (t) { return !RW.TRAITS[t].hidden || (c.seen && c.seen.indexOf(t) >= 0); }).map(function (t) { return '<span class="pill ' + (RW.TRAITS[t].good ? 'good' : RW.TRAITS[t].hidden ? 'crit' : '') + '" title="' + h(RW.TRAITS[t].d) + '">' + RW.TRAITS[t].n + '</span>'; }).join(' ');
     return '<div style="border-top:1px solid var(--line2);padding:10px 0" class="row between">' +
       '<div style="min-width:220px;flex:1"><b>' + h(c.name) + '</b> <span class="muted">(' + h(c.nick) + ')</span> ' + traits + '<div class="small ink2">ฝีมือจากการสัมภาษณ์ ' + c.est + ' ±' + c.errSd + ' · ขอเงินเดือน ' + F.b(c.ask) + (c.wantsEquity ? ' · อยากได้หุ้น' : '') + ' · เริ่มงานได้ใน ' + c.notice + ' สัปดาห์ · ตัดสินใจภายใน ' + Math.max(0, c.expires - s.time.w) + ' สัปดาห์' + (c.countered ? ' · ต่อรองมาแล้ว' : '') + '</div></div>' +
       '<div class="row"><label class="field" for="of_' + c.id + '">เงินเดือนที่เสนอ' + UI.numInput('of_' + c.id, form.salary, 'offerForm', [c.id, 'salary'], 1000) + '</label>' +
       '<label class="field" for="oe_' + c.id + '">หุ้น ESOP<select id="oe_' + c.id + '" data-act="offerForm" data-a=\'["' + c.id + '","eq"]\'>' + [0, 0.001, 0.0025, 0.005, 0.01, 0.02].map(function (x) { return '<option value="' + x + '"' + (x === form.eq ? ' selected' : '') + '>' + (x ? F.pct(x, 2) : 'ไม่ให้') + '</option>'; }).join('') + '</select></label>' +
       '<span class="pill ' + (p > 0.6 ? 'good' : p > 0.35 ? 'warn' : 'crit') + '" title="โอกาสตอบรับโดยประมาณ">ตอบรับ ~' + F.pct(p, 0) + '</span>' +
-      UI.btn('ยื่นข้อเสนอ', 'makeOffer', [c.id], 'primary sm') + UI.btn('ไม่รับ', 'rejectCand', [c.id], 'sm ghost') + '</div></div>';
+      (c.deep ? '' : UI.btn('ทดสอบงานจริง', 'deepInterview', [c.id], 'sm', 'title="ได้ค่าฝีมือแม่นขึ้น อาจเห็นนิสัยที่ซ่อนอยู่ แต่ใช้พลังงานคุณ และผู้สมัครอาจรอไม่ไหว"')) + UI.btn('ยื่นข้อเสนอ', 'makeOffer', [c.id], 'primary sm') + UI.btn('ไม่รับ', 'rejectCand', [c.id], 'sm ghost') + '</div></div>';
   };
   UI.acts.hireForm = function (k, v) { UI.form.hire[k] = k === 'level' ? Number(v) : v; };
   UI.acts.openPos = function () { var f = UI.form.hire; return A.openPosition(UI.s, f.role, f.level, f.channel); };
@@ -7642,6 +7966,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     return r;
   };
   UI.acts.rejectCand = function (id) { return A.rejectCandidate(UI.s, id); };
+  UI.acts.deepInterview = function (id) { return RW.Team.deepInterview(UI.s, id); };
 
   UI.teamPolicy = function (s) {
     var pol = s.team.policy, P = RW.POLICIES;
@@ -8171,6 +8496,11 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     return b.product + ' · ' + (b.launched ? 'เปิดขายมา ' + Math.round((s.time.w - b.launchW) / 4.33) + ' เดือน · ลูกค้า ' + F.num(M.totalCustomers(b)) + ' ราย' : 'กำลังสร้าง MVP');
   };
   M.topMetric = function (s) { return ['MRR', F.m(s.kpi.mrr || 0)]; };
+  M.snapshot = function (s) { return { cust: M.totalCustomers(s.biz), mrr: M.mrr(s.biz), life: s.biz.lifetime.customers }; };
+  M.snapDiff = function (s, a, b) {
+    var won = b.life - a.life, lost = won - (b.cust - a.cust);
+    return 'ลูกค้าใหม่ +' + won + (lost > 0 ? ' / ยกเลิก −' + lost : '') + ' · MRR ' + (b.mrr - a.mrr >= 0 ? '+' : '') + F.m(b.mrr - a.mrr);
+  };
   M.milestones = function (s) {
     var b = s.biz;
     var bestDisc = Math.max.apply(null, SEGS.map(function (k) { return b.segs[k].disc; }));
@@ -8240,7 +8570,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
       var f = FEAT[it.f], lvl = b.feats[it.f], cost = f.costs[lvl];
       var share = i < parallel ? featPts / Math.min(parallel, b.roadmap.length) : 0;
       var eta = share > 0 ? Math.ceil((cost - it.prog) / Math.min(share, cost / (2 + lvl))) : null;
-      return [(i < parallel ? UI.pill('กำลังทำ', 'accent') + ' ' : '') + '<b>' + f.n + '</b> → ระดับ ' + (lvl + 1), '<div style="min-width:120px">' + UI.meter(it.prog, cost) + '<div class="tiny muted">' + it.prog.toFixed(1) + '/' + cost + ' dev-weeks</div></div>', eta ? '~' + eta + ' สัปดาห์' : 'รอคิว',
+      var blocked = !b.launched && it.f !== 'core';
+      return [(blocked ? UI.pill('รอ MVP', 'warn') + ' ' : i < parallel ? UI.pill('กำลังทำ', 'accent') + ' ' : '') + '<b>' + f.n + '</b> → ระดับ ' + (lvl + 1), '<div style="min-width:120px">' + UI.meter(it.prog, cost) + '<div class="tiny muted">' + it.prog.toFixed(1) + '/' + cost + ' dev-weeks</div></div>', eta ? '~' + eta + ' สัปดาห์' : 'รอคิว',
         '<div class="row" style="gap:4px;flex-wrap:nowrap">' + UI.btn('↑', 'sMove', [i, -1], 'sm') + UI.btn('↓', 'sMove', [i, 1], 'sm') + UI.btn('ลบ', 'sRemove', [i], 'sm danger') + '</div>'];
     });
     var roadmap = UI.panel('Roadmap', UI.table(['งาน', 'ความคืบหน้า', '#ETA', ''], rm, { empty: 'Roadmap ว่าง — เพิ่มงานจากรายการด้านล่าง' }) + '<p class="tiny muted" style="margin-top:6px">ทำพร้อมกันได้ ' + parallel + ' งาน (เพิ่มเมื่อมีวิศวกรมากขึ้น) · แต่ละงานมีเวลาขั้นต่ำ เอาคนมาอัดเพิ่มไม่ได้เร็วขึ้นเสมอไป</p>');
@@ -8402,6 +8733,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     'มาร์เก็ตเพลสคนเยอะแต่ค่าธรรมเนียมสูง เว็บไซต์ของตัวเองกำไรดีกว่าแต่ต้องพาคนมาเอง',
     'จด VAT แล้วราคาที่ลูกค้าจ่ายรวม VAT — ถ้าไม่ขึ้นราคา รายได้สุทธิหายไป 6.5%'
   ];
+  M.snapshot = function (s) { return { orders: s.biz.lifetime.orders, cust: s.biz.customers }; };
+  M.snapDiff = function (s, a, b) { return 'ออเดอร์ ' + F.num(b.orders - a.orders) + ' · ลูกค้าใหม่ ' + F.num(Math.round(b.cust - a.cust)); };
   M.milestones = function (s) {
     var b = s.biz;
     var orders = U.sum(b.stats, function (m) { return m.orders; }) + (b.mstats ? b.mstats.orders : 0);
@@ -8580,6 +8913,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     return b.product + ' · ' + (n ? n + ' สาขาเปิดอยู่' : 'ยังไม่มีร้าน') + (bl ? ' · กำลังสร้าง ' + bl : '') + (b.fr.units.length ? ' · แฟรนไชส์ ' + b.fr.units.length : '') + ' · เรตติ้ง ' + b.rating.toFixed(2);
   };
   M.topMetric = function (s) { return ['ยอดขาย/เดือน', F.m(s.kpi.revenueMonthly)]; };
+  M.snapshot = function (s) { return { covers: s.biz.lifetime.covers }; };
+  M.snapDiff = function (s, a, b) { return 'ลูกค้า ' + F.num(Math.round(b.covers - a.covers)) + ' คน'; };
   M.milestones = function (s) {
     var b = s.biz, ob = M.openBranches(b);
     return [

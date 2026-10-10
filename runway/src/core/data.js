@@ -162,8 +162,13 @@
     var list = [];
     function add(o) { o.id = R.id('iv'); o.warm = 0; o.passedUntil = -1; o.history = []; list.push(o); }
     var angelBios = ['อดีตผู้ก่อตั้งที่ขายบริษัทให้กลุ่มทุนญี่ปุ่น', 'ผู้บริหารธนาคารที่ชอบลงทุนสตาร์ทอัพ', 'ทายาทธุรกิจอสังหาฯ', 'อดีต CTO บริษัทเทคฯ ระดับภูมิภาค', 'นักลงทุนสายเทคฯ ที่ปรึกษาหลายบริษัท', 'แพทย์ผู้ร่ำรวยจากคลินิกเครือข่าย', 'เจ้าของโรงงานรุ่นสองที่อยากลอง new economy', 'อดีตผู้บริหารห้างค้าปลีก'];
+    var usedFirst = {};
+    function uniquePerson() {
+      for (var t = 0; t < 30; t++) { var n = RW.Names.person(); var f0 = n.split(' ')[0]; if (!usedFirst[f0]) { usedFirst[f0] = 1; return n; } }
+      return RW.Names.person();
+    }
     for (var i = 0; i < 7; i++) {
-      add({ name: 'คุณ' + RW.Names.person(), type: 'angel', bio: R.pick(angelBios), stages: ['preseed', 'seed'], check: [R.pick([3e5, 5e5, 1e6]), R.pick([1.5e6, 2e6, 3e6, 5e6])], lead: R.chance(0.3), rep: R.int(10, 45), friendly: R.int(55, 90), speed: R.int(1, 2), valueAdd: R.pick(['customers', 'talent', 'investors', 'none']), fit: { saas: R.range(0.6, 1.2), ecom: R.range(0.6, 1.2), fnb: R.range(0.5, 1.2) } });
+      add({ name: 'คุณ' + uniquePerson(), type: 'angel', bio: R.pick(angelBios), stages: ['preseed', 'seed'], check: [R.pick([3e5, 5e5, 1e6]), R.pick([1.5e6, 2e6, 3e6, 5e6])], lead: R.chance(0.3), rep: R.int(10, 45), friendly: R.int(55, 90), speed: R.int(1, 2), valueAdd: R.pick(['customers', 'talent', 'investors', 'none']), fit: { saas: R.range(0.6, 1.2), ecom: R.range(0.6, 1.2), fnb: R.range(0.5, 1.2) } });
     }
     add({ name: 'LaunchPad BKK Accelerator', type: 'accelerator', bio: 'โปรแกรมบ่มเพาะ 12 สัปดาห์ ให้เงินแลกหุ้นตายตัว พร้อม Demo Day', stages: ['preseed'], check: [1.5e6, 1.5e6], fixedPct: 0.07, lead: true, rep: 45, friendly: 80, speed: 1, valueAdd: 'investors', fit: { saas: 1.1, ecom: 1, fnb: 0.7 } });
     add({ name: 'Rocket Garage (โปรแกรมของธนาคาร)', type: 'accelerator', bio: 'Corporate accelerator ของธนาคารใหญ่ ไม่เอาหุ้น แต่ต้องทำ POC กับธนาคาร', stages: ['preseed'], check: [5e5, 5e5], fixedPct: 0, lead: true, rep: 35, friendly: 85, speed: 1, valueAdd: 'customers', fit: { saas: 1.2, ecom: 0.8, fnb: 0.4 } });

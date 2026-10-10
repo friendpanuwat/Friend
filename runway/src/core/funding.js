@@ -568,7 +568,15 @@
     var M = RW.Models[state.industry];
     var g = state.kpi.qoqGrowth || 0;
     var expect = { preseed: 0.3, seed: 0.3, A: 0.2, B: 0.13, C: 0.09, D: 0.06, Accelerator: 0.3 }[fund.stage] || 0.15;
-    var delta = (g - expect) * 60;
+    var preRev = (state.kpi.revenueMonthly || 0) < 30000;
+    var delta;
+    if (preRev) {
+      // before revenue, boards judge progress toward a sellable product and first customers
+      var tr = state.kpi.traction || 0;
+      var lastTr = b.lastTraction || 0;
+      delta = U.clamp((tr - lastTr) * 2, -12, 15) - 4;
+      b.lastTraction = tr;
+    } else delta = (g - expect) * 60;
     var runway = state.kpi.runway;
     if (runway < 6) delta -= 12;
     if (state.kpi.burnMultiple > 3) delta -= 6;
@@ -579,7 +587,7 @@
     if (b.confidence < 30) b.lowQuarters++; else b.lowQuarters = 0;
     fund.boardPressure = Math.max(0, 50 - b.confidence);
     var mood = b.confidence >= 70 ? 'พอใจมาก' : b.confidence >= 50 ? 'พอใจ' : b.confidence >= 30 ? 'กังวล' : 'ไม่พอใจอย่างหนัก';
-    var body = 'การเติบโตไตรมาสนี้ ' + F.spct(g) + ' (คาดหวัง ' + F.spct(expect) + ') · Runway ' + F.months(runway) + ' · ความเชื่อมั่นของบอร์ด: ' + Math.round(b.confidence) + '/100 (' + mood + ')';
+    var body = (preRev ? 'ยังไม่มีรายได้ที่มีนัยสำคัญ — บอร์ดดูความคืบหน้าของสินค้าและลูกค้ารายแรก (Traction score ' + Math.round(state.kpi.traction || 0) + ')' : 'การเติบโตไตรมาสนี้ ' + F.spct(g) + ' (คาดหวัง ' + F.spct(expect) + ')') + ' · Runway ' + F.months(runway) + ' · ความเชื่อมั่นของบอร์ด: ' + Math.round(b.confidence) + '/100 (' + mood + ')';
     RW.Engine.mail(state, 'funding', 'ประชุมบอร์ดประจำไตรมาส', body, b.confidence < 40 ? 'warn' : 'info');
     if (b.confidence < 35 && b.investorSeats > 0) RW.Events.queue(state, 'board_pressure', {});
     if (Fn.investorControl(state) && b.lowQuarters >= 2 && b.confidence < 20) RW.Events.queue(state, 'ceo_replace', {});
