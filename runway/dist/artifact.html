@@ -6904,7 +6904,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   var CONCEPTS = (M.CONCEPTS = {
     cafe: { n: 'คาเฟ่กาแฟสเปเชียลตี้', d: 'ตั๋วเฉลี่ยต่ำ ต้นทุนวัตถุดิบต่ำ หมุนโต๊ะเร็ว แข่งกันดุทุกหัวมุม', ticket: 145, food: 0.31, capture: 0.05, turns: 5, take: 0.4, staff: 4, fitSqm: 14000, util: 0.05, deliv: 30, sqm: [45, 110], seatsPerSqm: 0.45, menuQ: 55 },
     thai: { n: 'ร้านอาหารไทยสตรีทฟู้ดพรีเมียม', d: 'ขายดีทั้งหน้าร้านและเดลิเวอรี ต้นทุนวัตถุดิบผันผวน ใช้คนเยอะ', ticket: 185, food: 0.32, capture: 0.045, turns: 4, take: 0.15, staff: 6, fitSqm: 11000, util: 0.06, deliv: 60, sqm: [60, 130], seatsPerSqm: 0.5, menuQ: 55 },
-    bbq: { n: 'ปิ้งย่าง/ชาบูบุฟเฟ่ต์', d: 'ตั๋วสูง พื้นที่ใหญ่ ลงทุนหนัก ไฟฟ้าแพง ขายมื้อเย็นเป็นหลัก', ticket: 459, food: 0.42, capture: 0.022, turns: 2.4, take: 0, staff: 10, fitSqm: 18000, util: 0.09, deliv: 8, sqm: [150, 260], seatsPerSqm: 0.55, menuQ: 50 },
+    bbq: { n: 'ปิ้งย่าง/ชาบูบุฟเฟ่ต์', d: 'ตั๋วสูง พื้นที่ใหญ่ ลงทุนหนัก ไฟฟ้าแพง ขายมื้อเย็นเป็นหลัก', ticket: 459, food: 0.38, capture: 0.035, turns: 2.4, take: 0, staff: 8, fitSqm: 18000, util: 0.09, deliv: 8, sqm: [110, 220], seatsPerSqm: 0.55, menuQ: 50 },
     bakery: { n: 'เบเกอรี่และขนมโฮมเมด', d: 'ของฝาก ของขวัญ ขายดีเทศกาล ครัวกลางช่วยได้มาก ของเหลือคือขยะ', ticket: 125, food: 0.30, capture: 0.05, turns: 6, take: 0.65, staff: 4, fitSqm: 12000, util: 0.05, deliv: 35, sqm: [40, 90], seatsPerSqm: 0.35, menuQ: 55 }
   });
 
@@ -7090,7 +7090,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     b.branches.forEach(function (br) {
       if (br.state === 'building') {
         if (w >= br.ready) {
-          br.state = 'open'; br.opened = w; br.rating = 4.0;
+          br.state = 'open';
+          if (br.opened != null) { RW.Engine.mail(state, 'product', br.n + ' กลับมาเปิดแล้ว', 'ซ่อมแซมเสร็จ ลูกค้าประจำทยอยกลับมา', 'good'); return; }
+          br.opened = w; br.rating = 4.0;
           b.buzz.push({ m: 1.08, weeks: 3, total: 3 });
           RW.Engine.mail(state, 'product', 'เปิด ' + br.n + ' อย่างเป็นทางการ', 'ช่วงแรกลูกค้ายังไม่รู้จัก ยอดขายจะค่อยๆ โตใน 3–4 เดือน · ' + br.seats + ' ที่นั่ง · ค่าเช่า ' + F.b(br.rent) + '/เดือน', 'good');
         }
@@ -9346,13 +9348,14 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   'use strict';
   var M = RW.Models.fnb, UI = RW.UI, F = RW.F, U = RW.U, h = UI.h;
 
-  M.capitalHint = 'ร้านแรกในตึกแถวใช้เงิน ~1–2 ล้าน (มัดจำ+ตกแต่ง+ก่อนเปิด) และควรมีเงินสำรองอีก 3–4 เดือน · เช่าซื้ออุปกรณ์ช่วยได้';
+  M.capitalHint = 'ร้านแรกในตึกแถวใช้เงิน ~1–2 ล้าน (ปิ้งย่าง/ชาบู ~2.5–4 ล้าน) และควรมีเงินสำรองอีก 3–4 เดือน · เช่าซื้ออุปกรณ์ช่วยได้';
   M.guide = [
     'ตัวเลขคนเดินผ่านที่โบรกเกอร์บอกมักสวยเกินจริง ±30% — ทำเลแย่คือแผลที่แก้ไม่ได้ตลอดสัญญาเช่า 3 ปี',
     'ร้านใหม่เริ่มที่ ~40% ของศักยภาพและใช้ 3–4 เดือนกว่าจะเต็มที่ ต้องมีเงินสำรองจ่ายค่าเช่าและค่าแรงช่วงนั้น',
     'Prime cost (วัตถุดิบ + ค่าแรง) ไม่ควรเกิน ~65% · ค่าเช่าไม่ควรเกิน ~15% ของยอดขาย',
     'เดลิเวอรีโดน GP ~30% ราคาบนแอปต้องสูงกว่าหน้าร้าน คลาวด์คิทเช่นลงทุนต่ำแต่กำไรบาง',
     'คุณดูแลร้านเองได้ 1–2 สาขา หลังจากนั้นต้องมีผู้จัดการสาขาที่เก่ง ไม่งั้นคุณภาพไม่สม่ำเสมอ',
+    'VC ไม่ค่อยลงทุนร้านอาหาร — เชนในไทยโตด้วยกำไรของร้านเดิม เงินกู้ SME หุ้นส่วนสาขา และแฟรนไชส์ · ทำสาขาต้นแบบให้กำไรก่อน แล้วหุ้นส่วนจะมาเอง',
     'จัดพนักงานน้อยประหยัดค่าแรงแต่บริการช้า เรตติ้งตก และคนลาออก',
     'ครัวกลางคุ้มเมื่อมี 3–4 สาขา: ลดต้นทุนวัตถุดิบและทำให้รสชาติเหมือนกันทุกสาขา',
     'แฟรนไชส์ขยายเร็วด้วยเงินคนอื่น แต่แฟรนไชส์ซีทำแย่ แบรนด์คุณพังด้วย',
@@ -9413,7 +9416,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
     var mgrs = RW.Team.all(s).filter(function (e) { return e.role === 'branchmgr' || e.role === 'ops'; });
     var rows = b.branches.filter(function (x) { return x.state !== 'closed'; }).map(function (br) {
       var l = br.last;
-      var status = br.state === 'building' ? UI.pill('กำลังตกแต่ง — เปิด ' + RW.T.label(br.ready), 'accent') : UI.pill('เปิดมา ' + Math.round((s.time.w - br.opened) / 4.33) + ' เดือน', 'good');
+      var status = br.state === 'building' ? UI.pill((br.opened != null ? 'ปิดซ่อมแซม — เปิดอีกครั้ง ' : 'กำลังตกแต่ง — เปิด ') + RW.T.label(br.ready), br.opened != null ? 'warn' : 'accent') : UI.pill('เปิดมา ' + Math.round((s.time.w - br.opened) / 4.33) + ' เดือน', 'good');
       var sel = '<select data-act="fAssign" data-a=\'["' + br.id + '"]\' aria-label="ผู้จัดการสาขา"><option value="">' + (br.mgr ? '— ไม่มี —' : 'คุณดูแลเอง') + '</option>' + mgrs.map(function (e) { return '<option value="' + e.id + '"' + (br.mgr === e.id ? ' selected' : '') + '>' + h(e.name) + ' (' + Math.round(e.est) + ')</option>'; }).join('') + '</select>';
       return [
         '<b>' + h(br.n) + '</b><div class="tiny muted">' + M.LOCS[br.type].n + ' · ' + br.sqm + ' ตร.ม. · ' + (br.seats || 0) + ' ที่นั่ง' + (c.take ? ' + ซื้อกลับ ~' + F.pct(c.take, 0) : '') + '</div>' + status,

@@ -10,7 +10,7 @@
   var CONCEPTS = (M.CONCEPTS = {
     cafe: { n: 'คาเฟ่กาแฟสเปเชียลตี้', d: 'ตั๋วเฉลี่ยต่ำ ต้นทุนวัตถุดิบต่ำ หมุนโต๊ะเร็ว แข่งกันดุทุกหัวมุม', ticket: 145, food: 0.31, capture: 0.05, turns: 5, take: 0.4, staff: 4, fitSqm: 14000, util: 0.05, deliv: 30, sqm: [45, 110], seatsPerSqm: 0.45, menuQ: 55 },
     thai: { n: 'ร้านอาหารไทยสตรีทฟู้ดพรีเมียม', d: 'ขายดีทั้งหน้าร้านและเดลิเวอรี ต้นทุนวัตถุดิบผันผวน ใช้คนเยอะ', ticket: 185, food: 0.32, capture: 0.045, turns: 4, take: 0.15, staff: 6, fitSqm: 11000, util: 0.06, deliv: 60, sqm: [60, 130], seatsPerSqm: 0.5, menuQ: 55 },
-    bbq: { n: 'ปิ้งย่าง/ชาบูบุฟเฟ่ต์', d: 'ตั๋วสูง พื้นที่ใหญ่ ลงทุนหนัก ไฟฟ้าแพง ขายมื้อเย็นเป็นหลัก', ticket: 459, food: 0.42, capture: 0.022, turns: 2.4, take: 0, staff: 10, fitSqm: 18000, util: 0.09, deliv: 8, sqm: [150, 260], seatsPerSqm: 0.55, menuQ: 50 },
+    bbq: { n: 'ปิ้งย่าง/ชาบูบุฟเฟ่ต์', d: 'ตั๋วสูง พื้นที่ใหญ่ ลงทุนหนัก ไฟฟ้าแพง ขายมื้อเย็นเป็นหลัก', ticket: 459, food: 0.38, capture: 0.035, turns: 2.4, take: 0, staff: 8, fitSqm: 18000, util: 0.09, deliv: 8, sqm: [110, 220], seatsPerSqm: 0.55, menuQ: 50 },
     bakery: { n: 'เบเกอรี่และขนมโฮมเมด', d: 'ของฝาก ของขวัญ ขายดีเทศกาล ครัวกลางช่วยได้มาก ของเหลือคือขยะ', ticket: 125, food: 0.30, capture: 0.05, turns: 6, take: 0.65, staff: 4, fitSqm: 12000, util: 0.05, deliv: 35, sqm: [40, 90], seatsPerSqm: 0.35, menuQ: 55 }
   });
 
@@ -196,7 +196,9 @@
     b.branches.forEach(function (br) {
       if (br.state === 'building') {
         if (w >= br.ready) {
-          br.state = 'open'; br.opened = w; br.rating = 4.0;
+          br.state = 'open';
+          if (br.opened != null) { RW.Engine.mail(state, 'product', br.n + ' กลับมาเปิดแล้ว', 'ซ่อมแซมเสร็จ ลูกค้าประจำทยอยกลับมา', 'good'); return; }
+          br.opened = w; br.rating = 4.0;
           b.buzz.push({ m: 1.08, weeks: 3, total: 3 });
           RW.Engine.mail(state, 'product', 'เปิด ' + br.n + ' อย่างเป็นทางการ', 'ช่วงแรกลูกค้ายังไม่รู้จัก ยอดขายจะค่อยๆ โตใน 3–4 เดือน · ' + br.seats + ' ที่นั่ง · ค่าเช่า ' + F.b(br.rent) + '/เดือน', 'good');
         }
