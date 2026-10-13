@@ -4,7 +4,7 @@
  "accent": "#FFFFFF",
  "accent_ink": "#0A0A0A",
  "accent_on_light": "#0A0A0A",
- "neg": "#8E8E93",
+ "neg": "#0A0A0A",
  "dark": {
   "bg": "#0A0A0A",
   "bg2": "#161616"
@@ -13,7 +13,7 @@
   "bg": "#F2F2F2",
   "bg2": "#FFFFFF",
   "fg": "#0A0A0A",
-  "muted": "#5E5E63"
+  "muted": "#2E2E33"
  },
  "handle": "",
  "name": "",

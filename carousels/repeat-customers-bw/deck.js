@@ -4,7 +4,7 @@
 (() => {
   const st = document.createElement('style');
   st.textContent = '.t-light{--acc:#0A0A0A;--acc-ink:#FFFFFF}' +
-    '.t-dark{--dim:rgba(246,246,248,.5)}.t-light,.t-accent{--dim:rgba(10,10,10,.42)}' +
+    '.t-dark{--dim:rgba(246,246,248,.5)}.t-light,.t-accent{--muted:#2E2E33}' +
     '.bdy{font-weight:500}.bdy b{font-weight:600}.lst .tx{font-weight:600}.tag,.chip{font-weight:600}';
   document.head.appendChild(st);
 })();
@@ -32,7 +32,7 @@ slide({tone: 'dark'}, s => {
 /* 2 · Setup · light · the monthly ad loop */
 slide({tone: 'light'}, s => {
   tag(s, 'ปัญหา', .05, 'left:80px;top:140px');
-  title(s, 'ร้านส่วนใหญ่\nทำแบบนี้ [ทุกเดือน]', .12, 'left:80px;top:205px', {size: 84, lh: 1.24, color: 'var(--dim)'});
+  title(s, 'ร้านส่วนใหญ่\nทำแบบนี้ __ทุกเดือน__', .12, 'left:80px;top:205px', {size: 84, lh: 1.24});
   const steps = [['megaphone', 'เทงบยิงแอด\nหาลูกค้าใหม่'], ['ghost', 'ลูกค้าซื้อครั้งเดียว\nแล้วหายไป'], ['repeat-2', 'เดือนหน้าเริ่ม\nยิงแอดใหม่อีกรอบ']];
   steps.forEach(([ic, tx], k) => {
     const t = .35 + k * .2, x = 80 + k * 320;
@@ -69,7 +69,7 @@ slide({tone: 'dark'}, s => {
 /* 4 · Body 2 · light · worked example */
 slide({tone: 'light'}, s => {
   tag(s, 'ตัวอย่างร้านสมมติ', .05, 'left:80px;top:140px', {icon: 'store'});
-  title(s, 'ได้ยอดเท่ากัน\nแต่ถูกกว่า [4 เท่า]', .12, 'left:80px;top:205px', {size: 80, lh: 1.24, color: 'var(--dim)'});
+  title(s, 'ได้ยอดเท่ากัน\nแต่ถูกกว่า __4 เท่า__', .12, 'left:80px;top:205px', {size: 80, lh: 1.24});
   const a = box(s, 'left:80px;top:440px;width:450px;height:460px', .4, {style: 'solid'});
   div(`left:36px;top:36px;${LBL}`, a, 'ลูกค้าใหม่');
   num(a, '200', .55, 'left:30px;top:84px', {size: 120});
@@ -124,7 +124,7 @@ slide({tone: 'light'}, s => {
 /* 7 · Payoff · accent (white) */
 slide({tone: 'accent'}, s => {
   tag(s, 'สรุป', .05, 'left:80px;top:140px');
-  title(s, 'ยอดขายที่ยั่งยืน\nมาจาก [อัตราการซื้อซ้ำ]', .12, 'left:80px;top:205px', {size: 80, lh: 1.24, color: 'var(--dim)'});
+  title(s, 'ยอดขายที่ยั่งยืน\nมาจาก __อัตราการซื้อซ้ำ__', .12, 'left:80px;top:205px', {size: 80, lh: 1.24});
   body(s, '**Repeat Purchase Rate**\nไม่ใช่จำนวนลูกค้าใหม่อย่างเดียว', .45, 'left:80px;top:455px', {W: 920, size: 32});
   const b = box(s, 'left:80px;top:625px;width:920px;height:240px', .7, {style: 'accent'});
   div(`left:40px;top:44px;${LBL};color:color-mix(in srgb,var(--acc-ink) 60%,transparent)`, b, 'ก่อนเพิ่มงบแอดเดือนหน้า');
