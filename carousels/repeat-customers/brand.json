@@ -1,0 +1,16 @@
+{
+  "_comment": "Monochrome dark mode: only #000000 + #FFFFFF. accent = white, all slide backgrounds black.",
+  "accent": "#FFFFFF",
+  "navy": "#000000",
+  "cream": "#FFFFFF",
+  "ink": "#000000",
+  "pill": "#000000",
+  "handle": "",
+  "fonts": {
+    "key_sans":  "fonts/Mitr-Bold.ttf",
+    "key_serif": "fonts/Sriracha-Regular.ttf",
+    "lead":      "fonts/Mitr-Regular.ttf",
+    "card_sans": "fonts/Mitr-SemiBold.ttf"
+  },
+  "sfx_db": -11
+}
