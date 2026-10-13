@@ -4,7 +4,6 @@
 slide({tone: 'dark'}, s => {
   tag(s, 'อายุ 20 ต้นๆ', .05, 'left:80px;top:140px', {dot: true});
   title(s, 'ทำไมอายุ 20 ต้นๆ\nถึงควร\n__เริ่มทำธุรกิจ__', .15, 'left:80px;top:215px', {size: 96, lh: 1.36});
-  body(s, '3 เหตุผลที่ช่วงวัยนี้\nได้เปรียบที่สุด', .6, 'left:80px;top:720px', {W: 460, size: 34});
   num(s, '20+', .7, 'left:600px;top:600px', {size: 230, count: false});
 });
 
@@ -13,22 +12,20 @@ slide({tone: 'light'}, s => {
   tag(s, 'ปัญหา', .05, 'left:80px;top:140px');
   title(s, 'หลายคนรอให้ __พร้อม__\nก่อนค่อยเริ่ม', .12, 'left:80px;top:205px', {size: 80, lh: 1.36});
   const a = box(s, 'left:80px;top:470px;width:450px;height:400px', .4, {style: 'solid'});
-  div(`left:36px;top:36px;${LBL}`, a, 'แบบที่ 1');
-  icon(a, 'hourglass', .55, 'left:36px;top:90px', {size: 80, style: 'accent', fl: false});
+  icon(a, 'hourglass', .55, 'left:36px;top:60px', {size: 80, style: 'accent', fl: false});
   title(a, 'รอให้พร้อม', .6, 'left:36px;top:200px', {size: 44, W: 380});
-  body(a, '→ สุดท้าย\nไม่ได้เริ่มสักที', .7, 'left:36px;top:270px', {W: 380, size: 28});
+  body(a, 'ไม่ได้เริ่มสักที', .7, 'left:36px;top:280px', {W: 380, size: 30});
   const b = box(s, 'left:550px;top:470px;width:450px;height:400px', .7, {style: 'accent'});
-  div(`left:36px;top:36px;${LBL};color:color-mix(in srgb,var(--acc-ink) 60%,transparent)`, b, 'แบบที่ 2');
-  div('left:36px;top:90px;width:80px;height:80px;display:flex;align-items:center;justify-content:center', b, ico('rocket', 60, 'var(--acc-ink)', 2.4));
+  div('left:36px;top:60px;width:80px;height:80px;display:flex;align-items:center;justify-content:center', b, ico('rocket', 60, 'var(--acc-ink)', 2.4));
   title(b, 'เริ่มเลย', .9, 'left:36px;top:200px', {size: 44, W: 380, color: 'var(--acc-ink)'});
-  body(b, '→ เรียนรู้ระหว่างทาง\nแล้วพร้อมขึ้นเรื่อยๆ', 1.0, 'left:36px;top:270px', {W: 380, size: 28, color: 'var(--acc-ink)'});
+  body(b, 'เรียนรู้ระหว่างทาง', 1.0, 'left:36px;top:280px', {W: 380, size: 30, color: 'var(--acc-ink)'});
 });
 
 /* 3 · Reason 1 · dark */
 slide({tone: 'dark'}, s => {
   tag(s, 'เหตุผล 1', .05, 'left:80px;top:140px');
   title(s, 'ภาระยังน้อย\n__ล้มแล้วลุกง่าย__', .12, 'left:80px;top:205px', {size: 84, lh: 1.36});
-  const rows = [['users', 'ยังไม่มีภาระครอบครัว'], ['banknote', 'หนี้บ้าน หนี้รถยังน้อย'], ['wallet', 'รายจ่ายต่อเดือนยังต่ำ']];
+  const rows = [['users', 'ไม่มีภาระครอบครัว'], ['banknote', 'หนี้ยังน้อย'], ['wallet', 'รายจ่ายต่ำ']];
   rows.forEach(([ic, tx], k) => {
     const t = .4 + k * .2, y = 470 + k * 140;
     const b = box(s, `left:80px;top:${y}px;width:920px;height:124px`, t, {from: 'left'});
@@ -41,11 +38,9 @@ slide({tone: 'dark'}, s => {
 slide({tone: 'light'}, s => {
   tag(s, 'เหตุผล 2', .05, 'left:80px;top:140px');
   title(s, '__เวลา__ คือทุน\nที่มากที่สุดของคุณ', .12, 'left:80px;top:205px', {size: 80, lh: 1.36});
-  body(s, 'ยิ่งเริ่มเร็ว ยิ่งมีปีให้ลองผิดลองถูกมากกว่า', .4, 'left:80px;top:440px', {W: 920, size: 32});
-  const c = box(s, 'left:80px;top:530px;width:920px;height:330px', .55, {style: 'solid'});
-  div(`left:40px;top:36px;${LBL}`, c, 'เวลาให้ลองผิดลองถูก');
-  hbar(c, 'เริ่มอายุ 22', 1, .8, 96, {w: 840, strong: true, value: 'มากกว่า'});
-  hbar(c, 'เริ่มอายุ 35', .5, .95, 206, {w: 840, value: 'น้อยกว่า'});
+  const c = box(s, 'left:80px;top:520px;width:920px;height:340px', .55, {style: 'solid'});
+  hbar(c, 'เริ่มอายุ 22', 1, .8, 64, {w: 840, strong: true, value: 'มากกว่า'});
+  hbar(c, 'เริ่มอายุ 35', .5, .95, 204, {w: 840, value: 'น้อยกว่า'});
 });
 
 /* 5 · Reason 3 · dark */
@@ -63,17 +58,16 @@ slide({tone: 'light'}, s => {
   tag(s, 'เริ่มยังไง', .05, 'left:80px;top:140px');
   title(s, 'เริ่ม __เล็กๆ__\nได้ตั้งแต่วันนี้', .12, 'left:80px;top:205px', {size: 80, lh: 1.36});
   const rows = [
-    ['01', 'ขายของที่ตัวเองถนัด', 'เริ่มจากสิ่งที่รู้จริงและทำได้เลย', 'store'],
-    ['02', 'ทำควบคู่กับงานประจำ', 'ยังมีรายได้หลัก ไม่ต้องเสี่ยงทั้งหมด', 'briefcase'],
-    ['03', 'เก็บกำไรไปต่อยอด', 'ค่อยๆ ขยายจากเงินที่ธุรกิจหาได้เอง', 'trending-up'],
+    ['01', 'ขายสิ่งที่ถนัด', '', 'store'],
+    ['02', 'ทำควบคู่งานประจำ', '', 'briefcase'],
+    ['03', 'เก็บกำไรไปต่อยอด', '', 'trending-up'],
   ];
   let y = 450;
   rows.forEach(([n, h, sub, ic], k) => {
     const t = .35 + k * .22;
     const b = box(s, `left:80px;top:${y}px;width:920px;height:140px`, t, {style: 'solid', from: 'left'});
-    num(b, n, t + .1, 'left:32px;top:30px', {size: 60, count: false});
-    title(b, h, t + .15, 'left:140px;top:28px', {size: 34, W: 640});
-    body(b, sub, t + .2, 'left:140px;top:80px', {size: 24, W: 640});
+    num(b, n, t + .1, 'left:32px;top:34px', {size: 60, count: false});
+    title(b, h, t + .15, 'left:140px;top:44px', {size: 40, W: 640});
     icon(b, ic, t + .25, 'left:820px;top:36px', {size: 68, style: 'accent', fl: false});
     y += 154;
   });
@@ -95,8 +89,8 @@ slide({tone: 'accent'}, s => {
 slide({tone: 'dark'}, s => {
   tag(s, 'ฝากไว้', .05, 'left:80px;top:140px');
   title(s, 'ถ้าโพสต์นี้\n__มีประโยชน์__', .12, 'left:80px;top:205px', {size: 88, lh: 1.36});
-  list(s, [['bookmark', 'เซฟไว้ อ่านอีกครั้งตอนลังเล'], ['message-circle', 'คอมเมนต์บอกหน่อย อยากเริ่มธุรกิจอะไร'], ['share-2', 'แชร์ให้เพื่อนวัย 20 ที่กำลังคิดอยู่']],
-    .4, 'left:80px;top:500px', {mark: 'icon', size: 30, gap: 28, W: 920});
+  list(s, [['bookmark', 'เซฟไว้'], ['message-circle', 'คอมเมนต์'], ['share-2', 'แชร์ให้เพื่อน']],
+    .4, 'left:80px;top:500px', {mark: 'icon', size: 36, gap: 28, W: 920});
   cta(s, 'เซฟโพสต์นี้', 1.0, 'left:80px;top:790px', {icon: 'bookmark'});
   path(s, [[0, 150], [150, 40], [310, 110]], .9, 'left:640px;top:740px', {w: 360, h: 200});
 });
