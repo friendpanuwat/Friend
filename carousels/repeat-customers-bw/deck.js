@@ -4,7 +4,7 @@
 (() => {
   const st = document.createElement('style');
   st.textContent = '.t-light{--acc:#0A0A0A;--acc-ink:#FFFFFF}' +
-    '.t-dark{--dim:rgba(246,246,248,.5)}.t-light,.t-accent{--muted:#2E2E33}' +
+    '.t-dark{--muted:rgba(246,246,248,.78)}.t-light,.t-accent{--muted:#2E2E33}' +
     '.bdy{font-weight:500}.bdy b{font-weight:600}.lst .tx{font-weight:600}.tag,.chip{font-weight:600}';
   document.head.appendChild(st);
 })();
@@ -22,7 +22,7 @@ function hbar(p, label, frac, t, top, {w = 340, strong = false, value = ''} = {}
 /* 1 · Hook · dark cover */
 slide({tone: 'dark'}, s => {
   tag(s, 'ต้นทุนลูกค้า', .05, 'left:80px;top:140px', {dot: true});
-  title(s, 'ลูกค้าใหม่\nแพงกว่าลูกค้าเก่า\n[5 เท่า]', .15, 'left:80px;top:215px', {size: 100, lh: 1.24, color: 'var(--dim)'});
+  title(s, 'ลูกค้าใหม่\nแพงกว่าลูกค้าเก่า\n__5 เท่า__', .15, 'left:80px;top:215px', {size: 100, lh: 1.24});
   body(s, 'และนี่คือเหตุผลที่ยอดขายโต\nแต่**กำไรไม่โตตาม**', .6, 'left:80px;top:700px', {W: 460, size: 34});
   const c = box(s, 'left:580px;top:640px;width:420px;height:250px', .7);
   hbar(c, 'ลูกค้าใหม่', 1, .9, 34, {strong: true, value: '×5'});
@@ -53,7 +53,7 @@ slide({tone: 'light'}, s => {
 /* 3 · Body 1 · dark · CAC: new vs returning */
 slide({tone: 'dark'}, s => {
   tag(s, 'สาเหตุ', .05, 'left:80px;top:140px');
-  title(s, 'ทุกครั้งที่หาลูกค้าใหม่\nคุณจ่าย [CAC]', .12, 'left:80px;top:200px', {size: 76, lh: 1.24, color: 'var(--dim)'});
+  title(s, 'ทุกครั้งที่หาลูกค้าใหม่\nคุณจ่าย __CAC__', .12, 'left:80px;top:200px', {size: 76, lh: 1.24});
   body(s, '**Customer Acquisition Cost** (ต้นทุนการหาลูกค้าใหม่)', .4, 'left:80px;top:410px', {W: 920, size: 28});
   const a = box(s, 'left:80px;top:500px;width:450px;height:400px', .5);
   div(`left:36px;top:36px;${LBL}`, a, 'ลูกค้าใหม่ จ่าย');
@@ -87,7 +87,7 @@ slide({tone: 'light'}, s => {
 /* 5 · Body 3 · dark · 3 steps */
 slide({tone: 'dark'}, s => {
   tag(s, 'สิ่งที่ควรทำ', .05, 'left:80px;top:140px');
-  title(s, 'ทำให้ลูกค้าเก่ากลับมา\nใน [3 ขั้น]', .12, 'left:80px;top:200px', {size: 76, lh: 1.24, color: 'var(--dim)'});
+  title(s, 'ทำให้ลูกค้าเก่ากลับมา\nใน __3 ขั้น__', .12, 'left:80px;top:200px', {size: 76, lh: 1.24});
   const rows = [
     ['01', 'เก็บช่องทางติดต่อทุกออเดอร์', 'LINE OA / เบอร์โทร', 'smartphone', 140],
     ['02', 'ทักกลับในจังหวะที่สินค้าน่าจะหมด', 'เช่น 30 วันหลังซื้อ', 'calendar', 140],
@@ -136,7 +136,7 @@ slide({tone: 'accent'}, s => {
 /* 8 · CTA · dark */
 slide({tone: 'dark'}, s => {
   tag(s, 'ลองทำดู', .05, 'left:80px;top:140px');
-  title(s, 'ร้านคุณมีลูกค้า\nกลับมาซื้อซ้ำ [กี่ %]', .12, 'left:80px;top:205px', {size: 88, lh: 1.24, color: 'var(--dim)'});
+  title(s, 'ร้านคุณมีลูกค้า\nกลับมาซื้อซ้ำ __กี่ %__', .12, 'left:80px;top:205px', {size: 88, lh: 1.24});
   list(s, [['bookmark', 'เซฟไว้ แล้วลองนับลูกค้าซื้อซ้ำของร้านคุณ'], ['message-circle', 'คอมเมนต์บอกหน่อย ร้านคุณมีกี่ %'], ['share-2', 'แชร์ให้เพื่อนเจ้าของร้านที่กำลังเทงบแอดอยู่']],
     .4, 'left:80px;top:485px', {mark: 'icon', size: 30, gap: 28, W: 920});
   cta(s, 'เซฟโพสต์นี้', 1.0, 'left:80px;top:790px', {icon: 'bookmark'});
