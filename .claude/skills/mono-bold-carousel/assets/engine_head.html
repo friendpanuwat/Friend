@@ -440,6 +440,13 @@ function hbar(p, text, frac, t, top, {w = 340, strong = false, value = ''} = {})
   A(f, [{transform: 'scaleX(0)'}, {transform: 'scaleX(1)'}], t, .7, {e: SMOOTH});
   return tr;
 }
+/* colour one word of a title line: tint(titleEl, 'ดี', 'var(--pos)'). Only for semantic colour the user asked for.
+   Don't use on a line that also has __underline__ (it rebuilds the line). */
+function tint(el, word, color = 'var(--pos)') {
+  const L = [...el.querySelectorAll('.tl')].find(l => !l.querySelector('svg') && l.innerHTML.includes(word));
+  if (L) L.innerHTML = L.innerHTML.replace(word, `<span style="color:${color}">${word}</span>`);
+  return el;
+}
 </script>
 <script>
 /* ===================== DECK ===================== */

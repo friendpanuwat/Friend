@@ -54,8 +54,10 @@ list(s, items, t, pos, {mark: 'num'|'check'|'x'|'icon'|'dot', size: 36, gap: 30,
 label(parent, 'ลูกค้าใหม่', 'left:36px;top:36px', {color})        // หัวการ์ด/คำบรรยายเล็ก 24px ตัวหนา (ไม่มีแอนิเมชัน — ขึ้นพร้อมการ์ด)
 hbar(card, 'ลูกค้าใหม่', 1, t, top, {w: 340, strong: true, value: '×5'})   // แถบเทียบแนวนอนในการ์ด (label + ค่า + แถบเติม)
 LBL                                                                // สตริง CSS ของ label ไว้ต่อใน div() เอง
+tint(titleEl, 'ดี', 'var(--pos)')                                  // ระบายสีคำเดียวในพาดหัว (สีความหมาย) — ห้ามใช้กับบรรทัดที่มี __เส้นใต้__
 ```
 ใน box `accent` ให้ label จางลงด้วย `{color: 'color-mix(in srgb,var(--acc-ink) 60%,transparent)'}` และตัวอักษรอื่นใช้ `color: 'var(--acc-ink)'`.
+สีความหมาย: `var(--pos)` (เขียว) · `var(--neg)` (แดง). ไอคอนในรายการเป็นสีเขียว: `L.style.setProperty('--acc', 'var(--pos)')`.
 แทรก `<br>` ในรายการ: `const L = list(...); L.querySelectorAll('.tx')[2].innerHTML = 'บรรทัด 1<br>บรรทัด 2';`
 
 ## พื้นผิวและการ์ด

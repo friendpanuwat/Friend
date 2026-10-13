@@ -1,5 +1,5 @@
 {
- "_ref": "ขาว-ดำล้วน ตัวหนา: accent = ขาวบนพื้นดำ / ดำบนพื้นขาว (สลับด้วย css), ไม่มีสีอื่น",
+ "_ref": "ขาว-ดำล้วน ตัวหนา: accent = ขาวบนพื้นดำ / ดำบนพื้นขาว (สลับด้วย css), ไม่มีสีอื่น. สีความหมาย --pos (เขียว) / --neg (แดง) ใช้เฉพาะเมื่อผู้ใช้ขอ (ตัวเลขบวก/ลบ, เส้นกราฟขึ้น/ลง)",
  "accent": "#FFFFFF",
  "accent_ink": "#0A0A0A",
  "accent_on_light": "#0A0A0A",
@@ -27,5 +27,5 @@
  "title_weight": 700,
  "num_weight": 700,
  "ornament": "dot",
- "css": ".t-light{--acc:#0A0A0A;--acc-ink:#FFFFFF;--muted:#2E2E33}.t-accent{--muted:#2E2E33}.t-dark{--muted:rgba(246,246,248,.78)}.bdy{font-weight:500}.bdy b{font-weight:600}.lst .tx{font-weight:600}.tag,.chip{font-weight:600}"
+ "css": ".t-light{--acc:#0A0A0A;--acc-ink:#FFFFFF;--muted:#2E2E33}.t-accent{--muted:#2E2E33}.t-dark{--muted:rgba(246,246,248,.78)}.bdy{font-weight:500}.bdy b{font-weight:600}.lst .tx{font-weight:600}.tag,.chip{font-weight:600}.t-dark{--pos:#2FD27A;--neg:#FF5A4E}.t-light,.t-accent{--pos:#15934A;--neg:#D9302C}"
 }
