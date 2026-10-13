@@ -108,7 +108,7 @@ slide({tone: 'dark'}, s => {
 /* 6 · Rehook · light · discounts are not retention */
 slide({tone: 'light'}, s => {
   tag(s, 'พลิกมุม', .05, 'left:80px;top:140px');
-  title(s, 'แต่การรักษาลูกค้า ไม่ใช่\n~การแจกส่วนลดทุกครั้ง~', .12, 'left:80px;top:205px', {size: 66, lh: 1.26});
+  title(s, 'แต่การรักษาลูกค้า __ไม่ใช่__\nการแจกส่วนลดทุกครั้ง', .12, 'left:80px;top:205px', {size: 66, lh: 1.26});
   const b = box(s, 'left:80px;top:410px;width:920px;height:240px', .4, {style: 'solid'});
   const L = list(b, [['tag', 'ลดราคาบ่อย'], ['hourglass', 'ลูกค้ารอแต่โปร'], ['trending-down', 'Profit Margin (อัตรากำไร)']], .5, 'left:36px;top:30px', {mark: 'icon', size: 26, gap: 14, W: 470, box: 46});
   L.querySelectorAll('.tx')[2].innerHTML = 'Profit Margin (อัตรากำไร)<br><span style="font-weight:500;color:var(--muted)">หายไปเรื่อยๆ</span>';
