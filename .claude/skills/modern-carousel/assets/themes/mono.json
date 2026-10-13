@@ -1,0 +1,30 @@
+{
+ "_ref": "ขาว/ดำ แสงลอดนุ่ม ตัวเลขบางยักษ์ + ม่วง (แนว fintech / product)",
+ "accent": "#5B57F6",
+ "accent_ink": "#FFFFFF",
+ "accent_on_light": "#4F4AF0",
+ "neg": "#F0503C",
+ "dark": {
+  "bg": "#09090B",
+  "bg2": "#141418",
+  "fg": "#F6F6F8",
+  "muted": "rgba(246,246,248,.58)",
+  "surface": "rgba(255,255,255,.06)",
+  "line": "rgba(255,255,255,.12)"
+ },
+ "light": {
+  "bg": "#F3F3F5",
+  "bg2": "#FFFFFF",
+  "fg": "#0B0B0E",
+  "muted": "#64646C",
+  "surface": "#FFFFFF",
+  "line": "rgba(11,11,14,.1)"
+ },
+ "texture": "leak",
+ "glow": false,
+ "card": "solid",
+ "radius": 22,
+ "title_weight": 400,
+ "num_weight": 200,
+ "ornament": "dot"
+}
