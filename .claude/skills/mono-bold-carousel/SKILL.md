@@ -37,7 +37,7 @@ carousel ขาว-ดำ ตัวหนา ที่ผู้ใช้จู�
 2. คัดลอก `$SK/assets/brand.default.json` เป็น `$P/brand.json` (theme `bw`; ใส่ `handle` ถ้าผู้ใช้ให้).
 3. **เขียน `$P/deck.js`**: อ่าน `references/layouts.md` + `references/deck-api.md`; เริ่มจากคัดลอก `examples/deck_bw.js`
    แล้วเลือกเลย์เอาต์ B1–B8 ที่ตรงกับบทบาทของแต่ละสไลด์ (hook / setup / สาเหตุ / ตัวเลข / วิธีทำ / rehook / สรุป / CTA).
-   ใช้กริดเดิม: tag y140 · พาดหัว y205 (`lh: 1.24`) · เนื้อหา y≈440–900.
+   ใช้กริดเดิม: tag y140 · พาดหัว y205 (`lh: 1.36`) · เนื้อหา y≈440–900.
 4. **Build + PNG + ตรวจ**: `bash $SK/scripts/pipeline.sh $P all` → `$P/slides/NN.png`, `preview.jpg`, `carousel_png.zip`.
    แก้จนไม่มี `STYLE:` และขึ้น `QC clean`, แล้วเปิด PNG ทุกใบตาม QC ใน `references/standards.md`.
    จุดที่พลาดบ่อย: พาดหัวบรรทัดยาวเกิน 920 px (Anuphan Bold กว้าง), ข้อความในการ์ดตัดบรรทัดผิดที่ (ใส่ `\n` เอง / `<br>` ในรายการ),

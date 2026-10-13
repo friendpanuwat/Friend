@@ -5,8 +5,8 @@
 /* 1 · Hook · dark */
 slide({tone: 'dark'}, s => {
   tag(s, 'การเงินร้านค้า', .05, 'left:80px;top:140px', {dot: true});
-  title(s, 'ขายดี\nแต่__เงินไม่เหลือ__', .15, 'left:80px;top:205px', {size: 108, lh: 1.24});
-  body(s, 'เพราะ**กำไร** กับ **เงินสด**\nไม่ใช่เรื่องเดียวกัน', .55, 'left:80px;top:500px', {W: 700, size: 36});
+  title(s, 'ขายดี\nแต่__เงินไม่เหลือ__', .15, 'left:80px;top:205px', {size: 108, lh: 1.36});
+  body(s, 'เพราะ**กำไร** กับ **เงินสด**\nไม่ใช่เรื่องเดียวกัน', .55, 'left:80px;top:522px', {W: 700, size: 36});
   const a = box(s, 'left:80px;top:650px;width:560px;height:250px', .6);
   label(a, 'ยอดขาย', 'left:36px;top:32px');
   const up = div('right:36px;top:26px;color:var(--pos)', a, ico('trending-up', 44, 'currentColor', 2.6)); popIn(up, 1.3);
@@ -19,9 +19,9 @@ slide({tone: 'dark'}, s => {
 /* 2 · Setup · light · bank app + stacked bills */
 slide({tone: 'light'}, s => {
   tag(s, 'ปัญหา', .05, 'left:80px;top:140px');
-  title(s, 'สิ้นเดือน\nเปิดดู__ตัวเลข__', .12, 'left:80px;top:205px', {size: 84, lh: 1.24});
-  body(s, 'ยอดขายดี กำไรก็มี\nแต่พอจะจ่ายเงินเดือน ค่าเช่า ค่าของ\nเงินในบัญชี**กลับไม่พอ**', .4, 'left:80px;top:440px', {W: 500, size: 28});
-  body(s, 'เจ้าของร้านหลายคนเจอแบบนี้\nแต่ไม่รู้ว่าเกิดจากอะไร', .6, 'left:80px;top:610px', {W: 480, size: 26});
+  title(s, 'สิ้นเดือน\nเปิดดู__ตัวเลข__', .12, 'left:80px;top:205px', {size: 84, lh: 1.36});
+  body(s, 'ยอดขายดี กำไรก็มี\nแต่พอจะจ่ายเงินเดือน ค่าเช่า ค่าของ\nเงินในบัญชี**กลับไม่พอ**', .4, 'left:80px;top:468px', {W: 500, size: 28});
+  body(s, 'เจ้าของร้านหลายคนเจอแบบนี้\nแต่ไม่รู้ว่าเกิดจากอะไร', .6, 'left:80px;top:640px', {W: 480, size: 26});
   const sc = phone(s, 'left:620px;top:130px', .2, {w: 340, h: 640});
   label(sc, 'บัญชีร้าน', 'left:28px;top:70px');
   title(sc, 'ยอดคงเหลือ', .5, 'left:28px;top:120px', {size: 34, W: 280});
@@ -37,7 +37,7 @@ slide({tone: 'light'}, s => {
 /* 3 · Body 1 · dark · Profit vs Cash Flow + timeline */
 slide({tone: 'dark'}, s => {
   tag(s, 'สาเหตุ', .05, 'left:80px;top:140px');
-  title(s, 'สองอย่างนี้\n__เกิดคนละเวลา__', .12, 'left:80px;top:205px', {size: 80, lh: 1.24});
+  title(s, 'สองอย่างนี้\n__เกิดคนละเวลา__', .12, 'left:80px;top:205px', {size: 80, lh: 1.36});
   const cards = [['receipt', 'Profit (กำไร)', 'รายได้ − ต้นทุน\nนับตอนที่ขายได้', 'left:80px', null],
                  ['banknote', 'Cash Flow (กระแสเงินสด)', 'เงินที่เข้ามาจริง\n− เงินที่จ่ายออกจริง', 'left:550px', 'accent']];
   cards.forEach(([ic, h, tx, x, st], k) => {
@@ -60,7 +60,7 @@ slide({tone: 'dark'}, s => {
 /* 4 · Body 2 · light · profit +25,000 vs cash −75,000 */
 slide({tone: 'light'}, s => {
   tag(s, 'ตัวอย่างร้านสมมติ (ขายส่ง)', .05, 'left:80px;top:140px', {icon: 'store'});
-  title(s, 'กำไรเป็นบวก\nแต่__เงินสดติดลบ__', .12, 'left:80px;top:205px', {size: 80, lh: 1.24});
+  title(s, 'กำไรเป็นบวก\nแต่__เงินสดติดลบ__', .12, 'left:80px;top:205px', {size: 80, lh: 1.36});
   const a = box(s, 'left:80px;top:430px;width:920px;height:220px', .4, {style: 'solid'});
   label(a, 'กำไรบนกระดาษ', 'left:36px;top:34px');
   body(a, 'ขายของได้ 100,000 บาท\n− ต้นทุนสินค้า 60,000 − ค่าเช่า 15,000', .55, 'left:36px;top:86px', {W: 470, size: 24});
@@ -74,28 +74,28 @@ slide({tone: 'light'}, s => {
 /* 5 · Body 3 · dark · 3 steps */
 slide({tone: 'dark'}, s => {
   tag(s, 'วิธีป้องกัน', .05, 'left:80px;top:140px');
-  title(s, 'ป้องกันเงินขาดมือ\nใน __3 ขั้น__', .12, 'left:80px;top:205px', {size: 80, lh: 1.24});
+  title(s, 'ป้องกันเงินขาดมือ\nใน __3 ขั้น__', .12, 'left:80px;top:200px', {size: 76, lh: 1.36});
   const rows = [
     ['01', 'ทำ Cash Flow Forecast', 'ประมาณการกระแสเงินสดล่วงหน้า 3 เดือน\nว่าเงินเข้า-ออกเมื่อไหร่', 'calendar'],
     ['02', 'เก็บเงินลูกค้าให้เร็วขึ้น', 'ลด Accounts Receivable (ลูกหนี้การค้า)\nหรือขอมัดจำก่อนส่งของ', 'hand-coins'],
     ['03', 'ต่อรอง Credit Term ให้ยาวขึ้น', 'ระยะเวลาเครดิตกับซัพพลายเออร์', 'handshake'],
   ];
-  let y = 415;
+  let y = 434;
   rows.forEach(([n, h, sub, ic], k) => {
-    const t = .35 + k * .22, hh = 158;
+    const t = .35 + k * .22, hh = 154;
     const b = box(s, `left:80px;top:${y}px;width:920px;height:${hh}px`, t, {from: 'left'});
     num(b, n, t + .1, 'left:32px;top:30px', {size: 60, count: false});
     title(b, h, t + .15, 'left:140px;top:20px', {size: 34, W: 640});
     body(b, sub, t + .2, 'left:140px;top:68px', {size: 24, W: 640});
     icon(b, ic, t + .25, `left:820px;top:${(hh - 68) / 2}px`, {size: 68, style: 'accent', fl: false});
-    y += hh + 10;
+    y += hh + 8;
   });
 });
 
 /* 6 · Rehook · light · sales up, cash down */
 slide({tone: 'light'}, s => {
   tag(s, 'แต่…', .05, 'left:80px;top:140px');
-  title(s, 'ร้านที่เสี่ยงเงินขาดที่สุด\nคือร้านที่__กำลังขายดีขึ้น__', .12, 'left:80px;top:205px', {size: 66, lh: 1.24});
+  title(s, 'ร้านที่เสี่ยงเงินขาดที่สุด\nคือร้านที่__กำลังขายดีขึ้น__', .12, 'left:80px;top:205px', {size: 66, lh: 1.36});
   const c = box(s, 'left:80px;top:400px;width:920px;height:330px', .4, {style: 'solid'});
   body(c, 'ยิ่งโต ยิ่งต้องสต็อกของเพิ่ม\nยิ่งให้เครดิตลูกค้าเพิ่ม\n\n**เงินออกไปก่อน**\nแต่เงินเข้าตามมาทีหลัง', .55, 'left:36px;top:40px', {W: 380, size: 26, step: .25});
   line(c, [[0, 170], [80, 150], [170, 120], [260, 80], [350, 46], [430, 14]], .7, 'left:440px;top:40px', {w: 440, h: 250, sw: 7, area: false, color: 'var(--pos)'});
@@ -110,7 +110,7 @@ slide({tone: 'light'}, s => {
 /* 7 · Payoff · accent (white) · type only */
 slide({tone: 'accent'}, s => {
   tag(s, 'สรุป', .05, 'left:80px;top:140px');
-  const T = title(s, 'กำไร บอกว่าธุรกิจ\nดีหรือไม่\nเงินสด บอกว่าธุรกิจ\n__อยู่รอด__หรือไม่', .12, 'left:80px;top:205px', {size: 76, lh: 1.24, step: .15});
+  const T = title(s, 'กำไร บอกว่าธุรกิจ\nดีหรือไม่\nเงินสด บอกว่าธุรกิจ\n__อยู่รอด__หรือไม่', .12, 'left:80px;top:205px', {size: 76, lh: 1.36, step: .15});
   tint(T, 'ดี', 'var(--pos)');
   const b = box(s, 'left:80px;top:640px;width:920px;height:230px', .9, {style: 'accent'});
   label(b, 'ก่อนขยายร้าน รับออเดอร์ใหญ่ หรือให้เครดิตเพิ่ม', 'left:40px;top:50px', {color: 'color-mix(in srgb,var(--acc-ink) 65%,transparent)'});
@@ -120,7 +120,7 @@ slide({tone: 'accent'}, s => {
 /* 8 · CTA · dark (สีเดียวกับสไลด์ 1) */
 slide({tone: 'dark'}, s => {
   tag(s, 'ลองทำดู', .05, 'left:80px;top:140px');
-  title(s, 'กำไร กับ เงินสดของร้านคุณ\n__ห่างกันแค่ไหน__', .12, 'left:80px;top:205px', {size: 72, lh: 1.24});
+  title(s, 'กำไร กับ เงินสดของร้านคุณ\n__ห่างกันแค่ไหน__', .12, 'left:80px;top:205px', {size: 72, lh: 1.36});
   const L = list(s, [['bookmark', 'x'], ['message-circle', 'x'], ['share-2', 'x']], .4, 'left:80px;top:440px', {mark: 'icon', size: 30, gap: 30, W: 920, box: 76});
   L.style.setProperty('--acc', 'var(--pos)'); L.style.setProperty('--acc-ink', '#0A0A0A');
   const tx = ['<b>เซฟไว้</b> แล้วลองเทียบตัวเลขของร้านคุณ',

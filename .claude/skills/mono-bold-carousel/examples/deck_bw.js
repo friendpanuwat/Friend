@@ -1,5 +1,5 @@
 /* Example — 8 slides, 1080×1080, theme bw (ขาว-ดำ ตัวหนา). Content = user's own post about repeat customers.
-   Grid: tag y140 · title y205 (lh 1.24) · content block y≈440–900 · margins 80 px.
+   Grid: tag y140 · title y205 (lh 1.24 — ชุดนี้ไม่มีสระชนกัน; ชุดใหม่ใช้ 1.36) · content block y≈440–900 · margins 80 px.
    Emphasis = __underline__ one keyword per title. No {box} / ~strike~ / ((circle)) / [accent] (build_deck.py rejects them).
    Slide names B1…B8 are referenced in references/layouts.md. Helpers label() / hbar() / LBL come from the engine. */
 
