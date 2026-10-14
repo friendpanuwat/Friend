@@ -12,7 +12,7 @@ async function check(page, label) {
   const o = await overflow(page);
   const small = await page.evaluate(() => [...document.querySelectorAll('button, input:not([type=range])')].filter(b => {
     const r = b.getBoundingClientRect(); if (!r.width || b.closest('[hidden]')) return false;
-    return r.height < 43.5 && !b.classList.contains('lnk-in') && !(b.classList.contains('lnk') && b.closest('.fine'));
+    return r.height < 43.5 && !b.classList.contains('lnk-in');
   }).map(b => b.className + ':' + (b.textContent || b.getAttribute('aria-label') || '').trim().slice(0, 20) + ':' + Math.round(b.getBoundingClientRect().height)));
   const probs = [];
   if (/NaN|undefined|Infinity|\[object/.test(txt)) probs.push('bad text ' + (txt.match(/.{0,30}(NaN|undefined|Infinity|\[object).{0,20}/) || [''])[0]);
