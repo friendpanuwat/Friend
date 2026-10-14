@@ -36,6 +36,9 @@ function gainWord(m) {
   return { unit: 'ขายได้เพิ่ม', service: 'มีลูกค้าเพิ่ม', resell: 'ขายได้เพิ่ม', subscription: 'มีสมาชิกเพิ่ม', project: 'ได้งานเพิ่ม',
     rental: 'คนเช่าเพิ่มขึ้น', commission: 'ปิดดีลได้เพิ่ม', other: 'รายได้เพิ่ม' }[m];
 }
+function expectWord(m) {
+  return { rental: 'คาดว่าคนเช่าจะเพิ่มขึ้น', other: 'คาดว่ารายได้จะเพิ่ม' }[m] || 'คาดว่าจะ' + gainWord(m);
+}
 function salesWord(m) { return { rental: 'คนเช่า', subscription: 'สมาชิก', project: 'งานที่ได้', commission: 'ดีลที่ปิดได้', other: 'รายได้' }[m] || 'ยอดขาย'; }
 function chPriceLabel(inp, m) {
   return { subscription: 'ค่าสมาชิกต่อรอบ บนช่องทางนี้', project: 'มูลค่าเฉลี่ยต่องาน จากช่องทางนี้', rental: 'ราคาต่อ' + periodWord(inp) + ' บนช่องทางนี้' }[m] ||
@@ -64,7 +67,7 @@ var DFIELDS = {
   count: { t: 'count', label: function () { return 'จ้างเพิ่มกี่คน'; }, suf: function () { return 'คน'; }, min: 1, max: 20 },
   salary: { t: 'money', req: true, label: function () { return 'เงินเดือนต่อคน'; },
     ph: function (i) { return pos(i.staffSalary) || 12000; }, help: function () { return 'รวมค่าประกันสังคม และสวัสดิการที่จ่ายทุกเดือน'; } },
-  gain: { t: 'dec', label: function (i, m) { return 'คาดว่าจะ' + gainWord(m); }, suf: function (i, m) { return gainUnit(i, m); },
+  gain: { t: 'dec', label: function (i, m) { return expectWord(m); }, suf: function (i, m) { return gainUnit(i, m); },
     ph: phGain, help: function (i, m) { return 'ถ้ายังไม่รู้ เว้นว่างไว้ แล้วดูว่าต้อง' + gainWord(m) + 'เท่าไหร่ถึงจะคุ้ม'; } },
   capAdd: { t: 'dec', label: function (i, m) { return 'พนักงาน 1 คน ช่วยให้ร้าน' + (m === 'service' ? 'รับลูกค้า' : 'ทำ') + 'ได้เพิ่ม'; },
     suf: function (i, m) { return U(i, m) + '/' + perWord(i); },
@@ -111,7 +114,7 @@ var DFIELDS = {
   eqCap: { t: 'dec', label: function (i, m) { return 'ช่วยให้ร้าน' + (m === 'service' ? 'รับลูกค้า' : 'ทำ') + 'ได้เพิ่ม'; },
     suf: function (i, m) { return U(i, m) + '/' + perWord(i); }, show: function (i, m) { return isVolModel(m) && pos(i.capacity) !== null; },
     help: function (i, m) { return 'ตอนนี้ร้านทำได้สูงสุด ' + fmtN(n0(i.capacity)) + ' ' + U(i, m) + '/' + perWord(i); } },
-  eqGain: { t: 'dec', label: function (i, m) { return 'คาดว่าจะ' + gainWord(m); }, suf: function (i, m) { return gainUnit(i, m); }, ph: phGain,
+  eqGain: { t: 'dec', label: function (i, m) { return expectWord(m); }, suf: function (i, m) { return gainUnit(i, m); }, ph: phGain,
     help: function () { return 'ถ้าเครื่องนี้ไม่ได้ช่วยขายเพิ่ม เว้นว่างไว้'; } },
   costDown: { t: 'money', label: costDownLabel, suf: function (i, m) { return costDownSuf(m); },
     help: function () { return 'เช่น ของเสียน้อยลง ใช้วัตถุดิบน้อยลง ถ้าไม่มี เว้นว่างไว้'; } },

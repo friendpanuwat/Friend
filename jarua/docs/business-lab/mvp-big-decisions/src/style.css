@@ -80,3 +80,6 @@
   .cond .cv { font-size: 23px; }
   .trow { padding: 10px; }
 }
+
+/* ช่องตัวเลขในหน้าทดลอง: พื้นที่แตะสูงอย่างน้อย 44px */
+.lr-val input { min-height: 44px; }

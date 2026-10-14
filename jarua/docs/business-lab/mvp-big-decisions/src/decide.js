@@ -121,6 +121,8 @@ function dBuild(inp, m, T, d, o) {
     fx.push(['brent', 'ค่าเช่าสาขา', n0(d.bRent)], ['bstaff', 'เงินเดือนพนักงานสาขา', n0(d.bStaff) * n0(d.bSalary)], ['bother', 'ค่าใช้จ่ายอื่นของสาขา', n0(d.bOther)]);
     one = n0(d.setup);
   }
+  /* ขายเป็นหน่วยแล้วยอดเหลือ 0 (เช่น ปิดร้านทั้งเดือน) ตัวคำนวณถือว่า "ไม่ทราบยอด" จึงใส่ยอดที่ใกล้ 0 มากแทน ให้ได้รายได้ 0 จริง */
+  if (isVolModel(m) && !(n0(x.volume) > 0)) x.volume = 1e-9;
   var v4 = v4Input(x, m);
   v4.streams = v4.streams.concat(streams);
   v4.fixedCostsMonthly = Math.max(0, v4.fixedCostsMonthly + fx.reduce(function (s, a) { return s + a[2]; }, 0));
@@ -153,6 +155,7 @@ function dEval(inp, m, T, d, opt) {
     var o = T === 'place' ? { t: t, f: f } : { lv: levelAt(k, t), f: f };
     var r = T === 'place' || o.lv !== 1 ? runCalc(dBuild(inp, m, T, d, o).v4) : st.r;
     var p = r.projection[t - 1];
+    if (!p) return { ok: false };
     rows.push({ t: t, profit: p.netProfitAccounting, net: p.netCashFlow, rev: p.revenue,
       bProfit: B.cash[t - 1].profit, bNet: B.cash[t - 1].net, bBal: B.cash[t - 1].bal });
   }

@@ -41,11 +41,13 @@ for (let i = 0; i < 700; i++) {
   if (T === 'equip' && rnd() < 0.2) d.fixedChg = -1e9;
   if (T === 'channel' && rnd() < 0.2) d.cut = pick([0, 99, 100, 150]);
   if (T === 'place' && rnd() < 0.2) d.salesPct = pick([-100, -95, 400]);
+  if (T === 'place' && rnd() < 0.3) d.closedDays = pick([26, 30, 60]);
+  if (T === 'channel' && rnd() < 0.2) { d.movePct = 100; d.chQty = inp.volume || inp[R('ROLE["' + m + '"].vol')] || 1; }
   ctx.__x = { inp, m, T, d };
   runs++;
   try {
     const E = R('dEval(__x.inp,__x.m,__x.T,__x.d)');
-    if (!E.ok) continue;
+    if (!E.ok) { if (R('steady(__x.inp,__x.m,__x.T,__x.d).r.projection.length') === 12 && R('compute(__x.inp,__x.m).ok')) throw new Error('not ok although inputs complete'); continue; }
     okRuns++;
     const C = R('dConds(dEval(__x.inp,__x.m,__x.T,__x.d),__x.inp,__x.m,__x.T,__x.d)');
     const S = R('dScenarios(__x.inp,__x.m,__x.T,__x.d)');
