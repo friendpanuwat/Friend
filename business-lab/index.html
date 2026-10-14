@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <title>Jarua Business Lab</title>
+    <meta name="description" content="Business Lab โดย Jarua — เครื่องมือคำนวณและวางแผนธุรกิจ ใส่ตัวเลขแล้วเห็นผลทันที" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@800&family=Prompt:wght@400;500;600;700&display=swap" />
+    <script>
+      // Pick the theme before first paint: saved choice > viewer's data-theme > OS preference.
+      (function () {
+        var mode = null;
+        try { mode = localStorage.getItem("promptdd-theme"); } catch (e) {}
+        if (mode !== "light" && mode !== "dark") {
+          var attr = document.documentElement.getAttribute("data-theme");
+          if (attr === "light" || attr === "dark") mode = attr;
+          else mode = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        }
+        document.documentElement.classList.toggle("light", mode === "light");
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
