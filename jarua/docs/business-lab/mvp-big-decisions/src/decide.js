@@ -1,8 +1,8 @@
 /* ============================================================
    DECIDE — เทียบ "ไม่ทำ" กับ "ทำ" ของเรื่องใหญ่แต่ละเรื่อง
    ทุกตัวเลขต่อเดือนคำนวณด้วย JaruaCalc.calculateV4 (ตัวคำนวณของ PL2) ไม่มีสูตรกำไรของตัวเอง
-   ส่วนที่คิดเพิ่มใน Lab: แปลงการตัดสินใจเป็นตัวเลขร้านชุดใหม่ · เงินก้อนที่จ่ายครั้งเดียว · ยอดที่ค่อยๆ ขึ้น
-   · คืนทุน · เงื่อนไขที่ทำให้คุ้ม · ถ้าไม่เป็นอย่างที่คาด
+   ส่วนที่คิดเพิ่มใน Lab: แปลงการตัดสินใจเป็นตัวเลขร้านชุดใหม่ · เงินก้อนที่จ่ายครั้งเดียว · ยอดที่ค่อย ๆ ขึ้น
+   · เงินที่จมเพิ่มในลูกหนี้และสต็อกช่วงเริ่ม · คืนทุน · จุดคุ้ม · ถ้าไม่เป็นอย่างที่คาด
    ============================================================ */
 
 var DMEMO = new Map();
@@ -11,7 +11,7 @@ function runCalc(v4) {
   var r = DMEMO.get(key);
   if (r) return r;
   r = JaruaCalc.calculateV4(v4);
-  if (DMEMO.size > 600) DMEMO.clear();
+  if (DMEMO.size > 800) DMEMO.clear();
   DMEMO.set(key, r);
   return r;
 }
@@ -28,18 +28,21 @@ function addVol(inp, m, x) {
   }
   var k = ROLE[m].vol;
   o[k] = Math.max(0, n0(inp[k]) + x);
+  if (m === 'rental') o[k] = Math.min(100, o[k]); /* มีคนเช่าได้ไม่เกิน 100% ของห้องทั้งหมด */
   return o;
 }
 
 function rampOf(T, d) { return T === 'place' ? 0 : Math.max(0, Math.round(n0(d.ramp))); }
-/* ระดับของสิ่งที่คาดในเดือนที่ t: ค่อยๆ ขึ้นเท่ากันทุกเดือน จนเต็มในเดือนที่ k */
-function levelAt(k, t) { return k > 0 ? Math.min(1, t / k) : 1; }
-/* ย้ายร้าน: เดือนแรกลูกค้าขาดไป dip% แล้วค่อยๆ กลับมาครบในเดือนที่ back + 1 */
+/* ระดับของสิ่งที่คาดในเดือนที่ t: ใช้เวลา k เดือนค่อย ๆ ขึ้นเท่ากันทุกเดือน แล้วเต็มในเดือนที่ k + 1 (k = 0 เต็มตั้งแต่เดือนแรก) */
+function levelAt(k, t) { return k > 0 ? Math.min(1, t / (k + 1)) : 1; }
+/* ย้ายร้าน: เดือนแรกลูกค้าขาดไป dip% แล้วค่อย ๆ กลับมาครบในเดือนที่ back + 1 */
 function placeProgress(d, t) {
   if (!(n0(d.dipPct) > 0)) return 1;
   var b = Math.max(1, Math.round(n0(d.backMonths) || 1));
   return Math.min(1, (t - 1) / b);
 }
+/* ตัวคูณฤดูกาลที่สูงที่สุดของปี (ใช้กันไม่ให้คนเช่ารวมทุกช่องทางเกิน 100% ในเดือนขายดี) */
+function peakSeason(inp) { return hasSeason(inp) && (inp.season.high || []).length ? 1 + n0(inp.season.highPct) / 100 : 1; }
 
 /* ---------- ช่องทางใหม่ = ทางรายได้ทางที่ 2 แบบเดียวกับร้าน แต่ราคา ต้นทุน และส่วนแบ่งของช่องทาง ---------- */
 function channelStream(inp, m, d, q) {
@@ -91,7 +94,8 @@ function dBuild(inp, m, T, d, o) {
     var pf = Math.max(0, 1 + n0(d.salesPct) / 100) * f;
     if (t > 0) {
       pf *= 1 - Math.min(90, n0(d.dipPct)) / 100 * (1 - placeProgress(d, t));
-      if (t === 1 && n0(d.closedDays) > 0) pf *= Math.max(0, 1 - n0(d.closedDays) / (isVolModel(m) ? daysOf(inp) : 30));
+      var dOpen = isVolModel(m) ? daysOf(inp) : 30;
+      if (t === 1 && n0(d.closedDays) > 0) pf *= Math.max(0, 1 - Math.min(dOpen, n0(d.closedDays)) / dOpen);
     }
     x = scaleVol(x, m, pf);
     x.rent = n0(d.newRent);
@@ -99,8 +103,12 @@ function dBuild(inp, m, T, d, o) {
   } else if (T === 'channel') {
     var q = n0(d.chQty) * g;
     var mv = Math.min(100, n0(d.movePct)) / 100;
+    if (m === 'rental') {
+      /* คนเช่ารวม (ร้าน − ที่ย้ายมา + ช่องทาง) ในเดือนขายดีที่สุดต้องไม่เกิน 100% */
+      var cap = mv >= 1 ? Infinity : (100 / peakSeason(inp) - n0(inp.occupancy)) / (1 - mv);
+      if (q > Math.max(0, cap) + 1e-9) { note.clamped = true; q = Math.max(0, cap); }
+    }
     x = addVol(x, m, -q * mv);
-    if (m === 'rental') { var room = Math.max(0, 100 - n0(x.occupancy)); if (q > room) { note.clamped = true; q = room; } }
     if (q > 0) streams.push(channelStream(inp, m, d, q));
     note.chQ = q;
     fx.push(['chfee', 'ค่าใช้จ่ายรายเดือนของ' + (d.chName || 'ช่องทาง'), n0(d.chFee)]);
@@ -118,6 +126,7 @@ function dBuild(inp, m, T, d, o) {
   } else if (T === 'branch') {
     var bp = n0(d.bPct) / 100 * g;
     if (bp > 0) streams.push(branchStream(inp, m, bp));
+    note.bp = bp;
     fx.push(['brent', 'ค่าเช่าสาขา', n0(d.bRent)], ['bstaff', 'เงินเดือนพนักงานสาขา', n0(d.bStaff) * n0(d.bSalary)], ['bother', 'ค่าใช้จ่ายอื่นของสาขา', n0(d.bOther)]);
     one = n0(d.setup);
   }
@@ -136,6 +145,37 @@ function steady(inp, m, T, d, f) {
   return { b: b, r: r, profit: r.netProfitMonthly };
 }
 
+/* ---------- เงินที่จมในการขาย (ลูกค้ายังไม่จ่าย + ของในสต็อก − เงินที่ลูกค้าจ่ายล่วงหน้า) ของเดือนปกติ ----------
+   ตัวคำนวณคิดแต่ละเดือนแบบ "ร้านเป็นแบบนี้มานานแล้ว" เมื่อยอดเปลี่ยนวันนี้ เงินส่วนนี้ต้องจมเพิ่มก่อนจึงจะได้คืน
+   ใช้กติกาจังหวะเงินเดียวกับตัวคำนวณ (เครดิตลูกค้า · วันเก็บสต็อก · เครดิตจากคนขาย · มัดจำและงวดสุดท้ายของงาน · ค่าสมาชิกจ่ายล่วงหน้า) */
+function streamWC(s) {
+  var cr = n0(s.creditDays);
+  if (s.type === 'unit' || s.type === 'service' || s.type === 'resell') {
+    var u = n0(s.unitsPerMonth), rev = n0(s.price) * u, cogs = n0(s.costPerUnit) * u;
+    return rev * cr / 30 + cogs * (n0(s.inventoryDays) - n0(s.supplierCreditDays)) / 30;
+  }
+  if (s.type === 'subscription') {
+    var cyc = Math.max(1, Math.round(n0(s.cycleMonths) || 1)), revS = n0(s.activeMembers) * n0(s.feePerCycle) / cyc;
+    return revS * cr / 30 - revS * (cyc - 1) / 2;
+  }
+  if (s.type === 'rental') {
+    var per = n0(s.periodsPerMonth) || 30;
+    return n0(s.rentableUnits) * per * Math.min(1, n0(s.occupancyPercent) / 100) * n0(s.pricePerPeriod) * cr / 30;
+  }
+  if (s.type === 'commission') {
+    var rc = n0(s.dealsPerMonth) * n0(s.avgDealValue) * n0(s.commissionPercent) / 100;
+    return rc * (1 - (n0(s.splitPercent) + n0(s.variableCostPercent)) / 100) * cr / 30;
+  }
+  if (s.type === 'project') {
+    var k = n0(s.projectsPerYear) / 12, V = n0(s.avgProjectValue), dd = Math.max(1, Math.round(n0(s.durationMonths))), p = n0(s.depositPercent) / 100;
+    var L = Math.ceil(cr / 30 - 1e-9), w = 0;
+    for (var a = 0; a <= dd - 2 + L; a++) w += V * Math.min(a + 1, dd) / dd - p * V;
+    return k * w;
+  }
+  return n0(s.amountPerMonth) * cr / 30;
+}
+function wcOf(v4) { return v4.streams.reduce(function (a, s) { return a + streamWC(s); }, 0); }
+
 /* ---------- ผลเต็มของการตัดสินใจ ---------- */
 function dEval(inp, m, T, d, opt) {
   opt = opt || {};
@@ -149,16 +189,21 @@ function dEval(inp, m, T, d, opt) {
   R.profit = st.profit;
   R.delta = R.profit - B.profit;
 
-  /* 12 เดือน: เดือนที่ t ใช้ตัวเลขของเดือนนั้นจากตัวคำนวณ (รวมฤดูกาล การเติบโต และจังหวะเงินเข้าออกของร้าน) */
-  var rows = [];
+  /* 12 เดือน: เดือนที่ t ใช้ตัวเลขของเดือนนั้นจากตัวคำนวณ (รวมฤดูกาล การเติบโต และจังหวะเงินเข้าออกของร้าน)
+     แล้วหักเงินที่ต้องจมเพิ่มในลูกหนี้และสต็อก ในเดือนที่ยอดเปลี่ยน */
+  var wc0 = wcOf(v4Input(inp, m)), prevWC = 0, rows = [];
   for (var t = 1; t <= 12; t++) {
     var o = T === 'place' ? { t: t, f: f } : { lv: levelAt(k, t), f: f };
-    var r = T === 'place' || o.lv !== 1 ? runCalc(dBuild(inp, m, T, d, o).v4) : st.r;
+    var bt = T === 'place' || o.lv !== 1 ? dBuild(inp, m, T, d, o) : st.b;
+    var r = bt === st.b ? st.r : runCalc(bt.v4);
     var p = r.projection[t - 1];
     if (!p) return { ok: false };
-    rows.push({ t: t, profit: p.netProfitAccounting, net: p.netCashFlow, rev: p.revenue,
+    var dWC = wcOf(bt.v4) - wc0, wcStep = dWC - prevWC;
+    prevWC = dWC;
+    rows.push({ t: t, profit: p.netProfitAccounting, net: p.netCashFlow - wcStep, wcStep: wcStep, rev: p.revenue,
       bProfit: B.cash[t - 1].profit, bNet: B.cash[t - 1].net, bBal: B.cash[t - 1].bal });
   }
+  R.wc = prevWC;
   R.cashStart = B.cashStart;
   R.aStart = B.cashStart - R.one;
   var bal = R.aStart, cum = 0, low = R.aStart, lowT = 0, negT = null, sumDiff = 0, payback = null;
@@ -176,17 +221,27 @@ function dEval(inp, m, T, d, opt) {
   R.low = low; R.lowT = lowT; R.negT = negT;
   R.need = Math.max(0, -low);              /* เงินที่ต้องหาเพิ่ม ถึงจะไม่ขาดมือ */
   R.sumDiff = sumDiff;
-  /* เงินที่ได้เพิ่มต่อเดือนเมื่อเข้าที่ (เดือนปกติ ไม่ใช่เดือนขายดีหรือขายแย่) = กำไรที่เปลี่ยน + เงินที่กันไว้ซื้อเครื่องใหม่ (ไม่ใช่เงินที่จ่ายออกจริง) */
+  /* เงินสดที่ได้เพิ่มต่อเดือนเมื่อเข้าที่ (เดือนปกติ) = กำไรที่เปลี่ยน + เงินที่กันไว้ซื้อเครื่องใหม่ (ไม่ใช่เงินที่จ่ายออกจริง) */
   R.extraSteady = R.delta + (st.r.depreciation.monthlyTotal - B.r.depreciation.monthlyTotal);
-  if (R.one > 0 && payback === null && R.extraSteady > 0.5) payback = 12 + (R.one - cum) / R.extraSteady;
+  /* คืนทุนหลังเดือนที่ 12: ใช้เงินที่ได้เพิ่มของปีที่ 2 และ 3 จากตัวคำนวณ (รวมการเติบโตและฤดูกาลของร้าน) */
+  if (R.one > 0 && payback === null) {
+    var a3 = st.r.projection3YearsRough || [], b3 = B.r.projection3YearsRough || [], rem = R.one - cum;
+    var y2 = a3[1] && b3[1] ? a3[1].netCashFlow - b3[1].netCashFlow : R.extraSteady * 12;
+    var y3 = a3[2] && b3[2] ? a3[2].netCashFlow - b3[2].netCashFlow : y2;
+    if (y2 > 0.5 && rem <= y2) payback = 12 + rem / (y2 / 12);
+    else {
+      var rem2 = rem - y2;
+      if (y3 > 0.5 && rem2 <= y3) payback = 24 + rem2 / (y3 / 12);
+      else if (y3 > 0.5) payback = 36 + (rem2 - y3) / (y3 / 12);
+    }
+  }
   R.payback = R.one > 0 ? payback : null;
-  R.noPayback = R.one > 0 && payback === null;
   R.ledger = dLedger(R, inp, m, T, d);
   R.warn = dWarn(R, inp, m, T, d);
   return R;
 }
 
-/* ---------- ใบเสร็จของการตัดสินใจ: กำไรต่อเดือนเปลี่ยนเพราะอะไรบ้าง (รวมกันได้เท่ากำไรที่เปลี่ยนพอดี) ---------- */
+/* ---------- กำไรต่อเดือนเปลี่ยนเพราะอะไรบ้าง (รวมกันได้เท่ากำไรที่เปลี่ยนพอดี) ---------- */
 function dLedger(R, inp, m, T, d) {
   var r0 = R.B.r, r1 = R.st.r, b = R.st.b, L = [];
   var c0 = r0.revenueMonthly - r0.variableCostMonthly, c1 = r1.revenueMonthly - r1.variableCostMonthly;
@@ -205,7 +260,7 @@ function dLedger(R, inp, m, T, d) {
   if (Math.abs(p1.rent - p0.rent) >= 0.5) L.push({ label: 'ค่าเช่าที่ใหม่ เทียบกับที่เดิม', amount: -(p1.rent - p0.rent) });
   b.fx.forEach(function (a) { if (Math.abs(a[2]) >= 0.5) L.push({ label: a[1], amount: -a[2] }); });
   var dd = r1.depreciation.monthlyTotal - r0.depreciation.monthlyTotal;
-  if (Math.abs(dd) >= 0.5) L.push({ label: 'กันไว้ซื้ออุปกรณ์ใหม่เมื่อเครื่องหมดอายุ', amount: -dd });
+  if (Math.abs(dd) >= 0.5) L.push({ label: 'กันไว้ซื้อเครื่องใหม่เมื่อหมดอายุ', amount: -dd });
   /* เศษจากการปัดของตัวคำนวณ ใส่ไว้ในบรรทัดแรก เพื่อให้รวมกันได้เท่ากำไรที่เปลี่ยนพอดี */
   var sum = L.reduce(function (a, x) { return a + x.amount; }, 0);
   if (L.length && Math.abs(R.delta - sum) > 0.001) L[0].amount += R.delta - sum;
@@ -218,20 +273,24 @@ function dWarn(R, inp, m, T, d) {
     var mainV = n0(x.volume), chV = T === 'channel' ? n0(R.st.b.note.chQ) : 0;
     if (mainV + chV > pos(x.capacity) + 1e-9) W.push('ยอดที่คาดรวม ' + fmtN(mainV + chV, 1) + ' ' + volUnitText(inp, m) + ' เกินกำลังที่ร้านทำได้ (สูงสุด ' + fmtN(pos(x.capacity)) + ')');
   }
+  if (T === 'branch' && isVolModel(m) && pos(inp.capacity) && n0(inp.volume) * n0(R.st.b.note.bp) > pos(inp.capacity) + 1e-9)
+    W.push('ยอดที่คาดของสาขา ' + fmtN(n0(inp.volume) * R.st.b.note.bp, 1) + ' ' + volUnitText(inp, m) + ' เกินกำลังที่ร้านแบบเดิมทำได้ (สูงสุด ' + fmtN(pos(inp.capacity)) + ')');
   if (m === 'subscription' && pos(inp.maxMembers) && T !== 'branch') {
     var tot = n0(x.members) + (T === 'channel' ? n0(R.st.b.note.chQ) : 0);
     if (tot > pos(inp.maxMembers)) W.push('สมาชิกที่คาดรวม ' + fmtN(tot) + ' คน เกินที่รับได้ (สูงสุด ' + fmtN(pos(inp.maxMembers)) + ' คน)');
   }
-  if (T === 'channel' && R.st.b.note.clamped) W.push('คนเช่ารวมทุกช่องทางเต็ม 100% แล้ว ส่วนที่เกินไม่ได้นับ');
+  if (T === 'channel' && R.st.b.note.clamped) W.push('คนเช่ารวมทุกช่องทางเต็ม 100% ในเดือนขายดีแล้ว ส่วนที่เกินไม่ได้นับ');
   if (T === 'channel') { var u = channelUnit(inp, m, d); if (u && u.ch <= 0) W.push('ขายผ่านช่องทางนี้ ' + (u.ch < 0 ? 'ยิ่งขายยิ่งขาดทุน' : 'ไม่เหลือเงินเลย') + ' เพราะส่วนแบ่งและต้นทุนเกินราคาขาย'); }
   if (T === 'equip' && R.payback !== null && pos(d.life) && R.payback > pos(d.life) * 12) W.push('คืนทุนช้ากว่าอายุใช้งานของเครื่อง (' + fmtN(pos(d.life)) + ' ปี)');
+  if (Math.abs(R.wc) >= 1000) W.push(R.wc > 0 ? 'ยอดที่เพิ่มทำให้มีเงินจมอยู่กับลูกค้าที่ยังไม่จ่ายและของในสต็อกเพิ่มขึ้นราว ' + fmtN(R.wc) + ' บาท นับไว้ในเงินสดแล้ว'
+    : 'ยอดที่ลดลงทำให้ได้เงินที่จมอยู่กับลูกค้าและสต็อกคืนมาราว ' + fmtN(-R.wc) + ' บาท นับไว้ในเงินสดแล้ว');
   return W;
 }
 
 /* ---------- หาค่าที่ทำให้กำไรต่อเดือนเท่าเดิม (กำไรเปลี่ยนเป็นเส้นตรงตามตัวเลขเกือบทุกกรณี จึงใช้วิธีเส้นตรงซ้ำแล้วยืนยันด้วยการคำนวณจริง) ---------- */
 function solveFor(fn, target, x0, x1, lo, hi) {
   var f0 = fn(x0) - target, f1 = fn(x1) - target;
-  for (var i = 0; i < 14; i++) {
+  for (var i = 0; i < 16; i++) {
     if (Math.abs(f1) < 0.5) return x1;
     var s = (f1 - f0) / (x1 - x0);
     if (!isFinite(s) || Math.abs(s) < 1e-9) return null;
@@ -241,6 +300,23 @@ function solveFor(fn, target, x0, x1, lo, hi) {
     x0 = x1; f0 = f1; x1 = x2; f1 = fn(x1) - target;
   }
   return Math.abs(f1) < 1 ? x1 : null;
+}
+/* จุดคุ้มของตัวเลข 1 ตัว (กำไรเทียบกับตอนนี้)
+   value = ต้องได้อย่างน้อย x · zero = ค่าต่ำสุดก็คุ้มแล้ว · max = ยิ่งมากยิ่งได้น้อยลง ต้องไม่เกิน x
+   always = กำไรไม่ขยับตามตัวเลขนี้ และคุ้มอยู่แล้ว · never = ไม่มีค่าไหนคุ้ม (why: rev ยิ่งมากยิ่งได้น้อยลง · flat กำไรไม่ขยับ · far ต้องมากเกินจริง) */
+function breakEven(fn, base, lo, step, hi) {
+  var p0 = fn(lo), p1 = fn(lo + step), slope = p1 - p0;
+  if (slope > 0.01) {
+    if (p0 >= base - 0.5) return { kind: 'zero', x: lo };
+    var x = solveFor(fn, base, lo, lo + step, lo, hi);
+    return x === null ? { kind: 'never', why: 'far' } : { kind: 'value', x: x };
+  }
+  if (slope < -0.01) {
+    if (p0 < base - 0.5) return { kind: 'never', why: 'rev' };
+    var xm = solveFor(fn, base, lo, lo + step, lo, hi);
+    return xm === null || xm <= lo + step * 0.01 ? { kind: 'never', why: 'rev' } : { kind: 'max', x: xm };
+  }
+  return p0 >= base - 0.5 ? { kind: 'always' } : { kind: 'never', why: 'flat' };
 }
 function withD(d, k, v) { var o = Object.assign({}, d); o[k] = v; return o; }
 
@@ -259,129 +335,178 @@ function channelUnit(inp, m, d) {
   if (!(per > 0)) return null;
   return { ch: cc / q / per, own: cb / q / per };
 }
+/* ราคาบนช่องทางที่เหลือเงินต่อหน่วยเท่าขายเอง */
+function channelEqualPrice(inp, m, d) {
+  if (m === 'commission') return null;
+  var cu = channelUnit(inp, m, d);
+  if (!cu) return null;
+  var curP = n0(inp[ROLE[m].price]);
+  var p = solveFor(function (x) { var u2 = channelUnit(inp, m, withD(d, 'chPrice', x)); return u2 ? u2.ch : 0; }, cu.own, curP, curP * 1.2 + 1, 0, curP * 50 + 1e5);
+  return p === null ? null : Math.ceil(p - 1e-9);
+}
 
+function roundDown(x, m) {
+  if (x === null) return null;
+  if (m === 'rental' || m === 'subscription') return Math.floor(x + 1e-9);
+  return x < 10 ? Math.floor(x * 10 + 1e-9) / 10 : Math.floor(x + 1e-9);
+}
 function roundNeed(x, m) {
   if (x === null) return null;
-  if (m === 'rental') return Math.ceil(x - 1e-9);
+  if (m === 'rental' || m === 'subscription') return Math.ceil(x - 1e-9);
   return x < 10 ? Math.ceil(x * 10 - 1e-9) / 10 : Math.ceil(x - 1e-9);
 }
 
-/* ---------- เงื่อนไขที่ทำให้คุ้ม ----------
-   แต่ละแถว: label · value (ตัวเลขเงื่อนไข) · unit · have (ตัวเลขที่คุณคาด) · dir (min = ต้องได้อย่างน้อย · max = ต้องไม่เกิน)
-   lever = ช่องที่ลองเปลี่ยนในหน้าทดลองได้ */
-function dConds(R, inp, m, T, d) {
-  var C = [], base = R.B.profit, u = gainUnit(inp, m);
-  function profitWith(dd) { return steady(inp, m, T, dd).profit; }
+/* ---------- ตัวเลขหลักที่ตัดสินว่าคุ้มไหม (แถบลากในหน้าผล) ----------
+   key = ช่องของการตัดสินใจ · ค่าบนแถบเป็นหน่วยที่ร้านเข้าใจ (ย้ายร้าน: ยอดที่ใหม่ แทน % ที่กรอก) */
+var PMEMO = new Map();
+function dPivot(inp, m, T, d) {
+  var pk = { hire: 'gain', equip: 'eqGain', place: 'salesPct', channel: 'chQty', branch: 'bPct' }[T];
+  var dk = Object.assign({}, d); delete dk[pk];
+  var key = T + '|' + m + '|' + JSON.stringify(inp) + '|' + JSON.stringify(dk);
+  var P0 = PMEMO.get(key);
+  if (!P0) { P0 = dPivot0(inp, m, T, d); if (PMEMO.size > 200) PMEMO.clear(); PMEMO.set(key, P0); }
+  var P = Object.assign({}, P0);
+  P.have = P.get(d);
+  return P;
+}
+function dPivot0(inp, m, T, d) {
+  var cur = n0(inp[ROLE[m].vol]), u = gainUnit(inp, m);
+  var P = { T: T, unit: u };
   if (T === 'hire' || T === 'equip') {
-    var gk = T === 'hire' ? 'gain' : 'eqGain';
-    var p0 = profitWith(withD(d, gk, 0));
-    var need;
-    if (p0 >= base - 0.5) need = 0;
-    else {
-      var cur = n0(inp[ROLE[m].vol]), s1 = Math.max(1, cur * 0.1);
-      need = solveFor(function (x) { return profitWith(withD(d, gk, x)); }, base, 0, s1, 0, Math.max(cur * 50, 1e6));
-    }
-    var row = { id: 'need', lever: gk, unit: u, dir: 'min', have: n0(d[gk]) > 0 ? n0(d[gk]) : null };
-    if (need === null) Object.assign(row, { status: 'short', label: 'ต้อง' + gainWord(m) + 'เท่าไหร่ถึงจะคุ้ม', value: null, txt: m === 'other' ? 'รายได้ที่เพิ่มไม่ช่วยให้คุ้ม' : 'ขายเพิ่มเท่าไหร่ก็ไม่คุ้ม เพราะขายแล้วไม่เหลือเงิน' });
-    else if (need === 0) Object.assign(row, { label: 'ต้อง' + gainWord(m) + 'เท่าไหร่ถึงจะคุ้ม', value: 0, txt: T === 'equip' ? 'ไม่ต้องขายเพิ่ม เงินที่ประหยัดได้คุ้มแล้ว' : 'ไม่ต้องขายเพิ่ม' });
-    else Object.assign(row, { label: 'ต้อง' + gainWord(m) + 'อย่างน้อย', value: roundNeed(need, m),
-      sub: T === 'hire' ? 'ถึงจะได้กำไรเท่าตอนนี้ หลังจ่ายเงินเดือนคนใหม่' : 'ถึงจะได้กำไรเท่าตอนนี้ หลังหักเงินที่กันไว้ซื้อเครื่องใหม่' });
-    C.push(row);
-    /* กำลังรับ */
-    if (isVolModel(m) && pos(inp.capacity) && need !== null && need > 0) {
-      var capA = pos(R.st.b.x.capacity), room = capA - n0(inp.volume);
-      C.push({ id: 'room', label: (T === 'hire' && pos(d.capAdd) ? 'หลังจ้าง ' : T === 'equip' && pos(d.eqCap) ? 'หลังซื้อเครื่อง ' : '') + 'ร้านรับเพิ่มได้อีก', value: Math.max(0, room), unit: u, dir: 'info',
-        sub: room >= need ? 'พอสำหรับยอดที่ต้องขายเพิ่ม' : 'ไม่พอสำหรับยอดที่ต้องขายเพิ่ม ' + fmtN(roundNeed(need, m)) + ' ' + u, status: room >= need ? 'ok' : 'short', lever: T === 'hire' ? 'capAdd' : 'eqCap' });
-    }
-    if (T === 'hire' && n0(d.hours) > 0) {
-      var days = pos(inp.daysOpen) || 26;
-      C.push({ id: 'hour', label: 'จ่ายเพื่อได้เวลาของคุณคืน ชั่วโมงละ', value: n0(d.count) * n0(d.salary) / (n0(d.hours) * days), unit: 'บาท', dir: 'info',
-        sub: 'คิดจากเงินเดือนคนใหม่ ÷ ' + fmtN(n0(d.hours)) + ' ชั่วโมง × ' + fmtN(days) + ' วัน', lever: 'hours' });
-    }
-    if (T === 'equip') {
-      C.push({ id: 'pay', label: 'คืนทุน', value: R.payback, unit: 'เดือน', dir: 'max', have: null, payback: true,
-        sub: R.payback === null ? 'ตัวเลขแบบนี้ เงินที่ได้เพิ่มยังไม่พอคืนค่าเครื่อง' : pos(d.life) ? 'เครื่องใช้ได้ ' + fmtN(pos(d.life)) + ' ปี (' + fmtN(pos(d.life) * 12) + ' เดือน)' : '',
-        status: R.payback === null ? 'short' : pos(d.life) ? (R.payback <= pos(d.life) * 12 ? 'ok' : 'short') : null, lever: 'price' });
-    }
+    P.key = T === 'hire' ? 'gain' : 'eqGain';
+    P.get = function (dd) { return n0(dd[P.key]); };
+    P.set = function (dd, v) { return withD(dd, P.key, Math.max(0, v)); };
+    P.q = T === 'hire' ? 'ต้อง' + gainWord(m) + 'เท่าไร ถึงจะคุ้มเงินเดือนคนใหม่' : 'ต้อง' + gainWord(m) + 'เท่าไร ถึงจะคุ้มค่าเครื่อง';
+    P.word = gainWord(m);
+    P.lo = 0;
   } else if (T === 'place') {
-    var cur2 = n0(inp[ROLE[m].vol]);
-    var needPct = solveFor(function (x) { return profitWith(withD(d, 'salesPct', x)); }, base, 0, 10, -100, 2000);
-    var r1 = { id: 'need', lever: 'salesPct', dir: 'min', unit: u, have: cur2 * (1 + n0(d.salesPct) / 100) };
-    if (needPct === null) Object.assign(r1, { status: 'short', label: salesWord(m) + 'ที่ใหม่ต้องเป็นเท่าไหร่', value: null, txt: 'ยอดเท่าไหร่ก็ไม่คุ้ม' });
-    else {
-      var nv = cur2 * (1 + needPct / 100);
-      Object.assign(r1, { label: 'ที่ใหม่ต้อง' + ({ rental: 'มีคนเช่า', subscription: 'มีสมาชิก', project: 'ได้งาน', commission: 'ปิดดีลได้', other: 'ได้เงิน' }[m] || (m === 'service' ? 'มีลูกค้า' : 'ขายได้')) + 'อย่างน้อย',
-        value: roundNeed(nv, m), sub: 'ถึงจะได้กำไรเท่าตอนนี้ (' + (needPct >= 0 ? 'มากกว่า' : 'น้อยกว่า') + 'ตอนนี้ ' + fmtPct(Math.abs(needPct)) + ')' });
-    }
-    C.push(r1);
-    C.push({ id: 'rent', label: 'ค่าเช่าที่ใหม่ จ่ายได้ไม่เกิน', value: Math.max(0, n0(d.newRent) + R.delta), unit: 'บาท/เดือน', dir: 'max', have: n0(d.newRent), lever: 'newRent',
-      sub: 'ถ้า' + salesWord(m) + 'เป็นไปตามที่คาด กำไรจะเท่าตอนนี้' });
-    if (R.one > 0) C.push({ id: 'pay', label: 'เงินค่าย้ายคืนทุน', value: R.payback, unit: 'เดือน', dir: 'info', payback: true, lever: 'moveCost',
-      sub: R.payback === null ? 'ตัวเลขแบบนี้ ที่ใหม่ได้เงินไม่มากกว่าที่เดิม เงินค่าย้ายจึงไม่คืนกลับมา' : 'นับจากเงินที่ได้เพิ่มจริงในแต่ละเดือน', status: R.payback === null ? 'short' : null });
+    P.key = 'salesPct';
+    P.get = function (dd) { return cur * (1 + n0(dd.salesPct) / 100); };
+    P.set = function (dd, v) { return withD(dd, 'salesPct', cur > 0 ? (v / cur - 1) * 100 : 0); };
+    P.verb = { rental: 'มีคนเช่า', subscription: 'มีสมาชิก', project: 'ได้งาน', commission: 'ปิดดีลได้', other: 'ได้เงิน' }[m] || (m === 'service' ? 'มีลูกค้า' : 'ขายได้');
+    P.q = 'ที่ใหม่ต้อง' + P.verb + 'เท่าไร ถึงจะคุ้ม';
+    P.word = salesWord(m) + 'ที่ใหม่';
+    P.lo = cur * 0.1;
+    P.now = cur;
   } else if (T === 'channel') {
-    var cu = channelUnit(inp, m, d);
-    var unitWord = { subscription: 'สมาชิก 1 คนต่อเดือน', project: 'งาน', rental: periodWord(inp) + 'ที่มีคนเช่า', commission: 'ดีล' }[m] || U(inp, m);
-    if (cu) C.push({ id: 'unit', label: 'ขายผ่าน' + (d.chName || 'ช่องทางนี้') + ' เหลือเงินต่อ' + unitWord, value: cu.ch, unit: 'บาท', dir: 'info',
-      sub: 'ขายเองเหลือ ' + fmtN(cu.own, 1) + ' บาท' + (cu.own > 0 && cu.ch < cu.own ? ' · น้อยกว่า ' + fmtPct((1 - cu.ch / cu.own) * 100) : ''), status: cu.ch <= 0 ? 'short' : null, lever: 'cut' });
-    var needQ = solveFor(function (x) { return profitWith(withD(d, 'chQty', x)); }, base, 0, Math.max(1, n0(d.chQty) || 10), 0, 1e7);
-    var p00 = profitWith(withD(d, 'chQty', 0));
-    if (p00 >= base - 0.5) needQ = 0;
-    C.push(needQ === null ? { id: 'need', label: 'ต้องขายผ่านช่องทางนี้เท่าไหร่ถึงจะคุ้ม', value: null, txt: 'ขายเท่าไหร่ก็ไม่คุ้ม', lever: 'chQty', status: 'short' }
-      : { id: 'need', label: 'ต้องขายผ่านช่องทางนี้อย่างน้อย', value: roundNeed(needQ, m), unit: m === 'rental' ? '% ของทั้งหมด' : u, dir: 'min', have: n0(d.chQty) > 0 ? n0(d.chQty) : null, lever: 'chQty',
-        sub: 'ถึงจะได้กำไรเท่าตอนนี้ หลังหักค่าใช้จ่ายของช่องทาง' + (n0(d.movePct) > 0 ? ' และลูกค้าเดิมที่ย้ายมา' : '') });
-    if (m !== 'commission' && cu) {
-      var pk = ROLE[m].price, curP = n0(inp[pk]);
-      var eqP = solveFor(function (x) { var u2 = channelUnit(inp, m, withD(d, 'chPrice', x)); return u2 ? u2.ch : 0; }, cu.own, curP, curP * 1.2 + 1, 0, curP * 50 + 1e5);
-      if (eqP !== null) C.push({ id: 'price', label: 'ราคาบนช่องทางที่เหลือเงินเท่าขายเอง', value: Math.ceil(eqP - 1e-9), unit: 'บาท', dir: 'min', have: pos(d.chPrice) || curP, lever: 'chPrice',
-        sub: 'ตอนนี้ขายเอง ' + fmtN(curP) + ' บาท' });
-    }
-    if (n0(d.chQty) > 0) {
-      var p100 = profitWith(withD(d, 'movePct', 100)), p0m = profitWith(withD(d, 'movePct', 0));
-      if (p0m < base - 0.5) { /* ลูกค้าใหม่ทั้งหมดก็ยังไม่คุ้ม — แถวนี้ไม่มีความหมาย */ }
-      else if (p100 >= base - 0.5) C.push({ id: 'move', label: 'ลูกค้าเดิมย้ายมาได้ไม่เกิน', value: 100, unit: '%', dir: 'max', have: n0(d.movePct), lever: 'movePct', sub: 'ต่อให้ลูกค้าเดิมย้ายมาทั้งหมด ก็ยังได้กำไรไม่น้อยกว่าตอนนี้' });
-      else {
-        var mx = solveFor(function (x) { return profitWith(withD(d, 'movePct', x)); }, base, 0, 50, 0, 100);
-        if (mx !== null) C.push({ id: 'move', label: 'ลูกค้าเดิมย้ายมาได้ไม่เกิน', value: Math.floor(mx), unit: '%', dir: 'max', have: n0(d.movePct), lever: 'movePct',
-          sub: 'ของคนที่ซื้อผ่านช่องทางนี้ ถ้าเกินกว่านี้ กำไรจะน้อยกว่าตอนนี้' });
-      }
-    }
-  } else if (T === 'branch') {
-    var nb = solveFor(function (x) { return profitWith(withD(d, 'bPct', x)); }, base, 0, 50, 0, 1000);
-    var cur3 = n0(inp[ROLE[m].vol]);
-    C.push(nb === null ? { id: 'need', label: 'สาขาต้องขายได้เท่าไหร่', value: null, txt: 'ขายเท่าไหร่ก็ไม่คุ้ม', lever: 'bPct', status: 'short' }
-      : { id: 'need', label: 'สาขาต้องมี' + salesWord(m) + 'อย่างน้อย', value: Math.ceil(nb - 1e-9), unit: '% ของร้านเดิม', dir: 'min', have: n0(d.bPct), lever: 'bPct',
-        sub: (m === 'rental' ? '= มีคนเช่า ' + fmtN(roundNeed(cur3 * nb / 100, m)) + '% ของ' + U(inp, m) + 'ทั้งหมดที่สาขา' : '= ' + fmtN(roundNeed(cur3 * nb / 100, m)) + ' ' + u) + ' ถึงจะได้กำไรเท่าตอนนี้ (ไม่ขาดทุนจากสาขา)' });
-    C.push({ id: 'pay', label: 'เงินลงทุนคืนทุน', value: R.payback, unit: 'เดือน', dir: 'info', payback: true, lever: 'setup',
-      sub: R.payback === null ? 'ตัวเลขแบบนี้ สาขายังไม่ได้เงินเพิ่มพอคืนเงินลงทุน' : 'นับจากเงินที่สาขาได้เพิ่มจริงในแต่ละเดือน', status: R.payback === null ? 'short' : null });
+    P.key = 'chQty';
+    P.get = function (dd) { return n0(dd.chQty); };
+    P.set = function (dd, v) { return withD(dd, 'chQty', Math.max(0, v)); };
+    P.q = 'ต้องขายผ่าน' + (d.chName || 'ช่องทางนี้') + 'เท่าไร ถึงจะคุ้ม';
+    P.word = 'ขายผ่าน' + (d.chName || 'ช่องทางนี้');
+    if (m === 'rental') P.unit = '% ของทั้งหมด';
+    P.lo = 0;
+  } else {
+    P.key = 'bPct';
+    P.get = function (dd) { return n0(dd.bPct); };
+    P.set = function (dd, v) { return withD(dd, 'bPct', Math.max(0, v)); };
+    P.q = 'สาขาต้องมี' + salesWord(m) + 'เท่าไร ถึงจะคุ้ม';
+    P.word = 'สาขามี' + salesWord(m);
+    P.unit = '% ของร้านเดิม';
+    P.lo = 0;
   }
-  /* เงินในมือ (ทุกเรื่อง) */
-  if (R.need > 0.5) C.push({ id: 'cash', label: R.B.hasCash ? 'ต้องหาเงินเพิ่มอย่างน้อย' : 'ต้องมีเงินเตรียมไว้อย่างน้อย', value: R.need, unit: 'บาท', dir: 'info', status: 'short', cash: true,
-    sub: R.B.hasCash ? 'ไม่อย่างนั้นเงินจะขาดมือ' + (R.lowT ? 'ในเดือน ' + monthLabel(R.lowT, true) : 'ตั้งแต่ตอนจ่ายเงินก้อนแรก') : 'ยังไม่ได้ใส่เงินสดที่มี · นี่คือเงินที่ต้องใช้ช่วงที่เงินออกมากกว่าเงินเข้า' });
-  C.forEach(function (c) {
-    if (c.status !== undefined || c.dir === 'info' || c.value === null || c.have === null || c.have === undefined) return;
-    c.status = c.dir === 'min' ? (c.have >= c.value - 1e-9 ? 'ok' : 'short') : (c.have <= c.value + 1e-9 ? 'ok' : 'short');
-  });
+  var base = compute(inp, m).profit;
+  var step = Math.max(1e-3, P.T === 'place' ? cur * 0.1 : Math.max(1, cur * 0.1));
+  if (T === 'branch') step = 10;
+  var be = breakEven(function (v) { return steady(inp, m, T, P.set(d, v)).profit; }, base, P.lo, step, P.T === 'branch' ? 1000 : Math.max(cur * 50, 1e6));
+  P.be = be;
+  P.need = be.kind === 'value' ? be.x : be.kind === 'zero' ? P.lo : null;
+  var ref = Math.max(P.get(d) || 0, P.need || 0, P.be.kind === 'max' ? P.be.x : 0, T === 'place' ? cur : 0, T === 'branch' ? 100 : phGain(inp, m));
+  P.hi = T === 'place' ? Math.max(cur * 1.6, ref * 1.3) : ref * 1.6;
+  if (m === 'rental' && (T === 'hire' || T === 'equip' || T === 'channel')) P.hi = Math.min(P.hi, Math.max(10, 100 - n0(inp.occupancy) + (T === 'channel' ? n0(inp.occupancy) : 0)));
+  P.step = niceStep(Math.max(P.hi - P.lo, 1) / 60);
+  if (isVolModel(m) && inp.volumePer !== 'month' && P.step < 1 && T !== 'branch') P.step = P.hi > 20 ? 1 : 0.5;
+  if (m === 'subscription' || m === 'rental' || T === 'branch') P.step = Math.max(1, Math.round(P.step));
+  P.hi = Math.ceil(P.hi / P.step) * P.step;
+  P.lo = Math.floor(P.lo / P.step) * P.step;
+  P.scen = { hire: [[0, 'ไม่ได้เลย'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], equip: [[0, 'ไม่ได้เลย'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']],
+    channel: [[0, 'ไม่มีคนซื้อ'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], place: [[0.8, 'ต่ำกว่าคาด 20%'], [0.9, 'ต่ำกว่าคาด 10%'], [1, 'ที่คุณคาด']],
+    branch: [[0.5, 'ครึ่งเดียว'], [0.8, 'ต่ำกว่าคาด 20%'], [1, 'ที่คุณคาด']] }[T];
+  return P;
+}
+function needText(P, m, inp, d) {
+  var b = P.be;
+  if (b.kind === 'always') return 'คุ้มไม่ว่า' + P.word + 'จะเป็นเท่าไร';
+  if (b.kind === 'zero') return P.T === 'place' ? 'ยอดลดลงได้มากก็ยังคุ้ม' : P.T === 'channel' ? 'ขายได้เท่าไรก็คุ้ม เพราะไม่มีค่าใช้จ่ายประจำของช่องทาง'
+    : P.T === 'equip' ? 'ไม่ต้องขายเพิ่มก็คุ้มแล้ว จากต้นทุนที่ลดลง' : 'ไม่ต้อง' + P.word + 'ก็คุ้มแล้ว';
+  if (b.why === 'rev' || b.kind === 'max') {
+    var cu = P.T === 'channel' ? channelUnit(inp, m, d) : null;
+    if (cu && cu.ch > 0) return 'ยิ่งขายผ่านช่องทางนี้มากยิ่งได้น้อยลง เพราะลูกค้าเดิมย้ายมามากเกินไป';
+    return 'ยิ่งขายมากยิ่งได้น้อยลง เพราะขายแล้วไม่เหลือเงิน';
+  }
+  if (b.why === 'flat') return m === 'rental' ? 'รับเพิ่มไม่ได้แล้ว เพราะคนเช่าเต็มทุก' + U(inp, m) : m === 'subscription' ? 'รับเพิ่มไม่ได้แล้ว เพราะสมาชิกเต็มที่รับได้' : 'เพิ่มเท่าไรกำไรก็ไม่ขยับ';
+  return 'เพิ่มเท่าไรก็ยังไม่คุ้ม';
+}
+
+/* ---------- สิ่งที่ต้องเป็นจริง ถึงจะคุ้ม ----------
+   แต่ละแถว: id · label · value · unit · have (ตัวเลขที่ใช้ดูอยู่) · status ok/short/info · sub · lever (ช่องที่ปรับได้) */
+function dConds(R, inp, m, T, d) {
+  var C = [], base = R.B.profit, P = dPivot(inp, m, T, d), u = P.unit;
+  function profitWith(dd) { return steady(inp, m, T, dd).profit; }
+  /* 1) จุดคุ้มของตัวเลขหลัก */
+  var nr = { id: 'need', lever: P.key, unit: u, have: P.have, raw: P.need };
+  if (P.be.kind === 'value') {
+    var shown = T === 'branch' ? Math.ceil(P.need - 1e-9) : roundNeed(P.need, m);
+    Object.assign(nr, { label: { place: 'ที่ใหม่ต้อง' + P.verb + 'อย่างน้อย', branch: 'สาขาต้องมี' + salesWord(m) + 'อย่างน้อย' }[T] || 'ต้อง' + P.word + 'อย่างน้อย', value: shown,
+      status: P.have >= P.need - 1e-6 ? 'ok' : 'short',
+      sub: T === 'place' ? 'ถึงจะได้กำไรเท่าตอนนี้ (' + (P.need >= P.now ? salesWord(m) + 'มากกว่าตอนนี้ ' : salesWord(m) + 'น้อยกว่าตอนนี้ ') + fmtPct(Math.abs(P.need / P.now - 1) * 100) + ')'
+        : T === 'branch' ? '= ' + (m === 'rental' ? 'มีคนเช่า ' + fmtN(roundNeed(n0(inp.occupancy) * P.need / 100, m)) + '% ของ' + U(inp, m) + 'ทั้งหมดที่สาขา' : fmtN(roundNeed(n0(inp[ROLE[m].vol]) * P.need / 100, m)) + ' ' + gainUnit(inp, m)) + ' ถึงจะได้กำไรเท่าตอนนี้'
+          : 'ถึงจะได้กำไรเท่าตอนนี้' });
+  } else {
+    if (P.be.kind === 'max') Object.assign(nr, { label: 'ต้อง' + (P.T === 'place' ? P.verb : P.word) + 'ไม่เกิน', value: roundDown(P.be.x, m), raw: P.be.x,
+      status: P.have <= P.be.x + 1e-6 ? 'ok' : 'short', sub: needText(P, m, inp, d) });
+    else Object.assign(nr, { label: P.q, value: null, txt: needText(P, m, inp, d), status: P.be.kind === 'never' ? 'short' : 'ok' });
+  }
+  C.push(nr);
+  /* 2) กำลังรับ */
+  if ((T === 'hire' || T === 'equip') && isVolModel(m) && pos(inp.capacity) && P.need !== null && P.need > 0) {
+    var capA = pos(R.st.b.x.capacity), room = capA - n0(inp.volume);
+    C.push({ id: 'room', label: (T === 'hire' && pos(d.capAdd) ? 'หลังจ้าง ' : T === 'equip' && pos(d.eqCap) ? 'หลังซื้อเครื่อง ' : '') + 'ร้านรับเพิ่มได้อีก', value: Math.max(0, room), unit: u,
+      status: room >= P.need - 1e-6 ? 'ok' : 'short', sub: room >= P.need ? 'พอสำหรับยอดที่ต้อง' + gainWord(m) : 'ไม่พอสำหรับยอดที่ต้อง' + gainWord(m) + ' ' + fmtN(roundNeed(P.need, m)) + ' ' + u,
+      lever: T === 'hire' ? 'capAdd' : 'eqCap' });
+  }
+  /* 3) ค่าเช่าที่ใหม่สูงสุด */
+  if (T === 'place') C.push({ id: 'rent', label: 'ค่าเช่าที่ใหม่ จ่ายได้ไม่เกิน', value: Math.max(0, n0(d.newRent) + R.delta), unit: 'บาท/เดือน', have: n0(d.newRent), lever: 'newRent',
+    status: R.delta >= -0.5 ? 'ok' : 'short', sub: 'ถ้า' + salesWord(m) + 'ที่ใหม่เป็นอย่างที่ดูอยู่ · ตอนนี้ใส่ไว้ ' + fmtN(n0(d.newRent)) + ' บาท' });
+  /* 4) ลูกค้าเดิมย้ายมาได้ไม่เกิน */
+  if (T === 'channel' && n0(d.chQty) > 0) {
+    var p100 = profitWith(withD(d, 'movePct', 100)), p0m = profitWith(withD(d, 'movePct', 0));
+    if (p0m >= base - 0.5) {
+      var mx = p100 >= base - 0.5 ? 100 : solveFor(function (x) { return profitWith(withD(d, 'movePct', x)); }, base, 0, 50, 0, 100);
+      if (mx !== null) C.push({ id: 'move', label: 'ลูกค้าเดิมย้ายมาได้ไม่เกิน', value: Math.floor(mx + 1e-9), unit: '% ของคนที่ซื้อผ่านช่องทางนี้', have: n0(d.movePct), lever: 'movePct',
+        status: n0(d.movePct) <= mx + 1e-6 ? 'ok' : 'short', sub: mx >= 100 ? 'ต่อให้ลูกค้าเดิมย้ายมาทั้งหมด ก็ยังได้กำไรไม่น้อยกว่าตอนนี้' : 'ถ้าเกินกว่านี้ กำไรจะน้อยกว่าตอนนี้ · ตอนนี้ใส่ไว้ ' + fmtN(n0(d.movePct)) + '%' });
+    }
+  }
+  /* 5) คืนทุน */
+  if (R.one > 0) {
+    var life = T === 'equip' && pos(d.life) ? pos(d.life) * 12 : null;
+    C.push({ id: 'pay', label: { place: 'เงินค่าย้ายคืนทุนใน', equip: 'ค่าเครื่องคืนทุนใน', branch: 'เงินลงทุนสาขาคืนทุนใน' }[T], value: R.payback, unit: 'เดือน', payback: true,
+      lever: { place: 'moveCost', equip: 'price', branch: 'setup' }[T],
+      status: R.payback === null || R.payback > 120 ? 'short' : life ? (R.payback <= life ? 'ok' : 'short') : 'info',
+      sub: R.payback === null ? 'ตัวเลขแบบนี้ เงินที่ได้เพิ่มแต่ละเดือนยังไม่พอคืนเงินก้อน ' + fmtN(R.one) + ' บาท'
+        : life ? 'เครื่องใช้ได้ ' + fmtN(life) + ' เดือน · ' + (R.payback <= life ? 'คืนทุนก่อนหมดอายุ' : 'หมดอายุก่อนคืนทุน') : 'นับจากเงินที่ได้เพิ่มจริงในแต่ละเดือน เทียบกับไม่ทำ' });
+  }
+  /* 6) เงินในมือ */
+  if (R.need > 0.5) C.push({ id: 'cash', label: R.B.hasCash ? 'ต้องหาเงินเพิ่มอย่างน้อย' : 'ต้องมีเงินเตรียมไว้อย่างน้อย', value: R.need, unit: 'บาท', status: 'short', cash: true, lever: null,
+    sub: R.B.hasCash ? 'มีอยู่ ' + fmtN(R.cashStart) + ' บาท · ไม่อย่างนั้นเงินจะขาดมือ' + (R.lowT ? 'ในเดือน ' + monthLabel(R.lowT, true) : 'ตั้งแต่ตอนจ่ายเงินก้อน') : 'ยังไม่ได้ใส่เงินสดที่มี นี่คือเงินที่ต้องใช้ช่วงที่เงินออกมากกว่าเงินเข้า' });
+  else if (R.B.hasCash) C.push({ id: 'cash', label: 'เงินในมือไม่ติดลบ ต่ำสุด', value: R.low, unit: 'บาท', status: 'ok', cash: true, lever: null,
+    sub: R.lowT ? 'ในเดือน ' + monthLabel(R.lowT, true) : R.one > 0 ? 'ตอนจ่ายเงินก้อน' : 'เงินในมือไม่ลดลงจากตอนนี้' });
+  /* 7) จ่ายเพื่อได้เวลาคืน */
+  if (T === 'hire' && n0(d.hours) > 0) {
+    var days = pos(inp.daysOpen) || 26;
+    C.push({ id: 'hour', label: 'จ่ายเพื่อได้เวลาของคุณคืน ชั่วโมงละ', value: n0(d.count) * n0(d.salary) / (n0(d.hours) * days), unit: 'บาท', status: 'info', lever: 'hours',
+      sub: 'เงินเดือนคนใหม่ ÷ ' + fmtN(n0(d.hours)) + ' ชั่วโมง × ' + fmtN(days) + ' วัน' });
+  }
   return C;
 }
 
-/* ---------- ถ้าไม่เป็นอย่างที่คาด ---------- */
-var SCEN = {
-  hire: [[1, 'ได้ตามที่คาด'], [0.5, 'ได้ครึ่งเดียว'], [0, 'ไม่ได้ขายเพิ่มเลย']],
-  place: [[1, 'ได้ตามที่คาด'], [0.9, 'ต่ำกว่าที่คาด 10%'], [0.8, 'ต่ำกว่าที่คาด 20%']],
-  channel: [[1, 'ได้ตามที่คาด'], [0.5, 'ได้ครึ่งเดียว'], [0, 'ไม่มีคนซื้อผ่านช่องทางนี้']],
-  equip: [[1, 'ได้ผลตามที่คาด'], [0.5, 'ได้ผลครึ่งเดียว'], [0, 'ไม่ได้ผลเลย']],
-  branch: [[1, 'ได้ตามที่คาด'], [0.8, 'ต่ำกว่าที่คาด 20%'], [0.5, 'ได้ครึ่งเดียว']]
-};
-function hasExpectation(T, d) {
-  if (T === 'hire') return n0(d.gain) > 0;
-  if (T === 'equip') return n0(d.eqGain) > 0 || n0(d.costDown) > 0 || n0(d.fixedChg) < 0;
-  return true;
-}
-function dScenarios(inp, m, T, d) {
-  if (!hasExpectation(T, d)) return [];
-  return SCEN[T].map(function (s) {
-    var R = dEval(inp, m, T, d, { f: s[0] });
-    return R.ok ? { f: s[0], label: s[1], profit: R.profit, delta: R.delta, low: R.low, lowT: R.lowT, payback: R.payback, one: R.one } : null;
+/* ---------- ถ้าไม่เป็นอย่างที่คาด (ใช้กับปุ่มบนแถบลาก) ---------- */
+function dScenarios(inp, m, T, d, P) {
+  P = P || dPivot(inp, m, T, d);
+  if (!(P.have > 0)) return [];
+  return P.scen.map(function (s) {
+    var v = P.have * s[0], R = dEval(inp, m, T, P.set(d, v));
+    return R.ok ? { f: s[0], label: s[1], v: v, profit: R.profit, delta: R.delta, low: R.low, need: R.need, payback: R.payback, one: R.one } : null;
   }).filter(Boolean);
 }
 
@@ -398,4 +523,18 @@ function fmtMonths(x) {
   if (x > 120) return 'เกิน 10 ปี';
   if (x < 1) return 'ไม่ถึง 1 เดือน';
   return fmtN(Math.ceil(x - 1e-9)) + ' เดือน';
+}
+/* ตัวเลขย่อ: ต่ำกว่า 1 แสนแสดงเต็ม · ปัดแล้วถึง 10 ให้ขึ้นหน่วยถัดไป (ไม่มี "10 หมื่น") */
+function fmtCompact(n) {
+  var a = Math.abs(n), s = n < -0.5 ? '−' : '';
+  if (a < 1e5) return s + fmtN(a);
+  var units = [[1e6, 'ล้าน'], [1e5, 'แสน']];
+  for (var i = 0; i < units.length; i++) {
+    var v = Math.round(a / units[i][0] * 10) / 10;
+    if (a >= units[i][0] * 0.995) {
+      if (units[i][1] === 'แสน' && v >= 10) return s + '1 ล้าน';
+      return s + v.toLocaleString('th-TH') + ' ' + units[i][1];
+    }
+  }
+  return s + fmtN(a);
 }

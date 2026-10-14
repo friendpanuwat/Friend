@@ -1,5 +1,5 @@
 /* ไล่ทุกหน้า ทุกรูปแบบร้าน × ทุกเรื่อง บนจอมือถือ ทั้งโหมดสว่าง (360) และมืด (390)
-   ผล → ลองเปลี่ยนตัวเลข (เลื่อนทุกแถบสุดซ้ายขวา) → เช็กความพร้อม → จุดที่ควรเช็ก · และกรอกจริงด้วยการแตะ 3 เส้นทาง
+   ผล → ลากแถบจุดคุ้ม → ปรับตัวเลข (เลื่อนทุกแถบสุดซ้ายขวา) → เช็กความพร้อม → จุดที่ควรเช็ก · และกรอกจริงด้วยการแตะ 3 เส้นทาง
    ตรวจ: ไม่มี error, ไม่มี NaN/undefined/Infinity บนจอ, ไม่มีอะไรล้นจอ, ปุ่มสูงอย่างน้อย 44px · รัน: node tests/flows.js (ต้อง ./build.sh ก่อน) */
 const fs = require('fs'), path = require('path');
 const { open, overflow, shot } = require('./harness');
@@ -40,7 +40,15 @@ async function check(page, label) {
         const view = await page.evaluate(() => window.__lab3.state.view);
         if (view !== 'result') { bad++; console.log('  PROBLEM', label, 'view', view); continue; }
         bad += await check(page, label + ' result');
-        await page.click('.dpanel [data-act="lab"]');
+        /* ลากแถบจุดคุ้มสุดซ้าย สุดขวา แล้วกดปุ่มกรณีต่าง ๆ */
+        await page.evaluate(() => {
+          const r = document.querySelector('#pvr');
+          if (r) for (const v of [r.max, r.min, (+r.max + +r.min) / 2]) { r.value = v; r.dispatchEvent(new Event('input', { bubbles: true })); r.dispatchEvent(new Event('change', { bubbles: true })); }
+        });
+        await page.waitForTimeout(60);
+        for (const b of await page.$$('.pv-chips .sc')) { await b.click(); await page.waitForTimeout(40); }
+        bad += await check(page, label + ' result-whatif');
+        await page.click('.lane-cta [data-act="lab"]');
         await page.evaluate(() => {
           for (const r of document.querySelectorAll('input[type="range"]')) {
             r.value = r.max; r.dispatchEvent(new Event('input', { bubbles: true }));
@@ -72,9 +80,11 @@ async function check(page, label) {
       }
       const d = genDec(ctx, T, inp, m);
       for (let s = 0; s < 6; s++) {
-        const keys = await page.$$eval('.qfields input[data-dk]', els => els.filter(e => !e.closest('[hidden]')).map(e => e.getAttribute('data-dk')));
-        for (const kk of keys) if (typeof d[kk] === 'number') await page.fill(`[data-dk="${kk}"]`, String(d[kk]));
-        if (await page.$('[data-act="dpick"][data-k="ramp"][data-v="3"]')) await page.click('[data-act="dpick"][data-k="ramp"][data-v="3"]');
+        for (let pass = 0; pass < 2; pass++) {
+          const keys = await page.$$eval('.qfields input[data-dk]', els => els.filter(e => !e.closest('[hidden]')).map(e => e.getAttribute('data-dk')));
+          for (const kk of keys) if (typeof d[kk] === 'number') await page.fill(`[data-dk="${kk}"]`, String(d[kk]));
+        }
+        if (await page.$('[data-act="dpick"][data-v="3"]')) await page.click('[data-act="dpick"][data-v="3"]');
         bad += await check(page, `${w} typed ${m}/${T} q${s}`);
         if (await page.$('#foot [data-act="d-done"]:not([disabled])')) { await page.click('#foot [data-act="d-done"]'); break; }
         await page.click('#foot [data-act="d-next"]');

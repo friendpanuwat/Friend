@@ -1,6 +1,7 @@
 /* ============================================================
-   UI — เริ่ม (เลือกเรื่อง) → ตัวเลขร้าน (ครั้งเดียว ใช้ได้ทุกเรื่อง) → คำถามของเรื่อง (เห็นผลสดด้านบน)
-   → ผล: ไม่ทำ กับ ทำ · เงื่อนไขที่ทำให้คุ้ม · ถ้าไม่เป็นอย่างที่คาด · เงินสด 12 เดือน · เช็กความพร้อม → เครื่องมือ PL1 / แผนธุรกิจ PL2
+   UI ตัวที่ 3 — รูปแบบหน้าจอของตัวเอง (สี ฟอนต์ และส่วนกรอกตัวเลขร้านใช้ชุดเดียวกับตัวที่ 1)
+   เริ่ม "กำลังคิดจะ…" → ตัวเลขร้าน (ครั้งเดียว) → คำถามของเรื่อง (เห็น ไม่ทำ | ทำ สด)
+   → ผล: สองเส้นทาง ไม่ทำ | ทำ · แถบลากหาจุดคุ้ม · สิ่งที่ต้องเป็นจริง · ขั้นต่อไป (PL1 / PL2) · เงินในมือ 12 เดือน · กำไรเปลี่ยนเพราะอะไร
    ============================================================ */
 (function () {
   'use strict';
@@ -15,7 +16,12 @@
     moon: P('<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>'),
     sun: P('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-2.93 1.41-1.41M17.66 6.34l1.41-1.41M2 12h2m16 0h2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41"/>'),
     sliders: P('<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>'),
-    info: P('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>')
+    info: P('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>'),
+    alert: P('<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>'),
+    ok: P('<path d="M20 6 9 17l-5-5"/>'),
+    no: P('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'),
+    dot: P('<circle cx="12" cy="12" r="3"/>'),
+    undo: P('<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>')
   };
   var TICON = {
     hire: P('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>'),
@@ -37,7 +43,7 @@
 
   var state = {
     view: 'start', topic: null, model: null, inp: {}, isSample: false, step: 0, editing: false, dstep: 0, dediting: false,
-    ds: {}, trial: {}, active: null, answers: {}, qidx: 0, feeHelp: false, fh: { share: '', rate: '' }
+    ds: {}, wi: {}, dsign: {}, labOrig: null, active: null, answers: {}, qidx: 0, feeHelp: false, fh: { share: '', rate: '' }
   };
   var app;
 
@@ -56,28 +62,21 @@
     var key = state.topic + '|' + state.model + '|' + JSON.stringify(state.inp) + '|' + JSON.stringify(d);
     if (emo.has(key)) return emo.get(key);
     var R = dEval(state.inp, state.model, state.topic, d);
-    if (R.ok) R.conds = dConds(R, state.inp, state.model, state.topic, d);
-    if (emo.size > 200) emo.clear();
+    if (R.ok) { R.conds = dConds(R, state.inp, state.model, state.topic, d); R.P = dPivot(state.inp, state.model, state.topic, d); }
+    if (emo.size > 300) emo.clear();
     emo.set(key, R);
     return R;
   }
-  var smo = new Map();
-  function SC(d) {
-    var key = state.topic + '|' + JSON.stringify(state.inp) + '|' + JSON.stringify(d);
-    if (smo.has(key)) return smo.get(key);
-    var s = dScenarios(state.inp, state.model, state.topic, d);
-    if (smo.size > 50) smo.clear();
-    smo.set(key, s);
-    return s;
-  }
   function dec() { if (!state.ds[state.topic]) state.ds[state.topic] = Object.assign({}, DEC_DEFAULT[state.topic]); return state.ds[state.topic]; }
-  function trialD() { return Object.assign({}, dec(), state.trial); }
-  function hasTrial() { return Object.keys(state.trial).length > 0; }
+  function piv() { return dPivot(state.inp, state.model, state.topic, dec()); }
+  /* ตัวเลขที่กำลังดู: ค่าบนแถบลาก (ถ้าลากอยู่) หรือค่าที่ใส่ไว้ */
+  function wiVal() { var w = state.wi[state.topic]; return w === undefined || w === null ? null : w; }
+  function viewD() { var w = wiVal(); return w === null ? dec() : piv().set(dec(), w); }
 
   /* ---------- persistence & theme ---------- */
   function snapshot() {
     return { view: state.view, topic: state.topic, model: state.model, inp: state.inp, isSample: state.isSample, step: state.step, editing: state.editing,
-      dstep: state.dstep, dediting: state.dediting, ds: state.ds, trial: state.trial, active: state.active, answers: state.answers, qidx: state.qidx };
+      dstep: state.dstep, dediting: state.dediting, ds: state.ds, wi: state.wi, dsign: state.dsign, active: state.active, answers: state.answers, qidx: state.qidx };
   }
   function save() { try { sessionStorage.setItem('lab3', JSON.stringify(snapshot())); } catch (e) { /* ignore */ } }
   function restore(d) {
@@ -85,8 +84,7 @@
     if (d.model && !MODELS[d.model]) return;
     if (d.topic && !TOPICS[d.topic]) return;
     Object.assign(state, d);
-    if (!state.model && ['wizard', 'dq', 'result', 'lab', 'ask', 'points', 'review'].indexOf(state.view) >= 0) state.view = 'start';
-    if (!state.topic && ['dq', 'result', 'lab', 'ask', 'points'].indexOf(state.view) >= 0) state.view = 'start';
+    state.wi = state.wi || {}; state.dsign = state.dsign || {};
   }
   function themeNow() {
     var t = document.documentElement.getAttribute('data-theme');
@@ -107,16 +105,27 @@
     $$('[data-anim]', root).forEach(function (el) {
       var key = el.getAttribute('data-anim'), to = +el.getAttribute('data-v'), dc = +el.getAttribute('data-dec');
       var from = shown[key]; shown[key] = to;
-      if (from === undefined || Math.abs(from - to) < 0.5 || reduced) { el.textContent = fmtN(Math.abs(to), dc); return; }
-      var t0 = performance.now(), dur = 450;
+      if (from === undefined) from = 0;
+      if (Math.abs(from - to) < 0.5 || reduced) { el.textContent = fmtN(Math.abs(to), dc); return; }
+      var t0 = performance.now(), dur = 520;
       (function tick(t) {
         var p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
         el.textContent = fmtN(Math.abs(from + (to - from) * e), dc);
         if (p < 1 && el.isConnected) requestAnimationFrame(tick);
       })(t0);
     });
+    /* เส้นกราฟค่อย ๆ วาด (ไม่วาดใหม่ระหว่างลากแถบ) */
+    if (!reduced && !$('main.live')) $$('path.draw', root).forEach(function (p) {
+      var L = p.getTotalLength ? p.getTotalLength() : 0;
+      if (!L) return;
+      p.style.strokeDasharray = L; p.style.strokeDashoffset = L;
+      p.getBoundingClientRect();
+      p.style.transition = 'stroke-dashoffset 900ms cubic-bezier(.3,.7,.2,1)';
+      p.style.strokeDashoffset = 0;
+    });
   }
   function signed(v) { return (v < -0.5 ? '−' : v > 0.5 ? '+' : '') + fmtN(Math.abs(v)); }
+  function plain(v) { return (v < -0.5 ? '−' : '') + fmtN(Math.abs(v)); }
   function dirSpan(v, txt) { return '<span class="' + (v > 0.5 ? 'up' : v < -0.5 ? 'down' : '') + '">' + txt + '</span>'; }
   function bar(left, title, sub, right) {
     return '<header class="bar"><div class="wrap">' + (left || '<span class="spacer44"></span>') +
@@ -124,40 +133,50 @@
       (right || '') + '<button class="ib" data-act="theme" aria-label="สลับโหมดมืดและสว่าง">' + (themeNow() === 'dark' ? ICON.sun : ICON.moon) + '</button></div></header>';
   }
   function backBtn(act, label) { return '<button class="ib" data-act="' + act + '" aria-label="' + (label || 'ย้อนกลับ') + '">' + ICON.back + '</button>'; }
-  function T() { return TOPICS[state.topic]; }
+  function nf(v, u) { return fmtN(v, Math.abs(v) < 10 && Math.round(v) !== v ? 1 : 0) + (u ? ' ' + u : ''); }
 
-  /* ============================================================ START */
-  function demoNumbers() {
+  /* ============================================================ START — "กำลังคิดจะ…" */
+  var teaserCache = null;
+  function teasers() {
+    if (teaserCache) return teaserCache;
     var inp = JSON.parse(JSON.stringify(MODELS.unit.sample)); inp.volumePer = 'day';
-    var R = dEval(inp, 'unit', 'hire', SAMPLE_DEC.hire);
-    if (!R.ok) return null;
-    var c = dConds(R, inp, 'unit', 'hire', SAMPLE_DEC.hire).filter(function (x) { return x.id === 'need'; })[0];
-    return c && c.value ? c.value : null;
+    var out = {};
+    TOPIC_ORDER.forEach(function (t) {
+      var d = SAMPLE_DEC[t], R = dEval(inp, 'unit', t, d);
+      if (!R.ok) return;
+      var Cn = dConds(R, inp, 'unit', t, d), need = Cn.filter(function (c) { return c.id === 'need'; })[0];
+      if (t === 'hire') out[t] = ['เงินเดือน 12,000 บาท ต้องขายเพิ่ม', need.value, 'แก้ว/วัน ถึงจะคุ้ม'];
+      if (t === 'place') out[t] = ['ค่าเช่าใหม่ 26,000 บาท ที่ใหม่ต้องขายได้', need.value, 'แก้ว/วัน'];
+      if (t === 'channel') { var cu = channelUnit(inp, 'unit', d); out[t] = ['ขายผ่านแอป เหลือเงินแก้วละ', cu.ch, 'บาท (ขายเอง ' + fmtN(cu.own, 1) + ')']; }
+      if (t === 'equip') out[t] = ['เครื่อง 120,000 บาท คืนทุนใน', Math.ceil(R.payback), 'เดือน'];
+      if (t === 'branch') out[t] = ['ต้องหาเงินเพิ่ม', Math.round(R.need / 1000) * 1000, 'บาท ช่วงสาขาตั้งตัว'];
+    });
+    teaserCache = out;
+    return out;
   }
   function topicRows(exclude) {
-    return '<div class="trows">' + TOPIC_ORDER.filter(function (t) { return t !== exclude; }).map(function (t) {
-      var ok = !state.model || topicOk(t, state.model);
-      return '<button class="trow" data-act="topic" data-t="' + t + '"' + (ok ? '' : ' aria-disabled="true"') + '><span class="ic">' + TICON[t] + '</span>' +
-        '<span class="tt"><b>' + esc(TOPICS[t].tile) + '</b><small>' + esc(ok ? TOPICS[t].ex : 'ยังไม่มีสำหรับร้านแบบ' + MODELS[state.model].tile) + '</small></span>' + ICON.chev + '</button>';
+    var tz = teasers();
+    return '<div class="qcards">' + TOPIC_ORDER.filter(function (t) { return t !== exclude; }).map(function (t, i) {
+      var ok = !state.model || topicOk(t, state.model), tz1 = tz[t];
+      return '<button class="qc rise" style="--d:' + i + '" data-act="topic" data-t="' + t + '"' + (ok ? '' : ' aria-disabled="true"') + '><span class="qc-ic">' + TICON[t] + '</span>' +
+        '<span class="qc-b"><b>' + esc(TOPICS[t].q) + '</b>' +
+        (ok ? (tz1 && !exclude ? '<small>ร้านกาแฟตัวอย่าง · ' + esc(tz1[0]) + ' <em>' + anim('tz' + t, tz1[1], tz1[1] < 100 && Math.round(tz1[1]) !== tz1[1] ? 1 : 0) + '</em> ' + esc(tz1[2]) + '</small>' : '')
+          : '<small>ยังไม่มีสำหรับร้านแบบ' + esc(MODELS[state.model].tile) + '</small>') + '</span>' + ICON.chev + '</button>';
     }).join('') + '</div>';
   }
   function viewStart() {
-    var need = demoNumbers();
     var out = bar(null, 'เช็กก่อนตัดสินใจเรื่องใหญ่', 'Business Lab') + '<main class="screen"><div class="wrap">' +
-      '<section class="panel start-hero"><h1>ก่อนจ่ายเงินก้อนใหญ่<br>รู้ก่อนว่าคุ้มไหม</h1>' +
-      '<p>เทียบร้านคุณตอนนี้ กับถ้าตัดสินใจทำ ทั้งกำไร เงินสด และเวลาคืนทุน ลองบนตัวเลขก่อน ไม่เสียเงินสักบาท</p>' +
-      (need ? '<div class="demo"><span class="k">ร้านกาแฟตัวอย่าง · ถ้าจ้างพนักงานเพิ่ม 1 คน เงินเดือน 12,000 บาท</span><span></span>' +
-        '<span class="v">' + fmtN(need) + '<small> แก้ว/วัน</small></span><span></span>' +
-        '<span class="note">ต้องขายเพิ่มอย่างน้อยเท่านี้ ถึงจะได้กำไรเท่าเดิม</span></div>' : '') +
-      '<div class="cta"><button class="btn on-panel block" data-act="sample">ลองกับร้านตัวอย่าง' + ICON.next + '</button></div></section>';
+      '<section class="st3"><h1>กำลังคิดจะ…</h1><p>เลือกเรื่องที่คิดอยู่ แล้วดูว่าต้องขายเท่าไรถึงจะคุ้ม เงินพอไหม และคืนทุนเมื่อไร ลองบนตัวเลขก่อน ไม่เสียเงินสักบาท</p></section>' +
+      topicRows(null);
     if (state.model) {
       var S = C(state.inp, state.model);
       out += '<div class="shopline"><span><b>' + (state.isSample ? 'ร้านกาแฟตัวอย่าง' : 'ร้านคุณ') + '</b> · ' + esc(MODELS[state.model].tile) +
         (S.ok ? ' · ' + (S.profit < 0 ? 'ขาดทุน ' : 'กำไร ') + fmtN(Math.abs(S.profit)) + ' บาท/เดือน' : '') + '</span>' +
         '<button class="lnk" data-act="shop-edit">' + (state.isSample ? 'ใส่ร้านคุณ' : 'แก้ตัวเลขร้าน') + '</button></div>';
+    } else {
+      out += '<button class="btn ghost block sample-btn" data-act="sample">ดูตัวอย่างกับร้านกาแฟก่อน' + ICON.next + '</button>';
     }
-    out += '<div class="sec-h"><h2>คุณกำลังคิดเรื่องไหน</h2></div>' + topicRows(null) +
-      '<p class="fine">ไม่ต้องสมัคร ตัวเลขอยู่ในเครื่องคุณเท่านั้น และหายไปเมื่อปิดหน้านี้ · ใส่ตัวเลขร้านครั้งเดียว ลองได้ทุกเรื่อง · คำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua</p>';
+    out += '<p class="fine">ใส่ตัวเลขร้านครั้งเดียว (ประมาณ 3 นาที) แล้วลองได้ทุกเรื่อง · ไม่ต้องสมัคร ตัวเลขอยู่ในเครื่องคุณเท่านั้น และหายไปเมื่อปิดหน้านี้ · คำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua</p>';
     return out + '</div></main>';
   }
 
@@ -169,10 +188,10 @@
       return '<button class="tile" data-act="model" data-m="' + k + '"' + (ok ? '' : ' disabled aria-disabled="true"') + '><span class="ic">' + MICON[k] + '</span><span class="t">' + MODELS[k].tile + '</span><span class="ex">' + (ok ? MODELS[k].short : 'ยังไม่มีเรื่องนี้') + '</span></button>';
     }).join('');
     return bar(backBtn('to-start'), t ? TOPICS[t].title : 'ตัวเลขร้าน', 'ขั้นแรก') + '<main class="screen"><div class="wrap">' +
-      '<div class="q-head"><h1>ก่อนอื่น ขอตัวเลขร้านคุณตอนนี้</h1><p>ใช้เทียบว่าถ้าตัดสินใจแล้ว ร้านจะเปลี่ยนไปเท่าไหร่ กรอกครั้งเดียว ใช้ได้กับทุกเรื่อง ประมาณ 3 นาที</p></div>' +
+      '<div class="q-head"><h1>ก่อนอื่น ขอตัวเลขร้านคุณตอนนี้</h1><p>ใช้เทียบว่าถ้าตัดสินใจแล้ว ร้านจะเปลี่ยนไปเท่าไร กรอกครั้งเดียว ใช้ได้กับทุกเรื่อง ประมาณ 3 นาที</p></div>' +
       '<p class="muted" style="margin:18px 2px 12px;font-size:15px;font-weight:600">ร้านคุณได้เงินจากอะไรเป็นหลัก</p>' +
       '<div class="tiles">' + tiles + '</div>' +
-      '<div class="alt"><span>ยังไม่อยากกรอก?</span><button class="lnk" data-act="sample">ลองกับร้านกาแฟตัวอย่างก่อน</button></div></div></main>';
+      '<div class="alt"><span>ยังไม่อยากกรอก?</span><button class="lnk" data-act="sample">ดูตัวอย่างกับร้านกาแฟก่อน</button></div></div></main>';
   }
 
   /* ============================================================ WIZARD (ตัวเลขร้าน — ขั้นเดียวกับตัวที่ 1) */
@@ -334,17 +353,16 @@
 
   /* ============================================================ คำถามของเรื่องที่กำลังคิด */
   function dDef(k) { return DFIELDS[k]; }
+  function dGet(d, k) { return d[dKey(k)]; }
   function dShown(k, d) { var f = dDef(k); return !f.show || f.show(state.inp, state.model, d || dec()); }
-  function dMax(k) { var f = dDef(k); return f.max !== undefined ? f.max : (f.t === 'pct' ? 100 : null); }
+  function dMax(k) { var f = dDef(k); var mx = typeof f.max === 'function' ? f.max(state.inp, state.model) : f.max; return mx !== undefined ? mx : (f.t === 'pct' ? 100 : null); }
   function dErr(k, d) {
-    var f = dDef(k), v = num((d || dec())[k]);
+    var f = dDef(k), v = num(dGet(d || dec(), k));
     if (v === null) return '';
-    var mx = dMax(k);
-    if (mx !== null && v > mx) return 'ใส่ได้ไม่เกิน ' + fmtN(mx) + (f.t === 'pct' || f.t === 'pctchips' ? '%' : '');
-    if (k === 'salesPct' && v < -90) return 'ใส่ได้ต่ำสุด −90%';
-    if (k === 'life' && !(v > 0)) return 'ต้องมากกว่า 0';
+    var mx = dMax(k), pctish = f.t === 'pct' || (f.suf && f.suf(state.inp, state.model, d || dec()).charAt(0) === '%');
+    if (mx !== null && v > mx) return 'ใส่ได้ไม่เกิน ' + fmtN(mx) + (pctish ? '%' : k === 'closedDays' ? ' วัน (วันที่เปิดร้านต่อเดือน)' : '');
+    if (f.min !== undefined && v < f.min) return k === 'salesPct' ? 'น้อยลงได้ไม่เกิน ' + fmtN(-f.min) + '%' : 'ต้องไม่น้อยกว่า ' + fmtN(f.min);
     if (k === 'fixedChg' && v < -fixedTotal(state.inp)) return 'ลดได้ไม่เกินค่าใช้จ่ายคงที่ทั้งหมดของร้าน (' + fmtN(fixedTotal(state.inp)) + ' บาท)';
-    if (k === 'movePct' && v > 100) return 'ใส่ได้ไม่เกิน 100%';
     return '';
   }
   function dStepValid(st, d) {
@@ -353,8 +371,8 @@
       if (!dShown(k, d)) return true;
       if (dErr(k, d)) return false;
       var f = dDef(k);
-      if (f.req) return num(d[k]) !== null;
-      if (f.t === 'count') return num(d[k]) >= (f.min || 1);
+      if (f.req) return num(dGet(d, k)) !== null;
+      if (f.t === 'count') return num(dGet(d, k)) >= (f.min || 1);
       return true;
     });
   }
@@ -365,6 +383,17 @@
     var v = f.ph(state.inp, state.model);
     if (typeof v !== 'number' || !(v > 0)) return '';
     return 'เช่น ' + (v >= 1000 ? Math.round(v).toLocaleString('th-TH') : fmtN(v, 1));
+  }
+  function quickHtml(k, f, d) {
+    if (!f.quick) return '';
+    var cur = num(dGet(d, k));
+    var items = f.quick.map(function (q, i) {
+      var v = q[1](state.inp, state.model);
+      if (v === null || v === undefined) return '';
+      var lab = q[0] + (q[0].indexOf('เท่า') === 0 && v > 0 && !/%/.test(q[0]) ? ' (' + fmtN(v) + ')' : '');
+      return '<button type="button" class="chip" data-act="dquick" data-k="' + k + '" data-i="' + i + '" aria-pressed="' + (cur !== null && Math.abs(cur - v) < 1e-9) + '">' + esc(lab) + '</button>';
+    }).join('');
+    return items ? '<div class="chips quick">' + items + '</div>' : '';
   }
   function dFieldHtml(k) {
     var f = dDef(k), m = state.model, inp = state.inp, d = dec();
@@ -382,46 +411,44 @@
         '<button type="button" class="stp" data-act="dcount" data-k="' + k + '" data-dir="1" aria-label="เพิ่ม"' + (c >= f.max ? ' disabled' : '') + '>+</button></div>' + help + '</div>';
     }
     if (f.t === 'ramp') {
-      var rv = Math.round(n0(d[k]));
-      return '<div class="field" data-df="' + k + '"' + hidden + '><span class="lab">' + lab + '</span><div class="seg wrapseg" role="group" aria-label="' + lab + '">' + f.opts.map(function (o) {
-        return '<button type="button" data-act="dpick" data-k="' + k + '" data-v="' + o + '" aria-pressed="' + (rv === o || (o === f.opts[0] && rv < f.opts[0])) + '"' + (o ? ' aria-label="' + o + ' เดือน"' : '') + '>' + (o === 0 ? 'ทันที' : o) + '</button>';
-      }).join('') + '</div>' + help + '</div>';
+      var raw = num(dGet(d, k)), rv = raw === null ? null : Math.round(raw);
+      return '<div class="field" data-df="' + k + '"' + hidden + '><span class="lab" id="lab-' + k + '">' + lab + '</span><div class="seg wrapseg" role="group" aria-labelledby="lab-' + k + '">' + f.opts.map(function (o) {
+        var on = rv === o || (!f.req && rv === null && o === f.opts[0]);
+        return '<button type="button" data-act="dpick" data-k="' + k + '" data-v="' + o + '" aria-pressed="' + on + '"' + (o ? ' aria-label="' + o + ' เดือน"' : '') + '>' + (o === 0 ? 'ทันที' : o) + '</button>';
+      }).join('') + '</div>' + (f.opts[0] !== 0 || f.opts.length < 5 ? '' : '<p class="help">ตัวเลขคือจำนวนเดือน</p>') + help + '</div>';
     }
     if (f.t === 'names') {
       var names = CH_NAMES[m] || [], cur = d.chName || '';
       return '<div class="field" data-df="' + k + '"' + hidden + '><span class="lab">' + lab + '</span><div class="chips">' + names.map(function (n) {
         return '<button type="button" class="chip" data-act="chname" data-v="' + esc(n) + '" aria-pressed="' + (cur === n) + '">' + esc(n) + '</button>';
-      }).join('') + '<input id="' + id + '" data-chname-custom placeholder="อื่นๆ พิมพ์เอง" value="' + esc(names.indexOf(cur) < 0 ? cur : '') + '" maxlength="24" aria-label="ชื่อช่องทางอื่น"></div></div>';
+      }).join('') + '<input id="' + id + '" data-chname-custom placeholder="อื่น ๆ พิมพ์เอง" value="' + esc(names.indexOf(cur) < 0 ? cur : '') + '" maxlength="24" aria-label="ชื่อช่องทางอื่น"></div></div>';
+    }
+    var v = dGet(d, k), suf = esc(f.suf ? f.suf(inp, m, d) : (f.t === 'pct' ? '%' : 'บาท'));
+    var sign = '';
+    if (f.t === 'signed') {
+      var neg = num(v) !== null ? num(v) < 0 : state.dsign[k] === -1;
+      sign = '<div class="seg" role="group" aria-label="' + lab + '"><button type="button" data-act="dsign" data-k="' + k + '" data-v="1" aria-pressed="' + !neg + '">' + f.words[0] + '</button>' +
+        '<button type="button" data-act="dsign" data-k="' + k + '" data-v="-1" aria-pressed="' + neg + '">' + f.words[1] + '</button></div>';
+      v = num(v) === null ? null : Math.abs(num(v));
     }
     var mode = (f.t === 'money' || f.t === 'int') ? 'numeric' : 'decimal';
-    if (f.neg) mode = 'text';
-    var v = d[k];
-    var val = v === null || v === undefined || v === '' ? '' : (f.t === 'money' ? Math.round(v).toLocaleString('th-TH') : String(v));
-    var suf = esc(f.suf ? f.suf(inp, m, d) : (f.t === 'pct' ? '%' : 'บาท'));
-    var chips = '';
-    if (f.t === 'pctchips') {
-      chips = '<div class="chips pchips">' + f.chips.map(function (c) {
-        return '<button type="button" class="chip" data-act="dpick" data-k="' + k + '" data-v="' + c + '" aria-pressed="' + (num(v) === c) + '">' + (c > 0 && f.neg ? '+' : '') + (c < 0 ? '−' + Math.abs(c) : c) + '%</button>';
-      }).join('') + '</div>';
-    }
-    var input = '<input id="' + id + '" data-dk="' + k + '" data-t="' + f.t + '" inputmode="' + mode + '" autocomplete="off" enterkeyhint="next" placeholder="' + esc(dPh(k)) + '" value="' + esc(val) + '"' +
-      (f.neg ? ' data-neg="1"' : '') + ' aria-describedby="err-' + k + '">';
-    return '<div class="field" data-df="' + k + '"' + hidden + '><label for="' + id + '">' + lab + '</label>' + chips + '<div class="inbox">' + input + '<span class="suf">' + suf + '</span></div>' + help + errHtml + '</div>';
+    var val = v === null || v === undefined || v === '' ? '' : (f.t === 'money' || (f.t === 'signed' && f.suf && f.suf().indexOf('บาท') >= 0) ? Math.round(v).toLocaleString('th-TH') : String(v));
+    var input = '<input id="' + id + '" data-dk="' + k + '" data-t="' + f.t + '" inputmode="' + mode + '" autocomplete="off" enterkeyhint="next" placeholder="' + esc(dPh(k)) + '" value="' + esc(val) + '" aria-describedby="err-' + k + '">';
+    return '<div class="field" data-df="' + k + '"' + hidden + '><label for="' + id + '">' + lab + '</label>' + sign + quickHtml(k, f, d) +
+      '<div class="inbox' + (err ? ' bad' : '') + '">' + input + '<span class="suf">' + suf + '</span></div>' + help + errHtml + '</div>';
   }
-  /* ผลสดด้านบนระหว่างตอบ */
+  /* ผลสดด้านบนระหว่างตอบ: ไม่ทำ | ทำ */
   function dStrip() {
-    var head = '<section class="panel receipt-strip" id="dstrip"><div class="rs-top"><span class="rs-k">';
     var S = C(state.inp, state.model);
-    if (!S.ok) return head + 'ผลการตัดสินใจ</span></div><div class="rs-empty">ตัวเลขร้านยังไม่ครบ</div></section>';
-    if (!dAllValidLoose()) return head + 'ร้านคุณตอนนี้ กำไรต่อเดือน</span><span class="rs-v">' + (S.profit < 0 ? '−' : '') + anim('ds', S.profit) + '<small>บาท</small></span></div><div class="rs-empty">ตอบต่อ แล้วจะเห็นว่าถ้า' + esc(TOPICS[state.topic].title) + ' กำไรจะเปลี่ยนไปเท่าไหร่</div></section>';
-    var R = E(dec());
-    if (!R.ok) return head + 'ผลการตัดสินใจ</span></div><div class="rs-empty">ตัวเลขยังไม่ครบ</div></section>';
-    return head + 'ถ้า' + esc(dSummary(state.topic, dec(), state.inp, state.model)) + ' กำไรต่อเดือน' + '</span><span class="rs-v">' + (R.profit < 0 ? '−' : '') + anim('ds', R.profit) + '<small>บาท</small></span></div>' +
-      '<div class="rs-lines"><div class="rs-line"><span>ตอนนี้ (ไม่ทำ)</span><i></i><b>' + (S.profit < 0 ? '−' : '') + fmtN(Math.abs(S.profit)) + '</b></div>' +
-      '<div class="rs-line"><span>เปลี่ยนไป</span><i></i><b>' + dirSpan(R.delta, fmtN(Math.abs(R.delta))) + '</b></div></div></section>';
+    var a = '<div class="ds-a"><small>ไม่ทำ · กำไร/เดือน</small><b>' + (S.ok ? plain(S.profit) : '–') + '</b></div>';
+    var b;
+    if (S.ok && dAllValid()) {
+      var R = E(dec());
+      b = R.ok ? '<div class="ds-b"><small>ทำ · กำไร/เดือน</small><b>' + (R.profit < 0 ? '−' : '') + anim('ds', R.profit) + '</b><i>' + dirSpan(R.delta, fmtN(Math.abs(R.delta))) + '</i></div>'
+        : '<div class="ds-b"><small>ทำ</small><b>–</b></div>';
+    } else b = '<div class="ds-b wait"><small>ทำ · กำไร/เดือน</small><b>?</b><i>ตอบให้ครบแล้วจะเห็นทันที</i></div>';
+    return '<section class="dstrip" id="dstrip" aria-live="polite">' + a + b + '</section>';
   }
-  /* คำนวณได้เมื่อช่องที่ต้องกรอกครบ (ช่องที่ไม่บังคับถือเป็น 0) */
-  function dAllValidLoose() { return dAllValid(); }
   function viewDq() {
     var t = state.topic, steps = dStepsFor(t, state.inp, state.model);
     if (state.dstep >= steps.length) state.dstep = steps.length - 1;
@@ -469,16 +496,17 @@
       var f = dDef(k);
       if (!dShown(k, d)) return '';
       if (f.t === 'names') return d.chName ? d.chName : '';
-      if (f.t === 'ramp') return f.label(inp, m, d) + ' ' + (n0(d[k]) > 0 ? fmtN(n0(d[k])) + ' เดือน' : 'ทันที');
-      var v = num(d[k]);
+      if (f.t === 'ramp') { var r = num(dGet(d, k)); return r === null ? '' : f.label(inp, m, d) + ' ' + (r > 0 ? fmtN(r) + ' เดือน' : 'ทันที'); }
+      var v = num(dGet(d, k));
       if (v === null) return '';
       var suf = f.suf ? f.suf(inp, m, d) : (f.t === 'pct' ? '%' : 'บาท');
-      return f.label(inp, m, d) + ' ' + (f.neg && v > 0 ? '+' : '') + fmtN(v, 2) + (suf.charAt(0) === '%' ? suf : ' ' + suf);
+      var vt = f.t === 'signed' ? (v < 0 ? f.words[1] : v > 0 ? f.words[0] : 'เท่าเดิม') + ' ' + fmtN(Math.abs(v), 2) : fmtN(v, 2);
+      return f.label(inp, m, d) + ' ' + vt + (suf.charAt(0) === '%' ? suf : ' ' + suf);
     }).filter(Boolean).join(' · ') || 'ยังไม่ได้ใส่';
   }
   function viewReview() {
     var steps = stepsFor(state.model);
-    var out = bar(backBtn(state.topic && dAllValid() ? 'result' : 'to-start', 'กลับ'), 'แก้ตัวเลข', state.topic ? TOPICS[state.topic].title : '') + '<main class="screen"><div class="wrap">';
+    var out = bar(backBtn(state.topic && dAllValid() && shopOk() ? 'result' : 'to-start', 'กลับ'), 'แก้ตัวเลข', state.topic ? TOPICS[state.topic].title : '') + '<main class="screen"><div class="wrap">';
     if (state.isSample) out += '<div class="banner"><span>กำลังใช้ตัวเลขร้านกาแฟตัวอย่าง</span><button class="lnk" data-act="to-shop">ใส่ร้านคุณ</button></div>';
     if (state.topic) {
       out += '<div class="sec-h"><h2>' + esc(TOPICS[state.topic].title) + '</h2></div><div class="rv">' + dStepsFor(state.topic, state.inp, state.model).map(function (st, i) {
@@ -492,97 +520,117 @@
     return out + '</div></main>';
   }
 
-  /* ============================================================ RESULT */
-  function needStat(R) {
-    var c = (R.conds || []).filter(function (x) { return x.id === 'need'; })[0];
-    if (state.topic === 'equip' || !c) {
-      if (R.one > 0) return ['คืนทุน', R.payback === null ? '<span>ไม่คืนทุน</span>' : '<span>' + fmtMonths(R.payback) + '</span>', ''];
-      return ['', '—', ''];
-    }
-    var k = { hire: { unit: 'ต้องขายเพิ่ม', resell: 'ต้องขายเพิ่ม', service: 'ต้องมีลูกค้าเพิ่ม', subscription: 'ต้องมีสมาชิกเพิ่ม', project: 'ต้องได้งานเพิ่ม',
-      rental: 'คนเช่าต้องเพิ่ม', commission: 'ต้องปิดดีลเพิ่ม', other: 'รายได้ต้องเพิ่ม' }[state.model], place: 'ที่ใหม่ต้องได้', channel: 'ช่องทางต้องได้', branch: 'สาขาต้องได้' }[state.topic];
-    if (c.value === null) return [k, '—', '<small>ไม่คุ้ม</small>'];
-    return [k, fmtN(c.value), '<small>' + esc(c.unit) + '</small>'];
+  /* ============================================================ RESULT — สองเส้นทาง */
+  function pivotWord(P, v) {
+    if (P.T === 'place') return P.verb + ' ' + nf(v, P.unit);
+    if (P.T === 'branch') return 'สาขามี' + salesWord(state.model) + ' ' + fmtN(v) + '% ของร้านเดิม';
+    if (P.T === 'channel') return P.word + 'ได้ ' + nf(v, P.unit);
+    return P.word + ' ' + nf(v, P.unit);
   }
-  function statsHtml(R, prefix, B) {
-    var s1 = needStat(R), s2, s3;
-    if (R.one > 0 && state.topic !== 'equip') s2 = ['คืนทุน', '<span>' + (R.payback === null ? 'ไม่คืนทุน' : fmtMonths(R.payback)) + '</span>', ''];
-    else s2 = [R.sumDiff < -0.5 ? 'กำไรลดใน 1 ปี' : 'กำไรเพิ่มใน 1 ปี', '<span>' + compactTH(Math.abs(R.sumDiff)) + '</span>', ''];
-    if (R.need > 0.5) s3 = [R.B.hasCash ? 'เงินขาดมือ' : 'ต้องมีเงิน', '<span>' + compactTH(R.need) + '</span>', ''];
-    else s3 = ['เงินต่ำสุด', '<span>' + compactTH(R.low) + '</span>', ''];
-    var dd = ['', '', ''];
-    if (B) {
-      var d1 = (R.conds || []).filter(function (x) { return x.id === 'need'; })[0], b1 = (B.conds || []).filter(function (x) { return x.id === 'need'; })[0];
-      if (d1 && b1 && d1.value !== null && b1.value !== null && Math.abs(d1.value - b1.value) > 0.05 && state.topic !== 'equip') dd[0] = '<div class="d ' + (d1.value > b1.value ? 'up' : 'down') + '">' + fmtN(Math.abs(d1.value - b1.value), 1) + '</div>';
-      if (R.payback !== null && B.payback !== null && Math.abs(R.payback - B.payback) > 0.05 && R.one > 0) {
-        var di = state.topic === 'equip' ? 0 : 1;
-        dd[di] = '<div class="d ' + (R.payback > B.payback ? 'up' : 'down') + '">' + fmtN(Math.abs(R.payback - B.payback), 1) + ' เดือน</div>';
-      }
-      var lowA = R.need > 0.5 ? R.need : R.low, lowB = B.need > 0.5 ? B.need : B.low;
-      if ((R.need > 0.5) === (B.need > 0.5) && Math.abs(lowA - lowB) > 0.5) dd[2] = '<div class="d ' + (lowA > lowB ? 'up' : 'down') + '">' + compactTH(Math.abs(lowA - lowB)) + '</div>';
-    }
-    return '<div class="stats">' + [s1, s2, s3].map(function (s, i) {
-      return '<div class="stat"><div class="k">' + s[0] + '</div><div class="v">' + s[1] + s[2] + '</div>' + dd[i] + '</div>';
-    }).join('') + '</div>';
+  function heroHtml(R, P, v) {
+    var dl = R.delta, ab = fmtN(Math.abs(dl));
+    var h = Math.abs(dl) < 0.5 ? 'กำไรเท่าเดิม' : 'กำไร' + (dl > 0 ? 'เพิ่มขึ้น' : 'ลดลง') + ' <span class="hb ' + (dl > 0 ? 'up' : 'down') + '">' + anim('hb' + state.topic, Math.abs(dl)) + '</span> <span class="hu">บาท/เดือน</span>';
+    var ctx = 'ถ้า' + (state.topic === 'channel' && v !== null && v !== undefined ? pivotWord(P, v) : dSummary(state.topic, dec(), state.inp, state.model) + (v !== null && v !== undefined ? ' และ' + pivotWord(P, v) : '')) +
+      (R.k > 0 ? ' · ' + salesWord(state.model) + 'ขึ้นถึงที่คาดในเดือนที่ ' + (R.k + 1) : '');
+    var risk = '';
+    if (R.need > 0.5) risk = '<p class="h-risk">' + ICON.alert + '<span>' + (R.B.hasCash ? 'ต้องหาเงินเพิ่มอย่างน้อย <b>' + fmtN(R.need) + '</b> บาท ' + (R.lowT ? 'ก่อนเดือน ' + monthLabel(R.lowT, true) : 'ตั้งแต่ตอนจ่ายเงินก้อน') + ' ไม่อย่างนั้นเงินจะขาดมือ'
+      : 'ต้องมีเงินเตรียมไว้อย่างน้อย <b>' + fmtN(R.need) + '</b> บาท') + '</span></p>';
+    return '<div class="h-k"></div>' +
+      '<h1 class="h-big" aria-label="' + esc(Math.abs(dl) < 0.5 ? 'กำไรเท่าเดิม' : 'กำไร' + (dl > 0 ? 'เพิ่มขึ้น ' : 'ลดลง ') + ab + ' บาทต่อเดือน') + '">' + h + '</h1>' +
+      '<p class="h-sub">' + esc(ctx) + '</p>' + risk;
   }
-  function condHtml(c) {
-    var val = c.value === null ? '<span class="cv txt">' + esc(c.txt) + '</span>'
-      : '<span class="cv">' + (c.payback ? esc(fmtMonths(c.value)) : (c.id === 'unit' && c.value < 0 ? '−' : '') + fmtN(Math.abs(c.value), c.unit === '%' || c.id === 'unit' ? 1 : (c.value < 10 ? 1 : 0)) + (c.unit && !c.payback ? '<small>' + esc(c.unit) + '</small>' : '')) + '</span>';
-    if (c.payback && c.value === null) val = '<span class="cv txt">ไม่คืนทุน</span>';
+  function laneRows(R) {
+    var m = state.model, inp = state.inp, d = viewD(), x = R.st.b.x, rows = [];
+    rows.push(['กำไรต่อเดือน', plain(R.B.profit), plain(R.profit), R.delta, 'big']);
+    var hc = R.B.hasCash;
+    rows.push([hc ? 'เงินสดสิ้น ' + monthLabel(12, true) : 'เงินเพิ่ม/ลดใน 12 เดือน', fmtCompact(R.rows[11].bBal), fmtCompact(R.rows[11].bal), R.rows[11].bal - R.rows[11].bBal]);
+    if (R.one > 0) {
+      rows.push(['เงินก้อนตอนเริ่ม', '–', fmtN(R.one), null]);
+      rows.push(['คืนทุน', '–', R.payback === null ? 'ไม่คืนทุน' : fmtMonths(R.payback), null]);
+    }
+    var u = volUnitText(inp, m), cur = n0(inp[ROLE[m].vol]);
+    if (state.topic === 'hire') {
+      rows.push(['พนักงาน (ไม่นับคุณ)', fmtN(n0(inp.staffCount)) + ' คน', fmtN(n0(inp.staffCount) + Math.max(1, Math.round(n0(d.count)))) + ' คน', null]);
+      if (n0(d.gain) > 0) rows.push([salesWord(m), nf(cur, u), nf(n0(x[ROLE[m].vol]), u), null]);
+    } else if (state.topic === 'place') {
+      rows.push(['ค่าเช่า', fmtN(n0(inp.rent)), fmtN(n0(d.newRent)), null]);
+      rows.push([salesWord(m), nf(cur, u), nf(cur * (1 + n0(d.salesPct) / 100), u), null]);
+    } else if (state.topic === 'channel') {
+      var cu = channelUnit(inp, m, d);
+      if (cu) rows.push(['เหลือเงินต่อ' + ({ subscription: 'สมาชิก/เดือน', project: 'งาน', rental: periodWord(inp) + 'ที่มีคนเช่า', commission: 'ดีล' }[m] || U(inp, m)), fmtN(cu.own, 1), fmtN(cu.ch, 1) + ' <small>ผ่าน' + esc(d.chName || 'ช่องทาง') + '</small>', null]);
+    } else if (state.topic === 'equip') {
+      if (isVolModel(m) && pos(inp.capacity) && pos(d.eqCap)) rows.push(['ทำได้สูงสุด', nf(n0(inp.capacity), u), nf(n0(x.capacity), u), null]);
+      if (n0(d.costDown) > 0) rows.push([costDownLabel(inp, m).replace('ลดลง', ''), fmtN(n0(inp[ROLE[m].cost]), 1), fmtN(n0(x[ROLE[m].cost]), 1), null]);
+    } else if (state.topic === 'branch') {
+      rows.push(['ร้าน', '1 ที่', '2 ที่', null]);
+      rows.push([salesWord(m) + 'รวม', m === 'rental' ? fmtN(cur) + '% · 1 ที่' : nf(cur, u), m === 'rental' ? '2 ที่' : nf(cur * (1 + n0(d.bPct) / 100), u), null]);
+    }
+    return rows;
+  }
+  function lanesHtml(R) {
+    return '<div class="ln-head" aria-hidden="true"><span>ไม่ทำ</span><span>ทำ</span></div>' + laneRows(R).map(function (r, i) {
+      return '<div class="ln-row' + (r[4] ? ' ' + r[4] : '') + '" style="--d:' + i + '"><div class="ln-a"><small>' + esc(r[0]) + '</small><b>' + r[1] + '</b></div>' +
+        '<div class="ln-b"><small>' + (r[3] !== null && Math.abs(r[3]) >= 0.5 ? dirSpan(r[3], fmtN(Math.abs(r[3]))) : '&nbsp;') + '</small><b>' + r[2] + '</b></div></div>';
+    }).join('');
+  }
+  /* แถบลากหาจุดคุ้ม */
+  function pct(P, v) { return Math.max(0, Math.min(100, (v - P.lo) / (P.hi - P.lo) * 100)); }
+  function pivotCard(R, P) {
+    var v = wiVal() !== null ? wiVal() : P.have, be = P.be;
+    var head;
+    if (be.kind === 'value' || be.kind === 'zero') head = '<span>จุดคุ้ม</span><b>' + fmtN(state.topic === 'branch' ? Math.ceil(P.need - 1e-9) : roundNeed(P.need, state.model)) + '</b><small>' + esc(P.unit) + '</small>';
+    else if (be.kind === 'max') head = '<span>ต้องไม่เกิน</span><b>' + fmtN(roundDown(be.x, state.model)) + '</b><small>' + esc(P.unit) + '</small>';
+    else head = '<span class="txt">' + esc(needText(P, state.model, state.inp, dec())) + '</span>';
+    var np = P.need !== null ? pct(P, P.need) : be.kind === 'max' ? pct(P, be.x) : null;
+    var zone = be.kind === 'always' ? 'all-ok' : be.kind === 'never' ? 'all-no' : be.kind === 'max' ? 'rev' : 'fwd';
+    var hp = P.have > 0 || P.T === 'place' || P.T === 'branch' ? pct(P, P.have) : null;
+    var S = dScenarios(state.inp, state.model, state.topic, dec(), P);
+    var chips = S.map(function (s) {
+      var on = Math.abs(v - s.v) < 1e-6;
+      return '<button type="button" class="sc" data-act="wi" data-v="' + s.v + '" aria-pressed="' + on + '"><span>' + esc(s.label) + '</span><b>' + dirSpan(s.delta, fmtN(Math.abs(s.delta))) + '</b></button>';
+    }).join('');
+    if (!chips && P.need !== null && P.need > P.lo) chips = '<button type="button" class="sc" data-act="wi" data-v="' + P.need + '" aria-pressed="' + (Math.abs(v - P.need) < 1e-6) + '"><span>ที่จุดคุ้ม</span><b>' + nf(P.need, '') + '</b></button>';
+    return '<section class="piv" id="piv"><h2 class="pv-q">' + esc(P.q) + '</h2><div class="pv-need">' + head + '</div>' +
+      '<div class="pv-track ' + zone + '" style="--n:' + (np === null ? 50 : np.toFixed(2)) + '%">' +
+      '<div class="pv-zone" aria-hidden="true"><i class="z1"></i><i class="z2"></i></div>' +
+      (np !== null ? '<span class="pv-mk need" style="left:calc(14px + (100% - 28px) * ' + (np / 100).toFixed(4) + ')" aria-hidden="true"></span>' : '') +
+      (hp !== null ? '<span class="pv-mk have" style="left:calc(14px + (100% - 28px) * ' + (hp / 100).toFixed(4) + ')" aria-hidden="true"><em>คุณคาด</em></span>' : '') +
+      '<input type="range" id="pvr" data-pv="1" min="' + P.lo + '" max="' + P.hi + '" step="' + P.step + '" value="' + v + '" aria-label="' + esc(P.q) + '" aria-valuetext="' + esc(pivotWord(P, v)) + '"></div>' +
+      '<div class="pv-scale" aria-hidden="true"><span>' + nf(P.lo, '') + '</span><span>' + nf(P.hi, '') + ' ' + esc(P.unit) + '</span></div>' +
+      '<div class="pv-read" id="pvread" aria-live="polite">' + pvRead(R, P, v) + '</div>' +
+      (chips ? '<div class="pv-chips" role="group" aria-label="ถ้าไม่เป็นอย่างที่คาด">' + chips + '</div>' : '') + '</section>';
+  }
+  function pvRead(R, P, v) {
+    var ok = R.delta >= -0.5;
+    return '<span class="pr-v">ถ้า' + esc(pivotWord(P, v)) + '</span><span class="pr-r ' + (ok ? 'ok' : 'no') + '">' + (ok ? ICON.ok + 'คุ้ม' : ICON.no + 'ไม่คุ้ม') +
+      ' · กำไร ' + dirSpan(R.delta, fmtN(Math.abs(R.delta))) + ' บาท/เดือน</span>';
+  }
+  function checkHtml(c) {
+    var icon = c.status === 'ok' ? ICON.ok : c.status === 'short' ? ICON.no : ICON.dot;
+    var val = c.value === null ? '' : ' <b>' + (c.payback ? esc(fmtMonths(c.value)) : (c.cash || c.unit === 'บาท' || c.unit === 'บาท/เดือน' ? plain(c.value) : nf(c.value, '')) + ' ' + esc(c.unit)) + '</b>';
+    if (c.payback && c.value === null) val = ' <b>ไม่คืนทุน</b>';
     var have = '';
-    if (c.have !== null && c.have !== undefined && c.value !== null && c.dir !== 'info') {
-      var diff = c.have - c.value, u = c.unit && c.unit.charAt(0) === '%' ? '%' : '';
-      var who = c.id === 'rent' ? 'ค่าเช่าที่ใหม่ ' : c.id === 'price' ? 'ราคาที่ตั้งไว้ ' : c.id === 'move' ? 'ที่คุณใส่ ' : 'คุณคาดไว้ ';
-      have = '<span class="chave"><span class="pill2 ' + c.status + '">' + (c.status === 'ok' ? 'ถึงเงื่อนไข' : 'ยังไม่ถึง') + '</span>' +
-        '<span>' + who + fmtN(c.have, c.have < 10 ? 1 : 0) + u + ' · ' + dirSpan(diff, (diff > 0 ? 'มากกว่า ' : 'น้อยกว่า ') + fmtN(Math.abs(diff), Math.abs(diff) < 10 ? 1 : 0) + u) + '</span></span>';
-    } else if (c.status && c.dir === 'info' && !c.cash && c.id !== 'pay' && c.id !== 'unit') {
-      have = '<span class="chave"><span class="pill2 ' + c.status + '">' + (c.status === 'ok' ? 'พอ' : 'ไม่พอ') + '</span></span>';
-    } else if (c.id === 'pay' && c.status) {
-      have = '<span class="chave"><span class="pill2 ' + c.status + '">' + (c.status === 'ok' ? 'เร็วกว่าอายุเครื่อง' : c.value === null ? 'ยังไม่คืนทุน' : 'ช้ากว่าอายุเครื่อง') + '</span></span>';
+    if (c.id === 'need' && c.value !== null && c.have !== null && c.have !== undefined) {
+      var w = wiVal();
+      have = (w !== null ? 'ที่ลองดู ' : 'คุณคาดไว้ ') + nf(c.have, '') + ' · ' + dirSpan(c.have - c.raw, (c.have >= c.raw ? 'มากกว่า ' : 'น้อยกว่า ') + nf(Math.abs(c.have - c.raw), ''));
     }
-    var inner = '<span class="cl">' + esc(c.label) + '</span>' + val + (c.sub ? '<span class="cs">' + esc(c.sub) + '</span>' : '') + have;
-    if (c.lever && labKeys().indexOf(c.lever) >= 0) {
-      var tv = c.value !== null && !c.payback && c.dir !== 'info' && c.id !== 'unit' ? ' data-v="' + c.value + '"' : '';
-      return '<button class="cond" data-act="try" data-k="' + c.lever + '"' + tv + '>' + inner + '<span class="go">ลองดู' + ICON.chev + '</span></button>';
-    }
-    return '<div class="cond static">' + inner + '</div>';
-  }
-  function ledgerHtml(R) {
-    if (!R.ledger.length) return '';
-    var lines = R.ledger.map(function (l) {
-      return '<div class="rc-line"><span>' + esc(l.label) + '</span><i></i><b>' + (l.amount < -0.5 ? '−' : '+') + fmtN(Math.abs(l.amount)) + '</b></div>';
-    }).join('');
-    return '<section class="receipt" aria-label="กำไรต่อเดือนเปลี่ยนเพราะอะไร"><div class="rc-head"><div class="rt">กำไรต่อเดือนเปลี่ยนเพราะอะไร</div><div class="rs">ต่อเดือน' + (R.k > 0 ? ' · เมื่อยอดขึ้นถึงที่คาด' : '') + '</div></div>' +
-      '<div class="rc-lines">' + lines + '</div>' +
-      '<div class="rc-total"><span>กำไรต่อเดือน' + (R.delta < -0.5 ? 'ลดลง' : 'เพิ่มขึ้น') + '</span><b>' + (R.delta < -0.5 ? '−' : '+') + fmtN(Math.abs(R.delta)) + '</b></div>' +
-      '<div class="rc-foot">ตอนนี้ ' + signedPlain(R.B.profit) + ' → ถ้าทำ ' + signedPlain(R.profit) + ' บาท/เดือน</div></section>';
-  }
-  function signedPlain(v) { return (v < -0.5 ? '−' : '') + fmtN(Math.abs(v)); }
-  function scenHtml(R) {
-    var S = SC(dec());
-    if (!S.length) return '';
-    var lead = { hire: 'ถ้า' + salesWord(state.model) + 'ที่เพิ่ม ได้ไม่ถึงที่คาด', place: 'ถ้า' + salesWord(state.model) + 'ที่ใหม่ ต่ำกว่าที่คาด', channel: 'ถ้าขายผ่านช่องทางนี้ได้น้อยกว่าที่คาด',
-      equip: 'ถ้าเครื่องช่วยได้น้อยกว่าที่คาด', branch: 'ถ้าสาขาขายได้น้อยกว่าที่คาด' }[state.topic];
-    var rows = '<div class="sc-row now"><div class="sc-l">ตอนนี้ ไม่ทำ</div><div class="sc-v">' + signedPlain(R.B.profit) + '</div></div>' + S.map(function (s) {
-      var bits = [];
-      if (s.one > 0) bits.push(s.payback === null ? 'ไม่คืนทุน' : 'คืนทุน ' + fmtMonths(s.payback));
-      bits.push(s.low < -0.5 ? (R.B.hasCash ? 'เงินขาดมือ ' : 'ต้องมีเงิน ') + compactTH(-s.low) : 'เงินต่ำสุด ' + compactTH(s.low));
-      return '<div class="sc-row' + (s.f === 1 ? ' main' : '') + '"><div class="sc-l">' + esc(s.label) + '<small>' + esc(bits.join(' · ')) + '</small></div>' +
-        '<div class="sc-v">' + signedPlain(s.profit) + '<small>' + dirSpan(s.delta, fmtN(Math.abs(s.delta))) + '</small></div></div>';
-    }).join('');
-    return '<section class="card"><h3>ถ้าไม่เป็นอย่างที่คาด</h3><p class="lead">' + esc(lead) + ' · กำไรต่อเดือน เทียบกับตอนนี้</p><div class="scen">' + rows + '</div></section>';
+    var txt = c.value === null && !c.payback ? '<span class="ck-txt">' + esc(c.txt || '') + '</span>' : '';
+    var inner = '<span class="ck-i" aria-label="' + (c.status === 'ok' ? 'ถึงแล้ว' : c.status === 'short' ? 'ยังไม่ถึง' : 'ข้อมูล') + '">' + icon + '</span>' +
+      '<span class="ck-b"><span class="ck-t">' + esc(c.label) + val + txt + '</span>' + (c.sub ? '<small>' + esc(c.sub) + '</small>' : '') + (have ? '<small class="ck-h">' + have + '</small>' : '') + '</span>';
+    if (c.lever && labKeys().indexOf(c.lever) >= 0) return '<li><button class="ck ' + c.status + '" data-act="lab" data-k="' + c.lever + '">' + inner + '<span class="go">ปรับ' + ICON.chev + '</span></button></li>';
+    return '<li><div class="ck ' + c.status + '">' + inner + '</div></li>';
   }
   function cashCard(R) {
     var hc = R.B.hasCash, end = R.rows[11].bal, bEnd = R.rows[11].bBal;
     var lead;
-    if (R.need > 0.5) lead = hc ? 'เงินในมือจะติดลบ ต่ำสุด <b>−' + fmtN(R.need) + '</b> บาท ' + (R.lowT ? 'เดือน ' + monthLabel(R.lowT, true) : 'ตอนจ่ายเงินก้อน')
-      : 'ช่วงแรกต้องใช้เงิน <b>' + fmtN(R.need) + '</b> บาท ก่อนเงินเริ่มกลับมา';
+    if (R.need > 0.5) lead = hc ? 'เงินในมือจะติดลบ ต่ำสุด <b>−' + fmtN(R.need) + '</b> บาท ' + (R.lowT ? 'เดือน ' + monthLabel(R.lowT, true) : 'ตอนจ่ายเงินก้อน') : 'ช่วงแรกต้องใช้เงิน <b>' + fmtN(R.need) + '</b> บาท ก่อนเงินเริ่มกลับมา';
     else lead = 'สิ้น ' + monthLabel(12, true) + (hc ? ' มีเงินสด <b>' + fmtN(end) + '</b> บาท' : ' เงินเพิ่มขึ้น <b>' + fmtN(end) + '</b> บาท') + ' · ไม่ทำ ' + fmtN(bEnd);
-    return '<section class="card"><h3>เงินสด 12 เดือนข้างหน้า</h3><p class="lead">' + lead + '</p><div class="chart" data-chart="cash">' + cashSvg(R) + '</div>' +
-      '<div class="legend"><span><i></i>ถ้าทำ</span><span><i class="g"></i>ไม่ทำ</span></div></section>';
+    var pay = R.payback !== null && R.payback <= 12 ? '<span><i class="pf"></i>คืนทุน ' + monthLabel(Math.ceil(R.payback - 1e-9), true) + '</span>' : '';
+    return '<section class="card cashp"><h2 class="c-h">เงินในมือ 12 เดือน</h2><p class="lead">' + lead + '</p><div class="chart" data-chart="cash">' + cashSvg(R) + '</div>' +
+      '<div class="legend"><span><i></i>ทำ</span><span><i class="g"></i>ไม่ทำ</span>' + pay + '</div></section>';
   }
   function cashSvg(R) {
-    var W = 340, H = 196, L = 46, Rr = 12, Tp = 18, Bt = 26;
+    var W = 340, H = 200, L = 50, Rr = 14, Tp = 22, Bt = 26;
     var a = [R.aStart].concat(R.rows.map(function (w) { return w.bal; }));
     var b = [R.cashStart].concat(R.rows.map(function (w) { return w.bBal; }));
     var all = a.concat(b);
@@ -595,31 +643,46 @@
     for (var v = lo; v <= hi + 1e-6; v += step) g += '<line class="' + (Math.abs(v) < 1e-6 && lo < 0 ? 'zero' : 'grid') + '" x1="' + L + '" x2="' + (W - Rr) + '" y1="' + y(v).toFixed(1) + '" y2="' + y(v).toFixed(1) + '"/><text class="ax" x="' + (L - 6) + '" y="' + (y(v) + 4).toFixed(1) + '" text-anchor="end">' + compactTH(v) + '</text>';
     [0, 3, 6, 9, 12].forEach(function (i) { g += '<text class="axth" x="' + x(i).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="' + (i === 0 ? 'start' : i === 12 ? 'end' : 'middle') + '">' + (i === 0 ? 'ตอนนี้' : monthLabel(i, i === 12)) + '</text>'; });
     function path(s) { return s.map(function (vv, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(vv).toFixed(1); }).join(' '); }
-    var out = g + '<path class="line ghost" d="' + path(b) + '"/><path class="line" d="' + path(a) + '"/>';
-    var lowI = R.lowT;
-    out += '<circle class="dot" cx="' + x(lowI).toFixed(1) + '" cy="' + y(a[lowI]).toFixed(1) + '" r="5"/>';
+    var out = g + '<path class="line base3" d="' + path(b) + '"/><path class="line draw" d="' + path(a) + '"/>';
+    var li = R.lowT;
+    if (R.low < R.aStart - 1 || (R.low < 0 && li > 0)) {
+      var ly = y(a[li]);
+      out += '<circle class="dot" cx="' + x(li).toFixed(1) + '" cy="' + ly.toFixed(1) + '" r="5"/><text class="mk" x="' + Math.max(L + 2, Math.min(W - Rr - 2, x(li))).toFixed(1) + '" y="' + (ly + 18 > H - Bt ? ly - 10 : ly + 18).toFixed(1) + '" text-anchor="' + (li < 2 ? 'start' : li > 10 ? 'end' : 'middle') + '">ต่ำสุด ' + compactTH(a[li]) + '</text>';
+    }
+    if (R.payback !== null && R.payback <= 12) {
+      var pt = Math.ceil(R.payback - 1e-9), px = x(pt);
+      out += '<line class="payl" x1="' + px.toFixed(1) + '" x2="' + px.toFixed(1) + '" y1="' + Tp + '" y2="' + (H - Bt) + '"/><text class="mk" x="' + px.toFixed(1) + '" y="' + (Tp - 6) + '" text-anchor="' + (pt > 10 ? 'end' : pt < 2 ? 'start' : 'middle') + '">คืนทุน</text>';
+    }
     var ey = y(a[12]);
-    out += '<circle class="dot" cx="' + x(12).toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="4"/><text class="endlab" x="' + (x(12) - 4).toFixed(1) + '" y="' + (ey < Tp + 14 ? ey + 20 : ey - 11).toFixed(1) + '" text-anchor="end">' + compactTH(a[12]) + '</text>';
+    out += '<circle class="dot" cx="' + x(12).toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="4"/><text class="endlab" x="' + (x(12) - 8).toFixed(1) + '" y="' + (ey < Tp + 16 ? ey + 20 : ey - 12).toFixed(1) + '" text-anchor="end">' + compactTH(a[12]) + '</text>';
     for (var i = 0; i <= 12; i++) {
       var x0 = i === 0 ? L : (x(i) + x(i - 1)) / 2, x1 = i === 12 ? W - Rr : (x(i) + x(i + 1)) / 2;
       out += '<rect class="hit" data-i="' + i + '" x="' + x0.toFixed(1) + '" y="' + Tp + '" width="' + (x1 - x0).toFixed(1) + '" height="' + (H - Tp - Bt) + '"/>';
     }
     out += '<line class="cross" x1="0" x2="0" y1="' + Tp + '" y2="' + (H - Bt) + '" visibility="hidden"/>';
-    var aria = 'กราฟเงินสด 12 เดือน ถ้าทำ สิ้นปี ' + fmtN(a[12]) + ' บาท ต่ำสุด ' + fmtN(a[lowI]) + ' บาท · ไม่ทำ สิ้นปี ' + fmtN(b[12]) + ' บาท';
+    var aria = 'กราฟเงินในมือ 12 เดือน ถ้าทำ สิ้นปี ' + fmtN(a[12]) + ' บาท ต่ำสุด ' + fmtN(a[li]) + ' บาท · ไม่ทำ สิ้นปี ' + fmtN(b[12]) + ' บาท';
     return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(aria) + '">' + out + '</svg>';
   }
-  function paybackCard(R) {
-    if (!(R.one > 0)) return '';
-    var cum = R.rows[11].cumExtra, got = Math.max(0, cum), pct = Math.max(0, Math.min(100, got / R.one * 100));
-    var what = { place: 'ค่าย้าย', equip: 'ค่าเครื่อง', branch: 'เงินลงทุนสาขา' }[state.topic] || 'เงินก้อน';
-    var lead = R.payback === null ? 'ตัวเลขแบบนี้ เงินที่ได้เพิ่มแต่ละเดือนยังไม่พอคืน' + what
-      : 'คืนทุนราว <b>' + monthLabel(Math.min(120, Math.ceil(R.payback - 1e-9)), true) + '</b> (' + fmtMonths(R.payback) + ')';
-    return '<section class="card"><h3>' + esc(what) + ' ' + fmtN(R.one) + ' บาท ได้คืนเมื่อไหร่</h3><p class="lead">' + lead + '</p>' +
-      '<div class="meter" role="img" aria-label="ใน 12 เดือนได้คืน ' + fmtN(pct, 0) + '%"><i style="width:' + pct.toFixed(1) + '%"></i></div>' +
-      '<p class="mnote">' + (cum < -0.5 ? 'ใน 12 เดือนแรก เงินที่ได้จากเรื่องนี้ยังติดลบ ' + fmtN(-cum) + ' บาท เพราะยอดยังขึ้นไม่ถึงที่คาด'
-        : 'ใน 12 เดือนได้คืนแล้ว ' + fmtN(got) + ' บาท (' + fmtN(pct, 0) + '%)') + ' · เมื่อเข้าที่ได้เพิ่มเดือนละ ' + signedPlain(R.extraSteady) + ' บาท</p></section>';
+  /* กำไรเปลี่ยนเพราะอะไร: น้ำตก จากกำไรตอนนี้ → ทีละเรื่อง → กำไรถ้าทำ */
+  function waterfallHtml(R) {
+    if (!R.ledger.length) return '';
+    var run = R.B.profit, pts = [run];
+    R.ledger.forEach(function (l) { run += l.amount; pts.push(run); });
+    var lo = Math.min(0, Math.min.apply(null, pts)), hi = Math.max(0, Math.max.apply(null, pts));
+    if (hi === lo) hi = lo + 1;
+    function p(v) { return (v - lo) / (hi - lo) * 100; }
+    function rowH(label, from, to, kind, i) {
+      var a = p(Math.min(from, to)), w = Math.max(0.6, Math.abs(p(to) - p(from)));
+      var val = kind === 'end' || kind === 'start' ? plain(to) : (to - from < 0 ? '−' : '+') + fmtN(Math.abs(to - from));
+      return '<div class="wf-r ' + kind + '" style="--d:' + i + '"><div class="wf-t"><span>' + esc(label) + '</span><b>' + val + '</b></div>' +
+        '<div class="wf-track"><i class="' + (to >= from ? 'pos' : 'neg') + '" style="left:' + a.toFixed(2) + '%;width:' + w.toFixed(2) + '%"></i>' + (lo < 0 ? '<span class="wf-zero" style="left:' + p(0).toFixed(2) + '%"></span>' : '') + '</div></div>';
+    }
+    var rows = rowH('กำไรต่อเดือนตอนนี้', 0, R.B.profit, 'start', 0), cur = R.B.profit;
+    R.ledger.forEach(function (l, i) { rows += rowH(l.label, cur, cur + l.amount, l.amount >= 0 ? 'plus' : 'minus', i + 1); cur += l.amount; });
+    rows += rowH('กำไรต่อเดือนถ้าทำ', 0, R.profit, 'end', R.ledger.length + 1);
+    return '<section class="card wf"><h2 class="c-h">กำไรต่อเดือนเปลี่ยนเพราะอะไร</h2><p class="lead">' + (R.k > 0 ? 'เมื่อ' + salesWord(state.model) + 'ขึ้นถึงที่คาด · ' : '') + 'บวกและลบกันแล้วเท่ากับกำไรที่เปลี่ยนพอดี</p>' + rows + '</section>';
   }
-  /* ---------- เช็กความพร้อม → จุดที่ควรเช็ก → เครื่องมือ PL1 ---------- */
+  /* ขั้นต่อไป: เครื่องมือ PL1 ที่ช่วยคิดเรื่องนี้ + เช็กความพร้อม (ไม่บังคับ) */
   function ans() { if (!state.answers[state.topic]) state.answers[state.topic] = {}; return state.answers[state.topic]; }
   function askList() {
     var d = dec();
@@ -628,47 +691,71 @@
   function askDone() { var L = askList(), A = ans(); return L.length > 0 && L.every(function (q) { return A[q]; }); }
   function askedCount() { var A = ans(); return askList().filter(function (q) { return A[q]; }).length; }
   function pointsList() { var A = ans(); return askList().filter(function (q) { return A[q] === 'yes' || A[q] === 'unsure'; }); }
-  function nextStepCard() {
-    var L = askList();
-    if (askDone()) {
-      var n = pointsList().length;
-      return '<section class="next"><div class="nx-k">ขั้นต่อไป</div><h3>' + (n ? 'เจอ ' + n + ' จุดที่ควรเช็กก่อนตัดสินใจ' : 'ยังไม่เจอจุดที่ควรเช็กจากคำตอบ') + '</h3><p>ดูว่าแต่ละจุดเกี่ยวกับตัวเลขไหน และเครื่องมือไหนช่วยหาแนวทางได้</p>' +
-        '<button class="btn block" data-act="points">ดูจุดที่ควรเช็กและเครื่องมือ' + ICON.next + '</button><div class="nx-sub"><button class="lnk" data-act="ask-restart">ตอบใหม่</button></div></section>';
-    }
-    return '<section class="next"><div class="nx-k">ขั้นต่อไป</div><h3>เช็กความพร้อมก่อนตัดสินใจ</h3><p>ตอบ ' + L.length + ' ข้อ แค่ ใช่ / ไม่ใช่ / ไม่แน่ใจ แล้วดูจุดที่ควรเช็ก และเครื่องมือที่ช่วยได้</p>' +
-      '<button class="btn block" data-act="ask">' + (askedCount() ? 'ตอบต่อ' : 'เริ่มตอบ') + ICON.next + '</button></section>';
+  function toolsHtml(codes, title, seen) {
+    seen = seen || {};
+    var items = codes.filter(function (c) { if (seen[c] || !TOOLS[c]) return false; seen[c] = 1; return true; }).map(function (c) {
+      return '<button class="tool" data-act="tool" data-t="' + c + '"><span class="tn">' + esc(TOOLS[c][0]) + '</span><span class="ts">' + esc(TOOLS[c][1]) + '</span>' + ICON.out + '</button>';
+    }).join('');
+    return items ? '<div class="tools">' + (title ? '<span class="tl">' + esc(title) + '</span>' : '') + items + '</div>' : '';
+  }
+  function nextCard() {
+    var L = askList(), btn;
+    if (askDone()) { var n = pointsList().length; btn = '<button class="btn block" data-act="points">' + (n ? 'ดู ' + n + ' จุดที่ควรเช็กก่อนตัดสินใจ' : 'ดูผลเช็กความพร้อม') + ICON.next + '</button>'; }
+    else btn = '<button class="btn block" data-act="ask">' + (askedCount() ? 'เช็กความพร้อมต่อ' : 'เช็กความพร้อม ' + L.length + ' ข้อ') + ICON.next + '</button><p class="nx-note">ตอบแค่ ใช่ / ไม่ใช่ / ไม่แน่ใจ แล้วดูว่าควรเช็กจุดไหนก่อน</p>';
+    return '<section class="next3"><div class="nx-k">ขั้นต่อไป · หาแนวทาง</div>' + toolsHtml(TOPIC_TOOLS[state.topic], 'เครื่องมือที่ช่วยคิดเรื่องนี้ต่อ ใช้ตัวเลขร้านคุณได้ทันที') + btn + '</section>';
   }
   function planCard() {
-    return '<section class="panel plan"><span class="tag">เร็วๆ นี้</span><h3>อยากเห็นเรื่องนี้ในแผนทั้งร้าน</h3><p>แผนธุรกิจของ Jarua ใช้ตัวเลขชุดนี้ต่อได้ทันที แล้ววางทางทั้งร้าน ทั้งการตลาด ทีม และเงิน 12 เดือน</p>' +
+    return '<section class="panel plan"><span class="tag">เร็ว ๆ นี้</span><h3>อยากเห็นเรื่องนี้ในแผนทั้งร้าน</h3><p>แผนธุรกิจของ Jarua ใช้ตัวเลขชุดนี้ต่อได้ทันที แล้ววางทางทั้งร้าน ทั้งการตลาด ทีม และเงิน 12 เดือน</p>' +
       '<button class="btn on-panel block" data-act="plan">ดูแผนธุรกิจ</button></section>';
   }
-  function viewResult() {
-    var head = bar('<button class="tb" data-act="review">' + ICON.back + 'แก้ตัวเลข</button>', TOPICS[state.topic].title, 'Business Lab');
-    var R = E(dec());
-    if (!R.ok) return head + '<main class="screen"><div class="wrap"><div class="ok-box"><b>ตัวเลขยังไม่ครบ</b><p>กด "แก้ตัวเลข" เพื่อกรอกให้ครบ</p></div></div></main>';
-    var d = dec(), out = head + '<main class="screen"><div class="wrap">';
-    if (state.isSample) out += '<div class="banner"><span>นี่คือร้านกาแฟตัวอย่าง</span><button class="lnk" data-act="to-shop">ใส่ตัวเลขร้านคุณ</button></div>';
-    var dl = R.delta;
-    out += '<section class="panel dpanel"><div class="eyebrow"><span>ถ้า' + esc(dSummary(state.topic, d, state.inp, state.model)) + '</span>' + (state.isSample ? '<span class="tag">ตัวอย่าง</span>' : '') + '</div>' +
-      '<div class="k2">' + (R.profit < 0 ? 'ขาดทุนต่อเดือน' : 'กำไรต่อเดือน') + (R.k > 0 ? ' เมื่อยอดขึ้นถึงที่คาด' : '') + '</div>' +
-      '<div class="bignum">' + (R.profit < 0 ? '−' : '') + anim('rp' + state.topic + state.model, R.profit) + '<span class="u">บาท</span></div>' +
-      '<div class="sub">' + (Math.abs(dl) < 0.5 ? 'เท่ากับตอนนี้' : dirSpan(dl, '<b class="delta">' + fmtN(Math.abs(dl)) + '</b>') + ' จากตอนนี้ ' + signedPlain(R.B.profit) + ' บาท') + '</div>' +
-      statsHtml(R, 'r') + '<div class="cta"><button class="btn on-panel block" data-act="lab">' + ICON.sliders + 'ลองเปลี่ยนตัวเลข</button></div></section>';
+  function restHtml(R) {
+    var out = '';
     if (R.warn.length) out += '<div class="warns" role="note">' + R.warn.map(function (w) { return '<p>' + ICON.info + '<span>' + esc(w) + '</span></p>'; }).join('') + '</div>';
-    out += '<div class="sec-h"><h2>เงื่อนไขที่ทำให้คุ้ม</h2><span class="aside">เทียบกับตอนนี้</span></div><div class="conds">' + R.conds.map(condHtml).join('') + '</div>';
-    out += '<div class="cards" style="margin-top:12px">' + scenHtml(R) + '</div>';
-    out += '<div style="margin-top:12px">' + nextStepCard() + '</div>';
-    out += '<div class="sec-h"><h2>ภาพเงินของเรื่องนี้</h2></div><div class="cards">' + cashCard(R) + paybackCard(R) + '</div>' + ledgerHtml(R);
-    out += '<div class="sec-h"><h2>ลองเรื่องอื่น กับตัวเลขร้านเดิม</h2></div>' + topicRows(state.topic);
-    out += planCard();
+    out += '<section class="checks"><h2 class="sec3">สิ่งที่ต้องเป็นจริง ถึงจะคุ้ม</h2><ul class="cklist">' + R.conds.map(checkHtml).join('') + '</ul></section>';
+    out += nextCard() + planCard();
+    out += cashCard(R) + waterfallHtml(R);
+    out += '<h2 class="sec3">ลองเรื่องอื่น กับตัวเลขร้านเดิม</h2>' + topicRows(state.topic);
     out += '<details class="about"><summary>ตัวเลขชุดนี้คิดอย่างไร' + ICON.down + '</summary><ul>' +
       '<li>ทุกตัวเลขต่อเดือนคำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua และเทียบกับร้านคุณตอนนี้ที่ใช้สูตรเดียวกัน</li>' +
       '<li>ทุกตัวเลขมาจากที่คุณกรอก ไม่ได้เทียบกับร้านอื่น และไม่ได้ตัดสินใจแทนคุณ</li><li>กำไรเป็นกำไรก่อนหักภาษี</li>' +
-      (R.one > 0 ? '<li>เงินก้อน ' + fmtN(R.one) + ' บาท จ่ายด้วยเงินสดตอนเริ่ม · คืนทุนนับจากเงินที่ได้เพิ่มจริงในแต่ละเดือน เทียบกับไม่ทำ</li>' : '') +
-      (R.k > 0 ? '<li>' + salesWord(state.model) + 'ที่คาด ค่อยๆ ขึ้นเท่ากันทุกเดือน จนถึงที่คาดในเดือนที่ ' + R.k + '</li>' : '') +
+      (R.one > 0 ? '<li>เงินก้อน ' + fmtN(R.one) + ' บาท จ่ายด้วยเงินสดตอนเริ่ม · คืนทุนนับจากเงินที่ได้เพิ่มจริงในแต่ละเดือน เทียบกับไม่ทำ (หลังเดือนที่ 12 ใช้ตัวเลขปีที่ 2 และ 3)</li>' : '') +
+      (R.k > 0 ? '<li>' + salesWord(state.model) + 'ที่คาด ค่อย ๆ ขึ้นเท่ากันทุกเดือน และถึงที่คาดในเดือนที่ ' + (R.k + 1) + '</li>' : '') +
+      (Math.abs(R.wc) >= 1 ? '<li>เงินในมือหักเงินที่ต้องจมเพิ่มกับลูกค้าที่ยังไม่จ่ายและของในสต็อก (หรือบวกเงินที่ได้คืน) ในเดือนที่ยอดเปลี่ยน</li>' : '') +
       (state.topic === 'equip' ? '<li>กำไรหักเงินที่ควรกันไว้ซื้อเครื่องใหม่เมื่อหมดอายุ (ราคา ÷ เดือนที่ใช้ได้) แต่เงินสดไม่หัก เพราะจ่ายไปแล้วตอนซื้อ</li>' : '') +
       '<li>' + (n0(state.inp.growth) ? 'ยอดขายของร้านเปลี่ยนเดือนละ ' + fmtPct(n0(state.inp.growth)) + ' ตามที่กรอก' : 'ยอดขายของร้านเท่าเดิมทุกเดือน') + ' · ค่าใช้จ่ายคงที่เท่าเดิมตลอด 12 เดือน</li></ul></details>';
+    return out;
+  }
+  function viewResult() {
+    var head = bar('<button class="tb" data-act="review">' + ICON.back + 'แก้ตัวเลข</button>', TOPICS[state.topic].title, 'Business Lab');
+    var R = E(viewD());
+    if (!R.ok) return head + '<main class="screen"><div class="wrap"><div class="ok-box"><b>ตัวเลขยังไม่ครบ</b><p>กด "แก้ตัวเลข" เพื่อกรอกให้ครบ</p></div></div></main>';
+    var P = piv(), v = wiVal() !== null ? wiVal() : P.have;
+    var out = head + '<main class="screen res3"><div class="wrap">';
+    if (state.isSample) out += '<div class="banner"><span>นี่คือร้านกาแฟตัวอย่าง</span><button class="lnk" data-act="to-shop">ใส่ตัวเลขร้านคุณ</button></div>';
+    out += '<section class="hero3" id="hero">' + heroHtml(R, P, (P.have > 0 || wiVal() !== null || P.T === 'place' || P.T === 'branch') ? v : null) + '</section>';
+    out += '<section class="lanes" id="lanes" aria-label="เทียบ ไม่ทำ กับ ทำ">' + lanesHtml(R) + '</section>';
+    out += '<div class="lane-cta"><button class="btn ghost block" data-act="lab">' + ICON.sliders + 'ปรับตัวเลขของเรื่องนี้</button></div>';
+    out += pivotCard(R, P);
+    out += '<div id="rest">' + restHtml(R) + '</div>';
     return out + '</div></main>';
+  }
+  /* อัปเดตหน้าผลระหว่างลากแถบ (ไม่วาดแถบใหม่ เพื่อให้ลากต่อได้) */
+  var wiRaf = 0;
+  function resultLive() {
+    if (wiRaf) return;
+    wiRaf = requestAnimationFrame(function () {
+      wiRaf = 0;
+      var R = E(viewD()), P = piv(), v = wiVal() !== null ? wiVal() : P.have;
+      if (!R.ok) return;
+      var main = $('main.res3'); if (main) main.classList.add('live');
+      var h = $('#hero'); if (h) { h.innerHTML = heroHtml(R, P, v); runAnim(h); }
+      var l = $('#lanes'); if (l) l.innerHTML = lanesHtml(R);
+      var pr = $('#pvread'); if (pr) pr.innerHTML = pvRead(R, P, v);
+      var rs = $('#rest'); if (rs) { rs.innerHTML = restHtml(R); runAnim(rs); }
+      var inp = $('#pvr'); if (inp) inp.setAttribute('aria-valuetext', pivotWord(P, v));
+      $$('.pv-chips .sc').forEach(function (b) { b.setAttribute('aria-pressed', String(Math.abs(+b.getAttribute('data-v') - v) < 1e-6)); });
+      save();
+    });
   }
 
   /* ============================================================ ASK / POINTS */
@@ -692,30 +779,23 @@
     if (!lv || !R.ok) return '';
     var c = R.conds.filter(function (x) { return x.lever === lv && x.value !== null; })[0];
     if (!c) return '';
-    var v = c.payback ? fmtMonths(c.value) : fmtN(c.value, c.value < 10 ? 1 : 0) + (c.unit ? ' ' + c.unit : '');
+    var v = c.payback ? fmtMonths(c.value) : nf(c.value, c.unit);
     return esc(c.label) + ' <b>' + esc(v) + '</b>';
-  }
-  function toolsHtml(codes, title, seen) {
-    seen = seen || {};
-    var items = codes.filter(function (c) { if (seen[c] || !TOOLS[c]) return false; seen[c] = 1; return true; }).map(function (c) {
-      return '<button class="tool" data-act="tool" data-t="' + c + '"><span class="tn">' + esc(TOOLS[c][0]) + '</span><span class="ts">' + esc(TOOLS[c][1]) + '</span>' + ICON.out + '</button>';
-    }).join('');
-    return items ? '<div class="tools">' + (title ? '<span class="tl">' + esc(title) + '</span>' : '') + items + '</div>' : '';
   }
   function viewPoints() {
     var R = E(dec()), L = askList(), Pn = pointsList(), seen = {}, A = ans();
     var out = bar(backBtn('result', 'กลับ'), 'จุดที่ควรเช็ก', TOPICS[state.topic].title) + '<main class="screen"><div class="wrap">';
-    out += '<section class="panel"><div class="eyebrow">จากคำตอบ ' + askedCount() + ' ข้อ</div><div class="pp-t">' + (Pn.length ? 'เจอ ' + Pn.length + ' จุดที่ควรเช็กก่อนตัดสินใจ' : 'ยังไม่เจอจุดที่ควรเช็กจากคำตอบ') + '</div>' +
+    out += '<section class="panel"><div class="eyebrow">จากคำตอบ ' + askedCount() + ' ข้อ</div><h1 class="pp-t">' + (Pn.length ? 'เจอ ' + Pn.length + ' จุดที่ควรเช็กก่อนตัดสินใจ' : 'ยังไม่เจอจุดที่ควรเช็กจากคำตอบ') + '</h1>' +
       '<div class="sub">' + (Pn.length ? 'แต่ละจุดบอกว่าเกี่ยวกับตัวเลขไหน และเครื่องมือไหนช่วยหาแนวทางได้ เปิดแล้วใช้ตัวเลขร้านคุณต่อได้ทันที' : 'ถ้าอยากคิดเรื่องนี้ให้ละเอียดขึ้น เครื่องมือด้านล่างช่วยได้') + '</div>' +
       (L.length ? '<div class="cta"><button class="pbtn" data-act="ask-restart">แก้คำตอบ</button></div>' : '') + '</section>';
     if (Pn.length) {
       out += '<div class="points" style="margin-top:14px">' + Pn.map(function (id) {
         var q = QB3[id], tag = pointTag(id, R), lk = q.lever && labKeys().indexOf(q.lever) >= 0 ? q.lever : null;
         var fresh = q.tools.filter(function (c) { return !seen[c]; });
-        return '<div class="point"><div class="pt">' + esc(q.p) + (A[id] === 'unsure' ? '<span class="unsure">ไม่แน่ใจ</span>' : '') + '</div><div class="pd">' + esc(q.d) + '</div>' +
+        return '<div class="point"><h2 class="pt">' + esc(q.p) + (A[id] === 'unsure' ? '<span class="unsure">ไม่แน่ใจ</span>' : '') + '</h2><div class="pd">' + esc(q.d) + '</div>' +
           (tag ? '<div class="ptag">' + tag + '</div>' : '') +
           (fresh.length ? toolsHtml(fresh, 'เครื่องมือที่ช่วยหาแนวทางแก้ไข', seen) : '<div class="tools"><span class="tl">ใช้เครื่องมือเดียวกับด้านบน</span></div>') +
-          (lk ? '<button class="sbtn light" data-act="try" data-k="' + lk + '">' + ICON.sliders + 'ลองเปลี่ยนตัวเลขนี้</button>' : '') + '</div>';
+          (lk ? '<button class="sbtn light" data-act="lab" data-k="' + lk + '">' + ICON.sliders + 'ปรับตัวเลขนี้</button>' : '') + '</div>';
       }).join('') + '</div>';
     } else {
       out += '<div class="block">' + toolsHtml(TOPIC_TOOLS[state.topic], 'เครื่องมือที่ช่วยคิดเรื่องนี้', seen) + '</div>';
@@ -724,28 +804,30 @@
     return out + '</div></main>';
   }
 
-  /* ============================================================ LAB (ลองเปลี่ยนตัวเลขของเรื่องนี้) */
+  /* ============================================================ LAB (ปรับตัวเลขของเรื่องนี้ — เปลี่ยนแล้วใช้ทันที) */
   var LAB_KEYS = {
-    hire: ['salary', 'count', 'gain', 'capAdd'],
-    place: ['newRent', 'salesPct', 'moveCost', 'closedDays', 'dipPct'],
-    channel: ['cut', 'chQty', 'chPrice', 'movePct', 'extraCost', 'chFee'],
-    equip: ['price', 'life', 'eqGain', 'costDown', 'fixedChg', 'eqCap'],
+    hire: ['gain', 'salary', 'count', 'capAdd'],
+    place: ['salesPct', 'newRent', 'moveCost', 'closedDays', 'dipPct'],
+    channel: ['chQty', 'cut', 'chPrice', 'movePct', 'extraCost', 'chFee'],
+    equip: ['eqGain', 'price', 'life', 'costDown', 'fixedChg', 'eqCap'],
     branch: ['bPct', 'setup', 'bRent', 'bStaff', 'bSalary', 'bOther']
   };
   function labKeys() {
-    var d = trialD();
+    var d = dec();
     return (LAB_KEYS[state.topic] || []).filter(function (k) { return dShown(k, d) || k === 'bSalary' && n0(d.bStaff) > 0; });
   }
   function curVal(k, d) {
     var v = num(d[k]);
     if (v !== null) return v;
     if (k === 'chPrice') return n0(state.inp[ROLE[state.model].price]);
+    if (k === 'count') return 1;
     return 0;
   }
   function lStep(k, v) {
     var f = dDef(k), a = Math.abs(v);
     if (f.t === 'count' || k === 'bStaff' || k === 'closedDays' || k === 'life') return 1;
-    if (f.t === 'pct' || f.t === 'pctchips') return k === 'cut' ? 1 : (k === 'salesPct' || k === 'bPct' ? 5 : 1);
+    if (k === 'salesPct' || k === 'bPct') return 5;
+    if (f.t === 'pct') return 1;
     if (k === 'gain' || k === 'eqGain' || k === 'chQty' || k === 'capAdd' || k === 'eqCap') {
       if (state.model === 'rental') return 1;
       if (isVolModel(state.model) && state.inp.volumePer !== 'month') return a >= 50 ? niceStep(a * 0.05) : 1;
@@ -764,51 +846,40 @@
     else if (k === 'movePct' || k === 'dipPct') hi = 100;
     else if (k === 'count') { lo = 1; hi = Math.max(5, v0 * 2); }
     else if (k === 'bStaff') hi = Math.max(6, v0 * 2);
-    else if (k === 'closedDays') hi = Math.max(30, v0 * 2);
+    else if (k === 'closedDays') hi = dMax('closedDays') || 30;
     else if (k === 'life') { lo = 1; hi = Math.max(15, v0 * 2); }
     else if (k === 'fixedChg') { lo = -Math.floor(fixedTotal(state.inp) / st) * st; hi = Math.max(5000, Math.abs(v0) * 3); }
     else if (k === 'chPrice') { lo = Math.floor(v0 * 0.5 / st) * st; hi = Math.ceil(v0 * 2 / st) * st; }
     else if (k === 'gain' || k === 'eqGain' || k === 'chQty') hi = Math.max(v0 * 3, phGain(state.inp, state.model) * 4, st * 10);
     else hi = Math.max(v0 * 2.5, st * 20);
-    if (f.max !== undefined) hi = Math.min(hi, f.max);
+    var mx = dMax(k); if (mx !== null) hi = Math.min(hi, mx);
     hi = Math.ceil(hi / st) * st;
     return [lo, Math.max(hi, lo + st)];
   }
-  function lUnit(k) { var f = dDef(k), d = trialD(); return f.suf ? f.suf(state.inp, state.model, d) : (f.t === 'pct' ? '%' : 'บาท'); }
-  function lName(k) { return dDef(k).label(state.inp, state.model, trialD()); }
+  function lUnit(k) { var f = dDef(k); return f.suf ? f.suf(state.inp, state.model, dec()) : (f.t === 'pct' ? '%' : 'บาท'); }
+  function lName(k) { var f = dDef(k); return f.t === 'signed' ? f.label(state.inp, state.model, dec()) + ' (' + f.words[0] + ' + / ' + f.words[1] + ' −)' : f.label(state.inp, state.model, dec()); }
   function lInsight(k) {
-    var d = trialD(), R = E(d);
+    var R = E(dec());
     if (!R.ok) return '';
     var c = R.conds.filter(function (x) { return x.lever === k; })[0];
-    var gk = { gain: 1, eqGain: 1, chQty: 1 };
-    if (gk[k]) {
-      var st = lStep(k, curVal(k, d));
-      var R2 = E(Object.assign({}, d, (function () { var o = {}; o[k] = curVal(k, d) + st; return o; })()));
-      var e = R2.ok ? R2.profit - R.profit : null;
-      var t1 = e !== null ? 'เพิ่มทีละ ' + fmtN(st) + ' ' + esc(lUnit(k)) + ' = กำไร <b>' + signed(e) + '</b> บาท/เดือน' : '';
-      if (c && c.value !== null) t1 += ' · ' + esc(c.label) + ' ' + fmtN(c.value, c.value < 10 ? 1 : 0) + ' ' + esc(c.unit);
-      return t1;
-    }
-    if (k === 'salary' || k === 'count') {
-      var cn = R.conds.filter(function (x) { return x.id === 'need'; })[0];
-      return cn && cn.value !== null ? esc(cn.label) + ' <b>' + fmtN(cn.value, cn.value < 10 ? 1 : 0) + '</b> ' + esc(cn.unit) + ' ถึงจะคุ้ม' : '';
-    }
-    if (c) {
-      if (c.value === null) return esc(c.label) + ' · ' + esc(c.txt || 'ไม่คืนทุน');
-      return esc(c.label) + ' <b>' + (c.payback ? fmtMonths(c.value) : fmtN(c.value, c.value < 10 ? 1 : 0) + '</b> ' + esc(c.unit || '')) + (c.payback ? '</b>' : '');
-    }
-    if (R.one > 0 && (k === 'price' || k === 'setup' || k === 'moveCost')) return 'คืนทุน <b>' + (R.payback === null ? 'ไม่คืนทุน' : fmtMonths(R.payback)) + '</b>';
-    return '';
+    if (k === 'gain' || k === 'eqGain' || k === 'chQty' || k === 'salesPct' || k === 'bPct') c = R.conds.filter(function (x) { return x.id === 'need'; })[0];
+    if (k === 'salary' || k === 'count') c = R.conds.filter(function (x) { return x.id === 'need'; })[0];
+    if (!c) return R.one > 0 && (k === 'price' || k === 'setup' || k === 'moveCost') ? 'คืนทุน <b>' + (R.payback === null ? 'ไม่คืนทุน' : fmtMonths(R.payback)) + '</b>' : '';
+    if (c.value === null) return esc(c.label) + ' · <b>' + esc(c.payback ? 'ไม่คืนทุน' : c.txt || '') + '</b>';
+    return esc(c.label) + ' <b>' + esc(c.payback ? fmtMonths(c.value) : nf(c.value, c.unit)) + '</b>';
   }
   function labPanel() {
-    var B = E(dec()), Tt = hasTrial() ? E(trialD()) : B;
-    if (!B.ok || !Tt.ok) return '<section class="panel lab-panel"><div class="k">ตัวเลขยังไม่ครบ</div></section>';
-    var d = Tt.profit - B.profit;
-    return '<section class="panel lab-panel" aria-live="polite"><div class="row1"><span class="k">' + (Tt.profit < 0 ? 'ขาดทุนต่อเดือน' : 'กำไรต่อเดือน') + ' ถ้า' + esc(TOPICS[state.topic].title) + '</span>' +
-      (hasTrial() ? '<span class="delta ' + (d > 0.5 ? 'up' : d < -0.5 ? 'down' : '') + '">' + fmtN(Math.abs(d)) + '</span>' : '') + '</div>' +
-      '<div class="bignum">' + (Tt.profit < 0 ? '−' : '') + anim('lp', Tt.profit) + '<span class="u">บาท</span></div>' +
-      '<div class="was">ตอนนี้ (ไม่ทำ) ' + signedPlain(Tt.B.profit) + ' บาท' + (hasTrial() ? ' · ตัวเลขที่ใส่ไว้ ' + signedPlain(B.profit) + ' บาท' : '') + '</div>' +
-      statsHtml(Tt, 'l', hasTrial() ? B : null) + '</section>';
+    var Rr = E(dec());
+    if (!Rr.ok) return '<section class="panel lab-panel"><div class="k">ตัวเลขยังไม่ครบ</div></section>';
+    var d = Rr.delta;
+    var s3 = Rr.need > 0.5 ? [Rr.B.hasCash ? 'เงินขาดมือ' : 'ต้องมีเงิน', fmtCompact(Rr.need)] : ['เงินต่ำสุด', fmtCompact(Rr.low)];
+    var s2 = Rr.one > 0 ? ['คืนทุน', Rr.payback === null ? 'ไม่คืนทุน' : fmtMonths(Rr.payback)] : [Rr.sumDiff < -0.5 ? 'กำไรลดใน 1 ปี' : 'กำไรเพิ่มใน 1 ปี', fmtCompact(Math.abs(Rr.sumDiff))];
+    var c = Rr.conds.filter(function (x) { return x.id === 'need'; })[0];
+    var s1 = c && c.value !== null ? ['จุดคุ้ม', nf(c.value, '') + ' <small>' + esc(c.unit) + '</small>'] : ['จุดคุ้ม', '—'];
+    return '<section class="panel lab-panel" aria-live="polite"><div class="row1"><span class="k">ถ้า' + esc(TOPICS[state.topic].title) + ' กำไรต่อเดือน</span></div>' +
+      '<div class="bignum">' + (Rr.profit < 0 ? '−' : '') + anim('lp', Rr.profit) + '<span class="u">บาท</span></div>' +
+      '<div class="was">ไม่ทำ ' + plain(Rr.B.profit) + ' บาท · ' + (Math.abs(d) < 0.5 ? 'เท่ากัน' : dirSpan(d, (d > 0 ? 'มากกว่า ' : 'น้อยกว่า ') + fmtN(Math.abs(d)))) + '</div>' +
+      '<div class="stats">' + [s1, s2, s3].map(function (s) { return '<div class="stat"><div class="k">' + s[0] + '</div><div class="v">' + s[1] + '</div></div>'; }).join('') + '</div></section>';
   }
   function fmtInputNum(v) {
     if (v === null || v === undefined) return '';
@@ -816,16 +887,17 @@
     return Math.abs(r) >= 1000 ? Math.round(r).toLocaleString('th-TH') : String(r);
   }
   function wasTxt(k) {
-    var bv = curVal(k, dec()), tv = curVal(k, trialD());
+    if (!state.labOrig) return '';
+    var bv = curVal(k, state.labOrig), tv = curVal(k, dec());
     if (Math.abs(bv - tv) < 1e-9) return '';
-    var pct = lUnit(k).charAt(0) === '%';
-    return 'ที่ใส่ไว้ ' + fmtN(bv, 2) + (pct ? '%' : '') + ' · <span class="' + (tv > bv ? 'up' : 'down') + '">' + fmtN(Math.abs(tv - bv), 2) + (pct ? '%' : '') + '</span>';
+    var pc = lUnit(k).charAt(0) === '%';
+    return 'เดิม ' + fmtN(bv, 2) + (pc ? '%' : '') + ' · <span class="' + (tv > bv ? 'up' : 'down') + '">' + fmtN(Math.abs(tv - bv), 2) + (pc ? '%' : '') + '</span>';
   }
   function lrowHtml(k) {
-    var bv = curVal(k, dec()), tv = curVal(k, trialD()), st = lStep(k, bv), rng = lRange(k, bv, st);
+    var orig = state.labOrig || dec(), bv = curVal(k, orig), tv = curVal(k, dec()), st = lStep(k, bv), rng = lRange(k, bv, st);
     var lo = Math.min(rng[0], tv), hi = Math.max(rng[1], tv);
     var op = hi > lo ? (bv - lo) / (hi - lo) : 0;
-    var chg = state.trial.hasOwnProperty(k);
+    var chg = Math.abs(bv - tv) > 1e-9;
     var ins = state.active === k ? lInsight(k) : '';
     var val = fmtInputNum(tv), name = lName(k);
     return '<div class="lrow' + (chg ? ' changed' : '') + '" data-row="' + k + '"><div class="lr-top"><span class="lr-name">' + esc(name) + '</span>' +
@@ -835,35 +907,32 @@
       '<button class="stp" data-act="step" data-k="' + k + '" data-dir="1" aria-label="เพิ่ม">+</button></div>' +
       (ins ? '<div class="lr-ins">' + ins + '</div>' : '') + '</div>';
   }
+  function labChanged() { var o = state.labOrig; return !!o && JSON.stringify(o) !== JSON.stringify(dec()); }
   function viewLab() {
-    var right = hasTrial() ? '<button class="tb" data-act="reset">ล้าง</button>' : '';
-    return bar('<button class="tb" data-act="result">' + ICON.back + 'เสร็จ</button>', 'ลองเปลี่ยนตัวเลข', TOPICS[state.topic].title, right) +
+    var right = labChanged() ? '<button class="tb" data-act="lab-undo">' + ICON.undo + 'คืนค่าเดิม</button>' : '';
+    return bar('<button class="tb" data-act="result">' + ICON.back + 'กลับ</button>', 'ปรับตัวเลข', TOPICS[state.topic].title, right) +
       '<main class="screen"><div class="lab-top"><div class="wrap" id="labp">' + labPanel() + '</div></div><div class="wrap">' +
-      '<div class="lgroup"><h2>' + esc(TOPICS[state.topic].title) + '</h2><div class="lrows">' + labKeys().map(lrowHtml).join('') + '</div></div>' +
-      (hasTrial() ? '<div class="keep"><button class="btn block" data-act="keep">ใช้ตัวเลขชุดนี้</button><p class="help">ผลทุกหน้าจะเปลี่ยนตามตัวเลขชุดนี้</p></div>' : '') +
+      '<p class="lab-note">เปลี่ยนแล้วใช้ทันที ผลทุกหน้าเปลี่ยนตาม</p>' +
+      '<div class="lgroup"><div class="lrows">' + labKeys().map(lrowHtml).join('') + '</div></div>' +
       '<p class="fine">ตัวเลขร้านเปลี่ยนได้ที่ <button class="lnk" data-act="review">แก้ตัวเลข</button></p></div></main>';
   }
   function labUpdate(k, fromSlider) {
     var p = $('#labp'); if (p) { p.innerHTML = labPanel(); runAnim(p); }
     var row = $('.lrow[data-row="' + k + '"]');
-    if (!row) return;
-    row.classList.toggle('changed', state.trial.hasOwnProperty(k));
-    var tv = curVal(k, trialD());
-    var inp = $('input[data-lv]', row);
-    if (inp && document.activeElement !== inp) { inp.value = fmtInputNum(tv); inp.size = Math.max(2, inp.value.length); }
-    if (!fromSlider) { var r = $('input[type="range"]', row); if (r) { if (tv > +r.max) r.max = tv; if (tv < +r.min) r.min = tv; r.value = tv; } }
-    $('.lr-was', row).innerHTML = wasTxt(k);
-    var h = lInsight(k), box = $('.lr-ins', row);
-    if (h && !box) row.insertAdjacentHTML('beforeend', '<div class="lr-ins">' + h + '</div>');
-    else if (box) { if (h) box.innerHTML = h; else box.remove(); }
-    var hasKeep = !!$('.keep');
-    if (hasTrial() !== hasKeep) {
-      if (hasTrial()) $('.lgroup').insertAdjacentHTML('afterend', '<div class="keep"><button class="btn block" data-act="keep">ใช้ตัวเลขชุดนี้</button><p class="help">ผลทุกหน้าจะเปลี่ยนตามตัวเลขชุดนี้</p></div>');
-      else $('.keep').remove();
+    if (row) {
+      var tv = curVal(k, dec());
+      row.classList.toggle('changed', !!state.labOrig && Math.abs(curVal(k, state.labOrig) - tv) > 1e-9);
+      var inp = $('input[data-lv]', row);
+      if (inp && document.activeElement !== inp) { inp.value = fmtInputNum(tv); inp.size = Math.max(2, inp.value.length); }
+      if (!fromSlider) { var r = $('input[type="range"]', row); if (r) { if (tv > +r.max) r.max = tv; if (tv < +r.min) r.min = tv; r.value = tv; } }
+      $('.lr-was', row).innerHTML = wasTxt(k);
+      var h = lInsight(k), box = $('.lr-ins', row);
+      if (h && !box) row.insertAdjacentHTML('beforeend', '<div class="lr-ins">' + h + '</div>');
+      else if (box) { if (h) box.innerHTML = h; else box.remove(); }
     }
-    var bt = $('.bar .tb[data-act="reset"]');
-    if (hasTrial() && !bt) { var thb = $('.bar [data-act="theme"]'); thb.insertAdjacentHTML('beforebegin', '<button class="tb" data-act="reset">ล้าง</button>'); }
-    if (!hasTrial() && bt) bt.remove();
+    var bt = $('.bar .tb[data-act="lab-undo"]');
+    if (labChanged() && !bt) { var thb = $('.bar [data-act="theme"]'); thb.insertAdjacentHTML('beforebegin', '<button class="tb" data-act="lab-undo">' + ICON.undo + 'คืนค่าเดิม</button>'); }
+    if (!labChanged() && bt) bt.remove();
     save();
   }
   function setActive(k) {
@@ -873,24 +942,26 @@
     var row = $('.lrow[data-row="' + k + '"]');
     if (row && !$('.lr-ins', row)) { var h = lInsight(k); if (h) row.insertAdjacentHTML('beforeend', '<div class="lr-ins">' + h + '</div>'); }
   }
-  function setTrial(k, v) {
-    var f = dDef(k), bv = curVal(k, dec());
+  /* เปลี่ยนตัวเลขของการตัดสินใจ (ใช้ทันที) */
+  function setDec(k, v) {
+    var f = dDef(k);
     v = Math.round(v * 1e6) / 1e6;
-    if (f.t === 'count' || k === 'bStaff' || k === 'closedDays') v = Math.round(v);
+    if (f.t === 'count' || f.t === 'int') v = Math.round(v);
     if (k === 'count') v = Math.max(1, v);
-    if (k === 'life') v = Math.max(0.5, v);
-    if (k === 'salesPct') v = Math.max(-90, v);
-    else if (k === 'fixedChg') v = Math.max(-fixedTotal(state.inp), v);
-    else if (v < 0) v = 0;
+    if (f.min !== undefined) v = Math.max(f.min, v);
+    if (k === 'fixedChg') v = Math.max(-fixedTotal(state.inp), v);
+    else if (k !== 'salesPct' && v < 0) v = 0;
     var mx = dMax(k); if (mx !== null) v = Math.min(mx, v);
-    if (Math.abs(v - bv) < 1e-9) delete state.trial[k]; else state.trial[k] = v;
+    dec()[k] = v;
+    if (k === piv().key) delete state.wi[state.topic];
   }
 
-  /* ============================================================ RENDER */
+  /* ============================================================ RENDER + การนำทาง (ปุ่มย้อนกลับของมือถือใช้ได้) */
   function render() {
     var v = state.view;
     if (['dq', 'result', 'lab', 'ask', 'points'].indexOf(v) >= 0 && (!state.topic || !shopOk())) v = state.view = state.model ? 'review' : 'start';
-    if (v === 'review' && !state.model) v = state.view = 'start';
+    if (['result', 'lab', 'ask', 'points'].indexOf(v) >= 0 && !dAllValid()) { v = state.view = 'dq'; }
+    if ((v === 'review' || v === 'wizard') && !state.model) v = state.view = 'start';
     app.innerHTML = v === 'start' ? viewStart() : v === 'shop' ? viewShop() : v === 'wizard' ? viewWizard() : v === 'dq' ? viewDq() : v === 'review' ? viewReview()
       : v === 'lab' ? viewLab() : v === 'ask' ? viewAsk() : v === 'points' ? viewPoints() : viewResult();
     runAnim(app);
@@ -898,13 +969,15 @@
     document.documentElement.style.setProperty('--foot-h', (foot ? foot.offsetHeight : 0) + 'px');
     save();
   }
+  function hpush(v) { try { history.pushState({ v: v, t: state.topic }, ''); } catch (e) { /* ignore */ } }
   function go(view, top) {
     var same = state.view === view && top === false;
+    if (state.view !== view && top !== false) hpush(view);
     state.view = view; render();
-    if (same) $$('.screen').forEach(function (el) { el.style.animation = 'none'; });
-    if (top !== false) window.scrollTo(0, 0);
+    if (same) $$('.screen').forEach(function (el) { el.style.animation = 'none'; el.classList.add('still'); });
+    if (top !== false) { window.scrollTo(0, 0); focusMain(); }
   }
-  function focusMain() { var h = $('main h1') || $('main h2'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); } }
+  function focusMain() { var h = $('main h1') || $('main h2'); if (h) { h.setAttribute('tabindex', '-1'); try { h.focus({ preventScroll: true }); } catch (e) { h.focus(); } } }
   function toast(msg) {
     var o = $('.toast'); if (o) o.remove();
     var t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg;
@@ -926,6 +999,10 @@
       var node = $('.field[data-df="' + k + '"]'); if (!node) return;
       node.hidden = !dShown(k, d);
       var e = $('#err-' + k); if (e) { var m = dErr(k, d); e.textContent = m; e.hidden = !m; var ib = $('.inbox', node); if (ib) ib.classList.toggle('bad', !!m); }
+      $$('[data-act="dquick"][data-k="' + k + '"]', node).forEach(function (b) {
+        var f = dDef(k), q = f.quick[+b.getAttribute('data-i')], qv = q[1](state.inp, state.model), cv = num(dGet(d, k));
+        b.setAttribute('aria-pressed', String(cv !== null && qv !== null && Math.abs(cv - qv) < 1e-9));
+      });
     });
   }
 
@@ -938,17 +1015,17 @@
     if (M.units && !state.inp.unitLabel) state.inp.unitLabel = M.defUnit;
     if (m === 'subscription' && !state.inp.cycle) state.inp.cycle = 1;
     if (m === 'rental' && !state.inp.periodKind) state.inp.periodKind = 'night';
-    state.isSample = !!sample; state.trial = {}; state.answers = {}; state.qidx = 0; state.active = null; state.step = 0; state.editing = false;
-    state.ds = {}; state.dstep = 0; state.dediting = false;
+    state.isSample = !!sample; state.answers = {}; state.qidx = 0; state.active = null; state.step = 0; state.editing = false;
+    state.ds = {}; state.wi = {}; state.dsign = {}; state.dstep = 0; state.dediting = false;
     state.feeHelp = false; state.fh = { share: '', rate: '' };
   }
   function openTopic(t) {
     if (!state.model) { state.topic = t; go('shop'); return; }
     if (!topicOk(t, state.model)) { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[state.model].tile); return; }
-    state.topic = t; state.trial = {}; state.active = null; state.qidx = 0;
+    state.topic = t; state.active = null; state.qidx = 0;
     if (!state.ds[t]) state.ds[t] = Object.assign({}, state.isSample && state.model === 'unit' ? SAMPLE_DEC[t] : DEC_DEFAULT[t]);
     if (!shopOk()) { state.step = 0; state.editing = false; go('wizard'); return; }
-    if (dAllValid() && (state.isSample || Object.keys(state.ds[t]).length > Object.keys(DEC_DEFAULT[t]).length)) go('result');
+    if (dAllValid()) go('result');
     else { state.dstep = 0; state.dediting = false; go('dq'); }
   }
   function scrollToRow(k) {
@@ -973,7 +1050,7 @@
         var tp = state.topic && topicOk(state.topic, 'unit') ? state.topic : 'hire';
         chooseModel('unit', true); state.topic = null; openTopic(tp); break;
       }
-      case 'topic': openTopic(t.getAttribute('data-t')); break;
+      case 'topic': if (t.getAttribute('aria-disabled') === 'true') { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[state.model].tile); break; } openTopic(t.getAttribute('data-t')); break;
       case 'to-start': go('start'); break;
       case 'to-shop': go('shop'); break;
       case 'shop-edit': if (state.isSample) go('shop'); else go('review'); break;
@@ -982,7 +1059,7 @@
         if (state.model === nm && !state.isSample && Object.keys(state.inp).length > 3) { state.step = 0; state.editing = false; go('wizard'); break; }
         chooseModel(nm, false); go('wizard'); break;
       }
-      case 'next': steps = stepsFor(m); if (state.step < steps.length - 1) { state.step++; go('wizard'); focusMain(); } break;
+      case 'next': steps = stepsFor(m); if (state.step < steps.length - 1) { state.step++; go('wizard'); } break;
       case 'prev':
         if (state.editing) go('review');
         else if (state.step > 0) { state.step--; go('wizard'); }
@@ -990,26 +1067,26 @@
         break;
       case 'shop-done': {
         if (!stepsFor(m).every(stepValid)) break;
-        state.editing = false; state.trial = {};
+        state.editing = false;
         if (!state.topic) { go('start'); break; }
         if (!topicOk(state.topic, m)) { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[m].tile); go('start'); break; }
         dec();
-        if (dAllValid() && Object.keys(dec()).length > Object.keys(DEC_DEFAULT[state.topic]).length) go('result');
-        else { state.dstep = 0; state.dediting = false; go('dq'); focusMain(); }
+        if (dAllValid()) go('result');
+        else { state.dstep = 0; state.dediting = false; go('dq'); }
         break;
       }
-      case 'review': state.trial = {}; go('review'); break;
-      case 'result': go('result'); break;
+      case 'review': go('review'); break;
+      case 'result': state.labOrig = null; go('result'); break;
       case 'edit-step': state.step = +t.getAttribute('data-i'); state.editing = true; go('wizard'); break;
       case 'd-edit': state.dstep = +t.getAttribute('data-i'); state.dediting = true; go('dq'); break;
-      case 'd-next': { steps = dStepsFor(state.topic, state.inp, m); if (state.dstep < steps.length - 1 && dStepValid(steps[state.dstep])) { state.dstep++; go('dq'); focusMain(); } break; }
+      case 'd-next': { steps = dStepsFor(state.topic, state.inp, m); if (state.dstep < steps.length - 1 && dStepValid(steps[state.dstep])) { state.dstep++; go('dq'); } break; }
       case 'd-prev':
         if (state.dediting) go('review');
         else if (state.dstep > 0) { state.dstep--; go('dq'); }
         else if (state.isSample) go('start');
         else { state.step = stepsFor(m).length - 2; state.editing = false; go('wizard'); }
         break;
-      case 'd-done': if (dAllValid()) { state.dediting = false; state.trial = {}; go('result'); } break;
+      case 'd-done': if (dAllValid()) { state.dediting = false; delete state.wi[state.topic]; go('result'); } break;
       case 'dcount': {
         var k0 = t.getAttribute('data-k'), f0 = dDef(k0), d0 = dec();
         d0[k0] = Math.max(f0.min || 1, Math.min(f0.max || 99, Math.round(n0(d0[k0]) || 1) + +t.getAttribute('data-dir')));
@@ -1018,8 +1095,21 @@
       }
       case 'dpick': {
         var k1 = t.getAttribute('data-k');
-        dec()[k1] = +t.getAttribute('data-v');
+        dec()[dKey(k1)] = +t.getAttribute('data-v');
         go('dq', false); var pb = $('[data-act="dpick"][data-k="' + k1 + '"][data-v="' + t.getAttribute('data-v') + '"]'); if (pb) pb.focus();
+        break;
+      }
+      case 'dquick': {
+        var kq = t.getAttribute('data-k'), fq = dDef(kq), qv = fq.quick[+t.getAttribute('data-i')][1](state.inp, m);
+        if (qv !== null && qv !== undefined) dec()[dKey(kq)] = qv;
+        go('dq', false); var qb = $('[data-act="dquick"][data-k="' + kq + '"][data-i="' + t.getAttribute('data-i') + '"]'); if (qb) qb.focus();
+        break;
+      }
+      case 'dsign': {
+        var ks = t.getAttribute('data-k'), sg = +t.getAttribute('data-v'), cvs = num(dec()[ks]);
+        state.dsign[ks] = sg;
+        if (cvs !== null) dec()[ks] = Math.abs(cvs) * sg;
+        go('dq', false); var sb2 = $('[data-act="dsign"][data-k="' + ks + '"][data-v="' + sg + '"]'); if (sb2) sb2.focus();
         break;
       }
       case 'chname': dec().chName = t.getAttribute('data-v'); go('dq', false); break;
@@ -1044,21 +1134,24 @@
         if (hi >= 0) { s.high.splice(hi, 1); s.low.push(c); } else if (lo >= 0) s.low.splice(lo, 1); else s.high.push(c);
         state.inp.season = s; go('wizard', false); break;
       }
-      case 'lab': state.active = t.getAttribute('data-k') || null; go('lab'); if (state.active) scrollToRow(state.active); break;
-      case 'try': {
-        var k3 = t.getAttribute('data-k'), v3 = t.getAttribute('data-v');
-        if (labKeys().indexOf(k3) < 0) break;
-        state.trial = {};
-        if (v3 !== null && v3 !== '') setTrial(k3, +v3);
-        state.active = k3; go('lab'); scrollToRow(k3); break;
+      case 'wi': {
+        state.wi[state.topic] = +t.getAttribute('data-v');
+        var rg = $('#pvr'); if (rg) rg.value = state.wi[state.topic];
+        resultLive(); break;
       }
+      case 'lab': {
+        var lk = t.getAttribute('data-k');
+        if (lk && labKeys().indexOf(lk) < 0) lk = null;
+        state.labOrig = JSON.parse(JSON.stringify(dec())); delete state.wi[state.topic];
+        state.active = lk || null; go('lab'); if (lk) scrollToRow(lk);
+        break;
+      }
+      case 'lab-undo': if (state.labOrig) { state.ds[state.topic] = JSON.parse(JSON.stringify(state.labOrig)); go('lab', false); } break;
       case 'step': {
-        var k = t.getAttribute('data-k'), cv = curVal(k, trialD()), st = lStep(k, curVal(k, dec()));
-        var nvv = Math.round((cv + st * +t.getAttribute('data-dir')) / st) * st;
-        setActive(k); setTrial(k, nvv); labUpdate(k, false); break;
+        var k = t.getAttribute('data-k'), st = lStep(k, curVal(k, state.labOrig || dec()));
+        var nvv = Math.round((curVal(k, dec()) + st * +t.getAttribute('data-dir')) / st) * st;
+        setActive(k); setDec(k, nvv); labUpdate(k, false); break;
       }
-      case 'reset': state.trial = {}; go('lab', false); break;
-      case 'keep': Object.assign(dec(), state.trial); state.trial = {}; go('result'); toast('ใช้ตัวเลขชุดใหม่แล้ว'); break;
       case 'ask': {
         var L0 = askList(), first = 0, A0 = ans();
         while (first < L0.length - 1 && A0[L0[first]]) first++;
@@ -1080,7 +1173,7 @@
       }
       case 'q-prev': state.qidx = Math.max(0, state.qidx - 1); go('ask'); break;
       case 'tool': toast('ตัวอย่างนี้ยังไม่เชื่อมกับเครื่องมือจริง ในเว็บจริงจะเปิด "' + TOOLS[t.getAttribute('data-t')][0] + '" พร้อมตัวเลขร้านคุณ'); break;
-      case 'plan': toast('แผนธุรกิจยังไม่เปิดให้ใช้ ข้อความส่วนนี้รอเจ้าของตกลง'); break;
+      case 'plan': toast('แผนธุรกิจของ Jarua ยังไม่เปิดให้ใช้ เร็ว ๆ นี้จะใช้ตัวเลขชุดนี้ต่อได้'); break;
     }
   }
 
@@ -1098,9 +1191,9 @@
       state.inp[el.getAttribute('data-k')] = parseInput(el);
       refreshWizardLive(); save();
     } else if (el.hasAttribute('data-dk')) {
-      var dk = el.getAttribute('data-dk');
-      dec()[dk] = parseInput(el);
-      if (dDef(dk).t === 'pctchips') $$('[data-act="dpick"][data-k="' + dk + '"]').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.getAttribute('data-v') === dec()[dk])); });
+      var dk = el.getAttribute('data-dk'), f = dDef(dk), pv0 = parseInput(el);
+      if (f.t === 'signed' && pv0 !== null) { var curS = num(dec()[dk]); var sg = curS !== null && curS !== 0 ? (curS < 0 ? -1 : 1) : (state.dsign[dk] || 1); pv0 = Math.abs(pv0) * sg; }
+      dec()[dKey(dk)] = pv0;
       refreshDqLive(); save();
     } else if (el.hasAttribute('data-chname-custom')) {
       var nmv = el.value.trim().slice(0, 24);
@@ -1120,16 +1213,22 @@
       var v = el.value.trim();
       if (v) { state.inp.unitLabel = v; $$('.chips .chip').forEach(function (c) { c.setAttribute('aria-pressed', 'false'); }); }
       save();
+    } else if (el.hasAttribute('data-pv')) {
+      state.wi[state.topic] = +el.value;
+      resultLive();
     } else if (el.hasAttribute('data-range')) {
       var k = el.getAttribute('data-range');
-      setActive(k); setTrial(k, +el.value); labUpdate(k, true);
+      setActive(k); setDec(k, +el.value); labUpdate(k, true);
     } else if (el.hasAttribute('data-lv')) {
       var k2 = el.getAttribute('data-lv'), pv = parseInput(el);
       el.size = Math.max(2, el.value.length);
-      if (pv !== null) { setActive(k2); setTrial(k2, pv); labUpdate(k2, false); }
+      if (pv !== null) { setActive(k2); setDec(k2, pv); labUpdate(k2, false); }
     }
   }
-  function onChange(e) { if (e.target.hasAttribute('data-unit-custom')) go('wizard', false); }
+  function onChange(e) {
+    if (e.target.hasAttribute('data-unit-custom')) go('wizard', false);
+    if (e.target.hasAttribute('data-pv')) { var main = $('main.res3'); if (main) main.classList.remove('live'); }
+  }
   function onBlur(e) {
     var el = e.target;
     if (!el.hasAttribute) return;
@@ -1137,10 +1236,10 @@
       var v = state.inp[el.getAttribute('data-k')];
       if (v !== null && v !== undefined) el.value = el.getAttribute('data-t') === 'money' ? Math.round(v).toLocaleString('th-TH') : String(v);
     } else if (el.hasAttribute('data-dk')) {
-      var dv = dec()[el.getAttribute('data-dk')];
-      if (dv !== null && dv !== undefined) el.value = el.getAttribute('data-t') === 'money' ? Math.round(dv).toLocaleString('th-TH') : String(dv);
+      var dk = el.getAttribute('data-dk'), dv = dec()[dKey(dk)];
+      if (dv !== null && dv !== undefined) { var f = dDef(dk); dv = f.t === 'signed' ? Math.abs(dv) : dv; el.value = el.getAttribute('data-t') === 'money' || (f.t === 'signed' && dk === 'fixedChg') ? Math.round(dv).toLocaleString('th-TH') : String(dv); }
     } else if (el.hasAttribute('data-lv')) {
-      el.value = fmtInputNum(curVal(el.getAttribute('data-lv'), trialD()));
+      el.value = fmtInputNum(curVal(el.getAttribute('data-lv'), dec()));
     }
   }
   function onKey(e) {
@@ -1155,14 +1254,14 @@
     }
     if (e.target.hasAttribute('data-lv')) e.target.blur();
   }
-  /* tooltip ของกราฟเงินสด (ทำ / ไม่ทำ) */
+  /* tooltip ของกราฟเงินในมือ (ทำ / ไม่ทำ) */
   function onPointer(e) {
     var hit = e.target.closest && e.target.closest('.chart .hit');
     var chart = e.target.closest && e.target.closest('.chart');
     $$('.tip').forEach(function (x) { if (!chart || !chart.contains(x)) x.remove(); });
     $$('.chart .cross').forEach(function (c) { if (!chart || !chart.contains(c)) c.setAttribute('visibility', 'hidden'); });
     if (!hit) { if (chart) { var tp = $('.tip', chart); if (tp) tp.remove(); var cr = $('.cross', chart); if (cr) cr.setAttribute('visibility', 'hidden'); } return; }
-    var i = +hit.getAttribute('data-i'), R = E(dec());
+    var i = +hit.getAttribute('data-i'), R = E(viewD());
     if (!R.ok) return;
     var va = i === 0 ? R.aStart : R.rows[i - 1].bal, vb = i === 0 ? R.cashStart : R.rows[i - 1].bBal;
     var svg = $('svg', chart), vbx = svg.viewBox.baseVal, rc = svg.getBoundingClientRect(), cb = chart.getBoundingClientRect();
@@ -1170,7 +1269,7 @@
     var px = hx / vbx.width * rc.width + (rc.left - cb.left);
     var cross = $('.cross', chart); cross.setAttribute('x1', hx); cross.setAttribute('x2', hx); cross.setAttribute('visibility', 'visible');
     var tip = $('.tip', chart); if (!tip) { tip = document.createElement('div'); tip.className = 'tip'; chart.appendChild(tip); }
-    tip.innerHTML = (i === 0 ? 'ตอนนี้' : 'สิ้น ' + monthLabel(i, true)) + ' · ทำ <b>' + signedPlain(va) + '</b> · ไม่ทำ ' + signedPlain(vb);
+    tip.innerHTML = (i === 0 ? 'ตอนนี้' : 'สิ้น ' + monthLabel(i, true)) + ' · ทำ <b>' + plain(va) + '</b> · ไม่ทำ ' + plain(vb);
     var w = tip.offsetWidth;
     tip.style.left = Math.max(w / 2, Math.min(cb.width - w / 2, px)) + 'px'; tip.style.top = '14px';
   }
@@ -1188,6 +1287,14 @@
     document.addEventListener('pointermove', onPointer);
     document.addEventListener('pointerdown', onPointer);
     window.addEventListener('resize', function () { var f = $('#foot'); document.documentElement.style.setProperty('--foot-h', (f ? f.offsetHeight : 0) + 'px'); });
+    window.addEventListener('popstate', function (ev) {
+      var s = ev.state;
+      state.view = s && s.v ? s.v : 'start';
+      if (s && s.t && TOPICS[s.t]) state.topic = s.t;
+      if (state.view === 'lab') state.view = 'result';
+      render(); window.scrollTo(0, 0);
+    });
+    try { history.replaceState({ v: state.view, t: state.topic }, ''); } catch (e) { /* ignore */ }
     render();
   }
   var hot = window.claude && window.claude.hot;
