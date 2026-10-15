@@ -49,5 +49,6 @@
 - `jarua/docs/business-lab/HANDOFF.md` — ทุกอย่างที่ตกลงแล้วเรื่อง Business Lab สิ่งที่ตัดทิ้ง และงานถัดไป
 - `jarua/docs/business-lab/mvp-check-numbers/` — MVP ของเครื่องมือตัวแรก (อ่าน `README.md` ในนั้นก่อนแก้) · สถานะอยู่ใน HANDOFF ข้อ 7.4
 - `jarua/docs/business-lab/mvp-big-decisions/` — MVP ของตัวที่ 3 "เช็กก่อนตัดสินใจเรื่องใหญ่" (อ่าน `README.md` ในนั้นก่อนแก้) · สถานะอยู่ใน HANDOFF ข้อ 7.5
+- `jarua/docs/business-lab/mvp-lab/` — หน้ารวม Business Lab ที่รวมทุกเครื่องมือไว้ลิงก์เดียว (อ่าน `README.md` ในนั้นก่อนแก้) · สถานะอยู่ใน HANDOFF ข้อ 7.6 · ตัวเลขร้านชุดกลางที่ทุกเครื่องมือใช้ร่วมกัน: `jarua/docs/business-lab/shared/lab-shop.js`
 - `jarua/docs/business-lab/reference/pl1-tools.md` — รายชื่อเครื่องมือ PL1 ทั้ง 83 ตัว
 - `jarua/docs/business-lab/reference/pl2-calc-v4.ts` — สำเนาตัวคำนวณ v4.2 ของ PL2 (อ่านอย่างเดียว)

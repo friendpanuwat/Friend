@@ -1,6 +1,7 @@
 # MVP ตัวที่ 1 "เช็กตัวเลขร้าน" (Business Lab)
 
-- ดูบนมือถือ (artifact ส่วนตัวของเจ้าของ): https://claude.ai/artifact/P7cgLjD3i8m4YFNqBoE5uE
+- ดูบนมือถือ: ลิงก์ Business Lab ใน `../HANDOFF.md` ข้อ 7.6 (หน้ารวม → “เช็กตัวเลขร้าน”) · ลิงก์เดิม https://claude.ai/artifact/P7cgLjD3i8m4YFNqBoE5uE เป็นรุ่นก่อนมีหน้ารวม ไม่อัปเดตแล้ว
+- ใช้ตัวเลขร้านชุดกลางร่วมกับเครื่องมืออื่น (`../shared/lab-shop.js` ใส่ใน `build.sh`) · ปุ่มกลับหน้ารวมขึ้นเมื่อเปิดผ่านหน้ารวม (`window.LAB_HUB`)
 - สถานะ ความเห็นเจ้าของ และสิ่งที่ยังต้องตัดสินใจ: `../HANDOFF.md` ข้อ 7.4
 
 ## ไฟล์
@@ -23,7 +24,7 @@
 2. `./build.sh`
 3. `node tests/unit.js && node tests/fuzz.js`
 4. `tests/fetch-fonts.sh` (ครั้งแรกครั้งเดียว) แล้ว `node tests/flows.js` · ถ่ายภาพหน้าจอด้วย `tests/harness.js` (ภาพอยู่ใน `.out/shots/`)
-5. อ่าน artifact เดิมก่อน (Artifact tool `action: "read"` กับลิงก์ข้างบน) แล้ว publish `check-numbers.html` ด้วย `url` เดิม เจ้าของเปิดลิงก์เดิมแล้วรีเฟรช
+5. `../mvp-lab/build.sh` แล้ว `node ../mvp-lab/tests/lab.js` · ส่งให้เจ้าของดูที่ลิงก์ Business Lab (วิธี publish ใน `../mvp-lab/README.md`)
 
 ## ข้อห้าม
 
