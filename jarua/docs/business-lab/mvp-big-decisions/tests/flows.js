@@ -65,7 +65,7 @@ async function check(page, label) {
         await page.waitForTimeout(60);
         for (const b of await page.$$('.pv-chips .sc')) { await b.click(); await page.waitForTimeout(40); }
         bad += await check(page, label + ' result-whatif');
-        await page.click('.lane-cta [data-act="lab"]');
+        await page.click('#foot [data-act="lab"]');
         await page.evaluate(() => {
           for (const r of document.querySelectorAll('input[type="range"]')) {
             r.value = r.max; r.dispatchEvent(new Event('input', { bubbles: true }));
@@ -86,7 +86,9 @@ async function check(page, label) {
     }
     /* กรอกจริงด้วยการแตะ */
     for (const [m, T] of [['subscription', 'hire'], ['rental', 'branch'], ['service', 'equip'], ['resell', 'freeship'], ['unit', 'promo'], ['resell', 'newprod']]) {
-      await page.evaluate(() => { sessionStorage.clear(); const L = window.__lab3; L.state.model = null; L.state.inp = {}; L.state.ds = {}; L.state.topic = null; L.go('start'); });
+      await page.evaluate(() => { sessionStorage.clear(); const L = window.__lab3; L.state.model = null; L.state.inp = {}; L.state.ds = {}; L.state.topic = null; L.state.where = null; L.go('start'); });
+      if (await page.$('[data-act="topic"]')) { bad++; console.log('  PROBLEM topics shown before choosing where'); }
+      await page.click('[data-act="where"][data-v="both"]');
       await page.click(`[data-act="topic"][data-t="${T}"]`);
       await page.click(`[data-act="model"][data-m="${m}"]`);
       const inp = sampleInp(ctx, m);

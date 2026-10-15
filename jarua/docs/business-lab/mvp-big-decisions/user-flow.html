@@ -1,0 +1,269 @@
+<title>เส้นทางผู้ใช้ ตัวที่ 3</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Sora:wght@600;700&display=swap">
+<style>
+/* ผังเส้นทางแบบราง: รางแนวตั้งด้านซ้าย สัญลักษณ์ผังมาตรฐานบนราง (แคปซูล = เข้า/จบ · วงกลมมีเลข = หน้าจอ · ข้าวหลามตัด = ทางแยก) เนื้อหาด้านขวา · ขาว ดำ เทา ตามแบรนด์ Jarua */
+:root {
+  --bg: #f2f2f3; --card: #ffffff; --ink: #0b0b0c; --ink-2: #3b3b41; --muted: #6a6a72; --line: #e1e1e5; --line-strong: #c3c3ca; --surface: #e9e9ec;
+  --hatch: repeating-linear-gradient(135deg, var(--surface) 0 3px, transparent 3px 7px);
+  --shadow: 0 1px 2px rgba(11, 11, 12, 0.05), 0 8px 22px rgba(11, 11, 12, 0.06);
+  --f-th: "IBM Plex Sans Thai", "Noto Sans Thai", "Thonburi", system-ui, sans-serif;
+  --f-num: "Sora", "IBM Plex Sans Thai", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #09090a; --card: #151517; --ink: #f4f4f5; --ink-2: #cdcdd3; --muted: #8f8f97; --line: #2a2a2e; --line-strong: #44444b; --surface: #222226;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5); color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #09090a; --card: #151517; --ink: #f4f4f5; --ink-2: #cdcdd3; --muted: #8f8f97; --line: #2a2a2e; --line-strong: #44444b; --surface: #222226;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5); color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-th); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+.page { max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; display: grid; gap: 34px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; line-height: 1.3; }
+p { margin: 0; text-wrap: pretty; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--muted); }
+header { display: grid; gap: 10px; }
+header h1 { font-size: 30px; letter-spacing: -0.01em; }
+header p { color: var(--ink-2); }
+.five { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.five li { font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--card); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.five b { font-family: var(--f-num); margin-right: 4px; }
+section { display: grid; gap: 12px; }
+.sh { display: flex; align-items: baseline; gap: 10px; }
+.sh .n { font-family: var(--f-num); font-weight: 700; font-size: 14px; width: 28px; height: 28px; border-radius: 14px; background: var(--ink); color: var(--bg); display: inline-flex; align-items: center; justify-content: center; flex: none; transform: translateY(4px); }
+.sh h2 { font-size: 21px; }
+.goal { background: var(--ink); color: var(--bg); border-radius: 20px; padding: 18px; display: grid; gap: 8px; }
+.goal small { font-size: 13px; opacity: 0.72; font-weight: 600; }
+.goal b { font-size: 19px; line-height: 1.45; }
+.who { font-size: 14px; color: var(--ink-2); }
+.entries { display: grid; gap: 8px; }
+.entry { background: var(--card); border-radius: 16px; padding: 12px 14px; box-shadow: var(--shadow); display: grid; grid-template-columns: 30px 1fr; gap: 2px 10px; }
+.entry .k { grid-row: 1 / span 2; width: 30px; height: 30px; border-radius: 15px; box-shadow: inset 0 0 0 1.5px var(--ink); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+.entry b { font-size: 15px; }
+.entry span { font-size: 14px; color: var(--ink-2); }
+.entry.later { box-shadow: none; background: transparent; border: 1.5px dashed var(--line-strong); }
+
+/* แท็บ แบบใหม่ | แบบเดิม */
+.tabs { display: flex; background: var(--surface); border-radius: 14px; padding: 4px; gap: 4px; }
+.tabs button { flex: 1; min-height: 44px; border: 0; border-radius: 10px; background: transparent; font: 600 15px var(--f-th); color: var(--muted); cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--card); color: var(--ink); box-shadow: var(--shadow); }
+.tabs button:focus-visible, .entry:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend i { flex: none; }
+
+/* ราง */
+.flow { list-style: none; margin: 0; padding: 0; }
+.node { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); column-gap: 12px; padding-bottom: 16px; }
+.node::before { content: ""; position: absolute; left: 17px; top: 0; bottom: 0; width: 2px; background: var(--line-strong); }
+.node:first-child::before { top: 18px; }
+.node:last-child { padding-bottom: 0; }
+.node:last-child::before { bottom: auto; height: 18px; }
+.mk { grid-column: 1; justify-self: center; position: relative; z-index: 1; }
+.mk.step { width: 32px; height: 32px; border-radius: 16px; background: var(--ink); color: var(--bg); font: 700 14px var(--f-num); display: flex; align-items: center; justify-content: center; margin-top: 8px; box-shadow: 0 0 0 4px var(--bg); }
+.mk.dec { width: 20px; height: 20px; transform: rotate(45deg); background: var(--bg); box-shadow: inset 0 0 0 2px var(--ink), 0 0 0 4px var(--bg); margin-top: 12px; }
+.mk.term { width: 30px; height: 16px; border-radius: 8px; background: var(--ink); margin-top: 12px; box-shadow: 0 0 0 4px var(--bg); }
+.legend .mk { margin: 0; box-shadow: none; }
+.legend .mk.step { width: 18px; height: 18px; font-size: 10px; }
+.legend .mk.dec { width: 12px; height: 12px; margin: 0 3px; box-shadow: inset 0 0 0 2px var(--ink); }
+.legend .mk.term { width: 22px; height: 12px; }
+.bd { grid-column: 2; min-width: 0; display: grid; gap: 8px; }
+.scr { background: var(--card); border-radius: 18px; padding: 13px 15px 14px; box-shadow: var(--shadow); display: grid; gap: 6px; }
+.scr h3 { font-size: 17px; }
+.scr p, .scr li { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+.scr ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
+.scr.main { box-shadow: inset 0 0 0 2px var(--ink), var(--shadow); }
+.term-t { font-size: 15px; font-weight: 700; padding-top: 9px; }
+.term-t small { display: block; font-size: 13px; font-weight: 500; color: var(--muted); }
+.dq { font-size: 16px; font-weight: 700; padding-top: 7px; line-height: 1.45; }
+.br { display: grid; gap: 6px; }
+.br > div { border: 1.5px dashed var(--line-strong); border-radius: 14px; padding: 10px 12px; display: block; font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+.br .yes { display: table; margin-bottom: 5px; font-size: 12px; font-weight: 700; padding: 1px 10px; border-radius: 999px; background: var(--ink); color: var(--bg); }
+.br .loop { font-weight: 700; color: var(--ink); }
+.cont { font-size: 13px; color: var(--muted); font-weight: 600; }
+.pain { display: flex; gap: 8px; align-items: flex-start; padding: 9px 11px; border-radius: 12px; background: var(--card); background-image: var(--hatch); box-shadow: inset 0 0 0 1.5px var(--ink); font-size: 14px; font-weight: 600; line-height: 1.5; color: var(--ink); }
+.pain svg { width: 18px; height: 18px; flex: none; margin-top: 2px; }
+
+/* ภาพย่อของแถบขั้นตอน และปุ่มค้างล่างจอ */
+.mini { border-radius: 12px; background: var(--bg); padding: 10px 10px 8px; display: grid; gap: 6px; }
+.mini small { font-size: 12px; color: var(--muted); font-weight: 600; }
+.stepper { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.stepper li { display: grid; gap: 5px; min-width: 0; font-size: 11.5px; font-weight: 600; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stepper li::before { content: ""; height: 4px; border-radius: 2px; background: var(--line-strong); }
+.stepper li.d { color: var(--ink-2); }
+.stepper li.d::before { background: var(--ink); }
+.stepper li.n { color: var(--ink); font-weight: 700; }
+.stepper li.n::before { background: linear-gradient(90deg, var(--ink) 45%, var(--line-strong) 45%); }
+.footmk { display: flex; gap: 6px; }
+.footmk span { min-height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; padding: 0 12px; }
+.footmk .g { box-shadow: inset 0 0 0 1.5px var(--line-strong); background: var(--card); }
+.footmk .p { flex: 1; background: var(--ink); color: var(--bg); }
+
+/* สรุปสิ่งที่เปลี่ยน */
+.fix { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; counter-reset: f; }
+.fix li { background: var(--card); border-radius: 16px; padding: 12px 14px; box-shadow: var(--shadow); display: grid; gap: 4px; }
+.fix .was { font-size: 14px; color: var(--muted); }
+.fix .now { font-size: 15px; font-weight: 600; }
+.fix .now::before { content: "→ "; font-family: var(--f-num); }
+.keep { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14px; color: var(--ink-2); }
+.ask { background: var(--card); border-radius: 20px; padding: 16px; box-shadow: inset 0 0 0 2px var(--ink); display: grid; gap: 10px; }
+.ask ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; font-size: 15px; }
+.ask p { font-size: 14px; color: var(--ink-2); }
+.note { font-size: 13px; color: var(--muted); }
+@media (max-width: 380px) { header h1 { font-size: 26px; } }
+</style>
+
+<div class="page">
+  <header>
+    <span class="eyebrow">BUSINESS LAB · ตัวที่ 3 · ร่างให้ยืนยันก่อนสร้าง</span>
+    <h1>เส้นทางผู้ใช้ “เช็กก่อนตัดสินใจเรื่องใหญ่”</h1>
+    <p>วางเส้นทางให้ชัดบนกระดาษก่อนสร้าง ตาม 5 ข้อของการทำผังเส้นทางผู้ใช้ แล้วเทียบกับแบบเดิมว่างงตรงไหน</p>
+    <ul class="five" aria-label="5 ข้อของการทำผังเส้นทาง">
+      <li><b>1</b>ใคร อยากได้อะไร</li><li><b>2</b>เข้ามาจากไหน</li><li><b>3</b>มีขั้นอะไร</li><li><b>4</b>ทางแยกตรงไหน</li><li><b>5</b>จบที่ไหน</li>
+    </ul>
+  </header>
+
+  <section aria-labelledby="s1">
+    <div class="sh"><span class="n">1</span><h2 id="s1">ใคร อยากได้อะไร</h2></div>
+    <p class="who">เจ้าของร้านเล็กที่มีร้านแล้ว ทั้งร้านหน้าร้านและร้านออนไลน์ ใช้มือถือเป็นหลัก ไม่ถนัดศัพท์บัญชี</p>
+    <div class="goal"><small>เป้าหมายเดียวของผังนี้</small><b>รู้ว่าเรื่องใหญ่ที่กำลังคิด คุ้มไหม ด้วยตัวเลขร้านตัวเอง ก่อนเสียเงินจริง</b></div>
+  </section>
+
+  <section aria-labelledby="s2">
+    <div class="sh"><span class="n">2</span><h2 id="s2">เข้ามาจากไหน</h2></div>
+    <div class="entries">
+      <div class="entry"><span class="k">ก</span><b>เปิดครั้งแรก</b><span>จากเมนู Jarua หรือคลิปคอนเทนต์ → เริ่มที่คำถาม “ร้านคุณขายที่ไหน”</span></div>
+      <div class="entry"><span class="k">ข</span><b>กลับมาลองเรื่องอื่น ในรอบเดียวกัน</b><span>มีตัวเลขร้านอยู่แล้ว → ข้ามขั้นตัวเลขร้าน ไปตอบเฉพาะตัวเลขของเรื่องใหม่</span></div>
+      <div class="entry later"><span class="k">ค</span><b>มาจาก PL1 หรือแผนธุรกิจ (ทำทีหลัง)</b><span>มาพร้อมเรื่องและตัวเลขที่เติมไว้ → เปิดหน้าผลของเรื่องนั้นตรง ๆ</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s3">
+    <div class="sh"><span class="n">3</span><h2 id="s3">ขั้น ทางแยก และจุดจบ</h2></div>
+    <div class="tabs" role="tablist" aria-label="เลือกผัง">
+      <button type="button" role="tab" id="t-new" aria-selected="true" aria-controls="p-new">แบบใหม่</button>
+      <button type="button" role="tab" id="t-old" aria-selected="false" aria-controls="p-old" tabindex="-1">แบบเดิม (รอบ 2)</button>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span><i class="mk term"></i>เข้า / จบ</span><span><i class="mk step">1</i>หน้าจอ</span><span><i class="mk dec"></i>ทางแยก</span>
+    </div>
+
+    <div id="p-new" role="tabpanel" aria-labelledby="t-new">
+      <ol class="flow">
+        <li class="node"><i class="mk term" aria-hidden="true"></i><div class="bd"><div class="term-t">เข้าหน้าเริ่ม<small>ทางเข้า ก</small></div></div></li>
+        <li class="node"><i class="mk step" aria-hidden="true">1</i><div class="bd"><div class="scr"><h3>ร้านคุณขายที่ไหน</h3>
+          <ul><li>การ์ดใหญ่ 3 ใบ: หน้าร้าน / ออนไลน์ / ทั้งสองแบบ</li><li>ต้องตอบก่อน แล้วจะเหลือเฉพาะเรื่องที่เข้ากับร้าน</li><li>ด้านบนมีแถบบอก 3 ขั้นว่าจะต้องทำอะไรบ้าง: เลือกเรื่อง → ใส่ตัวเลขร้าน (ครั้งเดียว) → ดูผล</li></ul></div></div></li>
+        <li class="node"><i class="mk dec" aria-hidden="true"></i><div class="bd"><div class="dq">อยากลองกับร้านตัวอย่างก่อนไหม</div>
+          <div class="br"><div><span class="yes">ใช่</span>ใช้ร้านตัวอย่างร้านเดียวตามที่ขาย (ออนไลน์ = ร้านเสื้อผ้า · อื่น ๆ = ร้านกาแฟ) การ์ดทุกเรื่องโชว์ตัวเลขของร้านนั้น → เลือกเรื่อง → เห็นผลทันที · ในหน้าผลมีปุ่ม “ใส่ตัวเลขร้านคุณ” พาเข้าขั้น 3</div></div>
+          <div class="cont">ไม่ใช่ ↓ ไปต่อ</div></div></li>
+        <li class="node"><i class="mk step" aria-hidden="true">2</i><div class="bd"><div class="scr"><h3>เลือกเรื่อง</h3>
+          <p>12 เรื่องใน 5 หมวด การ์ดบอกว่าแต่ละเรื่องตอบอะไร เช่น “ดูว่าต้องขายเพิ่มเท่าไร ถึงจะคุ้มค่าจ้างคนใหม่”</p>
+          <div class="mini"><small>ตั้งแต่เลือกเรื่อง มีแถบขั้นตอนชุดเดียวจนถึงผล และหัวจอโชว์ชื่อเรื่องตลอด</small>
+            <ol class="stepper" aria-label="ตัวอย่างแถบขั้นตอน"><li class="d">เลือกเรื่อง</li><li class="n">ตัวเลขร้าน</li><li>ตัวเลขเรื่องนี้</li><li>ผล</li></ol></div></div></div></li>
+        <li class="node"><i class="mk dec" aria-hidden="true"></i><div class="bd"><div class="dq">มีตัวเลขร้านแล้วไหม</div>
+          <div class="br"><div><span class="yes">มีแล้ว</span>ข้ามขั้น 3 ไปขั้น 4 เลย (ทางเข้า ข) · แถบขั้นตอนขึ้น ✓ ที่ “ตัวเลขร้าน”</div></div>
+          <div class="cont">ยังไม่มี ↓ ไปต่อ</div></div></li>
+        <li class="node"><i class="mk step" aria-hidden="true">3</i><div class="bd"><div class="scr"><h3>ตัวเลขร้าน</h3>
+          <ul><li>เลือกว่าร้านได้เงินจากอะไร แล้วตอบ 5–6 ข้อ ประมาณ 3 นาที กรอกครั้งเดียว ใช้ได้ทุกเรื่อง</li><li>ข้อสุดท้าย “เพิ่มรายละเอียด” ไม่ใส่ก็ได้</li><li>ยังไม่อยากกรอก แตะ “ลองกับร้านตัวอย่างก่อน” ได้</li><li>คำถามและช่องกรอกเหมือนตัวที่ 1 ทุกข้อ</li></ul></div></div></li>
+        <li class="node"><i class="mk dec" aria-hidden="true"></i><div class="bd"><div class="dq">เรื่องนี้มีหลายแบบไหม</div>
+          <div class="br"><div><span class="yes">มี</span>ข้อแรกเลือกแบบก่อน เช่น จ้างคน: ประจำ / พาร์ตไทม์ / รายชิ้น · ช่องทางใหม่: แอปส่งอาหาร / Shopee Lazada / TikTok Shop ฯลฯ</div></div>
+          <div class="cont">ไม่มี ↓ ไปต่อ</div></div></li>
+        <li class="node"><i class="mk step" aria-hidden="true">4</i><div class="bd"><div class="scr"><h3>ตัวเลขเรื่องนี้</h3>
+          <p>2–3 ข้อ ด้านบนเห็นกำไร “ไม่ทำ | ทำ” เปลี่ยนสดทุกครั้งที่กรอก ข้อสุดท้ายมีปุ่ม “ดูผล”</p></div></div></li>
+        <li class="node"><i class="mk step" aria-hidden="true">5</i><div class="bd"><div class="scr main"><h3>ผล</h3>
+          <ul><li>กำไรต่อเดือนเปลี่ยนเท่าไร และเงินจะขาดมือไหม</li><li>ตาราง “ไม่ทำ | ทำ”</li><li>แถบลากหาจุดคุ้ม</li><li>สิ่งที่ต้องเป็นจริง ถึงจะคุ้ม ✓ ✕</li><li>ดูละเอียด เป็นแท็บ: เงินในมือ 12 เดือน | กำไรเปลี่ยนเพราะอะไร</li><li>ขั้นต่อไป: เช็กความพร้อม + เครื่องมือ PL1 + แผนธุรกิจ</li></ul>
+          <div class="mini"><small>ปุ่มค้างล่างจอตลอด · ปุ่มซ้ายบน “‹ เลือกเรื่อง” พากลับไปขั้น 2</small><div class="footmk" aria-hidden="true"><span class="g">ปรับตัวเลข</span><span class="p">เช็กความพร้อม →</span></div></div></div></div></li>
+        <li class="node"><i class="mk dec" aria-hidden="true"></i><div class="bd"><div class="dq">จากหน้าผล ไปไหนต่อ</div>
+          <div class="br">
+            <div><span class="yes">ตัวเลขยังไม่ตรง</span>“ปรับตัวเลข” หน้าเดียวรวมทุกตัวเลข: ตัวเลขของเรื่อง แบบที่เลือก และตัวเลขร้าน · เปลี่ยนแล้วเห็นผลด้านบนทันที <span class="loop">↺ กลับมาที่ผล</span></div>
+            <div><span class="yes">อยากรู้ว่าควรเช็กอะไร</span>“เช็กความพร้อม” 3–5 ข้อ ตอบ ใช่ / ไม่ใช่ / ไม่แน่ใจ → หน้า “จุดที่ควรเช็ก” แต่ละจุดมีตัวเลขที่เกี่ยว และเครื่องมือ PL1 ที่ช่วยหาแนวทาง</div>
+            <div><span class="yes">อยากลองเรื่องอื่น</span>กลับไปขั้น 2 ใช้ตัวเลขร้านเดิม (ทางเข้า ข) <span class="loop">↺ วนกลับ</span></div>
+          </div></div></li>
+        <li class="node"><i class="mk term" aria-hidden="true"></i><div class="bd"><div class="term-t">จบ: เปิดเครื่องมือ PL1 หาแนวทาง<small>หรือ “แผนธุรกิจ” (PL2) วางทางทั้งร้าน · ทั้งสองทางเป็นทางเลือก ไม่บังคับ</small></div></div></li>
+      </ol>
+    </div>
+
+    <div id="p-old" role="tabpanel" aria-labelledby="t-old" hidden>
+      <ol class="flow">
+        <li class="node"><i class="mk term" aria-hidden="true"></i><div class="bd"><div class="term-t">เข้าหน้าเริ่ม</div></div></li>
+        <li class="node"><i class="mk step" aria-hidden="true">1</i><div class="bd"><div class="scr"><h3>หน้าเริ่ม</h3>
+          <p>เห็นการ์ด 12 เรื่องทันที บนการ์ดมีตัวเลขของร้านกาแฟและร้านเสื้อผ้าปนกัน · “ขายที่ไหน” ตอบหรือไม่ตอบก็ได้</p></div>
+          <div class="pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>ตัวเลขบนการ์ดเป็นของใคร ยังไม่ได้กรอกอะไรเลย</span></div></div></li>
+        <li class="node"><i class="mk dec" aria-hidden="true"></i><div class="bd"><div class="dq">แตะเรื่อง หรือแตะ “ดูตัวอย่าง” (อยู่ล่างสุด ต่อจากการ์ด 12 ใบ)</div>
+          <div class="br"><div><span class="yes">ดูตัวอย่าง</span>พาเข้าหน้าผล “จ้างคนเพิ่ม” ให้เลย</div></div>
+          <div class="pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>ไม่ได้เลือกเรื่องนี้เอง และปุ่มหายาก</span></div></div></li>
+        <li class="node"><i class="mk step" aria-hidden="true">2</i><div class="bd"><div class="scr"><h3>“ก่อนอื่น ขอตัวเลขร้านคุณตอนนี้”</h3>
+          <p>หัวจอเขียน “จ้างคนเพิ่ม” แต่ถามเรื่องร้าน · แถบความคืบหน้า “ข้อ 1 จาก 7”</p></div>
+          <div class="pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>หลงว่ากำลังทำเรื่องอะไร ไม่รู้ว่าทำไมต้องกรอกเรื่องร้าน</span></div></div></li>
+        <li class="node"><i class="mk step" aria-hidden="true">3</i><div class="bd"><div class="scr"><h3>คำถามของเรื่อง</h3>
+          <p>แถบความคืบหน้าเริ่มใหม่ “ข้อ 1 จาก 3”</p></div>
+          <div class="pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>แถบความคืบหน้า 2 ชุด ไม่รู้ว่าเหลืออีกเท่าไร</span></div></div></li>
+        <li class="node"><i class="mk step" aria-hidden="true">4</i><div class="bd"><div class="scr"><h3>ผล</h3>
+          <p>ยาวราว 5 จอมือถือ · ปรับตัวเลขได้ 4 ที่: แถบลาก / ปุ่ม “ปรับตัวเลขของเรื่องนี้” / ปุ่ม “แก้ตัวเลข” มุมซ้ายบน / “ปรับ ›” ในแต่ละข้อ</p></div>
+          <div class="pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>ไม่รู้ว่าแต่ละปุ่มต่างกันยังไง และปุ่มมุมซ้ายบนไม่ได้พากลับ</span></div></div></li>
+        <li class="node"><i class="mk dec" aria-hidden="true"></i><div class="bd"><div class="dq">ไปไหนต่อ</div>
+          <p class="who">“ขั้นต่อไป” อยู่กลางหน้า · การ์ด 12 เรื่องซ้ำท้ายหน้า · เครื่องมือ PL1 และการ์ดแผนธุรกิจโผล่ 2 ที่</p>
+          <div class="pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>ไม่มีทางหลักที่เห็นชัด</span></div></div></li>
+        <li class="node"><i class="mk term" aria-hidden="true"></i><div class="bd"><div class="term-t">จบ: ไม่ชัด<small>บางคนออกไปเลย บางคนวนกลับหน้าเดิม</small></div></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="s4">
+    <div class="sh"><span class="n">4</span><h2 id="s4">6 จุดที่แก้</h2></div>
+    <ol class="fix">
+      <li><span class="was">เห็นเรื่องก่อนตอบว่าขายที่ไหน การ์ดมีตัวเลขร้านตัวอย่าง 2 ร้านปนกัน</span><span class="now">ถามขายที่ไหนก่อน การ์ดบอกว่าแต่ละเรื่องตอบอะไร</span></li>
+      <li><span class="was">ปุ่มดูตัวอย่างอยู่ล่างสุด และพาเข้า “จ้างคนเพิ่ม” เอง</span><span class="now">อยู่ใต้คำถามแรก ใช้ร้านตัวอย่างทีละร้าน ผู้ใช้เลือกเรื่องเอง</span></li>
+      <li><span class="was">แถบความคืบหน้า 2 ชุด และหัวจอไม่ตรงกับสิ่งที่ถาม</span><span class="now">แถบขั้นตอนชุดเดียว 4 ขั้น หัวจอโชว์ชื่อเรื่องตลอด</span></li>
+      <li><span class="was">ปรับตัวเลขได้ 4 ที่</span><span class="now">หน้า “ปรับตัวเลข” หน้าเดียว ปุ่ม “ปรับ ›” ในแต่ละข้อก็พาไปหน้านี้</span></li>
+      <li><span class="was">ปุ่มมุมซ้ายบนของหน้าผลเป็น “แก้ตัวเลข”</span><span class="now">เป็น “‹ เลือกเรื่อง” ทุกหน้ามีปุ่มกลับที่พาไปหน้าก่อนจริง</span></li>
+      <li><span class="was">ขั้นต่อไปอยู่กลางหน้า กราฟ 2 อันต่อกัน การ์ด 12 เรื่องซ้ำ</span><span class="now">ปุ่มค้างล่างจอ “เช็กความพร้อม” กราฟเป็นแท็บ ท้ายหน้ามีปุ่มเดียว “ลองเรื่องอื่น”</span></li>
+    </ol>
+    <p class="note">จำนวนหน้าที่ต้องกรอกเท่าเดิม (ตัวเลขร้าน 5–6 ข้อ + ตัวเลขเรื่อง 2–3 ข้อ) เพิ่มแค่การแตะ “ขายที่ไหน” 1 ครั้งตามที่ตกลงไว้ สิ่งที่ต่างคือรู้ตลอดว่าอยู่ขั้นไหนและเหลืออีกเท่าไร</p>
+  </section>
+
+  <section aria-labelledby="s5">
+    <div class="sh"><span class="n">5</span><h2 id="s5">สิ่งที่ไม่เปลี่ยน</h2></div>
+    <ul class="keep">
+      <li>12 เรื่องใน 5 หมวด และแบบย่อยของแต่ละเรื่อง</li>
+      <li>คำถามและช่องกรอกตัวเลขร้าน เหมือนตัวที่ 1</li>
+      <li>ตัวคำนวณ PL2 ตัวจริง ตัวเลขทุกตัวเท่าเดิม</li>
+      <li>บอกตัวเลขและเงื่อนไข ไม่บอกว่าควรทำหรือไม่ควรทำ</li>
+      <li>ขาว ดำ เทา ปุ่มกดได้อย่างน้อย 44px บอกขึ้นลงด้วย ▲▼</li>
+    </ul>
+  </section>
+
+  <section class="ask" aria-labelledby="s6">
+    <h2 id="s6">ขอให้ยืนยัน 2 ข้อ</h2>
+    <ol>
+      <li>เส้นทางแบบใหม่นี้ใช่ไหม หรืออยากเปลี่ยนขั้นไหน</li>
+      <li>ทางเข้า ค (มาจาก PL1 หรือแผนธุรกิจ พร้อมตัวเลข) ทำทีหลังได้ไหม</li>
+    </ol>
+    <p>ยืนยันแล้ว Claude จะสร้างตามผังนี้ ทดสอบบนจอมือถือทั้งโหมดมืดและสว่าง ให้ผู้ตรวจอิสระตรวจ แล้วส่งรอบใหม่ที่ลิงก์เดิมของตัวที่ 3</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  function pick(t) {
+    tabs.forEach(function (b) {
+      var on = b === t;
+      b.setAttribute('aria-selected', String(on));
+      b.tabIndex = on ? 0 : -1;
+      document.getElementById(b.getAttribute('aria-controls')).hidden = !on;
+    });
+  }
+  tabs.forEach(function (b, i) {
+    b.addEventListener('click', function () { pick(b); });
+    b.addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      var n = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+      pick(n); n.focus();
+    });
+  });
+})();
+</script>

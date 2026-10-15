@@ -422,6 +422,7 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .still .rise, .live .rise, .still .ln-b, .live .ln-b, .live .ck-i, .still .ck-i, .live .wf-track i, .still .wf-track i, .live .hero3, .still .hero3 { animation: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .rise, .ln-b, .ck-i, .wf-track i, .hero3, .pp3 { animation: none !important; }
+  .flow3 li i::after { transition: none; }
 }
 
 /* ---------- เริ่ม: "กำลังคิดจะ…" ---------- */
@@ -440,9 +441,25 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .qc .qc-b em { font-style: normal; font-family: var(--font-num); font-weight: 700; font-size: 15px; color: var(--ink); }
 .qc > svg { width: 20px; height: 20px; color: var(--muted); flex: none; }
 .qc[aria-disabled="true"] { opacity: 0.5; }
-.sample-btn { margin-top: 14px; }
-.shopline { margin-top: 14px; background: var(--card); border-radius: var(--r-sm); padding: 6px 6px 6px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-shadow: var(--shadow); font-size: 14px; color: var(--ink-2); }
-.shopline .lnk { flex: none; font-size: 14px; }
+/* แถบ 3 ขั้นบนหน้าเริ่ม */
+.how3 { list-style: none; margin: 0 0 22px; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.how3 li { background: var(--card); border-radius: 14px; padding: 10px 10px 11px; display: grid; gap: 6px; align-content: start; box-shadow: var(--shadow); min-width: 0; }
+.how3 i { width: 24px; height: 24px; border-radius: 12px; background: var(--ink); color: var(--bg); font-style: normal; font-family: var(--font-num); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.how3 i svg { width: 14px; height: 14px; }
+.how3 b { display: block; font-size: 13.5px; line-height: 1.35; }
+.how3 small { display: block; font-size: 12px; color: var(--muted); line-height: 1.35; margin-top: 1px; }
+/* ร้านที่กำลังใช้ (ร้านคุณ หรือร้านตัวอย่าง) */
+.shopline { background: var(--card); border-radius: 18px; padding: 10px 10px 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; box-shadow: var(--shadow); }
+.shopline.smp { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.sl-t { display: grid; gap: 1px; min-width: 0; }
+.sl-t small { font-size: 12px; font-weight: 600; color: var(--muted); }
+.sl-t b { font-size: 16px; line-height: 1.35; }
+.sl-t span { font-size: 13px; color: var(--ink-2); }
+.btn.sm { min-height: 44px; font-size: 15px; padding: 0 16px; border-radius: 14px; flex: none; }
+.sl-n { margin: 8px 2px 0; font-size: 13px; color: var(--muted); }
+.samp3 { margin: 0 2px; display: flex; flex-wrap: wrap; align-items: center; gap: 0 4px; font-size: 14px; color: var(--muted); }
+.samp3 .lnk { font-size: 14px; }
+.sec3.pick-h { margin-top: 22px; }
 .alt { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0 4px; font-size: 14px; color: var(--muted); }
 .tile:disabled { opacity: 0.45; cursor: default; box-shadow: none; }
 
@@ -468,10 +485,32 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .inbox.bad { box-shadow: inset 0 0 0 2px var(--ink); }
 
 /* ขายที่ไหน + หมวดของเรื่อง */
-.where3 { margin: 0 2px 18px; display: grid; gap: 8px; }
+.where3 { margin: 0 2px 14px; display: grid; gap: 8px; }
 .where3 .wh-l { font-size: 14px; font-weight: 700; }
-.where3 .seg button { min-height: 44px; }
-.where3 .wh-n { margin: 0; font-size: 13px; color: var(--muted); }
+.where3 .seg { display: flex; }
+.where3 .seg button { min-height: 44px; flex: 1; padding: 0 10px; }
+.where3.big { gap: 4px; }
+.wh-q { font-size: 22px; line-height: 1.35; margin: 0; }
+.where3 .wh-n { margin: 0; font-size: 14px; color: var(--muted); }
+.wh-cards { display: grid; gap: 10px; margin-top: 10px; }
+.wh-c { width: 100%; text-align: left; border: 0; background: var(--card); border-radius: 20px; padding: 14px 12px 14px 14px; min-height: 76px; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow); color: var(--ink); }
+.wh-c:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.wh-i { width: 46px; height: 46px; border-radius: 15px; background: var(--surface); display: flex; align-items: center; justify-content: center; flex: none; }
+.wh-i svg { width: 24px; height: 24px; }
+.wh-b { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.wh-b b { font-size: 18px; line-height: 1.3; }
+.wh-b small { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.wh-c > svg { width: 20px; height: 20px; color: var(--muted); }
+
+/* แถบขั้นตอน: เลือกเรื่อง → ตัวเลขร้าน → ตัวเลขเรื่องนี้ → ผล (ชุดเดียวตลอดทาง) */
+.flow3 { margin: 4px 0 0; }
+.flow3 ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.flow3 li { display: grid; gap: 6px; min-width: 0; }
+.flow3 li i { display: block; height: 4px; border-radius: 2px; background: var(--surface-2); position: relative; overflow: hidden; }
+.flow3 li i::after { content: ""; position: absolute; inset: 0; background: var(--ink); transform-origin: left; transform: scaleX(var(--f, 0)); transition: transform 0.45s cubic-bezier(.2, .8, .2, 1); }
+.flow3 li span { font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.flow3 li.done span { color: var(--ink-2); }
+.flow3 li.now span { color: var(--ink); font-weight: 700; }
 .cat3 + .cat3 { margin-top: 20px; }
 .cat-h { margin: 0 2px 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: var(--muted); }
 
@@ -516,7 +555,6 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .ln-b b small { font-family: var(--font-th); font-size: 12px; font-weight: 600; color: var(--panel-muted); }
 .ln-row.big .ln-a b, .ln-row.big .ln-b b { font-size: 26px; }
 .ln-row:last-child .ln-a, .ln-row:last-child .ln-b { padding-bottom: 14px; }
-.lane-cta { margin-top: 10px; }
 
 /* ---------- แถบลากหาจุดคุ้ม ---------- */
 .piv { margin-top: 20px; background: var(--card); border-radius: 22px; padding: 18px 16px 16px; box-shadow: var(--shadow); }
@@ -600,11 +638,24 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .warns p { margin: 0; background: var(--card); border-radius: var(--r-sm); padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.5; box-shadow: inset 0 0 0 1px var(--line-strong); }
 .warns svg { width: 20px; height: 20px; margin-top: 1px; flex: none; }
 
+/* ---------- ดูละเอียด (แท็บ) ---------- */
+.tabs3 { display: flex; width: 100%; }
+.tabs3 button { flex: 1; padding: 0 8px; font-size: 14px; line-height: 1.3; }
+.det3 .card.cashp, .det3 .card.wf { margin-top: 10px; }
+
 /* ---------- ขั้นต่อไป ---------- */
-.next3 { margin-top: 16px; background: var(--card); border-radius: 22px; padding: 16px; box-shadow: inset 0 0 0 2px var(--ink); display: grid; gap: 10px; }
-.next3 .nx-k { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: var(--muted); }
+.next3 { margin-top: 28px; background: var(--card); border-radius: 22px; padding: 16px; box-shadow: inset 0 0 0 2px var(--ink); display: grid; gap: 14px; }
+.next3 .nx-h { margin: 0; font-size: 20px; line-height: 1.3; }
+.nx-ready { display: grid; gap: 8px; padding: 14px; border-radius: 16px; background: var(--surface); }
+.nx-ready b { font-size: 16px; }
+.nx-ready p { margin: 0 0 4px; font-size: 14px; color: var(--ink-2); line-height: 1.5; }
 .next3 .tools { margin: 0; }
-.next3 .nx-note { margin: -2px 0 0; font-size: 13px; color: var(--muted); text-align: center; }
+.other3 { margin-top: 12px; }
+.end3 { margin-top: 16px; display: grid; gap: 10px; }
+
+/* ---------- ปุ่มค้างด้านล่างของหน้าผล ---------- */
+.rfoot .btn { font-size: 16px; padding: 0 16px; }
+.rfoot .btn.fb-edit { flex: 0 0 auto; }
 .plan3 { margin-top: 12px; border-radius: 22px; padding: 16px; border: 1.5px dashed var(--line-strong); display: grid; gap: 12px; }
 .plan3 .p3-l { display: grid; gap: 4px; }
 .plan3 .p3-tag { justify-self: start; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--ink-2); }
@@ -645,7 +696,8 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .l3s small { font-size: 11.5px; color: var(--muted); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .l3s b { font-family: var(--font-num); font-size: 16px; line-height: 1.3; overflow-wrap: anywhere; }
 .l3s b small { font-family: var(--font-th); font-size: 11px; color: var(--ink-2); white-space: normal; }
-.lab-note { margin: 14px 2px 0; font-size: 13px; color: var(--muted); }
+.lab-note { margin: -6px 2px 0; font-size: 13px; color: var(--muted); }
+.banner.lab-bn { margin-top: 14px; margin-bottom: 0; }
 .lr-val input { min-height: 44px; min-width: 44px; }
 .fine { display: flex; align-items: center; flex-wrap: wrap; column-gap: 2px; }
 .fine .lnk { font-size: 13px; min-height: 44px; padding: 0 6px; }
@@ -4339,8 +4391,9 @@ function fmtCompact(n) {
 }
 /* ============================================================
    UI ตัวที่ 3 — รูปแบบหน้าจอของตัวเอง (สี ฟอนต์ และส่วนกรอกตัวเลขร้านใช้ชุดเดียวกับตัวที่ 1)
-   เริ่ม "กำลังคิดจะ…" → ตัวเลขร้าน (ครั้งเดียว) → คำถามของเรื่อง (เห็น ไม่ทำ | ทำ สด)
-   → ผล: สองเส้นทาง ไม่ทำ | ทำ · แถบลากหาจุดคุ้ม · สิ่งที่ต้องเป็นจริง · ขั้นต่อไป (PL1 / PL2) · เงินในมือ 12 เดือน · กำไรเปลี่ยนเพราะอะไร
+   ทางเดียว 4 ขั้น (แถบขั้นตอนชุดเดียว): เลือกเรื่อง → ตัวเลขร้าน (ครั้งเดียว ข้ามได้ถ้ามีแล้ว) → ตัวเลขเรื่องนี้ (เห็น ไม่ทำ | ทำ สด) → ผล
+   หน้าผล: สองเส้นทาง ไม่ทำ | ทำ · แถบลากหาจุดคุ้ม · สิ่งที่ต้องเป็นจริง · ดูละเอียด (เงินในมือ / กำไรเปลี่ยนเพราะอะไร) · ขั้นต่อไป (PL1 / PL2)
+   ปุ่มค้างด้านล่าง: ปรับตัวเลข (ที่เดียวสำหรับแก้ทุกตัวเลข) | เช็กความพร้อม → จุดที่ควรเช็ก
    ============================================================ */
 (function () {
   'use strict';
@@ -4362,7 +4415,10 @@ function fmtCompact(n) {
     dot: P('<circle cx="12" cy="12" r="3"/>'),
     q: P('<path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>'),
     mark: P('<path d="M12 6v8"/><path d="M12 18h.01"/>'),
-    undo: P('<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>')
+    undo: P('<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>'),
+    store: P('<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/>'),
+    phone: P('<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>'),
+    both: P('<path d="M3 9h11v11H3z"/><path d="M14 13h7v7h-7"/><path d="M6 9V5h11v8"/>')
   };
   var TICON = {
     hire: P('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>'),
@@ -4391,7 +4447,9 @@ function fmtCompact(n) {
 
   var state = {
     view: 'start', topic: null, model: null, inp: {}, isSample: false, sampleKind: null, where: null, step: 0, editing: false, dstep: 0, dediting: false,
-    ds: {}, wi: {}, dsign: {}, labOrig: null, active: null, answers: {}, qidx: 0, feeHelp: false, fh: { share: '', rate: '' }
+    ds: {}, wi: {}, dsign: {}, labOrig: null, active: null, answers: {}, qidx: 0, feeHelp: false, fh: { share: '', rate: '' },
+    /* shopInFlow = ตัวเลขร้านถูกกรอกระหว่างทางของเรื่องนี้ (ย้อนจากคำถามข้อแรกจึงกลับไปตัวเลขร้าน) · editFrom = หน้าที่เปิดแก้ตัวเลขร้าน (lab | review) · rtab = แท็บดูละเอียดบนหน้าผล */
+    shopInFlow: false, editFrom: null, rtab: 'cash'
   };
   var app;
 
@@ -4424,7 +4482,8 @@ function fmtCompact(n) {
   /* ---------- persistence & theme ---------- */
   function snapshot() {
     return { view: state.view, topic: state.topic, model: state.model, inp: state.inp, isSample: state.isSample, sampleKind: state.sampleKind, where: state.where, step: state.step, editing: state.editing,
-      dstep: state.dstep, dediting: state.dediting, ds: state.ds, wi: state.wi, dsign: state.dsign, active: state.active, answers: state.answers, qidx: state.qidx };
+      dstep: state.dstep, dediting: state.dediting, ds: state.ds, wi: state.wi, dsign: state.dsign, active: state.active, answers: state.answers, qidx: state.qidx,
+      shopInFlow: state.shopInFlow, editFrom: state.editFrom, rtab: state.rtab };
   }
   function save() { try { sessionStorage.setItem('lab3', JSON.stringify(snapshot())); } catch (e) { /* ignore */ } }
   function restore(d) {
@@ -4461,6 +4520,10 @@ function fmtCompact(n) {
         el.textContent = fmtN(Math.abs(from + (to - from) * e), dc);
         if (p < 1 && el.isConnected) requestAnimationFrame(tick);
       })(t0);
+    });
+    $$('.flow3 i[data-f]', root).forEach(function (el) {
+      if (!reduced) getComputedStyle(el, '::after').transform;
+      el.style.setProperty('--f', el.getAttribute('data-f'));
     });
     /* เส้นกราฟค่อย ๆ วาด (ไม่วาดใหม่ระหว่างลากแถบ) */
     if (!reduced && !$('main.live')) $$('path.draw', root).forEach(function (p) {
@@ -4506,10 +4569,10 @@ function fmtCompact(n) {
   function ml(t, y) { return monthLabel(t, y).replace(' ', '\u00a0'); }
 
   /* ============================================================ START — "กำลังคิดจะ…" */
-  /* ร้านตัวอย่าง: ร้านกาแฟ (หน้าร้าน) หรือร้านเสื้อผ้าออนไลน์ เลือกตามที่ผู้ใช้ขาย และเรื่องที่เปิด */
+  /* ร้านตัวอย่างใช้ทีละร้าน ตามที่ผู้ใช้ขาย: ออนไลน์ = ร้านเสื้อผ้าออนไลน์ · หน้าร้านหรือทั้งสองแบบ = ร้านกาแฟ (ร้านตัวอย่างทั้งสองร้านเปิดได้ทุกเรื่องที่โชว์) */
   function sampleKindFor(t) {
     var k = state.where === 'online' ? 'online' : 'cafe';
-    if (t && (!topicOk(t, SAMPLES[k].m) || !whereOk(t, SAMPLES[k].where))) k = k === 'cafe' ? 'online' : 'cafe';
+    if (t && !topicOk(t, SAMPLES[k].m)) k = k === 'cafe' ? 'online' : 'cafe';
     return k;
   }
   function sampleInpOf(k) {
@@ -4521,7 +4584,7 @@ function fmtCompact(n) {
   function sampleName() { return SAMPLES[state.sampleKind || 'cafe'].name; }
   var teaserCache = {};
   function teaserFor(t) {
-    var k = state.isSample && state.sampleKind ? state.sampleKind : sampleKindFor(t), ck = k + '|' + t;
+    var k = state.sampleKind || sampleKindFor(t), ck = k + '|' + t;
     if (!topicOk(t, SAMPLES[k].m)) return null;
     if (teaserCache[ck] !== undefined) return teaserCache[ck];
     var m = SAMPLES[k].m, inp = sampleInpOf(k), d = sampleDec(k, t), R = dEval(inp, m, t, d), out = null;
@@ -4537,7 +4600,7 @@ function fmtCompact(n) {
       }
       else if (need && need.value !== null) { lab = need.label; v = need.value; u = need.unit; }
       else if (pay && pay.value !== null) { lab = 'คืนทุนใน'; v = Math.ceil(pay.value - 1e-9); u = 'เดือน'; }
-      if (v !== null) out = [SAMPLES[k].short + ' · ' + dSummary(t, d, inp, m) + ' · ' + lab, v, u];
+      if (v !== null) out = [dSummary(t, d, inp, m) + ' · ' + lab, v, u];
     }
     teaserCache[ck] = out;
     return out;
@@ -4551,41 +4614,72 @@ function fmtCompact(n) {
     ads: 'ดูว่าต้องขายเพิ่มเท่าไร ถึงจะคุ้มค่าโฆษณา', freelance: 'ดูว่าต้องขายเพิ่มเท่าไร ถึงจะคุ้มค่าจ้าง',
     supplier: 'ดูว่าหลังเปลี่ยน ยอดขายลดได้แค่ไหนถึงยังคุ้ม'
   };
-  function topicCard(t, i, exclude) {
-    var ok = !state.model || topicOk(t, state.model), own = state.model && !state.isSample, tz1 = ok && !own && !exclude ? teaserFor(t) : null;
+  function topicCard(t, i) {
+    var ok = !state.model || topicOk(t, state.model), tz1 = ok && state.isSample ? teaserFor(t) : null;
     var u = tz1 ? String(tz1[2]) : '', pc = u.charAt(0) === '%';
     return '<button class="qc rise" style="--d:' + i + '" data-act="topic" data-t="' + t + '"' + (ok ? '' : ' aria-disabled="true"') + '><span class="qc-ic">' + TICON[t] + '</span>' +
       '<span class="qc-b"><b>' + esc(TOPICS[t].q) + '</b>' +
       (ok ? (tz1 ? '<small>' + tw(tz1[0]) + ' <em>' + anim('tz' + t, tz1[1], decOf(tz1[1])) + (pc ? '%' : '') + '</em> ' + esc(pc ? u.slice(1).trim() : u) + '</small>' : '<small>' + esc(TOPIC_EX[t]) + '</small>')
         : '<small>ยังไม่มีสำหรับร้านแบบ' + esc(MODELS[state.model].tile) + '</small>') + '</span>' + ICON.chev + '</button>';
   }
-  function topicRows(exclude) {
+  function topicRows() {
     var i = 0;
     return TOPIC_CATS.map(function (c) {
-      var ts = c.topics.filter(function (t) { return t !== exclude && whereOk(t, state.where); });
+      var ts = c.topics.filter(function (t) { return whereOk(t, state.where); });
       if (!ts.length) return '';
-      return '<section class="cat3"><h2 class="cat-h">' + esc(c.name) + '</h2><div class="qcards">' + ts.map(function (t) { return topicCard(t, i++, exclude); }).join('') + '</div></section>';
+      return '<section class="cat3"><h3 class="cat-h">' + esc(c.name) + '</h3><div class="qcards">' + ts.map(function (t) { return topicCard(t, i++); }).join('') + '</div></section>';
     }).join('');
   }
+  /* ขายที่ไหน: ยังไม่เลือก = การ์ดใหญ่ 3 ใบ (ต้องตอบก่อนเห็นเรื่อง) · เลือกแล้ว = แถบเลือกเล็ก เปลี่ยนได้ */
+  var WICON = { shop: ICON.store, online: ICON.phone, both: ICON.both };
+  var WSUB = { shop: 'มีร้านหรือแผงให้ลูกค้ามา', online: 'ขายในโซเชียล แอป หรือเว็บ', both: 'มีหน้าร้าน และขายออนไลน์ด้วย' };
   function whereHtml() {
+    if (!state.where) return '<section class="where3 big"><h2 class="wh-q" id="wh-l">ร้านคุณขายที่ไหน</h2><p class="wh-n">ตอบข้อนี้ก่อน แล้วจะเหลือเฉพาะเรื่องที่เข้ากับร้านคุณ</p><div class="wh-cards" role="group" aria-labelledby="wh-l">' + WHERE.map(function (w, i) {
+      return '<button type="button" class="wh-c rise" style="--d:' + i + '" data-act="where" data-v="' + w[0] + '" aria-pressed="false"><span class="wh-i">' + WICON[w[0]] + '</span><span class="wh-b"><b>' + w[1] + '</b><small>' + WSUB[w[0]] + '</small></span>' + ICON.chev + '</button>';
+    }).join('') + '</div></section>';
     return '<div class="where3"><span class="wh-l" id="wh-l">ร้านคุณขายที่ไหน</span><div class="seg" role="group" aria-labelledby="wh-l">' + WHERE.map(function (w) {
       return '<button type="button" data-act="where" data-v="' + w[0] + '" aria-pressed="' + (state.where === w[0]) + '">' + w[1] + '</button>';
-    }).join('') + '</div>' + (state.where ? '' : '<p class="wh-n">เลือกแล้วจะเหลือเฉพาะเรื่องที่เข้ากับร้านคุณ</p>') + '</div>';
+    }).join('') + '</div></div>';
+  }
+  /* แถบ 3 ขั้นบนหน้าเริ่ม: ให้รู้ก่อนว่าจะต้องทำอะไรบ้าง */
+  function howHtml() {
+    var has = !!state.model && !state.isSample && shopOk();
+    var S = [['เลือกเรื่อง', 'ที่กำลังคิดอยู่'], ['ใส่ตัวเลขร้าน', has ? 'มีแล้ว ใช้ของเดิม' : 'ครั้งเดียว ~3 นาที'], ['ดูผล', 'ทำ เทียบกับ ไม่ทำ']];
+    return '<ol class="how3" aria-label="วิธีใช้">' + S.map(function (s, i) {
+      return '<li class="' + (i === 1 && has ? 'done' : '') + '"><i aria-hidden="true">' + (i === 1 && has ? ICON.ok : i + 1) + '</i><span><b>' + s[0] + '</b><small>' + s[1] + '</small></span></li>';
+    }).join('') + '</ol>';
+  }
+  function shopLine() {
+    if (state.model) {
+      var S = C(state.inp, state.model), ok = shopOk() && S.ok;
+      return '<div class="shopline' + (state.isSample ? ' smp' : '') + '"><span class="sl-t"><small>' + (state.isSample ? 'กำลังใช้ร้านตัวอย่าง' : 'ตัวเลขร้านคุณ') + '</small><b>' + (state.isSample ? esc(sampleName()) : esc(MODELS[state.model].tile)) + '</b>' +
+        (ok ? '<span>' + (S.profit < 0 ? 'ขาดทุน ' : 'กำไร ') + fmtN(Math.abs(S.profit)) + ' บาท/เดือน</span>' : '<span>ยังกรอกไม่ครบ</span>') + '</span>' +
+        '<button class="btn ghost sm" data-act="shop-edit">' + (state.isSample ? 'ใส่ร้านคุณ' : 'แก้') + '</button></div>' +
+        (state.isSample ? '<p class="sl-n">แตะเรื่องไหนก็ได้ จะเห็นผลกับร้านตัวอย่างทันที</p>' : '');
+    }
+    return '<div class="samp3"><span>ยังไม่พร้อมกรอก?</span><button class="lnk" data-act="sample">ลองกับ' + esc(SAMPLES[sampleKindFor(null)].short) + 'ตัวอย่างก่อน</button></div>';
   }
   function viewStart() {
     var out = bar(null, 'เช็กก่อนตัดสินใจเรื่องใหญ่', 'Business Lab') + '<main class="screen"><div class="wrap">' +
-      '<section class="st3"><h1>กำลังคิดจะ…</h1><p>เลือกเรื่องที่คิดอยู่ แล้วดูว่าต้องขายเท่าไรถึงจะคุ้ม เงินพอไหม และคืนทุนเมื่อไร ลองบนตัวเลขก่อน ไม่เสียเงินสักบาท</p></section>' +
-      whereHtml() + topicRows(null);
-    if (state.model) {
-      var S = C(state.inp, state.model);
-      out += '<div class="shopline"><span><b>' + (state.isSample ? esc(sampleName()) : 'ร้านคุณ') + '</b> · ' + esc(MODELS[state.model].tile) +
-        (S.ok ? ' · ' + (S.profit < 0 ? 'ขาดทุน ' : 'กำไร ') + fmtN(Math.abs(S.profit)) + ' บาท/เดือน' : '') + '</span>' +
-        '<button class="lnk" data-act="shop-edit">' + (state.isSample ? 'ใส่ร้านคุณ' : 'แก้ตัวเลขร้าน') + '</button></div>';
-    } else {
-      out += '<button class="btn ghost block sample-btn" data-act="sample">ดูตัวอย่างกับ' + esc(SAMPLES[sampleKindFor(null)].short) + 'ก่อน' + ICON.next + '</button>';
-    }
-    out += '<p class="fine">ใส่ตัวเลขร้านครั้งเดียว (ประมาณ 3 นาที) แล้วลองได้ทุกเรื่อง · ไม่ต้องสมัคร ตัวเลขอยู่ในเครื่องคุณเท่านั้น และหายไปเมื่อปิดหน้านี้ · คำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua</p>';
+      '<section class="st3"><h1>กำลังคิดจะ…</h1><p>เทียบ “ทำ” กับ “ไม่ทำ” ด้วยตัวเลขร้านคุณ ดูว่าต้องขายเท่าไรถึงจะคุ้ม เงินพอไหม และคืนทุนเมื่อไร ก่อนเสียเงินจริง</p></section>';
+    if (!state.model || state.isSample) out += howHtml();
+    out += whereHtml();
+    if (state.where) out += shopLine() + '<h2 class="sec3 pick-h">เลือกเรื่องที่คิดอยู่</h2>' + topicRows();
+    out += '<p class="fine">ไม่ต้องสมัคร ตัวเลขอยู่ในเครื่องคุณเท่านั้น และหายไปเมื่อปิดหน้านี้ · คำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua</p>';
     return out + '</div></main>';
+  }
+
+  /* ============================================================ แถบขั้นตอน (ชุดเดียวตลอดทาง) */
+  var FLOW = ['เลือกเรื่อง', 'ตัวเลขร้าน', 'ตัวเลขเรื่องนี้', 'ผล'];
+  var flowPrev = [1, 0, 0, 0];
+  /* แถบเติมจากค่าของหน้าก่อน ไปถึงค่าของหน้านี้ (runAnim เป็นคนเลื่อน) */
+  function flowBar(stage, frac) {
+    var tgt = FLOW.map(function (l, i) { return i < stage ? 1 : i === stage ? Math.max(0.06, Math.min(1, frac || 0)) : 0; });
+    var out = '<nav class="flow3" aria-label="ขั้นตอน ขั้นที่ ' + (stage + 1) + ' จาก 4 ' + FLOW[stage] + '"><ol>' + FLOW.map(function (l, i) {
+      return '<li class="' + (i < stage ? 'done' : i === stage ? 'now' : '') + '"' + (i === stage ? ' aria-current="step"' : '') + '><i aria-hidden="true" style="--f:' + (reduced ? tgt[i] : flowPrev[i]).toFixed(3) + '" data-f="' + tgt[i].toFixed(3) + '"></i><span>' + l + '</span></li>';
+    }).join('') + '</ol></nav>';
+    flowPrev = tgt;
+    return out;
   }
 
   /* ============================================================ SHOP (เลือกรูปแบบรายได้) */
@@ -4595,11 +4689,10 @@ function fmtCompact(n) {
       var ok = !t || topicOk(t, k);
       return '<button class="tile" data-act="model" data-m="' + k + '"' + (ok ? '' : ' disabled aria-disabled="true"') + '><span class="ic">' + MICON[k] + '</span><span class="t">' + MODELS[k].tile + '</span><span class="ex">' + (ok ? MODELS[k].short : 'ยังไม่มีเรื่องนี้') + '</span></button>';
     }).join('');
-    return bar(backBtn('to-start'), t ? TOPICS[t].title : 'ตัวเลขร้าน', 'ขั้นแรก') + '<main class="screen"><div class="wrap">' +
-      '<div class="q-head"><h1>ก่อนอื่น ขอตัวเลขร้านคุณตอนนี้</h1><p>ใช้เทียบว่าถ้าตัดสินใจแล้ว ร้านจะเปลี่ยนไปเท่าไร กรอกครั้งเดียว ใช้ได้กับทุกเรื่อง ประมาณ 3 นาที</p></div>' +
-      '<p class="muted" style="margin:18px 2px 12px;font-size:15px;font-weight:600">ร้านคุณได้เงินจากอะไรเป็นหลัก</p>' +
+    return bar(backBtn('to-start', 'กลับไปเลือกเรื่อง'), t ? TOPICS[t].title : 'ตัวเลขร้าน', t ? 'ตัวเลขร้าน' : '') + '<main class="screen"><div class="wrap">' + (t ? flowBar(1, 0) : '') +
+      '<div class="q-head"><h1>ร้านคุณได้เงินจากอะไรเป็นหลัก</h1><p>' + (t ? 'ก่อนดูเรื่อง' + esc(TOPICS[t].title) + ' ขอตัวเลขร้านคุณตอนนี้ไว้เทียบ · ' : '') + 'กรอกครั้งเดียว ใช้ได้กับทุกเรื่อง ประมาณ 3 นาที</p></div>' +
       '<div class="tiles">' + tiles + '</div>' +
-      '<div class="alt"><span>ยังไม่อยากกรอก?</span><button class="lnk" data-act="sample">ดูตัวอย่างกับ' + esc(SAMPLES[sampleKindFor(t)].short) + 'ก่อน</button></div></div></main>';
+      '<div class="alt"><span>ยังไม่อยากกรอก?</span><button class="lnk" data-act="sample">ลองกับ' + esc(SAMPLES[sampleKindFor(t)].short) + 'ตัวอย่างก่อน</button></div></div></main>';
   }
 
   /* ============================================================ WIZARD (ตัวเลขร้าน — ขั้นเดียวกับตัวที่ 1) */
@@ -4734,7 +4827,10 @@ function fmtCompact(n) {
     var m = state.model, steps = stepsFor(m);
     if (state.step >= steps.length) state.step = steps.length - 1;
     var st = steps[state.step];
-    var prog = '<div class="prog">' + steps.map(function (s, i) { return '<i class="' + (i <= state.step ? 'on' : '') + '"></i>'; }).join('') + '</div>';
+    var nReq = steps.filter(function (s) { return !s.adv; }).length;
+    /* ระหว่างทางของเรื่อง: แถบขั้นตอนชุดเดียว · ตัวเลขร้านอย่างเดียว (ไม่มีเรื่อง): แถบของตัวเลขร้าน · แก้ทีละข้อ: ไม่มีแถบ */
+    var prog = state.editing ? '' : state.topic ? flowBar(1, st.adv ? 1 : (state.step + 1) / (nReq + 1))
+      : '<div class="prog">' + steps.map(function (s, i) { return '<i class="' + (i <= state.step ? 'on' : '') + '"></i>'; }).join('') + '</div>';
     var body;
     if (st.adv) {
       body = '<div class="adv-list">' + ADV_GROUPS.map(function (g) {
@@ -4750,11 +4846,12 @@ function fmtCompact(n) {
     var allOk = steps.every(stepValid);
     var primary;
     if (state.editing) primary = '<button class="btn" data-act="shop-done"' + (allOk ? '' : ' disabled') + '>เสร็จ</button>';
-    else if (isLastReq || isAdv) primary = '<button class="btn" data-act="shop-done"' + (allOk ? '' : ' disabled') + '>' + (state.topic ? 'ต่อไป: ' + esc(TOPICS[state.topic].title) : 'เสร็จ') + ICON.next + '</button>';
+    else if (isLastReq || isAdv) primary = '<button class="btn" data-act="shop-done"' + (allOk ? '' : ' disabled') + '>' + (state.topic ? 'ต่อไป: ตัวเลขเรื่องนี้' : 'เสร็จ') + ICON.next + '</button>';
     else primary = '<button class="btn" data-act="next"' + (stepValid(st) ? '' : ' disabled') + '>ถัดไป' + ICON.next + '</button>';
     var foot = '<div class="foot" id="foot"><div class="wrap"><button class="btn ghost back" data-act="prev" aria-label="ย้อนกลับ">' + ICON.back + '</button>' + primary + '</div></div>';
     var more = isLastReq && !state.editing ? '<div class="skip"><button class="lnk" data-act="next">เพิ่มรายละเอียดให้แม่นขึ้น (ไม่ใส่ก็ได้)</button></div>' : '';
-    return bar(backBtn('prev'), 'ตัวเลขร้าน · ' + MODELS[m].tile, 'ข้อ ' + (state.step + 1) + ' จาก ' + steps.length) +
+    var sub = state.editing ? 'แก้ตัวเลขร้าน' : 'ตัวเลขร้าน · ' + (st.adv ? 'ไม่ใส่ก็ได้' : 'ข้อ ' + (state.step + 1) + ' จาก ' + nReq);
+    return bar(backBtn('prev'), state.topic && !state.editing ? TOPICS[state.topic].title : MODELS[m].tile, sub) +
       '<main class="screen"><div class="wrap">' + prog + wizReceipt() +
       '<div class="q-head"><h1>' + esc(st.q) + '</h1>' + (st.p ? '<p>' + esc(st.p) + '</p>' : '') + '</div>' + body + more + '</div></main>' + foot;
   }
@@ -4864,13 +4961,13 @@ function fmtCompact(n) {
     var t = state.topic, steps = dStepsFor(t, state.inp, state.model);
     if (state.dstep >= steps.length) state.dstep = steps.length - 1;
     var st = steps[state.dstep];
-    var prog = '<div class="prog">' + steps.map(function (s, i) { return '<i class="' + (i <= state.dstep ? 'on' : '') + '"></i>'; }).join('') + '</div>';
+    var prog = state.dediting ? '' : flowBar(2, (state.dstep + 1) / (steps.length + 1));
     var last = state.dstep === steps.length - 1;
-    var primary = state.dediting ? '<button class="btn" data-act="d-done"' + (dAllValid() ? '' : ' disabled') + '>ดูผล</button>'
+    var primary = state.dediting ? '<button class="btn" data-act="d-done"' + (dAllValid() ? '' : ' disabled') + '>เสร็จ</button>'
       : last ? '<button class="btn" data-act="d-done"' + (dAllValid() ? '' : ' disabled') + '>ดูผล' + ICON.next + '</button>'
         : '<button class="btn" data-act="d-next"' + (dStepValid(st) ? '' : ' disabled') + '>ถัดไป' + ICON.next + '</button>';
     var foot = '<div class="foot" id="foot"><div class="wrap"><button class="btn ghost back" data-act="d-prev" aria-label="ย้อนกลับ">' + ICON.back + '</button>' + primary + '</div></div>';
-    return bar(backBtn('d-prev'), TOPICS[t].title, 'ข้อ ' + (state.dstep + 1) + ' จาก ' + steps.length) +
+    return bar(backBtn('d-prev'), TOPICS[t].title, state.dediting ? 'แก้คำตอบ' : 'ตัวเลขเรื่องนี้ · ข้อ ' + (state.dstep + 1) + ' จาก ' + steps.length) +
       '<main class="screen"><div class="wrap">' + prog + '<section class="dstrip" id="dstrip" aria-label="ไม่ทำ เทียบกับ ทำ">' + dStrip() + '</section>' +
       '<div class="q-head"><h1>' + esc(st.q) + '</h1>' + (st.p ? '<p>' + esc(st.p) + '</p>' : '') + '</div>' +
       '<div class="qfields">' + st.f.map(dFieldHtml).join('') + '</div></div></main>' + foot;
@@ -4915,20 +5012,17 @@ function fmtCompact(n) {
       return f.label(inp, m, d) + ' ' + vt + (suf.charAt(0) === '%' ? suf : ' ' + suf);
     }).filter(Boolean).join(' · ') || 'ยังไม่ได้ใส่';
   }
-  function viewReview() {
-    var steps = stepsFor(state.model);
-    var out = bar(backBtn(state.topic && dAllValid() && shopOk() ? 'result' : 'to-start', 'กลับ'), 'แก้ตัวเลข', state.topic ? TOPICS[state.topic].title : '') + '<main class="screen"><div class="wrap">';
-    if (state.isSample) out += '<div class="banner"><span>กำลังใช้ตัวเลข' + esc(sampleName()) + '</span><button class="lnk" data-act="to-shop">ใส่ร้านคุณ</button></div>';
-    if (state.topic) {
-      out += '<div class="sec-h"><h2>' + esc(TOPICS[state.topic].title) + '</h2></div><div class="rv">' + dStepsFor(state.topic, state.inp, state.model).map(function (st, i) {
-        return '<button class="rv-row" data-act="d-edit" data-i="' + i + '"><span class="t">' + esc(st.q) + '</span><span class="v">' + esc(dStepSummary(st)) + '</span>' + ICON.chev + '</button>';
-      }).join('') + '</div>';
-    }
-    out += '<div class="sec-h"><h2>ตัวเลขร้าน</h2><span class="aside">' + esc(MODELS[state.model].tile) + '</span></div><div class="rv">' + steps.map(function (st, i) {
+  /* รายการตัวเลขร้าน แตะเพื่อแก้ทีละข้อ (ใช้ในหน้าปรับตัวเลข และหน้าแก้ตัวเลขร้านจากหน้าเริ่ม) */
+  function shopRows() {
+    return '<div class="rv">' + stepsFor(state.model).map(function (st, i) {
       return '<button class="rv-row" data-act="edit-step" data-i="' + i + '"><span class="t">' + esc(st.q) + '</span><span class="v">' + esc(stepSummary(st)) + '</span>' + ICON.chev + '</button>';
-    }).join('') + '</div>';
-    out += '<div class="alt"><span>ร้านได้เงินจากอย่างอื่น?</span><button class="lnk" data-act="to-shop">เปลี่ยนรูปแบบร้าน</button></div>';
-    return out + '</div></main>';
+    }).join('') + '</div><div class="alt"><span>ร้านได้เงินจากอย่างอื่น?</span><button class="lnk" data-act="to-shop">เปลี่ยนรูปแบบร้าน</button></div>';
+  }
+  /* แก้ตัวเลขร้าน (เปิดจากหน้าเริ่ม ยังไม่ได้อยู่ในเรื่องไหน) */
+  function viewReview() {
+    return bar(backBtn('to-start', 'กลับไปหน้าเริ่ม'), 'ตัวเลขร้าน', 'แก้ตัวเลข') + '<main class="screen"><div class="wrap">' +
+      '<div class="q-head"><h1>ตัวเลขร้านคุณ</h1><p>ใช้กับทุกเรื่อง แตะข้อที่อยากแก้</p></div>' +
+      '<div class="sec-h"><h2>' + esc(MODELS[state.model].tile) + '</h2></div>' + shopRows() + '</div></main>';
   }
 
   /* ============================================================ RESULT — สองเส้นทาง */
@@ -5088,7 +5182,7 @@ function fmtCompact(n) {
     if (R.need > 0.5) lead = hc ? 'เงินจะขาดมือมากสุด <b>' + fmtN(R.need) + '</b> บาท · ' + tw(cashWhen(R)) : 'ช่วงแรกต้องมีเงินอย่างน้อย <b>' + fmtN(R.need) + '</b> บาท ก่อนเงินเริ่มกลับมา';
     else lead = 'สิ้น ' + monthLabel(12, true) + (hc ? ' มีเงินสด <b>' + fmtN(end) + '</b> บาท' : ' เงินเพิ่มขึ้น <b>' + fmtN(end) + '</b> บาท') + ' · ไม่ทำ ' + fmtN(bEnd);
     var pay = R.payback !== null && R.payback <= 12 ? '<span><i class="pf"></i>คืนทุน ' + monthLabel(Math.ceil(R.payback - 1e-9), true) + '</span>' : '';
-    return '<section class="card cashp"><h2 class="c-h">เงินในมือ 12 เดือน</h2><p class="lead">' + lead + '</p><div class="chart" data-chart="cash">' + cashSvg(R) + '</div>' +
+    return '<section class="card cashp"><p class="lead">' + lead + '</p><div class="chart" data-chart="cash">' + cashSvg(R) + '</div>' +
       '<div class="legend"><span><i></i>ทำ</span><span><i class="g"></i>ไม่ทำ</span>' + pay + '</div></section>';
   }
   function cashSvg(R) {
@@ -5142,7 +5236,7 @@ function fmtCompact(n) {
     var rows = rowH('กำไรต่อเดือนตอนนี้', 0, R.B.profit, 'start', 0), cur = R.B.profit;
     R.ledger.forEach(function (l, i) { rows += rowH(l.label, cur, cur + l.amount, l.amount >= 0 ? 'plus' : 'minus', i + 1); cur += l.amount; });
     rows += rowH('กำไรต่อเดือนถ้าทำ', 0, R.profit, 'end', R.ledger.length + 1);
-    return '<section class="card wf"><h2 class="c-h">กำไรต่อเดือนเปลี่ยนเพราะอะไร</h2><p class="lead">' + (R.k > 0 ? 'เมื่อ' + salesWord(state.model) + 'ขึ้นถึงที่คาด · ' : '') + 'บวกและลบกันแล้วเท่ากับกำไรที่เปลี่ยนพอดี</p>' + rows + '</section>';
+    return '<section class="card wf"><p class="lead">' + (R.k > 0 ? 'เมื่อ' + salesWord(state.model) + 'ขึ้นถึงที่คาด · ' : '') + 'บวกและลบกันแล้วเท่ากับกำไรที่เปลี่ยนพอดี</p>' + rows + '</section>';
   }
   /* ขั้นต่อไป: เครื่องมือ PL1 ที่ช่วยคิดเรื่องนี้ + เช็กความพร้อม (ไม่บังคับ) */
   function ans() { if (!state.answers[state.topic]) state.answers[state.topic] = {}; return state.answers[state.topic]; }
@@ -5160,23 +5254,40 @@ function fmtCompact(n) {
     }).join('');
     return items ? '<div class="tools">' + (title ? '<span class="tl">' + esc(title) + '</span>' : '') + items + '</div>' : '';
   }
+  /* ปุ่มหลักของหน้าผล (ค้างด้านล่าง): เช็กความพร้อม → จุดที่ควรเช็ก */
+  function readyBtn() {
+    if (askDone()) { var n = pointsList().length; return '<button class="btn" data-act="points">' + (n ? 'ดู ' + n + ' จุดที่ควรเช็ก' : 'ดูผลเช็กความพร้อม') + ICON.next + '</button>'; }
+    return '<button class="btn" data-act="ask">' + (askedCount() ? 'เช็กความพร้อมต่อ' : 'เช็กความพร้อม') + ICON.next + '</button>';
+  }
+  /* ขั้นต่อไป (ท้ายหน้าผล): เช็กความพร้อม + เครื่องมือ PL1 ที่ช่วยคิดเรื่องนี้ต่อ */
   function nextCard() {
-    var L = askList(), btn;
-    if (askDone()) { var n = pointsList().length; btn = '<button class="btn block" data-act="points">' + (n ? 'ดู ' + n + ' จุดที่ควรเช็กก่อนตัดสินใจ' : 'ดูผลเช็กความพร้อม') + ICON.next + '</button>'; }
-    else btn = '<button class="btn block" data-act="ask">' + (askedCount() ? 'เช็กความพร้อมต่อ' : 'เช็กความพร้อม ' + L.length + ' ข้อ') + ICON.next + '</button><p class="nx-note">ตอบแค่ ใช่ / ไม่ใช่ / ไม่แน่ใจ แล้วดูว่าควรเช็กจุดไหนก่อน</p>';
-    return '<section class="next3"><h2 class="nx-k">ขั้นต่อไป · หาแนวทาง</h2>' + toolsHtml(TOPIC_TOOLS[state.topic], 'เครื่องมือที่ช่วยคิดเรื่องนี้ต่อ') + btn + '</section>';
+    var L = askList(), n = askDone() ? pointsList().length : null;
+    var lead = n === null ? 'ตอบ ' + L.length + ' ข้อ แค่ ใช่ / ไม่ใช่ / ไม่แน่ใจ แล้วดูว่าควรเช็กจุดไหนก่อนตัดสินใจ' : n ? 'ตอบครบแล้ว เจอ ' + n + ' จุดที่ควรเช็ก' : 'ตอบครบแล้ว ยังไม่เจอจุดที่ควรเช็ก';
+    return '<section class="next3"><h2 class="nx-h">ขั้นต่อไป</h2><div class="nx-ready"><b>เช็กความพร้อม</b><p>' + lead + '</p>' + readyBtn().replace('class="btn"', 'class="btn block"') + '</div>' +
+      toolsHtml(TOPIC_TOOLS[state.topic], 'เครื่องมือที่ช่วยหาแนวทางเรื่องนี้') + '</section>';
   }
   function planCard() {
     return '<section class="plan3"><div class="p3-l"><span class="p3-tag">เร็ว ๆ นี้</span><h2>อยากเห็นเรื่องนี้ในแผนทั้งร้าน</h2><p>แผนธุรกิจของ Jarua จะใช้ตัวเลขชุดนี้วางทางทั้งร้าน ทั้งการตลาด ทีม และเงิน 12 เดือน</p></div>' +
       '<button class="btn ghost block" data-act="plan">ดูแผนธุรกิจ</button></section>';
   }
+  /* ดูละเอียด: แท็บ เงินในมือ 12 เดือน | กำไรเปลี่ยนเพราะอะไร */
+  var RTABS = [['cash', 'เงินในมือ 12 เดือน'], ['wf', 'กำไรเปลี่ยนเพราะอะไร']];
+  function detailsHtml(R) {
+    var tabs = RTABS.filter(function (x) { return x[0] !== 'wf' || R.ledger.length; });
+    var cur = tabs.some(function (x) { return x[0] === state.rtab; }) ? state.rtab : 'cash';
+    return '<section class="det3" id="det3"><h2 class="sec3">ดูละเอียด</h2>' + (tabs.length > 1 ? '<div class="seg tabs3" role="tablist" aria-label="ดูละเอียด">' + tabs.map(function (x) {
+      var on = x[0] === cur;
+      return '<button type="button" role="tab" id="tab-' + x[0] + '" data-act="rtab" data-v="' + x[0] + '" aria-selected="' + on + '" aria-pressed="' + on + '" aria-controls="detp" tabindex="' + (on ? 0 : -1) + '">' + x[1] + '</button>';
+    }).join('') + '</div>' : '') +
+      '<div id="detp"' + (tabs.length > 1 ? ' role="tabpanel" aria-labelledby="tab-' + cur + '"' : '') + '>' + (cur === 'wf' ? waterfallHtml(R) : cashCard(R)) + '</div></section>';
+  }
   function restHtml(R) {
     var out = '';
     if (R.warn.length) out += '<div class="warns" role="note">' + R.warn.map(function (w) { return '<p>' + ICON.info + '<span>' + esc(w) + '</span></p>'; }).join('') + '</div>';
     out += '<section class="checks"><h2 class="sec3">สิ่งที่ต้องเป็นจริง ถึงจะคุ้ม</h2><ul class="cklist">' + R.conds.map(checkHtml).join('') + '</ul></section>';
+    out += detailsHtml(R);
     out += nextCard() + planCard();
-    out += cashCard(R) + waterfallHtml(R);
-    out += '<h2 class="sec3">ลองเรื่องอื่น กับตัวเลขร้านเดิม</h2>' + topicRows(state.topic);
+    out += '<button class="btn ghost block other3" data-act="to-start">ลองเรื่องอื่น กับตัวเลขร้านเดิม' + ICON.next + '</button>';
     out += '<details class="about"><summary>ตัวเลขชุดนี้คิดอย่างไร' + ICON.down + '</summary><ul>' +
       '<li>ทุกตัวเลขต่อเดือนคำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua และเทียบกับร้านคุณตอนนี้ที่ใช้สูตรเดียวกัน</li>' +
       '<li>ทุกตัวเลขมาจากที่คุณกรอก ไม่ได้เทียบกับร้านอื่น และไม่ได้ตัดสินใจแทนคุณ</li><li>กำไรเป็นกำไรก่อนหักภาษี</li>' +
@@ -5188,19 +5299,22 @@ function fmtCompact(n) {
       '<li>' + (n0(state.inp.growth) ? 'ยอดขายของร้านเปลี่ยนเดือนละ ' + fmtPct(n0(state.inp.growth)) + ' ตามที่กรอก' : 'ยอดขายของร้านเท่าเดิมทุกเดือน') + ' · ค่าใช้จ่ายคงที่เท่าเดิมตลอด 12 เดือน</li></ul></details>';
     return out;
   }
+  function resultFoot() {
+    return '<div class="foot rfoot" id="foot"><div class="wrap"><button class="btn ghost fb-edit" data-act="lab">' + ICON.sliders + 'ปรับตัวเลข</button>' + readyBtn() + '</div></div>';
+  }
   function viewResult() {
-    var head = bar('<button class="tb" data-act="review">' + ICON.back + 'แก้ตัวเลข</button>', TOPICS[state.topic].title, 'Business Lab');
+    var head = bar('<button class="tb" data-act="to-start" aria-label="กลับไปเลือกเรื่อง">' + ICON.back + 'เลือกเรื่อง</button>', TOPICS[state.topic].title, 'ผล');
     var R = E(viewD());
-    if (!R.ok) return head + '<main class="screen"><div class="wrap"><div class="ok-box"><b>ตัวเลขยังไม่ครบ</b><p>กด "แก้ตัวเลข" เพื่อกรอกให้ครบ</p></div></div></main>';
+    if (!R.ok) return head + '<main class="screen"><div class="wrap"><div class="ok-box"><b>ตัวเลขยังไม่ครบ</b><p>กด "ปรับตัวเลข" เพื่อกรอกให้ครบ</p></div></div></main>' +
+      '<div class="foot" id="foot"><div class="wrap"><button class="btn" data-act="lab">' + ICON.sliders + 'ปรับตัวเลข</button></div></div>';
     var P = piv(), v = wiVal() !== null ? wiVal() : P.have;
     var out = head + '<main class="screen res3"><div class="wrap">';
     if (state.isSample) out += '<div class="banner"><span>นี่คือ' + esc(sampleName()) + '</span><button class="lnk" data-act="to-shop">ใส่ตัวเลขร้านคุณ</button></div>';
     out += '<section class="hero3" id="hero">' + heroHtml(R, P, (P.have > 0 || wiVal() !== null || P.showHave) ? v : null) + '</section>';
     out += '<section class="lanes" id="lanes" aria-label="เทียบ ไม่ทำ กับ ทำ">' + lanesHtml(R) + '</section>';
-    out += '<div class="lane-cta"><button class="btn ghost block" data-act="lab">' + ICON.sliders + 'ปรับตัวเลขของเรื่องนี้</button></div>';
     out += pivotCard(R, P);
     out += '<div id="rest">' + restHtml(R) + '</div>';
-    return out + '</div></main>';
+    return out + '</div></main>' + resultFoot();
   }
   /* อัปเดตหน้าผลระหว่างลากแถบ (ไม่วาดแถบใหม่ เพื่อให้ลากต่อได้) */
   var wiRaf = 0;
@@ -5271,6 +5385,7 @@ function fmtCompact(n) {
       out += '<div class="block">' + toolsHtml(TOPIC_TOOLS[state.topic], 'เครื่องมือที่ช่วยคิดเรื่องนี้', seen) + '</div>';
     }
     out += planCard();
+    out += '<div class="end3"><button class="btn ghost block" data-act="result">' + ICON.back + 'กลับไปดูผล</button><button class="btn ghost block" data-act="to-start">ลองเรื่องอื่น' + ICON.next + '</button></div>';
     return out + '</div></main>';
   }
 
@@ -5390,13 +5505,27 @@ function fmtCompact(n) {
       (ins ? '<div class="lr-ins">' + ins + '</div>' : '') + '</div>';
   }
   function labChanged() { var o = state.labOrig; return !!o && JSON.stringify(o) !== JSON.stringify(dec()); }
+  /* คำตอบของเรื่องที่ไม่มีแถบเลื่อน (เช่น แบบที่เลือก ยอดค่อย ๆ ขึ้นกี่เดือน) แตะเพื่อตอบใหม่ข้อนั้น */
+  function otherAnswerRows() {
+    var keys = labKeys(), d = dec();
+    var rows = dStepsFor(state.topic, state.inp, state.model).map(function (st, i) {
+      var rest = st.f.filter(function (k) { return keys.indexOf(k) < 0 && dShown(k, d); });
+      if (!rest.length) return '';
+      var t = rest.indexOf('kind') >= 0 ? 'แบบที่เลือก' : st.q;
+      return '<button class="rv-row" data-act="d-edit" data-i="' + i + '"><span class="t">' + esc(t) + '</span><span class="v">' + esc(dStepSummary(st)) + '</span>' + ICON.chev + '</button>';
+    }).join('');
+    return rows ? '<div class="rv">' + rows + '</div>' : '';
+  }
+  /* หน้าปรับตัวเลข: ที่เดียวสำหรับแก้ทุกตัวเลข — ตัวเลขของเรื่องนี้ (เลื่อน/พิมพ์ ใช้ทันที) + คำตอบอื่น + ตัวเลขร้าน */
   function viewLab() {
     var right = labChanged() ? '<button class="tb" data-act="lab-undo">' + ICON.undo + 'คืนค่าเดิม</button>' : '';
-    return bar('<button class="tb" data-act="result">' + ICON.back + 'กลับ</button>', 'ปรับตัวเลข', TOPICS[state.topic].title, right) +
+    return bar('<button class="tb" data-act="result" aria-label="กลับไปดูผล">' + ICON.back + 'ผล</button>', 'ปรับตัวเลข', TOPICS[state.topic].title, right) +
       '<main class="screen"><h1 class="sr">ปรับตัวเลข ' + esc(TOPICS[state.topic].title) + '</h1><div class="lab-top"><div class="wrap" id="labp">' + labPanel() + '</div></div><div class="wrap">' +
-      '<p class="lab-note">เปลี่ยนแล้วใช้ทันที ผลทุกหน้าเปลี่ยนตาม</p>' +
-      '<div class="lgroup"><div class="lrows">' + labKeys().map(lrowHtml).join('') + '</div></div>' +
-      '<p class="fine">ตัวเลขร้านเปลี่ยนได้ที่ <button class="lnk" data-act="review">แก้ตัวเลข</button></p></div></main>';
+      (state.isSample ? '<div class="banner lab-bn"><span>กำลังใช้ตัวเลข' + esc(sampleName()) + '</span><button class="lnk" data-act="to-shop">ใส่ร้านคุณ</button></div>' : '') +
+      '<div class="sec-h"><h2>ตัวเลขของเรื่องนี้</h2></div><p class="lab-note">เลื่อนหรือพิมพ์ ผลด้านบนเปลี่ยนทันที</p>' +
+      '<div class="lgroup"><div class="lrows">' + labKeys().map(lrowHtml).join('') + '</div></div>' + otherAnswerRows() +
+      (state.isSample ? '' : '<div class="sec-h"><h2>ตัวเลขร้าน</h2><span class="aside">' + esc(MODELS[state.model].tile) + '</span></div>' + shopRows()) +
+      '</div></main>';
   }
   var labRaf = 0;
   function labUpdate(k, fromSlider) {
@@ -5507,10 +5636,11 @@ function fmtCompact(n) {
     state.feeHelp = false; state.fh = { share: '', rate: '' };
   }
   function openTopic(t) {
-    if (!state.model) { state.topic = t; go('shop'); return; }
+    if (!state.model) { state.topic = t; state.shopInFlow = true; go('shop'); return; }
     if (!topicOk(t, state.model)) { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[state.model].tile); return; }
-    state.topic = t; state.active = null; state.qidx = 0;
+    state.topic = t; state.active = null; state.qidx = 0; state.dediting = false; state.labOrig = null;
     if (!state.ds[t]) state.ds[t] = Object.assign({}, state.isSample && state.sampleKind && SAMPLES[state.sampleKind].m === state.model ? sampleDec(state.sampleKind, t) : DEC_DEFAULT[t]);
+    state.shopInFlow = !shopOk();
     if (!shopOk()) { state.step = 0; state.editing = false; go('wizard'); return; }
     if (dAllValid()) go('result');
     else { state.dstep = 0; state.dediting = false; go('dq'); }
@@ -5534,13 +5664,25 @@ function fmtCompact(n) {
         t.innerHTML = nt === 'dark' ? ICON.sun : ICON.moon; break;
       }
       case 'sample': {
-        var sk = sampleKindFor(state.topic), tp = state.topic && topicOk(state.topic, SAMPLES[sk].m) ? state.topic : 'hire';
-        chooseModel(SAMPLES[sk].m, true, sk); state.topic = null; openTopic(tp); break;
+        /* จากหน้าเริ่ม: ใช้ร้านตัวอย่างแล้วอยู่หน้าเดิมให้เลือกเรื่องเอง · จากหน้าเลือกรูปแบบร้าน (มีเรื่องอยู่แล้ว): เปิดผลของเรื่องนั้นกับร้านตัวอย่าง */
+        var sk = sampleKindFor(state.view === 'shop' ? state.topic : null), tp = state.view === 'shop' && state.topic && topicOk(state.topic, SAMPLES[sk].m) ? state.topic : null;
+        chooseModel(SAMPLES[sk].m, true, sk); state.topic = null; state.shopInFlow = false;
+        if (tp) { openTopic(tp); break; }
+        go('start', false);
+        var sl = $('.shopline'); if (sl) { sl.setAttribute('tabindex', '-1'); sl.focus({ preventScroll: true }); }
+        announce('กำลังใช้' + sampleName() + ' แตะเรื่องไหนก็ได้ จะเห็นผลทันที');
+        break;
       }
       case 'topic': if (t.getAttribute('aria-disabled') === 'true') { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[state.model].tile); break; } openTopic(t.getAttribute('data-t')); break;
-      case 'to-start': go('start'); break;
-      case 'to-shop': go('shop'); break;
-      case 'shop-edit': if (state.isSample) go('shop'); else go('review'); break;
+      case 'to-start': state.topic = null; state.labOrig = null; state.editing = false; state.dediting = false; go('start'); break;
+      case 'to-shop': state.shopInFlow = !!state.topic; state.editing = false; go('shop'); break;
+      case 'shop-edit': if (state.isSample) { state.topic = null; state.shopInFlow = false; go('shop'); } else { state.editFrom = 'review'; go('review'); } break;
+      case 'rtab': {
+        state.rtab = t.getAttribute('data-v');
+        var Rt = E(viewD()), sec = $('#det3');
+        if (Rt.ok && sec) { sec.outerHTML = detailsHtml(Rt); runAnim($('#det3')); var nb0 = $('#tab-' + state.rtab); if (nb0) nb0.focus(); }
+        save(); break;
+      }
       case 'model': {
         var nm = t.getAttribute('data-m');
         if (state.model === nm && !state.isSample && Object.keys(state.inp).length > 3) { state.step = 0; state.editing = false; go('wizard'); break; }
@@ -5548,13 +5690,16 @@ function fmtCompact(n) {
       }
       case 'next': steps = stepsFor(m); if (state.step < steps.length - 1) { state.step++; go('wizard'); } break;
       case 'prev':
-        if (state.editing) go('review');
+        if (state.editing) { state.editing = false; go(state.editFrom === 'lab' && state.topic ? 'lab' : 'review'); }
         else if (state.step > 0) { state.step--; go('wizard'); }
         else go('shop');
         break;
       case 'shop-done': {
         if (!stepsFor(m).every(stepValid)) break;
+        var wasEd = state.editing;
         state.editing = false;
+        if (wasEd && state.editFrom === 'lab' && state.topic && topicOk(state.topic, m)) { if (dAllValid()) go('lab'); else { state.dstep = 0; state.dediting = false; go('dq'); } break; }
+        if (wasEd) { go('review'); break; }
         if (!state.topic) { go('start'); break; }
         if (!topicOk(state.topic, m)) { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[m].tile); go('start'); break; }
         dec();
@@ -5562,18 +5707,22 @@ function fmtCompact(n) {
         else { state.dstep = 0; state.dediting = false; go('dq'); }
         break;
       }
-      case 'review': go('review'); break;
-      case 'result': state.labOrig = null; go('result'); break;
-      case 'edit-step': state.step = +t.getAttribute('data-i'); state.editing = true; go('wizard'); break;
+      case 'review': state.editFrom = 'review'; go('review'); break;
+      case 'result': state.labOrig = null; state.dediting = false; go('result'); break;
+      case 'edit-step': state.editFrom = state.view === 'lab' ? 'lab' : 'review'; state.step = +t.getAttribute('data-i'); state.editing = true; go('wizard'); break;
       case 'd-edit': state.dstep = +t.getAttribute('data-i'); state.dediting = true; go('dq'); break;
       case 'd-next': { steps = dStepsFor(state.topic, state.inp, m); if (state.dstep < steps.length - 1 && dStepValid(steps[state.dstep])) { state.dstep++; go('dq'); } break; }
       case 'd-prev':
-        if (state.dediting) go('review');
+        if (state.dediting) { if (dAllValid()) { state.dediting = false; go('lab'); } else toast('ตอบข้อนี้ให้ครบก่อน แล้วค่อยกลับ'); }
         else if (state.dstep > 0) { state.dstep--; go('dq'); }
-        else if (state.isSample) go('start');
-        else { state.step = stepsFor(m).length - 2; state.editing = false; go('wizard'); }
+        else if (state.shopInFlow && !state.isSample) { var ss = stepsFor(m); state.step = Math.max(0, ss.map(function (x) { return x.id; }).indexOf('cash')); state.editing = false; go('wizard'); }
+        else { state.topic = null; go('start'); }
         break;
-      case 'd-done': if (dAllValid()) { state.dediting = false; delete state.wi[state.topic]; go('result'); } break;
+      case 'd-done':
+        if (!dAllValid()) break;
+        delete state.wi[state.topic];
+        if (state.dediting) { state.dediting = false; go('lab'); } else go('result');
+        break;
       case 'dcount': {
         var k0 = t.getAttribute('data-k'), f0 = dDef(k0), d0 = dec();
         d0[k0] = Math.max(f0.min || 1, Math.min(f0.max || 99, Math.round(n0(d0[k0]) || 1) + +t.getAttribute('data-dir')));
@@ -5607,9 +5756,14 @@ function fmtCompact(n) {
         break;
       }
       case 'where': {
-        var wv = t.getAttribute('data-v');
-        state.where = state.where === wv ? null : wv;
-        go('start', false); announce('เหลือ ' + TOPIC_ORDER.filter(function (x) { return whereOk(x, state.where); }).length + ' เรื่อง'); var wb = $('[data-act="where"][data-v="' + wv + '"]'); if (wb) wb.focus();
+        var wv = t.getAttribute('data-v'), first = !state.where;
+        state.where = wv;
+        /* ร้านตัวอย่างเปลี่ยนตามที่ขาย (ออนไลน์ = ร้านเสื้อผ้า · อื่น ๆ = ร้านกาแฟ) */
+        if (state.isSample && state.sampleKind !== sampleKindFor(null)) { var nk = sampleKindFor(null); chooseModel(SAMPLES[nk].m, true, nk); }
+        go('start', false);
+        announce('เหลือ ' + TOPIC_ORDER.filter(function (x) { return whereOk(x, state.where); }).length + ' เรื่องที่เข้ากับร้านคุณ');
+        var wb = $('[data-act="where"][data-v="' + wv + '"]'); if (wb) wb.focus({ preventScroll: true });
+        if (first) { var ph = $('.where3'); if (ph && !reduced) ph.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
         break;
       }
       case 'fee-help': state.feeHelp = true; go('wizard', false); var fs1 = $('#fh-share'); if (fs1) fs1.focus(); break;
@@ -5738,6 +5892,13 @@ function fmtCompact(n) {
     }
   }
   function onKey(e) {
+    /* แท็บดูละเอียด: ลูกศรซ้าย/ขวา สลับแท็บ */
+    if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && e.target.getAttribute && e.target.getAttribute('role') === 'tab') {
+      var tabs = $$('[role="tab"]', e.target.parentNode), ti = tabs.indexOf(e.target);
+      var nx = tabs[(ti + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+      if (nx && nx !== e.target) { e.preventDefault(); nx.click(); }
+      return;
+    }
     if (e.key !== 'Enter' || !e.target.hasAttribute) return;
     var isW = e.target.hasAttribute('data-k') && state.view === 'wizard', isD = e.target.hasAttribute('data-dk') && state.view === 'dq';
     if (isW || isD) {
