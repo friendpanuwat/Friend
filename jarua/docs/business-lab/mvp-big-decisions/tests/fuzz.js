@@ -52,6 +52,15 @@ for (let i = 0; i < 700; i++) {
     const C = R('dConds(dEval(__x.inp,__x.m,__x.T,__x.d),__x.inp,__x.m,__x.T,__x.d)');
     const S = R('dScenarios(__x.inp,__x.m,__x.T,__x.d)');
     scan({ profit: E.profit, delta: E.delta, low: E.low, need: E.need, payback: E.payback, rows: E.rows, ledger: E.ledger, conds: C, scen: S, extra: E.extraSteady }, m + '/' + T);
+    /* ✓ ต้องเป็นจริงเสมอ: ตัวเลขที่แสดงเทียบกันตรง · ✓ จุดคุ้ม = กำไรไม่ลด · ✓ คืนทุน 3 ปี = คืนทุนภายใน 36 เดือนจริง */
+    for (const c of C) {
+      if ((c.id !== 'need' && c.id !== 'payneed') || c.value === null || c.haveShown === undefined) continue;
+      const atLeast = /อย่างน้อย/.test(c.label);
+      const over = /เกินกำลัง/.test(c.sub || '');
+      if ((c.status === 'ok') !== (!over && (atLeast ? c.haveShown >= c.value - 1e-9 : c.haveShown <= c.value + 1e-9))) throw new Error(c.id + ' status vs shown ' + c.haveShown + '/' + c.value);
+      if (c.id === 'need' && atLeast && c.status === 'ok' && E.delta < -1) throw new Error('need ✓ while profit falls ' + E.delta);
+      if (c.id === 'payneed' && c.status === 'ok' && !(E.payback !== null && E.payback <= 36 + 1e-6)) throw new Error('payneed ✓ but payback ' + E.payback);
+    }
     const sum = E.ledger.reduce((a, l) => a + l.amount, 0);
     if (E.ledger.length && Math.abs(sum - E.delta) > 0.05) throw new Error('ledger ' + sum + ' vs ' + E.delta);
   } catch (e) { bad++; if (bad < 8) console.log('FAIL', m, T, e.message, JSON.stringify(d)); }

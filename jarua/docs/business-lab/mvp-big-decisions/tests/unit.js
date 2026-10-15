@@ -137,6 +137,10 @@ for (const m of models) {
   }
   const p18 = ev(inp, 'unit', 'place', Object.assign({}, base, { salesPct: 18 }));
   chk(cond(p18, 'payneed').status === 'ok' && p18.payback <= 36, 'place +18% (94.4 cups) pays back within 3 years and shows ✓: ' + p18.payback);
+  const p985 = ev(inp, 'unit', 'place', Object.assign({}, base, { salesPct: 9.8125 }));
+  chk(cond(p985, 'need').status === 'short' && p985.delta < 0, 'place 87.85 cups (just under 87.87) is ✕, not "พอดีเงื่อนไข": ' + cond(p985, 'need').haveShown);
+  const eq = ev(inp, 'unit', 'equip', { price: 120000, life: 5, eqGain: 2, costDown: 0, fixedChg: 0, ramp: 12 });
+  chk(cond(eq, 'pay').status === 'short' || eq.payback <= 60, 'equip at break-even with slow ramp: payback row ✕ when machine wears out first: ' + eq.payback);
   const p94 = ev(inp, 'unit', 'place', Object.assign({}, base, { salesPct: 9.4 }));
   chk(cond(p94, 'need').status === 'short' && p94.delta < 0, 'place +9.4% (87.5 cups) is below 87.9 and shows ✕');
   const ps = ev(inp, 'unit', 'place', R('SAMPLE_DEC.place'));

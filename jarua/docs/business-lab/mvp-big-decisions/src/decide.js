@@ -363,6 +363,20 @@ function showNeed(P, x, m) {
   return roundNeed(x, m);
 }
 function showVal(v) { return Math.abs(v) < 1000 ? Math.round(v * 10) / 10 : Math.round(v); }
+/* ทศนิยมที่แสดง: อย่างน้อยเท่ากับตัวเลขที่ผู้ใช้กรอก (สูงสุด 2 ตำแหน่ง) เงื่อนไขกับค่าที่ใช้ดูจึงเทียบกันได้ตรง ๆ
+   ค่าที่ใช้ดูปัดไปทางที่ไม่ทำให้ดูผ่านเกินจริง (อย่างน้อย → ปัดลง · ไม่เกิน → ปัดขึ้น) */
+function decOf(v) { v = Math.abs(v); if (v >= 1000) return 0; for (var k = 0; k < 2; k++) { var f = Math.pow(10, k); if (Math.abs(v * f - Math.round(v * f)) < 1e-6) return k; } return 2; }
+function needAt(P, x, m, have) {
+  var s = showNeed(P, x, m);
+  if (s === null) return null;
+  var pd = Math.max(decOf(s), decOf(have)), f = Math.pow(10, pd);
+  return pd > decOf(s) ? Math.ceil(x * f - 1e-9) / f : s;
+}
+function downAt(x, m, have) {
+  var s = roundDown(x, m), pd = Math.max(decOf(s), decOf(have)), f = Math.pow(10, pd);
+  return pd > decOf(s) ? Math.floor(x * f + 1e-9) / f : s;
+}
+function haveAt(v, s, lo) { var pd = Math.max(decOf(s), decOf(v)), f = Math.pow(10, pd); return lo ? Math.floor(v * f + 1e-6) / f : Math.ceil(v * f - 1e-6) / f; }
 function payIn(x) { return x === null || x === undefined ? 'ไม่ได้' : x > 120 ? 'เกิน 10\u00a0ปี' : 'ใน ' + fmtMonths(x); }
 
 /* ---------- ตัวเลขหลักที่ตัดสินว่าคุ้มไหม (แถบลากในหน้าผล) ----------
@@ -484,29 +498,29 @@ function dConds(R, inp, m, T, d) {
   var C = [], base = R.B.profit, P = dPivot(inp, m, T, d), u = P.unit;
   function profitWith(dd) { return steady(inp, m, T, dd).profit; }
   /* 1) จุดคุ้มของตัวเลขหลัก */
-  var hv = showVal(P.have);
-  var nr = { id: 'need', lever: P.key, unit: u, have: P.have, haveShown: hv, raw: P.need };
+  var nr = { id: 'need', lever: P.key, unit: u, have: P.have, raw: P.need };
   var over = P.needOver ? ' · เกินกำลังที่' + (T === 'branch' ? 'สาขา' : 'ร้าน') + 'ทำได้ (' + (m === 'rental' ? 'คนเช่าเต็มทุก' + U(inp, m) : fmtN(pos(inp.capacity)) + ' ' + gainUnit(inp, m)) + ')' : '';
   if (P.be.kind === 'value') {
-    var shown = showNeed(P, P.need, m);
+    var shown = needAt(P, P.need, m, P.have), hv = haveAt(P.have, shown, true);
     var depM = T === 'equip' ? R.st.r.depreciation.monthlyTotal - R.B.r.depreciation.monthlyTotal : 0;
     var same = 'ถึงจะได้กำไรต่อเดือนเท่าตอนนี้' + (T === 'equip' && depM > 0.5 ? ' (หักเงินที่กันไว้ซื้อเครื่องใหม่ เดือนละ ' + fmtN(depM) + ' บาทแล้ว)' : P.one > 0 ? ' (ยังไม่นับเงินก้อน ' + fmtN(P.one) + ' บาท)' : '');
-    Object.assign(nr, { label: P.lab + 'อย่างน้อย', value: shown,
+    Object.assign(nr, { label: P.lab + 'อย่างน้อย', value: shown, haveShown: hv,
       status: hv >= shown - 1e-9 && !P.needOver ? 'ok' : 'short',
       sub: (T === 'place' ? (P.need >= P.now ? salesWord(m) + 'มากกว่าตอนนี้ ' : salesWord(m) + 'น้อยกว่าตอนนี้ ') + fmtPct(Math.abs(P.need / P.now - 1) * 100) + ' ' + same
         : T === 'branch' ? '= ' + (m === 'rental' ? 'มีคนเช่า ' + fmtN(roundNeed(n0(inp.occupancy) * P.need / 100, m)) + '% ของ' + U(inp, m) + 'ทั้งหมดที่สาขา' : fmtN(roundNeed(n0(inp[ROLE[m].vol]) * P.need / 100, m)) + ' ' + gainUnit(inp, m)) + ' ' + same
           : same) + over });
   } else {
-    if (P.be.kind === 'max') Object.assign(nr, { label: P.lab + 'ไม่เกิน', value: roundDown(P.be.x, m), raw: P.be.x,
-      status: hv <= roundDown(P.be.x, m) + 1e-9 ? 'ok' : 'short', sub: needText(P, m, inp, d) });
+    var mx0 = P.be.kind === 'max' ? downAt(P.be.x, m, P.have) : null, hx = mx0 !== null ? haveAt(P.have, mx0, false) : null;
+    if (P.be.kind === 'max') Object.assign(nr, { label: P.lab + 'ไม่เกิน', value: mx0, raw: P.be.x, haveShown: hx,
+      status: hx <= mx0 + 1e-9 ? 'ok' : 'short', sub: needText(P, m, inp, d) });
     else Object.assign(nr, { label: P.q, value: null, txt: needText(P, m, inp, d), status: P.be.kind === 'never' ? 'short' : 'ok' });
   }
   C.push(nr);
   /* 1b) เรื่องที่มีเงินก้อน: ต้องได้เท่าไรถึงจะคืนทุนทันเป้า */
   if (P.target) {
-    var pn = showNeed(P, P.payNeed, m);
+    var pn = needAt(P, P.payNeed, m, P.have), hp = pn !== null ? haveAt(P.have, pn, true) : null;
     if (pn !== null) C.push({ id: 'payneed', label: 'ถ้าจะ' + P.targetTxt + ' ' + P.lab + 'อย่างน้อย', value: pn,
-      raw: P.payNeed, unit: u, have: P.have, haveShown: hv, lever: P.key, status: hv >= pn - 1e-9 ? 'ok' : 'short',
+      raw: P.payNeed, unit: u, have: P.have, haveShown: hp, lever: P.key, status: hp >= pn - 1e-9 ? 'ok' : 'short',
       sub: 'นับเงินก้อน ' + fmtN(P.one) + ' บาทด้วย · 3 ปีเป็นระยะที่ใช้เทียบเท่านั้น' });
     else C.push({ id: 'payneed', label: 'ถ้าจะ' + P.targetTxt, value: null, txt: P.payNo, unit: u, lever: P.key, status: 'short', sub: 'นับเงินก้อน ' + fmtN(P.one) + ' บาทด้วย · 3 ปีเป็นระยะที่ใช้เทียบเท่านั้น' });
   }

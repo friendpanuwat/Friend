@@ -138,7 +138,7 @@
       (right || '') + '<button class="ib" data-act="theme" aria-label="สลับโหมดมืดและสว่าง">' + (themeNow() === 'dark' ? ICON.sun : ICON.moon) + '</button></div></header>';
   }
   function backBtn(act, label) { return '<button class="ib" data-act="' + act + '" aria-label="' + (label || 'ย้อนกลับ') + '">' + ICON.back + '</button>'; }
-  function nf(v, u) { return fmtN(v, Math.abs(v) < 1000 && Math.abs(Math.round(v * 10) / 10 - Math.round(v)) > 1e-9 ? 1 : 0) + (u ? (u.charAt(0) === '%' ? '' : '\u00a0') + u : ''); }
+  function nf(v, u) { return fmtN(v, decOf(v)) + (u ? (u.charAt(0) === '%' ? '' : '\u00a0') + u : ''); }
   /* เสียงอ่านหน้าจอ: บอกผลครั้งเดียวหลังหยุดลาก/หยุดพิมพ์ ไม่อ่านทุกขยับ */
   var srT = 0;
   function announce(txt) {
@@ -611,13 +611,13 @@
   function pivotCard(R, P) {
     var v = wiVal() !== null ? wiVal() : P.have, be = P.be;
     var pc = P.unit.charAt(0) === '%', ut = esc(pc ? P.unit.slice(1).trim() : P.unit);
-    var rn = function (x) { return nf(showNeed(P, x, state.model), '') + (pc ? '%' : ''); };
+    var rn = function (x) { return nf(needAt(P, x, state.model, v), '') + (pc ? '%' : ''); };
     var numU = function (txt) { return '<b>' + txt + '</b>' + (ut ? '<small>' + ut + '</small>' : ''); };
     var head;
     if ((be.kind === 'value' || be.kind === 'zero') && P.target) head = '<span class="pn"><span>กำไรต่อเดือนเท่าเดิม</span>' + numU(rn(P.need)) + '</span>' +
       '<span class="pn pay"><span>' + esc(P.targetTxt) + '</span>' + (P.payNeed !== null ? numU(rn(P.payNeed)) : '<b class="pn-x">ไม่ทัน</b>') + '</span>';
     else if (be.kind === 'value' || be.kind === 'zero') head = '<span>จุดคุ้ม</span>' + numU(rn(P.need));
-    else if (be.kind === 'max') head = '<span>ต้องไม่เกิน</span>' + numU(nf(roundDown(be.x, state.model), '') + (pc ? '%' : ''));
+    else if (be.kind === 'max') head = '<span>ต้องไม่เกิน</span>' + numU(nf(downAt(be.x, state.model, v), '') + (pc ? '%' : ''));
     else head = '<span class="txt">' + esc(needText(P, state.model, state.inp, dec())) + '</span>';
     var np = P.need !== null ? pct(P, P.need) : be.kind === 'max' ? pct(P, be.x) : null;
     var zone = be.kind === 'always' ? 'all-ok' : be.kind === 'never' ? 'all-no' : be.kind === 'max' ? 'rev' : 'fwd';
@@ -634,9 +634,9 @@
       '<div class="pv-track ' + zone + '" style="--n:' + (np === null ? 50 : np.toFixed(2)) + '%;--p:' + (pp === null ? 100 : pp.toFixed(2)) + '%">' +
       '<div class="pv-zone" aria-hidden="true"><i class="z1"></i><i class="z2"></i><i class="z3"></i></div>' +
       (np !== null ? '<span class="pv-mk need" style="left:calc(14px + (100% - 28px) * ' + (np / 100).toFixed(4) + ')" aria-hidden="true"></span>' +
-        '<span class="pv-tk l" style="left:calc(14px + (100% - 28px) * ' + (np / 100).toFixed(4) + ')" aria-hidden="true">' + (be.kind === 'max' ? nf(roundDown(be.x, state.model), '') : P.need !== null ? nf(showNeed(P, P.need, state.model), '') : '') + '</span>' : '') +
+        '<span class="pv-tk l" style="left:calc(14px + (100% - 28px) * ' + (np / 100).toFixed(4) + ')" aria-hidden="true">' + (be.kind === 'max' ? nf(downAt(be.x, state.model, v), '') : P.need !== null ? nf(needAt(P, P.need, state.model, v), '') : '') + '</span>' : '') +
       (pp !== null && pp < 100 ? '<span class="pv-mk pay" style="left:calc(14px + (100% - 28px) * ' + (pp / 100).toFixed(4) + ')" aria-hidden="true"></span>' +
-        '<span class="pv-tk r" style="left:calc(14px + (100% - 28px) * ' + (pp / 100).toFixed(4) + ')" aria-hidden="true">' + nf(showNeed(P, P.payNeed, state.model), '') + '</span>' : '') +
+        '<span class="pv-tk r" style="left:calc(14px + (100% - 28px) * ' + (pp / 100).toFixed(4) + ')" aria-hidden="true">' + nf(needAt(P, P.payNeed, state.model, v), '') + '</span>' : '') +
       (hp !== null ? '<span class="pv-mk have" style="left:calc(14px + (100% - 28px) * ' + (hp / 100).toFixed(4) + ')" aria-hidden="true"><em>คุณคาด</em></span>' : '') +
       '<input type="range" id="pvr" data-pv="1" min="' + P.lo + '" max="' + P.hi + '" step="' + P.step + '" value="' + v + '" aria-label="' + esc(P.q) + '" aria-valuetext="' + esc(pivotWord(P, v)) + '"></div>' +
       '<div class="pv-scale" aria-hidden="true"><span>' + nf(P.lo, '') + '</span><span>' + nf(P.hi, P.unit) + '</span></div>' + legendHtml(P, zone, pp) +
@@ -653,6 +653,8 @@
     var rows = (R.conds || []).filter(function (c) { return (c.id === 'need' || c.id === 'payneed') && c.value !== null; });
     var ok = rows.length ? rows.every(function (c) { return c.status === 'ok'; }) && !(P.target && P.payNeed === null)
       : R.delta >= -0.5 && (!(R.one > 0) || (R.payback !== null && (!P.target || R.payback <= P.target + 1e-9)));
+    /* คืนทุนก่อนเครื่องหมดอายุ · ไม่เกินกำลังร้าน ก็เป็นเงื่อนไขด้วย */
+    ok = ok && (R.conds || []).every(function (c) { return !(c.id === 'pay' || c.id === 'cap' || c.id === 'room') || c.status !== 'short'; });
     var pay = R.one > 0 ? ' · คืนทุน' + payIn(R.payback) : '';
     return '<span class="pr-v">ถ้า' + tw(pivotWord(P, v)) + '</span><span class="pr-r ' + (ok ? 'ok' : 'no') + '">' + (ok ? ICON.ok : ICON.no) +
       '<span><span class="sr">' + (ok ? 'ถึงเงื่อนไข ' : 'ยังไม่ถึงเงื่อนไข ') + '</span>กำไรต่อเดือน ' + dirSpan(R.delta, fmtN(Math.abs(R.delta))) + pay + '</span></span>';
@@ -802,7 +804,7 @@
       var main = $('main.res3'); if (main) main.classList.add('live');
       var h = $('#hero'); if (h) { h.innerHTML = heroHtml(R, P, v); runAnim(h); }
       var l = $('#lanes'); if (l) l.innerHTML = lanesHtml(R);
-      var pr = $('#pvread'); if (pr) { pr.innerHTML = pvRead(R, P, v); announce(pr.textContent); }
+      var pr = $('#pvread'); if (pr) { pr.innerHTML = pvRead(R, P, v); announce([].map.call(pr.children, function (c) { return c.textContent; }).join(' · ')); }
       var rs = $('#rest'); if (rs) { rs.innerHTML = restHtml(R); runAnim(rs); }
       var inp = $('#pvr'); if (inp) inp.setAttribute('aria-valuetext', pivotWord(P, v));
       $$('.pv-chips .sc').forEach(function (b) { b.setAttribute('aria-pressed', String(Math.abs(+b.getAttribute('data-v') - v) < 1e-6)); });
@@ -1341,6 +1343,7 @@
 
   function start(data) {
     app = document.getElementById('app');
+    if (!document.getElementById('sr-live')) { var lv = document.createElement('div'); lv.id = 'sr-live'; lv.className = 'sr'; lv.setAttribute('aria-live', 'polite'); document.body.appendChild(lv); }
     var r = data && data.view ? data : null;
     if (!r) { try { r = JSON.parse(sessionStorage.getItem('lab3') || 'null'); } catch (e) { r = null; } }
     restore(r);
