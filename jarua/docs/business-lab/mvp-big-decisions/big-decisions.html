@@ -406,6 +406,9 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .pp-t { font-size: 26px; font-weight: 700; line-height: 1.3; margin: 6px 0 6px; }
 .block > .tools .tool { background: var(--card); box-shadow: var(--shadow); }
 .pbtn { min-height: 44px; padding: 0 18px; border-radius: 22px; border: 1px solid var(--panel-line); background: transparent; color: var(--panel-ink); font-weight: 700; font-size: 14px; }
+
+/* ปุ่มกลับหน้ารวม Business Lab (ท้ายภาพรวม เมื่อเปิดผ่านหน้ารวม) */
+.hub-back { margin-top: 20px; text-decoration: none; }
 /* ---------- ตัวที่ 3: รูปแบบหน้าจอของตัวเอง (ใช้ token สี ฟอนต์ ระยะ และส่วนกรอกตัวเลขร้านชุดเดียวกับตัวที่ 1) ----------
    ภาษาภาพ: "สองเส้นทาง" ไม่ทำ (พื้นสว่าง) | ทำ (แถบดำ) · ตัวเลขใหญ่บอกการเปลี่ยนแปลง · แถบลากหาจุดคุ้ม · เครื่องหมาย ✓ ✕
    ลาย "ไม่คุ้ม / ยังไม่ถึง" ใช้ลายเส้นทแยง ไม่ใช้สี */
@@ -641,6 +644,7 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 /* ---------- ดูละเอียด (แท็บ) ---------- */
 .tabs3 { display: flex; width: 100%; }
 .tabs3 button { flex: 1; padding: 0 8px; font-size: 14px; line-height: 1.3; }
+.tabs3 button[aria-selected="true"] { background: var(--card); color: var(--ink); box-shadow: var(--shadow); }
 .det3 .card.cashp, .det3 .card.wf { margin-top: 10px; }
 
 /* ---------- ขั้นต่อไป ---------- */
@@ -4517,14 +4521,19 @@ function fmtCompact(n) {
     try { sessionStorage.setItem('lab3', JSON.stringify(snapshot())); } catch (e) { /* ignore */ }
     /* ข้อมูลร้านชุดกลาง: ตัวเลขร้านของผู้ใช้เอง (ไม่ใช่ร้านตัวอย่าง) ใช้ต่อได้ในเครื่องมืออื่นของ Business Lab */
     if (typeof LabShop !== 'undefined') {
-      if (state.model && !state.isSample) LabShop.put(state.model, state.inp, MODELS[state.model].tile, shopOk());
+      if (state.model && !state.isSample) {
+        var js = state.model + '|' + JSON.stringify(state.inp);
+        if (js !== lastPut) { LabShop.put(state.model, state.inp, MODELS[state.model].tile, shopOk()); lastPut = js; }
+      }
       LabShop.setWhere(state.where);
     }
   }
+  var lastPut = null;
   /* เปิดเครื่องมือ: ถ้ามีตัวเลขร้านชุดกลางที่ต่างจากของเดิม (กรอกหรือแก้ในเครื่องมืออื่น) ใช้ชุดกลาง */
   function adoptShared() {
     if (typeof LabShop === 'undefined') return;
     var sh = LabShop.get();
+    if (sh) lastPut = sh.model + '|' + JSON.stringify(sh.inp);
     if (sh && MODELS[sh.model] && (state.isSample || state.model !== sh.model || !LabShop.same(state.inp, sh.inp))) {
       if (state.isSample || state.model !== sh.model) {
         chooseModel(sh.model, false);
@@ -5329,26 +5338,30 @@ function fmtCompact(n) {
     var cur = tabs.some(function (x) { return x[0] === state.rtab; }) ? state.rtab : 'cash';
     return '<section class="det3" id="det3"><h2 class="sec3">ดูละเอียด</h2>' + (tabs.length > 1 ? '<div class="seg tabs3" role="tablist" aria-label="ดูละเอียด">' + tabs.map(function (x) {
       var on = x[0] === cur;
-      return '<button type="button" role="tab" id="tab-' + x[0] + '" data-act="rtab" data-v="' + x[0] + '" aria-selected="' + on + '" aria-pressed="' + on + '" aria-controls="detp" tabindex="' + (on ? 0 : -1) + '">' + x[1] + '</button>';
+      return '<button type="button" role="tab" id="tab-' + x[0] + '" data-act="rtab" data-v="' + x[0] + '" aria-selected="' + on + '" aria-controls="detp" tabindex="' + (on ? 0 : -1) + '">' + x[1] + '</button>';
     }).join('') + '</div>' : '') +
-      '<div id="detp"' + (tabs.length > 1 ? ' role="tabpanel" aria-labelledby="tab-' + cur + '"' : '') + '>' + (cur === 'wf' ? waterfallHtml(R) : cashCard(R)) + '</div></section>';
+      '<div id="detp"' + (tabs.length > 1 ? ' role="tabpanel" aria-labelledby="tab-' + cur + '"' : '') + '>' + detPanel(R) + '</div></section>';
   }
-  function restHtml(R) {
-    var out = '';
-    if (R.warn.length) out += '<div class="warns" role="note">' + R.warn.map(function (w) { return '<p>' + ICON.info + '<span>' + esc(w) + '</span></p>'; }).join('') + '</div>';
-    out += '<section class="checks"><h2 class="sec3">สิ่งที่ต้องเป็นจริง ถึงจะคุ้ม</h2><ul class="cklist">' + R.conds.map(checkHtml).join('') + '</ul></section>';
-    out += detailsHtml(R);
-    out += nextCard() + planCard();
-    out += '<button class="btn ghost block other3" data-act="to-start">ลองเรื่องอื่น กับตัวเลขร้านเดิม' + ICON.next + '</button>';
-    out += '<details class="about"><summary>ตัวเลขชุดนี้คิดอย่างไร' + ICON.down + '</summary><ul>' +
-      '<li>ทุกตัวเลขต่อเดือนคำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua และเทียบกับร้านคุณตอนนี้ที่ใช้สูตรเดียวกัน</li>' +
+  function detPanel(R) { return state.rtab === 'wf' && R.ledger.length ? waterfallHtml(R) : cashCard(R); }
+  function warnsHtml(R) { return R.warn.length ? '<div class="warns" role="note">' + R.warn.map(function (w) { return '<p>' + ICON.info + '<span>' + esc(w) + '</span></p>'; }).join('') + '</div>' : ''; }
+  function aboutItems(R) {
+    return '<li>ทุกตัวเลขต่อเดือนคำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua และเทียบกับร้านคุณตอนนี้ที่ใช้สูตรเดียวกัน</li>' +
       '<li>ทุกตัวเลขมาจากที่คุณกรอก ไม่ได้เทียบกับร้านอื่น และไม่ได้ตัดสินใจแทนคุณ</li><li>กำไรเป็นกำไรก่อนหักภาษี</li>' +
       (R.one > 0 ? '<li>เงินก้อน ' + fmtN(R.one) + ' บาท จ่ายด้วยเงินสดตอนเริ่ม · คืนทุนนับจากเงินที่ได้เพิ่มจริงในแต่ละเดือน เทียบกับไม่ทำ (หลังเดือนที่ 12 ใช้ตัวเลขปีที่ 2 และ 3)</li>' : '') +
       (R.k > 0 ? '<li>' + salesWord(state.model) + 'ที่คาด ค่อย ๆ ขึ้นเท่ากันทุกเดือน และถึงที่คาดในเดือนที่ ' + (R.k + 1) + '</li>' : '') +
       (Math.abs(R.wc) >= 1 ? '<li>เงินในมือหักเงินที่ต้องจมเพิ่มกับลูกค้าที่ยังไม่จ่ายและของในสต็อก (หรือบวกเงินที่ได้คืน) ในเดือนที่ยอดเปลี่ยน</li>' : '') +
       (state.topic === 'promo' ? '<li>ช่วงจัดโปรใช้ราคาและยอดของช่วงโปร หลังจบโปรใช้ยอดหลังจบโปร · กำไรรวม 12 เดือนหักค่าจัดโปรแล้ว</li>' : '') +
       (state.topic === 'equip' ? '<li>กำไรหักเงินที่ควรกันไว้ซื้อเครื่องใหม่เมื่อหมดอายุ (ราคา ÷ เดือนที่ใช้ได้) แต่เงินสดไม่หัก เพราะจ่ายไปแล้วตอนซื้อ</li>' : '') +
-      '<li>' + (n0(state.inp.growth) ? 'ยอดขายของร้านเปลี่ยนเดือนละ ' + fmtPct(n0(state.inp.growth)) + ' ตามที่กรอก' : 'ยอดขายของร้านเท่าเดิมทุกเดือน') + ' · ค่าใช้จ่ายคงที่เท่าเดิมตลอด 12 เดือน</li></ul></details>';
+      '<li>' + (n0(state.inp.growth) ? 'ยอดขายของร้านเปลี่ยนเดือนละ ' + fmtPct(n0(state.inp.growth)) + ' ตามที่กรอก' : 'ยอดขายของร้านเท่าเดิมทุกเดือน') + ' · ค่าใช้จ่ายคงที่เท่าเดิมตลอด 12 เดือน</li>';
+  }
+  /* ส่วนที่เปลี่ยนตามแถบลากมี id ของตัวเอง (resultLive อัปเดตเฉพาะส่วนนั้น แท็บ โฟกัส และหัวข้อที่เปิดไว้จึงไม่หาย) */
+  function restHtml(R) {
+    var out = '<div id="warns">' + warnsHtml(R) + '</div>';
+    out += '<section class="checks"><h2 class="sec3">สิ่งที่ต้องเป็นจริง ถึงจะคุ้ม</h2><ul class="cklist" id="cklist">' + R.conds.map(checkHtml).join('') + '</ul></section>';
+    out += detailsHtml(R);
+    out += nextCard() + planCard();
+    out += '<button class="btn ghost block other3" data-act="to-start">ลองเรื่องอื่น กับตัวเลขร้านเดิม' + ICON.next + '</button>';
+    out += '<details class="about"><summary>ตัวเลขชุดนี้คิดอย่างไร' + ICON.down + '</summary><ul id="aboutul">' + aboutItems(R) + '</ul></details>';
     return out;
   }
   function resultFoot() {
@@ -5369,7 +5382,7 @@ function fmtCompact(n) {
     return out + '</div></main>' + resultFoot();
   }
   /* อัปเดตหน้าผลระหว่างลากแถบ (ไม่วาดแถบใหม่ เพื่อให้ลากต่อได้) */
-  var wiRaf = 0;
+  var wiRaf = 0, dragging = false;
   function resultLive() {
     if (wiRaf) return;
     wiRaf = requestAnimationFrame(function () {
@@ -5380,9 +5393,13 @@ function fmtCompact(n) {
       var h = $('#hero'); if (h) { h.innerHTML = heroHtml(R, P, v); runAnim(h); }
       var l = $('#lanes'); if (l) l.innerHTML = lanesHtml(R);
       var pr = $('#pvread'); if (pr) { pr.innerHTML = pvRead(R, P, v); announce([].map.call(pr.children, function (c) { return c.textContent; }).join(' · ')); }
-      var rs = $('#rest'); if (rs) { rs.innerHTML = restHtml(R); runAnim(rs); }
+      [['#warns', warnsHtml(R)], ['#cklist', R.conds.map(checkHtml).join('')], ['#detp', detPanel(R)], ['#aboutul', aboutItems(R)]].forEach(function (x) {
+        var el = $(x[0]); if (el) { el.innerHTML = x[1]; runAnim(el); }
+      });
       var inp = $('#pvr'); if (inp) inp.setAttribute('aria-valuetext', pivotWord(P, v));
       $$('.pv-chips .sc').forEach(function (b) { b.setAttribute('aria-pressed', String(Math.abs(+b.getAttribute('data-v') - v) < 1e-6)); });
+      /* แตะปุ่มกรณีต่าง ๆ (ไม่ได้ลากอยู่): เลิกโหมดลาก แต่ไม่เล่นการเคลื่อนไหวซ้ำ */
+      if (!dragging && main) { main.classList.remove('live'); main.classList.add('still'); }
       save();
     });
   }
@@ -5625,6 +5642,11 @@ function fmtCompact(n) {
   /* ============================================================ RENDER + การนำทาง (ปุ่มย้อนกลับของมือถือใช้ได้) */
   function render() {
     var v = state.view;
+    /* เรื่องที่ไม่เข้ากับร้านแล้ว (เปลี่ยนรูปแบบร้านหรือที่ขาย หรือย้อนกลับด้วยปุ่มของมือถือ) ไม่ค้างไว้ */
+    if (state.topic && ((state.model && !topicOk(state.topic, state.model)) || !whereOk(state.topic, state.where))) {
+      state.topic = null;
+      if (['dq', 'result', 'lab', 'ask', 'points'].indexOf(v) >= 0) v = state.view = 'start';
+    }
     if (['dq', 'result', 'lab', 'ask', 'points'].indexOf(v) >= 0 && (!state.topic || !shopOk())) v = state.view = state.model ? 'review' : 'start';
     if (['result', 'lab', 'ask', 'points'].indexOf(v) >= 0 && !dAllValid()) { v = state.view = 'dq'; }
     if ((v === 'review' || v === 'wizard') && !state.model) v = state.view = 'start';
@@ -5636,9 +5658,10 @@ function fmtCompact(n) {
     save();
   }
   function hpush(v) { try { history.pushState({ v: v, t: state.topic }, ''); } catch (e) { /* ignore */ } }
-  function go(view, top) {
+  /* noPush: หน้าแก้ทีละข้อ และการกลับจากหน้านั้น ไม่เพิ่มประวัติ (ปุ่มย้อนกลับของมือถือจึงไม่พาไปหน้าแก้ค้าง) */
+  function go(view, top, noPush) {
     var same = state.view === view && top === false;
-    if (state.view !== view && top !== false) hpush(view);
+    if (state.view !== view && top !== false && !noPush) hpush(view);
     state.view = view; render();
     if (same) $$('.screen').forEach(function (el) { el.style.animation = 'none'; el.classList.add('still'); });
     if (top !== false) { window.scrollTo(0, 0); focusMain(); }
@@ -5720,7 +5743,7 @@ function fmtCompact(n) {
         var sk = sampleKindFor(state.view === 'shop' ? state.topic : null), tp = state.view === 'shop' && state.topic && topicOk(state.topic, SAMPLES[sk].m) ? state.topic : null;
         chooseModel(SAMPLES[sk].m, true, sk); state.topic = null; state.shopInFlow = false;
         if (tp) { openTopic(tp); break; }
-        go('start', false);
+        if (state.view === 'start') go('start', false); else go('start');
         var sl = $('.shopline'); if (sl) { sl.setAttribute('tabindex', '-1'); sl.focus({ preventScroll: true }); }
         announce('กำลังใช้' + sampleName() + ' แตะเรื่องไหนก็ได้ จะเห็นผลทันที');
         break;
@@ -5728,7 +5751,7 @@ function fmtCompact(n) {
       case 'topic': if (t.getAttribute('aria-disabled') === 'true') { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[state.model].tile); break; } openTopic(t.getAttribute('data-t')); break;
       case 'to-start': state.topic = null; state.labOrig = null; state.editing = false; state.dediting = false; go('start'); break;
       case 'to-shop': state.shopInFlow = !!state.topic; state.editing = false; go('shop'); break;
-      case 'shop-edit': if (state.isSample) { state.topic = null; state.shopInFlow = false; go('shop'); } else { state.editFrom = 'review'; go('review'); } break;
+      case 'shop-edit': if (state.isSample) { state.topic = null; state.shopInFlow = false; go('shop'); } else { state.topic = null; state.editFrom = 'review'; go('review'); } break;
       case 'rtab': {
         state.rtab = t.getAttribute('data-v');
         var Rt = E(viewD()), sec = $('#det3');
@@ -5738,11 +5761,18 @@ function fmtCompact(n) {
       case 'model': {
         var nm = t.getAttribute('data-m');
         if (state.model === nm && !state.isSample && Object.keys(state.inp).length > 3) { state.step = 0; state.editing = false; go('wizard'); break; }
-        chooseModel(nm, false); go('wizard'); break;
+        chooseModel(nm, false);
+        /* มีตัวเลขร้านชุดกลางของร้านแบบนี้อยู่แล้ว (เช่น ออกจากร้านตัวอย่าง หรือกรอกจากเครื่องมืออื่น) ใช้ต่อ ไม่ล้าง */
+        var shm = typeof LabShop !== 'undefined' ? LabShop.get() : null;
+        if (shm && shm.model === nm) state.inp = JSON.parse(JSON.stringify(shm.inp));
+        go('wizard'); break;
       }
       case 'next': steps = stepsFor(m); if (state.step < steps.length - 1) { state.step++; go('wizard'); } break;
       case 'prev':
-        if (state.editing) { state.editing = false; go(state.editFrom === 'lab' && state.topic ? 'lab' : 'review'); }
+        if (state.editing) {
+          if (state.editFrom === 'lab' && state.topic && !stepsFor(m).every(stepValid)) { toast('กรอกข้อนี้ให้ครบก่อน แล้วค่อยกลับ'); break; }
+          state.editing = false; go(state.editFrom === 'lab' && state.topic ? 'lab' : 'review', true, true);
+        }
         else if (state.step > 0) { state.step--; go('wizard'); }
         else go('shop');
         break;
@@ -5750,8 +5780,8 @@ function fmtCompact(n) {
         if (!stepsFor(m).every(stepValid)) break;
         var wasEd = state.editing;
         state.editing = false;
-        if (wasEd && state.editFrom === 'lab' && state.topic && topicOk(state.topic, m)) { if (dAllValid()) go('lab'); else { state.dstep = 0; state.dediting = false; go('dq'); } break; }
-        if (wasEd) { go('review'); break; }
+        if (wasEd && state.editFrom === 'lab' && state.topic && topicOk(state.topic, m)) { if (dAllValid()) go('lab', true, true); else { state.dstep = 0; state.dediting = true; go('dq', true, true); } break; }
+        if (wasEd) { go('review', true, true); break; }
         if (!state.topic) { go('start'); break; }
         if (!topicOk(state.topic, m)) { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[m].tile); go('start'); break; }
         dec();
@@ -5761,11 +5791,11 @@ function fmtCompact(n) {
       }
       case 'review': state.editFrom = 'review'; go('review'); break;
       case 'result': state.labOrig = null; state.dediting = false; go('result'); break;
-      case 'edit-step': state.editFrom = state.view === 'lab' ? 'lab' : 'review'; state.step = +t.getAttribute('data-i'); state.editing = true; go('wizard'); break;
-      case 'd-edit': state.dstep = +t.getAttribute('data-i'); state.dediting = true; go('dq'); break;
+      case 'edit-step': state.editFrom = state.view === 'lab' ? 'lab' : 'review'; state.step = +t.getAttribute('data-i'); state.editing = true; go('wizard', true, true); break;
+      case 'd-edit': state.dstep = +t.getAttribute('data-i'); state.dediting = true; go('dq', true, true); break;
       case 'd-next': { steps = dStepsFor(state.topic, state.inp, m); if (state.dstep < steps.length - 1 && dStepValid(steps[state.dstep])) { state.dstep++; go('dq'); } break; }
       case 'd-prev':
-        if (state.dediting) { if (dAllValid()) { state.dediting = false; go('lab'); } else toast('ตอบข้อนี้ให้ครบก่อน แล้วค่อยกลับ'); }
+        if (state.dediting) { if (dAllValid()) { state.dediting = false; go('lab', true, true); } else toast('ตอบข้อนี้ให้ครบก่อน แล้วค่อยกลับ'); }
         else if (state.dstep > 0) { state.dstep--; go('dq'); }
         else if (state.shopInFlow && !state.isSample) { var ss = stepsFor(m); state.step = Math.max(0, ss.map(function (x) { return x.id; }).indexOf('cash')); state.editing = false; go('wizard'); }
         else { state.topic = null; go('start'); }
@@ -5773,7 +5803,7 @@ function fmtCompact(n) {
       case 'd-done':
         if (!dAllValid()) break;
         delete state.wi[state.topic];
-        if (state.dediting) { state.dediting = false; go('lab'); } else go('result');
+        if (state.dediting) { state.dediting = false; go('lab', true, true); } else go('result');
         break;
       case 'dcount': {
         var k0 = t.getAttribute('data-k'), f0 = dDef(k0), d0 = dec();
@@ -5915,6 +5945,7 @@ function fmtCompact(n) {
       if (v) { state.inp.unitLabel = v; $$('.chips .chip').forEach(function (c) { c.setAttribute('aria-pressed', 'false'); }); }
       save();
     } else if (el.hasAttribute('data-pv')) {
+      dragging = true;
       state.wi[state.topic] = +el.value;
       resultLive();
     } else if (el.hasAttribute('data-range')) {
@@ -5928,7 +5959,7 @@ function fmtCompact(n) {
   }
   function onChange(e) {
     if (e.target.hasAttribute('data-unit-custom')) go('wizard', false);
-    if (e.target.hasAttribute('data-pv')) { var main = $('main.res3'); if (main) main.classList.remove('live'); }
+    if (e.target.hasAttribute('data-pv')) { dragging = false; var main = $('main.res3'); if (main) { main.classList.remove('live'); main.classList.add('still'); } }
   }
   function onBlur(e) {
     var el = e.target;
@@ -5945,9 +5976,9 @@ function fmtCompact(n) {
   }
   function onKey(e) {
     /* แท็บดูละเอียด: ลูกศรซ้าย/ขวา สลับแท็บ */
-    if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && e.target.getAttribute && e.target.getAttribute('role') === 'tab') {
+    if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].indexOf(e.key) >= 0 && e.target.getAttribute && e.target.getAttribute('role') === 'tab') {
       var tabs = $$('[role="tab"]', e.target.parentNode), ti = tabs.indexOf(e.target);
-      var nx = tabs[(ti + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+      var nx = e.key === 'Home' ? tabs[0] : e.key === 'End' ? tabs[tabs.length - 1] : tabs[(ti + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
       if (nx && nx !== e.target) { e.preventDefault(); nx.click(); }
       return;
     }
@@ -5997,11 +6028,19 @@ function fmtCompact(n) {
     document.addEventListener('pointermove', onPointer);
     document.addEventListener('pointerdown', onPointer);
     window.addEventListener('resize', function () { var f = $('#foot'); document.documentElement.style.setProperty('--foot-h', (f ? f.offsetHeight : 0) + 'px'); });
+    /* กลับมาหน้านี้ด้วยปุ่มย้อนกลับ (หน้าเก็บในแคช): ใช้ตัวเลขร้านชุดกลางล่าสุดและโหมดสีล่าสุด */
+    window.addEventListener('pageshow', function (ev) {
+      if (!ev.persisted) return;
+      try { var th2 = localStorage.getItem('lab-theme'); if (th2 === 'dark' || th2 === 'light') document.documentElement.setAttribute('data-theme', th2); } catch (e) { /* ignore */ }
+      adoptShared(); render();
+    });
     window.addEventListener('popstate', function (ev) {
       var s = ev.state;
       state.view = s && s.v ? s.v : 'start';
-      if (s && s.t && TOPICS[s.t]) state.topic = s.t;
+      state.topic = s && s.t && TOPICS[s.t] ? s.t : null;
+      state.editing = false; state.dediting = false;
       if (state.view === 'lab') state.view = 'result';
+      if (state.view !== 'lab') state.labOrig = null;
       render(); window.scrollTo(0, 0); focusMain();
     });
     try { history.replaceState({ v: state.view, t: state.topic }, ''); } catch (e) { /* ignore */ }

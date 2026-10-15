@@ -56,13 +56,18 @@
   function save() {
     try { sessionStorage.setItem('lab2', JSON.stringify(snapshot())); } catch (e) { /* ignore */ }
     /* ข้อมูลร้านชุดกลาง: ตัวเลขร้านของผู้ใช้เอง (ไม่ใช่ร้านตัวอย่าง) ใช้ต่อได้ในเครื่องมืออื่นของ Business Lab */
-    if (typeof LabShop !== 'undefined' && state.model && !state.isSample) LabShop.put(state.model, state.inp, MODELS[state.model].tile, shopReady());
+    if (typeof LabShop !== 'undefined' && state.model && !state.isSample) {
+      var js = state.model + '|' + JSON.stringify(state.inp);
+      if (js !== lastPut) { LabShop.put(state.model, state.inp, MODELS[state.model].tile, shopReady()); lastPut = js; }
+    }
   }
+  var lastPut = null;
   function shopReady() { return !!state.model && stepsFor(state.model).every(stepValid) && C(state.inp, state.model).ok; }
   /* เปิดเครื่องมือ: ถ้ามีตัวเลขร้านชุดกลางที่ต่างจากของเดิม (กรอกหรือแก้ในเครื่องมืออื่น) ใช้ชุดกลาง แล้วเปิดภาพรวม หรือข้อที่ยังไม่ครบ */
   function adoptShared() {
     if (typeof LabShop === 'undefined') return;
     var sh = LabShop.get();
+    if (sh) lastPut = sh.model + '|' + JSON.stringify(sh.inp);
     if (!sh || !MODELS[sh.model] || (!state.isSample && state.model === sh.model && LabShop.same(state.inp, sh.inp))) return;
     state.model = sh.model; state.inp = JSON.parse(JSON.stringify(sh.inp)); state.isSample = false;
     state.trial = {}; state.answers = {}; state.qidx = 0; state.active = null; state.fid = null; state.editing = false;
@@ -406,6 +411,7 @@
     out += '<details class="about"><summary>ตัวเลขชุดนี้คิดอย่างไร' + ICON.down + '</summary><ul>' +
       '<li>คำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua ตัวเลขจึงตรงกันทุกที่</li><li>ทุกตัวเลขมาจากที่คุณกรอก ไม่ได้เทียบกับร้านอื่น</li><li>กำไรเป็นกำไรก่อนหักภาษี</li>' +
       '<li>' + (n0(base.growth) ? 'ยอดขายเปลี่ยนเดือนละ ' + fmtPct(n0(base.growth)) + ' ตามที่กรอก' : 'คิดแบบยอดขายเท่าเดิมทุกเดือน') + ' · ค่าใช้จ่ายคงที่เท่าเดิมตลอด 12 เดือน</li></ul></details>';
+    if (window.LAB_HUB) out += '<a class="btn ghost block hub-back" href="' + esc(window.LAB_HUB) + '">' + ICON.back + 'เครื่องมืออื่นใน Business Lab</a>';
     return out + '</div></main>';
   }
 
@@ -721,10 +727,10 @@
   }
 
   /* ============================================================ EVENTS */
-  function chooseModel(m, sample) {
+  function chooseModel(m, sample, keep) {
     var M = MODELS[m];
     state.model = m;
-    state.inp = sample ? JSON.parse(JSON.stringify(M.sample)) : {};
+    state.inp = sample ? JSON.parse(JSON.stringify(M.sample)) : keep ? JSON.parse(JSON.stringify(keep)) : {};
     if (M.defPer && !state.inp.volumePer) state.inp.volumePer = M.defPer;
     if (M.units && !state.inp.unitLabel) state.inp.unitLabel = M.defUnit;
     if (m === 'subscription' && !state.inp.cycle) state.inp.cycle = 1;
@@ -751,7 +757,12 @@
         try { localStorage.setItem('lab-theme', nt); } catch (er) { /* ignore */ }
         t.innerHTML = nt === 'dark' ? ICON.sun : ICON.moon; break;
       }
-      case 'model': chooseModel(t.getAttribute('data-m'), false); break;
+      case 'model': {
+        /* ร้านแบบเดิมที่กรอกไว้แล้ว: ไม่ล้างตัวเลข เปิดข้อแรกให้ดู/แก้ · ถ้ามีตัวเลขร้านชุดกลางของแบบนี้ (กรอกจากเครื่องมืออื่น) ใช้ต่อ */
+        var nm = t.getAttribute('data-m'), shm = typeof LabShop !== 'undefined' ? LabShop.get() : null;
+        if (state.model === nm && !state.isSample && Object.keys(state.inp).length > 3) { state.step = 0; state.editing = false; go('wizard'); break; }
+        chooseModel(nm, false, shm && shm.model === nm ? shm.inp : null); break;
+      }
       case 'sample-shop': chooseModel('unit', true); break;
       case 'to-start': go('start'); break;
       case 'next': steps = stepsFor(m); if (state.step < steps.length - 1) { state.step++; go('wizard'); } break;
@@ -926,6 +937,12 @@
     document.addEventListener('pointermove', onPointer);
     document.addEventListener('pointerdown', onPointer);
     window.addEventListener('resize', function () { var f = $('#foot'); document.documentElement.style.setProperty('--foot-h', (f ? f.offsetHeight : 0) + 'px'); });
+    /* กลับมาหน้านี้ด้วยปุ่มย้อนกลับ (หน้าเก็บในแคช): ใช้ตัวเลขร้านชุดกลางล่าสุดและโหมดสีล่าสุด */
+    window.addEventListener('pageshow', function (ev) {
+      if (!ev.persisted) return;
+      try { var th2 = localStorage.getItem('lab-theme'); if (th2 === 'dark' || th2 === 'light') document.documentElement.setAttribute('data-theme', th2); } catch (e) { /* ignore */ }
+      adoptShared(); render();
+    });
     render();
   }
   var hot = window.claude && window.claude.hot;

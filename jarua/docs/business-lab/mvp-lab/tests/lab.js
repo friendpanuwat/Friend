@@ -59,7 +59,7 @@ async function check(page, label) {
     if (!(await page.$('.bar a.ib[href="index.html"]'))) fail(tag, 'tool1: no back link to hub');
     await page.click('[data-act="sample-shop"]'); await page.waitForTimeout(150);
     if (await page.evaluate(() => sessionStorage.getItem('lab-shop'))) fail(tag, 'sample wrote shared numbers');
-    await page.evaluate(() => window.__lab.go('start'));
+    await page.click('.banner [data-act="to-start"]');
     await page.click('[data-act="model"][data-m="unit"]');
     const shop = { price: 60, volume: 90, daysOpen: 26, unitCost: 21, feePct: 0, staffCount: 1, staffSalary: 12000, ownerSalary: 15000, rent: 15000, marketing: 2000, otherFixed: 6000, cash: 80000 };
     for (let s = 0; s < 10; s++) {
@@ -74,9 +74,8 @@ async function check(page, label) {
     if (!sh1 || sh1.model !== 'unit' || sh1.inp.price !== 60 || !sh1.ok) fail(tag, 'shared numbers not written by tool1', JSON.stringify(sh1));
     await check(page, tag + ' tool1 home');
 
-    /* 3. กลับหน้ารวม: เห็นว่ามีตัวเลขร้านแล้ว */
-    await page.evaluate(() => window.__lab.go('start'));
-    await page.click('.bar a.ib[href="index.html"]'); await ready();
+    /* 3. กลับหน้ารวมด้วยปุ่มท้ายภาพรวม: เห็นว่ามีตัวเลขร้านแล้ว */
+    await page.click('a.hub-back[href="index.html"]'); await ready();
     txt = await check(page, tag + ' hub with shop');
     if (!/ตัวเลขร้านคุณ · ขายของที่ทำเอง/.test(txt) || !/ไม่ต้องกรอกใหม่/.test(txt)) fail(tag, 'hub does not show shared shop');
     await page.screenshot({ path: path.join(SHOTS, 'hub-shop-' + tag + '.png'), fullPage: true });
@@ -118,12 +117,27 @@ async function check(page, label) {
     const sh3 = await page.evaluate(() => JSON.parse(sessionStorage.getItem('lab-shop') || 'null'));
     if (!sh3 || sh3.inp.price !== 65) fail(tag, 'tool3 edit not shared', JSON.stringify(sh3 && sh3.inp.price));
     /* ร้านตัวอย่างในตัวที่ 3 ต้องไม่ทับตัวเลขร้านจริง */
-    await page.evaluate(() => window.__lab3.go('start'));
+    await page.click('.bar [data-act="result"]'); await page.waitForTimeout(150);
+    await page.click('.bar [data-act="to-start"]'); await page.waitForTimeout(150);
     await page.click('.bar a.ib[href="index.html"]'); await ready();
     await page.click('a.tcard[href="check-numbers.html"]'); await ready();
     const p1 = await page.evaluate(() => ({ v: window.__lab.state.view, price: window.__lab.state.inp.price }));
     if (p1.price !== 65 || p1.v !== 'home') fail(tag, 'tool1 did not adopt edited numbers', JSON.stringify(p1));
     await check(page, tag + ' tool1 adopted');
+    /* ทบทวนรอบ 1 ข้อ 1: กลับหน้าแรกของตัวที่ 1 แล้วแตะร้านแบบเดิม ต้องไม่ล้างตัวเลขร้านชุดกลาง */
+    await page.click('.bar [data-act="review"]'); await page.waitForTimeout(100);
+    await page.evaluate(() => window.__lab.go('start'));
+    await page.click('[data-act="model"][data-m="unit"]'); await page.waitForTimeout(100);
+    const sh4 = await page.evaluate(() => JSON.parse(sessionStorage.getItem('lab-shop') || 'null'));
+    if (!sh4 || sh4.inp.price !== 65 || !sh4.ok) fail(tag, 'same tile in tool1 wiped shared numbers', JSON.stringify(sh4 && sh4.inp));
+    /* ทบทวนรอบ 1 ข้อ 2: ปุ่มย้อนกลับของมือถือต้องไม่พากลับไปเรื่องที่ไม่เข้ากับร้านแล้ว */
+    await page.goto(base + 'big-decisions.html'); await ready();
+    await page.click('[data-act="topic"][data-t="place"]'); await page.waitForTimeout(200);
+    await page.click('.bar [data-act="d-prev"]'); await page.waitForTimeout(150);
+    await page.click('[data-act="where"][data-v="online"]'); await page.waitForTimeout(150);
+    await page.goBack(); await page.waitForTimeout(300);
+    const st5 = await page.evaluate(() => ({ v: window.__lab3.state.view, t: window.__lab3.state.topic, w: window.__lab3.state.where }));
+    if (st5.t === 'place' && st5.w === 'online') fail(tag, 'phone back opened a topic hidden for online sellers', JSON.stringify(st5));
     if (errors.length) fail(tag, 'errors', errors.slice(0, 3).join(' | '));
     await ctx.close();
   }

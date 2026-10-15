@@ -66,14 +66,14 @@ a.tcard:hover { box-shadow: inset 0 0 0 1.5px var(--ink), var(--shadow); }
       <p>เทียบ “ทำ” กับ “ไม่ทำ” ต้องขายเท่าไรถึงจะคุ้ม เงินพอไหม และคืนทุนเมื่อไร · 12 เรื่อง ทั้งร้านหน้าร้านและร้านออนไลน์</p>
       <span class="fit"><span class="ft">เหมาะสำหรับ ผู้ที่กำลังคิดเรื่องใหญ่ในร้าน</span><span class="go">เปิด<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></span>
     </a>
-    <div class="tcard soon" aria-label="เช็กก่อนเปิดร้าน เร็ว ๆ นี้">
+    <div class="tcard soon">
       <span class="ti" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></svg></span>
       <span class="tn">เช็กก่อนเปิดร้าน <span class="soon-tag">เร็ว ๆ นี้</span></span>
       <h3>ตัวเลขไปรอดไหม ก่อนเปิดร้าน</h3>
       <p>ต้องขายเท่าไร เงินอยู่ได้กี่เดือน และคืนทุนกี่เดือน</p>
       <span class="fit"><span class="ft">เหมาะสำหรับ ผู้ที่ยังไม่ได้เริ่มธุรกิจ</span></span>
     </div>
-    <div class="tcard soon" aria-label="กำไรรายสินค้าและรายช่องทาง เร็ว ๆ นี้">
+    <div class="tcard soon">
       <span class="ti" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg></span>
       <span class="tn">กำไรรายสินค้าและรายช่องทาง <span class="soon-tag">เร็ว ๆ นี้</span></span>
       <h3>สินค้าไหนกำไรดี ช่องทางไหนเหลือเงินจริง</h3>
@@ -107,8 +107,8 @@ a.tcard:hover { box-shadow: inset 0 0 0 1.5px var(--ink), var(--shadow); }
   function shop() {
     var box = document.getElementById('shop0'), sh = typeof LabShop !== 'undefined' ? LabShop.get() : null;
     if (sh && sh.label) {
-      box.className = 'shop0 has';
-      box.innerHTML = '<span class="si">' + CHECK + '</span><b>ตัวเลขร้านคุณ · ' + esc(sh.label) + '</b><span>' +
+      box.className = sh.ok ? 'shop0 has' : 'shop0';
+      box.innerHTML = '<span class="si">' + (sh.ok ? CHECK : STORE) + '</span><b>ตัวเลขร้านคุณ · ' + esc(sh.label) + '</b><span>' +
         (sh.ok ? 'ใช้ได้กับทุกเครื่องมือ ไม่ต้องกรอกใหม่' : 'ยังกรอกไม่ครบ กรอกต่อได้ในเครื่องมือไหนก็ได้') + '</span>';
     } else {
       box.className = 'shop0';
@@ -117,6 +117,9 @@ a.tcard:hover { box-shadow: inset 0 0 0 1.5px var(--ink), var(--shadow); }
   }
   shop();
   /* กลับมาหน้านี้ด้วยปุ่มย้อนกลับของเบราว์เซอร์ (หน้าเก็บในแคช) ให้อัปเดตสถานะตัวเลขร้าน */
-  window.addEventListener('pageshow', shop);
+  window.addEventListener('pageshow', function () {
+    try { var t2 = localStorage.getItem('lab-theme'); if (t2 === 'dark' || t2 === 'light') root.setAttribute('data-theme', t2); } catch (e) { /* ignore */ }
+    icon(); shop();
+  });
 })();
 </script>
