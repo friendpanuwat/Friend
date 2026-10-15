@@ -735,7 +735,7 @@
     var have = '';
     if ((c.id === 'need' || c.id === 'payneed') && c.value !== null && c.have !== null && c.have !== undefined) {
       var w = wiVal(), hv = c.haveShown !== undefined ? c.haveShown : c.have, gap = Math.round((hv - c.value) * 10) / 10;
-      have = (w !== null ? 'ที่ลองดู ' : 'คุณคาดไว้ ') + nf(hv, '') + ' · ' + (Math.abs(gap) < 1e-9 ? 'พอดีเงื่อนไข' : dirSpan(gap > 0 ? 1 : -1, (gap > 0 ? 'มากกว่า ' : 'น้อยกว่า ') + nf(Math.abs(gap), '')));
+      have = (w !== null ? 'ที่ลองดู ' : 'คุณคาดไว้ ') + nf(hv, '') + ' · ' + (c.over ? 'แต่จุดนี้เกินกำลังที่ร้านทำได้' : Math.abs(gap) < 1e-9 ? 'พอดีเงื่อนไข' : dirSpan(gap > 0 ? 1 : -1, (gap > 0 ? 'มากกว่า ' : 'น้อยกว่า ') + nf(Math.abs(gap), '')));
     }
     var txt = c.value === null && !c.payback ? '<span class="ck-txt">' + esc(c.txt || '') + '</span>' : '';
     var inner = '<span class="ck-i" aria-hidden="true">' + icon + '</span>' +

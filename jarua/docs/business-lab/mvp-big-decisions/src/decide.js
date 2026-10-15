@@ -624,7 +624,7 @@ function dConds(R, inp, m, T, d) {
     var depM = T === 'equip' ? R.st.r.depreciation.monthlyTotal - R.B.r.depreciation.monthlyTotal : 0;
     var same = 'ถึงจะได้กำไรต่อเดือน' + (T === 'promo' ? 'ช่วงจัดโปร' : '') + 'เท่าตอนนี้' + (T === 'equip' && depM > 0.5 ? ' (หักเงินที่กันไว้ซื้อเครื่องใหม่ เดือนละ ' + fmtN(depM) + ' บาทแล้ว)'
       : P.one > 0 ? ' (ยังไม่นับ' + (T === 'promo' ? 'ค่าจัดโปร ' : 'เงินก้อน ') + fmtN(P.one) + ' บาท)' : '');
-    Object.assign(nr, { label: P.lab + 'อย่างน้อย', value: shown, haveShown: hv,
+    Object.assign(nr, { label: P.lab + 'อย่างน้อย', value: shown, haveShown: hv, over: !!P.needOver,
       status: hv >= shown - 1e-9 && !P.needOver ? 'ok' : 'short',
       sub: (P.now !== undefined ? (P.need >= P.now ? salesWord(m) + 'มากกว่าตอนนี้ ' : salesWord(m) + 'น้อยกว่าตอนนี้ ') + fmtPct(Math.abs(P.need / P.now - 1) * 100) + ' ' + same
         : T === 'branch' ? '= ' + (m === 'rental' ? 'มีคนเช่า ' + fmtN(roundNeed(n0(inp.occupancy) * P.need / 100, m)) + '% ของ' + U(inp, m) + 'ทั้งหมดที่สาขา' : fmtN(roundNeed(n0(inp[ROLE[m].vol]) * P.need / 100, m)) + ' ' + gainUnit(inp, m)) + ' ' + same

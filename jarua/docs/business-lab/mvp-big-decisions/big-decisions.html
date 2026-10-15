@@ -4168,7 +4168,7 @@ function dConds(R, inp, m, T, d) {
     var depM = T === 'equip' ? R.st.r.depreciation.monthlyTotal - R.B.r.depreciation.monthlyTotal : 0;
     var same = 'ถึงจะได้กำไรต่อเดือน' + (T === 'promo' ? 'ช่วงจัดโปร' : '') + 'เท่าตอนนี้' + (T === 'equip' && depM > 0.5 ? ' (หักเงินที่กันไว้ซื้อเครื่องใหม่ เดือนละ ' + fmtN(depM) + ' บาทแล้ว)'
       : P.one > 0 ? ' (ยังไม่นับ' + (T === 'promo' ? 'ค่าจัดโปร ' : 'เงินก้อน ') + fmtN(P.one) + ' บาท)' : '');
-    Object.assign(nr, { label: P.lab + 'อย่างน้อย', value: shown, haveShown: hv,
+    Object.assign(nr, { label: P.lab + 'อย่างน้อย', value: shown, haveShown: hv, over: !!P.needOver,
       status: hv >= shown - 1e-9 && !P.needOver ? 'ok' : 'short',
       sub: (P.now !== undefined ? (P.need >= P.now ? salesWord(m) + 'มากกว่าตอนนี้ ' : salesWord(m) + 'น้อยกว่าตอนนี้ ') + fmtPct(Math.abs(P.need / P.now - 1) * 100) + ' ' + same
         : T === 'branch' ? '= ' + (m === 'rental' ? 'มีคนเช่า ' + fmtN(roundNeed(n0(inp.occupancy) * P.need / 100, m)) + '% ของ' + U(inp, m) + 'ทั้งหมดที่สาขา' : fmtN(roundNeed(n0(inp[ROLE[m].vol]) * P.need / 100, m)) + ' ' + gainUnit(inp, m)) + ' ' + same
@@ -5074,7 +5074,7 @@ function fmtCompact(n) {
     var have = '';
     if ((c.id === 'need' || c.id === 'payneed') && c.value !== null && c.have !== null && c.have !== undefined) {
       var w = wiVal(), hv = c.haveShown !== undefined ? c.haveShown : c.have, gap = Math.round((hv - c.value) * 10) / 10;
-      have = (w !== null ? 'ที่ลองดู ' : 'คุณคาดไว้ ') + nf(hv, '') + ' · ' + (Math.abs(gap) < 1e-9 ? 'พอดีเงื่อนไข' : dirSpan(gap > 0 ? 1 : -1, (gap > 0 ? 'มากกว่า ' : 'น้อยกว่า ') + nf(Math.abs(gap), '')));
+      have = (w !== null ? 'ที่ลองดู ' : 'คุณคาดไว้ ') + nf(hv, '') + ' · ' + (c.over ? 'แต่จุดนี้เกินกำลังที่ร้านทำได้' : Math.abs(gap) < 1e-9 ? 'พอดีเงื่อนไข' : dirSpan(gap > 0 ? 1 : -1, (gap > 0 ? 'มากกว่า ' : 'น้อยกว่า ') + nf(Math.abs(gap), '')));
     }
     var txt = c.value === null && !c.payback ? '<span class="ck-txt">' + esc(c.txt || '') + '</span>' : '';
     var inner = '<span class="ck-i" aria-hidden="true">' + icon + '</span>' +
