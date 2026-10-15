@@ -97,7 +97,7 @@ for (const m of models) {
       const p2 = steadyP(inp, m, T, P.set(d, T === 'place' ? nr.value : nr.value));
       if (P.be.kind === 'value') chk(p2 >= base.profit - 1, `${m}/${T} need ${nr.value} gives ${p2.toFixed(1)} < base ${base.profit.toFixed(1)}`);
       if (P.be.kind === 'max') chk(p2 >= base.profit - 1, `${m}/${T} max ${nr.value} gives ${p2.toFixed(1)} < base`);
-      chk(nr.status === ((P.be.kind === 'max' ? P.have <= P.be.x + 1e-6 : P.have >= P.need - 1e-6) ? 'ok' : 'short'), `${m}/${T} need status`);
+      chk(nr.status === ((P.be.kind === 'max' ? P.have <= P.be.x + 1e-6 : P.have >= P.need - 1e-6) && !P.needOver ? 'ok' : 'short'), `${m}/${T} need status`);
     }
     for (const c of E.conds) {
       let d2 = null;
@@ -168,6 +168,31 @@ for (const m of models) {
   chk(cw.delta < 0 && cw.payback === null, 'profit drops: no payback even though money owed by customers comes back: ' + cw.payback);
 }
 function n(v) { return +v || 0; }
+/* ผลตรวจรอบ 5 (12 เรื่อง) */
+{
+  const cafe = sampleInp(ctx, 'unit'), on = sampleInp(ctx, 'resell');
+  /* ยอดที่คาดเกินกำลังร้าน: ต้องบอกว่าเกิน ไม่ใช่ ✓ */
+  const ad = ev(cafe, 'unit', 'ads', { kind: 'social', adBudget: 70000, adMgmt: 0, adSetup: 0, adGain: 75, ramp: 0 });
+  chk(cond(ad, 'cap') && cond(ad, 'cap').status === 'short', 'ads beyond 140 cups/day shows the capacity row');
+  chk(cond(ad, 'need').status === 'short' && /เกินกำลัง/.test(cond(ad, 'need').sub), 'ads need above capacity is flagged: ' + cond(ad, 'need').sub);
+  /* ขึ้นราคามาก: คุ้มเสมอ ไม่ใช่ "แม้ไม่มีใครหาย" · ราคาเท่าเดิม: ข้อความตรง */
+  const pr = ev(cafe, 'unit', 'price', { kind: 'all', raiseBy: 1000, lostPct: 5 });
+  chk(pr.P.be.kind === 'always', 'price +1,000 is worth it at any loss up to 95%: ' + pr.P.be.kind);
+  const p0 = ev(cafe, 'unit', 'price', { kind: 'all', raiseBy: 0, lostPct: 0 });
+  chk(/ราคาเท่าเดิม/.test(cond(p0, 'need').txt || cond(p0, 'need').sub || ''), 'price unchanged: says price is the same');
+  /* จัดโปร: ทั้งปีคุ้มต้องพึ่งยอดหลังจบโปร */
+  const pm = ev(cafe, 'unit', 'promo', Object.assign({}, R('SAMPLE_DEC.promo'), { afterPct: 0 }));
+  const af = cond(pm, 'after');
+  near(af.value, Math.ceil(-pm.total12 / (80 * 26 * 39.1 * 11) * 100 * 10) / 10, 0.1, 'promo after-row ≈ year loss ÷ (money left per month × 11 months)');
+  chk(pm.total12 < 0 && af.status === 'short' && af.value > 1 && af.value < 2, 'promo with no after-effect: year loses, needs ~1.3% after: ' + af.value);
+  /* ส่งฟรี: เงินจมในสต็อกไม่นับค่าส่ง */
+  const fs = ev(on, 'resell', 'freeship', R('SAMPLE_DEC_ON.freeship'));
+  const vol2 = 420 * 1.12, stockOnly = (vol2 - 420) * 180 * 45 / 30;
+  near(fs.wc, stockOnly, 1, 'free shipping: stock money counts goods only, not shipping (' + fs.wc + ')');
+  /* พาร์ตไทม์: ชั่วโมงละ = ค่าจ้าง ÷ (ชั่วโมงที่ได้คืน × วันที่คนนี้มา) */
+  const hp = ev(on, 'resell', 'hire', R('SAMPLE_DEC_ON.hire'));
+  near(cond(hp, 'hour').value, 60 * 5 * 26 / (4 * 26), 0.01, 'part-time hourly uses part-time days');
+}
 /* ตัวเลขย่อ */
 near(R('fmtCompact(99984) === "99,984" ? 1 : 0'), 1, 0, 'compact below 100k shows full digits');
 chk(R('fmtCompact(999600)') === '1 ล้าน', 'compact rounds 9.99 แสน up to 1 ล้าน: ' + R('fmtCompact(999600)'));

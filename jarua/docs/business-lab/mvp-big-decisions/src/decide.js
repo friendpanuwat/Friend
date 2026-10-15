@@ -190,6 +190,8 @@ function dBuild(inp, m, T, d, o) {
   v4.streams = v4.streams.concat(streams);
   v4.fixedCostsMonthly = Math.max(0, v4.fixedCostsMonthly + fx.reduce(function (s, a) { return s + a[2]; }, 0));
   if (assets.length) v4.assets = (v4.assets || []).concat(assets);
+  /* ค่าส่ง ค่าจ้างรายชิ้น ของแถม ไม่ได้อยู่ในสต็อก: เงินจมในสต็อกคิดจากต้นทุนของเท่านั้น */
+  if (isVolModel(m) && (T === 'freeship' || (T === 'hire' && isKind(d, 'piece')) || (T === 'promo' && isKind(d, 'gift')))) v4.streams[0].stockCostPerUnit = n0(inp.unitCost);
   return { v4: v4, x: x, fx: fx, one: one, note: note };
 }
 
@@ -205,7 +207,7 @@ function steady(inp, m, T, d, f) {
 function streamWC(s) {
   var cr = n0(s.creditDays);
   if (s.type === 'unit' || s.type === 'service' || s.type === 'resell') {
-    var u = n0(s.unitsPerMonth), rev = n0(s.price) * u, cogs = n0(s.costPerUnit) * u;
+    var u = n0(s.unitsPerMonth), rev = n0(s.price) * u, cogs = n0(s.stockCostPerUnit !== undefined ? s.stockCostPerUnit : s.costPerUnit) * u;
     return rev * cr / 30 + cogs * (n0(s.inventoryDays) - n0(s.supplierCreditDays)) / 30;
   }
   if (s.type === 'subscription') {
@@ -372,7 +374,9 @@ function breakEven(fn, base, lo, step, hi) {
   }
   if (slope < -0.01) {
     if (p0 < base - 0.5) return { kind: 'never', why: 'rev' };
+    if (p0 < base + 0.5) return { kind: 'never', why: 'rev', even: true }; /* ที่ค่าต่ำสุดกำไรเท่าเดิมพอดี เพิ่มเท่าไรก็น้อยลง */
     var xm = solveFor(fn, base, lo, lo + step, lo, hi);
+    if (xm === null && fn(hi) >= base - 0.5) return { kind: 'always' }; /* ถึงปลายช่วงแล้วก็ยังไม่น้อยกว่าตอนนี้ */
     return xm === null || xm <= lo + step * 0.01 ? { kind: 'never', why: 'rev' } : { kind: 'max', x: xm };
   }
   return p0 >= base - 0.5 ? { kind: 'always' } : { kind: 'never', why: 'flat' };
@@ -545,6 +549,8 @@ function dPivot0(inp, m, T, d) {
   if (isVolModel(m) && inp.volumePer !== 'month' && P.step < 1 && T !== 'branch') P.step = P.hi > 20 ? 1 : 0.5;
   if (m === 'subscription' || m === 'rental' || pctLike) P.step = Math.max(1, Math.round(P.step));
   P.hi = Math.ceil(P.hi / P.step) * P.step;
+  if (T === 'price') P.hi = Math.min(95, P.hi);
+  if (P.key === 'npAttach') P.hi = Math.min(100, P.hi);
   P.lo = Math.floor(P.lo / P.step) * P.step;
   P.scen = { hire: [[0, 'ไม่ได้เลย'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], equip: [[0, 'ไม่ได้เลย'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']],
     channel: [[0, 'ไม่มีคนซื้อ'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], place: [[0.8, 'ต่ำกว่าคาด 20%'], [0.9, 'ต่ำกว่าคาด 10%'], [1, 'ที่คุณคาด']],
@@ -562,6 +568,10 @@ function dPivot0(inp, m, T, d) {
   if (volPiv) P.capMax = m === 'rental' ? 100 : isVolModel(m) && pos(inp.capacity) ? pos(inp.capacity) : null;
   if (T === 'branch') P.capMax = m === 'rental' && pos(inp.occupancy) ? 100 * 100 / pos(inp.occupancy) : isVolModel(m) && pos(inp.capacity) && cur > 0 ? pos(inp.capacity) / cur * 100 : null;
   if (P.capMax !== null) P.capTxt = m === 'rental' ? 'คนเช่าเต็มทุก' + U(inp, m) : (T === 'branch' ? 'สาขา' : 'ที่ใหม่') + 'ขายเต็มกำลังร้าน ' + fmtN(pos(inp.capacity)) + '\u00a0' + gainUnit(inp, m);
+  if (!volPiv && T !== 'branch' && isVolModel(m) && cur > 0 && ['hire', 'equip', 'ads', 'freelance', 'promo', 'freeship'].indexOf(T) >= 0) {
+    var cb = pos(dBuild(inp, m, T, d, { lv: 1, f: 1 }).x.capacity);
+    if (cb) { P.capMax = P.pct ? (cb / cur - 1) * 100 : cb - cur; P.capTxt = 'ร้านขายเต็มกำลัง ' + fmtN(cb) + '\u00a0' + gainUnit(inp, m); P.capNote = 'ร้านทำได้สูงสุด ' + fmtN(cb) + ' ' + gainUnit(inp, m); }
+  }
   P.needOver = P.need !== null && P.capMax !== null && P.need > P.capMax + 1e-9;
   /* เป้าคืนทุน 3 ปี: เฉพาะเรื่องที่มีเงินก้อนใหญ่ที่กำไรต่อเดือนยังไม่ได้นับ (ซื้ออุปกรณ์หักค่าเสื่อมในกำไรแล้ว · จัดโปรจบในปี) */
   if (one > 0 && (T === 'place' || T === 'branch' || T === 'newprod') && (be.kind === 'value' || be.kind === 'zero')) {
@@ -586,12 +596,13 @@ function needText(P, m, inp, d) {
   var b = P.be;
   if (b.kind === 'always') return 'คุ้มไม่ว่า' + P.word + 'จะเป็นเท่าไร';
   if (b.kind === 'zero') return P.T === 'place' || P.T === 'supplier' ? 'ยอดลดลงได้มากก็ยังคุ้ม' : P.T === 'channel' ? 'ขายได้เท่าไรก็คุ้ม เพราะไม่มีค่าใช้จ่ายประจำของช่องทาง'
-    : P.T === 'newprod' ? 'ขายได้เท่าไรก็คุ้ม เพราะไม่มีค่าใช้จ่ายประจำของของใหม่'
+    : P.T === 'newprod' ? 'ไม่มีค่าใช้จ่ายประจำของของใหม่ กำไรต่อเดือนจึงไม่ลด ไม่ว่าจะ' + (P.key === 'npAttach' ? 'ซื้อพ่วง' : 'ขายได้') + 'เท่าไร'
     : P.T === 'equip' ? 'ไม่ต้องขายเพิ่มก็คุ้มแล้ว จากต้นทุนที่ลดลง' : P.pct ? salesWord(m) + 'ไม่ต้องเพิ่มก็คุ้มแล้ว' : 'ไม่ต้อง' + P.word + 'ก็คุ้มแล้ว';
   if (P.T === 'price' && b.kind === 'max') return 'ถ้า' + salesWord(m) + 'ลดลงมากกว่านี้ กำไรต่อเดือนจะน้อยกว่าตอนนี้';
-  if (P.T === 'price' && b.why === 'rev') return 'ราคาใหม่ยังทำให้กำไรน้อยกว่าตอนนี้ แม้ไม่มีใครหาย';
+  if (P.T === 'price' && b.why === 'rev') return b.even ? 'ราคาเท่าเดิม ' + salesWord(m) + 'ลดลงเท่าไร กำไรก็ลดลง' : 'ราคาใหม่ยังทำให้กำไรน้อยกว่าตอนนี้ แม้ไม่มีใครหาย';
   if (b.why === 'rev' || b.kind === 'max') {
-    if (P.T === 'promo' || P.T === 'freeship') return 'ยิ่งขายมากยิ่งได้น้อยลง เพราะหลัง' + (P.T === 'promo' ? 'ลดราคา' : 'จ่ายค่าส่ง') + 'แล้ว ขายแล้วไม่เหลือเงิน';
+    if (P.T === 'promo' || P.T === 'freeship') return 'ยิ่งขายมากยิ่งได้น้อยลง เพราะหลัง' + (P.T === 'freeship' ? 'จ่ายค่าส่ง' : isKind(d, 'gift') ? 'แถมของ' : 'ลดราคา') + 'แล้ว ขายแล้วไม่เหลือเงิน';
+    if (P.T === 'newprod') return 'ยิ่งขายของใหม่มากยิ่งได้น้อยลง เพราะลูกค้าเปลี่ยนจากของเดิมที่เหลือเงินมากกว่า';
     var cu = P.T === 'channel' ? channelUnit(inp, m, d) : null;
     if (cu && cu.ch > 0) return 'ยิ่งขายผ่านช่องทางนี้มากยิ่งได้น้อยลง เพราะลูกค้าเดิมย้ายมามากเกินไป';
     return 'ยิ่งขายมากยิ่งได้น้อยลง เพราะขายแล้วไม่เหลือเงิน';
@@ -607,7 +618,7 @@ function dConds(R, inp, m, T, d) {
   function profitWith(dd) { return steady(inp, m, T, dd).profit; }
   /* 1) จุดคุ้มของตัวเลขหลัก */
   var nr = { id: 'need', lever: P.key, unit: u, have: P.have, raw: P.need };
-  var over = P.needOver ? ' · เกินกำลังที่' + (T === 'branch' ? 'สาขา' : 'ร้าน') + 'ทำได้ (' + (m === 'rental' ? 'คนเช่าเต็มทุก' + U(inp, m) : fmtN(pos(inp.capacity)) + ' ' + gainUnit(inp, m)) + ')' : '';
+  var over = P.needOver ? ' · เกินกำลังที่' + (T === 'branch' ? 'สาขา' : 'ร้าน') + 'ทำได้ (' + (P.capNote || (m === 'rental' ? 'คนเช่าเต็มทุก' + U(inp, m) : fmtN(pos(inp.capacity)) + ' ' + gainUnit(inp, m))) + ')' : '';
   if (P.be.kind === 'value') {
     var shown = needAt(P, P.need, m, P.have), hv = haveAt(P.have, shown, true);
     var depM = T === 'equip' ? R.st.r.depreciation.monthlyTotal - R.B.r.depreciation.monthlyTotal : 0;
@@ -652,6 +663,14 @@ function dConds(R, inp, m, T, d) {
         sub: 'ยอดที่คาดคือ ' + fmtN(want, 1) + ' ' + u + ' เกินมา ' + fmtN(want - capV, 1) + (over > 0.5 ? ' · กำไรที่นับเกินกำลังราว ' + fmtN(over) + ' บาท/เดือน' : '') });
     }
   }
+  /* 2c) เรื่องที่ทำให้ยอดของร้านเพิ่ม: ยอดที่คาดเกินกำลังที่ร้านทำได้ (หลังเพิ่มคนหรือเครื่องแล้ว) */
+  var xs = R.st.b.x;
+  if (['hire', 'equip', 'ads', 'freelance', 'promo', 'freeship', 'supplier'].indexOf(T) >= 0 && isVolModel(m) && pos(xs.capacity) && n0(xs.volume) > pos(xs.capacity) + 1e-9) {
+    var cx = pos(xs.capacity), wv = n0(xs.volume), vu = volUnitText(inp, m), mf = inp.volumePer === 'month' ? 1 : daysOf(inp);
+    var lpu = n0(xs.price) * (1 - n0(xs.feePct) / 100) - n0(xs.unitCost), ov = (wv - cx) * mf * lpu;
+    C.push({ id: 'cap', label: 'ร้านทำได้สูงสุด ' + fmtN(cx) + ' ' + vu, value: null, txt: '', status: 'short', lever: P.key,
+      sub: 'ยอดที่คาด' + (T === 'promo' ? 'ช่วงโปร' : '') + 'คือ ' + fmtN(wv, 1) + ' ' + vu + ' เกินมา ' + fmtN(wv - cx, 1) + (ov > 0.5 ? ' · กำไรที่นับเกินกำลังราว ' + fmtN(ov) + ' บาท/เดือน' : '') });
+  }
   /* 3) ค่าเช่าที่ใหม่สูงสุด */
   if (T === 'place') {
     var rmax = n0(d.newRent) + R.delta;
@@ -681,6 +700,21 @@ function dConds(R, inp, m, T, d) {
   /* 5b) จัดโปร: กำไรรวมทั้งปี (ช่วงโปร + หลังจบโปร) */
   if (T === 'promo') C.push({ id: 'total', label: 'รวม 12 เดือน กำไรเทียบกับไม่ทำ', value: R.total12, unit: 'บาท', cash: true, lever: 'promoMonths',
     status: R.total12 >= -0.5 ? 'ok' : 'short', sub: 'ช่วงโปร ' + fmtN(promoDur(d)) + ' เดือน และหลังจบโปร' + (R.one > 0 ? ' · หักค่าจัดโปร ' + fmtN(R.one) + ' บาทแล้ว' : '') });
+  /* 5b2) จัดโปร: ทั้งปีคุ้มหรือไม่ขึ้นกับยอดหลังจบโปร */
+  if (T === 'promo' && promoDur(d) < 12) {
+    var tAt = function (a) { var Ra = dEval(inp, m, T, withD(d, 'afterPct', a)); return Ra.ok ? Ra.total12 : NaN; };
+    var t0 = tAt(0);
+    if (t0 >= -0.5) C.push({ id: 'after', label: 'ต่อให้หลังจบโปร ยอดกลับมาเท่าเดิม', value: null, txt: 'ทั้งปียังได้กำไรไม่น้อยกว่าไม่ทำ', status: 'ok', lever: 'afterPct' });
+    else {
+      var an = solveFor(tAt, 0, 0, 10, 0, 500);
+      if (an === null) C.push({ id: 'after', label: 'ถ้าจะให้ทั้งปีคุ้ม', value: null, txt: 'หลังจบโปรยอดต้องเพิ่มมากเกินจริง', status: 'short', lever: 'afterPct' });
+      else {
+        var apd = Math.pow(10, Math.max(1, decOf(n0(d.afterPct)))), as = Math.ceil(an * apd - 1e-9) / apd, ah = Math.floor(n0(d.afterPct) * apd + 1e-6) / apd;
+        C.push({ id: 'after', label: 'ถ้าจะให้ทั้งปีคุ้ม หลังจบโปร' + salesWord(m) + 'ต้องสูงกว่าเดิมอย่างน้อย', value: as, unit: '%', have: n0(d.afterPct), haveShown: ah, lever: 'afterPct',
+          status: ah >= as - 1e-9 ? 'ok' : 'short', sub: 'ถ้ายอดกลับมาเท่าเดิม ทั้งปีกำไรลด ' + fmtN(-t0) + ' บาท' });
+      }
+    }
+  }
   /* 5c) ยิงโฆษณา: ค่าโฆษณาต่อหน่วยที่ขายเพิ่ม เทียบกับเงินที่เหลือต่อหน่วย */
   if (T === 'ads' && isVolModel(m) && n0(d.adGain) > 0) {
     var gm = inp.volumePer === 'month' ? n0(d.adGain) : n0(d.adGain) * daysOf(inp), left = n0(inp.price) * (1 - n0(inp.feePct) / 100) - n0(inp.unitCost);
@@ -695,7 +729,7 @@ function dConds(R, inp, m, T, d) {
   /* 7) จ่ายเพื่อได้เวลาคืน */
   var payM = T === 'hire' ? R.st.b.fx.filter(function (a) { return a[0] === 'newstaff'; }).reduce(function (a, x) { return a + x[2]; }, 0) : T === 'freelance' ? n0(d.flFee) : 0;
   if ((T === 'hire' || (T === 'freelance' && !isKind(d, 'live'))) && n0(d.hours) > 0 && payM > 0) {
-    var days = pos(inp.daysOpen) || 26;
+    var days = T === 'hire' && isKind(d, 'part') && pos(d.partDays) ? pos(d.partDays) : daysOf(inp);
     C.push({ id: 'hour', label: 'จ่ายเพื่อได้เวลาของคุณคืน ชั่วโมงละ', value: payM / (n0(d.hours) * days), unit: 'บาท', status: 'info', lever: 'hours',
       sub: (T === 'hire' ? 'ค่าจ้างคนใหม่' : 'ค่าจ้างฟรีแลนซ์') + ' ÷ (' + fmtN(n0(d.hours)) + ' ชั่วโมง × ' + fmtN(days) + ' วัน)' });
   }

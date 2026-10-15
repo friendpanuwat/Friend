@@ -20,7 +20,7 @@ async function check(page, label) {
     const pill = document.querySelector('.pr-r'); if (!pill) return [];
     const rows = [...document.querySelectorAll('.cklist li[data-id="need"], .cklist li[data-id="payneed"]')].filter(li => li.querySelector('.ck-t b'));
     const out = [];
-    const extraShort = [...document.querySelectorAll('.cklist li[data-id="pay"] .ck, .cklist li[data-id="cap"] .ck, .cklist li[data-id="room"] .ck, .cklist li[data-id="total"] .ck')].some(ck => ck.classList.contains('short'));
+    const extraShort = [...document.querySelectorAll('.cklist li[data-id="pay"] .ck, .cklist li[data-id="cap"] .ck, .cklist li[data-id="room"] .ck, .cklist li[data-id="total"] .ck, .cklist li[data-id="after"] .ck')].some(ck => ck.classList.contains('short'));
     const allOk = rows.every(li => li.querySelector('.ck').classList.contains('ok')) && !extraShort;
     const noPay = !!document.querySelector('.cklist li[data-id="payneed"]') && !document.querySelector('.cklist li[data-id="payneed"] .ck-t b');
     if (rows.length && pill.classList.contains('ok') !== (allOk && !noPay)) out.push('pill ' + pill.className + ' vs rows ' + rows.map(li => li.querySelector('.ck').className).join(','));
