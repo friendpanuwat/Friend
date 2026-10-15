@@ -1281,6 +1281,8 @@
     if (['dq', 'result', 'lab', 'ask', 'points'].indexOf(v) >= 0 && (!state.topic || !shopOk())) v = state.view = state.model ? 'review' : 'start';
     if (['result', 'lab', 'ask', 'points'].indexOf(v) >= 0 && !dAllValid()) { v = state.view = 'dq'; }
     if ((v === 'review' || v === 'wizard') && !state.model) v = state.view = 'start';
+    if (v === 'result') state.shopInFlow = false;
+    if (history.state && history.state.v !== v) hrep();
     app.innerHTML = v === 'start' ? viewStart() : v === 'shop' ? viewShop() : v === 'wizard' ? viewWizard() : v === 'dq' ? viewDq() : v === 'review' ? viewReview()
       : v === 'lab' ? viewLab() : v === 'ask' ? viewAsk() : v === 'points' ? viewPoints() : viewResult();
     runAnim(app);
@@ -1302,7 +1304,9 @@
   function goStep(v) { $$('.toast').forEach(function (x) { x.remove(); }); hpush(v); state.view = v; render(); window.scrollTo(0, 0); focusMain(); }
   /* ย้อนกลับจากหน้าแก้ทีละข้อตอนยังกรอกไม่ครบ = ยกเลิกการแก้นั้น */
   function cancelEdit() {
-    if (state.dediting && state.dedOrig && state.topic && !dAllValid()) { state.ds[state.topic] = state.dedOrig; toast('ยกเลิกคำตอบที่ยังไม่ครบ ใช้คำตอบเดิม'); }
+    /* คำตอบของเรื่องใช้ไม่ได้เพราะเพิ่งแก้ตัวเลขร้าน (เช่น วันเปิดร้านน้อยลง) → ยกเลิกตัวเลขร้านที่แก้ */
+    if (state.dediting && state.edOrig && state.topic && !dAllValid()) { state.inp = state.edOrig; toast('ยกเลิกตัวเลขร้านที่เพิ่งแก้ ใช้ตัวเลขเดิม'); }
+    else if (state.dediting && state.dedOrig && state.topic && !dAllValid()) { state.ds[state.topic] = state.dedOrig; toast('ยกเลิกคำตอบที่ยังไม่ครบ ใช้คำตอบเดิม'); }
     if (state.editing && state.edOrig && state.model && !stepsFor(state.model).every(stepValid)) { state.inp = state.edOrig; toast('ยกเลิกตัวเลขที่ยังไม่ครบ ใช้ตัวเลขเดิม'); }
     state.dedOrig = null; state.edOrig = null;
   }
@@ -1446,13 +1450,19 @@
         steps = stepsFor(m);
         if (!steps.every(stepValid)) {
           var bad0 = -1; for (var bi = 0; bi < steps.length; bi++) if (!stepValid(steps[bi])) { bad0 = bi; break; }
-          if (bad0 !== state.step) { state.step = bad0; go('wizard', false); hrep(); }
+          if (bad0 !== state.step) { state.step = bad0; goStep('wizard'); }
           wShowMissing(steps[bad0]); break;
         }
         var wasEd = state.editing;
         if (wasEd) {
+          if (state.editFrom === 'lab' && state.topic && topicOk(state.topic, m) && !dAllValid()) {
+            /* ตัวเลขร้านใหม่ทำให้คำตอบของเรื่องใช้ไม่ได้: พาไปข้อนั้นเลย บอกว่าขาดอะไร · ย้อนกลับ = ยกเลิกตัวเลขร้านที่แก้ (edOrig ยังเก็บไว้) */
+            var dsx = dStepsFor(state.topic, state.inp, m), fi = 0;
+            for (var dk2 = 0; dk2 < dsx.length; dk2++) if (!dStepValid(dsx[dk2])) { fi = dk2; break; }
+            state.editing = false; state.dstep = fi; state.dediting = true; state.dedOrig = JSON.parse(JSON.stringify(dec()));
+            go('dq', false); hrep(); window.scrollTo(0, 0); dShowMissing(dsx[fi]); break;
+          }
           state.edOrig = null;
-          if (state.editFrom === 'lab' && state.topic && topicOk(state.topic, m) && !dAllValid()) { state.editing = false; state.dstep = 0; state.dediting = true; state.dedOrig = JSON.parse(JSON.stringify(dec())); go('dq', false); hrep(); break; }
           if (canPop()) { state.editing = false; history.back(); break; }
           state.editing = false; go(state.editFrom === 'lab' && state.topic ? 'lab' : 'review', true, true); hrep(); break;
         }
@@ -1472,13 +1482,19 @@
           if (state.labFrom === 'result' && canPop()) { history.back(); break; }
           go('result', true, true); hrep(); break;
         }
-        state.labOrig = null; go('result'); break;
+        state.labOrig = null;
+        if ((state.view === 'ask' || state.view === 'points') && canPop()) { history.back(); break; }
+        go('result'); break;
       case 'lab-back': if (canPop()) { history.back(); break; } state.labOrig = null; go(state.labFrom === 'points' ? 'points' : 'result', true, true); hrep(); break;
       case 'back': if (canPop()) { history.back(); break; } state.topic = null; go('start'); break;
       case 'wi-reset': delete state.wi[state.topic]; go('result', false); break;
       case 'wi-use': {
         var wv0 = wiVal(); if (wv0 === null) break;
-        state.ds[state.topic] = piv().set(dec(), wv0); delete state.wi[state.topic];
+        var P0 = piv(), before = JSON.parse(JSON.stringify(dec()));
+        state.ds[state.topic] = P0.set(dec(), wv0);
+        if (P0.key && dDef(P0.key) && num(dec()[P0.key]) !== null) setDec(P0.key, num(dec()[P0.key]));
+        delete state.wi[state.topic];
+        if (!dAllValid()) { state.ds[state.topic] = before; go('result', false); toast('ค่านี้อยู่นอกช่วงที่ใส่ได้ ใช้ค่าที่กรอกเดิม'); break; }
         go('result', false); toast('ใช้ค่านี้แล้ว'); break;
       }
       case 'edit-step': state.editFrom = state.view === 'lab' ? 'lab' : 'review'; state.step = +t.getAttribute('data-i'); state.editing = true; state.edOrig = JSON.parse(JSON.stringify(state.inp)); go('wizard'); break;
@@ -1509,11 +1525,11 @@
         steps = dStepsFor(state.topic, state.inp, m);
         if (!dAllValid()) {
           var bad1 = -1; for (var bj = 0; bj < steps.length; bj++) if (!dStepValid(steps[bj])) { bad1 = bj; break; }
-          if (bad1 !== state.dstep) { state.dstep = bad1; go('dq', false); hrep(); }
+          if (bad1 !== state.dstep) { state.dstep = bad1; if (state.dediting) { go('dq', false); hrep(); } else goStep('dq'); }
           dShowMissing(steps[bad1]); break;
         }
         delete state.wi[state.topic];
-        if (state.dediting) { state.dedOrig = null; if (canPop()) { state.dediting = false; history.back(); } else { state.dediting = false; go('lab', true, true); hrep(); } }
+        if (state.dediting) { state.dedOrig = null; state.edOrig = null; if (canPop()) { state.dediting = false; history.back(); } else { state.dediting = false; go('lab', true, true); hrep(); } }
         else go('result');
         break;
       }
@@ -1604,8 +1620,8 @@
         while (first < L0.length - 1 && A0[L0[first]]) first++;
         state.qidx = first; go('ask'); break;
       }
-      case 'ask-restart': state.answers[state.topic] = {}; state.qidx = 0; go('ask'); break;
-      case 'points': go('points'); break;
+      case 'ask-restart': state.answers[state.topic] = {}; state.qidx = 0; go('ask', true, true); hrep(); break;
+      case 'points': if (state.view === 'ask') { go('points', true, true); hrep(); } else go('points'); break;
       case 'answer': {
         var q = t.getAttribute('data-q'), v = t.getAttribute('data-v');
         ans()[q] = v;
@@ -1613,7 +1629,7 @@
         setTimeout(function () {
           var L1 = askList(), A1 = ans(), i = L1.indexOf(q) + 1;
           while (i < L1.length && A1[L1[i]]) i++;
-          if (i >= L1.length) { var un = L1.filter(function (x) { return !A1[x]; })[0]; if (un) { state.qidx = L1.indexOf(un); go('ask'); } else go('points'); }
+          if (i >= L1.length) { var un = L1.filter(function (x) { return !A1[x]; })[0]; if (un) { state.qidx = L1.indexOf(un); go('ask'); } else { go('points', true, true); hrep(); } }
           else { state.qidx = i; go('ask'); }
         }, reduced ? 0 : 200);
         break;
