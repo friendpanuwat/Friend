@@ -33,7 +33,7 @@ var TOPICS = {
   hire: { q: 'จ้างคนเพิ่ม', title: 'จ้างคนเพิ่ม', models: MODEL_ORDER, where: ALLW },
   freelance: { q: 'จ้างฟรีแลนซ์ เช่น แอดมิน คนไลฟ์', title: 'จ้างฟรีแลนซ์', models: ['unit', 'service', 'resell', 'subscription', 'project', 'rental', 'commission'], where: ALLW },
   equip: { q: 'ซื้ออุปกรณ์ หรือเครื่องใหม่', title: 'ซื้ออุปกรณ์', models: MODEL_ORDER, where: ALLW },
-  supplier: { q: 'เปลี่ยนซัพพลายเออร์ หรือวัตถุดิบ', title: 'เปลี่ยนซัพพลายเออร์', models: VOLM, where: ALLW },
+  supplier: { q: 'เปลี่ยนเจ้าที่ส่งของ (ซัพพลายเออร์) หรือวัตถุดิบ', title: 'เปลี่ยนเจ้าที่ส่งของ', models: VOLM, where: ALLW },
   place: { q: 'ย้ายร้าน หรือเปลี่ยนทำเล', title: 'ย้ายร้าน', models: ['unit', 'service', 'resell', 'subscription', 'project', 'rental', 'commission'], where: ['shop', 'both'] },
   branch: { q: 'เปิดสาขาที่ 2', title: 'เปิดสาขาที่ 2', models: ['unit', 'service', 'resell', 'subscription', 'rental'], where: ['shop', 'both'] }
 };
@@ -67,7 +67,7 @@ function kindsOf(t, inp, m) {
   var u = U(inp, m);
   return {
     hire: [['full', 'พนักงานประจำ', 'จ่ายเป็นเงินเดือน'], ['part', 'พาร์ตไทม์', 'จ่ายเป็นชั่วโมง']].concat(isVolModel(m) ? [['piece', 'จ่ายรายชิ้น', 'จ่ายตามจำนวน' + u + 'ที่ทำ']] : []),
-    price: [['all', 'ขึ้นราคาทุกอย่าง', 'ทุก' + (isVolModel(m) ? u : 'รายการ') + 'ราคาใหม่เท่ากัน'], ['some', 'ขึ้นบางตัว', 'เฉพาะบางสินค้าหรือบางแพ็กเกจ']],
+    price: [['all', 'ขึ้นราคาทุกอย่าง', 'ทุก' + (isVolModel(m) ? u : 'รายการ') + 'ขึ้นเท่ากัน'], ['some', 'ขึ้นบางตัว', 'เฉพาะบางสินค้าหรือบางแพ็กเกจ']],
     promo: [['disc', 'ลดราคา', 'ทุกคนได้ส่วนลด'], ['code', 'แจกโค้ดหรือคูปอง', 'เฉพาะคนที่ใช้โค้ด'], ['gift', 'ของแถม', 'ซื้อแล้วได้ของแถม']],
     newprod: [['new', 'สินค้าหรือบริการตัวใหม่', 'ขายแยกจากของเดิม'], ['addon', 'ของขายพ่วง', 'ลูกค้าซื้อเพิ่มตอนซื้อของเดิม']],
     freeship: [['all', 'ส่งฟรีทุกออร์เดอร์', 'ร้านจ่ายค่าส่งแทนทั้งหมด'], ['min', 'ส่งฟรีเมื่อซื้อถึงขั้นต่ำ', 'เฉพาะออร์เดอร์ที่ซื้อถึง'], ['part', 'ช่วยค่าส่งบางส่วน', 'ร้านจ่ายแทนออร์เดอร์ละไม่กี่บาท']],
@@ -168,7 +168,7 @@ var DFIELDS = {
     help: function (i, m, d) { var k = CH_KINDS[d.kind]; return k && k.fee ? k.fee : 'เช่น ค่าสมาชิกแพลตฟอร์ม ค่าโฆษณาในแอป'; } },
   movePct: { t: 'pct', req: true, quick: [['ไม่มีเลย', function () { return 0; }], ['บางส่วน 20%', function () { return 20; }], ['ครึ่งหนึ่ง 50%', function () { return 50; }]],
     label: function () { return 'ในนั้นเป็นลูกค้าเดิมที่ย้ายมาซื้อผ่านช่องทางนี้'; }, suf: function () { return '%'; },
-    help: function () { return 'ลูกค้าที่เคยซื้อกับคุณอยู่แล้ว แต่เปลี่ยนมาซื้อผ่านช่องทางนี้แทน ร้านจะได้เงินจากคนกลุ่มนี้น้อยลง'; } },
+    help: function (i, m, d) { var cu = n0(d.cut) > 0 || n0(d.extraCost) > 0 ? channelUnit(i, m, d) : null; return 'ลูกค้าที่เคยซื้อกับคุณอยู่แล้ว แต่เปลี่ยนมาซื้อผ่านช่องทางนี้แทน' + (cu && cu.ch < cu.own ? ' ร้านจะได้เงินจากคนกลุ่มนี้น้อยลง' : ' คนกลุ่มนี้ไม่ใช่ยอดขายเพิ่ม'); } },
 
   /* ซื้ออุปกรณ์ */
   price: { t: 'money', req: true, label: function () { return 'ราคาอุปกรณ์'; }, ph: function () { return 120000; },
@@ -241,7 +241,9 @@ var DFIELDS = {
 
   /* ส่งฟรีหรือช่วยค่าส่ง */
   shipCost: { t: 'money', req: true, label: function (i, m, d) { return isKind(d, 'part') ? 'ร้านช่วยค่าส่งออร์เดอร์ละ' : 'ค่าส่งเฉลี่ยต่อออร์เดอร์ ที่ร้านจ่ายแทนลูกค้า'; }, ph: function () { return 40; } },
-  shipShare: { t: 'pct', req: true, label: function () { return 'ออร์เดอร์ที่ซื้อถึงขั้นต่ำ คิดเป็นกี่ % ของออร์เดอร์ทั้งหมด'; }, suf: function () { return '%'; }, show: function (i, m, d) { return isKind(d, 'min'); } },
+  shipOrders: { t: 'pct', req: true, quick: [['ทุกออร์เดอร์ 100%', function () { return 100; }]], label: function () { return 'ยอดขายที่ต้องส่งของ คิดเป็นกี่ % ของยอดขายทั้งหมด'; }, suf: function () { return '%'; },
+    help: function () { return 'ร้านที่มีหน้าร้านด้วย ลูกค้าที่มาซื้อเองไม่มีค่าส่ง'; } },
+  shipShare: { t: 'pct', req: true, label: function () { return 'ออร์เดอร์ที่ซื้อถึงขั้นต่ำ คิดเป็นกี่ % ของออร์เดอร์ที่ต้องส่ง'; }, suf: function () { return '%'; }, show: function (i, m, d) { return isKind(d, 'min'); } },
   perOrder: { t: 'dec', req: true, min: 1, label: function (i, m) { return 'เฉลี่ยออร์เดอร์ละกี่' + U(i, m); }, suf: function (i, m) { return U(i, m); },
     quick: [['ออร์เดอร์ละ 1', function () { return 1; }]] },
   shipLift: { t: 'dec', req: true, max: 1000, quick: [['ยอดไม่เพิ่ม', function () { return 0; }]], label: function () { return 'คาดว่ายอดขายจะเพิ่มขึ้น'; }, suf: function () { return '%'; },
@@ -255,15 +257,15 @@ var DFIELDS = {
     help: function (i, m) { return 'ไม่รู้เว้นว่างไว้ แล้วดูในหน้าผลว่าต้อง' + gainWord(m) + 'เท่าไรถึงจะคุ้มค่าโฆษณา'; } },
 
   /* เปลี่ยนซัพพลายเออร์ */
-  newCost: { t: 'money', req: true, label: function (i, m) { return 'ต้นทุนต่อ' + U(i, m) + ' กับเจ้าใหม่'; },
-    help: function (i, m) { return 'ตอนนี้ ' + fmtN(n0(i.unitCost), 2) + ' บาท'; } },
+  newCost: { t: 'money', req: true, label: function (i, m) { return 'ต้นทุนรวมต่อ' + U(i, m) + ' หลังเปลี่ยนเจ้า'; },
+    help: function (i, m) { return 'ตอนนี้ ' + fmtN(n0(i.unitCost), 2) + ' บาท · ใส่ต้นทุนรวมทั้ง' + U(i, m) + ' ไม่ใช่แค่ของที่เปลี่ยน'; } },
   supSales: { t: 'signed', req: true, words: ['มากขึ้น', 'น้อยลง'], quick: [['เท่าเดิม', function () { return 0; }]],
     label: function (i, m) { return 'ยอดขายหลังเปลี่ยน เทียบกับตอนนี้'; }, suf: function () { return '%'; }, max: 500, min: -90,
     help: function () { return 'ของถูกลงแต่คุณภาพเปลี่ยน ลูกค้าบางคนอาจหาย · ของดีขึ้นอาจขายได้มากขึ้น'; } },
-  supStock: { t: 'int', max: 365, label: function () { return 'เจ้าใหม่สั่งขั้นต่ำ ต้องเก็บของไว้กี่วัน'; }, suf: function () { return 'วัน'; },
-    show: function (i, m) { return m !== 'service'; }, help: function (i) { return 'ตอนนี้ ' + fmtN(n0(i.stockDays)) + ' วัน · ถ้าไม่เปลี่ยน เว้นว่างไว้'; } },
+  supStock: { t: 'int', max: 365, label: function () { return 'ถ้าสั่งตามขั้นต่ำของเจ้าใหม่ ของจะพอขายกี่วัน'; }, suf: function () { return 'วัน'; },
+    show: function (i, m) { return m !== 'service'; }, help: function (i) { return (num(i.stockDays) === null ? 'ตอนนี้ยังไม่ได้ใส่' : 'ตอนนี้ ' + fmtN(n0(i.stockDays)) + ' วัน') + ' · ถ้าไม่เปลี่ยน เว้นว่างไว้'; } },
   supCredit: { t: 'int', max: 365, label: function () { return 'เจ้าใหม่ให้จ่ายเงินช้าได้กี่วัน'; }, suf: function () { return 'วัน'; },
-    show: function (i, m) { return m !== 'service'; }, help: function (i) { return 'ตอนนี้ ' + fmtN(n0(i.supplierCreditDays)) + ' วัน · ถ้าไม่เปลี่ยน เว้นว่างไว้'; } },
+    show: function (i, m) { return m !== 'service'; }, help: function (i) { return (num(i.supplierCreditDays) === null ? 'ตอนนี้ยังไม่ได้ใส่' : 'ตอนนี้ ' + fmtN(n0(i.supplierCreditDays)) + ' วัน') + ' · ถ้าไม่เปลี่ยน เว้นว่างไว้'; } },
   switchCost: { t: 'money', req: true, quick: [['ไม่มี', function () { return 0; }]], label: function () { return 'ค่าใช้จ่ายครั้งเดียวตอนเปลี่ยน'; },
     help: function () { return 'เช่น ทดลองของ ค่าขนส่งรอบแรก ของเดิมที่ต้องทิ้ง'; } },
 
@@ -300,7 +302,7 @@ function dStepsFor(t, inp, m) {
     { id: 'cost', q: 'เงินที่ต้องใช้เพิ่ม', f: ['npFixed', 'npSetup'] }
   ]);
   if (t === 'freeship') return S.concat([
-    { id: 'cost', q: 'ร้านต้องจ่ายค่าส่งเท่าไร', f: ['shipCost', 'shipShare', 'perOrder'] },
+    { id: 'cost', q: 'ร้านต้องจ่ายค่าส่งเท่าไร', f: ['shipOrders', 'shipCost', 'shipShare', 'perOrder'] },
     { id: 'lift', q: 'คาดว่ายอดขายจะเพิ่มเท่าไร', f: ['shipLift', 'ramp'] }
   ]);
   if (t === 'ads') return S.concat([
@@ -348,7 +350,7 @@ var SAMPLE_DEC = {
   price: { kind: 'all', raiseBy: 5, lostPct: 5 },
   promo: { kind: 'disc', discPct: 20, promoMonths: 1, lift: 30, afterPct: 5, promoCost: 3000 },
   newprod: { kind: 'new', npPrice: 55, npCost: 20, npQty: 15, npCanni: 20, npFixed: 1000, npSetup: 20000, ramp: 1 },
-  freeship: { kind: 'part', shipCost: 15, perOrder: 2, shipLift: 10, ramp: 1 },
+  freeship: { kind: 'part', shipOrders: 30, shipCost: 15, perOrder: 2, shipLift: 10, ramp: 1 },
   ads: { kind: 'social', adBudget: 5000, adMgmt: 0, adSetup: 2000, adGain: 8, ramp: 1 },
   channel: { kind: 'delivery', chName: 'แอปส่งอาหาร', cut: 30, chPrice: 75, chQty: 25, movePct: 20, ramp: 3, extraCost: 3, chFee: 1500 },
   freelance: { kind: 'content', flFee: 5000, flGain: 6, ramp: 2, hours: 1 },
@@ -362,7 +364,7 @@ var SAMPLE_DEC_ON = {
   price: { kind: 'all', raiseBy: 30, lostPct: 5 },
   promo: { kind: 'code', discPct: 15, usePct: 40, promoMonths: 1, lift: 25, afterPct: 5, promoCost: 2000 },
   newprod: { kind: 'addon', npPrice: 150, npCost: 60, npAttach: 15, npFixed: 0, npSetup: 15000, ramp: 1 },
-  freeship: { kind: 'min', shipCost: 45, shipShare: 50, perOrder: 1.5, shipLift: 12, ramp: 1 },
+  freeship: { kind: 'min', shipOrders: 100, shipCost: 45, shipShare: 50, perOrder: 1.5, shipLift: 12, ramp: 1 },
   ads: { kind: 'tiktok', adBudget: 8000, adMgmt: 0, adSetup: 3000, adGain: 60, ramp: 1 },
   channel: { kind: 'social', chName: 'TikTok Shop หรือไลฟ์', cut: 8, chPrice: 390, chQty: 120, movePct: 20, extraCost: 10, chFee: 3000, ramp: 2 },
   freelance: { kind: 'live', flFee: 8000, flPct: 5, flGain: 100, ramp: 1 },
@@ -372,7 +374,7 @@ var SAMPLE_DEC_ON = {
   branch: { setup: 200000, bRent: 10000, bStaff: 1, bSalary: 12000, bOther: 4000, bPct: 50, ramp: 6 }
 };
 /* ค่าเริ่มของช่องที่ไม่บังคับ = 0 · count เริ่มที่ 1 */
-var DEC_DEFAULT = { hire: { count: 1 } };
+var DEC_DEFAULT = { hire: { count: 1 }, promo: { promoMonths: 1 } };
 
 /* ---------- คลังคำถามเช็กความพร้อม → จุดที่ควรเช็ก → เครื่องมือ PL1 ----------
    ทุกข้อเขียนให้ "ใช่" = มีความเสี่ยง · บอกแค่จุดที่ควรเช็ก ไม่ฟันธงและไม่ให้วิธีแก้ · lever = ตัวเลขที่เกี่ยวข้อง */
@@ -402,7 +404,7 @@ var QB3 = {
   c_price: { q: function () { return 'ตั้งราคาบนช่องทางใหม่เท่าขายเอง โดยยังไม่ได้คิดส่วนแบ่งที่ช่องทางหักไหม'; }, p: 'ราคาบนช่องทางใหม่',
     d: 'เช็กว่าราคาบนช่องทางนี้ ยังเหลือเงินหลังหักส่วนแบ่งและต้นทุนพอหรือไม่', tools: ['grow13'], lever: 'chPrice', when: function (i, m) { return m !== 'commission'; } },
   c_move: { q: function () { return 'ลูกค้าประจำน่าจะเปลี่ยนมาซื้อผ่านช่องทางใหม่ แทนการซื้อกับคุณโดยตรงไหม'; }, p: 'ลูกค้าเดิมที่ย้ายช่องทาง',
-    d: 'เช็กว่าลูกค้าจากช่องทางใหม่เป็นคนใหม่จริงกี่ % ลูกค้าเดิมที่ย้ายมาทำให้ร้านได้เงินน้อยลงทุกครั้งที่ซื้อ', tools: ['cust5', 'bmc10'], lever: 'movePct' },
+    d: 'เช็กว่าลูกค้าจากช่องทางใหม่เป็นคนใหม่จริงกี่ % ลูกค้าเดิมที่ย้ายมาไม่ใช่ยอดขายเพิ่ม และบางช่องทางทำให้ได้เงินต่อครั้งน้อยลง', tools: ['cust5', 'bmc10'], lever: 'movePct' },
   c_who: { q: function () { return 'คนที่ใช้ช่องทางนี้ อาจเป็นคนละกลุ่มกับลูกค้าที่ซื้อของแบบคุณไหม'; }, p: 'ลูกค้าในช่องทางใหม่',
     d: 'เช็กว่าคนที่ใช้ช่องทางนี้ ตรงกับลูกค้าที่ซื้อของแบบคุณหรือไม่', tools: ['cust5', 'cust1'], lever: 'chQty' },
   c_cap: { q: function () { return 'ช่วงที่ร้านแน่น ออร์เดอร์จากช่องทางใหม่อาจทำให้ลูกค้าที่ร้านต้องรอนานไหม'; }, p: 'กำลังรับออร์เดอร์เพิ่ม',
@@ -460,7 +462,7 @@ var QB3 = {
   n_launch: { q: function () { return 'ยังไม่ได้ลองขายของใหม่กับลูกค้าจริงสักกลุ่มไหม'; }, p: 'ลองขายก่อนลงเงินเต็ม',
     d: 'เช็กว่าลองขายจำนวนน้อยก่อนได้ไหม ก่อนลงเงินก้อน', tools: ['goal3'], lever: 'npSetup' },
 
-  f_why: { q: function () { return 'ลูกค้าที่ทักมาแล้วไม่ซื้อ ส่วนใหญ่ไม่ได้ติดเรื่องค่าส่งไหม'; }, p: 'ลูกค้าไม่ซื้อเพราะค่าส่งจริงไหม',
+  f_why: { q: function () { return 'ลูกค้าที่ทักมาแล้วไม่ซื้อ ส่วนใหญ่ติดเรื่องอื่นมากกว่าค่าส่งไหม'; }, p: 'ลูกค้าไม่ซื้อเพราะค่าส่งจริงไหม',
     d: 'เช็กว่าลูกค้าที่ทักมาแล้วไม่ซื้อ ติดเรื่องค่าส่งกี่คน', tools: ['cust6'], lever: 'shipLift' },
   f_cost: { q: function () { return 'ค่าส่งแต่ละออร์เดอร์ต่างกันมาก เช่น ของหนักหรือส่งไกลไหม'; }, p: 'ค่าส่งที่ไม่เท่ากัน',
     d: 'เช็กค่าส่งของออร์เดอร์ที่แพงที่สุด ว่าร้านยังเหลือเงินไหม', tools: ['grow15'], lever: 'shipCost' },
@@ -469,11 +471,11 @@ var QB3 = {
   f_basket: { q: function () { return 'ลูกค้าอาจซื้อแค่พอถึงขั้นต่ำ แล้วไม่ซื้อเพิ่มอีกไหม'; }, p: 'ยอดต่อออร์เดอร์',
     d: 'เช็กว่ายอดต่อออร์เดอร์เพิ่มขึ้นจริงหลังตั้งขั้นต่ำ', tools: ['bmc8'], lever: 'perOrder', when: function (i, m, d) { return isKind(d, 'min'); } },
 
-  a_track: { q: function () { return 'ตอนนี้ยังนับไม่ได้ว่าลูกค้าแต่ละคนมาจากโฆษณาหรือไม่'; }, p: 'นับลูกค้าจากโฆษณา',
+  a_track: { q: function () { return 'ตอนนี้ยังแยกไม่ออกไหมว่าลูกค้าคนไหนมาจากโฆษณา'; }, p: 'นับลูกค้าจากโฆษณา',
     d: 'เช็กว่าจะนับยอดที่มาจากโฆษณาอย่างไร ไม่อย่างนั้นจะไม่รู้ว่าคุ้มไหม', tools: ['grow9'], lever: 'adGain' },
   a_guess: { q: function () { return 'ยอดที่คาดว่าจะเพิ่ม มาจากการเดามากกว่าโฆษณาที่เคยลองไหม'; }, p: 'ที่มาของยอดที่คาด',
     d: 'เช็กว่าเคยลองงบน้อย ๆ แล้วได้ลูกค้ากี่คน', tools: ['grow9', 'cont9'], lever: 'adGain' },
-  a_who: { q: function () { return 'ยังไม่แน่ใจว่าลูกค้าของคุณใช้แอปที่จะลงโฆษณาไหม'; }, p: 'ลูกค้าอยู่ที่ไหน',
+  a_who: { q: function () { return 'ยังไม่แน่ใจว่าลูกค้าของคุณใช้แอปหรือเว็บที่จะลงโฆษณาไหม'; }, p: 'ลูกค้าอยู่ที่ไหน',
     d: 'เช็กว่าลูกค้าใช้แอปไหน ก่อนเลือกที่ลงโฆษณา', tools: ['cust5', 'cont6'], lever: null },
   a_repeat: { q: function () { return 'ลูกค้าส่วนใหญ่ซื้อครั้งเดียว ไม่ค่อยกลับมาซื้อซ้ำไหม'; }, p: 'ลูกค้าใหม่กลับมาซื้อซ้ำไหม',
     d: 'เช็กว่าลูกค้าจากโฆษณากลับมาซื้อเองไหม ถ้าไม่กลับ ต้องจ่ายค่าโฆษณาทุกครั้งที่ขาย', tools: ['bmc8', 'cust4'], lever: null },
@@ -496,7 +498,7 @@ var QB3 = {
   fl_owner: { q: function () { return 'งานนี้ยังต้องรอคุณตรวจหรือตอบเองอยู่ดีไหม'; }, p: 'งานที่ยังติดอยู่กับคุณ',
     d: 'เช็กว่าส่งงานต่อได้จริงแค่ไหน เวลาที่ได้คืนมากหรือน้อยตามนี้', tools: ['grow6'], lever: 'hours', when: function (i, m, d) { return !isKind(d, 'live'); } },
   fl_voice: { q: function () { return 'ลูกค้าซื้อเพราะได้คุยกับคุณ หรือชอบที่คุณไลฟ์เองไหม'; }, p: 'ลูกค้าที่ผูกกับตัวคุณ',
-    d: 'เช็กว่าลูกค้าจะยังซื้อ เมื่อคนอื่นตอบหรือไลฟ์แทน', tools: ['cust4'], lever: 'flGain' }
+    d: 'เช็กว่าลูกค้าจะยังซื้อ เมื่อคนอื่นตอบหรือไลฟ์แทน', tools: ['cust4'], lever: 'flGain', when: function (i, m, d) { return !isKind(d, 'content'); } }
 };
 var QSET3 = {
   hire: ['h_owner', 'h_turn', 'h_peak', 'h_train', 'h_slow'],

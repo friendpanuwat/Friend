@@ -159,7 +159,7 @@ function dBuild(inp, m, T, d, o) {
     fx.push(['npfix', 'ค่าใช้จ่ายรายเดือนของของใหม่', n0(d.npFixed)]);
     one = n0(d.npSetup);
   } else if (T === 'freeship') {
-    var shr = isKind(d, 'min') ? Math.min(100, n0(d.shipShare)) / 100 : 1, po = Math.max(1, n0(d.perOrder) || 1);
+    var shr = (isKind(d, 'min') ? Math.min(100, n0(d.shipShare)) / 100 : 1) * (num(d.shipOrders) === null ? 1 : Math.min(100, n0(d.shipOrders)) / 100), po = Math.max(1, n0(d.perOrder) || 1);
     x.unitCost = n0(inp.unitCost) + n0(d.shipCost) * shr / po;
     x = scaleVol(x, m, 1 + n0(d.shipLift) / 100 * g);
   } else if (T === 'ads') {
@@ -690,7 +690,7 @@ function dConds(R, inp, m, T, d) {
   /* 5) คืนทุน */
   if (R.one > 0 && T !== 'promo') {
     var life = T === 'equip' && pos(d.life) ? pos(d.life) * 12 : null;
-    C.push({ id: 'pay', label: { place: 'เงินค่าย้ายคืนทุน', equip: 'ค่าเครื่องคืนทุน', branch: 'เงินลงทุนสาขาคืนทุน', newprod: 'เงินก้อนของของใหม่คืนทุน', ads: 'ค่าทำโฆษณาคืนทุน', supplier: 'ค่าเปลี่ยนเจ้าคืนทุน' }[T],
+    C.push({ id: 'pay', label: { place: 'เงินค่าย้ายคืนทุน', equip: 'ค่าเครื่องคืนทุน', branch: 'เงินลงทุนสาขาคืนทุน', newprod: 'เงินที่ลงตอนเริ่มคืนทุน', ads: 'ค่าทำโฆษณาคืนทุน', supplier: 'ค่าเปลี่ยนเจ้าคืนทุน' }[T],
       value: R.payback, unit: 'เดือน', payback: true,
       lever: { place: 'moveCost', equip: 'price', branch: 'setup', newprod: 'npSetup', ads: 'adSetup', supplier: 'switchCost' }[T],
       status: R.payback === null || R.payback > 120 ? 'short' : life ? (R.payback <= life ? 'ok' : 'short') : 'info',
@@ -725,7 +725,7 @@ function dConds(R, inp, m, T, d) {
   if (R.need > 0.5) C.push({ id: 'cash', label: R.B.hasCash ? 'เงินจะขาดมือมากสุด' : 'ช่วงแรกต้องมีเงินอย่างน้อย', value: R.need, unit: 'บาท', status: 'short', cash: true, lever: null,
     sub: R.B.hasCash ? cashWhen(R) + ' · มีอยู่ ' + fmtN(R.cashStart) + ' บาท' : 'ยังไม่ได้ใส่เงินสดที่มี นี่คือเงินที่ต้องใช้ช่วงที่เงินออกมากกว่าเงินเข้า' });
   else if (R.B.hasCash) C.push({ id: 'cash', label: 'เงินในมือไม่ติดลบ ต่ำสุด', value: R.low, unit: 'บาท', status: 'ok', cash: true, lever: null,
-    sub: R.lowT ? 'ในเดือน ' + monthLabel(R.lowT, true) : R.one > 0 ? 'ตอนจ่ายเงินก้อน' : 'เงินในมือไม่ลดลงจากตอนนี้' });
+    sub: R.lowT ? 'ในเดือน ' + monthLabel(R.lowT, true) : R.one > 0 ? (T === 'promo' ? 'ตอนจ่ายค่าจัดโปร' : 'ตอนจ่ายเงินก้อน') : 'เงินในมือไม่ลดลงจากตอนนี้' });
   /* 7) จ่ายเพื่อได้เวลาคืน */
   var payM = T === 'hire' ? R.st.b.fx.filter(function (a) { return a[0] === 'newstaff'; }).reduce(function (a, x) { return a + x[2]; }, 0) : T === 'freelance' ? n0(d.flFee) : 0;
   if ((T === 'hire' || (T === 'freelance' && !isKind(d, 'live'))) && n0(d.hours) > 0 && payM > 0) {
