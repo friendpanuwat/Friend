@@ -746,22 +746,21 @@ h1.pp-t { font-size: 28px; line-height: 1.3; margin: 0; text-wrap: balance; }
 /* ---------- กำลังลองค่าอื่นบนแถบลาก (ค้างใต้แถบหัว) ---------- */
 .try3 { position: sticky; top: calc(60px + env(safe-area-inset-top, 0px)); z-index: 15; }
 .try3:empty { display: none; }
-.try-in { margin-top: 6px; background: var(--ink); color: var(--bg); border-radius: 16px; padding: 10px 10px 10px 14px; display: grid; gap: 8px; box-shadow: var(--shadow); }
-.try-t { display: grid; gap: 1px; min-width: 0; }
+.try-in { margin-top: 6px; background: var(--ink); color: var(--bg); border-radius: 16px; padding: 8px 8px 8px 14px; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow); }
+.try-t { flex: 1; display: grid; gap: 0; min-width: 0; }
 .try-t small { font-size: 12px; font-weight: 600; opacity: 0.75; }
-.try-t b { font-size: 15px; line-height: 1.4; }
-.try-t span { font-size: 12.5px; opacity: 0.75; }
-.try-b { display: flex; gap: 8px; }
-.try-b .btn { flex: 1; min-height: 44px; font-size: 14px; padding: 0 10px; border-radius: 12px; }
+.try-t b { font-size: 14px; line-height: 1.35; }
+.try-b { display: flex; gap: 6px; flex: none; }
+.try-b .btn { min-height: 44px; font-size: 14px; padding: 0 12px; border-radius: 12px; }
 .try-b .btn.ghost { background: transparent; color: var(--bg); box-shadow: inset 0 0 0 1.5px currentColor; }
 .try-b .btn:not(.ghost) { background: var(--bg); color: var(--ink); }
 
 /* ---------- ช่องที่ยังขาด (กดถัดไปตอนยังไม่ครบ) ---------- */
-@keyframes need { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 30%, 70% { box-shadow: 0 0 0 3px var(--ink); } }
-.field.need { border-radius: 14px; animation: need 1.2s ease-out 1; }
+@keyframes need { 0%, 100% { box-shadow: 0 0 0 2px var(--ink); } 40% { box-shadow: 0 0 0 4px var(--ink); } }
+.field.need { border-radius: 16px; padding: 8px 10px 10px; margin: -8px -10px -10px; box-shadow: 0 0 0 2px var(--ink); animation: need 0.9s ease-out 1; }
 .need-msg { margin: 0 2px; font-size: 14px; font-weight: 700; color: var(--ink); display: flex; gap: 6px; align-items: center; }
 .need-msg::before { content: "!"; display: inline-flex; width: 18px; height: 18px; border-radius: 9px; background: var(--ink); color: var(--bg); font-size: 12px; align-items: center; justify-content: center; flex: none; }
-@media (prefers-reduced-motion: reduce) { .field.need { animation: none; box-shadow: 0 0 0 3px var(--ink); } }
+@media (prefers-reduced-motion: reduce) { .field.need { animation: none; } }
 
 /* ---------- อ่านง่ายขึ้น: ตัวเลือกที่เลือกอยู่เห็นชัดทั้งโหมดมืดและสว่าง · ข้อความรองบนแถบหัวไม่เล็กเกินไป ---------- */
 .where3 .seg button[aria-pressed="true"], .tabs3 button[aria-selected="true"] { box-shadow: inset 0 0 0 2px var(--ink); }
@@ -4505,7 +4504,11 @@ function fmtCompact(n) {
     /* shopInFlow = ตัวเลขร้านถูกกรอกระหว่างทางของเรื่องนี้ (ย้อนจากคำถามข้อแรกจึงกลับไปตัวเลขร้าน) · editFrom = หน้าที่เปิดแก้ตัวเลขร้าน (lab | review) · rtab = แท็บดูละเอียดบนหน้าผล */
     shopInFlow: false, editFrom: null, rtab: 'cash',
     /* edOrig / dedOrig = ค่าก่อนเปิดหน้าแก้ทีละข้อ (ย้อนกลับตอนยังกรอกไม่ครบ = ยกเลิกการแก้) · labFrom = หน้าที่เปิดหน้าปรับตัวเลข */
-    edOrig: null, dedOrig: null, labFrom: 'result'
+    edOrig: null, dedOrig: null, labFrom: 'result',
+    /* sampleBak = ร้านตัวอย่างที่ใช้อยู่ก่อนกด "ใส่ตัวเลขร้านคุณ" (ย้อนกลับก่อนกรอกครบ = กลับไปร้านตัวอย่างเดิม) */
+    sampleBak: null,
+    /* editBase = ลำดับประวัติของหน้าที่เปิดหน้าแก้ (เสร็จแล้วกลับไปหน้านั้นทีเดียว แม้แก้หลายข้อ) */
+    editBase: null
   };
   var app;
 
@@ -4539,7 +4542,7 @@ function fmtCompact(n) {
   function snapshot() {
     return { view: state.view, topic: state.topic, model: state.model, inp: state.inp, isSample: state.isSample, sampleKind: state.sampleKind, where: state.where, step: state.step, editing: state.editing,
       dstep: state.dstep, dediting: state.dediting, ds: state.ds, wi: state.wi, dsign: state.dsign, active: state.active, answers: state.answers, qidx: state.qidx,
-      shopInFlow: state.shopInFlow, editFrom: state.editFrom, rtab: state.rtab, edOrig: state.edOrig, dedOrig: state.dedOrig, labFrom: state.labFrom };
+      shopInFlow: state.shopInFlow, editFrom: state.editFrom, rtab: state.rtab, edOrig: state.edOrig, dedOrig: state.dedOrig, labFrom: state.labFrom, sampleBak: state.sampleBak };
   }
   function save() {
     try { sessionStorage.setItem('lab3', JSON.stringify(snapshot())); } catch (e) { /* ignore */ }
@@ -4625,7 +4628,7 @@ function fmtCompact(n) {
     return '<span class="' + (v > 0.5 ? 'up' : v < -0.5 ? 'down' : '') + '">' + sr + txt + '</span>';
   }
   function bar(left, title, sub, right) {
-    if (state.isSample && state.view !== 'start') sub = (sub ? sub + ' · ' : '') + 'ร้านตัวอย่าง';
+    if (state.isSample) sub = (sub ? sub + ' · ' : '') + 'ร้านตัวอย่าง';
     return '<header class="bar"><div class="wrap">' + (left || '<span class="spacer44"></span>') +
       '<div class="ttl">' + (sub ? '<small>' + esc(sub) + '</small>' : '') + esc(title) + '</div>' +
       (right || '') + '<button class="ib" data-act="theme" aria-label="สลับโหมดมืดและสว่าง">' + (themeNow() === 'dark' ? ICON.sun : ICON.moon) + '</button></div></header>';
@@ -4650,7 +4653,7 @@ function fmtCompact(n) {
   function tw(str) {
     var h = esc(str);
     NW.forEach(function (w) { h = h.split(w).join('<span class="nw">' + w + '</span>'); });
-    return h.replace(/([ก-ฮ]\.[ก-ฮ]\.(?:[ก-ฮ]\.)?) (\d{2})/g, '$1&nbsp;$2');
+    return h.replace(/([A-Za-z])([ก-๙])/g, '$1 $2').replace(/([ก-ฮ]\.[ก-ฮ]\.(?:[ก-ฮ]\.)?) (\d{2})/g, '$1&nbsp;$2');
   }
   function ml(t, y) { return monthLabel(t, y).replace(' ', '\u00a0'); }
 
@@ -4738,7 +4741,8 @@ function fmtCompact(n) {
       return '<div class="shopline' + (state.isSample ? ' smp' : '') + '"><span class="sl-t"><small>' + (state.isSample ? 'กำลังใช้ร้านตัวอย่าง' : 'ตัวเลขร้านคุณ') + '</small><b>' + (state.isSample ? esc(sampleName()) : esc(MODELS[state.model].tile)) + '</b>' +
         (ok ? '<span>' + (S.profit < 0 ? 'ขาดทุน ' : 'กำไร ') + fmtN(Math.abs(S.profit)) + ' บาท/เดือน</span>' : '<span>ยังกรอกไม่ครบ</span>') + '</span>' +
         '<button class="btn ghost sm" data-act="shop-edit">' + (state.isSample ? 'ใส่ตัวเลขร้านคุณ' : 'ปรับ') + '</button></div>' +
-        (state.isSample ? '<p class="sl-n">แตะเรื่องไหนก็ได้ จะเห็นผลกับร้านตัวอย่างทันที</p>' : '');
+        (state.isSample ? '<p class="sl-n">แตะเรื่องไหนก็ได้ จะเห็นผลกับร้านตัวอย่างทันที</p>'
+          : ok ? '' : '<div class="samp3 sl-n"><span>ยังไม่พร้อมกรอกต่อ?</span><button class="lnk" data-act="sample">ลองกับ' + esc(SAMPLES[sampleKindFor(null)].short) + 'ตัวอย่างก่อน</button></div>');
     }
     return '<div class="samp3"><span>ยังไม่พร้อมกรอก?</span><button class="lnk" data-act="sample">ลองกับ' + esc(SAMPLES[sampleKindFor(null)].short) + 'ตัวอย่างก่อน</button></div>';
   }
@@ -4984,28 +4988,31 @@ function fmtCompact(n) {
     return st.f.filter(function (k) { var f = fieldDef(k); return f && f.req && (!f.show || f.show(state.inp, state.model)) && num(state.inp[k]) === null; })[0] || null;
   }
   /* บอกในช่องนั้นเลย (ไม่ใช้ป้ายลอยที่บังช่อง) */
-  function showMissing(sel, label, err) {
+  function showMissing(sel, label, err, keepOthers) {
     var node = $(sel);
     if (!node) { toast(err || ('ยังขาด “' + label + '”')); return; }
-    $$('.need-msg').forEach(function (x) { if (!node.contains(x)) x.remove(); });
+    if (!keepOthers) $$('.need-msg').forEach(function (x) { var fx = x.closest('.field'); if (!node.contains(x) && !(fx && fx.classList.contains('need'))) x.remove(); });
     if (!err && !$('.need-msg', node)) {
       var lab = node.firstElementChild, msg = document.createElement('p');
       msg.className = 'need-msg'; msg.setAttribute('role', 'alert'); msg.textContent = 'ยังไม่ได้ตอบข้อนี้';
       if (lab) lab.insertAdjacentElement('afterend', msg); else node.insertBefore(msg, node.firstChild);
     }
+    node.classList.remove('need'); node.getBoundingClientRect(); node.classList.add('need');
+    if (keepOthers) return;
     var y = node.getBoundingClientRect().top + window.scrollY - 140;
     window.scrollTo({ top: Math.max(0, y), behavior: reduced ? 'auto' : 'smooth' });
-    node.classList.remove('need'); node.getBoundingClientRect(); node.classList.add('need');
     var c = $('input, button', node); if (c) { try { c.focus({ preventScroll: true }); } catch (e) { c.focus(); } }
   }
   function dShowMissing(st) {
-    var k = dMissing(st); if (!k) return;
-    var f = dDef(k), lab = f.t === 'kind' ? (KIND_Q[state.topic] || 'แบบ') : f.label(state.inp, state.model, dec());
-    showMissing('.field[data-df="' + k + '"]', lab, dErr(k));
+    var d = dec(), all = st.f.filter(function (k) { return dMissing({ f: [k] }, d); });
+    all.slice().reverse().forEach(function (k, i) {
+      var f = dDef(k), lab = f.t === 'kind' ? (KIND_Q[state.topic] || 'แบบ') : f.label(state.inp, state.model, d);
+      showMissing('.field[data-df="' + k + '"]', lab, dErr(k), i < all.length - 1);
+    });
   }
   function wShowMissing(st) {
-    var k = wMissing(st); if (!k) return;
-    showMissing('.field[data-f="' + k + '"]', fieldDef(k).label(state.inp, state.model));
+    var all = st.f.filter(function (k) { return wMissing({ f: [k] }); });
+    all.slice().reverse().forEach(function (k, i) { showMissing('.field[data-f="' + k + '"]', fieldDef(k).label(state.inp, state.model), '', i < all.length - 1); });
   }
   function dAllValid() { var s = dStepsFor(state.topic, state.inp, state.model); return s.every(function (x) { return dStepValid(x); }); }
   function dPh(k) {
@@ -5095,7 +5102,7 @@ function fmtCompact(n) {
         : '<button class="btn" data-act="d-next">ถัดไป' + ICON.next + '</button>';
     var off = state.shopInFlow && !state.isSample ? stepsFor(state.model).filter(function (x) { return !x.adv; }).length : 0;
     var foot = '<div class="foot" id="foot"><div class="wrap"><button class="btn ghost back" data-act="d-prev" aria-label="ย้อนกลับ">' + ICON.back + '</button>' + primary + '</div></div>';
-    return bar(backBtn('d-prev'), TOPICS[t].title, state.dediting ? 'ปรับตัวเลข › คำตอบ' : 'ข้อ ' + (off + state.dstep + 1) + ' จาก ' + (off + steps.length)) +
+    return bar(backBtn('d-prev'), TOPICS[t].title, state.dediting ? 'ปรับตัวเลข › ตัวเลขของเรื่อง' : 'ข้อ ' + (off + state.dstep + 1) + ' จาก ' + (off + steps.length)) +
       '<main class="screen"><div class="wrap">' + prog + '<section class="dstrip" id="dstrip" aria-label="ไม่ทำ เทียบกับ ทำ">' + dStrip() + '</section>' +
       '<div class="q-head"><h1>' + esc(st.q) + '</h1>' + (st.p ? '<p>' + esc(st.p) + '</p>' : '') + '</div>' +
       '<div class="qfields">' + st.f.map(dFieldHtml).join('') + '</div></div></main>' + foot;
@@ -5149,8 +5156,9 @@ function fmtCompact(n) {
   /* แก้ตัวเลขร้าน (เปิดจากหน้าเริ่ม ยังไม่ได้อยู่ในเรื่องไหน) */
   function viewReview() {
     return bar(backBtn('back', 'ย้อนกลับ'), 'ตัวเลขร้าน', 'ปรับตัวเลข') + '<main class="screen"><div class="wrap">' +
-      '<div class="q-head"><h1>ตัวเลขร้านคุณ</h1><p>ใช้กับทุกเรื่อง แตะข้อที่อยากแก้</p></div>' +
-      '<div class="sec-h"><h2>' + esc(MODELS[state.model].tile) + '</h2></div>' + shopRows() + '</div></main>';
+      '<div class="q-head"><h1>ตัวเลขร้านคุณ</h1><p>ใช้กับทุกเรื่อง แตะข้อที่อยากปรับ</p></div>' +
+      '<div class="sec-h"><h2>' + esc(MODELS[state.model].tile) + '</h2></div>' + shopRows() + '</div></main>' +
+      '<div class="foot" id="foot"><div class="wrap"><button class="btn" data-act="back">เสร็จ</button></div></div>';
   }
 
   /* ============================================================ RESULT — สองเส้นทาง */
@@ -5434,8 +5442,8 @@ function fmtCompact(n) {
   function tryHtml(P) {
     var w = wiVal();
     if (w === null || !(P.have > 0 || P.showHave) || Math.abs(w - P.have) < 1e-6) return '';
-    return '<div class="try-in"><span class="try-t"><small>กำลังลองดู ยังไม่ใช่ตัวเลขที่คุณกรอก</small><b>' + tw(pivotWord(P, w)) + '</b><span>ที่คุณกรอก ' + esc(nf(P.have, P.unit)) + '</span></span>' +
-      '<span class="try-b"><button class="btn ghost sm" data-act="wi-reset">กลับค่าที่กรอก</button><button class="btn sm" data-act="wi-use">ใช้ค่านี้</button></span></div>';
+    return '<div class="try-in"><span class="try-t"><small>กำลังลองดู · ' + (state.isSample ? 'ร้านตัวอย่าง' : 'ที่คุณกรอก') + ' ' + esc(nf(P.have, P.unit)) + '</small><b>' + tw(pivotWord(P, w)) + '</b></span>' +
+      '<span class="try-b"><button class="btn ghost sm" data-act="wi-reset" aria-label="กลับค่าเดิม ' + esc(nf(P.have, P.unit)) + '">ค่าเดิม</button><button class="btn sm" data-act="wi-use">ใช้ค่านี้</button></span></div>';
   }
   function resultFoot() {
     return '<div class="foot rfoot" id="foot"><div class="wrap"><button class="btn ghost fb-edit" data-act="lab">' + ICON.sliders + 'ปรับตัวเลข</button>' + readyBtn() + '</div></div>';
@@ -5718,6 +5726,12 @@ function fmtCompact(n) {
   /* ============================================================ RENDER + การนำทาง (ปุ่มย้อนกลับของมือถือใช้ได้) */
   function render() {
     var v = state.view;
+    /* ย้อนกลับไปหน้าของร้านตัวอย่าง ขณะที่ตัวเลขร้านคุณยังไม่ครบ: ใช้ร้านตัวอย่างเดิม (ตัวเลขที่กรอกไปแล้วยังเก็บในชุดกลาง) */
+    if (state.sampleBak && !state.isSample && !shopOk() && ['dq', 'result', 'lab', 'ask', 'points'].indexOf(v) >= 0 && state.topic) {
+      var bk = state.sampleBak; state.sampleBak = null;
+      state.model = bk.model; state.inp = bk.inp; state.isSample = true; state.sampleKind = bk.sampleKind; state.ds = bk.ds; state.answers = bk.answers || {};
+    }
+    if (state.sampleBak && !state.isSample && shopOk()) state.sampleBak = null;
     /* เรื่องที่ไม่เข้ากับร้านแล้ว (เปลี่ยนรูปแบบร้านหรือที่ขาย หรือย้อนกลับด้วยปุ่มของมือถือ) ไม่ค้างไว้ */
     if (state.topic && ((state.model && !topicOk(state.topic, state.model)) || !whereOk(state.topic, state.where))) {
       state.topic = null;
@@ -5744,6 +5758,12 @@ function fmtCompact(n) {
   function canPop() {
     var h = history.state;
     return !!h && h.i > 0 && h.v === state.view && (h.v !== 'wizard' || h.s === state.step) && (h.v !== 'dq' || h.d === state.dstep);
+  }
+  /* ออกจากหน้าแก้ (แก้ครบแล้ว) กลับไปหน้าที่เปิด ข้ามทุกข้อที่แก้ในรอบนี้ */
+  function leaveEdit(fallback) {
+    var base = state.editBase; state.editBase = null;
+    if (base !== null && history.state && history.state.i > base) { history.go(base - history.state.i); return; }
+    go(fallback, true, true); hrep();
   }
   /* ไปข้อถัดไปในหน้าเดียวกัน (ตัวเลขร้าน / ตัวเลขเรื่องนี้) */
   function goStep(v) { $$('.toast').forEach(function (x) { x.remove(); }); hpush(v); state.view = v; render(); window.scrollTo(0, 0); focusMain(); }
@@ -5773,8 +5793,7 @@ function fmtCompact(n) {
   function refreshWizardLive() {
     var r = $('#rstrip'); if (r) { r.outerHTML = wizReceipt(); runAnim($('#rstrip')); }
     var steps = stepsFor(state.model), st = steps[state.step];
-    var wmk = wMissing(st);
-    $$('.field.need').forEach(function (x) { if (x.getAttribute('data-f') !== wmk) { x.classList.remove('need'); var mm = $('.need-msg', x); if (mm) mm.remove(); } });
+    $$('.field.need').forEach(function (x) { var kx = x.getAttribute('data-f'); if (kx && !wMissing({ f: [kx] })) { x.classList.remove('need'); var mm = $('.need-msg', x); if (mm) mm.remove(); } });
     FIELDS.forEach(function (fd) { if (!fd.show) return; var node = $('.field[data-f="' + fd.k + '"]'); if (node) node.hidden = !fd.show(state.inp, state.model); });
   }
   function refreshDqLive() {
@@ -5786,8 +5805,7 @@ function fmtCompact(n) {
       var wantNext = !dAllValid() && dStepValid(st), pb0 = $('#foot .btn:not(.back)');
       if (pb0 && (pb0.getAttribute('data-act') === 'd-next') !== wantNext) pb0.outerHTML = wantNext ? '<button class="btn" data-act="d-next">ถัดไป' + ICON.next + '</button>' : '<button class="btn" data-act="d-done">เสร็จ</button>';
     }
-    var dmk = dMissing(st);
-    $$('.field.need').forEach(function (x) { if (x.getAttribute('data-df') !== dmk) { x.classList.remove('need'); var mm = $('.need-msg', x); if (mm) mm.remove(); } });
+    $$('.field.need').forEach(function (x) { var kx = x.getAttribute('data-df'); if (kx && !dMissing({ f: [kx] })) { x.classList.remove('need'); var mm = $('.need-msg', x); if (mm) mm.remove(); } });
     Object.keys(DFIELDS).forEach(function (k) {
       var node = $('.field[data-df="' + k + '"]'); if (!node) return;
       node.hidden = !dShown(k, d);
@@ -5819,7 +5837,11 @@ function fmtCompact(n) {
     state.topic = t; state.active = null; state.qidx = 0; state.dediting = false; state.labOrig = null;
     if (!state.ds[t]) state.ds[t] = Object.assign({}, state.isSample && state.sampleKind && SAMPLES[state.sampleKind].m === state.model ? sampleDec(state.sampleKind, t) : DEC_DEFAULT[t]);
     state.shopInFlow = !shopOk();
-    if (!shopOk()) { state.step = 0; state.editing = false; go('wizard'); return; }
+    if (!shopOk()) {
+      var ws = stepsFor(state.model), fw = 0;
+      for (var wi0 = 0; wi0 < ws.length; wi0++) if (!stepValid(ws[wi0])) { fw = wi0; break; }
+      state.step = fw; state.editing = false; go('wizard'); return;
+    }
     if (dAllValid()) go('result');
     else { state.dstep = 0; state.dediting = false; go('dq'); }
   }
@@ -5869,6 +5891,7 @@ function fmtCompact(n) {
       }
       case 'model': {
         var nm = t.getAttribute('data-m');
+        if (state.isSample) state.sampleBak = { model: state.model, inp: state.inp, sampleKind: state.sampleKind, ds: state.ds, answers: state.answers };
         if (state.model === nm && !state.isSample && Object.keys(state.inp).length > 3) { state.step = 0; state.editing = false; go('wizard'); break; }
         chooseModel(nm, false);
         /* มีตัวเลขร้านชุดกลางของร้านแบบนี้อยู่แล้ว (เช่น ออกจากร้านตัวอย่าง หรือกรอกจากเครื่องมืออื่น) ใช้ต่อ ไม่ล้าง */
@@ -5908,8 +5931,7 @@ function fmtCompact(n) {
             go('dq', false); hrep(); window.scrollTo(0, 0); dShowMissing(dsx[fi]); break;
           }
           state.edOrig = null;
-          if (canPop()) { state.editing = false; history.back(); break; }
-          state.editing = false; go(state.editFrom === 'lab' && state.topic ? 'lab' : 'review', true, true); hrep(); break;
+          state.editing = false; leaveEdit(state.editFrom === 'lab' && state.topic ? 'lab' : 'review'); break;
         }
         state.editing = false;
         if (!state.topic) { go('start'); break; }
@@ -5942,15 +5964,15 @@ function fmtCompact(n) {
         if (!dAllValid()) { state.ds[state.topic] = before; go('result', false); toast('ค่านี้อยู่นอกช่วงที่ใส่ได้ ใช้ค่าที่กรอกเดิม'); break; }
         go('result', false); toast('ใช้ค่านี้แล้ว'); break;
       }
-      case 'edit-step': state.editFrom = state.view === 'lab' ? 'lab' : 'review'; state.step = +t.getAttribute('data-i'); state.editing = true; state.edOrig = JSON.parse(JSON.stringify(state.inp)); go('wizard'); break;
-      case 'd-edit': state.dstep = +t.getAttribute('data-i'); state.dediting = true; state.dedOrig = JSON.parse(JSON.stringify(dec())); go('dq'); break;
+      case 'edit-step': state.editBase = hidx; state.editFrom = state.view === 'lab' ? 'lab' : 'review'; state.step = +t.getAttribute('data-i'); state.editing = true; state.edOrig = JSON.parse(JSON.stringify(state.inp)); go('wizard'); break;
+      case 'd-edit': state.editBase = hidx; state.dstep = +t.getAttribute('data-i'); state.dediting = true; state.dedOrig = JSON.parse(JSON.stringify(dec())); go('dq'); break;
       case 'd-next': {
         steps = dStepsFor(state.topic, state.inp, m);
         if (!dStepValid(steps[state.dstep])) { dShowMissing(steps[state.dstep]); break; }
         if (state.dediting) {
           /* แก้คำตอบ: ไปข้อที่ยังขาด (เช่น หลังเปลี่ยนแบบ) */
           var nx = -1; for (var di = 0; di < steps.length; di++) if (!dStepValid(steps[di])) { nx = di; break; }
-          if (nx >= 0) { state.dstep = nx; go('dq', false); hrep(); window.scrollTo(0, 0); focusMain(); }
+          if (nx >= 0) { state.dstep = nx; goStep('dq'); }
           break;
         }
         if (state.dstep < steps.length - 1) { state.dstep++; goStep('dq'); }
@@ -5974,7 +5996,7 @@ function fmtCompact(n) {
           dShowMissing(steps[bad1]); break;
         }
         delete state.wi[state.topic];
-        if (state.dediting) { state.dedOrig = null; state.edOrig = null; if (canPop()) { state.dediting = false; history.back(); } else { state.dediting = false; go('lab', true, true); hrep(); } }
+        if (state.dediting) { state.dedOrig = null; state.edOrig = null; state.dediting = false; leaveEdit('lab'); }
         else go('result');
         break;
       }
@@ -6005,7 +6027,18 @@ function fmtCompact(n) {
       }
       case 'dkind': {
         var kv = t.getAttribute('data-v'), dk0 = dec();
-        if (dk0.kind !== kv) { dk0.kind = kv; delete state.wi[state.topic]; }
+        if (dk0.kind !== kv) {
+          dk0.kind = kv; delete state.wi[state.topic];
+          /* ร้านตัวอย่าง: ช่องของแบบใหม่ใส่ตัวเลขตัวอย่างให้ (ไม่ต้องคิดตัวเลขแทนร้านตัวอย่าง) */
+          if (state.isSample) dStepsFor(state.topic, state.inp, m).forEach(function (st0) {
+            st0.f.forEach(function (k5) {
+              var f5 = dDef(k5);
+              if (!f5 || !(f5.ph || f5.quick) || !dShown(k5, dk0) || num(dGet(dk0, k5)) !== null) return;
+              var pv5 = f5.ph ? f5.ph(state.inp, m) : f5.quick[0][1](state.inp, m);
+              if (typeof pv5 === 'number' && pv5 > 0) dk0[dKey(k5)] = Math.round(pv5 * 100) / 100;
+            });
+          });
+        }
         if (state.topic === 'channel') dk0.chName = kindName('channel', dk0, state.inp, m);
         go('dq', false); var kb = $('[data-act="dkind"][data-v="' + kv + '"]'); if (kb) kb.focus();
         break;
@@ -6050,7 +6083,7 @@ function fmtCompact(n) {
       case 'lab': {
         var lk = t.getAttribute('data-k');
         if (lk && labKeys().indexOf(lk) < 0) lk = null;
-        state.labOrig = JSON.parse(JSON.stringify(dec())); delete state.wi[state.topic]; state.labFrom = state.view === 'points' ? 'points' : 'result';
+        state.labOrig = JSON.parse(JSON.stringify(dec())); state.labFrom = state.view === 'points' ? 'points' : 'result';
         state.active = lk || null; go('lab'); if (lk) scrollToRow(lk);
         break;
       }
@@ -6210,15 +6243,17 @@ function fmtCompact(n) {
     window.addEventListener('popstate', function (ev) {
       var s = ev.state;
       $$('.toast').forEach(function (x) { x.remove(); });
-      cancelEdit();
+      /* ย้อนภายในหน้าแก้ทีละข้อชุดเดียวกัน ไม่ยกเลิก · ออกจากหน้าแก้ตอนยังไม่ครบ = ยกเลิก */
+      var stayEdit = !!s && ((s.e === 'q' && state.dediting) || (s.e === 'w' && state.editing));
+      if (!stayEdit) cancelEdit();
       hidx = s && s.i ? s.i : 0;
       state.view = s && s.v ? s.v : 'start';
       state.topic = s && s.t && TOPICS[s.t] ? s.t : null;
       if (s && s.v === 'wizard' && typeof s.s === 'number') state.step = s.s;
       if (s && s.v === 'dq' && typeof s.d === 'number') state.dstep = s.d;
       state.editing = !!s && s.e === 'w'; state.dediting = !!s && s.e === 'q';
-      if (state.editing) state.edOrig = JSON.parse(JSON.stringify(state.inp));
-      if (state.dediting && state.topic) state.dedOrig = JSON.parse(JSON.stringify(dec()));
+      if (state.editing && !state.edOrig) state.edOrig = JSON.parse(JSON.stringify(state.inp));
+      if (state.dediting && state.topic && !state.dedOrig) state.dedOrig = JSON.parse(JSON.stringify(dec()));
       if (state.view !== 'lab') state.labOrig = null;
       render(); window.scrollTo(0, 0); focusMain();
     });
