@@ -73,7 +73,7 @@ async function check(page, label) {
           }
         });
         bad += await check(page, label + ' lab');
-        await page.click('.bar [data-act="result"]');
+        await page.click('#foot [data-act="result"]');
         if (!(await page.$('[data-act="ask"]'))) { bad++; console.log('  PROBLEM', label, 'after lab: view', await page.evaluate(() => window.__lab3.state.view + ' ' + JSON.stringify(window.__lab3.state.ds[window.__lab3.state.topic]))); n++; continue; }
         await page.click('[data-act="ask"]');
         let k = 0;

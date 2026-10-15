@@ -117,7 +117,7 @@ async function check(page, label) {
     const sh3 = await page.evaluate(() => JSON.parse(sessionStorage.getItem('lab-shop') || 'null'));
     if (!sh3 || sh3.inp.price !== 65) fail(tag, 'tool3 edit not shared', JSON.stringify(sh3 && sh3.inp.price));
     /* ร้านตัวอย่างในตัวที่ 3 ต้องไม่ทับตัวเลขร้านจริง */
-    await page.click('.bar [data-act="result"]'); await page.waitForTimeout(150);
+    await page.click('#foot [data-act="result"]'); await page.waitForTimeout(150);
     await page.click('.bar [data-act="to-start"]'); await page.waitForTimeout(150);
     await page.click('.bar a.ib[href="index.html"]'); await ready();
     await page.click('a.tcard[href="check-numbers.html"]'); await ready();
@@ -135,9 +135,9 @@ async function check(page, label) {
     await page.click('[data-act="topic"][data-t="place"]'); await page.waitForTimeout(200);
     await page.click('.bar [data-act="d-prev"]'); await page.waitForTimeout(150);
     await page.click('[data-act="where"][data-v="online"]'); await page.waitForTimeout(150);
-    await page.goBack(); await page.waitForTimeout(300);
+    await page.goForward(); await page.waitForTimeout(300);
     const st5 = await page.evaluate(() => ({ v: window.__lab3.state.view, t: window.__lab3.state.topic, w: window.__lab3.state.where }));
-    if (st5.t === 'place' && st5.w === 'online') fail(tag, 'phone back opened a topic hidden for online sellers', JSON.stringify(st5));
+    if (st5.t === 'place' && st5.w === 'online') fail(tag, 'phone forward opened a topic hidden for online sellers', JSON.stringify(st5));
     if (errors.length) fail(tag, 'errors', errors.slice(0, 3).join(' | '));
     await ctx.close();
   }

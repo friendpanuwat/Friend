@@ -58,7 +58,9 @@
     view: 'start', topic: null, model: null, inp: {}, isSample: false, sampleKind: null, where: null, step: 0, editing: false, dstep: 0, dediting: false,
     ds: {}, wi: {}, dsign: {}, labOrig: null, active: null, answers: {}, qidx: 0, feeHelp: false, fh: { share: '', rate: '' },
     /* shopInFlow = ตัวเลขร้านถูกกรอกระหว่างทางของเรื่องนี้ (ย้อนจากคำถามข้อแรกจึงกลับไปตัวเลขร้าน) · editFrom = หน้าที่เปิดแก้ตัวเลขร้าน (lab | review) · rtab = แท็บดูละเอียดบนหน้าผล */
-    shopInFlow: false, editFrom: null, rtab: 'cash'
+    shopInFlow: false, editFrom: null, rtab: 'cash',
+    /* edOrig / dedOrig = ค่าก่อนเปิดหน้าแก้ทีละข้อ (ย้อนกลับตอนยังกรอกไม่ครบ = ยกเลิกการแก้) · labFrom = หน้าที่เปิดหน้าปรับตัวเลข */
+    edOrig: null, dedOrig: null, labFrom: 'result'
   };
   var app;
 
@@ -92,7 +94,7 @@
   function snapshot() {
     return { view: state.view, topic: state.topic, model: state.model, inp: state.inp, isSample: state.isSample, sampleKind: state.sampleKind, where: state.where, step: state.step, editing: state.editing,
       dstep: state.dstep, dediting: state.dediting, ds: state.ds, wi: state.wi, dsign: state.dsign, active: state.active, answers: state.answers, qidx: state.qidx,
-      shopInFlow: state.shopInFlow, editFrom: state.editFrom, rtab: state.rtab };
+      shopInFlow: state.shopInFlow, editFrom: state.editFrom, rtab: state.rtab, edOrig: state.edOrig, dedOrig: state.dedOrig, labFrom: state.labFrom };
   }
   function save() {
     try { sessionStorage.setItem('lab3', JSON.stringify(snapshot())); } catch (e) { /* ignore */ }
@@ -178,6 +180,7 @@
     return '<span class="' + (v > 0.5 ? 'up' : v < -0.5 ? 'down' : '') + '">' + sr + txt + '</span>';
   }
   function bar(left, title, sub, right) {
+    if (state.isSample && state.view !== 'start') sub = (sub ? sub + ' · ' : '') + 'ร้านตัวอย่าง';
     return '<header class="bar"><div class="wrap">' + (left || '<span class="spacer44"></span>') +
       '<div class="ttl">' + (sub ? '<small>' + esc(sub) + '</small>' : '') + esc(title) + '</div>' +
       (right || '') + '<button class="ib" data-act="theme" aria-label="สลับโหมดมืดและสว่าง">' + (themeNow() === 'dark' ? ICON.sun : ICON.moon) + '</button></div></header>';
@@ -230,7 +233,7 @@
       var Cn = dConds(R, inp, m, t, d), row = function (id) { return Cn.filter(function (c) { return c.id === id; })[0]; };
       var need = row('need'), pay = row('pay'), lab = '', v = null, u = '';
       if ((t === 'place' || t === 'equip') && pay && pay.value !== null) { lab = 'คืนทุนใน'; v = Math.ceil(pay.value - 1e-9); u = 'เดือน'; }
-      else if (t === 'branch' && R.need > 0.5) { lab = 'ต้องหาเงินเพิ่ม'; v = Math.round(R.need / 1000) * 1000; u = 'บาท'; }
+      else if (t === 'branch' && R.need > 0.5) { lab = 'เงินจะขาดมือมากสุด'; v = Math.round(R.need / 1000) * 1000; u = 'บาท'; }
       else if (t === 'channel') { var cu = channelUnit(inp, m, d); if (cu) { lab = 'เหลือเงิน' + U(inp, m) + 'ละ'; v = cu.ch; u = 'บาท (ขายเอง ' + fmtN(cu.own, 1) + ')'; } }
       else if (t === 'supplier' && need && need.value !== null && dPivot(inp, m, t, d).now > 0) {
         var Ps = dPivot(inp, m, t, d), dr = (1 - need.value / Ps.now) * 100;
@@ -279,20 +282,17 @@
       return '<button type="button" data-act="where" data-v="' + w[0] + '" aria-pressed="' + (state.where === w[0]) + '">' + w[1] + '</button>';
     }).join('') + '</div></div>';
   }
-  /* แถบ 3 ขั้นบนหน้าเริ่ม: ให้รู้ก่อนว่าจะต้องทำอะไรบ้าง */
+  /* หน้าเริ่ม: แถบขั้นตอนชุดเดียวกับระหว่างทาง ให้รู้ก่อนว่าจะต้องทำอะไรบ้าง */
   function howHtml() {
     var has = !!state.model && !state.isSample && shopOk();
-    var S = [['เลือกเรื่อง', 'ที่กำลังคิดอยู่'], ['ใส่ตัวเลขร้าน', has ? 'มีแล้ว ใช้ของเดิม' : 'ครั้งเดียว ~3 นาที'], ['ดูผล', 'ทำ เทียบกับ ไม่ทำ']];
-    return '<ol class="how3" aria-label="วิธีใช้">' + S.map(function (s, i) {
-      return '<li class="' + (i === 1 && has ? 'done' : '') + '"><i aria-hidden="true">' + (i === 1 && has ? ICON.ok : i + 1) + '</i><span><b>' + s[0] + '</b><small>' + s[1] + '</small></span></li>';
-    }).join('') + '</ol>';
+    return '<div class="how3">' + flowBar(0, 0.5, has) + '<p>' + (has ? 'มีตัวเลขร้านคุณแล้ว เลือกเรื่องแล้วตอบแค่ตัวเลขของเรื่องนั้น' : 'ใส่ตัวเลขร้านครั้งเดียว ประมาณ 3 นาที ใช้ได้กับทุกเรื่อง') + '</p></div>';
   }
   function shopLine() {
     if (state.model) {
       var S = C(state.inp, state.model), ok = shopOk() && S.ok;
       return '<div class="shopline' + (state.isSample ? ' smp' : '') + '"><span class="sl-t"><small>' + (state.isSample ? 'กำลังใช้ร้านตัวอย่าง' : 'ตัวเลขร้านคุณ') + '</small><b>' + (state.isSample ? esc(sampleName()) : esc(MODELS[state.model].tile)) + '</b>' +
         (ok ? '<span>' + (S.profit < 0 ? 'ขาดทุน ' : 'กำไร ') + fmtN(Math.abs(S.profit)) + ' บาท/เดือน</span>' : '<span>ยังกรอกไม่ครบ</span>') + '</span>' +
-        '<button class="btn ghost sm" data-act="shop-edit">' + (state.isSample ? 'ใส่ร้านคุณ' : 'แก้') + '</button></div>' +
+        '<button class="btn ghost sm" data-act="shop-edit">' + (state.isSample ? 'ใส่ตัวเลขร้านคุณ' : 'ปรับ') + '</button></div>' +
         (state.isSample ? '<p class="sl-n">แตะเรื่องไหนก็ได้ จะเห็นผลกับร้านตัวอย่างทันที</p>' : '');
     }
     return '<div class="samp3"><span>ยังไม่พร้อมกรอก?</span><button class="lnk" data-act="sample">ลองกับ' + esc(SAMPLES[sampleKindFor(null)].short) + 'ตัวอย่างก่อน</button></div>';
@@ -300,7 +300,7 @@
   function viewStart() {
     var out = bar(hubLink(), 'เช็กก่อนตัดสินใจเรื่องใหญ่', 'Business Lab') + '<main class="screen"><div class="wrap">' +
       '<section class="st3"><h1>กำลังคิดจะ…</h1><p>เทียบ “ทำ” กับ “ไม่ทำ” ด้วยตัวเลขร้านคุณ ดูว่าต้องขายเท่าไรถึงจะคุ้ม เงินพอไหม และคืนทุนเมื่อไร ก่อนเสียเงินจริง</p></section>';
-    if (!state.model || state.isSample) out += howHtml();
+    out += howHtml();
     out += whereHtml();
     if (state.where) out += shopLine() + '<h2 class="sec3 pick-h">เลือกเรื่องที่คิดอยู่</h2>' + topicRows();
     out += '<p class="fine">ไม่ต้องสมัคร ตัวเลขอยู่ในเครื่องคุณเท่านั้น และหายไปเมื่อปิดหน้านี้ · คำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua</p>';
@@ -311,10 +311,10 @@
   var FLOW = ['เลือกเรื่อง', 'ตัวเลขร้าน', 'ตัวเลขเรื่องนี้', 'ผล'];
   var flowPrev = [1, 0, 0, 0];
   /* แถบเติมจากค่าของหน้าก่อน ไปถึงค่าของหน้านี้ (runAnim เป็นคนเลื่อน) */
-  function flowBar(stage, frac) {
-    var tgt = FLOW.map(function (l, i) { return i < stage ? 1 : i === stage ? Math.max(0.06, Math.min(1, frac || 0)) : 0; });
+  function flowBar(stage, frac, shopDone) {
+    var tgt = FLOW.map(function (l, i) { return i < stage || (i === 1 && shopDone) ? 1 : i === stage ? Math.max(0.06, Math.min(1, frac || 0)) : 0; });
     var out = '<nav class="flow3" aria-label="ขั้นตอน ขั้นที่ ' + (stage + 1) + ' จาก 4 ' + FLOW[stage] + '"><ol>' + FLOW.map(function (l, i) {
-      return '<li class="' + (i < stage ? 'done' : i === stage ? 'now' : '') + '"' + (i === stage ? ' aria-current="step"' : '') + '><i aria-hidden="true" style="--f:' + (reduced ? tgt[i] : flowPrev[i]).toFixed(3) + '" data-f="' + tgt[i].toFixed(3) + '"></i><span>' + l + '</span></li>';
+      return '<li class="' + (i < stage || (i === 1 && shopDone) ? 'done' : i === stage ? 'now' : '') + '"' + (i === stage ? ' aria-current="step"' : '') + '><i aria-hidden="true" style="--f:' + (reduced ? tgt[i] : flowPrev[i]).toFixed(3) + '" data-f="' + tgt[i].toFixed(3) + '"></i><span>' + l + '</span></li>';
     }).join('') + '</ol></nav>';
     flowPrev = tgt;
     return out;
@@ -327,7 +327,7 @@
       var ok = !t || topicOk(t, k);
       return '<button class="tile" data-act="model" data-m="' + k + '"' + (ok ? '' : ' disabled aria-disabled="true"') + '><span class="ic">' + MICON[k] + '</span><span class="t">' + MODELS[k].tile + '</span><span class="ex">' + (ok ? MODELS[k].short : 'ยังไม่มีเรื่องนี้') + '</span></button>';
     }).join('');
-    return bar(backBtn('to-start', 'กลับไปเลือกเรื่อง'), t ? TOPICS[t].title : 'ตัวเลขร้าน', t ? 'ตัวเลขร้าน' : '') + '<main class="screen"><div class="wrap">' + (t ? flowBar(1, 0) : '') +
+    return bar(backBtn('back', 'ย้อนกลับ'), t ? TOPICS[t].title : 'ตัวเลขร้าน', t ? 'ตัวเลขร้าน' : '') + '<main class="screen"><div class="wrap">' + (t ? flowBar(1, 0) : '') +
       '<div class="q-head"><h1>ร้านคุณได้เงินจากอะไรเป็นหลัก</h1><p>' + (t ? 'ก่อนดูเรื่อง' + esc(TOPICS[t].title) + ' ขอตัวเลขร้านคุณตอนนี้ไว้เทียบ · ' : '') + 'กรอกครั้งเดียว ใช้ได้กับทุกเรื่อง ประมาณ 3 นาที</p></div>' +
       '<div class="tiles">' + tiles + '</div>' +
       '<div class="alt"><span>ยังไม่อยากกรอก?</span><button class="lnk" data-act="sample">ลองกับ' + esc(SAMPLES[sampleKindFor(t)].short) + 'ตัวอย่างก่อน</button></div></div></main>';
@@ -483,13 +483,14 @@
     var isLastReq = state.step === cashIdx, isAdv = !!st.adv;
     var allOk = steps.every(stepValid);
     var primary;
-    if (state.editing) primary = '<button class="btn" data-act="shop-done"' + (allOk ? '' : ' disabled') + '>เสร็จ</button>';
-    else if (isLastReq || isAdv) primary = '<button class="btn" data-act="shop-done"' + (allOk ? '' : ' disabled') + '>' + (state.topic ? 'ต่อไป: ตัวเลขเรื่องนี้' : 'เสร็จ') + ICON.next + '</button>';
-    else primary = '<button class="btn" data-act="next"' + (stepValid(st) ? '' : ' disabled') + '>ถัดไป' + ICON.next + '</button>';
+    if (state.editing) primary = '<button class="btn" data-act="shop-done">เสร็จ</button>';
+    else if (isLastReq || isAdv) primary = '<button class="btn" data-act="shop-done">' + (state.topic ? 'ต่อไป: ตัวเลขเรื่องนี้' : 'เสร็จ') + ICON.next + '</button>';
+    else primary = '<button class="btn" data-act="next">ถัดไป' + ICON.next + '</button>';
     var foot = '<div class="foot" id="foot"><div class="wrap"><button class="btn ghost back" data-act="prev" aria-label="ย้อนกลับ">' + ICON.back + '</button>' + primary + '</div></div>';
     var more = isLastReq && !state.editing ? '<div class="skip"><button class="lnk" data-act="next">เพิ่มรายละเอียดให้แม่นขึ้น (ไม่ใส่ก็ได้)</button></div>' : '';
-    var sub = state.editing ? 'แก้ตัวเลขร้าน' : 'ตัวเลขร้าน · ' + (st.adv ? 'ไม่ใส่ก็ได้' : 'ข้อ ' + (state.step + 1) + ' จาก ' + nReq);
-    return bar(backBtn('prev'), state.topic && !state.editing ? TOPICS[state.topic].title : MODELS[m].tile, sub) +
+    var tot = nReq + (state.topic && topicOk(state.topic, m) ? dStepsFor(state.topic, state.inp, m).length : 0);
+    var sub = state.editing ? 'ปรับตัวเลข › ตัวเลขร้าน' : st.adv ? 'ตัวเลขร้าน · ไม่ใส่ก็ได้' : 'ข้อ ' + (state.step + 1) + ' จาก ' + tot;
+    return bar(backBtn('prev'), state.topic ? TOPICS[state.topic].title : MODELS[m].tile, sub) +
       '<main class="screen"><div class="wrap">' + prog + wizReceipt() +
       '<div class="q-head"><h1>' + esc(st.q) + '</h1>' + (st.p ? '<p>' + esc(st.p) + '</p>' : '') + '</div>' + body + more + '</div></main>' + foot;
   }
@@ -520,6 +521,46 @@
       if (f.t === 'count') return num(dGet(d, k)) >= (f.min || 1);
       return true;
     });
+  }
+  /* ช่องแรกที่ยังขาด แล้วพาไปตรงนั้น พร้อมบอกว่าขาดอะไร (แทนปุ่มสีเทาที่ไม่บอกเหตุผล) */
+  function dMissing(st, d) {
+    d = d || dec();
+    return st.f.filter(function (k) {
+      if (!dShown(k, d)) return false;
+      if (dErr(k, d)) return true;
+      var f = dDef(k);
+      if (f.t === 'kind') return !kindsOf(state.topic, state.inp, state.model).some(function (o) { return o[0] === d.kind; });
+      if (f.req) return num(dGet(d, k)) === null;
+      if (f.t === 'count') return !(num(dGet(d, k)) >= (f.min || 1));
+      return false;
+    })[0] || null;
+  }
+  function wMissing(st) {
+    return st.f.filter(function (k) { var f = fieldDef(k); return f && f.req && (!f.show || f.show(state.inp, state.model)) && num(state.inp[k]) === null; })[0] || null;
+  }
+  /* บอกในช่องนั้นเลย (ไม่ใช้ป้ายลอยที่บังช่อง) */
+  function showMissing(sel, label, err) {
+    var node = $(sel);
+    if (!node) { toast(err || ('ยังขาด “' + label + '”')); return; }
+    $$('.need-msg').forEach(function (x) { if (!node.contains(x)) x.remove(); });
+    if (!err && !$('.need-msg', node)) {
+      var lab = node.firstElementChild, msg = document.createElement('p');
+      msg.className = 'need-msg'; msg.setAttribute('role', 'alert'); msg.textContent = 'ยังไม่ได้ตอบข้อนี้';
+      if (lab) lab.insertAdjacentElement('afterend', msg); else node.insertBefore(msg, node.firstChild);
+    }
+    var y = node.getBoundingClientRect().top + window.scrollY - 140;
+    window.scrollTo({ top: Math.max(0, y), behavior: reduced ? 'auto' : 'smooth' });
+    node.classList.remove('need'); node.getBoundingClientRect(); node.classList.add('need');
+    var c = $('input, button', node); if (c) { try { c.focus({ preventScroll: true }); } catch (e) { c.focus(); } }
+  }
+  function dShowMissing(st) {
+    var k = dMissing(st); if (!k) return;
+    var f = dDef(k), lab = f.t === 'kind' ? (KIND_Q[state.topic] || 'แบบ') : f.label(state.inp, state.model, dec());
+    showMissing('.field[data-df="' + k + '"]', lab, dErr(k));
+  }
+  function wShowMissing(st) {
+    var k = wMissing(st); if (!k) return;
+    showMissing('.field[data-f="' + k + '"]', fieldDef(k).label(state.inp, state.model));
   }
   function dAllValid() { var s = dStepsFor(state.topic, state.inp, state.model); return s.every(function (x) { return dStepValid(x); }); }
   function dPh(k) {
@@ -601,11 +642,15 @@
     var st = steps[state.dstep];
     var prog = state.dediting ? '' : flowBar(2, (state.dstep + 1) / (steps.length + 1));
     var last = state.dstep === steps.length - 1;
-    var primary = state.dediting ? '<button class="btn" data-act="d-done"' + (dAllValid() ? '' : ' disabled') + '>เสร็จ</button>'
-      : last ? '<button class="btn" data-act="d-done"' + (dAllValid() ? '' : ' disabled') + '>ดูผล' + ICON.next + '</button>'
-        : '<button class="btn" data-act="d-next"' + (dStepValid(st) ? '' : ' disabled') + '>ถัดไป' + ICON.next + '</button>';
+    /* แก้คำตอบ: ครบแล้ว = เสร็จ · เปลี่ยนแบบแล้วยังมีข้ออื่นที่ต้องตอบ = ถัดไป (ไปข้อที่ยังขาด) */
+    var edNext = state.dediting && !dAllValid() && dStepValid(st);
+    var primary = edNext ? '<button class="btn" data-act="d-next">ถัดไป' + ICON.next + '</button>'
+      : state.dediting ? '<button class="btn" data-act="d-done">เสร็จ</button>'
+      : last ? '<button class="btn" data-act="d-done">ดูผล' + ICON.next + '</button>'
+        : '<button class="btn" data-act="d-next">ถัดไป' + ICON.next + '</button>';
+    var off = state.shopInFlow && !state.isSample ? stepsFor(state.model).filter(function (x) { return !x.adv; }).length : 0;
     var foot = '<div class="foot" id="foot"><div class="wrap"><button class="btn ghost back" data-act="d-prev" aria-label="ย้อนกลับ">' + ICON.back + '</button>' + primary + '</div></div>';
-    return bar(backBtn('d-prev'), TOPICS[t].title, state.dediting ? 'แก้คำตอบ' : 'ตัวเลขเรื่องนี้ · ข้อ ' + (state.dstep + 1) + ' จาก ' + steps.length) +
+    return bar(backBtn('d-prev'), TOPICS[t].title, state.dediting ? 'ปรับตัวเลข › คำตอบ' : 'ข้อ ' + (off + state.dstep + 1) + ' จาก ' + (off + steps.length)) +
       '<main class="screen"><div class="wrap">' + prog + '<section class="dstrip" id="dstrip" aria-label="ไม่ทำ เทียบกับ ทำ">' + dStrip() + '</section>' +
       '<div class="q-head"><h1>' + esc(st.q) + '</h1>' + (st.p ? '<p>' + esc(st.p) + '</p>' : '') + '</div>' +
       '<div class="qfields">' + st.f.map(dFieldHtml).join('') + '</div></div></main>' + foot;
@@ -658,7 +703,7 @@
   }
   /* แก้ตัวเลขร้าน (เปิดจากหน้าเริ่ม ยังไม่ได้อยู่ในเรื่องไหน) */
   function viewReview() {
-    return bar(backBtn('to-start', 'กลับไปหน้าเริ่ม'), 'ตัวเลขร้าน', 'แก้ตัวเลข') + '<main class="screen"><div class="wrap">' +
+    return bar(backBtn('back', 'ย้อนกลับ'), 'ตัวเลขร้าน', 'ปรับตัวเลข') + '<main class="screen"><div class="wrap">' +
       '<div class="q-head"><h1>ตัวเลขร้านคุณ</h1><p>ใช้กับทุกเรื่อง แตะข้อที่อยากแก้</p></div>' +
       '<div class="sec-h"><h2>' + esc(MODELS[state.model].tile) + '</h2></div>' + shopRows() + '</div></main>';
   }
@@ -667,7 +712,7 @@
   function pivotWord(P, v) {
     if (P.verb) return P.verb + ' ' + nf(v, P.unit);
     if (P.T === 'branch') return 'สาขามี' + salesWord(state.model) + ' ' + fmtN(v) + '% ของร้านเดิม';
-    if (P.T === 'channel') return P.word + (/ได้$/.test(P.word) ? ' ' : 'ได้ ') + nf(v, P.unit);
+    if (P.T === 'channel') return P.word + (/ได้$/.test(P.word) ? ' ' : /[A-Za-z0-9)]$/.test(P.word) ? ' ได้ ' : 'ได้ ') + nf(v, P.unit);
     return P.word + ' ' + nf(v, P.unit);
   }
   function heroHtml(R, P, v) {
@@ -901,12 +946,11 @@
   function nextCard() {
     var L = askList(), n = askDone() ? pointsList().length : null;
     var lead = n === null ? 'ตอบ ' + L.length + ' ข้อ แค่ ใช่ / ไม่ใช่ / ไม่แน่ใจ แล้วดูว่าควรเช็กจุดไหนก่อนตัดสินใจ' : n ? 'ตอบครบแล้ว เจอ ' + n + ' จุดที่ควรเช็ก' : 'ตอบครบแล้ว ยังไม่เจอจุดที่ควรเช็ก';
-    return '<section class="next3"><h2 class="nx-h">ขั้นต่อไป</h2><div class="nx-ready"><b>เช็กความพร้อม</b><p>' + lead + '</p>' + readyBtn().replace('class="btn"', 'class="btn block"') + '</div>' +
+    return '<section class="next3"><h2 class="nx-h">ขั้นต่อไป</h2><p class="nx-lead"><b>เช็กความพร้อม</b> (ปุ่มด้านล่าง) · ' + lead + '</p>' +
       toolsHtml(TOPIC_TOOLS[state.topic], 'เครื่องมือที่ช่วยหาแนวทางเรื่องนี้') + '</section>';
   }
   function planCard() {
-    return '<section class="plan3"><div class="p3-l"><span class="p3-tag">เร็ว ๆ นี้</span><h2>อยากเห็นเรื่องนี้ในแผนทั้งร้าน</h2><p>แผนธุรกิจของ Jarua จะใช้ตัวเลขชุดนี้วางทางทั้งร้าน ทั้งการตลาด ทีม และเงิน 12 เดือน</p></div>' +
-      '<button class="btn ghost block" data-act="plan">ดูแผนธุรกิจ</button></section>';
+    return '<button class="plan3" data-act="plan"><span class="p3-l"><span class="p3-h"><b>แผนธุรกิจ</b><span class="p3-tag">เร็ว ๆ นี้</span></span><span class="p3-p">ใช้ตัวเลขชุดนี้วางทางทั้งร้าน ทั้งการตลาด ทีม และเงิน 12 เดือน</span></span>' + ICON.chev + '</button>';
   }
   /* ดูละเอียด: แท็บ เงินในมือ 12 เดือน | กำไรเปลี่ยนเพราะอะไร */
   var RTABS = [['cash', 'เงินในมือ 12 เดือน'], ['wf', 'กำไรเปลี่ยนเพราะอะไร']];
@@ -923,7 +967,7 @@
   function warnsHtml(R) { return R.warn.length ? '<div class="warns" role="note">' + R.warn.map(function (w) { return '<p>' + ICON.info + '<span>' + esc(w) + '</span></p>'; }).join('') + '</div>' : ''; }
   function aboutItems(R) {
     return '<li>ทุกตัวเลขต่อเดือนคำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua และเทียบกับร้านคุณตอนนี้ที่ใช้สูตรเดียวกัน</li>' +
-      '<li>ทุกตัวเลขมาจากที่คุณกรอก ไม่ได้เทียบกับร้านอื่น และไม่ได้ตัดสินใจแทนคุณ</li><li>กำไรเป็นกำไรก่อนหักภาษี</li>' +
+      (state.isSample ? '<li>ตัวเลขร้านเป็นของ' + esc(sampleName()) + ' ไม่ใช่ร้านคุณ · กด “ใส่ตัวเลขร้านคุณ” เพื่อดูกับร้านคุณเอง</li>' : '<li>ทุกตัวเลขมาจากที่คุณกรอก ไม่ได้เทียบกับร้านอื่น และไม่ได้ตัดสินใจแทนคุณ</li>') + '<li>กำไรเป็นกำไรก่อนหักภาษี</li>' +
       (R.one > 0 ? '<li>เงินก้อน ' + fmtN(R.one) + ' บาท จ่ายด้วยเงินสดตอนเริ่ม · คืนทุนนับจากเงินที่ได้เพิ่มจริงในแต่ละเดือน เทียบกับไม่ทำ (หลังเดือนที่ 12 ใช้ตัวเลขปีที่ 2 และ 3)</li>' : '') +
       (R.k > 0 ? '<li>' + salesWord(state.model) + 'ที่คาด ค่อย ๆ ขึ้นเท่ากันทุกเดือน และถึงที่คาดในเดือนที่ ' + (R.k + 1) + '</li>' : '') +
       (Math.abs(R.wc) >= 1 ? '<li>เงินในมือหักเงินที่ต้องจมเพิ่มกับลูกค้าที่ยังไม่จ่ายและของในสต็อก (หรือบวกเงินที่ได้คืน) ในเดือนที่ยอดเปลี่ยน</li>' : '') +
@@ -941,6 +985,13 @@
     out += '<details class="about"><summary>ตัวเลขชุดนี้คิดอย่างไร' + ICON.down + '</summary><ul id="aboutul">' + aboutItems(R) + '</ul></details>';
     return out;
   }
+  /* กำลังลองค่าอื่นบนแถบลาก: บอกชัดว่าเป็นค่าที่ลอง ไม่ใช่ที่กรอก · ใช้ค่านี้ / กลับค่าที่กรอก */
+  function tryHtml(P) {
+    var w = wiVal();
+    if (w === null || !(P.have > 0 || P.showHave) || Math.abs(w - P.have) < 1e-6) return '';
+    return '<div class="try-in"><span class="try-t"><small>กำลังลองดู ยังไม่ใช่ตัวเลขที่คุณกรอก</small><b>' + tw(pivotWord(P, w)) + '</b><span>ที่คุณกรอก ' + esc(nf(P.have, P.unit)) + '</span></span>' +
+      '<span class="try-b"><button class="btn ghost sm" data-act="wi-reset">กลับค่าที่กรอก</button><button class="btn sm" data-act="wi-use">ใช้ค่านี้</button></span></div>';
+  }
   function resultFoot() {
     return '<div class="foot rfoot" id="foot"><div class="wrap"><button class="btn ghost fb-edit" data-act="lab">' + ICON.sliders + 'ปรับตัวเลข</button>' + readyBtn() + '</div></div>';
   }
@@ -952,6 +1003,7 @@
     var P = piv(), v = wiVal() !== null ? wiVal() : P.have;
     var out = head + '<main class="screen res3"><div class="wrap">';
     if (state.isSample) out += '<div class="banner"><span>นี่คือ' + esc(sampleName()) + '</span><button class="lnk" data-act="to-shop">ใส่ตัวเลขร้านคุณ</button></div>';
+    out += '<div class="try3" id="try3" aria-live="polite">' + tryHtml(P) + '</div>';
     out += '<section class="hero3" id="hero">' + heroHtml(R, P, (P.have > 0 || wiVal() !== null || P.showHave) ? v : null) + '</section>';
     out += '<section class="lanes" id="lanes" aria-label="เทียบ ไม่ทำ กับ ทำ">' + lanesHtml(R) + '</section>';
     out += pivotCard(R, P);
@@ -968,6 +1020,7 @@
       if (!R.ok) return;
       var main = $('main.res3'); if (main) main.classList.add('live');
       var h = $('#hero'); if (h) { h.innerHTML = heroHtml(R, P, v); runAnim(h); }
+      var tb = $('#try3'); if (tb) { var th0 = tryHtml(P); if (tb.innerHTML !== th0) tb.innerHTML = th0; }
       var l = $('#lanes'); if (l) l.innerHTML = lanesHtml(R);
       var pr = $('#pvread'); if (pr) { pr.innerHTML = pvRead(R, P, v); announce([].map.call(pr.children, function (c) { return c.textContent; }).join(' · ')); }
       [['#warns', warnsHtml(R)], ['#cklist', R.conds.map(checkHtml).join('')], ['#detp', detPanel(R)], ['#aboutul', aboutItems(R)]].forEach(function (x) {
@@ -1165,13 +1218,14 @@
   /* หน้าปรับตัวเลข: ที่เดียวสำหรับแก้ทุกตัวเลข — ตัวเลขของเรื่องนี้ (เลื่อน/พิมพ์ ใช้ทันที) + คำตอบอื่น + ตัวเลขร้าน */
   function viewLab() {
     var right = labChanged() ? '<button class="tb" data-act="lab-undo">' + ICON.undo + 'คืนค่าเดิม</button>' : '';
-    return bar('<button class="tb" data-act="result" aria-label="กลับไปดูผล">' + ICON.back + 'ผล</button>', 'ปรับตัวเลข', TOPICS[state.topic].title, right) +
+    var fromPts = state.labFrom === 'points';
+    return bar('<button class="tb" data-act="lab-back" aria-label="' + (fromPts ? 'กลับไปจุดที่ควรเช็ก' : 'กลับไปดูผล') + '">' + ICON.back + (fromPts ? 'กลับ' : 'ผล') + '</button>', 'ปรับตัวเลข', TOPICS[state.topic].title, right) +
       '<main class="screen"><h1 class="sr">ปรับตัวเลข ' + esc(TOPICS[state.topic].title) + '</h1><div class="lab-top"><div class="wrap" id="labp">' + labPanel() + '</div></div><div class="wrap">' +
-      (state.isSample ? '<div class="banner lab-bn"><span>กำลังใช้ตัวเลข' + esc(sampleName()) + '</span><button class="lnk" data-act="to-shop">ใส่ร้านคุณ</button></div>' : '') +
+      (state.isSample ? '<div class="banner lab-bn"><span>กำลังใช้ตัวเลข' + esc(sampleName()) + '</span><button class="lnk" data-act="to-shop">ใส่ตัวเลขร้านคุณ</button></div>' : '') +
       '<div class="sec-h"><h2>ตัวเลขของเรื่องนี้</h2></div><p class="lab-note">เลื่อนหรือพิมพ์ ผลด้านบนเปลี่ยนทันที</p>' +
       '<div class="lgroup"><div class="lrows">' + labKeys().map(lrowHtml).join('') + '</div></div>' + otherAnswerRows() +
       (state.isSample ? '' : '<div class="sec-h"><h2>ตัวเลขร้าน</h2><span class="aside">' + esc(MODELS[state.model].tile) + '</span></div>' + shopRows()) +
-      '</div></main>';
+      '</div></main><div class="foot" id="foot"><div class="wrap"><button class="btn" data-act="result">ดูผล' + ICON.next + '</button></div></div>';
   }
   var labRaf = 0;
   function labUpdate(k, fromSlider) {
@@ -1234,10 +1288,28 @@
     document.documentElement.style.setProperty('--foot-h', (foot ? foot.offsetHeight : 0) + 'px');
     save();
   }
-  function hpush(v) { try { history.pushState({ v: v, t: state.topic }, ''); } catch (e) { /* ignore */ } }
+  /* ประวัติของหน้า: ทุกข้อคำถามเป็น 1 ขั้นย้อนกลับ · i = ลำดับในหน้านี้ (ย้อนด้วย history.back() ได้เมื่อ i > 0) */
+  var hidx = 0;
+  function hstate(v) { return { v: v, t: state.topic, s: state.step, d: state.dstep, e: state.editing ? 'w' : state.dediting ? 'q' : '', i: hidx }; }
+  function hpush(v) { hidx++; try { history.pushState(hstate(v), ''); } catch (e) { /* ignore */ } }
+  function hrep() { try { history.replaceState(hstate(state.view), ''); } catch (e) { /* ignore */ } }
+  /* ปุ่มย้อนกลับในแอป = ปุ่มย้อนกลับของมือถือ เมื่อประวัติตรงกับหน้าที่เห็นอยู่ */
+  function canPop() {
+    var h = history.state;
+    return !!h && h.i > 0 && h.v === state.view && (h.v !== 'wizard' || h.s === state.step) && (h.v !== 'dq' || h.d === state.dstep);
+  }
+  /* ไปข้อถัดไปในหน้าเดียวกัน (ตัวเลขร้าน / ตัวเลขเรื่องนี้) */
+  function goStep(v) { $$('.toast').forEach(function (x) { x.remove(); }); hpush(v); state.view = v; render(); window.scrollTo(0, 0); focusMain(); }
+  /* ย้อนกลับจากหน้าแก้ทีละข้อตอนยังกรอกไม่ครบ = ยกเลิกการแก้นั้น */
+  function cancelEdit() {
+    if (state.dediting && state.dedOrig && state.topic && !dAllValid()) { state.ds[state.topic] = state.dedOrig; toast('ยกเลิกคำตอบที่ยังไม่ครบ ใช้คำตอบเดิม'); }
+    if (state.editing && state.edOrig && state.model && !stepsFor(state.model).every(stepValid)) { state.inp = state.edOrig; toast('ยกเลิกตัวเลขที่ยังไม่ครบ ใช้ตัวเลขเดิม'); }
+    state.dedOrig = null; state.edOrig = null;
+  }
   /* noPush: หน้าแก้ทีละข้อ และการกลับจากหน้านั้น ไม่เพิ่มประวัติ (ปุ่มย้อนกลับของมือถือจึงไม่พาไปหน้าแก้ค้าง) */
   function go(view, top, noPush) {
     var same = state.view === view && top === false;
+    if (top !== false) $$('.toast').forEach(function (x) { x.remove(); });
     if (state.view !== view && top !== false && !noPush) hpush(view);
     state.view = view; render();
     if (same) $$('.screen').forEach(function (el) { el.style.animation = 'none'; el.classList.add('still'); });
@@ -1252,16 +1324,21 @@
   function refreshWizardLive() {
     var r = $('#rstrip'); if (r) { r.outerHTML = wizReceipt(); runAnim($('#rstrip')); }
     var steps = stepsFor(state.model), st = steps[state.step];
-    var nb = $('#foot [data-act="next"]'); if (nb) nb.disabled = !stepValid(st);
-    var sb = $('#foot [data-act="shop-done"]'); if (sb) sb.disabled = !steps.every(stepValid);
+    var wmk = wMissing(st);
+    $$('.field.need').forEach(function (x) { if (x.getAttribute('data-f') !== wmk) { x.classList.remove('need'); var mm = $('.need-msg', x); if (mm) mm.remove(); } });
     FIELDS.forEach(function (fd) { if (!fd.show) return; var node = $('.field[data-f="' + fd.k + '"]'); if (node) node.hidden = !fd.show(state.inp, state.model); });
   }
   function refreshDqLive() {
     var r = $('#dstrip'); if (r) { r.innerHTML = dStrip(); runAnim(r); }
     if (dAllValid()) { var Rd = E(dec()); if (Rd.ok) announce('ถ้าทำ ' + deltaWords(Rd.delta)); }
     var steps = dStepsFor(state.topic, state.inp, state.model), st = steps[state.dstep], d = dec();
-    var nb = $('#foot [data-act="d-next"]'); if (nb) nb.disabled = !dStepValid(st);
-    var sb = $('#foot [data-act="d-done"]'); if (sb) sb.disabled = !dAllValid();
+    /* แก้คำตอบ: ปุ่มเปลี่ยนระหว่าง "ถัดไป" (ยังมีข้ออื่นที่ขาด) กับ "เสร็จ" โดยไม่วาดหน้าใหม่ (ช่องที่พิมพ์อยู่ไม่หลุด) */
+    if (state.dediting) {
+      var wantNext = !dAllValid() && dStepValid(st), pb0 = $('#foot .btn:not(.back)');
+      if (pb0 && (pb0.getAttribute('data-act') === 'd-next') !== wantNext) pb0.outerHTML = wantNext ? '<button class="btn" data-act="d-next">ถัดไป' + ICON.next + '</button>' : '<button class="btn" data-act="d-done">เสร็จ</button>';
+    }
+    var dmk = dMissing(st);
+    $$('.field.need').forEach(function (x) { if (x.getAttribute('data-df') !== dmk) { x.classList.remove('need'); var mm = $('.need-msg', x); if (mm) mm.remove(); } });
     Object.keys(DFIELDS).forEach(function (k) {
       var node = $('.field[data-df="' + k + '"]'); if (!node) return;
       node.hidden = !dShown(k, d);
@@ -1326,7 +1403,13 @@
         break;
       }
       case 'topic': if (t.getAttribute('aria-disabled') === 'true') { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[state.model].tile); break; } openTopic(t.getAttribute('data-t')); break;
-      case 'to-start': state.topic = null; state.labOrig = null; state.editing = false; state.dediting = false; go('start'); break;
+      case 'to-start': {
+        state.topic = null; state.labOrig = null; state.editing = false; state.dediting = false; go('start');
+        /* กลับมาเลือกเรื่อง: เลื่อนไปที่รายการเรื่องเลย */
+        var ph = state.where ? $('.pick-h') : null;
+        if (ph) { window.scrollTo(0, Math.max(0, ph.getBoundingClientRect().top + window.scrollY - 76)); ph.setAttribute('tabindex', '-1'); try { ph.focus({ preventScroll: true }); } catch (e2) { ph.focus(); } }
+        break;
+      }
       case 'to-shop': state.shopInFlow = !!state.topic; state.editing = false; go('shop'); break;
       case 'shop-edit': if (state.isSample) { state.topic = null; state.shopInFlow = false; go('shop'); } else { state.topic = null; state.editFrom = 'review'; go('review'); } break;
       case 'rtab': {
@@ -1344,21 +1427,36 @@
         if (shm && shm.model === nm) state.inp = JSON.parse(JSON.stringify(shm.inp));
         go('wizard'); break;
       }
-      case 'next': steps = stepsFor(m); if (state.step < steps.length - 1) { state.step++; go('wizard'); } break;
+      case 'next': {
+        steps = stepsFor(m);
+        if (!stepValid(steps[state.step])) { wShowMissing(steps[state.step]); break; }
+        if (state.step < steps.length - 1) { state.step++; goStep('wizard'); }
+        break;
+      }
       case 'prev':
         if (state.editing) {
-          if (state.editFrom === 'lab' && state.topic && !stepsFor(m).every(stepValid)) { toast('กรอกข้อนี้ให้ครบก่อน แล้วค่อยกลับ'); break; }
-          state.editing = false; go(state.editFrom === 'lab' && state.topic ? 'lab' : 'review', true, true);
+          if (canPop()) { history.back(); break; }
+          cancelEdit(); state.editing = false; go(state.editFrom === 'lab' && state.topic ? 'lab' : 'review', true, true); hrep();
         }
-        else if (state.step > 0) { state.step--; go('wizard'); }
+        else if (canPop()) history.back();
+        else if (state.step > 0) { state.step--; go('wizard'); hrep(); }
         else go('shop');
         break;
       case 'shop-done': {
-        if (!stepsFor(m).every(stepValid)) break;
+        steps = stepsFor(m);
+        if (!steps.every(stepValid)) {
+          var bad0 = -1; for (var bi = 0; bi < steps.length; bi++) if (!stepValid(steps[bi])) { bad0 = bi; break; }
+          if (bad0 !== state.step) { state.step = bad0; go('wizard', false); hrep(); }
+          wShowMissing(steps[bad0]); break;
+        }
         var wasEd = state.editing;
+        if (wasEd) {
+          state.edOrig = null;
+          if (state.editFrom === 'lab' && state.topic && topicOk(state.topic, m) && !dAllValid()) { state.editing = false; state.dstep = 0; state.dediting = true; state.dedOrig = JSON.parse(JSON.stringify(dec())); go('dq', false); hrep(); break; }
+          if (canPop()) { state.editing = false; history.back(); break; }
+          state.editing = false; go(state.editFrom === 'lab' && state.topic ? 'lab' : 'review', true, true); hrep(); break;
+        }
         state.editing = false;
-        if (wasEd && state.editFrom === 'lab' && state.topic && topicOk(state.topic, m)) { if (dAllValid()) go('lab', true, true); else { state.dstep = 0; state.dediting = true; go('dq', true, true); } break; }
-        if (wasEd) { go('review', true, true); break; }
         if (!state.topic) { go('start'); break; }
         if (!topicOk(state.topic, m)) { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[m].tile); go('start'); break; }
         dec();
@@ -1367,21 +1465,58 @@
         break;
       }
       case 'review': state.editFrom = 'review'; go('review'); break;
-      case 'result': state.labOrig = null; state.dediting = false; go('result'); break;
-      case 'edit-step': state.editFrom = state.view === 'lab' ? 'lab' : 'review'; state.step = +t.getAttribute('data-i'); state.editing = true; go('wizard', true, true); break;
-      case 'd-edit': state.dstep = +t.getAttribute('data-i'); state.dediting = true; go('dq', true, true); break;
-      case 'd-next': { steps = dStepsFor(state.topic, state.inp, m); if (state.dstep < steps.length - 1 && dStepValid(steps[state.dstep])) { state.dstep++; go('dq'); } break; }
+      case 'result':
+        state.dediting = false;
+        if (state.view === 'lab') {
+          state.labOrig = null;
+          if (state.labFrom === 'result' && canPop()) { history.back(); break; }
+          go('result', true, true); hrep(); break;
+        }
+        state.labOrig = null; go('result'); break;
+      case 'lab-back': if (canPop()) { history.back(); break; } state.labOrig = null; go(state.labFrom === 'points' ? 'points' : 'result', true, true); hrep(); break;
+      case 'back': if (canPop()) { history.back(); break; } state.topic = null; go('start'); break;
+      case 'wi-reset': delete state.wi[state.topic]; go('result', false); break;
+      case 'wi-use': {
+        var wv0 = wiVal(); if (wv0 === null) break;
+        state.ds[state.topic] = piv().set(dec(), wv0); delete state.wi[state.topic];
+        go('result', false); toast('ใช้ค่านี้แล้ว'); break;
+      }
+      case 'edit-step': state.editFrom = state.view === 'lab' ? 'lab' : 'review'; state.step = +t.getAttribute('data-i'); state.editing = true; state.edOrig = JSON.parse(JSON.stringify(state.inp)); go('wizard'); break;
+      case 'd-edit': state.dstep = +t.getAttribute('data-i'); state.dediting = true; state.dedOrig = JSON.parse(JSON.stringify(dec())); go('dq'); break;
+      case 'd-next': {
+        steps = dStepsFor(state.topic, state.inp, m);
+        if (!dStepValid(steps[state.dstep])) { dShowMissing(steps[state.dstep]); break; }
+        if (state.dediting) {
+          /* แก้คำตอบ: ไปข้อที่ยังขาด (เช่น หลังเปลี่ยนแบบ) */
+          var nx = -1; for (var di = 0; di < steps.length; di++) if (!dStepValid(steps[di])) { nx = di; break; }
+          if (nx >= 0) { state.dstep = nx; go('dq', false); hrep(); window.scrollTo(0, 0); focusMain(); }
+          break;
+        }
+        if (state.dstep < steps.length - 1) { state.dstep++; goStep('dq'); }
+        break;
+      }
       case 'd-prev':
-        if (state.dediting) { if (dAllValid()) { state.dediting = false; go('lab', true, true); } else toast('ตอบข้อนี้ให้ครบก่อน แล้วค่อยกลับ'); }
-        else if (state.dstep > 0) { state.dstep--; go('dq'); }
+        if (state.dediting) {
+          if (canPop()) { history.back(); break; }
+          cancelEdit(); state.dediting = false; go('lab', true, true); hrep();
+        }
+        else if (canPop()) history.back();
+        else if (state.dstep > 0) { state.dstep--; go('dq'); hrep(); }
         else if (state.shopInFlow && !state.isSample) { var ss = stepsFor(m); state.step = Math.max(0, ss.map(function (x) { return x.id; }).indexOf('cash')); state.editing = false; go('wizard'); }
         else { state.topic = null; go('start'); }
         break;
-      case 'd-done':
-        if (!dAllValid()) break;
+      case 'd-done': {
+        steps = dStepsFor(state.topic, state.inp, m);
+        if (!dAllValid()) {
+          var bad1 = -1; for (var bj = 0; bj < steps.length; bj++) if (!dStepValid(steps[bj])) { bad1 = bj; break; }
+          if (bad1 !== state.dstep) { state.dstep = bad1; go('dq', false); hrep(); }
+          dShowMissing(steps[bad1]); break;
+        }
         delete state.wi[state.topic];
-        if (state.dediting) { state.dediting = false; go('lab', true, true); } else go('result');
+        if (state.dediting) { state.dedOrig = null; if (canPop()) { state.dediting = false; history.back(); } else { state.dediting = false; go('lab', true, true); hrep(); } }
+        else go('result');
         break;
+      }
       case 'dcount': {
         var k0 = t.getAttribute('data-k'), f0 = dDef(k0), d0 = dec();
         d0[k0] = Math.max(f0.min || 1, Math.min(f0.max || 99, Math.round(n0(d0[k0]) || 1) + +t.getAttribute('data-dir')));
@@ -1454,7 +1589,7 @@
       case 'lab': {
         var lk = t.getAttribute('data-k');
         if (lk && labKeys().indexOf(lk) < 0) lk = null;
-        state.labOrig = JSON.parse(JSON.stringify(dec())); delete state.wi[state.topic];
+        state.labOrig = JSON.parse(JSON.stringify(dec())); delete state.wi[state.topic]; state.labFrom = state.view === 'points' ? 'points' : 'result';
         state.active = lk || null; go('lab'); if (lk) scrollToRow(lk);
         break;
       }
@@ -1613,14 +1748,21 @@
     });
     window.addEventListener('popstate', function (ev) {
       var s = ev.state;
+      $$('.toast').forEach(function (x) { x.remove(); });
+      cancelEdit();
+      hidx = s && s.i ? s.i : 0;
       state.view = s && s.v ? s.v : 'start';
       state.topic = s && s.t && TOPICS[s.t] ? s.t : null;
-      state.editing = false; state.dediting = false;
-      if (state.view === 'lab') state.view = 'result';
+      if (s && s.v === 'wizard' && typeof s.s === 'number') state.step = s.s;
+      if (s && s.v === 'dq' && typeof s.d === 'number') state.dstep = s.d;
+      state.editing = !!s && s.e === 'w'; state.dediting = !!s && s.e === 'q';
+      if (state.editing) state.edOrig = JSON.parse(JSON.stringify(state.inp));
+      if (state.dediting && state.topic) state.dedOrig = JSON.parse(JSON.stringify(dec()));
       if (state.view !== 'lab') state.labOrig = null;
       render(); window.scrollTo(0, 0); focusMain();
     });
-    try { history.replaceState({ v: state.view, t: state.topic }, ''); } catch (e) { /* ignore */ }
+    hidx = history.state && history.state.i ? history.state.i : 0;
+    hrep();
     render();
   }
   var hot = window.claude && window.claude.hot;
