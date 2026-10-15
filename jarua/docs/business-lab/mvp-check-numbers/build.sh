@@ -18,7 +18,7 @@ H
 echo "<style>"; cat src/style.css; echo "</style>"
 echo '<div id="app"></div>'
 echo "<script>"; cat .out/calc.js; echo "</script>"
-echo "<script>"; cat src/data.js src/engine.js src/app.js; echo "</script>"
+echo "<script>"; cat ../shared/lab-shop.js src/data.js src/engine.js src/app.js; echo "</script>"
 } > check-numbers.html
 # หน้าสำหรับทดสอบในเครื่อง (มีโครง html ครบ + ตัวช่วยของ test)
 { echo '<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><style>[hidden]{display:none!important}</style></head><body>'

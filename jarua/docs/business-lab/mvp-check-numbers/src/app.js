@@ -53,7 +53,27 @@
   }
 
   /* ---------- persistence & theme ---------- */
-  function save() { try { sessionStorage.setItem('lab2', JSON.stringify(snapshot())); } catch (e) { /* ignore */ } }
+  function save() {
+    try { sessionStorage.setItem('lab2', JSON.stringify(snapshot())); } catch (e) { /* ignore */ }
+    /* ข้อมูลร้านชุดกลาง: ตัวเลขร้านของผู้ใช้เอง (ไม่ใช่ร้านตัวอย่าง) ใช้ต่อได้ในเครื่องมืออื่นของ Business Lab */
+    if (typeof LabShop !== 'undefined' && state.model && !state.isSample) LabShop.put(state.model, state.inp, MODELS[state.model].tile, shopReady());
+  }
+  function shopReady() { return !!state.model && stepsFor(state.model).every(stepValid) && C(state.inp, state.model).ok; }
+  /* เปิดเครื่องมือ: ถ้ามีตัวเลขร้านชุดกลางที่ต่างจากของเดิม (กรอกหรือแก้ในเครื่องมืออื่น) ใช้ชุดกลาง แล้วเปิดภาพรวม หรือข้อที่ยังไม่ครบ */
+  function adoptShared() {
+    if (typeof LabShop === 'undefined') return;
+    var sh = LabShop.get();
+    if (!sh || !MODELS[sh.model] || (!state.isSample && state.model === sh.model && LabShop.same(state.inp, sh.inp))) return;
+    state.model = sh.model; state.inp = JSON.parse(JSON.stringify(sh.inp)); state.isSample = false;
+    state.trial = {}; state.answers = {}; state.qidx = 0; state.active = null; state.fid = null; state.editing = false;
+    state.feeHelp = false; state.fh = { share: '', rate: '' };
+    var steps = stepsFor(state.model), bad = -1;
+    for (var i = 0; i < steps.length; i++) if (!stepValid(steps[i])) { bad = i; break; }
+    if (bad < 0 && C(state.inp, state.model).ok) state.view = 'home';
+    else { state.view = 'wizard'; state.step = Math.max(0, bad); }
+  }
+  /* ปุ่มกลับหน้ารวม Business Lab (มีเฉพาะตอนเปิดผ่านหน้ารวม) */
+  function hubLink() { return window.LAB_HUB ? '<a class="ib" href="' + esc(window.LAB_HUB) + '" aria-label="กลับไปหน้า Business Lab">' + ICON.back + '</a>' : null; }
   function snapshot() {
     return { view: state.view, model: state.model, inp: state.inp, isSample: state.isSample, step: state.step, editing: state.editing,
       trial: state.trial, active: state.active, fid: state.fid, qidx: state.qidx, answers: state.answers };
@@ -106,7 +126,7 @@
     var tiles = MODEL_ORDER.map(function (k) {
       return '<button class="tile" data-act="model" data-m="' + k + '"><span class="ic">' + MICON[k] + '</span><span class="t">' + MODELS[k].tile + '</span><span class="ex">' + MODELS[k].short + '</span></button>';
     }).join('');
-    return bar(null, 'เช็กตัวเลขร้าน', 'Business Lab') + '<main class="screen"><div class="wrap">' +
+    return bar(hubLink(), 'เช็กตัวเลขร้าน', 'Business Lab') + '<main class="screen"><div class="wrap">' +
       '<section class="panel start-hero">' +
       '<h1>รู้ว่าร้านอยู่ตรงไหน<br>เรื่องไหนทำให้เสียเงินเท่าไหร่</h1>' +
       '<p>แล้วลองเปลี่ยนตัวเลขดูก่อนลงมือจริง เปลี่ยนบนตัวเลขไม่เสียเงินสักบาท</p>' +
@@ -897,6 +917,7 @@
     var r = data && data.model ? data : null;
     if (!r) { try { r = JSON.parse(sessionStorage.getItem('lab2') || 'null'); } catch (e) { r = null; } }
     restore(r);
+    adoptShared();
     document.addEventListener('click', onClick);
     document.addEventListener('input', onInput);
     document.addEventListener('change', onChange);

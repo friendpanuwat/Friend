@@ -67,6 +67,7 @@ section { display: grid; gap: 12px; }
 .mk.term { width: 30px; height: 16px; border-radius: 8px; background: var(--ink); margin-top: 12px; box-shadow: 0 0 0 4px var(--bg); }
 .legend .mk { margin: 0; box-shadow: none; }
 .legend .mk.step { width: 18px; height: 18px; font-size: 10px; }
+.mk.step.lab { font-size: 10.5px; letter-spacing: 0.02em; }
 .legend .mk.dec { width: 12px; height: 12px; margin: 0 3px; box-shadow: inset 0 0 0 2px var(--ink); }
 .legend .mk.term { width: 22px; height: 12px; }
 .bd { grid-column: 2; min-width: 0; display: grid; gap: 8px; }
@@ -117,9 +118,9 @@ section { display: grid; gap: 12px; }
 
 <div class="page">
   <header>
-    <span class="eyebrow">BUSINESS LAB · ตัวที่ 3 · ร่างให้ยืนยันก่อนสร้าง</span>
+    <span class="eyebrow">BUSINESS LAB · ตัวที่ 3 · เจ้าของยืนยันแล้ว</span>
     <h1>เส้นทางผู้ใช้ “เช็กก่อนตัดสินใจเรื่องใหญ่”</h1>
-    <p>วางเส้นทางให้ชัดบนกระดาษก่อนสร้าง ตาม 5 ข้อของการทำผังเส้นทางผู้ใช้ แล้วเทียบกับแบบเดิมว่างงตรงไหน</p>
+    <p>วางเส้นทางให้ชัดก่อนสร้าง ตาม 5 ข้อของการทำผังเส้นทางผู้ใช้ แล้วเทียบกับแบบเดิมว่างงตรงไหน · เริ่มจากหน้ารวม Business Lab</p>
     <ul class="five" aria-label="5 ข้อของการทำผังเส้นทาง">
       <li><b>1</b>ใคร อยากได้อะไร</li><li><b>2</b>เข้ามาจากไหน</li><li><b>3</b>มีขั้นอะไร</li><li><b>4</b>ทางแยกตรงไหน</li><li><b>5</b>จบที่ไหน</li>
     </ul>
@@ -134,8 +135,8 @@ section { display: grid; gap: 12px; }
   <section aria-labelledby="s2">
     <div class="sh"><span class="n">2</span><h2 id="s2">เข้ามาจากไหน</h2></div>
     <div class="entries">
-      <div class="entry"><span class="k">ก</span><b>เปิดครั้งแรก</b><span>จากเมนู Jarua หรือคลิปคอนเทนต์ → เริ่มที่คำถาม “ร้านคุณขายที่ไหน”</span></div>
-      <div class="entry"><span class="k">ข</span><b>กลับมาลองเรื่องอื่น ในรอบเดียวกัน</b><span>มีตัวเลขร้านอยู่แล้ว → ข้ามขั้นตัวเลขร้าน ไปตอบเฉพาะตัวเลขของเรื่องใหม่</span></div>
+      <div class="entry"><span class="k">ก</span><b>เปิดครั้งแรก</b><span>กด Business Lab (จากเมนู Jarua หรือคลิปคอนเทนต์) → หน้ารวมเลือกเครื่องมือ → “เช็กก่อนตัดสินใจเรื่องใหญ่” → เริ่มที่คำถาม “ร้านคุณขายที่ไหน”</span></div>
+      <div class="entry"><span class="k">ข</span><b>มีตัวเลขร้านอยู่แล้ว</b><span>กรอกไว้ใน “เช็กตัวเลขร้าน” หรือในเรื่องก่อนหน้า (ในการใช้งานครั้งเดียวกัน) → ข้ามขั้นตัวเลขร้าน ตอบเฉพาะตัวเลขของเรื่องนั้น · ช่องที่เหมือนกันใช้ข้อมูลเดียวกัน ช่องที่ต่างให้กรอกเพิ่ม</span></div>
       <div class="entry later"><span class="k">ค</span><b>มาจาก PL1 หรือแผนธุรกิจ (ทำทีหลัง)</b><span>มาพร้อมเรื่องและตัวเลขที่เติมไว้ → เปิดหน้าผลของเรื่องนั้นตรง ๆ</span></div>
     </div>
   </section>
@@ -152,7 +153,9 @@ section { display: grid; gap: 12px; }
 
     <div id="p-new" role="tabpanel" aria-labelledby="t-new">
       <ol class="flow">
-        <li class="node"><i class="mk term" aria-hidden="true"></i><div class="bd"><div class="term-t">เข้าหน้าเริ่ม<small>ทางเข้า ก</small></div></div></li>
+        <li class="node"><i class="mk term" aria-hidden="true"></i><div class="bd"><div class="term-t">กด Business Lab<small>ทางเข้า ก</small></div></div></li>
+        <li class="node"><i class="mk step lab" aria-hidden="true">Lab</i><div class="bd"><div class="scr"><h3>หน้ารวม Business Lab</h3>
+          <ul><li>การ์ด 4 เครื่องมือ: ใช้ได้ตอนนี้ 2 ตัว (เช็กตัวเลขร้าน · เช็กก่อนตัดสินใจเรื่องใหญ่) อีก 2 ตัวขึ้น “เร็ว ๆ นี้”</li><li>บอกว่ามีตัวเลขร้านแล้วหรือยัง ถ้ามีแล้ว ใช้ได้กับทุกเครื่องมือ</li><li>หน้าเริ่มของแต่ละเครื่องมือมีปุ่ม ‹ กลับมาหน้านี้</li></ul></div></div></li>
         <li class="node"><i class="mk step" aria-hidden="true">1</i><div class="bd"><div class="scr"><h3>ร้านคุณขายที่ไหน</h3>
           <ul><li>การ์ดใหญ่ 3 ใบ: หน้าร้าน / ออนไลน์ / ทั้งสองแบบ</li><li>ต้องตอบก่อน แล้วจะเหลือเฉพาะเรื่องที่เข้ากับร้าน</li><li>ด้านบนมีแถบบอก 3 ขั้นว่าจะต้องทำอะไรบ้าง: เลือกเรื่อง → ใส่ตัวเลขร้าน (ครั้งเดียว) → ดูผล</li></ul></div></div></li>
         <li class="node"><i class="mk dec" aria-hidden="true"></i><div class="bd"><div class="dq">อยากลองกับร้านตัวอย่างก่อนไหม</div>
@@ -163,10 +166,10 @@ section { display: grid; gap: 12px; }
           <div class="mini"><small>ตั้งแต่เลือกเรื่อง มีแถบขั้นตอนชุดเดียวจนถึงผล และหัวจอโชว์ชื่อเรื่องตลอด</small>
             <ol class="stepper" aria-label="ตัวอย่างแถบขั้นตอน"><li class="d">เลือกเรื่อง</li><li class="n">ตัวเลขร้าน</li><li>ตัวเลขเรื่องนี้</li><li>ผล</li></ol></div></div></div></li>
         <li class="node"><i class="mk dec" aria-hidden="true"></i><div class="bd"><div class="dq">มีตัวเลขร้านแล้วไหม</div>
-          <div class="br"><div><span class="yes">มีแล้ว</span>ข้ามขั้น 3 ไปขั้น 4 เลย (ทางเข้า ข) · แถบขั้นตอนขึ้น ✓ ที่ “ตัวเลขร้าน”</div></div>
+          <div class="br"><div><span class="yes">มีแล้ว</span>กรอกไว้ในเครื่องมืออื่นหรือเรื่องก่อนหน้า → ข้ามขั้น 3 ไปขั้น 4 เลย (ทางเข้า ข) · แถบขั้นตอนขึ้น ✓ ที่ “ตัวเลขร้าน”</div></div>
           <div class="cont">ยังไม่มี ↓ ไปต่อ</div></div></li>
         <li class="node"><i class="mk step" aria-hidden="true">3</i><div class="bd"><div class="scr"><h3>ตัวเลขร้าน</h3>
-          <ul><li>เลือกว่าร้านได้เงินจากอะไร แล้วตอบ 5–6 ข้อ ประมาณ 3 นาที กรอกครั้งเดียว ใช้ได้ทุกเรื่อง</li><li>ข้อสุดท้าย “เพิ่มรายละเอียด” ไม่ใส่ก็ได้</li><li>ยังไม่อยากกรอก แตะ “ลองกับร้านตัวอย่างก่อน” ได้</li><li>คำถามและช่องกรอกเหมือนตัวที่ 1 ทุกข้อ</li></ul></div></div></li>
+          <ul><li>เลือกว่าร้านได้เงินจากอะไร แล้วตอบ 5–6 ข้อ ประมาณ 3 นาที กรอกครั้งเดียว ใช้ได้ทุกเรื่อง</li><li>ข้อสุดท้าย “เพิ่มรายละเอียด” ไม่ใส่ก็ได้</li><li>ยังไม่อยากกรอก แตะ “ลองกับร้านตัวอย่างก่อน” ได้</li><li>คำถามและช่องกรอกเหมือนตัวที่ 1 ทุกข้อ และใช้ข้อมูลชุดเดียวกัน แก้ที่ไหนก็เปลี่ยนทุกเครื่องมือ</li></ul></div></div></li>
         <li class="node"><i class="mk dec" aria-hidden="true"></i><div class="bd"><div class="dq">เรื่องนี้มีหลายแบบไหม</div>
           <div class="br"><div><span class="yes">มี</span>ข้อแรกเลือกแบบก่อน เช่น จ้างคน: ประจำ / พาร์ตไทม์ / รายชิ้น · ช่องทางใหม่: แอปส่งอาหาร / Shopee Lazada / TikTok Shop ฯลฯ</div></div>
           <div class="cont">ไม่มี ↓ ไปต่อ</div></div></li>
@@ -181,7 +184,7 @@ section { display: grid; gap: 12px; }
             <div><span class="yes">อยากรู้ว่าควรเช็กอะไร</span>“เช็กความพร้อม” 3–5 ข้อ ตอบ ใช่ / ไม่ใช่ / ไม่แน่ใจ → หน้า “จุดที่ควรเช็ก” แต่ละจุดมีตัวเลขที่เกี่ยว และเครื่องมือ PL1 ที่ช่วยหาแนวทาง</div>
             <div><span class="yes">อยากลองเรื่องอื่น</span>กลับไปขั้น 2 ใช้ตัวเลขร้านเดิม (ทางเข้า ข) <span class="loop">↺ วนกลับ</span></div>
           </div></div></li>
-        <li class="node"><i class="mk term" aria-hidden="true"></i><div class="bd"><div class="term-t">จบ: เปิดเครื่องมือ PL1 หาแนวทาง<small>หรือ “แผนธุรกิจ” (PL2) วางทางทั้งร้าน · ทั้งสองทางเป็นทางเลือก ไม่บังคับ</small></div></div></li>
+        <li class="node"><i class="mk term" aria-hidden="true"></i><div class="bd"><div class="term-t">จบ: เปิดเครื่องมือ PL1 หาแนวทาง<small>หรือ “แผนธุรกิจ” (PL2) วางทางทั้งร้าน · หรือกลับหน้ารวม Business Lab ไปใช้เครื่องมืออื่น · ทุกทางเป็นทางเลือก ไม่บังคับ</small></div></div></li>
       </ol>
     </div>
 
@@ -236,12 +239,13 @@ section { display: grid; gap: 12px; }
   </section>
 
   <section class="ask" aria-labelledby="s6">
-    <h2 id="s6">ขอให้ยืนยัน 2 ข้อ</h2>
+    <h2 id="s6">เจ้าของยืนยันแล้ว</h2>
     <ol>
-      <li>เส้นทางแบบใหม่นี้ใช่ไหม หรืออยากเปลี่ยนขั้นไหน</li>
-      <li>ทางเข้า ค (มาจาก PL1 หรือแผนธุรกิจ พร้อมตัวเลข) ทำทีหลังได้ไหม</li>
+      <li>ใช้เส้นทางแบบใหม่นี้</li>
+      <li>ทางเข้า ค (มาจาก PL1 หรือแผนธุรกิจ พร้อมตัวเลข) ทำทีหลัง</li>
+      <li>เพิ่มหน้ารวม Business Lab: โชว์ 4 เครื่องมือ ใช้ได้ตอนนี้ 2 ตัว อีก 2 ตัว “เร็ว ๆ นี้” · ดูทุกตัวที่ลิงก์เดียว</li>
+      <li>ตัวเลขร้านใช้ร่วมกันทุกเครื่องมือ ช่องที่เหมือนกันใช้ข้อมูลเดียวกัน ช่องที่ต่างให้ผู้ใช้กรอกเพิ่ม</li>
     </ol>
-    <p>ยืนยันแล้ว Claude จะสร้างตามผังนี้ ทดสอบบนจอมือถือทั้งโหมดมืดและสว่าง ให้ผู้ตรวจอิสระตรวจ แล้วส่งรอบใหม่ที่ลิงก์เดิมของตัวที่ 3</p>
   </section>
 </div>
 

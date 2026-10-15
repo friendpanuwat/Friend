@@ -19,7 +19,7 @@ H
 echo "<style>"; cat $P1/style.css src/style.css; echo "</style>"
 echo '<div id="app"></div>'
 echo "<script>"; cat .out/calc.js; echo "</script>"
-echo "<script>"; cat $P1/data.js $P1/engine.js src/topics.js src/decide.js src/app.js; echo "</script>"
+echo "<script>"; cat ../shared/lab-shop.js $P1/data.js $P1/engine.js src/topics.js src/decide.js src/app.js; echo "</script>"
 } > big-decisions.html
 # หน้าสำหรับทดสอบในเครื่อง (มีโครง html ครบ)
 { echo '<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><style>[hidden]{display:none!important}</style></head><body>'

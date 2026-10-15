@@ -94,7 +94,29 @@
       dstep: state.dstep, dediting: state.dediting, ds: state.ds, wi: state.wi, dsign: state.dsign, active: state.active, answers: state.answers, qidx: state.qidx,
       shopInFlow: state.shopInFlow, editFrom: state.editFrom, rtab: state.rtab };
   }
-  function save() { try { sessionStorage.setItem('lab3', JSON.stringify(snapshot())); } catch (e) { /* ignore */ } }
+  function save() {
+    try { sessionStorage.setItem('lab3', JSON.stringify(snapshot())); } catch (e) { /* ignore */ }
+    /* ข้อมูลร้านชุดกลาง: ตัวเลขร้านของผู้ใช้เอง (ไม่ใช่ร้านตัวอย่าง) ใช้ต่อได้ในเครื่องมืออื่นของ Business Lab */
+    if (typeof LabShop !== 'undefined') {
+      if (state.model && !state.isSample) LabShop.put(state.model, state.inp, MODELS[state.model].tile, shopOk());
+      LabShop.setWhere(state.where);
+    }
+  }
+  /* เปิดเครื่องมือ: ถ้ามีตัวเลขร้านชุดกลางที่ต่างจากของเดิม (กรอกหรือแก้ในเครื่องมืออื่น) ใช้ชุดกลาง */
+  function adoptShared() {
+    if (typeof LabShop === 'undefined') return;
+    var sh = LabShop.get();
+    if (sh && MODELS[sh.model] && (state.isSample || state.model !== sh.model || !LabShop.same(state.inp, sh.inp))) {
+      if (state.isSample || state.model !== sh.model) {
+        chooseModel(sh.model, false);
+        if (['start', 'review'].indexOf(state.view) < 0) state.view = 'start';
+        state.topic = null;
+      }
+      state.inp = JSON.parse(JSON.stringify(sh.inp));
+      if (state.view === 'wizard' || state.view === 'shop') state.view = 'start';
+    }
+    if (!state.where) state.where = LabShop.where();
+  }
   function restore(d) {
     if (!d || typeof d !== 'object') return;
     if (d.model && !MODELS[d.model]) return;
@@ -155,6 +177,8 @@
       '<div class="ttl">' + (sub ? '<small>' + esc(sub) + '</small>' : '') + esc(title) + '</div>' +
       (right || '') + '<button class="ib" data-act="theme" aria-label="สลับโหมดมืดและสว่าง">' + (themeNow() === 'dark' ? ICON.sun : ICON.moon) + '</button></div></header>';
   }
+  /* ปุ่มกลับหน้ารวม Business Lab (มีเฉพาะตอนเปิดผ่านหน้ารวม) */
+  function hubLink() { return window.LAB_HUB ? '<a class="ib" href="' + esc(window.LAB_HUB) + '" aria-label="กลับไปหน้า Business Lab">' + ICON.back + '</a>' : null; }
   function backBtn(act, label) { return '<button class="ib" data-act="' + act + '" aria-label="' + (label || 'ย้อนกลับ') + '">' + ICON.back + '</button>'; }
   function nf(v, u) { return fmtN(v, decOf(v)) + (u ? (u.charAt(0) === '%' ? '' : '\u00a0') + u : ''); }
   /* เสียงอ่านหน้าจอ: บอกผลครั้งเดียวหลังหยุดลาก/หยุดพิมพ์ ไม่อ่านทุกขยับ */
@@ -269,7 +293,7 @@
     return '<div class="samp3"><span>ยังไม่พร้อมกรอก?</span><button class="lnk" data-act="sample">ลองกับ' + esc(SAMPLES[sampleKindFor(null)].short) + 'ตัวอย่างก่อน</button></div>';
   }
   function viewStart() {
-    var out = bar(null, 'เช็กก่อนตัดสินใจเรื่องใหญ่', 'Business Lab') + '<main class="screen"><div class="wrap">' +
+    var out = bar(hubLink(), 'เช็กก่อนตัดสินใจเรื่องใหญ่', 'Business Lab') + '<main class="screen"><div class="wrap">' +
       '<section class="st3"><h1>กำลังคิดจะ…</h1><p>เทียบ “ทำ” กับ “ไม่ทำ” ด้วยตัวเลขร้านคุณ ดูว่าต้องขายเท่าไรถึงจะคุ้ม เงินพอไหม และคืนทุนเมื่อไร ก่อนเสียเงินจริง</p></section>';
     if (!state.model || state.isSample) out += howHtml();
     out += whereHtml();
@@ -1545,6 +1569,7 @@
     var r = data && data.view ? data : null;
     if (!r) { try { r = JSON.parse(sessionStorage.getItem('lab3') || 'null'); } catch (e) { r = null; } }
     restore(r);
+    adoptShared();
     document.addEventListener('click', onClick);
     document.addEventListener('input', onInput);
     document.addEventListener('change', onChange);

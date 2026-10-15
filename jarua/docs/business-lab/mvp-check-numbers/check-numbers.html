@@ -1674,6 +1674,34 @@ return exports; })();
 </script>
 <script>
 /* ============================================================
+   ข้อมูลร้านชุดกลาง (Business Profile) — ใช้ร่วมกันทุกเครื่องมือใน Business Lab (HANDOFF ข้อ 5)
+   กรอกที่เครื่องมือไหนก็ได้ เครื่องมืออื่นใช้ต่อ ไม่ต้องกรอกใหม่ · ช่องที่ต่างกันให้ผู้ใช้กรอกเพิ่มในเครื่องมือนั้นเอง
+   เก็บใน sessionStorage ของแท็บ (ปิดแท็บแล้วหาย เหมือนเดิม) · เก็บเฉพาะตัวเลขร้านของผู้ใช้เอง ไม่เก็บร้านตัวอย่าง
+   ถ้าเบราว์เซอร์ไม่ให้ใช้ที่เก็บ ทุกฟังก์ชันเงียบ ๆ และเครื่องมือทำงานแยกกันเหมือนเดิม
+   ============================================================ */
+var LabShop = (function () {
+  'use strict';
+  var KEY = 'lab-shop', WKEY = 'lab-where';
+  function read(k) { try { return JSON.parse(sessionStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+  function write(k, v) { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ } }
+  return {
+    /* { model, inp, label, ok } หรือ null */
+    get: function () {
+      var d = read(KEY);
+      return d && typeof d.model === 'string' && d.inp && typeof d.inp === 'object' ? d : null;
+    },
+    /* label = ชื่อรูปแบบร้านที่แสดง · ok = กรอกครบพอคำนวณแล้ว */
+    put: function (model, inp, label, ok) {
+      if (!model || !inp) return;
+      write(KEY, { model: model, inp: inp, label: label || '', ok: !!ok });
+    },
+    /* ขายที่ไหน: shop / online / both */
+    where: function () { var w = read(WKEY); return w === 'shop' || w === 'online' || w === 'both' ? w : null; },
+    setWhere: function (w) { if (w) write(WKEY, w); },
+    same: function (a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+  };
+})();
+/* ============================================================
    DATA — รูปแบบรายได้ 8 แบบ (ตรงกับ PL2 v4) · ช่องกรอก · ตัวเลขที่ปรับได้ · คลังคำถาม · เครื่องมือ PL1
    ============================================================ */
 
@@ -2795,7 +2823,27 @@ function compactTH(n) {
   }
 
   /* ---------- persistence & theme ---------- */
-  function save() { try { sessionStorage.setItem('lab2', JSON.stringify(snapshot())); } catch (e) { /* ignore */ } }
+  function save() {
+    try { sessionStorage.setItem('lab2', JSON.stringify(snapshot())); } catch (e) { /* ignore */ }
+    /* ข้อมูลร้านชุดกลาง: ตัวเลขร้านของผู้ใช้เอง (ไม่ใช่ร้านตัวอย่าง) ใช้ต่อได้ในเครื่องมืออื่นของ Business Lab */
+    if (typeof LabShop !== 'undefined' && state.model && !state.isSample) LabShop.put(state.model, state.inp, MODELS[state.model].tile, shopReady());
+  }
+  function shopReady() { return !!state.model && stepsFor(state.model).every(stepValid) && C(state.inp, state.model).ok; }
+  /* เปิดเครื่องมือ: ถ้ามีตัวเลขร้านชุดกลางที่ต่างจากของเดิม (กรอกหรือแก้ในเครื่องมืออื่น) ใช้ชุดกลาง แล้วเปิดภาพรวม หรือข้อที่ยังไม่ครบ */
+  function adoptShared() {
+    if (typeof LabShop === 'undefined') return;
+    var sh = LabShop.get();
+    if (!sh || !MODELS[sh.model] || (!state.isSample && state.model === sh.model && LabShop.same(state.inp, sh.inp))) return;
+    state.model = sh.model; state.inp = JSON.parse(JSON.stringify(sh.inp)); state.isSample = false;
+    state.trial = {}; state.answers = {}; state.qidx = 0; state.active = null; state.fid = null; state.editing = false;
+    state.feeHelp = false; state.fh = { share: '', rate: '' };
+    var steps = stepsFor(state.model), bad = -1;
+    for (var i = 0; i < steps.length; i++) if (!stepValid(steps[i])) { bad = i; break; }
+    if (bad < 0 && C(state.inp, state.model).ok) state.view = 'home';
+    else { state.view = 'wizard'; state.step = Math.max(0, bad); }
+  }
+  /* ปุ่มกลับหน้ารวม Business Lab (มีเฉพาะตอนเปิดผ่านหน้ารวม) */
+  function hubLink() { return window.LAB_HUB ? '<a class="ib" href="' + esc(window.LAB_HUB) + '" aria-label="กลับไปหน้า Business Lab">' + ICON.back + '</a>' : null; }
   function snapshot() {
     return { view: state.view, model: state.model, inp: state.inp, isSample: state.isSample, step: state.step, editing: state.editing,
       trial: state.trial, active: state.active, fid: state.fid, qidx: state.qidx, answers: state.answers };
@@ -2848,7 +2896,7 @@ function compactTH(n) {
     var tiles = MODEL_ORDER.map(function (k) {
       return '<button class="tile" data-act="model" data-m="' + k + '"><span class="ic">' + MICON[k] + '</span><span class="t">' + MODELS[k].tile + '</span><span class="ex">' + MODELS[k].short + '</span></button>';
     }).join('');
-    return bar(null, 'เช็กตัวเลขร้าน', 'Business Lab') + '<main class="screen"><div class="wrap">' +
+    return bar(hubLink(), 'เช็กตัวเลขร้าน', 'Business Lab') + '<main class="screen"><div class="wrap">' +
       '<section class="panel start-hero">' +
       '<h1>รู้ว่าร้านอยู่ตรงไหน<br>เรื่องไหนทำให้เสียเงินเท่าไหร่</h1>' +
       '<p>แล้วลองเปลี่ยนตัวเลขดูก่อนลงมือจริง เปลี่ยนบนตัวเลขไม่เสียเงินสักบาท</p>' +
@@ -3639,6 +3687,7 @@ function compactTH(n) {
     var r = data && data.model ? data : null;
     if (!r) { try { r = JSON.parse(sessionStorage.getItem('lab2') || 'null'); } catch (e) { r = null; } }
     restore(r);
+    adoptShared();
     document.addEventListener('click', onClick);
     document.addEventListener('input', onInput);
     document.addEventListener('change', onChange);
