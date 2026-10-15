@@ -15,6 +15,22 @@ async function check(page, label) {
     return r.height < 43.5 && !b.classList.contains('lnk-in');
   }).map(b => b.className + ':' + (b.textContent || b.getAttribute('aria-label') || '').trim().slice(0, 20) + ':' + Math.round(b.getBoundingClientRect().height)));
   const probs = [];
+  /* หน้าผล: ป้ายผลบนแถบลากต้องตรงกับ ✓ ✕ ของเงื่อนไข · แถว "อย่างน้อย" ที่ได้ ✓ ต้องไม่มีคำว่า "น้อยกว่า" */
+  const agree = await page.evaluate(() => {
+    const pill = document.querySelector('.pr-r'); if (!pill) return [];
+    const rows = [...document.querySelectorAll('.cklist li[data-id="need"], .cklist li[data-id="payneed"]')].filter(li => li.querySelector('.ck-t b'));
+    const out = [];
+    const allOk = rows.every(li => li.querySelector('.ck').classList.contains('ok'));
+    const noPay = !!document.querySelector('.cklist li[data-id="payneed"]') && !document.querySelector('.cklist li[data-id="payneed"] .ck-t b');
+    if (rows.length && pill.classList.contains('ok') !== (allOk && !noPay)) out.push('pill ' + pill.className + ' vs rows ' + rows.map(li => li.querySelector('.ck').className).join(','));
+    rows.forEach(li => {
+      const t = li.textContent, ok = li.querySelector('.ck').classList.contains('ok');
+      if (/อย่างน้อย/.test(t) && ok && /น้อยกว่า/.test((li.querySelector('.ck-h') || {}).textContent || '')) out.push('✓ with น้อยกว่า: ' + t.slice(0, 60));
+      if (/อย่างน้อย/.test(t) && !ok && /มากกว่า|พอดี/.test((li.querySelector('.ck-h') || {}).textContent || '')) out.push('✕ with มากกว่า: ' + t.slice(0, 60));
+    });
+    return out;
+  });
+  if (agree.length) probs.push('disagree ' + agree.slice(0, 2).join(' | '));
   if (/NaN|undefined|Infinity|\[object/.test(txt)) probs.push('bad text ' + (txt.match(/.{0,30}(NaN|undefined|Infinity|\[object).{0,20}/) || [''])[0]);
   if (o.bad.length || o.scrollW > o.W) probs.push('overflow ' + JSON.stringify(o.bad));
   if (small.length) probs.push('small targets ' + small.slice(0, 4).join(' | '));
@@ -43,7 +59,7 @@ async function check(page, label) {
         /* ลากแถบจุดคุ้มสุดซ้าย สุดขวา แล้วกดปุ่มกรณีต่าง ๆ */
         await page.evaluate(() => {
           const r = document.querySelector('#pvr');
-          if (r) for (const v of [r.max, r.min, (+r.max + +r.min) / 2]) { r.value = v; r.dispatchEvent(new Event('input', { bubbles: true })); r.dispatchEvent(new Event('change', { bubbles: true })); }
+          if (r) for (const v of [r.max, r.min, (+r.max + +r.min) / 2, +r.min + (+r.max - +r.min) * 0.37]) { r.value = v; r.dispatchEvent(new Event('input', { bubbles: true })); r.dispatchEvent(new Event('change', { bubbles: true })); }
         });
         await page.waitForTimeout(60);
         for (const b of await page.$$('.pv-chips .sc')) { await b.click(); await page.waitForTimeout(40); }

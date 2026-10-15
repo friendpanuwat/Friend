@@ -36,7 +36,7 @@ const cond = (E, id) => E.conds.find(c => c.id === id);
   const p = ev(inp, 'unit', 'place', { newRent: 26000, salesPct: 20, moveCost: 0 });
   near(p.delta, 16 * 26 * 39.1 - 8000, 0.5, 'place delta');
   near(cond(p, 'rent').value, 26000 + p.delta, 0.01, 'place max rent');
-  near(cond(p, 'need').value, Math.ceil(80 + 8000 / 39.1 / 26), 0, 'place need volume');
+  near(cond(p, 'need').value, Math.ceil((80 + 8000 / 39.1 / 26) * 10) / 10, 1e-9, 'place need volume (1 decimal, rounded up)');
   const e = ev(inp, 'unit', 'equip', { price: 120000, life: 5, eqGain: 15, costDown: 1, fixedChg: 800 });
   near(e.delta, 95 * 26 * 40.1 - 80 * 26 * 39.1 - 800 - 2000, 0.5, 'equip delta incl. depreciation 2,000');
   near(e.payback, 120000 / (95 * 26 * 40.1 - 80 * 26 * 39.1 - 800), 0.01, 'equip payback = price ÷ extra cash');
@@ -123,6 +123,43 @@ for (const m of models) {
     chk(E.ok && Math.abs(E.delta) < 0.01 && Math.abs(E.wc) < 0.01, `${m}/${T} no-change delta = ${E.ok && E.delta}`);
   }
 }
+/* ผลตรวจรอบ 3: ✓ ✕ ตัดสินจากตัวเลขที่แสดงบนจอ · เป้าคืนทุน · เกินกำลังร้าน · เงินที่ได้คืนจากลูกค้าค้างจ่ายไม่นับเป็นคืนทุน */
+{
+  const inp = sampleInp(ctx, 'unit');
+  const base = { newRent: 26000, moveCost: 150000, closedDays: 0, dipPct: 0 };
+  for (const pct of [9, 9.4, 10, 17, 17.5, 18, 18.5, 19, 20, 25, -10]) {
+    const E = ev(inp, 'unit', 'place', Object.assign({}, base, { salesPct: pct }));
+    for (const id of ['need', 'payneed']) {
+      const c = cond(E, id);
+      if (!c || c.value === null) continue;
+      chk((c.haveShown >= c.value - 1e-9) === (c.status === 'ok'), `place +${pct}% ${id}: shown ${c.haveShown} vs ${c.value} status ${c.status}`);
+    }
+  }
+  const p18 = ev(inp, 'unit', 'place', Object.assign({}, base, { salesPct: 18 }));
+  chk(cond(p18, 'payneed').status === 'ok' && p18.payback <= 36, 'place +18% (94.4 cups) pays back within 3 years and shows ✓: ' + p18.payback);
+  const p94 = ev(inp, 'unit', 'place', Object.assign({}, base, { salesPct: 9.4 }));
+  chk(cond(p94, 'need').status === 'short' && p94.delta < 0, 'place +9.4% (87.5 cups) is below 87.9 and shows ✕');
+  const ps = ev(inp, 'unit', 'place', R('SAMPLE_DEC.place'));
+  near(ps.P.payNeed, (2880 + 438000 / 1016.6) / 35.21, 0.05, 'sample place 3-year payback volume = (2,880 + 438,000/1,016.6) / 35.21 ≈ 94.03 (reviewer hand check)');
+  near(cond(ps, 'payneed').value, 94.1, 1e-9, 'shown as 94.1 cups/day');
+  /* ซื้ออุปกรณ์: กำไรหักเงินกันซื้อเครื่องใหม่แล้ว จึงไม่มีเป้าคืนทุนแยก */
+  const e = ev(inp, 'unit', 'equip', { price: 120000, life: 15, eqGain: 2.5, costDown: 0, fixedChg: 0 });
+  chk(!cond(e, 'payneed') && !e.P.target, 'equip has no separate payback target');
+  chk(/กันไว้ซื้อเครื่องใหม่/.test(cond(e, 'need').sub), 'equip need says replacement money is already deducted');
+  /* เกินกำลังร้าน: เงินก้อนมากจนต้องขายเกิน 140 แก้ว/วัน */
+  const big = ev(inp, 'unit', 'place', Object.assign({}, base, { moveCost: 20000000, salesPct: 20 }));
+  chk(cond(big, 'payneed').value === null && /เต็มกำลัง/.test(cond(big, 'payneed').txt), 'place 20M move: payback target beyond capacity is flagged: ' + cond(big, 'payneed').txt);
+  chk(big.P.hi <= 140 * 1.6 + 1, 'slider does not stretch past capacity: ' + big.P.hi);
+  const ri = sampleInp(ctx, 'rental');
+  const rb = ev(ri, 'rental', 'place', { newRent: n(ri.rent) * 1.5, moveCost: 3000000, salesPct: 10, closedDays: 0, dipPct: 0 });
+  const rpn = cond(rb, 'payneed');
+  chk(!rpn || rpn.value === null || rpn.value <= 100, 'rental place never asks for more than 100%: ' + (rpn && rpn.value));
+  /* ลูกค้าค้างจ่าย 60 วัน ยอดลดครึ่ง: เงินที่ได้คืนจากลูกค้าไม่ใช่การคืนทุน */
+  const ci = Object.assign({}, inp, { creditDays: 60 });
+  const cw = ev(ci, 'unit', 'place', { newRent: 18000, moveCost: 50000, salesPct: -50, closedDays: 0, dipPct: 0 });
+  chk(cw.delta < 0 && cw.payback === null, 'profit drops: no payback even though money owed by customers comes back: ' + cw.payback);
+}
+function n(v) { return +v || 0; }
 /* ตัวเลขย่อ */
 near(R('fmtCompact(99984) === "99,984" ? 1 : 0'), 1, 0, 'compact below 100k shows full digits');
 chk(R('fmtCompact(999600)') === '1 ล้าน', 'compact rounds 9.99 แสน up to 1 ล้าน: ' + R('fmtCompact(999600)'));

@@ -235,6 +235,7 @@ function dEval(inp, m, T, d, opt) {
       else if (y3 > 0.5) payback = 36 + (rem2 - y3) / (y3 / 12);
     }
   }
+  if (R.extraSteady <= 0.5) payback = null;
   R.payback = R.one > 0 ? payback : null;
   R.ledger = dLedger(R, inp, m, T, d);
   R.warn = dWarn(R, inp, m, T, d);
@@ -353,6 +354,16 @@ function roundNeed(x, m) {
   if (m === 'rental' || m === 'subscription') return Math.ceil(x - 1e-9);
   return x < 10 ? Math.ceil(x * 10 - 1e-9) / 10 : Math.ceil(x - 1e-9);
 }
+/* ตัวเลขที่แสดงบนจอ: เงื่อนไขปัดขึ้น · ค่าที่ใช้ดูปัดตามปกติ · ตัดสิน ✓ ✕ จากตัวเลขที่แสดงเสมอ ไม่ให้ขัดกันบนจอ
+   ย้ายร้าน: ยอดที่ใหม่มาจาก % ที่กรอก จึงมีทศนิยม แสดงทศนิยม 1 ตำแหน่ง */
+function showNeed(P, x, m) {
+  if (x === null || x === undefined) return null;
+  if (P.T === 'branch') return Math.ceil(x - 1e-9);
+  if (P.prec && x >= 10) return Math.ceil(x * 10 - 1e-9) / 10;
+  return roundNeed(x, m);
+}
+function showVal(v) { return Math.abs(v) < 1000 ? Math.round(v * 10) / 10 : Math.round(v); }
+function payIn(x) { return x === null || x === undefined ? 'ไม่ได้' : x > 120 ? 'เกิน 10\u00a0ปี' : 'ใน ' + fmtMonths(x); }
 
 /* ---------- ตัวเลขหลักที่ตัดสินว่าคุ้มไหม (แถบลากในหน้าผล) ----------
    key = ช่องของการตัดสินใจ · ค่าบนแถบเป็นหน่วยที่ร้านเข้าใจ (ย้ายร้าน: ยอดที่ใหม่ แทน % ที่กรอก) */
@@ -388,6 +399,7 @@ function dPivot0(inp, m, T, d) {
     P.lab = 'ที่ใหม่ต้อง' + P.verb;
     P.lo = cur * 0.1;
     P.now = cur;
+    P.prec = m !== 'rental' && m !== 'subscription' && cur < 1000 ? 1 : 0;
   } else if (T === 'channel') {
     P.key = 'chQty';
     P.get = function (dd) { return n0(dd.chQty); };
@@ -429,17 +441,26 @@ function dPivot0(inp, m, T, d) {
      เป้าคืนทุน = อายุเครื่อง (ซื้ออุปกรณ์) หรือ 3 ปี (ย้ายร้าน เปิดสาขา) แล้วหาค่าที่ทำให้คืนทุนทันเป้า */
   var one = dBuild(inp, m, T, d, { lv: 1, f: 1 }).one;
   P.one = one;
-  if (one > 0 && (be.kind === 'value' || be.kind === 'zero')) {
-    var life = T === 'equip' && pos(d.life) ? Math.round(pos(d.life) * 12) : null;
-    P.target = life && life <= 120 ? life : 36;
-    P.targetTxt = life && life <= 120 ? 'คืนทุนก่อนเครื่องหมดอายุ (' + fmtN(pos(d.life), 1) + ' ปี)' : 'คืนทุนภายใน 3 ปี';
+  /* ยอดสูงสุดที่ร้านทำได้ (ย้ายร้าน สาขา) ใช้บอกว่าเงื่อนไขเกินกำลังร้าน */
+  P.capMax = null;
+  if (T === 'place') P.capMax = m === 'rental' ? 100 : isVolModel(m) && pos(inp.capacity) ? pos(inp.capacity) : null;
+  if (T === 'branch') P.capMax = m === 'rental' && pos(inp.occupancy) ? 100 * 100 / pos(inp.occupancy) : isVolModel(m) && pos(inp.capacity) && cur > 0 ? pos(inp.capacity) / cur * 100 : null;
+  if (P.capMax !== null) P.capTxt = m === 'rental' ? 'คนเช่าเต็มทุก' + U(inp, m) : (T === 'branch' ? 'สาขา' : 'ที่ใหม่') + 'ขายเต็มกำลังร้าน ' + fmtN(pos(inp.capacity)) + '\u00a0' + gainUnit(inp, m);
+  P.needOver = P.need !== null && P.capMax !== null && P.need > P.capMax + 1e-9;
+  if (one > 0 && T !== 'equip' && (be.kind === 'value' || be.kind === 'zero')) {
+    P.target = 36;
+    P.targetTxt = 'คืนทุนภายใน 3\u00a0ปี';
     var pb = function (v) { var R = dEval(inp, m, T, P.set(d, v)); return R.ok && R.payback !== null ? R.payback : Infinity; };
     var lo2 = Math.max(P.lo, P.need || P.lo), hi2 = Math.max(P.hi, (P.need || 0) * 2, 1) * 4;
+    P.payNeed = null; P.payNo = 'ยอดเท่าไรก็คืนทุนไม่ทันใน 3\u00a0ปี';
     if (pb(hi2) <= P.target) {
       for (var i = 0; i < 26; i++) { var mid = (lo2 + hi2) / 2; if (pb(mid) <= P.target) hi2 = mid; else lo2 = mid; }
-      P.payNeed = hi2;
-      if (P.payNeed > P.hi) { P.hi = Math.ceil(P.payNeed * 1.15 / P.step) * P.step; }
-    } else P.payNeed = null;
+      if (P.capMax !== null && hi2 > P.capMax + 1e-9) P.payNo = 'ต่อให้' + P.capTxt + ' ก็คืนทุนไม่ทันใน 3\u00a0ปี';
+      else {
+        P.payNeed = hi2;
+        if (P.payNeed > P.hi) { P.hi = Math.ceil(P.payNeed * 1.15 / P.step) * P.step; }
+      }
+    }
   }
   return P;
 }
@@ -463,27 +484,31 @@ function dConds(R, inp, m, T, d) {
   var C = [], base = R.B.profit, P = dPivot(inp, m, T, d), u = P.unit;
   function profitWith(dd) { return steady(inp, m, T, dd).profit; }
   /* 1) จุดคุ้มของตัวเลขหลัก */
-  var nr = { id: 'need', lever: P.key, unit: u, have: P.have, raw: P.need };
+  var hv = showVal(P.have);
+  var nr = { id: 'need', lever: P.key, unit: u, have: P.have, haveShown: hv, raw: P.need };
+  var over = P.needOver ? ' · เกินกำลังที่' + (T === 'branch' ? 'สาขา' : 'ร้าน') + 'ทำได้ (' + (m === 'rental' ? 'คนเช่าเต็มทุก' + U(inp, m) : fmtN(pos(inp.capacity)) + ' ' + gainUnit(inp, m)) + ')' : '';
   if (P.be.kind === 'value') {
-    var shown = T === 'branch' ? Math.ceil(P.need - 1e-9) : roundNeed(P.need, m);
-    var same = 'ถึงจะได้กำไรต่อเดือนเท่าตอนนี้' + (P.one > 0 ? ' (ยังไม่นับเงินก้อน ' + fmtN(P.one) + ' บาท)' : '');
+    var shown = showNeed(P, P.need, m);
+    var depM = T === 'equip' ? R.st.r.depreciation.monthlyTotal - R.B.r.depreciation.monthlyTotal : 0;
+    var same = 'ถึงจะได้กำไรต่อเดือนเท่าตอนนี้' + (T === 'equip' && depM > 0.5 ? ' (หักเงินที่กันไว้ซื้อเครื่องใหม่ เดือนละ ' + fmtN(depM) + ' บาทแล้ว)' : P.one > 0 ? ' (ยังไม่นับเงินก้อน ' + fmtN(P.one) + ' บาท)' : '');
     Object.assign(nr, { label: P.lab + 'อย่างน้อย', value: shown,
-      status: P.have >= P.need - 1e-6 ? 'ok' : 'short',
-      sub: T === 'place' ? (P.need >= P.now ? salesWord(m) + 'มากกว่าตอนนี้ ' : salesWord(m) + 'น้อยกว่าตอนนี้ ') + fmtPct(Math.abs(P.need / P.now - 1) * 100) + ' ' + same
+      status: hv >= shown - 1e-9 && !P.needOver ? 'ok' : 'short',
+      sub: (T === 'place' ? (P.need >= P.now ? salesWord(m) + 'มากกว่าตอนนี้ ' : salesWord(m) + 'น้อยกว่าตอนนี้ ') + fmtPct(Math.abs(P.need / P.now - 1) * 100) + ' ' + same
         : T === 'branch' ? '= ' + (m === 'rental' ? 'มีคนเช่า ' + fmtN(roundNeed(n0(inp.occupancy) * P.need / 100, m)) + '% ของ' + U(inp, m) + 'ทั้งหมดที่สาขา' : fmtN(roundNeed(n0(inp[ROLE[m].vol]) * P.need / 100, m)) + ' ' + gainUnit(inp, m)) + ' ' + same
-          : same });
+          : same) + over });
   } else {
     if (P.be.kind === 'max') Object.assign(nr, { label: P.lab + 'ไม่เกิน', value: roundDown(P.be.x, m), raw: P.be.x,
-      status: P.have <= P.be.x + 1e-6 ? 'ok' : 'short', sub: needText(P, m, inp, d) });
+      status: hv <= roundDown(P.be.x, m) + 1e-9 ? 'ok' : 'short', sub: needText(P, m, inp, d) });
     else Object.assign(nr, { label: P.q, value: null, txt: needText(P, m, inp, d), status: P.be.kind === 'never' ? 'short' : 'ok' });
   }
   C.push(nr);
   /* 1b) เรื่องที่มีเงินก้อน: ต้องได้เท่าไรถึงจะคืนทุนทันเป้า */
   if (P.target) {
-    if (P.payNeed !== null && P.payNeed !== undefined) C.push({ id: 'payneed', label: 'ถ้าจะ' + P.targetTxt + ' ' + P.lab + 'อย่างน้อย', value: T === 'branch' ? Math.ceil(P.payNeed - 1e-9) : roundNeed(P.payNeed, m),
-      raw: P.payNeed, unit: u, have: P.have, lever: P.key, status: P.have >= P.payNeed - 1e-6 ? 'ok' : 'short',
-      sub: 'นับเงินก้อน ' + fmtN(P.one) + ' บาทด้วย' + (P.target === 36 ? ' · 3 ปีเป็นระยะที่ใช้เทียบเท่านั้น' : '') });
-    else C.push({ id: 'payneed', label: 'ถ้าจะ' + P.targetTxt, value: null, txt: 'ยอดเท่าไรก็คืนทุนไม่ทัน', unit: u, lever: P.key, status: 'short', sub: 'นับเงินก้อน ' + fmtN(P.one) + ' บาทด้วย' });
+    var pn = showNeed(P, P.payNeed, m);
+    if (pn !== null) C.push({ id: 'payneed', label: 'ถ้าจะ' + P.targetTxt + ' ' + P.lab + 'อย่างน้อย', value: pn,
+      raw: P.payNeed, unit: u, have: P.have, haveShown: hv, lever: P.key, status: hv >= pn - 1e-9 ? 'ok' : 'short',
+      sub: 'นับเงินก้อน ' + fmtN(P.one) + ' บาทด้วย · 3 ปีเป็นระยะที่ใช้เทียบเท่านั้น' });
+    else C.push({ id: 'payneed', label: 'ถ้าจะ' + P.targetTxt, value: null, txt: P.payNo, unit: u, lever: P.key, status: 'short', sub: 'นับเงินก้อน ' + fmtN(P.one) + ' บาทด้วย · 3 ปีเป็นระยะที่ใช้เทียบเท่านั้น' });
   }
   /* 2) กำลังรับ */
   if ((T === 'hire' || T === 'equip') && isVolModel(m) && pos(inp.capacity) && P.need !== null && P.need > 0) {
@@ -527,7 +552,7 @@ function dConds(R, inp, m, T, d) {
       lever: { place: 'moveCost', equip: 'price', branch: 'setup' }[T],
       status: R.payback === null || R.payback > 120 ? 'short' : life ? (R.payback <= life ? 'ok' : 'short') : 'info',
       sub: R.payback === null ? 'ตัวเลขแบบนี้ เงินที่ได้เพิ่มแต่ละเดือนยังไม่พอคืนเงินก้อน ' + fmtN(R.one) + ' บาท'
-        : life ? 'เครื่องใช้ได้ ' + fmtN(life) + ' เดือน · ' + (R.payback <= life ? 'คืนทุนก่อนหมดอายุ' : 'หมดอายุก่อนคืนทุน') : 'นับจากเงินที่ได้เพิ่มจริงในแต่ละเดือน เทียบกับไม่ทำ' });
+        : life ? 'เครื่องใช้ได้ ' + fmtN(life) + ' เดือน · ' + (R.payback > 120 ? 'คืนทุนนานกว่า 10 ปี' : R.payback <= life ? 'คืนทุนก่อนหมดอายุ' : 'หมดอายุก่อนคืนทุน') : 'นับจากเงินที่ได้เพิ่มจริงในแต่ละเดือน เทียบกับไม่ทำ' });
   }
   /* 6) เงินในมือ */
   if (R.need > 0.5) C.push({ id: 'cash', label: R.B.hasCash ? 'เงินจะขาดมือมากสุด' : 'ช่วงแรกต้องมีเงินอย่างน้อย', value: R.need, unit: 'บาท', status: 'short', cash: true, lever: null,
@@ -570,9 +595,9 @@ function dSummary(T, d, inp, m) {
 }
 function fmtMonths(x) {
   if (x === null || x === undefined) return '–';
-  if (x > 120) return 'เกิน 10 ปี';
-  if (x < 1) return 'ไม่ถึง 1 เดือน';
-  return fmtN(Math.ceil(x - 1e-9)) + ' เดือน';
+  if (x > 120) return 'เกิน 10\u00a0ปี';
+  if (x < 1) return 'ไม่ถึง 1\u00a0เดือน';
+  return fmtN(Math.ceil(x - 1e-9)) + '\u00a0เดือน';
 }
 /* ตัวเลขย่อ: ต่ำกว่า 1 แสนแสดงเต็ม · ปัดแล้วถึง 10 ให้ขึ้นหน่วยถัดไป (ไม่มี "10 หมื่น") */
 function fmtCompact(n) {
