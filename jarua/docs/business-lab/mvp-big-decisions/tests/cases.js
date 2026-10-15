@@ -22,7 +22,7 @@ function genDec(ctx, T, inp, m, ki) {
   if (T === 'price') return K({ raiseBy: Math.max(1, Math.round((inp.price || inp.fee || inp.projectValue || inp.pricePerPeriod || 100) * 0.08)), raiseShare: 50, lostPct: 5 });
   if (T === 'promo') return K({ discPct: 15, usePct: 40, giftCost: Math.max(1, Math.round(price * 0.05)), promoMonths: 2, lift: 25, afterPct: 5, promoCost: 2000 });
   if (T === 'newprod') return K({ npPrice: Math.round(price * 0.8), npCost: Math.round(uc * 0.8), npQty: g, npAttach: 15, npCanni: 20, npFixed: 500, npSetup: 10000, ramp: 1 });
-  if (T === 'freeship') return K({ shipCost: kind === 'part' ? 15 : 30, shipShare: 50, perOrder: kind === 'min' ? 1.5 : 1, shipLift: 10, ramp: 1 });
+  if (T === 'freeship') return K({ shipOrders: 100, shipCost: kind === 'part' ? 15 : 30, shipShare: 50, perOrder: kind === 'min' ? 1.5 : 1, shipLift: 10, ramp: 1 });
   if (T === 'ads') return K({ adBudget: 5000, adMgmt: 0, adSetup: 2000, adGain: g, ramp: 1 });
   if (T === 'freelance') return K({ flFee: 6000, flPct: 5, flGain: g, ramp: 1, hours: 2 });
   if (T === 'supplier') return K(kind === 'better' ? { newCost: uc * 1.1, supSales: 5, supStock: 30, supCredit: 15, switchCost: 0 } : { newCost: uc * 0.9, supSales: -3, switchCost: 3000 });
