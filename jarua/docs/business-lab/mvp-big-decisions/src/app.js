@@ -30,7 +30,14 @@
     place: P('<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>'),
     channel: P('<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>'),
     equip: P('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'),
-    branch: P('<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/>')
+    branch: P('<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/>'),
+    price: P('<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1"/>'),
+    promo: P('<line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>'),
+    newprod: P('<path d="M16 16h6"/><path d="M19 13v6"/><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="m7.5 4.27 9 5.15"/><path d="M3.29 7 12 12l8.71-5"/><path d="M12 22V12"/>'),
+    freeship: P('<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>'),
+    ads: P('<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>'),
+    supplier: P('<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>'),
+    freelance: P('<path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/>')
   };
   var MICON = {
     unit: P('<path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/>'),
@@ -44,7 +51,7 @@
   };
 
   var state = {
-    view: 'start', topic: null, model: null, inp: {}, isSample: false, step: 0, editing: false, dstep: 0, dediting: false,
+    view: 'start', topic: null, model: null, inp: {}, isSample: false, sampleKind: null, where: null, step: 0, editing: false, dstep: 0, dediting: false,
     ds: {}, wi: {}, dsign: {}, labOrig: null, active: null, answers: {}, qidx: 0, feeHelp: false, fh: { share: '', rate: '' }
   };
   var app;
@@ -77,7 +84,7 @@
 
   /* ---------- persistence & theme ---------- */
   function snapshot() {
-    return { view: state.view, topic: state.topic, model: state.model, inp: state.inp, isSample: state.isSample, step: state.step, editing: state.editing,
+    return { view: state.view, topic: state.topic, model: state.model, inp: state.inp, isSample: state.isSample, sampleKind: state.sampleKind, where: state.where, step: state.step, editing: state.editing,
       dstep: state.dstep, dediting: state.dediting, ds: state.ds, wi: state.wi, dsign: state.dsign, active: state.active, answers: state.answers, qidx: state.qidx };
   }
   function save() { try { sessionStorage.setItem('lab3', JSON.stringify(snapshot())); } catch (e) { /* ignore */ } }
@@ -160,50 +167,78 @@
   function ml(t, y) { return monthLabel(t, y).replace(' ', '\u00a0'); }
 
   /* ============================================================ START — "กำลังคิดจะ…" */
-  var teaserCache = null;
-  function teasers() {
-    if (teaserCache) return teaserCache;
-    var inp = JSON.parse(JSON.stringify(MODELS.unit.sample)); inp.volumePer = 'day';
-    var out = {};
-    TOPIC_ORDER.forEach(function (t) {
-      var d = SAMPLE_DEC[t], R = dEval(inp, 'unit', t, d);
-      if (!R.ok) return;
-      var Cn = dConds(R, inp, 'unit', t, d), need = Cn.filter(function (c) { return c.id === 'need'; })[0];
-      if (t === 'hire') out[t] = ['เงินเดือน 12,000 บาท ต้องขายเพิ่ม', need.value, 'แก้ว/วัน ถึงจะคุ้ม'];
-      if (t === 'place') out[t] = ['เงินค่าย้าย 150,000 บาท คืนทุนใน', Math.ceil(R.payback), 'เดือน'];
-      if (t === 'channel') { var cu = channelUnit(inp, 'unit', d); out[t] = ['ขายผ่านแอป เหลือเงินแก้วละ', cu.ch, 'บาท (ขายเอง ' + fmtN(cu.own, 1) + ')']; }
-      if (t === 'equip') out[t] = ['เครื่อง 120,000 บาท คืนทุนใน', Math.ceil(R.payback), 'เดือน'];
-      if (t === 'branch') out[t] = ['ต้องหาเงินเพิ่ม', Math.round(R.need / 1000) * 1000, 'บาท ช่วงสาขาตั้งตัว'];
-    });
-    teaserCache = out;
+  /* ร้านตัวอย่าง: ร้านกาแฟ (หน้าร้าน) หรือร้านเสื้อผ้าออนไลน์ เลือกตามที่ผู้ใช้ขาย และเรื่องที่เปิด */
+  function sampleKindFor(t) {
+    var k = state.where === 'online' ? 'online' : 'cafe';
+    if (t && (!topicOk(t, SAMPLES[k].m) || !whereOk(t, SAMPLES[k].where))) k = k === 'cafe' ? 'online' : 'cafe';
+    return k;
+  }
+  function sampleInpOf(k) {
+    var m = SAMPLES[k].m, inp = JSON.parse(JSON.stringify(MODELS[m].sample));
+    if (!inp.volumePer && MODELS[m].defPer) inp.volumePer = MODELS[m].defPer;
+    return inp;
+  }
+  function sampleDec(k, t) { return (k === 'online' ? SAMPLE_DEC_ON : SAMPLE_DEC)[t]; }
+  function sampleName() { return SAMPLES[state.sampleKind || 'cafe'].name; }
+  var teaserCache = {};
+  function teaserFor(t) {
+    var k = sampleKindFor(t), ck = k + '|' + t;
+    if (teaserCache[ck] !== undefined) return teaserCache[ck];
+    var m = SAMPLES[k].m, inp = sampleInpOf(k), d = sampleDec(k, t), R = dEval(inp, m, t, d), out = null;
+    if (R.ok) {
+      var Cn = dConds(R, inp, m, t, d), row = function (id) { return Cn.filter(function (c) { return c.id === id; })[0]; };
+      var need = row('need'), pay = row('pay'), lab = '', v = null, u = '';
+      if ((t === 'place' || t === 'equip') && pay && pay.value !== null) { lab = 'คืนทุนใน'; v = Math.ceil(pay.value - 1e-9); u = 'เดือน'; }
+      else if (t === 'branch' && R.need > 0.5) { lab = 'ต้องหาเงินเพิ่ม'; v = Math.round(R.need / 1000) * 1000; u = 'บาท'; }
+      else if (t === 'channel') { var cu = channelUnit(inp, m, d); if (cu) { lab = 'เหลือเงิน' + U(inp, m) + 'ละ'; v = cu.ch; u = 'บาท (ขายเอง ' + fmtN(cu.own, 1) + ')'; } }
+      else if (need && need.value !== null) { lab = need.label; v = need.value; u = need.unit; }
+      else if (pay && pay.value !== null) { lab = 'คืนทุนใน'; v = Math.ceil(pay.value - 1e-9); u = 'เดือน'; }
+      if (v !== null) out = [SAMPLES[k].short + ' · ' + dSummary(t, d, inp, m) + ' · ' + lab, v, u];
+    }
+    teaserCache[ck] = out;
     return out;
   }
   var TOPIC_EX = {
-    hire: 'ดูว่าต้องขายเพิ่มเท่าไร ถึงจะคุ้มเงินเดือนคนใหม่', place: 'ดูว่าที่ใหม่ต้องขายได้เท่าไร และเงินค่าย้ายคืนทุนเมื่อไร',
+    hire: 'ดูว่าต้องขายเพิ่มเท่าไร ถึงจะคุ้มค่าจ้างคนใหม่', place: 'ดูว่าที่ใหม่ต้องขายได้เท่าไร และเงินค่าย้ายคืนทุนเมื่อไร',
     channel: 'ดูว่าหลังหักส่วนแบ่ง ยังเหลือเงินเท่าไร และต้องขายได้เท่าไร', equip: 'ดูว่าเครื่องคืนทุนกี่เดือน ทันก่อนหมดอายุไหม',
-    branch: 'ดูว่าสาขาต้องขายได้เท่าไร และเงินพอช่วงตั้งตัวไหม'
+    branch: 'ดูว่าสาขาต้องขายได้เท่าไร และเงินพอช่วงตั้งตัวไหม',
+    price: 'ดูว่าลูกค้าลดลงได้มากสุดเท่าไร ราคาใหม่ถึงยังคุ้ม', promo: 'ดูว่าช่วงโปรยอดต้องเพิ่มเท่าไร และทั้งปีได้หรือเสีย',
+    newprod: 'ดูว่าของใหม่ต้องขายได้เท่าไร ถึงจะคุ้มเงินที่ลง', freeship: 'ดูว่ายอดต้องเพิ่มเท่าไร ถึงจะคุ้มค่าส่งที่ร้านจ่าย',
+    ads: 'ดูว่าต้องขายเพิ่มเท่าไร ถึงจะคุ้มค่าโฆษณา', freelance: 'ดูว่าต้องขายเพิ่มเท่าไร ถึงจะคุ้มค่าจ้าง',
+    supplier: 'ดูว่าหลังเปลี่ยน ยอดขายลดได้แค่ไหนถึงยังคุ้ม'
   };
+  function topicCard(t, i, exclude) {
+    var ok = !state.model || topicOk(t, state.model), own = state.model && !state.isSample, tz1 = ok && !own && !exclude ? teaserFor(t) : null;
+    var u = tz1 ? String(tz1[2]) : '', pc = u.charAt(0) === '%';
+    return '<button class="qc rise" style="--d:' + i + '" data-act="topic" data-t="' + t + '"' + (ok ? '' : ' aria-disabled="true"') + '><span class="qc-ic">' + TICON[t] + '</span>' +
+      '<span class="qc-b"><b>' + esc(TOPICS[t].q) + '</b>' +
+      (ok ? (tz1 ? '<small>' + tw(tz1[0]) + ' <em>' + anim('tz' + t, tz1[1], decOf(tz1[1])) + (pc ? '%' : '') + '</em> ' + esc(pc ? u.slice(1).trim() : u) + '</small>' : '<small>' + esc(TOPIC_EX[t]) + '</small>')
+        : '<small>ยังไม่มีสำหรับร้านแบบ' + esc(MODELS[state.model].tile) + '</small>') + '</span>' + ICON.chev + '</button>';
+  }
   function topicRows(exclude) {
-    var tz = teasers();
-    return '<div class="qcards">' + TOPIC_ORDER.filter(function (t) { return t !== exclude; }).map(function (t, i) {
-      var ok = !state.model || topicOk(t, state.model), tz1 = tz[t], own = state.model && !state.isSample;
-      return '<button class="qc rise" style="--d:' + i + '" data-act="topic" data-t="' + t + '"' + (ok ? '' : ' aria-disabled="true"') + '><span class="qc-ic">' + TICON[t] + '</span>' +
-        '<span class="qc-b"><b>' + esc(TOPICS[t].q) + '</b>' +
-        (ok ? (own || exclude ? '<small>' + esc(TOPIC_EX[t]) + '</small>' : tz1 ? '<small>ร้านกาแฟตัวอย่าง · ' + esc(tz1[0]) + ' <em>' + anim('tz' + t, tz1[1], tz1[1] < 100 && Math.round(tz1[1]) !== tz1[1] ? 1 : 0) + '</em> ' + esc(tz1[2]) + '</small>' : '')
-          : '<small>ยังไม่มีสำหรับร้านแบบ' + esc(MODELS[state.model].tile) + '</small>') + '</span>' + ICON.chev + '</button>';
-    }).join('') + '</div>';
+    var i = 0;
+    return TOPIC_CATS.map(function (c) {
+      var ts = c.topics.filter(function (t) { return t !== exclude && whereOk(t, state.where); });
+      if (!ts.length) return '';
+      return '<section class="cat3"><h2 class="cat-h">' + esc(c.name) + '</h2><div class="qcards">' + ts.map(function (t) { return topicCard(t, i++, exclude); }).join('') + '</div></section>';
+    }).join('');
+  }
+  function whereHtml() {
+    return '<div class="where3"><span class="wh-l" id="wh-l">ร้านคุณขายที่ไหน</span><div class="seg" role="group" aria-labelledby="wh-l">' + WHERE.map(function (w) {
+      return '<button type="button" data-act="where" data-v="' + w[0] + '" aria-pressed="' + (state.where === w[0]) + '">' + w[1] + '</button>';
+    }).join('') + '</div>' + (state.where ? '' : '<p class="wh-n">เลือกแล้วจะเหลือเฉพาะเรื่องที่เข้ากับร้านคุณ</p>') + '</div>';
   }
   function viewStart() {
     var out = bar(null, 'เช็กก่อนตัดสินใจเรื่องใหญ่', 'Business Lab') + '<main class="screen"><div class="wrap">' +
       '<section class="st3"><h1>กำลังคิดจะ…</h1><p>เลือกเรื่องที่คิดอยู่ แล้วดูว่าต้องขายเท่าไรถึงจะคุ้ม เงินพอไหม และคืนทุนเมื่อไร ลองบนตัวเลขก่อน ไม่เสียเงินสักบาท</p></section>' +
-      topicRows(null);
+      whereHtml() + topicRows(null);
     if (state.model) {
       var S = C(state.inp, state.model);
-      out += '<div class="shopline"><span><b>' + (state.isSample ? 'ร้านกาแฟตัวอย่าง' : 'ร้านคุณ') + '</b> · ' + esc(MODELS[state.model].tile) +
+      out += '<div class="shopline"><span><b>' + (state.isSample ? esc(sampleName()) : 'ร้านคุณ') + '</b> · ' + esc(MODELS[state.model].tile) +
         (S.ok ? ' · ' + (S.profit < 0 ? 'ขาดทุน ' : 'กำไร ') + fmtN(Math.abs(S.profit)) + ' บาท/เดือน' : '') + '</span>' +
         '<button class="lnk" data-act="shop-edit">' + (state.isSample ? 'ใส่ร้านคุณ' : 'แก้ตัวเลขร้าน') + '</button></div>';
     } else {
-      out += '<button class="btn ghost block sample-btn" data-act="sample">ดูตัวอย่างกับร้านกาแฟก่อน' + ICON.next + '</button>';
+      out += '<button class="btn ghost block sample-btn" data-act="sample">ดูตัวอย่างกับ' + esc(SAMPLES[sampleKindFor(null)].short) + 'ก่อน' + ICON.next + '</button>';
     }
     out += '<p class="fine">ใส่ตัวเลขร้านครั้งเดียว (ประมาณ 3 นาที) แล้วลองได้ทุกเรื่อง · ไม่ต้องสมัคร ตัวเลขอยู่ในเครื่องคุณเท่านั้น และหายไปเมื่อปิดหน้านี้ · คำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua</p>';
     return out + '</div></main>';
@@ -220,7 +255,7 @@
       '<div class="q-head"><h1>ก่อนอื่น ขอตัวเลขร้านคุณตอนนี้</h1><p>ใช้เทียบว่าถ้าตัดสินใจแล้ว ร้านจะเปลี่ยนไปเท่าไร กรอกครั้งเดียว ใช้ได้กับทุกเรื่อง ประมาณ 3 นาที</p></div>' +
       '<p class="muted" style="margin:18px 2px 12px;font-size:15px;font-weight:600">ร้านคุณได้เงินจากอะไรเป็นหลัก</p>' +
       '<div class="tiles">' + tiles + '</div>' +
-      '<div class="alt"><span>ยังไม่อยากกรอก?</span><button class="lnk" data-act="sample">ดูตัวอย่างกับร้านกาแฟก่อน</button></div></div></main>';
+      '<div class="alt"><span>ยังไม่อยากกรอก?</span><button class="lnk" data-act="sample">ดูตัวอย่างกับ' + esc(SAMPLES[sampleKindFor(t)].short) + 'ก่อน</button></div></div></main>';
   }
 
   /* ============================================================ WIZARD (ตัวเลขร้าน — ขั้นเดียวกับตัวที่ 1) */
@@ -390,7 +425,8 @@
     if (v === null) return '';
     var mx = dMax(k), pctish = f.t === 'pct' || (f.suf && f.suf(state.inp, state.model, d || dec()).charAt(0) === '%');
     if (mx !== null && v > mx) return 'ใส่ได้ไม่เกิน ' + fmtN(mx) + (pctish ? '%' : k === 'closedDays' ? ' วัน (วันที่เปิดร้านต่อเดือน)' : '');
-    if (f.min !== undefined && v < f.min) return k === 'salesPct' ? 'น้อยลงได้ไม่เกิน ' + fmtN(-f.min) + '%' : 'ต้องไม่น้อยกว่า ' + fmtN(f.min);
+    if (f.min !== undefined && v < f.min) return k === 'salesPct' || k === 'supSales' ? 'น้อยลงได้ไม่เกิน ' + fmtN(-f.min) + '%' : 'ต้องไม่น้อยกว่า ' + fmtN(f.min);
+    if (k === 'npPrice' && v <= 0) return 'ต้องมากกว่า 0';
     if (k === 'fixedChg' && v < -fixedTotal(state.inp)) return 'ลดได้ไม่เกินค่าใช้จ่ายคงที่ทั้งหมดของร้าน (' + fmtN(fixedTotal(state.inp)) + ' บาท)';
     return '';
   }
@@ -400,6 +436,7 @@
       if (!dShown(k, d)) return true;
       if (dErr(k, d)) return false;
       var f = dDef(k);
+      if (f.t === 'kind') return kindsOf(state.topic, state.inp, state.model).some(function (o) { return o[0] === d.kind; });
       if (f.req) return num(dGet(d, k)) !== null;
       if (f.t === 'count') return num(dGet(d, k)) >= (f.min || 1);
       return true;
@@ -446,11 +483,12 @@
         return '<button type="button" data-act="dpick" data-k="' + k + '" data-v="' + o + '" aria-pressed="' + on + '"' + (o ? ' aria-label="' + o + ' เดือน"' : '') + '>' + (o === 0 ? 'ทันที' : o) + '</button>';
       }).join('') + '</div>' + (f.opts[0] !== 0 || f.opts.length < 5 ? '' : '<p class="help">ตัวเลขคือจำนวนเดือน</p>') + help + '</div>';
     }
-    if (f.t === 'names') {
-      var names = CH_NAMES[m] || [], cur = d.chName || '';
-      return '<div class="field" data-df="' + k + '"' + hidden + '><span class="lab">' + lab + '</span><div class="chips">' + names.map(function (n) {
-        return '<button type="button" class="chip" data-act="chname" data-v="' + esc(n) + '" aria-pressed="' + (cur === n) + '">' + esc(n) + '</button>';
-      }).join('') + '<input id="' + id + '" data-chname-custom placeholder="อื่น ๆ พิมพ์เอง" value="' + esc(names.indexOf(cur) < 0 ? cur : '') + '" maxlength="24" aria-label="ชื่อช่องทางอื่น"></div></div>';
+    if (f.t === 'kind') {
+      return '<div class="field" data-df="kind"><span class="sr" id="lab-kind">' + esc(KIND_Q[state.topic] || lab) + '</span><div class="kinds" role="radiogroup" aria-labelledby="lab-kind">' +
+        kindsOf(state.topic, inp, m).map(function (o) {
+          var on = d.kind === o[0];
+          return '<button type="button" class="kd" role="radio" data-act="dkind" data-v="' + o[0] + '" aria-checked="' + on + '"><span class="kd-r" aria-hidden="true"></span><span class="kd-b"><b>' + esc(o[1]) + '</b><small>' + esc(o[2]) + '</small></span></button>';
+        }).join('') + '</div></div>';
     }
     var v = dGet(d, k), suf = esc(f.suf ? f.suf(inp, m, d) : (f.t === 'pct' ? '%' : 'บาท'));
     var sign = '';
@@ -524,7 +562,7 @@
     return st.f.map(function (k) {
       var f = dDef(k);
       if (!dShown(k, d)) return '';
-      if (f.t === 'names') return d.chName ? d.chName : '';
+      if (f.t === 'kind') return kindName(state.topic, d, inp, m);
       if (f.t === 'ramp') { var r = num(dGet(d, k)); return r === null ? '' : f.label(inp, m, d) + ' ' + (r > 0 ? fmtN(r) + ' เดือน' : 'ทันที'); }
       var v = num(dGet(d, k));
       if (v === null) return '';
@@ -536,7 +574,7 @@
   function viewReview() {
     var steps = stepsFor(state.model);
     var out = bar(backBtn(state.topic && dAllValid() && shopOk() ? 'result' : 'to-start', 'กลับ'), 'แก้ตัวเลข', state.topic ? TOPICS[state.topic].title : '') + '<main class="screen"><div class="wrap">';
-    if (state.isSample) out += '<div class="banner"><span>กำลังใช้ตัวเลขร้านกาแฟตัวอย่าง</span><button class="lnk" data-act="to-shop">ใส่ร้านคุณ</button></div>';
+    if (state.isSample) out += '<div class="banner"><span>กำลังใช้ตัวเลข' + esc(sampleName()) + '</span><button class="lnk" data-act="to-shop">ใส่ร้านคุณ</button></div>';
     if (state.topic) {
       out += '<div class="sec-h"><h2>' + esc(TOPICS[state.topic].title) + '</h2></div><div class="rv">' + dStepsFor(state.topic, state.inp, state.model).map(function (st, i) {
         return '<button class="rv-row" data-act="d-edit" data-i="' + i + '"><span class="t">' + esc(st.q) + '</span><span class="v">' + esc(dStepSummary(st)) + '</span>' + ICON.chev + '</button>';
@@ -551,14 +589,14 @@
 
   /* ============================================================ RESULT — สองเส้นทาง */
   function pivotWord(P, v) {
-    if (P.T === 'place') return P.verb + ' ' + nf(v, P.unit);
+    if (P.verb) return P.verb + ' ' + nf(v, P.unit);
     if (P.T === 'branch') return 'สาขามี' + salesWord(state.model) + ' ' + fmtN(v) + '% ของร้านเดิม';
     if (P.T === 'channel') return P.word + 'ได้ ' + nf(v, P.unit);
     return P.word + ' ' + nf(v, P.unit);
   }
   function heroHtml(R, P, v) {
-    var dl = R.delta, ab = fmtN(Math.abs(dl));
-    var h = Math.abs(dl) < 0.5 ? 'กำไรเท่าเดิม' : 'กำไร' + (dl > 0 ? 'เพิ่มขึ้น' : 'ลดลง') + ' <span class="hb ' + (dl > 0 ? 'up' : 'down') + '">' + anim('hb' + state.topic, Math.abs(dl)) + '</span> <span class="hu">บาท/เดือน</span>';
+    var dl = R.delta, ab = fmtN(Math.abs(dl)), pre = state.topic === 'promo' ? 'ช่วงจัดโปร ' : '';
+    var h = pre + (Math.abs(dl) < 0.5 ? 'กำไรเท่าเดิม' : 'กำไร' + (dl > 0 ? 'เพิ่มขึ้น' : 'ลดลง') + ' <span class="hb ' + (dl > 0 ? 'up' : 'down') + '">' + anim('hb' + state.topic, Math.abs(dl)) + '</span> <span class="hu">บาท/เดือน</span>');
     var has = v !== null && v !== undefined && v > 0;
     var ctx = 'ถ้า' + (state.topic === 'channel' && has ? pivotWord(P, v) : dSummary(state.topic, dec(), state.inp, state.model) + (has ? ' และ' + pivotWord(P, v) : '')) +
       (R.k > 0 && has ? ' · ' + salesWord(state.model) + 'ขึ้นถึงที่คาดในเดือนที่ ' + (R.k + 1) : '');
@@ -567,34 +605,60 @@
     if (R.need > 0.5) risk = '<p class="h-risk">' + ICON.alert + '<span>' + (R.B.hasCash ? 'เงินจะขาดมือมากสุด <b>' + fmtN(R.need) + '</b> บาท · ' + tw(cashWhen(R)) + ' (มีอยู่ ' + fmtN(R.cashStart) + ' บาท)'
       : 'ช่วงแรกต้องมีเงินอย่างน้อย <b>' + fmtN(R.need) + '</b> บาท') + '</span></p>';
     return '<div class="h-k"></div>' +
-      '<h1 class="h-big" aria-label="' + esc(Math.abs(dl) < 0.5 ? 'กำไรเท่าเดิม' : 'กำไร' + (dl > 0 ? 'เพิ่มขึ้น ' : 'ลดลง ') + ab + ' บาทต่อเดือน') + '">' + h + '</h1>' +
-      loss + '<p class="h-sub">' + tw(ctx) + '</p>' + risk;
+      '<h1 class="h-big" aria-label="' + esc(pre + (Math.abs(dl) < 0.5 ? 'กำไรเท่าเดิม' : 'กำไร' + (dl > 0 ? 'เพิ่มขึ้น ' : 'ลดลง ') + ab + ' บาทต่อเดือน')) + '">' + h + '</h1>' +
+      loss + '<p class="h-sub">' + tw(ctx) + '</p>' + (state.topic === 'promo' ? '<p class="h-sub">ทั้งปี (ช่วงโปรและหลังจบโปร) กำไร' + (R.total12 >= -0.5 ? 'เพิ่ม' : 'ลด') + ' <b>' + fmtN(Math.abs(R.total12)) + '</b> บาท เทียบกับไม่ทำ</p>' : '') + risk;
   }
   function laneRows(R) {
     var m = state.model, inp = state.inp, d = viewD(), x = R.st.b.x, rows = [];
-    rows.push(['กำไรต่อเดือน', plain(R.B.profit), plain(R.profit), R.delta, 'big']);
+    rows.push([state.topic === 'promo' ? 'กำไรต่อเดือน (ช่วงโปร)' : 'กำไรต่อเดือน', plain(R.B.profit), plain(R.profit), R.delta, 'big']);
     var hc = R.B.hasCash;
     var cA = R.rows[11].bBal, cB = R.rows[11].bal, big = Math.min(Math.abs(cA), Math.abs(cB)) >= 1e5;
     rows.push([hc ? 'เงินสดสิ้น ' + monthLabel(12, true) : 'เงินเพิ่ม/ลดใน 12 เดือน', big ? fmtCompact(cA) : plain(cA), big ? fmtCompact(cB) : plain(cB), cB - cA, '', big]);
     if (R.one > 0) {
-      rows.push(['เงินก้อนตอนเริ่ม', '–', fmtN(R.one), null]);
-      rows.push(['คืนทุน', '–', R.payback === null ? 'ไม่ได้' : fmtMonths(R.payback), null]);
+      rows.push([state.topic === 'promo' ? 'ค่าจัดโปร' : 'เงินก้อนตอนเริ่ม', '–', fmtN(R.one), null]);
+      if (state.topic !== 'promo') rows.push(['คืนทุน', '–', R.payback === null ? 'ไม่ได้' : fmtMonths(R.payback), null]);
     }
-    var u = volUnitText(inp, m), cur = n0(inp[ROLE[m].vol]);
-    if (state.topic === 'hire') {
-      rows.push(['พนักงาน (ไม่นับคุณ)', fmtN(n0(inp.staffCount)) + ' คน', fmtN(n0(inp.staffCount) + Math.max(1, Math.round(n0(d.count)))) + ' คน', null]);
-      if (n0(d.gain) > 0) rows.push([salesWord(m), nf(cur, u), nf(n0(x[ROLE[m].vol]), u), null]);
-    } else if (state.topic === 'place') {
+    var u = volUnitText(inp, m), cur = n0(inp[ROLE[m].vol]), now = n0(x[ROLE[m].vol]), T = state.topic, sw = salesWord(m);
+    var volRow = function (lab) { rows.push([lab || sw, nf(cur, u), nf(now, u), null]); };
+    var costRow = function (lab) { rows.push([lab, fmtN(n0(inp.unitCost), 2), fmtN(n0(x.unitCost), 2), null]); };
+    if (T === 'hire') {
+      if (isKind(d, 'piece')) costRow('ต้นทุนต่อ' + U(inp, m) + ' (รวมค่าจ้าง)');
+      else rows.push(['พนักงาน (ไม่นับคุณ)', fmtN(n0(inp.staffCount)) + ' คน', fmtN(n0(inp.staffCount) + Math.max(1, Math.round(n0(d.count)))) + ' คน', null]);
+      if (n0(d.gain) > 0) volRow();
+    } else if (T === 'price') {
+      var pk = ROLE[m].price;
+      rows.push(['ราคาต่อ' + priceWord(inp, m) + (isKind(d, 'some') ? ' (เฉลี่ย)' : ''), fmtN(n0(inp[pk]), 2), fmtN(n0(x[pk]), 2), null]);
+      volRow();
+    } else if (T === 'promo') {
+      if (isKind(d, 'gift')) costRow('ต้นทุนต่อ' + U(inp, m) + ' (รวมของแถม)');
+      else rows.push(['ราคาเฉลี่ยช่วงโปร', fmtN(n0(inp.price), 2), fmtN(n0(x.price), 2), null]);
+      volRow(sw + 'ช่วงโปร');
+    } else if (T === 'newprod') {
+      rows.push(['ของใหม่', '–', nf(n0(R.st.b.note.npQ), npUnit(m) + '/' + perWord(inp)), null]);
+      if (Math.abs(now - cur) > 1e-9) volRow(sw + 'ของเดิม');
+    } else if (T === 'freeship') {
+      costRow('ต้นทุนต่อ' + U(inp, m) + ' (รวมค่าส่ง)');
+      volRow();
+    } else if (T === 'ads') {
+      rows.push(['ค่าโฆษณาต่อเดือน', '–', fmtN(n0(d.adBudget) + n0(d.adMgmt)), null]);
+      if (n0(d.adGain) > 0) volRow();
+    } else if (T === 'freelance') {
+      rows.push(['ค่าจ้างต่อเดือน', '–', fmtN(n0(d.flFee)), null]);
+      if (n0(d.flGain) > 0) volRow();
+    } else if (T === 'supplier') {
+      costRow('ต้นทุนต่อ' + U(inp, m));
+      volRow();
+    } else if (T === 'place') {
       rows.push(['ค่าเช่า', fmtN(n0(inp.rent)), fmtN(n0(d.newRent)), null]);
       rows.push([salesWord(m), nf(cur, u), nf(cur * (1 + n0(d.salesPct) / 100), u), null]);
-    } else if (state.topic === 'channel') {
+    } else if (T === 'channel') {
       var cu = channelUnit(inp, m, d);
-      if (cu) rows.push(['เหลือเงินต่อ' + ({ subscription: 'สมาชิก/เดือน', project: 'งาน', rental: periodWord(inp) + 'ที่มีคนเช่า', commission: 'ดีล' }[m] || U(inp, m)), fmtN(cu.own, 1), fmtN(cu.ch, 1) + ' <small>ผ่าน' + esc(d.chName || 'ช่องทาง') + '</small>', null]);
-    } else if (state.topic === 'equip') {
+      if (cu) rows.push(['เหลือเงินต่อ' + ({ subscription: 'สมาชิก/เดือน', project: 'งาน', rental: periodWord(inp) + 'ที่มีคนเช่า', commission: 'ดีล' }[m] || U(inp, m)), fmtN(cu.own, 1), fmtN(cu.ch, 1) + ' <small>' + esc(tj('ผ่าน', d.chName || 'ช่องทาง')) + '</small>', null]);
+    } else if (T === 'equip') {
       if (isVolModel(m) && pos(inp.capacity) && pos(d.eqCap)) rows.push(['ทำได้สูงสุด', nf(n0(inp.capacity), u), nf(n0(x.capacity), u), null]);
       var cpc = costDownSuf(m).charAt(0) === '%' ? '%' : '';
       if (n0(d.costDown) > 0) rows.push([costDownLabel(inp, m).replace('ลดลง', ''), fmtN(n0(inp[ROLE[m].cost]), 1) + cpc, fmtN(n0(x[ROLE[m].cost]), 1) + cpc, null]);
-    } else if (state.topic === 'branch') {
+    } else if (T === 'branch') {
       rows.push(['ร้าน', '1 ที่', '2 ที่', null]);
       rows.push([salesWord(m) + 'รวม', m === 'rental' ? fmtN(cur) + '% · 1 ที่' : nf(cur, u), m === 'rental' ? '2 ที่' : nf(cur * (1 + n0(d.bPct) / 100), u), null]);
     }
@@ -623,7 +687,7 @@
     var zone = be.kind === 'always' ? 'all-ok' : be.kind === 'never' ? 'all-no' : be.kind === 'max' ? 'rev' : 'fwd';
     var pp = P.target ? (P.payNeed !== null && P.payNeed !== undefined ? pct(P, P.payNeed) : 100) : null;
     if (pp !== null && zone === 'fwd') zone = 'fwd3';
-    var hp = P.have > 0 || P.T === 'place' || P.T === 'branch' ? pct(P, P.have) : null;
+    var hp = P.have > 0 || P.showHave ? pct(P, P.have) : null;
     var S = dScenarios(state.inp, state.model, state.topic, dec(), P);
     var chips = S.map(function (s) {
       var on = Math.abs(v - s.v) < 1e-6;
@@ -654,7 +718,7 @@
     var ok = rows.length ? rows.every(function (c) { return c.status === 'ok'; }) && !(P.target && P.payNeed === null)
       : R.delta >= -0.5 && (!(R.one > 0) || (R.payback !== null && (!P.target || R.payback <= P.target + 1e-9)));
     /* คืนทุนก่อนเครื่องหมดอายุ · ไม่เกินกำลังร้าน ก็เป็นเงื่อนไขด้วย */
-    ok = ok && (R.conds || []).every(function (c) { return !(c.id === 'pay' || c.id === 'cap' || c.id === 'room') || c.status !== 'short'; });
+    ok = ok && (R.conds || []).every(function (c) { return !(c.id === 'pay' || c.id === 'cap' || c.id === 'room' || c.id === 'total') || c.status !== 'short'; });
     var pay = R.one > 0 ? ' · คืนทุน' + payIn(R.payback) : '';
     return '<span class="pr-v">ถ้า' + tw(pivotWord(P, v)) + '</span><span class="pr-r ' + (ok ? 'ok' : 'no') + '">' + (ok ? ICON.ok : ICON.no) +
       '<span><span class="sr">' + (ok ? 'ถึงเงื่อนไข ' : 'ยังไม่ถึงเงื่อนไข ') + '</span>กำไรต่อเดือน ' + dirSpan(R.delta, fmtN(Math.abs(R.delta))) + pay + '</span></span>';
@@ -775,6 +839,7 @@
       (R.one > 0 ? '<li>เงินก้อน ' + fmtN(R.one) + ' บาท จ่ายด้วยเงินสดตอนเริ่ม · คืนทุนนับจากเงินที่ได้เพิ่มจริงในแต่ละเดือน เทียบกับไม่ทำ (หลังเดือนที่ 12 ใช้ตัวเลขปีที่ 2 และ 3)</li>' : '') +
       (R.k > 0 ? '<li>' + salesWord(state.model) + 'ที่คาด ค่อย ๆ ขึ้นเท่ากันทุกเดือน และถึงที่คาดในเดือนที่ ' + (R.k + 1) + '</li>' : '') +
       (Math.abs(R.wc) >= 1 ? '<li>เงินในมือหักเงินที่ต้องจมเพิ่มกับลูกค้าที่ยังไม่จ่ายและของในสต็อก (หรือบวกเงินที่ได้คืน) ในเดือนที่ยอดเปลี่ยน</li>' : '') +
+      (state.topic === 'promo' ? '<li>ช่วงจัดโปรใช้ราคาและยอดของช่วงโปร หลังจบโปรใช้ยอดหลังจบโปร · กำไรรวม 12 เดือนหักค่าจัดโปรแล้ว</li>' : '') +
       (state.topic === 'equip' ? '<li>กำไรหักเงินที่ควรกันไว้ซื้อเครื่องใหม่เมื่อหมดอายุ (ราคา ÷ เดือนที่ใช้ได้) แต่เงินสดไม่หัก เพราะจ่ายไปแล้วตอนซื้อ</li>' : '') +
       '<li>' + (n0(state.inp.growth) ? 'ยอดขายของร้านเปลี่ยนเดือนละ ' + fmtPct(n0(state.inp.growth)) + ' ตามที่กรอก' : 'ยอดขายของร้านเท่าเดิมทุกเดือน') + ' · ค่าใช้จ่ายคงที่เท่าเดิมตลอด 12 เดือน</li></ul></details>';
     return out;
@@ -785,8 +850,8 @@
     if (!R.ok) return head + '<main class="screen"><div class="wrap"><div class="ok-box"><b>ตัวเลขยังไม่ครบ</b><p>กด "แก้ตัวเลข" เพื่อกรอกให้ครบ</p></div></div></main>';
     var P = piv(), v = wiVal() !== null ? wiVal() : P.have;
     var out = head + '<main class="screen res3"><div class="wrap">';
-    if (state.isSample) out += '<div class="banner"><span>นี่คือร้านกาแฟตัวอย่าง</span><button class="lnk" data-act="to-shop">ใส่ตัวเลขร้านคุณ</button></div>';
-    out += '<section class="hero3" id="hero">' + heroHtml(R, P, (P.have > 0 || wiVal() !== null || P.T === 'place' || P.T === 'branch') ? v : null) + '</section>';
+    if (state.isSample) out += '<div class="banner"><span>นี่คือ' + esc(sampleName()) + '</span><button class="lnk" data-act="to-shop">ใส่ตัวเลขร้านคุณ</button></div>';
+    out += '<section class="hero3" id="hero">' + heroHtml(R, P, (P.have > 0 || wiVal() !== null || P.showHave) ? v : null) + '</section>';
     out += '<section class="lanes" id="lanes" aria-label="เทียบ ไม่ทำ กับ ทำ">' + lanesHtml(R) + '</section>';
     out += '<div class="lane-cta"><button class="btn ghost block" data-act="lab">' + ICON.sliders + 'ปรับตัวเลขของเรื่องนี้</button></div>';
     out += pivotCard(R, P);
@@ -867,7 +932,10 @@
 
   /* ============================================================ LAB (ปรับตัวเลขของเรื่องนี้ — เปลี่ยนแล้วใช้ทันที) */
   var LAB_KEYS = {
-    hire: ['gain', 'salary', 'count', 'capAdd'],
+    hire: ['gain', 'salary', 'count', 'partRate', 'partHours', 'partDays', 'pieceRate', 'pieceShare', 'capAdd'],
+    price: ['lostPct', 'raiseBy', 'raiseShare'], promo: ['lift', 'discPct', 'usePct', 'giftCost', 'afterPct', 'promoCost'],
+    newprod: ['npQty', 'npAttach', 'npPrice', 'npCost', 'npCanni', 'npFixed', 'npSetup'], freeship: ['shipLift', 'shipCost', 'shipShare', 'perOrder'],
+    ads: ['adGain', 'adBudget', 'adMgmt', 'adSetup'], supplier: ['supSales', 'newCost', 'supStock', 'supCredit', 'switchCost'], freelance: ['flGain', 'flFee', 'flPct', 'hours'],
     place: ['salesPct', 'newRent', 'moveCost', 'closedDays', 'dipPct'],
     channel: ['chQty', 'cut', 'chPrice', 'movePct', 'extraCost', 'chFee'],
     equip: ['eqGain', 'price', 'life', 'costDown', 'fixedChg', 'eqCap'],
@@ -888,20 +956,27 @@
     var f = dDef(k), a = Math.abs(v);
     if (f.t === 'count' || k === 'bStaff' || k === 'closedDays' || k === 'life') return 1;
     if (k === 'salesPct' || k === 'bPct') return 5;
-    if (f.t === 'pct') return 1;
-    if (k === 'gain' || k === 'eqGain' || k === 'chQty' || k === 'capAdd' || k === 'eqCap') {
+    if (f.t === 'pct' || k === 'supSales' || k === 'lift' || k === 'shipLift' || k === 'afterPct' || k === 'partDays') return 1;
+    if (k === 'partHours' || k === 'perOrder') return 0.5;
+    if (k === 'gain' || k === 'eqGain' || k === 'chQty' || k === 'capAdd' || k === 'eqCap' || k === 'adGain' || k === 'flGain' || k === 'npQty') {
       if (state.model === 'rental') return 1;
       if (isVolModel(state.model) && state.inp.volumePer !== 'month') return a >= 50 ? niceStep(a * 0.05) : 1;
       return Math.max(state.model === 'commission' || state.model === 'project' ? 0.5 : 1, niceStep(a * 0.05));
     }
-    if (k === 'chPrice' || k === 'extraCost' || k === 'costDown') return a < 20 ? 0.5 : a < 100 ? 1 : niceStep(a * 0.01);
+    if (['chPrice', 'extraCost', 'costDown', 'raiseBy', 'newCost', 'giftCost', 'shipCost', 'npPrice', 'npCost', 'pieceRate', 'partRate'].indexOf(k) >= 0) return a < 20 ? 0.5 : a < 100 ? 1 : niceStep(a * 0.01);
     if (k === 'fixedChg' || k === 'chFee') return 100;
-    if (k === 'salary' || k === 'bSalary' || k === 'newRent' || k === 'bRent' || k === 'bOther') return a >= 10000 ? 500 : 100;
+    if (['salary', 'bSalary', 'newRent', 'bRent', 'bOther', 'flFee', 'adBudget', 'adMgmt', 'npFixed', 'promoCost', 'adSetup', 'npSetup', 'switchCost'].indexOf(k) >= 0) return a >= 10000 ? 500 : 100;
     return Math.max(1000, niceStep(a * 0.02));
   }
   function lRange(k, v0, st) {
     var f = dDef(k), lo = 0, hi;
-    if (k === 'salesPct') { lo = -80; hi = Math.max(100, v0 + 50); }
+    if (k === 'salesPct' || k === 'supSales') { lo = -80; hi = Math.max(100, v0 + 50); }
+    else if (k === 'lostPct') hi = 95;
+    else if (k === 'lift' || k === 'shipLift' || k === 'afterPct') hi = Math.max(100, v0 * 2);
+    else if (k === 'partHours') hi = 24;
+    else if (k === 'partDays') hi = 31;
+    else if (k === 'perOrder') { lo = 1; hi = Math.max(5, v0 * 2); }
+    else if (k === 'npPrice') { lo = st; hi = Math.max(v0 * 2.5, st * 20); }
     else if (k === 'bPct') hi = Math.max(150, v0 + 50);
     else if (k === 'cut') hi = Math.max(50, v0 + 20);
     else if (k === 'movePct' || k === 'dipPct') hi = 100;
@@ -911,7 +986,7 @@
     else if (k === 'life') { lo = 1; hi = Math.max(15, v0 * 2); }
     else if (k === 'fixedChg') { lo = -Math.floor(fixedTotal(state.inp) / st) * st; hi = Math.max(5000, Math.abs(v0) * 3); }
     else if (k === 'chPrice') { lo = Math.floor(v0 * 0.5 / st) * st; hi = Math.ceil(v0 * 2 / st) * st; }
-    else if (k === 'gain' || k === 'eqGain' || k === 'chQty') hi = Math.max(v0 * 3, phGain(state.inp, state.model) * 4, st * 10);
+    else if (k === 'gain' || k === 'eqGain' || k === 'chQty' || k === 'adGain' || k === 'flGain' || k === 'npQty') hi = Math.max(v0 * 3, phGain(state.inp, state.model) * 4, st * 10);
     else hi = Math.max(v0 * 2.5, st * 20);
     var mx = dMax(k); if (mx !== null) hi = Math.min(hi, mx);
     hi = Math.ceil(hi / st) * st;
@@ -923,7 +998,7 @@
     var R = E(dec());
     if (!R.ok) return '';
     var cs = R.conds.filter(function (x) { return x.lever === k; }).slice(0, 1);
-    if (k === 'gain' || k === 'eqGain' || k === 'chQty' || k === 'salesPct' || k === 'bPct' || k === 'salary' || k === 'count')
+    if (k === piv().key || k === 'salary' || k === 'count' || k === 'partRate' || k === 'flFee' || k === 'adBudget' || k === 'raiseBy' || k === 'discPct' || k === 'shipCost' || k === 'newCost')
       cs = R.conds.filter(function (x) { return x.id === 'need' || x.id === 'payneed'; });
     if (!cs.length) return R.one > 0 && (k === 'price' || k === 'setup' || k === 'moveCost') ? 'คืนทุน <b>' + payIn(R.payback) + '</b>' : '';
     return cs.map(function (c) {
@@ -938,7 +1013,7 @@
     var s3 = Rr.need > 0.5 ? [Rr.B.hasCash ? 'เงินขาดมือ' : 'ต้องมีเงิน', fmtCompact(Rr.need)] : ['เงินต่ำสุด', fmtCompact(Rr.low)];
     var s2 = Rr.one > 0 ? ['คืนทุน', Rr.payback === null ? 'ไม่ได้' : fmtMonths(Rr.payback)] : [Rr.sumDiff < -0.5 ? 'กำไรลดใน 1 ปี' : 'กำไรเพิ่มใน 1 ปี', fmtCompact(Math.abs(Rr.sumDiff))];
     var c = Rr.conds.filter(function (x) { return x.id === 'need'; })[0];
-    var s1n = Rr.one > 0 && state.topic !== 'equip' ? 'กำไรเท่าเดิมที่' : 'จุดคุ้ม';
+    var s1n = Rr.P && Rr.P.target ? 'กำไรเท่าเดิมที่' : 'จุดคุ้ม';
     var s1 = c && c.value !== null ? [s1n, nf(c.value, c.unit.charAt(0) === '%' ? '%' : '') + ' <small>' + esc(c.unit.charAt(0) === '%' ? c.unit.slice(1).trim() : c.unit) + '</small>'] : [s1n, '–'];
     return '<section class="lab3"><div class="dstrip"><div class="ds-a"><small>ไม่ทำ · กำไร/เดือน</small><b>' + plain(Rr.B.profit) + '</b></div>' +
       '<div class="ds-b"><small>ทำ · กำไร/เดือน</small><b>' + (Rr.profit < 0 ? '−' : '') + anim('lp', Rr.profit) + '</b><i>' + (Math.abs(d) < 0.5 ? 'เท่าเดิม' : dirSpan(d, fmtN(Math.abs(d)))) + '</i></div></div>' +
@@ -1013,9 +1088,10 @@
     v = Math.round(v * 1e6) / 1e6;
     if (f.t === 'count' || f.t === 'int') v = Math.round(v);
     if (k === 'count') v = Math.max(1, v);
+    if (k === 'npPrice') v = Math.max(0.5, v);
     if (f.min !== undefined) v = Math.max(f.min, v);
     if (k === 'fixedChg') v = Math.max(-fixedTotal(state.inp), v);
-    else if (k !== 'salesPct' && v < 0) v = 0;
+    else if (k !== 'salesPct' && k !== 'supSales' && v < 0) v = 0;
     var mx = dMax(k); if (mx !== null) v = Math.min(mx, v);
     dec()[k] = v;
     if (k === piv().key) delete state.wi[state.topic];
@@ -1073,10 +1149,11 @@
   }
 
   /* ============================================================ EVENTS */
-  function chooseModel(m, sample) {
+  function chooseModel(m, sample, kind) {
     var M = MODELS[m];
     state.model = m;
     state.inp = sample ? JSON.parse(JSON.stringify(M.sample)) : {};
+    state.sampleKind = sample ? (kind || (m === 'resell' ? 'online' : 'cafe')) : null;
     if (M.defPer && !state.inp.volumePer) state.inp.volumePer = M.defPer;
     if (M.units && !state.inp.unitLabel) state.inp.unitLabel = M.defUnit;
     if (m === 'subscription' && !state.inp.cycle) state.inp.cycle = 1;
@@ -1089,7 +1166,7 @@
     if (!state.model) { state.topic = t; go('shop'); return; }
     if (!topicOk(t, state.model)) { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[state.model].tile); return; }
     state.topic = t; state.active = null; state.qidx = 0;
-    if (!state.ds[t]) state.ds[t] = Object.assign({}, state.isSample && state.model === 'unit' ? SAMPLE_DEC[t] : DEC_DEFAULT[t]);
+    if (!state.ds[t]) state.ds[t] = Object.assign({}, state.isSample && state.sampleKind && SAMPLES[state.sampleKind].m === state.model ? sampleDec(state.sampleKind, t) : DEC_DEFAULT[t]);
     if (!shopOk()) { state.step = 0; state.editing = false; go('wizard'); return; }
     if (dAllValid()) go('result');
     else { state.dstep = 0; state.dediting = false; go('dq'); }
@@ -1113,8 +1190,8 @@
         t.innerHTML = nt === 'dark' ? ICON.sun : ICON.moon; break;
       }
       case 'sample': {
-        var tp = state.topic && topicOk(state.topic, 'unit') ? state.topic : 'hire';
-        chooseModel('unit', true); state.topic = null; openTopic(tp); break;
+        var sk = sampleKindFor(state.topic), tp = state.topic && topicOk(state.topic, SAMPLES[sk].m) ? state.topic : 'hire';
+        chooseModel(SAMPLES[sk].m, true, sk); state.topic = null; openTopic(tp); break;
       }
       case 'topic': if (t.getAttribute('aria-disabled') === 'true') { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[state.model].tile); break; } openTopic(t.getAttribute('data-t')); break;
       case 'to-start': go('start'); break;
@@ -1178,7 +1255,19 @@
         go('dq', false); var sb2 = $('[data-act="dsign"][data-k="' + ks + '"][data-v="' + sg + '"]'); if (sb2) sb2.focus();
         break;
       }
-      case 'chname': dec().chName = t.getAttribute('data-v'); go('dq', false); break;
+      case 'dkind': {
+        var kv = t.getAttribute('data-v'), dk0 = dec();
+        if (dk0.kind !== kv) { dk0.kind = kv; delete state.wi[state.topic]; }
+        if (state.topic === 'channel') dk0.chName = kindName('channel', dk0, state.inp, m);
+        go('dq', false); var kb = $('[data-act="dkind"][data-v="' + kv + '"]'); if (kb) kb.focus();
+        break;
+      }
+      case 'where': {
+        var wv = t.getAttribute('data-v');
+        state.where = state.where === wv ? null : wv;
+        go('start', false); var wb = $('[data-act="where"][data-v="' + wv + '"]'); if (wb) wb.focus();
+        break;
+      }
       case 'fee-help': state.feeHelp = true; go('wizard', false); var fs1 = $('#fh-share'); if (fs1) fs1.focus(); break;
       case 'per': {
         var nv = t.getAttribute('data-v'), cur = state.inp.volumePer || 'day';
@@ -1261,11 +1350,6 @@
       var dk = el.getAttribute('data-dk'), f = dDef(dk), pv0 = parseInput(el);
       if (f.t === 'signed' && pv0 !== null) { var curS = num(dec()[dk]); var sg = curS !== null && curS !== 0 ? (curS < 0 ? -1 : 1) : (state.dsign[dk] || 1); pv0 = Math.abs(pv0) * sg; }
       dec()[dKey(dk)] = pv0;
-      refreshDqLive(); save();
-    } else if (el.hasAttribute('data-chname-custom')) {
-      var nmv = el.value.trim().slice(0, 24);
-      dec().chName = nmv;
-      $$('[data-act="chname"]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === nmv)); });
       refreshDqLive(); save();
     } else if (el.hasAttribute('data-fh')) {
       state.fh[el.getAttribute('data-fh')] = el.value;

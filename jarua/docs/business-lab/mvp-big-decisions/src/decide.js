@@ -32,7 +32,10 @@ function addVol(inp, m, x) {
   return o;
 }
 
-function rampOf(T, d) { return T === 'place' ? 0 : Math.max(0, Math.round(n0(d.ramp))); }
+function rampOf(T, d) { return byMonth(T) || T === 'price' || T === 'supplier' ? 0 : Math.max(0, Math.round(n0(d.ramp))); }
+/* เรื่องที่แต่ละเดือนไม่เหมือนกัน (ย้ายร้าน: ช่วงปิดร้านและลูกค้าค่อย ๆ กลับ · จัดโปร: ช่วงโปรกับหลังจบโปร) */
+function byMonth(T) { return T === 'place' || T === 'promo'; }
+function promoDur(d) { return Math.max(1, Math.round(n0(d.promoMonths) || 1)); }
 /* ระดับของสิ่งที่คาดในเดือนที่ t: ใช้เวลา k เดือนค่อย ๆ ขึ้นเท่ากันทุกเดือน แล้วเต็มในเดือนที่ k + 1 (k = 0 เต็มตั้งแต่เดือนแรก) */
 function levelAt(k, t) { return k > 0 ? Math.min(1, t / (k + 1)) : 1; }
 /* ย้ายร้าน: เดือนแรกลูกค้าขาดไป dip% แล้วค่อย ๆ กลับมาครบในเดือนที่ back + 1 */
@@ -70,6 +73,15 @@ function channelStream(inp, m, d, q) {
   s.growthRatePercentMonthly = 0;
   return s;
 }
+/* ของใหม่ = ทางรายได้ทางที่ 2 ราคาและต้นทุนของตัวเอง ค่าธรรมเนียม % และวันเก็บสต็อกเท่าร้านเดิม */
+/* ต่อคำไทยกับชื่อภาษาอังกฤษ ให้มีเว้นวรรค (ขายผ่าน TikTok) */
+function tj(a, b) { return a + (/^[A-Za-z0-9]/.test(b) ? ' ' : '') + b; }
+function npStream(inp, m, d, q) {
+  var c = Object.assign({}, inp, { growth: 0, capacity: null, volume: q, price: n0(d.npPrice), unitCost: n0(d.npCost), unitLabel: npUnit(m) });
+  var s = buildStream(c, m);
+  s.id = 'np'; s.name = 'ของใหม่'; s.growthRatePercentMonthly = 0;
+  return s;
+}
 /* สาขาที่ 2 = ร้านเดิมย่อส่วน f เท่า (ราคา ต้นทุน และกำลังรับเหมือนร้านเดิม) */
 function branchStream(inp, m, f) {
   var c = scaleVol(inp, m, f);
@@ -86,7 +98,9 @@ function dBuild(inp, m, T, d, o) {
   var lv = o.lv === undefined ? 1 : o.lv, f = o.f === undefined ? 1 : o.f, g = lv * f;
   if (T === 'hire') {
     var c = Math.max(0, Math.round(n0(d.count)));
-    fx.push(['newstaff', 'เงินเดือนพนักงานใหม่ ' + c + ' คน', c * n0(d.salary)]);
+    if (isKind(d, 'part')) fx.push(['newstaff', 'ค่าจ้างพาร์ตไทม์ ' + c + ' คน', c * n0(d.partRate) * n0(d.partHours) * n0(d.partDays)]);
+    else if (isKind(d, 'piece')) { c = 1; if (isVolModel(m)) x.unitCost = n0(inp.unitCost) + n0(d.pieceRate) * Math.min(100, n0(d.pieceShare)) / 100; }
+    else fx.push(['newstaff', 'เงินเดือนพนักงานใหม่ ' + c + ' คน', c * n0(d.salary)]);
     x = addVol(x, m, n0(d.gain) * g);
     if (isVolModel(m) && pos(inp.capacity) && pos(d.capAdd)) x.capacity = pos(inp.capacity) + c * n0(d.capAdd);
   } else if (T === 'place') {
@@ -111,7 +125,7 @@ function dBuild(inp, m, T, d, o) {
     x = addVol(x, m, -q * mv);
     if (q > 0) streams.push(channelStream(inp, m, d, q));
     note.chQ = q;
-    fx.push(['chfee', 'ค่าใช้จ่ายรายเดือนของ' + (d.chName || 'ช่องทาง'), n0(d.chFee)]);
+    fx.push(['chfee', tj('ค่าใช้จ่ายรายเดือนของ', d.chName || 'ช่องทาง'), n0(d.chFee)]);
   } else if (T === 'equip') {
     x = addVol(x, m, n0(d.eqGain) * g);
     var ck = ROLE[m].cost;
@@ -123,6 +137,46 @@ function dBuild(inp, m, T, d, o) {
     fx.push(['eqfix', fc < 0 ? 'ค่าใช้จ่ายรายเดือนที่ลดลง' : 'ค่าใช้จ่ายรายเดือนที่เพิ่มขึ้น', fc]);
     if (pos(d.price) && pos(d.life)) assets.push({ name: 'อุปกรณ์ใหม่', purchasePrice: pos(d.price), usefulLifeYears: pos(d.life) });
     one = n0(d.price);
+  } else if (T === 'price') {
+    var pk = ROLE[m].price, sh = isKind(d, 'some') ? Math.min(100, n0(d.raiseShare)) / 100 : 1;
+    x[pk] = n0(inp[pk]) + n0(d.raiseBy) * sh;
+    x = scaleVol(x, m, Math.max(0, 1 - Math.min(95, n0(d.lostPct)) / 100));
+  } else if (T === 'promo') {
+    if ((o.t || 0) > promoDur(d)) x = scaleVol(x, m, 1 + n0(d.afterPct) / 100);
+    else {
+      var use = isKind(d, 'code') ? Math.min(100, n0(d.usePct)) / 100 : 1;
+      if (isKind(d, 'gift')) x.unitCost = n0(inp.unitCost) + n0(d.giftCost);
+      else x.price = n0(inp.price) * (1 - Math.min(90, n0(d.discPct)) / 100 * use);
+      x = scaleVol(x, m, Math.max(0, 1 + n0(d.lift) / 100 * f));
+    }
+    one = n0(d.promoCost);
+  } else if (T === 'newprod') {
+    var q2 = (isKind(d, 'addon') ? n0(inp.volume) * Math.min(100, n0(d.npAttach)) / 100 : n0(d.npQty)) * g;
+    var cn = isKind(d, 'addon') ? 0 : Math.min(100, n0(d.npCanni)) / 100;
+    x = addVol(x, m, -q2 * cn);
+    if (q2 > 0) streams.push(npStream(inp, m, d, q2));
+    note.npQ = q2;
+    fx.push(['npfix', 'ค่าใช้จ่ายรายเดือนของของใหม่', n0(d.npFixed)]);
+    one = n0(d.npSetup);
+  } else if (T === 'freeship') {
+    var shr = isKind(d, 'min') ? Math.min(100, n0(d.shipShare)) / 100 : 1, po = Math.max(1, n0(d.perOrder) || 1);
+    x.unitCost = n0(inp.unitCost) + n0(d.shipCost) * shr / po;
+    x = scaleVol(x, m, 1 + n0(d.shipLift) / 100 * g);
+  } else if (T === 'ads') {
+    fx.push(['adbudget', 'ค่าโฆษณา', n0(d.adBudget)], ['admgmt', 'ค่าจ้างคนดูแลโฆษณา', n0(d.adMgmt)]);
+    x = addVol(x, m, n0(d.adGain) * g);
+    one = n0(d.adSetup);
+  } else if (T === 'supplier') {
+    x.unitCost = n0(d.newCost);
+    if (num(d.supStock) !== null) x.stockDays = n0(d.supStock);
+    if (num(d.supCredit) !== null) x.supplierCreditDays = n0(d.supCredit);
+    x = scaleVol(x, m, Math.max(0, 1 + n0(d.supSales) / 100) * f);
+    one = n0(d.switchCost);
+  } else if (T === 'freelance') {
+    fx.push(['flfee', { admin: 'ค่าจ้างแอดมิน', live: 'ค่าจ้างคนไลฟ์' }[d.kind] || 'ค่าจ้างฟรีแลนซ์', n0(d.flFee)]);
+    var gq = n0(d.flGain) * g;
+    x = addVol(x, m, gq);
+    if (isKind(d, 'live') && isVolModel(m) && n0(d.flPct) > 0) fx.push(['flcom', 'ค่าคอมคนไลฟ์', n0(d.flPct) / 100 * n0(inp.price) * (inp.volumePer === 'month' ? gq : gq * daysOf(inp))]);
   } else if (T === 'branch') {
     var bp = n0(d.bPct) / 100 * g;
     if (bp > 0) streams.push(branchStream(inp, m, bp));
@@ -193,8 +247,8 @@ function dEval(inp, m, T, d, opt) {
      แล้วหักเงินที่ต้องจมเพิ่มในลูกหนี้และสต็อก ในเดือนที่ยอดเปลี่ยน */
   var wc0 = wcOf(v4Input(inp, m)), prevWC = 0, rows = [];
   for (var t = 1; t <= 12; t++) {
-    var o = T === 'place' ? { t: t, f: f } : { lv: levelAt(k, t), f: f };
-    var bt = T === 'place' || o.lv !== 1 ? dBuild(inp, m, T, d, o) : st.b;
+    var o = byMonth(T) ? { t: t, f: f } : { lv: levelAt(k, t), f: f };
+    var bt = byMonth(T) || o.lv !== 1 ? dBuild(inp, m, T, d, o) : st.b;
     var r = bt === st.b ? st.r : runCalc(bt.v4);
     var p = r.projection[t - 1];
     if (!p) return { ok: false };
@@ -235,7 +289,9 @@ function dEval(inp, m, T, d, opt) {
       else if (y3 > 0.5) payback = 36 + (rem2 - y3) / (y3 / 12);
     }
   }
-  if (R.extraSteady <= 0.5) payback = null;
+  if (R.extraSteady <= 0.5 || T === 'promo') payback = null;
+  /* จัดโปร: กำไรรวม 12 เดือนเทียบกับไม่ทำ หักค่าจัดโปรแล้ว (ช่วงโปร + หลังจบโปร) */
+  R.total12 = sumDiff - R.one;
   R.payback = R.one > 0 ? payback : null;
   R.ledger = dLedger(R, inp, m, T, d);
   R.warn = dWarn(R, inp, m, T, d);
@@ -249,13 +305,17 @@ function dLedger(R, inp, m, T, d) {
   var extra = r1.streams.slice(1).map(function (s) { return s.contributionMonthly || 0; });
   var extraSum = extra.reduce(function (a, x) { return a + x; }, 0);
   var mainChg = c1 - c0 - extraSum;
+  var sw = salesWord(m);
   var mainLabel = {
-    hire: 'เงินที่เหลือจาก' + salesWord(m) + 'ที่เพิ่ม', place: 'เงินที่เหลือจาก' + salesWord(m) + 'ที่ใหม่ เทียบกับตอนนี้',
-    channel: 'ลูกค้าเดิมที่ย้ายไปซื้อผ่าน' + (d.chName || 'ช่องทางใหม่'), equip: salesWord(m) + 'ที่เพิ่ม และต้นทุนที่ลดลง', branch: ''
+    hire: isKind(d, 'piece') ? sw + 'ที่เพิ่ม หักค่าจ้างรายชิ้น' : 'เงินที่เหลือจาก' + sw + 'ที่เพิ่ม', place: 'เงินที่เหลือจาก' + sw + 'ที่ใหม่ เทียบกับตอนนี้',
+    channel: tj('ลูกค้าเดิมที่ย้ายไปซื้อผ่าน', d.chName || 'ช่องทางใหม่'), equip: sw + 'ที่เพิ่ม และต้นทุนที่ลดลง', branch: '',
+    price: 'ราคาใหม่ และ' + sw + 'ที่ลดลง', promo: (isKind(d, 'gift') ? 'ของแถม' : 'ส่วนลด') + ' และ' + sw + 'ที่เพิ่มช่วงจัดโปร',
+    newprod: 'ลูกค้าที่เปลี่ยนจากของเดิมมาซื้อของใหม่', freeship: 'ค่าส่งที่ร้านจ่าย และ' + sw + 'ที่เพิ่ม', ads: 'เงินที่เหลือจาก' + sw + 'ที่เพิ่ม',
+    supplier: 'ต้นทุนใหม่ และ' + sw + 'หลังเปลี่ยน', freelance: 'เงินที่เหลือจาก' + sw + 'ที่เพิ่ม'
   }[T];
   if (Math.abs(mainChg) >= 0.5) L.push({ label: mainLabel, amount: mainChg });
   r1.streams.slice(1).forEach(function (s, i) {
-    L.push({ label: s.id === 'ch' ? 'เงินที่เหลือจากขายผ่าน' + (d.chName || 'ช่องทางใหม่') : 'เงินที่เหลือจาก' + salesWord(m) + 'ของสาขา', amount: extra[i] });
+    L.push({ label: s.id === 'ch' ? tj('เงินที่เหลือจากขายผ่าน', d.chName || 'ช่องทางใหม่') : s.id === 'np' ? 'เงินที่เหลือจากขายของใหม่' : 'เงินที่เหลือจาก' + salesWord(m) + 'ของสาขา', amount: extra[i] });
   });
   var p0 = fixedParts(inp), p1 = fixedParts(b.x);
   if (Math.abs(p1.rent - p0.rent) >= 0.5) L.push({ label: 'ค่าเช่าที่ใหม่ เทียบกับที่เดิม', amount: -(p1.rent - p0.rent) });
@@ -270,7 +330,7 @@ function dLedger(R, inp, m, T, d) {
 
 function dWarn(R, inp, m, T, d) {
   var W = [], x = R.st.b.x;
-  if (isVolModel(m) && pos(x.capacity) && (T === 'hire' || T === 'equip')) {
+  if (isVolModel(m) && pos(x.capacity) && ['hire', 'equip', 'ads', 'freelance', 'promo', 'freeship', 'supplier'].indexOf(T) >= 0) {
     var mainV = n0(x.volume), chV = T === 'channel' ? n0(R.st.b.note.chQ) : 0;
     if (mainV + chV > pos(x.capacity) + 1e-9) W.push('ยอดที่คาดรวม ' + fmtN(mainV + chV, 1) + ' ' + volUnitText(inp, m) + ' เกินกำลังที่ร้านทำได้ (สูงสุด ' + fmtN(pos(x.capacity)) + ')');
   }
@@ -281,8 +341,8 @@ function dWarn(R, inp, m, T, d) {
   if (T === 'channel' && R.st.b.note.clamped) W.push('คนเช่ารวมทุกช่องทางเต็ม 100% ในเดือนขายดีแล้ว ส่วนที่เกินไม่ได้นับ');
   if (T === 'channel') { var u = channelUnit(inp, m, d); if (u && u.ch <= 0) W.push('ขายผ่านช่องทางนี้ ' + (u.ch < 0 ? 'ยิ่งขายยิ่งขาดทุน' : 'ไม่เหลือเงินเลย') + ' เพราะส่วนแบ่งและต้นทุนเกินราคาขาย'); }
   if (T === 'equip' && R.payback !== null && pos(d.life) && R.payback > pos(d.life) * 12) W.push('คืนทุนช้ากว่าอายุใช้งานของเครื่อง (' + fmtN(pos(d.life)) + ' ปี)');
-  if (Math.abs(R.wc) >= 1000) W.push(R.wc > 0 ? 'ยอดที่เพิ่มทำให้มีเงินจมอยู่กับลูกค้าที่ยังไม่จ่ายและของในสต็อกเพิ่มขึ้นราว ' + fmtN(R.wc) + ' บาท นับไว้ในเงินสดแล้ว'
-    : 'ยอดที่ลดลงทำให้ได้เงินที่จมอยู่กับลูกค้าและสต็อกคืนมาราว ' + fmtN(-R.wc) + ' บาท นับไว้ในเงินสดแล้ว');
+  if (Math.abs(R.wc) >= 1000) W.push(R.wc > 0 ? 'มีเงินจมอยู่กับลูกค้าที่ยังไม่จ่ายและของในสต็อกเพิ่มขึ้นราว ' + fmtN(R.wc) + ' บาท นับไว้ในเงินสดแล้ว'
+    : 'ได้เงินที่จมอยู่กับลูกค้าและของในสต็อกคืนมาราว ' + fmtN(-R.wc) + ' บาท นับไว้ในเงินสดแล้ว');
   return W;
 }
 
@@ -383,7 +443,7 @@ function payIn(x) { return x === null || x === undefined ? 'ไม่ได้' 
    key = ช่องของการตัดสินใจ · ค่าบนแถบเป็นหน่วยที่ร้านเข้าใจ (ย้ายร้าน: ยอดที่ใหม่ แทน % ที่กรอก) */
 var PMEMO = new Map();
 function dPivot(inp, m, T, d) {
-  var pk = { hire: 'gain', equip: 'eqGain', place: 'salesPct', channel: 'chQty', branch: 'bPct' }[T];
+  var pk = pivotKey(T, d);
   var dk = Object.assign({}, d); delete dk[pk];
   var key = T + '|' + m + '|' + JSON.stringify(inp) + '|' + JSON.stringify(dk);
   var P0 = PMEMO.get(key);
@@ -392,17 +452,49 @@ function dPivot(inp, m, T, d) {
   P.have = P.get(d);
   return P;
 }
+/* ตัวเลขหลักบนแถบลากของแต่ละเรื่อง */
+var PCT_PIV = { price: 'lostPct', promo: 'lift', freeship: 'shipLift' };
+function pivotKey(T, d) {
+  return { hire: 'gain', equip: 'eqGain', ads: 'adGain', freelance: 'flGain', place: 'salesPct', supplier: 'supSales', channel: 'chQty', branch: 'bPct',
+    price: 'lostPct', promo: 'lift', freeship: 'shipLift', newprod: d && d.kind === 'addon' ? 'npAttach' : 'npQty' }[T];
+}
 function dPivot0(inp, m, T, d) {
-  var cur = n0(inp[ROLE[m].vol]), u = gainUnit(inp, m);
-  var P = { T: T, unit: u };
-  if (T === 'hire' || T === 'equip') {
-    P.key = T === 'hire' ? 'gain' : 'eqGain';
+  var cur = n0(inp[ROLE[m].vol]), u = gainUnit(inp, m), sw = salesWord(m);
+  var P = { T: T, unit: u, key: pivotKey(T, d) };
+  if (T === 'hire' || T === 'equip' || T === 'ads' || T === 'freelance') {
     P.get = function (dd) { return n0(dd[P.key]); };
     P.set = function (dd, v) { return withD(dd, P.key, Math.max(0, v)); };
-    P.q = T === 'hire' ? 'ต้อง' + gainWord(m) + 'เท่าไร ถึงจะคุ้มเงินเดือนคนใหม่' : 'ต้อง' + gainWord(m) + 'เท่าไร ถึงจะคุ้มค่าเครื่อง';
+    P.q = 'ต้อง' + gainWord(m) + 'เท่าไร ถึงจะคุ้ม' + { hire: isKind(d, 'full') || !d.kind ? 'เงินเดือนคนใหม่' : 'ค่าจ้างคนใหม่', equip: 'ค่าเครื่อง', ads: 'ค่าโฆษณา', freelance: 'ค่าจ้าง' }[T];
     P.lab = 'ต้อง' + gainWord(m);
     P.word = gainWord(m);
     P.lo = 0;
+  } else if (PCT_PIV[T]) {
+    P.get = function (dd) { return n0(dd[P.key]); };
+    P.set = function (dd, v) { return withD(dd, P.key, Math.max(0, Math.min(T === 'price' ? 95 : 1000, v))); };
+    P.unit = '%';
+    P.pct = true;
+    P.q = T === 'price' ? sw + 'ลดลงได้มากสุดเท่าไร ถึงจะยังคุ้ม' : T === 'promo' ? 'ช่วงจัดโปร ' + sw + 'ต้องเพิ่มเท่าไร ถึงจะคุ้ม' : sw + 'ต้องเพิ่มเท่าไร ถึงจะคุ้มค่าส่ง';
+    P.word = T === 'price' ? sw + 'ลดลง' : T === 'promo' ? 'ช่วงโปร' + sw + 'เพิ่มขึ้น' : sw + 'เพิ่มขึ้น';
+    P.lab = T === 'price' ? sw + 'ลดลงได้' : T === 'promo' ? 'ช่วงโปร' + sw + 'ต้องเพิ่ม' : sw + 'ต้องเพิ่ม';
+    P.lo = 0;
+    P.showHave = true;
+  } else if (T === 'newprod') {
+    P.get = function (dd) { return n0(dd[P.key]); };
+    P.set = function (dd, v) { return withD(dd, P.key, Math.max(0, P.key === 'npAttach' ? Math.min(100, v) : v)); };
+    if (P.key === 'npAttach') { P.unit = '% ของ' + U(inp, m) + 'ที่ขาย'; P.word = 'ลูกค้าซื้อพ่วง'; P.lab = 'ลูกค้าต้องซื้อพ่วง'; P.q = 'ลูกค้าต้องซื้อพ่วงกี่ % ถึงจะคุ้ม'; }
+    else { P.unit = npUnit(m) + '/' + perWord(inp); P.word = 'ของใหม่ขายได้'; P.lab = 'ของใหม่ต้องขายได้'; P.q = 'ของใหม่ต้องขายได้เท่าไร ถึงจะคุ้ม'; }
+    P.lo = 0;
+  } else if (T === 'supplier') {
+    P.get = function (dd) { return cur * (1 + n0(dd.supSales) / 100); };
+    P.set = function (dd, v) { return withD(dd, 'supSales', cur > 0 ? (v / cur - 1) * 100 : 0); };
+    P.verb = m === 'service' ? 'มีลูกค้า' : 'ขายได้';
+    P.q = 'หลังเปลี่ยน ต้อง' + P.verb + 'เท่าไร ถึงจะคุ้ม';
+    P.word = sw + 'หลังเปลี่ยน';
+    P.lab = 'หลังเปลี่ยนต้อง' + P.verb;
+    P.lo = cur * 0.1;
+    P.now = cur;
+    P.prec = cur < 1000 ? 1 : 0;
+    P.showHave = true;
   } else if (T === 'place') {
     P.key = 'salesPct';
     P.get = function (dd) { return cur * (1 + n0(dd.salesPct) / 100); };
@@ -414,12 +506,13 @@ function dPivot0(inp, m, T, d) {
     P.lo = cur * 0.1;
     P.now = cur;
     P.prec = m !== 'rental' && m !== 'subscription' && cur < 1000 ? 1 : 0;
+    P.showHave = true;
   } else if (T === 'channel') {
     P.key = 'chQty';
     P.get = function (dd) { return n0(dd.chQty); };
     P.set = function (dd, v) { return withD(dd, 'chQty', Math.max(0, v)); };
     var chn = d.chName || 'ช่องทางนี้';
-    P.word = { subscription: 'ได้สมาชิกผ่าน' + chn, project: 'ได้งานผ่าน' + chn, rental: 'มีคนเช่าผ่าน' + chn, commission: 'ปิดดีลผ่าน' + chn + 'ได้' }[m] || 'ขายผ่าน' + chn + 'ได้';
+    P.word = { subscription: tj('ได้สมาชิกผ่าน', chn), project: tj('ได้งานผ่าน', chn), rental: tj('มีคนเช่าผ่าน', chn), commission: tj('ปิดดีลผ่าน', chn) + 'ได้' }[m] || tj('ขายผ่าน', chn) + 'ได้';
     P.q = 'ต้อง' + P.word + 'เท่าไร ถึงจะคุ้ม';
     P.lab = 'ต้อง' + P.word;
     if (m === 'rental') P.unit = '% ของทั้งหมด';
@@ -433,35 +526,45 @@ function dPivot0(inp, m, T, d) {
     P.lab = 'สาขาต้องมี' + salesWord(m);
     P.unit = '% ของร้านเดิม';
     P.lo = 0;
+    P.showHave = true;
   }
   var base = compute(inp, m).profit;
-  var step = Math.max(1e-3, P.T === 'place' ? cur * 0.1 : Math.max(1, cur * 0.1));
-  if (T === 'branch') step = 10;
-  var be = breakEven(function (v) { return steady(inp, m, T, P.set(d, v)).profit; }, base, P.lo, step, P.T === 'branch' ? 1000 : Math.max(cur * 50, 1e6));
+  var volPiv = T === 'place' || T === 'supplier', pctLike = P.pct || P.key === 'npAttach' || T === 'branch';
+  var step = Math.max(1e-3, volPiv ? cur * 0.1 : Math.max(1, cur * 0.1));
+  if (pctLike) step = 10;
+  var bhi = T === 'branch' ? 1000 : T === 'price' ? 95 : P.key === 'npAttach' ? 100 : P.pct ? 1000 : Math.max(cur * 50, 1e6);
+  var be = breakEven(function (v) { return steady(inp, m, T, P.set(d, v)).profit; }, base, P.lo, step, bhi);
   P.be = be;
   P.need = be.kind === 'value' ? be.x : be.kind === 'zero' ? P.lo : null;
-  var ref = Math.max(P.get(d) || 0, P.need || 0, P.be.kind === 'max' ? P.be.x : 0, T === 'place' ? cur : 0, T === 'branch' ? 100 : phGain(inp, m));
-  P.hi = T === 'place' ? Math.max(cur * 1.6, ref * 1.3) : ref * 1.6;
+  var ref = Math.max(P.get(d) || 0, P.need || 0, P.be.kind === 'max' ? P.be.x : 0, volPiv ? cur : 0, T === 'branch' ? 100 : pctLike ? 20 : phGain(inp, m));
+  P.hi = volPiv ? Math.max(cur * 1.6, ref * 1.3) : ref * 1.6;
+  if (T === 'price') P.hi = Math.min(95, P.hi);
+  if (P.key === 'npAttach') P.hi = Math.min(100, P.hi);
   if (m === 'rental' && (T === 'hire' || T === 'equip' || T === 'channel')) P.hi = Math.min(P.hi, Math.max(10, 100 - n0(inp.occupancy) + (T === 'channel' ? n0(inp.occupancy) : 0)));
   P.step = niceStep(Math.max(P.hi - P.lo, 1) / 60);
   if (isVolModel(m) && inp.volumePer !== 'month' && P.step < 1 && T !== 'branch') P.step = P.hi > 20 ? 1 : 0.5;
-  if (m === 'subscription' || m === 'rental' || T === 'branch') P.step = Math.max(1, Math.round(P.step));
+  if (m === 'subscription' || m === 'rental' || pctLike) P.step = Math.max(1, Math.round(P.step));
   P.hi = Math.ceil(P.hi / P.step) * P.step;
   P.lo = Math.floor(P.lo / P.step) * P.step;
   P.scen = { hire: [[0, 'ไม่ได้เลย'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], equip: [[0, 'ไม่ได้เลย'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']],
     channel: [[0, 'ไม่มีคนซื้อ'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], place: [[0.8, 'ต่ำกว่าคาด 20%'], [0.9, 'ต่ำกว่าคาด 10%'], [1, 'ที่คุณคาด']],
-    branch: [[0.5, 'ครึ่งเดียว'], [0.8, 'ต่ำกว่าคาด 20%'], [1, 'ที่คุณคาด']] }[T];
+    branch: [[0.5, 'ครึ่งเดียว'], [0.8, 'ต่ำกว่าคาด 20%'], [1, 'ที่คุณคาด']],
+    ads: [[0, 'ไม่ได้เลย'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], freelance: [[0, 'ไม่ได้เลย'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']],
+    newprod: [[0, 'ขายไม่ได้เลย'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], supplier: [[0.9, 'ต่ำกว่าคาด 10%'], [0.95, 'ต่ำกว่าคาด 5%'], [1, 'ที่คุณคาด']],
+    price: [[0, 'ไม่มีใครหาย', 'abs'], [1, 'ที่คุณคาด'], [2, 'หาย 2 เท่า']],
+    promo: [[0, 'ยอดไม่เพิ่ม', 'abs'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], freeship: [[0, 'ยอดไม่เพิ่ม', 'abs'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']] }[T];
   /* เรื่องที่มีเงินก้อน: กำไรต่อเดือนเท่าเดิมยังไม่พอ ต้องได้เงินก้อนคืนด้วย
      เป้าคืนทุน = อายุเครื่อง (ซื้ออุปกรณ์) หรือ 3 ปี (ย้ายร้าน เปิดสาขา) แล้วหาค่าที่ทำให้คืนทุนทันเป้า */
   var one = dBuild(inp, m, T, d, { lv: 1, f: 1 }).one;
   P.one = one;
   /* ยอดสูงสุดที่ร้านทำได้ (ย้ายร้าน สาขา) ใช้บอกว่าเงื่อนไขเกินกำลังร้าน */
   P.capMax = null;
-  if (T === 'place') P.capMax = m === 'rental' ? 100 : isVolModel(m) && pos(inp.capacity) ? pos(inp.capacity) : null;
+  if (volPiv) P.capMax = m === 'rental' ? 100 : isVolModel(m) && pos(inp.capacity) ? pos(inp.capacity) : null;
   if (T === 'branch') P.capMax = m === 'rental' && pos(inp.occupancy) ? 100 * 100 / pos(inp.occupancy) : isVolModel(m) && pos(inp.capacity) && cur > 0 ? pos(inp.capacity) / cur * 100 : null;
   if (P.capMax !== null) P.capTxt = m === 'rental' ? 'คนเช่าเต็มทุก' + U(inp, m) : (T === 'branch' ? 'สาขา' : 'ที่ใหม่') + 'ขายเต็มกำลังร้าน ' + fmtN(pos(inp.capacity)) + '\u00a0' + gainUnit(inp, m);
   P.needOver = P.need !== null && P.capMax !== null && P.need > P.capMax + 1e-9;
-  if (one > 0 && T !== 'equip' && (be.kind === 'value' || be.kind === 'zero')) {
+  /* เป้าคืนทุน 3 ปี: เฉพาะเรื่องที่มีเงินก้อนใหญ่ที่กำไรต่อเดือนยังไม่ได้นับ (ซื้ออุปกรณ์หักค่าเสื่อมในกำไรแล้ว · จัดโปรจบในปี) */
+  if (one > 0 && (T === 'place' || T === 'branch' || T === 'newprod') && (be.kind === 'value' || be.kind === 'zero')) {
     P.target = 36;
     P.targetTxt = 'คืนทุนภายใน 3\u00a0ปี';
     var pb = function (v) { var R = dEval(inp, m, T, P.set(d, v)); return R.ok && R.payback !== null ? R.payback : Infinity; };
@@ -470,6 +573,7 @@ function dPivot0(inp, m, T, d) {
     if (pb(hi2) <= P.target) {
       for (var i = 0; i < 26; i++) { var mid = (lo2 + hi2) / 2; if (pb(mid) <= P.target) hi2 = mid; else lo2 = mid; }
       if (P.capMax !== null && hi2 > P.capMax + 1e-9) P.payNo = 'ต่อให้' + P.capTxt + ' ก็คืนทุนไม่ทันใน 3\u00a0ปี';
+      else if (P.need !== null && hi2 - P.need < P.step) { P.target = null; P.targetTxt = null; } /* เงินก้อนเล็ก: คืนทุน 3 ปีที่จุดเดียวกับจุดคุ้ม ไม่ต้องแยกบอก */
       else {
         P.payNeed = hi2;
         if (P.payNeed > P.hi) { P.hi = Math.ceil(P.payNeed * 1.15 / P.step) * P.step; }
@@ -481,9 +585,13 @@ function dPivot0(inp, m, T, d) {
 function needText(P, m, inp, d) {
   var b = P.be;
   if (b.kind === 'always') return 'คุ้มไม่ว่า' + P.word + 'จะเป็นเท่าไร';
-  if (b.kind === 'zero') return P.T === 'place' ? 'ยอดลดลงได้มากก็ยังคุ้ม' : P.T === 'channel' ? 'ขายได้เท่าไรก็คุ้ม เพราะไม่มีค่าใช้จ่ายประจำของช่องทาง'
-    : P.T === 'equip' ? 'ไม่ต้องขายเพิ่มก็คุ้มแล้ว จากต้นทุนที่ลดลง' : 'ไม่ต้อง' + P.word + 'ก็คุ้มแล้ว';
+  if (b.kind === 'zero') return P.T === 'place' || P.T === 'supplier' ? 'ยอดลดลงได้มากก็ยังคุ้ม' : P.T === 'channel' ? 'ขายได้เท่าไรก็คุ้ม เพราะไม่มีค่าใช้จ่ายประจำของช่องทาง'
+    : P.T === 'newprod' ? 'ขายได้เท่าไรก็คุ้ม เพราะไม่มีค่าใช้จ่ายประจำของของใหม่'
+    : P.T === 'equip' ? 'ไม่ต้องขายเพิ่มก็คุ้มแล้ว จากต้นทุนที่ลดลง' : P.pct ? salesWord(m) + 'ไม่ต้องเพิ่มก็คุ้มแล้ว' : 'ไม่ต้อง' + P.word + 'ก็คุ้มแล้ว';
+  if (P.T === 'price' && b.kind === 'max') return 'ถ้า' + salesWord(m) + 'ลดลงมากกว่านี้ กำไรต่อเดือนจะน้อยกว่าตอนนี้';
+  if (P.T === 'price' && b.why === 'rev') return 'ราคาใหม่ยังทำให้กำไรน้อยกว่าตอนนี้ แม้ไม่มีใครหาย';
   if (b.why === 'rev' || b.kind === 'max') {
+    if (P.T === 'promo' || P.T === 'freeship') return 'ยิ่งขายมากยิ่งได้น้อยลง เพราะหลัง' + (P.T === 'promo' ? 'ลดราคา' : 'จ่ายค่าส่ง') + 'แล้ว ขายแล้วไม่เหลือเงิน';
     var cu = P.T === 'channel' ? channelUnit(inp, m, d) : null;
     if (cu && cu.ch > 0) return 'ยิ่งขายผ่านช่องทางนี้มากยิ่งได้น้อยลง เพราะลูกค้าเดิมย้ายมามากเกินไป';
     return 'ยิ่งขายมากยิ่งได้น้อยลง เพราะขายแล้วไม่เหลือเงิน';
@@ -503,10 +611,11 @@ function dConds(R, inp, m, T, d) {
   if (P.be.kind === 'value') {
     var shown = needAt(P, P.need, m, P.have), hv = haveAt(P.have, shown, true);
     var depM = T === 'equip' ? R.st.r.depreciation.monthlyTotal - R.B.r.depreciation.monthlyTotal : 0;
-    var same = 'ถึงจะได้กำไรต่อเดือนเท่าตอนนี้' + (T === 'equip' && depM > 0.5 ? ' (หักเงินที่กันไว้ซื้อเครื่องใหม่ เดือนละ ' + fmtN(depM) + ' บาทแล้ว)' : P.one > 0 ? ' (ยังไม่นับเงินก้อน ' + fmtN(P.one) + ' บาท)' : '');
+    var same = 'ถึงจะได้กำไรต่อเดือน' + (T === 'promo' ? 'ช่วงจัดโปร' : '') + 'เท่าตอนนี้' + (T === 'equip' && depM > 0.5 ? ' (หักเงินที่กันไว้ซื้อเครื่องใหม่ เดือนละ ' + fmtN(depM) + ' บาทแล้ว)'
+      : P.one > 0 ? ' (ยังไม่นับ' + (T === 'promo' ? 'ค่าจัดโปร ' : 'เงินก้อน ') + fmtN(P.one) + ' บาท)' : '');
     Object.assign(nr, { label: P.lab + 'อย่างน้อย', value: shown, haveShown: hv,
       status: hv >= shown - 1e-9 && !P.needOver ? 'ok' : 'short',
-      sub: (T === 'place' ? (P.need >= P.now ? salesWord(m) + 'มากกว่าตอนนี้ ' : salesWord(m) + 'น้อยกว่าตอนนี้ ') + fmtPct(Math.abs(P.need / P.now - 1) * 100) + ' ' + same
+      sub: (P.now !== undefined ? (P.need >= P.now ? salesWord(m) + 'มากกว่าตอนนี้ ' : salesWord(m) + 'น้อยกว่าตอนนี้ ') + fmtPct(Math.abs(P.need / P.now - 1) * 100) + ' ' + same
         : T === 'branch' ? '= ' + (m === 'rental' ? 'มีคนเช่า ' + fmtN(roundNeed(n0(inp.occupancy) * P.need / 100, m)) + '% ของ' + U(inp, m) + 'ทั้งหมดที่สาขา' : fmtN(roundNeed(n0(inp[ROLE[m].vol]) * P.need / 100, m)) + ' ' + gainUnit(inp, m)) + ' ' + same
           : same) + over });
   } else {
@@ -560,13 +669,23 @@ function dConds(R, inp, m, T, d) {
     }
   }
   /* 5) คืนทุน */
-  if (R.one > 0) {
+  if (R.one > 0 && T !== 'promo') {
     var life = T === 'equip' && pos(d.life) ? pos(d.life) * 12 : null;
-    C.push({ id: 'pay', label: { place: 'เงินค่าย้ายคืนทุน', equip: 'ค่าเครื่องคืนทุน', branch: 'เงินลงทุนสาขาคืนทุน' }[T], value: R.payback, unit: 'เดือน', payback: true,
-      lever: { place: 'moveCost', equip: 'price', branch: 'setup' }[T],
+    C.push({ id: 'pay', label: { place: 'เงินค่าย้ายคืนทุน', equip: 'ค่าเครื่องคืนทุน', branch: 'เงินลงทุนสาขาคืนทุน', newprod: 'เงินก้อนของของใหม่คืนทุน', ads: 'ค่าทำโฆษณาคืนทุน', supplier: 'ค่าเปลี่ยนเจ้าคืนทุน' }[T],
+      value: R.payback, unit: 'เดือน', payback: true,
+      lever: { place: 'moveCost', equip: 'price', branch: 'setup', newprod: 'npSetup', ads: 'adSetup', supplier: 'switchCost' }[T],
       status: R.payback === null || R.payback > 120 ? 'short' : life ? (R.payback <= life ? 'ok' : 'short') : 'info',
       sub: R.payback === null ? 'ตัวเลขแบบนี้ เงินที่ได้เพิ่มแต่ละเดือนยังไม่พอคืนเงินก้อน ' + fmtN(R.one) + ' บาท'
         : life ? 'เครื่องใช้ได้ ' + fmtN(life) + ' เดือน · ' + (R.payback > 120 ? 'คืนทุนนานกว่า 10 ปี' : R.payback <= life ? 'คืนทุนก่อนหมดอายุ' : 'หมดอายุก่อนคืนทุน') : 'นับจากเงินที่ได้เพิ่มจริงในแต่ละเดือน เทียบกับไม่ทำ' });
+  }
+  /* 5b) จัดโปร: กำไรรวมทั้งปี (ช่วงโปร + หลังจบโปร) */
+  if (T === 'promo') C.push({ id: 'total', label: 'รวม 12 เดือน กำไรเทียบกับไม่ทำ', value: R.total12, unit: 'บาท', cash: true, lever: 'promoMonths',
+    status: R.total12 >= -0.5 ? 'ok' : 'short', sub: 'ช่วงโปร ' + fmtN(promoDur(d)) + ' เดือน และหลังจบโปร' + (R.one > 0 ? ' · หักค่าจัดโปร ' + fmtN(R.one) + ' บาทแล้ว' : '') });
+  /* 5c) ยิงโฆษณา: ค่าโฆษณาต่อหน่วยที่ขายเพิ่ม เทียบกับเงินที่เหลือต่อหน่วย */
+  if (T === 'ads' && isVolModel(m) && n0(d.adGain) > 0) {
+    var gm = inp.volumePer === 'month' ? n0(d.adGain) : n0(d.adGain) * daysOf(inp), left = n0(inp.price) * (1 - n0(inp.feePct) / 100) - n0(inp.unitCost);
+    C.push({ id: 'cpa', label: 'ค่าโฆษณาต่อ' + U(inp, m) + 'ที่ขายเพิ่ม', value: (n0(d.adBudget) + n0(d.adMgmt)) / gm, unit: 'บาท', status: 'info', lever: 'adBudget',
+      sub: 'แต่ละ' + U(inp, m) + 'เหลือเงิน ' + fmtN(left, 1) + ' บาท (ราคา − ต้นทุน − ค่าธรรมเนียม)' });
   }
   /* 6) เงินในมือ */
   if (R.need > 0.5) C.push({ id: 'cash', label: R.B.hasCash ? 'เงินจะขาดมือมากสุด' : 'ช่วงแรกต้องมีเงินอย่างน้อย', value: R.need, unit: 'บาท', status: 'short', cash: true, lever: null,
@@ -574,10 +693,11 @@ function dConds(R, inp, m, T, d) {
   else if (R.B.hasCash) C.push({ id: 'cash', label: 'เงินในมือไม่ติดลบ ต่ำสุด', value: R.low, unit: 'บาท', status: 'ok', cash: true, lever: null,
     sub: R.lowT ? 'ในเดือน ' + monthLabel(R.lowT, true) : R.one > 0 ? 'ตอนจ่ายเงินก้อน' : 'เงินในมือไม่ลดลงจากตอนนี้' });
   /* 7) จ่ายเพื่อได้เวลาคืน */
-  if (T === 'hire' && n0(d.hours) > 0) {
+  var payM = T === 'hire' ? R.st.b.fx.filter(function (a) { return a[0] === 'newstaff'; }).reduce(function (a, x) { return a + x[2]; }, 0) : T === 'freelance' ? n0(d.flFee) : 0;
+  if ((T === 'hire' || (T === 'freelance' && !isKind(d, 'live'))) && n0(d.hours) > 0 && payM > 0) {
     var days = pos(inp.daysOpen) || 26;
-    C.push({ id: 'hour', label: 'จ่ายเพื่อได้เวลาของคุณคืน ชั่วโมงละ', value: n0(d.count) * n0(d.salary) / (n0(d.hours) * days), unit: 'บาท', status: 'info', lever: 'hours',
-      sub: 'เงินเดือนคนใหม่ ÷ (' + fmtN(n0(d.hours)) + ' ชั่วโมง × ' + fmtN(days) + ' วัน)' });
+    C.push({ id: 'hour', label: 'จ่ายเพื่อได้เวลาของคุณคืน ชั่วโมงละ', value: payM / (n0(d.hours) * days), unit: 'บาท', status: 'info', lever: 'hours',
+      sub: (T === 'hire' ? 'ค่าจ้างคนใหม่' : 'ค่าจ้างฟรีแลนซ์') + ' ÷ (' + fmtN(n0(d.hours)) + ' ชั่วโมง × ' + fmtN(days) + ' วัน)' });
   }
   return C;
 }
@@ -592,18 +712,30 @@ function cashWhen(R) {
 /* ---------- ถ้าไม่เป็นอย่างที่คาด (ใช้กับปุ่มบนแถบลาก) ---------- */
 function dScenarios(inp, m, T, d, P) {
   P = P || dPivot(inp, m, T, d);
-  if (!(P.have > 0)) return [];
+  var seen = {};
   return P.scen.map(function (s) {
-    var v = P.have * s[0], R = dEval(inp, m, T, P.set(d, v));
+    if (s[2] !== 'abs' && !(P.have > 0)) return null;
+    var v = s[2] === 'abs' ? s[0] : P.have * s[0];
+    if (seen[v.toFixed(6)]) return null;
+    seen[v.toFixed(6)] = 1;
+    var R = dEval(inp, m, T, P.set(d, v));
     return R.ok ? { f: s[0], label: s[1], v: v, profit: R.profit, delta: R.delta, low: R.low, need: R.need, payback: R.payback, one: R.one } : null;
   }).filter(Boolean);
 }
 
 /* ---------- คำอธิบายการตัดสินใจแบบสั้น ---------- */
 function dSummary(T, d, inp, m) {
-  if (T === 'hire') return 'จ้างพนักงานเพิ่ม ' + fmtN(Math.max(1, Math.round(n0(d.count)))) + ' คน';
+  var c = fmtN(Math.max(1, Math.round(n0(d.count))));
+  if (T === 'hire') return isKind(d, 'part') ? 'จ้างพาร์ตไทม์ ' + c + ' คน' : isKind(d, 'piece') ? 'จ้างคนจ่ายรายชิ้น ' + U(inp, m) + 'ละ ' + fmtN(n0(d.pieceRate), 2) + ' บาท' : 'จ้างพนักงานประจำเพิ่ม ' + c + ' คน';
+  if (T === 'price') return 'ขึ้นราคา' + priceWord(inp, m) + 'ละ ' + fmtN(n0(d.raiseBy), 2) + ' บาท' + (isKind(d, 'some') ? ' เฉพาะของที่ขายได้ ' + fmtN(n0(d.raiseShare)) + '%' : '');
+  if (T === 'promo') return (isKind(d, 'gift') ? 'แถมของ' : isKind(d, 'code') ? 'แจกโค้ดลด ' + fmtN(n0(d.discPct)) + '%' : 'ลดราคา ' + fmtN(n0(d.discPct)) + '%') + ' นาน ' + fmtN(promoDur(d)) + ' เดือน';
+  if (T === 'newprod') return (isKind(d, 'addon') ? 'เพิ่มของขายพ่วง' : 'เพิ่มของใหม่') + ' ราคา ' + fmtN(n0(d.npPrice), 2) + ' บาท';
+  if (T === 'freeship') return isKind(d, 'part') ? 'ช่วยค่าส่งออร์เดอร์ละ ' + fmtN(n0(d.shipCost)) + ' บาท' : isKind(d, 'min') ? 'ส่งฟรีเมื่อซื้อถึงขั้นต่ำ' : 'ส่งฟรีทุกออร์เดอร์';
+  if (T === 'ads') return 'ยิงโฆษณา' + (kindName(T, d, inp, m) ? ' ' + kindName(T, d, inp, m) : '') + ' เดือนละ ' + fmtN(n0(d.adBudget)) + ' บาท';
+  if (T === 'supplier') return 'เปลี่ยนเจ้าใหม่ ต้นทุน' + U(inp, m) + 'ละ ' + fmtN(n0(d.newCost), 2) + ' บาท';
+  if (T === 'freelance') return 'จ้าง' + (kindName(T, d, inp, m) || 'ฟรีแลนซ์') + ' เดือนละ ' + fmtN(n0(d.flFee)) + ' บาท';
   if (T === 'place') return 'ย้ายไปที่ใหม่ ค่าเช่า ' + fmtN(n0(d.newRent)) + ' บาท';
-  if (T === 'channel') return 'ขายผ่าน' + (d.chName || 'ช่องทางใหม่');
+  if (T === 'channel') return tj('ขายผ่าน', d.chName || 'ช่องทางใหม่');
   if (T === 'equip') return 'ซื้ออุปกรณ์ ' + fmtN(n0(d.price)) + ' บาท';
   return 'เปิดสาขาที่ 2';
 }

@@ -26,7 +26,7 @@ function scan(o, where) {
     for (const k of Object.keys(x)) { if (k === 'B' || k === 'st' || k === 'r') continue; walk(x[k], p + '.' + k); }
   })(o, '');
 }
-for (let i = 0; i < 700; i++) {
+for (let i = 0; i < 1400; i++) {
   const m = pick(models);
   const inp = sampleInp(ctx, m);
   for (const k of Object.keys(inp)) if (typeof inp[k] === 'number' && rnd() < 0.35) inp[k] = wild(inp[k]);
@@ -36,12 +36,17 @@ for (let i = 0; i < 700; i++) {
   const T = pick(topics);
   ctx.__t = T; ctx.__m = m;
   if (!R('topicOk(__t, __m)')) continue;
-  const d = genDec(ctx, T, inp, m);
+  const d = genDec(ctx, T, inp, m, Math.floor(rnd() * 5));
   for (const k of Object.keys(d)) if (typeof d[k] === 'number' && rnd() < 0.35) d[k] = wild(d[k]);
   if (T === 'equip' && rnd() < 0.2) d.fixedChg = -1e9;
   if (T === 'channel' && rnd() < 0.2) d.cut = pick([0, 99, 100, 150]);
   if (T === 'place' && rnd() < 0.2) d.salesPct = pick([-100, -95, 400]);
   if (T === 'place' && rnd() < 0.3) d.closedDays = pick([26, 30, 60]);
+  if (T === 'price' && rnd() < 0.3) d.lostPct = pick([0, 95, 100]);
+  if (T === 'promo' && rnd() < 0.3) { d.discPct = pick([0, 90, 100]); d.lift = pick([0, 1000]); d.promoMonths = pick([1, 6, 12]); }
+  if (T === 'supplier' && rnd() < 0.3) { d.newCost = pick([0, 1e6]); d.supSales = pick([-90, -100, 500]); }
+  if (T === 'freeship' && rnd() < 0.3) { d.perOrder = pick([0, 1, 50]); d.shipLift = pick([0, 1000]); }
+  if (T === 'newprod' && rnd() < 0.3) { d.npAttach = pick([0, 100, 150]); d.npCanni = pick([0, 100]); }
   if (T === 'channel' && rnd() < 0.2) { d.movePct = 100; d.chQty = inp.volume || inp[R('ROLE["' + m + '"].vol')] || 1; }
   ctx.__x = { inp, m, T, d };
   runs++;

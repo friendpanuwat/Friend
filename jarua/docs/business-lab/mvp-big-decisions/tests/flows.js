@@ -20,7 +20,7 @@ async function check(page, label) {
     const pill = document.querySelector('.pr-r'); if (!pill) return [];
     const rows = [...document.querySelectorAll('.cklist li[data-id="need"], .cklist li[data-id="payneed"]')].filter(li => li.querySelector('.ck-t b'));
     const out = [];
-    const extraShort = [...document.querySelectorAll('.cklist li[data-id="pay"] .ck, .cklist li[data-id="cap"] .ck, .cklist li[data-id="room"] .ck')].some(ck => ck.classList.contains('short'));
+    const extraShort = [...document.querySelectorAll('.cklist li[data-id="pay"] .ck, .cklist li[data-id="cap"] .ck, .cklist li[data-id="room"] .ck, .cklist li[data-id="total"] .ck')].some(ck => ck.classList.contains('short'));
     const allOk = rows.every(li => li.querySelector('.ck').classList.contains('ok')) && !extraShort;
     const noPay = !!document.querySelector('.cklist li[data-id="payneed"]') && !document.querySelector('.cklist li[data-id="payneed"] .ck-t b');
     if (rows.length && pill.classList.contains('ok') !== (allOk && !noPay)) out.push('pill ' + pill.className + ' vs rows ' + rows.map(li => li.querySelector('.ck').className).join(','));
@@ -48,7 +48,7 @@ async function check(page, label) {
       for (const T of topics) {
         ctx.__t = T; ctx.__m = m;
         if (!R('topicOk(__t, __m)')) continue;
-        const inp = sampleInp(ctx, m), d = genDec(ctx, T, inp, m);
+        const inp = sampleInp(ctx, m), d = genDec(ctx, T, inp, m, models.indexOf(m) + (dark ? 1 : 0));
         await page.evaluate(({ m, T, inp, d }) => {
           const L = window.__lab3, st = L.state;
           L.chooseModel(m, false); st.inp = inp; st.ds[T] = d; L.openTopic(T);
@@ -74,6 +74,7 @@ async function check(page, label) {
         });
         bad += await check(page, label + ' lab');
         await page.click('.bar [data-act="result"]');
+        if (!(await page.$('[data-act="ask"]'))) { bad++; console.log('  PROBLEM', label, 'after lab: view', await page.evaluate(() => window.__lab3.state.view + ' ' + JSON.stringify(window.__lab3.state.ds[window.__lab3.state.topic]))); n++; continue; }
         await page.click('[data-act="ask"]');
         let k = 0;
         while (await page.$('.ask-ans') && k < 8) { await page.click('.ask-ans button[data-v="yes"]'); await page.waitForTimeout(240); k++; }
@@ -84,7 +85,7 @@ async function check(page, label) {
       }
     }
     /* กรอกจริงด้วยการแตะ */
-    for (const [m, T] of [['subscription', 'hire'], ['rental', 'branch'], ['service', 'equip']]) {
+    for (const [m, T] of [['subscription', 'hire'], ['rental', 'branch'], ['service', 'equip'], ['resell', 'freeship'], ['unit', 'promo'], ['resell', 'newprod']]) {
       await page.evaluate(() => { sessionStorage.clear(); const L = window.__lab3; L.state.model = null; L.state.inp = {}; L.state.ds = {}; L.state.topic = null; L.go('start'); });
       await page.click(`[data-act="topic"][data-t="${T}"]`);
       await page.click(`[data-act="model"][data-m="${m}"]`);
@@ -101,9 +102,14 @@ async function check(page, label) {
           const keys = await page.$$eval('.qfields input[data-dk]', els => els.filter(e => !e.closest('[hidden]')).map(e => e.getAttribute('data-dk')));
           for (const kk of keys) if (typeof d[kk] === 'number') await page.fill(`[data-dk="${kk}"]`, String(d[kk]));
         }
+        if (await page.$('[data-act="dkind"]')) await page.click('[data-act="dkind"]');
         if (await page.$('[data-act="dpick"][data-v="3"]')) await page.click('[data-act="dpick"][data-v="3"]');
         bad += await check(page, `${w} typed ${m}/${T} q${s}`);
         if (await page.$('#foot [data-act="d-done"]:not([disabled])')) { await page.click('#foot [data-act="d-done"]'); break; }
+        if (!(await page.$('#foot [data-act="d-next"]:not([disabled])'))) {
+          bad++; console.log('  PROBLEM typed', m, T, 'stuck at', await page.evaluate(() => document.querySelector('.q-head h1').textContent + ' · ' + JSON.stringify(window.__lab3.state.ds[window.__lab3.state.topic])));
+          break;
+        }
         await page.click('#foot [data-act="d-next"]');
       }
       const v = await page.evaluate(() => window.__lab3.state.view);

@@ -1,7 +1,7 @@
 /* ตัวเลขถูกต้อง: ตรงกับตัวคำนวณ PL2 · กำไรเปลี่ยนเพราะอะไร รวมได้เท่ากำไรที่เปลี่ยน · จุดคุ้มถึงจุดคุ้มจริง · คืนทุนตรงกับเงินสะสม
    · ค่าที่คิดมือของร้านกาแฟตัวอย่าง · เงินที่จมกับลูกค้าค้างจ่ายและสต็อก · กรณีขอบ (ยิ่งขายยิ่งได้น้อยลง / เต็มกำลัง)
    · ตัดสินใจแบบ "ไม่เปลี่ยนอะไร" ต้องได้ผลเท่าเดิม · รัน: node tests/unit.js (ต้อง ./build.sh ก่อน) */
-const { load, genDec, sampleInp } = require('./cases');
+const { load, genDec, sampleInp, kindsFor } = require('./cases');
 const ctx = load();
 const vm = require('vm');
 const R = (c) => vm.runInContext(c, ctx);
@@ -70,10 +70,11 @@ for (const m of models) {
   const inp = sampleInp(ctx, m);
   ctx.__i = inp; ctx.__m = m;
   const base = R('compute(__i, __m)');
-  for (const T of topics) {
+  const pairs = [];
+  for (const T0 of topics) { ctx.__t = T0; if (!R('topicOk(__t, __m)')) continue; const nk = Math.max(1, kindsFor(ctx, T0, inp, m).length); for (let ki = 0; ki < nk; ki++) pairs.push([T0, ki]); }
+  for (const [T, ki] of pairs) {
     ctx.__t = T;
-    if (!R('topicOk(__t, __m)')) continue;
-    const d = genDec(ctx, T, inp, m);
+    const d = genDec(ctx, T, inp, m, ki);
     const E = ev(inp, m, T, d);
     chk(E.ok, `${m}/${T} not ok`);
     if (!E.ok) continue;
@@ -110,12 +111,15 @@ for (const m of models) {
     const S = R('dScenarios(__i,__m,__t,__d)');
     const s1 = S.find(s => s.f === 1);
     if (S.length) near(s1 && s1.profit, E.profit, 0.001, `${m}/${T} scenario "as expected" = main`);
-    console.log(m.padEnd(12), T.padEnd(8), 'Δ', Math.round(E.delta), '| pay', E.payback === null ? '-' : E.payback.toFixed(1), '| need cash', Math.round(E.need), '| wc', Math.round(E.wc),
+    console.log(m.padEnd(12), (T + (d.kind ? ':' + d.kind : '')).padEnd(18), 'Δ', Math.round(E.delta), '| pay', E.payback === null ? '-' : E.payback.toFixed(1), '| need cash', Math.round(E.need), '| wc', Math.round(E.wc),
       '| conds', E.conds.map(c => c.id + '=' + (c.value === null ? 'x' : Math.round(c.value * 10) / 10) + (c.status ? ':' + c.status : '')).join(' '), '| scen', S.map(s => Math.round(s.profit)).join('/'));
   }
   const zero = {
     hire: { count: 1, salary: 0 }, place: { newRent: inp.rent || 0, salesPct: 0, moveCost: 0 }, channel: { cut: 20, chQty: 0, chFee: 0, movePct: 0, extraCost: 0 },
-    equip: { price: 0, life: 5 }, branch: { setup: 0, bPct: 0, bRent: 0, bStaff: 0, bOther: 0, ramp: 0 }
+    equip: { price: 0, life: 5 }, branch: { setup: 0, bPct: 0, bRent: 0, bStaff: 0, bOther: 0, ramp: 0 },
+    price: { kind: 'all', raiseBy: 0, lostPct: 0 }, promo: { kind: 'disc', discPct: 0, promoMonths: 1, lift: 0, promoCost: 0 },
+    newprod: { kind: 'new', npPrice: 50, npCost: 10, npQty: 0, npCanni: 0, npFixed: 0, npSetup: 0 }, freeship: { kind: 'all', shipCost: 0, perOrder: 1, shipLift: 0 },
+    ads: { kind: 'social', adBudget: 0, adMgmt: 0, adSetup: 0 }, freelance: { kind: 'admin', flFee: 0 }, supplier: { kind: 'cheaper', newCost: inp.unitCost, supSales: 0, switchCost: 0 }
   };
   for (const T of topics) {
     ctx.__t = T; if (!R('topicOk(__t, __m)')) continue;
