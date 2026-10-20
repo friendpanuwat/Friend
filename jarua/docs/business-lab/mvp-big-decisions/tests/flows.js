@@ -94,7 +94,8 @@ async function check(page, label) {
       const inp = sampleInp(ctx, m);
       for (let s = 0; s < 12; s++) {
         const keys = await page.$$eval('.qfields input[data-k]', els => els.filter(e => !e.closest('[hidden]')).map(e => e.getAttribute('data-k')));
-        for (const kk of keys) if (typeof inp[kk] === 'number') await page.fill(`[data-k="${kk}"]`, String(inp[kk]));
+        for (const kk of keys) if (typeof inp[kk] === 'number') await page.fill(`input[data-k="${kk}"]`, String(inp[kk]));
+        if (await page.$('[data-act="advmode"][data-v="no"]')) await page.click('[data-act="advmode"][data-v="no"]');
         if (await page.$('#foot [data-act="shop-done"]:not([disabled])')) { await page.click('#foot [data-act="shop-done"]'); break; }
         await page.click('#foot [data-act="next"]');
       }
@@ -102,10 +103,10 @@ async function check(page, label) {
       for (let s = 0; s < 6; s++) {
         for (let pass = 0; pass < 2; pass++) {
           const keys = await page.$$eval('.qfields input[data-dk]', els => els.filter(e => !e.closest('[hidden]')).map(e => e.getAttribute('data-dk')));
-          for (const kk of keys) if (typeof d[kk] === 'number') await page.fill(`[data-dk="${kk}"]`, String(d[kk]));
+          for (const kk of keys) if (typeof d[kk] === 'number') await page.fill(`input[data-dk="${kk}"]`, String(d[kk]));
         }
         if (await page.$('[data-act="dkind"]')) await page.click('[data-act="dkind"]');
-        if (await page.$('[data-act="dpick"][data-v="3"]')) await page.click('[data-act="dpick"][data-v="3"]');
+        for (const kk of await page.$$eval('[data-act="dpick"][data-v="3"]', els => els.filter(e => !e.closest('[hidden]')).map(e => e.getAttribute('data-k')))) await page.click(`[data-act="dpick"][data-k="${kk}"][data-v="3"]`);
         bad += await check(page, `${w} typed ${m}/${T} q${s}`);
         if (await page.$('#foot [data-act="d-done"]:not([disabled])')) { await page.click('#foot [data-act="d-done"]'); break; }
         if (!(await page.$('#foot [data-act="d-next"]:not([disabled])'))) {

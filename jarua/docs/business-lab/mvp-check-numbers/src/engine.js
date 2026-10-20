@@ -183,7 +183,7 @@ function compute(inp, m) {
   var fee = feePctKey ? S.revenue * n0(inp.feePct) / 100 : 0;
   var direct = S.varCost - fee;
   var directLabel = { unit: 'ค่าวัตถุดิบและบรรจุภัณฑ์', service: 'ของที่ใช้และค่ามือช่าง', resell: 'ค่าของที่ซื้อมา',
-    subscription: 'ของและบริการที่ให้สมาชิก', project: 'ต้นทุนตรงของงาน', rental: 'ค่าใช้จ่ายต่อ' + periodWord(inp),
+    subscription: 'ของและบริการที่ให้สมาชิก', project: 'ต้นทุนของแต่ละงาน', rental: 'ค่าใช้จ่ายต่อ' + periodWord(inp),
     commission: 'ส่วนแบ่งให้ทีม', other: 'ต้นทุนของรายได้นี้' }[m];
   var items = [
     ['direct', directLabel, direct], ['fee', 'ค่าธรรมเนียม', fee],
@@ -395,7 +395,7 @@ function detect(S, inp, m) {
   if (P < 0) {
     var neg = S.be && S.be.impossible;
     var ev = [];
-    if (neg) ev.push('ราคาที่ได้ต่อ' + u + ' ยังไม่พอจ่ายต้นทุนที่ขึ้นลงตามยอดขาย ยิ่งขายมากยิ่งขาดทุนมาก');
+    if (neg) ev.push('ราคาที่ได้ต่อ' + u + ' ยังไม่พอจ่ายต้นทุนที่เพิ่มตามยอดขาย ยิ่งขายมากยิ่งขาดทุนมาก');
     else if (S.be) ev.push('ต้อง' + volVerb(m) + 'อย่างน้อย ' + fmtN(S.be.vol, 1) + ' ' + volUnitText(inp, m) + ' ตอนนี้ ' + fmtN(S.vol) + ' ' + volUnitText(inp, m));
     if (S.owner > 0 && P + S.owner > 0) ev.push('ถ้าไม่นับเงินเดือนคุณ ร้านยังเหลือเงินเดือนละ ' + fmtN(P + S.owner) + ' บาท แปลว่าร้านจ่ายเงินเดือนคุณได้ ' + fmtN(P + S.owner) + ' จาก ' + fmtN(S.owner) + ' บาท');
     F.push({ id: 'loss', lv: 'high', title: neg ? 'ยิ่งขายมาก ยิ่งขาดทุน' : 'ร้านขาดทุนทุกเดือน',
@@ -445,7 +445,7 @@ function detect(S, inp, m) {
     var room = Math.max(0, S.util.max - curU);
     var headroom = curU > 0 && S.contribution > 0 ? room * S.contribution / curU : 0;
     var roomUnit = m === 'project' ? 'งานพร้อมกัน' : volUnitText(inp, m);
-    F.push({ id: 'capacity', lv: 'watch', title: S.util.rental ? 'เกือบเต็มทุก' + periodWord(inp) + 'แล้ว' : 'ใกล้เต็มกำลังที่รับได้',
+    F.push({ id: 'capacity', lv: 'watch', title: S.util.rental ? 'เกือบเต็มทุก' + periodWord(inp) + 'แล้ว' : 'ร้านใกล้เต็มกำลังรองรับแล้ว',
       money: headroom, unit: 'month', moneyText: fmtN(headroom) + ' บาท/เดือน', moneyCap: 'กำไรที่เพิ่มได้อีกไม่เกินนี้ ถ้ายังรับได้เท่าเดิม',
       ev: [S.util.rental ? 'มีคนเช่า ' + fmtPct(S.util.pct) + ' เหลือที่ว่างอีก ' + fmtPct(100 - S.util.pct)
         : 'ใช้กำลังไปแล้ว ' + fmtPct(S.util.pct) + ' รับเพิ่มได้อีก ' + fmtN(room, 1) + ' ' + roomUnit],
@@ -458,8 +458,8 @@ function detect(S, inp, m) {
       var S4 = compute(withK(inp, 'maxMembers', null), m);
       if (S4.ok) S4.cash.forEach(function (c, i) { lost += c.net - S.cash[i].net; });
     }
-    if (lost > 0) F.push({ id: 'capacity', lv: 'mid', title: 'จะเต็มกำลังภายใน 12 เดือน',
-      money: lost / 12, unit: 'year', moneyText: fmtN(lost) + ' บาท', moneyCap: 'เงินที่จะเสียโอกาสใน 12 เดือนข้างหน้า ถ้ายังรับได้เท่าเดิม',
+    if (lost > 0) F.push({ id: 'capacity', lv: 'mid', title: 'ร้านจะเต็มกำลังรองรับภายใน 12 เดือน',
+      money: lost / 12, unit: 'year', moneyText: fmtN(lost) + ' บาท', moneyCap: 'กำไรที่อาจพลาดไปใน 12 เดือน',
       ev: ['ถ้ายอดโตตามตัวเลขนี้ จะเต็มกำลังในเดือน ' + monthLabel(S.util.reachT, true)], q: QSETS.capacity.all });
   }
 
@@ -532,7 +532,7 @@ function waysNeg(S, inp, m) {
   if (R.cost) {
     var c = solve(R.cost, -1);
     var cname = { unit: 'ต้นทุนต่อ' + U(inp, m), service: 'ต้นทุนต่อ' + U(inp, m), resell: 'ราคาที่ซื้อมาต่อ' + U(inp, m), subscription: 'ต้นทุนต่อสมาชิก',
-      project: 'ต้นทุนตรง', rental: 'ค่าใช้จ่ายต่อ' + periodWord(inp), commission: 'ส่วนแบ่งให้ทีม', other: 'ต้นทุน' }[m];
+      project: 'ต้นทุนของแต่ละงาน', rental: 'ค่าใช้จ่ายต่อ' + periodWord(inp), commission: 'ส่วนแบ่งให้ทีม', other: 'ต้นทุน' }[m];
     var cunit = { project: '% ของมูลค่างาน', commission: '% ของค่าคอม', other: '% ของรายได้' }[m] || 'บาท';
     if (c !== null) ways.push({ text: cname + 'ต้องไม่เกิน <b>' + fmtN(c) + '</b>' + (cunit === 'บาท' ? ' บาท' : cunit) + ' (ตอนนี้ ' + fmtN(n0(inp[R.cost])) + ')', lever: R.cost, value: c,
       label: cname + 'ต้องไม่เกิน', big: fmtN(c) + (cunit === 'บาท' ? ' บาท' : cunit), note: 'ตอนนี้ ' + fmtN(n0(inp[R.cost])) });
@@ -545,7 +545,7 @@ function waysNeg(S, inp, m) {
   return ways;
 }
 
-/* ---------- ป้ายราคาของจุดที่ควรเช็ก ---------- */
+/* ---------- ป้ายราคาของจุดที่ควรตรวจสอบ ---------- */
 function pointTag(bankLever, S, inp, m) {
   if (!bankLever || !S.ok) return '';
   var k = roleKey(m, bankLever);
@@ -619,7 +619,7 @@ function leverInsight(k, base, trialInp, m, Sb, St) {
       }
       return 'ลดราคาเป็น ' + fmtN(tv) + ' (' + fmtSignedPct((tv / bv - 1) * 100) + ') ต้องขายเพิ่ม <b>' + fmtPct(pct) + '</b> ถึงจะได้กำไรเท่าเดิม';
     }
-    if (tv < bv && St.contribution <= 0) return 'ราคานี้ขายเท่าไหร่ก็ขาดทุน เพราะต่ำกว่าต้นทุนที่ขึ้นลงตามยอดขาย';
+    if (tv < bv && St.contribution <= 0) return 'ราคานี้ขายเท่าไหร่ก็ขาดทุน เพราะต่ำกว่าต้นทุนที่เพิ่มตามยอดขาย';
     var e = leverEffect(k, trialInp, m, leverStep(k, base, m));
     return e !== null ? 'ขึ้นราคาทีละ ' + fmtN(leverStep(k, base, m)) + (R.price === 'commissionPct' ? '%' : ' บาท') + ' โดย' + (m === 'rental' ? 'คนเช่า' : 'ลูกค้า') + 'เท่าเดิม = กำไรเพิ่ม <b>' + fmtN(e) + '</b> บาท/เดือน' : '';
   }

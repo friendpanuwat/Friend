@@ -64,7 +64,8 @@ async function check(page, label) {
     const shop = { price: 60, volume: 90, daysOpen: 26, unitCost: 21, feePct: 0, staffCount: 1, staffSalary: 12000, ownerSalary: 15000, rent: 15000, marketing: 2000, otherFixed: 6000, cash: 80000 };
     for (let s = 0; s < 10; s++) {
       const keys = await page.$$eval('.qfields input[data-k]', els => els.filter(e => !e.closest('[hidden]')).map(e => e.getAttribute('data-k')));
-      for (const k of keys) if (shop[k] !== undefined) await page.fill(`[data-k="${k}"]`, String(shop[k]));
+      for (const k of keys) if (shop[k] !== undefined) await page.fill(`input[data-k="${k}"]`, String(shop[k]));
+      if (await page.$('[data-act="advmode"][data-v="no"]')) await page.click('[data-act="advmode"][data-v="no"]');
       const see = await page.$('#foot [data-act="see"]:not([disabled])');
       if (see) { await see.click(); break; }
       await page.click('#foot [data-act="next"]');
@@ -96,7 +97,8 @@ async function check(page, label) {
     /* ตอบเรื่องจ้างคน */
     for (let s = 0; s < 6; s++) {
       if (await page.$('[data-act="dkind"][data-v="full"]')) await page.click('[data-act="dkind"][data-v="full"]');
-      for (const [k, val] of [['salary', 12000], ['gain', 15], ['capAdd', 40]]) if (await page.$(`[data-dk="${k}"]:visible`)) await page.fill(`[data-dk="${k}"]`, String(val));
+      for (const [k, val] of [['salary', 12000], ['gain', 15], ['capAdd', 40], ['hours', 2]]) if (await page.$(`input[data-dk="${k}"]:visible`)) await page.fill(`input[data-dk="${k}"]`, String(val));
+      if (await page.$('[data-act="dpick"][data-k="ramp"][data-v="1"]:visible')) await page.click('[data-act="dpick"][data-k="ramp"][data-v="1"]');
       const done = await page.$('#foot [data-act="d-done"]:not([disabled])');
       if (done) { await done.click(); break; }
       const nx = await page.$('#foot [data-act="d-next"]:not([disabled])');
@@ -111,7 +113,7 @@ async function check(page, label) {
     /* 5. แก้ตัวเลขร้านในตัวที่ 3 (ราคา 60 → 65) → ตัวที่ 1 เห็นตัวเลขใหม่ */
     await page.click('#foot [data-act="lab"]'); await page.waitForTimeout(150);
     await page.click('.rv-row[data-act="edit-step"][data-i="0"]'); await page.waitForTimeout(150);
-    await page.fill('[data-k="price"]', '65');
+    await page.fill('input[data-k="price"]', '65');
     await page.click('#foot [data-act="shop-done"]'); await page.waitForTimeout(150);
     if ((await page.evaluate(() => window.__lab3.state.view)) !== 'lab') fail(tag, 'after shop edit not back on adjust page');
     const sh3 = await page.evaluate(() => JSON.parse(sessionStorage.getItem('lab-shop') || 'null'));
@@ -125,7 +127,7 @@ async function check(page, label) {
     if (p1.price !== 65 || p1.v !== 'home') fail(tag, 'tool1 did not adopt edited numbers', JSON.stringify(p1));
     await check(page, tag + ' tool1 adopted');
     /* ทบทวนรอบ 1 ข้อ 1: กลับหน้าแรกของตัวที่ 1 แล้วแตะร้านแบบเดิม ต้องไม่ล้างตัวเลขร้านชุดกลาง */
-    await page.click('.bar [data-act="review"]'); await page.waitForTimeout(100);
+    await page.click('#foot [data-act="review"]'); await page.waitForTimeout(100);
     await page.evaluate(() => window.__lab.go('start'));
     await page.click('[data-act="model"][data-m="unit"]'); await page.waitForTimeout(100);
     const sh4 = await page.evaluate(() => JSON.parse(sessionStorage.getItem('lab-shop') || 'null'));

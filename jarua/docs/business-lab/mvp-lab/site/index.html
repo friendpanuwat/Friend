@@ -105,6 +105,7 @@ main { padding-bottom: calc(var(--foot-h) + 40px + env(safe-area-inset-bottom, 0
 .stat .v { font-family: var(--font-num); font-weight: 700; font-size: 22px; line-height: 1.2; margin-top: 4px; letter-spacing: -0.02em; white-space: nowrap; }
 .stat .v small { font-family: var(--font-th); font-size: 12px; font-weight: 600; letter-spacing: 0; margin-left: 2px; }
 .stat .d { font-family: var(--font-num); font-size: 12px; font-weight: 700; margin-top: 2px; }
+.stat .n { font-size: 12px; color: var(--panel-muted); line-height: 1.35; }
 .panel .cta { margin-top: 18px; }
 .up::before { content: "▲ "; font-size: 0.78em; }
 .down::before { content: "▼ "; font-size: 0.78em; }
@@ -189,6 +190,8 @@ main { padding-bottom: calc(var(--foot-h) + 40px + env(safe-area-inset-bottom, 0
 .foot .wrap { display: flex; gap: 10px; padding-top: 18px; padding-bottom: 14px; }
 .foot .btn { flex: 1; }
 .foot .btn.back { flex: 0 0 auto; width: 60px; padding: 0; }
+.foot2 .btn { font-size: 16px; padding: 0 16px; }
+.foot2 .btn.ghost { flex: 0 0 auto; }
 .skip { display: flex; justify-content: center; margin-top: 10px; }
 
 /* ---------- review (แก้ตัวเลข) ---------- */
@@ -350,7 +353,7 @@ details.about ul { margin: 0 0 16px; padding-left: 18px; font-size: 14px; color:
 .lab-panel .bignum .u { font-size: 16px; }
 .lab-panel .was { font-size: 13px; color: var(--panel-muted); }
 .lab-panel .stats { margin-top: 10px; padding-top: 8px; }
-.lab-panel .stat .k { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lab-panel .stat .k { line-height: 1.25; }
 .lab-panel .stat .v { font-size: 18px; }
 .chg { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .chg span { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--panel-line); }
@@ -409,6 +412,28 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 
 /* ปุ่มกลับหน้ารวม Business Lab (ท้ายภาพรวม เมื่อเปิดผ่านหน้ารวม) */
 .hub-back { margin-top: 20px; text-decoration: none; }
+
+/* ---------- ช่องที่ยังขาด (กดถัดไปตอนยังไม่ครบ) ---------- */
+@keyframes need { 0%, 100% { box-shadow: 0 0 0 2px var(--ink); } 40% { box-shadow: 0 0 0 4px var(--ink); } }
+.field.need { border-radius: 16px; padding: 8px 10px 10px; margin: -8px -10px -10px; box-shadow: 0 0 0 2px var(--ink); animation: need 0.9s ease-out 1; }
+.need-msg { margin: 0 2px; font-size: 14px; font-weight: 700; color: var(--ink); display: flex; gap: 6px; align-items: center; }
+.need-msg::before { content: "!"; display: inline-flex; width: 18px; height: 18px; border-radius: 9px; background: var(--ink); color: var(--bg); font-size: 12px; align-items: center; justify-content: center; flex: none; }
+@media (prefers-reduced-motion: reduce) { .field.need { animation: none; } }
+.chips.quick { margin-bottom: 2px; }
+.chips.quick .chip { min-height: 44px; font-size: 15px; padding: 0 16px; }
+.unk-hint { margin: 0 2px; font-size: 13px; color: var(--muted); }
+
+/* ---------- รายละเอียดเพิ่ม: ตอบ มี / ไม่มี แล้วเลือกกลุ่ม ---------- */
+.adv-mode .seg { display: grid; grid-template-columns: 1fr; width: 100%; }
+.adv-mode .seg button { min-height: 52px; text-align: left; padding: 0 16px; }
+.adv-mode .seg button[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--ink); }
+.adv-hint { margin: 14px 2px 0; }
+.adv-tg { width: 100%; min-height: 60px; border: 0; background: transparent; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; font-weight: 700; font-size: 16px; color: var(--ink); padding: 0; }
+.adv-tg small { display: block; font-weight: 400; font-size: 13px; color: var(--muted); }
+.adv-tg .tg { flex: none; width: 24px; height: 24px; border-radius: 7px; box-shadow: inset 0 0 0 2px var(--line); position: relative; }
+.adv-tg[aria-pressed="true"] .tg { background: var(--ink); box-shadow: none; }
+.adv-tg[aria-pressed="true"] .tg::after { content: ""; position: absolute; left: 8px; top: 4px; width: 6px; height: 11px; border: solid var(--bg); border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+.adv-block.on { box-shadow: var(--shadow), inset 0 0 0 1.5px var(--ink); }
 </style>
 <script>
 /* ============================================================
@@ -493,28 +518,28 @@ a.tcard:hover { box-shadow: inset 0 0 0 1.5px var(--ink), var(--shadow); }
     <a class="tcard" href="check-numbers.html">
       <span class="ti" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg></span>
       <span class="tn">เช็กตัวเลขร้าน</span>
-      <h3>ร้านอยู่ตรงไหน เรื่องไหนทำให้เสียเงินเท่าไร</h3>
+      <h3>ร้านอยู่ตรงไหน เรื่องไหนทำให้เสียเงินเท่าไร?</h3>
       <p>เห็นกำไร จุดคุ้มทุน และเงินสด 12 เดือน แล้วลองเปลี่ยนตัวเลขดูก่อนลงมือจริง</p>
       <span class="fit"><span class="ft">เหมาะสำหรับ ผู้ที่มีร้านแล้ว อยากรู้ว่าร้านอยู่ตรงไหน</span><span class="go">เปิด<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></span>
     </a>
     <a class="tcard" href="big-decisions.html">
       <span class="ti" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span>
       <span class="tn">เช็กก่อนตัดสินใจเรื่องใหญ่</span>
-      <h3>จะขึ้นราคา จ้างคน หรือย้ายร้าน คุ้มไหม</h3>
+      <h3>จะขึ้นราคา จ้างคน หรือย้ายร้าน คุ้มไหม?</h3>
       <p>เทียบ “ทำ” กับ “ไม่ทำ” ต้องขายเท่าไรถึงจะคุ้ม เงินพอไหม และคืนทุนเมื่อไร · 12 เรื่อง ทั้งร้านหน้าร้านและร้านออนไลน์</p>
       <span class="fit"><span class="ft">เหมาะสำหรับ ผู้ที่กำลังคิดเรื่องใหญ่ในร้าน</span><span class="go">เปิด<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></span>
     </a>
     <div class="tcard soon">
       <span class="ti" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></svg></span>
       <span class="tn">เช็กก่อนเปิดร้าน <span class="soon-tag">เร็ว ๆ นี้</span></span>
-      <h3>ตัวเลขไปรอดไหม ก่อนเปิดร้าน</h3>
+      <h3>ตัวเลขไปรอดไหม ก่อนเปิดร้าน?</h3>
       <p>ต้องขายเท่าไร เงินอยู่ได้กี่เดือน และคืนทุนกี่เดือน</p>
       <span class="fit"><span class="ft">เหมาะสำหรับ ผู้ที่ยังไม่ได้เริ่มธุรกิจ</span></span>
     </div>
     <div class="tcard soon">
       <span class="ti" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg></span>
       <span class="tn">กำไรรายสินค้าและรายช่องทาง <span class="soon-tag">เร็ว ๆ นี้</span></span>
-      <h3>สินค้าไหนกำไรดี ช่องทางไหนเหลือเงินจริง</h3>
+      <h3>สินค้าไหนกำไรดี ช่องทางไหนเหลือเงินจริง?</h3>
       <p>ต้นทุนต่อชิ้นจริง และกำไรของแต่ละสินค้า แต่ละช่องทาง</p>
       <span class="fit"><span class="ft">เหมาะสำหรับ ผู้ที่มีหลายสินค้าหรือหลายช่องทาง</span></span>
     </div>

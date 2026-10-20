@@ -22,7 +22,7 @@ const { open, overflow } = require('./harness');
         st.trial = {}; L.go('home');
         return { steps, F };
       }, m);
-      await page.click('.next .btn');
+      await page.click('#foot .btn:not(.ghost)');
       let n = 0;
       while (await page.$('.ask-ans') && n < 10) { await page.click('.ask-ans button[data-v="yes"]'); await page.waitForTimeout(260); n++; }
       const txt = await page.evaluate(() => document.body.innerText);

@@ -10,7 +10,12 @@ function load() {
 }
 /* การตัดสินใจตัวอย่างที่เข้ากับร้านแต่ละรูปแบบ (ใช้ใน test เท่านั้น) · ki = ลำดับของแบบย่อย (วนตามจำนวนแบบที่เรื่องนั้นมี) */
 function kindsFor(ctx, T, inp, m) { ctx.__a = { inp, m, T }; return vm.runInContext('kindsOf(__a.T, __a.inp, __a.m).map(function (k) { return k[0]; })', ctx); }
+/* ทุกข้อต้องตอบ: เติมข้อที่ไม่ได้เขียนด้วยคำตอบที่ได้ตัวเลขเท่ากับตอนเว้นว่าง (ชุดเดียวกับร้านตัวอย่างในหน้าเว็บ) */
 function genDec(ctx, T, inp, m, ki) {
+  ctx.__c = { T, inp, m, d: genDec0(ctx, T, inp, m, ki) };
+  return JSON.parse(vm.runInContext('JSON.stringify(dComplete(__c.T, __c.inp, __c.m, __c.d))', ctx));
+}
+function genDec0(ctx, T, inp, m, ki) {
   const R = (c) => { ctx.__a = { inp, m }; return vm.runInContext(c, ctx); };
   const g = R('phGain(__a.inp, __a.m)'), fx = R('fixedTotal(__a.inp)');
   const rent = inp.rent || 0, sal = inp.staffSalary || 12000, price = inp.price || 100, uc = inp.unitCost || 30;
@@ -37,6 +42,7 @@ function sampleInp(ctx, m) {
   if (per && !inp.volumePer) inp.volumePer = per;
   if (m === 'subscription' && !inp.cycle) inp.cycle = 1;
   if (m === 'rental' && !inp.periodKind) inp.periodKind = 'night';
-  return inp;
+  ctx.__s = { inp, m };
+  return JSON.parse(vm.runInContext('JSON.stringify(advNormalize(__s.inp, __s.m))', ctx));
 }
 module.exports = { load, genDec, sampleInp, kindsFor };

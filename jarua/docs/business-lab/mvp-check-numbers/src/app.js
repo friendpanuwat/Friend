@@ -28,7 +28,7 @@
 
   var state = {
     view: 'start', model: null, inp: {}, isSample: false, step: 0, editing: false,
-    trial: {}, active: null, fid: null, qidx: 0, answers: {}, feeHelp: false, fh: { share: '', rate: '' }
+    trial: {}, active: null, fid: null, qidx: 0, answers: {}, feeHelp: false, fh: { share: '', rate: '' }, labFrom: null
   };
   var app;
 
@@ -69,7 +69,7 @@
     var sh = LabShop.get();
     if (sh) lastPut = sh.model + '|' + JSON.stringify(sh.inp);
     if (!sh || !MODELS[sh.model] || (!state.isSample && state.model === sh.model && LabShop.same(state.inp, sh.inp))) return;
-    state.model = sh.model; state.inp = JSON.parse(JSON.stringify(sh.inp)); state.isSample = false;
+    state.model = sh.model; state.inp = advNormalize(JSON.parse(JSON.stringify(sh.inp)), sh.model); state.isSample = false;
     state.trial = {}; state.answers = {}; state.qidx = 0; state.active = null; state.fid = null; state.editing = false;
     state.feeHelp = false; state.fh = { share: '', rate: '' };
     var steps = stepsFor(state.model), bad = -1;
@@ -81,9 +81,9 @@
   function hubLink() { return window.LAB_HUB ? '<a class="ib" href="' + esc(window.LAB_HUB) + '" aria-label="กลับไปหน้า Business Lab">' + ICON.back + '</a>' : null; }
   function snapshot() {
     return { view: state.view, model: state.model, inp: state.inp, isSample: state.isSample, step: state.step, editing: state.editing,
-      trial: state.trial, active: state.active, fid: state.fid, qidx: state.qidx, answers: state.answers };
+      trial: state.trial, active: state.active, fid: state.fid, qidx: state.qidx, answers: state.answers, labFrom: state.labFrom };
   }
-  function restore(d) { if (d && d.model && MODELS[d.model]) Object.assign(state, d); }
+  function restore(d) { if (d && d.model && MODELS[d.model]) { Object.assign(state, d); advNormalize(state.inp, state.model); } }
   function themeNow() {
     var t = document.documentElement.getAttribute('data-theme');
     if (t) return t;
@@ -128,19 +128,21 @@
     var M = MODELS.unit;
     var smp = Object.assign({}, M.sample);
     var S0 = C(smp, 'unit'), S1 = C(Object.assign({}, smp, { price: smp.price + 5 }), 'unit');
+    var own = !state.isSample && shopReady();
     var tiles = MODEL_ORDER.map(function (k) {
       return '<button class="tile" data-act="model" data-m="' + k + '"><span class="ic">' + MICON[k] + '</span><span class="t">' + MODELS[k].tile + '</span><span class="ex">' + MODELS[k].short + '</span></button>';
     }).join('');
     return bar(hubLink(), 'เช็กตัวเลขร้าน', 'Business Lab') + '<main class="screen"><div class="wrap">' +
       '<section class="panel start-hero">' +
       '<h1>รู้ว่าร้านอยู่ตรงไหน<br>เรื่องไหนทำให้เสียเงินเท่าไหร่</h1>' +
-      '<p>แล้วลองเปลี่ยนตัวเลขดูก่อนลงมือจริง เปลี่ยนบนตัวเลขไม่เสียเงินสักบาท</p>' +
+      '<p>ลองปรับตัวเลขก่อนตัดสินใจจริง</p>' +
       '<div class="demo"><span class="k">ร้านกาแฟตัวอย่าง · กำไรต่อเดือน</span><span></span>' +
       '<span class="v">' + anim('demo', S0.profit) + '</span><span class="d up">' + fmtN(S1.profit - S0.profit) + '</span>' +
       '<span class="note">ถ้าขึ้นราคาแก้วละ 5 บาท โดยลูกค้าเท่าเดิม</span></div>' +
       '<div class="cta"><button class="btn on-panel block" data-act="sample-shop">ลองกับร้านตัวอย่าง' + ICON.next + '</button></div></section>' +
+      (own ? '<div class="banner own-shop"><span>ตัวเลขร้านคุณ · ' + esc(MODELS[state.model].tile) + '</span><button class="lnk" data-act="see">ดูผล</button></div>' : '') +
       '<div class="sec-h"><h2>หรือใส่ตัวเลขร้านคุณ</h2><span class="aside">ประมาณ 3 นาที</span></div>' +
-      '<p class="muted" style="margin:-6px 2px 12px;font-size:14px">ร้านคุณได้เงินจากอะไรเป็นหลัก</p>' +
+      '<p class="muted" style="margin:-6px 2px 12px;font-size:14px">ร้านคุณได้เงินจากอะไรเป็นหลัก?</p>' +
       '<div class="tiles">' + tiles + '</div>' +
       '<p class="fine">ไม่ต้องสมัคร ตัวเลขอยู่ในเครื่องคุณเท่านั้น และหายไปเมื่อปิดหน้านี้ · คำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua</p>' +
       '</div></main>';
@@ -152,7 +154,7 @@
     if (isVolModel(m)) {
       S.push({ id: 'what', q: m === 'service' ? 'คุณขายบริการอะไร คิดราคาเท่าไหร่' : 'คุณขายอะไร ราคาเท่าไหร่', p: 'เลือกสิ่งที่ใช้นับยอดขาย แล้วใส่ราคาเฉลี่ย', f: ['unitLabel', 'price'] });
       S.push({ id: 'qty', q: m === 'service' ? 'มีลูกค้ากี่' + u : 'ขายได้กี่' + u, p: 'ตัวเลขประมาณก็ได้', f: ['volume', 'daysOpen'] });
-      S.push({ id: 'var', q: 'ต้นทุนของ 1 ' + u, p: 'เฉพาะต้นทุนที่ขึ้นลงตามยอดขาย', f: ['unitCost', 'feePct'] });
+      S.push({ id: 'var', q: 'ต้นทุนของ 1 ' + u, p: 'เฉพาะต้นทุนที่เพิ่มตามยอดขาย เช่น วัตถุดิบ บรรจุภัณฑ์ ค่าธรรมเนียมแอป', f: ['unitCost', 'feePct'] });
     } else if (m === 'subscription') {
       S.push({ id: 'fee', q: 'ค่าสมาชิกเท่าไหร่', f: ['fee', 'cycle'] });
       S.push({ id: 'mem', q: 'สมาชิกตอนนี้มีกี่คน', p: 'และแต่ละเดือนมีคนสมัครใหม่และคนเลิกกี่คน', f: ['members', 'newMembers', 'leaving'] });
@@ -160,7 +162,7 @@
     } else if (m === 'project') {
       S.push({ id: 'job', q: 'ได้งานปีละกี่งาน งานละเท่าไหร่', f: ['projectValue', 'projectsPerYear'] });
       S.push({ id: 'time', q: 'งานหนึ่งใช้เวลานานแค่ไหน', f: ['durationMonths', 'depositPct'] });
-      S.push({ id: 'var', q: 'ต้นทุนตรงของงาน', f: ['directCostPct'] });
+      S.push({ id: 'var', q: 'ต้นทุนของแต่ละงาน', f: ['directCostPct'] });
     } else if (m === 'rental') {
       S.push({ id: 'what', q: 'คุณให้เช่าอะไร มีกี่' + u, f: ['unitLabel', 'rentableUnits'] });
       S.push({ id: 'price', q: 'ราคาเท่าไหร่ มีคนเช่ากี่ %', f: ['periodKind', 'pricePerPeriod', 'occupancy'] });
@@ -173,12 +175,13 @@
     }
     S.push({ id: 'people', q: 'คนที่ทำงานในร้าน', p: 'รวมเงินเดือนของคุณเองด้วย', f: ['staffCount', 'staffSalary', 'ownerSalary'] });
     S.push({ id: 'fixed', q: 'ค่าใช้จ่ายที่จ่ายทุกเดือน', p: 'จ่ายเท่าเดิม ไม่ว่าจะขายได้มากหรือน้อย', f: ['rent', 'marketing', 'otherFixed'] });
-    S.push({ id: 'cash', q: 'ตอนนี้มีเงินหมุนในร้านเท่าไหร่', p: 'ใช้ดูว่าเงินพอใช้ถึงเดือนไหน ไม่ใส่ก็ได้', f: ['cash'] });
-    S.push({ id: 'adv', q: 'อยากให้ภาพ 12 เดือนตรงขึ้นไหม', p: 'ไม่ใส่ก็ได้ เลือกใส่เฉพาะเรื่องที่รู้', adv: true, f: [] });
+    S.push({ id: 'cash', q: 'ตอนนี้ร้านมีเงินสดพร้อมใช้เท่าไร?', p: 'ใช้ดูว่าเงินพอใช้ถึงเดือนไหน', f: ['cash'] });
+    S.push({ id: 'adv', q: 'อยากคาดการณ์ธุรกิจใน 12 เดือนข้างหน้าให้แม่นยำขึ้นไหม?', adv: true, f: [] });
     return S;
   }
   function stepValid(st) {
     var m = state.model, inp = state.inp;
+    if (st.adv) return advValid(inp, m);
     return st.f.every(function (k) {
       var f = fieldDef(k);
       if (!f || !f.req) return true;
@@ -196,7 +199,7 @@
     if (!f) return '';
     var m = state.model, inp = state.inp;
     var hidden = f.show && !f.show(inp, m) ? ' hidden' : '';
-    var lab = esc(f.label(inp, m));
+    var lab = esc(qmark(f.label(inp, m)));
     var help = f.help ? '<p class="help">' + esc(f.help(inp, m)) + '</p>' : '';
     var id = 'f-' + k;
     if (f.t === 'unit') {
@@ -231,11 +234,61 @@
     var extra = '';
     if (k === 'feePct' && (isVolModel(m) || m === 'rental')) {
       extra = state.feeHelp
-        ? '<div class="fee-help"><div class="two"><div class="field"><label for="fh-share">ขายผ่านแอปกี่ % ของยอด</label><div class="inbox"><input id="fh-share" data-fh="share" inputmode="decimal" value="' + esc(state.fh.share) + '"><span class="suf">%</span></div></div>' +
-          '<div class="field"><label for="fh-rate">แอปหักไปกี่ %</label><div class="inbox"><input id="fh-rate" data-fh="rate" inputmode="decimal" value="' + esc(state.fh.rate) + '"><span class="suf">%</span></div></div></div><div class="fh-res" id="fh-res">' + feeHelpText() + '</div></div>'
+        ? '<div class="fee-help"><div class="two"><div class="field"><label for="fh-share">ขายผ่านแอปกี่ % ของยอด?</label><div class="inbox"><input id="fh-share" data-fh="share" inputmode="decimal" value="' + esc(state.fh.share) + '"><span class="suf">%</span></div></div>' +
+          '<div class="field"><label for="fh-rate">แอปหักไปกี่ %?</label><div class="inbox"><input id="fh-rate" data-fh="rate" inputmode="decimal" value="' + esc(state.fh.rate) + '"><span class="suf">%</span></div></div></div><div class="fh-res" id="fh-res">' + feeHelpText() + '</div></div>'
         : '<button type="button" class="lnk" data-act="fee-help" style="justify-self:start">ขายผ่านแอปบางส่วน? ให้ช่วยคิด</button>';
     }
-    return '<div class="field" data-f="' + k + '"' + hidden + '><label for="' + id + '">' + lab + '</label>' + per + '<div class="inbox">' + input + '<span class="suf">' + suf + '</span></div>' + help + extra + '</div>';
+    return '<div class="field" data-f="' + k + '"' + hidden + '><label for="' + id + '">' + lab + '</label>' + per + chipsHtml(f, k) + '<div class="inbox">' + input + '<span class="suf">' + suf + '</span></div>' + help + extra + '</div>';
+  }
+  /* ปุ่มตอบเร็ว: "ไม่มี" (หรือ "เท่าเดิม") = 0 · "ยังไม่รู้" = ไม่จำกัด (เช่น กำลังสูงสุด) */
+  function chipsHtml(f, k) {
+    if (!f.chip && !f.unk) return '';
+    var cur = num(state.inp[k]), unk = !!(state.inp.advUnk && state.inp.advUnk[k]), b = '';
+    if (f.chip) b += '<button type="button" class="chip" data-act="fchip" data-k="' + k + '" aria-pressed="' + (!unk && cur !== null && Math.abs(cur - f.chip[1]) < 1e-9) + '">' + esc(f.chip[0]) + '</button>';
+    if (f.unk) b += '<button type="button" class="chip" data-act="funk" data-k="' + k + '" aria-pressed="' + unk + '">' + esc(UNK_TXT.btn) + '</button>';
+    return '<div class="chips quick">' + b + '</div>';
+  }
+  function syncChips() {
+    $$('[data-act="fchip"], [data-act="funk"]').forEach(function (b) {
+      var k = b.getAttribute('data-k'), f = fieldDef(k), cur = num(state.inp[k]), unk = !!(state.inp.advUnk && state.inp.advUnk[k]);
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-act') === 'funk' ? unk : !unk && cur !== null && f && f.chip && Math.abs(cur - f.chip[1]) < 1e-9));
+    });
+  }
+  /* ข้อสุดท้าย: ตอบ มี / ไม่มี · ถ้ามี เลือกกลุ่มที่รู้ แล้วตอบทุกช่องในกลุ่มนั้น */
+  function advBody() {
+    var m = state.model, inp = state.inp, mode = inp.advMode;
+    var out = '<div class="field adv-mode" data-f="advMode"><div class="seg" role="group" aria-label="' + esc(qmark(stepsFor(m).filter(function (x) { return x.adv; })[0].q)) + '">' +
+      '<button type="button" data-act="advmode" data-v="yes" aria-pressed="' + (mode === 'yes') + '">' + esc(ADV_TXT.yes) + '</button>' +
+      '<button type="button" data-act="advmode" data-v="no" aria-pressed="' + (mode === 'no') + '">' + esc(ADV_TXT.no) + '</button></div></div>';
+    if (mode !== 'yes') return out;
+    var P = advPicked(inp, m);
+    return out + '<p class="help adv-hint">' + esc(ADV_TXT.hint) + '</p><div class="field adv-pick" data-f="advPick"><div class="adv-list">' + advGroupsFor(m).map(function (g) {
+      var on = P.indexOf(g[0]) >= 0;
+      return '<div class="adv-block' + (on ? ' on' : '') + '"><button type="button" class="adv-tg" data-act="advpick" data-g="' + g[0] + '" aria-pressed="' + on + '"><span>' + g[1] + (g[2] ? '<small>' + g[2] + '</small>' : '') + '</span><i class="tg" aria-hidden="true"></i></button>' +
+        (on ? '<div class="qfields">' + advFieldsOf(m, g[0]).map(function (f) { return fieldHtml(f.k); }).join('') + '</div>' : '') + '</div>';
+    }).join('') + '</div></div>';
+  }
+  /* กดถัดไปตอนยังไม่ครบ: พาไปช่องที่ขาด และบอกในช่องนั้นว่า "ยังไม่ได้ตอบข้อนี้" (ปุ่มไม่เป็นสีเทา) */
+  function wShowMissing(st) {
+    var miss = [], inp = state.inp, m = state.model;
+    if (st.adv) { var a = advMissing(inp, m); if (a) miss.push(a.at === 'field' ? '.field[data-f="' + a.k + '"]' : a.at === 'mode' ? '.adv-mode' : '.adv-pick'); }
+    else st.f.forEach(function (k) { var f = fieldDef(k); if (f && f.req && (!f.show || f.show(inp, m)) && num(inp[k]) === null) miss.push('.field[data-f="' + k + '"]'); });
+    miss.slice().reverse().forEach(function (sel, i) { showMissing(sel, i < miss.length - 1); });
+  }
+  function showMissing(sel, keepOthers) {
+    var node = $(sel);
+    if (!node) return;
+    if (!keepOthers) $$('.need-msg').forEach(function (x) { var fx = x.closest('.field'); if (!node.contains(x) && !(fx && fx.classList.contains('need'))) x.remove(); });
+    if (!$('.need-msg', node)) {
+      var lab = node.firstElementChild, msg = document.createElement('p');
+      msg.className = 'need-msg'; msg.setAttribute('role', 'alert'); msg.textContent = 'ยังไม่ได้ตอบข้อนี้';
+      if (lab) lab.insertAdjacentElement('afterend', msg); else node.insertBefore(msg, node.firstChild);
+    }
+    node.classList.remove('need'); node.getBoundingClientRect(); node.classList.add('need');
+    if (keepOthers) return;
+    var y = node.getBoundingClientRect().top + window.scrollY - 140;
+    window.scrollTo({ top: Math.max(0, y), behavior: reduced ? 'auto' : 'smooth' });
+    var c = $('input, button', node); if (c) { try { c.focus({ preventScroll: true }); } catch (e) { c.focus(); } }
   }
   function feeHelpText() {
     var a = num(state.fh.share), b = num(state.fh.rate);
@@ -263,15 +316,15 @@
     var varOk = !varStep || (stepValid(varStep) && (state.editing || state.step >= varIdx));
     var fx = fixedTotal(inp);
     var head = '<section class="panel receipt-strip" id="rstrip"><div class="rs-top"><span class="rs-k">';
-    if (!sellOk) return head + 'ใบเสร็จร้านคุณ</span></div><div class="rs-empty">ตัวเลขจะค่อยๆ ขึ้นตรงนี้ระหว่างที่คุณกรอก</div></section>';
+    if (!sellOk) return head + 'สรุปตัวเลขร้านต่อเดือน</span></div><div class="rs-empty">ตัวเลขจะค่อยๆ ขึ้นตรงนี้ระหว่างที่คุณกรอก</div></section>';
     var fill = Object.assign({}, inp);
     FIELDS.forEach(function (f) { if (f.req && (!f.models || f.models.indexOf(m) >= 0) && num(fill[f.k]) === null) fill[f.k] = 0; });
     var S = C(fill, m);
-    if (!S.ok) return head + 'ใบเสร็จร้านคุณ</span></div><div class="rs-empty">ตัวเลขยังไม่ครบ</div></section>';
+    if (!S.ok) return head + 'สรุปตัวเลขร้านต่อเดือน</span></div><div class="rs-empty">ตัวเลขยังไม่ครบ</div></section>';
     var lines = '<div class="rs-line"><span>รายได้ต่อเดือน</span><i></i><b>' + fmtN(S.revenue) + '</b></div>';
-    if (varOk) lines += '<div class="rs-line"><span>ต้นทุนที่ขึ้นลงตามยอดขาย</span><i></i><b>−' + fmtN(S.varCost) + '</b></div>';
+    if (varOk) lines += '<div class="rs-line"><span>ต้นทุนที่เพิ่มตามยอดขาย</span><i></i><b>−' + fmtN(S.varCost) + '</b></div>';
     if (fx > 0) lines += '<div class="rs-line"><span>ค่าใช้จ่ายคงที่</span><i></i><b>−' + fmtN(fx) + '</b></div>';
-    var topK = varOk ? (S.profit < 0 ? 'ขาดทุนต่อเดือน' : 'เหลือต่อเดือน') : 'รายได้ต่อเดือน';
+    var topK = varOk ? (S.profit < 0 ? 'ขาดทุนต่อเดือน' : 'กำไรต่อเดือน') : 'รายได้ต่อเดือน';
     var topV = varOk ? S.profit : S.revenue;
     return head + topK + '</span><span class="rs-v">' + (varOk && S.profit < 0 ? '−' : '') + anim('rs', topV) + '<small>บาท</small></span></div><div class="rs-lines">' + lines + '</div></section>';
   }
@@ -282,29 +335,16 @@
     var st = steps[state.step];
     var prog = '<div class="prog">' + steps.map(function (s, i) { return '<i class="' + (i <= state.step ? 'on' : '') + '"></i>'; }).join('') + '</div>';
     var body;
-    if (st.adv) {
-      body = '<div class="adv-list">' + ADV_GROUPS.map(function (g) {
-        var fs = FIELDS.filter(function (f) { return f.g === g[0] && (!f.models || f.models.indexOf(m) >= 0); });
-        if (!fs.length) return '';
-        var filled = fs.some(function (f) { return f.k === 'season' ? hasSeason(state.inp) : num(state.inp[f.k]) !== null; });
-        return '<details class="adv-block"' + (filled ? ' open' : '') + '><summary><span>' + g[1] + (g[2] ? '<small>' + g[2] + '</small>' : '') + '</span>' + ICON.down + '</summary><div class="qfields">' +
-          fs.map(function (f) { return fieldHtml(f.k); }).join('') + '</div></details>';
-      }).join('') + '</div>';
-    } else {
-      body = '<div class="qfields">' + st.f.map(fieldHtml).join('') + '</div>';
-    }
-    var cashIdx = steps.map(function (s) { return s.id; }).indexOf('cash');
-    var isLastReq = state.step === cashIdx, isAdv = !!st.adv;
-    var allOk = steps.every(stepValid);
+    var body = st.adv ? advBody() : '<div class="qfields">' + st.f.map(fieldHtml).join('') + '</div>';
     var primary;
-    if (state.editing) primary = '<button class="btn" data-act="see"' + (allOk ? '' : ' disabled') + '>ดูผล</button>';
-    else if (isLastReq || isAdv) primary = '<button class="btn" data-act="see"' + (allOk ? '' : ' disabled') + '>ดูผล' + ICON.next + '</button>';
-    else primary = '<button class="btn" data-act="next"' + (stepValid(st) ? '' : ' disabled') + '>ถัดไป' + ICON.next + '</button>';
+    if (state.editing) primary = '<button class="btn" data-act="see">ดูผล</button>';
+    else if (st.adv) primary = '<button class="btn" data-act="see">ดูผล' + ICON.next + '</button>';
+    else primary = '<button class="btn" data-act="next">ถัดไป' + ICON.next + '</button>';
     var foot = '<div class="foot" id="foot"><div class="wrap"><button class="btn ghost back" data-act="prev" aria-label="ย้อนกลับ">' + ICON.back + '</button>' + primary + '</div></div>';
-    var more = isLastReq && !state.editing ? '<div class="skip"><button class="lnk" data-act="next">เพิ่มรายละเอียดให้แม่นขึ้น (ไม่ใส่ก็ได้)</button></div>' : '';
+    var more = '';
     return bar('<button class="ib" data-act="prev" aria-label="ย้อนกลับ">' + ICON.back + '</button>', MODELS[m].tile, 'ข้อ ' + (state.step + 1) + ' จาก ' + steps.length) +
       '<main class="screen"><div class="wrap">' + prog + wizReceipt() +
-      '<div class="q-head"><h1>' + esc(st.q) + '</h1>' + (st.p ? '<p>' + esc(st.p) + '</p>' : '') + '</div>' + body + more + '</div></main>' + foot;
+      '<div class="q-head"><h1>' + esc(qmark(st.q)) + '</h1>' + (st.p ? '<p>' + esc(st.p) + '</p>' : '') + '</div>' + body + more + '</div></main>' + foot;
   }
 
   /* ============================================================ REVIEW (แก้ตัวเลข) */
@@ -314,10 +354,11 @@
       var bits = [];
       if (num(inp.growth)) bits.push('โต ' + inp.growth + '%/เดือน');
       if (hasSeason(inp)) bits.push('มีฤดูกาล');
-      if (num(inp.capacity) || num(inp.maxMembers) || num(inp.maxConcurrent) || num(inp.maxDeals)) bits.push('มีกำลังสูงสุด');
-      if (num(inp.creditDays) || num(inp.stockDays)) bits.push('มีจังหวะเงินเข้าออก');
+      if (num(inp.capacity) || num(inp.maxMembers) || num(inp.maxConcurrent) || num(inp.maxDeals)) bits.push('กำลังรองรับของร้าน');
+      if (num(inp.creditDays) || num(inp.stockDays)) bits.push('เงินเข้าออก');
       if (num(inp.newCustomers)) bits.push('มีข้อมูลลูกค้า');
       if (num(inp.equipValue)) bits.push('มีอุปกรณ์');
+      if (inp.advMode === 'no') return 'ไม่มี';
       return bits.length ? bits.join(' · ') : 'ยังไม่ได้ใส่';
     }
     return st.f.map(function (k) {
@@ -335,12 +376,12 @@
   function viewReview() {
     var steps = stepsFor(state.model);
     var ok = steps.every(stepValid);
-    return bar('<button class="ib" data-act="home" aria-label="กลับ">' + ICON.back + '</button>', 'แก้ตัวเลขร้าน', MODELS[state.model].tile) +
+    return bar('<button class="ib" data-act="back" aria-label="กลับ">' + ICON.back + '</button>', 'แก้ตัวเลขร้าน', MODELS[state.model].tile) +
       '<main class="screen"><div class="wrap">' + (state.isSample ? '<div class="banner"><span>กำลังใช้ตัวเลขร้านกาแฟตัวอย่าง</span><button class="lnk" data-act="to-start">เริ่มใหม่กับร้านคุณ</button></div>' : '') +
       '<div class="rv">' + steps.map(function (st, i) {
-        return '<button class="rv-row" data-act="edit-step" data-i="' + i + '"><span class="t">' + esc(st.q) + '</span><span class="v">' + esc(stepSummary(st)) + '</span>' + ICON.chev + '</button>';
+        return '<button class="rv-row" data-act="edit-step" data-i="' + i + '"><span class="t">' + esc(qmark(st.q)) + '</span><span class="v">' + esc(stepSummary(st)) + '</span>' + ICON.chev + '</button>';
       }).join('') + '</div></div></main>' +
-      '<div class="foot" id="foot"><div class="wrap"><button class="btn" data-act="see"' + (ok ? '' : ' disabled') + '>ดูผล</button></div></div>';
+      '<div class="foot" id="foot"><div class="wrap"><button class="btn" data-act="see">ดูผล</button></div></div>';
   }
 
   /* ============================================================ HOME */
@@ -350,7 +391,7 @@
     if (!S.be || S.be.impossible) s1 = ['จุดคุ้มทุน', '—', '<small>ขายเท่าไหร่ก็ไม่คุ้ม</small>'];
     else s1 = ['จุดคุ้มทุน', anim(prefix + 'be', S.be.vol, 1), '<small>' + esc(u) + '</small>'];
     if (S.profit < 0 && S.be && !S.be.impossible) s2 = ['ต้อง' + (m === 'rental' ? 'มีคนเช่า' : 'ขาย') + 'เพิ่ม', anim(prefix + 'sf', (S.be.vol / S.vol - 1) * 100, 0), '<small>%</small>'];
-    else if (S.be && !S.be.impossible) s2 = [(m === 'rental' ? 'คนเช่า' : m === 'subscription' ? 'สมาชิก' : 'ยอด') + 'ลดได้อีก', anim(prefix + 'sf', S.be.safety * 100, 0), '<small>%</small>'];
+    else if (S.be && !S.be.impossible) s2 = [(m === 'rental' ? 'รายได้ค่าเช่า' : m === 'subscription' ? 'รายได้จากสมาชิก' : 'ยอดขาย') + 'ลดลงได้อีก', anim(prefix + 'sf', S.be.safety * 100, 0), '<small>%</small>', 'ก่อนขาดทุน'];
     else s2 = ['ขาดทุนทุก' + U(base, m) + 'ที่ขาย', '—', ''];
     if (S.hasCash && S.firstNegT) s3 = ['เงินสดหมดราว', '<span>' + monthLabel(S.firstNegT, true) + '</span>', ''];
     else if (S.hasCash) s3 = ['เงินสดอีก 12 เดือน', '<span>' + compactTH(S.cashEnd) + '</span>', ''];
@@ -365,7 +406,7 @@
       d(S.cashEnd, B.cashEnd, 0)
     ] : ['', '', ''];
     return '<div class="stats">' + [s1, s2, s3].map(function (s, i) {
-      return '<div class="stat"><div class="k">' + s[0] + '</div><div class="v">' + s[1] + s[2] + '</div>' + dd[i] + '</div>';
+      return '<div class="stat"><div class="k">' + s[0] + '</div><div class="v">' + s[1] + s[2] + '</div>' + (s[3] ? '<div class="n">' + s[3] + '</div>' : '') + dd[i] + '</div>';
     }).join('') + '</div>';
   }
   function moneyOf(f) {
@@ -374,11 +415,11 @@
     if (f.unit === 'once') return [fmtN(f.money), 'บาท'];
     return ['', ''];
   }
-  var PILL = { high: ['high', 'หนัก'], mid: ['mid', 'ปานกลาง'], watch: ['watch', 'ควรจับตา'], note: ['note', 'ข้อสังเกต'] };
+  var PILL = { high: ['high', 'ร้ายแรง'], mid: ['mid', 'ปานกลาง'], watch: ['watch', 'ควรเฝ้าระวัง'], note: ['note', 'ข้อสังเกต'] };
 
   function viewHome() {
     var m = state.model, base = state.inp, S = C(base, m);
-    var head = bar('<button class="tb" data-act="review">' + ICON.back + 'แก้ตัวเลข</button>', 'เช็กตัวเลขร้าน', 'Business Lab');
+    var head = bar('<button class="tb" data-act="back">' + ICON.back + 'หน้าแรก</button>', 'เช็กตัวเลขร้าน', 'Business Lab');
     if (!S.ok) return head + '<main class="screen"><div class="wrap"><div class="ok-box"><b>ตัวเลขยังไม่ครบ</b><p>กด "แก้ตัวเลข" เพื่อกรอกให้ครบ</p></div></div></main>';
     var F = D(base, m), real = F.filter(function (f) { return f.lv !== 'note'; }), notes = F.filter(function (f) { return f.lv === 'note'; });
     var out = head + '<main class="screen"><div class="wrap">';
@@ -387,7 +428,7 @@
       '<div class="bignum">' + (S.profit < 0 ? '−' : '') + anim('hp', S.profit) + '<span class="u">บาท</span></div>' +
       '<div class="sub">' + (S.owner > 0 ? 'หักเงินเดือนคุณ ' + fmtN(S.owner) + ' แล้ว' : 'ยังไม่ได้หักเงินเดือนคุณ') + ' · รายได้ ' + fmtN(S.revenue) + '</div>' +
       statsHtml(S, base, m, 'h') +
-      '<div class="cta"><button class="btn on-panel block" data-act="lab">' + ICON.sliders + 'ลองเปลี่ยนตัวเลข</button></div></section>';
+      '<div class="cta"><button class="btn on-panel block" data-act="lab">' + ICON.sliders + 'ทดลองปรับตัวเลข</button></div></section>';
 
     out += '<div class="sec-h"><h2>สิ่งที่ตัวเลขบอก</h2><span class="aside">' + (real.length ? real.length + ' เรื่อง' : '') + '</span></div>';
     if (real.length) {
@@ -397,27 +438,27 @@
           '<span class="fr-r"><span class="fm">' + mo[0] + '<small>' + mo[1] + '</small></span>' + ICON.chev + '</span></button>';
       }).join('') + '</div>';
     } else {
-      out += '<div class="ok-box"><b>ยังไม่มีเรื่องที่น่าห่วง</b><p>ในเรื่องที่ตรวจได้จากตัวเลข ร้านคุณยังแข็งแรง ดูด้านล่างว่าตัวเลขไหนขยับแล้วได้เงินเพิ่มมากที่สุด</p></div>';
+      out += '<div class="ok-box"><b>ไม่พบปัญหาที่น่ากังวลจากตัวเลขที่ตรวจสอบได้</b><p>ร้านคุณยังแข็งแรง ดูด้านล่างว่าตัวเลขไหนขยับแล้วได้เงินเพิ่มมากที่สุด</p></div>';
     }
     if (notes.length) out += '<div class="flist" style="margin-top:8px">' + notes.map(function (f) {
       return '<button class="frow" data-act="finding" data-f="' + f.id + '"><span class="pill note">ข้อสังเกต</span><span class="ft">' + esc(f.title) + '</span><span class="fr-r">' + ICON.chev + '</span></button>';
     }).join('') + '</div>';
     out += '<div style="margin-top:12px">' + nextStepCard() + '</div>';
 
-    out += '<div class="sec-h"><h2>ภาพร้าน</h2></div><div class="cards">' + beCard(S, base, m) + cashCard(S) + '</div>' + receiptHtml(S, null) +
+    out += '<div class="sec-h"><h2>ภาพรวมร้านของคุณ</h2></div><div class="cards">' + beCard(S, base, m) + cashCard(S) + '</div>' + receiptHtml(S, null) +
       '<div class="cards">' + rankCard(S, base, m) + capCard(S, base, m) + custCard(S) + '</div>';
     out += '<section class="panel plan"><span class="tag">เร็วๆ นี้</span><h3>อยากเห็นทุกเรื่องเชื่อมกันเป็นแผนเดียว</h3><p>แผนธุรกิจของ Jarua ใช้ตัวเลขชุดนี้ต่อได้ทันที แล้ววางทางทั้งร้าน ทั้งการตลาด ทีม และเงิน 12 เดือน</p>' +
       '<button class="btn on-panel block" data-act="plan">ดูแผนธุรกิจ</button></section>';
-    out += '<details class="about"><summary>ตัวเลขชุดนี้คิดอย่างไร' + ICON.down + '</summary><ul>' +
+    out += '<details class="about"><summary>ตัวเลขชุดนี้คิดอย่างไร?' + ICON.down + '</summary><ul>' +
       '<li>คำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua ตัวเลขจึงตรงกันทุกที่</li><li>ทุกตัวเลขมาจากที่คุณกรอก ไม่ได้เทียบกับร้านอื่น</li><li>กำไรเป็นกำไรก่อนหักภาษี</li>' +
       '<li>' + (n0(base.growth) ? 'ยอดขายเปลี่ยนเดือนละ ' + fmtPct(n0(base.growth)) + ' ตามที่กรอก' : 'คิดแบบยอดขายเท่าเดิมทุกเดือน') + ' · ค่าใช้จ่ายคงที่เท่าเดิมตลอด 12 เดือน</li></ul></details>';
     if (window.LAB_HUB) out += '<a class="btn ghost block hub-back" href="' + esc(window.LAB_HUB) + '">' + ICON.back + 'เครื่องมืออื่นใน Business Lab</a>';
-    return out + '</div></main>';
+    return out + '</div></main>' + homeFoot();
   }
 
   function beCard(S, base, m) {
     var u = U(base, m), ut = volUnitText(base, m);
-    if (!S.be || S.be.impossible) return '<section class="card"><h3>จุดคุ้มทุน</h3><p class="lead">ขายเท่าไหร่ก็ไม่คุ้มทุน เพราะเงินที่ได้ต่อ' + esc(u) + ' ไม่พอจ่ายต้นทุนที่ขึ้นลงตามยอดขาย</p></section>';
+    if (!S.be || S.be.impossible) return '<section class="card"><h3>จุดคุ้มทุน</h3><p class="lead">ขายเท่าไหร่ก็ไม่คุ้มทุน เพราะเงินที่ได้ต่อ' + esc(u) + ' ไม่พอจ่ายต้นทุนที่เพิ่มตามยอดขาย</p></section>';
     var cur = S.vol, be = S.be.vol;
     var max = m === 'rental' ? 100 : Math.max(cur, be) * 1.2;
     function pc(v) { return Math.max(0, Math.min(100, v / max * 100)); }
@@ -467,7 +508,7 @@
       return '<div class="rc-line"><span>' + esc(s.label) + '</span><i></i>' + (b && Math.abs(b.per100 - s.per100) > 0.05 ? '<span class="was">' + b.per100.toFixed(2) + '</span>' : '') + '<b>' + s.per100.toFixed(2) + '</b></div>';
     }).join('');
     var now = new Date();
-    return '<section class="receipt" aria-label="เงิน 100 บาทที่ลูกค้าจ่าย ไปไหนบ้าง"><div class="rc-head"><div class="rt">เงิน 100 บาทที่ลูกค้าจ่าย ไปไหนบ้าง</div><div class="rs">ต่อเดือน · ' + TH_MONTHS[now.getMonth()] + ' ' + (now.getFullYear() + 543) + '</div></div>' +
+    return '<section class="receipt" aria-label="เงิน 100 บาทที่ลูกค้าจ่าย ไปไหนบ้าง"><div class="rc-head"><div class="rt">เงิน 100 บาทที่ลูกค้าจ่าย ไปไหนบ้าง?</div><div class="rs">ต่อเดือน · ' + TH_MONTHS[now.getMonth()] + ' ' + (now.getFullYear() + 543) + '</div></div>' +
       '<div class="rc-bar" aria-hidden="true">' + segs + '</div><div class="rc-lines">' + lines + '</div>' +
       '<div class="rc-total"><span>' + (S.keep100 >= 0 ? 'เหลือเป็นกำไร' : 'ขาดทุน') + '</span><b>' + (S.keep100 < 0 ? '−' : '') + Math.abs(S.keep100).toFixed(2) + '</b></div>' +
       '<div class="rc-foot">จากทุก 100.00 บาท</div></section>';
@@ -483,24 +524,24 @@
   function capCard(S, base, m) {
     if (!S.util || S.util.rental) return '';
     var u = S.util;
-    return '<section class="card"><h3>กำลังที่รับได้</h3><p class="lead">ใช้ไปแล้ว <b>' + fmtPct(u.pct) + '</b> · ' + (u.reachT ? 'จะเต็มในเดือน ' + monthLabel(u.reachT, true) : 'สูงสุด ' + fmtN(u.max, 1) + ' ' + esc(m === 'project' ? 'งานพร้อมกัน' : volUnitText(base, m))) + '</p><div class="meter"><i style="width:' + Math.min(100, u.pct) + '%"></i></div></section>';
+    return '<section class="card"><h3>กำลังรองรับของร้าน</h3><p class="lead">ใช้กำลังรองรับไปแล้ว <b>' + fmtPct(u.pct) + '</b> จากความสามารถสูงสุดของร้าน · ' + (u.reachT ? 'จะเต็มในเดือน ' + monthLabel(u.reachT, true) : 'สูงสุด ' + fmtN(u.max, 1) + ' ' + esc(m === 'project' ? 'งานพร้อมกัน' : volUnitText(base, m))) + '</p><div class="meter"><i style="width:' + Math.min(100, u.pct) + '%"></i></div></section>';
   }
   function custCard(S) {
     if (!S.cust || S.cust.ltvProfit === null || S.cust.cac === null) return '';
     var c = S.cust;
-    return '<section class="card"><h3>ลูกค้า 1 คน คุ้มค่าหาไหม</h3><p class="lead">ค่าหาลูกค้าใหม่ <b>' + fmtN(c.cac) + '</b> บาท · ลูกค้าสร้างกำไรให้ <b>' + fmtN(c.ltvProfit) + '</b> บาท ตลอดที่ซื้อกับคุณ</p></section>';
+    return '<section class="card"><h3>หาลูกค้าใหม่คุ้มกับต้นทุนไหม?</h3><p class="lead">ค่าหาลูกค้าใหม่ <b>' + fmtN(c.cac) + '</b> บาท · ลูกค้าสร้างกำไรให้ <b>' + fmtN(c.ltvProfit) + '</b> บาท ตลอดที่ซื้อกับคุณ</p></section>';
   }
 
   /* ============================================================ FINDING DETAIL */
   function viewFinding() {
     var m = state.model, base = state.inp, S = C(base, m);
     var f = D(base, m).filter(function (x) { return x.id === state.fid; })[0];
-    var head = bar('<button class="ib" data-act="home" aria-label="กลับ">' + ICON.back + '</button>', 'สิ่งที่ตัวเลขบอก', '');
-    if (!f) return head + '<main class="screen"><div class="wrap"><div class="ok-box"><b>เรื่องนี้หายไปแล้ว</b><p>ตัวเลขร้านเปลี่ยน เรื่องนี้จึงไม่เกิดแล้ว</p></div></div></main>';
+    var head = bar('<button class="ib" data-act="back" aria-label="กลับ">' + ICON.back + '</button>', 'สิ่งที่ตัวเลขบอก', '');
+    if (!f) return head + '<main class="screen"><div class="wrap"><div class="ok-box"><b>สถานะปัจจุบัน</b><p>ปัญหานี้ไม่เกิดขึ้นแล้ว</p></div></div></main>';
     var mo = moneyOf(f);
     var out = head + '<main class="screen"><div class="wrap"><section class="panel fd-panel"><div class="eyebrow"><span class="tag">' + PILL[f.lv][1] + '</span></div><div class="ft">' + esc(f.title) + '</div>' +
       (f.unit !== 'none' ? '<div class="bignum">' + mo[0] + '<span class="u">' + mo[1] + '</span></div><div class="sub">' + esc(f.moneyCap) + '</div>' : '') + '</section>';
-    out += '<div class="block"><h2>ตัวเลขบอกอะไร</h2><div class="say">' + f.ev.map(function (e) { return '<span>' + esc(e) + '</span>'; }).join('') + '</div></div>';
+    out += '<div class="block"><h2>ตัวเลขบอกอะไร?</h2><div class="say">' + f.ev.map(function (e) { return '<span>' + esc(e) + '</span>'; }).join('') + '</div></div>';
     if (f.ways && f.ways.length) {
       out += '<div class="block"><h2>' + esc(f.waysTitle) + '</h2><div class="ways">' + f.ways.map(function (w) {
         var go = w.lever ? '<span class="go">ลองดู' + ICON.chev + '</span>' : '';
@@ -511,12 +552,12 @@
     }
     if (f.tryLever) out += '<div class="block"><button class="sbtn" data-act="try" data-k="' + f.tryLever + '" data-v="15000">ลองใส่เงินเดือนคุณ</button></div>';
     if (f.editField) out += '<div class="block"><button class="sbtn" data-act="edit-field" data-k="' + f.editField + '">ใส่เงินสดที่มี</button></div>';
-    if (askList().length) out += '<div class="block"><div class="next"><div class="nx-k">ขั้นต่อไป</div><h3>หาจุดที่ควรเช็ก และเครื่องมือที่ช่วยได้</h3>' +
+    if (askList().length) out += '<div class="block"><div class="next"><div class="nx-k">ขั้นต่อไป</div><h3>หาจุดที่ควรตรวจสอบ และเครื่องมือที่ช่วยได้</h3>' +
       '<p>' + (askDone() ? 'คุณตอบครบแล้ว ดูผลได้เลย' : 'ตอบ ' + askList().length + ' ข้อ แค่ ใช่ / ไม่ใช่ / ไม่แน่ใจ') + '</p>' +
-      '<button class="btn block" data-act="' + (askDone() ? 'points' : 'ask') + '">' + (askDone() ? 'ดูจุดที่ควรเช็กและเครื่องมือ' : 'เริ่มตอบ') + ICON.next + '</button></div></div>';
+      '<button class="btn block" data-act="' + (askDone() ? 'points' : 'ask') + '">' + (askDone() ? 'ดูจุดที่ควรตรวจสอบและเครื่องมือ' : 'เริ่มตอบ') + ICON.next + '</button></div></div>';
     return out + '</div></main>';
   }
-  /* ============================================================ หาจุดที่ควรเช็ก → เครื่องมือ PL1 / แผนธุรกิจ PL2
+  /* ============================================================ หาจุดที่ควรตรวจสอบ → เครื่องมือ PL1 / แผนธุรกิจ PL2
      รวมคำถามของทุกเรื่องที่ตัวเลขบอกเป็นชุดเดียว (ไม่ถามซ้ำ) สลับกันทีละเรื่อง สูงสุด 5 ข้อ */
   function askList() {
     var F = D(state.inp, state.model).filter(function (f) { return f.lv !== 'note' && f.qs && f.qs.length; });
@@ -532,11 +573,11 @@
   }
   function askDone() { var L = askList(); return L.length > 0 && L.every(function (q) { return state.answers[q.qid]; }); }
   function askedCount() { return askList().filter(function (q) { return state.answers[q.qid]; }).length; }
-  /* เรียงจุดที่ควรเช็กตามความหนักของเรื่องที่ตัวเลขบอก (ลำดับเดียวกับหน้าภาพรวม) แล้วตามลำดับคำถาม */
+  /* เรียงจุดที่ควรตรวจสอบตามความหนักของเรื่องที่ตัวเลขบอก (ลำดับเดียวกับหน้าภาพรวม) แล้วตามลำดับคำถาม */
   function pointsList() {
     var order = D(state.inp, state.model).map(function (f) { return f.id; });
     var L = askList();
-    return L.filter(function (q) { var a = state.answers[q.qid]; return a === 'yes' || a === 'unsure'; })
+    return L.filter(function (q) { return ansFlag(QBANK[q.qid], state.answers[q.qid]); })
       .map(function (q) { return { q: q, r: Math.min.apply(null, q.fs.map(function (f) { return order.indexOf(f.id); })), i: L.indexOf(q) }; })
       .sort(function (a, b) { return a.r - b.r || a.i - b.i; }).map(function (x) { return x.q; });
   }
@@ -545,11 +586,17 @@
     if (!L.length) return '<section class="next"><div class="nx-k">ขั้นต่อไป</div><h3>ร้านแข็งแรง อยากโตต่อ?</h3><p>ดูเครื่องมือที่ช่วยหาทางเลือกในการเติบโต และแผนธุรกิจทั้งร้าน</p><button class="btn block" data-act="points">ดูเครื่องมือที่ช่วยต่อยอด' + ICON.next + '</button></section>';
     if (askDone()) {
       var n = pointsList().length;
-      return '<section class="next"><div class="nx-k">ขั้นต่อไป</div><h3>' + (n ? 'เจอ ' + n + ' จุดที่ควรเช็ก' : 'ยังไม่เจอจุดที่ควรเช็กจากคำตอบ') + '</h3><p>ดูว่าแต่ละจุดมีผลกับเงินเท่าไหร่ และเครื่องมือไหนช่วยหาแนวทางแก้ไขได้</p>' +
-        '<button class="btn block" data-act="points">ดูจุดที่ควรเช็กและเครื่องมือ' + ICON.next + '</button><div class="nx-sub"><button class="lnk" data-act="ask-restart">ตอบใหม่</button></div></section>';
+      return '<section class="next"><div class="nx-k">ขั้นต่อไป</div><h3>' + (n ? 'เจอ ' + n + ' จุดที่ควรตรวจสอบ' : 'ยังไม่เจอจุดที่ควรตรวจสอบจากคำตอบ') + '</h3><p>ดูว่าแต่ละจุดมีผลกับเงินเท่าไหร่ และเครื่องมือไหนช่วยหาแนวทางแก้ไขได้</p>' +
+        '<button class="btn block" data-act="points">ดูจุดที่ควรตรวจสอบและเครื่องมือ' + ICON.next + '</button><div class="nx-sub"><button class="lnk" data-act="ask-restart">ตอบใหม่</button></div></section>';
     }
-    return '<section class="next"><div class="nx-k">ขั้นต่อไป</div><h3>หาจุดที่ควรเช็ก และเครื่องมือที่ช่วยได้</h3><p>ตอบ ' + L.length + ' ข้อ แค่ ใช่ / ไม่ใช่ / ไม่แน่ใจ ใช้เวลาไม่ถึง 1 นาที</p>' +
+    return '<section class="next"><div class="nx-k">ขั้นต่อไป</div><h3>หาจุดที่ควรตรวจสอบ และเครื่องมือที่ช่วยได้</h3><p>ตอบ ' + L.length + ' ข้อ แค่ ใช่ / ไม่ใช่ / ไม่แน่ใจ ใช้เวลาไม่ถึง 1 นาที</p>' +
       '<button class="btn block" data-act="ask">' + (askedCount() ? 'ตอบต่อ' : 'เริ่มตอบ') + ICON.next + '</button></section>';
+  }
+  /* ปุ่มค้างล่างจอของหน้าภาพรวม (แบบเดียวกับตัวที่ 3): แก้ตัวเลข | หาจุดที่ควรตรวจสอบ */
+  function nextAct() { var L = askList(); return !L.length || askDone() ? 'points' : 'ask'; }
+  function homeFoot() {
+    return '<div class="foot foot2" id="foot"><div class="wrap"><button class="btn ghost" data-act="review">แก้ตัวเลข</button>' +
+      '<button class="btn" data-act="' + nextAct() + '">หาจุดที่ควรตรวจสอบ</button></div></div>';
   }
   function viewAsk() {
     var L = askList();
@@ -557,12 +604,12 @@
     var i = Math.max(0, Math.min(state.qidx, L.length - 1));
     var q = L[i], b = QBANK[q.qid], a = state.answers[q.qid];
     var why = q.fs.map(function (f) { return f.title; }).join(' และ ');
-    return bar('<button class="ib" data-act="home" aria-label="กลับ">' + ICON.back + '</button>', 'หาจุดที่ควรเช็ก', 'ข้อ ' + (i + 1) + ' จาก ' + L.length) +
+    return bar('<button class="ib" data-act="back" aria-label="กลับ">' + ICON.back + '</button>', 'หาจุดที่ควรตรวจสอบ', 'ข้อ ' + (i + 1) + ' จาก ' + L.length) +
       '<main class="screen"><div class="wrap"><div class="prog">' + L.map(function (x, j) { return '<i class="' + (state.answers[x.qid] || j <= i ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
       '<div class="ask-why"><span>เพราะตัวเลขบอกว่า</span><b>' + esc(why) + '</b></div>' +
-      '<h1 class="ask-q">' + esc(b.q(state.inp, state.model)) + '</h1>' +
-      '<div class="ask-ans">' + [['yes', 'ใช่'], ['no', 'ไม่ใช่'], ['unsure', 'ไม่แน่ใจ']].map(function (o) {
-        return '<button data-act="answer" data-q="' + q.qid + '" data-v="' + o[0] + '" aria-pressed="' + (a === o[0]) + '">' + o[1] + '</button>';
+      '<h1 class="ask-q">' + esc(qmark(b.q(state.inp, state.model))) + '</h1>' +
+      '<div class="ask-ans">' + ['yes', 'no', 'unsure'].map(function (o) {
+        return '<button data-act="answer" data-q="' + q.qid + '" data-v="' + o + '" aria-pressed="' + (a === o) + '">' + esc(ansLabel(b, o)) + '</button>';
       }).join('') + '</div>' +
       '<div class="qnav">' + (i > 0 ? '<button class="lnk" data-act="q-prev">ข้อก่อนหน้า</button>' : '<span></span>') +
       (askedCount() ? '<button class="lnk" data-act="points">ดูผลเลย</button>' : '') + '</div></div></main>';
@@ -578,16 +625,16 @@
       '<div class="pt">' + esc(b.p) + (a === 'unsure' ? '<span class="unsure">ไม่แน่ใจ</span>' : '') + '</div><div class="pd">' + esc(b.d) + '</div>' +
       (tag ? '<div class="ptag">' + tag + '</div>' : '') +
       (fresh.length ? toolsHtml(fresh, 'เครื่องมือที่ช่วยหาแนวทางแก้ไข') : '<div class="tools"><span class="tl">ใช้เครื่องมือเดียวกับด้านบน</span></div>') +
-      (canTry ? '<button class="sbtn light" data-act="try" data-k="' + lk + '">' + ICON.sliders + 'ลองเปลี่ยนตัวเลขนี้</button>' : '') + '</div>';
+      (canTry ? '<button class="sbtn light" data-act="try" data-k="' + lk + '">' + ICON.sliders + 'ทดลองปรับตัวเลขนี้</button>' : '') + '</div>';
   }
   function viewPoints() {
     var m = state.model, S = C(state.inp, m), L = askList(), P = pointsList(), seen = {};
-    var out = bar('<button class="ib" data-act="home" aria-label="กลับ">' + ICON.back + '</button>', 'จุดที่ควรเช็ก', '') + '<main class="screen"><div class="wrap">';
+    var out = bar('<button class="ib" data-act="back" aria-label="กลับ">' + ICON.back + '</button>', 'จุดที่ควรตรวจสอบ', '') + '<main class="screen"><div class="wrap">';
     if (!L.length) {
-      out += '<section class="panel"><div class="eyebrow">ร้านคุณ</div><div class="pp-t">ยังไม่มีเรื่องที่น่าห่วง</div><div class="sub">ในเรื่องที่ตรวจได้จากตัวเลข ถ้าอยากโตต่อ เครื่องมือด้านล่างช่วยหาทางเลือกได้</div></section>' +
+      out += '<section class="panel"><div class="eyebrow">ร้านคุณ</div><div class="pp-t">ไม่พบปัญหาที่น่ากังวลจากตัวเลขที่ตรวจสอบได้</div><div class="sub">ถ้าอยากโตต่อ เครื่องมือด้านล่างช่วยหาทางเลือกได้</div></section>' +
         '<div class="block"><h2>เครื่องมือที่ช่วยหาทางเลือกในการเติบโต</h2>' + toolsHtml(['swot4', 'idea8', 'bmc8', 'goal1'], '') + '</div>';
     } else {
-      out += '<section class="panel"><div class="eyebrow">จากคำตอบ ' + askedCount() + ' ข้อ</div><div class="pp-t">' + (P.length ? 'เจอ ' + P.length + ' จุดที่ควรเช็ก' : 'ยังไม่เจอจุดที่ควรเช็กจากคำตอบ') + '</div>' +
+      out += '<section class="panel"><div class="eyebrow">จากคำตอบ ' + askedCount() + ' ข้อ</div><div class="pp-t">' + (P.length ? 'เจอ ' + P.length + ' จุดที่ควรตรวจสอบ' : 'ยังไม่เจอจุดที่ควรตรวจสอบจากคำตอบ') + '</div>' +
         '<div class="sub">' + (P.length ? 'แต่ละจุดบอกว่ามีผลกับเงินเท่าไหร่ และเครื่องมือไหนช่วยหาแนวทางแก้ไขได้ เปิดแล้วใช้ตัวเลขร้านคุณต่อได้ทันที' : 'ลองใช้เครื่องมือตรวจภาพรวมของร้าน') + '</div>' +
         '<div class="cta"><button class="pbtn" data-act="ask-restart">แก้คำตอบ</button></div></section>';
       if (P.length) out += '<div class="points" style="margin-top:14px">' + P.map(function (q) { return pointCard(q, S, seen); }).join('') + '</div>';
@@ -619,12 +666,12 @@
     var d = T.profit - B.profit;
     var fb = D(state.inp, m).filter(function (f) { return f.lv !== 'note'; }), ft = D(trialInp(), m).filter(function (f) { return f.lv !== 'note'; });
     var ib = fb.map(function (f) { return f.id; }), it = ft.map(function (f) { return f.id; });
-    var chips = fb.filter(function (f) { return it.indexOf(f.id) < 0; }).map(function (f) { return '<span><b>หายไป</b> ' + esc(f.title) + '</span>'; })
-      .concat(ft.filter(function (f) { return ib.indexOf(f.id) < 0; }).map(function (f) { return '<span><b>เกิดใหม่</b> ' + esc(f.title) + '</span>'; }));
+    var chips = fb.filter(function (f) { return it.indexOf(f.id) < 0; }).map(function (f) { return '<span><b>ปัญหาที่หมดไป:</b> ' + esc(f.title) + '</span>'; })
+      .concat(ft.filter(function (f) { return ib.indexOf(f.id) < 0; }).map(function (f) { return '<span><b>ปัญหาใหม่ที่ต้องระวัง:</b> ' + esc(f.title) + '</span>'; }));
     return '<section class="panel lab-panel" aria-live="polite"><div class="row1"><span class="k">' + (T.profit < 0 ? 'ขาดทุนต่อเดือน' : 'กำไรต่อเดือน') + (hasTrial() ? ' ถ้าเป็นแบบนี้' : '') + '</span>' +
       (hasTrial() ? '<span class="delta ' + (d > 0.5 ? 'up' : d < -0.5 ? 'down' : '') + '">' + fmtN(Math.abs(d)) + '</span>' : '') + '</div>' +
       '<div class="bignum">' + (T.profit < 0 ? '−' : '') + anim('lp', T.profit) + '<span class="u">บาท</span></div>' +
-      '<div class="was">' + (hasTrial() ? 'ตัวเลขจริง ' + (B.profit < 0 ? '−' : '') + fmtN(Math.abs(B.profit)) + ' บาท' : 'เลื่อนตัวเลขด้านล่าง แล้วดูผลตรงนี้') + '</div>' +
+      '<div class="was">' + (hasTrial() ? 'ตัวเลขปัจจุบัน: ' + (B.profit < 0 ? '−' : '') + fmtN(Math.abs(B.profit)) + ' บาท' : 'เลื่อนตัวเลขด้านล่าง แล้วดูผลตรงนี้') + '</div>' +
       statsHtml(T, state.inp, m, 'l', hasTrial() ? B : null) + (chips.length ? '<div class="chg">' + chips.join('') + '</div>' : '') + '</section>';
   }
   function fmtInputNum(v) {
@@ -636,7 +683,7 @@
     var bv = n0(state.inp[k]), tv = n0(trialInp()[k]);
     if (Math.abs(bv - tv) < 1e-9) return '';
     var pct = leverUnit(k, state.inp, state.model) === '%';
-    return 'จริง ' + fmtN(bv, 2) + (pct ? '%' : '') + ' · <span class="' + (tv > bv ? 'up' : 'down') + '">' + fmtN(Math.abs(tv - bv), 2) + (pct ? '%' : '') + '</span>';
+    return 'ตัวเลขปัจจุบัน: ' + fmtN(bv, 2) + (pct ? '%' : '') + ' · <span class="' + (tv > bv ? 'up' : 'down') + '">' + fmtN(Math.abs(tv - bv), 2) + (pct ? '%' : '') + '</span>';
   }
   function insight(k) {
     var m = state.model;
@@ -664,10 +711,10 @@
     var vr = keys.filter(function (k) { return VAR_KEYS[k]; });
     var fx = keys.filter(function (k) { return COMMON_LEVERS.indexOf(k) >= 0; });
     function grp(t, ks) { return ks.length ? '<div class="lgroup"><h2>' + t + '</h2><div class="lrows">' + ks.map(lrowHtml).join('') + '</div></div>' : ''; }
-    var right = hasTrial() ? '<button class="tb" data-act="reset">ล้าง</button>' : '';
-    return bar('<button class="tb" data-act="home">' + ICON.back + 'เสร็จ</button>', 'ลองเปลี่ยนตัวเลข', state.isSample ? 'ร้านตัวอย่าง' : '', right) +
+    var right = hasTrial() ? '<button class="tb" data-act="reset">คืนค่าเดิมทั้งหมด</button>' : '';
+    return bar('<button class="tb" data-act="back">' + ICON.back + 'เสร็จ</button>', 'ทดลองปรับตัวเลข', state.isSample ? 'ร้านตัวอย่าง' : '', right) +
       '<main class="screen"><div class="lab-top"><div class="wrap" id="labp">' + labPanel() + '</div></div><div class="wrap">' +
-      grp('รายได้', inc) + grp('ต้นทุนที่ขึ้นลงตามยอดขาย', vr) + grp('ค่าใช้จ่ายคงที่ต่อเดือน', fx) + '</div></main>';
+      grp('รายได้', inc) + grp('ต้นทุนที่เพิ่มตามยอดขาย', vr) + grp('ค่าใช้จ่ายคงที่ต่อเดือน', fx) + '</div></main>';
   }
   function labUpdate(k, fromSlider) {
     var p = $('#labp'); if (p) { p.innerHTML = labPanel(); runAnim(p); }
@@ -683,7 +730,7 @@
     if (h && !box) row.insertAdjacentHTML('beforeend', '<div class="lr-ins">' + h + '</div>');
     else if (box) { if (h) box.innerHTML = h; else box.remove(); }
     var bt = $('.bar .tb[data-act="reset"]');
-    if (hasTrial() && !bt) { var thb = $('.bar [data-act="theme"]'); thb.insertAdjacentHTML('beforebegin', '<button class="tb" data-act="reset">ล้าง</button>'); }
+    if (hasTrial() && !bt) { var thb = $('.bar [data-act="theme"]'); thb.insertAdjacentHTML('beforebegin', '<button class="tb" data-act="reset">คืนค่าเดิมทั้งหมด</button>'); }
     if (!hasTrial() && bt) bt.remove();
     save();
   }
@@ -712,7 +759,33 @@
     document.documentElement.style.setProperty('--foot-h', (foot ? foot.offsetHeight : 0) + 'px');
     save();
   }
-  function go(view, top) { state.view = view; render(); if (top !== false) window.scrollTo(0, 0); }
+  function go(view, top) { state.view = view; render(); syncGuard(); if (top !== false) window.scrollTo(0, 0); }
+  /* ปุ่มย้อนกลับในแอป (ซ้ายบน) และปุ่มย้อนกลับของมือถือ ไปที่เดียวกันทุกหน้า:
+     ข้อคำถาม → ข้อก่อนหน้า (ข้อแรก → หน้าแรก) · แก้ทีละข้อ → แก้ตัวเลข · แก้ตัวเลข → ภาพรวม · ภาพรวม → หน้าแรก
+     สิ่งที่ตัวเลขบอก / หาจุดที่ควรตรวจสอบ / จุดที่ควรตรวจสอบ → ภาพรวม · ทดลองปรับตัวเลข → หน้าที่เปิดมา · หน้าแรก → ออกไปหน้า Business Lab */
+  function goBack() {
+    var v = state.view;
+    if (v === 'wizard') {
+      if (state.editing) go('review');
+      else if (state.step > 0) { state.step--; go('wizard'); }
+      else go('start');
+    } else if (v === 'lab') { var f = state.labFrom; state.labFrom = null; go(f === 'finding' || f === 'points' ? f : 'home'); }
+    else if (v === 'home') go('start');
+    else if (v !== 'start') go('home');
+  }
+  /* มือถือ: เมื่อออกจากหน้าแรก มีประวัติกันไว้ 1 ขั้น กดย้อนกลับแล้วทำแบบปุ่มในแอป (แล้วกันไว้ใหม่)
+     อยู่หน้าแรกแล้วกดย้อนกลับ = ออกไปหน้าก่อน (หน้า Business Lab) ทันที */
+  var guarded = false;
+  function syncGuard() {
+    if (state.view === 'start' || guarded) return;
+    try { history.pushState({ lab1: 1 }, ''); guarded = true; } catch (e) { /* ignore */ }
+  }
+  function onPop() {
+    guarded = false;
+    $$('.toast').forEach(function (x) { x.remove(); });
+    if (state.view === 'start') { try { history.back(); } catch (e) { /* ignore */ } return; }
+    goBack();
+  }
   function toast(msg) {
     var o = $('.toast'); if (o) o.remove();
     var t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg;
@@ -720,9 +793,8 @@
   }
   function refreshWizardLive() {
     var r = $('#rstrip'); if (r) { r.outerHTML = wizReceipt(); runAnim($('#rstrip')); }
-    var steps = stepsFor(state.model), st = steps[state.step];
-    var nb = $('#foot [data-act="next"]'); if (nb) nb.disabled = !stepValid(st);
-    var sb = $('#foot [data-act="see"]'); if (sb) sb.disabled = !steps.every(stepValid);
+    syncChips();
+    $$('.field.need').forEach(function (x) { var k = x.getAttribute('data-f'); if (k && num(state.inp[k]) !== null) { x.classList.remove('need'); var nm = $('.need-msg', x); if (nm) nm.remove(); } });
     FIELDS.forEach(function (fd) { if (!fd.show) return; var node = $('.field[data-f="' + fd.k + '"]'); if (node) node.hidden = !fd.show(state.inp, state.model); });
   }
 
@@ -735,6 +807,7 @@
     if (M.units && !state.inp.unitLabel) state.inp.unitLabel = M.defUnit;
     if (m === 'subscription' && !state.inp.cycle) state.inp.cycle = 1;
     if (m === 'rental' && !state.inp.periodKind) state.inp.periodKind = 'night';
+    advNormalize(state.inp, m);
     state.isSample = !!sample; state.trial = {}; state.answers = {}; state.qidx = 0; state.active = null; state.step = 0; state.editing = false;
     state.feeHelp = false; state.fh = { share: '', rate: '' };
     go(sample ? 'home' : 'wizard');
@@ -765,13 +838,39 @@
       }
       case 'sample-shop': chooseModel('unit', true); break;
       case 'to-start': go('start'); break;
-      case 'next': steps = stepsFor(m); if (state.step < steps.length - 1) { state.step++; go('wizard'); } break;
-      case 'prev':
-        if (state.editing) go('review');
-        else if (state.step > 0) { state.step--; go('wizard'); }
-        else go('start');
+      case 'next':
+        steps = stepsFor(m);
+        if (!stepValid(steps[state.step])) { wShowMissing(steps[state.step]); break; }
+        if (state.step < steps.length - 1) { state.step++; go('wizard'); }
         break;
-      case 'see': if (stepsFor(m).every(stepValid)) { state.editing = false; state.trial = {}; go('home'); } break;
+      case 'prev': case 'back': goBack(); break;
+      case 'see': {
+        steps = stepsFor(m);
+        var bad = -1; for (var bi = 0; bi < steps.length; bi++) if (!stepValid(steps[bi])) { bad = bi; break; }
+        if (bad < 0) { state.editing = false; state.trial = {}; go('home'); break; }
+        if (state.view !== 'wizard' || state.step !== bad) { state.step = bad; go('wizard'); }
+        wShowMissing(steps[bad]); break;
+      }
+      case 'fchip': {
+        var ck = t.getAttribute('data-k'), cf = fieldDef(ck);
+        state.inp[ck] = cf.chip[1]; if (state.inp.advUnk) delete state.inp.advUnk[ck];
+        go('wizard', false); var cb = $('[data-act="fchip"][data-k="' + ck + '"]'); if (cb) cb.focus(); break;
+      }
+      case 'funk': {
+        var uk = t.getAttribute('data-k');
+        delete state.inp[uk]; state.inp.advUnk = state.inp.advUnk || {}; state.inp.advUnk[uk] = true;
+        go('wizard', false); var ub = $('[data-act="funk"][data-k="' + uk + '"]'); if (ub) ub.focus(); break;
+      }
+      case 'advmode': {
+        var av = t.getAttribute('data-v');
+        if (av === 'no') { advGroupsFor(m).forEach(function (g) { advClearGroup(state.inp, m, g[0]); }); state.inp.advPick = []; delete state.inp.advUnk; }
+        state.inp.advMode = av; go('wizard', false); var amb = $('[data-act="advmode"][data-v="' + av + '"]'); if (amb) amb.focus(); break;
+      }
+      case 'advpick': {
+        var g = t.getAttribute('data-g'), P = (state.inp.advPick || []).slice(), gi = P.indexOf(g);
+        if (gi >= 0) { P.splice(gi, 1); advClearGroup(state.inp, m, g); } else P.push(g);
+        state.inp.advPick = P; go('wizard', false); var gb = $('[data-act="advpick"][data-g="' + g + '"]'); if (gb) gb.focus(); break;
+      }
       case 'review': go('review'); break;
       case 'home': go('home'); break;
       case 'edit-step': state.step = +t.getAttribute('data-i'); state.editing = true; go('wizard'); break;
@@ -806,6 +905,7 @@
       case 'finding': state.fid = t.getAttribute('data-f'); go('finding'); break;
       case 'lab': {
         var lk = t.getAttribute('data-k');
+        if (state.view !== 'lab') state.labFrom = state.view;
         state.active = lk || null; go('lab');
         if (lk) scrollToRow(lk);
         break;
@@ -818,6 +918,7 @@
           if (k3 === 'ownerSalary' && n0(state.inp.ownerSalary) > 0) val = n0(state.inp.ownerSalary);
           setTrial(k3, val);
         }
+        if (state.view !== 'lab') state.labFrom = state.view;
         state.active = k3; go('lab'); scrollToRow(k3); break;
       }
       case 'step': {
@@ -862,6 +963,7 @@
     var el = e.target;
     if (el.hasAttribute('data-k')) {
       state.inp[el.getAttribute('data-k')] = parseInput(el);
+      if (state.inp.advUnk) delete state.inp.advUnk[el.getAttribute('data-k')];
       refreshWizardLive(); save();
     } else if (el.hasAttribute('data-fh')) {
       state.fh[el.getAttribute('data-fh')] = el.value;
@@ -938,12 +1040,15 @@
     document.addEventListener('pointerdown', onPointer);
     window.addEventListener('resize', function () { var f = $('#foot'); document.documentElement.style.setProperty('--foot-h', (f ? f.offsetHeight : 0) + 'px'); });
     /* กลับมาหน้านี้ด้วยปุ่มย้อนกลับ (หน้าเก็บในแคช): ใช้ตัวเลขร้านชุดกลางล่าสุดและโหมดสีล่าสุด */
+    window.addEventListener('popstate', onPop);
     window.addEventListener('pageshow', function (ev) {
       if (!ev.persisted) return;
+      guarded = !!(history.state && history.state.lab1);
       try { var th2 = localStorage.getItem('lab-theme'); if (th2 === 'dark' || th2 === 'light') document.documentElement.setAttribute('data-theme', th2); } catch (e) { /* ignore */ }
-      adoptShared(); render();
+      adoptShared(); render(); syncGuard();
     });
-    render();
+    guarded = !!(history.state && history.state.lab1);
+    render(); syncGuard();
   }
   var hot = window.claude && window.claude.hot;
   if (hot && hot.snapshot) { try { hot.snapshot(snapshot); } catch (e) { /* ignore */ } }

@@ -2,7 +2,7 @@
    UI ตัวที่ 3 — รูปแบบหน้าจอของตัวเอง (สี ฟอนต์ และส่วนกรอกตัวเลขร้านใช้ชุดเดียวกับตัวที่ 1)
    ทางเดียว 4 ขั้น (แถบขั้นตอนชุดเดียว): เลือกเรื่อง → ตัวเลขร้าน (ครั้งเดียว ข้ามได้ถ้ามีแล้ว) → ตัวเลขเรื่องนี้ (เห็น ไม่ทำ | ทำ สด) → ผล
    หน้าผล: สองเส้นทาง ไม่ทำ | ทำ · แถบลากหาจุดคุ้ม · สิ่งที่ต้องเป็นจริง · ดูละเอียด (เงินในมือ / กำไรเปลี่ยนเพราะอะไร) · ขั้นต่อไป (PL1 / PL2)
-   ปุ่มค้างด้านล่าง: ปรับตัวเลข (ที่เดียวสำหรับแก้ทุกตัวเลข) | เช็กความพร้อม → จุดที่ควรเช็ก
+   ปุ่มค้างด้านล่าง: แก้ตัวเลข (ที่เดียวสำหรับแก้ทุกตัวเลข) | เช็กความพร้อม → จุดที่ควรตรวจสอบ
    ============================================================ */
 (function () {
   'use strict';
@@ -59,7 +59,7 @@
     ds: {}, wi: {}, dsign: {}, labOrig: null, active: null, answers: {}, qidx: 0, feeHelp: false, fh: { share: '', rate: '' },
     /* shopInFlow = ตัวเลขร้านถูกกรอกระหว่างทางของเรื่องนี้ (ย้อนจากคำถามข้อแรกจึงกลับไปตัวเลขร้าน) · editFrom = หน้าที่เปิดแก้ตัวเลขร้าน (lab | review) · rtab = แท็บดูละเอียดบนหน้าผล */
     shopInFlow: false, editFrom: null, rtab: 'cash',
-    /* edOrig / dedOrig = ค่าก่อนเปิดหน้าแก้ทีละข้อ (ย้อนกลับตอนยังกรอกไม่ครบ = ยกเลิกการแก้) · labFrom = หน้าที่เปิดหน้าปรับตัวเลข */
+    /* edOrig / dedOrig = ค่าก่อนเปิดหน้าแก้ทีละข้อ (ย้อนกลับตอนยังกรอกไม่ครบ = ยกเลิกการแก้) · labFrom = หน้าที่เปิดหน้าแก้ตัวเลข */
     edOrig: null, dedOrig: null, labFrom: 'result',
     /* sampleBak = ร้านตัวอย่างที่ใช้อยู่ก่อนกด "ใส่ตัวเลขร้านคุณ" (ย้อนกลับก่อนกรอกครบ = กลับไปร้านตัวอย่างเดิม) */
     sampleBak: null,
@@ -123,7 +123,7 @@
         if (['start', 'review'].indexOf(state.view) < 0) state.view = 'start';
         state.topic = null;
       }
-      state.inp = JSON.parse(JSON.stringify(sh.inp));
+      state.inp = advNormalize(JSON.parse(JSON.stringify(sh.inp)), sh.model);
       if (state.view === 'wizard' || state.view === 'shop') state.view = 'start';
     }
     if (!state.where) state.where = LabShop.where();
@@ -133,6 +133,7 @@
     if (d.model && !MODELS[d.model]) return;
     if (d.topic && !TOPICS[d.topic]) return;
     Object.assign(state, d);
+    if (state.model && state.inp) advNormalize(state.inp, state.model);
     state.wi = state.wi || {}; state.dsign = state.dsign || {};
   }
   function themeNow() {
@@ -211,6 +212,8 @@
     NW.forEach(function (w) { h = h.split(w).join('<span class="nw">' + w + '</span>'); });
     return h.replace(/([A-Za-z])([ก-๙])/g, '$1 $2').replace(/([ก-ฮ]\.[ก-ฮ]\.(?:[ก-ฮ]\.)?) (\d{2})/g, '$1&nbsp;$2');
   }
+  /* ป้ายเงื่อนไขที่มีตัวเลขอยู่กลางประโยค ({v} = ตำแหน่งตัวเลข) */
+  function clabel(c, valHtml) { var p = String(c.label).split('{v}'); return p.length > 1 ? tw(p[0].replace(/\s+$/, '')) + valHtml + ' ' + tw(p[1].replace(/^\s+/, '')) : tw(c.label) + valHtml; }
   function ml(t, y) { return monthLabel(t, y).replace(' ', '\u00a0'); }
 
   /* ============================================================ START — "กำลังคิดจะ…" */
@@ -223,9 +226,9 @@
   function sampleInpOf(k) {
     var m = SAMPLES[k].m, inp = JSON.parse(JSON.stringify(MODELS[m].sample));
     if (!inp.volumePer && MODELS[m].defPer) inp.volumePer = MODELS[m].defPer;
-    return inp;
+    return advNormalize(inp, m);
   }
-  function sampleDec(k, t) { return (k === 'online' ? SAMPLE_DEC_ON : SAMPLE_DEC)[t]; }
+  function sampleDec(k, t) { var raw = (k === 'online' ? SAMPLE_DEC_ON : SAMPLE_DEC)[t]; return raw ? dComplete(t, sampleInpOf(k), SAMPLES[k].m, raw) : raw; }
   function sampleName() { return SAMPLES[state.sampleKind || 'cafe'].name; }
   var teaserCache = {};
   function teaserFor(t) {
@@ -279,10 +282,10 @@
   var WICON = { shop: ICON.store, online: ICON.phone, both: ICON.both };
   var WSUB = { shop: 'มีร้านหรือแผงให้ลูกค้ามา', online: 'ขายในโซเชียล แอป หรือเว็บ', both: 'มีหน้าร้าน และขายออนไลน์ด้วย' };
   function whereHtml() {
-    if (!state.where) return '<section class="where3 big"><h2 class="wh-q" id="wh-l">ร้านคุณขายที่ไหน</h2><p class="wh-n">ตอบข้อนี้ก่อน แล้วจะเหลือเฉพาะเรื่องที่เข้ากับร้านคุณ</p><div class="wh-cards" role="group" aria-labelledby="wh-l">' + WHERE.map(function (w, i) {
+    if (!state.where) return '<section class="where3 big"><h2 class="wh-q" id="wh-l">ร้านคุณขายที่ไหน?</h2><p class="wh-n">ตอบข้อนี้ก่อน แล้วจะเหลือเฉพาะเรื่องที่เข้ากับร้านคุณ</p><div class="wh-cards" role="group" aria-labelledby="wh-l">' + WHERE.map(function (w, i) {
       return '<button type="button" class="wh-c rise" style="--d:' + i + '" data-act="where" data-v="' + w[0] + '" aria-pressed="false"><span class="wh-i">' + WICON[w[0]] + '</span><span class="wh-b"><b>' + w[1] + '</b><small>' + WSUB[w[0]] + '</small></span>' + ICON.chev + '</button>';
     }).join('') + '</div></section>';
-    return '<div class="where3"><span class="wh-l" id="wh-l">ร้านคุณขายที่ไหน</span><div class="seg" role="group" aria-labelledby="wh-l">' + WHERE.map(function (w) {
+    return '<div class="where3"><span class="wh-l" id="wh-l">ร้านคุณขายที่ไหน?</span><div class="seg" role="group" aria-labelledby="wh-l">' + WHERE.map(function (w) {
       return '<button type="button" data-act="where" data-v="' + w[0] + '" aria-pressed="' + (state.where === w[0]) + '">' + w[1] + '</button>';
     }).join('') + '</div></div>';
   }
@@ -296,7 +299,7 @@
       var S = C(state.inp, state.model), ok = shopOk() && S.ok;
       return '<div class="shopline' + (state.isSample ? ' smp' : '') + '"><span class="sl-t"><small>' + (state.isSample ? 'กำลังใช้ร้านตัวอย่าง' : 'ตัวเลขร้านคุณ') + '</small><b>' + (state.isSample ? esc(sampleName()) : esc(MODELS[state.model].tile)) + '</b>' +
         (ok ? '<span>' + (S.profit < 0 ? 'ขาดทุน ' : 'กำไร ') + fmtN(Math.abs(S.profit)) + ' บาท/เดือน</span>' : '<span>ยังกรอกไม่ครบ</span>') + '</span>' +
-        '<button class="btn ghost sm" data-act="shop-edit">' + (state.isSample ? 'ใส่ตัวเลขร้านคุณ' : 'ปรับ') + '</button></div>' +
+        '<button class="btn ghost sm" data-act="shop-edit">' + (state.isSample ? 'ใส่ตัวเลขร้านคุณ' : 'แก้') + '</button></div>' +
         (state.isSample ? '<p class="sl-n">แตะเรื่องไหนก็ได้ จะเห็นผลกับร้านตัวอย่างทันที</p>'
           : ok ? '' : '<div class="samp3 sl-n"><span>ยังไม่พร้อมกรอกต่อ?</span><button class="lnk" data-act="sample">ลองกับ' + esc(SAMPLES[sampleKindFor(null)].short) + 'ตัวอย่างก่อน</button></div>');
     }
@@ -333,7 +336,7 @@
       return '<button class="tile" data-act="model" data-m="' + k + '"' + (ok ? '' : ' disabled aria-disabled="true"') + '><span class="ic">' + MICON[k] + '</span><span class="t">' + MODELS[k].tile + '</span><span class="ex">' + (ok ? MODELS[k].short : 'ยังไม่มีเรื่องนี้') + '</span></button>';
     }).join('');
     return bar(backBtn('back', 'ย้อนกลับ'), t ? TOPICS[t].title : 'ตัวเลขร้าน', t ? 'ตัวเลขร้าน' : '') + '<main class="screen"><div class="wrap">' + (t ? flowBar(1, 0) : '') +
-      '<div class="q-head"><h1>ร้านคุณได้เงินจากอะไรเป็นหลัก</h1><p>' + (t ? 'ก่อนดูเรื่อง' + esc(TOPICS[t].title) + ' ขอตัวเลขร้านคุณตอนนี้ไว้เทียบ · ' : '') + 'กรอกครั้งเดียว ใช้ได้กับทุกเรื่อง ประมาณ 3 นาที</p></div>' +
+      '<div class="q-head"><h1>ร้านคุณได้เงินจากอะไรเป็นหลัก?</h1><p>' + (t ? 'ก่อนดูเรื่อง' + esc(TOPICS[t].title) + ' ขอตัวเลขร้านคุณตอนนี้ไว้เทียบ · ' : '') + 'กรอกครั้งเดียว ใช้ได้กับทุกเรื่อง ประมาณ 3 นาที</p></div>' +
       '<div class="tiles">' + tiles + '</div>' +
       '<div class="alt"><span>ยังไม่อยากกรอก?</span><button class="lnk" data-act="sample">ลองกับ' + esc(SAMPLES[sampleKindFor(t)].short) + 'ตัวอย่างก่อน</button></div></div></main>';
   }
@@ -344,7 +347,7 @@
     if (isVolModel(m)) {
       S.push({ id: 'what', q: m === 'service' ? 'คุณขายบริการอะไร คิดราคาเท่าไหร่' : 'คุณขายอะไร ราคาเท่าไหร่', p: 'เลือกสิ่งที่ใช้นับยอดขาย แล้วใส่ราคาเฉลี่ย', f: ['unitLabel', 'price'] });
       S.push({ id: 'qty', q: m === 'service' ? 'มีลูกค้ากี่' + u : 'ขายได้กี่' + u, p: 'ตัวเลขประมาณก็ได้', f: ['volume', 'daysOpen'] });
-      S.push({ id: 'var', q: 'ต้นทุนของ 1 ' + u, p: 'เฉพาะต้นทุนที่ขึ้นลงตามยอดขาย', f: ['unitCost', 'feePct'] });
+      S.push({ id: 'var', q: 'ต้นทุนของ 1 ' + u, p: 'เฉพาะต้นทุนที่เพิ่มตามยอดขาย เช่น วัตถุดิบ บรรจุภัณฑ์ ค่าธรรมเนียมแอป', f: ['unitCost', 'feePct'] });
     } else if (m === 'subscription') {
       S.push({ id: 'fee', q: 'ค่าสมาชิกเท่าไหร่', f: ['fee', 'cycle'] });
       S.push({ id: 'mem', q: 'สมาชิกตอนนี้มีกี่คน', p: 'และแต่ละเดือนมีคนสมัครใหม่และคนเลิกกี่คน', f: ['members', 'newMembers', 'leaving'] });
@@ -352,7 +355,7 @@
     } else if (m === 'project') {
       S.push({ id: 'job', q: 'ได้งานปีละกี่งาน งานละเท่าไหร่', f: ['projectValue', 'projectsPerYear'] });
       S.push({ id: 'time', q: 'งานหนึ่งใช้เวลานานแค่ไหน', f: ['durationMonths', 'depositPct'] });
-      S.push({ id: 'var', q: 'ต้นทุนตรงของงาน', f: ['directCostPct'] });
+      S.push({ id: 'var', q: 'ต้นทุนของแต่ละงาน', f: ['directCostPct'] });
     } else if (m === 'rental') {
       S.push({ id: 'what', q: 'คุณให้เช่าอะไร มีกี่' + u, f: ['unitLabel', 'rentableUnits'] });
       S.push({ id: 'price', q: 'ราคาเท่าไหร่ มีคนเช่ากี่ %', f: ['periodKind', 'pricePerPeriod', 'occupancy'] });
@@ -365,12 +368,13 @@
     }
     S.push({ id: 'people', q: 'คนที่ทำงานในร้าน', p: 'รวมเงินเดือนของคุณเองด้วย', f: ['staffCount', 'staffSalary', 'ownerSalary'] });
     S.push({ id: 'fixed', q: 'ค่าใช้จ่ายที่จ่ายทุกเดือน', p: 'จ่ายเท่าเดิม ไม่ว่าจะขายได้มากหรือน้อย', f: ['rent', 'marketing', 'otherFixed'] });
-    S.push({ id: 'cash', q: 'ตอนนี้มีเงินหมุนในร้านเท่าไหร่', p: 'เรื่องใหญ่มักใช้เงินก้อน ใส่ไว้จะเห็นว่าเงินพอไหม', f: ['cash'] });
-    S.push({ id: 'adv', q: 'อยากให้ภาพ 12 เดือนตรงขึ้นไหม', p: 'ไม่ใส่ก็ได้ เลือกใส่เฉพาะเรื่องที่รู้', adv: true, f: [] });
+    S.push({ id: 'cash', q: 'ตอนนี้ร้านมีเงินสดพร้อมใช้เท่าไร?', p: 'เรื่องใหญ่มักใช้เงินก้อน ใส่ไว้จะเห็นว่าเงินพอไหม', f: ['cash'] });
+    S.push({ id: 'adv', q: 'อยากคาดการณ์ธุรกิจใน 12 เดือนข้างหน้าให้แม่นยำขึ้นไหม?', adv: true, f: [] });
     return S;
   }
   function stepValid(st) {
     var m = state.model, inp = state.inp;
+    if (st.adv) return advValid(inp, m);
     return st.f.every(function (k) {
       var f = fieldDef(k);
       if (!f || !f.req) return true;
@@ -389,7 +393,7 @@
     if (!f) return '';
     var m = state.model, inp = state.inp;
     var hidden = f.show && !f.show(inp, m) ? ' hidden' : '';
-    var lab = esc(f.label(inp, m));
+    var lab = esc(qmark(f.label(inp, m)));
     var help = f.help ? '<p class="help">' + esc(f.help(inp, m)) + '</p>' : '';
     var id = 'f-' + k;
     if (f.t === 'unit') {
@@ -424,11 +428,39 @@
     var extra = '';
     if (k === 'feePct' && (isVolModel(m) || m === 'rental')) {
       extra = state.feeHelp
-        ? '<div class="fee-help"><div class="two"><div class="field"><label for="fh-share">ขายผ่านแอปกี่ % ของยอด</label><div class="inbox"><input id="fh-share" data-fh="share" inputmode="decimal" value="' + esc(state.fh.share) + '"><span class="suf">%</span></div></div>' +
-          '<div class="field"><label for="fh-rate">แอปหักไปกี่ %</label><div class="inbox"><input id="fh-rate" data-fh="rate" inputmode="decimal" value="' + esc(state.fh.rate) + '"><span class="suf">%</span></div></div></div><div class="fh-res" id="fh-res">' + feeHelpText() + '</div></div>'
+        ? '<div class="fee-help"><div class="two"><div class="field"><label for="fh-share">ขายผ่านแอปกี่ % ของยอด?</label><div class="inbox"><input id="fh-share" data-fh="share" inputmode="decimal" value="' + esc(state.fh.share) + '"><span class="suf">%</span></div></div>' +
+          '<div class="field"><label for="fh-rate">แอปหักไปกี่ %?</label><div class="inbox"><input id="fh-rate" data-fh="rate" inputmode="decimal" value="' + esc(state.fh.rate) + '"><span class="suf">%</span></div></div></div><div class="fh-res" id="fh-res">' + feeHelpText() + '</div></div>'
         : '<button type="button" class="lnk" data-act="fee-help" style="justify-self:start">ขายผ่านแอปบางส่วน? ให้ช่วยคิด</button>';
     }
-    return '<div class="field" data-f="' + k + '"' + hidden + '><label for="' + id + '">' + lab + '</label>' + per + '<div class="inbox">' + input + '<span class="suf">' + suf + '</span></div>' + help + extra + '</div>';
+    return '<div class="field" data-f="' + k + '"' + hidden + '><label for="' + id + '">' + lab + '</label>' + per + chipsHtml(f, k) + '<div class="inbox">' + input + '<span class="suf">' + suf + '</span></div>' + help + extra + '</div>';
+  }
+  /* ปุ่มตอบเร็วของตัวเลขร้าน (ชุดเดียวกับตัวที่ 1): "ไม่มี" (หรือ "เท่าเดิม") = 0 · "ยังไม่รู้" = ไม่จำกัด (เช่น กำลังสูงสุด) */
+  function chipsHtml(f, k) {
+    if (!f.chip && !f.unk) return '';
+    var cur = num(state.inp[k]), unk = !!(state.inp.advUnk && state.inp.advUnk[k]), b = '';
+    if (f.chip) b += '<button type="button" class="chip" data-act="fchip" data-k="' + k + '" aria-pressed="' + (!unk && cur !== null && Math.abs(cur - f.chip[1]) < 1e-9) + '">' + esc(f.chip[0]) + '</button>';
+    if (f.unk) b += '<button type="button" class="chip" data-act="funk" data-k="' + k + '" aria-pressed="' + unk + '">' + esc(UNK_TXT.btn) + '</button>';
+    return '<div class="chips quick">' + b + '</div>';
+  }
+  function syncChips() {
+    $$('[data-act="fchip"], [data-act="funk"]').forEach(function (b) {
+      var k = b.getAttribute('data-k'), f = fieldDef(k), cur = num(state.inp[k]), unk = !!(state.inp.advUnk && state.inp.advUnk[k]);
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-act') === 'funk' ? unk : !unk && cur !== null && f && f.chip && Math.abs(cur - f.chip[1]) < 1e-9));
+    });
+  }
+  /* ข้อสุดท้ายของตัวเลขร้าน: ตอบ มี / ไม่มี · ถ้ามี เลือกกลุ่มที่รู้ แล้วตอบทุกช่องในกลุ่มนั้น */
+  function advBody() {
+    var m = state.model, inp = state.inp, mode = inp.advMode;
+    var out = '<div class="field adv-mode" data-f="advMode"><div class="seg" role="group" aria-label="' + esc(qmark(stepsFor(m).filter(function (x) { return x.adv; })[0].q)) + '">' +
+      '<button type="button" data-act="advmode" data-v="yes" aria-pressed="' + (mode === 'yes') + '">' + esc(ADV_TXT.yes) + '</button>' +
+      '<button type="button" data-act="advmode" data-v="no" aria-pressed="' + (mode === 'no') + '">' + esc(ADV_TXT.no) + '</button></div></div>';
+    if (mode !== 'yes') return out;
+    var P = advPicked(inp, m);
+    return out + '<p class="help adv-hint">' + esc(ADV_TXT.hint) + '</p><div class="field adv-pick" data-f="advPick"><div class="adv-list">' + advGroupsFor(m).map(function (g) {
+      var on = P.indexOf(g[0]) >= 0;
+      return '<div class="adv-block' + (on ? ' on' : '') + '"><button type="button" class="adv-tg" data-act="advpick" data-g="' + g[0] + '" aria-pressed="' + on + '"><span>' + g[1] + (g[2] ? '<small>' + g[2] + '</small>' : '') + '</span><i class="tg" aria-hidden="true"></i></button>' +
+        (on ? '<div class="qfields">' + advFieldsOf(m, g[0]).map(function (f) { return fieldHtml(f.k); }).join('') + '</div>' : '') + '</div>';
+    }).join('') + '</div></div>';
   }
   function feeHelpText() {
     var a = num(state.fh.share), b = num(state.fh.rate);
@@ -454,15 +486,15 @@
     var varOk = !varStep || (stepValid(varStep) && (state.editing || state.step >= varIdx));
     var fx = fixedTotal(inp);
     var head = '<section class="panel receipt-strip" id="rstrip"><div class="rs-top"><span class="rs-k">';
-    if (!sellOk) return head + 'ใบเสร็จร้านคุณ</span></div><div class="rs-empty">ตัวเลขจะค่อยๆ ขึ้นตรงนี้ระหว่างที่คุณกรอก</div></section>';
+    if (!sellOk) return head + 'สรุปตัวเลขร้านต่อเดือน</span></div><div class="rs-empty">ตัวเลขจะค่อยๆ ขึ้นตรงนี้ระหว่างที่คุณกรอก</div></section>';
     var fill = Object.assign({}, inp);
     FIELDS.forEach(function (f) { if (f.req && (!f.models || f.models.indexOf(m) >= 0) && num(fill[f.k]) === null) fill[f.k] = 0; });
     var S = C(fill, m);
-    if (!S.ok) return head + 'ใบเสร็จร้านคุณ</span></div><div class="rs-empty">ตัวเลขยังไม่ครบ</div></section>';
+    if (!S.ok) return head + 'สรุปตัวเลขร้านต่อเดือน</span></div><div class="rs-empty">ตัวเลขยังไม่ครบ</div></section>';
     var lines = '<div class="rs-line"><span>รายได้ต่อเดือน</span><i></i><b>' + fmtN(S.revenue) + '</b></div>';
-    if (varOk) lines += '<div class="rs-line"><span>ต้นทุนที่ขึ้นลงตามยอดขาย</span><i></i><b>−' + fmtN(S.varCost) + '</b></div>';
+    if (varOk) lines += '<div class="rs-line"><span>ต้นทุนที่เพิ่มตามยอดขาย</span><i></i><b>−' + fmtN(S.varCost) + '</b></div>';
     if (fx > 0) lines += '<div class="rs-line"><span>ค่าใช้จ่ายคงที่</span><i></i><b>−' + fmtN(fx) + '</b></div>';
-    var topK = varOk ? (S.profit < 0 ? 'ขาดทุนต่อเดือน' : 'เหลือต่อเดือน') : 'รายได้ต่อเดือน';
+    var topK = varOk ? (S.profit < 0 ? 'ขาดทุนต่อเดือน' : 'กำไรต่อเดือน') : 'รายได้ต่อเดือน';
     var topV = varOk ? S.profit : S.revenue;
     return head + topK + '</span><span class="rs-v">' + (varOk && S.profit < 0 ? '−' : '') + anim('rs', topV) + '<small>บาท</small></span></div><div class="rs-lines">' + lines + '</div></section>';
   }
@@ -470,34 +502,22 @@
     var m = state.model, steps = stepsFor(m);
     if (state.step >= steps.length) state.step = steps.length - 1;
     var st = steps[state.step];
-    var nReq = steps.filter(function (s) { return !s.adv; }).length;
+    var nReq = steps.length;
     /* ระหว่างทางของเรื่อง: แถบขั้นตอนชุดเดียว · ตัวเลขร้านอย่างเดียว (ไม่มีเรื่อง): แถบของตัวเลขร้าน · แก้ทีละข้อ: ไม่มีแถบ */
-    var prog = state.editing ? '' : state.topic ? flowBar(1, st.adv ? 1 : (state.step + 1) / (nReq + 1))
+    var prog = state.editing ? '' : state.topic ? flowBar(1, (state.step + 1) / (nReq + 1))
       : '<div class="prog">' + steps.map(function (s, i) { return '<i class="' + (i <= state.step ? 'on' : '') + '"></i>'; }).join('') + '</div>';
-    var body;
-    if (st.adv) {
-      body = '<div class="adv-list">' + ADV_GROUPS.map(function (g) {
-        var fs = FIELDS.filter(function (f) { return f.g === g[0] && (!f.models || f.models.indexOf(m) >= 0); });
-        if (!fs.length) return '';
-        var filled = fs.some(function (f) { return f.k === 'season' ? hasSeason(state.inp) : num(state.inp[f.k]) !== null; });
-        return '<details class="adv-block"' + (filled ? ' open' : '') + '><summary><span>' + g[1] + (g[2] ? '<small>' + g[2] + '</small>' : '') + '</span>' + ICON.down + '</summary><div class="qfields">' +
-          fs.map(function (f) { return fieldHtml(f.k); }).join('') + '</div></details>';
-      }).join('') + '</div>';
-    } else body = '<div class="qfields">' + st.f.map(fieldHtml).join('') + '</div>';
-    var cashIdx = steps.map(function (s) { return s.id; }).indexOf('cash');
-    var isLastReq = state.step === cashIdx, isAdv = !!st.adv;
-    var allOk = steps.every(stepValid);
+    var body = st.adv ? advBody() : '<div class="qfields">' + st.f.map(fieldHtml).join('') + '</div>';
     var primary;
     if (state.editing) primary = '<button class="btn" data-act="shop-done">เสร็จ</button>';
-    else if (isLastReq || isAdv) primary = '<button class="btn" data-act="shop-done">' + (state.topic ? 'ต่อไป: ตัวเลขเรื่องนี้' : 'เสร็จ') + ICON.next + '</button>';
+    else if (st.adv) primary = '<button class="btn" data-act="shop-done">' + (state.topic ? 'ต่อไป: ตัวเลขเรื่องนี้' : 'เสร็จ') + ICON.next + '</button>';
     else primary = '<button class="btn" data-act="next">ถัดไป' + ICON.next + '</button>';
     var foot = '<div class="foot" id="foot"><div class="wrap"><button class="btn ghost back" data-act="prev" aria-label="ย้อนกลับ">' + ICON.back + '</button>' + primary + '</div></div>';
-    var more = isLastReq && !state.editing ? '<div class="skip"><button class="lnk" data-act="next">เพิ่มรายละเอียดให้แม่นขึ้น (ไม่ใส่ก็ได้)</button></div>' : '';
+    var more = '';
     var tot = nReq + (state.topic && topicOk(state.topic, m) ? dStepsFor(state.topic, state.inp, m).length : 0);
-    var sub = state.editing ? 'ปรับตัวเลข › ตัวเลขร้าน' : st.adv ? 'ตัวเลขร้าน · ไม่ใส่ก็ได้' : 'ข้อ ' + (state.step + 1) + ' จาก ' + tot;
+    var sub = state.editing ? 'แก้ตัวเลข › ตัวเลขร้าน' : 'ข้อ ' + (state.step + 1) + ' จาก ' + tot;
     return bar(backBtn('prev'), state.topic ? TOPICS[state.topic].title : MODELS[m].tile, sub) +
       '<main class="screen"><div class="wrap">' + prog + wizReceipt() +
-      '<div class="q-head"><h1>' + esc(st.q) + '</h1>' + (st.p ? '<p>' + esc(st.p) + '</p>' : '') + '</div>' + body + more + '</div></main>' + foot;
+      '<div class="q-head"><h1>' + esc(qmark(st.q)) + '</h1>' + (st.p ? '<p>' + esc(st.p) + '</p>' : '') + '</div>' + body + more + '</div></main>' + foot;
   }
 
   /* ============================================================ คำถามของเรื่องที่กำลังคิด */
@@ -522,9 +542,8 @@
       if (dErr(k, d)) return false;
       var f = dDef(k);
       if (f.t === 'kind') return kindsOf(state.topic, state.inp, state.model).some(function (o) { return o[0] === d.kind; });
-      if (f.req) return num(dGet(d, k)) !== null;
       if (f.t === 'count') return num(dGet(d, k)) >= (f.min || 1);
-      return true;
+      return num(dGet(d, k)) !== null;
     });
   }
   /* ช่องแรกที่ยังขาด แล้วพาไปตรงนั้น พร้อมบอกว่าขาดอะไร (แทนปุ่มสีเทาที่ไม่บอกเหตุผล) */
@@ -535,9 +554,8 @@
       if (dErr(k, d)) return true;
       var f = dDef(k);
       if (f.t === 'kind') return !kindsOf(state.topic, state.inp, state.model).some(function (o) { return o[0] === d.kind; });
-      if (f.req) return num(dGet(d, k)) === null;
       if (f.t === 'count') return !(num(dGet(d, k)) >= (f.min || 1));
-      return false;
+      return num(dGet(d, k)) === null;
     })[0] || null;
   }
   function wMissing(st) {
@@ -567,6 +585,11 @@
     });
   }
   function wShowMissing(st) {
+    if (st.adv) {
+      var a = advMissing(state.inp, state.model);
+      if (a) showMissing(a.at === 'field' ? '.field[data-f="' + a.k + '"]' : a.at === 'mode' ? '.adv-mode' : '.adv-pick', '', '', false);
+      return;
+    }
     var all = st.f.filter(function (k) { return wMissing({ f: [k] }); });
     all.slice().reverse().forEach(function (k, i) { showMissing('.field[data-f="' + k + '"]', fieldDef(k).label(state.inp, state.model), '', i < all.length - 1); });
   }
@@ -579,20 +602,21 @@
     return 'เช่น ' + (v >= 1000 ? Math.round(v).toLocaleString('th-TH') : fmtN(v, 1));
   }
   function quickHtml(k, f, d) {
-    if (!f.quick) return '';
-    var cur = num(dGet(d, k));
-    var items = f.quick.map(function (q, i) {
+    if (!f.quick && !f.unk) return '';
+    var cur = num(dGet(d, k)), unk = dUnk(d, k);
+    var items = (f.quick || []).map(function (q, i) {
       var v = q[1](state.inp, state.model);
       if (v === null || v === undefined) return '';
       var lab = q[0] + (q[0].indexOf('เท่า') === 0 && v > 0 && !/%/.test(q[0]) ? ' (' + fmtN(v) + ')' : '');
-      return '<button type="button" class="chip" data-act="dquick" data-k="' + k + '" data-i="' + i + '" aria-pressed="' + (cur !== null && Math.abs(cur - v) < 1e-9) + '">' + esc(lab) + '</button>';
+      return '<button type="button" class="chip" data-act="dquick" data-k="' + k + '" data-i="' + i + '" aria-pressed="' + (!unk && cur !== null && Math.abs(cur - v) < 1e-9) + '">' + esc(lab) + '</button>';
     }).join('');
-    return items ? '<div class="chips quick">' + items + '</div>' : '';
+    if (f.unk) items += '<button type="button" class="chip" data-act="dunk" data-k="' + k + '" aria-pressed="' + unk + '">' + esc(UNK_TXT.btn) + '</button>';
+    return items ? '<div class="chips quick">' + items + '</div>' + (f.unk ? '<p class="unk-hint" data-unk-hint="' + k + '"' + (unk ? '' : ' hidden') + '>' + esc(UNK_TXT.hint) + '</p>' : '') : '';
   }
   function dFieldHtml(k) {
     var f = dDef(k), m = state.model, inp = state.inp, d = dec();
     var hidden = dShown(k, d) ? '' : ' hidden';
-    var lab = esc(f.label(inp, m, d));
+    var lab = esc(qmark(f.label(inp, m, d)));
     var help = f.help ? '<p class="help">' + esc(f.help(inp, m, d)) + '</p>' : '';
     var err = dErr(k, d);
     var errHtml = '<p class="err" id="err-' + k + '" role="alert"' + (err ? '' : ' hidden') + '>' + esc(err) + '</p>';
@@ -607,9 +631,15 @@
     if (f.t === 'ramp') {
       var raw = num(dGet(d, k)), rv = raw === null ? null : Math.round(raw);
       return '<div class="field" data-df="' + k + '"' + hidden + '><span class="lab" id="lab-' + k + '">' + lab + '</span><div class="seg wrapseg" role="group" aria-labelledby="lab-' + k + '">' + f.opts.map(function (o) {
-        var on = rv === o || (!f.req && rv === null && o === f.opts[0]);
+        var on = rv === o;
         return '<button type="button" data-act="dpick" data-k="' + k + '" data-v="' + o + '" aria-pressed="' + on + '"' + (o ? ' aria-label="' + o + ' เดือน"' : '') + '>' + (o === 0 ? 'ทันที' : o) + '</button>';
       }).join('') + '</div>' + (f.opts[0] !== 0 || f.opts.length < 5 ? '' : '<p class="help">ตัวเลขคือจำนวนเดือน</p>') + help + '</div>';
+    }
+    if (f.t === 'years') {
+      var yv = num(dGet(d, k));
+      return '<div class="field" data-df="' + k + '"' + hidden + '><span class="lab" id="lab-' + k + '">' + lab + '</span><div class="seg wrapseg" role="group" aria-labelledby="lab-' + k + '">' + f.opts.map(function (o) {
+        return '<button type="button" data-act="dpick" data-k="' + k + '" data-v="' + o + '" aria-pressed="' + (yv === o) + '">' + esc(PAY_TXT.opt(o)) + '</button>';
+      }).join('') + '</div>' + help + '</div>';
     }
     if (f.t === 'kind') {
       return '<div class="field" data-df="kind"><span class="sr" id="lab-kind">' + esc(KIND_Q[state.topic] || lab) + '</span><div class="kinds" role="radiogroup" aria-labelledby="lab-kind">' +
@@ -622,8 +652,9 @@
     var sign = '';
     if (f.t === 'signed') {
       var neg = num(v) !== null ? num(v) < 0 : state.dsign[k] === -1;
-      sign = '<div class="seg" role="group" aria-label="' + lab + '"><button type="button" data-act="dsign" data-k="' + k + '" data-v="1" aria-pressed="' + !neg + '">' + f.words[0] + '</button>' +
-        '<button type="button" data-act="dsign" data-k="' + k + '" data-v="-1" aria-pressed="' + neg + '">' + f.words[1] + '</button></div>';
+      var bUp = '<button type="button" data-act="dsign" data-k="' + k + '" data-v="1" aria-pressed="' + !neg + '">' + f.words[0] + '</button>';
+      var bDn = '<button type="button" data-act="dsign" data-k="' + k + '" data-v="-1" aria-pressed="' + neg + '">' + f.words[1] + '</button>';
+      sign = '<div class="seg" role="group" aria-label="' + lab + '">' + (f.negFirst ? bDn + bUp : bUp + bDn) + '</div>';
       v = num(v) === null ? null : Math.abs(num(v));
     }
     var mode = (f.t === 'money' || f.t === 'int') ? 'numeric' : 'decimal';
@@ -656,11 +687,11 @@
       : state.dediting ? '<button class="btn" data-act="d-done">เสร็จ</button>'
       : last ? '<button class="btn" data-act="d-done">ดูผล' + ICON.next + '</button>'
         : '<button class="btn" data-act="d-next">ถัดไป' + ICON.next + '</button>';
-    var off = state.shopInFlow && !state.isSample ? stepsFor(state.model).filter(function (x) { return !x.adv; }).length : 0;
+    var off = state.shopInFlow && !state.isSample ? stepsFor(state.model).length : 0;
     var foot = '<div class="foot" id="foot"><div class="wrap"><button class="btn ghost back" data-act="d-prev" aria-label="ย้อนกลับ">' + ICON.back + '</button>' + primary + '</div></div>';
-    return bar(backBtn('d-prev'), TOPICS[t].title, state.dediting ? 'ปรับตัวเลข › ตัวเลขของเรื่อง' : 'ข้อ ' + (off + state.dstep + 1) + ' จาก ' + (off + steps.length)) +
+    return bar(backBtn('d-prev'), TOPICS[t].title, state.dediting ? 'แก้ตัวเลข › ตัวเลขของเรื่อง' : 'ข้อ ' + (off + state.dstep + 1) + ' จาก ' + (off + steps.length)) +
       '<main class="screen"><div class="wrap">' + prog + '<section class="dstrip" id="dstrip" aria-label="ไม่ทำ เทียบกับ ทำ">' + dStrip() + '</section>' +
-      '<div class="q-head"><h1>' + esc(st.q) + '</h1>' + (st.p ? '<p>' + esc(st.p) + '</p>' : '') + '</div>' +
+      '<div class="q-head"><h1>' + esc(qmark(st.q)) + '</h1>' + (st.p ? '<p>' + esc(st.p) + '</p>' : '') + '</div>' +
       '<div class="qfields">' + st.f.map(dFieldHtml).join('') + '</div></div></main>' + foot;
   }
 
@@ -671,10 +702,11 @@
       var bits = [];
       if (num(inp.growth)) bits.push('โต ' + inp.growth + '%/เดือน');
       if (hasSeason(inp)) bits.push('มีฤดูกาล');
-      if (num(inp.capacity) || num(inp.maxMembers) || num(inp.maxConcurrent) || num(inp.maxDeals)) bits.push('มีกำลังสูงสุด');
-      if (num(inp.creditDays) || num(inp.stockDays)) bits.push('มีจังหวะเงินเข้าออก');
+      if (num(inp.capacity) || num(inp.maxMembers) || num(inp.maxConcurrent) || num(inp.maxDeals)) bits.push('กำลังรองรับของร้าน');
+      if (num(inp.creditDays) || num(inp.stockDays)) bits.push('เงินเข้าออก');
       if (num(inp.newCustomers)) bits.push('มีข้อมูลลูกค้า');
       if (num(inp.equipValue)) bits.push('มีอุปกรณ์');
+      if (inp.advMode === 'no') return 'ไม่มี';
       return bits.length ? bits.join(' · ') : 'ยังไม่ได้ใส่';
     }
     return st.f.map(function (k) {
@@ -696,6 +728,8 @@
       if (!dShown(k, d)) return '';
       if (f.t === 'kind') return kindName(state.topic, d, inp, m);
       if (f.t === 'ramp') { var r = num(dGet(d, k)); return r === null ? '' : f.label(inp, m, d) + ' ' + (r > 0 ? fmtN(r) + ' เดือน' : 'ทันที'); }
+      if (f.t === 'years') { var y = num(dGet(d, k)); return y === null ? '' : PAY_TXT.opt(y); }
+      if (dUnk(d, k)) return f.label(inp, m, d) + ' ' + UNK_TXT.btn;
       var v = num(dGet(d, k));
       if (v === null) return '';
       var suf = f.suf ? f.suf(inp, m, d) : (f.t === 'pct' ? '%' : 'บาท');
@@ -703,16 +737,16 @@
       return f.label(inp, m, d) + ' ' + vt + (suf.charAt(0) === '%' ? suf : ' ' + suf);
     }).filter(Boolean).join(' · ') || 'ยังไม่ได้ใส่';
   }
-  /* รายการตัวเลขร้าน แตะเพื่อแก้ทีละข้อ (ใช้ในหน้าปรับตัวเลข และหน้าแก้ตัวเลขร้านจากหน้าเริ่ม) */
+  /* รายการตัวเลขร้าน แตะเพื่อแก้ทีละข้อ (ใช้ในหน้าแก้ตัวเลข และหน้าแก้ตัวเลขร้านจากหน้าเริ่ม) */
   function shopRows() {
     return '<div class="rv">' + stepsFor(state.model).map(function (st, i) {
-      return '<button class="rv-row" data-act="edit-step" data-i="' + i + '"><span class="t">' + esc(st.q) + '</span><span class="v">' + esc(stepSummary(st)) + '</span>' + ICON.chev + '</button>';
+      return '<button class="rv-row" data-act="edit-step" data-i="' + i + '"><span class="t">' + esc(qmark(st.q)) + '</span><span class="v">' + esc(stepSummary(st)) + '</span>' + ICON.chev + '</button>';
     }).join('') + '</div><div class="alt"><span>ร้านได้เงินจากอย่างอื่น?</span><button class="lnk" data-act="to-shop">เปลี่ยนรูปแบบร้าน</button></div>';
   }
   /* แก้ตัวเลขร้าน (เปิดจากหน้าเริ่ม ยังไม่ได้อยู่ในเรื่องไหน) */
   function viewReview() {
-    return bar(backBtn('back', 'ย้อนกลับ'), 'ตัวเลขร้าน', 'ปรับตัวเลข') + '<main class="screen"><div class="wrap">' +
-      '<div class="q-head"><h1>ตัวเลขร้านคุณ</h1><p>ใช้กับทุกเรื่อง แตะข้อที่อยากปรับ</p></div>' +
+    return bar(backBtn('back', 'ย้อนกลับ'), 'ตัวเลขร้าน', 'แก้ตัวเลข') + '<main class="screen"><div class="wrap">' +
+      '<div class="q-head"><h1>ตัวเลขร้านคุณ</h1><p>ใช้กับทุกเรื่อง แตะข้อที่อยากแก้</p></div>' +
       '<div class="sec-h"><h2>' + esc(MODELS[state.model].tile) + '</h2></div>' + shopRows() + '</div></main>' +
       '<div class="foot" id="foot"><div class="wrap"><button class="btn" data-act="back">เสร็จ</button></div></div>';
   }
@@ -810,7 +844,7 @@
     var head;
     if ((be.kind === 'value' || be.kind === 'zero') && P.target) head = '<span class="pn"><span>กำไรต่อเดือนเท่าเดิม</span>' + numU(rn(P.need)) + '</span>' +
       '<span class="pn pay"><span>' + esc(P.targetTxt) + '</span>' + (P.payNeed !== null ? numU(rn(P.payNeed)) : '<b class="pn-x">ไม่ทัน</b>') + '</span>';
-    else if (be.kind === 'value' || be.kind === 'zero') head = '<span>จุดคุ้ม</span>' + numU(rn(P.need));
+    else if (be.kind === 'value' || be.kind === 'zero') head = '<span>จุดที่กำไรเท่ากับปัจจุบัน</span>' + numU(rn(P.need));
     else if (be.kind === 'max') head = '<span>ต้องไม่เกิน</span>' + numU(nf(downAt(be.x, state.model, v), '') + (pc ? '%' : ''));
     else head = '<span class="txt">' + esc(needText(P, state.model, state.inp, dec())) + '</span>';
     var np = P.need !== null ? pct(P, P.need) : be.kind === 'max' ? pct(P, be.x) : null;
@@ -823,8 +857,8 @@
       var on = Math.abs(v - s.v) < 1e-6;
       return '<button type="button" class="sc" data-act="wi" data-v="' + s.v + '" aria-pressed="' + on + '"><span>' + esc(s.label) + '</span><b>' + dirSpan(s.delta, fmtN(Math.abs(s.delta))) + '</b></button>';
     }).join('');
-    if (!chips && P.need !== null && P.need > P.lo) chips = '<button type="button" class="sc" data-act="wi" data-v="' + P.need + '" aria-pressed="' + (Math.abs(v - P.need) < 1e-6) + '"><span>ที่จุดคุ้ม</span><b>' + nf(P.need, '') + '</b></button>';
-    return '<section class="piv" id="piv"><h2 class="pv-q">' + tw(P.q) + '</h2><div class="pv-need' + (P.target && head.indexOf('class="pn') >= 0 ? ' two' : '') + '">' + head + '</div>' +
+    if (!chips && P.need !== null && P.need > P.lo) chips = '<button type="button" class="sc" data-act="wi" data-v="' + P.need + '" aria-pressed="' + (Math.abs(v - P.need) < 1e-6) + '"><span>กำไรเท่าเดิม</span><b>' + nf(P.need, '') + '</b></button>';
+    return '<section class="piv" id="piv"><h2 class="pv-q">' + tw(qmark(P.q)) + '</h2><div class="pv-need' + (P.target && head.indexOf('class="pn') >= 0 ? ' two' : '') + '">' + head + '</div>' +
       '<div class="pv-track ' + zone + '" style="--n:' + (np === null ? 50 : np.toFixed(2)) + '%;--p:' + (pp === null ? 100 : pp.toFixed(2)) + '%">' +
       '<div class="pv-zone" aria-hidden="true"><i class="z1"></i><i class="z2"></i><i class="z3"></i></div>' +
       (np !== null ? '<span class="pv-mk need" style="left:calc(14px + (100% - 28px) * ' + (np / 100).toFixed(4) + ')" aria-hidden="true"></span>' +
@@ -838,7 +872,7 @@
       (chips ? '<div class="pv-chips" role="group" aria-label="ถ้าไม่เป็นอย่างที่คาด">' + chips + '</div>' : '') + '</section>';
   }
   function legendHtml(P, zone, pp) {
-    if (zone === 'fwd3') return '<div class="pv-leg" aria-hidden="true"><span><i class="lz1"></i>กำไรน้อยกว่าตอนนี้</span><span><i class="lz2"></i>กำไรมากกว่า แต่คืนทุนช้ากว่า 3\u00a0ปี</span>' +
+    if (zone === 'fwd3') return '<div class="pv-leg" aria-hidden="true"><span><i class="lz1"></i>กำไรน้อยกว่าตอนนี้</span><span><i class="lz2"></i>กำไรมากกว่า แต่คืนทุนช้ากว่า ' + fmtN(P.targetYears || 3) + '\u00a0ปี</span>' +
       (pp < 100 ? '<span><i class="lz3"></i>' + esc(P.targetTxt) + '</span>' : '') + '</div>';
     if (zone === 'fwd' || zone === 'rev') return '<div class="pv-leg" aria-hidden="true"><span><i class="lz1"></i>กำไรน้อยกว่าตอนนี้</span><span><i class="lz3"></i>กำไรมากกว่าตอนนี้</span></div>';
     return '';
@@ -864,8 +898,8 @@
     }
     var txt = c.value === null && !c.payback ? '<span class="ck-txt">' + esc(c.txt || '') + '</span>' : '';
     var inner = '<span class="ck-i" aria-hidden="true">' + icon + '</span>' +
-      '<span class="ck-b"><span class="ck-t"><span class="sr">' + (c.status === 'ok' ? 'ถึงแล้ว: ' : c.status === 'short' ? 'ยังไม่ถึง: ' : '') + '</span>' + tw(c.label) + val + txt + '</span>' + (c.sub ? '<small>' + tw(c.sub) + '</small>' : '') + (have ? '<small class="ck-h">' + have + '</small>' : '') + '</span>';
-    if (c.lever && labKeys().indexOf(c.lever) >= 0) return '<li data-id="' + c.id + '"><button class="ck ' + c.status + '" data-act="lab" data-k="' + c.lever + '">' + inner + '<span class="go">ปรับ' + ICON.chev + '</span></button></li>';
+      '<span class="ck-b"><span class="ck-t"><span class="sr">' + (c.status === 'ok' ? 'ถึงแล้ว: ' : c.status === 'short' ? 'ยังไม่ถึง: ' : '') + '</span>' + clabel(c, val) + txt + '</span>' + (c.sub ? '<small>' + tw(c.sub) + '</small>' : '') + (have ? '<small class="ck-h">' + have + '</small>' : '') + '</span>';
+    if (c.lever && labKeys().indexOf(c.lever) >= 0) return '<li data-id="' + c.id + '"><button class="ck ' + c.status + '" data-act="lab" data-k="' + c.lever + '">' + inner + '<span class="go">แก้' + ICON.chev + '</span></button></li>';
     return '<li data-id="' + c.id + '"><div class="ck ' + c.status + '">' + inner + '</div></li>';
   }
   function cashCard(R) {
@@ -928,7 +962,7 @@
     var rows = rowH('กำไรต่อเดือนตอนนี้', 0, R.B.profit, 'start', 0), cur = R.B.profit;
     R.ledger.forEach(function (l, i) { rows += rowH(l.label, cur, cur + l.amount, l.amount >= 0 ? 'plus' : 'minus', i + 1); cur += l.amount; });
     rows += rowH('กำไรต่อเดือนถ้าทำ', 0, R.profit, 'end', R.ledger.length + 1);
-    return '<section class="card wf"><p class="lead">' + (R.k > 0 ? 'เมื่อ' + salesWord(state.model) + 'ขึ้นถึงที่คาด · ' : '') + 'บวกและลบกันแล้วเท่ากับกำไรที่เปลี่ยนพอดี</p>' + rows + '</section>';
+    return '<section class="card wf"><p class="lead">' + (R.k > 0 ? 'เมื่อ' + salesWord(state.model) + 'ขึ้นถึงที่คาด · ' : '') + 'ผลรวมทั้งหมดคือการเปลี่ยนแปลงของกำไรพอดี</p>' + rows + '</section>';
   }
   /* ขั้นต่อไป: เครื่องมือ PL1 ที่ช่วยคิดเรื่องนี้ + เช็กความพร้อม (ไม่บังคับ) */
   function ans() { if (!state.answers[state.topic]) state.answers[state.topic] = {}; return state.answers[state.topic]; }
@@ -938,7 +972,7 @@
   }
   function askDone() { var L = askList(), A = ans(); return L.length > 0 && L.every(function (q) { return A[q]; }); }
   function askedCount() { var A = ans(); return askList().filter(function (q) { return A[q]; }).length; }
-  function pointsList() { var A = ans(); return askList().filter(function (q) { return A[q] === 'yes' || A[q] === 'unsure'; }); }
+  function pointsList() { var A = ans(); return askList().filter(function (q) { return ansFlag(QB3[q], A[q]); }); }
   function toolsHtml(codes, title, seen) {
     seen = seen || {};
     var items = codes.filter(function (c) { if (seen[c] || !TOOLS[c]) return false; seen[c] = 1; return true; }).map(function (c) {
@@ -946,15 +980,15 @@
     }).join('');
     return items ? '<div class="tools">' + (title ? '<span class="tl">' + esc(title) + '</span>' : '') + items + '</div>' : '';
   }
-  /* ปุ่มหลักของหน้าผล (ค้างด้านล่าง): เช็กความพร้อม → จุดที่ควรเช็ก */
+  /* ปุ่มหลักของหน้าผล (ค้างด้านล่าง): เช็กความพร้อม → จุดที่ควรตรวจสอบ */
   function readyBtn() {
-    if (askDone()) { var n = pointsList().length; return '<button class="btn" data-act="points">' + (n ? 'ดู ' + n + ' จุดที่ควรเช็ก' : 'ดูผลเช็กความพร้อม') + ICON.next + '</button>'; }
+    if (askDone()) { var n = pointsList().length; return '<button class="btn" data-act="points">' + (n ? 'ดู ' + n + ' จุดที่ควรตรวจสอบ' : 'ดูผลเช็กความพร้อม') + ICON.next + '</button>'; }
     return '<button class="btn" data-act="ask">' + (askedCount() ? 'เช็กความพร้อมต่อ' : 'เช็กความพร้อม') + ICON.next + '</button>';
   }
   /* ขั้นต่อไป (ท้ายหน้าผล): เช็กความพร้อม + เครื่องมือ PL1 ที่ช่วยคิดเรื่องนี้ต่อ */
   function nextCard() {
     var L = askList(), n = askDone() ? pointsList().length : null;
-    var lead = n === null ? 'ตอบ ' + L.length + ' ข้อ แค่ ใช่ / ไม่ใช่ / ไม่แน่ใจ แล้วดูว่าควรเช็กจุดไหนก่อนตัดสินใจ' : n ? 'ตอบครบแล้ว เจอ ' + n + ' จุดที่ควรเช็ก' : 'ตอบครบแล้ว ยังไม่เจอจุดที่ควรเช็ก';
+    var lead = n === null ? 'ตอบ ' + L.length + ' ข้อ แค่ ใช่ / ไม่ใช่ / ไม่แน่ใจ แล้วดูว่าควรเช็กจุดไหนก่อนตัดสินใจ' : n ? 'ตอบครบแล้ว เจอ ' + n + ' จุดที่ควรตรวจสอบ' : 'ตอบครบแล้ว ยังไม่เจอจุดที่ควรตรวจสอบ';
     return '<section class="next3"><h2 class="nx-h">ขั้นต่อไป</h2><p class="nx-lead"><b>เช็กความพร้อม</b> (ปุ่มด้านล่าง) · ' + lead + '</p>' +
       toolsHtml(TOPIC_TOOLS[state.topic], 'เครื่องมือที่ช่วยหาแนวทางเรื่องนี้') + '</section>';
   }
@@ -962,7 +996,7 @@
     return '<button class="plan3" data-act="plan"><span class="p3-l"><span class="p3-h"><b>แผนธุรกิจ</b><span class="p3-tag">เร็ว ๆ นี้</span></span><span class="p3-p">ใช้ตัวเลขชุดนี้วางทางทั้งร้าน ทั้งการตลาด ทีม และเงิน 12 เดือน</span></span>' + ICON.chev + '</button>';
   }
   /* ดูละเอียด: แท็บ เงินในมือ 12 เดือน | กำไรเปลี่ยนเพราะอะไร */
-  var RTABS = [['cash', 'เงินในมือ 12 เดือน'], ['wf', 'กำไรเปลี่ยนเพราะอะไร']];
+  var RTABS = [['cash', 'เงินในมือ 12 เดือน'], ['wf', 'กำไรเปลี่ยนเพราะอะไร?']];
   function detailsHtml(R) {
     var tabs = RTABS.filter(function (x) { return x[0] !== 'wf' || R.ledger.length; });
     var cur = tabs.some(function (x) { return x[0] === state.rtab; }) ? state.rtab : 'cash';
@@ -987,11 +1021,11 @@
   /* ส่วนที่เปลี่ยนตามแถบลากมี id ของตัวเอง (resultLive อัปเดตเฉพาะส่วนนั้น แท็บ โฟกัส และหัวข้อที่เปิดไว้จึงไม่หาย) */
   function restHtml(R) {
     var out = '<div id="warns">' + warnsHtml(R) + '</div>';
-    out += '<section class="checks"><h2 class="sec3">สิ่งที่ต้องเป็นจริง ถึงจะคุ้ม</h2><ul class="cklist" id="cklist">' + R.conds.map(checkHtml).join('') + '</ul></section>';
+    out += '<section class="checks"><h2 class="sec3">ต้องเป็นแบบไหนถึงจะคุ้ม?</h2><ul class="cklist" id="cklist">' + R.conds.map(checkHtml).join('') + '</ul></section>';
     out += detailsHtml(R);
     out += nextCard() + planCard();
     out += '<button class="btn ghost block other3" data-act="to-start">ลองเรื่องอื่น กับตัวเลขร้านเดิม' + ICON.next + '</button>';
-    out += '<details class="about"><summary>ตัวเลขชุดนี้คิดอย่างไร' + ICON.down + '</summary><ul id="aboutul">' + aboutItems(R) + '</ul></details>';
+    out += '<details class="about"><summary>ตัวเลขชุดนี้คิดอย่างไร?' + ICON.down + '</summary><ul id="aboutul">' + aboutItems(R) + '</ul></details>';
     return out;
   }
   /* กำลังลองค่าอื่นบนแถบลาก: บอกชัดว่าเป็นค่าที่ลอง ไม่ใช่ที่กรอก · ใช้ค่านี้ / กลับค่าที่กรอก */
@@ -1002,13 +1036,13 @@
       '<span class="try-b"><button class="btn ghost sm" data-act="wi-reset" aria-label="กลับค่าเดิม ' + esc(nf(P.have, P.unit)) + '">ค่าเดิม</button><button class="btn sm" data-act="wi-use">ใช้ค่านี้</button></span></div>';
   }
   function resultFoot() {
-    return '<div class="foot rfoot" id="foot"><div class="wrap"><button class="btn ghost fb-edit" data-act="lab">' + ICON.sliders + 'ปรับตัวเลข</button>' + readyBtn() + '</div></div>';
+    return '<div class="foot rfoot" id="foot"><div class="wrap"><button class="btn ghost fb-edit" data-act="lab">' + ICON.sliders + 'แก้ตัวเลข</button>' + readyBtn() + '</div></div>';
   }
   function viewResult() {
     var head = bar('<button class="tb" data-act="to-start" aria-label="กลับไปเลือกเรื่อง">' + ICON.back + 'เลือกเรื่อง</button>', TOPICS[state.topic].title, 'ผล');
     var R = E(viewD());
-    if (!R.ok) return head + '<main class="screen"><div class="wrap"><div class="ok-box"><b>ตัวเลขยังไม่ครบ</b><p>กด "ปรับตัวเลข" เพื่อกรอกให้ครบ</p></div></div></main>' +
-      '<div class="foot" id="foot"><div class="wrap"><button class="btn" data-act="lab">' + ICON.sliders + 'ปรับตัวเลข</button></div></div>';
+    if (!R.ok) return head + '<main class="screen"><div class="wrap"><div class="ok-box"><b>ตัวเลขยังไม่ครบ</b><p>กด "แก้ตัวเลข" เพื่อกรอกให้ครบ</p></div></div></main>' +
+      '<div class="foot" id="foot"><div class="wrap"><button class="btn" data-act="lab">' + ICON.sliders + 'แก้ตัวเลข</button></div></div>';
     var P = piv(), v = wiVal() !== null ? wiVal() : P.have;
     var out = head + '<main class="screen res3"><div class="wrap">';
     if (state.isSample) out += '<div class="banner"><span>นี่คือ' + esc(sampleName()) + '</span><button class="lnk" data-act="to-shop">ใส่ตัวเลขร้านคุณ</button></div>';
@@ -1052,16 +1086,17 @@
     return bar(backBtn('result', 'กลับ'), 'เช็กความพร้อม', 'ข้อ ' + (i + 1) + ' จาก ' + L.length) +
       '<main class="screen"><div class="wrap"><div class="prog">' + L.map(function (x, j) { return '<i class="' + (ans()[x] || j <= i ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
       '<div class="ask-why"><span>เพราะคุณกำลังคิดเรื่อง</span><b>' + esc(TOPICS[state.topic].title) + '</b></div>' +
-      '<h1 class="ask-q">' + esc(q.q(state.inp, state.model, dec())) + '</h1>' +
-      '<div class="ask-ans">' + [['yes', 'ใช่'], ['no', 'ไม่ใช่'], ['unsure', 'ไม่แน่ใจ']].map(function (o) {
-        return '<button data-act="answer" data-q="' + id + '" data-v="' + o[0] + '" aria-pressed="' + (a === o[0]) + '">' + o[1] + '</button>';
+      '<h1 class="ask-q">' + esc(qmark(q.q(state.inp, state.model, dec()))) + '</h1>' +
+      '<div class="ask-ans">' + ['yes', 'no', 'unsure'].map(function (o) {
+        return '<button data-act="answer" data-q="' + id + '" data-v="' + o + '" aria-pressed="' + (a === o) + '">' + esc(ansLabel(q, o)) + '</button>';
       }).join('') + '</div>' +
       '<div class="qnav">' + (i > 0 ? '<button class="lnk" data-act="q-prev">ข้อก่อนหน้า</button>' : '<span></span>') +
       (askedCount() ? '<button class="lnk" data-act="points">ดูผลเลย</button>' : '') + '</div>' +
       '<h2 class="sec3 ak-h">ทุกข้อในเรื่องนี้</h2><ol class="ak-list">' + L.map(function (x, j) {
-        var av = ans()[x], cls = j === i ? 'now' : av === 'yes' ? 'yes' : av === 'no' ? 'no' : av === 'unsure' ? 'uns' : 'todo';
+        var av = ans()[x], fl = ansFlag(QB3[x], av);
+        var cls = j === i ? 'now' : !av ? 'todo' : av === 'unsure' ? 'uns' : fl ? 'yes' : 'no';
         var ic = cls === 'yes' ? ICON.mark : cls === 'no' ? ICON.ok : cls === 'uns' ? ICON.q : '<span>' + (j + 1) + '</span>';
-        var aw = j === i ? 'ข้อนี้' : av === 'yes' ? 'ใช่ · ควรเช็ก' : av === 'no' ? 'ไม่ใช่' : av === 'unsure' ? 'ไม่แน่ใจ · ควรเช็ก' : 'ยังไม่ตอบ';
+        var aw = j === i ? 'ข้อนี้' : !av ? 'ยังไม่ตอบ' : esc(ansLabel(QB3[x], av)) + (fl ? ' · ควรตรวจสอบ' : '');
         return '<li><button class="ak ' + cls + '" data-act="q-go" data-i="' + j + '"' + (j === i ? ' aria-current="step"' : '') + '><span class="ak-i" aria-hidden="true">' + ic + '</span>' +
           '<span class="ak-t">' + esc(QB3[x].p) + '</span><span class="ak-a">' + aw + '</span></button></li>';
       }).join('') + '</ol></div></main>';
@@ -1070,24 +1105,24 @@
     var lv = QB3[id].lever;
     if (!lv || !R.ok) return '';
     var cs = R.conds.filter(function (x) { return x.lever === lv && x.value !== null; }).slice(0, 2);
-    return cs.map(function (c) { return tw(c.label) + ' <b>' + esc(c.payback ? payIn(c.value) : nf(c.value, c.unit)) + '</b>'; }).join('<br>');
+    return cs.map(function (c) { return clabel(c, ' <b>' + esc(c.payback ? payIn(c.value) : nf(c.value, c.unit)) + '</b>'); }).join('<br>');
   }
   function viewPoints() {
     var R = E(dec()), L = askList(), Pn = pointsList(), seen = {}, A = ans();
-    var out = bar(backBtn('result', 'กลับ'), 'จุดที่ควรเช็ก', TOPICS[state.topic].title) + '<main class="screen"><div class="wrap">';
-    var nNo = L.filter(function (x) { return A[x] === 'no'; }).length;
-    out += '<section class="pp3"><div class="pp-k">เช็กความพร้อม · ตอบแล้ว ' + askedCount() + ' จาก ' + L.length + ' ข้อ</div><h1 class="pp-t">' + (Pn.length ? 'เจอ ' + Pn.length + ' จุดที่ควรเช็ก' : 'ยังไม่เจอจุดที่ควรเช็กจากคำตอบ') + '</h1>' +
-      '<p class="pp-s">' + (Pn.length ? 'แต่ละจุดบอกว่าเกี่ยวกับตัวเลขไหน และเครื่องมือไหนช่วยหาแนวทางได้' + (nNo ? ' · อีก ' + nNo + ' ข้อที่ตอบว่าไม่ใช่ ไม่ได้แสดงตรงนี้' : '') : 'ถ้าอยากคิดเรื่องนี้ให้ละเอียดขึ้น เครื่องมือด้านล่างช่วยได้') + '</p>' +
+    var out = bar(backBtn('result', 'กลับ'), 'จุดที่ควรตรวจสอบ', TOPICS[state.topic].title) + '<main class="screen"><div class="wrap">';
+    var nNo = L.filter(function (x) { return A[x] && !ansFlag(QB3[x], A[x]); }).length;
+    out += '<section class="pp3"><div class="pp-k">เช็กความพร้อม · ตอบแล้ว ' + askedCount() + ' จาก ' + L.length + ' ข้อ</div><h1 class="pp-t">' + (Pn.length ? 'เจอ ' + Pn.length + ' จุดที่ควรตรวจสอบ' : 'ยังไม่เจอจุดที่ควรตรวจสอบจากคำตอบ') + '</h1>' +
+      '<p class="pp-s">' + (Pn.length ? 'แต่ละจุดบอกว่าเกี่ยวกับตัวเลขไหน และเครื่องมือไหนช่วยหาแนวทางได้' + (nNo ? ' · อีก ' + nNo + ' ข้อไม่ได้แสดงตรงนี้' : '') : 'ถ้าอยากคิดเรื่องนี้ให้ละเอียดขึ้น เครื่องมือด้านล่างช่วยได้') + '</p>' +
       (L.length ? '<button class="btn ghost" data-act="ask-restart">แก้คำตอบ</button>' : '') + '</section>';
     if (Pn.length) {
       out += '<div class="points pts3">' + Pn.map(function (id) {
         var q = QB3[id], tag = pointTag(id, R), lk = q.lever && labKeys().indexOf(q.lever) >= 0 ? q.lever : null;
         var fresh = q.tools.filter(function (c) { return !seen[c]; });
         return '<div class="point pt3"><span class="pt-i ' + (A[id] === 'unsure' ? 'uns' : 'yes') + '" aria-hidden="true">' + (A[id] === 'unsure' ? ICON.q : ICON.mark) + '</span><div class="pt-b">' +
-          '<h2 class="pt">' + esc(q.p) + '<span class="sr"> · ' + (A[id] === 'unsure' ? 'ตอบว่าไม่แน่ใจ' : 'ตอบว่าใช่') + '</span>' + (A[id] === 'unsure' ? '<span class="unsure" aria-hidden="true">ไม่แน่ใจ</span>' : '') + '</h2><div class="pd">' + esc(q.d) + '</div>' +
+          '<h2 class="pt">' + esc(q.p) + '<span class="sr"> · ตอบว่า' + esc(ansLabel(q, A[id])) + '</span>' + (A[id] === 'unsure' ? '<span class="unsure" aria-hidden="true">ไม่แน่ใจ</span>' : '') + '</h2><div class="pd">' + esc(q.d) + '</div>' +
           (tag ? '<div class="ptag">' + tag + '</div>' : '') +
           (fresh.length ? toolsHtml(fresh, 'เครื่องมือที่ช่วยหาแนวทางแก้ไข', seen) : '<div class="tools"><span class="tl">ใช้เครื่องมือเดียวกับด้านบน</span></div>') +
-          (lk ? '<button class="sbtn light" data-act="lab" data-k="' + lk + '">' + ICON.sliders + 'ปรับตัวเลขนี้</button>' : '') + '</div></div>';
+          (lk ? '<button class="sbtn light" data-act="lab" data-k="' + lk + '">' + ICON.sliders + 'แก้ตัวเลขนี้</button>' : '') + '</div></div>';
       }).join('') + '</div>';
     } else {
       out += '<div class="block">' + toolsHtml(TOPIC_TOOLS[state.topic], 'เครื่องมือที่ช่วยคิดเรื่องนี้', seen) + '</div>';
@@ -1097,7 +1132,7 @@
     return out + '</div></main>';
   }
 
-  /* ============================================================ LAB (ปรับตัวเลขของเรื่องนี้ — เปลี่ยนแล้วใช้ทันที) */
+  /* ============================================================ LAB (แก้ตัวเลขของเรื่องนี้ — เปลี่ยนแล้วใช้ทันที) */
   var LAB_KEYS = {
     hire: ['gain', 'salary', 'count', 'partRate', 'partHours', 'partDays', 'pieceRate', 'pieceShare', 'capAdd'],
     price: ['lostPct', 'raiseBy', 'raiseShare'], promo: ['lift', 'discPct', 'usePct', 'giftCost', 'afterPct', 'promoCost'],
@@ -1169,8 +1204,8 @@
       cs = R.conds.filter(function (x) { return x.id === 'need' || x.id === 'payneed'; });
     if (!cs.length) return R.one > 0 && (k === 'price' || k === 'setup' || k === 'moveCost') ? 'คืนทุน <b>' + payIn(R.payback) + '</b>' : '';
     return cs.map(function (c) {
-      if (c.value === null) return tw(c.label) + ' · <b>' + esc(c.payback ? payIn(null) : c.txt || '') + '</b>';
-      return tw(c.label) + ' <b>' + esc(c.payback ? payIn(c.value) : nf(c.value, c.unit)) + '</b>';
+      if (c.value === null) return clabel(c, ' · <b>' + esc(c.payback ? payIn(null) : c.txt || '') + '</b>');
+      return clabel(c, ' <b>' + esc(c.payback ? payIn(c.value) : nf(c.value, c.unit)) + '</b>');
     }).join('<br>');
   }
   function labPanel() {
@@ -1180,7 +1215,7 @@
     var s3 = Rr.need > 0.5 ? [Rr.B.hasCash ? 'เงินขาดมือ' : 'ต้องมีเงิน', fmtCompact(Rr.need)] : ['เงินต่ำสุด', fmtCompact(Rr.low)];
     var s2 = Rr.one > 0 ? ['คืนทุน', Rr.payback === null ? 'ไม่ได้' : fmtMonths(Rr.payback)] : [Rr.sumDiff < -0.5 ? 'กำไรลดใน 1 ปี' : 'กำไรเพิ่มใน 1 ปี', fmtCompact(Math.abs(Rr.sumDiff))];
     var c = Rr.conds.filter(function (x) { return x.id === 'need'; })[0];
-    var s1n = Rr.P && Rr.P.target ? 'กำไรเท่าเดิมที่' : 'จุดคุ้ม';
+    var s1n = Rr.P && Rr.P.target ? 'กำไรเท่าเดิมที่' : 'กำไรเท่าเดิม';
     var s1 = c && c.value !== null ? [s1n, nf(c.value, c.unit.charAt(0) === '%' ? '%' : '') + ' <small>' + esc(c.unit.charAt(0) === '%' ? c.unit.slice(1).trim() : c.unit) + '</small>'] : [s1n, '–'];
     return '<section class="lab3"><div class="dstrip"><div class="ds-a"><small>ไม่ทำ · กำไร/เดือน</small><b>' + plain(Rr.B.profit) + '</b></div>' +
       '<div class="ds-b"><small>ทำ · กำไร/เดือน</small><b>' + (Rr.profit < 0 ? '−' : '') + anim('lp', Rr.profit) + '</b><i>' + (Math.abs(d) < 0.5 ? 'เท่าเดิม' : dirSpan(d, fmtN(Math.abs(d)))) + '</i></div></div>' +
@@ -1224,12 +1259,12 @@
     }).join('');
     return rows ? '<div class="rv">' + rows + '</div>' : '';
   }
-  /* หน้าปรับตัวเลข: ที่เดียวสำหรับแก้ทุกตัวเลข — ตัวเลขของเรื่องนี้ (เลื่อน/พิมพ์ ใช้ทันที) + คำตอบอื่น + ตัวเลขร้าน */
+  /* หน้าแก้ตัวเลข: ที่เดียวสำหรับแก้ทุกตัวเลข — ตัวเลขของเรื่องนี้ (เลื่อน/พิมพ์ ใช้ทันที) + คำตอบอื่น + ตัวเลขร้าน */
   function viewLab() {
     var right = labChanged() ? '<button class="tb" data-act="lab-undo">' + ICON.undo + 'คืนค่าเดิม</button>' : '';
     var fromPts = state.labFrom === 'points';
-    return bar('<button class="tb" data-act="lab-back" aria-label="' + (fromPts ? 'กลับไปจุดที่ควรเช็ก' : 'กลับไปดูผล') + '">' + ICON.back + (fromPts ? 'กลับ' : 'ผล') + '</button>', 'ปรับตัวเลข', TOPICS[state.topic].title, right) +
-      '<main class="screen"><h1 class="sr">ปรับตัวเลข ' + esc(TOPICS[state.topic].title) + '</h1><div class="lab-top"><div class="wrap" id="labp">' + labPanel() + '</div></div><div class="wrap">' +
+    return bar('<button class="tb" data-act="lab-back" aria-label="' + (fromPts ? 'กลับไปจุดที่ควรตรวจสอบ' : 'กลับไปดูผล') + '">' + ICON.back + (fromPts ? 'กลับ' : 'ผล') + '</button>', 'แก้ตัวเลข', TOPICS[state.topic].title, right) +
+      '<main class="screen"><h1 class="sr">แก้ตัวเลข ' + esc(TOPICS[state.topic].title) + '</h1><div class="lab-top"><div class="wrap" id="labp">' + labPanel() + '</div></div><div class="wrap">' +
       (state.isSample ? '<div class="banner lab-bn"><span>กำลังใช้ตัวเลข' + esc(sampleName()) + '</span><button class="lnk" data-act="to-shop">ใส่ตัวเลขร้านคุณ</button></div>' : '') +
       '<div class="sec-h"><h2>ตัวเลขของเรื่องนี้</h2></div><p class="lab-note">เลื่อนหรือพิมพ์ ผลด้านบนเปลี่ยนทันที</p>' +
       '<div class="lgroup"><div class="lrows">' + labKeys().map(lrowHtml).join('') + '</div></div>' + otherAnswerRows() +
@@ -1276,6 +1311,7 @@
     else if (k !== 'salesPct' && k !== 'supSales' && v < 0) v = 0;
     var mx = dMax(k); if (mx !== null) v = Math.min(mx, v);
     dec()[k] = v;
+    if (dec()._unk) delete dec()._unk[dKey(k)];
     if (k === piv().key) delete state.wi[state.topic];
   }
 
@@ -1349,6 +1385,7 @@
   function refreshWizardLive() {
     var r = $('#rstrip'); if (r) { r.outerHTML = wizReceipt(); runAnim($('#rstrip')); }
     var steps = stepsFor(state.model), st = steps[state.step];
+    syncChips();
     $$('.field.need').forEach(function (x) { var kx = x.getAttribute('data-f'); if (kx && !wMissing({ f: [kx] })) { x.classList.remove('need'); var mm = $('.need-msg', x); if (mm) mm.remove(); } });
     FIELDS.forEach(function (fd) { if (!fd.show) return; var node = $('.field[data-f="' + fd.k + '"]'); if (node) node.hidden = !fd.show(state.inp, state.model); });
   }
@@ -1368,8 +1405,10 @@
       var e = $('#err-' + k); if (e) { var m = dErr(k, d); e.textContent = m; e.hidden = !m; var ib = $('.inbox', node); if (ib) ib.classList.toggle('bad', !!m); }
       $$('[data-act="dquick"][data-k="' + k + '"]', node).forEach(function (b) {
         var f = dDef(k), q = f.quick[+b.getAttribute('data-i')], qv = q[1](state.inp, state.model), cv = num(dGet(d, k));
-        b.setAttribute('aria-pressed', String(cv !== null && qv !== null && Math.abs(cv - qv) < 1e-9));
+        b.setAttribute('aria-pressed', String(!dUnk(d, k) && cv !== null && qv !== null && Math.abs(cv - qv) < 1e-9));
       });
+      var ub = $('[data-act="dunk"][data-k="' + k + '"]', node); if (ub) ub.setAttribute('aria-pressed', String(dUnk(d, k)));
+      var uh = $('[data-unk-hint="' + k + '"]', node); if (uh) uh.hidden = !dUnk(d, k);
     });
   }
 
@@ -1383,6 +1422,7 @@
     if (M.units && !state.inp.unitLabel) state.inp.unitLabel = M.defUnit;
     if (m === 'subscription' && !state.inp.cycle) state.inp.cycle = 1;
     if (m === 'rental' && !state.inp.periodKind) state.inp.periodKind = 'night';
+    advNormalize(state.inp, m);
     state.isSample = !!sample; state.answers = {}; state.qidx = 0; state.active = null; state.step = 0; state.editing = false;
     state.ds = {}; state.wi = {}; state.dsign = {}; state.dstep = 0; state.dediting = false;
     state.feeHelp = false; state.fh = { share: '', rate: '' };
@@ -1570,7 +1610,7 @@
       }
       case 'dquick': {
         var kq = t.getAttribute('data-k'), fq = dDef(kq), qv = fq.quick[+t.getAttribute('data-i')][1](state.inp, m);
-        if (qv !== null && qv !== undefined) dec()[dKey(kq)] = qv;
+        if (qv !== null && qv !== undefined) { dec()[dKey(kq)] = qv; if (dec()._unk) delete dec()._unk[dKey(kq)]; }
         go('dq', false); var qb = $('[data-act="dquick"][data-k="' + kq + '"][data-i="' + t.getAttribute('data-i') + '"]'); if (qb) qb.focus();
         break;
       }
@@ -1619,6 +1659,31 @@
           state.inp.volumePer = nv; go('wizard', false);
         }
         break;
+      }
+      case 'dunk': {
+        var ku = t.getAttribute('data-k'), dd = dec();
+        dd[dKey(ku)] = 0; dd._unk = dd._unk || {}; dd._unk[dKey(ku)] = true;
+        go('dq', false); var dub = $('[data-act="dunk"][data-k="' + ku + '"]'); if (dub) dub.focus(); break;
+      }
+      case 'fchip': {
+        var ck = t.getAttribute('data-k'), cf = fieldDef(ck);
+        state.inp[ck] = cf.chip[1]; if (state.inp.advUnk) delete state.inp.advUnk[ck];
+        go('wizard', false); var cb = $('[data-act="fchip"][data-k="' + ck + '"]'); if (cb) cb.focus(); break;
+      }
+      case 'funk': {
+        var uk = t.getAttribute('data-k');
+        delete state.inp[uk]; state.inp.advUnk = state.inp.advUnk || {}; state.inp.advUnk[uk] = true;
+        go('wizard', false); var ubb = $('[data-act="funk"][data-k="' + uk + '"]'); if (ubb) ubb.focus(); break;
+      }
+      case 'advmode': {
+        var av = t.getAttribute('data-v');
+        if (av === 'no') { advGroupsFor(m).forEach(function (g) { advClearGroup(state.inp, m, g[0]); }); state.inp.advPick = []; delete state.inp.advUnk; }
+        state.inp.advMode = av; go('wizard', false); var amb = $('[data-act="advmode"][data-v="' + av + '"]'); if (amb) amb.focus(); break;
+      }
+      case 'advpick': {
+        var g = t.getAttribute('data-g'), P = (state.inp.advPick || []).slice(), gi = P.indexOf(g);
+        if (gi >= 0) { P.splice(gi, 1); advClearGroup(state.inp, m, g); } else P.push(g);
+        state.inp.advPick = P; go('wizard', false); var gb = $('[data-act="advpick"][data-g="' + g + '"]'); if (gb) gb.focus(); break;
       }
       case 'unit': state.inp.unitLabel = t.getAttribute('data-v'); go('wizard', false); break;
       case 'cycle': state.inp.cycle = +t.getAttribute('data-v'); go('wizard', false); break;
@@ -1687,11 +1752,13 @@
     var el = e.target;
     if (el.hasAttribute('data-k')) {
       state.inp[el.getAttribute('data-k')] = parseInput(el);
+      if (state.inp.advUnk) delete state.inp.advUnk[el.getAttribute('data-k')];
       refreshWizardLive(); save();
     } else if (el.hasAttribute('data-dk')) {
       var dk = el.getAttribute('data-dk'), f = dDef(dk), pv0 = parseInput(el);
       if (f.t === 'signed' && pv0 !== null) { var curS = num(dec()[dk]); var sg = curS !== null && curS !== 0 ? (curS < 0 ? -1 : 1) : (state.dsign[dk] || 1); pv0 = Math.abs(pv0) * sg; }
       dec()[dKey(dk)] = pv0;
+      if (dec()._unk) delete dec()._unk[dKey(dk)];
       refreshDqLive(); save();
     } else if (el.hasAttribute('data-fh')) {
       state.fh[el.getAttribute('data-fh')] = el.value;

@@ -560,7 +560,7 @@ function dPivot0(inp, m, T, d) {
     price: [[0, 'ไม่มีใครหาย', 'abs'], [1, 'ที่คุณคาด'], [2, 'หาย 2 เท่า']],
     promo: [[0, 'ยอดไม่เพิ่ม', 'abs'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], freeship: [[0, 'ยอดไม่เพิ่ม', 'abs'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']] }[T];
   /* เรื่องที่มีเงินก้อน: กำไรต่อเดือนเท่าเดิมยังไม่พอ ต้องได้เงินก้อนคืนด้วย
-     เป้าคืนทุน = อายุเครื่อง (ซื้ออุปกรณ์) หรือ 3 ปี (ย้ายร้าน เปิดสาขา) แล้วหาค่าที่ทำให้คืนทุนทันเป้า */
+     เป้าคืนทุน = อายุเครื่อง (ซื้ออุปกรณ์) · ปีที่ผู้ใช้เลือก (ย้ายร้าน เปิดสาขา) · 3 ปี (ของใหม่) แล้วหาค่าที่ทำให้คืนทุนทันเป้า  */
   var one = dBuild(inp, m, T, d, { lv: 1, f: 1 }).one;
   P.one = one;
   /* ยอดสูงสุดที่ร้านทำได้ (ย้ายร้าน สาขา) ใช้บอกว่าเงื่อนไขเกินกำลังร้าน */
@@ -573,16 +573,18 @@ function dPivot0(inp, m, T, d) {
     if (cb) { P.capMax = P.pct ? (cb / cur - 1) * 100 : cb - cur; P.capTxt = 'ร้านขายเต็มกำลัง ' + fmtN(cb) + '\u00a0' + gainUnit(inp, m); P.capNote = 'ร้านทำได้สูงสุด ' + fmtN(cb) + ' ' + gainUnit(inp, m); }
   }
   P.needOver = P.need !== null && P.capMax !== null && P.need > P.capMax + 1e-9;
-  /* เป้าคืนทุน 3 ปี: เฉพาะเรื่องที่มีเงินก้อนใหญ่ที่กำไรต่อเดือนยังไม่ได้นับ (ซื้ออุปกรณ์หักค่าเสื่อมในกำไรแล้ว · จัดโปรจบในปี) */
+  /* เป้าคืนทุน (ปีที่ผู้ใช้เลือก หรือ 3 ปี): เฉพาะเรื่องที่มีเงินก้อนใหญ่ที่กำไรต่อเดือนยังไม่ได้นับ (ซื้ออุปกรณ์หักค่าเสื่อมในกำไรแล้ว · จัดโปรจบในปี) */
   if (one > 0 && (T === 'place' || T === 'branch' || T === 'newprod') && (be.kind === 'value' || be.kind === 'zero')) {
-    P.target = 36;
-    P.targetTxt = 'คืนทุนภายใน 3\u00a0ปี';
+    /* ย้ายร้าน เปิดสาขา: ผู้ใช้เลือกเป้าเอง (1 / 2 / 3 / 5 ปี) · ของใหม่ใช้ 3 ปี */
+    P.targetYears = T === 'place' || T === 'branch' ? pos(d.payYears) || 3 : 3;
+    P.target = 12 * P.targetYears;
+    P.targetTxt = 'คืนทุนภายใน ' + fmtN(P.targetYears) + '\u00a0ปี';
     var pb = function (v) { var R = dEval(inp, m, T, P.set(d, v)); return R.ok && R.payback !== null ? R.payback : Infinity; };
     var lo2 = Math.max(P.lo, P.need || P.lo), hi2 = Math.max(P.hi, (P.need || 0) * 2, 1) * 4;
-    P.payNeed = null; P.payNo = 'ยอดเท่าไรก็คืนทุนไม่ทันใน 3\u00a0ปี';
+    P.payNeed = null; P.payNo = 'ยอดเท่าไรก็คืนทุนไม่ทันใน ' + fmtN(P.targetYears) + '\u00a0ปี';
     if (pb(hi2) <= P.target) {
       for (var i = 0; i < 26; i++) { var mid = (lo2 + hi2) / 2; if (pb(mid) <= P.target) hi2 = mid; else lo2 = mid; }
-      if (P.capMax !== null && hi2 > P.capMax + 1e-9) P.payNo = 'ต่อให้' + P.capTxt + ' ก็คืนทุนไม่ทันใน 3\u00a0ปี';
+      if (P.capMax !== null && hi2 > P.capMax + 1e-9) P.payNo = 'ต่อให้' + P.capTxt + ' ก็คืนทุนไม่ทันใน ' + fmtN(P.targetYears) + '\u00a0ปี';
       else if (P.need !== null && hi2 - P.need < P.step) { P.target = null; P.targetTxt = null; } /* เงินก้อนเล็ก: คืนทุน 3 ปีที่จุดเดียวกับจุดคุ้ม ไม่ต้องแยกบอก */
       else {
         P.payNeed = hi2;
@@ -641,8 +643,8 @@ function dConds(R, inp, m, T, d) {
     var pn = needAt(P, P.payNeed, m, P.have), hp = pn !== null ? haveAt(P.have, pn, true) : null;
     if (pn !== null) C.push({ id: 'payneed', label: 'ถ้าจะ' + P.targetTxt + ' ' + P.lab + 'อย่างน้อย', value: pn,
       raw: P.payNeed, unit: u, have: P.have, haveShown: hp, lever: P.key, status: hp >= pn - 1e-9 ? 'ok' : 'short',
-      sub: 'นับเงินก้อน ' + fmtN(P.one) + ' บาทด้วย · 3 ปีเป็นระยะที่ใช้เทียบเท่านั้น' });
-    else C.push({ id: 'payneed', label: 'ถ้าจะ' + P.targetTxt, value: null, txt: P.payNo, unit: u, lever: P.key, status: 'short', sub: 'นับเงินก้อน ' + fmtN(P.one) + ' บาทด้วย · 3 ปีเป็นระยะที่ใช้เทียบเท่านั้น' });
+      sub: 'นับเงินก้อน ' + fmtN(P.one) + ' บาทด้วย' + (T === 'place' || T === 'branch' ? '' : ' · 3 ปีเป็นระยะที่ใช้เทียบเท่านั้น') });
+    else C.push({ id: 'payneed', label: 'ถ้าจะ' + P.targetTxt, value: null, txt: P.payNo, unit: u, lever: P.key, status: 'short', sub: 'นับเงินก้อน ' + fmtN(P.one) + ' บาทด้วย' + (T === 'place' || T === 'branch' ? '' : ' · 3 ปีเป็นระยะที่ใช้เทียบเท่านั้น') });
   }
   /* 2) กำลังรับ */
   if ((T === 'hire' || T === 'equip') && isVolModel(m) && pos(inp.capacity) && P.need !== null && P.need > 0) {
@@ -690,7 +692,7 @@ function dConds(R, inp, m, T, d) {
   /* 5) คืนทุน */
   if (R.one > 0 && T !== 'promo') {
     var life = T === 'equip' && pos(d.life) ? pos(d.life) * 12 : null;
-    C.push({ id: 'pay', label: { place: 'เงินค่าย้ายคืนทุน', equip: 'ค่าเครื่องคืนทุน', branch: 'เงินลงทุนสาขาคืนทุน', newprod: 'เงินที่ลงตอนเริ่มคืนทุน', ads: 'ค่าทำโฆษณาคืนทุน', supplier: 'ค่าเปลี่ยนเจ้าคืนทุน' }[T],
+    C.push({ id: 'pay', label: { place: 'เงินค่าย้ายคืนทุน', equip: 'ค่าเครื่องคืนทุน', branch: 'เงินลงทุนสาขาคืนทุน', newprod: 'เงินที่ลงตอนเริ่มคืนทุน', ads: 'ค่าทำโฆษณาคืนทุน', supplier: 'ค่าเปลี่ยนซัพพลายเออร์คืนทุน' }[T],
       value: R.payback, unit: 'เดือน', payback: true,
       lever: { place: 'moveCost', equip: 'price', branch: 'setup', newprod: 'npSetup', ads: 'adSetup', supplier: 'switchCost' }[T],
       status: R.payback === null || R.payback > 120 ? 'short' : life ? (R.payback <= life ? 'ok' : 'short') : 'info',
@@ -730,7 +732,7 @@ function dConds(R, inp, m, T, d) {
   var payM = T === 'hire' ? R.st.b.fx.filter(function (a) { return a[0] === 'newstaff'; }).reduce(function (a, x) { return a + x[2]; }, 0) : T === 'freelance' ? n0(d.flFee) : 0;
   if ((T === 'hire' || (T === 'freelance' && !isKind(d, 'live'))) && n0(d.hours) > 0 && payM > 0) {
     var days = T === 'hire' && isKind(d, 'part') && pos(d.partDays) ? pos(d.partDays) : daysOf(inp);
-    C.push({ id: 'hour', label: 'จ่ายเพื่อได้เวลาของคุณคืน ชั่วโมงละ', value: payM / (n0(d.hours) * days), unit: 'บาท', status: 'info', lever: 'hours',
+    C.push({ id: 'hour', label: 'คุณจ่ายประมาณ {v} เพื่อให้ได้เวลาคืนมา 1 ชั่วโมง', value: payM / (n0(d.hours) * days), unit: 'บาท', status: 'info', lever: 'hours',
       sub: (T === 'hire' ? 'ค่าจ้างคนใหม่' : 'ค่าจ้างฟรีแลนซ์') + ' ÷ (' + fmtN(n0(d.hours)) + ' ชั่วโมง × ' + fmtN(days) + ' วัน)' });
   }
   return C;
@@ -766,7 +768,7 @@ function dSummary(T, d, inp, m) {
   if (T === 'newprod') return (isKind(d, 'addon') ? 'เพิ่มของขายพ่วง' : 'เพิ่มของใหม่') + ' ราคา ' + fmtN(n0(d.npPrice), 2) + ' บาท';
   if (T === 'freeship') return isKind(d, 'part') ? 'ช่วยค่าส่งออร์เดอร์ละ ' + fmtN(n0(d.shipCost)) + ' บาท' : isKind(d, 'min') ? 'ส่งฟรีเมื่อซื้อถึงขั้นต่ำ' : 'ส่งฟรีทุกออร์เดอร์';
   if (T === 'ads') return 'ยิงโฆษณา' + (kindName(T, d, inp, m) ? ' ' + kindName(T, d, inp, m) : '') + ' เดือนละ ' + fmtN(n0(d.adBudget)) + ' บาท';
-  if (T === 'supplier') return 'เปลี่ยนเจ้าใหม่ ต้นทุน' + U(inp, m) + 'ละ ' + fmtN(n0(d.newCost), 2) + ' บาท';
+  if (T === 'supplier') return 'เปลี่ยนซัพพลายเออร์ ต้นทุน' + U(inp, m) + 'ละ ' + fmtN(n0(d.newCost), 2) + ' บาท';
   if (T === 'freelance') return 'จ้าง' + (kindName(T, d, inp, m) || 'ฟรีแลนซ์') + ' เดือนละ ' + fmtN(n0(d.flFee)) + ' บาท';
   if (T === 'place') return 'ย้ายไปที่ใหม่ ค่าเช่า ' + fmtN(n0(d.newRent)) + ' บาท';
   if (T === 'channel') return tj('ขายผ่าน', d.chName || 'ช่องทางใหม่');

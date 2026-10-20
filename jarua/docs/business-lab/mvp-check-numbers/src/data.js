@@ -90,16 +90,19 @@ var MODELS = {
     tile: 'นายหน้า / ตัวแทน', short: 'อสังหาฯ ประกัน',
     title: 'นายหน้า หรือตัวแทน ได้ค่าคอม', ex: 'นายหน้าอสังหาฯ ตัวแทนประกัน ตัวแทนขายรถ',
     sample: { dealsPerMonth: 1.5, avgDealValue: 2500000, commissionPct: 3, splitPct: 30,
-      staffCount: 0, staffSalary: 0, ownerSalary: 20000, rent: 0, marketing: 15000, otherFixed: 5000, cash: 50000 }
+      staffCount: 0, staffSalary: 0, ownerSalary: 20000, rent: 0, marketing: 15000, otherFixed: 5000, cash: 50000, advMode: 'no' }
   },
   other: {
-    tile: 'รายได้อื่นรายเดือน', short: 'สปอนเซอร์ ลิขสิทธิ์',
-    title: 'รายได้อื่นเป็นก้อนต่อเดือน', ex: 'ค่าสปอนเซอร์ ค่าลิขสิทธิ์ ค่าที่ปรึกษารายเดือน',
-    sample: { amount: 40000, costPct: 10, staffCount: 0, staffSalary: 0, ownerSalary: 15000, rent: 0, marketing: 2000, otherFixed: 5000, cash: 30000 }
+    tile: 'รับเงินรายเดือนแบบคงที่', short: 'เช่น สปอนเซอร์ ค่าที่ปรึกษารายเดือน',
+    title: 'รับเงินรายเดือนแบบคงที่', ex: 'สปอนเซอร์ ค่าที่ปรึกษารายเดือน',
+    sample: { amount: 40000, costPct: 10, staffCount: 0, staffSalary: 0, ownerSalary: 15000, rent: 0, marketing: 2000, otherFixed: 5000, cash: 30000, advMode: 'no' }
   }
 };
 
 function isVolModel(m) { return m === 'unit' || m === 'service' || m === 'resell'; }
+/* คำถามทุกข้อบนหน้าจอลงท้ายด้วย "?" (เจ้าของตกลง) · ข้อที่มี "?" อยู่แล้วไม่เติมซ้ำ */
+var Q_WORDS = /(กี่|ไหม|เท่าไหร่|เท่าไร|อะไร|ที่ไหน|อย่างไร|แค่ไหน|หรือยัง|ไหน\s*$)/;
+function qmark(s) { s = String(s); return s.indexOf('?') >= 0 || !Q_WORDS.test(s) ? s : s.replace(/\s+$/, '') + '?'; }
 
 /* ---------- ช่องกรอก ----------
    g = กลุ่ม (sell / var / fixed / cash / adv-*) · t = ชนิด · req = ต้องกรอก */
@@ -129,7 +132,7 @@ var FIELDS = [
       if (m === 'resell') return 'รวมค่าส่งเข้าร้าน ยังไม่รวมค่าเช่าและเงินเดือน';
       return 'ค่าวัตถุดิบและบรรจุภัณฑ์ที่ใช้ทำ 1 ' + U(i, m) + ' ยังไม่รวมค่าเช่าและเงินเดือน';
     } },
-  { k: 'feePct', g: 'var', t: 'pct', models: ['unit', 'service', 'resell'], label: function () { return 'ค่าธรรมเนียมที่โดนหักจากยอดขาย'; },
+  { k: 'feePct', g: 'var', t: 'pct', req: true, chip: ['ไม่มี', 0], models: ['unit', 'service', 'resell'], label: function () { return 'ค่าธรรมเนียมที่โดนหักจากยอดขาย'; },
     help: function () { return 'เช่น ส่วนแบ่งแอปส่งอาหาร มาร์เก็ตเพลส ค่าธรรมเนียมบัตร ถ้าขายผ่านช่องทางนี้แค่บางส่วน ใส่ค่าเฉลี่ยของยอดขายทั้งหมด'; },
     suf: function () { return '% ของยอดขาย'; } },
 
@@ -139,17 +142,17 @@ var FIELDS = [
   { k: 'members', g: 'sell', t: 'int', req: true, models: ['subscription'], suf: function () { return 'คน'; }, label: function () { return 'สมาชิกตอนนี้'; } },
   { k: 'newMembers', g: 'sell', t: 'dec', req: true, models: ['subscription'], suf: function () { return 'คน'; }, label: function () { return 'สมาชิกใหม่ต่อเดือน'; } },
   { k: 'leaving', g: 'sell', t: 'dec', req: true, models: ['subscription'], suf: function () { return 'คน'; }, label: function () { return 'สมาชิกที่เลิกต่อเดือน'; } },
-  { k: 'costPerMember', g: 'var', t: 'money', models: ['subscription'], label: function () { return 'ต้นทุนต่อสมาชิก 1 คนต่อเดือน'; },
+  { k: 'costPerMember', g: 'var', t: 'money', req: true, chip: ['ไม่มี', 0], models: ['subscription'], label: function () { return 'ต้นทุนต่อสมาชิก 1 คนต่อเดือน'; },
     help: function () { return 'ของหรือบริการที่ให้สมาชิก เช่น น้ำดื่ม ผ้าเช็ดตัว อาหาร ของในกล่อง'; } },
-  { k: 'feePct', g: 'var', t: 'pct', models: ['subscription'], label: function () { return 'ค่าธรรมเนียมรับชำระเงิน'; }, suf: function () { return '% ของยอดขาย'; } },
+  { k: 'feePct', g: 'var', t: 'pct', req: true, chip: ['ไม่มี', 0], models: ['subscription'], label: function () { return 'ค่าธรรมเนียมรับชำระเงิน'; }, suf: function () { return '% ของยอดขาย'; } },
 
   /* ----- project ----- */
   { k: 'projectValue', g: 'sell', t: 'money', req: true, models: ['project'], label: function () { return 'มูลค่าเฉลี่ยต่องาน'; } },
   { k: 'projectsPerYear', g: 'sell', t: 'dec', req: true, models: ['project'], suf: function () { return 'งาน'; }, label: function () { return 'ได้งานปีละ'; } },
   { k: 'durationMonths', g: 'sell', t: 'dec', req: true, models: ['project'], suf: function () { return 'เดือน'; }, label: function () { return 'งานหนึ่งใช้เวลาทำประมาณ'; } },
-  { k: 'depositPct', g: 'sell', t: 'pct', models: ['project'], suf: function () { return '% ของมูลค่างาน'; }, label: function () { return 'เก็บมัดจำก่อนเริ่มงาน'; } },
-  { k: 'directCostPct', g: 'var', t: 'pct', req: true, models: ['project'], suf: function () { return '% ของมูลค่างาน'; }, label: function () { return 'ต้นทุนตรงของงาน'; },
-    help: function () { return 'ค่าวัสดุ และค่าจ้างช่างหรือฟรีแลนซ์ที่จ้างเฉพาะงานนั้น'; } },
+  { k: 'depositPct', g: 'sell', t: 'pct', req: true, chip: ['ไม่มี', 0], models: ['project'], suf: function () { return '% ของมูลค่างาน'; }, label: function () { return 'เก็บมัดจำก่อนเริ่มงาน'; } },
+  { k: 'directCostPct', g: 'var', t: 'pct', req: true, models: ['project'], suf: function () { return '% ของมูลค่างาน'; }, label: function () { return 'ต้นทุนของแต่ละงาน'; },
+    help: function () { return 'เช่น ค่าวัสดุและค่าจ้างคนที่จ้างมาทำงานนั้นโดยเฉพาะ'; } },
 
   /* ----- rental ----- */
   { k: 'unitLabel', g: 'sell', t: 'unit', models: ['rental'], label: function () { return 'ให้เช่าอะไร'; } },
@@ -158,55 +161,54 @@ var FIELDS = [
   { k: 'pricePerPeriod', g: 'sell', t: 'money', req: true, models: ['rental'], label: function (i) { return 'ราคาเฉลี่ยต่อ' + periodWord(i); } },
   { k: 'occupancy', g: 'sell', t: 'pct', req: true, models: ['rental'], suf: function () { return '%'; }, label: function () { return 'มีคนเช่าเฉลี่ย'; },
     help: function (i) { return i.periodKind === 'month' ? 'จากทั้งหมดที่มี มีคนเช่ากี่ %' : 'เช่น 30 คืน มีคนเช่า 12 คืน = 40%'; } },
-  { k: 'costPerOccupied', g: 'var', t: 'money', models: ['rental'], label: function (i) { return 'ค่าใช้จ่ายต่อ' + periodWord(i) + 'ที่มีคนเช่า'; },
+  { k: 'costPerOccupied', g: 'var', t: 'money', req: true, chip: ['ไม่มี', 0], models: ['rental'], label: function (i) { return 'ค่าใช้จ่ายต่อ' + periodWord(i) + 'ที่มีคนเช่า'; },
     help: function () { return 'ค่าน้ำไฟที่เพิ่มขึ้น ของใช้ ซักผ้า'; } },
-  { k: 'feePct', g: 'var', t: 'pct', models: ['rental'], label: function () { return 'ค่าธรรมเนียมแพลตฟอร์มจอง'; }, suf: function () { return '% ของยอดขาย'; } },
+  { k: 'feePct', g: 'var', t: 'pct', req: true, chip: ['ไม่มี', 0], models: ['rental'], label: function () { return 'ค่าธรรมเนียมแพลตฟอร์มจอง'; }, suf: function () { return '% ของยอดขาย'; } },
 
   /* ----- commission ----- */
   { k: 'dealsPerMonth', g: 'sell', t: 'dec', req: true, models: ['commission'], suf: function () { return 'ดีล'; }, label: function () { return 'ปิดดีลได้เดือนละ'; } },
   { k: 'avgDealValue', g: 'sell', t: 'money', req: true, models: ['commission'], label: function () { return 'มูลค่าเฉลี่ยต่อดีล'; } },
   { k: 'commissionPct', g: 'sell', t: 'pct', req: true, models: ['commission'], suf: function () { return '% ของมูลค่าดีล'; }, label: function () { return 'ค่าคอมที่ได้'; } },
-  { k: 'splitPct', g: 'var', t: 'pct', models: ['commission'], suf: function () { return '% ของค่าคอม'; }, label: function () { return 'แบ่งให้ทีมหรือบริษัท'; } },
+  { k: 'splitPct', g: 'var', t: 'pct', req: true, chip: ['ไม่มี', 0], models: ['commission'], suf: function () { return '% ของค่าคอม'; }, label: function () { return 'แบ่งให้ทีมหรือบริษัท'; } },
 
   /* ----- other ----- */
   { k: 'amount', g: 'sell', t: 'money', req: true, models: ['other'], label: function () { return 'ได้เงินเดือนละ'; } },
-  { k: 'costPct', g: 'var', t: 'pct', models: ['other'], suf: function () { return '% ของรายได้'; }, label: function () { return 'ต้นทุนที่เกิดจากรายได้นี้'; } },
+  { k: 'costPct', g: 'var', t: 'pct', req: true, chip: ['ไม่มี', 0], models: ['other'], suf: function () { return '% ของรายได้'; }, label: function () { return 'ต้นทุนที่เกิดจากรายได้นี้'; } },
 
   /* ----- ค่าใช้จ่ายคงที่ (ทุกรูปแบบ) ----- */
-  { k: 'staffCount', g: 'fixed', t: 'int', suf: function () { return 'คน'; }, label: function () { return 'พนักงาน (ไม่นับคุณ)'; } },
-  { k: 'staffSalary', g: 'fixed', t: 'money', label: function () { return 'เงินเดือนพนักงานเฉลี่ยต่อคน'; }, show: function (i) { return num(i.staffCount) > 0; } },
-  { k: 'ownerSalary', g: 'fixed', t: 'money', label: function () { return 'เงินเดือนคุณเอง'; },
+  { k: 'staffCount', g: 'fixed', t: 'int', req: true, chip: ['ไม่มี', 0], suf: function () { return 'คน'; }, label: function () { return 'พนักงาน (ไม่นับคุณ)'; } },
+  { k: 'staffSalary', g: 'fixed', t: 'money', req: true, label: function () { return 'เงินเดือนพนักงานเฉลี่ยต่อคน'; }, show: function (i) { return num(i.staffCount) > 0; } },
+  { k: 'ownerSalary', g: 'fixed', t: 'money', req: true, chip: ['ไม่มี', 0], label: function () { return 'เงินเดือนคุณเอง'; },
     help: function () { return 'ถ้ายังไม่ได้จ่ายตัวเอง ลองใส่เงินที่คุณควรได้ถ้าไปทำงานที่อื่น หรือใส่ 0'; } },
-  { k: 'rent', g: 'fixed', t: 'money', label: function () { return 'ค่าเช่าที่'; } },
-  { k: 'marketing', g: 'fixed', t: 'money', label: function () { return 'งบการตลาดและโฆษณา'; } },
-  { k: 'otherFixed', g: 'fixed', t: 'money', label: function () { return 'ค่าใช้จ่ายคงที่อื่น'; },
+  { k: 'rent', g: 'fixed', t: 'money', req: true, chip: ['ไม่มี', 0], label: function () { return 'ค่าเช่าที่'; } },
+  { k: 'marketing', g: 'fixed', t: 'money', req: true, chip: ['ไม่มี', 0], label: function () { return 'งบการตลาดและโฆษณา'; } },
+  { k: 'otherFixed', g: 'fixed', t: 'money', req: true, chip: ['ไม่มี', 0], label: function () { return 'ค่าใช้จ่ายคงที่อื่น'; },
     help: function () { return 'ค่าน้ำ ค่าไฟ อินเทอร์เน็ต ค่าส่วนกลาง ค่าผ่อนอุปกรณ์'; } },
-  { k: 'cash', g: 'cash', t: 'money', label: function () { return 'เงินสดที่ใช้หมุนในร้านตอนนี้'; },
-    help: function () { return 'เงินในบัญชีและเงินสดที่เอามาใช้กับร้านได้จริง'; } },
+  { k: 'cash', g: 'cash', t: 'money', req: true, chip: ['ไม่มี', 0], label: function () { return 'เงินสดพร้อมใช้'; },
+    help: function () { return 'รวมเงินในบัญชีธนาคารและเงินสดที่มีอยู่'; } },
 
   /* ----- รายละเอียดเพิ่ม ----- */
-  { k: 'growth', g: 'adv-grow', t: 'pct', neg: true, models: ['unit', 'service', 'resell', 'project', 'rental', 'commission', 'other'],
+  { k: 'growth', g: 'adv-grow', t: 'pct', chip: ['เท่าเดิม', 0], neg: true, models: ['unit', 'service', 'resell', 'project', 'rental', 'commission', 'other'],
     suf: function () { return '% ต่อเดือน'; },
     label: function (i, m) { return m === 'rental' ? 'คนเช่าเพิ่มขึ้นเดือนละ' : m === 'project' ? 'งานเพิ่มขึ้นเดือนละ' : 'ยอดขายโตขึ้นเดือนละ'; },
-    help: function () { return 'ถ้าไม่รู้ ใส่ 0 · ถ้ายอดลดลงทุกเดือน ใส่ติดลบ เช่น -2'; } },
-  { k: 'capacity', g: 'adv-grow', t: 'dec', models: ['unit', 'service', 'resell'],
+    help: function () { return 'ถ้ายอดลดลงทุกเดือน ใส่ติดลบ เช่น -2'; } },
+  { k: 'capacity', g: 'adv-grow', t: 'dec', unk: true, models: ['unit', 'service', 'resell'],
     suf: function (i, m) { return U(i, m) + '/' + perWord(i); },
-    label: function (i, m) { return m === 'resell' ? 'หาของมาขายหรือส่งของได้สูงสุด' : m === 'service' ? 'รับลูกค้าได้สูงสุด' : 'ทำได้สูงสุด'; },
-    help: function () { return 'ถ้าไม่รู้ เว้นว่างไว้'; } },
-  { k: 'maxMembers', g: 'adv-grow', t: 'int', models: ['subscription'], suf: function () { return 'คน'; }, label: function () { return 'รับสมาชิกได้สูงสุด'; } },
-  { k: 'joinFee', g: 'adv-grow', t: 'money', models: ['subscription'], label: function () { return 'ค่าแรกเข้า'; } },
-  { k: 'maxConcurrent', g: 'adv-grow', t: 'dec', models: ['project'], suf: function () { return 'งาน'; }, label: function () { return 'รับงานพร้อมกันได้สูงสุด'; } },
-  { k: 'maxDeals', g: 'adv-grow', t: 'dec', models: ['commission'], suf: function () { return 'ดีล'; }, label: function () { return 'ดูแลดีลได้สูงสุดเดือนละ'; } },
+    label: function (i, m) { return m === 'resell' ? 'หาของมาขายหรือส่งของได้สูงสุด' : m === 'service' ? 'รับลูกค้าได้สูงสุด' : 'ทำได้สูงสุด'; } },
+  { k: 'maxMembers', g: 'adv-grow', t: 'int', unk: true, models: ['subscription'], suf: function () { return 'คน'; }, label: function () { return 'รับสมาชิกได้สูงสุด'; } },
+  { k: 'joinFee', g: 'adv-grow', t: 'money', chip: ['ไม่มี', 0], models: ['subscription'], label: function () { return 'ค่าแรกเข้า'; } },
+  { k: 'maxConcurrent', g: 'adv-grow', t: 'dec', unk: true, models: ['project'], suf: function () { return 'งาน'; }, label: function () { return 'รับงานพร้อมกันได้สูงสุด'; } },
+  { k: 'maxDeals', g: 'adv-grow', t: 'dec', unk: true, models: ['commission'], suf: function () { return 'ดีล'; }, label: function () { return 'ดูแลดีลได้สูงสุดเดือนละ'; } },
   { k: 'avgStay', g: 'adv-grow', t: 'dec', models: ['rental'], suf: function (i) { return periodWord(i); }, label: function () { return 'ลูกค้าเช่าครั้งละ'; } },
-  { k: 'costPerStay', g: 'adv-grow', t: 'money', models: ['rental'], label: function () { return 'ค่าทำความสะอาดต่อการเช่า 1 ครั้ง'; } },
+  { k: 'costPerStay', g: 'adv-grow', t: 'money', chip: ['ไม่มี', 0], models: ['rental'], label: function () { return 'ค่าทำความสะอาดต่อการเช่า 1 ครั้ง'; } },
 
-  { k: 'creditDays', g: 'adv-cash', t: 'int', suf: function () { return 'วัน'; },
+  { k: 'creditDays', g: 'adv-cash', t: 'int', chip: ['ไม่มี', 0], suf: function () { return 'วัน'; },
     label: function (i, m) { return m === 'project' ? 'ลูกค้าจ่ายงวดสุดท้ายหลังจบงาน' : 'ลูกค้าจ่ายเงินหลังได้ของหรือบริการ'; },
     help: function () { return 'ถ้าลูกค้าจ่ายทันที ใส่ 0'; } },
-  { k: 'stockDays', g: 'adv-cash', t: 'int', models: ['unit', 'resell'], suf: function () { return 'วัน'; },
+  { k: 'stockDays', g: 'adv-cash', t: 'int', chip: ['ไม่มี', 0], models: ['unit', 'resell'], suf: function () { return 'วัน'; },
     label: function () { return 'ซื้อของมาเก็บไว้ก่อนขายได้ประมาณ'; } },
-  { k: 'supplierCreditDays', g: 'adv-cash', t: 'int', models: ['unit', 'resell'], suf: function () { return 'วัน'; },
-    label: function () { return 'จ่ายค่าของให้คนขายหลังได้ของ'; } },
+  { k: 'supplierCreditDays', g: 'adv-cash', t: 'int', chip: ['ไม่มี', 0], models: ['unit', 'resell'], suf: function () { return 'วัน'; },
+    label: function () { return 'จ่ายเงินให้ซัพพลายเออร์หลังได้ของ'; } },
   { k: 'season', g: 'adv-season', t: 'season', models: ['unit', 'service', 'resell', 'subscription', 'project', 'rental', 'commission'], label: function () { return 'ช่วงขายดีและขายแย่ของปี'; } },
 
   { k: 'newCustomers', g: 'adv-cust', t: 'dec', models: ['unit', 'service', 'resell'], suf: function () { return 'คน'; }, label: function () { return 'ได้ลูกค้าใหม่เดือนละ'; } },
@@ -225,17 +227,62 @@ var GROUPS = {
       project: 'งานที่รับ', rental: 'ของที่ให้เช่า', commission: 'ดีลที่ปิดได้', other: 'รายได้' };
     return [t[m], ''];
   },
-  var: function () { return ['ต้นทุนที่ขึ้นลงตามยอดขาย', 'ยิ่งขายมาก ต้นทุนส่วนนี้ยิ่งมาก']; },
+  var: function () { return ['ต้นทุนที่เพิ่มตามยอดขาย', 'เช่น วัตถุดิบ บรรจุภัณฑ์ ค่าธรรมเนียมแอป']; },
   fixed: function () { return ['ค่าใช้จ่ายคงที่ต่อเดือน', 'จ่ายทุกเดือน ไม่ว่าจะขายได้มากหรือน้อย']; },
-  cash: function () { return ['เงินในมือ', 'ใช้ดูว่าเงินพอใช้ถึงเดือนไหน']; }
+  cash: function () { return ['เงินสดพร้อมใช้', 'ใช้ดูว่าเงินพอใช้ถึงเดือนไหน']; }
 };
 var ADV_GROUPS = [
-  ['adv-grow', 'การเติบโตและกำลังรับ', ''],
-  ['adv-cash', 'จังหวะเงินเข้าออก', 'ทำให้ภาพเงินสด 12 เดือนตรงกับความจริงมากขึ้น'],
+  ['adv-grow', 'การเติบโตและกำลังรองรับของร้าน', ''],
+  ['adv-cash', 'จังหวะเงินเข้าออก', 'เช่น ลูกค้าจ่ายเงินทีหลัง สั่งซื้อสต็อกล่วงหน้า หรือจ่ายเงินให้ซัพพลายเออร์ภายหลัง'],
   ['adv-season', 'ฤดูกาล', 'แตะเดือนเพื่อสลับ ปกติ → ขายดี → ขายแย่'],
   ['adv-cust', 'ลูกค้า', 'ใช้ดูว่าค่าหาลูกค้าใหม่ 1 คน คุ้มกับกำไรที่ได้จากลูกค้าคนนั้นไหม'],
   ['adv-equip', 'อุปกรณ์', 'กำไรจะหักเงินที่ควรกันไว้ซื้ออุปกรณ์ใหม่']
 ];
+
+/* ---------- รายละเอียดเพิ่ม (ข้อสุดท้าย): ต้องตอบ มี / ไม่มี · ถ้ามี เลือกกลุ่มที่รู้ แล้วตอบทุกช่องในกลุ่มนั้น ----------
+   inp.advMode = 'yes' | 'no' · inp.advPick = กลุ่มที่เลือก · inp.advUnk = ช่องที่ตอบ "ยังไม่รู้" (เช่น กำลังสูงสุด = ไม่จำกัด) */
+var ADV_TXT = { yes: 'Yes, add more details', no: 'No, show my results', hint: 'Pick the groups you know. Every number in a group you open needs an answer.' }; /* รอเจ้าของแปล */
+var UNK_TXT = { btn: 'ยังไม่รู้', hint: 'The results page will show how much this needs to be for it to be worth it.' }; /* hint รอเจ้าของแปล */
+function advFieldsOf(m, g) { return FIELDS.filter(function (f) { return f.g === g && (!f.models || f.models.indexOf(m) >= 0); }); }
+function advGroupsFor(m) { return ADV_GROUPS.filter(function (g) { return advFieldsOf(m, g[0]).length > 0; }); }
+function advFieldOk(inp, m, f) {
+  if (f.show && !f.show(inp, m)) return true;
+  if (f.t === 'season') return hasSeason(inp);
+  if (f.unk && inp.advUnk && inp.advUnk[f.k]) return true;
+  return num(inp[f.k]) !== null;
+}
+function advPicked(inp, m) { return (inp.advPick || []).filter(function (g) { return advFieldsOf(m, g).length > 0; }); }
+/* ข้อแรกที่ยังไม่ได้ตอบ: { at: 'mode' } ยังไม่ได้เลือก มี/ไม่มี · { at: 'pick' } ตอบมีแต่ยังไม่เลือกกลุ่ม · { at: 'field', k } · null = ครบ */
+function advMissing(inp, m) {
+  if (inp.advMode === 'no') return null;
+  if (inp.advMode !== 'yes') return { at: 'mode' };
+  var P = advPicked(inp, m);
+  if (!P.length) return { at: 'pick' };
+  for (var i = 0; i < P.length; i++) {
+    var fs = advFieldsOf(m, P[i]);
+    for (var j = 0; j < fs.length; j++) if (!advFieldOk(inp, m, fs[j])) return { at: 'field', k: fs[j].k, g: P[i] };
+  }
+  return null;
+}
+function advValid(inp, m) { return !advMissing(inp, m); }
+function advClearGroup(inp, m, g) { advFieldsOf(m, g).forEach(function (f) { delete inp[f.k]; if (inp.advUnk) delete inp.advUnk[f.k]; }); }
+/* ตัวเลขชุดเดิม (ร้านตัวอย่าง หรือกรอกไว้ก่อนมีกติกานี้): กลุ่มที่มีตัวเลขอยู่แล้ว = ตอบ "มี" · ช่องที่ว่างในกลุ่มนั้นใช้คำตอบที่ได้ตัวเลขเท่าเดิม */
+function advNormalize(inp, m) {
+  if (!m || inp.advMode) return inp;
+  var P = advGroupsFor(m).map(function (g) { return g[0]; }).filter(function (g) {
+    return advFieldsOf(m, g).some(function (f) { return f.t === 'season' ? hasSeason(inp) : num(inp[f.k]) !== null; });
+  });
+  if (!P.length) return inp;
+  inp.advMode = 'yes'; inp.advPick = P;
+  P.forEach(function (g) {
+    advFieldsOf(m, g).forEach(function (f) {
+      if (f.t === 'season' || (f.show && !f.show(inp, m)) || num(inp[f.k]) !== null) return;
+      if (f.unk) { inp.advUnk = inp.advUnk || {}; inp.advUnk[f.k] = true; }
+      else if (f.chip) inp[f.k] = f.chip[1];
+    });
+  });
+  return inp;
+}
 
 /* ---------- ตัวเลขที่ปรับได้ในส่วนทดลอง (ตามที่เจ้าของกำหนด: ยอดขาย ต้นทุนผันแปร ต้นทุนคงที่ พนักงานและเงินเดือน เงินเดือนตัวเอง ราคาขาย งบการตลาด) ---------- */
 var COMMON_LEVERS = ['staffCount', 'staffSalary', 'ownerSalary', 'rent', 'marketing', 'otherFixed'];
@@ -268,7 +315,7 @@ function leverLabel(k, inp, m) {
     unitCost: ['ต้นทุน', (m === 'resell' ? 'ราคาที่ซื้อมาต่อ' : 'ต้นทุนต่อ') + u], feePct: ['ค่าธรรมเนียม', 'ค่าธรรมเนียม % ของยอดขาย'],
     fee: ['ค่าสมาชิก', 'ค่าสมาชิกต่อรอบ'], members: ['สมาชิก', 'สมาชิกตอนนี้'], newMembers: ['สมาชิกใหม่', 'สมาชิกใหม่ต่อเดือน'],
     leaving: ['คนเลิก', 'สมาชิกที่เลิกต่อเดือน'], costPerMember: ['ต้นทุนต่อคน', 'ต้นทุนต่อสมาชิกต่อเดือน'],
-    projectValue: ['ราคาต่องาน', 'มูลค่าเฉลี่ยต่องาน'], projectsPerYear: ['งานต่อปี', 'ได้งานปีละ'], directCostPct: ['ต้นทุนตรง', 'ต้นทุนตรง % ของมูลค่างาน'],
+    projectValue: ['ราคาต่องาน', 'มูลค่าเฉลี่ยต่องาน'], projectsPerYear: ['งานต่อปี', 'ได้งานปีละ'], directCostPct: ['ต้นทุนของแต่ละงาน', 'ต้นทุนของแต่ละงาน % ของมูลค่างาน'],
     pricePerPeriod: ['ราคา', 'ราคาต่อ' + periodWord(inp)], occupancy: ['คนเช่า', 'มีคนเช่าเฉลี่ย'], costPerOccupied: ['ต้นทุนต่อ' + periodWord(inp), 'ค่าใช้จ่ายต่อ' + periodWord(inp) + 'ที่มีคนเช่า'],
     dealsPerMonth: ['ดีลต่อเดือน', 'ปิดดีลได้เดือนละ'], avgDealValue: ['มูลค่าดีล', 'มูลค่าเฉลี่ยต่อดีล'], commissionPct: ['ค่าคอม', 'ค่าคอม % ของมูลค่าดีล'],
     splitPct: ['ส่วนแบ่งทีม', 'แบ่งให้ทีม % ของค่าคอม'], amount: ['รายได้', 'ได้เงินเดือนละ'], costPct: ['ต้นทุน', 'ต้นทุน % ของรายได้'],
@@ -288,7 +335,14 @@ function leverUnit(k, inp, m) {
   return 'บาท';
 }
 
-/* ---------- คลังคำถามต่อท้าย → จุดที่ควรเช็ก → เครื่องมือ PL1 (อ้างด้วยรหัส) ---------- */
+/* ---------- ปุ่มคำตอบของคำถามเช็ก (ใช้ทั้งตัวที่ 1 และ 3) ----------
+   ค่าคำตอบเก็บเป็น yes / no / unsure เสมอ · คำถามแต่ละข้อตั้งได้ว่า ans = คำบนปุ่ม (เช่น เคย / ยัง / ไม่แน่ใจ)
+   และ risk = คำตอบที่นับเป็นจุดที่ควรตรวจสอบ (ไม่ตั้ง = yes) · ไม่แน่ใจ นับเป็นจุดที่ควรตรวจสอบเสมอ */
+var ANS_DEF = { yes: 'ใช่', no: 'ไม่ใช่', unsure: 'ไม่แน่ใจ' };
+function ansLabel(b, a) { return (b && b.ans && b.ans[a]) || ANS_DEF[a]; }
+function ansFlag(b, a) { return a === 'unsure' || (!!a && a === ((b && b.risk) || 'yes')); }
+
+/* ---------- คลังคำถามต่อท้าย → จุดที่ควรตรวจสอบ → เครื่องมือ PL1 (อ้างด้วยรหัส) ---------- */
 var QBANK = {
   newcust: { q: function () { return 'ช่วงนี้ลูกค้าใหม่เข้ามาน้อยกว่าเมื่อก่อนไหม'; }, p: 'จำนวนลูกค้าใหม่', d: 'เช็กว่าลูกค้าใหม่มาจากช่องทางไหน และช่องทางไหนเงียบลง', lever: 'vol', tools: ['cust1', 'grow9'] },
   repeat: { q: function () { return 'ลูกค้าเก่ากลับมาซื้อซ้ำน้อยลงไหม'; }, p: 'ลูกค้าเก่าที่กลับมาซื้อซ้ำ', d: 'เช็กว่าลูกค้าประจำหายไปตั้งแต่เมื่อไหร่ และเป็นกลุ่มไหน', lever: 'vol', tools: ['cust6', 'bmc8'] },
@@ -316,7 +370,7 @@ var QBANK = {
       if (m === 'subscription') return 'เคยต้องปิดรับสมาชิกใหม่ หรือแน่นจนสมาชิกบ่นไหม';
       if (m === 'rental') return 'ช่วงขายดีเต็มจนต้องปฏิเสธลูกค้าไหม';
       return 'เคยต้องปฏิเสธลูกค้า หรือให้ลูกค้ารอนานไหม';
-    }, p: 'กำลังรับลูกค้า', d: 'เช็กว่าช่วงไหนรับไม่ทัน และเสียลูกค้าไปกี่คน', lever: 'vol', tools: ['grow7'] },
+    }, p: 'กำลังรองรับลูกค้า', d: 'เช็กว่าช่วงไหนรับไม่ทัน และเสียลูกค้าไปกี่คน', lever: 'vol', tools: ['grow7'] },
   ownerwork: { q: function () { return 'งานหลายอย่างต้องรอคุณทำเองไหม'; }, p: 'งานที่ติดอยู่กับคุณ', d: 'เช็กว่างานไหนต้องเป็นคุณเท่านั้น และงานไหนคนอื่นทำแทนได้', lever: null, tools: ['grow6', 'goal8'] },
   peak: { q: function () { return 'ลูกค้ามากระจุกอยู่บางช่วงเวลาไหม'; }, p: 'ช่วงเวลาที่ลูกค้ามา', d: 'เช็กว่าช่วงไหนเต็ม และช่วงไหนว่าง', lever: null, tools: ['cust4'] },
   credit: { q: function () { return 'ลูกค้าจ่ายเงินช้ากว่าที่ตกลงบ่อยไหม'; }, p: 'เงินที่ลูกค้ายังไม่จ่าย', d: 'เช็กว่ามีเงินค้างรับเท่าไหร่ และค้างนานแค่ไหน', lever: 'creditDays', tools: ['swot5', 'goal4'],
@@ -325,7 +379,7 @@ var QBANK = {
     when: function (i) { return num(i.stockDays) > 0; } },
   season: { q: function () { return 'เดือนที่ขายแย่ ค่าใช้จ่ายยังเท่าเดิมไหม'; }, p: 'ช่วงขายแย่ของปี', d: 'เช็กว่าต้องมีเงินสำรองเท่าไหร่ก่อนเข้าช่วงขายแย่', lever: null, tools: ['grow2', 'goal4'],
     when: function (i) { return hasSeason(i); } },
-  bigspend: { q: function () { return 'มีเงินก้อนใหญ่ที่ต้องจ่ายในอีกไม่กี่เดือนไหม เช่น ผ่อนหนี้ ซ่อมร้าน'; }, p: 'เงินก้อนที่ต้องจ่ายล่วงหน้า', d: 'เช็กว่าเงินก้อนนั้นต้องจ่ายเดือนไหน และตอนนั้นเงินในมือเหลือเท่าไหร่', lever: null, tools: ['goal4', 'swot5'] },
+  bigspend: { q: function () { return 'มีเงินก้อนใหญ่ที่ต้องจ่ายในอีกไม่กี่เดือนไหม? เช่น ผ่อนหนี้ ซ่อมร้าน'; }, p: 'เงินก้อนที่ต้องจ่ายล่วงหน้า', d: 'เช็กว่าเงินก้อนนั้นต้องจ่ายเดือนไหน และตอนนั้นเงินในมือเหลือเท่าไหร่', lever: null, tools: ['goal4', 'swot5'] },
   mixmoney: { q: function () { return 'ใช้เงินร้านกับเงินส่วนตัวปนกันในบัญชีเดียวไหม'; }, p: 'เงินร้านกับเงินส่วนตัว', d: 'เช็กว่าแต่ละเดือนเงินออกจากร้านไปใช้ส่วนตัวเท่าไหร่ เทียบกับเงินเดือนคุณที่กรอกไว้', lever: 'ownerSalary', tools: ['goal1', 'swot5'] },
   onetime: { q: function () { return 'ลูกค้าใหม่ส่วนใหญ่ซื้อครั้งเดียวแล้วไม่กลับมาไหม'; }, p: 'ลูกค้าใหม่ที่ไม่กลับมาซื้อซ้ำ', d: 'เช็กว่าลูกค้าใหม่กลับมาซื้อครั้งที่สองกี่คน', lever: null, tools: ['cust6', 'bmc8'] },
   wide: { q: function () { return 'ยิงโฆษณากว้างๆ โดยยังไม่ได้เลือกกลุ่มลูกค้าชัดเจนไหม'; }, p: 'กลุ่มลูกค้าที่โฆษณาไปถึง', d: 'เช็กว่าลูกค้าที่ซื้อจริงเป็นใคร และโฆษณาไปถึงคนกลุ่มนั้นไหม', lever: 'marketing', tools: ['cust1', 'bmc2'] },
@@ -341,7 +395,7 @@ var QBANK = {
   p_pipe: { q: function () { return 'งานเข้าไม่สม่ำเสมอ บางเดือนไม่มีงานเลยไหม'; }, p: 'งานที่เข้ามาแต่ละเดือน', d: 'เช็กว่างานมาจากไหน และเดือนที่ไม่มีงานเกิดอะไรขึ้น', lever: 'vol', tools: ['grow2', 'cust5'] },
   p_scope: { q: function () { return 'งานบานปลายเกินกว่าที่ตกลงราคาไว้บ่อยไหม'; }, p: 'ขอบเขตงานกับราคา', d: 'เช็กว่างานที่ผ่านมาใช้ต้นทุนจริงเกินที่ตั้งไว้เท่าไหร่', lever: 'cost', tools: ['grow13'] },
   p_source: { q: function () { return 'งานส่วนใหญ่มาจากลูกค้ากลุ่มเดียว หรือคนแนะนำต่อเป็นหลักไหม'; }, p: 'ที่มาของงาน', d: 'เช็กว่างานแต่ละชิ้นมาจากไหน และพึ่งทางเดียวมากแค่ไหน', lever: 'vol', tools: ['bmc7', 'ver8'] },
-  p_price: { q: function () { return 'ตั้งราคางานตามคู่แข่ง โดยยังไม่ได้คิดจากต้นทุนและเวลาที่ใช้ไหม'; }, p: 'ราคาต่องาน', d: 'เช็กว่าราคาต่องานครอบคลุมต้นทุนตรงและค่าใช้จ่ายคงที่แล้วหรือยัง', lever: 'price', tools: ['grow13', 'bmc5'] },
+  p_price: { q: function () { return 'ตั้งราคางานตามคู่แข่ง โดยยังไม่ได้คิดจากต้นทุนและเวลาที่ใช้ไหม'; }, p: 'ราคาต่องาน', d: 'เช็กว่าราคาต่องานครอบคลุมต้นทุนของแต่ละงานและค่าใช้จ่ายคงที่แล้วหรือยัง', lever: 'price', tools: ['grow13', 'bmc5'] },
   c_close: { q: function () { return 'ลูกค้าที่คุยแล้วไม่ปิดดีลมีเยอะไหม'; }, p: 'ดีลที่คุยแล้วไม่ปิด', d: 'เช็กว่าลูกค้าหยุดตัดสินใจที่ขั้นไหน', lever: 'vol', tools: ['cust6'] },
   c_source: { q: function () { return 'ลูกค้าส่วนใหญ่มาจากช่องทางเดียวไหม'; }, p: 'ที่มาของลูกค้า', d: 'เช็กว่าดีลแต่ละดีลมาจากช่องทางไหน', lever: 'vol', tools: ['bmc7', 'cust5'] },
   c_split: { q: function () { return 'ส่วนแบ่งที่ให้ทีมหรือบริษัท ทำให้เหลือเงินไม่พอค่าใช้จ่ายไหม'; }, p: 'ส่วนแบ่งค่าคอม', d: 'เช็กว่าหลังแบ่งแล้วเหลือต่อดีลเท่าไหร่', lever: 'cost', tools: ['grow15'] },

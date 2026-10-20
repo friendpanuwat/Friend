@@ -150,6 +150,20 @@ for (const m of models) {
   const ps = ev(inp, 'unit', 'place', R('SAMPLE_DEC.place'));
   near(ps.P.payNeed, (2880 + 438000 / 1016.6) / 35.21, 0.05, 'sample place 3-year payback volume = (2,880 + 438,000/1,016.6) / 35.21 ≈ 94.03 (reviewer hand check)');
   near(cond(ps, 'payneed').value, 94.1, 1e-9, 'shown as 94.1 cups/day');
+  /* เป้าคืนทุนที่ผู้ใช้เลือก: ไม่ได้ตอบ = 3 ปีเท่าเดิม · เป้าสั้นลงต้องขายมากขึ้น · ตัวเลขที่ต้องขายทำให้คืนทุนทันเป้าจริง */
+  const pay = {};
+  for (const y of [1, 2, 3, 5]) pay[y] = ev(inp, 'unit', 'place', Object.assign({}, R('SAMPLE_DEC.place'), { payYears: y }));
+  near(pay[3].P.payNeed, ps.P.payNeed, 1e-9, 'payYears 3 = old fixed 3-year target');
+  chk(pay[1].P.target === 12 && pay[5].P.target === 60 && /ภายใน 5\u00a0ปี/.test(pay[5].P.targetTxt), 'target months and text follow the chosen years');
+  chk(pay[1].P.payNeed > pay[2].P.payNeed && pay[2].P.payNeed > pay[3].P.payNeed && pay[3].P.payNeed > pay[5].P.payNeed, 'shorter target needs more sales: ' + [1, 2, 3, 5].map(y => pay[y].P.payNeed && pay[y].P.payNeed.toFixed(2)).join(' > '));
+  for (const y of [1, 2, 3, 5]) {
+    const atNeed = ev(inp, 'unit', 'place', pay[y].P.set(Object.assign({}, R('SAMPLE_DEC.place'), { payYears: y }), pay[y].P.payNeed * 1.001));
+    chk(atNeed.payback !== null && atNeed.payback <= 12 * y + 1e-6, `payYears ${y}: selling the needed amount pays back in ${atNeed.payback && atNeed.payback.toFixed(2)} ≤ ${12 * y} months`);
+  }
+  const bpay = ev(inp, 'unit', 'branch', Object.assign({}, R('SAMPLE_DEC.branch'), { payYears: 2 }));
+  chk(!bpay.P.target || bpay.P.target === 24, 'branch uses the chosen years too');
+  const np = ev(inp, 'unit', 'newprod', Object.assign({}, R('SAMPLE_DEC.newprod'), { payYears: 1 }));
+  chk(!np.P.target || np.P.target === 36, 'new product keeps the 3-year comparison');
   /* ซื้ออุปกรณ์: กำไรหักเงินกันซื้อเครื่องใหม่แล้ว จึงไม่มีเป้าคืนทุนแยก */
   const e = ev(inp, 'unit', 'equip', { price: 120000, life: 15, eqGain: 2.5, costDown: 0, fixedChg: 0 });
   chk(!cond(e, 'payneed') && !e.P.target, 'equip has no separate payback target');
