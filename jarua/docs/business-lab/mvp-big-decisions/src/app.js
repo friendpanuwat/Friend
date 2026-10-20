@@ -209,7 +209,7 @@
   }
   function deltaWords(dl) { return Math.abs(dl) < 0.5 ? 'กำไรเท่าเดิม' : 'กำไร' + (dl > 0 ? 'เพิ่มขึ้น ' : 'ลดลง ') + fmtN(Math.abs(dl)) + ' บาทต่อเดือน'; }
   /* คำที่ไม่ควรถูกตัดกลางคำเวลาขึ้นบรรทัดใหม่ */
-  var NW = ['ตัดสินใจ', 'ยอดขาย', 'ตอนนี้', 'เงินก้อน', 'ไหวไหม', 'คืนทุน', 'ต่อเดือน', 'ขาดมือ', 'เท่าเดิม', 'อย่างน้อย', 'ร้านเดิม', 'คนใหม่', 'ถึงจะคุ้ม', 'ที่ใหม่', 'ขั้นต่ำ', 'คอนเทนต์', 'เพิ่มขึ้น', 'ออร์เดอร์', 'แอดมิน', 'คนไลฟ์', 'ช่องทาง', 'ลดราคา', 'ยังคุ้ม', 'บริการใหม่', 'เงินเดือน'];
+  var NW = ['ตัดสินใจ', 'ยอดขาย', 'ตอนนี้', 'เงินก้อน', 'ไหวไหม', 'คืนทุน', 'ต่อเดือน', 'ขาดมือ', 'เท่าเดิม', 'อย่างน้อย', 'ร้านเดิม', 'คนใหม่', 'ถึงจะคุ้ม', 'ที่ใหม่', 'ขั้นต่ำ', 'คอนเทนต์', 'เพิ่มขึ้น', 'ออร์เดอร์', 'แอดมิน', 'คนไลฟ์', 'ช่องทาง', 'ลดราคา', 'ยังคุ้ม', 'บริการใหม่', 'เงินเดือน', 'คาดการณ์'];
   function tw(str) {
     var h = esc(str);
     NW.forEach(function (w) { h = h.split(w).join('<span class="nw">' + w + '</span>'); });
@@ -855,7 +855,7 @@
     if ((be.kind === 'value' || be.kind === 'zero') && P.target) head = '<span class="pn"><span>กำไรต่อเดือนเท่าเดิม</span>' + numU(rn(P.need)) + '</span>' +
       '<span class="pn pay"><span>' + esc(P.targetTxt) + '</span>' + (P.payNeed !== null ? numU(rn(P.payNeed)) : '<b class="pn-x">ไม่ทัน</b>') + '</span>';
     else if (be.kind === 'value' || be.kind === 'zero') head = '<span>จุดที่กำไรเท่ากับปัจจุบัน</span>' + numU(rn(P.need));
-    else if (be.kind === 'max') head = '<span>ต้องไม่เกิน</span>' + numU(nf(downAt(be.x, state.model, v), '') + (pc ? '%' : ''));
+    else if (be.kind === 'max') head = '<span>' + (state.topic === 'price' ? 'ต้องไม่ลดลงเกิน' : 'ต้องไม่เกิน') + '</span>' + numU(nf(downAt(be.x, state.model, v), '') + (pc ? '%' : ''));
     else head = '<span class="txt">' + esc(needText(P, state.model, state.inp, dec())) + '</span>';
     var np = P.need !== null ? pct(P, P.need) : be.kind === 'max' ? pct(P, be.x) : null;
     var zone = be.kind === 'always' ? 'all-ok' : be.kind === 'never' ? 'all-no' : be.kind === 'max' ? 'rev' : 'fwd';
@@ -865,7 +865,7 @@
     var S = dScenarios(state.inp, state.model, state.topic, dec(), P);
     var chips = S.map(function (s) {
       var on = Math.abs(v - s.v) < 1e-6;
-      return '<button type="button" class="sc" data-act="wi" data-v="' + s.v + '" aria-pressed="' + on + '"><span>' + esc(s.label) + '</span><b>' + dirSpan(s.delta, fmtN(Math.abs(s.delta))) + '</b></button>';
+      return '<button type="button" class="sc" data-act="wi" data-v="' + s.v + '" aria-pressed="' + on + '"><span>' + tw(s.label) + '</span><b>' + dirSpan(s.delta, fmtN(Math.abs(s.delta))) + '</b></button>';
     }).join('');
     if (!chips && P.need !== null && P.need > P.lo) chips = '<button type="button" class="sc" data-act="wi" data-v="' + P.need + '" aria-pressed="' + (Math.abs(v - P.need) < 1e-6) + '"><span>กำไรเท่าเดิม</span><b>' + nf(P.need, '') + '</b></button>';
     var leg = legendHtml(P, zone, pp);
@@ -876,7 +876,7 @@
         '<span class="pv-tk l" style="left:calc(14px + (100% - 28px) * ' + (np / 100).toFixed(4) + ')" aria-hidden="true">' + (be.kind === 'max' ? nf(downAt(be.x, state.model, v), '') : P.need !== null ? nf(needAt(P, P.need, state.model, v), '') : '') + '</span>' : '') +
       (pp !== null && pp < 100 ? '<span class="pv-mk pay" style="left:calc(14px + (100% - 28px) * ' + (pp / 100).toFixed(4) + ')" aria-hidden="true"></span>' +
         '<span class="pv-tk r" style="left:calc(14px + (100% - 28px) * ' + (pp / 100).toFixed(4) + ')" aria-hidden="true">' + nf(needAt(P, P.payNeed, state.model, v), '') + '</span>' : '') +
-      (hp !== null ? '<span class="pv-mk have" style="left:calc(14px + (100% - 28px) * ' + (hp / 100).toFixed(4) + ')" aria-hidden="true"><em>คุณคาด</em></span>' : '') +
+      (hp !== null ? '<span class="pv-mk have' + (hp < 30 ? ' el' : hp > 70 ? ' er' : '') + '" style="left:calc(14px + (100% - 28px) * ' + (hp / 100).toFixed(4) + ')" aria-hidden="true"><em>' + (state.topic === 'price' ? 'คุณคาดว่า' + salesWord(state.model) + 'จะลดลง' : 'คุณคาด') + '</em></span>' : '') +
       '<input type="range" id="pvr" data-pv="1" min="' + P.lo + '" max="' + P.hi + '" step="' + P.step + '" value="' + v + '" aria-label="' + esc(P.q) + '" aria-valuetext="' + esc(pivotWord(P, v)) + '"></div>' +
       '<div class="pv-scale" aria-hidden="true"><span>' + nf(P.lo, '') + '</span><span>' + nf(P.hi, P.unit) + '</span></div>' + qmT('pv', leg, 'div') +
       (chips ? '<div class="pv-chips" role="group" aria-label="ถ้าไม่เป็นอย่างที่คาด">' + chips + '</div>' : '') + '</section>';

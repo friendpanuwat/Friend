@@ -213,7 +213,7 @@ var DFIELDS = {
     help: function (i, m) { return 'ตอนนี้ ' + priceWord(i, m) + 'ละ ' + fmtN(n0(i[ROLE[m].price])) + ' บาท' + (isVolModel(m) ? ' (ราคาเฉลี่ย)' : ''); } },
   raiseShare: { t: 'pct', req: true, label: function () { return 'ของที่ขึ้นราคา คิดเป็นกี่ % ของยอดขาย'; }, suf: function () { return '%'; }, show: function (i, m, d) { return isKind(d, 'some'); },
     help: function () { return 'เช่น เมนูที่ขึ้นราคาขายได้ครึ่งหนึ่งของร้าน ใส่ 50'; } },
-  lostPct: { t: 'pct', unk: true, req: true, max: 95, quick: [['ไม่มีใครหาย', function () { return 0; }]], label: function (i, m) { return 'คาดว่า' + salesWord(m) + 'จะลดลง'; }, suf: function () { return '%'; },
+  lostPct: { t: 'pct', unk: true, req: true, max: 95, quick: [['ไม่ลดเลย', function () { return 0; }]], label: function (i, m) { return 'คาดว่า' + salesWord(m) + 'จะลดลง'; }, suf: function () { return '%'; },
   },
 
   /* จัดโปรโมชัน */

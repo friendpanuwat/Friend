@@ -861,6 +861,9 @@ h1.pp-t { font-size: 28px; line-height: 1.3; margin: 0; text-wrap: balance; }
 .ckc .ck-d .sbtn { justify-self: start; }
 .next3 .tools .qm i { background: var(--surface); }
 .next3 .tools .qm[aria-expanded="true"] i { background: var(--ink); }
+.pv-mk.have.el em { left: -6px; transform: none; }
+.pv-mk.have.er em { left: auto; right: -6px; transform: none; }
+.pv-chips .sc span { text-wrap: balance; }
 </style>
 <div id="app"></div>
 <script>
@@ -3492,7 +3495,7 @@ var DFIELDS = {
     help: function (i, m) { return 'ตอนนี้ ' + priceWord(i, m) + 'ละ ' + fmtN(n0(i[ROLE[m].price])) + ' บาท' + (isVolModel(m) ? ' (ราคาเฉลี่ย)' : ''); } },
   raiseShare: { t: 'pct', req: true, label: function () { return 'ของที่ขึ้นราคา คิดเป็นกี่ % ของยอดขาย'; }, suf: function () { return '%'; }, show: function (i, m, d) { return isKind(d, 'some'); },
     help: function () { return 'เช่น เมนูที่ขึ้นราคาขายได้ครึ่งหนึ่งของร้าน ใส่ 50'; } },
-  lostPct: { t: 'pct', unk: true, req: true, max: 95, quick: [['ไม่มีใครหาย', function () { return 0; }]], label: function (i, m) { return 'คาดว่า' + salesWord(m) + 'จะลดลง'; }, suf: function () { return '%'; },
+  lostPct: { t: 'pct', unk: true, req: true, max: 95, quick: [['ไม่ลดเลย', function () { return 0; }]], label: function (i, m) { return 'คาดว่า' + salesWord(m) + 'จะลดลง'; }, suf: function () { return '%'; },
   },
 
   /* จัดโปรโมชัน */
@@ -4313,7 +4316,7 @@ function dPivot0(inp, m, T, d) {
     P.set = function (dd, v) { return withD(dd, P.key, Math.max(0, Math.min(T === 'price' ? 95 : 1000, v))); };
     P.unit = '%';
     P.pct = true;
-    P.q = T === 'price' ? sw + 'ลดลงได้มากสุดเท่าไร ถึงจะยังคุ้ม' : T === 'promo' ? 'ช่วงจัดโปร ' + sw + 'ต้องเพิ่มเท่าไร ถึงจะคุ้ม' : sw + 'ต้องเพิ่มเท่าไร ถึงจะคุ้มค่าส่ง';
+    P.q = T === 'price' ? sw + 'ลดลงได้แค่ไหน ราคาที่ขึ้นถึงจะยังคุ้ม' : T === 'promo' ? 'ช่วงจัดโปร ' + sw + 'ต้องเพิ่มเท่าไร ถึงจะคุ้ม' : sw + 'ต้องเพิ่มเท่าไร ถึงจะคุ้มค่าส่ง';
     P.word = T === 'price' ? sw + 'ลดลง' : T === 'promo' ? 'ช่วงโปร' + sw + 'เพิ่มขึ้น' : sw + 'เพิ่มขึ้น';
     P.lab = T === 'price' ? sw + 'ลดลงได้' : T === 'promo' ? 'ช่วงโปร' + sw + 'ต้องเพิ่ม' : sw + 'ต้องเพิ่ม';
     P.lo = 0;
@@ -4388,13 +4391,15 @@ function dPivot0(inp, m, T, d) {
   if (T === 'price') P.hi = Math.min(95, P.hi);
   if (P.key === 'npAttach') P.hi = Math.min(100, P.hi);
   P.lo = Math.floor(P.lo / P.step) * P.step;
-  P.scen = { hire: [[0, 'ไม่ได้เลย'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], equip: [[0, 'ไม่ได้เลย'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']],
-    channel: [[0, 'ไม่มีคนซื้อ'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], place: [[0.8, 'ต่ำกว่าคาด 20%'], [0.9, 'ต่ำกว่าคาด 10%'], [1, 'ที่คุณคาด']],
-    branch: [[0.5, 'ครึ่งเดียว'], [0.8, 'ต่ำกว่าคาด 20%'], [1, 'ที่คุณคาด']],
-    ads: [[0, 'ไม่ได้เลย'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], freelance: [[0, 'ไม่ได้เลย'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']],
-    newprod: [[0, 'ขายไม่ได้เลย'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], supplier: [[0.9, 'ต่ำกว่าคาด 10%'], [0.95, 'ต่ำกว่าคาด 5%'], [1, 'ที่คุณคาด']],
-    price: [[0, 'ไม่มีใครหาย', 'abs'], [1, 'ที่คุณคาด'], [2, 'หาย 2 เท่า']],
-    promo: [[0, 'ยอดไม่เพิ่ม', 'abs'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], freeship: [[0, 'ยอดไม่เพิ่ม', 'abs'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']] }[T];
+  /* ปุ่มกรณีต่าง ๆ: ซ้าย = แย่กว่าที่คาดมาก · กลาง = แย่กว่าที่คาดบางส่วน · ขวา = ตามที่คาดการณ์ (คำของเจ้าของ) */
+  var EXP = 'ตามที่คุณคาดการณ์';
+  P.scen = { hire: [[0, 'ยอดขายไม่เพิ่ม'], [0.5, 'เพิ่มครึ่งเดียว'], [1, 'เพิ่ม' + EXP]], equip: [[0, 'ยอดขายไม่เพิ่ม'], [0.5, 'เพิ่มครึ่งเดียว'], [1, 'เพิ่ม' + EXP]],
+    channel: [[0, 'ไม่มีคนซื้อ'], [0.5, 'ขายได้ครึ่งเดียว'], [1, 'ขายได้' + EXP]], place: [[0.8, 'ต่ำกว่าคาด 20%'], [0.9, 'ต่ำกว่าคาด 10%'], [1, EXP]],
+    branch: [[0.5, 'ขายได้ครึ่งเดียว'], [0.8, 'ต่ำกว่าคาด 20%'], [1, EXP]],
+    ads: [[0, 'ไม่ได้ลูกค้าเพิ่ม'], [0.5, 'ได้ครึ่งเดียว'], [1, 'ได้' + EXP]], freelance: [[0, 'ยอดขายไม่เพิ่ม'], [0.5, 'เพิ่มครึ่งเดียว'], [1, 'เพิ่ม' + EXP]],
+    newprod: [[0, 'ขายไม่ได้เลย'], [0.5, 'ขายได้ครึ่งเดียว'], [1, 'ขายได้' + EXP]], supplier: [[0.9, 'ต่ำกว่าคาด 10%'], [0.95, 'ต่ำกว่าคาด 5%'], [1, EXP]],
+    price: [[0, 'ไม่ลดเลย', 'abs'], [1, 'ลด' + EXP], [2, 'ลดเป็น 2 เท่า']],
+    promo: [[0, 'ยอดขายไม่เพิ่ม', 'abs'], [0.5, 'เพิ่มครึ่งเดียว'], [1, 'เพิ่ม' + EXP]], freeship: [[0, 'ยอดขายไม่เพิ่ม', 'abs'], [0.5, 'เพิ่มครึ่งเดียว'], [1, 'เพิ่ม' + EXP]] }[T];
   /* เรื่องที่มีเงินก้อน: กำไรต่อเดือนเท่าเดิมยังไม่พอ ต้องได้เงินก้อนคืนด้วย
      เป้าคืนทุน = อายุเครื่อง (ซื้ออุปกรณ์) · ปีที่ผู้ใช้เลือก (ย้ายร้าน เปิดสาขา ของใหม่) แล้วหาค่าที่ทำให้คืนทุนทันเป้า */
   var one = dBuild(inp, m, T, d, { lv: 1, f: 1 }).one;
@@ -4842,7 +4847,7 @@ function fmtCompact(n) {
   }
   function deltaWords(dl) { return Math.abs(dl) < 0.5 ? 'กำไรเท่าเดิม' : 'กำไร' + (dl > 0 ? 'เพิ่มขึ้น ' : 'ลดลง ') + fmtN(Math.abs(dl)) + ' บาทต่อเดือน'; }
   /* คำที่ไม่ควรถูกตัดกลางคำเวลาขึ้นบรรทัดใหม่ */
-  var NW = ['ตัดสินใจ', 'ยอดขาย', 'ตอนนี้', 'เงินก้อน', 'ไหวไหม', 'คืนทุน', 'ต่อเดือน', 'ขาดมือ', 'เท่าเดิม', 'อย่างน้อย', 'ร้านเดิม', 'คนใหม่', 'ถึงจะคุ้ม', 'ที่ใหม่', 'ขั้นต่ำ', 'คอนเทนต์', 'เพิ่มขึ้น', 'ออร์เดอร์', 'แอดมิน', 'คนไลฟ์', 'ช่องทาง', 'ลดราคา', 'ยังคุ้ม', 'บริการใหม่', 'เงินเดือน'];
+  var NW = ['ตัดสินใจ', 'ยอดขาย', 'ตอนนี้', 'เงินก้อน', 'ไหวไหม', 'คืนทุน', 'ต่อเดือน', 'ขาดมือ', 'เท่าเดิม', 'อย่างน้อย', 'ร้านเดิม', 'คนใหม่', 'ถึงจะคุ้ม', 'ที่ใหม่', 'ขั้นต่ำ', 'คอนเทนต์', 'เพิ่มขึ้น', 'ออร์เดอร์', 'แอดมิน', 'คนไลฟ์', 'ช่องทาง', 'ลดราคา', 'ยังคุ้ม', 'บริการใหม่', 'เงินเดือน', 'คาดการณ์'];
   function tw(str) {
     var h = esc(str);
     NW.forEach(function (w) { h = h.split(w).join('<span class="nw">' + w + '</span>'); });
@@ -5488,7 +5493,7 @@ function fmtCompact(n) {
     if ((be.kind === 'value' || be.kind === 'zero') && P.target) head = '<span class="pn"><span>กำไรต่อเดือนเท่าเดิม</span>' + numU(rn(P.need)) + '</span>' +
       '<span class="pn pay"><span>' + esc(P.targetTxt) + '</span>' + (P.payNeed !== null ? numU(rn(P.payNeed)) : '<b class="pn-x">ไม่ทัน</b>') + '</span>';
     else if (be.kind === 'value' || be.kind === 'zero') head = '<span>จุดที่กำไรเท่ากับปัจจุบัน</span>' + numU(rn(P.need));
-    else if (be.kind === 'max') head = '<span>ต้องไม่เกิน</span>' + numU(nf(downAt(be.x, state.model, v), '') + (pc ? '%' : ''));
+    else if (be.kind === 'max') head = '<span>' + (state.topic === 'price' ? 'ต้องไม่ลดลงเกิน' : 'ต้องไม่เกิน') + '</span>' + numU(nf(downAt(be.x, state.model, v), '') + (pc ? '%' : ''));
     else head = '<span class="txt">' + esc(needText(P, state.model, state.inp, dec())) + '</span>';
     var np = P.need !== null ? pct(P, P.need) : be.kind === 'max' ? pct(P, be.x) : null;
     var zone = be.kind === 'always' ? 'all-ok' : be.kind === 'never' ? 'all-no' : be.kind === 'max' ? 'rev' : 'fwd';
@@ -5498,7 +5503,7 @@ function fmtCompact(n) {
     var S = dScenarios(state.inp, state.model, state.topic, dec(), P);
     var chips = S.map(function (s) {
       var on = Math.abs(v - s.v) < 1e-6;
-      return '<button type="button" class="sc" data-act="wi" data-v="' + s.v + '" aria-pressed="' + on + '"><span>' + esc(s.label) + '</span><b>' + dirSpan(s.delta, fmtN(Math.abs(s.delta))) + '</b></button>';
+      return '<button type="button" class="sc" data-act="wi" data-v="' + s.v + '" aria-pressed="' + on + '"><span>' + tw(s.label) + '</span><b>' + dirSpan(s.delta, fmtN(Math.abs(s.delta))) + '</b></button>';
     }).join('');
     if (!chips && P.need !== null && P.need > P.lo) chips = '<button type="button" class="sc" data-act="wi" data-v="' + P.need + '" aria-pressed="' + (Math.abs(v - P.need) < 1e-6) + '"><span>กำไรเท่าเดิม</span><b>' + nf(P.need, '') + '</b></button>';
     var leg = legendHtml(P, zone, pp);
@@ -5509,7 +5514,7 @@ function fmtCompact(n) {
         '<span class="pv-tk l" style="left:calc(14px + (100% - 28px) * ' + (np / 100).toFixed(4) + ')" aria-hidden="true">' + (be.kind === 'max' ? nf(downAt(be.x, state.model, v), '') : P.need !== null ? nf(needAt(P, P.need, state.model, v), '') : '') + '</span>' : '') +
       (pp !== null && pp < 100 ? '<span class="pv-mk pay" style="left:calc(14px + (100% - 28px) * ' + (pp / 100).toFixed(4) + ')" aria-hidden="true"></span>' +
         '<span class="pv-tk r" style="left:calc(14px + (100% - 28px) * ' + (pp / 100).toFixed(4) + ')" aria-hidden="true">' + nf(needAt(P, P.payNeed, state.model, v), '') + '</span>' : '') +
-      (hp !== null ? '<span class="pv-mk have" style="left:calc(14px + (100% - 28px) * ' + (hp / 100).toFixed(4) + ')" aria-hidden="true"><em>คุณคาด</em></span>' : '') +
+      (hp !== null ? '<span class="pv-mk have' + (hp < 30 ? ' el' : hp > 70 ? ' er' : '') + '" style="left:calc(14px + (100% - 28px) * ' + (hp / 100).toFixed(4) + ')" aria-hidden="true"><em>' + (state.topic === 'price' ? 'คุณคาดว่า' + salesWord(state.model) + 'จะลดลง' : 'คุณคาด') + '</em></span>' : '') +
       '<input type="range" id="pvr" data-pv="1" min="' + P.lo + '" max="' + P.hi + '" step="' + P.step + '" value="' + v + '" aria-label="' + esc(P.q) + '" aria-valuetext="' + esc(pivotWord(P, v)) + '"></div>' +
       '<div class="pv-scale" aria-hidden="true"><span>' + nf(P.lo, '') + '</span><span>' + nf(P.hi, P.unit) + '</span></div>' + qmT('pv', leg, 'div') +
       (chips ? '<div class="pv-chips" role="group" aria-label="ถ้าไม่เป็นอย่างที่คาด">' + chips + '</div>' : '') + '</section>';
