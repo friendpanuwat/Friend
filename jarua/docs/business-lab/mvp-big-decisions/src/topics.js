@@ -156,7 +156,7 @@ var DFIELDS = {
     show: function (i, m, d) { return n0(d.dipPct) > 0; } },
 
   /* เป้าคืนทุนที่ผู้ใช้เลือกเอง (ย้ายร้าน เปิดสาขา) · ร้านตัวอย่างที่ไม่ได้ตอบ = 3 ปี */
-  payYears: { t: 'years', req: true, opts: [1, 2, 3, 5], neutral: 3, label: function () { return PAY_TXT.q; }, help: function () { return PAY_TXT.hint; } },
+  payYears: { t: 'years', req: true, opts: [1, 2, 3, 5], neutral: 3, show: function (i, m, d) { return pos(d.moveCost) > 0 || pos(d.setup) > 0; }, label: function () { return PAY_TXT.q; }, help: function () { return PAY_TXT.hint; } },
 
   /* ช่องทางใหม่ */
   cut: { t: 'pct', req: true, label: function (i, m, d) { return isKind(d, 'agent') ? 'ส่วนลดหรือส่วนแบ่งที่ให้ร้านที่ฝากขาย' : isKind(d, 'own') ? 'ค่าธรรมเนียมรับเงิน' : 'ช่องทางหักส่วนแบ่ง'; },
@@ -338,7 +338,7 @@ function dStepsFor(t, inp, m) {
   ];
   return [
     { id: 'money', q: 'เปิดสาขาต้องใช้เงินเท่าไร', f: ['setup', 'payYears'] },
-    { id: 'cost', q: 'ค่าใช้จ่ายของสาขาต่อเดือน', p: 'ใส่ให้ครบ ถ้าเว้นไว้ ผลจะดีกว่าความจริง', f: ['bRent', 'bStaff', 'bSalary', 'bOther'] },
+    { id: 'cost', q: 'ค่าใช้จ่ายของสาขาต่อเดือน', f: ['bRent', 'bStaff', 'bSalary', 'bOther'] },
     { id: 'sales', q: 'สาขาน่าจะขายได้เท่าไร', f: ['bPct', 'bRamp'] }
   ];
 }
@@ -409,8 +409,8 @@ var SAMPLE_DEC_ON = {
   place: { newRent: 12000, salesPct: 15, moveCost: 80000, closedDays: 3, dipPct: 10, backMonths: 1 },
   branch: { setup: 200000, bRent: 10000, bStaff: 1, bSalary: 12000, bOther: 4000, bPct: 50, ramp: 6 }
 };
-/* ค่าเริ่มของช่องที่ไม่บังคับ = 0 · count เริ่มที่ 1 */
-var DEC_DEFAULT = { hire: { count: 1 }, promo: { promoMonths: 1 } };
+/* ค่าเริ่ม: จ้างเพิ่มเริ่มที่ 1 คน (ตัวนับ) · ข้ออื่นไม่มีค่าที่เลือกไว้ให้ก่อน ผู้ใช้ต้องตอบเอง */
+var DEC_DEFAULT = { hire: { count: 1 } };
 
 /* ---------- คลังคำถามเช็กความพร้อม → จุดที่ควรตรวจสอบ → เครื่องมือ PL1 ----------
    ทุกข้อเขียนให้ "ใช่" = มีความเสี่ยง · บอกแค่จุดที่ควรตรวจสอบ ไม่ฟันธงและไม่ให้วิธีแก้ · lever = ตัวเลขที่เกี่ยวข้อง */

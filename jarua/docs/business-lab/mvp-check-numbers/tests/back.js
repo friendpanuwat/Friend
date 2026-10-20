@@ -15,6 +15,13 @@ const { open } = require('./harness');
   const phoneBack = () => page.evaluate(() => history.back());
   const tap = async sel => { await page.click(sel); await page.waitForTimeout(80); };
 
+  /* นับการเพิ่มประวัติระหว่างจัดการปุ่มย้อนกลับ (Chrome บนมือถือข้ามขั้นที่เพิ่มแบบนี้ แล้วออกจากเครื่องมือไปเลย) */
+  await page.evaluate(() => {
+    let inPop = false; window.__popPush = 0;
+    window.addEventListener('popstate', () => { inPop = true; setTimeout(() => { inPop = false; }, 0); }, true);
+    const o = history.pushState.bind(history);
+    history.pushState = function () { if (inPop) window.__popPush++; return o.apply(null, arguments); };
+  });
   await page.evaluate(() => { sessionStorage.clear(); window.__lab.go('start'); });
   await tap('[data-act="sample-shop"]'); await expect('sample shop opens overview', { v: 'home' });
 
@@ -49,12 +56,24 @@ const { open } = require('./harness');
   await tap('.bar [data-act="prev"]'); await expect('app back one step', { v: 'wizard', s: 0 });
   await phoneBack(); await expect('phone back from first step', { v: 'start' });
 
+  const pp = await page.evaluate(() => window.__popPush);
+  if (pp) bad++;
+  console.log((pp ? 'BAD ' : 'ok  ') + 'no history entries added while handling a back press → ' + pp);
+
   /* หน้าแรกกดย้อนกลับ = ออกจากเครื่องมือ */
   const before = page.url();
   await phoneBack(); await page.waitForTimeout(300);
   const left = page.url() !== before;
   if (!left) bad++;
   console.log((left ? 'ok  ' : 'BAD ') + 'phone back on start page leaves the tool → ' + page.url());
+
+  /* เปิดหน้ามาที่ภาพรวมเลย (เช่น กลับมาจากหน้า Business Lab): แตะ 1 ครั้งแล้วปุ่มย้อนกลับของมือถือพาไปหน้าแรก ไม่ออกจากเครื่องมือ */
+  const testUrl = 'file://' + require('path').join(__dirname, '..', '.out', 'test.html');
+  await page.goto('about:blank'); await page.goto(testUrl);
+  await page.waitForFunction(() => window.__lab && window.__lab.state); await page.waitForTimeout(200);
+  await page.evaluate(() => { const L = window.__lab; L.state.view = 'home'; L.render(); });
+  await tap('.bar [data-act="theme"]');
+  await phoneBack(); await expect('opened at overview, tapped once, phone back → start', { v: 'start' });
 
   if (errors.length) { bad++; console.log('ERRORS', errors); }
   await browser.close();

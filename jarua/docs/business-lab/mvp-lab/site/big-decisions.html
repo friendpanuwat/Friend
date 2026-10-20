@@ -2314,11 +2314,11 @@ var GROUPS = {
   cash: function () { return ['เงินสดพร้อมใช้', 'ใช้ดูว่าเงินพอใช้ถึงเดือนไหน']; }
 };
 var ADV_GROUPS = [
-  ['adv-grow', 'การเติบโตและกำลังรองรับของร้าน', ''],
-  ['adv-cash', 'จังหวะเงินเข้าออก', 'เช่น ลูกค้าจ่ายเงินทีหลัง สั่งซื้อสต็อกล่วงหน้า หรือจ่ายเงินให้ซัพพลายเออร์ภายหลัง'],
-  ['adv-season', 'ฤดูกาล', 'แตะเดือนเพื่อสลับ ปกติ → ขายดี → ขายแย่'],
-  ['adv-cust', 'ลูกค้า', 'ใช้ดูว่าค่าหาลูกค้าใหม่ 1 คน คุ้มกับกำไรที่ได้จากลูกค้าคนนั้นไหม'],
-  ['adv-equip', 'อุปกรณ์', 'กำไรจะหักเงินที่ควรกันไว้ซื้ออุปกรณ์ใหม่']
+  ['adv-grow', 'การเติบโตและกำลังรองรับของร้าน', '', 'กำลังรองรับของร้าน'],
+  ['adv-cash', 'จังหวะเงินเข้าออก', 'เช่น ลูกค้าจ่ายเงินทีหลัง สั่งซื้อสต็อกล่วงหน้า หรือจ่ายเงินให้ซัพพลายเออร์ภายหลัง', 'เงินเข้าออก'],
+  ['adv-season', 'ฤดูกาล', 'แตะเดือนเพื่อสลับ ปกติ → ขายดี → ขายแย่', 'ฤดูกาล'],
+  ['adv-cust', 'ลูกค้า', 'ใช้ดูว่าค่าหาลูกค้าใหม่ 1 คน คุ้มกับกำไรที่ได้จากลูกค้าคนนั้นไหม', 'ลูกค้า'],
+  ['adv-equip', 'อุปกรณ์', 'กำไรจะหักเงินที่ควรกันไว้ซื้ออุปกรณ์ใหม่', 'อุปกรณ์']
 ];
 
 /* ---------- รายละเอียดเพิ่ม (ข้อสุดท้าย): ต้องตอบ มี / ไม่มี · ถ้ามี เลือกกลุ่มที่รู้ แล้วตอบทุกช่องในกลุ่มนั้น ----------
@@ -3359,7 +3359,7 @@ var DFIELDS = {
     show: function (i, m, d) { return n0(d.dipPct) > 0; } },
 
   /* เป้าคืนทุนที่ผู้ใช้เลือกเอง (ย้ายร้าน เปิดสาขา) · ร้านตัวอย่างที่ไม่ได้ตอบ = 3 ปี */
-  payYears: { t: 'years', req: true, opts: [1, 2, 3, 5], neutral: 3, label: function () { return PAY_TXT.q; }, help: function () { return PAY_TXT.hint; } },
+  payYears: { t: 'years', req: true, opts: [1, 2, 3, 5], neutral: 3, show: function (i, m, d) { return pos(d.moveCost) > 0 || pos(d.setup) > 0; }, label: function () { return PAY_TXT.q; }, help: function () { return PAY_TXT.hint; } },
 
   /* ช่องทางใหม่ */
   cut: { t: 'pct', req: true, label: function (i, m, d) { return isKind(d, 'agent') ? 'ส่วนลดหรือส่วนแบ่งที่ให้ร้านที่ฝากขาย' : isKind(d, 'own') ? 'ค่าธรรมเนียมรับเงิน' : 'ช่องทางหักส่วนแบ่ง'; },
@@ -3541,7 +3541,7 @@ function dStepsFor(t, inp, m) {
   ];
   return [
     { id: 'money', q: 'เปิดสาขาต้องใช้เงินเท่าไร', f: ['setup', 'payYears'] },
-    { id: 'cost', q: 'ค่าใช้จ่ายของสาขาต่อเดือน', p: 'ใส่ให้ครบ ถ้าเว้นไว้ ผลจะดีกว่าความจริง', f: ['bRent', 'bStaff', 'bSalary', 'bOther'] },
+    { id: 'cost', q: 'ค่าใช้จ่ายของสาขาต่อเดือน', f: ['bRent', 'bStaff', 'bSalary', 'bOther'] },
     { id: 'sales', q: 'สาขาน่าจะขายได้เท่าไร', f: ['bPct', 'bRamp'] }
   ];
 }
@@ -3612,8 +3612,8 @@ var SAMPLE_DEC_ON = {
   place: { newRent: 12000, salesPct: 15, moveCost: 80000, closedDays: 3, dipPct: 10, backMonths: 1 },
   branch: { setup: 200000, bRent: 10000, bStaff: 1, bSalary: 12000, bOther: 4000, bPct: 50, ramp: 6 }
 };
-/* ค่าเริ่มของช่องที่ไม่บังคับ = 0 · count เริ่มที่ 1 */
-var DEC_DEFAULT = { hire: { count: 1 }, promo: { promoMonths: 1 } };
+/* ค่าเริ่ม: จ้างเพิ่มเริ่มที่ 1 คน (ตัวนับ) · ข้ออื่นไม่มีค่าที่เลือกไว้ให้ก่อน ผู้ใช้ต้องตอบเอง */
+var DEC_DEFAULT = { hire: { count: 1 } };
 
 /* ---------- คลังคำถามเช็กความพร้อม → จุดที่ควรตรวจสอบ → เครื่องมือ PL1 ----------
    ทุกข้อเขียนให้ "ใช่" = มีความเสี่ยง · บอกแค่จุดที่ควรตรวจสอบ ไม่ฟันธงและไม่ให้วิธีแก้ · lever = ตัวเลขที่เกี่ยวข้อง */
@@ -5030,7 +5030,7 @@ function fmtCompact(n) {
       var k = s.high.indexOf(c) >= 0 ? 'high' : s.low.indexOf(c) >= 0 ? 'low' : 'normal';
       ms.push('<button type="button" class="month" data-act="month" data-c="' + c + '" data-s="' + k + '" aria-label="' + TH_MONTHS[c - 1] + ' ' + { high: 'ขายดี', low: 'ขายแย่', normal: 'ปกติ' }[k] + '">' + TH_MONTHS[c - 1] + '<small>' + { high: 'ดี', low: 'แย่', normal: '' }[k] + '</small></button>');
     }
-    return '<div class="field"><p class="help">แตะเดือนเพื่อสลับ ปกติ → ขายดี → ขายแย่</p><div class="months">' + ms.join('') + '</div><div class="two">' +
+    return '<div class="field" data-f="season"><p class="help">แตะเดือนเพื่อสลับ ปกติ → ขายดี → ขายแย่</p><div class="months">' + ms.join('') + '</div><div class="two">' +
       '<div class="field"><label for="f-hp" class="help">ขายดีกว่าปกติ</label><div class="inbox"><input id="f-hp" data-season="highPct" inputmode="decimal" value="' + esc(s.highPct) + '"><span class="suf">%</span></div></div>' +
       '<div class="field"><label for="f-lp" class="help">ขายแย่กว่าปกติ</label><div class="inbox"><input id="f-lp" data-season="lowPct" inputmode="decimal" value="' + esc(s.lowPct) + '"><span class="suf">%</span></div></div></div></div>';
   }
@@ -5263,6 +5263,7 @@ function fmtCompact(n) {
       if (num(inp.newCustomers)) bits.push('มีข้อมูลลูกค้า');
       if (num(inp.equipValue)) bits.push('มีอุปกรณ์');
       if (inp.advMode === 'no') return 'ไม่มี';
+      if (inp.advMode === 'yes') return advPicked(inp, state.model).map(function (g) { return ADV_GROUPS.filter(function (x) { return x[0] === g; })[0][3]; }).join(' · ') || 'ยังไม่ได้ใส่';
       return bits.length ? bits.join(' · ') : 'ยังไม่ได้ใส่';
     }
     return st.f.map(function (k) {
@@ -5811,7 +5812,7 @@ function fmtCompact(n) {
       var rest = st.f.filter(function (k) { return keys.indexOf(k) < 0 && dShown(k, d); });
       if (!rest.length) return '';
       var t = rest.indexOf('kind') >= 0 ? 'แบบที่เลือก' : st.q;
-      return '<button class="rv-row" data-act="d-edit" data-i="' + i + '"><span class="t">' + esc(t) + '</span><span class="v">' + esc(dStepSummary(st)) + '</span>' + ICON.chev + '</button>';
+      return '<button class="rv-row" data-act="d-edit" data-i="' + i + '"><span class="t">' + esc(qmark(t)) + '</span><span class="v">' + esc(dStepSummary(st)) + '</span>' + ICON.chev + '</button>';
     }).join('');
     return rows ? '<div class="rv">' + rows + '</div>' : '';
   }
@@ -6190,6 +6191,7 @@ function fmtCompact(n) {
               if (typeof pv5 === 'number' && pv5 > 0) dk0[dKey(k5)] = Math.round(pv5 * 100) / 100;
             });
           });
+          if (state.isSample) state.ds[state.topic] = dk0 = dComplete(state.topic, state.inp, m, dk0);
         }
         if (state.topic === 'channel') dk0.chName = kindName('channel', dk0, state.inp, m);
         go('dq', false); var kb = $('[data-act="dkind"][data-v="' + kv + '"]'); if (kb) kb.focus();
@@ -6282,6 +6284,7 @@ function fmtCompact(n) {
         ans()[q] = v;
         $$('.ask-ans button').forEach(function (bb2) { bb2.setAttribute('aria-pressed', String(bb2 === t)); });
         setTimeout(function () {
+          if (state.view !== 'ask') return; /* กดย้อนกลับไปแล้ว */
           var L1 = askList(), A1 = ans(), i = L1.indexOf(q) + 1;
           while (i < L1.length && A1[L1[i]]) i++;
           if (i >= L1.length) { var un = L1.filter(function (x) { return !A1[x]; })[0]; if (un) { state.qidx = L1.indexOf(un); go('ask'); } else { go('points', true, true); hrep(); } }

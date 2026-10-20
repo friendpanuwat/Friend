@@ -60,6 +60,16 @@ const { open, shot } = require('./harness');
   await page.click('#foot [data-act="see"]'); await page.waitForTimeout(150);
   s = await st(); say(s.v === 'home', 'No → results', s);
 
+  /* ฤดูกาล: เลือกกลุ่มแต่ไม่ได้แตะเดือน → บอกที่ตารางเดือน */
+  await page.evaluate(() => { const L = window.__lab; L.state.editing = true; L.state.step = 6; L.go('wizard'); });
+  await page.click('[data-act="advmode"][data-v="yes"]'); await page.click('[data-act="advpick"][data-g="adv-season"]');
+  await page.click('#foot [data-act="see"]'); await page.waitForTimeout(200);
+  s = await st(); say(s.v === 'wizard' && s.need.includes('season'), 'season picked, no month: marks the month grid', s);
+  /* ภาพรวมตอนตัวเลขไม่ครบ (เช่น ราคา 0) ยังมีปุ่มแก้ตัวเลข */
+  await page.evaluate(() => { const L = window.__lab; L.state.inp.price = 0; L.state.view = 'home'; L.render(); });
+  const foot = await page.$('#foot [data-act="review"]');
+  say(!!foot, 'incomplete overview still has the แก้ตัวเลข button');
+
   if (errors.length) { bad++; console.log('ERRORS', errors); }
   await browser.close();
   console.log(bad ? bad + ' PROBLEMS' : 'REQUIRED OK');

@@ -474,7 +474,7 @@
       var k = s.high.indexOf(c) >= 0 ? 'high' : s.low.indexOf(c) >= 0 ? 'low' : 'normal';
       ms.push('<button type="button" class="month" data-act="month" data-c="' + c + '" data-s="' + k + '" aria-label="' + TH_MONTHS[c - 1] + ' ' + { high: 'ขายดี', low: 'ขายแย่', normal: 'ปกติ' }[k] + '">' + TH_MONTHS[c - 1] + '<small>' + { high: 'ดี', low: 'แย่', normal: '' }[k] + '</small></button>');
     }
-    return '<div class="field"><p class="help">แตะเดือนเพื่อสลับ ปกติ → ขายดี → ขายแย่</p><div class="months">' + ms.join('') + '</div><div class="two">' +
+    return '<div class="field" data-f="season"><p class="help">แตะเดือนเพื่อสลับ ปกติ → ขายดี → ขายแย่</p><div class="months">' + ms.join('') + '</div><div class="two">' +
       '<div class="field"><label for="f-hp" class="help">ขายดีกว่าปกติ</label><div class="inbox"><input id="f-hp" data-season="highPct" inputmode="decimal" value="' + esc(s.highPct) + '"><span class="suf">%</span></div></div>' +
       '<div class="field"><label for="f-lp" class="help">ขายแย่กว่าปกติ</label><div class="inbox"><input id="f-lp" data-season="lowPct" inputmode="decimal" value="' + esc(s.lowPct) + '"><span class="suf">%</span></div></div></div></div>';
   }
@@ -707,6 +707,7 @@
       if (num(inp.newCustomers)) bits.push('มีข้อมูลลูกค้า');
       if (num(inp.equipValue)) bits.push('มีอุปกรณ์');
       if (inp.advMode === 'no') return 'ไม่มี';
+      if (inp.advMode === 'yes') return advPicked(inp, state.model).map(function (g) { return ADV_GROUPS.filter(function (x) { return x[0] === g; })[0][3]; }).join(' · ') || 'ยังไม่ได้ใส่';
       return bits.length ? bits.join(' · ') : 'ยังไม่ได้ใส่';
     }
     return st.f.map(function (k) {
@@ -1255,7 +1256,7 @@
       var rest = st.f.filter(function (k) { return keys.indexOf(k) < 0 && dShown(k, d); });
       if (!rest.length) return '';
       var t = rest.indexOf('kind') >= 0 ? 'แบบที่เลือก' : st.q;
-      return '<button class="rv-row" data-act="d-edit" data-i="' + i + '"><span class="t">' + esc(t) + '</span><span class="v">' + esc(dStepSummary(st)) + '</span>' + ICON.chev + '</button>';
+      return '<button class="rv-row" data-act="d-edit" data-i="' + i + '"><span class="t">' + esc(qmark(t)) + '</span><span class="v">' + esc(dStepSummary(st)) + '</span>' + ICON.chev + '</button>';
     }).join('');
     return rows ? '<div class="rv">' + rows + '</div>' : '';
   }
@@ -1634,6 +1635,7 @@
               if (typeof pv5 === 'number' && pv5 > 0) dk0[dKey(k5)] = Math.round(pv5 * 100) / 100;
             });
           });
+          if (state.isSample) state.ds[state.topic] = dk0 = dComplete(state.topic, state.inp, m, dk0);
         }
         if (state.topic === 'channel') dk0.chName = kindName('channel', dk0, state.inp, m);
         go('dq', false); var kb = $('[data-act="dkind"][data-v="' + kv + '"]'); if (kb) kb.focus();
@@ -1726,6 +1728,7 @@
         ans()[q] = v;
         $$('.ask-ans button').forEach(function (bb2) { bb2.setAttribute('aria-pressed', String(bb2 === t)); });
         setTimeout(function () {
+          if (state.view !== 'ask') return; /* กดย้อนกลับไปแล้ว */
           var L1 = askList(), A1 = ans(), i = L1.indexOf(q) + 1;
           while (i < L1.length && A1[L1[i]]) i++;
           if (i >= L1.length) { var un = L1.filter(function (x) { return !A1[x]; })[0]; if (un) { state.qidx = L1.indexOf(un); go('ask'); } else { go('points', true, true); hrep(); } }

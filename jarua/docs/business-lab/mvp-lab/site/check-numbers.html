@@ -1965,11 +1965,11 @@ var GROUPS = {
   cash: function () { return ['เงินสดพร้อมใช้', 'ใช้ดูว่าเงินพอใช้ถึงเดือนไหน']; }
 };
 var ADV_GROUPS = [
-  ['adv-grow', 'การเติบโตและกำลังรองรับของร้าน', ''],
-  ['adv-cash', 'จังหวะเงินเข้าออก', 'เช่น ลูกค้าจ่ายเงินทีหลัง สั่งซื้อสต็อกล่วงหน้า หรือจ่ายเงินให้ซัพพลายเออร์ภายหลัง'],
-  ['adv-season', 'ฤดูกาล', 'แตะเดือนเพื่อสลับ ปกติ → ขายดี → ขายแย่'],
-  ['adv-cust', 'ลูกค้า', 'ใช้ดูว่าค่าหาลูกค้าใหม่ 1 คน คุ้มกับกำไรที่ได้จากลูกค้าคนนั้นไหม'],
-  ['adv-equip', 'อุปกรณ์', 'กำไรจะหักเงินที่ควรกันไว้ซื้ออุปกรณ์ใหม่']
+  ['adv-grow', 'การเติบโตและกำลังรองรับของร้าน', '', 'กำลังรองรับของร้าน'],
+  ['adv-cash', 'จังหวะเงินเข้าออก', 'เช่น ลูกค้าจ่ายเงินทีหลัง สั่งซื้อสต็อกล่วงหน้า หรือจ่ายเงินให้ซัพพลายเออร์ภายหลัง', 'เงินเข้าออก'],
+  ['adv-season', 'ฤดูกาล', 'แตะเดือนเพื่อสลับ ปกติ → ขายดี → ขายแย่', 'ฤดูกาล'],
+  ['adv-cust', 'ลูกค้า', 'ใช้ดูว่าค่าหาลูกค้าใหม่ 1 คน คุ้มกับกำไรที่ได้จากลูกค้าคนนั้นไหม', 'ลูกค้า'],
+  ['adv-equip', 'อุปกรณ์', 'กำไรจะหักเงินที่ควรกันไว้ซื้ออุปกรณ์ใหม่', 'อุปกรณ์']
 ];
 
 /* ---------- รายละเอียดเพิ่ม (ข้อสุดท้าย): ต้องตอบ มี / ไม่มี · ถ้ามี เลือกกลุ่มที่รู้ แล้วตอบทุกช่องในกลุ่มนั้น ----------
@@ -3156,7 +3156,7 @@ function compactTH(n) {
       var k = s.high.indexOf(c) >= 0 ? 'high' : s.low.indexOf(c) >= 0 ? 'low' : 'normal';
       ms.push('<button type="button" class="month" data-act="month" data-c="' + c + '" data-s="' + k + '" aria-label="' + TH_MONTHS[c - 1] + ' ' + { high: 'ขายดี', low: 'ขายแย่', normal: 'ปกติ' }[k] + '">' + TH_MONTHS[c - 1] + '<small>' + { high: 'ดี', low: 'แย่', normal: '' }[k] + '</small></button>');
     }
-    return '<div class="field"><p class="help">แตะเดือนเพื่อสลับ ปกติ → ขายดี → ขายแย่</p><div class="months">' + ms.join('') + '</div><div class="two">' +
+    return '<div class="field" data-f="season"><p class="help">แตะเดือนเพื่อสลับ ปกติ → ขายดี → ขายแย่</p><div class="months">' + ms.join('') + '</div><div class="two">' +
       '<div class="field"><label for="f-hp" class="help">ขายดีกว่าปกติ</label><div class="inbox"><input id="f-hp" data-season="highPct" inputmode="decimal" value="' + esc(s.highPct) + '"><span class="suf">%</span></div></div>' +
       '<div class="field"><label for="f-lp" class="help">ขายแย่กว่าปกติ</label><div class="inbox"><input id="f-lp" data-season="lowPct" inputmode="decimal" value="' + esc(s.lowPct) + '"><span class="suf">%</span></div></div></div></div>';
   }
@@ -3213,6 +3213,7 @@ function compactTH(n) {
       if (num(inp.newCustomers)) bits.push('มีข้อมูลลูกค้า');
       if (num(inp.equipValue)) bits.push('มีอุปกรณ์');
       if (inp.advMode === 'no') return 'ไม่มี';
+      if (inp.advMode === 'yes') return advPicked(inp, m).map(function (g) { return ADV_GROUPS.filter(function (x) { return x[0] === g; })[0][3]; }).join(' · ') || 'ยังไม่ได้ใส่';
       return bits.length ? bits.join(' · ') : 'ยังไม่ได้ใส่';
     }
     return st.f.map(function (k) {
@@ -3274,7 +3275,7 @@ function compactTH(n) {
   function viewHome() {
     var m = state.model, base = state.inp, S = C(base, m);
     var head = bar('<button class="tb" data-act="back">' + ICON.back + 'หน้าแรก</button>', 'เช็กตัวเลขร้าน', 'Business Lab');
-    if (!S.ok) return head + '<main class="screen"><div class="wrap"><div class="ok-box"><b>ตัวเลขยังไม่ครบ</b><p>กด "แก้ตัวเลข" เพื่อกรอกให้ครบ</p></div></div></main>';
+    if (!S.ok) return head + '<main class="screen"><div class="wrap"><div class="ok-box"><b>ตัวเลขยังไม่ครบ</b><p>กด "แก้ตัวเลข" เพื่อกรอกให้ครบ</p></div></div></main>' + homeFoot();
     var F = D(base, m), real = F.filter(function (f) { return f.lv !== 'note'; }), notes = F.filter(function (f) { return f.lv === 'note'; });
     var out = head + '<main class="screen"><div class="wrap">';
     if (state.isSample) out += '<div class="banner"><span>นี่คือร้านกาแฟตัวอย่าง</span><button class="lnk" data-act="to-start">ใส่ตัวเลขร้านคุณ</button></div>';
@@ -3613,32 +3614,47 @@ function compactTH(n) {
     document.documentElement.style.setProperty('--foot-h', (foot ? foot.offsetHeight : 0) + 'px');
     save();
   }
-  function go(view, top) { state.view = view; render(); syncGuard(); if (top !== false) window.scrollTo(0, 0); }
+  function go(view, top, noPush) {
+    state.view = view; render();
+    if (!noPush) { if (view === 'start') leaveAll(); else if (needDepth(view) > hdepth) hpush(); }
+    if (top !== false) window.scrollTo(0, 0);
+  }
   /* ปุ่มย้อนกลับในแอป (ซ้ายบน) และปุ่มย้อนกลับของมือถือ ไปที่เดียวกันทุกหน้า:
      ข้อคำถาม → ข้อก่อนหน้า (ข้อแรก → หน้าแรก) · แก้ทีละข้อ → แก้ตัวเลข · แก้ตัวเลข → ภาพรวม · ภาพรวม → หน้าแรก
      สิ่งที่ตัวเลขบอก / หาจุดที่ควรตรวจสอบ / จุดที่ควรตรวจสอบ → ภาพรวม · ทดลองปรับตัวเลข → หน้าที่เปิดมา · หน้าแรก → ออกไปหน้า Business Lab */
-  function goBack() {
+  function goBack(noPush) {
     var v = state.view;
     if (v === 'wizard') {
-      if (state.editing) go('review');
-      else if (state.step > 0) { state.step--; go('wizard'); }
-      else go('start');
-    } else if (v === 'lab') { var f = state.labFrom; state.labFrom = null; go(f === 'finding' || f === 'points' ? f : 'home'); }
-    else if (v === 'home') go('start');
-    else if (v !== 'start') go('home');
+      if (state.editing) go('review', true, noPush);
+      else if (state.step > 0) { state.step--; go('wizard', true, noPush); }
+      else go('start', true, noPush);
+    } else if (v === 'lab') { var f = state.labFrom; state.labFrom = null; go(f === 'finding' || f === 'points' ? f : 'home', true, noPush); }
+    else if (v === 'home') go('start', true, noPush);
+    else if (v !== 'start') go('home', true, noPush);
   }
-  /* มือถือ: เมื่อออกจากหน้าแรก มีประวัติกันไว้ 1 ขั้น กดย้อนกลับแล้วทำแบบปุ่มในแอป (แล้วกันไว้ใหม่)
-     อยู่หน้าแรกแล้วกดย้อนกลับ = ออกไปหน้าก่อน (หน้า Business Lab) ทันที */
-  var guarded = false;
-  function syncGuard() {
-    if (state.view === 'start' || guarded) return;
-    try { history.pushState({ lab1: 1 }, ''); guarded = true; } catch (e) { /* ignore */ }
+  /* ประวัติของมือถือ: 1 ขั้นต่อการกดย้อนกลับ 1 ครั้งที่ต้องใช้กว่าจะถึงหน้าแรก (needDepth) · hdepth = ขั้นที่มีอยู่เหนือหน้าแรก
+     เพิ่มขั้นเฉพาะตอนผู้ใช้แตะ (ไม่เพิ่มตอนกดย้อนกลับ เพราะ Chrome บนมือถือข้ามขั้นที่เพิ่มโดยไม่มีการแตะ แล้วออกจากเครื่องมือไปเลย)
+     กดย้อนกลับของมือถือ = ทำแบบปุ่มในแอป · ถึงหน้าแรกแล้วขั้นที่เหลือถูกย้อนทิ้ง กดอีกครั้ง = ออกไปหน้า Business Lab */
+  var hdepth = 0;
+  function needDepth(v) {
+    if (v === 'start') return 0;
+    if (v === 'home') return 1;
+    if (v === 'wizard') return state.editing ? 3 : state.step + 1;
+    if (v === 'lab') return 1 + needDepth(state.labFrom === 'finding' || state.labFrom === 'points' ? state.labFrom : 'home');
+    return 2;
   }
-  function onPop() {
-    guarded = false;
+  function hpush() { try { history.pushState({ lab1: 1, d: hdepth + 1 }, ''); hdepth++; } catch (e) { /* ignore */ } }
+  function leaveAll() { if (hdepth > 0) { var n = hdepth; hdepth = 0; try { history.go(-n); } catch (e) { /* ignore */ } } }
+  function readDepth(st) { return st && st.lab1 && typeof st.d === 'number' ? st.d : 0; }
+  /* แตะครั้งแรกหลังเปิดหน้ากลางทาง (เช่น เปิดมาที่ภาพรวมเลย) หรือหลังกดย้อนกลับ: เติมขั้นให้พอก่อนทำอย่างอื่น */
+  function topUp() { var n = 0; while (hdepth < needDepth(state.view) && n++ < 8) hpush(); }
+  function backBtn() { if (hdepth > 0) { try { history.back(); return; } catch (e) { /* ignore */ } } goBack(); }
+  function onPop(ev) {
+    hdepth = readDepth(ev.state);
     $$('.toast').forEach(function (x) { x.remove(); });
-    if (state.view === 'start') { try { history.back(); } catch (e) { /* ignore */ } return; }
-    goBack();
+    if (state.view === 'start') { leaveAll(); return; }
+    goBack(true);
+    if (state.view === 'start') leaveAll();
   }
   function toast(msg) {
     var o = $('.toast'); if (o) o.remove();
@@ -3697,7 +3713,7 @@ function compactTH(n) {
         if (!stepValid(steps[state.step])) { wShowMissing(steps[state.step]); break; }
         if (state.step < steps.length - 1) { state.step++; go('wizard'); }
         break;
-      case 'prev': case 'back': goBack(); break;
+      case 'prev': case 'back': backBtn(); break;
       case 'see': {
         steps = stepsFor(m);
         var bad = -1; for (var bi = 0; bi < steps.length; bi++) if (!stepValid(steps[bi])) { bad = bi; break; }
@@ -3793,6 +3809,7 @@ function compactTH(n) {
         state.answers[q] = v;
         $$('.ask-ans button').forEach(function (bb) { bb.setAttribute('aria-pressed', String(bb === t)); });
         setTimeout(function () {
+          if (state.view !== 'ask') return; /* กดย้อนกลับไปแล้ว */
           var L1 = askList(), i = L1.map(function (x) { return x.qid; }).indexOf(q) + 1;
           while (i < L1.length && state.answers[L1[i].qid]) i++;
           if (i >= L1.length) { var un = L1.filter(function (x) { return !state.answers[x.qid]; })[0]; if (un) { state.qidx = L1.indexOf(un); go('ask'); } else go('points'); }
@@ -3897,12 +3914,13 @@ function compactTH(n) {
     window.addEventListener('popstate', onPop);
     window.addEventListener('pageshow', function (ev) {
       if (!ev.persisted) return;
-      guarded = !!(history.state && history.state.lab1);
+      hdepth = readDepth(history.state);
       try { var th2 = localStorage.getItem('lab-theme'); if (th2 === 'dark' || th2 === 'light') document.documentElement.setAttribute('data-theme', th2); } catch (e) { /* ignore */ }
-      adoptShared(); render(); syncGuard();
+      adoptShared(); render();
     });
-    guarded = !!(history.state && history.state.lab1);
-    render(); syncGuard();
+    document.addEventListener('click', topUp, true);
+    hdepth = readDepth(history.state);
+    render();
   }
   var hot = window.claude && window.claude.hot;
   if (hot && hot.snapshot) { try { hot.snapshot(snapshot); } catch (e) { /* ignore */ } }
