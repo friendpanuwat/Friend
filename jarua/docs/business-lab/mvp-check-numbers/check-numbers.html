@@ -490,6 +490,10 @@ button.ovt[aria-expanded="true"] .k svg { transform: rotate(180deg); }
 
 .rank .rl .rh { display: block; font-size: 12.5px; font-weight: 400; color: var(--muted); }
 .rc-foot { margin-top: 4px; font-size: 12px; color: var(--muted); }
+.ovg .ovd { grid-column: 1 / -1; margin-top: 0; }
+.ovt.wide { grid-column: 1 / -1; min-height: 0; flex-direction: row; align-items: center; gap: 16px; }
+.ovt.wide .n { margin-top: 0; }
+.panel :focus-visible, .ln-b :focus-visible { outline-color: var(--panel-ink); }
 </style>
 <div id="app"></div>
 <script>
@@ -3358,7 +3362,7 @@ function compactTH(n) {
           '<span class="fr-r"><span class="fm">' + mo[0] + '<small>' + mo[1] + '</small></span>' + ICON.chev + '</span></button>';
       }).join('') + '</div>';
     } else {
-      out += '<div class="ok-box"><div class="hq"><b>ไม่พบปัญหาที่น่ากังวลจากตัวเลขที่ตรวจสอบได้</b>' + qmBtn('okb', 'ไม่พบปัญหาที่น่ากังวล') + '</div>' + qmT('okb', 'ร้านคุณยังแข็งแรง ดูด้านล่างว่าตัวเลขไหนขยับแล้วได้เงินเพิ่มมากที่สุด') + '</div>';
+      out += '<div class="ok-box"><div class="hq"><b>ไม่พบปัญหาที่น่ากังวลจากตัวเลขที่ตรวจสอบได้</b>' + qmBtn('okb', 'ไม่พบปัญหาที่น่ากังวล') + '</div>' + qmT('okb', 'ร้านคุณยังแข็งแรง ดูด้านล่างว่าตัวเลขไหนขยับแล้วได้เงินเพิ่มมากที่สุด · ร้านแข็งแรง อยากโตต่อ? ดูเครื่องมือที่ช่วยหาทางเลือกในการเติบโต และแผนธุรกิจทั้งร้าน') + '</div>';
     }
     if (notes.length) out += '<div class="flist" style="margin-top:8px">' + notes.map(function (f) {
       return '<button class="frow" data-act="finding" data-f="' + f.id + '"><span class="pill note">ข้อสังเกต</span><span class="ft">' + esc(f.title) + '</span><span class="fr-r">' + ICON.chev + '</span></button>';
@@ -3399,7 +3403,7 @@ function compactTH(n) {
     return '<button type="button" class="ovt" data-act="qm" data-q="' + key + '" aria-expanded="' + !!qmOpen[key] + '"><span class="k"><span>' + k + '</span>' + ICON.down + '</span>' + inner + '</button>';
   }
   function ovTiles(S, base, m) {
-    var t = [], det = '';
+    var t = [], dd = {};
     /* จุดคุ้มทุน */
     if (!S.be || S.be.impossible) t.push(tileBtn('ov-be', 'จุดคุ้มทุน', '<span class="v">—</span><span class="n mu">ขายเท่าไหร่ก็ไม่คุ้ม</span>'));
     else {
@@ -3408,7 +3412,7 @@ function compactTH(n) {
       t.push(tileBtn('ov-be', 'จุดคุ้มทุน', '<span class="v">' + anim('hbe', be, 1) + '<small>' + esc(volUnitText(base, m)) + '</small></span>' +
         '<span class="mg" aria-hidden="true"><span class="f" style="width:' + pc(cur) + '%"></span><span class="m" style="left:' + pc(be) + '%"></span></span><span class="n mu">ตอนนี้ ' + fmtN(cur, 1) + '</span>'));
     }
-    det += '<div class="ovd card" data-qmt="ov-be"' + qmHide('ov-be') + '><p class="lead">' + beLead(S, base, m) + '</p></div>';
+    dd[t.length - 1] = '<div class="ovd card" data-qmt="ov-be"' + qmHide('ov-be') + '><p class="lead">' + beLead(S, base, m) + '</p></div>';
     /* เงินสด 12 เดือน */
     var ck, cv;
     if (S.hasCash && S.firstNegT) { ck = 'เงินสดหมดราว'; cv = monthLabel(S.firstNegT, true); }
@@ -3416,7 +3420,7 @@ function compactTH(n) {
     else { ck = 'เงินเพิ่มใน 12 เดือน'; cv = (S.cashEnd < 0 ? '−' : '') + compactTH(Math.abs(S.cashEnd)); }
     if (S.cash.length) {
       t.push(tileBtn('ov-cash', ck, '<span class="v">' + esc(cv) + '</span>' + sparkSvg(S)));
-      det += '<div class="ovd" data-qmt="ov-cash"' + qmHide('ov-cash') + '>' + cashCard(S) + '</div>';
+      dd[t.length - 1] = '<div class="ovd" data-qmt="ov-cash"' + qmHide('ov-cash') + '>' + cashCard(S) + '</div>';
     } else t.push('<div class="ovt"><span class="k">' + ck + '</span><span class="v">' + esc(cv) + '</span></div>');
     /* ยอดขายลดลงได้อีกก่อนขาดทุน / ต้องขายเพิ่ม */
     if (S.be && !S.be.impossible) {
@@ -3433,9 +3437,13 @@ function compactTH(n) {
       var u = S.util;
       var cmax = u.reachT ? 'จะเต็มในเดือน ' + monthLabel(u.reachT, true) : 'สูงสุด ' + fmtN(u.max, 1) + ' ' + esc(m === 'project' ? 'งานพร้อมกัน' : volUnitText(base, m));
       t.push('<button type="button" class="ovt" data-act="qm" data-q="ov-cap" aria-expanded="' + !!qmOpen['ov-cap'] + '"><span class="k"><span></span>' + ICON.down + '</span>' + ring(u.pct, 'ใช้กำลังรองรับไปแล้ว', fmtPct(u.pct)) + '<span class="n">กำลังรองรับของร้าน · ' + cmax + '</span></button>');
-      det += '<div class="ovd card" data-qmt="ov-cap"' + qmHide('ov-cap') + '><p class="lead">ใช้กำลังรองรับไปแล้ว <b>' + fmtPct(u.pct) + '</b> จากความสามารถสูงสุดของร้าน · ' + cmax + '</p></div>';
+      dd[t.length - 1] = '<div class="ovd card" data-qmt="ov-cap"' + qmHide('ov-cap') + '><p class="lead">ใช้กำลังรองรับไปแล้ว <b>' + fmtPct(u.pct) + '</b> จากความสามารถสูงสุดของร้าน · ' + cmax + '</p></div>';
     }
-    return '<div class="ovg">' + t.join('') + '</div>' + det;
+    /* รายละเอียดของการ์ดเปิดใต้แถวของการ์ดนั้น (ไม่ไปต่อท้ายทั้งตาราง) · การ์ดเหลือ 3 ใบ = ใบสุดท้ายเต็มแถว */
+    if (t.length % 2) t[t.length - 1] = t[t.length - 1].replace('class="ovt"', 'class="ovt wide"');
+    var out = '';
+    for (var r = 0; r < t.length; r += 2) out += t[r] + (t[r + 1] || '') + (dd[r] || '') + (dd[r + 1] || '');
+    return '<div class="ovg">' + out + '</div>';
   }
   function cashCard(S) {
     if (!S.cash.length) return '';
@@ -3546,7 +3554,7 @@ function compactTH(n) {
   function nextAct() { var L = askList(); return !L.length || askDone() ? 'points' : 'ask'; }
   function homeFoot() {
     return '<div class="foot foot2" id="foot"><div class="wrap"><button class="btn ghost" data-act="review">แก้ตัวเลข</button>' +
-      '<button class="btn" data-act="' + nextAct() + '">หาจุดที่ควรตรวจสอบ</button></div></div>';
+      '<button class="btn" data-act="' + nextAct() + '">' + (askList().length ? 'หาจุดที่ควรตรวจสอบ' : 'ดูเครื่องมือที่ช่วยต่อยอด') + '</button></div></div>';
   }
   function viewAsk() {
     var L = askList();
@@ -3922,7 +3930,7 @@ function compactTH(n) {
       case 'qm': {
         var qk = t.getAttribute('data-q'), qo = !qmOpen[qk];
         qmOpen[qk] = qo;
-        $$('[data-qmt="' + qk + '"]').forEach(function (el) { el.hidden = !qo; });
+        $$('[data-qmt="' + qk + '"]').forEach(function (el) { el.hidden = !qo; if (qo && el.classList.contains('ovd')) el.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' }); });
         $$('[data-act="qm"][data-q="' + qk + '"]').forEach(function (b) { b.setAttribute('aria-expanded', String(qo)); });
         break;
       }

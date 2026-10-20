@@ -490,6 +490,10 @@ button.ovt[aria-expanded="true"] .k svg { transform: rotate(180deg); }
 
 .rank .rl .rh { display: block; font-size: 12.5px; font-weight: 400; color: var(--muted); }
 .rc-foot { margin-top: 4px; font-size: 12px; color: var(--muted); }
+.ovg .ovd { grid-column: 1 / -1; margin-top: 0; }
+.ovt.wide { grid-column: 1 / -1; min-height: 0; flex-direction: row; align-items: center; gap: 16px; }
+.ovt.wide .n { margin-top: 0; }
+.panel :focus-visible, .ln-b :focus-visible { outline-color: var(--panel-ink); }
 /* ---------- ตัวที่ 3: รูปแบบหน้าจอของตัวเอง (ใช้ token สี ฟอนต์ ระยะ และส่วนกรอกตัวเลขร้านชุดเดียวกับตัวที่ 1) ----------
    ภาษาภาพ: "สองเส้นทาง" ไม่ทำ (พื้นสว่าง) | ทำ (แถบดำ) · ตัวเลขใหญ่บอกการเปลี่ยนแปลง · แถบลากหาจุดคุ้ม · เครื่องหมาย ✓ ✕
    ลาย "ไม่คุ้ม / ยังไม่ถึง" ใช้ลายเส้นทแยง ไม่ใช้สี */
@@ -853,6 +857,8 @@ h1.pp-t { font-size: 28px; line-height: 1.3; margin: 0; text-wrap: balance; }
 .ckc .ck-d small { font-size: 13px; color: var(--muted); line-height: 1.45; }
 .ckc .ck-d small.ck-h { color: var(--ink-2); }
 .ckc .ck-d .sbtn { justify-self: start; }
+.next3 .tools .qm i { background: var(--surface); }
+.next3 .tools .qm[aria-expanded="true"] i { background: var(--ink); }
 </style>
 <div id="app"></div>
 <script>
@@ -4834,7 +4840,7 @@ function fmtCompact(n) {
   }
   function deltaWords(dl) { return Math.abs(dl) < 0.5 ? 'กำไรเท่าเดิม' : 'กำไร' + (dl > 0 ? 'เพิ่มขึ้น ' : 'ลดลง ') + fmtN(Math.abs(dl)) + ' บาทต่อเดือน'; }
   /* คำที่ไม่ควรถูกตัดกลางคำเวลาขึ้นบรรทัดใหม่ */
-  var NW = ['ตัดสินใจ', 'ยอดขาย', 'ตอนนี้', 'เงินก้อน', 'ไหวไหม', 'คืนทุน', 'ต่อเดือน', 'ขาดมือ', 'เท่าเดิม', 'อย่างน้อย', 'ร้านเดิม', 'คนใหม่', 'ถึงจะคุ้ม', 'ที่ใหม่', 'ขั้นต่ำ', 'คอนเทนต์', 'เพิ่มขึ้น', 'ออร์เดอร์', 'แอดมิน', 'คนไลฟ์', 'ช่องทาง'];
+  var NW = ['ตัดสินใจ', 'ยอดขาย', 'ตอนนี้', 'เงินก้อน', 'ไหวไหม', 'คืนทุน', 'ต่อเดือน', 'ขาดมือ', 'เท่าเดิม', 'อย่างน้อย', 'ร้านเดิม', 'คนใหม่', 'ถึงจะคุ้ม', 'ที่ใหม่', 'ขั้นต่ำ', 'คอนเทนต์', 'เพิ่มขึ้น', 'ออร์เดอร์', 'แอดมิน', 'คนไลฟ์', 'ช่องทาง', 'ลดราคา', 'ยังคุ้ม', 'บริการใหม่', 'เงินเดือน'];
   function tw(str) {
     var h = esc(str);
     NW.forEach(function (w) { h = h.split(w).join('<span class="nw">' + w + '</span>'); });
@@ -5623,8 +5629,8 @@ function fmtCompact(n) {
     return '<section class="next3">' + toolsHtml(TOPIC_TOOLS[state.topic], 'เครื่องมือที่ช่วยหาแนวทางเรื่องนี้') + '</section>';
   }
   function planCard() {
-    return '<div class="plan-row"><b>แผนธุรกิจ</b><span class="pill">เร็ว ๆ นี้</span>' + qmBtn('plan', 'แผนธุรกิจ') + '<span class="sp"></span><button class="go" data-act="plan">ดูแผนธุรกิจ' + ICON.out + '</button>' +
-      qmT('plan', 'ใช้ตัวเลขชุดนี้วางทางทั้งร้าน ทั้งการตลาด ทีม และเงิน 12 เดือน') + '</div>';
+    return '<div class="plan-row"><b>แผนธุรกิจ</b><span class="pill">เร็ว ๆ นี้</span>' + qmBtn('plan-' + state.view, 'แผนธุรกิจ') + '<span class="sp"></span><button class="go" data-act="plan">ดูแผนธุรกิจ' + ICON.out + '</button>' +
+      qmT('plan-' + state.view, 'ใช้ตัวเลขชุดนี้วางทางทั้งร้าน ทั้งการตลาด ทีม และเงิน 12 เดือน') + '</div>';
   }
   /* ดูละเอียด: แท็บ เงินในมือ 12 เดือน | กำไรเปลี่ยนเพราะอะไร */
   var RTABS = [['cash', 'เงินในมือ 12 เดือน'], ['wf', 'กำไรเปลี่ยนเพราะอะไร?']];
