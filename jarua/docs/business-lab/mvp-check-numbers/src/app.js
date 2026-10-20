@@ -13,6 +13,7 @@
     out: P('<path d="M7 17 17 7"/><path d="M8 7h9v9"/>'),
     moon: P('<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>'),
     sun: P('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-2.93 1.41-1.41M17.66 6.34l1.41-1.41M2 12h2m16 0h2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41"/>'),
+    q: P('<path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>'),
     sliders: P('<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>')
   };
   var MICON = {
@@ -117,6 +118,11 @@
     });
   }
 
+  /* มินิมอล: ข้อความรองซ่อนไว้หลังปุ่ม "?" · qmOpen จำว่าเปิดอันไหนไว้ (วาดหน้าใหม่แล้วไม่ปิดเอง) */
+  var qmOpen = {};
+  function qmBtn(key, label) { return '<button type="button" class="qm" data-act="qm" data-q="' + key + '" aria-expanded="' + !!qmOpen[key] + '" aria-label="' + esc(String(label).replace(/<[^>]*>/g, '')) + '"><i>' + ICON.q + '</i></button>'; }
+  function qmHide(key) { return qmOpen[key] ? '' : ' hidden'; }
+  function qmT(key, html, tag) { tag = tag || 'p'; return html ? '<' + tag + ' class="qm-tx" data-qmt="' + key + '"' + qmHide(key) + '>' + html + '</' + tag + '>' : ''; }
   function bar(left, title, sub, right) {
     return '<header class="bar"><div class="wrap">' + (left || '<span class="spacer44"></span>') +
       '<div class="ttl">' + (sub ? '<small>' + sub + '</small>' : '') + esc(title) + '</div>' +
@@ -134,8 +140,8 @@
     }).join('');
     return bar(hubLink(), 'เช็กตัวเลขร้าน', 'Business Lab') + '<main class="screen"><div class="wrap">' +
       '<section class="panel start-hero">' +
-      '<h1>รู้ว่าร้านอยู่ตรงไหน<br>เรื่องไหนทำให้เสียเงินเท่าไหร่</h1>' +
-      '<p>ลองปรับตัวเลขก่อนตัดสินใจจริง</p>' +
+      '<div class="hq"><h1>รู้ว่าร้านอยู่ตรงไหน<br>เรื่องไหนทำให้เสียเงิน<span class="nw">เท่าไหร่</span></h1>' + qmBtn('st', 'รู้ว่าร้านอยู่ตรงไหน เรื่องไหนทำให้เสียเงินเท่าไหร่') + '</div>' +
+      qmT('st', 'ลองปรับตัวเลขก่อนตัดสินใจจริง') +
       '<div class="demo"><span class="k">ร้านกาแฟตัวอย่าง · กำไรต่อเดือน</span><span></span>' +
       '<span class="v">' + anim('demo', S0.profit) + '</span><span class="d up">' + fmtN(S1.profit - S0.profit) + '</span>' +
       '<span class="note">ถ้าขึ้นราคาแก้วละ 5 บาท โดยลูกค้าเท่าเดิม</span></div>' +
@@ -144,7 +150,6 @@
       '<div class="sec-h"><h2>หรือใส่ตัวเลขร้านคุณ</h2><span class="aside">ประมาณ 3 นาที</span></div>' +
       '<p class="muted" style="margin:-6px 2px 12px;font-size:14px">ร้านคุณได้เงินจากอะไรเป็นหลัก?</p>' +
       '<div class="tiles">' + tiles + '</div>' +
-      '<p class="fine">ไม่ต้องสมัคร ตัวเลขอยู่ในเครื่องคุณเท่านั้น และหายไปเมื่อปิดหน้านี้ · คำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua</p>' +
       '</div></main>';
   }
 
@@ -200,8 +205,9 @@
     var m = state.model, inp = state.inp;
     var hidden = f.show && !f.show(inp, m) ? ' hidden' : '';
     var lab = esc(qmark(f.label(inp, m)));
-    var help = f.help ? '<p class="help">' + esc(f.help(inp, m)) + '</p>' : '';
+    var ht = f.help ? f.help(inp, m) : '';
     var id = 'f-' + k;
+    var labRow = ht ? '<div class="hq"><label for="' + id + '">' + lab + '</label>' + qmBtn('h-' + k, lab) + '</div>' + qmT('h-' + k, esc(ht)) : '<label for="' + id + '">' + lab + '</label>';
     if (f.t === 'unit') {
       var M = MODELS[m], cur = inp.unitLabel || M.defUnit;
       var chips = M.units.map(function (u) { return '<button type="button" class="chip" data-act="unit" data-v="' + esc(u) + '" aria-pressed="' + (cur === u) + '">' + esc(u) + '</button>'; }).join('');
@@ -238,7 +244,7 @@
           '<div class="field"><label for="fh-rate">แอปหักไปกี่ %?</label><div class="inbox"><input id="fh-rate" data-fh="rate" inputmode="decimal" value="' + esc(state.fh.rate) + '"><span class="suf">%</span></div></div></div><div class="fh-res" id="fh-res">' + feeHelpText() + '</div></div>'
         : '<button type="button" class="lnk" data-act="fee-help" style="justify-self:start">ขายผ่านแอปบางส่วน? ให้ช่วยคิด</button>';
     }
-    return '<div class="field" data-f="' + k + '"' + hidden + '><label for="' + id + '">' + lab + '</label>' + per + chipsHtml(f, k) + '<div class="inbox">' + input + '<span class="suf">' + suf + '</span></div>' + help + extra + '</div>';
+    return '<div class="field" data-f="' + k + '"' + hidden + '>' + labRow + per + chipsHtml(f, k) + '<div class="inbox">' + input + '<span class="suf">' + suf + '</span></div>' + extra + '</div>';
   }
   /* ปุ่มตอบเร็ว: "ไม่มี" (หรือ "เท่าเดิม") = 0 · "ยังไม่รู้" = ไม่จำกัด (เช่น กำลังสูงสุด) */
   function chipsHtml(f, k) {
@@ -329,6 +335,11 @@
     return head + topK + '</span><span class="rs-v">' + (varOk && S.profit < 0 ? '−' : '') + anim('rs', topV) + '<small>บาท</small></span></div><div class="rs-lines">' + lines + '</div></section>';
   }
 
+  function qHead(st) {
+    var q = esc(qmark(st.q));
+    if (!st.p) return '<div class="q-head"><h1>' + q + '</h1></div>';
+    return '<div class="q-head"><div class="hq"><h1>' + q + '</h1>' + qmBtn('q-' + st.id, q) + '</div>' + qmT('q-' + st.id, esc(st.p)) + '</div>';
+  }
   function viewWizard() {
     var m = state.model, steps = stepsFor(m);
     if (state.step >= steps.length) state.step = steps.length - 1;
@@ -344,7 +355,7 @@
     var more = '';
     return bar('<button class="ib" data-act="prev" aria-label="ย้อนกลับ">' + ICON.back + '</button>', MODELS[m].tile, 'ข้อ ' + (state.step + 1) + ' จาก ' + steps.length) +
       '<main class="screen"><div class="wrap">' + prog + wizReceipt() +
-      '<div class="q-head"><h1>' + esc(qmark(st.q)) + '</h1>' + (st.p ? '<p>' + esc(st.p) + '</p>' : '') + '</div>' + body + more + '</div></main>' + foot;
+      qHead(st) + body + more + '</div></main>' + foot;
   }
 
   /* ============================================================ REVIEW (แก้ตัวเลข) */
@@ -425,10 +436,10 @@
     var F = D(base, m), real = F.filter(function (f) { return f.lv !== 'note'; }), notes = F.filter(function (f) { return f.lv === 'note'; });
     var out = head + '<main class="screen"><div class="wrap">';
     if (state.isSample) out += '<div class="banner"><span>นี่คือร้านกาแฟตัวอย่าง</span><button class="lnk" data-act="to-start">ใส่ตัวเลขร้านคุณ</button></div>';
-    out += '<section class="panel"><div class="eyebrow"><span>' + (S.profit < 0 ? 'ขาดทุนต่อเดือน' : 'กำไรต่อเดือน') + '</span>' + (state.isSample ? '<span class="tag">ตัวอย่าง</span>' : '') + '</div>' +
+    var pk = S.profit < 0 ? 'ขาดทุนต่อเดือน' : 'กำไรต่อเดือน';
+    out += '<section class="panel"><div class="eyebrow hq"><span><span>' + pk + '</span>' + (state.isSample ? ' <span class="tag">ตัวอย่าง</span>' : '') + '</span>' + qmBtn('hp', pk) + '</div>' +
       '<div class="bignum">' + (S.profit < 0 ? '−' : '') + anim('hp', S.profit) + '<span class="u">บาท</span></div>' +
-      '<div class="sub">' + (S.owner > 0 ? 'หักเงินเดือนคุณ ' + fmtN(S.owner) + ' แล้ว' : 'ยังไม่ได้หักเงินเดือนคุณ') + ' · รายได้ ' + fmtN(S.revenue) + '</div>' +
-      statsHtml(S, base, m, 'h') +
+      qmT('hp', (S.owner > 0 ? 'หักเงินเดือนคุณ ' + fmtN(S.owner) + ' แล้ว' : 'ยังไม่ได้หักเงินเดือนคุณ') + ' · รายได้ ' + fmtN(S.revenue)) +
       '<div class="cta"><button class="btn on-panel block" data-act="lab">' + ICON.sliders + 'ทดลองปรับตัวเลข</button></div></section>';
 
     out += '<div class="sec-h"><h2>สิ่งที่ตัวเลขบอก</h2><span class="aside">' + (real.length ? real.length + ' เรื่อง' : '') + '</span></div>';
@@ -439,17 +450,16 @@
           '<span class="fr-r"><span class="fm">' + mo[0] + '<small>' + mo[1] + '</small></span>' + ICON.chev + '</span></button>';
       }).join('') + '</div>';
     } else {
-      out += '<div class="ok-box"><b>ไม่พบปัญหาที่น่ากังวลจากตัวเลขที่ตรวจสอบได้</b><p>ร้านคุณยังแข็งแรง ดูด้านล่างว่าตัวเลขไหนขยับแล้วได้เงินเพิ่มมากที่สุด</p></div>';
+      out += '<div class="ok-box"><div class="hq"><b>ไม่พบปัญหาที่น่ากังวลจากตัวเลขที่ตรวจสอบได้</b>' + qmBtn('okb', 'ไม่พบปัญหาที่น่ากังวล') + '</div>' + qmT('okb', 'ร้านคุณยังแข็งแรง ดูด้านล่างว่าตัวเลขไหนขยับแล้วได้เงินเพิ่มมากที่สุด') + '</div>';
     }
     if (notes.length) out += '<div class="flist" style="margin-top:8px">' + notes.map(function (f) {
       return '<button class="frow" data-act="finding" data-f="' + f.id + '"><span class="pill note">ข้อสังเกต</span><span class="ft">' + esc(f.title) + '</span><span class="fr-r">' + ICON.chev + '</span></button>';
     }).join('') + '</div>';
-    out += '<div style="margin-top:12px">' + nextStepCard() + '</div>';
 
-    out += '<div class="sec-h"><h2>ภาพรวมร้านของคุณ</h2></div><div class="cards">' + beCard(S, base, m) + cashCard(S) + '</div>' + receiptHtml(S, null) +
-      '<div class="cards">' + rankCard(S, base, m) + capCard(S, base, m) + custCard(S) + '</div>';
-    out += '<section class="panel plan"><span class="tag">เร็วๆ นี้</span><h3>อยากเห็นทุกเรื่องเชื่อมกันเป็นแผนเดียว</h3><p>แผนธุรกิจของ Jarua ใช้ตัวเลขชุดนี้ต่อได้ทันที แล้ววางทางทั้งร้าน ทั้งการตลาด ทีม และเงิน 12 เดือน</p>' +
-      '<button class="btn on-panel block" data-act="plan">ดูแผนธุรกิจ</button></section>';
+    out += '<div class="sec-h"><h2>ภาพรวมร้านของคุณ</h2></div>' + ovTiles(S, base, m) + receiptHtml(S, null) +
+      '<div class="cards" style="margin-top:10px">' + rankCard(S, base, m) + custCard(S) + '</div>';
+    out += '<div class="plan-row"><b>แผนธุรกิจ</b><span class="pill">เร็วๆ นี้</span>' + qmBtn('plan', 'แผนธุรกิจ') + '<span class="sp"></span><button class="go" data-act="plan">ดูแผนธุรกิจ' + ICON.out + '</button>' +
+      qmT('plan', 'อยากเห็นทุกเรื่องเชื่อมกันเป็นแผนเดียว · แผนธุรกิจของ Jarua ใช้ตัวเลขชุดนี้ต่อได้ทันที แล้ววางทางทั้งร้าน ทั้งการตลาด ทีม และเงิน 12 เดือน') + '</div>';
     out += '<details class="about"><summary>ตัวเลขชุดนี้คิดอย่างไร?' + ICON.down + '</summary><ul>' +
       '<li>คำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua ตัวเลขจึงตรงกันทุกที่</li><li>ทุกตัวเลขมาจากที่คุณกรอก ไม่ได้เทียบกับร้านอื่น</li><li>กำไรเป็นกำไรก่อนหักภาษี</li>' +
       '<li>' + (n0(base.growth) ? 'ยอดขายเปลี่ยนเดือนละ ' + fmtPct(n0(base.growth)) + ' ตามที่กรอก' : 'คิดแบบยอดขายเท่าเดิมทุกเดือน') + ' · ค่าใช้จ่ายคงที่เท่าเดิมตลอด 12 เดือน</li></ul></details>';
@@ -457,19 +467,65 @@
     return out + '</div></main>' + homeFoot();
   }
 
-  function beCard(S, base, m) {
+  /* ภาพรวมร้าน: การ์ด 2 ช่อง · จุดคุ้มทุน (แถบ) · เงินสด (เส้นย่อ แตะดูกราฟเต็ม) · ยอดขายลดได้อีก (วงแหวน) · กำลังรองรับ (วงแหวน) */
+  function ring(pct, label, txt) {
+    var p = Math.max(0, Math.min(100, pct)), L = 163.4;
+    return '<span class="ring" role="img" aria-label="' + esc(label + ' ' + txt) + '"><svg viewBox="0 0 64 64" aria-hidden="true"><circle class="rt" cx="32" cy="32" r="26"/><circle class="rv" cx="32" cy="32" r="26" stroke-dasharray="' + (L * p / 100).toFixed(1) + ' ' + L + '"/></svg><b>' + txt + '</b></span>';
+  }
+  function sparkSvg(S) {
+    var s1 = [S.cashStart].concat(S.cash.map(function (c) { return c.bal; }));
+    var mn = Math.min.apply(null, s1), mx = Math.max.apply(null, s1);
+    if (mx === mn) { mx += 1; mn -= 1; }
+    var y = function (v) { return (40 - (v - mn) / (mx - mn) * 36).toFixed(1); };
+    var d = s1.map(function (v, i) { return (i ? 'L' : 'M') + (i * 140 / 12).toFixed(1) + ' ' + y(v); }).join(' ');
+    var z = mn < 0 && mx > 0 ? '<line class="z" x1="0" x2="140" y1="' + y(0) + '" y2="' + y(0) + '"/>' : '';
+    return '<svg class="spark" viewBox="0 0 140 44" preserveAspectRatio="none" aria-hidden="true">' + z + '<path d="' + d + '"/></svg>';
+  }
+  function beLead(S, base, m) {
     var u = U(base, m), ut = volUnitText(base, m);
-    if (!S.be || S.be.impossible) return '<section class="card"><h3>จุดคุ้มทุน</h3><p class="lead">ขายเท่าไหร่ก็ไม่คุ้มทุน เพราะเงินที่ได้ต่อ' + esc(u) + ' ไม่พอจ่ายต้นทุนที่เพิ่มตามยอดขาย</p></section>';
-    var cur = S.vol, be = S.be.vol;
-    var max = m === 'rental' ? 100 : Math.max(cur, be) * 1.2;
-    function pc(v) { return Math.max(0, Math.min(100, v / max * 100)); }
-    function ed(p) { return p < 14 ? ' el' : p > 86 ? ' er' : ''; }
-    var gap = cur - be;
-    var lead = gap >= 0 ? 'ตอนนี้เกินจุดคุ้มทุน <b>' + fmtN(gap, 1) + '</b> ' + esc(ut) : 'ยังขาดอีก <b>' + fmtN(-gap, 1) + '</b> ' + esc(ut) + ' ถึงจะคุ้มทุน';
-    return '<section class="card"><h3>จุดคุ้มทุน</h3><p class="lead">' + lead + '</p>' +
-      '<div class="gauge" role="img" aria-label="จุดคุ้มทุน ' + fmtN(be, 1) + ' ตอนนี้ ' + fmtN(cur, 1) + '"><span class="ml' + ed(pc(be)) + '" style="left:' + pc(be) + '%">คุ้มทุน ' + fmtN(be, 1) + '</span>' +
-      '<div class="track"><div class="fill" style="width:' + pc(cur) + '%"></div><div class="mark" style="left:' + pc(be) + '%"></div></div>' +
-      '<span class="nl' + ed(pc(cur)) + '" style="left:' + pc(cur) + '%">ตอนนี้ ' + fmtN(cur, 1) + '</span></div></section>';
+    if (!S.be || S.be.impossible) return 'ขายเท่าไหร่ก็ไม่คุ้มทุน เพราะเงินที่ได้ต่อ' + esc(u) + ' ไม่พอจ่ายต้นทุนที่เพิ่มตามยอดขาย';
+    var gap = S.vol - S.be.vol;
+    return gap >= 0 ? 'ตอนนี้เกินจุดคุ้มทุน <b>' + fmtN(gap, 1) + '</b> ' + esc(ut) : 'ยังขาดอีก <b>' + fmtN(-gap, 1) + '</b> ' + esc(ut) + ' ถึงจะคุ้มทุน';
+  }
+  function tileBtn(key, k, inner) {
+    return '<button type="button" class="ovt" data-act="qm" data-q="' + key + '" aria-expanded="' + !!qmOpen[key] + '"><span class="k"><span>' + k + '</span>' + ICON.down + '</span>' + inner + '</button>';
+  }
+  function ovTiles(S, base, m) {
+    var t = [], det = '';
+    /* จุดคุ้มทุน */
+    if (!S.be || S.be.impossible) t.push(tileBtn('ov-be', 'จุดคุ้มทุน', '<span class="v">—</span><span class="n mu">ขายเท่าไหร่ก็ไม่คุ้ม</span>'));
+    else {
+      var cur = S.vol, be = S.be.vol, max = m === 'rental' ? 100 : Math.max(cur, be) * 1.2;
+      var pc = function (v) { return Math.max(0, Math.min(100, v / max * 100)).toFixed(1); };
+      t.push(tileBtn('ov-be', 'จุดคุ้มทุน', '<span class="v">' + anim('hbe', be, 1) + '<small>' + esc(volUnitText(base, m)) + '</small></span>' +
+        '<span class="mg" aria-hidden="true"><span class="f" style="width:' + pc(cur) + '%"></span><span class="m" style="left:' + pc(be) + '%"></span></span><span class="n mu">ตอนนี้ ' + fmtN(cur, 1) + '</span>'));
+    }
+    det += '<div class="ovd card" data-qmt="ov-be"' + qmHide('ov-be') + '><p class="lead">' + beLead(S, base, m) + '</p></div>';
+    /* เงินสด 12 เดือน */
+    var ck, cv;
+    if (S.hasCash && S.firstNegT) { ck = 'เงินสดหมดราว'; cv = monthLabel(S.firstNegT, true); }
+    else if (S.hasCash) { ck = 'เงินสดอีก 12 เดือน'; cv = compactTH(S.cashEnd); }
+    else { ck = 'เงินเพิ่มใน 12 เดือน'; cv = (S.cashEnd < 0 ? '−' : '') + compactTH(Math.abs(S.cashEnd)); }
+    if (S.cash.length) {
+      t.push(tileBtn('ov-cash', ck, '<span class="v">' + esc(cv) + '</span>' + sparkSvg(S)));
+      det += '<div class="ovd" data-qmt="ov-cash"' + qmHide('ov-cash') + '>' + cashCard(S) + '</div>';
+    } else t.push('<div class="ovt"><span class="k">' + ck + '</span><span class="v">' + esc(cv) + '</span></div>');
+    /* ยอดขายลดลงได้อีกก่อนขาดทุน / ต้องขายเพิ่ม */
+    if (S.be && !S.be.impossible) {
+      if (S.profit < 0) {
+        var up = (S.be.vol / S.vol - 1) * 100, lk = 'ต้อง' + (m === 'rental' ? 'มีคนเช่า' : 'ขาย') + 'เพิ่ม';
+        t.push('<div class="ovt">' + ring(up, lk, fmtN(up, 0) + '%') + '<span class="n">' + lk + '</span></div>');
+      } else {
+        var sf = S.be.safety * 100, sk = (m === 'rental' ? 'รายได้ค่าเช่า' : m === 'subscription' ? 'รายได้จากสมาชิก' : 'ยอดขาย') + 'ลดลงได้อีก';
+        t.push('<div class="ovt">' + ring(sf, sk, fmtN(sf, 0) + '%') + '<span class="n">' + sk + ' ก่อนขาดทุน</span></div>');
+      }
+    } else t.push('<div class="ovt"><span class="k">ขาดทุนทุก' + esc(U(base, m)) + 'ที่ขาย</span><span class="v">—</span></div>');
+    /* กำลังรองรับของร้าน */
+    if (S.util && !S.util.rental) {
+      var u = S.util;
+      t.push('<div class="ovt">' + ring(u.pct, 'ใช้กำลังรองรับไปแล้ว', fmtPct(u.pct)) + '<span class="n">กำลังรองรับของร้าน · ' + (u.reachT ? 'จะเต็มในเดือน ' + monthLabel(u.reachT, true) : 'สูงสุด ' + fmtN(u.max, 1) + ' ' + esc(m === 'project' ? 'งานพร้อมกัน' : volUnitText(base, m))) + '</span></div>');
+    }
+    return '<div class="ovg">' + t.join('') + '</div>' + det;
   }
   function cashCard(S) {
     if (!S.cash.length) return '';
@@ -501,31 +557,25 @@
     out += '<line class="cross" x1="0" x2="0" y1="' + T + '" y2="' + (H - B) + '" visibility="hidden"/>';
     return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="กราฟเงินสด 12 เดือน">' + out + '</svg>';
   }
+  /* เงิน 100 บาทที่ลูกค้าจ่าย ไปไหนบ้าง: แถบเดียว + กำไรที่เหลือ · แตะแถวกำไรเพื่อดูทีละรายการ */
   function receiptHtml(S, B) {
     if (!(S.revenue > 0)) return '';
     var segs = S.split.map(function (s) { return '<i style="flex-grow:' + Math.max(0, s.per100).toFixed(2) + '"></i>'; }).join('') + (S.keep100 > 0 ? '<i class="k" style="flex-grow:' + S.keep100.toFixed(2) + '"></i>' : '');
     var lines = S.split.map(function (s) {
       var b = B ? B.split.filter(function (x) { return x.k === s.k; })[0] : null;
-      return '<div class="rc-line"><span>' + esc(s.label) + '</span><i></i>' + (b && Math.abs(b.per100 - s.per100) > 0.05 ? '<span class="was">' + b.per100.toFixed(2) + '</span>' : '') + '<b>' + s.per100.toFixed(2) + '</b></div>';
+      return '<div class="rc-line"><span>' + esc(s.label) + '</span>' + (b && Math.abs(b.per100 - s.per100) > 0.05 ? '<span class="was">' + b.per100.toFixed(2) + '</span>' : '') + '<b>' + s.per100.toFixed(2) + '</b></div>';
     }).join('');
-    var now = new Date();
-    return '<section class="receipt" aria-label="เงิน 100 บาทที่ลูกค้าจ่าย ไปไหนบ้าง"><div class="rc-head"><div class="rt">เงิน 100 บาทที่ลูกค้าจ่าย ไปไหนบ้าง?</div><div class="rs">ต่อเดือน · ' + TH_MONTHS[now.getMonth()] + ' ' + (now.getFullYear() + 543) + '</div></div>' +
-      '<div class="rc-bar" aria-hidden="true">' + segs + '</div><div class="rc-lines">' + lines + '</div>' +
-      '<div class="rc-total"><span>' + (S.keep100 >= 0 ? 'เหลือเป็นกำไร' : 'ขาดทุน') + '</span><b>' + (S.keep100 < 0 ? '−' : '') + Math.abs(S.keep100).toFixed(2) + '</b></div>' +
-      '<div class="rc-foot">จากทุก 100.00 บาท</div></section>';
+    return '<section class="receipt" aria-label="เงิน 100 บาทที่ลูกค้าจ่าย ไปไหนบ้าง"><div class="rc-head"><div class="rt">เงิน 100 บาทที่ลูกค้าจ่าย ไปไหนบ้าง?</div></div>' +
+      '<div class="rc-bar" aria-hidden="true">' + segs + '</div><div class="rc-lines" data-qmt="rc"' + qmHide('rc') + '>' + lines + '</div>' +
+      '<button type="button" class="rc-total" data-act="qm" data-q="rc" aria-expanded="' + !!qmOpen.rc + '"><span>' + (S.keep100 >= 0 ? 'เหลือเป็นกำไร' : 'ขาดทุน') + '</span><b>' + (S.keep100 < 0 ? '−' : '') + Math.abs(S.keep100).toFixed(2) + '</b>' + ICON.down + '</button></section>';
   }
   function rankCard(S, base, m) {
     var items = sensitivity(S, base, m);
     if (!items.length) return '';
-    var mx = items[0].gain;
-    return '<section class="card"><h3>ตัวเลขไหนขยับแล้วได้เงินเพิ่มมากที่สุด</h3><p class="lead">ถ้าตัวเลขนั้นดีขึ้น 10% · แตะเพื่อลอง</p><div class="rank">' + items.map(function (it) {
-      return '<button data-act="lab" data-k="' + (it.lever || 'rent') + '"><span class="rl">' + esc(it.label) + '<small>' + esc(it.how) + '</small></span><span class="rv">+' + fmtN(it.gain) + '</span><span class="rb"><i style="width:' + (it.gain / mx * 100).toFixed(1) + '%"></i></span></button>';
+    var mx = items[0].gain, h = 'ตัวเลขไหนขยับแล้วได้เงินเพิ่มมากที่สุด';
+    return '<section class="card"><div class="hq"><h3>' + h + '</h3>' + qmBtn('rank', h) + '</div>' + qmT('rank', 'ถ้าตัวเลขนั้นดีขึ้น 10% · แตะเพื่อลอง') + '<div class="rank">' + items.map(function (it) {
+      return '<button data-act="lab" data-k="' + (it.lever || 'rent') + '" aria-label="' + esc(it.label + ' ' + it.how + ' +' + fmtN(it.gain)) + '"><span class="rl">' + esc(it.label) + '</span><span class="rv">+' + fmtN(it.gain) + '</span><span class="rb"><i style="width:' + (it.gain / mx * 100).toFixed(1) + '%"></i></span></button>';
     }).join('') + '</div></section>';
-  }
-  function capCard(S, base, m) {
-    if (!S.util || S.util.rental) return '';
-    var u = S.util;
-    return '<section class="card"><h3>กำลังรองรับของร้าน</h3><p class="lead">ใช้กำลังรองรับไปแล้ว <b>' + fmtPct(u.pct) + '</b> จากความสามารถสูงสุดของร้าน · ' + (u.reachT ? 'จะเต็มในเดือน ' + monthLabel(u.reachT, true) : 'สูงสุด ' + fmtN(u.max, 1) + ' ' + esc(m === 'project' ? 'งานพร้อมกัน' : volUnitText(base, m))) + '</p><div class="meter"><i style="width:' + Math.min(100, u.pct) + '%"></i></div></section>';
   }
   function custCard(S) {
     if (!S.cust || S.cust.ltvProfit === null || S.cust.cac === null) return '';
@@ -553,8 +603,8 @@
     }
     if (f.tryLever) out += '<div class="block"><button class="sbtn" data-act="try" data-k="' + f.tryLever + '" data-v="15000">ลองใส่เงินเดือนคุณ</button></div>';
     if (f.editField) out += '<div class="block"><button class="sbtn" data-act="edit-field" data-k="' + f.editField + '">ใส่เงินสดที่มี</button></div>';
-    if (askList().length) out += '<div class="block"><div class="next"><div class="nx-k">ขั้นต่อไป</div><h3>หาจุดที่ควรตรวจสอบ และเครื่องมือที่ช่วยได้</h3>' +
-      '<p>' + (askDone() ? 'คุณตอบครบแล้ว ดูผลได้เลย' : 'ตอบ ' + askList().length + ' ข้อ แค่ ใช่ / ไม่ใช่ / ไม่แน่ใจ') + '</p>' +
+    if (askList().length) out += '<div class="block"><div class="next"><div class="nx-k">ขั้นต่อไป</div><div class="hq"><h3>หาจุดที่ควรตรวจสอบ และเครื่องมือที่ช่วยได้</h3>' + qmBtn('fnx', 'หาจุดที่ควรตรวจสอบ') + '</div>' +
+      qmT('fnx', askDone() ? 'คุณตอบครบแล้ว ดูผลได้เลย' : 'ตอบ ' + askList().length + ' ข้อ แค่ ใช่ / ไม่ใช่ / ไม่แน่ใจ') +
       '<button class="btn block" data-act="' + (askDone() ? 'points' : 'ask') + '">' + (askDone() ? 'ดูจุดที่ควรตรวจสอบและเครื่องมือ' : 'เริ่มตอบ') + ICON.next + '</button></div></div>';
     return out + '</div></main>';
   }
@@ -581,17 +631,6 @@
     return L.filter(function (q) { return ansFlag(QBANK[q.qid], state.answers[q.qid]); })
       .map(function (q) { return { q: q, r: Math.min.apply(null, q.fs.map(function (f) { return order.indexOf(f.id); })), i: L.indexOf(q) }; })
       .sort(function (a, b) { return a.r - b.r || a.i - b.i; }).map(function (x) { return x.q; });
-  }
-  function nextStepCard() {
-    var L = askList();
-    if (!L.length) return '<section class="next"><div class="nx-k">ขั้นต่อไป</div><h3>ร้านแข็งแรง อยากโตต่อ?</h3><p>ดูเครื่องมือที่ช่วยหาทางเลือกในการเติบโต และแผนธุรกิจทั้งร้าน</p><button class="btn block" data-act="points">ดูเครื่องมือที่ช่วยต่อยอด' + ICON.next + '</button></section>';
-    if (askDone()) {
-      var n = pointsList().length;
-      return '<section class="next"><div class="nx-k">ขั้นต่อไป</div><h3>' + (n ? 'เจอ ' + n + ' จุดที่ควรตรวจสอบ' : 'ยังไม่เจอจุดที่ควรตรวจสอบจากคำตอบ') + '</h3><p>ดูว่าแต่ละจุดมีผลกับเงินเท่าไหร่ และเครื่องมือไหนช่วยหาแนวทางแก้ไขได้</p>' +
-        '<button class="btn block" data-act="points">ดูจุดที่ควรตรวจสอบและเครื่องมือ' + ICON.next + '</button><div class="nx-sub"><button class="lnk" data-act="ask-restart">ตอบใหม่</button></div></section>';
-    }
-    return '<section class="next"><div class="nx-k">ขั้นต่อไป</div><h3>หาจุดที่ควรตรวจสอบ และเครื่องมือที่ช่วยได้</h3><p>ตอบ ' + L.length + ' ข้อ แค่ ใช่ / ไม่ใช่ / ไม่แน่ใจ ใช้เวลาไม่ถึง 1 นาที</p>' +
-      '<button class="btn block" data-act="ask">' + (askedCount() ? 'ตอบต่อ' : 'เริ่มตอบ') + ICON.next + '</button></section>';
   }
   /* ปุ่มค้างล่างจอของหน้าภาพรวม (แบบเดียวกับตัวที่ 3): แก้ตัวเลข | หาจุดที่ควรตรวจสอบ */
   function nextAct() { var L = askList(); return !L.length || askDone() ? 'points' : 'ask'; }
@@ -632,25 +671,27 @@
     var m = state.model, S = C(state.inp, m), L = askList(), P = pointsList(), seen = {};
     var out = bar('<button class="ib" data-act="back" aria-label="กลับ">' + ICON.back + '</button>', 'จุดที่ควรตรวจสอบ', '') + '<main class="screen"><div class="wrap">';
     if (!L.length) {
-      out += '<section class="panel"><div class="eyebrow">ร้านคุณ</div><div class="pp-t">ไม่พบปัญหาที่น่ากังวลจากตัวเลขที่ตรวจสอบได้</div><div class="sub">ถ้าอยากโตต่อ เครื่องมือด้านล่างช่วยหาทางเลือกได้</div></section>' +
-        '<div class="block"><h2>เครื่องมือที่ช่วยหาทางเลือกในการเติบโต</h2>' + toolsHtml(['swot4', 'idea8', 'bmc8', 'goal1'], '') + '</div>';
+      out += '<section class="panel"><div class="eyebrow">ร้านคุณ</div><div class="hq"><div class="pp-t">ไม่พบปัญหาที่น่ากังวลจากตัวเลขที่ตรวจสอบได้</div>' + qmBtn('ppt0', 'ไม่พบปัญหาที่น่ากังวล') + '</div>' + qmT('ppt0', 'ถ้าอยากโตต่อ เครื่องมือด้านล่างช่วยหาทางเลือกได้') + '</section>' +
+        '<div class="block">' + toolsHtml(['swot4', 'idea8', 'bmc8', 'goal1'], 'เครื่องมือที่ช่วยหาทางเลือกในการเติบโต') + '</div>';
     } else {
-      out += '<section class="panel"><div class="eyebrow">จากคำตอบ ' + askedCount() + ' ข้อ</div><div class="pp-t">' + (P.length ? 'เจอ ' + P.length + ' จุดที่ควรตรวจสอบ' : 'ยังไม่เจอจุดที่ควรตรวจสอบจากคำตอบ') + '</div>' +
-        '<div class="sub">' + (P.length ? 'แต่ละจุดบอกว่ามีผลกับเงินเท่าไหร่ และเครื่องมือไหนช่วยหาแนวทางแก้ไขได้ เปิดแล้วใช้ตัวเลขร้านคุณต่อได้ทันที' : 'ลองใช้เครื่องมือตรวจภาพรวมของร้าน') + '</div>' +
+      var ppt = P.length ? 'เจอ ' + P.length + ' จุดที่ควรตรวจสอบ' : 'ยังไม่เจอจุดที่ควรตรวจสอบจากคำตอบ';
+      out += '<section class="panel"><div class="eyebrow">จากคำตอบ ' + askedCount() + ' ข้อ</div><div class="hq"><div class="pp-t">' + ppt + '</div>' + qmBtn('ppt', ppt) + '</div>' +
+        qmT('ppt', P.length ? 'แต่ละจุดบอกว่ามีผลกับเงินเท่าไหร่ และเครื่องมือไหนช่วยหาแนวทางแก้ไขได้ เปิดแล้วใช้ตัวเลขร้านคุณต่อได้ทันที' : 'ลองใช้เครื่องมือตรวจภาพรวมของร้าน') +
         '<div class="cta"><button class="pbtn" data-act="ask-restart">แก้คำตอบ</button></div></section>';
       if (P.length) out += '<div class="points" style="margin-top:14px">' + P.map(function (q) { return pointCard(q, S, seen); }).join('') + '</div>';
       else out += '<div class="block">' + toolsHtml(['bmc1', 'swot5'], 'เครื่องมือที่ช่วยดูภาพรวม') + '</div>';
     }
-    out += '<section class="panel plan"><span class="tag">เร็วๆ นี้</span><h3>อยากได้แผนที่เชื่อมทุกเรื่องของร้าน</h3><p>แผนธุรกิจของ Jarua ใช้ตัวเลขชุดนี้ต่อได้ทันที แล้ววางทางทั้งร้าน ทั้งการตลาด ทีม และเงิน 12 เดือน</p>' +
-      '<button class="btn on-panel block" data-act="plan">ดูแผนธุรกิจ</button></section>';
+    out += '<div class="plan-row"><b>แผนธุรกิจ</b><span class="pill">เร็วๆ นี้</span>' + qmBtn('plan2', 'แผนธุรกิจ') + '<span class="sp"></span><button class="go" data-act="plan">ดูแผนธุรกิจ' + ICON.out + '</button>' +
+      qmT('plan2', 'อยากได้แผนที่เชื่อมทุกเรื่องของร้าน · แผนธุรกิจของ Jarua ใช้ตัวเลขชุดนี้ต่อได้ทันที แล้ววางทางทั้งร้าน ทั้งการตลาด ทีม และเงิน 12 เดือน') + '</div>';
     return out + '</div></main>';
   }
+  var toolsN = 0;
   function toolsHtml(codes, title) {
-    var seen = {};
+    var seen = {}, key = 'tl' + (toolsN++);
     var items = codes.filter(function (c) { if (seen[c] || !TOOLS[c]) return false; seen[c] = 1; return true; }).map(function (c) {
-      return '<button class="tool" data-act="tool" data-t="' + c + '"><span class="tn">' + esc(TOOLS[c][0]) + '</span><span class="ts">' + esc(TOOLS[c][1]) + '</span>' + ICON.out + '</button>';
+      return '<button class="tool" data-act="tool" data-t="' + c + '"><span class="tn">' + esc(TOOLS[c][0]) + '</span>' + qmT(key, esc(TOOLS[c][1]), 'span').replace('class="qm-tx"', 'class="ts"') + ICON.out + '</button>';
     }).join('');
-    return items ? '<div class="tools">' + (title ? '<span class="tl">' + esc(title) + '</span>' : '') + items + '</div>' : '';
+    return items ? '<div class="tools"><div class="tl-r"><span class="tl">' + esc(title) + '</span>' + qmBtn(key, title) + '</div>' + items + '</div>' : '';
   }
 
   /* ============================================================ LAB */
@@ -752,6 +793,7 @@
   /* ============================================================ RENDER */
   function render() {
     var v = state.view;
+    toolsN = 0;
     app.innerHTML = v === 'start' ? viewStart() : v === 'wizard' ? viewWizard() : v === 'review' ? viewReview() : v === 'finding' ? viewFinding() : v === 'lab' ? viewLab() : v === 'ask' ? viewAsk() : v === 'points' ? viewPoints() : viewHome();
     runAnim(app);
     var foot = $('#foot');
@@ -967,6 +1009,13 @@
         break;
       }
       case 'q-prev': state.qidx = Math.max(0, state.qidx - 1); go('ask'); break;
+      case 'qm': {
+        var qk = t.getAttribute('data-q'), qo = !qmOpen[qk];
+        qmOpen[qk] = qo;
+        $$('[data-qmt="' + qk + '"]').forEach(function (el) { el.hidden = !qo; });
+        $$('[data-act="qm"][data-q="' + qk + '"]').forEach(function (b) { b.setAttribute('aria-expanded', String(qo)); });
+        break;
+      }
       case 'tool': toast('ตัวอย่างนี้ยังไม่เชื่อมกับเครื่องมือจริง ในเว็บจริงจะเปิด "' + TOOLS[t.getAttribute('data-t')][0] + '" พร้อมตัวเลขร้านคุณ'); break;
       case 'plan': toast('แผนธุรกิจยังไม่เปิดให้ใช้ ข้อความส่วนนี้รอเจ้าของตกลง'); break;
     }

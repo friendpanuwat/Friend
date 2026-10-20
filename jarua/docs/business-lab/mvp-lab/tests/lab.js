@@ -120,7 +120,7 @@ async function check(page, label) {
     if (!sh3 || sh3.inp.price !== 65) fail(tag, 'tool3 edit not shared', JSON.stringify(sh3 && sh3.inp.price));
     /* ร้านตัวอย่างในตัวที่ 3 ต้องไม่ทับตัวเลขร้านจริง */
     await page.click('#foot [data-act="result"]'); await page.waitForTimeout(150);
-    await page.click('.bar [data-act="to-start"]'); await page.waitForTimeout(150);
+    await page.click('.bar [data-act="back"]'); await page.waitForTimeout(250);
     await page.click('.bar a.ib[href="index.html"]'); await ready();
     await page.click('a.tcard[href="check-numbers.html"]'); await ready();
     const p1 = await page.evaluate(() => ({ v: window.__lab.state.view, price: window.__lab.state.inp.price }));

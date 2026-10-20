@@ -1,5 +1,5 @@
-<!-- หน้ารวม Business Lab: เลือกเครื่องมือ (ใช้ token สี ฟอนต์ และระยะชุดเดียวกับตัวที่ 1 จาก ../mvp-check-numbers/src/style.css)
-     ภาษาภาพ: แผงดำบอกว่า Lab คืออะไร · การ์ดเครื่องมือเรียงตามที่ใช้ได้ก่อน · ตัวที่ยังไม่มีเป็นการ์ดเส้นประ "เร็ว ๆ นี้" -->
+<!-- หน้ารวม Business Lab: เลือกเครื่องมือ (ใช้ token สี ฟอนต์ ระยะ และปุ่ม "?" ชุดเดียวกับตัวที่ 1 จาก ../mvp-check-numbers/src/style.css)
+     ภาษาภาพ (มินิมอล): แผงดำบอกว่า Lab คืออะไร · การ์ดเทา ไอคอน ชื่อ คำถาม · คำอธิบายอยู่หลังปุ่ม "?" · ตัวที่ยังไม่มีเป็นการ์ดจาง "เร็ว ๆ นี้" -->
 <style>
 .hub-hero { margin-top: 8px; display: grid; gap: 10px; }
 .hub-hero h1 { font-size: 26px; line-height: 1.3; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
@@ -9,30 +9,31 @@
 .hub-hero li { display: grid; gap: 2px; min-width: 0; }
 .hub-hero li b { font-size: 16px; }
 .hub-hero li span { font-size: 12.5px; color: var(--panel-muted); line-height: 1.4; }
-.shop0 { margin-top: 14px; background: var(--card); border-radius: 18px; padding: 12px 14px; box-shadow: var(--shadow); display: grid; grid-template-columns: 36px 1fr; gap: 2px 12px; align-items: center; }
-.shop0 .si { grid-row: 1 / span 2; width: 36px; height: 36px; border-radius: 18px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; }
+.shop0 { margin-top: 14px; background: var(--card); border-radius: var(--r); padding: 12px 16px 12px 12px; display: grid; grid-template-columns: 36px 1fr; gap: 2px 12px; align-items: center; }
+.shop0 .si { grid-row: 1 / span 2; width: 36px; height: 36px; border-radius: 18px; background: var(--surface); display: flex; align-items: center; justify-content: center; }
 .shop0 .si svg { width: 20px; height: 20px; }
 .shop0.has .si { background: var(--ink); color: var(--bg); }
 .shop0 b { font-size: 15px; line-height: 1.4; }
 .shop0 span { font-size: 13.5px; color: var(--muted); line-height: 1.45; }
-.tools3 { display: grid; gap: 12px; }
-.tcard { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 4px 14px; padding: 16px 16px 14px; border-radius: 22px; background: var(--card); box-shadow: var(--shadow); color: var(--ink); text-decoration: none; }
-a.tcard:hover { box-shadow: inset 0 0 0 1.5px var(--ink), var(--shadow); }
-.tcard .ti { grid-row: 1 / span 3; width: 52px; height: 52px; border-radius: 17px; background: var(--ink); color: var(--bg); display: flex; align-items: center; justify-content: center; }
-.tcard .ti svg { width: 26px; height: 26px; }
+.tools3 { display: grid; gap: 10px; }
+.tc-w { position: relative; }
+.tc-w > .qm { position: absolute; top: 12px; right: 12px; margin: 0; }
+.tc-w > .qm i { background: var(--surface); }
+.tc-w > .qm[aria-expanded="true"] i { background: var(--ink); }
+.tc-w > .qm-tx { margin: 6px 0 0; }
+.tcard { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 4px 14px; padding: 16px 56px 16px 16px; border-radius: var(--r); background: var(--card); color: var(--ink); text-decoration: none; }
+a.tcard:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.tcard .ti { grid-row: 1 / span 2; width: 44px; height: 44px; border-radius: 13px; background: var(--ink); color: var(--bg); display: flex; align-items: center; justify-content: center; }
+.tcard .ti svg { width: 22px; height: 22px; }
 .tcard .tn { font-size: 13px; font-weight: 700; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.tcard h3 { margin: 0; font-size: 19px; line-height: 1.35; text-wrap: balance; }
-.tcard p { margin: 0; font-size: 14px; color: var(--ink-2); line-height: 1.55; text-wrap: pretty; }
-.tcard .fit { grid-column: 1 / -1; margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.tcard .fit .ft { font-size: 13px; color: var(--muted); line-height: 1.45; min-width: 0; }
-.tcard .go { flex: none; min-height: 44px; padding: 0 16px; border-radius: 14px; background: var(--ink); color: var(--bg); font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; gap: 6px; }
+.tcard h3 { margin: 0; font-size: 18px; line-height: 1.4; }
+.tcard .go { grid-column: 1 / -1; justify-self: end; margin: 10px -40px 0 0; min-height: 44px; padding: 0 18px; border-radius: 999px; background: var(--ink); color: var(--bg); font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; gap: 6px; }
 .tcard .go svg { width: 18px; height: 18px; }
-.tcard.soon { background: transparent; box-shadow: none; border: 1.5px dashed var(--line-strong); }
+.tcard.soon { opacity: 0.6; }
 .tcard.soon .ti { background: var(--surface-2); color: var(--muted); }
-.tcard.soon h3, .tcard.soon p { color: var(--muted); }
-.soon-tag { font-size: 12px; font-weight: 700; padding: 1px 10px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--ink-2); }
+.soon-tag { font-size: 12px; font-weight: 700; padding: 1px 10px; border-radius: 999px; background: var(--surface); color: var(--ink-2); }
 .hub-fine { margin: 22px 2px 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
-@media (max-width: 360px) { .hub-hero h1 { font-size: 23px; } .tcard { grid-template-columns: 44px minmax(0, 1fr); } .tcard .ti { width: 44px; height: 44px; border-radius: 14px; } }
+@media (max-width: 360px) { .hub-hero h1 { font-size: 23px; } }
 </style>
 
 <header class="bar"><div class="wrap"><span class="spacer44"></span><div class="ttl"><small>Jarua</small>Business Lab</div>
@@ -40,41 +41,37 @@ a.tcard:hover { box-shadow: inset 0 0 0 1.5px var(--ink), var(--shadow); }
 <main class="screen"><div class="wrap">
   <section class="panel hub-hero">
     <span class="eyebrow">ฟรี · ไม่ต้องสมัคร · ไม่ต้องติดตั้ง</span>
-    <h1>เห็น วัด และลองตัวเลขร้านคุณ ก่อนลงมือจริง</h1>
-    <p>เลือกเครื่องมือตามเรื่องที่อยากรู้ ใส่ตัวเลขร้านครั้งเดียวใช้ได้ทุกเครื่องมือ คำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua</p>
+    <div class="hq"><h1>เห็น วัด และลองตัวเลขร้านคุณ ก่อนลงมือจริง</h1><button type="button" class="qm" data-q="hero" aria-expanded="false" aria-label="เห็น วัด และลองตัวเลขร้านคุณ"><i>Q</i></button></div>
+    <p class="qm-tx" data-qmt="hero" hidden>เลือกเครื่องมือตามเรื่องที่อยากรู้ ใส่ตัวเลขร้านครั้งเดียวใช้ได้ทุกเครื่องมือ คำนวณด้วยสูตรชุดเดียวกับแผนธุรกิจของ Jarua</p>
   </section>
 
   <div class="shop0" id="shop0" aria-live="polite"></div>
 
   <div class="sec-h"><h2>เลือกเครื่องมือ</h2></div>
   <div class="tools3">
-    <a class="tcard" href="check-numbers.html">
+    <div class="tc-w"><a class="tcard" href="check-numbers.html">
       <span class="ti" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg></span>
       <span class="tn">เช็กตัวเลขร้าน</span>
       <h3>ร้านอยู่ตรงไหน เรื่องไหนทำให้เสียเงินเท่าไร?</h3>
-      <p>เห็นกำไร จุดคุ้มทุน และเงินสด 12 เดือน แล้วลองปรับตัวเลขก่อนตัดสินใจจริง</p>
-      <span class="fit"><span class="ft">เหมาะสำหรับ ผู้ที่มีร้านแล้ว อยากรู้ว่าร้านอยู่ตรงไหน</span><span class="go">เปิด<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></span>
-    </a>
-    <a class="tcard" href="big-decisions.html">
+      <span class="go">เปิด<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+    </a><button type="button" class="qm" data-q="t1" aria-expanded="false" aria-label="เช็กตัวเลขร้าน"><i>Q</i></button>
+    <p class="qm-tx" data-qmt="t1" hidden>เห็นกำไร จุดคุ้มทุน และเงินสด 12 เดือน แล้วลองปรับตัวเลขก่อนตัดสินใจจริง · เหมาะสำหรับ ผู้ที่มีร้านแล้ว อยากรู้ว่าร้านอยู่ตรงไหน</p></div>
+    <div class="tc-w"><a class="tcard" href="big-decisions.html">
       <span class="ti" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span>
       <span class="tn">เช็กก่อนตัดสินใจเรื่องใหญ่</span>
       <h3>จะขึ้นราคา จ้างคน หรือย้ายร้าน คุ้มไหม?</h3>
-      <p>เทียบ “ทำ” กับ “ไม่ทำ” ต้องขายเท่าไรถึงจะคุ้ม เงินพอไหม และคืนทุนเมื่อไร · 12 เรื่อง ทั้งร้านหน้าร้านและร้านออนไลน์</p>
-      <span class="fit"><span class="ft">เหมาะสำหรับ ผู้ที่กำลังคิดเรื่องใหญ่ในร้าน</span><span class="go">เปิด<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></span>
-    </a>
+      <span class="go">เปิด<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+    </a><button type="button" class="qm" data-q="t3" aria-expanded="false" aria-label="เช็กก่อนตัดสินใจเรื่องใหญ่"><i>Q</i></button>
+    <p class="qm-tx" data-qmt="t3" hidden>เทียบ “ทำ” กับ “ไม่ทำ” ต้องขายเท่าไรถึงจะคุ้ม เงินพอไหม และคืนทุนเมื่อไร · 12 เรื่อง ทั้งร้านหน้าร้านและร้านออนไลน์ · เหมาะสำหรับ ผู้ที่กำลังคิดเรื่องใหญ่ในร้าน</p></div>
     <div class="tcard soon">
       <span class="ti" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></svg></span>
       <span class="tn">เช็กก่อนเปิดร้าน <span class="soon-tag">เร็ว ๆ นี้</span></span>
       <h3>ตัวเลขไปรอดไหม ก่อนเปิดร้าน?</h3>
-      <p>ต้องขายเท่าไร เงินอยู่ได้กี่เดือน และคืนทุนกี่เดือน</p>
-      <span class="fit"><span class="ft">เหมาะสำหรับ ผู้ที่ยังไม่ได้เริ่มธุรกิจ</span></span>
     </div>
     <div class="tcard soon">
       <span class="ti" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg></span>
       <span class="tn">กำไรรายสินค้าและรายช่องทาง <span class="soon-tag">เร็ว ๆ นี้</span></span>
       <h3>สินค้าไหนกำไรดี ช่องทางไหนเหลือเงินจริง?</h3>
-      <p>ต้นทุนต่อชิ้นจริง และกำไรของแต่ละสินค้า แต่ละช่องทาง</p>
-      <span class="fit"><span class="ft">เหมาะสำหรับ ผู้ที่มีหลายสินค้าหรือหลายช่องทาง</span></span>
     </div>
   </div>
   <p class="hub-fine">ตัวเลขอยู่ในเครื่องคุณเท่านั้น และหายไปเมื่อปิดหน้านี้</p>
@@ -87,6 +84,15 @@ a.tcard:hover { box-shadow: inset 0 0 0 1.5px var(--ink), var(--shadow); }
   var SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-2.93 1.41-1.41M17.66 6.34l1.41-1.41M2 12h2m16 0h2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41"/></svg>';
   var MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
   var STORE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></svg>';
+  var QI = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>';
+  [].forEach.call(document.querySelectorAll('.qm'), function (b) {
+    b.querySelector('i').innerHTML = QI;
+    b.addEventListener('click', function () {
+      var k = b.getAttribute('data-q'), o = b.getAttribute('aria-expanded') !== 'true';
+      b.setAttribute('aria-expanded', String(o));
+      [].forEach.call(document.querySelectorAll('[data-qmt="' + k + '"]'), function (el) { el.hidden = !o; });
+    });
+  });
   var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
   try { var th = localStorage.getItem('lab-theme'); if (th === 'dark' || th === 'light') root.setAttribute('data-theme', th); } catch (e) { /* ignore */ }
   function now() { var t = root.getAttribute('data-theme'); return t || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
