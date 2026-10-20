@@ -1,4 +1,4 @@
-/* ทุกช่องต้องตอบ: กด "ถัดไป" ตอนยังไม่ครบแล้วไม่ไปต่อ บอก "ยังไม่ได้ตอบข้อนี้" · ปุ่ม "ไม่มี" / "ยังไม่รู้" ตอบแทนได้
+/* ทุกช่องต้องตอบ: กด "ถัดไป" ตอนยังไม่ครบแล้วไม่ไปต่อ บอก "ยังไม่ได้ตอบข้อนี้" · ปุ่ม "ไม่มี" / "ยังไม่ทราบ" ตอบแทนได้
    ข้อสุดท้ายต้องตอบ มี / ไม่มี · ร้านตัวอย่างทุกรูปแบบตอบครบอยู่แล้ว · รัน: node tests/required.js (ต้อง ./build.sh ก่อน) */
 const { open, shot } = require('./harness');
 (async () => {
@@ -47,9 +47,9 @@ const { open, shot } = require('./harness');
   await shot(page, 'req-adv-yes');
   await page.click('[data-act="fchip"][data-k="growth"]'); await page.click('[data-act="funk"][data-k="capacity"]');
   await page.click('#foot [data-act="see"]'); await page.waitForTimeout(200);
-  s = await st(); say(s.v === 'home', '"เท่าเดิม" + "ยังไม่รู้" complete the group → results', s);
+  s = await st(); say(s.v === 'home', '"เท่าเดิม" + "ยังไม่ทราบ" complete the group → results', s);
   const cap = await page.evaluate(() => [window.__lab.state.inp.capacity, window.__lab.state.inp.advUnk]);
-  say(cap[0] === undefined && cap[1] && cap[1].capacity === true, '"ยังไม่รู้" leaves capacity unlimited', cap);
+  say(cap[0] === undefined && cap[1] && cap[1].capacity === true, '"ยังไม่ทราบ" leaves capacity unlimited', cap);
   await shot(page, 'req-home');
 
   /* เปลี่ยนเป็น "ไม่มี" แล้วตัวเลขในกลุ่มหาย */

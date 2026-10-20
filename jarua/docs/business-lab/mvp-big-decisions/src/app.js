@@ -617,7 +617,7 @@
     var f = dDef(k), m = state.model, inp = state.inp, d = dec();
     var hidden = dShown(k, d) ? '' : ' hidden';
     var lab = esc(qmark(f.label(inp, m, d)));
-    var help = f.help ? '<p class="help">' + esc(f.help(inp, m, d)) + '</p>' : '';
+    var ht = f.help ? f.help(inp, m, d) : '', help = ht ? '<p class="help">' + esc(ht) + '</p>' : '';
     var err = dErr(k, d);
     var errHtml = '<p class="err" id="err-' + k + '" role="alert"' + (err ? '' : ' hidden') + '>' + esc(err) + '</p>';
     var id = 'd-' + k;
@@ -989,7 +989,7 @@
   /* ขั้นต่อไป (ท้ายหน้าผล): เช็กความพร้อม + เครื่องมือ PL1 ที่ช่วยคิดเรื่องนี้ต่อ */
   function nextCard() {
     var L = askList(), n = askDone() ? pointsList().length : null;
-    var lead = n === null ? 'ตอบ ' + L.length + ' ข้อ แค่ ใช่ / ไม่ใช่ / ไม่แน่ใจ แล้วดูว่าควรเช็กจุดไหนก่อนตัดสินใจ' : n ? 'ตอบครบแล้ว เจอ ' + n + ' จุดที่ควรตรวจสอบ' : 'ตอบครบแล้ว ยังไม่เจอจุดที่ควรตรวจสอบ';
+    var lead = n === null ? 'ตอบ ' + L.length + ' ข้อ แล้วดูว่าควรเช็กจุดไหนก่อนตัดสินใจ' : n ? 'ตอบครบแล้ว เจอ ' + n + ' จุดที่ควรตรวจสอบ' : 'ตอบครบแล้ว ยังไม่เจอจุดที่ควรตรวจสอบ';
     return '<section class="next3"><h2 class="nx-h">ขั้นต่อไป</h2><p class="nx-lead"><b>เช็กความพร้อม</b> (ปุ่มด้านล่าง) · ' + lead + '</p>' +
       toolsHtml(TOPIC_TOOLS[state.topic], 'เครื่องมือที่ช่วยหาแนวทางเรื่องนี้') + '</section>';
   }

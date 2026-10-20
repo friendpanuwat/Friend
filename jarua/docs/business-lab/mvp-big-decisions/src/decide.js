@@ -560,7 +560,7 @@ function dPivot0(inp, m, T, d) {
     price: [[0, 'ไม่มีใครหาย', 'abs'], [1, 'ที่คุณคาด'], [2, 'หาย 2 เท่า']],
     promo: [[0, 'ยอดไม่เพิ่ม', 'abs'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']], freeship: [[0, 'ยอดไม่เพิ่ม', 'abs'], [0.5, 'ครึ่งเดียว'], [1, 'ที่คุณคาด']] }[T];
   /* เรื่องที่มีเงินก้อน: กำไรต่อเดือนเท่าเดิมยังไม่พอ ต้องได้เงินก้อนคืนด้วย
-     เป้าคืนทุน = อายุเครื่อง (ซื้ออุปกรณ์) · ปีที่ผู้ใช้เลือก (ย้ายร้าน เปิดสาขา) · 3 ปี (ของใหม่) แล้วหาค่าที่ทำให้คืนทุนทันเป้า  */
+     เป้าคืนทุน = อายุเครื่อง (ซื้ออุปกรณ์) · ปีที่ผู้ใช้เลือก (ย้ายร้าน เปิดสาขา ของใหม่) แล้วหาค่าที่ทำให้คืนทุนทันเป้า */
   var one = dBuild(inp, m, T, d, { lv: 1, f: 1 }).one;
   P.one = one;
   /* ยอดสูงสุดที่ร้านทำได้ (ย้ายร้าน สาขา) ใช้บอกว่าเงื่อนไขเกินกำลังร้าน */
@@ -575,8 +575,8 @@ function dPivot0(inp, m, T, d) {
   P.needOver = P.need !== null && P.capMax !== null && P.need > P.capMax + 1e-9;
   /* เป้าคืนทุน (ปีที่ผู้ใช้เลือก หรือ 3 ปี): เฉพาะเรื่องที่มีเงินก้อนใหญ่ที่กำไรต่อเดือนยังไม่ได้นับ (ซื้ออุปกรณ์หักค่าเสื่อมในกำไรแล้ว · จัดโปรจบในปี) */
   if (one > 0 && (T === 'place' || T === 'branch' || T === 'newprod') && (be.kind === 'value' || be.kind === 'zero')) {
-    /* ย้ายร้าน เปิดสาขา: ผู้ใช้เลือกเป้าเอง (1 / 2 / 3 / 5 ปี) · ของใหม่ใช้ 3 ปี */
-    P.targetYears = T === 'place' || T === 'branch' ? pos(d.payYears) || 3 : 3;
+    /* ผู้ใช้เลือกเป้าเอง (1 / 2 / 3 / 5 ปี) · ไม่ได้ตอบ (ร้านตัวอย่าง) = 3 ปี */
+    P.targetYears = pos(d.payYears) || 3;
     P.target = 12 * P.targetYears;
     P.targetTxt = 'คืนทุนภายใน ' + fmtN(P.targetYears) + '\u00a0ปี';
     var pb = function (v) { var R = dEval(inp, m, T, P.set(d, v)); return R.ok && R.payback !== null ? R.payback : Infinity; };
@@ -643,8 +643,8 @@ function dConds(R, inp, m, T, d) {
     var pn = needAt(P, P.payNeed, m, P.have), hp = pn !== null ? haveAt(P.have, pn, true) : null;
     if (pn !== null) C.push({ id: 'payneed', label: 'ถ้าจะ' + P.targetTxt + ' ' + P.lab + 'อย่างน้อย', value: pn,
       raw: P.payNeed, unit: u, have: P.have, haveShown: hp, lever: P.key, status: hp >= pn - 1e-9 ? 'ok' : 'short',
-      sub: 'นับเงินก้อน ' + fmtN(P.one) + ' บาทด้วย' + (T === 'place' || T === 'branch' ? '' : ' · 3 ปีเป็นระยะที่ใช้เทียบเท่านั้น') });
-    else C.push({ id: 'payneed', label: 'ถ้าจะ' + P.targetTxt, value: null, txt: P.payNo, unit: u, lever: P.key, status: 'short', sub: 'นับเงินก้อน ' + fmtN(P.one) + ' บาทด้วย' + (T === 'place' || T === 'branch' ? '' : ' · 3 ปีเป็นระยะที่ใช้เทียบเท่านั้น') });
+      sub: 'นับเงินก้อน ' + fmtN(P.one) + ' บาทด้วย' });
+    else C.push({ id: 'payneed', label: 'ถ้าจะ' + P.targetTxt, value: null, txt: P.payNo, unit: u, lever: P.key, status: 'short', sub: 'นับเงินก้อน ' + fmtN(P.one) + ' บาทด้วย' });
   }
   /* 2) กำลังรับ */
   if ((T === 'hire' || T === 'equip') && isVolModel(m) && pos(inp.capacity) && P.need !== null && P.need > 0) {

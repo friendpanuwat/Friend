@@ -163,7 +163,7 @@ for (const m of models) {
   const bpay = ev(inp, 'unit', 'branch', Object.assign({}, R('SAMPLE_DEC.branch'), { payYears: 2 }));
   chk(!bpay.P.target || bpay.P.target === 24, 'branch uses the chosen years too');
   const np = ev(inp, 'unit', 'newprod', Object.assign({}, R('SAMPLE_DEC.newprod'), { payYears: 1 }));
-  chk(!np.P.target || np.P.target === 36, 'new product keeps the 3-year comparison');
+  chk(!np.P.target || np.P.target === 12, 'new product uses the chosen years too');
   /* ซื้ออุปกรณ์: กำไรหักเงินกันซื้อเครื่องใหม่แล้ว จึงไม่มีเป้าคืนทุนแยก */
   const e = ev(inp, 'unit', 'equip', { price: 120000, life: 15, eqGain: 2.5, costDown: 0, fixedChg: 0 });
   chk(!cond(e, 'payneed') && !e.P.target, 'equip has no separate payback target');
