@@ -302,7 +302,7 @@
       var k = s.high.indexOf(c) >= 0 ? 'high' : s.low.indexOf(c) >= 0 ? 'low' : 'normal';
       ms.push('<button type="button" class="month" data-act="month" data-c="' + c + '" data-s="' + k + '" aria-label="' + TH_MONTHS[c - 1] + ' ' + { high: 'ขายดี', low: 'ขายแย่', normal: 'ปกติ' }[k] + '">' + TH_MONTHS[c - 1] + '<small>' + { high: 'ดี', low: 'แย่', normal: '' }[k] + '</small></button>');
     }
-    return '<div class="field" data-f="season"><p class="help">แตะเดือนเพื่อสลับ ปกติ → ขายดี → ขายแย่</p><div class="months">' + ms.join('') + '</div><div class="two">' +
+    return '<div class="field" data-f="season"><div class="months">' + ms.join('') + '</div><div class="two">' +
       '<div class="field"><label for="f-hp" class="help">ขายดีกว่าปกติ</label><div class="inbox"><input id="f-hp" data-season="highPct" inputmode="decimal" value="' + esc(s.highPct) + '"><span class="suf">%</span></div></div>' +
       '<div class="field"><label for="f-lp" class="help">ขายแย่กว่าปกติ</label><div class="inbox"><input id="f-lp" data-season="lowPct" inputmode="decimal" value="' + esc(s.lowPct) + '"><span class="suf">%</span></div></div></div></div>';
   }
@@ -380,7 +380,7 @@
     return bar('<button class="ib" data-act="back" aria-label="กลับ">' + ICON.back + '</button>', 'แก้ตัวเลขร้าน', MODELS[state.model].tile) +
       '<main class="screen"><div class="wrap">' + (state.isSample ? '<div class="banner"><span>กำลังใช้ตัวเลขร้านกาแฟตัวอย่าง</span><button class="lnk" data-act="to-start">เริ่มใหม่กับร้านคุณ</button></div>' : '') +
       '<div class="rv">' + steps.map(function (st, i) {
-        return '<button class="rv-row" data-act="edit-step" data-i="' + i + '"><span class="t">' + esc(qmark(st.q)) + '</span><span class="v">' + esc(stepSummary(st)) + '</span>' + ICON.chev + '</button>';
+        return '<button class="rv-row" data-act="edit-step" data-i="' + i + '"><span class="t">' + esc(qmark(st.q)) + '</span><span class="v">' + esc(stepValid(st) ? stepSummary(st) : 'ยังไม่ได้ตอบข้อนี้') + '</span>' + ICON.chev + '</button>';
       }).join('') + '</div></div></main>' +
       '<div class="foot" id="foot"><div class="wrap"><button class="btn" data-act="see">ดูผล</button></div></div>';
   }
@@ -421,7 +421,7 @@
   function viewHome() {
     var m = state.model, base = state.inp, S = C(base, m);
     var head = bar('<button class="tb" data-act="back">' + ICON.back + 'หน้าแรก</button>', 'เช็กตัวเลขร้าน', 'Business Lab');
-    if (!S.ok) return head + '<main class="screen"><div class="wrap"><div class="ok-box"><b>ตัวเลขยังไม่ครบ</b><p>กด "แก้ตัวเลข" เพื่อกรอกให้ครบ</p></div></div></main>' + homeFoot();
+    if (!S.ok || (!state.isSample && !shopReady())) return head + '<main class="screen"><div class="wrap"><div class="ok-box"><b>ตัวเลขยังไม่ครบ</b><p>กด "แก้ตัวเลข" เพื่อกรอกให้ครบ</p></div></div></main>' + homeFoot();
     var F = D(base, m), real = F.filter(function (f) { return f.lv !== 'note'; }), notes = F.filter(function (f) { return f.lv === 'note'; });
     var out = head + '<main class="screen"><div class="wrap">';
     if (state.isSample) out += '<div class="banner"><span>นี่คือร้านกาแฟตัวอย่าง</span><button class="lnk" data-act="to-start">ใส่ตัวเลขร้านคุณ</button></div>';
@@ -673,7 +673,8 @@
       (hasTrial() ? '<span class="delta ' + (d > 0.5 ? 'up' : d < -0.5 ? 'down' : '') + '">' + fmtN(Math.abs(d)) + '</span>' : '') + '</div>' +
       '<div class="bignum">' + (T.profit < 0 ? '−' : '') + anim('lp', T.profit) + '<span class="u">บาท</span></div>' +
       '<div class="was">' + (hasTrial() ? 'ตัวเลขปัจจุบัน: ' + (B.profit < 0 ? '−' : '') + fmtN(Math.abs(B.profit)) + ' บาท' : 'เลื่อนตัวเลขด้านล่าง แล้วดูผลตรงนี้') + '</div>' +
-      statsHtml(T, state.inp, m, 'l', hasTrial() ? B : null) + (chips.length ? '<div class="chg">' + chips.join('') + '</div>' : '') + '</section>';
+      statsHtml(T, state.inp, m, 'l', hasTrial() ? B : null) + (chips.length ? '<div class="chg">' + chips.join('') + '</div>' : '') +
+      (hasTrial() ? '<div class="cta"><button class="pbtn" data-act="reset">คืนค่าเดิมทั้งหมด</button></div>' : '') + '</section>';
   }
   function fmtInputNum(v) {
     if (v === null || v === undefined) return '';
@@ -712,7 +713,7 @@
     var vr = keys.filter(function (k) { return VAR_KEYS[k]; });
     var fx = keys.filter(function (k) { return COMMON_LEVERS.indexOf(k) >= 0; });
     function grp(t, ks) { return ks.length ? '<div class="lgroup"><h2>' + t + '</h2><div class="lrows">' + ks.map(lrowHtml).join('') + '</div></div>' : ''; }
-    var right = hasTrial() ? '<button class="tb" data-act="reset">คืนค่าเดิมทั้งหมด</button>' : '';
+    var right = '';
     return bar('<button class="tb" data-act="back">' + ICON.back + 'เสร็จ</button>', 'ทดลองปรับตัวเลข', state.isSample ? 'ร้านตัวอย่าง' : '', right) +
       '<main class="screen"><div class="lab-top"><div class="wrap" id="labp">' + labPanel() + '</div></div><div class="wrap">' +
       grp('รายได้', inc) + grp('ต้นทุนที่เพิ่มตามยอดขาย', vr) + grp('ค่าใช้จ่ายคงที่ต่อเดือน', fx) + '</div></main>';
@@ -730,9 +731,6 @@
     var h = insight(k), box = $('.lr-ins', row);
     if (h && !box) row.insertAdjacentHTML('beforeend', '<div class="lr-ins">' + h + '</div>');
     else if (box) { if (h) box.innerHTML = h; else box.remove(); }
-    var bt = $('.bar .tb[data-act="reset"]');
-    if (hasTrial() && !bt) { var thb = $('.bar [data-act="theme"]'); thb.insertAdjacentHTML('beforebegin', '<button class="tb" data-act="reset">คืนค่าเดิมทั้งหมด</button>'); }
-    if (!hasTrial() && bt) bt.remove();
     save();
   }
   function setActive(k) {
@@ -776,6 +774,10 @@
       else go('start', true, noPush);
     } else if (v === 'lab') { var f = state.labFrom; state.labFrom = null; go(f === 'finding' || f === 'points' ? f : 'home', true, noPush); }
     else if (v === 'home') go('start', true, noPush);
+    else if (v === 'review') {
+      if (state.edOrig && !state.isSample && !shopReady()) { state.inp = state.edOrig; toast('ยกเลิกตัวเลขที่ยังไม่ครบ ใช้ตัวเลขเดิม'); }
+      state.edOrig = null; go('home', true, noPush);
+    }
     else if (v !== 'start') go('home', true, noPush);
   }
   /* ประวัติของมือถือ: 1 ขั้นต่อการกดย้อนกลับ 1 ครั้งที่ต้องใช้กว่าจะถึงหน้าแรก (needDepth) · hdepth = ขั้นที่มีอยู่เหนือหน้าแรก
@@ -864,7 +866,7 @@
       case 'see': {
         steps = stepsFor(m);
         var bad = -1; for (var bi = 0; bi < steps.length; bi++) if (!stepValid(steps[bi])) { bad = bi; break; }
-        if (bad < 0) { state.editing = false; state.trial = {}; go('home'); break; }
+        if (bad < 0) { state.editing = false; state.trial = {}; state.edOrig = null; go('home'); break; }
         if (state.view !== 'wizard' || state.step !== bad) { state.step = bad; go('wizard'); }
         wShowMissing(steps[bad]); break;
       }
@@ -888,7 +890,7 @@
         if (gi >= 0) { P.splice(gi, 1); advClearGroup(state.inp, m, g); } else P.push(g);
         state.inp.advPick = P; go('wizard', false); var gb = $('[data-act="advpick"][data-g="' + g + '"]'); if (gb) gb.focus(); break;
       }
-      case 'review': go('review'); break;
+      case 'review': if (state.view === 'home') state.edOrig = JSON.parse(JSON.stringify(state.inp)); go('review'); break;
       case 'home': go('home'); break;
       case 'edit-step': state.step = +t.getAttribute('data-i'); state.editing = true; go('wizard'); break;
       case 'edit-field': {

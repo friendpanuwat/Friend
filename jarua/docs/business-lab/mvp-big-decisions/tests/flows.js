@@ -77,7 +77,11 @@ async function check(page, label) {
         if (!(await page.$('[data-act="ask"]'))) { bad++; console.log('  PROBLEM', label, 'after lab: view', await page.evaluate(() => window.__lab3.state.view + ' ' + JSON.stringify(window.__lab3.state.ds[window.__lab3.state.topic]))); n++; continue; }
         await page.click('[data-act="ask"]');
         let k = 0;
-        while (await page.$('.ask-ans') && k < 8) { await page.click('.ask-ans button[data-v="yes"]'); await page.waitForTimeout(240); k++; }
+        /* ตอบคำตอบที่บอกว่ามีจุดต้องตรวจสอบ (บางข้อคือ "ไม่ใช่" เช่น "คุณคำนวณ…เองหรือไม่?") */
+        while (await page.$('.ask-ans') && k < 8) {
+          const risk = await page.evaluate(() => { const id = document.querySelector('.ask-ans button').getAttribute('data-q'); return QB3[id].risk || 'yes'; });
+          await page.click(`.ask-ans button[data-v="${risk}"]`); await page.waitForTimeout(240); k++;
+        }
         bad += await check(page, label + ' points');
         const pts = await page.evaluate(() => document.querySelectorAll('.point').length);
         if (pts !== k) { bad++; console.log('  PROBLEM', label, 'answered', k, 'points', pts); }

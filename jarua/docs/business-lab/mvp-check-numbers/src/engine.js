@@ -598,7 +598,7 @@ function pointTag(bankLever, S, inp, m) {
   else if (k === 'feePct') stepTxt = 'ค่าธรรมเนียมลดลง 1% ของยอดขาย';
   else if (k === 'occupancy') stepTxt = 'มีคนเช่าเพิ่ม 5%';
   else stepTxt = leverLabel(k, inp, m)[1] + ' +' + fmtN(st);
-  return stepTxt + ' = กำไรเพิ่ม <b>' + fmtN(d) + '</b> บาท/เดือน';
+  return stepTxt + (d < -0.5 ? ' = กำไรลดลง <b>' + fmtN(-d) : ' = กำไรเพิ่ม <b>' + fmtN(d)) + '</b> บาท/เดือน';
 }
 
 /* ---------- คำอธิบายใต้ตัวเลขที่กำลังปรับ (เครื่องคิดเลขเล็กอยู่ตรงนี้) ---------- */

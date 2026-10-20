@@ -361,7 +361,7 @@ details.about ul { margin: 0 0 16px; padding-left: 18px; font-size: 14px; color:
 .lr-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .lr-name { font-size: 15px; font-weight: 600; min-width: 0; }
 .lr-val { display: flex; align-items: baseline; gap: 4px; }
-.lr-val input { border: 0; background: transparent; font-family: var(--font-num); font-size: 22px; font-weight: 700; text-align: right; width: auto; padding: 0; outline: none; min-height: 32px; border-bottom: 1.5px dashed transparent; }
+.lr-val input { border: 0; background: transparent; font-family: var(--font-num); font-size: 22px; font-weight: 700; text-align: right; width: auto; padding: 0; outline: none; min-height: 44px; border-bottom: 1.5px dashed transparent; }
 .lr-val input:focus { border-bottom-color: var(--ink); }
 .lr-val .u { font-size: 13px; color: var(--muted); white-space: nowrap; }
 .lr-was { font-size: 12px; color: var(--muted); text-align: right; min-height: 18px; }
