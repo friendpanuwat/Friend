@@ -202,14 +202,6 @@
 .pv-leg .lz1 { background: var(--surface-2); }
 .pv-leg .lz2 { background: var(--ghost); }
 .pv-leg .lz3 { background: var(--ink); }
-.pv-read { margin-top: 12px; display: grid; gap: 6px; }
-.pr-v { font-size: 15px; font-weight: 600; }
-.pr-r { justify-self: start; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; padding: 6px 12px 6px 8px; border-radius: 999px; }
-.pr-r svg { width: 18px; height: 18px; flex: none; }
-.pr-r > span { line-height: 1.4; }
-.pr-r.ok { background: var(--ink); color: var(--bg); }
-.pr-r.ok .up, .pr-r.ok .down { color: var(--bg); }
-.pr-r.no { box-shadow: inset 0 0 0 1.5px var(--ink); background-image: var(--hatch); }
 .pv-chips { margin-top: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .pv-chips .sc { min-height: 56px; border: 0; border-radius: 14px; background: var(--surface); padding: 6px 4px; display: grid; gap: 1px; align-content: center; justify-items: center; text-align: center; color: var(--ink); }
 .pv-chips .sc span { font-size: 12px; font-weight: 600; color: var(--ink-2); line-height: 1.3; }
@@ -251,8 +243,6 @@
 /* ---------- ขั้นต่อไป ---------- */
 .next3 { margin-top: 28px; display: grid; gap: 10px; }
 .next3 .tools { background: var(--card); border-radius: var(--r); padding: 12px; }
-.next3 .nx-h { margin: 0; font-size: 20px; line-height: 1.3; }
-.next3 .nx-lead { margin: 0; font-size: 14px; color: var(--ink-2); line-height: 1.55; }
 .next3 .tools { margin: 0; }
 .other3 { margin-top: 12px; }
 .end3 { margin-top: 16px; display: grid; gap: 10px; }
@@ -260,13 +250,6 @@
 /* ---------- ปุ่มค้างด้านล่างของหน้าผล ---------- */
 .rfoot .btn { font-size: 16px; padding: 0 16px; }
 .rfoot .btn.fb-edit { flex: 0 0 auto; }
-.plan3 { margin-top: 12px; width: 100%; min-height: 64px; border: 1.5px dashed var(--line-strong); border-radius: 18px; background: transparent; padding: 12px 12px 12px 16px; display: flex; align-items: center; gap: 10px; text-align: left; color: var(--ink); }
-.plan3 .p3-l { flex: 1; min-width: 0; display: grid; gap: 2px; }
-.plan3 .p3-h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.plan3 .p3-h b { font-size: 16px; }
-.plan3 .p3-tag { font-size: 12px; font-weight: 700; padding: 1px 9px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--ink-2); }
-.plan3 .p3-p { font-size: 13px; color: var(--muted); line-height: 1.5; }
-.plan3 > svg { width: 20px; height: 20px; color: var(--muted); }
 
 /* ---------- เงินในมือ 12 เดือน ---------- */
 .card.cashp, .card.wf { margin-top: 16px; }
@@ -302,7 +285,6 @@
 .l3s small { font-size: 11.5px; color: var(--muted); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .l3s b { font-family: var(--font-num); font-size: 16px; line-height: 1.3; overflow-wrap: anywhere; }
 .l3s b small { font-family: var(--font-th); font-size: 11px; color: var(--ink-2); white-space: normal; }
-.lab-note { margin: -6px 2px 0; font-size: 13px; color: var(--muted); }
 .banner.lab-bn { margin-top: 14px; margin-bottom: 0; }
 .lr-val input { min-height: 44px; min-width: 44px; }
 .fine { display: flex; align-items: center; flex-wrap: wrap; column-gap: 2px; }

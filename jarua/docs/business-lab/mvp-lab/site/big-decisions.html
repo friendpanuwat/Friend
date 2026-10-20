@@ -232,15 +232,6 @@ main { padding-bottom: calc(var(--foot-h) + 40px + env(safe-area-inset-bottom, 0
 .card .lead { font-size: 15px; color: var(--ink-2); margin: 4px 0 0; }
 .card .lead b { font-family: var(--font-num); color: var(--ink); }
 
-/* gauge */
-.gauge { margin-top: 26px; padding-bottom: 24px; position: relative; }
-.gauge .track { position: relative; height: 14px; border-radius: 7px; background: var(--surface-2); }
-.gauge .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 7px; background: var(--ink); transition: width 0.35s cubic-bezier(.2, .8, .2, 1); }
-.gauge .gfill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 7px; background: var(--ghost); }
-.gauge .mark { position: absolute; top: -7px; bottom: -7px; width: 3px; border-radius: 2px; background: var(--ink); box-shadow: 0 0 0 2px var(--card); transform: translateX(-1.5px); transition: left 0.35s cubic-bezier(.2, .8, .2, 1); }
-.gauge .ml { position: absolute; top: -26px; transform: translateX(-50%); font-size: 12px; font-weight: 700; white-space: nowrap; transition: left 0.35s; }
-.gauge .nl { position: absolute; bottom: 0; transform: translateX(-50%); font-size: 12px; color: var(--muted); white-space: nowrap; transition: left 0.35s; }
-.gauge .el { transform: none; } .gauge .er { transform: translateX(-100%); }
 
 /* chart */
 .chart { margin-top: 10px; position: relative; }
@@ -291,8 +282,6 @@ main { padding-bottom: calc(var(--foot-h) + 40px + env(safe-area-inset-bottom, 0
 .rank .rv { font-family: var(--font-num); font-weight: 700; white-space: nowrap; }
 .rank .rb { grid-column: 1 / -1; height: 8px; border-radius: 4px; background: var(--surface); overflow: hidden; }
 .rank .rb i { display: block; height: 100%; background: var(--ink); border-radius: 4px; }
-.meter { margin-top: 14px; height: 12px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
-.meter i { display: block; height: 100%; background: var(--ink); border-radius: 6px; }
 .plan { margin-top: 12px; }
 .plan h3 { margin: 6px 0 6px; font-size: 19px; line-height: 1.4; }
 .plan p { margin: 0 0 14px; font-size: 14px; color: var(--panel-muted); }
@@ -500,6 +489,9 @@ button.ovt[aria-expanded="true"] .k svg { transform: rotate(180deg); }
 .nw { white-space: nowrap; }
 .start-hero .hq { align-items: flex-start; }
 .start-hero .hq .qm { margin-top: -6px; }
+
+.rank .rl .rh { display: block; font-size: 12.5px; font-weight: 400; color: var(--muted); }
+.rc-foot { margin-top: 4px; font-size: 12px; color: var(--muted); }
 /* ---------- ตัวที่ 3: รูปแบบหน้าจอของตัวเอง (ใช้ token สี ฟอนต์ ระยะ และส่วนกรอกตัวเลขร้านชุดเดียวกับตัวที่ 1) ----------
    ภาษาภาพ: "สองเส้นทาง" ไม่ทำ (พื้นสว่าง) | ทำ (แถบดำ) · ตัวเลขใหญ่บอกการเปลี่ยนแปลง · แถบลากหาจุดคุ้ม · เครื่องหมาย ✓ ✕
    ลาย "ไม่คุ้ม / ยังไม่ถึง" ใช้ลายเส้นทแยง ไม่ใช้สี */
@@ -704,14 +696,6 @@ button.ovt[aria-expanded="true"] .k svg { transform: rotate(180deg); }
 .pv-leg .lz1 { background: var(--surface-2); }
 .pv-leg .lz2 { background: var(--ghost); }
 .pv-leg .lz3 { background: var(--ink); }
-.pv-read { margin-top: 12px; display: grid; gap: 6px; }
-.pr-v { font-size: 15px; font-weight: 600; }
-.pr-r { justify-self: start; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; padding: 6px 12px 6px 8px; border-radius: 999px; }
-.pr-r svg { width: 18px; height: 18px; flex: none; }
-.pr-r > span { line-height: 1.4; }
-.pr-r.ok { background: var(--ink); color: var(--bg); }
-.pr-r.ok .up, .pr-r.ok .down { color: var(--bg); }
-.pr-r.no { box-shadow: inset 0 0 0 1.5px var(--ink); background-image: var(--hatch); }
 .pv-chips { margin-top: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .pv-chips .sc { min-height: 56px; border: 0; border-radius: 14px; background: var(--surface); padding: 6px 4px; display: grid; gap: 1px; align-content: center; justify-items: center; text-align: center; color: var(--ink); }
 .pv-chips .sc span { font-size: 12px; font-weight: 600; color: var(--ink-2); line-height: 1.3; }
@@ -753,8 +737,6 @@ button.ovt[aria-expanded="true"] .k svg { transform: rotate(180deg); }
 /* ---------- ขั้นต่อไป ---------- */
 .next3 { margin-top: 28px; display: grid; gap: 10px; }
 .next3 .tools { background: var(--card); border-radius: var(--r); padding: 12px; }
-.next3 .nx-h { margin: 0; font-size: 20px; line-height: 1.3; }
-.next3 .nx-lead { margin: 0; font-size: 14px; color: var(--ink-2); line-height: 1.55; }
 .next3 .tools { margin: 0; }
 .other3 { margin-top: 12px; }
 .end3 { margin-top: 16px; display: grid; gap: 10px; }
@@ -762,13 +744,6 @@ button.ovt[aria-expanded="true"] .k svg { transform: rotate(180deg); }
 /* ---------- ปุ่มค้างด้านล่างของหน้าผล ---------- */
 .rfoot .btn { font-size: 16px; padding: 0 16px; }
 .rfoot .btn.fb-edit { flex: 0 0 auto; }
-.plan3 { margin-top: 12px; width: 100%; min-height: 64px; border: 1.5px dashed var(--line-strong); border-radius: 18px; background: transparent; padding: 12px 12px 12px 16px; display: flex; align-items: center; gap: 10px; text-align: left; color: var(--ink); }
-.plan3 .p3-l { flex: 1; min-width: 0; display: grid; gap: 2px; }
-.plan3 .p3-h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.plan3 .p3-h b { font-size: 16px; }
-.plan3 .p3-tag { font-size: 12px; font-weight: 700; padding: 1px 9px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--ink-2); }
-.plan3 .p3-p { font-size: 13px; color: var(--muted); line-height: 1.5; }
-.plan3 > svg { width: 20px; height: 20px; color: var(--muted); }
 
 /* ---------- เงินในมือ 12 เดือน ---------- */
 .card.cashp, .card.wf { margin-top: 16px; }
@@ -804,7 +779,6 @@ button.ovt[aria-expanded="true"] .k svg { transform: rotate(180deg); }
 .l3s small { font-size: 11.5px; color: var(--muted); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .l3s b { font-family: var(--font-num); font-size: 16px; line-height: 1.3; overflow-wrap: anywhere; }
 .l3s b small { font-family: var(--font-th); font-size: 11px; color: var(--ink-2); white-space: normal; }
-.lab-note { margin: -6px 2px 0; font-size: 13px; color: var(--muted); }
 .banner.lab-bn { margin-top: 14px; margin-bottom: 0; }
 .lr-val input { min-height: 44px; min-width: 44px; }
 .fine { display: flex; align-items: center; flex-wrap: wrap; column-gap: 2px; }
@@ -5411,7 +5385,7 @@ function fmtCompact(n) {
     if (nc) {
       var nv = esc(nc.payback ? payIn(nc.value) : nf(nc.value, nc.unit)), nl = String(nc.label).replace('{v}', '');
       return '<h1 class="h-big" aria-label="' + esc(nl + ' ' + nv) + '">' + clabel(nc, ' <span class="hb">' + nv + '</span>') + '</h1>' +
-        '<div class="h-k"><span></span>' + qmBtn('hero', nl) + '</div>' + qmT('hero', tw('ถ้า' + dSummary(state.topic, dec(), state.inp, state.model)));
+        '<div class="h-k"><span></span>' + qmBtn('hero', nl) + '</div>' + qmT('hero', (TOPIC_EX[state.topic] ? esc(TOPIC_EX[state.topic]) + ' · ' : '') + tw('ถ้า' + dSummary(state.topic, dec(), state.inp, state.model)));
     }
     var dl = R.delta, ab = fmtN(Math.abs(dl)), pre = state.topic === 'promo' ? 'ช่วงจัดโปร ' : '';
     var same = Math.abs(dl) < 0.5, lbl = pre + (same ? 'กำไรเท่าเดิม' : 'กำไร' + (dl > 0 ? 'เพิ่มขึ้น' : 'ลดลง'));
@@ -5425,7 +5399,7 @@ function fmtCompact(n) {
       : 'ช่วงแรกต้องมีเงินอย่างน้อย <b>' + fmtN(R.need) + '</b> บาท') + '</span></p>';
     return '<div class="h-k"><span>' + (same ? '' : esc(lbl)) + '</span>' + qmBtn('hero', lbl) + '</div>' +
       '<h1 class="h-big' + (same ? '' : ' num') + '" aria-label="' + esc(pre + (same ? 'กำไรเท่าเดิม' : 'กำไร' + (dl > 0 ? 'เพิ่มขึ้น ' : 'ลดลง ') + ab + ' บาทต่อเดือน')) + '">' + h + '</h1>' +
-      qmT('hero', tw(ctx)) + loss + (state.topic === 'promo' ? '<p class="h-sub">ทั้งปี (ช่วงโปรและหลังจบโปร) กำไร' + (R.total12 >= -0.5 ? 'เพิ่ม' : 'ลด') + ' <b>' + fmtN(Math.abs(R.total12)) + '</b> บาท เทียบกับไม่ทำ</p>' : '') + risk;
+      qmT('hero', (TOPIC_EX[state.topic] ? esc(TOPIC_EX[state.topic]) + ' · ' : '') + tw(ctx)) + loss + (state.topic === 'promo' ? '<p class="h-sub">ทั้งปี (ช่วงโปรและหลังจบโปร) กำไร' + (R.total12 >= -0.5 ? 'เพิ่ม' : 'ลด') + ' <b>' + fmtN(Math.abs(R.total12)) + '</b> บาท เทียบกับไม่ทำ</p>' : '') + risk;
   }
   function laneRows(R) {
     var m = state.model, inp = state.inp, d = viewD(), x = R.st.b.x, rows = [];
@@ -5635,7 +5609,7 @@ function fmtCompact(n) {
   var toolsN = 0;
   function toolsHtml(codes, title, seen) {
     seen = seen || {};
-    var key = 'tl' + (toolsN++);
+    var key = 'tl-' + state.view + (toolsN++);
     var items = codes.filter(function (c) { if (seen[c] || !TOOLS[c]) return false; seen[c] = 1; return true; }).map(function (c) {
       return '<button class="tool" data-act="tool" data-t="' + c + '"><span class="tn">' + esc(TOOLS[c][0]) + '</span><span class="ts" data-qmt="' + key + '"' + qmHide(key) + '>' + esc(TOOLS[c][1]) + '</span>' + ICON.out + '</button>';
     }).join('');
@@ -5725,7 +5699,7 @@ function fmtCompact(n) {
       var tb = $('#try3'); if (tb) { var th0 = tryHtml(P); if (tb.innerHTML !== th0) tb.innerHTML = th0; }
       var l = $('#lanes'); if (l) l.innerHTML = lanesHtml(R);
       toolsN = 0;
-      if (h) announce(($('.h-k span', h) || {}).textContent + ' ' + ($('.h-big', h) || {}).textContent);
+      announce(deltaWords(R.delta) + (R.one > 0 && state.topic !== 'promo' ? ' · คืนทุน' + payIn(R.payback) : ''));
       [['#warns', warnsHtml(R)], ['#cklist', R.conds.map(checkHtml).join('')], ['#detp', detPanel(R)], ['#aboutul', aboutItems(R)]].forEach(function (x) {
         var el = $(x[0]); if (el) { el.innerHTML = x[1]; runAnim(el); }
       });
@@ -6014,7 +5988,7 @@ function fmtCompact(n) {
     var same = state.view === view && top === false;
     if (top !== false) $$('.toast').forEach(function (x) { x.remove(); });
     state.view = view; render();
-    if (!noPush) { if (state.view === 'start') leaveAll(); else if (needDepth(state.view) > hdepth) hpush(); }
+    if (!noPush) { if (state.view === 'start') leaveAll(); else { var k = 0; while (needDepth(state.view) > hdepth && k++ < 16) hpush(); } }
     if (same) $$('.screen').forEach(function (el) { el.style.animation = 'none'; el.classList.add('still'); });
     if (top !== false) { window.scrollTo(0, 0); focusMain(); }
   }
@@ -6035,9 +6009,11 @@ function fmtCompact(n) {
       else toStart(noPush);
     } else if (v === 'lab') { state.labOrig = null; go(state.labFrom === 'points' ? 'points' : 'result', true, noPush); }
     else if (v === 'ask' || v === 'points') go('result', true, noPush);
-    else if (v === 'shop') { var f = state.shopFrom; state.shopFrom = null; if (f && f !== 'start' && state.topic) go(f, true, noPush); else toStart(noPush); }
+    else if (v === 'shop') { var f = shopBack(); state.shopFrom = null; if (f) go(f, true, noPush); else toStart(noPush); }
     else if (v !== 'start') toStart(noPush);
   }
+  /* หน้าเลือกรูปแบบร้านย้อนไปหน้าที่เปิดมา (แก้ตัวเลขร้าน · หรือผล / แก้ตัวเลขของเรื่อง) · ไม่มี = หน้าเลือกเรื่อง */
+  function shopBack() { var f = state.shopFrom; return f === 'review' ? 'review' : f && f !== 'start' && f !== 'shop' && state.topic ? f : null; }
   /* กลับหน้าเลือกเรื่อง แล้วเลื่อนไปที่รายการเรื่องเลย */
   function toStart(noPush) {
     state.topic = null; state.labOrig = null; state.editing = false; state.dediting = false; go('start', true, noPush);
@@ -6052,7 +6028,7 @@ function fmtCompact(n) {
     n = (n || 0) + 1; if (n > 6) return 1;
     if (v === 'start') return 0;
     if (v === 'review' || v === 'result') return 1;
-    if (v === 'shop') return 1 + (state.shopFrom && state.shopFrom !== 'start' && state.shopFrom !== 'shop' && state.topic ? needDepth(state.shopFrom, n) : 0);
+    if (v === 'shop') return 1 + (shopBack() ? needDepth(shopBack(), n) : 0);
     if (v === 'wizard') return state.editing ? 1 + needDepth(state.editFrom === 'lab' && state.topic ? 'lab' : 'review', n) : state.step + 1 + needDepth('shop', n);
     if (v === 'dq') {
       if (state.dediting) return 1 + needDepth('lab', n);
@@ -6214,7 +6190,7 @@ function fmtCompact(n) {
           state.edOrig = null;
           state.editing = false; go(state.editFrom === 'lab' && state.topic ? 'lab' : 'review'); break;
         }
-        state.editing = false;
+        state.editing = false; state.shopFrom = null;
         if (!state.topic) { go('start'); break; }
         if (!topicOk(state.topic, m)) { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[m].tile); go('start'); break; }
         dec();

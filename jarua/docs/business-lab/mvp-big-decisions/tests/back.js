@@ -79,6 +79,29 @@ const { open } = require('./harness');
   } else { bad++; console.log('BAD first question did not move on → ' + JSON.stringify(s2)); }
   await tap('.bar [data-act="d-prev"]'); await expect('app back from first question → topic list', { v: 'start' });
 
+  /* ร้านกรอกไม่ครบ: กลับหน้าเลือกเรื่องแล้วเปิดเรื่องเดิมอีกครั้ง (เปิดที่ข้อ 2) · ย้อนกลับของมือถือต้องไม่ออกจากเครื่องมือกลางทาง */
+  await page.evaluate(() => { sessionStorage.clear(); const L = window.__lab3; L.state.model = null; L.state.inp = {}; L.state.ds = {}; L.state.topic = null; L.state.isSample = false; L.go('start', false); });
+  await tap('[data-act="topic"][data-t="hire"]'); await tap('[data-act="model"][data-m="unit"]');
+  await page.fill('#f-price', '60'); await tap('#foot [data-act="next"]');
+  for (let i = 0; i < 3; i++) await tap('.bar [data-act="prev"], .bar [data-act="back"]');
+  await expect('back to topic list', { v: 'start' });
+  await tap('[data-act="topic"][data-t="hire"]'); await expect('reopen topic → question 2', { v: 'wizard', s: 1 });
+  await phoneBack(); await expect('phone back → question 1', { v: 'wizard', s: 0 });
+  await phoneBack(); await expect('phone back → shop type', { v: 'shop' });
+  await phoneBack(); await expect('phone back → topic list (still in the tool)', { v: 'start' });
+
+  /* ร้านตัวอย่าง → ใส่ตัวเลขร้านคุณ → กรอกครบ → คำถามของเรื่อง · ย้อนกลับต้องไม่วนตัวเลขร้านรอบสอง */
+  await page.evaluate(() => { sessionStorage.clear(); const L = window.__lab3; L.state.model = null; L.state.inp = {}; L.state.ds = {}; L.state.isSample = false; L.go('start', false); });
+  await tap('[data-act="sample"]'); await tap('[data-act="topic"][data-t="hire"]'); await expect('sample result', { v: 'result' });
+  await tap('.banner [data-act="to-shop"]'); await tap('[data-act="model"][data-m="unit"]');
+  await page.evaluate(() => { const L = window.__lab3, st = L.state; st.inp = Object.assign(JSON.parse(JSON.stringify(MODELS.unit.sample)), { advMode: 'no', advPick: [] }); st.step = 6; L.render(); });
+  await tap('#foot [data-act="shop-done"]'); await expect('shop done → topic questions', { v: 'dq', d: 0 });
+  const seen = [];
+  for (let i = 0; i < 14; i++) { const v = await view(); seen.push(v.v + (v.v === 'wizard' ? v.s : '')); if (v.v === 'start') break; await phoneBack(); await page.waitForTimeout(150); }
+  const okLoop = seen[seen.length - 1] === 'start' && seen.filter(x => x === 'wizard6').length <= 1;
+  if (!okLoop) bad++;
+  console.log((okLoop ? 'ok  ' : 'BAD ') + 'back from topic questions goes through the shop numbers once, then topic list → ' + seen.join(' › '));
+
   const pp = await page.evaluate(() => window.__popPush);
   if (pp) bad++;
   console.log((pp ? 'BAD ' : 'ok  ') + 'no history entries added while handling a back press → ' + pp);

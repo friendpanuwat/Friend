@@ -17,13 +17,13 @@ async function check(page, label) {
   const probs = [];
   /* หน้าผล: ป้ายผลบนแถบลากต้องตรงกับ ✓ ✕ ของเงื่อนไข · แถว "อย่างน้อย" ที่ได้ ✓ ต้องไม่มีคำว่า "น้อยกว่า" */
   const agree = await page.evaluate(() => {
-    const pill = document.querySelector('.pr-r'); if (!pill) return [];
+    const pill = document.querySelector('.pr-r');
     const rows = [...document.querySelectorAll('.cklist li[data-id="need"], .cklist li[data-id="payneed"]')].filter(li => li.querySelector('.ck-t b'));
     const out = [];
     const extraShort = [...document.querySelectorAll('.cklist li[data-id="pay"] .ck, .cklist li[data-id="cap"] .ck, .cklist li[data-id="room"] .ck, .cklist li[data-id="total"] .ck, .cklist li[data-id="after"] .ck')].some(ck => ck.classList.contains('short'));
     const allOk = rows.every(li => li.querySelector('.ck').classList.contains('ok')) && !extraShort;
     const noPay = !!document.querySelector('.cklist li[data-id="payneed"]') && !document.querySelector('.cklist li[data-id="payneed"] .ck-t b');
-    if (rows.length && pill.classList.contains('ok') !== (allOk && !noPay)) out.push('pill ' + pill.className + ' vs rows ' + rows.map(li => li.querySelector('.ck').className).join(','));
+    if (pill && rows.length && pill.classList.contains('ok') !== (allOk && !noPay)) out.push('pill ' + pill.className + ' vs rows ' + rows.map(li => li.querySelector('.ck').className).join(','));
     rows.forEach(li => {
       const t = li.textContent, ok = li.querySelector('.ck').classList.contains('ok');
       if (/อย่างน้อย/.test(t) && ok && /น้อยกว่า/.test((li.querySelector('.ck-h') || {}).textContent || '')) out.push('✓ with น้อยกว่า: ' + t.slice(0, 60));

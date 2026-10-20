@@ -758,7 +758,7 @@
     if (nc) {
       var nv = esc(nc.payback ? payIn(nc.value) : nf(nc.value, nc.unit)), nl = String(nc.label).replace('{v}', '');
       return '<h1 class="h-big" aria-label="' + esc(nl + ' ' + nv) + '">' + clabel(nc, ' <span class="hb">' + nv + '</span>') + '</h1>' +
-        '<div class="h-k"><span></span>' + qmBtn('hero', nl) + '</div>' + qmT('hero', tw('ถ้า' + dSummary(state.topic, dec(), state.inp, state.model)));
+        '<div class="h-k"><span></span>' + qmBtn('hero', nl) + '</div>' + qmT('hero', (TOPIC_EX[state.topic] ? esc(TOPIC_EX[state.topic]) + ' · ' : '') + tw('ถ้า' + dSummary(state.topic, dec(), state.inp, state.model)));
     }
     var dl = R.delta, ab = fmtN(Math.abs(dl)), pre = state.topic === 'promo' ? 'ช่วงจัดโปร ' : '';
     var same = Math.abs(dl) < 0.5, lbl = pre + (same ? 'กำไรเท่าเดิม' : 'กำไร' + (dl > 0 ? 'เพิ่มขึ้น' : 'ลดลง'));
@@ -772,7 +772,7 @@
       : 'ช่วงแรกต้องมีเงินอย่างน้อย <b>' + fmtN(R.need) + '</b> บาท') + '</span></p>';
     return '<div class="h-k"><span>' + (same ? '' : esc(lbl)) + '</span>' + qmBtn('hero', lbl) + '</div>' +
       '<h1 class="h-big' + (same ? '' : ' num') + '" aria-label="' + esc(pre + (same ? 'กำไรเท่าเดิม' : 'กำไร' + (dl > 0 ? 'เพิ่มขึ้น ' : 'ลดลง ') + ab + ' บาทต่อเดือน')) + '">' + h + '</h1>' +
-      qmT('hero', tw(ctx)) + loss + (state.topic === 'promo' ? '<p class="h-sub">ทั้งปี (ช่วงโปรและหลังจบโปร) กำไร' + (R.total12 >= -0.5 ? 'เพิ่ม' : 'ลด') + ' <b>' + fmtN(Math.abs(R.total12)) + '</b> บาท เทียบกับไม่ทำ</p>' : '') + risk;
+      qmT('hero', (TOPIC_EX[state.topic] ? esc(TOPIC_EX[state.topic]) + ' · ' : '') + tw(ctx)) + loss + (state.topic === 'promo' ? '<p class="h-sub">ทั้งปี (ช่วงโปรและหลังจบโปร) กำไร' + (R.total12 >= -0.5 ? 'เพิ่ม' : 'ลด') + ' <b>' + fmtN(Math.abs(R.total12)) + '</b> บาท เทียบกับไม่ทำ</p>' : '') + risk;
   }
   function laneRows(R) {
     var m = state.model, inp = state.inp, d = viewD(), x = R.st.b.x, rows = [];
@@ -982,7 +982,7 @@
   var toolsN = 0;
   function toolsHtml(codes, title, seen) {
     seen = seen || {};
-    var key = 'tl' + (toolsN++);
+    var key = 'tl-' + state.view + (toolsN++);
     var items = codes.filter(function (c) { if (seen[c] || !TOOLS[c]) return false; seen[c] = 1; return true; }).map(function (c) {
       return '<button class="tool" data-act="tool" data-t="' + c + '"><span class="tn">' + esc(TOOLS[c][0]) + '</span><span class="ts" data-qmt="' + key + '"' + qmHide(key) + '>' + esc(TOOLS[c][1]) + '</span>' + ICON.out + '</button>';
     }).join('');
@@ -1072,7 +1072,7 @@
       var tb = $('#try3'); if (tb) { var th0 = tryHtml(P); if (tb.innerHTML !== th0) tb.innerHTML = th0; }
       var l = $('#lanes'); if (l) l.innerHTML = lanesHtml(R);
       toolsN = 0;
-      if (h) announce(($('.h-k span', h) || {}).textContent + ' ' + ($('.h-big', h) || {}).textContent);
+      announce(deltaWords(R.delta) + (R.one > 0 && state.topic !== 'promo' ? ' · คืนทุน' + payIn(R.payback) : ''));
       [['#warns', warnsHtml(R)], ['#cklist', R.conds.map(checkHtml).join('')], ['#detp', detPanel(R)], ['#aboutul', aboutItems(R)]].forEach(function (x) {
         var el = $(x[0]); if (el) { el.innerHTML = x[1]; runAnim(el); }
       });
@@ -1361,7 +1361,7 @@
     var same = state.view === view && top === false;
     if (top !== false) $$('.toast').forEach(function (x) { x.remove(); });
     state.view = view; render();
-    if (!noPush) { if (state.view === 'start') leaveAll(); else if (needDepth(state.view) > hdepth) hpush(); }
+    if (!noPush) { if (state.view === 'start') leaveAll(); else { var k = 0; while (needDepth(state.view) > hdepth && k++ < 16) hpush(); } }
     if (same) $$('.screen').forEach(function (el) { el.style.animation = 'none'; el.classList.add('still'); });
     if (top !== false) { window.scrollTo(0, 0); focusMain(); }
   }
@@ -1382,9 +1382,11 @@
       else toStart(noPush);
     } else if (v === 'lab') { state.labOrig = null; go(state.labFrom === 'points' ? 'points' : 'result', true, noPush); }
     else if (v === 'ask' || v === 'points') go('result', true, noPush);
-    else if (v === 'shop') { var f = state.shopFrom; state.shopFrom = null; if (f && f !== 'start' && state.topic) go(f, true, noPush); else toStart(noPush); }
+    else if (v === 'shop') { var f = shopBack(); state.shopFrom = null; if (f) go(f, true, noPush); else toStart(noPush); }
     else if (v !== 'start') toStart(noPush);
   }
+  /* หน้าเลือกรูปแบบร้านย้อนไปหน้าที่เปิดมา (แก้ตัวเลขร้าน · หรือผล / แก้ตัวเลขของเรื่อง) · ไม่มี = หน้าเลือกเรื่อง */
+  function shopBack() { var f = state.shopFrom; return f === 'review' ? 'review' : f && f !== 'start' && f !== 'shop' && state.topic ? f : null; }
   /* กลับหน้าเลือกเรื่อง แล้วเลื่อนไปที่รายการเรื่องเลย */
   function toStart(noPush) {
     state.topic = null; state.labOrig = null; state.editing = false; state.dediting = false; go('start', true, noPush);
@@ -1399,7 +1401,7 @@
     n = (n || 0) + 1; if (n > 6) return 1;
     if (v === 'start') return 0;
     if (v === 'review' || v === 'result') return 1;
-    if (v === 'shop') return 1 + (state.shopFrom && state.shopFrom !== 'start' && state.shopFrom !== 'shop' && state.topic ? needDepth(state.shopFrom, n) : 0);
+    if (v === 'shop') return 1 + (shopBack() ? needDepth(shopBack(), n) : 0);
     if (v === 'wizard') return state.editing ? 1 + needDepth(state.editFrom === 'lab' && state.topic ? 'lab' : 'review', n) : state.step + 1 + needDepth('shop', n);
     if (v === 'dq') {
       if (state.dediting) return 1 + needDepth('lab', n);
@@ -1561,7 +1563,7 @@
           state.edOrig = null;
           state.editing = false; go(state.editFrom === 'lab' && state.topic ? 'lab' : 'review'); break;
         }
-        state.editing = false;
+        state.editing = false; state.shopFrom = null;
         if (!state.topic) { go('start'); break; }
         if (!topicOk(state.topic, m)) { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[m].tile); go('start'); break; }
         dec();

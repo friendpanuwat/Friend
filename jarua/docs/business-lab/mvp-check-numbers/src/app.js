@@ -523,7 +523,9 @@
     /* กำลังรองรับของร้าน */
     if (S.util && !S.util.rental) {
       var u = S.util;
-      t.push('<div class="ovt">' + ring(u.pct, 'ใช้กำลังรองรับไปแล้ว', fmtPct(u.pct)) + '<span class="n">กำลังรองรับของร้าน · ' + (u.reachT ? 'จะเต็มในเดือน ' + monthLabel(u.reachT, true) : 'สูงสุด ' + fmtN(u.max, 1) + ' ' + esc(m === 'project' ? 'งานพร้อมกัน' : volUnitText(base, m))) + '</span></div>');
+      var cmax = u.reachT ? 'จะเต็มในเดือน ' + monthLabel(u.reachT, true) : 'สูงสุด ' + fmtN(u.max, 1) + ' ' + esc(m === 'project' ? 'งานพร้อมกัน' : volUnitText(base, m));
+      t.push('<button type="button" class="ovt" data-act="qm" data-q="ov-cap" aria-expanded="' + !!qmOpen['ov-cap'] + '"><span class="k"><span></span>' + ICON.down + '</span>' + ring(u.pct, 'ใช้กำลังรองรับไปแล้ว', fmtPct(u.pct)) + '<span class="n">กำลังรองรับของร้าน · ' + cmax + '</span></button>');
+      det += '<div class="ovd card" data-qmt="ov-cap"' + qmHide('ov-cap') + '><p class="lead">ใช้กำลังรองรับไปแล้ว <b>' + fmtPct(u.pct) + '</b> จากความสามารถสูงสุดของร้าน · ' + cmax + '</p></div>';
     }
     return '<div class="ovg">' + t.join('') + '</div>' + det;
   }
@@ -566,7 +568,7 @@
       return '<div class="rc-line"><span>' + esc(s.label) + '</span>' + (b && Math.abs(b.per100 - s.per100) > 0.05 ? '<span class="was">' + b.per100.toFixed(2) + '</span>' : '') + '<b>' + s.per100.toFixed(2) + '</b></div>';
     }).join('');
     return '<section class="receipt" aria-label="เงิน 100 บาทที่ลูกค้าจ่าย ไปไหนบ้าง"><div class="rc-head"><div class="rt">เงิน 100 บาทที่ลูกค้าจ่าย ไปไหนบ้าง?</div></div>' +
-      '<div class="rc-bar" aria-hidden="true">' + segs + '</div><div class="rc-lines" data-qmt="rc"' + qmHide('rc') + '>' + lines + '</div>' +
+      '<div class="rc-bar" aria-hidden="true">' + segs + '</div><div class="rc-lines" data-qmt="rc"' + qmHide('rc') + '>' + lines + '<div class="rc-foot">ต่อเดือน · ' + TH_MONTHS[new Date().getMonth()] + ' ' + (new Date().getFullYear() + 543) + ' · จากทุก 100.00 บาท</div></div>' +
       '<button type="button" class="rc-total" data-act="qm" data-q="rc" aria-expanded="' + !!qmOpen.rc + '"><span>' + (S.keep100 >= 0 ? 'เหลือเป็นกำไร' : 'ขาดทุน') + '</span><b>' + (S.keep100 < 0 ? '−' : '') + Math.abs(S.keep100).toFixed(2) + '</b>' + ICON.down + '</button></section>';
   }
   function rankCard(S, base, m) {
@@ -574,7 +576,7 @@
     if (!items.length) return '';
     var mx = items[0].gain, h = 'ตัวเลขไหนขยับแล้วได้เงินเพิ่มมากที่สุด';
     return '<section class="card"><div class="hq"><h3>' + h + '</h3>' + qmBtn('rank', h) + '</div>' + qmT('rank', 'ถ้าตัวเลขนั้นดีขึ้น 10% · แตะเพื่อลอง') + '<div class="rank">' + items.map(function (it) {
-      return '<button data-act="lab" data-k="' + (it.lever || 'rent') + '" aria-label="' + esc(it.label + ' ' + it.how + ' +' + fmtN(it.gain)) + '"><span class="rl">' + esc(it.label) + '</span><span class="rv">+' + fmtN(it.gain) + '</span><span class="rb"><i style="width:' + (it.gain / mx * 100).toFixed(1) + '%"></i></span></button>';
+      return '<button data-act="lab" data-k="' + (it.lever || 'rent') + '" aria-label="' + esc(it.label + ' ' + it.how + ' +' + fmtN(it.gain)) + '"><span class="rl">' + esc(it.label) + qmT('rank', esc(it.how), 'small').replace('class="qm-tx"', 'class="rh"') + '</span><span class="rv">+' + fmtN(it.gain) + '</span><span class="rb"><i style="width:' + (it.gain / mx * 100).toFixed(1) + '%"></i></span></button>';
     }).join('') + '</div></section>';
   }
   function custCard(S) {
@@ -687,7 +689,7 @@
   }
   var toolsN = 0;
   function toolsHtml(codes, title) {
-    var seen = {}, key = 'tl' + (toolsN++);
+    var seen = {}, key = 'tl-' + state.view + (toolsN++);
     var items = codes.filter(function (c) { if (seen[c] || !TOOLS[c]) return false; seen[c] = 1; return true; }).map(function (c) {
       return '<button class="tool" data-act="tool" data-t="' + c + '"><span class="tn">' + esc(TOOLS[c][0]) + '</span>' + qmT(key, esc(TOOLS[c][1]), 'span').replace('class="qm-tx"', 'class="ts"') + ICON.out + '</button>';
     }).join('');
@@ -802,7 +804,7 @@
   }
   function go(view, top, noPush) {
     state.view = view; render();
-    if (!noPush) { if (view === 'start') leaveAll(); else if (needDepth(view) > hdepth) hpush(); }
+    if (!noPush) { if (view === 'start') leaveAll(); else { var k = 0; while (needDepth(view) > hdepth && k++ < 12) hpush(); } }
     if (top !== false) window.scrollTo(0, 0);
   }
   /* ปุ่มย้อนกลับในแอป (ซ้ายบน) และปุ่มย้อนกลับของมือถือ ไปที่เดียวกันทุกหน้า:

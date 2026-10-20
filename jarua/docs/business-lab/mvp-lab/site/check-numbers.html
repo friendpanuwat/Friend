@@ -232,15 +232,6 @@ main { padding-bottom: calc(var(--foot-h) + 40px + env(safe-area-inset-bottom, 0
 .card .lead { font-size: 15px; color: var(--ink-2); margin: 4px 0 0; }
 .card .lead b { font-family: var(--font-num); color: var(--ink); }
 
-/* gauge */
-.gauge { margin-top: 26px; padding-bottom: 24px; position: relative; }
-.gauge .track { position: relative; height: 14px; border-radius: 7px; background: var(--surface-2); }
-.gauge .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 7px; background: var(--ink); transition: width 0.35s cubic-bezier(.2, .8, .2, 1); }
-.gauge .gfill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 7px; background: var(--ghost); }
-.gauge .mark { position: absolute; top: -7px; bottom: -7px; width: 3px; border-radius: 2px; background: var(--ink); box-shadow: 0 0 0 2px var(--card); transform: translateX(-1.5px); transition: left 0.35s cubic-bezier(.2, .8, .2, 1); }
-.gauge .ml { position: absolute; top: -26px; transform: translateX(-50%); font-size: 12px; font-weight: 700; white-space: nowrap; transition: left 0.35s; }
-.gauge .nl { position: absolute; bottom: 0; transform: translateX(-50%); font-size: 12px; color: var(--muted); white-space: nowrap; transition: left 0.35s; }
-.gauge .el { transform: none; } .gauge .er { transform: translateX(-100%); }
 
 /* chart */
 .chart { margin-top: 10px; position: relative; }
@@ -291,8 +282,6 @@ main { padding-bottom: calc(var(--foot-h) + 40px + env(safe-area-inset-bottom, 0
 .rank .rv { font-family: var(--font-num); font-weight: 700; white-space: nowrap; }
 .rank .rb { grid-column: 1 / -1; height: 8px; border-radius: 4px; background: var(--surface); overflow: hidden; }
 .rank .rb i { display: block; height: 100%; background: var(--ink); border-radius: 4px; }
-.meter { margin-top: 14px; height: 12px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
-.meter i { display: block; height: 100%; background: var(--ink); border-radius: 6px; }
 .plan { margin-top: 12px; }
 .plan h3 { margin: 6px 0 6px; font-size: 19px; line-height: 1.4; }
 .plan p { margin: 0 0 14px; font-size: 14px; color: var(--panel-muted); }
@@ -500,6 +489,9 @@ button.ovt[aria-expanded="true"] .k svg { transform: rotate(180deg); }
 .nw { white-space: nowrap; }
 .start-hero .hq { align-items: flex-start; }
 .start-hero .hq .qm { margin-top: -6px; }
+
+.rank .rl .rh { display: block; font-size: 12.5px; font-weight: 400; color: var(--muted); }
+.rc-foot { margin-top: 4px; font-size: 12px; color: var(--muted); }
 </style>
 <div id="app"></div>
 <script>
@@ -3441,7 +3433,9 @@ function compactTH(n) {
     /* กำลังรองรับของร้าน */
     if (S.util && !S.util.rental) {
       var u = S.util;
-      t.push('<div class="ovt">' + ring(u.pct, 'ใช้กำลังรองรับไปแล้ว', fmtPct(u.pct)) + '<span class="n">กำลังรองรับของร้าน · ' + (u.reachT ? 'จะเต็มในเดือน ' + monthLabel(u.reachT, true) : 'สูงสุด ' + fmtN(u.max, 1) + ' ' + esc(m === 'project' ? 'งานพร้อมกัน' : volUnitText(base, m))) + '</span></div>');
+      var cmax = u.reachT ? 'จะเต็มในเดือน ' + monthLabel(u.reachT, true) : 'สูงสุด ' + fmtN(u.max, 1) + ' ' + esc(m === 'project' ? 'งานพร้อมกัน' : volUnitText(base, m));
+      t.push('<button type="button" class="ovt" data-act="qm" data-q="ov-cap" aria-expanded="' + !!qmOpen['ov-cap'] + '"><span class="k"><span></span>' + ICON.down + '</span>' + ring(u.pct, 'ใช้กำลังรองรับไปแล้ว', fmtPct(u.pct)) + '<span class="n">กำลังรองรับของร้าน · ' + cmax + '</span></button>');
+      det += '<div class="ovd card" data-qmt="ov-cap"' + qmHide('ov-cap') + '><p class="lead">ใช้กำลังรองรับไปแล้ว <b>' + fmtPct(u.pct) + '</b> จากความสามารถสูงสุดของร้าน · ' + cmax + '</p></div>';
     }
     return '<div class="ovg">' + t.join('') + '</div>' + det;
   }
@@ -3484,7 +3478,7 @@ function compactTH(n) {
       return '<div class="rc-line"><span>' + esc(s.label) + '</span>' + (b && Math.abs(b.per100 - s.per100) > 0.05 ? '<span class="was">' + b.per100.toFixed(2) + '</span>' : '') + '<b>' + s.per100.toFixed(2) + '</b></div>';
     }).join('');
     return '<section class="receipt" aria-label="เงิน 100 บาทที่ลูกค้าจ่าย ไปไหนบ้าง"><div class="rc-head"><div class="rt">เงิน 100 บาทที่ลูกค้าจ่าย ไปไหนบ้าง?</div></div>' +
-      '<div class="rc-bar" aria-hidden="true">' + segs + '</div><div class="rc-lines" data-qmt="rc"' + qmHide('rc') + '>' + lines + '</div>' +
+      '<div class="rc-bar" aria-hidden="true">' + segs + '</div><div class="rc-lines" data-qmt="rc"' + qmHide('rc') + '>' + lines + '<div class="rc-foot">ต่อเดือน · ' + TH_MONTHS[new Date().getMonth()] + ' ' + (new Date().getFullYear() + 543) + ' · จากทุก 100.00 บาท</div></div>' +
       '<button type="button" class="rc-total" data-act="qm" data-q="rc" aria-expanded="' + !!qmOpen.rc + '"><span>' + (S.keep100 >= 0 ? 'เหลือเป็นกำไร' : 'ขาดทุน') + '</span><b>' + (S.keep100 < 0 ? '−' : '') + Math.abs(S.keep100).toFixed(2) + '</b>' + ICON.down + '</button></section>';
   }
   function rankCard(S, base, m) {
@@ -3492,7 +3486,7 @@ function compactTH(n) {
     if (!items.length) return '';
     var mx = items[0].gain, h = 'ตัวเลขไหนขยับแล้วได้เงินเพิ่มมากที่สุด';
     return '<section class="card"><div class="hq"><h3>' + h + '</h3>' + qmBtn('rank', h) + '</div>' + qmT('rank', 'ถ้าตัวเลขนั้นดีขึ้น 10% · แตะเพื่อลอง') + '<div class="rank">' + items.map(function (it) {
-      return '<button data-act="lab" data-k="' + (it.lever || 'rent') + '" aria-label="' + esc(it.label + ' ' + it.how + ' +' + fmtN(it.gain)) + '"><span class="rl">' + esc(it.label) + '</span><span class="rv">+' + fmtN(it.gain) + '</span><span class="rb"><i style="width:' + (it.gain / mx * 100).toFixed(1) + '%"></i></span></button>';
+      return '<button data-act="lab" data-k="' + (it.lever || 'rent') + '" aria-label="' + esc(it.label + ' ' + it.how + ' +' + fmtN(it.gain)) + '"><span class="rl">' + esc(it.label) + qmT('rank', esc(it.how), 'small').replace('class="qm-tx"', 'class="rh"') + '</span><span class="rv">+' + fmtN(it.gain) + '</span><span class="rb"><i style="width:' + (it.gain / mx * 100).toFixed(1) + '%"></i></span></button>';
     }).join('') + '</div></section>';
   }
   function custCard(S) {
@@ -3605,7 +3599,7 @@ function compactTH(n) {
   }
   var toolsN = 0;
   function toolsHtml(codes, title) {
-    var seen = {}, key = 'tl' + (toolsN++);
+    var seen = {}, key = 'tl-' + state.view + (toolsN++);
     var items = codes.filter(function (c) { if (seen[c] || !TOOLS[c]) return false; seen[c] = 1; return true; }).map(function (c) {
       return '<button class="tool" data-act="tool" data-t="' + c + '"><span class="tn">' + esc(TOOLS[c][0]) + '</span>' + qmT(key, esc(TOOLS[c][1]), 'span').replace('class="qm-tx"', 'class="ts"') + ICON.out + '</button>';
     }).join('');
@@ -3720,7 +3714,7 @@ function compactTH(n) {
   }
   function go(view, top, noPush) {
     state.view = view; render();
-    if (!noPush) { if (view === 'start') leaveAll(); else if (needDepth(view) > hdepth) hpush(); }
+    if (!noPush) { if (view === 'start') leaveAll(); else { var k = 0; while (needDepth(view) > hdepth && k++ < 12) hpush(); } }
     if (top !== false) window.scrollTo(0, 0);
   }
   /* ปุ่มย้อนกลับในแอป (ซ้ายบน) และปุ่มย้อนกลับของมือถือ ไปที่เดียวกันทุกหน้า:

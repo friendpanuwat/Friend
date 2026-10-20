@@ -230,15 +230,6 @@ main { padding-bottom: calc(var(--foot-h) + 40px + env(safe-area-inset-bottom, 0
 .card .lead { font-size: 15px; color: var(--ink-2); margin: 4px 0 0; }
 .card .lead b { font-family: var(--font-num); color: var(--ink); }
 
-/* gauge */
-.gauge { margin-top: 26px; padding-bottom: 24px; position: relative; }
-.gauge .track { position: relative; height: 14px; border-radius: 7px; background: var(--surface-2); }
-.gauge .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 7px; background: var(--ink); transition: width 0.35s cubic-bezier(.2, .8, .2, 1); }
-.gauge .gfill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 7px; background: var(--ghost); }
-.gauge .mark { position: absolute; top: -7px; bottom: -7px; width: 3px; border-radius: 2px; background: var(--ink); box-shadow: 0 0 0 2px var(--card); transform: translateX(-1.5px); transition: left 0.35s cubic-bezier(.2, .8, .2, 1); }
-.gauge .ml { position: absolute; top: -26px; transform: translateX(-50%); font-size: 12px; font-weight: 700; white-space: nowrap; transition: left 0.35s; }
-.gauge .nl { position: absolute; bottom: 0; transform: translateX(-50%); font-size: 12px; color: var(--muted); white-space: nowrap; transition: left 0.35s; }
-.gauge .el { transform: none; } .gauge .er { transform: translateX(-100%); }
 
 /* chart */
 .chart { margin-top: 10px; position: relative; }
@@ -289,8 +280,6 @@ main { padding-bottom: calc(var(--foot-h) + 40px + env(safe-area-inset-bottom, 0
 .rank .rv { font-family: var(--font-num); font-weight: 700; white-space: nowrap; }
 .rank .rb { grid-column: 1 / -1; height: 8px; border-radius: 4px; background: var(--surface); overflow: hidden; }
 .rank .rb i { display: block; height: 100%; background: var(--ink); border-radius: 4px; }
-.meter { margin-top: 14px; height: 12px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
-.meter i { display: block; height: 100%; background: var(--ink); border-radius: 6px; }
 .plan { margin-top: 12px; }
 .plan h3 { margin: 6px 0 6px; font-size: 19px; line-height: 1.4; }
 .plan p { margin: 0 0 14px; font-size: 14px; color: var(--panel-muted); }
@@ -498,6 +487,9 @@ button.ovt[aria-expanded="true"] .k svg { transform: rotate(180deg); }
 .nw { white-space: nowrap; }
 .start-hero .hq { align-items: flex-start; }
 .start-hero .hq .qm { margin-top: -6px; }
+
+.rank .rl .rh { display: block; font-size: 12.5px; font-weight: 400; color: var(--muted); }
+.rc-foot { margin-top: 4px; font-size: 12px; color: var(--muted); }
 </style>
 <script>
 /* ============================================================
@@ -560,7 +552,7 @@ a.tcard:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
 .tcard h3 { margin: 0; font-size: 18px; line-height: 1.4; }
 .tcard .go { grid-column: 1 / -1; justify-self: end; margin: 10px -40px 0 0; min-height: 44px; padding: 0 18px; border-radius: 999px; background: var(--ink); color: var(--bg); font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; gap: 6px; }
 .tcard .go svg { width: 18px; height: 18px; }
-.tcard.soon { opacity: 0.6; }
+.tcard.soon h3, .tcard.soon .tn { color: var(--muted); }
 .tcard.soon .ti { background: var(--surface-2); color: var(--muted); }
 .soon-tag { font-size: 12px; font-weight: 700; padding: 1px 10px; border-radius: 999px; background: var(--surface); color: var(--ink-2); }
 .hub-fine { margin: 22px 2px 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
@@ -594,16 +586,18 @@ a.tcard:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
       <span class="go">เปิด<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
     </a><button type="button" class="qm" data-q="t3" aria-expanded="false" aria-label="เช็กก่อนตัดสินใจเรื่องใหญ่"><i>Q</i></button>
     <p class="qm-tx" data-qmt="t3" hidden>เทียบ “ทำ” กับ “ไม่ทำ” ต้องขายเท่าไรถึงจะคุ้ม เงินพอไหม และคืนทุนเมื่อไร · 12 เรื่อง ทั้งร้านหน้าร้านและร้านออนไลน์ · เหมาะสำหรับ ผู้ที่กำลังคิดเรื่องใหญ่ในร้าน</p></div>
-    <div class="tcard soon">
+    <div class="tc-w"><div class="tcard soon">
       <span class="ti" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></svg></span>
       <span class="tn">เช็กก่อนเปิดร้าน <span class="soon-tag">เร็ว ๆ นี้</span></span>
       <h3>ตัวเลขไปรอดไหม ก่อนเปิดร้าน?</h3>
-    </div>
-    <div class="tcard soon">
+    </div><button type="button" class="qm" data-q="s2" aria-expanded="false" aria-label="เช็กก่อนเปิดร้าน"><i>Q</i></button>
+    <p class="qm-tx" data-qmt="s2" hidden>ต้องขายเท่าไร เงินอยู่ได้กี่เดือน และคืนทุนกี่เดือน · เหมาะสำหรับ ผู้ที่ยังไม่ได้เริ่มธุรกิจ</p></div>
+    <div class="tc-w"><div class="tcard soon">
       <span class="ti" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg></span>
       <span class="tn">กำไรรายสินค้าและรายช่องทาง <span class="soon-tag">เร็ว ๆ นี้</span></span>
       <h3>สินค้าไหนกำไรดี ช่องทางไหนเหลือเงินจริง?</h3>
-    </div>
+    </div><button type="button" class="qm" data-q="s4" aria-expanded="false" aria-label="กำไรรายสินค้าและรายช่องทาง"><i>Q</i></button>
+    <p class="qm-tx" data-qmt="s4" hidden>ต้นทุนต่อชิ้นจริง และกำไรของแต่ละสินค้า แต่ละช่องทาง · เหมาะสำหรับ ผู้ที่มีหลายสินค้าหรือหลายช่องทาง</p></div>
   </div>
   <p class="hub-fine">ตัวเลขอยู่ในเครื่องคุณเท่านั้น และหายไปเมื่อปิดหน้านี้</p>
 </div></main>
