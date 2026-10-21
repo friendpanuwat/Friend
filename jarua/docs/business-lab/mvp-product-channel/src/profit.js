@@ -63,7 +63,7 @@ function chMissing(c, pc) {
   if (c.kind === 'other' && !String(c.name || '').trim()) return 'name';
   if (!chIsShop(c) && !c.priceMode) return 'priceMode';
   if (!chIsShop(c) && c.priceMode !== 'same' && pos(c.markup) === null) return 'markup';
-  if (c.priceMode === 'down' && n0(c.markup) >= 100) return 'markup';
+  if (!chIsShop(c) && c.priceMode === 'down' && n0(c.markup) >= 100) return 'markup';
   if (num(c.fee) === null || num(c.fee) < 0 || num(c.fee) >= 100) return 'fee';
   if (num(c.fee) > 0 && c.vat !== 'in' && c.vat !== 'ex') return 'vat';
   if (num(c.disc) === null || num(c.disc) < 0 || num(c.disc) >= 100) return 'disc';
@@ -139,7 +139,12 @@ function pcCompute(pc, inp, m) {
   try { r = JaruaCalc.calculateV4(v); } catch (e) { return { ok: false, error: String(e) }; }
   if (r.netProfitMonthly === null || r.revenueMonthly === null) return { ok: false, r: r };
 
-  var R = { ok: true, r: r, m: m, rows: rows, chs: chs, cells: cells, many: many, mult: mult };
+  /* ฤดูกาลและการเติบโต: ตัวคำนวณบอกกำไรต่อเดือนเป็นค่าเฉลี่ย 12 เดือน (เหมือนตัวที่ 1) · ทุกทางใช้ฤดูกาลเดียวกัน
+     จึงปรับจำนวนของทุกคู่ด้วยอัตราเดียวกัน ผลรวมรายสินค้าและรายช่องทางจึงเท่ากำไรของร้านเสมอ (ต่อชิ้นไม่เปลี่ยน) */
+  var raw = cells.reduce(function (s, x) { return s + x.rev; }, 0);
+  var f = (hasSeason(inp) || (num(inp.growth) !== null && num(inp.growth) !== 0)) && raw > 0 ? r.revenueMonthly / raw : 1;
+  if (f !== 1) cells.forEach(function (x) { ['units', 'rev', 'leftM', 'feeM', 'costM', 'packM', 'discM'].forEach(function (k) { x[k] *= f; }); });
+  var R = { ok: true, r: r, m: m, rows: rows, chs: chs, cells: cells, many: many, mult: mult, season: f };
   R.rev = cells.reduce(function (s, x) { return s + x.rev; }, 0);
   R.left = cells.reduce(function (s, x) { return s + x.leftM; }, 0);
   R.disc = cells.reduce(function (s, x) { return s + x.discM; }, 0);
@@ -148,10 +153,11 @@ function pcCompute(pc, inp, m) {
   R.dep = r.depreciation.monthlyTotal;
   R.profit = r.netProfitMonthly;
   R.units = cells.reduce(function (s, x) { return s + x.units; }, 0);
+  R.unitsIn = rows.reduce(function (s, p) { return s + p.units; }, 0);
 
   R.prods = rows.map(function (p, i) {
     var cs = cells.filter(function (x) { return x.i === i; });
-    var o = { i: i, id: p.id, name: p.name, unit: p.unit, rest: p.rest, price: p.price, cost: p.cost, units: p.units, cells: cs,
+    var o = { i: i, id: p.id, name: p.name, unit: p.unit, rest: p.rest, price: p.price, cost: p.cost, unitsIn: p.units, units: cs.reduce(function (s, x) { return s + x.units; }, 0), cells: cs,
       rev: cs.reduce(function (s, x) { return s + x.rev; }, 0), left: cs.reduce(function (s, x) { return s + x.leftM; }, 0) };
     o.leftPer = o.units > 0 ? o.left / o.units : 0;
     o.per100 = o.rev > 0 ? o.left / o.rev * 100 : 0;
@@ -212,7 +218,7 @@ function pcFinds(R) {
     if (gap < 1) return;
     F.push({ id: 'gap-' + p.i, kind: 'gap', lv: 'mid', money: gap, prod: p.i,
       t: p.name + ' ขายได้ ' + fmtN(p.revShare, 0) + '% ของยอดขาย แต่ได้เงินแค่ ' + fmtN(Math.max(0, p.leftShare), 0) + '% ของเงินที่เหลือ',
-      s: 'ถ้า' + p.name + 'เหลือเงินต่อ 100 บาทเท่าค่าเฉลี่ยของร้าน จะเหลือเพิ่มเดือนละ ' + fmtN(gap) + ' บาท', q: ['p_cost', 'p_price', 'p_pair'] });
+      s: 'ถ้า ' + p.name + ' เหลือเงินต่อ 100 บาทเท่าค่าเฉลี่ยของร้าน จะเหลือเพิ่มเดือนละ ' + fmtN(gap) + ' บาท', q: ['p_cost', 'p_price', 'p_pair'] });
   });
   /* 5. ช่องทางที่เหลือเงินน้อยกว่าช่องทางที่ดีที่สุดมาก */
   if (R.many) {
@@ -220,22 +226,22 @@ function pcFinds(R) {
     if (best && best.per100 > 0) R.chans.forEach(function (c) {
       if (c === best || c.rev <= 0 || c.per100 >= best.per100 * 0.5) return;
       F.push({ id: 'chlow-' + c.j, kind: 'chlow', lv: 'watch', money: c.rev * (best.per100 - c.per100) / 100, ch: c.j, best: best.j,
-        t: 'ขายผ่าน ' + c.name + ' 100 บาท เหลือ ' + fmtN(c.per100, 0) + ' บาท · ' + best.name + 'เหลือ ' + fmtN(best.per100, 0) + ' บาท',
-        s: 'ยอดขายผ่าน ' + c.name + ' เดือนละ ' + fmtN(c.rev) + ' บาท ถ้าเหลือเท่า' + best.name + ' จะเหลือเพิ่มเดือนละ ' + fmtN(c.rev * (best.per100 - c.per100) / 100) + ' บาท', q: ['loss_price', 'ch_new'] });
+        t: 'ขายผ่าน ' + c.name + ' 100 บาท เหลือ ' + fmtN(c.per100, 0) + ' บาท · ' + best.name + ' เหลือ ' + fmtN(best.per100, 0) + ' บาท',
+        s: 'ยอดขายผ่าน ' + c.name + ' เดือนละ ' + fmtN(c.rev) + ' บาท ถ้าเหลือเท่า ' + best.name + ' จะเหลือเพิ่มเดือนละ ' + fmtN(c.rev * (best.per100 - c.per100) / 100) + ' บาท', q: ['loss_price', 'ch_new'] });
     });
   }
   /* 6. พึ่งสินค้าเดียว */
   if (R.prods.length > 1 && R.left > 0) R.prods.forEach(function (p) {
     if (p.rest || p.leftShare === null || p.leftShare <= 50) return;
     F.push({ id: 'conc-' + p.i, kind: 'conc', lv: 'note', money: p.left, prod: p.i,
-      t: 'เงินที่เหลือ ' + fmtN(p.leftShare, 0) + '% มาจาก' + p.name + 'ตัวเดียว', s: 'เดือนละ ' + fmtN(p.left) + ' บาท', q: ['conc'] });
+      t: 'เงินที่เหลือ ' + fmtN(p.leftShare, 0) + '% มาจาก ' + p.name + ' ตัวเดียว', s: 'เดือนละ ' + fmtN(p.left) + ' บาท', q: ['conc'] });
   });
   /* 7. ต้นทุนที่อาจยังไม่ได้ใส่ */
   R.chans.forEach(function (c) {
     var g = (CH_KINDS[c.c.kind] || CH_KINDS.other).g;
     var miss = [];
     if ((g === 'app' || g === 'mkt') && n0(c.c.fee) === 0) miss.push('ค่าธรรมเนียม');
-    if ((g === 'app' || g === 'mkt' || g === 'direct') && n0(c.c.perOrder) === 0) miss.push('ค่าแพ็กและค่าส่ง');
+    if (R.m !== 'service' && (g === 'app' || g === 'mkt' || g === 'direct') && n0(c.c.perOrder) === 0) miss.push('ค่าแพ็กและค่าส่ง');
     if (miss.length) F.push({ id: 'forgot-' + c.j, kind: 'forgot', lv: 'note', money: null, ch: c.j,
       t: c.name + ' ยังไม่มี' + miss.join('และ'), s: 'ถ้าช่องทางนี้มีค่าใช้จ่ายนี้จริง เงินที่เหลือจะน้อยกว่าที่เห็น', q: ['f_pack'] });
   });
@@ -259,7 +265,7 @@ var QB4 = {
   p_price: { q: 'เคยเทียบราคาของสินค้าที่เหลือเงินน้อยกับร้านอื่นที่ขายของคล้ายกันไหม?', ans: { yes: 'เคย', no: 'ไม่เคย', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ราคาเทียบกับร้านอื่น', d: 'เช็กว่าราคาของสินค้านั้นต่ำกว่าร้านอื่นที่ขายของคล้ายกันไหม และต่างกันเท่าไร', tools: ['grow13', 'grow10'] },
   p_pair: { q: 'ลูกค้าที่ซื้อสินค้าที่เหลือเงินน้อย มักซื้อสินค้าอื่นของร้านไปด้วยไหม?', ans: { yes: 'ใช่', no: 'ไม่ใช่', unsure: 'ไม่แน่ใจ' }, risk: 'no',
-    p: 'สินค้าที่ลูกค้าซื้อคู่กัน', d: 'เช็กว่าสินค้านั้นพาให้ลูกค้าซื้อสินค้าอื่นด้วยหรือเปล่า ก่อนตัดสินจากตัวเลขของสินค้านั้นตัวเดียว', tools: ['bmc8', 'grow10'] },
+    p: 'สินค้าที่ลูกค้าซื้อคู่กัน', d: 'เช็กว่าสินค้านั้นพาให้ลูกค้าซื้อสินค้าอื่นของร้านด้วยหรือเปล่า และลูกค้ากลุ่มนั้นซื้ออะไรอีก', tools: ['bmc8', 'grow10'] },
   conc: { q: 'ถ้าสินค้าที่ขายดีที่สุดขายได้น้อยลง ร้านมีสินค้าอื่นที่ลูกค้าซื้อแทนได้ไหม?', ans: { yes: 'มี', no: 'ไม่มี', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'การพึ่งสินค้าตัวเดียว', d: 'เช็กว่าถ้าสินค้าตัวนั้นขายได้น้อยลง ร้านจะเสียเงินเท่าไร และลูกค้ามีตัวเลือกอื่นในร้านไหม', tools: ['grow10', 'bmc8'] },
   f_pack: { q: 'ค่าแพ็กเกจ ค่าส่ง และค่าธรรมเนียมของทุกช่องทาง ใส่ไว้ในตัวเลขครบแล้วหรือยัง?', ans: { yes: 'ครบแล้ว', no: 'ยังไม่ครบ', unsure: 'ไม่แน่ใจ' }, risk: 'no',
@@ -281,12 +287,13 @@ function pcAggregate(pc, inp, m, R) {
   if (!R.ok || R.units <= 0) return null;
   var o = JSON.parse(JSON.stringify(inp));
   var units = R.units, mult = R.mult;
-  o.volume = Math.round(units / mult * 1e6) / 1e6;
+  /* จำนวนที่กรอก (เดือนปกติ) · ตัวที่ 1 ใส่ฤดูกาลเอง */
+  o.volume = Math.round(R.unitsIn / mult * 1e6) / 1e6;
   o.price = R.rev / units;
   o.unitCost = R.cells.reduce(function (s, x) { return s + (x.cost + x.pack) * x.units; }, 0) / units;
   o.feePct = R.rev > 0 ? R.cells.reduce(function (s, x) { return s + x.feeM; }, 0) / R.rev * 100 : 0;
   var byU = {};
-  R.prods.forEach(function (p) { if (p.unit) byU[p.unit] = (byU[p.unit] || 0) + p.units; });
+  R.prods.forEach(function (p) { if (p.unit) byU[p.unit] = (byU[p.unit] || 0) + p.unitsIn; });
   var top = Object.keys(byU).sort(function (a, b) { return byU[b] - byU[a]; })[0];
   o.unitLabel = top || o.unitLabel || MODELS[m].defUnit;
   o.marketing = Math.max(0, n0(inp.marketing) - Math.min(n0(inp.chMkt), n0(inp.marketing))) + R.chMonthly;

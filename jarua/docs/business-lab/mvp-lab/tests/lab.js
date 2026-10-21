@@ -1,6 +1,7 @@
 /* ทดสอบ Business Lab ทั้งชุดผ่านเว็บเซิร์ฟเวอร์ในเครื่อง (หน้าเดียวกันใช้ที่เก็บของแท็บร่วมกันเหมือนบน artifact)
    หน้ารวม → ตัวที่ 1 (กรอกตัวเลขร้านด้วยการแตะ) → กลับหน้ารวม (เห็นว่ามีตัวเลขร้าน) → ตัวที่ 3 (ไม่ต้องกรอกตัวเลขร้านซ้ำ)
    → แก้ตัวเลขร้านในตัวที่ 3 → ตัวที่ 1 เห็นตัวเลขใหม่ · ร้านตัวอย่างไม่ทับตัวเลขร้านจริง
+   → ตัวที่ 4 ใช้ค่าใช้จ่ายคงที่ชุดเดิม ใส่แค่สินค้าและช่องทาง → ใช้ยอดจากรายสินค้า → ตัวที่ 1 กำไรเท่ากัน
    ตรวจ: ไม่มี error, ไม่ล้นจอ, ปุ่มสูงอย่างน้อย 44px ทั้งโหมดมืดและสว่าง · รัน: ./build.sh แล้ว node tests/lab.js */
 const { chromium } = require('/opt/node22/lib/node_modules/playwright');
 const http = require('http'), fs = require('fs'), path = require('path'), crypto = require('crypto');
@@ -45,11 +46,11 @@ async function check(page, label) {
     await page.route('https://fonts.gstatic.com/**', r => { const f = path.join(FC, crypto.createHash('md5').update(r.request().url()).digest('hex').slice(0, 16) + '.woff2'); if (fs.existsSync(f)) r.fulfill({ status: 200, contentType: 'font/woff2', body: fs.readFileSync(f) }); else r.abort(); });
     const ready = async () => { await page.waitForLoadState('load'); await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(250); };
 
-    /* 1. หน้ารวม: 4 การ์ด ใช้ได้ 2 · ยังไม่มีตัวเลขร้าน */
+    /* 1. หน้ารวม: 4 การ์ด ใช้ได้ 3 · ยังไม่มีตัวเลขร้าน */
     await page.goto(base + 'index.html'); await ready();
     let txt = await check(page, tag + ' hub');
     if ((await page.$$('.tcard')).length !== 4) fail(tag, 'hub cards != 4');
-    if ((await page.$$('a.tcard')).length !== 2) fail(tag, 'open cards != 2');
+    if ((await page.$$('a.tcard')).length !== 3) fail(tag, 'open cards != 3');
     if (!/ใส่ตัวเลขร้านครั้งเดียว/.test(txt)) fail(tag, 'hub shop status (empty)');
     if (/\bAI\b/.test(txt)) fail(tag, 'word AI on hub');
     await page.screenshot({ path: path.join(SHOTS, 'hub-' + tag + '.png'), fullPage: true });
@@ -140,6 +141,60 @@ async function check(page, label) {
     await page.goForward(); await page.waitForTimeout(300);
     const st5 = await page.evaluate(() => ({ v: window.__lab3.state.view, t: window.__lab3.state.topic, w: window.__lab3.state.where }));
     if (st5.t === 'place' && st5.w === 'online') fail(tag, 'phone forward opened a topic hidden for online sellers', JSON.stringify(st5));
+    /* 6. ตัวที่ 4: ใช้ค่าใช้จ่ายคงที่ชุดกลาง (ไม่ถามซ้ำ) ใส่แค่สินค้าและช่องทาง · ร้านตัวอย่างไม่ทับชุดกลาง
+          ยอดจากรายสินค้าไม่ตรงตัวเลขร้าน → บอกส่วนต่าง → ผู้ใช้กดใช้ยอดจากรายสินค้า → ตัวที่ 1 ได้กำไรเท่าตัวที่ 4 */
+    await page.goto(base + 'index.html'); await ready();
+    await page.click('a.tcard[href="product-channel.html"]'); await ready();
+    if (!(await page.$('.bar a.ib[href="index.html"]'))) fail(tag, 'tool4: no back link to hub');
+    let s4 = await page.evaluate(() => ({ m: window.__lab4.state.model, link: window.__lab4.state.link, rent: window.__lab4.state.inp.rent }));
+    if (s4.m !== 'unit' || s4.link !== 'shared' || s4.rent !== 15000) fail(tag, 'tool4 did not adopt shared numbers', JSON.stringify(s4));
+    txt = await check(page, tag + ' tool4 start');
+    await page.click('[data-act="where"][data-v="both"]'); await page.waitForTimeout(150);
+    const before4 = await page.evaluate(() => sessionStorage.getItem('lab-shop'));
+    await page.click('[data-act="sample"]'); await page.waitForTimeout(300);
+    if ((await page.evaluate(() => window.__lab4.state.view)) !== 'result') fail(tag, 'tool4 sample did not open result');
+    await check(page, tag + ' tool4 sample result');
+    for (const tb of ['c', 'g']) { await page.click(`[data-act="tab"][data-v="${tb}"]`); await page.waitForTimeout(200); await check(page, tag + ' tool4 sample tab ' + tb); }
+    if ((await page.evaluate(() => sessionStorage.getItem('lab-shop'))) !== before4) fail(tag, 'tool4 sample wrote shared numbers');
+    await page.click('.banner [data-act="mine"]'); await page.waitForTimeout(300);
+    let v4 = await page.evaluate(() => window.__lab4.state.view);
+    if (v4 !== 'items') fail(tag, 'tool4 own shop did not start at items', v4);
+    await page.fill('#f-i-0-name', 'ลาเต้เย็น'); await page.fill('#f-i-0-price', '65'); await page.fill('#f-i-0-cost', '22'); await page.fill('#f-i-0-qty', '70');
+    await page.click('[data-act="item-add"]');
+    await page.fill('#f-i-1-name', 'ครัวซองต์'); await page.fill('#f-i-1-price', '75'); await page.fill('#f-i-1-cost', '40'); await page.fill('#f-i-1-qty', '20');
+    await page.click('[data-act="pset"][data-path="r.on"][data-v="false"]');
+    await check(page, tag + ' tool4 items');
+    await page.click('#foot [data-act="step-next"]'); await page.waitForTimeout(200);
+    await page.click('[data-act="ch-toggle"][data-k="shop"]'); await page.click('[data-act="ch-toggle"][data-k="lineman"]');
+    await page.click('#foot [data-act="step-next"]'); await page.waitForTimeout(200);
+    await page.fill('#f-c-0-share', '85'); await page.fill('#f-c-1-share', '15');
+    await page.click('#foot [data-act="step-next"]'); await page.waitForTimeout(200);
+    for (const k of ['fee', 'disc', 'perOrder', 'monthly']) await page.click(`[data-act="pset"][data-path="c.0.${k}"][data-v="0"]`);
+    await page.click('#foot [data-act="step-next"]'); await page.waitForTimeout(200);
+    await page.click('[data-act="pset"][data-path="c.1.priceMode"][data-v="same"]');
+    await page.fill('#f-c-1-fee', '30'); await page.waitForTimeout(250);
+    await page.click('[data-act="pset"][data-path="c.1.vat"][data-v="ex"]');
+    await page.click('[data-act="pset"][data-path="c.1.disc"][data-v="0"]');
+    await page.fill('#f-c-1-perOrder', '6'); await page.waitForTimeout(250); await page.fill('#f-c-1-ipo', '1.5');
+    await page.fill('#f-c-1-monthly', '1000');
+    await check(page, tag + ' tool4 channel');
+    await page.click('#foot [data-act="step-next"]'); await page.waitForTimeout(300);
+    v4 = await page.evaluate(() => window.__lab4.state.view);
+    if (v4 !== 'result') fail(tag, 'tool4 asked for shop numbers again or stuck: view', v4);
+    txt = await check(page, tag + ' tool4 result');
+    if (!(await page.$('.recon [data-act="apply-agg"]'))) fail(tag, 'tool4 no reconciliation card');
+    const p4 = await page.evaluate(() => window.__lab4.R0().profit);
+    await page.click('.recon [data-act="apply-agg"]'); await page.waitForTimeout(250);
+    if (await page.$('.recon')) fail(tag, 'reconciliation card still shown after applying');
+    const sh5 = await page.evaluate(() => JSON.parse(sessionStorage.getItem('lab-shop') || 'null'));
+    if (!sh5 || sh5.inp.chMkt !== 1000 || sh5.inp.marketing !== 3000) fail(tag, 'tool4 aggregate not shared', JSON.stringify(sh5 && sh5.inp));
+    await page.goto(base + 'check-numbers.html'); await ready();
+    const p1b = await page.evaluate(() => compute(window.__lab.state.inp, window.__lab.state.model).profit);
+    if (Math.abs(p1b - p4) > 0.05) fail(tag, 'tool1 profit differs from tool4 after applying', p1b, p4);
+    await page.goto(base + 'product-channel.html'); await ready();
+    s4 = await page.evaluate(() => ({ v: window.__lab4.state.view, link: window.__lab4.state.link, p: window.__lab4.state.model && window.__lab4.R0().ok ? window.__lab4.R0().profit : null }));
+    if (s4.link !== 'own' || Math.abs((s4.p || 0) - p4) > 0.05) fail(tag, 'tool4 reopened with different numbers', JSON.stringify(s4), p4);
+    await page.screenshot({ path: path.join(SHOTS, 'tool4-' + tag + '.png') });
     if (errors.length) fail(tag, 'errors', errors.slice(0, 3).join(' | '));
     await ctx.close();
   }

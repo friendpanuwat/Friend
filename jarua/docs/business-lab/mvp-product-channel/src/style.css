@@ -1,1 +1,200 @@
+/* ---------- ตัวที่ 4: รูปแบบหน้าจอของตัวเอง (ใช้ token สี ฟอนต์ ระยะ ปุ่ม และช่องกรอกชุดเดียวกับตัวที่ 1) ----------
+   ภาษาภาพ: "กระดานจัดอันดับ" เรียงตามเงินบาทต่อเดือน · แถบคู่ ยอดขาย (เทา) กับ เงินที่เหลือ (ดำ) · แถบ 100 บาทของแต่ละช่องทาง · ตารางทุกคู่ที่มีตัวเลขทุกช่อง
+   ขาดทุนบอกด้วย − ▼ และกรอบหนา ไม่ใช้สี · ลายเส้นทแยง = ค่าแพ็กและค่าส่ง */
+:root { --hatch4: repeating-linear-gradient(135deg, var(--ink-2) 0 1.5px, transparent 1.5px 5px); }
+.sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@keyframes grow4 { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes rise4 { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
+/* ---------- เริ่ม ---------- */
+.st4 { margin: 14px 2px 18px; }
+.st4 h1 { font-size: 34px; line-height: 1.25; margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
+.st4 .hq { align-items: flex-start; }
+.st4 .hq .qm { margin-top: -4px; }
+.where4 { margin: 0 2px 14px; display: grid; gap: 8px; }
+.where4 .wh-l { font-size: 14px; font-weight: 700; }
+.where4 .seg { display: flex; }
+.where4 .seg button { min-height: 44px; flex: 1; padding: 0 10px; }
+.wh-q { font-size: 22px; line-height: 1.35; margin: 0; }
+.wh-cards { display: grid; gap: 10px; margin-top: 6px; }
+.wh-c { width: 100%; text-align: left; border: 0; background: var(--card); border-radius: var(--r); padding: 14px 12px 14px 14px; min-height: 76px; display: flex; align-items: center; gap: 14px; color: var(--ink); }
+.wh-c:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.wh-i { width: 46px; height: 46px; border-radius: 15px; background: var(--surface); display: flex; align-items: center; justify-content: center; flex: none; }
+.wh-i svg { width: 24px; height: 24px; }
+.wh-b { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.wh-b b { font-size: 18px; line-height: 1.3; }
+.wh-b small { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.wh-c > svg { width: 20px; height: 20px; color: var(--muted); }
+.shopline { background: var(--card); border-radius: var(--r); padding: 10px 10px 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.shopline .btn.ghost { background: var(--surface); }
+.sl-t { display: grid; gap: 1px; min-width: 0; }
+.sl-t small { font-size: 12px; font-weight: 600; color: var(--muted); }
+.sl-t b { font-size: 16px; line-height: 1.35; }
+.sl-t span { font-size: 13px; color: var(--ink-2); }
+.btn.sm { min-height: 44px; font-size: 15px; padding: 0 16px; border-radius: 999px; flex: none; }
+.samp4 { margin: 0 2px 6px; font-size: 14px; }
+.samp4 .lnk { font-size: 14px; }
+.sec4 { font-size: 18px; margin: 22px 2px 10px; line-height: 1.35; }
+.hq.sec4 h2 { font-size: 18px; margin: 0; }
+.tiles.t3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.tiles.t3 .tile { min-height: 132px; padding: 14px 12px 12px; }
+.tile.on { box-shadow: inset 0 0 0 2px var(--ink); }
+.fine4 { font-size: 13px; color: var(--muted); margin: 12px 2px 0; line-height: 1.5; }
+@media (max-width: 380px) { .tiles.t3 { grid-template-columns: 1fr 1fr; } .st4 h1 { font-size: 30px; } }
+
+/* ---------- ระหว่างกรอก ---------- */
+.strip4 { margin-top: 14px; padding: 14px 16px; }
+.strip4 .rs-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.strip4 .rs-k { font-size: 13px; color: var(--panel-muted); font-weight: 600; }
+.strip4 .rs-v { font-family: var(--font-num); font-weight: 700; font-size: 28px; letter-spacing: -0.03em; line-height: 1.1; white-space: nowrap; }
+.strip4 .rs-v small { font-family: var(--font-th); font-size: 14px; font-weight: 600; letter-spacing: 0; margin-left: 4px; }
+.strip4 .rs-lines { margin-top: 6px; display: grid; gap: 2px; font-size: 13px; }
+.seg.wide { display: flex; width: 100%; }
+.seg.wide button { flex: 1 1 0; min-width: 0; padding: 0 10px; line-height: 1.25; }
+.field.sm > .lab, .field.sm > label { font-size: 14px; }
+.inbox.txt input { font-family: var(--font-th); font-size: 18px; font-weight: 600; }
+.chip.sm { min-height: 44px; padding: 0 14px; font-size: 14px; }
+.ib.sm { width: 44px; height: 44px; }
+.ib.sm svg { width: 18px; height: 18px; }
+/* สินค้า 1 ตัว = การ์ด 1 ใบ */
+.pi { background: var(--card); border-radius: var(--r); padding: 10px 14px 16px; display: grid; gap: 14px; animation: rise4 0.3s cubic-bezier(.2, .8, .2, 1) both; }
+.pi .inbox, .pi .chip, .pi .seg { background: var(--surface); }
+.pi :is(.qm i, .qm-tx) { background: var(--surface); }
+.pi .qm[aria-expanded="true"] i { background: var(--ink); }
+.pi-h { display: flex; align-items: center; justify-content: space-between; min-height: 44px; margin-bottom: -6px; }
+.pi-n { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 0.02em; }
+.pi .two .inbox input { font-size: 20px; }
+.pi .two { align-items: end; }
+.lnk.sm4 { justify-self: start; font-size: 14px; margin-top: -8px; }
+.parts { display: grid; gap: 6px; background: var(--surface); border-radius: 16px; padding: 10px; margin-top: -6px; }
+.part { display: grid; grid-template-columns: minmax(0, 1fr) 120px 44px; gap: 6px; align-items: center; }
+.part .pn { min-width: 0; min-height: 44px; border: 0; border-radius: 12px; background: var(--card); padding: 0 12px; font-size: 15px; }
+.part .pn:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ink); }
+.inbox.mini { min-height: 44px; border-radius: 12px; background: var(--card); }
+.inbox.mini input { font-size: 17px; height: 44px; padding: 0 8px 0 12px; }
+.inbox.mini .suf { padding-right: 10px; font-size: 13px; }
+.part-f { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 14px; color: var(--ink-2); }
+.part-f b { font-family: var(--font-num); color: var(--ink); }
+.inbox input[readonly] { color: var(--ink-2); }
+.add4 { margin-top: -4px; }
+.add4 svg { width: 18px; height: 18px; }
+.oth { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 6px; align-items: end; }
+.tot4 { display: flex; align-items: center; gap: 10px; background: var(--card); border-radius: 18px; padding: 12px 16px; font-weight: 600; }
+.tot4 b { font-size: 22px; }
+.tot4 small { font-size: 14px; color: var(--ink-2); font-weight: 700; }
+.tot4 i { display: inline-flex; width: 24px; height: 24px; border-radius: 12px; background: var(--ink); color: var(--bg); align-items: center; justify-content: center; }
+.tot4 i svg { width: 15px; height: 15px; stroke-width: 3; }
+
+/* ---------- ผล ---------- */
+.res4 { margin-top: 6px; }
+.res4 .eyebrow { font-size: 13px; color: var(--panel-muted); font-weight: 600; }
+.res4 .bignum { font-size: 52px; margin: 8px 0 12px; }
+.walk { display: grid; gap: 3px; font-size: 13.5px; border-top: 1px solid var(--panel-line); padding-top: 10px; }
+.walk > div { display: flex; justify-content: space-between; gap: 10px; color: var(--panel-muted); }
+.walk > div b { font-family: var(--font-num); font-weight: 600; color: var(--panel-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.walk > div.k { color: var(--panel-ink); font-weight: 600; }
+.res4 .sub { margin: 8px 0 0; font-size: 13px; color: var(--panel-muted); }
+.banner .btn.ghost { background: var(--surface); }
+.recon { margin-top: 12px; display: grid; gap: 10px; }
+.recon h3 { font-size: 15px; }
+.rc4 { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px 14px; font-size: 14px; align-items: baseline; }
+.rc4 b { font-size: 12px; color: var(--muted); text-align: right; }
+.rc4 i { font-style: normal; text-align: right; font-weight: 600; }
+.tabs4 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--card); border-radius: 999px; padding: 4px; margin: 18px 0 12px; }
+.tabs4 button { min-height: 44px; border: 0; border-radius: 999px; background: transparent; font-weight: 700; font-size: 15px; color: var(--muted); }
+.tabs4 button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.tp4 { min-height: 120px; }
+/* รายสินค้า: เรียงตามเงินที่เหลือต่อเดือน · แถบคู่ ยอดขาย (เทา) กับเงินที่เหลือ (ดำ) */
+.rank4, .chl4 { display: grid; gap: 8px; }
+.rk4, .chc { width: 100%; text-align: left; border: 0; background: var(--card); border-radius: var(--r-sm); padding: 12px 40px 12px 14px; display: grid; gap: 6px; color: var(--ink); position: relative; min-height: 64px; }
+.rk4 > svg, .chc > svg { position: absolute; right: 12px; top: 50%; width: 18px; height: 18px; margin-top: -9px; color: var(--muted); }
+.rk4:hover, .chc:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.rk4 .top, .chc .top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.rk4 .nm, .chc .nm { font-weight: 700; font-size: 15px; min-width: 0; line-height: 1.35; }
+.rk4 .nm small { font-size: 12px; color: var(--muted); margin-right: 8px; font-weight: 600; }
+.rk4 .v { font-family: var(--font-num); font-weight: 700; font-size: 17px; white-space: nowrap; }
+.rk4 .v small { font-family: var(--font-th); font-size: 12px; color: var(--muted); font-weight: 600; margin-left: 2px; }
+.rk4 .sub, .chc .sub { font-size: 12.5px; color: var(--ink-2); line-height: 1.45; }
+.rk4 .sub b, .chc .sub b { font-weight: 700; }
+.duo { display: grid; grid-template-columns: 76px minmax(0, 1fr) 40px; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.duo i { display: block; height: 8px; border-radius: 4px; background: var(--surface); position: relative; overflow: hidden; }
+.duo i b { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: var(--ghost); transform-origin: left; animation: grow4 0.6s cubic-bezier(.2, .8, .2, 1) both; }
+.duo i.m b { background: var(--ink); }
+.duo em { font-style: normal; font-family: var(--font-num); text-align: right; color: var(--ink-2); font-weight: 600; }
+/* รายช่องทาง: แถบเงิน 100 บาท */
+.chc .v { font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+.chc .v b { font-family: var(--font-num); font-size: 20px; color: var(--ink); }
+.stack { display: flex; height: 14px; border-radius: 6px; overflow: hidden; gap: 2px; background: var(--surface); }
+.stack i { display: block; height: 100%; transform-origin: left; animation: grow4 0.6s cubic-bezier(.2, .8, .2, 1) both; }
+.stack .s1, .lg4 .s1 { background: var(--ghost); }
+.stack .s2, .lg4 .s2 { background: var(--muted); }
+.stack .s3, .lg4 .s3 { background-color: var(--surface-2); background-image: var(--hatch4); }
+.stack .s4, .lg4 .s4 { background: var(--ink); }
+.lg4 { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); margin: 10px 2px 0; }
+.lg4 span { display: inline-flex; align-items: center; gap: 6px; }
+.lg4 i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.card .stack { background: var(--surface); }
+/* ทุกคู่: ตารางมีตัวเลขทุกช่อง · เลื่อนในกรอบเมื่อช่องทางเยอะ */
+.gw4 { overflow-x: auto; margin: 0 -4px; padding: 0 4px; border-radius: 12px; }
+.gw4:focus-visible { outline: 2px solid var(--ink); }
+.grid4 { width: 100%; border-collapse: separate; border-spacing: 4px; font-size: 14px; }
+.grid4 caption { text-align: left; font-size: 13px; color: var(--muted); font-weight: 600; padding: 0 4px 4px; }
+.grid4 thead th { font-size: 12.5px; font-weight: 700; color: var(--ink-2); text-align: center; padding: 2px 4px; line-height: 1.3; min-width: 64px; }
+.grid4 tbody th { text-align: left; min-width: 96px; }
+.grid4 .gl { border: 0; background: transparent; padding: 0 4px; min-height: 44px; font-weight: 600; font-size: 14px; text-align: left; color: var(--ink); line-height: 1.3; width: 100%; }
+.grid4 td { background: var(--card); border-radius: 10px; text-align: center; padding: 0; }
+.grid4 td button { width: 100%; min-height: 44px; border: 0; background: transparent; font-family: var(--font-num); font-weight: 600; font-size: 15px; color: var(--ink); font-variant-numeric: tabular-nums; padding: 0 6px; white-space: nowrap; border-radius: 10px; }
+.grid4 td.neg { box-shadow: inset 0 0 0 2px var(--ink); background: var(--surface); }
+.grid4 td.neg button { font-weight: 700; }
+.grid4 td.na { background: transparent; color: var(--muted); font-size: 12.5px; box-shadow: inset 0 0 0 1px var(--line); }
+/* สิ่งที่ตัวเลขบอก */
+.frow.f4 { color: var(--ink); }
+.frow.f4 .fs { grid-column: 1 / -1; font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+.frow.f4 .ft { line-height: 1.45; font-size: 15px; }
+div.frow.f4 { cursor: default; }
+.t1l { display: inline-flex; align-items: center; margin: 18px 2px 0; font-size: 14px; }
+
+/* ---------- รายละเอียด + ลองปรับ ---------- */
+.wf4 { display: grid; gap: 6px; background: var(--card); border-radius: var(--r); padding: 14px 16px; }
+.wf4 .r { display: grid; grid-template-columns: 118px minmax(0, 1fr) 56px; gap: 8px; align-items: center; font-size: 13.5px; }
+.wf4 .r span { color: var(--ink-2); line-height: 1.3; }
+.wf4 .r i { display: block; height: 12px; border-radius: 4px; background: var(--surface); overflow: hidden; }
+.wf4 .r i b { display: block; height: 100%; background: var(--ghost); border-radius: 4px; transform-origin: left; animation: grow4 0.5s cubic-bezier(.2, .8, .2, 1) both; }
+.wf4 .r:first-child i b { background: var(--muted); }
+.wf4 .r.l { border-top: 1px solid var(--line); padding-top: 6px; margin-top: 2px; font-weight: 700; }
+.wf4 .r.l span { color: var(--ink); }
+.wf4 .r.l i b { background: var(--ink); }
+.wf4 .r.neg i { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.wf4 .r.neg i b { background-color: transparent; background-image: var(--hatch4); }
+.wf4 .r em { font-style: normal; font-family: var(--font-num); text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.wf4 .r.neg em::before { content: "▼ "; font-size: 0.78em; }
+.chsel { margin-bottom: 10px; }
+.chsel button { font-size: 14px; }
+.cn4 { margin: 10px 2px 0; font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+.cn4 b { font-family: var(--font-num); color: var(--ink); }
+.try4 { margin-top: 18px; display: grid; gap: 12px; }
+.try4 .hq h3 { margin: 0; }
+.trow { display: grid; gap: 6px; }
+.trow label { font-size: 14px; font-weight: 600; }
+.tctl { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 8px; align-items: center; }
+.tctl .stp { background: var(--surface); }
+.tv { display: flex; align-items: baseline; justify-content: center; gap: 6px; background: var(--surface); border-radius: 14px; min-height: 48px; padding: 0 10px; }
+.tv input { width: 100%; min-width: 0; border: 0; background: transparent; font-family: var(--font-num); font-size: 22px; font-weight: 700; text-align: right; outline: none; min-height: 46px; padding: 0; }
+.tv:focus-within { box-shadow: inset 0 0 0 2px var(--ink); }
+.tv small { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.dl4 { margin: 2px 0 0; font-size: 14px; color: var(--ink-2); background: var(--surface); border-radius: 12px; padding: 10px 12px; }
+.dl4 b { font-family: var(--font-num); color: var(--ink); }
+.tbtns { display: flex; flex-wrap: wrap; gap: 8px; }
+.crl4 { display: grid; gap: 0; padding: 4px 16px; }
+.cr4 { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.cr4:first-child { border-top: 0; }
+.cr4 b { font-family: var(--font-num); font-weight: 700; white-space: nowrap; }
+.cr4 b small, .cr4 i small { font-family: var(--font-th); font-size: 12px; color: var(--muted); font-weight: 500; }
+.cr4 i { font-style: normal; font-family: var(--font-num); color: var(--ink-2); white-space: nowrap; min-width: 84px; text-align: right; }
+.cr4.neg span { font-weight: 700; }
+.points .tool .ts { display: block; }
+
+/* ---------- การเคลื่อนไหว ---------- */
+.still .duo i b, .still .stack i, .still .wf4 .r i b { animation: none; }
+@media (prefers-reduced-motion: reduce) { .duo i b, .stack i, .wf4 .r i b, .pi { animation: none !important; } }
+.pi .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
