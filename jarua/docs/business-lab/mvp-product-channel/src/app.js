@@ -616,22 +616,21 @@
   }
 
   /* ============================================================ รายละเอียด + ลองปรับ */
-  /* ลองปรับ: state.trial = { t: 'p' | 'c', i, vals } · ยังไม่แก้ตัวเลขจริงจนกด "ใช้ค่านี้" */
-  function trialPc() {
-    var T = state.trial;
-    if (!T) return state.pc;
-    var pc = JSON.parse(JSON.stringify(state.pc));
-    var o = T.t === 'p' ? pc.items[T.i] : pc.channels[T.i];
-    if (o) Object.keys(T.vals).forEach(function (k) { o[k] = T.vals[k]; if (T.t === 'p' && k === 'cost') delete o.parts; });
-    if (T.t === 'c' && o && T.vals.markup !== undefined) {
-      var mv = T.vals.markup;
-      o.priceMode = mv > 0.0001 ? 'up' : mv < -0.0001 ? 'down' : 'same'; o.markup = Math.abs(mv);
-    }
+  /* ลองปรับ: state.trial = { p: { ลำดับสินค้า: { ช่อง: ค่า } }, c: { ลำดับช่องทาง: { ช่อง: ค่า } } } หรือ null
+     · ลองตัวเลขของสินค้าและของช่องทางพร้อมกันได้ · เปลี่ยนช่องทางที่ดูแล้วค่าที่ลองไว้ยังอยู่ · ยังไม่แก้ตัวเลขจริงจนกด "ใช้ค่านี้" */
+  function applyTrial(pc, T) {
+    Object.keys(T.p || {}).forEach(function (i) { var o = pc.items[+i]; if (!o) return; Object.keys(T.p[i]).forEach(function (k) { o[k] = T.p[i][k]; if (k === 'cost') delete o.parts; }); });
+    Object.keys(T.c || {}).forEach(function (j) {
+      var o = pc.channels[+j]; if (!o) return;
+      Object.keys(T.c[j]).forEach(function (k) { if (k !== 'markup') o[k] = T.c[j][k]; });
+      if (T.c[j].markup !== undefined) { var mv = T.c[j].markup; o.priceMode = mv > 0.0001 ? 'up' : mv < -0.0001 ? 'down' : 'same'; o.markup = Math.abs(mv); }
+    });
     return pc;
   }
+  function trialPc() { return state.trial ? applyTrial(JSON.parse(JSON.stringify(state.pc)), state.trial) : state.pc; }
   function RT() { return RC(trialPc(), state.inp, state.model); }
-  function trialOn(t, i) { return state.trial && state.trial.t === t && state.trial.i === i; }
-  function tval(t, i, k, cur) { return trialOn(t, i) && state.trial.vals[k] !== undefined ? state.trial.vals[k] : cur; }
+  function tvals(t, i) { var T = state.trial; return T && T[t] && T[t][i] ? T[t][i] : null; }
+  function tval(t, i, k, cur) { var o = tvals(t, i); return o && o[k] !== undefined ? o[k] : cur; }
   function tvFmt(v) { return (Math.round(v * 100) / 100).toLocaleString('th-TH', { maximumFractionDigits: 2 }); }
   function tcurTxt(v, cur, unit) { return Math.abs(v - cur) > 1e-9 ? 'ตัวเลขปัจจุบัน: ' + tvFmt(cur) + ' ' + unit : ''; }
   function stepper(t, i, k, label, cur, step, unit, min, max) {
@@ -642,14 +641,22 @@
   }
   /* ขั้นของปุ่ม −/+ ตามขนาดตัวเลข (ราคา 70 บาท = ทีละ 1 บาท) */
   function tStep(v) { v = Math.abs(v); return v < 200 ? 1 : v < 1000 ? 5 : v < 5000 ? 10 : 100; }
-  function trialFoot(t, i) {
-    if (!trialOn(t, i)) return '';
+  function trialFoot() {
+    if (!state.trial) return '';
     return '<div class="tbtns"><button type="button" class="sbtn" data-act="t-use">ใช้ค่านี้</button><button type="button" class="sbtn light" data-act="t-reset">' + ICON.undo + 'คืนค่าเดิม</button></div>';
   }
-  function deltaLine(Rb, Rt) {
-    var d = Rt.profit - Rb.profit;
-    if (Math.abs(d) < 0.5) return '<p class="dl4" id="dl4">กำไรของร้านเท่าเดิม</p>';
-    return '<p class="dl4" id="dl4">กำไรของร้าน <b class="' + (d > 0 ? 'up' : 'down') + '">' + (d > 0 ? 'เพิ่มขึ้น ' : 'ลดลง ') + fmtN(Math.abs(d)) + '</b> บาท/เดือน (จาก ' + moneyTxt(Rb.profit) + ' เป็น ' + moneyTxt(Rt.profit) + ')</p>';
+  /* ค่าที่ลองไว้ในสินค้าหรือช่องทางที่ไม่ได้แสดงอยู่ (เช่น เปลี่ยนไปดูช่องทางอื่นแล้ว) */
+  function trialElse(pi, cj) {
+    var T = state.trial, L = [];
+    if (!T) return '';
+    Object.keys(T.p).forEach(function (i) { var it = pcItems(state.pc)[+i]; if (+i !== pi && it) L.push(it.name); });
+    Object.keys(T.c).forEach(function (j) { var c = chList(state.pc)[+j]; if (+j !== cj && c) L.push(chName(c)); });
+    return L.length ? '<span class="dl4o">' + tw('รวมค่าที่ลองไว้ใน ' + L.join(' · ') + ' ด้วย') + '</span>' : '';
+  }
+  function deltaLine(Rb, Rt, pi, cj) {
+    var d = Rt.profit - Rb.profit, o = trialElse(pi, cj);
+    if (Math.abs(d) < 0.5) return '<p class="dl4" id="dl4">กำไรของร้านเท่าเดิม' + o + '</p>';
+    return '<p class="dl4" id="dl4">กำไรของร้าน <b class="' + (d > 0 ? 'up' : 'down') + '">' + (d > 0 ? 'เพิ่มขึ้น ' : 'ลดลง ') + fmtN(Math.abs(d)) + '</b> บาท/เดือน (จาก ' + moneyTxt(Rb.profit) + ' เป็น ' + moneyTxt(Rt.profit) + ')' + o + '</p>';
   }
   function wfHtml(x, p, c) {
     var max = Math.max(x.list, 1), rows = [['ราคาบน' + (chIsShop(c) ? 'หน้าร้าน' : 'ช่องทางนี้'), x.list, '']];
@@ -680,10 +687,13 @@
       if (x.left < -0.005) { var lp = listPriceFor(c, x.cost, 0); if (lp !== null) cond += '<p class="cn4">ราคาบนช่องทางนี้ที่ทำให้ไม่ขาดทุน: ประมาณ <b>' + fmtN(Math.ceil(lp - 1e-9)) + '</b>\u00a0บาท</p>'; }
       if (bestC && bestC.j !== state.dch && bestC.left > x.left + 0.005) { var lp2 = listPriceFor(c, x.cost, bestC.left); if (lp2 !== null) cond += '<p class="cn4">' + tw(thj('ราคาบนช่องทางนี้ที่ทำให้เหลือเท่า', chName(R.chs[bestC.j]))) + ' (' + fmtN(bestC.left, 1) + '\u00a0บาท): ประมาณ <b>' + fmtN(Math.ceil(lp2 - 1e-9)) + '</b>\u00a0บาท</p>'; }
     }
-    var tr = p.rest ? '' : '<section class="card try4">' + hq('h3', 'ลองปรับ', 'try', 'ลองเปลี่ยนตัวเลขดูก่อน ยังไม่แก้ตัวเลขจริง · กด “ใช้ค่านี้” ถ้าอยากใช้ค่าที่ลอง') +
+    var ch = chList(state.pc)[state.dch], nOn = ch ? pcItems(state.pc).filter(function (q) { return !chOff(ch, q.id); }).length : 0;
+    var tr = p.rest ? '' : '<section class="card try4">' + hq('h3', 'ลองปรับ', 'try', 'ลองเปลี่ยนตัวเลขดูก่อน ยังไม่แก้ตัวเลขจริง · กด “ใช้ค่านี้” ถ้าอยากใช้ค่าที่ลอง · เปลี่ยนช่องทางที่ดูด้านบนได้ ค่าที่ลองไว้ไม่หาย') +
+      '<h4 class="tg4">' + tw('ตัวเลขของ' + (/^[A-Za-z0-9]/.test(p.name) ? ' ' : '') + p.name) + '</h4>' +
       stepper('p', i, 'price', 'ราคาปกติต่อ' + u, n0(it.price), tStep(n0(it.price)), 'บาท', 0.01, 1e9) +
-      stepper('p', i, 'cost', 'ต้นทุนต่อ' + u, n0(it.cost), tStep(n0(it.cost)), 'บาท', 0, 1e9) +
-      deltaLine(Rb, R) + trialFoot('p', i) + '</section>';
+      stepper('p', i, 'cost', (state.model === 'resell' ? 'ราคาที่ซื้อมาต่อ' : 'ต้นทุนต่อ') + u, n0(it.cost), tStep(n0(it.cost)), 'บาท', 0, 1e9) +
+      (ch ? '<h4 class="tg4">' + tw(thj('ตัวเลขของ', chName(ch))) + '</h4>' + (nOn > 1 ? '<p class="tgn4">' + tw(thj('มีผลกับทุก' + SW() + 'ที่ขายผ่าน', chName(ch))) + '</p>' : '') + chSteppers(ch, state.dch, false) : '') +
+      deltaLine(Rb, R, i, ch ? state.dch : -1) + trialFoot() + '</section>';
     return bar(backBtn('กลับไปดูผล'), p.name, 'รายละเอียด' + SW()) + '<main class="screen"><div class="wrap">' +
       '<section class="panel res4" id="dpanel"><h1 class="eyebrow">เงินที่เหลือต่อเดือน · <span class="nw">อันดับ ' + rk + ' จาก ' + R.prods.length + '</span><span class="sr"> · ' + esc(p.name) + '</span></h1>' +
       '<div class="bignum">' + (p.left < -0.5 ? '−' : '') + anim('pl-' + i, p.left) + '<span class="u">บาท/เดือน</span></div>' +
@@ -692,22 +702,27 @@
       '<section class="block">' + hq('h2', tw((c ? thj('ขาย 1 ' + u + 'ผ่าน', chName(c)) : 'ขาย 1 ' + u) + ' เงินไปไหน'), 'wf', 'ราคาที่ลูกค้าจ่าย ลบส่วนลดที่ร้านออก ค่าธรรมเนียม ต้นทุน' + SW() + (state.model === 'service' ? '' : ' และค่าแพ็กและค่าส่งต่อชิ้น') + ' เหลือเท่าไรให้ร้าน') +
       sel + (x ? wfHtml(x, p, c) : '') + cond + '</section>' + tr + '</div></main>';
   }
+  /* ตัวเลขของช่องทางที่ลองปรับได้ (เรียงตามแถว "เงินไปไหน") · ชิ้นต่อออร์เดอร์ขึ้นเมื่อมีค่าแพ็ก · ค่าใช้จ่ายรายเดือนอยู่ในหน้าช่องทาง */
+  function chSteppers(ch, j, monthly) {
+    var shop = chIsShop(ch), svc = state.model === 'service', mk = ch.priceMode === 'down' ? -n0(ch.markup) : ch.priceMode === 'up' ? n0(ch.markup) : 0;
+    var po = tval('c', j, 'perOrder', n0(ch.perOrder)), u = U(state.inp, state.model);
+    return (shop ? '' : stepper('c', j, 'markup', 'ราคาบนช่องทางนี้เทียบราคาปกติ (+ สูงกว่า / − ต่ำกว่า)', mk, 5, '%', -99, 300)) +
+      stepper('c', j, 'disc', 'ส่วนลดที่ร้านออก', n0(ch.disc), 1, '% ของราคา', 0, 99) +
+      stepper('c', j, 'fee', 'ค่าธรรมเนียม', n0(ch.fee), 1, '%' + (ch.vat === 'ex' && n0(ch.fee) > 0 ? ' + VAT' : ''), 0, 99) +
+      (svc && ch.kind !== 'onsite' ? '' : stepper('c', j, 'perOrder', svc ? 'ค่าเดินทางต่อครั้ง' : 'ค่าแพ็กและค่าส่งต่อออร์เดอร์', n0(ch.perOrder), 1, 'บาท', 0, 1e6)) +
+      (!svc && po > 0 ? stepper('c', j, 'ipo', 'ออร์เดอร์หนึ่งมีเฉลี่ยกี่' + u, num(ch.ipo) >= 1 ? n0(ch.ipo) : 1, 0.1, u, 1, 1000) : '') +
+      (monthly ? stepper('c', j, 'monthly', 'ค่าใช้จ่ายรายเดือนของช่องทางนี้', n0(ch.monthly), 100, 'บาท', 0, 1e9) : '');
+  }
   function viewChan() {
     var Rb = R0(), R = RT(), j = state.sel, c = R.chans[j];
     if (!c) { state.view = 'result'; return viewResult(); }
-    var ch = chList(state.pc)[j], shop = chIsShop(ch);
+    var ch = chList(state.pc)[j];
     var rows = c.cells.slice().sort(function (a, b) { return a.left - b.left; }).map(function (x) {
       var p = R.prods[x.i];
       return '<div class="cr4' + (x.left < -0.005 ? ' neg' : '') + '"><span>' + tw(p.name) + '</span><b>' + (x.left < -0.005 ? '▼ ' : '') + moneyTxt(x.left, 1) + '<small>/' + esc(p.rest ? 'ชิ้น' : U4(p)) + '</small></b><i>' + money(x.leftM) + '<small>/เดือน</small></i></div>';
     }).join('');
-    var mk = ch.priceMode === 'down' ? -n0(ch.markup) : ch.priceMode === 'up' ? n0(ch.markup) : 0;
     var tr = '<section class="card try4">' + hq('h3', 'ลองปรับ', 'try', 'ลองเปลี่ยนตัวเลขของช่องทางนี้ดูก่อน ยังไม่แก้ตัวเลขจริง · กด “ใช้ค่านี้” ถ้าอยากใช้ค่าที่ลอง') +
-      (shop ? '' : stepper('c', j, 'markup', 'ราคาบนช่องทางนี้เทียบราคาปกติ (+ สูงกว่า / − ต่ำกว่า)', mk, 5, '%', -99, 300)) +
-      stepper('c', j, 'fee', 'ค่าธรรมเนียม', n0(ch.fee), 1, '%' + (ch.vat === 'ex' && n0(ch.fee) > 0 ? ' + VAT' : ''), 0, 99) +
-      stepper('c', j, 'disc', 'ส่วนลดที่ร้านออก', n0(ch.disc), 5, '%', 0, 99) +
-      (state.model === 'service' && ch.kind !== 'onsite' ? '' : stepper('c', j, 'perOrder', state.model === 'service' ? 'ค่าเดินทางต่อครั้ง' : 'ค่าแพ็กและค่าส่งต่อออร์เดอร์', n0(ch.perOrder), 1, 'บาท', 0, 1e6)) +
-      stepper('c', j, 'monthly', 'ค่าใช้จ่ายรายเดือนของช่องทางนี้', n0(ch.monthly), 100, 'บาท', 0, 1e9) +
-      deltaLine(Rb, R) + trialFoot('c', j) + '</section>';
+      chSteppers(ch, j, true) + deltaLine(Rb, R, -1, j) + trialFoot() + '</section>';
     return bar(backBtn('กลับไปดูผล'), c.name, 'รายละเอียดช่องทาง') + '<main class="screen"><div class="wrap">' +
       '<section class="panel res4" id="dpanel"><h1 class="eyebrow">' + (c.monthly > 0.5 ? 'เหลือจริงต่อเดือน' : 'เงินที่เหลือต่อเดือน') + ' · ' + tw(c.name) + '</h1>' +
       '<div class="bignum">' + (c.after < -0.5 ? '−' : '') + anim('ca-' + j, c.after) + '<span class="u">บาท</span></div>' +
@@ -1118,7 +1133,7 @@
       case 'tstep': {
         var tt = t.getAttribute('data-t'), ti = +t.getAttribute('data-i'), tk = t.getAttribute('data-k'), d = +t.getAttribute('data-d');
         var base = tt === 'p' ? pcItems(state.pc)[ti] : chList(state.pc)[ti];
-        var curv = tt === 'c' && tk === 'markup' ? (base.priceMode === 'down' ? -n0(base.markup) : base.priceMode === 'up' ? n0(base.markup) : 0) : n0(base[tk]);
+        var curv = tt === 'c' && tk === 'markup' ? (base.priceMode === 'down' ? -n0(base.markup) : base.priceMode === 'up' ? n0(base.markup) : 0) : tk === 'ipo' ? (num(base.ipo) >= 1 ? n0(base.ipo) : 1) : n0(base[tk]);
         var v0 = tval(tt, ti, tk, curv), nv2 = Math.round((v0 + d) * 100) / 100;
         nv2 = Math.max(+t.getAttribute('data-min'), Math.min(+t.getAttribute('data-max'), nv2));
         setTrial(tt, ti, tk, nv2);
@@ -1127,7 +1142,7 @@
       case 't-use': {
         var T = state.trial; if (!T) break;
         state.pc = trialPc();
-        if (T.t === 'c') { var uc = state.pc.channels[T.i]; if (uc) { if (n0(uc.fee) > 0 && uc.vat !== 'in' && uc.vat !== 'ex') uc.vat = 'in'; if (n0(uc.perOrder) > 0 && !(num(uc.ipo) >= 1)) uc.ipo = 1; } }
+        Object.keys(T.c || {}).forEach(function (cj) { var uc = state.pc.channels[+cj]; if (uc) { if (n0(uc.fee) > 0 && uc.vat !== 'in' && uc.vat !== 'ex') uc.vat = 'in'; if (n0(uc.perOrder) > 0 && !(num(uc.ipo) >= 1)) uc.ipo = 1; } });
         state.trial = null; go(state.view, false); toast('ใช้ค่านี้แล้ว'); break;
       }
       case 't-reset': state.trial = null; go(state.view, false); break;
@@ -1174,14 +1189,23 @@
     }
   }
   function setTrial(t, i, k, v) {
-    if (!state.trial || state.trial.t !== t || state.trial.i !== i) state.trial = { t: t, i: i, vals: {} };
-    state.trial.vals[k] = v;
+    var T = state.trial = state.trial || { p: {}, c: {} };
+    T[t][i] = T[t][i] || {};
+    T[t][i][k] = v;
   }
   /* ลองปรับ: เปลี่ยนเฉพาะตัวเลขบนหน้า (ช่องที่พิมพ์อยู่ไม่หลุด) */
   function liveDetail() {
     var y = window.scrollY, ae = document.activeElement, aid = ae && ae.id;
     var html = state.view === 'prod' ? viewProd() : viewChan(), tmp = document.createElement('div');
     tmp.innerHTML = html;
+    /* ชุดช่องลองปรับเปลี่ยน (เช่น ชิ้นต่อออร์เดอร์ขึ้นเมื่อมีค่าแพ็ก): วาดใหม่ทั้งหน้า แล้วคืนช่องที่พิมพ์อยู่ */
+    var keys = function (r) { return $$('[data-tv]', r).map(function (x) { return x.id; }).join(','); };
+    if (keys(tmp) !== keys(app)) {
+      var pos0 = ae && ae.selectionStart;
+      render(); window.scrollTo(0, y);
+      var bk = aid && document.getElementById(aid); if (bk) { bk.focus({ preventScroll: true }); try { bk.setSelectionRange(pos0, pos0); } catch (er) { /* ignore */ } }
+      return;
+    }
     ['#dpanel', '.wf4', '.cn4', '.crl4', '.stack', '.lg4', '#dl4', '.tbtns', '.chsel', '.tcur'].forEach(function (sel) {
       var a2 = $$(sel, app), b2 = $$(sel, tmp);
       a2.forEach(function (el, n) { if (b2[n]) el.outerHTML = b2[n].outerHTML; });
@@ -1244,7 +1268,7 @@
     var el = e.target;
     if (!el.hasAttribute) return;
     if (el.hasAttribute('data-path') && el.getAttribute('data-t') === 'money') { var v = getP(el.getAttribute('data-path')); if (v !== null && v !== undefined) el.value = fmtIn(v, 'money'); }
-    if (el.hasAttribute('data-tv')) { var T = state.trial; if (T && T.vals[el.getAttribute('data-tv')] !== undefined) el.value = tvFmt(T.vals[el.getAttribute('data-tv')]); }
+    if (el.hasAttribute('data-tv')) { var tv = tval(el.getAttribute('data-t'), +el.getAttribute('data-i'), el.getAttribute('data-tv'), undefined); if (tv !== undefined) el.value = tvFmt(tv); }
   }
   function onKey(e) {
     if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].indexOf(e.key) >= 0 && e.target.getAttribute && e.target.getAttribute('role') === 'tab') {

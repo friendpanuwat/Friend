@@ -221,3 +221,8 @@ h1.eyebrow { margin: 0; line-height: 1.4; }
 .samp4.two4 .wh-l { font-size: 14px; font-weight: 700; flex-basis: 100%; }
 .frow.f4 .fm small { white-space: normal; max-width: 9em; margin-left: auto; line-height: 1.35; }
 .chips.offc .chip, .chips.chsel .chip { max-width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere; text-align: left; }
+/* ลองปรับ: กลุ่มตัวเลขของสินค้า และของช่องทาง */
+.try4 .tg4 { font-size: 14px; font-weight: 700; margin: 10px 0 -4px; padding-top: 12px; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+.try4 .tg4:first-of-type { border-top: 0; padding-top: 0; margin-top: 4px; }
+.try4 .tgn4 { font-size: 13px; color: var(--muted); margin: 0 0 -2px; line-height: 1.45; }
+.dl4 .dl4o { display: block; font-size: 13px; color: var(--muted); margin-top: 4px; }
