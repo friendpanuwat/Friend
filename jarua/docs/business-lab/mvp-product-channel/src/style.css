@@ -204,3 +204,20 @@ div.frow.f4 { cursor: default; }
 .banner4 .btn.ghost { background: var(--surface); }
 #tot4w { display: grid; gap: 8px; }
 #tot4w .sbtn { justify-self: start; }
+/* ชื่อยาวไม่ล้นจอ */
+.rk4 .nm, .chc .nm, .grid4 th, .res4 .eyebrow, .wf4 .r span, .cr4 span, .frow.f4 .ft, .frow.f4 .fs, .point .pt, .banner4 span, .rv-row .t, .rv-row .v { overflow-wrap: anywhere; }
+.point .pt > span:first-child { min-width: 0; flex: 1 1 auto; }
+h1.eyebrow { margin: 0; line-height: 1.4; }
+.cap4 { margin: 0 2px 8px; }
+.sub4 { font-size: 15px; margin: 16px 2px 8px; }
+.rk4 .v small:first-child { font-size: 12px; color: var(--muted); font-weight: 600; }
+.lg4 b { color: var(--ink); font-family: var(--font-num); font-weight: 700; font-variant-numeric: tabular-nums; }
+.frow.f4 .fm small:first-child { margin-bottom: 2px; }
+.tcur { font-size: 12.5px; color: var(--muted); }
+.tcur:empty { display: none; }
+.chips.chsel { margin-bottom: 10px; }
+.chips.offc .chip[aria-pressed="false"] { color: var(--muted); text-decoration: line-through; }
+.samp4.two4 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 2px 14px; }
+.samp4.two4 .wh-l { font-size: 14px; font-weight: 700; flex-basis: 100%; }
+.frow.f4 .fm small { white-space: normal; max-width: 9em; margin-left: auto; line-height: 1.35; }
+.chips.offc .chip, .chips.chsel .chip { max-width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere; text-align: left; }

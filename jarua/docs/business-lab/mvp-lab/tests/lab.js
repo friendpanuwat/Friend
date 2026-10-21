@@ -156,7 +156,7 @@ async function check(page, label) {
     await check(page, tag + ' tool4 sample result');
     for (const tb of ['c', 'g']) { await page.click(`[data-act="tab"][data-v="${tb}"]`); await page.waitForTimeout(200); await check(page, tag + ' tool4 sample tab ' + tb); }
     if ((await page.evaluate(() => sessionStorage.getItem('lab-shop'))) !== before4) fail(tag, 'tool4 sample wrote shared numbers');
-    await page.click('.banner [data-act="mine"]'); await page.waitForTimeout(300);
+    await page.click('[data-act="mine"]'); await page.waitForTimeout(300);
     let v4 = await page.evaluate(() => window.__lab4.state.view);
     if (v4 !== 'items') fail(tag, 'tool4 own shop did not start at items', v4);
     await page.fill('#f-i-0-name', 'ลาเต้เย็น'); await page.fill('#f-i-0-price', '65'); await page.fill('#f-i-0-cost', '22'); await page.fill('#f-i-0-qty', '70');

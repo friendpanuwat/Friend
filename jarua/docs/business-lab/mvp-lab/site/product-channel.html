@@ -696,6 +696,29 @@ div.frow.f4 { cursor: default; }
 .still .duo i b, .still .stack i, .still .wf4 .r i b { animation: none; }
 @media (prefers-reduced-motion: reduce) { .duo i b, .stack i, .wf4 .r i b, .pi { animation: none !important; } }
 .pi .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.banner4 { background: var(--card); border-radius: var(--r-sm); padding: 8px 8px 8px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 0 12px; }
+.banner4 span { display: grid; font-weight: 700; font-size: 15px; line-height: 1.35; min-width: 0; }
+.banner4 small { font-size: 12px; font-weight: 600; color: var(--muted); }
+.banner4 .btn.ghost { background: var(--surface); }
+#tot4w { display: grid; gap: 8px; }
+#tot4w .sbtn { justify-self: start; }
+/* ชื่อยาวไม่ล้นจอ */
+.rk4 .nm, .chc .nm, .grid4 th, .res4 .eyebrow, .wf4 .r span, .cr4 span, .frow.f4 .ft, .frow.f4 .fs, .point .pt, .banner4 span, .rv-row .t, .rv-row .v { overflow-wrap: anywhere; }
+.point .pt > span:first-child { min-width: 0; flex: 1 1 auto; }
+h1.eyebrow { margin: 0; line-height: 1.4; }
+.cap4 { margin: 0 2px 8px; }
+.sub4 { font-size: 15px; margin: 16px 2px 8px; }
+.rk4 .v small:first-child { font-size: 12px; color: var(--muted); font-weight: 600; }
+.lg4 b { color: var(--ink); font-family: var(--font-num); font-weight: 700; font-variant-numeric: tabular-nums; }
+.frow.f4 .fm small:first-child { margin-bottom: 2px; }
+.tcur { font-size: 12.5px; color: var(--muted); }
+.tcur:empty { display: none; }
+.chips.chsel { margin-bottom: 10px; }
+.chips.offc .chip[aria-pressed="false"] { color: var(--muted); text-decoration: line-through; }
+.samp4.two4 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 2px 14px; }
+.samp4.two4 .wh-l { font-size: 14px; font-weight: 700; flex-basis: 100%; }
+.frow.f4 .fm small { white-space: normal; max-width: 9em; margin-left: auto; line-height: 1.35; }
+.chips.offc .chip, .chips.chsel .chip { max-width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere; text-align: left; }
 </style>
 <div id="app"></div>
 <script>
@@ -3164,7 +3187,6 @@ function chName(c) { return (c.kind === 'other' || !CH_KINDS[c.kind]) ? (String(
 function chIsShop(c) { return c.kind === 'shop'; }
 
 /* ---------- ค่าที่ตอบแล้วหรือยัง ---------- */
-function pcNum(v) { return num(v); }
 function itemOk(p) { return !!String(p.name || '').trim() && pos(p.price) !== null && num(p.cost) !== null && num(p.cost) >= 0 && pos(p.qty) !== null; }
 function restOk(pc) { return !pc.rest || pc.rest.on === false || (pc.rest.on === true && pos(pc.rest.sales) !== null && num(pc.rest.costPct) !== null && num(pc.rest.costPct) >= 0 && num(pc.rest.costPct) < 100); }
 function restAnswered(pc) { return !!pc.rest && (pc.rest.on === true || pc.rest.on === false); }
@@ -3212,7 +3234,7 @@ function mkFactor(c) { if (chIsShop(c) || c.priceMode === 'same' || !c.priceMode
 function feeRate(c) { var f = n0(c.fee) / 100; return f > 0 && c.vat === 'ex' ? f * VAT : f; }
 function packPer(c) { return n0(c.perOrder) > 0 ? n0(c.perOrder) / Math.max(1, n0(c.ipo) || 1) : 0; }
 /* ทุกรายการที่คิด: สินค้าที่ใส่ + "สินค้าอื่น ๆ" (ถ้ามี) — สินค้าอื่น ๆ ใช้ราคาเฉลี่ยของสินค้าที่ใส่ จำนวน = ยอดขาย ÷ ราคานั้น */
-function pcRows(pc, inp) {
+function pcRows(pc, inp, m) {
   var mult = perMult(inp), rows = pcItems(pc).map(function (p) {
     return { id: p.id, name: String(p.name || '').trim(), unit: p.unit || '', price: n0(p.price), cost: n0(p.cost), units: n0(p.qty) * mult, rest: false };
   });
@@ -3220,13 +3242,13 @@ function pcRows(pc, inp) {
     var u0 = rows.reduce(function (s, r) { return s + r.units; }, 0);
     var avg = u0 > 0 ? rows.reduce(function (s, r) { return s + r.price * r.units; }, 0) / u0 : 100;
     var sales = n0(pc.rest.sales) * mult;
-    rows.push({ id: '_rest', name: 'สินค้าอื่น ๆ', unit: '', price: avg, cost: avg * n0(pc.rest.costPct) / 100, units: sales / avg, rest: true });
+    rows.push({ id: '_rest', name: (m === 'service' ? 'บริการ' : 'สินค้า') + 'อื่น ๆ', unit: '', price: avg, cost: avg * n0(pc.rest.costPct) / 100, units: sales / avg, rest: true });
   }
   return rows;
 }
 function chOff(c, id) { return id !== '_rest' && !!(c.off && c.off[id]); }
 function pcCompute(pc, inp, m) {
-  var rows = pcRows(pc, inp), chs = chList(pc), mult = perMult(inp);
+  var rows = pcRows(pc, inp, m), chs = chList(pc), mult = perMult(inp);
   if (!rows.length || !chs.length) return { ok: false };
   var many = chs.length > 1, cells = [], streams = [];
   rows.forEach(function (p, i) {
@@ -3304,6 +3326,8 @@ function listPriceFor(c, cost, target) {
   return k > 1e-9 ? (target + cost + packPer(c)) / k : null;
 }
 
+/* ต่อคำไทยกับชื่อ: เว้นวรรคเฉพาะข้างที่เป็นภาษาอังกฤษหรือตัวเลข */
+function pcJ(a, b) { a = String(a); b = String(b); return a + (/[A-Za-z0-9)%]$/.test(a) || /^[A-Za-z0-9(]/.test(b) ? ' ' : '') + b; }
 /* ---------- สิ่งที่ตัวเลขบอก (เกณฑ์ที่เสนอ ⏳ HANDOFF ข้อ 7.9) ----------
    lv: high = ร้ายแรง · mid = ปานกลาง · watch = ควรเฝ้าระวัง · note = ข้อสังเกต · money = ขนาดเป็นเงินต่อเดือน */
 var PC_LV = { high: 0, mid: 1, watch: 2, note: 3 };
@@ -3313,42 +3337,43 @@ function pcFinds(R) {
   var neg = R.cells.filter(function (x) { return x.left < -0.005 && x.units > 0; });
   if (neg.length) {
     var nm = neg.reduce(function (s, x) { return s + x.leftM; }, 0);
-    F.push({ id: 'loss', lv: 'high', money: nm, cells: neg,
-      t: neg.length === 1 ? R.rows[neg[0].i].name + (R.many ? 'ขายผ่าน ' + chName(R.chs[neg[0].j]) : '') + ' ขาดทุนทุกชิ้นที่ขาย' : 'มี ' + neg.length + ' คู่สินค้าและช่องทางที่ขาดทุนทุกชิ้นที่ขาย',
+    var sw = R.m === 'service' ? 'บริการ' : 'สินค้า';
+    F.push({ id: 'loss', lv: 'high', money: nm, ml: 'ขาดทุนเดือนละ', mabs: true, cells: neg,
+      t: neg.length === 1 ? R.rows[neg[0].i].name + (R.many ? ' ' + pcJ('ขายผ่าน', chName(R.chs[neg[0].j])) : '') + ' ขาดทุนทุกครั้งที่ขาย' : 'มี ' + neg.length + ' คู่' + sw + 'และช่องทางที่ขาดทุนทุกครั้งที่ขาย',
       s: 'ยิ่งขายมาก ยิ่งขาดทุนมาก', q: ['loss_price', 'loss_cost', 'ch_new'] });
   }
   /* 2–3. ช่องทางที่ค่าใช้จ่ายของตัวเองกินเงินที่เหลือ */
   R.chans.forEach(function (c) {
     if (c.monthly <= 0.5) return;
-    if (c.after < -0.5) F.push({ id: 'chshort-' + c.j, kind: 'chshort', lv: 'high', money: c.after, ch: c.j,
-      t: 'เงินที่เหลือจาก ' + c.name + ' ไม่พอจ่ายค่าใช้จ่ายของช่องทางนี้', s: 'เหลือ ' + fmtN(c.left) + ' บาท · ค่าใช้จ่ายของช่องทาง ' + fmtN(c.monthly) + ' บาท', q: ['ch_ads', 'ch_new'] });
-    else if (c.left > 0 && c.monthly > c.left * 0.5) F.push({ id: 'cheat-' + c.j, kind: 'cheat', lv: 'mid', money: c.after, ch: c.j,
-      t: 'ค่าใช้จ่ายของ ' + c.name + ' กินเงินที่เหลือไป ' + fmtN(c.monthly / c.left * 100, 0) + '%', s: 'เหลือ ' + fmtN(c.left) + ' บาท หักค่าใช้จ่ายของช่องทาง ' + fmtN(c.monthly) + ' บาท เหลือจริง ' + fmtN(c.after) + ' บาท', q: ['ch_ads', 'ch_new'] });
+    if (c.after < -0.5) F.push({ id: 'chshort-' + c.j, kind: 'chshort', lv: 'high', money: c.after, ml: 'ขาดเดือนละ', mabs: true, ch: c.j,
+      t: pcJ('เงินที่เหลือจาก', c.name) + ' ไม่พอจ่ายค่าใช้จ่ายของช่องทางนี้', s: 'เหลือ ' + fmtN(c.left) + ' บาท · ค่าใช้จ่ายของช่องทาง ' + fmtN(c.monthly) + ' บาท', q: ['ch_ads', 'ch_new'] });
+    else if (c.left > 0 && c.monthly > c.left * 0.5) F.push({ id: 'cheat-' + c.j, kind: 'cheat', lv: 'mid', money: c.after, ml: 'เหลือจริงเดือนละ', ch: c.j,
+      t: pcJ('ค่าใช้จ่ายของ', c.name) + ' กินเงินที่เหลือไป ' + fmtN(c.monthly / c.left * 100, 0) + '%', s: 'เหลือ ' + fmtN(c.left) + ' บาท หักค่าใช้จ่ายของช่องทาง ' + fmtN(c.monthly) + ' บาท เหลือจริง ' + fmtN(c.after) + ' บาท', q: ['ch_ads', 'ch_new'] });
   });
   /* 4. ขายดีแต่เหลือเงินน้อย (เทียบกับค่าเฉลี่ยของร้าน) */
   if (R.prods.length > 1 && R.left > 0) R.prods.forEach(function (p) {
     if (p.rest || p.revShare < 10 || p.leftShare === null || p.leftShare >= p.revShare * 0.75) return;
     var gap = p.rev * (R.per100 - p.per100) / 100;
     if (gap < 1) return;
-    F.push({ id: 'gap-' + p.i, kind: 'gap', lv: 'mid', money: gap, prod: p.i,
+    F.push({ id: 'gap-' + p.i, kind: 'gap', lv: 'mid', money: gap, ml: 'น้อยกว่าค่าเฉลี่ยของร้านเดือนละ', mabs: true, prod: p.i,
       t: p.name + ' ขายได้ ' + fmtN(p.revShare, 0) + '% ของยอดขาย แต่ได้เงินแค่ ' + fmtN(Math.max(0, p.leftShare), 0) + '% ของเงินที่เหลือ',
-      s: 'ถ้า ' + p.name + ' เหลือเงินต่อ 100 บาทเท่าค่าเฉลี่ยของร้าน จะเหลือเพิ่มเดือนละ ' + fmtN(gap) + ' บาท', q: ['p_cost', 'p_price', 'p_pair'] });
+      s: pcJ('ถ้า', p.name) + ' เหลือเงินต่อ 100 บาทเท่าค่าเฉลี่ยของร้าน จะเหลือเพิ่มเดือนละ ' + fmtN(gap) + ' บาท', q: ['p_cost', 'p_price', 'p_pair'] });
   });
   /* 5. ช่องทางที่เหลือเงินน้อยกว่าช่องทางที่ดีที่สุดมาก */
   if (R.many) {
     var best = R.chans.reduce(function (b, c) { return c.rev > 0 && (!b || c.per100 > b.per100) ? c : b; }, null);
     if (best && best.per100 > 0) R.chans.forEach(function (c) {
       if (c === best || c.rev <= 0 || c.per100 >= best.per100 * 0.5) return;
-      F.push({ id: 'chlow-' + c.j, kind: 'chlow', lv: 'watch', money: c.rev * (best.per100 - c.per100) / 100, ch: c.j, best: best.j,
-        t: 'ขายผ่าน ' + c.name + ' 100 บาท เหลือ ' + fmtN(c.per100, 0) + ' บาท · ' + best.name + ' เหลือ ' + fmtN(best.per100, 0) + ' บาท',
-        s: 'ยอดขายผ่าน ' + c.name + ' เดือนละ ' + fmtN(c.rev) + ' บาท ถ้าเหลือเท่า ' + best.name + ' จะเหลือเพิ่มเดือนละ ' + fmtN(c.rev * (best.per100 - c.per100) / 100) + ' บาท', q: ['loss_price', 'ch_new'] });
+      F.push({ id: 'chlow-' + c.j, kind: 'chlow', lv: 'watch', money: c.rev * (best.per100 - c.per100) / 100, ml: pcJ('น้อยกว่า', best.name) + ' เดือนละ', mabs: true, ch: c.j, best: best.j,
+        t: pcJ('ขายผ่าน', c.name) + ' 100 บาท เหลือ ' + fmtN(c.per100, 0) + ' บาท · ' + best.name + ' เหลือ ' + fmtN(best.per100, 0) + ' บาท',
+        s: pcJ('ยอดขายผ่าน', c.name) + ' เดือนละ ' + fmtN(c.rev) + ' บาท ' + pcJ('ถ้าเหลือเท่า', best.name) + ' จะเหลือเพิ่มเดือนละ ' + fmtN(c.rev * (best.per100 - c.per100) / 100) + ' บาท', q: ['loss_price', 'ch_new'] });
     });
   }
   /* 6. พึ่งสินค้าเดียว */
   if (R.prods.length > 1 && R.left > 0) R.prods.forEach(function (p) {
     if (p.rest || p.leftShare === null || p.leftShare <= 50) return;
-    F.push({ id: 'conc-' + p.i, kind: 'conc', lv: 'note', money: p.left, prod: p.i,
-      t: 'เงินที่เหลือ ' + fmtN(p.leftShare, 0) + '% มาจาก ' + p.name + ' ตัวเดียว', s: 'เดือนละ ' + fmtN(p.left) + ' บาท', q: ['conc'] });
+    F.push({ id: 'conc-' + p.i, kind: 'conc', lv: 'note', money: p.left, ml: 'เหลือเดือนละ', prod: p.i,
+      t: 'เงินที่เหลือ ' + fmtN(p.leftShare, 0) + '% ' + pcJ('มาจาก', p.name) + ' ตัวเดียว', s: 'เดือนละ ' + fmtN(p.left) + ' บาท', q: ['conc'] });
   });
   /* 7. ต้นทุนที่อาจยังไม่ได้ใส่ */
   R.chans.forEach(function (c) {
@@ -3366,21 +3391,21 @@ function pcFinds(R) {
 /* ---------- คำถามเช็ก → จุดที่ควรตรวจสอบ → เครื่องมือ PL1 (อ้างด้วยรหัส) ----------
    ans = คำบนปุ่ม · risk = คำตอบที่นับเป็นจุดที่ควรตรวจสอบ (ไม่แน่ใจ นับเสมอ) · ไม่บอกวิธีแก้ */
 var QB4 = {
-  loss_price: { q: 'ราคาบนช่องทางที่ขายผ่านแอปหรือแพลตฟอร์ม ตั้งโดยคิดค่าธรรมเนียมและส่วนลดของช่องทางนั้นแล้วหรือยัง?', ans: { yes: 'คิดแล้ว', no: 'ยังไม่ได้คิด', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  loss_price: { q: 'ราคาบน{c} ตั้งโดยคิดค่าธรรมเนียมและส่วนลดของช่องทางนั้นแล้วหรือยัง?', cd: 'ช่องทางที่ขายผ่านแอปหรือแพลตฟอร์ม', ans: { yes: 'คิดแล้ว', no: 'ยังไม่ได้คิด', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ราคาบนแต่ละช่องทาง', d: 'เช็กว่าราคาบนช่องทางนั้นครอบคลุมค่าธรรมเนียม ส่วนลดที่ร้านออก และค่าแพ็กแล้วหรือยัง', tools: ['grow13', 'cust5'] },
-  loss_cost: { q: 'ต้นทุนของสินค้าที่ขาดทุน รวมแพ็กเกจและของที่เสียระหว่างทำแล้วหรือยัง?', ans: { yes: 'รวมแล้ว', no: 'ยังไม่รวม', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  loss_cost: { q: 'ต้นทุนของ{p} รวมแพ็กเกจและของที่เสียระหว่างทำแล้วหรือยัง?', pd: 'สินค้าที่ขาดทุน', ans: { yes: 'รวมแล้ว', no: 'ยังไม่รวม', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ต้นทุนต่อชิ้น', d: 'เช็กต้นทุนทีละอย่าง (วัตถุดิบ แพ็กเกจ ของเสีย) ว่าตรงกับที่ซื้อจริงไหม', tools: ['grow13'] },
-  ch_new: { q: 'ลูกค้าที่ซื้อผ่านช่องทางที่เหลือเงินน้อย ส่วนใหญ่เป็นลูกค้าใหม่ที่ไม่ได้ซื้อทางอื่นใช่ไหม?', ans: { yes: 'ใช่', no: 'ไม่ใช่', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  ch_new: { q: 'ลูกค้าที่ซื้อผ่าน{c} ส่วนใหญ่เป็นลูกค้าใหม่ที่ไม่ได้ซื้อทางอื่นใช่ไหม?', cd: 'ช่องทางที่เหลือเงินน้อย', ans: { yes: 'ใช่', no: 'ไม่ใช่', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ลูกค้าที่ย้ายมาจากช่องทางอื่น', d: 'เช็กว่าลูกค้าในช่องทางนั้นเป็นคนใหม่ หรือเป็นลูกค้าเดิมที่เปลี่ยนมาซื้อทางที่เหลือเงินน้อยกว่า', tools: ['cust5', 'bmc10'] },
-  ch_ads: { q: 'คุณรู้ไหมว่าค่าใช้จ่ายรายเดือนของช่องทางนั้น (เช่น โฆษณาในแอป) ทำให้ขายได้เพิ่มกี่ชิ้น?', ans: { yes: 'รู้', no: 'ไม่รู้', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  ch_ads: { q: 'คุณรู้ไหมว่าค่าใช้จ่ายรายเดือนของ{c} (เช่น โฆษณาในแอป) ทำให้ขายได้เพิ่มกี่ชิ้น?', cd: 'ช่องทางนั้น', ans: { yes: 'รู้', no: 'ไม่รู้', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ผลของค่าใช้จ่ายของช่องทาง', d: 'เช็กยอดขายของช่องทางนั้นช่วงที่จ่ายกับช่วงที่ไม่จ่าย', tools: ['bmc10', 'grow9'] },
-  p_cost: { q: 'ต้นทุนของสินค้าที่เหลือเงินน้อย รวมแพ็กเกจและของที่เสียแล้วหรือยัง?', ans: { yes: 'รวมแล้ว', no: 'ยังไม่รวม', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  p_cost: { q: 'ต้นทุนของ{p} รวมแพ็กเกจและของที่เสียแล้วหรือยัง?', pd: 'สินค้าที่เหลือเงินน้อย', ans: { yes: 'รวมแล้ว', no: 'ยังไม่รวม', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ต้นทุนของสินค้าที่เหลือเงินน้อย', d: 'เช็กต้นทุนทีละอย่างของสินค้านั้นว่าตรงกับที่ซื้อจริงไหม', tools: ['grow13'] },
-  p_price: { q: 'เคยเทียบราคาของสินค้าที่เหลือเงินน้อยกับร้านอื่นที่ขายของคล้ายกันไหม?', ans: { yes: 'เคย', no: 'ไม่เคย', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  p_price: { q: 'เคยเทียบราคาของ{p}กับร้านอื่นที่ขายของคล้ายกันไหม?', pd: 'สินค้าที่เหลือเงินน้อย', ans: { yes: 'เคย', no: 'ไม่เคย', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ราคาเทียบกับร้านอื่น', d: 'เช็กว่าราคาของสินค้านั้นต่ำกว่าร้านอื่นที่ขายของคล้ายกันไหม และต่างกันเท่าไร', tools: ['grow13', 'grow10'] },
-  p_pair: { q: 'ลูกค้าที่ซื้อสินค้าที่เหลือเงินน้อย มักซื้อสินค้าอื่นของร้านไปด้วยไหม?', ans: { yes: 'ใช่', no: 'ไม่ใช่', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  p_pair: { q: 'ลูกค้าที่ซื้อ{p} มักซื้อสินค้าอื่นของร้านไปด้วยไหม?', pd: 'สินค้าที่เหลือเงินน้อย', ans: { yes: 'ใช่', no: 'ไม่ใช่', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'สินค้าที่ลูกค้าซื้อคู่กัน', d: 'เช็กว่าสินค้านั้นพาให้ลูกค้าซื้อสินค้าอื่นของร้านด้วยหรือเปล่า และลูกค้ากลุ่มนั้นซื้ออะไรอีก', tools: ['bmc8', 'grow10'] },
-  conc: { q: 'ถ้าสินค้าที่ขายดีที่สุดขายได้น้อยลง ร้านมีสินค้าอื่นที่ลูกค้าซื้อแทนได้ไหม?', ans: { yes: 'มี', no: 'ไม่มี', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  conc: { q: 'ถ้า{p}ขายได้น้อยลง ร้านมีสินค้าอื่นที่ลูกค้าซื้อแทนได้ไหม?', pd: 'สินค้าที่ขายดีที่สุด', ans: { yes: 'มี', no: 'ไม่มี', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'การพึ่งสินค้าตัวเดียว', d: 'เช็กว่าถ้าสินค้าตัวนั้นขายได้น้อยลง ร้านจะเสียเงินเท่าไร และลูกค้ามีตัวเลือกอื่นในร้านไหม', tools: ['grow10', 'bmc8'] },
   f_pack: { q: 'ค่าแพ็กเกจ ค่าส่ง และค่าธรรมเนียมของทุกช่องทาง ใส่ไว้ในตัวเลขครบแล้วหรือยัง?', ans: { yes: 'ครบแล้ว', no: 'ยังไม่ครบ', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ค่าใช้จ่ายของแต่ละช่องทาง', d: 'เช็กใบสรุปยอดของแต่ละช่องทาง ว่าหักอะไรไปบ้างต่อออร์เดอร์', tools: ['cust5'] }
@@ -3392,6 +3417,22 @@ function pcAskList(R) {
   if (!L.length) L = R && R.many ? ['loss_price', 'p_pair', 'f_pack'] : ['p_price', 'p_pair', 'conc'];
   return L.slice(0, 5);
 }
+
+/* ชื่อสินค้าหรือช่องทางที่คำถามแต่ละข้อพูดถึง (จากสิ่งที่ตัวเลขบอกข้อแรกที่ใช้คำถามนั้น) */
+function pcAskCtx(R) {
+  var o = {};
+  (R && R.ok ? R.finds : []).forEach(function (f) {
+    var p = f.prod !== undefined ? R.prods[f.prod].name : f.cells && f.cells.length ? R.rows[f.cells[0].i].name : null;
+    var c = f.ch !== undefined ? R.chans[f.ch].name : f.cells && f.cells.length && R.many ? chName(R.chs[f.cells[0].j]) : null;
+    (f.q || []).forEach(function (q) { if (!o[q]) o[q] = { p: p, c: c }; });
+  });
+  return o;
+}
+function qbText(key, ctx) {
+  var b = QB4[key], x = (ctx && ctx[key]) || {};
+  return b.q.replace('{p}', x.p || b.pd || 'สินค้านี้').replace('{c}', x.c ? ' ' + x.c : b.cd || 'ช่องทางนี้');
+}
+function qbName(key, ctx) { var x = (ctx && ctx[key]) || {}; return QB4[key].q.indexOf('{c}') >= 0 ? x.c : QB4[key].q.indexOf('{p}') >= 0 ? x.p : null; }
 
 /* ---------- ตัวเลขร้านจากรายสินค้า (ใช้เมื่อผู้ใช้เลือกเอง หรือเมื่อตัวที่ 4 เป็นคนสร้างตัวเลขร้าน) ----------
    ราคาเฉลี่ย = ยอดขายหลังส่วนลด ÷ จำนวน · ต้นทุนต่อหน่วย = ต้นทุนสินค้า + ค่าแพ็ก · ค่าธรรมเนียม = % ของยอดขาย
@@ -3431,11 +3472,11 @@ var PC_SAMPLES = {
   cafe: { m: 'unit', where: 'both', name: 'ร้านกาแฟตัวอย่าง', short: 'ร้านกาแฟ',
     inp: { volumePer: 'day', daysOpen: 26, staffCount: 2, staffSalary: 12000, ownerSalary: 15000, rent: 18000, marketing: 3000, otherFixed: 9000, cash: 30000 },
     items: [
-      { id: 'p1', name: 'อเมริกาโน่เย็น', unit: 'แก้ว', price: 60, cost: 16, qty: 22 },
-      { id: 'p2', name: 'ลาเต้เย็น', unit: 'แก้ว', price: 70, cost: 24, qty: 22 },
-      { id: 'p3', name: 'ชาไทยเย็น', unit: 'แก้ว', price: 55, cost: 19, qty: 12 },
-      { id: 'p4', name: 'โกโก้เย็น', unit: 'แก้ว', price: 55, cost: 22, qty: 14 },
-      { id: 'p5', name: 'คาราเมลมัคคิอาโต้เย็น', unit: 'แก้ว', price: 80, cost: 28, qty: 6 },
+      { id: 'p1', name: 'อเมริกาโน่เย็น', unit: 'แก้ว', price: 65, cost: 16, qty: 22 },
+      { id: 'p2', name: 'ลาเต้เย็น', unit: 'แก้ว', price: 75, cost: 24, qty: 22 },
+      { id: 'p3', name: 'ชาไทยเย็น', unit: 'แก้ว', price: 60, cost: 19, qty: 12 },
+      { id: 'p4', name: 'โกโก้เย็น', unit: 'แก้ว', price: 60, cost: 22, qty: 14 },
+      { id: 'p5', name: 'คาราเมลมัคคิอาโต้เย็น', unit: 'แก้ว', price: 85, cost: 28, qty: 6 },
       { id: 'p6', name: 'ครัวซองต์', unit: 'ชิ้น', price: 75, cost: 40, qty: 4 }
     ],
     rest: { on: false },
@@ -3536,9 +3577,22 @@ function pcSample(k) {
     try { sessionStorage.setItem('lab4', JSON.stringify(snapshot())); } catch (e) { /* ignore */ }
     if (typeof LabShop === 'undefined') return;
     LabShop.setWhere(state.where);
-    if (!state.model || state.isSample || state.link === 'local') return;
+    if (!state.model || state.isSample) return;
+    var sh0 = LabShop.get();
+    if (state.link === 'local') {
+      /* ร้านคนละแบบ: เขียนกลับเฉพาะค่าใช้จ่ายคงที่ */
+      if (!sh0 || sh0.model === state.model) { state.link = sh0 ? 'shared' : 'own'; }
+      else {
+        var mg = JSON.parse(JSON.stringify(sh0.inp));
+        FIXED_KEYS.forEach(function (k) { if (state.inp[k] !== undefined) mg[k] = state.inp[k]; });
+        var js0 = sh0.model + '|' + JSON.stringify(mg);
+        if (js0 !== lastPut && !LabShop.same(mg, sh0.inp)) { LabShop.put(sh0.model, mg, sh0.label, missingFields(mg, sh0.model).length === 0 && advValid(mg, sh0.model)); }
+        lastPut = js0;
+        return;
+      }
+    }
     var out = state.inp;
-    if (state.link === 'own' && itemsStepOk(state.pc, state.inp) && channelsStepOk(state.pc)) {
+    if (state.link === 'own' && fixedOk(state.inp) && itemsStepOk(state.pc, state.inp) && channelsStepOk(state.pc)) {
       var agg = pcAggregate(state.pc, state.inp, state.model, R0());
       if (agg) { out = agg; state.inp = agg; }
     }
@@ -3548,7 +3602,10 @@ function pcSample(k) {
     LabShop.put(state.model, out, MODELS[state.model].tile, ok);
     lastPut = js;
   }
-  /* เปิดเครื่องมือ: ใช้ตัวเลขร้านชุดกลางล่าสุด (กรอกหรือแก้ในเครื่องมืออื่น) */
+  /* เปิดเครื่องมือ: ใช้ตัวเลขร้านชุดกลางล่าสุด (กรอกหรือแก้ในเครื่องมืออื่น)
+     · ร้านแบบเดียวกัน: ใช้ชุดกลาง (จำนวนที่ขายแปลงตาม ถ้านับต่อวัน/ต่อเดือนต่างกัน) · ยอดจากรายสินค้ายังตรงกัน = ยังเขียนกลับได้ (own)
+     · ร้านคนละแบบ (เลือกแบบอื่นในตัวที่ 4 หรือเปลี่ยนแบบในเครื่องมืออื่น): ตัวที่ 4 ใช้แบบของตัวเองต่อ (local) ใช้ร่วมเฉพาะค่าใช้จ่ายคงที่ ไม่ลบข้อมูลของตัวที่ 4
+     · ระหว่างใช้ร้านตัวอย่าง ข้อมูลของผู้ใช้อยู่ใน state.mine */
   function adoptShared() {
     if (typeof LabShop === 'undefined') return;
     var sh = LabShop.get();
@@ -3556,19 +3613,31 @@ function pcSample(k) {
     if (!sh || !MODELS[sh.model]) return;
     var js = sh.model + '|' + JSON.stringify(sh.inp);
     if (js === lastPut) return;
-    var fresh = lastPut === null;
     lastPut = js;
-    if (PC_MODELS.indexOf(sh.model) < 0) return; /* ร้านแบบอื่น: ไม่ยุ่งกับตัวเลขชุดกลาง (ค่าใช้จ่ายคงที่ใช้เติมให้ตอนเลือกแบบร้าน) */
-    var copy = advNormalize(JSON.parse(JSON.stringify(sh.inp)), sh.model);
-    if (state.isSample) { state.mine = { model: sh.model, inp: copy, pc: state.mine && state.mine.model === sh.model ? state.mine.pc : emptyPc(), link: 'shared' }; return; }
-    if (state.model !== sh.model) {
-      state.model = sh.model; state.pc = carryPc(state.pc, sh.model); state.answers = {}; state.trial = null; state.editing = false;
-      if (!pcItems(state.pc).length) state.pc.items = [newItem()];
-      state.view = 'start';
+    var copy = advNormalize(JSON.parse(JSON.stringify(sh.inp)), sh.model), tgt = state.isSample ? state.mine : state;
+    if (!tgt || !tgt.model) {
+      if (PC_MODELS.indexOf(sh.model) < 0) return; /* ร้านแบบอื่น: ค่าใช้จ่ายคงที่ใช้เติมให้ตอนเลือกแบบร้าน */
+      if (state.isSample) state.mine = { model: sh.model, inp: copy, pc: emptyPc(), link: 'shared' };
+      else { state.model = sh.model; state.inp = copy; state.pc = emptyPc(); state.link = 'shared'; state.pc.items = [newItem()]; }
+      return;
     }
-    /* ตัวเลขชุดกลางเปลี่ยนจากที่อื่น: ใช้ชุดกลาง · ยอดรวมจากรายสินค้าไม่ทับเอง (ผู้ใช้เลือกเองที่หน้าผล) */
-    if (!LabShop.same(state.inp, copy)) { state.inp = copy; state.link = 'shared'; }
-    else if (!fresh) state.link = 'shared';
+    if (tgt.model !== sh.model) { syncFixed(tgt.inp, sh.inp); tgt.link = 'local'; return; }
+    convertPer(tgt.pc, tgt.inp, copy);
+    tgt.link = tgt.link === 'own' && pcDiff(tgt.pc, copy, tgt.model) === null ? 'own' : 'shared';
+    tgt.inp = copy;
+  }
+  /* ค่าใช้จ่ายคงที่ใช้ร่วมกันได้ทุกแบบร้าน (คำถามเดียวกัน) */
+  function syncFixed(dst, src) {
+    FIXED_KEYS.forEach(function (k) { if (src[k] !== undefined) dst[k] = src[k]; });
+    if (src.chMkt !== undefined) dst.chMkt = src.chMkt; else delete dst.chMkt;
+  }
+  /* นับต่อวัน ↔ ต่อเดือนต่างกัน: แปลงจำนวนของสินค้า (ไม่อ่านจำนวนผิดหน่วย) */
+  function convertPer(pc, from, to) {
+    var a = from.volumePer, b = to.volumePer;
+    if (!pc || !a || !b || a === b) return;
+    var f = b === 'month' ? (pos(from.daysOpen) || 30) : 1 / (pos(to.daysOpen) || 30);
+    (pc.items || []).forEach(function (p) { if (num(p.qty) !== null) p.qty = Math.round(num(p.qty) * f * 100) / 100; });
+    if (pc.rest && num(pc.rest.sales) !== null) pc.rest.sales = Math.round(num(pc.rest.sales) * f);
   }
   function restore(d) {
     if (!d || typeof d !== 'object') return;
@@ -3610,7 +3679,9 @@ function pcSample(k) {
   function per(v) { return fmtN(v, Math.abs(v) < 100 ? 1 : 0); }
   function pctTxt(v) { return fmtN(v, 0) + '%'; }
   var qmOpen = {};
-  function qmBtn(key, label) { return '<button type="button" class="qm" data-act="qm" data-q="' + key + '" aria-expanded="' + !!qmOpen[key] + '" aria-label="' + esc(String(label).replace(/<[^>]*>/g, '')) + '"><i>' + ICON.q + '</i></button>'; }
+  /* ข้อความล้วนจากข้อความหรือ HTML (ใช้กับ aria-label ไม่ให้ escape ซ้ำ) */
+  function plain(s) { return String(s).replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&(amp|lt|gt|quot|#39);/g, function (m, k) { return { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'" }[k]; }).replace(/\u00a0/g, ' '); }
+  function qmBtn(key, label) { return '<button type="button" class="qm" data-act="qm" data-q="' + key + '" aria-expanded="' + !!qmOpen[key] + '" aria-label="' + esc(plain(label)) + '"><i>' + ICON.q + '</i></button>'; }
   function qmT(key, html, tag) { tag = tag || 'p'; return html ? '<' + tag + ' class="qm-tx" data-qmt="' + key + '"' + (qmOpen[key] ? '' : ' hidden') + '>' + html + '</' + tag + '>' : ''; }
   function hq(tag, title, key, help, cls) {
     var t = '<' + tag + (cls ? ' class="' + cls + '"' : '') + '>' + title + '</' + tag + '>';
@@ -3630,12 +3701,19 @@ function pcSample(k) {
     srT = setTimeout(function () { var el = document.getElementById('sr-live'); if (el) el.textContent = txt; }, 700);
   }
   /* คำที่ไม่ควรถูกตัดกลางคำ · เว้นวรรคระหว่างคำไทยกับชื่อภาษาอังกฤษ (เช่น ผ่าน LINE MAN) */
-  var NW = ['ยอดขาย', 'เงินที่เหลือ', 'ต่อเดือน', 'ช่องทาง', 'ค่าธรรมเนียม', 'ค่าแพ็ก', 'ค่าส่ง', 'ต้นทุน', 'ส่วนลด', 'หน้าร้าน', 'ออร์เดอร์', 'สินค้า', 'ราคาปกติ', 'เหลือจริง', 'ขาดทุน', 'เดือนละ', 'ชิ้นละ'];
+  var NW = ['ยอดขาย', 'เงินที่เหลือ', 'ต่อเดือน', 'ช่องทาง', 'ค่าธรรมเนียม', 'ค่าแพ็ก', 'ค่าส่ง', 'ค่าใช้จ่าย', 'ค่าเดินทาง', 'ต้นทุน', 'ส่วนลด', 'หน้าร้าน', 'ออร์เดอร์', 'สินค้า', 'บริการ', 'ราคาปกติ', 'เหลือจริง', 'ขาดทุน', 'เดือนละ', 'ชิ้นละ', 'ต่ำกว่า', 'สูงกว่า', 'เท่ากัน'];
   function tw(str) {
-    var h = esc(String(str).replace(/([A-Za-z)])([ก-๙])/g, '$1 $2').replace(/([ก-๙])([A-Za-z(])/g, '$1 $2'));
+    var h = esc(String(str).replace(/([A-Za-z)])([ก-๙])/g, '$1 $2').replace(/([ก-๙])([A-Za-z(])/g, '$1 $2').replace(/ บาท/g, '\u00a0บาท'));
+    /* ชื่อภาษาอังกฤษหลายคำ (เช่น LINE MAN, TikTok Shop) ไม่ขึ้นบรรทัดใหม่กลางชื่อ */
+    h = h.replace(/[A-Za-z][A-Za-z0-9]*(?: [A-Za-z0-9][A-Za-z0-9]*)+/g, function (m) { return m.length <= 18 ? '<span class="nw">' + m + '</span>' : m; });
     NW.forEach(function (w) { h = h.split(w).join('<span class="nw">' + w + '</span>'); });
     return h;
   }
+  /* ต่อคำไทยกับชื่อ: เว้นวรรคเฉพาะข้างที่เป็นภาษาอังกฤษหรือตัวเลข (ผ่านหน้าร้าน · ผ่าน LINE MAN) */
+  function thj(a, b) { a = String(a); b = String(b); return a + (/[A-Za-z0-9)%]$/.test(a) || /^[A-Za-z0-9(]/.test(b) ? ' ' : '') + b; }
+  /* คำของร้านขายบริการ */
+  function SW() { return state.model === 'service' ? 'บริการ' : 'สินค้า'; }
+  function packWord() { return state.model === 'service' ? 'ค่าเดินทาง' : 'ค่าแพ็กและค่าส่ง'; }
   function U4(p) { return (p && p.unit) || U(state.inp, state.model); }
   function perW() { return state.inp.volumePer === 'month' ? 'เดือน' : 'วัน'; }
   function newId(pfx) { state.seq = (state.seq || 0) + 1; return pfx + Date.now().toString(36).slice(-4) + state.seq; }
@@ -3654,7 +3732,7 @@ function pcSample(k) {
     if (st.v === 'items') return itemsStepOk(state.pc, state.inp);
     if (st.v === 'chpick') return chList(state.pc).length > 0 && chList(state.pc).every(function (c) { return c.kind !== 'other' || !!String(c.name || '').trim(); });
     if (st.v === 'share') return sharesOk(state.pc);
-    if (st.v === 'ch') { var c = chList(state.pc)[st.k]; return !!c && !chMissing(c, state.pc); }
+    if (st.v === 'ch') { var c = chList(state.pc)[st.k]; return !!c && !chMissing(c, state.pc) && (st.k < chList(state.pc).length - 1 || !noChannelItem()); }
     if (st.v === 'fixed') return fixedStepOk(FIXED_STEPS[st.k]);
     return true;
   }
@@ -3698,6 +3776,8 @@ function pcSample(k) {
     var out = bar(hubLink(), 'กำไรรายสินค้าและรายช่องทาง', 'Business Lab') + '<main class="screen"><div class="wrap">' +
       '<section class="st4">' + hq('h1', 'สินค้าไหน ช่องทางไหน เหลือเงินจริง?', 'st',
         'ใส่สินค้าที่ขายและช่องทางที่ขาย แล้วดูว่าแต่ละตัวเหลือเงินให้ร้านเดือนละกี่บาท หลังหักต้นทุน ค่าธรรมเนียม ค่าแพ็ก และส่วนลด · ใช้ตัวเลขร้านชุดเดียวกับเครื่องมืออื่นใน Business Lab') + '</section>';
+    if (!state.where && !state.model) out += '<div class="samp4 two4"><span class="wh-l">หรือลองกับร้านตัวอย่างก่อน</span>' + ['cafe', 'online'].map(function (k) {
+      return '<button class="btn ghost sm" data-act="sample1" data-k="' + k + '">' + esc(PC_SAMPLES[k].short) + '</button>'; }).join('') + '</div>';
     out += whereHtml();
     if (state.where) {
       out += shopLine();
@@ -3723,7 +3803,7 @@ function pcSample(k) {
     else if (a[0] === 'r') { state.pc.rest = state.pc.rest || {}; state.pc.rest[a[1]] = v; }
     else if (a[0] === 'inp') {
       /* งบการตลาดในตัวเลขร้านรวมค่าใช้จ่ายของช่องทางไว้แล้ว (chMkt) · ช่องนี้แสดงและแก้เฉพาะส่วนของร้าน */
-      if (a[1] === 'marketing') state.inp.marketing = v === null ? null : v + Math.min(n0(state.inp.chMkt), Infinity);
+      if (a[1] === 'marketing') state.inp.marketing = v === null ? null : v + n0(state.inp.chMkt);
       else state.inp[a[1]] = v;
     }
     else if (a[0] === 'pt') { var p2 = pcItems(state.pc)[+a[1]]; if (p2 && p2.parts && p2.parts[+a[2]]) { p2.parts[+a[2]][a[3]] = v; syncParts(p2); } }
@@ -3767,7 +3847,7 @@ function pcSample(k) {
       ph: typeof sample === 'number' ? 'เช่น ' + (sample >= 1000 ? Math.round(sample).toLocaleString('th-TH') : sample) : '', hidden: f.show && !f.show(inp, m) });
   }
   function qHead(q, p, key) {
-    q = esc(qmark(q));
+    q = tw(qmark(q));
     if (!p) return '<div class="q-head"><h1>' + q + '</h1></div>';
     return '<div class="q-head"><div class="hq"><h1>' + q + '</h1>' + qmBtn('q-' + key, q) + '</div>' + qmT('q-' + key, esc(p)) + '</div>';
   }
@@ -3798,14 +3878,16 @@ function pcSample(k) {
     var mult = perMult(state.inp), rev = 0, left = 0;
     if (v === 'items' || v === 'chpick' || !channelsStepOk(state.pc)) {
       rows.forEach(function (p) { var u = n0(p.qty) * mult; rev += n0(p.price) * u; left += (n0(p.price) - n0(p.cost)) * u; });
+      var rs = state.pc.rest;
+      if (rs && rs.on === true && pos(rs.sales) !== null) { var sm = n0(rs.sales) * mult; rev += sm; left += sm * (1 - Math.min(100, n0(rs.costPct)) / 100); }
       if (v === 'ch') {
         var c = chList(state.pc)[state.k];
         if (c && !chMissing(c, state.pc)) {
           var mk = mkFactor(c), d = 1 - n0(c.disc) / 100, fr = feeRate(c), pk = packPer(c), r2 = 0, l2 = 0;
-          rows.forEach(function (p) { if (chOff(c, p.id)) return; var net = n0(p.price) * mk * d; r2 += net; l2 += net - net * fr - n0(p.cost) - pk; });
+          rows.forEach(function (p) { if (chOff(c, p.id)) return; var q = n0(p.qty), net = n0(p.price) * mk * d; r2 += net * q; l2 += (net - net * fr - n0(p.cost) - pk) * q; });
           var p100 = r2 > 0 ? l2 / r2 * 100 : 0;
-          return '<section class="panel strip4" id="strip"><div class="rs-top"><span class="rs-k">ขาย 100 บาทผ่าน ' + esc(chName(c)) + ' เหลือ</span><span class="rs-v">' + (p100 < 0 ? '−' : '') + anim('st-ch', p100) + '<small>บาท</small></span></div>' +
-            '<div class="rs-lines"><div class="rs-line"><span>หลังหักต้นทุนสินค้า ค่าธรรมเนียม ค่าแพ็ก และส่วนลด</span></div></div></section>';
+          return '<section class="panel strip4" id="strip"><div class="rs-top"><span class="rs-k">' + tw(thj('ขาย 100 บาทผ่าน', chName(c)) + ' เหลือ') + '</span><span class="rs-v">' + (p100 < 0 ? '−' : '') + anim('st-ch', p100) + '<small>บาท</small></span></div>' +
+            '<div class="rs-lines"><div class="rs-line"><span>หลังหักต้นทุน' + SW() + ' ค่าธรรมเนียม' + (state.model === 'service' ? '' : ' ค่าแพ็ก') + ' และส่วนลด</span></div></div></section>';
         }
       }
       return '<section class="panel strip4" id="strip"><div class="rs-top"><span class="rs-k">ยอดขายต่อเดือน</span><span class="rs-v">' + anim('st-rev', rev) + '<small>บาท</small></span></div>' +
@@ -3828,15 +3910,15 @@ function pcSample(k) {
     var costHelp = state.model === 'resell' ? 'ราคาที่ซื้อมาต่อชิ้น รวมค่าส่งเข้าร้าน ยังไม่รวมค่าแพ็กของช่องทาง' : state.model === 'service' ? 'ของที่ใช้ และค่ามือหรือค่าคอมที่จ่ายช่างต่อครั้ง ยังไม่รวมเงินเดือนประจำ' : 'ค่าวัตถุดิบและบรรจุภัณฑ์ที่ใช้ทำ 1 ' + u + ' เช่น แก้ว ฝา หลอด ยังไม่รวมค่าแพ็กส่งของ';
     var parts = '';
     if (hasParts) {
-      parts = '<div class="parts" role="group" aria-label="ต้นทุนทีละอย่างของ' + esc(p.name || 'สินค้านี้') + '">' + p.parts.map(function (x, k) {
+      parts = '<div class="parts" role="group" aria-label="ต้นทุนทีละอย่างของ' + esc(p.name || SW() + 'นี้') + '">' + p.parts.map(function (x, k) {
         return '<div class="part"><input class="pn" data-path="pt.' + i + '.' + k + '.n" data-t="text" maxlength="24" placeholder="เช่น นม" value="' + esc(x.n || '') + '" aria-label="ชื่อรายการที่ ' + (k + 1) + '">' +
           '<div class="inbox mini"><input data-path="pt.' + i + '.' + k + '.v" data-t="dec" inputmode="decimal" placeholder="0" value="' + esc(fmtIn(x.v, 'dec')) + '" aria-label="บาท รายการที่ ' + (k + 1) + '"><span class="suf">บาท</span></div>' +
           '<button type="button" class="ib sm" data-act="part-del" data-i="' + i + '" data-k="' + k + '" aria-label="ลบรายการที่ ' + (k + 1) + '">' + ICON.x + '</button></div>';
       }).join('') + '<div class="part-f"><button type="button" class="lnk" data-act="part-add" data-i="' + i + '">+ เพิ่มรายการ</button><span>รวม <b class="num">' + fmtN(n0(p.cost), 2) + '</b> บาท</span></div></div>';
     }
-    return '<section class="pi" data-item="' + i + '"><div class="pi-h"><span class="pi-n">สินค้าที่ ' + (i + 1) + '</span>' +
-      (pcItems(state.pc).length > 1 ? '<button type="button" class="ib sm" data-act="item-del" data-i="' + i + '" aria-label="ลบสินค้าที่ ' + (i + 1) + (p.name ? ' ' + esc(p.name) : '') + '">' + ICON.x + '</button>' : '') + '</div>' +
-      fld('i.' + i + '.name', 'ชื่อสินค้า', { t: 'text', ph: state.model === 'service' ? 'เช่น ตัดผมชาย' : state.model === 'resell' ? 'เช่น เสื้อยืด' : 'เช่น ลาเต้เย็น' }) + unitChips +
+    return '<section class="pi" data-item="' + i + '"><div class="pi-h"><span class="pi-n">' + SW() + 'ที่ ' + (i + 1) + '</span>' +
+      (pcItems(state.pc).length > 1 ? '<button type="button" class="ib sm" data-act="item-del" data-i="' + i + '" aria-label="ลบ' + SW() + 'ที่ ' + (i + 1) + (p.name ? ' ' + esc(p.name) : '') + '">' + ICON.x + '</button>' : '') + '</div>' +
+      fld('i.' + i + '.name', 'ชื่อ' + SW(), { t: 'text', ph: state.model === 'service' ? 'เช่น ตัดผมชาย' : state.model === 'resell' ? 'เช่น เสื้อยืด' : 'เช่น ลาเต้เย็น' }) + unitChips +
       '<div class="two">' + fld('i.' + i + '.price', 'ราคาปกติต่อ' + u, { t: 'money', help: 'ราคาที่ขายหน้าร้านหรือราคาที่ตั้งไว้ ก่อนส่วนลด' }) +
       fld('i.' + i + '.cost', 'ต้นทุนต่อ' + u, { t: 'dec', help: costHelp, readonly: hasParts }) + '</div>' +
       (hasParts ? parts : '<button type="button" class="lnk sm4" data-act="part-open" data-i="' + i + '">แยกต้นทุนทีละอย่าง</button>') +
@@ -3844,16 +3926,16 @@ function pcSample(k) {
   }
   function viewItems() {
     var items = pcItems(state.pc), pv = state.inp.volumePer || MODELS[state.model].defPer || 'day', rest = state.pc.rest;
-    var out = stepBar('สินค้าที่ขาย') + '<main class="screen"><div class="wrap">' + progHtml() + liveStrip() +
-      qHead(state.model === 'service' ? 'บริการที่ร้านขาย' : 'สินค้าที่ร้านขาย', 'ใส่เฉพาะตัวหลัก 3–8 ตัวก่อนก็ได้ ที่เหลือรวมเป็น “สินค้าอื่น ๆ” ด้านล่าง · ใส่ได้สูงสุด ' + PC_MAX_ITEMS + ' ตัว', 'items') +
+    var out = stepBar(SW() + 'ที่ขาย') + '<main class="screen"><div class="wrap">' + progHtml() + liveStrip() +
+      qHead(SW() + 'ที่ร้านขาย', 'ใส่เฉพาะตัวหลัก 3–8 ตัวก่อนก็ได้ ที่เหลือรวมเป็น “' + SW() + 'อื่น ๆ” ด้านล่าง · ใส่ได้สูงสุด ' + PC_MAX_ITEMS + ' ตัว', 'items') +
       '<div class="qfields">' +
       '<div class="field" data-need="inp.volumePer"><span class="lab" id="per-l">นับยอดขายต่อวันหรือต่อเดือน?</span><div class="seg wide" role="group" aria-labelledby="per-l">' +
       '<button type="button" data-act="per" data-v="day" aria-pressed="' + (pv === 'day') + '">ต่อวัน</button><button type="button" data-act="per" data-v="month" aria-pressed="' + (pv === 'month') + '">ต่อเดือน</button></div></div>' +
       (pv === 'day' ? fld('inp.daysOpen', 'เปิดขายเดือนละกี่วัน', { t: 'int', suf: 'วัน', ph: 'เช่น 26' }) : '') +
       items.map(itemCard).join('') +
-      (items.length < PC_MAX_ITEMS ? '<button type="button" class="btn ghost block add4" data-act="item-add">' + ICON.plus + 'เพิ่มสินค้า</button>' : '<p class="fine4">ใส่ได้สูงสุด ' + PC_MAX_ITEMS + ' ตัว ที่เหลือรวมเป็นสินค้าอื่น ๆ</p>') +
-      segF('r.on', 'นอกจากนี้ มีสินค้าอื่นที่ขายอีกไหม', [[false, 'ไม่มี ขายแค่นี้'], [true, 'มี รวมเป็นสินค้าอื่น ๆ']].map(function (o) { return [String(o[0]), o[1]]; }), '') +
-      (rest && rest.on === true ? '<div class="two">' + fld('r.sales', 'ยอดขายของสินค้าอื่น ๆ รวมกันต่อ' + perW(), { t: 'money', suf: 'บาท/' + perW() }) + fld('r.costPct', 'ต้นทุนประมาณกี่ % ของราคา', { t: 'pct', suf: '%' }) + '</div>' : '') +
+      (items.length < PC_MAX_ITEMS ? '<button type="button" class="btn ghost block add4" data-act="item-add">' + ICON.plus + 'เพิ่ม' + SW() + '</button>' : '<p class="fine4">ใส่ได้สูงสุด ' + PC_MAX_ITEMS + ' ตัว ที่เหลือรวมเป็น' + SW() + 'อื่น ๆ</p>') +
+      segF('r.on', 'นอกจากนี้ มี' + SW() + 'อื่นที่ขายอีกไหม', [[false, 'ไม่มี ขายแค่นี้'], [true, 'มี รวมเป็น' + SW() + 'อื่น ๆ']].map(function (o) { return [String(o[0]), o[1]]; }), '') +
+      (rest && rest.on === true ? '<div class="two">' + fld('r.sales', 'ยอดขายของ' + SW() + 'อื่น ๆ รวมกันต่อ' + perW(), { t: 'money', suf: 'บาท/' + perW() }) + fld('r.costPct', 'ต้นทุนประมาณกี่ % ของราคา', { t: 'pct', suf: '%' }) + '</div>' : '') +
       '</div></div></main>' + footStep();
     return out;
   }
@@ -3880,35 +3962,47 @@ function pcSample(k) {
     return stepBar('สัดส่วนการขาย') + '<main class="screen"><div class="wrap">' + progHtml() + liveStrip() +
       qHead('ขายผ่านแต่ละช่องทางประมาณกี่ %', 'คิดจากจำนวนที่ขาย (ไม่ใช่ยอดเงิน) รวมกันต้องได้ 100% · ตัวเลขประมาณก็ได้ ดูได้จากใบสรุปยอดของแต่ละช่องทาง', 'share') +
       '<div class="qfields">' + chs.map(function (c, j) { return fld('c.' + j + '.share', chName(c), { t: 'pct', suf: '% ของจำนวนที่ขาย' }); }).join('') +
-      '<div class="tot4" id="tot4" role="status"><span>รวม</span><b class="num">' + fmtN(tot, 1) + '%</b>' + (Math.abs(tot - 100) < 0.51 ? '<i>' + ICON.ok + '</i>' : '<small>' + (tot < 100 ? 'ขาดอีก ' + fmtN(100 - tot, 1) + '%' : 'เกินมา ' + fmtN(tot - 100, 1) + '%') + '</small>') + '</div>' +
+      '<div id="tot4w" class="field" data-need="share-tot"><div class="tot4" role="status"><span>รวม</span><b class="num">' + fmtN(tot, 1) + '%</b>' + (Math.abs(tot - 100) < 0.51 ? '<i>' + ICON.ok + '</i>' : '<small>' + (tot < 100 ? 'ขาดอีก ' + fmtN(100 - tot, 1) + '%' : 'เกินมา ' + fmtN(tot - 100, 1) + '%') + '</small>') + '</div>' + shareFillBtn() + '</div>' +
       '</div></div></main>' + footStep();
+  }
+  /* ช่องทางเดียวที่ยังไม่ได้ใส่ % และที่เหลือยังไม่ครบ 100: ปุ่มใส่ส่วนที่เหลือให้ */
+  function shareFillBtn() {
+    var chs = chList(state.pc), empty = chs.map(function (c, j) { return num(c.share) === null ? j : -1; }).filter(function (j) { return j >= 0; }), rest = 100 - shareSum(state.pc);
+    if (empty.length !== 1 || rest <= 0.05) return '';
+    return '<button type="button" class="sbtn light" data-act="share-fill" data-j="' + empty[0] + '">ใส่ ' + fmtN(rest, 1) + '% ให้ ' + tw(chName(chs[empty[0]])) + '</button>';
   }
   function viewCh() {
     var j = state.k, c = chList(state.pc)[j];
     if (!c) { state.view = 'chpick'; return viewChpick(); }
     var nm = chName(c), base = 'c.' + j + '.', shop = chIsShop(c), items = pcItems(state.pc), u = U(state.inp, state.model);
-    var f = '';
+    var f = '', svc = state.model === 'service', trip = svc && c.kind === 'onsite';
     if (!shop) {
-      f += segF(base + 'priceMode', 'ราคาบน ' + nm + ' เทียบกับราคาปกติ', [['same', 'เท่ากัน'], ['up', 'สูงกว่า'], ['down', 'ต่ำกว่า']], chHint(c, 'up'));
+      f += segF(base + 'priceMode', thj('ราคาบน', nm) + ' เทียบกับราคาปกติเป็นอย่างไร?', [['same', 'เท่ากัน'], ['up', 'สูงกว่า'], ['down', 'ต่ำกว่า']], chHint(c, 'up'));
       if (c.priceMode === 'up' || c.priceMode === 'down') f += fld(base + 'markup', c.priceMode === 'up' ? 'สูงกว่าราคาปกติกี่ %' : 'ต่ำกว่าราคาปกติกี่ %', { t: 'pct', suf: '%' });
     }
-    f += fld(base + 'fee', 'ค่าธรรมเนียมที่ ' + nm + ' หักไปกี่ % ของราคาขาย', { t: 'pct', suf: '%', chips: [['ไม่มี', 0]], help: chHint(c, 'fee') });
+    f += fld(base + 'fee', shop ? 'รับเงินที่หน้าร้านเสียค่าธรรมเนียมกี่ % (เช่น รูดบัตร)?' : thj('ค่าธรรมเนียมที่', nm) + ' หักไปกี่ % ของราคาขาย', { t: 'pct', suf: '%', chips: [['ไม่มี', 0]], help: chHint(c, 'fee') });
     if (n0(c.fee) > 0) f += segF(base + 'vat', 'อัตรานี้รวม VAT แล้วหรือยัง', [['in', 'รวม VAT แล้ว'], ['ex', 'ยังไม่รวม (คิดเพิ่ม 7%)']], 'แอปส่งอาหารมักบอก GP เป็นตัวเลขที่ยังไม่รวม VAT เช่น GP 30% + VAT = ร้านเสีย 32.1% ของราคา');
-    f += fld(base + 'disc', 'ส่วนลดที่ร้านออกเองบน ' + nm + ' โดยเฉลี่ยกี่ %', { t: 'pct', suf: '% ของราคา', chips: [['ไม่มี', 0]], help: 'เฉพาะส่วนลดที่ร้านจ่ายเอง เช่น โค้ดของร้าน ส่วนลดที่ร้านร่วมออกกับแอป · ไม่นับส่วนลดที่แอปออกให้' });
-    f += fld(base + 'perOrder', 'ค่าแพ็กและค่าส่งที่ร้านจ่ายต่อออร์เดอร์', { t: 'dec', suf: 'บาท/ออร์เดอร์', chips: [['ไม่มี', 0]], help: chHint(c, 'pack') });
-    if (n0(c.perOrder) > 0) f += fld(base + 'ipo', 'ออร์เดอร์หนึ่งมีเฉลี่ยกี่' + u, { t: 'dec', suf: u, chips: [['1 ' + u, 1]] });
-    f += fld(base + 'monthly', 'ค่าใช้จ่ายรายเดือนของช่องทางนี้', { t: 'money', suf: 'บาท/เดือน', chips: [['ไม่มี', 0]],
+    f += fld(base + 'disc', thj('ส่วนลดที่ร้านออกเองบน', nm) + ' โดยเฉลี่ยกี่ %', { t: 'pct', suf: '% ของราคา', chips: [['ไม่มี', 0]], help: 'เฉพาะส่วนลดที่ร้านจ่ายเอง เช่น โค้ดของร้าน ส่วนลดที่ร้านร่วมออกกับแอป · ไม่นับส่วนลดที่แอปออกให้' });
+    if (trip) f += fld(base + 'perOrder', 'ร้านจ่ายค่าเดินทางต่อครั้งเท่าไร?', { t: 'dec', suf: 'บาท/ครั้ง', chips: [['ไม่มี', 0]], help: 'เช่น ค่าน้ำมัน ค่ารถ ที่ร้านจ่ายเองทุกครั้งที่ไปบริการนอกร้าน' });
+    else if (!svc) {
+      f += fld(base + 'perOrder', 'ร้านจ่ายค่าแพ็กและค่าส่งต่อออร์เดอร์เท่าไร?', { t: 'dec', suf: 'บาท/ออร์เดอร์', chips: [['ไม่มี', 0]], help: chHint(c, 'pack') });
+      if (n0(c.perOrder) > 0) f += fld(base + 'ipo', 'ออร์เดอร์หนึ่งมีเฉลี่ยกี่' + u, { t: 'dec', suf: u, chips: [['1 ' + u, 1]] });
+    }
+    f += fld(base + 'monthly', 'ค่าใช้จ่ายรายเดือนของช่องทางนี้เท่าไร?', { t: 'money', suf: 'บาท/เดือน', chips: [['ไม่มี', 0]],
       help: 'ค่าใช้จ่ายที่จ่ายเพราะช่องทางนี้เท่านั้น เช่น ค่าโฆษณาในแอป ค่าบูธ ค่าคนดูแลช่องทาง' + (state.link === 'shared' && n0(state.inp.marketing) > 0 ? ' · ถ้านับรวมไว้ในงบการตลาดของร้าน (' + fmtN(n0(state.inp.marketing)) + ' บาท) แล้ว กด “ไม่มี” เพื่อไม่ให้นับซ้ำ' : '') });
-    if (chMany(state.pc) && items.length > 1) {
-      f += '<div class="field" data-need="' + base + 'off"><div class="hq"><span class="lab" id="off-l">สินค้าที่ขายผ่าน ' + esc(nm) + '</span>' + qmBtn('h-off', 'สินค้าที่ขายผ่านช่องทางนี้') + '</div>' +
-        qmT('h-off', 'แตะเพื่อปิดสินค้าที่ไม่ได้ขายช่องทางนี้ จำนวนที่ขายของสินค้านั้นจะแบ่งไปช่องทางอื่นตามสัดส่วน') +
-        '<div class="chips" role="group" aria-labelledby="off-l">' + items.map(function (p) {
+    /* สินค้าที่ไม่ได้ขายผ่านช่องทางนี้ · ขึ้นเสมอถ้ามีสินค้าที่เอาออกไว้ (ไม่ให้ค้างเมื่อเหลือสินค้าเดียว) */
+    var anyOff = items.some(function (p) { return c.off && c.off[p.id]; });
+    if (chMany(state.pc) && (items.length > 1 || anyOff)) {
+      var ol = SW() + 'ไหนไม่ได้ขายผ่าน' + (/^[A-Za-z0-9]/.test(nm) ? ' ' : '') + nm + '? แตะเพื่อเอาออก';
+      f += '<div class="field" data-need="' + base + 'off"><div class="hq"><span class="lab" id="off-l">' + tw(ol) + '</span>' + qmBtn('h-off', ol) + '</div>' +
+        qmT('h-off', 'จำนวนที่ขายของ' + SW() + 'ที่เอาออก จะแบ่งไปช่องทางอื่นตามสัดส่วน · แตะอีกครั้งเพื่อใส่กลับ') +
+        '<div class="chips offc" role="group" aria-labelledby="off-l">' + items.map(function (p) {
           var on = !(c.off && c.off[p.id]);
-          return '<button type="button" class="chip sm" data-act="ch-off" data-j="' + j + '" data-id="' + esc(p.id) + '" aria-pressed="' + on + '">' + esc(p.name || 'ยังไม่มีชื่อ') + '</button>';
+          return '<button type="button" class="chip sm" data-act="ch-off" data-j="' + j + '" data-id="' + esc(p.id) + '" aria-pressed="' + on + '"><span aria-hidden="true">' + (on ? '✓ ' : '✕ ') + '</span>' + esc(p.name || 'ยังไม่มีชื่อ') + (on ? '' : '<span class="sr"> ไม่ได้ขายผ่านช่องทางนี้</span>') + '</button>';
         }).join('') + '</div></div>';
     }
     return stepBar(nm) + '<main class="screen"><div class="wrap">' + progHtml() + liveStrip() +
-      qHead('ราคาและค่าใช้จ่ายของ ' + nm, 'ดูได้จากใบสรุปยอดหรือหน้าร้านค้าของช่องทางนั้น · ตัวเลขประมาณก็ได้', 'ch') +
+      qHead(thj('ราคาและค่าใช้จ่ายของ', nm), 'ดูได้จากใบสรุปยอดหรือหน้าร้านค้าของช่องทางนั้น · ตัวเลขประมาณก็ได้', 'ch') +
       '<div class="qfields">' + f + '</div></div></main>' + footStep();
   }
   function viewFixed() {
@@ -3922,14 +4016,14 @@ function pcSample(k) {
   var LVP = { high: ['high', 'ร้ายแรง'], mid: ['mid', 'ปานกลาง'], watch: ['watch', 'ควรเฝ้าระวัง'], note: ['note', 'ข้อสังเกต'] };
   function walkPanel(R) {
     var neg = R.profit < -0.5;
-    return '<section class="panel res4"><div class="hq"><span class="eyebrow">' + (neg ? 'ขาดทุนต่อเดือน' : 'กำไรต่อเดือน') + '</span>' + qmBtn('walk', 'กำไรต่อเดือนคิดอย่างไร') + '</div>' +
+    return '<section class="panel res4"><div class="hq"><h1 class="eyebrow">' + (neg ? 'ขาดทุนต่อเดือน' : 'กำไรต่อเดือน') + '</h1>' + qmBtn('walk', 'กำไรต่อเดือนคิดอย่างไร') + '</div>' +
       '<div class="bignum">' + (neg ? '−' : '') + anim('profit', R.profit) + '<span class="u">บาท</span></div>' +
       '<div class="walk"><div><span>ยอดขาย</span><b>' + fmtN(R.rev) + '</b></div>' +
-      '<div class="k"><span>เงินที่เหลือจากทุกสินค้า</span><b>' + moneyTxt(R.left) + '</b></div>' +
+      '<div class="k"><span>เงินที่เหลือจากทุก' + SW() + '</span><b>' + moneyTxt(R.left) + '</b></div>' +
       (R.chMonthly > 0.5 ? '<div><span>ค่าใช้จ่ายของช่องทาง</span><b>−' + fmtN(R.chMonthly) + '</b></div>' : '') +
       '<div><span>ค่าใช้จ่ายคงที่ของร้าน</span><b>−' + fmtN(R.fixed) + '</b></div>' +
       (R.dep > 0.5 ? '<div><span>กันไว้ซื้ออุปกรณ์ใหม่</span><b>−' + fmtN(R.dep) + '</b></div>' : '') + '</div>' +
-      qmT('walk', 'เงินที่เหลือ = ราคาที่ลูกค้าจ่าย หักส่วนลดที่ร้านออก ต้นทุนสินค้า ค่าธรรมเนียม ค่าแพ็กและค่าส่ง · เงินก้อนนี้ใช้จ่ายค่าเช่า เงินเดือน และค่าใช้จ่ายคงที่อื่นของร้าน ซึ่งไม่ได้หารลงแต่ละสินค้า เพราะจ่ายเท่าเดิมไม่ว่าจะขายสินค้าไหน' +
+      qmT('walk', 'เงินที่เหลือ = ราคาที่ลูกค้าจ่าย หักส่วนลดที่ร้านออก ต้นทุน' + SW() + ' ค่าธรรมเนียม' + (state.model === 'service' ? '' : ' ค่าแพ็กและค่าส่ง') + ' · เงินก้อนนี้ใช้จ่ายค่าเช่า เงินเดือน และค่าใช้จ่ายคงที่อื่นของร้าน ซึ่งไม่ได้หารลงแต่ละ' + SW() + ' เพราะจ่ายเท่าเดิมไม่ว่าจะขาย' + SW() + 'ไหน · ยอดขายในเครื่องมือนี้คือตัวเลขเดียวกับ “รายได้ต่อเดือน” ในเช็กตัวเลขร้าน' +
         (R.disc > 0.5 ? ' · ส่วนลดที่ร้านออกรวมเดือนละ <b>' + fmtN(R.disc) + '</b> บาท (หักออกจากยอดขายแล้ว)' : '')) + '</section>';
   }
   function reconHtml(R) {
@@ -3939,13 +4033,13 @@ function pcSample(k) {
     return '<section class="card recon"><div class="hq"><h3>ตัวเลขร้านที่กรอกไว้ในเครื่องมืออื่น ไม่ตรงกับยอดจากรายสินค้า</h3>' + qmBtn('recon', 'ทำไมไม่ตรงกัน') + '</div>' +
       qmT('recon', 'ตัวเลขร้านเดิมใช้ราคาและต้นทุนเฉลี่ยของทั้งร้าน ส่วนตรงนี้คิดทีละสินค้าและทีละช่องทาง · ค่าใช้จ่ายคงที่ใช้ชุดเดียวกันอยู่แล้ว · ถ้าเลือกใช้ยอดจากรายสินค้า เครื่องมืออื่นใน Business Lab จะเปลี่ยนตาม') +
       '<div class="rc4"><span></span><b>รายสินค้า</b><b>ตัวเลขร้าน</b>' +
-      '<span>ยอดขายต่อเดือน</span><i class="num">' + fmtN(D.rev4) + '</i><i class="num">' + fmtN(D.rev1) + '</i>' +
+      '<span>ยอดขาย (รายได้) ต่อเดือน</span><i class="num">' + fmtN(D.rev4) + '</i><i class="num">' + fmtN(D.rev1) + '</i>' +
       '<span>กำไรต่อเดือน</span><i class="num">' + moneyTxt(D.profit4) + '</i><i class="num">' + moneyTxt(D.profit1) + '</i></div>' +
       '<button class="sbtn" data-act="apply-agg">ใช้ยอดจากรายสินค้าเป็นตัวเลขร้าน</button></section>';
   }
   function tabsHtml(R) {
     if (!R.many) return '';
-    var T = [['p', 'รายสินค้า'], ['c', 'รายช่องทาง'], ['g', 'ทุกคู่']];
+    var T = [['p', 'ราย' + SW()], ['c', 'รายช่องทาง'], ['g', 'ทุกคู่']];
     return '<div class="tabs4" role="tablist" aria-label="ดูผลแบบ">' + T.map(function (t) {
       var on = state.tab === t[0];
       return '<button type="button" role="tab" id="tab-' + t[0] + '" aria-controls="tp" aria-selected="' + on + '" tabindex="' + (on ? 0 : -1) + '" data-act="tab" data-v="' + t[0] + '">' + t[1] + '</button>';
@@ -3955,11 +4049,12 @@ function pcSample(k) {
   function prodList(R) {
     var finds = {};
     R.finds.forEach(function (f) { if (f.kind === 'gap') finds[f.prod] = f; });
-    return '<div class="rank4">' + R.rank.map(function (p, n) {
+    return '<p class="fine4 cap4">เรียงตามเงินที่เหลือต่อเดือน</p><div class="rank4">' + R.rank.map(function (p, n) {
       var gap = finds[p.i];
-      return '<button type="button" class="rk4" data-act="prod" data-i="' + p.i + '" data-rk="' + esc(p.id) + '"><span class="top"><span class="nm"><small class="num">' + (n + 1) + '</small>' + tw(p.name) + '</span><span class="v">' + money(p.left) + '<small>/เดือน</small></span></span>' +
+      return '<button type="button" class="rk4" data-act="prod" data-i="' + p.i + '" data-rk="' + esc(p.id) + '"><span class="top"><span class="nm"><small class="num">' + (n + 1) + '</small>' + tw(p.name) + '</span><span class="v"><small>เหลือ </small>' + money(p.left) + '<small>/เดือน</small></span></span>' +
         duo('ยอดขาย', p.revShare, false) + duo('เงินที่เหลือ', p.leftShare, true) +
-        '<span class="sub">' + (p.rest ? 'รวมหลายสินค้า' : U4(p) + 'ละ ' + moneyTxt(p.leftPer, Math.abs(p.leftPer) < 100 ? 1 : 0) + ' บาท') + (gap ? ' · <b>▼ ส่วนแบ่งเงินที่เหลือน้อยกว่าส่วนแบ่งยอดขาย</b>' : '') + '</span>' + ICON.chev + '</button>';
+        '<span class="sub">' + (p.rest ? 'รวมหลาย' + SW() : 'เหลือ' + esc(U4(p)) + 'ละ ' + moneyTxt(p.leftPer, Math.abs(p.leftPer) < 100 ? 1 : 0) + '\u00a0บาท') +
+        (gap ? ' · <b>▼ ขายได้ ' + fmtN(p.revShare, 0) + '% ของยอดขาย แต่ได้เงินแค่ ' + fmtN(Math.max(0, p.leftShare), 0) + '% ของเงินที่เหลือ</b>' : '') + '</span>' + ICON.chev + '</button>';
     }).join('') + '</div>' + (R.left > 0 ? '' : '<p class="fine4">เงินที่เหลือรวมยังติดลบ จึงไม่แสดงส่วนแบ่งของเงินที่เหลือ</p>');
   }
   function stackHtml(o) {
@@ -3967,33 +4062,39 @@ function pcSample(k) {
     var tot = parts.reduce(function (s, x) { return s + Math.max(0, x[1]); }, 0) || 1, scale = Math.max(base, tot);
     return '<div class="stack" aria-hidden="true">' + parts.map(function (x) { var w = Math.max(0, x[1]) / scale * 100; return w > 0.05 ? '<i class="' + x[0] + '" style="width:' + w.toFixed(2) + '%"></i>' : ''; }).join('') + '</div>';
   }
-  function legend() { return '<div class="lg4" aria-hidden="true"><span><i class="s1"></i>ต้นทุนสินค้า</span><span><i class="s2"></i>ค่าธรรมเนียม</span><span><i class="s3"></i>ค่าแพ็กและค่าส่ง</span><span><i class="s4"></i>เหลือ</span></div>'; }
+  /* ส่วนของ 100 บาท พร้อมตัวเลขใต้แถบ */
+  function legendN(c) {
+    var b = function (v) { return c.rev > 0 ? v / c.rev * 100 : 0; };
+    var P = [['s1', 'ต้นทุน' + SW(), b(c.cost)], ['s2', 'ค่าธรรมเนียม', b(c.fee)], ['s3', packWord(), b(c.pack)], ['s4', 'เหลือ', c.per100]];
+    if (state.model === 'service' && c.pack < 0.005) P.splice(2, 1);
+    return '<div class="lg4">' + P.map(function (x) { return '<span><i class="' + x[0] + '" aria-hidden="true"></i>' + x[1] + ' <b class="num">' + (x[2] < -0.005 ? '−' : '') + per(Math.abs(x[2])) + '</b></span>'; }).join('') + '</div>';
+  }
   function chanList(R) {
     return '<div class="chl4">' + R.chRank.map(function (c) {
-      var sr = 'จาก 100 บาท ต้นทุนสินค้า ' + per(c.rev > 0 ? c.cost / c.rev * 100 : 0) + ' ค่าธรรมเนียม ' + per(c.rev > 0 ? c.fee / c.rev * 100 : 0) + ' ค่าแพ็กและค่าส่ง ' + per(c.rev > 0 ? c.pack / c.rev * 100 : 0) + ' เหลือ ' + per(c.per100);
       return '<button type="button" class="chc" data-act="chan" data-j="' + c.j + '" data-rk="' + esc(c.c.id || c.j) + '"><span class="top"><span class="nm">' + tw(c.name) + '</span><span class="v">ขาย 100 บาท เหลือ <b>' + (c.per100 < 0 ? '−' : '') + fmtN(Math.abs(c.per100), 0) + '</b></span></span>' +
-        stackHtml(c) + '<span class="sr">' + sr + '</span>' +
-        '<span class="sub">เหลือเดือนละ ' + money(c.left) + ' บาท' + (c.monthly > 0.5 ? ' · หักค่าใช้จ่ายของช่องทาง ' + fmtN(c.monthly) + ' → <b>เหลือจริง ' + money(c.after) + '</b>' : '') + '</span>' + ICON.chev + '</button>';
-    }).join('') + '</div>' + legend();
+        '<span class="sr">จากยอดขาย 100 บาท</span>' + stackHtml(c) + legendN(c) +
+        '<span class="sub">เหลือเดือนละ ' + money(c.left) + '\u00a0บาท' + (c.monthly > 0.5 ? ' · หักค่าใช้จ่ายของช่องทาง ' + fmtN(c.monthly) + ' → <b>เหลือจริง ' + money(c.after) + '</b>' : '') + '</span>' + ICON.chev + '</button>';
+    }).join('') + '</div>';
   }
   function gridHtml(R) {
     var chs = R.chans;
-    return '<div class="gw4" tabindex="0" role="region" aria-label="เงินที่เหลือต่อชิ้น แยกสินค้าและช่องทาง"><table class="grid4"><caption>เงินที่เหลือต่อชิ้น (บาท)</caption><thead><tr><th scope="col"><span class="sr">สินค้า</span></th>' +
+    return '<div class="gw4" tabindex="0" role="region" aria-label="เงินที่เหลือต่อชิ้น แยก' + SW() + 'และช่องทาง"><table class="grid4"><caption>เงินที่เหลือต่อชิ้น (บาท)</caption><thead><tr><th scope="col"><span class="sr">' + SW() + '</span></th>' +
       chs.map(function (c) { return '<th scope="col">' + tw(c.name) + '</th>'; }).join('') + '</tr></thead><tbody>' +
       R.rank.map(function (p) {
         return '<tr><th scope="row"><button type="button" class="gl" data-act="prod" data-i="' + p.i + '">' + tw(p.name) + '</button></th>' + chs.map(function (c) {
           var x = cellOf(R, p.i, c.j);
           if (!x) return '<td class="na">ไม่ขาย</td>';
-          return '<td class="' + (x.left < -0.005 ? 'neg' : '') + '"><button type="button" data-act="prod" data-i="' + p.i + '" data-c="' + c.j + '" aria-label="' + esc(p.name + ' ผ่าน ' + c.name + ' เหลือ ' + moneyTxt(x.left, 1) + ' บาทต่อชิ้น') + '">' + (x.left < -0.005 ? '▼ ' : '') + moneyTxt(x.left, Math.abs(x.left) < 100 ? 1 : 0) + '</button></td>';
+          return '<td class="' + (x.left < -0.005 ? 'neg' : '') + '"><button type="button" data-act="prod" data-i="' + p.i + '" data-c="' + c.j + '" aria-label="' + esc(thj(p.name + ' ผ่าน', c.name) + ' เหลือ ' + moneyTxt(x.left, 1) + ' บาทต่อ' + (p.rest ? 'ชิ้น' : U4(p))) + '">' + (x.left < -0.005 ? '▼ ' : '') + moneyTxt(x.left, Math.abs(x.left) < 100 ? 1 : 0) + '</button></td>';
         }).join('') + '</tr>';
       }).join('') + '</tbody></table></div>';
   }
   function findsHtml(R) {
-    if (!R.finds.length) return '<div class="ok-box"><b>ไม่พบปัญหาที่น่ากังวลจากตัวเลขที่ตรวจสอบได้</b><p>ทุกสินค้าและทุกช่องทางยังเหลือเงิน และไม่มีช่องทางที่ค่าใช้จ่ายของตัวเองกินเงินที่เหลือเกินครึ่ง</p></div>';
+    if (!R.finds.length) return '<div class="ok-box"><b>ไม่พบปัญหาที่น่ากังวลจากตัวเลขที่ตรวจสอบได้</b><p>ทุก' + SW() + 'และทุกช่องทางยังเหลือเงิน และไม่มีช่องทางที่ค่าใช้จ่ายของตัวเองกินเงินที่เหลือเกินครึ่ง</p></div>' +
+      '<h3 class="sub4">เครื่องมือที่ช่วยต่อยอด</h3>' + toolsHtml(['grow13', 'bmc10', 'bmc8']);
     return '<div class="flist">' + R.finds.map(function (f, n) {
       var lv = LVP[f.lv], go = f.prod !== undefined ? ' data-act="prod" data-i="' + f.prod + '"' : f.ch !== undefined ? ' data-act="chan" data-j="' + f.ch + '"' : f.cells && f.cells.length ? ' data-act="prod" data-i="' + f.cells[0].i + '" data-c="' + f.cells[0].j + '"' : '';
       var tag = go ? 'button type="button"' : 'div';
-      return '<' + tag + ' class="frow f4"' + go + '><span class="ft">' + tw(f.t) + '</span><span class="fr-r">' + (f.money !== null && f.money !== undefined ? '<span class="fm">' + money(f.money) + '<small>บาท/เดือน</small></span>' : '') + (go ? ICON.chev : '') + '</span>' +
+      return '<' + tag + ' class="frow f4"' + go + '><span class="ft">' + tw(f.t) + '</span><span class="fr-r">' + (f.money !== null && f.money !== undefined ? '<span class="fm">' + (f.ml ? '<small>' + tw(f.ml) + '</small>' + (f.mabs ? fmtN(Math.abs(f.money)) : money(f.money)) + '<small>บาท</small>' : money(f.money) + '<small>บาท/เดือน</small>') + '</span>' : '') + (go ? ICON.chev : '') + '</span>' +
         '<span class="pill ' + lv[0] + '">' + lv[1] + '</span><span class="fs">' + tw(f.s) + '</span></' + (go ? 'button' : 'div') + '>';
     }).join('') + '</div>';
   }
@@ -4002,7 +4103,10 @@ function pcSample(k) {
       qmT('plan-r', 'วางแผนทั้งร้านต่อจากตัวเลขชุดนี้ เช่น สินค้าและช่องทางที่จะเน้นในปีหน้า และเงินที่ต้องใช้') + '</div>';
   }
   function tool1Link() {
-    return window.LAB_HUB ? '<a class="lnk t1l" href="check-numbers.html">ดูภาพรวมทั้งร้าน (จุดคุ้มทุน เงินสด 12 เดือน) ในเช็กตัวเลขร้าน</a>' : '';
+    if (!window.LAB_HUB) return '';
+    var more = !state.isSample && (missingFields(state.inp, state.model).length > 0 || !advValid(state.inp, state.model));
+    return '<a class="lnk t1l" href="check-numbers.html">ดูภาพรวมทั้งร้าน (จุดคุ้มทุน เงินสด 12 เดือน) ในเช็กตัวเลขร้าน</a>' +
+      (more ? '<p class="fine4">เช็กตัวเลขร้านจะถามเพิ่มอีกเล็กน้อยก่อนแสดงภาพรวม</p>' : '');
   }
   function viewResult() {
     var R = R0();
@@ -4011,11 +4115,11 @@ function pcSample(k) {
     var body = state.tab === 'c' ? chanList(R) : state.tab === 'g' ? gridHtml(R) : prodList(R);
     var out = bar('<button class="tb" data-act="back" aria-label="กลับหน้าแรก">' + ICON.back + 'หน้าแรก</button>', 'สินค้าและช่องทาง', state.isSample ? '' : MODELS[state.model].tile) +
       '<main class="screen res4m"><div class="wrap">' +
-      (state.isSample ? '<div class="banner"><span>กำลังใช้' + esc(PC_SAMPLES[state.sampleKind].name) + '</span><button class="btn ghost sm" data-act="mine">ใส่ตัวเลขร้านคุณ</button></div>' : '') +
+      (state.isSample ? '<div class="banner4"><span><small>กำลังใช้</small>' + esc(PC_SAMPLES[state.sampleKind].name) + '</span><button class="btn ghost sm" data-act="mine">ใส่ตัวเลขร้านคุณ</button></div>' : '') +
       walkPanel(R) + reconHtml(R) + tabsHtml(R) +
       '<section id="tp"' + (R.many ? ' role="tabpanel" aria-labelledby="tab-' + state.tab + '"' : '') + ' class="tp4">' +
-      (R.many ? '' : hq('h2', 'เงินที่เหลือของแต่ละสินค้า', 'one', 'ขายช่องทางเดียว จึงดูรายสินค้าอย่างเดียว · แตะสินค้าเพื่อดูว่าเงินจากขาย 1 ชิ้นไปไหนบ้าง และลองปรับราคาหรือต้นทุน', 'sec4')) + body + '</section>' +
-      '<section class="block">' + hq('h2', 'สิ่งที่ตัวเลขบอก', 'fnd', 'บอกปัญหาและขนาดเป็นเงินต่อเดือน ไม่บอกวิธีแก้ · แตะเพื่อดูรายละเอียดของสินค้าหรือช่องทางนั้น') + findsHtml(R) + '</section>' +
+      (R.many ? '' : hq('h2', 'เงินที่เหลือของแต่ละ' + SW(), 'one', 'ขายช่องทางเดียว จึงดูราย' + SW() + 'อย่างเดียว · แตะ' + SW() + 'เพื่อดูว่าเงินจากขาย 1 ชิ้นไปไหนบ้าง และลองปรับราคาหรือต้นทุน', 'sec4')) + body + '</section>' +
+      '<section class="block">' + hq('h2', 'สิ่งที่ตัวเลขบอก', 'fnd', 'บอกปัญหาและขนาดเป็นเงินต่อเดือน ไม่บอกวิธีแก้ · แตะเพื่อดูรายละเอียดของ' + SW() + 'หรือช่องทางนั้น') + findsHtml(R) + '</section>' +
       tool1Link() + planRow() + '</div></main>' +
       '<div class="foot foot2" id="foot"><div class="wrap"><button class="btn ghost" data-act="review">แก้ตัวเลข</button><button class="btn" data-act="ask">หาจุดที่ควรตรวจสอบ' + ICON.next + '</button></div></div>';
     return out;
@@ -4038,11 +4142,13 @@ function pcSample(k) {
   function RT() { return RC(trialPc(), state.inp, state.model); }
   function trialOn(t, i) { return state.trial && state.trial.t === t && state.trial.i === i; }
   function tval(t, i, k, cur) { return trialOn(t, i) && state.trial.vals[k] !== undefined ? state.trial.vals[k] : cur; }
-  function stepper(t, i, k, label, v, step, unit, min, max) {
-    var id = 'tv-' + k;
+  function tvFmt(v) { return (Math.round(v * 100) / 100).toLocaleString('th-TH', { maximumFractionDigits: 2 }); }
+  function tcurTxt(v, cur, unit) { return Math.abs(v - cur) > 1e-9 ? 'ตัวเลขปัจจุบัน: ' + tvFmt(cur) + ' ' + unit : ''; }
+  function stepper(t, i, k, label, cur, step, unit, min, max) {
+    var id = 'tv-' + k, v = tval(t, i, k, cur);
     return '<div class="trow"><label for="' + id + '">' + esc(label) + '</label><div class="tctl"><button type="button" class="stp" data-act="tstep" data-t="' + t + '" data-i="' + i + '" data-k="' + k + '" data-d="' + (-step) + '" data-min="' + min + '" data-max="' + max + '" aria-label="ลด' + esc(label) + '">−</button>' +
-      '<span class="tv"><input id="' + id + '" data-tv="' + k + '" data-t="' + t + '" data-i="' + i + '" data-min="' + min + '" data-max="' + max + '" inputmode="decimal" value="' + esc(fmtIn(Math.round(v * 100) / 100, 'dec')) + '"><small>' + esc(unit) + '</small></span>' +
-      '<button type="button" class="stp" data-act="tstep" data-t="' + t + '" data-i="' + i + '" data-k="' + k + '" data-d="' + step + '" data-min="' + min + '" data-max="' + max + '" aria-label="เพิ่ม' + esc(label) + '">+</button></div></div>';
+      '<span class="tv"><input id="' + id + '" data-tv="' + k + '" data-t="' + t + '" data-i="' + i + '" data-min="' + min + '" data-max="' + max + '"' + (min < 0 ? ' data-neg="1"' : '') + ' inputmode="' + (min < 0 ? 'text' : 'decimal') + '" value="' + esc(tvFmt(v)) + '"><small>' + esc(unit) + '</small></span>' +
+      '<button type="button" class="stp" data-act="tstep" data-t="' + t + '" data-i="' + i + '" data-k="' + k + '" data-d="' + step + '" data-min="' + min + '" data-max="' + max + '" aria-label="เพิ่ม' + esc(label) + '">+</button></div><small class="tcur" data-tcur="' + k + '">' + esc(tcurTxt(v, cur, unit)) + '</small></div>';
   }
   /* ขั้นของปุ่ม −/+ ตามขนาดตัวเลข (ราคา 70 บาท = ทีละ 1 บาท) */
   function tStep(v) { v = Math.abs(v); return v < 200 ? 1 : v < 1000 ? 5 : v < 5000 ? 10 : 100; }
@@ -4059,8 +4165,8 @@ function pcSample(k) {
     var max = Math.max(x.list, 1), rows = [['ราคาบน' + (chIsShop(c) ? 'หน้าร้าน' : 'ช่องทางนี้'), x.list, '']];
     if (x.disc > 0.005) rows.push(['ส่วนลดที่ร้านออก', -x.disc, '']);
     if (x.fee > 0.005) rows.push(['ค่าธรรมเนียม', -x.fee, '']);
-    rows.push([state.model === 'resell' ? 'ราคาที่ซื้อมา' : 'ต้นทุนสินค้า', -x.cost, '']);
-    if (x.pack > 0.005) rows.push(['ค่าแพ็กและค่าส่ง', -x.pack, '']);
+    rows.push([state.model === 'resell' ? 'ราคาที่ซื้อมา' : 'ต้นทุน' + SW(), -x.cost, '']);
+    if (x.pack > 0.005) rows.push([packWord(), -x.pack, '']);
     rows.push(['เหลือ', x.left, 'l']);
     return '<div class="wf4">' + rows.map(function (r) {
       var w = Math.min(100, Math.abs(r[1]) / max * 100);
@@ -4074,64 +4180,64 @@ function pcSample(k) {
     if (!cs.some(function (x) { return x.j === state.dch; })) state.dch = cs.length ? cs[0].j : 0;
     var x = cellOf(R, i, state.dch), c = R.chs[state.dch], rk = R.rank.indexOf(p) + 1;
     var bestC = cs.reduce(function (b, y) { return !b || y.left > b.left ? y : b; }, null);
-    var sel = R.many && cs.length > 1 ? '<div class="seg wide chsel" role="group" aria-label="เลือกช่องทาง">' + cs.map(function (y) {
-      return '<button type="button" data-act="dch" data-v="' + y.j + '" aria-pressed="' + (y.j === state.dch) + '">' + tw(chName(R.chs[y.j])) + '</button>';
+    var sel = R.many && cs.length > 1 ? '<div class="chips chsel" role="group" aria-label="เลือกช่องทาง">' + cs.map(function (y) {
+      return '<button type="button" class="chip" data-act="dch" data-v="' + y.j + '" aria-pressed="' + (y.j === state.dch) + '">' + tw(chName(R.chs[y.j])) + '</button>';
     }).join('') + '</div>' : '';
     var cond = '';
     if (x && !p.rest) {
       var real = x.cost + x.fee + x.pack;
-      cond += '<p class="cn4">ต้นทุนจริงต่อ' + esc(u) + 'เมื่อขายผ่าน ' + tw(chName(c)) + ' = <b>' + fmtN(real, 1) + '</b> บาท (ต้นทุนที่กรอก ' + fmtN(x.cost, 1) + ' บาท)</p>';
-      if (x.left < -0.005) { var lp = listPriceFor(c, x.cost, 0); if (lp !== null) cond += '<p class="cn4">ราคาบนช่องทางนี้ที่ทำให้ไม่ขาดทุน: ประมาณ <b>' + fmtN(Math.ceil(lp * 100) / 100, 2) + '</b> บาท</p>'; }
-      if (bestC && bestC.j !== state.dch && bestC.left > x.left + 0.005) { var lp2 = listPriceFor(c, x.cost, bestC.left); if (lp2 !== null) cond += '<p class="cn4">ราคาบนช่องทางนี้ที่ทำให้เหลือเท่า ' + tw(chName(R.chs[bestC.j])) + ' (' + fmtN(bestC.left, 1) + ' บาท): ประมาณ <b>' + fmtN(Math.ceil(lp2 * 100) / 100, 2) + '</b> บาท</p>'; }
+      cond += '<p class="cn4">' + tw(thj('ต้นทุนจริงต่อ' + u + 'เมื่อขายผ่าน', chName(c))) + ' = <b>' + fmtN(real, 1) + '</b>\u00a0บาท (ต้นทุนที่กรอก ' + fmtN(x.cost, 1) + '\u00a0บาท)</p>';
+      if (x.left < -0.005) { var lp = listPriceFor(c, x.cost, 0); if (lp !== null) cond += '<p class="cn4">ราคาบนช่องทางนี้ที่ทำให้ไม่ขาดทุน: ประมาณ <b>' + fmtN(Math.ceil(lp - 1e-9)) + '</b>\u00a0บาท</p>'; }
+      if (bestC && bestC.j !== state.dch && bestC.left > x.left + 0.005) { var lp2 = listPriceFor(c, x.cost, bestC.left); if (lp2 !== null) cond += '<p class="cn4">' + tw(thj('ราคาบนช่องทางนี้ที่ทำให้เหลือเท่า', chName(R.chs[bestC.j]))) + ' (' + fmtN(bestC.left, 1) + '\u00a0บาท): ประมาณ <b>' + fmtN(Math.ceil(lp2 - 1e-9)) + '</b>\u00a0บาท</p>'; }
     }
     var tr = p.rest ? '' : '<section class="card try4">' + hq('h3', 'ลองปรับ', 'try', 'ลองเปลี่ยนตัวเลขดูก่อน ยังไม่แก้ตัวเลขจริง · กด “ใช้ค่านี้” ถ้าอยากใช้ค่าที่ลอง') +
-      stepper('p', i, 'price', 'ราคาปกติต่อ' + u, tval('p', i, 'price', n0(it.price)), tStep(n0(it.price)), 'บาท', 0.01, 1e9) +
-      stepper('p', i, 'cost', 'ต้นทุนต่อ' + u, tval('p', i, 'cost', n0(it.cost)), tStep(n0(it.cost)), 'บาท', 0, 1e9) +
+      stepper('p', i, 'price', 'ราคาปกติต่อ' + u, n0(it.price), tStep(n0(it.price)), 'บาท', 0.01, 1e9) +
+      stepper('p', i, 'cost', 'ต้นทุนต่อ' + u, n0(it.cost), tStep(n0(it.cost)), 'บาท', 0, 1e9) +
       deltaLine(Rb, R) + trialFoot('p', i) + '</section>';
-    return bar(backBtn('กลับไปดูผล'), p.name, 'รายละเอียดสินค้า') + '<main class="screen"><div class="wrap">' +
-      '<section class="panel res4" id="dpanel"><span class="eyebrow">' + tw(p.name) + ' · อันดับ ' + rk + ' จาก ' + R.prods.length + '</span>' +
+    return bar(backBtn('กลับไปดูผล'), p.name, 'รายละเอียด' + SW()) + '<main class="screen"><div class="wrap">' +
+      '<section class="panel res4" id="dpanel"><h1 class="eyebrow">เงินที่เหลือต่อเดือน · <span class="nw">อันดับ ' + rk + ' จาก ' + R.prods.length + '</span><span class="sr"> · ' + esc(p.name) + '</span></h1>' +
       '<div class="bignum">' + (p.left < -0.5 ? '−' : '') + anim('pl-' + i, p.left) + '<span class="u">บาท/เดือน</span></div>' +
       '<div class="walk"><div><span>ยอดขาย</span><b>' + fmtN(p.rev) + '</b></div><div><span>ขายได้</span><b>' + fmtN(p.unitsIn / R.mult, 1) + ' ' + esc(u) + '/' + perW() + '</b></div>' +
       (p.rest ? '' : '<div><span>เหลือเฉลี่ย' + esc(u) + 'ละ</span><b>' + moneyTxt(p.leftPer, 1) + '</b></div>') + '</div></section>' +
-      '<section class="block">' + hq('h2', 'ขาย 1 ' + esc(u) + (c ? ' ผ่าน ' + tw(chName(c)) : '') + ' เงินไปไหน', 'wf', 'ราคาที่ลูกค้าจ่าย ลบส่วนลดที่ร้านออก ค่าธรรมเนียม ต้นทุนสินค้า และค่าแพ็กและค่าส่งต่อชิ้น เหลือเท่าไรให้ร้าน') +
+      '<section class="block">' + hq('h2', tw((c ? thj('ขาย 1 ' + u + 'ผ่าน', chName(c)) : 'ขาย 1 ' + u) + ' เงินไปไหน'), 'wf', 'ราคาที่ลูกค้าจ่าย ลบส่วนลดที่ร้านออก ค่าธรรมเนียม ต้นทุน' + SW() + (state.model === 'service' ? '' : ' และค่าแพ็กและค่าส่งต่อชิ้น') + ' เหลือเท่าไรให้ร้าน') +
       sel + (x ? wfHtml(x, p, c) : '') + cond + '</section>' + tr + '</div></main>';
   }
   function viewChan() {
     var Rb = R0(), R = RT(), j = state.sel, c = R.chans[j];
     if (!c) { state.view = 'result'; return viewResult(); }
-    var ch = chList(state.pc)[j], shop = chIsShop(ch), base100 = function (v) { return c.rev > 0 ? v / c.rev * 100 : 0; };
+    var ch = chList(state.pc)[j], shop = chIsShop(ch);
     var rows = c.cells.slice().sort(function (a, b) { return a.left - b.left; }).map(function (x) {
       var p = R.prods[x.i];
       return '<div class="cr4' + (x.left < -0.005 ? ' neg' : '') + '"><span>' + tw(p.name) + '</span><b>' + (x.left < -0.005 ? '▼ ' : '') + moneyTxt(x.left, 1) + '<small>/' + esc(p.rest ? 'ชิ้น' : U4(p)) + '</small></b><i>' + money(x.leftM) + '<small>/เดือน</small></i></div>';
     }).join('');
     var mk = ch.priceMode === 'down' ? -n0(ch.markup) : ch.priceMode === 'up' ? n0(ch.markup) : 0;
     var tr = '<section class="card try4">' + hq('h3', 'ลองปรับ', 'try', 'ลองเปลี่ยนตัวเลขของช่องทางนี้ดูก่อน ยังไม่แก้ตัวเลขจริง · กด “ใช้ค่านี้” ถ้าอยากใช้ค่าที่ลอง') +
-      (shop ? '' : stepper('c', j, 'markup', 'ราคาบนช่องทางนี้เทียบราคาปกติ (+ สูงกว่า / − ต่ำกว่า)', tval('c', j, 'markup', mk), 5, '%', -99, 300)) +
-      stepper('c', j, 'fee', 'ค่าธรรมเนียม', tval('c', j, 'fee', n0(ch.fee)), 1, '%' + (ch.vat === 'ex' && n0(ch.fee) > 0 ? ' + VAT' : ''), 0, 99) +
-      stepper('c', j, 'disc', 'ส่วนลดที่ร้านออก', tval('c', j, 'disc', n0(ch.disc)), 5, '%', 0, 99) +
-      stepper('c', j, 'perOrder', 'ค่าแพ็กและค่าส่งต่อออร์เดอร์', tval('c', j, 'perOrder', n0(ch.perOrder)), 1, 'บาท', 0, 1e6) +
-      stepper('c', j, 'monthly', 'ค่าใช้จ่ายรายเดือนของช่องทางนี้', tval('c', j, 'monthly', n0(ch.monthly)), 100, 'บาท', 0, 1e9) +
+      (shop ? '' : stepper('c', j, 'markup', 'ราคาบนช่องทางนี้เทียบราคาปกติ (+ สูงกว่า / − ต่ำกว่า)', mk, 5, '%', -99, 300)) +
+      stepper('c', j, 'fee', 'ค่าธรรมเนียม', n0(ch.fee), 1, '%' + (ch.vat === 'ex' && n0(ch.fee) > 0 ? ' + VAT' : ''), 0, 99) +
+      stepper('c', j, 'disc', 'ส่วนลดที่ร้านออก', n0(ch.disc), 5, '%', 0, 99) +
+      (state.model === 'service' && ch.kind !== 'onsite' ? '' : stepper('c', j, 'perOrder', state.model === 'service' ? 'ค่าเดินทางต่อครั้ง' : 'ค่าแพ็กและค่าส่งต่อออร์เดอร์', n0(ch.perOrder), 1, 'บาท', 0, 1e6)) +
+      stepper('c', j, 'monthly', 'ค่าใช้จ่ายรายเดือนของช่องทางนี้', n0(ch.monthly), 100, 'บาท', 0, 1e9) +
       deltaLine(Rb, R) + trialFoot('c', j) + '</section>';
     return bar(backBtn('กลับไปดูผล'), c.name, 'รายละเอียดช่องทาง') + '<main class="screen"><div class="wrap">' +
-      '<section class="panel res4" id="dpanel"><span class="eyebrow">' + (c.monthly > 0.5 ? 'เหลือจริงต่อเดือน' : 'เงินที่เหลือต่อเดือน') + ' · ' + tw(c.name) + '</span>' +
+      '<section class="panel res4" id="dpanel"><h1 class="eyebrow">' + (c.monthly > 0.5 ? 'เหลือจริงต่อเดือน' : 'เงินที่เหลือต่อเดือน') + ' · ' + tw(c.name) + '</h1>' +
       '<div class="bignum">' + (c.after < -0.5 ? '−' : '') + anim('ca-' + j, c.after) + '<span class="u">บาท</span></div>' +
       '<div class="walk"><div><span>ยอดขาย</span><b>' + fmtN(c.rev) + '</b></div>' +
-      '<div><span>ต้นทุนสินค้า</span><b>−' + fmtN(c.cost) + '</b></div>' +
+      '<div><span>ต้นทุน' + SW() + '</span><b>−' + fmtN(c.cost) + '</b></div>' +
       (c.fee > 0.5 ? '<div><span>ค่าธรรมเนียม</span><b>−' + fmtN(c.fee) + '</b></div>' : '') +
-      (c.pack > 0.5 ? '<div><span>ค่าแพ็กและค่าส่ง</span><b>−' + fmtN(c.pack) + '</b></div>' : '') +
+      (c.pack > 0.5 ? '<div><span>' + packWord() + '</span><b>−' + fmtN(c.pack) + '</b></div>' : '') +
       '<div class="k"><span>เงินที่เหลือ</span><b>' + moneyTxt(c.left) + '</b></div>' +
       (c.monthly > 0.5 ? '<div><span>ค่าใช้จ่ายของช่องทาง</span><b>−' + fmtN(c.monthly) + '</b></div>' : '') + '</div>' +
       (c.disc > 0.5 ? '<p class="sub">ส่วนลดที่ร้านออกเดือนละ ' + fmtN(c.disc) + ' บาท (หักออกจากยอดขายแล้ว)</p>' : '') + '</section>' +
-      '<section class="block">' + hq('h2', 'ขาย 100 บาท เหลือ ' + (c.per100 < 0 ? '−' : '') + fmtN(Math.abs(c.per100), 1) + ' บาท', 'c100', 'จากยอดขาย 100 บาทผ่านช่องทางนี้: ต้นทุนสินค้า ' + per(base100(c.cost)) + ' · ค่าธรรมเนียม ' + per(base100(c.fee)) + ' · ค่าแพ็กและค่าส่ง ' + per(base100(c.pack)) + ' · เหลือ ' + per(c.per100) + ' บาท') +
-      '<div class="card">' + stackHtml(c) + legend() + '</div></section>' +
-      '<section class="block">' + hq('h2', 'สินค้าที่ขายผ่านช่องทางนี้', 'cp', 'เรียงจากเหลือเงินต่อชิ้นน้อยไปมาก') + '<div class="card crl4">' + rows + '</div></section>' + tr + '</div></main>';
+      '<section class="block">' + hq('h2', 'ขาย 100 บาท เหลือ ' + (c.per100 < 0 ? '−' : '') + fmtN(Math.abs(c.per100), 1) + ' บาท', 'c100', 'จากยอดขาย 100 บาทผ่านช่องทางนี้ แต่ละส่วนไปที่ไหน · ส่วนที่เหลือใช้จ่ายค่าใช้จ่ายของช่องทางและของร้าน') +
+      '<div class="card">' + stackHtml(c) + legendN(c) + '</div></section>' +
+      '<section class="block">' + hq('h2', SW() + 'ที่ขายผ่านช่องทางนี้', 'cp', 'เรียงจากเหลือเงินต่อชิ้นน้อยไปมาก') + '<div class="card crl4">' + rows + '</div></section>' + tr + '</div></main>';
   }
 
   /* ============================================================ แก้ตัวเลข (ที่เดียวสำหรับแก้ทุกตัวเลข) */
   function rvRow(act, data, t, v) { return '<button type="button" class="rv-row" data-act="' + act + '"' + data + '><span class="t">' + t + '</span><span class="v">' + v + '</span>' + ICON.chev + '</button>'; }
   function viewReview() {
     var items = pcItems(state.pc), chs = chList(state.pc), inp = state.inp;
-    var rows = rvRow('edit', ' data-v="items"', 'สินค้า ' + items.length + ' รายการ', esc(items.map(function (p) { return p.name || 'ยังไม่มีชื่อ'; }).join(' · ')) + (state.pc.rest && state.pc.rest.on ? ' · สินค้าอื่น ๆ' : '')) +
+    var rows = rvRow('edit', ' data-v="items"', SW() + ' ' + items.length + ' รายการ', esc(items.map(function (p) { return p.name || 'ยังไม่มีชื่อ'; }).join(' · ')) + (state.pc.rest && state.pc.rest.on ? ' · ' + SW() + 'อื่น ๆ' : '')) +
       rvRow('edit', ' data-v="chpick"', 'ช่องทางขาย', esc(chs.map(chName).join(' · ')));
     if (chMany(state.pc)) rows += rvRow('edit', ' data-v="share"', 'สัดส่วนการขาย', chs.map(function (c) { return esc(chName(c)) + ' ' + fmtN(n0(c.share), 1) + '%'; }).join(' · '));
     chs.forEach(function (c, j) {
@@ -4139,7 +4245,7 @@ function pcSample(k) {
       if (!chIsShop(c)) bits.push(c.priceMode === 'up' ? 'ราคาสูงกว่า ' + fmtN(n0(c.markup), 1) + '%' : c.priceMode === 'down' ? 'ราคาต่ำกว่า ' + fmtN(n0(c.markup), 1) + '%' : 'ราคาเท่าราคาปกติ');
       bits.push('ค่าธรรมเนียม ' + fmtN(n0(c.fee), 2) + '%' + (n0(c.fee) > 0 && c.vat === 'ex' ? ' + VAT' : ''));
       if (n0(c.disc) > 0) bits.push('ส่วนลด ' + fmtN(n0(c.disc), 1) + '%');
-      if (n0(c.perOrder) > 0) bits.push('ค่าแพ็ก ' + fmtN(n0(c.perOrder), 1) + ' บาท/ออร์เดอร์');
+      if (n0(c.perOrder) > 0) bits.push(state.model === 'service' ? 'ค่าเดินทาง ' + fmtN(n0(c.perOrder), 1) + ' บาท/ครั้ง' : 'ค่าแพ็ก ' + fmtN(n0(c.perOrder), 1) + ' บาท/ออร์เดอร์');
       if (n0(c.monthly) > 0) bits.push('รายเดือน ' + fmtN(n0(c.monthly)) + ' บาท');
       rows += rvRow('edit', ' data-v="ch" data-k="' + j + '"', esc(chName(c)), esc(bits.join(' · ')));
     });
@@ -4148,7 +4254,7 @@ function pcSample(k) {
       return rvRow('edit', ' data-v="fixed" data-k="' + k + '"', st.q.replace(/\?$/, ''), esc(v));
     }).join('');
     return bar(backBtn('กลับไปดูผล'), 'แก้ตัวเลข', '') + '<main class="screen"><div class="wrap">' +
-      '<h2 class="sec4">สินค้าและช่องทาง</h2><div class="rv">' + rows + '</div>' +
+      '<h1 class="sr">แก้ตัวเลข</h1><h2 class="sec4">' + SW() + 'และช่องทาง</h2><div class="rv">' + rows + '</div>' +
       '<div class="hq sec4"><h2>ตัวเลขร้าน</h2>' + qmBtn('rv-sh', 'ตัวเลขร้าน') + '</div>' + qmT('rv-sh', 'ใช้ร่วมกับเครื่องมืออื่นใน Business Lab แก้ที่ไหนก็เปลี่ยนทุกเครื่องมือ') + '<div class="rv">' + fx + '</div>' +
       '<p class="fine4">รูปแบบร้าน: ' + esc(MODELS[state.model].tile) + ' · เปลี่ยนได้ที่หน้าแรก</p></div></main>' +
       '<div class="foot" id="foot"><div class="wrap"><button class="btn" data-act="result">ดูผล' + ICON.next + '</button></div></div>';
@@ -4158,10 +4264,10 @@ function pcSample(k) {
   function askList() { return pcAskList(R0()); }
   function viewAsk() {
     var L = askList(); if (state.qidx >= L.length) state.qidx = L.length - 1;
-    var q = L[state.qidx], b = QB4[q], a = state.answers[q];
+    var q = L[state.qidx], b = QB4[q], a = state.answers[q], ctx = pcAskCtx(R0());
     return bar(backBtn('กลับไปดูผล'), 'หาจุดที่ควรตรวจสอบ', 'ข้อ ' + (state.qidx + 1) + ' จาก ' + L.length) + '<main class="screen"><div class="wrap">' +
       '<div class="prog" aria-hidden="true">' + L.map(function (x, n) { return '<i class="' + (n <= state.qidx ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
-      '<h1 class="ask-q">' + tw(b.q) + '</h1><div class="ask-ans" role="group" aria-label="คำตอบ">' + ['yes', 'no', 'unsure'].map(function (v) {
+      '<h1 class="ask-q">' + tw(qbText(q, ctx)) + '</h1><div class="ask-ans" role="group" aria-label="คำตอบ">' + ['yes', 'no', 'unsure'].map(function (v) {
         return '<button type="button" data-act="answer" data-q="' + q + '" data-v="' + v + '" aria-pressed="' + (a === v) + '">' + esc(ansLabel(b, v)) + '</button>';
       }).join('') + '</div>' +
       (state.qidx > 0 ? '<div class="qnav"><button class="lnk" data-act="q-prev">‹ ข้อก่อนหน้า</button></div>' : '') + '</div></main>';
@@ -4172,12 +4278,13 @@ function pcSample(k) {
     }).join('') + '</div>';
   }
   function viewPoints() {
-    var L = askList(), A = state.answers, pts = L.filter(function (q) { return ansFlag(QB4[q], A[q]); });
-    var out = bar(backBtn('กลับไปดูผล'), 'จุดที่ควรตรวจสอบ', '') + '<main class="screen"><div class="wrap">';
+    var L = askList(), A = state.answers, pts = L.filter(function (q) { return ansFlag(QB4[q], A[q]); }), ctx = pcAskCtx(R0());
+    var out = bar(backBtn('กลับไปดูผล'), 'จุดที่ควรตรวจสอบ', '') + '<main class="screen"><div class="wrap"><h1 class="sr">จุดที่ควรตรวจสอบ</h1>';
     if (!pts.length) out += '<div class="ok-box"><b>ไม่พบจุดที่ควรตรวจสอบจากคำตอบ</b><p>ตอบครบทุกข้อแล้ว ไม่มีข้อที่ต้องตรวจสอบเพิ่ม</p></div>' + toolsHtml(['bmc10', 'grow13', 'bmc8']);
     else out += '<div class="points">' + pts.map(function (q) {
       var b = QB4[q];
-      return '<div class="point"><div class="pt">' + esc(b.p) + (A[q] === 'unsure' ? '<span class="unsure">ไม่แน่ใจ</span>' : '') + '</div><p class="pd">' + esc(b.d) + '</p>' + toolsHtml(b.tools) + '</div>';
+      var nm = qbName(q, ctx);
+      return '<div class="point"><div class="pt"><span>' + tw(b.p + (nm ? ' · ' + nm : '')) + '</span>' + (A[q] === 'unsure' ? '<span class="unsure">ไม่แน่ใจ</span>' : '') + '</div><p class="pd">' + esc(b.d) + '</p>' + toolsHtml(b.tools) + '</div>';
     }).join('') + '</div>';
     return out + planRow() + '<div class="skip"><button class="lnk" data-act="ask-again">ตอบใหม่</button></div></div></main>' +
       '<div class="foot" id="foot"><div class="wrap"><button class="btn ghost" data-act="result">กลับไปดูผล</button></div></div>';
@@ -4194,6 +4301,10 @@ function pcSample(k) {
       if (fb) { state.view = v = fb.v; state.k = fb.k; } else v = state.view = 'start';
     }
     if (v === 'fixed' && !state.askFixed && !state.editing) state.askFixed = true;
+    if (v === 'share' && !chMany(state.pc)) { v = state.view = 'chpick'; state.k = 0; }
+    if (v === 'ch' && !chList(state.pc)[state.k]) { if (chList(state.pc).length) state.k = chList(state.pc).length - 1; else { v = state.view = 'chpick'; state.k = 0; } }
+    if (v === 'fixed' && !FIXED_STEPS[state.k]) state.k = 0;
+    if (v === 'items' || v === 'chpick' || v === 'share') state.k = 0;
     fixRestOn();
     app.innerHTML = v === 'start' ? viewStart() : v === 'items' ? viewItems() : v === 'chpick' ? viewChpick() : v === 'share' ? viewShare() : v === 'ch' ? viewCh()
       : v === 'fixed' ? viewFixed() : v === 'prod' ? viewProd() : v === 'chan' ? viewChan() : v === 'review' ? viewReview() : v === 'ask' ? viewAsk() : v === 'points' ? viewPoints() : viewResult();
@@ -4232,7 +4343,7 @@ function pcSample(k) {
   function goBack(noPush) {
     var v = state.view;
     if (FLOW_VIEWS.indexOf(v) >= 0) {
-      if (state.editing) { cancelEdit(); state.editing = false; go(flowOk() ? 'review' : 'start', true, noPush); return; }
+      if (state.editing) { var cm = cancelEdit(); state.editing = false; go(flowOk() ? 'review' : 'start', true, noPush); if (cm) toast(cm); return; }
       var S = flowSteps(), i = flowIdx();
       if (i > 0) goStep(S[i - 1], true, noPush); else go('start', true, noPush);
     } else if (v === 'prod' || v === 'chan') { state.trial = null; go('result', true, noPush); }
@@ -4240,9 +4351,11 @@ function pcSample(k) {
     else if (v !== 'start') go('start', true, noPush);
   }
   function cancelEdit() {
-    if (!state.edOrig) return;
-    if (!flowOk()) { state.pc = state.edOrig.pc; state.inp = state.edOrig.inp; toast('ยกเลิกตัวเลขที่ยังไม่ครบ ใช้ตัวเลขเดิม'); }
+    if (!state.edOrig) return null;
+    var msg = null;
+    if (!flowOk()) { state.pc = state.edOrig.pc; state.inp = state.edOrig.inp; msg = 'ยกเลิกตัวเลขที่ยังไม่ครบ ใช้ตัวเลขเดิม'; }
     state.edOrig = null;
+    return msg;
   }
   /* ประวัติของมือถือ: 1 ขั้นต่อการกดย้อนกลับ 1 ครั้งกว่าจะถึงหน้าแรก (เพิ่มเฉพาะตอนแตะ ไม่เพิ่มตอนกดย้อนกลับ) */
   var hdepth = 0, leaving = false;
@@ -4314,10 +4427,11 @@ function pcSample(k) {
     if (st.v === 'share') {
       var e = chList(pc).map(function (c, j) { return num(c.share) === null || num(c.share) <= 0 ? j : -1; }).filter(function (x) { return x >= 0; })[0];
       if (e !== undefined) return ['c.' + e + '.share', num(chList(pc)[e].share) === 0 ? 'ถ้าไม่ได้ขายช่องทางนี้แล้ว ลบออกที่ข้อก่อนหน้า' : null];
-      return Math.abs(shareSum(pc) - 100) < 0.51 ? null : ['c.0.share', 'รวมกันต้องได้ 100% ตอนนี้ได้ ' + fmtN(shareSum(pc), 1) + '%'];
+      return Math.abs(shareSum(pc) - 100) < 0.51 ? null : ['share-tot', 'รวมกันต้องได้ 100% ตอนนี้ได้ ' + fmtN(shareSum(pc), 1) + '%'];
     }
     if (st.v === 'ch') {
       var c = chList(pc)[st.k], k = chMissing(c, pc);
+      if (!k && st.k === chList(pc).length - 1) { var nc = noChannelItem(); if (nc) return ['c.' + st.k + '.off', thj(nc.name, 'ยังไม่มีช่องทางให้ขาย เปิดอย่างน้อย 1 ช่องทาง')]; }
       if (!k) return null;
       var msg = null;
       if (k === 'markup' && c.priceMode === 'down' && n0(c.markup) >= 100) msg = 'ต้องน้อยกว่า 100%';
@@ -4338,13 +4452,23 @@ function pcSample(k) {
   /* ============================================================ EVENTS */
   function chooseModel(m) {
     var sh = typeof LabShop !== 'undefined' ? LabShop.get() : null;
+    /* ข้อมูลของผู้ใช้ก่อนเปลี่ยนแบบร้าน (ไม่ใช่ร้านตัวอย่าง) */
+    var prev = state.model && !state.isSample ? { model: state.model, inp: state.inp, link: state.link } : null;
+    if (!prev) state.pc = emptyPc();
+    /* ตัวเลขร้านชุดกลางเป็นของตัวที่ 4 เอง (สร้างหรือผู้ใช้เลือกใช้ยอดจากรายสินค้า): เปลี่ยนแบบร้านแล้วยังเขียนกลับต่อ */
+    var owned = !!(prev && prev.link === 'own' && sh && sh.model === prev.model && lastPut === sh.model + '|' + JSON.stringify(sh.inp));
     state.isSample = false; state.sampleKind = null; state.model = m; state.answers = {}; state.trial = null; state.editing = false;
-    if (sh && sh.model === m) { state.inp = advNormalize(JSON.parse(JSON.stringify(sh.inp)), m); state.link = 'shared'; lastPut = sh.model + '|' + JSON.stringify(sh.inp); }
-    else {
-      var inp = { volumePer: MODELS[m].defPer || 'day', unitLabel: MODELS[m].defUnit };
-      /* ชุดกลางเป็นร้านแบบอื่น: ค่าใช้จ่ายคงที่ใช้ชุดเดิม (คำถามเดียวกัน) แต่ไม่เขียนกลับ */
-      if (sh) FIXED_KEYS.forEach(function (k) { if (sh.inp[k] !== undefined) inp[k] = sh.inp[k]; });
-      state.inp = inp; state.link = sh ? 'local' : 'own';
+    if (sh && sh.model === m) {
+      var cp = advNormalize(JSON.parse(JSON.stringify(sh.inp)), m);
+      if (prev) convertPer(state.pc, prev.inp, cp);
+      state.inp = cp; state.link = prev && prev.link === 'own' && pcDiff(state.pc, cp, m) === null ? 'own' : 'shared'; lastPut = sh.model + '|' + JSON.stringify(sh.inp);
+    } else {
+      var inp = { volumePer: (prev && prev.inp.volumePer) || MODELS[m].defPer || 'day', unitLabel: MODELS[m].defUnit };
+      if (prev && prev.inp.daysOpen !== undefined) inp.daysOpen = prev.inp.daysOpen;
+      /* ค่าใช้จ่ายคงที่ใช้ชุดเดิม (คำถามเดียวกันทุกแบบร้าน) รวมถึงค่าใช้จ่ายของช่องทางที่รวมในงบการตลาดแล้ว (chMkt) */
+      var src = sh ? sh.inp : prev ? prev.inp : null;
+      if (src) syncFixed(inp, src);
+      state.inp = inp; state.link = !sh || owned ? 'own' : 'local';
     }
     if (!state.inp.volumePer) state.inp.volumePer = MODELS[m].defPer || 'day';
     state.pc = state.mine && state.mine.model === m && state.mine.pc ? state.mine.pc : carryPc(state.pc, m);
@@ -4357,10 +4481,15 @@ function pcSample(k) {
     pc = pc ? JSON.parse(JSON.stringify(pc)) : emptyPc();
     pc.items = (pc.items || []).map(function (p) { if (MODELS[m].units.indexOf(p.unit) < 0) p.unit = MODELS[m].defUnit; return p; });
     pc.channels = (pc.channels || []).filter(function (c) { return CH_KINDS[c.kind] && CH_KINDS[c.kind].m.indexOf(m) >= 0; });
+    if (m === 'service') pc.channels.forEach(function (c) { c.ipo = 1; if (c.kind !== 'onsite') c.perOrder = 0; });
     return pc;
   }
   function newItem() { return { id: newId('p'), name: '', unit: MODELS[state.model].defUnit, price: null, cost: null, qty: null }; }
-  function newCh(kind) { return { id: newId('c'), kind: kind, name: '', share: null, priceMode: kind === 'shop' ? 'same' : null, markup: null, fee: null, vat: null, disc: null, perOrder: null, ipo: null, monthly: null, off: {} }; }
+  function newCh(kind) {
+    var svc = state.model === 'service';
+    return { id: newId('c'), kind: kind, name: '', share: null, priceMode: kind === 'shop' ? 'same' : null, markup: null, fee: null, vat: null, disc: null,
+      perOrder: svc && kind !== 'onsite' ? 0 : null, ipo: svc ? 1 : null, monthly: null, off: {} };
+  }
   function useSample() {
     var k = sampleKindFor(), S = pcSample(k);
     if (!state.isSample && state.model) state.mine = { model: state.model, inp: state.inp, pc: state.pc, link: state.link };
@@ -4371,19 +4500,23 @@ function pcSample(k) {
     var mine = state.mine;
     state.isSample = false; state.sampleKind = null;
     if (mine && PC_MODELS.indexOf(mine.model) >= 0) { state.model = mine.model; state.inp = mine.inp; state.pc = mine.pc; state.link = mine.link || 'own'; state.mine = null; }
-    else { var sh = typeof LabShop !== 'undefined' ? LabShop.get() : null; state.model = null; state.mine = null; if (sh && PC_MODELS.indexOf(sh.model) >= 0) chooseModel(sh.model); }
+    else {
+      /* ยังไม่มีร้านของผู้ใช้: เริ่มว่าง ไม่เอาตัวเลขของร้านตัวอย่างมา */
+      var sh = typeof LabShop !== 'undefined' ? LabShop.get() : null;
+      state.model = null; state.mine = null; state.pc = emptyPc(); state.inp = {};
+      if (sh && PC_MODELS.indexOf(sh.model) >= 0) chooseModel(sh.model);
+    }
     state.answers = {}; state.trial = null;
   }
   function startFlow() {
     state.editing = false; state.askFixed = !fixedOk(state.inp);
     var fb = firstBad();
-    if (fb) goStep(fb); else go('result');
+    if (fb) goStep(fb); else if (flowOk()) go('result'); else goStep({ v: 'items', k: 0 });
   }
   function stepNext() {
     var S = flowSteps(), i = flowIdx(), st = { v: state.view, k: state.k };
     var miss = stepMissing(st);
     if (miss) { showNeed(miss[0], miss[1]); return; }
-    if (st.v === 'ch' && st.k === chList(state.pc).length - 1) { var nc = noChannelItem(); if (nc) { toast(nc.name + ' ยังไม่มีช่องทางให้ขาย เปิดสินค้านี้อย่างน้อย 1 ช่องทาง'); return; } }
     if (state.editing) { stepDone(); return; }
     if (i < S.length - 1) goStep(S[i + 1]);
     else { var fb = firstBad(); if (fb) { goStep(fb); var m2 = stepMissing(fb); if (m2) showNeed(m2[0], m2[1]); } else { state.askFixed = false; go('result'); } }
@@ -4413,6 +4546,7 @@ function pcSample(k) {
         go('start', false); refocus('[data-act="where"][data-v="' + state.where + '"]'); break;
       }
       case 'sample': useSample(); go('result'); announce('กำลังใช้' + PC_SAMPLES[state.sampleKind].name); break;
+      case 'sample1': state.where = PC_SAMPLES[t.getAttribute('data-k')].where; useSample(); go('result'); announce('กำลังใช้' + PC_SAMPLES[state.sampleKind].name); break;
       case 'mine': leaveSample(); if (state.model) startFlow(); else go('start'); break;
       case 'model': {
         var nm = t.getAttribute('data-m');
@@ -4427,15 +4561,19 @@ function pcSample(k) {
       case 'per': {
         var nv = t.getAttribute('data-v'), cur = state.inp.volumePer;
         if (nv !== cur) {
-          var days = pos(state.inp.daysOpen) || 26, f = nv === 'month' ? days : 1 / days;
-          var rr = function (v) { return nv === 'month' ? Math.round(v * f * 10) / 10 : Math.round(v * f * 10) / 10; };
+          var days = pos(state.inp.daysOpen) || 30, f = nv === 'month' ? days : 1 / days;
+          var rr = function (v) { return Math.round(v * f * 100) / 100; };
+          var had = pcItems(state.pc).some(function (p) { return num(p.qty) !== null; }) || (state.pc.rest && num(state.pc.rest.sales) !== null);
           if (cur === 'day' || cur === 'month') {
             pcItems(state.pc).forEach(function (p) { if (num(p.qty) !== null) p.qty = rr(num(p.qty)); });
             if (state.pc.rest && num(state.pc.rest.sales) !== null) state.pc.rest.sales = Math.round(num(state.pc.rest.sales) * f);
             /* ตัวเลขร้านชุดกลาง: จำนวนขายและกำลังสูงสุดของตัวที่ 1 ต้องแปลงตามด้วย */
             ['volume', 'capacity'].forEach(function (k) { var v = num(state.inp[k]); if (v !== null) state.inp[k] = rr(v); });
           }
+          /* นับต่อวัน: จำนวนวันที่ใช้แปลง ใส่ไว้ให้เห็นและแก้ได้ */
+          if (nv === 'day' && had && pos(state.inp.daysOpen) === null) state.inp.daysOpen = days;
           state.inp.volumePer = nv; go('items', false); refocus('[data-act="per"][data-v="' + nv + '"]');
+          if (had && (cur === 'day' || cur === 'month')) toast(nv === 'month' ? 'เปลี่ยนจำนวนที่ขายเป็นต่อเดือนแล้ว (คูณ ' + fmtN(days) + ' วัน)' : 'เปลี่ยนจำนวนที่ขายเป็นต่อวันแล้ว (หาร ' + fmtN(days) + ' วัน แก้จำนวนวันได้)');
         }
         break;
       }
@@ -4473,6 +4611,7 @@ function pcSample(k) {
       }
       case 'ch-other': { if (chList(state.pc).length < PC_MAX_CH) { state.pc.channels.push(newCh('other')); go('chpick', false); refocus('#f-c-' + (chList(state.pc).length - 1) + '-name'); } break; }
       case 'ch-del': state.pc.channels.splice(+t.getAttribute('data-j'), 1); go('chpick', false); break;
+      case 'share-fill': { var fj = +t.getAttribute('data-j'); chList(state.pc)[fj].share = Math.round((100 - shareSum(state.pc)) * 10) / 10; go('share', false); refocus('#f-c-' + fj + '-share'); break; }
       case 'ch-off': {
         var cj = chList(state.pc)[+t.getAttribute('data-j')], id = t.getAttribute('data-id');
         cj.off = cj.off || {}; if (cj.off[id]) delete cj.off[id]; else cj.off[id] = true;
@@ -4497,7 +4636,9 @@ function pcSample(k) {
       }
       case 't-use': {
         var T = state.trial; if (!T) break;
-        state.pc = trialPc(); state.trial = null; go(state.view, false); toast('ใช้ค่านี้แล้ว'); break;
+        state.pc = trialPc();
+        if (T.t === 'c') { var uc = state.pc.channels[T.i]; if (uc) { if (n0(uc.fee) > 0 && uc.vat !== 'in' && uc.vat !== 'ex') uc.vat = 'in'; if (n0(uc.perOrder) > 0 && !(num(uc.ipo) >= 1)) uc.ipo = 1; } }
+        state.trial = null; go(state.view, false); toast('ใช้ค่านี้แล้ว'); break;
       }
       case 't-reset': state.trial = null; go(state.view, false); break;
       case 'apply-agg': {
@@ -4551,7 +4692,7 @@ function pcSample(k) {
     var y = window.scrollY, ae = document.activeElement, aid = ae && ae.id;
     var html = state.view === 'prod' ? viewProd() : viewChan(), tmp = document.createElement('div');
     tmp.innerHTML = html;
-    ['#dpanel', '.wf4', '.cn4', '.crl4', '.stack', '#dl4', '.tbtns', '.chsel'].forEach(function (sel) {
+    ['#dpanel', '.wf4', '.cn4', '.crl4', '.stack', '.lg4', '#dl4', '.tbtns', '.chsel', '.tcur'].forEach(function (sel) {
       var a2 = $$(sel, app), b2 = $$(sel, tmp);
       a2.forEach(function (el, n) { if (b2[n]) el.outerHTML = b2[n].outerHTML; });
     });
@@ -4579,7 +4720,7 @@ function pcSample(k) {
       clearTimeout(liveT); liveT = setTimeout(refreshLive, 60);
       save();
     } else if (el.hasAttribute('data-tv')) {
-      var v = parseNum(el); el.setAttribute('data-neg', '1');
+      var v = parseNum(el);
       if (v === null) return;
       v = Math.max(+el.getAttribute('data-min'), Math.min(+el.getAttribute('data-max'), v));
       setTrial(el.getAttribute('data-t'), +el.getAttribute('data-i'), el.getAttribute('data-tv'), v);
@@ -4589,7 +4730,7 @@ function pcSample(k) {
   /* ระหว่างกรอก: แถบสรุป ยอดรวม % และช่องที่ขึ้นตามคำตอบ (เช่น จำนวนชิ้นต่อออร์เดอร์) โดยไม่วาดช่องที่พิมพ์อยู่ใหม่ */
   function refreshLive() {
     var s = $('#strip'); if (s) { var tmp = document.createElement('div'); tmp.innerHTML = liveStrip(); if (tmp.firstChild) { s.outerHTML = tmp.firstChild.outerHTML; runAnim($('#strip')); } }
-    if (state.view === 'share') { var tt = $('#tot4'), tmp2 = document.createElement('div'); tmp2.innerHTML = viewShare(); var nt = $('#tot4', tmp2); if (tt && nt) tt.outerHTML = nt.outerHTML; }
+    if (state.view === 'share') { var tt = $('#tot4w'), tmp2 = document.createElement('div'); tmp2.innerHTML = viewShare(); var nt = $('#tot4w', tmp2); if (tt && nt) tt.outerHTML = nt.outerHTML; }
     if (state.view === 'items') $$('.pi').forEach(function (card) {
       var i = +card.getAttribute('data-item'), p = pcItems(state.pc)[i];
       if (p && p.parts) { var sum = $('.part-f b', card); if (sum) sum.textContent = fmtN(n0(p.cost), 2); var ci = $('#f-i-' + i + '-cost', card); if (ci) ci.value = fmtIn(p.cost, 'dec'); }
@@ -4613,7 +4754,7 @@ function pcSample(k) {
     var el = e.target;
     if (!el.hasAttribute) return;
     if (el.hasAttribute('data-path') && el.getAttribute('data-t') === 'money') { var v = getP(el.getAttribute('data-path')); if (v !== null && v !== undefined) el.value = fmtIn(v, 'money'); }
-    if (el.hasAttribute('data-tv')) { var T = state.trial; if (T && T.vals[el.getAttribute('data-tv')] !== undefined) el.value = String(Math.round(T.vals[el.getAttribute('data-tv')] * 100) / 100); }
+    if (el.hasAttribute('data-tv')) { var T = state.trial; if (T && T.vals[el.getAttribute('data-tv')] !== undefined) el.value = tvFmt(T.vals[el.getAttribute('data-tv')]); }
   }
   function onKey(e) {
     if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].indexOf(e.key) >= 0 && e.target.getAttribute && e.target.getAttribute('role') === 'tab') {

@@ -228,8 +228,8 @@ const find = (R, kind) => R.finds.filter((f) => (f.kind || f.id) === kind);
 /* 1.16 ร้านกาแฟตัวอย่าง: อเมริกาโน่บน GrabFood และครัวซองต์บน LINE MAN */
 {
   const S = fn('pcSample', 'cafe'), R = pcC(S.pc, S.inp, S.m);
-  const ame = cell(R, 0, 1), list = 60 * 1.15, fee = list * 0.321;
-  near(ame.left, list - fee - 16 - 6 / 1.5, 0.01, '1.16 cafe americano on Grab: 69 − 22.149 − 16 − 4');
+  const ame = cell(R, 0, 1), list = 65 * 1.15, fee = list * 0.321;
+  near(ame.left, list - fee - 16 - 6 / 1.5, 0.01, '1.16 cafe americano on Grab: 74.75 − 23.995 − 16 − 4');
   near(ame.units, 22 * 26 * 0.16, 1e-9, '1.16 cafe americano on Grab: 22 × 26 × 16%');
   const cro = cell(R, 5, 2), net = 75 * 0.8;
   near(cro.left, net - net * 0.321 - 40 - 4, 0.01, '1.16 cafe croissant on LINE MAN: 60 − 19.26 − 40 − 4');
