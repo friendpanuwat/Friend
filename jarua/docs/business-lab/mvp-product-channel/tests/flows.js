@@ -73,7 +73,7 @@ async function checkNumbers(env, label) {
     }
     /* บรรทัดใต้แผงดำต้องรวมกันได้กำไร */
     const walk = [...document.querySelectorAll('.res4 .walk > div')].map(d => [d.querySelector('span').textContent, parse(d.querySelector('b').textContent)]);
-    const wl = walk.find(w => w[0] === 'เงินที่เหลือจากทุกสินค้า');
+    const wl = walk.find(w => /^เงินที่เหลือจากทุก(สินค้า|บริการ)$/.test(w[0]));
     if (!wl || Math.abs(wl[1] - R.left) > 0.51) P.push('walk left ' + (wl && wl[1]) + ' vs R.left ' + R.left);
     const wsum = walk.filter(w => w[0] !== 'ยอดขาย').reduce((s, w) => s + w[1], 0);
     if (Math.abs(wsum - R.profit) > walk.length * 0.5 + 0.5) P.push('walk lines add to ' + wsum + ' but profit ' + R.profit + ' ' + JSON.stringify(walk));
