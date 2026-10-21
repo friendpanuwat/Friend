@@ -687,7 +687,9 @@ button.ovt[aria-expanded="true"] .k svg { transform: rotate(180deg); }
 .pv-tk.l { transform: translateX(calc(-100% - 5px)); }
 .pv-tk.r { transform: translateX(5px); }
 .pv-mk.have { top: 48px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 8px solid var(--ink); }
-.pv-mk.have em { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: 11px; font-weight: 700; white-space: nowrap; color: var(--ink-2); }
+/* ป้ายใต้จุดที่คาด เลื่อนตามจุดแต่ไม่ล้นแถบ (ซ้ายสุดป้ายเริ่มที่จุด ขวาสุดป้ายจบที่จุด) · ยาวจนขึ้น 2 บรรทัดก็ดันตัวเลขใต้แถบลงไป ไม่ทับกัน */
+.pv-mkl { margin-top: -14px; }
+.pv-mkl em { display: block; width: max-content; max-width: calc(100% - 28px); font-style: normal; font-size: 11px; font-weight: 700; line-height: 1.35; text-wrap: balance; color: var(--ink-2); }
 .pv-track input[type="range"] { position: absolute; left: 0; right: 0; top: 11px; width: 100%; height: 44px; margin: 0; background: transparent; }
 .pv-track input[type="range"]::-webkit-slider-runnable-track { background: transparent; }
 .pv-track input[type="range"]::-moz-range-track { background: transparent; }
@@ -859,8 +861,6 @@ h1.pp-t { font-size: 28px; line-height: 1.3; margin: 0; text-wrap: balance; }
 .ckc .ck-d .sbtn { justify-self: start; }
 .next3 .tools .qm i { background: var(--surface); }
 .next3 .tools .qm[aria-expanded="true"] i { background: var(--ink); }
-.pv-mk.have.el em { left: -6px; transform: none; }
-.pv-mk.have.er em { left: auto; right: -6px; transform: none; }
 .pv-chips .sc span { text-wrap: balance; }
 </style>
 <div id="app"></div>
@@ -4308,6 +4308,7 @@ function dPivot0(inp, m, T, d) {
     P.q = 'ต้อง' + gainWord(m) + 'เท่าไร ถึงจะคุ้ม' + { hire: isKind(d, 'full') || !d.kind ? 'เงินเดือนคนใหม่' : 'ค่าจ้างคนใหม่', equip: 'ค่าเครื่อง', ads: 'ค่าโฆษณา', freelance: 'ค่าจ้าง' }[T];
     P.lab = 'ต้อง' + gainWord(m);
     P.word = gainWord(m);
+    P.exp = 'จะ' + gainWord(m);
     P.lo = 0;
   } else if (PCT_PIV[T]) {
     P.get = function (dd) { return n0(dd[P.key]); };
@@ -4316,14 +4317,15 @@ function dPivot0(inp, m, T, d) {
     P.pct = true;
     P.q = T === 'price' ? sw + 'ลดลงได้แค่ไหน ราคาที่ขึ้นถึงจะยังคุ้ม' : T === 'promo' ? 'ช่วงจัดโปร ' + sw + 'ต้องเพิ่มเท่าไร ถึงจะคุ้ม' : sw + 'ต้องเพิ่มเท่าไร ถึงจะคุ้มค่าส่ง';
     P.word = T === 'price' ? sw + 'ลดลง' : T === 'promo' ? 'ช่วงโปร' + sw + 'เพิ่มขึ้น' : sw + 'เพิ่มขึ้น';
+    P.exp = T === 'price' ? sw + 'จะลดลง' : T === 'promo' ? 'ช่วงโปร' + sw + 'จะเพิ่มขึ้น' : sw + 'จะเพิ่มขึ้น';
     P.lab = T === 'price' ? sw + 'ลดลงได้' : T === 'promo' ? 'ช่วงโปร' + sw + 'ต้องเพิ่ม' : sw + 'ต้องเพิ่ม';
     P.lo = 0;
     P.showHave = true;
   } else if (T === 'newprod') {
     P.get = function (dd) { return n0(dd[P.key]); };
     P.set = function (dd, v) { return withD(dd, P.key, Math.max(0, P.key === 'npAttach' ? Math.min(100, v) : v)); };
-    if (P.key === 'npAttach') { P.unit = '% ของ' + U(inp, m) + 'ที่ขาย'; P.word = 'ลูกค้าซื้อพ่วง'; P.lab = 'ลูกค้าต้องซื้อพ่วง'; P.q = 'ลูกค้าต้องซื้อพ่วงกี่ % ถึงจะคุ้ม'; }
-    else { P.unit = npUnit(m) + '/' + perWord(inp); P.word = 'ของใหม่ขายได้'; P.lab = 'ของใหม่ต้องขายได้'; P.q = 'ของใหม่ต้องขายได้เท่าไร ถึงจะคุ้ม'; }
+    if (P.key === 'npAttach') { P.unit = '% ของ' + U(inp, m) + 'ที่ขาย'; P.word = 'ลูกค้าซื้อพ่วง'; P.exp = 'ลูกค้าจะซื้อพ่วง'; P.lab = 'ลูกค้าต้องซื้อพ่วง'; P.q = 'ลูกค้าต้องซื้อพ่วงกี่ % ถึงจะคุ้ม'; }
+    else { P.unit = npUnit(m) + '/' + perWord(inp); P.word = 'ของใหม่ขายได้'; P.exp = 'ของใหม่จะขายได้'; P.lab = 'ของใหม่ต้องขายได้'; P.q = 'ของใหม่ต้องขายได้เท่าไร ถึงจะคุ้ม'; }
     P.lo = 0;
   } else if (T === 'supplier') {
     P.get = function (dd) { return cur * (1 + n0(dd.supSales) / 100); };
@@ -4331,6 +4333,7 @@ function dPivot0(inp, m, T, d) {
     P.verb = m === 'service' ? 'มีลูกค้า' : 'ขายได้';
     P.q = 'หลังเปลี่ยน ต้อง' + P.verb + 'เท่าไร ถึงจะคุ้ม';
     P.word = sw + 'หลังเปลี่ยน';
+    P.exp = 'หลังเปลี่ยนจะ' + P.verb;
     P.lab = 'หลังเปลี่ยนต้อง' + P.verb;
     P.lo = cur * 0.1;
     P.now = cur;
@@ -4343,6 +4346,7 @@ function dPivot0(inp, m, T, d) {
     P.verb = { rental: 'มีคนเช่า', subscription: 'มีสมาชิก', project: 'ได้งาน', commission: 'ปิดดีลได้', other: 'ได้เงิน' }[m] || (m === 'service' ? 'มีลูกค้า' : 'ขายได้');
     P.q = 'ที่ใหม่ต้อง' + P.verb + 'เท่าไร ถึงจะคุ้ม';
     P.word = salesWord(m) + 'ที่ใหม่';
+    P.exp = 'ที่ใหม่จะ' + P.verb;
     P.lab = 'ที่ใหม่ต้อง' + P.verb;
     P.lo = cur * 0.1;
     P.now = cur;
@@ -4356,6 +4360,7 @@ function dPivot0(inp, m, T, d) {
     P.word = { subscription: tj('ได้สมาชิกผ่าน', chn), project: tj('ได้งานผ่าน', chn), rental: tj('มีคนเช่าผ่าน', chn), commission: tj('ปิดดีลผ่าน', chn) + 'ได้' }[m] || tj('ขายผ่าน', chn) + 'ได้';
     P.q = 'ต้อง' + P.word + 'เท่าไร ถึงจะคุ้ม';
     P.lab = 'ต้อง' + P.word;
+    P.exp = 'จะ' + P.word;
     if (m === 'rental') P.unit = '% ของทั้งหมด';
     P.lo = 0;
   } else {
@@ -4364,6 +4369,7 @@ function dPivot0(inp, m, T, d) {
     P.set = function (dd, v) { return withD(dd, 'bPct', Math.max(0, v)); };
     P.q = 'สาขาต้องมี' + salesWord(m) + 'เท่าไร ถึงจะคุ้ม';
     P.word = 'สาขามี' + salesWord(m);
+    P.exp = 'สาขาจะมี' + salesWord(m);
     P.lab = 'สาขาต้องมี' + salesWord(m);
     P.unit = '% ของร้านเดิม';
     P.lo = 0;
@@ -5512,8 +5518,9 @@ function fmtCompact(n) {
         '<span class="pv-tk l" style="left:calc(14px + (100% - 28px) * ' + (np / 100).toFixed(4) + ')" aria-hidden="true">' + (be.kind === 'max' ? nf(downAt(be.x, state.model, v), '') : P.need !== null ? nf(needAt(P, P.need, state.model, v), '') : '') + '</span>' : '') +
       (pp !== null && pp < 100 ? '<span class="pv-mk pay" style="left:calc(14px + (100% - 28px) * ' + (pp / 100).toFixed(4) + ')" aria-hidden="true"></span>' +
         '<span class="pv-tk r" style="left:calc(14px + (100% - 28px) * ' + (pp / 100).toFixed(4) + ')" aria-hidden="true">' + nf(needAt(P, P.payNeed, state.model, v), '') + '</span>' : '') +
-      (hp !== null ? '<span class="pv-mk have' + (hp < 30 ? ' el' : hp > 70 ? ' er' : '') + '" style="left:calc(14px + (100% - 28px) * ' + (hp / 100).toFixed(4) + ')" aria-hidden="true"><em>' + (state.topic === 'price' ? 'คุณคาดว่า' + salesWord(state.model) + 'จะลดลง' : 'คุณคาด') + '</em></span>' : '') +
+      (hp !== null ? '<span class="pv-mk have" style="left:calc(14px + (100% - 28px) * ' + (hp / 100).toFixed(4) + ')" aria-hidden="true"></span>' : '') +
       '<input type="range" id="pvr" data-pv="1" min="' + P.lo + '" max="' + P.hi + '" step="' + P.step + '" value="' + v + '" aria-label="' + esc(P.q) + '" aria-valuetext="' + esc(pivotWord(P, v)) + '"></div>' +
+      (hp !== null ? '<div class="pv-mkl" aria-hidden="true"><em style="margin-left:calc(14px + (100% - 28px) * ' + (hp / 100).toFixed(4) + ');transform:translateX(' + (-hp).toFixed(2) + '%)">' + tw('จุดที่คุณคาดการณ์ว่า' + P.exp) + '</em></div>' : '') +
       '<div class="pv-scale" aria-hidden="true"><span>' + nf(P.lo, '') + '</span><span>' + nf(P.hi, P.unit) + '</span></div>' + qmT('pv', leg, 'div') +
       (chips ? '<div class="pv-chips" role="group" aria-label="ถ้าไม่เป็นอย่างที่คาด">' + chips + '</div>' : '') + '</section>';
   }

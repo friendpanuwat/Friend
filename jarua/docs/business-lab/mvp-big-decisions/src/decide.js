@@ -471,6 +471,7 @@ function dPivot0(inp, m, T, d) {
     P.q = 'ต้อง' + gainWord(m) + 'เท่าไร ถึงจะคุ้ม' + { hire: isKind(d, 'full') || !d.kind ? 'เงินเดือนคนใหม่' : 'ค่าจ้างคนใหม่', equip: 'ค่าเครื่อง', ads: 'ค่าโฆษณา', freelance: 'ค่าจ้าง' }[T];
     P.lab = 'ต้อง' + gainWord(m);
     P.word = gainWord(m);
+    P.exp = 'จะ' + gainWord(m);
     P.lo = 0;
   } else if (PCT_PIV[T]) {
     P.get = function (dd) { return n0(dd[P.key]); };
@@ -479,14 +480,15 @@ function dPivot0(inp, m, T, d) {
     P.pct = true;
     P.q = T === 'price' ? sw + 'ลดลงได้แค่ไหน ราคาที่ขึ้นถึงจะยังคุ้ม' : T === 'promo' ? 'ช่วงจัดโปร ' + sw + 'ต้องเพิ่มเท่าไร ถึงจะคุ้ม' : sw + 'ต้องเพิ่มเท่าไร ถึงจะคุ้มค่าส่ง';
     P.word = T === 'price' ? sw + 'ลดลง' : T === 'promo' ? 'ช่วงโปร' + sw + 'เพิ่มขึ้น' : sw + 'เพิ่มขึ้น';
+    P.exp = T === 'price' ? sw + 'จะลดลง' : T === 'promo' ? 'ช่วงโปร' + sw + 'จะเพิ่มขึ้น' : sw + 'จะเพิ่มขึ้น';
     P.lab = T === 'price' ? sw + 'ลดลงได้' : T === 'promo' ? 'ช่วงโปร' + sw + 'ต้องเพิ่ม' : sw + 'ต้องเพิ่ม';
     P.lo = 0;
     P.showHave = true;
   } else if (T === 'newprod') {
     P.get = function (dd) { return n0(dd[P.key]); };
     P.set = function (dd, v) { return withD(dd, P.key, Math.max(0, P.key === 'npAttach' ? Math.min(100, v) : v)); };
-    if (P.key === 'npAttach') { P.unit = '% ของ' + U(inp, m) + 'ที่ขาย'; P.word = 'ลูกค้าซื้อพ่วง'; P.lab = 'ลูกค้าต้องซื้อพ่วง'; P.q = 'ลูกค้าต้องซื้อพ่วงกี่ % ถึงจะคุ้ม'; }
-    else { P.unit = npUnit(m) + '/' + perWord(inp); P.word = 'ของใหม่ขายได้'; P.lab = 'ของใหม่ต้องขายได้'; P.q = 'ของใหม่ต้องขายได้เท่าไร ถึงจะคุ้ม'; }
+    if (P.key === 'npAttach') { P.unit = '% ของ' + U(inp, m) + 'ที่ขาย'; P.word = 'ลูกค้าซื้อพ่วง'; P.exp = 'ลูกค้าจะซื้อพ่วง'; P.lab = 'ลูกค้าต้องซื้อพ่วง'; P.q = 'ลูกค้าต้องซื้อพ่วงกี่ % ถึงจะคุ้ม'; }
+    else { P.unit = npUnit(m) + '/' + perWord(inp); P.word = 'ของใหม่ขายได้'; P.exp = 'ของใหม่จะขายได้'; P.lab = 'ของใหม่ต้องขายได้'; P.q = 'ของใหม่ต้องขายได้เท่าไร ถึงจะคุ้ม'; }
     P.lo = 0;
   } else if (T === 'supplier') {
     P.get = function (dd) { return cur * (1 + n0(dd.supSales) / 100); };
@@ -494,6 +496,7 @@ function dPivot0(inp, m, T, d) {
     P.verb = m === 'service' ? 'มีลูกค้า' : 'ขายได้';
     P.q = 'หลังเปลี่ยน ต้อง' + P.verb + 'เท่าไร ถึงจะคุ้ม';
     P.word = sw + 'หลังเปลี่ยน';
+    P.exp = 'หลังเปลี่ยนจะ' + P.verb;
     P.lab = 'หลังเปลี่ยนต้อง' + P.verb;
     P.lo = cur * 0.1;
     P.now = cur;
@@ -506,6 +509,7 @@ function dPivot0(inp, m, T, d) {
     P.verb = { rental: 'มีคนเช่า', subscription: 'มีสมาชิก', project: 'ได้งาน', commission: 'ปิดดีลได้', other: 'ได้เงิน' }[m] || (m === 'service' ? 'มีลูกค้า' : 'ขายได้');
     P.q = 'ที่ใหม่ต้อง' + P.verb + 'เท่าไร ถึงจะคุ้ม';
     P.word = salesWord(m) + 'ที่ใหม่';
+    P.exp = 'ที่ใหม่จะ' + P.verb;
     P.lab = 'ที่ใหม่ต้อง' + P.verb;
     P.lo = cur * 0.1;
     P.now = cur;
@@ -519,6 +523,7 @@ function dPivot0(inp, m, T, d) {
     P.word = { subscription: tj('ได้สมาชิกผ่าน', chn), project: tj('ได้งานผ่าน', chn), rental: tj('มีคนเช่าผ่าน', chn), commission: tj('ปิดดีลผ่าน', chn) + 'ได้' }[m] || tj('ขายผ่าน', chn) + 'ได้';
     P.q = 'ต้อง' + P.word + 'เท่าไร ถึงจะคุ้ม';
     P.lab = 'ต้อง' + P.word;
+    P.exp = 'จะ' + P.word;
     if (m === 'rental') P.unit = '% ของทั้งหมด';
     P.lo = 0;
   } else {
@@ -527,6 +532,7 @@ function dPivot0(inp, m, T, d) {
     P.set = function (dd, v) { return withD(dd, 'bPct', Math.max(0, v)); };
     P.q = 'สาขาต้องมี' + salesWord(m) + 'เท่าไร ถึงจะคุ้ม';
     P.word = 'สาขามี' + salesWord(m);
+    P.exp = 'สาขาจะมี' + salesWord(m);
     P.lab = 'สาขาต้องมี' + salesWord(m);
     P.unit = '% ของร้านเดิม';
     P.lo = 0;

@@ -876,8 +876,9 @@
         '<span class="pv-tk l" style="left:calc(14px + (100% - 28px) * ' + (np / 100).toFixed(4) + ')" aria-hidden="true">' + (be.kind === 'max' ? nf(downAt(be.x, state.model, v), '') : P.need !== null ? nf(needAt(P, P.need, state.model, v), '') : '') + '</span>' : '') +
       (pp !== null && pp < 100 ? '<span class="pv-mk pay" style="left:calc(14px + (100% - 28px) * ' + (pp / 100).toFixed(4) + ')" aria-hidden="true"></span>' +
         '<span class="pv-tk r" style="left:calc(14px + (100% - 28px) * ' + (pp / 100).toFixed(4) + ')" aria-hidden="true">' + nf(needAt(P, P.payNeed, state.model, v), '') + '</span>' : '') +
-      (hp !== null ? '<span class="pv-mk have' + (hp < 30 ? ' el' : hp > 70 ? ' er' : '') + '" style="left:calc(14px + (100% - 28px) * ' + (hp / 100).toFixed(4) + ')" aria-hidden="true"><em>' + (state.topic === 'price' ? 'คุณคาดว่า' + salesWord(state.model) + 'จะลดลง' : 'คุณคาด') + '</em></span>' : '') +
+      (hp !== null ? '<span class="pv-mk have" style="left:calc(14px + (100% - 28px) * ' + (hp / 100).toFixed(4) + ')" aria-hidden="true"></span>' : '') +
       '<input type="range" id="pvr" data-pv="1" min="' + P.lo + '" max="' + P.hi + '" step="' + P.step + '" value="' + v + '" aria-label="' + esc(P.q) + '" aria-valuetext="' + esc(pivotWord(P, v)) + '"></div>' +
+      (hp !== null ? '<div class="pv-mkl" aria-hidden="true"><em style="margin-left:calc(14px + (100% - 28px) * ' + (hp / 100).toFixed(4) + ');transform:translateX(' + (-hp).toFixed(2) + '%)">' + tw('จุดที่คุณคาดการณ์ว่า' + P.exp) + '</em></div>' : '') +
       '<div class="pv-scale" aria-hidden="true"><span>' + nf(P.lo, '') + '</span><span>' + nf(P.hi, P.unit) + '</span></div>' + qmT('pv', leg, 'div') +
       (chips ? '<div class="pv-chips" role="group" aria-label="ถ้าไม่เป็นอย่างที่คาด">' + chips + '</div>' : '') + '</section>';
   }
