@@ -198,3 +198,9 @@ div.frow.f4 { cursor: default; }
 .still .duo i b, .still .stack i, .still .wf4 .r i b { animation: none; }
 @media (prefers-reduced-motion: reduce) { .duo i b, .stack i, .wf4 .r i b, .pi { animation: none !important; } }
 .pi .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.banner4 { background: var(--card); border-radius: var(--r-sm); padding: 8px 8px 8px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 0 12px; }
+.banner4 span { display: grid; font-weight: 700; font-size: 15px; line-height: 1.35; min-width: 0; }
+.banner4 small { font-size: 12px; font-weight: 600; color: var(--muted); }
+.banner4 .btn.ghost { background: var(--surface); }
+#tot4w { display: grid; gap: 8px; }
+#tot4w .sbtn { justify-self: start; }

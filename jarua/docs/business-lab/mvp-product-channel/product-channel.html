@@ -694,6 +694,12 @@ div.frow.f4 { cursor: default; }
 .still .duo i b, .still .stack i, .still .wf4 .r i b { animation: none; }
 @media (prefers-reduced-motion: reduce) { .duo i b, .stack i, .wf4 .r i b, .pi { animation: none !important; } }
 .pi .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.banner4 { background: var(--card); border-radius: var(--r-sm); padding: 8px 8px 8px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 0 12px; }
+.banner4 span { display: grid; font-weight: 700; font-size: 15px; line-height: 1.35; min-width: 0; }
+.banner4 small { font-size: 12px; font-weight: 600; color: var(--muted); }
+.banner4 .btn.ghost { background: var(--surface); }
+#tot4w { display: grid; gap: 8px; }
+#tot4w .sbtn { justify-self: start; }
 </style>
 <div id="app"></div>
 <script>
@@ -3364,21 +3370,21 @@ function pcFinds(R) {
 /* ---------- คำถามเช็ก → จุดที่ควรตรวจสอบ → เครื่องมือ PL1 (อ้างด้วยรหัส) ----------
    ans = คำบนปุ่ม · risk = คำตอบที่นับเป็นจุดที่ควรตรวจสอบ (ไม่แน่ใจ นับเสมอ) · ไม่บอกวิธีแก้ */
 var QB4 = {
-  loss_price: { q: 'ราคาบนช่องทางที่ขายผ่านแอปหรือแพลตฟอร์ม ตั้งโดยคิดค่าธรรมเนียมและส่วนลดของช่องทางนั้นแล้วหรือยัง?', ans: { yes: 'คิดแล้ว', no: 'ยังไม่ได้คิด', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  loss_price: { q: 'ราคาบน{c} ตั้งโดยคิดค่าธรรมเนียมและส่วนลดของช่องทางนั้นแล้วหรือยัง?', cd: 'ช่องทางที่ขายผ่านแอปหรือแพลตฟอร์ม', ans: { yes: 'คิดแล้ว', no: 'ยังไม่ได้คิด', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ราคาบนแต่ละช่องทาง', d: 'เช็กว่าราคาบนช่องทางนั้นครอบคลุมค่าธรรมเนียม ส่วนลดที่ร้านออก และค่าแพ็กแล้วหรือยัง', tools: ['grow13', 'cust5'] },
-  loss_cost: { q: 'ต้นทุนของสินค้าที่ขาดทุน รวมแพ็กเกจและของที่เสียระหว่างทำแล้วหรือยัง?', ans: { yes: 'รวมแล้ว', no: 'ยังไม่รวม', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  loss_cost: { q: 'ต้นทุนของ{p} รวมแพ็กเกจและของที่เสียระหว่างทำแล้วหรือยัง?', pd: 'สินค้าที่ขาดทุน', ans: { yes: 'รวมแล้ว', no: 'ยังไม่รวม', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ต้นทุนต่อชิ้น', d: 'เช็กต้นทุนทีละอย่าง (วัตถุดิบ แพ็กเกจ ของเสีย) ว่าตรงกับที่ซื้อจริงไหม', tools: ['grow13'] },
-  ch_new: { q: 'ลูกค้าที่ซื้อผ่านช่องทางที่เหลือเงินน้อย ส่วนใหญ่เป็นลูกค้าใหม่ที่ไม่ได้ซื้อทางอื่นใช่ไหม?', ans: { yes: 'ใช่', no: 'ไม่ใช่', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  ch_new: { q: 'ลูกค้าที่ซื้อผ่าน{c} ส่วนใหญ่เป็นลูกค้าใหม่ที่ไม่ได้ซื้อทางอื่นใช่ไหม?', cd: 'ช่องทางที่เหลือเงินน้อย', ans: { yes: 'ใช่', no: 'ไม่ใช่', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ลูกค้าที่ย้ายมาจากช่องทางอื่น', d: 'เช็กว่าลูกค้าในช่องทางนั้นเป็นคนใหม่ หรือเป็นลูกค้าเดิมที่เปลี่ยนมาซื้อทางที่เหลือเงินน้อยกว่า', tools: ['cust5', 'bmc10'] },
-  ch_ads: { q: 'คุณรู้ไหมว่าค่าใช้จ่ายรายเดือนของช่องทางนั้น (เช่น โฆษณาในแอป) ทำให้ขายได้เพิ่มกี่ชิ้น?', ans: { yes: 'รู้', no: 'ไม่รู้', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  ch_ads: { q: 'คุณรู้ไหมว่าค่าใช้จ่ายรายเดือนของ{c} (เช่น โฆษณาในแอป) ทำให้ขายได้เพิ่มกี่ชิ้น?', cd: 'ช่องทางนั้น', ans: { yes: 'รู้', no: 'ไม่รู้', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ผลของค่าใช้จ่ายของช่องทาง', d: 'เช็กยอดขายของช่องทางนั้นช่วงที่จ่ายกับช่วงที่ไม่จ่าย', tools: ['bmc10', 'grow9'] },
-  p_cost: { q: 'ต้นทุนของสินค้าที่เหลือเงินน้อย รวมแพ็กเกจและของที่เสียแล้วหรือยัง?', ans: { yes: 'รวมแล้ว', no: 'ยังไม่รวม', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  p_cost: { q: 'ต้นทุนของ{p} รวมแพ็กเกจและของที่เสียแล้วหรือยัง?', pd: 'สินค้าที่เหลือเงินน้อย', ans: { yes: 'รวมแล้ว', no: 'ยังไม่รวม', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ต้นทุนของสินค้าที่เหลือเงินน้อย', d: 'เช็กต้นทุนทีละอย่างของสินค้านั้นว่าตรงกับที่ซื้อจริงไหม', tools: ['grow13'] },
-  p_price: { q: 'เคยเทียบราคาของสินค้าที่เหลือเงินน้อยกับร้านอื่นที่ขายของคล้ายกันไหม?', ans: { yes: 'เคย', no: 'ไม่เคย', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  p_price: { q: 'เคยเทียบราคาของ{p}กับร้านอื่นที่ขายของคล้ายกันไหม?', pd: 'สินค้าที่เหลือเงินน้อย', ans: { yes: 'เคย', no: 'ไม่เคย', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ราคาเทียบกับร้านอื่น', d: 'เช็กว่าราคาของสินค้านั้นต่ำกว่าร้านอื่นที่ขายของคล้ายกันไหม และต่างกันเท่าไร', tools: ['grow13', 'grow10'] },
-  p_pair: { q: 'ลูกค้าที่ซื้อสินค้าที่เหลือเงินน้อย มักซื้อสินค้าอื่นของร้านไปด้วยไหม?', ans: { yes: 'ใช่', no: 'ไม่ใช่', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  p_pair: { q: 'ลูกค้าที่ซื้อ{p} มักซื้อสินค้าอื่นของร้านไปด้วยไหม?', pd: 'สินค้าที่เหลือเงินน้อย', ans: { yes: 'ใช่', no: 'ไม่ใช่', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'สินค้าที่ลูกค้าซื้อคู่กัน', d: 'เช็กว่าสินค้านั้นพาให้ลูกค้าซื้อสินค้าอื่นของร้านด้วยหรือเปล่า และลูกค้ากลุ่มนั้นซื้ออะไรอีก', tools: ['bmc8', 'grow10'] },
-  conc: { q: 'ถ้าสินค้าที่ขายดีที่สุดขายได้น้อยลง ร้านมีสินค้าอื่นที่ลูกค้าซื้อแทนได้ไหม?', ans: { yes: 'มี', no: 'ไม่มี', unsure: 'ไม่แน่ใจ' }, risk: 'no',
+  conc: { q: 'ถ้า{p}ขายได้น้อยลง ร้านมีสินค้าอื่นที่ลูกค้าซื้อแทนได้ไหม?', pd: 'สินค้าที่ขายดีที่สุด', ans: { yes: 'มี', no: 'ไม่มี', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'การพึ่งสินค้าตัวเดียว', d: 'เช็กว่าถ้าสินค้าตัวนั้นขายได้น้อยลง ร้านจะเสียเงินเท่าไร และลูกค้ามีตัวเลือกอื่นในร้านไหม', tools: ['grow10', 'bmc8'] },
   f_pack: { q: 'ค่าแพ็กเกจ ค่าส่ง และค่าธรรมเนียมของทุกช่องทาง ใส่ไว้ในตัวเลขครบแล้วหรือยัง?', ans: { yes: 'ครบแล้ว', no: 'ยังไม่ครบ', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'ค่าใช้จ่ายของแต่ละช่องทาง', d: 'เช็กใบสรุปยอดของแต่ละช่องทาง ว่าหักอะไรไปบ้างต่อออร์เดอร์', tools: ['cust5'] }
@@ -3390,6 +3396,22 @@ function pcAskList(R) {
   if (!L.length) L = R && R.many ? ['loss_price', 'p_pair', 'f_pack'] : ['p_price', 'p_pair', 'conc'];
   return L.slice(0, 5);
 }
+
+/* ชื่อสินค้าหรือช่องทางที่คำถามแต่ละข้อพูดถึง (จากสิ่งที่ตัวเลขบอกข้อแรกที่ใช้คำถามนั้น) */
+function pcAskCtx(R) {
+  var o = {};
+  (R && R.ok ? R.finds : []).forEach(function (f) {
+    var p = f.prod !== undefined ? R.prods[f.prod].name : f.cells && f.cells.length ? R.rows[f.cells[0].i].name : null;
+    var c = f.ch !== undefined ? R.chans[f.ch].name : f.cells && f.cells.length && R.many ? chName(R.chs[f.cells[0].j]) : null;
+    (f.q || []).forEach(function (q) { if (!o[q]) o[q] = { p: p, c: c }; });
+  });
+  return o;
+}
+function qbText(key, ctx) {
+  var b = QB4[key], x = (ctx && ctx[key]) || {};
+  return b.q.replace('{p}', x.p || b.pd || 'สินค้านี้').replace('{c}', x.c ? ' ' + x.c : b.cd || 'ช่องทางนี้');
+}
+function qbName(key, ctx) { var x = (ctx && ctx[key]) || {}; return QB4[key].q.indexOf('{c}') >= 0 ? x.c : QB4[key].q.indexOf('{p}') >= 0 ? x.p : null; }
 
 /* ---------- ตัวเลขร้านจากรายสินค้า (ใช้เมื่อผู้ใช้เลือกเอง หรือเมื่อตัวที่ 4 เป็นคนสร้างตัวเลขร้าน) ----------
    ราคาเฉลี่ย = ยอดขายหลังส่วนลด ÷ จำนวน · ต้นทุนต่อหน่วย = ต้นทุนสินค้า + ค่าแพ็ก · ค่าธรรมเนียม = % ของยอดขาย
@@ -3765,7 +3787,7 @@ function pcSample(k) {
       ph: typeof sample === 'number' ? 'เช่น ' + (sample >= 1000 ? Math.round(sample).toLocaleString('th-TH') : sample) : '', hidden: f.show && !f.show(inp, m) });
   }
   function qHead(q, p, key) {
-    q = esc(qmark(q));
+    q = tw(qmark(q));
     if (!p) return '<div class="q-head"><h1>' + q + '</h1></div>';
     return '<div class="q-head"><div class="hq"><h1>' + q + '</h1>' + qmBtn('q-' + key, q) + '</div>' + qmT('q-' + key, esc(p)) + '</div>';
   }
@@ -3796,6 +3818,8 @@ function pcSample(k) {
     var mult = perMult(state.inp), rev = 0, left = 0;
     if (v === 'items' || v === 'chpick' || !channelsStepOk(state.pc)) {
       rows.forEach(function (p) { var u = n0(p.qty) * mult; rev += n0(p.price) * u; left += (n0(p.price) - n0(p.cost)) * u; });
+      var rs = state.pc.rest;
+      if (rs && rs.on === true && pos(rs.sales) !== null) { var sm = n0(rs.sales) * mult; rev += sm; left += sm * (1 - Math.min(100, n0(rs.costPct)) / 100); }
       if (v === 'ch') {
         var c = chList(state.pc)[state.k];
         if (c && !chMissing(c, state.pc)) {
@@ -3878,8 +3902,14 @@ function pcSample(k) {
     return stepBar('สัดส่วนการขาย') + '<main class="screen"><div class="wrap">' + progHtml() + liveStrip() +
       qHead('ขายผ่านแต่ละช่องทางประมาณกี่ %', 'คิดจากจำนวนที่ขาย (ไม่ใช่ยอดเงิน) รวมกันต้องได้ 100% · ตัวเลขประมาณก็ได้ ดูได้จากใบสรุปยอดของแต่ละช่องทาง', 'share') +
       '<div class="qfields">' + chs.map(function (c, j) { return fld('c.' + j + '.share', chName(c), { t: 'pct', suf: '% ของจำนวนที่ขาย' }); }).join('') +
-      '<div class="tot4" id="tot4" role="status"><span>รวม</span><b class="num">' + fmtN(tot, 1) + '%</b>' + (Math.abs(tot - 100) < 0.51 ? '<i>' + ICON.ok + '</i>' : '<small>' + (tot < 100 ? 'ขาดอีก ' + fmtN(100 - tot, 1) + '%' : 'เกินมา ' + fmtN(tot - 100, 1) + '%') + '</small>') + '</div>' +
+      '<div id="tot4w"><div class="tot4" role="status"><span>รวม</span><b class="num">' + fmtN(tot, 1) + '%</b>' + (Math.abs(tot - 100) < 0.51 ? '<i>' + ICON.ok + '</i>' : '<small>' + (tot < 100 ? 'ขาดอีก ' + fmtN(100 - tot, 1) + '%' : 'เกินมา ' + fmtN(tot - 100, 1) + '%') + '</small>') + '</div>' + shareFillBtn() + '</div>' +
       '</div></div></main>' + footStep();
+  }
+  /* ช่องทางเดียวที่ยังไม่ได้ใส่ % และที่เหลือยังไม่ครบ 100: ปุ่มใส่ส่วนที่เหลือให้ */
+  function shareFillBtn() {
+    var chs = chList(state.pc), empty = chs.map(function (c, j) { return num(c.share) === null ? j : -1; }).filter(function (j) { return j >= 0; }), rest = 100 - shareSum(state.pc);
+    if (empty.length !== 1 || rest <= 0.05) return '';
+    return '<button type="button" class="sbtn light" data-act="share-fill" data-j="' + empty[0] + '">ใส่ ' + fmtN(rest, 1) + '% ให้ ' + tw(chName(chs[empty[0]])) + '</button>';
   }
   function viewCh() {
     var j = state.k, c = chList(state.pc)[j];
@@ -4009,7 +4039,7 @@ function pcSample(k) {
     var body = state.tab === 'c' ? chanList(R) : state.tab === 'g' ? gridHtml(R) : prodList(R);
     var out = bar('<button class="tb" data-act="back" aria-label="กลับหน้าแรก">' + ICON.back + 'หน้าแรก</button>', 'สินค้าและช่องทาง', state.isSample ? '' : MODELS[state.model].tile) +
       '<main class="screen res4m"><div class="wrap">' +
-      (state.isSample ? '<div class="banner"><span>กำลังใช้' + esc(PC_SAMPLES[state.sampleKind].name) + '</span><button class="btn ghost sm" data-act="mine">ใส่ตัวเลขร้านคุณ</button></div>' : '') +
+      (state.isSample ? '<div class="banner4"><span><small>กำลังใช้</small>' + esc(PC_SAMPLES[state.sampleKind].name) + '</span><button class="btn ghost sm" data-act="mine">ใส่ตัวเลขร้านคุณ</button></div>' : '') +
       walkPanel(R) + reconHtml(R) + tabsHtml(R) +
       '<section id="tp"' + (R.many ? ' role="tabpanel" aria-labelledby="tab-' + state.tab + '"' : '') + ' class="tp4">' +
       (R.many ? '' : hq('h2', 'เงินที่เหลือของแต่ละสินค้า', 'one', 'ขายช่องทางเดียว จึงดูรายสินค้าอย่างเดียว · แตะสินค้าเพื่อดูว่าเงินจากขาย 1 ชิ้นไปไหนบ้าง และลองปรับราคาหรือต้นทุน', 'sec4')) + body + '</section>' +
@@ -4156,10 +4186,10 @@ function pcSample(k) {
   function askList() { return pcAskList(R0()); }
   function viewAsk() {
     var L = askList(); if (state.qidx >= L.length) state.qidx = L.length - 1;
-    var q = L[state.qidx], b = QB4[q], a = state.answers[q];
+    var q = L[state.qidx], b = QB4[q], a = state.answers[q], ctx = pcAskCtx(R0());
     return bar(backBtn('กลับไปดูผล'), 'หาจุดที่ควรตรวจสอบ', 'ข้อ ' + (state.qidx + 1) + ' จาก ' + L.length) + '<main class="screen"><div class="wrap">' +
       '<div class="prog" aria-hidden="true">' + L.map(function (x, n) { return '<i class="' + (n <= state.qidx ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
-      '<h1 class="ask-q">' + tw(b.q) + '</h1><div class="ask-ans" role="group" aria-label="คำตอบ">' + ['yes', 'no', 'unsure'].map(function (v) {
+      '<h1 class="ask-q">' + tw(qbText(q, ctx)) + '</h1><div class="ask-ans" role="group" aria-label="คำตอบ">' + ['yes', 'no', 'unsure'].map(function (v) {
         return '<button type="button" data-act="answer" data-q="' + q + '" data-v="' + v + '" aria-pressed="' + (a === v) + '">' + esc(ansLabel(b, v)) + '</button>';
       }).join('') + '</div>' +
       (state.qidx > 0 ? '<div class="qnav"><button class="lnk" data-act="q-prev">‹ ข้อก่อนหน้า</button></div>' : '') + '</div></main>';
@@ -4170,12 +4200,13 @@ function pcSample(k) {
     }).join('') + '</div>';
   }
   function viewPoints() {
-    var L = askList(), A = state.answers, pts = L.filter(function (q) { return ansFlag(QB4[q], A[q]); });
+    var L = askList(), A = state.answers, pts = L.filter(function (q) { return ansFlag(QB4[q], A[q]); }), ctx = pcAskCtx(R0());
     var out = bar(backBtn('กลับไปดูผล'), 'จุดที่ควรตรวจสอบ', '') + '<main class="screen"><div class="wrap">';
     if (!pts.length) out += '<div class="ok-box"><b>ไม่พบจุดที่ควรตรวจสอบจากคำตอบ</b><p>ตอบครบทุกข้อแล้ว ไม่มีข้อที่ต้องตรวจสอบเพิ่ม</p></div>' + toolsHtml(['bmc10', 'grow13', 'bmc8']);
     else out += '<div class="points">' + pts.map(function (q) {
       var b = QB4[q];
-      return '<div class="point"><div class="pt">' + esc(b.p) + (A[q] === 'unsure' ? '<span class="unsure">ไม่แน่ใจ</span>' : '') + '</div><p class="pd">' + esc(b.d) + '</p>' + toolsHtml(b.tools) + '</div>';
+      var nm = qbName(q, ctx);
+      return '<div class="point"><div class="pt">' + tw(b.p + (nm ? ' · ' + nm : '')) + (A[q] === 'unsure' ? '<span class="unsure">ไม่แน่ใจ</span>' : '') + '</div><p class="pd">' + esc(b.d) + '</p>' + toolsHtml(b.tools) + '</div>';
     }).join('') + '</div>';
     return out + planRow() + '<div class="skip"><button class="lnk" data-act="ask-again">ตอบใหม่</button></div></div></main>' +
       '<div class="foot" id="foot"><div class="wrap"><button class="btn ghost" data-act="result">กลับไปดูผล</button></div></div>';
@@ -4471,6 +4502,7 @@ function pcSample(k) {
       }
       case 'ch-other': { if (chList(state.pc).length < PC_MAX_CH) { state.pc.channels.push(newCh('other')); go('chpick', false); refocus('#f-c-' + (chList(state.pc).length - 1) + '-name'); } break; }
       case 'ch-del': state.pc.channels.splice(+t.getAttribute('data-j'), 1); go('chpick', false); break;
+      case 'share-fill': { var fj = +t.getAttribute('data-j'); chList(state.pc)[fj].share = Math.round((100 - shareSum(state.pc)) * 10) / 10; go('share', false); refocus('#f-c-' + fj + '-share'); break; }
       case 'ch-off': {
         var cj = chList(state.pc)[+t.getAttribute('data-j')], id = t.getAttribute('data-id');
         cj.off = cj.off || {}; if (cj.off[id]) delete cj.off[id]; else cj.off[id] = true;
@@ -4587,7 +4619,7 @@ function pcSample(k) {
   /* ระหว่างกรอก: แถบสรุป ยอดรวม % และช่องที่ขึ้นตามคำตอบ (เช่น จำนวนชิ้นต่อออร์เดอร์) โดยไม่วาดช่องที่พิมพ์อยู่ใหม่ */
   function refreshLive() {
     var s = $('#strip'); if (s) { var tmp = document.createElement('div'); tmp.innerHTML = liveStrip(); if (tmp.firstChild) { s.outerHTML = tmp.firstChild.outerHTML; runAnim($('#strip')); } }
-    if (state.view === 'share') { var tt = $('#tot4'), tmp2 = document.createElement('div'); tmp2.innerHTML = viewShare(); var nt = $('#tot4', tmp2); if (tt && nt) tt.outerHTML = nt.outerHTML; }
+    if (state.view === 'share') { var tt = $('#tot4w'), tmp2 = document.createElement('div'); tmp2.innerHTML = viewShare(); var nt = $('#tot4w', tmp2); if (tt && nt) tt.outerHTML = nt.outerHTML; }
     if (state.view === 'items') $$('.pi').forEach(function (card) {
       var i = +card.getAttribute('data-item'), p = pcItems(state.pc)[i];
       if (p && p.parts) { var sum = $('.part-f b', card); if (sum) sum.textContent = fmtN(n0(p.cost), 2); var ci = $('#f-i-' + i + '-cost', card); if (ci) ci.value = fmtIn(p.cost, 'dec'); }

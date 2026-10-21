@@ -298,7 +298,7 @@
       ph: typeof sample === 'number' ? 'เช่น ' + (sample >= 1000 ? Math.round(sample).toLocaleString('th-TH') : sample) : '', hidden: f.show && !f.show(inp, m) });
   }
   function qHead(q, p, key) {
-    q = esc(qmark(q));
+    q = tw(qmark(q));
     if (!p) return '<div class="q-head"><h1>' + q + '</h1></div>';
     return '<div class="q-head"><div class="hq"><h1>' + q + '</h1>' + qmBtn('q-' + key, q) + '</div>' + qmT('q-' + key, esc(p)) + '</div>';
   }
@@ -329,6 +329,8 @@
     var mult = perMult(state.inp), rev = 0, left = 0;
     if (v === 'items' || v === 'chpick' || !channelsStepOk(state.pc)) {
       rows.forEach(function (p) { var u = n0(p.qty) * mult; rev += n0(p.price) * u; left += (n0(p.price) - n0(p.cost)) * u; });
+      var rs = state.pc.rest;
+      if (rs && rs.on === true && pos(rs.sales) !== null) { var sm = n0(rs.sales) * mult; rev += sm; left += sm * (1 - Math.min(100, n0(rs.costPct)) / 100); }
       if (v === 'ch') {
         var c = chList(state.pc)[state.k];
         if (c && !chMissing(c, state.pc)) {
@@ -411,8 +413,14 @@
     return stepBar('สัดส่วนการขาย') + '<main class="screen"><div class="wrap">' + progHtml() + liveStrip() +
       qHead('ขายผ่านแต่ละช่องทางประมาณกี่ %', 'คิดจากจำนวนที่ขาย (ไม่ใช่ยอดเงิน) รวมกันต้องได้ 100% · ตัวเลขประมาณก็ได้ ดูได้จากใบสรุปยอดของแต่ละช่องทาง', 'share') +
       '<div class="qfields">' + chs.map(function (c, j) { return fld('c.' + j + '.share', chName(c), { t: 'pct', suf: '% ของจำนวนที่ขาย' }); }).join('') +
-      '<div class="tot4" id="tot4" role="status"><span>รวม</span><b class="num">' + fmtN(tot, 1) + '%</b>' + (Math.abs(tot - 100) < 0.51 ? '<i>' + ICON.ok + '</i>' : '<small>' + (tot < 100 ? 'ขาดอีก ' + fmtN(100 - tot, 1) + '%' : 'เกินมา ' + fmtN(tot - 100, 1) + '%') + '</small>') + '</div>' +
+      '<div id="tot4w"><div class="tot4" role="status"><span>รวม</span><b class="num">' + fmtN(tot, 1) + '%</b>' + (Math.abs(tot - 100) < 0.51 ? '<i>' + ICON.ok + '</i>' : '<small>' + (tot < 100 ? 'ขาดอีก ' + fmtN(100 - tot, 1) + '%' : 'เกินมา ' + fmtN(tot - 100, 1) + '%') + '</small>') + '</div>' + shareFillBtn() + '</div>' +
       '</div></div></main>' + footStep();
+  }
+  /* ช่องทางเดียวที่ยังไม่ได้ใส่ % และที่เหลือยังไม่ครบ 100: ปุ่มใส่ส่วนที่เหลือให้ */
+  function shareFillBtn() {
+    var chs = chList(state.pc), empty = chs.map(function (c, j) { return num(c.share) === null ? j : -1; }).filter(function (j) { return j >= 0; }), rest = 100 - shareSum(state.pc);
+    if (empty.length !== 1 || rest <= 0.05) return '';
+    return '<button type="button" class="sbtn light" data-act="share-fill" data-j="' + empty[0] + '">ใส่ ' + fmtN(rest, 1) + '% ให้ ' + tw(chName(chs[empty[0]])) + '</button>';
   }
   function viewCh() {
     var j = state.k, c = chList(state.pc)[j];
@@ -542,7 +550,7 @@
     var body = state.tab === 'c' ? chanList(R) : state.tab === 'g' ? gridHtml(R) : prodList(R);
     var out = bar('<button class="tb" data-act="back" aria-label="กลับหน้าแรก">' + ICON.back + 'หน้าแรก</button>', 'สินค้าและช่องทาง', state.isSample ? '' : MODELS[state.model].tile) +
       '<main class="screen res4m"><div class="wrap">' +
-      (state.isSample ? '<div class="banner"><span>กำลังใช้' + esc(PC_SAMPLES[state.sampleKind].name) + '</span><button class="btn ghost sm" data-act="mine">ใส่ตัวเลขร้านคุณ</button></div>' : '') +
+      (state.isSample ? '<div class="banner4"><span><small>กำลังใช้</small>' + esc(PC_SAMPLES[state.sampleKind].name) + '</span><button class="btn ghost sm" data-act="mine">ใส่ตัวเลขร้านคุณ</button></div>' : '') +
       walkPanel(R) + reconHtml(R) + tabsHtml(R) +
       '<section id="tp"' + (R.many ? ' role="tabpanel" aria-labelledby="tab-' + state.tab + '"' : '') + ' class="tp4">' +
       (R.many ? '' : hq('h2', 'เงินที่เหลือของแต่ละสินค้า', 'one', 'ขายช่องทางเดียว จึงดูรายสินค้าอย่างเดียว · แตะสินค้าเพื่อดูว่าเงินจากขาย 1 ชิ้นไปไหนบ้าง และลองปรับราคาหรือต้นทุน', 'sec4')) + body + '</section>' +
@@ -689,10 +697,10 @@
   function askList() { return pcAskList(R0()); }
   function viewAsk() {
     var L = askList(); if (state.qidx >= L.length) state.qidx = L.length - 1;
-    var q = L[state.qidx], b = QB4[q], a = state.answers[q];
+    var q = L[state.qidx], b = QB4[q], a = state.answers[q], ctx = pcAskCtx(R0());
     return bar(backBtn('กลับไปดูผล'), 'หาจุดที่ควรตรวจสอบ', 'ข้อ ' + (state.qidx + 1) + ' จาก ' + L.length) + '<main class="screen"><div class="wrap">' +
       '<div class="prog" aria-hidden="true">' + L.map(function (x, n) { return '<i class="' + (n <= state.qidx ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
-      '<h1 class="ask-q">' + tw(b.q) + '</h1><div class="ask-ans" role="group" aria-label="คำตอบ">' + ['yes', 'no', 'unsure'].map(function (v) {
+      '<h1 class="ask-q">' + tw(qbText(q, ctx)) + '</h1><div class="ask-ans" role="group" aria-label="คำตอบ">' + ['yes', 'no', 'unsure'].map(function (v) {
         return '<button type="button" data-act="answer" data-q="' + q + '" data-v="' + v + '" aria-pressed="' + (a === v) + '">' + esc(ansLabel(b, v)) + '</button>';
       }).join('') + '</div>' +
       (state.qidx > 0 ? '<div class="qnav"><button class="lnk" data-act="q-prev">‹ ข้อก่อนหน้า</button></div>' : '') + '</div></main>';
@@ -703,12 +711,13 @@
     }).join('') + '</div>';
   }
   function viewPoints() {
-    var L = askList(), A = state.answers, pts = L.filter(function (q) { return ansFlag(QB4[q], A[q]); });
+    var L = askList(), A = state.answers, pts = L.filter(function (q) { return ansFlag(QB4[q], A[q]); }), ctx = pcAskCtx(R0());
     var out = bar(backBtn('กลับไปดูผล'), 'จุดที่ควรตรวจสอบ', '') + '<main class="screen"><div class="wrap">';
     if (!pts.length) out += '<div class="ok-box"><b>ไม่พบจุดที่ควรตรวจสอบจากคำตอบ</b><p>ตอบครบทุกข้อแล้ว ไม่มีข้อที่ต้องตรวจสอบเพิ่ม</p></div>' + toolsHtml(['bmc10', 'grow13', 'bmc8']);
     else out += '<div class="points">' + pts.map(function (q) {
       var b = QB4[q];
-      return '<div class="point"><div class="pt">' + esc(b.p) + (A[q] === 'unsure' ? '<span class="unsure">ไม่แน่ใจ</span>' : '') + '</div><p class="pd">' + esc(b.d) + '</p>' + toolsHtml(b.tools) + '</div>';
+      var nm = qbName(q, ctx);
+      return '<div class="point"><div class="pt">' + tw(b.p + (nm ? ' · ' + nm : '')) + (A[q] === 'unsure' ? '<span class="unsure">ไม่แน่ใจ</span>' : '') + '</div><p class="pd">' + esc(b.d) + '</p>' + toolsHtml(b.tools) + '</div>';
     }).join('') + '</div>';
     return out + planRow() + '<div class="skip"><button class="lnk" data-act="ask-again">ตอบใหม่</button></div></div></main>' +
       '<div class="foot" id="foot"><div class="wrap"><button class="btn ghost" data-act="result">กลับไปดูผล</button></div></div>';
@@ -1004,6 +1013,7 @@
       }
       case 'ch-other': { if (chList(state.pc).length < PC_MAX_CH) { state.pc.channels.push(newCh('other')); go('chpick', false); refocus('#f-c-' + (chList(state.pc).length - 1) + '-name'); } break; }
       case 'ch-del': state.pc.channels.splice(+t.getAttribute('data-j'), 1); go('chpick', false); break;
+      case 'share-fill': { var fj = +t.getAttribute('data-j'); chList(state.pc)[fj].share = Math.round((100 - shareSum(state.pc)) * 10) / 10; go('share', false); refocus('#f-c-' + fj + '-share'); break; }
       case 'ch-off': {
         var cj = chList(state.pc)[+t.getAttribute('data-j')], id = t.getAttribute('data-id');
         cj.off = cj.off || {}; if (cj.off[id]) delete cj.off[id]; else cj.off[id] = true;
@@ -1120,7 +1130,7 @@
   /* ระหว่างกรอก: แถบสรุป ยอดรวม % และช่องที่ขึ้นตามคำตอบ (เช่น จำนวนชิ้นต่อออร์เดอร์) โดยไม่วาดช่องที่พิมพ์อยู่ใหม่ */
   function refreshLive() {
     var s = $('#strip'); if (s) { var tmp = document.createElement('div'); tmp.innerHTML = liveStrip(); if (tmp.firstChild) { s.outerHTML = tmp.firstChild.outerHTML; runAnim($('#strip')); } }
-    if (state.view === 'share') { var tt = $('#tot4'), tmp2 = document.createElement('div'); tmp2.innerHTML = viewShare(); var nt = $('#tot4', tmp2); if (tt && nt) tt.outerHTML = nt.outerHTML; }
+    if (state.view === 'share') { var tt = $('#tot4w'), tmp2 = document.createElement('div'); tmp2.innerHTML = viewShare(); var nt = $('#tot4w', tmp2); if (tt && nt) tt.outerHTML = nt.outerHTML; }
     if (state.view === 'items') $$('.pi').forEach(function (card) {
       var i = +card.getAttribute('data-item'), p = pcItems(state.pc)[i];
       if (p && p.parts) { var sum = $('.part-f b', card); if (sum) sum.textContent = fmtN(n0(p.cost), 2); var ci = $('#f-i-' + i + '-cost', card); if (ci) ci.value = fmtIn(p.cost, 'dec'); }
