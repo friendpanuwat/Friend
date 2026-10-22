@@ -778,6 +778,29 @@ h1.eyebrow { margin: 0; line-height: 1.4; }
 .ph .field { margin-bottom: 12px; }
 .ph .inbox .iv { flex: 1; padding: 0 16px; font-family: var(--font-num); font-size: 22px; font-weight: 600; }
 .ph .tot4 { margin-top: 4px; }
+.d-d.ok i { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.d-d.ok em { box-shadow: none; background: var(--ink); color: var(--bg); }
+.enough2, .rank2 { display: grid; gap: 10px; }
+.rank2 { margin-top: 10px; }
+.en2 { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; background: var(--surface); border-radius: 14px; padding: 10px 14px; }
+.en2 span { font-size: 14px; color: var(--ink-2); }
+.en2 b { font-family: var(--font-num); font-size: 24px; white-space: nowrap; }
+.en2 small { font-family: var(--font-th); font-size: 13px; margin-left: 4px; color: var(--muted); }
+.rk2 { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; }
+.rk2 span { font-size: 14px; font-weight: 600; }
+.rk2 i { grid-column: 1 / -1; grid-row: 2; height: 10px; border-radius: 5px; background: var(--surface); overflow: hidden; }
+.rk2 i b { display: block; height: 100%; background: var(--ink); border-radius: 5px; }
+.rk2 em { font-style: normal; font-family: var(--font-num); font-weight: 700; font-size: 15px; grid-column: 2; grid-row: 1; }
+.rk2 small { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted); }
+.rampv { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; align-items: end; height: 150px; margin: 4px 0 2px; }
+.rb { display: grid; grid-template-rows: 1fr auto auto; height: 100%; gap: 2px; text-align: center; }
+.rb i { align-self: end; display: block; background: var(--ink); border-radius: 8px 8px 3px 3px; min-height: 3px; }
+.rb.pre i { background: var(--surface-2); }
+.rb b { font-family: var(--font-num); font-size: 12px; }
+.rb span { font-size: 11px; color: var(--muted); }
+.lab2 { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.tg2 { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--surface-2); white-space: nowrap; }
+.ph .two .inbox .iv { font-size: 20px; }
 </style>
 <!-- ข้อเสนอตัวที่ 2 (เนื้อหา) · build-proposal.sh รวมกับหน้าตาของเครื่องมือจริง (../mvp-check-numbers/src/style.css + ../mvp-product-channel/src/style.css) เป็น proposal.html
      ภาพหน้าจอตัวอย่างใช้ class ชุดเดียวกับเครื่องมือจริง หน้าตาจึงตรงกับของที่จะสร้าง · ตัวเลขทุกตัวคิดจากร้านกาแฟตัวอย่างใน research-thai-costs.md ข้อ 6 -->
@@ -814,11 +837,12 @@ h1.eyebrow { margin: 0; line-height: 1.4; }
   <p class="d-lead">หน้าแรกเหมือนตัวที่ 4 (ขายที่ไหน · ร้านแบบไหน · ลองกับร้านตัวอย่างก่อน) แล้วถามทีละข้อ ตัวเลขสดขึ้นด้านบนระหว่างกรอก</p>
   <div class="d-steps">
     <div class="d-st"><i>1</i><div><b>ขายอะไร ราคาเท่าไร</b><span>ราคาเฉลี่ยต่อชิ้น (หรือต่อบิล ต่อครั้ง) · ต้นทุนต่อชิ้น · ค่าธรรมเนียมถ้าขายผ่านแอป · คำถามชุดเดียวกับตัวที่ 1</span></div></div>
-    <div class="d-st"><i>2</i><div><b>คาดว่าจะขายได้วันละเท่าไร</b><span>เมื่อยอดขายเข้าที่แล้ว · เปิดเดือนละกี่วัน · กี่เดือนยอดขายถึงจะเต็ม (ทันที / 3 เดือน / 6 เดือน)</span></div></div>
-    <div class="d-st"><i>3</i><div><b>ค่าใช้จ่ายทุกเดือน</b><span>ค่าเช่า พนักงาน เงินเดือนตัวเอง ค่าน้ำไฟ การตลาด · คำถามชุดเดียวกับตัวที่ 1</span></div></div>
-    <div class="d-st"><i>4</i><div><b>เงินที่ต้องจ่ายก่อนเปิดร้าน</b><span>รายการตามแบบร้าน แตะเพื่อใส่ทีละอย่าง (มัดจำ ตกแต่ง อุปกรณ์ ป้าย ของล็อตแรก โปรเปิดร้าน ค่าเช่าช่วงตกแต่ง) · ใส่เป็นยอดรวมก้อนเดียวก็ได้</span></div></div>
-    <div class="d-st"><i>5</i><div><b>เงินที่มีสำหรับเปิดร้าน</b><span>เงินทั้งหมดที่ตั้งใจใช้กับร้านนี้</span></div></div>
-    <div class="d-st"><i>6</i><div><b>ผล</b><span>4 คำตอบ · เงินในมือเดือนต่อเดือน 3 แบบ (ขายได้ตามที่คาด / น้อยกว่า 20% / มากกว่า 20%) · ย้อนจากเงินที่อยากได้ · สิ่งที่ตัวเลขบอก · หาจุดที่ควรตรวจสอบ → PL1</span></div></div>
+    <div class="d-st"><i>2</i><div><b>คาดว่าจะขายได้วันละเท่าไร</b><span>เมื่อยอดขายเข้าที่แล้ว · เปิดเดือนละกี่วัน · ขายหลายอย่าง คิดราคาเฉลี่ยจากเมนูได้ (ใส่ราคา ต้นทุน และสัดส่วนที่คาดว่าขายแต่ละอย่าง)</span></div></div>
+    <div class="d-st"><i>3</i><div><b>ช่วงตั้งแต่ตกแต่งจนยอดขายเต็ม</b><span>ตกแต่งกี่เดือนก่อนเปิด (ค่าเช่าช่วงนั้นใส่ให้เอง) · จะเปิดเดือนไหน (เดือนขายดีขายแย่ ใช้คำถามเดียวกับตัวที่ 1) · ยอดขายเดือนแรก ๆ เป็นอย่างไร (เลือกแบบ หรือแตะปรับทีละเดือน)</span></div></div>
+    <div class="d-st"><i>4</i><div><b>ค่าใช้จ่ายทุกเดือน</b><span>ค่าเช่า พนักงาน เงินเดือนตัวเอง ค่าน้ำไฟ การตลาด · คำถามชุดเดียวกับตัวที่ 1</span></div></div>
+    <div class="d-st"><i>5</i><div><b>เงินที่ต้องจ่ายก่อนเปิดร้าน</b><span>รายการตามแบบร้าน แตะเพื่อใส่ทีละอย่าง · แต่ละรายการมีป้ายบอกชนิดเงินให้เอง: <b>หมดไป</b> (ตกแต่ง ป้าย โปรเปิดร้าน) · <b>ได้คืน</b> (มัดจำ) · <b>เงินจมในของ</b> (ของล็อตแรก) · <b>อุปกรณ์ใช้หลายปี</b> (ถามว่าใช้ได้กี่ปี) · ใส่เป็นยอดรวมก้อนเดียวก็ได้</span></div></div>
+    <div class="d-st"><i>6</i><div><b>เงินที่มีสำหรับเปิดร้าน</b><span>เงินทั้งหมดที่ตั้งใจใช้กับร้านนี้</span></div></div>
+    <div class="d-st"><i>7</i><div><b>ผล</b><span>4 คำตอบ · เงินในมือเดือนต่อเดือน 3 แบบ · “เงินพอ ถ้า…” · เรื่องไหนทำให้ต้องใช้เงินเพิ่มมากที่สุด · ลองปรับตัวเลขบนหน้าผล · ย้อนจากเงินที่อยากได้ · สิ่งที่ตัวเลขบอก · หาจุดที่ควรตรวจสอบ → PL1</span></div></div>
   </div>
 </section>
 
@@ -842,7 +866,7 @@ h1.eyebrow { margin: 0; line-height: 1.4; }
       </section>
       <div class="ovg m4">
         <div class="ovt"><span class="k">ขายวันละเท่าไรถึงไม่ขาดทุน</span><span class="v">41<small>แก้ว</small></span><span class="n">คาดไว้ 60 แก้ว</span></div>
-        <div class="ovt"><span class="k">คืนทุน</span><span class="v">เดือนที่ 11</span><span class="n">ไม่นับมัดจำที่ได้คืน</span></div>
+        <div class="ovt"><span class="k">คืนเงินที่จ่ายหมดไป</span><span class="v">เดือนที่ 10</span><span class="n">รวมมัดจำและของในสต็อก: เดือนที่ 12</span></div>
         <div class="ovt"><span class="k">ถ้ายอดค้างที่เดือนแรก เงินอยู่ได้</span><span class="v">2<small>เดือน</small></span><span class="n">ขาดเดือนละ 18,640</span></div>
         <div class="ovt"><span class="k">กำไรต่อเดือนเมื่อยอดเต็ม</span><span class="v">22,400</span><span class="n">หลังหักเงินเดือนตัวเอง</span></div>
       </div>
@@ -858,7 +882,7 @@ h1.eyebrow { margin: 0; line-height: 1.4; }
       <div class="legend"><span><i></i>ขายวันละ 60 แก้ว</span><span><i class="g"></i>48 และ 72 แก้ว</span></div>
     </section>
     <div class="flist">
-      <div class="frow f4"><span class="ft">ถ้าขายได้วันละ 48 แก้ว (น้อยกว่าที่คาด 20%) เงินเหลือช่วงตึงที่สุดแค่ 5,496 บาท</span><span class="fr-r"><span class="fm"><small>ต้องมีเงินทั้งหมด</small>214,504<small>บาท</small></span></span><span class="pill watch">ควรเฝ้าระวัง</span><span class="fs">และคืนทุนเดือนที่ 25 แทนเดือนที่ 11</span></div>
+      <div class="frow f4"><span class="ft">ถ้าขายได้วันละ 48 แก้ว (น้อยกว่าที่คาด 20%) เงินเหลือช่วงตึงที่สุดแค่ 5,496 บาท</span><span class="fr-r"><span class="fm"><small>ต้องมีเงินทั้งหมด</small>214,504<small>บาท</small></span></span><span class="pill watch">ควรเฝ้าระวัง</span><span class="fs">และคืนเงินที่จ่ายหมดไปเดือนที่ 24 แทนเดือนที่ 10</span></div>
       <div class="frow f4"><span class="ft">ยังไม่ได้ใส่ค่าใช้จ่ายที่ร้านกาแฟมักมี</span><span class="fr-r"></span><span class="pill note">ข้อสังเกต</span><span class="fs">ค่าซ่อมเครื่องชง · ของเสียช่วงทดลองสูตร · ค่าธรรมเนียมรับบัตร</span></div>
     </div>
   </div></div></figure>
@@ -870,10 +894,55 @@ h1.eyebrow { margin: 0; line-height: 1.4; }
       <div class="trow"><label>อยากได้เงินเดือนละ</label><div class="tctl"><span class="stp">−</span><span class="tv"><span class="tvv">30,000</span><small>บาท</small></span><span class="stp">+</span></div></div>
       <div class="ans2"><span>ต้องขายวันละ</span><b>54<small>แก้ว</small></b></div>
       <div class="trow"><label>อยากคืนทุนภายใน</label><div class="tctl"><span class="stp">−</span><span class="tv"><span class="tvv">12</span><small>เดือน</small></span><span class="stp">+</span></div></div>
-      <div class="ans2"><span>ต้องขายวันละ</span><b>58<small>แก้ว</small></b></div>
+      <div class="ans2"><span>ต้องขายวันละ</span><b>57<small>แก้ว</small></b></div>
       <p class="fine4">คิดรวมช่วงยอดขายค่อย ๆ ขึ้นแล้ว · เทียบกับที่คาดไว้ 60 แก้ว</p>
     </section>
   </div></div></figure>
+
+  <!-- จอใหม่: เงินพอ ถ้า… และเรื่องที่ทำให้ใช้เงินเพิ่ม -->
+  <figure class="phone"><figcaption>เงินพอ ถ้า… · เรื่องที่ทำให้ใช้เงินเพิ่ม</figcaption><div class="ph"><div class="wrap">
+    <section class="card enough2">
+      <div class="hq"><h3>เงิน 220,000 บาท พอ ถ้า</h3><span class="qm" aria-hidden="true"><i>?</i></span></div>
+      <div class="en2"><span>ขายได้อย่างน้อยวันละ</span><b>46<small>แก้ว</small></b></div>
+      <div class="en2"><span>ยอดขายเต็มภายใน</span><b>8<small>เดือน</small></b></div>
+      <div class="en2"><span>เงินก่อนเปิดเกินงบได้ไม่เกิน</span><b>21,400<small>บาท</small></b></div>
+      <p class="fine4">ทีละเรื่อง เรื่องอื่นเป็นไปตามที่คาด</p>
+    </section>
+    <section class="card rank2">
+      <div class="hq"><h3>ถ้าเรื่องนี้แย่ลง ต้องใช้เงินเพิ่ม</h3><span class="qm" aria-hidden="true"><i>?</i></span></div>
+      <div class="rk2"><span>เงินก่อนเปิดเกินงบ 15%</span><i><b style="width:100%"></b></i><em>+26,250</em><small>เงินไม่พอ ขาด 4,850</small></div>
+      <div class="rk2"><span>ขายได้น้อยกว่าที่คาด 20%</span><i><b style="width:60.6%"></b></i><em>+15,904</em><small>คืนเงินช้าลง 14 เดือน</small></div>
+      <div class="rk2"><span>ยอดขายเต็มช้ากว่า 3 เดือน</span><i><b style="width:45%"></b></i><em>+11,800</em><small>คืนเงินช้าลง 3 เดือน</small></div>
+      <div class="rk2"><span>ค่าใช้จ่ายทุกเดือนเพิ่ม 10%</span><i><b style="width:23.6%"></b></i><em>+6,200</em><small>คืนเงินช้าลง 2 เดือน</small></div>
+      <div class="rk2"><span>ต้นทุนต่อแก้วเพิ่ม 10%</span><i><b style="width:15.1%"></b></i><em>+3,960</em><small>คืนเงินช้าลง 2 เดือน</small></div>
+      <p class="fine4">เปลี่ยน 15% 20% 10% เป็นตัวเลขอื่นได้</p>
+    </section>
+  </div></div></figure>
+
+  <!-- จอใหม่: ช่วงตั้งแต่ตกแต่งจนยอดขายเต็ม -->
+  <figure class="phone"><figcaption>กรอกช่วงตั้งแต่ตกแต่งจนยอดขายเต็ม</figcaption><div class="ph">
+    <header class="bar"><div class="wrap"><span class="ib">‹</span><div class="ttl"><small>ข้อ 3 จาก 7</small>ช่วงเปิดร้าน</div><span class="spacer44"></span></div></header>
+    <div class="wrap">
+      <div class="q-head"><h1>เดือนแรก ๆ ยอดขายเป็นอย่างไร?</h1></div>
+      <div class="chips pick2">
+        <span class="chip" aria-pressed="false">เต็มตั้งแต่เดือนแรก</span><span class="chip" aria-pressed="true">ค่อย ๆ ขึ้น 3 เดือน</span><span class="chip" aria-pressed="false">ค่อย ๆ ขึ้น 6 เดือน</span><span class="chip" aria-pressed="false">คนมาลองเยอะช่วงเปิด แล้วลดลง</span>
+      </div>
+      <div class="rampv" aria-hidden="true">
+        <div class="rb pre"><i style="height:0%"></i><b>0%</b><span>ตกแต่ง</span></div>
+        <div class="rb"><i style="height:40%"></i><b>40%</b><span>เดือน 1</span></div>
+        <div class="rb"><i style="height:60%"></i><b>60%</b><span>2</span></div>
+        <div class="rb"><i style="height:80%"></i><b>80%</b><span>3</span></div>
+        <div class="rb"><i style="height:100%"></i><b>100%</b><span>4</span></div>
+        <div class="rb"><i style="height:100%"></i><b>100%</b><span>5</span></div>
+        <div class="rb"><i style="height:100%"></i><b>100%</b><span>6</span></div>
+      </div>
+      <p class="fine4">แตะแท่งเพื่อปรับทีละเดือน · ตัวเลขตั้งต้นเป็นค่าประมาณ (ยังไม่มีข้อมูลของร้านไทย)</p>
+      <div class="two">
+        <div class="field"><span class="lab">ตกแต่งกี่เดือนก่อนเปิด</span><div class="inbox"><span class="iv">1</span><span class="suf">เดือน</span></div></div>
+        <div class="field"><span class="lab">จะเปิดเดือน</span><div class="inbox"><span class="iv">พ.ค.</span><span class="suf">เข้าหน้าฝน</span></div></div>
+      </div>
+    </div>
+  </div></figure>
 
   <!-- จอ 4: เงินก่อนเปิดร้าน -->
   <figure class="phone"><figcaption>กรอกเงินก่อนเปิดร้าน</figcaption><div class="ph">
@@ -883,8 +952,9 @@ h1.eyebrow { margin: 0; line-height: 1.4; }
       <div class="chips pick2">
         <span class="chip" aria-pressed="true">มัดจำค่าเช่า</span><span class="chip" aria-pressed="true">ตกแต่ง เคาน์เตอร์</span><span class="chip" aria-pressed="true">เครื่องชง เครื่องบด</span><span class="chip" aria-pressed="true">ตู้เย็น อุปกรณ์</span><span class="chip" aria-pressed="true">ป้าย</span><span class="chip" aria-pressed="true">วัตถุดิบล็อตแรก</span><span class="chip" aria-pressed="false">เครื่องขายหน้าร้าน</span><span class="chip" aria-pressed="false">ค่าเช่าช่วงตกแต่ง</span><span class="chip" aria-pressed="false">โปรเปิดร้าน</span><span class="chip" aria-pressed="false">+ อื่น ๆ</span>
       </div>
-      <div class="field"><span class="lab">มัดจำค่าเช่า</span><div class="inbox"><span class="iv">24,000</span><span class="suf">บาท · ได้คืน</span></div></div>
-      <div class="field"><span class="lab">เครื่องชง เครื่องบด</span><div class="inbox"><span class="iv">60,000</span><span class="suf">บาท</span></div></div>
+      <div class="field"><div class="lab2"><span class="lab">มัดจำค่าเช่า</span><span class="tg2">ได้คืน</span></div><div class="inbox"><span class="iv">24,000</span><span class="suf">บาท</span></div></div>
+      <div class="field"><div class="lab2"><span class="lab">เครื่องชง เครื่องบด</span><span class="tg2">อุปกรณ์ใช้หลายปี</span></div><div class="two"><div class="inbox"><span class="iv">60,000</span><span class="suf">บาท</span></div><div class="inbox"><span class="iv">5</span><span class="suf">ปี</span></div></div></div>
+      <div class="field"><div class="lab2"><span class="lab">ค่าเช่าช่วงตกแต่ง</span><span class="tg2">หมดไป</span></div><div class="inbox"><span class="iv">12,000</span><span class="suf">บาท · ใส่ให้จาก 1 เดือน</span></div></div>
       <div class="tot4"><span>รวม</span><b class="num">175,000</b><small>บาท</small></div>
     </div>
   </div></figure>
@@ -897,7 +967,9 @@ h1.eyebrow { margin: 0; line-height: 1.4; }
     <div class="d-item"><b>กำไรต่อเดือนและจุดคุ้มทุน</b><span>ใช้ตัวคำนวณ PL2 ตัวเดียวกับตัวที่ 1 และ 4 (ไม่แก้ไฟล์) ตัวเลขตรงกันทุกเครื่องมือ</span></div>
     <div class="d-item"><b>เดือนแรก ๆ หลังเปิด</b><span>ตัวคำนวณ PL2 คิดแบบร้านที่ขายคงที่แล้ว จึงคิดช่วงยอดขายค่อย ๆ ขึ้นเพิ่มในไฟล์ของ Business Lab: เดือนที่ 1 = 40% · ขึ้นเท่า ๆ กันจนเต็ม · ค่าเช่าและค่าแรงเต็มตั้งแต่เดือนแรก · ตัวเลข 40% เป็นค่าประมาณ (ไม่มีข้อมูลไทย) หน้าจอบอกไว้และแก้ได้</span></div>
     <div class="d-item"><b>เงินที่ต้องมีทั้งหมด</b><span>เงินก่อนเปิด + เงินที่ต้องควักเพิ่มจนถึงเดือนที่เงินต่ำที่สุด · ไม่ใช้กฎ “เผื่อ 3 หรือ 6 เดือน”</span></div>
-    <div class="d-item"><b>คืนทุน</b><span>นับเงินสดที่เพิ่มขึ้นจริงจนเท่าเงินก่อนเปิด (หลังหักเงินเดือนตัวเอง)</span></div>
+    <div class="d-item"><b>คืนทุน 2 ตัวเลข</b><span>คืนเงินที่จ่ายหมดไป (ไม่นับมัดจำและของในสต็อกซึ่งยังเป็นของร้าน) และคืนเงินทั้งหมด · นับเงินสดที่เพิ่มขึ้นจริงหลังหักเงินเดือนตัวเอง</span></div>
+    <div class="d-item"><b>อุปกรณ์ใช้หลายปี</b><span>กำไรต่อเดือนหักเงินที่ควรกันไว้ซื้อใหม่ (เครื่องชง 75,000 ใช้ 5 ปี = เดือนละ 1,250) แบบเดียวกับตัวที่ 1 · ส่งต่อเป็นช่อง “อุปกรณ์ราคาสูง” ของตัวเลขร้านชุดกลาง</span></div>
+    <div class="d-item"><b>เงินพอ ถ้า…</b><span>หาตัวเลขที่ทำให้เงินที่มีพอดีพอ ทีละเรื่อง (ยอดขายต่อวัน · กี่เดือนยอดเต็ม · เงินก่อนเปิดเกินงบ) · เรียงเรื่องที่ทำให้ต้องใช้เงินเพิ่มจากมากไปน้อยเป็นบาท</span></div>
     <div class="d-item"><b>ค่าเช่าจ่ายล่วงหน้า</b><span>คือค่าเช่าเดือนแรก ไม่นับซ้ำในเงินก่อนเปิด (หน้าจอบอกตอนกรอก)</span></div>
   </div>
 </section>
@@ -910,22 +982,22 @@ h1.eyebrow { margin: 0; line-height: 1.4; }
 </section>
 
 <section class="d-sec d-ask">
-  <h2>เรื่องที่อยากให้คุณตัดสินใจ</h2>
+  <h2>สิ่งที่ตกลงแล้ว และข้อเสนอใหม่</h2>
   <div class="d-dec">
-    <div class="d-d"><i>1</i><div><b>รูปแบบร้าน</b><span>ทำ 3 แบบก่อนเหมือนตัวที่ 4 (ขายของที่ทำเอง · ซื้อมาขายไป · ขายบริการ) หน้าร้านและออนไลน์ · อีก 5 แบบทำทีหลัง</span><em>แนะนำ: 3 แบบก่อน</em></div></div>
-    <div class="d-d"><i>2</i><div><b>ช่วงยอดขายค่อย ๆ ขึ้น</b><span>ให้ผู้ใช้เลือก “ทันที / 3 เดือน / 6 เดือน” เริ่มเดือนแรกที่ 40% · หรือไม่มีช่วงนี้ (ยอดเต็มตั้งแต่เดือนแรก ตัวเลขดูดีเกินจริง)</span><em>แนะนำ: ให้เลือก ค่าตั้งต้น 3 เดือน</em></div></div>
-    <div class="d-d"><i>3</i><div><b>มัดจำที่ได้คืน</b><span>นับใน “เงินที่ต้องมี” เสมอ · จะนับใน “เงินที่ต้องคืนทุน” ด้วยไหม (ร้านตัวอย่าง: ไม่นับ = คืนทุนเดือนที่ 11 · นับ = เดือนที่ 12)</span><em>แนะนำ: ไม่นับ แต่บอกไว้ใต้ตัวเลข</em></div></div>
-    <div class="d-d"><i>4</i><div><b>ใช้ตัวเลขร้านชุดกลางร่วมกับตัวอื่น</b><span>ราคา ต้นทุน ค่าใช้จ่ายทุกเดือน และเงินเดือนตัวเอง เป็นคำถามเดียวกับตัวที่ 1 · ใช้ร่วมกัน = เปิดตัวที่ 1 หรือ 3 ต่อได้โดยไม่กรอกใหม่ · เงินก่อนเปิดร้านเก็บในตัวที่ 2 อย่างเดียว</span><em>แนะนำ: ใช้ร่วม</em></div></div>
-    <div class="d-d"><i>5</i><div><b>ผล 3 แบบ</b><span>ขายได้ตามที่คาด / น้อยกว่า 20% / มากกว่า 20% (20% เท่ากับตัวคำนวณ PL2) · แตะสลับดูได้ ตัวเลขทุกตัวในหน้าผลเปลี่ยนตาม</span><em>แนะนำ: ทำ</em></div></div>
-    <div class="d-d"><i>6</i><div><b>ร้านตัวอย่าง</b><span>3 ร้าน: ร้านกาแฟคีออสก์ · ร้านเสื้อผ้าออนไลน์ทำคนเดียว · ร้านทำผม 2 เก้าอี้ (ค่าประมาณจากข้อมูลไทย)</span><em>แนะนำ: 3 ร้านนี้</em></div></div>
+    <div class="d-d ok"><i>✓</i><div><b>ข้อ 1 รูปแบบร้าน</b><span>3 แบบก่อน (ขายของที่ทำเอง · ซื้อมาขายไป · ขายบริการ) หน้าร้านและออนไลน์</span><em>ตกลงแล้ว</em></div></div>
+    <div class="d-d ok"><i>✓</i><div><b>ข้อ 6 ร้านตัวอย่าง</b><span>ร้านกาแฟคีออสก์ · ร้านเสื้อผ้าออนไลน์ทำคนเดียว · ร้านทำผม 2 เก้าอี้</span><em>ตกลงแล้ว</em></div></div>
+    <div class="d-d"><i>2</i><div><b>ช่วงตั้งแต่ตกแต่งจนยอดขายเต็ม (ละเอียดขึ้น)</b><span>เดิม: เลือกทันที / 3 / 6 เดือน · <b>ใหม่:</b> เลือกแบบ 4 แบบ รวม “คนมาลองเยอะช่วงเปิด แล้วลดลง” (ร้านใหม่มักเจอ) แล้วแตะแท่งปรับทีละเดือนได้ · ถามตกแต่งกี่เดือนก่อนเปิด (ค่าเช่าช่วงนั้นใส่ให้เอง ไม่ลืม) · ถามจะเปิดเดือนไหน ใช้เดือนขายดีขายแย่ของตัวที่ 1 (เปิดต้นหน้าขายแย่ เงินช่วงแรกตึงกว่า)</span><em>แนะนำ: ทำแบบใหม่</em></div></div>
+    <div class="d-d"><i>3</i><div><b>ชนิดของเงินก่อนเปิดร้าน (แทนเรื่องมัดจำ)</b><span>เดิม: ถามว่านับมัดจำในคืนทุนไหม · <b>ใหม่:</b> ทุกรายการมีป้ายชนิดเงินให้เอง (หมดไป · ได้คืน · เงินจมในของ · อุปกรณ์ใช้หลายปี) แล้วบอกคืนทุน 2 ตัวเลข ไม่ต้องเลือก · อุปกรณ์ถามอายุใช้งาน เพื่อหักเงินกันไว้ซื้อใหม่แบบตัวที่ 1</span><em>แนะนำ: ทำแบบใหม่</em></div></div>
+    <div class="d-d"><i>4</i><div><b>ตัวเลขร้านชุดกลาง (ใช้ร่วมได้มากขึ้น)</b><span>ใช้ร่วมกับตัวที่ 1 3 4: ราคา ต้นทุน ค่าธรรมเนียม ค่าใช้จ่ายทุกเดือน เงินเดือนตัวเอง เดือนขายดีขายแย่ อุปกรณ์ราคาสูง · ขายหลายอย่างคิดราคาเฉลี่ยจากเมนูได้ในตัวนี้ · เปิดตัวที่ 1 3 หรือ 4 ต่อ จะมีป้าย “ตัวเลขที่ตั้งใจไว้ก่อนเปิดร้าน” ให้รู้ว่ายังไม่ใช่ตัวเลขจริง (แก้ตัวที่ 1 3 4 เล็กน้อย) · เงินก่อนเปิดร้านและช่วงเปิดร้านเก็บในตัวที่ 2 อย่างเดียว</span><em>แนะนำ: ทำแบบใหม่</em></div></div>
+    <div class="d-d"><i>5</i><div><b>ผลหลายแบบ (ละเอียดขึ้น)</b><span>เดิม: ตามคาด / น้อยกว่า 20% / มากกว่า 20% · <b>ใหม่:</b> เพิ่ม “เงินพอ ถ้า…” (ยอดขายต่ำสุดที่เงินยังพอ · ยอดเต็มช้าได้กี่เดือน · เงินก่อนเปิดเกินงบได้เท่าไร) · เรียง 5 เรื่องที่ทำให้ต้องใช้เงินเพิ่มจากมากไปน้อยเป็นบาท (ตัวอย่าง: เงินก่อนเปิดเกินงบ 15% หนักที่สุด เงินไม่พอ) · % ที่ใช้ทดสอบเปลี่ยนเองได้ · หน้าผลลองปรับยอดขายต่อวันและช่วงยอดเต็มได้ ตัวเลขทุกตัวขยับทันที</span><em>แนะนำ: ทำแบบใหม่</em></div></div>
   </div>
-  <p class="d-fine">ชื่อของทั้ง 4 ตัวยังตั้งพร้อมกันทีหลัง (HANDOFF ข้อ 11.4 ก8) · คำบนหน้าจอ Claude เขียนภาษาไทยเลยแบบตัวที่ 4 แล้วคุณลองใช้และส่งความเห็นกลับ</p>
+  <p class="d-fine">ทุกข้อยังบอกแค่ปัญหาและขนาดเป็นเงิน ไม่บอกว่าควรทำอะไร · ชื่อของทั้ง 4 ตัวยังตั้งพร้อมกันทีหลัง (HANDOFF ข้อ 11.4 ก8)</p>
 </section>
 
 <section class="d-sec">
   <h2>ลำดับงานหลังคุณยืนยัน</h2>
   <div class="d-steps">
-    <div class="d-st"><i>1</i><div><b>สูตรและชุดทดสอบตัวเลข</b><span>คิดมือเทียบทุกสูตร · ร้านสุ่มหลายร้อยร้าน · กำไรต้องตรงตัวที่ 1</span></div></div>
+    <div class="d-st"><i>1</i><div><b>สูตรและชุดทดสอบตัวเลข</b><span>คิดมือเทียบทุกสูตร · ร้านสุ่มหลายร้อยร้าน · กำไรเมื่อยอดเต็มต้องตรงตัวที่ 1 ทุกบาท</span></div></div>
     <div class="d-st"><i>2</i><div><b>หน้าจอทั้งหมด</b><span>ใช้หน้าตาชุดเดียวกับตัวที่ 1 3 และ 4</span></div></div>
     <div class="d-st"><i>3</i><div><b>ทดสอบทุกหน้าบนจอมือถือ และผู้ตรวจอิสระ 2 คน</b><span>แก้จนผ่าน</span></div></div>
     <div class="d-st"><i>4</i><div><b>ขึ้นลิงก์ Business Lab</b><span>การ์ด “เช็กก่อนเปิดร้าน” ในหน้ารวมกดได้</span></div></div>
