@@ -1,0 +1,79 @@
+/* ============================================================
+   หน้าตาของตัวที่ 2 (ต่อจาก ../mvp-check-numbers/src/style.css และ ../mvp-product-channel/src/style.css)
+   ใช้ token สี ฟอนต์ ระยะ ชุดเดียวกับตัวที่ 1 3 4 · เพิ่มเฉพาะส่วนที่ตัวที่ 2 มี: เมนู เดือนที่เปิด ยอดขายเดือนแรก ๆ เงินก่อนเปิดร้าน
+   ผล: เงินที่ต้องมี เงินในมือ 3 แบบ เงินพอ ถ้า… เรื่องที่ทำให้ใช้เงินเพิ่ม ย้อนจากเงินที่อยากได้
+   ============================================================ */
+.three { display: grid; grid-template-columns: 1.2fr 1fr 0.9fr; gap: 8px; }
+.three > * { min-width: 0; }
+.three .inbox input { font-size: 18px; padding: 0 10px; }
+.three .inbox .suf { padding: 0 10px 0 2px; font-size: 13px; }
+.mn2, .fh2 { display: grid; gap: 12px; }
+.mn2 .inbox, .fh2 .inbox, .mn2 .chip { background: var(--surface); }
+.mrow { display: grid; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+.mrow:first-of-type { border-top: 0; padding-top: 0; }
+.mh { display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--muted); }
+.mn2 .tot4 { background: var(--surface); }
+.months.om2 .month { min-height: 48px; font-size: 14px; }
+.month.mo[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+/* ยอดขายเดือนแรก ๆ: แท่งต่อเดือน แตะเพื่อเลือก */
+.rampv { display: grid; gap: 6px; align-items: end; height: 168px; margin: 2px 0; }
+.rb { display: grid; grid-template-rows: 1fr auto auto; height: 100%; gap: 2px; text-align: center; border: 0; background: transparent; padding: 0; min-width: 0; color: var(--ink); min-height: 44px; }
+.rb i { align-self: end; display: block; background: var(--ghost); border-radius: 8px 8px 3px 3px; min-height: 3px; transition: height 0.25s; }
+.rb.on i { background: var(--ink); }
+.rb.on b { text-decoration: underline; text-underline-offset: 3px; }
+.rb.pre i { background: var(--surface-2); }
+.rb b { font-family: var(--font-num); font-size: 12px; }
+.rb span { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.redit { display: grid; gap: 8px; background: var(--card); border-radius: var(--r); padding: 14px 16px; }
+.redit .tv { background: var(--surface); }
+.redit .tv b { font-size: 22px; }
+.redit .stp { background: var(--surface); }
+.rbtns { display: flex; flex-wrap: wrap; gap: 8px; }
+.rbtns .sbtn { background: var(--surface); }
+.rbtns .sbtn:disabled { opacity: 0.4; }
+
+/* เงินก่อนเปิดร้าน */
+.su2 { display: grid; gap: 10px; background: var(--card); border-radius: var(--r); padding: 14px 16px; }
+.su2 .inbox { background: var(--surface); }
+.su2 .seg { background: var(--surface); }
+.su2.auto { gap: 4px; }
+.su2.auto .fine4 { margin: 0; }
+.su-h { display: flex; align-items: center; gap: 8px; }
+.su-n { flex: 1; min-width: 0; font-weight: 700; font-size: 15px; overflow-wrap: anywhere; }
+.tg2 { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--surface); white-space: nowrap; }
+.tg2.t-back { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.tg2.t-stock { background: var(--surface-2); }
+.tg2.t-equip { background: var(--ink); color: var(--bg); }
+.su-tot { margin-top: 2px; }
+
+/* ผล */
+.scw { display: grid; gap: 6px; margin: 4px 2px 12px; }
+.scw .wh-l { font-size: 13px; font-weight: 700; color: var(--muted); }
+.sc2 { display: flex; }
+.sc2 button { flex: 1; padding: 0 6px; font-size: 14px; }
+.ovg.m4 { margin-top: 10px; }
+.ovg.m4 .ovt { min-height: 128px; }
+.ovg.m4 .ovt .v { font-size: 24px; }
+.ovg.m4 .ovt .n { overflow-wrap: anywhere; }
+.cash2, .enough2, .rank2, .back2 { margin-top: 12px; display: grid; gap: 10px; }
+.cash2 .chart { margin-top: 0; }
+.en2 { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; background: var(--surface); border-radius: 14px; padding: 10px 14px; min-height: 52px; }
+.en2 span { font-size: 14px; color: var(--ink-2); min-width: 0; }
+.en2 b { font-family: var(--font-num); font-size: 22px; white-space: nowrap; }
+.en2 small { font-family: var(--font-th); font-size: 13px; margin-left: 4px; color: var(--muted); }
+.rk2 { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; }
+.rk2 span { font-size: 14px; font-weight: 600; line-height: 1.4; }
+.rk2 i { grid-column: 1 / -1; grid-row: 2; height: 10px; border-radius: 5px; background: var(--surface); overflow: hidden; }
+.rk2 i b { display: block; height: 100%; background: var(--ink); border-radius: 5px; transform-origin: left; animation: grow4 0.5s cubic-bezier(.2, .8, .2, 1) both; }
+.rk2 em { font-style: normal; font-family: var(--font-num); font-weight: 700; font-size: 15px; grid-column: 2; grid-row: 1; white-space: nowrap; }
+.rk2 small { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted); }
+.sens-ed { display: grid; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; }
+.sens-ed .tv b, .back2 .tv b { font-size: 20px; }
+.back2 .stp, .sens-ed .stp, .back2 .tv, .sens-ed .tv { background: var(--surface); }
+.ans2 { display: flex; justify-content: space-between; align-items: baseline; background: var(--ink); color: var(--bg); border-radius: 16px; padding: 10px 14px; }
+.ans2 span { font-size: 14px; font-weight: 600; }
+.ans2 b { font-family: var(--font-num); font-size: 24px; }
+.ans2 small { font-family: var(--font-th); font-size: 13px; margin-left: 4px; }
+.t1l { display: inline-flex; margin-top: 16px; }
+@media (prefers-reduced-motion: reduce) { .rk2 i b, .rb i { animation: none !important; transition: none !important; } }
