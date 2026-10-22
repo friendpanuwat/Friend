@@ -93,7 +93,7 @@ var RAMP_PRESETS = {
 };
 var RAMP_ORDER = ['now', 'r3', 'r6', 'honey'];
 var RAMP_MAX = 24;
-function rampCurve(op) { var r = op.ramp || {}; if (r.p === 'custom') return (r.c || []).slice(0, RAMP_MAX); return (RAMP_PRESETS[r.p] || RAMP_PRESETS.r3).c.slice(); }
+function rampCurve(op) { var r = op.ramp || {}; if (r.p === 'custom') return (r.c || []).slice(0, OP_H); return (RAMP_PRESETS[r.p] || RAMP_PRESETS.r3).c.slice(); }
 function rampAt(c, m) { return m <= c.length ? Math.max(0, c[m - 1]) : 1; }
 /* เดือนที่ยอดขายเต็ม (เดือนแรกที่ไม่มีเดือนหลังจากนั้นต่ำกว่า 100%) */
 function rampFull(c) { var L = c.length; while (L > 0 && c[L - 1] >= 0.999) L--; return L + 1; }
@@ -261,7 +261,8 @@ function opFinds(R) {
     if (lowSc.left !== null && lowSc.left < -0.5) F.push({ id: 'lowshort', lv: 'watch', money: -lowSc.left, ml: 'ขาดอีก', mabs: true,
       t: 'ถ้าขายได้น้อยกว่าที่คาด ' + fmtN(R.range) + '% เงินที่มีไม่พอ', s: 'ต้องมีเงินทั้งหมด ' + fmtN(lowSc.need) + ' บาท · มี ' + fmtN(B.save) + ' บาท', q: ['sales_basis', 'own_buffer'] });
     var worst = R.sens[0];
-    if (worst && worst.left !== null && worst.left < -0.5 && !(worst.k === 'sales' && Math.abs(worst.p - R.range) < 1e-9)) F.push({ id: 'sens-' + worst.k, lv: 'watch', money: worst.more, ml: 'ต้องใช้เงินเพิ่ม',
+    var hasLow = F.some(function (f) { return f.id === 'lowshort'; });
+    if (worst && worst.left !== null && worst.left < -0.5 && !(worst.k === 'sales' && (hasLow || Math.abs(worst.p - R.range) < 1e-9))) F.push({ id: 'sens-' + worst.k, lv: 'watch', money: worst.more, ml: 'ต้องใช้เงินเพิ่ม',
       t: SENS_TXT[worst.k](worst.p, R) + ' เงินที่มีไม่พอ', s: 'ขาดอีก ' + fmtN(-worst.left) + ' บาท', q: worst.k === 'over' ? ['startup_quote', 'own_buffer'] : ['sales_basis', 'test_first'] });
     if (B.left < B.F - 0.5) F.push({ id: 'thin', lv: 'watch', money: B.left, ml: 'เหลือช่วงตึงที่สุด',
       t: 'เงินเหลือช่วงตึงที่สุดน้อยกว่าค่าใช้จ่าย 1 เดือน', s: 'เดือนที่ ' + Math.max(1, B.lowM) + ' หลังเปิดร้าน · ค่าใช้จ่ายทุกเดือน ' + fmtN(B.F) + ' บาท', q: ['own_buffer', 'startup_quote'] });

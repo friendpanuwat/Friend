@@ -77,3 +77,4 @@
 .ans2 small { font-family: var(--font-th); font-size: 13px; margin-left: 4px; }
 .t1l { display: inline-flex; margin-top: 16px; }
 @media (prefers-reduced-motion: reduce) { .rk2 i b, .rb i { animation: none !important; transition: none !important; } }
+.rampw { overflow-x: auto; margin: 0 -2px; padding: 0 2px 4px; }

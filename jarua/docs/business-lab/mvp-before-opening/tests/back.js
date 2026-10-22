@@ -136,6 +136,13 @@ const say = (ok, label, extra) => { if (!ok) bad++; else oks++; console.log((ok 
         await tap(sel); await act();
         if (how === 'phone') await phoneBack(); else await appBack();
         await expect(how + ' back after "' + label + '" → review', { v: 'review', editing: false });
+        if ((await view()).v !== 'review') {
+          /* กู้คืนเพื่อทดสอบข้อต่อไป */
+          await page.evaluate(o => { const L = window.__labOpen, d = JSON.parse(o); L.state.inp = d[0]; L.state.op = d[1]; L.state.editing = false; L.state.edOrig = null; L.state.askFixed = false; L.go('review'); }, orig);
+          await page.waitForTimeout(150);
+          console.log('    (recovered to review to keep testing)');
+          continue;
+        }
         const now = await nums();
         const toast = await page.evaluate(() => [...document.querySelectorAll('.toast')].map(t => t.textContent).join(''));
         say(now === orig, '  incomplete edit cancelled, numbers restored (' + how + ', ' + label + ')', now === orig ? toast : now.slice(0, 200));
@@ -227,6 +234,7 @@ const say = (ok, label, extra) => { if (!ok) bad++; else oks++; console.log((ok 
     await appBack(); await expect('sample → start', { v: 'start' });
     await tap('[data-act="model"][data-m="service"]', 200); await expect('model tile on sample start → own sell', { v: 'sell' });
     await both('own sell after sample → start', () => tap('[data-act="model"][data-m="service"]', 200), { v: 'start' });
+    await phoneBack(); await expect('own sell after sample → start', { v: 'start' });
     await popPush('sample then own');
     await leaves('sample then own');
   } catch (e) { say(false, 'crashed at ' + JSON.stringify(await page.evaluate(() => window.__labOpen && window.__labOpen.state.view).catch(() => '?')), e.message.split('\n').slice(0, 3).join(' ')); }

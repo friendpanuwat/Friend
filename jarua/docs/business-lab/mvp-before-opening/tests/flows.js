@@ -8,7 +8,7 @@
    · หน้าผล หาจุดที่ควรตรวจสอบ จุดที่ควรตรวจสอบ ไม่มีคำแนะนำ (ควร เลิก ต้องลด ต้องขึ้น · ยกเว้น "ควรเฝ้าระวัง" "จุดที่ควรตรวจสอบ" และคำอธิบายเครื่องมือ .tool)
    · ตัวเลขบนหน้าผลตรงกับ R0(): แผงดำ = เงินที่ต้องมีของแบบที่เลือก · บรรทัดใต้แผง · จุดคุ้มทุน = ceil(S.be.vol) · คืนทุน · เงินพอ ถ้า… · เรียงเรื่องที่ทำให้ใช้เงินเพิ่มจากมากไปน้อย
    รัน: ./build.sh แล้ว NODE_PATH=/opt/node22/lib/node_modules node tests/flows.js
-   ONLY=<regex> รันเฉพาะเส้นทางที่ชื่อตรง เช่น ONLY=stress หรือ ONLY='own unit' · FULL=1 กรอกเองครบทุกคู่ (36 เส้นทาง) ทุกขนาดจอ */
+   ONLY=<regex> รันเฉพาะเส้นทางที่ชื่อตรง เช่น ONLY=stress หรือ ONLY='own unit' · FULL=1 กรอกเองครบ 36 เส้นทางทุกขนาดจอ (ช้ากว่า ~2 เท่า) */
 const fs = require('fs'), path = require('path');
 const { open, overflow, shot } = require('./harness');
 const TEST_URL = 'file://' + path.join(__dirname, '..', '.out', 'test.html');
@@ -63,9 +63,11 @@ async function check(env, label) {
 }
 
 /* ---------- ตัวเลขบนหน้าผล เทียบกับ R0() ---------- */
+/* ตัวเลขวิ่ง 520ms: รอจนทุกตัวหยุดที่ค่าสุดท้าย */
+const animDone = page => page.waitForFunction(() => [...document.querySelectorAll('[data-anim]')].every(el => el.textContent === fmtN(Math.abs(+el.getAttribute('data-v')), +el.getAttribute('data-dec'))), null, { timeout: 1500, polling: 50 }).catch(() => {});
 async function checkNumbers(env, label) {
   const { page } = env;
-  await page.waitForTimeout(650); /* ตัวเลขวิ่ง 520ms */
+  await animDone(page);
   const out = await page.evaluate(() => {
     const L = window.__labOpen, R = L.R0(), st = L.state, P = [];
     if (!R.ok) return ['R0 not ok'];
@@ -113,7 +115,8 @@ async function checkNumbers(env, label) {
       const wantBe = beOk === null ? 'ขายเท่าไรก็ขาดทุน' : fmtN(Math.ceil(beOk)) + u, wantBe2 = beOk === null ? wantBe : fmtN(ceilV(beOk)) + u;
       if (v(0) !== wantBe && v(0) !== wantBe2) P.push('break-even tile ' + v(0) + ' vs ceil(be.vol) ' + wantBe + ' (be.vol ' + (beOk) + ')');
       /* จุดคุ้มทุนจริง: ขายเท่านั้นไม่ขาดทุน ขายน้อยกว่า 1 ขาดทุน */
-      if (beOk !== null && n0(inp.volume) > 0) {
+      /* (มีเดือนขายดีขายแย่: กำไรต่อเดือนเป็นค่าเฉลี่ยทั้งปี จุดคุ้มทุนเป็นเดือนปกติ · ข้าม) */
+      if (beOk !== null && n0(inp.volume) > 0 && !hasSeason(inp) && !n0(inp.growth)) {
         const b = ceilV(beOk), pAt = k => compute(scaleVol(inp, st.model, k / n0(inp.volume)), st.model).profit;
         if (pAt(b) < -0.5) P.push('selling the break-even ' + b + ' still loses ' + pAt(b));
         if (b > 1 && pAt(b - 1) > 0.5) P.push('selling ' + (b - 1) + ' (below break-even) makes a profit ' + pAt(b - 1));
@@ -137,8 +140,12 @@ async function checkNumbers(env, label) {
       const h = txt(en.querySelector('h3'));
       if (h !== 'เงิน ' + fmtN(E.save) + ' บาท ' + (E.ok ? 'พอ ถ้า' : 'ยังไม่พอ')) P.push('enough heading «' + h + '»');
       if (E.ok !== (R.base.need <= E.save + 1e-6)) P.push('enough ok ' + E.ok + ' but need ' + R.base.need + ' save ' + E.save);
-      const w0e = E.minVol === null ? 'ไม่พอ' : fmtN(ceilV(E.minVol)) + u;
-      if (!rows[0] || rows[0][1] !== w0e) P.push('enough min sales ' + (rows[0] && rows[0][1]) + ' vs ' + w0e);
+      /* เงินที่มีไม่พอจ่ายเงินก่อนเปิดร้าน: บอกส่วนที่ขาด · ไม่อย่างนั้นบอกยอดขายขั้นต่ำ */
+      const startShort = R.base.start < 0;
+      const w0e = startShort ? '−' + fmtN(-R.base.start) + 'บาท' : E.minVol === null ? 'ขายเท่าไรก็ไม่พอ' : fmtN(ceilV(E.minVol)) + u;
+      if (!rows[0] || rows[0][1] !== w0e) P.push('enough first row ' + JSON.stringify(rows[0]) + ' vs ' + w0e + ' (start ' + R.base.start + ', minVol ' + E.minVol + ')');
+      if (startShort && E.minVol !== null) P.push('savings below startup but enough-minimum sales ' + E.minVol);
+      if (!startShort && rows[0] && !/^ขายได้อย่างน้อย/.test(rows[0][0])) P.push('enough first row label «' + rows[0][0] + '»');
       if (E.minVol !== null) {
         /* ขายเท่ายอดนั้นแล้วเงินพอดีพอ · ปัดขึ้นแล้วพอ */
         const nAt = v => opSim({ inp, op: st.op, mult: v / n0(inp.volume) }).need;
@@ -190,8 +197,9 @@ async function checkNumbers(env, label) {
     const tv = [...document.querySelectorAll('#target .tv b')].map(txt);
     if (tv[0] !== fmtN(inc) || tv[1] !== fmtN(mo)) P.push('target steppers show ' + tv + ' vs ' + [inc, mo]);
     /* สิ่งที่ตัวเลขบอก */
-    const fr = document.querySelectorAll('.flist .frow').length;
-    if (fr !== R.finds.length) P.push('findings rows ' + fr + ' vs ' + R.finds.length);
+    const fr = [...document.querySelectorAll('.flist .frow .ft')].map(e => e.textContent.replace(/\s+/g, ''));
+    const fw = R.finds.map(f => f.t.replace(/\s+/g, ''));
+    if (JSON.stringify(fr) !== JSON.stringify(fw)) P.push('findings on screen ' + JSON.stringify(fr) + ' vs R0().finds ' + JSON.stringify(fw));
     if (!R.finds.length && !document.querySelector('.block .ok-box')) P.push('no findings and no ok box');
     return P;
   });
@@ -200,8 +208,9 @@ async function checkNumbers(env, label) {
 
 /* ---------- ตัวช่วย ---------- */
 const S = env => env.page.evaluate(() => { const s = window.__labOpen.state; return { v: s.view, k: s.k, editing: s.editing, sc: s.sc, model: s.model, sample: s.isSample }; });
-async function tap(env, sel, wait) { await env.page.click(sel); await env.page.waitForTimeout(wait === undefined ? 80 : wait); }
-async function fill(env, sel, v) { await env.page.fill(sel, String(v)); await env.page.waitForTimeout(90); }
+/* แตะแล้ววาดใหม่ทันที (ไม่มี animation ของหน้า) · พิมพ์แล้วแถบสรุปรอ 60ms */
+async function tap(env, sel, wait) { await env.page.click(sel); await env.page.waitForTimeout(wait === undefined ? 40 : wait); }
+async function fill(env, sel, v) { await env.page.fill(sel, String(v)); await env.page.waitForTimeout(75); }
 async function expectView(env, label, v, k) {
   const s = await S(env);
   if (s.v !== v || (k !== undefined && s.k !== k)) {
@@ -687,14 +696,17 @@ async function stressFlow(env) {
     try {
       for (const k of ['cafe', 'online', 'salon']) if (want('sample ' + k)) try { await sampleFlow(env, k); } catch (e) { problem(env.tag + ' sample ' + k, 'crashed: ' + e.message.split('\n')[0]); }
       if (want('stress')) try { await stressFlow(env); } catch (e) { problem(env.tag + ' stress', 'crashed: ' + e.message.split('\n')[0]); }
-      /* กรอกเอง: ครบทุกคู่ (FULL=1 หรือจอ 390 สว่าง) · จออื่นใช้ชุดย่อที่ยังครอบคลุมทุกคู่ของ (เงินก่อนเปิด × ฤดูกาล) และทุกแบบของยอดขายเดือนแรก ๆ */
-      const full = process.env.FULL || (w === 390 && !dark);
-      let n = 0;
+      /* กรอกเอง: 3 รูปแบบ × 3 ที่ขาย × (ทีละรายการ / ก้อนเดียว) × (มี / ไม่มีเดือนขายดีขายแย่) = 36 เส้นทาง แบ่งกันรันไม่ซ้ำ:
+         390 สว่าง 18 (ชุด A: ทั้งสองแบบเงินก่อนเปิด ฤดูกาลสลับ) · 360 สว่าง 9 (ชุด B ทีละรายการ) · 390 มืด 9 (ชุด B ก้อนเดียว)
+         → ทุกจอมีครบ 3 รูปแบบ × 3 ที่ขาย และทั้งชุดครบ 36 คู่ · ยอดขายเดือนแรก ๆ วนครบ 5 แบบในทุกจอ · FULL=1 รันครบ 36 ทุกจอ */
+      const full = !!process.env.FULL;
+      let n = 0, rc = 0;
       for (const m of ['unit', 'resell', 'service'])
         for (const where of ['shop', 'online', 'both']) {
           const i = n++;
-          const combos = full ? [['items', 'yes'], ['items', 'no'], ['lump', 'yes'], ['lump', 'no']] : [['items', i % 2 ? 'no' : 'yes'], ['lump', i % 2 ? 'yes' : 'no']];
-          combos.forEach((c, j) => c.push(RAMPS[(i * combos.length + j) % RAMPS.length]));
+          const A = [['items', i % 2 ? 'no' : 'yes'], ['lump', i % 2 ? 'yes' : 'no']], B = [['items', i % 2 ? 'yes' : 'no'], ['lump', i % 2 ? 'no' : 'yes']];
+          const combos = full ? [['items', 'yes'], ['items', 'no'], ['lump', 'yes'], ['lump', 'no']] : w === 360 ? [B[0]] : dark ? [B[1]] : A;
+          combos.forEach(c => c.push(RAMPS[rc++ % RAMPS.length]));
           for (const [su, season, ramp] of combos) {
             const nm = 'own ' + m + '/' + where + '/' + su + '/season-' + season + '/' + ramp;
             if (!want(nm)) continue;

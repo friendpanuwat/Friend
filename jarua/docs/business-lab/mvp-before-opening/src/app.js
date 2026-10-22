@@ -52,7 +52,7 @@
     return R;
   }
   function R0() { return RC(state.inp, state.model, state.op); }
-  function flowOk() { return !!state.model && flowSteps().every(stepOk); }
+  function flowOk() { return !!state.model && fxOk(state.inp) && flowSteps().every(stepOk); }
 
   /* ---------- persistence & ตัวเลขร้านชุดกลาง ---------- */
   function snapshot() {
@@ -68,10 +68,13 @@
     if (inp.preOpen !== 0) inp.preOpen = 1;   /* 0 = ผู้ใช้แตะ "ร้านเปิดแล้ว" ในเครื่องมืออื่น */
     if (num(op.savings) !== null && stepOkAll(['su'])) inp.cash = Math.round((num(op.savings) - suTotals(op, inp).all) * 100) / 100;
     var pick = function (g) { inp.advMode = 'yes'; inp.advPick = (inp.advPick || []).filter(function (x) { return x !== g; }).concat([g]); };
+    var drop = function (g) { inp.advPick = (inp.advPick || []).filter(function (x) { return x !== g; }); if (inp.advMode === 'yes' && !inp.advPick.length) inp.advMode = 'no'; };
+    /* อุปกรณ์: ทีละรายการ = ตัวที่ 2 เป็นคนบอก (ไม่มีอุปกรณ์ = ล้างค่าที่เคยใส่) · ยอดรวมก้อนเดียว = ล้างเฉพาะค่าที่ตัวที่ 2 เคยใส่ */
     var e = op.mode === 'items' ? suEquip(op) : null;
-    if (e) { inp.equipValue = e.value; inp.equipYears = e.years; pick('adv-equip'); }
+    if (e) { inp.equipValue = e.value; inp.equipYears = e.years; pick('adv-equip'); op.equipMine = true; }
+    else if (op.mode === 'items' || (op.mode === 'lump' && op.equipMine)) { delete inp.equipValue; delete inp.equipYears; drop('adv-equip'); op.equipMine = false; }
     if (op.seasonAsked === 'yes' && hasSeason(inp)) pick('adv-season');
-    if (op.seasonAsked === 'no') inp.season = { high: [], low: [], highPct: 0, lowPct: 0 };
+    if (op.seasonAsked === 'no') { if (hasSeason(inp)) { op.seasonBak = inp.season; inp.season = { high: [], low: [], highPct: 0, lowPct: 0 }; } drop('adv-season'); }
     if (!inp.advMode) inp.advMode = 'no';
     return inp;
   }
@@ -474,7 +477,8 @@
       var v = rampAt(c, m), h = Math.min(100, v / 1.2 * 100);
       out += '<button type="button" class="rb' + (edit && sel === m - 1 ? ' on' : '') + '" data-act="rb" data-m="' + (m - 1) + '"' + (edit ? '' : ' tabindex="-1"') + ' aria-label="เดือนที่ ' + m + ' ขายได้ ' + Math.round(v * 100) + '% ของยอดปกติ"><i style="height:' + h.toFixed(1) + '%"></i><b>' + Math.round(v * 100) + '%</b><span>' + (m === 1 ? 'เดือน 1' : m) + '</span></button>';
     }
-    return '<div class="rampv" style="grid-template-columns:repeat(' + (L + (n0(state.op.fit) > 0 ? 1 : 0)) + ',minmax(0,1fr))">' + out + '</div>';
+    var cols = L + (n0(state.op.fit) > 0 ? 1 : 0);
+    return '<div class="rampw"><div class="rampv" style="grid-template-columns:repeat(' + cols + ',minmax(36px,1fr))' + (cols > 8 ? ';min-width:' + (cols * 42) + 'px' : '') + '">' + out + '</div></div>';
   }
   function viewRamp() {
     var r = state.op.ramp || {}, c = rampCurve(state.op), sel = Math.min(state.rampSel || 0, c.length);
@@ -677,7 +681,7 @@
       (state.isSample ? '<div class="banner4"><span><small>กำลังใช้</small>' + esc(OP_SAMPLES[state.sampleKind].name) + '</span><button class="btn ghost sm" data-act="mine">ใส่ตัวเลขร้านคุณ</button></div>' : '') +
       '<div class="scw"><span class="wh-l">ถ้าขายได้</span>' + scSeg(R) + '</div>' +
       panelHtml(R) + tilesHtml(R) + chartHtml(R) + enoughHtml(R) + sensHtml(R) + tryHtml(R) + targetHtml(R) +
-      '<section class="block">' + hq('h2', 'สิ่งที่ตัวเลขบอก', 'fnd', 'บอกปัญหาและขนาดเป็นเงิน ไม่บอกวิธีแก้') + findsHtml(R) + '</section>' +
+      '<section class="block" id="fnd4">' + hq('h2', 'สิ่งที่ตัวเลขบอก', 'fnd', 'บอกปัญหาและขนาดเป็นเงิน ไม่บอกวิธีแก้') + findsHtml(R) + '</section>' +
       tool1Link() + '</div></main>' +
       '<div class="foot foot2" id="foot"><div class="wrap"><button class="btn ghost" data-act="review">แก้ตัวเลข</button><button class="btn" data-act="ask">หาจุดที่ควรตรวจสอบ' + ICON.next + '</button></div></div>';
     return out;
@@ -746,6 +750,7 @@
     if (v === 'fixed' && !state.askFixed && !state.editing) state.askFixed = true;
     if (v === 'fixed' && !FIXED_STEPS[state.k]) state.k = 0;
     if (FLOW_VIEWS.indexOf(v) >= 0 && v !== 'fixed') state.k = 0;
+    if (state.model && !state.isSample) derive(state.inp, state.op, state.model);
     app.innerHTML = v === 'start' ? viewStart() : v === 'sell' ? viewSell() : v === 'vol' ? viewVol() : v === 'open' ? viewOpen() : v === 'ramp' ? viewRamp()
       : v === 'fixed' ? viewFixed() : v === 'su' ? viewSu() : v === 'save' ? viewSave() : v === 'review' ? viewReview() : v === 'ask' ? viewAsk() : v === 'points' ? viewPoints() : viewResult();
     runAnim(app);
@@ -929,7 +934,7 @@
         var path = t.getAttribute('data-path'), raw = t.getAttribute('data-v'), val = t.getAttribute('data-num') === '1' ? +raw : raw;
         setP(path, val);
         if (path === 'op.mode' && val === 'lump' && num(state.op.lump) === null && state.op.items.length) state.op.lump = suTotals(Object.assign({}, state.op, { mode: 'items' }), state.inp).all - fitRent(state.op, state.inp);
-        if (path === 'op.seasonAsked' && val === 'yes' && !state.inp.season) state.inp.season = { high: [], low: [] };
+        if (path === 'op.seasonAsked' && val === 'yes') { if (state.op.seasonBak && !hasSeason(state.inp)) state.inp.season = state.op.seasonBak; if (!state.inp.season) state.inp.season = { high: [], low: [] }; state.op.seasonBak = null; }
         if (/^su\.\d+\.t$/.test(path) && val === 'equip') { var ie = state.op.items[+path.split('.')[1]]; if (ie && !pos(ie.y)) ie.y = 5; }
         go(state.view, false); refocus('[data-act="pset"][data-path="' + path + '"][data-v="' + raw + '"]'); break;
       }
@@ -1049,7 +1054,7 @@
   function liveResult() {
     var y = window.scrollY, ae = document.activeElement, aid = ae && ae.id;
     var tmp = document.createElement('div'); tmp.innerHTML = viewResult();
-    ['#sens', '#target', '#dl4', '.tbtns', '[data-tcur]'].forEach(function (sel) {
+    ['#sens', '#target', '#fnd4', '#dl4', '.tbtns', '[data-tcur]'].forEach(function (sel) {
       var a2 = $$(sel, app), b2 = $$(sel, tmp);
       a2.forEach(function (el, n) { if (b2[n]) el.outerHTML = b2[n].outerHTML; });
     });
