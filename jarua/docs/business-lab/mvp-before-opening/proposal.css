@@ -1,0 +1,56 @@
+/* หน้าข้อเสนอ: คอลัมน์เดียวแบบมือถือ ใช้ token และ class ของเครื่องมือจริง · กรอบโทรศัพท์แสดงหน้าจอตัวอย่างตามขนาดจริง */
+.doc .wrap { max-width: 760px; }
+.doc { padding-bottom: 60px; }
+.d-hero { margin: 18px 2px 8px; display: grid; gap: 10px; }
+.d-k { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 0.02em; }
+.d-hero h1 { font-size: 34px; line-height: 1.25; margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
+.d-hero > p { margin: 0; font-size: 16px; color: var(--ink-2); }
+.d-q { margin: 4px 0 0; padding: 16px 18px 16px 38px; background: var(--card); border-radius: var(--r); display: grid; gap: 8px; font-size: 15px; }
+.d-q b { font-weight: 700; }
+.d-fine { font-size: 13px; color: var(--muted); margin: 4px 2px 0; line-height: 1.55; }
+.d-sec { margin-top: 34px; display: grid; gap: 12px; min-width: 0; }
+.d-sec h2 { font-size: 21px; margin: 0 2px; line-height: 1.35; text-wrap: balance; }
+.d-lead { margin: 0 2px; font-size: 15px; color: var(--ink-2); }
+.d-lead code, .d-fine code { font-size: 13px; background: var(--card); padding: 1px 6px; border-radius: 6px; }
+.d-list { display: grid; gap: 8px; }
+.d-item { background: var(--card); border-radius: var(--r-sm); padding: 14px 16px; display: grid; gap: 4px; }
+.d-item b { font-size: 15px; line-height: 1.4; }
+.d-item span { font-size: 14px; color: var(--muted); line-height: 1.55; }
+.d-steps, .d-dec { display: grid; gap: 8px; }
+.d-st, .d-d { background: var(--card); border-radius: var(--r-sm); padding: 14px 16px; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; align-items: start; }
+.d-st i, .d-d i { font-style: normal; width: 30px; height: 30px; border-radius: 15px; background: var(--ink); color: var(--bg); font-family: var(--font-num); font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.d-st div, .d-d div { display: grid; gap: 3px; min-width: 0; }
+.d-st b, .d-d b { font-size: 15px; line-height: 1.4; }
+.d-st span, .d-d span { font-size: 14px; color: var(--muted); line-height: 1.55; }
+.d-d em { font-style: normal; font-size: 13px; font-weight: 700; justify-self: start; margin-top: 4px; padding: 3px 12px; border-radius: 999px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.d-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.d-tags span { font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; background: var(--card); }
+
+/* หน้าจอตัวอย่าง */
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 16px; align-items: start; }
+.phone { margin: 0; display: grid; gap: 8px; min-width: 0; }
+.phone figcaption { font-size: 13px; font-weight: 700; color: var(--muted); margin: 0 4px; }
+.ph { border-radius: 30px; box-shadow: inset 0 0 0 1.5px var(--line-strong); background: var(--bg); padding: 4px 0 18px; overflow: hidden; }
+.ph .bar { position: static; background: transparent; }
+.ph .bar .tb, .ph .bar .ib { display: inline-flex; align-items: center; }
+.ph .q-head { margin-top: 10px; }
+.ph .q-head h1 { font-size: 22px; }
+.ph .bignum { font-size: 48px; }
+.ovg.m4 { margin-top: 10px; }
+.ovg.m4 .ovt { min-height: 118px; }
+.ovg.m4 .ovt .v { font-size: 26px; }
+.cash2 { display: grid; gap: 10px; }
+.cash2 .sc2 { display: flex; background: var(--surface); }
+.cash2 .sc2 button { flex: 1; padding: 0 6px; font-size: 13px; min-height: 40px; }
+.cash2 + .flist { margin-top: 10px; }
+.back2 { display: grid; gap: 10px; }
+.back2 .tvv { font-family: var(--font-num); font-size: 22px; font-weight: 700; }
+.ans2 { display: flex; justify-content: space-between; align-items: baseline; background: var(--ink); color: var(--bg); border-radius: 16px; padding: 10px 14px; }
+.ans2 span { font-size: 14px; font-weight: 600; }
+.ans2 b { font-family: var(--font-num); font-size: 26px; }
+.ans2 small { font-family: var(--font-th); font-size: 13px; margin-left: 4px; }
+.pick2 { margin: 12px 0 14px; }
+.pick2 .chip { display: inline-flex; align-items: center; min-height: 40px; font-size: 14px; padding: 0 14px; }
+.ph .field { margin-bottom: 12px; }
+.ph .inbox .iv { flex: 1; padding: 0 16px; font-family: var(--font-num); font-size: 22px; font-weight: 600; }
+.ph .tot4 { margin-top: 4px; }

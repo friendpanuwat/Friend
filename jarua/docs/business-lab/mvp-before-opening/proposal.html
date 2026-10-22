@@ -1,0 +1,960 @@
+<title>เช็กก่อนเปิดร้าน ข้อเสนอ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Sora:wght@500;600&display=swap">
+<style>
+/* Layout: one mobile column (max 560px) on a white ground · soft grey cards without borders or shadows · pill buttons · black inverse panels hold the money
+   Minimal: one big number per card, rings and bars instead of sentences · secondary text sits behind a "?" button (.qm) or a tap
+   --card = grey card on the page · --surface = fill inside a card (white in light mode)
+   Screens: start → wizard (one question per screen, live receipt) → home (summary) → finding detail / lab (own screens) */
+:root {
+  --bg: #ffffff;
+  --card: #f4f4f6;
+  --surface: #ffffff;
+  --surface-2: #e6e6ea;
+  --line: #e3e3e7;
+  --line-strong: #c6c6cc;
+  --ink: #0b0b0c;
+  --ink-2: #393940;
+  --muted: #66666d;
+  --faint: #a9a9b0;
+  --panel: #0b0b0c;
+  --panel-ink: #ffffff;
+  --panel-muted: rgba(255, 255, 255, 0.64);
+  --panel-line: rgba(255, 255, 255, 0.16);
+  --panel-dot: transparent;
+  --panel-btn: #ffffff;
+  --panel-btn-ink: #0b0b0c;
+  --ghost: #b8b8be;
+  --shadow: 0 0 0 0 transparent;
+  --lift: 0 8px 24px rgba(11, 11, 12, 0.14);
+  --font-th: "IBM Plex Sans Thai", "Noto Sans Thai", "Thonburi", system-ui, sans-serif;
+  --font-num: "Space Grotesk", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --font-latin: "Sora", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --r: 22px;
+  --r-sm: 18px;
+  --col: 560px;
+  --foot-h: 0px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #09090a; --card: #18181b; --surface: #26262a; --surface-2: #303035; --line: #2c2c31; --line-strong: #44444b;
+    --ink: #f4f4f5; --ink-2: #d4d4d8; --muted: #a1a1a9; --faint: #64646b;
+    --panel: #ededef; --panel-ink: #0b0b0c; --panel-muted: rgba(11, 11, 12, 0.62); --panel-line: rgba(11, 11, 12, 0.14); --panel-dot: transparent;
+    --panel-btn: #0b0b0c; --panel-btn-ink: #ffffff; --ghost: #57575e;
+    --shadow: 0 0 0 0 transparent; --lift: 0 8px 24px rgba(0, 0, 0, 0.5); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #09090a; --card: #18181b; --surface: #26262a; --surface-2: #303035; --line: #2c2c31; --line-strong: #44444b;
+  --ink: #f4f4f5; --ink-2: #d4d4d8; --muted: #a1a1a9; --faint: #64646b;
+  --panel: #ededef; --panel-ink: #0b0b0c; --panel-muted: rgba(11, 11, 12, 0.62); --panel-line: rgba(11, 11, 12, 0.14); --panel-dot: transparent;
+  --panel-btn: #0b0b0c; --panel-btn-ink: #ffffff; --ghost: #57575e;
+  --shadow: 0 0 0 0 transparent; --lift: 0 8px 24px rgba(0, 0, 0, 0.5); color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-th); font-size: 16px; line-height: 1.55; margin: 0; -webkit-font-smoothing: antialiased; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 8px; }
+.num { font-family: var(--font-num); letter-spacing: -0.02em; }
+.muted { color: var(--muted); }
+svg { flex: none; }
+
+.wrap { max-width: var(--col); margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { padding-bottom: calc(var(--foot-h) + 40px + env(safe-area-inset-bottom, 0px)); }
+
+/* ---------- top bar ---------- */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); }
+.bar .wrap { display: flex; align-items: center; gap: 6px; min-height: 60px; }
+.bar .ttl { flex: 1; min-width: 0; text-align: center; font-weight: 700; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar .ttl small { display: block; font-family: var(--font-latin); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.ib { width: 44px; height: 44px; border-radius: 22px; border: 0; background: transparent; display: inline-flex; align-items: center; justify-content: center; color: var(--ink); }
+.ib:hover { background: var(--surface-2); }
+.ib svg { width: 22px; height: 22px; }
+.tb { min-height: 44px; padding: 0 12px; border-radius: 22px; border: 0; background: transparent; font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; gap: 4px; }
+.tb svg { width: 20px; height: 20px; }
+.tb:hover { background: var(--surface-2); }
+.spacer44 { width: 44px; flex: none; }
+
+/* ---------- buttons ---------- */
+.btn { min-height: 54px; border-radius: 999px; border: 0; background: var(--ink); color: var(--bg); font-weight: 700; font-size: 17px; padding: 0 20px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn svg { width: 20px; height: 20px; }
+.btn.ghost { background: var(--card); color: var(--ink); }
+.btn.block { width: 100%; }
+.btn:disabled { opacity: 0.35; cursor: default; }
+.btn.on-panel { background: var(--panel-btn); color: var(--panel-btn-ink); }
+.lnk { background: none; border: 0; padding: 0 4px; min-height: 44px; font-weight: 600; font-size: 15px; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1.5px; color: var(--ink); }
+
+/* ---------- inverse panel (the money lives here) ---------- */
+.panel {
+  background-color: var(--panel); color: var(--panel-ink); border-radius: 28px; padding: 22px 20px 20px; position: relative; overflow: hidden;
+  background-image: radial-gradient(var(--panel-dot) 1.2px, transparent 1.3px); background-size: 14px 14px; background-position: 7px 7px;
+}
+.panel .eyebrow { font-size: 13px; color: var(--panel-muted); font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.panel .tag { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--panel-line); color: var(--panel-ink); }
+.bignum { font-family: var(--font-num); font-weight: 700; font-size: 60px; line-height: 1; letter-spacing: -0.045em; margin: 10px 0 6px; overflow-wrap: anywhere; }
+.bignum .u { font-family: var(--font-th); font-size: 20px; font-weight: 600; letter-spacing: 0; margin-left: 8px; }
+.panel .sub { font-size: 14px; color: var(--panel-muted); }
+.panel .delta { font-family: var(--font-num); font-weight: 700; font-size: 16px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 18px; border-top: 1px solid var(--panel-line); padding-top: 14px; }
+.stat { min-width: 0; padding-right: 8px; }
+.stat + .stat { border-left: 1px solid var(--panel-line); padding-left: 12px; }
+.stat .k { font-size: 12px; color: var(--panel-muted); line-height: 1.35; }
+.stat .v { font-family: var(--font-num); font-weight: 700; font-size: 22px; line-height: 1.2; margin-top: 4px; letter-spacing: -0.02em; white-space: nowrap; }
+.stat .v small { font-family: var(--font-th); font-size: 12px; font-weight: 600; letter-spacing: 0; margin-left: 2px; }
+.stat .d { font-family: var(--font-num); font-size: 12px; font-weight: 700; margin-top: 2px; }
+.stat .n { font-size: 12px; color: var(--panel-muted); line-height: 1.35; }
+.panel .cta { margin-top: 18px; }
+.up::before { content: "▲ "; font-size: 0.78em; }
+.down::before { content: "▼ "; font-size: 0.78em; }
+
+/* ---------- start ---------- */
+.start-hero { margin-top: 8px; }
+.start-hero h1 { font-size: 27px; line-height: 1.32; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.start-hero p { margin: 10px 0 0; color: var(--panel-muted); font-size: 15px; }
+.demo { margin-top: 18px; border-top: 1px solid var(--panel-line); padding-top: 14px; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: end; }
+.demo .k { font-size: 13px; color: var(--panel-muted); }
+.demo .v { font-family: var(--font-num); font-weight: 700; font-size: 34px; letter-spacing: -0.03em; line-height: 1; }
+.demo .d { font-family: var(--font-num); font-weight: 700; font-size: 15px; text-align: right; }
+.demo .note { grid-column: 1 / -1; font-size: 13px; color: var(--panel-muted); }
+.sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 28px 2px 12px; }
+.sec-h h2 { font-size: 20px; margin: 0; line-height: 1.3; }
+.sec-h .aside { font-size: 14px; color: var(--muted); }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tile { text-align: left; border: 0; background: var(--card); border-radius: var(--r); padding: 16px 14px 14px; min-height: 124px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow); }
+.tile:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.tile .ic { width: 40px; height: 40px; border-radius: 12px; background: var(--ink); color: var(--bg); display: flex; align-items: center; justify-content: center; }
+.tile .ic svg { width: 22px; height: 22px; }
+.tile .t { font-weight: 700; font-size: 15px; line-height: 1.35; }
+.tile .ex { font-size: 13px; color: var(--muted); line-height: 1.4; margin-top: auto; }
+.fine { font-size: 13px; color: var(--muted); margin: 24px 2px 0; }
+
+/* ---------- wizard ---------- */
+.prog { display: flex; gap: 4px; margin: 4px 0 0; }
+.prog i { flex: 1; height: 4px; border-radius: 2px; background: var(--surface-2); }
+.prog i.on { background: var(--ink); }
+.receipt-strip { margin-top: 14px; padding: 14px 16px; }
+.receipt-strip .rs-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.receipt-strip .rs-k { font-size: 13px; color: var(--panel-muted); font-weight: 600; }
+.receipt-strip .rs-v { font-family: var(--font-num); font-weight: 700; font-size: 30px; letter-spacing: -0.03em; line-height: 1.1; }
+.receipt-strip .rs-v small { font-family: var(--font-th); font-size: 14px; font-weight: 600; letter-spacing: 0; margin-left: 4px; }
+.receipt-strip .rs-lines { margin-top: 8px; display: grid; gap: 2px; font-size: 13px; }
+.rs-line { display: flex; gap: 6px; align-items: baseline; color: var(--panel-muted); }
+.rs-line i { flex: 1; border-bottom: 1px dotted var(--panel-line); transform: translateY(-3px); }
+.rs-line b { font-family: var(--font-num); color: var(--panel-ink); font-weight: 600; }
+.rs-empty { font-size: 14px; color: var(--panel-muted); margin-top: 4px; }
+.q-head { margin: 26px 2px 6px; }
+.q-head .step { font-size: 13px; color: var(--muted); font-weight: 600; }
+.q-head h1 { font-size: 26px; line-height: 1.3; margin: 4px 0 0; text-wrap: balance; }
+.q-head p { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+.qfields { display: grid; gap: 18px; margin-top: 18px; }
+.field { display: grid; gap: 8px; min-width: 0; }
+.field > label, .field > .lab { font-weight: 600; font-size: 15px; }
+.field .help { color: var(--muted); font-size: 13px; line-height: 1.5; margin: 0; }
+.inbox { display: flex; align-items: center; background: var(--card); border-radius: 18px; min-height: 60px; overflow: hidden; }
+.inbox:focus-within { box-shadow: inset 0 0 0 2px var(--ink); }
+.inbox input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 0 16px; font-family: var(--font-num); font-size: 24px; font-weight: 600; outline: none; height: 58px; letter-spacing: -0.01em; }
+.inbox input::placeholder { color: var(--faint); font-weight: 500; }
+.inbox .suf { padding: 0 16px 0 4px; color: var(--muted); font-size: 15px; white-space: nowrap; }
+.seg { display: inline-flex; background: var(--card); border-radius: 999px; padding: 4px; gap: 4px; flex-wrap: wrap; }
+.seg button { border: 0; background: transparent; border-radius: 999px; min-height: 44px; padding: 0 16px; font-size: 15px; font-weight: 600; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.inbox .seg { margin: 6px; padding: 3px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { min-height: 48px; padding: 0 18px; border-radius: 24px; border: 0; background: var(--card); font-weight: 600; font-size: 16px; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); box-shadow: none; }
+.chips input { width: 140px; min-height: 48px; border: 0; border-radius: 24px; padding: 0 16px; background: var(--card); font-size: 15px; }
+.chips input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ink); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.two > * { min-width: 0; }
+.two .inbox input { font-size: 20px; }
+.fee-help { display: grid; gap: 10px; padding: 14px; border-radius: var(--r); background: var(--card); }
+.fee-help .inbox, .adv-block .inbox, .adv-block .chip, .adv-block .chips input, .adv-block .seg, .adv-block .month { background: var(--surface); }
+.fee-help .fh-res { font-size: 14px; color: var(--ink-2); }
+.fee-help .fh-res b { font-family: var(--font-num); color: var(--ink); }
+.fee-help label { font-size: 13px; font-weight: 600; }
+.adv-block { background: var(--card); border-radius: var(--r); padding: 4px 16px; box-shadow: var(--shadow); }
+.adv-block summary { list-style: none; cursor: pointer; min-height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-weight: 700; font-size: 16px; }
+.adv-block summary::-webkit-details-marker { display: none; }
+.adv-block summary small { display: block; font-weight: 400; font-size: 13px; color: var(--muted); }
+.adv-block summary svg { width: 20px; height: 20px; transition: transform 0.2s; color: var(--muted); }
+.adv-block[open] summary svg { transform: rotate(180deg); }
+.adv-block .qfields { margin: 4px 0 18px; }
+.adv-list { display: grid; gap: 10px; margin-top: 18px; }
+.months { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.month { min-height: 48px; border-radius: 12px; border: 0; background: var(--card); font-size: 13px; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; }
+.month small { font-size: 10px; font-weight: 700; }
+.month[data-s="high"] { background: var(--ink); color: var(--bg); }
+.month[data-s="low"] { background: var(--surface-2); box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+.foot { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: linear-gradient(to top, var(--bg) 70%, transparent); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.foot .wrap { display: flex; gap: 10px; padding-top: 18px; padding-bottom: 14px; }
+.foot .btn { flex: 1; }
+.foot .btn.back { flex: 0 0 auto; width: 60px; padding: 0; }
+.foot2 .btn { font-size: 16px; padding: 0 16px; }
+.foot2 .btn.ghost { flex: 0 0 auto; }
+.skip { display: flex; justify-content: center; margin-top: 10px; }
+
+/* ---------- review (แก้ตัวเลข) ---------- */
+.rv { display: grid; gap: 8px; margin-top: 12px; }
+.rv-row { width: 100%; text-align: left; border: 0; background: var(--card); border-radius: var(--r-sm); padding: 14px 16px; display: grid; grid-template-columns: 1fr 20px; gap: 2px 10px; align-items: center; box-shadow: var(--shadow); min-height: 64px; }
+.rv-row .t { font-weight: 700; font-size: 15px; }
+.rv-row .v { font-size: 14px; color: var(--muted); grid-column: 1; line-height: 1.45; }
+.rv-row svg { grid-row: 1 / span 2; grid-column: 2; width: 18px; height: 18px; color: var(--muted); }
+
+/* ---------- home ---------- */
+.banner { margin-top: 4px; margin-bottom: 12px; padding: 0 6px 0 16px; min-height: 48px; border-radius: 999px; background: var(--card); box-shadow: var(--shadow); font-size: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.flist { display: grid; gap: 8px; }
+.frow { width: 100%; text-align: left; border: 0; background: var(--card); border-radius: var(--r); padding: 16px; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center; box-shadow: var(--shadow); min-height: 76px; }
+.frow .ft { font-weight: 700; font-size: 16px; line-height: 1.4; grid-column: 1; }
+.frow .fm { font-family: var(--font-num); font-weight: 700; font-size: 20px; letter-spacing: -0.02em; white-space: nowrap; text-align: right; }
+.frow .fm small { display: block; font-family: var(--font-th); font-size: 12px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+.frow .pill { grid-column: 1; justify-self: start; }
+.frow svg { width: 18px; height: 18px; color: var(--muted); }
+.frow .fr-r { grid-row: 1 / span 2; grid-column: 2; display: flex; align-items: center; gap: 6px; }
+.pill { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--surface); white-space: nowrap; letter-spacing: 0.01em; display: inline-block; }
+.pill.high { background: var(--ink); color: var(--bg); box-shadow: none; }
+.pill.mid { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.pill.watch { background: var(--surface-2); }
+.pill.note { color: var(--muted); }
+.ok-box { background: var(--card); border-radius: var(--r); padding: 18px 16px; box-shadow: var(--shadow); }
+.ok-box b { font-size: 16px; }
+.ok-box p { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
+.cards { display: grid; gap: 12px; }
+.card { background: var(--card); border-radius: var(--r); padding: 18px 16px; box-shadow: var(--shadow); min-width: 0; }
+.card h3 { font-size: 16px; margin: 0; line-height: 1.4; }
+.card .lead { font-size: 15px; color: var(--ink-2); margin: 4px 0 0; }
+.card .lead b { font-family: var(--font-num); color: var(--ink); }
+
+
+/* chart */
+.chart { margin-top: 10px; position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart .ax { font-family: var(--font-num); font-size: 11px; fill: var(--muted); }
+.chart .axth { font-family: var(--font-th); font-size: 11px; fill: var(--muted); }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .zero { stroke: var(--ink-2); stroke-width: 1; }
+.chart .line { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.chart .line.ghost { stroke: var(--ghost); stroke-width: 2; }
+.chart .area { fill: var(--ink); opacity: 0.06; }
+.chart .dot { fill: var(--ink); stroke: var(--card); stroke-width: 2; }
+.chart .endlab { font-family: var(--font-num); font-size: 12px; font-weight: 700; fill: var(--ink); paint-order: stroke; stroke: var(--card); stroke-width: 4px; stroke-linejoin: round; }
+.chart .hit { fill: transparent; }
+.chart .cross { stroke: var(--ink-2); stroke-width: 1; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); border-radius: 10px; padding: 7px 10px; font-size: 13px; line-height: 1.4; white-space: nowrap; transform: translate(-50%, -100%); z-index: 3; }
+.tip b { font-family: var(--font-num); }
+.legend { display: flex; gap: 16px; margin-top: 8px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 16px; height: 3px; border-radius: 2px; background: var(--ink); }
+.legend i.g { background: var(--ghost); }
+
+/* เงิน 100 บาทที่ลูกค้าจ่าย ไปไหนบ้าง: การ์ดเทา แถบเดียว + กำไรที่เหลือ · แตะเพื่อดูทีละรายการ */
+.receipt { background: var(--card); border-radius: var(--r); padding: 16px 16px 4px; margin: 10px 0; }
+.rc-head .rt { font-weight: 600; font-size: 15px; line-height: 1.4; }
+.rc-bar { display: flex; gap: 2px; height: 12px; margin: 14px 0 0; border-radius: 6px; overflow: hidden; }
+.rc-bar i { display: block; background: var(--ghost); height: 100%; transition: flex-grow 0.35s; }
+.rc-bar i:nth-child(2n) { opacity: 0.7; }
+.rc-bar i.k { background: var(--ink); opacity: 1; }
+.rc-lines { display: grid; gap: 6px; margin-top: 14px; font-size: 14px; }
+.rc-line { display: flex; gap: 6px; align-items: baseline; }
+.rc-line span { color: var(--ink-2); flex: 1; }
+.rc-line i { display: none; }
+.rc-line b { font-family: var(--font-num); font-weight: 600; font-variant-numeric: tabular-nums; }
+.rc-line .was { flex: none; font-family: var(--font-num); color: var(--muted); font-size: 12px; text-decoration: line-through; margin-right: 4px; }
+.rc-total { width: 100%; min-height: 52px; margin-top: 6px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; color: var(--ink); text-align: left; }
+.rc-total span { flex: 1; }
+.rc-total b { font-family: var(--font-num); font-size: 22px; letter-spacing: -0.02em; }
+.rc-total svg { width: 18px; height: 18px; color: var(--muted); transition: transform 0.2s; }
+.rc-total[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+/* ranking */
+.rank { display: grid; gap: 2px; margin-top: 10px; }
+.rank button { width: 100%; text-align: left; border: 0; background: transparent; border-radius: 12px; padding: 10px 8px; margin: 0 -8px; display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; min-height: 56px; width: calc(100% + 16px); }
+.rank button:hover { background: var(--surface); }
+.rank .rl { font-size: 15px; font-weight: 600; }
+.rank .rl small { font-weight: 400; color: var(--muted); font-size: 13px; margin-left: 4px; }
+.rank .rv { font-family: var(--font-num); font-weight: 700; white-space: nowrap; }
+.rank .rb { grid-column: 1 / -1; height: 8px; border-radius: 4px; background: var(--surface); overflow: hidden; }
+.rank .rb i { display: block; height: 100%; background: var(--ink); border-radius: 4px; }
+.plan { margin-top: 12px; }
+.plan h3 { margin: 6px 0 6px; font-size: 19px; line-height: 1.4; }
+.plan p { margin: 0 0 14px; font-size: 14px; color: var(--panel-muted); }
+details.about { margin-top: 12px; background: var(--card); border-radius: var(--r); padding: 0 16px; box-shadow: var(--shadow); }
+details.about summary { list-style: none; min-height: 56px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-weight: 600; font-size: 15px; }
+details.about summary::-webkit-details-marker { display: none; }
+details.about summary svg { width: 18px; height: 18px; color: var(--muted); transition: transform 0.2s; }
+details.about[open] summary svg { transform: rotate(180deg); }
+details.about ul { margin: 0 0 16px; padding-left: 18px; font-size: 14px; color: var(--ink-2); display: grid; gap: 6px; }
+
+/* ---------- finding detail ---------- */
+.fd-panel .ft { font-size: 22px; font-weight: 700; line-height: 1.35; margin-top: 10px; }
+.fd-panel .bignum { font-size: 46px; margin: 12px 0 4px; }
+.block { margin-top: 22px; }
+.block h2 { font-size: 17px; margin: 0 2px 10px; }
+.block .say { background: var(--card); border-radius: var(--r); padding: 16px; box-shadow: var(--shadow); font-size: 15px; color: var(--ink-2); display: grid; gap: 6px; }
+.ways { display: grid; gap: 8px; }
+.way { width: 100%; text-align: left; border: 0; background: var(--card); border-radius: var(--r-sm); padding: 14px 16px; box-shadow: var(--shadow); display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; min-height: 64px; }
+.way .wt { font-size: 15px; line-height: 1.45; }
+.way .wt b { font-family: var(--font-num); font-size: 17px; }
+.way .wn { font-size: 13px; color: var(--muted); grid-column: 1; }
+.way .wl { font-size: 13px; color: var(--muted); font-weight: 600; grid-column: 1; }
+.way .wb { font-family: var(--font-num); font-size: 22px; font-weight: 700; letter-spacing: -0.02em; grid-column: 1; line-height: 1.2; }
+.way .go { grid-row: 1 / span 3; grid-column: 2; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+.way .go svg { width: 16px; height: 16px; }
+.way.static { cursor: default; }
+.qcard { background: var(--card); border-radius: var(--r); padding: 18px 16px 16px; box-shadow: var(--shadow); }
+.qcard .qp { display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--muted); font-weight: 600; }
+.qdots { display: flex; gap: 4px; }
+.qdots i { width: 18px; height: 4px; border-radius: 2px; background: var(--surface-2); }
+.qdots i.on { background: var(--ink); }
+.qcard .qt { font-size: 19px; font-weight: 600; line-height: 1.45; margin: 12px 0 16px; min-height: 2.9em; }
+.ans { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.ans button { min-height: 52px; border-radius: 14px; border: 0; background: var(--surface); font-size: 16px; font-weight: 700; }
+.ans button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.qnav { display: flex; justify-content: space-between; margin-top: 6px; }
+.points { display: grid; gap: 10px; }
+.point { background: var(--card); border-radius: var(--r); padding: 16px; box-shadow: var(--shadow); display: grid; gap: 10px; }
+.point .pt { font-weight: 700; font-size: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.point .pd { font-size: 14px; color: var(--muted); line-height: 1.5; margin-top: -6px; }
+.point .ptag { font-size: 14px; line-height: 1.5; background: var(--surface); border-radius: 12px; padding: 10px 12px; }
+.point .ptag b { font-family: var(--font-num); font-size: 16px; }
+.unsure { font-size: 11px; font-weight: 700; border-radius: 8px; padding: 1px 7px; background: var(--surface-2); color: var(--ink-2); }
+.tools { display: grid; gap: 6px; }
+.tools .tl { font-size: 12px; color: var(--muted); font-weight: 700; letter-spacing: 0.02em; }
+.tool { width: 100%; text-align: left; border: 0; border-radius: 14px; background: var(--surface); padding: 12px 14px; display: grid; grid-template-columns: 1fr 18px; gap: 2px 10px; align-items: center; min-height: 56px; }
+.tool .tn { font-weight: 700; font-size: 14px; }
+.tool .ts { font-size: 13px; color: var(--muted); grid-column: 1; line-height: 1.4; }
+.tool svg { grid-row: 1 / span 2; grid-column: 2; width: 18px; height: 18px; }
+.sbtn { min-height: 44px; padding: 0 16px; border-radius: 22px; border: 0; background: var(--ink); color: var(--bg); font-weight: 700; font-size: 14px; justify-self: start; display: inline-flex; align-items: center; gap: 6px; }
+.sbtn svg { width: 16px; height: 16px; }
+.sbtn.light { background: var(--surface-2); color: var(--ink); }
+
+/* ---------- lab ---------- */
+.lab-top { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 60px); z-index: 15; padding-bottom: 8px; background: var(--bg); }
+.lab-panel { padding: 14px 16px 12px; border-radius: 24px; }
+.lab-panel .row1 { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.lab-panel .k { font-size: 13px; color: var(--panel-muted); font-weight: 600; }
+.lab-panel .bignum { font-size: 40px; margin: 2px 0 0; }
+.lab-panel .bignum .u { font-size: 16px; }
+.lab-panel .was { font-size: 13px; color: var(--panel-muted); }
+.lab-panel .stats { margin-top: 10px; padding-top: 8px; }
+.lab-panel .stat .k { line-height: 1.25; }
+.lab-panel .stat .v { font-size: 18px; }
+.chg { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chg span { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--panel-line); }
+.chg span b { font-weight: 700; }
+.lgroup { margin-top: 18px; }
+.lgroup h2 { font-size: 13px; letter-spacing: 0.04em; color: var(--muted); margin: 0 4px 8px; font-weight: 700; }
+.lrows { background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+.lrow { padding: 14px 16px 12px; border-top: 1px solid var(--line); }
+.lrow:first-child { border-top: 0; }
+.lrow.changed { background: linear-gradient(to right, var(--ink) 0 3px, transparent 3px); }
+.lr-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.lr-name { font-size: 15px; font-weight: 600; min-width: 0; }
+.lr-val { display: flex; align-items: baseline; gap: 4px; }
+.lr-val input { border: 0; background: transparent; font-family: var(--font-num); font-size: 22px; font-weight: 700; text-align: right; width: auto; padding: 0; outline: none; min-height: 44px; border-bottom: 1.5px dashed transparent; }
+.lr-val input:focus { border-bottom-color: var(--ink); }
+.lr-val .u { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.lr-was { font-size: 12px; color: var(--muted); text-align: right; min-height: 18px; }
+.lr-ctl { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 8px; align-items: center; margin-top: 2px; }
+.stp { width: 44px; height: 44px; border-radius: 22px; border: 0; background: var(--surface); font-family: var(--font-num); font-size: 22px; font-weight: 500; line-height: 1; display: flex; align-items: center; justify-content: center; }
+.sl { position: relative; height: 44px; display: flex; align-items: center; }
+.sl .orig { position: absolute; top: 12px; bottom: 12px; width: 2px; background: var(--ghost); transform: translateX(-1px); pointer-events: none; border-radius: 1px; }
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; background: transparent; margin: 0; position: relative; z-index: 1; }
+input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: var(--surface-2); }
+input[type="range"]::-moz-range-track { height: 6px; border-radius: 3px; background: var(--surface-2); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 14px; background: var(--ink); border: 4px solid var(--card); box-shadow: 0 0 0 1px var(--ink), 0 2px 6px rgba(0, 0, 0, .2); margin-top: -11px; }
+input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 11px; background: var(--ink); border: 4px solid var(--card); box-shadow: 0 0 0 1px var(--ink); }
+.lr-ins { margin-top: 6px; font-size: 14px; line-height: 1.45; color: var(--ink-2); background: var(--surface); border-radius: 12px; padding: 9px 12px; }
+.lr-ins b { font-family: var(--font-num); color: var(--ink); }
+
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--foot-h) + 18px + env(safe-area-inset-bottom, 0px)); z-index: 50; background: var(--ink); color: var(--bg);
+  padding: 12px 18px; border-radius: 18px; font-size: 14px; max-width: calc(100% - 32px); text-align: center; box-shadow: var(--lift); }
+
+.screen { animation: enter 0.28s cubic-bezier(.2, .8, .2, 1); }
+@keyframes enter { from { opacity: 0.4; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (min-width: 720px) { .bignum { font-size: 72px; } .start-hero h1 { font-size: 36px; } }
+@media (max-width: 360px) { .bignum { font-size: 50px; } .stat .v { font-size: 19px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ---------- ขั้นต่อไป: หาจุดที่ควรเช็ก ---------- */
+.next { background: var(--card); border-radius: var(--r); padding: 18px 16px 16px; display: grid; gap: 6px; }
+.next .nx-k { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: var(--muted); }
+.next h3 { margin: 0; font-size: 19px; line-height: 1.4; }
+.next p { margin: 0 0 8px; font-size: 14px; color: var(--muted); }
+.next .nx-sub { display: flex; justify-content: center; }
+.ask-why { margin-top: 22px; background: var(--card); border-radius: var(--r); padding: 12px 16px; display: grid; gap: 2px; }
+.ask-why span { font-size: 12px; color: var(--muted); font-weight: 700; letter-spacing: 0.02em; }
+.ask-why b { font-size: 15px; }
+.ask-q { font-size: 26px; line-height: 1.4; margin: 26px 2px 22px; text-wrap: balance; min-height: 2.8em; }
+.ask-ans { display: grid; gap: 10px; }
+.ask-ans button { min-height: 64px; border-radius: 999px; border: 0; background: var(--card); font-size: 19px; font-weight: 700; }
+.ask-ans button[aria-pressed="true"] { background: var(--ink); color: var(--bg); box-shadow: none; }
+.pt-from { font-size: 12px; color: var(--muted); font-weight: 700; letter-spacing: 0.02em; }
+.pp-t { font-size: 26px; font-weight: 700; line-height: 1.3; margin: 6px 0 6px; }
+.block > .tools .tool { background: var(--card); box-shadow: var(--shadow); }
+.pbtn { min-height: 44px; padding: 0 18px; border-radius: 22px; border: 1px solid var(--panel-line); background: transparent; color: var(--panel-ink); font-weight: 700; font-size: 14px; }
+
+/* ปุ่มกลับหน้ารวม Business Lab (ท้ายภาพรวม เมื่อเปิดผ่านหน้ารวม) */
+.hub-back { margin-top: 20px; text-decoration: none; }
+
+/* ---------- ช่องที่ยังขาด (กดถัดไปตอนยังไม่ครบ) ---------- */
+@keyframes need { 0%, 100% { box-shadow: 0 0 0 2px var(--ink); } 40% { box-shadow: 0 0 0 4px var(--ink); } }
+.field.need { border-radius: 16px; padding: 8px 10px 10px; margin: -8px -10px -10px; box-shadow: 0 0 0 2px var(--ink); animation: need 0.9s ease-out 1; }
+.need-msg { margin: 0 2px; font-size: 14px; font-weight: 700; color: var(--ink); display: flex; gap: 6px; align-items: center; }
+.need-msg::before { content: "!"; display: inline-flex; width: 18px; height: 18px; border-radius: 9px; background: var(--ink); color: var(--bg); font-size: 12px; align-items: center; justify-content: center; flex: none; }
+@media (prefers-reduced-motion: reduce) { .field.need { animation: none; } }
+.chips.quick { margin-bottom: 2px; }
+.chips.quick .chip { min-height: 44px; font-size: 15px; padding: 0 16px; }
+.unk-hint { margin: 0 2px; font-size: 13px; color: var(--muted); }
+
+/* ---------- รายละเอียดเพิ่ม: ตอบ มี / ไม่มี แล้วเลือกกลุ่ม ---------- */
+.adv-mode .seg { display: grid; grid-template-columns: 1fr; width: 100%; border-radius: var(--r); }
+.adv-mode .seg button { min-height: 52px; text-align: left; padding: 0 18px; border-radius: 18px; }
+.adv-hint { margin: 14px 2px 0; }
+.adv-tg { width: 100%; min-height: 60px; border: 0; background: transparent; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; font-weight: 700; font-size: 16px; color: var(--ink); padding: 0; }
+.adv-tg small { display: block; font-weight: 400; font-size: 13px; color: var(--muted); }
+.adv-tg .tg { flex: none; width: 24px; height: 24px; border-radius: 7px; box-shadow: inset 0 0 0 2px var(--line); position: relative; }
+.adv-tg[aria-pressed="true"] .tg { background: var(--ink); box-shadow: none; }
+.adv-tg[aria-pressed="true"] .tg::after { content: ""; position: absolute; left: 8px; top: 4px; width: 6px; height: 11px; border: solid var(--bg); border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+.adv-block.on { box-shadow: var(--shadow), inset 0 0 0 1.5px var(--ink); }
+
+/* ---------- มินิมอล: ปุ่ม "?" เปิดคำอธิบายที่ซ่อนไว้ (data-act="qm" สลับ hidden ของ [data-qmt]) ---------- */
+.qm { flex: none; width: 44px; height: 44px; margin: -10px -10px -10px 0; border: 0; background: transparent; padding: 0; display: inline-flex; align-items: center; justify-content: center; color: var(--ink); }
+.qm i { width: 28px; height: 28px; border-radius: 14px; background: var(--card); display: flex; align-items: center; justify-content: center; }
+.qm svg { width: 16px; height: 16px; stroke-width: 2.4; }
+.qm[aria-expanded="true"] i { background: var(--ink); color: var(--bg); }
+.qm-tx { margin: 8px 0 0; padding: 12px 14px; border-radius: 16px; background: var(--card); font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+.qm-tx b { font-family: var(--font-num); color: var(--ink); }
+:is(.card, .receipt, .next, .point, .piv, .ovt, .tcard, .lrows, .rv-row, .plan-row, .ok-box, .ask-why) :is(.qm i, .qm-tx) { background: var(--surface); }
+:is(.card, .receipt, .next, .point, .piv, .ovt, .tcard, .plan-row, .ok-box) .qm[aria-expanded="true"] i { background: var(--ink); }
+.panel .qm { color: var(--panel-ink); }
+.panel .qm i { background: var(--panel-line); }
+.panel .qm[aria-expanded="true"] i { background: var(--panel-ink); color: var(--panel); }
+.panel .qm-tx { background: transparent; padding: 0; margin-top: 6px; color: var(--panel-muted); }
+.panel .qm-tx b { color: var(--panel-ink); }
+.hq { display: flex; align-items: center; gap: 8px; }
+.hq > :first-child { flex: 1; min-width: 0; }
+.field > .hq > label, .field > .hq > .lab { font-weight: 600; font-size: 15px; }
+.field .qm-tx { margin-top: 0; font-size: 13px; }
+
+/* ---------- ภาพรวมร้าน: การ์ด 2 ช่อง ตัวเลขใหญ่ 1 ตัว + วงแหวนหรือแถบ ---------- */
+.ovg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ovt { min-width: 0; text-align: left; border: 0; background: var(--card); border-radius: var(--r); padding: 16px; min-height: 164px; display: flex; flex-direction: column; gap: 8px; color: var(--ink); }
+button.ovt[aria-expanded="true"] { box-shadow: inset 0 0 0 2px var(--ink); }
+.ovt .k { font-size: 13px; color: var(--muted); line-height: 1.4; display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+.ovt .k svg { width: 16px; height: 16px; flex: none; margin-top: 1px; transition: transform 0.2s; }
+button.ovt[aria-expanded="true"] .k svg { transform: rotate(180deg); }
+.ovt .v { font-family: var(--font-num); font-weight: 600; font-size: 30px; letter-spacing: -0.02em; line-height: 1.1; overflow-wrap: anywhere; }
+.ovt .v small { font-family: var(--font-th); font-size: 13px; font-weight: 600; letter-spacing: 0; margin-left: 4px; }
+.ovt .n { font-size: 12.5px; color: var(--ink-2); line-height: 1.45; margin-top: auto; }
+.ovt .n.mu { color: var(--muted); }
+.mg { position: relative; height: 8px; border-radius: 4px; background: var(--surface-2); margin-top: auto; }
+.mg .f { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--ink); }
+.mg .m { position: absolute; top: -4px; width: 3px; height: 16px; border-radius: 2px; background: var(--card); box-shadow: 0 0 0 1.5px var(--ink); transform: translateX(-1.5px); }
+.ring { position: relative; width: 72px; height: 72px; flex: none; }
+.ring svg { width: 72px; height: 72px; transform: rotate(-90deg); display: block; }
+.ring circle { fill: none; stroke-width: 7; }
+.ring .rt { stroke: var(--surface-2); }
+.ring .rv { stroke: var(--ink); stroke-linecap: round; }
+.ring b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-num); font-size: 17px; font-weight: 600; letter-spacing: -0.02em; }
+.spark { display: block; width: 100%; height: 44px; margin-top: auto; overflow: visible; }
+.spark path { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.spark .z { stroke: var(--line-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.ovd { margin-top: 10px; }
+.ovd .lead { margin: 0; }
+.card .hq h3 { flex: 1; }
+
+/* ---------- แผนธุรกิจ (แถวเดียว) ---------- */
+.plan-row { margin-top: 12px; background: var(--card); border-radius: var(--r); padding: 6px 6px 6px 16px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+.plan-row > b { font-size: 15px; }
+.plan-row .pill { background: var(--surface); }
+.plan-row .sp { flex: 1; }
+.plan-row .go { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: var(--surface); font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; color: var(--ink); }
+.plan-row .go svg { width: 16px; height: 16px; }
+.plan-row .qm { margin: 0; }
+.plan-row .qm-tx { flex-basis: 100%; margin: 2px 10px 10px 0; background: var(--surface); }
+
+/* ---------- เครื่องมือ: ชื่ออย่างเดียว · แตะ "?" ของกลุ่มเพื่อดูว่าแต่ละตัวช่วยอะไร ---------- */
+.tools .tl-r { display: flex; align-items: center; gap: 6px; }
+.tools .tl-r .tl { flex: 1; }
+.tools .tl-r .qm { margin: -10px -6px -10px 0; }
+.mg + .n { margin-top: 0; }
+.nw { white-space: nowrap; }
+.start-hero .hq { align-items: flex-start; }
+.start-hero .hq .qm { margin-top: -6px; }
+
+.rank .rl .rh { display: block; font-size: 12.5px; font-weight: 400; color: var(--muted); }
+.rc-foot { margin-top: 4px; font-size: 12px; color: var(--muted); }
+.ovg .ovd { grid-column: 1 / -1; margin-top: 0; }
+.ovt.wide { grid-column: 1 / -1; min-height: 0; flex-direction: row; align-items: center; gap: 16px; }
+.ovt.wide .n { margin-top: 0; }
+.panel :focus-visible, .ln-b :focus-visible { outline-color: var(--panel-ink); }
+/* ---------- ตัวที่ 4: รูปแบบหน้าจอของตัวเอง (ใช้ token สี ฟอนต์ ระยะ ปุ่ม และช่องกรอกชุดเดียวกับตัวที่ 1) ----------
+   ภาษาภาพ: "กระดานจัดอันดับ" เรียงตามเงินบาทต่อเดือน · แถบคู่ ยอดขาย (เทา) กับ เงินที่เหลือ (ดำ) · แถบ 100 บาทของแต่ละช่องทาง · ตารางทุกคู่ที่มีตัวเลขทุกช่อง
+   ขาดทุนบอกด้วย − ▼ และกรอบหนา ไม่ใช้สี · ลายเส้นทแยง = ค่าแพ็กและค่าส่ง */
+:root { --hatch4: repeating-linear-gradient(135deg, var(--ink-2) 0 1.5px, transparent 1.5px 5px); }
+.sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@keyframes grow4 { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes rise4 { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ---------- เริ่ม ---------- */
+.st4 { margin: 14px 2px 18px; }
+.st4 h1 { font-size: 34px; line-height: 1.25; margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
+.st4 .hq { align-items: flex-start; }
+.st4 .hq .qm { margin-top: -4px; }
+.where4 { margin: 0 2px 14px; display: grid; gap: 8px; }
+.where4 .wh-l { font-size: 14px; font-weight: 700; }
+.where4 .seg { display: flex; }
+.where4 .seg button { min-height: 44px; flex: 1; padding: 0 10px; }
+.wh-q { font-size: 22px; line-height: 1.35; margin: 0; }
+.wh-cards { display: grid; gap: 10px; margin-top: 6px; }
+.wh-c { width: 100%; text-align: left; border: 0; background: var(--card); border-radius: var(--r); padding: 14px 12px 14px 14px; min-height: 76px; display: flex; align-items: center; gap: 14px; color: var(--ink); }
+.wh-c:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.wh-i { width: 46px; height: 46px; border-radius: 15px; background: var(--surface); display: flex; align-items: center; justify-content: center; flex: none; }
+.wh-i svg { width: 24px; height: 24px; }
+.wh-b { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.wh-b b { font-size: 18px; line-height: 1.3; }
+.wh-b small { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.wh-c > svg { width: 20px; height: 20px; color: var(--muted); }
+.shopline { background: var(--card); border-radius: var(--r); padding: 10px 10px 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.shopline .btn.ghost { background: var(--surface); }
+.sl-t { display: grid; gap: 1px; min-width: 0; }
+.sl-t small { font-size: 12px; font-weight: 600; color: var(--muted); }
+.sl-t b { font-size: 16px; line-height: 1.35; }
+.sl-t span { font-size: 13px; color: var(--ink-2); }
+.btn.sm { min-height: 44px; font-size: 15px; padding: 0 16px; border-radius: 999px; flex: none; }
+.samp4 { margin: 0 2px 6px; font-size: 14px; }
+.samp4 .lnk { font-size: 14px; }
+.sec4 { font-size: 18px; margin: 22px 2px 10px; line-height: 1.35; }
+.hq.sec4 h2 { font-size: 18px; margin: 0; }
+.tiles.t3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.tiles.t3 .tile { min-height: 132px; padding: 14px 12px 12px; }
+.tile.on { box-shadow: inset 0 0 0 2px var(--ink); }
+.fine4 { font-size: 13px; color: var(--muted); margin: 12px 2px 0; line-height: 1.5; }
+@media (max-width: 380px) { .tiles.t3 { grid-template-columns: 1fr 1fr; } .st4 h1 { font-size: 30px; } }
+
+/* ---------- ระหว่างกรอก ---------- */
+.strip4 { margin-top: 14px; padding: 14px 16px; }
+.strip4 .rs-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.strip4 .rs-k { font-size: 13px; color: var(--panel-muted); font-weight: 600; }
+.strip4 .rs-v { font-family: var(--font-num); font-weight: 700; font-size: 28px; letter-spacing: -0.03em; line-height: 1.1; white-space: nowrap; }
+.strip4 .rs-v small { font-family: var(--font-th); font-size: 14px; font-weight: 600; letter-spacing: 0; margin-left: 4px; }
+.strip4 .rs-lines { margin-top: 6px; display: grid; gap: 2px; font-size: 13px; }
+.seg.wide { display: flex; width: 100%; }
+.seg.wide button { flex: 1 1 0; min-width: 0; padding: 0 10px; line-height: 1.25; }
+.field.sm > .lab, .field.sm > label { font-size: 14px; }
+.inbox.txt input { font-family: var(--font-th); font-size: 18px; font-weight: 600; }
+.chip.sm { min-height: 44px; padding: 0 14px; font-size: 14px; }
+.ib.sm { width: 44px; height: 44px; }
+.ib.sm svg { width: 18px; height: 18px; }
+/* สินค้า 1 ตัว = การ์ด 1 ใบ */
+.pi { background: var(--card); border-radius: var(--r); padding: 10px 14px 16px; display: grid; gap: 14px; animation: rise4 0.3s cubic-bezier(.2, .8, .2, 1) both; }
+.pi .inbox, .pi .chip, .pi .seg { background: var(--surface); }
+.pi :is(.qm i, .qm-tx) { background: var(--surface); }
+.pi .qm[aria-expanded="true"] i { background: var(--ink); }
+.pi-h { display: flex; align-items: center; justify-content: space-between; min-height: 44px; margin-bottom: -6px; }
+.pi-n { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 0.02em; }
+.pi .two .inbox input { font-size: 20px; }
+.pi .two { align-items: end; }
+.lnk.sm4 { justify-self: start; font-size: 14px; margin-top: -8px; }
+.parts { display: grid; gap: 6px; background: var(--surface); border-radius: 16px; padding: 10px; margin-top: -6px; }
+.part { display: grid; grid-template-columns: minmax(0, 1fr) 120px 44px; gap: 6px; align-items: center; }
+.part .pn { min-width: 0; min-height: 44px; border: 0; border-radius: 12px; background: var(--card); padding: 0 12px; font-size: 15px; }
+.part .pn:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ink); }
+.inbox.mini { min-height: 44px; border-radius: 12px; background: var(--card); }
+.inbox.mini input { font-size: 17px; height: 44px; padding: 0 8px 0 12px; }
+.inbox.mini .suf { padding-right: 10px; font-size: 13px; }
+.part-f { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 14px; color: var(--ink-2); }
+.part-f b { font-family: var(--font-num); color: var(--ink); }
+.inbox input[readonly] { color: var(--ink-2); }
+.add4 { margin-top: -4px; }
+.add4 svg { width: 18px; height: 18px; }
+.oth { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 6px; align-items: end; }
+.tot4 { display: flex; align-items: center; gap: 10px; background: var(--card); border-radius: 18px; padding: 12px 16px; font-weight: 600; }
+.tot4 b { font-size: 22px; }
+.tot4 small { font-size: 14px; color: var(--ink-2); font-weight: 700; }
+.tot4 i { display: inline-flex; width: 24px; height: 24px; border-radius: 12px; background: var(--ink); color: var(--bg); align-items: center; justify-content: center; }
+.tot4 i svg { width: 15px; height: 15px; stroke-width: 3; }
+
+/* ---------- ผล ---------- */
+.res4 { margin-top: 6px; }
+.res4 .eyebrow { font-size: 13px; color: var(--panel-muted); font-weight: 600; }
+.res4 .bignum { font-size: 52px; margin: 8px 0 12px; }
+.walk { display: grid; gap: 3px; font-size: 13.5px; border-top: 1px solid var(--panel-line); padding-top: 10px; }
+.walk > div { display: flex; justify-content: space-between; gap: 10px; color: var(--panel-muted); }
+.walk > div b { font-family: var(--font-num); font-weight: 600; color: var(--panel-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.walk > div.k { color: var(--panel-ink); font-weight: 600; }
+.res4 .sub { margin: 8px 0 0; font-size: 13px; color: var(--panel-muted); }
+.banner .btn.ghost { background: var(--surface); }
+.recon { margin-top: 12px; display: grid; gap: 10px; }
+.recon h3 { font-size: 15px; }
+.rc4 { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px 14px; font-size: 14px; align-items: baseline; }
+.rc4 b { font-size: 12px; color: var(--muted); text-align: right; }
+.rc4 i { font-style: normal; text-align: right; font-weight: 600; }
+.tabs4 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--card); border-radius: 999px; padding: 4px; margin: 18px 0 12px; }
+.tabs4 button { min-height: 44px; border: 0; border-radius: 999px; background: transparent; font-weight: 700; font-size: 15px; color: var(--muted); }
+.tabs4 button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.tp4 { min-height: 120px; }
+/* รายสินค้า: เรียงตามเงินที่เหลือต่อเดือน · แถบคู่ ยอดขาย (เทา) กับเงินที่เหลือ (ดำ) */
+.rank4, .chl4 { display: grid; gap: 8px; }
+.rk4, .chc { width: 100%; text-align: left; border: 0; background: var(--card); border-radius: var(--r-sm); padding: 12px 40px 12px 14px; display: grid; gap: 6px; color: var(--ink); position: relative; min-height: 64px; }
+.rk4 > svg, .chc > svg { position: absolute; right: 12px; top: 50%; width: 18px; height: 18px; margin-top: -9px; color: var(--muted); }
+.rk4:hover, .chc:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.rk4 .top, .chc .top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.rk4 .nm, .chc .nm { font-weight: 700; font-size: 15px; min-width: 0; line-height: 1.35; }
+.rk4 .nm small { font-size: 12px; color: var(--muted); margin-right: 8px; font-weight: 600; }
+.rk4 .v { font-family: var(--font-num); font-weight: 700; font-size: 17px; white-space: nowrap; }
+.rk4 .v small { font-family: var(--font-th); font-size: 12px; color: var(--muted); font-weight: 600; margin-left: 2px; }
+.rk4 .sub, .chc .sub { font-size: 12.5px; color: var(--ink-2); line-height: 1.45; }
+.rk4 .sub b, .chc .sub b { font-weight: 700; }
+.duo { display: grid; grid-template-columns: 76px minmax(0, 1fr) 40px; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.duo i { display: block; height: 8px; border-radius: 4px; background: var(--surface); position: relative; overflow: hidden; }
+.duo i b { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: var(--ghost); transform-origin: left; animation: grow4 0.6s cubic-bezier(.2, .8, .2, 1) both; }
+.duo i.m b { background: var(--ink); }
+.duo em { font-style: normal; font-family: var(--font-num); text-align: right; color: var(--ink-2); font-weight: 600; }
+/* รายช่องทาง: แถบเงิน 100 บาท */
+.chc .v { font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+.chc .v b { font-family: var(--font-num); font-size: 20px; color: var(--ink); }
+.stack { display: flex; height: 14px; border-radius: 6px; overflow: hidden; gap: 2px; background: var(--surface); }
+.stack i { display: block; height: 100%; transform-origin: left; animation: grow4 0.6s cubic-bezier(.2, .8, .2, 1) both; }
+.stack .s1, .lg4 .s1 { background: var(--ghost); }
+.stack .s2, .lg4 .s2 { background: var(--muted); }
+.stack .s3, .lg4 .s3 { background-color: var(--surface-2); background-image: var(--hatch4); }
+.stack .s4, .lg4 .s4 { background: var(--ink); }
+.lg4 { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); margin: 10px 2px 0; }
+.lg4 span { display: inline-flex; align-items: center; gap: 6px; }
+.lg4 i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.card .stack { background: var(--surface); }
+/* ทุกคู่: ตารางมีตัวเลขทุกช่อง · เลื่อนในกรอบเมื่อช่องทางเยอะ */
+.gw4 { overflow-x: auto; margin: 0 -4px; padding: 0 4px; border-radius: 12px; }
+.gw4:focus-visible { outline: 2px solid var(--ink); }
+.grid4 { width: 100%; border-collapse: separate; border-spacing: 4px; font-size: 14px; }
+.grid4 caption { text-align: left; font-size: 13px; color: var(--muted); font-weight: 600; padding: 0 4px 4px; }
+.grid4 thead th { font-size: 12.5px; font-weight: 700; color: var(--ink-2); text-align: center; padding: 2px 4px; line-height: 1.3; min-width: 64px; }
+.grid4 tbody th { text-align: left; min-width: 96px; }
+.grid4 .gl { border: 0; background: transparent; padding: 0 4px; min-height: 44px; font-weight: 600; font-size: 14px; text-align: left; color: var(--ink); line-height: 1.3; width: 100%; }
+.grid4 td { background: var(--card); border-radius: 10px; text-align: center; padding: 0; }
+.grid4 td button { width: 100%; min-height: 44px; border: 0; background: transparent; font-family: var(--font-num); font-weight: 600; font-size: 15px; color: var(--ink); font-variant-numeric: tabular-nums; padding: 0 6px; white-space: nowrap; border-radius: 10px; }
+.grid4 td.neg { box-shadow: inset 0 0 0 2px var(--ink); background: var(--surface); }
+.grid4 td.neg button { font-weight: 700; }
+.grid4 td.na { background: transparent; color: var(--muted); font-size: 12.5px; box-shadow: inset 0 0 0 1px var(--line); }
+/* สิ่งที่ตัวเลขบอก */
+.frow.f4 { color: var(--ink); }
+.frow.f4 .fs { grid-column: 1 / -1; font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+.frow.f4 .ft { line-height: 1.45; font-size: 15px; }
+div.frow.f4 { cursor: default; }
+.t1l { display: inline-flex; align-items: center; margin: 18px 2px 0; font-size: 14px; }
+
+/* ---------- รายละเอียด + ลองปรับ ---------- */
+.wf4 { display: grid; gap: 6px; background: var(--card); border-radius: var(--r); padding: 14px 16px; }
+.wf4 .r { display: grid; grid-template-columns: 118px minmax(0, 1fr) 56px; gap: 8px; align-items: center; font-size: 13.5px; }
+.wf4 .r span { color: var(--ink-2); line-height: 1.3; }
+.wf4 .r i { display: block; height: 12px; border-radius: 4px; background: var(--surface); overflow: hidden; }
+.wf4 .r i b { display: block; height: 100%; background: var(--ghost); border-radius: 4px; transform-origin: left; animation: grow4 0.5s cubic-bezier(.2, .8, .2, 1) both; }
+.wf4 .r:first-child i b { background: var(--muted); }
+.wf4 .r.l { border-top: 1px solid var(--line); padding-top: 6px; margin-top: 2px; font-weight: 700; }
+.wf4 .r.l span { color: var(--ink); }
+.wf4 .r.l i b { background: var(--ink); }
+.wf4 .r.neg i { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.wf4 .r.neg i b { background-color: transparent; background-image: var(--hatch4); }
+.wf4 .r em { font-style: normal; font-family: var(--font-num); text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.wf4 .r.neg em::before { content: "▼ "; font-size: 0.78em; }
+.chsel { margin-bottom: 10px; }
+.chsel button { font-size: 14px; }
+.cn4 { margin: 10px 2px 0; font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+.cn4 b { font-family: var(--font-num); color: var(--ink); }
+.try4 { margin-top: 18px; display: grid; gap: 12px; }
+.try4 .hq h3 { margin: 0; }
+.trow { display: grid; gap: 6px; }
+.trow label { font-size: 14px; font-weight: 600; }
+.tctl { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 8px; align-items: center; }
+.tctl .stp { background: var(--surface); }
+.tv { display: flex; align-items: baseline; justify-content: center; gap: 6px; background: var(--surface); border-radius: 14px; min-height: 48px; padding: 0 10px; }
+.tv input { width: 100%; min-width: 0; border: 0; background: transparent; font-family: var(--font-num); font-size: 22px; font-weight: 700; text-align: right; outline: none; min-height: 46px; padding: 0; }
+.tv:focus-within { box-shadow: inset 0 0 0 2px var(--ink); }
+.tv small { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.dl4 { margin: 2px 0 0; font-size: 14px; color: var(--ink-2); background: var(--surface); border-radius: 12px; padding: 10px 12px; }
+.dl4 b { font-family: var(--font-num); color: var(--ink); }
+.tbtns { display: flex; flex-wrap: wrap; gap: 8px; }
+.crl4 { display: grid; gap: 0; padding: 4px 16px; }
+.cr4 { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.cr4:first-child { border-top: 0; }
+.cr4 b { font-family: var(--font-num); font-weight: 700; white-space: nowrap; }
+.cr4 b small, .cr4 i small { font-family: var(--font-th); font-size: 12px; color: var(--muted); font-weight: 500; }
+.cr4 i { font-style: normal; font-family: var(--font-num); color: var(--ink-2); white-space: nowrap; min-width: 84px; text-align: right; }
+.cr4.neg span { font-weight: 700; }
+.points .tool .ts { display: block; }
+
+/* ---------- การเคลื่อนไหว ---------- */
+.still .duo i b, .still .stack i, .still .wf4 .r i b { animation: none; }
+@media (prefers-reduced-motion: reduce) { .duo i b, .stack i, .wf4 .r i b, .pi { animation: none !important; } }
+.pi .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.banner4 { background: var(--card); border-radius: var(--r-sm); padding: 8px 8px 8px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 0 12px; }
+.banner4 span { display: grid; font-weight: 700; font-size: 15px; line-height: 1.35; min-width: 0; }
+.banner4 small { font-size: 12px; font-weight: 600; color: var(--muted); }
+.banner4 .btn.ghost { background: var(--surface); }
+#tot4w { display: grid; gap: 8px; }
+#tot4w .sbtn { justify-self: start; }
+/* ชื่อยาวไม่ล้นจอ */
+.rk4 .nm, .chc .nm, .grid4 th, .res4 .eyebrow, .wf4 .r span, .cr4 span, .frow.f4 .ft, .frow.f4 .fs, .point .pt, .banner4 span, .rv-row .t, .rv-row .v { overflow-wrap: anywhere; }
+.point .pt > span:first-child { min-width: 0; flex: 1 1 auto; }
+h1.eyebrow { margin: 0; line-height: 1.4; }
+.cap4 { margin: 0 2px 8px; }
+.sub4 { font-size: 15px; margin: 16px 2px 8px; }
+.rk4 .v small:first-child { font-size: 12px; color: var(--muted); font-weight: 600; }
+.lg4 b { color: var(--ink); font-family: var(--font-num); font-weight: 700; font-variant-numeric: tabular-nums; }
+.frow.f4 .fm small:first-child { margin-bottom: 2px; }
+.tcur { font-size: 12.5px; color: var(--muted); }
+.tcur:empty { display: none; }
+.chips.chsel { margin-bottom: 10px; }
+.chips.offc .chip[aria-pressed="false"] { color: var(--muted); text-decoration: line-through; }
+.samp4.two4 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 2px 14px; }
+.samp4.two4 .wh-l { font-size: 14px; font-weight: 700; flex-basis: 100%; }
+.frow.f4 .fm small { white-space: normal; max-width: 9em; margin-left: auto; line-height: 1.35; }
+.chips.offc .chip, .chips.chsel .chip { max-width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere; text-align: left; }
+/* ลองปรับ: กลุ่มตัวเลขของสินค้า และของช่องทาง */
+.try4 .tg4 { font-size: 14px; font-weight: 700; margin: 10px 0 -4px; padding-top: 12px; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+.try4 .tg4:first-of-type { border-top: 0; padding-top: 0; margin-top: 4px; }
+.try4 .tgn4 { font-size: 13px; color: var(--muted); margin: 0 0 -2px; line-height: 1.45; }
+.dl4 .dl4o { display: block; font-size: 13px; color: var(--muted); margin-top: 4px; }
+/* หน้าข้อเสนอ: คอลัมน์เดียวแบบมือถือ ใช้ token และ class ของเครื่องมือจริง · กรอบโทรศัพท์แสดงหน้าจอตัวอย่างตามขนาดจริง */
+.doc .wrap { max-width: 760px; }
+.doc { padding-bottom: 60px; }
+.d-hero { margin: 18px 2px 8px; display: grid; gap: 10px; }
+.d-k { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 0.02em; }
+.d-hero h1 { font-size: 34px; line-height: 1.25; margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
+.d-hero > p { margin: 0; font-size: 16px; color: var(--ink-2); }
+.d-q { margin: 4px 0 0; padding: 16px 18px 16px 38px; background: var(--card); border-radius: var(--r); display: grid; gap: 8px; font-size: 15px; }
+.d-q b { font-weight: 700; }
+.d-fine { font-size: 13px; color: var(--muted); margin: 4px 2px 0; line-height: 1.55; }
+.d-sec { margin-top: 34px; display: grid; gap: 12px; min-width: 0; }
+.d-sec h2 { font-size: 21px; margin: 0 2px; line-height: 1.35; text-wrap: balance; }
+.d-lead { margin: 0 2px; font-size: 15px; color: var(--ink-2); }
+.d-lead code, .d-fine code { font-size: 13px; background: var(--card); padding: 1px 6px; border-radius: 6px; }
+.d-list { display: grid; gap: 8px; }
+.d-item { background: var(--card); border-radius: var(--r-sm); padding: 14px 16px; display: grid; gap: 4px; }
+.d-item b { font-size: 15px; line-height: 1.4; }
+.d-item span { font-size: 14px; color: var(--muted); line-height: 1.55; }
+.d-steps, .d-dec { display: grid; gap: 8px; }
+.d-st, .d-d { background: var(--card); border-radius: var(--r-sm); padding: 14px 16px; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; align-items: start; }
+.d-st i, .d-d i { font-style: normal; width: 30px; height: 30px; border-radius: 15px; background: var(--ink); color: var(--bg); font-family: var(--font-num); font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.d-st div, .d-d div { display: grid; gap: 3px; min-width: 0; }
+.d-st b, .d-d b { font-size: 15px; line-height: 1.4; }
+.d-st span, .d-d span { font-size: 14px; color: var(--muted); line-height: 1.55; }
+.d-d em { font-style: normal; font-size: 13px; font-weight: 700; justify-self: start; margin-top: 4px; padding: 3px 12px; border-radius: 999px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.d-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.d-tags span { font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; background: var(--card); }
+
+/* หน้าจอตัวอย่าง */
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 16px; align-items: start; }
+.phone { margin: 0; display: grid; gap: 8px; min-width: 0; }
+.phone figcaption { font-size: 13px; font-weight: 700; color: var(--muted); margin: 0 4px; }
+.ph { border-radius: 30px; box-shadow: inset 0 0 0 1.5px var(--line-strong); background: var(--bg); padding: 4px 0 18px; overflow: hidden; }
+.ph .bar { position: static; background: transparent; }
+.ph .bar .tb, .ph .bar .ib { display: inline-flex; align-items: center; }
+.ph .q-head { margin-top: 10px; }
+.ph .q-head h1 { font-size: 22px; }
+.ph .bignum { font-size: 48px; }
+.ovg.m4 { margin-top: 10px; }
+.ovg.m4 .ovt { min-height: 118px; }
+.ovg.m4 .ovt .v { font-size: 26px; }
+.cash2 { display: grid; gap: 10px; }
+.cash2 .sc2 { display: flex; background: var(--surface); }
+.cash2 .sc2 button { flex: 1; padding: 0 6px; font-size: 13px; min-height: 40px; }
+.cash2 + .flist { margin-top: 10px; }
+.back2 { display: grid; gap: 10px; }
+.back2 .tvv { font-family: var(--font-num); font-size: 22px; font-weight: 700; }
+.ans2 { display: flex; justify-content: space-between; align-items: baseline; background: var(--ink); color: var(--bg); border-radius: 16px; padding: 10px 14px; }
+.ans2 span { font-size: 14px; font-weight: 600; }
+.ans2 b { font-family: var(--font-num); font-size: 26px; }
+.ans2 small { font-family: var(--font-th); font-size: 13px; margin-left: 4px; }
+.pick2 { margin: 12px 0 14px; }
+.pick2 .chip { display: inline-flex; align-items: center; min-height: 40px; font-size: 14px; padding: 0 14px; }
+.ph .field { margin-bottom: 12px; }
+.ph .inbox .iv { flex: 1; padding: 0 16px; font-family: var(--font-num); font-size: 22px; font-weight: 600; }
+.ph .tot4 { margin-top: 4px; }
+</style>
+<!-- ข้อเสนอตัวที่ 2 (เนื้อหา) · build-proposal.sh รวมกับหน้าตาของเครื่องมือจริง (../mvp-check-numbers/src/style.css + ../mvp-product-channel/src/style.css) เป็น proposal.html
+     ภาพหน้าจอตัวอย่างใช้ class ชุดเดียวกับเครื่องมือจริง หน้าตาจึงตรงกับของที่จะสร้าง · ตัวเลขทุกตัวคิดจากร้านกาแฟตัวอย่างใน research-thai-costs.md ข้อ 6 -->
+<header class="bar"><div class="wrap"><span class="spacer44"></span><div class="ttl"><small>Business Lab</small>ข้อเสนอตัวที่ 2</div><button class="ib" id="theme" aria-label="สลับโหมดมืดและสว่าง"></button></div></header>
+<main class="doc"><div class="wrap">
+
+<section class="d-hero">
+  <span class="d-k">ตัวที่ 2 · ชื่อชั่วคราว</span>
+  <h1>เช็กก่อนเปิดร้าน</h1>
+  <p>สำหรับคนที่ยังไม่ได้เปิดร้าน ใส่ตัวเลขที่ตั้งใจไว้ แล้วเห็นคำตอบ 4 ข้อเป็นเงินบาท ก่อนจ่ายเงินก้อนจริง</p>
+  <ol class="d-q">
+    <li><b>ต้องขายวันละเท่าไร</b> ถึงไม่ขาดทุน และถึงได้เงินเดือนละเท่าที่อยากได้</li>
+    <li><b>ต้องมีเงินทั้งหมดเท่าไร</b> รวมเงินก่อนเปิดร้าน และเงินที่ต้องควักเพิ่มช่วงยอดขายยังไม่เต็ม · มีพอไหม</li>
+    <li><b>เงินอยู่ได้กี่เดือน</b> ถ้ายอดขายไม่ขึ้นตามที่คิด</li>
+    <li><b>คืนทุนเดือนที่เท่าไร</b></li>
+  </ol>
+  <p class="d-fine">ไม่บอกว่าควรเปิดหรือไม่ควรเปิด ไม่บอกวิธีลดต้นทุน ไม่มีเรื่องกู้เงิน ระดมทุน ภาษี หรือกฎหมาย · พาไปเครื่องมือ PL1 ตามสิ่งที่ตัวเลขบอก</p>
+</section>
+
+<section class="d-sec">
+  <h2>สิ่งที่เจอจากเครื่องมือชั้นนำ 13 ตัว</h2>
+  <p class="d-lead">ทั้งของธนาคารไทย Wongnai SBA Chase LivePlan Toast และเครื่องคิดเงินอยู่ได้กี่เดือน (รายละเอียดและแหล่งข้อมูลใน <code>research-benchmark.md</code>)</p>
+  <div class="d-list">
+    <div class="d-item"><b>ไม่มีเครื่องมือฟรีตัวไหนตอบครบ 4 ข้อในที่เดียว</b><span>เครื่องคิดเงินลงทุนไม่มีฝั่งยอดขาย · เครื่องคิดจุดคุ้มทุนไม่มีเงินลงทุนและเงินสด · ตัวที่ครบเป็นไฟล์ Excel ใหญ่หรือต้องจ่ายเงิน · ฝั่งไทยมีแต่บทความ ไม่มีเครื่องคิด</span></div>
+    <div class="d-item"><b>ส่วนใหญ่ไม่นับเงินเดือนของเจ้าของ</b><span>ทำให้คืนทุนดูเร็วเกินจริงเกือบครึ่ง · ของเราถามทุกครั้ง (ตอบ “ไม่เอาเงินเดือน” ได้ แต่หน้าผลบอกว่ายังไม่ได้หัก)</span></div>
+    <div class="d-item"><b>ยอดขายกระโดดจาก 0 เป็นเต็มทันที</b><span>ร้านจริงค่าเช่าและค่าแรงเต็มตั้งแต่เดือนแรก แต่ยอดขายยังไม่เต็ม · ของเรามีช่วงยอดขายค่อย ๆ ขึ้นเสมอ</span></div>
+    <div class="d-item"><b>เงินสำรองใช้กฎ “เผื่อ 3 หรือ 6 เดือน”</b><span>ไม่ได้มาจากตัวเลขของร้านนั้น · ของเราคิดเดือนต่อเดือน แล้วหาเดือนที่เงินเหลือน้อยที่สุด (วิธีของผู้ก่อตั้ง LivePlan)</span></div>
+    <div class="d-item"><b>เกือบทุกตัวจบด้วยการขายสินเชื่อหรือบอกวิธีแก้</b><span>ของเราจบที่ตัวเลขและขนาดเป็นบาท</span></div>
+  </div>
+</section>
+
+<section class="d-sec">
+  <h2>เส้นทางผู้ใช้</h2>
+  <p class="d-lead">หน้าแรกเหมือนตัวที่ 4 (ขายที่ไหน · ร้านแบบไหน · ลองกับร้านตัวอย่างก่อน) แล้วถามทีละข้อ ตัวเลขสดขึ้นด้านบนระหว่างกรอก</p>
+  <div class="d-steps">
+    <div class="d-st"><i>1</i><div><b>ขายอะไร ราคาเท่าไร</b><span>ราคาเฉลี่ยต่อชิ้น (หรือต่อบิล ต่อครั้ง) · ต้นทุนต่อชิ้น · ค่าธรรมเนียมถ้าขายผ่านแอป · คำถามชุดเดียวกับตัวที่ 1</span></div></div>
+    <div class="d-st"><i>2</i><div><b>คาดว่าจะขายได้วันละเท่าไร</b><span>เมื่อยอดขายเข้าที่แล้ว · เปิดเดือนละกี่วัน · กี่เดือนยอดขายถึงจะเต็ม (ทันที / 3 เดือน / 6 เดือน)</span></div></div>
+    <div class="d-st"><i>3</i><div><b>ค่าใช้จ่ายทุกเดือน</b><span>ค่าเช่า พนักงาน เงินเดือนตัวเอง ค่าน้ำไฟ การตลาด · คำถามชุดเดียวกับตัวที่ 1</span></div></div>
+    <div class="d-st"><i>4</i><div><b>เงินที่ต้องจ่ายก่อนเปิดร้าน</b><span>รายการตามแบบร้าน แตะเพื่อใส่ทีละอย่าง (มัดจำ ตกแต่ง อุปกรณ์ ป้าย ของล็อตแรก โปรเปิดร้าน ค่าเช่าช่วงตกแต่ง) · ใส่เป็นยอดรวมก้อนเดียวก็ได้</span></div></div>
+    <div class="d-st"><i>5</i><div><b>เงินที่มีสำหรับเปิดร้าน</b><span>เงินทั้งหมดที่ตั้งใจใช้กับร้านนี้</span></div></div>
+    <div class="d-st"><i>6</i><div><b>ผล</b><span>4 คำตอบ · เงินในมือเดือนต่อเดือน 3 แบบ (ขายได้ตามที่คาด / น้อยกว่า 20% / มากกว่า 20%) · ย้อนจากเงินที่อยากได้ · สิ่งที่ตัวเลขบอก · หาจุดที่ควรตรวจสอบ → PL1</span></div></div>
+  </div>
+</section>
+
+<section class="d-sec">
+  <h2>หน้าจอตัวอย่าง: ร้านกาแฟคีออสก์</h2>
+  <p class="d-lead">ตัวเลขร้านตัวอย่าง (ค่าประมาณจาก <code>research-thai-costs.md</code>): แก้วละ 60 บาท ต้นทุน 22 บาท · คาดว่าขายวันละ 60 แก้ว เปิดทุกวัน · ค่าใช้จ่ายเดือนละ 31,000 บาท + เงินเดือนตัวเอง 15,000 บาท · เงินก่อนเปิด 175,000 บาท (มัดจำ 24,000) · มีเงิน 220,000 บาท · ยอดขายถึงเต็มใน 3 เดือน เริ่มที่ 40%</p>
+
+  <div class="shots">
+  <!-- จอ 1: ผล -->
+  <figure class="phone"><figcaption>หน้าผล</figcaption><div class="ph">
+    <header class="bar"><div class="wrap"><span class="tb">‹ หน้าแรก</span><div class="ttl"><small>ร้านตัวอย่าง</small>เช็กก่อนเปิดร้าน</div><span class="spacer44"></span></div></header>
+    <div class="wrap">
+      <section class="panel res4">
+        <div class="hq"><span class="eyebrow">เงินที่ต้องมีทั้งหมด</span><span class="qm" aria-hidden="true"><i>?</i></span></div>
+        <div class="bignum">198,600<span class="u">บาท</span></div>
+        <div class="walk">
+          <div><span>จ่ายก่อนเปิดร้าน</span><b>175,000</b></div>
+          <div><span>ควักเพิ่มช่วงยอดขายยังไม่เต็ม</span><b>23,600</b></div>
+          <div class="k"><span>คุณมี 220,000 · เหลือช่วงตึงที่สุด (เดือนที่ 2)</span><b>21,400</b></div>
+        </div>
+      </section>
+      <div class="ovg m4">
+        <div class="ovt"><span class="k">ขายวันละเท่าไรถึงไม่ขาดทุน</span><span class="v">41<small>แก้ว</small></span><span class="n">คาดไว้ 60 แก้ว</span></div>
+        <div class="ovt"><span class="k">คืนทุน</span><span class="v">เดือนที่ 11</span><span class="n">ไม่นับมัดจำที่ได้คืน</span></div>
+        <div class="ovt"><span class="k">ถ้ายอดค้างที่เดือนแรก เงินอยู่ได้</span><span class="v">2<small>เดือน</small></span><span class="n">ขาดเดือนละ 18,640</span></div>
+        <div class="ovt"><span class="k">กำไรต่อเดือนเมื่อยอดเต็ม</span><span class="v">22,400</span><span class="n">หลังหักเงินเดือนตัวเอง</span></div>
+      </div>
+    </div>
+  </div></figure>
+
+  <!-- จอ 2: เงินในมือ 3 แบบ -->
+  <figure class="phone"><figcaption>เงินในมือเดือนต่อเดือน</figcaption><div class="ph"><div class="wrap">
+    <section class="card cash2">
+      <div class="hq"><h3>เงินในมือหลังเปิดร้าน</h3><span class="qm" aria-hidden="true"><i>?</i></span></div>
+      <div class="seg wide sc2"><button aria-pressed="false">น้อยกว่า 20%</button><button aria-pressed="true">ตามที่คาด</button><button aria-pressed="false">มากกว่า 20%</button></div>
+      <div class="chart" id="cashChart" aria-hidden="true"></div>
+      <div class="legend"><span><i></i>ขายวันละ 60 แก้ว</span><span><i class="g"></i>48 และ 72 แก้ว</span></div>
+    </section>
+    <div class="flist">
+      <div class="frow f4"><span class="ft">ถ้าขายได้วันละ 48 แก้ว (น้อยกว่าที่คาด 20%) เงินเหลือช่วงตึงที่สุดแค่ 5,496 บาท</span><span class="fr-r"><span class="fm"><small>ต้องมีเงินทั้งหมด</small>214,504<small>บาท</small></span></span><span class="pill watch">ควรเฝ้าระวัง</span><span class="fs">และคืนทุนเดือนที่ 25 แทนเดือนที่ 11</span></div>
+      <div class="frow f4"><span class="ft">ยังไม่ได้ใส่ค่าใช้จ่ายที่ร้านกาแฟมักมี</span><span class="fr-r"></span><span class="pill note">ข้อสังเกต</span><span class="fs">ค่าซ่อมเครื่องชง · ของเสียช่วงทดลองสูตร · ค่าธรรมเนียมรับบัตร</span></div>
+    </div>
+  </div></div></figure>
+
+  <!-- จอ 3: ย้อนจากเงินที่อยากได้ -->
+  <figure class="phone"><figcaption>ย้อนจากเงินที่อยากได้</figcaption><div class="ph"><div class="wrap">
+    <section class="card back2">
+      <div class="hq"><h3>อยากได้เท่าไร ต้องขายวันละเท่าไร</h3><span class="qm" aria-hidden="true"><i>?</i></span></div>
+      <div class="trow"><label>อยากได้เงินเดือนละ</label><div class="tctl"><span class="stp">−</span><span class="tv"><span class="tvv">30,000</span><small>บาท</small></span><span class="stp">+</span></div></div>
+      <div class="ans2"><span>ต้องขายวันละ</span><b>54<small>แก้ว</small></b></div>
+      <div class="trow"><label>อยากคืนทุนภายใน</label><div class="tctl"><span class="stp">−</span><span class="tv"><span class="tvv">12</span><small>เดือน</small></span><span class="stp">+</span></div></div>
+      <div class="ans2"><span>ต้องขายวันละ</span><b>58<small>แก้ว</small></b></div>
+      <p class="fine4">คิดรวมช่วงยอดขายค่อย ๆ ขึ้นแล้ว · เทียบกับที่คาดไว้ 60 แก้ว</p>
+    </section>
+  </div></div></figure>
+
+  <!-- จอ 4: เงินก่อนเปิดร้าน -->
+  <figure class="phone"><figcaption>กรอกเงินก่อนเปิดร้าน</figcaption><div class="ph">
+    <header class="bar"><div class="wrap"><span class="ib">‹</span><div class="ttl"><small>ข้อ 4 จาก 6</small>เงินก่อนเปิดร้าน</div><span class="spacer44"></span></div></header>
+    <div class="wrap">
+      <div class="q-head"><h1>ก่อนเปิดร้าน ต้องจ่ายอะไรบ้าง?</h1></div>
+      <div class="chips pick2">
+        <span class="chip" aria-pressed="true">มัดจำค่าเช่า</span><span class="chip" aria-pressed="true">ตกแต่ง เคาน์เตอร์</span><span class="chip" aria-pressed="true">เครื่องชง เครื่องบด</span><span class="chip" aria-pressed="true">ตู้เย็น อุปกรณ์</span><span class="chip" aria-pressed="true">ป้าย</span><span class="chip" aria-pressed="true">วัตถุดิบล็อตแรก</span><span class="chip" aria-pressed="false">เครื่องขายหน้าร้าน</span><span class="chip" aria-pressed="false">ค่าเช่าช่วงตกแต่ง</span><span class="chip" aria-pressed="false">โปรเปิดร้าน</span><span class="chip" aria-pressed="false">+ อื่น ๆ</span>
+      </div>
+      <div class="field"><span class="lab">มัดจำค่าเช่า</span><div class="inbox"><span class="iv">24,000</span><span class="suf">บาท · ได้คืน</span></div></div>
+      <div class="field"><span class="lab">เครื่องชง เครื่องบด</span><div class="inbox"><span class="iv">60,000</span><span class="suf">บาท</span></div></div>
+      <div class="tot4"><span>รวม</span><b class="num">175,000</b><small>บาท</small></div>
+    </div>
+  </div></figure>
+  </div>
+</section>
+
+<section class="d-sec">
+  <h2>วิธีคิด (สั้น ๆ)</h2>
+  <div class="d-list">
+    <div class="d-item"><b>กำไรต่อเดือนและจุดคุ้มทุน</b><span>ใช้ตัวคำนวณ PL2 ตัวเดียวกับตัวที่ 1 และ 4 (ไม่แก้ไฟล์) ตัวเลขตรงกันทุกเครื่องมือ</span></div>
+    <div class="d-item"><b>เดือนแรก ๆ หลังเปิด</b><span>ตัวคำนวณ PL2 คิดแบบร้านที่ขายคงที่แล้ว จึงคิดช่วงยอดขายค่อย ๆ ขึ้นเพิ่มในไฟล์ของ Business Lab: เดือนที่ 1 = 40% · ขึ้นเท่า ๆ กันจนเต็ม · ค่าเช่าและค่าแรงเต็มตั้งแต่เดือนแรก · ตัวเลข 40% เป็นค่าประมาณ (ไม่มีข้อมูลไทย) หน้าจอบอกไว้และแก้ได้</span></div>
+    <div class="d-item"><b>เงินที่ต้องมีทั้งหมด</b><span>เงินก่อนเปิด + เงินที่ต้องควักเพิ่มจนถึงเดือนที่เงินต่ำที่สุด · ไม่ใช้กฎ “เผื่อ 3 หรือ 6 เดือน”</span></div>
+    <div class="d-item"><b>คืนทุน</b><span>นับเงินสดที่เพิ่มขึ้นจริงจนเท่าเงินก่อนเปิด (หลังหักเงินเดือนตัวเอง)</span></div>
+    <div class="d-item"><b>ค่าเช่าจ่ายล่วงหน้า</b><span>คือค่าเช่าเดือนแรก ไม่นับซ้ำในเงินก่อนเปิด (หน้าจอบอกตอนกรอก)</span></div>
+  </div>
+</section>
+
+<section class="d-sec">
+  <h2>พาไป PL1</h2>
+  <p class="d-lead">ผ่านคำถามเช็กแบบเดียวกับตัวอื่น แล้วขึ้นจุดที่ควรตรวจสอบพร้อมเครื่องมือ (อ้างด้วยรหัส)</p>
+  <div class="d-tags"><span>idea7 วางงบเปิดร้าน</span><span>ver5 เช็กความพร้อมก่อนเปิดร้าน</span><span>ver4 แผนเริ่มต้น พิสูจน์ก่อนลงเงิน</span><span>cust8 ลูกค้าเป้าหมายก่อนเริ่ม</span><span>idea3 ไอเดียตามงบ</span><span>idea6 เทียบไอเดีย</span><span>idea1 ไอเดียจากตัวคุณ</span></div>
+  <p class="d-fine">แผนธุรกิจ (PL2) ทำให้ร้านที่เปิดแล้วเท่านั้น ตัวนี้จึงยังไม่พาไป PL2 (ตามข้อ 6 ของ HANDOFF)</p>
+</section>
+
+<section class="d-sec d-ask">
+  <h2>เรื่องที่อยากให้คุณตัดสินใจ</h2>
+  <div class="d-dec">
+    <div class="d-d"><i>1</i><div><b>รูปแบบร้าน</b><span>ทำ 3 แบบก่อนเหมือนตัวที่ 4 (ขายของที่ทำเอง · ซื้อมาขายไป · ขายบริการ) หน้าร้านและออนไลน์ · อีก 5 แบบทำทีหลัง</span><em>แนะนำ: 3 แบบก่อน</em></div></div>
+    <div class="d-d"><i>2</i><div><b>ช่วงยอดขายค่อย ๆ ขึ้น</b><span>ให้ผู้ใช้เลือก “ทันที / 3 เดือน / 6 เดือน” เริ่มเดือนแรกที่ 40% · หรือไม่มีช่วงนี้ (ยอดเต็มตั้งแต่เดือนแรก ตัวเลขดูดีเกินจริง)</span><em>แนะนำ: ให้เลือก ค่าตั้งต้น 3 เดือน</em></div></div>
+    <div class="d-d"><i>3</i><div><b>มัดจำที่ได้คืน</b><span>นับใน “เงินที่ต้องมี” เสมอ · จะนับใน “เงินที่ต้องคืนทุน” ด้วยไหม (ร้านตัวอย่าง: ไม่นับ = คืนทุนเดือนที่ 11 · นับ = เดือนที่ 12)</span><em>แนะนำ: ไม่นับ แต่บอกไว้ใต้ตัวเลข</em></div></div>
+    <div class="d-d"><i>4</i><div><b>ใช้ตัวเลขร้านชุดกลางร่วมกับตัวอื่น</b><span>ราคา ต้นทุน ค่าใช้จ่ายทุกเดือน และเงินเดือนตัวเอง เป็นคำถามเดียวกับตัวที่ 1 · ใช้ร่วมกัน = เปิดตัวที่ 1 หรือ 3 ต่อได้โดยไม่กรอกใหม่ · เงินก่อนเปิดร้านเก็บในตัวที่ 2 อย่างเดียว</span><em>แนะนำ: ใช้ร่วม</em></div></div>
+    <div class="d-d"><i>5</i><div><b>ผล 3 แบบ</b><span>ขายได้ตามที่คาด / น้อยกว่า 20% / มากกว่า 20% (20% เท่ากับตัวคำนวณ PL2) · แตะสลับดูได้ ตัวเลขทุกตัวในหน้าผลเปลี่ยนตาม</span><em>แนะนำ: ทำ</em></div></div>
+    <div class="d-d"><i>6</i><div><b>ร้านตัวอย่าง</b><span>3 ร้าน: ร้านกาแฟคีออสก์ · ร้านเสื้อผ้าออนไลน์ทำคนเดียว · ร้านทำผม 2 เก้าอี้ (ค่าประมาณจากข้อมูลไทย)</span><em>แนะนำ: 3 ร้านนี้</em></div></div>
+  </div>
+  <p class="d-fine">ชื่อของทั้ง 4 ตัวยังตั้งพร้อมกันทีหลัง (HANDOFF ข้อ 11.4 ก8) · คำบนหน้าจอ Claude เขียนภาษาไทยเลยแบบตัวที่ 4 แล้วคุณลองใช้และส่งความเห็นกลับ</p>
+</section>
+
+<section class="d-sec">
+  <h2>ลำดับงานหลังคุณยืนยัน</h2>
+  <div class="d-steps">
+    <div class="d-st"><i>1</i><div><b>สูตรและชุดทดสอบตัวเลข</b><span>คิดมือเทียบทุกสูตร · ร้านสุ่มหลายร้อยร้าน · กำไรต้องตรงตัวที่ 1</span></div></div>
+    <div class="d-st"><i>2</i><div><b>หน้าจอทั้งหมด</b><span>ใช้หน้าตาชุดเดียวกับตัวที่ 1 3 และ 4</span></div></div>
+    <div class="d-st"><i>3</i><div><b>ทดสอบทุกหน้าบนจอมือถือ และผู้ตรวจอิสระ 2 คน</b><span>แก้จนผ่าน</span></div></div>
+    <div class="d-st"><i>4</i><div><b>ขึ้นลิงก์ Business Lab</b><span>การ์ด “เช็กก่อนเปิดร้าน” ในหน้ารวมกดได้</span></div></div>
+  </div>
+</section>
+
+</div></main>
+<script>
+(function () {
+  /* เงินในมือหลังจ่ายเงินก่อนเปิดร้าน (บาท) เดือน 0–12 · คิดด้วยสูตรในข้อเสนอ */
+  var L = {
+    mid: [45000, 26360, 21400, 30120, 52520, 74920, 97320, 119720, 142120, 164520, 186920, 209320, 231720],
+    low: [45000, 20888, 7720, 5496, 14216, 22936, 31656, 40376, 49096, 57816, 66536, 75256, 83976],
+    high: [45000, 31832, 35080, 54744, 90824, 126904, 162984, 199064, 235144, 271224, 307304, 343384, 379464]
+  };
+  var W = 320, H = 170, pl = 40, pr = 10, pt = 10, pb = 22, max = 400000;
+  var x = function (m) { return pl + (W - pl - pr) * m / 12; }, y = function (v) { return pt + (H - pt - pb) * (1 - v / max); };
+  var path = function (a) { return a.map(function (v, m) { return (m ? 'L' : 'M') + x(m).toFixed(1) + ' ' + y(v).toFixed(1); }).join(' '); };
+  var s = '<svg viewBox="0 0 ' + W + ' ' + H + '">';
+  [0, 100000, 200000, 300000, 400000].forEach(function (v) { s += '<line class="grid" x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y(v) + '" y2="' + y(v) + '"/><text class="ax" x="' + (pl - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + (v / 1000) + 'k</text>'; });
+  [1, 3, 6, 9, 12].forEach(function (m) { s += '<text class="axth" x="' + x(m) + '" y="' + (H - 6) + '" text-anchor="middle">' + (m === 1 ? 'เดือน 1' : m) + '</text>'; });
+  s += '<path class="line ghost" d="' + path(L.low) + '"/><path class="line ghost" d="' + path(L.high) + '"/><path class="line" d="' + path(L.mid) + '"/>';
+  s += '<circle class="dot" cx="' + x(2) + '" cy="' + y(L.mid[2]) + '" r="4"/><text class="endlab" x="' + (x(2) + 8) + '" y="' + (y(L.mid[2]) - 12) + '">ตึงที่สุด 21,400</text></svg>';
+  document.getElementById('cashChart').innerHTML = s;
+  var b = document.getElementById('theme');
+  var now = function () { var t = document.documentElement.getAttribute('data-theme'); return t || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); };
+  var SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-2.93 1.41-1.41M17.66 6.34l1.41-1.41M2 12h2m16 0h2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41"/></svg>';
+  var MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+  b.innerHTML = now() === 'dark' ? SUN : MOON;
+  b.addEventListener('click', function () { var n = now() === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', n); b.innerHTML = n === 'dark' ? SUN : MOON; });
+})();
+</script>
