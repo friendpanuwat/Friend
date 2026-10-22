@@ -3348,6 +3348,8 @@ function compactTH(n) {
     var F = D(base, m), real = F.filter(function (f) { return f.lv !== 'note'; }), notes = F.filter(function (f) { return f.lv === 'note'; });
     var out = head + '<main class="screen"><div class="wrap">';
     if (state.isSample) out += '<div class="banner"><span>นี่คือร้านกาแฟตัวอย่าง</span><button class="lnk" data-act="to-start">ใส่ตัวเลขร้านคุณ</button></div>';
+    /* ตัวเลขจากตัวที่ 2 (ยังไม่เปิดร้าน): บอกว่าเป็นตัวเลขที่ตั้งใจไว้ · แตะ "ร้านเปิดแล้ว" = ใช้เป็นตัวเลขจริง */
+    else if (state.inp.preOpen) out += '<div class="banner pre-open"><span>ตัวเลขที่ตั้งใจไว้ก่อนเปิดร้าน (จากเช็กก่อนเปิดร้าน)</span><button class="lnk" data-act="opened">ร้านเปิดแล้ว</button></div>';
     var pk = S.profit < 0 ? 'ขาดทุนต่อเดือน' : 'กำไรต่อเดือน';
     out += '<section class="panel"><div class="eyebrow hq"><span><span>' + pk + '</span>' + (state.isSample ? ' <span class="tag">ตัวอย่าง</span>' : '') + '</span>' + qmBtn('hp', pk) + '</div>' +
       '<div class="bignum">' + (S.profit < 0 ? '−' : '') + anim('hp', S.profit) + '<span class="u">บาท</span></div>' +
@@ -3817,6 +3819,7 @@ function compactTH(n) {
       }
       case 'sample-shop': chooseModel('unit', true); break;
       case 'to-start': go('start'); break;
+      case 'opened': state.inp.preOpen = 0; go(state.view, false); toast('ใช้เป็นตัวเลขของร้านที่เปิดแล้ว'); break;
       case 'next':
         steps = stepsFor(m);
         if (!stepValid(steps[state.step])) { wShowMissing(steps[state.step]); break; }

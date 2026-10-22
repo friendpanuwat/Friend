@@ -3624,7 +3624,7 @@ function opSample(k) {
   function fxOk(inp) { return FX.every(function (k) { if (k === 'staffSalary' && !(num(inp.staffCount) > 0)) return true; return num(inp[k]) !== null && num(inp[k]) >= 0; }); }
   /* ตัวเลขที่ตัวที่ 2 ส่งต่อให้ชุดกลาง: เงินสดตอนเปิดร้าน = เงินที่มี − เงินก่อนเปิดร้าน · อุปกรณ์ · เดือนขายดีขายแย่ · ป้าย "ตัวเลขที่ตั้งใจไว้ก่อนเปิดร้าน" */
   function derive(inp, op, m) {
-    inp.preOpen = 1;
+    if (inp.preOpen !== 0) inp.preOpen = 1;   /* 0 = ผู้ใช้แตะ "ร้านเปิดแล้ว" ในเครื่องมืออื่น */
     if (num(op.savings) !== null && stepOkAll(['su'])) inp.cash = Math.round((num(op.savings) - suTotals(op, inp).all) * 100) / 100;
     var pick = function (g) { inp.advMode = 'yes'; inp.advPick = (inp.advPick || []).filter(function (x) { return x !== g; }).concat([g]); };
     var e = op.mode === 'items' ? suEquip(op) : null;

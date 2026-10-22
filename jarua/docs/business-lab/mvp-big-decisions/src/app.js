@@ -1053,6 +1053,8 @@
     var P = piv(), v = wiVal() !== null ? wiVal() : P.have;
     var out = head + '<main class="screen res3"><div class="wrap">';
     if (state.isSample) out += '<div class="banner"><span>นี่คือ' + esc(sampleName()) + '</span><button class="lnk" data-act="to-shop">ใส่ตัวเลขร้านคุณ</button></div>';
+    /* ตัวเลขจากตัวที่ 2 (ยังไม่เปิดร้าน): บอกว่าเป็นตัวเลขที่ตั้งใจไว้ · แตะ "ร้านเปิดแล้ว" = ใช้เป็นตัวเลขจริง */
+    else if (state.inp && state.inp.preOpen) out += '<div class="banner pre-open"><span>ตัวเลขที่ตั้งใจไว้ก่อนเปิดร้าน (จากเช็กก่อนเปิดร้าน)</span><button class="lnk" data-act="opened">ร้านเปิดแล้ว</button></div>';
     out += '<div class="try3" id="try3" aria-live="polite">' + tryHtml(P) + '</div>';
     out += '<section class="hero3" id="hero">' + heroHtml(R, P, ((P.have > 0 || P.showHave) && !pUnk(P)) || wiVal() !== null ? v : null) + '</section>';
     out += lanesBox(R);
@@ -1520,6 +1522,7 @@
       }
       case 'topic': if (t.getAttribute('aria-disabled') === 'true') { toast('เรื่องนี้ยังไม่มีสำหรับร้านแบบ' + MODELS[state.model].tile); break; } openTopic(t.getAttribute('data-t')); break;
       case 'to-start': toStart(); break;
+      case 'opened': state.inp.preOpen = 0; go(state.view, false); toast('ใช้เป็นตัวเลขของร้านที่เปิดแล้ว'); break;
       case 'to-shop': state.shopFrom = state.view; state.shopInFlow = !!state.topic; state.editing = false; go('shop'); break;
       case 'shop-edit': if (state.isSample) { state.topic = null; state.shopInFlow = false; state.shopFrom = 'start'; go('shop'); } else { state.topic = null; state.editFrom = 'review'; go('review'); } break;
       case 'rtab': {

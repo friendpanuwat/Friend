@@ -4,12 +4,14 @@
 #   site/check-numbers.html  ตัวที่ 1 "เช็กตัวเลขร้าน" (หน้าแยก มีโครง html ของตัวเอง)
 #   site/big-decisions.html  ตัวที่ 3 "เช็กก่อนตัดสินใจเรื่องใหญ่" (หน้าแยก มีโครง html ของตัวเอง)
 #   site/product-channel.html ตัวที่ 4 "กำไรรายสินค้าและรายช่องทาง" (หน้าแยก มีโครง html ของตัวเอง)
-# ตัวที่ 1 3 และ 4 สร้างจากโฟลเดอร์ของตัวเอง (ไม่แก้ไฟล์ของมัน) · ตัวเลขร้านชุดกลางอยู่ใน ../shared/lab-shop.js
+#   site/before-opening.html  ตัวที่ 2 "เช็กก่อนเปิดร้าน" (หน้าแยก มีโครง html ของตัวเอง)
+# ตัวที่ 1 2 3 และ 4 สร้างจากโฟลเดอร์ของตัวเอง (ไม่แก้ไฟล์ของมัน) · ตัวเลขร้านชุดกลางอยู่ใน ../shared/lab-shop.js
 set -e
 cd "$(dirname "$0")"
 ../mvp-check-numbers/build.sh
 ../mvp-big-decisions/build.sh
 ../mvp-product-channel/build.sh
+../mvp-before-opening/build.sh
 mkdir -p site
 P1=../mvp-check-numbers
 {
@@ -34,10 +36,11 @@ page() {
 page ../mvp-check-numbers/check-numbers.html site/check-numbers.html
 page ../mvp-big-decisions/big-decisions.html site/big-decisions.html
 page ../mvp-product-channel/product-channel.html site/product-channel.html
+page ../mvp-before-opening/before-opening.html site/before-opening.html
 # หน้ารวมสำหรับทดสอบในเครื่อง (มีโครง html ครบ)
 mkdir -p .out
 { echo '<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><style>[hidden]{display:none!important}</style></head><body>'
   cat site/index.html
   echo '</body></html>'; } > .out/index.html
-cp site/check-numbers.html site/big-decisions.html site/product-channel.html .out/
+cp site/check-numbers.html site/big-decisions.html site/product-channel.html site/before-opening.html .out/
 echo "built site/ ($(du -ch site/*.html | tail -1 | cut -f1))"

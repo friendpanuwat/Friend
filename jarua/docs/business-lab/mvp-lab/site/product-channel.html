@@ -4120,7 +4120,7 @@ function pcSample(k) {
     var body = state.tab === 'c' ? chanList(R) : state.tab === 'g' ? gridHtml(R) : prodList(R);
     var out = bar('<button class="tb" data-act="back" aria-label="กลับหน้าแรก">' + ICON.back + 'หน้าแรก</button>', 'สินค้าและช่องทาง', state.isSample ? '' : MODELS[state.model].tile) +
       '<main class="screen res4m"><div class="wrap">' +
-      (state.isSample ? '<div class="banner4"><span><small>กำลังใช้</small>' + esc(PC_SAMPLES[state.sampleKind].name) + '</span><button class="btn ghost sm" data-act="mine">ใส่ตัวเลขร้านคุณ</button></div>' : '') +
+      (state.isSample ? '<div class="banner4"><span><small>กำลังใช้</small>' + esc(PC_SAMPLES[state.sampleKind].name) + '</span><button class="btn ghost sm" data-act="mine">ใส่ตัวเลขร้านคุณ</button></div>' : state.inp.preOpen ? '<div class="banner pre-open"><span>ตัวเลขที่ตั้งใจไว้ก่อนเปิดร้าน (จากเช็กก่อนเปิดร้าน)</span><button class="lnk" data-act="opened">ร้านเปิดแล้ว</button></div>' : '') +
       walkPanel(R) + reconHtml(R) + tabsHtml(R) +
       '<section id="tp"' + (R.many ? ' role="tabpanel" aria-labelledby="tab-' + state.tab + '"' : '') + ' class="tp4">' +
       (R.many ? '' : hq('h2', 'เงินที่เหลือของแต่ละ' + SW(), 'one', 'ขายช่องทางเดียว จึงดูราย' + SW() + 'อย่างเดียว · แตะ' + SW() + 'เพื่อดูว่าเงินจากขาย 1 ชิ้นไปไหนบ้าง และลองปรับราคาหรือต้นทุน', 'sec4')) + body + '</section>' +
@@ -4568,6 +4568,7 @@ function pcSample(k) {
       case 'sample': useSample(); go('result'); announce('กำลังใช้' + PC_SAMPLES[state.sampleKind].name); break;
       case 'sample1': state.where = PC_SAMPLES[t.getAttribute('data-k')].where; useSample(); go('result'); announce('กำลังใช้' + PC_SAMPLES[state.sampleKind].name); break;
       case 'mine': leaveSample(); if (state.model) startFlow(); else go('start'); break;
+      case 'opened': state.inp.preOpen = 0; go(state.view, false); toast('ใช้เป็นตัวเลขของร้านที่เปิดแล้ว'); break;
       case 'model': {
         var nm = t.getAttribute('data-m');
         if (state.isSample) leaveSample();

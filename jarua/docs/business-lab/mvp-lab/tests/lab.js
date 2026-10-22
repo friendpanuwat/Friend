@@ -50,7 +50,7 @@ async function check(page, label) {
     await page.goto(base + 'index.html'); await ready();
     let txt = await check(page, tag + ' hub');
     if ((await page.$$('.tcard')).length !== 4) fail(tag, 'hub cards != 4');
-    if ((await page.$$('a.tcard')).length !== 3) fail(tag, 'open cards != 3');
+    if ((await page.$$('a.tcard')).length !== 4) fail(tag, 'open cards != 4');
     if (!/ใส่ตัวเลขร้านครั้งเดียว/.test(txt)) fail(tag, 'hub shop status (empty)');
     if (/\bAI\b/.test(txt)) fail(tag, 'word AI on hub');
     await page.screenshot({ path: path.join(SHOTS, 'hub-' + tag + '.png'), fullPage: true });
@@ -195,6 +195,60 @@ async function check(page, label) {
     s4 = await page.evaluate(() => ({ v: window.__lab4.state.view, link: window.__lab4.state.link, p: window.__lab4.state.model && window.__lab4.R0().ok ? window.__lab4.R0().profit : null }));
     if (s4.link !== 'own' || Math.abs((s4.p || 0) - p4) > 0.05) fail(tag, 'tool4 reopened with different numbers', JSON.stringify(s4), p4);
     await page.screenshot({ path: path.join(SHOTS, 'tool4-' + tag + '.png') });
+
+    /* 7. ตัวที่ 2: ใช้ตัวเลขร้านชุดกลาง (ราคา ต้นทุน ยอดขาย ค่าใช้จ่ายทุกเดือน ไม่ถามซ้ำ) · ร้านตัวอย่างไม่ทับชุดกลาง
+          ถามเฉพาะช่วงเปิดร้าน ยอดขายเดือนแรก ๆ เงินก่อนเปิด และเงินที่มี · เขียนกลับพร้อมป้ายก่อนเปิดร้าน · ตัวที่ 1 กำไรเท่ากัน · "ร้านเปิดแล้ว" */
+    await page.goto(base + 'index.html'); await ready();
+    await page.click('a.tcard[href="before-opening.html"]'); await ready();
+    if (!(await page.$('.bar a.ib[href="index.html"]'))) fail(tag, 'tool2: no back link to hub');
+    let s2 = await page.evaluate(() => ({ m: window.__labOpen.state.model, rent: window.__labOpen.state.inp.rent }));
+    if (s2.m !== 'unit' || s2.rent !== 15000) fail(tag, 'tool2 did not adopt shared numbers', JSON.stringify(s2));
+    await check(page, tag + ' tool2 start');
+    const before2 = await page.evaluate(() => sessionStorage.getItem('lab-shop'));
+    await page.click('[data-act="sample"]'); await page.waitForTimeout(400);
+    if ((await page.evaluate(() => window.__labOpen.state.view)) !== 'result') fail(tag, 'tool2 sample did not open result');
+    await check(page, tag + ' tool2 sample result');
+    if ((await page.evaluate(() => sessionStorage.getItem('lab-shop'))) !== before2) fail(tag, 'tool2 sample wrote shared numbers');
+    await page.click('[data-act="mine"]'); await page.waitForTimeout(300);
+    let v2 = await page.evaluate(() => window.__labOpen.state.view);
+    if (v2 !== 'open') fail(tag, 'tool2 own shop should start at the opening step (shop numbers known)', v2);
+    await page.click('[data-act="pset"][data-path="op.fit"][data-v="1"]'); await page.click('[data-act="pset"][data-path="op.openMonth"][data-v="6"]');
+    await page.click('[data-act="pset"][data-path="op.seasonAsked"][data-v="no"]');
+    await page.click('#foot [data-act="step-next"]'); await page.waitForTimeout(200);
+    await page.click('[data-act="ramp"][data-v="r3"]'); await page.waitForTimeout(150);
+    await page.click('#foot [data-act="step-next"]'); await page.waitForTimeout(200);
+    v2 = await page.evaluate(() => window.__labOpen.state.view);
+    if (v2 !== 'su') fail(tag, 'tool2 asked monthly costs again', v2);
+    await page.click('[data-act="pset"][data-path="op.mode"][data-v="items"]'); await page.waitForTimeout(150);
+    await page.click('[data-act="su-tog"][data-k="deposit"]'); await page.fill('#f-su-0-amt', '30000');
+    await page.click('[data-act="su-tog"][data-k="tools"]'); await page.fill('#f-su-1-amt', '90000');
+    await check(page, tag + ' tool2 startup');
+    await page.click('#foot [data-act="step-next"]'); await page.waitForTimeout(200);
+    await page.fill('#f-op-savings', '250000');
+    await page.click('#foot [data-act="step-next"]'); await page.waitForTimeout(500);
+    v2 = await page.evaluate(() => window.__labOpen.state.view);
+    if (v2 !== 'result') fail(tag, 'tool2 did not reach result', v2);
+    await check(page, tag + ' tool2 result');
+    const r2 = await page.evaluate(() => { const R = window.__labOpen.R0(); return { p: R.S.profit, all: R.base.all, sh: JSON.parse(sessionStorage.getItem('lab-shop')) }; });
+    if (Math.abs(r2.all - 135000) > 0.01) fail(tag, 'tool2 startup total', r2.all);
+    if (!r2.sh || r2.sh.inp.preOpen !== 1 || Math.abs(r2.sh.inp.cash - 115000) > 0.01 || r2.sh.inp.equipValue !== 90000) fail(tag, 'tool2 shared numbers', JSON.stringify(r2.sh && r2.sh.inp));
+    await page.goto(base + 'index.html'); await ready();
+    txt = await check(page, tag + ' hub after tool2');
+    if (!/ตัวเลขที่ตั้งใจไว้ก่อนเปิดร้าน/.test(txt)) fail(tag, 'hub does not say the numbers are before opening');
+    await page.goto(base + 'check-numbers.html'); await ready();
+    const p1c = await page.evaluate(() => compute(window.__lab.state.inp, window.__lab.state.model).profit);
+    if (Math.abs(p1c - r2.p) > 0.05) fail(tag, 'tool1 profit differs from tool2 profit at full sales', p1c, r2.p);
+    const v1c = await page.evaluate(() => window.__lab.state.view);
+    if (v1c !== 'home') fail(tag, 'tool1 did not open the overview with numbers from tool2', v1c);
+    else {
+      if (!(await page.$('.pre-open [data-act="opened"]'))) fail(tag, 'tool1 has no before-opening banner');
+      await page.click('.pre-open [data-act="opened"]'); await page.waitForTimeout(300);
+      const pre = await page.evaluate(() => JSON.parse(sessionStorage.getItem('lab-shop')).inp.preOpen);
+      if (pre !== 0) fail(tag, 'opened did not clear the before-opening flag', pre);
+      await page.goto(base + 'before-opening.html'); await ready();
+      const pre2 = await page.evaluate(() => JSON.parse(sessionStorage.getItem('lab-shop')).inp.preOpen);
+      if (pre2 !== 0) fail(tag, 'tool2 put the before-opening flag back after "opened"', pre2);
+    }
     if (errors.length) fail(tag, 'errors', errors.slice(0, 3).join(' | '));
     await ctx.close();
   }

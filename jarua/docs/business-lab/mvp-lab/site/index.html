@@ -595,12 +595,13 @@ a.tcard:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
       <span class="go">เปิด<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
     </a><button type="button" class="qm" data-q="t4" aria-expanded="false" aria-label="กำไรรายสินค้าและรายช่องทาง"><i>Q</i></button>
     <p class="qm-tx" data-qmt="t4" hidden>ต้นทุนจริงต่อชิ้น และเงินที่เหลือของแต่ละสินค้า แต่ละช่องทาง หลังหักค่าธรรมเนียม ค่าแพ็ก และส่วนลด · ร้านแบบขายของที่ทำเอง ซื้อมาขายไป และขายบริการ · เหมาะสำหรับ ผู้ที่มีหลายสินค้าหรือหลายช่องทาง</p></div>
-    <div class="tc-w"><div class="tcard soon">
+    <div class="tc-w"><a class="tcard" href="before-opening.html">
       <span class="ti" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></svg></span>
-      <span class="tn">เช็กก่อนเปิดร้าน <span class="soon-tag">เร็ว ๆ นี้</span></span>
-      <h3>ตัวเลขไปรอดไหม ก่อนเปิดร้าน?</h3>
-    </div><button type="button" class="qm" data-q="s2" aria-expanded="false" aria-label="เช็กก่อนเปิดร้าน"><i>Q</i></button>
-    <p class="qm-tx" data-qmt="s2" hidden>ต้องขายเท่าไร เงินอยู่ได้กี่เดือน และคืนทุนกี่เดือน · เหมาะสำหรับ ผู้ที่ยังไม่ได้เริ่มธุรกิจ</p></div>
+      <span class="tn">เช็กก่อนเปิดร้าน</span>
+      <h3>เปิดร้านแล้วไปรอดไหม ต้องมีเงินเท่าไร?</h3>
+      <span class="go">เปิด<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+    </a><button type="button" class="qm" data-q="t2" aria-expanded="false" aria-label="เช็กก่อนเปิดร้าน"><i>Q</i></button>
+    <p class="qm-tx" data-qmt="t2" hidden>ต้องขายวันละเท่าไร ต้องมีเงินทั้งหมดเท่าไร เงินอยู่ได้กี่เดือน และคืนทุนเดือนที่เท่าไร คิดเดือนต่อเดือนรวมช่วงยอดขายเดือนแรก ๆ · ร้านแบบขายของที่ทำเอง ซื้อมาขายไป และขายบริการ · เหมาะสำหรับ ผู้ที่ยังไม่ได้เปิดร้าน</p></div>
   </div>
 </div></main>
 
@@ -638,6 +639,7 @@ a.tcard:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
     if (sh && sh.label) {
       box.className = sh.ok ? 'shop0 has' : 'shop0';
       box.innerHTML = '<span class="si">' + (sh.ok ? CHECK : STORE) + '</span><b>ตัวเลขร้านคุณ · ' + esc(sh.label) + '</b><span>' +
+        (sh.inp && sh.inp.preOpen ? 'ตัวเลขที่ตั้งใจไว้ก่อนเปิดร้าน · ' : '') +
         (sh.ok ? 'ใช้ได้กับทุกเครื่องมือ ไม่ต้องกรอกใหม่' : 'ยังกรอกไม่ครบ กรอกต่อได้ในเครื่องมือไหนก็ได้') + '</span>';
     } else {
       box.className = 'shop0';
