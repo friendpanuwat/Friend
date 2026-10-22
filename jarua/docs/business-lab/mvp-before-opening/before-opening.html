@@ -3316,7 +3316,7 @@ function rampCurve(op) { var r = op.ramp || {}; if (r.p === 'custom') return (r.
 function rampAt(c, m) { return m <= c.length ? Math.max(0, c[m - 1]) : 1; }
 /* เดือนที่ยอดขายเต็ม (เดือนแรกที่ไม่มีเดือนหลังจากนั้นต่ำกว่า 100%) */
 function rampFull(c) { var L = c.length; while (L > 0 && c[L - 1] >= 0.999) L--; return L + 1; }
-/* ยอดขายเต็มช้าลง k เดือน: ยืดช่วงเดือนแรก ๆ ออกไปเท่า ๆ กัน (เดือนแรกเท่าเดิม ถึงเต็มช้าลง k เดือน)
+/* ยอดขายเต็มช้าลง k เดือน: ยืดช่วงเดือนแรก ๆ ออกไปเท่า ๆ กัน (เดือนแรกเท่าเดิม ถึงเต็มช้าลง k เดือน) · ทุกเดือนไม่สูงกว่าเดิม
    ร้านที่เต็มตั้งแต่เดือนแรก: ใช้ค่อย ๆ ขึ้น k เดือนจาก 40% */
 function rampDelay(c, k) {
   if (k <= 0) return c.slice();
@@ -3325,7 +3325,8 @@ function rampDelay(c, k) {
   var P = c.concat([1]), out = [];
   for (var m = 1; m <= L + k; m++) {
     var t = 1 + (m - 1) * L / (L + k), a = Math.floor(t), f = t - a;
-    out.push(P[a - 1] + (P[Math.min(a, L)] - P[a - 1]) * f);
+    /* ไม่ให้ดีกว่าเดิมในเดือนไหน (เช่น ช่วงคนมาลองเยอะ ยืดออกแล้วต้องไม่ขายได้มากขึ้น) */
+    out.push(Math.min(P[a - 1] + (P[Math.min(a, L)] - P[a - 1]) * f, rampAt(c, m)));
   }
   return out;
 }
@@ -3376,7 +3377,8 @@ function opSim(o) {
 
 /* ---------- ผลทั้งหมด ---------- */
 function opCompute(inp, m, op) {
-  var S = compute(inp, m);
+  /* เงินสดของตัวคำนวณ PL2 = เงินที่เหลือหลังจ่ายเงินก่อนเปิดร้าน (ยังไม่รู้เงินที่มี = 0) · ตัวที่ 2 ไม่ได้ใช้เงินสดของตัวคำนวณในผล */
+  var sv = num(op.savings), S = compute(Object.assign({}, inp, { cash: sv === null ? 0 : sv - suTotals(op, inp).all }), m);
   if (!S.ok) return { ok: false, S: S };
   var R = { ok: true, S: S, m: m, inp: inp, op: op, T: suTotals(op, inp), curve: rampCurve(op) };
   R.full = rampFull(R.curve);
@@ -4151,7 +4153,8 @@ function opSample(k) {
   function enoughHtml(R) {
     var E = R.enough; if (!E) return '';
     var rows = '';
-    rows += '<div class="en2"><span>ขายได้อย่างน้อย' + (state.inp.volumePer === 'month' ? 'เดือนละ' : 'วันละ') + '</span><b>' + (E.minVol === null ? 'ไม่พอ' : fmtN(Math.ceil(E.minVol - 1e-9)) + '<small>' + esc(Ux()) + '</small>') + '</b></div>';
+    if (R.base.start < 0) rows += '<div class="en2"><span>เงินที่มีน้อยกว่าเงินก่อนเปิดร้าน ขายได้เท่าไรก็ยังไม่พอ</span><b>−' + fmtN(-R.base.start) + '<small>บาท</small></b></div>';
+    else rows += '<div class="en2"><span>ขายได้อย่างน้อย' + (state.inp.volumePer === 'month' ? 'เดือนละ' : 'วันละ') + '</span><b>' + (E.minVol === null ? 'ขายเท่าไรก็ไม่พอ' : fmtN(Math.ceil(E.minVol - 1e-9)) + '<small>' + esc(Ux()) + '</small>') + '</b></div>';
     if (E.ok) {
       rows += '<div class="en2"><span>ยอดขายเต็มภายใน</span><b>' + (E.delayCapped ? 'เกิน 5 ปี' : 'เดือนที่ ' + E.fullBy) + '</b></div>';
       rows += '<div class="en2"><span>เงินก่อนเปิดเกินงบได้ไม่เกิน</span><b>' + fmtN(E.over) + '<small>บาท</small></b></div>';

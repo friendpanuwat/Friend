@@ -594,7 +594,8 @@
   function enoughHtml(R) {
     var E = R.enough; if (!E) return '';
     var rows = '';
-    rows += '<div class="en2"><span>ขายได้อย่างน้อย' + (state.inp.volumePer === 'month' ? 'เดือนละ' : 'วันละ') + '</span><b>' + (E.minVol === null ? 'ไม่พอ' : fmtN(Math.ceil(E.minVol - 1e-9)) + '<small>' + esc(Ux()) + '</small>') + '</b></div>';
+    if (R.base.start < 0) rows += '<div class="en2"><span>เงินที่มีน้อยกว่าเงินก่อนเปิดร้าน ขายได้เท่าไรก็ยังไม่พอ</span><b>−' + fmtN(-R.base.start) + '<small>บาท</small></b></div>';
+    else rows += '<div class="en2"><span>ขายได้อย่างน้อย' + (state.inp.volumePer === 'month' ? 'เดือนละ' : 'วันละ') + '</span><b>' + (E.minVol === null ? 'ขายเท่าไรก็ไม่พอ' : fmtN(Math.ceil(E.minVol - 1e-9)) + '<small>' + esc(Ux()) + '</small>') + '</b></div>';
     if (E.ok) {
       rows += '<div class="en2"><span>ยอดขายเต็มภายใน</span><b>' + (E.delayCapped ? 'เกิน 5 ปี' : 'เดือนที่ ' + E.fullBy) + '</b></div>';
       rows += '<div class="en2"><span>เงินก่อนเปิดเกินงบได้ไม่เกิน</span><b>' + fmtN(E.over) + '<small>บาท</small></b></div>';
