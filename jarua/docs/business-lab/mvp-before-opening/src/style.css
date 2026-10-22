@@ -34,13 +34,13 @@
 .rbtns .sbtn:disabled { opacity: 0.4; }
 
 /* เงินก่อนเปิดร้าน */
-.su2 { display: grid; gap: 10px; background: var(--card); border-radius: var(--r); padding: 14px 16px; }
+.su2 { display: grid; gap: 10px; background: var(--card); border-radius: var(--r); padding: 14px 16px; min-width: 0; }
 .su2 .inbox { background: var(--surface); }
 .su2 .seg { background: var(--surface); }
 .su2.auto { gap: 4px; }
 .su2.auto .fine4 { margin: 0; }
 .su-h { display: flex; align-items: center; gap: 8px; }
-.su-n { flex: 1; min-width: 0; font-weight: 700; font-size: 15px; overflow-wrap: break-word; }
+.su-n { flex: 1; min-width: 0; font-weight: 700; font-size: 15px; overflow-wrap: anywhere; }
 .su2 .qm i, .su2 .qm-tx { background: var(--surface); }
 .su2 .qm[aria-expanded="true"] i { background: var(--ink); }
 .tg2 { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--surface); white-space: nowrap; }
