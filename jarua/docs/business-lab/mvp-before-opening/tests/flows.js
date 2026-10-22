@@ -72,7 +72,7 @@ async function checkNumbers(env, label) {
     const L = window.__labOpen, R = L.R0(), st = L.state, P = [];
     if (!R.ok) return ['R0 not ok'];
     const B = R.sc[st.sc], S = R.S, inp = st.inp, u = U(inp, st.model);
-    const txt = el => el ? el.textContent.replace(/\s+/g, ' ').trim() : null;
+    const txt = el => el ? el.textContent.replace(/[\s\u00a0]+/g, ' ').trim() : null;
     const noU = el => el ? [...el.childNodes].filter(n => !(n.nodeType === 1 && (n.classList.contains('u') || n.tagName === 'SMALL'))).map(n => n.textContent).join('').trim() : null;
     const parse = s => { s = String(s).replace(/[,\s]/g, ''); const neg = /^[−-]/.test(s); const v = parseFloat(s.replace(/^[−-]/, '').replace(/[^\d.]/g, '')); return neg ? -v : v; };
     const ceilV = v => Math.ceil(v - 1e-9);
@@ -91,19 +91,25 @@ async function checkNumbers(env, label) {
     /* แผงดำ */
     const big = document.querySelector('#rpanel .bignum');
     if (!big) P.push('no dark panel');
-    else if (noU(big) !== fmtN(B.need)) P.push('panel shows ' + noU(big) + ' but need (' + st.sc + ') is ' + fmtN(B.need));
+    else if (B.endless ? noU(big) !== 'เงินเท่าไรก็ไม่พอ' : noU(big) !== fmtN(B.need)) P.push('panel shows ' + noU(big) + ' but need (' + st.sc + ') is ' + fmtN(B.need) + (B.endless ? ' (endless)' : ''));
     const walk = [...document.querySelectorAll('#rpanel .walk > div')].map(d => [txt(d.querySelector('span')), txt(d.querySelector('b')), d.className]);
     const w0 = walk.find(w => w[0] === 'จ่ายก่อนเปิดร้าน');
     if (!w0 || w0[1] !== fmtN(B.all)) P.push('walk "จ่ายก่อนเปิดร้าน" ' + (w0 && w0[1]) + ' vs ' + fmtN(B.all));
-    const w1 = walk.find(w => /^ควักเพิ่ม/.test(w[0]));
-    if ((B.low < -0.5) !== !!w1) P.push('walk "ควักเพิ่ม" ' + (w1 ? 'shown' : 'missing') + ' with low ' + B.low);
+    /* ยอดเต็มแล้วยังขาดเงินทุกเดือน: ขาดเดือนละ · จ่ายก่อนเปิด · คุณมี (ไม่มียอดรวม 5 ปี) */
+    if (B.endless) {
+      const we = walk.find(w => /^ยอดขายเต็มแล้ว/.test(w[0]));
+      if (!we || we[1] !== fmtN(-B.tail)) P.push('endless walk ' + JSON.stringify(walk) + ' tail ' + B.tail);
+      if (!R.finds.some(f => f.id === 'endless')) P.push('endless but no endless finding');
+    }
+    const w1 = B.endless ? null : walk.find(w => /^ควักเพิ่ม/.test(w[0]));
+    if (!B.endless && (B.low < -0.5) !== !!w1) P.push('walk "ควักเพิ่ม" ' + (w1 ? 'shown' : 'missing') + ' with low ' + B.low);
     if (w1 && w1[1] !== fmtN(-B.low)) P.push('walk "ควักเพิ่ม" ' + w1[1] + ' vs ' + fmtN(-B.low));
-    if (big && Math.abs(parse(w0 ? w0[1] : 0) + parse(w1 ? w1[1] : 0) - parse(noU(big))) > 1.01) P.push('walk lines do not add up to the panel: ' + JSON.stringify(walk));
+    if (big && !B.endless && Math.abs(parse(w0 ? w0[1] : 0) + parse(w1 ? w1[1] : 0) - parse(noU(big))) > 1.01) P.push('walk lines do not add up to the panel: ' + JSON.stringify(walk));
     const wk = walk.find(w => w[2] === 'k');
     const short = B.left < -0.5;
     if (!wk) P.push('walk last line missing');
-    else {
-      if (wk[1] !== (short ? '−' : '') + fmtN(Math.abs(B.left))) P.push('walk left ' + wk[1] + ' vs ' + B.left);
+    else if (!B.endless) {
+      if (wk[1] !== fmtN(Math.abs(B.left))) P.push('walk left ' + wk[1] + ' vs ' + B.left);
       if (wk[0].indexOf('คุณมี ' + fmtN(B.save)) !== 0 || (short ? !/ขาดอีก/.test(wk[0]) : !/เหลือช่วงตึงที่สุด/.test(wk[0]))) P.push('walk last label «' + wk[0] + '» left ' + B.left);
     }
     /* 4 ช่อง */
@@ -122,11 +128,13 @@ async function checkNumbers(env, label) {
         if (b > 1 && pAt(b - 1) > 0.5) P.push('selling ' + (b - 1) + ' (below break-even) makes a profit ' + pAt(b - 1));
       }
       const mult = st.sc === 'low' ? 1 - R.range / 100 : st.sc === 'high' ? 1 + R.range / 100 : 1;
-      if (n(0) !== 'คาดไว้ ' + fmtN(n0(inp.volume) * mult, 1) + ' ' + u) P.push('break-even note «' + n(0) + '»');
+      const seas = Math.abs(R.sAvg - 1) > 1e-6;
+      if (n(0) !== (st.sc === 'mid' ? 'คาดไว้ ' : 'ถ้าขายได้ ') + fmtN(n0(inp.volume) * mult, 1) + ' ' + u + (seas ? ' · เฉลี่ยทั้งปี ' + fmtN(n0(inp.volume) * mult * R.sAvg, 1) : '')) P.push('break-even note «' + n(0) + '»');
       const pt = B.payS === null ? 'เกิน 5 ปี' : 'เดือนที่ ' + B.payS;
       if (v(1) !== pt) P.push('payback tile ' + v(1) + ' vs ' + pt);
       if (st.sc === 'mid' && v(3) !== (S.profit < -0.005 ? '−' : '') + fmtN(Math.abs(S.profit))) P.push('profit tile ' + v(3) + ' vs ' + S.profit);
-      const stk = B.net1 >= 0 ? 'ไม่ขาดเงิน' : fmtN(Math.floor(Math.max(0, B.start) / -B.net1 * 10) / 10, 1) + 'เดือน';
+      /* ยอดค้างที่เดือนแรก: คิดเดือนต่อเดือน (unit.js 12.4) · หน้าจอตรงกับตัวคำนวณ */
+      const sk = opStuck(R, mult), stk = !sk ? '—' : sk.before ? 'ไม่พอ' : sk.none ? 'ไม่ขาดเงิน' : fmtN(Math.floor(sk.months * 10) / 10, 1) + 'เดือน';
       if (v(2) !== stk) P.push('stuck tile ' + v(2) + ' vs ' + stk);
     }
     /* กราฟ: เส้นเข้ม 1 + จาง 2 */
@@ -154,7 +162,7 @@ async function checkNumbers(env, label) {
       }
       if (rows.length !== (E.ok ? 3 : 1)) P.push('enough rows ' + rows.length + ' with ok ' + E.ok);
       if (E.ok && rows.length === 3) {
-        const fb = E.delayCapped ? 'เกิน 5 ปี' : 'เดือนที่ ' + E.fullBy;
+        const fb = E.delayCapped ? 'พอ' : 'เดือนที่ ' + E.fullBy;
         if (rows[1][1] !== fb) P.push('enough full-by ' + rows[1][1] + ' vs ' + fb);
         if (rows[2][1] !== fmtN(E.over) + 'บาท') P.push('enough over ' + rows[2][1] + ' vs ' + fmtN(E.over));
         if (Math.abs(E.over - R.base.left) > 0.01) P.push('enough over ' + E.over + ' ≠ base left ' + R.base.left);
@@ -187,14 +195,15 @@ async function checkNumbers(env, label) {
     if (tgt[0] !== wt(A.income)) P.push('target income row ' + tgt[0] + ' vs ' + wt(A.income));
     if (tgt[1] !== wt(A.pay)) P.push('target payback row ' + tgt[1] + ' vs ' + wt(A.pay));
     if (A.income !== null && A.income !== undefined && A.income > 0) {
-      const pr = compute(Object.assign({}, inp, { ownerSalary: inc, volume: A.income }), st.model).profit;
+      /* ยอดเฉลี่ยทั้งปี → ยอดเดือนปกติ = ÷ sAvg */
+      const pr = compute(Object.assign({}, inp, { ownerSalary: inc, volume: A.income / R.sAvg }), st.model).profit;
       if (Math.abs(pr) > 1) P.push('selling the income target ' + A.income + ' gives profit ' + pr + ' not 0');
     }
     if (A.pay !== null && A.pay !== undefined) {
       const s = opSim({ inp, op: st.op, mult: ceilV(A.pay) / n0(inp.volume) });
       if (s.payS === null || s.payS > mo) P.push('selling the payback target ' + ceilV(A.pay) + ' pays back in ' + s.payS + ' > ' + mo);
     }
-    const tv = [...document.querySelectorAll('#target .tv b')].map(txt);
+    const tv = [...document.querySelectorAll('#target .tv input')].map(e => e.value);
     if (tv[0] !== fmtN(inc) || tv[1] !== fmtN(mo)) P.push('target steppers show ' + tv + ' vs ' + [inc, mo]);
     /* สิ่งที่ตัวเลขบอก */
     const fr = [...document.querySelectorAll('.flist .frow .ft')].map(e => e.textContent.replace(/\s+/g, ''));
@@ -266,13 +275,19 @@ async function resultTour(env, L, deep) {
   /* ลองปรับ: ยอดขาย + → คืนค่าเดิม */
   const before = await val(env, () => { const s = window.__labOpen.state, R = window.__labOpen.R0(); return { cu: R.cu, vol: s.inp.volume, price: s.inp.price, need: R.base.need, ramp: JSON.stringify(s.op.ramp), full: R.full, step: +document.querySelector('[data-act="tstep"][data-k="volume"][data-d]:not([data-d^="-"])').getAttribute('data-d'), pstep: +document.querySelector('[data-act="tstep"][data-k="price"]:not([data-d^="-"])').getAttribute('data-d') }; });
   await tap(env, '[data-act="tstep"][data-k="volume"]:not([data-d^="-"])', 200);
-  const t1 = await val(env, () => { const s = window.__labOpen.state; const inp = Object.assign({}, s.inp, { volume: s.trial.volume }); const X = opCompute(inp, s.model, s.op); return { trial: s.trial, dl: document.querySelector('#dl4').textContent, tv: document.querySelector('#tv-volume').value, btns: !!document.querySelector('[data-act="t-use"]') && !!document.querySelector('[data-act="t-reset"]'), xneed: X.base.need, real: s.inp.volume, need: window.__labOpen.R0().base.need }; });
+  const t1 = await val(env, () => { const s = window.__labOpen.state; const inp = Object.assign({}, s.inp, { volume: s.trial.volume }); const X = opCompute(inp, s.model, s.op); return { trial: s.trial, dl: document.querySelector('#dl4').textContent, tv: document.querySelector('#tv-volume').value, btns: !!document.querySelector('[data-act="t-use"]') && !!document.querySelector('[data-act="t-reset"]'), xneed: X.base.need, xend: X.base.endless, cls: (document.querySelector('#dl4 b') || {}).className || '', real: s.inp.volume, need: window.__labOpen.R0().base.need }; });
   if (!t1.trial || Math.abs(t1.trial.volume - (before.vol + before.step)) > 1e-9) problem(L, 'trial volume + → ' + JSON.stringify(t1.trial) + ' want ' + (before.vol + before.step));
   if (!t1.btns) problem(L, 'trial buttons missing');
   if (t1.real !== before.vol || t1.need !== before.need) problem(L, 'trial changed the real numbers');
   const dn = t1.xneed - before.need;
   if (Math.abs(dn) < 0.5 ? !/เท่าเดิม/.test(t1.dl) : t1.dl.indexOf((dn < 0 ? 'ลดลง ' : 'เพิ่มขึ้น ') + fmtNode(Math.abs(dn))) < 0 || t1.dl.indexOf('เป็น ' + fmtNode(t1.xneed)) < 0) problem(L, 'trial delta «' + t1.dl + '» want change ' + dn + ' to ' + t1.xneed);
   if (dn > 0.5 && before.cu > 0) problem(L, 'selling more needs more money? ' + dn);
+  /* ▲ เพิ่มขึ้น ▼ ลดลง (ผู้ตรวจอิสระเจอว่ากลับด้าน) */
+  if (!t1.xend && Math.abs(dn) >= 0.5 && t1.cls !== (dn > 0 ? 'up' : 'down')) problem(L, 'trial arrow class ' + t1.cls + ' for change ' + dn);
+  /* ลองปรับ: ตัวเลขทั้งหน้าเปลี่ยนตาม (แผงดำแสดงเงินที่ต้องมีของตัวเลขที่ลอง + ป้าย) */
+  await animDone(page);
+  const tp = await val(env, () => { const b = document.querySelector('#rpanel .bignum'); return [b && b.firstChild ? b.firstChild.textContent : null, !!document.querySelector('#rpanel .tag')]; });
+  if (!t1.xend && (tp[0] !== fmtNode(t1.xneed) || !tp[1])) problem(L, 'trial: panel shows ' + JSON.stringify(tp) + ' want ' + t1.xneed + ' with tag');
   await check(env, L + ' trial volume');
   await snap(env, 'trial');
   await tap(env, '[data-act="t-reset"]', 150);
@@ -285,14 +300,18 @@ async function resultTour(env, L, deep) {
   await tap(env, '[data-act="t-reset"]', 150);
   /* ราคา + และเต็มช้าลง + → ใช้ค่านี้ */
   await tap(env, '[data-act="tstep"][data-k="price"]:not([data-d^="-"])', 120);
-  await tap(env, '[data-act="tstep"][data-k="delay"]:not([data-d^="-"])', 200);
+  /* ยอดเต็มช้าลง: รวมแล้วไม่เกิน 24 เดือน (ผู้ตรวจอิสระเจอว่าใช้ซ้ำแล้วยาวเกิน) · ช่วงเดือนแรก ๆ ยาว 24 เดือนแล้ว ไม่มีให้ลอง */
+  const dmax = await val(env, () => { const b = document.querySelector('[data-act="tstep"][data-k="delay"]:not([data-d^="-"])'); return [b ? +b.getAttribute('data-max') : null, RAMP_MAX - rampCurve(window.__labOpen.state.op).length]; });
+  if ((dmax[1] > 0 ? dmax[0] !== dmax[1] : dmax[0] !== null)) problem(L, 'trial delay max ' + JSON.stringify(dmax));
+  const hasDelay = dmax[0] !== null;
+  if (hasDelay) await tap(env, '[data-act="tstep"][data-k="delay"]:not([data-d^="-"])', 200);
   const t3 = await val(env, () => window.__labOpen.state.trial);
-  if (!t3 || t3.delay !== 1 || Math.abs(t3.price - (before.price + before.pstep)) > 1e-9) problem(L, 'trial price+delay ' + JSON.stringify(t3));
+  if (!t3 || (hasDelay ? t3.delay !== 1 : t3.delay !== undefined) || Math.abs(t3.price - (before.price + before.pstep)) > 1e-9) problem(L, 'trial price+delay ' + JSON.stringify(t3));
   await check(env, L + ' trial price+delay');
   await tap(env, '[data-act="t-use"]', 200);
   const u1 = await val(env, () => { const s = window.__labOpen.state, R = window.__labOpen.R0(); return { trial: s.trial, price: s.inp.price, ramp: s.op.ramp, full: R.full, toast: [...document.querySelectorAll('.toast')].map(x => x.textContent).join(''), btns: !!document.querySelector('[data-act="t-use"]'), menu: s.op.menu }; });
   if (u1.trial !== null || Math.abs(u1.price - (before.price + before.pstep)) > 1e-9 || u1.btns || !/ใช้ค่านี้แล้ว/.test(u1.toast)) problem(L, 'trial use ' + JSON.stringify(u1));
-  if (u1.ramp.p !== 'custom' || u1.full !== before.full + 1) problem(L, 'trial use delay 1: ramp ' + JSON.stringify(u1.ramp) + ' full ' + u1.full + ' was ' + before.full);
+  if (hasDelay && (u1.ramp.p !== 'custom' || u1.full !== before.full + 1)) problem(L, 'trial use delay 1: ramp ' + JSON.stringify(u1.ramp) + ' full ' + u1.full + ' was ' + before.full);
   if (u1.menu) problem(L, 'menu still on after using a tried price');
   await check(env, L + ' after trial use'); await checkNumbers(env, L + ' after trial use');
   /* อยากได้เท่าไร */
@@ -570,7 +589,7 @@ async function ownFlow(env, m, where, su, season, ramp) {
     const tot = await val(env, () => [document.querySelector('#sutot b').textContent, (document.querySelector('#sutyp') || {}).textContent, suTotals(window.__labOpen.state.op, window.__labOpen.state.inp)]);
     if (tot[0] !== fmtNode(wantAll) || Math.abs(tot[2].all - wantAll) > 0.01) problem(L, 'su total ' + tot[0] + ' / ' + tot[2].all + ' want ' + wantAll);
     if (Math.abs(tot[2].equip - wantEquip) > 0.01) problem(L, 'equipment total ' + tot[2].equip + ' want ' + wantEquip + ' (incl. other set to equipment)');
-    if (!tot[1] || tot[1].indexOf('อุปกรณ์ ' + fmtNode(wantEquip)) < 0) problem(L, 'type line «' + tot[1] + '»');
+    if (!tot[1] || tot[1].indexOf('อุปกรณ์ใช้หลายปี ' + fmtNode(wantEquip)) < 0) problem(L, 'type line «' + tot[1] + '»');
     /* สลับเป็นก้อนเดียว: ใส่ยอดรวมจากรายการให้ (ไม่รวมค่าเช่าช่วงตกแต่ง) แล้วสลับกลับ รายการยังอยู่ */
     await chip(env, 'op.mode', 'lump');
     const lp = await val(env, () => [window.__labOpen.state.op.lump, document.querySelector('#f-op-lump').value]);
@@ -595,8 +614,8 @@ async function ownFlow(env, m, where, su, season, ramp) {
   await fill(env, '#f-op-savings', savings);
   const strip = await val(env, () => (document.querySelector('#strip .rs-v') || {}).textContent);
   await page.waitForTimeout(600);
-  const strip2 = await val(env, () => [document.querySelector('#strip .rs-k').textContent, document.querySelector('#strip .rs-v').textContent, fmtN(window.__labOpen.R0().base.need)]);
-  if (strip2[0] !== 'ต้องมีเงินทั้งหมด' || strip2[1] !== strip2[2] + 'บาท') problem(L, 'live strip on save ' + JSON.stringify(strip2) + ' was ' + strip);
+  const strip2 = await val(env, () => { const B = window.__labOpen.R0().base; return [document.querySelector('#strip .rs-k').textContent, document.querySelector('#strip .rs-v').textContent, B.endless ? 'เงินเท่าไรก็ไม่พอ' : fmtN(B.need) + 'บาท']; });
+  if (strip2[0] !== 'ต้องมีเงินทั้งหมด' || strip2[1] !== strip2[2]) problem(L, 'live strip on save ' + JSON.stringify(strip2) + ' was ' + strip);
   await check(env, L + ' save');
   const btn = await val(env, () => document.querySelector('#foot [data-act="step-next"]').textContent);
   if (!/ดูผล/.test(btn)) problem(L, 'last step button «' + btn + '»');

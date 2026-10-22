@@ -165,7 +165,7 @@ const BASE_OP = { where: 'shop', fit: 1, openMonth: 5, seasonAsked: 'no', ramp: 
   f = F({}, { savings: 100000 }); chk(/ไม่พอจ่ายเงินก่อนเปิดร้าน/.test(f[0][4]), '9.2 not enough even before opening', f[0][4]);
   f = F({ volume: 30 }, { savings: 900000 }); chk(ids(f).includes('loss'), '9.3 expected sales below break-even', ids(f));
   f = F({ volume: 42 }, { savings: 900000 }); chk(ids(f).includes('nopay') && !ids(f).includes('loss'), '9.4 profit tiny → not paid back in 5 years', ids(f));
-  f = F({}, {}); chk(ids(f).join() === 'sens-over,thin', '9.5 cafe: overrun makes money short, tight point under 1 month of costs', ids(f));
+  f = F({}, {}); chk(ids(f).join() === 'sens-over,thin,forgot2', '9.5 cafe: overrun makes money short, tight point under 1 month of costs', ids(f));
   f = F({}, { savings: 205000 }); chk(ids(f).includes('lowshort'), '9.6 sales −20% → money short', ids(f));
   f = F({ ownerSalary: 0 }, { savings: 900000 }); chk(ids(f).includes('noown'), '9.7 no own salary', ids(f));
   f = F({}, { items: [{ k: 'tools', amt: 60000, t: 'equip', y: 5 }], savings: 900000 }); chk(ids(f).includes('forgot'), '9.8 usual startup items missing', f.find(x => x[0] === 'forgot'));
@@ -185,11 +185,50 @@ const BASE_OP = { where: 'shop', fit: 1, openMonth: 5, seasonAsked: 'no', ramp: 
 {
   const T = run(`var out = []; ['cafe', 'online', 'salon'].forEach(function (k) { var S = opSample(k); var R = opCompute(S.inp, S.m, S.op); R.finds.forEach(function (f) { out.push(f.t, f.s, f.ml || ''); }); });
     var op = JSON.parse(JSON.stringify(V.op)); op.savings = 100000; var R = opCompute(V.inp, 'unit', op); R.finds.forEach(function (f) { out.push(f.t, f.s); });
-    Object.keys(QB2).forEach(function (k) { out.push(QB2[k].q, QB2[k].p, QB2[k].d); }); Object.keys(SENS_TXT).forEach(function (k) { out.push(SENS_TXT[k](10, R)); }); return out;`, { inp: BASE_INP, op: BASE_OP });
+    Object.keys(QB2).forEach(function (k) { [qb2(k, 'shop'), qb2(k, 'online')].forEach(function (b) { out.push(b.q, b.p, b.d); }); }); Object.keys(SENS_TXT).forEach(function (k) { out.push(SENS_TXT[k](10, R)); }); return out;`, { inp: BASE_INP, op: BASE_OP });
   const all = T.join('\n');
   chk(!/ควร(?!เฝ้าระวัง)|เลิก|ต้องลด|ต้องขึ้น/.test(all), '11.1 no advice words', (all.match(/.{0,20}(ควร(?!เฝ้าระวัง)|เลิก|ต้องลด|ต้องขึ้น).{0,20}/) || [])[0]);
   chk(!/(^|[^A-Za-z])AI([^A-Za-z]|$)/.test(all), '11.2 no word AI');
   chk(!/NaN|undefined|Infinity/.test(all), '11.3 no NaN/undefined', (all.match(/.{0,30}(NaN|undefined|Infinity).{0,10}/) || [])[0]);
+}
+
+/* ============ 12) จุดที่ผู้ตรวจอิสระเจอ (กันไม่ให้กลับมา) ============ */
+{
+  const R = run(`var out = {};
+    function shop(inp, op) { var S = opSample('cafe'); return opCompute(Object.assign(S.inp, inp || {}), 'unit', Object.assign(S.op, op || {})); }
+    function fitsM(R, x) { return opSim({ inp: R.inp, op: R.op, mult: x }).need <= num(R.op.savings) + 1e-6; }
+    var a = shop({ creditDays: 30 }, { savings: 300000 }); out.c1 = { ok: a.enough.ok, min: a.enough.minVol, need: a.base.need };
+    var b = shop({ creditDays: 30 }, { savings: 262000 }); out.c2 = { ok: b.enough.ok, min: b.enough.minVol, fit2: fitsM(b, 2) };
+    var mm = b.enough.minVol / 60; out.c3 = { at: fitsM(b, mm), below: fitsM(b, mm * 0.995) };
+    out.st = a.stuck; var c1 = rampAt(a.curve, 1), cv = []; for (var i = 0; i < OP_H; i++) cv.push(c1); var sm = opSim({ inp: a.inp, op: a.op, curve: cv });
+    out.stBal = [sm.months[Math.floor(a.stuck.months) - 1] ? sm.months[Math.floor(a.stuck.months) - 1].bal : sm.start, sm.months[Math.ceil(a.stuck.months) - 1].bal];
+    var sh = { high: [3, 4, 5, 6], low: [], highPct: 40, lowPct: 0 }, d = shop({ season: sh }, { seasonAsked: 'yes' });
+    out.s1 = { be: d.S.be.vol, t: opTarget(d, 15000, null).income, sAvg: d.sAvg };
+    var e = shop({ season: { high: [], low: [1, 2, 3, 4, 5, 6, 7, 8], highPct: 0, lowPct: 50 } }, { seasonAsked: 'yes', savings: 2e6 });
+    out.s2 = e.finds.filter(function (f) { return f.id === 'loss'; }).map(function (f) { return f.s; });
+    var g = shop({ price: 20 }); out.en = { endless: g.base.endless, ids: g.finds.map(function (f) { return f.id; }), tail: g.base.tail };
+    var h = shop({}, { mode: 'lump', lump: 45000, fit: 0, savings: 50000, ramp: { p: 'now', c: [] } }); out.thin = h.finds.filter(function (f) { return f.id === 'thin'; }).map(function (f) { return f.s; });
+    var k = shop({}, { savings: 100000 }); out.before = k.stuck;
+    var used = []; Object.keys(QB2).forEach(function (q) { used = used.concat(qb2(q, 'shop').tools, qb2(q, 'online').tools); });
+    out.badTools = used.filter(function (t) { return OP_TOOL_OK.indexOf(t) < 0; });
+    out.onQ = ['sales_basis', 'price_check'].map(function (q) { return qb2(q, 'online').q + qb2(q, 'online').d; }).join(' ');
+    var sal = opSample('salon'), Rs = opCompute(sal.inp, sal.m, sal.op), dep = 0; sal.op.items.forEach(function (it) { if (it.t === 'equip') dep += it.amt / (it.y * 12); });
+    out.dep = [Rs.S.dep, dep];
+    var gr = shop({ growth: -2 }); out.gr = gr.finds.map(function (f) { return f.s; }).join(' ');
+    return out;`);
+  chk(R.c1.ok && R.c1.min !== null && R.c1.min <= 60, '12.1 credit 30 days, money enough → minimum sales shown (not "ขายเท่าไรก็ไม่พอ")', R.c1);
+  chk(!R.c2.fit2 || R.c2.min !== null, '12.2 credit 30 days, money short but 2× sales fits → minimum sales found', R.c2);
+  chk(R.c3.at && !R.c3.below, '12.3 minimum sales is the first level where the money is enough', R.c3);
+  chk(R.st && R.st.months > 2.41 && R.stBal[0] >= -0.5 && R.stBal[1] < 0, '12.4 sales stuck at month 1 with credit days: counted month by month', [R.st, R.stBal]);
+  chk(Math.ceil(R.s1.t - 1e-9) === Math.ceil(R.s1.be - 1e-9), '12.5 with season: target at own salary = break-even per day', R.s1);
+  chk(R.s2.length === 1 && /เฉลี่ยทั้งปี/.test(R.s2[0]), '12.6 with season: loss finding compares the yearly average', R.s2);
+  chk(R.en.endless && R.en.ids.includes('endless') && !R.en.ids.includes('short') && R.en.tail < 0, '12.7 shop loses cash every month at full sales → "เงินเท่าไรก็ไม่พอ", no 5-year total', R.en);
+  chk(R.thin.length === 1 && /ตอนจ่ายเงินก่อนเปิดร้าน/.test(R.thin[0]), '12.8 tightest point before opening → not "เดือนที่ 1"', R.thin);
+  chk(R.before && R.before.before, '12.9 savings below startup → stuck tile says not enough', R.before);
+  chk(!R.badTools.length, '12.10 PL1 tools only from the approved list', R.badTools);
+  chk(!/ทำเล|แถวนั้น/.test(R.onQ), '12.11 online questions use channel wording, not location', R.onQ);
+  near(R.dep[0], R.dep[1], 0.01, '12.12 equipment set-aside = sum of the items (years not rounded)');
+  chk(/ลดลงเดือนละ 2%/.test(R.gr) || !/คืนทุนภายใน 5 ปี/.test(R.gr), '12.13 negative growth from tool 1 named in the no-payback finding', R.gr);
 }
 
 console.log(n + ' checks');

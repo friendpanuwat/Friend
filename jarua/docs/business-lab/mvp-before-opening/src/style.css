@@ -40,7 +40,9 @@
 .su2.auto { gap: 4px; }
 .su2.auto .fine4 { margin: 0; }
 .su-h { display: flex; align-items: center; gap: 8px; }
-.su-n { flex: 1; min-width: 0; font-weight: 700; font-size: 15px; overflow-wrap: anywhere; }
+.su-n { flex: 1; min-width: 0; font-weight: 700; font-size: 15px; overflow-wrap: break-word; }
+.su2 .qm i, .su2 .qm-tx { background: var(--surface); }
+.su2 .qm[aria-expanded="true"] i { background: var(--ink); }
 .tg2 { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--surface); white-space: nowrap; }
 .tg2.t-back { box-shadow: inset 0 0 0 1.5px var(--ink); }
 .tg2.t-stock { background: var(--surface-2); }
@@ -55,7 +57,9 @@
 .ovg.m4 { margin-top: 10px; }
 .ovg.m4 .ovt { min-height: 128px; }
 .ovg.m4 .ovt .v { font-size: 24px; }
-.ovg.m4 .ovt .n { overflow-wrap: anywhere; }
+.ovg.m4 .ovt .n { overflow-wrap: break-word; }
+.ovg.m4 > .qm-tx { grid-column: 1 / -1; margin: 0; }
+.ovg.m4 .ovt .k .qm { margin: -12px -10px -10px 0; }
 .cash2, .enough2, .rank2, .back2 { margin-top: 12px; display: grid; gap: 10px; }
 .cash2 .chart { margin-top: 0; }
 .en2 { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; background: var(--surface); border-radius: 14px; padding: 10px 14px; min-height: 52px; }
@@ -78,3 +82,12 @@
 .t1l { display: inline-flex; margin-top: 16px; }
 @media (prefers-reduced-motion: reduce) { .rk2 i b, .rb i { animation: none !important; transition: none !important; } }
 .rampw { overflow-x: auto; margin: 0 -2px; padding: 0 2px 4px; }
+
+/* เงินเท่าไรก็ไม่พอ (ยอดขายเต็มแล้วยังขาดเงินทุกเดือน) */
+.bignum.endless { font-family: var(--font-th); font-size: 34px; line-height: 1.25; letter-spacing: -0.01em; }
+.rv-row.static { cursor: default; grid-template-columns: 1fr; }
+.xtra { margin: 10px 2px 0; }
+.om-h { margin: 2px 2px 0; }
+/* ช่องที่ยังขาดในแถว 2 ช่อง: กรอบไม่ทับช่องข้าง ๆ */
+.two > .field.need { margin: -6px; padding: 6px; }
+@media (max-width: 374px) { .foot2 .btn svg { display: none; } .foot2 .btn { padding: 0 12px; } }

@@ -75,8 +75,8 @@ const say = (ok, label, extra) => { if (!ok) bad++; else oks++; console.log((ok 
     say(sh.model === 'unit' && sh.label === (await page.evaluate(() => MODELS.unit.tile)), 'model and label', [sh.model, sh.label]);
     say(sh.inp.preOpen === 1, 'preOpen 1');
     say(Math.abs(sh.inp.cash - (220000 - T.all)) < 0.01 && T.all === 99000 + 12000, 'cash = savings − startup total (incl. 1 month rent while fitting): ' + sh.inp.cash, { cash: sh.inp.cash, all: T.all });
-    const ey = Math.round(65000 / (60000 / 5 + 5000 / 3) * 100) / 100;
-    say(sh.inp.equipValue === 65000 && sh.inp.equipYears === ey, 'equipValue 65000 and equipYears ' + ey, [sh.inp.equipValue, sh.inp.equipYears]);
+    const ey = 65000 / (60000 / 5 + 5000 / 3);
+    say(sh.inp.equipValue === 65000 && Math.abs(sh.inp.equipYears - ey) < 1e-9, 'equipValue 65000 and equipYears ' + ey, [sh.inp.equipValue, sh.inp.equipYears]);
     say(sh.inp.advMode === 'yes' && sh.inp.advPick.indexOf('adv-equip') >= 0 && sh.inp.advPick.indexOf('adv-season') >= 0, 'advMode yes with adv-equip and adv-season', [sh.inp.advMode, sh.inp.advPick]);
     say(JSON.stringify(sh.inp.season.high) === '[4]' && sh.inp.season.highPct === 25, 'season shared', sh.inp.season);
     say(sh.ok === true, 'shared numbers complete (ok) for the other tools', sh.ok);
@@ -131,6 +131,7 @@ const say = (ok, label, extra) => { if (!ok) bad++; else oks++; console.log((ok 
     await tap('[data-act="sample1"][data-k="online"]', 200);
     await tap('[data-act="sc"][data-v="low"]');
     say((await shop()) === null, 'fresh session: one-tap sample writes no shared numbers', await shop());
+    say((await page.evaluate(() => sessionStorage.getItem('lab-where'))) === null, 'fresh session: one-tap sample does not set "ขายที่ไหน" for the other tools');
 
     /* ===== 3. มีตัวเลขร้านแบบเดียวกัน (จากตัวที่ 1) → ข้ามค่าใช้จ่ายทุกเดือน ===== */
     const t1 = await page.evaluate(() => { const i = JSON.parse(JSON.stringify(MODELS.unit.sample)); i.advMode = 'yes'; i.advPick = ['adv-cap']; return { model: 'unit', inp: i, label: MODELS.unit.tile, ok: true }; });
@@ -185,6 +186,27 @@ const say = (ok, label, extra) => { if (!ok) bad++; else oks++; console.log((ok 
     await page.goto(TEST_URL); await page.waitForTimeout(200);
     s = await st();
     say(s.model === 'service' && s.inp.rent === 33333 && s.link === 'local', 'reopen: still the service shop, linked to the shared fixed costs', [s.model, s.inp.rent, s.link]);
+
+    /* ===== 5. จุดที่ผู้ตรวจอิสระเจอ ===== */
+    /* แค่เปิดดูตัวที่ 2 ไม่ทำให้ตัวเลขของร้านที่เปิดแล้วขึ้นป้าย "ตัวเลขที่ตั้งใจไว้ก่อนเปิดร้าน" */
+    await reopen({ put: t1 });
+    await tap('[data-act="where"][data-v="shop"]');
+    await tap('[data-act="model"][data-m="unit"]', 150);
+    sh = await shop();
+    say(sh.inp.preOpen === undefined && sh.inp.cash === t1.inp.cash, 'only opening tool 2 (no answers yet) → no preOpen, cash untouched', [sh.inp.preOpen, sh.inp.cash, t1.inp.cash]);
+    /* ตอบครบ (ไม่มีเดือนขายดีขายแย่) → ตัวที่ 1 แก้ฤดูกาล อุปกรณ์ เงินสด → เปิดตัวที่ 2 อีกครั้ง ค่าที่แก้ต้องอยู่ */
+    await walk(Object.assign({}, A, { open: async () => { await chip('op.fit', 1); await tap('[data-path="op.openMonth"][data-v="5"]'); await chip('op.seasonAsked', 'no'); } }), 'season no');
+    sh = await shop();
+    say(sh.inp.preOpen === 1, 'answered in tool 2 → preOpen 1', sh.inp.preOpen);
+    await page.evaluate(() => { const d = JSON.parse(sessionStorage.getItem('lab-shop')); d.inp.season = { high: [12], low: [6], highPct: 30, lowPct: 20 }; d.inp.equipValue = 120000; d.inp.equipYears = 6; d.inp.cash = 90000; d.inp.advPick = (d.inp.advPick || []).concat(['adv-season']); sessionStorage.setItem('lab-shop', JSON.stringify(d)); });
+    await page.goto(TEST_URL); await page.waitForTimeout(250);
+    sh = await shop(); s = await st();
+    say(sh.inp.equipValue === 120000 && sh.inp.equipYears === 6 && sh.inp.cash === 90000, 'reopen after tool-1 edits: equipment and cash not written back', [sh.inp.equipValue, sh.inp.equipYears, sh.inp.cash]);
+    say(sh.inp.season && sh.inp.season.high.join() === '12' && s.op.seasonAsked === 'yes', 'season added in tool 1 kept, answer becomes "มี"', [sh.inp.season, s.op.seasonAsked]);
+    /* ตัวที่ 2 เปลี่ยนเงินที่มี → เงินสดเขียนใหม่ */
+    await tap('#foot [data-act="review"]'); await tap('.rv-row[data-v="save"]'); await fill('#f-op-savings', 250000); await tap('#foot [data-act="step-done"]', 150);
+    sh = await shop(); T = await totals();
+    say(Math.abs(sh.inp.cash - (250000 - T.all)) < 0.01 && sh.inp.equipValue === 120000, 'savings changed in tool 2 → cash rewritten; equipment (unchanged in tool 2) kept', [sh.inp.cash, 250000 - T.all, sh.inp.equipValue]);
   } catch (e) { say(false, 'crashed: ' + e.message.split('\n').slice(0, 3).join(' ')); }
   say(!errors.length, 'no console errors', errors.slice(0, 5));
   await browser.close();

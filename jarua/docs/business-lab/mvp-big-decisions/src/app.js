@@ -1054,7 +1054,7 @@
     var out = head + '<main class="screen res3"><div class="wrap">';
     if (state.isSample) out += '<div class="banner"><span>นี่คือ' + esc(sampleName()) + '</span><button class="lnk" data-act="to-shop">ใส่ตัวเลขร้านคุณ</button></div>';
     /* ตัวเลขจากตัวที่ 2 (ยังไม่เปิดร้าน): บอกว่าเป็นตัวเลขที่ตั้งใจไว้ · แตะ "ร้านเปิดแล้ว" = ใช้เป็นตัวเลขจริง */
-    else if (state.inp && state.inp.preOpen) out += '<div class="banner pre-open"><span>ตัวเลขที่ตั้งใจไว้ก่อนเปิดร้าน (จากเช็กก่อนเปิดร้าน)</span><button class="lnk" data-act="opened">ร้านเปิดแล้ว</button></div>';
+    else if (state.inp && state.inp.preOpen) out += '<div class="banner pre-open"><span>ตัวเลขที่ตั้งใจไว้ก่อนเปิดร้าน <span class="nw">(จากเช็กก่อนเปิดร้าน)</span></span><button class="lnk" data-act="opened">ร้านเปิดแล้ว</button></div>';
     out += '<div class="try3" id="try3" aria-live="polite">' + tryHtml(P) + '</div>';
     out += '<section class="hero3" id="hero">' + heroHtml(R, P, ((P.have > 0 || P.showHave) && !pUnk(P)) || wiVal() !== null ? v : null) + '</section>';
     out += lanesBox(R);

@@ -202,6 +202,9 @@ main { padding-bottom: calc(var(--foot-h) + 40px + env(safe-area-inset-bottom, 0
 
 /* ---------- home ---------- */
 .banner { margin-top: 4px; margin-bottom: 12px; padding: 0 6px 0 16px; min-height: 48px; border-radius: 999px; background: var(--card); box-shadow: var(--shadow); font-size: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+/* ป้ายตัวเลขจากเช็กก่อนเปิดร้าน: ข้อความยาวขึ้น 2 บรรทัดได้ จึงใช้มุมมนแบบการ์ด */
+.banner.pre-open { border-radius: var(--r-sm); padding: 8px 6px 8px 16px; }
+.banner.pre-open > span { flex: 1 1 180px; min-width: 0; line-height: 1.45; }
 .flist { display: grid; gap: 8px; }
 .frow { width: 100%; text-align: left; border: 0; background: var(--card); border-radius: var(--r); padding: 16px; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center; box-shadow: var(--shadow); min-height: 76px; }
 .frow .ft { font-weight: 700; font-size: 16px; line-height: 1.4; grid-column: 1; }

@@ -437,7 +437,7 @@
     var out = head + '<main class="screen"><div class="wrap">';
     if (state.isSample) out += '<div class="banner"><span>นี่คือร้านกาแฟตัวอย่าง</span><button class="lnk" data-act="to-start">ใส่ตัวเลขร้านคุณ</button></div>';
     /* ตัวเลขจากตัวที่ 2 (ยังไม่เปิดร้าน): บอกว่าเป็นตัวเลขที่ตั้งใจไว้ · แตะ "ร้านเปิดแล้ว" = ใช้เป็นตัวเลขจริง */
-    else if (state.inp.preOpen) out += '<div class="banner pre-open"><span>ตัวเลขที่ตั้งใจไว้ก่อนเปิดร้าน (จากเช็กก่อนเปิดร้าน)</span><button class="lnk" data-act="opened">ร้านเปิดแล้ว</button></div>';
+    else if (state.inp.preOpen) out += '<div class="banner pre-open"><span>ตัวเลขที่ตั้งใจไว้ก่อนเปิดร้าน <span class="nw">(จากเช็กก่อนเปิดร้าน)</span></span><button class="lnk" data-act="opened">ร้านเปิดแล้ว</button></div>';
     var pk = S.profit < 0 ? 'ขาดทุนต่อเดือน' : 'กำไรต่อเดือน';
     out += '<section class="panel"><div class="eyebrow hq"><span><span>' + pk + '</span>' + (state.isSample ? ' <span class="tag">ตัวอย่าง</span>' : '') + '</span>' + qmBtn('hp', pk) + '</div>' +
       '<div class="bignum">' + (S.profit < 0 ? '−' : '') + anim('hp', S.profit) + '<span class="u">บาท</span></div>' +

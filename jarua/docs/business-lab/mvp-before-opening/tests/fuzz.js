@@ -90,6 +90,8 @@ all.forEach((s, i) => {
     if (o.atMin !== undefined && o.atMin > o.save + Math.max(1, o.save * 1e-6)) problem(i, 'not enough at the minimum sales', [o.atMin, o.save]);
     if (o.belowMin !== undefined && o.belowMin !== null && o.belowMin <= o.save - 1e-6 && o.E.minVol > 1e-6) problem(i, 'still enough below the minimum sales', [o.belowMin, o.save, o.E.minVol]);
     if (o.E.ok && (o.E.delay === null || o.E.delay < 0)) problem(i, 'enough but no delay value', o.E);
+    /* เงินพอแล้ว ยอดขายที่คาด (×1) ก็พอ จึงต้องมียอดขายน้อยที่สุดเสมอ (รวมร้านที่ลูกค้าจ่ายช้า) */
+    if (o.E.ok && (o.E.minVol === null || o.E.minVol > n0c(s.inp.volume) + 1e-6)) problem(i, 'enough but no minimum sales (or above expected)', o.E);
   } else if (o.save !== null) problem(i, 'savings given but no enough card');
   if (/NaN|undefined|Infinity|\[object/.test(o.txt)) problem(i, 'bad text', (o.txt.match(/.{0,30}(NaN|undefined|Infinity|\[object).{0,20}/) || [])[0]);
   if (o.T.income !== null && !(o.T.income >= 0)) problem(i, 'target income negative', o.T);

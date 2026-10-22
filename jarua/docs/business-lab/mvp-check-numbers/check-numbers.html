@@ -208,6 +208,9 @@ main { padding-bottom: calc(var(--foot-h) + 40px + env(safe-area-inset-bottom, 0
 
 /* ---------- home ---------- */
 .banner { margin-top: 4px; margin-bottom: 12px; padding: 0 6px 0 16px; min-height: 48px; border-radius: 999px; background: var(--card); box-shadow: var(--shadow); font-size: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+/* ป้ายตัวเลขจากเช็กก่อนเปิดร้าน: ข้อความยาวขึ้น 2 บรรทัดได้ จึงใช้มุมมนแบบการ์ด */
+.banner.pre-open { border-radius: var(--r-sm); padding: 8px 6px 8px 16px; }
+.banner.pre-open > span { flex: 1 1 180px; min-width: 0; line-height: 1.45; }
 .flist { display: grid; gap: 8px; }
 .frow { width: 100%; text-align: left; border: 0; background: var(--card); border-radius: var(--r); padding: 16px; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center; box-shadow: var(--shadow); min-height: 76px; }
 .frow .ft { font-weight: 700; font-size: 16px; line-height: 1.4; grid-column: 1; }
@@ -3349,7 +3352,7 @@ function compactTH(n) {
     var out = head + '<main class="screen"><div class="wrap">';
     if (state.isSample) out += '<div class="banner"><span>นี่คือร้านกาแฟตัวอย่าง</span><button class="lnk" data-act="to-start">ใส่ตัวเลขร้านคุณ</button></div>';
     /* ตัวเลขจากตัวที่ 2 (ยังไม่เปิดร้าน): บอกว่าเป็นตัวเลขที่ตั้งใจไว้ · แตะ "ร้านเปิดแล้ว" = ใช้เป็นตัวเลขจริง */
-    else if (state.inp.preOpen) out += '<div class="banner pre-open"><span>ตัวเลขที่ตั้งใจไว้ก่อนเปิดร้าน (จากเช็กก่อนเปิดร้าน)</span><button class="lnk" data-act="opened">ร้านเปิดแล้ว</button></div>';
+    else if (state.inp.preOpen) out += '<div class="banner pre-open"><span>ตัวเลขที่ตั้งใจไว้ก่อนเปิดร้าน <span class="nw">(จากเช็กก่อนเปิดร้าน)</span></span><button class="lnk" data-act="opened">ร้านเปิดแล้ว</button></div>';
     var pk = S.profit < 0 ? 'ขาดทุนต่อเดือน' : 'กำไรต่อเดือน';
     out += '<section class="panel"><div class="eyebrow hq"><span><span>' + pk + '</span>' + (state.isSample ? ' <span class="tag">ตัวอย่าง</span>' : '') + '</span>' + qmBtn('hp', pk) + '</div>' +
       '<div class="bignum">' + (S.profit < 0 ? '−' : '') + anim('hp', S.profit) + '<span class="u">บาท</span></div>' +

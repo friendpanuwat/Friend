@@ -18,15 +18,13 @@ var OP_TOOLS = {
   idea7: ['เทียบทำเลและวางงบเปิดร้าน', 'เลือกทำเล และวางงบให้เงินไม่หมดก่อนร้านตั้งตัว'],
   ver5: ['เช็กความพร้อมก่อนเปิดร้าน', 'รู้ว่าพร้อมแค่ไหน ก่อนเซ็นสัญญาหรือจ่ายเงินก้อนใหญ่'],
   ver4: ['เปลี่ยนไอเดียเป็นแผนเริ่มต้น', 'เริ่มทีละขั้น พิสูจน์ว่ามีคนซื้อก่อนลงเงิน'],
-  ver1: ['เช็กจุดต่างจากคู่แข่ง', 'รู้ว่าจุดเด่นไหนต่างจริง และตลาดแน่นจริงไหม'],
   cust8: ['ค้นหาลูกค้าเป้าหมายก่อนเริ่มธุรกิจ', 'รู้ว่าควรขายให้ใครก่อน และพิสูจน์ก่อนลงเงิน'],
   idea3: ['หาไอเดียธุรกิจตามงบที่มี', 'รู้ว่างบนี้ทำอะไรได้ และใช้เงินก้อนแรกอย่างไร'],
-  idea5: ['หาไอเดียธุรกิจที่เสี่ยงเท่าที่รับได้', 'เริ่มธุรกิจโดยไม่เสี่ยงเกินที่คุณรับไหว'],
   idea6: ['เปรียบเทียบไอเดียธุรกิจ', 'เทียบไอเดียตามเรื่องที่คุณให้ความสำคัญ แล้วเลือกให้หนึ่งอย่าง'],
-  goal3: ['วางแผนเปิดตัวสินค้าหรือบริการ', 'เปิดตัวแบบเสี่ยงน้อย มีด่านตรวจทุกขั้น'],
-  goal4: ['เตรียมแผนรับมือเหตุไม่คาดฝัน', 'รู้ล่วงหน้าว่าวันที่เกิดเรื่องต้องทำอะไร'],
-  grow14: ['วิเคราะห์ความเหมาะสมของทำเล', 'ดูว่าทำเลฉุดจริงไหม และแก้อะไรได้ก่อนคิดย้าย']
+  idea1: ['หาไอเดียธุรกิจจากตัวคุณ', 'เปลี่ยนสิ่งที่คุณถนัดเป็นไอเดียที่ขายได้']
 };
+/* ใช้เฉพาะ 7 ตัวที่เจ้าของตกลงใน proposal.html (idea7 ver5 ver4 cust8 idea3 idea6 idea1) */
+var OP_TOOL_OK = Object.keys(OP_TOOLS);
 if (typeof TOOLS !== 'undefined') Object.keys(OP_TOOLS).forEach(function (k) { if (!TOOLS[k]) TOOLS[k] = OP_TOOLS[k]; });
 
 /* ---------- เงินก่อนเปิดร้าน ----------
@@ -80,7 +78,7 @@ function suTotals(op, inp) {
 function suEquip(op) {
   var v = 0, d = 0;
   if (op.mode !== 'lump') (op.items || []).forEach(function (it) { if (it.t === 'equip' && pos(it.amt) && pos(it.y)) { v += pos(it.amt); d += pos(it.amt) / pos(it.y); } });
-  return v > 0 && d > 0 ? { value: v, years: Math.round(v / d * 100) / 100 } : null;
+  return v > 0 && d > 0 ? { value: v, years: v / d } : null;
 }
 
 /* ---------- ยอดขายเดือนแรก ๆ ----------
@@ -151,7 +149,9 @@ function opSim(o) {
     if (payA === null && cum >= all - 1e-6) payA = mm;
   });
   var need = all - low;
-  return { months: months, all: all, spent: spent, low: low, lowM: lowM, need: need, save: save,
+  /* ปีที่ 5 เงินที่เหลือรวมยังไม่เป็นบวก = ยอดขายเต็มแล้วเงินยังออกมากกว่าเข้า · เงินที่ต้องมีจึงไม่มีจุดจบ (5 ปีเป็นแค่ที่คิดถึง) */
+  var tail = 0; for (var q = OP_H - 12; q < OP_H; q++) tail += months[q].net;
+  return { months: months, all: all, spent: spent, low: low, lowM: lowM, need: need, save: save, endless: tail / 12 < -0.5, tail: tail / 12,
     left: save === null ? null : save - need, payS: payS, payA: payA, F: F, U: U,
     net1: months[0].net, start: save === null ? null : save - all };
 }
@@ -165,14 +165,17 @@ function opCompute(inp, m, op) {
   R.full = rampFull(R.curve);
   R.days = daysOf(inp);
   R.perDay = inp.volumePer !== 'month';
-  R.cu = S.volMonth > 0 ? S.contribution / S.volMonth : 0;     /* เงินที่เหลือต่อชิ้น หลังต้นทุนและค่าธรรมเนียม */
+  R.cu = S.volMonth > 0 ? S.contribution / S.volMonth : 0;     /* เงินที่เหลือต่อชิ้น หลังต้นทุนและค่าธรรมเนียม (เฉลี่ยรวมเดือนขายดีขายแย่) */
+  /* เดือนขายดีขายแย่: ยอดขายเฉลี่ยทั้งปี = ยอดขายเดือนปกติ × sAvg · จุดคุ้มทุนของตัวคำนวณ PL2 เทียบกับยอดเฉลี่ยนี้ */
+  var cu0 = n0(inp.price) * (1 - n0(inp.feePct) / 100) - n0(inp.unitCost);
+  R.sAvg = hasSeason(inp) && cu0 > 0 && R.cu > 0 ? R.cu / cu0 : 1;
   var r = (pos(op.range) || 20) / 100;
   R.range = r * 100;
   R.sc = { low: opSim({ inp: inp, op: op, mult: 1 - r }), mid: opSim({ inp: inp, op: op }), high: opSim({ inp: inp, op: op, mult: 1 + r }) };
   R.base = R.sc.mid;
   /* ยอดขายค้างที่เดือนแรก / ไม่มียอดขายเลย: เงินที่เหลือหลังจ่ายเงินก่อนเปิดอยู่ได้กี่เดือน */
   var st = R.base.start;
-  R.stuck = st === null ? null : R.base.net1 >= 0 ? { none: true } : { months: Math.max(0, st) / -R.base.net1, burn: -R.base.net1 };
+  R.stuck = opStuck(R, 1);
   R.zero = st === null ? null : { months: Math.max(0, st) / R.base.F };
   R.enough = opEnough(R);
   R.sens = opSens(R);
@@ -190,13 +193,33 @@ function bisect(cond, lo, hi) {
 /* ยอดขายต่อวัน (หรือต่อเดือน) ในหน่วยที่ผู้ใช้กรอก จากตัวคูณยอดขาย */
 function volAt(R, mult) { return n0(R.inp.volume) * mult; }
 
-/* ---------- เงินพอ ถ้า… (ทีละเรื่อง เรื่องอื่นเป็นไปตามที่คาด) ---------- */
+/* ยอดขายค้างที่เดือนแรก (ไม่ขึ้นอีกเลย): เงินที่เหลือหลังจ่ายเงินก่อนเปิดร้านอยู่ได้กี่เดือน · คิดเดือนต่อเดือน (รวมลูกค้าจ่ายช้า เดือนขายดีขายแย่) */
+function opStuck(R, mult) {
+  var st = R.base.start;
+  if (st === null) return null;
+  if (st < -0.5) return { months: 0, before: true };
+  var c1 = rampAt(R.curve, 1), cv = []; for (var i = 0; i < OP_H; i++) cv.push(c1);
+  var s = opSim({ inp: R.inp, op: R.op, curve: cv, mult: mult }), prev = st;
+  for (var k = 0; k < s.months.length; k++) {
+    var x = s.months[k];
+    if (x.bal < -0.5) return { months: k + (x.net < 0 ? Math.max(0, prev) / -x.net : 0), burn: -x.net, level: c1 };
+    prev = x.bal;
+  }
+  return { none: true, level: c1 };
+}
+
+/* ---------- เงินพอ ถ้า… (ทีละเรื่อง เรื่องอื่นเป็นไปตามที่คาด) ----------
+   ยอดขายน้อยที่สุดที่เงินพอ: ไล่จากน้อยไปมาก (ลูกค้าจ่ายช้า ขายมากขึ้นอาจต้องใช้เงินมากขึ้นช่วงแรก เงินที่ต้องมีจึงไม่ลดลงตามยอดขายเสมอ) */
+var EN_GRID = (function () { var g = [], x; for (x = 0; x < 2 - 1e-9; x += 0.02) g.push(Math.round(x * 100) / 100); for (x = 2; x <= 20 + 1e-9; x += 0.1) g.push(Math.round(x * 10) / 10); return g; })();
 function opEnough(R) {
   var inp = R.inp, op = R.op, save = num(op.savings);
   if (save === null) return null;
   var fits = function (o) { return opSim(Object.assign({ inp: inp, op: op }, o)).need <= save + 1e-6; };
   var E = { save: save, ok: R.base.need <= save + 1e-6 };
-  var mv = bisect(function (x) { return fits({ mult: x }); }, 0, 20);
+  var mv = null, fm = function (x) { return fits({ mult: x }); };
+  for (var gi = 0; gi < EN_GRID.length; gi++) {
+    if (fm(EN_GRID[gi])) { mv = gi === 0 ? 0 : bisect(fm, EN_GRID[gi - 1], EN_GRID[gi]); break; }
+  }
   E.minVol = mv === null ? null : volAt(R, mv);
   /* ยอดขายเต็มช้าได้อีกกี่เดือน */
   E.delay = null;
@@ -230,8 +253,9 @@ function opSens(R) {
 function opTarget(R, income, months) {
   var inp = R.inp, op = R.op, S = R.S, out = {};
   if (income !== null && income !== undefined) {
-    var need = fixedTotal(inp) - n0(inp.ownerSalary) + Math.max(0, income) + S.dep;
-    out.income = R.cu > 0 ? need / R.cu / (R.perDay ? R.days : 1) : null;
+    /* ฐานเดียวกับ "ขายเท่าไรถึงไม่ขาดทุน" (ยอดเฉลี่ยทั้งปี) · อยากได้เท่าเงินเดือนตัวเองที่ใส่ไว้ = ตัวเลขเดียวกัน */
+    var need = fixedTotal(inp) - n0(inp.ownerSalary) + Math.max(0, income) + S.dep, cu0 = R.cu / R.sAvg;
+    out.income = cu0 > 0 ? need / cu0 / (R.perDay ? R.days : 1) : null;
   }
   if (pos(months)) {
     var mv = bisect(function (x) { var s = opSim({ inp: inp, op: op, mult: x }); return s.payS !== null && s.payS <= months; }, 0, 50);
@@ -244,39 +268,55 @@ function opTarget(R, income, months) {
 var OP_LV = { high: 0, mid: 1, watch: 2, note: 3 };
 function opFinds(R) {
   var F = [], B = R.base, S = R.S, inp = R.inp, op = R.op, u = U(inp, R.m), perW = R.perDay ? 'วันละ' : 'เดือนละ';
-  if (B.left !== null && B.left < -0.5) {
-    var neg = null; B.months.forEach(function (x) { if (neg === null && x.bal < 0) neg = x.m; });
+  var neg = null; B.months.forEach(function (x) { if (neg === null && x.bal !== null && x.bal < -0.5) neg = x.m; });
+  if (B.endless) {
+    /* ยอดขายเต็มแล้วยังขาดเงินทุกเดือน: เงินที่ต้องมีไม่มีจุดจบ ไม่บอกเป็นยอดรวม 5 ปี */
+    F.push({ id: 'endless', lv: 'high', money: -B.tail, ml: 'ขาดเดือนละ', mabs: true,
+      t: 'ยอดขายเต็มแล้ว เงินที่ออกยังมากกว่าเงินที่เข้าทุกเดือน เงินเท่าไรก็ไม่พอ', s: B.start !== null && B.start < -0.5 ? 'เงินที่มีไม่พอจ่ายเงินก่อนเปิดร้าน' : neg ? 'เงินที่มีหมดในเดือนที่ ' + neg + ' หลังเปิดร้าน' : 'เงินที่มีพอ 5 ปีแรก แล้วยังขาดต่อ', q: ['sales_basis', 'price_check', 'startup_quote'] });
+  } else if (B.left !== null && B.left < -0.5) {
     F.push({ id: 'short', lv: 'high', money: -B.left, ml: 'ขาดอีก', mabs: true,
       t: 'เงินที่มีไม่พอ ขาดอีก ' + fmtN(-B.left) + ' บาท', s: B.start < 0 ? 'ไม่พอจ่ายเงินก่อนเปิดร้าน' : 'เงินหมดในเดือนที่ ' + neg + ' หลังเปิดร้าน', q: ['startup_quote', 'own_buffer', 'test_first'] });
   }
+  var seas = Math.abs(R.sAvg - 1) > 1e-6;
   if (S.profit < -0.5) {
     var be = S.be && S.be.vol;
+    /* มีเดือนขายดีขายแย่: เทียบยอดเฉลี่ยทั้งปีกับยอดที่ไม่ขาดทุน (ฐานเดียวกับตัวคำนวณ PL2) */
     F.push({ id: 'loss', lv: 'high', money: S.profit, ml: 'ขาดทุนเดือนละ', mabs: true,
-      t: 'ยอดขายที่คาดไว้ยังต่ำกว่าจุดคุ้มทุน', s: be ? 'คาดไว้' + perW + ' ' + fmtN(n0(inp.volume), 1) + ' ' + u + ' · จุดคุ้มทุน' + perW + ' ' + fmtN(Math.ceil(be - 1e-9)) + ' ' + u : 'ขายเท่าไรก็ยังขาดทุน เพราะต้นทุนและค่าธรรมเนียมเกินราคาขาย', q: ['sales_basis', 'price_check'] });
+      t: 'ยอดขายที่คาดไว้ยังไม่พอให้ร้านไม่ขาดทุน', s: be ? (seas ? 'คาดไว้เฉลี่ยทั้งปี' : 'คาดไว้') + perW + ' ' + fmtN(n0(inp.volume) * R.sAvg, 1) + ' ' + u + ' · ไม่ขาดทุนต้องขาย' + perW + ' ' + fmtN(Math.ceil(be - 1e-9)) + ' ' + u : 'ขายเท่าไรก็ยังขาดทุน เพราะต้นทุนและค่าธรรมเนียมเกินราคาขาย', q: ['sales_basis', 'price_check'] });
   } else if (B.payS === null) {
-    F.push({ id: 'nopay', lv: 'mid', money: null, t: 'เงินที่จ่ายหมดไปยังไม่คืนภายใน 5 ปี', s: 'กำไรต่อเดือนเมื่อยอดขายเต็ม ' + fmtN(S.profit) + ' บาท · เงินที่จ่ายหมดไป ' + fmtN(B.spent) + ' บาท', q: ['sales_basis', 'startup_quote'] });
+    F.push({ id: 'nopay', lv: 'mid', money: null, t: 'ยังไม่คืนทุนภายใน 5 ปี', s: 'กำไรต่อเดือนเมื่อยอดขายเต็ม ' + fmtN(S.profit) + ' บาท · เงินลงทุนที่ต้องคืน (ไม่นับมัดจำและของในสต็อก) ' + fmtN(B.spent) + ' บาท' + (n0(inp.growth) < 0 ? ' · ยอดขายลดลงเดือนละ ' + fmtN(-n0(inp.growth), 1) + '% (จากเช็กตัวเลขร้าน)' : ''), q: ['sales_basis', 'startup_quote'] });
   }
-  if (B.left !== null && B.left >= -0.5) {
+  if (!B.endless && B.left !== null && B.left >= -0.5) {
     var lowSc = R.sc.low;
-    if (lowSc.left !== null && lowSc.left < -0.5) F.push({ id: 'lowshort', lv: 'watch', money: -lowSc.left, ml: 'ขาดอีก', mabs: true,
+    if (lowSc.left !== null && lowSc.left < -0.5 && !lowSc.endless) F.push({ id: 'lowshort', lv: 'watch', money: -lowSc.left, ml: 'ขาดอีก', mabs: true,
       t: 'ถ้าขายได้น้อยกว่าที่คาด ' + fmtN(R.range) + '% เงินที่มีไม่พอ', s: 'ต้องมีเงินทั้งหมด ' + fmtN(lowSc.need) + ' บาท · มี ' + fmtN(B.save) + ' บาท', q: ['sales_basis', 'own_buffer'] });
     var worst = R.sens[0];
     var hasLow = F.some(function (f) { return f.id === 'lowshort'; });
     if (worst && worst.left !== null && worst.left < -0.5 && !(worst.k === 'sales' && (hasLow || Math.abs(worst.p - R.range) < 1e-9))) F.push({ id: 'sens-' + worst.k, lv: 'watch', money: worst.more, ml: 'ต้องใช้เงินเพิ่ม',
       t: SENS_TXT[worst.k](worst.p, R) + ' เงินที่มีไม่พอ', s: 'ขาดอีก ' + fmtN(-worst.left) + ' บาท', q: worst.k === 'over' ? ['startup_quote', 'own_buffer'] : ['sales_basis', 'test_first'] });
     if (B.left < B.F - 0.5) F.push({ id: 'thin', lv: 'watch', money: B.left, ml: 'เหลือช่วงตึงที่สุด',
-      t: 'เงินเหลือช่วงตึงที่สุดน้อยกว่าค่าใช้จ่าย 1 เดือน', s: 'เดือนที่ ' + Math.max(1, B.lowM) + ' หลังเปิดร้าน · ค่าใช้จ่ายทุกเดือน ' + fmtN(B.F) + ' บาท', q: ['own_buffer', 'startup_quote'] });
+      t: 'เงินเหลือช่วงตึงที่สุดน้อยกว่าค่าใช้จ่าย 1 เดือน', s: (B.lowM > 0 ? 'เดือนที่ ' + B.lowM + ' หลังเปิดร้าน' : 'ตอนจ่ายเงินก่อนเปิดร้านแล้ว') + ' · ค่าใช้จ่ายทุกเดือน ' + fmtN(B.F) + ' บาท', q: ['own_buffer', 'startup_quote'] });
   }
-  if (n0(inp.ownerSalary) <= 0) F.push({ id: 'noown', lv: 'note', money: null, t: 'ยังไม่ได้หักเงินเดือนตัวเอง', s: 'กำไรและคืนทุนที่เห็น ยังไม่รวมเงินที่คุณใช้ใช้ชีวิตแต่ละเดือน', q: ['own_buffer'] });
+  if (n0(inp.ownerSalary) <= 0) F.push({ id: 'noown', lv: 'note', money: null, t: 'ยังไม่ได้หักเงินเดือนตัวเอง', s: 'กำไรและคืนทุนที่เห็น ยังไม่หักเงินที่คุณใช้จ่ายส่วนตัวแต่ละเดือน', q: ['own_buffer'] });
   if (op.mode !== 'lump') {
     var have = {}; (op.items || []).forEach(function (it) { have[it.k] = 1; });
     var usual = (SU_USUAL[op.where] || SU_USUAL.shop).filter(function (k) { return suKinds(R.m, op.where).indexOf(k) >= 0 && !have[k]; });
     if (usual.length) F.push({ id: 'forgot', lv: 'note', money: null, t: 'ยังไม่ได้ใส่เงินที่ร้านแบบนี้มักต้องจ่ายก่อนเปิด', s: usual.map(function (k) { return suName({ k: k }, R.m); }).join(' · '), q: ['startup_quote'] });
   }
+  /* ค่าใช้จ่ายทุกเดือนที่ร้านแบบนี้มักลืม (research-thai-costs.md ข้อ 2) · ค่าใช้จ่ายอื่นเป็นยอดรวม จึงบอกเป็นรายการให้เทียบ ไม่ได้ตรวจว่าใส่แล้วหรือยัง */
+  var rf = (OP_FORGET[R.m] || []).slice();
+  if (n0(inp.feePct) <= 0) rf.push(op.where === 'online' ? 'ค่าธรรมเนียมแอปหรือเว็บที่ขาย' : 'ค่าธรรมเนียมรับบัตรหรือสแกนจ่าย');
+  if (op.where !== 'shop' && R.m !== 'service') rf.push('ค่าส่งพัสดุที่ร้านจ่ายเอง');
+  if (rf.length) F.push({ id: 'forgot2', lv: 'note', money: null, t: 'ค่าใช้จ่ายทุกเดือนที่ร้านแบบนี้มักลืมใส่', s: rf.join(' · '), q: [] });
   if (S.util && S.util.pct > 100.5) F.push({ id: 'cap', lv: 'mid', money: null, t: 'ยอดขายที่คาดไว้เกินที่ร้านทำได้', s: 'ทำได้สูงสุด' + perW + ' ' + fmtN(S.util.max, 1) + ' ' + u, q: ['sales_basis'] });
   F.sort(function (a, b) { return OP_LV[a.lv] - OP_LV[b.lv] || Math.abs(b.money || 0) - Math.abs(a.money || 0); });
   return F;
 }
+var OP_FORGET = {
+  unit: ['ค่าซ่อมหรือเปลี่ยนอุปกรณ์', 'ของเสียช่วงแรก', 'บรรจุภัณฑ์'],
+  resell: ['ของหาย นับสต็อกไม่ตรง', 'สินค้าที่ขายไม่ออกจนลดราคา'],
+  service: ['ค่าซ่อมหรือเปลี่ยนอุปกรณ์', 'ของใช้สิ้นเปลืองในร้าน']
+};
 var SENS_TXT = {
   over: function (p) { return 'ถ้าเงินก่อนเปิดร้านเกินงบ ' + fmtN(p) + '%'; },
   sales: function (p) { return 'ถ้าขายได้น้อยกว่าที่คาด ' + fmtN(p) + '%'; },
@@ -288,18 +328,22 @@ var SENS_TXT = {
 /* ---------- คำถามเช็ก → จุดที่ควรตรวจสอบ → เครื่องมือ PL1 (อ้างด้วยรหัส) · ไม่บอกวิธีแก้ ---------- */
 var QB2 = {
   sales_basis: { q: 'ยอดขายที่คาดไว้ มาจากการนับลูกค้าจริงในทำเลนั้น หรือร้านแบบเดียวกันแถวนั้นไหม?', ans: { yes: 'ใช่', no: 'ไม่ใช่', unsure: 'ไม่แน่ใจ' }, risk: 'no',
-    p: 'ยอดขายที่คาดไว้', d: 'เช็กว่าตัวเลขยอดขายมาจากอะไร เช่น นับคนเดินผ่าน ดูร้านแบบเดียวกันในทำเลนั้น หรือเคยขายจริงมาก่อน', tools: ['cust8', 'ver4', 'idea7'] },
+    p: 'ยอดขายที่คาดไว้', d: 'เช็กว่าตัวเลขยอดขายมาจากอะไร เช่น นับคนเดินผ่าน ดูร้านแบบเดียวกันในทำเลนั้น หรือเคยขายจริงมาก่อน', tools: ['cust8', 'ver4', 'idea7'],
+    on: { q: 'ยอดขายที่คาดไว้ มาจากร้านแบบเดียวกันในช่องทางเดียวกัน หรือเคยลองขายจริงไหม?', d: 'เช็กว่าตัวเลขยอดขายมาจากอะไร เช่น ดูร้านแบบเดียวกันในช่องทางเดียวกัน หรือเคยขายจริงมาก่อน', tools: ['cust8', 'ver4'] } },
   startup_quote: { q: 'เงินก่อนเปิดร้านแต่ละรายการ มาจากใบเสนอราคาหรือราคาจริงแล้วหรือยัง?', ans: { yes: 'แล้ว', no: 'ยังไม่ได้', unsure: 'ไม่แน่ใจ' }, risk: 'no',
     p: 'เงินก่อนเปิดร้าน', d: 'เช็กราคาจริงของแต่ละรายการ และรายการที่ร้านแบบนี้มักต้องจ่าย', tools: ['idea7', 'ver5'] },
   own_buffer: { q: 'ช่วงที่ร้านยังไม่มีกำไร คุณมีเงินใช้จ่ายส่วนตัวแยกจากเงินของร้านไหม?', ans: { yes: 'มี', no: 'ไม่มี', unsure: 'ไม่แน่ใจ' }, risk: 'no',
-    p: 'เงินใช้จ่ายส่วนตัวช่วงแรก', d: 'เช็กว่าถ้าร้านยังไม่มีกำไรหลายเดือน เงินใช้จ่ายของคุณและบ้านมาจากไหน', tools: ['idea5', 'goal4'] },
+    p: 'เงินใช้จ่ายส่วนตัวช่วงแรก', d: 'เช็กว่าถ้าร้านยังไม่มีกำไรหลายเดือน เงินใช้จ่ายของคุณและบ้านมาจากไหน', tools: ['idea3', 'ver5'] },
   test_first: { q: 'เคยลองขายจริงขนาดเล็กก่อนไหม เช่น ขายออนไลน์ ออกบูธ หรือรับออร์เดอร์ล่วงหน้า?', ans: { yes: 'เคย', no: 'ไม่เคย', unsure: 'ไม่แน่ใจ' }, risk: 'no',
-    p: 'ลองขายจริงก่อนลงเงินก้อนใหญ่', d: 'เช็กว่ามีคนซื้อจริงในราคานี้ก่อนจ่ายเงินก้อนใหญ่', tools: ['ver4', 'goal3', 'cust8'] },
+    p: 'ลองขายจริงก่อนลงเงินก้อนใหญ่', d: 'เช็กว่ามีคนซื้อจริงในราคานี้ก่อนจ่ายเงินก้อนใหญ่', tools: ['ver4', 'cust8'] },
   price_check: { q: 'ราคาที่ตั้งไว้ เคยเทียบกับร้านแบบเดียวกันแถวนั้นแล้วหรือยัง?', ans: { yes: 'เคย', no: 'ยังไม่เคย', unsure: 'ไม่แน่ใจ' }, risk: 'no',
-    p: 'ราคาเทียบกับร้านอื่น', d: 'เช็กราคาของร้านแบบเดียวกันในทำเลหรือช่องทางเดียวกัน', tools: ['grow13', 'ver1'] },
+    p: 'ราคาเทียบกับร้านอื่น', d: 'เช็กราคาของร้านแบบเดียวกันในทำเลหรือช่องทางเดียวกัน', tools: ['ver4', 'idea6', 'idea1'],
+    on: { q: 'ราคาที่ตั้งไว้ เคยเทียบกับร้านแบบเดียวกันในช่องทางเดียวกันแล้วหรือยัง?', d: 'เช็กราคาของร้านแบบเดียวกันในช่องทางเดียวกัน' } },
   location: { q: 'ทำเลที่เลือก เคยไปดูคนเดินผ่านช่วงเวลาที่จะเปิดร้านแล้วหรือยัง?', ans: { yes: 'แล้ว', no: 'ยังไม่ได้', unsure: 'ไม่แน่ใจ' }, risk: 'no',
-    p: 'ทำเล', d: 'เช็กคนเดินผ่านในวันและเวลาที่จะเปิดจริง', tools: ['idea7', 'grow14'] }
+    p: 'ทำเล', d: 'เช็กคนเดินผ่านในวันและเวลาที่จะเปิดจริง', tools: ['idea7', 'ver5'] }
 };
+/* คำถามตามที่ขาย: ร้านออนไลน์ใช้คำของช่องทาง ไม่ใช่ทำเล */
+function qb2(q, where) { var b = QB2[q]; return where === 'online' && b.on ? Object.assign({}, b, b.on) : b; }
 function opAskList(R, where) {
   var L = [];
   (R && R.ok ? R.finds : []).forEach(function (f) { (f.q || []).forEach(function (q) { if (L.indexOf(q) < 0) L.push(q); }); });
