@@ -1,0 +1,15 @@
+{
+  "_comment": "Brand settings. Change colours/fonts here — every scene, glow, card and icon follows. Default = the v9 look.",
+  "text": "#FFFFFF",
+  "accent": "#8FD3FF",
+  "accent2": "#4E9BFF",
+  "ink": "#05070D",
+  "fonts": {
+    "key":   "fonts/Mitr-Bold.ttf",
+    "mid":   "fonts/Mitr-SemiBold.ttf",
+    "body":  "fonts/Mitr-Medium.ttf",
+    "small": "fonts/Sriracha-Regular.ttf"
+  },
+  "grain": 0.07,
+  "sfx_db": -11
+}
