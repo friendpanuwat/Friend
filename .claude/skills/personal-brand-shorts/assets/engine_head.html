@@ -1,0 +1,96 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"KeyFont";src:url(fonts/Mitr-Bold.ttf);font-weight:700}
+@font-face{font-family:"MidFont";src:url(fonts/Mitr-SemiBold.ttf);font-weight:600}
+@font-face{font-family:"BodyFont";src:url(fonts/Mitr-Medium.ttf);font-weight:500}
+@font-face{font-family:"SmallFont";src:url(fonts/Sriracha-Regular.ttf);font-weight:400}
+/* text palette = talking-head-motion v9 — #FFFFFF + light blue #8FD3FF */
+:root{--blue:#8FD3FF}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
+body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
+#v{position:absolute;inset:0;width:1080px;height:1920px}
+.layer{position:absolute;inset:0;pointer-events:none}
+
+/* ---------- typography (identical to talking-head-motion) ---------- */
+.block{position:absolute;left:60px;width:960px;display:flex;flex-direction:column;align-items:center;transform-origin:50% 0}
+.line{display:flex;align-items:baseline;justify-content:center;gap:18px;white-space:nowrap;perspective:900px}
+.chunk{display:inline-block;white-space:nowrap}
+.g{display:inline-block;opacity:0;transform-origin:50% 80%;will-change:transform,opacity,filter}
+.s{font-family:"SmallFont";font-size:60px;line-height:1.25;color:#fff}
+.m{font-family:"MidFont";font-size:90px;line-height:1.18;font-weight:600;color:#fff}
+.k{font-family:"KeyFont";font-size:136px;line-height:1.14;font-weight:700;letter-spacing:-1px;color:var(--blue)}
+.k .g{text-shadow:0 0 34px rgba(143,211,255,.55),0 6px 24px rgba(0,0,0,.55)}
+.s .g,.m .g{text-shadow:0 4px 22px rgba(0,0,0,.65),0 1px 4px rgba(0,0,0,.5)}
+</style></head>
+<body>
+<img id="v">
+<div class="layer" id="g"></div>
+<script>
+/* ===================== CORE ===================== */
+const G = document.getElementById('g');
+const HOOKS = [], FITS = [];
+const ms = s => s * 1000;
+const SPRING = 'cubic-bezier(.22,1.35,.36,1)', SMOOTH = 'cubic-bezier(.2,.8,.2,1)', INOUT = 'cubic-bezier(.65,0,.35,1)';
+const A = (el, kf, t, d, o = {}) => el.animate(kf, {delay: ms(t), duration: ms(d), easing: o.e ?? SMOOTH, fill: o.f ?? 'both', iterations: o.it ?? 1, direction: o.dir ?? 'normal', composite: o.c ?? 'replace'});
+const div = (css, parent, html = '') => { const d = document.createElement('div'); d.style.cssText = 'position:absolute;' + css; d.innerHTML = html; parent.appendChild(d); return d; };
+const seg = new Intl.Segmenter('th', {granularity: 'grapheme'});
+const graphemes = s => [...seg.segment(s)].map(x => x.segment);
+const BLUE = '#8FD3FF';
+
+/* kinetic text: every grapheme flips up in 3D with a spring, staggered */
+function kinetic(parent, txt, cls, t, {stagger, color} = {}) {
+  const c = document.createElement('span'); c.className = 'chunk ' + cls;
+  if (color) c.style.color = color;
+  parent.appendChild(c);
+  const big = cls.includes('k'), st = stagger ?? (big ? .032 : .016);
+  graphemes(txt).forEach((ch, i) => {
+    const g = document.createElement('span'); g.className = 'g'; g.textContent = ch === ' ' ? ' ' : ch; c.appendChild(g);
+    const ti = t + i * st;
+    A(g, [{opacity: 0, transform: `translateY(${big ? 55 : 40}%) rotateX(${big ? -85 : -60}deg) scale(${big ? 1.15 : 1.05})`, filter: 'blur(10px)'},
+          {opacity: 1, transform: 'none', filter: 'blur(0)'}], ti, big ? .48 : .36, {e: SPRING});
+    if (big) A(g, [{color: '#FFFFFF'}, {color: BLUE}], ti + .16, .35, {e: 'ease-out'});   // white-hot ignite → light blue
+  });
+  return c;
+}
+
+/* ===================== PLACEMENT — never cover the face ===================== */
+/* face(top, bottom, t0?, t1?) declares the y-band of the speaker's head (hair → chin) for a time range,
+   measured on the clip's own contact sheet. Every caption block is placed outside it. */
+const FACE = [], FACE_ERRORS = [];
+const face = (top, bottom, t0 = 0, t1 = 1e9) => FACE.push({top, bottom, t0, t1});
+const ZONE = {top: 1225, bottom: 1665, gap: 40};   // default caption zone (talking-head-motion) · bottom 255 px kept for platform UI
+const faceAt = (t0, t1) => FACE.filter(f => f.t0 < t1 && f.t1 > t0);
+const overlaps = (a0, a1, b0, b1) => a0 < b1 && a1 > b0;
+
+/* block of lines: [[ [text, style, t, size?], ... ], ...]  style s|m|k
+   top omitted → default zone, pushed below the face if the face reaches into it.
+   center: true → mid-screen (760) — only where no face band is declared at that time (e.g. over a scene). */
+function block(b) {
+  const el = div(`top:${b.top ?? (b.center ? 760 : ZONE.top)}px`, G); el.className = 'block';
+  for (const ln of b.lines) {
+    const L = document.createElement('div'); L.className = 'line'; el.appendChild(L);
+    for (const [txt, st, t, size] of ln) { const k = kinetic(L, txt, st, t); if (size) k.style.fontSize = size + 'px'; }
+  }
+  // fit + place — measured on the first seek, after web fonts have loaded (measuring now would use fallback metrics)
+  FITS.push(() => {
+    for (const L of el.children) { const w = L.scrollWidth; if (w > 960) L.style.transform = `scale(${960 / w})`; }
+    const faces = faceAt(b.t0, b.t1);
+    let top = b.top ?? (b.center ? 760 : ZONE.top);
+    if (b.top == null && !b.center) for (const f of faces) top = Math.max(top, f.bottom + ZONE.gap);   // "ตามความเหมาะสมของคลิป"
+    let maxH = b.center ? 560 : 440;
+    if (b.top == null && !b.center) maxH = Math.min(maxH, ZONE.bottom - top);
+    let s = 1;
+    if (el.offsetHeight > maxH) s = Math.max(.01, maxH / el.offsetHeight);
+    el.style.top = top + 'px';
+    if (s < 1) el.style.transform = `scale(${s})`;
+    const y0 = top, y1 = top + el.offsetHeight * s;
+    for (const f of faces) if (overlaps(y0, y1, f.top, f.bottom))
+      FACE_ERRORS.push(`block ${b.t0}-${b.t1} (y ${Math.round(y0)}-${Math.round(y1)}) covers face band ${f.top}-${f.bottom}`);
+    if (s < .6) FACE_ERRORS.push(`block ${b.t0}-${b.t1} shrunk to ${Math.round(s * 100)}% to stay off the face — split it or shorten it`);
+  });
+  A(el, [{opacity: 1, filter: 'blur(0)', translate: '0 0'}, {opacity: 0, filter: 'blur(16px)', translate: '0 -50px'}], b.t1 - .16, .16, {e: 'cubic-bezier(.5,0,.9,.5)', f: 'forwards'});
+  return el;
+}
+const text = (parent, txt, cls, t, css = '', o = {}) => { const w = div(`left:0;width:1080px;text-align:center;${css}`, parent); w.style.perspective = '900px'; const k = kinetic(w, txt, cls, t, o); if (o.size) k.style.fontSize = o.size + 'px'; return w; };
