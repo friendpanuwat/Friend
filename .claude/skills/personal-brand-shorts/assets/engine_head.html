@@ -102,7 +102,7 @@ function kinetic(parent, txt, cls, t, {stagger, color} = {}) {
    measured on the clip's own contact sheet. Every caption block is placed outside it. */
 const FACE = [], FACE_ERRORS = [];
 const face = (top, bottom, t0 = 0, t1 = 1e9) => FACE.push({top, bottom, t0, t1});
-const ZONE = {top: 1225, bottom: 1665, gap: 40};   // default caption zone (talking-head-motion) · bottom 255 px kept for platform UI
+const ZONE = {top: 1225, bottom: 1665, gap: 40, ceil: 540};   // ceil = highest a caption may go (below a top UI box / platform header)   // default caption zone (talking-head-motion) · bottom 255 px kept for platform UI
 const ZOY = 1920 * .42;   // zoom origin y — a face band at y grows to ZOY + (y - ZOY) * zoom
 /* RULE: every zoom — slow, fast, any kind — scales layer 1 and layer 2 by the SAME amount at the SAME frame.
    Camera zoom sets one value on both <img>s; effects only scale #stage, which holds both. Never scale one layer alone.
@@ -140,6 +140,11 @@ function block(b) {
     if (b.top == null && !b.center) for (const f of faces) top = Math.max(top, f.bottom + ZONE.gap);   // "ตามความเหมาะสมของคลิป"
     let maxH = b.center ? 560 : 440;
     if (b.top == null && !b.center) maxH = Math.min(maxH, ZONE.bottom - top);
+    // no room under the chin (an effect moved the person down) → go above the head instead, below the top UI zone
+    if (b.top == null && !b.center && maxH < Math.min(el.offsetHeight, 440) * .75 && faces.length) {
+      const ceil = Math.min(...faces.map(f => f.top)) - ZONE.gap, h = Math.min(el.offsetHeight, 440);
+      if (ceil - ZONE.ceil >= h * .75) { maxH = Math.min(440, ceil - ZONE.ceil); top = ceil - Math.min(h, maxH); }
+    }
     let s = 1;
     if (el.offsetHeight > maxH) s = Math.max(.01, maxH / el.offsetHeight);
     el.style.top = top + 'px';
@@ -219,7 +224,7 @@ function couchWall(t0, t1, {tiles, cols = 3, gap = 18} = {}) {
 
 /* 03 ui world — the video drops into the lower half of a light app page; the head breaks out over the page;
    a prompt box types the sentence at the top */
-function uiWorld(t0, t1, {prompt = '', page = '#F3F1EC', drop = 560, s = .88} = {}) {
+function uiWorld(t0, t1, {prompt = '', page = '#F3F1EC', drop = 380, s = .9} = {}) {
   const fb = faceBox(t0), cut = fb.bottom - 30;
   STAGE.push(t => { const p = env(t, t0, t1, .45, .4); return p ? {s: lerp(1, s, p), ox: 540, oy: 1920, ty: drop * p} : null; });
   HOOKS.push(t => { const p = env(t, t0, t1, .45, .4); if (!p) return;
@@ -434,13 +439,13 @@ const INOUTf = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
 
 /* 16 cover story — magazine cover: a huge serif title behind the head, small print, italic tagline */
 function coverStory(t0, t1, {title = '', left = [], right = [], kicker = '', tagline = '', taglineY = 1300, size = 250} = {}) {
-  const fb = faceBox(t0), top = Math.max(150, fb.top - size * .55);
+  const fb = faceBox(t0), top = Math.max(150, fb.top - size * .3);   // the head overlaps the lower part of the title
   const shade = div('left:0;top:0;width:1080px;height:900px;background:linear-gradient(rgba(0,0,0,.38),rgba(0,0,0,0))', B);
   life(shade, t0, t1, [{opacity: 0}, {opacity: 1}], [{opacity: 1}, {opacity: 0}], .3, .25, 'linear');
   const tl = div(`left:0;width:1080px;top:${top}px;display:flex;justify-content:center;overflow:hidden;font-family:SerifFont;font-weight:300;font-size:${size}px;line-height:1.08;letter-spacing:4px;color:#fff;text-shadow:0 6px 30px rgba(0,0,0,.35)`, B);
   graphemes(title).forEach((ch, i) => { const s = document.createElement('span'); s.textContent = ch === ' ' ? ' ' : ch; s.style.display = 'inline-block'; tl.appendChild(s);
     life(s, t0 + .1 + i * .05, t1, [{transform: 'translateY(105%)'}, {transform: 'none'}], [{opacity: 1}, {opacity: 0}], .6, .25, SMOOTH); });
-  FITS.push(() => { const w = tl.scrollWidth; if (w > 1040) tl.style.fontSize = size * 1040 / w + 'px'; });
+  FITS.push(() => { const w = [...tl.children].reduce((a, c) => a + c.offsetWidth, 0); if (w > 1000) tl.style.fontSize = size * 1000 / w + 'px'; });
   const small = (lines, css) => { const e = div(`top:${top + size * 1.12}px;${css};font-family:BodyFont;font-size:22px;line-height:1.5;letter-spacing:3px;color:#fff`, B, lines.join('<br>'));
     life(e, t0 + .5, t1, [{opacity: 0}, {opacity: 1}], [{opacity: 1}, {opacity: 0}], .4, .25, 'linear'); };
   if (left.length) small(left, 'left:70px'); if (right.length) small(right, 'right:70px;text-align:right');
@@ -452,17 +457,17 @@ function coverStory(t0, t1, {title = '', left = [], right = [], kicker = '', tag
 /* 17 glass type — huge frosted-glass letters behind the person: the blurred room shows through, edges catch light */
 let GLASS_ID = 0;
 function glassType(t0, t1, {text = '', y, size = 300} = {}) {
-  const id = 'gl' + GLASS_ID++, fb = faceBox(t0), cy = y ?? Math.max(260, fb.top - 10);
+  const id = 'gl' + GLASS_ID++, fb = faceBox(t0), cy = y ?? Math.max(260, fb.top + size * .12);   // letters sit behind the top of the head
   const T = (extra) => `<text x="540" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-family="KeyFont" font-weight="700" font-size="${size}" letter-spacing="6" ${extra}>${text}</text>`;
   const e = svg(1080, 1920, `<defs>
       <clipPath id="${id}c">${T('class="ft"')}</clipPath>
-      <filter id="${id}b" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="14"/><feComponentTransfer><feFuncR type="linear" slope="1.35" intercept=".06"/><feFuncG type="linear" slope="1.35" intercept=".06"/><feFuncB type="linear" slope="1.35" intercept=".08"/></feComponentTransfer></filter>
+      <filter id="${id}b" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="10"/><feComponentTransfer><feFuncR type="linear" slope="1.5" intercept=".1"/><feFuncG type="linear" slope="1.5" intercept=".1"/><feFuncB type="linear" slope="1.5" intercept=".12"/></feComponentTransfer></filter>
       <filter id="${id}s" x="-5%" y="-10%" width="110%" height="120%"><feGaussianBlur in="SourceAlpha" stdDeviation="7" result="b"/>
         <feSpecularLighting in="b" surfaceScale="7" specularConstant="1.2" specularExponent="26" lighting-color="#fff" result="sp"><fePointLight class="lt" x="200" y="${cy - 200}" z="420"/></feSpecularLighting>
         <feComposite in="sp" in2="SourceAlpha" operator="in"/></filter>
-      <linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity=".04"/></linearGradient></defs>
+      <linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity=".02"/></linearGradient></defs>
     <g style="filter:drop-shadow(0 24px 40px rgba(0,0,0,.35))"><g clip-path="url(#${id}c)"><image class="lv" width="1080" height="1920" preserveAspectRatio="none" filter="url(#${id}b)"/><rect width="1080" height="1920" fill="url(#${id}g)"/></g></g>
-    ${T(`fill="#fff" filter="url(#${id}s)" opacity=".85" class="ft"`)}
+    ${T(`fill="#fff" filter="url(#${id}s)" opacity=".5" class="ft"`)}
     ${T(`fill="none" stroke="rgba(255,255,255,.75)" stroke-width="2.5" class="ft"`)}`, 'left:0;top:0;transform-origin:540px ' + cy + 'px', B);
   const img = e.querySelector('.lv'), lt = e.querySelector('.lt'); LIVE.push(img);
   FITS.push(() => { const w = e.querySelector('text.ft').getComputedTextLength(); if (w > 1000) e.querySelectorAll('text').forEach(x => x.setAttribute('font-size', size * 1000 / w)); });

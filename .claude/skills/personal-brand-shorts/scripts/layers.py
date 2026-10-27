@@ -54,6 +54,9 @@ def matte_range(args):
         y = ((y / 255 - .5) / .5).transpose(2, 0, 1)[None]
         mat = cv2.resize(mn.run(None, {'input': y})[0][0, 0], (w, h))
         a = np.clip(np.minimum(mat, np.clip(gate * 1.4, 0, 1)), 0, 1)
+        # close small holes inside the body (dark sleeves/shadows can read as background)
+        solid = cv2.morphologyEx((a > .5).astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (25, 25)))
+        a = np.maximum(a, cv2.GaussianBlur(solid.astype(np.float32), (0, 0), 1.5) * (solid > 0))
         if prev is not None: a = (1 - SMOOTH) * a + SMOOTH * prev
         prev = a
         bgra = np.dstack([bgr, (a * 255 + .5).astype(np.uint8)])
