@@ -145,6 +145,8 @@ function scene(t0, t1, {bg = TEXT, enter = 'fade'} = {}) {
   const kIn = enter === 'whip' ? [{opacity: 1, transform: 'translateX(100%)', filter: 'blur(30px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}]
             : enter === 'cut' ? [{opacity: 0}, {opacity: 1, offset: .01}, {opacity: 1}] : [{opacity: 0, transform: 'scale(1.04)'}, {opacity: 1, transform: 'none'}];
   life(root, t0, t1, kIn, FADE_OUT, enter === 'whip' ? .3 : .25, .2, SMOOTH);
+  // hidden outside its window: a 'whip' scene waits off-screen right with a blur that would bleed onto the frame edge
+  HOOKS.push(t => { root.style.visibility = t >= t0 && t <= t1 ? 'visible' : 'hidden'; });
   return root;
 }
 
