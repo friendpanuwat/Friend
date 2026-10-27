@@ -1,11 +1,12 @@
 /* ===================== ENGINE ===================== */
-const V = document.getElementById('v');
-window.seek = async (t, src) => {
+const V = document.getElementById('v'), FG = document.getElementById('fg');
+window.seek = async (t, src, fgSrc) => {   // src = src_frames/sNNNNN.jpg · fgSrc = fg_frames/fNNNNN.webp
   if (!window.__fitted) {
     window.__fitted = true; FITS.forEach(f => f());
     FACE_ERRORS.forEach(e => console.error('FACE: ' + e));   // render.js treats these as errors
   }
   if (src) { V.src = src; await V.decode(); }
+  if (fgSrc) { FG.src = fgSrc; await FG.decode(); }
   document.getAnimations().forEach(a => { a.pause(); a.currentTime = ms(t); });
   HOOKS.forEach(h => h(t));
 };

@@ -10,7 +10,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
 body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
-#v{position:absolute;inset:0;width:1080px;height:1920px}
+#v,#fg{position:absolute;inset:0;width:1080px;height:1920px}
 .layer{position:absolute;inset:0;pointer-events:none}
 
 /* ---------- typography (identical to talking-head-motion) ---------- */
@@ -25,7 +25,8 @@ body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
 .s .g,.m .g{text-shadow:0 4px 22px rgba(0,0,0,.65),0 1px 4px rgba(0,0,0,.5)}
 </style></head>
 <body>
-<img id="v">
+<img id="v">   <!-- layer 1 (bottom): the clip as-is -->
+<img id="fg">  <!-- layer 2 (top): the same clip, background removed (layers.py) -->
 <div class="layer" id="g"></div>
 <script>
 /* ===================== CORE ===================== */
