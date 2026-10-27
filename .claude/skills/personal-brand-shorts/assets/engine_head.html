@@ -9,61 +9,51 @@
 @font-face{font-family:"SerifFont";src:url(fonts/Taviraj-latin-300-normal.woff2);font-weight:300;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"SerifItalic";src:url(fonts/Taviraj-thai-400-italic.woff2);font-style:italic;unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
 @font-face{font-family:"SerifItalic";src:url(fonts/Taviraj-latin-400-italic.woff2);font-style:italic;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-/* text palette — #FFFFFF + key words dark purple #5B2A86 */
-:root{--blue:#5B2A86}
+/* palette — set by the script from the two FONT colours (TEXT, BLUE); every graphic derives from them */
+:root{--text:#FFFFFF;--blue:#5B2A86}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
-body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
-#v,#fg,#fgo{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:47% 42%}   /* zoom origin = talking-head-motion */
+body{position:relative;color:var(--text);font-family:"MidFont",sans-serif}
+#v,#fg{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:47% 42%}   /* zoom origin = talking-head-motion */
 .layer{position:absolute;inset:0;pointer-events:none}
 #page{position:absolute;inset:0;background:#000;overflow:hidden}
+#ed{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:47% 42%}   /* edge fill: when the drift scales the clip below 1.0 */
 #pv{position:absolute;left:-90px;top:-160px;width:1260px;height:2240px;object-fit:cover;filter:blur(38px) brightness(.5);opacity:0}
 #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0}
 #vw{position:absolute;inset:0;overflow:hidden}
 #vshadow{position:absolute;inset:0;border-radius:56px;background:#000;box-shadow:0 50px 140px rgba(0,0,0,.65);opacity:0}
-#fgo{opacity:0}
 
 /* ---------- effect parts ---------- */
-.card{position:absolute;border-radius:24px;overflow:hidden;background:#fff;box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 0 1.5px rgba(255,255,255,.4)}
+.card{position:absolute;border-radius:24px;overflow:hidden;background:var(--text);box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 0 1.5px color-mix(in srgb,var(--text) 40%,transparent)}
 .card img{width:100%;height:100%;object-fit:cover;display:block}
-.card .txt{padding:22px 24px;font-family:"BodyFont";font-size:28px;line-height:1.35;color:#111}
-.dglass{background:rgba(16,16,19,.84);border:1.5px solid rgba(255,255,255,.14);border-radius:30px;box-shadow:0 30px 80px rgba(0,0,0,.5);backdrop-filter:blur(18px)}
-.paper{background:#F4F1EA;color:#111;box-shadow:0 14px 34px rgba(0,0,0,.4)}
+.card .txt{padding:22px 24px;font-family:"BodyFont";font-size:28px;line-height:1.35;color:var(--ink)}
+.dglass{background:color-mix(in srgb,var(--dark) 88%,transparent);border:1.5px solid color-mix(in srgb,var(--text) 14%,transparent);border-radius:30px;box-shadow:0 30px 80px rgba(0,0,0,.5);backdrop-filter:blur(18px)}
+.paper{background:var(--text);color:var(--ink);box-shadow:0 14px 34px rgba(0,0,0,.4)}
 
 /* ---------- typography (identical to talking-head-motion) ---------- */
 .block{position:absolute;left:60px;width:960px;display:flex;flex-direction:column;align-items:center;transform-origin:50% 0}
 .line{display:flex;align-items:baseline;justify-content:center;gap:18px;white-space:nowrap;perspective:900px}
 .chunk{display:inline-block;white-space:nowrap}
 .g{display:inline-block;opacity:0;transform-origin:50% 80%;will-change:transform,opacity,filter}
-.s{font-family:"SmallFont";font-size:60px;line-height:1.25;color:#fff}
-.m{font-family:"MidFont";font-size:90px;line-height:1.18;font-weight:600;color:#fff}
+.s{font-family:"SmallFont";font-size:60px;line-height:1.25;color:var(--text)}
+.m{font-family:"MidFont";font-size:90px;line-height:1.18;font-weight:600;color:var(--text)}
 .k{font-family:"KeyFont";font-size:136px;line-height:1.14;font-weight:700;letter-spacing:-1px;color:var(--blue)}
 .k .g{text-shadow:0 0 34px rgba(0,0,0,.55),0 6px 24px rgba(0,0,0,.55)}   /* black shadow (talking-head-motion glow shape, in black) */
 .s .g,.m .g{text-shadow:0 4px 22px rgba(0,0,0,.65),0 1px 4px rgba(0,0,0,.5)}
 </style></head>
 <body>
-<div id="page"><img id="pv"></div>            <!-- behind everything: blurred copy of the clip / solid page (seen when the stage shrinks) -->
+<div id="page"><img id="ed"><img id="pv"></div>            <!-- behind everything: blurred copy of the clip / solid page (seen when the stage shrinks) -->
 <div class="layer" id="P"></div>               <!-- page graphics (behind the whole video) -->
 <div id="stage">                               <!-- the video "camera" — effects scale/move it as one piece -->
   <div id="vshadow"></div>
   <div id="vw"><img id="v"></div>   <!-- layer 1 (bottom): the clip as-is -->
   <div class="layer" id="B"></div>             <!-- graphics BEHIND the person -->
-  <img id="fgo">                               <!-- outline copy of layer 2 (doodle boil) -->
   <img id="fg">                                <!-- layer 2: the same clip, background removed (layers.py) -->
   <div class="layer" id="F"></div>             <!-- graphics IN FRONT of the person — never over the face -->
 </div>
 <div class="layer" id="W"></div>               <!-- UI chrome over the shrunk video (pull-back window, prompt box) -->
 <div class="layer" id="g"></div>   <!-- layer 3 (top-most): captions — always above both video layers -->
-<svg width="0" height="0" style="position:absolute"><defs>
-  <filter id="ring" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">   <!-- doodle boil: wobbly line around the person -->
-    <feMorphology in="SourceAlpha" operator="dilate" radius="13" result="d1"/>
-    <feMorphology in="SourceAlpha" operator="dilate" radius="10" result="d2"/>
-    <feComposite in="d1" in2="d2" operator="out" result="r"/>
-    <feTurbulence id="ringNoise" type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="1" result="n"/>
-    <feDisplacementMap in="r" in2="n" scale="16" xChannelSelector="R" yChannelSelector="G" result="w"/>
-    <feFlood flood-color="#fff"/><feComposite in2="w" operator="in"/>
-  </filter>
-</defs></svg>
+
 <script>
 /* ===================== CORE ===================== */
 const $ = id => document.getElementById(id);
@@ -73,7 +63,7 @@ const ms = s => s * 1000;
 const zoom = (t, z, d = .14) => ZOOM.push({t, z, d});   // camera zoom (talking-head-motion) — moves both video layers together
 const ease = p => 1 - Math.pow(1 - p, 3);
 function zoomAt(t) { let z = 1; for (const k of [...ZOOM].sort((a, b) => a.t - b.t)) { if (t < k.t) break; z += (k.z - z) * ease(Math.min(1, (t - k.t) / k.d)); } return z; }
-const camAt = t => zoomAt(t) * (1.014 + .014 * Math.sin(t * .3));   // + the slow breathing drift of talking-head-motion (kept ≥ 1 so no frame edge shows — there is no vignette here)
+const camAt = t => zoomAt(t) * (1 + .014 * Math.sin(t * .3));   // identical to talking-head-motion (incl. the slow breathing drift)
 const SPRING = 'cubic-bezier(.22,1.35,.36,1)', SMOOTH = 'cubic-bezier(.2,.8,.2,1)', INOUT = 'cubic-bezier(.65,0,.35,1)';
 // every animation is paused at birth and persisted: frames are driven only by seek(), and the browser must never
 // auto-remove a finished animation (it does when real time runs past it under load → elements popping in early)
@@ -81,7 +71,16 @@ const A = (el, kf, t, d, o = {}) => { const a = el.animate(kf, {delay: ms(t), du
 const div = (css, parent, html = '') => { const d = document.createElement('div'); d.style.cssText = 'position:absolute;' + css; d.innerHTML = html; parent.appendChild(d); return d; };
 const seg = new Intl.Segmenter('th', {granularity: 'grapheme'});
 const graphemes = s => [...seg.segment(s)].map(x => x.segment);
-const BLUE = '#5B2A86';
+/* ---- palette: the two FONT colours; every motion-graphic colour below is derived from them ---- */
+const TEXT = '#FFFFFF', BLUE = '#5B2A86';   // normal text · key words
+const hex = h => (h = h.replace('#', ''), h.length === 3 ? [...h].map(c => parseInt(c + c, 16)) : [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)));
+const mix = (a, b, p) => '#' + hex(a).map((v, i) => Math.round(v + (hex(b)[i] - v) * p).toString(16).padStart(2, '0')).join('');
+const rgba = (h, a) => `rgba(${hex(h).join(',')},${a})`;
+const KEY_LIGHT = mix(BLUE, TEXT, .65);    // lines / glows that must read on dark footage
+const KEY_PAGE = mix(BLUE, TEXT, .93);     // light app pages
+const KEY_DARK = mix(BLUE, '#000', .78);   // dark cards, studio, phone
+const INK = mix(BLUE, '#000', .55);        // text on light surfaces
+for (const [k, v] of Object.entries({text: TEXT, blue: BLUE, dark: KEY_DARK, ink: INK})) document.documentElement.style.setProperty('--' + k, v);
 
 /* kinetic text: every grapheme flips up in 3D with a spring, staggered */
 function kinetic(parent, txt, cls, t, {stagger, color} = {}) {
@@ -94,7 +93,7 @@ function kinetic(parent, txt, cls, t, {stagger, color} = {}) {
     const ti = t + i * st;
     A(g, [{opacity: 0, transform: `translateY(${big ? 55 : 40}%) rotateX(${big ? -85 : -60}deg) scale(${big ? 1.15 : 1.05})`, filter: 'blur(10px)'},
           {opacity: 1, transform: 'none', filter: 'blur(0)'}], ti, big ? .48 : .36, {e: SPRING});
-    if (big) A(g, [{color: '#FFFFFF'}, {color: BLUE}], ti + .16, .35, {e: 'ease-out'});   // white-hot ignite → dark purple
+    if (big) A(g, [{color: TEXT}, {color: BLUE}], ti + .16, .35, {e: 'ease-out'});   // white-hot ignite → dark purple
   });
   return c;
 }
@@ -161,7 +160,7 @@ function block(b) {
 }
 const text = (parent, txt, cls, t, css = '', o = {}) => { const w = div(`left:0;width:1080px;text-align:center;${css}`, parent); w.style.perspective = '900px'; const k = kinetic(w, txt, cls, t, o); if (o.size) k.style.fontSize = o.size + 'px'; return w; };
 
-/* ===================== EFFECTS — 17 techniques (references/effects.md) ===================== */
+/* ===================== EFFECTS — 12 techniques (references/effects.md) ===================== */
 /* Shared rules: every effect owns its own elements; shared parts (page, stage, clip of layer 1, layer-2 filter) are written per frame by HOOKS from a reset state, so effects never fight over them.
    Graphics in B sit behind the person; F / W must never cover the face; captions (#g) stay on top of everything. */
 const SH = {};            // per-frame shared state, reset in seek()
@@ -176,7 +175,6 @@ const outBack = p => { const c = 1.7; return 1 + (c + 1) * Math.pow(p - 1, 3) + 
 /* envelope: 0 before t0, ramps to 1 over din, holds, ramps to 0 over dout ending at t1 */
 const env = (t, t0, t1, din = .4, dout = .35) => t < t0 || t > t1 ? 0 : Math.min(smooth(clamp((t - t0) / din)), smooth(clamp((t1 - t) / dout)));
 const rng = seed => { let s = seed * 9301 + 49297; return () => ((s = (s * 16807) % 2147483647) / 2147483647); };
-const BRAND_LIGHT = '#CDB8F0';   // light tint of the brand purple — for lines/glows that must read on dark footage
 function faceBox(t = 0) { const f = FACE.find(f => f.t0 <= t && f.t1 > t) ?? FACE[0] ?? {top: 520, bottom: 1150}; return {top: f.top, bottom: f.bottom, cy: (f.top + f.bottom) / 2}; }
 const still = t => CLIP.base + 'src_frames/s' + String(Math.max(1, Math.round(t * 30) + 1)).padStart(5, '0') + '.jpg';
 function life(el, t0, t1, kIn, kOut, din = .4, dout = .28, e = SPRING) {   // entrance (fill both) + exit (fill forwards)
@@ -212,7 +210,7 @@ function orbit(t0, t1, cards, {cx = 540, cy, rx = 440, ry = 130, turns = .5, w =
 function couchWall(t0, t1, {tiles, cols = 3, gap = 18} = {}) {
   const dur = CLIP.dur ?? t1 + 20, n = cols * 5;
   tiles = tiles ?? Array.from({length: n}, (_, i) => ({still: dur * (i + .5) / n}));
-  const root = div('inset:0;background:#0b0b0c;overflow:hidden', B);
+  const root = div(`inset:0;background:${KEY_DARK};overflow:hidden`, B);
   life(root, t0, t1, [{opacity: 0}, {opacity: 1}], [{opacity: 1}, {opacity: 0}], .2, .25, 'linear');
   const tw = (1080 - gap * (cols + 1)) / cols, th = tw * 16 / 9, r = rng(3);
   tiles.slice(0, n).forEach((c, i) => {
@@ -226,17 +224,17 @@ function couchWall(t0, t1, {tiles, cols = 3, gap = 18} = {}) {
 
 /* 03 ui world — the video drops into the lower half of a light app page; the head breaks out over the page;
    a prompt box types the sentence at the top */
-function uiWorld(t0, t1, {prompt = '', page = '#F3F1EC', drop = 380, s = .9} = {}) {
+function uiWorld(t0, t1, {prompt = '', page = KEY_PAGE, drop = 380, s = .9} = {}) {
   const fb = faceBox(t0), cut = fb.bottom - 30;
   STAGE.push(t => { const p = env(t, t0, t1, .45, .4); return p ? {s: lerp(1, s, p), ox: 540, oy: 1920, ty: drop * p} : null; });
   HOOKS.push(t => { const p = env(t, t0, t1, .45, .4); if (!p) return;
     SH.page = page; SH.clip = `inset(${cut * p}px 0 0 0 round ${40 * p}px)`; });
-  const box = div('left:70px;top:250px;width:940px;padding:34px 36px 26px;border-radius:34px;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.14),0 0 0 1px rgba(0,0,0,.06);opacity:0', W,
-    `<div class="ty" style="font-family:BodyFont;font-size:40px;color:#1a1a1a;min-height:56px;white-space:pre-wrap"></div>
+  const box = div(`left:70px;top:250px;width:940px;padding:34px 36px 26px;border-radius:34px;background:${TEXT};box-shadow:0 20px 60px rgba(0,0,0,.14),0 0 0 1px ${rgba(INK, .08)};opacity:0`, W,
+    `<div class="ty" style="font-family:BodyFont;font-size:40px;color:${INK};min-height:56px;white-space:pre-wrap"></div>
      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px">
-       <div style="font-family:BodyFont;font-size:34px;color:#888">＋</div>
-       <div style="width:64px;height:64px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center">
-         <svg width="30" height="30" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>`);
+       <div style="font-family:BodyFont;font-size:34px;color:${KEY_LIGHT}">＋</div>
+       <div style="width:64px;height:64px;border-radius:50%;background:${BLUE};display:flex;align-items:center;justify-content:center">
+         <svg width="30" height="30" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" stroke="${TEXT}" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>`);
   life(box, t0 + .2, t1, [{opacity: 0, transform: 'translateY(-40px) scale(.96)'}, {opacity: 1, transform: 'none'}], [{opacity: 1}, {opacity: 0}], .45, .3);
   const ty = box.querySelector('.ty'), gs = graphemes(prompt), cps = 20;
   HOOKS.push(t => { if (t < t0 || t > t1) return; const k = clamp(Math.floor((t - t0 - .5) * cps), 0, gs.length);
@@ -250,25 +248,19 @@ function frameBreak(t0, t1, {s = .8, inset} = {}) {
   HOOKS.push(t => { const p = env(t, t0, t1, .45, .35); if (!p) return;
     SH.pv = p; SH.clip = `inset(${it * p}px ${ir * p}px ${ib * p}px ${il * p}px round ${56 * p}px)`;
     SH.shadow = {o: p, inset: `${it}px ${ir}px ${ib}px ${il}px`}; });
-  const edge = div(`top:${it}px;right:${ir}px;bottom:${ib}px;left:${il}px;border-radius:56px;border:3px solid rgba(255,255,255,.35)`, B);
+  const edge = div(`top:${it}px;right:${ir}px;bottom:${ib}px;left:${il}px;border-radius:56px;border:3px solid ${rgba(TEXT, .35)}`, B);
   life(edge, t0 + .3, t1, [{opacity: 0}, {opacity: 1}], [{opacity: 1}, {opacity: 0}], .3, .25, 'linear');
 }
 
-/* 05 digital zoom — a hard punch-in on the face, held, then out */
-function digitalZoom(t0, t1, {z = 1.3, din = .08, dout = .12, x = 540, y} = {}) {
-  const oy = y ?? faceBox(t0).cy;
-  STAGE.push(t => { const p = env(t, t0, t1, din, dout); return p ? {s: lerp(1, z, p), ox: x, oy} : null; });
-}
-
-/* 06 phone mockup — a phone slides in beside the person (behind them) showing a simple app screen */
+/* 05 phone mockup — a phone slides in beside the person (behind them) showing a simple app screen */
 function phoneMockup(t0, t1, {side = 'right', title = '', rows = [], button = '', tap} = {}) {
   const fb = faceBox(t0), L = side === 'right' ? 660 : 40, T = Math.max(380, fb.top - 40);
-  const ph = div(`left:${L}px;top:${T}px;width:380px;height:780px;border-radius:64px;background:#0c0c0e;padding:14px;box-shadow:0 40px 90px rgba(0,0,0,.6),inset 0 0 0 2px rgba(255,255,255,.18)`, B,
-    `<div style="position:relative;width:100%;height:100%;border-radius:52px;background:#151518;overflow:hidden;padding:70px 30px">
+  const ph = div(`left:${L}px;top:${T}px;width:380px;height:780px;border-radius:64px;background:${mix(KEY_DARK, '#000', .4)};padding:14px;box-shadow:0 40px 90px rgba(0,0,0,.6),inset 0 0 0 2px ${rgba(TEXT, .18)}`, B,
+    `<div style="position:relative;width:100%;height:100%;border-radius:52px;background:${KEY_DARK};overflow:hidden;padding:70px 30px">
        <div style="position:absolute;left:50%;top:18px;width:110px;height:32px;border-radius:20px;background:#000;transform:translateX(-50%)"></div>
-       <div style="font-family:KeyFont;font-size:38px;line-height:1.25;color:#fff;margin-bottom:26px">${title}</div>
-       ${rows.map(r => `<div style="display:flex;align-items:center;gap:16px;padding:20px;border-radius:20px;background:rgba(255,255,255,.07);margin-bottom:14px;font-family:BodyFont;font-size:26px;color:#fff"><span style="flex:none;width:22px;height:22px;border-radius:50%;border:3px solid ${BRAND_LIGHT}"></span>${r}</div>`).join('')}
-       ${button ? `<div class="btn" style="position:absolute;left:30px;right:30px;bottom:44px;height:92px;border-radius:46px;background:${BLUE};display:flex;align-items:center;justify-content:center;font-family:KeyFont;font-size:32px;color:#fff">${button}</div>` : ''}
+       <div style="font-family:KeyFont;font-size:38px;line-height:1.25;color:${TEXT};margin-bottom:26px">${title}</div>
+       ${rows.map(r => `<div style="display:flex;align-items:center;gap:16px;padding:20px;border-radius:20px;background:${rgba(TEXT, .07)};margin-bottom:14px;font-family:BodyFont;font-size:26px;color:${TEXT}"><span style="flex:none;width:22px;height:22px;border-radius:50%;border:3px solid ${KEY_LIGHT}"></span>${r}</div>`).join('')}
+       ${button ? `<div class="btn" style="position:absolute;left:30px;right:30px;bottom:44px;height:92px;border-radius:46px;background:${BLUE};display:flex;align-items:center;justify-content:center;font-family:KeyFont;font-size:32px;color:${TEXT}">${button}</div>` : ''}
      </div>`);
   const dx = side === 'right' ? 520 : -520, rot = side === 'right' ? -4 : 4;
   life(ph, t0, t1, [{opacity: 0, transform: `translateX(${dx}px) rotate(${rot * -2.5}deg)`}, {opacity: 1, transform: `rotate(${rot}deg)`}],
@@ -278,15 +270,15 @@ function phoneMockup(t0, t1, {side = 'right', title = '', rows = [], button = ''
   if (btn && tap != null) A(btn, [{transform: 'scale(1)'}, {transform: 'scale(.92)', filter: 'brightness(1.3)'}, {transform: 'scale(1)'}], tap, .3, {f: 'none'});
 }
 
-/* 07 checklist — a dark glass card; items tick off on the words that complete them */
+/* 06 checklist — a dark glass card; items tick off on the words that complete them */
 function checklist(t0, t1, items, {title = '', x = 60, y = 220, w = 600, layer = B} = {}) {
   const card = div(`left:${x}px;top:${y}px;width:${w}px;padding:26px 30px 14px`, layer); card.className = 'dglass';
-  card.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-family:BodyFont;font-size:24px;color:rgba(255,255,255,.85)">
-      <span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${BRAND_LIGHT};margin-right:12px"></span>${title}</span><span class="cnt"></span></div>`
-    + items.map(([txt]) => `<div class="row" style="display:flex;align-items:center;gap:20px;height:76px;font-family:BodyFont;font-size:34px;color:#fff">
-      <div style="position:relative;flex:none;width:42px;height:42px;border-radius:50%;border:3px solid rgba(255,255,255,.55)">
+  card.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-family:BodyFont;font-size:24px;color:${rgba(TEXT, .85)}">
+      <span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${KEY_LIGHT};margin-right:12px"></span>${title}</span><span class="cnt"></span></div>`
+    + items.map(([txt]) => `<div class="row" style="display:flex;align-items:center;gap:20px;height:76px;font-family:BodyFont;font-size:34px;color:${TEXT}">
+      <div style="position:relative;flex:none;width:42px;height:42px;border-radius:50%;border:3px solid ${rgba(TEXT, .55)}">
         <div class="fill" style="position:absolute;inset:-3px;border-radius:50%;background:${BLUE};transform:scale(0)"></div>
-        <svg width="42" height="42" viewBox="0 0 42 42" style="position:absolute;left:-3px;top:-3px"><path class="ck" d="M11 22l7 7 14-15" stroke="#fff" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1" style="stroke-dasharray:1;stroke-dashoffset:1"/></svg></div>${txt}</div>`).join('');
+        <svg width="42" height="42" viewBox="0 0 42 42" style="position:absolute;left:-3px;top:-3px"><path class="ck" d="M11 22l7 7 14-15" stroke="${TEXT}" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1" style="stroke-dasharray:1;stroke-dashoffset:1"/></svg></div>${txt}</div>`).join('');
   life(card, t0, t1, [{opacity: 0, transform: 'translateY(-30px) scale(.95)'}, {opacity: 1, transform: 'none'}], [{opacity: 1}, {opacity: 0, transform: 'translateY(-20px)'}], .45, .3);
   const rows = card.querySelectorAll('.row'), cnt = card.querySelector('.cnt');
   items.forEach(([, tc], i) => {
@@ -297,7 +289,7 @@ function checklist(t0, t1, items, {title = '', x = 60, y = 220, w = 600, layer =
   HOOKS.push(t => { cnt.textContent = `${items.filter(([, tc]) => t >= tc).length}/${items.length}`; });
 }
 
-/* 08 headline wall — paper clippings / pills / notes stamp in around the person (behind them) */
+/* 07 headline wall — paper clippings / pills / notes stamp in around the person (behind them) */
 function headlineWall(t0, t1, notes, {spots} = {}) {
   const fb = faceBox(t0);
   spots = spots ?? [[50, fb.top - 230, -5], [640, fb.top - 190, 4], [30, fb.cy - 60, 3], [700, fb.cy - 20, -3], [60, fb.bottom - 10, -2], [690, fb.bottom + 40, 5], [330, fb.top - 330, -2]];
@@ -305,35 +297,28 @@ function headlineWall(t0, t1, notes, {spots} = {}) {
     if (typeof n === 'string') n = {text: n};
     const [x, y, rot] = n.at ?? spots[i % spots.length], kind = n.kind ?? ['paper', 'pill', 'quote'][i % 3], tt = n.t ?? t0 + i * .18;
     let e;
-    if (kind === 'pill') e = div(`left:${x}px;top:${y}px;max-width:380px;padding:16px 26px;border-radius:40px;background:#fff;font-family:BodyFont;font-size:28px;color:#111;box-shadow:0 12px 30px rgba(0,0,0,.35)`, B,
+    if (kind === 'pill') e = div(`left:${x}px;top:${y}px;max-width:380px;padding:16px 26px;border-radius:40px;background:${TEXT};font-family:BodyFont;font-size:28px;color:${INK};box-shadow:0 12px 30px rgba(0,0,0,.35)`, B,
       `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${BLUE};margin-right:12px"></span>${n.text}`);
     else e = div(`left:${x}px;top:${y}px;width:${kind === 'quote' ? 300 : 340}px;padding:26px 26px 22px;font-family:${kind === 'quote' ? 'SmallFont' : 'SerifFont'};font-size:${kind === 'quote' ? 40 : 46}px;line-height:1.15`, B,
-      `<div style="position:absolute;left:50%;top:-14px;width:120px;height:30px;background:rgba(255,255,255,.55);transform:translateX(-50%) rotate(-3deg)"></div>${n.text}`);
+      `<div style="position:absolute;left:50%;top:-14px;width:120px;height:30px;background:${rgba(KEY_LIGHT, .6)};transform:translateX(-50%) rotate(-3deg)"></div>${n.text}`);
     if (kind !== 'pill') e.className = 'paper';
     life(e, tt, t1, [{opacity: 0, transform: `rotate(${rot * 3}deg) scale(1.35)`}, {opacity: 1, transform: `rotate(${rot}deg) scale(1)`}],
          [{opacity: 1, transform: `rotate(${rot}deg)`}, {opacity: 0, transform: `rotate(${rot}deg) scale(.9)`}], .32, .25, 'cubic-bezier(.3,1.5,.5,1)');
   });
 }
 
-/* 09 zoom-through cut — punch through the frame at t (zoom + blur in, then out of the next moment) */
-function zoomThrough(t, {x = 540, y, d = .3, z = 3.2} = {}) {
-  const oy = y ?? faceBox(t).bottom + 220;
-  STAGE.push(u => { if (u < t - d || u > t + d) return null; const p = u < t ? (u - (t - d)) / d : 1 - (u - t) / d;
-    return {s: 1 + (z - 1) * p * p * p, ox: x, oy, blur: 16 * p * p}; });
-}
-
-/* 10 chart grow — a line chart draws itself behind the person; the last rise glows */
+/* 08 chart grow — a line chart draws itself behind the person; the last rise glows */
 function chartGrow(t0, t1, {pts, draw = 1.2, label = ''} = {}) {
   pts = pts ?? [[90, 1010], [270, 990], [450, 1000], [630, 950], [800, 760], [990, 380]];
   const d = pts.map((p, i) => (i ? 'L' : 'M') + p.join(' ')).join(' '), k = pts.length - 3, rise = pts.slice(k);
   const area = 'M' + rise.map(p => p.join(' ')).join(' L') + ` L${rise.at(-1)[0]} 1300 L${rise[0][0]} 1300 Z`, [ex, ey] = pts.at(-1);
-  const sv = svg(1080, 1920, `<defs><linearGradient id="cgA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${BRAND_LIGHT}" stop-opacity=".45"/><stop offset="1" stop-color="${BRAND_LIGHT}" stop-opacity="0"/></linearGradient></defs>
+  const sv = svg(1080, 1920, `<defs><linearGradient id="cgA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${KEY_LIGHT}" stop-opacity=".45"/><stop offset="1" stop-color="${KEY_LIGHT}" stop-opacity="0"/></linearGradient></defs>
     <path class="ar" d="${area}" fill="url(#cgA)" opacity="0"/>
-    <path d="M${ex} ${ey} L60 ${ey}" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-dasharray="10 12" class="gd" opacity="0"/>
-    <path class="ln" d="${d}" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="hi" d="M${rise.map(p => p.join(' ')).join(' L')}" fill="none" stroke="${BRAND_LIGHT}" stroke-width="10" stroke-linecap="round" style="filter:drop-shadow(0 0 14px ${BRAND_LIGHT})"/>
-    ${pts.map((p, i) => `<circle class="dt" cx="${p[0]}" cy="${p[1]}" r="${i === pts.length - 1 ? 16 : 11}" fill="${i === pts.length - 1 ? BRAND_LIGHT : '#fff'}" opacity="0"/>`).join('')}
-    <circle class="rg" cx="${ex}" cy="${ey}" r="16" fill="none" stroke="${BRAND_LIGHT}" stroke-width="4" opacity="0"/>`, 'left:0;top:0', B);
+    <path d="M${ex} ${ey} L60 ${ey}" stroke="${rgba(TEXT, .35)}" stroke-width="2" stroke-dasharray="10 12" class="gd" opacity="0"/>
+    <path class="ln" d="${d}" fill="none" stroke="${TEXT}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hi" d="M${rise.map(p => p.join(' ')).join(' L')}" fill="none" stroke="${KEY_LIGHT}" stroke-width="10" stroke-linecap="round" style="filter:drop-shadow(0 0 14px ${KEY_LIGHT})"/>
+    ${pts.map((p, i) => `<circle class="dt" cx="${p[0]}" cy="${p[1]}" r="${i === pts.length - 1 ? 16 : 11}" fill="${i === pts.length - 1 ? KEY_LIGHT : TEXT}" opacity="0"/>`).join('')}
+    <circle class="rg" cx="${ex}" cy="${ey}" r="16" fill="none" stroke="${KEY_LIGHT}" stroke-width="4" opacity="0"/>`, 'left:0;top:0', B);
   const ln = sv.querySelector('.ln'), hi = sv.querySelector('.hi');
   const len = pts.reduce((a, p, i) => i ? a + Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]) : 0, 0);
   let acc = 0; const at = pts.map((p, i) => (acc += i ? Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]) : 0) / len);
@@ -342,121 +327,58 @@ function chartGrow(t0, t1, {pts, draw = 1.2, label = ''} = {}) {
   A(sv.querySelector('.ar'), [{opacity: 0}, {opacity: 1}], t0 + draw, .4); A(sv.querySelector('.gd'), [{opacity: 0}, {opacity: 1}], t0 + draw, .4);
   A(sv.querySelector('.rg'), [{opacity: .9, r: 16}, {opacity: 0, r: 52}], t0 + draw, 1.1, {it: Math.max(1, Math.floor((t1 - t0 - draw) / 1.1)), f: 'none', e: 'ease-out'});
   life(sv, t0, t1, [{opacity: 0}, {opacity: 1}], [{opacity: 1}, {opacity: 0}], .01, .3, 'linear');
-  if (label) { const c = div(`left:${ex - 200}px;top:${ey - 110}px;width:200px;text-align:right;font-family:KeyFont;font-size:44px;color:#fff;text-shadow:0 4px 16px rgba(0,0,0,.6)`, B, label); life(c, t0 + draw, t1, [{opacity: 0, transform: 'translateY(16px)'}, {opacity: 1, transform: 'none'}], [{opacity: 1}, {opacity: 0}], .35, .3); }
+  if (label) { const c = div(`left:${ex - 200}px;top:${ey - 110}px;width:200px;text-align:right;font-family:KeyFont;font-size:44px;color:${TEXT};text-shadow:0 4px 16px rgba(0,0,0,.6)`, B, label); life(c, t0 + draw, t1, [{opacity: 0, transform: 'translateY(16px)'}, {opacity: 1, transform: 'none'}], [{opacity: 1}, {opacity: 0}], .35, .3); }
 }
 function draw_(p, t, d) { p.setAttribute('pathLength', 1); p.style.strokeDasharray = 1; A(p, [{strokeDashoffset: 1}, {strokeDashoffset: 0}], t, d, {e: INOUT}); }
 const svg = (w, h, inner, css, parent) => { const d = div(css, parent, `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="overflow:visible;display:block">${inner}</svg>`); return d; };
 
-/* 11 pull-back reveal — the camera pulls back: the clip was inside an app window all along (progress + steps) */
-function pullBack(t0, t1, {title = '', panel = '', steps = [], file = 'final.mp4', s = .6, page = '#ECEBE6'} = {}) {
+/* 09 pull-back reveal — the camera pulls back: the clip was inside an app window all along (progress + steps) */
+function pullBack(t0, t1, {title = '', panel = '', steps = [], file = 'final.mp4', s = .6, page = KEY_PAGE} = {}) {
   const ty = -30, x0 = 540 * (1 - s), y0 = 960 * (1 - s) + ty, w = 1080 * s, h = 1920 * s;
   STAGE.push(t => { const p = env(t, t0, t1, .55, .4); return p ? {s: lerp(1, s, p), ox: 540, oy: 960, ty: ty * p} : null; });
   HOOKS.push(t => { const p = env(t, t0, t1, .55, .4); if (!p) return;
     SH.page = page; SH.clip = `inset(0 round ${54 * p}px)`; SH.shadow = {o: p * .7, inset: '0px', r: 54}; });
-  const bar = div(`left:${x0}px;top:${y0 - 54}px;width:${w}px;height:54px;border-radius:24px 24px 0 0;background:#FAFAF7;display:flex;align-items:center;gap:10px;padding:0 20px;font-family:BodyFont;font-size:20px;color:#777`, W,
-    `<i style="width:13px;height:13px;border-radius:50%;background:#EC6A5E"></i><i style="width:13px;height:13px;border-radius:50%;background:#F4BF4F"></i><i style="width:13px;height:13px;border-radius:50%;background:#61C554"></i><span style="margin-left:auto">${title}</span>`);
-  const prog = div(`left:${x0}px;top:${y0 + h + 26}px;width:${w}px;padding:16px 20px;border-radius:18px;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.12);font-family:BodyFont;font-size:22px;color:#444`, W,
-    `<div style="margin-bottom:10px">▶ ${file}</div><div style="height:12px;border-radius:6px;background:#E6E4DE;overflow:hidden"><div class="pf" style="height:100%;width:100%;background:${BLUE};transform-origin:left;transform:scaleX(0)"></div></div>`);
-  const pan = div(`left:40px;top:${y0 + h * .3}px;width:400px;padding:22px 24px;border-radius:24px;background:#fff;box-shadow:0 20px 50px rgba(0,0,0,.18);font-family:BodyFont;font-size:25px;color:#222`, W,
-    `<div style="font-size:21px;color:#888;margin-bottom:12px">● ${panel}</div>` + steps.map(([txt]) => `<div class="st" style="display:flex;align-items:center;gap:14px;height:50px"><span class="ic" style="flex:none;width:28px;height:28px;border-radius:50%;border:3px solid #CFCBC2;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px"></span>${txt}</div>`).join(''));
+  const bar = div(`left:${x0}px;top:${y0 - 54}px;width:${w}px;height:54px;border-radius:24px 24px 0 0;background:${TEXT};display:flex;align-items:center;gap:10px;padding:0 20px;font-family:BodyFont;font-size:20px;color:${rgba(INK, .6)}`, W,
+    `<i style="width:13px;height:13px;border-radius:50%;background:${BLUE}"></i><i style="width:13px;height:13px;border-radius:50%;background:${KEY_LIGHT}"></i><i style="width:13px;height:13px;border-radius:50%;background:${mix(KEY_LIGHT, TEXT, .5)}"></i><span style="margin-left:auto">${title}</span>`);
+  const prog = div(`left:${x0}px;top:${y0 + h + 26}px;width:${w}px;padding:16px 20px;border-radius:18px;background:${TEXT};box-shadow:0 10px 30px rgba(0,0,0,.12);font-family:BodyFont;font-size:22px;color:${INK}`, W,
+    `<div style="margin-bottom:10px">▶ ${file}</div><div style="height:12px;border-radius:6px;background:${KEY_PAGE};overflow:hidden"><div class="pf" style="height:100%;width:100%;background:${BLUE};transform-origin:left;transform:scaleX(0)"></div></div>`);
+  const pan = div(`left:40px;top:${y0 + h * .3}px;width:400px;padding:22px 24px;border-radius:24px;background:${TEXT};box-shadow:0 20px 50px rgba(0,0,0,.18);font-family:BodyFont;font-size:25px;color:${INK}`, W,
+    `<div style="font-size:21px;color:${rgba(INK, .55)};margin-bottom:12px">● ${panel}</div>` + steps.map(([txt]) => `<div class="st" style="display:flex;align-items:center;gap:14px;height:50px"><span class="ic" style="flex:none;width:28px;height:28px;border-radius:50%;border:3px solid ${KEY_LIGHT};display:flex;align-items:center;justify-content:center;color:${TEXT};font-size:18px"></span>${txt}</div>`).join(''));
   [bar, prog].forEach(e => life(e, t0 + .35, t1, [{opacity: 0}, {opacity: 1}], [{opacity: 1}, {opacity: 0}], .3, .25, 'linear'));
   if (steps.length) life(pan, t0 + .45, t1, [{opacity: 0, transform: 'translateX(-60px)'}, {opacity: 1, transform: 'none'}], [{opacity: 1}, {opacity: 0}], .45, .25); else pan.remove();
   A(prog.querySelector('.pf'), [{transform: 'scaleX(0)'}, {transform: 'scaleX(1)'}], t0 + .5, Math.max(.5, t1 - t0 - .9), {e: 'linear'});
   const ics = pan.querySelectorAll('.ic');
-  HOOKS.push(t => steps.forEach(([, tc], i) => { const done = t >= tc; ics[i].style.background = done ? BLUE : 'none'; ics[i].style.borderColor = done ? BLUE : '#CFCBC2'; ics[i].textContent = done ? '✓' : ''; }));
+  HOOKS.push(t => steps.forEach(([, tc], i) => { const done = t >= tc; ics[i].style.background = done ? BLUE : 'none'; ics[i].style.borderColor = done ? BLUE : KEY_LIGHT; ics[i].textContent = done ? '✓' : ''; }));
 }
 
-/* 12 green screen — the room disappears: the person stands in a dark studio in front of a big screen playing the clip */
-function greenScreen(t0, t1, {bg = '#111114', screen, drop = 300, s = .9} = {}) {
+/* 10 green screen — the room disappears: the person stands in a dark studio in front of a big screen playing the clip */
+function greenScreen(t0, t1, {bg = KEY_DARK, screen, drop = 300, s = .9} = {}) {
   STAGE.push(t => { const p = env(t, t0, t1, .45, .35); return p ? {s: lerp(1, s, p), ox: 540, oy: 1920, ty: drop * p} : null; });
   HOOKS.push(t => { const p = env(t, t0, t1, .3, .3); if (!p) return; SH.page = bg; SH.vOpacity = 1 - p; });
-  const scr = div(`left:250px;top:150px;width:580px;height:760px;border-radius:30px;overflow:hidden;background:#000;box-shadow:0 0 120px rgba(205,184,240,.18),0 30px 80px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.12)`, PG,
+  const scr = div(`left:250px;top:150px;width:580px;height:760px;border-radius:30px;overflow:hidden;background:#000;box-shadow:0 0 120px ${rgba(KEY_LIGHT, .22)},0 30px 80px rgba(0,0,0,.6),0 0 0 2px ${rgba(TEXT, .12)}`, PG,
     screen?.img ? `<img src="${screen.img}" style="width:100%;height:100%;object-fit:cover">` : `<img class="live" style="width:100%;height:100%;object-fit:cover">`);
   const lv = scr.querySelector('.live'); if (lv) LIVE.push(lv);
   life(scr, t0 + .15, t1, [{opacity: 0, transform: 'scale(.85)'}, {opacity: 1, transform: 'none'}], [{opacity: 1}, {opacity: 0}], .45, .3);
 }
 
-/* 13 paper cut — collage: paper background, torn paper, scribbles, ransom-note letters, white sticker border on the person */
-function paperCut(t0, t1, {words = [], y = 170, size = 132, seed = 5} = {}) {
-  const r = rng(seed), root = div('inset:0;overflow:hidden;background:#EEEAE1', B);
-  const cv = document.createElement('canvas'); cv.width = 270; cv.height = 480; cv.style.cssText = 'position:absolute;inset:0;width:1080px;height:1920px;opacity:.55;mix-blend-mode:multiply';
-  const cx = cv.getContext('2d'), im = cx.createImageData(270, 480); for (let i = 0; i < im.data.length; i += 4) { const v = 200 + r() * 55; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; } cx.putImageData(im, 0, 0); root.appendChild(cv);
-  div('left:-40px;top:1180px;width:760px;height:820px;transform:rotate(-3deg);background:#F7F8FA;background-image:linear-gradient(#BFD3EA 2px,transparent 2px),linear-gradient(90deg,#BFD3EA 2px,transparent 2px);background-size:60px 60px;box-shadow:0 10px 30px rgba(0,0,0,.18)', root);
-  let torn = 'M560 640'; for (let x = 560; x <= 1100; x += 40) torn += ` L${x} ${640 + (r() - .5) * 40}`; for (let y = 640; y <= 1340; y += 40) torn += ` L${1100 + (r() - .5) * 10} ${y}`;
-  for (let x = 1100; x >= 520; x -= 40) torn += ` L${x} ${1340 + (r() - .5) * 46}`; for (let y = 1340; y >= 640; y -= 40) torn += ` L${520 + (r() - .5) * 44} ${y}`;
-  svg(1080, 1920, `<path d="${torn}Z" fill="#F2D24B"/>`, 'left:0;top:0', root);
-  const zig = (x, y, w, n, col) => { let d = `M${x} ${y}`; for (let i = 1; i <= n; i++) d += ` L${x + w * (i % 2)} ${y + i * 16}`; return `<path class="zz" d="${d}" stroke="${col}" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>`; };
-  const zs = svg(1080, 1920, zig(110, 600, 150, 22, '#3B5BDB') + zig(760, 1380, 120, 16, '#E03131') + `<path class="zz" d="M800 1700 q30 -40 60 0 t60 0 t60 0" stroke="#111" stroke-width="5" fill="none"/>`, 'left:0;top:0', root);
-  zs.querySelectorAll('.zz').forEach((p, i) => draw_(p, t0 + .3 + i * .2, .6));
-  life(root, t0, t1, [{opacity: 0}, {opacity: 1}], [{opacity: 1}, {opacity: 0}], .15, .25, 'linear');
-  const pal = [['#fff', '#111', 'SerifFont'], ['#111', '#fff', 'KeyFont'], ['#F2D24B', '#111', 'KeyFont'], ['#1C3FAA', '#fff', 'SerifFont'], ['#E03131', '#fff', 'KeyFont'], ['#F5F0E1', '#111', 'SmallFont']];
-  let k = 0;
-  words.forEach((wd, li) => {
-    const row = div(`left:0;width:1080px;top:${y + li * (size * 1.25)}px;display:flex;justify-content:center;gap:8px`, B);
-    graphemes(wd).forEach(ch => { if (ch === ' ') { div('position:relative;width:40px', row); return; }
-      const [bg, fg, ff] = pal[Math.floor(r() * pal.length)], rot = (r() - .5) * 14;
-      const b = document.createElement('div'); b.textContent = ch;
-      b.style.cssText = `position:relative;padding:4px 18px 10px;background:${bg};color:${fg};font-family:${ff};font-size:${size * (.85 + r() * .3)}px;line-height:1.25;box-shadow:0 8px 18px rgba(0,0,0,.3);transform:rotate(${rot}deg)`;
-      row.appendChild(b);
-      life(b, t0 + .25 + k++ * .08, t1, [{opacity: 0, transform: `rotate(${rot * 3}deg) scale(1.6)`}, {opacity: 1, transform: `rotate(${rot}deg)`}], [{opacity: 1}, {opacity: 0}], .22, .2, 'cubic-bezier(.3,1.6,.5,1)');
-    });
-  });
-  HOOKS.push(t => { const p = env(t, t0, t1, .2, .2); if (!p) return;
-    SH.fgFilter = 'drop-shadow(9px 0 0 #fff) drop-shadow(-9px 0 0 #fff) drop-shadow(0 9px 0 #fff) drop-shadow(0 -9px 0 #fff) drop-shadow(0 14px 18px rgba(0,0,0,.35))'; });
-}
-
-/* 14 doodle boil — a hand-drawn line traces around the person and wobbles ("boils"); doodles draw themselves beside the head */
-const DOODLE = {
-  heart: ['M50 84C20 62 8 44 14 28c6-15 26-17 36-3 10-14 30-12 36 3 6 16-6 34-36 56z', '#FF8FB1'],
-  sparkle: ['M50 6l9 33 33 11-33 9-9 35-9-35-33-9 33-11z', '#FFD43B'],
-  star: ['M50 8l12 27 29 3-22 20 7 29-26-15-26 15 7-29-22-20 29-3z', '#FFD43B'],
-  swirl: ['M50 50m-6 0a6 6 0 1 1 12 0a12 12 0 1 1-24 0a18 18 0 1 1 36 0a24 24 0 1 1-48 0', null],
-  arrow: ['M10 70C30 40 60 30 88 34M70 20l18 14-16 16', null],
-};
-function doodleBoil(t0, t1, {doodles} = {}) {
-  const fb = faceBox(t0);
-  doodles = doodles ?? [{type: 'heart', x: 120, y: fb.top + 20, size: 150}, {type: 'sparkle', x: 830, y: fb.top - 30, size: 140}];
-  HOOKS.push(t => { const p = env(t, t0, t1, .5, .25); if (!p) return;
-    SH.fgo = {o: 1, clip: `circle(${p * 140}% at 50% ${fb.cy / 19.2}%)`};
-    $('ringNoise').setAttribute('seed', 1 + Math.floor(t * 8) % 3); });   // boil: a new wobble ~8× per second
-  doodles.forEach((d, i) => {
-    const [path, fill] = DOODLE[d.type] ?? DOODLE.sparkle, sz = d.size ?? 140;
-    const e = svg(100, 100, `${fill ? `<path d="${path}" fill="${fill}" opacity="0" class="fl"/>` : ''}<path class="st" d="${path}" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>`,
-      `left:${d.x - sz / 2}px;top:${d.y - sz / 2}px;width:${sz}px;height:${sz}px;transform:scale(${sz / 100});transform-origin:0 0`, B);
-    const tt = t0 + .3 + i * .25; draw_(e.querySelector('.st'), tt, .5);
-    const fl = e.querySelector('.fl'); if (fl) A(fl, [{opacity: 0}, {opacity: .9}], tt + .45, .25);
-    life(e, tt, t1, [{opacity: 0}, {opacity: 1}], [{opacity: 1}, {opacity: 0}], .01, .25, 'linear');
-    HOOKS.push(t => { if (t < tt || t > t1) return; const k = Math.floor(t * 8) % 3; e.firstChild.style.transform = `rotate(${(k - 1) * 3}deg) translate(${(k - 1) * 1.5}px,${(1 - k) * 1.5}px)`; });
-  });
-}
-
-/* 15 vertigo — slow push-in on both layers together (exactly in sync, like one clip), then a quick return */
-function vertigo(t0, t1, {z = 1.35, back = .25} = {}) {
-  const oy = faceBox(t0).cy;
-  STAGE.push(t => { if (t < t0 || t > t1) return null;
-    const p = t < t1 - back ? INOUTf(clamp((t - t0) / (t1 - back - t0))) : 1 - smooth(clamp((t - (t1 - back)) / back));
-    return {s: lerp(1, z, p), ox: 540, oy}; });
-}
-const INOUTf = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-
-/* 16 cover story — magazine cover: a huge serif title behind the head, small print, italic tagline */
+/* 11 cover story — magazine cover: a huge serif title behind the head, small print, italic tagline */
 function coverStory(t0, t1, {title = '', left = [], right = [], kicker = '', tagline = '', taglineY = 1300, size = 250} = {}) {
   const fb = faceBox(t0), top = Math.max(150, fb.top - size * .3);   // the head overlaps the lower part of the title
   const shade = div('left:0;top:0;width:1080px;height:900px;background:linear-gradient(rgba(0,0,0,.38),rgba(0,0,0,0))', B);
   life(shade, t0, t1, [{opacity: 0}, {opacity: 1}], [{opacity: 1}, {opacity: 0}], .3, .25, 'linear');
-  const tl = div(`left:0;width:1080px;top:${top}px;display:flex;justify-content:center;overflow:hidden;font-family:SerifFont;font-weight:300;font-size:${size}px;line-height:1.08;letter-spacing:4px;color:#fff;text-shadow:0 6px 30px rgba(0,0,0,.35)`, B);
+  const tl = div(`left:0;width:1080px;top:${top}px;display:flex;justify-content:center;overflow:hidden;font-family:SerifFont;font-weight:300;font-size:${size}px;line-height:1.08;letter-spacing:4px;color:${TEXT};text-shadow:0 6px 30px rgba(0,0,0,.35)`, B);
   graphemes(title).forEach((ch, i) => { const s = document.createElement('span'); s.textContent = ch === ' ' ? ' ' : ch; s.style.display = 'inline-block'; tl.appendChild(s);
     life(s, t0 + .1 + i * .05, t1, [{transform: 'translateY(105%)'}, {transform: 'none'}], [{opacity: 1}, {opacity: 0}], .6, .25, SMOOTH); });
   FITS.push(() => { const w = [...tl.children].reduce((a, c) => a + c.offsetWidth, 0); if (w > 1000) tl.style.fontSize = size * 1000 / w + 'px'; });
-  const small = (lines, css) => { const e = div(`top:${top + size * 1.12}px;${css};font-family:BodyFont;font-size:22px;line-height:1.5;letter-spacing:3px;color:#fff`, B, lines.join('<br>'));
+  const small = (lines, css) => { const e = div(`top:${top + size * 1.12}px;${css};font-family:BodyFont;font-size:22px;line-height:1.5;letter-spacing:3px;color:${TEXT}`, B, lines.join('<br>'));
     life(e, t0 + .5, t1, [{opacity: 0}, {opacity: 1}], [{opacity: 1}, {opacity: 0}], .4, .25, 'linear'); };
   if (left.length) small(left, 'left:70px'); if (right.length) small(right, 'right:70px;text-align:right');
-  if (tagline || kicker) { const e = div(`left:70px;top:${taglineY}px;width:760px;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.45)`, F,
+  if (tagline || kicker) { const e = div(`left:70px;top:${taglineY}px;width:760px;color:${TEXT};text-shadow:0 4px 20px rgba(0,0,0,.45)`, F,
       `${kicker ? `<div style="font-family:BodyFont;font-size:22px;letter-spacing:4px;margin-bottom:10px">${kicker}</div>` : ''}<div style="font-family:SerifItalic;font-style:italic;font-size:76px;line-height:1.08">${tagline.replace(/\n/g, '<br>')}</div>`);
     life(e, t0 + .7, t1, [{opacity: 0, transform: 'translateY(30px)'}, {opacity: 1, transform: 'none'}], [{opacity: 1}, {opacity: 0}], .5, .25, SMOOTH); }
 }
 
-/* 17 glass type — huge frosted-glass letters behind the person: the blurred room shows through, edges catch light */
+/* 12 glass type — huge frosted-glass letters behind the person: the blurred room shows through, edges catch light */
 let GLASS_ID = 0;
 function glassType(t0, t1, {text = '', y, size = 300} = {}) {
   const id = 'gl' + GLASS_ID++, fb = faceBox(t0), cy = y ?? Math.max(260, fb.top + size * .12);   // letters sit behind the top of the head
@@ -465,12 +387,12 @@ function glassType(t0, t1, {text = '', y, size = 300} = {}) {
       <clipPath id="${id}c">${T('class="ft"')}</clipPath>
       <filter id="${id}b" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="10"/><feComponentTransfer><feFuncR type="linear" slope="1.5" intercept=".1"/><feFuncG type="linear" slope="1.5" intercept=".1"/><feFuncB type="linear" slope="1.5" intercept=".12"/></feComponentTransfer></filter>
       <filter id="${id}s" x="-5%" y="-10%" width="110%" height="120%"><feGaussianBlur in="SourceAlpha" stdDeviation="7" result="b"/>
-        <feSpecularLighting in="b" surfaceScale="7" specularConstant="1.2" specularExponent="26" lighting-color="#fff" result="sp"><fePointLight class="lt" x="200" y="${cy - 200}" z="420"/></feSpecularLighting>
+        <feSpecularLighting in="b" surfaceScale="7" specularConstant="1.2" specularExponent="26" lighting-color="${TEXT}" result="sp"><fePointLight class="lt" x="200" y="${cy - 200}" z="420"/></feSpecularLighting>
         <feComposite in="sp" in2="SourceAlpha" operator="in"/></filter>
-      <linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity=".02"/></linearGradient></defs>
+      <linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${TEXT}" stop-opacity=".22"/><stop offset="1" stop-color="${TEXT}" stop-opacity=".02"/></linearGradient></defs>
     <g style="filter:drop-shadow(0 24px 40px rgba(0,0,0,.35))"><g clip-path="url(#${id}c)"><image class="lv" width="1080" height="1920" preserveAspectRatio="none" filter="url(#${id}b)"/><rect width="1080" height="1920" fill="url(#${id}g)"/></g></g>
-    ${T(`fill="#fff" filter="url(#${id}s)" opacity=".5" class="ft"`)}
-    ${T(`fill="none" stroke="rgba(255,255,255,.75)" stroke-width="2.5" class="ft"`)}`, 'left:0;top:0;transform-origin:540px ' + cy + 'px', B);
+    ${T(`fill="${TEXT}" filter="url(#${id}s)" opacity=".5" class="ft"`)}
+    ${T(`fill="none" stroke="${rgba(TEXT, .75)}" stroke-width="2.5" class="ft"`)}`, 'left:0;top:0;transform-origin:540px ' + cy + 'px', B);
   const img = e.querySelector('.lv'), lt = e.querySelector('.lt'); LIVE.push(img);
   FITS.push(() => { const w = e.querySelector('text.ft').getComputedTextLength(); if (w > 1000) e.querySelectorAll('text').forEach(x => x.setAttribute('font-size', size * 1000 / w)); });
   HOOKS.push(t => { if (t < t0 || t > t1) return; img.setAttribute('transform', `translate(507.6 806.4) scale(${camAt(t)}) translate(-507.6 -806.4)`);

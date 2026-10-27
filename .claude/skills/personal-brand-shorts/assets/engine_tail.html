@@ -1,5 +1,5 @@
 /* ===================== ENGINE ===================== */
-const V = $('v'), FG = $('fg'), FGO = $('fgo'), PV = $('pv'), VW = $('vw'), ST = $('stage'), VS = $('vshadow'), PAGE = $('page');
+const V = $('v'), FG = $('fg'), PV = $('pv'), VW = $('vw'), ST = $('stage'), VS = $('vshadow'), PAGE = $('page'), ED = $('ed');
 window.seek = async (t, src, fgSrc) => {   // src = …/src_frames/sNNNNN.jpg · fgSrc = …/fg_frames/fNNNNN.webp
   if (!window.__fitted) {
     window.__fitted = true;
@@ -9,24 +9,23 @@ window.seek = async (t, src, fgSrc) => {   // src = …/src_frames/sNNNNN.jpg ·
     FACE_ERRORS.forEach(e => console.error('FACE: ' + e));   // render.js treats these as errors
   }
   const loads = [];
-  if (src) { V.src = src; PV.src = src; LIVE.forEach(i => i.tagName === 'image' ? i.setAttribute('href', src) : (i.src = src)); loads.push(V.decode(), PV.decode()); }
-  if (fgSrc) { FG.src = FGO.src = fgSrc; loads.push(FG.decode(), FGO.decode()); }
+  if (src) { V.src = src; PV.src = src; ED.src = src; LIVE.forEach(i => i.tagName === 'image' ? i.setAttribute('href', src) : (i.src = src)); loads.push(V.decode(), PV.decode(), ED.decode()); }
+  if (fgSrc) { FG.src = fgSrc; loads.push(FG.decode()); }
   await Promise.all(loads);
   // shared state → reset, then effects write it for this frame
   for (const k in SH) delete SH[k];
   HOOKS.forEach(h => h(t));
   const cam = camAt(t);
-  V.style.transform = FG.style.transform = FGO.style.transform = `scale(${cam})`;   // both layers move as one
+  V.style.transform = FG.style.transform = `scale(${cam})`;   // both layers move as one
   const st = stageAt(t);
   ST.style.transform = `matrix(${st.a},0,0,${st.a},${st.bx},${st.by})`;
   ST.style.filter = st.blur > .05 ? `blur(${st.blur}px)` : '';
   PAGE.style.background = SH.page ?? '#000';
   PV.style.opacity = SH.pv ?? 0;
+  ED.style.opacity = SH.page || SH.pv ? 0 : 1; ED.style.transform = `scale(${cam * 1.03})`;   // fills the few px the drift leaves at the edges
   VW.style.clipPath = SH.clip ?? '';
   V.style.opacity = SH.vOpacity ?? 1;
   VS.style.opacity = SH.shadow?.o ?? 0; VS.style.inset = SH.shadow?.inset ?? '0px';
-  FG.style.filter = SH.fgFilter ?? '';
-  FGO.style.opacity = SH.fgo?.o ?? 0; FGO.style.filter = SH.fgo ? 'url(#ring)' : ''; FGO.style.clipPath = SH.fgo?.clip ?? '';
   document.getAnimations().forEach(a => { a.pause(); a.currentTime = ms(t); });
 };
 window.FACE_ERRORS = FACE_ERRORS;
