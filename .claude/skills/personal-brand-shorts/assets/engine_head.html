@@ -5,8 +5,8 @@
 @font-face{font-family:"MidFont";src:url(fonts/Mitr-SemiBold.ttf);font-weight:600}
 @font-face{font-family:"BodyFont";src:url(fonts/Mitr-Medium.ttf);font-weight:500}
 @font-face{font-family:"SmallFont";src:url(fonts/Sriracha-Regular.ttf);font-weight:400}
-/* text palette = talking-head-motion v9 — #FFFFFF + light blue #8FD3FF */
-:root{--blue:#8FD3FF}
+/* text palette — #FFFFFF + key words dark purple #5B2A86 */
+:root{--blue:#5B2A86}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
 body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
@@ -21,7 +21,7 @@ body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
 .s{font-family:"SmallFont";font-size:60px;line-height:1.25;color:#fff}
 .m{font-family:"MidFont";font-size:90px;line-height:1.18;font-weight:600;color:#fff}
 .k{font-family:"KeyFont";font-size:136px;line-height:1.14;font-weight:700;letter-spacing:-1px;color:var(--blue)}
-.k .g{text-shadow:0 0 34px rgba(143,211,255,.55),0 6px 24px rgba(0,0,0,.55)}
+.k .g{text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 26px rgba(255,255,255,.75),0 6px 24px rgba(0,0,0,.35)}   /* light halo keeps dark purple readable on dark footage */
 .s .g,.m .g{text-shadow:0 4px 22px rgba(0,0,0,.65),0 1px 4px rgba(0,0,0,.5)}
 </style></head>
 <body>
@@ -37,7 +37,7 @@ const A = (el, kf, t, d, o = {}) => el.animate(kf, {delay: ms(t), duration: ms(d
 const div = (css, parent, html = '') => { const d = document.createElement('div'); d.style.cssText = 'position:absolute;' + css; d.innerHTML = html; parent.appendChild(d); return d; };
 const seg = new Intl.Segmenter('th', {granularity: 'grapheme'});
 const graphemes = s => [...seg.segment(s)].map(x => x.segment);
-const BLUE = '#8FD3FF';
+const BLUE = '#5B2A86';
 
 /* kinetic text: every grapheme flips up in 3D with a spring, staggered */
 function kinetic(parent, txt, cls, t, {stagger, color} = {}) {
@@ -50,7 +50,7 @@ function kinetic(parent, txt, cls, t, {stagger, color} = {}) {
     const ti = t + i * st;
     A(g, [{opacity: 0, transform: `translateY(${big ? 55 : 40}%) rotateX(${big ? -85 : -60}deg) scale(${big ? 1.15 : 1.05})`, filter: 'blur(10px)'},
           {opacity: 1, transform: 'none', filter: 'blur(0)'}], ti, big ? .48 : .36, {e: SPRING});
-    if (big) A(g, [{color: '#FFFFFF'}, {color: BLUE}], ti + .16, .35, {e: 'ease-out'});   // white-hot ignite → light blue
+    if (big) A(g, [{color: '#FFFFFF'}, {color: BLUE}], ti + .16, .35, {e: 'ease-out'});   // white-hot ignite → dark purple
   });
   return c;
 }
