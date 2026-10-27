@@ -30,9 +30,12 @@ body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
 <img id="v">    <!-- the clip -->
 <div class="layer" id="Q"></div>   <!-- overlay graphics on the clip (top band, beside the head) -->
 <div class="layer" id="g"></div>   <!-- text + under-chin overlays — top-most -->
+<div class="layer" id="fl" style="background:#fff;opacity:0"></div>   <!-- hit flash -->
 <script>
 /* ===================== CORE ===================== */
-const G = document.getElementById('g'), Q = document.getElementById('Q');
+const G = document.getElementById('g'), Q = document.getElementById('Q'), FL = document.getElementById('fl');
+const SFX = [];
+const sfx = (s, t, db = -16, pitch) => SFX.push(pitch ? {s, t, db, pitch} : {s, t, db});   // sound cue → scripts/sfx.py (talking-head-motion library)
 const HOOKS = [], FITS = [], ZOOM = [];
 const ms = s => s * 1000;
 /* camera zoom — identical to talking-head-motion */
@@ -41,7 +44,13 @@ const ease = p => 1 - Math.pow(1 - p, 3);
 function zoomAt(t) { let z = 1; for (const k of [...ZOOM].sort((a, b) => a.t - b.t)) { if (t < k.t) break; const p = Math.min(1, (t - k.t) / k.d); z += (k.z - z) * (k.lin ? p : ease(p)); } return z; }
 /* camera move: hard cut to `from` at t0, then a constant slow push to `to` until t1 */
 const push = (t0, t1, from, to) => { zoom(t0, from, .001); zoom(t0 + .001, to, t1 - t0, true); };
-const camAt = t => zoomAt(t) * (1 + .014 * Math.sin(t * .3));   // incl. the slow breathing drift
+/* hits: a short camera punch + shake that land on one frame with a graphic, a flash and a sound (hit()) */
+const PUNCH = [], SHAKE = [];
+const punchAt = t => PUNCH.reduce((m, k) => { const d = t - k.t; if (d < 0 || d > k.d) return m;
+  const e = d < .06 ? ease(d / .06) : Math.pow(1 - (d - .06) / (k.d - .06), 2); return m * (1 + k.z * e); }, 1);
+const shakeAt = t => SHAKE.reduce(([x, y], k) => { const d = t - k.t; if (d < 0 || d > k.d) return [x, y];
+  const a = k.amp * Math.pow(1 - d / k.d, 2); return [x + a * Math.sin(d * 75), y + a * .6 * Math.cos(d * 61)]; }, [0, 0]);
+const camAt = t => zoomAt(t) * (1 + .014 * Math.sin(t * .3)) * punchAt(t);   // incl. the slow breathing drift + punches
 const SPRING = 'cubic-bezier(.22,1.35,.36,1)', SMOOTH = 'cubic-bezier(.2,.8,.2,1)', INOUT = 'cubic-bezier(.65,0,.35,1)';
 // every animation is paused at birth and persisted: frames are driven only by seek(), and the browser must never
 // auto-remove a finished animation (it does when real time runs past it under load → elements popping in early)
@@ -250,7 +259,12 @@ function topBand(t0, t1, css = '', html = '', sc = 1.2) {   // full safe-width h
 function ocap(t0, t1, txt, {keys = {}, size = 80} = {}) {
   const el = div(`text-align:center;white-space:nowrap;font-family:RefSans;font-weight:400;font-size:${size}px;line-height:1.3`, G);
   let t = t0; const d = Math.min(.55, (t1 - t0) * .5), n = graphemes(txt).length;
-  for (const [s, c] of segments(txt, keys)) t = typeIn(el, s, t, d * graphemes(s).length / n, c ?? '#fff', c ? glow(c) : SHADOW);
+  for (const [s, c] of segments(txt, keys)) {
+    if (!c) { t = typeIn(el, s, t, d * graphemes(s).length / n, '#fff', SHADOW); continue; }
+    const k = document.createElement('span'); k.style.cssText = 'display:inline-block;transform-origin:50% 70%'; el.appendChild(k);   // key word pops as it lands
+    const tk = t; t = typeIn(k, s, t, d * graphemes(s).length / n, c, glow(c));
+    A(k, [{transform: 'scale(1)'}, {transform: 'scale(1.32) translateY(-4px)', offset: .35}, {transform: 'scale(1)'}], tk + .05, .45, {e: 'cubic-bezier(.3,1.4,.5,1)', f: 'none'});
+  }
   safeUnder(el, t0, t1, BAND.mode === 'chest' ? BAND.capTop : 1235);
   A(el, FADE_OUT, t1 - .1, .1, {e: 'linear', f: 'forwards'});
 }
@@ -285,3 +299,24 @@ function flipText(el, steps) {
 }
 /* repeat a one-shot animation every `per` seconds from t0 until t1 (falling drops, ticking, flowing) */
 const loop = (el, kf, t0, t1, per, o = {}) => A(el, kf, t0, per, {e: 'linear', ...o, it: Math.max(1, Math.floor((t1 - t0) / per)), f: o.f ?? 'none'});
+/* ---- pro-edit layer: everything that lands on a beat lands together ---- */
+/* hit: camera punch (z), screen shake (px), white flash (opacity), sound — all on the same frame */
+function hit(t, {z = .05, shake = 0, flash = 0, s = 'whoosh', db = -16, d = .45, pitch} = {}) {
+  if (z) PUNCH.push({t, z, d});
+  if (shake) SHAKE.push({t, amp: shake, d: .35});
+  if (flash) A(FL, [{opacity: flash}, {opacity: 0}], t, .14, {e: 'ease-out', f: 'none'});
+  if (s) sfx(s, t, db, pitch);
+}
+/* whip in / out with motion blur and smear (on the band holder; uses translate + filter, so the holder's own fades still work) */
+const whipIn = (el, t, {dir = 1, dist = 420, d = .3} = {}) => A(el, [
+  {translate: `${dir * dist}px 0`, filter: 'blur(22px) opacity(0)'}, {translate: `${-dir * 18}px 0`, filter: 'blur(2px) opacity(1)', offset: .65}, {translate: '0 0', filter: 'blur(0) opacity(1)'}], t, d, {e: 'cubic-bezier(.2,.9,.3,1)'});
+const whipOut = (el, t, {dir = -1, dist = 420, d = .2} = {}) => A(el, [
+  {translate: '0 0', filter: 'blur(0) opacity(1)'}, {translate: `${dir * dist}px 0`, filter: 'blur(22px) opacity(0)'}], t, d, {e: 'cubic-bezier(.6,0,.9,.4)', f: 'forwards'});
+/* the band graphic of one beat: holder + whip in (with a whoosh hit) + whip out just before t1 */
+function beat(t0, t1, css = '', html = '', sc, {hitIn = {}, out = true} = {}) {
+  const el = topBand(t0, t1, css, html, sc ?? (BAND.mode === 'chest' ? 1 : 1.2));
+  whipIn(el, t0); if (hitIn) hit(t0, {z: .03, s: 'whoosh', db: -20, ...hitIn});
+  if (out) whipOut(el, t1 - .2);
+  return el;
+}
+window.SFX = SFX;
