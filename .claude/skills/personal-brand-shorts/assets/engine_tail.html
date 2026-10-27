@@ -1,15 +1,36 @@
 /* ===================== ENGINE ===================== */
-const V = document.getElementById('v'), FG = document.getElementById('fg');
-window.seek = async (t, src, fgSrc) => {   // src = src_frames/sNNNNN.jpg · fgSrc = fg_frames/fNNNNN.webp
+const V = $('v'), FG = $('fg'), FGO = $('fgo'), PL = $('plate'), PV = $('pv'), VW = $('vw'), ST = $('stage'), VS = $('vshadow'), PAGE = $('page');
+window.seek = async (t, src, fgSrc) => {   // src = …/src_frames/sNNNNN.jpg · fgSrc = …/fg_frames/fNNNNN.webp
   if (!window.__fitted) {
-    window.__fitted = true; FITS.forEach(f => f());
+    window.__fitted = true;
+    if (src) CLIP.base = src.replace(/src_frames\/s\d+\.jpg$/, '');
+    PL.src = CLIP.base + 'plate.jpg'; await PL.decode().catch(() => {});
+    for (const f of INIT) await f();
+    FITS.forEach(f => f());
     FACE_ERRORS.forEach(e => console.error('FACE: ' + e));   // render.js treats these as errors
   }
-  if (src) { V.src = src; await V.decode(); }
-  if (fgSrc) { FG.src = fgSrc; await FG.decode(); }
-  V.style.transform = FG.style.transform = `scale(${camAt(t)})`;   // both layers move as one
-  document.getAnimations().forEach(a => { a.pause(); a.currentTime = ms(t); });
+  const loads = [];
+  if (src) { V.src = src; PV.src = src; LIVE.forEach(i => i.tagName === 'image' ? i.setAttribute('href', src) : (i.src = src)); loads.push(V.decode(), PV.decode()); }
+  if (fgSrc) { FG.src = FGO.src = fgSrc; loads.push(FG.decode(), FGO.decode()); }
+  await Promise.all(loads);
+  // shared state → reset, then effects write it for this frame
+  for (const k in SH) delete SH[k];
   HOOKS.forEach(h => h(t));
+  const cam = camAt(t);
+  V.style.transform = FG.style.transform = FGO.style.transform = `scale(${cam})`;   // both layers move as one
+  const st = stageAt(t);
+  ST.style.transform = `matrix(${st.a},0,0,${st.a},${st.bx},${st.by})`;
+  ST.style.filter = st.blur > .05 ? `blur(${st.blur}px)` : '';
+  PAGE.style.background = SH.page ?? '#000';
+  PV.style.opacity = SH.pv ?? 0;
+  VW.style.clipPath = SH.clip ?? '';
+  V.style.opacity = SH.vOpacity ?? 1;
+  VS.style.opacity = SH.shadow?.o ?? 0; VS.style.inset = SH.shadow?.inset ?? '0px';
+  FG.style.filter = SH.fgFilter ?? '';
+  FGO.style.opacity = SH.fgo?.o ?? 0; FGO.style.filter = SH.fgo ? 'url(#ring)' : ''; FGO.style.clipPath = SH.fgo?.clip ?? '';
+  if (SH.plate) { PL.style.opacity = 1; PL.style.transformOrigin = `540px ${SH.plate.oy}px`; PL.style.transform = `scale(${cam * SH.plate.s})`; PL.style.filter = `blur(${SH.plate.blur}px)`; }
+  else PL.style.opacity = 0;
+  document.getAnimations().forEach(a => { a.pause(); a.currentTime = ms(t); });
 };
 window.FACE_ERRORS = FACE_ERRORS;
 </script>
