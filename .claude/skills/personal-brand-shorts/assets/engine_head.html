@@ -1,0 +1,277 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"KeyFont";src:url(fonts/Mitr-Bold.ttf);font-weight:700}
+@font-face{font-family:"MidFont";src:url(fonts/Mitr-SemiBold.ttf);font-weight:600}
+@font-face{font-family:"BodyFont";src:url(fonts/Mitr-Medium.ttf);font-weight:500}
+@font-face{font-family:"SmallFont";src:url(fonts/Sriracha-Regular.ttf);font-weight:400}
+/* text palette — #FFFFFF + key words dark purple #5B2A86 */
+:root{--blue:#5B2A86}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
+body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
+#v,#ed{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:47% 42%}   /* zoom origin = talking-head-motion */
+.layer{position:absolute;inset:0;pointer-events:none}
+
+/* ---------- typography (talking-head-motion; key words dark purple with a black shadow) ---------- */
+.block{position:absolute;left:60px;width:960px;display:flex;flex-direction:column;align-items:center;transform-origin:50% 0}
+.line{display:flex;align-items:baseline;justify-content:center;gap:18px;white-space:nowrap;perspective:900px}
+.chunk{display:inline-block;white-space:nowrap}
+.g{display:inline-block;opacity:0;transform-origin:50% 80%;will-change:transform,opacity,filter}
+.s{font-family:"SmallFont";font-size:60px;line-height:1.25;color:#fff}
+.m{font-family:"MidFont";font-size:90px;line-height:1.18;font-weight:600;color:#fff}
+.k{font-family:"KeyFont";font-size:136px;line-height:1.14;font-weight:700;letter-spacing:-1px;color:var(--blue)}
+.k .g{text-shadow:0 0 34px rgba(0,0,0,.55),0 6px 24px rgba(0,0,0,.55)}   /* black shadow (talking-head-motion glow shape, in black) */
+.s .g,.m .g{text-shadow:0 4px 22px rgba(0,0,0,.65),0 1px 4px rgba(0,0,0,.5)}
+</style></head>
+<body>
+<img id="ed">   <!-- edge fill: the same frame, slightly larger, behind the clip (the breathing drift dips below 1.0) -->
+<img id="v">    <!-- the clip -->
+<div class="layer" id="Q"></div>   <!-- overlays on the clip: ? marks -->
+<div class="layer" id="S"></div>   <!-- full-screen app scenes (chat, board, payment, black type) -->
+<div class="layer" id="g"></div>   <!-- text — top-most -->
+<script>
+/* ===================== CORE ===================== */
+const G = document.getElementById('g'), Q = document.getElementById('Q'), S = document.getElementById('S');
+const HOOKS = [], FITS = [], ZOOM = [];
+const ms = s => s * 1000;
+/* camera zoom — identical to talking-head-motion */
+const zoom = (t, z, d = .14, lin = false) => ZOOM.push({t, z, d, lin});   // lin: constant-speed move (slow push-in)
+const ease = p => 1 - Math.pow(1 - p, 3);
+function zoomAt(t) { let z = 1; for (const k of [...ZOOM].sort((a, b) => a.t - b.t)) { if (t < k.t) break; const p = Math.min(1, (t - k.t) / k.d); z += (k.z - z) * (k.lin ? p : ease(p)); } return z; }
+/* camera move: hard cut to `from` at t0, then a constant slow push to `to` until t1 */
+const push = (t0, t1, from, to) => { zoom(t0, from, .001); zoom(t0 + .001, to, t1 - t0, true); };
+const camAt = t => zoomAt(t) * (1 + .014 * Math.sin(t * .3));   // incl. the slow breathing drift
+const SPRING = 'cubic-bezier(.22,1.35,.36,1)', SMOOTH = 'cubic-bezier(.2,.8,.2,1)', INOUT = 'cubic-bezier(.65,0,.35,1)';
+// every animation is paused at birth and persisted: frames are driven only by seek(), and the browser must never
+// auto-remove a finished animation (it does when real time runs past it under load → elements popping in early)
+const A = (el, kf, t, d, o = {}) => { const a = el.animate(kf, {delay: ms(t), duration: ms(d), easing: o.e ?? SMOOTH, fill: o.f ?? 'both', iterations: o.it ?? 1, direction: o.dir ?? 'normal', composite: o.c ?? 'replace'}); a.pause(); a.persist(); return a; };
+const div = (css, parent, html = '') => { const d = document.createElement('div'); d.style.cssText = 'position:absolute;' + css; d.innerHTML = html; parent.appendChild(d); return d; };
+const seg = new Intl.Segmenter('th', {granularity: 'grapheme'});
+const graphemes = s => [...seg.segment(s)].map(x => x.segment);
+/* ---- palette: the two FONT colours; every graphic colour is derived from them ---- */
+const TEXT = '#FFFFFF', BLUE = '#5B2A86';   // normal text · key words
+const hex = h => (h = h.replace('#', ''), h.length === 3 ? [...h].map(c => parseInt(c + c, 16)) : [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)));
+const mix = (a, b, p) => '#' + hex(a).map((v, i) => Math.round(v + (hex(b)[i] - v) * p).toString(16).padStart(2, '0')).join('');
+const rgba = (h, a) => `rgba(${hex(h).join(',')},${a})`;
+const KEY_LIGHT = mix(BLUE, TEXT, .65);    // key colour that reads on dark footage
+const KEY_SOFT = mix(BLUE, TEXT, .9);      // soft surfaces (incoming chat bubble)
+const KEY_PAGE = mix(BLUE, TEXT, .93);     // light app pages
+const KEY_DARK = mix(BLUE, '#000', .85);   // dark screens
+const INK = mix(BLUE, '#000', .55);        // text on light surfaces
+
+/* kinetic text: every grapheme flips up in 3D with a spring, staggered */
+function kinetic(parent, txt, cls, t, {stagger, color} = {}) {
+  const c = document.createElement('span'); c.className = 'chunk ' + cls;
+  if (color) c.style.color = color;
+  parent.appendChild(c);
+  const big = cls.includes('k'), st = stagger ?? (big ? .032 : .016);
+  graphemes(txt).forEach((ch, i) => {
+    const g = document.createElement('span'); g.className = 'g'; g.textContent = ch === ' ' ? ' ' : ch; c.appendChild(g);
+    const ti = t + i * st;
+    A(g, [{opacity: 0, transform: `translateY(${big ? 55 : 40}%) rotateX(${big ? -85 : -60}deg) scale(${big ? 1.15 : 1.05})`, filter: 'blur(10px)'},
+          {opacity: 1, transform: 'none', filter: 'blur(0)'}], ti, big ? .48 : .36, {e: SPRING});
+    if (big) A(g, [{color: '#FFFFFF'}, {color: BLUE}], ti + .16, .35, {e: 'ease-out'});   // white-hot ignite → dark purple
+  });
+  return c;
+}
+
+/* ===================== PLACEMENT — never cover the face ===================== */
+/* face(top, bottom, t0?, t1?) declares the y-band of the speaker's head (hair → chin) for a time range,
+   measured on the clip's own contact sheet. Every caption block is placed outside it. */
+const FACE = [], FACE_ERRORS = [];
+const face = (top, bottom, t0 = 0, t1 = 1e9) => FACE.push({top, bottom, t0, t1});
+const ZONE = {top: 1225, bottom: 1665, gap: 40};   // default caption zone (talking-head-motion) · bottom 255 px kept for platform UI
+const ZOY = 1920 * .42;   // zoom origin y — a face band at y grows to ZOY + (y - ZOY) * zoom
+function maxZoom(t0, t1) { let m = 1; for (let t = t0; t <= t1; t += 1 / 30) m = Math.max(m, camAt(t)); return m; }
+const faceAt = (t0, t1) => { const z = maxZoom(t0, t1);
+  return FACE.filter(f => f.t0 < t1 && f.t1 > t0).map(f => ({...f, top: Math.round(ZOY + (f.top - ZOY) * z), bottom: Math.round(ZOY + (f.bottom - ZOY) * z)})); };
+const overlaps = (a0, a1, b0, b1) => a0 < b1 && a1 > b0;
+
+/* block of lines: [[ [text, style, t, size?], ... ], ...]  style s|m|k
+   top omitted → default zone, pushed below the face if the face reaches into it.
+   center: true → mid-screen (760) — only where no face band is declared at that time. */
+function block(b) {
+  const el = div(`top:${b.top ?? (b.center ? 760 : ZONE.top)}px`, G); el.className = 'block';
+  let box = el;
+  if (b.bar) {   // caption on a key-colour bar that wipes in (key words switch to the light key colour on the bar)
+    box = div(`position:relative;display:flex;flex-direction:column;align-items:center;padding:14px 44px 22px;border-radius:30px;background:${BLUE};box-shadow:0 14px 40px rgba(0,0,0,.35)`, el);
+    A(box, [{clipPath: 'inset(0 100% 0 0 round 30px)'}, {clipPath: 'inset(0 0 0 0 round 30px)'}], b.t0, .3, {e: SMOOTH});
+  }
+  for (const ln of b.lines) {
+    const L = document.createElement('div'); L.className = 'line'; box.appendChild(L);
+    for (const [txt, st, t, size] of ln) { const k = kinetic(L, txt, st, t, b.bar && st.includes('k') ? {color: KEY_LIGHT} : {}); if (size) k.style.fontSize = size + 'px'; }
+  }
+  // fit + place — measured on the first seek, after web fonts have loaded (measuring now would use fallback metrics)
+  FITS.push(() => {
+    if (inScene(b.t0)) { el.style.display = 'none'; return; }   // the scene tells this line itself
+    for (const L of box.querySelectorAll('.line')) { const w = L.scrollWidth; if (w > 960) L.style.transform = `scale(${960 / w})`; }
+    const faces = faceAt(b.t0, b.t1);
+    let top = b.top ?? (b.center ? 760 : ZONE.top);
+    if (b.top == null && !b.center) for (const f of faces) top = Math.max(top, f.bottom + ZONE.gap);   // "ตามความเหมาะสมของคลิป"
+    let maxH = b.center ? 560 : 440;
+    if (b.top == null && !b.center) maxH = Math.min(maxH, ZONE.bottom - top);
+    let s = 1;
+    if (el.offsetHeight > maxH) s = Math.max(.01, maxH / el.offsetHeight);
+    el.style.top = top + 'px';
+    if (s < 1) el.style.transform = `scale(${s})`;
+    const y0 = top, y1 = top + el.offsetHeight * s;
+    for (const f of faces) if (overlaps(y0, y1, f.top, f.bottom))
+      FACE_ERRORS.push(`block ${b.t0}-${b.t1} (y ${Math.round(y0)}-${Math.round(y1)}) covers face band ${f.top}-${f.bottom}`);
+    if (s < .6) FACE_ERRORS.push(`block ${b.t0}-${b.t1} shrunk to ${Math.round(s * 100)}% to stay off the face — split it or shorten it`);
+  });
+  A(el, [{opacity: 1, filter: 'blur(0)', translate: '0 0'}, {opacity: 0, filter: 'blur(16px)', translate: '0 -50px'}], b.t1 - .16, .16, {e: 'cubic-bezier(.5,0,.9,.5)', f: 'forwards'});
+  return el;
+}
+const text = (parent, txt, cls, t, css = '', o = {}) => { const w = div(`left:0;width:1080px;text-align:center;${css}`, parent); w.style.perspective = '900px'; const k = kinetic(w, txt, cls, t, o); if (o.size) k.style.fontSize = o.size + 'px'; return w; };
+
+/* ===================== PHONE-UI STORYTELLING (references/techniques.md) ===================== */
+/* Each sentence can turn into the phone screen it talks about. Full-screen scenes hide the captions for their
+   window (the screen tells the line); overlays sit on the clip under the captions. All colours come from TEXT / BLUE. */
+const SCENE_WIN = [];
+const inScene = t => SCENE_WIN.some(([a, b]) => t >= a - .01 && t < b);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, p) => a + (b - a) * p;
+function life(el, t0, t1, kIn, kOut, din = .35, dout = .22, e = SPRING) {   // entrance (fill both) + exit (fill forwards)
+  A(el, kIn, t0, din, {e});
+  A(el, kOut, t1 - dout, dout, {e: 'cubic-bezier(.5,0,.9,.5)', f: 'forwards'});
+}
+const FADE_OUT = [{opacity: 1}, {opacity: 0}];
+function faceBox(t = 0) { const f = FACE.find(f => f.t0 <= t && f.t1 > t) ?? FACE[0] ?? {top: 520, bottom: 1150}; return {top: f.top, bottom: f.bottom, cy: (f.top + f.bottom) / 2}; }
+const firstLetter = s => graphemes(s.replace(/^[\s‹]+/, ''))[0] ?? '';
+
+/* full-screen scene: enter 'fade' | 'whip' (slides in from the right with motion blur) | 'cut' */
+function scene(t0, t1, {bg = TEXT, enter = 'fade'} = {}) {
+  SCENE_WIN.push([t0, t1]);
+  const root = div(`inset:0;background:${bg};overflow:hidden`, S);
+  const kIn = enter === 'whip' ? [{opacity: 1, transform: 'translateX(100%)', filter: 'blur(30px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}]
+            : enter === 'cut' ? [{opacity: 0}, {opacity: 1, offset: .01}, {opacity: 1}] : [{opacity: 0, transform: 'scale(1.04)'}, {opacity: 1, transform: 'none'}];
+  life(root, t0, t1, kIn, FADE_OUT, enter === 'whip' ? .3 : .25, .2, SMOOTH);
+  // hidden outside its window: a 'whip' scene waits off-screen right with a blur that would bleed onto the frame edge
+  HOOKS.push(t => { root.style.visibility = t >= t0 && t <= t1 ? 'visible' : 'hidden'; });
+  return root;
+}
+
+/* #1 question marks pop around the head (on the clip, beside the face — never over it) */
+function qMarks(t0, t1, {n = 4} = {}) {
+  const fb = faceBox(t0), spots = [[150, fb.top + 40, -14, 150], [890, fb.top - 10, 12, 130], [120, fb.cy + 140, 10, 110], [930, fb.cy + 110, -10, 120]];
+  spots.slice(0, n).forEach(([x, y, rot, sz], i) => {
+    const q = div(`left:${x - sz / 2}px;top:${y - sz / 2}px;width:${sz}px;text-align:center;font-family:SmallFont;font-size:${sz}px;line-height:1;color:${TEXT};text-shadow:0 6px 24px rgba(0,0,0,.6)`, Q, '?');
+    life(q, t0 + i * .15, t1, [{opacity: 0, transform: `scale(.3) rotate(${rot * 3}deg)`}, {opacity: 1, transform: `rotate(${rot}deg)`}], [{opacity: 1}, {opacity: 0, transform: 'scale(.6)'}], .35, .2);
+    A(q, [{translate: '0 0'}, {translate: '0 -16px'}], t0 + .4 + i * .15, .8, {it: Math.max(1, Math.ceil((t1 - t0) / .8)), dir: 'alternate', e: 'ease-in-out', f: 'none'});
+  });
+}
+
+/* #2 chat screen — msgs: [{from: 'them'|'me', text, t}], read: time the "read" mark appears under the last own message */
+function chat(t0, t1, {name = '', msgs = [], read, readLabel = 'อ่านแล้ว', enter = 'fade'} = {}) {
+  const root = scene(t0, t1, {bg: TEXT, enter});
+  div(`left:0;top:0;width:1080px;height:320px;border-bottom:2px solid ${rgba(INK, .08)};display:flex;align-items:flex-end;gap:28px;padding:0 50px 34px`, root,
+    `<span style="font-family:BodyFont;font-size:80px;line-height:1;color:${BLUE}">‹</span>
+     <span style="width:124px;height:124px;border-radius:50%;background:${BLUE};display:flex;align-items:center;justify-content:center;font-family:KeyFont;font-size:60px;color:${TEXT}">${firstLetter(name)}</span>
+     <span style="font-family:KeyFont;font-size:58px;color:${INK};padding-bottom:22px">${name}</span>`);
+  const col = div('left:50px;right:50px;top:440px;display:flex;flex-direction:column;gap:26px', root);
+  let lastMe = null;
+  msgs.forEach(m => {
+    const me = m.from === 'me', bb = document.createElement('div');
+    bb.style.cssText = `align-self:${me ? 'flex-end' : 'flex-start'};max-width:820px;padding:30px 44px 38px;border-radius:54px;${me ? 'border-bottom-right-radius:12px' : 'border-bottom-left-radius:12px'};background:${me ? BLUE : KEY_SOFT};color:${me ? TEXT : INK};font-family:BodyFont;font-size:56px;line-height:1.3;transform-origin:${me ? '100%' : '0'} 100%`;
+    bb.textContent = m.text; col.appendChild(bb);
+    A(bb, [{opacity: 0, transform: 'scale(.5) translateY(30px)'}, {opacity: 1, transform: 'none'}], m.t, .35);
+    if (me) lastMe = bb;
+  });
+  if (read != null) { const rd = document.createElement('div'); rd.style.cssText = `align-self:flex-end;margin-top:-8px;font-family:BodyFont;font-size:36px;color:${rgba(INK, .5)}`; rd.textContent = readLabel; col.appendChild(rd);
+    A(rd, [{opacity: 0}, {opacity: 1}], read, .2); }
+  div(`left:50px;right:50px;top:1480px;height:120px;border-radius:60px;background:${rgba(INK, .06)};padding:0 48px;display:flex;align-items:center;font-family:BodyFont;font-size:42px;color:${rgba(INK, .35)}`, root, 'พิมพ์ข้อความ');
+}
+
+/* #3 black screen: a line types itself, then an iris opens back onto the clip */
+function blackType(t0, t1, txt, {iris = .4} = {}) {
+  SCENE_WIN.push([t0, t1]);
+  const root = div(`inset:0;background:${KEY_DARK}`, S), gs = graphemes(txt), ti = t1 - iris;
+  const tx = div(`left:0;width:1080px;top:880px;text-align:center;font-family:BodyFont;font-size:68px;color:${TEXT}`, root);
+  A(root, [{opacity: 0}, {opacity: 1}], t0, .08, {e: 'linear'});
+  const fb = faceBox(t0);
+  HOOKS.push(t => {
+    if (t < t0 || t > t1) { root.style.display = 'none'; return; } root.style.display = '';
+    tx.textContent = gs.slice(0, clamp(Math.ceil((t - t0) / Math.max(.2, (ti - t0) * .7) * gs.length), 0, gs.length)).join('');
+    const p = clamp((t - ti) / iris), r = 1400 * p * p;   // iris radius grows from the face
+    root.style.webkitMaskImage = root.style.maskImage = p > 0 ? `radial-gradient(circle at 540px ${fb.cy}px, transparent ${r}px, #000 ${r + 2}px)` : '';
+  });
+}
+
+/* #4 icon pops above the head (never over the face), then blows up into the next scene (pair it with a scene that enters 'whip') */
+const ICON = {
+  wallet: 'M14 30h66a6 6 0 0 1 6 6v40a6 6 0 0 1-6 6H20a6 6 0 0 1-6-6zM14 34l52-16 6 12M66 54h20v14H66z',
+  question: 'M36 36a14 14 0 1 1 22 12c-6 4-8 7-8 13M50 72v2',
+  chat: 'M20 24h60a6 6 0 0 1 6 6v34a6 6 0 0 1-6 6H44l-16 12v-12h-8a6 6 0 0 1-6-6V30a6 6 0 0 1 6-6z',
+};
+function iconPop(t, {icon = 'question', d = .6} = {}) {
+  SCENE_WIN.push([t, t + d]);
+  const c = div(`left:${540 - 120}px;top:${Math.max(120, faceBox(t).top - 300)}px;width:240px;height:240px;border-radius:50%;background:${BLUE};display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 14px ${rgba(TEXT, .25)},0 20px 60px rgba(0,0,0,.45)`, S,
+    `<svg width="130" height="130" viewBox="0 0 100 100"><path d="${ICON[icon] ?? icon}" fill="none" stroke="${TEXT}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
+  A(c, [{opacity: 0, transform: 'scale(.2)'}, {opacity: 1, transform: 'scale(1)', offset: .45}, {opacity: 1, transform: 'scale(1)', offset: .75}, {opacity: 0, transform: 'scale(2.6)', filter: 'blur(20px)'}], t, d, {e: 'ease-out', f: 'none'});
+  c.style.opacity = 0;
+}
+
+/* #8 notes pinned on a board — notes: [[text, t], ...] */
+function stickyBoard(t0, t1, {title = '', notes = [], enter = 'whip'} = {}) {
+  const root = scene(t0, t1, {bg: KEY_PAGE, enter});
+  const board = div(`left:60px;top:430px;width:960px;height:880px;border-radius:44px;background:${rgba(TEXT, .6)};box-shadow:0 30px 80px ${rgba(INK, .18)},inset 0 0 0 2px ${TEXT}`, root,
+    `<div style="position:absolute;left:50px;top:40px;font-family:KeyFont;font-size:64px;color:${INK}">${title}</div>`);
+  const n = notes.length, w = n > 2 ? 300 : 400;
+  notes.forEach(([txt, t], i) => {
+    const rot = [-6, 4, -3, 5][i % 4], x = 40 + i * ((880 - w) / Math.max(1, n - 1)), y = 190 + (i % 2) * 120;
+    const nt = div(`left:${x}px;top:${y}px;width:${w}px;min-height:${w}px;padding:60px 30px 34px;background:${TEXT};border-radius:10px;box-shadow:0 18px 40px ${rgba(INK, .25)};font-family:BodyFont;font-size:${n > 2 ? 46 : 54}px;line-height:1.3;color:${INK}`, board,
+      `<span style="position:absolute;left:50%;top:18px;width:26px;height:26px;margin-left:-13px;border-radius:50%;background:${BLUE};box-shadow:0 4px 8px ${rgba(INK, .3)}"></span>${txt}`);
+    A(nt, [{opacity: 0, transform: `translateY(-80px) rotate(${rot * 3}deg) scale(1.2)`}, {opacity: 1, transform: `rotate(${rot}deg)`}], t, .4, {e: 'cubic-bezier(.3,1.4,.5,1)'});
+  });
+}
+
+/* payment screen — the button waits; a finger comes close, hesitates and backs away (hover: [tIn, tOut]) */
+function payment(t0, t1, {title = 'ชำระเงิน', button = 'ชำระเงิน', hover = [], thought, enter = 'whip'} = {}) {
+  const root = scene(t0, t1, {bg: TEXT, enter});
+  const bar = (w, a = .12) => `<div style="height:26px;width:${w}px;border-radius:13px;background:${rgba(INK, a)};margin-top:22px"></div>`;
+  div(`left:0;width:1080px;top:140px;text-align:center;font-family:KeyFont;font-size:64px;color:${INK}`, root, title);
+  div(`left:60px;right:60px;top:300px;height:300px;border-radius:36px;background:${rgba(INK, .04)};display:flex;gap:40px;padding:40px`, root,
+    `<div style="flex:none;width:220px;height:220px;border-radius:26px;background:${KEY_SOFT}"></div><div>${bar(420)}${bar(300)}${bar(200, .08)}</div>`);
+  div(`left:60px;right:60px;top:680px`, root, bar(900, .07) + bar(900, .07) + bar(500, .07));
+  const btn = div(`left:90px;right:90px;top:1180px;height:150px;border-radius:75px;background:${BLUE};display:flex;align-items:center;justify-content:center;font-family:KeyFont;font-size:64px;color:${TEXT};box-shadow:0 20px 50px ${rgba(BLUE, .35)}`, root, button);
+  if (thought) { const th = div(`left:0;width:1080px;top:1020px;text-align:center`, root,
+      `<span style="display:inline-block;padding:20px 40px 26px;border-radius:40px;background:${KEY_PAGE};font-family:BodyFont;font-size:52px;color:${INK}">${thought[0]}</span>`);
+    A(th, [{opacity: 0, transform: 'translateY(30px) scale(.9)'}, {opacity: 1, transform: 'none'}], thought[1], .35); }
+  if (hover.length === 2) {
+    const [a, b] = hover, f = div('left:0;top:0;width:120px;height:120px;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))', root,
+      `<svg width="120" height="120" viewBox="0 0 24 24"><path d="M9 11V5a1.6 1.6 0 0 1 3.2 0v5.2l4.6.9a2 2 0 0 1 1.6 2.2L17.6 19a3 3 0 0 1-3 2.5H11a3 3 0 0 1-2.4-1.2L5.4 16a1.5 1.5 0 0 1 2.2-2L9 15.4z" fill="${TEXT}" stroke="${INK}" stroke-width="1.1" stroke-linejoin="round"/></svg>`);
+    A(f, [{transform: 'translate(820px,1760px)', offset: 0}, {transform: 'translate(560px,1290px)', offset: .45}, {transform: 'translate(590px,1320px)', offset: .6}, {transform: 'translate(560px,1300px)', offset: .75}, {transform: 'translate(860px,1800px)', offset: 1}], a, b - a, {e: INOUT});
+  }
+}
+
+/* #10 bullet list with ◇ — items: [{text, t, key?, tone?: 'good'|'bad', tk?}] · key word in the key style; 'bad' gets struck through at tk */
+function bullets(t0, t1, items, {size = 74} = {}) {
+  const el = div(`top:${ZONE.top}px;left:90px;width:900px`, G);
+  items.forEach(it => {
+    const row = div(`position:relative;display:flex;align-items:center;gap:28px;margin-bottom:14px;white-space:nowrap;perspective:900px`, el);
+    const dm = div(`position:relative;flex:none;width:40px;height:40px;transform:rotate(45deg);border:5px solid ${TEXT};box-shadow:0 4px 14px rgba(0,0,0,.5)`, row);
+    A(dm, [{opacity: 0, transform: 'rotate(45deg) scale(0)'}, {opacity: 1, transform: 'rotate(45deg) scale(1)'}], it.t, .3, {e: SPRING});
+    if (it.tone === 'good') A(dm, [{background: 'transparent'}, {background: KEY_LIGHT, borderColor: KEY_LIGHT}], it.tk ?? it.t + .3, .2);
+    const txt = div('position:relative;display:flex;align-items:baseline;gap:16px', row);
+    const parts = it.key ? it.text.split(it.key) : [it.text];
+    let tt = it.t + .1, kEl = null;
+    parts.forEach((p, i) => {
+      if (p.trim()) { const k = kinetic(txt, p.trim(), 'm', tt); k.style.fontSize = size + 'px'; tt += graphemes(p).length * .016 + .1; }
+      if (i < parts.length - 1) { kEl = kinetic(txt, it.key, 'k', it.tk ?? tt); kEl.style.fontSize = size * 1.25 + 'px'; tt += .3; }
+    });
+    if (it.tone === 'bad' && kEl) {   // strike through the key word
+      const st = div(`left:0;top:0;height:10px;border-radius:5px;background:${TEXT};box-shadow:0 3px 10px rgba(0,0,0,.5);transform-origin:left;transform:scaleX(0)`, txt);
+      FITS.push(() => { st.style.left = kEl.offsetLeft - 8 + 'px'; st.style.width = kEl.offsetWidth + 16 + 'px'; st.style.top = kEl.offsetTop + kEl.offsetHeight * .52 + 'px'; });
+      A(st, [{transform: 'scaleX(0)'}, {transform: 'scaleX(1)'}], (it.tk ?? it.t) + .45, .3, {e: SMOOTH});
+    }
+  });
+  FITS.push(() => {   // same placement rule as captions: under the chin, inside the caption zone
+    if (inScene(t0)) { el.style.display = 'none'; return; }
+    let top = ZONE.top; for (const f of faceAt(t0, t1)) top = Math.max(top, f.bottom + ZONE.gap);
+    const h = el.offsetHeight, s = Math.min(1, (ZONE.bottom - top) / h, 900 / el.scrollWidth);
+    el.style.top = top + 'px'; if (s < 1) { el.style.transformOrigin = '0 0'; el.style.transform = `scale(${s})`; }
+    for (const f of faceAt(t0, t1)) if (overlaps(top, top + h * s, f.top, f.bottom)) FACE_ERRORS.push(`bullets ${t0}-${t1} cover the face`);
+  });
+  A(el, [{opacity: 1, filter: 'blur(0)', translate: '0 0'}, {opacity: 0, filter: 'blur(16px)', translate: '0 -50px'}], t1 - .16, .16, {e: 'cubic-bezier(.5,0,.9,.5)', f: 'forwards'});
+}
