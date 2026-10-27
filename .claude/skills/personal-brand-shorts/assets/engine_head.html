@@ -14,14 +14,14 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
 body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
-#v,#fg,#fgo,#plate{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:47% 42%}   /* zoom origin = talking-head-motion */
+#v,#fg,#fgo{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:47% 42%}   /* zoom origin = talking-head-motion */
 .layer{position:absolute;inset:0;pointer-events:none}
 #page{position:absolute;inset:0;background:#000;overflow:hidden}
 #pv{position:absolute;left:-90px;top:-160px;width:1260px;height:2240px;object-fit:cover;filter:blur(38px) brightness(.5);opacity:0}
 #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0}
 #vw{position:absolute;inset:0;overflow:hidden}
 #vshadow{position:absolute;inset:0;border-radius:56px;background:#000;box-shadow:0 50px 140px rgba(0,0,0,.65);opacity:0}
-#plate,#fgo{opacity:0}
+#fgo{opacity:0}
 
 /* ---------- effect parts ---------- */
 .card{position:absolute;border-radius:24px;overflow:hidden;background:#fff;box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 0 1.5px rgba(255,255,255,.4)}
@@ -46,7 +46,7 @@ body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
 <div class="layer" id="P"></div>               <!-- page graphics (behind the whole video) -->
 <div id="stage">                               <!-- the video "camera" — effects scale/move it as one piece -->
   <div id="vshadow"></div>
-  <div id="vw"><img id="v"><img id="plate"></div>   <!-- layer 1 (bottom): the clip as-is (+ clean background plate) -->
+  <div id="vw"><img id="v"></div>   <!-- layer 1 (bottom): the clip as-is -->
   <div class="layer" id="B"></div>             <!-- graphics BEHIND the person -->
   <img id="fgo">                               <!-- outline copy of layer 2 (doodle boil) -->
   <img id="fg">                                <!-- layer 2: the same clip, background removed (layers.py) -->
@@ -88,7 +88,7 @@ function kinetic(parent, txt, cls, t, {stagger, color} = {}) {
   parent.appendChild(c);
   const big = cls.includes('k'), st = stagger ?? (big ? .032 : .016);
   graphemes(txt).forEach((ch, i) => {
-    const g = document.createElement('span'); g.className = 'g'; g.textContent = ch === ' ' ? ' ' : ch; c.appendChild(g);
+    const g = document.createElement('span'); g.className = 'g'; g.textContent = ch === ' ' ? ' ' : ch; c.appendChild(g);
     const ti = t + i * st;
     A(g, [{opacity: 0, transform: `translateY(${big ? 55 : 40}%) rotateX(${big ? -85 : -60}deg) scale(${big ? 1.15 : 1.05})`, filter: 'blur(10px)'},
           {opacity: 1, transform: 'none', filter: 'blur(0)'}], ti, big ? .48 : .36, {e: SPRING});
@@ -104,7 +104,9 @@ const FACE = [], FACE_ERRORS = [];
 const face = (top, bottom, t0 = 0, t1 = 1e9) => FACE.push({top, bottom, t0, t1});
 const ZONE = {top: 1225, bottom: 1665, gap: 40};   // default caption zone (talking-head-motion) · bottom 255 px kept for platform UI
 const ZOY = 1920 * .42;   // zoom origin y — a face band at y grows to ZOY + (y - ZOY) * zoom
-/* stage = the whole video "camera" (both layers + behind/front graphics). Effects push t => {s, ox, oy, tx, ty, blur} | null */
+/* RULE: every zoom — slow, fast, any kind — scales layer 1 and layer 2 by the SAME amount at the SAME frame.
+   Camera zoom sets one value on both <img>s; effects only scale #stage, which holds both. Never scale one layer alone.
+   stage = the whole video "camera" (both layers + behind/front graphics). Effects push t => {s, ox, oy, tx, ty, blur} | null */
 const STAGE = [];
 function stageAt(t) {   // composed uniform-scale affine: p → a·p + (bx, by)
   let a = 1, bx = 0, by = 0, blur = 0;
@@ -153,11 +155,10 @@ function block(b) {
 const text = (parent, txt, cls, t, css = '', o = {}) => { const w = div(`left:0;width:1080px;text-align:center;${css}`, parent); w.style.perspective = '900px'; const k = kinetic(w, txt, cls, t, o); if (o.size) k.style.fontSize = o.size + 'px'; return w; };
 
 /* ===================== EFFECTS — 17 techniques (references/effects.md) ===================== */
-/* Shared rules: every effect owns its own elements; shared parts (page, stage, clip of layer 1, layer-2 filter,
-   plate) are written per frame by HOOKS from a reset state, so effects never fight over them.
+/* Shared rules: every effect owns its own elements; shared parts (page, stage, clip of layer 1, layer-2 filter) are written per frame by HOOKS from a reset state, so effects never fight over them.
    Graphics in B sit behind the person; F / W must never cover the face; captions (#g) stay on top of everything. */
 const SH = {};            // per-frame shared state, reset in seek()
-const INIT = [];          // async work on the first seek (needs the project path: stills, plate)
+const INIT = [];          // async work on the first seek (needs the project path: stills of the clip)
 const LIVE = [];          // <img>/<image> elements that show the current frame of layer 1
 const CLIP = {dur: null, base: ''};
 const clip = d => (CLIP.dur = d);                       // optional: clip length (s) — default stills spread over it
@@ -422,12 +423,12 @@ function doodleBoil(t0, t1, {doodles} = {}) {
   });
 }
 
-/* 15 vertigo — dolly zoom: the background (clean plate) zooms while the person stays the same size */
+/* 15 vertigo — slow push-in on both layers together (exactly in sync, like one clip), then a quick return */
 function vertigo(t0, t1, {z = 1.35, back = .25} = {}) {
   const oy = faceBox(t0).cy;
-  HOOKS.push(t => { if (t < t0 || t > t1) return;
+  STAGE.push(t => { if (t < t0 || t > t1) return null;
     const p = t < t1 - back ? INOUTf(clamp((t - t0) / (t1 - back - t0))) : 1 - smooth(clamp((t - (t1 - back)) / back));
-    SH.plate = {s: lerp(1, z, p), oy, blur: 3 * p}; });
+    return {s: lerp(1, z, p), ox: 540, oy}; });
 }
 const INOUTf = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
 
@@ -437,7 +438,7 @@ function coverStory(t0, t1, {title = '', left = [], right = [], kicker = '', tag
   const shade = div('left:0;top:0;width:1080px;height:900px;background:linear-gradient(rgba(0,0,0,.38),rgba(0,0,0,0))', B);
   life(shade, t0, t1, [{opacity: 0}, {opacity: 1}], [{opacity: 1}, {opacity: 0}], .3, .25, 'linear');
   const tl = div(`left:0;width:1080px;top:${top}px;display:flex;justify-content:center;overflow:hidden;font-family:SerifFont;font-weight:300;font-size:${size}px;line-height:1.08;letter-spacing:4px;color:#fff;text-shadow:0 6px 30px rgba(0,0,0,.35)`, B);
-  graphemes(title).forEach((ch, i) => { const s = document.createElement('span'); s.textContent = ch === ' ' ? ' ' : ch; s.style.display = 'inline-block'; tl.appendChild(s);
+  graphemes(title).forEach((ch, i) => { const s = document.createElement('span'); s.textContent = ch === ' ' ? ' ' : ch; s.style.display = 'inline-block'; tl.appendChild(s);
     life(s, t0 + .1 + i * .05, t1, [{transform: 'translateY(105%)'}, {transform: 'none'}], [{opacity: 1}, {opacity: 0}], .6, .25, SMOOTH); });
   FITS.push(() => { const w = tl.scrollWidth; if (w > 1040) tl.style.fontSize = size * 1040 / w + 'px'; });
   const small = (lines, css) => { const e = div(`top:${top + size * 1.12}px;${css};font-family:BodyFont;font-size:22px;line-height:1.5;letter-spacing:3px;color:#fff`, B, lines.join('<br>'));
