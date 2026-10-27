@@ -10,7 +10,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
 body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
-#v,#fg{position:absolute;inset:0;width:1080px;height:1920px}
+#v,#fg{position:absolute;inset:0;width:1080px;height:1920px;transform-origin:47% 42%}   /* zoom origin = talking-head-motion */
 .layer{position:absolute;inset:0;pointer-events:none}
 
 /* ---------- typography (identical to talking-head-motion) ---------- */
@@ -31,8 +31,12 @@ body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
 <script>
 /* ===================== CORE ===================== */
 const G = document.getElementById('g');
-const HOOKS = [], FITS = [];
+const HOOKS = [], FITS = [], ZOOM = [];
 const ms = s => s * 1000;
+const zoom = (t, z, d = .14) => ZOOM.push({t, z, d});   // camera zoom (talking-head-motion) — moves both video layers together
+const ease = p => 1 - Math.pow(1 - p, 3);
+function zoomAt(t) { let z = 1; for (const k of [...ZOOM].sort((a, b) => a.t - b.t)) { if (t < k.t) break; z += (k.z - z) * ease(Math.min(1, (t - k.t) / k.d)); } return z; }
+const camAt = t => zoomAt(t) * (1.014 + .014 * Math.sin(t * .3));   // + the slow breathing drift of talking-head-motion (kept ≥ 1 so no frame edge shows — there is no vignette here)
 const SPRING = 'cubic-bezier(.22,1.35,.36,1)', SMOOTH = 'cubic-bezier(.2,.8,.2,1)', INOUT = 'cubic-bezier(.65,0,.35,1)';
 const A = (el, kf, t, d, o = {}) => el.animate(kf, {delay: ms(t), duration: ms(d), easing: o.e ?? SMOOTH, fill: o.f ?? 'both', iterations: o.it ?? 1, direction: o.dir ?? 'normal', composite: o.c ?? 'replace'});
 const div = (css, parent, html = '') => { const d = document.createElement('div'); d.style.cssText = 'position:absolute;' + css; d.innerHTML = html; parent.appendChild(d); return d; };
@@ -62,7 +66,10 @@ function kinetic(parent, txt, cls, t, {stagger, color} = {}) {
 const FACE = [], FACE_ERRORS = [];
 const face = (top, bottom, t0 = 0, t1 = 1e9) => FACE.push({top, bottom, t0, t1});
 const ZONE = {top: 1225, bottom: 1665, gap: 40};   // default caption zone (talking-head-motion) · bottom 255 px kept for platform UI
-const faceAt = (t0, t1) => FACE.filter(f => f.t0 < t1 && f.t1 > t0);
+const ZOY = 1920 * .42;   // zoom origin y — a face band at y grows to ZOY + (y - ZOY) * zoom
+function maxZoom(t0, t1) { let m = 1; for (let t = t0; t <= t1; t += 1 / 30) m = Math.max(m, camAt(t)); return m; }
+const faceAt = (t0, t1) => { const z = maxZoom(t0, t1);
+  return FACE.filter(f => f.t0 < t1 && f.t1 > t0).map(f => ({...f, top: Math.round(ZOY + (f.top - ZOY) * z), bottom: Math.round(ZOY + (f.bottom - ZOY) * z)})); };
 const overlaps = (a0, a1, b0, b1) => a0 < b1 && a1 > b0;
 
 /* block of lines: [[ [text, style, t, size?], ... ], ...]  style s|m|k

@@ -7,6 +7,7 @@ window.seek = async (t, src, fgSrc) => {   // src = src_frames/sNNNNN.jpg · fgS
   }
   if (src) { V.src = src; await V.decode(); }
   if (fgSrc) { FG.src = fgSrc; await FG.decode(); }
+  V.style.transform = FG.style.transform = `scale(${camAt(t)})`;   // both layers move as one
   document.getAnimations().forEach(a => { a.pause(); a.currentTime = ms(t); });
   HOOKS.forEach(h => h(t));
 };
