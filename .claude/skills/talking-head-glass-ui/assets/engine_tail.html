@@ -1,0 +1,62 @@
+</script>
+<script>
+/* ===================== ENGINE ===================== */
+ZOOM.sort((a, b) => a.t - b.t);
+function zoomAt(t) { let z = 1; for (const k of ZOOM) { if (t < k.t) break; z += (k.z - z) * ease(Math.min(1, (t - k.t) / k.d)); } return z; }
+/* camera state at t: blur (x, y) + whip offset/scale on the footage, push zoom + blur on the whole picture */
+function camAt(t) {
+  let bx = 0, by = 0, s = 1, tx = 0, ty = 0, wz = 1, wx = 540, wy = 960, wb = 0;
+  for (const c of CAM) {
+    if (c.k === 'blur') { const p = (t - c.t) / c.d; if (p >= 0 && p < 1) { const q = 1 - ease(p); bx += c.px * q; by += c.px * q; s *= 1 + (c.z - 1) * q; } }
+    else if (c.k === 'whip') {
+      const a = c.d * .4, b = c.d - a, [ux, uy] = {up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0]}[c.dir];
+      let q = 0, off = 0;
+      if (t >= c.t - a && t < c.t) { q = easeIO((t - c.t + a) / a); off = q; }          // leaving along dir
+      else if (t >= c.t && t < c.t + b) { q = 1 - ease((t - c.t) / b); off = -q; }    // arriving from the opposite side
+      if (q) { tx += ux * c.dist * off; ty += uy * c.dist * off; bx += (ux ? 1 : .15) * c.px * q; by += (uy ? 1 : .15) * c.px * q; s *= 1 + .16 * q; }
+    } else if (c.k === 'push') {
+      if (t >= c.t0 && t < c.t1) {
+        const pin = clamp01((t - c.t0) / c.d), pout = clamp01((c.t1 - t) / c.d);
+        wz = 1 + (c.z - 1) * Math.min(ease(pin), ease(pout)); wx = c.x; wy = c.y;
+        const r = pin < 1 ? pin : pout < 1 ? pout : 1; if (r < 1) wb += c.blur * Math.sin(Math.PI * r);
+      }
+    } else if (c.k === 'shake') {
+      const p = (t - c.t) / c.d; if (p >= 0 && p < 1) { const dm = (1 - p) ** 2; tx += c.a * Math.sin(p * 38) * dm; ty += c.a * .7 * Math.cos(p * 31) * dm; s *= 1.03; }
+    }
+  }
+  return {bx, by, s, tx, ty, wz, wx, wy, wb};
+}
+const V = document.getElementById('v'), MBG = document.getElementById('mbg');
+window.seek = async (t, src) => {
+  if (!window.__init) {
+    window.__init = true; FITS.forEach(f => f());
+    for (const c of CAPS) if (SCREENS.some(s => c.t0 >= s.t0 - .01 && c.t0 < s.t1)) c.el.style.display = 'none';   // a screen carries its own text
+    const ws = WIDGETS.slice().sort((a, b) => a[0] - b[0]);   // one widget at a time
+    for (let k = 1; k < ws.length; k++) if (ws[k][0] < ws[k - 1][1] - .001) throw new Error(`widgets overlap: ${ws[k - 1].join('-')} and ${ws[k].join('-')}`);
+  }
+  if (src) { V.src = src; await V.decode(); }
+  const c = camAt(t), F = SCREENS.find(f => t >= f.t0 && t < f.t1);
+  if (F) {   // shrink the footage into a square tile: window (video px) → target (screen px)
+    const pp = Math.min(ease(clamp01((t - F.t0) / F.d)), F.out === 'grow' ? ease(clamp01((F.t1 - t) / F.d)) : 1), L = (a, b) => a + (b - a) * pp;
+    const [fx, fy, fs] = F.face, [cx, cy, cs] = F.to;
+    const ww = L(1080, fs), wh = L(1920, fs), wl = L(0, fx - fs / 2), wt = L(0, fy - fs / 2), k = L(1, cs / fs), ccx = L(540, cx), ccy = L(960, cy);
+    CAMEL.style.transformOrigin = '0 0';
+    CAMEL.style.transform = `translate(${ccx - k * (wl + ww / 2)}px,${ccy - k * (wt + wh / 2)}px) scale(${k})`;
+    CAMEL.style.clipPath = `inset(${wt}px ${1080 - wl - ww}px ${1920 - wt - wh}px ${wl}px round ${F.r * pp / k}px)`;
+    Object.assign(F.sh.style, {left: `${ccx - k * ww / 2}px`, top: `${ccy - k * wh / 2}px`, width: `${k * ww}px`, height: `${k * wh}px`, borderRadius: `${F.r * pp}px`});
+  } else {
+    CAMEL.style.transformOrigin = '50% 45%';
+    CAMEL.style.transform = `translate(${c.tx}px,${c.ty}px) scale(${zoomAt(t) * c.s})`;
+    CAMEL.style.clipPath = 'none';
+  }
+  const blur = c.bx > .25 || c.by > .25;
+  if (blur) MBG.setAttribute('stdDeviation', `${c.bx.toFixed(2)} ${c.by.toFixed(2)}`);
+  CAMEL.style.filter = S.style.filter = blur ? 'url(#mb)' : 'none';   // cutaway footage blurs with the camera; captions stay sharp
+  WORLD.style.transform = c.wz !== 1 ? `translate(${c.wx * (1 - c.wz)}px,${c.wy * (1 - c.wz)}px) scale(${c.wz})` : 'none';
+  WORLD.style.filter = c.wb > .3 ? `blur(${c.wb.toFixed(2)}px)` : 'none';
+  ANIMS.forEach(a => { a.pause(); a.currentTime = ms(t); });
+  await Promise.all(HOOKS.map(h => h(t)));   // hooks may return a promise (B-roll frame decode)
+};
+window.SFX = SFX;
+</script>
+</body></html>

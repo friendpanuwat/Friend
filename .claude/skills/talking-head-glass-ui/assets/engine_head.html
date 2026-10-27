@@ -1,0 +1,401 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"KeyIt";src:url(fonts/Kanit-BlackItalic.ttf)}
+@font-face{font-family:"LeadIt";src:url(fonts/Kanit-MediumItalic.ttf)}
+@font-face{font-family:"UiIt";src:url(fonts/Kanit-SemiBoldItalic.ttf)}
+@font-face{font-family:"UiBold";src:url(fonts/Kanit-ExtraBoldItalic.ttf)}
+@font-face{font-family:"Ui";src:url(fonts/Kanit-Medium.ttf)}
+/* glass-ui palette: one blue family (sky → accent → deep) + white / dark glass; green & red only for yes / no meaning */
+:root{--acc:#2F8CFF;--sky:#8FDCFF;--deep:#1557E6;--good:#34C759;--bad:#FF3B30;--navy:#0E1B33}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
+body{position:relative;color:#fff;font-family:"LeadIt",sans-serif}
+.layer{position:absolute;inset:0;pointer-events:none}
+#world{transform-origin:0 0}
+#cam{transform-origin:50% 45%}
+#v{position:absolute;left:0;top:0;width:1080px;height:1920px;display:block}   /* NO colour grade: footage stays as shot */
+.emo{font-family:"Noto Color Emoji",sans-serif;font-style:normal;line-height:1;white-space:nowrap}
+
+/* ---------- captions: small italic lead · big gradient italic key · small italic tail ---------- */
+.cap{position:absolute;left:0;width:1080px;display:flex;justify-content:center;opacity:0}
+.cbox{display:grid;justify-items:center;transform-origin:50% 0}
+.row{display:flex;align-items:baseline;white-space:nowrap;column-gap:.2em}   /* row font-size = its words' size (set in cap) */
+.row.lead{justify-self:start;padding-left:.5em;margin-bottom:-.2em}
+.row.tail{justify-self:end;padding-right:.2em;margin-top:-.14em}
+.row.key{column-gap:.4em}   /* .k's negative side margins eat .24em of this */
+.w{display:inline-block;white-space:nowrap;opacity:0}
+.l{font-family:"LeadIt";font-size:50px;line-height:1.2;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.55),0 1px 2px rgba(0,0,0,.45)}
+.kw{display:inline-block;filter:drop-shadow(0 8px 18px rgba(21,87,230,.5)) drop-shadow(0 2px 2px rgba(0,12,48,.55))}
+/* padding/margin pair: the gradient must also cover Thai upper vowels and the italic overhang */
+.k{display:inline-block;font-family:"KeyIt";font-size:128px;line-height:1;letter-spacing:-1px;text-transform:uppercase;white-space:nowrap;opacity:0;
+  padding:.26em .16em .16em .08em;margin:-.26em -.16em -.16em -.08em;
+  background:linear-gradient(180deg,#F2FCFF 0,#F2FCFF .46em,var(--sky) .66em,var(--acc) .95em,var(--deep) 1.22em,var(--deep) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:2px rgba(255,255,255,.9)}
+.kt{display:inline-block;font-family:"UiBold";line-height:1;white-space:nowrap;padding:.22em .12em .14em .04em;margin:-.22em -.12em -.14em -.04em;
+  background:linear-gradient(180deg,var(--sky) .3em,var(--acc) .72em,var(--deep) 1.1em);-webkit-background-clip:text;background-clip:text;color:transparent}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute"><filter id="mb" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB"><feGaussianBlur id="mbg" stdDeviation="0 0" edgeMode="duplicate"/></filter></svg>
+<div class="layer" id="B"></div>
+<div class="layer" id="world">
+  <div class="layer" id="cam"><img id="v"></div>
+  <div class="layer" id="S"></div>
+  <div class="layer" id="g"></div>
+</div>
+<div class="layer" id="flash" style="background:#fff;opacity:0"></div>
+<script>
+/* ===================== CORE ===================== */
+const G = document.getElementById('g'), S = document.getElementById('S'), B = document.getElementById('B');
+const CAMEL = document.getElementById('cam'), WORLD = document.getElementById('world');
+const SFX = [], ZOOM = [], HOOKS = [], FITS = [], ANIMS = [], CAM = [], CAPS = [], SCREENS = [], WIDGETS = [];
+const ms = s => s * 1000;
+const sfx = (s, t, db = -14, pitch) => SFX.push(pitch ? {s, t, db, pitch} : {s, t, db});
+const zoom = (t, z, d = .35) => ZOOM.push({t, z, d});            // video only (captions / widgets stay put); eased, not a hard cut
+const SPRING = 'cubic-bezier(.22,1.3,.36,1)', SMOOTH = 'cubic-bezier(.2,.8,.2,1)', INOUT = 'cubic-bezier(.65,0,.35,1)', BOUNCE = 'cubic-bezier(.34,1.56,.64,1)';
+/* every animation is registered: document.getAnimations() drops finished fill:'none' ones, which breaks backward seeks */
+const A = (el, kf, t, d, o = {}) => { const a = el.animate(kf, {delay: ms(t), duration: ms(d), easing: o.e ?? SMOOTH, fill: o.f ?? 'both', iterations: o.it ?? 1, direction: o.dir ?? 'normal'}); ANIMS.push(a); return a; };
+const div = (css, parent, html = '') => { const d = document.createElement('div'); d.style.cssText = 'position:absolute;' + css; d.innerHTML = html; parent.appendChild(d); return d; };
+const mk = (tag, cls, parent, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; parent.appendChild(e); return e; };
+const seg = new Intl.Segmenter('th', {granularity: 'grapheme'});
+const graphemes = s => [...seg.segment(s)].map(x => x.segment);
+const ACC = '#2F8CFF', SKY = '#8FDCFF', DEEP = '#1557E6', GOOD = '#34C759', BAD = '#FF3B30', NAVY = '#0E1B33';
+const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; };
+const visible = (el, t0, t1) => A(el, [{opacity: 1}, {opacity: 1}], t0, t1 - t0, {f: 'none', e: 'linear'});   // shown only inside [t0,t1)
+const rnd = k => { const x = Math.sin(k * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };       // seeded → every render identical
+const clamp01 = x => Math.max(0, Math.min(1, x));
+const ease = p => 1 - Math.pow(1 - p, 3);
+const easeIO = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const isIcon = s => /^[a-z0-9-]+$/.test(s);   // Lucide name, otherwise treated as an emoji / text
+
+/* ===================== CAPTIONS =====================
+   cap({t0, t1, top, lead: [[text, t], ...], key: [[TEXT, t], ...], tail: [[text, t], ...]})
+   lead / tail = small white italic words (fade up word by word); key = big gradient italic word(s) that wipe in left → right. */
+function cap(b) {
+  const el = div(`top:${b.top ?? 1000}px`, G); el.className = 'cap';
+  const box = mk('div', 'cbox', el), z = b.size ?? {};
+  const list = x => x == null ? [] : typeof x === 'string' ? [[x, b.t0]] : x;
+  const L = list(b.lead), K = list(b.key), T = list(b.tail);
+  el.keys = [];
+  const row = (cls, size) => { const r = mk('div', 'row ' + cls, box); r.style.fontSize = size + 'px'; return r; };
+  if (L.length) { const r = row('lead', z.l ?? 50); for (const [x, t, o] of L) lw(r, x, t, z.l ?? 50, o); }
+  if (K.length) { const r = row('key', z.k ?? 128); for (const [x, t, o] of K) el.keys.push(kw(r, x, t, z.k ?? 128, o)); }
+  if (T.length) { const r = row('tail', z.t ?? 44); for (const [x, t, o] of T) lw(r, x, t, z.t ?? 44, o); }
+  if (!K.length) box.querySelectorAll('.row').forEach(r => { r.style.justifySelf = 'center'; r.style.padding = '0'; });
+  const W = b.maxW ?? 980;
+  FITS.push(() => { const w = box.offsetWidth; if (w > W) box.style.transform = `scale(${W / w})`; });
+  visible(el, b.t0, b.t1);
+  if ((b.out ?? 'blur') === 'blur') A(el, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(12px)'}], Math.max(b.t0, b.t1 - .15), .15, {f: 'forwards', e: 'ease-in'});
+  CAPS.push({el, t0: b.t0});
+  return el;
+}
+function lw(r, x, t, size, o = {}) {
+  const w = mk('span', 'w l', r, x); w.style.fontSize = size + 'px'; if (o.color) w.style.color = o.color;
+  A(w, [{opacity: 0, transform: 'translateY(12px)', filter: 'blur(6px)'}, {opacity: 1, transform: 'none', filter: 'none'}], t, .2);
+  return w;
+}
+function kw(r, x, t, size, o = {}) {
+  const wr = mk('span', 'kw', r), k = mk('span', 'k', wr, x); k.style.fontSize = size + 'px';
+  A(k, [{opacity: 0, clipPath: 'inset(-40% 100% -40% -20%)', transform: 'translateX(-30px)', filter: 'blur(9px)'},
+        {opacity: 1, offset: .3},
+        {opacity: 1, clipPath: 'inset(-40% -20% -40% -20%)', transform: 'none', filter: 'none'}], t, o.d ?? .3, {e: SMOOTH});
+  return k;
+}
+const keyHit = (t, db = -22) => sfx('softswish', t - .04, db);
+
+/* ===================== CAMERA =====================
+   zoom()    – video only, eased (captions and widgets stay put)
+   push()    – the whole picture (video + captions + widgets) pushes in on a point, with motion blur on the way in / out
+   blurIn()  – defocus → sharp snap (scene change on continuous footage)
+   whip()    – directional motion-blur whip (bigger energy change)
+   shake()   – short decaying shake on an impact word */
+const blurIn = (t, {px = 24, d = .32, z = 1.05, sound = 'whoosh', db = -27} = {}) => { CAM.push({k: 'blur', t, px, d, z}); if (sound) sfx(sound, t - .12, db); };
+const whip = (t, {dir = 'up', px = 48, dist = 110, d = .34, sound = 'whoosh', db = -24} = {}) => { CAM.push({k: 'whip', t, dir, px, dist, d}); if (sound) sfx(sound, t - d * .45, db); };
+const push = (t0, t1, {z = 1.6, x = 540, y = 1150, d = .38, blur = 8, sound = 'softswish', db = -24} = {}) => { CAM.push({k: 'push', t0, t1, z, x, y, d, blur}); if (sound) sfx(sound, t0 - .03, db); };
+const shake = (t, {d = .35, a = 14, sound = 'thud', db = -22} = {}) => { CAM.push({k: 'shake', t, d, a}); if (sound) sfx(sound, t, db); };
+const flash = (t, o = .6) => A(document.getElementById('flash'), [{opacity: o}, {opacity: 0}], t, .16, {f: 'none', e: 'ease-out'});
+
+/* ===================== GLASS WIDGETS =====================
+   widget(): positioned box on the caption layer. One at a time (engine throws if two overlap in time).
+   Glass = backdrop-filter. Never put opacity < 1 or a filter on an ANCESTOR of a glass element at rest
+   (it becomes the backdrop root and the blur sees nothing) — the helpers below end every animation on opacity 1 / filter none. */
+const GLASS = {
+  dark: 'background:linear-gradient(180deg,rgba(72,86,116,.36),rgba(10,16,30,.46));border:2px solid rgba(255,255,255,.6);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.45),inset 0 -10px 24px rgba(140,200,255,.08),0 16px 40px rgba(0,0,0,.32);backdrop-filter:blur(18px) saturate(1.5)',
+  blue: `background:linear-gradient(160deg,${rgba(SKY, .82)},${rgba(ACC, .76)} 55%,${rgba(DEEP, .78)});border:2px solid rgba(255,255,255,.55);box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 20px 50px ${rgba(DEEP, .35)};backdrop-filter:blur(16px) saturate(1.4)`,
+  light: 'background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(236,246,255,.74));border:2px solid rgba(255,255,255,.95);box-shadow:0 18px 44px rgba(0,30,90,.25);backdrop-filter:blur(16px) saturate(1.3)',
+};
+function widget(css, t0, t1, {enter = 'rise', exit = 'blur', sound = 'softswish', db = -25} = {}) {
+  const w = div(css + ';opacity:0', G);
+  const from = {rise: 'translateY(56px) scale(.9)', pop: 'scale(.55)', left: 'translateX(-110px)', right: 'translateX(110px)', down: 'translateY(-56px) scale(.9)'}[enter];
+  if (from) A(w, [{opacity: 0, transform: from, filter: 'blur(12px)'}, {opacity: 1, transform: 'none', filter: 'none'}], t0, .42, {e: enter === 'pop' ? BOUNCE : SPRING});
+  else A(w, [{opacity: 0}, {opacity: 1}], t0, .001);   // 'none': the children animate themselves
+  const out = {blur: [{opacity: 1, filter: 'none', transform: 'none'}, {opacity: 0, filter: 'blur(14px)', transform: 'scale(.95)'}],
+               pop: [{opacity: 1, transform: 'none'}, {opacity: 0, transform: 'scale(.7)'}], cut: [{opacity: 0}, {opacity: 0}]}[exit];
+  A(w, out, exit === 'cut' ? t1 : t1 - .18, exit === 'cut' ? .001 : .18, {f: 'forwards', e: 'ease-in'});
+  if (sound) sfx(sound, t0 - .03, db);
+  w.t0 = t0; w.t1 = t1; WIDGETS.push([t0, t1]);
+  return w;
+}
+/* wrapper (position + idle float) → inner (entrance). Keeps transforms from fighting each other. */
+function holder(c, css) { const o = div(css, c), i = div('position:relative', o); return [o, i]; }
+const popIn = (el, t, {d = .5, from = 'scale(0) rotate(-14deg)', e = BOUNCE} = {}) => A(el, [{opacity: 0, transform: from}, {opacity: 1, transform: 'none'}], t, d, {e});
+const float = (el, t0, t1, {a = 12, p = 1.7, delay = 0} = {}) => A(el, [{transform: 'translateY(0)'}, {transform: `translateY(${-a}px)`}], t0 + delay, p / 2, {it: Math.max(1, Math.ceil((t1 - t0) / (p / 2))), dir: 'alternate', e: 'ease-in-out', f: 'none'});
+const punch = (el, t, s = 1.12) => A(el, [{transform: 'scale(1)'}, {transform: `scale(${s})`, offset: .35}, {transform: 'scale(1)'}], t, .42, {f: 'none', e: 'ease-out'});
+const wobble = (el, t, {d = .55, a = 8} = {}) => A(el, [{transform: 'rotate(0)'}, {transform: `rotate(${-a}deg)`, offset: .2}, {transform: `rotate(${a}deg)`, offset: .45}, {transform: `rotate(${-a * .6}deg)`, offset: .7}, {transform: 'rotate(0)'}], t, d, {f: 'none', e: 'ease-in-out'});
+const ICONS = {"award": "<path d=\"m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526\" /> <circle cx=\"12\" cy=\"8\" r=\"6\" />", "badge-percent": "<path d=\"M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z\" /> <path d=\"m15 9-6 6\" /> <path d=\"M9 9h.01\" /> <path d=\"M15 15h.01\" />", "ban": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m4.9 4.9 14.2 14.2\" />", "banknote": "<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" /> <path d=\"M6 12h.01M18 12h.01\" />", "bell": "<path d=\"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9\" /> <path d=\"M10.3 21a1.94 1.94 0 0 0 3.4 0\" />", "briefcase": "<path d=\"M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\" /> <rect width=\"20\" height=\"14\" x=\"2\" y=\"6\" rx=\"2\" />", "calendar": "<path d=\"M8 2v4\" /> <path d=\"M16 2v4\" /> <rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\" /> <path d=\"M3 10h18\" />", "car": "<path d=\"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2\" /> <circle cx=\"7\" cy=\"17\" r=\"2\" /> <path d=\"M9 17h6\" /> <circle cx=\"17\" cy=\"17\" r=\"2\" />", "chart-column": "<path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /> <path d=\"M18 17V9\" /> <path d=\"M13 17V5\" /> <path d=\"M8 17v-3\" />", "check": "<path d=\"M20 6 9 17l-5-5\" />", "circle-alert": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\" /> <line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\" />", "circle-check": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m9 12 2 2 4-4\" />", "circle-x": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m15 9-6 6\" /> <path d=\"m9 9 6 6\" />", "clock": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <polyline points=\"12 6 12 12 16 14\" />", "coins": "<circle cx=\"8\" cy=\"8\" r=\"6\" /> <path d=\"M18.09 10.37A6 6 0 1 1 10.34 18\" /> <path d=\"M7 6h1v4\" /> <path d=\"m16.71 13.88.7.71-2.82 2.82\" />", "credit-card": "<rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"2\" /> <line x1=\"2\" x2=\"22\" y1=\"10\" y2=\"10\" />", "crown": "<path d=\"M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z\" /> <path d=\"M5 21h14\" />", "eye": "<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />", "file-text": "<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\" /> <path d=\"M14 2v4a2 2 0 0 0 2 2h4\" /> <path d=\"M10 9H8\" /> <path d=\"M16 13H8\" /> <path d=\"M16 17H8\" />", "flame": "<path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z\" />", "gavel": "<path d=\"m14.5 12.5-8 8a2.119 2.119 0 1 1-3-3l8-8\" /> <path d=\"m16 16 6-6\" /> <path d=\"m8 8 6-6\" /> <path d=\"m9 7 8 8\" /> <path d=\"m21 11-8-8\" />", "gift": "<rect x=\"3\" y=\"8\" width=\"18\" height=\"4\" rx=\"1\" /> <path d=\"M12 8v13\" /> <path d=\"M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7\" /> <path d=\"M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5\" />", "graduation-cap": "<path d=\"M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z\" /> <path d=\"M22 10v6\" /> <path d=\"M6 12.5V16a6 3 0 0 0 12 0v-3.5\" />", "hand": "<path d=\"M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2\" /> <path d=\"M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2\" /> <path d=\"M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8\" /> <path d=\"M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15\" />", "heart": "<path d=\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\" />", "hourglass": "<path d=\"M5 22h14\" /> <path d=\"M5 2h14\" /> <path d=\"M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22\" /> <path d=\"M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2\" />", "house": "<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />", "key": "<path d=\"m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4\" /> <path d=\"m21 2-9.6 9.6\" /> <circle cx=\"7.5\" cy=\"15.5\" r=\"5.5\" />", "lightbulb": "<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />", "list-checks": "<path d=\"m3 17 2 2 4-4\" /> <path d=\"m3 7 2 2 4-4\" /> <path d=\"M13 6h8\" /> <path d=\"M13 12h8\" /> <path d=\"M13 18h8\" />", "lock": "<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />", "mail": "<rect width=\"20\" height=\"16\" x=\"2\" y=\"4\" rx=\"2\" /> <path d=\"m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7\" />", "message-circle": "<path d=\"M7.9 20A9 9 0 1 0 4 16.1L2 22Z\" />", "phone": "<path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\" />", "piggy-bank": "<path d=\"M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z\" /> <path d=\"M2 9v1c0 1.1.9 2 2 2h1\" /> <path d=\"M16 11h.01\" />", "plane": "<path d=\"M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z\" />", "pointer": "<path d=\"M22 14a8 8 0 0 1-8 8\" /> <path d=\"M18 11v-1a2 2 0 0 0-2-2a2 2 0 0 0-2 2\" /> <path d=\"M14 10V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1\" /> <path d=\"M10 9.5V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v10\" /> <path d=\"M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15\" />", "rocket": "<path d=\"M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z\" /> <path d=\"m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z\" /> <path d=\"M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0\" /> <path d=\"M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5\" />", "search": "<circle cx=\"11\" cy=\"11\" r=\"8\" /> <path d=\"m21 21-4.3-4.3\" />", "shield-check": "<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" /> <path d=\"m9 12 2 2 4-4\" />", "shopping-cart": "<circle cx=\"8\" cy=\"21\" r=\"1\" /> <circle cx=\"19\" cy=\"21\" r=\"1\" /> <path d=\"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12\" />", "sparkles": "<path d=\"M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z\" /> <path d=\"M20 3v4\" /> <path d=\"M22 5h-4\" /> <path d=\"M4 17v2\" /> <path d=\"M5 18H3\" />", "star": "<path d=\"M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z\" />", "stethoscope": "<path d=\"M11 2v2\" /> <path d=\"M5 2v2\" /> <path d=\"M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1\" /> <path d=\"M8 15a6 6 0 0 0 12 0v-3\" /> <circle cx=\"20\" cy=\"10\" r=\"2\" />", "store": "<path d=\"m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7\" /> <path d=\"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8\" /> <path d=\"M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4\" /> <path d=\"M2 7h20\" /> <path d=\"M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7\" />", "tag": "<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />", "target": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <circle cx=\"12\" cy=\"12\" r=\"6\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" />", "thumbs-down": "<path d=\"M17 14V2\" /> <path d=\"M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z\" />", "thumbs-up": "<path d=\"M7 10v12\" /> <path d=\"M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z\" />", "trending-down": "<polyline points=\"22 17 13.5 8.5 8.5 13.5 2 7\" /> <polyline points=\"16 17 22 17 22 11\" />", "trending-up": "<polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\" /> <polyline points=\"16 7 22 7 22 13\" />", "triangle-alert": "<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />", "umbrella": "<path d=\"M22 12a10.06 10.06 1 0 0-20 0Z\" /> <path d=\"M12 12v8a2 2 0 0 0 4 0\" /> <path d=\"M12 2v1\" />", "user": "<path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\" /> <circle cx=\"12\" cy=\"7\" r=\"4\" />", "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /> <circle cx=\"9\" cy=\"7\" r=\"4\" /> <path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /> <path d=\"M16 3.13a4 4 0 0 1 0 7.75\" />", "wallet": "<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\" /> <path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\" />", "x": "<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />", "zap": "<path d=\"M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z\" />"};
+const ico = (name, size = 96, color = '#fff', sw = 2) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" style="display:block">${ICONS[name] ?? ''}</svg>`;
+const svg = (w, h, inner, css, parent) => div(css, parent, `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="overflow:visible;display:block">${inner}</svg>`);
+const draw = (p, t, d = .7) => { p.setAttribute('pathLength', 1); p.style.strokeDasharray = 1; A(p, [{strokeDashoffset: 1}, {strokeDashoffset: 0}], t, d, {e: INOUT}); };
+const ripple = (parent, x, y, t, s = 2.4, color = '#fff') => { const r = div(`left:${x - 60}px;top:${y - 60}px;width:120px;height:120px;border-radius:50%;border:5px solid ${color};opacity:0`, parent); A(r, [{opacity: .9, transform: 'scale(.3)'}, {opacity: 0, transform: `scale(${s})`}], t, .55, {f: 'none'}); };
+
+/* round icon badge used by pills: 'check' green · 'x' red · 'shield' blue · any Lucide name blue · an emoji as is */
+function badge(icon, s) {
+  if (!isIcon(icon)) return `<span class="emo" style="display:block;font-size:${s * .92}px">${icon}</span>`;
+  const blue = `linear-gradient(160deg,${SKY},${ACC} 50%,${DEEP})`;
+  const [bg, name] = {check: [GOOD, 'check'], x: [BAD, 'x'], shield: [blue, 'shield-check']}[icon] ?? [blue, icon];
+  return `<span style="width:${s}px;height:${s}px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;background:${bg};box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 4px 12px rgba(0,0,0,.25)">${ico(name, s * .58, '#fff', 3)}</span>`;
+}
+/* dark glass pill: badge + UPPERCASE italic text, slides in, light glint sweeps across */
+function gpill(p, text, t, css, {icon = 'check', size = 50, from = 'left', glint = true, tone = 'dark', sound = 'pop_lo', db = -26} = {}) {
+  const b = div(`display:inline-flex;align-items:center;gap:${size * .42}px;padding:${size * .26}px ${size * 1.0}px ${size * .28}px ${size * .26}px;border-radius:999px;white-space:nowrap;overflow:hidden;opacity:0;${GLASS[tone]};${css}`, p);
+  const fg = tone === 'light' ? NAVY : '#fff';
+  b.innerHTML = (icon ? `<span class="bd" style="display:block">${badge(icon, size * 1.36)}</span>` : '') +
+    `<span style="font-family:UiIt;font-size:${size}px;line-height:1.1;letter-spacing:.02em;text-transform:uppercase;color:${fg};${tone === 'light' ? '' : 'text-shadow:0 1px 6px rgba(0,0,0,.35)'}">${text}</span>`;
+  const fr = {left: 'translateX(-70px)', right: 'translateX(70px)', up: 'translateY(40px)', pop: 'scale(.6)'}[from];
+  A(b, [{opacity: 0, transform: fr, filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'none'}], t, .36, {e: from === 'pop' ? BOUNCE : SMOOTH});
+  if (icon) popIn(b.querySelector('.bd'), t + .1, {d: .42, from: 'scale(0) rotate(-40deg)'});
+  if (glint) { const g = div('left:0;top:0;width:55%;height:100%;background:linear-gradient(100deg,rgba(255,255,255,0) 15%,rgba(255,255,255,.5) 50%,rgba(255,255,255,0) 85%);opacity:0', b);
+    A(g, [{opacity: 1, transform: 'translateX(-130%)'}, {opacity: 1, transform: 'translateX(260%)'}], t + .2, .62, {e: INOUT, f: 'none'}); sfx('glint', t + .2, -31); }
+  if (sound) sfx(sound, t, db);
+  return b;
+}
+/* pointing-hand cursor. pts = [[t, x, y], ...] (fingertip position inside the parent); clicks = [t, ...] */
+const posAt = (pts, t) => { if (t <= pts[0][0]) return pts[0].slice(1); for (let k = 1; k < pts.length; k++) if (t <= pts[k][0]) { const [ta, xa, ya] = pts[k - 1], [tb, xb, yb] = pts[k], q = (t - ta) / (tb - ta || 1); return [xa + (xb - xa) * q, ya + (yb - ya) * q]; } return pts.at(-1).slice(1); };
+function hand(p, pts, clicks = [], {size = 88} = {}) {
+  if (pts.length === 1) pts = [pts[0], [pts[0][0] + .01, pts[0][1], pts[0][2]]];
+  const path = ICONS['pointer'];
+  const c = div(`left:0;top:0;width:${size}px;height:${size}px;opacity:0;filter:drop-shadow(0 8px 14px rgba(0,0,0,.45))`, p,
+    `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" style="display:block;overflow:visible"><g stroke="#0A0A0A" stroke-width="3.6">${path}</g><g stroke="#fff" stroke-width="1.7">${path}</g></svg>`);
+  const hx = size * 8 / 24, hy = size * 2 / 24, t0 = pts[0][0], t1 = pts.at(-1)[0];
+  A(c, pts.map(([t, x, y]) => ({transform: `translate(${x - hx}px,${y - hy}px)`, offset: (t - t0) / (t1 - t0)})), t0, t1 - t0, {e: INOUT});
+  A(c, [{opacity: 0}, {opacity: 1}], t0, .18);
+  clicks.forEach(t => { A(c.firstChild, [{transform: 'scale(1)'}, {transform: 'scale(.8)', offset: .4}, {transform: 'scale(1)'}], t, .26, {f: 'none'}); sfx('click', t, -21); const [x, y] = posAt(pts, t); ripple(p, x, y, t, 1.5); });
+  return c;
+}
+/* blue glass progress card: thumbnail + title + label + bar that fills from → to (0..1). pct: show % (only when it means "done" / the speaker says it) */
+function progress(p, t, css, {img, title = '', label = '', from = 0, to = 1, tFill, dFill = 1.2, pct = false, w = 760, sound = 'swell', db = -28} = {}) {
+  const c = div(`width:${w}px;padding:24px 34px 30px 24px;border-radius:42px;display:flex;gap:28px;align-items:center;${GLASS.blue};${css}`, p);
+  c.innerHTML = (img ? `<div style="width:148px;height:148px;border-radius:28px;overflow:hidden;flex:none;box-shadow:0 6px 16px rgba(0,0,0,.25)"><img src="${img}" style="width:100%;height:100%;object-fit:cover;display:block"></div>` : '') +
+    `<div style="flex:1;min-width:0"><div style="font-family:UiIt;font-size:50px;line-height:1.2;color:#fff;white-space:nowrap">${title}</div>
+     <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:LeadIt;font-size:36px;line-height:1.3;color:rgba(255,255,255,.92)">${label}</span><span class="pc" style="font-family:UiIt;font-size:38px;color:#fff"></span></div>
+     <div style="position:relative;height:14px;border-radius:7px;background:rgba(255,255,255,.32);margin-top:14px"><div class="fl" style="position:absolute;left:0;top:0;height:100%;border-radius:6px;background:#fff;box-shadow:0 0 12px rgba(255,255,255,.8)"></div><div class="kn" style="position:absolute;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3)"></div></div></div>`;
+  const fl = c.querySelector('.fl'), kn = c.querySelector('.kn'), pc = c.querySelector('.pc'), tf = tFill ?? t + .3;
+  if (!pct) pc.remove();
+  HOOKS.push(tt => { const v = from + (to - from) * easeIO(clamp01((tt - tf) / dFill)); fl.style.width = kn.style.left = (v * 100) + '%'; if (pct) pc.textContent = Math.round(v * 100) + '%'; });
+  if (sound) sfx(sound, tf, db);
+  return c;
+}
+/* white chat bubble with an emoji + gradient italic word, pops from its tail */
+function bubbleE(p, emoji, text, t, css, {size = 56, side = 'left', sound = 'pop_hi', db = -26} = {}) {
+  const [o, i] = holder(p, css);
+  i.style.cssText += `display:inline-flex;align-items:center;gap:${size * .28}px;padding:${size * .2}px ${size * .62}px ${size * .24}px ${size * .3}px;border-radius:999px;background:#fff;box-shadow:0 12px 30px rgba(0,30,90,.28);white-space:nowrap;opacity:0;transform-origin:${side === 'left' ? '14% 100%' : '86% 100%'}`;
+  i.innerHTML = `<span style="position:absolute;${side}:${size * .55}px;bottom:${-size * .16}px;width:${size * .5}px;height:${size * .5}px;background:#fff;transform:rotate(45deg);border-radius:3px"></span>` +
+    (emoji ? `<span class="emo" style="position:relative;font-size:${size * 1.15}px">${emoji}</span>` : '') + `<span class="kt" style="position:relative;font-size:${size}px">${text}</span>`;
+  popIn(i, t, {d: .45, from: 'scale(.2) translateY(24px)'});
+  if (sound) sfx(sound, t, db);
+  o.inner = i; return o;
+}
+/* polaroid photo (user image) with a caption and an optional red tag pinned on top; flies in spinning */
+function polaroid(p, src, caption, t, css, {w = 420, h = 330, tag, tagColor = BAD, rot = -3, sound = 'softswish', db = -24} = {}) {
+  const [o, i] = holder(p, css);
+  i.style.cssText += `width:${w + 36}px;padding:18px 18px 0;background:#fff;border-radius:8px;box-shadow:0 30px 60px rgba(0,0,0,.42),0 4px 10px rgba(0,0,0,.2);opacity:0`;
+  i.innerHTML = `<div style="width:${w}px;height:${h}px;overflow:hidden;border-radius:3px;background:#DDE3EA"><img src="${src}" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+    <div style="height:70px;display:flex;align-items:center;font-family:LeadIt;font-size:32px;color:#1E2430;padding-left:6px;white-space:nowrap">${caption ?? ''}</div>`;
+  A(i, [{opacity: 0, transform: 'translate(170px,130px) rotate(32deg) scale(.45)', filter: 'blur(14px)'}, {opacity: 1, transform: `rotate(${rot}deg)`, filter: 'none'}], t, .55, {e: SPRING});
+  if (tag) {
+    const row = div('left:0;right:0;top:-30px;display:flex;justify-content:center', i);
+    const tg = div(`position:relative;padding:8px 30px 11px;border-radius:999px;background:${tagColor};font-family:UiBold;font-size:28px;line-height:1.1;color:#fff;text-transform:uppercase;white-space:nowrap;box-shadow:0 8px 20px ${rgba(tagColor, .45)};opacity:0`, row,
+      `${tag}<span style="position:absolute;right:-10px;top:-10px;width:26px;height:26px;border-radius:50%;background:${tagColor};border:4px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)"></span>`);
+    popIn(tg, t + .3, {d: .45, from: 'scale(.3) rotate(-12deg)'}); sfx('pop', t + .3, -25);
+  }
+  if (sound) sfx(sound, t - .03, db);
+  o.inner = i; return o;
+}
+/* white pill with gradient text; a blue fill sweeps across at tFill (text turns white); optional emoji burst */
+function recommend(p, text, t, css, {tFill, dFill = .55, rot = -4, size = 46, burstWith = '🔥', sound = 'pop', db = -24} = {}) {
+  const [o, i] = holder(p, css);
+  i.style.cssText += `opacity:0;transform:rotate(${rot}deg)`;
+  const pad = `padding:${size * .34}px ${size * .9}px ${size * .38}px`;
+  div(`position:relative;${pad};border-radius:999px;background:#fff;box-shadow:0 14px 34px rgba(0,30,90,.3);white-space:nowrap`, i, `<span class="kt" style="font-size:${size}px;text-transform:uppercase">${text}</span>`);
+  const ov = div(`inset:0;${pad};border-radius:999px;background:linear-gradient(90deg,${SKY},${ACC} 45%,${DEEP});white-space:nowrap;clip-path:inset(0 100% 0 0 round 999px)`, i,
+    `<span class="kt" style="font-size:${size}px;text-transform:uppercase;background:none;color:#fff">${text}</span>`);
+  A(i, [{opacity: 0, transform: `rotate(${rot - 14}deg) scale(.5)`, filter: 'blur(10px)'}, {opacity: 1, transform: `rotate(${rot}deg)`, filter: 'none'}], t, .5, {e: BOUNCE});
+  if (sound) sfx(sound, t, db);
+  const tf = tFill ?? t + .5;
+  A(ov, [{clipPath: 'inset(0 100% 0 0 round 999px)'}, {clipPath: 'inset(0 0% 0 0 round 999px)'}], tf, dFill, {e: INOUT});
+  sfx('swipe', tf, -26);
+  if (burstWith) { FITS.push(() => burst(o, burstWith, tf + dFill * .5, i.offsetWidth / 2, 0, {r: i.offsetWidth * .55, sound: false})); sfx('pop_hi', tf + dFill * .5, -28); }   // sizes are known only after fonts load
+  o.inner = i; return o;
+}
+/* emojis pop out radially (and up) from x,y, then fade */
+function burst(p, ch, t, x, y, {n = 6, r = 200, size = 58, d = 1.0, seed = 1, up = 70, sound = true} = {}) {
+  for (let k = 0; k < n; k++) {
+    const a = -Math.PI / 2 + (k - (n - 1) / 2) * (Math.PI * 1.4 / n) + (rnd(seed + k) - .5) * .35, rr = r * (.75 + rnd(seed * 7 + k) * .45);
+    const e = div(`left:${x - size / 2}px;top:${y - size / 2}px;font-size:${size}px;opacity:0`, p, ch); e.className = 'emo';
+    const X = Math.cos(a) * rr, Y = Math.sin(a) * rr * .7;
+    A(e, [{opacity: 0, transform: 'translate(0,0) scale(.2)'}, {opacity: 1, transform: `translate(${X * .8}px,${Y * .8}px) scale(1.15)`, offset: .3},
+          {opacity: 1, transform: `translate(${X}px,${Y - up * .6}px) scale(1) rotate(${(rnd(k + seed) - .5) * 40}deg)`, offset: .72}, {opacity: 0, transform: `translate(${X}px,${Y - up}px) scale(.85)`}], t + k * .04, d, {e: 'ease-out', f: 'none'});
+  }
+  if (sound) sfx('pop_hi', t, -28);
+}
+/* emojis fly away along (dx, dy) — e.g. 💸 money leaving */
+function flyers(p, ch, t, x, y, {n = 4, dx = 400, dy = -380, spread = 150, size = 72, d = 1.15, step = .14, seed = 3} = {}) {
+  for (let k = 0; k < n; k++) {
+    const jx = (rnd(seed + k) - .5) * spread, jy = (rnd(seed * 3 + k) - .5) * spread;
+    const e = div(`left:${x - size / 2}px;top:${y - size / 2}px;font-size:${size}px;opacity:0`, p, ch); e.className = 'emo';
+    A(e, [{opacity: 0, transform: `translate(${jx * .3}px,${jy * .3}px) rotate(-12deg) scale(.4)`}, {opacity: 1, transform: `translate(${jx}px,${jy}px) rotate(6deg) scale(1)`, offset: .18},
+          {opacity: 1, offset: .7}, {opacity: 0, transform: `translate(${dx + jx}px,${dy + jy}px) rotate(18deg) scale(.9)`}], t + k * step, d, {e: 'ease-in-out', f: 'none'});
+  }
+  sfx('softswish', t, -27);
+}
+/* user image framed by four white viewfinder corners that snap in */
+function viewfinder(p, src, t, css, {w = 420, h = 340, len = 66, sw = 7, gap = 26, sound = 'glint', db = -28} = {}) {
+  const box = div(`${css};width:${w}px;height:${h}px`, p);
+  const im = div('inset:0;border-radius:6px;overflow:hidden;opacity:0;box-shadow:0 18px 44px rgba(0,0,0,.35)', box, `<img src="${src}" style="width:100%;height:100%;object-fit:cover;display:block">`);
+  A(im, [{opacity: 0, transform: 'scale(.85)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'none'}], t, .4);
+  [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sy], k) => {
+    const x = sx < 0 ? -gap : w + gap - len, y = sy < 0 ? -gap : h + gap - len;
+    const d = sx < 0 ? (sy < 0 ? `M${len} ${sw / 2}H${sw / 2}V${len}` : `M${sw / 2} 0V${len - sw / 2}H${len}`) : (sy < 0 ? `M0 ${sw / 2}H${len - sw / 2}V${len}` : `M${len - sw / 2} 0V${len - sw / 2}H0`);
+    const c = svg(len, len, `<path d="${d}" fill="none" stroke="#fff" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>`, `left:${x}px;top:${y}px;opacity:0;filter:drop-shadow(0 0 8px ${rgba(SKY, .9)})`, box);
+    A(c, [{opacity: 0, transform: `translate(${sx * 46}px,${sy * 46}px)`}, {opacity: 1, transform: 'none'}], t + .08 + k * .02, .4, {e: BOUNCE});
+  });
+  if (sound) sfx(sound, t + .1, db);
+  return box;
+}
+/* one emoji that pops and floats */
+function emo(p, ch, t, css, {size = 90, fl = true, sound = 'pop', db = -27} = {}) {
+  const [o, i] = holder(p, css); i.className = 'emo'; i.style.cssText += `font-size:${size}px;opacity:0`; i.textContent = ch;
+  popIn(i, t, {d: .45});
+  if (fl && p.t1) float(o, t + .45, p.t1, {a: size * .08, p: 1.5 + (size % 5) * .1});
+  if (sound) sfx(sound, t, db);
+  o.inner = i; return o;
+}
+/* glass panel for custom layouts: tone 'dark' | 'blue' | 'light' */
+const glass = (p, css, {tone = 'dark', radius = 36} = {}) => div(`border-radius:${radius}px;${GLASS[tone]};${css}`, p);
+/* square glass tile with a Lucide icon or an emoji */
+function tile(p, name, t, css, {size = 180, tone = 'blue', color = '#fff', icon = .5, sound = 'pop', db = -25, fl = true} = {}) {
+  const [o, i] = holder(p, css);
+  i.style.cssText += `width:${size}px;height:${size}px;border-radius:${size * .28}px;display:flex;align-items:center;justify-content:center;opacity:0;${GLASS[tone] ?? `background:${tone}`}`;
+  i.innerHTML = isIcon(name) ? ico(name, size * icon, color, 2.2) : `<span class="emo" style="font-size:${size * .56}px">${name}</span>`;
+  popIn(i, t);
+  if (fl && p.t1) float(o, t + .5, p.t1, {a: size * .05});
+  if (sound) sfx(sound, t, db);
+  o.inner = i; return o;
+}
+function label(p, text, t, css, {size = 40, color = '#fff', font = 'UiIt', d = .3} = {}) {
+  const l = div(`white-space:nowrap;font-family:${font};font-size:${size}px;line-height:1.2;color:${color};opacity:0;${css}`, p); l.textContent = text;
+  A(l, [{opacity: 0, transform: 'translateY(14px)'}, {opacity: 1, transform: 'none'}], t, d);
+  return l;
+}
+/* typewriter text (grapheme by grapheme — safe for Thai) */
+function typeText(p, text, t, css, {size = 48, color = '#fff', font = 'UiIt', step = .035, sound = true} = {}) {
+  const e = div(`white-space:nowrap;font-family:${font};font-size:${size}px;line-height:1.2;color:${color};${css}`, p), gs = graphemes(text);
+  gs.forEach((ch, n) => { const g = mk('span', '', e, ch); A(g, [{opacity: 0}, {opacity: 1}], t + n * step, .04, {e: 'linear'}); });
+  if (sound) for (let k = 0; k < gs.length; k += 3) sfx('tick', t + k * step, -36, 1.2 + (k % 2) * .2);
+  e.tEnd = t + gs.length * step;
+  return e;
+}
+/* big X drawn over something */
+function cross(c, t, css, {size = 200, color = BAD, sw = 26} = {}) {
+  const s = svg(size, size, `<path d="M20 20 L${size - 20} ${size - 20}" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/><path d="M${size - 20} 20 L20 ${size - 20}" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`, css, c);
+  const [p1, p2] = s.querySelectorAll('path'); draw(p1, t, .18); draw(p2, t + .14, .18);
+  sfx('stamp', t + .1, -22);
+  return s;
+}
+/* small user picture inside a widget (rounded) */
+function pic(p, src, t, css, {d = .4} = {}) {
+  const w = div(`overflow:hidden;opacity:0;${css}`, p, `<img src="${src}" style="width:100%;height:100%;object-fit:cover;display:block">`);
+  A(w, [{opacity: 0, transform: 'scale(.88)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'none'}], t, d);
+  return w;
+}
+
+/* ===================== SCREEN (speaker shrinks into an app-icon tile on a sky-blue page) =====================
+   face = [cx, cy, size] square window of the footage to keep (video px, find it on grid.jpg)
+   to   = [cx, cy, size] where that square lands on screen. Captions starting inside the window are hidden. */
+const SCREEN_BG = {sky: `radial-gradient(120% 60% at 15% 0%,#FFFFFF 0%,rgba(255,255,255,0) 62%),linear-gradient(172deg,#F4FBFF 0%,#D8F1FF 32%,${SKY} 66%,${ACC} 100%)`,
+                   white: '#F6F9FD', deep: `linear-gradient(172deg,${ACC},${DEEP})`};
+function screen(t0, t1, {face = [540, 640, 640], to = [540, 560, 430], r = 70, d = .42, bg = 'sky', out = 'grow', sound = 'whoosh', db = -24} = {}) {
+  const back = div(`inset:0;opacity:0;background:${SCREEN_BG[bg] ?? bg}`, B); visible(back, t0, t1);
+  const sh = div(`opacity:0;box-shadow:0 34px 80px ${rgba(DEEP, .35)},0 8px 20px rgba(0,0,0,.18)`, B); visible(sh, t0, t1);
+  const box = div('inset:0;opacity:0', G); visible(box, t0, t1);
+  if (out === 'grow') A(box, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t1 - d - .16, .16, {f: 'forwards', e: 'ease-in'});   // text leaves before the footage grows back
+  else blurIn(t1, {sound: null});   // 'cut': hard cut back to full footage out of a blur
+  SCREENS.push({t0, t1, face, to, r, d, sh, out});
+  if (sound) { sfx(sound, t0 - .06, db); sfx(sound, out === 'grow' ? t1 - d - .04 : t1 - .12, db - 2); }
+  box.t0 = t0; box.t1 = t1;
+  return box;
+}
+/* one line on a screen: emoji pops, text types on; mark = hand-drawn loop around the text */
+function srow(box, emoji, text, t, css, {size = 58, color = NAVY, mark = false, step = .035} = {}) {
+  const r = div(`display:flex;align-items:center;gap:${size * .38}px;white-space:nowrap;${css}`, box);
+  if (emoji) { const e = mk('span', 'emo', r, emoji); e.style.cssText = `position:relative;display:block;font-size:${size * 1.05}px;opacity:0`; popIn(e, t, {d: .42}); sfx('pop', t, -26); }
+  const tx = typeText(r, text, t + .14, 'position:relative', {size, color, step});
+  if (mark) FITS.push(() => {
+    const w = tx.offsetWidth, h = tx.offsetHeight;
+    const s = svg(w, h, `<path d="M${-.04 * w} ${.66 * h} C${-.12 * w} ${-.16 * h} ${1.12 * w} ${-.22 * h} ${1.07 * w} ${.48 * h} S${.12 * w} ${1.32 * h} ${-.02 * w} ${.5 * h}" fill="none" stroke="${SKY}" stroke-width="5" stroke-linecap="round"/>`, 'left:0;top:0;filter:drop-shadow(0 0 6px rgba(143,220,255,.9))', tx);
+    draw(s.querySelector('path'), tx.tEnd + .05, .5);
+  });
+  if (mark) sfx('swipe', tx.tEnd + .05, -28);
+  return r;
+}
+
+/* ===================== CUTAWAY (full-screen picture / B-roll, torn-paper frame, flying papers) =====================
+   src = 'img/x.jpg' (user image) or clip = '<name>' (frames from scripts/prep_broll.sh). Captions keep running on top. */
+function cutaway(t0, t1, {src, clip: cname, from = 0, torn = true, papers = 8, seed = 5, drift = .06, sound = 'paper', db = -20} = {}) {
+  const root = div('inset:0;overflow:hidden;opacity:0;background:#0B0F18', S); visible(root, t0, t1);
+  const st = div('inset:0', root);
+  A(st, [{transform: 'scale(1.16)', filter: 'blur(16px)'}, {transform: 'scale(1)', filter: 'none'}], t0, .42);
+  const im = mk('img', '', st); im.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block';
+  if (src) { im.src = src; if (drift) A(im, [{transform: 'scale(1)'}, {transform: `scale(${1 + drift})`}], t0, t1 - t0, {e: 'linear'}); }
+  else if (cname) {
+    let last = '';
+    HOOKS.push(tt => { if (tt < t0 - .05 || tt > t1 + .05) return; const n = Math.max(1, Math.round((tt - t0 + from) * 30) + 1), s = `broll/${cname}/f${String(n).padStart(5, '0')}.jpg`;
+      if (s === last) return; last = s; im.src = s; return im.decode().catch(() => {}); });
+  }
+  if (torn) tornFrame(root, t0, seed);
+  if (papers) paperFly(root, t0, t1, papers, seed);
+  if (sound) sfx(sound, t0 - .04, db);
+  sfx('whoosh', t0 - .1, -26);
+  root.t0 = t0; root.t1 = t1;
+  return root;
+}
+function tornPath(seed, grow = 0) {   // jagged rounded-rect hole (superellipse) inside a big rect, even-odd
+  const pts = [], N = 230, a = 492 + grow, b = 880 + grow, f1 = rnd(seed) * 6.3, f2 = rnd(seed + 9) * 6.3;
+  for (let i = 0; i < N; i++) {
+    const th = i / N * Math.PI * 2, c = Math.cos(th), s = Math.sin(th);
+    const x = a * Math.sign(c) * Math.abs(c) ** .36, y = b * Math.sign(s) * Math.abs(s) ** .36, r = Math.hypot(x, y) || 1;
+    const j = 20 * Math.sin(th * 5 + f1) + 12 * Math.sin(th * 13 + f2) + (rnd(seed * 31 + i) - .5) * 18 + (i % 2 ? 4 : -4);   // tears + fibres
+    pts.push(`${(540 + x + x / r * j).toFixed(1)} ${(960 + y + y / r * j).toFixed(1)}`);
+  }
+  return `M-500 -500H1580V2420H-500Z M${pts.join(' L')}Z`;
+}
+function tornFrame(root, t0, seed) {
+  const wrap = div('inset:0;filter:drop-shadow(0 0 18px rgba(0,0,0,.6))', root,
+    `<svg width="1080" height="1920" style="overflow:visible;display:block"><path d="${tornPath(seed + 1, -12)}" fill="#C9C7C0" fill-rule="evenodd"/><path d="${tornPath(seed)}" fill="#F5F4F0" fill-rule="evenodd"/></svg>`);
+  A(wrap, [{transform: 'scale(1.5)'}, {transform: 'scale(1)'}], t0, .45);
+}
+function paperFly(root, t0, t1, n, seed) {   // sheets fly in from off-screen and settle on the torn border
+  for (let k = 0; k < n; k++) {
+    const ang = (k / n) * Math.PI * 2 + (rnd(seed + k * 3) - .5) * .5, c = Math.cos(ang), sn = Math.sin(ang);
+    const x = Math.max(30, Math.min(1050, 540 + c * 590)), y = Math.max(50, Math.min(1870, 960 + sn * 1010));
+    const w = 120 + rnd(k + seed) * 60, h = w * 1.3, r0 = (rnd(k * 5 + seed) - .5) * 90;
+    let lines = ''; for (let q = 0; q < 6; q++) lines += `<div style="height:${w * .045}px;border-radius:3px;background:#D3D6DC;margin-bottom:${w * .065}px;width:${60 + rnd(k * 11 + q) * 35}%"></div>`;
+    const o = div(`left:${x - w / 2}px;top:${y - h / 2}px;width:${w}px;height:${h}px;opacity:0`, root);
+    const sh = div(`inset:0;border-radius:4px;background:#FAFAF6;box-shadow:0 14px 30px rgba(0,0,0,.35);padding:${w * .14}px ${w * .12}px`, o, lines);
+    A(o, [{opacity: 0, transform: `translate(${c * 420}px,${sn * 620}px) rotate(${r0 + 140}deg) scale(1.3)`}, {opacity: 1, transform: `rotate(${r0}deg)`}], t0 - .05 + k * .03, .5);
+    A(sh, [{transform: 'translate(0,0) rotate(0)'}, {transform: `translate(${c * 50}px,${sn * 60}px) rotate(${(rnd(k) - .5) * 30}deg)`}], t0 + .45, Math.max(.1, t1 - t0 - .45), {e: 'linear'});
+  }
+}
+</script>
+<script>
+/* ===================== TIMELINE ===================== */

@@ -10,6 +10,10 @@
 - `.claude/skills/talking-head-editorial-overlay/` — สไตล์ editorial แบบ overlay: เห็นหน้าคนพูดตลอด ไม่มีการ์ดเต็มจอ,
   ซับคำใหญ่แบบ editorial + วิดเจ็ต motion graphics เล็ก ๆ สไตล์ Jitter เด้งเหนือหัว.
   สั่ง: "ตัดต่อคลิปนี้ตาม skill talking-head-editorial-overlay" + ลิงก์คลิป + บทพูดพร้อมเวลา
+- `.claude/skills/talking-head-glass-ui/` — สไตล์ glass UI โทนฟ้า (ref: ฝั่ง "Opus 5.5" ของ @edita.visuals): ซับสามชั้นใต้คาง
+  (คำนำเอียงเล็ก + คำใหญ่หนาเอียงไล่สีฟ้า + คำท้าย), ป้ายกระจก + มือคลิก, การ์ด progress, ฟองแชตอีโมจิ, โพลารอยด์,
+  ทรานสิชันเบลอ / whip / push, ฉากหน้าหดเป็นไอคอนแอป และฉากตัดไปภาพเต็มจอขอบกระดาษฉีก.
+  สั่ง: "ตัดต่อคลิปนี้ตาม skill talking-head-glass-ui" + ลิงก์คลิป + บทพูดพร้อมเวลา (+ รูปประกอบถ้ามี)
 - เปิด Claude Code โดยเลือก repo นี้ แล้ว skill จะโหลดเองอัตโนมัติ — ถ้าไม่ระบุสไตล์ Claude จะถามว่าเอาแบบไหน
 - `product/TalkingHeadMotion-v9-product.zip` — แพ็กเกจสำหรับขาย (skill + คู่มือ + หน้าขาย + License + คลิป before/after)
 - `product/docs/` — คู่มือ, หน้าขาย, License, before_after.mp4, edit_v9_final.mp4 (คลิปต้นแบบ v9)

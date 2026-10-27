@@ -1,0 +1,17 @@
+{
+  "_comment": "Brand settings for talking-head-glass-ui. sky → accent → deep = the blue gradient of key words, glass cards and fills; good / bad = green check & red x only. Footage is never colour-graded.",
+  "accent": "#2F8CFF",
+  "sky": "#8FDCFF",
+  "deep": "#1557E6",
+  "good": "#34C759",
+  "bad": "#FF3B30",
+  "navy": "#0E1B33",
+  "fonts": {
+    "key":      "fonts/Kanit-BlackItalic.ttf",
+    "lead":     "fonts/Kanit-MediumItalic.ttf",
+    "ui":       "fonts/Kanit-SemiBoldItalic.ttf",
+    "ui_bold":  "fonts/Kanit-ExtraBoldItalic.ttf",
+    "ui_plain": "fonts/Kanit-Medium.ttf"
+  },
+  "sfx_db": -11
+}
