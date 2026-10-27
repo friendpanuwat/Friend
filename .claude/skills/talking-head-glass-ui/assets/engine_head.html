@@ -15,7 +15,6 @@ body{position:relative;color:#fff;font-family:"LeadIt",sans-serif}
 #world{transform-origin:0 0}
 #cam{transform-origin:50% 45%}
 #v{position:absolute;left:0;top:0;width:1080px;height:1920px;display:block}   /* NO colour grade: footage stays as shot */
-.emo{font-family:"Noto Color Emoji",sans-serif;font-style:normal;line-height:1;white-space:nowrap}
 
 /* ---------- captions: small italic lead · big gradient italic key · small italic tail ---------- */
 .cap{position:absolute;left:0;width:1080px;display:flex;justify-content:center;opacity:0}
@@ -66,7 +65,9 @@ const rnd = k => { const x = Math.sin(k * 127.1 + 311.7) * 43758.5453; return x 
 const clamp01 = x => Math.max(0, Math.min(1, x));
 const ease = p => 1 - Math.pow(1 - p, 3);
 const easeIO = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-const isIcon = s => /^[a-z0-9-]+$/.test(s);   // Lucide name, otherwise treated as an emoji / text
+/* icons only — no emoji anywhere in this style (Lucide line icons keep the UI consistent) */
+const isIcon = s => /^[a-z0-9-]+$/.test(s);
+const needIcon = n => { if (!isIcon(n) || !(n in ICONS || ['check', 'x', 'shield'].includes(n))) throw new Error(`not a Lucide icon in ICONS: "${n}" (emoji are not used in glass-ui)`); return n; };
 
 /* ===================== CAPTIONS =====================
    cap({t0, t1, top, lead: [[text, t], ...], key: [[TEXT, t], ...], tail: [[text, t], ...]})
@@ -78,9 +79,9 @@ function cap(b) {
   const L = list(b.lead), K = list(b.key), T = list(b.tail);
   el.keys = [];
   const row = (cls, size) => { const r = mk('div', 'row ' + cls, box); r.style.fontSize = size + 'px'; return r; };
-  if (L.length) { const r = row('lead', z.l ?? 50); for (const [x, t, o] of L) lw(r, x, t, z.l ?? 50, o); }
-  if (K.length) { const r = row('key', z.k ?? 128); for (const [x, t, o] of K) el.keys.push(kw(r, x, t, z.k ?? 128, o)); }
-  if (T.length) { const r = row('tail', z.t ?? 44); for (const [x, t, o] of T) lw(r, x, t, z.t ?? 44, o); }
+  if (L.length) { const r = row('lead', z.l ?? 52); for (const [x, t, o] of L) lw(r, x, t, z.l ?? 52, o); }
+  if (K.length) { const r = row('key', z.k ?? 140); for (const [x, t, o] of K) el.keys.push(kw(r, x, t, z.k ?? 140, o)); }
+  if (T.length) { const r = row('tail', z.t ?? 46); for (const [x, t, o] of T) lw(r, x, t, z.t ?? 46, o); }
   if (!K.length) box.querySelectorAll('.row').forEach(r => { r.style.justifySelf = 'center'; r.style.padding = '0'; });
   const W = b.maxW ?? 980;
   FITS.push(() => { const w = box.offsetWidth; if (w > W) box.style.transform = `scale(${W / w})`; });
@@ -142,21 +143,21 @@ const popIn = (el, t, {d = .5, from = 'scale(0) rotate(-14deg)', e = BOUNCE} = {
 const float = (el, t0, t1, {a = 12, p = 1.7, delay = 0} = {}) => A(el, [{transform: 'translateY(0)'}, {transform: `translateY(${-a}px)`}], t0 + delay, p / 2, {it: Math.max(1, Math.ceil((t1 - t0) / (p / 2))), dir: 'alternate', e: 'ease-in-out', f: 'none'});
 const punch = (el, t, s = 1.12) => A(el, [{transform: 'scale(1)'}, {transform: `scale(${s})`, offset: .35}, {transform: 'scale(1)'}], t, .42, {f: 'none', e: 'ease-out'});
 const wobble = (el, t, {d = .55, a = 8} = {}) => A(el, [{transform: 'rotate(0)'}, {transform: `rotate(${-a}deg)`, offset: .2}, {transform: `rotate(${a}deg)`, offset: .45}, {transform: `rotate(${-a * .6}deg)`, offset: .7}, {transform: 'rotate(0)'}], t, d, {f: 'none', e: 'ease-in-out'});
-const ICONS = {"award": "<path d=\"m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526\" /> <circle cx=\"12\" cy=\"8\" r=\"6\" />", "badge-percent": "<path d=\"M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z\" /> <path d=\"m15 9-6 6\" /> <path d=\"M9 9h.01\" /> <path d=\"M15 15h.01\" />", "ban": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m4.9 4.9 14.2 14.2\" />", "banknote": "<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" /> <path d=\"M6 12h.01M18 12h.01\" />", "bell": "<path d=\"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9\" /> <path d=\"M10.3 21a1.94 1.94 0 0 0 3.4 0\" />", "briefcase": "<path d=\"M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\" /> <rect width=\"20\" height=\"14\" x=\"2\" y=\"6\" rx=\"2\" />", "calendar": "<path d=\"M8 2v4\" /> <path d=\"M16 2v4\" /> <rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\" /> <path d=\"M3 10h18\" />", "car": "<path d=\"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2\" /> <circle cx=\"7\" cy=\"17\" r=\"2\" /> <path d=\"M9 17h6\" /> <circle cx=\"17\" cy=\"17\" r=\"2\" />", "chart-column": "<path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /> <path d=\"M18 17V9\" /> <path d=\"M13 17V5\" /> <path d=\"M8 17v-3\" />", "check": "<path d=\"M20 6 9 17l-5-5\" />", "circle-alert": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\" /> <line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\" />", "circle-check": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m9 12 2 2 4-4\" />", "circle-x": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m15 9-6 6\" /> <path d=\"m9 9 6 6\" />", "clock": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <polyline points=\"12 6 12 12 16 14\" />", "coins": "<circle cx=\"8\" cy=\"8\" r=\"6\" /> <path d=\"M18.09 10.37A6 6 0 1 1 10.34 18\" /> <path d=\"M7 6h1v4\" /> <path d=\"m16.71 13.88.7.71-2.82 2.82\" />", "credit-card": "<rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"2\" /> <line x1=\"2\" x2=\"22\" y1=\"10\" y2=\"10\" />", "crown": "<path d=\"M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z\" /> <path d=\"M5 21h14\" />", "eye": "<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />", "file-text": "<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\" /> <path d=\"M14 2v4a2 2 0 0 0 2 2h4\" /> <path d=\"M10 9H8\" /> <path d=\"M16 13H8\" /> <path d=\"M16 17H8\" />", "flame": "<path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z\" />", "gavel": "<path d=\"m14.5 12.5-8 8a2.119 2.119 0 1 1-3-3l8-8\" /> <path d=\"m16 16 6-6\" /> <path d=\"m8 8 6-6\" /> <path d=\"m9 7 8 8\" /> <path d=\"m21 11-8-8\" />", "gift": "<rect x=\"3\" y=\"8\" width=\"18\" height=\"4\" rx=\"1\" /> <path d=\"M12 8v13\" /> <path d=\"M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7\" /> <path d=\"M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5\" />", "graduation-cap": "<path d=\"M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z\" /> <path d=\"M22 10v6\" /> <path d=\"M6 12.5V16a6 3 0 0 0 12 0v-3.5\" />", "hand": "<path d=\"M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2\" /> <path d=\"M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2\" /> <path d=\"M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8\" /> <path d=\"M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15\" />", "heart": "<path d=\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\" />", "hourglass": "<path d=\"M5 22h14\" /> <path d=\"M5 2h14\" /> <path d=\"M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22\" /> <path d=\"M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2\" />", "house": "<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />", "key": "<path d=\"m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4\" /> <path d=\"m21 2-9.6 9.6\" /> <circle cx=\"7.5\" cy=\"15.5\" r=\"5.5\" />", "lightbulb": "<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />", "list-checks": "<path d=\"m3 17 2 2 4-4\" /> <path d=\"m3 7 2 2 4-4\" /> <path d=\"M13 6h8\" /> <path d=\"M13 12h8\" /> <path d=\"M13 18h8\" />", "lock": "<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />", "mail": "<rect width=\"20\" height=\"16\" x=\"2\" y=\"4\" rx=\"2\" /> <path d=\"m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7\" />", "message-circle": "<path d=\"M7.9 20A9 9 0 1 0 4 16.1L2 22Z\" />", "phone": "<path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\" />", "piggy-bank": "<path d=\"M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z\" /> <path d=\"M2 9v1c0 1.1.9 2 2 2h1\" /> <path d=\"M16 11h.01\" />", "plane": "<path d=\"M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z\" />", "pointer": "<path d=\"M22 14a8 8 0 0 1-8 8\" /> <path d=\"M18 11v-1a2 2 0 0 0-2-2a2 2 0 0 0-2 2\" /> <path d=\"M14 10V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1\" /> <path d=\"M10 9.5V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v10\" /> <path d=\"M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15\" />", "rocket": "<path d=\"M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z\" /> <path d=\"m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z\" /> <path d=\"M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0\" /> <path d=\"M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5\" />", "search": "<circle cx=\"11\" cy=\"11\" r=\"8\" /> <path d=\"m21 21-4.3-4.3\" />", "shield-check": "<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" /> <path d=\"m9 12 2 2 4-4\" />", "shopping-cart": "<circle cx=\"8\" cy=\"21\" r=\"1\" /> <circle cx=\"19\" cy=\"21\" r=\"1\" /> <path d=\"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12\" />", "sparkles": "<path d=\"M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z\" /> <path d=\"M20 3v4\" /> <path d=\"M22 5h-4\" /> <path d=\"M4 17v2\" /> <path d=\"M5 18H3\" />", "star": "<path d=\"M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z\" />", "stethoscope": "<path d=\"M11 2v2\" /> <path d=\"M5 2v2\" /> <path d=\"M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1\" /> <path d=\"M8 15a6 6 0 0 0 12 0v-3\" /> <circle cx=\"20\" cy=\"10\" r=\"2\" />", "store": "<path d=\"m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7\" /> <path d=\"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8\" /> <path d=\"M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4\" /> <path d=\"M2 7h20\" /> <path d=\"M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7\" />", "tag": "<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />", "target": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <circle cx=\"12\" cy=\"12\" r=\"6\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" />", "thumbs-down": "<path d=\"M17 14V2\" /> <path d=\"M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z\" />", "thumbs-up": "<path d=\"M7 10v12\" /> <path d=\"M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z\" />", "trending-down": "<polyline points=\"22 17 13.5 8.5 8.5 13.5 2 7\" /> <polyline points=\"16 17 22 17 22 11\" />", "trending-up": "<polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\" /> <polyline points=\"16 7 22 7 22 13\" />", "triangle-alert": "<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />", "umbrella": "<path d=\"M22 12a10.06 10.06 1 0 0-20 0Z\" /> <path d=\"M12 12v8a2 2 0 0 0 4 0\" /> <path d=\"M12 2v1\" />", "user": "<path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\" /> <circle cx=\"12\" cy=\"7\" r=\"4\" />", "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /> <circle cx=\"9\" cy=\"7\" r=\"4\" /> <path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /> <path d=\"M16 3.13a4 4 0 0 1 0 7.75\" />", "wallet": "<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\" /> <path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\" />", "x": "<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />", "zap": "<path d=\"M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z\" />"};
+const ICONS = {"award": "<path d=\"m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526\" /> <circle cx=\"12\" cy=\"8\" r=\"6\" />", "badge-percent": "<path d=\"M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z\" /> <path d=\"m15 9-6 6\" /> <path d=\"M9 9h.01\" /> <path d=\"M15 15h.01\" />", "ban": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m4.9 4.9 14.2 14.2\" />", "banknote": "<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" /> <path d=\"M6 12h.01M18 12h.01\" />", "bell": "<path d=\"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9\" /> <path d=\"M10.3 21a1.94 1.94 0 0 0 3.4 0\" />", "bomb": "<circle cx=\"11\" cy=\"13\" r=\"9\" /> <path d=\"M14.35 4.65 16.3 2.7a2.41 2.41 0 0 1 3.4 0l1.6 1.6a2.4 2.4 0 0 1 0 3.4l-1.95 1.95\" /> <path d=\"m22 2-1.5 1.5\" />", "briefcase": "<path d=\"M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\" /> <rect width=\"20\" height=\"14\" x=\"2\" y=\"6\" rx=\"2\" />", "building-2": "<path d=\"M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z\" /> <path d=\"M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2\" /> <path d=\"M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2\" /> <path d=\"M10 6h4\" /> <path d=\"M10 10h4\" /> <path d=\"M10 14h4\" /> <path d=\"M10 18h4\" />", "calendar": "<path d=\"M8 2v4\" /> <path d=\"M16 2v4\" /> <rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\" /> <path d=\"M3 10h18\" />", "car": "<path d=\"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2\" /> <circle cx=\"7\" cy=\"17\" r=\"2\" /> <path d=\"M9 17h6\" /> <circle cx=\"17\" cy=\"17\" r=\"2\" />", "chart-column": "<path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /> <path d=\"M18 17V9\" /> <path d=\"M13 17V5\" /> <path d=\"M8 17v-3\" />", "check": "<path d=\"M20 6 9 17l-5-5\" />", "circle-alert": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\" /> <line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\" />", "circle-check": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m9 12 2 2 4-4\" />", "circle-help": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\" /> <path d=\"M12 17h.01\" />", "circle-x": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m15 9-6 6\" /> <path d=\"m9 9 6 6\" />", "clock": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <polyline points=\"12 6 12 12 16 14\" />", "coins": "<circle cx=\"8\" cy=\"8\" r=\"6\" /> <path d=\"M18.09 10.37A6 6 0 1 1 10.34 18\" /> <path d=\"M7 6h1v4\" /> <path d=\"m16.71 13.88.7.71-2.82 2.82\" />", "credit-card": "<rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"2\" /> <line x1=\"2\" x2=\"22\" y1=\"10\" y2=\"10\" />", "crown": "<path d=\"M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z\" /> <path d=\"M5 21h14\" />", "eye": "<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />", "file-text": "<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\" /> <path d=\"M14 2v4a2 2 0 0 0 2 2h4\" /> <path d=\"M10 9H8\" /> <path d=\"M16 13H8\" /> <path d=\"M16 17H8\" />", "flag": "<path d=\"M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z\" /> <line x1=\"4\" x2=\"4\" y1=\"22\" y2=\"15\" />", "flame": "<path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z\" />", "frown": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M16 16s-1.5-2-4-2-4 2-4 2\" /> <line x1=\"9\" x2=\"9.01\" y1=\"9\" y2=\"9\" /> <line x1=\"15\" x2=\"15.01\" y1=\"9\" y2=\"9\" />", "gavel": "<path d=\"m14.5 12.5-8 8a2.119 2.119 0 1 1-3-3l8-8\" /> <path d=\"m16 16 6-6\" /> <path d=\"m8 8 6-6\" /> <path d=\"m9 7 8 8\" /> <path d=\"m21 11-8-8\" />", "gift": "<rect x=\"3\" y=\"8\" width=\"18\" height=\"4\" rx=\"1\" /> <path d=\"M12 8v13\" /> <path d=\"M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7\" /> <path d=\"M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5\" />", "globe": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20\" /> <path d=\"M2 12h20\" />", "graduation-cap": "<path d=\"M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z\" /> <path d=\"M22 10v6\" /> <path d=\"M6 12.5V16a6 3 0 0 0 12 0v-3.5\" />", "hand": "<path d=\"M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2\" /> <path d=\"M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2\" /> <path d=\"M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8\" /> <path d=\"M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15\" />", "heart": "<path d=\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\" />", "hourglass": "<path d=\"M5 22h14\" /> <path d=\"M5 2h14\" /> <path d=\"M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22\" /> <path d=\"M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2\" />", "house": "<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />", "key": "<path d=\"m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4\" /> <path d=\"m21 2-9.6 9.6\" /> <circle cx=\"7.5\" cy=\"15.5\" r=\"5.5\" />", "lightbulb": "<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />", "list-checks": "<path d=\"m3 17 2 2 4-4\" /> <path d=\"m3 7 2 2 4-4\" /> <path d=\"M13 6h8\" /> <path d=\"M13 12h8\" /> <path d=\"M13 18h8\" />", "lock": "<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />", "mail": "<rect width=\"20\" height=\"16\" x=\"2\" y=\"4\" rx=\"2\" /> <path d=\"m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7\" />", "medal": "<path d=\"M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15\" /> <path d=\"M11 12 5.12 2.2\" /> <path d=\"m13 12 5.88-9.8\" /> <path d=\"M8 7h8\" /> <circle cx=\"12\" cy=\"17\" r=\"5\" /> <path d=\"M12 18v-2h-.5\" />", "message-circle": "<path d=\"M7.9 20A9 9 0 1 0 4 16.1L2 22Z\" />", "party-popper": "<path d=\"M5.8 11.3 2 22l10.7-3.79\" /> <path d=\"M4 3h.01\" /> <path d=\"M22 8h.01\" /> <path d=\"M15 2h.01\" /> <path d=\"M22 20h.01\" /> <path d=\"m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10\" /> <path d=\"m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17\" /> <path d=\"m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7\" /> <path d=\"M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z\" />", "pen-line": "<path d=\"M12 20h9\" /> <path d=\"M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z\" />", "pencil": "<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /> <path d=\"m15 5 4 4\" />", "phone": "<path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\" />", "piggy-bank": "<path d=\"M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z\" /> <path d=\"M2 9v1c0 1.1.9 2 2 2h1\" /> <path d=\"M16 11h.01\" />", "plane": "<path d=\"M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z\" />", "pointer": "<path d=\"M22 14a8 8 0 0 1-8 8\" /> <path d=\"M18 11v-1a2 2 0 0 0-2-2a2 2 0 0 0-2 2\" /> <path d=\"M14 10V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1\" /> <path d=\"M10 9.5V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v10\" /> <path d=\"M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15\" />", "refresh-cw": "<path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\" /> <path d=\"M21 3v5h-5\" /> <path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\" /> <path d=\"M8 16H3v5\" />", "repeat": "<path d=\"m17 2 4 4-4 4\" /> <path d=\"M3 11v-1a4 4 0 0 1 4-4h14\" /> <path d=\"m7 22-4-4 4-4\" /> <path d=\"M21 13v1a4 4 0 0 1-4 4H3\" />", "rocket": "<path d=\"M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z\" /> <path d=\"m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z\" /> <path d=\"M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0\" /> <path d=\"M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5\" />", "search": "<circle cx=\"11\" cy=\"11\" r=\"8\" /> <path d=\"m21 21-4.3-4.3\" />", "shield-alert": "<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" /> <path d=\"M12 8v4\" /> <path d=\"M12 16h.01\" />", "shield-check": "<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" /> <path d=\"m9 12 2 2 4-4\" />", "shopping-cart": "<circle cx=\"8\" cy=\"21\" r=\"1\" /> <circle cx=\"19\" cy=\"21\" r=\"1\" /> <path d=\"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12\" />", "siren": "<path d=\"M7 18v-6a5 5 0 1 1 10 0v6\" /> <path d=\"M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z\" /> <path d=\"M21 12h1\" /> <path d=\"M18.5 4.5 18 5\" /> <path d=\"M2 12h1\" /> <path d=\"M12 2v1\" /> <path d=\"m4.929 4.929.707.707\" /> <path d=\"M12 12v6\" />", "smile": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M8 14s1.5 2 4 2 4-2 4-2\" /> <line x1=\"9\" x2=\"9.01\" y1=\"9\" y2=\"9\" /> <line x1=\"15\" x2=\"15.01\" y1=\"9\" y2=\"9\" />", "sparkles": "<path d=\"M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z\" /> <path d=\"M20 3v4\" /> <path d=\"M22 5h-4\" /> <path d=\"M4 17v2\" /> <path d=\"M5 18H3\" />", "star": "<path d=\"M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z\" />", "stethoscope": "<path d=\"M11 2v2\" /> <path d=\"M5 2v2\" /> <path d=\"M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1\" /> <path d=\"M8 15a6 6 0 0 0 12 0v-3\" /> <circle cx=\"20\" cy=\"10\" r=\"2\" />", "store": "<path d=\"m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7\" /> <path d=\"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8\" /> <path d=\"M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4\" /> <path d=\"M2 7h20\" /> <path d=\"M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7\" />", "tag": "<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />", "target": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <circle cx=\"12\" cy=\"12\" r=\"6\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" />", "thumbs-down": "<path d=\"M17 14V2\" /> <path d=\"M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z\" />", "thumbs-up": "<path d=\"M7 10v12\" /> <path d=\"M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z\" />", "trending-down": "<polyline points=\"22 17 13.5 8.5 8.5 13.5 2 7\" /> <polyline points=\"16 17 22 17 22 11\" />", "trending-up": "<polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\" /> <polyline points=\"16 7 22 7 22 13\" />", "triangle-alert": "<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />", "trophy": "<path d=\"M6 9H4.5a2.5 2.5 0 0 1 0-5H6\" /> <path d=\"M18 9h1.5a2.5 2.5 0 0 0 0-5H18\" /> <path d=\"M4 22h16\" /> <path d=\"M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22\" /> <path d=\"M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22\" /> <path d=\"M18 2H6v7a6 6 0 0 0 12 0V2Z\" />", "umbrella": "<path d=\"M22 12a10.06 10.06 1 0 0-20 0Z\" /> <path d=\"M12 12v8a2 2 0 0 0 4 0\" /> <path d=\"M12 2v1\" />", "user": "<path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\" /> <circle cx=\"12\" cy=\"7\" r=\"4\" />", "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /> <circle cx=\"9\" cy=\"7\" r=\"4\" /> <path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /> <path d=\"M16 3.13a4 4 0 0 1 0 7.75\" />", "wallet": "<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\" /> <path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\" />", "x": "<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />", "zap": "<path d=\"M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z\" />"};
 const ico = (name, size = 96, color = '#fff', sw = 2) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" style="display:block">${ICONS[name] ?? ''}</svg>`;
 const svg = (w, h, inner, css, parent) => div(css, parent, `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="overflow:visible;display:block">${inner}</svg>`);
 const draw = (p, t, d = .7) => { p.setAttribute('pathLength', 1); p.style.strokeDasharray = 1; A(p, [{strokeDashoffset: 1}, {strokeDashoffset: 0}], t, d, {e: INOUT}); };
 const ripple = (parent, x, y, t, s = 2.4, color = '#fff') => { const r = div(`left:${x - 60}px;top:${y - 60}px;width:120px;height:120px;border-radius:50%;border:5px solid ${color};opacity:0`, parent); A(r, [{opacity: .9, transform: 'scale(.3)'}, {opacity: 0, transform: `scale(${s})`}], t, .55, {f: 'none'}); };
 
-/* round icon badge used by pills: 'check' green · 'x' red · 'shield' blue · any Lucide name blue · an emoji as is */
+/* round icon badge used by pills / rows / particles: 'check' green · 'x' red · 'shield' blue · any Lucide name blue */
 function badge(icon, s) {
-  if (!isIcon(icon)) return `<span class="emo" style="display:block;font-size:${s * .92}px">${icon}</span>`;
+  needIcon(icon);
   const blue = `linear-gradient(160deg,${SKY},${ACC} 50%,${DEEP})`;
   const [bg, name] = {check: [GOOD, 'check'], x: [BAD, 'x'], shield: [blue, 'shield-check']}[icon] ?? [blue, icon];
   return `<span style="width:${s}px;height:${s}px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;background:${bg};box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 4px 12px rgba(0,0,0,.25)">${ico(name, s * .58, '#fff', 3)}</span>`;
 }
 /* dark glass pill: badge + UPPERCASE italic text, slides in, light glint sweeps across */
-function gpill(p, text, t, css, {icon = 'check', size = 50, from = 'left', glint = true, tone = 'dark', sound = 'pop_lo', db = -26} = {}) {
+function gpill(p, text, t, css, {icon = 'check', size = 54, from = 'left', glint = true, tone = 'dark', sound = 'pop_lo', db = -26} = {}) {
   const b = div(`display:inline-flex;align-items:center;gap:${size * .42}px;padding:${size * .26}px ${size * 1.0}px ${size * .28}px ${size * .26}px;border-radius:999px;white-space:nowrap;overflow:hidden;opacity:0;${GLASS[tone]};${css}`, p);
   const fg = tone === 'light' ? NAVY : '#fff';
   b.innerHTML = (icon ? `<span class="bd" style="display:block">${badge(icon, size * 1.36)}</span>` : '') +
@@ -195,12 +196,12 @@ function progress(p, t, css, {img, title = '', label = '', from = 0, to = 1, tFi
   if (sound) sfx(sound, tf, db);
   return c;
 }
-/* white chat bubble with an emoji + gradient italic word, pops from its tail */
-function bubbleE(p, emoji, text, t, css, {size = 56, side = 'left', sound = 'pop_hi', db = -26} = {}) {
+/* white chat bubble: small icon badge + gradient italic word, pops from its tail */
+function bubble(p, icon, text, t, css, {size = 56, side = 'left', sound = 'pop_hi', db = -26} = {}) {
   const [o, i] = holder(p, css);
-  i.style.cssText += `display:inline-flex;align-items:center;gap:${size * .28}px;padding:${size * .2}px ${size * .62}px ${size * .24}px ${size * .3}px;border-radius:999px;background:#fff;box-shadow:0 12px 30px rgba(0,30,90,.28);white-space:nowrap;opacity:0;transform-origin:${side === 'left' ? '14% 100%' : '86% 100%'}`;
+  i.style.cssText += `display:inline-flex;align-items:center;gap:${size * .3}px;padding:${size * .2}px ${size * .62}px ${size * .24}px ${size * .22}px;border-radius:999px;background:#fff;box-shadow:0 12px 30px rgba(0,30,90,.28);white-space:nowrap;opacity:0;transform-origin:${side === 'left' ? '14% 100%' : '86% 100%'}`;
   i.innerHTML = `<span style="position:absolute;${side}:${size * .55}px;bottom:${-size * .16}px;width:${size * .5}px;height:${size * .5}px;background:#fff;transform:rotate(45deg);border-radius:3px"></span>` +
-    (emoji ? `<span class="emo" style="position:relative;font-size:${size * 1.15}px">${emoji}</span>` : '') + `<span class="kt" style="position:relative;font-size:${size}px">${text}</span>`;
+    (icon ? `<span style="position:relative;display:block">${badge(icon, size * 1.2)}</span>` : '') + `<span class="kt" style="position:relative;font-size:${size}px">${text}</span>`;
   popIn(i, t, {d: .45, from: 'scale(.2) translateY(24px)'});
   if (sound) sfx(sound, t, db);
   o.inner = i; return o;
@@ -221,8 +222,8 @@ function polaroid(p, src, caption, t, css, {w = 420, h = 330, tag, tagColor = BA
   if (sound) sfx(sound, t - .03, db);
   o.inner = i; return o;
 }
-/* white pill with gradient text; a blue fill sweeps across at tFill (text turns white); optional emoji burst */
-function recommend(p, text, t, css, {tFill, dFill = .55, rot = -4, size = 46, burstWith = '🔥', sound = 'pop', db = -24} = {}) {
+/* white pill with gradient text; a blue fill sweeps across at tFill (text turns white); optional icon burst */
+function recommend(p, text, t, css, {tFill, dFill = .55, rot = -4, size = 46, burstWith = 'sparkles', sound = 'pop', db = -24} = {}) {
   const [o, i] = holder(p, css);
   i.style.cssText += `opacity:0;transform:rotate(${rot}deg)`;
   const pad = `padding:${size * .34}px ${size * .9}px ${size * .38}px`;
@@ -237,22 +238,22 @@ function recommend(p, text, t, css, {tFill, dFill = .55, rot = -4, size = 46, bu
   if (burstWith) { FITS.push(() => burst(o, burstWith, tf + dFill * .5, i.offsetWidth / 2, 0, {r: i.offsetWidth * .55, sound: false})); sfx('pop_hi', tf + dFill * .5, -28); }   // sizes are known only after fonts load
   o.inner = i; return o;
 }
-/* emojis pop out radially (and up) from x,y, then fade */
-function burst(p, ch, t, x, y, {n = 6, r = 200, size = 58, d = 1.0, seed = 1, up = 70, sound = true} = {}) {
+/* icon badges pop out radially (and up) from x,y, then fade */
+function burst(p, ch, t, x, y, {n = 6, r = 200, size = 64, d = 1.0, seed = 1, up = 70, sound = true} = {}) {
   for (let k = 0; k < n; k++) {
     const a = -Math.PI / 2 + (k - (n - 1) / 2) * (Math.PI * 1.4 / n) + (rnd(seed + k) - .5) * .35, rr = r * (.75 + rnd(seed * 7 + k) * .45);
-    const e = div(`left:${x - size / 2}px;top:${y - size / 2}px;font-size:${size}px;opacity:0`, p, ch); e.className = 'emo';
+    const e = div(`left:${x - size / 2}px;top:${y - size / 2}px;opacity:0`, p, badge(ch, size));
     const X = Math.cos(a) * rr, Y = Math.sin(a) * rr * .7;
     A(e, [{opacity: 0, transform: 'translate(0,0) scale(.2)'}, {opacity: 1, transform: `translate(${X * .8}px,${Y * .8}px) scale(1.15)`, offset: .3},
           {opacity: 1, transform: `translate(${X}px,${Y - up * .6}px) scale(1) rotate(${(rnd(k + seed) - .5) * 40}deg)`, offset: .72}, {opacity: 0, transform: `translate(${X}px,${Y - up}px) scale(.85)`}], t + k * .04, d, {e: 'ease-out', f: 'none'});
   }
   if (sound) sfx('pop_hi', t, -28);
 }
-/* emojis fly away along (dx, dy) — e.g. 💸 money leaving */
-function flyers(p, ch, t, x, y, {n = 4, dx = 400, dy = -380, spread = 150, size = 72, d = 1.15, step = .14, seed = 3} = {}) {
+/* icon badges fly away along (dx, dy) — e.g. 'banknote' = money leaving */
+function flyers(p, ch, t, x, y, {n = 4, dx = 400, dy = -380, spread = 150, size = 76, d = 1.15, step = .14, seed = 3} = {}) {
   for (let k = 0; k < n; k++) {
     const jx = (rnd(seed + k) - .5) * spread, jy = (rnd(seed * 3 + k) - .5) * spread;
-    const e = div(`left:${x - size / 2}px;top:${y - size / 2}px;font-size:${size}px;opacity:0`, p, ch); e.className = 'emo';
+    const e = div(`left:${x - size / 2}px;top:${y - size / 2}px;opacity:0`, p, badge(ch, size));
     A(e, [{opacity: 0, transform: `translate(${jx * .3}px,${jy * .3}px) rotate(-12deg) scale(.4)`}, {opacity: 1, transform: `translate(${jx}px,${jy}px) rotate(6deg) scale(1)`, offset: .18},
           {opacity: 1, offset: .7}, {opacity: 0, transform: `translate(${dx + jx}px,${dy + jy}px) rotate(18deg) scale(.9)`}], t + k * step, d, {e: 'ease-in-out', f: 'none'});
   }
@@ -272,21 +273,13 @@ function viewfinder(p, src, t, css, {w = 420, h = 340, len = 66, sw = 7, gap = 2
   if (sound) sfx(sound, t + .1, db);
   return box;
 }
-/* one emoji that pops and floats */
-function emo(p, ch, t, css, {size = 90, fl = true, sound = 'pop', db = -27} = {}) {
-  const [o, i] = holder(p, css); i.className = 'emo'; i.style.cssText += `font-size:${size}px;opacity:0`; i.textContent = ch;
-  popIn(i, t, {d: .45});
-  if (fl && p.t1) float(o, t + .45, p.t1, {a: size * .08, p: 1.5 + (size % 5) * .1});
-  if (sound) sfx(sound, t, db);
-  o.inner = i; return o;
-}
 /* glass panel for custom layouts: tone 'dark' | 'blue' | 'light' */
 const glass = (p, css, {tone = 'dark', radius = 36} = {}) => div(`border-radius:${radius}px;${GLASS[tone]};${css}`, p);
-/* square glass tile with a Lucide icon or an emoji */
+/* square glass tile with a Lucide icon */
 function tile(p, name, t, css, {size = 180, tone = 'blue', color = '#fff', icon = .5, sound = 'pop', db = -25, fl = true} = {}) {
   const [o, i] = holder(p, css);
   i.style.cssText += `width:${size}px;height:${size}px;border-radius:${size * .28}px;display:flex;align-items:center;justify-content:center;opacity:0;${GLASS[tone] ?? `background:${tone}`}`;
-  i.innerHTML = isIcon(name) ? ico(name, size * icon, color, 2.2) : `<span class="emo" style="font-size:${size * .56}px">${name}</span>`;
+  i.innerHTML = ico(needIcon(name), size * icon, color, 2.2);
   popIn(i, t);
   if (fl && p.t1) float(o, t + .5, p.t1, {a: size * .05});
   if (sound) sfx(sound, t, db);
@@ -319,6 +312,92 @@ function pic(p, src, t, css, {d = .4} = {}) {
   return w;
 }
 
+/* ===================== STRUCTURED UI (prefer these: one card that reads like a real app screen) ===================== */
+/* centred widget: the caption + widget form ONE unit on the vertical axis x = 540 */
+const stack = (top, w, h, t0, t1, o) => widget(`left:${540 - w / 2}px;top:${top}px;width:${w}px;height:${h}px`, t0, t1, o);
+const ICON_BG = {blue: `linear-gradient(160deg,${SKY},${ACC} 55%,${DEEP})`, good: `linear-gradient(160deg,#7BE495,${GOOD})`, bad: `linear-gradient(160deg,#FF8A80,${BAD})`,
+                 white: 'linear-gradient(180deg,#FFFFFF,#E9F1FA)', navy: `linear-gradient(160deg,#2A3B5C,${NAVY})`};
+/* rounded app-icon square: Lucide icon on a gradient */
+const appIcon = (name, s, bg = 'blue') => `<span style="width:${s}px;height:${s}px;border-radius:${s * .27}px;flex:none;display:flex;align-items:center;justify-content:center;background:${ICON_BG[bg] ?? bg};box-shadow:inset 0 2px 0 rgba(255,255,255,.45),0 8px 20px rgba(0,20,60,.3)">` +
+  ico(needIcon(name), s * .52, bg === 'white' ? DEEP : '#fff', 2.4) + '</span>';
+/* glass card = header (app icon + title + sub) + optional rows that tick in on cue; the card GROWS as each row lands
+   and hugs its content (w = fixed width, or null = fit content, min 420).
+   rows: [{icon: 'check'|'x'|'shield'|<lucide>, text, t, strike?}]. Fixed geometry so hand() can aim:
+   card.rowY(k) = centre y of row k, card.badgeX = centre x of the row badges (both in card coordinates) */
+function gcard(p, t, css, {icon, iconBg = 'blue', title = '', sub = '', w = null, tone = 'dark', rows = [], rowH = 104, head = true} = {}) {
+  const fg = tone === 'light' ? NAVY : '#fff', fg2 = tone === 'light' ? rgba(NAVY, .58) : 'rgba(255,255,255,.7)', line = tone === 'light' ? rgba(NAVY, .1) : 'rgba(255,255,255,.16)';
+  const P = 30, HH = head ? 112 : 0;
+  const c = div(`${w ? `width:${w}px` : 'width:max-content;min-width:420px'};padding:${P}px ${P + 24}px ${P}px ${P}px;border-radius:48px;${GLASS[tone]};${css}`, p);
+  if (head) div(`position:relative;height:${HH}px;display:flex;align-items:center;gap:28px`, c,
+    (icon ? appIcon(icon, HH, iconBg) : '') + `<div style="min-width:0"><div style="font-family:UiBold;font-size:52px;line-height:1.12;color:${fg};white-space:nowrap">${title}</div>` +
+    (sub ? `<div style="font-family:LeadIt;font-size:36px;line-height:1.25;color:${fg2};white-space:nowrap">${sub}</div>` : '') + '</div>');
+  if (head && rows.length) div(`position:relative;height:2px;margin:12px 0 12px;background:${line}`, c);
+  const y0 = P + HH + (head && rows.length ? 26 : 0);
+  c.rowY = k => y0 + k * rowH + rowH / 2; c.badgeX = P + 46;
+  rows.forEach((r, k) => {
+    const row = div(`position:relative;height:${rowH}px;overflow:hidden`, c);   // height 0 → rowH: the card grows
+    if (k || head) A(row, [{height: '0px'}, {height: rowH + 'px'}], r.t - .04, .34, {e: SPRING});
+    const inn = div(`left:-8px;right:-8px;top:6px;height:${rowH - 12}px;border-radius:28px;display:flex;align-items:center;gap:26px;padding:0 14px;opacity:0`, row);
+    inn.innerHTML = `<span class="bd" style="display:block;opacity:0">${badge(r.icon ?? 'check', 70)}</span><span class="tx" style="position:relative;font-family:UiIt;font-size:52px;line-height:1.1;color:${fg};white-space:nowrap">${r.text}</span>`;
+    A(inn, [{opacity: 0, transform: 'translateX(-46px)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'none'}], r.t, .34);
+    const hl = div(`inset:0;border-radius:28px;background:${tone === 'light' ? rgba(ACC, .1) : 'rgba(255,255,255,.12)'};opacity:0`, inn);
+    A(hl, [{opacity: 1}, {opacity: 0}], r.t + .05, .7, {f: 'none', e: 'ease-out'});   // row flashes when it lands
+    popIn(inn.querySelector('.bd'), r.t + .12, {d: .42, from: 'scale(0) rotate(-50deg)'});
+    sfx('pop_lo', r.t, -26); sfx(r.icon === 'x' ? 'stamp' : 'glint', r.t + .14, r.icon === 'x' ? -30 : -31);
+    if (r.strike) { const st = div(`left:-4px;right:-4px;top:52%;height:5px;border-radius:3px;background:${r.icon === 'x' ? BAD : fg};transform-origin:0 50%`, inn.querySelector('.tx'));
+      A(st, [{transform: 'scaleX(0)'}, {transform: 'scaleX(1)'}], r.strike, .24, {e: INOUT}); sfx('swipe', r.strike, -27); }
+  });
+  return c;
+}
+/* deck of versions: each new card lands on top, the older ones step back and dim (v1 → v2 → v3) */
+function versions(p, items, css, {w = 600, tone = 'dark', step = 24} = {}) {
+  const box = div(`${css};width:${w}px`, p), cards = [];
+  items.forEach((it, k) => {
+    const c = gcard(box, it.t, `left:0;top:${(items.length - 1) * step}px;opacity:0`, {icon: it.icon, iconBg: it.iconBg, title: it.title, sub: it.sub, w, tone});
+    A(c, [{opacity: 0, transform: 'translate(260px,40px) rotate(9deg)', filter: 'blur(12px)'}, {opacity: 1, transform: 'none', filter: 'none'}], it.t, .5, {e: SPRING});
+    sfx('softswish', it.t - .03, -25);
+    cards.forEach((o, j) => { const n = k - j, m = n - 1;   // card j steps back one more place
+      A(o, [{opacity: 1 - m * .36, transform: `translateY(${-m * step}px) scale(${1 - m * .07})`}, {opacity: 1 - n * .36, transform: `translateY(${-n * step}px) scale(${1 - n * .07})`}], it.t, .45, {f: 'forwards'}); });
+    cards.push(c);
+  });
+  return box;
+}
+/* spinning loop arrow around (cx, cy) — "going round in circles" */
+function loopRing(p, t, cx, cy, r, {t1, sw = 12, color = '#fff', period = 1.3, arc = .8} = {}) {
+  const S = 2 * r + 2 * sw + 60, o = S / 2, a1 = arc * Math.PI * 2;
+  const ex = o + r * Math.cos(a1 - Math.PI / 2), ey = o + r * Math.sin(a1 - Math.PI / 2), ang = a1 * 180 / Math.PI;
+  const s = svg(S, S, `<g class="sp"><path d="M${o} ${o - r} A${r} ${r} 0 ${arc > .5 ? 1 : 0} 1 ${ex.toFixed(1)} ${ey.toFixed(1)}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
+    <g transform="translate(${ex.toFixed(1)} ${ey.toFixed(1)}) rotate(${ang})"><path d="M${-sw * 1.6} ${-sw * 1.7} L${sw * 1.3} 0 L${-sw * 1.6} ${sw * 1.7}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/></g></g>`,
+    `left:${cx - o}px;top:${cy - o}px;opacity:0;filter:drop-shadow(0 0 14px ${rgba(SKY, .8)})`, p);
+  A(s, [{opacity: 0, transform: 'scale(.6) rotate(-90deg)'}, {opacity: 1, transform: 'none'}], t, .5, {e: SPRING});
+  const g = s.querySelector('.sp'); g.style.transformOrigin = `${o}px ${o}px`;
+  const end = t1 ?? (p.t1 ?? t + 3);
+  A(g, [{transform: 'rotate(0deg)'}, {transform: 'rotate(360deg)'}], t, period, {e: 'linear', it: Math.max(1, Math.ceil((end - t) / period)), f: 'none'});
+  sfx('whoosh_long', t, -28);
+  return s;
+}
+/* before → after: two cards side by side, B lands at tB with an arrow */
+function compare(p, t, css, {a, b, tB, w = 900, tone = 'dark', iconSize = 132} = {}) {
+  const cw = (w - 110) / 2, box = div(`${css};width:${w}px`, p);
+  const card = (it, x, tt) => { const c = div(`left:${x}px;top:0;width:${cw}px;padding:30px 24px 34px;border-radius:44px;display:flex;flex-direction:column;align-items:center;gap:18px;opacity:0;${GLASS[it.tone ?? tone]}`, box,
+      appIcon(it.icon ?? 'sparkles', iconSize, it.iconBg ?? 'blue') + `<div style="font-family:UiBold;font-size:52px;line-height:1.12;color:#fff;white-space:nowrap">${it.title}</div>` +
+      (it.sub ? `<div style="font-family:LeadIt;font-size:34px;line-height:1.2;color:rgba(255,255,255,.72);white-space:nowrap">${it.sub}</div>` : ''));
+    A(c, [{opacity: 0, transform: 'translateY(50px) scale(.9)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'none'}], tt, .45, {e: SPRING}); sfx('pop_lo', tt, -26); return c; };
+  card(a, 0, t);
+  const ar = div(`left:${cw + 18}px;top:${30 + iconSize / 2 - 37}px;width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${ICON_BG.blue};box-shadow:0 8px 20px ${rgba(DEEP, .45)};opacity:0`, box,
+    `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`);
+  popIn(ar, (tB ?? t + .6) - .1, {d: .4, from: 'scale(0) translateX(-30px)'});
+  card(b, cw + 110, tB ?? t + .6);
+  return box;
+}
+/* one big gradient key word anywhere (e.g. on a screen). onLight: blue→navy, no white edge (for the sky page) */
+function bigWord(p, text, t, css, {size = 150, onLight = false} = {}) {
+  const r = div(`left:0;width:1080px;display:flex;justify-content:center;${css}`, p), k = kw(r, text, t, size);
+  if (onLight) { k.style.background = `linear-gradient(180deg,${SKY} 0,${ACC} .62em,${DEEP} .95em,${NAVY} 1.25em)`; k.style.webkitBackgroundClip = k.style.backgroundClip = 'text'; k.style.webkitTextStroke = '0'; k.parentNode.style.filter = `drop-shadow(0 10px 22px ${rgba(DEEP, .28)})`; }
+  sfx('softswish', t - .04, -22);
+  return k;
+}
+
 /* ===================== SCREEN (speaker shrinks into an app-icon tile on a sky-blue page) =====================
    face = [cx, cy, size] square window of the footage to keep (video px, find it on grid.jpg)
    to   = [cx, cy, size] where that square lands on screen. Captions starting inside the window are hidden. */
@@ -335,10 +414,10 @@ function screen(t0, t1, {face = [540, 640, 640], to = [540, 560, 430], r = 70, d
   box.t0 = t0; box.t1 = t1;
   return box;
 }
-/* one line on a screen: emoji pops, text types on; mark = hand-drawn loop around the text */
-function srow(box, emoji, text, t, css, {size = 58, color = NAVY, mark = false, step = .035} = {}) {
+/* one line on a screen: icon pops, text types on; mark = hand-drawn loop around the text */
+function srow(box, icon, text, t, css, {size = 58, color = NAVY, mark = false, step = .035} = {}) {
   const r = div(`display:flex;align-items:center;gap:${size * .38}px;white-space:nowrap;${css}`, box);
-  if (emoji) { const e = mk('span', 'emo', r, emoji); e.style.cssText = `position:relative;display:block;font-size:${size * 1.05}px;opacity:0`; popIn(e, t, {d: .42}); sfx('pop', t, -26); }
+  if (icon) { const e = div('position:relative;opacity:0', r, appIcon(icon, size * 1.25)); popIn(e, t, {d: .42}); sfx('pop', t, -26); }
   const tx = typeText(r, text, t + .14, 'position:relative', {size, color, step});
   if (mark) FITS.push(() => {
     const w = tx.offsetWidth, h = tx.offsetHeight;

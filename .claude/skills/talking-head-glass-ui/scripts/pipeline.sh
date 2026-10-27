@@ -8,6 +8,7 @@
 #   encode  – x264 2-pass ≈3.2 Mbps (≈22 MB / 50 s) + QC sheet qc_sheet.jpg
 #   hq      – high-quality master edit_hq.mp4 (≈8–12 Mbps, kept ≤ 95 MB for GitHub) — deliver with deliver_github.sh
 #   all     – frames build render audio encode
+# env LOOK=clean (frames step): gentle exposure/contrast fix for dark phone footage — off by default
 # env HOLD=<sec> (set at the frames step, remembered in <project>/.hold): freeze the last frame that long after the speech
 #   so the closing card can be read; voice is padded with silence.
 set -euo pipefail
@@ -22,7 +23,9 @@ SFX_DB=$(python3 -c "import json,os;p='$PROJ/brand.json';print(json.load(open(p)
 
 frames() {
   rm -rf "$PROJ/src_frames" && mkdir -p "$PROJ/src_frames"
-  ffmpeg -y -loglevel error -i "$IN" -vf "fps=30,hqdn3d=1.5:1.5:3:3,scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos,crop=1080:1920,unsharp=5:5:0.6" -q:v 2 "$PROJ/src_frames/s%05d.jpg"
+  # LOOK=clean: gentle technical correction for dark / flat phone footage (lift mids, a touch of contrast + saturation) — not a colour grade
+  LOOKF=""; [ "${LOOK:-}" = clean ] && LOOKF=",eq=gamma=1.12:contrast=1.06:saturation=1.08"
+  ffmpeg -y -loglevel error -i "$IN" -vf "fps=30,hqdn3d=1.5:1.5:3:3,scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos,crop=1080:1920,unsharp=5:5:0.6$LOOKF" -q:v 2 "$PROJ/src_frames/s%05d.jpg"
   N=$(ls "$PROJ/src_frames" | wc -l); EXTRA=$(python3 -c "print(int(round($HOLD*30)))")
   for k in $(seq 1 $EXTRA); do cp "$PROJ/src_frames/$(printf s%05d.jpg $N)" "$PROJ/src_frames/$(printf s%05d.jpg $((N+k)))"; done
   END=$(python3 -c "print(max(0,round($DUR_IN-0.15,2)))")

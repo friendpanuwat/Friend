@@ -1,78 +1,65 @@
-/* Example timeline — clip "เริ่มทำไปก่อน" (first 24 s, Thai). Every widget type + screen + cutaway.
-   Zones from grid.jpg: face y 240–1120 (chin 1120) → captions top 1170, widgets y 1260–1620 (or beside / above the head).
-   img/start.jpg   = a frame of the clip at 0.3 s cropped to the face (ffmpeg crop) — used as thumbnail + polaroid
-   img/closeup.jpg = a frame at 14.5 s cropped tighter — used as the cutaway picture (no user B-roll for this clip)
-   Times come from chunks.json; each block = one caption chunk (+ its widget / camera move). */
+/* Example — "เริ่มทำไปก่อน" first 24 s (Thai), planned from the MEANING of each line, not from the reference's props.
+   Story: we wait for a "perfect" idea → we keep polishing versions → it becomes a loop → we never start
+          → world-class ideas weren't like that on day one.
+   Zones (grid.jpg): face y 240–1120 → caption unit centred on x 540, lead/key from y 1150; widgets below it, never past y 1620.
+   Frames step ran with LOOK=clean (dark phone footage). */
 
-/* 1 · เวลาเรา มีไอเดีย ที่อยากจะเริ่มทำธุรกิจ */
-cap({t0: 0, t1: 1.98, top: 1170, lead: [['เวลาเรา', .05]], key: [['มีไอเดีย', .47]], tail: [['ที่อยากจะ', 1.0], ['เริ่มทำธุรกิจ', 1.36]]});
+/* 1 · hook — caption only, slow push on the face */
+zoom(0, 1.07, 1.9);
+cap({t0: 0, t1: 1.98, top: 1150, lead: [['เวลาเรา', .05]], key: [['มีไอเดีย', .47]], tail: [['ที่อยากจะ', 1.0], ['เริ่มทำธุรกิจ', 1.36]]});
 keyHit(.47);
-{ const w = widget('left:800px;top:330px;width:200px;height:200px', .5, 1.98, {enter: 'none', sound: null});
-  tile(w, '💡', .5, 'left:0;top:0', {size: 180, tone: 'light'}); }
 
-/* 2 · บางทีเราก็ คิดว่าแบบ เฮ้ย! */
-blurIn(2.0);
-cap({t0: 2.0, t1: 4.9, top: 1170, lead: [['บางทีเราก็', 2.0], ['คิดว่าแบบ', 3.0]], key: [['เฮ้ย!', 3.75]], size: {k: 150}});
-keyHit(3.75); push(3.75, 4.9, {z: 1.22, x: 520, y: 900, d: .22}); shake(3.78, {a: 10});
+/* 2 · the doubt — punch in on "เฮ้ย!" */
+blurIn(2.0); zoom(2.0, 1.0, .01);
+cap({t0: 2.0, t1: 4.9, top: 1150, lead: [['บางทีเราก็', 2.0], ['คิดว่าแบบ', 3.0]], key: [['เฮ้ย!', 3.75]], size: {k: 176}});
+keyHit(3.75); push(3.75, 4.9, {z: 1.16, x: 540, y: 820, d: .2, blur: 5}); shake(3.78, {a: 8});
 
-/* 3 · มันยังไม่ เจ๋งพอ · ล้ำพอ · ดีพอ — red-x glass pills, the hand taps each one */
-cap({t0: 4.93, t1: 8.58, top: 1170, lead: [['มันยังไม่...', 4.93]]});
-{ const w = widget('left:200px;top:1260px;width:680px;height:360px', 5.0, 8.58, {enter: 'none', sound: null});
-  gpill(w, 'เจ๋งพอ', 5.05, 'left:0;top:0', {icon: 'x'});
-  gpill(w, 'ล้ำพอ', 5.9, 'left:0;top:120px', {icon: 'x'});
-  gpill(w, 'ดีพอ', 7.12, 'left:0;top:240px', {icon: 'x'});
-  hand(w, [[5.3, 470, 210], [5.55, 250, 52], [6.2, 230, 172], [7.35, 210, 292], [8.0, 330, 345]], [5.58, 6.22, 7.4]); }
+/* 3 · the checklist the idea "fails" — one card, rows land on each word, the finger ticks them off */
+cap({t0: 4.93, t1: 8.58, top: 1150, lead: [['มันยังไม่...', 4.93]]});
+{ const w = stack(1232, 460, 372, 4.98, 8.58, {enter: 'rise'});
+  const c = gcard(w, 4.98, 'left:0;top:0', {w: 460, head: false,
+    rows: [{icon: 'x', text: 'เจ๋งพอ', t: 5.05}, {icon: 'x', text: 'ล้ำพอ', t: 5.9}, {icon: 'x', text: 'ดีพอ', t: 7.12}]});
+  hand(w, [[5.2, 420, 330], [5.45, c.badgeX, c.rowY(0)], [6.05, c.badgeX, c.rowY(1)], [7.25, c.badgeX, c.rowY(2)], [7.9, 300, 360]], [5.47, 6.07, 7.27]); }
 
-/* 4 · แล้วเราก็มัวแต่ไปวน … ดีกว่าเดิม ×3 ใช่ปะ? — the speaker shrinks into an app tile on a sky page */
-{ const s = screen(8.61, 12.6, {face: [520, 700, 820], to: [540, 520, 420], out: 'cut'});
-  const h = div('left:0;width:1080px;top:800px;display:flex;justify-content:center', s);
-  label(h, 'แล้วเราก็มัวแต่ไปวน', 8.85, 'position:relative', {size: 66, color: NAVY, font: 'UiBold'});
-  srow(s, '💡', 'ไอเดีย v1 ดีกว่าเดิม', 11.0, 'left:250px;top:960px', {size: 52});
-  srow(s, '✨', 'ไอเดีย v2 ดีกว่าเดิม', 11.57, 'left:250px;top:1060px', {size: 52});
-  srow(s, '🚀', 'ไอเดีย v3 ดีกว่าเดิม', 12.0, 'left:250px;top:1160px', {size: 52, mark: true});
-  srow(s, '🤔', 'ใช่ปะ?', 12.3, 'left:250px;top:1280px', {size: 52}); }
+/* 4 · polishing forever — a deck of versions, each "better" one lands on top */
+blurIn(8.61, {px: 18});
+cap({t0: 8.61, t1: 10.98, top: 1150, lead: [['แล้วเราก็', 8.65]], key: [['มัวแต่ไปวน', 9.0]]});
+keyHit(9.0);
+{ const w = stack(1166, 600, 270, 10.95, 12.58, {enter: 'none', sound: null});
+  versions(w, [{icon: 'lightbulb', title: 'ไอเดีย v1', sub: 'ดีกว่าเดิม', t: 11.0}, {icon: 'sparkles', title: 'ไอเดีย v2', sub: 'ดีกว่าเดิม', t: 11.57},
+               {icon: 'rocket', title: 'ไอเดีย v3', sub: 'ดีกว่าเดิม', t: 12.0}], 'left:0;top:0', {w: 600}); }
+cap({t0: 12.3, t1: 12.58, top: 1470, lead: [['ใช่ปะ?', 12.3]], out: 'cut'});
 
-/* 5 · ผมจะบอกว่า สุดท้าย ตรงนั้น... */
+/* 5 · the turn */
+blurIn(12.6, {px: 18});
+cap({t0: 12.6, t1: 13.98, top: 1150, lead: [['ผมจะบอกว่า', 12.6]], key: [['สุดท้าย', 13.0]], tail: [['ตรงนั้น...', 13.45]]});
+keyHit(13.0); zoom(13.0, 1.06, .5);
 
-cap({t0: 12.6, t1: 13.98, top: 1170, lead: [['ผมจะบอกว่า', 12.6]], key: [['สุดท้าย', 13.0]], tail: [['ตรงนั้น...', 13.45]]});
-keyHit(13.0);
+/* 6 · the loop — the speaker shrinks into an app tile trapped inside a spinning loop arrow */
+{ const s = screen(14.0, 15.98, {face: [520, 700, 820], to: [540, 560, 380], out: 'cut'});
+  loopRing(s, 14.1, 540, 560, 290, {color: ACC, sw: 14});
+  label(div('left:0;width:1080px;top:900px;display:flex;justify-content:center', s), 'มันจะกลายเป็น', 14.0, 'position:relative', {size: 54, color: NAVY, font: 'LeadIt'});
+  bigWord(s, 'ลูปนรก', 14.45, 'top:975px', {size: 190, onLight: true}); shake(14.47, {a: 6});
+  const r = div('left:0;width:1080px;top:1250px;display:flex;justify-content:center', s);
+  srow(r, 'hourglass', 'แล้วเราก็จะไม่ได้เริ่มทำสักที', 15.0, 'position:relative', {size: 50}); }
 
-/* 6 · มันจะกลายเป็น ลูปนรก — full-screen cutaway, torn paper + flying sheets */
-cutaway(14.0, 15.0, {src: 'img/closeup.jpg', papers: 9});
-cap({t0: 14.0, t1: 14.98, top: 1170, lead: [['มันจะกลายเป็น', 14.0]], key: [['ลูปนรก', 14.45]], size: {k: 160}});
-keyHit(14.45); shake(14.47, {a: 12});
+/* 7 · breathing room — caption only */
+cap({t0: 16.0, t1: 17.98, top: 1150, lead: [['คือ', 16.0]], key: [['ไอเดียเจ๋ง ๆ', 16.15]], tail: [['หลาย ๆ ไอเดีย', 17.0]]});
+keyHit(16.15); zoom(16.15, 1.05, .6);
 
-/* 7 · แล้วเราก็จะ ไม่ได้เริ่มทำ สักที — progress card that barely moves */
-blurIn(15.0, {px: 20});
-cap({t0: 15.0, t1: 15.98, top: 1170, lead: [['แล้วเราก็จะ', 15.0], ['ไม่ได้เริ่มทำ', 15.38]], key: [['สักที', 15.7]]});
-keyHit(15.7);
-{ const w = widget('left:160px;top:1400px', 15.2, 15.98);
-  progress(w, 15.2, 'left:0;top:0', {img: 'img/start.jpg', title: 'ธุรกิจของฉัน', label: 'ยังไม่เริ่ม', from: 0, to: .05, tFill: 15.4, dFill: .5}); }
-
-/* 8 · คือ ไอเดียเจ๋ง ๆ หลาย ๆ ไอเดีย — emoji bubbles */
-cap({t0: 16.0, t1: 17.98, top: 1170, lead: [['คือ', 16.0]], key: [['ไอเดียเจ๋ง ๆ', 16.15]], tail: [['หลาย ๆ ไอเดีย', 17.0]]});
-keyHit(16.15); zoom(16.15, 1.06, .6); zoom(18.0, 1.0, .3);
-{ const w = widget('left:90px;top:1440px;width:900px;height:180px', 16.4, 17.98, {enter: 'none', sound: null});
-  bubbleE(w, '💡', 'ไอเดีย', 16.45, 'left:0;top:20px');
-  bubbleE(w, '🔥', 'ไอเดีย', 17.0, 'left:320px;top:70px');
-  bubbleE(w, '✨', 'ไอเดีย', 17.35, 'left:640px;top:0px', {side: 'right'}); }
-
-/* 9 · ของบริษัท ระดับโลก หรือธุรกิจอะไรหลาย ๆ อย่าง — white pill, blue fill sweeps, globe burst */
-whip(18.0, {dir: 'up'});
-cap({t0: 18.0, t1: 18.98, top: 1170, lead: [['ของบริษัท', 18.0]]});
-push(18.95, 20.0, {z: 1.18, x: 540, y: 760, d: .3, blur: 6});
-{ const w = widget('left:240px;top:1250px', 18.95, 19.98, {enter: 'none', sound: null});
-  recommend(w, 'ระดับโลก', 19.0, 'left:0;top:0', {tFill: 19.3, size: 64, burstWith: '🌍'}); }
-cap({t0: 20.0, t1: 21.98, top: 1170, lead: [['หรือธุรกิจอะไร', 20.0]], key: [['หลาย ๆ อย่าง', 20.6]]});
+/* 8 · scale — whip in, push on "ระดับโลก" */
+whip(18.0, {dir: 'up'}); zoom(18.0, 1.0, .01);
+cap({t0: 18.0, t1: 19.98, top: 1150, lead: [['ของบริษัท', 18.0]], key: [['ระดับโลก', 19.0]]});
+keyHit(19.0); push(19.0, 19.98, {z: 1.12, x: 540, y: 1240, d: .25, blur: 5});
+cap({t0: 20.0, t1: 21.98, top: 1150, lead: [['หรือธุรกิจอะไร', 20.0]], key: [['หลาย ๆ อย่าง', 20.6]]});
 keyHit(20.6);
-{ const w = widget('left:250px;top:1420px;width:600px;height:200px', 20.7, 21.98, {enter: 'none', sound: null});
-  gpill(w, 'ธุรกิจ', 20.75, 'left:0;top:0', {icon: 'shield'});
-  gpill(w, 'บริษัท', 21.05, 'left:0;top:112px', {icon: 'shield'}); }
 
-/* 10 · มันไม่ได้เป็นอย่างนั้น ตั้งแต่แรก นึกออกมั้ย? — polaroid of the first frame */
+/* 9 · payoff — "it wasn't like that on day one": day one → today */
 blurIn(22.0, {px: 20});
-cap({t0: 22.0, t1: 30, top: 1170, lead: [['มันไม่ได้', 22.0], ['เป็นอย่างนั้น', 22.26]], key: [['ตั้งแต่แรก', 22.63]], tail: [['นึกออกมั้ย?', 23.05]]});
+cap({t0: 22.0, t1: 23.03, top: 1150, lead: [['มันไม่ได้', 22.0], ['เป็นอย่างนั้น', 22.26]], key: [['ตั้งแต่แรก', 22.63]]});
 keyHit(22.63);
-{ const w = widget('left:670px;top:96px', 22.7, 30, {enter: 'none', sound: null});
-  polaroid(w, 'img/start.jpg', 'ตอนเริ่ม', 22.7, 'left:0;top:0', {w: 300, h: 234, tag: 'วันแรก', rot: 5}); }
-sfx('sub', 23.05, -18);
+cap({t0: 23.05, t1: 30, top: 1150, lead: [['นึกออกมั้ย?', 23.05]]});
+{ const w = stack(1232, 860, 340, 23.05, 30, {enter: 'none', sound: null});
+  compare(w, 23.1, 'left:0;top:0', {w: 860, iconSize: 120, tB: 23.65,
+    a: {icon: 'pencil', iconBg: 'white', title: 'วันแรก', sub: 'แค่ร่างแรก'}, b: {icon: 'rocket', title: 'วันนี้', sub: 'ระดับโลก'}}); }
+sfx('sub', 23.65, -18);
