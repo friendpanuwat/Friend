@@ -26,7 +26,7 @@ keyHit(47.45);
 block({t0: 48, t1: 49.4, lines: [[['บางทีไอเดีย', 's', 48.0]], [['มันก็ผุดออกมา', 'm', 48.46]]]});
 block({t0: 49.42, t1: 49.97, lines: [[['อย่างที่บอก', 's', 49.42]]]});
 
-lowerThird('Mark Zuckerberg', 'ผู้ก่อตั้ง Facebook', 24.42, 25.97);
+lowerThird('ชื่อ นามสกุล', 'ผู้ก่อตั้งแอปดัง', 24.42, 25.97);   // real person → name card (placeholder name here)
 
 badge('bulb', .4, 1.98); badge('heart', 42.21, 43.6); badge('glass', 47.05, 47.97);
 
@@ -134,12 +134,12 @@ zoom(47.05, 1.06, 1.4);
   const chip = div('left:0;width:1080px;top:210px;text-align:center;opacity:0', c, '<span class="chip"><span class="dot"></span>GLOBAL</span>'); rise(chip, 18.2, .5, 40);
 }
 
-/* S5 · Facebook — phone UI with a growth chart (26.0–29.6) */
+/* S5 · แอปดัง — phone UI with a growth chart (26.0–29.6) */
 {
   const c = scene(26.0, 29.6, {seed: 5, tilt: 5});
   const ph = div('left:270px;top:240px;width:540px;height:1080px;border-radius:80px;padding:30px;opacity:0', c); ph.className = 'glass';
   ph.innerHTML = `<div style="width:150px;height:34px;border-radius:20px;background:rgba(0,0,0,.6);margin:0 auto 34px"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 24px"><span style="font-family:KeyFont;font-size:54px;color:${BLUE}">Facebook</span><span class="dot"></span></div>`;
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 24px"><span style="font-family:KeyFont;font-size:54px;color:${BLUE}">แอป</span><span class="dot"></span></div>`;
   A(ph, [{opacity: 0, transform: 'translateY(300px) rotateX(30deg)', filter: 'blur(14px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], 26.0, .65, {e: SPRING});
   for (let i = 0; i < 2; i++) { const f = div(`left:30px;right:30px;top:${190 + i * 150}px;height:120px;border-radius:26px;background:rgba(255,255,255,.06)`, ph); A(f, [{opacity: 0, transform: 'translateY(40px)'}, {opacity: 1, transform: 'none'}], 26.2 + i * .08, .4); }
   const ch = svg(480, 360, `<defs><linearGradient id="ar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${BLUE}" stop-opacity=".45"/><stop offset="1" stop-color="${BLUE}" stop-opacity="0"/></linearGradient></defs>
@@ -154,7 +154,7 @@ zoom(47.05, 1.06, 1.4);
   sfx('swell', 26.4, -27);
   const a1 = text(c, 'จะเป็นเหมือน', 's', 26.55, 'top:1400px'), a2 = text(c, 'ทุกวันนี้', 'k', 27.0, 'top:1470px');
   fadeOut(a1, 27.85, .14); fadeOut(a2, 27.85, .14);
-  text(c, 'ตอนที่เขาเริ่มทำ', 'm', 28.0, 'top:1400px'); text(c, 'Facebook', 'k', 28.79, 'top:1500px');
+  text(c, 'ตอนที่เขาเริ่มทำ', 'm', 28.0, 'top:1400px'); text(c, 'แอปของเขา', 'k', 28.79, 'top:1500px');
 }
 
 /* S6 · เริ่มทำไปก่อน — the key line (32.0–32.97) */

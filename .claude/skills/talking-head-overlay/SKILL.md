@@ -29,7 +29,9 @@ description: ตัดต่อคลิปพูดหน้ากล้อง�
 2. **รับไฟล์** — `bash $SK/scripts/fetch_video.sh $P <ไฟล์แนบ | ลิงก์ Google Drive | หลายท่อนเรียงลำดับ>` → `$P/input.*`
    (ลิงก์ Drive ต้องแชร์แบบ "ทุกคนที่มีลิงก์"; ถ้าดาวน์โหลดไม่ได้ ให้บอกผู้ใช้ตามข้อความที่สคริปต์พิมพ์).
    ต้องมีบทพูดพร้อมเวลา และแบรนด์ (ถ้ามี: คัดลอก `$SK/assets/brand.default.json` เป็น `$P/brand.json` แล้วแก้).
-3. **แปลงบทเป็นช่วงเวลา** — `python3 $SK/scripts/make_timeline.py <video> <transcript> $P` → `chunks.md` / `chunks.json`.
+3. **จับเวลาบทพูด** — `bash $SK/scripts/word_timing.sh $P <video> <transcript>` → `chunks.json` / `chunks.md`
+   (Whisper จับเวลาจริงทีละคำแล้วจับคู่กับบทของผู้ใช้ — แม่นกว่าเวลาวินาทีเต็มมาก; ถ้าติดตั้ง/โหลดโมเดลไม่ได้ สคริปต์ถอยไปใช้
+   `make_timeline.py` ให้เอง). แถวที่มี `*` คือเดาเวลาจากแถวข้าง ๆ — เปิด `words.json` ดูคำแถวนั้นแล้วแก้ใน chunks.json เองถ้าจำเป็น.
    บทที่มีเวลาแค่ระดับวินาทีจะได้บางแถวที่ `end < start` หรือสั้นผิดปกติ — ปรับเวลาเองให้ต่อกันอย่างสมเหตุสมผล และบอกผู้ใช้ว่าจุดไหนเดา.
 4. **หาพื้นที่ว่าง** — `bash $SK/scripts/pipeline.sh $P <video> frames` แล้วทำ contact sheet ทุก 2 วินาทีจาก `$P/src_frames`
    (`ffmpeg -pattern_type glob -i '$P/src_frames/*.jpg' -vf "select='not(mod(n\,60))',scale=270:480,tile=7x3" -frames:v 1 $P/contact.jpg`).
@@ -86,4 +88,5 @@ description: ตัดต่อคลิปพูดหน้ากล้อง�
 | `assets/overlay_kit.js` | ชุดวิดเจ็ต (build แทรกให้อัตโนมัติ — ไม่ต้อง copy ลง timeline) |
 | `assets/engine_*.html` | เอนจิน (ไม่ต้องแก้) |
 | `scripts/pipeline.sh` | frames · build · preview · render · audio · encode · hq |
-| `scripts/fetch_video.sh` / `make_timeline.py` / `deliver_github.sh` | รับคลิป · แปลงบท · ส่งไฟล์ใหญ่ |
+| `scripts/word_timing.sh` | บท + เสียง → chunks.json เวลาระดับคำ (Whisper, มี fallback ไป `make_timeline.py`) |
+| `scripts/fetch_video.sh` / `make_timeline.py` / `deliver_github.sh` | รับคลิป · แปลงบท (fallback) · ส่งไฟล์ใหญ่ |

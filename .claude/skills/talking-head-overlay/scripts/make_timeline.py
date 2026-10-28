@@ -64,7 +64,8 @@ def main():
     for k in range(len(rows)):
         if k and rows[k][0] <= rows[k - 1][0] + .15: rows[k][0] = rows[k - 1][0] + .25
         rows[k][0] = round(rows[k][0], 2)
-        if rows[k][1] is None: rows[k][1] = round(rows[k + 1][0] - .02, 2) if k + 1 < len(rows) else round(rows[k][0] + 1.0, 2)
+    for k in range(len(rows)):   # ends after ALL starts are final (else an end can land before its start)
+        if rows[k][1] is None or not exact: rows[k][1] = round(rows[k + 1][0] - .02, 2) if k + 1 < len(rows) else round(rows[k][0] + 1.0, 2)
     json.dump(rows, open(os.path.join(proj, 'chunks.json'), 'w'), ensure_ascii=False, indent=0)
     with open(os.path.join(proj, 'chunks.md'), 'w') as f:
         f.write('| # | start | end | text |\n|---|---|---|---|\n')
