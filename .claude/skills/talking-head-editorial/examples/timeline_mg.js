@@ -1,4 +1,4 @@
-/* Example — no B-roll from the user → motion graphics cards (Jitter × Swishy). Thai, 41.9 s talking head + HOLD=1.0.
+/* Example — no B-roll from the user → motion graphics cards (Flat × Glow). Thai, 41.9 s talking head + HOLD=1.0.
    Topic: "ลูกค้าทักแล้วหาย ไม่ใช่เพราะแพง". Card names C1…C11 / F1 are referenced in references/card-library.md. */
 const N = {color: NAVY}, NS = s => ({color: NAVY, size: s});
 

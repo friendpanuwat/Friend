@@ -1,14 +1,13 @@
 ---
 name: talking-head-editorial
-description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้ง (TikTok / Reels / Shorts) สไตล์ editorial แบบงานรับตัดต่อสาย "raw vs edited" — ซับขึ้นทีละคำ มีคำสำคัญคำเดียวตัวใหญ่ (ตัวหนา Mitr หรือลายมือ Sriracha) สี accent สีเดียว, ตัดสลับการ์ดเต็มจอทุก 2–4 วินาที (การ์ดขาว/ดำ/กรมท่า, โปสเตอร์ครีม, หน้าคนพูดย่อเป็นการ์ด), ใช้ B-roll/รูปที่ผู้ใช้ส่งมา หรือถ้าไม่มี ใช้ motion graphics สไตล์ Jitter × Swishy, ไม่เกรดสี, เสียง -14 LUFS, ส่งออก MP4 1080×1920. Use this skill when the user asks for "talking-head-editorial", สไตล์ editorial / สไตล์การ์ด / สไตล์ blycreativs / สไตล์ใหม่, or a talking-head edit with big single-word captions and full-screen cards. If the user wants this caption look but no full-screen cards (speaker always on screen, small pop-ups above the head), use talking-head-editorial-overlay. For the blue glass-UI look use talking-head-glass-ui. If the user just says "ตัดต่อคลิปพูดหน้ากล้อง" without naming a style, ask which style they want (editorial, editorial-overlay, glass-ui, or the Swishy talking-head-motion).
+description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้ง (TikTok / Reels / Shorts) สไตล์ editorial แบบงานรับตัดต่อสาย "raw vs edited" — ซับขึ้นทีละคำ มีคำสำคัญคำเดียวตัวใหญ่ (ตัวหนา Mitr หรือลายมือ Sriracha) สี accent สีเดียว, ตัดสลับการ์ดเต็มจอทุก 2–4 วินาที (การ์ดขาว/ดำ/กรมท่า, โปสเตอร์ครีม, หน้าคนพูดย่อเป็นการ์ด), ใช้ B-roll/รูปที่ผู้ใช้ส่งมา หรือถ้าไม่มี ใช้ motion graphics สไตล์ Flat × Glow, ไม่เกรดสี, เสียง -14 LUFS, ส่งออก MP4 1080×1920. Use this skill when the user asks for "talking-head-editorial", สไตล์ editorial / สไตล์การ์ด / สไตล์ใหม่, or a talking-head edit with big single-word captions and full-screen cards. If the user wants this caption look but no full-screen cards (speaker always on screen, small pop-ups above the head), use talking-head-editorial-overlay. For the blue glass-UI look use talking-head-glass-ui. If the user just says "ตัดต่อคลิปพูดหน้ากล้อง" without naming a style, ask which style they want (editorial, editorial-overlay, glass-ui, or talking-head-motion).
 ---
 
 # Talking-Head Editorial
 
 คลิปพูดหน้ากล้องที่ดูเหมือนตัดโดยบรรณาธิการภาพ: ซับขึ้นตามเสียงทีละคำ โดยในแต่ละก้อนมี **คำสำคัญคำเดียวตัวใหญ่**
 แล้วตัดไปการ์ดเต็มจอสั้น ๆ ที่ "เล่า" ประโยคนั้น เช่น คำค่อย ๆ ประกอบกันบนการ์ดขาว, โปสเตอร์, B-roll หรือ motion graphics แล้วตัดกลับมาที่หน้าคนพูด.
-ต้นแบบสไตล์คือ ref 12 คลิปที่ผู้ใช้ส่งมา (งาน raw vs edited ของ @blycreativs) — ใช้เฉพาะสไตล์ฝั่ง edited
-ไม่ใส่กรอบเทียบ raw/edited, ปุ่ม "DM me" หรือจอท้าย TikTok.
+สไตล์นี้คือฝั่ง "edited" ของงานรับตัดต่อแนว raw vs edited — ไม่ใส่กรอบเทียบ raw/edited, ปุ่ม "DM me" หรือจอท้าย TikTok.
 
 งานนี้ทำด้วยโค้ด: HTML/CSS/WAAPI เรนเดอร์ทีละเฟรมใน Chromium (Playwright) แล้วรวมด้วย ffmpeg — ทุกเฟรมคำนวณจากเวลา จึงเรนเดอร์ซ้ำได้ตรงเป๊ะ.
 คุณ (Claude) เป็นคนเขียน `timeline.js` ของแต่ละคลิป ส่วนเอนจิน, ชุดการ์ด, motion graphics, เสียง และ pipeline มีให้แล้ว.
@@ -73,7 +72,7 @@ description: ตัดต่อคลิปพูดหน้ากล้อง�
 - **Motion graphics ต้องทำใหม่ให้คลิปนั้น** (ผู้ใช้สั่ง) — การ์ดและ MG ทุกใบคิดจากเนื้อหาของคลิปนี้: ประโยคนี้พูดถึงอะไร
   ของ/การกระทำอะไรที่เห็นแล้วเข้าใจทันที และเหตุการณ์อะไรเกิดตรงคำสำคัญ — แล้วประกอบจากชิ้นใน kit. **ห้ามเอาการ์ดจากตัวอย่าง
   หรือคลิปก่อนมาเปลี่ยนคำพูด**; สองคลิปที่พูดเรื่องคล้ายกันก็ต้องได้ภาพที่คิดจากประโยคของคลิปนั้น.
-  **สไตล์ไม่เปลี่ยน** — ภาษาภาพ Jitter × Swishy, ฟอนต์, accent สีเดียว, ชนิดการ์ด, การเคลื่อนไหว และกฎทั้งหมดในไฟล์นี้คงเดิม;
+  **สไตล์ไม่เปลี่ยน** — ภาษาภาพ Flat × Glow, ฟอนต์, accent สีเดียว, ชนิดการ์ด, การเคลื่อนไหว และกฎทั้งหมดในไฟล์นี้คงเดิม;
   ที่ต่างกันในแต่ละคลิปคือ "วาดอะไร จัดวางยังไง และอะไรเกิดตรงคำ".
 - **ห้ามแต่งข้อเท็จจริง** — ไม่ใส่ตัวเลข ราคา ชื่อ หรือข้อมูลที่ผู้พูดไม่ได้พูด; ข้อความใน MG (ปุ่ม, ป้าย) ใช้คำจากบทหรือคำ UI กลาง ๆ
   เช่น "ชำระเงิน"; ไม่ใช้โลโก้แบรนด์จริง.
@@ -84,7 +83,7 @@ description: ตัดต่อคลิปพูดหน้ากล้อง�
 | ไฟล์ | ใช้เมื่อ |
 |---|---|
 | `references/timeline-api.md` | ก่อนเขียน timeline.js — ฟังก์ชัน พิกัด และกับดัก |
-| `references/card-library.md` | ภาษาภาพของการ์ด: ชนิดการ์ด, วิธีคิด MG (Jitter × Swishy) + ตัวอย่างวิธีคิด, การใช้รูป/คลิป B-roll |
+| `references/card-library.md` | ภาษาภาพของการ์ด: ชนิดการ์ด, วิธีคิด MG (Flat × Glow) + ตัวอย่างวิธีคิด, การใช้รูป/คลิป B-roll |
 | `references/standards.md` | ฟอนต์ ขนาด สี โซน motion เสียง QC และการตั้งค่าแบรนด์ |
 | `examples/timeline_mg.js` | ตัวอย่างระดับงานเต็มคลิปแบบไม่มี B-roll (motion graphics) — ไทย 42 วินาที; ดูเป็นไอเดีย ห้ามคัดลอกการ์ด |
 | `examples/timeline_broll.js` | คลิปเดียวกันแบบใช้รูปที่ผู้ใช้ส่งมา |

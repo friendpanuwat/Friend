@@ -94,7 +94,7 @@ function block(b) {
 const keyHit = (t, db = -21) => sfx('softswish', t - .05, db);
 function bloom(t, o = .45) { A(document.getElementById('bloom'), [{opacity: 0}, {opacity: o, offset: .3}, {opacity: 0}], t, .42, {f: 'none', e: 'ease-out'}); }
 
-/* ===================== SCENE KIT (Swishy-style: aurora, glass, particles, 3D stage) ===================== */
+/* ===================== SCENE KIT (glow-style: aurora, glass, particles, 3D stage) ===================== */
 /* scene windows are declared by the timeline with scenes([[t0,t1],...]) BEFORE any block() call */
 const SCENE_WIN = [];
 const scenes = w => SCENE_WIN.push(...w);

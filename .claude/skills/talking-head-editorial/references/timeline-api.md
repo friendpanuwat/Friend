@@ -67,7 +67,7 @@ txt(c, rows, 'top:740px', {W: 960, H?})     // rows แบบเดียวก�
 
 | ตัวช่วย | ทำอะไร |
 |---|---|
-| `mood(c, {seed, o})` | พื้นการ์ดดำแบบ Swishy: แสงฟ้า+ม่วงไหลช้า + ตารางจุดจาง |
+| `mood(c, {seed, o})` | พื้นการ์ดดำแบบ Glow: แสงฟ้า+ม่วงไหลช้า + ตารางจุดจาง |
 | `tile(c, icon, t, css, {size: 200, bg: '#fff'\|'glass'\|ACC\|NAVY, color, sound, float: true})` | ไอคอนในกล่องมุมมน เด้งเข้าแบบสปริง + ลอยขึ้นลงเบา ๆ; คืน outer (`.inner` = ตัวกล่อง) |
 | `bubble(parent, text, t, css, {side, size, bg, color})` | บับเบิลแชต |
 | `panel(c, css, t, {style: 'white'\|'glass'\|'navy', radius, from: 'up'\|'scale'})` | แผง UI (หน้าจอแอป/การ์ดสินค้า/มือถือ) |

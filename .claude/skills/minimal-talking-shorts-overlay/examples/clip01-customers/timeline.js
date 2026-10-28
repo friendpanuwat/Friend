@@ -1,7 +1,7 @@
 /* clip 01 — "ลูกค้าทักมาแล้วหายไป" (42 s), overlay style · the face is on screen the whole clip; captions run the whole clip;
    pop-up cards (graphics.js) in the free space above the head, one at a time */
 face(580, 1010);
-const G_ = IOS.green, R_ = IOS.red;
+const G_ = UIC.green, R_ = UIC.red;
 
 /* camera — talking-head-motion zooms (zoom.md), only on the real key words */
 zoom(3.35, 1.08, .12);                         // เฮ้ย

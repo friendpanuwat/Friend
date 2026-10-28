@@ -1,7 +1,7 @@
 /* timeline of the 42 s test clip "ลูกค้าทักมาแล้วหายไป" — minimal scenes (examples/graphics_ink.js) + face parts, retention pacing (references/retention.md).
    build: bash scripts/pipeline.sh <project> build (graphics.js + timeline.js in the project) — made before the open-on-the-face rule: its first 2 s is a white scene */
 face(580, 1010);
-const G_ = IOS.green, R_ = IOS.red;
+const G_ = UIC.green, R_ = UIC.red;
 
 /* camera — talking-head-motion zooms (zoom.md), only on the real key words */
 zoom(3.35, 1.08, .12);                         // เฮ้ย

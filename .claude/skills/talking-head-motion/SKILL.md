@@ -1,6 +1,6 @@
 ---
 name: talking-head-motion
-description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้ง (TikTok / Reels / Shorts) ให้เป็นงาน motion graphics ระดับมืออาชีพสไตล์ Swishy — ตัวอักษรพลิก 3D ทีละตัวตามเสียงพูด, ฉากกราฟิกกระจกฝ้า + แสงออโรร่า, ป้ายชื่อ, ไอคอน, เสียงประกอบมิกซ์พร้อม -14 LUFS ส่งออก MP4 1080×1920. Use this skill whenever the user wants to edit / ตัดต่อ a talking-head, vlog, podcast-clip, or "พูดหน้ากล้อง" video, add kinetic captions, ซับเด้ง, motion graphics, ตัวอักษรเคลื่อนไหว, ทำคลิปให้ดูโปร, or sends a vertical video plus a transcript/SRT — even if they don't say "motion graphics". Supports Thai and English speech and custom brand colours/fonts.
+description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้ง (TikTok / Reels / Shorts) ให้เป็นงาน motion graphics ระดับมืออาชีพ — ตัวอักษรพลิก 3D ทีละตัวตามเสียงพูด, ฉากกราฟิกกระจกฝ้า + แสงออโรร่า, ป้ายชื่อ, ไอคอน, เสียงประกอบมิกซ์พร้อม -14 LUFS ส่งออก MP4 1080×1920. Use this skill whenever the user wants to edit / ตัดต่อ a talking-head, vlog, podcast-clip, or "พูดหน้ากล้อง" video, add kinetic captions, ซับเด้ง, motion graphics, ตัวอักษรเคลื่อนไหว, ทำคลิปให้ดูโปร, or sends a vertical video plus a transcript/SRT — even if they don't say "motion graphics". Supports Thai and English speech and custom brand colours/fonts.
 ---
 
 # Talking-Head Motion (มาตรฐาน v9)
