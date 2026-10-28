@@ -1,0 +1,16 @@
+/* ===================== ENGINE ===================== */
+const ease = p => 1 - Math.pow(1 - p, 3);
+ZOOM.sort((a, b) => a.t - b.t);
+function zoomAt(t) { let z = 1; for (const k of ZOOM) { if (t < k.t) break; z += (k.z - z) * ease(Math.min(1, (t - k.t) / k.d)); } return z; }
+const V = document.getElementById('v'), VB = document.getElementById('vb');
+window.seek = async (t, src) => {
+  if (!window.__fitted) { window.__fitted = true; FITS.forEach(f => f()); }
+  if (src) { V.src = VB.src = src; await Promise.all([V.decode(), VB.decode()]); }
+  const z = zoomAt(t) * (1 + .014 * Math.sin(t * .3));
+  V.style.transform = `scale(${z})`; VB.style.transform = `scale(${z * 1.12})`;   // blurred copy a bit larger: no soft edges
+  document.getAnimations().forEach(a => { a.pause(); a.currentTime = ms(t); });
+  HOOKS.forEach(h => h(t));
+};
+window.SFX = calmSfx(SFX);
+</script>
+</body></html>

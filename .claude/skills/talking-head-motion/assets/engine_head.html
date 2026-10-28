@@ -10,13 +10,11 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
 body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
-#v{position:absolute;inset:0;width:1080px;height:1920px;transform-origin:47% 42%;filter:brightness(1.05) contrast(1.16) saturate(.82)}
+#v,#vb{position:absolute;inset:0;width:1080px;height:1920px;transform-origin:47% 42%}   /* the clip as shot: no colour grade (user) */
+#vb{opacity:0;filter:blur(36px)}   /* the same frame, blurred: the background of full-screen scenes (user) */
 .layer{position:absolute;inset:0;pointer-events:none}
-#tone{background:linear-gradient(180deg,rgba(20,40,80,.28),rgba(0,0,0,0) 32%,rgba(0,0,0,0) 58%,rgba(3,6,14,.55));}
-#vig{background:radial-gradient(ellipse 72% 56% at 47% 40%,transparent 48%,rgba(2,4,10,.72) 100%)}
 #black{background:var(--ink);opacity:0}
 #bloom{background:radial-gradient(ellipse at 50% 45%,rgba(200,235,255,.85),rgba(143,211,255,.25) 45%,transparent 75%);opacity:0;mix-blend-mode:screen}
-#grain{opacity:.07;mix-blend-mode:overlay;image-rendering:pixelated}
 
 /* ---------- typography ---------- */
 .block{position:absolute;left:60px;width:960px;display:flex;flex-direction:column;align-items:center;transform-origin:50% 0}
@@ -38,19 +36,26 @@ body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
 </style></head>
 <body>
 <img id="v">
-<div class="layer" id="tone"></div>
-<div class="layer" id="vig"></div>
+<img id="vb">
 <div class="layer" id="black"></div>
 <div class="layer" id="S"></div>
 <div class="layer" id="g"></div>
 <div class="layer" id="bloom"></div>
-<canvas class="layer" id="grain" width="360" height="640" style="width:1080px;height:1920px"></canvas>
 <script>
 /* ===================== CORE ===================== */
 const G = document.getElementById('g'), S = document.getElementById('S');
 const SFX = [], ZOOM = [], HOOKS = [], FITS = [];
 const ms = s => s * 1000;
 const sfx = (s, t, db = -14, pitch) => SFX.push(pitch ? {s, t, db, pitch} : {s, t, db});
+/* calm mix (user: fewer, quieter effects) — what reaches the audio track: no small pops/ticks (the motion carries them),
+   then the strongest cue wins inside any SFX_GAP window (sub > stamp/thud > whoosh > swipe > softswish) */
+const SFX_GAP = 0.9, SFX_RANK = {sub: 5, stamp: 4, thud: 4, whoosh: 3, whoosh_long: 3, swipe: 2, softswish: 1};
+function calmSfx(list) {
+  const kept = [];
+  list.filter(c => SFX_RANK[c.s]).sort((a, b) => SFX_RANK[b.s] - SFX_RANK[a.s] || a.t - b.t)
+    .forEach(c => { if (!kept.some(k => Math.abs(k.t - c.t) < SFX_GAP)) kept.push(c); });
+  return kept.sort((a, b) => a.t - b.t);
+}
 const zoom = (t, z, d = .14) => ZOOM.push({t, z, d});
 const SPRING = 'cubic-bezier(.22,1.35,.36,1)', SMOOTH = 'cubic-bezier(.2,.8,.2,1)', INOUT = 'cubic-bezier(.65,0,.35,1)';
 const A = (el, kf, t, d, o = {}) => el.animate(kf, {delay: ms(t), duration: ms(d), easing: o.e ?? SMOOTH, fill: o.f ?? 'both', iterations: o.it ?? 1, direction: o.dir ?? 'normal', composite: o.c ?? 'replace'});
@@ -94,29 +99,15 @@ function block(b) {
 const keyHit = (t, db = -21) => sfx('softswish', t - .05, db);
 function bloom(t, o = .45) { A(document.getElementById('bloom'), [{opacity: 0}, {opacity: o, offset: .3}, {opacity: 0}], t, .42, {f: 'none', e: 'ease-out'}); }
 
-/* ===================== SCENE KIT (glow-style: aurora, glass, particles, 3D stage) ===================== */
+/* ===================== SCENE KIT (glass panels + 3D stage over the blurred clip) ===================== */
 /* scene windows are declared by the timeline with scenes([[t0,t1],...]) BEFORE any block() call */
 const SCENE_WIN = [];
 const scenes = w => SCENE_WIN.push(...w);
 const inScene = t => SCENE_WIN.some(([a, b]) => t >= a - .01 && t < b);
-function aurora(root, t0, t1, seed = 0) {
-  const b1 = div(`left:-300px;top:-200px;width:1300px;height:1300px;border-radius:50%;background:radial-gradient(circle,rgba(78,155,255,.42),transparent 62%);filter:blur(30px)`, root);
-  const b2 = div(`left:200px;top:900px;width:1200px;height:1200px;border-radius:50%;background:radial-gradient(circle,rgba(143,211,255,.30),transparent 60%);filter:blur(40px)`, root);
-  A(b1, [{transform: `translate(${seed * 40}px,0) scale(1)`}, {transform: `translate(${160 - seed * 60}px,220px) scale(1.15)`}], t0, t1 - t0, {e: 'linear'});
-  A(b2, [{transform: 'translate(0,0) scale(1.1)'}, {transform: `translate(${-200 + seed * 50}px,-260px) scale(.95)`}], t0, t1 - t0, {e: 'linear'});
-  // dot grid
-  div(`inset:0;background-image:radial-gradient(rgba(255,255,255,.10) 1.6px,transparent 1.8px);background-size:54px 54px;-webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 45%,#000,transparent 85%)`, root);
-  // drifting particles
-  let sd = 7 + seed * 13; const r = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
-  for (let i = 0; i < 26; i++) {
-    const s = 3 + r() * 5, p = div(`left:${r() * 1080}px;top:${r() * 1920}px;width:${s}px;height:${s}px;border-radius:50%;background:${r() < .5 ? BLUE : '#fff'};opacity:0;filter:blur(${r() * 1.5}px)`, root);
-    A(p, [{opacity: 0, transform: 'translateY(0)'}, {opacity: .5, offset: .3}, {opacity: 0, transform: `translateY(${-160 - r() * 200}px)`}], t0 - r() * 2, 4 + r() * 3, {it: 3, f: 'none', e: 'linear'});
-  }
-}
 /* scene(): full-screen layer with smooth scale+blur crossfade in/out and a gently drifting 3D stage */
 function scene(t0, t1, {tilt = 4, seed = 0} = {}) {
-  const root = div(`inset:0;background:var(--ink);opacity:0;overflow:hidden`, S);
-  aurora(root, t0, t1, seed);
+  const root = div(`inset:0;opacity:0;overflow:hidden`, S);   // no backdrop of its own: the blurred clip (#vb) shows through (user)
+  A(document.getElementById('vb'), [{opacity: 0}, {opacity: 1, offset: .34 / (t1 - t0 + .04)}, {opacity: 1, offset: 1 - .2 / (t1 - t0 + .04)}, {opacity: 0}], t0 - .04, t1 - t0 + .04, {f: 'none', e: 'linear'});
   const stage = div('inset:0;perspective:1600px', root);
   const cam = div('inset:0;transform-style:preserve-3d;transform-origin:50% 50%', stage);
   A(root, [{opacity: 0, filter: 'blur(22px)', transform: 'scale(1.08)'}, {opacity: 1, filter: 'blur(0)', transform: 'scale(1)'}], t0 - .04, .34, {e: SMOOTH});

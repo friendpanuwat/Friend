@@ -56,7 +56,6 @@ def main():
         html = re.sub(re.escape(old), new, html, flags=re.I)
     css_end = html.index('</style>')
     html = html[:css_end].replace('color:#fff', 'color:%s' % txt) + html[css_end:]
-    html = html.replace("#grain{opacity:.07;", "#grain{opacity:%s;" % brand.get('grain', .07))
     open(os.path.join(proj, 'scene.html'), 'w').write(html)
     json.dump(brand, open(os.path.join(proj, '.brand.used.json'), 'w'), ensure_ascii=False, indent=1)
     print('built', os.path.join(proj, 'scene.html'))
