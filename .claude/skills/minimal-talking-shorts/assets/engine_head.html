@@ -293,8 +293,8 @@ function kcap(t0, t1, txt, {color, key, keyColor = '#FF3B30', size = 100} = {}) 
   const html = (txt => key && txt.includes(key) ? txt.replace(key, `<span style="color:${keyColor};text-shadow:0 0 22px ${keyColor}88,0 4px 18px rgba(0,0,0,.65)">${key}</span>`) : txt)(txt);
   w.innerHTML = html; el.appendChild(w);
   if (!color) { const h = document.createElement('span'); h.innerHTML = html;
-    h.style.cssText = `position:absolute;left:0;top:0;white-space:nowrap;color:${HILITE};text-shadow:0 0 18px ${HILITE}55,0 4px 18px rgba(0,0,0,.65);clip-path:inset(0 100% 0 0)`; w.appendChild(h);
-    A(h, [{clipPath: 'inset(0 100% 0 0)'}, {clipPath: 'inset(0 0% 0 0)'}], t0 + .05, Math.max(.2, (t1 - t0) * .85), {e: 'linear'}); }
+    h.style.cssText = `position:absolute;left:0;top:0;white-space:nowrap;color:${HILITE};text-shadow:0 0 18px ${HILITE}55,0 4px 18px rgba(0,0,0,.65);clip-path:inset(-60% 100% -60% -5%)`; w.appendChild(h);   // top/bottom/left reach past the line box: Thai marks above (่ ้) and below (ู) sweep too
+    A(h, [{clipPath: 'inset(-60% 100% -60% -5%)'}, {clipPath: 'inset(-60% -5% -60% -5%)'}], t0 + .05, Math.max(.2, (t1 - t0) * .85), {e: 'linear'}); }
   A(w, [{opacity: 0, transform: `scale(${color ? .6 : .82}) translateY(14px)`}, {opacity: 1, transform: 'none'}], t0, color ? .22 : .14, {e: SPRING});
   FITS.push(() => { if (w.offsetWidth > SAFE.w - 20) w.style.fontSize = parseFloat(w.style.fontSize) * (SAFE.w - 20) / w.offsetWidth + 'px'; });   // long phrase → smaller type, never cut
   placeUnderChin(el, t0, t1);
