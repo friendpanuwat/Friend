@@ -1,9 +1,9 @@
 ---
-name: personal-brand-shorts
-description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้งสำหรับ personal branding บน TikTok / Reels ของครีเอเตอร์ไทย — เปิดด้วยหน้าคนพูด + hook ตั้งแต่เฟรมแรก, ซับคาราโอเกะเป็นวลีใต้คาง, ซูมแบบ talking-head-motion เฉพาะคำเน้น, และฉาก motion graphics มินิมอลพื้นขาว (คนสีดำทึบ, สิ่งของเส้นบาง, สีแดงจุดเดียว) ที่ออกแบบใหม่ให้ตรงกับคำพูดของคลิปนั้นทุกครั้ง; ไม่บังหน้า ไม่ทับปุ่มไลก์/แชร์ด้านขวา; ส่งออก MP4 1080×1920. Use this skill whenever the user asks to edit / ตัดต่อ a vertical talking-head clip "ตาม skill personal-brand-shorts", for personal branding, TikTok / Reels / Shorts, คลิปสั้น, หรือส่งลิงก์คลิป + บทพูดพร้อมเวลามาให้ตัดต่อแบบมินิมอล.
+name: minimal-talking-shorts
+description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้งสำหรับ personal branding บน TikTok / Reels ของครีเอเตอร์ไทย — เปิดด้วยหน้าคนพูด + hook ตั้งแต่เฟรมแรก, ซับคาราโอเกะเป็นวลีใต้คาง, ซูมแบบ talking-head-motion เฉพาะคำเน้น, และฉาก motion graphics มินิมอลพื้นขาว (คนสีดำทึบ, สิ่งของเส้นบาง, สีแดงจุดเดียว) ที่ออกแบบใหม่ให้ตรงกับคำพูดของคลิปนั้นทุกครั้ง; ไม่บังหน้า ไม่ทับปุ่มไลก์/แชร์ด้านขวา; ส่งออก MP4 1080×1920. Use this skill whenever the user asks to edit / ตัดต่อ a vertical talking-head clip "ตาม skill minimal-talking-shorts", for personal branding, TikTok / Reels / Shorts, คลิปสั้น, หรือส่งลิงก์คลิป + บทพูดพร้อมเวลามาให้ตัดต่อแบบมินิมอล.
 ---
 
-# Personal Brand Shorts
+# Minimal Talking Shorts
 
 ตัดต่อคลิปพูดหน้ากล้องแนวตั้ง (1080×1920) ให้ดูเหมือนจ้างคนตัดต่อมืออาชีพ: หน้าคนพูดพร้อมซับเป็นวลีที่มีแถบสีวิ่งตามเสียง
 สลับกับฉากกราฟิกมินิมอลพื้นขาวที่ "เล่า" สิ่งที่ประโยคนั้นพูด. งานทำด้วยโค้ด: HTML/CSS/WAAPI เรนเดอร์ทีละเฟรมใน Chromium แล้วรวมด้วย ffmpeg.
