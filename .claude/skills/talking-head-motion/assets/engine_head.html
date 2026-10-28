@@ -56,8 +56,10 @@ function calmSfx(list) {
     .forEach(c => { if (!kept.some(k => Math.abs(k.t - c.t) < SFX_GAP)) kept.push(c); });
   return kept.sort((a, b) => a.t - b.t);
 }
-const zoom = (t, z, d = .14) => ZOOM.push({t, z, d});
+const zoom = (t, z, d = 1.2) => ZOOM.push({t, z, d});   // slow push (user: zoom was too frequent / punchy) — see timeline-api
 const SPRING = 'cubic-bezier(.22,1.35,.36,1)', SMOOTH = 'cubic-bezier(.2,.8,.2,1)', INOUT = 'cubic-bezier(.65,0,.35,1)';
+/* graphics motion (user: motion felt rushed / stiff) — SOFT: unhurried settle with a ~4% overshoot · CALM: slow ease-in-out for actions */
+const SOFT = 'cubic-bezier(.25,1.12,.4,1)', CALM = 'cubic-bezier(.45,.05,.25,1)';
 const A = (el, kf, t, d, o = {}) => el.animate(kf, {delay: ms(t), duration: ms(d), easing: o.e ?? SMOOTH, fill: o.f ?? 'both', iterations: o.it ?? 1, direction: o.dir ?? 'normal', composite: o.c ?? 'replace'});
 const div = (css, parent, html = '') => { const d = document.createElement('div'); d.style.cssText = 'position:absolute;' + css; d.innerHTML = html; parent.appendChild(d); return d; };
 const seg = new Intl.Segmenter('th', {granularity: 'grapheme'});
@@ -107,20 +109,21 @@ const inScene = t => SCENE_WIN.some(([a, b]) => t >= a - .01 && t < b);
 /* scene(): full-screen layer with smooth scale+blur crossfade in/out and a gently drifting 3D stage */
 function scene(t0, t1, {tilt = 4, seed = 0} = {}) {
   const root = div(`inset:0;opacity:0;overflow:hidden`, S);   // no backdrop of its own: the blurred clip (#vb) shows through (user)
-  A(document.getElementById('vb'), [{opacity: 0}, {opacity: 1, offset: .34 / (t1 - t0 + .04)}, {opacity: 1, offset: 1 - .2 / (t1 - t0 + .04)}, {opacity: 0}], t0 - .04, t1 - t0 + .04, {f: 'none', e: 'linear'});
+  const L = t1 - t0 + .04, fi = Math.min(.5, L * .4) / L, fo = Math.min(.4, L * .35) / L;
+  A(document.getElementById('vb'), [{opacity: 0}, {opacity: 1, offset: fi}, {opacity: 1, offset: 1 - fo}, {opacity: 0}], t0 - .04, t1 - t0 + .04, {f: 'none', e: 'linear'});
   const stage = div('inset:0;perspective:1600px', root);
   const cam = div('inset:0;transform-style:preserve-3d;transform-origin:50% 50%', stage);
-  A(root, [{opacity: 0, filter: 'blur(22px)', transform: 'scale(1.08)'}, {opacity: 1, filter: 'blur(0)', transform: 'scale(1)'}], t0 - .04, .34, {e: SMOOTH});
+  A(root, [{opacity: 0, filter: 'blur(22px)', transform: 'scale(1.05)'}, {opacity: 1, filter: 'blur(0)', transform: 'scale(1)'}], t0 - .04, .6, {e: SMOOTH});
   A(cam, [{transform: `rotateX(${tilt}deg) rotateY(${-tilt}deg) translateZ(-60px)`}, {transform: `rotateX(${-tilt * .4}deg) rotateY(${tilt * .5}deg) translateZ(0)`}], t0, t1 - t0, {e: INOUT});
-  A(root, [{opacity: 1, filter: 'blur(0)', transform: 'scale(1)'}, {opacity: 0, filter: 'blur(18px)', transform: 'scale(.95)'}], t1 - .2, .2, {e: 'cubic-bezier(.5,0,.9,.5)', f: 'forwards'});
+  A(root, [{opacity: 1, filter: 'blur(0)', transform: 'scale(1)'}, {opacity: 0, filter: 'blur(18px)', transform: 'scale(.97)'}], t1 - .4, .4, {e: 'cubic-bezier(.45,0,.8,.6)', f: 'forwards'});
   sfx('whoosh', t0 - .1, -19);
   return cam;
 }
 const text = (parent, txt, cls, t, css = '', o = {}) => { const w = div(`left:0;width:1080px;text-align:center;${css}`, parent); w.style.perspective = '900px'; const k = kinetic(w, txt, cls, t, o); if (o.size) k.style.fontSize = o.size + 'px'; return w; };
-const rise = (el, t, d = .55, y = 120) => A(el, [{opacity: 0, transform: `translateY(${y}px) rotateX(18deg) scale(.94)`, filter: 'blur(14px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t, d, {e: SPRING});
-const fadeOut = (el, t, d = .18) => A(el, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(12px)'}], t, d, {f: 'forwards', e: 'ease-in'});
+const rise = (el, t, d = .85, y = 70) => A(el, [{opacity: 0, transform: `translateY(${y}px) rotateX(12deg) scale(.96)`, filter: 'blur(12px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t, d, {e: SOFT});
+const fadeOut = (el, t, d = .4) => A(el, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t, d, {f: 'forwards', e: 'cubic-bezier(.45,0,.8,.6)'});
 const svg = (w, h, inner, css, parent) => div(css, parent, `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="overflow:visible">${inner}</svg>`);
-const draw = (p, t, d = .7) => { p.setAttribute('pathLength', 1); p.style.strokeDasharray = 1; A(p, [{strokeDashoffset: 1}, {strokeDashoffset: 0}], t, d, {e: INOUT}); };
+const draw = (p, t, d = .9) => { p.setAttribute('pathLength', 1); p.style.strokeDasharray = 1; A(p, [{strokeDashoffset: 1}, {strokeDashoffset: 0}], t, d, {e: INOUT}); };
 function cursor(parent, pts, clicks = []) {
   const c = div('left:0;top:0;width:76px;height:76px;opacity:0;filter:drop-shadow(0 8px 16px rgba(0,0,0,.5))', parent, `<svg width="76" height="76" viewBox="0 0 24 24"><path d="M4 2l15 9-7 1.5L9 20z" fill="#fff" stroke="#05070D" stroke-width="1.2" stroke-linejoin="round"/></svg>`);
   const t0 = pts[0][0], t1 = pts.at(-1)[0];

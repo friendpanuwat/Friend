@@ -17,6 +17,21 @@ def hex2rgb(h):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
+def pace_check(timeline):
+    """Warn when the timeline breaks the pacing rules (user: zoom too frequent, motion too rushed)."""
+    src = re.sub(r'//[^\n]*|/\*.*?\*/', '', timeline, flags=re.S)
+    pushes = [(float(t), float(z), float(d) if d else 1.2) for t, z, d in
+              re.findall(r'\bzoom\(\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+))?\s*\)', src)]
+    ins = [p for p in pushes if p[1] > 1.001]
+    if len(ins) > 6: print(f'WARNING pace: {len(ins)} zoom push-ins (max ~5 per clip) — keep only the strongest sentences')
+    for t, z, d in pushes:
+        if d < .6: print(f'WARNING pace: zoom({t}, {z}, {d}) is a snap — use dur 0.8–1.5')
+        if z > 1.08: print(f'WARNING pace: zoom({t}, {z}) — max 1.06–1.08')
+    for t, z, d in ins:
+        near = [u for u, y, _ in ins if 0 < u - t < 4]
+        if near: print(f'WARNING pace: zoom push-ins at {t} and {near[0]} are < 4 s apart')
+
+
 def main():
     args = sys.argv[1:]
     if not args: sys.exit(__doc__)
@@ -29,6 +44,7 @@ def main():
     head = open(os.path.join(ASSETS, 'engine_head.html')).read()
     tail = open(os.path.join(ASSETS, 'engine_tail.html')).read()
     timeline = open(tl).read()
+    pace_check(timeline)
     kit = open(os.path.join(ASSETS, 'overlay_kit.js')).read()
     html = head + '\n' + kit + '\n' + timeline + '\n' + tail
 
