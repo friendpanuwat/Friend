@@ -69,7 +69,6 @@ sceneIncome(2.0, 6.98, {...});            // ฉากของคลิปน�
 | `references/retention.md` | จังหวะ: เปิดด้วยหน้า, hook, ความยาวฉาก, ซับเป็นวลี, ซูม |
 | `references/zoom.md` | ค่าซูมแบบ talking-head-motion |
 | `references/text-and-placement.md` | ส่วนที่ 2: วิธีวัดแถบหน้า `face()` และกฎห้ามบังหน้า (ส่วนที่ 1 เป็นซับแบบเก่า — ซับปัจจุบันคือ `kcap`) |
-| `references/techniques.md` | เครื่องมือชุดเก่า (ฉากหน้าแอปเต็มจอ) — **ไม่ใช้กับสไตล์ปัจจุบัน** |
 | `assets/minimal_kit.js` | ชุดเครื่องมือฉากมินิมอล |
 | `assets/engine_*.html`, `reflook.js`, `ioslook.js`, `swishylook.js` | เอนจิน (ไม่ต้องแก้); ในช่วงหน้าคนพูดใช้ `chipsNear`, `markList`, `pinDrop` ได้ |
 | `examples/clip02-retire/` | ตัวอย่างครบตามกฎปัจจุบัน (graphics.js, timeline.js, transcript.txt) |
