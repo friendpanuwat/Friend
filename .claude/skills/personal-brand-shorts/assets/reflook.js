@@ -21,7 +21,7 @@ function segments(txt, keys = {}) {
 function placeUnderChin(el, t0, t1, minTop = 1235) {
   FITS.push(() => { if (inScene(t0)) { el.style.display = 'none'; return; }
     let top = minTop; for (const f of faceAt(t0, t1)) top = Math.max(top, f.bottom + ZONE.gap); el.style.top = top + 'px';
-    const s = Math.min(1, 960 / el.scrollWidth); if (s < 1) el.style.transform = `scale(${s})`; });
+    const s = Math.min(1, el.clientWidth / el.scrollWidth); if (s < 1) el.style.transform = `scale(${s})`; });   // fit the element's own width (kcap / markList: the safe width)
 }
 
 /* caption — light sans, white (or yellow inside the notes frame), key words green/red with glow */

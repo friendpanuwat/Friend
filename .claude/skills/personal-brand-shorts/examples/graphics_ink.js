@@ -6,7 +6,7 @@ const NIB = '#111111', G1 = '#8E8E93', G2 = '#D1D1D6', G3 = '#F2F2F7', RED = '#F
 const OUT = `stroke="${NIB}" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"`;
 const SHDEF = `<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="170%"><feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity=".10"/></filter></defs>`;
 const EASE = 'cubic-bezier(.2,.8,.2,1)';
-const paper = (t0, t1) => solid(t0, t1, PAPER);
+const paper = (t0, t1) => safeStage(solid(t0, t1, PAPER));   // scene content squeezed into x 60–900
 const svgLayer = (root, inner) => div('left:0;top:0;width:1080px;height:1920px', root, `<svg width="1080" height="1920" style="overflow:visible;display:block">${SHDEF}${inner}</svg>`);
 const rise = (el, t, d = .4, y = 26) => A(el, [{opacity: 0, transform: `translateY(${y}px)`}, {opacity: 1, transform: 'none'}], t, d, {e: EASE});
 const popIn = (el, t, d = .4) => A(el, [{opacity: 0, transform: 'scale(.6)'}, {opacity: 1, transform: 'none'}], t, d, {e: bounce});
@@ -42,7 +42,7 @@ function vanishingPerson(root, x, y, s, t, tGone) {
 
 /* ---------- 0–2 HOOK: "ลูกค้าทักมา" at frame 0 · the customer asks · then dissolves: "แล้วก็หายไป" ---------- */
 function sceneHook(t0, t1, {title, msg, tMsg, gone, tGone}) {
-  const root = solid(t0 - .05, t1, PAPER);
+  const root = safeStage(solid(t0 - .05, t1, PAPER));
   const ti = label(root, 540, 280, {text: title, size: 130}); A(ti, [{transform: 'scale(1.05)'}, {transform: 'none'}], t0, .5, {e: 'ease-out'});
   svgLayer(root, `<rect x="140" y="1330" width="800" height="6" rx="3" fill="${G2}"/>`);
   vanishingPerson(root, 400, 1330, 1, t0 - .05, tGone);

@@ -24,7 +24,7 @@ function bubblePop(t0, t1, txt, {tGone} = {}) {
 
 /* word chips beside the head (never over the face) — chips: [[text, t]] */
 function chipsNear(t0, t1, chips) {
-  const fb = faceBox(t0), spots = [[860, fb.top - 40, 8], [210, fb.top + 10, -10], [900, fb.top + 230, -6], [170, fb.top + 260, 7]];
+  const fb = faceBox(t0), spots = [[790, fb.top + 40, 8], [230, fb.top + 10, -10], [640, fb.top - 110, -6], [170, fb.top + 260, 7]];   // nothing right of x 900
   chips.forEach(([txt, t], i) => { const [x, y, rot] = spots[i % spots.length];
     const c = div(`left:${x}px;top:${y}px;transform:translateX(-50%)`, Q,
       `<span style="display:inline-block;padding:18px 40px 26px;border-radius:60px;background:#fff;${BOLD};font-size:64px;color:${SW.ink};box-shadow:0 14px 34px rgba(0,0,0,.35);transform:rotate(${rot}deg)">${txt}</span>`);
@@ -126,9 +126,9 @@ function bigStrike(t0, t1, {pre = '', word = '', tStrike} = {}) {
 
 /* a curved line draws itself through numbered dots — steps: [[label, t]] */
 function timelineSteps(t0, t1, steps) {
-  const root = solid(t0, t1, SW.paper);
+  const root = safeStage(solid(t0, t1, SW.paper));   // kept clear of the right-side buttons
   const pts = steps.map((_, i) => [200 + i * 340, i % 2 ? 1180 : 900]);
-  const d = `M 30 1480 C 110 1480, 110 ${pts[0][1]}, ${pts[0][0]} ${pts[0][1]} ` + pts.slice(1).map(p => `S ${p[0] - 170} ${p[1]}, ${p[0]} ${p[1]}`).join(' ') + ' S 1040 640, 1100 600';
+  const d = `M 30 1480 C 110 1480, 110 ${pts[0][1]}, ${pts[0][0]} ${pts[0][1]} ` + pts.slice(1).map(p => `S ${p[0] - 170} ${p[1]}, ${p[0]} ${p[1]}`).join(' ') + ' S 980 700, 1010 650';
   const g = svg(1080, 1920, `<path class="ln" d="${d}" fill="none" stroke="${SW.ink}" stroke-width="7" stroke-linecap="round"/>`, 'left:0;top:0', root);
   const ln = g.querySelector('.ln'); ln.setAttribute('pathLength', 1); ln.style.strokeDasharray = 1;
   A(ln, [{strokeDashoffset: 1}, {strokeDashoffset: 0}], steps[0][1] - .2, steps.at(-1)[1] - steps[0][1] + .5, {e: 'linear'});

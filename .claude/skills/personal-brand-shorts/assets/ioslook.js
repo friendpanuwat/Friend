@@ -141,7 +141,7 @@ function notifStack(t0, t1, {app = 'ลูกค้า', items = []} = {}) {
 
 /* ✕ / ✓ list — items: [{text, t, keys, mark: 'x'|'check'}] */
 function markList(t0, t1, items) {
-  const el = div('left:100px;width:880px;transform-origin:0 0', G);
+  const el = div('left:80px;width:800px;transform-origin:0 0', G);   // ends at x 880, clear of the right-side buttons
   items.forEach(it => {
     const row = div('position:relative;display:flex;align-items:center;gap:30px;margin-bottom:22px;white-space:nowrap', el);
     const m = div(`position:relative;flex:none;width:76px;height:76px;border-radius:50%;background:${it.mark === 'x' ? SYS.red : SYS.green};display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.35)`, row, sym(it.mark === 'x' ? 'x' : 'check', 52, '#fff', 3));
@@ -155,7 +155,7 @@ function markList(t0, t1, items) {
 }
 
 /* map pin drops onto a target beside the head (never over the face) */
-function pinDrop(t, t1, {x = 880} = {}) {
+function pinDrop(t, t1, {x = 780} = {}) {
   const fb = faceBox(t), y = fb.top + 60;
   const g = div(`left:${x - 150}px;top:${y - 150}px;width:300px;height:300px`, Q,
     `<svg width="300" height="300" viewBox="0 0 300 300" style="overflow:visible">
