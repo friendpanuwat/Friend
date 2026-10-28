@@ -13,7 +13,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 PROJ="$(mkdir -p "$1" && cd "$1" && pwd)"; IN="$2"; STEP="${3:-all}"
 export NODE_PATH="${NODE_PATH:-$(npm root -g)}"
 DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$IN")
-SFX_DB=$(python3 -c "import json,os;p='$PROJ/brand.json';print(json.load(open(p)).get('sfx_db',-11) if os.path.exists(p) else -11)")
+SFX_DB=$(python3 -c "import json,os;p='$PROJ/brand.json';print(json.load(open(p)).get('sfx_db',-17) if os.path.exists(p) else -17)")
 
 frames() {
   rm -rf "$PROJ/src_frames" && mkdir -p "$PROJ/src_frames"

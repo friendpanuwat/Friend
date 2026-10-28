@@ -70,7 +70,7 @@ sceneIncome(2.0, 6.98, {...});            // ฉากของคลิปน�
 | `references/zoom.md` | ค่าซูมแบบ talking-head-motion |
 | `references/text-and-placement.md` | ส่วนที่ 2: วิธีวัดแถบหน้า `face()` และกฎห้ามบังหน้า (ส่วนที่ 1 เป็นซับแบบเก่า — ซับปัจจุบันคือ `kcap`) |
 | `assets/minimal_kit.js` | ชุดเครื่องมือฉากมินิมอล |
-| `assets/engine_*.html`, `reflook.js`, `ioslook.js`, `swishylook.js` | เอนจิน (ไม่ต้องแก้); ในช่วงหน้าคนพูดใช้ `chipsNear`, `markList`, `pinDrop` ได้ |
+| `assets/engine_*.html`, `reflook.js`, `uilook.js`, `glowlook.js` | เอนจิน (ไม่ต้องแก้); ในช่วงหน้าคนพูดใช้ `chipsNear`, `markList`, `pinDrop` ได้ |
 | `examples/clip02-retire/` | ตัวอย่างครบตามกฎปัจจุบัน (graphics.js, timeline.js, transcript.txt) |
 | `examples/clip01-customers/` | ตัวอย่างเก่า — 2 วินาทีแรกเป็นฉากพื้นขาว (ก่อนมีกฎเปิดด้วยหน้า) ใช้ดูไอเดียฉากเท่านั้น |
 | `scripts/pipeline.sh` | frames · build · preview · render · encode · hq |

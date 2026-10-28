@@ -73,7 +73,7 @@ cardThink(2.02, 4.98, {...});             // การ์ดของคลิ�
 | `references/text-and-placement.md` | ส่วนที่ 2: วิธีวัดแถบหน้า `face()` และกฎห้ามบังหน้า (ส่วนที่ 1 เป็นซับแบบเก่า — ซับปัจจุบันคือ `kcap`) |
 | `assets/overlay_kit.js` | การ์ดเหนือหัว (`pop`, `cv`, `beat`, `txt`) |
 | `assets/minimal_kit.js` | ชิ้นส่วนมินิมอล (คน มือ เส้นบาง สี) |
-| `assets/engine_*.html`, `reflook.js`, `ioslook.js`, `swishylook.js` | เอนจิน (ไม่ต้องแก้) |
+| `assets/engine_*.html`, `reflook.js`, `uilook.js`, `glowlook.js` | เอนจิน (ไม่ต้องแก้) |
 | `examples/clip01-customers/` | ตัวอย่างครบตามกฎปัจจุบัน (graphics.js, timeline.js, transcript.txt) |
 | `scripts/pipeline.sh` | frames · build · preview · render · encode · hq |
 | `scripts/render.js` | เรนเดอร์เฟรม (pipeline เรียกให้) |

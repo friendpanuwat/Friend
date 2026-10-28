@@ -1,6 +1,6 @@
-/* ===================== SWISHY-STYLE MOTION GRAPHICS (experiment) =====================
+/* ===================== GLOW-STYLE MOTION GRAPHICS (experiment) =====================
    One idea per frame, centred, generous space · flat full-bleed backgrounds (white / black / one bold colour)
-   · bold Apple-like type · glow on the one thing that matters · springy physics · a cursor that clicks */
+   · clean bold type · glow on the one thing that matters · springy physics · a cursor that clicks */
 const SW = {ink: '#0A0A0A', paper: '#FFFFFF', electric: '#2323FF', green: '#30D158', red: '#FF3B30', orange: '#FF9500', blue: '#0A84FF'};
 const BOLD = 'font-family:RefSans;font-weight:700';
 const bounce = 'cubic-bezier(.34,1.56,.64,1)';

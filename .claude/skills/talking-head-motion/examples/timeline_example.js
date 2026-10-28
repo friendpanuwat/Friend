@@ -3,33 +3,38 @@ scenes([[4.93, 8.58], [8.61, 12.57], [14.0, 15.0], [18.0, 21.97], [26.0, 29.6], 
 
 /* ===================== A-ROLL TEXT TIMELINE ===================== */
 block({t0: 0, t1: 1.98, lines: [[['เวลาเรา', 's', 0.05], ['มีไอเดีย', 'k', 0.47]], [['ที่อยากจะ', 's', 1.0]], [['เริ่มทำธุรกิจ', 'm', 1.36]]]});
-keyHit(.47, -19); zoom(.47, 1.05, .6);
+keyHit(.47, -19);
 block({t0: 2, t1: 4.88, lines: [[['บางทีเราก็', 's', 2.0]], [['คิดว่าแบบ', 'm', 3.0]], [['เฮ้ย!', 'k', 3.75, 170]]]});
-keyHit(3.75); zoom(3.75, 1.09, .12); zoom(4.9, 1.0, .35);
+keyHit(3.75);
 block({t0: 12.6, t1: 13.95, lines: [[['ผมจะบอกว่า', 's', 12.6]], [['สุดท้าย', 'm', 13.0], ['ตรงนั้น...', 's', 13.45]]]});
 block({t0: 15, t1: 15.97, lines: [[['แล้วเราก็จะ', 's', 15.0]], [['ไม่ได้เริ่มทำ', 'm', 15.38], ['สักที', 'k', 15.7]]]});
 keyHit(15.7, -23);
 block({t0: 16, t1: 17.97, lines: [[['คือ', 's', 16.0], ['ไอเดียเจ๋ง ๆ', 'k', 16.15]], [['หลาย ๆ ไอเดีย', 'm', 17.0]]]});
-keyHit(16.15); zoom(16.15, 1.05, .7);
+keyHit(16.15);
 block({t0: 22, t1: 24.38, lines: [[['มันไม่ได้', 's', 22.0], ['เป็นอย่างนั้น', 'm', 22.26]], [['ตั้งแต่แรก', 'k', 22.63]], [['นึกออกมั้ย?', 's', 23.05]]]});
-keyHit(22.63); zoom(22.63, 1.07, .14); zoom(24.3, 1.0, .4);
+keyHit(22.63);
 block({t0: 24.42, t1: 25.97, top: 1380, lines: [[['ก็คงไม่ได้คิดว่า', 'm', 25.0]]]});
 block({t0: 29.62, t1: 31.97, lines: [[['คือผมอยากจะสื่อว่า', 's', 29.62]], [['เรามีไอเดีย', 'm', 31.0], ['อะไร?', 'k', 31.58]]]});
-keyHit(31.58); zoom(31.58, 1.08, .12);
+keyHit(31.58);
 block({t0: 38, t1: 39.5, lines: [[['ไม่รู้ว่าผมพูด', 's', 38.0], ['งง', 'k', 38.6]], [['หรือเปล่านะทุกคน', 's', 39.0]]]});
 keyHit(38.6, -23);
 block({t0: 41, t1: 43.6, lines: [[['ผมพูดสด ๆ', 'm', 41.0]], [['ออกมาจากใจ', 'k', 42.21]]]});
-keyHit(42.21); zoom(42.21, 1.06, .8);
+keyHit(42.21);
 block({t0: 43.63, t1: 44.27, lines: [[['ทุกคน', 's', 43.63]]]});
 block({t0: 47, t1: 47.97, lines: [[['ไม่ต้องรอ', 'm', 47.0]], [['ไอเดียเจ๋ง ๆ', 'k', 47.45]]]});
-keyHit(47.45); zoom(47.45, 1.07, .14); zoom(48.0, 1.0, .35);
+keyHit(47.45);
 block({t0: 48, t1: 49.4, lines: [[['บางทีไอเดีย', 's', 48.0]], [['มันก็ผุดออกมา', 'm', 48.46]]]});
 block({t0: 49.42, t1: 49.97, lines: [[['อย่างที่บอก', 's', 49.42]]]});
 
-lowerThird('Mark Zuckerberg', 'ผู้ก่อตั้ง Facebook', 24.42, 25.97);
-zoom(24.5, 1.06, .7); zoom(25.95, 1.0, .3);
+lowerThird('ชื่อ นามสกุล', 'ผู้ก่อตั้งแอปดัง', 24.42, 25.97);   // real person → name card (placeholder name here)
 
 badge('bulb', .4, 1.98); badge('heart', 42.21, 43.6); badge('glass', 47.05, 47.97);
+
+/* camera: a few slow push-ins on the strongest sentences only (user: zoom on every phrase felt too frequent) */
+zoom(3.35, 1.06, 1.4); zoom(7.25, 1.0, 1.0);
+zoom(22.23, 1.06, 1.4); zoom(26.13, 1.0, 1.0);
+zoom(31.18, 1.06, 1.4); zoom(35.08, 1.0, 1.0);
+zoom(47.05, 1.06, 1.4);
 
 /* ===================== FULL-SCREEN SCENES ===================== */
 
@@ -129,12 +134,12 @@ badge('bulb', .4, 1.98); badge('heart', 42.21, 43.6); badge('glass', 47.05, 47.9
   const chip = div('left:0;width:1080px;top:210px;text-align:center;opacity:0', c, '<span class="chip"><span class="dot"></span>GLOBAL</span>'); rise(chip, 18.2, .5, 40);
 }
 
-/* S5 · Facebook — phone UI with a growth chart (26.0–29.6) */
+/* S5 · แอปดัง — phone UI with a growth chart (26.0–29.6) */
 {
   const c = scene(26.0, 29.6, {seed: 5, tilt: 5});
   const ph = div('left:270px;top:240px;width:540px;height:1080px;border-radius:80px;padding:30px;opacity:0', c); ph.className = 'glass';
   ph.innerHTML = `<div style="width:150px;height:34px;border-radius:20px;background:rgba(0,0,0,.6);margin:0 auto 34px"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 24px"><span style="font-family:KeyFont;font-size:54px;color:${BLUE}">Facebook</span><span class="dot"></span></div>`;
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 24px"><span style="font-family:KeyFont;font-size:54px;color:${BLUE}">แอป</span><span class="dot"></span></div>`;
   A(ph, [{opacity: 0, transform: 'translateY(300px) rotateX(30deg)', filter: 'blur(14px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], 26.0, .65, {e: SPRING});
   for (let i = 0; i < 2; i++) { const f = div(`left:30px;right:30px;top:${190 + i * 150}px;height:120px;border-radius:26px;background:rgba(255,255,255,.06)`, ph); A(f, [{opacity: 0, transform: 'translateY(40px)'}, {opacity: 1, transform: 'none'}], 26.2 + i * .08, .4); }
   const ch = svg(480, 360, `<defs><linearGradient id="ar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${BLUE}" stop-opacity=".45"/><stop offset="1" stop-color="${BLUE}" stop-opacity="0"/></linearGradient></defs>
@@ -149,7 +154,7 @@ badge('bulb', .4, 1.98); badge('heart', 42.21, 43.6); badge('glass', 47.05, 47.9
   sfx('swell', 26.4, -27);
   const a1 = text(c, 'จะเป็นเหมือน', 's', 26.55, 'top:1400px'), a2 = text(c, 'ทุกวันนี้', 'k', 27.0, 'top:1470px');
   fadeOut(a1, 27.85, .14); fadeOut(a2, 27.85, .14);
-  text(c, 'ตอนที่เขาเริ่มทำ', 'm', 28.0, 'top:1400px'); text(c, 'Facebook', 'k', 28.79, 'top:1500px');
+  text(c, 'ตอนที่เขาเริ่มทำ', 'm', 28.0, 'top:1400px'); text(c, 'แอปของเขา', 'k', 28.79, 'top:1500px');
 }
 
 /* S6 · เริ่มทำไปก่อน — the key line (32.0–32.97) */

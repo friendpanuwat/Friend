@@ -1,0 +1,163 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"KeyFont";src:url(fonts/Mitr-Bold.ttf);font-weight:700}
+@font-face{font-family:"MidFont";src:url(fonts/Mitr-SemiBold.ttf);font-weight:600}
+@font-face{font-family:"BodyFont";src:url(fonts/Mitr-Medium.ttf);font-weight:500}
+@font-face{font-family:"SmallFont";src:url(fonts/Sriracha-Regular.ttf);font-weight:400}
+/* v9 palette — TEXT: #FFFFFF + light blue #8FD3FF · GRAPHICS: night navy, glass, light-blue light */
+:root{--blue:#8FD3FF;--blue2:#4E9BFF;--ink:#05070D;--glass:rgba(255,255,255,.06);--line:rgba(255,255,255,.16)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
+body{position:relative;color:#fff;font-family:"MidFont",sans-serif}
+#v,#vb{position:absolute;inset:0;width:1080px;height:1920px;transform-origin:47% 42%}   /* the clip as shot: no colour grade (user) */
+#vb{opacity:0;filter:blur(36px)}   /* the same frame, blurred: the background of full-screen scenes (user) */
+.layer{position:absolute;inset:0;pointer-events:none}
+#black{background:var(--ink);opacity:0}
+#bloom{background:radial-gradient(ellipse at 50% 45%,rgba(200,235,255,.85),rgba(143,211,255,.25) 45%,transparent 75%);opacity:0;mix-blend-mode:screen}
+
+/* ---------- typography ---------- */
+.block{position:absolute;left:60px;width:960px;display:flex;flex-direction:column;align-items:center;transform-origin:50% 0}
+.line{display:flex;align-items:baseline;justify-content:center;gap:18px;white-space:nowrap;perspective:900px}
+.chunk{display:inline-block;white-space:nowrap}
+.g{display:inline-block;opacity:0;transform-origin:50% 80%;will-change:transform,opacity,filter}
+.s{font-family:"SmallFont";font-size:60px;line-height:1.25;color:#fff}
+.m{font-family:"MidFont";font-size:90px;line-height:1.18;font-weight:600;color:#fff}
+.k{font-family:"KeyFont";font-size:136px;line-height:1.14;font-weight:700;letter-spacing:-1px;color:var(--blue)}
+.k .g{text-shadow:0 0 34px rgba(143,211,255,.55),0 6px 24px rgba(0,0,0,.55)}
+.s .g,.m .g{text-shadow:0 4px 22px rgba(0,0,0,.65),0 1px 4px rgba(0,0,0,.5)}
+
+/* ---------- glass + scene parts ---------- */
+.glass{background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.03));border:1.5px solid var(--line);border-radius:40px;
+  box-shadow:0 40px 90px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.18);backdrop-filter:blur(22px)}
+.chip{white-space:nowrap;display:inline-flex;align-items:center;gap:14px;padding:10px 28px 14px;border-radius:999px;border:1.5px solid var(--line);background:rgba(143,211,255,.10);
+  font-family:"BodyFont";font-size:40px;color:#fff}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--blue);box-shadow:0 0 14px var(--blue)}
+</style></head>
+<body>
+<img id="v">
+<img id="vb">
+<div class="layer" id="black"></div>
+<div class="layer" id="S"></div>
+<div class="layer" id="g"></div>
+<div class="layer" id="bloom"></div>
+<script>
+/* ===================== CORE ===================== */
+const G = document.getElementById('g'), S = document.getElementById('S');
+const SFX = [], ZOOM = [], HOOKS = [], FITS = [];
+const ms = s => s * 1000;
+const sfx = (s, t, db = -14, pitch) => SFX.push(pitch ? {s, t, db, pitch} : {s, t, db});
+/* calm mix (user: fewer, quieter effects) — what reaches the audio track: no small pops/ticks (the motion carries them),
+   then the strongest cue wins inside any SFX_GAP window (sub > stamp/thud > whoosh > swipe > softswish) */
+const SFX_GAP = 0.9, SFX_RANK = {sub: 5, stamp: 4, thud: 4, whoosh: 3, whoosh_long: 3, swipe: 2, softswish: 1};
+function calmSfx(list) {
+  const kept = [];
+  list.filter(c => SFX_RANK[c.s]).sort((a, b) => SFX_RANK[b.s] - SFX_RANK[a.s] || a.t - b.t)
+    .forEach(c => { if (!kept.some(k => Math.abs(k.t - c.t) < SFX_GAP)) kept.push(c); });
+  return kept.sort((a, b) => a.t - b.t);
+}
+const zoom = (t, z, d = 1.2) => ZOOM.push({t, z, d});   // slow push (user: zoom was too frequent / punchy) — see timeline-api
+const SPRING = 'cubic-bezier(.22,1.35,.36,1)', SMOOTH = 'cubic-bezier(.2,.8,.2,1)', INOUT = 'cubic-bezier(.65,0,.35,1)';
+/* graphics motion (user: motion felt rushed / stiff) — SOFT: unhurried settle with a ~4% overshoot · CALM: slow ease-in-out for actions */
+const SOFT = 'cubic-bezier(.25,1.12,.4,1)', CALM = 'cubic-bezier(.45,.05,.25,1)';
+const A = (el, kf, t, d, o = {}) => el.animate(kf, {delay: ms(t), duration: ms(d), easing: o.e ?? SMOOTH, fill: o.f ?? 'both', iterations: o.it ?? 1, direction: o.dir ?? 'normal', composite: o.c ?? 'replace'});
+const div = (css, parent, html = '') => { const d = document.createElement('div'); d.style.cssText = 'position:absolute;' + css; d.innerHTML = html; parent.appendChild(d); return d; };
+const seg = new Intl.Segmenter('th', {granularity: 'grapheme'});
+const graphemes = s => [...seg.segment(s)].map(x => x.segment);
+const BLUE = '#8FD3FF';
+
+/* kinetic text: every grapheme flips up in 3D with a spring, staggered */
+function kinetic(parent, txt, cls, t, {stagger, color} = {}) {
+  const c = document.createElement('span'); c.className = 'chunk ' + cls;
+  if (color) c.style.color = color;
+  parent.appendChild(c);
+  const big = cls.includes('k'), st = stagger ?? (big ? .032 : .016);
+  graphemes(txt).forEach((ch, i) => {
+    const g = document.createElement('span'); g.className = 'g'; g.textContent = ch === ' ' ? ' ' : ch; c.appendChild(g);
+    const ti = t + i * st;
+    A(g, [{opacity: 0, transform: `translateY(${big ? 55 : 40}%) rotateX(${big ? -85 : -60}deg) scale(${big ? 1.15 : 1.05})`, filter: 'blur(10px)'},
+          {opacity: 1, transform: 'none', filter: 'blur(0)'}], ti, big ? .48 : .36, {e: SPRING});
+    if (big) A(g, [{color: '#FFFFFF'}, {color: BLUE}], ti + .16, .35, {e: 'ease-out'});   // white-hot ignite → light blue
+  });
+  return c;
+}
+/* block of lines: [[ [text, style, t], ... ], ...]  style s|m|k */
+function block(b) {
+  const el = div(`top:${b.top ?? (b.center ? 760 : 1225)}px`, G); el.className = 'block';
+  if (inScene(b.t0)) el.style.display = 'none';
+  for (const ln of b.lines) {
+    const L = document.createElement('div'); L.className = 'line'; el.appendChild(L);
+    for (const [txt, st, t, size] of ln) { const k = kinetic(L, txt, st, t); if (size) k.style.fontSize = size + 'px'; }
+  }
+  // fit to the safe width/height — measured on the first seek, after web fonts have loaded (measuring now would use fallback metrics)
+  FITS.push(() => {
+    for (const L of el.children) { const w = L.scrollWidth; if (w > 960) L.style.transform = `scale(${960 / w})`; }
+    const maxH = b.center ? 560 : 440;
+    if (el.offsetHeight > maxH) el.style.transform = `scale(${maxH / el.offsetHeight})`;
+  });
+  A(el, [{opacity: 1, filter: 'blur(0)', translate: '0 0'}, {opacity: 0, filter: 'blur(16px)', translate: '0 -50px'}], b.t1 - .16, .16, {e: 'cubic-bezier(.5,0,.9,.5)', f: 'forwards'});
+  return el;
+}
+const keyHit = (t, db = -21) => sfx('softswish', t - .05, db);
+function bloom(t, o = .45) { A(document.getElementById('bloom'), [{opacity: 0}, {opacity: o, offset: .3}, {opacity: 0}], t, .42, {f: 'none', e: 'ease-out'}); }
+
+/* ===================== SCENE KIT (glass panels + 3D stage over the blurred clip) ===================== */
+/* scene windows are declared by the timeline with scenes([[t0,t1],...]) BEFORE any block() call */
+const SCENE_WIN = [];
+const scenes = w => SCENE_WIN.push(...w);
+const inScene = t => SCENE_WIN.some(([a, b]) => t >= a - .01 && t < b);
+/* scene(): full-screen layer with smooth scale+blur crossfade in/out and a gently drifting 3D stage */
+function scene(t0, t1, {tilt = 4, seed = 0} = {}) {
+  const root = div(`inset:0;opacity:0;overflow:hidden`, S);   // no backdrop of its own: the blurred clip (#vb) shows through (user)
+  const L = t1 - t0 + .04, fi = Math.min(.5, L * .4) / L, fo = Math.min(.4, L * .35) / L;
+  A(document.getElementById('vb'), [{opacity: 0}, {opacity: 1, offset: fi}, {opacity: 1, offset: 1 - fo}, {opacity: 0}], t0 - .04, t1 - t0 + .04, {f: 'none', e: 'linear'});
+  const stage = div('inset:0;perspective:1600px', root);
+  const cam = div('inset:0;transform-style:preserve-3d;transform-origin:50% 50%', stage);
+  A(root, [{opacity: 0, filter: 'blur(22px)', transform: 'scale(1.05)'}, {opacity: 1, filter: 'blur(0)', transform: 'scale(1)'}], t0 - .04, .6, {e: SMOOTH});
+  A(cam, [{transform: `rotateX(${tilt}deg) rotateY(${-tilt}deg) translateZ(-60px)`}, {transform: `rotateX(${-tilt * .4}deg) rotateY(${tilt * .5}deg) translateZ(0)`}], t0, t1 - t0, {e: INOUT});
+  A(root, [{opacity: 1, filter: 'blur(0)', transform: 'scale(1)'}, {opacity: 0, filter: 'blur(18px)', transform: 'scale(.97)'}], t1 - .4, .4, {e: 'cubic-bezier(.45,0,.8,.6)', f: 'forwards'});
+  sfx('whoosh', t0 - .1, -19);
+  return cam;
+}
+const text = (parent, txt, cls, t, css = '', o = {}) => { const w = div(`left:0;width:1080px;text-align:center;${css}`, parent); w.style.perspective = '900px'; const k = kinetic(w, txt, cls, t, o); if (o.size) k.style.fontSize = o.size + 'px'; return w; };
+const rise = (el, t, d = .85, y = 70) => A(el, [{opacity: 0, transform: `translateY(${y}px) rotateX(12deg) scale(.96)`, filter: 'blur(12px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t, d, {e: SOFT});
+const fadeOut = (el, t, d = .4) => A(el, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t, d, {f: 'forwards', e: 'cubic-bezier(.45,0,.8,.6)'});
+const svg = (w, h, inner, css, parent) => div(css, parent, `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="overflow:visible">${inner}</svg>`);
+const draw = (p, t, d = .9) => { p.setAttribute('pathLength', 1); p.style.strokeDasharray = 1; A(p, [{strokeDashoffset: 1}, {strokeDashoffset: 0}], t, d, {e: INOUT}); };
+function cursor(parent, pts, clicks = []) {
+  const c = div('left:0;top:0;width:76px;height:76px;opacity:0;filter:drop-shadow(0 8px 16px rgba(0,0,0,.5))', parent, `<svg width="76" height="76" viewBox="0 0 24 24"><path d="M4 2l15 9-7 1.5L9 20z" fill="#fff" stroke="#05070D" stroke-width="1.2" stroke-linejoin="round"/></svg>`);
+  const t0 = pts[0][0], t1 = pts.at(-1)[0];
+  A(c, pts.map(([t, x, y]) => ({transform: `translate(${x}px,${y}px)`, offset: (t - t0) / (t1 - t0)})), t0, t1 - t0, {e: INOUT});
+  A(c, [{opacity: 0}, {opacity: 1}], t0, .2);
+  clicks.forEach(t => { A(c.firstChild, [{transform: 'scale(1)'}, {transform: 'scale(.8)'}, {transform: 'scale(1)'}], t, .22, {f: 'none'}); sfx('tick', t, -24, 1.5); });
+}
+const ripple = (parent, x, y, t, s = 2.6) => { const r = div(`left:${x - 70}px;top:${y - 70}px;width:140px;height:140px;border-radius:50%;border:3px solid ${BLUE};opacity:0`, parent); A(r, [{opacity: .9, transform: 'scale(.3)'}, {opacity: 0, transform: `scale(${s})`}], t, .6, {f: 'none'}); };
+
+/* ===================== A-ROLL ICON BADGES (glass circle + line icon) ===================== */
+const IC = {
+  bulb: 'M50 18c-14 0-24 10-24 23 0 8 4 13 8 17 3 3 4 5 4 9v3h24v-3c0-4 1-6 4-9 4-4 8-9 8-17 0-13-10-23-24-23zM40 86h20M44 93h12',
+  heart: 'M50 82S18 62 18 39c0-10 8-17 17-17 7 0 12 4 15 9 3-5 8-9 15-9 9 0 17 7 17 17 0 23-32 43-32 43z',
+  glass: 'M30 12h40M30 88h40M34 12c0 22 32 22 32 38S34 66 34 88M66 12c0 22-32 22-32 38s32 16 32 38M18 18l64 64',
+};
+function badge(name, t0, t1, top = 110) {
+  if (inScene(t0)) return;
+  const b = div(`left:${540 - 120}px;top:${top}px;width:240px;height:240px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0`, G,
+    `<svg width="140" height="140" viewBox="0 0 100 100"><path d="${IC[name]}" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
+  b.className = 'glass'; b.style.borderRadius = '50%';
+  draw(b.querySelector('path'), t0 + .1, .6);
+  A(b, [{opacity: 0, transform: 'scale(.6) translateY(40px)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0, .5, {e: SPRING});
+  A(b.firstChild, [{transform: 'scale(1)'}, {transform: 'scale(1.06)'}], t0 + .6, .7, {it: 8, dir: 'alternate', f: 'none', e: 'ease-in-out'});
+  fadeOut(b, t1 - .18);
+}
+/* lower third — glass name plate for a real person mentioned in the clip */
+function lowerThird(name, role, t0, t1, {top = 1560} = {}) {
+  const lt = div(`left:60px;top:${top}px;display:flex;align-items:center;gap:22px;padding:22px 40px 26px 26px;opacity:0`, G);
+  lt.className = 'glass';
+  lt.innerHTML = `<div style="width:10px;height:96px;border-radius:6px;background:linear-gradient(${BLUE},#4E9BFF)"></div>
+    <div><div style="font-family:KeyFont;font-size:58px;line-height:1.1">${name}</div>
+    <div style="font-family:BodyFont;font-size:38px;color:${BLUE};line-height:1.4">${role}</div></div>`;
+  A(lt, [{opacity: 0, transform: 'translateX(-120px)', filter: 'blur(12px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .03, .5, {e: SPRING});
+  fadeOut(lt, t1 - .17);
+  sfx('softswish', t0 - .02, -21);
+}
+

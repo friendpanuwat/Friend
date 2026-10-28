@@ -1,4 +1,4 @@
-/* Example — editorial-overlay: the speaker stays on screen the whole clip; small Jitter-style widgets pop up above the head.
+/* Example — editorial-overlay: the speaker stays on screen the whole clip; small flat-style widgets pop up above the head.
    Thai, 41.9 s + HOLD=1.0. Topic: "ลูกค้าทักแล้วหาย ไม่ใช่เพราะแพง". Widget zone (this clip): y 140–540, head top ≈ y 600.
    Widgets W1…W14 are referenced in references/widget-library.md. */
 const N = {color: NAVY}, GRAY = '#8A93A6';

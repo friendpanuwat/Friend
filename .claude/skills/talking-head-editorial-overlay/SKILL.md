@@ -1,13 +1,13 @@
 ---
 name: talking-head-editorial-overlay
-description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้ง (TikTok / Reels / Shorts) สไตล์ editorial แบบ "overlay" — หน้าคนพูดอยู่บนจอตลอดทั้งคลิป ไม่ตัดไปการ์ด/ฉากเต็มจอ ไม่เบลอ ไม่เกรดสี; ซับขึ้นทีละคำ มีคำสำคัญคำเดียวตัวใหญ่ (Mitr หรือลายมือ Sriracha) สี accent สีเดียว, ซูมตัดชนตามคำ, และวิดเจ็ต motion graphics ชิ้นเล็กสไตล์ Jitter (การ์ดขาวแบน ไอคอน ชิป กราฟ แชต เคอร์เซอร์ เป้า) เด้งขึ้นเหนือหัวตามเนื้อหา, เสียง -14 LUFS, ส่งออก MP4 1080×1920. Use this skill when the user names talking-head-editorial-overlay, or wants the editorial caption look but "ไม่เอาการ์ดเต็มจอ / ให้เห็นหน้าตลอด / กราฟิกเล็ก ๆ เหนือหัว / สไตล์ overlay". For full-screen cards use talking-head-editorial; for the Swishy 3D look use talking-head-motion (full-screen) or talking-head-overlay (pop-ups); for the blue glass-UI look use talking-head-glass-ui. If the style is unclear, ask.
+description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้ง (TikTok / Reels / Shorts) สไตล์ editorial แบบ "overlay" — หน้าคนพูดอยู่บนจอตลอดทั้งคลิป ไม่ตัดไปการ์ด/ฉากเต็มจอ ไม่เบลอ ไม่เกรดสี; ซับขึ้นทีละคำ มีคำสำคัญคำเดียวตัวใหญ่ (Mitr หรือลายมือ Sriracha) สี accent สีเดียว, ซูมตัดชนตามคำ, และวิดเจ็ต motion graphics ชิ้นเล็กสไตล์การ์ดแบน (การ์ดขาวแบน ไอคอน ชิป กราฟ แชต เคอร์เซอร์ เป้า) เด้งขึ้นเหนือหัวตามเนื้อหา, เสียง -14 LUFS, ส่งออก MP4 1080×1920. Use this skill when the user names talking-head-editorial-overlay, or wants the editorial caption look but "ไม่เอาการ์ดเต็มจอ / ให้เห็นหน้าตลอด / กราฟิกเล็ก ๆ เหนือหัว / สไตล์ overlay". For full-screen cards use talking-head-editorial; for the 3D-text look use talking-head-motion (full-screen) or talking-head-overlay (pop-ups); for the blue glass-UI look use talking-head-glass-ui. If the style is unclear, ask.
 ---
 
 # Talking-Head Editorial · Overlay
 
 สไตล์นี้แตกจาก `talking-head-editorial` เหมือนที่ `talking-head-overlay` แตกจาก `talking-head-motion`:
 ใช้ซับ, ฟอนต์, สี, เสียง และ pipeline ชุดเดียวกับ editorial แต่ **ไม่มีการ์ดเต็มจอ** — หน้าคนพูดชัดตลอดทั้งคลิป
-และภาพประกอบเป็น **วิดเจ็ตเล็ก** สไตล์ Jitter (แบน มุมมน เด้งแบบสปริง) ที่เด้งขึ้นในที่ว่างของเฟรม (ปกติเหนือหัว)
+และภาพประกอบเป็น **วิดเจ็ตเล็ก** สไตล์การ์ดแบน (แบน มุมมน เด้งแบบสปริง) ที่เด้งขึ้นในที่ว่างของเฟรม (ปกติเหนือหัว)
 เฉพาะตอนที่ประโยคนั้นมีภาพให้เล่า เช่น แชตที่ลูกค้าอ่านแล้วออฟไลน์, ป้ายราคา + ?, กราฟร่วง, ชิป "ส่วนลด" โดนกากบาท, ปุ่มชำระเงินที่เคอร์เซอร์ไม่กด, เป้าล็อกตรงกลาง.
 
 งานนี้ทำด้วยโค้ด: HTML/CSS/WAAPI เรนเดอร์ทีละเฟรมใน Chromium (Playwright) แล้วรวมด้วย ffmpeg — ทุกเฟรมคำนวณจากเวลา จึงเรนเดอร์ซ้ำได้ตรงเป๊ะ.
@@ -66,7 +66,7 @@ description: ตัดต่อคลิปพูดหน้ากล้อง�
 - **ซูมตัดชน** 1.05–1.10 ที่คำใหญ่ แล้วกลับ 1.0 ที่ก้อนถัดไป (editorial) — วิดเจ็ตและซับไม่ซูมตามกล้อง.
 - **วิดเจ็ตต้องทำใหม่ให้คลิปนั้น** (ผู้ใช้สั่ง) — คิดจากเนื้อหาของคลิปนี้ทีละประโยค: พูดถึงอะไร, เห็นอะไรแล้วเข้าใจทันที,
   อะไรเกิดตรงคำสำคัญ — แล้วประกอบจากชิ้นใน kit. **ห้ามเอาวิดเจ็ตจากตัวอย่างหรือคลิปก่อนมาเปลี่ยนเวลา/ข้อความ/ไอคอน**.
-  **สไตล์ไม่เปลี่ยน** — Jitter แบน การ์ดขาว ไอคอนเส้น accent สีเดียว ขนาด โซน และการเคลื่อนไหวคงเดิม;
+  **สไตล์ไม่เปลี่ยน** — การ์ดแบน การ์ดขาว ไอคอนเส้น accent สีเดียว ขนาด โซน และการเคลื่อนไหวคงเดิม;
   ที่ต่างกันในแต่ละคลิปคือ "วาดอะไร จัดวางยังไง และอะไรเกิดตรงคำ".
 - **วิดเจ็ตต้องเล่าความหมาย** และมี "เหตุการณ์ตรงคำ" อย่างน้อย 1 อย่าง (เด้งย้ำ, ส่าย, กากบาท, กราฟร่วง, ลูกศรเข้าเป้า).
   ส่วนประกอบในวิดเจ็ตขึ้นตามคำพูด (แถวที่ 2 ขึ้นตอนพูดข้อที่ 2).

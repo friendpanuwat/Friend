@@ -26,7 +26,7 @@ frames() {
 build() {
   for f in graphics.js timeline.js; do [ -f "$PROJ/$f" ] || { echo "missing $PROJ/$f"; exit 1; }; done
   mkdir -p "$PROJ/fonts" && cp "$SK"/assets/fonts/* "$PROJ/fonts/"
-  cat "$SK/assets/engine_head.html" "$SK/assets/reflook.js" "$SK/assets/ioslook.js" "$SK/assets/swishylook.js" "$SK/assets/minimal_kit.js" \
+  cat "$SK/assets/engine_head.html" "$SK/assets/reflook.js" "$SK/assets/uilook.js" "$SK/assets/glowlook.js" "$SK/assets/minimal_kit.js" \
       "$PROJ/graphics.js" "$PROJ/timeline.js" "$SK/assets/engine_tail.html" > "$PROJ/scene.html"
   node "$HERE/render.js" "$PROJ" check
 }
