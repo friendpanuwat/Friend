@@ -1,0 +1,3 @@
+u2netp.onnx — weights of a small salient-object segmentation network (U²-Net, "p" size),
+distributed under the Apache License 2.0 (see LICENSE-Apache-2.0.txt). Used unmodified by scripts/cutout.py
+to cut the speaker out of single frames. No other third-party code is bundled.
