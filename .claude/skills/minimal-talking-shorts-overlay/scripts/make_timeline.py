@@ -61,9 +61,10 @@ def main():
         near = [g for g in gaps if abs(g - r[0]) < .45]
         if near: r[0] = min(near, key=lambda g: abs(g - r[0]))
     rows.sort(key=lambda r: r[0])
-    for k in range(len(rows)):
+    for k in range(len(rows)):   # starts first (a start may move), then each end = the next start
         if k and rows[k][0] <= rows[k - 1][0] + .15: rows[k][0] = rows[k - 1][0] + .25
         rows[k][0] = round(rows[k][0], 2)
+    for k in range(len(rows)):
         if rows[k][1] is None: rows[k][1] = round(rows[k + 1][0] - .02, 2) if k + 1 < len(rows) else round(rows[k][0] + 1.0, 2)
     json.dump(rows, open(os.path.join(proj, 'chunks.json'), 'w'), ensure_ascii=False, indent=0)
     with open(os.path.join(proj, 'chunks.md'), 'w') as f:
