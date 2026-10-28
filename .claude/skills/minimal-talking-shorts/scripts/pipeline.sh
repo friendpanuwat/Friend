@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# personal-brand-shorts pipeline.   usage: pipeline.sh <project_dir> <step>
+# minimal-talking-shorts pipeline.   usage: pipeline.sh <project_dir> <step>
 #   frames   – the clip (project/input.*) → 1080×1920 frames at 30 fps (no colour change) + face contact sheet face_sheet.jpg
 #   build    – assets + project/graphics.js + project/timeline.js → project/scene.html, then check it (JS / FACE errors stop here)
 #   preview  – stills at PREVIEW="t1,t2,..." → project/prev/ + prev.jpg (red guide line at x 900 = edge of the safe area)
