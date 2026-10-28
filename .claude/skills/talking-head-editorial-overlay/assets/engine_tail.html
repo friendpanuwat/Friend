@@ -31,6 +31,6 @@ window.seek = async (t, src) => {
   ANIMS.forEach(a => { a.pause(); a.currentTime = ms(t); });
   await Promise.all(HOOKS.map(h => h(t)));   // hooks may return a promise (B-roll frame decode)
 };
-window.SFX = SFX;
+window.SFX = calmSfx(SFX);
 </script>
 </body></html>

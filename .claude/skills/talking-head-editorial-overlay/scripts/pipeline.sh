@@ -18,7 +18,7 @@ DUR_IN=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$IN")
 if [ -n "${HOLD:-}" ]; then echo "$HOLD" > "$PROJ/.hold"; fi
 HOLD=$(cat "$PROJ/.hold" 2>/dev/null || echo 0)
 DUR=$(python3 -c "print(round($DUR_IN+$HOLD,3))")
-SFX_DB=$(python3 -c "import json,os;p='$PROJ/brand.json';print(json.load(open(p)).get('sfx_db',-11) if os.path.exists(p) else -11)")
+SFX_DB=$(python3 -c "import json,os;p='$PROJ/brand.json';print(json.load(open(p)).get('sfx_db',-17) if os.path.exists(p) else -17)")
 
 frames() {
   rm -rf "$PROJ/src_frames" && mkdir -p "$PROJ/src_frames"
