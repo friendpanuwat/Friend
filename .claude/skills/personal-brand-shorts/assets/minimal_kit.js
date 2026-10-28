@@ -43,3 +43,5 @@ function vanishingPerson(root, x, y, s, t, tGone) {
 function countUp(el, to, t0, t1, {pre = '', suf = ''} = {}) {
   HOOKS.push(t => { const p = clamp((t - t0) / Math.max(.01, t1 - t0)), e = 1 - Math.pow(1 - p, 3); el.textContent = pre + Math.round(to * e).toLocaleString('en-US') + suf; });
 }
+/* repeat a one-shot animation every `per` seconds from t0 until t1 (flowing sand, bobbing walkers, ticking) */
+const loop = (el, kf, t0, t1, per, o = {}) => A(el, kf, t0, per, {e: 'linear', ...o, it: Math.max(1, Math.floor((t1 - t0) / per)), f: o.f ?? 'none'});
