@@ -1,0 +1,64 @@
+---
+name: split-screen-shorts
+description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้ง (TikTok / Reels / Shorts) แบบ "แบ่งจอ" สไตล์คลิปอธิบาย — ช่วงแบ่งจอ กราฟิก "จอจริง" ระดับงานโมชันกราฟิกมืออาชีพเต็มความกว้างด้านบน, ซับ 2 บรรทัดใต้กราฟิก, คนพูดอยู่ในกรอบมุมมนด้านล่างโดยหัวทะลุขอบกรอบขึ้นมา, พื้นหลังไล่สีมีเกรน; ตัดชนไปช่วงเต็มจอเฉพาะคำเน้น (คำใหญ่หลังหัวหรือแถวมือ) แล้วกลับ; ใช้เฉพาะสีในธีม (theme.json) ฟอนต์เดียว IBM Plex Sans Thai, ไม่บังหน้า, ไม่เกรดสี, ส่งออก MP4 1080×1920. Use this skill when the user asks to edit / ตัดต่อ a vertical talking-head clip "ตาม skill split-screen-shorts", แบบแบ่งจอ, หรือสไตล์คลิปอธิบายที่คนพูดอยู่กรอบล่าง. For the version where the speaker stays full screen with graphics behind the head, use split-screen-shorts-overlay; if the user doesn't say which, ask.
+---
+
+# Split-Screen Shorts
+
+ตัดต่อคลิปพูดหน้ากล้องแนวตั้ง (1080×1920) แบบแบ่งจอ: กราฟิกด้านบน ซับตรงกลาง คนพูดในกรอบล่างที่หัวทะลุกรอบขึ้นมา
+สลับกับช่วงเต็มจอสั้น ๆ ตรงคำเน้น. งานทำด้วยโค้ด: HTML/CSS/WAAPI เรนเดอร์ทีละเฟรมใน Chromium แล้วรวมด้วย ffmpeg;
+ตัดคนพูดออกจากเฟรมด้วยโมเดลในเครื่อง (`assets/model/u2netp.onnx`) เพื่อให้หัวทะลุกรอบ/อยู่หน้ากราฟิกได้.
+คุณ (Claude) เขียน 2 ไฟล์ต่อคลิป — `graphics.js` และ `timeline.js`; ที่เหลือ skill มีให้.
+
+## ต้องรู้ก่อนเริ่ม
+
+- **คุณฟังเสียงไม่ได้** → ต้องได้บทพูดพร้อมเวลา (บรรทัด `MM:SS ข้อความ` หรือ .srt). ถ้าไม่ครบความยาวคลิป ให้ถามส่วนที่ขาด อย่าเดาเนื้อหา.
+- **คุณเห็นวิดีโอเป็นภาพนิ่งเท่านั้น** → ตรวจด้วย preview / contact sheet เสมอ.
+- **ลูกค้าสั่งจากมือถือ** — ห้ามขอให้ลูกค้าติดตั้งหรือรันอะไรเอง ห้ามเพิ่มขั้นตอนให้ลูกค้า. ตอบเป็นภาษาไทย.
+- **ไม่ตัดช่วงเงียบ ไม่ตัดคลิป ไม่ปรับสีวิดีโอ.**
+- กฎทั้งหมดที่ผู้ใช้ยืนยันแล้วอยู่ใน `references/core.md` — **อ่านทุกครั้งก่อนเริ่ม** ห้ามเปลี่ยนเองโดยไม่ถาม.
+  วิธีเขียนกราฟิกและชุดเครื่องมืออยู่ใน `references/graphics.md`.
+
+## Workflow
+
+ตั้ง `SK=<path ของ skill นี้>` และ `P=work/<ชื่องานสั้น ๆ>` (ไม่มีช่องว่าง; `work/` ไม่ถูก commit).
+
+1. **ตรวจเครื่อง** — `bash $SK/scripts/check_env.sh` (ติดตั้ง onnxruntime/pillow เองถ้าขาด; ถ้ายังไม่ READY ให้บอกผู้ใช้ตรง ๆ)
+2. **รับคลิป** — `bash $SK/scripts/fetch_video.sh $P <ลิงก์ Google Drive | ไฟล์แนบ>` → `$P/input.*`
+3. **บทพูด → ช่วงเวลา** — เขียนบทลง `$P/transcript.txt` แล้ว `python3 $SK/scripts/make_timeline.py $P/input.* $P/transcript.txt $P` → `$P/chunks.md`
+4. **แยกเฟรม + หาหัว** — `bash $SK/scripts/pipeline.sh $P frames` (แยกเฟรม 30 fps + `track.json` ตำแหน่งหัวทั้งคลิป ~2 นาที/40 วิ)
+   แล้วเปิด `$P/face_sheet.jpg` ดูว่า: คนขยับมากไหม, มือ/แขนอยู่ตรงไหน (ซับช่วงเต็มจออยู่แถวนั้น), มีตัวหนังสือติดมากับคลิปไหม.
+5. **วางแผนแล้วให้ผู้ใช้ดูก่อนเขียนโค้ด** — ตาราง `ช่วงเวลา · คำพูด · แบ่งจอ/เต็มจอ · ภาพที่จะเห็น` (บอกเป็นภาพ ไม่ใช่ชื่อฟังก์ชัน)
+   + คำที่จะแก้จากบทพูด. ช่วงเต็มจอมีน้อย (คำเน้นหนัก ๆ เท่านั้น). **รอผู้ใช้ตอบ "ทำเลย"** แล้วค่อยทำ.
+6. **เขียน `$P/graphics.js` และ `$P/timeline.js`** — ตาม `references/graphics.md`; ดูระดับงานที่ `examples/clip01-customers/`.
+   กราฟิกทุกชิ้น**ออกแบบใหม่ให้คลิปนี้** — ห้ามคัดลอกฉากจากตัวอย่างมาเปลี่ยนคำ.
+7. **Build + preview + ตรวจเอง** — `bash $SK/scripts/pipeline.sh $P build` (JS error / `FACE:` error / สีผิด = หยุดและแก้)
+   แล้ว `PREVIEW="0.5,t1,t2,..." bash $SK/scripts/pipeline.sh $P preview` อย่างน้อย 1 ภาพต่อช่วง → เปิด `$P/prev.jpg`:
+   ไม่มีอะไรเลยเส้นแดง (ขวา x 900 · บน y 240), ไม่มีซับ/กราฟิกใต้ y 1700, หัวทะลุกรอบ, ซับไม่แตะหน้า, กราฟิกไม่หาย/ไม่ทับกัน.
+   **ส่ง prev.jpg ให้ผู้ใช้ดูก่อนเรนเดอร์คลิปเต็ม.**
+8. **เรนเดอร์ + รวมไฟล์** — `bash $SK/scripts/pipeline.sh $P render` แล้ว `... encode` → `$P/edit.mp4` (≤ ~28 MB) + `$P/qc_sheet.jpg`
+   (ประมาณ 3–4 นาทีต่อคลิป 40 วินาที; รันแบบ background ได้)
+9. **QC แล้วส่ง** — ดู `qc_sheet.jpg` แล้วส่ง `edit.mp4` พร้อมสรุปช่วงต่าง ๆ · คำที่แก้จากบทพูด · ขอฟีดแบ็กแบบระบุวินาที.
+   ไฟล์คุณภาพสูง: `pipeline.sh $P hq` → `edit_hq.mp4` แล้ว `bash $SK/scripts/deliver_github.sh $P/edit_hq.mp4 <ชื่อ>.mp4`
+   (รันจากในโฟลเดอร์ repo; ให้ลิงก์ `DOWNLOAD:` กับผู้ใช้). แก้ตามฟีดแบ็ก: แก้เฉพาะจุด → preview จุดนั้น → render ใหม่.
+
+## เปลี่ยนสีธีม
+
+สีทั้งหมดของงานมาจาก `assets/theme.json` (`colors` = ชุดสี, ช่องอื่นบอกว่าสีไหนใช้ทำอะไร และต้องเป็นสีในชุด).
+- ผู้ใช้ส่งรหัสสีมาให้เปลี่ยน **ถาวร** → แก้ `$SK/assets/theme.json` ในทั้ง 2 สกิลของชุดนี้ แล้ว commit + push ให้ (ตั้งเป็นค่าเริ่มต้นของเขา).
+- เปลี่ยน **เฉพาะคลิปนี้** → เขียน `$P/theme.json` (ช่องเดียวกัน) — build จะใช้ไฟล์นี้แทน.
+- `subtitle_shadow` เป็นสีเดียวที่อยู่นอกชุดได้ (เงาซับ ค่าเริ่มต้นเทาเข้ม `#3A3A3A`). build จะหยุดถ้าช่องอื่นใช้สีที่ไม่อยู่ใน `colors`.
+
+## ไฟล์ใน skill
+
+| ไฟล์ | ใช้เมื่อ |
+|---|---|
+| `references/core.md` | กฎทั้งหมดที่ผู้ใช้ยืนยัน — อ่านทุกครั้ง |
+| `references/graphics.md` | วิธีเขียน graphics.js / timeline.js และชุดเครื่องมือ |
+| `examples/clip01-customers/` | ตัวอย่างครบ (graphics.js, timeline.js, transcript.txt) — ดูระดับงาน ห้ามคัดลอก |
+| `assets/theme.json` | ชุดสีของงาน (ค่าเริ่มต้น) |
+| `assets/*.js`, `engine_*.html` | เอนจินและชุดเครื่องมือ (ไม่ต้องแก้) · `assets/MODE` = `split` |
+| `assets/fonts/` · `assets/model/` | IBM Plex Sans Thai (OFL) · โมเดลตัดคน u2netp (Apache-2.0) |
+| `scripts/pipeline.sh` | frames · build · preview · render · encode · hq |
+| `scripts/fetch_video.sh` · `make_timeline.py` · `check_env.sh` · `deliver_github.sh` | รับคลิป · บทพูด → ช่วงเวลา · ตรวจเครื่อง · ส่งไฟล์ใหญ่ |
+| `scripts/cutout.py` · `recolor.py` · `render.js` · `sfx.py` | ตัดคน/หาหัว · ระบายสีธีม · เรนเดอร์ · เสียงประกอบ (pipeline เรียกเอง) |

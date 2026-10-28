@@ -1,0 +1,15 @@
+{
+  "_note": "The colour theme. ONLY these colours appear in the edit (graphics, text, lines, shadows, grain); the footage itself is never recoloured. A project folder may hold its own theme.json with the same keys. Every role below must be one of 'colors'.",
+  "colors": ["#477390", "#97B9CE", "#E5EFF5", "#C4B5E8", "#F3F0FA", "#625080"],
+  "page_deep": "#477390",
+  "page_mid": "#97B9CE",
+  "page_light": "#E5EFF5",
+  "surface_dark": "#625080",
+  "surface_light": "#F3F0FA",
+  "accent": "#C4B5E8",
+  "text_on_video": "#F3F0FA",
+  "text_accent_on_video": "#C4B5E8",
+  "text_on_page": "#625080",
+  "text_accent_on_page": "#477390",
+  "subtitle_shadow": "#3A3A3A"
+}
