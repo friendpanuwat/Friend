@@ -1,6 +1,6 @@
 ---
 name: minimal-talking-shorts
-description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้งสำหรับ personal branding บน TikTok / Reels ของครีเอเตอร์ไทย — เปิดด้วยหน้าคนพูด + hook ตั้งแต่เฟรมแรก, ซับคาราโอเกะเป็นวลีใต้คาง, ซูมแบบ talking-head-motion เฉพาะคำเน้น, และฉาก motion graphics มินิมอลพื้นขาว (คนสีดำทึบ, สิ่งของเส้นบาง, สีแดงจุดเดียว) ที่ออกแบบใหม่ให้ตรงกับคำพูดของคลิปนั้นทุกครั้ง; ไม่บังหน้า ไม่ทับปุ่มไลก์/แชร์ด้านขวา; ส่งออก MP4 1080×1920. Use this skill whenever the user asks to edit / ตัดต่อ a vertical talking-head clip "ตาม skill minimal-talking-shorts", for personal branding, TikTok / Reels / Shorts, คลิปสั้น, หรือส่งลิงก์คลิป + บทพูดพร้อมเวลามาให้ตัดต่อแบบมินิมอล.
+description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้งสำหรับ personal branding บน TikTok / Reels ของครีเอเตอร์ไทย — เปิดด้วยหน้าคนพูด + hook ตั้งแต่เฟรมแรก, ซับคาราโอเกะเป็นวลีใต้คาง, ซูมแบบ talking-head-motion เฉพาะคำเน้น, และฉาก motion graphics มินิมอลพื้นขาว (คนสีดำทึบ, สิ่งของเส้นบาง, สีแดงจุดเดียว) ที่ออกแบบใหม่ให้ตรงกับคำพูดของคลิปนั้นทุกครั้ง; ไม่บังหน้า ไม่ทับปุ่มไลก์/แชร์ด้านขวา; ส่งออก MP4 1080×1920. Use this skill whenever the user asks to edit / ตัดต่อ a vertical talking-head clip "ตาม skill minimal-talking-shorts", for personal branding, TikTok / Reels / Shorts, คลิปสั้น, หรือส่งลิงก์คลิป + บทพูดพร้อมเวลามาให้ตัดต่อแบบมินิมอล. For the overlay version (face on screen the whole clip, small cards above the head, no full-screen scenes) use minimal-talking-shorts-overlay; if the user says only "minimal" without saying which, ask which one.
 ---
 
 # Minimal Talking Shorts
