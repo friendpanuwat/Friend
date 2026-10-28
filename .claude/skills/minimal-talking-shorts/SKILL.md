@@ -1,6 +1,6 @@
 ---
 name: minimal-talking-shorts
-description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้งสำหรับ personal branding บน TikTok / Reels ของครีเอเตอร์ไทย — เปิดด้วยหน้าคนพูด + hook ตั้งแต่เฟรมแรก, ซับคาราโอเกะเป็นวลีใต้คาง, ซูมแบบ talking-head-motion เฉพาะคำเน้น, และฉาก motion graphics มินิมอลพื้นขาว (คนสีดำทึบ, สิ่งของเส้นบาง, สีแดงจุดเดียว) ที่ออกแบบใหม่ให้ตรงกับคำพูดของคลิปนั้นทุกครั้ง; ไม่บังหน้า ไม่ทับปุ่มไลก์/แชร์ด้านขวา; ส่งออก MP4 1080×1920. Use this skill whenever the user asks to edit / ตัดต่อ a vertical talking-head clip "ตาม skill minimal-talking-shorts", for personal branding, TikTok / Reels / Shorts, คลิปสั้น, หรือส่งลิงก์คลิป + บทพูดพร้อมเวลามาให้ตัดต่อแบบมินิมอล.
+description: ตัดต่อคลิปพูดหน้ากล้องแนวตั้งสำหรับ personal branding บน TikTok / Reels ของครีเอเตอร์ไทย — เปิดด้วยหน้าคนพูด + hook ตั้งแต่เฟรมแรก, ซับคาราโอเกะเป็นวลีใต้คาง, ซูมแบบ talking-head-motion เฉพาะคำเน้น, และฉาก motion graphics มินิมอลพื้นขาว (คนสีดำทึบ, สิ่งของเส้นบาง, สีแดงจุดเดียว) ที่ออกแบบใหม่ให้ตรงกับคำพูดของคลิปนั้นทุกครั้ง; ไม่บังหน้า ไม่ทับปุ่มไลก์/แชร์ด้านขวา; ส่งออก MP4 1080×1920. Use this skill whenever the user asks to edit / ตัดต่อ a vertical talking-head clip "ตาม skill minimal-talking-shorts", for personal branding, TikTok / Reels / Shorts, คลิปสั้น, หรือส่งลิงก์คลิป + บทพูดพร้อมเวลามาให้ตัดต่อแบบมินิมอล. For the overlay version (face on screen the whole clip, small cards above the head, no full-screen scenes) use minimal-talking-shorts-overlay; if the user says only "minimal" without saying which, ask which one.
 ---
 
 # Minimal Talking Shorts
@@ -38,10 +38,10 @@ description: ตัดต่อคลิปพูดหน้ากล้อง�
    — ห้ามคัดลอกฉากจากตัวอย่างหรือคลิปก่อนมาเปลี่ยนคำ.
 7. **Build + preview + ตรวจเอง** — `bash $SK/scripts/pipeline.sh $P build` (มี JS error หรือ `FACE:` error = หยุดและแก้)
    แล้ว `PREVIEW="0,t1,t2,..." bash $SK/scripts/pipeline.sh $P preview` อย่างน้อย 1 ภาพต่อฉากและต่อซับที่ยาว → เปิด `$P/prev.jpg`:
-   เฟรม 0 เป็นหน้าคนพูด + hook, ไม่มีอะไรเลยเส้นแดง (x 900), ซับไม่แตะหน้า/คาง, ฉากไม่มีชิ้นไหนหาย ทับกัน หรือเล็กจนอ่านไม่ออก.
+   เฟรม 0 เป็นหน้าคนพูด + hook, ไม่มีอะไรเลยเส้นแดง (ขวา x 900 · บน y 240), ซับไม่แตะหน้า/คาง, ฉากไม่มีชิ้นไหนหาย ทับกัน หรือเล็กจนอ่านไม่ออก.
 8. **เรนเดอร์ + รวมไฟล์** — `bash $SK/scripts/pipeline.sh $P render` แล้ว `... encode` → `$P/edit.mp4` (≤ ~28 MB) + `$P/qc_sheet.jpg`
    (ใช้เวลาประมาณ 1 นาทีต่อวิดีโอ 7 วินาที — คลิป 1:40 ราว 15 นาที; รันแบบ background ได้)
-9. **QC แล้วส่ง** — ดู `qc_sheet.jpg` (2 ภาพ/วินาที มีเส้นแดงที่ x 900) แล้วส่ง `edit.mp4` พร้อม:
+9. **QC แล้วส่ง** — ดู `qc_sheet.jpg` (2 ภาพ/วินาที มีเส้นแดงที่ x 900 และ y 240) แล้วส่ง `edit.mp4` พร้อม:
    ตารางสรุปฉากแต่ละช่วง · คำที่แก้/เติม/ตัดจากบทพูด · ข้อจำกัด (เช่นเวลาในบทหยาบ) · ขอฟีดแบ็กแบบระบุวินาที.
    ไฟล์คุณภาพสูงสำหรับโพสต์จริง: `pipeline.sh $P hq` → `edit_hq.mp4` แล้ว `bash $SK/scripts/deliver_github.sh $P/edit_hq.mp4 <ชื่อ>.mp4`
    (ต้องรันจากในโฟลเดอร์ repo ของ session; ให้ลิงก์ `DOWNLOAD:` กับผู้ใช้). แก้ตามฟีดแบ็ก: แก้เฉพาะจุด → preview จุดนั้น → render ใหม่.
