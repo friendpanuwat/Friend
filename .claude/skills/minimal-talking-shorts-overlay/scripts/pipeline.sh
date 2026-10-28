@@ -2,7 +2,7 @@
 # minimal-talking-shorts-overlay pipeline.   usage: pipeline.sh <project_dir> <step>
 #   frames   – the clip (project/input.*) → 1080×1920 frames at 30 fps (no colour change) + face contact sheet face_sheet.jpg
 #   build    – assets + project/graphics.js + project/timeline.js → project/scene.html, then check it (JS / FACE errors stop here)
-#   preview  – stills at PREVIEW="t1,t2,..." → project/prev/ + prev.jpg (red guide line at x 900 = edge of the safe area)
+#   preview  – stills at PREVIEW="t1,t2,..." → project/prev/ + prev.jpg (red guide lines at x 900 and y 280 = edges of the safe area)
 #   render   – every frame with 4 parallel workers → project/out_frames/
 #   encode   – out_frames + the clip's own audio → edit.mp4 (≤ ~28 MB so it opens in chat on a phone) + qc_sheet.jpg
 #   hq       – high-quality edit_hq.mp4 (≈8–12 Mbps, ≤ 95 MB) for posting — deliver with deliver_github.sh
@@ -14,7 +14,7 @@ export NODE_PATH="${NODE_PATH:-$(npm root -g)}"
 IN="$(ls "$PROJ"/input.* 2>/dev/null | head -1)"; [ -n "$IN" ] || { echo "no $PROJ/input.* — run fetch_video.sh first"; exit 1; }
 DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$IN")
 N=$(python3 -c "import math;print(math.floor($DUR*30))")
-GUIDE="drawbox=x=900:y=0:w=5:h=1920:color=red:t=fill"
+GUIDE="drawbox=x=900:y=0:w=5:h=1920:color=red:t=fill,drawbox=x=0:y=280:w=1080:h=5:color=red:t=fill"   # safe-area edges: right x 900 · top y 280
 
 frames() {
   rm -rf "$PROJ/src_frames" && mkdir -p "$PROJ/src_frames"
@@ -49,7 +49,7 @@ encode() {
   local vb; vb=$(python3 -c "print(int(max(1200, min(4000, 28*8000/float('$DUR') - 160))))")
   ffmpeg -y -loglevel error -framerate 30 -i out_frames/o%05d.jpg -i "$IN" -map 0:v -map 1:a? -c:v libx264 -preset slow -b:v ${vb}k -maxrate $((vb * 3 / 2))k -bufsize $((vb * 3))k -pix_fmt yuv420p -c:a aac -b:a 128k -shortest -movflags +faststart edit.mp4
   ffmpeg -y -loglevel error -i edit.mp4 -vf "fps=2,$GUIDE,scale=150:-1,tile=14x$(python3 -c "import math;print(math.ceil(float('$DUR')*2/14))")" -frames:v 1 qc_sheet.jpg
-  ls -la edit.mp4; echo "QC sheet (2 frames/s, red line = x 900): $PROJ/qc_sheet.jpg"
+  ls -la edit.mp4; echo "QC sheet (2 frames/s, red lines = x 900 · y 280): $PROJ/qc_sheet.jpg"
 }
 hq() {
   cd "$PROJ"

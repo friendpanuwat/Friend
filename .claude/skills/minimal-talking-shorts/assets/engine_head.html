@@ -281,8 +281,9 @@ const sfx = (s, t, db = -16, pitch) => SFX.push(pitch ? {s, t, db, pitch} : {s, 
 window.SFX = SFX;
 /* short caption chunk (1–3 words, one chunk of chunks.json): pops in big, a highlight sweeps across it while it is spoken.
    color → the whole chunk is a key word in that colour (no sweep) */
-/* SAFE AREA — the right 180 px belong to the TikTok / IG like · follow · share buttons: text and graphics stay in x 60–900 */
-const SAFE = {l: 60, r: 900, w: 840, cx: 480};
+/* SAFE AREA — the right 180 px belong to the TikTok / IG like · follow · share buttons, the top 280 px to the TikTok tabs /
+   IG Reels header: text and graphics stay in x 60–900 and below y 280 */
+const SAFE = {l: 60, r: 900, w: 840, cx: 480, t: 280};
 /* a full-frame stage for scene content, squeezed into the safe area (content drawn for x 60–1020 lands in x 60–900) */
 const safeStage = root => div('left:0;top:0;width:1080px;height:1920px;transform-origin:540px 960px;transform:translateX(-60px) scale(.875)', root);
 const HILITE = '#FFD60A';
