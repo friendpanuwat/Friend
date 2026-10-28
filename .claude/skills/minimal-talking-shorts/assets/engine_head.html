@@ -285,8 +285,10 @@ window.SFX = SFX;
 const SAFE = {l: 60, r: 900, w: 840, cx: 480};
 /* a full-frame stage for scene content, squeezed into the safe area (content drawn for x 60–1020 lands in x 60–900) */
 const safeStage = root => div('left:0;top:0;width:1080px;height:1920px;transform-origin:540px 960px;transform:translateX(-60px) scale(.875)', root);
-const HILITE = '#FFD60A';
+const HILITE = '#FFD60A';   // the karaoke sweep colour
+const GOOD = '#34C759';      // key word colour for emphasis / good words — never HILITE inside a sweeping caption
 function kcap(t0, t1, txt, {color, key, keyColor = '#FF3B30', size = 100} = {}) {   // key: a word inside the phrase shown in keyColor
+  if (!color && keyColor === HILITE) keyColor = GOOD;   // a yellow key would vanish into the yellow sweep
   const el = div(`left:${SAFE.l}px;width:${SAFE.w}px;text-align:center;white-space:nowrap;transform-origin:50% 0`, G);   // centred at x 480, clear of the right-side buttons
   const w = document.createElement('span');
   w.style.cssText = `position:relative;display:inline-block;font-family:RefSans;font-weight:700;font-size:${color ? size * 1.15 : size}px;line-height:1.25;color:${color ?? '#fff'};text-shadow:${color ? `0 0 26px ${color}88,` : ''}0 4px 18px rgba(0,0,0,.65)`;
