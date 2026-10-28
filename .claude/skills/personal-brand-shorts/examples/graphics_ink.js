@@ -1,191 +1,182 @@
-/* ===================== MINIMAL NIB — the scene look (user's pick: the "steps" scene) =====================
-   White paper · black ink line drawings (people, objects, paths — anything) · small grey numbers / labels · bold black Thai ·
-   ONE red accent with a soft glow. Every scene is drawn for its own sentence (designed per clip). */
-const NIB = '#111111', GREY = '#8E8E93', RED = '#FF3B30', PAPER = '#FFFFFF';
-const SW_ = 6;   // ink stroke width
+/* ===================== MINIMAL SCENES — the look for every non-face scene (user's pick) =====================
+   White paper · people and hands as SOLID BLACK PICTOGRAMS · objects, cards and screens as THIN DARK OUTLINES with light-grey
+   fills and soft shadows · grey numbers, bold black Thai · ONE red accent. Fewer, longer scenes: one scene can hold several
+   beats ("phases") that slide in place instead of cutting back and forth. Every drawing is made for its sentence. */
+const NIB = '#111111', G1 = '#8E8E93', G2 = '#D1D1D6', G3 = '#F2F2F7', RED = '#FF3B30', PAPER = '#FFFFFF';
+const OUT = `stroke="${NIB}" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"`;
+const SHDEF = `<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="170%"><feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity=".10"/></filter></defs>`;
+const EASE = 'cubic-bezier(.2,.8,.2,1)';
 const paper = (t0, t1) => solid(t0, t1, PAPER);
-/* draw every path/line/circle with class "d" on, one after another from t over d seconds */
-function inkDraw(svgEl, t, d = .5, stagger = .08) {
-  [...svgEl.querySelectorAll('.d')].forEach((p, i) => { p.setAttribute('pathLength', 1); p.style.strokeDasharray = 1;
-    A(p, [{strokeDashoffset: 1}, {strokeDashoffset: 0}], t + i * stagger, d, {e: 'cubic-bezier(.45,0,.2,1)'}); });
+const svgLayer = (root, inner) => div('left:0;top:0;width:1080px;height:1920px', root, `<svg width="1080" height="1920" style="overflow:visible;display:block">${SHDEF}${inner}</svg>`);
+const rise = (el, t, d = .4, y = 26) => A(el, [{opacity: 0, transform: `translateY(${y}px)`}, {opacity: 1, transform: 'none'}], t, d, {e: EASE});
+const popIn = (el, t, d = .4) => A(el, [{opacity: 0, transform: 'scale(.6)'}, {opacity: 1, transform: 'none'}], t, d, {e: bounce});
+/* one beat inside a scene: slides in from the right, out to the left (first / last skip the slide) */
+function phase(root, t0, t1, {first = false, last = false} = {}) {
+  const el = div('left:0;top:0;width:1080px;height:1920px', root);
+  if (!first) A(el, [{opacity: 0, transform: 'translateX(160px)'}, {opacity: 1, transform: 'none'}], t0, .45, {e: EASE});
+  if (!last) A(el, [{opacity: 1, transform: 'none'}, {opacity: 0, transform: 'translateX(-160px)'}], t1 - .3, .3, {e: 'cubic-bezier(.6,0,.9,.4)', f: 'forwards'});
+  return el;
 }
-const inkSvg = (root, inner, css = 'left:0;top:0', w = 1080, h = 1920) => div(css, root, `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="overflow:visible;display:block" fill="none" stroke="${NIB}" stroke-width="${SW_}" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`).firstChild;
-const fadeUp = (el, t, d = .35) => A(el, [{opacity: 0, transform: 'translateY(18px)'}, {opacity: 1, transform: 'none'}], t, d, {e: 'cubic-bezier(.2,.8,.2,1)'});
-/* small grey number over a bold label (red when it is the point) */
-function inkLabel(root, x, y, {num = '', text = '', red = false, t, size = 76, align = 'center', w = 960} = {}) {
-  const left = align === 'center' ? x - w / 2 : align === 'right' ? x - w : x;
-  const el = div(`left:${left}px;top:${y}px;width:${w}px;text-align:${align};white-space:nowrap`, root,
-    `${num ? `<div style="${BOLD};font-size:${Math.max(34, size * .5)}px;color:${GREY};margin-bottom:6px">${num}</div>` : ''}<div style="${BOLD};font-size:${size}px;line-height:1.2;color:${red ? RED : NIB}">${text}</div>`);
-  fadeUp(el, t); return el;
+const label = (root, x, y, {num = '', text = '', red = false, grey = false, size = 80, w = 980} = {}) => div(`left:${x - w / 2}px;top:${y}px;width:${w}px;text-align:center;white-space:nowrap`, root,
+  `${num ? `<div style="${BOLD};font-size:42px;color:${G1};letter-spacing:1px;margin-bottom:6px">${num}</div>` : ''}<div style="${BOLD};font-size:${size}px;line-height:1.2;color:${red ? RED : grey ? G1 : NIB}">${text}</div>`);
+/* A — solid pictogram person, feet at (x, y) */
+const pic = (x, y, s = 1, c = NIB) => `<g transform="translate(${x} ${y}) scale(${s})" fill="${c}">
+  <circle cx="0" cy="-392" r="44"/><rect x="-44" y="-334" width="88" height="152" rx="34"/>
+  <rect x="-80" y="-326" width="30" height="138" rx="15"/><rect x="50" y="-326" width="30" height="138" rx="15"/>
+  <rect x="-40" y="-200" width="36" height="200" rx="18"/><rect x="4" y="-200" width="36" height="200" rx="18"/></g>`;
+/* A — solid pointing hand (fingertip at 0,0) */
+const HAND = `<path d="M0 0 Q-18 0 -18 22 V150 Q-30 132 -52 136 Q-76 142 -66 170 L-8 286 Q8 316 44 316 H120 Q170 316 176 262 V172 Q176 148 152 146 Q140 146 132 154 Q132 128 108 126 Q94 126 86 136 Q84 112 62 110 Q46 110 40 122 V22 Q40 0 18 0 Z" fill="${NIB}"/>`;
+/* B — outline bits */
+const card = (x, y, w, h, r = 48) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="#fff" ${OUT} filter="url(#sh)"/>`;
+const redQ = (root, x, y, t, r = 50) => { const q = div(`left:${x - r}px;top:${y - r}px;width:${2 * r}px;height:${2 * r}px;border-radius:50%;background:${RED};box-shadow:0 0 ${r * .8}px ${RED}66;${BOLD};font-size:${r * 1.3}px;line-height:${r * 1.86}px;text-align:center;color:#fff`, root, '?'); popIn(q, t); return q; };
+const seededDots = (cx, cy, n, seed, red = true) => { let s = seed; const r = () => ((s = s * 16807 % 2147483647) / 2147483647); let o = '';
+  for (let i = 0; i < n; i++) { const a = r() * Math.PI * 2, d = 30 + r() * 170; o += `<circle cx="${cx + Math.cos(a) * d * 1.2}" cy="${cy + Math.sin(a) * d * 1.6}" r="${4 + r() * 10}" fill="${red && r() < .3 ? RED : NIB}" opacity="${.25 + r() * .6}"/>`; } return o; };
+/* a person that dissolves into dots at tGone (A figure → particles) */
+function vanishingPerson(root, x, y, s, t, tGone) {
+  const p = svgLayer(root, pic(x, y, s)); rise(p, t, .4, 40);
+  A(p, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], tGone, .35, {f: 'forwards'});
+  const d = svgLayer(root, seededDots(x, y - 220 * s, 46, 7));
+  d.style.transformOrigin = `${x}px ${y - 220 * s}px`;
+  A(d, [{opacity: 0, transform: 'scale(.6)'}, {opacity: 1, transform: 'scale(1)', offset: .3}, {opacity: 0, transform: 'scale(1.35)'}], tGone, .9, {e: 'ease-out'});
 }
-function redDot(root, x, y, t, r = 22) {
-  const d = div(`left:${x - r}px;top:${y - r}px;width:${2 * r}px;height:${2 * r}px;border-radius:50%;background:${RED};box-shadow:0 0 ${r * 1.4}px ${RED}88`, root);
-  A(d, [{opacity: 0, transform: 'scale(0)'}, {opacity: 1, transform: 'scale(1.25)', offset: .6}, {opacity: 1, transform: 'none'}], t, .35); return d;
-}
-/* a line-drawn person standing at (x, y = feet); parts get classes so scenes can move them */
-const person = (x, y, s = 1, col = NIB) => `<g transform="translate(${x} ${y}) scale(${s})" stroke="${col}">
-  <circle class="d hd" cx="0" cy="-200" r="32"/><path class="d" d="M-36 -86 V-136 Q-36 -158 -14 -158 H14 Q36 -158 36 -136 V-86 Z"/>
-  <path class="d a1" d="M-36 -146 L-58 -96" style="transform-origin:-36px -146px"/><path class="d a2" d="M36 -146 L58 -96" style="transform-origin:36px -146px"/>
-  <path class="d l1" d="M-16 -86 L-22 0" style="transform-origin:-16px -86px"/><path class="d l2" d="M16 -86 L22 0" style="transform-origin:16px -86px"/></g>`;
-const walk = (svgEl, t0, t1, per = .5) => {   // swing legs and arms while walking
-  [['.l1', 18], ['.l2', -18], ['.a1', -14], ['.a2', 14]].forEach(([c, deg]) => svgEl.querySelectorAll(c).forEach(p =>
-    A(p, [{transform: `rotate(${deg}deg)`}, {transform: `rotate(${-deg}deg)`}], t0, per / 2, {it: Math.max(1, Math.round((t1 - t0) / (per / 2))), dir: 'alternate', e: 'ease-in-out', f: 'none'})));
-};
 
-/* HOOK 0–2: "ลูกค้าทักมา" is there at frame 0; a person walks in, a message bubble pops above them… then they vanish */
-function inkHook(t0, t1, {title = '', msg = '', tMsg, gone = '', tGone} = {}) {
+/* ---------- 0–2 HOOK: "ลูกค้าทักมา" at frame 0 · the customer asks · then dissolves: "แล้วก็หายไป" ---------- */
+function sceneHook(t0, t1, {title, msg, tMsg, gone, tGone}) {
   const root = solid(t0 - .05, t1, PAPER);
-  const ti = div(`left:0;width:1080px;top:330px;text-align:center;${BOLD};font-size:130px;color:${NIB}`, root, title);
-  A(ti, [{transform: 'scale(1.05)'}, {transform: 'none'}], t0, .5, {e: 'ease-out'});
-  const g = div('left:0;top:0;width:1080px;height:1920px', root, `<svg width="1080" height="1920" fill="none" stroke="${NIB}" stroke-width="${SW_}" stroke-linecap="round" stroke-linejoin="round" style="overflow:visible">
-    <path d="M120 1380 H960" stroke="${GREY}" stroke-width="3"/>${person(0, 1380, 1.25)}</svg>`);
-  const fig = g.querySelector('g');
-  A(fig, [{transform: 'translate(180px,1380px) scale(1.25)'}, {transform: 'translate(540px,1380px) scale(1.25)'}], t0, tMsg - t0 + .1, {e: 'ease-out'});
-  walk(g.firstChild, t0, tMsg + .1, .4);
-  const b = div(`left:0;width:1080px;top:780px;text-align:center`, root, `<span style="position:relative;display:inline-block;padding:30px 50px 40px;border:${SW_}px solid ${NIB};border-radius:60px;border-bottom-left-radius:14px;${BOLD};font-size:56px;color:${NIB};background:${PAPER}">${msg}</span>`);
-  A(b, [{opacity: 0, transform: 'scale(.5) translateY(60px)'}, {opacity: 1, transform: 'none'}], tMsg, .35, {e: bounce});
-  [b, g].forEach(e => A(e, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], tGone, .25, {f: 'forwards'}));
-  redDot(root, 540, 1300, tGone + .05, 26);
-  const l = div(`left:0;width:1080px;top:1400px;text-align:center;${BOLD};font-size:120px;color:${RED}`, root, gone);
-  A(l, [{opacity: 0, transform: 'translateY(30px)'}, {opacity: 1, transform: 'none'}], tGone + .05, .3, {e: bounce});
+  const ti = label(root, 540, 280, {text: title, size: 130}); A(ti, [{transform: 'scale(1.05)'}, {transform: 'none'}], t0, .5, {e: 'ease-out'});
+  svgLayer(root, `<rect x="140" y="1330" width="800" height="6" rx="3" fill="${G2}"/>`);
+  vanishingPerson(root, 400, 1330, 1, t0 - .05, tGone);
+  const b = div('left:0;top:0;width:1080px;height:1920px', root, `<svg width="1080" height="1920"><path d="M450 770 H910 Q950 770 950 810 V880 Q950 920 910 920 H500 L450 960 V810 Q450 770 490 770 Z" fill="${NIB}"/></svg>
+    <div style="position:absolute;left:450px;top:812px;width:500px;text-align:center;${BOLD};font-size:40px;color:#fff;white-space:nowrap">${msg}</div>`);
+  b.style.transformOrigin = '470px 950px';
+  A(b, [{opacity: 0, transform: 'scale(.4)'}, {opacity: 1, transform: 'none'}], tMsg, .4, {e: bounce});
+  A(b, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(8px)'}], tGone, .3, {f: 'forwards'});
+  const g = label(root, 540, 1440, {text: gone, size: 120, red: true}); A(g, [{opacity: 0, transform: 'translateY(30px) scale(.9)'}, {opacity: 1, transform: 'none'}], tGone + .1, .4, {e: bounce});
 }
 
-/* turn word: big black word, an ink underline sweeps under it and ends in the red dot */
-function inkTurn(t0, t1, word, {arrow = false} = {}) {
+/* ---------- 5–9.5: "แต่จริง ๆ แล้ว" → the customer may be… three reasons build up in one card ---------- */
+function sceneReasons(t0, t1, {turn, head, rows}) {   // rows: [[text, t, icon]]
   const root = paper(t0, t1);
-  const w = div(`left:0;width:1080px;top:${arrow ? 700 : 760}px;text-align:center;white-space:nowrap;${BOLD};font-size:170px;color:${NIB}`, root, word);
-  A(w, [{opacity: 0, transform: 'translateY(40px)'}, {opacity: 1, transform: 'none'}], t0, .3, {e: 'cubic-bezier(.2,.8,.2,1)'});
-  const s = inkSvg(root, arrow ? `<path class="d" d="M180 1090 H800 Q910 1090 910 990"/><path class="d" d="M870 1030 L910 985 L950 1030"/>` : `<path class="d" d="M140 1030 Q540 1080 900 1010"/>`);
-  inkDraw(s, t0 + .15, .4);
-  if (!arrow) redDot(root, 900, 1010, t0 + .55);
+  const big = label(root, 540, 820, {text: turn, size: 150}); rise(big, t0, .35);
+  A(big, [{transform: 'none', opacity: 1}, {transform: 'translateY(-480px) scale(.55)', opacity: 0}], rows[0][1] - .3, .4, {e: EASE, f: 'forwards'});
+  const h = label(root, 540, 470, {text: head, size: 64, grey: true}); rise(h, rows[0][1] - .1);
+  const c = svgLayer(root, card(110, 620, 860, 760)); rise(c, rows[0][1] - .1, .45, 60);
+  const icons = {
+    hesitate: x => `${pic(x, 92, .2)}<path d="M${x - 46} 30 Q${x - 60} 10 ${x - 40} -4 M${x + 46} 30 Q${x + 60} 10 ${x + 40} -4" stroke="${NIB}" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+    box: x => `<path d="M${x - 50} 0 L${x} -25 L${x + 50} 0 L${x} 25 Z M${x - 50} 0 V60 L${x} 85 L${x + 50} 60 V0 M${x} 25 V85" fill="${G3}" ${OUT}/>`,
+    cart: x => `<path d="M${x - 64} -10 H${x - 44} L${x - 26} 56 H${x + 46} L${x + 62} 6 H${x - 38}" fill="none" ${OUT} stroke-width="6"/><circle cx="${x - 16}" cy="78" r="10" fill="${NIB}"/><circle cx="${x + 36}" cy="78" r="10" fill="${NIB}"/>`,
+  };
+  rows.forEach(([text, t, icon], i) => {
+    const y = 700 + i * 230;
+    const row = div(`left:150px;top:${y}px;width:780px;height:190px`, root, `<svg width="190" height="190" style="position:absolute;left:0;top:0;overflow:visible"><rect x="10" y="10" width="170" height="170" rx="40" fill="${G3}" ${OUT}/><g transform="translate(0 80)">${icons[icon](95)}</g></svg>
+      <div class="tx" style="position:absolute;left:230px;top:44px;width:560px;${BOLD};font-size:${text.length > 12 ? 56 : 72}px;line-height:1.2;color:${NIB};white-space:nowrap">${text}</div>`);
+    rise(row, t, .4, 30);
+    const q = redQ(row, 170, 20, t + .15, 30);
+    if (i < rows.length - 1) { A(row.querySelector('.tx'), [{color: NIB}, {color: G1}], rows[i + 1][1], .3); A(q, [{opacity: 1, transform: 'none'}, {opacity: 0, transform: 'scale(.4)'}], rows[i + 1][1], .25, {f: 'forwards'}); }
+  });
 }
 
-/* ลังเล: a person steps forward… back… forward, head turning — undecided */
-function inkHesitate(t0, t1, {head = '', word = ''} = {}) {
+/* ---------- 11–15: fewer customers → the phone goes quiet → rush: promotion, discount ---------- */
+function sceneRush(t0, t1, {tQuiet, tRush, tags}) {
   const root = paper(t0, t1);
-  inkLabel(root, 540, 420, {text: head, size: 60, t: t0 + .05}).querySelector('div:last-child').style.color = GREY;
-  const s = inkSvg(root, `<path d="M200 1240 H880" stroke="${GREY}" stroke-width="3"/>${person(540, 1240, 1.4)}
-    <path class="d" d="M380 1290 Q460 1330 540 1290 Q620 1250 700 1290" stroke="${GREY}" stroke-width="3" stroke-dasharray="2 14"/>`);
-  inkDraw(s, t0, .35, .04);
-  const fig = s.querySelector('g');
-  A(fig, [0, -50, 40, -30, 20].map((dx, i, a) => ({transform: `translate(${540 + dx}px,1240px) scale(1.4)`, offset: i / (a.length - 1)})), t0 + .25, t1 - t0 - .35, {e: 'ease-in-out'});
-  const hd = s.querySelector('.hd'); hd.style.transformOrigin = '0px -196px';
-  A(hd, [{transform: 'translateX(0)'}, {transform: 'translateX(-8px)'}, {transform: 'translateX(8px)'}, {transform: 'translateX(0)'}], t0 + .25, .6, {it: 2, f: 'none'});
-  redDot(root, 540, 1360, t0 + .3);
-  inkLabel(root, 540, 1410, {text: word, red: true, size: 90, t: t0 + .35});
+  const a = phase(root, t0, tQuiet, {first: true});
+  rise(label(a, 540, 480, {text: 'ลูกค้า', size: 120}), t0);
+  const people = [190, 365, 540, 715, 890].map((x, i) => { const p = svgLayer(a, pic(x, 1330, .78)); rise(p, t0 + i * .04, .35, 40); return p; });
+  people.slice(2).forEach((p, i) => A(p, [{opacity: 1}, {opacity: .12}], t0 + .35 + i * .14, .3));
+  svgLayer(a, `<rect x="100" y="1330" width="880" height="6" rx="3" fill="${G2}"/>`);
+  const pill = div(`left:370px;top:1420px;width:340px;height:84px;border-radius:42px;background:${RED};display:flex;align-items:center;justify-content:center;gap:12px;${BOLD};font-size:46px;color:#fff;white-space:nowrap`, a,
+    `<svg width="40" height="40" viewBox="0 0 24 24"><path d="M12 4v15M5 12l7 7 7-7" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>น้อยลง`);
+  popIn(pill, t0 + .5);
+
+  const b = phase(root, tQuiet, tRush);
+  const ph = svgLayer(b, `<rect x="320" y="380" width="440" height="880" rx="76" fill="#fff" ${OUT} filter="url(#sh)"/><rect x="490" y="410" width="100" height="26" rx="13" fill="${NIB}"/>
+    ${[0, 1, 2].map(i => `<rect class="ph" x="360" y="${500 + i * 120}" width="360" height="96" rx="28" fill="${G3}" ${OUT} stroke-dasharray="8 10"/>`).join('')}
+    <g transform="translate(540 1020)"><path d="M-62 34 Q-62 -54 0 -62 Q62 -54 62 34 L80 62 H-80 Z" fill="${G3}" ${OUT}/><path d="M-18 80 Q0 100 18 80" ${OUT} fill="none"/></g>`);
+  ph.querySelectorAll('.ph').forEach((r, i) => A(r, [{opacity: .9}, {opacity: .15}], tQuiet + .2 + i * .12, .4));
+  const badge = div(`left:584px;top:932px;width:52px;height:52px;border-radius:50%;background:${RED};box-shadow:0 0 24px ${RED}88`, b, `<div style="position:absolute;left:14px;top:23px;width:24px;height:6px;border-radius:3px;background:#fff"></div>`);
+  popIn(badge, tQuiet + .3);
+  rise(label(b, 540, 1340, {text: 'เงียบ', size: 120, red: true}), tQuiet + .25);
+
+  const c = phase(root, tRush, t1, {last: true});
+  tags.forEach(([text, t], i) => { const x = i ? 730 : 350, red = i === tags.length - 1, col = red ? RED : NIB;
+    const g = svgLayer(c, `<path d="M${x} 330 V560" stroke="${G1}" stroke-width="3"/>
+      <path d="M${x - 130} 640 L${x - 66} 570 H${x + 66} L${x + 130} 640 V930 Q${x + 130} 960 ${x + 100} 960 H${x - 100} Q${x - 130} 960 ${x - 130} 930 Z" fill="${red ? '#FFF1F0' : G3}" stroke="${col}" stroke-width="3.5" stroke-linejoin="round" filter="url(#sh)"/>
+      <circle cx="${x}" cy="625" r="15" fill="#fff" stroke="${col}" stroke-width="3.5"/>`);
+    g.style.transformOrigin = `${x}px 330px`;
+    A(g, [{opacity: 0, transform: 'translateY(-200px) rotate(10deg)'}, {opacity: 1, transform: 'rotate(-6deg)', offset: .6}, {opacity: 1, transform: 'rotate(3deg)', offset: .8}, {opacity: 1, transform: 'none'}], tRush + i * .12, .7, {e: 'ease-out'});
+    const sym = div(`left:${x - 100}px;top:700px;width:200px;text-align:center;${BOLD};font-size:120px;color:${col}`, c, red ? '%' : '★'); rise(sym, tRush + .2 + i * .12);
+    rise(label(c, x, 1010, {num: `0${i + 1}`, text, red, size: 60, w: 420}), t);
+    const ck = div(`left:${x - 40}px;top:1170px;width:80px;height:80px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center`, c,
+      `<svg width="44" height="44" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
+    popIn(ck, t + .1); });
 }
 
-/* ไม่รู้ว่าจะซื้อดีไหม: a person at a fork in the road, a red "?" over the head */
-function inkFork(t0, t1, {text = ''} = {}) {
+/* ---------- 21–23: checkout card; the black hand comes close… and pulls back; red ? ---------- */
+function scenePay(t0, t1, {button, tq}) {
   const root = paper(t0, t1);
-  const s = inkSvg(root, `<path class="d" d="M540 1500 V1150"/><path class="d" d="M540 1150 Q540 1000 300 880"/><path class="d" d="M540 1150 Q540 1000 780 880"/>
-    ${person(540, 1300, 1.1)}`);
-  inkDraw(s, t0, .4, .06);
-  [[290, 800], [790, 800]].forEach(([x, y], i) => { const q = div(`left:${x - 30}px;top:${y - 50}px;width:60px;text-align:center;${BOLD};font-size:80px;color:${GREY}`, root, '?'); fadeUp(q, t0 + .35 + i * .1); });
-  const q = div(`left:500px;top:930px;width:80px;height:80px;border-radius:50%;background:${RED};box-shadow:0 0 30px ${RED}88;${BOLD};font-size:58px;line-height:74px;text-align:center;color:#fff`, root, '?');
-  A(q, [{opacity: 0, transform: 'scale(0)'}, {opacity: 1, transform: 'none'}], t0 + .45, .35, {e: bounce});
-  inkLabel(root, 540, 1560, {text, size: 76, t: t0 + .3});
+  const c = svgLayer(root, `${card(140, 520, 800, 700)}<rect x="200" y="590" width="200" height="200" rx="30" fill="${G3}" ${OUT}/>
+    <path d="M250 650 L300 625 L350 650 L300 675 Z M250 650 V720 L300 745 L350 720 V650 M300 675 V745" fill="#fff" ${OUT}/>
+    <rect x="440" y="620" width="320" height="26" rx="13" fill="${G2}"/><rect x="440" y="672" width="220" height="26" rx="13" fill="${G3}"/>
+    <path d="M200 860 H880" stroke="${G2}" stroke-width="3"/><rect x="200" y="900" width="260" height="26" rx="13" fill="${G3}"/><rect x="700" y="900" width="180" height="26" rx="13" fill="${G2}"/>`);
+  rise(c, t0, .45, 50);
+  const btn = div(`left:200px;top:1020px;width:680px;height:140px;border-radius:70px;background:${NIB};display:flex;align-items:center;justify-content:center;${BOLD};font-size:62px;color:#fff`, root, button);
+  rise(btn, t0 + .1, .45, 40);
+  const h = div('left:0;top:0;width:200px;height:330px', root, `<svg width="200" height="330" viewBox="-70 0 250 330" style="overflow:visible">${HAND}</svg>`);
+  A(h, [{transform: 'translate(640px,1560px)', offset: 0}, {transform: 'translate(560px,1130px)', offset: .42}, {transform: 'translate(575px,1150px)', offset: .55}, {transform: 'translate(560px,1135px)', offset: .64}, {transform: 'translate(700px,1600px)', offset: 1}], t0 + .15, t1 - t0 - .25, {e: 'ease-in-out'});
+  redQ(root, 890, 1020, tq, 54);
 }
 
-/* ลูกค้าน้อยลง: five people in a row, three fade to faint outlines one by one, a red arrow points down */
-function inkFewer(t0, t1, {label = ''} = {}) {
+/* ---------- 23–30: "บางคน…" — three doubts, 01 → 02 → 03, in one scene; a 3-dot indicator shows where we are ---------- */
+function sceneDoubts(t0, t1, {head, items}) {   // items: [[num, text, t, kind]]
   const root = paper(t0, t1);
-  const xs = [190, 365, 540, 715, 890];
-  const s = inkSvg(root, xs.map(x => person(x, 1180, 1.05)).join(''));
-  inkDraw(s, t0, .3, .015);
-  [...s.querySelectorAll(':scope > g')].slice(2).reverse().forEach((g, i) => A(g, [{opacity: 1}, {opacity: .12}], t0 + .3 + i * .15, .25));
-  const a = inkSvg(root, `<path class="d" d="M540 1260 V1420" stroke="${RED}"/><path class="d" d="M490 1370 L540 1425 L590 1370" stroke="${RED}"/>`);
-  inkDraw(a, t0 + .45, .25, .05);
-  inkLabel(root, 540, 560, {text: label, size: 90, t: t0 + .1});
+  rise(label(root, 540, 330, {text: head, size: 72, grey: true}), t0);
+  const ind = div(`left:450px;top:1620px;width:180px;display:flex;justify-content:space-between`, root, items.map(() => `<i style="display:block;width:36px;height:12px;border-radius:6px;background:${G2}"></i>`).join(''));
+  rise(ind, t0 + .1);
+  const draw = {
+    quality: (el, t) => { const g = svgLayer(el, `${card(240, 560, 600, 600)}<path d="M400 780 L540 710 L680 780 L540 850 Z" fill="#fff" ${OUT}/><path d="M400 780 V950 L540 1020 L680 950 V780 M540 850 V1020" fill="${G3}" ${OUT}/>`); rise(g, t, .45, 50);
+      const m = div('left:0;top:0;width:300px;height:300px', el, `<svg width="300" height="300" style="overflow:visible"><circle cx="110" cy="110" r="96" fill="rgba(255,255,255,.55)" ${OUT} stroke-width="8"/><path d="M180 180 L262 262" stroke="${NIB}" stroke-width="26" stroke-linecap="round"/></svg>`);
+      A(m, [{transform: 'translate(560px,620px)'}, {transform: 'translate(420px,760px)'}, {transform: 'translate(470px,700px)'}], t + .1, 1.4, {e: 'ease-in-out'});
+      redQ(m, 110, 110, t + .5, 44); },
+    scale: (el, t) => { const g = svgLayer(el, `<ellipse cx="540" cy="1170" rx="200" ry="22" fill="#000" opacity=".06"/>
+        <path d="M440 1160 Q540 1080 640 1160 Z" fill="${G3}" ${OUT}/><rect x="528" y="640" width="24" height="500" rx="12" fill="${G3}" ${OUT}/><circle cx="540" cy="632" r="26" fill="#fff" ${OUT}/>
+        <g class="bm" style="transform-origin:540px 640px"><rect x="230" y="628" width="620" height="24" rx="12" fill="${G3}" ${OUT}/>
+          <path d="M250 652 L200 840 M250 652 L300 840 M830 652 L780 840 M830 652 L880 840" ${OUT} fill="none"/>
+          <path d="M165 840 H335 Q335 895 250 895 Q165 895 165 840 Z" fill="${G3}" ${OUT}/><path d="M745 840 H915 Q915 895 830 895 Q745 895 745 840 Z" fill="${G3}" ${OUT}/>
+          ${[0, 1, 2, 3].map(i => `<ellipse cx="${250 + (i % 2 ? 6 : -4)}" cy="${818 - i * 26}" rx="52" ry="16" fill="${RED}" stroke="#B3201A" stroke-width="3"/>`).join('')}
+          <rect x="795" y="780" width="70" height="60" rx="8" fill="#fff" ${OUT}/><path d="M830 780 V840 M795 802 H865" ${OUT} fill="none"/></g>`);
+      rise(g, t, .45, 50);
+      A(g.querySelector('.bm'), [{transform: 'rotate(0deg)'}, {transform: 'rotate(-12deg)', offset: .65}, {transform: 'rotate(-9deg)'}], t + .4, .8, {e: 'ease-out'}); },
+    puzzle: (el, t) => { const g = svgLayer(el, `${card(220, 560, 640, 600)}<path d="M500 700 H660 Q660 750 700 750 Q740 750 740 800 Q740 850 700 850 Q660 850 660 900 H500 Z" fill="${G3}" ${OUT} stroke-dasharray="10 12"/>`); rise(g, t, .45, 50);
+      const p = div('left:0;top:0;width:260px;height:240px', el, `<svg width="260" height="240" style="overflow:visible">${SHDEF}<path d="M0 0 H150 Q150 50 190 50 Q230 50 230 100 L230 110 Q190 110 190 150 Q190 190 150 190 V200 H0 Z" fill="${RED}" stroke="#B3201A" stroke-width="3.5" stroke-linejoin="round" filter="url(#sh)"/></svg>`);
+      A(p, [{transform: 'translate(160px,1250px) rotate(-25deg)'}, {transform: 'translate(500px,700px) rotate(6deg)', offset: .75}, {transform: 'translate(470px,715px) rotate(14deg)'}], t + .2, 1.1, {e: 'ease-in-out'}); },
+  };
+  items.forEach(([num, text, t, kind], i) => {
+    const end = items[i + 1]?.[2] ?? t1;
+    const ph = phase(root, t, end, {first: i === 0, last: i === items.length - 1});
+    draw[kind](ph, t);
+    rise(label(ph, 540, 1300, {num, text, size: text.length > 22 ? 58 : 76}), t + .2);
+    A(ind.children[i], [{background: G2}, {background: RED}], t, .25, {f: 'forwards'});
+    if (i < items.length - 1) A(ind.children[i], [{background: RED}, {background: NIB}], end, .25, {f: 'forwards'});
+  });
 }
 
-/* เงียบ: a line-drawn phone, a pulse line on its screen goes flat — nothing comes in */
-function inkSilent(t0, t1, {word = '', tFlat} = {}) {
+/* ---------- 33.5–37.5: "เพราะฉะนั้น" → "ถ้าลูกค้าทักมาแล้วหายไป" (the vanishing customer again) → not a discount ---------- */
+function sceneTherefore(t0, t1, {turn, recall, tRecall, pre, word, tStrikeIn, tStrike}) {
   const root = paper(t0, t1);
-  const s = inkSvg(root, `<rect class="d" x="340" y="560" width="400" height="760" rx="60"/><path class="d" d="M500 610 H580"/>
-    <path class="pl" d="M380 940 H470 L500 860 L540 1030 L575 900 L600 940 H700" stroke="${RED}" stroke-width="5"/>`);
-  inkDraw(s, t0, .35, .05);
-  const pl = s.querySelector('.pl'); pl.setAttribute('pathLength', 1); pl.style.strokeDasharray = 1;
-  A(pl, [{strokeDashoffset: 1}, {strokeDashoffset: 0, offset: .7}, {strokeDashoffset: 0}], t0, Math.max(.2, tFlat - t0), {e: 'linear'});
-  const flat = inkSvg(root, `<path class="d" d="M380 940 H700" stroke="${GREY}" stroke-width="5"/>`);
-  flat.style.opacity = 0; A(flat, [{opacity: 0}, {opacity: 1}], tFlat, .05); inkDraw(flat, tFlat, .3);
-  A(pl, [{opacity: 1}, {opacity: 0}], tFlat, .05);
-  inkLabel(root, 540, 1400, {text: word, red: true, size: 100, t: tFlat + .05});
-}
+  const a = phase(root, t0, tRecall, {first: true});
+  const w = label(a, 540, 820, {text: turn, size: 150}); rise(w, t0, .35);
+  const u = svgLayer(a, `<path class="u" d="M220 1050 H860" stroke="${RED}" stroke-width="10" stroke-linecap="round" pathLength="1" style="stroke-dasharray:1"/>`);
+  A(u.querySelector('.u'), [{strokeDashoffset: 1}, {strokeDashoffset: 0}], t0 + .2, .4, {e: EASE});
 
-/* ทำโปรโมชั่น · ลดราคา: two tags hang on strings, each swings and gets ticked as it is said */
-function inkTags(t0, t1, tags) {   // tags: [[label, t], ...] — the last one is red
-  const root = paper(t0, t1);
-  tags.forEach(([lab, t], i) => { const x = i ? 720 : 340, red = i === tags.length - 1, c = red ? RED : NIB;
-    const s = inkSvg(root, `<path class="d" d="M${x} 360 V600"/><path class="d" d="M${x - 120} 660 L${x - 60} 600 H${x + 60} L${x + 120} 660 V900 Q${x + 120} 930 ${x + 90} 930 H${x - 90} Q${x - 120} 930 ${x - 120} 900 Z" stroke="${c}"/><circle class="d" cx="${x}" cy="650" r="14" stroke="${c}"/>`);
-    s.parentNode.style.transformOrigin = `${x}px 360px`;
-    inkDraw(s, t0 + i * .15, .35, .05);
-    A(s.parentNode, [{transform: 'rotate(8deg)'}, {transform: 'rotate(-5deg)'}, {transform: 'rotate(2deg)'}, {transform: 'none'}], t, .7, {e: 'ease-out'});
-    const pct = div(`left:${x - 100}px;top:700px;width:200px;text-align:center;${BOLD};font-size:110px;color:${c}`, root, red ? '%' : '★'); fadeUp(pct, t0 + .2 + i * .15);
-    inkLabel(root, x, 990, {num: `0${i + 1}`, text: lab, red, size: 60, t, w: 400});
-    const ck = inkSvg(root, `<path class="d" d="M${x - 40} 1150 L${x - 10} 1180 L${x + 50} 1115" stroke="${c}" stroke-width="9"/>`);
-    inkDraw(ck, t + .15, .25); });
-}
+  const b = phase(root, tRecall, tStrikeIn);
+  svgLayer(b, `<rect x="240" y="1220" width="600" height="6" rx="3" fill="${G2}"/>`);
+  vanishingPerson(b, 540, 1220, .9, tRecall, tRecall + .55);
+  rise(label(b, 540, 420, {text: recall, size: 76}), tRecall + .05);
 
-/* ไม่กล้าจ่ายเงิน: an outlined pay button; a line-drawn finger comes close… and pulls back; red ? */
-function inkPay(t0, t1, {label = '', tq} = {}) {
-  const root = paper(t0, t1);
-  const btn = div(`left:240px;top:800px;width:600px;height:170px;border:${SW_}px solid ${NIB};border-radius:85px;display:flex;align-items:center;justify-content:center;${BOLD};font-size:70px;color:${NIB}`, root, label);
-  A(btn, [{opacity: 0, transform: 'scale(.9)'}, {opacity: 1, transform: 'none'}], t0, .3);
-  const f = inkSvg(root, `<path class="d" d="M0 0 V-150 Q0 -180 26 -180 Q52 -180 52 -150 V-60 Q90 -80 110 -50 Q140 -70 160 -40 Q190 -55 205 -20 V60 Q205 140 120 160 H60 Q20 160 0 120 L-60 30 Q-75 0 -40 -10 Z"/>`, 'left:600px;top:1060px', 300, 300);
-  inkDraw(f, t0 + .1, .35, .02);
-  A(f.parentNode, [{transform: 'translate(120px,300px)', offset: 0}, {transform: 'translate(0,40px)', offset: .45}, {transform: 'translate(10px,55px)', offset: .6}, {transform: 'translate(0,40px)', offset: .7}, {transform: 'translate(140px,330px)', offset: 1}], t0 + .1, t1 - t0 - .2, {e: 'ease-in-out'});
-  const q = div(`left:860px;top:690px;width:100px;height:100px;border-radius:50%;background:${RED};box-shadow:0 0 34px ${RED}88;${BOLD};font-size:72px;line-height:92px;text-align:center;color:#fff`, root, '?');
-  A(q, [{opacity: 0, transform: 'scale(0)'}, {opacity: 1, transform: 'none'}], tq, .35, {e: bounce});
-}
-
-/* 01 ไม่มั่นใจเรื่องคุณภาพ: a magnifier scans a box, a red ? appears in the lens */
-function inkQuality(t0, t1, {num = '', text = '', tq} = {}) {
-  const root = paper(t0, t1);
-  const s = inkSvg(root, `<path class="d" d="M380 900 L540 820 L700 900 L540 980 Z"/><path class="d" d="M380 900 V1100 L540 1180 L700 1100 V900"/><path class="d" d="M540 980 V1180"/>`);
-  inkDraw(s, t0, .35, .05);
-  const m = inkSvg(root, `<circle class="d" cx="0" cy="0" r="110"/><path class="d" d="M78 78 L170 170" stroke-width="16"/>`, 'left:0;top:0', 300, 300);
-  inkDraw(m, t0 + .1, .3);
-  A(m.parentNode, [{transform: 'translate(420px,880px)'}, {transform: 'translate(660px,960px)'}, {transform: 'translate(560px,920px)'}], t0 + .1, t1 - t0 - .2, {e: 'ease-in-out'});
-  const q = div(`left:-30px;top:-55px;width:60px;text-align:center;${BOLD};font-size:96px;color:${RED};text-shadow:0 0 20px ${RED}66;opacity:0`, m.parentNode, '?');
-  A(q, [{opacity: 0, transform: 'scale(0)'}, {opacity: 1, transform: 'none'}], tq, .3, {e: bounce});
-  inkLabel(root, 540, 1320, {num, text, size: 72, t: t0 + .2});
-}
-
-/* 02 กลัวซื้อไปแล้วไม่คุ้ม: a scale — money on one pan, the product on the other — tips the wrong way */
-function inkScale(t0, t1, {num = '', text = '', tTip} = {}) {
-  const root = paper(t0, t1);
-  const s = inkSvg(root, `<path class="d" d="M540 1200 V760"/><path class="d" d="M440 1200 H640"/><circle class="d" cx="540" cy="750" r="14"/>`);
-  inkDraw(s, t0, .3, .05);
-  const beam = inkSvg(root, `<path class="d" d="M300 760 H780"/>
-    <path class="d" d="M300 760 L240 940 M300 760 L360 940"/><path class="d" d="M220 940 Q300 990 380 940"/>
-    <path class="d" d="M780 760 L720 940 M780 760 L840 940"/><path class="d" d="M700 940 Q780 990 860 940"/>
-    <circle class="d" cx="285" cy="905" r="22" stroke="${RED}"/><circle class="d" cx="315" cy="880" r="22" stroke="${RED}"/>
-    <rect class="d" x="745" y="870" width="70" height="60" rx="6"/>`);
-  beam.parentNode.style.transformOrigin = '540px 760px';
-  inkDraw(beam, t0 + .1, .3, .03);
-  A(beam.parentNode, [{transform: 'rotate(0deg)'}, {transform: 'rotate(-9deg)', offset: .7}, {transform: 'rotate(-7deg)'}], tTip, .5, {e: 'ease-out'});
-  inkLabel(root, 540, 1300, {num, text, size: 72, t: t0 + .2});
-}
-
-/* 03 ยังไม่เห็นว่าช่วยแก้ปัญหาตรงไหน: a puzzle piece slides toward its gap… and does not fit */
-function inkPuzzle(t0, t1, {num = '', text = '', tMiss} = {}) {
-  const root = paper(t0, t1);
-  const s = inkSvg(root, `<path class="d" d="M260 700 H820 V1160 H260 Z"/><path class="d" d="M560 820 H680 Q680 870 720 870 Q760 870 760 920 Q760 970 720 970 Q680 970 680 1020 H560 Z" stroke="${GREY}" stroke-dasharray="4 14"/>`);
-  inkDraw(s, t0, .35, .05);
-  const p = inkSvg(root, `<path class="d" d="M0 0 H100 Q100 40 140 40 Q180 40 180 80 L180 90 Q140 90 140 130 Q140 170 100 170 V200 H0 Z" stroke="${RED}"/>`, 'left:0;top:0', 200, 220);
-  inkDraw(p, t0 + .1, .3);
-  A(p.parentNode, [{transform: 'translate(280px,820px) rotate(-20deg)'}, {transform: 'translate(545px,820px) rotate(4deg)', offset: .8}, {transform: 'translate(520px,830px) rotate(10deg)'}], t0 + .2, tMiss - t0 - .2 + .3, {e: 'ease-in-out'});
-  inkLabel(root, 540, 1260, {num, text, size: 72, t: t0 + .2});
-}
-
-/* ไม่ใช่การลดราคา: grey lead-in, big black word, the ink strikes it out and turns red */
-function inkStrike(t0, t1, {pre = '', word = '', tStrike} = {}) {
-  const root = paper(t0, t1);
-  inkLabel(root, 540, 620, {text: pre, size: 64, t: t0 + .05}).querySelector('div:last-child').style.color = GREY;
-  const w = div(`left:0;width:1080px;top:780px;text-align:center;${BOLD};font-size:200px;color:${NIB}`, root, word);
-  fadeUp(w, t0 + .25);
-  A(w, [{color: NIB}, {color: RED}], tStrike + .2, .2);
-  const s = inkSvg(root, `<path class="d" d="M170 920 Q540 900 910 930" stroke="${RED}" stroke-width="16"/>`);
-  inkDraw(s, tStrike, .3);
+  const c = phase(root, tStrikeIn, t1, {last: true});
+  rise(label(c, 540, 620, {text: pre, size: 64, grey: true}), tStrikeIn + .05);
+  const wd = label(c, 540, 760, {text: word, size: 210}); rise(wd, tStrikeIn + .2);
+  A(wd.lastChild, [{color: NIB}, {color: RED}], tStrike + .2, .25);
+  const s = svgLayer(c, `<path class="s" d="M170 905 Q540 885 910 915" stroke="${RED}" stroke-width="16" stroke-linecap="round" fill="none" pathLength="1" style="stroke-dasharray:1"/>`);
+  A(s.querySelector('.s'), [{strokeDashoffset: 1}, {strokeDashoffset: 0}], tStrike, .3, {e: EASE});
 }
