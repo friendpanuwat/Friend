@@ -4,7 +4,7 @@
    drop shadow · one gold / yellow accent · gold serif titles, heavy sans punch words, italic serif mixed into sans.
    Every scene is drawn for its own sentence — these are parts, not templates. */
 const GOLD = '#FFC93C', YEL = '#FFD21F', AMBER = '#F5A300', INK = '#0B0A09', CREAM = '#FFF6DF', EMBER = '#FF6A13', HOT = '#FFF3B0';
-const SANS = w => `font-family:Sans;font-weight:${w}`, SERIF = (w, it) => `font-family:Serif;font-weight:${w};${it ? 'font-style:italic;' : ''}`;
+const SANS = w => `font-family:Sans;font-weight:${w}`, SERIF = (w, it) => `font-family:Title;font-weight:${w};${it ? 'font-style:italic;' : ''}`;
 const DROP = 'drop-shadow(0 26px 34px rgba(0,0,0,.45)) drop-shadow(0 6px 10px rgba(0,0,0,.3))';
 const EDGE = 'drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff)';   // white sticker edge
 const GRID = c => `linear-gradient(${c} 2px,transparent 2px) 0 0/90px 90px,linear-gradient(90deg,${c} 2px,transparent 2px) 0 0/90px 90px`;
