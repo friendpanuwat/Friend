@@ -1,6 +1,6 @@
 /* pop-up cards designed for clip 01 ("ลูกค้าทักมาแล้วหายไป", 42 s) — REFERENCE IDEAS ONLY, built from assets/minimal_kit.js +
    assets/overlay_kit.js. Do not copy these into another clip: design each clip's own cards for what it says.
-   Every card is 800 × 240 card px (the pop() default): it sits between the top tabs (y 280) and the head. */
+   Every card is 800 × 240 card px (the pop() default): it sits between the top tabs (y 240) and the head. */
 
 /* draw at 1080-px scale inside a card: (x0, y0) of the big drawing lands at (ox, oy) of the card, scaled by s */
 const mini = (box, x0, y0, ox, oy, s) => div(`left:${ox - x0 * s}px;top:${oy - y0 * s}px;width:1080px;height:1920px;transform-origin:0 0;transform:scale(${s})`, box);
