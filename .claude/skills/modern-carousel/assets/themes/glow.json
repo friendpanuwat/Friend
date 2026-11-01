@@ -1,0 +1,30 @@
+{
+ "_ref": "ดำ + นีออนเขียวมิ้นต์เรือง + เส้นกริด (แนว tech / AI SaaS)",
+ "accent": "#2BF59A",
+ "accent_ink": "#03140B",
+ "accent_on_light": "#0B8F55",
+ "neg": "#FF5A4E",
+ "dark": {
+  "bg": "#040706",
+  "bg2": "#0C1511",
+  "fg": "#F1FFF8",
+  "muted": "rgba(241,255,248,.6)",
+  "surface": "rgba(43,245,154,.06)",
+  "line": "rgba(43,245,154,.16)"
+ },
+ "light": {
+  "bg": "#EEF3F0",
+  "bg2": "#FFFFFF",
+  "fg": "#06150E",
+  "muted": "#566A60",
+  "surface": "#FFFFFF",
+  "line": "rgba(6,21,14,.12)"
+ },
+ "texture": "grid",
+ "glow": true,
+ "card": "glass",
+ "radius": 28,
+ "title_weight": 600,
+ "num_weight": 300,
+ "ornament": "sparkles"
+}
