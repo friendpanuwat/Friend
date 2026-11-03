@@ -21,6 +21,9 @@ def main():
         if not f.endswith('.js'): continue
         src = open(os.path.join(d, f)).read()
         code = re.sub(r'/\*.*?\*/|//[^\n]*', '', src, flags=re.S)
+        # a line comment that swallowed code: `//` followed by something like `; name(` or `; x.y = ` (it silently drops that code)
+        for i, line in enumerate(src.splitlines(), 1):
+            if '//' in line and re.search(r'//[^\n]*;\s*[A-Za-z_][\w.]*\s*(\(|=[^=])', line): bad.append(f'{f}:{i}: code after a // comment is commented out')
         for i, line in enumerate(code.splitlines(), 1):
             for pat, why in BANNED:
                 if re.search(pat, line): bad.append(f'{f}:{i}: {why}')

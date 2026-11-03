@@ -23,25 +23,7 @@ PART('B12', 'v1', {name: 'ไอคอน A ลูกศรไปไอคอน
 });
 
 /* v2 was dropped by Friend on 2026-11-03 (โดมิโนล้มต่อกัน); the code is in git history. */
-/* v3: two gears — A drives B; both turn a step at the start and again on the key word, B lights up */
-PART('B12', 'v3', {name: 'เฟืองหมุนส่งต่อกัน', bgs: ['glow', 'cream', 'white'], slots: B12_SLOTS, dur: [1.2, 3.5],
-  hit: 'เฟืองหมุนส่งแรงถึง B ตรงคำ แล้ว B เป็นสีเน้น'}, (c, s, T) => {
-  const o = ON[T.bg], dark = o.ink === '#FFFFFF';
-  const gear = (x, y, size, col, ic, icCol) => { const g = div(`left:${x}px;top:${y}px;width:${size}px;height:${size}px`, c);
-    const r = div('inset:0', g, ico('cog', size, col, 1.6));
-    // a solid disc over the cog's inner rings, so the icon never sits on gear lines (Friend 2026-11-03)
-    div(`left:${size * .27}px;top:${size * .27}px;width:${size * .46}px;height:${size * .46}px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${dark ? '#161B2B' : '#FFFFFF'};box-shadow:0 0 0 ${size * .02}px ${col}`, g, ico(ic, size * .26, icCol, 2.2)); return [g, r]; };
-  const [ga, ra] = gear(130, 330, 400, o.ink, s.ia, o.ink), [gb, rb] = gear(560, 560, 360, dark ? 'rgba(255,255,255,.35)' : 'rgba(20,33,61,.3)', s.ib, o.soft);
-  const [gb2, rb2] = gear(560, 560, 360,   // apart from A: no overlapping teeth
-    dark ? ACC : NAVY, s.ib, dark ? ACC : NAVY); gb2.style.opacity = 0;
-  mv.pop(ga, T.t0 + .05); mv.pop(gb, T.t0 + .15);
-  for (const [r, dir] of [[ra, 1], [rb, -1], [rb2, -1]]) { mv.slide(r, T.t0 + .3, 'rotate(0deg)', `rotate(${dir * 30}deg)`); mv.slide(r, T.hit - MOTION.slide.d, `rotate(${dir * 30}deg)`, `rotate(${dir * 90}deg)`); }
-  mv.show(gb2, T.hit); snd('hit', T.hit);
-  mv.lead(capt(c, s.a, 80, 250, 500, o.ink, 58), T.t0 + .2);
-  mv.lead(capt(c, s.b, 540, 940, 400, dark ? ACC : NAVY, 60), T.hit);
-  cardText(c, T, s.lead, s.key, 1290);
-});
-
+/* v3 'เฟืองหมุนส่งต่อกัน' was dropped by Friend on 2026-11-03 (after the overlap fix); the code is in git history. */
 /* v4: a loop — A → B → C → back to A, the arrows draw one after another and close on the key word */
 PART('B12', 'v4', {name: 'วงจรวน A ไป B ไป C', bgs: ['glow', 'white', 'cream'], slots: B12_SLOTS, dur: [1.6, 4.0],
   hit: 'ลูกศรเส้นสุดท้ายปิดวงตรงคำ'}, (c, s, T) => {

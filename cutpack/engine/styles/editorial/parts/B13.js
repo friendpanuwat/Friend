@@ -43,8 +43,8 @@ PART('B13', 'v4', {name: 'การ์ดเคล็ดลับพับมุ
   const badge = div(`left:56px;top:56px;width:120px;height:120px;border-radius:34px;background:${ACC};display:flex;align-items:center;justify-content:center`, card, ico(s.icon ?? 'lightbulb', 70, INK, 2.2));
   const wrap = div('left:56px;top:240px;width:730px', card);
   const hl = div(`left:-10px;top:58px;width:0;height:56px;border-radius:12px;background:${ACC};transform-origin:0 50%`, wrap);
-  const tx = div(`position:relative;font-family:KeySans;font-size:92px;line-height:1.25;letter-spacing:-1px;white-space:nowrap;color:${NAVY}`, wrap); tx.textContent = s.tip; fitW(tx, 730);
-  FITS.push(() => { hl.style.width = `${Math.min(750, tx.scrollWidth + 20)}px`; hl.style.top = '-6px'; hl.style.height = `${tx.offsetHeight + 12}px`; });   // covers the whole text (Friend 2026-11-03)
+  const tx = div(`position:relative;display:inline-block;font-family:KeySans;font-size:92px;line-height:1.25;letter-spacing:-1px;white-space:nowrap;color:${NAVY}`, wrap); tx.textContent = s.tip; fitW(tx, 730);   // inline-block: its width is the text's own
+  FITS.push(() => { hl.style.width = `${tx.offsetWidth + 16}px`; hl.style.left = '-8px'; /* exactly the text, 8 px each side (Friend: วิ่งเลยขอบ) */ hl.style.top = '-6px'; hl.style.height = `${tx.offsetHeight + 12}px`; });   // covers the whole text (Friend 2026-11-03)
   mv.growX(hl, T.hit - .25, 1); snd('swipe', T.hit - .25);
   cardText(c, T, s.lead, s.key, 1260);
 });

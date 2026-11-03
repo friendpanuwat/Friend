@@ -55,8 +55,6 @@ B11 v4 0 glow
 B11 v4 1 white
 B12 v1 0 glow
 B12 v1 1 cream
-B12 v3 0 glow
-B12 v3 1 cream
 B12 v4 0 glow
 B12 v4 1 white
 B13 v1 0 glow
