@@ -24,7 +24,7 @@ PART('B04', 'v1', {name: 'ขั้น 1-2-3 ขึ้นทีละขั้�
 });
 
 /* v2: a checklist card — empty boxes, each gets ticked when its item is said */
-PART('B04', 'v2', {name: 'เช็กลิสต์ติ๊กทีละข้อ', bgs: ['glow', 'cream', 'white', 'navy'], slots: B04_SLOTS, dur: [1.6, 4.0],
+PART('B04', 'v2', {name: 'เช็กลิสต์ติ๊กทีละข้อ', bgs: ['glow', 'cream', 'white'], slots: B04_SLOTS, dur: [1.6, 4.0],
   hit: 'ช่องถูกติ๊กทีละข้อตามคำ ข้อสุดท้ายตรงคำสำคัญ'}, (c, s, T) => {
   checkItems(s); const at = itemTimes(s, T), n = s.items.length;
   const style = T.bg === 'glow' ? 'glass' : T.bg === 'white' ? 'navy' : 'white', ink = style === 'white' ? NAVY : '#fff';
@@ -59,7 +59,7 @@ PART('B04', 'v3', {name: 'เส้นทางมีจุดแวะ', bgs: [
 });
 
 /* v4: a stack of cards — each new step slides up on top, the earlier ones step back */
-PART('B04', 'v4', {name: 'การ์ดซ้อนขึ้นทีละใบ', bgs: ['glow', 'cream', 'navy'], slots: B04_SLOTS, dur: [1.6, 4.0],
+PART('B04', 'v4', {name: 'การ์ดซ้อนขึ้นทีละใบ', bgs: ['glow', 'cream'], slots: B04_SLOTS, dur: [1.6, 4.0],
   hit: 'การ์ดใบสุดท้ายขึ้นมาบนสุดตรงคำ'}, (c, s, T) => {
   checkItems(s); const at = itemTimes(s, T), n = s.items.length;
   const style = T.bg === 'glow' ? 'glass' : 'white', ink = style === 'white' ? NAVY : '#fff';

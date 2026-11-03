@@ -75,6 +75,7 @@ function PART(cat, v, meta, build) { (PARTS[cat] ??= {})[v] = {meta, build}; }
 /* place one part as a card: part('B01','v1', t0, t1, {hit, bg, ...slots}) — the timeline must list the window in cards() */
 function part(cat, v, t0, t1, opts) {
   const P = PARTS[cat]?.[v]; if (!P) throw new Error(`unknown part ${cat}.${v}`);
+  // dark card backgrounds are always 'glow' (Friend 2026-11-03): plain navy cards are not offered by any part
   const {hit = t0 + .6, bg = P.meta.bgs[0], ...s} = opts;
   if (!P.meta.bgs.includes(bg)) throw new Error(`${cat}.${v}: background ${bg} not allowed (${P.meta.bgs})`);
   for (const [k, spec] of Object.entries(P.meta.slots)) {

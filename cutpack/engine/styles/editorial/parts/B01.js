@@ -18,7 +18,7 @@ const shareLabel = s => s.of != null ? `${fmtNum(s.num, decOf(s.num))} ใน ${
 const shareOf = s => s.of ?? (s.unit === '%' ? 100 : null);
 
 /* v1: the number counts up, big, under a small icon tile; lands on the key word with a punch + ripple */
-PART('B01', 'v1', {name: 'ตัวเลขนับขึ้นแล้วหยุด', bgs: ['glow', 'navy', 'white', 'cream'], slots: B01_SLOTS, dur: [1.4, 3.5],
+PART('B01', 'v1', {name: 'ตัวเลขนับขึ้นแล้วหยุด', bgs: ['glow', 'white', 'cream'], slots: B01_SLOTS, dur: [1.4, 3.5],
   hit: 'ตัวเลขนับถึงค่าแล้วเด้ง + วงคลื่น'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF';
   tile(c, s.icon, T.t0 + .05, 'left:440px;top:250px', {size: 200, bg: o.sub === 'glass' ? 'glass' : o.sub, color: o.ink, sound: false});
@@ -36,7 +36,7 @@ PART('B01', 'v1', {name: 'ตัวเลขนับขึ้นแล้วห
 });
 
 /* v2: a progress ring fills to num/of with the number counting in the middle */
-PART('B01', 'v2', {name: 'วงแหวนเปอร์เซ็นต์', bgs: ['glow', 'navy', 'white'], slots: B01_SLOTS, dur: [1.6, 3.5],
+PART('B01', 'v2', {name: 'วงแหวนเปอร์เซ็นต์', bgs: ['glow', 'white'], slots: B01_SLOTS, dur: [1.6, 3.5],
   hit: 'วงแหวนเติมถึงค่าแล้วเด้ง'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', of = s.of ?? 100, f = Math.max(0, Math.min(1, s.num / of)), R = 230;
   const box = svg(560, 560, `<circle cx="280" cy="280" r="${R}" fill="none" stroke="${o.track}" stroke-width="56"/>
@@ -55,7 +55,7 @@ PART('B01', 'v2', {name: 'วงแหวนเปอร์เซ็นต์', 
 });
 
 /* v3: ten icons in two rows; the share num/of lights up in the accent at the key word ("3 ใน 10") */
-PART('B01', 'v3', {name: 'ตารางไอคอน 10 ช่อง', bgs: ['glow', 'white', 'cream', 'navy'], slots: B01_SLOTS, dur: [1.6, 3.5],
+PART('B01', 'v3', {name: 'ตารางไอคอน 10 ช่อง', bgs: ['glow', 'white', 'cream'], slots: B01_SLOTS, dur: [1.6, 3.5],
   hit: 'ไอคอนตามสัดส่วนเปลี่ยนเป็นสีเน้นทีละตัว'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', of = shareOf(s);
   if (of == null) throw new Error('B01.v3 needs `of` (e.g. 3 ใน 10) or unit %');
@@ -75,7 +75,7 @@ PART('B01', 'v3', {name: 'ตารางไอคอน 10 ช่อง', bgs: 
 });
 
 /* v4: a stat card (dashboard tile): icon on the left, the number counting on the right, a chip rises at the key word */
-PART('B01', 'v4', {name: 'การ์ดตัวเลขแบบแดชบอร์ด', bgs: ['glow', 'cream', 'navy', 'white'], slots: B01_SLOTS, dur: [1.4, 3.5],
+PART('B01', 'v4', {name: 'การ์ดตัวเลขแบบแดชบอร์ด', bgs: ['glow', 'cream', 'white'], slots: B01_SLOTS, dur: [1.4, 3.5],
   hit: 'การ์ดเด้ง + ชิปป้ายขึ้นใต้การ์ด'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF';
   const p = panel(c, 'left:110px;top:360px;width:860px;height:440px', T.t0 + .05, {style: T.bg === 'glow' ? 'glass' : T.bg === 'white' ? 'navy' : 'white'});

@@ -27,7 +27,7 @@
 | `model-test/editorial-v0/` | เทียบโมเดล 9 แบบ (Sonnet, Opus และ Haiku ที่ effort low, medium, high) ผลคือ Sonnet กับ Opus ใกล้กัน ส่วน Haiku ทำการ์ดได้น้อยและบางกว่า ความเห็นของ Friend อยู่ใน `README.md` |
 | `library/base-list/` | รายการชิ้นฐาน 15 หมวดให้ Friend กด เอา / ปรับ / ตัด อยู่ที่ https://claude.ai/artifact/KKhuSbGNcGbn7XrkheDMa1 เป็นแนวทางใหม่ที่ใช้แทนการเลือกจากแกลเลอรี 26 ชิ้น |
 | `engine/` | เอนจินกลาง (สำเนาจาก skill editorial ตรงกันทุกพิกเซล) + ไอคอน Lucide ครบชุด + ชุดท่าเคลื่อนไหวที่ล็อกของ editorial (`styles/editorial/motion.js`) + ชิ้นฐาน 20 แบบ + ตัวตรวจ `tools/check_parts.py` ดู `engine/README.md` |
-| `library/base-parts/` | แกลเลอรีชิ้นฐานรอบแรก 5 หมวด × 4 แบบ (คลิป 40 คลิป) ให้ Friend กด เอา / ปรับ / ตัด อยู่ที่ https://claude.ai/artifact/T3uL5XmH2kW3qDhun8fsTT ผลเก็บใน collection `variants` |
+| `library/base-parts/` | ชิ้นฐาน editorial ครบ 15 หมวด: รอบแรก 5 หมวด (19 แบบหลังตัด B14-v4) ที่ https://claude.ai/artifact/T3uL5XmH2kW3qDhun8fsTT และรอบสอง 10 หมวด (40 แบบ) ที่หน้า `gallery2.html` ผลแต่ละหน้าเก็บใน collection `variants` ของหน้านั้น สร้างหน้าใหม่ด้วย `make_gallery.py` |
 | `library/sample-clip/` | คลิปตัวอย่างที่ Friend ส่งมา (10 วินาที) |
 | `library/gallery/` | หน้าแกลเลอรีให้ Friend เลือกเก็บหรือทิ้งการ์ด 26 ชิ้น อยู่ที่ https://claude.ai/artifact/MfHsnKa7qnP96UjNFe3cg7 |
 

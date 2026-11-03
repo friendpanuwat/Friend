@@ -20,7 +20,7 @@ function verdict(T, s, A_, B_, lx, ly, dark) {          // lx, ly = tile centre 
 }
 
 /* v1: two columns with a "vs" disc in the middle */
-PART('B03', 'v1', {name: 'แบ่งซ้ายขวา + vs', bgs: ['glow', 'navy', 'white', 'cream'], slots: B03_SLOTS, dur: [1.4, 3.5],
+PART('B03', 'v1', {name: 'แบ่งซ้ายขวา + vs', bgs: ['glow', 'white', 'cream'], slots: B03_SLOTS, dur: [1.4, 3.5],
   hit: 'ฝั่งที่ชนะเด้ง + วงคลื่น ฝั่งที่แพ้หรี่ลง'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF';
   const col = (x, ic, name, t, main) => { const g = div(`left:${x - 230}px;top:300px;width:460px;height:560px`, c);
@@ -34,7 +34,7 @@ PART('B03', 'v1', {name: 'แบ่งซ้ายขวา + vs', bgs: ['glow',
 });
 
 /* v2: two cards like a hand of cards, tilted; the winner comes forward */
-PART('B03', 'v2', {name: 'การ์ดสองใบ ใบที่แพ้หรี่ลง', bgs: ['glow', 'cream', 'navy'], slots: B03_SLOTS, dur: [1.4, 3.5],
+PART('B03', 'v2', {name: 'การ์ดสองใบ ใบที่แพ้หรี่ลง', bgs: ['glow', 'cream'], slots: B03_SLOTS, dur: [1.4, 3.5],
   hit: 'การ์ดที่ชนะเด้ง ใบที่แพ้หรี่และจางสี'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', style = T.bg === 'glow' ? 'glass' : 'white', ink = style === 'glass' ? '#fff' : NAVY;
   const one = (x, rot, ic, name, t, accent) => {
@@ -49,7 +49,7 @@ PART('B03', 'v2', {name: 'การ์ดสองใบ ใบที่แพ�
 });
 
 /* v3: a two-column table — a check or a cross per row, the winning column lights up */
-PART('B03', 'v3', {name: 'ตาราง 2 คอลัมน์ ถูกและผิด', bgs: ['glow', 'white', 'cream', 'navy'], slots: B03_SLOTS, dur: [1.8, 3.5],
+PART('B03', 'v3', {name: 'ตาราง 2 คอลัมน์ ถูกและผิด', bgs: ['glow', 'white', 'cream'], slots: B03_SLOTS, dur: [1.8, 3.5],
   hit: 'คอลัมน์ที่ชนะมีกรอบสีเน้นขึ้นตรงคำ'}, (c, s, T) => {
   const rows = s.rows ?? []; if (!rows.length) throw new Error('B03.v3 needs rows');
   const o = ON[T.bg], style = T.bg === 'white' ? 'navy' : T.bg === 'glow' ? 'glass' : 'white', ink = style === 'white' ? NAVY : '#fff';
@@ -72,7 +72,7 @@ PART('B03', 'v3', {name: 'ตาราง 2 คอลัมน์ ถูกแ�
 });
 
 /* v4: before → after — the "after" half is covered, the cover slides away at the key word */
-PART('B03', 'v4', {name: 'แถบเลื่อนก่อนไปหลัง', bgs: ['glow', 'cream', 'white', 'navy'], slots: B03_SLOTS, dur: [1.4, 3.5],
+PART('B03', 'v4', {name: 'แถบเลื่อนก่อนไปหลัง', bgs: ['glow', 'cream', 'white'], slots: B03_SLOTS, dur: [1.4, 3.5],
   hit: 'แผ่นปิดเลื่อนออก เผยฝั่ง "หลัง" ตรงคำ'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF';
   const fr = div(`left:110px;top:330px;width:860px;height:600px;border-radius:48px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.35);opacity:0`, c);
