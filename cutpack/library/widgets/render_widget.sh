@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Render one overlay widget on Friend's sample clip: the speaker stays on screen, the example sentence as the chest
-# subtitle, the widget pops up in the free space (short = above the head, narrow = beside it) from 0.7 s to 3.2 s,
+# subtitle in the skill's style at top 1300 (Friend 2026-11-04: lower than the skill's 1150), the widget pops up in the free space (short = above the head, narrow = beside it) from 0.7 s to 3.2 s,
 # key word at 1.5 s. Uses ../base-parts/samples.json.
 # usage: render_widget.sh <work_dir> <cat> <variant> <sample_index> <short|narrow> <out_name> [preview_times]
 set -euo pipefail
@@ -14,7 +14,13 @@ import json, sys
 f, cat, v, i, k = sys.argv[1:]
 s = json.load(open(f))[cat][int(i)]
 slots = dict(s['slots'], hit=1.5)
-print(f"cap({{t0: 0.2, t1: 3.6, lines: [[[{json.dumps(s['say'], ensure_ascii=False)}, 'l', 0.2]]]}});")
+say, key = s['say'], s['slots'].get('key')
+# the skill's subtitle: small lead words + ONE big key word on its own line, appearing with the speech
+if isinstance(key, str) and key in say:
+    lead = say.replace(key, ' ').split(); rows = [[[' '.join(lead), 'l', 0.2]], [[key, 'k', 1.5]]]
+else:
+    rows = [[[say, 'l', 0.2]]]
+print(f"cap({{t0: 0.2, t1: 3.6, top: 1300, maxH: 320, lines: {json.dumps(rows, ensure_ascii=False)}}});")
 print(f"widgetAt('{cat}', '{v}', '{k}', 0.7, 3.2, {json.dumps(slots, ensure_ascii=False)});")
 PY
 python3 "$E/build_scene.py" "$P" >/dev/null

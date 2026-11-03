@@ -103,7 +103,8 @@ const ON = {
   cream: {ink: NAVY, soft: 'rgba(20,33,61,.58)', tile: NAVY, tileInk: '#FFFFFF', sub: '#FFFFFF', track: 'rgba(20,33,61,.12)'},
 };
 /* card text in the skill's rhythm: lead line (small) + key line (big, accent on dark, navy-on-accent box on light) */
-function cardText(c, T, lead, key, top = 1240, {keyStyle} = {}) {
+function cardText(c, T, lead, key, top = 1350, {keyStyle} = {}) {
+  top = 1350;   // Friend 2026-11-04: text lower than the skill's 1200 band start — one height for every card, ends above the bottom 300 px
   const o = ON[T.bg], dark = o.ink === '#FFFFFF';
   const rows = [];
   if (lead) rows.push([[lead, 'l', T.t0 + .15, {color: o.ink}]]);

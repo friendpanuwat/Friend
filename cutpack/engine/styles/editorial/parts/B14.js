@@ -4,6 +4,7 @@ const B14_SLOTS = {
   words: {type: 'list', min: 2, max: 7, req: true},   // phrases, ≤ 14 graphemes each
   key:   {type: 'number', req: true},                 // index into words
   at:    {type: 'list'},                              // when each phrase is said; default: spread from t0 to hit
+  icon:  {type: 'icon'},                              // widgets only: the topic of the line (Friend 2026-11-04: a text-only widget looked empty)
 };
 const phraseTimes = (s, T) => s.at ?? s.words.map((_, i) => i === s.key ? T.hit : T.t0 + .15 + (T.hit - T.t0 - .15) * Math.min(i, s.key) / Math.max(1, s.key) + (i > s.key ? (i - s.key) * .18 : 0));
 const checkWords = s => { if (!(s.key >= 0 && s.key < s.words.length)) throw new Error('B14 key out of range'); s.words.forEach(w => { if (graphemes(w).length > 14) throw new Error(`B14 phrase longer than 14: ${w}`); }); };

@@ -1,5 +1,6 @@
 /* Overlay widgets B01–B05. Each draws its main visual into an S×S box (S ≈ 150 short, 180 narrow) on a white card. */
-const mt = (p, icon, t, x, y, size, bg, color) => tile(p, icon, t, `left:${x}px;top:${y}px`, {size, bg, color, sound: false, float: false});
+/* a tile that stays inside its box: 90 % size so the bounce overshoot fits, short shadow (Friend 2026-11-04: B15.v3 covered the text) */
+const mt = (p, icon, t, x, y, size, bg, color) => { const o = tile(p, icon, t, `left:${x + size * .05}px;top:${y + size * .05}px`, {size: size * .9, bg, color, sound: false, float: false}); o.inner.style.boxShadow = '0 6px 14px rgba(0,0,0,.16)'; return o; };
 const wnum = (p, text, S, color, t) => { const w = div(`left:0;top:0;width:${S}px;height:${S}px;display:flex;align-items:center;justify-content:center`, p);
   const n = div(`position:relative;font-family:KeySans;font-size:${S * .42}px;line-height:1;letter-spacing:-2px;white-space:nowrap;color:${color}`, w); n.textContent = text; fitW(n, S - 6); return n; };
 
