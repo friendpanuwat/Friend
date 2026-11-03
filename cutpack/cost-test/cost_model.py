@@ -3,6 +3,7 @@
 
   python3 cost_model.py report runs.jsonl   # real test results → mean / median / max, bucket shares, per-stage cost
   python3 cost_model.py estimate            # pre-test estimate for two scene designs (assumptions printed)
+  python3 cost_model.py scenarios           # round 2: plan D per pack (Good / Base / Worst), redo and refunds included
   python3 cost_model.py selftest
 
 runs.jsonl: one line per attempt (first run = attempt 0, every redo of the same clip = 1, 2, ...).
@@ -136,6 +137,61 @@ def estimate():
     print('\nASSUMED (not measured yet):'); [print('  - ' + a) for a in ASSUMED]
 
 
+# ---------- round 2: plan D as agreed, per pack, with redo and refunds ----------
+# Token sizes measured from the 9 model runs in cutpack/model-test/editorial-v0 (final timeline.js, chars → token range):
+#   code per card: Sonnet low 130–185, Sonnet medium/high 170–280, Opus 210–425, Haiku 130–235 tokens.
+# Still ASSUMED: plan-D prompt size, JSON length, thinking tokens at each effort, redo / fail / custom-scene rates.
+THINK = {'low': (0.2, 0.6), 'medium': (0.3, 1.0), 'high': (0.5, 2.0)}
+CONFIGS = {   # name: (scene-plan model, effort, custom-scene model, code tokens per custom scene)
+    'Sonnet 5.5 low (recommended)': ('claude-sonnet-5-5', 'low', 'claude-sonnet-5-5', (130, 280)),
+    'Haiku 5.5 low + Sonnet low for custom scenes': ('claude-haiku-5-5', 'low', 'claude-sonnet-5-5', (130, 280)),
+    'Opus 5.5 low': ('claude-opus-5-5', 'low', 'claude-opus-5-5', (210, 425)),
+}
+# avg clip length, redo share (first redo is free, so it costs a full attempt), fail share (refunded),
+# share of clips that need AI-written scenes and how many scenes those clips need — scenarios follow section 4.1 of the handoff
+SCENARIOS = {
+    'Good':  dict(dur=30, redo=0.10, fail=0.02, p_custom=0.3, n_custom=1),
+    'Base':  dict(dur=50, redo=0.20, fail=0.05, p_custom=0.5, n_custom=1.5),
+    'Worst': dict(dur=85, redo=0.40, fail=0.10, p_custom=0.8, n_custom=2),
+}
+PLAN_SYS = (6000, 12000)    # ASSUMED: parts catalogue with meaning tags + rules + good/bad examples
+PLAN_OUT_PS = (15, 30)      # ASSUMED: JSON tokens per second of clip
+CUSTOM_SYS = (6200, 10400)  # kit manual sent only with the second call
+
+
+def attempt_thb(cfg, dur, hi, warm, p_custom, n_custom):
+    model, effort, cmodel, per_scene = CONFIGS[cfg]
+    k = 1 if hi else 0
+    cache = 'cache_read' if warm else 'cache_write_5m'
+    calls = [{'stage': 'asr', 'provider': 'groq-whisper-large-v3-turbo', 'audio_s': dur},
+             {'stage': 'group', 'model': 'claude-haiku-5-5', 'in': 1500 + (45 if hi else 25) * dur, 'out': (25 if hi else 12) * dur},
+             {'stage': 'scene', 'model': model, 'in': 17 * dur / (1.0 if hi else 2.0) + 400,
+              'out': PLAN_OUT_PS[k] * dur * (1 + THINK[effort][k]), cache: PLAN_SYS[k]}]
+    base = sum(call_usd(c) for c in calls)
+    custom = call_usd({'stage': 'custom', 'model': cmodel, 'in': 400 + 150 * n_custom, cache: CUSTOM_SYS[k],
+                       'out': n_custom * per_scene[k] * (1 + THINK[effort][k]) * (1.3 if hi else 1.0)})
+    return (base + p_custom * custom) * FX
+
+
+def scenarios():
+    print('round 2: THB, plan D, every member uses the whole pack (5,000 credits = 450 THB)')
+    print('cost per clip = one attempt × (1 + redo share); refunded clips are paid again from the returned credits\n')
+    for cfg in CONFIGS:
+        print(cfg)
+        print(f'  {"":6s} {"clip":>5s} {"clips/pack":>10s} {"cost per clip":>15s} {"cost per pack":>15s} {"left per pack":>15s} {"margin":>10s}   cache')
+        for name, sc in SCENARIOS.items():
+            clips = PACK['credits'] // (PACK['credits_per_clip_upto_60s'] if sc['dur'] <= 60 else PACK['credits_per_clip_61_to_90s'])
+            jobs = clips / (1 - sc['fail'])
+            for warm in (False, True):
+                lo, hi = (attempt_thb(cfg, sc['dur'], h, warm, sc['p_custom'], sc['n_custom']) * (1 + sc['redo']) for h in (False, True))
+                plo, phi = lo * jobs, hi * jobs
+                print(f'  {name if not warm else "":6s} {str(sc["dur"]) + " s" if not warm else "":>5s} {clips if not warm else "":>10} '
+                      f'{lo:6.2f}–{hi:5.2f} {plo:8.0f}–{phi:4.0f} {PACK["thb"] - phi:8.0f}–{PACK["thb"] - plo:4.0f} '
+                      f'{100 * (PACK["thb"] - phi) / PACK["thb"]:5.0f}–{100 * (PACK["thb"] - plo) / PACK["thb"]:.0f}%   {"warm" if warm else "cold"}')
+        print()
+    print('not included: payment fees, VAT, ads, email, the VPS (fixed per month, about 75–110 members per CX23 — see README)')
+
+
 def selftest():
     import tempfile
     lines = [
@@ -159,6 +215,7 @@ def selftest():
     # c: failed → refunded, 10 s minimum billing
     assert rows['c']['cat'] == 'fail' and abs(rows['c']['thb'] - 10 / 60 * 0.000667 * FX) < 1e-9
     assert estimate_custom(0, True, False) == 0 and estimate_custom(2, False, True) < estimate_custom(2, True, False)
+    assert attempt_thb('Sonnet 5.5 low (recommended)', 45, False, True, 0, 0) < attempt_thb('Opus 5.5 low', 45, False, True, 0, 0)
     assert revenue_thb(60) == 9.0 and abs(revenue_thb(61) - 12.6) < 1e-9
     assert estimate_clip(DESIGNS['C: Haiku fills scene templates (JSON)'], 45, True, False) < estimate_clip(DESIGNS['A: Sonnet writes timeline.js (skill as it is)'], 45, False, True)
     print('selftest OK')
@@ -166,4 +223,4 @@ def selftest():
 
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else 'estimate'
-    {'report': lambda: report(sys.argv[2]), 'estimate': estimate, 'selftest': selftest}[cmd]()
+    {'report': lambda: report(sys.argv[2]), 'estimate': estimate, 'scenarios': scenarios, 'selftest': selftest}[cmd]()

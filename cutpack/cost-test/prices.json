@@ -4,6 +4,7 @@
   "llm_usd_per_mtok": {
     "claude-haiku-5-5":  {"in": 0.10, "out": 0.50,  "cache_read": 0.01, "cache_write_5m": 0.125, "cache_write_1h": 0.20, "_src": "Anthropic list price, prompt ≤100K tokens"},
     "claude-sonnet-5-5": {"in": 2.00, "out": 10.00, "cache_read": 0.20, "cache_write_5m": 2.50,  "cache_write_1h": 4.00, "_src": "Anthropic list price"},
+    "claude-opus-5-5":   {"in": 4.00, "out": 20.00, "cache_read": 0.20, "cache_write_5m": 5.00,  "cache_write_1h": 8.00, "_src": "Anthropic list price (cache read 0.05×)"},
     "kimi-k3.1-pro":     {"in": 2.00, "out": 10.00, "cache_read": 0.20, "cache_write_5m": 2.00,  "cache_write_1h": 4.00, "_src": "third-party listings of Moonshot price, not Moonshot's own page"}
   },
   "batch_discount": 0.5,
