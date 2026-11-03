@@ -25,6 +25,8 @@
 | `style-rules/editorial.md` | กฎทุกข้อของ skill editorial และ editorial-overlay แยกเป็นกลุ่ม: ให้โค้ดล็อก / ให้ AI เลือก / Friend ตัดสิน / ใช้เฉพาะใน Claude Code พร้อมรายการโค้ดที่ต้องสร้างเพิ่ม (หัวข้อ 3) |
 | `style-rules/previews/` | ภาพเทียบฟอนต์ สี Glow กับกระจก และแคปซูล Friend ตัดสินแล้วว่าให้ใช้ตามเดิมของ skill |
 | `model-test/editorial-v0/` | เทียบโมเดล 9 แบบ (Sonnet, Opus และ Haiku ที่ effort low, medium, high) ผลคือ Sonnet กับ Opus ใกล้กัน ส่วน Haiku ทำการ์ดได้น้อยและบางกว่า ความเห็นของ Friend อยู่ใน `README.md` |
+| `library/base-list/` | รายการชิ้นฐาน 15 หมวดให้ Friend กด เอา / ปรับ / ตัด อยู่ที่ https://claude.ai/artifact/KKhuSbGNcGbn7XrkheDMa1 เป็นแนวทางใหม่ที่ใช้แทนการเลือกจากแกลเลอรี 26 ชิ้น |
+| `library/sample-clip/` | คลิปตัวอย่างที่ Friend ส่งมา (10 วินาที) |
 | `library/gallery/` | หน้าแกลเลอรีให้ Friend เลือกเก็บหรือทิ้งการ์ด 26 ชิ้น อยู่ที่ https://claude.ai/artifact/MfHsnKa7qnP96UjNFe3cg7 |
 
 **ตัวเลขสำคัญ**
@@ -35,7 +37,7 @@
 
 ## รอ Friend อยู่
 
-1. **ผลการเลือกในแกลเลอรี** (รอบแรกไม่ถูกบันทึก แก้หน้าแล้ว Friend จะกดใหม่) อ่านด้วย `ArtifactData` `list` ที่ collection `picks` ของ URL ข้างบน แต่ละ document มี id เป็นชื่อชิ้นส่วน เช่น `C2` หรือ `W6` และเก็บค่า `{choice: keep|unsure|drop|null, note}`
+1. **ผลการเลือกชิ้นฐาน 15 หมวด** อ่านด้วย `ArtifactData` `list` ที่ collection `base` ของหน้า base-list ส่วนแกลเลอรี 26 ชิ้นไม่ต้องเลือกแล้ว (Friend เห็นว่าเจาะจงกับคลิปของตัวเองเกินไป) ถ้าต้องอ่านแกลเลอรีเก่า อ่านด้วย `ArtifactData` `list` ที่ collection `picks` ของ URL ข้างบน แต่ละ document มี id เป็นชื่อชิ้นส่วน เช่น `C2` หรือ `W6` และเก็บค่า `{choice: keep|unsure|drop|null, note}`
 2. **คลิปจริง 20–30 คลิป** และ **คีย์ API** ที่ใส่ในตั้งค่า environment ได้แก่ `ANTHROPIC_API_KEY`, `GROQ_API_KEY` และ `OPENAI_API_KEY` ถ้าจะใช้เทียบการถอดเสียง
 3. เรื่องที่ยังไม่ได้ตัดสิน 7 ข้อใน `DECISIONS.md` ข้อ 9
 
