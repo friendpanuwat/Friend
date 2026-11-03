@@ -1,0 +1,15 @@
+{
+  "_comment": "Brand settings. accent = the ONE highlight colour of the clip (keywords, highlight boxes, strike lines, number badges). Footage is never colour-graded.",
+  "accent": "#DDFF45",
+  "navy": "#14213D",
+  "cream": "#F2EDE2",
+  "ink": "#000000",
+  "pill": "#1B2A52",
+  "fonts": {
+    "key_sans":  "fonts/Mitr-Bold.ttf",
+    "key_serif": "fonts/Sriracha-Regular.ttf",
+    "lead":      "fonts/Mitr-Regular.ttf",
+    "card_sans": "fonts/Mitr-SemiBold.ttf"
+  },
+  "sfx_db": -17
+}
