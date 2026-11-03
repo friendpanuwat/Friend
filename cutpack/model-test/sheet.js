@@ -29,15 +29,15 @@ const img = (k, t) => {
     const cw = 200, ch = Math.round(cw * 16 / 9);
     const html = `<!doctype html><meta charset="utf-8"><style>
       @font-face{font-family:M;src:url(${font('Mitr-Regular.ttf')})} @font-face{font-family:MB;src:url(${font('Mitr-SemiBold.ttf')})}
-      body{margin:0;background:#f4f4f2;font-family:M;color:#111;padding:24px;width:${6 * (cw + 12) + 60}px}
+      body{margin:0;background:#f4f4f2;font-family:M;color:#111;padding:24px;width:${6 * (cw + 12) + 74}px}
       h1{font-family:MB;font-size:28px;margin:0 0 4px} p{font-size:16px;margin:0 0 16px;color:#444;line-height:1.5}
-      .row{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start} .lab{width:48px;font-family:MB;font-size:15px;color:#666;padding-top:6px}
+      .row{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start} .lab{width:58px;font-family:MB;font-size:15px;color:#555;padding-top:6px;line-height:1.3}
       .h{width:${cw}px;font-family:MB;font-size:18px;line-height:1.3} .h small{display:block;font-family:M;font-size:13px;color:#666}
       .gap{margin-left:14px} img{width:${cw}px;height:${ch}px;border-radius:8px;display:block;background:#000}</style>
       <h1>editorial: Sonnet กับ Opus ที่ effort ต่ำ กลาง สูง (${i + 1}/2)</h1>
       <p>บทพูดเรื่องเกษียณ 22 วินาที · ทุกแบบได้คำสั่ง บทพูด เวลา และคลิปเดียวกัน แล้วออกแบบเองตาม skill · ปากไม่ตรงเสียงเพราะใช้คลิปแทน</p>
       <div class="row"><div class="lab"></div>${order.map((k, j) => `<div class="h${j === 3 ? ' gap' : ''}">${map[k].m === 'opus' ? 'Opus' : 'Sonnet'} · ${map[k].e}<small>${stats(k)}</small></div>`).join('')}</div>
-      ${ts.map(t => `<div class="row"><div class="lab">${t} วิ</div>${order.map((k, j) => `<img class="${j === 3 ? 'gap' : ''}" src="${img(k, t)}">`).join('')}</div>`).join('')}`;
+      ${ts.map(t => `<div class="row"><div class="lab">วินาที<br>${t}</div>${order.map((k, j) => `<img class="${j === 3 ? 'gap' : ''}" src="${img(k, t)}">`).join('')}</div>`).join('')}`;
     const page = await browser.newPage({viewport: {width: 400, height: 400}});
     await page.setContent(html, {waitUntil: 'load'});
     await page.evaluate(() => document.fonts.ready);

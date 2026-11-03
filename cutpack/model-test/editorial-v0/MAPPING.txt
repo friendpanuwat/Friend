@@ -1,0 +1,6 @@
+A opus   medium
+B sonnet low
+C opus   high
+D sonnet high
+E opus   low
+F sonnet medium
