@@ -37,9 +37,12 @@ PART('B13', 'v3', {name: 'กุญแจไขแม่กุญแจ', bgs: [
 PART('B13', 'v4', {name: 'การ์ดเคล็ดลับพับมุม', bgs: ['glow', 'white', 'cream'], slots: B13_SLOTS, dur: [1.2, 3.5],
   hit: 'แถบไฮไลต์วิ่งใต้ข้อความเคล็ดลับตรงคำ'}, (c, s, T) => {
   const light = T.bg !== 'glow', paper = light ? (T.bg === 'white' ? '#F4F5F8' : '#FFFFFF') : '#FFFFFF';
-  const card = div(`left:120px;top:330px;width:840px;height:520px;border-radius:40px 0 40px 40px;background:${paper};box-shadow:0 40px 90px rgba(0,0,0,.35);opacity:0`, c);
-  div(`right:0;top:0;width:130px;height:130px;background:linear-gradient(225deg, ${T.bg === 'glow' ? INK : ON[T.bg].sub === '#FFFFFF' ? '#F2EDE2' : '#FFFFFF'} 50%, #D8DCE5 50%);border-radius:0 0 0 30px`, card);
-  mv.rise(card, T.t0 + .05);
+  // the corner is really cut off (clip-path) and the shadow follows the cut (drop-shadow on a wrapper), so no square
+  // corner shows on any background; the fold is a triangle on the inside (Friend 2026-11-03: มุมพับ)
+  const holder = div('left:120px;top:330px;width:840px;height:520px;opacity:0;filter:drop-shadow(0 30px 40px rgba(0,0,0,.3))', c);
+  const card = div(`left:0;top:0;width:840px;height:520px;border-radius:40px;background:${paper};clip-path:polygon(0 0, 710px 0, 840px 130px, 840px 100%, 0 100%)`, holder);
+  div(`left:710px;top:0;width:130px;height:130px;border-radius:0 0 0 28px;background:linear-gradient(225deg, transparent 50%, ${light ? '#D3D8E2' : '#D8DCE5'} 50%)`, card);
+  mv.rise(holder, T.t0 + .05);
   const badge = div(`left:56px;top:56px;width:120px;height:120px;border-radius:34px;background:${ACC};display:flex;align-items:center;justify-content:center`, card, ico(s.icon ?? 'lightbulb', 70, INK, 2.2));
   const wrap = div('left:56px;top:240px;width:730px', card);
   const hl = div(`left:-10px;top:58px;width:0;height:56px;border-radius:12px;background:${ACC};transform-origin:0 50%`, wrap);
