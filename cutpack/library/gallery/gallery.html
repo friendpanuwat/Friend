@@ -6,16 +6,16 @@
 /* Layout: one column of section bands; inside each, a grid of 9:16 clip tiles with a three-way keep / unsure / drop switch under every tile. */
 :root {
   --bg: #F3F4F0; --surface: #FFFFFF; --ink: #14213D; --muted: #5C6579; --line: #DADDE4;
-  --keep: #DDFF45; --keep-ink: #14213D; --drop: #E5322A; --unsure: #8E97AA;
+  --keep: #DDFF45; --keep-ink: #14213D; --drop: #E5322A; --drop-ink: #FFFFFF; --unsure: #8E97AA; --err: #B42318;
   --display: "Mitr", "IBM Plex Sans Thai", system-ui, sans-serif;
   --body: "IBM Plex Sans Thai", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0D1220; --surface: #161D2F; --ink: #E7EBF3; --muted: #9AA3B6; --line: #29324A;
-  --keep: #DDFF45; --keep-ink: #10172A; --drop: #FF5A50; --unsure: #8E97AA; color-scheme: dark } }
+  --keep: #DDFF45; --keep-ink: #10172A; --drop: #FF5A50; --drop-ink: #10172A; --unsure: #8E97AA; --err: #FF7A70; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #0D1220; --surface: #161D2F; --ink: #E7EBF3; --muted: #9AA3B6; --line: #29324A;
-  --keep: #DDFF45; --keep-ink: #10172A; --drop: #FF5A50; --unsure: #8E97AA; color-scheme: dark }
+  --keep: #DDFF45; --keep-ink: #10172A; --drop: #FF5A50; --drop-ink: #10172A; --unsure: #8E97AA; --err: #FF7A70; color-scheme: dark }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; }
 .wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 28px; }
@@ -28,7 +28,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 .dot.keep { background: var(--keep); outline: 1px solid var(--ink); outline-offset: -1px; } .dot.drop { background: var(--drop); } .dot.unsure { background: var(--unsure); } .dot.none { background: transparent; outline: 1px dashed var(--muted); outline-offset: -1px; }
 .bar label { margin-left: auto; display: inline-flex; gap: 6px; align-items: center; color: var(--muted); cursor: pointer; }
-.status { flex-basis: 100%; font-size: 13px; color: var(--muted); }
+.banner { flex-basis: 100%; margin: 0; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 14px; font-weight: 500; line-height: 1.45; }
+.banner[data-state="ready"] { background: var(--keep); color: var(--keep-ink); border-color: transparent; }
+.banner[data-state="busy"] { border: 1px dashed var(--ink); }
+.banner[data-state="off"] { background: var(--drop); color: var(--drop-ink); border-color: transparent; }
 section h2 { font-family: var(--display); font-weight: 500; font-size: 21px; margin: 0 0 4px; }
 section > p { margin: 0 0 14px; color: var(--muted); max-width: 62ch; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 18px 14px; }
@@ -47,9 +50,14 @@ section > p { margin: 0 0 14px; color: var(--muted); max-width: 62ch; }
 .seg button { font: 500 14px/1 var(--body); padding: 11px 0; min-height: 44px; border: 0; background: var(--surface); color: var(--ink); cursor: pointer; }
 .seg button + button { border-left: 1px solid var(--line); }
 .seg button[aria-pressed="true"][data-v="keep"] { background: var(--keep); color: var(--keep-ink); font-weight: 600; }
-.seg button[aria-pressed="true"][data-v="drop"] { background: var(--drop); color: #fff; font-weight: 600; }
-.seg button[aria-pressed="true"][data-v="unsure"] { background: var(--unsure); color: #fff; font-weight: 600; }
+.seg button[aria-pressed="true"][data-v="drop"] { background: var(--drop); color: var(--drop-ink); font-weight: 600; }
+.seg button[aria-pressed="true"][data-v="unsure"] { background: var(--unsure); color: var(--keep-ink); font-weight: 600; }
 .seg button:disabled { cursor: default; }
+.seg button:disabled:not([aria-pressed="true"]):not([data-pending="true"]) { color: var(--muted); }
+.seg button[data-pending="true"] { background: repeating-linear-gradient(-45deg, var(--surface) 0 6px, var(--line) 6px 12px); color: var(--ink); font-weight: 600; }
+.saved { margin: -2px 0 0; min-height: 1.45em; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.saved[data-kind="ok"] { color: var(--ink); }
+.saved[data-kind="error"] { color: var(--err); font-weight: 500; }
 .seg button:focus-visible, .note:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
 .note { width: 100%; font: 14px/1.4 var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; resize: vertical; min-height: 40px; }
 .note::placeholder { color: var(--muted); }
@@ -59,7 +67,7 @@ section > p { margin: 0 0 14px; color: var(--muted); max-width: 62ch; }
 <div class="wrap">
   <header>
     <h1>คลังชิ้นส่วน CutPack</h1>
-    <p>การ์ดและวิดเจ็ตจากคลิปตัวอย่างของ skill editorial ทั้ง 26 ชิ้น กดเลือก <b>เก็บ</b> / <b>ไม่แน่ใจ</b> / <b>ทิ้ง</b> ใต้แต่ละชิ้น ถ้าอยากให้ปรับอะไรพิมพ์ไว้ในช่องหมายเหตุได้ ระบบบันทึกให้ทันที ชิ้นที่เก็บจะถูกแปลงเป็นชิ้นส่วนในคลังของ CutPack</p>
+    <p>การ์ดและวิดเจ็ตจากคลิปตัวอย่างของ skill editorial ทั้ง 26 ชิ้น กดเลือก <b>เก็บ</b> / <b>ไม่แน่ใจ</b> / <b>ทิ้ง</b> ใต้แต่ละชิ้น ถ้าอยากให้ปรับอะไรพิมพ์ไว้ในช่องหมายเหตุได้ หยุดพิมพ์แล้วระบบบันทึกให้เอง กดเลือกแล้วรอให้กรอบรอบคลิปเปลี่ยนสี แปลว่าบันทึกแล้ว ชิ้นที่เก็บจะถูกแปลงเป็นชิ้นส่วนในคลังของ CutPack</p>
   </header>
 
   <div class="bar" role="status" aria-live="polite">
@@ -68,7 +76,7 @@ section > p { margin: 0 0 14px; color: var(--muted); max-width: 62ch; }
     <span class="count"><span class="dot drop"></span>ทิ้ง <span id="n-drop">0</span></span>
     <span class="count"><span class="dot none"></span>ยังไม่เลือก <span id="n-none">26</span></span>
     <label for="only-open"><input type="checkbox" id="only-open"> แสดงเฉพาะที่ยังไม่เลือก</label>
-    <span class="status" id="status">กำลังโหลดตัวเลือกที่บันทึกไว้…</span>
+    <p class="banner" id="status" data-state="wait">กำลังเชื่อมต่อที่เก็บข้อมูล… ปุ่มจะกดได้เมื่อแถบนี้เปลี่ยนเป็นสีเขียว</p>
   </div>
 
   <section>
@@ -113,10 +121,19 @@ const PARTS = [
   ['ov','W13','แว่นขยาย · ค้นหา','หาสาเหตุ, ค้นหา, ตรวจ','เต้นตรงคำเน้น'],
   ['ov','W14','เป้าล็อก · ลูกศรเข้ากลาง','ประโยคปิด "ให้ถูกจุด", เป้าหมาย','ลูกศรเข้าเป้า'],
 ];
-const state = {};               // id -> {choice, note}
-const pending = {};             // id -> promise chain, one write at a time per doc
-let db = null, canWrite = true;
+// The frame round a clip changes colour only for what the store has confirmed.
+// Taps wait until the page is connected; nothing is shown as saved before it is.
+const confirmed = {};           // id -> {choice, note}, as the store holds it
+const want = {};                // id -> {choice, note}, asked for and not confirmed yet
+const busy = {};                // id -> true while a write to that doc is running (one at a time)
+const drafts = new Set();       // ids whose note box holds text not saved yet
+const timers = {};              // id -> pause timer for note typing
+const LABEL = {keep: 'เก็บ', unsure: 'ไม่แน่ใจ', drop: 'ทิ้ง'};
+const OFF_OPEN = 'หน้านี้บันทึกตัวเลือกไม่ได้ ปุ่มจึงปิดไว้ เปิดลิงก์นี้ในแอป Claude หรือที่ claude.ai โดยล็อกอินบัญชีเจ้าของหน้า';
+const OFF_LOST = 'ขาดการเชื่อมต่อกับที่เก็บข้อมูล ปิดแล้วเปิดหน้านี้ใหม่ ชิ้นที่มีกรอบสีบันทึกไว้แล้ว';
+let db = null, mode = 'wait', offText = '', slow = false;   // mode: wait | ready | readonly | off
 const $ = s => document.querySelector(s);
+const noteEl = id => document.getElementById('note-' + id);
 
 function tile([sec, id, name, use, hit]) {
   const el = document.createElement('div');
@@ -133,13 +150,15 @@ function tile([sec, id, name, use, hit]) {
       <button type="button" data-v="unsure" aria-pressed="false">ไม่แน่ใจ</button>
       <button type="button" data-v="drop" aria-pressed="false">ทิ้ง</button>
     </div>
+    <p class="saved" id="saved-${id}"></p>
     <textarea class="note" id="note-${id}" rows="1" placeholder="หมายเหตุ (ไม่บังคับ)" aria-label="หมายเหตุสำหรับ ${id}"></textarea>`;
   el.querySelector('.name').textContent = name;
   el.querySelector('.use').textContent = use;
   el.querySelector('.hit').textContent = hit;
   el.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => choose(id, b.dataset.v)));
   const note = el.querySelector('.note');
-  note.addEventListener('change', () => save(id, {choice: (state[id] || {}).choice || null, note: note.value.trim()}));
+  note.addEventListener('input', () => { drafts.add(id); clearTimeout(timers[id]); timers[id] = setTimeout(() => saveNote(id), 1200); });
+  note.addEventListener('change', () => { clearTimeout(timers[id]); saveNote(id); });
   return el;
 }
 PARTS.forEach(p => $(p[0] === 'ed' ? '#grid-ed' : '#grid-ov').appendChild(tile(p)));
@@ -147,38 +166,96 @@ PARTS.forEach(p => $(p[0] === 'ed' ? '#grid-ed' : '#grid-ov').appendChild(tile(p
 function paint() {
   const n = {keep: 0, unsure: 0, drop: 0, none: 0};
   const onlyOpen = $('#only-open').checked;
+  const live = mode === 'ready';
+  let saving = 0;
   document.querySelectorAll('.item').forEach(el => {
-    const s = state[el.dataset.id] || {};
-    const c = s.choice || null;
+    const id = el.dataset.id;
+    const c = (confirmed[id] || {}).choice || null;
+    const asked = busy[id] && want[id] ? (want[id].choice || null) : c;
+    const pend = asked !== c ? (asked || c) : null;      // the button whose save is running
     n[c || 'none']++;
+    if (busy[id]) saving++;
     el.dataset.choice = c || '';
-    el.querySelectorAll('.seg button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.v === c)); b.disabled = !canWrite; });
-    const note = el.querySelector('.note');
-    if (document.activeElement !== note) note.value = s.note || '';
-    note.disabled = !canWrite;
+    el.querySelectorAll('.seg button').forEach(b => {
+      b.setAttribute('aria-pressed', String(b.dataset.v === c));
+      b.dataset.pending = String(b.dataset.v === pend);
+      b.disabled = !live || !!busy[id];
+    });
+    const note = noteEl(id);
+    if (document.activeElement !== note && !drafts.has(id)) note.value = (confirmed[id] || {}).note || '';
+    note.disabled = !live;
     el.hidden = onlyOpen && !!c;
   });
   for (const k in n) $('#n-' + k).textContent = n[k];
+  const bar = $('#status');
+  let state = mode, text = {
+    wait: slow ? 'ยังติดต่อที่เก็บข้อมูลไม่ได้ ปุ่มจึงยังปิดอยู่ รอสักครู่ หรือตรวจอินเทอร์เน็ต'
+               : 'กำลังเชื่อมต่อที่เก็บข้อมูล… ปุ่มจะกดได้เมื่อแถบนี้เปลี่ยนเป็นสีเขียว',
+    ready: 'พร้อมบันทึก · กดเลือกแล้วรอให้กรอบรอบคลิปเปลี่ยนสี แปลว่าบันทึกแล้ว',
+    readonly: 'ดูได้อย่างเดียว หน้านี้ให้เจ้าของหน้าเป็นคนเลือก',
+    off: offText,
+  }[mode];
+  if (live && saving) { state = 'busy'; text = `กำลังบันทึก ${saving} ชิ้น… อย่าเพิ่งปิดหน้านี้`; }
+  bar.dataset.state = state;
+  if (bar.textContent !== text) bar.textContent = text;
 }
 $('#only-open').addEventListener('change', paint);
 
+function setMode(m, text) { mode = m; if (text) offText = text; paint(); }
+function msg(id, kind, text) { const el = document.getElementById('saved-' + id); el.dataset.kind = kind; el.textContent = text; }
+const same = (a, b) => (a.choice || null) === (b.choice || null) && (a.note || '') === (b.note || '');
+
 function choose(id, v) {
-  const cur = state[id] || {};
-  const choice = cur.choice === v ? null : v;           // tap again to clear
-  const note = document.getElementById('note-' + id).value.trim();
-  save(id, {choice, note});
+  if (mode !== 'ready' || busy[id]) return;
+  clearTimeout(timers[id]);
+  const choice = (confirmed[id] || {}).choice === v ? null : v;   // tap again to clear
+  queue(id, {choice, note: noteEl(id).value.trim()});
 }
-function save(id, body) {
-  const before = state[id];
-  state[id] = body; paint();
-  if (!db) { $('#status').textContent = 'บันทึกไม่ได้ในหน้านี้ เปิดหน้านี้จาก claude.ai เพื่อให้ตัวเลือกถูกบันทึก'; return; }
-  pending[id] = (pending[id] || Promise.resolve()).then(() => db.collection('picks').doc(id).set(body))
-    .then(() => { $('#status').textContent = 'บันทึกแล้ว'; })
-    .catch(e => {
-      state[id] = before; paint();
-      if (e && e.code === 'invalid_argument') { canWrite = false; paint(); $('#status').textContent = 'หน้านี้ให้เจ้าของเป็นคนเลือกเท่านั้น คุณดูได้อย่างเดียว'; }
-      else $('#status').textContent = 'บันทึกไม่สำเร็จ ลองกดใหม่อีกครั้ง';
-    });
+function saveNote(id) {
+  if (mode !== 'ready') return;
+  const base = want[id] || confirmed[id] || {};
+  queue(id, {choice: base.choice || null, note: noteEl(id).value.trim()});
+}
+function queue(id, body) {
+  want[id] = body;
+  if (busy[id]) { paint(); return; }    // the running save picks up the newest request when it ends
+  run(id);
+}
+async function run(id) {
+  busy[id] = true; msg(id, '', 'กำลังบันทึก…'); paint();
+  while (want[id]) {
+    const body = want[id];
+    if (same(body, confirmed[id] || {})) { delete want[id]; msg(id, '', ''); break; }
+    try {
+      await write(id, body);
+      confirmed[id] = body;
+      if (want[id] === body) delete want[id];
+      if (noteEl(id).value.trim() === body.note) drafts.delete(id);
+      msg(id, 'ok', body.choice ? 'บันทึกแล้ว: ' + LABEL[body.choice] : body.note ? 'บันทึกหมายเหตุแล้ว' : 'ล้างตัวเลือกแล้ว');
+    } catch (e) {
+      delete want[id];
+      const code = e && e.code;
+      if (code === 'invalid_argument' || code === 'transform_error') {
+        msg(id, 'error', 'บันทึกไม่ได้ หน้านี้ให้เจ้าของหน้าเป็นคนเลือก'); setMode('readonly');
+      } else if (['revoked', 'not_granted', 'capability_disabled', 'capability_removed'].includes(code)) {
+        msg(id, 'error', 'ยังไม่ได้บันทึก'); setMode('off', OFF_LOST);
+      } else {
+        msg(id, 'error', 'ยังไม่ได้บันทึก ลองอีกครั้ง');
+      }
+      break;
+    }
+  }
+  busy[id] = false; paint();
+}
+async function write(id, body) {
+  const ref = db.collection('picks').doc(id);
+  try { await ref.set(body); }
+  catch (e) {
+    const final = ['invalid_argument', 'transform_error', 'resource_exhausted', 'quota_exceeded', 'revoked', 'not_granted', 'capability_disabled', 'capability_removed'];
+    if (e && final.includes(e.code)) throw e;
+    await new Promise(r => setTimeout(r, 400 + Math.random() * 600));   // a passing hiccup: try once more
+    await ref.set(body);
+  }
 }
 
 // play only the clips on screen
@@ -190,17 +267,18 @@ paint();
 
 (async () => {
   const c = window.claude;
-  if (!c || !c.use) { $('#status').textContent = 'เปิดหน้านี้จาก claude.ai เพื่อให้ตัวเลือกถูกบันทึก'; return; }
+  if (!c || typeof c.use !== 'function') { setMode('off', OFF_OPEN); return; }
   const [d, u] = await Promise.all([c.use('db'), c.use('user')]);
-  if (u && typeof u.isOwner === 'function' && !u.isOwner()) { canWrite = false; }
+  if (!d) { setMode('off', OFF_OPEN); return; }
+  if (u && !(await u.isOwner())) mode = 'readonly';
   db = d;
-  if (!db) { $('#status').textContent = 'ยังเชื่อมที่เก็บข้อมูลไม่ได้ ตัวเลือกจะยังไม่ถูกบันทึก'; paint(); return; }
-  const timer = setTimeout(() => { $('#status').textContent = 'ยังโหลดตัวเลือกที่บันทึกไว้ไม่ได้ อาจไม่ใช่ข้อมูลล่าสุด'; }, 10000);
+  const timer = setTimeout(() => { slow = true; paint(); }, 10000);
   db.collection('picks').onSnapshot(snap => {
-    snap.docs.forEach(doc => { if (doc.exists) state[doc.id] = doc.data(); });
-    snap.docChanges().forEach(ch => { if (ch.type === 'removed') delete state[ch.doc.id]; });
-    if (!snap.metadata.fromCache) { clearTimeout(timer); $('#status').textContent = canWrite ? 'พร้อม: กดเลือกแล้วระบบบันทึกให้ทันที' : 'ดูได้อย่างเดียว'; }
+    // a doc with hasPendingWrites is this page's own save before the store confirms it: skip it
+    snap.docs.forEach(doc => { if (doc.exists && !doc.metadata.hasPendingWrites) confirmed[doc.id] = doc.data(); });
+    snap.docChanges().forEach(ch => { if (ch.type === 'removed') delete confirmed[ch.doc.id]; });
+    if (!snap.metadata.fromCache) { clearTimeout(timer); slow = false; if (mode === 'wait') mode = 'ready'; }
     paint();
-  }, () => { clearTimeout(timer); $('#status').textContent = 'โหลดตัวเลือกที่บันทึกไว้ไม่ได้'; });
+  }, () => { clearTimeout(timer); setMode('off', OFF_LOST); });
 })();
 </script>
