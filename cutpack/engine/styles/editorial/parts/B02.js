@@ -62,10 +62,12 @@ PART('B02', 'v4', {name: 'มาตรวัดเข็ม', bgs: ['glow', 'whi
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', up = s.dir === 'up', R = 330, cx = 540, cy = 880;
   const arc = (a0, a1) => { const p = a => [cx + R * Math.cos(a * Math.PI / 180), cy - R * Math.sin(a * Math.PI / 180)]; const [x0, y0] = p(a0), [x1, y1] = p(a1); return `M${x0} ${y0} A${R} ${R} 0 0 1 ${x1} ${y1}`; };
   const g = svg(1080, 1000, `<path d="${arc(180, 0)}" fill="none" stroke="${o.track}" stroke-width="64" stroke-linecap="round"/>
-    <path d="${arc(180, 0)}" fill="none" stroke="${dirCol(s, dark)}" stroke-width="64" stroke-linecap="round"/>`, 'left:0;top:0', c);
+    <path d="${arc(180, 0)}" fill="none" stroke="${dirCol(s, dark)}" stroke-width="64" stroke-linecap="butt"/>
+    <circle cx="${cx - R}" cy="${cy}" r="32" fill="${dirCol(s, dark)}"/>`, 'left:0;top:0', c);   // round start, flat moving end
   mv.show(g, T.t0 + .02);
-  // the coloured arc follows the needle: half full at rest, then grows (up) or shrinks back (down) with it
-  mv.ring(g.querySelectorAll('path')[1], T.hit - .3, up ? 150 / 180 : 30 / 180, .5);
+  // the coloured arc ends exactly under the needle: same start, duration and curve as the needle's swing, and a flat
+  // end (a round cap would run 32 px ahead of it) — Friend 2026-11-03: "ต้องวิ่งตามเข็ม ไม่วิ่งตามและไม่วิ่งนำ"
+  mv.ring(g.querySelectorAll('path')[1], T.hit - .3, up ? 150 / 180 : 30 / 180, .5, MOTION.slide);
   const needle = div(`left:${cx - 9}px;top:${cy - 300}px;width:18px;height:300px;border-radius:9px;background:${o.ink};transform-origin:50% 100%`, c);
   mv.pop(needle, T.t0 + .1, 'scaleY(0)');   // entrance first: the swing below is created later, so it wins
   mv.slide(needle, T.hit - .3, 'rotate(0deg)', `rotate(${up ? 60 : -60}deg)`);

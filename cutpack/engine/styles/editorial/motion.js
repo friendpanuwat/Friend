@@ -59,8 +59,9 @@ const mv = {
     HOOKS.push(tt => { el.textContent = fmt(from + (to - from) * p(tt)); });
   },
   /* NEW ring: circle stroke fills to fraction f (0..1) */
-  ring:   (circle, t, f, f0 = 0) => { circle.setAttribute('pathLength', 1); circle.style.strokeDasharray = 1;
-    A(circle, [{strokeDashoffset: 1 - f0}, {strokeDashoffset: 1 - f}], t, MOTION.ring.d, {e: MOTION.ring.e}); },
+  /* with = another motion's timing, e.g. MOTION.slide, so the ring moves in lockstep with that element */
+  ring:   (circle, t, f, f0 = 0, w = MOTION.ring) => { circle.setAttribute('pathLength', 1); circle.style.strokeDasharray = 1;
+    A(circle, [{strokeDashoffset: 1 - f0}, {strokeDashoffset: 1 - f}], t, w.d, {e: w.e}); },
 };
 
 /* =====================================================================

@@ -41,7 +41,7 @@ PART('B04', 'v2', {name: 'เช็กลิสต์ติ๊กทีละข
 });
 
 /* v3: a path with stops — the line draws down, each stop lights up when its item is said */
-PART('B04', 'v3', {name: 'เส้นทางมีจุดแวะ', bgs: ['glow', 'navy', 'white', 'cream'], slots: B04_SLOTS, dur: [1.6, 4.0],
+PART('B04', 'v3', {name: 'เส้นทางมีจุดแวะ', bgs: ['glow', 'white', 'cream'],   /* navy out: Friend 2026-11-03 */ slots: B04_SLOTS, dur: [1.6, 4.0],
   hit: 'จุดแวะสว่างทีละจุด จุดสุดท้ายมีธงตรงคำสำคัญ'}, (c, s, T) => {
   checkItems(s); const o = ON[T.bg], dark = o.ink === '#FFFFFF', at = itemTimes(s, T), n = s.items.length;
   const step = Math.min(200, 760 / (n - 1)), top = 680 - step * (n - 1) / 2, x = 190;

@@ -27,7 +27,7 @@ B04 v1 0 glow
 B04 v1 1 glow
 B04 v2 0 cream
 B04 v2 1 white
-B04 v3 0 navy
+B04 v3 0 glow
 B04 v3 1 cream
 B04 v4 0 glow
 B04 v4 1 cream
@@ -37,5 +37,3 @@ B14 v2 0 glow
 B14 v2 1 glow
 B14 v3 0 cream
 B14 v3 1 white
-B14 v4 0 glow
-B14 v4 1 navy

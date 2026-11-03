@@ -46,14 +46,4 @@ PART('B14', 'v3', {name: 'ลายมือ Sriracha คู่กับ Mitr', 
   snd('key', T.hit - .04);
 });
 
-/* v4: glow card — one phrase per line, large, left-aligned, rising like credits; the key line is accent */
-PART('B14', 'v4', {name: 'บรรทัดเลื่อนขึ้นทีละบรรทัด', bgs: ['glow', 'navy'], slots: B14_SLOTS, dur: [1.4, 3.5],
-  hit: 'บรรทัดคำสำคัญขึ้นเป็นสีเน้นและเด้ง'}, (c, s, T) => {
-  checkWords(s); const at = phraseTimes(s, T), n = s.words.length, lh = n > 5 ? 130 : 150, top = 760 - (n * lh) / 2;
-  s.words.forEach((w, i) => {
-    const key = i === s.key, r = div(`left:110px;top:${top + i * lh}px;width:860px;font-family:${key ? 'KeySans' : 'CardSans'};font-size:${key ? 128 : 96}px;line-height:1.15;white-space:nowrap;color:${key ? ACC : '#fff'};letter-spacing:${key ? -3 : -1}px;opacity:0`, c);
-    r.textContent = w; fitW(r, 860);
-    if (key) { mv.key(r, at[i]); mv.punch(r, at[i] + .3); } else mv.lead(r, at[i]);
-  });
-  snd('key', T.hit - .04);
-});
+/* v4 'บรรทัดเลื่อนขึ้นทีละบรรทัด' was dropped by Friend on 2026-11-03 (see library/base-parts/README.md); the code is in git history. */
