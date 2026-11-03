@@ -27,7 +27,7 @@
 | `model-test/editorial-v0/` | เทียบโมเดล 9 แบบ (Sonnet, Opus และ Haiku ที่ effort low, medium, high) ผลคือ Sonnet กับ Opus ใกล้กัน ส่วน Haiku ทำการ์ดได้น้อยและบางกว่า ความเห็นของ Friend อยู่ใน `README.md` |
 | `library/base-list/` | รายการชิ้นฐาน 15 หมวดให้ Friend กด เอา / ปรับ / ตัด อยู่ที่ https://claude.ai/artifact/KKhuSbGNcGbn7XrkheDMa1 เป็นแนวทางใหม่ที่ใช้แทนการเลือกจากแกลเลอรี 26 ชิ้น |
 | `engine/` | เอนจินกลาง (สำเนาจาก skill editorial ตรงกันทุกพิกเซล) + ไอคอน Lucide ครบชุด + ชุดท่าเคลื่อนไหวที่ล็อกของ editorial (`styles/editorial/motion.js`) + ชิ้นฐาน 20 แบบ + ตัวตรวจ `tools/check_parts.py` ดู `engine/README.md` |
-| `library/base-parts/` | ชิ้นฐาน editorial ครบ 15 หมวด: รอบแรก 5 หมวด (19 แบบหลังตัด B14-v4) ที่ https://claude.ai/artifact/T3uL5XmH2kW3qDhun8fsTT และรอบสอง 10 หมวด (40 แบบ) ที่หน้า `gallery2.html` ผลแต่ละหน้าเก็บใน collection `variants` ของหน้านั้น สร้างหน้าใหม่ด้วย `make_gallery.py` |
+| `library/base-parts/` | ชิ้นฐาน editorial ครบ 15 หมวด: รอบแรก 5 หมวด (19 แบบหลังตัด B14-v4) ที่ https://claude.ai/artifact/T3uL5XmH2kW3qDhun8fsTT และรอบสอง 10 หมวด (40 แบบ) ที่ https://claude.ai/artifact/M7kKYWCsUVvn1uM8JmPUb4 (`gallery2.html`) ผลแต่ละหน้าเก็บใน collection `variants` ของหน้านั้น สร้างหน้าใหม่ด้วย `make_gallery.py` |
 | `library/sample-clip/` | คลิปตัวอย่างที่ Friend ส่งมา (10 วินาที) |
 | `library/gallery/` | หน้าแกลเลอรีให้ Friend เลือกเก็บหรือทิ้งการ์ด 26 ชิ้น อยู่ที่ https://claude.ai/artifact/MfHsnKa7qnP96UjNFe3cg7 |
 
@@ -40,7 +40,7 @@
 ## รอ Friend อยู่
 
 1. ~~ผลการเลือกชิ้นฐาน~~ ได้แล้ว: เอาครบ 15 หมวด (ดู `library/base-list/README.md`) ที่เดิมอ่านด้วย `ArtifactData` `list` ที่ collection `base` ของหน้า base-list ส่วนแกลเลอรี 26 ชิ้นไม่ต้องเลือกแล้ว (Friend เห็นว่าเจาะจงกับคลิปของตัวเองเกินไป) ถ้าต้องอ่านแกลเลอรีเก่า อ่านด้วย `ArtifactData` `list` ที่ collection `picks` ของ URL ข้างบน แต่ละ document มี id เป็นชื่อชิ้นส่วน เช่น `C2` หรือ `W6` และเก็บค่า `{choice: keep|unsure|drop|null, note}`
-2. **ผลการเลือกแบบชิ้นฐานรอบแรก** อ่านด้วย `ArtifactData` `list` ที่ collection `variants` ของหน้า base-parts แล้วนำความเห็นไปใช้กับอีก 10 หมวด
+2. **ผลการเลือกแบบชิ้นฐานรอบสอง** อ่านด้วย `ArtifactData` `list` ที่ collection `variants` ของหน้า https://claude.ai/artifact/M7kKYWCsUVvn1uM8JmPUb4 (รอบแรกได้ผลครบแล้ว ดู `library/base-parts/README.md`)
 3. **คลิปจริง 20–30 คลิป** และ **คีย์ API** ที่ใส่ในตั้งค่า environment ได้แก่ `ANTHROPIC_API_KEY`, `GROQ_API_KEY` และ `OPENAI_API_KEY` ถ้าจะใช้เทียบการถอดเสียง
 4. เรื่องที่ยังไม่ได้ตัดสิน 7 ข้อใน `DECISIONS.md` ข้อ 9
 

@@ -20,7 +20,7 @@ PART('B15', 'v1', {name: 'ปุ่มถูกกด', bgs: ['glow', 'cream', '
   const i1 = div(`left:-10px;top:-10px;width:130px;height:130px;display:flex;align-items:center;justify-content:center;background:${ACC};opacity:0`, icw, ico('check', 110, INK, 3));   // covers the old icon, no overlap
   const w = div('position:relative;font-family:KeySans;font-size:96px;color:' + INK, btn); w.textContent = word;
   mv.chip(btn, T.t0 + .05);
-  cursor(c, [[T.hit - .6, 880, 900], [T.hit - .05, 600, 560], [T.hit + .55, 760, 760]], [T.hit]);   // leaves the button after the press
+  cursor(c, [[T.hit - .6, 880, 900], [T.hit - .05, 600, 560], [T.hit + .55, 880, 560]], [T.hit]);   // leaves the button to the right, clear of the text under it
   mv.dim(i0, T.hit); mv.pop(i1, T.hit + .02, 'scale(.3)'); mv.punch(btn, T.hit);
   snd('hit', T.hit);
   mv.lead(askLine(c, s, 820, o.ink), T.t0 + .3);
