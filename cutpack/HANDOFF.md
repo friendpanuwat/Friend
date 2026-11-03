@@ -37,7 +37,7 @@
 
 ## รอ Friend อยู่
 
-1. **ผลการเลือกชิ้นฐาน 15 หมวด** อ่านด้วย `ArtifactData` `list` ที่ collection `base` ของหน้า base-list ส่วนแกลเลอรี 26 ชิ้นไม่ต้องเลือกแล้ว (Friend เห็นว่าเจาะจงกับคลิปของตัวเองเกินไป) ถ้าต้องอ่านแกลเลอรีเก่า อ่านด้วย `ArtifactData` `list` ที่ collection `picks` ของ URL ข้างบน แต่ละ document มี id เป็นชื่อชิ้นส่วน เช่น `C2` หรือ `W6` และเก็บค่า `{choice: keep|unsure|drop|null, note}`
+1. ~~ผลการเลือกชิ้นฐาน~~ ได้แล้ว: เอาครบ 15 หมวด (ดู `library/base-list/README.md`) ที่เดิมอ่านด้วย `ArtifactData` `list` ที่ collection `base` ของหน้า base-list ส่วนแกลเลอรี 26 ชิ้นไม่ต้องเลือกแล้ว (Friend เห็นว่าเจาะจงกับคลิปของตัวเองเกินไป) ถ้าต้องอ่านแกลเลอรีเก่า อ่านด้วย `ArtifactData` `list` ที่ collection `picks` ของ URL ข้างบน แต่ละ document มี id เป็นชื่อชิ้นส่วน เช่น `C2` หรือ `W6` และเก็บค่า `{choice: keep|unsure|drop|null, note}`
 2. **คลิปจริง 20–30 คลิป** และ **คีย์ API** ที่ใส่ในตั้งค่า environment ได้แก่ `ANTHROPIC_API_KEY`, `GROQ_API_KEY` และ `OPENAI_API_KEY` ถ้าจะใช้เทียบการถอดเสียง
 3. เรื่องที่ยังไม่ได้ตัดสิน 7 ข้อใน `DECISIONS.md` ข้อ 9
 
