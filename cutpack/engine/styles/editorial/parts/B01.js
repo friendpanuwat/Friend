@@ -46,7 +46,7 @@ PART('B01', 'v2', {name: 'วงแหวนเปอร์เซ็นต์', 
   const mid = div('left:260px;top:240px;width:560px;height:560px;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0', c);
   mid.innerHTML = ico(s.icon, 84, o.soft, 2);
   const n = div(`position:relative;font-family:KeySans;font-size:150px;line-height:1.05;letter-spacing:-4px;color:${o.ink};white-space:nowrap`, mid);
-  FITS.push(() => { n.textContent = (s.pre ?? '') + fmtNum(s.num, decOf(s.num)) + (s.unit === '%' ? '%' : ''); const w = n.scrollWidth; if (w > 330) n.style.fontSize = `${150 * 330 / w}px`; });
+  FITS.push(() => { n.textContent = (s.pre ?? '') + fmtNum(s.num, decOf(s.num)) + (s.unit === '%' ? '%' : ''); const w = n.scrollWidth; if (w > 300) n.style.fontSize = `${150 * 300 / w}px`; });   // 300 px keeps clear of the ring (Friend 2026-11-03)
   mv.show(mid, T.t0 + .15);
   mv.count(n, T.hit - MOTION.ring.d, 0, s.num, v => (s.pre ?? '') + fmtNum(v, decOf(s.num)) + (s.unit === '%' ? '%' : ''));
   if (s.unit && s.unit !== '%') div(`position:relative;font-family:CardSans;font-size:56px;color:${o.soft}`, mid).textContent = s.unit;

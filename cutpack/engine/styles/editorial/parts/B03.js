@@ -84,7 +84,7 @@ PART('B03', 'v4', {name: 'แถบเลื่อนก่อนไปหลั
   half(430, ACC, s.ib, INK, s.b, INK);
   const cover = div(`left:430px;top:0;width:430px;height:600px;background:${dark ? '#262C3D' : '#C9CDD6'};display:flex;align-items:center;justify-content:center`, fr, ico('circle-help', 140, dark ? 'rgba(255,255,255,.45)' : 'rgba(20,33,61,.45)', 2));
   const handle = div(`left:422px;top:0;width:16px;height:600px;background:#fff;box-shadow:0 0 24px rgba(0,0,0,.35)`, fr);
-  mv.slide(cover, T.hit - .2, 'translateX(0)', 'translateX(430px)'); mv.slide(handle, T.hit - .2, 'translateX(0)', 'translateX(430px)');
+  mv.slide(cover, T.hit - .2, 'translateX(0)', 'translateX(480px)'); mv.slide(handle, T.hit - .2, 'translateX(0)', 'translateX(480px)');   // fully out: no sliver at the edge
   const arrow = div('left:490px;top:960px;width:100px;height:100px;opacity:0', c, ico('arrow-right', 100, o.ink, 2.4)); mv.pop(arrow, T.t0 + .3);
   ripple(c, 755, 630, T.hit + .25, 3.4, dark ? ACC : NAVY); snd('swipe', T.hit - .2); snd('hit', T.hit + .25);
   cardText(c, T, s.lead, s.key, 1280);

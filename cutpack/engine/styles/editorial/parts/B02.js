@@ -20,7 +20,6 @@ PART('B02', 'v1', {name: 'กราฟแท่ง', bgs: ['glow', 'cream', 'whi
   const b = bars(c, v0, T.t0 + .1, 'left:205px;top:360px', {w: 110, gap: 30, h: 540, color: base, last: dirCol(s, dark), ...(up ? {} : {to: v1, tTo: T.hit})});
   div(`left:185px;top:906px;width:710px;height:6px;border-radius:3px;background:${o.track}`, c);
   if (up) { mv.punch(b.lastChild, T.hit); ripple(c, 820, 360 + 540 * (1 - .92), T.hit, 3, dirCol(s, dark)); }
-  else mv.wobble(b, T.hit + .2);
   snd(up ? 'hit' : 'swipe', T.hit);
   if (s.num) chipAt(c, s.num, T.hit + .1, 820, 230);
   cardText(c, T, s.lead, s.key);
@@ -46,8 +45,8 @@ PART('B02', 'v2', {name: 'กราฟเส้น', bgs: ['glow', 'white', 'nav
 PART('B02', 'v3', {name: 'ลูกศรใหญ่คู่ตัวเลข', bgs: ['glow', 'navy', 'cream', 'white'], slots: B02_SLOTS, dur: [1.0, 3.0],
   hit: 'ลูกศรเด้ง + ตัวเลขขึ้นตรงคำ'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', up = s.dir === 'up';
-  const arrow = tile(c, up ? 'trending-up' : 'trending-down', T.t0 + .05, 'left:330px;top:300px', {size: 420, bg: up ? (dark ? ACC : NAVY) : RED, color: up ? (dark ? INK : '#fff') : '#fff', icon: .56, sound: false});
-  tile(c, s.icon, T.t0 + .2, 'left:150px;top:220px', {size: 170, bg: o.sub === 'glass' ? 'glass' : o.sub, color: o.ink, sound: false});
+  const arrow = tile(c, up ? 'trending-up' : 'trending-down', T.t0 + .05, 'left:360px;top:300px', {size: 420, bg: up ? (dark ? ACC : NAVY) : RED, color: up ? (dark ? INK : '#fff') : '#fff', icon: .56, sound: false});
+  tile(c, s.icon, T.t0 + .2, 'left:110px;top:170px', {size: 150, bg: o.sub === 'glass' ? 'glass' : o.sub, color: o.ink, sound: false});
   mv.punch(arrow.inner, T.hit); snd('hit', T.hit);
   if (s.num) {
     const w = div('left:60px;width:960px;top:800px;display:flex;justify-content:center', c);
@@ -63,9 +62,10 @@ PART('B02', 'v4', {name: 'มาตรวัดเข็ม', bgs: ['glow', 'whi
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', up = s.dir === 'up', R = 330, cx = 540, cy = 880;
   const arc = (a0, a1) => { const p = a => [cx + R * Math.cos(a * Math.PI / 180), cy - R * Math.sin(a * Math.PI / 180)]; const [x0, y0] = p(a0), [x1, y1] = p(a1); return `M${x0} ${y0} A${R} ${R} 0 0 1 ${x1} ${y1}`; };
   const g = svg(1080, 1000, `<path d="${arc(180, 0)}" fill="none" stroke="${o.track}" stroke-width="64" stroke-linecap="round"/>
-    <path d="${arc(180, up ? 30 : 150)}" fill="none" stroke="${dirCol(s, dark)}" stroke-width="64" stroke-linecap="round"/>`, 'left:0;top:0', c);
+    <path d="${arc(180, 0)}" fill="none" stroke="${dirCol(s, dark)}" stroke-width="64" stroke-linecap="round"/>`, 'left:0;top:0', c);
   mv.show(g, T.t0 + .02);
-  const fill = g.querySelectorAll('path')[1]; fill.style.opacity = 0; mv.show(fill, T.hit - .3); mv.draw(fill, T.hit - .3, .4);
+  // the coloured arc follows the needle: half full at rest, then grows (up) or shrinks back (down) with it
+  mv.ring(g.querySelectorAll('path')[1], T.hit - .3, up ? 150 / 180 : 30 / 180, .5);
   const needle = div(`left:${cx - 9}px;top:${cy - 300}px;width:18px;height:300px;border-radius:9px;background:${o.ink};transform-origin:50% 100%`, c);
   mv.pop(needle, T.t0 + .1, 'scaleY(0)');   // entrance first: the swing below is created later, so it wins
   mv.slide(needle, T.hit - .3, 'rotate(0deg)', `rotate(${up ? 60 : -60}deg)`);

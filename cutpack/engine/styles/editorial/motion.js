@@ -6,6 +6,10 @@
    tools/check_parts.py rejects them. Values are the skill's own; the few motions the skill did not have yet
    (count, slide, dim, ring) are marked NEW and reuse its curves.
    ===================================================================== */
+/* load every card font before the first measure (FITS): a font no visible text uses yet is not fetched,
+   and text measured in the fallback face fits wrong (B01.v2 ring number, Friend 2026-11-03) */
+['KeySans', 'KeySerif', 'Lead', 'CardSans'].forEach(f => div(`left:-9999px;top:0;font-family:${f}`, document.body, 'กขคฅ ึ่้ 0123'));
+
 const MOTION = Object.freeze({
   cut:    {d: .45, e: SMOOTH, from: 1.035},    // card hard-cut in, stage settles 1.035 → 1        (skill card())
   lead:   {d: .20, e: SMOOTH},                 // small words fade up out of a blur               (skill chunk())
@@ -55,8 +59,8 @@ const mv = {
     HOOKS.push(tt => { el.textContent = fmt(from + (to - from) * p(tt)); });
   },
   /* NEW ring: circle stroke fills to fraction f (0..1) */
-  ring:   (circle, t, f) => { circle.setAttribute('pathLength', 1); circle.style.strokeDasharray = 1;
-    A(circle, [{strokeDashoffset: 1}, {strokeDashoffset: 1 - f}], t, MOTION.ring.d, {e: MOTION.ring.e}); },
+  ring:   (circle, t, f, f0 = 0) => { circle.setAttribute('pathLength', 1); circle.style.strokeDasharray = 1;
+    A(circle, [{strokeDashoffset: 1 - f0}, {strokeDashoffset: 1 - f}], t, MOTION.ring.d, {e: MOTION.ring.e}); },
 };
 
 /* =====================================================================
@@ -79,7 +83,7 @@ function part(cat, v, t0, t1, opts) {
   }
   const c = card(t0, t1, {bg: bg === 'glow' ? 'black' : bg, sound: SOUND.cut[0], db: SOUND.cut[1]});
   if (bg === 'glow') mood(c, {seed: (t0 * 7) % 3});
-  if (bg === 'cream') curl(c, t0);
+  // no curl() page corners on cream: Friend 2026-11-03 — the black corner crescents read as a stray edge
   P.build(c, s, {t0, t1, hit, bg});
   return c;
 }
@@ -98,6 +102,7 @@ function cardText(c, T, lead, key, top = 1240, {keyStyle} = {}) {
   if (lead) rows.push([[lead, 'l', T.t0 + .15, {color: o.ink}]]);
   if (key) rows.push([[key, keyStyle ?? (dark ? 'k' : 'hl'), T.hit, {}]]);
   const el = txt(c, rows, `top:${top}px`, {H: 380});
+  el.style.rowGap = '26px';             // Thai marks above the key word must clear the lead line (Friend 2026-11-03)
   if (key) snd('key', T.hit - .04);
   return el;
 }

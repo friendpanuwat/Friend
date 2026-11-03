@@ -11,7 +11,7 @@ const checkItems = s => { if (s.items.length < 2 || s.items.length > 5) throw ne
 const rowText = (parent, text, css, color, size, t) => { const r = div(`${css};font-family:CardSans;font-size:${size}px;line-height:1.2;white-space:nowrap;color:${color};opacity:0`, parent); r.textContent = text; fitW(r, parseInt(/width:(\d+)/.exec(css)[1])); mv.lead(r, t); return r; };
 
 /* v1: numbered steps — diamond numbers, one row per step */
-PART('B04', 'v1', {name: 'ขั้น 1-2-3 ขึ้นทีละขั้น', bgs: ['glow', 'navy', 'cream', 'white'], slots: B04_SLOTS, dur: [1.6, 4.0],
+PART('B04', 'v1', {name: 'ขั้น 1-2-3 ขึ้นทีละขั้น', bgs: ['glow', 'cream', 'white'],   /* navy out: Friend prefers glow */ slots: B04_SLOTS, dur: [1.6, 4.0],
   hit: 'แต่ละขั้นขึ้นตรงคำของขั้นนั้น ขั้นสุดท้ายเด้ง'}, (c, s, T) => {
   checkItems(s); const o = ON[T.bg], at = itemTimes(s, T), n = s.items.length, gap = n > 4 ? 160 : 200, top = 680 - (n - 1) * gap / 2;
   s.items.forEach((it, i) => {
@@ -71,6 +71,7 @@ PART('B04', 'v4', {name: 'การ์ดซ้อนขึ้นทีละใ
     if (s.icons?.[i]) badge.innerHTML = ico(s.icons[i], 66, INK, 2.2); else badge.textContent = i + 1;
     rowText(p, it, 'left:44px;top:180px;width:690px', ink, 72, at[i] + .1);
     for (let j = i + 1; j < n; j++) { const k = j - i; mv.slide(w, at[j], `translateY(${-(k - 1) * 100}px) scale(${Math.pow(.92, k - 1)})`, `translateY(${-k * 100}px) scale(${Math.pow(.92, k)})`); }
+    if (i < n - 1) mv.dim(h, at[i + 1]);   // a card that steps back fades, so its text never competes with the top card
   });
   snd('hit', T.hit);
   cardText(c, T, s.lead, s.key, 1270);

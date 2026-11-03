@@ -19,7 +19,7 @@ PART('B14', 'v1', {name: 'คำขึ้นทีละคำ แล้วไ�
 });
 
 /* v2: navy card, small lead line, then the key word huge, its letters turning accent one by one (skill C6) */
-PART('B14', 'v2', {name: 'คำใหญ่เต็มจอ เปลี่ยนสีทีละตัว', bgs: ['navy', 'glow'], slots: B14_SLOTS, dur: [1.2, 3.5],
+PART('B14', 'v2', {name: 'คำใหญ่เต็มจอ เปลี่ยนสีทีละตัว', bgs: ['glow'],   /* navy out: Friend prefers glow */ slots: B14_SLOTS, dur: [1.2, 3.5],
   hit: 'คำใหญ่ขึ้นแล้วไล่สีทีละตัว'}, (c, s, T) => {
   checkWords(s); const at = phraseTimes(s, T);
   const before = s.words.slice(0, s.key), after = s.words.slice(s.key + 1);
