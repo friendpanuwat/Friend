@@ -4,3 +4,6 @@ E opus low      model=claude-opus-5-5 tokens=115848 tools=10 secs=115 cards=6 (5
 D sonnet high   model=claude-sonnet-5-5 tokens=147423 tools=14 secs=220 cards=7 (6 full + 1 frame) ~52%  previews=2 rounds; changed captions "ถ้าวันเนี่ย"->"ถ้าวันนี้", "อันเนี่ย"->"อันนี้", dropped "แบบ" and trailing "คุณ"
 A opus medium   model=claude-opus-5-5 tokens=157842 tools=23 secs=277 cards=6 (5 full + 1 frame) ~52%  previews=3 rounds; fixed C1 position, pill width, strike timing; added 4 Lucide icons; dropped "เนี่ย","แบบ" from captions
 C opus high     model=claude-opus-5-5 tokens=165046 tools=24 secs=345 cards=6 (5 full + 1 frame) ~52%  previews=3 rounds; added draining ring to hourglass, spaced 1/2/3 ปี, brighter banknotes; dropped "แบบ"
+I haiku low     model=claude-haiku-5-5 tokens=124454 tools=11 secs=122 cards=5 ~44%  previews=1+ rounds; kept "เนี่ย" as spoken; caption near mouth at 1.07–2.13 left unchecked; pill 3 not re-previewed
+G haiku medium  model=claude-haiku-5-5 tokens=144155 tools=12 secs=176 cards=7 ~53%  previews=2 rounds; no frame(); reported captions kept as given, but closing card shows "อันนี้" where the transcript says "อันเนี่ย"
+H haiku high    model=claude-haiku-5-5 tokens=180654 tools=16 secs=258 cards=7 + 1 frame ~50%  previews=1 round; reported transcript kept as given, but card K4 adds "อยู่ได้แค่" which the speaker does not say

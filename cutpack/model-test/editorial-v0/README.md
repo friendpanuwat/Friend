@@ -11,6 +11,7 @@
 
 **ไฟล์ในโฟลเดอร์นี้**
 - `editorial_models_1.jpg`, `editorial_models_2.jpg`: ภาพนิ่งที่วินาทีเดียวกันของทั้ง 6 แบบ เรียงเป็นคอลัมน์ Sonnet low → high แล้วต่อด้วย Opus low → high
+- `editorial_haiku_1.jpg`, `editorial_haiku_2.jpg`: รอบเพิ่มเติมของ Haiku 5.5 ที่ effort low / medium / high โดยใช้วิธีเดียวกัน วางคู่กับ Sonnet low เป็นตัวอ้างอิง
 - `timeline_X.js`, `plan_X.md`: งานของแต่ละแบบ (ตัวอักษรตรงกับแบบไหน ดูใน `MAPPING.txt`)
 - `RUNLOG.txt`: รุ่นโมเดลที่แต่ละแบบรายงาน, token รวม, เวลาที่ใช้, จำนวนรอบที่ดูภาพตัวอย่างแล้วแก้ และสิ่งที่แต่ละแบบเลือกทำเอง
 - สร้างแผ่นเทียบใหม่ได้ด้วย `../make_sheets.sh`
