@@ -1,0 +1,59 @@
+/* B14 ประโยคเด็ดตัวใหญ่ — a line worth remembering, type only. Also the fallback card when another part fails the checks.
+   words = the confirmed subtitle split into phrases (joined they must equal the subtitle); key = index of the one word to stress. */
+const B14_SLOTS = {
+  words: {type: 'list', min: 2, max: 7, req: true},   // phrases, ≤ 14 graphemes each
+  key:   {type: 'number', req: true},                 // index into words
+  at:    {type: 'list'},                              // when each phrase is said; default: spread from t0 to hit
+};
+const phraseTimes = (s, T) => s.at ?? s.words.map((_, i) => i === s.key ? T.hit : T.t0 + .15 + (T.hit - T.t0 - .15) * Math.min(i, s.key) / Math.max(1, s.key) + (i > s.key ? (i - s.key) * .18 : 0));
+const checkWords = s => { if (!(s.key >= 0 && s.key < s.words.length)) throw new Error('B14 key out of range'); s.words.forEach(w => { if (graphemes(w).length > 14) throw new Error(`B14 phrase longer than 14: ${w}`); }); };
+const flow = (c, top, W = 960, gap = 18) => { const b = div(`left:${(1080 - W) / 2}px;width:${W}px;top:${top}px;display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;column-gap:${gap}px;row-gap:6px`, c); return b; };
+
+/* v1: white card, phrases appear one by one in navy; the key word turns into an accent box (skill C5) */
+PART('B14', 'v1', {name: 'คำขึ้นทีละคำ แล้วไฮไลต์คำสำคัญ', bgs: ['white', 'cream'], slots: B14_SLOTS, dur: [1.2, 3.5],
+  hit: 'คำสำคัญเด้งเป็นกล่องสีเน้น'}, (c, s, T) => {
+  checkWords(s); const at = phraseTimes(s, T), b = flow(c, 640);
+  s.words.forEach((w, i) => chunk(b, w, i === s.key ? 'hl' : 'm', at[i], i === s.key ? {} : {color: NAVY, size: 96}));
+  FITS.push(() => { const h = b.offsetHeight; b.style.top = `${760 - h / 2}px`; });
+  snd('key', T.hit - .04);
+});
+
+/* v2: navy card, small lead line, then the key word huge, its letters turning accent one by one (skill C6) */
+PART('B14', 'v2', {name: 'คำใหญ่เต็มจอ เปลี่ยนสีทีละตัว', bgs: ['navy', 'glow'], slots: B14_SLOTS, dur: [1.2, 3.5],
+  hit: 'คำใหญ่ขึ้นแล้วไล่สีทีละตัว'}, (c, s, T) => {
+  checkWords(s); const at = phraseTimes(s, T);
+  const before = s.words.slice(0, s.key), after = s.words.slice(s.key + 1);
+  if (before.length) { const b = flow(c, 560, 900, 14); before.forEach((w, i) => chunk(b, w, 'l', at[i], {size: 66})); }
+  const k = flow(c, 700); const kw = chunk(k, s.words[s.key], 'kw', T.hit, {wipe: true, size: 190});
+  FITS.push(() => { if (kw.scrollWidth > 960) kw.style.fontSize = `${190 * 960 / kw.scrollWidth}px`; });
+  if (after.length) { const a = flow(c, 960, 900, 14); after.forEach((w, i) => chunk(a, w, 'l', at[s.key + 1 + i], {size: 66})); }
+  snd('key', T.hit - .04);
+});
+
+/* v3: cream poster — the line in Mitr, the key word in Sriracha handwriting with an accent underline drawn at the hit */
+PART('B14', 'v3', {name: 'ลายมือ Sriracha คู่กับ Mitr', bgs: ['cream', 'white'], slots: B14_SLOTS, dur: [1.2, 3.5],
+  hit: 'คำสำคัญเป็นลายมือ มีเส้นใต้สีเน้นวาดตรงคำ'}, (c, s, T) => {
+  checkWords(s); const at = phraseTimes(s, T), b = flow(c, 640, 940, 20);
+  s.words.forEach((w, i) => {
+    const el = chunk(b, w, i === s.key ? 'iw' : 'm', at[i], i === s.key ? {color: NAVY, size: 150} : {color: NAVY, size: 92});
+    if (i === s.key) {
+      const u = svg(400, 60, `<path d="M6 40 Q 100 8 200 30 T 394 22" stroke="${ACC}" stroke-width="22" stroke-linecap="round" fill="none"/>`, 'left:0;bottom:-26px;width:100%;z-index:-1', el);
+      u.firstChild.setAttribute('preserveAspectRatio', 'none'); u.firstChild.setAttribute('viewBox', '0 0 400 60'); u.firstChild.style.width = '100%';
+      mv.draw(u.querySelector('path'), T.hit + .12, .35);
+    }
+  });
+  FITS.push(() => { const h = b.offsetHeight; b.style.top = `${760 - h / 2}px`; });
+  snd('key', T.hit - .04);
+});
+
+/* v4: glow card — one phrase per line, large, left-aligned, rising like credits; the key line is accent */
+PART('B14', 'v4', {name: 'บรรทัดเลื่อนขึ้นทีละบรรทัด', bgs: ['glow', 'navy'], slots: B14_SLOTS, dur: [1.4, 3.5],
+  hit: 'บรรทัดคำสำคัญขึ้นเป็นสีเน้นและเด้ง'}, (c, s, T) => {
+  checkWords(s); const at = phraseTimes(s, T), n = s.words.length, lh = n > 5 ? 130 : 150, top = 760 - (n * lh) / 2;
+  s.words.forEach((w, i) => {
+    const key = i === s.key, r = div(`left:110px;top:${top + i * lh}px;width:860px;font-family:${key ? 'KeySans' : 'CardSans'};font-size:${key ? 128 : 96}px;line-height:1.15;white-space:nowrap;color:${key ? ACC : '#fff'};letter-spacing:${key ? -3 : -1}px;opacity:0`, c);
+    r.textContent = w; fitW(r, 860);
+    if (key) { mv.key(r, at[i]); mv.punch(r, at[i] + .3); } else mv.lead(r, at[i]);
+  });
+  snd('key', T.hit - .04);
+});

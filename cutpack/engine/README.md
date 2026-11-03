@@ -1,20 +1,27 @@
-# CutPack engine
+# เอนจินของ CutPack
 
-Shared core used by every style. It's a copy of the `talking-head-editorial` skill engine, so CutPack edits don't touch Friend's personal skills, and skill edits don't touch CutPack.
+ส่วนกลางที่ทุกสไตล์ใช้ร่วมกัน คัดลอกมาจากเอนจินของ skill `talking-head-editorial` เพื่อให้การแก้ฝั่ง CutPack ไม่กระทบ skill ส่วนตัวของ Friend และการแก้ skill ก็ไม่กระทบ CutPack
 
-## Layout
+## มีอะไรอยู่ที่ไหน
 
-| Folder | What's in it |
+| โฟลเดอร์ | สิ่งที่อยู่ข้างใน |
 |---|---|
-| `core/` | Copied from `.claude/skills/talking-head-editorial` on 2026-11-03: `engine_head.html`, `engine_tail.html`, `render.js`, `sfx.py`, `pipeline.sh`, `brand.default.json`, fonts (Mitr, Sriracha) and `licenses/`. Every file except `build_scene.py` is byte-for-byte identical to the original |
-| `core/build_scene.py` | Rewritten from the skill: injects the full icon set into `ICONS` (the skill's icons win where names clash, so they look identical) and inserts the style pack before `timeline.js` |
-| `icons/` | `lucide.json`: all 1,539 Lucide icons, `lucide-static` 0.460.0 from npm, fetched 2026-11-03, plus `LICENSE-lucide.txt` (ISC) |
-| `styles/<style>/` | Style pack: `motion.js` (locked motions) and `parts/*.js` (library parts) |
+| `core/` | คัดลอกจาก `.claude/skills/talking-head-editorial` เมื่อ 2026-11-03: `engine_head.html`, `engine_tail.html`, `render.js`, `sfx.py`, `pipeline.sh`, `brand.default.json`, ฟอนต์ Mitr กับ Sriracha และ `licenses/` ทุกไฟล์เหมือนต้นฉบับทุกไบต์ ยกเว้น `build_scene.py` |
+| `core/build_scene.py` | เขียนใหม่จากของ skill: ใส่ไอคอนครบชุดลงใน `ICONS` (ถ้าชื่อซ้ำ ใช้ของ skill จึงหน้าตาเหมือนเดิม) และแทรกแพ็กของสไตล์ก่อน `timeline.js` |
+| `icons/` | `lucide.json` ไอคอน Lucide ทั้งหมด 1,539 แบบ จาก `lucide-static` 0.460.0 บน npm ดึงมาเมื่อ 2026-11-03 พร้อม `LICENSE-lucide.txt` (ISC) |
+| `styles/<สไตล์>/motion.js` | ชุดท่าเคลื่อนไหวที่ล็อกของสไตล์นั้น (`MOTION`, `SOUND`, `mv.*`) ทะเบียนชิ้นส่วน (`PART`, `part`) และสีที่อ่านออกบนพื้นแต่ละสี (`ON`) |
+| `styles/<สไตล์>/parts/*.js` | ชิ้นส่วนในคลัง ไฟล์ละหมวด เช่น `B01.js` มีแบบ v1–v4 |
+| `tools/check_parts.py` | ตรวจว่าชิ้นส่วนไม่สร้างท่าเคลื่อนไหวเอง (ห้าม `A(`, `.animate(`, `cubic-bezier`) ไม่สุ่ม (ห้าม `Math.random` และเวลาเครื่อง) และทุกชิ้นประกาศ `name`, `bgs`, `slots`, `dur`, `hit` |
 
-## Usage
+## กฎของชิ้นส่วน
+- ขยับของได้ผ่าน `mv.*` และฟังก์ชันใน kit ของ skill เท่านั้น ทุกท่าใช้ค่าความเร็วและเส้นโค้งเดียวกับ skill ท่าที่เพิ่มใหม่ 4 ท่า (`count`, `slide`, `dim`, `ring`) มีป้าย NEW ใน `motion.js` และใช้เส้นโค้งของ skill
+- ทุกชิ้นระบุพื้นการ์ดที่ใช้ได้ (`glow` ดำเรืองแสง, `navy` กรมท่า, `white` ขาว, `cream` ครีม) ช่องที่ AI เติมพร้อมความยาวสูงสุด และสิ่งที่เกิดตรงคำสำคัญ ถ้าใส่ค่าผิด เช่น พื้นที่ไม่อนุญาต ข้อความยาวเกิน หรือชื่อไอคอนที่ไม่มี `part()` จะหยุดทันทีพร้อมบอกสาเหตุ
+- ตัวเลขบนจอต้องมาจากบทพูด เช่น B01 แบบ v3 ต้องมีทั้งค่าและตัวหาร ("3 ใน 10") หรือหน่วยเป็น %
 
-`bash core/pipeline.sh <work_dir> <clip.mp4> frames|build|preview|render|audio|encode`, same as the skill. The build step calls `core/build_scene.py`, which uses the `editorial` style by default.
+## วิธีใช้
+`bash core/pipeline.sh <โฟลเดอร์งาน> <คลิป.mp4> frames|build|preview|render|audio|encode` เหมือนของ skill ขั้น build เรียก `core/build_scene.py` ซึ่งใช้สไตล์ `editorial` เป็นค่าเริ่มต้น
 
-## Checked
-
-On 2026-11-03 I rendered the skill's example timeline (`examples/timeline_mg.js`) on Friend's sample clip with both the skill engine and this one. All 3 test frames were pixel-identical (PSNR = inf), and icons that only exist in the full set (utensils, dumbbell, graduation-cap, heart-pulse, plane, house) render correctly.
+## ตรวจแล้ว (2026-11-03)
+- เรนเดอร์ timeline ตัวอย่างของ skill (`examples/timeline_mg.js`) บนคลิปตัวอย่างของ Friend ด้วยเอนจินของ skill และของ CutPack ได้ภาพตรงกันทุกพิกเซลทั้ง 3 เฟรมที่ทดสอบ (PSNR = inf)
+- ไอคอนที่มีเฉพาะในชุดเต็มเรนเดอร์ได้ถูกต้อง เช่น utensils, dumbbell, graduation-cap, heart-pulse, plane และ house
+- `tools/check_parts.py` ผ่านทั้ง 20 ชิ้นของรอบแรก
