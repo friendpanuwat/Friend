@@ -90,7 +90,21 @@ DESIGNS = {
 }
 ASSUMED = ['design B/C system prompt 4K–8K tokens (template catalogue)', 'design B/C output 15–30 tokens per second of clip',
            'thinking tokens = 0.5–2× the code (A) or 0.3–1× the JSON (B/C)',
-           'caption grouping on Haiku: 1.5K prompt + 25–45 tokens/s in, 12–25 tokens/s out, no thinking']
+           'caption grouping on Haiku: 1.5K prompt + 25–45 tokens/s in, 12–25 tokens/s out, no thinking',
+           'design D custom scene: second Sonnet call with the kit manual (6.2K–10.4K tokens), 200–463 tokens of code per scene '
+           '(card size in examples/timeline_mg.js), thinking 0.5–2×, high case +30% for one fix']
+
+# Plan D = design B, plus a second Sonnet call that writes code only for scenes the library has no part for.
+CUSTOM = dict(model='claude-sonnet-5-5', sys=(6200, 10400), out_per_scene=(200, 463), think=(0.5, 2.0), fix=(1.0, 1.3))
+
+
+def estimate_custom(n, hi, warm):
+    if n == 0: return 0.0
+    k = 1 if hi else 0
+    out = n * CUSTOM['out_per_scene'][k] * (1 + CUSTOM['think'][k]) * CUSTOM['fix'][k]
+    call = {'stage': 'custom_scene', 'model': CUSTOM['model'], 'in': 400 + 150 * n, 'out': out,
+            ('cache_read' if warm else 'cache_write_5m'): CUSTOM['sys'][k]}
+    return call_usd(call) * FX
 
 
 def estimate_clip(d, dur, hi, warm):
@@ -112,6 +126,13 @@ def estimate():
         for warm in (True, False):
             cells = [f'{estimate_clip(d, s, False, warm):5.2f}–{estimate_clip(d, s, True, warm):5.2f}' for s in (30, 45, 60, 90)]
             print(f'{name if warm else "":48s} {"warm" if warm else "cold":>4s} ' + ' '.join(f'{c:>16s}' for c in cells))
+    b = DESIGNS['B: Sonnet fills scene templates (JSON)']
+    for n in (1, 2, 3):
+        for warm in (True, False):
+            cells = [f'{estimate_clip(b, s, False, warm) + estimate_custom(n, False, warm):5.2f}–'
+                     f'{estimate_clip(b, s, True, warm) + estimate_custom(n, True, warm):5.2f}' for s in (30, 45, 60, 90)]
+            print(f'{("D: B + AI writes " + str(n) + " scene(s) the library lacks") if warm else "":48s} {"warm" if warm else "cold":>4s} '
+                  + ' '.join(f'{c:>16s}' for c in cells))
     print('\nASSUMED (not measured yet):'); [print('  - ' + a) for a in ASSUMED]
 
 
@@ -137,6 +158,7 @@ def selftest():
     assert abs(rows['b']['thb'] - 0.4 * FX) < 1e-9 and rows['b']['cat'] == 'over' and rows['b']['redos'] == 1
     # c: failed → refunded, 10 s minimum billing
     assert rows['c']['cat'] == 'fail' and abs(rows['c']['thb'] - 10 / 60 * 0.000667 * FX) < 1e-9
+    assert estimate_custom(0, True, False) == 0 and estimate_custom(2, False, True) < estimate_custom(2, True, False)
     assert revenue_thb(60) == 9.0 and abs(revenue_thb(61) - 12.6) < 1e-9
     assert estimate_clip(DESIGNS['C: Haiku fills scene templates (JSON)'], 45, True, False) < estimate_clip(DESIGNS['A: Sonnet writes timeline.js (skill as it is)'], 45, False, True)
     print('selftest OK')
