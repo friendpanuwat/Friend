@@ -22,40 +22,24 @@ PART('B12', 'v1', {name: 'ไอคอน A ลูกศรไปไอคอน
   cardText(c, T, s.lead, s.key, 1260);
 });
 
-/* v2: dominoes fall one into the next; the first is A, the last is B, it lands on the key word */
-PART('B12', 'v2', {name: 'โดมิโนล้มต่อกัน', bgs: ['glow', 'white', 'cream'], slots: B12_SLOTS, dur: [1.4, 3.5],
-  hit: 'โดมิโนตัวสุดท้าย (B) ล้มตรงคำ'}, (c, s, T) => {
-  const o = ON[T.bg], dark = o.ink === '#FFFFFF', N = 5, gap = 120, x0 = 70, base = 830, H = 300;   // the last one falls short of the app's right-hand strip
-  const at = k => T.hit - MOTION.slide.d - (N - 1 - k) * .14;
-  for (let k = 0; k < N; k++) {
-    const first = k === 0, last = k === N - 1;
-    const d = div(`left:${x0 + k * gap}px;top:${base - H}px;width:80px;height:${H}px;border-radius:22px;transform-origin:100% 100%;display:flex;align-items:flex-start;justify-content:center;padding-top:26px;` +
-      `background:${last ? ACC : first ? (dark ? '#fff' : NAVY) : (dark ? 'rgba(255,255,255,.22)' : 'rgba(20,33,61,.18)')};box-shadow:0 18px 40px rgba(0,0,0,.25)`, c,
-      first ? ico(s.ia, 60, dark ? INK : '#fff', 2.2) : last ? ico(s.ib, 60, INK, 2.2) : '');
-    mv.rise(d, T.t0 + .05 + k * .05, 60);
-    mv.slide(d, at(k), 'rotate(0deg)', `rotate(${last ? 60 : 30}deg)`);
-  }
-  div(`left:50px;top:${base}px;width:880px;height:10px;border-radius:5px;background:${o.track}`, c);
-  mv.lead(capt(c, s.a, 0, base + 40, 300, o.ink, 54), T.t0 + .2);
-  mv.lead(capt(c, s.b, 480, base + 40, 400, dark ? ACC : NAVY, 60), T.hit);
-  snd('hit', T.hit);
-  cardText(c, T, s.lead, s.key, 1260);
-});
-
+/* v2 was dropped by Friend on 2026-11-03 (โดมิโนล้มต่อกัน); the code is in git history. */
 /* v3: two gears — A drives B; both turn a step at the start and again on the key word, B lights up */
 PART('B12', 'v3', {name: 'เฟืองหมุนส่งต่อกัน', bgs: ['glow', 'cream', 'white'], slots: B12_SLOTS, dur: [1.2, 3.5],
   hit: 'เฟืองหมุนส่งแรงถึง B ตรงคำ แล้ว B เป็นสีเน้น'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF';
   const gear = (x, y, size, col, ic, icCol) => { const g = div(`left:${x}px;top:${y}px;width:${size}px;height:${size}px`, c);
-    const r = div('inset:0', g, ico('cog', size, col, 1.6)); div(`left:${size * .3}px;top:${size * .3}px;width:${size * .4}px;height:${size * .4}px;display:flex;align-items:center;justify-content:center`, g, ico(ic, size * .26, icCol, 2.2)); return [g, r]; };
-  const [ga, ra] = gear(130, 330, 400, o.ink, s.ia, o.ink), [gb, rb] = gear(500, 520, 360, dark ? 'rgba(255,255,255,.35)' : 'rgba(20,33,61,.3)', s.ib, o.soft);
-  const [gb2, rb2] = gear(500, 520, 360, dark ? ACC : NAVY, s.ib, dark ? ACC : NAVY); gb2.style.opacity = 0;
+    const r = div('inset:0', g, ico('cog', size, col, 1.6));
+    // a solid disc over the cog's inner rings, so the icon never sits on gear lines (Friend 2026-11-03)
+    div(`left:${size * .27}px;top:${size * .27}px;width:${size * .46}px;height:${size * .46}px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${dark ? '#161B2B' : '#FFFFFF'};box-shadow:0 0 0 ${size * .02}px ${col}`, g, ico(ic, size * .26, icCol, 2.2)); return [g, r]; };
+  const [ga, ra] = gear(130, 330, 400, o.ink, s.ia, o.ink), [gb, rb] = gear(560, 560, 360, dark ? 'rgba(255,255,255,.35)' : 'rgba(20,33,61,.3)', s.ib, o.soft);
+  const [gb2, rb2] = gear(560, 560, 360,   // apart from A: no overlapping teeth
+    dark ? ACC : NAVY, s.ib, dark ? ACC : NAVY); gb2.style.opacity = 0;
   mv.pop(ga, T.t0 + .05); mv.pop(gb, T.t0 + .15);
   for (const [r, dir] of [[ra, 1], [rb, -1], [rb2, -1]]) { mv.slide(r, T.t0 + .3, 'rotate(0deg)', `rotate(${dir * 30}deg)`); mv.slide(r, T.hit - MOTION.slide.d, `rotate(${dir * 30}deg)`, `rotate(${dir * 90}deg)`); }
   mv.show(gb2, T.hit); snd('hit', T.hit);
   mv.lead(capt(c, s.a, 80, 250, 500, o.ink, 58), T.t0 + .2);
-  mv.lead(capt(c, s.b, 480, 900, 400, dark ? ACC : NAVY, 60), T.hit);
-  cardText(c, T, s.lead, s.key, 1270);
+  mv.lead(capt(c, s.b, 540, 940, 400, dark ? ACC : NAVY, 60), T.hit);
+  cardText(c, T, s.lead, s.key, 1290);
 });
 
 /* v4: a loop — A → B → C → back to A, the arrows draw one after another and close on the key word */
@@ -70,8 +54,10 @@ PART('B12', 'v4', {name: 'วงจรวน A ไป B ไป C', bgs: ['glow',
   g.querySelectorAll('path').forEach((p, i) => mv.draw(p, T.t0 + .35 + i * step, step * .9));
   [[s.a, s.ia], [s.b, s.ib], [s.c, s.ic]].forEach(([t, ic], i) => {
     const [x, y] = pos[i];
-    tile(c, ic, T.t0 + .05 + i * .1, `left:${x - 85}px;top:${y - 85}px`, {size: 170, bg: i === 2 ? ACC : o.tile, color: i === 2 ? INK : o.tileInk, sound: false, float: false});
-    const lb = capt(c, t, x - 170, y + (i === 0 ? -150 : 95), 340, o.ink, 50); mv.lead(lb, T.t0 + .2 + i * .1);
+    tile(c, ic, T.t0 + .05 + i * .1, `left:${x - 70}px;top:${y - 70}px`, {size: 140, bg: i === 2 ? ACC : o.tile, color: i === 2 ? INK : o.tileInk, sound: false, float: false});
+    // label inside the loop, toward the centre: clear of every arc and tile (Friend 2026-11-03)
+    const lx = x + (cx - x) * .35, ly = i === 0 ? y + 130 : y - 130;   // under the top point, above the lower ones
+    const lb = capt(c, t, lx - 110, ly - 30, 220, o.ink, 44); mv.lead(lb, T.t0 + .2 + i * .1);
   });
   ripple(c, cx, cy, T.hit, 4, col); snd('hit', T.hit);
   cardText(c, T, s.lead, s.key, 1290);

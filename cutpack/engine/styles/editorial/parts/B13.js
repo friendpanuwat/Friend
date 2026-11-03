@@ -19,22 +19,7 @@ PART('B13', 'v1', {name: 'หลอดไฟสว่าง', bgs: ['glow', 'cre
   cardText(c, T, s.lead, s.key, 1260);
 });
 
-/* v2: a closed box — the lid lifts on the key word and the tip's icon pops out */
-PART('B13', 'v2', {name: 'กล่องเปิดเผยของข้างใน', bgs: ['glow', 'white', 'cream'], slots: B13_SLOTS, dur: [1.2, 3.5],
-  hit: 'ฝากล่องเปิดตรงคำ ไอคอนเด้งออกมา'}, (c, s, T) => {
-  const o = ON[T.bg], dark = o.ink === '#FFFFFF', boxC = dark ? '#fff' : NAVY, shade = dark ? '#C9CEDA' : '#0E1830';
-  const box = div(`left:390px;top:540px;width:500px;height:320px;border-radius:0 0 40px 40px;background:${boxC};box-shadow:0 30px 70px rgba(0,0,0,.35)`, c);
-  div(`left:210px;top:0;width:80px;height:320px;background:${ACC}`, box);
-  const lid = div(`left:360px;top:470px;width:560px;height:100px;border-radius:30px;background:${shade};transform-origin:0 100%`, c);
-  div(`left:240px;top:0;width:80px;height:100px;background:${ACC}`, lid);
-  mv.rise(box, T.t0 + .05, 80); mv.rise(lid, T.t0 + .05, 80);
-  mv.slide(lid, T.hit - .15, 'rotate(0deg)', 'rotate(-105deg)');   // swings right back to the left, clear of what comes out
-  tile(c, s.icon ?? 'sparkles', T.hit + .05, 'left:520px;top:250px', {size: 240, bg: ACC, color: INK, sound: false});
-  snd('hit', T.hit);
-  mv.lead(tipLine(c, s, 920, o.ink, 76), T.t0 + .3);
-  cardText(c, T, s.lead, s.key, 1260);
-});
-
+/* v2 was dropped by Friend on 2026-11-03 (กล่องเปิดเผยของข้างใน); the code is in git history. */
 /* v3: a key slides into a padlock on the key word, the lock springs open */
 PART('B13', 'v3', {name: 'กุญแจไขแม่กุญแจ', bgs: ['glow', 'cream', 'white'], slots: B13_SLOTS, dur: [1.2, 3.5],
   hit: 'กุญแจเสียบเข้าตรงคำ แม่กุญแจเปิด'}, (c, s, T) => {
@@ -59,7 +44,7 @@ PART('B13', 'v4', {name: 'การ์ดเคล็ดลับพับมุ
   const wrap = div('left:56px;top:240px;width:730px', card);
   const hl = div(`left:-10px;top:58px;width:0;height:56px;border-radius:12px;background:${ACC};transform-origin:0 50%`, wrap);
   const tx = div(`position:relative;font-family:KeySans;font-size:92px;line-height:1.25;letter-spacing:-1px;white-space:nowrap;color:${NAVY}`, wrap); tx.textContent = s.tip; fitW(tx, 730);
-  FITS.push(() => { hl.style.width = `${Math.min(750, tx.scrollWidth + 20)}px`; hl.style.top = `${tx.offsetHeight * .52}px`; });
+  FITS.push(() => { hl.style.width = `${Math.min(750, tx.scrollWidth + 20)}px`; hl.style.top = '-6px'; hl.style.height = `${tx.offsetHeight + 12}px`; });   // covers the whole text (Friend 2026-11-03)
   mv.growX(hl, T.hit - .25, 1); snd('swipe', T.hit - .25);
   cardText(c, T, s.lead, s.key, 1260);
 });

@@ -12,7 +12,14 @@ const goalLine = (c, s, top, color, style = 'CardSans', size = 84) => { const w 
 PART('B08', 'v1', {name: 'เป้าพร้อมลูกศรเข้ากลาง', bgs: ['glow', 'cream', 'white'], slots: B08_SLOTS, dur: [1.2, 3.5],
   hit: 'ลูกศรปักกลางเป้าตรงคำ "สำเร็จ ได้ ถึง"'}, (c, s, T) => {
   const o = ON[T.bg];
-  target(c, T.t0 + .05, T.hit, 'left:270px;top:270px', {size: 540});
+  const size = 540, box = div(`left:270px;top:270px;width:${size}px;height:${size}px`, c);
+  [['#FFFFFF', 0], [NAVY, 1], ['#FFFFFF', 2], [NAVY, 3], [ACC, 4]].forEach(([col, k]) => { const r = size * (1 - k * .19);
+    const e = div(`left:${(size - r) / 2}px;top:${(size - r) / 2}px;width:${r}px;height:${r}px;border-radius:50%;background:${col};box-shadow:${k ? 'none' : '0 40px 90px rgba(0,0,0,.5)'}`, box); mv.pop(e, T.t0 + .05 + k * .06, 'scale(0)'); });
+  // the arrow: tip at the centre; shaft and outline start behind the head, so nothing pokes past the tip (Friend 2026-11-03)
+  const arrow = div(`left:${size / 2}px;top:${size / 2 - 300}px;width:520px;height:600px;opacity:0`, box,
+    `<svg width="520" height="600" viewBox="0 0 520 600"><g transform="translate(0 300) rotate(-38)"><line x1="40" y1="0" x2="420" y2="0" stroke="#0A0A0A" stroke-width="16" stroke-linecap="round"/><line x1="40" y1="0" x2="420" y2="0" stroke="#fff" stroke-width="8" stroke-linecap="round"/><path d="M0 0 L50 -24 L50 24 Z" fill="#fff" stroke="#0A0A0A" stroke-width="4" stroke-linejoin="round"/><path d="M390 0 l40 -34 h46 l-40 34 l40 34 h-46z" fill="${ACC}"/></g></svg>`);
+  mv.fly(arrow, T.hit - MOTION.fly.d, 'translate(560px,-440px)');
+  mv.punch(box, T.hit); ripple(box, size / 2, size / 2, T.hit, 4); snd('hit', T.hit);
   tile(c, s.icon, T.t0 + .25, 'left:110px;top:200px', {size: 150, bg: o.sub === 'glass' ? 'glass' : o.sub, color: o.ink, sound: false});
   mv.lead(goalLine(c, s, 880, o.ink), T.t0 + .3);
   if (s.num) { const ch = pill(c, s.num, T.hit + .1, 'left:0;top:1000px', {sound: false}); FITS.push(() => { ch.style.left = `${540 - ch.offsetWidth / 2}px`; }); }   // under the goal, clear of the target
@@ -26,7 +33,7 @@ PART('B08', 'v2', {name: 'แถบความคืบหน้าเต็ม
   tile(c, s.icon, T.t0 + .05, 'left:440px;top:240px', {size: 200, bg: o.tile, color: o.tileInk, sound: false});
   const track = div(`left:160px;top:560px;width:${W}px;height:80px;border-radius:40px;background:${o.track};overflow:hidden`, c);
   const fill = div(`left:0;top:0;width:${W}px;height:80px;border-radius:40px;background:${dark ? ACC : NAVY};transform-origin:0 50%`, track);
-  mv.growX(fill, T.t0 + .2, .35); mv.fallTo(fill, T.hit - MOTION.fall.d, .35, 1, 0, 'X');
+  mv.fill(fill, T.hit, 0, 1);   // one smooth run, full exactly on the key word
   const ok = div(`left:${160 + W - 70}px;top:530px;width:140px;height:140px;border-radius:50%;background:${ACC};display:flex;align-items:center;justify-content:center;box-shadow:0 18px 40px rgba(0,0,0,.35);opacity:0`, c, ico('check', 84, INK, 3.4));
   mv.pop(ok, T.hit); ripple(c, 160 + W, 600, T.hit, 3, dark ? ACC : NAVY); snd('hit', T.hit);
   mv.lead(goalLine(c, s, 760, o.ink), T.t0 + .3);

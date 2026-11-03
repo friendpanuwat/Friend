@@ -55,9 +55,9 @@ PART('B07', 'v4', {name: 'แถบความเสี่ยงจากต่
   tile(c, s.icon, T.t0 + .05, 'left:440px;top:260px', {size: 200, bg: o.tile, color: o.tileInk, sound: false});
   const track = div(`left:160px;top:580px;width:${W}px;height:70px;border-radius:35px;background:${o.track};overflow:hidden`, c);
   const fill = div(`left:0;top:0;width:${W}px;height:70px;border-radius:35px;background:${ACC};transform-origin:0 50%`, track);
-  mv.growX(fill, T.t0 + .2, .3); mv.fallTo(fill, T.hit - .3, .3, f, 0, 'X');
+  mv.fill(fill, T.hit, 0, f);   // one smooth run up to the level, ending on the key word
   const red = div(`left:0;top:0;width:${W}px;height:70px;border-radius:35px;background:${RED};transform-origin:0 50%;opacity:0`, track);
-  mv.fallTo(red, T.hit - .3, .3, f, 0, 'X'); mv.show(red, T.hit);   // same run as the fill, so the red never leads it
+  mv.fill(red, T.hit, 0, f); mv.show(red, T.hit - .15);   // same run as the fill; turns red as it arrives
   div('left:80px;top:575px;width:80px;height:80px', c, ico('shield-check', 70, o.soft, 2));
   div('left:930px;top:575px;width:80px;height:80px', c, ico('triangle-alert', 70, RED, 2.2));
   const mark = div(`left:${160 + W * f - 22}px;top:520px;width:44px;height:44px;opacity:0`, c, `<svg width="44" height="44" viewBox="0 0 24 24"><path d="M2 4h20L12 20z" fill="${o.ink}"/></svg>`);

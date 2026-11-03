@@ -39,19 +39,7 @@ PART('B11', 'v2', {name: 'การ์ดรีวิวมีดาว', bgs: [
   cardText(c, T, s.lead, s.key, 1260);
 });
 
-/* v3: a quotation — a huge accent quote mark, the words in large type, who under them */
-PART('B11', 'v3', {name: 'คำพูดในเครื่องหมายคำพูดใหญ่', bgs: ['glow', 'cream', 'white'], slots: B11_SLOTS, dur: [1.2, 3.5],
-  hit: 'เครื่องหมายคำพูดเด้งตรงคำ'}, (c, s, T) => {
-  const o = ON[T.bg], dark = o.ink === '#FFFFFF';
-  const q = div('left:100px;top:220px;width:260px;height:260px;opacity:0', c, ico('quote', 260, dark ? ACC : NAVY, 1.6)); mv.pop(q, T.t0 + .05);
-  const tx = div(`left:120px;top:500px;width:840px;font-family:KeySans;font-size:96px;line-height:1.22;letter-spacing:-1px;color:${o.ink};opacity:0`, c); tx.textContent = s.text;
-  FITS.push(() => { if (tx.offsetHeight > 360) tx.style.fontSize = `${96 * Math.sqrt(360 / tx.offsetHeight)}px`; });
-  mv.lead(tx, T.t0 + .25);
-  if (s.who) { const w = div(`left:120px;top:900px;font-family:KeySerif;font-size:70px;color:${dark ? ACC : NAVY};opacity:0`, c); w.textContent = '— ' + s.who; mv.lead(w, T.t0 + .5); FITS.push(() => { w.style.top = `${tx.offsetTop + tx.offsetHeight + 30}px`; }); }
-  mv.punch(q, T.hit); snd('hit', T.hit);
-  cardText(c, T, s.lead, s.key, 1270);
-});
-
+/* v3 was dropped by Friend on 2026-11-03 (คำพูดในเครื่องหมายคำพูดใหญ่); the code is in git history. */
 /* v4: a social comment — avatar, who, the comment, a heart that fills on the key word (no platform logo) */
 PART('B11', 'v4', {name: 'คอมเมนต์แบบโซเชียล', bgs: ['glow', 'white', 'cream'], slots: B11_SLOTS, dur: [1.2, 3.5],
   hit: 'หัวใจเต็มสีแล้วเด้งตรงคำ'}, (c, s, T) => {

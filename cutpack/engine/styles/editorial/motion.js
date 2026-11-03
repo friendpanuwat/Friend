@@ -31,6 +31,8 @@ const MOTION = Object.freeze({
   slide:  {d: .50, e: INOUT},                  // NEW: an element slides to a new place (before → after)
   dim:    {d: .30, e: SMOOTH, o: .32},         // NEW: the losing side fades back
   ring:   {d: .80, e: INOUT},                  // NEW: a progress ring fills (draw on a circle)
+  fill:   {d: 1.0, e: INOUT},                   // NEW: a bar fills in one smooth run that ends on the key word (Friend: "วิ่งแบบสมูท")
+  fly:    {d: .22, e: 'cubic-bezier(.5,0,1,1)'},  // an arrow flies in and lands (the skill's target() curve)
 });
 /* sound paired with each motion (the calm mix in engine_head keeps only the strongest cue per 0.9 s) */
 const SOUND = Object.freeze({cut: ['whoosh', -24], pop: ['pop', -25], chip: ['pop_lo', -27], hit: ['thud', -16],
@@ -53,6 +55,9 @@ const mv = {
   slide:  (el, t, from, to) => A(el, [{transform: from}, {transform: to}], t, MOTION.slide.d, {e: MOTION.slide.e, f: 'forwards'}),
   dim:    (el, t) => A(el, [{opacity: 1, filter: 'saturate(1)'}, {opacity: MOTION.dim.o, filter: 'saturate(0)'}], t, MOTION.dim.d, {e: MOTION.dim.e, f: 'forwards'}),
   show:   (el, t) => A(el, [{opacity: 0}, {opacity: 1}], t, .12, {e: 'linear'}),
+  /* NEW fill: scale an element along X (or Y) from f0 to f1 in one smooth run that ENDS at tEnd */
+  fill:   (el, tEnd, f0, f1, axis = 'X') => A(el, [{transform: `scale${axis}(${f0})`}, {transform: `scale${axis}(${f1})`}], tEnd - MOTION.fill.d, MOTION.fill.d, {e: MOTION.fill.e}),
+  fly:    (el, t, from) => A(el, [{opacity: 0, transform: from}, {opacity: 1, transform: 'translate(0,0)'}], t, MOTION.fly.d, {e: MOTION.fly.e}),
   /* NEW count: the text of `el` counts from `from` to `to`, recomputed on every seek (deterministic) */
   count:  (el, t, from, to, fmt = v => Math.round(v).toLocaleString('en-US')) => {
     const p = x => { const k = Math.min(1, Math.max(0, (x - t) / MOTION.count.d)); return 1 - Math.pow(1 - k, 3); };
