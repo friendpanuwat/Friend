@@ -5,7 +5,8 @@ Names and "what happens on the key word" come from each PART(...) meta in engine
 the two example sentences come from samples.json; the save code is the tested one from ../base-list/base-list.html
 (controls stay off until the store answers; a choice shows only after the store confirms it).
 
-usage: make_gallery.py <out.html> <clip_dir_as_published> <collection> <title> <cat> [<cat> ...]
+usage: make_gallery.py [--widgets] <out.html> <clip_dir_as_published> <collection> <title> <cat> [<cat> ...]
+  --widgets: list the overlay widgets (WIDGET(...) in widgets/*.js); clip _0 is the short size, _1 the narrow size
 """
 import json, os, re, sys
 
@@ -17,23 +18,34 @@ CAT_NAMES = {'B01': 'ตัวเลขเด่น', 'B02': 'เพิ่มข
              'B13': 'ไอเดีย / เคล็ดลับ / ความลับ', 'B14': 'ประโยคเด็ดตัวใหญ่', 'B15': 'ปิดคลิป / ชวนทำต่อ'}
 
 
+WIDGETS = False
+
+
 def variants(cat):
-    src = open(os.path.join(PARTS, cat + '.js')).read()
+    if WIDGETS:
+        import glob
+        src = '\n'.join(open(f).read() for f in sorted(glob.glob(os.path.join(PARTS, '..', 'widgets', '*.js'))))
+    else:
+        src = open(os.path.join(PARTS, cat + '.js')).read()
     out = []
-    for m in re.finditer(r"PART\('%s',\s*'(v\d+)',\s*\{name:\s*'([^']*)'.*?hit:\s*'([^']*)'" % cat, src, re.S):
+    for m in re.finditer(r"%s\('%s',\s*'(v\d+)',\s*\{name:\s*'([^']*)'.*?hit:\s*'([^']*)'" % ('WIDGET' if WIDGETS else 'PART', cat), src, re.S):
         out.append([m.group(1), m.group(2), m.group(3)])
     return out
 
 
 def main():
-    out, clipdir, coll, title, *cats = sys.argv[1:]
+    global WIDGETS
+    args = sys.argv[1:]
+    if args and args[0] == '--widgets': WIDGETS = True; args = args[1:]
+    out, clipdir, coll, title, *cats = args
     base = open(os.path.join(HERE, '..', 'base-list', 'base-list.html')).read()
     style = re.search(r'<style>(.*?)</style>', base, re.S).group(1)
     save = base[base.index('// Saving:'):base.index('</script>')]
     save = save.replace("db.collection('base')", f"db.collection('{coll}')").replace('หมวดที่มีกรอบสีบันทึกไว้แล้ว', 'แบบที่มีกรอบสีบันทึกไว้แล้ว').replace('รอให้กรอบของหมวดเปลี่ยนสี', 'รอให้กรอบของแบบนั้นเปลี่ยนสี')
     assert save.count(f"collection('{coll}')") == 2
     samples = json.load(open(os.path.join(HERE, 'samples.json')))
-    data = [[c, CAT_NAMES[c], variants(c), [s['topic'] + ': "' + s['say'] + '"' for s in samples[c]]] for c in cats]
+    pre = ['ขนาดเตี้ย (เหนือหัว) · ', 'ขนาดแคบ (ข้างหัว) · '] if WIDGETS else ['', '']
+    data = [[c, CAT_NAMES[c], variants(c), [pre[i] + s['topic'] + ': "' + s['say'] + '"' for i, s in enumerate(samples[c])]] for c in cats]
     n = sum(len(d[2]) for d in data)
     style += """
 .cat-h { display: grid; gap: 4px; }
@@ -53,8 +65,8 @@ def main():
 <div class="wrap">
   <header class="lead">
     <h1>{title}</h1>
-    <p>{len(cats)} หมวด รวม <b>{n} แบบ</b> เป็นการ์ดเต็มจอของสไตล์ editorial เรนเดอร์บนคลิปตัวอย่างของคุณ ทำตามกฎที่จดไว้จากรอบแรก: พื้นเข้มใช้ดำเรืองแสงเสมอ ตัวอักษรไม่ทับกัน กราฟไม่สั่น และภาพขยับไปทางเดียวกับความหมาย</p>
-    <p>แต่ละแบบมี <b>2 คลิป</b> ใส่เนื้อหาคนละเรื่องและคนละสีพื้น คลิปไม่มีเสียง กด <b>เอา</b> / <b>ปรับ</b> / <b>ตัด</b> ใต้แต่ละแบบ ถ้ากด "ปรับ" ให้พิมพ์ในหมายเหตุว่าอยากปรับอะไร</p>
+    <p>{{INTRO}}</p>
+    <p>กด <b>เอา</b> / <b>ปรับ</b> / <b>ตัด</b> ใต้แต่ละแบบ ถ้ากด "ปรับ" ให้พิมพ์ในหมายเหตุว่าอยากปรับอะไร คลิปไม่มีเสียง</p>
   </header>
 
   <div class="bar" role="status" aria-live="polite">
@@ -115,6 +127,9 @@ document.querySelectorAll('video').forEach(v => io ? io.observe(v) : v.play().ca
 
 {save}</script>
 """
+    intro = (f'{len(cats)} หมวด รวม <b>{n} วิดเจ็ต</b> แบบ overlay หน้าคนพูดอยู่บนจอตลอด การ์ดขาวเล็กเด้งขึ้นในที่ว่าง แต่ละวิดเจ็ตมี <b>2 ขนาด</b>: ขนาดเตี้ยวางเหนือหัว (คลิปซ้าย) และขนาดแคบวางข้างหัว (คลิปขวา) ซับอยู่ระดับอกเหมือนคลิปจริง' if WIDGETS else
+             f'{len(cats)} หมวด รวม <b>{n} แบบ</b> เป็นการ์ดเต็มจอของสไตล์ editorial เรนเดอร์บนคลิปตัวอย่างของคุณ ทำตามกฎที่จดไว้จากรอบแรก: พื้นเข้มใช้ดำเรืองแสงเสมอ ตัวอักษรไม่ทับกัน กราฟไม่สั่น และภาพขยับไปทางเดียวกับความหมาย แต่ละแบบมี <b>2 คลิป</b> ใส่เนื้อหาคนละเรื่องและคนละสีพื้น')
+    page = page.replace('{INTRO}', intro)
     open(out, 'w').write(page)
     print(out, n, 'variants')
 

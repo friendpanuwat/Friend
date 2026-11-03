@@ -113,3 +113,48 @@ function cardText(c, T, lead, key, top = 1240, {keyStyle} = {}) {
   if (key) snd('key', T.hit - .04);
   return el;
 }
+
+/* =====================================================================
+   OVERLAY WIDGETS (editorial-overlay form): the same look and motion, as a small white card that pops up in the free
+   space while the speaker stays on screen. Rules from the overlay skill: white card, ≤ ~600×380, ≤ 3 words of text,
+   one main piece + ≤ 2 secondary, no glass, never over the face. Two sizes:
+     short  — above the head (in Friend's sample clip that band is only ~190 px tall)
+     narrow — beside the head (left of the head, ~210 px wide)
+   WIDGET(cat, v, meta, build): build(vis, S, s, T, L) draws the main visual into an S×S box; the kit lays out the card
+   and the text (s.wlead small, s.wkey big). meta needs name, slots, dur, hit (bgs is always the footage: ['clip']).
+   ===================================================================== */
+const WIN = Object.freeze({d: .48, e: BOUNCE, dy: 46, s: .78}), WOUT = Object.freeze({d: .16, s: .86});   // skill widget()
+const WSIZE = Object.freeze({short: {W: 600, H: 190}, narrow: {W: 210, H: 380}});
+const WAT = Object.freeze({short: {x: 240, y: 150}, narrow: {x: 36, y: 400}});    // free space in the sample clip
+const WPARTS = {};
+function WIDGET(cat, v, meta, build) { (WPARTS[cat] ??= {})[v] = {meta, build}; }
+function wbox(css, t0, t1) {
+  const w = div(css + ';opacity:0;background:#fff;border-radius:36px;box-shadow:0 24px 60px rgba(0,0,0,.45),0 4px 12px rgba(0,0,0,.25);overflow:hidden', G);
+  A(w, [{opacity: 0, transform: `translateY(${WIN.dy}px) scale(${WIN.s})`}, {opacity: 1, transform: 'none'}], t0, WIN.d, {e: WIN.e});
+  A(w, [{opacity: 1, transform: 'none'}, {opacity: 0, transform: `scale(${WOUT.s})`}], t1 - WOUT.d, WOUT.d, {f: 'forwards', e: 'ease-in'});
+  sfx('softswish', t0 - .03, -25);
+  return w;
+}
+/* place one widget: widgetAt('B01','v1','short', t0, t1, {hit, at:{x,y}, ...slots}) */
+function widgetAt(cat, v, kind, t0, t1, opts) {
+  const P = WPARTS[cat]?.[v]; if (!P) throw new Error(`unknown widget ${cat}.${v}`);
+  const L = Object.assign({kind}, WSIZE[kind]); if (!L.W) throw new Error(`widget size ${kind}?`);
+  const {hit = t0 + .5, at = WAT[kind], ...s} = opts;
+  for (const [k, spec] of Object.entries(P.meta.slots)) {
+    if (spec.req && (s[k] == null || s[k] === '')) throw new Error(`${cat}.${v} widget: slot ${k} missing`);
+    if (spec.type === 'icon' && s[k] && !ICONS[s[k]]) throw new Error(`${cat}.${v} widget: unknown icon ${s[k]}`);
+  }
+  const w = wbox(`left:${at.x}px;top:${at.y}px;width:${L.W}px;height:${L.H}px`, t0, t1);
+  const short = kind === 'short', S = short ? L.H - 36 : L.W - 30;
+  const vis = div(short ? `left:18px;top:18px;width:${S}px;height:${S}px` : `left:15px;top:15px;width:${S}px;height:${S}px`, w);
+  const T = {t0, t1, hit, kind};
+  if (!P.meta.full) {
+    const tb = div(short ? `left:${S + 40}px;top:0;width:${L.W - S - 64}px;height:${L.H}px;display:flex;flex-direction:column;justify-content:center;gap:4px`
+                         : `left:14px;top:${S + 28}px;width:${L.W - 28}px;height:${L.H - S - 44}px;display:flex;flex-direction:column;justify-content:flex-start;gap:6px`, w);
+    const lw = s.wlead ?? s.lead, kw = s.wkey ?? s.key;
+    if (lw) { const l = div(`position:relative;font-family:CardSans;font-size:${short ? 34 : 30}px;line-height:1.25;color:${NAVY};opacity:0;white-space:nowrap`, tb); l.textContent = lw; fitW(l, short ? L.W - S - 64 : L.W - 28);   /* never break a Thai word: shrink instead */ mv.lead(l, t0 + .2); }
+    if (kw) { const k = div(`position:relative;align-self:flex-start;font-family:KeySans;font-size:${short ? 58 : 44}px;line-height:1.15;letter-spacing:-1px;color:${INK};background:${ACC};border-radius:12px;padding:0 .14em .04em;opacity:0;white-space:nowrap`, tb); k.textContent = kw; fitW(k, short ? L.W - S - 70 : L.W - 36); mv.key(k, hit); }
+  }
+  P.build(vis, S, s, T, L, w);
+  return w;
+}

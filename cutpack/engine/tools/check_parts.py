@@ -15,11 +15,12 @@ BANNED = [(r'(?<![\w.])A\(', 'A( — use mv.*'), (r'\.animate\(', '.animate( —
 
 def main():
     style = sys.argv[1] if len(sys.argv) > 1 else 'editorial'
-    d = os.path.join(ENGINE, 'styles', style, 'parts')
     bad, n = [], 0
-    for f in sorted(os.listdir(d)):
-        if not f.endswith('.js'): continue
-        src = open(os.path.join(d, f)).read()
+    files = [os.path.join(ENGINE, 'styles', style, sub, f) for sub in ('parts', 'widgets') if os.path.isdir(os.path.join(ENGINE, 'styles', style, sub))
+             for f in sorted(os.listdir(os.path.join(ENGINE, 'styles', style, sub))) if f.endswith('.js')]
+    for path in files:
+        f = os.path.relpath(path, os.path.join(ENGINE, 'styles', style))
+        src = open(path).read()
         code = re.sub(r'/\*.*?\*/|//[^\n]*', '', src, flags=re.S)
         # a line comment that swallowed code: `//` followed by something like `; name(` or `; x.y = ` (it silently drops that code)
         for i, line in enumerate(src.splitlines(), 1):
@@ -27,11 +28,11 @@ def main():
         for i, line in enumerate(code.splitlines(), 1):
             for pat, why in BANNED:
                 if re.search(pat, line): bad.append(f'{f}:{i}: {why}')
-        for m in re.finditer(r"PART\('(\w+)',\s*'(\w+)',\s*\{(.*?)\},\s*\(c,", code, re.S):
+        for m in re.finditer(r"(?:PART|WIDGET)\('(\w+)',\s*'(\w+)',\s*\{(.*?)\},\s*\(c,", code, re.S):
             n += 1
             for key in ('name', 'bgs', 'slots', 'dur', 'hit'):
                 if not re.search(r'\b%s:' % key, m.group(3)): bad.append(f'{f}: {m.group(1)}.{m.group(2)} meta has no {key}')
-    print(f'{n} parts checked')
+    print(f'{n} parts and widgets checked')
     for b in bad: print('  ', b)
     sys.exit(1 if bad else 0)
 

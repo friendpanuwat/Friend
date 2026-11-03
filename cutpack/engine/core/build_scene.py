@@ -4,7 +4,7 @@
 CutPack copy of the talking-head-editorial build step. Differences from the skill:
   * ICONS holds the whole Lucide set (engine/icons/lucide.json); the skill's own icon paths win where names overlap,
     so every icon the skill used looks exactly the same.
-  * the style pack (engine/styles/<style>/motion.js, then parts/*.js in name order) is inserted before the timeline.
+  * the style pack (engine/styles/<style>/motion.js, then parts/*.js, then widgets/*.js, in name order) is inserted before the timeline.
 
 usage: build_scene.py <project_dir> [--style editorial] [--timeline timeline.js] [--brand brand.json]
 """
@@ -19,7 +19,7 @@ SLOTS = {'KeySans': 'key_sans', 'KeySerif': 'key_serif', 'Lead': 'lead', 'CardSa
 def style_pack(style):
     d = os.path.join(ENGINE, 'styles', style)
     if not os.path.isdir(d): sys.exit(f'unknown style: {style}')
-    files = [os.path.join(d, 'motion.js')] + sorted(glob.glob(os.path.join(d, 'parts', '*.js')))
+    files = [os.path.join(d, 'motion.js')] + sorted(glob.glob(os.path.join(d, 'parts', '*.js'))) + sorted(glob.glob(os.path.join(d, 'widgets', '*.js')))
     return '\n'.join(f'/* ---- {os.path.relpath(f, ENGINE)} ---- */\n' + open(f).read() for f in files if os.path.exists(f))
 
 
