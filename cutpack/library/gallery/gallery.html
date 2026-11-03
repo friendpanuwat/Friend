@@ -1,0 +1,206 @@
+<title>คลังชิ้นส่วน CutPack</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* Layout: one column of section bands; inside each, a grid of 9:16 clip tiles with a three-way keep / unsure / drop switch under every tile. */
+:root {
+  --bg: #F3F4F0; --surface: #FFFFFF; --ink: #14213D; --muted: #5C6579; --line: #DADDE4;
+  --keep: #DDFF45; --keep-ink: #14213D; --drop: #E5322A; --unsure: #8E97AA;
+  --display: "Mitr", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --body: "IBM Plex Sans Thai", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0D1220; --surface: #161D2F; --ink: #E7EBF3; --muted: #9AA3B6; --line: #29324A;
+  --keep: #DDFF45; --keep-ink: #10172A; --drop: #FF5A50; --unsure: #8E97AA; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0D1220; --surface: #161D2F; --ink: #E7EBF3; --muted: #9AA3B6; --line: #29324A;
+  --keep: #DDFF45; --keep-ink: #10172A; --drop: #FF5A50; --unsure: #8E97AA; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; }
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 28px; }
+header h1 { font-family: var(--display); font-weight: 600; font-size: 28px; line-height: 1.2; margin: 0 0 6px; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); max-width: 62ch; }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px;
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.count { font-variant-numeric: tabular-nums; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.dot.keep { background: var(--keep); outline: 1px solid var(--ink); outline-offset: -1px; } .dot.drop { background: var(--drop); } .dot.unsure { background: var(--unsure); } .dot.none { background: transparent; outline: 1px dashed var(--muted); outline-offset: -1px; }
+.bar label { margin-left: auto; display: inline-flex; gap: 6px; align-items: center; color: var(--muted); cursor: pointer; }
+.status { flex-basis: 100%; font-size: 13px; color: var(--muted); }
+section h2 { font-family: var(--display); font-weight: 500; font-size: 21px; margin: 0 0 4px; }
+section > p { margin: 0 0 14px; color: var(--muted); max-width: 62ch; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 18px 14px; }
+.item { display: grid; gap: 8px; align-content: start; min-width: 0; }
+.item[hidden] { display: none; }
+.clip { position: relative; aspect-ratio: 9 / 16; max-width: 100%; border-radius: 10px; overflow: hidden; background: #000; }
+.clip video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tag { position: absolute; left: 8px; top: 8px; font: 600 12px/1 var(--body); background: rgba(10,14,26,.72); color: #fff; padding: 5px 7px; border-radius: 6px; letter-spacing: .04em; }
+.item[data-choice="keep"] .clip { box-shadow: 0 0 0 3px var(--keep); }
+.item[data-choice="drop"] .clip { box-shadow: 0 0 0 3px var(--drop); opacity: .55; }
+.item[data-choice="unsure"] .clip { box-shadow: 0 0 0 3px var(--unsure); }
+.name { font-weight: 600; line-height: 1.35; }
+.meta { font-size: 13px; color: var(--muted); line-height: 1.45; }
+.meta b { font-weight: 500; color: var(--ink); }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { font: 500 14px/1 var(--body); padding: 11px 0; min-height: 44px; border: 0; background: var(--surface); color: var(--ink); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"][data-v="keep"] { background: var(--keep); color: var(--keep-ink); font-weight: 600; }
+.seg button[aria-pressed="true"][data-v="drop"] { background: var(--drop); color: #fff; font-weight: 600; }
+.seg button[aria-pressed="true"][data-v="unsure"] { background: var(--unsure); color: #fff; font-weight: 600; }
+.seg button:disabled { cursor: default; }
+.seg button:focus-visible, .note:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.note { width: 100%; font: 14px/1.4 var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; resize: vertical; min-height: 40px; }
+.note::placeholder { color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .clip video { display: none; } .clip { background-size: cover; background-position: center; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>คลังชิ้นส่วน CutPack</h1>
+    <p>การ์ดและวิดเจ็ตจากคลิปตัวอย่างของ skill editorial ทั้ง 26 ชิ้น กดเลือก <b>เก็บ</b> / <b>ไม่แน่ใจ</b> / <b>ทิ้ง</b> ใต้แต่ละชิ้น ถ้าอยากให้ปรับอะไรพิมพ์ไว้ในช่องหมายเหตุได้ ระบบบันทึกให้ทันที ชิ้นที่เก็บจะถูกแปลงเป็นชิ้นส่วนในคลังของ CutPack</p>
+  </header>
+
+  <div class="bar" role="status" aria-live="polite">
+    <span class="count"><span class="dot keep"></span>เก็บ <span id="n-keep">0</span></span>
+    <span class="count"><span class="dot unsure"></span>ไม่แน่ใจ <span id="n-unsure">0</span></span>
+    <span class="count"><span class="dot drop"></span>ทิ้ง <span id="n-drop">0</span></span>
+    <span class="count"><span class="dot none"></span>ยังไม่เลือก <span id="n-none">26</span></span>
+    <label for="only-open"><input type="checkbox" id="only-open"> แสดงเฉพาะที่ยังไม่เลือก</label>
+    <span class="status" id="status">กำลังโหลดตัวเลือกที่บันทึกไว้…</span>
+  </div>
+
+  <section>
+    <h2>editorial: การ์ดเต็มจอ (12 ชิ้น)</h2>
+    <p>ตัดไปการ์ดเต็มจอทุก 2–4 วินาที คลิปตัวอย่างนี้ใช้คลิปแทน ปากจึงไม่ตรงกับเสียง และคลิปไม่มีเสียง</p>
+    <div class="grid" id="grid-ed"></div>
+  </section>
+
+  <section>
+    <h2>editorial-overlay: วิดเจ็ตเหนือหัว (14 ชิ้น)</h2>
+    <p>หน้าคนพูดอยู่บนจอตลอด บางชิ้นทับผมเพราะตำแหน่งในคลิปตัวอย่างวางไว้สำหรับคลิปอื่น ในระบบจะคำนวณตำแหน่งจากหน้าของแต่ละคลิป</p>
+    <div class="grid" id="grid-ov"></div>
+  </section>
+</div>
+
+<script>
+const PARTS = [
+  ['ed','C1','การ์ดขาว · ไอคอนผี + คำว่า "หายไป"','หายไป, เงียบ','คำเบลอแล้วจางหาย'],
+  ['ed','C2','การ์ดดำ · ป้ายราคา + ธนบัตร กระเป๋าเงิน','แพง, ราคา, เงิน','ป้ายราคาเต้น + วงคลื่น'],
+  ['ed','C3','การ์ดดำ · มือถือแชต + ไอคอนสงสัย + รายการ','ลูกค้าถาม, ลังเล','รายการขึ้นทีละข้อตามเสียง'],
+  ['ed','C4','โปสเตอร์ครีม · กราฟยอดขายร่วง','ยอดตก, ลูกค้าน้อยลง','แท่งร่วง + เส้นแดงลง'],
+  ['ed','C5','การ์ดขาว · คำประกอบทีละคำ + ไฮไลต์','ประโยคหักมุม, "ไม่ใช่ X"','ไฮไลต์ + ขีดฆ่า'],
+  ['ed','C6','การ์ดกรมท่า · คำใหญ่ไล่สี','คำถาม, ประโยคที่อยากให้ค้างในหัว','คำเปลี่ยนสีทีละตัว'],
+  ['ed','C7','การ์ดดำ · หน้าชำระเงิน + เคอร์เซอร์ลังเล','ไม่กล้าจ่าย, ลังเลจะซื้อ','ปุ่มเต้น แล้วเคอร์เซอร์ถอยออก'],
+  ['ed','C8','โปสเตอร์ครีม · สินค้า + ดาว 2/5 + เครื่องหมายคำถาม','คุณภาพ, รีวิว, ไม่มั่นใจ','ดาวติดทีละดวง'],
+  ['ed','F1','ย่อหน้าคนพูดเป็นการ์ดบนพื้นครีม','อยากให้เห็นคนพูดกับข้อความพร้อมกัน (ครั้งเดียวต่อคลิป)','ข้อความขึ้นเหนือการ์ด'],
+  ['ed','C9','การ์ดดำ · ชิปลดราคาตกใส่รถเข็น','ลดแล้วก็ไม่ซื้อ, ปฏิเสธ','รถเข็นส่าย + x แดง'],
+  ['ed','C10','การ์ดดำ · ขั้นที่ 1 โดนกากบาท','สิ่งที่ไม่ควรทำ, ขั้นตอน','กากบาทวาดทับ + ส่าย'],
+  ['ed','C11','การ์ดปิด · เป้า + ลูกศรเข้ากลาง','แก้ถูกจุด, เป้าหมาย, สรุป','ลูกศรเข้าเป้า'],
+  ['ov','W1','แชตหาย · ลูกค้าอ่านแล้วออฟไลน์','ลูกค้าทักแล้วหาย, DM ไม่ตอบ','ขึ้น "ออฟไลน์"'],
+  ['ov','W2','ป้ายราคา + เครื่องหมายคำถาม','แพงไหม, ราคา','ป้ายราคาเต้น + วงคลื่น'],
+  ['ov','W3','รายการในใจ · แถวขึ้นทีละแถว','ข้อกังวล 2–3 ข้อ','แต่ละแถวขึ้นตรงคำ'],
+  ['ov','W4','กราฟร่วง','ยอด ลูกค้า หรือความสนใจลดลง','แท่งร่วง'],
+  ['ov','W5','ชิปโปร + ชิปลดราคาตกลงมา','รีบทำโปร, ลดราคา','ชิปตกพร้อมเสียงตุบ'],
+  ['ov','W6','ชิปโดนกากบาท','"อาจไม่ใช่ X"','กากบาทตรงคำ X'],
+  ['ov','W7','เครื่องหมายคำถามส่าย','คำถามในใจ, สงสัย','ส่ายตรงคำถาม'],
+  ['ov','W8','ปุ่มชำระเงิน + เคอร์เซอร์ลังเล','ไม่กล้าจ่าย, ลังเลจะซื้อ','ปุ่มเต้น'],
+  ['ov','W9','สินค้า + ดาวรีวิว 2/5','คุณภาพ, รีวิว, ไม่มั่นใจ','ดาวไล่ติดตรงคำ'],
+  ['ov','W10','A ⋯?⋯ B · ของสองอย่างยังไม่เชื่อมกัน','"ยังไม่เห็นว่า A ช่วย B ยังไง"','? ขึ้นตรงคำถาม'],
+  ['ov','W11','รถเข็นไม่เอา · ชิปลดเพิ่มตก','ลดแล้วก็ไม่ซื้อ, ปฏิเสธ','รถเข็นส่าย + x แดง'],
+  ['ov','W12','ขั้นที่ 1 โดนกากบาท','"สิ่งแรกที่ควรทำ ไม่ใช่ X"','กากบาทตรงคำ X'],
+  ['ov','W13','แว่นขยาย · ค้นหา','หาสาเหตุ, ค้นหา, ตรวจ','เต้นตรงคำเน้น'],
+  ['ov','W14','เป้าล็อก · ลูกศรเข้ากลาง','ประโยคปิด "ให้ถูกจุด", เป้าหมาย','ลูกศรเข้าเป้า'],
+];
+const state = {};               // id -> {choice, note}
+const pending = {};             // id -> promise chain, one write at a time per doc
+let db = null, canWrite = true;
+const $ = s => document.querySelector(s);
+
+function tile([sec, id, name, use, hit]) {
+  const el = document.createElement('div');
+  el.className = 'item'; el.dataset.id = id;
+  el.innerHTML = `
+    <div class="clip" style="background-image:url(clips/${id}.jpg)">
+      <video src="clips/${id}.mp4" poster="clips/${id}.jpg" muted loop playsinline preload="metadata" aria-label="คลิปตัวอย่าง ${id}"></video>
+      <span class="tag">${id}</span>
+    </div>
+    <div class="name"></div>
+    <div class="meta"><b>ใช้กับ</b> <span class="use"></span><br><b>ตรงคำสำคัญ</b> <span class="hit"></span></div>
+    <div class="seg" role="group" aria-label="เลือกสำหรับ ${id}">
+      <button type="button" data-v="keep" aria-pressed="false">เก็บ</button>
+      <button type="button" data-v="unsure" aria-pressed="false">ไม่แน่ใจ</button>
+      <button type="button" data-v="drop" aria-pressed="false">ทิ้ง</button>
+    </div>
+    <textarea class="note" id="note-${id}" rows="1" placeholder="หมายเหตุ (ไม่บังคับ)" aria-label="หมายเหตุสำหรับ ${id}"></textarea>`;
+  el.querySelector('.name').textContent = name;
+  el.querySelector('.use').textContent = use;
+  el.querySelector('.hit').textContent = hit;
+  el.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => choose(id, b.dataset.v)));
+  const note = el.querySelector('.note');
+  note.addEventListener('change', () => save(id, {choice: (state[id] || {}).choice || null, note: note.value.trim()}));
+  return el;
+}
+PARTS.forEach(p => $(p[0] === 'ed' ? '#grid-ed' : '#grid-ov').appendChild(tile(p)));
+
+function paint() {
+  const n = {keep: 0, unsure: 0, drop: 0, none: 0};
+  const onlyOpen = $('#only-open').checked;
+  document.querySelectorAll('.item').forEach(el => {
+    const s = state[el.dataset.id] || {};
+    const c = s.choice || null;
+    n[c || 'none']++;
+    el.dataset.choice = c || '';
+    el.querySelectorAll('.seg button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.v === c)); b.disabled = !canWrite; });
+    const note = el.querySelector('.note');
+    if (document.activeElement !== note) note.value = s.note || '';
+    note.disabled = !canWrite;
+    el.hidden = onlyOpen && !!c;
+  });
+  for (const k in n) $('#n-' + k).textContent = n[k];
+}
+$('#only-open').addEventListener('change', paint);
+
+function choose(id, v) {
+  const cur = state[id] || {};
+  const choice = cur.choice === v ? null : v;           // tap again to clear
+  const note = document.getElementById('note-' + id).value.trim();
+  save(id, {choice, note});
+}
+function save(id, body) {
+  const before = state[id];
+  state[id] = body; paint();
+  if (!db) { $('#status').textContent = 'บันทึกไม่ได้ในหน้านี้ เปิดหน้านี้จาก claude.ai เพื่อให้ตัวเลือกถูกบันทึก'; return; }
+  pending[id] = (pending[id] || Promise.resolve()).then(() => db.collection('picks').doc(id).set(body))
+    .then(() => { $('#status').textContent = 'บันทึกแล้ว'; })
+    .catch(e => {
+      state[id] = before; paint();
+      if (e && e.code === 'invalid_argument') { canWrite = false; paint(); $('#status').textContent = 'หน้านี้ให้เจ้าของเป็นคนเลือกเท่านั้น คุณดูได้อย่างเดียว'; }
+      else $('#status').textContent = 'บันทึกไม่สำเร็จ ลองกดใหม่อีกครั้ง';
+    });
+}
+
+// play only the clips on screen
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+  const v = e.target; if (e.isIntersecting) { v.play().catch(() => {}); } else { v.pause(); }
+}), {threshold: .35}) : null;
+document.querySelectorAll('video').forEach(v => io ? io.observe(v) : v.play().catch(() => {}));
+paint();
+
+(async () => {
+  const c = window.claude;
+  if (!c || !c.use) { $('#status').textContent = 'เปิดหน้านี้จาก claude.ai เพื่อให้ตัวเลือกถูกบันทึก'; return; }
+  const [d, u] = await Promise.all([c.use('db'), c.use('user')]);
+  if (u && typeof u.isOwner === 'function' && !u.isOwner()) { canWrite = false; }
+  db = d;
+  if (!db) { $('#status').textContent = 'ยังเชื่อมที่เก็บข้อมูลไม่ได้ ตัวเลือกจะยังไม่ถูกบันทึก'; paint(); return; }
+  const timer = setTimeout(() => { $('#status').textContent = 'ยังโหลดตัวเลือกที่บันทึกไว้ไม่ได้ อาจไม่ใช่ข้อมูลล่าสุด'; }, 10000);
+  db.collection('picks').onSnapshot(snap => {
+    snap.docs.forEach(doc => { if (doc.exists) state[doc.id] = doc.data(); });
+    snap.docChanges().forEach(ch => { if (ch.type === 'removed') delete state[ch.doc.id]; });
+    if (!snap.metadata.fromCache) { clearTimeout(timer); $('#status').textContent = canWrite ? 'พร้อม: กดเลือกแล้วระบบบันทึกให้ทันที' : 'ดูได้อย่างเดียว'; }
+    paint();
+  }, () => { clearTimeout(timer); $('#status').textContent = 'โหลดตัวเลือกที่บันทึกไว้ไม่ได้'; });
+})();
+</script>
