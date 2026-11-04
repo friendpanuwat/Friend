@@ -69,7 +69,7 @@ PART('B01', 'v3', {name: 'ตารางไอคอน 10 ช่อง', bgs: 
   const lw = div('left:60px;width:960px;top:840px;display:flex;justify-content:center', c);
   const lab = div(`position:relative;font-family:KeySans;font-size:120px;line-height:1.1;letter-spacing:-3px;white-space:nowrap;color:${dark ? ACC : NAVY};opacity:0`, lw);
   lab.textContent = shareLabel(s);
-  fitW(lab, 960);
+  fitW(lab, SAFE_W);   // the label sits at y 840–970, level with the app's buttons
   mv.key(lw, T.hit + .1); mv.show(lab, T.hit + .1); snd('hit', T.hit);
   cardText(c, T, s.lead, s.key, 1260);
 });

@@ -4,9 +4,9 @@
 usage: render_check.py <plan.json>        (validate.py --render calls run() after the plan passes the other checks)
 Catches what only shows on screen: the engine refusing a slot (B14 key out of range, phrase too long…), text running off
 the frame or out of its card or widget, two texts touching (this includes Thai marks above and below, since the box is
-the font's full line box), and subtitles or widget text in the app's right-hand button strip.
+the font's full line box), and any text in the app's right-hand button strip (x > 940, y 860–1620).
 A problem must be seen in 2 samples in a row (0.2 s apart) before it counts, so a word crossing another for a frame
-during an entrance is not reported. Cards are full-screen: the right strip is a warning there, not an error.
+during an entrance is not reported.
 """
 import json, os, subprocess, sys, tempfile
 
@@ -49,10 +49,8 @@ def problems(texts):
         c = x.get('clip')
         if c and (b[0] < c[0] - PAD or b[1] < c[1] - PAD or b[2] > c[2] + PAD or b[3] > c[3] + PAD):
             P[('cut', x['id'])] = ('error', 'text-cut', w, f'text box {b} is cut by its box {[round(v) for v in c]}', x['owner'])
-        if x['owner'] != 'card' and b[2] > RIGHT_X + PAD and b[1] < RIGHT_Y[1] and b[3] > RIGHT_Y[0]:
+        if b[2] > RIGHT_X + PAD and b[1] < RIGHT_Y[1] and b[3] > RIGHT_Y[0]:   # cards too (Friend 2026-11-04: shrink to end at 940)
             P[('right', x['id'])] = ('error', 'text-right-strip', w, f'text reaches x {b[2]:.0f} in the app\'s button strip (> {RIGHT_X})', x['owner'])
-        elif x['owner'] == 'card' and b[2] > RIGHT_X + PAD and b[1] < RIGHT_Y[1] and b[3] > RIGHT_Y[0]:
-            P[('right', x['id'])] = ('warn', 'text-right-strip', w, f'card text reaches x {b[2]:.0f}, under the app\'s buttons', x['owner'])
     for i, a in enumerate(texts):
         for b in texts[i + 1:]:
             ow, oh = inter(a['box'], b['box'])

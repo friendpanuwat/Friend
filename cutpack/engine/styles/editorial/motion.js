@@ -102,6 +102,9 @@ const ON = {
   white: {ink: NAVY, soft: 'rgba(20,33,61,.58)', tile: NAVY, tileInk: '#FFFFFF', sub: '#EEF0F4', track: 'rgba(20,33,61,.10)'},
   cream: {ink: NAVY, soft: 'rgba(20,33,61,.58)', tile: NAVY, tileInk: '#FFFFFF', sub: '#FFFFFF', track: 'rgba(20,33,61,.12)'},
 };
+/* the app's right-hand buttons sit over x > 940 from y 860 to 1620. Text centred on 540 that may reach that height is at most
+   SAFE_W wide, so it ends at x 940 (Friend 2026-11-04: shrink card text like the subtitles); longer text shrinks, never wraps mid-word. */
+const STRIP = Object.freeze({x: 940, y0: 860, y1: 1620}), SAFE_W = 2 * (STRIP.x - 540);   // 800
 /* card text in the skill's rhythm: lead line (small) + key line (big, accent on dark, navy-on-accent box on light) */
 function cardText(c, T, lead, key, top = 1350, {keyStyle} = {}) {
   top = 1350;   // Friend 2026-11-04: text lower than the skill's 1200 band start — one height for every card, ends above the bottom 300 px
@@ -109,7 +112,7 @@ function cardText(c, T, lead, key, top = 1350, {keyStyle} = {}) {
   const rows = [];
   if (lead) rows.push([[lead, 'l', T.t0 + .15, {color: o.ink}]]);
   if (key) rows.push([[key, keyStyle ?? (dark ? 'k' : 'hl'), T.hit, {}]]);
-  const el = txt(c, rows, `top:${top}px`, {H: 380});
+  const el = txt(c, rows, `top:${top}px`, {H: 380, W: SAFE_W});
   el.style.rowGap = '26px';             // Thai marks above the key word must clear the lead line (Friend 2026-11-03)
   if (key) snd('key', T.hit - .04);
   return el;
@@ -168,7 +171,7 @@ function widgetAt(cat, v, kind, t0, t1, opts) {
    ===================================================================== */
 const SUBTOP = 1300;   // Friend 2026-11-04: lower than the skill's 1150; real clips take it from the chin, never higher
 const SUBMAX = 12;   // Friend 2026-11-04: short chunks, about 12 letters
-const SUBW = 800;    // widest a subtitle row may be: centred on 540 it ends at x 940, left of the app's buttons (DECISIONS: nothing past 940); longer rows shrink
+const SUBW = SAFE_W;   // widest a subtitle row may be: centred on 540 it ends at x 940, left of the app's buttons (DECISIONS: nothing past 940); longer rows shrink
 /* Chunks come from the caption step (Haiku groups the subtitle, the customer checks it): "lead big / lead big / …".
    Without '/', the engine only cuts at the writer's spaces (never inside a Thai word): greedy chunks of ≤ SUBMAX letters,
    a number keeps its unit, the key ends its chunk. The big word is the chunk's last spaced token. */

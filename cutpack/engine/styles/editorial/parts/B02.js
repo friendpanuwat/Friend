@@ -8,7 +8,9 @@ const B02_SLOTS = {
 };
 const RED = '#FF3B30';
 const dirCol = (s, dark) => s.dir === 'down' ? RED : dark ? ACC : NAVY;
-const chipAt = (c, text, t, x, y) => { const ch = pill(c, text, t, `left:${x}px;top:${y}px`, {sound: false}); FITS.push(() => { ch.style.left = `${Math.min(1080 - 80 - ch.offsetWidth, Math.max(80, x - ch.offsetWidth / 2))}px`; }); return ch; };
+const chipAt = (c, text, t, x, y) => { const ch = pill(c, text, t, `left:${x}px;top:${y}px`, {sound: false}); FITS.push(() => {
+  const right = y < STRIP.y1 && y + ch.offsetHeight > STRIP.y0 ? STRIP.x : 1000;   // level with the app's buttons: end at x 940
+  ch.style.left = `${Math.min(right - ch.offsetWidth, Math.max(80, x - ch.offsetWidth / 2))}px`; }); return ch; };
 
 /* v1: five bars — up: they grow into a rising staircase; down: they stand tall, then fall at the key word */
 PART('B02', 'v1', {name: 'กราฟแท่ง', bgs: ['glow', 'cream', 'white'], slots: B02_SLOTS, dur: [1.4, 3.5],

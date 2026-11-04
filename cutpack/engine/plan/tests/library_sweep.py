@@ -44,6 +44,8 @@ def one(job):
     plan = (card_plan if name == 'cards' else widget_plan)(cat)
     R = validate.Report()
     render_check.run(plan, R)
+    for i in R.issues:
+        if 'scene' in i: i['part'] = f"{plan['scenes'][i['scene']]['part']}/{plan['scenes'][i['scene']].get('bg') or plan['scenes'][i['scene']].get('size')}"
     return name, cat, len(plan['scenes']), R.issues
 
 
@@ -56,7 +58,7 @@ if __name__ == '__main__':
     with Pool(4) as pool:
         for name, cat, n, issues in pool.imap(one, jobs):
             total += n
-            for i in issues: print(f"{name} {cat}: {i['level']:5} {i['code']:16} {i['where']}: {i['msg']}", flush=True)
+            for i in issues: print(f"{name} {cat} {i.get('part', '')}: {i['level']:5} {i['code']:16} {i['where']}: {i['msg']}", flush=True)
             bad += sum(i['level'] == 'error' for i in issues)
     print(f"{total} scenes checked, {bad} errors")
     sys.exit(1 if bad else 0)
