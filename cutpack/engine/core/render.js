@@ -2,6 +2,8 @@
 //        node render.js <project_dir> range <startFrame> <endFrame>   — frames to <project>/out_frames/
 //        node render.js <project_dir> sfx   — dump the timeline's SFX cues to <project>/cues.json
 const { chromium } = require('playwright');
+// no network in the render browser: AI-written scene code (plan/custom_check.py) can never reach anything outside the page
+const NO_NET = ['--proxy-server=http://127.0.0.1:9', '--proxy-bypass-list=<-loopback>', '--host-resolver-rules=MAP * ~NOTFOUND'];
 const path = require('path');
 const fs = require('fs');
 const FPS = 30;
@@ -11,7 +13,7 @@ const FPS = 30;
   const SRC = path.join(D, 'src_frames');
   const SRC_N = fs.existsSync(SRC) ? fs.readdirSync(SRC).length : 1;
   const srcFrame = f => 'file://' + path.join(SRC, `s${String(Math.min(f, SRC_N - 1) + 1).padStart(5, '0')}.jpg`);
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ args: NO_NET });
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
   const errors = [];
   page.on('pageerror', e => { errors.push(e.message); console.error('PAGE ERROR', e.message); });

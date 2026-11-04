@@ -8,6 +8,7 @@ convert(plan, guard=True) is for the checker only: each call is wrapped so one f
 is reported (window.__planErr = [[what, index, message]]) and the rest of the clip still builds.
 """
 import json, sys
+import custom_check
 
 
 def js(v):
@@ -31,6 +32,20 @@ def convert(plan, guard=False):
         if 'subtitleTop' in lay: opt['top'] = lay['subtitleTop']
         call(f"subtitle({js(sub['text'])}, {js(sub['t0'])}, {js(sub['t1'])}{', ' + js(opt) if opt else ''});", 'subtitle', i)
     for i, s in scenes:
+        if s['part'] == 'custom':   # AI-written scene: its code goes in only after custom_check passed it
+            probs = custom_check.check(s.get('code'))
+            if probs: raise ValueError(f"scene {i}: AI-written code refused: {probs[0]}")
+            sl = s.get('slots', {})
+            if s['kind'] == 'card':
+                args = {k: sl[k] for k in ('lead', 'key') if sl.get(k)}; args.update(hit=s['hit'], bg=s['bg'])
+                call(f"customPart({js(s['t0'])}, {js(s['t1'])}, {js(args)}, (c, T) => {{\n{s['code']}\n}});", 'scene', i,
+                     undo=f"CARD_WIN.splice(CARD_WIN.findIndex(w => w[0] === {js(s['t0'])}), 1); ")
+            else:
+                args = {k: sl[k] for k in ('wlead', 'wkey') if sl.get(k)}; args['hit'] = s['hit']
+                pos = s.get('pos') or lay.get('widgetPos', {}).get(s['size'])
+                if pos: args['pos'] = pos
+                call(f"customWidget({js(s['size'])}, {js(s['t0'])}, {js(s['t1'])}, {js(args)}, (vis, S, T) => {{\n{s['code']}\n}});", 'scene', i)
+            continue
         cat, v = s['part'].split('.')
         args = dict(s.get('slots', {}), hit=s['hit'])
         if s['kind'] == 'card':

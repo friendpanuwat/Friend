@@ -53,6 +53,8 @@ def assemble(inp, ans, style):
         x.update({'bg': s['bg']} if kind == 'card' else {'size': s['size']})
         x.update(hit=s['hit'], slots={k: v for k, v in s.get('slots', {}).items() if v is not None})
         if s.get('say'): x['say'] = s['say']
+        if s['part'] == 'custom':   # AI-written: what it should show, and its code from the second call (none yet → refused)
+            x['need'] = s.get('need', ''); x['code'] = s.get('code', '')
         scenes.append(x)
     cam = []
     for c in ans.get('camera', []):

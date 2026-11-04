@@ -7,11 +7,13 @@
 // `parts` = the same ink box per letter cluster (a consonant with its marks); overlap is tested on these.
 // Texts parked off-screen (the font warmer in motion.js sits at left -9999) are skipped.
 const { chromium } = require('playwright');
+// no network in the render browser: AI-written scene code (plan/custom_check.py) can never reach anything outside the page
+const NO_NET = ['--proxy-server=http://127.0.0.1:9', '--proxy-bypass-list=<-loopback>', '--host-resolver-rules=MAP * ~NOTFOUND'];
 const path = require('path'), fs = require('fs');
 (async () => {
   const [dir, timesFile] = process.argv.slice(2);
   const times = JSON.parse(fs.readFileSync(timesFile, 'utf8'));
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ args: NO_NET });
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));

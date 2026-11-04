@@ -2,30 +2,39 @@
 """Plan D for one clip, start to finish: ask the AI for a plan, check it, one fix round, then the fallback.
 
 usage: plan_d.py <input.json> <editorial|overlay> <out_dir> [--faces faces.json] [--no-render]
-                 [--dry] [--answer answer.json] [--fix-answer answer.json]
+                 [--dry] [--answer answer.json] [--fix-answer answer.json] [--code-answer c.json] [--fix-code-answer c.json]
   --dry          write out_dir/request.json (what would be sent) and stop: no API key needed
-  --answer       use this answer instead of calling the API (tests, replays); --fix-answer is the answer to the fix round
+  --answer       use this answer instead of calling the API (tests, replays); --fix-answer is the answer to the fix round;
+                 --code-answer / --fix-code-answer do the same for the scene-code call
 writes out_dir/plan.json (ready for plan2timeline.py), out_dir/report.json (issues left, what the fallback changed)
 and out_dir/run.json (every API call with its token usage, in the cost_model.py "calls" format).
 
 Steps (DECISIONS 2 and 5):
   1. request from prompt.py — Sonnet 5.5, effort low, cached system block, answer forced into JSON by a schema
-  2. assemble.py → plan → validate.py (with the render check)
-  3. any error → ONE fix round in the same conversation (the answer is passed back unchanged, then the issues)
-  4. still blocking → fallback.py (B14 text cards, drops); quality errors that remain are reported, the clip is made
-  5. no answer at all (API down, refusal) → a plan with subtitles and no scenes, so the customer still gets a clip
+  2. if the plan has AI-written scenes (part "custom", Friend 2026-11-04: on from day one, no cap), a second call
+     writes their code with the kit (prompt/kit.md); custom_check.py and the render check judge it like any part
+  3. assemble.py → plan → validate.py (with the render check)
+  4. any error → ONE fix round in the conversation that made it: plan errors to the plan call (its custom scenes are
+     then written again), scene-code errors to the code call (the answer is passed back unchanged, then the issues)
+  5. still blocking → fallback.py (B14 text cards, drops); quality errors that remain are reported, the clip is made
+     report.json lists what the AI said the library was missing (`library_missing`), to grow the library
+  6. no answer at all (API down, refusal) → a plan with subtitles and no scenes, so the customer still gets a clip
 The API key comes from the environment (ANTHROPIC_API_KEY, set in the environment settings — never in chat or code).
 """
-import json, os, sys, time
+import copy, json, os, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import prompt, assemble, validate, fallback
 
 
-def call_record(resp, model):
+def save(path, data):
+    with open(path, 'w') as f: json.dump(data, f, ensure_ascii=False, indent=1)
+
+
+def call_record(resp, model, stage='scene'):
     u = resp.usage
-    return {'stage': 'scene', 'model': model, 'served': resp.model, 'in': u.input_tokens, 'out': u.output_tokens,
+    return {'stage': stage, 'model': model, 'served': resp.model, 'in': u.input_tokens, 'out': u.output_tokens,
             'cache_read': u.cache_read_input_tokens or 0, 'cache_write_5m': u.cache_creation_input_tokens or 0,
             'stop': resp.stop_reason}
 
@@ -57,16 +66,32 @@ def without_schema(req):
     return r
 
 
-def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_answer=None):
+def write_codes(client, inp, style, answer, cat, calls, log, code_answer=None):
+    """Step 2b (DECISIONS 2, step 5): when the plan has AI-written scenes, a second call writes their code into
+    `answer` (in place). Returns (request, response) so a fix round can continue that conversation."""
+    if not any(s.get('part') == 'custom' for s in answer.get('scenes', [])): return None, None
+    req, resp = prompt.code_request(inp, style, answer, cat), None
+    if code_answer is None and client is not None:
+        code_answer, resp, why = ask(client, req)
+        if resp is not None: calls.append(call_record(resp, req['model'], 'custom_scene'))
+        if why: log.append(f'scene-code request failed: {why}')
+    for c in (code_answer or {}).get('scenes', []):
+        if isinstance(c.get('i'), int) and 0 <= c['i'] < len(answer['scenes']) and answer['scenes'][c['i']].get('part') == 'custom':
+            answer['scenes'][c['i']]['code'] = c.get('code', '')
+    return req, resp
+
+
+def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_answer=None, code_answer=None, fix_code_answer=None):
     os.makedirs(out, exist_ok=True)
     cat = prompt.load_catalog()
     req = prompt.request(inp, style, cat)
     if dry:
-        json.dump(req, open(os.path.join(out, 'request.json'), 'w'), ensure_ascii=False, indent=1)
+        save(os.path.join(out, 'request.json'), req)
         return None
     history = inp.get('history')
     calls, log, client, resp = [], [], None, None
-    if answer is None:
+    offline = answer is not None
+    if not offline:
         import anthropic
         client = anthropic.Anthropic()
         answer, resp, why = ask(client, req)
@@ -77,18 +102,39 @@ def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_an
             answer, resp, why = ask(client, req)
             if resp is not None: calls.append(call_record(resp, req['model']))
             log.append('asked again without the schema' + (f': {why}' if why else ''))
+    creq, cresp = write_codes(client, inp, style, answer, cat, calls, log, code_answer) if answer else (None, None)
     plan = assemble.assemble(inp, answer or {'camera': [], 'scenes': []}, style)
     R, _ = validate.validate(plan, cat, faces, history, render=render)
     errors = [i for i in R.issues if i['level'] == 'error']
-    if answer is not None and errors:   # 3. one fix round
-        log.append(f'fix round: {len(errors)} errors sent back')
-        fixed = fix_answer
-        if fixed is None and client is not None and resp is not None:
-            req2 = dict(req, messages=req['messages'] + [{'role': 'assistant', 'content': resp.content},
-                                                          {'role': 'user', 'content': prompt.fix_message(errors)}])
-            fixed, resp2, why = ask(client, req2)
-            if resp2 is not None: calls.append(call_record(resp2, req['model']))
-            if why: log.append(f'fix request failed: {why}')
+    if answer is not None and errors:   # 3. one fix round, sent to the call that made the mistake
+        code_errs = [i for i in errors if 'scene' in i and plan['scenes'][i['scene']]['part'] == 'custom']
+        plan_errs = [i for i in errors if i not in code_errs]
+        fixed = None
+        if plan_errs:
+            log.append(f'fix round (plan): {len(plan_errs)} errors sent back')
+            fixed = copy.deepcopy(fix_answer) if fix_answer is not None else None
+            if fixed is None and client is not None and resp is not None:
+                req2 = dict(req, messages=req['messages'] + [{'role': 'assistant', 'content': resp.content},
+                                                              {'role': 'user', 'content': prompt.fix_message(errors)}])
+                fixed, resp2, why = ask(client, req2)
+                if resp2 is not None: calls.append(call_record(resp2, req['model']))
+                if why: log.append(f'fix request failed: {why}')
+            if fixed is not None: write_codes(client, inp, style, fixed, cat, calls, log, fix_code_answer if offline else None)
+        elif code_errs:
+            log.append(f'fix round (scene code): {len(code_errs)} errors sent back')
+            fixed = copy.deepcopy(answer)
+            new_codes = fix_code_answer
+            if new_codes is None and client is not None and cresp is not None:
+                rows = [dict(i, where=f"scene {i['scene']}: {i['where']}") for i in code_errs]
+                creq2 = dict(creq, messages=creq['messages'] + [{'role': 'assistant', 'content': cresp.content},
+                                                                {'role': 'user', 'content': prompt.fix_message(rows)}])
+                new_codes, cresp2, why = ask(client, creq2)
+                if cresp2 is not None: calls.append(call_record(cresp2, creq['model'], 'custom_scene'))
+                if why: log.append(f'scene-code fix failed: {why}')
+            for c in (new_codes or {}).get('scenes', []):
+                if isinstance(c.get('i'), int) and 0 <= c['i'] < len(fixed['scenes']) and fixed['scenes'][c['i']].get('part') == 'custom':
+                    fixed['scenes'][c['i']]['code'] = c.get('code', '')
+            if new_codes is None: fixed = None
         if fixed is not None:
             plan2 = assemble.assemble(inp, fixed, style)
             R2, _ = validate.validate(plan2, cat, faces, history, render=render)
@@ -104,13 +150,12 @@ def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_an
                 plan['fallbackLog'].append('subtitles rebuilt around the remaining cards')
                 R, _ = validate.validate(plan, cat, faces, history, render=render)
     status = 'ok' if answer is not None else 'no-plan'
-    json.dump(plan, open(os.path.join(out, 'plan.json'), 'w'), ensure_ascii=False, indent=1)
-    json.dump({'status': status, 'log': log, 'fallback': plan.get('fallbackLog', []), 'issues': R.issues},
-              open(os.path.join(out, 'report.json'), 'w'), ensure_ascii=False, indent=1)
-    json.dump({'clip': inp['clip'].get('file'), 'duration_s': inp['clip']['duration'], 'style': style, 'status': status,
-               'calls': calls, 'time': time.strftime('%Y-%m-%dT%H:%M:%S')}, open(os.path.join(out, 'run.json'), 'w'), ensure_ascii=False, indent=1)
+    needs = [s.get('need') for s in (answer or {}).get('scenes', []) if s.get('part') == 'custom' and s.get('need')]   # kept even if the scene fell back
+    save(os.path.join(out, 'plan.json'), plan)
+    save(os.path.join(out, 'report.json'), {'status': status, 'log': log, 'fallback': plan.get('fallbackLog', []), 'library_missing': needs, 'issues': R.issues})
+    save(os.path.join(out, 'run.json'), {'clip': inp['clip'].get('file'), 'duration_s': inp['clip']['duration'], 'style': style, 'status': status,
+                                         'calls': calls, 'time': time.strftime('%Y-%m-%dT%H:%M:%S')})
     return plan, R, log
-
 
 if __name__ == '__main__':
     a = sys.argv[1:]
@@ -118,7 +163,7 @@ if __name__ == '__main__':
     opt = lambda k: a[a.index(k) + 1] if k in a else None
     load = lambda k: json.load(open(opt(k))) if opt(k) else None
     res = run(json.load(open(a[0])), a[1], a[2], faces=load('--faces'), render='--no-render' not in a, dry='--dry' in a,
-              answer=load('--answer'), fix_answer=load('--fix-answer'))
+              answer=load('--answer'), fix_answer=load('--fix-answer'), code_answer=load('--code-answer'), fix_code_answer=load('--fix-code-answer'))
     if res is None: print('request written to', os.path.join(a[2], 'request.json')); sys.exit(0)
     plan, R, log = res
     for line in log + [f'fixed: {x}' for x in plan.get('fallbackLog', [])]: print(line)

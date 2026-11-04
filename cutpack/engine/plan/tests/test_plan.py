@@ -12,7 +12,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PLAN = os.path.dirname(HERE)
 CUTPACK = os.path.dirname(os.path.dirname(PLAN))
 sys.path.insert(0, PLAN)
-import validate as V, render_check, fallback, assemble, prompt, plan2timeline, faces
+import validate as V, render_check, fallback, assemble, prompt, plan2timeline, faces, custom_check, plan_d
+import re
 
 EX = os.path.join(PLAN, 'examples')
 
@@ -244,6 +245,106 @@ class FaceFinder(unittest.TestCase):
     def test_no_face_still_leaves_room(self):
         L = faces.layout([], 10)['layout']
         self.assertTrue(L['shortFits'] and L['narrowFits'])
+
+
+# ---------- AI-written scenes (Friend 2026-11-04: on from day one, no cap) ----------
+KIT_EXAMPLES = re.findall(r'```js\n(.*?)```', open(os.path.join(PLAN, 'prompt', 'kit.md')).read(), re.S)
+HOSTILE = {
+    'climb out of its function': "}); ZOOM.push({t: 1, z: 2}); (() => {",
+    'reach the window': "window.fetch('https://x')",
+    'reach the page': "document.body.innerHTML = 'x'",
+    'randomness': "const x = Math.random();",
+    'raw animation': "c.animate([{opacity: 0}], 1000)",
+    'load a local file': "div('left:0', c, '<iframe src=\"file:///etc/passwd\"></iframe>')",
+    'css url': "div('background:url(file:///etc/passwd)', c)",
+    'climb the DOM': "c.parentNode.appendChild(div('', c))",
+    'move the camera': "push(1.0)",
+    'endless loop': "while (true) {}",
+    'make code': "const f = new Function('return 1')",
+    'event handler': "div('', c, '<svg onload=\"x()\"></svg>')",
+    'tag put together': "div('', c, '<' + 'iframe>')",
+    'char codes': "const lt = String.fromCharCode(60);",
+    'escape codes': "div('', c, '\\x3ciframe\\x3e')",
+}
+
+
+def custom_plan(style='editorial', code=None):
+    if style == 'editorial':
+        p = copy.deepcopy(GOOD['editorial'])
+        p['scenes'][1] = {'t0': 6.2, 't1': 8.0, 'kind': 'card', 'part': 'custom', 'bg': 'glow', 'hit': 7.0, 'need': 'a ring that closes on 3',
+                          'code': KIT_EXAMPLES[0] if code is None else code, 'slots': {'lead': 'แต่คือ', 'key': '3 วินาทีแรก'}}
+    else:
+        p = copy.deepcopy(GOOD['overlay'])
+        p['scenes'][3] = {'t0': 9.6, 't1': 11.0, 'kind': 'widget', 'part': 'custom', 'size': 'short', 'hit': 10.4, 'need': 'a stopwatch',
+                          'code': KIT_EXAMPLES[1] if code is None else code, 'slots': {'wlead': 'ภายใน', 'wkey': '3 วินาที'}}
+    return p
+
+
+class CustomScenes(unittest.TestCase):
+    def test_kit_examples_pass_the_check(self):
+        self.assertEqual(len(KIT_EXAMPLES), 2)
+        for code in KIT_EXAMPLES: self.assertEqual(custom_check.check(code), [])
+
+    def test_hostile_code_is_refused(self):
+        for why, code in HOSTILE.items():
+            with self.subTest(why): self.assertTrue(custom_check.check(code), why)
+
+    def test_good_custom_scenes_pass_with_render(self):
+        for style in ('editorial', 'overlay'):
+            R = check(custom_plan(style), FACES, render=True)
+            self.assertEqual([i for i in R.issues if i['level'] == 'error'], [], style)
+
+    def test_converter_never_writes_refused_code(self):
+        with self.assertRaises(ValueError): plan2timeline.convert(custom_plan(code=HOSTILE['reach the window']))
+
+    def test_bad_code_is_caught_and_falls_back_to_text(self):
+        p = custom_plan(code=HOSTILE['move the camera'])
+        R = check(p)
+        self.assertIn(('custom-code', 1), [(i['code'], i.get('scene')) for i in R.issues])
+        p, R = fallback.repair(p, CAT, render=False)
+        self.assertEqual(R.blocking, []); self.assertEqual(p['scenes'][1]['part'][:3], 'B14')
+
+    def test_numbers_drawn_by_custom_code_must_be_said(self):
+        code = KIT_EXAMPLES[0] + "\nconst n = div('left:300px;top:1000px;width:400px;font-size:90px;color:#fff', c, '75%');\n"
+        R = check(custom_plan(code=code), render=True)
+        self.assertIn(('number-not-said', 1), [(i['code'], i.get('scene')) for i in R.issues])
+
+    def test_runtime_cleaner_is_a_second_wall(self):
+        """Even if a string slipped past the check, nothing that loads or runs survives in the built scene."""
+        sneaky = ("const d = div('left:100px;top:300px;width:600px;height:400px', c, '<' + 'iframe srcdoc=x></iframe><svg on' + 'load=1></svg>');"
+                  "const e = div('left:0;top:0;width:9px;height:9px', c); e.setAttribute('style', 'background:ur' + 'l(fi' + 'le:///etc/hostname)');")
+        real = custom_check.check
+        try:
+            custom_check.check = lambda code: []          # pretend the first wall missed it
+            js = plan2timeline.convert(custom_plan(code=sneaky), guard=True)
+        finally:
+            custom_check.check = real
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, 'timeline.js'), 'w') as f: f.write(js)
+            subprocess.run([sys.executable, os.path.join(PLAN, '..', 'core', 'build_scene.py'), d], check=True, capture_output=True)
+            r = subprocess.run(['node', os.path.join(HERE, 'dom_probe.js'), d, '7.0', 'iframe', '[onload]', '[style*="url("]'], capture_output=True, text=True, check=True)
+        out = json.loads(r.stdout)
+        self.assertEqual((out['iframe'], out['[onload]'], out['[style*="url("]']), (0, 0, 0))
+
+    def test_runner_paths(self):
+        ans = load(EX, 'test18_editorial.answer.json')
+        ans['scenes'][1].update(part='custom', bg='glow', hit=7.0, need='a ring that closes on 3', slots={'lead': 'แต่คือ', 'key': '3 วินาทีแรก'})
+        good, bad = {'scenes': [{'i': 1, 'code': KIT_EXAMPLES[0]}]}, {'scenes': [{'i': 1, 'code': HOSTILE['reach the window']}]}
+        with tempfile.TemporaryDirectory() as d:
+            for codes, fix, want in ((good, None, 'custom'), (bad, good, 'custom'), (bad, None, 'B14')):
+                plan, R, log = plan_d.run(INPUT, 'editorial', d, render=False, answer=copy.deepcopy(ans), code_answer=codes, fix_code_answer=fix)
+                self.assertEqual(R.blocking, []); self.assertEqual(plan['scenes'][1]['part'][:len(want)], want)
+                self.assertEqual(load(d, 'report.json')['library_missing'], ['a ring that closes on 3'])
+
+    def test_code_request_only_for_custom_scenes(self):
+        ans = load(EX, 'test18_editorial.answer.json')
+        self.assertIn('custom', prompt.answer_schema('editorial', CAT)['properties']['scenes']['items']['properties']['part']['enum'])
+        self.assertEqual(plan_d.write_codes(None, INPUT, 'editorial', copy.deepcopy(ans), CAT, [], []), (None, None))
+        ans['scenes'][1].update(part='custom', need='a ring')
+        req = prompt.code_request(INPUT, 'editorial', ans, CAT)
+        self.assertIn('## scene 1 · card', req['messages'][0]['content']); self.assertNotIn('## scene 0', req['messages'][0]['content'])
+        other = prompt.code_request(dict(INPUT, clip=dict(INPUT['clip'], duration=40)), 'editorial', ans, CAT)
+        self.assertEqual(req['system'], other['system'])   # the kit block is cached: the same for every clip
 
 
 @unittest.skipUnless(os.environ.get('CUTPACK_SLOW'), 'set CUTPACK_SLOW=1 to sweep the whole library')

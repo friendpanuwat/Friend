@@ -148,9 +148,9 @@ def answer_schema(style, cat):
                     props[k] = {'anyOf': opts}
     if style == 'overlay':
         props.update(wlead={'type': 'string'}, wkey={'type': 'string'})
-    scene = {'t0': {'type': 'number'}, 't1': {'type': 'number'}, 'part': {'type': 'string', 'enum': [p['id'] for p in parts]}}
+    scene = {'t0': {'type': 'number'}, 't1': {'type': 'number'}, 'part': {'type': 'string', 'enum': [p['id'] for p in parts] + ['custom']}}
     scene.update({'bg': {'type': 'string', 'enum': ['glow', 'white', 'cream']}} if style == 'editorial' else {'size': {'type': 'string', 'enum': ['short', 'narrow']}})
-    scene.update(hit={'type': 'number'}, say={'type': 'string'},
+    scene.update(hit={'type': 'number'}, say={'type': 'string'}, need={'type': 'string'},
                  slots={'type': 'object', 'properties': dict(sorted(props.items())), 'additionalProperties': False})
     cam = {'type': 'object', 'properties': {'move': {'type': 'string', 'enum': ['push', 'pull']}, 't': {'type': 'number'},
                                             'z': {'type': 'number'}, 'cut': {'type': 'boolean'}},
@@ -159,6 +159,40 @@ def answer_schema(style, cat):
             'properties': {'camera': {'type': 'array', 'items': cam},
                            'scenes': {'type': 'array', 'items': {'type': 'object', 'properties': scene, 'required': list(scene),
                                                                  'additionalProperties': False}}}}
+
+
+def code_schema():
+    return {'type': 'object', 'additionalProperties': False, 'required': ['scenes'],
+            'properties': {'scenes': {'type': 'array', 'items': {'type': 'object', 'additionalProperties': False, 'required': ['i', 'code'],
+                                                                 'properties': {'i': {'type': 'integer'}, 'code': {'type': 'string'}}}}}}
+
+
+def code_system_text(cat):
+    """Cached block of the scene-code call: the kit guide and the icon names (the same for every clip)."""
+    return read('prompt', 'kit.md').strip() + f"\n\n# Icons ({len(cat['icons'])} names; use only these)\n" + ' '.join(cat['icons'])
+
+
+def code_request(inp, style, answer, cat=None):
+    """The second call (DECISIONS 2, step 5), only when the plan has custom scenes: write their code."""
+    cat = cat or load_catalog()
+    kind = KIND[style]
+    rows = ['Write the code of these scenes. Answer {"scenes": [{"i": scene number, "code": function body}]}.', '']
+    for i, s in enumerate(answer['scenes']):
+        if s.get('part') != 'custom': continue
+        words = [w for w in inp.get('words', []) if s['t0'] - .3 <= w['t0'] < s['t1']]
+        sl = s.get('slots') or {}
+        rows += [f"## scene {i} · {kind}" + (f" · background {s.get('bg')}" if kind == 'card' else f" · widget {s.get('size')}, S = {150 if s.get('size') == 'short' else 180}"),
+                 f"t0 {s['t0']} · hit {s['hit']} · t1 {s['t1']}",
+                 f"show: {s.get('need', '')}",
+                 'words said: ' + ' '.join(f"{w['w']}@{w['t0']:.2f}" for w in words),
+                 'text code adds under it: ' + (' / '.join(x for x in (sl.get('lead') or sl.get('wlead'), sl.get('key') or sl.get('wkey')) if x) or 'none'), '']
+    return {
+        'model': MODEL, 'max_tokens': 16000,
+        'betas': ['server-side-fallback-2026-07-01'], 'fallbacks': 'default',
+        'output_config': {'effort': EFFORT, 'format': {'type': 'json_schema', 'schema': code_schema()}},
+        'system': [{'type': 'text', 'text': code_system_text(cat), 'cache_control': {'type': 'ephemeral'}}],
+        'messages': [{'role': 'user', 'content': '\n'.join(rows)}],
+    }
 
 
 def system_text(style, cat):

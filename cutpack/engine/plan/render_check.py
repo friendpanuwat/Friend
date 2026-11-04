@@ -8,7 +8,7 @@ the font's full line box), and any text in the app's right-hand button strip (x 
 A problem must be seen in 2 samples in a row (0.2 s apart) before it counts, so a word crossing another for a frame
 during an entrance is not reported.
 """
-import json, os, subprocess, sys, tempfile
+import json, os, re, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -70,6 +70,21 @@ def owner_index(plan, owner, t):
     return {'scene': next((i for i, x in enumerate(plan['scenes']) if x['t0'] <= t < x['t1']), None)}
 
 
+def custom_numbers(plan, samples, R):
+    """Text an AI-written scene draws may only show numbers the speaker said (a lone 1–9 is a step label and may stay)."""
+    import validate
+    said, seen = validate.numbers(plan.get('script', '')), set()
+    for s in samples:
+        for x in s['texts']:
+            if x['owner'] == 'sub': continue
+            i = owner_index(plan, x['owner'], s['t']).get('scene')
+            if i is None or plan['scenes'][i]['part'] != 'custom' or x['text'].strip() in set('123456789'): continue
+            digits = {float(m.replace(',', '')) for m in re.findall(r'\d[\d,]*(?:\.\d+)?', x['text'].translate(str.maketrans('๐๑๒๓๔๕๖๗๘๙', '0123456789')))}
+            for n in digits - said:
+                if (i, n) in seen: continue
+                seen.add((i, n)); R.err('number-not-said', f"{s['t']:.2f}s AI-written scene \"{x['text'][:24]}\"", f'shows {n:g}, which is not in the script', scene=i)
+
+
 def run(plan, R):
     res = measure(plan)
     for e in res['errors']: R.err('engine', 'render', e)
@@ -84,6 +99,7 @@ def run(plan, R):
                 seen.add(k)
                 (R.err if lvl == 'error' else R.warn)(code, f"{s['t']:.2f}s {where}", msg, **owner_index(plan, owner, s['t']))
         prev = cur
+    custom_numbers(plan, res['samples'], R)
     return res
 
 if __name__ == '__main__':

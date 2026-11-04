@@ -225,3 +225,35 @@ function push(t, z = CAM.z, d = CAM.d) {
   PUSHES.push(t); ZOOM.push({t, z, d, io: true});
 }
 function pull(t, cut = false) { ZOOM.push(cut ? {t, z: 1, d: .001} : {t, z: 1, d: CAM.back, io: true}); }
+
+/* =====================================================================
+   AI-WRITTEN SCENES (Friend 2026-11-04: on from day one, no fixed cap per clip). Used when no library part fits.
+   The scene code is the body of (c, T) => {…} for a card or (vis, S, T) => {…} for a widget; engine/plan/custom_check.py
+   lets it use only this kit (no window, document, camera, other scenes, network). Here it is wrapped like a library
+   part — same card or widget frame, same lead/key text, same checks — and cleaned once more after it ran (and after
+   its FITS), in case a string was put together to slip past the check: anything that could load or run something goes.
+   ===================================================================== */
+let CUSTOM_N = 0;
+const CLEAN_TAGS = 'script,iframe,object,embed,img,image,use,a,foreignObject,link,style,video,audio,canvas,form,input,base,meta';
+function cleanScene(root) {
+  root.querySelectorAll(CLEAN_TAGS).forEach(e => e.remove());
+  for (const e of [root, ...root.querySelectorAll('*')]) {
+    for (const a of [...e.attributes]) {
+      const n = a.name.toLowerCase(), v = a.value.toLowerCase();
+      if (n.startsWith('on') || n === 'href' || n === 'xlink:href' || n === 'src' || n === 'srcset' || n === 'srcdoc' ||
+          /url\s*\(|javascript:|file:|https?:|@import|expression\s*\(/.test(v)) e.removeAttribute(a.name);
+    }
+  }
+}
+function customPart(t0, t1, opts, build) {
+  const v = `c${CUSTOM_N++}`;
+  PART('CU', v, {name: 'AI-written', bgs: ['glow', 'white', 'cream'], slots: {lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1, 3.5], hit: 'AI-written'},
+    (c, s, T) => { build(c, T); cleanScene(c); FITS.push(() => cleanScene(c)); if (s.lead || s.key) cardText(c, T, s.lead, s.key); });
+  return part('CU', v, t0, t1, opts);
+}
+function customWidget(kind, t0, t1, opts, build) {
+  const v = `c${CUSTOM_N++}`;
+  WIDGET('CU', v, {name: 'AI-written', slots: {}, dur: [1, 3.5], hit: 'AI-written'},
+    (vis, S, s, T) => { build(vis, S, T); cleanScene(vis); FITS.push(() => cleanScene(vis)); });
+  return widgetAt('CU', v, kind, t0, t1, opts);
+}

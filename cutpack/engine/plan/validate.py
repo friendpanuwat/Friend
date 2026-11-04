@@ -12,6 +12,9 @@ Every number used for a rule is in RULES, with where it comes from.
 """
 import json, math, os, re, sys, unicodedata
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import custom_check
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 RULES = {
@@ -27,6 +30,7 @@ RULES = {
     'hitIn': {'card': .25, 'widget': .4},   # the key-word event comes after the entrance has landed
     'hitOut': .3,                   # and leaves time to read the result before the scene ends
     'tol': .05,
+    'customDur': (1.0, 3.5),        # AI-written scenes: the same range as most library parts
     # variety (DECISIONS 4 "กันคลิปออกมาเหมือนกัน")
     'reusePer': 15,                 # a part may appear 1 + scenes // 15 times in one clip
     'historyClips': 10, 'historyWarn': .35, 'historyLastMax': .5,
@@ -109,7 +113,7 @@ def check_shape(plan, R):
         for k in ('t0', 't1', 'hit'):
             if not isinstance(s.get(k), (int, float)) or isinstance(s.get(k), bool): R.err('shape', w, f'{k} must be a number')
         if s.get('kind') not in ('card', 'widget'): R.err('shape', w, 'kind must be card or widget')
-        if not re.fullmatch(r'B\d\d\.v\d', str(s.get('part', ''))): R.err('shape', w, 'part must look like B02.v1')
+        if not re.fullmatch(r'B\d\d\.v\d|custom', str(s.get('part', ''))): R.err('shape', w, 'part must look like B02.v1 (or custom)')
         if not isinstance(s.get('slots', {}), dict): R.err('shape', w, 'slots must be an object')
     R.ctx = {}
     for i, s in enumerate(plan.get('subtitles', [])):
@@ -128,6 +132,7 @@ def check_scenes(plan, cat, R):
     for i, s in enumerate(plan['scenes']):
         w = f"scenes[{i}] {s['part']} {s['t0']}–{s['t1']}"; R.ctx = {'scene': i}
         if s['kind'] != want: R.err('kind', w, f'{style} uses {want}s only'); continue
+        if s['part'] == 'custom': check_custom(s, want, dur, cat, R, w); continue
         P = lib.get(s['part'])
         if not P: R.err('unknown-part', w, f"{s['part']} is not in the {want} library (catalog.json)"); continue
         t0, t1, hit, ln = s['t0'], s['t1'], s['hit'], s['t1'] - s['t0']
@@ -177,6 +182,26 @@ def check_scenes(plan, cat, R):
     R.ctx = {}
 
 
+def check_custom(s, want, dur, cat, R, w):
+    """An AI-written scene (Friend 2026-11-04): same timing rules as a part, its code must pass custom_check."""
+    t0, t1, hit = s['t0'], s['t1'], s['hit']
+    lo, hi = RULES['customDur']
+    if t0 < -R_tol() or t1 > dur + R_tol() or t1 <= t0: R.err('time', w, f'times must be inside 0–{dur} and t0 < t1')
+    if not (lo - R_tol() <= t1 - t0 <= hi + R_tol()): R.err('length', w, f'{t1 - t0:.2f} s is outside {lo}–{hi} s for an AI-written scene')
+    if hit < t0 + RULES['hitIn'][want] - 1e-9: R.err('hit-early', w, f"hit {hit} must be ≥ {RULES['hitIn'][want]} s after the start")
+    if hit > t1 - RULES['hitOut'] + 1e-9: R.err('hit-late', w, f"hit {hit} must be ≥ {RULES['hitOut']} s before the end")
+    if want == 'card' and s.get('bg') not in ('glow', 'white', 'cream'): R.err('bg', w, 'bg must be glow, white or cream')
+    if want == 'widget' and s.get('size') not in cat['widgetSizes']: R.err('size', w, 'size must be short or narrow')
+    limits = {'lead': 26, 'key': 14} if want == 'card' else {'wlead': RULES['wleadMax'], 'wkey': RULES['wkeyMax']}
+    for k, v in (s.get('slots') or {}).items():
+        if k not in limits: R.err('slot-unknown', w, f'an AI-written {want} takes only {", ".join(limits)} (got {k})')
+        elif not isinstance(v, str): R.err('slot-type', w, f'{k} must be text')
+        elif graphemes(v) > limits[k]: R.err('slot-long', w, f'{k} "{v}" is {graphemes(v)} letters, max {limits[k]}')
+    probs = custom_check.check(s.get('code'))
+    if probs: R.err('custom-code', w, 'the scene code is refused: ' + '; '.join(probs[:3]))
+    if not str(s.get('need', '')).strip(): R.warn('custom-need', w, 'say what the library was missing (need)')
+
+
 def R_tol(): return RULES['tol']
 
 
@@ -215,15 +240,17 @@ def check_variety(plan, R, history=None):
     ids = [s['part'] for s in sc]
     ix = {id(s): i for i, s in enumerate(plan['scenes'])}
     for a, b in zip(sc, sc[1:]):
+        if 'custom' in (a['part'], b['part']): continue
         if a['part'] == b['part']: R.err('repeat-next', f"{b['part']} {b['t0']}", 'the same part twice in a row', scene=ix[id(b)])
         elif a['part'][:3] == b['part'][:3]: R.warn('same-category', f"{b['part']} {b['t0']}", 'two scenes of the same category in a row', scene=ix[id(b)])
     cap = 1 + len(sc) // RULES['reusePer']
-    for p in sorted(set(ids)):
+    for p in sorted(set(ids) - {'custom'}):
         if ids.count(p) > cap: R.err('reuse', p, f'{p} used {ids.count(p)} times, max {cap} in this clip')
     bgs = [s.get('bg') for s in sc if s['kind'] == 'card']
     for k in range(len(bgs) - 2):
         if bgs[k] == bgs[k + 1] == bgs[k + 2]: R.warn('same-bg', f'cards {k}–{k + 2}', f'three {bgs[k]} cards in a row')
     score = None
+    ids = [p for p in ids if p != 'custom']   # every AI-written scene is new: history is about library parts
     if history and history.get('clips') and ids:
         past = history['clips'][-RULES['historyClips']:][::-1]   # most recent first
         weight = lambda p: max([1 - k / RULES['historyClips'] for k, c in enumerate(past) if p in c.get('parts', [])] or [0])
@@ -231,7 +258,7 @@ def check_variety(plan, R, history=None):
         last = sum(p in past[0].get('parts', []) for p in ids) / len(ids)
         if last > RULES['historyLastMax']: R.err('history-last', 'scenes', f'{last:.0%} of the parts were in this customer\'s last clip (max {RULES["historyLastMax"]:.0%})')
         elif score > RULES['historyWarn']: R.warn('history', 'scenes', f'repeat score {score} against the last {len(past)} clips (aim ≤ {RULES["historyWarn"]})')
-        if past[0].get('parts') and sc and past[0]['parts'][0] == ids[0]: R.warn('history-opener', ids[0], 'opens with the same part as the last clip')
+        if past[0].get('parts') and past[0]['parts'][0] == ids[0]: R.warn('history-opener', ids[0], 'opens with the same part as the last clip')
     return score
 
 

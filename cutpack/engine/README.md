@@ -14,6 +14,7 @@
 | `styles/<สไตล์>/widgets/*.js` | วิดเจ็ต overlay (`WIDGET`, `widgetAt`) หมวดละ 2 แบบ แต่ละแบบมี 2 ขนาด |
 | `plan/` | แผนฉาก JSON และการตรวจแผน: `catalog.js` (สร้าง `catalog.json` จากโค้ด), `plan2timeline.py`, `faces.py`, `validate.py`, `render_check.py`, `fallback.py`, คำขอให้ AI วางแผน (`prompt.py`, `prompt/`), `assemble.py`, ตัวรัน `plan_d.py` และชุดทดสอบ `tests/` ดู `plan/PLAN.md` |
 | `models/` | โมเดลหาหน้า YuNet (MIT) สำหรับ `plan/faces.py` |
+| `plan/custom_check.py` | ตรวจโค้ดฉากที่ AI เขียนเอง ใช้ได้เฉพาะชุดเครื่องมือ (ด่านแรกจาก 3 ด่าน ดู `plan/PLAN.md`) เบราว์เซอร์ที่เรนเดอร์ (`core/render.js`) ปิดอินเทอร์เน็ตไว้ |
 | `requirements.txt` | แพ็กเกจ Python ที่ต้องติดตั้ง (`opencv-python-headless`, `numpy`) |
 | `tools/check_parts.py` | ตรวจว่าชิ้นส่วนไม่สร้างท่าเคลื่อนไหวเอง (ห้าม `A(`, `.animate(`, `cubic-bezier`) ไม่สุ่ม (ห้าม `Math.random` และเวลาเครื่อง) และทุกชิ้นประกาศ `name`, `bgs`, `slots`, `dur`, `hit` |
 

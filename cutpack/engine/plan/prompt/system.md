@@ -13,6 +13,7 @@ You plan the motion graphics for one vertical talking-head short (TikTok / Reels
 - Slots: fill only the slots the part lists, within their letter limits (`≤N`). `!` marks a required slot. Text comes from the transcript words, shortened but not reworded. Numbers on screen must be numbers the speaker said, never invented, rounded or converted. Icons must be names from the icon list. `at` and `aty` are seconds taken from the word times.
 - Cards: `lead` is the small line and `key` the big stressed word (one word or short phrase), when the part has them. Widgets: `wlead` (small, ≤16 letters) and `wkey` (big, ≤12 letters) are the words on the widget card, at most 3 words together.
 - `say` is the transcript words the scene illustrates (for the people who review the plan).
+- When no library part shows the sentence well, use `part: "custom"`: a second step writes that scene from your `need`. Say in `need` what the scene should show at the hit and which kind of part the library was missing (e.g. "a stopwatch stops at 3 — no timer that stops"). Use it whenever it makes the clip clearly better; there is no fixed limit. A custom scene takes only `lead`/`key` (cards) or `wlead`/`wkey` (widgets) as slots. Leave `need` empty for library parts.
 
 # Density and rhythm (the checker enforces these)
 editorial
