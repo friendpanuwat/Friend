@@ -44,6 +44,7 @@ RULES = {
     'topBar': 150, 'rightX': 940, 'rightY': (860, 1620), 'bottomBar': 1620, 'edge': 20,
 }
 TIME_SLOTS = {'at', 'aty'}          # seconds, not facts
+ICON_SLOTS = {'icon', 'icons', 'ia', 'ib', 'ic', 'ix', 'iy', 'link'}   # icon names ("share-2") are never shown as text
 INDEX_SLOTS = {('B14', 'key')}      # an index into words, not a fact
 WIDGET_TEXT = {'wlead', 'wkey'}
 
@@ -268,7 +269,7 @@ def check_numbers(plan, R):
     for i, s in enumerate(plan['scenes']):
         cat_id = s['part'].split('.')[0]; R.ctx = {'scene': i}
         for k, v in s.get('slots', {}).items():
-            if k in TIME_SLOTS or (cat_id, k) in INDEX_SLOTS: continue
+            if k in TIME_SLOTS or k in ICON_SLOTS or (cat_id, k) in INDEX_SLOTS: continue
             if isinstance(v, bool): continue
             if isinstance(v, (int, float)):
                 if k == 'of' and v == 100 and pct: continue

@@ -1,0 +1,8 @@
+{
+ "scenes": [
+  {
+   "i": 5,
+   "code": "\nmt(vis, 'link', T.t0 + .1, 0, 0, S, '#EEF0F4', NAVY);\nconst on = mt(vis, 'link', T.hit, 0, 0, S, ACC, INK);\nmv.punch(on.inner, T.hit + .05);\nsnd('hit', T.hit);\n"
+  }
+ ]
+}

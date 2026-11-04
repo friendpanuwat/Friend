@@ -178,6 +178,11 @@ class Numbers(unittest.TestCase):
                            ('หนึ่งล้านสองแสน', {1_200_000}), ('๑,๒๐๐ บาท', {1200}), ('1.5 เท่า', {1.5}), ('ครึ่งหนึ่ง', {.5, 1})]:
             self.assertEqual(V.numbers(text), {float(x) for x in want}, text)
 
+    def test_icon_names_are_not_numbers_on_screen(self):
+        """Found on Friend's first real clip: the icon "share-2" was read as a number nobody said."""
+        p = broken('editorial', lambda p: p['scenes'][0]['slots'].update(icon='share-2'))
+        self.assertNotIn('number-not-said', {i['code'] for i in check(p).issues})
+
     def test_letters_count_like_the_engine(self):
         self.assertEqual(V.graphemes('ไม่ขึ้น'), 4)        # ไ ม่ ขึ้ น
         self.assertEqual(V.graphemes('ทำ'), 1)             # SARA AM joins the letter before

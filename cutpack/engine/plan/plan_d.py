@@ -119,7 +119,8 @@ def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_an
                 fixed, resp2, why = ask(client, req2)
                 if resp2 is not None: calls.append(call_record(resp2, req['model']))
                 if why: log.append(f'fix request failed: {why}')
-            if fixed is not None: write_codes(client, inp, style, fixed, cat, calls, log, fix_code_answer if offline else None)
+            if fixed is not None:   # offline replays reuse the given scene code unless a fix code is given
+                write_codes(client, inp, style, fixed, cat, calls, log, (fix_code_answer if fix_code_answer is not None else code_answer) if offline else None)
         elif code_errs:
             log.append(f'fix round (scene code): {len(code_errs)} errors sent back')
             fixed = copy.deepcopy(answer)
