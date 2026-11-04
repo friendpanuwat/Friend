@@ -1,0 +1,385 @@
+<title>ชุดเฉพาะหมวด CutPack</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column, same look as the base-list page Friend already used; four category sections, each with
+   its swap-in props and its hero pieces, every item ending in a three-way keep / tweak / drop switch. */
+:root {
+  --bg: #F3F4F0; --surface: #FFFFFF; --ink: #14213D; --muted: #5C6579; --line: #DADDE4;
+  --keep: #DDFF45; --keep-ink: #14213D; --drop: #E5322A; --drop-ink: #FFFFFF; --tweak: #8E97AA; --err: #B42318;
+  --display: "Mitr", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --body: "IBM Plex Sans Thai", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0D1220; --surface: #161D2F; --ink: #E7EBF3; --muted: #9AA3B6; --line: #29324A;
+  --keep: #DDFF45; --keep-ink: #10172A; --drop: #FF5A50; --drop-ink: #10172A; --tweak: #8E97AA; --err: #FF7A70; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0D1220; --surface: #161D2F; --ink: #E7EBF3; --muted: #9AA3B6; --line: #29324A;
+  --keep: #DDFF45; --keep-ink: #10172A; --drop: #FF5A50; --drop-ink: #10172A; --tweak: #8E97AA; --err: #FF7A70; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.6; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; }
+.wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 28px; }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; margin: 0; }
+h1 { font-weight: 600; font-size: 28px; line-height: 1.2; }
+h2 { font-weight: 600; font-size: 23px; line-height: 1.3; }
+h3 { font-weight: 500; font-size: 18px; line-height: 1.3; }
+h4 { font-weight: 500; font-size: 17px; line-height: 1.35; }
+p { margin: 0; }
+.lead { display: grid; gap: 8px; color: var(--muted); max-width: 62ch; }
+.lead b { color: var(--ink); font-weight: 600; }
+.lead ul { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px;
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.count { font-variant-numeric: tabular-nums; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.dot.keep { background: var(--keep); outline: 1px solid var(--ink); outline-offset: -1px; } .dot.drop { background: var(--drop); } .dot.tweak { background: var(--tweak); } .dot.none { outline: 1px dashed var(--muted); outline-offset: -1px; }
+.banner { flex-basis: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 500; line-height: 1.45; }
+.banner[data-state="ready"] { background: var(--keep); color: var(--keep-ink); border-color: transparent; }
+.banner[data-state="busy"] { border: 1px dashed var(--ink); }
+.banner[data-state="off"] { background: var(--drop); color: var(--drop-ink); border-color: transparent; }
+
+.jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.jump a { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 500; font-size: 14px; }
+.jump a:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.jump .tally { font-variant-numeric: tabular-nums; color: var(--muted); font-weight: 400; }
+
+.pack { display: grid; gap: 14px; scroll-margin-top: 140px; }
+.pack-head { display: grid; gap: 6px; border-top: 3px solid var(--ink); padding-top: 14px; }
+.code { font: 600 12px/1 var(--body); letter-spacing: .06em; color: var(--muted); font-variant-numeric: tabular-nums; }
+.when { color: var(--muted); max-width: 62ch; }
+.ex { display: grid; gap: 4px; margin: 0; padding-left: 1.1em; }
+.group-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-top: 6px; }
+.group-h p { color: var(--muted); font-size: 14px; }
+.items { display: grid; gap: 12px; }
+
+.item { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 10px; min-width: 0; }
+.item[data-choice="keep"] { box-shadow: 0 0 0 3px var(--keep); }
+.item[data-choice="tweak"] { box-shadow: 0 0 0 3px var(--tweak); }
+.item[data-choice="drop"] { box-shadow: 0 0 0 3px var(--drop); }
+.item[data-choice="drop"] > :not(.act) { opacity: .5; }
+.item-head { display: grid; gap: 4px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.base { font-size: 13px; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 1px 8px; }
+.desc { max-width: 62ch; }
+.spec { display: grid; gap: 6px; margin: 0; }
+.spec div { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 8px; font-size: 14px; }
+.spec dt { color: var(--muted); } .spec dd { margin: 0; }
+@media (max-width: 420px) { .spec div { grid-template-columns: minmax(0, 1fr); gap: 0; } }
+.act { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { font: 500 14px/1 var(--body); padding: 11px 0; min-height: 44px; border: 0; background: var(--surface); color: var(--ink); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"][data-v="keep"] { background: var(--keep); color: var(--keep-ink); font-weight: 600; }
+.seg button[aria-pressed="true"][data-v="tweak"] { background: var(--tweak); color: var(--keep-ink); font-weight: 600; }
+.seg button[aria-pressed="true"][data-v="drop"] { background: var(--drop); color: var(--drop-ink); font-weight: 600; }
+.seg button:disabled { cursor: default; }
+.seg button:disabled:not([aria-pressed="true"]):not([data-pending="true"]) { color: var(--muted); }
+.seg button[data-pending="true"] { background: repeating-linear-gradient(-45deg, var(--surface) 0 6px, var(--line) 6px 12px); color: var(--ink); font-weight: 600; }
+.seg button:focus-visible, textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.saved { min-height: 1.45em; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.saved[data-kind="ok"] { color: var(--ink); }
+.saved[data-kind="error"] { color: var(--err); font-weight: 500; }
+textarea { width: 100%; font: 14px/1.4 var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; resize: vertical; min-height: 44px; }
+textarea::placeholder { color: var(--muted); }
+.general { display: grid; gap: 8px; }
+.general textarea { min-height: 96px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <header class="lead">
+    <h1>ชุดเฉพาะหมวด CutPack</h1>
+    <p>รายการของ <b>4 หมวดเนื้อหา</b> ที่คุณเลือก ระบบจะให้ AI ดูจากบทพูดตอนวางแผนฉากว่าคลิปอยู่หมวดไหน แล้วเลือกชิ้นจากชุดของหมวดนั้นก่อน ถ้าไม่มีชิ้นที่ตรง หรือคลิปไม่เข้าหมวดไหน ก็ใช้ชิ้นฐาน 15 หมวดเหมือนเดิม</p>
+    <p>แต่ละหมวดมีของ 2 แบบ</p>
+    <ul>
+      <li><b>ของประกอบ</b> ใช้ชิ้นฐานตัวเดิมและท่าเดิม แต่เปลี่ยนรูปเป็นของในหมวด เช่น ตาราง 10 ช่องของ B01 ใช้เหรียญแทนไอคอนในคลิปการเงิน</li>
+      <li><b>ชิ้นเด่น</b> คือชิ้นใหม่ที่มีเฉพาะหมวดนั้น เสนอไว้หมวดละ 5 ชิ้น ที่ตกลงกันไว้คือหมวดละ 3–5 ชิ้น จึงตัดได้หมวดละไม่เกิน 2 ชิ้น</li>
+    </ul>
+    <p>ทุกชิ้นมีสองร่างเหมือนชิ้นฐาน: <b>การ์ดเต็มจอ</b> สำหรับ editorial และ<b>วิดเจ็ตเล็ก</b> 2 ขนาดสำหรับ overlay หน้าตาเป็นแบบ editorial ทั้งหมด (ฟอนต์ Mitr กับ Sriracha สีเน้นสีเดียว สีแดงใช้กับความหมายลบเท่านั้น) ไม่มีโลโก้ของแบรนด์หรือแอปจริง และตัวเลขบนจอต้องมีในบทพูด</p>
+    <p>กด <b>เอา</b> / <b>ปรับ</b> / <b>ตัด</b> ท้ายแต่ละชิ้น ถ้ากด "ปรับ" ให้พิมพ์ในช่องหมายเหตุว่าอยากให้ปรับอะไร ยังไม่มีภาพตัวอย่าง จะวาดหลังคุณยืนยันรายการนี้ เริ่มที่หมวดธุรกิจ</p>
+  </header>
+
+  <div class="bar" role="status" aria-live="polite">
+    <span class="count"><span class="dot keep"></span>เอา <span id="n-keep">0</span></span>
+    <span class="count"><span class="dot tweak"></span>ปรับ <span id="n-tweak">0</span></span>
+    <span class="count"><span class="dot drop"></span>ตัด <span id="n-drop">0</span></span>
+    <span class="count"><span class="dot none"></span>ยังไม่เลือก <span id="n-none">0</span></span>
+    <p class="banner" id="status" data-state="wait">กำลังเชื่อมต่อที่เก็บข้อมูล… ปุ่มจะกดได้เมื่อแถบนี้เปลี่ยนเป็นสีเขียว</p>
+  </div>
+
+  <nav aria-label="ไปที่หมวด"><ul class="jump" id="jump"></ul></nav>
+
+  <div id="packs" style="display:grid;gap:40px"></div>
+
+  <section class="general" aria-labelledby="gen-h">
+    <h2 id="gen-h">ของที่ยังขาด หรือความเห็นรวม</h2>
+    <p class="when">นึกถึงประโยคที่ครีเอเตอร์ในหมวดเหล่านี้พูดบ่อย ถ้ามีภาพที่อยากเห็นแต่ยังไม่อยู่ในรายการ พิมพ์ไว้ที่นี่</p>
+    <p class="saved" id="saved-_general"></p>
+    <textarea id="note-_general" placeholder="เช่น หมวดการเงินอยากได้ชิ้นเรื่องประกัน" aria-label="ของที่ยังขาด หรือความเห็นรวม"></textarea>
+  </section>
+</div>
+
+<script>
+// Prop:  [id, base code, base name, title, what it looks like, what happens at the key word]
+// Hero:  [id, title, what it looks like, what happens at the key word, slots the AI fills, example line]
+const PACKS = [
+  {id: 'biz', name: 'ธุรกิจและการตลาดออนไลน์',
+   when: 'คลิปของเจ้าของกิจการ แม่ค้าออนไลน์ และคนสร้างแบรนด์ตัวเอง เรื่องขายของ ลูกค้า โพสต์ และยอดขาย',
+   ex: ['ลูกค้าทักมาถามราคาแล้วหาย', 'โพสต์ทุกวัน ยอดขายขึ้น 3 เท่า', 'ต้นทุนจริงของสินค้าชิ้นนี้คือ 40%'],
+   props: [
+     ['BIZ-P1', 'B01', 'ตัวเลขเด่น', 'ป้ายราคาห้อยเชือก', 'ตัวเลขนับขึ้นบนป้ายราคาที่แกว่งเบา ๆ ใช้กับประโยคที่พูดราคา', 'ป้ายหยุดแกว่งตรงคำที่พูดตัวเลข'],
+     ['BIZ-P2', 'B02', 'เพิ่มขึ้น / ลดลง', 'ตัวนับยอดวิว', 'ไอคอนรูปตาคู่ตัวเลขที่วิ่งขึ้นหรือลง แทนกราฟแท่ง', 'ตัวเลขหยุดตรงคำ "ขึ้น ลด พุ่ง"'],
+     ['BIZ-P3', 'B08', 'เป้าหมาย / สำเร็จ', 'ใบเสร็จประทับตรา', 'ใบเสร็จพิมพ์ออกมาจากด้านบน แทนเครื่องหมายถูกหรือเป้า', 'ตราประทับ "ชำระแล้ว" กระแทกลงตรงคำ'],
+     ['BIZ-P4', 'B10', 'คน / กลุ่มเป้าหมาย', 'คนถือถุงช้อปปิ้ง', 'คนรูปทรงเรียบในกลุ่มถือถุงช้อปปิ้ง ใช้กับประโยคที่พูดถึงลูกค้า', 'คนที่ซื้อจริงสว่างขึ้นตรงคำ'],
+     ['BIZ-P5', 'B12', 'เหตุกับผล', 'กล่องพัสดุวิ่งตามลูกศร', 'กล่องพัสดุเล็ก ๆ วิ่งไปตามลูกศรจาก A ไป B แทนจุดที่วิ่ง', 'กล่องถึงปลายทางตรงคำ "ทำให้ เลย"'],
+     ['BIZ-P6', 'B07', 'ปัญหา / คำเตือน', 'ตะกร้าถูกทิ้ง', 'ตะกร้าสินค้าเอียง ของหล่นออก ใช้กับลูกค้าที่หายไปกลางทาง', 'ของชิ้นสุดท้ายหล่นตรงคำ "หาย ไม่ซื้อ"'],
+   ],
+   heroes: [
+     ['BIZ-H1', 'ออเดอร์เด้งเข้า', 'การ์ดออเดอร์เด้งเข้าซ้อนกันทีละใบ ยอดรวมด้านบนวิ่งขึ้นตามจำนวนใบ', 'ใบสุดท้ายเด้ง และยอดรวมหยุดที่ตัวเลขในบท', 'จำนวนออเดอร์หรือยอดเงิน (ต้องมีในบท), ชื่อสินค้าสั้น ๆ', 'แค่เปลี่ยนรูปปก ออเดอร์เข้า 50 รายการในวันเดียว'],
+     ['BIZ-H2', 'กรวยลูกค้า', 'กรวย 3–4 ชั้น เช่น เห็นโพสต์ ทัก ซื้อ ซื้อซ้ำ จุดเล็ก ๆ ไหลลงและหายไปตามชั้น', 'ชั้นที่พูดถึงสว่างขึ้นพร้อมตัวเลขของชั้นนั้น', 'ชื่อแต่ละชั้นจากบท, ตัวเลขแต่ละชั้น (ถ้ามีในบท)', 'คนเห็นโพสต์ 1,000 คน ทักมา 50 ซื้อจริงแค่ 5'],
+     ['BIZ-H3', 'สถิติโพสต์', 'แผงสถิติ วิว ไลก์ แชร์ เซฟ ตัวเลขวิ่งพร้อมกัน ไม่มีโลโก้ของแอปจริง', 'ค่าที่พูดถึงขยายใหญ่และเป็นสีเน้น', 'ตัวเลข 1–4 ค่าจากบท', 'คลิปนี้ได้ 2 แสนวิว แต่ยอดขายเป็นศูนย์'],
+     ['BIZ-H4', 'ราคาแตกเป็นต้นทุน', 'แท่งราคาขายแยกออกเป็นส่วนต้นทุน ค่าส่ง ค่าโฆษณา ส่วนที่เหลือคือกำไร', 'ส่วนกำไรเผยออกมาเป็นสีเน้นตรงคำ "กำไร เหลือ"', 'ราคาขายและแต่ละส่วนตามบท (2–4 ส่วน)', 'ขาย 299 บาท หักต้นทุน ค่าส่ง ค่าโฆษณา เหลือกำไร 40 บาท'],
+     ['BIZ-H5', 'หน้าร้านเปิด', 'ร้านค้ารูปทรงเรียบ กันสาดคลี่ลง ไฟหน้าร้านติด', 'ป้ายหน้าร้านพลิกเป็น "เปิด" ตรงคำ "เปิด เริ่ม"', 'ประเภทร้าน (ถ้ามีในบท)', 'ก่อนเปิดร้านออนไลน์ ต้องรู้ 3 อย่างนี้'],
+   ]},
+  {id: 'fin', name: 'การเงินและการลงทุน',
+   when: 'คลิปเรื่องเก็บเงิน หนี้ ภาษี หุ้น กองทุน และการวางแผนเกษียณ',
+   ex: ['เก็บเงินเดือนละ 3,000 ผ่านไป 10 ปีได้เท่าไร', 'หนี้บัตรเครดิตดอกเบี้ย 16% ต่อปี', 'แบ่งเงินเดือนเป็น 3 ก้อน'],
+   props: [
+     ['FIN-P1', 'B01', 'ตัวเลขเด่น', 'ตารางเหรียญ', 'ตาราง 10 ช่องของ B01 ใช้เหรียญแทนไอคอน', 'เหรียญที่นับถูกพลิกเป็นสีเน้นตรงคำตัวเลข'],
+     ['FIN-P2', 'B02', 'เพิ่มขึ้น / ลดลง', 'กราฟแท่งเทียน', 'กราฟแบบแท่งเทียนของหุ้น แทนกราฟแท่งธรรมดา', 'แท่งสุดท้ายพุ่งหรือร่วงตรงคำ (ร่วงเป็นสีแดง)'],
+     ['FIN-P3', 'B12', 'เหตุกับผล', 'เหรียญไหลตามลูกศร', 'เหรียญวิ่งไปตามลูกศรจาก A ไป B แทนจุดที่วิ่ง', 'เหรียญถึงปลายทางตรงคำ "ทำให้ เลย"'],
+     ['FIN-P4', 'B07', 'ปัญหา / คำเตือน', 'บัตรเครดิตแตกร้าว', 'บัตรเครดิตแบบไม่มีชื่อธนาคาร แทนไอคอนเรื่องที่แตกร้าว', 'รอยร้าววิ่งข้ามบัตรตรงคำ "ระวัง หนี้"'],
+     ['FIN-P5', 'B08', 'เป้าหมาย / สำเร็จ', 'กระปุกเต็ม', 'เหรียญหล่นลงกระปุกทีละเหรียญจนเต็ม', 'เหรียญสุดท้ายลงพร้อมเสียงตรงคำ "ครบ ถึงเป้า"'],
+     ['FIN-P6', 'B09', 'เวลา / ไทม์ไลน์', 'ตารางผ่อนรายเดือน', 'ตารางงวดผ่อน งวดถูกขีดทีละงวด แทนปฏิทิน', 'งวดสุดท้ายถูกขีดตรงคำที่บอกเวลา'],
+   ],
+   heroes: [
+     ['FIN-H1', 'ดอกเบี้ยทบต้น', 'เส้นเงินโค้งพุ่งขึ้นตามปี เทียบกับเส้นเงินต้นที่เป็นเส้นตรง ช่องระหว่างสองเส้นเป็นสีเน้น', 'ปลายเส้นหยุดที่ยอดในบท', 'เงินที่ใส่, จำนวนปี, ยอดปลายทาง (ตามบท)', 'ลงทุนเดือนละ 3,000 ผ่านไป 20 ปี กลายเป็นเกือบ 2 ล้าน'],
+     ['FIN-H2', 'แบ่งเงินเป็นก้อน', 'วงโดนัทแบ่งเงินเดือนเป็นก้อนตามสัดส่วนในบท เติมทีละก้อนพร้อมป้ายชื่อ', 'ก้อนที่พูดถึงดึงออกจากวงเล็กน้อย', 'ชื่อก้อนกับสัดส่วน 2–4 ก้อน', 'แบ่งเงินเดือน 50% ใช้จ่าย 30% ของที่อยากได้ 20% เก็บ'],
+     ['FIN-H3', 'รายการรับจ่าย', 'ใบรายการรับจ่ายแบบของเราเอง ไม่เลียนแบบแอปธนาคารจริง บรรทัดขึ้นทีละบรรทัด รายจ่ายเป็นสีแดง', 'ยอดคงเหลือขึ้นท้ายใบตรงคำ', 'รายการ 2–4 บรรทัดกับจำนวนเงินจากบท', 'เงินเดือนเข้า 25,000 จ่ายค่าห้อง 6,000 ค่าผ่อนรถ 8,000'],
+     ['FIN-H4', 'เงินเฟ้อ', 'ธนบัตรใบเดิมอยู่ด้านบน ตะกร้าของด้านล่างหดลงทีละชิ้นตามปีที่ผ่านไป', 'ของชิ้นสุดท้ายหายตรงคำ "แพงขึ้น ได้น้อยลง"', 'จำนวนเงิน, ช่วงปี (ตามบท)', 'เงิน 100 บาทเมื่อ 10 ปีก่อน วันนี้ซื้อของได้น้อยลง'],
+     ['FIN-H5', 'ลดหย่อนภาษี', 'ใบคำนวณภาษีแบบของเราเอง รายการลดหย่อนติ๊กทีละข้อ ยอดภาษีที่ต้องจ่ายลดลงตาม', 'ยอดภาษีหยุดที่ตัวเลขในบท', 'รายการลดหย่อน 2–4 ข้อ, ยอดเงินตามบท', 'ซื้อประกันกับกองทุนลดหย่อน ภาษีเหลือ 0 บาท'],
+   ]},
+  {id: 'fit', name: 'สุขภาพและฟิตเนส',
+   when: 'คลิปเรื่องลดน้ำหนัก ออกกำลังกาย อาหารสุขภาพ การนอน และสุขภาพทั่วไป',
+   ex: ['เดินวันละ 8,000 ก้าว', 'ไม่ใช่กินน้อย แต่กินให้ถูก', 'นอนดึกทำให้หิวบ่อย'],
+   props: [
+     ['FIT-P1', 'B01', 'ตัวเลขเด่น', 'ตารางรอยเท้า', 'ตาราง 10 ช่องของ B01 ใช้รอยเท้าแทนไอคอน', 'รอยเท้าที่นับเติมสีทีละช่องจนถึงค่า'],
+     ['FIT-P2', 'B02', 'เพิ่มขึ้น / ลดลง', 'ตาชั่งน้ำหนัก', 'ตาชั่งน้ำหนักเข็มหมุน แทนมาตรวัด', 'เข็มหยุดตรงคำ "ลด ขึ้น"'],
+     ['FIT-P3', 'B07', 'ปัญหา / คำเตือน', 'เส้นชีพจรกระตุก', 'เส้นชีพจรวิ่งแล้วกระตุก แทนป้ายเตือน', 'เส้นกระตุกเป็นสีแดงตรงคำ "เสี่ยง อันตราย"'],
+     ['FIT-P4', 'B09', 'เวลา / ไทม์ไลน์', 'นาฬิกาจับเวลา', 'นาฬิกาจับเวลาแบบกด แทนนาฬิกาเข็ม', 'ปุ่มถูกกดและเวลาหยุดตรงคำ'],
+     ['FIT-P5', 'B03', 'เปรียบเทียบ / ก่อนกับหลัง', 'ร่างคนก่อนกับหลัง', 'ร่างคนรูปทรงเรียบสองร่างแทนการ์ดสองฝั่ง ไม่ใช้รูปคนจริง', 'ร่าง "หลัง" สว่างขึ้นตรงคำ'],
+     ['FIT-P6', 'B08', 'เป้าหมาย / สำเร็จ', 'ดัมเบลยกขึ้น', 'ดัมเบลยกขึ้นเหนือเส้น แทนธงหรือเป้า', 'ดัมเบลถึงจุดสูงสุดตรงคำ "สำเร็จ ถึงเป้า"'],
+   ],
+   heroes: [
+     ['FIT-H1', 'จานแบ่งสัดส่วน', 'จานวงกลมแบ่งเป็นผัก โปรตีน แป้ง เติมทีละส่วนพร้อมป้ายชื่อ', 'ส่วนที่พูดถึงเด้งตรงคำ', 'ชื่อส่วนกับสัดส่วนตามบท', 'จานหนึ่งควรเป็นผักครึ่งจาน โปรตีนหนึ่งในสี่'],
+     ['FIT-H2', 'แถบสารอาหาร', 'แถบโปรตีน คาร์บ ไขมัน วิ่งเติมพร้อมตัวเลขกรัม', 'แถบที่พูดถึงเป็นสีเน้นตรงคำ', 'กรัมของแต่ละแถบตามบท', 'อกไก่ 100 กรัมมีโปรตีน 31 กรัม'],
+     ['FIT-H3', 'ร่างกายชี้จุด', 'ร่างคนเส้นบาง จุดที่พูดถึง เช่น หัวใจ ท้อง หลัง เข่า สว่างพร้อมป้าย', 'จุดสว่างขึ้นตรงคำที่พูดถึงส่วนนั้น', 'ส่วนของร่างกายจากรายการที่กำหนด, ป้ายสั้น', 'ท่านี้ช่วยเรื่องปวดหลังล่าง'],
+     ['FIT-H4', 'ท่าออกกำลังกายพร้อมตัวนับ', 'คนรูปทรงเรียบทำท่าซ้ำ เช่น สควอต วิดพื้น กระโดด ตัวนับครั้งเพิ่มทุกรอบ', 'ครั้งสุดท้ายพร้อมเสียงติ๊กตรงคำ', 'ท่าจากรายการที่กำหนด, จำนวนครั้งตามบท', 'สควอตวันละ 20 ครั้ง'],
+     ['FIT-H5', 'กราฟการนอน', 'เส้นหลับตื้นหลับลึกตลอดคืนวิ่งจากซ้ายไปขวา ชั่วโมงนอนนับขึ้น', 'ชั่วโมงนอนหยุดที่ตัวเลขในบท', 'ชั่วโมงนอนตามบท', 'นอนน้อยกว่า 6 ชั่วโมง ร่างกายซ่อมตัวเองไม่ทัน'],
+   ]},
+  {id: 'edu', name: 'ความรู้และพัฒนาตัวเอง',
+   when: 'คลิปสอนภาษา เทคนิคการเรียน การทำงาน อาชีพ นิสัยที่ดี และเครื่องมือ AI',
+   ex: ['คำนี้คนไทยออกเสียงผิดเยอะมาก', 'ฝึกวันละ 15 นาที', 'ทักษะที่บริษัทอยากได้ปีนี้'],
+   props: [
+     ['EDU-P1', 'B04', 'ขั้นตอน / เช็กลิสต์', 'หน้าสมุดจด', 'เช็กลิสต์อยู่บนหน้าสมุดที่มีเส้นบรรทัด แทนการ์ดเรียบ', 'ข้อที่พูดถึงถูกติ๊กด้วยปากกาตรงคำ'],
+     ['EDU-P2', 'B08', 'เป้าหมาย / สำเร็จ', 'ใบประกาศ', 'ใบประกาศเลื่อนขึ้นมา แทนธงหรือเป้า', 'ตราติดลงบนใบตรงคำ "ผ่าน สำเร็จ"'],
+     ['EDU-P3', 'B13', 'ไอเดีย / เคล็ดลับ', 'กล่องคำสั่ง AI', 'กล่องพิมพ์ข้อความคำสั่งแบบของเราเอง ไม่ใช้โลโก้ของเครื่องมือจริง', 'ปุ่มส่งถูกกดตรงคำ "เคล็ดลับ วิธี"'],
+     ['EDU-P4', 'B02', 'เพิ่มขึ้น / ลดลง', 'กองหนังสือสูงขึ้น', 'หนังสือวางซ้อนสูงขึ้นทีละเล่ม แทนกราฟแท่ง', 'เล่มสุดท้ายวางลงตรงคำ'],
+     ['EDU-P5', 'B09', 'เวลา / ไทม์ไลน์', 'ตารางเรียนรายสัปดาห์', 'ตาราง 7 วัน ช่องที่เรียนถูกเติมสี แทนปฏิทิน', 'ช่องสุดท้ายเติมตรงคำที่บอกเวลา'],
+     ['EDU-P6', 'B11', 'คำพูด / แชต / รีวิว', 'ฟองคำพูดสองภาษา', 'ฟองคำพูดภาษาอังกฤษคู่คำแปลไทย ใช้กับคลิปสอนภาษา', 'คำแปลขึ้นตรงคำ'],
+   ],
+   heroes: [
+     ['EDU-H1', 'บัตรคำศัพท์', 'บัตรคำพลิก ด้านหน้าเป็นคำ ด้านหลังเป็นความหมายและคำอ่าน', 'บัตรพลิกตรงคำ', 'คำ, ความหมาย, คำอ่าน (ตามบท)', 'คำว่า schedule อ่านว่า สเก็ดจูล'],
+     ['EDU-H2', 'แก้ประโยค', 'ประโยคทั้งประโยคขึ้นมา คำที่ผิดขีดเส้นใต้สีแดงแล้วถูกแทนด้วยคำที่ถูก (ต่างจาก B05 ที่ขีดฆ่าแค่คำเดียว)', 'คำที่ถูกขึ้นแทนตรงคำ "แต่ ที่ถูก"', 'ประโยคผิด, ประโยคถูก (ตามบท)', 'อย่าพูดว่า I very like ให้พูดว่า I really like'],
+     ['EDU-H3', 'บันไดอาชีพ', 'บันไดขั้นขึ้นทีละขั้น มีป้ายตำแหน่งงานหรือทักษะ คนรูปทรงเรียบเดินขึ้นตาม', 'คนถึงขั้นบนสุดตรงคำ', 'ป้ายแต่ละขั้น 2–4 ขั้นจากบท', 'จากพนักงานธรรมดา ขึ้นเป็นหัวหน้าใน 3 ปี'],
+     ['EDU-H4', 'สตรีคนิสัย', 'ตารางวัน ช่องติดไฟต่อกันทีละวัน ตัวนับวันติดต่อกันเพิ่มขึ้น', 'ช่องสุดท้ายติดพร้อมเสียงตรงคำ', 'ชื่อนิสัย, จำนวนวันตามบท', 'อ่านหนังสือวันละ 10 หน้า ติดต่อกัน 30 วัน'],
+     ['EDU-H5', 'แผนผังความคิด', 'หัวข้อกลาง แตกกิ่งออก 3–4 กิ่งทีละกิ่ง', 'กิ่งที่พูดถึงขึ้นตรงคำ', 'หัวข้อกลาง, กิ่ง 3–4 กิ่งจากบท', 'จะพูดอังกฤษได้ ต้องฝึก 4 อย่าง ฟัง พูด อ่าน เขียน'],
+   ]},
+];
+const LABEL = {keep: 'เอา', tweak: 'ปรับ', drop: 'ตัด'};
+const $ = s => document.querySelector(s);
+
+function act(id) {
+  return `<div class="act">
+      <div class="seg" role="group" aria-label="เลือกสำหรับ ${id}">
+        <button type="button" data-v="keep" aria-pressed="false">เอา</button>
+        <button type="button" data-v="tweak" aria-pressed="false">ปรับ</button>
+        <button type="button" data-v="drop" aria-pressed="false">ตัด</button>
+      </div>
+      <p class="saved" id="saved-${id}"></p>
+      <textarea id="note-${id}" rows="1" placeholder="หมายเหตุ (ไม่บังคับ)" aria-label="หมายเหตุสำหรับ ${id}"></textarea>
+    </div>`;
+}
+function wire(el, id) { el.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => choose(id, b.dataset.v))); }
+function spec(el, rows) {
+  const dl = el.querySelector('.spec');
+  rows.forEach(([k, v]) => { const d = document.createElement('div'); d.innerHTML = '<dt></dt><dd></dd>'; d.children[0].textContent = k; d.children[1].textContent = v; dl.appendChild(d); });
+}
+function propCard([id, code, baseName, title, look, hit]) {
+  const el = document.createElement('article');
+  el.className = 'item'; el.dataset.id = id;
+  el.innerHTML = `<div class="item-head"><div class="meta"><span class="code">${id}</span><span class="base"></span></div><h4></h4></div>
+    <p class="desc"></p><dl class="spec"></dl>${act(id)}`;
+  el.querySelector('.base').textContent = 'เสียบเข้า ' + code + ' ' + baseName;
+  el.querySelector('h4').textContent = title;
+  el.querySelector('.desc').textContent = look;
+  spec(el, [['ตรงคำสำคัญ', hit]]);
+  wire(el, id);
+  return el;
+}
+function heroCard([id, title, look, hit, slots, line]) {
+  const el = document.createElement('article');
+  el.className = 'item'; el.dataset.id = id;
+  el.innerHTML = `<div class="item-head"><div class="meta"><span class="code">${id}</span></div><h4></h4></div>
+    <p class="desc"></p><dl class="spec"></dl>${act(id)}`;
+  el.querySelector('h4').textContent = title;
+  el.querySelector('.desc').textContent = look;
+  spec(el, [['ตรงคำสำคัญ', hit], ['ช่องที่ AI เติม', slots], ['ตัวอย่างประโยค', '"' + line + '"']]);
+  wire(el, id);
+  return el;
+}
+function packSection(p) {
+  const sec = document.createElement('section');
+  sec.className = 'pack'; sec.id = p.id;
+  sec.setAttribute('aria-labelledby', p.id + '-h');
+  sec.innerHTML = `<div class="pack-head"><h2 id="${p.id}-h"></h2><p class="when"></p><ul class="ex"></ul></div>
+    <div class="group-h"><h3>ของประกอบ</h3><p>ชิ้นฐานตัวเดิม ท่าเดิม เปลี่ยนรูปเป็นของในหมวด</p></div><div class="items props"></div>
+    <div class="group-h"><h3>ชิ้นเด่น</h3><p>ชิ้นใหม่เฉพาะหมวดนี้ เก็บไว้ 3–5 ชิ้น</p></div><div class="items heroes"></div>`;
+  sec.querySelector('h2').textContent = p.name;
+  sec.querySelector('.when').textContent = 'ใช้กับ: ' + p.when;
+  const ul = sec.querySelector('.ex');
+  p.ex.forEach(s => { const li = document.createElement('li'); li.textContent = '"' + s + '"'; ul.appendChild(li); });
+  p.props.forEach(r => sec.querySelector('.props').appendChild(propCard(r)));
+  p.heroes.forEach(r => sec.querySelector('.heroes').appendChild(heroCard(r)));
+  const li = document.createElement('li');
+  li.innerHTML = `<a href="#${p.id}"><span></span><span class="tally" id="tally-${p.id}"></span></a>`;
+  li.querySelector('span').textContent = p.name;
+  $('#jump').appendChild(li);
+  return sec;
+}
+PACKS.forEach(p => $('#packs').appendChild(packSection(p)));
+const ITEM_IDS = PACKS.flatMap(p => p.props.map(r => r[0]).concat(p.heroes.map(r => r[0])));
+const IDS = ITEM_IDS.concat('_general');
+
+// Saving: a choice shows only after the store confirms it; controls stay off until the store answers.
+const confirmed = {}, want = {}, busy = {}, timers = {};
+const drafts = new Set();
+const OFF_OPEN = 'หน้านี้บันทึกไม่ได้ ปุ่มจึงปิดไว้ เปิดลิงก์นี้ในแอป Claude หรือที่ claude.ai โดยล็อกอินบัญชีเจ้าของหน้า';
+const OFF_LOST = 'ขาดการเชื่อมต่อกับที่เก็บข้อมูล ปิดแล้วเปิดหน้านี้ใหม่ ชิ้นที่มีกรอบสีบันทึกไว้แล้ว';
+let db = null, mode = 'wait', offText = '', slow = false;   // wait | ready | readonly | off
+const noteEl = id => document.getElementById('note-' + id);
+IDS.forEach(id => {
+  const note = noteEl(id);
+  note.addEventListener('input', () => { drafts.add(id); clearTimeout(timers[id]); timers[id] = setTimeout(() => saveNote(id), 1200); });
+  note.addEventListener('change', () => { clearTimeout(timers[id]); saveNote(id); });
+});
+
+function paint() {
+  const n = {keep: 0, tweak: 0, drop: 0, none: 0};
+  const live = mode === 'ready';
+  let saving = 0;
+  IDS.forEach(id => {
+    if (busy[id]) saving++;
+    const note = noteEl(id);
+    if (document.activeElement !== note && !drafts.has(id)) note.value = (confirmed[id] || {}).note || '';
+    note.disabled = !live;
+    const el = document.querySelector(`.item[data-id="${id}"]`);
+    if (!el) return;
+    const c = (confirmed[id] || {}).choice || null;
+    const asked = busy[id] && want[id] ? (want[id].choice || null) : c;
+    const pend = asked !== c ? (asked || c) : null;
+    n[c || 'none']++;
+    el.dataset.choice = c || '';
+    el.querySelectorAll('.seg button').forEach(b => {
+      b.setAttribute('aria-pressed', String(b.dataset.v === c));
+      b.dataset.pending = String(b.dataset.v === pend);
+      b.disabled = !live || !!busy[id];
+    });
+  });
+  for (const k in n) $('#n-' + k).textContent = n[k];
+  PACKS.forEach(p => {
+    const ids = p.props.map(r => r[0]).concat(p.heroes.map(r => r[0]));
+    const done = ids.filter(id => (confirmed[id] || {}).choice).length;
+    const heroKeep = p.heroes.filter(r => ['keep', 'tweak'].includes((confirmed[r[0]] || {}).choice)).length;
+    $('#tally-' + p.id).textContent = `เลือกแล้ว ${done}/${ids.length}` + (heroKeep ? ` · ชิ้นเด่น ${heroKeep}` : '');
+  });
+  const bar = $('#status');
+  let state = mode, text = {
+    wait: slow ? 'ยังติดต่อที่เก็บข้อมูลไม่ได้ ปุ่มจึงยังปิดอยู่ รอสักครู่ หรือตรวจอินเทอร์เน็ต'
+               : 'กำลังเชื่อมต่อที่เก็บข้อมูล… ปุ่มจะกดได้เมื่อแถบนี้เปลี่ยนเป็นสีเขียว',
+    ready: 'พร้อมบันทึก · กดเลือกแล้วรอให้กรอบของชิ้นเปลี่ยนสี แปลว่าบันทึกแล้ว',
+    readonly: 'ดูได้อย่างเดียว หน้านี้ให้เจ้าของหน้าเป็นคนเลือก',
+    off: offText,
+  }[mode];
+  if (live && saving) { state = 'busy'; text = `กำลังบันทึก ${saving} รายการ… อย่าเพิ่งปิดหน้านี้`; }
+  bar.dataset.state = state;
+  if (bar.textContent !== text) bar.textContent = text;
+}
+function setMode(m, text) { mode = m; if (text) offText = text; paint(); }
+function msg(id, kind, text) { const el = document.getElementById('saved-' + id); el.dataset.kind = kind; el.textContent = text; }
+const same = (a, b) => (a.choice || null) === (b.choice || null) && (a.note || '') === (b.note || '');
+
+function choose(id, v) {
+  if (mode !== 'ready' || busy[id]) return;
+  clearTimeout(timers[id]);
+  const choice = (confirmed[id] || {}).choice === v ? null : v;   // tap again to clear
+  queue(id, {choice, note: noteEl(id).value.trim()});
+}
+function saveNote(id) {
+  if (mode !== 'ready') return;
+  const base = want[id] || confirmed[id] || {};
+  queue(id, {choice: base.choice || null, note: noteEl(id).value.trim()});
+}
+function queue(id, body) { want[id] = body; if (busy[id]) { paint(); return; } run(id); }
+async function run(id) {
+  busy[id] = true; msg(id, '', 'กำลังบันทึก…'); paint();
+  while (want[id]) {
+    const body = want[id];
+    if (same(body, confirmed[id] || {})) { delete want[id]; msg(id, '', ''); break; }
+    try {
+      await write(id, body);
+      confirmed[id] = body;
+      if (want[id] === body) delete want[id];
+      if (noteEl(id).value.trim() === body.note) drafts.delete(id);
+      msg(id, 'ok', body.choice ? 'บันทึกแล้ว: ' + LABEL[body.choice] : body.note ? 'บันทึกหมายเหตุแล้ว' : 'ล้างตัวเลือกแล้ว');
+    } catch (e) {
+      delete want[id];
+      const code = e && e.code;
+      if (code === 'invalid_argument' || code === 'transform_error') { msg(id, 'error', 'บันทึกไม่ได้ หน้านี้ให้เจ้าของหน้าเป็นคนเลือก'); setMode('readonly'); }
+      else if (['revoked', 'not_granted', 'capability_disabled', 'capability_removed'].includes(code)) { msg(id, 'error', 'ยังไม่ได้บันทึก'); setMode('off', OFF_LOST); }
+      else msg(id, 'error', 'ยังไม่ได้บันทึก ลองอีกครั้ง');
+      break;
+    }
+  }
+  busy[id] = false; paint();
+}
+async function write(id, body) {
+  const ref = db.collection('packs').doc(id);
+  try { await ref.set(body); }
+  catch (e) {
+    const final = ['invalid_argument', 'transform_error', 'resource_exhausted', 'quota_exceeded', 'revoked', 'not_granted', 'capability_disabled', 'capability_removed'];
+    if (e && final.includes(e.code)) throw e;
+    await new Promise(r => setTimeout(r, 400 + Math.random() * 600));   // a passing hiccup: try once more
+    await ref.set(body);
+  }
+}
+paint();
+
+(async () => {
+  const c = window.claude;
+  if (!c || typeof c.use !== 'function') { setMode('off', OFF_OPEN); return; }
+  const [d, u] = await Promise.all([c.use('db'), c.use('user')]);
+  if (!d) { setMode('off', OFF_OPEN); return; }
+  if (u && !(await u.isOwner())) mode = 'readonly';
+  db = d;
+  const timer = setTimeout(() => { slow = true; paint(); }, 10000);
+  db.collection('packs').onSnapshot(snap => {
+    // a doc with hasPendingWrites is this page's own save before the store confirms it: skip it
+    snap.docs.forEach(doc => { if (doc.exists && !doc.metadata.hasPendingWrites) confirmed[doc.id] = doc.data(); });
+    snap.docChanges().forEach(ch => { if (ch.type === 'removed') delete confirmed[ch.doc.id]; });
+    if (!snap.metadata.fromCache) { clearTimeout(timer); slow = false; if (mode === 'wait') mode = 'ready'; }
+    paint();
+  }, () => { clearTimeout(timer); setMode('off', OFF_LOST); });
+})();
+</script>
