@@ -18,7 +18,7 @@ MODELS = os.environ.get('ASR_MODELS', os.path.join(HERE, 'models'))   # converte
 
 
 def norm(s):
-    s = unicodedata.normalize('NFC', s).lower()
+    s = unicodedata.normalize('NFC', s).lower().replace('\u0e4d\u0e32', '\u0e33')   # ํ + า written apart = ำ (Typhoon writes it that way)
     return ''.join(ch for ch in s if unicodedata.category(ch)[0] in 'LMN')   # letters, marks, digits only
 
 

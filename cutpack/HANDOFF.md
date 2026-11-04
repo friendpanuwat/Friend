@@ -29,6 +29,7 @@
 | `engine/` | เอนจินกลาง (สำเนาจาก skill editorial ตรงกันทุกพิกเซล) + ไอคอน Lucide ครบชุด + ชุดท่าเคลื่อนไหวที่ล็อกของ editorial (`styles/editorial/motion.js`) + การ์ด 55 แบบ + วิดเจ็ต 30 แบบ + ตัวตรวจชิ้นส่วน `tools/check_parts.py` + แผนฉาก JSON และตัวตรวจแผน (`plan/`) ดู `engine/README.md` และ `engine/plan/PLAN.md` แพ็กเกจ Python ที่ต้องใช้อยู่ใน `engine/requirements.txt` |
 | `library/base-parts/` | ชิ้นฐาน editorial ครบ 15 หมวด: รอบแรก 5 หมวด (19 แบบหลังตัด B14-v4) ที่ https://claude.ai/artifact/T3uL5XmH2kW3qDhun8fsTT และรอบสอง 10 หมวด (40 แบบ) ที่ https://claude.ai/artifact/M7kKYWCsUVvn1uM8JmPUb4 (`gallery2.html`) ผลแต่ละหน้าเก็บใน collection `variants` ของหน้านั้น สร้างหน้าใหม่ด้วย `make_gallery.py` |
 | `library/widgets/` | วิดเจ็ต overlay 15 หมวด × 2 แบบ × 2 ขนาด (เตี้ยเหนือหัว / แคบข้างหัว) ที่ https://claude.ai/artifact/2hSrmqkhJdryvRzei7Zh6R ผลเก็บใน collection `variants` ดู `library/widgets/README.md` |
+| `asr-test/` | เทียบตัวถอดเสียงภาษาไทย (`bench.py`) ผลกับเสียงอ่าน 40 ประโยค: Typhoon ASR Realtime แม่นสุดกับคำไทยและเร็วสุด ดู `asr-test/README.md` |
 | `library/sample-clip/` | คลิปตัวอย่างที่ Friend ส่งมา (10 วินาที) |
 | `library/gallery/` | หน้าแกลเลอรีให้ Friend เลือกเก็บหรือทิ้งการ์ด 26 ชิ้น อยู่ที่ https://claude.ai/artifact/MfHsnKa7qnP96UjNFe3cg7 |
 
