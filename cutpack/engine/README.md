@@ -6,7 +6,7 @@
 
 | โฟลเดอร์ | สิ่งที่อยู่ข้างใน |
 |---|---|
-| `core/` | คัดลอกจาก `.claude/skills/talking-head-editorial` เมื่อ 2026-11-03: `engine_head.html`, `engine_tail.html`, `render.js`, `sfx.py`, `pipeline.sh`, `brand.default.json`, ฟอนต์ Mitr กับ Sriracha และ `licenses/` ทุกไฟล์เหมือนต้นฉบับทุกไบต์ ยกเว้น `build_scene.py` |
+| `core/` | คัดลอกจาก `.claude/skills/talking-head-editorial` เมื่อ 2026-11-03: `engine_head.html`, `engine_tail.html`, `render.js`, `sfx.py`, `pipeline.sh`, `brand.default.json`, ฟอนต์ Mitr กับ Sriracha และ `licenses/` ทุกไฟล์เหมือนต้นฉบับทุกไบต์ ยกเว้น `build_scene.py` และ `engine_tail.html` (เพิ่มการซูมแบบเข้า-ออกนุ่มและกล้องหายใจแบบ talking-head-motion เมื่อ 2026-11-04) |
 | `core/build_scene.py` | เขียนใหม่จากของ skill: ใส่ไอคอนครบชุดลงใน `ICONS` (ถ้าชื่อซ้ำ ใช้ของ skill จึงหน้าตาเหมือนเดิม) และแทรกแพ็กของสไตล์ก่อน `timeline.js` |
 | `icons/` | `lucide.json` ไอคอน Lucide ทั้งหมด 1,539 แบบ จาก `lucide-static` 0.460.0 บน npm ดึงมาเมื่อ 2026-11-03 พร้อม `LICENSE-lucide.txt` (ISC) |
 | `styles/<สไตล์>/motion.js` | ชุดท่าเคลื่อนไหวที่ล็อกของสไตล์นั้น (`MOTION`, `SOUND`, `mv.*`) ทะเบียนชิ้นส่วน (`PART`, `part`) และสีที่อ่านออกบนพื้นแต่ละสี (`ON`) |

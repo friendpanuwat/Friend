@@ -190,7 +190,7 @@ function subChunks(text, n, key) {
   return out.map(c => c.map((x, k) => (k && x.sp ? ' ' : '') + x.t));
 }
 function subSplit(words) { return [words.slice(0, -1).join('').trim(), words.at(-1).trim()]; }
-function subtitle(text, t0, t1, {top = SUBTOP, key, keyAt, n, punch = true} = {}) {   // punch: the skill's hard zoom cut on each big word
+function subtitle(text, t0, t1, {top = SUBTOP, key, keyAt, n, punch = false} = {}) {   // no zoom per word (Friend 2026-11-04: too frequent); camera moves come from push()
   const chunks = subChunks(text, n, key), span = (t1 - t0) / chunks.length;
   chunks.forEach((words, i) => {
     const a = t0 + i * span, b = a + span;
@@ -204,3 +204,20 @@ function subtitle(text, t0, t1, {top = SUBTOP, key, keyAt, n, punch = true} = {}
     if (punch) { zoom(tb, i % 2 ? 1.06 : 1.09); zoom(b - .001, 1); }
   });
 }
+
+/* =====================================================================
+   CAMERA: the talking-head-motion way (Friend 2026-11-04 — "ซูมพร่ำเพรื่อเกินไป ใช้แบบ talking-head-motion")
+   - few and slow: 4–5 push-ins per clip (about one per 10 s), at least 4 s apart, only on strong lines
+   - push(t): ease in-out to 1.04–1.06 over 1–1.5 s; pull(t): back to 1.0 over ~1 s when a new topic starts,
+     or leave it — a cut into a card hides the reset (pull(t, true) = instant, under the cut)
+   - no zoom hit on key words (the soft key sound is enough), never above 1.08, a slow breathing drift all along
+   ===================================================================== */
+const CAM = Object.freeze({z: 1.05, d: 1.4, back: 1.0, gap: 4, max: 1.08, breath: .014});
+window.BREATH = CAM.breath;
+const PUSHES = [];
+function push(t, z = CAM.z, d = CAM.d) {
+  if (z > CAM.max) throw new Error(`push ${z} is above ${CAM.max}`);
+  const prev = PUSHES.at(-1); if (prev != null && t - prev < CAM.gap) throw new Error(`push at ${t}s is closer than ${CAM.gap}s to the one at ${prev}s`);
+  PUSHES.push(t); ZOOM.push({t, z, d, io: true});
+}
+function pull(t, cut = false) { ZOOM.push(cut ? {t, z: 1, d: .001} : {t, z: 1, d: CAM.back, io: true}); }

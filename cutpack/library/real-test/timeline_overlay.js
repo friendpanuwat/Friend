@@ -1,4 +1,8 @@
 /* CutPack editorial-overlay — 18 s test on Friend's clip (script.md). The speaker stays on screen; widgets pop up in free space. */
+/* camera, talking-head-motion way: three slow push-ins on the strong lines, ≥ 4 s apart, gentle pull back on a new topic */
+push(0.3); pull(4.8);
+push(8.0); pull(12.0);
+push(14.6);
 subtitle('ทำไมคลิป ของคุณ / ยอดวิว ไม่ขึ้น', 0.0, 2.4);
 subtitle('ทั้งที่ โพสต์ทุกวัน / ยอดวิวกลับ ลดลง / ครึ่งหนึ่ง', 2.4, 4.8);
 subtitle('ปัญหา ไม่ใช่ / โพสต์ น้อย', 4.8, 6.2);

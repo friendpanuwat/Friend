@@ -1,5 +1,8 @@
 /* CutPack editorial — 18 s test on Friend's clip (script.md). Cards from the base library, chunked subtitles on the talking head. */
 cards([[2.4, 4.8], [6.2, 8.0], [9.6, 11.0], [12.0, 14.5], [16.2, 18.1]]);
+/* camera, talking-head-motion way: two slow push-ins on the strong lines; each reset hides under the next card cut */
+push(0.3); pull(2.4, true);
+push(14.6); pull(16.2, true);
 subtitle('ทำไมคลิป ของคุณ / ยอดวิว ไม่ขึ้น', 0.0, 2.4);
 part('B02', 'v1', 2.4, 4.8, {bg: 'glow', hit: 3.9, dir: 'down', num: 'ครึ่งหนึ่ง', icon: 'eye', lead: 'ยอดวิวกลับ', key: 'ลดลง'});
 subtitle('ปัญหา ไม่ใช่ / โพสต์ น้อย', 4.8, 6.2);

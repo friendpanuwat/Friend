@@ -2,8 +2,11 @@
 <script>
 /* ===================== ENGINE ===================== */
 const ease = p => 1 - Math.pow(1 - p, 3);
+/* CutPack: the camera moves the talking-head-motion way (Friend 2026-11-04) — a zoom key with {io: true} eases in AND out
+   (starts and lands softly), and window.BREATH adds that skill's slow breathing drift, kept between 1 and 1 + BREATH. */
+const easeIO = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
 ZOOM.sort((a, b) => a.t - b.t);
-function zoomAt(t) { let z = 1; for (const k of ZOOM) { if (t < k.t) break; z += (k.z - z) * ease(Math.min(1, (t - k.t) / k.d)); } return z; }
+function zoomAt(t) { let z = 1; for (const k of ZOOM) { if (t < k.t) break; z += (k.z - z) * (k.io ? easeIO : ease)(Math.min(1, (t - k.t) / k.d)); } return z * (1 + (window.BREATH || 0) * (.5 + .5 * Math.sin(t * .3))); }   // drift stays ≥ 1: no edge ever shows (no blurred copy behind, unlike that skill)
 const V = document.getElementById('v');
 window.seek = async (t, src) => {
   if (!window.__fitted) {
