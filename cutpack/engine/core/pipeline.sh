@@ -5,7 +5,7 @@
 #   preview – stills at T (env PREVIEW="1.5,7.6,...") → <project>/prev/ + contact sheet prev.jpg
 #   render  – all frames, 4 parallel workers
 #   audio   – SFX cues → synth → mix under voice → loudnorm -14 LUFS / -1.5 dBTP
-#   encode  – x264 2-pass ≈3.2 Mbps (≈22 MB / 50 s) + QC sheet qc_sheet.jpg
+#   encode  – x264 one pass, preset medium crf 21, capped at 4.6 Mbps (≈14 MB / 43 s) + QC sheet qc_sheet.jpg
 #   hq      – high-quality master edit_hq.mp4 (≈8–12 Mbps, kept ≤ 95 MB for GitHub) — deliver with deliver_github.sh
 #   all     – frames build render audio encode
 # env HOLD=<sec> (set at the frames step, remembered in <project>/.hold): freeze the last frame that long after the speech
@@ -57,9 +57,9 @@ audio() {
 }
 encode() {
   cd "$PROJ"
-  ffmpeg -y -loglevel error -framerate 30 -i out_frames/o%05d.jpg -c:v libx264 -preset slower -b:v 3200k -maxrate 4600k -bufsize 9000k -pass 1 -an -f null /dev/null
-  ffmpeg -y -loglevel error -framerate 30 -i out_frames/o%05d.jpg -i master.wav -map 0:v -map 1:a -c:v libx264 -preset slower -b:v 3200k -maxrate 4600k -bufsize 9000k -pass 2 -pix_fmt yuv420p -c:a aac -b:a 160k -movflags +faststart -shortest edit.mp4
-  rm -f ffmpeg2pass-0.log*
+  # CutPack (Friend 2026-11-04): one pass, preset medium, crf 21 — about 3.4× faster than the skill's slower 2-pass,
+  # same look by eye (cost-test/encode-compare/). The maxrate cap is kept from the skill.
+  ffmpeg -y -loglevel error -framerate 30 -i out_frames/o%05d.jpg -i master.wav -map 0:v -map 1:a -c:v libx264 -preset medium -crf 21 -maxrate 4600k -bufsize 9000k -pix_fmt yuv420p -c:a aac -b:a 160k -movflags +faststart -shortest edit.mp4
   ffmpeg -y -loglevel error -i edit.mp4 -vf "fps=1/2,scale=150:-1,tile=13x3" -frames:v 1 qc_sheet.jpg
   ls -la edit.mp4; echo "QC sheet: $PROJ/qc_sheet.jpg"
 }

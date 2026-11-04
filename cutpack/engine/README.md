@@ -26,6 +26,8 @@
 ## วิธีใช้
 `bash core/pipeline.sh <โฟลเดอร์งาน> <คลิป.mp4> frames|build|preview|render|audio|encode` เหมือนของ skill ขั้น build เรียก `core/build_scene.py` ซึ่งใช้สไตล์ `editorial` เป็นค่าเริ่มต้น
 
+ขั้น `encode` ต่างจาก skill: บีบอัดรอบเดียวแบบ `medium` crf 21 (เพดาน 4.6 Mbps เท่าเดิม) แทน `slower` 2 รอบ เร็วขึ้นราว 3.4 เท่า และตาแยกไม่ออก (Friend ตกลง 2026-11-04 ดู `../cost-test/encode-compare/`) ขั้น `hq` ยังเป็นแบบเดิม
+
 ## ตรวจแล้ว (2026-11-03)
 - เรนเดอร์ timeline ตัวอย่างของ skill (`examples/timeline_mg.js`) บนคลิปตัวอย่างของ Friend ด้วยเอนจินของ skill และของ CutPack ได้ภาพตรงกันทุกพิกเซลทั้ง 3 เฟรมที่ทดสอบ (PSNR = inf)
 - ไอคอนที่มีเฉพาะในชุดเต็มเรนเดอร์ได้ถูกต้อง เช่น utensils, dumbbell, graduation-cap, heart-pulse, plane และ house
