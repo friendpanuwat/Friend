@@ -156,7 +156,6 @@ PART('EDU', 'h3', {pack: EDU, code: 'EDU-H3', name: 'บันไดอาชี
   const st = s.steps, n = st.length;
   if (n < 2 || n > 4) throw new Error('EDU.h3 needs 2–4 steps');
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', col = eduCol(dark), W = 760 / n, H = 120, x0 = 160, y0 = 860;
-  const stepT = k => T.t0 + .4 + (T.hit - T.t0 - .4) * k / (n - 1);
   for (let k = 0; k < n; k++) {
     const x = x0 + k * W, top = y0 - (k + 1) * H, last = k === n - 1;
     const b = div(`left:${x}px;top:${top}px;width:${W}px;height:${(k + 1) * H}px;border-radius:16px 16px 0 0;background:${last ? ACC : (dark ? 'rgba(255,255,255,.14)' : '#DCE1EA')};transform-origin:50% 100%`, c);
@@ -164,14 +163,16 @@ PART('EDU', 'h3', {pack: EDU, code: 'EDU-H3', name: 'บันไดอาชี
     const lb = eduText(c, st[k], `left:${x + 6}px;top:${top + 20}px;width:${W - 12}px;text-align:center;opacity:0`, last ? INK : o.ink, 44);
     mv.lead(lb, T.t0 + .3 + k * .08);
   }
-  // Friend 2026-11-04: a more realistic person, and a real step — the body lifts first, then moves over (two nested moves make the arc)
+  // Friend 2026-11-04: a more realistic person; it walks up in one smooth climb (below). `translate` moves it, so the pop-in keeps `transform`
   const man = div(`left:${x0 + W / 2 - 60}px;top:${y0 - H - 250}px;width:120px;height:240px;opacity:0`, c), lift = div('left:0;top:0;width:120px;height:240px', man);
   human(lift, 'left:0;top:0;width:120px;height:240px', o.ink);
-  mv.pop(man, T.t0 + .3, 'scale(.6)');
-  for (let k = 1; k < n; k++) {
-    mv.slide(lift, stepT(k) - MOTION.slide.d - .2, `translateY(${-(k - 1) * H}px)`, `translateY(${-k * H}px)`);
-    mv.slide(man, stepT(k) - MOTION.slide.d, `translateX(${(k - 1) * W}px)`, `translateX(${k * W}px)`);
-  }
+  mv.pop(man, T.t0 + .25, 'scale(.6)');   // after the first step has grown under the feet
+  // Friend 2026-11-04 (second note): smoother — one continuous walk to the top instead of a stop on every step.
+  // Progress eases in and out once over the whole climb (ending on the key word); the height follows the stairs with a
+  // smooth rise over each step's edge. Set again on every seek, like mv.count, so any frame renders the same.
+  const a = T.t0 + .35, b = T.hit, ease = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+  const rise = x => { let y = 0; for (let k = 1; k < n; k++) { const u = Math.min(1, Math.max(0, (x - (k - .5) * W) / (.55 * W) + .5)); y += H * u * u * (3 - 2 * u); } return y; };
+  HOOKS.push(t => { const x = (n - 1) * W * ease(Math.min(1, Math.max(0, (t - a) / (b - a)))); man.style.translate = `${x}px ${-rise(x)}px`; });
   ripple(c, x0 + (n - .5) * W, y0 - n * H, T.hit, 3, col); snd('hit', T.hit);
   cardText(c, T, s.lead, s.key, 1290);
 });
