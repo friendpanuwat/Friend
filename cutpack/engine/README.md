@@ -15,7 +15,9 @@
 | `plan/` | แผนฉาก JSON และการตรวจแผน: `catalog.js` (สร้าง `catalog.json` จากโค้ด), `plan2timeline.py`, `faces.py`, `validate.py`, `render_check.py`, `fallback.py`, คำขอให้ AI วางแผน (`prompt.py`, `prompt/`), `assemble.py`, ตัวรัน `plan_d.py` และชุดทดสอบ `tests/` ดู `plan/PLAN.md` |
 | `models/` | โมเดลหาหน้า YuNet (MIT) สำหรับ `plan/faces.py` |
 | `plan/custom_check.py` | ตรวจโค้ดฉากที่ AI เขียนเอง ใช้ได้เฉพาะชุดเครื่องมือ (ด่านแรกจาก 3 ด่าน ดู `plan/PLAN.md`) เบราว์เซอร์ที่เรนเดอร์ (`core/render.js`) ปิดอินเทอร์เน็ตไว้ |
-| `requirements.txt` | แพ็กเกจ Python ที่ต้องติดตั้ง (`opencv-python-headless`, `numpy`) |
+| `run_clip.py` | ตัวรันทั้งคลิป ตั้งแต่คลิปดิบจนได้ MP4 ดู "วิธีใช้" ด้านล่าง |
+| `plan/asr.py`, `plan/captions.py`, `plan/fake_api.py` | ขั้นถอดเสียง ขั้นจัดกลุ่มซับ และ API จำลองสำหรับทดสอบโดยไม่ใช้คีย์ ดู `plan/PLAN.md` |
+| `requirements.txt` | แพ็กเกจ Python ที่ต้องติดตั้ง (`opencv-python-headless`, `numpy`, `anthropic`) ส่วน `typhoon-asr` กับ `soundfile` สำหรับถอดเสียงติดตั้งแยก เพราะใหญ่หลาย GB ขั้นตอนที่ต้องทำบนเครื่องแบบนี้เขียนไว้ในไฟล์ |
 | `tools/check_parts.py` | ตรวจว่าชิ้นส่วนไม่สร้างท่าเคลื่อนไหวเอง (ห้าม `A(`, `.animate(`, `cubic-bezier`) ไม่สุ่ม (ห้าม `Math.random` และเวลาเครื่อง) และทุกชิ้นประกาศ `name`, `bgs`, `slots`, `dur`, `hit` |
 
 ## กฎของชิ้นส่วน
@@ -24,7 +26,28 @@
 - ตัวเลขบนจอต้องมาจากบทพูด เช่น B01 แบบ v3 ต้องมีทั้งค่าและตัวหาร ("3 ใน 10") หรือหน่วยเป็น %
 
 ## วิธีใช้
-`bash core/pipeline.sh <โฟลเดอร์งาน> <คลิป.mp4> frames|build|preview|render|audio|encode` เหมือนของ skill ขั้น build เรียก `core/build_scene.py` ซึ่งใช้สไตล์ `editorial` เป็นค่าเริ่มต้น
+
+**ทั้งคลิปในคำสั่งเดียว (2026-11-04):** `python3 run_clip.py <คลิปดิบ.mp4> <โฟลเดอร์งาน> --log runs.jsonl` ทำทุกขั้นตามลำดับใน DECISIONS ข้อ 2 แล้วได้ `<โฟลเดอร์งาน>/editorial/edit.mp4` กับ `<โฟลเดอร์งาน>/overlay/edit.mp4`
+
+| ขั้น | ไฟล์ | ผลที่ได้ในโฟลเดอร์งาน |
+|---|---|---|
+| 1. แตกเฟรม เตรียมเสียง | `core/pipeline.sh frames` | `base/src_frames`, `base/voice.wav` |
+| 2. ถอดเสียง | `plan/asr.py` (Typhoon ASR Realtime บนเครื่องเรา) | `words.json` |
+| 3. จัดกลุ่มซับ | `plan/captions.py` (Haiku 5.5 เลือกแค่จุดตัดท่อนและบรรทัด ไม่แตะคำ ถ้าไม่มีคีย์หรือคำตอบใช้ไม่ได้ จัดตามกฎ) | `captions.json` |
+| 4. หาหน้า | `plan/faces.py` | `faces.json`, `input.json` |
+| 5. วางแผนฉาก | `plan/plan_d.py` ทีละสไตล์ | `<สไตล์>/plan.json`, `report.json`, `run.json` |
+| 6. เรนเดอร์ | `plan2timeline.py` แล้ว `pipeline.sh build render audio encode` | `<สไตล์>/edit.mp4` |
+| 7. บันทึก | บรรทัดละสไตล์ใน `runs.jsonl` ตามรูปแบบของ `cost-test/cost_model.py` พร้อมเวลาของทุกขั้น | สรุปด้วย `python3 ../cost-test/cost_model.py report runs.jsonl` |
+
+ตัวเลือกที่ใช้บ่อย
+- `--stop-after captions` หยุดหลังจัดกลุ่มซับ ให้ลูกค้าตรวจซับ (ขั้นที่ 4 ของเว็บ) แล้วรันใหม่ด้วย `--captions <ซับที่ตรวจแล้ว.json>` ข้อความบนจอจะเป็นของลูกค้าทุกคำ
+- `--words <words.json>` ใช้คำถอดเสียงที่มีอยู่แล้ว ไม่ต้องถอดใหม่
+- `--answers <โฟลเดอร์>` เล่นซ้ำคำตอบของ AI ที่เก็บไว้ (`<สไตล์>.answer.json`, `.fix.json`, `.code.json`, `.fixcode.json`, `captions.answer.json`) ไม่เรียก API เลย ใช้ทดสอบและรันซ้ำโดยไม่เสียเงิน
+- `--styles editorial` หรือ `overlay` ถ้าต้องการสไตล์เดียว
+- ไม่มีคีย์ `ANTHROPIC_API_KEY` ก็ยังได้คลิป: ซับจัดตามกฎ มีแต่ซับ ไม่มีฉาก (`detail: no-plan` ในบันทึก)
+- ค่า AI ของขั้นจัดกลุ่มซับถูกนับในบรรทัดของทุกสไตล์ เพราะลูกค้าได้คลิปละสไตล์เดียว แต่ละบรรทัดจึงเท่ากับต้นทุนของคลิปหนึ่งคลิป
+
+**ทีละขั้น:** `bash core/pipeline.sh <โฟลเดอร์งาน> <คลิป.mp4> frames|build|preview|render|audio|encode` เหมือนของ skill ขั้น build เรียก `core/build_scene.py` ซึ่งใช้สไตล์ `editorial` เป็นค่าเริ่มต้น
 
 ขั้น `encode` ต่างจาก skill: บีบอัดรอบเดียวแบบ `medium` crf 21 (เพดาน 4.6 Mbps เท่าเดิม) แทน `slower` 2 รอบ เร็วขึ้นราว 3.4 เท่า และตาแยกไม่ออก (Friend ตกลง 2026-11-04 ดู `../cost-test/encode-compare/`) ขั้น `hq` ยังเป็นแบบเดิม
 

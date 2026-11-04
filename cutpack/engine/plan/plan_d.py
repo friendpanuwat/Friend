@@ -49,6 +49,9 @@ def ask(client, req):
     except anthropic.RateLimitError: return None, None, 'rate limited (after the SDK\'s retries)'
     except anthropic.APIStatusError as e: return None, None, f'API error {e.status_code}: {e.message}'
     except anthropic.APIConnectionError: return None, None, 'network error'
+    except TypeError as e:   # the SDK raises this before sending when it finds no key, token or profile at all
+        if 'authentication' in str(e).lower(): return None, None, 'no API key in the environment'
+        raise
     if resp.stop_reason == 'refusal': return None, resp, f'refused ({getattr(resp.stop_details, "category", None)})'
     if resp.stop_reason == 'max_tokens': return None, resp, 'answer cut off at max_tokens'
     text = next((b.text for b in resp.content if b.type == 'text'), '').strip()
@@ -81,7 +84,9 @@ def write_codes(client, inp, style, answer, cat, calls, log, code_answer=None):
     return req, resp
 
 
-def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_answer=None, code_answer=None, fix_code_answer=None):
+def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_answer=None, code_answer=None, fix_code_answer=None,
+        client=None):
+    """client: an anthropic.Anthropic() made here when None (tests pass a stand-in with the same beta.messages.create)."""
     os.makedirs(out, exist_ok=True)
     cat = prompt.load_catalog()
     req = prompt.request(inp, style, cat)
@@ -89,14 +94,23 @@ def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_an
         save(os.path.join(out, 'request.json'), req)
         return None
     history = inp.get('history')
-    calls, log, client, resp = [], [], None, None
+    calls, log, resp = [], [], None
     offline = answer is not None
-    if not offline:
-        import anthropic
-        client = anthropic.Anthropic()
-        answer, resp, why = ask(client, req)
-        if resp is not None: calls.append(call_record(resp, req['model']))
-        if why: log.append(f'plan request failed: {why}')
+    if offline: client = None
+    else:
+        if client is False:   # the caller forbids API calls (a replay with no saved answer)
+            client = None; log.append('API not used: no saved answer to replay')
+        elif client is None:
+            try:
+                import anthropic
+                client = anthropic.Anthropic()
+            except Exception as e:   # no key or no SDK: the clip still gets made, with subtitles only (step 6)
+                log.append(f'no API client ({type(e).__name__}: {e})')
+        why = 'no API client'
+        if client is not None:
+            answer, resp, why = ask(client, req)
+            if resp is not None: calls.append(call_record(resp, req['model']))
+            if why: log.append(f'plan request failed: {why}')
         if why and why.startswith('bad request'):   # most likely the answer schema: ask once more without it
             req = without_schema(req)
             answer, resp, why = ask(client, req)

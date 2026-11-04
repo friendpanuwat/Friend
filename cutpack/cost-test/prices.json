@@ -11,7 +11,8 @@
   "asr_usd_per_min": {
     "groq-whisper-large-v3-turbo": {"rate": 0.000667, "min_billed_s": 10, "_src": "$0.04 per audio hour, minimum 10 s per request"},
     "openai-gpt-4o-mini-transcribe": {"rate": 0.003, "min_billed_s": 0, "_src": "third-party listings"},
-    "local-faster-whisper": {"rate": 0.0, "min_billed_s": 0, "_src": "runs on the VPS: no fee, uses CPU time"}
+    "local-faster-whisper": {"rate": 0.0, "min_billed_s": 0, "_src": "runs on the VPS: no fee, uses CPU time"},
+    "local-typhoon-realtime": {"rate": 0.0, "min_billed_s": 0, "_src": "Typhoon ASR Realtime on our own VPS (Friend 2026-11-04): no fee, uses CPU time"}
   },
   "vps": {"name": "Hetzner CX23", "vcpu": 2, "ram_gb": 4, "thb_per_month": 226},
   "buckets_thb": {"best_max": 3.5, "alert_team_above": 5.5, "stop_redo_above": 7.0},

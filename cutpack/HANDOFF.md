@@ -103,13 +103,16 @@ git checkout -B <สาขาที่ session ใหม่ได้รับ> o
    - ~~3.3 prompt ของแผน D~~ เสร็จแล้ว (`prompt/`, `prompt.py`, `assemble.py`, `plan_d.py`) ทดสอบด้วยตัว API จำลองแล้ว ยังต้องลองกับ API จริงเมื่อมีคีย์ (ดู PLAN.md หัวข้อ "ยังต้องทดสอบเมื่อมีคีย์")
    - ~~ฉากที่ AI เขียนเอง~~ เสร็จแล้ว (Friend ให้เปิดตั้งแต่วันแรก ไม่จำกัดจำนวน: `prompt/kit.md`, `custom_check.py`, `customPart`/`customWidget` ใน motion.js) ยังต้องลองกับ API จริง
    - ~~3.4 ชุดทดสอบ~~ เสร็จแล้ว (`engine/plan/tests/test_plan.py` วิธีรันอยู่ใน PLAN.md) **ขั้น 3 เสร็จครบ (2026-11-04)**
-4. **ตัวรันไปป์ไลน์และการทดสอบคลิปจริง** (ต้องรอคลิปจริงและคีย์ API จาก Friend: ถอดเสียง → จัดกลุ่มซับ → `faces.py` → `plan_d.py` → เรนเดอร์) บันทึกผลเป็น `runs.jsonl` แล้วสรุปด้วย `cost_model.py report` ในรอบนี้ลองให้ Haiku 5.5 วางแผนฉากด้วย
+4. **ตัวรันไปป์ไลน์และการทดสอบคลิปจริง**
+   - ~~ตัวรัน~~ **เสร็จแล้ว (2026-11-04):** `engine/run_clip.py` คลิปดิบ → ถอดเสียง (`plan/asr.py`) → จัดกลุ่มซับ (`plan/captions.py`, Haiku 5.5) → หาหน้า → `plan_d.py` → เรนเดอร์ → `runs.jsonl` วิธีใช้อยู่ใน `engine/README.md` ทดสอบด้วย API จำลอง (`plan/fake_api.py`) และชุดทดสอบ `tests/test_run_clip.py` (ชุดทดสอบรวมเป็น 38 ข้อ) ถอดเสียง Typhoon จริงด้วย `asr.py` แล้วกับคลิป 52 วินาทีใน repo (`product/docs/before_after.mp4` ฝั่งซ้าย) ได้ 247 คำ
+   - **ยังต้องทำเมื่อได้คีย์และคลิปดิบจาก Friend:** รันคลิปจริง 20–30 คลิป บันทึกเป็น `runs.jsonl` แล้วสรุปด้วย `cost_model.py report`, ลองให้ Haiku 5.5 วางแผนฉากด้วย และเทียบโมเดล 6 แบบตาม DECISIONS ข้อ 7
 5. สร้าง MVP ตามลำดับ 7 ขั้นในเอกสารส่งต่องาน รวมการเตือนตอนอัปโหลดเมื่อหน้าเต็มเฟรมจนไม่มีที่วางวิดเจ็ต (DECISIONS: หัวชิดขอบบน) หน้าตาให้ยึดเว็บแอป dark mode (`library/webapp-mockup/`) หลังแก้ตามความเห็นของ Friend แล้ว เรื่องที่ยังสมมติไว้ (ชื่อแบรนด์ เครดิต การคืนเครดิต การแจ้งเตือน อายุไฟล์ เงื่อนไขการสั่งแก้) ต้องให้ Friend ตัดสินก่อนสร้างจริง
 
 ## เรื่องเทคนิคที่ควรรู้
 
 - **แก้หน้า mockup (ชนิด Design):** session ใหม่ยังไม่เคยอ่านหน้านั้น ต้อง `Artifact` `read` ที่ URL ก่อน แล้ววางไฟล์จาก `library/webapp-mockup/` ไว้ที่ `<root>/project/` (`canvas.json` + `*.dc.html`) publish ไปที่ URL เดิมโดยส่ง `root` ด้วย ภาพในหน้าอ้างด้วย `/_blob/<id>` ที่อัปโหลดไว้ในหน้านั้นแล้ว (รายการอยู่ใน `library/webapp-mockup/README.md`) ส่วน mockup หน้าแก้ซับโทนสว่างอยู่ที่ `library/webapp-mockup/subedit-light/`
 
+- **ติดตั้งตัวถอดเสียง Typhoon** (ต้องใช้กับ `run_clip.py` เมื่อไม่ได้ส่ง `--words`) ใช้พื้นที่ราว 6 GB และต้องทำตามขั้นที่เขียนไว้ใน `engine/requirements.txt` เพราะติดตั้งตรง ๆ ไม่ผ่านบนเครื่องแบบนี้ โมเดลโหลดจาก Hugging Face ครั้งแรกที่ใช้
 - scratchpad หายไปเมื่อปิด session สร้างงานกลับมาได้จากสคริปต์:
   - `style-rules/previews/make_previews.sh <work>` เตรียมคลิปแทนและเฟรม
   - `library/gallery/make_clips.sh <work> <out>` สร้างคลิปของแกลเลอรี
