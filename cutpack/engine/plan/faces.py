@@ -13,7 +13,10 @@ Layout (1080×1920, decisions in DECISIONS.md). The keep-out box is the face box
 reach (CAM.max 1.08 × breathing 1.014, around the video's transform-origin 50% 45%), so nothing covers the face even
 mid-push (the overlay skill: "ไม่บังหน้าแม้ตอนซูม"). Hair may sit under a widget; the face may not.
   subtitleTop  = max(1300, zoomed chin + 40), at most 1380 so it ends above the app's bottom bar; a lower chin → `subOverFace`
-  short widget = 600×190 at the top (y 150, under the app's top bar), centred on the face; fits if it ends 20 px above the face
+  short widget = 600×190, centred on the face, in the first place that has room (Friend 2026-11-04):
+                 1. above the head: y 150 (under the app's top bar), if it ends 20 px above the face
+                 2. at chest level, when the head is at the top edge: centred between the chin (+40, zoomed) and the
+                    subtitles (−20); it may cover the hands, never the face. `shortPlace` says which (top | chest | none)
   narrow widget= 210×380 beside the face (left if there is room, else right), level with the brow; never in the app's
                  right-hand button strip (x > 940 from y 860 to 1620)
 """
@@ -59,8 +62,11 @@ def layout(boxes, n_samples):
     keep = zoomed(face)
     kx0, ky0, kx1, ky1 = keep
     sub_top = min(SUB_TOP_MAX, max(SUB_TOP_MIN, ky1 + 40))
-    short = {'x': int(min(max(40, (kx0 + kx1) / 2 - SHORT[0] / 2), RIGHT_UI - SHORT[0])), 'y': TOPBAR}
-    short_fits = TOPBAR + SHORT[1] + 20 <= ky0
+    sx = int(min(max(40, (kx0 + kx1) / 2 - SHORT[0] / 2), RIGHT_UI - SHORT[0]))
+    band0, band1 = ky1 + 40, sub_top - 20   # chest: below the (zoomed) chin, above the subtitles
+    if TOPBAR + SHORT[1] + 20 <= ky0: short, place = {'x': sx, 'y': TOPBAR}, 'top'
+    elif band1 - band0 >= SHORT[1]: short, place = {'x': sx, 'y': round(band0 + (band1 - band0 - SHORT[1]) / 2)}, 'chest'
+    else: short, place = {'x': sx, 'y': TOPBAR}, 'none'
     ny = int(max(TOPBAR + 10, min(ky0 + 40, sub_top - 20 - NARROW[1])))
     right_max = RIGHT_UI if ny + NARROW[1] > RIGHT_Y[0] else W - 36   # the button strip only matters at its own height
     if kx0 - 20 >= 36 + NARROW[0]: narrow, side = {'x': 36, 'y': ny}, 'left'
@@ -70,7 +76,7 @@ def layout(boxes, n_samples):
         'found': f'{len(boxes)}/{n_samples}',
         'face': [round(v) for v in face], 'keepOut': [round(v) for v in keep],
         'layout': {'subtitleTop': round(sub_top), 'widgetPos': {'short': short, 'narrow': narrow},
-                   'shortFits': bool(short_fits), 'narrowFits': side != 'none', 'narrowSide': side, 'subOverFace': bool(ky1 + 20 > sub_top)},
+                   'shortFits': place != 'none', 'shortPlace': place, 'narrowFits': side != 'none', 'narrowSide': side, 'subOverFace': bool(ky1 + 20 > sub_top)},
         'zones': {'topBar': [0, 0, W, TOPBAR], 'rightUI': [RIGHT_UI, RIGHT_Y[0], W, RIGHT_Y[1]], 'bottomUI': [0, BOTTOM_UI, W, H]},
     }
 

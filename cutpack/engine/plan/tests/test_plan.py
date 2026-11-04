@@ -226,6 +226,21 @@ class FaceFinder(unittest.TestCase):
         self.assertEqual(L['widgetPos']['narrow']['x'], 36)                     # and narrow at 36,400
         self.assertLessEqual(abs(L['widgetPos']['narrow']['y'] - 400), 15)
 
+    def test_head_at_the_top_edge_moves_the_short_widget_to_the_chest(self):
+        cases = {'normal face': [345, 70, 735, 590], 'big face': [205, 55, 875, 855], 'face fills the frame': [110, 55, 970, 1240]}
+        want = {'normal face': ('chest', 'left'), 'big face': ('chest', 'none'), 'face fills the frame': ('none', 'none')}
+        for name, box in cases.items():
+            with self.subTest(name):
+                out = faces.layout([box] * 5, 5); L = out['layout']
+                self.assertEqual((L['shortPlace'], L['narrowSide']), want[name])
+                if L['shortPlace'] == 'chest':   # between the zoomed chin and the subtitles, and the checker agrees
+                    y = L['widgetPos']['short']['y']
+                    self.assertGreaterEqual(y, out['keepOut'][3] + 40); self.assertLessEqual(y + 190, L['subtitleTop'] - 20)
+                    p = copy.deepcopy(GOOD['overlay']); p['layout'] = {k: L[k] for k in ('subtitleTop', 'widgetPos')}
+                    for s in p['scenes']: s['size'] = 'short'
+                    R = check(p, faces=out)
+                    self.assertEqual([i for i in R.issues if i['code'].startswith('place')], [])
+
     def test_no_face_still_leaves_room(self):
         L = faces.layout([], 10)['layout']
         self.assertTrue(L['shortFits'] and L['narrowFits'])
