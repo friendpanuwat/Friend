@@ -52,13 +52,26 @@ def whisper(model_dir, threads):
 
 
 def typhoon_realtime(threads):
-    import torch
+    """Typhoon ASR Realtime through NeMo directly, asking for real word times (the typhoon-asr package only spreads the
+    words evenly over the clip, which is no use for timing subtitles)."""
+    import tempfile, numpy as np, soundfile as sf, torch
     torch.set_num_threads(threads)
-    from typhoon_asr import transcribe
+    import nemo.collections.asr as nemo_asr
+    model = nemo_asr.models.ASRModel.from_pretrained('typhoon-ai/typhoon-asr-realtime', map_location='cpu'); model.eval()
     def run(path):
-        r = transcribe(path, model_name='typhoon-ai/typhoon-asr-realtime', with_timestamps=True, device='cpu')
-        words = [(w.get('word'), w.get('start'), w.get('end')) for w in (r.get('timestamps') or [])] if isinstance(r, dict) else []
-        return (r.get('text') if isinstance(r, dict) else str(r)).strip(), words
+        y = audio16k(path); y = y / (np.abs(y).max() + 1e-8)   # the package normalises the level the same way
+        with tempfile.NamedTemporaryFile(suffix='.wav') as f:
+            sf.write(f.name, y, 16000)
+            try: out = model.transcribe(audio=[f.name], return_hypotheses=True, timestamps=True, verbose=False)
+            except TypeError: out = model.transcribe(audio=[f.name], return_hypotheses=True)
+        if isinstance(out, tuple): out = out[0]
+        hyp = out[0]
+        ts = getattr(hyp, 'timestamp', None) or {}
+        toks = ts.get('char') or ts.get('word') or []   # 'char' = each sub-word token with its time: fine enough for key words
+        words = [(''.join(w['char']) if isinstance(w.get('char'), list) else (w.get('char') or w.get('word')), round(float(w.get('start', 0)), 2), round(float(w.get('end', 0)), 2))
+                 for w in toks]
+        words = [w for w in words if w[0]]
+        return (hyp.text if hasattr(hyp, 'text') else str(hyp)).strip(), words
     return run
 
 
