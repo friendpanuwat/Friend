@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>CutPack ผลงาน</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&amp;family=Mitr:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0E14}
+a{color:#DDFF45}a:hover{color:#EEFF8A}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #0B0E14; color: #F2F4F8; font-family: Anuphan, sans-serif; display: flex; flex-direction: column">
+
+  <div style="display: flex; align-items: center; gap: 8px; padding: 12px 16px 8px 8px">
+    <a href="Main.dc.html" aria-label="กลับหน้าหลัก" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F2F4F8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+    </a>
+    <div style="display: flex; flex-direction: column; gap: 2px; flex: 1">
+      <div style="font-size: 18px; font-weight: 700">คลิปเสร็จแล้ว</div>
+      <div style="font-size: 12px; color: #A6AFC0">ขั้นที่ 6 จาก 7 · ดู ดาวน์โหลด แชร์</div>
+    </div>
+    <div style="font-size: 13px; font-weight: 600; color: #F2F4F8; background: #1C2330; border-radius: 999px; padding: 6px 12px">6/7</div>
+  </div>
+  <div style="height: 4px; background: #1C2330"><div style="width: 86%; height: 4px; background: #DDFF45"></div></div>
+
+  <div style="flex: 1; overflow-y: auto; padding: 14px 16px 24px; display: flex; flex-direction: column; gap: 12px">
+    <div style="display: flex; justify-content: center; gap: 8px">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="2">
+        <button onClick="{{t.pick}}" aria-pressed="{{t.on}}" style="{{t.style}}">{{t.label}}</button>
+      </sc-for>
+    </div>
+
+    <div style="align-self: center; width: 236px; height: 420px; border-radius: 18px; overflow: hidden; position: relative; background: #000; flex: none">
+      <img src="{{img}}" alt="{{imgAlt}}" style="width: 100%; height: 100%; object-fit: cover; display: block">
+      <button aria-label="{{playLabel}}" onClick="{{togglePlay}}" style="{{playBtnStyle}}">
+        <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="#0B0E14"><path d="M8 5v14l11-7z"></path></svg>
+      </button>
+      <div style="position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; align-items: center; gap: 8px">
+        <div style="flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,.3)"><div style="{{barStyle}}"></div></div>
+        <div style="font-size: 11px; color: #FFFFFF; font-variant-numeric: tabular-nums; text-shadow: 0 1px 2px rgba(0,0,0,.6)">{{time}}</div>
+      </div>
+    </div>
+
+    <div style="text-align: center; font-size: 13px; color: #A6AFC0">Editorial · 0:52 · 1080×1920 · 24 MB</div>
+
+    <button onClick="{{download}}" style="min-height: 52px; border: none; border-radius: 14px; background: #DDFF45; color: #0B0E14; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B0E14" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 10l6 6 6-6"></path><path d="M4 20h16"></path></svg>
+      ดาวน์โหลด MP4
+    </button>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <button onClick="{{share}}" style="min-height: 48px; border-radius: 14px; border: 1px solid #3A4458; background: #151A23; color: #F2F4F8; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F2F4F8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"></path></svg>
+        แชร์ลิงก์
+      </button>
+      <a href="Step7.dc.html" style="min-height: 48px; border-radius: 14px; border: 1px solid #3A4458; background: #151A23; color: #F2F4F8; font-size: 14px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F2F4F8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
+        สั่งแก้
+      </a>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 16px; background: #151A23; border: 1px solid #2A3242">
+      <div style="font-size: 14px; font-weight: 700">ในคลิปนี้มี</div>
+      <div style="font-size: 13px; color: #A6AFC0; line-height: 1.6">ฉากการ์ด 9 ฉาก · ฉากที่ AI ออกแบบใหม่ 1 ฉาก · ซับ 16 บรรทัด · เสียงปรับแล้ว</div>
+    </div>
+
+    <a href="Step1.dc.html" style="min-height: 48px; border-radius: 14px; border: 1px dashed #3A4458; color: #F2F4F8; font-size: 14px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">+ สร้างคลิปต่อไป</a>
+    <div style="font-size: 12px; color: #7C869A; text-align: center">เก็บไฟล์ไว้ให้ดาวน์โหลด 30 วัน</div>
+  </div>
+
+  <sc-if value="{{toastOn}}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 16px; right: 16px; bottom: 24px; padding: 14px 16px; border-radius: 14px; background: #F2F4F8; color: #0B0E14; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.4)">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg>
+      {{toast}}
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+const VIEWS = [
+  { label: 'คลิปที่ตัดแล้ว', img: '/_blob/ee3461041b14c4b255be4424da3a71e8', alt: 'คลิปที่ตัดแล้ว สไตล์ Editorial' },
+  { label: 'คลิปเดิม', img: '/_blob/d41ed54bb072032ccf832d1664b6d490', alt: 'คลิปเดิมก่อนตัด' },
+];
+const LEN = 52;
+const mmss = (t) => { const s = Math.floor(t); return '0:' + (s < 10 ? '0' : '') + s; };
+
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { view: 0, t: 0, playing: false, toast: '' }; }
+  componentWillUnmount() { if (this.timer) clearInterval(this.timer); if (this.tt) clearTimeout(this.tt); }
+  say(msg) {
+    if (this.tt) clearTimeout(this.tt);
+    this.setState({ toast: msg });
+    this.tt = setTimeout(() => this.setState({ toast: '' }), 2200);
+  }
+  renderVals() {
+    const s = this.state;
+    const tabs = VIEWS.map((v, i) => ({ label: v.label, on: i === s.view, pick: () => this.setState({ view: i }),
+      style: 'min-height: 40px; padding: 0 16px; border-radius: 999px; font-size: 14px; font-weight: 600; cursor: pointer; ' +
+        (i === s.view ? 'border: 1px solid #F2F4F8; background: #F2F4F8; color: #0B0E14' : 'border: 1px solid #3A4458; background: transparent; color: #A6AFC0') }));
+    return {
+      tabs, img: VIEWS[s.view].img, imgAlt: VIEWS[s.view].alt,
+      time: mmss(s.t) + ' / ' + mmss(LEN),
+      barStyle: 'width: ' + (s.t / LEN * 100) + '%; height: 4px; border-radius: 2px; background: #DDFF45',
+      playLabel: s.playing ? 'หยุด' : 'เล่น',
+      playBtnStyle: 'position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px; border-radius: 50%; border: none; background: rgba(221,255,69,.92); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: opacity .2s; opacity: ' + (s.playing ? '0' : '1'),
+      togglePlay: () => {
+        if (this.timer) { clearInterval(this.timer); this.timer = null; this.setState({ playing: false }); return; }
+        this.setState({ playing: true, t: s.t >= LEN ? 0 : s.t });
+        this.timer = setInterval(() => {
+          const n = this.state.t + 0.25;
+          if (n >= LEN) { clearInterval(this.timer); this.timer = null; this.setState({ t: LEN, playing: false }); }
+          else this.setState({ t: n });
+        }, 250);
+      },
+      toastOn: !!s.toast, toast: s.toast,
+      download: () => this.say('เริ่มดาวน์โหลดแล้ว · clip_0423_cutpack.mp4'),
+      share: () => this.say('คัดลอกลิงก์แล้ว ส่งให้ใครก็ดูได้'),
+    };
+  }
+}
+</script>
+</body>
+</html>

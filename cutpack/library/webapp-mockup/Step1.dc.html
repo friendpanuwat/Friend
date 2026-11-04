@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>CutPack อัปโหลด</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&amp;family=Mitr:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0E14}
+a{color:#DDFF45}a:hover{color:#EEFF8A}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #0B0E14; color: #F2F4F8; font-family: Anuphan, sans-serif; display: flex; flex-direction: column">
+
+  <div style="display: flex; align-items: center; gap: 8px; padding: 12px 16px 8px 8px">
+    <a href="Main.dc.html" aria-label="ย้อนกลับ" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F2F4F8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+    </a>
+    <div style="display: flex; flex-direction: column; gap: 2px; flex: 1">
+      <div style="font-size: 18px; font-weight: 700">อัปโหลดคลิป</div>
+      <div style="font-size: 12px; color: #A6AFC0">ขั้นที่ 1 จาก 7 · คลิปพูดหน้ากล้องแนวตั้ง</div>
+    </div>
+    <div style="font-size: 13px; font-weight: 600; color: #F2F4F8; background: #1C2330; border-radius: 999px; padding: 6px 12px">1/7</div>
+  </div>
+  <div style="height: 4px; background: #1C2330"><div style="width: 14%; height: 4px; background: #DDFF45"></div></div>
+
+  <div style="flex: 1; overflow-y: auto; padding: 16px 16px 130px; display: flex; flex-direction: column; gap: 14px">
+
+    <sc-if value="{{empty}}" hint-placeholder-val="{{ true }}">
+      <button onClick="{{pick}}" style="min-height: 300px; border-radius: 20px; border: 2px dashed #3A4458; background: #121721; color: #F2F4F8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; cursor: pointer; padding: 24px">
+        <div style="width: 64px; height: 64px; border-radius: 18px; background: #1C2330; display: flex; align-items: center; justify-content: center">
+          <svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#DDFF45" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6"></path><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path></svg>
+        </div>
+        <div style="font-size: 18px; font-weight: 700">แตะเพื่อเลือกคลิป</div>
+        <div style="font-size: 13px; color: #A6AFC0; line-height: 1.6; text-align: center">MP4 หรือ MOV แนวตั้ง 9:16<br>ยาวไม่เกิน 90 วินาที · พูดภาษาไทย</div>
+      </button>
+    </sc-if>
+
+    <sc-if value="{{uploading}}" hint-placeholder-val="{{ false }}">
+      <div style="min-height: 300px; border-radius: 20px; border: 1px solid #2A3242; background: #151A23; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 24px">
+        <div style="font-size: 16px; font-weight: 700">กำลังอัปโหลดและตรวจคลิป</div>
+        <div style="width: 240px; height: 8px; border-radius: 4px; background: #232A38"><div style="{{barStyle}}"></div></div>
+        <div style="font-size: 14px; color: #A6AFC0; font-variant-numeric: tabular-nums">{{pct}}% · {{phaseNote}}</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ready}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; gap: 14px; padding: 12px; border-radius: 20px; background: #151A23; border: 1px solid #2A3242">
+        <div style="width: 135px; height: 240px; border-radius: 14px; overflow: hidden; position: relative; flex: none; background: #000">
+          <img src="/_blob/d41ed54bb072032ccf832d1664b6d490" alt="ภาพแรกของคลิปที่อัปโหลด" style="{{imgStyle}}">
+          <div style="{{zoneStyle}}"></div>
+          <div style="position: absolute; left: 10px; right: 10px; top: 186px; height: 22px; border-radius: 6px; border: 1.5px dashed #FFFFFF; opacity: .8"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; min-width: 0">
+          <div style="font-size: 15px; font-weight: 700; word-break: break-all">clip_0423.mp4</div>
+          <div style="font-size: 12px; color: #A6AFC0">1080×1920 · 0:52 · 38 MB</div>
+          <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #A6AFC0"><span style="width: 12px; height: 12px; border-radius: 3px; border: 1.5px dashed #DDFF45"></span>ที่วางกราฟิก</div>
+          <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #A6AFC0"><span style="width: 12px; height: 12px; border-radius: 3px; border: 1.5px dashed #FFFFFF"></span>ที่วางซับ</div>
+          <button onClick="{{reset}}" style="margin-top: auto; align-self: flex-start; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid #3A4458; background: transparent; color: #F2F4F8; font-size: 13px; font-weight: 600; cursor: pointer">เปลี่ยนคลิป</button>
+        </div>
+      </div>
+
+      <div style="font-size: 15px; font-weight: 700; padding-top: 4px">ผลตรวจคลิป</div>
+      <div style="display: flex; flex-direction: column; border-radius: 16px; background: #151A23; border: 1px solid #2A3242; overflow: hidden">
+        <sc-for list="{{checks}}" as="c" hint-placeholder-count="4">
+          <div style="display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #222A38">
+            <div style="{{c.dotStyle}}">
+              <sc-if value="{{c.ok}}" hint-placeholder-val="{{ true }}">
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0B0E14" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg>
+              </sc-if>
+              <sc-if value="{{c.warn}}" hint-placeholder-val="{{ false }}">
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0B0E14" stroke-width="3.2" stroke-linecap="round"><path d="M12 6v8M12 18v.5"></path></svg>
+              </sc-if>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+              <div style="font-size: 14px; font-weight: 600">{{c.label}}</div>
+              <div style="font-size: 12px; color: #A6AFC0; line-height: 1.5">{{c.detail}}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <button onClick="{{toggleEdge}}" aria-pressed="{{edge}}" style="align-self: flex-start; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px dashed #3A4458; background: transparent; color: #A6AFC0; font-size: 13px; font-weight: 600; cursor: pointer">{{edgeLabel}}</button>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px; border-radius: 16px; background: #1C2330">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <div style="font-size: 13px; color: #A6AFC0">คลิปนี้ใช้</div>
+          <div style="font-size: 22px; font-weight: 700">100 เครดิต</div>
+        </div>
+        <div style="font-size: 12px; color: #A6AFC0; text-align: right; line-height: 1.5">คงเหลือหลังสร้าง<br><span style="color: #F2F4F8; font-weight: 600; font-size: 14px">4,800</span></div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 16px 20px; background: #0F131B; border-top: 1px solid #1F2633; display: flex; flex-direction: column; gap: 6px">
+    <sc-if value="{{ready}}" hint-placeholder-val="{{ false }}">
+      <a href="Step2.dc.html" style="min-height: 52px; border-radius: 14px; background: #DDFF45; color: #0B0E14; font-size: 16px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center">ถัดไป: เลือกสไตล์</a>
+    </sc-if>
+    <sc-if value="{{notReady}}" hint-placeholder-val="{{ true }}">
+      <button disabled style="min-height: 52px; border: none; border-radius: 14px; background: #1C2330; color: #7C869A; font-size: 16px; font-weight: 700">ถัดไป: เลือกสไตล์</button>
+    </sc-if>
+    <div style="font-size: 12px; color: #7C869A; text-align: center">ยังไม่หักเครดิตจนกว่าจะกดยืนยันในขั้นที่ 5</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+const OK = 'flex: none; width: 24px; height: 24px; border-radius: 50%; background: #4ADE80; display: flex; align-items: center; justify-content: center; margin-top: 1px';
+const WARN = 'flex: none; width: 24px; height: 24px; border-radius: 50%; background: #FFB547; display: flex; align-items: center; justify-content: center; margin-top: 1px';
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { phase: 'empty', pct: 0, edge: false };
+  }
+  componentWillUnmount() { if (this.timer) clearInterval(this.timer); }
+  renderVals() {
+    const s = this.state;
+    const face = s.edge
+      ? { ok: false, warn: true, label: 'หัวชิดขอบบนจอ', detail: 'ไม่มีที่ว่างเหนือหัว ระบบจะวางกราฟิกไว้ระดับอกแทน และขยับซับลงเล็กน้อย ไม่บังหน้า' }
+      : { ok: true, warn: false, label: 'เจอหน้าคนพูด', detail: 'มีที่ว่างเหนือหัว วางกราฟิกด้านบนได้' };
+    const checks = [
+      { ok: true, warn: false, label: 'แนวตั้ง 9:16', detail: '1080×1920 พร้อมใช้' },
+      { ok: true, warn: false, label: 'ยาว 0:52 นาที', detail: 'ไม่เกิน 60 วินาที ใช้ 100 เครดิต (61–90 วินาที ใช้ 140)' },
+      face,
+      { ok: true, warn: false, label: 'เสียงพูดชัด', detail: 'ถอดเป็นซับภาษาไทยได้ ให้ตรวจคำในขั้นที่ 4' },
+    ].map((c) => Object.assign({ dotStyle: c.ok ? OK : WARN }, c));
+    const notes = ['กำลังอัปโหลด', 'กำลังอัปโหลด', 'ตรวจขนาดและความยาว', 'หาหน้าคนพูด', 'ฟังเสียงพูด'];
+    return {
+      empty: s.phase === 'empty', uploading: s.phase === 'uploading', ready: s.phase === 'ready', notReady: s.phase !== 'ready',
+      pct: s.pct, phaseNote: notes[Math.min(4, Math.floor(s.pct / 20))],
+      barStyle: 'width: ' + s.pct + '%; height: 8px; border-radius: 4px; background: #DDFF45',
+      checks, edge: s.edge,
+      edgeLabel: s.edge ? 'ดูกรณีปกติ' : 'ลองดูกรณีหัวชิดขอบบน',
+      imgStyle: 'width: 135px; height: 240px; object-fit: cover; display: block;' + (s.edge ? ' transform: translateY(-52px) scale(1.3)' : ''),
+      zoneStyle: 'position: absolute; left: 14px; right: 26px; height: 46px; border-radius: 8px; border: 1.5px dashed #DDFF45; background: rgba(221,255,69,.12); top: ' + (s.edge ? '124px' : '12px'),
+      pick: () => {
+        if (this.timer) return;
+        this.setState({ phase: 'uploading', pct: 0 });
+        this.timer = setInterval(() => {
+          const n = this.state.pct + 5;
+          if (n >= 100) { clearInterval(this.timer); this.timer = null; this.setState({ phase: 'ready', pct: 100 }); }
+          else this.setState({ pct: n });
+        }, 90);
+      },
+      reset: () => this.setState({ phase: 'empty', pct: 0, edge: false }),
+      toggleEdge: () => this.setState({ edge: !s.edge }),
+    };
+  }
+}
+</script>
+</body>
+</html>

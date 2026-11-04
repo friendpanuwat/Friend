@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>CutPack ตรวจซับ</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&amp;family=Mitr:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0E14}
+a{color:#DDFF45}a:hover{color:#EEFF8A}
+button{font-family:inherit}
+input{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #0B0E14; font-family: Anuphan, sans-serif; color: #F2F4F8; display: flex; flex-direction: column">
+
+  <div style="display: flex; align-items: center; gap: 8px; padding: 12px 16px 8px 8px">
+    <a href="Step3.dc.html" aria-label="ย้อนกลับ" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F2F4F8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+    </a>
+    <div style="display: flex; flex-direction: column; gap: 2px; flex: 1">
+      <div style="font-size: 18px; font-weight: 700">ตรวจซับ</div>
+      <div style="font-size: 12px; color: #A6AFC0">ขั้นที่ 4 จาก 7 · แก้คำผิดก่อนสร้างคลิป</div>
+    </div>
+    <div style="font-size: 13px; font-weight: 600; color: #F2F4F8; background: #1C2330; border-radius: 999px; padding: 6px 12px">4/7</div>
+  </div>
+  <div style="height: 4px; background: #1C2330"><div style="width: 57%; height: 4px; background: #DDFF45"></div></div>
+
+  <div style="height: 280px; background: #05070B; display: flex; align-items: center; justify-content: center; gap: 16px; position: relative; flex: none">
+    <div style="width: 158px; height: 280px; position: relative; overflow: hidden">
+      <img src="/_blob/d41ed54bb072032ccf832d1664b6d490" alt="ภาพตัวอย่างคลิป" style="width: 158px; height: 280px; object-fit: cover; display: block">
+      <div style="position: absolute; left: 0; right: 0; top: 186px; display: flex; flex-direction: column; align-items: center; gap: 2px">
+        <div style="font-family: Mitr, sans-serif; font-weight: 500; font-size: 11px; color: #FFFFFF; text-shadow: 0 1px 3px rgba(0,0,0,.7)">{{preview.lead}}</div>
+        <div style="font-family: Mitr, sans-serif; font-weight: 600; font-size: 23px; line-height: 1.1; color: #DDFF45; text-shadow: 0 2px 6px rgba(0,0,0,.55)">{{preview.big}}</div>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 120px">
+      <button aria-label="{{playLabel}}" onClick="{{togglePlay}}" style="width: 56px; height: 56px; border-radius: 50%; border: none; background: #DDFF45; display: flex; align-items: center; justify-content: center; cursor: pointer">
+        <sc-if value="{{playing}}" hint-placeholder-val="{{ false }}">
+          <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="#0B0E14"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg>
+        </sc-if>
+        <sc-if value="{{paused}}" hint-placeholder-val="{{ true }}">
+          <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="#0B0E14"><path d="M8 5v14l11-7z"></path></svg>
+        </sc-if>
+      </button>
+      <div style="font-size: 13px; color: #C9CEDA; font-variant-numeric: tabular-nums">{{timeLabel}} / 00:52</div>
+      <div style="font-size: 11px; color: #7C869A; text-align: center; line-height: 1.4">คำสุดท้ายของแต่ละท่อน<br>ขึ้นเป็นคำใหญ่</div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 8px; padding: 12px 16px 4px; overflow-x: auto; flex: none">
+    <button onClick="{{openFind}}" style="flex: none; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid #3A4458; background: #151A23; color: #F2F4F8; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F2F4F8" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      แทนที่ทั้งคลิป
+    </button>
+    <button onClick="{{toggleFillers}}" aria-pressed="{{fillers}}" style="{{fillerChipStyle}}">{{fillerLabel}}</button>
+    <div style="flex: none; min-height: 40px; padding: 0 14px; border-radius: 999px; background: #2A2112; color: #FFCB80; font-size: 14px; font-weight: 600; display: flex; align-items: center">ควรตรวจ {{flagCount}} คำ</div>
+  </div>
+
+  <div style="flex: 1; overflow-y: auto; padding: 8px 16px 120px; display: flex; flex-direction: column; gap: 10px">
+    <sc-for list="{{lines}}" as="line" hint-placeholder-count="6">
+      <div style="{{line.cardStyle}}">
+        <button onClick="{{line.select}}" style="flex: 1; min-width: 0; border: none; background: transparent; text-align: left; padding: 0; cursor: pointer; display: flex; flex-direction: column; gap: 8px; color: #F2F4F8">
+          <span style="font-size: 12px; font-weight: 600; color: #A6AFC0; font-variant-numeric: tabular-nums">{{line.time}}</span>
+          <span style="display: flex; flex-wrap: wrap; gap: 6px">
+            <sc-for list="{{line.chunks}}" as="ch" hint-placeholder-count="3">
+              <span style="display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 4px 6px; border: 1px solid #262E3D; border-radius: 10px; background: #0F131B">
+                <sc-for list="{{ch.words}}" as="w" hint-placeholder-count="2">
+                  <span style="{{w.style}}">{{w.text}}</span>
+                </sc-for>
+              </span>
+            </sc-for>
+          </span>
+        </button>
+        <button aria-label="แก้บรรทัด {{line.time}}" onClick="{{line.edit}}" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid #3A4458; background: #1C2330; display: flex; align-items: center; justify-content: center; cursor: pointer">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F2F4F8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
+        </button>
+      </div>
+    </sc-for>
+    <div style="font-size: 12px; color: #7C869A; text-align: center; padding: 4px 0">ตัวอย่างแสดง 9 บรรทัดแรกจาก 16 บรรทัด</div>
+  </div>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 16px 20px; background: #0F131B; border-top: 1px solid #1F2633; display: flex; flex-direction: column; gap: 6px">
+    <button onClick="{{openConfirm}}" style="min-height: 52px; border: none; border-radius: 14px; background: #DDFF45; color: #0B0E14; font-size: 16px; font-weight: 700; cursor: pointer">ยืนยันซับ</button>
+    <div style="font-size: 12px; color: #7C869A; text-align: center">ซับที่ยืนยันแล้วคือข้อความบนจอ AI จะไม่เปลี่ยนคำ</div>
+  </div>
+
+  <sc-if value="{{editing}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; background: rgba(0,0,0,.6); display: flex; flex-direction: column; justify-content: flex-end">
+      <div style="background: #151A23; border-top: 1px solid #2A3242; border-radius: 22px 22px 0 0; padding: 18px 16px 20px; display: flex; flex-direction: column; gap: 12px; max-height: 620px; overflow-y: auto">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <div style="font-size: 17px; font-weight: 700">แก้บรรทัด {{editTime}}</div>
+          <div style="font-size: 12px; color: #A6AFC0">1 ท่อน = ขึ้นจอ 1 ครั้ง</div>
+        </div>
+        <sc-for list="{{draftRows}}" as="d" hint-placeholder-count="3">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <label for="{{d.id}}" style="font-size: 12px; font-weight: 600; color: #A6AFC0">ท่อนที่ {{d.n}} · คำใหญ่: {{d.big}}</label>
+            <div style="display: flex; gap: 8px; align-items: center">
+              <input id="{{d.id}}" value="{{d.value}}" onChange="{{d.change}}" style="flex: 1; min-width: 0; height: 44px; box-sizing: border-box; border: 1px solid #3A4458; border-radius: 12px; padding: 0 12px; font-size: 16px; color: #F2F4F8; background: #0F131B">
+              <button aria-label="ลบท่อนที่ {{d.n}}" onClick="{{d.remove}}" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid #3A4458; background: #1C2330; cursor: pointer; display: flex; align-items: center; justify-content: center">
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A6AFC0" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+              </button>
+            </div>
+          </div>
+        </sc-for>
+        <button onClick="{{addChunk}}" style="align-self: flex-start; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px dashed #5A6478; background: transparent; color: #F2F4F8; font-size: 14px; font-weight: 600; cursor: pointer">+ เพิ่มท่อน</button>
+        <div style="font-size: 12px; color: #A6AFC0; line-height: 1.5">ท่อนละไม่เกินราว 12 ตัวอักษร อ่านทันบนมือถือ คำสีส้มคือคำที่ระบบไม่แน่ใจ</div>
+        <div style="display: flex; gap: 10px">
+          <button onClick="{{cancelEdit}}" style="flex: 1; min-height: 48px; border-radius: 14px; border: 1px solid #3A4458; background: transparent; color: #F2F4F8; font-size: 15px; font-weight: 600; cursor: pointer">ยกเลิก</button>
+          <button onClick="{{saveEdit}}" style="flex: 1; min-height: 48px; border-radius: 14px; border: none; background: #DDFF45; color: #0B0E14; font-size: 15px; font-weight: 700; cursor: pointer">บันทึก</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{findOpen}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; background: rgba(0,0,0,.6); display: flex; flex-direction: column; justify-content: flex-end">
+      <div style="background: #151A23; border-top: 1px solid #2A3242; border-radius: 22px 22px 0 0; padding: 18px 16px 20px; display: flex; flex-direction: column; gap: 12px">
+        <div style="font-size: 17px; font-weight: 700">แทนที่ทั้งคลิป</div>
+        <div style="font-size: 13px; color: #A6AFC0; line-height: 1.5">เหมาะกับชื่อแบรนด์หรือคำอังกฤษที่ถอดเพี้ยนซ้ำหลายจุด</div>
+        <label for="find" style="font-size: 12px; font-weight: 600; color: #A6AFC0">คำที่ถอดผิด</label>
+        <input id="find" value="{{find}}" onChange="{{changeFind}}" style="height: 44px; box-sizing: border-box; border: 1px solid #3A4458; border-radius: 12px; padding: 0 12px; font-size: 16px; color: #F2F4F8; background: #0F131B">
+        <label for="repl" style="font-size: 12px; font-weight: 600; color: #A6AFC0">แก้เป็น</label>
+        <input id="repl" value="{{repl}}" onChange="{{changeRepl}}" style="height: 44px; box-sizing: border-box; border: 1px solid #3A4458; border-radius: 12px; padding: 0 12px; font-size: 16px; color: #F2F4F8; background: #0F131B">
+        <div style="font-size: 13px; font-weight: 600">พบ {{findCount}} จุด</div>
+        <div style="display: flex; gap: 10px">
+          <button onClick="{{closeFind}}" style="flex: 1; min-height: 48px; border-radius: 14px; border: 1px solid #3A4458; background: transparent; color: #F2F4F8; font-size: 15px; font-weight: 600; cursor: pointer">ปิด</button>
+          <button onClick="{{replaceAll}}" style="flex: 1; min-height: 48px; border-radius: 14px; border: none; background: #DDFF45; color: #0B0E14; font-size: 15px; font-weight: 700; cursor: pointer">แทนที่ทั้งหมด</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{confirmOpen}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; background: rgba(0,0,0,.7); display: flex; align-items: center; justify-content: center; padding: 24px">
+      <div style="background: #151A23; border: 1px solid #2A3242; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 12px; width: 100%; box-sizing: border-box">
+        <div style="font-size: 18px; font-weight: 700">ยืนยันซับนี้?</div>
+        <sc-if value="{{hasFlags}}" hint-placeholder-val="{{ true }}">
+          <div style="font-size: 14px; color: #FFCB80; background: #2A2112; border-radius: 12px; padding: 10px 12px; line-height: 1.5">ยังมีคำที่ควรตรวจ {{flagCount}} คำ (สีส้ม) ถ้าถูกอยู่แล้วยืนยันได้เลย</div>
+        </sc-if>
+        <div style="font-size: 14px; color: #C9CEDA; line-height: 1.6">หลังยืนยัน AI จะวางฉากตามซับนี้ และแก้ซับไม่ได้อีก</div>
+        <div style="display: flex; gap: 10px">
+          <button onClick="{{closeConfirm}}" style="flex: 1; min-height: 48px; border-radius: 14px; border: 1px solid #3A4458; background: transparent; color: #F2F4F8; font-size: 15px; font-weight: 600; cursor: pointer">กลับไปแก้</button>
+          <a href="Step5.dc.html" style="flex: 1; min-height: 48px; border-radius: 14px; background: #DDFF45; color: #0B0E14; font-size: 15px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center">ยืนยัน</a>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+const RAW = [
+  { t: 0.0, chunks: ['ต่อไปอ่ะ เพื่อไหน', 'อ่ะ ที่ชื่อว่า', 'CK Fasอะ'] },
+  { t: 4.3, chunks: ['ต่อไป อย่าไป', 'เรียกมันว่า', 'CK Fasw นะ'] },
+  { t: 6.9, chunks: ['ต่อไป ให้เรียก', 'มาว่า', 'CKwork Fast นะ'] },
+  { t: 9.0, chunks: ['เพราะล่าสุด อะ', 'เดียไปบอก CK', 'ว่า Pod Folio'] },
+  { t: 12.4, chunks: ['ทุกคนเนี่ย', 'สวยมากเลย', 'ทำไมมันไม่', 'เพิ่มไอ้ตัว'] },
+  { t: 15.1, chunks: ['แปะลิงก์', 'ไปด้วยวะ'] },
+  { t: 16.2, chunks: ['จะได้ใช้ไอ้', 'Podfolio', 'สวยแบบเนี้ย', 'แทนลิงก์ทรี', 'ไปเลย'] },
+  { t: 20.8, chunks: ['CK ก็', 'รับฟัง'] },
+  { t: 22.7, chunks: ['หลังจากนั้น', 'อาทิตย์นึงเนี่ย', 'วันเนี้ย ทักมาบอก', 'เรียบร้อยแล้ว'] },
+];
+const UNSURE = ['เพื่อไหน', 'Fasอะ', 'Fasw', 'มาว่า', 'CKwork', 'เดียไปบอก', 'Pod', 'Folio', 'Podfolio', 'แทนลิงก์ทรี'];
+const FILLERS = ['อ่ะ', 'อะ', 'นะ', 'วะ', 'เนี่ย'];
+const fresh = () => RAW.map((l) => ({ t: l.t, chunks: l.chunks.map((c) => c.split(' ')), checked: false }));
+const mmss = (t) => { const s = Math.floor(t); return '00:' + (s < 10 ? '0' : '') + s; };
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { lines: fresh(), sel: 0, chunk: 0, playing: false, editing: -1, draft: [], fillers: true,
+                   findOpen: false, find: 'Podfolio', repl: 'Portfolio', confirmOpen: false };
+  }
+  componentWillUnmount() { if (this.timer) clearInterval(this.timer); }
+  visible(words) { return this.state.fillers ? words.filter((w) => FILLERS.indexOf(w) < 0) : words; }
+  step() {
+    const { lines, sel, chunk } = this.state;
+    if (chunk + 1 < lines[sel].chunks.length) this.setState({ chunk: chunk + 1 });
+    else this.setState({ sel: (sel + 1) % lines.length, chunk: 0 });
+  }
+  renderVals() {
+    const s = this.state;
+    let flagCount = 0;
+    const lines = s.lines.map((line, i) => {
+      const chunks = line.chunks.map((words) => {
+        const shown = this.visible(words);
+        const bigWord = shown[shown.length - 1];
+        return { words: words.map((w) => {
+          const filler = s.fillers && FILLERS.indexOf(w) >= 0;
+          const unsure = !line.checked && UNSURE.indexOf(w) >= 0;
+          if (unsure) flagCount += 1;
+          const big = !filler && w === bigWord;
+          let style = 'font-size: 15px; line-height: 1.5; padding: 0 3px; border-radius: 6px; color: #F2F4F8;';
+          if (big) style += ' background: #DDFF45; color: #0B0E14; font-weight: 700;';
+          if (unsure) style += ' background: transparent; color: #FFB547; border-bottom: 2px dotted #FFB547; border-radius: 0;';
+          if (filler) style += ' color: #6B7487; text-decoration: line-through;';
+          return { text: w, style };
+        }) };
+      });
+      const selected = i === s.sel;
+      return {
+        time: mmss(line.t), chunks,
+        cardStyle: 'display: flex; gap: 10px; align-items: flex-start; background: #151A23; border-radius: 16px; padding: 12px; border: 2px solid ' + (selected ? '#DDFF45' : '#1F2633'),
+        select: () => this.setState({ sel: i, chunk: 0 }),
+        edit: () => this.setState({ editing: i, sel: i, chunk: 0, draft: line.chunks.map((w) => w.join(' ')) }),
+      };
+    });
+    const cur = s.lines[s.sel];
+    const shown = this.visible(cur.chunks[Math.min(s.chunk, cur.chunks.length - 1)]);
+    const draftRows = s.draft.map((value, k) => {
+      const ws = this.visible(value.trim().split(/\s+/).filter(Boolean));
+      return { id: 'chunk' + k, n: k + 1, value, big: ws[ws.length - 1] || '-',
+        change: (e) => { const d = s.draft.slice(); d[k] = e.target.value; this.setState({ draft: d }); },
+        remove: () => this.setState({ draft: s.draft.filter((_, j) => j !== k) }) };
+    });
+    let findCount = 0;
+    if (s.find) s.lines.forEach((l) => l.chunks.forEach((c) => { findCount += c.join(' ').split(s.find).length - 1; }));
+    return {
+      lines, flagCount, hasFlags: flagCount > 0, draftRows, findCount,
+      preview: { lead: shown.slice(0, -1).join(' '), big: shown[shown.length - 1] || '' },
+      playing: s.playing, paused: !s.playing, playLabel: s.playing ? 'หยุด' : 'เล่น', timeLabel: mmss(cur.t + s.chunk * 0.8),
+      fillers: s.fillers, fillerLabel: s.fillers ? 'ตัดคำลงท้าย: เปิด' : 'ตัดคำลงท้าย: ปิด',
+      fillerChipStyle: 'flex: none; min-height: 40px; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 600; cursor: pointer; ' +
+        (s.fillers ? 'border: 1px solid #DDFF45; background: #DDFF45; color: #0B0E14' : 'border: 1px solid #3A4458; background: #151A23; color: #F2F4F8'),
+      editing: s.editing >= 0, editTime: s.editing >= 0 ? mmss(s.lines[s.editing].t) : '', find: s.find, repl: s.repl,
+      findOpen: s.findOpen, confirmOpen: s.confirmOpen,
+      togglePlay: () => {
+        if (this.timer) { clearInterval(this.timer); this.timer = null; this.setState({ playing: false }); return; }
+        this.timer = setInterval(() => this.step(), 800); this.setState({ playing: true });
+      },
+      toggleFillers: () => this.setState({ fillers: !s.fillers }),
+      addChunk: () => this.setState({ draft: s.draft.concat(['']) }),
+      cancelEdit: () => this.setState({ editing: -1, draft: [] }),
+      saveEdit: () => {
+        const chunks = s.draft.map((v) => v.trim().split(/\s+/).filter(Boolean)).filter((c) => c.length);
+        const next = s.lines.slice();
+        next[s.editing] = { t: next[s.editing].t, chunks: chunks.length ? chunks : next[s.editing].chunks, checked: true };
+        this.setState({ lines: next, editing: -1, draft: [], chunk: 0 });
+      },
+      openFind: () => this.setState({ findOpen: true }), closeFind: () => this.setState({ findOpen: false }),
+      changeFind: (e) => this.setState({ find: e.target.value }), changeRepl: (e) => this.setState({ repl: e.target.value }),
+      replaceAll: () => {
+        if (!s.find) return;
+        const next = s.lines.map((l) => ({ t: l.t, checked: l.checked || l.chunks.some((c) => c.join(' ').indexOf(s.find) >= 0),
+          chunks: l.chunks.map((c) => c.join(' ').split(s.find).join(s.repl).split(/\s+/).filter(Boolean)) }));
+        this.setState({ lines: next, findOpen: false });
+      },
+      openConfirm: () => this.setState({ confirmOpen: true }), closeConfirm: () => this.setState({ confirmOpen: false }),
+    };
+  }
+}
+</script>
+</body>
+</html>
