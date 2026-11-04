@@ -86,7 +86,8 @@ PART('B07', 'fin1', {pack: FIN, code: 'FIN-P4', name: 'บัตรเครด�
   mv.pop(card, T.t0 + .05, 'scale(.7) rotate(-6deg)');
   const line = svg(740, 420, `<path d="${crack}" fill="none" stroke="${RED}" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>`, 'left:0;top:0', card);
   mv.draw(line.querySelector('path'), T.hit - .3, .3);
-  mv.slide(line, T.hit + .1, 'scaleY(1)', 'scaleY(0)');   // the crack line goes as the halves part (Friend 2026-11-04)
+  // Friend 2026-11-04: the crack line is simply gone the moment the halves part — no shrinking (a cut, set again on every seek)
+  HOOKS.push(t => { line.style.visibility = t >= T.hit ? 'hidden' : 'visible'; });
   mv.slide(L, T.hit, 'translate(0,0) rotate(0)', 'translate(-30px,14px) rotate(-3deg)');
   mv.slide(R, T.hit, 'translate(0,0) rotate(0)', 'translate(30px,-10px) rotate(3deg)');
   ripple(c, 470, 490, T.hit, 3.4, RED); snd('cross', T.hit - .1); snd('hit', T.hit);
