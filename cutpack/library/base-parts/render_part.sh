@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Render one base part as a short clip on Friend's sample clip: 0.4 s talking head → card (3 s) → 0.4 s talking head.
-# usage: render_part.sh <work_dir> <cat> <variant> <sample_index> <bg> <out_name> [preview_times]
+# usage: [SAMPLES=samples.json] render_part.sh <work_dir> <cat> <variant> <sample_index> <bg> <out_name> [preview_times]
 #   with preview_times: stills only (<work>/<out_name>/prev/*.jpg); without: <work>/out/<out_name>.mp4 + .jpg
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"; E="$(cd "$HERE/../../engine/core" && pwd)"
@@ -8,10 +8,11 @@ W="$(mkdir -p "$1" && cd "$1" && pwd)"; CAT=$2; V=$3; I=$4; BG=$5; NAME=$6; PREV
 export NODE_PATH="${NODE_PATH:-$(npm root -g)}"
 [ -d "$W/base/src_frames" ] || bash "$E/pipeline.sh" "$W/base" "$HERE/../sample-clip/character_talking.mp4" frames >/dev/null
 P="$W/$NAME"; rm -rf "$P"; mkdir -p "$P"; ln -sfn "$W/base/src_frames" "$P/src_frames"
-python3 - "$HERE/samples.json" "$CAT" "$V" "$I" "$BG" > "$P/timeline.js" <<'PY'
+python3 - "${SAMPLES:-$HERE/samples.json}" "$CAT" "$V" "$I" "$BG" > "$P/timeline.js" <<'PY'
 import json, sys
 f, cat, v, i, bg = sys.argv[1:]
-s = json.load(open(f))[cat][int(i)]
+d = json.load(open(f))
+s = d.get(f'{cat}.{v}', d.get(cat))[int(i)]   # pack items are keyed by part id (B01.biz1), base parts by category
 slots = dict(s['slots'], bg=bg, hit=s.get('hit', 1.5))
 print("cards([[0.4, 3.4]]);")
 print(f"part('{cat}', '{v}', 0.4, 3.4, {json.dumps(slots, ensure_ascii=False)});")

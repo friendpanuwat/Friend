@@ -19,7 +19,9 @@ SLOTS = {'KeySans': 'key_sans', 'KeySerif': 'key_serif', 'Lead': 'lead', 'CardSa
 def style_pack(style):
     d = os.path.join(ENGINE, 'styles', style)
     if not os.path.isdir(d): sys.exit(f'unknown style: {style}')
-    files = [os.path.join(d, 'motion.js')] + sorted(glob.glob(os.path.join(d, 'parts', '*.js'))) + sorted(glob.glob(os.path.join(d, 'widgets', '*.js')))
+    # packs/ = content-category packs (business, finance …): props that redraw a base part and hero parts of their own
+    files = [os.path.join(d, 'motion.js')] + sorted(glob.glob(os.path.join(d, 'parts', '*.js'))) + sorted(glob.glob(os.path.join(d, 'packs', '*.js'))) \
+        + sorted(glob.glob(os.path.join(d, 'widgets', '*.js')))
     return '\n'.join(f'/* ---- {os.path.relpath(f, ENGINE)} ---- */\n' + open(f).read() for f in files if os.path.exists(f))
 
 

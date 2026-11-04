@@ -12,7 +12,8 @@ const fs = require('fs'), path = require('path'), os = require('os'), { execFile
   await p.goto('file://' + path.join(tmp, 'scene.html'));
   const cat = await p.evaluate(() => {
     const strip = m => ({name: m.name, hit: m.hit, dur: m.dur, bgs: m.bgs, slots: m.slots});
-    const all = (reg, kind) => Object.entries(reg).flatMap(([c, vs]) => Object.entries(vs).map(([v, P]) => ({id: `${c}.${v}`, kind, ...strip(P.meta)})));
+    // a pack part (meta.pack) stays out until Friend has picked it in the gallery and it is wired into plan D
+    const all = (reg, kind) => Object.entries(reg).flatMap(([c, vs]) => Object.entries(vs).filter(([v, P]) => !P.meta.pack).map(([v, P]) => ({id: `${c}.${v}`, kind, ...strip(P.meta)})));
     return {cards: all(PARTS, 'card'), widgets: all(WPARTS, 'widget'), widgetSizes: WSIZE, widgetAt: WAT, camera: CAM, subtitleTop: SUBTOP, subtitleMax: SUBMAX, icons: Object.keys(ICONS).sort()};
   });
   await b.close(); fs.rmSync(tmp, {recursive: true});

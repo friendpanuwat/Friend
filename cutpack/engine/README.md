@@ -11,6 +11,7 @@
 | `icons/` | `lucide.json` ไอคอน Lucide ทั้งหมด 1,539 แบบ จาก `lucide-static` 0.460.0 บน npm ดึงมาเมื่อ 2026-11-03 พร้อม `LICENSE-lucide.txt` (ISC) |
 | `styles/<สไตล์>/motion.js` | ชุดท่าเคลื่อนไหวที่ล็อกของสไตล์นั้น (`MOTION`, `SOUND`, `mv.*`) ทะเบียนชิ้นส่วน (`PART`, `part`) และสีที่อ่านออกบนพื้นแต่ละสี (`ON`) |
 | `styles/<สไตล์>/parts/*.js` | ชิ้นส่วนในคลัง ไฟล์ละหมวด เช่น `B01.js` มีแบบ v1–v4 |
+| `styles/<สไตล์>/packs/*.js` | ชุดเฉพาะหมวดเนื้อหา (เช่น `biz.js` ธุรกิจ) โหลดหลังชิ้นฐาน ของประกอบเป็นแบบหนึ่งของชิ้นฐาน ชิ้นเด่นเป็นหมวดใหม่ ทุกชิ้นมี `pack` ใน meta ซึ่ง `plan/catalog.js` ข้ามไว้จนกว่า Friend จะเลือก ดู `../library/topic-packs/README.md` |
 | `styles/<สไตล์>/widgets/*.js` | วิดเจ็ต overlay (`WIDGET`, `widgetAt`) หมวดละ 2 แบบ แต่ละแบบมี 2 ขนาด |
 | `plan/` | แผนฉาก JSON และการตรวจแผน: `catalog.js` (สร้าง `catalog.json` จากโค้ด), `plan2timeline.py`, `faces.py`, `validate.py`, `render_check.py`, `fallback.py`, คำขอให้ AI วางแผน (`prompt.py`, `prompt/`), `assemble.py`, ตัวรัน `plan_d.py` และชุดทดสอบ `tests/` ดู `plan/PLAN.md` |
 | `models/` | โมเดลหาหน้า YuNet (MIT) สำหรับ `plan/faces.py` |

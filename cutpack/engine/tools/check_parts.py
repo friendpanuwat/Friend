@@ -16,7 +16,7 @@ BANNED = [(r'(?<![\w.])A\(', 'A( — use mv.*'), (r'\.animate\(', '.animate( —
 def main():
     style = sys.argv[1] if len(sys.argv) > 1 else 'editorial'
     bad, n = [], 0
-    files = [os.path.join(ENGINE, 'styles', style, sub, f) for sub in ('parts', 'widgets') if os.path.isdir(os.path.join(ENGINE, 'styles', style, sub))
+    files = [os.path.join(ENGINE, 'styles', style, sub, f) for sub in ('parts', 'packs', 'widgets') if os.path.isdir(os.path.join(ENGINE, 'styles', style, sub))
              for f in sorted(os.listdir(os.path.join(ENGINE, 'styles', style, sub))) if f.endswith('.js')]
     for path in files:
         f = os.path.relpath(path, os.path.join(ENGINE, 'styles', style))
