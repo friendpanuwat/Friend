@@ -9,10 +9,11 @@ W="$(mkdir -p "$1" && cd "$1" && pwd)"; CAT=$2; V=$3; I=$4; K=$5; NAME=$6; PREV=
 export NODE_PATH="${NODE_PATH:-$(npm root -g)}"
 [ -d "$W/base/src_frames" ] || bash "$E/pipeline.sh" "$W/base" "$HERE/../sample-clip/character_talking.mp4" frames >/dev/null
 P="$W/$NAME"; rm -rf "$P"; mkdir -p "$P"; ln -sfn "$W/base/src_frames" "$P/src_frames"
-python3 - "$HERE/../base-parts/samples.json" "$CAT" "$V" "$I" "$K" > "$P/timeline.js" <<'PY'
+python3 - "${SAMPLES:-$HERE/../base-parts/samples.json}" "$CAT" "$V" "$I" "$K" > "$P/timeline.js" <<'PY'
 import json, sys
 f, cat, v, i, k = sys.argv[1:]
-s = json.load(open(f))[cat][int(i)]
+d = json.load(open(f))
+s = d.get(f'{cat}.{v}', d.get(cat))[int(i)]   # pack items are keyed by part id (B01.biz1), base widgets by category
 slots = dict(s['slots'], hit=1.5)
 say, key = s['say'], s['slots'].get('key')
 # the skill's subtitle: the sentence in 3–4 short chunks, each small lead words + one big word (engine subtitle())

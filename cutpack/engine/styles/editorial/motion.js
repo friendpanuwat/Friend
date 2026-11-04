@@ -153,8 +153,8 @@ function widgetAt(cat, v, kind, t0, t1, opts) {
   const vis = div(short ? `left:18px;top:18px;width:${S}px;height:${S}px` : `left:15px;top:15px;width:${S}px;height:${S}px`, w);
   const T = {t0, t1, hit, kind};
   if (!P.meta.full) {
-    const tb = div(short ? `left:${S + 40}px;top:0;width:${L.W - S - 64}px;height:${L.H}px;display:flex;flex-direction:column;justify-content:center;gap:4px`
-                         : `left:14px;top:${S + 28}px;width:${L.W - 28}px;height:${L.H - S - 44}px;display:flex;flex-direction:column;justify-content:flex-start;gap:6px`, w);
+    const tb = div(short ? `left:${S + 40}px;top:0;width:${L.W - S - 64}px;height:${L.H}px;display:flex;flex-direction:column;justify-content:center;gap:12px`
+                         : `left:14px;top:${S + 28}px;width:${L.W - 28}px;height:${L.H - S - 44}px;display:flex;flex-direction:column;justify-content:flex-start;gap:12px`, w);   // 12 px: the big word's upper marks (ซื้อ) touched the lead line at 4–6 px (found 2026-11-04)
     const lw = s.wlead ?? s.lead, kw = s.wkey ?? s.key;
     if (lw) { const l = div(`position:relative;font-family:CardSans;font-size:${short ? 34 : 30}px;line-height:1.25;color:${NAVY};opacity:0;white-space:nowrap`, tb); l.textContent = lw; fitW(l, short ? L.W - S - 64 : L.W - 28);   /* never break a Thai word: shrink instead */ mv.lead(l, t0 + .2); }
     if (kw) { const k = div(`position:relative;align-self:flex-start;font-family:KeySans;font-size:${short ? 58 : 44}px;line-height:1.15;letter-spacing:-1px;color:${INK};background:${ACC};border-radius:12px;padding:0 .14em .04em;opacity:0;white-space:nowrap`, tb); k.textContent = kw; fitW(k, short ? L.W - S - 70 : L.W - 36); mv.key(k, hit); }
