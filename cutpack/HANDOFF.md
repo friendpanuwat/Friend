@@ -45,8 +45,11 @@
 1. ~~ผลการเลือกชิ้นฐาน~~ ได้แล้ว: เอาครบ 15 หมวด (ดู `library/base-list/README.md`) ที่เดิมอ่านด้วย `ArtifactData` `list` ที่ collection `base` ของหน้า base-list ส่วนแกลเลอรี 26 ชิ้นไม่ต้องเลือกแล้ว (Friend เห็นว่าเจาะจงกับคลิปของตัวเองเกินไป) ถ้าต้องอ่านแกลเลอรีเก่า อ่านด้วย `ArtifactData` `list` ที่ collection `picks` ของ URL ข้างบน แต่ละ document มี id เป็นชื่อชิ้นส่วน เช่น `C2` หรือ `W6` และเก็บค่า `{choice: keep|unsure|drop|null, note}`
 2. ~~ผลการเลือกแบบชิ้นฐาน~~ ได้ครบทั้งสองรอบแล้วและแก้ตามความเห็นแล้ว ชิ้นฐาน editorial มี 56 แบบ (ดู `library/base-parts/README.md`) ถ้า Friend ให้ความเห็นเพิ่ม อ่านด้วย `ArtifactData` `list` ที่ collection `variants` ของหน้า https://claude.ai/artifact/T3uL5XmH2kW3qDhun8fsTT (รอบแรก) และ https://claude.ai/artifact/M7kKYWCsUVvn1uM8JmPUb4 (รอบสอง)
 3. ~~ผลการเลือกวิดเจ็ต overlay~~ ได้แล้ว: เก็บ 29 จาก 30 แบบ หมายเหตุแก้แล้ว เหลือ B01-v2 ที่ยังไม่ได้กด (ดู `library/widgets/README.md`) อ่านซ้ำได้ด้วย `ArtifactData` `list` ที่ collection `variants` ของ https://claude.ai/artifact/2hSrmqkhJdryvRzei7Zh6R
-4. **คลิปจริง 20–30 คลิป** และ **คีย์ API** ที่ใส่ในตั้งค่า environment ได้แก่ `ANTHROPIC_API_KEY`, `GROQ_API_KEY` และ `OPENAI_API_KEY` ถ้าจะใช้เทียบการถอดเสียง
-5. เรื่องที่ยังไม่ได้ตัดสิน 4 ข้อใน `DECISIONS.md` ข้อ 9 (ฉากที่ AI เขียนเอง, Kimi และตัวถอดเสียง ตัดสินแล้ว 2026-11-04)
+4. **คีย์ `ANTHROPIC_API_KEY`** ใส่ในตั้งค่า environment แล้วเปิด session ใหม่ (แนะนำเติมเงินเริ่มต้นราว 500 บาท ไม่ต้องใช้คีย์ Groq หรือ OpenAI แล้ว เพราะใช้ Typhoon บนเครื่องเราเอง)
+5. **คลิปดิบที่มีเสียงพูด 20–30 คลิป** ยังไม่ตัดต่อ ไม่มีซับ ไม่มีลายน้ำ (คลิปจริงคลิปแรกเป็นคลิป TikTok ที่ตัดต่อแล้ว ซับเดิมจึงซ้อนกับซับของเรา)
+6. **ความเห็นต่อคลิปจริงที่เรนเดอร์ทั้งสองสไตล์** (`library/real-test/real1/`) และ **ต่อ mockup หน้าแก้ซับ** https://claude.ai/artifact/1Cn4eKCgufq8xEs8szjtkk
+7. **ตัดสิน:** วิธีบีบอัดวิดีโอ (DECISIONS ข้อ 9 เรื่องที่ 3 ส่งคลิปเทียบแล้ว), วิดเจ็ต B01-v2 เก็บหรือตัด, หมวดเนื้อหา 3–4 หมวดสำหรับชุดเฉพาะหมวด ส่วนเรื่องที่ 5–7 ในข้อ 9 รอผลคลิปจริงได้
+8. **ก่อนเปิดขาย:** อ่านข้อตกลงเชิงพาณิชย์ของ OpenTyphoon และลองหน่วยความจำของตัวถอดเสียงบนเครื่อง CX23
 
 ## งานถัดไป (ทุกข้อต้องเสนอลำดับให้ Friend ยืนยันก่อนเริ่ม)
 
