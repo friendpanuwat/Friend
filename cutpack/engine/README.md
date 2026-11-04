@@ -12,7 +12,7 @@
 | `styles/<สไตล์>/motion.js` | ชุดท่าเคลื่อนไหวที่ล็อกของสไตล์นั้น (`MOTION`, `SOUND`, `mv.*`) ทะเบียนชิ้นส่วน (`PART`, `part`) และสีที่อ่านออกบนพื้นแต่ละสี (`ON`) |
 | `styles/<สไตล์>/parts/*.js` | ชิ้นส่วนในคลัง ไฟล์ละหมวด เช่น `B01.js` มีแบบ v1–v4 |
 | `styles/<สไตล์>/widgets/*.js` | วิดเจ็ต overlay (`WIDGET`, `widgetAt`) หมวดละ 2 แบบ แต่ละแบบมี 2 ขนาด |
-| `plan/` | แผนฉาก JSON และการตรวจแผน: `catalog.js` (สร้าง `catalog.json` จากโค้ด), `plan2timeline.py`, `faces.py`, `validate.py`, `render_check.py`, `fallback.py` และ `tests/` ดู `plan/PLAN.md` |
+| `plan/` | แผนฉาก JSON และการตรวจแผน: `catalog.js` (สร้าง `catalog.json` จากโค้ด), `plan2timeline.py`, `faces.py`, `validate.py`, `render_check.py`, `fallback.py`, คำขอให้ AI วางแผน (`prompt.py`, `prompt/`), `assemble.py`, ตัวรัน `plan_d.py` และชุดทดสอบ `tests/` ดู `plan/PLAN.md` |
 | `models/` | โมเดลหาหน้า YuNet (MIT) สำหรับ `plan/faces.py` |
 | `requirements.txt` | แพ็กเกจ Python ที่ต้องติดตั้ง (`opencv-python-headless`, `numpy`) |
 | `tools/check_parts.py` | ตรวจว่าชิ้นส่วนไม่สร้างท่าเคลื่อนไหวเอง (ห้าม `A(`, `.animate(`, `cubic-bezier`) ไม่สุ่ม (ห้าม `Math.random` และเวลาเครื่อง) และทุกชิ้นประกาศ `name`, `bgs`, `slots`, `dur`, `hit` |
