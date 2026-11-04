@@ -22,15 +22,19 @@ MODEL, EFFORT = 'claude-sonnet-5-5', 'low'
 KIND = {'editorial': 'card', 'overlay': 'widget'}
 
 
+def read(*path):
+    with open(os.path.join(HERE, *path)) as f: return f.read()
+
+
 def load_catalog():
-    return json.load(open(os.path.join(HERE, 'catalog.json')))
+    return json.loads(read('catalog.json'))
 
 
 def slot_notes():
     """{cat: {slot: comment}} from the `// comments` in each category's *_SLOTS block in parts/*.js (one source of truth)."""
     notes = {}
     for f in sorted(glob.glob(os.path.join(STYLES, 'parts', 'B*.js'))):
-        src = open(f).read()
+        with open(f) as fh: src = fh.read()
         m = re.search(r'const (B\d\d)_SLOTS = \{\n(.*?)\n\};', src, re.S)
         if not m: continue
         cat = notes.setdefault(m.group(1), {})
@@ -52,7 +56,7 @@ def slot_sig(name, spec, note=''):
 
 def library_text(style, cat):
     """The library of one style, grouped by category: what the category is for, its slots, then each variant."""
-    cats = json.load(open(os.path.join(HERE, 'prompt', 'categories.json')))['categories']
+    cats = json.loads(read('prompt', 'categories.json'))['categories']
     notes, parts = slot_notes(), cat['cards' if style == 'editorial' else 'widgets']
     out = [f"# Library ({'full-screen cards' if style == 'editorial' else 'overlay widgets'}, {len(parts)} parts)",
            "Each category: what sentence it is for, its slots (`!` required, `≤N` letter limit), then its parts:",
@@ -113,8 +117,8 @@ def clip_text(inp, style):
 
 
 def example_text(style):
-    inp = json.load(open(os.path.join(HERE, 'examples', 'test18_input.json')))
-    ans = json.load(open(os.path.join(HERE, 'examples', f'test18_{style}.answer.json')))
+    inp = json.loads(read('examples', 'test18_input.json'))
+    ans = json.loads(read('examples', f'test18_{style}.answer.json'))
     return ('# Example (format only; plan each clip afresh)\n## Input\n' + clip_text(inp, style)
             + '\n## Answer\n' + json.dumps(ans, ensure_ascii=False, separators=(',', ':')))
 
@@ -158,7 +162,7 @@ def answer_schema(style, cat):
 
 
 def system_text(style, cat):
-    return '\n\n'.join([open(os.path.join(HERE, 'prompt', 'system.md')).read().strip(), library_text(style, cat), example_text(style)])
+    return '\n\n'.join([read('prompt', 'system.md').strip(), library_text(style, cat), example_text(style)])
 
 
 def request(inp, style, cat=None):

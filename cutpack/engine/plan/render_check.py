@@ -28,9 +28,10 @@ def sample_times(plan):
 
 def measure(plan):
     with tempfile.TemporaryDirectory() as d:
-        open(os.path.join(d, 'timeline.js'), 'w').write(plan2timeline.convert(plan, guard=True))
+        with open(os.path.join(d, 'timeline.js'), 'w') as f: f.write(plan2timeline.convert(plan, guard=True))
         subprocess.run(['python3', os.path.join(HERE, '..', 'core', 'build_scene.py'), d], check=True, capture_output=True)
-        tf = os.path.join(d, 'times.json'); json.dump(sample_times(plan), open(tf, 'w'))
+        tf = os.path.join(d, 'times.json')
+        with open(tf, 'w') as f: json.dump(sample_times(plan), f)
         out = subprocess.run(['node', os.path.join(HERE, 'render_check.js'), d, tf], check=True, capture_output=True, text=True)
         return json.loads(out.stdout)
 

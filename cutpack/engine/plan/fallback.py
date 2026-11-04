@@ -93,7 +93,8 @@ def repair(plan, cat=None, faces=None, history=None, render=True, rounds=4):
         for i in block:
             if 'scene' in i:
                 s = p['scenes'][i['scene']]
-                (drop_scene if last or s.get('fallback') else swap_scene).add(i['scene'])
+                # a scene whose own shape is wrong (times not numbers…) cannot become a B14 either: drop it
+                (drop_scene if last or s.get('fallback') or i['code'] == 'shape' else swap_scene).add(i['scene'])
             elif 'sub' in i:
                 sub = p['subtitles'][i['sub']]
                 if last or sub.get('_fixed'): drop_sub.add(i['sub']); continue
@@ -122,6 +123,11 @@ def repair(plan, cat=None, faces=None, history=None, render=True, rounds=4):
                 lo, hi = V.RULES['subTop']
                 p.setdefault('layout', {})['subtitleTop'] = min(hi, max(lo, p['layout'].get('subtitleTop', lo)))
                 log.append(f"subtitle top set to {p['layout']['subtitleTop']}")
+            elif i['code'] == 'shape' and i['where'] in ('version', 'scenes', 'script'):   # plan-level fields code can supply
+                if i['where'] == 'version': p['version'] = 1
+                elif i['where'] == 'scenes': p['scenes'] = []
+                else: p['script'] = ' '.join(x['text'].replace('/', ' ') for x in p.get('subtitles', []))
+                log.append(f"plan field {i['where']} set by code ({i['msg']})")
             elif i['code'] == 'engine':
                 if last: raise SystemExit(f'the engine still refuses the plan: {i["msg"]}')
             else:
