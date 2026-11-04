@@ -17,6 +17,7 @@ mid-push (the overlay skill: "ไม่บังหน้าแม้ตอน�
                  1. above the head: y 150 (under the app's top bar), if it ends 20 px above the face
                  2. at chest level, when the head is at the top edge: centred between the chin (+40, zoomed) and the
                     subtitles (−20); it may cover the hands, never the face. `shortPlace` says which (top | chest | none)
+                    If the chest is a little too short, the subtitles move down (at most to 1380) to make the room.
   narrow widget= 210×380 beside the face (left if there is room, else right), level with the brow; never in the app's
                  right-hand button strip (x > 940 from y 860 to 1620)
 """
@@ -64,6 +65,8 @@ def layout(boxes, n_samples):
     sub_top = min(SUB_TOP_MAX, max(SUB_TOP_MIN, ky1 + 40))
     sx = int(min(max(40, (kx0 + kx1) / 2 - SHORT[0] / 2), RIGHT_UI - SHORT[0]))
     band0, band1 = ky1 + 40, sub_top - 20   # chest: below the (zoomed) chin, above the subtitles
+    if TOPBAR + SHORT[1] + 20 > ky0 and band1 - band0 < SHORT[1] and band0 + SHORT[1] + 20 <= SUB_TOP_MAX:
+        sub_top = band0 + SHORT[1] + 20; band1 = sub_top - 20   # no room above the head: let the subtitles down (≤ 1380) to open the chest
     if TOPBAR + SHORT[1] + 20 <= ky0: short, place = {'x': sx, 'y': TOPBAR}, 'top'
     elif band1 - band0 >= SHORT[1]: short, place = {'x': sx, 'y': round(band0 + (band1 - band0 - SHORT[1]) / 2)}, 'chest'
     else: short, place = {'x': sx, 'y': TOPBAR}, 'none'
