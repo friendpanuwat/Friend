@@ -34,7 +34,7 @@ PART('B15', 'v2', {name: 'กล่องคอมเมนต์พิมพ์
   const bar = div(`left:90px;top:480px;width:840px;height:160px;border-radius:999px;display:flex;align-items:center;gap:24px;padding:0 30px 0 50px;overflow:hidden;opacity:0;` +
     (light ? 'background:#FFFFFF;box-shadow:0 26px 60px rgba(20,33,61,.18)' : 'background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2)'), c);
   mv.rise(bar, T.t0 + .05);
-  const box = div('position:relative;flex:1;min-width:0;overflow:hidden', bar);
+  const box = div('position:relative;flex:1;min-width:0;overflow:hidden;padding:18px 0', bar);   // padding: room for marks below the line (ู of ดู was cut — found by the validator 2026-11-04)
   const n = graphemes(s.text).length, step = Math.min(MOTION.type.step, Math.max(.02, (T.hit - T.t0 - .45) / n));
   const typed = chunk(box, s.text, 'm', T.t0 + .4, {type: true, step, color: light ? NAVY : '#fff', size: 58}); fitW(typed, 600);
   const send = div(`position:relative;flex:none;width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${light ? '#E4E7EE' : 'rgba(255,255,255,.14)'}`, bar, ico('send', 58, light ? NAVY : '#fff', 2.4));

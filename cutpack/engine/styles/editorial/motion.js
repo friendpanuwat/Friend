@@ -168,6 +168,7 @@ function widgetAt(cat, v, kind, t0, t1, opts) {
    ===================================================================== */
 const SUBTOP = 1300;   // Friend 2026-11-04: lower than the skill's 1150; real clips take it from the chin, never higher
 const SUBMAX = 12;   // Friend 2026-11-04: short chunks, about 12 letters
+const SUBW = 800;    // widest a subtitle row may be: centred on 540 it ends at x 940, left of the app's buttons (DECISIONS: nothing past 940); longer rows shrink
 /* Chunks come from the caption step (Haiku groups the subtitle, the customer checks it): "lead big / lead big / …".
    Without '/', the engine only cuts at the writer's spaces (never inside a Thai word): greedy chunks of ≤ SUBMAX letters,
    a number keeps its unit, the key ends its chunk. The big word is the chunk's last spaced token. */
@@ -198,7 +199,7 @@ function subtitle(text, t0, t1, {top = SUBTOP, key, keyAt, n, punch = false} = {
     const [lead, big] = subSplit(words);
     const tb = ki >= 0 && keyAt != null ? Math.min(b - .2, Math.max(a + .1, keyAt)) : a + Math.min(.35, span * .4);
     const rows = []; if (lead) rows.push([[lead, 'l', a]]); rows.push([[big, i % 2 ? 'i' : 'k', tb]]);
-    const el = cap({t0: a, t1: b, top, maxH: 320, lines: rows});
+    const el = cap({t0: a, t1: b, top, maxH: 320, W: SUBW, lines: rows});
     el.style.rowGap = '26px';
     snd('key', tb - .04);
     if (punch) { zoom(tb, i % 2 ? 1.06 : 1.09); zoom(b - .001, 1); }

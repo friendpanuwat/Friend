@@ -100,7 +100,7 @@ function cap(b) {
   const el = div(`top:${b.top ?? 1150}px`, G); el.className = 'cap aroll';
   if (inCard(b.t0)) el.style.display = 'none';
   lines(el, b.lines);
-  FITS.push(() => fit(el, 960, b.maxH ?? 420));
+  FITS.push(() => fit(el, b.W ?? 960, b.maxH ?? 420));   // CutPack: b.W lets subtitle() keep clear of the app's right-hand buttons
   visible(el, b.t0, b.t1);
   return el;
 }

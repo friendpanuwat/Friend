@@ -26,7 +26,7 @@
 | `style-rules/previews/` | ภาพเทียบฟอนต์ สี Glow กับกระจก และแคปซูล Friend ตัดสินแล้วว่าให้ใช้ตามเดิมของ skill |
 | `model-test/editorial-v0/` | เทียบโมเดล 9 แบบ (Sonnet, Opus และ Haiku ที่ effort low, medium, high) ผลคือ Sonnet กับ Opus ใกล้กัน ส่วน Haiku ทำการ์ดได้น้อยและบางกว่า ความเห็นของ Friend อยู่ใน `README.md` |
 | `library/base-list/` | รายการชิ้นฐาน 15 หมวดให้ Friend กด เอา / ปรับ / ตัด อยู่ที่ https://claude.ai/artifact/KKhuSbGNcGbn7XrkheDMa1 เป็นแนวทางใหม่ที่ใช้แทนการเลือกจากแกลเลอรี 26 ชิ้น |
-| `engine/` | เอนจินกลาง (สำเนาจาก skill editorial ตรงกันทุกพิกเซล) + ไอคอน Lucide ครบชุด + ชุดท่าเคลื่อนไหวที่ล็อกของ editorial (`styles/editorial/motion.js`) + ชิ้นฐาน 20 แบบ + ตัวตรวจ `tools/check_parts.py` ดู `engine/README.md` |
+| `engine/` | เอนจินกลาง (สำเนาจาก skill editorial ตรงกันทุกพิกเซล) + ไอคอน Lucide ครบชุด + ชุดท่าเคลื่อนไหวที่ล็อกของ editorial (`styles/editorial/motion.js`) + การ์ด 55 แบบ + วิดเจ็ต 30 แบบ + ตัวตรวจชิ้นส่วน `tools/check_parts.py` + แผนฉาก JSON และตัวตรวจแผน (`plan/`) ดู `engine/README.md` และ `engine/plan/PLAN.md` แพ็กเกจ Python ที่ต้องใช้อยู่ใน `engine/requirements.txt` |
 | `library/base-parts/` | ชิ้นฐาน editorial ครบ 15 หมวด: รอบแรก 5 หมวด (19 แบบหลังตัด B14-v4) ที่ https://claude.ai/artifact/T3uL5XmH2kW3qDhun8fsTT และรอบสอง 10 หมวด (40 แบบ) ที่ https://claude.ai/artifact/M7kKYWCsUVvn1uM8JmPUb4 (`gallery2.html`) ผลแต่ละหน้าเก็บใน collection `variants` ของหน้านั้น สร้างหน้าใหม่ด้วย `make_gallery.py` |
 | `library/widgets/` | วิดเจ็ต overlay 15 หมวด × 2 แบบ × 2 ขนาด (เตี้ยเหนือหัว / แคบข้างหัว) ที่ https://claude.ai/artifact/2hSrmqkhJdryvRzei7Zh6R ผลเก็บใน collection `variants` ดู `library/widgets/README.md` |
 | `library/sample-clip/` | คลิปตัวอย่างที่ Friend ส่งมา (10 วินาที) |
@@ -44,7 +44,7 @@
 2. ~~ผลการเลือกแบบชิ้นฐาน~~ ได้ครบทั้งสองรอบแล้วและแก้ตามความเห็นแล้ว ชิ้นฐาน editorial มี 56 แบบ (ดู `library/base-parts/README.md`) ถ้า Friend ให้ความเห็นเพิ่ม อ่านด้วย `ArtifactData` `list` ที่ collection `variants` ของหน้า https://claude.ai/artifact/T3uL5XmH2kW3qDhun8fsTT (รอบแรก) และ https://claude.ai/artifact/M7kKYWCsUVvn1uM8JmPUb4 (รอบสอง)
 3. **ผลการเลือกวิดเจ็ต overlay** อ่านด้วย `ArtifactData` `list` ที่ collection `variants` ของ https://claude.ai/artifact/2hSrmqkhJdryvRzei7Zh6R
 4. **คลิปจริง 20–30 คลิป** และ **คีย์ API** ที่ใส่ในตั้งค่า environment ได้แก่ `ANTHROPIC_API_KEY`, `GROQ_API_KEY` และ `OPENAI_API_KEY` ถ้าจะใช้เทียบการถอดเสียง
-5. เรื่องที่ยังไม่ได้ตัดสิน 7 ข้อใน `DECISIONS.md` ข้อ 9
+5. เรื่องที่ยังไม่ได้ตัดสิน 8 ข้อใน `DECISIONS.md` ข้อ 9
 
 ## งานถัดไป (ทุกข้อต้องเสนอลำดับให้ Friend ยืนยันก่อนเริ่ม)
 
@@ -56,7 +56,11 @@
    - ซับแบ่งเป็นท่อนสั้นด้วย `subtitle()` และกล้องซูมแบบ talking-head-motion ด้วย `push()` / `pull()`
    - Friend ผ่านคลิปทดสอบ 18 วินาทีของทั้งสองสไตล์แล้ว (`library/real-test/`)
    - ยังไม่ได้ทำ: ชุดเฉพาะหมวดเนื้อหา (รอ Friend เลือกหมวด) และการ์ด B-roll (ยังไม่เปิดใช้)
-3. **รูปแบบ JSON ของแผนฉากและโค้ดตรวจงาน** ได้แก่ ตัวหาหน้า, ความแน่น, เขตห้าม, ข้อความล้นกรอบ, ตัวเลขต้องอยู่ในบท, ท่าเคลื่อนไหวต้องมาจากรายการที่อนุญาต และห้ามสุ่ม พร้อมเขียน prompt ของแผน D
+3. **รูปแบบ JSON ของแผนฉากและโค้ดตรวจงาน** (Friend ยืนยันลำดับ 3.1 → 3.4 และใช้ OpenCV หาหน้า)
+   - ~~3.1 รูปแบบแผนฉากและตัวแปลงเป็น timeline~~ เสร็จแล้ว แผนตัวอย่างเรนเดอร์ได้ตรงกับคลิป 18 วินาทีทุกพิกเซล
+   - ~~3.2 ตัวหาหน้าและตัวตรวจแผน~~ เสร็จแล้ว (`faces.py`, `validate.py`, `render_check.py`, `fallback.py`, `tests/library_sweep.py`)
+   - 3.3 prompt ของแผน D สำหรับ Sonnet 5.5 effort low พร้อมสรุปคลังและตัวอย่าง (ยังเรียก API จริงไม่ได้จนกว่าจะมีคีย์)
+   - 3.4 ชุดทดสอบตัวตรวจ: แผนที่ดีต้องผ่าน แผนที่จงใจทำพังต้องถูกจับ
 4. **ตัวรันไปป์ไลน์และการทดสอบคลิปจริง** บันทึกผลเป็น `runs.jsonl` แล้วสรุปด้วย `cost_model.py report` ในรอบนี้ลองให้ Haiku 5.5 วางแผนฉากด้วย
 5. สร้าง MVP ตามลำดับ 7 ขั้นในเอกสารส่งต่องาน
 

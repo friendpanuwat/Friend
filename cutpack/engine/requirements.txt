@@ -1,0 +1,3 @@
+# Python packages the CutPack engine needs (Node needs playwright; ffmpeg must be on PATH)
+opencv-python-headless>=5.0   # face finder (engine/plan/faces.py) with the YuNet model in engine/models/
+numpy>=2.0

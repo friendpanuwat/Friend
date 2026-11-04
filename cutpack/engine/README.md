@@ -6,11 +6,15 @@
 
 | โฟลเดอร์ | สิ่งที่อยู่ข้างใน |
 |---|---|
-| `core/` | คัดลอกจาก `.claude/skills/talking-head-editorial` เมื่อ 2026-11-03: `engine_head.html`, `engine_tail.html`, `render.js`, `sfx.py`, `pipeline.sh`, `brand.default.json`, ฟอนต์ Mitr กับ Sriracha และ `licenses/` ทุกไฟล์เหมือนต้นฉบับทุกไบต์ ยกเว้น `build_scene.py` และ `engine_tail.html` (เพิ่มการซูมแบบเข้า-ออกนุ่มและกล้องหายใจแบบ talking-head-motion เมื่อ 2026-11-04) |
+| `core/` | คัดลอกจาก `.claude/skills/talking-head-editorial` เมื่อ 2026-11-03: `engine_head.html`, `engine_tail.html`, `render.js`, `sfx.py`, `pipeline.sh`, `brand.default.json`, ฟอนต์ Mitr กับ Sriracha และ `licenses/` ทุกไฟล์เหมือนต้นฉบับทุกไบต์ ยกเว้น `build_scene.py`, `engine_tail.html` (เพิ่มการซูมแบบเข้า-ออกนุ่มและกล้องหายใจแบบ talking-head-motion เมื่อ 2026-11-04) และ `engine_head.html` (`cap()` รับความกว้าง `W` ได้ เพื่อให้ซับไม่เข้าแถบปุ่มขวา เมื่อ 2026-11-04) |
 | `core/build_scene.py` | เขียนใหม่จากของ skill: ใส่ไอคอนครบชุดลงใน `ICONS` (ถ้าชื่อซ้ำ ใช้ของ skill จึงหน้าตาเหมือนเดิม) และแทรกแพ็กของสไตล์ก่อน `timeline.js` |
 | `icons/` | `lucide.json` ไอคอน Lucide ทั้งหมด 1,539 แบบ จาก `lucide-static` 0.460.0 บน npm ดึงมาเมื่อ 2026-11-03 พร้อม `LICENSE-lucide.txt` (ISC) |
 | `styles/<สไตล์>/motion.js` | ชุดท่าเคลื่อนไหวที่ล็อกของสไตล์นั้น (`MOTION`, `SOUND`, `mv.*`) ทะเบียนชิ้นส่วน (`PART`, `part`) และสีที่อ่านออกบนพื้นแต่ละสี (`ON`) |
 | `styles/<สไตล์>/parts/*.js` | ชิ้นส่วนในคลัง ไฟล์ละหมวด เช่น `B01.js` มีแบบ v1–v4 |
+| `styles/<สไตล์>/widgets/*.js` | วิดเจ็ต overlay (`WIDGET`, `widgetAt`) หมวดละ 2 แบบ แต่ละแบบมี 2 ขนาด |
+| `plan/` | แผนฉาก JSON และการตรวจแผน: `catalog.js` (สร้าง `catalog.json` จากโค้ด), `plan2timeline.py`, `faces.py`, `validate.py`, `render_check.py`, `fallback.py` และ `tests/` ดู `plan/PLAN.md` |
+| `models/` | โมเดลหาหน้า YuNet (MIT) สำหรับ `plan/faces.py` |
+| `requirements.txt` | แพ็กเกจ Python ที่ต้องติดตั้ง (`opencv-python-headless`, `numpy`) |
 | `tools/check_parts.py` | ตรวจว่าชิ้นส่วนไม่สร้างท่าเคลื่อนไหวเอง (ห้าม `A(`, `.animate(`, `cubic-bezier`) ไม่สุ่ม (ห้าม `Math.random` และเวลาเครื่อง) และทุกชิ้นประกาศ `name`, `bgs`, `slots`, `dur`, `hit` |
 
 ## กฎของชิ้นส่วน
