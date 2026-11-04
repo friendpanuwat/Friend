@@ -2,10 +2,11 @@
 opencv-python-headless>=5.0   # face finder (engine/plan/faces.py) with the YuNet model in engine/models/
 numpy>=2.0
 anthropic>=2.4               # plan D: the scene-planning call (engine/plan/plan_d.py); key from ANTHROPIC_API_KEY
+pythainlp>=5.0               # Thai word dictionary (Apache-2.0): joins Typhoon's sub-word pieces into whole words (plan/asr.py)
 # Transcription (engine/plan/asr.py, Typhoon ASR Realtime). Large: NeMo + torch, several GB on disk, about 1 GB of memory.
 # On this kind of machine the install needed, in order (2026-11-04):
 #   pip install --ignore-installed wheel setuptools      (the Debian copies cannot be upgraded in place)
 #   pip install antlr4-python3-runtime==4.9.3             (an old setup.py package NeMo needs; fails with the old setuptools)
 #   pip install typhoon-asr soundfile
 #   pip install --force-reinstall --no-deps packaging     (if transformers says it cannot compare versions for packaging)
-# They are left out of this file so `pip install -r requirements.txt` stays quick for the tests, which do not need them.
+# typhoon-asr and soundfile are left out of this file so `pip install -r requirements.txt` stays quick for the tests, which do not need them.

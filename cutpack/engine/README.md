@@ -17,7 +17,7 @@
 | `plan/custom_check.py` | ตรวจโค้ดฉากที่ AI เขียนเอง ใช้ได้เฉพาะชุดเครื่องมือ (ด่านแรกจาก 3 ด่าน ดู `plan/PLAN.md`) เบราว์เซอร์ที่เรนเดอร์ (`core/render.js`) ปิดอินเทอร์เน็ตไว้ |
 | `run_clip.py` | ตัวรันทั้งคลิป ตั้งแต่คลิปดิบจนได้ MP4 ดู "วิธีใช้" ด้านล่าง |
 | `plan/asr.py`, `plan/captions.py`, `plan/fake_api.py` | ขั้นถอดเสียง ขั้นจัดกลุ่มซับ และ API จำลองสำหรับทดสอบโดยไม่ใช้คีย์ ดู `plan/PLAN.md` |
-| `requirements.txt` | แพ็กเกจ Python ที่ต้องติดตั้ง (`opencv-python-headless`, `numpy`, `anthropic`) ส่วน `typhoon-asr` กับ `soundfile` สำหรับถอดเสียงติดตั้งแยก เพราะใหญ่หลาย GB ขั้นตอนที่ต้องทำบนเครื่องแบบนี้เขียนไว้ในไฟล์ |
+| `requirements.txt` | แพ็กเกจ Python ที่ต้องติดตั้ง (`opencv-python-headless`, `numpy`, `anthropic`, `pythainlp`) ส่วน `typhoon-asr` กับ `soundfile` สำหรับถอดเสียงติดตั้งแยก เพราะใหญ่หลาย GB ขั้นตอนที่ต้องทำบนเครื่องแบบนี้เขียนไว้ในไฟล์ |
 | `tools/check_parts.py` | ตรวจว่าชิ้นส่วนไม่สร้างท่าเคลื่อนไหวเอง (ห้าม `A(`, `.animate(`, `cubic-bezier`) ไม่สุ่ม (ห้าม `Math.random` และเวลาเครื่อง) และทุกชิ้นประกาศ `name`, `bgs`, `slots`, `dur`, `hit` |
 
 ## กฎของชิ้นส่วน

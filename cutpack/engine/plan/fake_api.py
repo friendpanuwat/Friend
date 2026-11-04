@@ -29,9 +29,8 @@ class FakeClient:
         if kind == 'captions' and kind not in self.answers:
             import captions
             words = [ln.split(' | ') for ln in req['messages'][0]['content'].split('\n')[1:] if ' | ' in ln and not ln.startswith(' ')]
-            n = len(words)
-            fake = [{'w': w[2], 't0': float(w[1]), 't1': float(w[1]) + 0.2} for w in words][:n]
-            return {'lines': [{'chunk_ends': l} for l in captions.by_rule(fake)]}
+            fake = [{'w': w[2], 't0': float(w[1]), 't1': float(w[1]) + 0.2} for w in words]
+            return captions.answer_form(captions.by_rule(fake))
         if kind.endswith('.fix') and kind not in self.answers: kind = kind[:-4]
         if kind == 'code':
             for k in ('editorial.code', 'overlay.code', 'code'):

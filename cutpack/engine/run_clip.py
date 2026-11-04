@@ -7,7 +7,7 @@ usage: run_clip.py <clip.mp4> <work_dir> [--styles editorial,overlay] [--custome
 
   1. frames    pipeline.sh frames → work/base (1080×1920 frames, cleaned voice)
   2. words     Typhoon ASR Realtime on our machine (plan/asr.py)          --words: use this transcript instead
-  3. captions  Claude Haiku 5.5 groups lines and "/" chunks (plan/captions.py), by rule when there is no key
+  3. captions  Claude Haiku 5.5 groups phrases, "/" chunks and lines (plan/captions.py), by rule when there is no key
                --captions: the customer's checked captions (web app step 4); the text on screen is then theirs
                --stop-after captions: stop here so the captions can be checked, then run again with --captions
   4. faces     plan/faces.py → where the face is, where widgets and subtitles go
@@ -100,8 +100,11 @@ def run(clip, work, styles=STYLES, customer='test', history=None, words_file=Non
     save(os.path.join(work, 'words.json'), {'words': words})
 
     with T('captions'):
-        if captions_file:
-            caps, info = load(captions_file, 'captions'), {'source': 'customer', 'log': [], 'calls': []}
+        if captions_file:   # the checked file keeps the phrases it was made with; an older file falls back to the words
+            cf = json.load(open(captions_file))
+            caps = cf['captions'] if isinstance(cf, dict) else cf
+            info = {'words': cf.get('words') if isinstance(cf, dict) and cf.get('words') else words,
+                    'source': 'customer', 'log': [], 'calls': []}
         elif answers:   # replay: a saved answer or the rule grouping, never the API
             cap_answer = None if rules_captions else A('captions.answer.json')
             caps, info = captions_step.run(words, dur, client=False, answer=cap_answer, use_ai=cap_answer is not None)
@@ -119,7 +122,7 @@ def run(clip, work, styles=STYLES, customer='test', history=None, words_file=Non
     save(os.path.join(work, 'faces.json'), faces)
 
     inp = {'clip': {'file': os.path.basename(clip), 'duration': dur, 'customer': customer},
-           'words': words, 'captions': caps, 'layout': faces['layout'], 'history': history or {'clips': []}}
+           'words': info['words'], 'captions': caps, 'layout': faces['layout'], 'history': history or {'clips': []}}
     save(os.path.join(work, 'input.json'), inp)
 
     results = {}

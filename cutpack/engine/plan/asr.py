@@ -15,6 +15,68 @@ import json, os, subprocess, sys, tempfile, time, unicodedata
 
 MODEL = 'typhoon-ai/typhoon-asr-realtime'
 _model = None
+DEP = 'ะัาำิีึืฺุู็่้๊๋์ํ๎'   # Thai vowels and marks written after their consonant: never start a word
+LEAD = 'เแโใไ'               # vowels written before their consonant: never end a word
+PAUSE = 0.6                  # pieces carry the moment they were heard, not a span: a jump this big is a pause
+
+
+def thai(s): return any('฀' <= c <= '๿' for c in s)
+
+
+def split_thai(group):
+    """A run of Thai with no space → words, with a Thai dictionary (PyThaiNLP newmm, Apache-2.0) when installed."""
+    if not thai(group): return [group]
+    try:
+        from pythainlp.tokenize import word_tokenize
+        toks = [t for t in word_tokenize(group, engine='newmm', keep_whitespace=False) if t]
+        if ''.join(toks) == group: return toks
+    except ImportError:
+        pass
+    return [group]
+
+
+def to_words(pieces, text):
+    """Typhoon's sub-word pieces → whole words with times, for subtitles.
+
+    The pieces can split a syllable (ไอ|เด|ีย) and English comes letter by letter (M|a|r|k|s), so the pieces are
+    joined and cut again: at the spaces of the full text, at pauses, and by a Thai dictionary inside each group.
+    Each letter gets a time spread between its piece and the next one; a word lasts until the next word starts,
+    unless a pause follows."""
+    pieces = [p for p in pieces if p['w']]
+    if not pieces: return []
+    s = ''.join(p['w'] for p in pieces)
+    ct = []   # time of each letter of s
+    for i, p in enumerate(pieces):
+        nxt = pieces[i + 1]['t0'] if i + 1 < len(pieces) else p['t1']
+        span = min(max(nxt - p['t0'], 0.0), PAUSE / 2) or max(p['t1'] - p['t0'], 0.05)
+        ct += [p['t0'] + span * k / len(p['w']) for k in range(len(p['w']))]
+    spaced = text.split()
+    cuts = set()   # letter positions where a new word must start
+    if ''.join(spaced) == s:
+        k = 0
+        for g in spaced: cuts.add(k); k += len(g)
+    else:
+        k = 0
+        for p in pieces:   # no usable text: piece edges are the only hint, kept where a piece can start a word
+            if k and p['w'][0] not in DEP and s[k - 1] not in LEAD: cuts.add(k)
+            k += len(p['w'])
+    cuts |= {i for i in range(1, len(s)) if ct[i] - ct[i - 1] >= PAUSE}
+    cuts.add(len(s))
+    spans, a = [], 0
+    for b in sorted(cuts - {0}):
+        for tok in split_thai(s[a:b]):
+            spans.append((a, a + len(tok))); a += len(tok)
+    words = []
+    for a, b in spans:
+        w = s[a:b]
+        if words and not any(ch.isalnum() for ch in w):   # punctuation alone joins the word before it
+            words[-1]['w'] += w; words[-1]['_end'] = ct[b - 1]; continue
+        words.append({'w': w, 't0': round(ct[a], 2), '_end': ct[b - 1]})
+    for i, w in enumerate(words):
+        end = w.pop('_end')
+        nxt = words[i + 1]['t0'] if i + 1 < len(words) else None
+        w['t1'] = round(nxt if nxt is not None and nxt - end < PAUSE / 2 else end + 0.25, 2)
+    return words
 
 
 def audio16k(path):
@@ -54,13 +116,14 @@ def transcribe(path, threads=2):
     if isinstance(out, tuple): out = out[0]
     hyp = out[0]
     ts = getattr(hyp, 'timestamp', None) or {}
-    toks = ts.get('char') or ts.get('word') or []   # 'char' = each sub-word piece with its time
-    words = []
+    toks = ts.get('char') or ts.get('word') or []   # 'char' = each sub-word piece with the moment it was heard
+    pieces = []
     for w in toks:
         text = ''.join(w['char']) if isinstance(w.get('char'), list) else (w.get('char') or w.get('word'))
         text = clean(text)
-        if text: words.append({'w': text, 't0': round(float(w.get('start', 0)), 2), 't1': round(float(w.get('end', 0)), 2)})
-    return {'words': words, 'text': clean(hyp.text if hasattr(hyp, 'text') else str(hyp)), 'model': MODEL,
+        if text: pieces.append({'w': text, 't0': round(float(w.get('start', 0)), 2), 't1': round(float(w.get('end', 0)), 2)})
+    text = clean(hyp.text if hasattr(hyp, 'text') else str(hyp))
+    return {'words': to_words(pieces, text), 'pieces': pieces, 'text': text, 'model': MODEL,
             'audio_s': round(len(y) / 16000, 2), 'seconds': round(time.time() - t, 1)}
 
 
