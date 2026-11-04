@@ -15,12 +15,9 @@ f, cat, v, i, k = sys.argv[1:]
 s = json.load(open(f))[cat][int(i)]
 slots = dict(s['slots'], hit=1.5)
 say, key = s['say'], s['slots'].get('key')
-# the skill's subtitle: small lead words + ONE big key word on its own line, appearing with the speech
-if isinstance(key, str) and key in say:
-    lead = say.replace(key, ' ').split(); rows = [[[' '.join(lead), 'l', 0.2]], [[key, 'k', 1.5]]]
-else:
-    rows = [[[say, 'l', 0.2]]]
-print(f"cap({{t0: 0.2, t1: 3.6, top: 1300, maxH: 320, lines: {json.dumps(rows, ensure_ascii=False)}}});")
+# the skill's subtitle: the sentence in 3–4 short chunks, each small lead words + one big word (engine subtitle())
+opt = {'key': key, 'keyAt': 1.5} if isinstance(key, str) else {}
+print(f"subtitle({json.dumps(say, ensure_ascii=False)}, 0.2, 3.6, {json.dumps(opt, ensure_ascii=False)});")
 print(f"widgetAt('{cat}', '{v}', '{k}', 0.7, 3.2, {json.dumps(slots, ensure_ascii=False)});")
 PY
 python3 "$E/build_scene.py" "$P" >/dev/null

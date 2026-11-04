@@ -159,3 +159,50 @@ function widgetAt(cat, v, kind, t0, t1, opts) {
   P.build(vis, S, s, T, L, w);
   return w;
 }
+
+/* =====================================================================
+   SUBTITLES on the talking head, in the skill's style: a sentence is cut into 3–4 short chunks shown one after another;
+   each chunk = small lead words + ONE big word (Friend 2026-11-04: "แยกเป็น 3-4 ท่อน"). Thai is cut at word boundaries
+   (Intl.Segmenter), never inside a word. Rows are spaced so the big word's upper marks clear the lead line.
+   subtitle(text, t0, t1, {top, key, keyAt}) — key: the word to make big in its chunk; keyAt: when it is said.
+   ===================================================================== */
+const SUBTOP = 1300;   // Friend 2026-11-04: lower than the skill's 1150; real clips take it from the chin, never higher
+function subChunks(text, n, key) {
+  // 1) phrases as the writer spaced them (Thai puts a space between phrases); the key becomes its own piece
+  const seg = t => [...new Intl.Segmenter('th', {granularity: 'word'}).segment(t)].map(x => x.segment).filter(w => w.trim());
+  const L = w => graphemes(w).length;
+  let tok = [];
+  text.split(/\s+/).filter(Boolean).forEach(ph => {
+    const parts = key && ph.includes(key) && ph !== key ? [ph.slice(0, ph.indexOf(key)), key, ph.slice(ph.indexOf(key) + key.length)].filter(Boolean) : [ph];
+    parts.forEach((t, k) => tok.push({t, sp: k === 0}));
+  });
+  // 2) a phrase longer than 14 letters is cut at word boundaries into pieces of about 10, words kept whole
+  tok = tok.flatMap(x => { if (x.t === key || L(x.t) <= 14) return [x];
+    const out = []; let cur = '';
+    seg(x.t).forEach(w => { if (cur && L(cur) + L(w) > 10) { out.push(cur); cur = ''; } cur += w; });
+    if (cur) out.push(cur);
+    return out.map((t, k) => ({t, sp: k === 0 ? x.sp : false})); });
+  // 3) a number keeps its unit: "3 เท่า", "8,000 ก้าว"
+  const m = [];
+  tok.forEach(x => { const prev = m.at(-1); if (prev && /^[\d.,%]+$/.test(prev.t) && x.t !== key) prev.t += ' ' + x.t; else m.push({...x}); });
+  // 4) 3–4 chunks for a long line, fewer for a short one; the key always ends its chunk
+  const total = m.reduce((a, x) => a + L(x.t), 0);
+  n = Math.max(1, Math.min(n ?? Math.round(total / 9), 4, m.length));
+  const out = []; let cur = [], acc = 0;
+  m.forEach((x, i) => { cur.push(x); acc += L(x.t);
+    if (i < m.length - 1 && out.length < n - 1 && (acc >= total * (out.length + 1) / n || x.t === key)) { out.push(cur); cur = []; } });
+  if (cur.length) out.push(cur);
+  return out.map(c => c.map((x, k) => (k && x.sp ? ' ' : '') + x.t));
+}
+function subtitle(text, t0, t1, {top = SUBTOP, key, keyAt, n} = {}) {
+  const chunks = subChunks(text, n, key), span = (t1 - t0) / chunks.length;
+  chunks.forEach((words, i) => {
+    const a = t0 + i * span, b = a + span;
+    const bi = words.length - 1, ki = words.indexOf(key);              // the big word is always the chunk's last (the key ends its chunk)
+    const lead = words.slice(0, bi).join('').trim(), big = words[bi].trim();
+    const tb = ki >= 0 && keyAt != null ? Math.min(b - .2, Math.max(a + .1, keyAt)) : a + Math.min(.35, span * .4);
+    const rows = []; if (lead) rows.push([[lead, 'l', a]]); rows.push([[big, i % 2 ? 'i' : 'k', tb]]);
+    const el = cap({t0: a, t1: b, top, maxH: 320, lines: rows});
+    el.style.rowGap = '26px';
+  });
+}
