@@ -78,15 +78,16 @@ PART('B08', 'biz1', {pack: BIZ, code: 'BIZ-P3', name: 'ใบเสร็จป�
 PART('B10', 'biz1', {pack: BIZ, code: 'BIZ-P4', name: 'คนถือถุงช้อปปิ้ง', bgs: ['glow', 'cream', 'white'], slots: B10_SLOTS, dur: [1.2, 3.5],
   hit: 'คนที่ถูกพูดถึงสว่างเป็นสีเน้น ถุงช้อปปิ้งเด้งขึ้นที่มือ + วงคลื่น'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', dim = dark ? 'rgba(255,255,255,.28)' : 'rgba(20,33,61,.22)', on = dark ? ACC : NAVY, pick = 5;
+  // the bag's handle is drawn in `line`: white on the dark card, or it does not show (Friend 2026-11-04)
   const bag = (x, y, sz, fill, line) => div(`left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;opacity:0`, c,
     `<svg width="${sz}" height="${sz}" viewBox="0 0 60 60"><path d="M20 22 V16 a10 10 0 0 1 20 0 V22" fill="none" stroke="${line}" stroke-width="5" stroke-linecap="round"/><rect x="8" y="20" width="44" height="38" rx="7" fill="${fill}" stroke="${line}" stroke-width="3"/></svg>`);
   for (let i = 0; i < 8; i++) {
     const x = 95 + (i % 4) * 235, y = 270 + Math.floor(i / 4) * 280;
     const p = person(c, x, y, 140, dim); p.style.opacity = 0; mv.pop(p, T.t0 + .05 + i * .035, 'scale(.5)');
-    if (i % 3 === 1 && i !== pick) { const b = bag(x + 138, y + 112, 62, dim, 'rgba(0,0,0,0)'); mv.pop(b, T.t0 + .3 + i * .03, 'scale(.4)'); }
+    if (i % 3 === 1 && i !== pick) { const b = bag(x + 138, y + 112, 62, dim, dim); mv.pop(b, T.t0 + .3 + i * .03, 'scale(.4)'); }
     if (i === pick) {
       const lit = person(c, x, y, 140, on); lit.style.opacity = 0; mv.pop(lit, T.hit, 'scale(1.35)');
-      const b = bag(x + 136, y + 92, 84, ACC, INK); mv.pop(b, T.hit + .05, 'scale(0) rotate(-20deg)');
+      const b = bag(x + 136, y + 92, 84, ACC, dark ? '#FFFFFF' : INK); mv.pop(b, T.hit + .05, 'scale(0) rotate(-20deg)');
       ripple(c, x + 70, y + 88, T.hit, 2.8, on);
     }
   }
@@ -253,7 +254,7 @@ PART('BIZ', 'h4', {pack: BIZ, code: 'BIZ-H4', name: 'ราคาแตกเป
   const segs = [];
   for (let k = 0; k <= n; k++) {
     const w = Math.max(wid(k), 40), seg = div(`left:${110 + x - k * gap}px;top:430px;width:${w}px;height:150px;border-radius:24px;background:${k < n ? shades[k] : (dark ? 'rgba(255,255,255,.08)' : '#EEF0F4')};transform-origin:0 50%`, c);
-    mv.growX(seg, T.t0 + .2, 1, k); segs.push(seg);
+    mv.fill(seg, T.t0 + .2 + MOTION.fill.d + k * MOTION.grow.step, 0, 1); segs.push(seg);   // no bounce: an overshoot ran into the next block (Friend 2026-11-04)
     if (k) mv.slide(seg, split + k * .05, 'translateX(0)', `translateX(${k * gap}px)`);
     x += w + gap;
   }

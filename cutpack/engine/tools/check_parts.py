@@ -25,6 +25,8 @@ def main():
         # a line comment that swallowed code: `//` followed by something like `; name(` or `; x.y = ` (it silently drops that code)
         for i, line in enumerate(src.splitlines(), 1):
             if '//' in line and re.search(r'//[^\n]*;\s*[A-Za-z_][\w.]*\s*(\(|=[^=])', line): bad.append(f'{f}:{i}: code after a // comment is commented out')
+            # …or a kit call after the comment text with no `;` (FIT.P5 lost its label this way, 2026-11-04)
+            elif re.search(r'//[^\n]*\b(mv\.\w+|snd|ripple|cardText|tile|svg|pill|chipAt|panel|skel)\(', line): bad.append(f'{f}:{i}: a kit call after a // comment is commented out')
         for i, line in enumerate(code.splitlines(), 1):
             for pat, why in BANNED:
                 if re.search(pat, line): bad.append(f'{f}:{i}: {why}')

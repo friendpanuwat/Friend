@@ -7,7 +7,7 @@ const finUp = (s, dark) => s.dir === 'down' ? RED : dark ? ACC : NAVY;
 const coin = (parent, x, y, sz, fill, ink) => div(`left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;opacity:0`, parent,
   `<svg width="${sz}" height="${sz}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="${fill}"/><circle cx="50" cy="50" r="34" fill="none" stroke="${ink}" stroke-width="5" opacity=".5"/>` +
   // the baht mark is drawn, not typed: coins sit on top of each other, and letters there would count as overlapping text
-  `<path d="M43 31 H56 a9.5 9.5 0 0 1 0 19 H43 M43 50 H58 a9.5 9.5 0 0 1 0 19 H43 V31 M50 23 V77" fill="none" stroke="${ink}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
+  `<path d="M39 31 H55 a9.5 9.5 0 0 1 0 19 H39 M39 50 H57 a9.5 9.5 0 0 1 0 19 H39 V31 M51 23 V77" fill="none" stroke="${ink}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
 
 /* ---------- props ---------- */
 
@@ -33,7 +33,7 @@ PART('B01', 'fin1', {pack: FIN, code: 'FIN-P1', name: 'ตารางเหร�
 /* P2 → B02: candlesticks; the last candle shoots up (accent) or plunges (red) on the key word */
 PART('B02', 'fin1', {pack: FIN, code: 'FIN-P2', name: 'กราฟแท่งเทียน', bgs: ['glow', 'white', 'cream'], slots: B02_SLOTS, dur: [1.4, 3.5],
   hit: 'แท่งเทียนแท่งสุดท้ายพุ่งขึ้น (สีเน้น) หรือดิ่งลง (สีแดง) + ป้ายตัวเลข'}, (c, s, T) => {
-  const o = ON[T.bg], dark = o.ink === '#FFFFFF', up = s.dir !== 'down', col = finUp(s, dark), soft = dark ? 'rgba(255,255,255,.4)' : 'rgba(20,33,61,.35)';
+  const o = ON[T.bg], dark = o.ink === '#FFFFFF', up = s.dir !== 'down', col = finUp(s, dark), soft = dark ? '#5C6273' : '#A9B2C3';   // solid: the wick must not show through the body (Friend 2026-11-04)
   const base = 800, unit = 54;
   // [open, close] in units above the base line for the first five candles: a gentle drift toward the move
   const prev = up ? [[2, 4], [4, 3], [3, 5], [5, 4], [4, 6]] : [[9, 8], [8, 9], [9, 7], [7, 8], [8, 7]];
@@ -86,6 +86,7 @@ PART('B07', 'fin1', {pack: FIN, code: 'FIN-P4', name: 'บัตรเครด�
   mv.pop(card, T.t0 + .05, 'scale(.7) rotate(-6deg)');
   const line = svg(740, 420, `<path d="${crack}" fill="none" stroke="${RED}" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>`, 'left:0;top:0', card);
   mv.draw(line.querySelector('path'), T.hit - .3, .3);
+  mv.slide(line, T.hit + .1, 'scaleY(1)', 'scaleY(0)');   // the crack line goes as the halves part (Friend 2026-11-04)
   mv.slide(L, T.hit, 'translate(0,0) rotate(0)', 'translate(-30px,14px) rotate(-3deg)');
   mv.slide(R, T.hit, 'translate(0,0) rotate(0)', 'translate(30px,-10px) rotate(3deg)');
   ripple(c, 470, 490, T.hit, 3.4, RED); snd('cross', T.hit - .1); snd('hit', T.hit);
@@ -93,22 +94,22 @@ PART('B07', 'fin1', {pack: FIN, code: 'FIN-P4', name: 'บัตรเครด�
   cardText(c, T, s.lead, s.key, 1260);
 });
 
-/* P5 → B08: coins drop one by one into a piggy bank; the last one lands on the key word and the bank's bar is full */
-PART('B08', 'fin1', {pack: FIN, code: 'FIN-P5', name: 'กระปุกเต็ม', bgs: ['glow', 'cream', 'white'], slots: B08_SLOTS, dur: [1.4, 3.5],
-  hit: 'เหรียญสุดท้ายหล่นลงกระปุก แถบใต้กระปุกเต็มพอดี + วงคลื่น'}, (c, s, T) => {
+/* P5 → B08: coins drop one by one into a wallet (Friend 2026-11-04: not a piggy bank); the last one lands on the key word and the bar is full */
+PART('B08', 'fin1', {pack: FIN, code: 'FIN-P5', name: 'กระเป๋าสตางค์เต็ม', bgs: ['glow', 'cream', 'white'], slots: B08_SLOTS, dur: [1.4, 3.5],
+  hit: 'เหรียญสุดท้ายหล่นลงกระเป๋าสตางค์ แถบใต้กระเป๋าเต็มพอดี + วงคลื่น'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', col = dark ? ACC : NAVY;
-  const pig = div('left:250px;top:330px;width:580px;height:420px;opacity:0', c, `<svg width="580" height="420" viewBox="0 0 580 420" style="display:block;overflow:visible">
-    <ellipse cx="290" cy="220" rx="230" ry="160" fill="${dark ? 'rgba(255,255,255,.1)' : '#FFFFFF'}" stroke="${o.ink}" stroke-width="12"/>
-    <path d="M470 160 q70 -10 80 50 q-10 40 -70 40" fill="none" stroke="${o.ink}" stroke-width="12" stroke-linecap="round"/>
-    <path d="M140 90 l-20 -70 l70 40" fill="none" stroke="${o.ink}" stroke-width="12" stroke-linejoin="round"/>
-    <path d="M150 360 v50 M410 360 v50" stroke="${o.ink}" stroke-width="22" stroke-linecap="round"/>
-    <circle cx="190" cy="180" r="12" fill="${o.ink}"/><rect x="240" y="56" width="110" height="18" rx="9" fill="${o.ink}"/></svg>`);
+  const wf = dark ? '#FFFFFF' : NAVY, wi = dark ? NAVY : '#FFFFFF';
+  const pig = div('left:250px;top:380px;width:580px;height:360px;opacity:0', c, `<svg width="580" height="360" viewBox="0 0 580 360" style="display:block;overflow:visible">
+    <rect x="20" y="20" width="540" height="320" rx="44" fill="${wf}"/>
+    <path d="M20 90 H560" stroke="${wi}" stroke-opacity=".18" stroke-width="10"/>
+    <path d="M330 150 H560 V270 H330 a60 60 0 0 1 0 -120 Z" fill="${dark ? '#E9ECF2' : '#2A3A5E'}"/>
+    <circle cx="340" cy="210" r="22" fill="${ACC}"/><rect x="180" y="4" width="220" height="30" rx="15" fill="${wi}" stroke="${wf}" stroke-width="8"/></svg>`);
   mv.pop(pig, T.t0 + .05, 'translateY(60px) scale(.9)');
   const step = (T.hit - T.t0 - .6) / 3;
   [0, 1, 2, 3].forEach(k => {
-    const cn = coin(c, 487, 250, 106, ACC, INK);
+    const cn = coin(c, 487, 230, 106, ACC, INK);
     mv.fly(cn, T.t0 + .5 + k * step - MOTION.fly.d, 'translate(0,-260px)');
-    mv.slide(cn, T.t0 + .5 + k * step, 'translateY(0)', 'translateY(150px) scale(.2)');
+    mv.slide(cn, T.t0 + .5 + k * step, 'translateY(0)', 'translateY(120px) scale(.2)');
   });
   const track = div(`left:240px;top:780px;width:600px;height:44px;border-radius:22px;background:${o.track};overflow:hidden`, c);
   const fill = div(`left:0;top:0;width:600px;height:44px;border-radius:22px;background:${col};transform-origin:0 50%`, track);

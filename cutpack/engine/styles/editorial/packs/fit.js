@@ -10,7 +10,8 @@ const figure = (parent, css, color, sw = 26) => div(css, parent, `<svg width="10
 /* ---------- props ---------- */
 
 /* P1 → B01: footprints walk up the card; the ones counted light up and the number lands on the key word */
-PART('B01', 'fit1', {pack: FIT, code: 'FIT-P1', name: 'รอยเท้าเดินขึ้น', bgs: ['glow', 'white', 'cream'], slots: B01_SLOTS, dur: [1.6, 3.5],
+// Friend 2026-11-04: footprints only for walking or steps — never for other counts ("คนออกกำลังกาย 3 ใน 10")
+PART('B01', 'fit1', {pack: FIT, code: 'FIT-P1', use: 'เฉพาะประโยคเรื่องเดินหรือจำนวนก้าว', name: 'รอยเท้าเดินขึ้น (ใช้กับการเดินเท่านั้น)', bgs: ['glow', 'white', 'cream'], slots: B01_SLOTS, dur: [1.6, 3.5],
   hit: 'รอยเท้าสว่างทีละก้าวจนถึงค่า ตัวเลขหยุดตรงคำ'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', of = shareOf(s);
   const k = of == null ? 10 : Math.round(10 * Math.max(0, Math.min(1, s.num / of)));
@@ -81,19 +82,21 @@ PART('B09', 'fit1', {pack: FIT, code: 'FIT-P4', name: 'นาฬิกาจั�
   cardText(c, T, s.lead, s.key, 1290);
 });
 
-/* P5 → B03: two figures, before and after; the side the speaker favours lights up and gets a check on the key word */
+/* P5 → B03: before and after — hunched before, upright after; the side the speaker favours lights up with arms raised and a check on the key word */
 PART('B03', 'fit1', {pack: FIT, code: 'FIT-P5', name: 'ร่างคนก่อนกับหลัง', bgs: ['glow', 'cream', 'white'], slots: B03_SLOTS, dur: [1.2, 3.5],
   hit: 'ร่างฝั่งที่ชนะสว่างเป็นสีเน้น เครื่องหมายถูกเด้ง (ไม่มีฝั่งชนะ: ทั้งสองฝั่งขึ้นพร้อมกัน)'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', dim = dark ? 'rgba(255,255,255,.3)' : 'rgba(20,33,61,.25)';
   [['a', 150], ['b', 630]].forEach(([k, x], i) => {
     const win = s.win === k;
-    const f = figure(c, `left:${x}px;top:260px;width:300px;height:520px;opacity:0`, dim); mv.pop(f, T.t0 + .05 + i * .1, 'translateY(60px) scale(.9)');
+    // the dim copy takes the winner's pose too, so nothing peeks out from under the lit copy
+    const f = human(c, `left:${x}px;top:260px;width:300px;height:520px;opacity:0`, dim, k === 'a' ? 'slouch' : win ? 'up' : 'stand'); mv.pop(f, T.t0 + .05 + i * .1, 'translateY(60px) scale(.9)');
     if (win) {
-      const lit = figure(c, `left:${x}px;top:260px;width:300px;height:520px;opacity:0`, fitCol(dark)); mv.pop(lit, T.hit, 'scale(1.1)');
+      const lit = human(c, `left:${x}px;top:260px;width:300px;height:520px;opacity:0`, fitCol(dark), 'up'); mv.pop(lit, T.hit, 'scale(1.1)');   // Friend 2026-11-04: the sides must look different
       const ok = div(`left:${x + 210}px;top:240px;width:110px;height:110px;border-radius:50%;background:${ACC};display:flex;align-items:center;justify-content:center;box-shadow:0 14px 30px rgba(0,0,0,.3);opacity:0`, c, ico('check', 70, INK, 3.4));
       mv.pop(ok, T.hit + .05); ripple(c, x + 150, 520, T.hit, 3, fitCol(dark));
     }
-    const l = capt(c, s[k], x - 30, 800, 330, win ? fitCol(dark) : o.ink, 58);   // the right label ends at x 930, left of the app's buttons mv.lead(l, T.t0 + .2 + i * .1);
+    const l = capt(c, s[k], x - 30, 800, 330, win ? fitCol(dark) : o.ink, 58);   // the right label ends at x 930, left of the app's buttons
+    mv.lead(l, T.t0 + .2 + i * .1);
   });
   div('left:530px;top:330px;width:20px;height:380px', c, `<svg width="20" height="380"><path d="M10 0 V380" stroke="${o.track}" stroke-width="6" stroke-dasharray="14 14"/></svg>`);
   snd('hit', T.hit);
@@ -170,12 +173,12 @@ PART('FIT', 'h2', {pack: FIT, code: 'FIT-H2', name: 'แถบสารอาห
 });
 
 /* H3: a figure; the body part talked about glows and gets a label on the key word */
-const FIT_SPOTS = {head: [100, 46], shoulder: [70, 125], heart: [112, 150], belly: [100, 205], back: [100, 175], knee: [128, 310], wrist: [56, 192]};
+const FIT_SPOTS = {head: [100, 44], shoulder: [62, 102], heart: [114, 130], belly: [100, 186], back: [100, 160], knee: [118, 312], wrist: [44, 226]};   // on human()
 PART('FIT', 'h3', {pack: FIT, code: 'FIT-H3', name: 'ร่างกายชี้จุด', bgs: ['glow', 'white', 'cream'],
   slots: {spot: {type: 'choice', of: Object.keys(FIT_SPOTS), req: true}, label: {type: 'text', max: 12, req: true}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.2, 3.5],
   hit: 'จุดที่พูดถึงบนร่างกายสว่างเป็นวงสีเน้น ป้ายชื่อขึ้นข้าง ๆ'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', col = fitCol(dark), X = 220, Y = 190, K = 1.7;   // the figure: 200×400 view → 340×680 px
-  const f = figure(c, `left:${X}px;top:${Y}px;width:340px;height:680px;opacity:0`, dark ? 'rgba(255,255,255,.4)' : 'rgba(20,33,61,.3)', 30);
+  const f = human(c, `left:${X}px;top:${Y}px;width:340px;height:680px;opacity:0`, dark ? 'rgba(255,255,255,.4)' : 'rgba(20,33,61,.3)');   // Friend 2026-11-04: a more realistic person
   mv.pop(f, T.t0 + .05, 'translateY(60px) scale(.94)');
   const [sx, sy] = FIT_SPOTS[s.spot], px = X + sx * K, py = Y + sy * K;
   const dot = div(`left:${px - 50}px;top:${py - 50}px;width:100px;height:100px;border-radius:50%;background:${ACC};border:6px solid ${INK};box-shadow:0 0 0 18px ${ACC}55;opacity:0`, c);
@@ -194,13 +197,10 @@ PART('FIT', 'h4', {pack: FIT, code: 'FIT-H4', name: 'ท่าออกกำล
   hit: 'ท่าสุดท้ายกลับขึ้นตรงคำ ตัวนับหยุดที่จำนวนในบท + วงคลื่น'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', col = fitCol(dark);
   div(`left:180px;top:830px;width:420px;height:10px;border-radius:5px;background:${o.track}`, c);
-  const f = figure(c, 'left:250px;top:240px;width:290px;height:580px;opacity:0;transform-origin:50% 100%', col, 30);
-  mv.show(f, T.t0 + .05);
+  const J = jointed(c, 330, 828, col, .95);   // Friend 2026-11-04: a real person bending at ankle, knee and hip, not a squashed stick
+  mv.show(J.root, T.t0 + .05);
   const reps = 3, d = MOTION.slide.d, start = T.hit - reps * 2 * d;
-  for (let r = 0; r < reps; r++) {
-    mv.slide(f, start + r * 2 * d, 'scaleY(1)', 'scaleY(.78)');
-    mv.slide(f, start + r * 2 * d + d, 'scaleY(.78)', 'scaleY(1)');
-  }
+  for (let r = 0; r < reps; r++) { poseTo(J, start + r * 2 * d, {}, SQUAT); poseTo(J, start + r * 2 * d + d, SQUAT, {}); }
   const box = panel(c, 'left:630px;top:330px;width:330px;height:330px', T.t0 + .1, {style: bizPanel(T.bg)});
   const ink = bizPanel(T.bg) === 'white' ? NAVY : '#FFFFFF';
   const cnt = div(`left:0;top:70px;width:330px;text-align:center;font-family:KeySans;font-size:150px;line-height:1;white-space:nowrap;color:${ink}`, box);

@@ -10,21 +10,19 @@ const eduText = (parent, text, css, color, size, font = 'CardSans') => { const e
 /* ---------- props ---------- */
 
 /* P1 → B04: the checklist on a ruled notebook page; each line is ticked in pen as it is said */
-PART('B04', 'edu1', {pack: EDU, code: 'EDU-P1', name: 'หน้าสมุดจด', bgs: ['glow', 'cream', 'white'], slots: B04_SLOTS, dur: [1.4, 4.0],
-  hit: 'ข้อสุดท้ายถูกติ๊กด้วยปากกาตรงคำ + วงคลื่น'}, (c, s, T) => {
-  const o = ON[T.bg], dark = o.ink === '#FFFFFF', n = s.items.length, H = 200 + n * 120, at = itemTimes(s, T);
-  const page = div(`left:170px;top:220px;width:740px;height:${H}px;border-radius:24px;background:#FFFFFF;box-shadow:0 30px 70px rgba(0,0,0,.35);overflow:hidden;opacity:0`, c,
-    `<svg width="740" height="${H}" style="display:block">${Array.from({length: n + 1}, (_, k) => `<line x1="40" x2="700" y1="${150 + k * 120}" y2="${150 + k * 120}" stroke="#BFD3F0" stroke-width="3"/>`).join('')}<line x1="120" x2="120" y1="0" y2="${H}" stroke="#F2A0A0" stroke-width="4"/></svg>`);
-  mv.rise(page, T.t0 + .02);
+// Friend 2026-11-04: no notebook page — keep the skill's own card look; what stays is the hand-drawn pen tick
+PART('B04', 'edu1', {pack: EDU, code: 'EDU-P1', name: 'เช็กลิสต์ติ๊กด้วยปากกา', bgs: ['glow', 'cream', 'white'], slots: B04_SLOTS, dur: [1.4, 4.0],
+  hit: 'ข้อสุดท้ายถูกติ๊กด้วยปากกาและแถบเน้นวิ่งใต้คำตรงคำ + วงคลื่น'}, (c, s, T) => {
+  const o = ON[T.bg], dark = o.ink === '#FFFFFF', n = s.items.length, at = itemTimes(s, T), col = eduCol(dark), y0 = 560 - n * 70;
   for (let k = 0; k < n; k++) {
-    const y = 60 + k * 120;
-    div(`left:150px;top:${y + 18}px;width:62px;height:62px;border-radius:14px;border:5px solid ${NAVY}`, page);
-    const tick = svg(80, 80, `<path d="M8 40 L32 64 L76 8" fill="none" stroke="${k === n - 1 ? '#0A0A0A' : NAVY}" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>`, `left:146px;top:${y + 2}px`, page);
+    const y = y0 + k * 140, last = k === n - 1;
+    const box = div(`left:150px;top:${y}px;width:96px;height:96px;border-radius:24px;border:7px solid ${o.ink};opacity:0`, c); mv.pop(box, T.t0 + .05 + k * MOTION.stagger, 'scale(.5)');
+    const tick = svg(120, 110, `<path d="M10 56 L42 90 L112 10" fill="none" stroke="${last ? ACC : col}" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>`, `left:146px;top:${y - 18}px`, c);
     mv.draw(tick.querySelector('path'), at[k] - .25, .25);
-    const t = rowText(page, s.items[k], `left:250px;top:${y + 22}px;width:440px`, NAVY, 54, T.t0 + .2 + k * .08);
-    if (k === n - 1) { const hl = div(`left:240px;top:${y + 30}px;width:460px;height:60px;border-radius:10px;background:${ACC};opacity:0;z-index:-1`, page); mv.show(hl, at[k]); t.style.zIndex = 1; }
+    if (last) { const hl = div(`left:300px;top:${y + 92}px;width:600px;height:16px;border-radius:8px;background:${ACC};transform-origin:0 50%`, c); mv.fill(hl, at[k], 0, 1); }   // the bar runs under the words, never through them
+    rowText(c, s.items[k], `left:300px;top:${y + 8}px;width:600px`, o.ink, 64, T.t0 + .2 + k * .08);
   }
-  ripple(c, 540, 220 + H - 80, T.hit, 3.4, eduCol(dark)); snd('hit', T.hit);
+  ripple(c, 198, y0 + (n - 1) * 140 + 48, T.hit, 3, col); snd('hit', T.hit);
   cardText(c, T, s.lead, s.key);
 });
 
@@ -73,7 +71,9 @@ PART('B02', 'edu1', {pack: EDU, code: 'EDU-P4', name: 'กองหนังส�
     const b = div(`left:${x}px;top:${y}px;width:${w}px;height:84px;border-radius:14px;background:${k === n - 1 && !up ? RED : cols[k]};box-shadow:0 10px 24px rgba(0,0,0,.25);opacity:0`, c);
     div(`left:24px;top:0;width:14px;height:84px;background:rgba(0,0,0,.18)`, b);
     if (up) mv.fly(b, T.t0 + .4 + k * step - MOTION.fly.d, 'translate(0,-300px)');
-    else { mv.pop(b, T.t0 + .05 + k * .05, 'translateY(-80px)'); if (k >= n - 2) mv.slide(b, T.hit - MOTION.slide.d - (n - 1 - k) * .2, 'translate(0,0) rotate(0)', `translate(${k === n - 1 ? 520 : -520}px,40px) rotate(${k === n - 1 ? 24 : -24}deg)`); }
+    else { mv.pop(b, T.t0 + .05 + k * .05, 'translateY(-80px)'); if (k >= n - 2) { const t1 = T.hit - MOTION.slide.d - (n - 1 - k) * .45, side = k === n - 1 ? 1 : -1;   // Friend 2026-11-04: fell too fast — tip, then slide off a short way
+      mv.slide(b, t1 - MOTION.slide.d, 'translate(0,0) rotate(0)', `translate(${side * 40}px,0) rotate(${side * 6}deg)`);
+      mv.slide(b, t1, `translate(${side * 40}px,0) rotate(${side * 6}deg)`, `translate(${side * 230}px,60px) rotate(${side * 16}deg)`); } }
   }
   div(`left:180px;top:820px;width:720px;height:10px;border-radius:5px;background:${o.track}`, c);
   ripple(c, 540, 820 - n * 92 + 40, T.hit, 3, up ? eduCol(dark) : RED); snd('hit', T.hit);
@@ -164,10 +164,14 @@ PART('EDU', 'h3', {pack: EDU, code: 'EDU-H3', name: 'บันไดอาชี
     const lb = eduText(c, st[k], `left:${x + 6}px;top:${top + 20}px;width:${W - 12}px;text-align:center;opacity:0`, last ? INK : o.ink, 44);
     mv.lead(lb, T.t0 + .3 + k * .08);
   }
-  const man = div(`left:${x0 + W / 2 - 50}px;top:${y0 - H - 210}px;width:100px;height:200px;opacity:0`, c);
-  figure(man, 'left:0;top:0;width:100px;height:200px', o.ink, 30);
+  // Friend 2026-11-04: a more realistic person, and a real step — the body lifts first, then moves over (two nested moves make the arc)
+  const man = div(`left:${x0 + W / 2 - 60}px;top:${y0 - H - 250}px;width:120px;height:240px;opacity:0`, c), lift = div('left:0;top:0;width:120px;height:240px', man);
+  human(lift, 'left:0;top:0;width:120px;height:240px', o.ink);
   mv.pop(man, T.t0 + .3, 'scale(.6)');
-  for (let k = 1; k < n; k++) mv.slide(man, stepT(k) - MOTION.slide.d, `translate(${(k - 1) * W}px,${-(k - 1) * H}px)`, `translate(${k * W}px,${-k * H}px)`);
+  for (let k = 1; k < n; k++) {
+    mv.slide(lift, stepT(k) - MOTION.slide.d - .2, `translateY(${-(k - 1) * H}px)`, `translateY(${-k * H}px)`);
+    mv.slide(man, stepT(k) - MOTION.slide.d, `translateX(${(k - 1) * W}px)`, `translateX(${k * W}px)`);
+  }
   ripple(c, x0 + (n - .5) * W, y0 - n * H, T.hit, 3, col); snd('hit', T.hit);
   cardText(c, T, s.lead, s.key, 1290);
 });
@@ -206,7 +210,7 @@ PART('EDU', 'h5', {pack: EDU, code: 'EDU-H5', name: 'แผนผังควา
     const tk = T.t0 + .5 + k * step, last = k === n - 1;
     const ln = svg(1080, 1100, `<path d="M${cx} ${cy} Q${(cx + x) / 2} ${cy} ${x} ${y}" fill="none" stroke="${last ? col : o.soft}" stroke-width="10" stroke-linecap="round"/>`, 'left:0;top:0', c);
     mv.draw(ln.querySelector('path'), tk - .35, .35);
-    const pill = div(`left:${x - 150}px;top:${y - 50}px;width:300px;height:100px;border-radius:50px;background:${last ? ACC : (dark ? 'rgba(255,255,255,.12)' : '#FFFFFF')};box-shadow:0 14px 30px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;opacity:0`, c);
+    const pill = div(`left:${x - 150}px;top:${y - 50}px;width:300px;height:100px;border-radius:50px;background:${last ? ACC : (dark ? '#262C3A' : '#FFFFFF')};box-shadow:0 14px 30px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;opacity:0`, c);   // solid: the branch line must not show through (Friend 2026-11-04)
     eduText(pill, br[k], 'position:relative;width:260px;text-align:center', last ? INK : o.ink, 52);
     mv.pop(pill, tk, 'scale(.5)');
   });
