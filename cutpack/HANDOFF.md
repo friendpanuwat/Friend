@@ -30,6 +30,7 @@
 | `library/base-parts/` | ชิ้นฐาน editorial ครบ 15 หมวด: รอบแรก 5 หมวด (19 แบบหลังตัด B14-v4) ที่ https://claude.ai/artifact/T3uL5XmH2kW3qDhun8fsTT และรอบสอง 10 หมวด (40 แบบ) ที่ https://claude.ai/artifact/M7kKYWCsUVvn1uM8JmPUb4 (`gallery2.html`) ผลแต่ละหน้าเก็บใน collection `variants` ของหน้านั้น สร้างหน้าใหม่ด้วย `make_gallery.py` |
 | `library/widgets/` | วิดเจ็ต overlay 15 หมวด × 2 แบบ × 2 ขนาด (เตี้ยเหนือหัว / แคบข้างหัว) ที่ https://claude.ai/artifact/2hSrmqkhJdryvRzei7Zh6R ผลเก็บใน collection `variants` ดู `library/widgets/README.md` |
 | `asr-test/` | เทียบตัวถอดเสียงภาษาไทย (`bench.py`) ผลกับเสียงอ่าน 40 ประโยค: Typhoon ASR Realtime แม่นสุดกับคำไทยและเร็วสุด ดู `asr-test/README.md` |
+| mockup หน้าแก้ซับ (ขั้นที่ 4) | https://claude.ai/artifact/1Cn4eKCgufq8xEs8szjtkk หน้าจอมือถือที่กดลองได้: เล่นตัวอย่างซับ แก้ทีละบรรทัดแบบแยกท่อน แทนที่คำทั้งคลิป เปิดปิดการตัดคำลงท้าย คำที่ระบบไม่แน่ใจเป็นสีส้ม และหน้ายืนยัน (2026-11-04 รอ Friend ให้ความเห็น) |
 | `library/sample-clip/` | คลิปตัวอย่างที่ Friend ส่งมา (10 วินาที) |
 | `library/gallery/` | หน้าแกลเลอรีให้ Friend เลือกเก็บหรือทิ้งการ์ด 26 ชิ้น อยู่ที่ https://claude.ai/artifact/MfHsnKa7qnP96UjNFe3cg7 |
 
