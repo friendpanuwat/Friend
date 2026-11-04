@@ -1,3 +1,4 @@
 # Python packages the CutPack engine needs (Node needs playwright; ffmpeg must be on PATH)
 opencv-python-headless>=5.0   # face finder (engine/plan/faces.py) with the YuNet model in engine/models/
 numpy>=2.0
+anthropic>=2.4               # plan D: the scene-planning call (engine/plan/plan_d.py); key from ANTHROPIC_API_KEY

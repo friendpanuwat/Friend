@@ -159,6 +159,11 @@ def check_scenes(plan, cat, R):
                 elif k == 'icons':
                     for x in v:
                         if x not in icons: R.err('icon', w, f'unknown icon {x!r} in icons')
+                elif k == 'rows':   # B03 v3: [{t: 'ค่าใช้จ่าย', a: true, b: false}, …]
+                    for x in v:
+                        if not (isinstance(x, dict) and isinstance(x.get('t'), str) and all(isinstance(x.get(z, False), bool) for z in 'ab')):
+                            R.err('slot-type', w, 'rows items must be {"t": text, "a": true|false, "b": true|false}')
+                        elif V_graph(x['t']) > 12: R.err('slot-long', w, f'rows "{x["t"]}" is {V_graph(x["t"])} letters, max 12')
                 elif any(not isinstance(x, str) for x in v): R.err('slot-type', w, f'{k} items must be text')
         if 'aty' in slots and isinstance(slots['aty'], (int, float)) and not (t0 <= slots['aty'] <= t1 - .2): R.err('slot-time', w, 'aty must be inside the scene')
         extra = set(slots) - set(P['slots']) - (WIDGET_TEXT if want == 'widget' else set())
@@ -173,6 +178,9 @@ def check_scenes(plan, cat, R):
 
 
 def R_tol(): return RULES['tol']
+
+
+def V_graph(x): return graphemes(x)
 
 
 def check_timeline(plan, R):

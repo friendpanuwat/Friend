@@ -32,16 +32,19 @@ def phrases(text):
     return out
 
 
+KEYS = ('wkey', 'key', 'y', 'goal', 'tip', 'text', 'q', 'when', 'who', 'b', 'a')   # the scene's main words, best first
+
+
 def words_of(scene):
+    """B14 phrases from the scene's own words: lead (or wlead) then its main words; None if there is nothing to show."""
     sl = scene.get('slots', {})
-    lead = sl.get('wlead') or sl.get('lead') or ''
-    key = sl.get('wkey') or sl.get('key') if not isinstance(sl.get('key'), int) else sl.get('wkey')
-    if not isinstance(key, str) or not key.strip(): return None
+    key = next((sl[k] for k in KEYS if isinstance(sl.get(k), str) and sl[k].strip()), None)
+    if key is None: return None
+    lead = next((sl[k] for k in ('wlead', 'lead') if isinstance(sl.get(k), str) and sl[k].strip() and sl[k] != key), '')
     lp, kp = phrases(lead) if lead else [], phrases(key)
     if lp is None or kp is None: return None
     words = lp + kp
-    if len(words) < 2:
-        return None
+    if len(words) < 2: return None
     return words[:7], min(len(lp), 6)   # the key's first phrase is the stressed one
 
 
