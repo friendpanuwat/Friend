@@ -136,11 +136,11 @@ function wbox(css, t0, t1) {
   sfx('softswish', t0 - .03, -25);
   return w;
 }
-/* place one widget: widgetAt('B01','v1','short', t0, t1, {hit, at:{x,y}, ...slots}) */
+/* place one widget: widgetAt('B01','v1','short', t0, t1, {hit, pos:{x,y}, ...slots}) */
 function widgetAt(cat, v, kind, t0, t1, opts) {
   const P = WPARTS[cat]?.[v]; if (!P) throw new Error(`unknown widget ${cat}.${v}`);
   const L = Object.assign({kind}, WSIZE[kind]); if (!L.W) throw new Error(`widget size ${kind}?`);
-  const {hit = t0 + .5, at = WAT[kind], ...s} = opts;
+  const {hit = t0 + .5, pos: at = WAT[kind], ...s} = opts;   // pos, not at: `at` is a slot (item times) in some categories
   for (const [k, spec] of Object.entries(P.meta.slots)) {
     if (spec.req && (s[k] == null || s[k] === '')) throw new Error(`${cat}.${v} widget: slot ${k} missing`);
     if (spec.type === 'icon' && s[k] && !ICONS[s[k]]) throw new Error(`${cat}.${v} widget: unknown icon ${s[k]}`);
@@ -167,42 +167,40 @@ function widgetAt(cat, v, kind, t0, t1, opts) {
    subtitle(text, t0, t1, {top, key, keyAt}) — key: the word to make big in its chunk; keyAt: when it is said.
    ===================================================================== */
 const SUBTOP = 1300;   // Friend 2026-11-04: lower than the skill's 1150; real clips take it from the chin, never higher
+const SUBMAX = 12;   // Friend 2026-11-04: short chunks, about 12 letters
+/* Chunks come from the caption step (Haiku groups the subtitle, the customer checks it): "lead big / lead big / …".
+   Without '/', the engine only cuts at the writer's spaces (never inside a Thai word): greedy chunks of ≤ SUBMAX letters,
+   a number keeps its unit, the key ends its chunk. The big word is the chunk's last spaced token. */
 function subChunks(text, n, key) {
-  // 1) phrases as the writer spaced them (Thai puts a space between phrases); the key becomes its own piece
-  const seg = t => [...new Intl.Segmenter('th', {granularity: 'word'}).segment(t)].map(x => x.segment).filter(w => w.trim());
-  const L = w => graphemes(w).length;
+  if (text.includes('/')) return text.split('/').map(c => { const ts = [];   // given chunks; a number still keeps its unit
+    c.trim().split(/\s+/).filter(Boolean).forEach(t => { if (ts.length && /^[\d.,%]+$/.test(ts.at(-1))) ts[ts.length - 1] += ' ' + t; else ts.push(t); });
+    return ts.map((t, k) => (k ? ' ' : '') + t); }).filter(c => c.length);
+  const L = w => graphemes(w.trim()).length;
   let tok = [];
   text.split(/\s+/).filter(Boolean).forEach(ph => {
     const parts = key && ph.includes(key) && ph !== key ? [ph.slice(0, ph.indexOf(key)), key, ph.slice(ph.indexOf(key) + key.length)].filter(Boolean) : [ph];
     parts.forEach((t, k) => tok.push({t, sp: k === 0}));
   });
-  // 2) a phrase longer than 14 letters is cut at word boundaries into pieces of about 10, words kept whole
-  tok = tok.flatMap(x => { if (x.t === key || L(x.t) <= 14) return [x];
-    const out = []; let cur = '';
-    seg(x.t).forEach(w => { if (cur && L(cur) + L(w) > 10) { out.push(cur); cur = ''; } cur += w; });
-    if (cur) out.push(cur);
-    return out.map((t, k) => ({t, sp: k === 0 ? x.sp : false})); });
-  // 3) a number keeps its unit: "3 เท่า", "8,000 ก้าว"
   const m = [];
   tok.forEach(x => { const prev = m.at(-1); if (prev && /^[\d.,%]+$/.test(prev.t) && x.t !== key) prev.t += ' ' + x.t; else m.push({...x}); });
-  // 4) 3–4 chunks for a long line, fewer for a short one; the key always ends its chunk
-  const total = m.reduce((a, x) => a + L(x.t), 0);
-  n = Math.max(1, Math.min(n ?? Math.round(total / 9), 4, m.length));
   const out = []; let cur = [], acc = 0;
-  m.forEach((x, i) => { cur.push(x); acc += L(x.t);
-    if (i < m.length - 1 && out.length < n - 1 && (acc >= total * (out.length + 1) / n || x.t === key)) { out.push(cur); cur = []; } });
+  m.forEach(x => { if (cur.length && acc + L(x.t) > SUBMAX) { out.push(cur); cur = []; acc = 0; }
+    cur.push(x); acc += L(x.t); if (x.t === key) { out.push(cur); cur = []; acc = 0; } });
   if (cur.length) out.push(cur);
   return out.map(c => c.map((x, k) => (k && x.sp ? ' ' : '') + x.t));
 }
-function subtitle(text, t0, t1, {top = SUBTOP, key, keyAt, n} = {}) {
+function subSplit(words) { return [words.slice(0, -1).join('').trim(), words.at(-1).trim()]; }
+function subtitle(text, t0, t1, {top = SUBTOP, key, keyAt, n, punch = true} = {}) {   // punch: the skill's hard zoom cut on each big word
   const chunks = subChunks(text, n, key), span = (t1 - t0) / chunks.length;
   chunks.forEach((words, i) => {
     const a = t0 + i * span, b = a + span;
-    const bi = words.length - 1, ki = words.indexOf(key);              // the big word is always the chunk's last (the key ends its chunk)
-    const lead = words.slice(0, bi).join('').trim(), big = words[bi].trim();
+    const ki = words.findIndex(w => w.trim() === key);
+    const [lead, big] = subSplit(words);
     const tb = ki >= 0 && keyAt != null ? Math.min(b - .2, Math.max(a + .1, keyAt)) : a + Math.min(.35, span * .4);
     const rows = []; if (lead) rows.push([[lead, 'l', a]]); rows.push([[big, i % 2 ? 'i' : 'k', tb]]);
     const el = cap({t0: a, t1: b, top, maxH: 320, lines: rows});
     el.style.rowGap = '26px';
+    snd('key', tb - .04);
+    if (punch) { zoom(tb, i % 2 ? 1.06 : 1.09); zoom(b - .001, 1); }
   });
 }
