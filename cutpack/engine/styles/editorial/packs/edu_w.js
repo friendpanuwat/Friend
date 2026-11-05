@@ -26,7 +26,7 @@ WIDGET('B02', 'edu1', {pack: EDU, code: 'EDU-P4', name: 'กองหนัง�
   const up = s.dir !== 'down', n = 5, h = S * .17, step = (T.hit - T.t0 - .4) / (n - 1), cols = [NAVY, '#7A869E', NAVY, '#A9B2C3', ACC];
   for (let k = 0; k < n; k++) { const w = S * (.9 - (k % 2) * .1), b = div(`left:${(S - w) / 2}px;top:${S - (k + 1) * (h + 2)}px;width:${w}px;height:${h}px;border-radius:4px;background:${k === n - 1 && !up ? RED : cols[k]};opacity:0`, vis);
     if (up) mv.fly(b, T.t0 + .4 + k * step - MOTION.fly.d, 'translate(0,-60px)');
-    else { mv.pop(b, T.t0 + .05 + k * .05, 'translateY(-20px)'); if (k === n - 1) { mv.slide(b, T.hit - 2 * MOTION.slide.d, 'translate(0,0) rotate(0)', `translate(${S * .06}px,0) rotate(6deg)`); mv.slide(b, T.hit - MOTION.slide.d, `translate(${S * .06}px,0) rotate(6deg)`, `translate(${S * .45}px,${S * .1}px) rotate(18deg)`); } } }
+    else { mv.pop(b, T.t0 + .05 + k * .05, 'translateY(-20px)'); if (k === n - 1) { mv.slide(b, T.hit - 2 * MOTION.slide.d, 'translate(0,0) rotate(0)', `translate(${-S * .06}px,0) rotate(-6deg)`); mv.slide(b, T.hit - MOTION.slide.d, `translate(${-S * .06}px,0) rotate(-6deg)`, `translate(${-S * .5}px,${S * .1}px) rotate(-18deg)`);   /* falls left, away from the text, and out past the card edge (Friend 2026-11-05: the falling book must not touch the text) */ } } }
   snd('hit', T.hit);
 });
 WIDGET('B09', 'edu1', {pack: EDU, code: 'EDU-P5', name: 'ตารางเรียนรายสัปดาห์', slots: B09_SLOTS, dur: [1.2, 3.5], hit: 'ช่องวันสุดท้ายเติมสี'}, (vis, S, s, T) => {

@@ -15,7 +15,7 @@ def items(pack):
     """[(part id, code, name, hit text, [bgs])] in file order, read from the pack's PART(...) meta."""
     src = open(os.path.join(HERE, '..', '..', 'engine', 'styles', 'editorial', 'packs', pack + '.js'), encoding='utf-8').read()
     out = []
-    for m in re.finditer(r"PART\('(\w+)', '(\w+)', \{pack: \w+, code: '([^']+)',(?: use: '[^']*',)? name: '([^']+)', bgs: \[([^\]]*)\].*?hit: '([^']*)'\}", src, re.S):
+    for m in re.finditer(r"PART\('(\w+)', '(\w+)', \{pack: \w+, code: '([^']+)',(?: use: '[^']*',)? name: '([^']+)', bgs: \[([^\]]*)\].*?hit: '([^']*)'(?:, wide: [\d.]+)?\}", src, re.S):
         out.append((f'{m.group(1)}.{m.group(2)}', m.group(3), m.group(4), m.group(6), re.findall(r"'(\w+)'", m.group(5))))
     return out
 
@@ -35,7 +35,7 @@ def widgets(pack):
     """[(part id, code, name, hit text)] of the pack's overlay widgets (packs/<pack>_w.js)."""
     src = open(os.path.join(HERE, '..', '..', 'engine', 'styles', 'editorial', 'packs', pack + '_w.js'), encoding='utf-8').read()
     return [(f'{m.group(1)}.{m.group(2)}', m.group(3), m.group(4), m.group(5)) for m in
-            re.finditer(r"WIDGET\('(\w+)', '(\w+)', \{pack: \w+, code: '([^']+)',(?: use: '[^']*',)? name: '([^']+)'.*?hit: '([^']*)'\}", src, re.S)]
+            re.finditer(r"WIDGET\('(\w+)', '(\w+)', \{pack: \w+, code: '([^']+)',(?: use: '[^']*',)? name: '([^']+)'.*?hit: '([^']*)'(?:, wide: [\d.]+)?\}", src, re.S)]
 
 
 def widget_plan(pack):

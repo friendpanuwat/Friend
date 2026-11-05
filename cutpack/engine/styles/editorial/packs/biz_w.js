@@ -37,12 +37,8 @@ WIDGET('B10', 'biz1', {pack: BIZ, code: 'BIZ-P4', name: 'คนถือถุ�
     if (i !== 1) return; const b = div(`left:${S * .34 + z * .78}px;top:${S * .1 + z * .95}px;width:${z * .55}px;height:${z * .55}px;opacity:0`, vis, `<svg width="100%" height="100%" viewBox="0 0 60 60"><path d="M20 22 V16 a10 10 0 0 1 20 0 V22" fill="none" stroke="${INK}" stroke-width="6"/><rect x="8" y="20" width="44" height="38" rx="7" fill="${ACC}" stroke="${INK}" stroke-width="3"/></svg>`); mv.pop(b, T.hit + .05, 'scale(0)'); });
   snd('hit', T.hit);
 });
-WIDGET('B12', 'biz1', {pack: BIZ, code: 'BIZ-P5', name: 'กล่องพัสดุวิ่งตามลูกศร', slots: B12_SLOTS, dur: [1.0, 3], hit: 'กล่องพัสดุถึงปลายลูกศร แล้ว B เด้ง'}, (vis, S, s, T) => {
-  const z = S * .38; mt(vis, s.ia, T.t0 + .1, 0, S * .5, z, '#EEF0F4', NAVY);
-  div(`left:${z}px;top:${S * .67}px;width:${S - 2 * z}px;height:${S * .04}px;background:repeating-linear-gradient(90deg,${NAVY} 0 6px,transparent 6px 12px)`, vis);
-  const box = div(`left:${z - S * .02}px;top:${S * .3}px;width:${S * .2}px;height:${S * .2}px;border-radius:${S * .04}px;background:${NAVY};opacity:0`, vis); div(`left:${S * .085}px;top:0;width:${S * .03}px;height:100%;background:${ACC}`, box);
-  mv.pop(box, T.t0 + .3); mv.slide(box, T.hit - MOTION.slide.d, 'translateX(0)', `translateX(${S - 2 * z}px)`);
-  mt(vis, s.ib, T.hit, S - z, S * .5, z, ACC, INK); snd('hit', T.hit);
+WIDGET('B12', 'biz1', {pack: BIZ, code: 'BIZ-P5', name: 'กล่องพัสดุวิ่งตามลูกศร', slots: B12_SLOTS, dur: [1.0, 3], hit: 'กล่องพัสดุถึงปลายลูกศร แล้ว B เด้ง', wide: 2.2}, (vis, S, s, T, L) => {
+  wflow(vis, S, L.VW, s, T, (x, y, b) => { const box = div(`left:${x}px;top:${y}px;width:${b}px;height:${b}px;border-radius:${b * .2}px;background:${NAVY};opacity:0`, vis); div(`left:${b * .42}px;top:0;width:${b * .16}px;height:100%;background:${ACC}`, box); return box; });
 });
 WIDGET('B07', 'biz1', {pack: BIZ, code: 'BIZ-P6', name: 'ตะกร้าถูกทิ้ง', slots: B07_SLOTS, dur: [1.0, 3], hit: 'ตะกร้าเอียงของหล่นออก ป้ายกากบาทแดงเด้ง'}, (vis, S, s, T) => {
   const cart = div(`left:${S * .04}px;top:${S * .18}px;width:${S * .78}px;height:${S * .78}px;transform-origin:30% 90%;opacity:0`, vis, ico('shopping-cart', S * .78, NAVY, 2.2));

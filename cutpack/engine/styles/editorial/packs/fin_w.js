@@ -16,10 +16,8 @@ WIDGET('B02', 'fin1', {pack: FIN, code: 'FIN-P2', name: 'กราฟแท่�
   const last = div(`left:${3 * S * .24}px;top:${S - hi * u}px;width:${w}px;height:${(hi - lo) * u}px;border-radius:4px;background:${up ? ACC : RED};border:2px solid ${up ? INK : RED};transform-origin:50% ${up ? '100%' : '0'}`, vis);
   mv.fill(last, T.hit, 0, 1, 'Y'); snd('hit', T.hit);
 });
-WIDGET('B12', 'fin1', {pack: FIN, code: 'FIN-P3', name: 'เหรียญไหลตามลูกศร', slots: B12_SLOTS, dur: [1.0, 3], hit: 'เหรียญสุดท้ายถึงปลายลูกศร แล้ว B เด้ง'}, (vis, S, s, T) => {
-  const z = S * .38; mt(vis, s.ia, T.t0 + .1, 0, S * .5, z, '#EEF0F4', NAVY);
-  [0, 1].forEach(k => { const c = wcoin(vis, z - S * .02, S * .3, S * .18, true); mv.pop(c, T.t0 + .3 + k * .1); mv.slide(c, T.hit - MOTION.slide.d - (1 - k) * .25, 'translateX(0)', `translateX(${S - 2 * z}px)`); });
-  mt(vis, s.ib, T.hit, S - z, S * .5, z, ACC, INK); snd('hit', T.hit);
+WIDGET('B12', 'fin1', {pack: FIN, code: 'FIN-P3', name: 'เหรียญไหลตามลูกศร', slots: B12_SLOTS, dur: [1.0, 3], hit: 'เหรียญสุดท้ายถึงปลายลูกศร แล้ว B เด้ง', wide: 2.2}, (vis, S, s, T, L) => {
+  wflow(vis, S, L.VW, s, T, (x, y, c) => wcoin(vis, x, y, c, true), 2);
 });
 WIDGET('B07', 'fin1', {pack: FIN, code: 'FIN-P4', name: 'บัตรเครดิตแตกร้าว', slots: B07_SLOTS, dur: [1.0, 3], hit: 'รอยร้าวสีแดงวิ่งข้ามบัตร บัตรแยกเป็นสองซีก เส้นแดงหายไปทันที'}, (vis, S, s, T) => {
   const card = div(`left:0;top:${S * .2}px;width:${S}px;height:${S * .6}px;opacity:0`, vis), W_ = S, H_ = S * .6;
@@ -53,6 +51,8 @@ WIDGET('FIN', 'h1', {pack: FIN, code: 'FIN-H1', name: 'ดอกเบี้ย�
   const pts = Array.from({length: 13}, (_, i) => `${(i / 12 * S).toFixed(1)} ${(S - (Math.pow(1.17, i) - 1) / (Math.pow(1.17, 12) - 1) * S * .92).toFixed(1)}`);
   const g = svg(S, S, `<path d="M0 ${S} L${S} ${S * .72}" stroke="#A9B2C3" stroke-width="5" stroke-dasharray="3 8" fill="none"/><path d="M${pts.join(' L')}" fill="none" stroke="${NAVY}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>`, 'left:0;top:0', vis);
   const [st, money] = g.querySelectorAll('path'); mv.draw(st, T.t0 + .15, .5); mv.draw(money, T.hit - .8, .8);
+  const ax = svg(S, S, `<path d="M3 ${S * .02} V${S - 3} H${S}" fill="none" stroke="#46536E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`, 'left:0;top:0', vis);   // axes: left and bottom (Friend 2026-11-05)
+  mv.draw(ax.querySelector('path'), T.t0 + .05, .4);
   const area = svg(S, S, `<path d="M${pts.join(' L')} L${S} ${S * .72} L0 ${S} Z" fill="${ACC}" opacity=".55"/>`, 'left:0;top:0;opacity:0', vis); vis.insertBefore(area, g); mv.show(area, T.hit);
   mv.pop(div(`left:${S - S * .14}px;top:${-S * .02}px;width:${S * .16}px;height:${S * .16}px;border-radius:50%;background:${ACC};border:3px solid ${INK};opacity:0`, vis), T.hit); snd('hit', T.hit);
 });
@@ -74,19 +74,22 @@ WIDGET('FIN', 'h3', {pack: FIN, code: 'FIN-H3', name: 'รายการรั�
   div(`left:0;top:${S * .76}px;width:${S}px;height:0;border-top:3px dashed ${WG}`, vis);
   const bal = div(`left:${S * .3}px;top:${S * .84}px;width:${S * .7}px;height:${S * .14}px;border-radius:${S * .05}px;background:${ACC};transform-origin:100% 50%`, vis); mv.fill(bal, T.hit, 0, 1); snd('hit', T.hit);
 });
-WIDGET('FIN', 'h4', {pack: FIN, code: 'FIN-H4', name: 'เงินเฟ้อ', slots: PARTS.FIN.h4.meta.slots, dur: [1.2, 3.5], hit: 'ของในตะกร้าจางหายทีละชิ้น ลูกศรแดงชี้ลง'}, (vis, S, s, T) => {
-  mv.pop(div(`left:${S * .1}px;top:0;width:${S * .62}px;height:${S * .34}px;border-radius:${S * .06}px;background:${NAVY};display:flex;align-items:center;justify-content:center;font-family:KeySans;font-size:${S * .17}px;color:#fff;opacity:0`, vis, '฿'), T.t0 + .05, 'scale(.6)');
+WIDGET('FIN', 'h4', {pack: FIN, code: 'FIN-H4', name: 'เงินเฟ้อ', slots: PARTS.FIN.h4.meta.slots, dur: [1.2, 3.5], hit: 'ของในตะกร้าจางหายทีละชิ้น ลูกศรแดงชี้ลง', wide: 1.7}, (vis, S, s, T, L) => {
+  // Friend 2026-11-05: the text stood out much more than the icons, so the icons are bigger and the short size is wider
+  const VW = L.VW, z = Math.min(S * .58, VW * .31), th = S * .36, tw = Math.min(VW * .5, S * .62);
+  mv.pop(div(`left:0;top:0;width:${tw}px;height:${th}px;border-radius:${S * .07}px;background:${NAVY};display:flex;align-items:center;justify-content:center;font-family:KeySans;font-size:${th * .55}px;color:#fff;opacity:0`, vis, '฿'), T.t0 + .05, 'scale(.6)');
   const icons = ['egg', 'milk', 'apple'], step = (T.hit - T.t0 - .6) / 2;
-  icons.forEach((nm, k) => { const it = mt(vis, nm, T.t0 + .15 + k * .05, k * S * .27, S * .5, S * .26, k === 0 ? ACC : '#EEF0F4', NAVY); if (k > 0) mv.dim(it, T.t0 + .6 + (2 - k) * step); });
-  mv.pop(div(`left:${S * .76}px;top:${S * .02}px;width:${S * .24}px;height:${S * .24}px;border-radius:${S * .07}px;background:${RED};display:flex;align-items:center;justify-content:center;opacity:0`, vis, ico('trending-down', S * .16, '#fff', 2.8)), T.hit);
+  icons.forEach((nm, k) => { const it = mt(vis, nm, T.t0 + .15 + k * .05, k * (VW - z) / 2, S - z, z, k === 0 ? ACC : '#EEF0F4', NAVY); if (k > 0) mv.dim(it, T.t0 + .6 + (2 - k) * step); });
+  mv.pop(div(`left:${tw + S * .06}px;top:0;width:${th}px;height:${th}px;border-radius:${S * .07}px;background:${RED};display:flex;align-items:center;justify-content:center;opacity:0`, vis, ico('trending-down', th * .66, '#fff', 2.8)), T.hit);
   snd('hit', T.hit);
 });
-WIDGET('FIN', 'h5', {pack: FIN, code: 'FIN-H5', name: 'ลดหย่อนภาษี', slots: PARTS.FIN.h5.meta.slots, dur: [1.2, 3.5], hit: 'ข้อลดหย่อนข้อสุดท้ายถูกติ๊ก แถบภาษีหดลง'}, (vis, S, s, T) => {
-  const n = Math.min(3, s.items.length), step = (T.hit - T.t0 - .5) / n, z = S * .2;
-  for (let k = 0; k < n; k++) { const y = k * S * .26;
+WIDGET('FIN', 'h5', {pack: FIN, code: 'FIN-H5', name: 'ลดหย่อนภาษี', slots: PARTS.FIN.h5.meta.slots, dur: [1.2, 3.5], hit: 'ข้อลดหย่อนข้อสุดท้ายถูกติ๊ก แถบภาษีหดลง', wide: 1.6}, (vis, S, s, T, L) => {
+  // Friend 2026-11-05: the text stood out a little more than the icons, so the boxes, lines and tax bar are bigger and darker
+  const VW = L.VW, n = Math.min(3, s.items.length), step = (T.hit - T.t0 - .5) / n, z = S * .23;
+  for (let k = 0; k < n; k++) { const y = k * S * .27;
     div(`left:0;top:${y}px;width:${z}px;height:${z}px;border-radius:${z * .25}px;border:3px solid ${NAVY};box-sizing:border-box`, vis);
     mv.pop(div(`left:0;top:${y}px;width:${z}px;height:${z}px;border-radius:${z * .25}px;background:${NAVY};display:flex;align-items:center;justify-content:center;opacity:0`, vis, ico('check', z * .7, '#fff', 3.4)), T.t0 + .4 + k * step, 'scale(1.5)');
-    skel(vis, `left:${S * .28}px;top:${y + z * .3}px;width:${S * .7}px`, [.85], {color: WG, h: S * .06}); }
-  const tr = div(`left:0;top:${S * .84}px;width:${S}px;height:${S * .12}px;border-radius:${S * .06}px;background:${WG};overflow:hidden`, vis);
+    skel(vis, `left:${z + S * .08}px;top:${y + z * .3}px;width:${VW - z - S * .08}px`, [.9], {color: '#A9B2C3', h: S * .08}); }
+  const tr = div(`left:0;top:${S * .84}px;width:${VW}px;height:${S * .16}px;border-radius:${S * .08}px;background:${WG};overflow:hidden`, vis);
   mv.fill(div(`left:0;top:0;width:100%;height:100%;background:${RED};transform-origin:0 50%`, tr), T.hit, 1, s.tax === 0 ? 0 : .25); snd('hit', T.hit);
 });
