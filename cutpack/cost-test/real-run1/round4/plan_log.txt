@@ -1,0 +1,23 @@
+=== VID_20261105115846:overlay (spent so far 0 USD) 07:42:27
+[ WARN:0@0.014] global net_impl_backend.cpp:345 setPreferableTarget Targets are not supported by the new graph engine for now
+words from VID_20261105115846.json
+3 chunks over 16 letters split by rule
+overlay   planned scenes 9 (custom 0, fallback changes 2) · steps {'frames': 35.2, 'words': 0.0, 'captions': 6.0, 'faces': 3.8, 'plan': 31.4} → None
+--- VID_20261105115846 took 79 s · spent now 0.1181 USD
+=== VID_20261105105656:overlay (spent so far 0.1181 USD) 07:43:46
+[ WARN:0@0.019] global net_impl_backend.cpp:345 setPreferableTarget Targets are not supported by the new graph engine for now
+words from VID_20261105105656.json
+3 chunks over 16 letters split by rule
+overlay   planned scenes 24 (custom 0, fallback changes 6) · steps {'frames': 41.3, 'words': 0.0, 'captions': 5.9, 'faces': 5.4, 'plan': 62.6} → None
+--- VID_20261105105656 took 117 s · spent now 0.2212 USD
+clips 2 · attempts 2
+cost per clip THB  mean 3.74 · median 3.74 · max 3.99
+  best ≤3.5            1   50.0%
+  mid ≤7.0             1   50.0%
+  over >7.0            0    0.0%
+  fail (refunded)      0    0.0%
+team alert (> 5.5 THB): 0 clips
+average THB per clip by stage: scene 3.690 · group 0.048
+margin after API cost (credits used by delivered clips; failed clips refunded): 70%
+
+[exited with code 0]

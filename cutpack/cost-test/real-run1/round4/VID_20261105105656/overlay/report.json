@@ -1,0 +1,192 @@
+{
+ "status": "ok",
+ "topic": "biz",
+ "log": [
+  "fix round (plan): 17 errors sent back"
+ ],
+ "fallback": [
+  "B12.v4 54.2–57.0 → B14 text B14.v1 (widget-gap)",
+  "B12.v1 66.0–68.8 → B14 text B14.v3 (widget-gap)",
+  "B14.v1 72.0–75.0 → B14 text B14.v1 (hit-early)",
+  "B14.v3 66.0–68.8 dropped (widget-gap)",
+  "B14.v1 54.2–57.0 dropped (widget-gap)",
+  "subtitle 56.56–58.9 \"ไม่ไม่ควร ที่จะ / ต้อง ศึกษา / อีกต่อไป / แล้วเพราะเขา เชื่อไป\" dropped"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "24 widgets, need ≥ 25 for 89.7 s with room"
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B06.v4 12.5",
+   "msg": "two scenes of the same category in a row",
+   "scene": 3
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B05.v2 79.5",
+   "msg": "two scenes of the same category in a row",
+   "scene": 21
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 0.64–5.28 \"เราผลิตร้อย / ขวดก็ผลิตล้าน ขวด / ต้นทุนมันจะ เท่ากันว่า / ใครจะแพง กว่า\"",
+   "msg": "chunk \"ขวดก็ผลิตล้าน ขวด\" is 13 letters, aim ≤ 12",
+   "sub": 0
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 0.64–5.28 \"เราผลิตร้อย / ขวดก็ผลิตล้าน ขวด / ต้นทุนมันจะ เท่ากันว่า / ใครจะแพง กว่า\"",
+   "msg": "chunk \"ต้นทุนมันจะ เท่ากันว่า\" is 15 letters, aim ≤ 12",
+   "sub": 0
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 12.4–16.32 \"เพราะฉะนั้น แบรนด์ / คืออะไร แบรนด์ / คือสัญญาต่อ ผู้บริโภค\"",
+   "msg": "chunk \"เพราะฉะนั้น แบรนด์\" is 14 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 12.4–16.32 \"เพราะฉะนั้น แบรนด์ / คืออะไร แบรนด์ / คือสัญญาต่อ ผู้บริโภค\"",
+   "msg": "chunk \"คือสัญญาต่อ ผู้บริโภค\" is 14 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 31.68–34.64 \"เห็นโลโก้แล้ว จำได้ / แต่ไม่มี นิ่งฟู\"",
+   "msg": "chunk \"เห็นโลโก้แล้ว จำได้\" is 13 letters, aim ≤ 12",
+   "sub": 8
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 34.64–37.44 \"หรือว่าไม่ มีความหมาย / อะไรกันสำหรับ เขาก็ / โอเคเสีย ตังค์\"",
+   "msg": "chunk \"หรือว่าไม่ มีความหมาย\" is 16 letters, aim ≤ 12",
+   "sub": 9
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 34.64–37.44 \"หรือว่าไม่ มีความหมาย / อะไรกันสำหรับ เขาก็ / โอเคเสีย ตังค์\"",
+   "msg": "chunk \"อะไรกันสำหรับ เขาก็\" is 14 letters, aim ≤ 12",
+   "sub": 9
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 37.44–40.32 \"ให้เขา เห็นไป / แต่ว่าถาม ว่ามี / แบรนด์เลิฟ เกิดไหม / มี ความผูกพัน\"",
+   "msg": "chunk \"แบรนด์เลิฟ เกิดไหม\" is 14 letters, aim ≤ 12",
+   "sub": 10
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 42.88–46.32 \"อาจจะ มีความหมาย / แต่ชื่อจำ ไม่ได้\"",
+   "msg": "chunk \"อาจจะ มีความหมาย\" is 14 letters, aim ≤ 12",
+   "sub": 13
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 48.32–50.8 \"ก็คือเหมือนพูดง่าย ง่าย / คือถ้า เกิดคุณ\"",
+   "msg": "chunk \"ก็คือเหมือนพูดง่าย ง่าย\" is 16 letters, aim ≤ 12",
+   "sub": 15
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 54.24–56.56 \"แล้วคุณซื้อ กลับมา / คราวหน้า ผู้บริโภค\"",
+   "msg": "chunk \"คราวหน้า ผู้บริโภค\" is 13 letters, aim ≤ 12",
+   "sub": 17
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 58.9–61.2 \"แล้วจาก การที่ / เขาศึกษา เค้าแล้ว / ครั้งแรก เขา\"",
+   "msg": "chunk \"เขาศึกษา เค้าแล้ว\" is 13 letters, aim ≤ 12",
+   "sub": 18
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 61.2–63.12 \"เห็นแล้วว่าโอ้โห นี่คือ / สิ่งที่ พรีเมียร์\"",
+   "msg": "chunk \"เห็นแล้วว่าโอ้โห นี่คือ\" is 15 letters, aim ≤ 12",
+   "sub": 19
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 63.12–64.72 \"นี่คือสิ่งที่ ดีต่อ / ครอบครัวของ เขา\"",
+   "msg": "chunk \"ครอบครัวของ เขา\" is 13 letters, aim ≤ 12",
+   "sub": 20
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 67.44–69.68 \"นี่คือสิ่งที่ ช่วยเหลือ / ชาวนาอยู่สิ่ง เหล่านี้\"",
+   "msg": "chunk \"นี่คือสิ่งที่ ช่วยเหลือ\" is 13 letters, aim ≤ 12",
+   "sub": 23
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 67.44–69.68 \"นี่คือสิ่งที่ ช่วยเหลือ / ชาวนาอยู่สิ่ง เหล่านี้\"",
+   "msg": "chunk \"ชาวนาอยู่สิ่ง เหล่านี้\" is 14 letters, aim ≤ 12",
+   "sub": 23
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 71.76–73.36 \"ไม่ต้องมานั่ง เลือก / อีกรอบ นึงแล้ว / เขา จะใช้\"",
+   "msg": "chunk \"ไม่ต้องมานั่ง เลือก\" is 13 letters, aim ≤ 12",
+   "sub": 25
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 73.36–74.8 \"น้ำมันชนิดไหน เขาก็ / ควรจะใช้น้ำมัน หลัง\"",
+   "msg": "chunk \"น้ำมันชนิดไหน เขาก็\" is 13 letters, aim ≤ 12",
+   "sub": 26
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 73.36–74.8 \"น้ำมันชนิดไหน เขาก็ / ควรจะใช้น้ำมัน หลัง\"",
+   "msg": "chunk \"ควรจะใช้น้ำมัน หลัง\" is 13 letters, aim ≤ 12",
+   "sub": 26
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 76.0–78.48 \"เนี่ยคือคือคำว่า แบรนด์ / ที่แท้จริงมัน ไม่ใช่\"",
+   "msg": "chunk \"เนี่ยคือคือคำว่า แบรนด์\" is 15 letters, aim ≤ 12",
+   "sub": 28
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 78.48–80.79 \"โลโก้อย่างที่ ทั้งสอง / ท่านได้พูด มันไม่\"",
+   "msg": "chunk \"โลโก้อย่างที่ ทั้งสอง\" is 14 letters, aim ≤ 12",
+   "sub": 29
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 86.4–89.722 \"แต่ว่ามันคือ คำสัญญา / ที่ให้ กับผู้\"",
+   "msg": "chunk \"แต่ว่ามันคือ คำสัญญา\" is 13 letters, aim ≤ 12",
+   "sub": 32
+  }
+ ]
+}

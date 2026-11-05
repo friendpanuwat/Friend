@@ -1,0 +1,180 @@
+{
+ "topic": "edu",
+ "camera": [
+  {
+   "move": "push",
+   "t": 8.9
+  },
+  {
+   "move": "pull",
+   "t": 12.0
+  },
+  {
+   "move": "push",
+   "t": 44.4
+  },
+  {
+   "move": "pull",
+   "t": 57.0
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 0.6,
+   "t1": 3.6,
+   "say": "ยังมีบางคนใช้วิธีเรียนภาษาอังกฤษที่ไม่เหมาะสม",
+   "shows": "warning sign for a bad study method",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 2.8,
+   "need": "",
+   "slots": {
+    "text": "เรียนอังกฤษไม่เหมาะ",
+    "icon": "book-open",
+    "wlead": "วิธีเรียน",
+    "wkey": "ไม่เหมาะสม"
+   }
+  },
+  {
+   "t0": 6.1,
+   "t1": 8.5,
+   "say": "วันนี้เราจะไม่แนะนำวิธีหนึ่ง",
+   "shows": "wrong method crossed out",
+   "part": "B05.v1",
+   "size": "short",
+   "hit": 6.1,
+   "need": "",
+   "slots": {
+    "x": "วิธีนี้",
+    "y": "วิธีที่เหมาะ",
+    "wlead": "ไม่แนะนำ",
+    "wkey": "วิธีนี้"
+   }
+  },
+  {
+   "t0": 15.1,
+   "t1": 17.5,
+   "say": "เราก็อยู่กับมันฟังซ้ำไปเรื่อย",
+   "shows": "loop cycle repeating",
+   "part": "B12.v4",
+   "size": "short",
+   "hit": 17.44,
+   "need": "",
+   "slots": {
+    "a": "ฟัง",
+    "ia": "headphones",
+    "b": "ซ้ำ",
+    "ib": "repeat",
+    "c": "เรื่อยๆ",
+    "ic": "refresh-cw",
+    "wlead": "ฟังซ้ำ",
+    "wkey": "ไปเรื่อย"
+   }
+  },
+  {
+   "t0": 21.5,
+   "t1": 23.0,
+   "say": "การเรียนสิ่งใหม่จากบริบท",
+   "shows": "light bulb tip",
+   "part": "B13.v1",
+   "size": "short",
+   "hit": 22.4,
+   "need": "",
+   "slots": {
+    "tip": "เรียนจากบริบท",
+    "icon": "lightbulb",
+    "wlead": "สิ่งใหม่จาก",
+    "wkey": "บริบท"
+   }
+  },
+  {
+   "t0": 27.1,
+   "t1": 30.0,
+   "say": "เราจะไม่ใช้ประโยคอังกฤษ เราจะใช้ประโยคไทย",
+   "shows": "English crossed out, Thai right",
+   "part": "B05.v2",
+   "size": "short",
+   "hit": 28.1,
+   "need": "",
+   "slots": {
+    "x": "ประโยคอังกฤษ",
+    "y": "ประโยคไทย",
+    "aty": 29.68,
+    "wlead": "ไม่ใช้",
+    "wkey": "ประโยคไทย"
+   }
+  },
+  {
+   "t0": 49.1,
+   "t1": 51.4,
+   "say": "ประโยคที่สอง",
+   "shows": "step 2 item",
+   "part": "B04.v1",
+   "size": "short",
+   "hit": 50.4,
+   "need": "",
+   "slots": {
+    "items": [
+     "ประโยคแรก",
+     "ประโยคที่สอง"
+    ],
+    "at": [
+     49.5,
+     50.4
+    ],
+    "wlead": "ประโยค",
+    "wkey": "ที่สอง"
+   }
+  },
+  {
+   "t0": 52.2,
+   "t1": 54.5,
+   "say": "ประเทศที่ไม่ลงทุนกับการศึกษา เห็นได้ชัด",
+   "shows": "arrow falls",
+   "part": "B02.v3",
+   "size": "short",
+   "hit": 52.55,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "graduation-cap",
+    "wlead": "ไม่ลงทุน",
+    "wkey": "การศึกษา"
+   }
+  },
+  {
+   "t0": 65.1,
+   "t1": 68.9,
+   "say": "แค่คนเดียว ประโยคที่สี่",
+   "shows": "one person highlighted",
+   "part": "B10.v1",
+   "size": "short",
+   "hit": 65.28,
+   "need": "",
+   "slots": {
+    "who": "คนเดียว",
+    "n": 1,
+    "wlead": "กระทบ",
+    "wkey": "คนเดียว"
+   }
+  },
+  {
+   "t0": 71.1,
+   "t1": 73.9,
+   "say": "คนเก่งทยอยกันลาออก",
+   "shows": "cause leads to people leaving",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 72.8,
+   "need": "",
+   "slots": {
+    "a": "ไม่ฟังเสียง",
+    "ia": "ear-off",
+    "b": "ลาออก",
+    "ib": "log-out",
+    "wlead": "คนเก่ง",
+    "wkey": "ลาออก"
+   }
+  }
+ ]
+}

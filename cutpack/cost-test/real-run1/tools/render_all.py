@@ -7,6 +7,7 @@ raw, work, names = sys.argv[1], sys.argv[2], sys.argv[3:]
 for c in names:
     for style in ('editorial', 'overlay'):
         out = os.path.join(work, c, style)
+        if not os.path.exists(os.path.join(out, 'plan.json')): continue   # style not planned in this run
         if os.path.exists(os.path.join(out, 'edit.mp4')): print(c, style, 'already rendered'); continue
         plan = json.load(open(os.path.join(out, 'plan.json')))
         t0 = time.time()
