@@ -76,10 +76,13 @@ def place_widgets(plan, inp):
     """Each widget where there is room during its own time (room.py, Friend 2026-11-05): above the head, at chest
     level, or beside the head. No room then → no `pos`, and the checker's place-nofit lets fallback.py leave it out."""
     top = (inp.get('layout') or {}).get('subtitleTop', 1300)
+    tight = room.tight(inp['track'], plan['clip']['duration'], top, inp['faceBox'])
     for s in plan['scenes']:
         got = room.place(inp['track'], s['t0'], s['t1'], s.get('size'), plan['camera'], top, inp['faceBox'])
-        s.pop('pos', None)
+        for k in ('pos', 'where', 'shrink'): s.pop(k, None)
         if got: s['size'], s['pos'], s['where'] = got
+        elif tight:   # no room now, in a clip that is short of room: the speaker shrinks for this widget
+            s.update(size='short', pos=dict(room.SHRINK['pos']), where='shrink', shrink=True)
 
 
 if __name__ == '__main__':

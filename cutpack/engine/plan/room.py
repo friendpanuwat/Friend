@@ -11,6 +11,9 @@ Order (Friend 2026-11-05: "ถ้ามีพื้นที่ว่างบ�
   2. at chest level    short widget between the zoomed chin (+40) and the subtitles (−20)
   3. beside the head   narrow widget 210×380, left if there is room, else right (never in the app's button strip)
   4. no room          the widget is left out (fallback.py drops it); the checker counts density only where there is room
+  — except in a tight clip (room for less than SHRINK_IF of it): there the speaker shrinks for the widget instead
+    (Friend approved the demo 2026-11-05, "ย่อภาพคนพูดชั่วคราว"): the widget sits at the top, the video scales to SHRINK['s']
+    over the dark glow backdrop and grows back after it (plan2timeline emits frame()); density counts the whole clip
 The size the AI chose is tried first (short: 1 then 2; narrow: 3), then the rest of the order.
 No geometry here needs OpenCV, so the planner, the checker and the prompt all use this file.
 """
@@ -101,6 +104,27 @@ def windows(track, dur, sub_top, face_box):
             else: out.append({'t0': round(t, 2), 't1': round(t1, 2), 'sizes': sizes})
         t = t1
     return out
+
+
+SHRINK_IF = .8                       # a clip with room for less than this share of its length uses the speaker shrink
+SHRINK = {'s': .8, 'y': 1150, 'r': 44, 'd': .45, 'o': .45, 'pos': {'x': (W - SHORT[0]) // 2, 'y': TOPBAR}}
+# s .8 and centre y 1150: the video's top edge comes down to 382, below the widget (150–340), and its bottom stays at 1918
+
+
+def tight(track, dur, sub_top, face_box):
+    """True when the face leaves room for a widget during less than SHRINK_IF of the clip."""
+    return sum(b - a for a, b in merged(windows(track, dur, sub_top, face_box))) < SHRINK_IF * dur
+
+
+def shrink_windows(scenes, dur, join=.8):
+    """[t0, t1] of each speaker shrink: around each shrink widget (d before, o after), neighbours closer than `join`
+    seconds sharing one, so the speaker does not bounce."""
+    out = []
+    for s in sorted((s for s in scenes if s.get('shrink')), key=lambda s: s['t0']):
+        a, b = max(0.0, s['t0'] - SHRINK['d'] - .05), min(dur, s['t1'] + SHRINK['o'] + .05)
+        if out and a - out[-1][1] < join: out[-1][1] = max(out[-1][1], b)
+        else: out.append([a, b])
+    return [(round(a, 3), round(b, 3)) for a, b in out]
 
 
 def roomy(wins, a, b):

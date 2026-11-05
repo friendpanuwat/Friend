@@ -78,6 +78,7 @@ def b14(scene, plan, cat):
         if isinstance(icon, str) and icon in set(cat['icons']): new['slots']['icon'] = icon
         new.update(part=opts[0], size=scene['size'])
         if scene.get('pos'): new['pos'] = scene['pos']
+        if scene.get('shrink'): new.update(shrink=True, where='shrink')
     return new
 
 

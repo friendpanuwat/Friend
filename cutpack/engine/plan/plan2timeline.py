@@ -8,7 +8,7 @@ convert(plan, guard=True) is for the checker only: each call is wrapped so one f
 is reported (window.__planErr = [[what, index, message]]) and the rest of the clip still builds.
 """
 import json, sys
-import custom_check
+import custom_check, room
 
 
 def js(v):
@@ -59,6 +59,10 @@ def convert(plan, guard=False):
             call(f"widgetAt({js(cat)}, {js(v)}, {js(s['size'])}, {js(s['t0'])}, {js(s['t1'])}, {js(args)});", 'scene', i)
         else:
             raise SystemExit(f"unknown scene kind {s['kind']!r}")
+    # overlay widgets with no room in a tight clip: the speaker shrinks for them (room.py, Friend 2026-11-05)
+    for a, b in room.shrink_windows([s for _, s in scenes], plan['clip']['duration']):
+        k = room.SHRINK
+        out.append(f"frame({js(a)}, {js(b)}, {{bg: 'glow', s: {k['s']}, y: {k['y']}, r: {k['r']}, d: {k['d']}, o: {k['o']}}});")
     return '\n'.join(out) + '\n'
 
 

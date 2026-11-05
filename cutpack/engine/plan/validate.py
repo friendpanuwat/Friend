@@ -240,7 +240,9 @@ def room_ranges(plan, faces):
     """Overlay with a face track: the times a widget has room (room.py), or None (no track: the whole clip counts)."""
     if plan['style'] != 'overlay' or not (faces or {}).get('track'): return None
     top = (plan.get('layout') or {}).get('subtitleTop', (faces.get('layout') or {}).get('subtitleTop', 1300))
-    return room.merged(room.windows(faces['track'], plan['clip']['duration'], top, faces['face']))
+    dur = plan['clip']['duration']
+    if room.tight(faces['track'], dur, top, faces['face']): return None   # the speaker shrinks where there is no room
+    return room.merged(room.windows(faces['track'], dur, top, faces['face']))
 
 
 def check_timeline(plan, R, faces=None):
@@ -370,6 +372,7 @@ def check_places(plan, cat, R, layout, faces):
     for i, s in enumerate(plan['scenes']):
         if s.get('size') not in sizes: continue
         w = f"scenes[{i}] {s['part']} {s['t0']}"; R.ctx = {'scene': i}
+        if track and s.get('shrink'): continue   # the speaker shrinks below the widget for its time (room.SHRINK)
         if track:   # per moment (room.py): the face during this widget's own time, zoomed as the camera is then
             if not s.get('pos'): R.err('place-nofit', w, f"no room for a widget at {s['t0']}–{s['t1']}: the face fills the frame then"); continue
             keep = room.keep_out(track, s['t0'], s['t1'], plan.get('camera'), faces.get('face') or keep)

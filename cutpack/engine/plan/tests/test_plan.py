@@ -382,12 +382,13 @@ class PerMoment(unittest.TestCase):
         self.assertEqual(room.place(tr, 1.0, 3.0, 'narrow', [], 1300, self.LOW)[2], 'left')   # the AI's size first
 
     def test_plan_places_each_widget_and_leaves_out_the_ones_with_no_room(self):
-        inp = copy.deepcopy(INPUT); inp['track'] = self.track(); inp['faceBox'] = self.LOW
+        # room for about 16 of 18 s: not a tight clip, so a widget with no room is left out
+        inp = copy.deepcopy(INPUT); inp['track'] = self.track(split=16.5); inp['faceBox'] = self.LOW
         faces = dict(FACES, track=inp['track'], face=self.LOW)
         ans = load(EX, 'test18_overlay.answer.json')
         plan = assemble.assemble(inp, ans, 'overlay')
-        early = [s for s in plan['scenes'] if s['t1'] <= 8.5]
-        late = [s for s in plan['scenes'] if s['t0'] >= 9.5]
+        early = [s for s in plan['scenes'] if s['t1'] <= 15.0]
+        late = [s for s in plan['scenes'] if s['t0'] >= 16.0]
         self.assertTrue(early and late)
         self.assertTrue(all(s.get('pos') for s in early)); self.assertTrue(all(not s.get('pos') for s in late))
         R, _ = V.validate(plan, CAT, faces, render=False)
@@ -395,17 +396,35 @@ class PerMoment(unittest.TestCase):
         self.assertNotIn('place-face', [i['code'] for i in R.issues])
         fixed, R2 = fallback.repair(plan, CAT, faces, render=False)
         self.assertEqual(R2.blocking, [])
-        self.assertTrue(all(s['t1'] <= 9.5 for s in fixed['scenes']))   # the no-room widgets were left out, not swapped
+        self.assertTrue(all(s['t1'] <= 16.0 for s in fixed['scenes']))   # the no-room widgets were left out, not swapped
         # density counts only the time with room: the widgets that fit are enough for it
         self.assertNotIn('density-low', [i['code'] for i in R2.issues])
         self.assertNotIn('bare-long', [i['code'] for i in R2.issues])
 
+    def test_tight_clip_shrinks_the_speaker_for_widgets_with_no_room(self):
+        """Friend approved the demo 2026-11-05: room for 9 of 18 s → the widgets after 9 s get the speaker shrink."""
+        import room
+        inp = copy.deepcopy(INPUT); inp['track'] = self.track(split=9.0); inp['faceBox'] = self.LOW
+        faces = dict(FACES, track=inp['track'], face=self.LOW)
+        plan = assemble.assemble(inp, load(EX, 'test18_overlay.answer.json'), 'overlay')
+        late = [s for s in plan['scenes'] if s['t0'] >= 9.5]
+        self.assertTrue(late and all(s.get('shrink') and s['pos'] == room.SHRINK['pos'] for s in late))
+        R, _ = V.validate(plan, CAT, faces, render=False)
+        self.assertEqual([i for i in R.blocking if i['code'].startswith('place')], [])
+        js = plan2timeline.convert(plan)
+        self.assertEqual(js.count("frame("), len(room.shrink_windows(plan['scenes'], 18.0)))
+        self.assertIn("bg: 'glow', s: 0.8", js)
+        R, _ = V.validate(plan, CAT, faces, render=True)   # the engine renders the shrink with the widgets on top
+        self.assertEqual([i for i in R.blocking], [])
+
     def test_prompt_lists_the_times_with_room(self):
-        inp = copy.deepcopy(INPUT); inp['track'] = self.track(); inp['faceBox'] = self.LOW
+        inp = copy.deepcopy(INPUT); inp['track'] = self.track(split=16.5); inp['faceBox'] = self.LOW
         text = prompt.clip_text(inp, 'overlay')
         self.assertIn('Times with room for a widget', text); self.assertIn('0.0–', text)
+        inp['track'] = self.track(split=9.0)
+        self.assertIn('the speaker shrinks', prompt.clip_text(inp, 'overlay'))
         inp['track'] = [[t, self.FULL] for t, _ in inp['track']]
-        self.assertIn('plan no widgets', prompt.clip_text(inp, 'overlay'))
+        self.assertIn('the speaker shrinks', prompt.clip_text(inp, 'overlay'))
         self.assertNotIn('Times with room', prompt.clip_text(INPUT, 'overlay'))   # no track: the old whole-clip line
 
 

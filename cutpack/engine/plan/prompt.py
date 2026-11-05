@@ -152,9 +152,15 @@ def clip_text(inp, style):
     lay = inp.get('layout', {})
     out = [f"Style: {style}", f"Clip length: {d:.2f} s"]
     if style == 'overlay' and inp.get('track'):   # per moment (room.py, Friend 2026-11-05)
-        rows = room_text(inp['track'], d, lay.get('subtitleTop', 1300), inp['faceBox'])
-        out.append('Times with room for a widget (plan widgets only inside them; code places each one): '
-                   + (rows or 'none — the face fills the frame the whole clip, plan no widgets'))
+        top = lay.get('subtitleTop', 1300)
+        rows = room_text(inp['track'], d, top, inp['faceBox'])
+        if room.tight(inp['track'], d, top, inp['faceBox']):
+            out.append('The face leaves little room for widgets in this clip, so at the times without room the speaker shrinks '
+                       'for the widget (code does it): plan widgets over the whole clip as usual. Times with room above, at or '
+                       'beside the head: ' + (rows or 'none'))
+        else:
+            out.append('Times with room for a widget (plan widgets only inside them; code places each one): '
+                       + (rows or 'none — the face fills the frame the whole clip, plan no widgets'))
     elif style == 'overlay':
         sizes = [s for s in ('short', 'narrow') if lay.get(f'{s}Fits', True)]
         out.append('Widget sizes with room in this clip: ' + (', '.join(sizes) if sizes else 'none (plan no widgets)'))
