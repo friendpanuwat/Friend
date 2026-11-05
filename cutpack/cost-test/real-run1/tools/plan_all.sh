@@ -11,7 +11,8 @@ for c in "$@"; do
   if python3 -c "import sys; sys.exit(0 if float('$spent') >= $CAP else 1)"; then echo "STOP: spent $spent USD ≥ $CAP"; break; fi
   t0=$(date +%s)
   echo "=== $c (spent so far $spent USD) $(date +%T)"
-  (cd "$REPO" && python3 cutpack/engine/run_clip.py "$RAW/$c.mp4" "$W/$c" --words "$WORDS/$c.json" --stop-after plan --log "$W/runs.jsonl" 2>&1 | grep -vE "WARNING|telemetry")
+  st=editorial,overlay; case "$c" in *:*) st=${c#*:}; c=${c%%:*};; esac   # name:styles runs only those styles
+  (cd "$REPO" && python3 cutpack/engine/run_clip.py "$RAW/$c.mp4" "$W/$c" --words "$WORDS/$c.json" --styles $st --stop-after plan --log "$W/runs.jsonl" --state "$W/plan_times.json" ${PLAN_MODEL:+--plan-model $PLAN_MODEL} 2>&1 | grep -vE "WARNING|telemetry")
   echo "--- $c took $(( $(date +%s)-t0 )) s · spent now $(python3 "$TOOLS/spent.py" "$W/runs.jsonl" "$REPO") USD"
 done
 (cd "$REPO" && python3 cutpack/cost-test/cost_model.py report "$W/runs.jsonl")
