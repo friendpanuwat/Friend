@@ -65,11 +65,43 @@ def note_plan(state, style, now=None):
     with open(state, 'w') as f: json.dump(d, f)
 
 
+PRICES = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'cost-test')
+
+
+def worst_usd(req):
+    """The most this request can cost: every input character as a token at the full input price (no cache), plus
+    max_tokens of output — an over-estimate on purpose."""
+    sys.path.insert(0, PRICES); import cost_model
+    chars = len(json.dumps([req.get('system'), req.get('messages')], ensure_ascii=False, default=str))
+    return cost_model.call_usd({'stage': 'scene', 'model': req['model'], 'in': chars, 'out': req.get('max_tokens', 16000)})
+
+
+def budget_check(req):
+    """With $CUTPACK_BUDGET_USD and $CUTPACK_LEDGER set (test runs), refuse a call that could take the ledger past the
+    budget (real-key test 2026-11-05: a check only between clips let a test pass Friend's 4 USD line). → why or None"""
+    budget, ledger = os.environ.get('CUTPACK_BUDGET_USD'), os.environ.get('CUTPACK_LEDGER')
+    if not budget or not ledger: return None
+    spent = load_state(ledger).get('usd', 0.0)
+    if spent + worst_usd(req) > float(budget): return f'budget: {spent:.4f} spent, the next call could pass {float(budget):.2f} USD'
+    return None
+
+
+def ledger_add(resp, req):
+    ledger = os.environ.get('CUTPACK_LEDGER')
+    if not ledger or resp is None: return
+    sys.path.insert(0, PRICES); import cost_model
+    d = load_state(ledger); d['usd'] = d.get('usd', 0.0) + cost_model.call_usd(call_record(resp, req['model']))
+    with open(ledger, 'w') as f: json.dump(d, f)
+
+
 def ask(client, req):
     """One API call → (answer dict or None, the response, why it failed)."""
     import anthropic
+    why = budget_check(req)
+    if why: return None, None, why
     try:
         resp = client.beta.messages.create(**req)
+        ledger_add(resp, req)
     except anthropic.BadRequestError as e: return None, None, f'bad request: {e.message}'
     except anthropic.AuthenticationError: return None, None, 'no valid API key in the environment'
     except anthropic.RateLimitError: return None, None, 'rate limited (after the SDK\'s retries)'
@@ -122,11 +154,11 @@ def write_codes(client, inp, style, answer, cat, calls, log, code_answer=None, r
 
 
 def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_answer=None, code_answer=None, fix_code_answer=None,
-        client=None, ttl='5m', model=None):
+        client=None, ttl='5m', model=None, thinking=None):
     """client: an anthropic.Anthropic() made here when None (tests pass a stand-in with the same beta.messages.create)."""
     os.makedirs(out, exist_ok=True)
     cat = prompt.load_catalog()
-    req = prompt.request(inp, style, cat, ttl=ttl, model=model)
+    req = prompt.request(inp, style, cat, ttl=ttl, model=model, thinking=thinking)
     if dry:
         save(os.path.join(out, 'request.json'), req)
         return None

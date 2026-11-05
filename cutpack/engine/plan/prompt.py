@@ -14,7 +14,7 @@ Input file (one clip, made by the transcription and caption steps; example: exam
   {"clip": {"file", "duration", "customer"}, "words": [{"w", "t0", "t1"}], "captions": [{"t0", "t1", "text" with / chunks}],
    "layout": faces.json "layout", "history": {"clips": [{"parts": [...]}]}}
 """
-import glob, json, math, os, re, sys
+import glob, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -164,34 +164,6 @@ def room_text(track, d, sub_top, face_box, shortest=1.2):
                       for w in out if w['t1'] - w['t0'] >= shortest)
 
 
-def targets(inp, style):
-    """This clip's density rules as numbers (Friend 2026-11-05, "ข้อเสนอบอกตัวเลข"): with only the general rules, the first
-    plans at effort low had 7–13 scenes for 60–90 s clips and 34 scene lengths outside their part's range, so every clip
-    paid for a fix round (60–80% of its cost). Overlay counts only the time with room, as the checker does."""
-    from validate import RULES
-    d, lay = inp['clip']['duration'], inp.get('layout', {})
-    hit = RULES['hitIn']['card' if style == 'editorial' else 'widget']
-    if style == 'editorial':
-        lo, hi = RULES['cardShare']
-        rows = [f"- at least {math.floor(d / RULES['cardEvery'])} cards, together {lo * d:.0f}–{hi * d:.0f} s of the {d:.0f} s",
-                f"- the face alone never longer than {RULES['arollMax']} s anywhere: from {RULES['firstAt']} s to the end, the last seconds included",
-                f"- the first card at {RULES['firstAt']} s or later"]
-    else:
-        span, where = d, 'over the whole clip'
-        if inp.get('track'):
-            top = lay.get('subtitleTop', 1300)
-            if not room.tight(inp['track'], d, top, inp['faceBox']):
-                span = sum(b - a for a, b in room.merged(room.windows(inp['track'], d, top, inp['faceBox'])))
-                where = 'inside the times with room'
-        if math.floor(span / RULES['widgetEvery']) < 1: return []
-        rows = [f"- at least {math.floor(span / RULES['widgetEvery'])} widgets, spread {where}",
-                f"- never more than {RULES['bareMax']} s without a widget {where}, from the start to the end",
-                f"- at least {RULES['widgetGap']} s between one widget's t1 and the next one's t0"]
-    rows += ["- every scene's length (t1 − t0) inside its part's range in the library",
-             f"- each hit at least {hit} s after its t0 and at least {RULES['hitOut']} s before its t1"]
-    return ['', 'Targets for this clip (the checker rejects a plan that misses one: count and check each before you answer):'] + rows
-
-
 def clip_text(inp, style):
     d = inp['clip']['duration']
     lay = inp.get('layout', {})
@@ -209,7 +181,6 @@ def clip_text(inp, style):
     elif style == 'overlay':
         sizes = [s for s in ('short', 'narrow') if lay.get(f'{s}Fits', True)]
         out.append('Widget sizes with room in this clip: ' + (', '.join(sizes) if sizes else 'none (plan no widgets)'))
-    out += targets(inp, style)
     past = (inp.get('history') or {}).get('clips', [])[-10:][::-1]
     if past:
         out.append('Parts used in this customer\'s last clips (newest first):')
@@ -339,10 +310,12 @@ def system_text(style, cat):
     return '\n\n'.join([read('prompt', 'system.md').strip(), library_text(style, cat), example_text(style)])
 
 
-def request(inp, style, cat=None, ttl='5m', model=None):
+def request(inp, style, cat=None, ttl='5m', model=None, thinking=None):
     """kwargs for client.beta.messages.create (see plan_d.py). The system block carries the cache breakpoint.
     ttl '1h' keeps it an hour (plan_d.cache_ttl chooses from recent traffic, Friend 2026-11-05). model: the planner
-    (default Sonnet 5.5); Haiku 5.5 has no server-side fallback, so the fallback beta is left out for it."""
+    (default Sonnet 5.5); Haiku 5.5 has no server-side fallback, so the fallback beta is left out for it.
+    thinking 'off': the AI answers without thinking first (Sonnet 5.5 `between_tools`, Haiku 5.5 `disabled`, both allowed
+    at effort low) — real-key test 2026-11-05: most of the cost was thinking, not the plan (a 20-scene plan is ~2–3k tokens)."""
     cat, model = cat or load_catalog(), model or MODEL
     cache = {'type': 'ephemeral', **({'ttl': '1h'} if ttl == '1h' else {})}
     req = {
@@ -353,6 +326,8 @@ def request(inp, style, cat=None, ttl='5m', model=None):
     }
     if 'haiku' not in model:   # a declined request is retried server-side
         req.update(betas=['server-side-fallback-2026-07-01'], fallbacks='default')
+    if thinking == 'off':
+        req.update(thinking={'type': 'disabled' if 'haiku' in model else 'between_tools'}, max_tokens=8000)
     return req
 
 
