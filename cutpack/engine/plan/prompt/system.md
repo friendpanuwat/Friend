@@ -22,7 +22,7 @@ You plan the motion graphics for one vertical talking-head short (TikTok / Reels
 
 # Density and rhythm (the checker enforces these)
 editorial
-- Cards cover 40–60 % of the clip, at least one card per 4 s of clip, and the talking head is never on screen for more than 4.5 s without a card.
+- Cards cover 40–55 % of the clip (about 45 % is best: the viewer must see the speaker), at least one card per 4 s of clip, at least 1 s of the speaker's face between two cards, and the talking head is never on screen for more than 4.5 s without a card. Keep each card short, near the low end of its part's range.
 - The clip opens on the speaker's face with the hook: the first card starts at 0.8 s or later.
 - Cards never overlap. The subtitles are added by code on the talking-head parts only, so a sentence that a card covers should be told by that card.
 overlay

@@ -304,6 +304,29 @@ class Prompt(unittest.TestCase):
             good = load(EX, f'test18_{style}.answer.json')
             self.assertEqual(mend.mend(good, style, CAT, INPUT['clip']['duration'])[1], [])   # an approved plan is left alone
 
+    def test_editorial_card_share_is_cut_back(self):
+        """Friend 2026-11-05: an editorial clip with cards over 74 % "แทบไม่เห็นคนพูด". Over 55 %, code cuts it back to about
+        45 % and keeps at least 1 s of face between cards; the approved 18 s clip (55 %) is left alone."""
+        import mend
+        dur = INPUT['clip']['duration']
+        good = load(EX, 'test18_editorial.answer.json')
+        self.assertEqual(mend.mend(good, 'editorial', CAT, dur)[1], [])
+        fat = copy.deepcopy(good)
+        for s in fat['scenes']:   # every card stretched to fill the face time around it (its cut-pull moves with it)
+            for c in fat['camera']:
+                if c.get('cut') and abs(c['t'] - s['t0']) < 1e-6: c['t'] = round(max(.8, s['t0'] - .7), 2)
+            s['t0'] = round(max(.8, s['t0'] - .7), 2); s['t1'] = round(min(dur, s['t1'] + .6), 2)
+        share = lambda a: sum(s['t1'] - s['t0'] for s in a['scenes']) / dur
+        self.assertGreater(share(fat), .56)
+        m, notes = mend.mend(fat, 'editorial', CAT, dur)
+        self.assertLessEqual(share(m), V.RULES['cardShare'][1]); self.assertTrue(notes)
+        sc = sorted(m['scenes'], key=lambda s: s['t0'])
+        self.assertTrue(all(b['t0'] - a['t1'] >= V.RULES['faceMin'] - 1e-6 for a, b in zip(sc, sc[1:])))
+        R, _ = V.validate(assemble.assemble(INPUT, m, 'editorial'), CAT, FACES, render=False)
+        self.assertEqual(R.blocking, [])
+        starts = {s['t0'] for s in m['scenes']}
+        self.assertTrue(all(c['t'] in starts for c in m['camera'] if c.get('cut')))   # each cut moved with its card
+
     def test_fix_round_on_another_model(self):
         """Friend 2026-11-05: Sonnet plans, Haiku fixes; a saved first answer can be fixed live (fix_live)."""
         import fake_api

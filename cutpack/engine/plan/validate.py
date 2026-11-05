@@ -19,7 +19,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 RULES = {
     # 4. density — the skill's 42 s sample: 12 cards ≈ 55 % (editorial), 14 widgets (overlay); Friend's 18 s test: 55 %, 6 widgets
-    'cardShare': (.40, .60),        # editorial: share of the clip under full-screen cards
+    'cardShare': (.40, .56),        # editorial: share of the clip under full-screen cards (DECISIONS 2: 40–55 %, Friend 2026-11-05:
+                                    # a clip at 74 % "แทบไม่เห็นคนพูด"; .56 keeps the approved 18 s clip at 55.05 %)
+    'cardAim': .45,                 # editorial: mend.py cuts a clip over the top back to about this
+    'faceMin': 1.0,                 # editorial: at least this much face between two cards (the approved clip's shortest is 1.0)
     'cardEvery': 4.0,               # editorial: at least one card per this many seconds of clip
     'arollMax': 4.5,                # editorial: longest stretch of talking head between cards ("ตัดสลับการ์ดทุก 2–4 วินาที")
     'firstAt': .8,                  # editorial: the clip opens on the face + hook, the first card comes after this
