@@ -233,7 +233,36 @@ def softswish(dur=0.32):
     s = highpass(s, 300)
     return norm([x * math.sin(math.pi * i / n) ** 3 for i, x in enumerate(s)])
 
+def knock(f=520, dur=0.12):
+    """a soft wooden knock (a variant of thud, so a clip does not repeat one sound)"""
+    n = int(SR * dur)
+    body = [math.sin(2 * math.pi * f * i / SR) * math.exp(-i / (SR * .025)) for i in range(n)]
+    click = lowpass(noise(n), lambda i: 3000)
+    return norm([b + .35 * c * math.exp(-i / (SR * .004)) for i, (b, c) in enumerate(zip(body, click))])
+
+
+def bloop(f0=520, f1=180, dur=0.14):
+    """a round, low pop"""
+    return norm([s * .9 for s in pop(f0, f1, dur)])
+
+
+def air(dur=0.24):
+    """a short, airy swish"""
+    return [s * .8 for s in whoosh(dur, 1000, 6500)]
+
+
+def tap(dur=0.05):
+    """a soft click"""
+    n = int(SR * dur)
+    s = lowpass(noise(n), lambda i: 2200)
+    return norm([x * (1 - i / n) ** 6 for i, x in enumerate(s)])
+
+
 LIB = {
+    'knock': knock,
+    'bloop': bloop,
+    'air': air,
+    'tap': tap,
     'sub': sub,
     'swell': swell,
     'softswish': softswish,

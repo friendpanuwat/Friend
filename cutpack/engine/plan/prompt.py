@@ -212,9 +212,12 @@ def answer_schema(style, cat):
     slot = {'type': 'object', 'additionalProperties': False, 'required': ['name', 'value'],
             'properties': {'name': {'type': 'string', 'enum': sorted(names)},
                            'value': values[0] if len(values) == 1 else {'anyOf': values}}}
-    scene = {'t0': {'type': 'number'}, 't1': {'type': 'number'}, 'part': {'type': 'string', 'enum': [p['id'] for p in parts] + ['custom']}}
+    # say and shows come before the part: the AI writes what the picture must mean, then picks it (Friend 2026-11-05: the
+    # pictures did not match the words; "ข." = write what each scene shows before choosing)
+    scene = {'t0': {'type': 'number'}, 't1': {'type': 'number'}, 'say': {'type': 'string'}, 'shows': {'type': 'string'},
+             'part': {'type': 'string', 'enum': [p['id'] for p in parts] + ['custom']}}
     scene.update({'bg': {'type': 'string', 'enum': ['glow', 'white', 'cream']}} if style == 'editorial' else {'size': {'type': 'string', 'enum': ['short', 'narrow']}})
-    scene.update(hit={'type': 'number'}, say={'type': 'string'}, need={'type': 'string'}, slots={'type': 'array', 'items': slot})
+    scene.update(hit={'type': 'number'}, need={'type': 'string'}, slots={'type': 'array', 'items': slot})
     cam = {'type': 'object', 'properties': {'move': {'type': 'string', 'enum': ['push', 'pull']}, 't': {'type': 'number'},
                                             'z': {'type': 'number'}, 'cut': {'type': 'boolean'}},
            'required': ['move', 't'], 'additionalProperties': False}

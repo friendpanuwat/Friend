@@ -169,6 +169,25 @@ def chunk_by_letters(words, ids):
     return out
 
 
+def join_leads(words, lines):
+    """Each chunk keeps the AI's big (last) phrase and one small phrase before it: the AI often made every word a phrase,
+    and the engine prints a space between phrases (Friend 2026-11-05: "ซับเว้นวรรคระหว่างทุกคำ"). A big phrase that is a lone
+    particle or shorter than BIG_MIN letters takes the Thai words before it, as the rule grouping does. English words and
+    numbers still stand apart (build() splits them off)."""
+    out, start = [], 0
+    for line in lines:
+        new = []
+        for c in line:
+            a, e = start, c[-1]; start = e + 1
+            b = (c[-2] + 1) if len(c) > 1 else a          # first word of the big phrase
+            def big(k): return ''.join(token(words[i]) for i in range(k, e + 1))
+            while b > a and thai(token(words[b - 1])) and thai(big(b)) and (graphemes(big(b)) < BIG_MIN or big(b) in PARTICLES):
+                b -= 1
+            new.append([b - 1, e] if b > a else [e])
+        out.append(new)
+    return out
+
+
 def split_long(words, lines):
     """The AI's chunks over chunkHard letters, split again by rule (real-key test 2026-11-05: Haiku made chunks of up to
     19 letters, and the checker sent them to the scene planner, which cannot change subtitles). → (lines, how many)"""
@@ -244,6 +263,7 @@ def run(words, duration=None, client=None, answer=None, use_ai=True):
     source = source or ('ai' if lines else 'rules')
     info = {'source': source, 'log': log, 'calls': calls}
     if lines:
+        lines = join_leads(words, lines)
         lines, n = split_long(words, lines)
         if n: log.append(f'{n} chunks over {RULES["chunkHard"]} letters split by rule')
         if calls: info['answer'] = answer_form(lines)   # what was used, for a replay that costs nothing

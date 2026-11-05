@@ -215,8 +215,7 @@ function subtitle(text, t0, t1, {top = SUBTOP, key, keyAt, n, punch = false} = {
     const tb = ki >= 0 && keyAt != null ? Math.min(b - .2, Math.max(a + .1, keyAt)) : a + Math.min(.35, span * .4);
     const rows = []; if (lead) rows.push([[lead, 'l', a]]); rows.push([[big, i % 2 ? 'i' : 'k', tb]]);
     const el = cap({t0: a, t1: b, top, maxH: 320, W: SUBW, lines: rows});
-    el.style.rowGap = '26px';
-    snd('key', tb - .04);
+    el.style.rowGap = '26px';   // no sound on subtitles (Friend 2026-11-05: effects far too often)
     if (punch) { zoom(tb, i % 2 ? 1.06 : 1.09); zoom(b - .001, 1); }
   });
 }

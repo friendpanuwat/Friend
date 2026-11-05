@@ -52,12 +52,31 @@ const ms = s => s * 1000;
 const sfx = (s, t, db = -14, pitch) => SFX.push(pitch ? {s, t, db, pitch} : {s, t, db});
 /* calm mix (user: fewer, quieter effects) — what reaches the audio track: no small pops/ticks (the motion carries them),
    then the strongest cue wins inside any SFX_GAP window (sub > stamp/thud > whoosh > swipe > softswish) */
-const SFX_GAP = 0.9, SFX_RANK = {sub: 5, stamp: 4, thud: 4, whoosh: 3, whoosh_long: 3, swipe: 2, softswish: 1};
+/* CutPack (Friend 2026-11-05: "sound effect ใส่พร่ำเพรื่อ … น่ารำคาญ และเป็นเสียงเดียวทั้งคลิปทุกคลิป"): at most one effect per
+   SFX_GAP (2.5 s: one per widget or card, entrance and hit together count once), never louder than SFX_MAX_DB, and each kind
+   rotates through variants and pitches from a starting point that changes from clip to clip. Subtitles make no sound. */
+const SFX_GAP = 2.5, SFX_MAX_DB = -19, SFX_RANK = {sub: 5, stamp: 4, thud: 4, whoosh: 3, whoosh_long: 3, swipe: 2, softswish: 1};
+const SFX_VARIANTS = {
+  thud: [['thud', 1], ['knock', 1], ['bloop', 1], ['thud', .86], ['knock', 1.12], ['bloop', .88]],
+  stamp: [['stamp', 1], ['knock', .9], ['stamp', 1.1]],
+  whoosh: [['whoosh', 1], ['air', 1], ['whoosh', 1.12], ['air', .88]],
+  whoosh_long: [['whoosh_long', 1], ['whoosh', .9]],
+  swipe: [['swipe', 1], ['air', 1.1], ['swipe', .9]],
+  softswish: [['softswish', 1], ['air', 1], ['tap', 1], ['softswish', 1.12]],
+};
 function calmSfx(list) {
   const kept = [];
   list.filter(c => SFX_RANK[c.s]).sort((a, b) => SFX_RANK[b.s] - SFX_RANK[a.s] || a.t - b.t)
     .forEach(c => { if (!kept.some(k => Math.abs(k.t - c.t) < SFX_GAP)) kept.push(c); });
-  return kept.sort((a, b) => a.t - b.t);
+  kept.sort((a, b) => a.t - b.t);
+  const seed = Math.round(kept.reduce((s, c) => s + c.t, 0) * 10), turn = {};
+  return kept.map(c => {
+    const db = Math.min(c.db, SFX_MAX_DB), v = SFX_VARIANTS[c.s];
+    if (!v) return Object.assign({}, c, {db});
+    turn[c.s] = (turn[c.s] ?? seed) + 1;
+    const [s, p] = v[turn[c.s] % v.length], pitch = (c.pitch || 1) * p;
+    return pitch === 1 ? {s, t: c.t, db} : {s, t: c.t, db, pitch};
+  });
 }
 const zoom = (t, z, d = .001) => ZOOM.push({t, z, d});            // default = hard punch-in cut (editorial style)
 const SPRING = 'cubic-bezier(.22,1.3,.36,1)', SMOOTH = 'cubic-bezier(.2,.8,.2,1)', INOUT = 'cubic-bezier(.65,0,.35,1)';

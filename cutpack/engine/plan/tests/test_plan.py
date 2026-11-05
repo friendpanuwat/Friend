@@ -49,7 +49,7 @@ class GoodPlans(unittest.TestCase):
             ans = load(EX, f'test18_{style}.answer.json')
             p = assemble.assemble(INPUT, ans, style)
             self.assertEqual(p['subtitles'], plan['subtitles'], style)
-            self.assertEqual([{k: v for k, v in s.items() if k != 'say'} for s in p['scenes']], plan['scenes'], style)
+            self.assertEqual([{k: v for k, v in s.items() if k not in ('say', 'shows')} for s in p['scenes']], plan['scenes'], style)
             self.assertEqual(p['camera'], plan['camera'], style)
 
     def test_converter_output_is_data_only(self):
