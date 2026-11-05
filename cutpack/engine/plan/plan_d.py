@@ -56,7 +56,7 @@ def ask(client, req):
     if resp.stop_reason == 'max_tokens': return None, resp, 'answer cut off at max_tokens'
     text = next((b.text for b in resp.content if b.type == 'text'), '').strip()
     if text.startswith('```'): text = text.split('\n', 1)[1].rsplit('```', 1)[0]   # only without the schema
-    try: return json.loads(text), resp, None
+    try: return prompt.slots_to_dict(json.loads(text)), resp, None
     except json.JSONDecodeError: return None, resp, 'answer is not JSON'
 
 
@@ -153,7 +153,10 @@ def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_an
         if fixed is not None:
             plan2 = assemble.assemble(inp, fixed, style)
             R2, _ = validate.validate(plan2, cat, faces, history, render=render)
-            if len(R2.blocking) <= len(R.blocking): plan, R = plan2, R2   # keep the better of the two
+            # keep the better of the two. A plan with no scenes has nothing to block, but it is never the better one: the
+            # fallback can repair a plan with scenes (real-key test 2026-11-05: an empty first answer was kept, 0 widgets)
+            if not plan['scenes'] and plan2['scenes']: plan, R = plan2, R2; log.append('the first plan was empty; kept the fixed one')
+            elif len(R2.blocking) <= len(R.blocking) and (plan2['scenes'] or not plan['scenes']): plan, R = plan2, R2
             else: log.append('the fixed plan was worse; kept the first one')
     if R.blocking:   # 4. fallback
         plan, R = fallback.repair(plan, cat, faces, history, render=render)

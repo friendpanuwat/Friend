@@ -6,7 +6,7 @@ usage: captions.py <words.json> <captions.json> [--answer answer.json] [--rules]
   --answer     use this answer instead of calling the API (tests, replays)
   --rules      skip the AI and group by rule (what happens anyway when there is no key or no usable answer)
   --dry        print the request that would be sent and stop
-writes captions.json: {"captions": [{"t0", "t1", "text"}], "words": [phrases with times], "source": "ai" | "rules",
+writes captions.json: {"captions": [{"t0", "t1", "text"}], "words": [phrases with times], "source": "ai" | "ai+rules" | "rules",
                        "log": [...], "calls": [...]}
 
 Three levels, as the engine shows them (motion.js subtitle()):
@@ -21,6 +21,8 @@ cannot change, drop or reorder anything the speaker said: the customer corrects 
 English words and numbers are always phrases of their own (the code splits them off if the AI does not).
 If the API is down, refuses, or answers something that does not fit the words, the rule grouping is used, so the
 clip always goes on. No server-side fallback here: Claude Haiku 5.5 has none for refusals.
+When the answer stops before the last word (2 of 4 real clips, 2026-11-05) the AI is asked again for the words still
+left, up to MAX_ASKS times; whatever is still left after that is grouped by rule (source "ai+rules").
 """
 import json, os, re, sys, unicodedata
 
@@ -30,6 +32,7 @@ from validate import RULES, graphemes
 
 MODEL = 'claude-haiku-5-5'
 EFFORT = 'low'        # a short, rule-bound task; thinking off (allowed on Haiku 5.5 at effort high or below)
+MAX_ASKS = 4          # asks per clip when the AI stops early (each one carries on from where the last stopped)
 PAUSE = 0.35          # a gap this long between words ends a line in the rule grouping, and is shown to the AI
 LINE_MAX_S = 3.6      # rule grouping: start a new line after about this long
 LINE_CHUNKS = 4
@@ -120,15 +123,17 @@ def build(words, lines, duration=None):
     return out, phrases
 
 
-def check(words, answer):
-    """The AI's answer → nested phrase ends, or (None, why) when it does not fit the words."""
+def check(words, answer, partial=False):
+    """The AI's answer → nested phrase ends, or (None, why) when it does not fit the words.
+    partial: the answer may stop before the last word (run() then asks for the rest)."""
     try: lines = [[list(c['phrase_ends']) for c in l['chunks']] for l in answer['lines']]
     except (KeyError, TypeError): return None, 'answer has no lines, chunks and phrase_ends'
     if not lines or any(not l or any(not c for c in l) for l in lines): return None, 'empty line or chunk'
     flat = [e for l in lines for c in l for e in c]
     if any(not isinstance(e, int) for e in flat): return None, 'word numbers must be integers'
     if flat != sorted(set(flat)) or flat[0] < 0: return None, 'word numbers must go up'
-    if flat[-1] != len(words) - 1: return None, f'the last phrase ends at word {flat[-1]}, not {len(words) - 1}'
+    if flat[-1] >= len(words): return None, f'word {flat[-1]} does not exist'
+    if not partial and flat[-1] != len(words) - 1: return None, f'the last phrase ends at word {flat[-1]}, not {len(words) - 1}'
     return lines, None
 
 
@@ -174,7 +179,7 @@ def run(words, duration=None, client=None, answer=None, use_ai=True):
     (or a stand-in with the same beta.messages.create); made here when needed and ANTHROPIC_API_KEY is set; False = never
     call the API."""
     import plan_d
-    log, calls, lines = [], [], None
+    log, calls, lines, source = [], [], None, None
     if not words: return [], {'words': [], 'source': 'rules', 'log': ['no words: nothing was said'], 'calls': []}
     if client is False: client, use_ai = None, False
     if use_ai and answer is None:
@@ -183,14 +188,31 @@ def run(words, duration=None, client=None, answer=None, use_ai=True):
             client = anthropic.Anthropic()
         if client is None: log.append('no API key: grouped by rule')
         else:
-            req = request(words, duration)
-            answer, resp, why = plan_d.ask(client, req)
-            if resp is not None: calls.append(plan_d.call_record(resp, MODEL, 'group'))
-            if why: log.append(f'caption request failed: {why}')
+            lines, start = [], 0
+            for ask_no in range(MAX_ASKS):
+                # the words not grouped yet, numbered from 0 again (same system block, so the cache still holds)
+                rest = words[start:]
+                answer, resp, why = plan_d.ask(client, request(rest, duration))
+                if resp is not None: calls.append(plan_d.call_record(resp, MODEL, 'group'))
+                if why: log.append(f'caption request failed: {why}'); break
+                got, why = check(rest, answer, partial=True)
+                if why: log.append(f'AI answer not used ({why})'); break
+                lines += [[[e + start for e in c] for c in l] for l in got]
+                end = start + got[-1][-1][-1]
+                if end == len(words) - 1: break
+                start = end + 1   # the answer stopped early (2 of 4 real clips, 2026-11-05): ask for the rest
+                log.append(f'AI answer stopped at word {end} of {len(words) - 1}: asked for the rest')
+            if lines and lines[-1][-1][-1] != len(words) - 1:   # still short: the rule groups only what is left
+                start = lines[-1][-1][-1] + 1
+                lines += [[[e + start for e in c] for c in l] for l in by_rule(words[start:])]
+                log.append(f'words {start}–{len(words) - 1} grouped by rule')
+                source = 'ai+rules'
+            if not lines: lines = None; log.append('grouped by rule')
+            answer = None
     if answer is not None:
         lines, why = check(words, answer)
         if why: log.append(f'AI answer not used ({why}): grouped by rule')
-    source = 'ai' if lines else 'rules'
+    source = source or ('ai' if lines else 'rules')
     caps, phrases = build(words, lines or by_rule(words), duration)
     return caps, {'words': phrases, 'source': source, 'log': log, 'calls': calls}
 

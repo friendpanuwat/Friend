@@ -152,7 +152,7 @@ def clip_text(inp, style):
 
 def example_text(style):
     inp = json.loads(read('examples', 'test18_input.json'))
-    ans = json.loads(read('examples', f'test18_{style}.answer.json'))
+    ans = slots_to_list(json.loads(read('examples', f'test18_{style}.answer.json')))
     return ('# Example (format only; plan each clip afresh)\n## Input\n' + clip_text(inp, style)
             + '\n## Answer\n' + json.dumps(ans, ensure_ascii=False, separators=(',', ':')))
 
@@ -167,37 +167,38 @@ def item_schema(item):
     return {'type': 'object', 'properties': props, 'required': [k for k, t in item.items() if not t.endswith('?')], 'additionalProperties': False}
 
 
+def slot_schema(k, spec):
+    """The JSON schema of one slot's value."""
+    t = spec['type']
+    if t == 'list':
+        if spec.get('item'): item = item_schema(spec['item'])
+        else:
+            item = {'type': 'number'} if k == 'at' else (
+                {'type': 'object', 'properties': {'t': {'type': 'string'}, 'a': {'type': 'boolean'}, 'b': {'type': 'boolean'}},
+                 'required': ['t', 'a', 'b'], 'additionalProperties': False} if k == 'rows' else {'type': 'string'})
+        return {'type': 'array', 'items': item}
+    if t == 'number': return {'type': 'number'}   # an index is a whole number; the checker rejects anything else
+    return {'type': 'string'}                      # text, icon and choice; the checker holds a choice to its list
+
+
 def answer_schema(style, cat):
-    """JSON schema for the answer. Slots: one optional property per slot name used in this style's library."""
+    """JSON schema for the answer. `slots` is a list of {name, value} pairs (slots_to_dict turns it back into an object):
+    an object with one optional property per slot name had 78–80 optional properties, and the API compiles at most 24
+    (real-key test 2026-11-05: every plan request was refused with 400 and asked again without the schema)."""
     parts = cat['cards' if style == 'editorial' else 'widgets']
-    props = {}
+    names, values = set(), []
     for p in parts:
         for k, spec in p['slots'].items():
-            t = spec['type']
-            if t == 'list':
-                if spec.get('item'): item = item_schema(spec['item'])
-                else:
-                    item = {'type': 'number'} if k == 'at' else (
-                        {'type': 'object', 'properties': {'t': {'type': 'string'}, 'a': {'type': 'boolean'}, 'b': {'type': 'boolean'}},
-                         'required': ['t', 'a', 'b'], 'additionalProperties': False} if k == 'rows' else {'type': 'string'})
-                sch = {'type': 'array', 'items': item}
-            elif t == 'number': sch = {'type': 'integer'} if spec.get('index') else {'type': 'number'}
-            elif t == 'choice': sch = {'type': 'string', 'enum': sorted(set(spec['of']))}
-            else: sch = {'type': 'string'}
-            old = props.get(k)
-            if old is None: props[k] = sch
-            elif old != sch:
-                if old.get('enum') and sch.get('enum'): props[k] = {'type': 'string', 'enum': sorted(set(old['enum']) | set(sch['enum']))}
-                else:
-                    opts = old['anyOf'] if 'anyOf' in old else [old]
-                    if sch not in opts: opts = opts + [sch]
-                    props[k] = {'anyOf': opts}
-    if style == 'overlay':
-        props.update(wlead={'type': 'string'}, wkey={'type': 'string'})
+            names.add(k)
+            sch = slot_schema(k, spec)
+            if sch not in values: values.append(sch)
+    if style == 'overlay': names |= {'wlead', 'wkey'}
+    slot = {'type': 'object', 'additionalProperties': False, 'required': ['name', 'value'],
+            'properties': {'name': {'type': 'string', 'enum': sorted(names)},
+                           'value': values[0] if len(values) == 1 else {'anyOf': values}}}
     scene = {'t0': {'type': 'number'}, 't1': {'type': 'number'}, 'part': {'type': 'string', 'enum': [p['id'] for p in parts] + ['custom']}}
     scene.update({'bg': {'type': 'string', 'enum': ['glow', 'white', 'cream']}} if style == 'editorial' else {'size': {'type': 'string', 'enum': ['short', 'narrow']}})
-    scene.update(hit={'type': 'number'}, say={'type': 'string'}, need={'type': 'string'},
-                 slots={'type': 'object', 'properties': dict(sorted(props.items())), 'additionalProperties': False})
+    scene.update(hit={'type': 'number'}, say={'type': 'string'}, need={'type': 'string'}, slots={'type': 'array', 'items': slot})
     cam = {'type': 'object', 'properties': {'move': {'type': 'string', 'enum': ['push', 'pull']}, 't': {'type': 'number'},
                                             'z': {'type': 'number'}, 'cut': {'type': 'boolean'}},
            'required': ['move', 't'], 'additionalProperties': False}
@@ -207,6 +208,26 @@ def answer_schema(style, cat):
                            'camera': {'type': 'array', 'items': cam},
                            'scenes': {'type': 'array', 'items': {'type': 'object', 'properties': scene, 'required': list(scene),
                                                                  'additionalProperties': False}}}}
+
+
+def slots_to_list(answer):
+    """An answer with slot objects → the form the schema asks for (the example in the prompt is written this way)."""
+    out = dict(answer, scenes=[dict(s, slots=[{'name': k, 'value': v} for k, v in s.get('slots', {}).items()])
+                               if isinstance(s.get('slots'), dict) else s for s in answer.get('scenes', [])])
+    return out
+
+
+def slots_to_dict(answer):
+    """The API's answer → the plan form the rest of the engine reads: each scene's slots as one object. Answers that
+    already hold objects (saved replays, tests) pass unchanged; a repeated name keeps its first value."""
+    if not isinstance(answer, dict) or not isinstance(answer.get('scenes'), list): return answer
+    for s in answer['scenes']:
+        if isinstance(s, dict) and isinstance(s.get('slots'), list):
+            d = {}
+            for e in s['slots']:
+                if isinstance(e, dict) and isinstance(e.get('name'), str) and e['name'] not in d: d[e['name']] = e.get('value')
+            s['slots'] = d
+    return answer
 
 
 def code_schema():

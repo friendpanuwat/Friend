@@ -116,11 +116,33 @@ class Captions(unittest.TestCase):
         self.assertEqual([c['stage'] for c in info['calls']], ['group'])
         self.assertEqual(fake.requests[0]['model'], 'claude-haiku-5-5')
         self.assertEqual(fake.requests[0]['thinking'], {'type': 'disabled'})
-        for bad in ('refuse', 'garbage', C.answer_form([[[0]]])):
+        for bad in ('refuse', 'garbage', C.answer_form([[[len(d['words'])]]])):
             caps, info = C.run(d['words'], d['clip']['duration'], client=fake_api.FakeClient({'captions': bad}))
             self.assertEqual(info['source'], 'rules', bad); self.assertTrue(caps)
+        # an answer that keeps stopping after one word: asked MAX_ASKS times, then the rule groups what is left
+        caps, info = C.run(d['words'], d['clip']['duration'], client=fake_api.FakeClient({'captions': C.answer_form([[[0]]])}))
+        self.assertEqual(info['source'], 'ai+rules'); self.assertEqual(len(info['calls']), C.MAX_ASKS)
+        self.assertEqual(''.join(c['text'].replace(' / ', '').replace(' ', '') for c in caps), ''.join(C.token(w) for w in d['words']))
         caps, info = C.run(d['words'], client=False)
         self.assertEqual(info['source'], 'rules')
+
+    def test_an_answer_that_stops_early_is_finished_by_asking_for_the_rest(self):
+        """Real-key test 2026-11-05: Haiku stopped at word 22 of 299. The rest is asked for, numbered from 0 again."""
+        d = load(REAL1)
+
+        class StopsEarly(fake_api.FakeClient):
+            def answer(self, req, kind):
+                full = super().answer(req, kind)
+                return {'lines': full['lines'][:3]} if kind == 'captions' and len(self.requests) == 1 else full
+        fake = StopsEarly()
+        caps, info = C.run(d['words'], d['clip']['duration'], client=fake)
+        self.assertEqual(info['source'], 'ai'); self.assertEqual(len(info['calls']), 2)
+        self.assertTrue(any('asked for the rest' in m for m in info['log']))
+        second = [ln for ln in fake.requests[1]['messages'][0]['content'].split('\n') if ' | ' in ln and not ln.startswith(' ')]
+        self.assertTrue(second[1].startswith('0 | '))   # the words left, numbered from 0
+        self.assertEqual(''.join(c['text'].replace(' / ', '').replace(' ', '') for c in caps), ''.join(C.token(w) for w in d['words']))
+        whole, _ = C.run(d['words'], d['clip']['duration'], client=fake_api.FakeClient())
+        self.assertEqual(caps, whole)   # the same grouping as one complete answer
 
 
 class NoKey(unittest.TestCase):

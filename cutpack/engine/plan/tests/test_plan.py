@@ -228,7 +228,35 @@ class Prompt(unittest.TestCase):
     def test_example_answers_fit_the_schema(self):
         import jsonschema
         for style in ('editorial', 'overlay'):
-            jsonschema.validate(load(EX, f'test18_{style}.answer.json'), prompt.answer_schema(style, CAT))
+            ans = load(EX, f'test18_{style}.answer.json')
+            jsonschema.validate(prompt.slots_to_list(ans), prompt.answer_schema(style, CAT))
+            self.assertEqual(prompt.slots_to_dict(prompt.slots_to_list(ans)), ans)   # back to the form the engine reads
+            self.assertIn('"slots":[{"name":', prompt.example_text(style))           # the example shows the asked form
+
+    def test_schema_fits_the_api_limits(self):
+        """Real-key test 2026-11-05: the API compiles at most 24 optional properties; the slot object had 78–80."""
+        for style in ('editorial', 'overlay'):
+            n = 0
+            def walk(x):
+                nonlocal n
+                if isinstance(x, dict):
+                    if 'properties' in x: n += sum(k not in x.get('required', []) for k in x['properties'])
+                    for v in x.values(): walk(v)
+                elif isinstance(x, list):
+                    for v in x: walk(v)
+            walk(prompt.answer_schema(style, CAT))
+            self.assertLessEqual(n, 24, style)
+
+    def test_an_empty_first_plan_never_beats_the_fixed_one(self):
+        """Real-key test 2026-11-05: the first answer had no scenes, the fixed one did; the empty one was kept."""
+        import fake_api
+        for style in ('editorial', 'overlay'):
+            ans = load(EX, f'test18_{style}.answer.json')
+            empty = dict(ans, scenes=[])
+            with tempfile.TemporaryDirectory() as d:
+                plan, R, log = plan_d.run(INPUT, style, d, faces=FACES, render=False,
+                                          client=fake_api.FakeClient({style: empty, style + '.fix': ans}))
+                self.assertTrue(plan['scenes'], style); self.assertIn('the first plan was empty; kept the fixed one', log)
 
     def test_fix_message_names_each_issue(self):
         R = check(broken('editorial', setp(['scenes', 2, 'slots', 'num'], 5)))
@@ -406,10 +434,11 @@ class TopicPacks(unittest.TestCase):
             self.assertEqual(sch['required'][0], 'topic')
             self.assertEqual(sch['properties']['topic']['enum'], ['biz', 'edu', 'fin', 'fit', 'none'])
             import jsonschema
-            jsonschema.validate(biz_answer(style)[0], sch)
-            slots = sch['properties']['scenes']['items']['properties']['slots']['properties']
+            jsonschema.validate(prompt.slots_to_list(biz_answer(style)[0]), sch)
+            slot = sch['properties']['scenes']['items']['properties']['slots']['items']['properties']
+            self.assertIn('rows', slot['name']['enum'])
             self.assertIn({'type': 'array', 'items': {'type': 'object', 'properties': {'t': {'type': 'string'}, 'v': {'type': 'number'}, 'in': {'type': 'boolean'}},
-                                                      'required': ['t', 'v', 'in'], 'additionalProperties': False}}, slots['rows']['anyOf'])
+                                                      'required': ['t', 'v', 'in'], 'additionalProperties': False}}, slot['value']['anyOf'])
 
     def test_pack_plan_passes_with_render(self):
         for style in ('editorial', 'overlay'):
