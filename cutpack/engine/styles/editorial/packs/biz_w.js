@@ -9,8 +9,9 @@ const wbox_ = (p, css) => div(css, p);
 WIDGET('B01', 'biz1', {pack: BIZ, code: 'BIZ-P1', name: 'ป้ายราคาห้อยเชือก', slots: B01_SLOTS, dur: [1.2, 3], hit: 'ราคานับถึงค่า ป้ายแกว่งรับ'}, (vis, S, s, T) => {
   const tag = div(`left:${S * .12}px;top:0;width:${S * .76}px;height:${S}px;transform-origin:50% 0;opacity:0`, vis,
     `<svg width="100%" height="100%" viewBox="0 0 100 130"><line x1="50" y1="0" x2="50" y2="22" stroke="${WD}" stroke-width="3"/><path d="M50 14 L96 36 V122 a6 6 0 0 1 -6 6 H10 a6 6 0 0 1 -6 -6 V36 Z" fill="${NAVY}"/><rect x="4" y="36" width="92" height="9" fill="${ACC}"/><circle cx="50" cy="28" r="5" fill="#fff"/></svg>`);
-  const n = wnum(tag, '', S * .76, '#FFFFFF'); n.parentElement.style.top = `${S * .18}px`;
+  const n = wnum(tag, '', S * .76, '#FFFFFF'); n.parentElement.style.top = `${S * .25}px`;
   const txt = v => (s.pre ?? '') + fmtNum(v, decOf(s.num)) + (tight(s.unit) ? s.unit : ''); n.textContent = txt(s.num);
+  fitW(n, S * .76 * .74);   // inside the tag's body with a margin: 1,490 touched the tag's edges (Friend 2026-11-05)
   mv.fly(tag, T.t0 + .05, 'translate(0,-120px)'); mv.count(n, T.hit - MOTION.count.d, 0, s.num, txt);
   mv.wobble(tag, T.hit); snd('hit', T.hit);
 });

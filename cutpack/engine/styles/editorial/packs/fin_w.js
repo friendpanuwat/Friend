@@ -17,7 +17,7 @@ WIDGET('B02', 'fin1', {pack: FIN, code: 'FIN-P2', name: 'กราฟแท่�
   mv.fill(last, T.hit, 0, 1, 'Y'); snd('hit', T.hit);
 });
 WIDGET('B12', 'fin1', {pack: FIN, code: 'FIN-P3', name: 'เหรียญไหลตามลูกศร', slots: B12_SLOTS, dur: [1.0, 3], hit: 'เหรียญสุดท้ายถึงปลายลูกศร แล้ว B เด้ง', wide: 2.2}, (vis, S, s, T, L) => {
-  wflow(vis, S, L.VW, s, T, (x, y, c) => wcoin(vis, x, y, c, true), 2);
+  wflow(vis, S, L.VW, s, T, (x, y, c) => wcoin(vis, x, y, c, true));
 });
 WIDGET('B07', 'fin1', {pack: FIN, code: 'FIN-P4', name: 'บัตรเครดิตแตกร้าว', slots: B07_SLOTS, dur: [1.0, 3], hit: 'รอยร้าวสีแดงวิ่งข้ามบัตร บัตรแยกเป็นสองซีก เส้นแดงหายไปทันที'}, (vis, S, s, T) => {
   const card = div(`left:0;top:${S * .2}px;width:${S}px;height:${S * .6}px;opacity:0`, vis), W_ = S, H_ = S * .6;

@@ -42,17 +42,21 @@ function poseTo(J, t, from, to) {
 }
 const SQUAT = {ankle: 24, knee: -96, hip: 108, arm: -126};   // thighs near level, back leaning in, arms out front
 
-/* widget "A → B" flow (BIZ-P5 parcel, FIN-P3 coins): tile A, something moving along a dashed path, tile B lights up at the hit.
-   short (wide box): A and B side by side; narrow (square box): A top-left, B bottom-right, the path runs diagonally so the
-   tiles can be big (Friend 2026-11-05: the icons were small next to the text). mover(x, y, size) draws one moving thing. */
-function wflow(vis, S, VW, s, T, mover, count = 1) {
+/* widget "A → B" flow (BIZ-P5 parcel, FIN-P3 coin): tile A, one thing moving along a dashed path into tile B, which lights up
+   at the hit. short (wide box): A and B side by side; narrow (square box): A top-left, B bottom-right, the path runs diagonally so
+   the tiles can be big (Friend 2026-11-05: the icons were small next to the text). B is on the card from the start (grey) and
+   the mover slides under it to B's centre, so it disappears into B (Friend 2026-11-05: it stopped short of B, and two coins
+   looked like two separate things). mover(x, y, size) draws the moving thing. */
+function wflow(vis, S, VW, s, T, mover) {
   const sq = VW === S, z = sq ? S * .46 : Math.min(S * .85, VW * .38), m = sq ? S * .2 : Math.min(S * .26, (VW - 2 * z) * .5);
   const a = sq ? [0, 0] : [0, (S - z) / 2], b = sq ? [S - z, S - z] : [VW - z, (S - z) / 2];
   const c0 = [a[0] + z * .5, a[1] + z * .5], c1 = [b[0] + z * .5, b[1] + z * .5], len = Math.hypot(c1[0] - c0[0], c1[1] - c0[1]), ang = Math.atan2(c1[1] - c0[1], c1[0] - c0[0]) * 180 / Math.PI;
-  div(`left:${c0[0]}px;top:${c0[1] - 2 + (sq ? 0 : m / 2 + 8)}px;width:${len}px;height:4px;transform-origin:0 50%;transform:rotate(${ang}deg);background:repeating-linear-gradient(90deg,${NAVY} 0 6px,transparent 6px 12px)`, vis);
+  div(`left:${c0[0]}px;top:${c0[1] - 2}px;width:${len}px;height:4px;transform-origin:0 50%;transform:rotate(${ang}deg);background:repeating-linear-gradient(90deg,${NAVY} 0 6px,transparent 6px 12px)`, vis);
   mt(vis, s.ia, T.t0 + .1, a[0], a[1], z, '#EEF0F4', NAVY);
-  // start: on A's corner (square) or just right of A (wide); end: on B's corner, under B, which pops over it at the hit
-  const p0 = sq ? [z * .82 - m / 2, z * .82 - m / 2] : [z + 2, S / 2 - m / 2], d = sq ? [S - z * 1.64, S - z * 1.64] : [VW - 2 * z - m - 4, 0];
-  for (let k = 0; k < count; k++) { const o = mover(p0[0], p0[1], m); mv.pop(o, T.t0 + .3 + k * .1); mv.slide(o, T.hit - MOTION.slide.d - (count - 1 - k) * .25, 'translate(0,0)', `translate(${d[0]}px,${d[1]}px)`); }
+  // start: on A's edge along the path; end: B's centre, under B
+  const r = sq ? z * .62 : z * .5 + m * .5 + 4, ux = (c1[0] - c0[0]) / len, uy = (c1[1] - c0[1]) / len;
+  const p0 = [c0[0] + ux * r - m / 2, c0[1] + uy * r - m / 2], d = [c1[0] - m / 2 - p0[0], c1[1] - m / 2 - p0[1]];
+  const o = mover(p0[0], p0[1], m); mv.pop(o, T.t0 + .3); mv.slide(o, T.hit - MOTION.slide.d, 'translate(0,0)', `translate(${d[0]}px,${d[1]}px)`);
+  mt(vis, s.ib, T.t0 + .15, b[0], b[1], z, '#EEF0F4', NAVY);
   mt(vis, s.ib, T.hit, b[0], b[1], z, ACC, INK); snd('hit', T.hit);
 }

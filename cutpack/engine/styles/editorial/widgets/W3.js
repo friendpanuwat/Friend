@@ -47,7 +47,8 @@ WIDGET('B13', 'v3', {name: 'กุญแจไขแม่กุญแจ', slot
 const w14 = (S, s, T, L, w, keyStyle) => {
   checkWords(s); const at = phraseTimes(s, T), short = T.kind === 'short';
   const tb = div(short ? `left:${S + 40}px;top:0;width:${L.W - S - 60}px;height:${L.H}px;display:flex;flex-wrap:wrap;align-content:center;column-gap:8px;row-gap:0`
-                       : `left:14px;top:${S + 24}px;width:${L.W - 28}px;height:${L.H - S - 40}px;display:flex;flex-wrap:wrap;align-content:flex-start;column-gap:6px;row-gap:0`, w);
+                       : `left:14px;top:${S + 24}px;width:${L.W - 28}px;height:${L.H - S - 40}px;display:flex;flex-wrap:wrap;align-content:flex-start;justify-content:center;column-gap:6px;row-gap:8px`, w);   // row-gap 8: centred lines put Thai marks over each other (6 px, found 2026-11-05)
+  tb.dataset.wtext = 1;   // the kit sizes the short card to this text (motion.js widgetAt); narrow: centred (Friend 2026-11-05)
   s.words.forEach((x, i) => { const key = i === s.key; const el = chunk(tb, x, key ? keyStyle : 'm', at[i], {color: NAVY, size: key ? (short ? 44 : 36) : (short ? 30 : 26)});
     el.style.whiteSpace = 'nowrap'; fitW(el, short ? L.W - S - 60 : L.W - 28);
     if (key && keyStyle === 'iw') { const u = svg(400, 40, `<path d="M6 26 Q 100 6 200 20 T 394 14" stroke="${ACC}" stroke-width="16" stroke-linecap="round" fill="none"/>`, 'left:0;bottom:-10px;width:100%;z-index:-1', el);
