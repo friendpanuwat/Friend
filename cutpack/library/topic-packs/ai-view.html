@@ -1,0 +1,403 @@
+<title>คลังที่ AI อ่าน</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column — how the AI decides, then the 4 topics, the 24 props, the 20 heroes, and the raw text it reads. Same palette as Friend's galleries. */
+:root {
+  --bg: #F3F4F0; --surface: #FFFFFF; --ink: #14213D; --muted: #5C6579; --line: #DADDE4; --accent: #DDFF45; --accent-ink: #14213D; --code-bg: #EEF0F4; --warn: #B42318;
+  --display: "Mitr", "IBM Plex Sans Thai", system-ui, sans-serif; --body: "IBM Plex Sans Thai", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0D1220; --surface: #161D2F; --ink: #E7EBF3; --muted: #9AA3B6; --line: #29324A; --accent: #DDFF45; --accent-ink: #10172A; --code-bg: #1E2740; --warn: #FF7A70; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0D1220; --surface: #161D2F; --ink: #E7EBF3; --muted: #9AA3B6; --line: #29324A; --accent: #DDFF45; --accent-ink: #10172A; --code-bg: #1E2740; --warn: #FF7A70; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 56px; }
+.wrap { max-width: 780px; margin: 0 auto; display: grid; gap: 36px; }
+h1, h2, h3, h4 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap: balance; line-height: 1.3; }
+h1 { font-size: 28px; font-weight: 600; } h2 { font-size: 22px; } h3 { font-size: 18px; } h4 { font-size: 17px; }
+p { margin: 0; }
+code, pre { font-family: var(--mono); font-size: 13px; }
+code { background: var(--code-bg); border-radius: 5px; padding: 0 .3em; }
+.lead { display: grid; gap: 10px; max-width: 62ch; color: var(--muted); }
+.lead b { color: var(--ink); font-weight: 600; }
+.muted { color: var(--muted); font-weight: 400; font-size: .9em; }
+section { display: grid; gap: 14px; min-width: 0; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; counter-reset: s; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 2.2em minmax(0, 1fr); gap: 10px; align-items: start;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.steps li::before { content: counter(s); font-family: var(--display); font-weight: 600; width: 1.8em; height: 1.8em; border-radius: 50%;
+  background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; }
+.steps li.guard { grid-template-columns: minmax(0, 1fr); border-style: dashed; }
+.steps li.guard::before { content: none; }
+.topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 12px; }
+.topic { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 6px; min-width: 0; }
+.tid code { background: var(--accent); color: var(--accent-ink); font-weight: 500; }
+.th { display: block; }
+.en { display: block; color: var(--muted); font-family: var(--mono); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.block { gap: 10px; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-size: 12px; letter-spacing: .04em; color: var(--muted); font-weight: 600; }
+.props { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 520px; }
+.props td:first-child { white-space: nowrap; }
+.only { color: var(--warn); font-size: 13px; }
+.heroes { display: grid; gap: 12px; }
+.hero { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 8px; min-width: 0; }
+.hero .code { font-size: 13px; color: var(--muted); font-weight: 600; letter-spacing: .03em; }
+.for { display: grid; gap: 2px; }
+.lbl { font-size: 12px; letter-spacing: .04em; color: var(--muted); font-weight: 600; }
+.slots td:first-child { width: 1%; white-space: nowrap; padding-left: 0; }
+.slots td:last-child { padding-right: 0; }
+.slots td { padding: 7px 8px; }
+.slots tr:last-child td { border-bottom: 0; }
+.kind { display: inline-block; font-size: 12px; color: var(--muted); margin-right: .5em; }
+.req { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 600; background: var(--accent); color: var(--accent-ink); border-radius: 4px; padding: 0 .35em; }
+pre { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; overflow-x: auto; line-height: 1.55; white-space: pre; margin: 0; }
+.note { background: var(--surface); border-left: 4px solid var(--accent); padding: 12px 14px; border-radius: 0 10px 10px 0; max-width: 62ch; }
+</style>
+
+<div class="wrap">
+  <header class="lead">
+    <h1>คลังที่ AI อ่าน</h1>
+    <p>หน้านี้คือคำอธิบายชุดเฉพาะหมวดที่ส่งให้ AI ตอนวางแผนฉาก ข้อความที่ AI อ่านจริงเป็น<b>ภาษาอังกฤษ</b> (AI ทำตามได้แม่นกว่าและเปลืองน้อยกว่า) ส่วนชื่อชิ้นและคำตัวอย่างยังเป็นภาษาไทย ทุกข้อมีคำแปลไทยกำกับ</p>
+    <p>คำอธิบายทั้งหมดเขียนไว้ในโค้ดชิ้นส่วนที่เดียว หน้านี้สร้างจากโค้ดนั้น จึงตรงกับของที่ AI เห็นเสมอ</p>
+  </header>
+
+  <section>
+    <h2>AI ตัดสินใจทีละขั้น</h2>
+    <ol class="steps">
+      <li><div><b>อ่านบททั้งคลิป แล้วเลือกหมวดของคลิป</b> เป็นธุรกิจ (<code>biz</code>) การเงิน (<code>fin</code>) ฟิตเนส (<code>fit</code>) ความรู้ (<code>edu</code>) หรือไม่เข้าหมวดไหน (<code>none</code>) โดยเทียบกับคำอธิบายหมวดด้านล่าง</div></li>
+      <li><div><b>ทีละประโยค ดูว่าประโยคนั้นทำหน้าที่อะไร</b> เช่น มีตัวเลข บอกขึ้นลง เปรียบเทียบ บอกขั้นตอน เตือน แล้วไปที่หมวดชิ้นฐาน B01–B15 ที่ตรงกับหน้าที่นั้น</div></li>
+      <li><div><b>เลือกแบบในหมวดนั้น</b> ในแต่ละหมวดมีชิ้นฐาน และชิ้นของชุดเฉพาะหมวดที่มีป้ายบอกหมวดของคลิป ถ้าชิ้นของหมวดเล่าประโยคได้ดีพอ ๆ กันหรือดีกว่า ให้ใช้ชิ้นของหมวด</div></li>
+      <li><div><b>ถ้าประโยคเป็นเรื่องเฉพาะของหมวด ใช้ชิ้นเด่น</b> เช่น กรวยลูกค้า ดอกเบี้ยทบต้น จานแบ่งสัดส่วน AI รู้ว่าชิ้นเด่นใช้กับประโยคแบบไหนจากบรรทัด "ใช้กับประโยค" และรู้ว่าต้องเติมคำอะไรจากคำอธิบายแต่ละช่อง</div></li>
+      <li class="guard"><div><b>ถ้าหยิบผิดหมวด ตัวตรวจจับได้</b> เช่น ใช้ชิ้นฟิตเนสในคลิปการเงิน ระบบส่งกลับให้ AI แก้หนึ่งครั้ง ถ้ายังผิด ฉากนั้นกลายเป็นการ์ดตัวอักษร ตัวเลขทุกตัวบนจอต้องเป็นตัวที่พูดในคลิป ยกเว้นตัวที่เป็นแค่ลำดับหรือขนาด</div></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>คำอธิบาย 4 หมวดของคลิป</h2>
+    <p class="muted">AI ใช้ข้อความนี้เลือกหมวดในขั้นที่ 1</p>
+    <div class="topics"><article class="topic"><p class="tid"><code>biz</code></p><h3>ธุรกิจและการตลาดออนไลน์</h3>
+<p class="th">ขายของออนไลน์และการตลาดออนไลน์: ร้าน สินค้า ลูกค้า ออเดอร์ ราคาและกำไร โฆษณา โพสต์ ยอดวิวและการเข้าถึง</p><p class="en">AI อ่าน: selling online and online marketing: a shop, products, customers, orders, prices and profit, ads, posts, views and reach</p></article><article class="topic"><p class="tid"><code>fin</code></p><h3>การเงินและการลงทุน</h3>
+<p class="th">เงินส่วนตัวและการลงทุน: เก็บเงิน ใช้จ่าย งบประมาณ หนี้และบัตรเครดิต ดอกเบี้ย ลงทุน เงินเฟ้อ ภาษี</p><p class="en">AI อ่าน: personal money and investing: saving, spending, budgets, debt and credit cards, interest, investing, inflation, tax</p></article><article class="topic"><p class="tid"><code>fit</code></p><h3>สุขภาพและฟิตเนส</h3>
+<p class="th">สุขภาพและฟิตเนส: ออกกำลังกาย เดินและวิ่ง น้ำหนักตัว อาหารและโภชนาการ การนอน อาการปวดและท่าทาง</p><p class="en">AI อ่าน: health and fitness: exercise and workouts, walking and running, body weight, food and nutrition, sleep, pain and posture</p></article><article class="topic"><p class="tid"><code>edu</code></p><h3>ความรู้และพัฒนาตัวเอง</h3>
+<p class="th">การเรียนรู้และพัฒนาตัวเอง: การเรียน ภาษาและคำศัพท์ การอ่าน นิสัย สมาธิ ทักษะการทำงานและอาชีพ</p><p class="en">AI อ่าน: learning and self-improvement: studying, languages and words, reading, habits, focus, work skills and career</p></article></div>
+  </section>
+
+  <section>
+    <h2>ชิ้นประกอบ 24 ชิ้น</h2>
+    <p class="lead">ชิ้นประกอบคือชิ้นฐานที่วาดใหม่ให้เข้ากับหมวด ใช้ช่องเดียวกับชิ้นฐาน AI จึงไม่ต้องรู้อะไรเพิ่ม มันอยู่ในหมวดชิ้นฐานเดียวกับต้นแบบ เช่น ป้ายราคาห้อยเชือกอยู่ใน B01 ตัวเลขเด่น AI จะเห็นมันเมื่อประโยคมีตัวเลขในคลิปธุรกิจ ชิ้นที่มีข้อจำกัดจะมีบรรทัด "ใช้เฉพาะ" กำกับ</p>
+    <section class="block"><h3>ธุรกิจและการตลาดออนไลน์ <span class="muted">(6 ชิ้น)</span></h3>
+<div class="scroll"><table class="props"><thead><tr><th>รหัส</th><th>ชื่อชิ้น</th><th>AI หาเจอเมื่อประโยคเป็นแบบ</th></tr></thead><tbody><tr><td><b>BIZ-P1</b><br><span class="muted">B01.biz1</span></td><td>ป้ายราคาห้อยเชือก</td>
+<td><code>B01</code> ตัวเลขเด่น</td></tr><tr><td><b>BIZ-P2</b><br><span class="muted">B02.biz1</span></td><td>ตัวนับยอดวิวของโพสต์</td>
+<td><code>B02</code> เพิ่มขึ้น / ลดลง</td></tr><tr><td><b>BIZ-P3</b><br><span class="muted">B08.biz1</span></td><td>ใบเสร็จประทับตรา</td>
+<td><code>B08</code> เป้าหมาย / ผลลัพธ์ / สำเร็จ</td></tr><tr><td><b>BIZ-P4</b><br><span class="muted">B10.biz1</span></td><td>คนถือถุงช้อปปิ้ง</td>
+<td><code>B10</code> คน / กลุ่มเป้าหมาย</td></tr><tr><td><b>BIZ-P5</b><br><span class="muted">B12.biz1</span></td><td>กล่องพัสดุวิ่งตามลูกศร</td>
+<td><code>B12</code> เหตุกับผล (A ทำให้ B)</td></tr><tr><td><b>BIZ-P6</b><br><span class="muted">B07.biz1</span></td><td>ตะกร้าถูกทิ้ง</td>
+<td><code>B07</code> ปัญหา / คำเตือน</td></tr></tbody></table></div></section><section class="block"><h3>การเงินและการลงทุน <span class="muted">(6 ชิ้น)</span></h3>
+<div class="scroll"><table class="props"><thead><tr><th>รหัส</th><th>ชื่อชิ้น</th><th>AI หาเจอเมื่อประโยคเป็นแบบ</th></tr></thead><tbody><tr><td><b>FIN-P1</b><br><span class="muted">B01.fin1</span></td><td>ตารางเหรียญ</td>
+<td><code>B01</code> ตัวเลขเด่น</td></tr><tr><td><b>FIN-P2</b><br><span class="muted">B02.fin1</span></td><td>กราฟแท่งเทียน</td>
+<td><code>B02</code> เพิ่มขึ้น / ลดลง</td></tr><tr><td><b>FIN-P3</b><br><span class="muted">B12.fin1</span></td><td>เหรียญไหลตามลูกศร</td>
+<td><code>B12</code> เหตุกับผล (A ทำให้ B)</td></tr><tr><td><b>FIN-P4</b><br><span class="muted">B07.fin1</span></td><td>บัตรเครดิตแตกร้าว</td>
+<td><code>B07</code> ปัญหา / คำเตือน</td></tr><tr><td><b>FIN-P5</b><br><span class="muted">B08.fin1</span></td><td>กระเป๋าสตางค์เต็ม</td>
+<td><code>B08</code> เป้าหมาย / ผลลัพธ์ / สำเร็จ</td></tr><tr><td><b>FIN-P6</b><br><span class="muted">B09.fin1</span></td><td>ตารางผ่อนรายเดือน</td>
+<td><code>B09</code> เวลา / ไทม์ไลน์ / เส้นตาย</td></tr></tbody></table></div></section><section class="block"><h3>สุขภาพและฟิตเนส <span class="muted">(6 ชิ้น)</span></h3>
+<div class="scroll"><table class="props"><thead><tr><th>รหัส</th><th>ชื่อชิ้น</th><th>AI หาเจอเมื่อประโยคเป็นแบบ</th></tr></thead><tbody><tr><td><b>FIT-P1</b><br><span class="muted">B01.fit1</span></td><td>รอยเท้าเดินขึ้น (ใช้กับการเดินเท่านั้น)</td>
+<td><code>B01</code> ตัวเลขเด่น<br><span class="only">ใช้เฉพาะ: เฉพาะประโยคเรื่องเดินหรือจำนวนก้าว</span></td></tr><tr><td><b>FIT-P2</b><br><span class="muted">B02.fit1</span></td><td>ตาชั่งน้ำหนัก</td>
+<td><code>B02</code> เพิ่มขึ้น / ลดลง</td></tr><tr><td><b>FIT-P3</b><br><span class="muted">B07.fit1</span></td><td>เส้นชีพจรกระตุก</td>
+<td><code>B07</code> ปัญหา / คำเตือน</td></tr><tr><td><b>FIT-P4</b><br><span class="muted">B09.fit1</span></td><td>นาฬิกาจับเวลา</td>
+<td><code>B09</code> เวลา / ไทม์ไลน์ / เส้นตาย</td></tr><tr><td><b>FIT-P5</b><br><span class="muted">B03.fit1</span></td><td>ร่างคนก่อนกับหลัง</td>
+<td><code>B03</code> เปรียบเทียบ / ก่อนกับหลัง</td></tr><tr><td><b>FIT-P6</b><br><span class="muted">B08.fit1</span></td><td>ดัมเบลยกขึ้น</td>
+<td><code>B08</code> เป้าหมาย / ผลลัพธ์ / สำเร็จ</td></tr></tbody></table></div></section><section class="block"><h3>ความรู้และพัฒนาตัวเอง <span class="muted">(6 ชิ้น)</span></h3>
+<div class="scroll"><table class="props"><thead><tr><th>รหัส</th><th>ชื่อชิ้น</th><th>AI หาเจอเมื่อประโยคเป็นแบบ</th></tr></thead><tbody><tr><td><b>EDU-P1</b><br><span class="muted">B04.edu1</span></td><td>เช็กลิสต์ติ๊กด้วยปากกา</td>
+<td><code>B04</code> ขั้นตอน / เช็กลิสต์</td></tr><tr><td><b>EDU-P2</b><br><span class="muted">B08.edu1</span></td><td>ใบประกาศ</td>
+<td><code>B08</code> เป้าหมาย / ผลลัพธ์ / สำเร็จ</td></tr><tr><td><b>EDU-P3</b><br><span class="muted">B13.edu1</span></td><td>กล่องคำสั่ง AI</td>
+<td><code>B13</code> ไอเดีย / เคล็ดลับ / ความลับ</td></tr><tr><td><b>EDU-P4</b><br><span class="muted">B02.edu1</span></td><td>กองหนังสือ</td>
+<td><code>B02</code> เพิ่มขึ้น / ลดลง</td></tr><tr><td><b>EDU-P5</b><br><span class="muted">B09.edu1</span></td><td>ตารางเรียนรายสัปดาห์</td>
+<td><code>B09</code> เวลา / ไทม์ไลน์ / เส้นตาย</td></tr><tr><td><b>EDU-P6</b><br><span class="muted">B11.edu1</span></td><td>ฟองคำพูดสองภาษา</td>
+<td><code>B11</code> คำพูด / แชต / รีวิว</td></tr></tbody></table></div></section>
+  </section>
+
+  <section>
+    <h2>ชิ้นเด่น 20 ชิ้น</h2>
+    <p class="lead">ชิ้นเด่นเป็นหมวดใหม่ของแต่ละหมวด แต่ละชิ้นมีบรรทัด "ใช้กับประโยค" ที่บอก AI ว่าเล่าประโยคแบบไหน และตารางช่องที่ต้องเติม ป้าย <span class="req">ต้องมี</span> คือช่องที่ห้ามว่าง บรรทัดสีเทาคือข้อความที่ AI อ่านจริง</p>
+    <section class="block"><h3>ธุรกิจและการตลาดออนไลน์ <span class="muted">(5 ชิ้นเด่น)</span></h3><div class="heroes"><article class="hero"><header><p class="code">BIZ-H1 · <code>BIZ.h1</code></p><h4>ออเดอร์เด้งเข้า</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>ออเดอร์หรือยอดขายเข้ามา: ขายได้กี่ออเดอร์หรือกี่ชิ้น (ออเดอร์เข้า 50 รายการ)</p>
+<p class="en">AI อ่าน: for orders or sales coming in: how many orders or items were sold (ออเดอร์เข้า 50 รายการ)</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>num</code></td>
+<td><span class="kind">ตัวเลข</span><span class="th">ยอดรวมที่พูด (จำนวนออเดอร์หรือชิ้นที่ขายได้)</span><span class="en">AI อ่าน: num:number — the total said (orders or items sold)</span></td></tr>
+<tr><td><code>unit</code></td>
+<td><span class="kind">ข้อความ ≤ 8 ตัว</span><span class="th">คำหน่วยของมัน (รายการ, ก้อน, ชิ้น)</span><span class="en">AI อ่าน: unit:text≤8 — its unit word (รายการ, ก้อน, ชิ้น)</span></td></tr>
+<tr><td><code>item</code></td>
+<td><span class="kind">ข้อความ ≤ 12 ตัว</span><span class="th">ขายอะไรไป ถ้าพูด</span><span class="en">AI อ่าน: item:text≤12 — what was sold, if said</span></td></tr>
+<tr><td><code>icon</code></td>
+<td><span class="kind">ไอคอน</span><span class="th">สินค้า</span><span class="en">AI อ่าน: icon:icon — the product</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">BIZ-H2 · <code>BIZ.h2</code></p><h4>กรวยลูกค้า</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>กรวยลูกค้า: คนเห็น → ทักมา → ซื้อ (หรือกลับมาซื้อซ้ำ) ลดลงทีละขั้นเท่าไร</p>
+<p class="en">AI อ่าน: for a customer funnel: how many people go from seeing to messaging to buying (or buying again)</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>stages</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">รายการ 3–4 ข้อ</span><span class="th">3–4 ขั้นเรียงตามลำดับ ใช้คำที่พูด (เห็นโพสต์, ทักมา, ซื้อจริง)</span><span class="en">AI อ่าน: stages:list![3–4] — the 3–4 stages in order, in the words said (เห็นโพสต์, ทักมา, ซื้อจริง)</span></td></tr>
+<tr><td><code>nums</code></td>
+<td><span class="kind">รายการ ของตัวเลข (ข้อละหนึ่งตาม stages)</span><span class="th">ตัวเลขของแต่ละขั้น เรียงเหมือนกัน ใส่เฉพาะเมื่อพูดครบทุกขั้น</span><span class="en">AI อ่าน: nums:list&lt;number&gt; (one per stages) — the number at each stage, same order — only if every one was said</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">BIZ-H3 · <code>BIZ.h3</code></p><h4>สถิติโพสต์</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>สถิติของโพสต์หรือคลิปเดียว: ยอดวิว ไลก์ แชร์ หรือเซฟ</p>
+<p class="en">AI อ่าน: for the stats of one post or clip: views, likes, shares or saves</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>views</code></td>
+<td><span class="kind">ตัวเลข</span><span class="th">ใส่เฉพาะถ้าพูด</span><span class="en">AI อ่าน: views:number — only if said</span></td></tr>
+<tr><td><code>likes</code></td>
+<td><span class="kind">ตัวเลข</span><span class="th">ใส่เฉพาะถ้าพูด</span><span class="en">AI อ่าน: likes:number — only if said</span></td></tr>
+<tr><td><code>shares</code></td>
+<td><span class="kind">ตัวเลข</span><span class="th">ใส่เฉพาะถ้าพูด</span><span class="en">AI อ่าน: shares:number — only if said</span></td></tr>
+<tr><td><code>saves</code></td>
+<td><span class="kind">ตัวเลข</span><span class="th">ใส่เฉพาะถ้าพูด</span><span class="en">AI อ่าน: saves:number — only if said</span></td></tr>
+<tr><td><code>focus</code></td>
+<td><span class="kind">เลือกหนึ่ง: views / likes / shares / saves</span><span class="th">ค่าที่ประโยคพูดถึง</span><span class="en">AI อ่าน: focus:choice(views|likes|shares|saves) — the stat the sentence is about</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">BIZ-H4 · <code>BIZ.h4</code></p><h4>ราคาแตกเป็นต้นทุนกับกำไร</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>ราคาขายแตกเป็นต้นทุนต่าง ๆ กับกำไรที่เหลือ</p>
+<p class="en">AI อ่าน: for a selling price split into its costs and the profit left over</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>price</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">ตัวเลข</span><span class="th">ราคาขายที่พูด</span><span class="en">AI อ่าน: price:number! — the selling price said</span></td></tr>
+<tr><td><code>unit</code></td>
+<td><span class="kind">ข้อความ ≤ 6 ตัว</span><span class="th">หน่วย</span><span class="en">AI อ่าน: unit:text≤6</span></td></tr>
+<tr><td><code>pre</code></td>
+<td><span class="kind">ข้อความ ≤ 2 ตัว</span><span class="th">เครื่องหมายหน้าตัวเลข เช่น ฿</span><span class="en">AI อ่าน: pre:text≤2</span></td></tr>
+<tr><td><code>parts</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">รายการ 1–3 ข้อ</span><span class="th">ชื่อต้นทุนที่พูดถึง (ต้นทุน, ค่าส่ง, ค่าโฆษณา)</span><span class="en">AI อ่าน: parts:list![0–3] — the costs named (ต้นทุน, ค่าส่ง, ค่าโฆษณา)</span></td></tr>
+<tr><td><code>amounts</code></td>
+<td><span class="kind">รายการ ของตัวเลข (ข้อละหนึ่งตาม parts)</span><span class="th">จำนวนเงินของแต่ละต้นทุน เรียงตามชื่อ ใส่เฉพาะเมื่อพูดครบทุกตัว</span><span class="en">AI อ่าน: amounts:list&lt;number&gt; (one per parts) — each cost, same order as parts — only if every one was said</span></td></tr>
+<tr><td><code>profit</code></td>
+<td><span class="kind">ตัวเลข</span><span class="th">กำไร ถ้าพูด</span><span class="en">AI อ่าน: profit:number — the profit, if said</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">BIZ-H5 · <code>BIZ.h5</code></p><h4>หน้าร้านเปิด</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>เปิดร้านหรือเริ่มทำธุรกิจ (เปิดร้าน, เริ่มขาย)</p>
+<p class="en">AI อ่าน: for opening or starting a shop or a business (เปิดร้าน, เริ่มขาย)</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>shop</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">ร้าน ตามที่พูด (ร้านออนไลน์, ร้านเรา)</span><span class="en">AI อ่าน: shop:text≤14 — the shop, as said (ร้านออนไลน์, ร้านเรา)</span></td></tr>
+<tr><td><code>icon</code></td>
+<td><span class="kind">ไอคอน</span><span class="th">ร้านขายอะไร</span><span class="en">AI อ่าน: icon:icon — what the shop sells</span></td></tr>
+<tr><td><code>open</code></td>
+<td><span class="kind">ข้อความ ≤ 6 ตัว</span><span class="th">คำบนป้ายหน้าประตู (ปกติคือ เปิด)</span><span class="en">AI อ่าน: open:text≤6 — the word on the door sign (default เปิด)</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article></div></section><section class="block"><h3>การเงินและการลงทุน <span class="muted">(5 ชิ้นเด่น)</span></h3><div class="heroes"><article class="hero"><header><p class="code">FIN-H1 · <code>FIN.h1</code></p><h4>ดอกเบี้ยทบต้น</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>ดอกเบี้ยทบต้น: เงินที่ลงทุนไว้หลายปีโตเร็วขึ้นเรื่อย ๆ</p>
+<p class="en">AI อ่าน: for compound interest: money that grows faster and faster when it is invested for years</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>final</code></td>
+<td><span class="kind">ตัวเลข</span><span class="th">ยอดเงินปลายทาง ถ้าพูด</span><span class="en">AI อ่าน: final:number — the end amount, if said</span></td></tr>
+<tr><td><code>years</code></td>
+<td><span class="kind">ข้อความ ≤ 10 ตัว</span><span class="th">ระยะเวลาที่พูด (20 ปี)</span><span class="en">AI อ่าน: years:text≤10 — the time said (20 ปี)</span></td></tr>
+<tr><td><code>unit</code></td>
+<td><span class="kind">ข้อความ ≤ 6 ตัว</span><span class="th">หน่วย</span><span class="en">AI อ่าน: unit:text≤6</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">FIN-H2 · <code>FIN.h2</code></p><h4>แบ่งเงินเป็นก้อน</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>แบ่งเงินเป็นส่วนตามเปอร์เซ็นต์: สูตรแบ่งเงินหรือพอร์ตลงทุน (50/30/20, หุ้น 60%)</p>
+<p class="en">AI อ่าน: for money split into parts by percent: a budget rule or a portfolio (50/30/20, หุ้น 60%)</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>names</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">รายการ 2–4 ข้อ</span><span class="th">2–4 ส่วน ตามที่พูด</span><span class="en">AI อ่าน: names:list![2–4] — the 2–4 parts, as said</span></td></tr>
+<tr><td><code>shares</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">รายการ ของตัวเลข (ข้อละหนึ่งตาม names)</span><span class="th">เปอร์เซ็นต์ของแต่ละส่วน เรียงเหมือนกัน (ขึ้นจอพร้อม %)</span><span class="en">AI อ่าน: shares:list!&lt;number&gt; (one per names) — each part in percent, same order (shown with %)</span></td></tr>
+<tr><td><code>focus</code></td>
+<td><span class="kind">ลำดับในรายการ</span><span class="th">ส่วนที่ประโยคเน้น (0 = ส่วนแรก)</span><span class="en">AI อ่าน: focus:number (index into names) — which part the sentence stresses (0 = first)</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">FIN-H3 · <code>FIN.h3</code></p><h4>รายการรับจ่าย</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>เงินเข้าและเงินออกทีละรายการ กับเงินที่เหลือ (รายรับรายจ่ายของเดือน)</p>
+<p class="en">AI อ่าน: for money in and money out line by line, and what is left (a month of income and spending)</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>rows</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">รายการ ของ t, v, in 1–4 ข้อ</span><span class="th">t = รายการอะไร (เงินเดือน, ค่าห้อง) · v = จำนวนเงินที่พูด · in = true ถ้าเงินเข้า, false ถ้าเงินออก</span><span class="en">AI อ่าน: rows:list!&lt;{t:text, v:number, in:bool}&gt;[0–4] — t = what (เงินเดือน, ค่าห้อง), v = the amount said, in = true for money in, false for money out</span></td></tr>
+<tr><td><code>balance</code></td>
+<td><span class="kind">ตัวเลข</span><span class="th">เงินที่เหลือ ถ้าพูด</span><span class="en">AI อ่าน: balance:number — what is left, if said</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">FIN-H4 · <code>FIN.h4</code></p><h4>เงินเฟ้อ</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>เงินเฟ้อ: เงินเท่าเดิมซื้อของได้น้อยลงเมื่อของแพงขึ้น</p>
+<p class="en">AI อ่าน: for inflation: the same money buys less as prices rise</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>amount</code></td>
+<td><span class="kind">ตัวเลข</span><span class="th">จำนวนเงิน ถ้าพูด</span><span class="en">AI อ่าน: amount:number — the amount of money, if said</span></td></tr>
+<tr><td><code>unit</code></td>
+<td><span class="kind">ข้อความ ≤ 6 ตัว</span><span class="th">หน่วย</span><span class="en">AI อ่าน: unit:text≤6</span></td></tr>
+<tr><td><code>span</code></td>
+<td><span class="kind">ข้อความ ≤ 12 ตัว</span><span class="th">ช่วงเวลาที่พูด (10 ปีที่แล้ว, ทุกปี)</span><span class="en">AI อ่าน: span:text≤12 — the time said (10 ปีที่แล้ว, ทุกปี)</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">FIN-H5 · <code>FIN.h5</code></p><h4>ลดหย่อนภาษี</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>ลดหย่อนภาษี: อะไรช่วยให้ภาษีลดลง</p>
+<p class="en">AI อ่าน: for tax deductions: what lowers the tax</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>items</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">รายการ 1–4 ข้อ</span><span class="th">รายการลดหย่อนที่พูดถึง</span><span class="en">AI อ่าน: items:list![0–4] — the deductions named</span></td></tr>
+<tr><td><code>tax</code></td>
+<td><span class="kind">ตัวเลข</span><span class="th">ภาษีที่เหลือ ถ้าพูด</span><span class="en">AI อ่าน: tax:number — the tax left, if said</span></td></tr>
+<tr><td><code>unit</code></td>
+<td><span class="kind">ข้อความ ≤ 6 ตัว</span><span class="th">หน่วย</span><span class="en">AI อ่าน: unit:text≤6</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article></div></section><section class="block"><h3>สุขภาพและฟิตเนส <span class="muted">(5 ชิ้นเด่น)</span></h3><div class="heroes"><article class="hero"><header><p class="code">FIT-H1 · <code>FIT.h1</code></p><h4>จานแบ่งสัดส่วน</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>จานที่แบ่งเป็นกลุ่มอาหาร (ผักครึ่งจาน โปรตีนหนึ่งในสี่ …)</p>
+<p class="en">AI อ่าน: for a plate split into food groups (half vegetables, a quarter protein …)</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>names</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">รายการ 2–4 ข้อ</span><span class="th">2–4 กลุ่มอาหาร ตามที่พูด</span><span class="en">AI อ่าน: names:list![2–4] — the 2–4 food groups, as said</span></td></tr>
+<tr><td><code>shares</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">รายการ ของตัวเลข (ข้อละหนึ่งตาม names)</span><span class="th">ขนาดของแต่ละกลุ่มจากคำที่พูด (ครึ่งจาน = 2, หนึ่งในสี่ = 1) วาดเป็นชิ้นบนจาน ไม่ขึ้นเป็นตัวเลข</span><span class="en">AI อ่าน: shares:list!&lt;number&gt; (one per names) — their sizes from the words (ครึ่งจาน = 2, หนึ่งในสี่ = 1); drawn as slices, never as numbers</span></td></tr>
+<tr><td><code>focus</code></td>
+<td><span class="kind">ลำดับในรายการ</span><span class="th">กลุ่มที่ประโยคพูดถึง (0 = กลุ่มแรก)</span><span class="en">AI อ่าน: focus:number (index into names) — the group the sentence is about (0 = first)</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">FIT-H2 · <code>FIT.h2</code></p><h4>แถบสารอาหาร</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>สารอาหารในอาหารหรือมื้อหนึ่ง: โปรตีน คาร์บ ไขมัน (เป็นกรัม)</p>
+<p class="en">AI อ่าน: for the nutrients of a food or a meal: protein, carbs, fat (in grams)</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>items</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">รายการ ของ t, g 1–4 ข้อ</span><span class="th">t = ชื่อสารอาหาร · g = จำนวนกรัม ใส่เฉพาะถ้าพูด</span><span class="en">AI อ่าน: items:list!&lt;{t:text, g:number?}&gt;[0–4] — t = the nutrient, g = its grams only if said</span></td></tr>
+<tr><td><code>unit</code></td>
+<td><span class="kind">ข้อความ ≤ 6 ตัว</span><span class="th">หน่วยของกรัม (g, กรัม)</span><span class="en">AI อ่าน: unit:text≤6 — unit of g (g, กรัม)</span></td></tr>
+<tr><td><code>focus</code></td>
+<td><span class="kind">ลำดับในรายการ</span><span class="th">สารอาหารที่ประโยคพูดถึง (0 = ตัวแรก)</span><span class="en">AI อ่าน: focus:number (index into items) — the nutrient the sentence is about (0 = first)</span></td></tr>
+<tr><td><code>icon</code></td>
+<td><span class="kind">ไอคอน</span><span class="th">อาหารนั้น</span><span class="en">AI อ่าน: icon:icon — the food</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">FIT-H3 · <code>FIT.h3</code></p><h4>ร่างกายชี้จุด</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>ส่วนหนึ่งของร่างกาย: ปวดตรงไหน หรือท่านี้ช่วยส่วนไหน (หลังล่าง, เข่า)</p>
+<p class="en">AI อ่าน: for one part of the body: where it hurts, or what an exercise works (หลังล่าง, เข่า)</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>spot</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">เลือกหนึ่ง: head / shoulder / heart / belly / back / knee / wrist</span><span class="th">ส่วนของร่างกาย</span><span class="en">AI อ่าน: spot:choice!(head|shoulder|heart|belly|back|knee|wrist) — the body part</span></td></tr>
+<tr><td><code>label</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">ข้อความ ≤ 12 ตัว</span><span class="th">ชื่อของมัน ตามที่พูด</span><span class="en">AI อ่าน: label:text!≤12 — its name, as said</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">FIT-H4 · <code>FIT.h4</code></p><h4>ท่าออกกำลังกายพร้อมตัวนับ</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>ทำท่าออกกำลังกายกี่ครั้ง (จำนวนครั้ง)</p>
+<p class="en">AI อ่าน: for doing an exercise a number of times (reps)</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>n</code></td>
+<td><span class="kind">ตัวเลข</span><span class="th">จำนวนครั้ง ถ้าพูด</span><span class="en">AI อ่าน: n:number — the number of reps, if said</span></td></tr>
+<tr><td><code>unit</code></td>
+<td><span class="kind">ข้อความ ≤ 6 ตัว</span><span class="th">ครั้ง, รอบ</span><span class="en">AI อ่าน: unit:text≤6 — ครั้ง, รอบ</span></td></tr>
+<tr><td><code>move</code></td>
+<td><span class="kind">ข้อความ ≤ 12 ตัว</span><span class="th">ชื่อท่า ตามที่พูด</span><span class="en">AI อ่าน: move:text≤12 — the exercise, as said</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">FIT-H5 · <code>FIT.h5</code></p><h4>กราฟการนอน</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>การนอน: นอนนานแค่ไหนหรือลึกแค่ไหน (ชั่วโมงนอน, หลับลึก)</p>
+<p class="en">AI อ่าน: for sleep: how long or how deep (hours of sleep, deep sleep)</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>hours</code></td>
+<td><span class="kind">ตัวเลข</span><span class="th">จำนวนชั่วโมง ถ้าพูด</span><span class="en">AI อ่าน: hours:number — the hours, if said</span></td></tr>
+<tr><td><code>unit</code></td>
+<td><span class="kind">ข้อความ ≤ 8 ตัว</span><span class="th">หน่วย</span><span class="en">AI อ่าน: unit:text≤8</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article></div></section><section class="block"><h3>ความรู้และพัฒนาตัวเอง <span class="muted">(5 ชิ้นเด่น)</span></h3><div class="heroes"><article class="hero"><header><p class="code">EDU-H1 · <code>EDU.h1</code></p><h4>บัตรคำศัพท์</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>คำศัพท์กับความหมายหรือวิธีอ่าน</p>
+<p class="en">AI อ่าน: for a word or a term with its meaning or how to say it (vocabulary)</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>word</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">ข้อความ ≤ 18 ตัว</span><span class="th">คำศัพท์ ตามที่พูด (อังกฤษหรือไทย)</span><span class="en">AI อ่าน: word:text!≤18 — the word, as said (English or Thai)</span></td></tr>
+<tr><td><code>meaning</code></td>
+<td><span class="kind">ข้อความ ≤ 18 ตัว</span><span class="th">ความหมาย ถ้าพูด</span><span class="en">AI อ่าน: meaning:text≤18 — its meaning, if said</span></td></tr>
+<tr><td><code>say</code></td>
+<td><span class="kind">ข้อความ ≤ 18 ตัว</span><span class="th">วิธีอ่าน ถ้าพูด</span><span class="en">AI อ่าน: say:text≤18 — how to read it, if said</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">EDU-H2 · <code>EDU.h2</code></p><h4>แก้ประโยค</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>แก้ประโยค: อย่าพูดแบบ X ให้พูดแบบ Y (พูดภาษาผิด)</p>
+<p class="en">AI อ่าน: for correcting a sentence: do not say X, say Y (a language mistake)</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>before</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำก่อนคำที่ผิด ถ้าพูด</span><span class="en">AI อ่าน: before:text≤14 — words before the wrong one, if said</span></td></tr>
+<tr><td><code>wrong</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">ข้อความ ≤ 10 ตัว</span><span class="th"></span><span class="en">AI อ่าน: wrong:text!≤10</span></td></tr>
+<tr><td><code>right</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">ข้อความ ≤ 10 ตัว</span><span class="th"></span><span class="en">AI อ่าน: right:text!≤10</span></td></tr>
+<tr><td><code>after</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำหลังคำนั้น ถ้าพูด</span><span class="en">AI อ่าน: after:text≤14 — words after it, if said</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">EDU-H3 · <code>EDU.h3</code></p><h4>บันไดอาชีพ</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>ขั้นของอาชีพหรือทักษะ ทีละขั้นจนถึงขั้นบนสุด</p>
+<p class="en">AI อ่าน: for steps of a career or a skill, level by level up to the top</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>steps</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">รายการ 2–4 ข้อ</span><span class="th">2–4 ขั้นเรียงตามลำดับ ตามที่พูด</span><span class="en">AI อ่าน: steps:list![2–4] — the 2–4 levels in order, as said</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">EDU-H4 · <code>EDU.h4</code></p><h4>สตรีคนิสัย</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>นิสัยที่ทำต่อเนื่องทุกวัน ทำติดต่อกันกี่วัน</p>
+<p class="en">AI อ่าน: for a habit kept day after day, a streak of days</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>habit</code></td>
+<td><span class="kind">ข้อความ ≤ 16 ตัว</span><span class="th">นิสัย ตามที่พูด</span><span class="en">AI อ่าน: habit:text≤16 — the habit, as said</span></td></tr>
+<tr><td><code>days</code></td>
+<td><span class="kind">ตัวเลข</span><span class="th">จำนวนวันติดต่อกัน ถ้าพูด</span><span class="en">AI อ่าน: days:number — the days in a row, if said</span></td></tr>
+<tr><td><code>icon</code></td>
+<td><span class="kind">ไอคอน</span><span class="th">นิสัยนั้น</span><span class="en">AI อ่าน: icon:icon — the habit</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article><article class="hero"><header><p class="code">EDU-H5 · <code>EDU.h5</code></p><h4>แผนผังความคิด</h4></header>
+<p class="for"><span class="lbl">ใช้กับประโยค</span>หัวข้อหนึ่งกับ 3–4 ส่วนหรือทักษะที่ประกอบเป็นหัวข้อนั้น</p>
+<p class="en">AI อ่าน: for one topic with the 3–4 parts or skills that make it up</p>
+<div class="scroll"><table class="slots"><tbody><tr><td><code>topic</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">ข้อความ ≤ 12 ตัว</span><span class="th">คำหัวข้อ</span><span class="en">AI อ่าน: topic:text!≤12 — the topic word</span></td></tr>
+<tr><td><code>branches</code><span class="req">ต้องมี</span></td>
+<td><span class="kind">รายการ 3–4 ข้อ</span><span class="th">3–4 ส่วนของมัน ตามที่พูด</span><span class="en">AI อ่าน: branches:list![3–4] — its 3–4 parts, as said</span></td></tr>
+<tr><td><code>lead</code></td>
+<td><span class="kind">ข้อความ ≤ 26 ตัว</span><span class="th">บรรทัดเล็กใต้ภาพ (คำจากบท)</span><span class="en">AI อ่าน: lead:text≤26</span></td></tr>
+<tr><td><code>key</code></td>
+<td><span class="kind">ข้อความ ≤ 14 ตัว</span><span class="th">คำใหญ่ที่ขึ้นตรงจังหวะ</span><span class="en">AI อ่าน: key:text≤14</span></td></tr></tbody></table></div></article></div></section>
+  </section>
+
+  <section>
+    <h2>ตัวอย่างข้อความที่ส่งให้ AI จริง</h2>
+    <p class="muted">ช่วงหนึ่งของคลังสไตล์ editorial: หมวด B01 ที่มีชิ้นฐานกับชิ้นของ 3 หมวดอยู่ด้วยกัน และต้นหัวข้อหมวดธุรกิจ</p>
+    <pre>## B01 ตัวเลขเด่น — ประโยคที่มีตัวเลขสำคัญ ราคา เปอร์เซ็นต์ หรือจำนวน
+slots: num:number! — the value said in the script · of:number — whole, for &quot;3 ใน 10&quot; / percent (default 100 for v2, 10 for v3) · unit:text≤8 — บาท, %, ก้าว, ชิ้น … · pre:text≤2 — a sign before the number, e.g. ฿ · icon:icon! · lead:text≤26 — small line under the visual (words from the script) · key:text≤14 — the big word at the hit
+- B01.v1 · ตัวเลขนับขึ้นแล้วหยุด · hit: ตัวเลขนับถึงค่าแล้วเด้ง + วงคลื่น · 1.4–3.5 s · glow/white/cream
+- B01.v2 · วงแหวนเปอร์เซ็นต์ · hit: วงแหวนเติมถึงค่าแล้วเด้ง · 1.6–3.5 s · glow/white
+- B01.v3 · ตารางไอคอน 10 ช่อง · hit: ไอคอนตามสัดส่วนเปลี่ยนเป็นสีเน้นทีละตัว · 1.6–3.5 s · glow/white/cream
+- B01.v4 · การ์ดตัวเลขแบบแดชบอร์ด · hit: การ์ดเด้ง + ชิปป้ายขึ้นใต้การ์ด · 1.4–3.5 s · glow/cream/white
+- B01.biz1 · ป้ายราคาห้อยเชือก · hit: ราคานับถึงค่า ป้ายแกว่งรับ + วงคลื่น · 1.4–3.5 s · glow/cream/white · topic biz
+- B01.fin1 · ตารางเหรียญ · hit: เหรียญตามสัดส่วนเปลี่ยนเป็นสีเน้นทีละเหรียญ ป้ายสัดส่วนขึ้น · 1.6–3.5 s · glow/white/cream · topic fin
+- B01.fit1 · รอยเท้าเดินขึ้น (ใช้กับการเดินเท่านั้น) · hit: รอยเท้าสว่างทีละก้าวจนถึงค่า ตัวเลขหยุดตรงคำ · 1.6–3.5 s · glow/white/cream · topic fit · only for: เฉพาะประโยคเรื่องเดินหรือจำนวนก้าว
+
+…
+
+## topic biz (ธุรกิจและการตลาดออนไลน์) — selling online and online marketing: a shop, products, customers, orders, prices and profit, ads, posts, views and reach
+### BIZ.h1 — for orders or sales coming in: how many orders or items were sold (ออเดอร์เข้า 50 รายการ)
+slots: num:number — the total said (orders or items sold) · unit:text≤8 — its unit word (รายการ, ก้อน, ชิ้น) · item:text≤12 — what was sold, if said · icon:icon — the product · lead:text≤26 · key:text≤14
+- BIZ.h1 · ออเดอร์เด้งเข้า · hit: ออเดอร์ใบสุดท้ายเด้งเข้า ยอดรวมหยุดที่ตัวเลขในบท + วงคลื่น · 1.6–4 s · glow/white/cream · topic biz
+### BIZ.h2 — for a customer funnel: how many people go from seeing to messaging to buying (or buying again)
+slots: stages:list![3–4] — the 3–4 stages in order, in the words said (เห็นโพสต์, ทักมา, ซื้อจริง) · nums:list&lt;number&gt; (one per stages) — the number at each stage, same order — only if every one was said · lead:text≤26 · key:text≤14
+- BIZ.h2 · กรวยลูกค้า · hit: ชั้นสุดท้ายของกรวยสว่างเป็นสีเน้น ชื่อและตัวเลขของชั้นนั้นขึ้น + วงคลื่น · 1.8–4 s · glow/white/cream · topic biz
+…</pre>
+    <p class="muted">คำสั่งเรื่องหมวดที่ AI ได้รับ:</p>
+    <pre># Topic (decide it first)
+- `topic` is what the whole clip is about: one of the topic packs listed after the library (`biz`, `fin`, `fit`, `edu`), or `none` when the clip fits none of them or mixes several with no main one. Judge from the whole transcript, not one sentence.
+- In a clip with a topic, when that topic&#x27;s part shows a sentence at least as well as a base part, use the topic&#x27;s part: its version of a category, or one of its hero parts. Base parts stay open for every other sentence, and a mix reads better than a clip of hero parts only.
+- Never use a part of another topic, and in a `none` clip use base parts only. Respect a part&#x27;s `only for` note.</pre>
+  </section>
+
+  <p class="note">ถ้าคำอธิบายชิ้นไหนไม่ตรงกับที่คุณคิดไว้ บอกรหัสชิ้นมาได้เลย เช่น "BIZ-H2 ควรใช้กับ…" ผมแก้ในโค้ดที่เดียว แล้วหน้านี้กับข้อความที่ AI อ่านจะเปลี่ยนตาม</p>
+</div>
