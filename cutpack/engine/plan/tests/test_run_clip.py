@@ -175,6 +175,7 @@ class Runner(unittest.TestCase):
             self.assertEqual(r['status'], 'ok'); self.assertEqual(r['captions'], 'customer')
             self.assertEqual([c['stage'] for c in r['calls']], ['scene'])
             self.assertTrue({'frames', 'faces', 'plan'} <= set(r['stages']))
+            self.assertEqual((r['topic'], r['pack_scenes']), ('biz', 0))   # the approved answers: a biz clip told with base parts
         sys.path.insert(0, os.path.join(CUTPACK, 'cost-test'))
         import cost_model, io, contextlib
         with contextlib.redirect_stdout(io.StringIO()): out = cost_model.report(self.log)

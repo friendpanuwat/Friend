@@ -2,7 +2,8 @@
    PACK fit — สุขภาพและฟิตเนส (same rules as packs/biz.js; items wait for Friend's picks in the gallery)
    Bodies are plain flat figures, never photos, never a body type held up as worse.
    ===================================================================== */
-const FIT = 'fit';
+const FIT = PACK('fit', {name: 'สุขภาพและฟิตเนส', live: true,   // Friend kept all 11 cards and widgets (2026-11-04/05)
+  when: 'health and fitness: exercise and workouts, walking and running, body weight, food and nutrition, sleep, pain and posture'});
 const fitCol = dark => dark ? ACC : NAVY;
 const figure = (parent, css, color, sw = 26) => div(css, parent, `<svg width="100%" height="100%" viewBox="0 0 200 400" style="display:block;overflow:visible">
   <circle cx="100" cy="46" r="36" fill="${color}"/><path d="M100 96 V236 M100 120 L44 200 M100 120 L156 200 M100 236 L60 370 M100 236 L140 370" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
@@ -125,8 +126,8 @@ PART('B08', 'fit1', {pack: FIT, code: 'FIT-P6', name: 'ดัมเบลยก�
 /* ---------- hero parts ---------- */
 
 /* H1: a plate fills section by section (vegetables, protein, carbs …); the one talked about lights up on the key word */
-PART('FIT', 'h1', {pack: FIT, code: 'FIT-H1', name: 'จานแบ่งสัดส่วน', bgs: ['glow', 'white', 'cream'],
-  slots: {names: {type: 'list', max: 4, req: true}, shares: {type: 'list', req: true}, focus: {type: 'number'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
+PART('FIT', 'h1', {pack: FIT, code: 'FIT-H1', name: 'จานแบ่งสัดส่วน', when: 'a plate split into food groups (half vegetables, a quarter protein …)', bgs: ['glow', 'white', 'cream'],
+  slots: {names: {type: 'list', min: 2, max: 4, req: true, note: 'the 2–4 food groups, as said'}, shares: {type: 'list', item: 'number', req: true, same: 'names', shown: false, note: 'their sizes from the words (ครึ่งจาน = 2, หนึ่งในสี่ = 1); drawn as slices, never as numbers'}, focus: {type: 'number', index: 'names', note: 'the group the sentence is about (0 = first)'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
   hit: 'ส่วนที่พูดถึงบนจานสว่างเป็นสีเน้น + วงคลื่น (ไม่มีตัวเลขถ้าไม่ได้พูด)'}, (c, s, T) => {
   const n = s.names.length, sh = s.shares.map(Number), tot = sh.reduce((a, b) => a + b, 0);
   if (n < 2 || n > 4 || sh.length !== n) throw new Error('FIT.h1 needs 2–4 names with a share each');
@@ -152,8 +153,8 @@ PART('FIT', 'h1', {pack: FIT, code: 'FIT-H1', name: 'จานแบ่งสั
 });
 
 /* H2: nutrient bars (protein, carbs, fat …) fill with the grams said; the one talked about lights up on the key word */
-PART('FIT', 'h2', {pack: FIT, code: 'FIT-H2', name: 'แถบสารอาหาร', bgs: ['glow', 'white', 'cream'],
-  slots: {items: {type: 'list', max: 4, req: true}, unit: {type: 'text', max: 6}, focus: {type: 'number'}, icon: {type: 'icon'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
+PART('FIT', 'h2', {pack: FIT, code: 'FIT-H2', name: 'แถบสารอาหาร', when: 'the nutrients of a food or a meal: protein, carbs, fat (in grams)', bgs: ['glow', 'white', 'cream'],
+  slots: {items: {type: 'list', max: 4, req: true, item: {t: 'text', g: 'number?'}, note: 't = the nutrient, g = its grams only if said'}, unit: {type: 'text', max: 6, note: 'unit of g (g, กรัม)'}, focus: {type: 'number', index: 'items', note: 'the nutrient the sentence is about (0 = first)'}, icon: {type: 'icon', note: 'the food'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
   hit: 'แถบที่พูดถึงเป็นสีเน้นและเด้ง ตัวเลขกรัมขึ้น (ถ้าพูด)'}, (c, s, T) => {
   const it = s.items;   // [{t: 'โปรตีน', g: 31}, …] — g only if said
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', focus = s.focus ?? 0, max = Math.max(1, ...it.map(x => Number(x.g ?? 0)));
@@ -174,8 +175,8 @@ PART('FIT', 'h2', {pack: FIT, code: 'FIT-H2', name: 'แถบสารอาห
 
 /* H3: a figure; the body part talked about glows and gets a label on the key word */
 const FIT_SPOTS = {head: [100, 44], shoulder: [62, 102], heart: [114, 130], belly: [100, 186], back: [100, 160], knee: [118, 312], wrist: [44, 226]};   // on human()
-PART('FIT', 'h3', {pack: FIT, code: 'FIT-H3', name: 'ร่างกายชี้จุด', bgs: ['glow', 'white', 'cream'],
-  slots: {spot: {type: 'choice', of: Object.keys(FIT_SPOTS), req: true}, label: {type: 'text', max: 12, req: true}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.2, 3.5],
+PART('FIT', 'h3', {pack: FIT, code: 'FIT-H3', name: 'ร่างกายชี้จุด', when: 'one part of the body: where it hurts, or what an exercise works (หลังล่าง, เข่า)', bgs: ['glow', 'white', 'cream'],
+  slots: {spot: {type: 'choice', of: Object.keys(FIT_SPOTS), req: true, note: 'the body part'}, label: {type: 'text', max: 12, req: true, note: 'its name, as said'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.2, 3.5],
   hit: 'จุดที่พูดถึงบนร่างกายสว่างเป็นวงสีเน้น ป้ายชื่อขึ้นข้าง ๆ'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', col = fitCol(dark), X = 220, Y = 190, K = 1.7;   // the figure: 200×400 view → 340×680 px
   const f = human(c, `left:${X}px;top:${Y}px;width:340px;height:680px;opacity:0`, dark ? 'rgba(255,255,255,.4)' : 'rgba(20,33,61,.3)');   // Friend 2026-11-04: a more realistic person
@@ -192,8 +193,8 @@ PART('FIT', 'h3', {pack: FIT, code: 'FIT-H3', name: 'ร่างกายชี
 });
 
 /* H4: a figure doing reps (squat) while the counter climbs; the last rep and the number land on the key word */
-PART('FIT', 'h4', {pack: FIT, code: 'FIT-H4', name: 'ท่าออกกำลังกายพร้อมตัวนับ', bgs: ['glow', 'white', 'cream'],
-  slots: {n: {type: 'number'}, unit: {type: 'text', max: 6}, move: {type: 'text', max: 12}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.8, 4.0],
+PART('FIT', 'h4', {pack: FIT, code: 'FIT-H4', name: 'ท่าออกกำลังกายพร้อมตัวนับ', when: 'doing an exercise a number of times (reps)', bgs: ['glow', 'white', 'cream'],
+  slots: {n: {type: 'number', note: 'the number of reps, if said'}, unit: {type: 'text', max: 6, note: 'ครั้ง, รอบ'}, move: {type: 'text', max: 12, note: 'the exercise, as said'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.8, 4.0],
   hit: 'ท่าสุดท้ายกลับขึ้นตรงคำ ตัวนับหยุดที่จำนวนในบท + วงคลื่น'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', col = fitCol(dark);
   div(`left:180px;top:830px;width:420px;height:10px;border-radius:5px;background:${o.track}`, c);
@@ -212,8 +213,8 @@ PART('FIT', 'h4', {pack: FIT, code: 'FIT-H4', name: 'ท่าออกกำล
 });
 
 /* H5: a night of sleep — the light and deep sleep line runs across the night; the hours land on the key word */
-PART('FIT', 'h5', {pack: FIT, code: 'FIT-H5', name: 'กราฟการนอน', bgs: ['glow', 'white', 'cream'],
-  slots: {hours: {type: 'number'}, unit: {type: 'text', max: 8}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
+PART('FIT', 'h5', {pack: FIT, code: 'FIT-H5', name: 'กราฟการนอน', when: 'sleep: how long or how deep (hours of sleep, deep sleep)', bgs: ['glow', 'white', 'cream'],
+  slots: {hours: {type: 'number', note: 'the hours, if said'}, unit: {type: 'text', max: 8}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
   hit: 'เส้นการนอนวิ่งถึงเช้า ชั่วโมงนอนหยุดที่ตัวเลขในบท (ถ้าพูด) + วงคลื่น'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', col = fitCol(dark), W = 800, H = 360, x0 = 140, y0 = 380;
   const lv = [0, 2, 3, 3, 2, 1, 2, 3, 2, 1, 1, 2, 1, 0], dx = W / (lv.length - 1);

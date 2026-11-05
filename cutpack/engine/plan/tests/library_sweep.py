@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Run the render check over the whole library with the gallery samples Friend reviewed (library/base-parts/samples.json):
+"""Run the render check over the whole library with the gallery samples Friend reviewed (library/base-parts/samples.json,
+and library/topic-packs/samples.json for the four topic packs):
 every card part × every allowed background × both samples, and every widget × both sizes with the sample's subtitle.
 A clean library must give no errors — otherwise the check is too strict or a part has a real problem.
 usage: library_sweep.py [cards|widgets]   (both by default)
@@ -9,15 +10,22 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 import render_check, validate
 
-SAMPLES = json.load(open(os.path.join(HERE, '..', '..', '..', 'library', 'base-parts', 'samples.json')))
+LIB = os.path.join(HERE, '..', '..', '..', 'library')
+SAMPLES = json.load(open(os.path.join(LIB, 'base-parts', 'samples.json')))
+PACK_SAMPLES = json.load(open(os.path.join(LIB, 'topic-packs', 'samples.json')))   # keyed by part id (B01.biz1, BIZ.h1)
 CAT = json.load(open(os.path.join(HERE, '..', 'catalog.json')))
+
+
+def samples(p):
+    """The gallery samples of a part: a topic-pack part has its own (what Friend saw), a base part those of its category."""
+    return PACK_SAMPLES[p['id']] if p.get('pack') else SAMPLES[p['id'].split('.')[0]]
 
 
 def card_plan(cat):
     scenes, t = [], 0.0
     for p in CAT['cards']:
-        if not p['id'].startswith(cat): continue
-        for s in SAMPLES[cat]:
+        if p['id'].split('.')[0] != cat: continue
+        for s in samples(p):
             for bg in p['bgs']:
                 scenes.append({'t0': t + .4, 't1': t + 3.4, 'kind': 'card', 'part': p['id'], 'bg': bg, 'hit': t + 1.5, 'slots': s['slots']})
                 t += 4
@@ -27,8 +35,8 @@ def card_plan(cat):
 def widget_plan(cat):
     scenes, subs, t = [], [], 0.0
     for p in CAT['widgets']:
-        if not p['id'].startswith(cat): continue
-        for s in SAMPLES[cat]:
+        if p['id'].split('.')[0] != cat: continue
+        for s in samples(p):
             for size in ('short', 'narrow'):
                 key = s['slots'].get('key')
                 sub = {'t0': t + .2, 't1': t + 3.6, 'text': s['say']}

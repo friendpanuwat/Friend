@@ -1,12 +1,13 @@
 /* =====================================================================
-   PACK biz — ธุรกิจและการตลาดออนไลน์ (Friend 2026-11-04 agreed to the four categories; the items wait for his picks)
+   PACK biz — ธุรกิจและการตลาดออนไลน์ (Friend 2026-11-04 agreed to the four categories and kept all 11 pieces; in plan D since 2026-11-05)
    Props redraw a base part for this category and keep its slots, so a plan does not change: PART('B01', 'biz1', …).
    Hero parts are new and only this pack has them: PART('BIZ', 'h1', …).
-   meta.pack keeps them out of the AI's catalog (plan/catalog.js) until Friend has picked them in the gallery.
+   meta.pack names the topic; the pack's PACK() entry (live) puts its parts in the AI's catalog once Friend has kept them.
    Same rules as every part: motion only through mv.* and the kit, numbers on screen only if said, red only for a
    negative meaning, nothing level with the app's buttons past x 940, no real brand or app logos.
    ===================================================================== */
-const BIZ = 'biz';
+const BIZ = PACK('biz', {name: 'ธุรกิจและการตลาดออนไลน์', live: true,   // Friend kept all 11 cards and widgets (2026-11-04/05)
+  when: 'selling online and online marketing: a shop, products, customers, orders, prices and profit, ads, posts, views and reach'});
 const bizPanel = bg => bg === 'glow' ? 'glass' : bg === 'white' ? 'navy' : 'white';   // the panel style that reads on each card
 const bizLine = (c, text, top, color, size = 76) => { const w = div(`left:80px;width:920px;top:${top}px;display:flex;justify-content:center`, c);
   const e = div(`position:relative;font-family:CardSans;font-size:${size}px;line-height:1.2;white-space:nowrap;color:${color};opacity:0`, w); e.textContent = text; fitW(e, SAFE_W); return e; };
@@ -139,8 +140,8 @@ PART('B07', 'biz1', {pack: BIZ, code: 'BIZ-P6', name: 'ตะกร้าถู�
 /* ---------- hero parts: only the business pack has these ---------- */
 
 /* H1: new-order cards pop in one after another; the total counts up and lands on the key word */
-PART('BIZ', 'h1', {pack: BIZ, code: 'BIZ-H1', name: 'ออเดอร์เด้งเข้า', bgs: ['glow', 'white', 'cream'],
-  slots: {num: {type: 'number'}, unit: {type: 'text', max: 8}, item: {type: 'text', max: 12}, icon: {type: 'icon'},
+PART('BIZ', 'h1', {pack: BIZ, code: 'BIZ-H1', name: 'ออเดอร์เด้งเข้า', when: 'orders or sales coming in: how many orders or items were sold (ออเดอร์เข้า 50 รายการ)', bgs: ['glow', 'white', 'cream'],
+  slots: {num: {type: 'number', note: 'the total said (orders or items sold)'}, unit: {type: 'text', max: 8, note: 'its unit word (รายการ, ก้อน, ชิ้น)'}, item: {type: 'text', max: 12, note: 'what was sold, if said'}, icon: {type: 'icon', note: 'the product'},
           lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
   hit: 'ออเดอร์ใบสุดท้ายเด้งเข้า ยอดรวมหยุดที่ตัวเลขในบท + วงคลื่น'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', st = bizPanel(T.bg), ink = st === 'white' ? NAVY : '#FFFFFF';
@@ -170,8 +171,8 @@ PART('BIZ', 'h1', {pack: BIZ, code: 'BIZ-H1', name: 'ออเดอร์เด
 });
 
 /* H2: a funnel of 3–4 stages builds top to bottom; the last stage lights up in the accent on the key word */
-PART('BIZ', 'h2', {pack: BIZ, code: 'BIZ-H2', name: 'กรวยลูกค้า', bgs: ['glow', 'white', 'cream'],
-  slots: {stages: {type: 'list', max: 4, req: true}, nums: {type: 'list'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.8, 4.0],
+PART('BIZ', 'h2', {pack: BIZ, code: 'BIZ-H2', name: 'กรวยลูกค้า', when: 'a customer funnel: how many people go from seeing to messaging to buying (or buying again)', bgs: ['glow', 'white', 'cream'],
+  slots: {stages: {type: 'list', min: 3, max: 4, req: true, note: 'the 3–4 stages in order, in the words said (เห็นโพสต์, ทักมา, ซื้อจริง)'}, nums: {type: 'list', item: 'number', same: 'stages', note: 'the number at each stage, same order — only if every one was said'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.8, 4.0],
   hit: 'ชั้นสุดท้ายของกรวยสว่างเป็นสีเน้น ชื่อและตัวเลขของชั้นนั้นขึ้น + วงคลื่น'}, (c, s, T) => {
   const st = s.stages, n = st.length;
   if (n < 3 || n > 4) throw new Error('BIZ.h2 needs 3 or 4 stages');
@@ -199,9 +200,8 @@ PART('BIZ', 'h2', {pack: BIZ, code: 'BIZ-H2', name: 'กรวยลูกค้
 
 /* H3: a post with its stats row (views, likes, shares, saves); the one talked about grows and lights up on the key word */
 const BIZ_STATS = [['views', 'eye'], ['likes', 'heart'], ['shares', 'send'], ['saves', 'bookmark']];
-PART('BIZ', 'h3', {pack: BIZ, code: 'BIZ-H3', name: 'สถิติโพสต์', bgs: ['glow', 'white', 'cream'],
-  slots: {views: {type: 'number'}, likes: {type: 'number'}, shares: {type: 'number'}, saves: {type: 'number'},
-          focus: {type: 'choice', of: ['views', 'likes', 'shares', 'saves']}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.4, 3.5],
+PART('BIZ', 'h3', {pack: BIZ, code: 'BIZ-H3', name: 'สถิติโพสต์', when: 'the stats of one post or clip: views, likes, shares or saves', bgs: ['glow', 'white', 'cream'],
+  slots: {views: {type: 'number', note: 'only if said'}, likes: {type: 'number', note: 'only if said'}, shares: {type: 'number', note: 'only if said'}, saves: {type: 'number', note: 'only if said'}, focus: {type: 'choice', of: ['views', 'likes', 'shares', 'saves'], note: 'the stat the sentence is about'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.4, 3.5],
   hit: 'ค่าที่พูดถึงขยายใหญ่และเป็นสีเน้น + วงคลื่น (ค่าที่ไม่ได้พูดเป็นแถบเทา)'}, (c, s, T) => {
   const said = BIZ_STATS.filter(([k]) => s[k] != null);
   if (!said.length) throw new Error('BIZ.h3 needs at least one number that was said');
@@ -234,10 +234,9 @@ PART('BIZ', 'h3', {pack: BIZ, code: 'BIZ-H3', name: 'สถิติโพสต
 });
 
 /* H4: the selling price as one bar; it splits into its costs, and what is left — the profit — lights up on the key word */
-PART('BIZ', 'h4', {pack: BIZ, code: 'BIZ-H4', name: 'ราคาแตกเป็นต้นทุนกับกำไร', bgs: ['glow', 'white', 'cream'],
-  slots: {price: {type: 'number', req: true}, unit: {type: 'text', max: 6}, pre: {type: 'text', max: 2},
-          parts: {type: 'list', max: 3, req: true}, amounts: {type: 'list'}, profit: {type: 'number'},
-          lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.8, 4.0],
+PART('BIZ', 'h4', {pack: BIZ, code: 'BIZ-H4', name: 'ราคาแตกเป็นต้นทุนกับกำไร', when: 'a selling price split into its costs and the profit left over', bgs: ['glow', 'white', 'cream'],
+  slots: {price: {type: 'number', req: true, note: 'the selling price said'}, unit: {type: 'text', max: 6}, pre: {type: 'text', max: 2},
+          parts: {type: 'list', max: 3, req: true, note: 'the costs named (ต้นทุน, ค่าส่ง, ค่าโฆษณา)'}, amounts: {type: 'list', item: 'number', same: 'parts', note: 'each cost, same order as parts — only if every one was said'}, profit: {type: 'number', note: 'the profit, if said'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.8, 4.0],
   hit: 'ส่วนกำไรเผยเป็นสีเน้นพร้อมตัวเลข (ถ้าพูด) + วงคลื่น'}, (c, s, T) => {
   const n = s.parts.length;
   if (s.amounts && s.amounts.length !== n) throw new Error('BIZ.h4: amounts must match parts');
@@ -277,8 +276,8 @@ PART('BIZ', 'h4', {pack: BIZ, code: 'BIZ-H4', name: 'ราคาแตกเป
 });
 
 /* H5: a shop front — the awning rolls down, and on the key word the door sign flips from ปิด to เปิด and the lights come on */
-PART('BIZ', 'h5', {pack: BIZ, code: 'BIZ-H5', name: 'หน้าร้านเปิด', bgs: ['glow', 'cream', 'white'],
-  slots: {shop: {type: 'text', max: 14}, icon: {type: 'icon'}, open: {type: 'text', max: 6}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.4, 3.5],
+PART('BIZ', 'h5', {pack: BIZ, code: 'BIZ-H5', name: 'หน้าร้านเปิด', when: 'opening or starting a shop or a business (เปิดร้าน, เริ่มขาย)', bgs: ['glow', 'cream', 'white'],
+  slots: {shop: {type: 'text', max: 14, note: 'the shop, as said (ร้านออนไลน์, ร้านเรา)'}, icon: {type: 'icon', note: 'what the shop sells'}, open: {type: 'text', max: 6, note: 'the word on the door sign (default เปิด)'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.4, 3.5],
   hit: 'ป้ายหน้าร้านพลิกเป็น "เปิด" ไฟในร้านติดตรงคำ "เปิด เริ่ม" + วงคลื่น'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', line = o.ink, fillB = dark ? 'rgba(255,255,255,.07)' : '#FFFFFF';
   const shop = div('left:170px;top:250px;width:740px;height:600px;opacity:0', c,

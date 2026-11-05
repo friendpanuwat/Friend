@@ -2,7 +2,8 @@
    PACK fin — การเงินและการลงทุน (same rules as packs/biz.js; items wait for Friend's picks in the gallery)
    Coins and cards are generic: no bank names, no real app or brand look.
    ===================================================================== */
-const FIN = 'fin';
+const FIN = PACK('fin', {name: 'การเงินและการลงทุน', live: true,   // Friend kept all 11 cards and widgets (2026-11-04/05)
+  when: 'personal money and investing: saving, spending, budgets, debt and credit cards, interest, investing, inflation, tax'});
 const finUp = (s, dark) => s.dir === 'down' ? RED : dark ? ACC : NAVY;
 const coin = (parent, x, y, sz, fill, ink) => div(`left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;opacity:0`, parent,
   `<svg width="${sz}" height="${sz}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="${fill}"/><circle cx="50" cy="50" r="34" fill="none" stroke="${ink}" stroke-width="5" opacity=".5"/>` +
@@ -142,8 +143,8 @@ PART('B09', 'fin1', {pack: FIN, code: 'FIN-P6', name: 'ตารางผ่อ�
 /* ---------- hero parts ---------- */
 
 /* H1: compound interest — the money line curves up away from the straight line of what was put in; the gap lights up */
-PART('FIN', 'h1', {pack: FIN, code: 'FIN-H1', name: 'ดอกเบี้ยทบต้น', bgs: ['glow', 'white', 'cream'],
-  slots: {final: {type: 'number'}, years: {type: 'text', max: 10}, unit: {type: 'text', max: 6}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
+PART('FIN', 'h1', {pack: FIN, code: 'FIN-H1', name: 'ดอกเบี้ยทบต้น', when: 'compound interest: money that grows faster and faster when it is invested for years', bgs: ['glow', 'white', 'cream'],
+  slots: {final: {type: 'number', note: 'the end amount, if said'}, years: {type: 'text', max: 10, note: 'the time said (20 ปี)'}, unit: {type: 'text', max: 6}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
   hit: 'เส้นเงินทบต้นวิ่งถึงปลาย ช่องห่างจากเงินต้นสว่างเป็นสีเน้น ยอดปลายทางขึ้น (ถ้าพูด)'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', col = dark ? ACC : NAVY, W = 760, H = 480, x0 = 160, y0 = 260;
   const pts = Array.from({length: 21}, (_, i) => [i / 20 * W, H - (Math.pow(1.105, i) - 1) / (Math.pow(1.105, 20) - 1) * (H - 40)]);
@@ -164,8 +165,8 @@ PART('FIN', 'h1', {pack: FIN, code: 'FIN-H1', name: 'ดอกเบี้ยท
 });
 
 /* H2: a donut splits the money into 2–4 parts; the part talked about pulls out of the ring on the key word */
-PART('FIN', 'h2', {pack: FIN, code: 'FIN-H2', name: 'แบ่งเงินเป็นก้อน', bgs: ['glow', 'white', 'cream'],
-  slots: {names: {type: 'list', max: 4, req: true}, shares: {type: 'list', req: true}, focus: {type: 'number'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.8, 4.0],
+PART('FIN', 'h2', {pack: FIN, code: 'FIN-H2', name: 'แบ่งเงินเป็นก้อน', when: 'money split into parts by percent: a budget rule or a portfolio (50/30/20, หุ้น 60%)', bgs: ['glow', 'white', 'cream'],
+  slots: {names: {type: 'list', min: 2, max: 4, req: true, note: 'the 2–4 parts, as said'}, shares: {type: 'list', item: 'number', req: true, same: 'names', note: 'each part in percent, same order (shown with %)'}, focus: {type: 'number', index: 'names', note: 'which part the sentence stresses (0 = first)'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.8, 4.0],
   hit: 'ก้อนที่พูดถึงดึงออกจากวงและเป็นสีเน้น + วงคลื่น'}, (c, s, T) => {
   const n = s.names.length, sh = s.shares.map(Number), tot = sh.reduce((a, b) => a + b, 0);
   if (n < 2 || n > 4 || sh.length !== n) throw new Error('FIN.h2 needs 2–4 names with a share each');
@@ -192,8 +193,8 @@ PART('FIN', 'h2', {pack: FIN, code: 'FIN-H2', name: 'แบ่งเงินเ
 });
 
 /* H3: an account statement — money in and out, line by line (out in red); the balance appears on the key word */
-PART('FIN', 'h3', {pack: FIN, code: 'FIN-H3', name: 'รายการรับจ่าย', bgs: ['glow', 'white', 'cream'],
-  slots: {rows: {type: 'list', max: 4, req: true}, balance: {type: 'number'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.8, 4.0],
+PART('FIN', 'h3', {pack: FIN, code: 'FIN-H3', name: 'รายการรับจ่าย', when: 'money in and money out line by line, and what is left (a month of income and spending)', bgs: ['glow', 'white', 'cream'],
+  slots: {rows: {type: 'list', max: 4, req: true, item: {t: 'text', v: 'number', in: 'bool'}, note: 't = what (เงินเดือน, ค่าห้อง), v = the amount said, in = true for money in, false for money out'}, balance: {type: 'number', note: 'what is left, if said'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.8, 4.0],
   hit: 'ยอดคงเหลือขึ้นท้ายใบ (ถ้าพูด ถ้าไม่พูดเป็นแถบ) + วงคลื่น'}, (c, s, T) => {
   const rows = s.rows;   // [{t: 'เงินเดือน', v: 25000, in: true}, …] — every v was said
   const st = bizPanel(T.bg), ink = st === 'white' ? NAVY : '#FFFFFF', pos = st === 'white' ? NAVY : ACC;
@@ -219,8 +220,8 @@ PART('FIN', 'h3', {pack: FIN, code: 'FIN-H3', name: 'รายการรับ
 });
 
 /* H4: inflation — the same note, while the basket under it gets lighter year by year; the last thing goes on the key word */
-PART('FIN', 'h4', {pack: FIN, code: 'FIN-H4', name: 'เงินเฟ้อ', bgs: ['glow', 'cream', 'white'],
-  slots: {amount: {type: 'number'}, unit: {type: 'text', max: 6}, span: {type: 'text', max: 12}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
+PART('FIN', 'h4', {pack: FIN, code: 'FIN-H4', name: 'เงินเฟ้อ', when: 'inflation: the same money buys less as prices rise', bgs: ['glow', 'cream', 'white'],
+  slots: {amount: {type: 'number', note: 'the amount of money, if said'}, unit: {type: 'text', max: 6}, span: {type: 'text', max: 12, note: 'the time said (10 ปีที่แล้ว, ทุกปี)'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
   hit: 'ของชิ้นสุดท้ายในตะกร้าจางหายตรงคำ "แพงขึ้น ได้น้อยลง" ลูกศรแดงชี้ลง'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF';
   const note = div(`left:240px;top:200px;width:600px;height:250px;border-radius:30px;background:${dark ? '#FFFFFF' : NAVY};box-shadow:0 26px 60px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;gap:24px;opacity:0`, c);
@@ -244,8 +245,8 @@ PART('FIN', 'h4', {pack: FIN, code: 'FIN-H4', name: 'เงินเฟ้อ', 
 });
 
 /* H5: a tax sheet — deductions tick off one by one, the tax bar shrinks with each, and lands on the key word */
-PART('FIN', 'h5', {pack: FIN, code: 'FIN-H5', name: 'ลดหย่อนภาษี', bgs: ['glow', 'white', 'cream'],
-  slots: {items: {type: 'list', max: 4, req: true}, tax: {type: 'number'}, unit: {type: 'text', max: 6}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.8, 4.0],
+PART('FIN', 'h5', {pack: FIN, code: 'FIN-H5', name: 'ลดหย่อนภาษี', when: 'tax deductions: what lowers the tax', bgs: ['glow', 'white', 'cream'],
+  slots: {items: {type: 'list', max: 4, req: true, note: 'the deductions named'}, tax: {type: 'number', note: 'the tax left, if said'}, unit: {type: 'text', max: 6}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.8, 4.0],
   hit: 'รายการลดหย่อนข้อสุดท้ายถูกติ๊ก แถบภาษีหดถึงปลาย ยอดภาษีขึ้น (ถ้าพูด)'}, (c, s, T) => {
   const it = s.items, n = it.length, st = bizPanel(T.bg), ink = st === 'white' ? NAVY : '#FFFFFF', on = st === 'white' ? NAVY : ACC;
   const p = panel(c, `left:150px;top:200px;width:780px;height:${330 + n * 110}px`, T.t0 + .02, {style: st});

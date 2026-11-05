@@ -5,6 +5,7 @@
 usage: fallback.py <plan.json> <out.json> [--faces faces.json] [--history history.json] [--no-render]
 Only blocking errors are dealt with (validate.QUALITY errors such as density are left for the AI round; the clip is
 made anyway). For each one:
+  topic     → an unknown topic becomes none (its topic-pack scenes then fail and are swapped like any scene)
   scene     → swapped for a B14 text card/widget built from the scene's own words (lead + key, or wlead + wkey);
               a B14 that still fails, or a scene with no words to show, is dropped
   subtitle  → key/keyAt removed, times trimmed off a card or the subtitle before it; dropped if that is not enough
@@ -128,6 +129,8 @@ def repair(plan, cat=None, faces=None, history=None, render=True, rounds=4):
                 elif i['where'] == 'scenes': p['scenes'] = []
                 else: p['script'] = ' '.join(x['text'].replace('/', ' ') for x in p.get('subtitles', []))
                 log.append(f"plan field {i['where']} set by code ({i['msg']})")
+            elif i['code'] == 'topic' or (i['code'] == 'shape' and i['where'] == 'topic'):   # an unknown topic: base parts only
+                p['topic'] = 'none'; log.append(f"topic set to none ({i['msg']})")
             elif i['code'] == 'engine':
                 if last: raise SystemExit(f'the engine still refuses the plan: {i["msg"]}')
             else:

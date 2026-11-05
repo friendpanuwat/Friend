@@ -3,7 +3,8 @@
 
 usage: assemble.py <input.json> <answer.json> <editorial|overlay> <plan.json>
 Code, not the AI, adds what the AI must not get wrong:
-  * version, style, clip, script (the words joined) and layout (from faces.py, kept in the input)
+  * version, style, clip, script (the words joined) and layout (from faces.py, kept in the input); the AI's topic is
+    copied as is (validate.py checks every topic-pack part against it)
   * subtitles from the caption step: all of them for overlay; for editorial only the chunks said while the face is on
     screen — a chunk whose words fall inside a card window is left out (the card tells that sentence)
   * kind from the style; camera rows back into {"push": t, "z"} / {"pull": t, "cut": true}
@@ -61,7 +62,7 @@ def assemble(inp, ans, style):
         if c['move'] == 'push': cam.append({'push': c['t'], **({'z': c['z']} if c.get('z') else {})})
         else: cam.append({'pull': c['t'], **({'cut': True} if c.get('cut') else {})})
     cards = [(s['t0'], s['t1']) for s in scenes if kind == 'card']
-    plan = {'version': 1, 'style': style, 'clip': inp['clip'],
+    plan = {'version': 1, 'style': style, 'clip': inp['clip'], 'topic': ans.get('topic') or 'none',
             'script': ' '.join(w['w'] for w in inp.get('words', [])) or ' '.join(c['text'].replace('/', ' ') for c in inp['captions']),
             'camera': cam, 'subtitles': subtitles(inp, cards), 'scenes': scenes}
     lay = {k: v for k, v in (inp.get('layout') or {}).items() if k in ('subtitleTop', 'widgetPos')}

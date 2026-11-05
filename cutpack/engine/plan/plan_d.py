@@ -167,8 +167,8 @@ def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_an
     status = 'ok' if answer is not None else 'no-plan'
     needs = [s.get('need') for s in (answer or {}).get('scenes', []) if s.get('part') == 'custom' and s.get('need')]   # kept even if the scene fell back
     save(os.path.join(out, 'plan.json'), plan)
-    save(os.path.join(out, 'report.json'), {'status': status, 'log': log, 'fallback': plan.get('fallbackLog', []), 'library_missing': needs, 'issues': R.issues})
-    save(os.path.join(out, 'run.json'), {'clip': inp['clip'].get('file'), 'duration_s': inp['clip']['duration'], 'style': style, 'status': status,
+    save(os.path.join(out, 'report.json'), {'status': status, 'topic': plan.get('topic', 'none'), 'log': log, 'fallback': plan.get('fallbackLog', []), 'library_missing': needs, 'issues': R.issues})
+    save(os.path.join(out, 'run.json'), {'clip': inp['clip'].get('file'), 'duration_s': inp['clip']['duration'], 'style': style, 'status': status, 'topic': plan.get('topic', 'none'),
                                          'calls': calls, 'time': time.strftime('%Y-%m-%dT%H:%M:%S')})
     return plan, R, log
 

@@ -29,6 +29,8 @@ sys.path.insert(0, os.path.join(ENGINE, 'plan'))
 import captions as captions_step, plan_d, plan2timeline
 
 STYLES = ('editorial', 'overlay')
+with open(os.path.join(ENGINE, 'plan', 'catalog.json')) as _f: _cat = json.load(_f)
+PACK_IDS = {p['id'] for k in ('cards', 'widgets') for p in _cat[k] if p.get('pack')}   # topic-pack parts, counted per clip in runs.jsonl
 
 
 def sh(*args, cwd=None):
@@ -150,6 +152,7 @@ def run(clip, work, styles=STYLES, customer='test', history=None, words_file=Non
         rec = {'clip': f"{os.path.splitext(os.path.basename(clip))[0]}:{style}", 'duration_s': dur, 'attempt': 0,
                'status': 'fail' if status == 'fail' else 'ok', 'detail': status, 'render_s': st.s.get('render', 0), 'stages': stages,
                'scenes': len(plan['scenes']), 'custom_scenes': sum(s.get('part') == 'custom' for s in plan['scenes']),
+               'topic': plan.get('topic', 'none'), 'pack_scenes': sum(s['part'] in PACK_IDS for s in plan['scenes']),
                'fallback': len(plan.get('fallbackLog', [])), 'blocking_left': len(R.blocking),
                'captions': info['source'], 'replay': bool(answers),
                'calls': asr_calls + info['calls'] + json.load(open(os.path.join(out, 'run.json')))['calls'],

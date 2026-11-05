@@ -2,7 +2,8 @@
    PACK edu — ความรู้และพัฒนาตัวเอง: learning, languages, work, habits, AI tools
    (same rules as packs/biz.js; items wait for Friend's picks in the gallery; no logo or look of a real AI tool or app)
    ===================================================================== */
-const EDU = 'edu';
+const EDU = PACK('edu', {name: 'ความรู้และพัฒนาตัวเอง', live: true,   // Friend kept all 11 cards and widgets (2026-11-04/05)
+  when: 'learning and self-improvement: studying, languages and words, reading, habits, focus, work skills and career'});
 const eduCol = dark => dark ? ACC : NAVY;
 const eduText = (parent, text, css, color, size, font = 'CardSans') => { const e = div(`${css};font-family:${font};font-size:${size}px;line-height:1.25;white-space:nowrap;color:${color}`, parent);
   e.textContent = text; fitW(e, parseInt(/width:(\d+)/.exec(css)[1])); return e; };
@@ -114,8 +115,8 @@ PART('B11', 'edu1', {pack: EDU, code: 'EDU-P6', name: 'ฟองคำพูด�
 /* ---------- hero parts ---------- */
 
 /* H1: a flash card — the word on the front, it flips on the key word to show the meaning and how to say it */
-PART('EDU', 'h1', {pack: EDU, code: 'EDU-H1', name: 'บัตรคำศัพท์', bgs: ['glow', 'white', 'cream'],
-  slots: {word: {type: 'text', max: 18, req: true}, meaning: {type: 'text', max: 18}, say: {type: 'text', max: 18}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.4, 3.5],
+PART('EDU', 'h1', {pack: EDU, code: 'EDU-H1', name: 'บัตรคำศัพท์', when: 'a word or a term with its meaning or how to say it (vocabulary)', bgs: ['glow', 'white', 'cream'],
+  slots: {word: {type: 'text', max: 18, req: true, note: 'the word, as said (English or Thai)'}, meaning: {type: 'text', max: 18, note: 'its meaning, if said'}, say: {type: 'text', max: 18, note: 'how to read it, if said'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.4, 3.5],
   hit: 'บัตรพลิกตรงคำ ด้านหลังเป็นความหมายและคำอ่าน'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF';
   const face = (bg, ink) => div(`left:190px;top:300px;width:700px;height:460px;border-radius:40px;background:${bg};box-shadow:0 30px 70px rgba(0,0,0,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;opacity:0`, c);
@@ -131,8 +132,8 @@ PART('EDU', 'h1', {pack: EDU, code: 'EDU-H1', name: 'บัตรคำศัพ
 });
 
 /* H2: a sentence corrected — the wrong word is underlined in red, then the right word drops in over it on the key word */
-PART('EDU', 'h2', {pack: EDU, code: 'EDU-H2', name: 'แก้ประโยค', bgs: ['glow', 'white', 'cream'],
-  slots: {before: {type: 'text', max: 14}, wrong: {type: 'text', max: 10, req: true}, right: {type: 'text', max: 10, req: true}, after: {type: 'text', max: 14}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.4, 3.5],
+PART('EDU', 'h2', {pack: EDU, code: 'EDU-H2', name: 'แก้ประโยค', when: 'correcting a sentence: do not say X, say Y (a language mistake)', bgs: ['glow', 'white', 'cream'],
+  slots: {before: {type: 'text', max: 14, note: 'words before the wrong one, if said'}, wrong: {type: 'text', max: 10, req: true}, right: {type: 'text', max: 10, req: true}, after: {type: 'text', max: 14, note: 'words after it, if said'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.4, 3.5],
   hit: 'คำที่ถูกหล่นลงแทนคำที่ผิดตรงคำ "แต่ ที่ถูก" + วงคลื่น'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF';
   const line = (top, word, color, deco) => { const r = div(`left:80px;top:${top}px;width:920px;display:flex;justify-content:center;align-items:baseline;gap:.3em;font-family:KeySans;font-size:92px;line-height:1.3;white-space:nowrap;color:${o.ink};opacity:0`, c);
@@ -150,8 +151,8 @@ PART('EDU', 'h2', {pack: EDU, code: 'EDU-H2', name: 'แก้ประโยค
 });
 
 /* H3: career stairs — a figure climbs step by step past the labels said; it reaches the top step on the key word */
-PART('EDU', 'h3', {pack: EDU, code: 'EDU-H3', name: 'บันไดอาชีพ', bgs: ['glow', 'white', 'cream'],
-  slots: {steps: {type: 'list', max: 4, req: true}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
+PART('EDU', 'h3', {pack: EDU, code: 'EDU-H3', name: 'บันไดอาชีพ', when: 'steps of a career or a skill, level by level up to the top', bgs: ['glow', 'white', 'cream'],
+  slots: {steps: {type: 'list', min: 2, max: 4, req: true, note: 'the 2–4 levels in order, as said'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
   hit: 'คนเดินถึงขั้นบนสุดตรงคำ ขั้นบนสุดสว่างเป็นสีเน้น + วงคลื่น'}, (c, s, T) => {
   const st = s.steps, n = st.length;
   if (n < 2 || n > 4) throw new Error('EDU.h3 needs 2–4 steps');
@@ -178,8 +179,8 @@ PART('EDU', 'h3', {pack: EDU, code: 'EDU-H3', name: 'บันไดอาชี
 });
 
 /* H4: a habit streak — day boxes light one after another and the streak count lands on the key word */
-PART('EDU', 'h4', {pack: EDU, code: 'EDU-H4', name: 'สตรีคนิสัย', bgs: ['glow', 'white', 'cream'],
-  slots: {habit: {type: 'text', max: 16}, days: {type: 'number'}, icon: {type: 'icon'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
+PART('EDU', 'h4', {pack: EDU, code: 'EDU-H4', name: 'สตรีคนิสัย', when: 'a habit kept day after day, a streak of days', bgs: ['glow', 'white', 'cream'],
+  slots: {habit: {type: 'text', max: 16, note: 'the habit, as said'}, days: {type: 'number', note: 'the days in a row, if said'}, icon: {type: 'icon', note: 'the habit'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
   hit: 'ช่องวันสุดท้ายติดไฟ ตัวนับวันต่อเนื่องหยุดตรงคำ + วงคลื่น'}, (c, s, T) => {
   const o = ON[T.bg], dark = o.ink === '#FFFFFF', col = eduCol(dark), N = 21, step = (T.hit - T.t0 - .5) / (N - 1);
   for (let i = 0; i < N; i++) {
@@ -199,8 +200,8 @@ PART('EDU', 'h4', {pack: EDU, code: 'EDU-H4', name: 'สตรีคนิสั
 });
 
 /* H5: a mind map — the topic in the middle, 3–4 branches grow out one by one; the last branch lands on the key word */
-PART('EDU', 'h5', {pack: EDU, code: 'EDU-H5', name: 'แผนผังความคิด', bgs: ['glow', 'white', 'cream'],
-  slots: {topic: {type: 'text', max: 12, req: true}, branches: {type: 'list', max: 4, req: true}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
+PART('EDU', 'h5', {pack: EDU, code: 'EDU-H5', name: 'แผนผังความคิด', when: 'one topic with the 3–4 parts or skills that make it up', bgs: ['glow', 'white', 'cream'],
+  slots: {topic: {type: 'text', max: 12, req: true, note: 'the topic word'}, branches: {type: 'list', min: 3, max: 4, req: true, note: 'its 3–4 parts, as said'}, lead: {type: 'text', max: 26}, key: {type: 'text', max: 14}}, dur: [1.6, 4.0],
   hit: 'กิ่งสุดท้ายงอกออกและป้ายสว่างเป็นสีเน้นตรงคำ'}, (c, s, T) => {
   const br = s.branches, n = br.length;
   if (n < 3 || n > 4) throw new Error('EDU.h5 needs 3 or 4 branches');

@@ -5,6 +5,12 @@
    jointed(): the same person seen from the side, built from pivots (ankle → knee → hip → shoulder) so a move like a squat
    bends at the joints instead of squashing the whole figure. Poses turn the pivots with mv.slide only.
    ===================================================================== */
+/* PACK(id, meta): one content category (Friend agreed the four on 2026-11-04). meta.when says, in English, what a clip
+   must be about to belong to it (the planning AI picks the clip's topic from the transcript, DECISIONS 3); meta.live
+   puts its parts in the AI's library (plan/catalog.js) — set only once Friend has kept them in the gallery. */
+const PACKS = {};
+function PACK(id, meta) { PACKS[id] = meta; return id; }
+
 /* pose: 'stand' | 'up' (arms raised) | 'slouch' (head and shoulders forward, arms hanging) — viewBox 200×400 */
 function human(parent, css, color, pose = 'stand') {
   const arms = {stand: 'M60 100 Q42 160 44 228 M140 100 Q158 160 156 228', up: 'M60 100 Q30 60 40 0 M140 100 Q170 60 160 0',

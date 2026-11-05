@@ -76,6 +76,26 @@ def extra_cards(p):   # editorial: fill three talking-head gaps with cards → t
                     {'t0': 8.0, 't1': 9.6, 'kind': 'card', 'part': 'B13.v1', 'bg': 'white', 'hit': 8.9, 'slots': {'tip': 'เลื่อนผ่าน'}}]
 
 
+def to_pack(part, slots, topic):   # scene 0 swapped for a topic-pack part (Friend's 4 packs, wired in 2026-11-05)
+    def f(p):
+        p['topic'] = topic; p['scenes'][0].update(part=part, slots=slots)
+    return f
+
+
+STAGES = ['เห็นโพสต์', 'ทักมา', 'ซื้อจริง']
+PACK_CASES = [
+    ('editorial', to_pack('B02.biz1', {'dir': 'down', 'icon': 'eye', 'lead': 'ยอดวิวกลับ', 'key': 'ลดลง'}, 'fin'), 'topic-part', 0),
+    ('editorial', to_pack('B02.biz1', {'dir': 'down', 'icon': 'eye', 'lead': 'ยอดวิวกลับ', 'key': 'ลดลง'}, 'none'), 'topic-part', 0),
+    ('editorial', setp(['topic'], 'food'), 'topic', None),
+    ('editorial', to_pack('BIZ.h2', {'stages': STAGES, 'nums': [1000, 3, 3], 'key': 'ลดลง'}, 'biz'), 'number-not-said', 0),
+    ('editorial', to_pack('BIZ.h2', {'stages': STAGES, 'nums': [3], 'key': 'ลดลง'}, 'biz'), 'slot-count', 0),
+    ('editorial', to_pack('BIZ.h2', {'stages': STAGES[:2], 'key': 'ลดลง'}, 'biz'), 'slot-count', 0),
+    ('editorial', to_pack('FIN.h3', {'rows': [{'t': 'เงินเดือน', 'v': '3', 'in': True}]}, 'fin'), 'slot-type', 0),
+    ('editorial', to_pack('FIN.h3', {'rows': [{'t': 'เงินเดือน', 'v': 3, 'in': True, 'x': 1}]}, 'fin'), 'slot-type', 0),
+    ('editorial', to_pack('FIN.h2', {'names': ['ใช้', 'เก็บ'], 'shares': [3, 3], 'focus': 2}, 'fin'), 'slot-index', 0),
+    ('editorial', to_pack('FIN.h2', {'names': ['ใช้', 'เก็บ'], 'shares': [3, 30]}, 'fin'), 'number-not-said', 0),
+]
+
 CASES = [
     ('editorial', setp(['version'], 2), 'shape', None),
     ('editorial', setp(['scenes', 1, 't1'], 19.5), 'time', 1),
@@ -123,6 +143,7 @@ CASES = [
     ('overlay', setp(['camera', 1], {'pull': 4.8, 'cut': True}), 'cam-cut', None),
     ('editorial', setp(['camera', 1], {'pull': 3.0, 'cut': True}), 'cam-cut', None),
 ]
+CASES += PACK_CASES
 
 
 class BrokenPlans(unittest.TestCase):
@@ -350,6 +371,75 @@ class CustomScenes(unittest.TestCase):
         self.assertIn('## scene 1 · card', req['messages'][0]['content']); self.assertNotIn('## scene 0', req['messages'][0]['content'])
         other = prompt.code_request(dict(INPUT, clip=dict(INPUT['clip'], duration=40)), 'editorial', ans, CAT)
         self.assertEqual(req['system'], other['system'])   # the kit block is cached: the same for every clip
+
+
+def biz_answer(style):
+    """The approved 18 s answer as a biz clip would plan it: the views drop on the business pack's view counter."""
+    ans = load(EX, f'test18_{style}.answer.json')
+    k = next(i for i, x in enumerate(ans['scenes']) if x['part'] == 'B02.v1')
+    ans['scenes'][k]['part'] = 'B02.biz1'
+    return ans, k
+
+
+class TopicPacks(unittest.TestCase):
+    """Friend's four topic packs in plan D (2026-11-05): catalog, prompt, checker and the whole planning step."""
+    def test_catalog_has_every_kept_piece(self):
+        for key in ('cards', 'widgets'):
+            ps = [p for p in CAT[key] if p.get('pack')]
+            self.assertEqual(len(ps), 44, key)
+            self.assertEqual({p['pack'] for p in ps}, set(CAT['packs']))
+            for p in ps:
+                self.assertRegex(p['code'], r'^(BIZ|FIN|FIT|EDU)-[PH]\d$')
+                if '.h' in p['id']:   # hero parts: the sentence they are for, and a note on every slot but lead/key
+                    self.assertTrue(p.get('when'), p['id'])
+                    for k, spec in p['slots'].items():
+                        if k not in ('lead', 'key', 'unit', 'pre'): self.assertTrue(spec.get('note') or spec['type'] == 'text' and spec.get('req'), f"{p['id']} {k}")
+        self.assertEqual(sorted(CAT['packs']), ['biz', 'edu', 'fin', 'fit'])
+
+    def test_prompt_lists_topics_and_asks_for_one(self):
+        for style in ('editorial', 'overlay'):
+            text = prompt.system_text(style, CAT)
+            self.assertIn('# Topic (decide it first)', text)
+            for pid in CAT['packs']: self.assertIn(f'## topic {pid} (', text)
+            self.assertIn('### BIZ.h1 — for ', text); self.assertIn('· topic fit · only for: ', text)
+            sch = prompt.answer_schema(style, CAT)
+            self.assertEqual(sch['required'][0], 'topic')
+            self.assertEqual(sch['properties']['topic']['enum'], ['biz', 'edu', 'fin', 'fit', 'none'])
+            import jsonschema
+            jsonschema.validate(biz_answer(style)[0], sch)
+            slots = sch['properties']['scenes']['items']['properties']['slots']['properties']
+            self.assertIn({'type': 'array', 'items': {'type': 'object', 'properties': {'t': {'type': 'string'}, 'v': {'type': 'number'}, 'in': {'type': 'boolean'}},
+                                                      'required': ['t', 'v', 'in'], 'additionalProperties': False}}, slots['rows']['anyOf'])
+
+    def test_pack_plan_passes_with_render(self):
+        for style in ('editorial', 'overlay'):
+            ans, k = biz_answer(style)
+            p = assemble.assemble(INPUT, ans, style)
+            self.assertEqual(p['topic'], 'biz')
+            R = check(p, FACES, render=True)
+            self.assertEqual([i for i in R.issues if i['level'] == 'error'], [], style)
+
+    def test_undrawn_sizes_and_positions_are_not_facts(self):
+        p = broken('editorial', to_pack('FIT.h1', {'names': ['ผัก', 'โปรตีน', 'แป้ง'], 'shares': [2, 1, 1], 'focus': 0}, 'fit'))
+        self.assertNotIn('number-not-said', {i['code'] for i in check(p).issues})
+        p = broken('editorial', to_pack('FIN.h2', {'names': ['ใช้', 'เก็บ'], 'shares': [3, 3], 'focus': 1}, 'fin'))
+        self.assertEqual([i for i in check(p).issues if i['level'] == 'error'], [])
+
+    def test_planning_step_with_a_pack_answer(self):
+        """plan_d end to end with the stand-in API: the topic and the pack part survive the checks; a wrong topic falls back."""
+        import fake_api
+        for style in ('editorial', 'overlay'):
+            ans, k = biz_answer(style)
+            with tempfile.TemporaryDirectory() as d:
+                plan, R, log = plan_d.run(INPUT, style, d, faces=FACES, render=True, client=fake_api.FakeClient({style: ans}))
+                self.assertEqual(R.blocking, [], style); self.assertEqual(plan['topic'], 'biz')
+                self.assertIn('B02.biz1', [x['part'] for x in plan['scenes']])
+                self.assertEqual((load(d, 'report.json')['topic'], load(d, 'run.json')['topic']), ('biz', 'biz'))
+            wrong = dict(ans, topic='fit')
+            with tempfile.TemporaryDirectory() as d:   # asked to fix once (the stand-in answers the same), then the B14 fallback
+                plan, R, log = plan_d.run(INPUT, style, d, faces=FACES, render=False, client=fake_api.FakeClient({style: wrong}))
+                self.assertEqual(R.blocking, []); self.assertNotIn('B02.biz1', [x['part'] for x in plan['scenes']])
+                self.assertTrue(any('topic-part' in line for line in plan['fallbackLog']), plan['fallbackLog'])
 
 
 @unittest.skipUnless(os.environ.get('CUTPACK_SLOW'), 'set CUTPACK_SLOW=1 to sweep the whole library')

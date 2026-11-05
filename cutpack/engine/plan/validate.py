@@ -43,6 +43,7 @@ RULES = {
     # app screen (1080×1920): top bar, right-hand button strip, bottom bar
     'topBar': 150, 'rightX': 940, 'rightY': (860, 1620), 'bottomBar': 1620, 'edge': 20,
 }
+PART_ID = re.compile(r'B\d\d\.v\d|B\d\d\.[a-z]{3}\d|[A-Z]{3}\.h\d|custom')   # base · a topic pack's version · a topic pack's hero part
 TIME_SLOTS = {'at', 'aty'}          # seconds, not facts
 ICON_SLOTS = {'icon', 'icons', 'ia', 'ib', 'ic', 'ix', 'iy', 'link'}   # icon names ("share-2") are never shown as text
 INDEX_SLOTS = {('B14', 'key')}      # an index into words, not a fact
@@ -109,12 +110,13 @@ def check_shape(plan, R):
     d = (plan.get('clip') or {}).get('duration')
     if not isinstance(d, (int, float)) or d <= 0: R.err('shape', 'clip.duration', 'clip.duration must be a positive number')
     if not str(plan.get('script', '')).strip(): R.err('shape', 'script', 'script is empty: numbers on screen cannot be checked')
+    if not re.fullmatch(r'[a-z]+', str(plan.get('topic', 'none'))): R.err('shape', 'topic', 'topic must be a topic id (biz, fin …) or none')
     for i, s in enumerate(plan.get('scenes', [])):
         w = f'scenes[{i}]'; R.ctx = {'scene': i}
         for k in ('t0', 't1', 'hit'):
             if not isinstance(s.get(k), (int, float)) or isinstance(s.get(k), bool): R.err('shape', w, f'{k} must be a number')
         if s.get('kind') not in ('card', 'widget'): R.err('shape', w, 'kind must be card or widget')
-        if not re.fullmatch(r'B\d\d\.v\d|custom', str(s.get('part', ''))): R.err('shape', w, 'part must look like B02.v1 (or custom)')
+        if not PART_ID.fullmatch(str(s.get('part', ''))): R.err('shape', w, 'part must look like B02.v1, B02.biz1, BIZ.h1 (or custom)')
         if not isinstance(s.get('slots', {}), dict): R.err('shape', w, 'slots must be an object')
     R.ctx = {}
     for i, s in enumerate(plan.get('subtitles', [])):
@@ -130,12 +132,16 @@ def check_scenes(plan, cat, R):
     want = 'card' if style == 'editorial' else 'widget'
     lib = {p['id']: p for p in cat['cards' if want == 'card' else 'widgets']}
     icons = set(cat['icons'])
+    topic = plan.get('topic') or 'none'
+    if topic != 'none' and topic not in (cat.get('packs') or {}): R.err('topic', 'topic', f"unknown topic {topic!r}: use {', '.join(sorted(cat.get('packs') or {}))} or none")
     for i, s in enumerate(plan['scenes']):
         w = f"scenes[{i}] {s['part']} {s['t0']}–{s['t1']}"; R.ctx = {'scene': i}
         if s['kind'] != want: R.err('kind', w, f'{style} uses {want}s only'); continue
         if s['part'] == 'custom': check_custom(s, want, dur, cat, R, w); continue
         P = lib.get(s['part'])
         if not P: R.err('unknown-part', w, f"{s['part']} is not in the {want} library (catalog.json)"); continue
+        if P.get('pack') and P['pack'] != topic:   # DECISIONS 3: a clip uses its own topic's parts and the base parts only
+            R.err('topic-part', w, f"{s['part']} belongs to topic {P['pack']}, but this clip's topic is {topic}")
         t0, t1, hit, ln = s['t0'], s['t1'], s['hit'], s['t1'] - s['t0']
         if t0 < -R_tol() or t1 > dur + R_tol() or t1 <= t0: R.err('time', w, f'times must be inside 0–{dur} and t0 < t1')
         lo, hi = P['dur']
@@ -154,12 +160,20 @@ def check_scenes(plan, cat, R):
             if t == 'text' and not isinstance(v, str): R.err('slot-type', w, f'{k} must be text')
             elif t == 'text' and spec.get('max') and graphemes(v) > spec['max']: R.err('slot-long', w, f'{k} "{v}" is {graphemes(v)} letters, max {spec["max"]}')
             elif t == 'number' and (not isinstance(v, (int, float)) or isinstance(v, bool)): R.err('slot-type', w, f'{k} must be a number')
+            elif t == 'number' and spec.get('index'):   # a position in another list slot, counted from 0
+                ref = slots.get(spec['index'])
+                if v != int(v) or v < 0 or (isinstance(ref, list) and v >= len(ref)): R.err('slot-index', w, f"{k} = {v} is not a position in {spec['index']} (0–{len(ref) - 1 if isinstance(ref, list) else '?'})")
             elif t == 'icon' and v not in icons: R.err('icon', w, f'unknown icon {v!r}')
             elif t == 'choice' and v not in spec.get('of', []): R.err('slot-choice', w, f'{k} must be one of {spec.get("of")}')
             elif t == 'list':
                 if not isinstance(v, list): R.err('slot-type', w, f'{k} must be a list'); continue
                 if len(v) < spec.get('min', 0) or len(v) > spec.get('max', 99): R.err('slot-count', w, f'{k} has {len(v)} items, allowed {spec.get("min", 0)}–{spec.get("max", "any")}')
-                if k in TIME_SLOTS:
+                if spec.get('same') and isinstance(slots.get(spec['same']), list) and len(v) != len(slots[spec['same']]):
+                    R.err('slot-count', w, f"{k} needs one item per {spec['same']} ({len(slots[spec['same']])}), got {len(v)}")
+                if spec.get('item'):
+                    bad = [x for x in v if not item_ok(x, spec['item'])]
+                    if bad: R.err('slot-type', w, f"{k} items must be {item_desc(spec['item'])} (got {json.dumps(bad[0], ensure_ascii=False)})")
+                elif k in TIME_SLOTS:
                     if any(not isinstance(x, (int, float)) for x in v) or v != sorted(v) or (v and (v[0] < t0 - R_tol() or v[-1] > t1 - .2)):
                         R.err('slot-time', w, f'{k} must be rising times inside the scene')
                 elif k == 'icons':
@@ -181,6 +195,19 @@ def check_scenes(plan, cat, R):
                 elif v and graphemes(v) > mx: R.err('slot-long', w, f'{k} "{v}" is {graphemes(v)} letters, max {mx} (widget text ≤ 3 words)')
             if not (slots.get('wkey') or slots.get('key') or P['id'].startswith('B14')): R.warn('widget-text', w, 'no wkey: the widget shows no word')
     R.ctx = {}
+
+
+def item_ok(x, item):
+    """One list item against a slot's `item`: 'number' / 'text', or {field: 'text' | 'number' | 'bool', '?' = may be left out}."""
+    ok = {'text': lambda v: isinstance(v, str), 'number': lambda v: isinstance(v, (int, float)) and not isinstance(v, bool),
+          'bool': lambda v: isinstance(v, bool)}
+    if not isinstance(item, dict): return ok[item](x)
+    if not isinstance(x, dict) or set(x) - set(item): return False
+    return all((k in x and ok[t.rstrip('?')](x[k])) or (k not in x and t.endswith('?')) for k, t in item.items())
+
+
+def item_desc(item):
+    return item if not isinstance(item, dict) else '{' + ', '.join(f'"{k}": {t}' for k, t in item.items()) + '}'
 
 
 def check_custom(s, want, dur, cat, R, w):
@@ -263,19 +290,27 @@ def check_variety(plan, R, history=None):
     return score
 
 
-def check_numbers(plan, R):
+def check_numbers(plan, R, cat=None):
     said = numbers(plan.get('script', ''))
     pct = bool(re.search(r'%|เปอร์เซ็นต์|เปอร์เซ็น', plan.get('script', '')))
+    lib = {p['id']: p for p in (cat or {}).get('cards', []) + (cat or {}).get('widgets', [])}
     for i, s in enumerate(plan['scenes']):
         cat_id = s['part'].split('.')[0]; R.ctx = {'scene': i}
+        specs = (lib.get(s['part']) or {}).get('slots', {})
         for k, v in s.get('slots', {}).items():
             if k in TIME_SLOTS or k in ICON_SLOTS or (cat_id, k) in INDEX_SLOTS: continue
+            sp = specs.get(k, {})
+            if sp.get('index') or sp.get('shown') is False: continue   # a position in a list, or sizes drawn as shapes (no number on screen)
             if isinstance(v, bool): continue
             if isinstance(v, (int, float)):
                 if k == 'of' and v == 100 and pct: continue
                 if float(v) not in said: R.err('number-not-said', f"scenes[{i}] {s['part']}", f'{k} = {v} is not in the script (no made-up facts)')
                 continue
-            for x in (v if isinstance(v, list) else [v]):
+            vals = [y for x in (v if isinstance(v, list) else [v]) for y in (x.values() if isinstance(x, dict) else [x])]
+            for x in vals:
+                if isinstance(x, (int, float)) and not isinstance(x, bool):   # a number in a list (nums, amounts, rows[].v)
+                    if float(x) not in said: R.err('number-not-said', f"scenes[{i}] {s['part']}", f'{k} shows {x:g}, which is not in the script')
+                    continue
                 if not isinstance(x, str): continue
                 digits = {float(m.replace(',', '')) for m in re.findall(r'\d[\d,]*(?:\.\d+)?', x.translate(str.maketrans('๐๑๒๓๔๕๖๗๘๙', '0123456789')))}
                 for n in digits - said: R.err('number-not-said', f"scenes[{i}] {s['part']}", f'"{x}" shows {n:g}, which is not in the script')
@@ -381,7 +416,7 @@ def validate(plan, cat=None, faces=None, history=None, render=False):
     check_scenes(plan, cat, R)
     check_timeline(plan, R)
     score = check_variety(plan, R, history)
-    check_numbers(plan, R)
+    check_numbers(plan, R, cat)
     check_subtitles(plan, R, layout)
     check_places(plan, cat, R, layout, faces)
     check_camera(plan, cat, R)

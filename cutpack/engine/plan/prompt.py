@@ -7,7 +7,7 @@ The request has two parts:
           categories, icons) + one worked example. Its text is built only from files in the repo, in a fixed order,
           so it stays byte-identical between clips and the prompt cache keeps hitting.
   user    (per clip): length, room for widgets, the transcript as caption lines with word times, parts to avoid.
-The answer is forced into ANSWER schema (structured outputs): {"camera": [...], "scenes": [...]}; assemble.py turns
+The answer is forced into ANSWER schema (structured outputs): {"topic", "camera": [...], "scenes": [...]}; assemble.py turns
 it into a full plan. Model and effort follow DECISIONS ("วางแผนฉากด้วย Sonnet 5.5 effort low").
 
 Input file (one clip, made by the transcription and caption steps; example: examples/test18_input.json):
@@ -45,34 +45,68 @@ def slot_notes():
     return notes
 
 
+def item_sig(item):
+    """A list item's type: 'number', or an object such as {t: text, v: number, in: bool} ('?' = may be left out)."""
+    if isinstance(item, dict): return '{' + ', '.join(f"{k}:{t}" for k, t in item.items()) + '}'
+    return item
+
+
 def slot_sig(name, spec, note=''):
     t = spec['type']
+    note = note or spec.get('note', '')
     s = f"{name}:{t}" + ('!' if spec.get('req') else '')
     if spec.get('max') and t == 'text': s += f"≤{spec['max']}"
+    if t == 'list' and spec.get('item'): s += f"<{item_sig(spec['item'])}>"
     if t == 'list' and (spec.get('min') or spec.get('max')): s += f"[{spec.get('min', 0)}–{spec.get('max', '')}]"
     if t == 'choice': s += '(' + '|'.join(repr(x) if x == '' else x for x in spec['of']) + ')'
+    if spec.get('index'): s += f" (index into {spec['index']})"
+    if spec.get('same'): s += f" (one per {spec['same']})"
     return s + (f" — {note}" if note else '')
 
 
+def part_row(p, style):
+    row = f"- {p['id']} · {p['name']} · hit: {p['hit']} · {p['dur'][0]}–{p['dur'][1]} s"
+    if style == 'editorial': row += ' · ' + '/'.join(p['bgs'])
+    if p.get('pack'): row += f" · topic {p['pack']}"
+    if p.get('use'): row += f" · only for: {p['use']}"
+    return row
+
+
 def library_text(style, cat):
-    """The library of one style, grouped by category: what the category is for, its slots, then each variant."""
+    """The library of one style, grouped by category: what the category is for, its slots, then each variant (base
+    parts, then the topic packs' versions of the same category); then each topic pack with its own hero parts."""
     cats = json.loads(read('prompt', 'categories.json'))['categories']
     notes, parts = slot_notes(), cat['cards' if style == 'editorial' else 'widgets']
+    wtext = {'wlead': {'type': 'text', 'max': 16}, 'wkey': {'type': 'text', 'max': 12}}
     out = [f"# Library ({'full-screen cards' if style == 'editorial' else 'overlay widgets'}, {len(parts)} parts)",
-           "Each category: what sentence it is for, its slots (`!` required, `≤N` letter limit), then its parts:",
-           "  id · name · what happens on the hit · length range in seconds" + (" · backgrounds" if style == 'editorial' else ''), '']
+           "Each category: what sentence it is for, its slots (`!` required, `≤N` letter limit, `<…>` the type of a list's items), then its parts:",
+           "  id · name · what happens on the hit · length range in seconds" + (" · backgrounds" if style == 'editorial' else '')
+           + " · topic (a topic pack's part: use it only in a clip of that topic)", '']
     for c in cats:
         ps = [p for p in parts if p['id'].startswith(c['id'] + '.')]
         if not ps: continue
         out.append(f"## {c['id']} {c['name']} — {c['when']}")
         slots = dict(ps[0]['slots'])
-        if style == 'overlay': slots.update({'wlead': {'type': 'text', 'max': 16}, 'wkey': {'type': 'text', 'max': 12}})
+        if style == 'overlay': slots.update(wtext)
         out.append('slots: ' + ' · '.join(slot_sig(k, v, notes.get(c['id'], {}).get(k, '')) for k, v in slots.items()))
-        for p in ps:
-            row = f"- {p['id']} · {p['name']} · hit: {p['hit']} · {p['dur'][0]}–{p['dur'][1]} s"
-            if style == 'editorial': row += ' · ' + '/'.join(p['bgs'])
-            out.append(row)
+        out += [part_row(p, style) for p in sorted(ps, key=lambda p: (bool(p.get('pack')), p.get('pack') or '', p['id']))]
         out.append('')
+    packs = cat.get('packs') or {}
+    if packs:
+        out.append(f"# Topic packs ({len(packs)} topics)")
+        out.append("A clip about one of these topics may use that topic's parts: its versions of the categories above "
+                   "(marked `topic`) and the hero parts below, which show sentences only that topic has. Each hero part: "
+                   "what sentence it is for, its slots, then the part.")
+        out.append('')
+        for pid, pk in packs.items():
+            out.append(f"## topic {pid} ({pk['name']}) — {pk['when']}")
+            for p in [p for p in parts if p.get('pack') == pid and not re.match(r'B\d\d\.', p['id'])]:
+                slots = dict(p['slots'])
+                if style == 'overlay': slots.update(wtext)
+                out.append(f"### {p['id']} — for {p['when']}")
+                out.append('slots: ' + ' · '.join(slot_sig(k, v) for k, v in slots.items()))
+                out.append(part_row(p, style))
+            out.append('')
     out.append(f"# Icons ({len(cat['icons'])} names; use only these)")
     out.append(' '.join(cat['icons']))
     return '\n'.join(out)
@@ -123,6 +157,16 @@ def example_text(style):
             + '\n## Answer\n' + json.dumps(ans, ensure_ascii=False, separators=(',', ':')))
 
 
+JSON_TYPE = {'text': 'string', 'number': 'number', 'bool': 'boolean'}
+
+
+def item_schema(item):
+    """The JSON schema of one list item from a slot's `item` ('number', or {field: 'text' | 'number' | 'bool', '?' = optional})."""
+    if not isinstance(item, dict): return {'type': JSON_TYPE[item]}
+    props = {k: {'type': JSON_TYPE[t.rstrip('?')]} for k, t in item.items()}
+    return {'type': 'object', 'properties': props, 'required': [k for k, t in item.items() if not t.endswith('?')], 'additionalProperties': False}
+
+
 def answer_schema(style, cat):
     """JSON schema for the answer. Slots: one optional property per slot name used in this style's library."""
     parts = cat['cards' if style == 'editorial' else 'widgets']
@@ -131,11 +175,13 @@ def answer_schema(style, cat):
         for k, spec in p['slots'].items():
             t = spec['type']
             if t == 'list':
-                item = {'type': 'number'} if k == 'at' else (
-                    {'type': 'object', 'properties': {'t': {'type': 'string'}, 'a': {'type': 'boolean'}, 'b': {'type': 'boolean'}},
-                     'required': ['t', 'a', 'b'], 'additionalProperties': False} if k == 'rows' else {'type': 'string'})
+                if spec.get('item'): item = item_schema(spec['item'])
+                else:
+                    item = {'type': 'number'} if k == 'at' else (
+                        {'type': 'object', 'properties': {'t': {'type': 'string'}, 'a': {'type': 'boolean'}, 'b': {'type': 'boolean'}},
+                         'required': ['t', 'a', 'b'], 'additionalProperties': False} if k == 'rows' else {'type': 'string'})
                 sch = {'type': 'array', 'items': item}
-            elif t == 'number': sch = {'type': 'number'}
+            elif t == 'number': sch = {'type': 'integer'} if spec.get('index') else {'type': 'number'}
             elif t == 'choice': sch = {'type': 'string', 'enum': sorted(set(spec['of']))}
             else: sch = {'type': 'string'}
             old = props.get(k)
@@ -155,8 +201,10 @@ def answer_schema(style, cat):
     cam = {'type': 'object', 'properties': {'move': {'type': 'string', 'enum': ['push', 'pull']}, 't': {'type': 'number'},
                                             'z': {'type': 'number'}, 'cut': {'type': 'boolean'}},
            'required': ['move', 't'], 'additionalProperties': False}
-    return {'type': 'object', 'additionalProperties': False, 'required': ['camera', 'scenes'],
-            'properties': {'camera': {'type': 'array', 'items': cam},
+    topics = sorted(cat.get('packs') or {}) + ['none']   # asked first, so the clip's topic is decided before its scenes
+    return {'type': 'object', 'additionalProperties': False, 'required': ['topic', 'camera', 'scenes'],
+            'properties': {'topic': {'type': 'string', 'enum': topics},
+                           'camera': {'type': 'array', 'items': cam},
                            'scenes': {'type': 'array', 'items': {'type': 'object', 'properties': scene, 'required': list(scene),
                                                                  'additionalProperties': False}}}}
 
