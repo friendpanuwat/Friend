@@ -10,7 +10,7 @@ Code, not the AI, adds what the AI must not get wrong:
   * kind from the style; camera rows back into {"push": t, "z"} / {"pull": t, "cut": true}
 """
 import json, sys
-import prompt
+import prompt, room
 
 TOL = .1
 
@@ -67,7 +67,18 @@ def assemble(inp, ans, style):
             'camera': cam, 'subtitles': subtitles(inp, cards), 'scenes': scenes}
     lay = {k: v for k, v in (inp.get('layout') or {}).items() if k in ('subtitleTop', 'widgetPos')}
     if lay: plan['layout'] = lay
+    if kind == 'widget' and inp.get('track'): place_widgets(plan, inp)
     return plan
+
+
+def place_widgets(plan, inp):
+    """Each widget where there is room during its own time (room.py, Friend 2026-11-05): above the head, at chest
+    level, or beside the head. No room then → no `pos`, and the checker's place-nofit lets fallback.py leave it out."""
+    top = (inp.get('layout') or {}).get('subtitleTop', 1300)
+    for s in plan['scenes']:
+        got = room.place(inp['track'], s['t0'], s['t1'], s.get('size'), plan['camera'], top, inp['faceBox'])
+        s.pop('pos', None)
+        if got: s['size'], s['pos'], s['where'] = got
 
 
 if __name__ == '__main__':

@@ -27,7 +27,7 @@ editorial
 - Cards never overlap. The subtitles are added by code on the talking-head parts only, so a sentence that a card covers should be told by that card.
 overlay
 - At least one widget per 3.5 s, never more than 6 s without one, one widget at a time with at least 0.4 s between them.
-- Use only the widget sizes the clip has room for: `short` is the wide one (above the head, or at chest level when the head is near the top edge of the frame), `narrow` the tall one beside the head. Code places them.
+- Plan widgets only inside the times the clip lists with room for one (the speaker's face moves, so room comes and goes). `short` is the wide one, `narrow` the tall one; code places each widget wherever there is room at that moment: above the head, at chest level, or beside the head. A clip without that list uses only the sizes it names.
 
 # Variety
 - Never the same part twice in a row; avoid two scenes of the same category in a row; use each part at most once per clip (one more use per 15 scenes).

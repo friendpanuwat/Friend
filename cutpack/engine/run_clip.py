@@ -122,12 +122,14 @@ def run(clip, work, styles=STYLES, customer='test', history=None, words_file=Non
 
     with T('faces'):
         import faces as faces_step
-        files, boxes = faces_step.detect(os.path.join(base, 'src_frames'))
-        faces = faces_step.layout(boxes, len(files))
+        files, boxes = faces_step.sample(os.path.join(base, 'src_frames'))
+        faces = faces_step.layout([b for b in boxes if b], len(files))
+        faces['track'] = faces_step.track(files, boxes)   # per-moment widget places (room.py)
     save(os.path.join(work, 'faces.json'), faces)
 
     inp = {'clip': {'file': os.path.basename(clip), 'duration': dur, 'customer': customer},
-           'words': info['words'], 'captions': caps, 'layout': faces['layout'], 'history': history or {'clips': []}}
+           'words': info['words'], 'captions': caps, 'layout': faces['layout'], 'history': history or {'clips': []},
+           'track': faces['track'], 'faceBox': faces['face']}
     save(os.path.join(work, 'input.json'), inp)
 
     results = {}

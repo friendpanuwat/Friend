@@ -13,7 +13,7 @@ Every number used for a rule is in RULES, with where it comes from.
 import json, math, os, re, sys, unicodedata
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import custom_check
+import custom_check, room
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -236,7 +236,14 @@ def R_tol(): return RULES['tol']
 def V_graph(x): return graphemes(x)
 
 
-def check_timeline(plan, R):
+def room_ranges(plan, faces):
+    """Overlay with a face track: the times a widget has room (room.py), or None (no track: the whole clip counts)."""
+    if plan['style'] != 'overlay' or not (faces or {}).get('track'): return None
+    top = (plan.get('layout') or {}).get('subtitleTop', (faces.get('layout') or {}).get('subtitleTop', 1300))
+    return room.merged(room.windows(faces['track'], plan['clip']['duration'], top, faces['face']))
+
+
+def check_timeline(plan, R, faces=None):
     style, dur = plan['style'], plan['clip']['duration']
     sc = sorted(plan['scenes'], key=lambda s: s['t0'])
     ix = {id(s): i for i, s in enumerate(plan['scenes'])}
@@ -257,10 +264,14 @@ def check_timeline(plan, R):
             if b - a > RULES['arollMax'] + R_tol(): R.err('aroll-long', f'{a:.2f}–{b:.2f}', f'{b - a:.1f} s of talking head without a card (max {RULES["arollMax"]})')
         if sc and sc[0]['t0'] < RULES['firstAt']: R.err('open-on-card', sc[0]['part'], f'the clip opens on the face: first card at ≥ {RULES["firstAt"]} s', scene=ix[id(sc[0])])
     else:
-        need = math.floor(dur / RULES['widgetEvery'])
-        if len(sc) < need: R.err('density-low', 'scenes', f'{len(sc)} widgets, need ≥ {need} for {dur:.1f} s')
+        # only the time with room for a widget counts (Friend 2026-11-05: widgets go where there is room, or are left out)
+        rooms = room_ranges(plan, faces)
+        span = sum(b - a for a, b in rooms) if rooms is not None else dur
+        need = math.floor(span / RULES['widgetEvery'])
+        if len(sc) < need: R.err('density-low', 'scenes', f'{len(sc)} widgets, need ≥ {need} for {span:.1f} s with room')
         for a, b in gaps:
-            if b - a > RULES['bareMax'] + R_tol(): R.err('bare-long', f'{a:.2f}–{b:.2f}', f'{b - a:.1f} s without a widget (max {RULES["bareMax"]})')
+            for x, y in ([(a, b)] if rooms is None else [(max(a, p), min(b, q)) for p, q in rooms if min(b, q) > max(a, p)]):
+                if y - x > RULES['bareMax'] + R_tol(): R.err('bare-long', f'{x:.2f}–{y:.2f}', f'{y - x:.1f} s without a widget (max {RULES["bareMax"]})')
 
 
 def check_variety(plan, R, history=None):
@@ -355,9 +366,13 @@ def check_places(plan, cat, R, layout, faces):
     sizes, top = cat['widgetSizes'], layout.get('subtitleTop', 1300)
     keep = faces.get('keepOut') if faces else None
     fits = (faces or {}).get('layout', {})
+    track = (faces or {}).get('track')
     for i, s in enumerate(plan['scenes']):
         if s.get('size') not in sizes: continue
         w = f"scenes[{i}] {s['part']} {s['t0']}"; R.ctx = {'scene': i}
+        if track:   # per moment (room.py): the face during this widget's own time, zoomed as the camera is then
+            if not s.get('pos'): R.err('place-nofit', w, f"no room for a widget at {s['t0']}–{s['t1']}: the face fills the frame then"); continue
+            keep = room.keep_out(track, s['t0'], s['t1'], plan.get('camera'), faces.get('face') or keep)
         p = s.get('pos') or layout.get('widgetPos', {}).get(s['size']) or cat['widgetAt'][s['size']]
         W, H = sizes[s['size']]['W'], sizes[s['size']]['H']
         b = [p['x'], p['y'], p['x'] + W, p['y'] + H]
@@ -368,7 +383,7 @@ def check_places(plan, cat, R, layout, faces):
         if b[2] > RULES['rightX'] and overlap(b[1], b[3], *RULES['rightY']): R.err('place-right', w, f'widget reaches x {b[2]} in the app\'s button strip (x > {RULES["rightX"]})')
         if b[3] > top - 10: R.err('place-subtitle', w, f'widget bottom {b[3]} runs into the subtitles at {top}')
         if keep and boxes_hit(b, keep): R.err('place-face', w, f'widget {b} covers the face (keep-out {keep}, sized for the biggest zoom)')
-        if faces and fits.get(f"{s['size']}Fits") is False: R.err('place-nofit', w, f"this clip has no room for a {s['size']} widget (faces.json)")
+        if faces and not track and fits.get(f"{s['size']}Fits") is False: R.err('place-nofit', w, f"this clip has no room for a {s['size']} widget (faces.json)")
     R.ctx = {}
     if faces and fits.get('subOverFace'): R.warn('sub-face', 'layout', 'the chin is low: subtitles may touch the face when zoomed')
 
@@ -414,7 +429,7 @@ def validate(plan, cat=None, faces=None, history=None, render=False):
     if faces:
         for k, v in faces['layout'].items(): layout.setdefault(k, v)
     check_scenes(plan, cat, R)
-    check_timeline(plan, R)
+    check_timeline(plan, R, faces)
     score = check_variety(plan, R, history)
     check_numbers(plan, R, cat)
     check_subtitles(plan, R, layout)

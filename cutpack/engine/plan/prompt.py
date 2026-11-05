@@ -17,6 +17,8 @@ Input file (one clip, made by the transcription and caption steps; example: exam
 import glob, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import room   # noqa: E402  (per-moment widget room, Friend 2026-11-05)
 STYLES = os.path.join(HERE, '..', 'styles', 'editorial')
 MODEL, EFFORT = 'claude-sonnet-5-5', 'low'
 KIND = {'editorial': 'card', 'overlay': 'widget'}
@@ -135,11 +137,25 @@ def caption_lines(inp):
     return '\n'.join(rows)
 
 
+def room_text(track, d, sub_top, face_box, shortest=1.2):
+    """The room ranges (whatever the size) long enough for a widget, with the sizes that fit somewhere in each."""
+    out = []
+    for w in room.windows(track, d, sub_top, face_box):
+        if out and w['t0'] <= out[-1]['t1'] + 1e-6: out[-1]['t1'] = w['t1']; out[-1]['sizes'] |= set(w['sizes'])
+        else: out.append({'t0': w['t0'], 't1': w['t1'], 'sizes': set(w['sizes'])})
+    return ' · '.join(f"{w['t0']:.1f}–{w['t1']:.1f} s ({', '.join(x for x in ('short', 'narrow') if x in w['sizes'])})"
+                      for w in out if w['t1'] - w['t0'] >= shortest)
+
+
 def clip_text(inp, style):
     d = inp['clip']['duration']
     lay = inp.get('layout', {})
     out = [f"Style: {style}", f"Clip length: {d:.2f} s"]
-    if style == 'overlay':
+    if style == 'overlay' and inp.get('track'):   # per moment (room.py, Friend 2026-11-05)
+        rows = room_text(inp['track'], d, lay.get('subtitleTop', 1300), inp['faceBox'])
+        out.append('Times with room for a widget (plan widgets only inside them; code places each one): '
+                   + (rows or 'none — the face fills the frame the whole clip, plan no widgets'))
+    elif style == 'overlay':
         sizes = [s for s in ('short', 'narrow') if lay.get(f'{s}Fits', True)]
         out.append('Widget sizes with room in this clip: ' + (', '.join(sizes) if sizes else 'none (plan no widgets)'))
     past = (inp.get('history') or {}).get('clips', [])[-10:][::-1]

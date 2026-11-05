@@ -351,6 +351,64 @@ def custom_plan(style='editorial', code=None):
     return p
 
 
+class PerMoment(unittest.TestCase):
+    """Friend 2026-11-05: each widget goes where there is room during its own time — above the head, at chest level,
+    beside the head — or is left out; never over the face."""
+    LOW, FULL = [300, 600, 780, 1150], [20, 100, 1060, 1700]   # head low in the frame / face filling the frame
+
+    def track(self, split=9.0, dur=18.0):
+        return [[round(k * .5, 2), self.LOW if k * .5 < split else self.FULL] for k in range(int(dur * 2) + 1)]
+
+    def test_zoom_follows_the_camera(self):
+        import room
+        cam = [{'push': 2.0, 'z': 1.06}, {'pull': 6.0}]
+        self.assertAlmostEqual(room.zoom_at(cam, 0.5, 1.5), room.BREATH)
+        self.assertAlmostEqual(room.zoom_at(cam, 3.0, 4.0), 1.06 * room.BREATH)
+        self.assertAlmostEqual(room.zoom_at(cam, 1.0, 3.0), 1.06 * room.BREATH)       # a push inside the widget's time
+        self.assertAlmostEqual(room.zoom_at(cam, 6.5, 7.0), 1.06 * room.BREATH)       # the pull is still on its way back
+        self.assertAlmostEqual(room.zoom_at(cam, 7.5, 8.0), room.BREATH)
+
+    def test_order_top_then_chest_then_side_then_nothing(self):
+        import room
+        tr = self.track()
+        size, pos, where = room.place(tr, 1.0, 3.0, 'short', [], 1300, self.LOW)
+        self.assertEqual((size, where, pos['y']), ('short', 'top', 150))
+        self.assertIsNone(room.place(tr, 12.0, 14.0, 'short', [], 1300, self.LOW))   # face fills the frame: left out
+        high = [[t, [300, 200, 780, 760]] for t, _ in tr]                             # head high: no room above, chest free
+        size, pos, where = room.place(high, 1.0, 3.0, 'short', [], 1300, self.LOW)
+        self.assertEqual((size, where), ('short', 'chest')); self.assertGreater(pos['y'], 760)
+        wide = [[t, [300, 200, 780, 1200]] for t, _ in tr]                            # head high and long: only beside it
+        self.assertEqual(room.place(wide, 1.0, 3.0, 'short', [], 1300, self.LOW)[2], 'left')
+        self.assertEqual(room.place(tr, 1.0, 3.0, 'narrow', [], 1300, self.LOW)[2], 'left')   # the AI's size first
+
+    def test_plan_places_each_widget_and_leaves_out_the_ones_with_no_room(self):
+        inp = copy.deepcopy(INPUT); inp['track'] = self.track(); inp['faceBox'] = self.LOW
+        faces = dict(FACES, track=inp['track'], face=self.LOW)
+        ans = load(EX, 'test18_overlay.answer.json')
+        plan = assemble.assemble(inp, ans, 'overlay')
+        early = [s for s in plan['scenes'] if s['t1'] <= 8.5]
+        late = [s for s in plan['scenes'] if s['t0'] >= 9.5]
+        self.assertTrue(early and late)
+        self.assertTrue(all(s.get('pos') for s in early)); self.assertTrue(all(not s.get('pos') for s in late))
+        R, _ = V.validate(plan, CAT, faces, render=False)
+        self.assertIn('place-nofit', [i['code'] for i in R.blocking])
+        self.assertNotIn('place-face', [i['code'] for i in R.issues])
+        fixed, R2 = fallback.repair(plan, CAT, faces, render=False)
+        self.assertEqual(R2.blocking, [])
+        self.assertTrue(all(s['t1'] <= 9.5 for s in fixed['scenes']))   # the no-room widgets were left out, not swapped
+        # density counts only the time with room: the widgets that fit are enough for it
+        self.assertNotIn('density-low', [i['code'] for i in R2.issues])
+        self.assertNotIn('bare-long', [i['code'] for i in R2.issues])
+
+    def test_prompt_lists_the_times_with_room(self):
+        inp = copy.deepcopy(INPUT); inp['track'] = self.track(); inp['faceBox'] = self.LOW
+        text = prompt.clip_text(inp, 'overlay')
+        self.assertIn('Times with room for a widget', text); self.assertIn('0.0–', text)
+        inp['track'] = [[t, self.FULL] for t, _ in inp['track']]
+        self.assertIn('plan no widgets', prompt.clip_text(inp, 'overlay'))
+        self.assertNotIn('Times with room', prompt.clip_text(INPUT, 'overlay'))   # no track: the old whole-clip line
+
+
 class CustomScenes(unittest.TestCase):
     def test_kit_examples_pass_the_check(self):
         self.assertEqual(len(KIT_EXAMPLES), 2)

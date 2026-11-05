@@ -9,6 +9,10 @@ Face finder: OpenCV YuNet (engine/models/face_detection_yunet_2023mar.onnx, MIT)
 the face box used is the union of the 5th–95th percentile edges over all samples (the speaker moves), plus a margin.
 No face found at all → a wide safe box in the middle of the frame, and `found` says so.
 
+Per moment (Friend 2026-11-05): faces.json also holds `track`, the face every sample, and room.py places each widget
+for its own time on screen (above the head, at chest level, beside the head, or left out). The whole-clip layout
+below still sets the subtitles and is what older plans without a track use.
+
 Layout (1080×1920, decisions in DECISIONS.md). The keep-out box is the face box grown by the biggest zoom the camera may
 reach (CAM.max 1.08 × breathing 1.014, around the video's transform-origin 50% 45%), so nothing covers the face even
 mid-push (the overlay skill: "ไม่บังหน้าแม้ตอนซูม"). Hair may sit under a widget; the face may not.
@@ -27,28 +31,33 @@ import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MODEL = os.path.join(HERE, '..', 'models', 'face_detection_yunet_2023mar.onnx')
-W, H = 1080, 1920
-TOPBAR, RIGHT_UI, RIGHT_Y, BOTTOM_UI = 150, 940, (860, 1620), 1620
-SHORT, NARROW = (600, 190), (210, 380)
+sys.path.insert(0, HERE)
+from room import W, H, TOPBAR, RIGHT_UI, RIGHT_Y, BOTTOM_UI, SHORT, NARROW, ZMAX, ORIGIN, zoomed   # one source for the geometry
 SUB_TOP_MIN, SUB_TOP_MAX = 1300, 1380
-ZMAX, ORIGIN = 1.08 * 1.014, (540, 864)   # CAM.max × (1 + CAM.breath) in motion.js; transform-origin 50% 45% in engine_head.html
 
-def detect(frames_dir, every=15):
+
+def sample(frames_dir, every=15):
+    """→ (files, one box or None per sampled file): the most confident face, in 1080×1920."""
     files = sorted(glob.glob(os.path.join(frames_dir, 's*.jpg')))[::every]
     det = cv2.FaceDetectorYN.create(MODEL, '', (540, 960), 0.3, 0.3, 5000)
-    boxes = []
+    out = []
     for f in files:
         im = cv2.resize(cv2.imread(f), (540, 960))
         _, faces = det.detect(im)
-        if faces is None or not len(faces): continue
+        if faces is None or not len(faces): out.append(None); continue
         x, y, w, h = (faces[np.argmax(faces[:, -1])][:4] * 2).tolist()   # the most confident face, back to 1080×1920
-        boxes.append([x, y, x + w, y + h])
-    return files, boxes
+        out.append([x, y, x + w, y + h])
+    return files, out
 
 
-def zoomed(box, z=ZMAX):
-    ox, oy = ORIGIN
-    return [ox + (box[0] - ox) * z, oy + (box[1] - oy) * z, ox + (box[2] - ox) * z, oy + (box[3] - oy) * z]
+def detect(frames_dir, every=15):
+    files, boxes = sample(frames_dir, every)
+    return files, [b for b in boxes if b]
+
+
+def track(files, boxes, every=15, fps=30):
+    """The face over time for per-moment placement (room.py): [[t, box or None]], one row per sampled frame."""
+    return [[round(i * every / fps, 2), [round(v) for v in b] if b else None] for i, b in enumerate(boxes)]
 
 
 def layout(boxes, n_samples):
@@ -86,7 +95,8 @@ def layout(boxes, n_samples):
 if __name__ == '__main__':
     args = sys.argv[1:]
     every = int(args[args.index('--every') + 1]) if '--every' in args else 15
-    files, boxes = detect(args[0], every)
-    out = layout(boxes, len(files))
+    files, boxes = sample(args[0], every)
+    out = layout([b for b in boxes if b], len(files))
+    out['track'] = track(files, boxes, every)
     json.dump(out, open(args[1], 'w'), indent=1)
     print(json.dumps(out))
