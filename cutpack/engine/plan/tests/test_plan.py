@@ -288,6 +288,37 @@ class Prompt(unittest.TestCase):
                     if v is None: os.environ.pop(k, None)
                     else: os.environ[k] = v
 
+    def test_code_mends_number_only_mistakes(self):
+        """Friend 2026-11-05: lengths, hits and widget gaps are set right in code, not in a paid fix round."""
+        import mend
+        for style in ('editorial', 'overlay'):
+            ans = copy.deepcopy(load(EX, f'test18_{style}.answer.json'))
+            s0 = ans['scenes'][0]
+            s0['t1'] = round(s0['t0'] + 6.0, 2)       # far too long for any part
+            s0['hit'] = s0['t0'] + .05                # and the hit before the entrance lands
+            m, notes = mend.mend(ans, style, CAT, INPUT['clip']['duration'])
+            self.assertTrue(notes)
+            R, _ = V.validate(assemble.assemble(INPUT, m, style), CAT, FACES, render=False)
+            codes = [i['code'] for i in R.issues if i['level'] == 'error']
+            for c in ('length', 'hit-early', 'hit-late', 'widget-gap', 'scene-overlap'): self.assertNotIn(c, codes, (style, c))
+            good = load(EX, f'test18_{style}.answer.json')
+            self.assertEqual(mend.mend(good, style, CAT, INPUT['clip']['duration'])[1], [])   # an approved plan is left alone
+
+    def test_fix_round_on_another_model(self):
+        """Friend 2026-11-05: Sonnet plans, Haiku fixes; a saved first answer can be fixed live (fix_live)."""
+        import fake_api
+        ans = load(EX, 'test18_overlay.answer.json')
+        thin = dict(ans, scenes=ans['scenes'][:2])   # too few widgets: a fix round is needed
+        fake = fake_api.FakeClient({'overlay': thin, 'overlay.fix': ans})
+        with tempfile.TemporaryDirectory() as d:
+            plan, R, log = plan_d.run(INPUT, 'overlay', d, faces=FACES, render=False, answer=thin, client=fake, fix_live=True,
+                                      fix_model='claude-haiku-5-5', thinking='off')
+            self.assertEqual([r['model'] for r in fake.requests], ['claude-haiku-5-5'])
+            self.assertEqual(fake.requests[0]['thinking'], {'type': 'disabled'})
+            self.assertEqual(fake.requests[0]['messages'][1]['role'], 'assistant')
+            self.assertIn('fix round on claude-haiku-5-5', log); self.assertEqual(len(plan['scenes']), len(ans['scenes']))
+            self.assertEqual(load(d, 'run.json')['calls'][0]['model'], 'claude-haiku-5-5')
+
     def test_schema_fits_the_api_limits(self):
         """Real-key test 2026-11-05: the API compiles at most 24 optional properties; the slot object had 78–80."""
         for style in ('editorial', 'overlay'):

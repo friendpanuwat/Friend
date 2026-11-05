@@ -25,7 +25,7 @@ import copy, json, os, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import prompt, assemble, validate, fallback
+import prompt, assemble, validate, fallback, mend
 
 
 def save(path, data):
@@ -153,9 +153,24 @@ def write_codes(client, inp, style, answer, cat, calls, log, code_answer=None, r
     return req, resp
 
 
+def mended(inp, style, answer, plan, R, errors, cat, faces, history, render, log):
+    """The first answer with its number-only mistakes set right in code, if that leaves fewer errors for the AI."""
+    m, notes = mend.mend(answer, style, cat, inp['clip']['duration'])
+    if not notes: return answer, plan, R, errors
+    plan2 = assemble.assemble(inp, m, style)
+    R2, _ = validate.validate(plan2, cat, faces, history, render=render)
+    e2 = [i for i in R2.issues if i['level'] == 'error' and plan_can_fix(i, style)]
+    if len(e2) < len(errors) and len(R2.blocking) <= len(R.blocking):
+        log.append(f'code mended {len(notes)} numbers: {len(errors)} → {len(e2)} errors' + ('' if e2 else ', no fix round needed'))
+        return m, plan2, R2, e2
+    return answer, plan, R, errors
+
+
 def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_answer=None, code_answer=None, fix_code_answer=None,
-        client=None, ttl='5m', model=None, thinking=None):
-    """client: an anthropic.Anthropic() made here when None (tests pass a stand-in with the same beta.messages.create)."""
+        client=None, ttl='5m', model=None, thinking=None, fix_model=None, fix_live=False):
+    """client: an anthropic.Anthropic() made here when None (tests pass a stand-in with the same beta.messages.create).
+    fix_model: the fix round on another model (Friend 2026-11-05: Sonnet plans, Haiku fixes). fix_live: with a saved
+    first answer, still ask the API for the fix round (tests the fix model without paying for the plan again)."""
     os.makedirs(out, exist_ok=True)
     cat = prompt.load_catalog()
     req = prompt.request(inp, style, cat, ttl=ttl, model=model, thinking=thinking)
@@ -165,7 +180,8 @@ def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_an
     history = inp.get('history')
     calls, log, resp = [], [], None
     offline = answer is not None
-    if offline: client = None
+    if offline and not fix_live: client = None
+    if offline: pass
     else:
         if client is False:   # the caller forbids API calls (a replay with no saved answer)
             client = None; log.append('API not used: no saved answer to replay')
@@ -191,6 +207,8 @@ def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_an
     plan = assemble.assemble(inp, answer or {'camera': [], 'scenes': []}, style)
     R, _ = validate.validate(plan, cat, faces, history, render=render)
     errors = [i for i in R.issues if i['level'] == 'error' and plan_can_fix(i, style)]
+    if answer is not None and errors:   # 2b. code mends the number-only mistakes first (mend.py, Friend 2026-11-05)
+        answer, plan, R, errors = mended(inp, style, answer, plan, R, errors, cat, faces, history, render, log)
     if answer is not None and errors:   # 3. one fix round, sent to the call that made the mistake
         code_errs = [i for i in errors if 'scene' in i and plan['scenes'][i['scene']]['part'] == 'custom']
         plan_errs = [i for i in errors if i not in code_errs]
@@ -198,13 +216,18 @@ def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_an
         if plan_errs:
             log.append(f'fix round (plan): {len(plan_errs)} errors sent back')
             fixed = copy.deepcopy(fix_answer) if fix_answer is not None else None
-            if fixed is None and client is not None and resp is not None:
-                req2 = dict(req, messages=req['messages'] + [{'role': 'assistant', 'content': resp.content},
-                                                              {'role': 'user', 'content': prompt.fix_message(errors)}])
+            if fixed is None and client is not None and (resp is not None or fix_live):
+                fm = fix_model or req['model']
+                base = req if fm == req['model'] else prompt.request(inp, style, cat, ttl=ttl, model=fm, thinking=thinking)
+                said = resp.content if (resp is not None and fm == req['model']) else \
+                    json.dumps(prompt.slots_to_list(answer), ensure_ascii=False)   # another model reads the (mended) plan as text
+                req2 = dict(base, messages=base['messages'] + [{'role': 'assistant', 'content': said},
+                                                                {'role': 'user', 'content': prompt.fix_message(errors)}])
                 fixed, resp2, why = ask(client, req2)
-                if resp2 is not None: calls.append(call_record(resp2, req['model']))
+                if resp2 is not None: calls.append(call_record(resp2, fm))
                 if why: log.append(f'fix request failed: {why}')
                 if fixed is not None: raw['fix'] = copy.deepcopy(fixed)
+                if fm != req['model']: log.append(f'fix round on {fm}')
             if fixed is not None:   # offline replays reuse the given scene code unless a fix code is given
                 write_codes(client, inp, style, fixed, cat, calls, log, (fix_code_answer if fix_code_answer is not None else code_answer) if offline else None,
                             raw, 'fixcode')
@@ -225,6 +248,8 @@ def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_an
                     fixed['scenes'][c['i']]['code'] = c.get('code', '')
             if new_codes is None: fixed = None
         if fixed is not None:
+            fixed, notes = mend.mend(fixed, style, cat, inp['clip']['duration'])
+            if notes: log.append(f'code mended {len(notes)} numbers in the fixed plan')
             plan2 = assemble.assemble(inp, fixed, style)
             R2, _ = validate.validate(plan2, cat, faces, history, render=render)
             # keep the better of the two. A plan with no scenes has nothing to block, but it is never the better one: the

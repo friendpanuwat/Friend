@@ -1,0 +1,21 @@
+{
+ "clip": "VID_20261105114123.mp4",
+ "duration_s": 80.016,
+ "style": "editorial",
+ "status": "ok",
+ "topic": "fit",
+ "calls": [
+  {
+   "stage": "scene",
+   "model": "claude-haiku-5-5",
+   "served": "claude-haiku-5-5",
+   "in": 5707,
+   "out": 4232,
+   "cache_read": 0,
+   "cache_write_5m": 22478,
+   "cache_write_1h": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "time": "2026-11-05T17:18:25"
+}
