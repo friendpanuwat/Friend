@@ -4,7 +4,8 @@
 usage: run_clip.py <clip.mp4> <work_dir> [--styles editorial,overlay] [--customer id] [--history history.json]
                    [--words words.json] [--captions captions.json] [--stop-after captions|plan]
                    [--answers dir] [--rules-captions] [--log runs.jsonl] [--threads 2]
-                   [--plan-model claude-haiku-5-5] [--plan-thinking off] [--fix-model claude-haiku-5-5] [--state plan_times.json]
+                   [--plan-model claude-sonnet-5-5] [--plan-thinking off|on] [--fix-model claude-haiku-5-5] [--state plan_times.json]
+  defaults (Friend 2026-11-05): Sonnet 5.5 plans and Haiku 5.5 fixes, both without thinking, effort low
   test runs: $CUTPACK_BUDGET_USD + $CUTPACK_LEDGER refuse any API call that could pass the budget (plan_d.budget_check)
 
   1. frames    pipeline.sh frames → work/base (1080×1920 frames, cleaned voice)
@@ -29,7 +30,7 @@ import json, os, shutil, subprocess, sys, time
 ENGINE = os.path.dirname(os.path.abspath(__file__))
 PIPE = os.path.join(ENGINE, 'core', 'pipeline.sh')
 sys.path.insert(0, os.path.join(ENGINE, 'plan'))
-import captions as captions_step, plan_d, plan2timeline
+import captions as captions_step, plan_d, plan2timeline, prompt
 
 STYLES = ('editorial', 'overlay')
 with open(os.path.join(ENGINE, 'plan', 'catalog.json')) as _f: _cat = json.load(_f)
@@ -147,7 +148,8 @@ def run(clip, work, styles=STYLES, customer='test', history=None, words_file=Non
             res = plan_d.run(inp, style, out, faces=faces, answer=A(f'{style}.answer.json'), fix_answer=A(f'{style}.fix.json'),
                              code_answer=A(f'{style}.code.json'), fix_code_answer=A(f'{style}.fixcode.json'),
                              client=False if answers else client,   # replay with no saved answer: subtitles only
-                             ttl=ttl, model=plan_model, thinking=plan_thinking, fix_model=fix_model)
+                             ttl=ttl, model=plan_model, thinking=plan_thinking or prompt.THINKING,
+                             fix_model=fix_model or prompt.FIX_MODEL)
         if state and json.load(open(os.path.join(out, 'run.json')))['calls']: plan_d.note_plan(state, style)
         plan, R, plog = res
         for k in ('answer', 'fix', 'code', 'fixcode'):   # the API's answers, where --answers <work> finds them for a free replay

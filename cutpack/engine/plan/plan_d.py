@@ -167,7 +167,7 @@ def mended(inp, style, answer, plan, R, errors, cat, faces, history, render, log
 
 
 def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_answer=None, code_answer=None, fix_code_answer=None,
-        client=None, ttl='5m', model=None, thinking=None, fix_model=None, fix_live=False):
+        client=None, ttl='5m', model=None, thinking=prompt.THINKING, fix_model=prompt.FIX_MODEL, fix_live=False):
     """client: an anthropic.Anthropic() made here when None (tests pass a stand-in with the same beta.messages.create).
     fix_model: the fix round on another model (Friend 2026-11-05: Sonnet plans, Haiku fixes). fix_live: with a saved
     first answer, still ask the API for the fix round (tests the fix model without paying for the plan again)."""

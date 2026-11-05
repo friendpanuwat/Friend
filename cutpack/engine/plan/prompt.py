@@ -21,6 +21,9 @@ sys.path.insert(0, HERE)
 import room   # noqa: E402  (per-moment widget room, Friend 2026-11-05)
 STYLES = os.path.join(HERE, '..', 'styles', 'editorial')
 MODEL, EFFORT = 'claude-sonnet-5-5', 'low'
+# Friend 2026-11-05, after the real-key tests: Sonnet plans and Haiku does the fix round, both answering without thinking
+# first (rounds 6–7: about 1.1–1.8 baht a clip with a warm cache, 2.4–3.3 without, against 3.8–5.8 for Sonnet thinking)
+THINKING, FIX_MODEL = 'off', 'claude-haiku-5-5'
 KIND = {'editorial': 'card', 'overlay': 'widget'}
 
 
@@ -310,11 +313,11 @@ def system_text(style, cat):
     return '\n\n'.join([read('prompt', 'system.md').strip(), library_text(style, cat), example_text(style)])
 
 
-def request(inp, style, cat=None, ttl='5m', model=None, thinking=None):
+def request(inp, style, cat=None, ttl='5m', model=None, thinking=THINKING):
     """kwargs for client.beta.messages.create (see plan_d.py). The system block carries the cache breakpoint.
     ttl '1h' keeps it an hour (plan_d.cache_ttl chooses from recent traffic, Friend 2026-11-05). model: the planner
     (default Sonnet 5.5); Haiku 5.5 has no server-side fallback, so the fallback beta is left out for it.
-    thinking 'off': the AI answers without thinking first (Sonnet 5.5 `between_tools`, Haiku 5.5 `disabled`, both allowed
+    thinking 'off' (default) / 'on': the AI answers without thinking first (Sonnet 5.5 `between_tools`, Haiku 5.5 `disabled`, both allowed
     at effort low) — real-key test 2026-11-05: most of the cost was thinking, not the plan (a 20-scene plan is ~2–3k tokens)."""
     cat, model = cat or load_catalog(), model or MODEL
     cache = {'type': 'ephemeral', **({'ttl': '1h'} if ttl == '1h' else {})}

@@ -272,7 +272,9 @@ class Prompt(unittest.TestCase):
         r = prompt.request(INPUT, 'overlay', CAT, thinking='off')
         self.assertEqual((r['thinking'], r['max_tokens']), ({'type': 'between_tools'}, 8000))
         self.assertEqual(prompt.request(INPUT, 'overlay', CAT, model='claude-haiku-5-5', thinking='off')['thinking'], {'type': 'disabled'})
-        self.assertNotIn('thinking', prompt.request(INPUT, 'overlay', CAT))
+        self.assertEqual(prompt.request(INPUT, 'overlay', CAT)['thinking'], {'type': 'between_tools'})   # the default (Friend 2026-11-05)
+        self.assertNotIn('thinking', prompt.request(INPUT, 'overlay', CAT, thinking='on'))
+        self.assertEqual(prompt.FIX_MODEL, 'claude-haiku-5-5')
         with tempfile.TemporaryDirectory() as d:
             led = os.path.join(d, 'ledger.json')
             old = {k: os.environ.get(k) for k in ('CUTPACK_BUDGET_USD', 'CUTPACK_LEDGER')}

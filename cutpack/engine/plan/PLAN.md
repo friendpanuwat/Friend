@@ -54,7 +54,9 @@ faces.py  →  validate.py  →  (ไม่ผ่าน) ส่ง issues กล
 ## ให้ AI วางแผน (แผน D, ขั้น 3.3)
 
 ```
-ข้อมูลคลิป (input.json)  →  prompt.py สร้างคำขอ  →  Sonnet 5.5 effort low ตอบ {camera, scenes}  →  assemble.py เป็นแผนเต็ม  →  ตรวจตามข้างบน
+ข้อมูลคลิป (input.json)  →  prompt.py สร้างคำขอ  →  Sonnet 5.5 effort low (ปิดการคิด) ตอบ {camera, scenes}  →  assemble.py เป็นแผนเต็ม  →  ตรวจตามข้างบน
+   →  mend.py แก้ตัวเลข (ความยาวฉาก จังหวะคำสำคัญ ช่องห่าง การ์ด editorial ≤55%)  →  ถ้ายังผิด รอบแก้ 1 ครั้งด้วย Haiku 5.5 (ปิดการคิด)  →  ตัวสำรอง
+   (ค่าเริ่มต้นตั้งแต่ 2026-11-05 Friend ตกลงหลังทดสอบคลิปจริง ดู cost-test/real-run1/README.md)
 ```
 
 | ไฟล์ | หน้าที่ |
