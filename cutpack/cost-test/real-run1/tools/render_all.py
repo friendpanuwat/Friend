@@ -18,3 +18,4 @@ for c in names:
                'mb': round(os.path.getsize(mp4) / 1e6, 1) if mp4 else None}
         with open(os.path.join(work, 'renders.jsonl'), 'a') as f: f.write(json.dumps(rec) + '\n')
         print(json.dumps(rec), flush=True)
+        import shutil; shutil.rmtree(os.path.join(out, 'out_frames'), ignore_errors=True)   # the frames are in the MP4 now: free the disk
