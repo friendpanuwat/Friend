@@ -1,0 +1,31 @@
+{
+ "status": "ok",
+ "topic": "biz",
+ "log": [
+  "plan request failed: bad request: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Schemas contains too many optional parameters (80), which would make grammar compilation inefficient. Reduce the number of optional parameters in your tool schemas (limit: 24).'}, 'request_id': 'req_011CgjEkxsFyKQ9zsVescQcz'}",
+  "asked again without the schema",
+  "fix round (plan): 14 errors sent back"
+ ],
+ "fallback": [
+  "B10.v1 67.4–69.8 → B14 text B14.v1 (widget-gap)",
+  "B05.v1 78.9–81.8 → B14 text B14.v3 (slot-time)",
+  "B14.v1 67.4–69.8 dropped (widget-gap)",
+  "subtitle 22.72–27.68 \"แบรนด์ก็คือ พรมที่ / ให้กับลูกค้าที่ ทั้งมี / นิ่งฟู และ / Marrable\" dropped"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B14.v3 78.9",
+   "msg": "two scenes of the same category in a row",
+   "scene": 25
+  },
+  {
+   "level": "error",
+   "code": "reuse",
+   "where": "B14.v3",
+   "msg": "B14.v3 used 3 times, max 2 in this clip"
+  }
+ ]
+}

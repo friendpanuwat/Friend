@@ -1,0 +1,37 @@
+=== VID_20261105105656 (spent so far 0 USD) 05:32:42
+[ WARN:0@1.128] global net_impl_backend.cpp:345 setPreferableTarget Targets are not supported by the new graph engine for now
+words from VID_20261105105656.json
+AI answer not used (the last phrase ends at word 22, not 299): grouped by rule
+editorial planned scenes 24 (custom 0, fallback changes 4) · steps {'frames': 35.4, 'words': 0.0, 'captions': 2.0, 'faces': 9.5, 'plan': 102.9} → None
+overlay   planned scenes 29 (custom 0, fallback changes 4) · steps {'frames': 35.4, 'words': 0.0, 'captions': 2.0, 'faces': 9.5, 'plan': 84.2} → None
+--- VID_20261105105656 took 238 s · spent now 0.3683 USD
+=== VID_20261105114123 (spent so far 0.3683 USD) 05:36:40
+[ WARN:0@0.015] global net_impl_backend.cpp:345 setPreferableTarget Targets are not supported by the new graph engine for now
+words from VID_20261105114123.json
+editorial planned scenes 26 (custom 0, fallback changes 1) · steps {'frames': 32.0, 'words': 0.0, 'captions': 7.4, 'faces': 3.9, 'plan': 97.4} → None
+overlay   planned scenes 27 (custom 0, fallback changes 6) · steps {'frames': 32.0, 'words': 0.0, 'captions': 7.4, 'faces': 3.9, 'plan': 95.7} → None
+--- VID_20261105114123 took 238 s · spent now 0.6514 USD
+=== VID_20261105115213 (spent so far 0.6514 USD) 05:40:38
+[ WARN:0@0.013] global net_impl_backend.cpp:345 setPreferableTarget Targets are not supported by the new graph engine for now
+words from VID_20261105115213.json
+editorial planned scenes 14 (custom 0, fallback changes 2) · steps {'frames': 24.2, 'words': 0.0, 'captions': 5.0, 'faces': 3.1, 'plan': 71.8} → None
+overlay   planned scenes 10 (custom 0, fallback changes 5) · steps {'frames': 24.2, 'words': 0.0, 'captions': 5.0, 'faces': 3.1, 'plan': 29.6} → None
+--- VID_20261105115213 took 135 s · spent now 0.8180 USD
+=== VID_20261105115846 (spent so far 0.8180 USD) 05:42:53
+[ WARN:0@0.017] global net_impl_backend.cpp:345 setPreferableTarget Targets are not supported by the new graph engine for now
+words from VID_20261105115846.json
+AI answer not used (the last phrase ends at word 146, not 239): grouped by rule
+editorial planned scenes 18 (custom 0, fallback changes 3) · steps {'frames': 31.8, 'words': 0.0, 'captions': 5.6, 'faces': 4.0, 'plan': 85.5} → None
+overlay   planned scenes 0 (custom 0, fallback changes 0) · steps {'frames': 31.8, 'words': 0.0, 'captions': 5.6, 'faces': 4.0, 'plan': 46.2} → None
+--- VID_20261105115846 took 175 s · spent now 1.0049 USD
+clips 8 · attempts 8
+cost per clip THB  mean 4.27 · median 4.00 · max 6.43
+  best ≤3.5            3   37.5%
+  mid ≤7.0             5   62.5%
+  over >7.0            0    0.0%
+  fail (refunded)      0    0.0%
+team alert (> 5.5 THB): 2 clips
+average THB per clip by stage: scene 4.225 · group 0.040
+margin after API cost (credits used by delivered clips; failed clips refunded): 66%
+
+[exited with code 0]

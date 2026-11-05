@@ -1,0 +1,141 @@
+{
+ "status": "ok",
+ "topic": "none",
+ "log": [
+  "plan request failed: bad request: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Schemas contains too many optional parameters (80), which would make grammar compilation inefficient. Reduce the number of optional parameters in your tool schemas (limit: 24).'}, 'request_id': 'req_011CgjFJYvUvrXPgdFJKPHbt'}",
+  "asked again without the schema",
+  "fix round (plan): 8 errors sent back",
+  "the fixed plan was worse; kept the first one"
+ ],
+ "fallback": [
+  "B07.v1 11.7–13.4 → B14 text B14.v3 (hit-early)",
+  "B03.v1 18.4–20.4 → B14 text B14.v1 (hit-early, slot-long)",
+  "B07.v3 29.8–32.4 → B14 text B14.v3 (hit-early)",
+  "B12.v1 44–47.8 → B14 text B14.v1 (length)",
+  "B02.v3 50.8–54.3 → B14 text B14.v3 (length)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "10 widgets, need ≥ 17 for 60.6 s"
+  },
+  {
+   "level": "error",
+   "code": "bare-long",
+   "where": "32.40–39.30",
+   "msg": "6.9 s without a widget (max 6.0)"
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B14.v1 18.4",
+   "msg": "two scenes of the same category in a row",
+   "scene": 3
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B14.v3 50.8",
+   "msg": "two scenes of the same category in a row",
+   "scene": 8
+  },
+  {
+   "level": "error",
+   "code": "reuse",
+   "where": "B14.v1",
+   "msg": "B14.v1 used 3 times, max 1 in this clip"
+  },
+  {
+   "level": "error",
+   "code": "reuse",
+   "where": "B14.v3",
+   "msg": "B14.v3 used 3 times, max 1 in this clip"
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 0.56–4.8 \"แล้ว ผม รู้สึก ว่า / ตราบใดที่ คุณ ยัง มองว่า / รายได้ ของ คุณ\"",
+   "msg": "chunk \"ตราบใดที่ คุณ ยัง มองว่า\" is 16 letters, aim ≤ 12",
+   "sub": 0
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 9.28–11.68 \"มัน ก็ จะ เป็น รายได้ / เสริม ต่อไป / เรื่อย เรื่อย มัน จะ\"",
+   "msg": "chunk \"มัน ก็ จะ เป็น รายได้\" is 13 letters, aim ≤ 12",
+   "sub": 3
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 18.4–20.4 \"หลัก Active / Income ผม รู้สึก ว่า\"",
+   "msg": "chunk \"Income ผม รู้สึก ว่า\" is 13 letters, aim ≤ 12",
+   "sub": 7
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 20.4–22.56 \"ถ้า อยาก ให้ / มัน มา เป็น active / Incom นะ\"",
+   "msg": "chunk \"มัน มา เป็น active\" is 13 letters, aim ≤ 12",
+   "sub": 8
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 24.48–27.04 \"busis หรือ / ว่าการ เฮด ความเสี่ยง / กับ มัน เว้ย\"",
+   "msg": "chunk \"ว่าการ เฮด ความเสี่ยง\" is 16 letters, aim ≤ 12",
+   "sub": 10
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 28.72–30.64 \"โดยส่วนใหญ่ นะ ครับ / ไม่ มี ความเสี่ยง\"",
+   "msg": "chunk \"โดยส่วนใหญ่ นะ ครับ\" is 14 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 33.76–35.36 \"ของ You ไป ใช้แล้ว / ยู จะ\"",
+   "msg": "chunk \"ของ You ไป ใช้แล้ว\" is 13 letters, aim ≤ 12",
+   "sub": 15
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 49.52–50.8 \"เซตผม มัน ไม่ / เหมือนกับ อย่างงี้ เลย\"",
+   "msg": "chunk \"เหมือนกับ อย่างงี้ เลย\" is 15 letters, aim ≤ 12",
+   "sub": 24
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 50.8–54.4 \"มัน มัน มี หลายอย่าง / ที่ มัน เปลี่ยนไป / มาก มาก แล้ว มัน\"",
+   "msg": "chunk \"มัน มัน มี หลายอย่าง\" is 13 letters, aim ≤ 12",
+   "sub": 25
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 54.4–55.68 \"ผม ก็ ยัง เห็น / Infonser บางคน\"",
+   "msg": "chunk \"Infonser บางคน\" is 13 letters, aim ≤ 12",
+   "sub": 26
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 58.72–60.581 \"ซึ่ง ถ้า คุณ แค่ / คิด ว่า มัน เป็น รายได้\"",
+   "msg": "chunk \"คิด ว่า มัน เป็น รายได้\" is 14 letters, aim ≤ 12",
+   "sub": 29
+  },
+  {
+   "level": "warn",
+   "code": "sub-face",
+   "where": "layout",
+   "msg": "the chin is low: subtitles may touch the face when zoomed"
+  }
+ ]
+}

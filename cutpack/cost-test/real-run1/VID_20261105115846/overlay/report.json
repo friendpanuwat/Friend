@@ -1,0 +1,39 @@
+{
+ "status": "ok",
+ "topic": "edu",
+ "log": [
+  "plan request failed: bad request: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Schemas contains too many optional parameters (80), which would make grammar compilation inefficient. Reduce the number of optional parameters in your tool schemas (limit: 24).'}, 'request_id': 'req_011CgjFWD9vrthmddF2kRwPY'}",
+  "asked again without the schema",
+  "fix round (plan): 2 errors sent back",
+  "the fixed plan was worse; kept the first one"
+ ],
+ "fallback": [],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "0 widgets, need ≥ 21 for 76.4 s"
+  },
+  {
+   "level": "error",
+   "code": "bare-long",
+   "where": "0.00–76.37",
+   "msg": "76.4 s without a widget (max 6.0)"
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 5.9–9.84 \"จะไม่ แนะนำวิธี / หนึ่งที่ เรียกว่า / Conprentblenport / เพื่อ บางคน\"",
+   "msg": "chunk \"Conprentblenport\" is 16 letters, aim ≤ 12",
+   "sub": 2
+  },
+  {
+   "level": "warn",
+   "code": "sub-face",
+   "where": "layout",
+   "msg": "the chin is low: subtitles may touch the face when zoomed"
+  }
+ ]
+}
