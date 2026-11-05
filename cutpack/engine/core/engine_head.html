@@ -177,11 +177,14 @@ function curl(c, t, color = '#000') {        // thin black page-curl crescents i
 }
 /* frame(): the talking head shrinks into a rounded card on a flat background (ref transition).
    Returns a transparent container (above the video) for text around the card. */
-function frame(t0, t1, {bg = 'cream', s = .5, y = 1040, r = 44, d = .38} = {}) {
+/* o > 0: the speaker grows back to full screen over the last o seconds instead of cutting back (CutPack overlay,
+   "ย่อภาพคนพูดชั่วคราว" for clips whose face leaves no room for a widget). bg 'glow' = the dark glow backdrop. */
+function frame(t0, t1, {bg = 'cream', s = .5, y = 1040, r = 44, d = .38, o = 0} = {}) {
   MADE.push(t0);
-  const back = div(`inset:0;background:${BG[bg] ?? bg};opacity:0`, B); visible(back, t0, t1);
+  const back = div(`inset:0;background:${bg === 'glow' ? INK : BG[bg] ?? bg};opacity:0;overflow:hidden`, B); visible(back, t0, t1);
+  if (bg === 'glow') { back.t0 = t0; back.t1 = t1; mood(back, {seed: (t0 * 7) % 3}); }
   const sh = div('opacity:0;border-radius:44px;box-shadow:0 40px 90px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.2);background:#000', B); visible(sh, t0, t1);
-  FRAMES.push({t0, t1, s, y, r, d, sh});
+  FRAMES.push({t0, t1, s, y, r, d, o, sh});
   const box = div('inset:0;opacity:0', S); visible(box, t0, t1);
   sfx('whoosh', t0 - .05, -23);
   box.t0 = t0; box.t1 = t1;

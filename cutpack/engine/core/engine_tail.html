@@ -18,7 +18,8 @@ window.seek = async (t, src) => {
   if (src) { V.src = src; await V.decode(); }
   const F = FRAMES.find(f => t >= f.t0 && t < f.t1);
   if (F) {   // shrink-to-card
-    const p = ease(Math.min(1, (t - F.t0) / F.d)), s = 1 - (1 - F.s) * p, dy = (F.y - 960) * p;
+    const p = Math.min(ease(Math.min(1, (t - F.t0) / F.d)), F.o ? easeIO(Math.min(1, (F.t1 - t) / F.o)) : 1);   // o: grow back softly
+    const s = 1 - (1 - F.s) * p, dy = (F.y - 960) * p;
     V.style.transformOrigin = '50% 50%';
     V.style.transform = `translateY(${dy}px) scale(${s})`;
     V.style.clipPath = `inset(0 round ${F.r * p / s}px)`;
