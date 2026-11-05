@@ -4,6 +4,7 @@
 usage: run_clip.py <clip.mp4> <work_dir> [--styles editorial,overlay] [--customer id] [--history history.json]
                    [--words words.json] [--captions captions.json] [--stop-after captions|plan]
                    [--answers dir] [--rules-captions] [--log runs.jsonl] [--threads 2]
+                   [--plan-model claude-haiku-5-5] [--state plan_times.json]
 
   1. frames    pipeline.sh frames → work/base (1080×1920 frames, cleaned voice)
   2. words     Typhoon ASR Realtime on our machine (plan/asr.py)          --words: use this transcript instead
@@ -80,7 +81,11 @@ def render(clip, base, out, plan):
 
 
 def run(clip, work, styles=STYLES, customer='test', history=None, words_file=None, captions_file=None, stop_after=None,
-        answers=None, rules_captions=False, log_path=None, threads=2, client=None):
+        answers=None, rules_captions=False, log_path=None, threads=2, client=None, plan_model=None, state=None):
+    """plan_model: the scene planner (default Sonnet 5.5). state: the file of recent plan times that picks the cache
+    lifetime (plan_d.cache_ttl); the default for real API calls is $CUTPACK_STATE or ~/.cutpack/plan_times.json."""
+    if state is None and client is None and not answers:
+        state = os.environ.get('CUTPACK_STATE') or os.path.expanduser('~/.cutpack/plan_times.json')
     clip, work = os.path.abspath(clip), os.path.abspath(work)
     base = os.path.join(work, 'base'); os.makedirs(base, exist_ok=True)
     T, notes = Timer(), []
@@ -136,10 +141,13 @@ def run(clip, work, styles=STYLES, customer='test', history=None, words_file=Non
     for style in styles:
         out = os.path.join(work, style); os.makedirs(out, exist_ok=True)
         st = Timer()
+        ttl = plan_d.cache_ttl(state, style) if state else '5m'
         with st('plan'):
             res = plan_d.run(inp, style, out, faces=faces, answer=A(f'{style}.answer.json'), fix_answer=A(f'{style}.fix.json'),
                              code_answer=A(f'{style}.code.json'), fix_code_answer=A(f'{style}.fixcode.json'),
-                             client=False if answers else client)   # replay with no saved answer: subtitles only
+                             client=False if answers else client,   # replay with no saved answer: subtitles only
+                             ttl=ttl, model=plan_model)
+        if state and json.load(open(os.path.join(out, 'run.json')))['calls']: plan_d.note_plan(state, style)
         plan, R, plog = res
         for k in ('answer', 'fix', 'code', 'fixcode'):   # the API's answers, where --answers <work> finds them for a free replay
             src = os.path.join(out, f'{k}.json')
@@ -161,7 +169,7 @@ def run(clip, work, styles=STYLES, customer='test', history=None, words_file=Non
                'status': 'fail' if status == 'fail' else 'ok', 'detail': status, 'render_s': st.s.get('render', 0), 'stages': stages,
                'scenes': len(plan['scenes']), 'custom_scenes': sum(s.get('part') == 'custom' for s in plan['scenes']),
                'topic': plan.get('topic', 'none'), 'pack_scenes': sum(s['part'] in PACK_IDS for s in plan['scenes']),
-               'fallback': len(plan.get('fallbackLog', [])), 'blocking_left': len(R.blocking),
+               'fallback': len(plan.get('fallbackLog', [])), 'blocking_left': len(R.blocking), 'cache_ttl': ttl,
                'captions': info['source'], 'replay': bool(answers),
                'calls': asr_calls + info['calls'] + json.load(open(os.path.join(out, 'run.json')))['calls'],
                'time': time.strftime('%Y-%m-%dT%H:%M:%S')}
@@ -183,7 +191,7 @@ if __name__ == '__main__':
     res = run(a[0], a[1], styles, customer=opt('--customer') or 'test', history=maybe(opt('--history')),
               words_file=opt('--words'), captions_file=opt('--captions'), stop_after=opt('--stop-after'),
               answers=opt('--answers'), rules_captions='--rules-captions' in a, log_path=opt('--log'),
-              threads=int(opt('--threads') or 2))
+              threads=int(opt('--threads') or 2), plan_model=opt('--plan-model'), state=opt('--state'))
     for n in res['notes']: print(n)
     if res.get('stopped'): print(f"stopped after captions: check {res['captions']}, then run again with --captions"); sys.exit(0)
     for style, r in res['results'].items():

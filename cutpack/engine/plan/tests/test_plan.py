@@ -233,6 +233,50 @@ class Prompt(unittest.TestCase):
             self.assertEqual(prompt.slots_to_dict(prompt.slots_to_list(ans)), ans)   # back to the form the engine reads
             self.assertIn('"slots":[{"name":', prompt.example_text(style))           # the example shows the asked form
 
+    def test_core_icons_by_theme(self):
+        """Friend 2026-11-05: about 300 icons by theme instead of all 1,539 (40% of the cached prompt)."""
+        rows = prompt.core_icons(CAT)
+        names = [n for _, ns in rows for n in ns]
+        self.assertTrue(250 <= len(names) <= 330, len(names)); self.assertEqual(len(names), len(set(names)))
+        self.assertTrue(set(names) <= set(CAT['icons']))
+        for style in ('editorial', 'overlay'):
+            text = prompt.system_text(style, CAT)
+            self.assertIn('money & business: banknote', text); self.assertNotIn('a-arrow-down', text)
+
+    def test_targets_as_numbers(self):
+        """Friend 2026-11-05 ("ข้อเสนอบอกตัวเลข"): the clip message gives this clip's density rules as numbers."""
+        text = prompt.clip_text(INPUT, 'editorial')
+        self.assertIn('Targets for this clip', text); self.assertIn('at least 4 cards, together 7–11 s', text)
+        self.assertIn('at least 5 widgets, spread over the whole clip', prompt.clip_text(INPUT, 'overlay'))
+        low, full = [300, 600, 780, 1150], [20, 100, 1060, 1700]
+        inp = copy.deepcopy(INPUT); inp['faceBox'] = low
+        inp['track'] = [[k * .5, low if k * .5 < 16.5 else full] for k in range(37)]
+        self.assertIn('spread inside the times with room', prompt.clip_text(inp, 'overlay'))
+        inp['track'] = [[k * .5, low if k * .5 < 9 else full] for k in range(37)]   # tight: the speaker shrinks, whole clip
+        self.assertIn('spread over the whole clip', prompt.clip_text(inp, 'overlay'))
+
+    def test_cache_lifetime_and_model(self):
+        """Friend 2026-11-05: an hour's cache only after 2 plans of the style in the last hour; Haiku has no fallback."""
+        with tempfile.TemporaryDirectory() as d:
+            st = os.path.join(d, 'state.json')
+            self.assertEqual(plan_d.cache_ttl(st, 'overlay', now=10000), '5m')
+            plan_d.note_plan(st, 'overlay', now=10000 - 4000)   # older than an hour: forgotten
+            plan_d.note_plan(st, 'overlay', now=10000 - 1200)
+            self.assertEqual(plan_d.cache_ttl(st, 'overlay', now=10000), '5m')
+            plan_d.note_plan(st, 'overlay', now=10000 - 300)
+            self.assertEqual(plan_d.cache_ttl(st, 'overlay', now=10000), '1h')
+            self.assertEqual(plan_d.cache_ttl(st, 'editorial', now=10000), '5m')
+            self.assertEqual(len(plan_d.load_state(st)['overlay']), 2)
+        req = prompt.request(INPUT, 'overlay', CAT, ttl='1h')
+        self.assertEqual(req['system'][0]['cache_control'], {'type': 'ephemeral', 'ttl': '1h'}); self.assertEqual(req['fallbacks'], 'default')
+        h = prompt.request(INPUT, 'overlay', CAT, model='claude-haiku-5-5')
+        self.assertEqual(h['model'], 'claude-haiku-5-5'); self.assertNotIn('fallbacks', h); self.assertNotIn('betas', h)
+        from types import SimpleNamespace as NS
+        u = NS(input_tokens=10, output_tokens=5, cache_read_input_tokens=0, cache_creation_input_tokens=100,
+               cache_creation=NS(ephemeral_1h_input_tokens=100, ephemeral_5m_input_tokens=0))
+        rec = plan_d.call_record(NS(usage=u, model='m', stop_reason='end_turn'), 'claude-sonnet-5-5')
+        self.assertEqual((rec['cache_write_5m'], rec['cache_write_1h']), (0, 100))
+
     def test_schema_fits_the_api_limits(self):
         """Real-key test 2026-11-05: the API compiles at most 24 optional properties; the slot object had 78–80."""
         for style in ('editorial', 'overlay'):

@@ -34,9 +34,35 @@ def save(path, data):
 
 def call_record(resp, model, stage='scene'):
     u = resp.usage
+    w1h = getattr(getattr(u, 'cache_creation', None), 'ephemeral_1h_input_tokens', None) or 0   # the 1-hour writes cost more
     return {'stage': stage, 'model': model, 'served': resp.model, 'in': u.input_tokens, 'out': u.output_tokens,
-            'cache_read': u.cache_read_input_tokens or 0, 'cache_write_5m': u.cache_creation_input_tokens or 0,
-            'stop': resp.stop_reason}
+            'cache_read': u.cache_read_input_tokens or 0, 'cache_write_5m': (u.cache_creation_input_tokens or 0) - w1h,
+            'cache_write_1h': w1h, 'stop': resp.stop_reason}
+
+
+def cache_ttl(state, style, now=None, every=2):
+    """'1h' when at least `every` plans of this style started in the last hour, else '5m' (Friend 2026-11-05). A 5-minute
+    write costs 1.25× the input price and an hour's 2×; reads 0.1×. With clips more than 5 minutes apart, an hour's cache
+    is cheaper from the second clip of the hour; in a quiet hour it costs one clip about 1.3 baht more (overlay)."""
+    now = time.time() if now is None else now
+    times = (load_state(state).get(style) or []) if state else []
+    return '1h' if sum(now - t < 3600 for t in times) >= every else '5m'
+
+
+def load_state(state):
+    try:
+        with open(state) as f: return json.load(f)
+    except (OSError, ValueError): return {}
+
+
+def note_plan(state, style, now=None):
+    """Remember when a plan of this style started (the last hour only), for cache_ttl."""
+    if not state: return
+    now = time.time() if now is None else now
+    d = load_state(state)
+    d[style] = [t for t in d.get(style, []) if now - t < 3600] + [now]
+    os.makedirs(os.path.dirname(os.path.abspath(state)), exist_ok=True)
+    with open(state, 'w') as f: json.dump(d, f)
 
 
 def ask(client, req):
@@ -96,11 +122,11 @@ def write_codes(client, inp, style, answer, cat, calls, log, code_answer=None, r
 
 
 def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_answer=None, code_answer=None, fix_code_answer=None,
-        client=None):
+        client=None, ttl='5m', model=None):
     """client: an anthropic.Anthropic() made here when None (tests pass a stand-in with the same beta.messages.create)."""
     os.makedirs(out, exist_ok=True)
     cat = prompt.load_catalog()
-    req = prompt.request(inp, style, cat)
+    req = prompt.request(inp, style, cat, ttl=ttl, model=model)
     if dry:
         save(os.path.join(out, 'request.json'), req)
         return None

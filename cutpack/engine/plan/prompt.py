@@ -14,7 +14,7 @@ Input file (one clip, made by the transcription and caption steps; example: exam
   {"clip": {"file", "duration", "customer"}, "words": [{"w", "t0", "t1"}], "captions": [{"t0", "t1", "text" with / chunks}],
    "layout": faces.json "layout", "history": {"clips": [{"parts": [...]}]}}
 """
-import glob, json, os, re, sys
+import glob, json, math, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -26,6 +26,24 @@ KIND = {'editorial': 'card', 'overlay': 'widget'}
 
 def read(*path):
     with open(os.path.join(HERE, *path)) as f: return f.read()
+
+
+def core_icons(cat):
+    """[(theme, [names])] from prompt/icons_core.txt, keeping only names the catalog has (Friend 2026-11-05: the full
+    list of 1,539 names was about 40% of the cached prompt; about 300 by theme also helps the AI pick an icon that means
+    the words). The checker still accepts every name in catalog.json."""
+    have, out = set(cat['icons']), []
+    for line in read('prompt', 'icons_core.txt').splitlines():
+        if not line.strip() or line.startswith('#'): continue
+        theme, names = line.split(':', 1)
+        out.append((theme.strip(), [n for n in names.split() if n in have]))
+    return out
+
+
+def icons_text(cat):
+    rows = core_icons(cat)
+    return '\n'.join([f"# Icons ({sum(len(n) for _, n in rows)} names by theme; pick the one that means the words, use only these)"]
+                     + [f"{t}: {' '.join(n)}" for t, n in rows])
 
 
 def load_catalog():
@@ -109,8 +127,7 @@ def library_text(style, cat):
                 out.append('slots: ' + ' · '.join(slot_sig(k, v) for k, v in slots.items()))
                 out.append(part_row(p, style))
             out.append('')
-    out.append(f"# Icons ({len(cat['icons'])} names; use only these)")
-    out.append(' '.join(cat['icons']))
+    out.append(icons_text(cat))
     return '\n'.join(out)
 
 
@@ -147,6 +164,34 @@ def room_text(track, d, sub_top, face_box, shortest=1.2):
                       for w in out if w['t1'] - w['t0'] >= shortest)
 
 
+def targets(inp, style):
+    """This clip's density rules as numbers (Friend 2026-11-05, "ข้อเสนอบอกตัวเลข"): with only the general rules, the first
+    plans at effort low had 7–13 scenes for 60–90 s clips and 34 scene lengths outside their part's range, so every clip
+    paid for a fix round (60–80% of its cost). Overlay counts only the time with room, as the checker does."""
+    from validate import RULES
+    d, lay = inp['clip']['duration'], inp.get('layout', {})
+    hit = RULES['hitIn']['card' if style == 'editorial' else 'widget']
+    if style == 'editorial':
+        lo, hi = RULES['cardShare']
+        rows = [f"- at least {math.floor(d / RULES['cardEvery'])} cards, together {lo * d:.0f}–{hi * d:.0f} s of the {d:.0f} s",
+                f"- the face alone never longer than {RULES['arollMax']} s anywhere: from {RULES['firstAt']} s to the end, the last seconds included",
+                f"- the first card at {RULES['firstAt']} s or later"]
+    else:
+        span, where = d, 'over the whole clip'
+        if inp.get('track'):
+            top = lay.get('subtitleTop', 1300)
+            if not room.tight(inp['track'], d, top, inp['faceBox']):
+                span = sum(b - a for a, b in room.merged(room.windows(inp['track'], d, top, inp['faceBox'])))
+                where = 'inside the times with room'
+        if math.floor(span / RULES['widgetEvery']) < 1: return []
+        rows = [f"- at least {math.floor(span / RULES['widgetEvery'])} widgets, spread {where}",
+                f"- never more than {RULES['bareMax']} s without a widget {where}, from the start to the end",
+                f"- at least {RULES['widgetGap']} s between one widget's t1 and the next one's t0"]
+    rows += ["- every scene's length (t1 − t0) inside its part's range in the library",
+             f"- each hit at least {hit} s after its t0 and at least {RULES['hitOut']} s before its t1"]
+    return ['', 'Targets for this clip (the checker rejects a plan that misses one: count and check each before you answer):'] + rows
+
+
 def clip_text(inp, style):
     d = inp['clip']['duration']
     lay = inp.get('layout', {})
@@ -164,6 +209,7 @@ def clip_text(inp, style):
     elif style == 'overlay':
         sizes = [s for s in ('short', 'narrow') if lay.get(f'{s}Fits', True)]
         out.append('Widget sizes with room in this clip: ' + (', '.join(sizes) if sizes else 'none (plan no widgets)'))
+    out += targets(inp, style)
     past = (inp.get('history') or {}).get('clips', [])[-10:][::-1]
     if past:
         out.append('Parts used in this customer\'s last clips (newest first):')
@@ -263,7 +309,7 @@ def code_schema():
 
 def code_system_text(cat):
     """Cached block of the scene-code call: the kit guide and the icon names (the same for every clip)."""
-    return read('prompt', 'kit.md').strip() + f"\n\n# Icons ({len(cat['icons'])} names; use only these)\n" + ' '.join(cat['icons'])
+    return read('prompt', 'kit.md').strip() + '\n\n' + icons_text(cat)
 
 
 def code_request(inp, style, answer, cat=None):
@@ -293,16 +339,21 @@ def system_text(style, cat):
     return '\n\n'.join([read('prompt', 'system.md').strip(), library_text(style, cat), example_text(style)])
 
 
-def request(inp, style, cat=None):
-    """kwargs for client.beta.messages.create (see plan_d.py). The system block carries the cache breakpoint."""
-    cat = cat or load_catalog()
-    return {
-        'model': MODEL, 'max_tokens': 16000,
-        'betas': ['server-side-fallback-2026-07-01'], 'fallbacks': 'default',   # a declined request is retried server-side
+def request(inp, style, cat=None, ttl='5m', model=None):
+    """kwargs for client.beta.messages.create (see plan_d.py). The system block carries the cache breakpoint.
+    ttl '1h' keeps it an hour (plan_d.cache_ttl chooses from recent traffic, Friend 2026-11-05). model: the planner
+    (default Sonnet 5.5); Haiku 5.5 has no server-side fallback, so the fallback beta is left out for it."""
+    cat, model = cat or load_catalog(), model or MODEL
+    cache = {'type': 'ephemeral', **({'ttl': '1h'} if ttl == '1h' else {})}
+    req = {
+        'model': model, 'max_tokens': 16000,
         'output_config': {'effort': EFFORT, 'format': {'type': 'json_schema', 'schema': answer_schema(style, cat)}},
-        'system': [{'type': 'text', 'text': system_text(style, cat), 'cache_control': {'type': 'ephemeral'}}],
+        'system': [{'type': 'text', 'text': system_text(style, cat), 'cache_control': cache}],
         'messages': [{'role': 'user', 'content': clip_text(inp, style)}],
     }
+    if 'haiku' not in model:   # a declined request is retried server-side
+        req.update(betas=['server-side-fallback-2026-07-01'], fallbacks='default')
+    return req
 
 
 def fix_message(issues):

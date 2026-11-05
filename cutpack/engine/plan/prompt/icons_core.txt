@@ -1,0 +1,17 @@
+# The icons the planner is shown (Friend 2026-11-05: the full list of 1,539 names was about 40% of the cached prompt).
+# One theme per line: "theme: name name …". The checker still accepts every Lucide name in catalog.json.
+# No brand logos (DECISIONS 3). Rebuild check: python3 cutpack/engine/plan/prompt.py --icons
+money & business: banknote coins wallet credit-card piggy-bank hand-coins circle-dollar-sign badge-dollar-sign receipt landmark percent badge-percent tag tags shopping-cart shopping-bag store package package-open truck briefcase building building-2 factory handshake scale calculator gem crown award trophy medal rocket target goal flag megaphone presentation file-text clipboard-list clipboard-check signature contact id-card
+charts & change: chart-line chart-column chart-bar chart-pie chart-no-axes-combined trending-up trending-down arrow-up arrow-down arrow-up-right arrow-down-right arrow-right arrow-left arrow-left-right move-right undo-2 redo-2 refresh-cw repeat rotate-ccw infinity plus minus equal divide sigma gauge
+people: user users user-check user-plus user-x user-round users-round baby person-standing accessibility contact-round
+feelings & reactions: smile frown meh laugh angry annoyed smile-plus heart heart-crack heart-handshake heart-off thumbs-up thumbs-down hand hand-heart hand-helping party-popper skull ghost
+senses & mind: eye eye-off ear ear-off brain lightbulb lightbulb-off puzzle sparkles wand-sparkles star star-off glasses scan-eye
+talk & media: message-circle message-square messages-square message-circle-question message-circle-warning mail phone smartphone send bell bell-off bell-ring at-sign share-2 quote mic mic-off video camera image play pause film clapperboard music headphones radio tv link newspaper
+time: clock alarm-clock timer hourglass calendar calendar-days calendar-check calendar-x history sunrise sunset sun moon
+health & fitness: heart-pulse activity dumbbell biceps-flexed footprints bike weight apple salad utensils utensils-crossed droplet droplets flame bed bed-double pill stethoscope syringe thermometer battery-low battery-full battery-charging zap zap-off cigarette cigarette-off wine beer glass-water
+food: coffee cup-soda pizza cake cookie beef fish egg wheat carrot croissant sandwich soup ice-cream-cone candy cherry citrus grape banana chef-hat cooking-pot
+learning & work: book book-open notebook-pen notebook graduation-cap school pencil pen-line languages library microscope file-question laptop monitor keyboard printer folder folder-open archive inbox list-checks list-todo list-ordered kanban
+safety & rules: check circle-check square-check x circle-x ban triangle-alert circle-alert octagon-alert shield shield-check shield-alert shield-x lock lock-open key siren
+tools & tech: search filter settings wrench hammer cog bot cpu code database cloud wifi wifi-off qr-code link-2 plug power
+home & places: house globe map map-pin navigation compass plane car bus train-front ship mountain trees leaf sprout flower tent hospital church
+things & signs: gift box shirt gamepad-2 dice-5 umbrella sofa lamp key-round scissors ruler paintbrush palette brush camera-off recycle trash-2 hand-metal ticket
