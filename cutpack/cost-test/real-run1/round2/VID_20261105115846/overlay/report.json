@@ -1,0 +1,224 @@
+{
+ "status": "ok",
+ "topic": "edu",
+ "log": [
+  "fix round (plan): 4 errors sent back",
+  "the first plan was empty; kept the fixed one"
+ ],
+ "fallback": [
+  "B06.v1 0.5–2.4 → B14 text B14.v1 (place-face, place-nofit)",
+  "B07.v1 2.9–5.0 → B14 text B14.v3 (place-face, place-nofit)",
+  "B13.v1 5.5–7.5 → B14 text B14.v1 (place-face, place-nofit)",
+  "B14.v1 11.5–13.3 → B14 text B14.v3 (place-face, place-nofit)",
+  "B12.v1 13.7–16.0 → B14 text B14.v1 (place-face, place-nofit)",
+  "B09.v4 16.6–18.0 → B14 text B14.v1 (place-face, place-nofit)",
+  "B05.v2 18.5–20.2 → B14 text B14.v3 (place-face, place-nofit)",
+  "B08.v4 20.4–22.1 → B14 text B14.v1 (widget-gap, place-face, place-nofit)",
+  "B13.edu1 22.4–24.4 → B14 text B14.v3 (widget-gap, place-face, place-nofit)",
+  "B11.v1 24.6–27.0 → B14 text B14.v1 (widget-gap, place-face, place-nofit)",
+  "B05.v1 27.4–30.0 → B14 text B14.v3 (place-face, place-nofit)",
+  "B03.v4 30.4–32.8 → B14 text B14.v1 (place-face, place-nofit)",
+  "B07.v3 33.4–35.5 → B14 text B14.v3 (place-face, place-nofit)",
+  "B08.v1 35.9–38.2 → B14 text B14.v1 (place-face, place-nofit)",
+  "B14.v3 38.6–40.6 → B14 text B14.v3 (place-face, place-nofit)",
+  "B04.v2 41.0–43.8 → B14 text B14.v3 (place-face, place-nofit)",
+  "B02.v3 44.5–47.0 → B14 text B14.v1 (place-face, place-nofit)",
+  "B12.v4 47.4–49.9 → B14 text B14.v3 (place-face, place-nofit)",
+  "B08.edu1 50.3–52.0 → B14 text B14.v1 (slot-missing, place-face, place-nofit)",
+  "B09.v1 53.3–56.0 → B14 text B14.v3 (place-face, place-nofit)",
+  "B02.edu1 57.6–60.0 → B14 text B14.v1 (place-face, place-nofit)",
+  "B10.v1 60.4–62.8 → B14 text B14.v3 (place-face, place-nofit)",
+  "B06.v4 63.2–66.0 → B14 text B14.v1 (place-face, place-nofit)",
+  "B10.v3 66.9–69.2 → B14 text B14.v3 (place-face, place-nofit)",
+  "B13.v3 70.8–72.9 → B14 text B14.v1 (place-face, place-nofit)",
+  "B15.v1 73.5–76.3 → B14 text B14.v3 (place-face, place-nofit)",
+  "EDU.h1 8.0–10.5 dropped (slot-long, place-face, place-nofit)",
+  "B14.v3 73.5–76.3 dropped (place-face, place-nofit)",
+  "B14.v1 70.8–72.9 dropped (place-face, place-nofit)",
+  "B14.v3 66.9–69.2 dropped (place-face, place-nofit)",
+  "B14.v1 63.2–66.0 dropped (place-face, place-nofit)",
+  "B14.v3 60.4–62.8 dropped (place-face, place-nofit)",
+  "B14.v1 57.6–60.0 dropped (place-face, place-nofit)",
+  "B14.v3 53.3–56.0 dropped (place-face, place-nofit)",
+  "B14.v1 50.3–52.0 dropped (place-face, place-nofit)",
+  "B14.v3 47.4–49.9 dropped (place-face, place-nofit)",
+  "B14.v1 44.5–47.0 dropped (place-face, place-nofit)",
+  "B14.v3 41.0–43.8 dropped (place-face, place-nofit)",
+  "B14.v3 38.6–40.6 dropped (place-face, place-nofit)",
+  "B14.v1 35.9–38.2 dropped (place-face, place-nofit)",
+  "B14.v3 33.4–35.5 dropped (place-face, place-nofit)",
+  "B14.v1 30.4–32.8 dropped (place-face, place-nofit)",
+  "B14.v3 27.4–30.0 dropped (place-face, place-nofit)",
+  "B14.v1 24.6–27.0 dropped (widget-gap, place-face, place-nofit)",
+  "B14.v3 22.4–24.4 dropped (widget-gap, place-face, place-nofit)",
+  "B14.v1 20.4–22.1 dropped (widget-gap, place-face, place-nofit)",
+  "B14.v3 18.5–20.2 dropped (place-face, place-nofit)",
+  "B14.v1 16.6–18.0 dropped (place-face, place-nofit)",
+  "B14.v1 13.7–16.0 dropped (place-face, place-nofit)",
+  "B14.v3 11.5–13.3 dropped (place-face, place-nofit)",
+  "B14.v1 5.5–7.5 dropped (place-face, place-nofit)",
+  "B14.v3 2.9–5.0 dropped (place-face, place-nofit)",
+  "B14.v1 0.5–2.4 dropped (place-face, place-nofit)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "0 widgets, need ≥ 21 for 76.4 s"
+  },
+  {
+   "level": "error",
+   "code": "bare-long",
+   "where": "0.00–76.37",
+   "msg": "76.4 s without a widget (max 6.0)"
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 1.68–3.28 \"ยังมี บาง / คนใช้ วิธี / เรียน ภาษาอังกฤษ\"",
+   "msg": "chunk \"เรียน ภาษาอังกฤษ\" is 13 letters, aim ≤ 12",
+   "sub": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 3.28–5.28 \"ที่ ยัง ไม่ เหมาะสม / กับ ตัวเอง มาก ที่สุด\"",
+   "msg": "chunk \"กับ ตัวเอง มาก ที่สุด\" is 13 letters, aim ≤ 12",
+   "sub": 2
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 7.28–11.44 \"Conprentblenport / เพื่อ บางคน / ใช้แล้ว\"",
+   "msg": "chunk \"Conprentblenport\" is 16 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 20.24–22.16 \"พูด ง่าย / ง่าย มัน คือ การเรียน / สิ่งใหม่\"",
+   "msg": "chunk \"ง่าย มัน คือ การเรียน\" is 14 letters, aim ≤ 12",
+   "sub": 9
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 22.16–25.04 \"จาก บริบท เดิม / อย่างเช่น / วันนี้ เรา จะ มา สอน คำศัพท์\"",
+   "msg": "chunk \"วันนี้ เรา จะ มา สอน คำศัพท์\" is 17 letters (max 16, aim 12): split it with /",
+   "sub": 10
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 27.84–30.48 \"เรา จะ ไม่ ใช้ ประโยค / อังกฤษ ด้วย เรา จะ ใช้ / ประโยค ไทย แล้วก็\"",
+   "msg": "chunk \"เรา จะ ไม่ ใช้ ประโยค\" is 15 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 27.84–30.48 \"เรา จะ ไม่ ใช้ ประโยค / อังกฤษ ด้วย เรา จะ ใช้ / ประโยค ไทย แล้วก็\"",
+   "msg": "chunk \"อังกฤษ ด้วย เรา จะ ใช้\" is 15 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 27.84–30.48 \"เรา จะ ไม่ ใช้ ประโยค / อังกฤษ ด้วย เรา จะ ใช้ / ประโยค ไทย แล้วก็\"",
+   "msg": "chunk \"ประโยค ไทย แล้วก็\" is 13 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 30.48–33.04 \"ใช้ คำ ว่า / conskence เข้าไป / เหมือน เวลา คนพูด\"",
+   "msg": "chunk \"conskence เข้าไป\" is 14 letters, aim ≤ 12",
+   "sub": 13
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 30.48–33.04 \"ใช้ คำ ว่า / conskence เข้าไป / เหมือน เวลา คนพูด\"",
+   "msg": "chunk \"เหมือน เวลา คนพูด\" is 13 letters, aim ≤ 12",
+   "sub": 13
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 35.2–38.24 \"ความหมาย ด้วย / เพราะว่า จุดประสงค์ / ของ การเรียน แบบ\"",
+   "msg": "chunk \"เพราะว่า จุดประสงค์\" is 15 letters, aim ≤ 12",
+   "sub": 15
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 35.2–38.24 \"ความหมาย ด้วย / เพราะว่า จุดประสงค์ / ของ การเรียน แบบ\"",
+   "msg": "chunk \"ของ การเรียน แบบ\" is 13 letters, aim ≤ 12",
+   "sub": 15
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 38.24–40.64 \"Conprensible / inpood คือ เรา / เรียนรู้ ความหมาย ของ\"",
+   "msg": "chunk \"เรียนรู้ ความหมาย ของ\" is 16 letters, aim ≤ 12",
+   "sub": 16
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 52.08–54.96 \"ลงทุน กับ การศึกษา / consicance จะ เห็นได้ชัด\"",
+   "msg": "chunk \"ลงทุน กับ การศึกษา\" is 13 letters, aim ≤ 12",
+   "sub": 22
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 52.08–54.96 \"ลงทุน กับ การศึกษา / consicance จะ เห็นได้ชัด\"",
+   "msg": "chunk \"consicance จะ เห็นได้ชัด\" is 19 letters (max 16, aim 12): split it with /",
+   "sub": 22
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 63.12–66.72 \"การ ไม่ แคร์ สิ่งแวดล้อม / ไม่ ได้ กระทบ / คน แค่ คนเดียว\"",
+   "msg": "chunk \"การ ไม่ แคร์ สิ่งแวดล้อม\" is 16 letters, aim ≤ 12",
+   "sub": 26
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 66.72–70.16 \"ประโยค ที่สี่ / บริษัท นี้ ไม่ เคย / ฟัง เสียง ของ พนักงาน\"",
+   "msg": "chunk \"ฟัง เสียง ของ พนักงาน\" is 15 letters, aim ≤ 12",
+   "sub": 27
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 70.16–74.4 \"เลย consiquence / คือ คนเก่ง ทยอย / กัน ลาออก หมด เลย\"",
+   "msg": "chunk \"เลย consiquence\" is 14 letters, aim ≤ 12",
+   "sub": 28
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 70.16–74.4 \"เลย consiquence / คือ คนเก่ง ทยอย / กัน ลาออก หมด เลย\"",
+   "msg": "chunk \"กัน ลาออก หมด เลย\" is 13 letters, aim ≤ 12",
+   "sub": 28
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 74.4–76.37 \"ถ้า ดู แล้ว / ว่า consicnce ไป ว่า / อะไร ก็ อย่า\"",
+   "msg": "chunk \"ว่า consicnce ไป ว่า\" is 15 letters, aim ≤ 12",
+   "sub": 29
+  },
+  {
+   "level": "warn",
+   "code": "sub-face",
+   "where": "layout",
+   "msg": "the chin is low: subtitles may touch the face when zoomed"
+  }
+ ]
+}

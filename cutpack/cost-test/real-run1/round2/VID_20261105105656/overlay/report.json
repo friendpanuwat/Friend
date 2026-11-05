@@ -1,0 +1,246 @@
+{
+ "status": "ok",
+ "topic": "biz",
+ "log": [
+  "fix round (plan): 19 errors sent back"
+ ],
+ "fallback": [
+  "B02.v3 5.7–6.9 → B14 text B14.v3 (hit-early)",
+  "B02.v3 64.9–66.5 → B14 text B14.v1 (hit-late)",
+  "B07.v1 66.9–68.2 → B14 text B14.v3 (hit-early)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B14.v3 66.9",
+   "msg": "two scenes of the same category in a row",
+   "scene": 22
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 0.64–3.52 \"เราผลิตร้อย / ขวดก็ ผลิตล้าน ขวด / ต้นทุนมัน จะ เท่ากัน\"",
+   "msg": "chunk \"ขวดก็ ผลิตล้าน ขวด\" is 13 letters, aim ≤ 12",
+   "sub": 0
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 0.64–3.52 \"เราผลิตร้อย / ขวดก็ ผลิตล้าน ขวด / ต้นทุนมัน จะ เท่ากัน\"",
+   "msg": "chunk \"ต้นทุนมัน จะ เท่ากัน\" is 13 letters, aim ≤ 12",
+   "sub": 0
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 6.96–9.12 \"แล้ว ถ้า เกิด มัน / เหมือนกัน / ทั้งสอง อย่าง ไม่ มี แบรนด์\"",
+   "msg": "chunk \"ทั้งสอง อย่าง ไม่ มี แบรนด์\" is 17 letters (max 16, aim 12): split it with /",
+   "sub": 3
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 12.4–16.32 \"เพราะฉะนั้น แบรนด์ / คือ อะไร แบรนด์ คือ สัญญา / ต่อ ผู้บริโภค\"",
+   "msg": "chunk \"เพราะฉะนั้น แบรนด์\" is 14 letters, aim ≤ 12",
+   "sub": 6
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 12.4–16.32 \"เพราะฉะนั้น แบรนด์ / คือ อะไร แบรนด์ คือ สัญญา / ต่อ ผู้บริโภค\"",
+   "msg": "chunk \"คือ อะไร แบรนด์ คือ สัญญา\" is 17 letters (max 16, aim 12): split it with /",
+   "sub": 6
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 22.72–27.68 \"แบรนด์ ก็ คือ พรม ที่ ให้ / กับ ลูกค้า ที่ ทั้ง มี นิ่ง ฟู และ Marrable\"",
+   "msg": "chunk \"แบรนด์ ก็ คือ พรม ที่ ให้\" is 14 letters, aim ≤ 12",
+   "sub": 9
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 22.72–27.68 \"แบรนด์ ก็ คือ พรม ที่ ให้ / กับ ลูกค้า ที่ ทั้ง มี นิ่ง ฟู และ Marrable\"",
+   "msg": "chunk \"กับ ลูกค้า ที่ ทั้ง มี นิ่ง ฟู และ Marrable\" is 24 letters (max 16, aim 12): split it with /",
+   "sub": 9
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 33.52–37.2 \"แต่ ไม่ มี นิ่ง ฟู หรือว่า / ไม่ มีความหมาย อะไร กัน สำหรับ / เขา ก็ โอเค เสีย\"",
+   "msg": "chunk \"แต่ ไม่ มี นิ่ง ฟู หรือว่า\" is 13 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 33.52–37.2 \"แต่ ไม่ มี นิ่ง ฟู หรือว่า / ไม่ มีความหมาย อะไร กัน สำหรับ / เขา ก็ โอเค เสีย\"",
+   "msg": "chunk \"ไม่ มีความหมาย อะไร กัน สำหรับ\" is 21 letters (max 16, aim 12): split it with /",
+   "sub": 12
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 39.2–41.68 \"เกิด ไหม มี / ความผูกพัน ไหม ไม่ มี\"",
+   "msg": "chunk \"ความผูกพัน ไหม ไม่ มี\" is 14 letters, aim ≤ 12",
+   "sub": 14
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 42.88–46.32 \"อาจจะ มีความหมาย / แต่ ชื่อ จำ ไม่ ได้\"",
+   "msg": "chunk \"อาจจะ มีความหมาย\" is 14 letters, aim ≤ 12",
+   "sub": 16
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 46.32–48.8 \"ไป เจอกัน อีกครั้ง / ก็ จำ ไม่ ได้ / แบรนด์ ก็ คือ เหมือน พูด\"",
+   "msg": "chunk \"แบรนด์ ก็ คือ เหมือน พูด\" is 15 letters, aim ≤ 12",
+   "sub": 17
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 50.8–54.24 \"หยิบ สินค้า ก็ มา ใช้ นิดนึง / คุณ ศึกษา มา แล้ว\"",
+   "msg": "chunk \"หยิบ สินค้า ก็ มา ใช้ นิดนึง\" is 16 letters, aim ≤ 12",
+   "sub": 19
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 54.24–56.56 \"แล้ว คุณ ซื้อ กลับมา / คราวหน้า ผู้บริโภค\"",
+   "msg": "chunk \"คราวหน้า ผู้บริโภค\" is 13 letters, aim ≤ 12",
+   "sub": 20
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 56.56–58.16 \"ไม่ ไม่ ควร ที่จะ ต้อง / ศึกษา อีกต่อไป\"",
+   "msg": "chunk \"ไม่ ไม่ ควร ที่จะ ต้อง\" is 13 letters, aim ≤ 12",
+   "sub": 21
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 58.16–59.44 \"แล้ว เพราะ เขา เชื่อ ไป แล้ว\"",
+   "msg": "chunk \"แล้ว เพราะ เขา เชื่อ ไป แล้ว\" is 19 letters (max 16, aim 12): split it with /",
+   "sub": 22
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 59.44–61.12 \"จาก การ ที่ เขา ศึกษา / เค้า แล้ว ครั้งแรก\"",
+   "msg": "chunk \"จาก การ ที่ เขา ศึกษา\" is 14 letters, aim ≤ 12",
+   "sub": 23
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 61.12–63.12 \"เขา เห็น แล้ว ว่า โอ้โห / นี่ คือ สิ่ง ที่ พรีเมียร์\"",
+   "msg": "chunk \"เขา เห็น แล้ว ว่า โอ้โห\" is 15 letters, aim ≤ 12",
+   "sub": 24
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 63.12–64.72 \"นี่ คือ สิ่ง ที่ ดี ต่อ / ครอบครัว ของ เขา\"",
+   "msg": "chunk \"ครอบครัว ของ เขา\" is 13 letters, aim ≤ 12",
+   "sub": 25
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 66.56–68.32 \"ต้นไม้ ทำลาย ปลา / นี่ คือ สิ่ง ที่ ช่วยเหลือ\"",
+   "msg": "chunk \"นี่ คือ สิ่ง ที่ ช่วยเหลือ\" is 13 letters, aim ≤ 12",
+   "sub": 27
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 68.32–70.96 \"ชาวนา อยู่ สิ่ง เหล่านี้ / คือ สิ่ง ที่ เขา ชอบ เพราะฉะนั้น\"",
+   "msg": "chunk \"ชาวนา อยู่ สิ่ง เหล่านี้\" is 14 letters, aim ≤ 12",
+   "sub": 28
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 68.32–70.96 \"ชาวนา อยู่ สิ่ง เหล่านี้ / คือ สิ่ง ที่ เขา ชอบ เพราะฉะนั้น\"",
+   "msg": "chunk \"คือ สิ่ง ที่ เขา ชอบ เพราะฉะนั้น\" is 20 letters (max 16, aim 12): split it with /",
+   "sub": 28
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 70.96–73.12 \"คราวหน้า เขา ไม่ต้อง มา / นั่ง เลือก อี กรอบ นึง แล้ว\"",
+   "msg": "chunk \"คราวหน้า เขา ไม่ต้อง มา\" is 17 letters (max 16, aim 12): split it with /",
+   "sub": 29
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 70.96–73.12 \"คราวหน้า เขา ไม่ต้อง มา / นั่ง เลือก อี กรอบ นึง แล้ว\"",
+   "msg": "chunk \"นั่ง เลือก อี กรอบ นึง แล้ว\" is 16 letters, aim ≤ 12",
+   "sub": 29
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 73.12–74.8 \"เขา จะ ใช้ น้ำมัน ชนิด ไหน / เขา ก็ ควรจะ ใช้ น้ำมัน หลัง\"",
+   "msg": "chunk \"เขา จะ ใช้ น้ำมัน ชนิด ไหน\" is 16 letters, aim ≤ 12",
+   "sub": 30
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 73.12–74.8 \"เขา จะ ใช้ น้ำมัน ชนิด ไหน / เขา ก็ ควรจะ ใช้ น้ำมัน หลัง\"",
+   "msg": "chunk \"เขา ก็ ควรจะ ใช้ น้ำมัน หลัง\" is 17 letters (max 16, aim 12): split it with /",
+   "sub": 30
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 76.0–79.04 \"เนี่ย คือ คือ คำ ว่า แบรนด์ / ที่ แท้จริง มัน ไม่ ใช่ โลโก้\"",
+   "msg": "chunk \"เนี่ย คือ คือ คำ ว่า แบรนด์\" is 15 letters, aim ≤ 12",
+   "sub": 32
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 76.0–79.04 \"เนี่ย คือ คือ คำ ว่า แบรนด์ / ที่ แท้จริง มัน ไม่ ใช่ โลโก้\"",
+   "msg": "chunk \"ที่ แท้จริง มัน ไม่ ใช่ โลโก้\" is 16 letters, aim ≤ 12",
+   "sub": 32
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 79.04–81.36 \"อย่าง ที่ ทั้งสอง ท่าน ได้ / พูด มัน ไม่ ใช่ ว่า ใช้\"",
+   "msg": "chunk \"อย่าง ที่ ทั้งสอง ท่าน ได้\" is 15 letters, aim ≤ 12",
+   "sub": 33
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 81.36–84.32 \"สี อะไร มัน ไม่ ใช่ ว่า / ใช้ แพ ค กระ จิ้ง แบบ\"",
+   "msg": "chunk \"สี อะไร มัน ไม่ ใช่ ว่า\" is 13 letters, aim ≤ 12",
+   "sub": 34
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 81.36–84.32 \"สี อะไร มัน ไม่ ใช่ ว่า / ใช้ แพ ค กระ จิ้ง แบบ\"",
+   "msg": "chunk \"ใช้ แพ ค กระ จิ้ง แบบ\" is 13 letters, aim ≤ 12",
+   "sub": 34
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 86.4–89.722 \"แต่ว่า มัน คือ คำสัญญา / ที่ ให้ กับ ผู้\"",
+   "msg": "chunk \"แต่ว่า มัน คือ คำสัญญา\" is 13 letters, aim ≤ 12",
+   "sub": 36
+  }
+ ]
+}

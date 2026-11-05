@@ -1,0 +1,233 @@
+{
+ "version": 1,
+ "style": "overlay",
+ "clip": {
+  "file": "VID_20261105115846.mp4",
+  "duration": 76.37,
+  "customer": "test"
+ },
+ "topic": "edu",
+ "script": "จะโกรธ หมาย ถ้า เรา บอ กว่า ยังมี บาง คนใช้ วิธี เรียน ภาษาอังกฤษ ที่ ยัง ไม่ เหมาะสม กับ ตัวเอง มาก ที่สุด เพราะ วันนี้ เรา จะ ไม่ แนะนำ วิธี หนึ่ง ที่ เรียก ว่า Conprentblenport เพื่อ บางคน ใช้แล้ว พูด ง่าย มัน คือ การ หา อะไร ที่ เรา เกือบ เข้าใจ แล้ว อีก เดียว จะ เข้าใจ แล้ว เรา ก็ อยู่ กับ มัน ฟัง ซ้ำ ไป เรื่อย เรื่อย แต่ เติม อะไร ใหม่ เข้ามา พูด ง่าย ง่าย มัน คือ การเรียน สิ่งใหม่ จาก บริบท เดิม อย่างเช่น วันนี้ เรา จะ มา สอน คำศัพท์ ใหม่ เผื่อ บางคน ไม่ รู้ คำ ว่า Consic เรา จะ ไม่ ใช้ ประโยค อังกฤษ ด้วย เรา จะ ใช้ ประโยค ไทย แล้วก็ ใช้ คำ ว่า conskence เข้าไป เหมือน เวลา คนพูด อังกฤษ คำ ไทย คำ เรา ก็ จะ ไม่ เฉลย ความหมาย ด้วย เพราะว่า จุดประสงค์ ของ การเรียน แบบ Conprensible inpood คือ เรา เรียนรู้ ความหมาย ของ มัน จาก บริบท เอง งั้น มา รอง ประโยค แรก เลย เขา โกหก ครั้ง เดียว แต่ ต้อง โกหก ไป อีก สิบ รอบ เพราะ คอน ซิ ควน ของ การ โกหก คือ มัน ไม่ มี วัน จบ ประโยค ที่สอง ประเทศ ที่ ไม่ ลงทุน กับ การศึกษา consicance จะ เห็นได้ชัด ใน อีก ยี่สิบ ปี ข้างหน้า ประโยค ที่สาม ทิ้ง ขยะ ลง แม่น้ำ น้ำเน่า ปลา ตาย คนใน ชุมชน เดือดร้อน Conskence ของ การ ไม่ แคร์ สิ่งแวดล้อม ไม่ ได้ กระทบ คน แค่ คนเดียว ประโยค ที่สี่ บริษัท นี้ ไม่ เคย ฟัง เสียง ของ พนักงาน เลย consiquence คือ คนเก่ง ทยอย กัน ลาออก หมด เลย ถ้า ดู แล้ว ว่า consicnce ไป ว่า อะไร ก็ อย่า",
+ "camera": [],
+ "subtitles": [
+  {
+   "t0": 0.48,
+   "t1": 1.68,
+   "text": "จะโกรธ / หมาย ถ้า / เรา บอ กว่า"
+  },
+  {
+   "t0": 1.68,
+   "t1": 3.28,
+   "text": "ยังมี บาง / คนใช้ วิธี / เรียน ภาษาอังกฤษ"
+  },
+  {
+   "t0": 3.28,
+   "t1": 5.28,
+   "text": "ที่ ยัง ไม่ เหมาะสม / กับ ตัวเอง มาก ที่สุด"
+  },
+  {
+   "t0": 5.28,
+   "t1": 7.28,
+   "text": "เพราะ วันนี้ / เรา จะ ไม่ แนะนำ / วิธี หนึ่ง ที่ เรียก ว่า"
+  },
+  {
+   "t0": 7.28,
+   "t1": 11.44,
+   "text": "Conprentblenport / เพื่อ บางคน / ใช้แล้ว"
+  },
+  {
+   "t0": 11.44,
+   "t1": 13.12,
+   "text": "พูด ง่าย / มัน คือ การ หา / อะไร ที่ เรา"
+  },
+  {
+   "t0": 13.12,
+   "t1": 15.52,
+   "text": "เกือบ เข้าใจ / แล้ว อีก เดียว / จะ เข้าใจ"
+  },
+  {
+   "t0": 15.52,
+   "t1": 18.08,
+   "text": "แล้ว เรา ก็ อยู่ / กับ มัน / ฟัง ซ้ำ ไป เรื่อย"
+  },
+  {
+   "t0": 18.08,
+   "t1": 20.24,
+   "text": "เรื่อย แต่ / เติม อะไร ใหม่ / เข้ามา"
+  },
+  {
+   "t0": 20.24,
+   "t1": 22.16,
+   "text": "พูด ง่าย / ง่าย มัน คือ การเรียน / สิ่งใหม่"
+  },
+  {
+   "t0": 22.16,
+   "t1": 25.04,
+   "text": "จาก บริบท เดิม / อย่างเช่น / วันนี้ เรา จะ มา สอน คำศัพท์"
+  },
+  {
+   "t0": 25.04,
+   "t1": 27.84,
+   "text": "ใหม่ เผื่อ บางคน / ไม่ รู้ คำ ว่า Consic"
+  },
+  {
+   "t0": 27.84,
+   "t1": 30.48,
+   "text": "เรา จะ ไม่ ใช้ ประโยค / อังกฤษ ด้วย เรา จะ ใช้ / ประโยค ไทย แล้วก็"
+  },
+  {
+   "t0": 30.48,
+   "t1": 33.04,
+   "text": "ใช้ คำ ว่า / conskence เข้าไป / เหมือน เวลา คนพูด"
+  },
+  {
+   "t0": 33.04,
+   "t1": 35.2,
+   "text": "อังกฤษ คำ ไทย คำ / เรา ก็ จะ ไม่ เฉลย"
+  },
+  {
+   "t0": 35.2,
+   "t1": 38.24,
+   "text": "ความหมาย ด้วย / เพราะว่า จุดประสงค์ / ของ การเรียน แบบ"
+  },
+  {
+   "t0": 38.24,
+   "t1": 40.64,
+   "text": "Conprensible / inpood คือ เรา / เรียนรู้ ความหมาย ของ"
+  },
+  {
+   "t0": 40.64,
+   "t1": 44.32,
+   "text": "มัน จาก บริบท เอง / งั้น มา รอง / ประโยค แรก เลย"
+  },
+  {
+   "t0": 44.32,
+   "t1": 46.4,
+   "text": "เขา โกหก / ครั้ง เดียว แต่ / ต้อง โกหก"
+  },
+  {
+   "t0": 46.4,
+   "t1": 48.0,
+   "text": "ไป อีก สิบ รอบ / เพราะ คอน ซิ ควน"
+  },
+  {
+   "t0": 48.0,
+   "t1": 50.08,
+   "text": "ของ การ โกหก / คือ มัน ไม่ มี วัน จบ"
+  },
+  {
+   "t0": 50.08,
+   "t1": 52.08,
+   "text": "ประโยค ที่สอง / ประเทศ ที่ ไม่"
+  },
+  {
+   "t0": 52.08,
+   "t1": 54.96,
+   "text": "ลงทุน กับ การศึกษา / consicance จะ เห็นได้ชัด"
+  },
+  {
+   "t0": 54.96,
+   "t1": 57.12,
+   "text": "ใน อีก ยี่สิบ ปี ข้างหน้า"
+  },
+  {
+   "t0": 57.12,
+   "t1": 60.24,
+   "text": "ประโยค ที่สาม / ทิ้ง ขยะ ลง / แม่น้ำ น้ำเน่า"
+  },
+  {
+   "t0": 60.24,
+   "t1": 63.12,
+   "text": "ปลา ตาย คนใน / ชุมชน เดือดร้อน / Conskence ของ"
+  },
+  {
+   "t0": 63.12,
+   "t1": 66.72,
+   "text": "การ ไม่ แคร์ สิ่งแวดล้อม / ไม่ ได้ กระทบ / คน แค่ คนเดียว"
+  },
+  {
+   "t0": 66.72,
+   "t1": 70.16,
+   "text": "ประโยค ที่สี่ / บริษัท นี้ ไม่ เคย / ฟัง เสียง ของ พนักงาน"
+  },
+  {
+   "t0": 70.16,
+   "t1": 74.4,
+   "text": "เลย consiquence / คือ คนเก่ง ทยอย / กัน ลาออก หมด เลย"
+  },
+  {
+   "t0": 74.4,
+   "t1": 76.37,
+   "text": "ถ้า ดู แล้ว / ว่า consicnce ไป ว่า / อะไร ก็ อย่า"
+  }
+ ],
+ "scenes": [],
+ "layout": {
+  "subtitleTop": 1380,
+  "widgetPos": {
+   "short": {
+    "x": 218,
+    "y": 150
+   },
+   "narrow": {
+    "x": 36,
+    "y": 268
+   }
+  }
+ },
+ "fallbackLog": [
+  "B06.v1 0.5–2.4 → B14 text B14.v1 (place-face, place-nofit)",
+  "B07.v1 2.9–5.0 → B14 text B14.v3 (place-face, place-nofit)",
+  "B13.v1 5.5–7.5 → B14 text B14.v1 (place-face, place-nofit)",
+  "B14.v1 11.5–13.3 → B14 text B14.v3 (place-face, place-nofit)",
+  "B12.v1 13.7–16.0 → B14 text B14.v1 (place-face, place-nofit)",
+  "B09.v4 16.6–18.0 → B14 text B14.v1 (place-face, place-nofit)",
+  "B05.v2 18.5–20.2 → B14 text B14.v3 (place-face, place-nofit)",
+  "B08.v4 20.4–22.1 → B14 text B14.v1 (widget-gap, place-face, place-nofit)",
+  "B13.edu1 22.4–24.4 → B14 text B14.v3 (widget-gap, place-face, place-nofit)",
+  "B11.v1 24.6–27.0 → B14 text B14.v1 (widget-gap, place-face, place-nofit)",
+  "B05.v1 27.4–30.0 → B14 text B14.v3 (place-face, place-nofit)",
+  "B03.v4 30.4–32.8 → B14 text B14.v1 (place-face, place-nofit)",
+  "B07.v3 33.4–35.5 → B14 text B14.v3 (place-face, place-nofit)",
+  "B08.v1 35.9–38.2 → B14 text B14.v1 (place-face, place-nofit)",
+  "B14.v3 38.6–40.6 → B14 text B14.v3 (place-face, place-nofit)",
+  "B04.v2 41.0–43.8 → B14 text B14.v3 (place-face, place-nofit)",
+  "B02.v3 44.5–47.0 → B14 text B14.v1 (place-face, place-nofit)",
+  "B12.v4 47.4–49.9 → B14 text B14.v3 (place-face, place-nofit)",
+  "B08.edu1 50.3–52.0 → B14 text B14.v1 (slot-missing, place-face, place-nofit)",
+  "B09.v1 53.3–56.0 → B14 text B14.v3 (place-face, place-nofit)",
+  "B02.edu1 57.6–60.0 → B14 text B14.v1 (place-face, place-nofit)",
+  "B10.v1 60.4–62.8 → B14 text B14.v3 (place-face, place-nofit)",
+  "B06.v4 63.2–66.0 → B14 text B14.v1 (place-face, place-nofit)",
+  "B10.v3 66.9–69.2 → B14 text B14.v3 (place-face, place-nofit)",
+  "B13.v3 70.8–72.9 → B14 text B14.v1 (place-face, place-nofit)",
+  "B15.v1 73.5–76.3 → B14 text B14.v3 (place-face, place-nofit)",
+  "EDU.h1 8.0–10.5 dropped (slot-long, place-face, place-nofit)",
+  "B14.v3 73.5–76.3 dropped (place-face, place-nofit)",
+  "B14.v1 70.8–72.9 dropped (place-face, place-nofit)",
+  "B14.v3 66.9–69.2 dropped (place-face, place-nofit)",
+  "B14.v1 63.2–66.0 dropped (place-face, place-nofit)",
+  "B14.v3 60.4–62.8 dropped (place-face, place-nofit)",
+  "B14.v1 57.6–60.0 dropped (place-face, place-nofit)",
+  "B14.v3 53.3–56.0 dropped (place-face, place-nofit)",
+  "B14.v1 50.3–52.0 dropped (place-face, place-nofit)",
+  "B14.v3 47.4–49.9 dropped (place-face, place-nofit)",
+  "B14.v1 44.5–47.0 dropped (place-face, place-nofit)",
+  "B14.v3 41.0–43.8 dropped (place-face, place-nofit)",
+  "B14.v3 38.6–40.6 dropped (place-face, place-nofit)",
+  "B14.v1 35.9–38.2 dropped (place-face, place-nofit)",
+  "B14.v3 33.4–35.5 dropped (place-face, place-nofit)",
+  "B14.v1 30.4–32.8 dropped (place-face, place-nofit)",
+  "B14.v3 27.4–30.0 dropped (place-face, place-nofit)",
+  "B14.v1 24.6–27.0 dropped (widget-gap, place-face, place-nofit)",
+  "B14.v3 22.4–24.4 dropped (widget-gap, place-face, place-nofit)",
+  "B14.v1 20.4–22.1 dropped (widget-gap, place-face, place-nofit)",
+  "B14.v3 18.5–20.2 dropped (place-face, place-nofit)",
+  "B14.v1 16.6–18.0 dropped (place-face, place-nofit)",
+  "B14.v1 13.7–16.0 dropped (place-face, place-nofit)",
+  "B14.v3 11.5–13.3 dropped (place-face, place-nofit)",
+  "B14.v1 5.5–7.5 dropped (place-face, place-nofit)",
+  "B14.v3 2.9–5.0 dropped (place-face, place-nofit)",
+  "B14.v1 0.5–2.4 dropped (place-face, place-nofit)"
+ ]
+}

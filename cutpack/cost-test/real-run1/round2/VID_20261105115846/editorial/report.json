@@ -1,0 +1,56 @@
+{
+ "status": "ok",
+ "topic": "edu",
+ "log": [
+  "fix round (plan): 10 errors sent back"
+ ],
+ "fallback": [
+  "B05.v2 27.84–29.8 → B14 text B14.v1 (slot-time)",
+  "B14.v2 7.28–9.5 dropped (engine)",
+  "subtitles rebuilt around the remaining cards"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "aroll-long",
+   "where": "4.80–11.44",
+   "msg": "6.6 s of talking head without a card (max 4.5)"
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B14.v3 30.48",
+   "msg": "two scenes of the same category in a row",
+   "scene": 7
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 7.28–11.44 \"Conprentblenport / เพื่อ บางคน / ใช้แล้ว\"",
+   "msg": "chunk \"Conprentblenport\" is 16 letters, aim ≤ 12",
+   "sub": 2
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 20.24–22.16 \"พูด ง่าย / ง่าย มัน คือ การเรียน / สิ่งใหม่\"",
+   "msg": "chunk \"ง่าย มัน คือ การเรียน\" is 14 letters, aim ≤ 12",
+   "sub": 5
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 63.12–66.72 \"การ ไม่ แคร์ สิ่งแวดล้อม / ไม่ ได้ กระทบ / คน แค่ คนเดียว\"",
+   "msg": "chunk \"การ ไม่ แคร์ สิ่งแวดล้อม\" is 16 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 74.4–76.37 \"ถ้า ดู แล้ว / ว่า consicnce ไป ว่า / อะไร ก็ อย่า\"",
+   "msg": "chunk \"ว่า consicnce ไป ว่า\" is 15 letters, aim ≤ 12",
+   "sub": 14
+  }
+ ]
+}

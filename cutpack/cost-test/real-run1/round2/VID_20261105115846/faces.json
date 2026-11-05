@@ -1,0 +1,53 @@
+{
+ "found": "153/153",
+ "face": [
+  63,
+  284,
+  977,
+  1524
+ ],
+ "keepOut": [
+  18,
+  228,
+  1018,
+  1587
+ ],
+ "layout": {
+  "subtitleTop": 1380,
+  "widgetPos": {
+   "short": {
+    "x": 218,
+    "y": 150
+   },
+   "narrow": {
+    "x": 36,
+    "y": 268
+   }
+  },
+  "shortFits": false,
+  "shortPlace": "none",
+  "narrowFits": false,
+  "narrowSide": "none",
+  "subOverFace": true
+ },
+ "zones": {
+  "topBar": [
+   0,
+   0,
+   1080,
+   150
+  ],
+  "rightUI": [
+   940,
+   860,
+   1080,
+   1620
+  ],
+  "bottomUI": [
+   0,
+   1620,
+   1080,
+   1920
+  ]
+ }
+}

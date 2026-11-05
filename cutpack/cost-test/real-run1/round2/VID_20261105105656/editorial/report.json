@@ -1,0 +1,32 @@
+{
+ "status": "ok",
+ "topic": "biz",
+ "log": [
+  "fix round (plan): 17 errors sent back"
+ ],
+ "fallback": [],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B14.v3 86.4",
+   "msg": "two scenes of the same category in a row",
+   "scene": 27
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 56.56–58.16 \"ไม่ ไม่ ควร ที่จะ ต้อง / ศึกษา อีกต่อไป\"",
+   "msg": "chunk \"ไม่ ไม่ ควร ที่จะ ต้อง\" is 13 letters, aim ≤ 12",
+   "sub": 9
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 59.44–61.12 \"จาก การ ที่ เขา ศึกษา / เค้า แล้ว ครั้งแรก\"",
+   "msg": "chunk \"จาก การ ที่ เขา ศึกษา\" is 14 letters, aim ≤ 12",
+   "sub": 10
+  }
+ ]
+}

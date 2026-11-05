@@ -1,0 +1,115 @@
+{
+ "status": "ok",
+ "topic": "biz",
+ "log": [
+  "fix round (plan): 9 errors sent back"
+ ],
+ "fallback": [
+  "B01.v1 9.6–11.6 → B14 text B14.v1 (number-not-said)",
+  "B07.v1 11.7–13.4 → B14 text B14.v3 (widget-gap)",
+  "B09.v1 27.4–29.7 → B14 text B14.v1 (hit-early)",
+  "B08.v4 29.9–32.0 → B14 text B14.v3 (widget-gap)",
+  "B06.v4 35.2–38.5 → B14 text B14.v1 (length)",
+  "B14.v3 29.9–32.0 dropped (widget-gap)",
+  "B14.v3 11.7–13.4 dropped (widget-gap)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B13.v1 24.5",
+   "msg": "two scenes of the same category in a row",
+   "scene": 6
+  },
+  {
+   "level": "error",
+   "code": "repeat-next",
+   "where": "B14.v1 39.3",
+   "msg": "the same part twice in a row",
+   "scene": 10
+  },
+  {
+   "level": "error",
+   "code": "reuse",
+   "where": "B14.v1",
+   "msg": "B14.v1 used 4 times, max 2 in this clip"
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 2.88–6.56 \"มองว่า รายได้ / ของ คุณ อ่ะ ช่องทาง / นั้น น่ะ สิ่ง ที่\"",
+   "msg": "chunk \"ของ คุณ อ่ะ ช่องทาง\" is 13 letters, aim ≤ 12",
+   "sub": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 9.28–11.68 \"มัน ก็ จะ เป็น รายได้ / เสริม ต่อไป / เรื่อย เรื่อย มัน จะ\"",
+   "msg": "chunk \"มัน ก็ จะ เป็น รายได้\" is 13 letters, aim ≤ 12",
+   "sub": 3
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 24.48–27.04 \"busis หรือ / ว่าการ เฮด ความเสี่ยง / กับ มัน เว้ย\"",
+   "msg": "chunk \"ว่าการ เฮด ความเสี่ยง\" is 16 letters, aim ≤ 12",
+   "sub": 10
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 27.04–29.84 \"คำ ว่า รายได้ / เสริม หรือว่า ไซส์ / โดยส่วนใหญ่ นะ ครับ\"",
+   "msg": "chunk \"โดยส่วนใหญ่ นะ ครับ\" is 14 letters, aim ≤ 12",
+   "sub": 11
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 39.28–41.68 \"ความเสี่ยง ให้ มาก ที่สุด / เลย ทำให้ ยังไง / ก็ได้ ให้ มัน\"",
+   "msg": "chunk \"ความเสี่ยง ให้ มาก ที่สุด\" is 16 letters, aim ≤ 12",
+   "sub": 16
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 44.0–46.72 \"ตอนที่ ผม ทำ คอนเทนต์ / น่ะ ผม จะ / ตอนที่ ผม ทำ คอนเทนต์\"",
+   "msg": "chunk \"ตอนที่ ผม ทำ คอนเทนต์\" is 14 letters, aim ≤ 12",
+   "sub": 18
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 44.0–46.72 \"ตอนที่ ผม ทำ คอนเทนต์ / น่ะ ผม จะ / ตอนที่ ผม ทำ คอนเทนต์\"",
+   "msg": "chunk \"ตอนที่ ผม ทำ คอนเทนต์\" is 14 letters, aim ≤ 12",
+   "sub": 18
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 49.52–50.8 \"เซตผม มัน ไม่ / เหมือนกับ อย่างงี้ เลย\"",
+   "msg": "chunk \"เหมือนกับ อย่างงี้ เลย\" is 15 letters, aim ≤ 12",
+   "sub": 20
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 50.8–54.4 \"มัน มัน มี หลายอย่าง / ที่ มัน เปลี่ยนไป / มาก มาก แล้ว มัน\"",
+   "msg": "chunk \"มัน มัน มี หลายอย่าง\" is 13 letters, aim ≤ 12",
+   "sub": 21
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 55.84–58.72 \"พูดว่า เออ อัน เนี้ย / เป็น ช่องทาง หารายได้ / เสริม ที่ ดี\"",
+   "msg": "chunk \"เป็น ช่องทาง หารายได้\" is 16 letters, aim ≤ 12",
+   "sub": 23
+  },
+  {
+   "level": "warn",
+   "code": "sub-face",
+   "where": "layout",
+   "msg": "the chin is low: subtitles may touch the face when zoomed"
+  }
+ ]
+}
