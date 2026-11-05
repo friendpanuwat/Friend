@@ -1,0 +1,122 @@
+{
+ "status": "ok",
+ "topic": "edu",
+ "log": [
+  "fix round (plan): 10 errors sent back",
+  "fix request failed: budget: 0.4616 spent, the next call could pass 0.60 USD"
+ ],
+ "fallback": [
+  "B07.v1 0.5–4.0 → B14 text B14.v3 (length)",
+  "B05.v2 27.2–30.0 → B14 text B14.v3 (slot-time)",
+  "B09.v4 49.0–54.5 → B14 text B14.v1 (length, hit-early)",
+  "B10.v1 65.0–69.0 → B14 text B14.v1 (length, hit-early)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "9 widgets, need ≥ 21 for 76.4 s with room"
+  },
+  {
+   "level": "error",
+   "code": "bare-long",
+   "where": "8.50–15.10",
+   "msg": "6.6 s without a widget (max 6.0)"
+  },
+  {
+   "level": "error",
+   "code": "bare-long",
+   "where": "30.00–49.00",
+   "msg": "19.0 s without a widget (max 6.0)"
+  },
+  {
+   "level": "error",
+   "code": "bare-long",
+   "where": "52.50–65.00",
+   "msg": "12.5 s without a widget (max 6.0)"
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B14.v1 49.0",
+   "msg": "two scenes of the same category in a row",
+   "scene": 6
+  },
+  {
+   "level": "error",
+   "code": "repeat-next",
+   "where": "B14.v1 65.0",
+   "msg": "the same part twice in a row",
+   "scene": 7
+  },
+  {
+   "level": "error",
+   "code": "reuse",
+   "where": "B14.v1",
+   "msg": "B14.v1 used 3 times, max 1 in this clip"
+  },
+  {
+   "level": "error",
+   "code": "reuse",
+   "where": "B14.v3",
+   "msg": "B14.v3 used 2 times, max 1 in this clip"
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 6.08–8.8 \"แนะนำวิธี / หนึ่งที่ เรียก / ว่า / Conprentblenport\"",
+   "msg": "chunk \"Conprentblenport\" is 16 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 27.84–29.04 \"เรา จะไม่ / ใช้ประโยค อังกฤษ\"",
+   "msg": "chunk \"ใช้ประโยค อังกฤษ\" is 13 letters, aim ≤ 12",
+   "sub": 14
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 35.92–39.04 \"เพราะว่า จุดประสงค์ / ของ การเรียน / แบบ Conprensible\"",
+   "msg": "chunk \"เพราะว่า จุดประสงค์\" is 15 letters, aim ≤ 12",
+   "sub": 19
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 35.92–39.04 \"เพราะว่า จุดประสงค์ / ของ การเรียน / แบบ Conprensible\"",
+   "msg": "chunk \"แบบ Conprensible\" is 15 letters, aim ≤ 12",
+   "sub": 19
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 39.04–41.04 \"inpood คือ เรา / เรียนรู้ ความหมาย / ของมัน จาก\"",
+   "msg": "chunk \"เรียนรู้ ความหมาย\" is 13 letters, aim ≤ 12",
+   "sub": 20
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 51.44–54.96 \"ประเทศ ที่ไม่ / ลงทุนกับ การศึกษา / consicance จะ / เห็นได้ชัด\"",
+   "msg": "chunk \"ลงทุนกับ การศึกษา\" is 13 letters, aim ≤ 12",
+   "sub": 26
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 74.4–76.37 \"ถ้า ดูแล้ว / ว่า consicnce ไป / ว่าอะไรก็ อย่า\"",
+   "msg": "chunk \"ว่า consicnce ไป\" is 13 letters, aim ≤ 12",
+   "sub": 35
+  },
+  {
+   "level": "warn",
+   "code": "sub-face",
+   "where": "layout",
+   "msg": "the chin is low: subtitles may touch the face when zoomed"
+  }
+ ]
+}

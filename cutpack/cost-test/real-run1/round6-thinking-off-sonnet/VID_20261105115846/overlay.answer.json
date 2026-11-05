@@ -1,0 +1,191 @@
+{
+ "topic": "edu",
+ "camera": [
+  {
+   "move": "push",
+   "t": 2.8
+  },
+  {
+   "move": "pull",
+   "t": 8.8
+  },
+  {
+   "move": "push",
+   "t": 20.9
+  },
+  {
+   "move": "pull",
+   "t": 29.0
+  },
+  {
+   "move": "push",
+   "t": 39.5
+  },
+  {
+   "move": "pull",
+   "t": 47.0
+  },
+  {
+   "move": "push",
+   "t": 57.2
+  },
+  {
+   "move": "pull",
+   "t": 65.0
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 0.5,
+   "t1": 4.0,
+   "say": "ยังมีบางคนใช้วิธีเรียนภาษาอังกฤษที่ยังไม่เหมาะสมกับตัวเอง",
+   "shows": "warning sign about unsuitable study method",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 3.68,
+   "need": "",
+   "slots": {
+    "text": "ไม่เหมาะสมกับตัวเอง",
+    "icon": "book-open",
+    "wlead": "วิธีเรียน",
+    "wkey": "ไม่เหมาะสม"
+   }
+  },
+  {
+   "t0": 6.2,
+   "t1": 8.5,
+   "say": "แนะนำวิธีหนึ่งที่เรียกว่า",
+   "shows": "a lightbulb for a tip",
+   "part": "B13.v1",
+   "size": "short",
+   "hit": 6.96,
+   "need": "",
+   "slots": {
+    "tip": "แนะนำวิธีหนึ่ง",
+    "icon": "lightbulb",
+    "wlead": "วิธีหนึ่ง",
+    "wkey": "แนะนำ"
+   }
+  },
+  {
+   "t0": 15.1,
+   "t1": 17.4,
+   "say": "เข้าใจแล้ว เราก็อยู่กับมันฟังซ้ำไปเรื่อยๆ",
+   "shows": "cycle loop repeating",
+   "part": "B12.v4",
+   "size": "short",
+   "hit": 16.88,
+   "need": "",
+   "slots": {
+    "a": "ฟัง",
+    "ia": "headphones",
+    "b": "ซ้ำ",
+    "ib": "repeat",
+    "c": "ฟังอีก",
+    "ic": "ear",
+    "wlead": "ฟังซ้ำ",
+    "wkey": "วนไป"
+   }
+  },
+  {
+   "t0": 21.5,
+   "t1": 23.0,
+   "say": "การเรียนสิ่งใหม่จากบริบทเดิม",
+   "shows": "card with context words",
+   "part": "B14.v1",
+   "size": "short",
+   "hit": 22.4,
+   "need": "",
+   "slots": {
+    "words": [
+     "เรียนสิ่งใหม่",
+     "จาก",
+     "บริบทเดิม"
+    ],
+    "key": 2,
+    "icon": "book-open",
+    "wlead": "เรียนจาก",
+    "wkey": "บริบทเดิม"
+   }
+  },
+  {
+   "t0": 25.0,
+   "t1": 26.5,
+   "say": "สอนคำศัพท์ใหม่ เผื่อบางคนไม่รู้คำ",
+   "shows": "vocabulary card flip",
+   "part": "EDU.h1",
+   "size": "narrow",
+   "hit": 25.7,
+   "need": "",
+   "slots": {
+    "word": "คำศัพท์ใหม่",
+    "wlead": "สอน",
+    "wkey": "คำศัพท์"
+   }
+  },
+  {
+   "t0": 27.2,
+   "t1": 30.0,
+   "say": "ไม่ใช้ประโยคอังกฤษ ใช้ประโยคไทย",
+   "shows": "X crossed English, Thai correct",
+   "part": "B05.v2",
+   "size": "short",
+   "hit": 28.72,
+   "need": "",
+   "slots": {
+    "x": "ประโยคอังกฤษ",
+    "y": "ประโยคไทย",
+    "aty": 30.0,
+    "wlead": "ไม่ใช้อังกฤษ",
+    "wkey": "ใช้ไทย"
+   }
+  },
+  {
+   "t0": 49.0,
+   "t1": 54.5,
+   "say": "มันไม่มีวันจบ ประโยคที่สอง ประเทศที่ไม่ลงทุนกับการศึกษา",
+   "shows": "hourglass of endless time",
+   "part": "B09.v4",
+   "size": "short",
+   "hit": 49.28,
+   "need": "",
+   "slots": {
+    "when": "ไม่มีวันจบ",
+    "icon": "hourglass",
+    "wlead": "ประโยคที่สอง",
+    "wkey": "ไม่มีวันจบ"
+   }
+  },
+  {
+   "t0": 65.0,
+   "t1": 69.0,
+   "say": "คนเดียว ประโยคที่สี่ บริษัทนี้ไม่เคยฟังเสียง",
+   "shows": "one person highlighted in a group",
+   "part": "B10.v1",
+   "size": "short",
+   "hit": 65.28,
+   "need": "",
+   "slots": {
+    "who": "คนเดียว",
+    "wlead": "ประโยคที่สี่",
+    "wkey": "พนักงาน"
+   }
+  },
+  {
+   "t0": 71.0,
+   "t1": 74.0,
+   "say": "คนเก่งทยอยกันลาออกหมดเลย",
+   "shows": "downward arrow of people leaving",
+   "part": "B02.v3",
+   "size": "short",
+   "hit": 72.8,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "users",
+    "wlead": "คนเก่ง",
+    "wkey": "ลาออก"
+   }
+  }
+ ]
+}

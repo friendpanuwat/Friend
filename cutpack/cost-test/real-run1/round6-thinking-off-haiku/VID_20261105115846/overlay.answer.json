@@ -1,0 +1,294 @@
+{
+ "topic": "edu",
+ "camera": [
+  {
+   "move": "push",
+   "t": 0.5
+  },
+  {
+   "move": "pull",
+   "t": 5.3
+  },
+  {
+   "move": "push",
+   "t": 20.2
+  },
+  {
+   "move": "pull",
+   "t": 24.3
+  },
+  {
+   "move": "push",
+   "t": 42.0
+  },
+  {
+   "move": "pull",
+   "t": 57.1
+  },
+  {
+   "move": "push",
+   "t": 63.0
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 0.5,
+   "t1": 3.9,
+   "say": "จะโกรธหมายถ้าเราบอกว่ายังมีบางคนใช้วิธีเรียนภาษาอังกฤษที่ยังไม่เหมาะสม",
+   "shows": "a warning sign pops up for the unsuitable method",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 1.0,
+   "need": "",
+   "slots": {
+    "text": "วิธีเรียนที่ยังไม่เหมาะสม",
+    "icon": "triangle-alert",
+    "wlead": "ยังมีบางคน",
+    "wkey": "ไม่เหมาะสม"
+   }
+  },
+  {
+   "t0": 6.2,
+   "t1": 8.4,
+   "say": "วันนี้เราจะไม่แนะนำวิธีหนึ่งที่เรียกว่า Conprentblenport",
+   "shows": "a crossed-out 'recommend' with a new method name",
+   "part": "B05.v1",
+   "size": "short",
+   "hit": 6.9,
+   "need": "",
+   "slots": {
+    "x": "แนะนำ",
+    "y": "Conprentblenport",
+    "wlead": "ไม่แนะนำ",
+    "wkey": "วิธีนี้"
+   }
+  },
+  {
+   "t0": 15.0,
+   "t1": 17.4,
+   "say": "เข้าใจแล้ว อีกเดี๋ยวจะเข้าใจแล้ว เราก็อยู่กับมันฟังซ้ำไปเรื่อยๆ",
+   "shows": "a looping repeat arrow for listening again and again",
+   "part": "B02.v3",
+   "size": "short",
+   "hit": 16.2,
+   "need": "",
+   "slots": {
+    "dir": "up",
+    "icon": "repeat",
+    "wlead": "ฟังซ้ำ",
+    "wkey": "เรื่อยๆ"
+   }
+  },
+  {
+   "t0": 21.5,
+   "t1": 23.0,
+   "say": "มันคือการเรียนสิ่งใหม่จากบริบทเดิม",
+   "shows": "a lightbulb for learning something new",
+   "part": "B13.v1",
+   "size": "short",
+   "hit": 21.7,
+   "need": "",
+   "slots": {
+    "tip": "เรียนสิ่งใหม่จากบริบทเดิม",
+    "icon": "lightbulb",
+    "wlead": "สิ่งใหม่",
+    "wkey": "จากบริบท"
+   }
+  },
+  {
+   "t0": 24.3,
+   "t1": 26.4,
+   "say": "เราจะมาสอนคำศัพท์ใหม่ เผื่อบางคนไม่รู้คำว่า Consic",
+   "shows": "a flashcard flips for a new vocabulary word",
+   "part": "EDU.h1",
+   "size": "narrow",
+   "hit": 25.0,
+   "need": "",
+   "slots": {
+    "word": "Consic",
+    "lead": "คำศัพท์ใหม่",
+    "key": "Consic"
+   }
+  },
+  {
+   "t0": 27.0,
+   "t1": 29.6,
+   "say": "เราจะไม่ใช้ประโยคอังกฤษ ด้วยเราจะใช้ประโยคไทย",
+   "shows": "English sentence crossed out, Thai sentence chosen",
+   "part": "B05.v2",
+   "size": "short",
+   "hit": 27.8,
+   "need": "",
+   "slots": {
+    "x": "ประโยคอังกฤษ",
+    "y": "ประโยคไทย",
+    "wlead": "ไม่ใช้อังกฤษ",
+    "wkey": "ใช้ประโยคไทย"
+   }
+  },
+  {
+   "t0": 32.0,
+   "t1": 35.9,
+   "say": "เหมือนเวลาคนพูดอังกฤษคำไทย เราก็จะไม่เฉลยความหมายด้วย",
+   "shows": "a speech bubble with the meaning hidden behind a shield",
+   "part": "B11.v1",
+   "size": "short",
+   "hit": 34.1,
+   "need": "",
+   "slots": {
+    "text": "จะไม่เฉลยความหมาย",
+    "who": "ครู",
+    "wlead": "ไม่เฉลย",
+    "wkey": "ความหมาย"
+   }
+  },
+  {
+   "t0": 39.6,
+   "t1": 42.0,
+   "say": "เราเรียนรู้ความหมายของมันจากบริบทเอง",
+   "shows": "learner works out meaning from context",
+   "part": "B13.v3",
+   "size": "short",
+   "hit": 40.6,
+   "need": "",
+   "slots": {
+    "tip": "เรียนรู้จากบริบทเอง",
+    "wlead": "เรียนเอง",
+    "wkey": "จากบริบท"
+   }
+  },
+  {
+   "t0": 44.3,
+   "t1": 46.5,
+   "say": "เขาโกหกครั้งเดียวแต่ต้องโกหกไปอีกสิบรอบ",
+   "shows": "one lie multiplies into ten repeats",
+   "part": "B01.v1",
+   "size": "short",
+   "hit": 46.5,
+   "need": "",
+   "slots": {
+    "num": 10,
+    "unit": "รอบ",
+    "icon": "message-circle-warning",
+    "wlead": "โกหกไป",
+    "wkey": "อีก 10 รอบ"
+   }
+  },
+  {
+   "t0": 49.0,
+   "t1": 53.0,
+   "say": "คือมันไม่มีวันจบ ประโยคที่สอง ประเทศที่ไม่ลงทุนกับการศึกษา",
+   "shows": "an endless loop arrow for consequence of not investing",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 51.4,
+   "need": "",
+   "slots": {
+    "a": "ไม่ลงทุนการศึกษา",
+    "ia": "school",
+    "b": "ไม่มีวันจบ",
+    "ib": "infinity",
+    "wlead": "ไม่ลงทุน",
+    "wkey": "ไม่มีวันจบ"
+   }
+  },
+  {
+   "t0": 54.0,
+   "t1": 57.0,
+   "say": "Consicance จะเห็นได้ชัดในอีกยี่สิบปีข้างหน้า",
+   "shows": "a timeline marking twenty years ahead",
+   "part": "B09.v1",
+   "size": "short",
+   "hit": 55.0,
+   "need": "",
+   "slots": {
+    "when": "ยี่สิบปีข้างหน้า",
+    "icon": "calendar-days",
+    "wlead": "อีก 20 ปี",
+    "wkey": "จะเห็นชัด"
+   }
+  },
+  {
+   "t0": 57.5,
+   "t1": 60.2,
+   "say": "ประโยคที่สาม ทิ้งขยะลงแม่น้ำ น้ำเน่า",
+   "shows": "trash dropped into a river turning it foul",
+   "part": "B07.v3",
+   "size": "short",
+   "hit": 58.5,
+   "need": "",
+   "slots": {
+    "text": "ทิ้งขยะลงแม่น้ำ",
+    "icon": "trash-2",
+    "wlead": "ทิ้งขยะ",
+    "wkey": "น้ำเน่า"
+   }
+  },
+  {
+   "t0": 60.3,
+   "t1": 63.0,
+   "say": "ปลาตาย คนในชุมชนเดือดร้อน",
+   "shows": "dead fish and a community in trouble",
+   "part": "B10.v1",
+   "size": "short",
+   "hit": 61.2,
+   "need": "",
+   "slots": {
+    "who": "คนในชุมชน",
+    "lead": "คนในชุมชนเดือดร้อน",
+    "key": "เดือดร้อน"
+   }
+  },
+  {
+   "t0": 66.7,
+   "t1": 70.4,
+   "say": "ประโยคที่สี่ บริษัทนี้ไม่เคยฟังเสียงของพนักงานเลย",
+   "shows": "a deaf ear icon, staff voice ignored",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 68.1,
+   "need": "",
+   "slots": {
+    "text": "ไม่เคยฟังเสียงพนักงาน",
+    "icon": "ear-off",
+    "wlead": "ไม่เคยฟัง",
+    "wkey": "พนักงาน"
+   }
+  },
+  {
+   "t0": 70.5,
+   "t1": 74.4,
+   "say": "consequence คนเก่งทยอยกันลาออกหมดเลย",
+   "shows": "staff leaving one by one through a door",
+   "part": "B02.v3",
+   "size": "short",
+   "hit": 72.8,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "door-open",
+    "wlead": "คนเก่งลาออก",
+    "wkey": "หมดเลย"
+   }
+  },
+  {
+   "t0": 74.5,
+   "t1": 76.3,
+   "say": "ถ้าดูแล้วว่า consicnce ไปว่าอะไรก็อย่า",
+   "shows": "a closing reminder not to take it lightly",
+   "part": "B14.v1",
+   "size": "short",
+   "hit": 75.0,
+   "need": "",
+   "slots": {
+    "words": [
+     "ดูแลให้ดี",
+     "อย่าละเลย"
+    ],
+    "key": 1,
+    "wlead": "ข้อคิด",
+    "wkey": "อย่าละเลย"
+   }
+  }
+ ]
+}

@@ -1,0 +1,238 @@
+{
+ "topic": "none",
+ "camera": [
+  {
+   "move": "push",
+   "t": 0.5
+  },
+  {
+   "move": "pull",
+   "t": 5.3,
+   "cut": false
+  },
+  {
+   "move": "push",
+   "t": 20.3
+  },
+  {
+   "move": "pull",
+   "t": 25.0,
+   "cut": false
+  },
+  {
+   "move": "push",
+   "t": 42.1
+  },
+  {
+   "move": "pull",
+   "t": 44.3,
+   "cut": false
+  },
+  {
+   "move": "push",
+   "t": 63.0
+  },
+  {
+   "move": "pull",
+   "t": 66.7,
+   "cut": false
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 7.4,
+   "t1": 11.2,
+   "say": "Conprentblenport วิธีหนึ่งที่เรียกว่า",
+   "shows": "a strange word as a bold title",
+   "part": "B14.v2",
+   "bg": "glow",
+   "hit": 7.6,
+   "need": "",
+   "slots": {
+    "words": [
+     "Conprentblenport",
+     "วิธีที่เรียกว่า"
+    ],
+    "key": 0
+   }
+  },
+  {
+   "t0": 13.6,
+   "t1": 16.2,
+   "say": "เข้าใจแล้วๆ เข้าใจแล้ว",
+   "shows": "a checkmark next to repeated understanding",
+   "part": "B08.v4",
+   "bg": "white",
+   "hit": 14.8,
+   "need": "",
+   "slots": {}
+  },
+  {
+   "t0": 18.4,
+   "t1": 20.2,
+   "say": "แต่เติมอะไรใหม่เข้ามา",
+   "shows": "a new item added to a repeating loop",
+   "part": "B12.v1",
+   "bg": "cream",
+   "hit": 18.9,
+   "need": "",
+   "slots": {
+    "a": "ซ้ำไปเรื่อยๆ",
+    "ia": "repeat",
+    "b": "อะไรใหม่",
+    "ib": "sparkles",
+    "lead": "แต่เติม",
+    "key": "ใหม่เข้ามา"
+   }
+  },
+  {
+   "t0": 27.8,
+   "t1": 29.6,
+   "say": "เราจะไม่ใช้ประโยคอังกฤษ",
+   "shows": "an English sentence crossed out",
+   "part": "B05.v2",
+   "bg": "glow",
+   "hit": 28.4,
+   "need": "",
+   "slots": {
+    "x": "ประโยคอังกฤษ",
+    "y": "ประโยคไทย",
+    "ix": "languages",
+    "iy": "book-open",
+    "lead": "เราจะไม่ใช้"
+   }
+  },
+  {
+   "t0": 35.9,
+   "t1": 39.5,
+   "say": "จุดประสงค์ของการเรียนแบบ",
+   "shows": "a learning goal target",
+   "part": "B08.v1",
+   "bg": "cream",
+   "hit": 36.6,
+   "need": "",
+   "slots": {
+    "goal": "จุดประสงค์ของการเรียน",
+    "icon": "target",
+    "lead": "จุดประสงค์"
+   }
+  },
+  {
+   "t0": 44.3,
+   "t1": 48.0,
+   "say": "โกหกครั้งเดียวต้องโกหกไปอีกสิบรอบ",
+   "shows": "a lie repeated ten times",
+   "part": "B01.v3",
+   "bg": "glow",
+   "hit": 45.8,
+   "need": "",
+   "slots": {
+    "num": 10,
+    "of": 10,
+    "unit": "รอบ",
+    "icon": "message-circle-warning",
+    "lead": "โกหกไปอีก",
+    "key": "สิบรอบ"
+   }
+  },
+  {
+   "t0": 48.0,
+   "t1": 51.4,
+   "say": "การโกหกคือมันไม่มีวันจบ",
+   "shows": "an endless loop with no end",
+   "part": "B02.v3",
+   "bg": "white",
+   "hit": 48.7,
+   "need": "",
+   "slots": {
+    "dir": "up",
+    "icon": "infinity",
+    "lead": "ไม่มีวันจบ",
+    "key": "การโกหก"
+   }
+  },
+  {
+   "t0": 51.4,
+   "t1": 57.1,
+   "say": "ประเทศที่ไม่ลงทุนกับการศึกษา",
+   "shows": "a school with a missing investment",
+   "part": "B07.v1",
+   "bg": "cream",
+   "hit": 52.1,
+   "need": "",
+   "slots": {
+    "text": "ไม่ลงทุนกับการศึกษา",
+    "icon": "school",
+    "lead": "ประเทศที่ไม่",
+    "key": "ลงทุน"
+   }
+  },
+  {
+   "t0": 57.1,
+   "t1": 60.2,
+   "say": "ทิ้งขยะลงแม่น้ำ น้ำเน่า",
+   "shows": "trash dumped into a river",
+   "part": "B07.v2",
+   "bg": "glow",
+   "hit": 58.3,
+   "need": "",
+   "slots": {
+    "text": "ทิ้งขยะลงแม่น้ำ",
+    "icon": "trash-2",
+    "lead": "ประโยคที่สาม",
+    "key": "น้ำเน่า"
+   }
+  },
+  {
+   "t0": 60.2,
+   "t1": 63.0,
+   "say": "ปลาตายคนในชุมชนเดือดร้อน",
+   "shows": "dead fish and suffering community",
+   "part": "B10.v1",
+   "bg": "white",
+   "hit": 61.2,
+   "need": "",
+   "slots": {
+    "who": "คนในชุมชน",
+    "lead": "ปลาตาย",
+    "key": "เดือดร้อน"
+   }
+  },
+  {
+   "t0": 66.7,
+   "t1": 70.5,
+   "say": "บริษัทนี้ไม่เคยฟังเสียงของพนักงานเลย",
+   "shows": "ears closed to employee voices",
+   "part": "B03.v2",
+   "bg": "cream",
+   "hit": 68.1,
+   "need": "",
+   "slots": {
+    "a": "ฟังพนักงาน",
+    "b": "ไม่ฟัง",
+    "ia": "ear",
+    "ib": "ear-off",
+    "win": "a",
+    "lead": "บริษัทนี้",
+    "key": "ไม่เคยฟัง"
+   }
+  },
+  {
+   "t0": 70.5,
+   "t1": 74.4,
+   "say": "คนเก่งทยอยกันลาออกหมดเลย",
+   "shows": "people leaving one by one",
+   "part": "B02.v1",
+   "bg": "glow",
+   "hit": 73.3,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "num": "หมดเลย",
+    "icon": "user-x",
+    "lead": "คนเก่งทยอยกัน",
+    "key": "ลาออก"
+   }
+  }
+ ]
+}
