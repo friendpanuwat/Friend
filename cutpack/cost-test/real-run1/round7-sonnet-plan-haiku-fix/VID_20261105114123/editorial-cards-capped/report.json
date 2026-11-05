@@ -1,0 +1,76 @@
+{
+ "status": "ok",
+ "topic": "fit",
+ "log": [
+  "code mended 7 numbers: 11 → 5 errors",
+  "fix round (plan): 5 errors sent back",
+  "code mended 28 numbers in the fixed plan"
+ ],
+ "fallback": [
+  "B10.v3 22.07–23.577 → B14 text B14.v1 (slot-missing)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "aroll-long",
+   "where": "43.13–48.14",
+   "msg": "5.0 s of talking head without a card (max 4.5)"
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B07.v2 29.637",
+   "msg": "two scenes of the same category in a row",
+   "scene": 8
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B12.v4 36.277",
+   "msg": "two scenes of the same category in a row",
+   "scene": 10
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B08.v2 52.496",
+   "msg": "two scenes of the same category in a row",
+   "scene": 13
+  },
+  {
+   "level": "warn",
+   "code": "same-bg",
+   "where": "cards 4–6",
+   "msg": "three white cards in a row"
+  },
+  {
+   "level": "error",
+   "code": "sub-fast",
+   "where": "subtitles 14.64–14.8 \"ครับ\"",
+   "msg": "1 chunks in 0.16 s is too fast to read",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 38.0–40.08 \"แต่สิ่งที่ผม อยาก / ให้ ทุกคน / เลยรู้จักเรื่องนี้ ก็คือ\"",
+   "msg": "chunk \"เลยรู้จักเรื่องนี้ ก็คือ\" is 14 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[4] push 60.0",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 4
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[6] push 70.5",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 6
+  }
+ ]
+}
