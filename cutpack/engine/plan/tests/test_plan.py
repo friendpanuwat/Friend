@@ -247,6 +247,23 @@ class Prompt(unittest.TestCase):
             walk(prompt.answer_schema(style, CAT))
             self.assertLessEqual(n, 24, style)
 
+    def test_caption_errors_do_not_start_a_fix_round(self):
+        """The plan cannot change subtitle chunks; sending them back only paid for a fix it could not make."""
+        import fake_api
+        inp = copy.deepcopy(INPUT)
+        for c in inp['captions']:   # join one caption's chunks into a single chunk over the hard limit
+            if '/' in c['text'] and V.graphemes(c['text'].replace('/', '').replace(' ', '')) > V.RULES['chunkHard']:
+                c['text'] = ' '.join(c['text'].replace('/', ' ').split()); break
+        else: self.fail('no caption long enough to join')
+        for style in ('editorial', 'overlay'):
+            fake = fake_api.FakeClient({style: load(EX, f'test18_{style}.answer.json')})
+            with tempfile.TemporaryDirectory() as d:
+                plan, R, log = plan_d.run(inp, style, d, faces=FACES, render=False, client=fake)
+                if style == 'overlay': self.assertIn('sub-chunk', [i['code'] for i in R.issues if i['level'] == 'error'])
+                self.assertEqual(len(fake.requests), 1, log); self.assertFalse(any('fix round' in m for m in log))
+        self.assertFalse(plan_d.plan_can_fix({'code': 'sub-chunk'}, 'editorial'))
+        self.assertTrue(plan_d.plan_can_fix({'code': 'density-low'}, 'overlay'))
+
     def test_an_empty_first_plan_never_beats_the_fixed_one(self):
         """Real-key test 2026-11-05: the first answer had no scenes, the fixed one did; the empty one was kept."""
         import fake_api

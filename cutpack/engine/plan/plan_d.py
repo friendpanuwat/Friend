@@ -69,7 +69,17 @@ def without_schema(req):
     return r
 
 
-def write_codes(client, inp, style, answer, cat, calls, log, code_answer=None):
+# Errors the plan cannot change: the caption step makes the subtitle chunks and the face finder sets the subtitle height.
+# Sending them back only paid for a fix round that could not fix them (real-key test 2026-11-05: 28 left after the fix).
+# In overlay the subtitles are the captions as they are, so a chunk shown too fast is not the plan's either.
+NOT_THE_PLANS = {'sub-chunk', 'sub-top'}
+
+
+def plan_can_fix(issue, style):
+    return issue['code'] not in NOT_THE_PLANS and not (style == 'overlay' and issue['code'] == 'sub-fast')
+
+
+def write_codes(client, inp, style, answer, cat, calls, log, code_answer=None, raw=None, key='code'):
     """Step 2b (DECISIONS 2, step 5): when the plan has AI-written scenes, a second call writes their code into
     `answer` (in place). Returns (request, response) so a fix round can continue that conversation."""
     if not any(s.get('part') == 'custom' for s in answer.get('scenes', [])): return None, None
@@ -78,6 +88,7 @@ def write_codes(client, inp, style, answer, cat, calls, log, code_answer=None):
         code_answer, resp, why = ask(client, req)
         if resp is not None: calls.append(call_record(resp, req['model'], 'custom_scene'))
         if why: log.append(f'scene-code request failed: {why}')
+        if raw is not None and code_answer is not None: raw[key] = copy.deepcopy(code_answer)
     for c in (code_answer or {}).get('scenes', []):
         if isinstance(c.get('i'), int) and 0 <= c['i'] < len(answer['scenes']) and answer['scenes'][c['i']].get('part') == 'custom':
             answer['scenes'][c['i']]['code'] = c.get('code', '')
@@ -116,10 +127,12 @@ def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_an
             answer, resp, why = ask(client, req)
             if resp is not None: calls.append(call_record(resp, req['model']))
             log.append('asked again without the schema' + (f': {why}' if why else ''))
-    creq, cresp = write_codes(client, inp, style, answer, cat, calls, log, code_answer) if answer else (None, None)
+    raw = {}   # the API's answers as they came, saved for replays that cost nothing (run_clip.py --answers)
+    if answer is not None and not offline: raw['answer'] = copy.deepcopy(answer)
+    creq, cresp = write_codes(client, inp, style, answer, cat, calls, log, code_answer, raw) if answer else (None, None)
     plan = assemble.assemble(inp, answer or {'camera': [], 'scenes': []}, style)
     R, _ = validate.validate(plan, cat, faces, history, render=render)
-    errors = [i for i in R.issues if i['level'] == 'error']
+    errors = [i for i in R.issues if i['level'] == 'error' and plan_can_fix(i, style)]
     if answer is not None and errors:   # 3. one fix round, sent to the call that made the mistake
         code_errs = [i for i in errors if 'scene' in i and plan['scenes'][i['scene']]['part'] == 'custom']
         plan_errs = [i for i in errors if i not in code_errs]
@@ -133,8 +146,10 @@ def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_an
                 fixed, resp2, why = ask(client, req2)
                 if resp2 is not None: calls.append(call_record(resp2, req['model']))
                 if why: log.append(f'fix request failed: {why}')
+                if fixed is not None: raw['fix'] = copy.deepcopy(fixed)
             if fixed is not None:   # offline replays reuse the given scene code unless a fix code is given
-                write_codes(client, inp, style, fixed, cat, calls, log, (fix_code_answer if fix_code_answer is not None else code_answer) if offline else None)
+                write_codes(client, inp, style, fixed, cat, calls, log, (fix_code_answer if fix_code_answer is not None else code_answer) if offline else None,
+                            raw, 'fixcode')
         elif code_errs:
             log.append(f'fix round (scene code): {len(code_errs)} errors sent back')
             fixed = copy.deepcopy(answer)
@@ -146,6 +161,7 @@ def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_an
                 new_codes, cresp2, why = ask(client, creq2)
                 if cresp2 is not None: calls.append(call_record(cresp2, creq['model'], 'custom_scene'))
                 if why: log.append(f'scene-code fix failed: {why}')
+                if new_codes is not None: raw['fixcode'] = copy.deepcopy(new_codes)
             for c in (new_codes or {}).get('scenes', []):
                 if isinstance(c.get('i'), int) and 0 <= c['i'] < len(fixed['scenes']) and fixed['scenes'][c['i']].get('part') == 'custom':
                     fixed['scenes'][c['i']]['code'] = c.get('code', '')
@@ -170,6 +186,7 @@ def run(inp, style, out, faces=None, render=True, dry=False, answer=None, fix_an
     status = 'ok' if answer is not None else 'no-plan'
     needs = [s.get('need') for s in (answer or {}).get('scenes', []) if s.get('part') == 'custom' and s.get('need')]   # kept even if the scene fell back
     save(os.path.join(out, 'plan.json'), plan)
+    for k, v in raw.items(): save(os.path.join(out, f'{k}.json'), v)   # answer, fix, code, fixcode
     save(os.path.join(out, 'report.json'), {'status': status, 'topic': plan.get('topic', 'none'), 'log': log, 'fallback': plan.get('fallbackLog', []), 'library_missing': needs, 'issues': R.issues})
     save(os.path.join(out, 'run.json'), {'clip': inp['clip'].get('file'), 'duration_s': inp['clip']['duration'], 'style': style, 'status': status, 'topic': plan.get('topic', 'none'),
                                          'calls': calls, 'time': time.strftime('%Y-%m-%dT%H:%M:%S')})

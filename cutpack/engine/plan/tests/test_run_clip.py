@@ -126,6 +126,21 @@ class Captions(unittest.TestCase):
         caps, info = C.run(d['words'], client=False)
         self.assertEqual(info['source'], 'rules')
 
+    def test_chunks_over_the_hard_limit_are_split_by_rule(self):
+        """Real-key test 2026-11-05: Haiku made chunks of 17–19 letters (max 16)."""
+        d = load(REAL1)
+        words = d['words']
+        lines = [[list(range(0, 12))], [list(range(12, len(words)))]]   # two lines, one chunk each: far too long
+        caps, info = C.run(words, d['clip']['duration'], answer=C.answer_form(lines))
+        self.assertEqual(info['source'], 'ai')
+        self.assertTrue(any('split by rule' in m for m in info['log']))
+        for c in caps:
+            for ch in c['text'].split('/'):
+                self.assertLessEqual(validate.graphemes(ch.replace(' ', '')), validate.RULES['chunkHard'], ch)
+        self.assertEqual(''.join(c['text'].replace(' / ', '').replace(' ', '') for c in caps), ''.join(C.token(w) for w in words))
+        ok, n = C.split_long(words, C.by_rule(words))
+        self.assertEqual((ok, n), (C.by_rule(words), 0))   # chunks within the limit are left as they are
+
     def test_an_answer_that_stops_early_is_finished_by_asking_for_the_rest(self):
         """Real-key test 2026-11-05: Haiku stopped at word 22 of 299. The rest is asked for, numbered from 0 again."""
         d = load(REAL1)
@@ -202,6 +217,16 @@ class Runner(unittest.TestCase):
         import cost_model, io, contextlib
         with contextlib.redirect_stdout(io.StringIO()): out = cost_model.report(self.log)
         self.assertEqual(len(out), 2)
+
+    def test_answers_are_saved_and_replay_for_free(self):
+        import run_clip
+        work = os.path.join(self.tmp, 'work')
+        for style in ('editorial', 'overlay'): self.assertTrue(os.path.exists(os.path.join(work, f'{style}.answer.json')), style)
+        res = run_clip.run(CLIP18, os.path.join(self.tmp, 'replay'), customer='friend-test', words_file=self.words, captions_file=self.caps,
+                           stop_after='plan', answers=work)
+        for style in ('editorial', 'overlay'):
+            self.assertEqual(load(os.path.join(self.tmp, 'replay', style, 'plan.json')), load(os.path.join(work, style, 'plan.json')))
+            self.assertEqual(res['results'][style]['record']['calls'], [])
 
     def test_layout_comes_from_the_face_finder(self):
         inp = load(os.path.join(self.tmp, 'work', 'input.json'))

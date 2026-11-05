@@ -155,6 +155,35 @@ def chunk_phrases(words, ids):
     return ends
 
 
+def chunk_by_letters(words, ids):
+    """Rule chunking of a run of words: a new chunk when the next word would pass chunkMax letters, except that a unit
+    stays with its number (the same choice by_rule makes inside a line)."""
+    out, cur, n = [], [], 0
+    for i in ids:
+        g = graphemes(token(words[i]))
+        keep = cur and is_unit(words[i]) and is_number(words[i - 1])
+        if cur and not keep and n + g > RULES['chunkMax']:
+            out.append(chunk_phrases(words, cur)); cur, n = [], 0
+        cur.append(i); n += g
+    if cur: out.append(chunk_phrases(words, cur))
+    return out
+
+
+def split_long(words, lines):
+    """The AI's chunks over chunkHard letters, split again by rule (real-key test 2026-11-05: Haiku made chunks of up to
+    19 letters, and the checker sent them to the scene planner, which cannot change subtitles). → (lines, how many)"""
+    out, start, n = [], 0, 0
+    for line in lines:
+        new = []
+        for chunk in line:
+            ids = list(range(start, chunk[-1] + 1)); start = chunk[-1] + 1
+            if graphemes(''.join(token(words[i]) for i in ids)) > RULES['chunkHard']:
+                new += chunk_by_letters(words, ids); n += 1
+            else: new.append(chunk)
+        out.append(new)
+    return out, n
+
+
 def by_rule(words):
     """Grouping without the AI: a new line at a pause, after about LINE_MAX_S or LINE_CHUNKS chunks; a new chunk when
     the next word would pass chunkMax letters, except that a unit stays with its number. Words are never split."""
@@ -213,8 +242,13 @@ def run(words, duration=None, client=None, answer=None, use_ai=True):
         lines, why = check(words, answer)
         if why: log.append(f'AI answer not used ({why}): grouped by rule')
     source = source or ('ai' if lines else 'rules')
+    info = {'source': source, 'log': log, 'calls': calls}
+    if lines:
+        lines, n = split_long(words, lines)
+        if n: log.append(f'{n} chunks over {RULES["chunkHard"]} letters split by rule')
+        if calls: info['answer'] = answer_form(lines)   # what was used, for a replay that costs nothing
     caps, phrases = build(words, lines or by_rule(words), duration)
-    return caps, {'words': phrases, 'source': source, 'log': log, 'calls': calls}
+    return caps, dict(words=phrases, **info)
 
 
 if __name__ == '__main__':

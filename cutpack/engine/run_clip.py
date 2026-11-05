@@ -13,7 +13,8 @@ usage: run_clip.py <clip.mp4> <work_dir> [--styles editorial,overlay] [--custome
   4. faces     plan/faces.py → where the face is, where widgets and subtitles go
   5. plan      plan/plan_d.py per style: Claude Sonnet 5.5 plans, checker, one fix round, fallback
                --answers dir: replay saved answers instead of calling the API (<style>.answer.json, <style>.fix.json,
-               <style>.code.json, <style>.fixcode.json, captions.answer.json) — tests and re-runs cost nothing
+               <style>.code.json, <style>.fixcode.json, captions.answer.json) — tests and re-runs cost nothing.
+               A run that calls the API saves its answers under these names in the work dir, so --answers <work> replays it
   6. render    plan2timeline → pipeline.sh build render audio encode → work/<style>/edit.mp4
   7. log       one line per style in runs.jsonl (cost_model.py format, plus the seconds of each step):
                python3 cost-test/cost_model.py report runs.jsonl
@@ -112,6 +113,8 @@ def run(clip, work, styles=STYLES, customer='test', history=None, words_file=Non
             caps, info = captions_step.run(words, dur, client=False, answer=cap_answer, use_ai=cap_answer is not None)
         else:
             caps, info = captions_step.run(words, dur, client=client, use_ai=not rules_captions)
+    cap_answer = info.pop('answer', None)
+    if cap_answer is not None and not answers: save(os.path.join(work, 'captions.answer.json'), cap_answer)   # for --answers work
     save(os.path.join(work, 'captions.json'), dict(captions=caps, **info))
     notes += info['log']
     if stop_after == 'captions':
@@ -136,6 +139,9 @@ def run(clip, work, styles=STYLES, customer='test', history=None, words_file=Non
                              code_answer=A(f'{style}.code.json'), fix_code_answer=A(f'{style}.fixcode.json'),
                              client=False if answers else client)   # replay with no saved answer: subtitles only
         plan, R, plog = res
+        for k in ('answer', 'fix', 'code', 'fixcode'):   # the API's answers, where --answers <work> finds them for a free replay
+            src = os.path.join(out, f'{k}.json')
+            if os.path.exists(src) and not answers: shutil.copyfile(src, os.path.join(work, f'{style}.{k}.json'))
         report = json.load(open(os.path.join(out, 'report.json')))
         mp4, err = None, None
         if stop_after != 'plan':
