@@ -1,0 +1,32 @@
+{
+ "status": "ok",
+ "topic": "biz",
+ "log": [
+  "fix round (plan): 13 errors sent back"
+ ],
+ "fallback": [],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 6.96–10.32 \"แล้ว ถ้า เกิด มัน / เหมือนกัน ทั้งสอง อย่าง / ไม่ มี แบรนด์ / เนี่ย\"",
+   "msg": "chunk \"เหมือนกัน ทั้งสอง อย่าง\" is 16 letters, aim ≤ 12",
+   "sub": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 56.0–58.16 \"ผู้บริโภค ไม่ ไม่ / ควร ที่จะ ต้อง ศึกษา / อีกต่อไป\"",
+   "msg": "chunk \"ควร ที่จะ ต้อง ศึกษา\" is 13 letters, aim ≤ 12",
+   "sub": 9
+  },
+  {
+   "level": "error",
+   "code": "sub-fast",
+   "where": "subtitles 74.32–74.64 \"ใช้ น้ำมัน\"",
+   "msg": "1 chunks in 0.32 s is too fast to read",
+   "sub": 14
+  }
+ ]
+}

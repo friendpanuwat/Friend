@@ -1,0 +1,39 @@
+{
+ "status": "ok",
+ "topic": "biz",
+ "log": [
+  "fix round (plan): 11 errors sent back"
+ ],
+ "fallback": [],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 0.56–3.68 \"แล้ว ผมรู้สึก ว่า / ตราบใดที่ คุณยังมองว่า\"",
+   "msg": "chunk \"ตราบใดที่ คุณยังมองว่า\" is 16 letters, aim ≤ 12",
+   "sub": 0
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 8.0–10.96 \"เสริม นะเอง / มัน ก็จะเป็น รายได้ / เสริม ต่อไป\"",
+   "msg": "chunk \"มัน ก็จะเป็น รายได้\" is 13 letters, aim ≤ 12",
+   "sub": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 49.52–50.8 \"เซตผม มัน ไม่ / เหมือนกับ อย่างงี้ เลย\"",
+   "msg": "chunk \"เหมือนกับ อย่างงี้ เลย\" is 15 letters, aim ≤ 12",
+   "sub": 10
+  },
+  {
+   "level": "warn",
+   "code": "cam-push-twice",
+   "where": "camera[1] push 20.4",
+   "msg": "pushed again without pulling back first",
+   "cam": 1
+  }
+ ]
+}

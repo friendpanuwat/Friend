@@ -1,0 +1,30 @@
+{
+ "clip": "VID_20261105114123.mp4",
+ "duration_s": 80.016,
+ "style": "editorial",
+ "status": "ok",
+ "topic": "fit",
+ "calls": [
+  {
+   "stage": "scene",
+   "model": "claude-sonnet-5-5",
+   "served": "claude-sonnet-5-5",
+   "in": 3252,
+   "out": 2183,
+   "cache_read": 28415,
+   "cache_write_5m": 0,
+   "stop": "end_turn"
+  },
+  {
+   "stage": "scene",
+   "model": "claude-sonnet-5-5",
+   "served": "claude-sonnet-5-5",
+   "in": 6111,
+   "out": 12157,
+   "cache_read": 28415,
+   "cache_write_5m": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "time": "2026-11-05T06:39:36"
+}

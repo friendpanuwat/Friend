@@ -1,0 +1,211 @@
+{
+ "status": "ok",
+ "topic": "fit",
+ "log": [
+  "fix round (plan): 12 errors sent back",
+  "the fixed plan was worse; kept the first one"
+ ],
+ "fallback": [
+  "B01.v1 7.9–9.2 → B14 text B14.v1 (hit-early, number-not-said, number-not-said)",
+  "FIT.h3 14.9–17.0 → B14 text B14.v3 (hit-early)",
+  "B04.v2 19.3–23.0 → B14 text B14.v1 (length)",
+  "B05.v2 32.2–35.8 → B14 text B14.v3 (length, slot-time)",
+  "B14.v1 44.2–46.4 → B14 text B14.v1 (hit-early)",
+  "B03.v1 57.3–60.6 → B14 text B14.v1 (length)",
+  "B08.v4 64.0–67.4 → B14 text B14.v3 (length)",
+  "B14.v1 7.9–9.2 dropped (number-not-said)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "12 widgets, need ≥ 22 for 80.0 s"
+  },
+  {
+   "level": "error",
+   "code": "bare-long",
+   "where": "7.50–14.90",
+   "msg": "7.4 s without a widget (max 6.0)"
+  },
+  {
+   "level": "error",
+   "code": "bare-long",
+   "where": "46.40–57.30",
+   "msg": "10.9 s without a widget (max 6.0)"
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B14.v1 19.3",
+   "msg": "two scenes of the same category in a row",
+   "scene": 3
+  },
+  {
+   "level": "error",
+   "code": "repeat-next",
+   "where": "B14.v1 57.3",
+   "msg": "the same part twice in a row",
+   "scene": 8
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B14.v3 64.0",
+   "msg": "two scenes of the same category in a row",
+   "scene": 9
+  },
+  {
+   "level": "error",
+   "code": "repeat-next",
+   "where": "B14.v3 73.2",
+   "msg": "the same part twice in a row",
+   "scene": 10
+  },
+  {
+   "level": "error",
+   "code": "reuse",
+   "where": "B14.v1",
+   "msg": "B14.v1 used 3 times, max 1 in this clip"
+  },
+  {
+   "level": "error",
+   "code": "reuse",
+   "where": "B14.v3",
+   "msg": "B14.v3 used 4 times, max 1 in this clip"
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 11.52–14.8 \"มัน จะ เป็น / แผนที่ ทำให้ / ร่างกาย อยู่ / หมด ออก ตลอด นะ ครับ\"",
+   "msg": "chunk \"หมด ออก ตลอด นะ ครับ\" is 15 letters, aim ≤ 12",
+   "sub": 5
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 14.8–17.12 \"ซึ่ง น้ำหนัก ที่ มัน หาย ไป / แน่นอน ว่า มัน ไม่ ใช่ แค่\"",
+   "msg": "chunk \"ซึ่ง น้ำหนัก ที่ มัน หาย ไป\" is 14 letters, aim ≤ 12",
+   "sub": 6
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 14.8–17.12 \"ซึ่ง น้ำหนัก ที่ มัน หาย ไป / แน่นอน ว่า มัน ไม่ ใช่ แค่\"",
+   "msg": "chunk \"แน่นอน ว่า มัน ไม่ ใช่ แค่\" is 15 letters, aim ≤ 12",
+   "sub": 6
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 27.76–32.16 \"เอิ่ม หลุด กิน เยอะ / หรือ บางที ก็ / เห็น อาหาร ก็ ไม่ กล้า กิน\"",
+   "msg": "chunk \"เห็น อาหาร ก็ ไม่ กล้า กิน\" is 16 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 32.16–34.08 \"แล้ว ผม ไม่ ได้ บอก / นะ ว่า เคส ที่ กำลัง ไวรัล\"",
+   "msg": "chunk \"นะ ว่า เคส ที่ กำลัง ไวรัล\" is 15 letters, aim ≤ 12",
+   "sub": 13
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 34.08–35.84 \"อยู่ เนี่ย / เกิด จาก การ กิน น้อย / อย่าง เดียว นะ ครับ\"",
+   "msg": "chunk \"เกิด จาก การ กิน น้อย\" is 14 letters, aim ≤ 12",
+   "sub": 14
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 34.08–35.84 \"อยู่ เนี่ย / เกิด จาก การ กิน น้อย / อย่าง เดียว นะ ครับ\"",
+   "msg": "chunk \"อย่าง เดียว นะ ครับ\" is 13 letters, aim ≤ 12",
+   "sub": 14
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 35.84–38.0 \"เพราะว่า เรื่อง สุขภาพ / เนี่ย มัน มี หลาย / ปัจจัย\"",
+   "msg": "chunk \"เพราะว่า เรื่อง สุขภาพ\" is 16 letters, aim ≤ 12",
+   "sub": 15
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 38.0–40.08 \"แต่ สิ่ง ที่ ผม / อยาก ให้ ทุกคน / เลย รู้จัก เรื่อง นี้ ก็ คือ\"",
+   "msg": "chunk \"เลย รู้จัก เรื่อง นี้ ก็ คือ\" is 14 letters, aim ≤ 12",
+   "sub": 16
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 42.48–45.04 \"อย่า มอง ว่าการ / ทรมาน ตัวเอง เนี่ย คือ / วินัย\"",
+   "msg": "chunk \"ทรมาน ตัวเอง เนี่ย คือ\" is 15 letters, aim ≤ 12",
+   "sub": 18
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 55.36–57.28 \"ร่างกาย ตัวเอง ได้ นาน / ขึ้น พร้อม เร็ว เนี่ย\"",
+   "msg": "chunk \"ร่างกาย ตัวเอง ได้ นาน\" is 16 letters, aim ≤ 12",
+   "sub": 24
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 57.28–58.96 \"ผม บอก เลย ว่า ไม่ คุ้ม / นะ ครับ ถ้า มัน ต้อง แลก\"",
+   "msg": "chunk \"ผม บอก เลย ว่า ไม่ คุ้ม\" is 14 letters, aim ≤ 12",
+   "sub": 25
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 57.28–58.96 \"ผม บอก เลย ว่า ไม่ คุ้ม / นะ ครับ ถ้า มัน ต้อง แลก\"",
+   "msg": "chunk \"นะ ครับ ถ้า มัน ต้อง แลก\" is 15 letters, aim ≤ 12",
+   "sub": 25
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 64.0–67.44 \"คือ การ กิน ให้ พอ ดีแล้ว / คุณ ทำต่อ ได้ / โดยที่ คุณ ไม่ เกลียด\"",
+   "msg": "chunk \"คือ การ กิน ให้ พอ ดีแล้ว\" is 15 letters, aim ≤ 12",
+   "sub": 28
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 64.0–67.44 \"คือ การ กิน ให้ พอ ดีแล้ว / คุณ ทำต่อ ได้ / โดยที่ คุณ ไม่ เกลียด\"",
+   "msg": "chunk \"โดยที่ คุณ ไม่ เกลียด\" is 13 letters, aim ≤ 12",
+   "sub": 28
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 73.2–76.48 \"หนัก คือ การ ดูแลตัวเอง / ไม่ใช่การ ทำลาย / ตัวเองครับ\"",
+   "msg": "chunk \"หนัก คือ การ ดูแลตัวเอง\" is 16 letters, aim ≤ 12",
+   "sub": 31
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 76.48–78.64 \"เคย ผ่าน การ อดอาหาร / แบบ สุดโต่ง นะ ครับ\"",
+   "msg": "chunk \"เคย ผ่าน การ อดอาหาร\" is 16 letters, aim ≤ 12",
+   "sub": 32
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 76.48–78.64 \"เคย ผ่าน การ อดอาหาร / แบบ สุดโต่ง นะ ครับ\"",
+   "msg": "chunk \"แบบ สุดโต่ง นะ ครับ\" is 13 letters, aim ≤ 12",
+   "sub": 32
+  },
+  {
+   "level": "warn",
+   "code": "sub-face",
+   "where": "layout",
+   "msg": "the chin is low: subtitles may touch the face when zoomed"
+  }
+ ]
+}
