@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>CutPack ผลงาน</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Anuphan:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#0C0C0D}
+a{color:#F2F2F0;text-decoration:none}
+.scr{font-family:'Geist','Anuphan',system-ui,sans-serif;color:#F2F2F0;-webkit-font-smoothing:antialiased}
+.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.back{width:40px;height:40px;border-radius:999px;border:1px solid rgba(255,255,255,0.14);display:inline-flex;align-items:center;justify-content:center;color:#F2F2F0}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 1160px; box-sizing: border-box; overflow: hidden; position: relative; background: #0C0C0D; background-image: radial-gradient(120% 45% at 50% -14%, rgba(255,255,255,0.12), rgba(255,255,255,0) 62%); padding: 20px 20px 32px; display: flex; flex-direction: column; gap: 18px">
+
+  <div style="display: flex; align-items: center; justify-content: space-between">
+    <a href="Main.dc.html" class="back" aria-label="กลับหน้าหลัก">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+    </a>
+    <span style="display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,0.10); font-size: 13px">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 14px; height: 14px; stroke-width: 2.4"><path d="M20 6 9 17l-5-5"/></svg>
+      เสร็จแล้ว
+    </span>
+    <span style="width: 40px"></span>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.4px; line-height: 1.3">ราคาไม่ใช่เรื่องเดียวที่ลูกค้าดู</h1>
+    <span style="font-size: 14px; color: rgba(255,255,255,0.5)">Editorial · 1:20 · 1080×1920</span>
+  </div>
+
+  <div style="position: relative; height: 560px; border-radius: 24px; overflow: hidden; background: #1A1A1B; border: 1px solid rgba(255,255,255,0.10)">
+    <img src="{{shot}}" alt="{{shotAlt}}" style="width: 100%; height: 100%; object-fit: cover; display: block">
+    <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0) 35%)"></div>
+    <div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 6px; padding: 4px; border-radius: 999px; background: rgba(12,12,13,0.78)">
+      <sc-for list="{{views}}" as="v" hint-placeholder-count="2">
+        <button onClick="{{v.pick}}" aria-pressed="{{v.on}}" style="all: unset; cursor: pointer; height: 30px; padding: 0 14px; border-radius: 999px; background: {{v.bg}}; color: {{v.fg}}; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center">{{v.label}}</button>
+      </sc-for>
+    </div>
+    <button aria-label="เล่นคลิป" style="all: unset; cursor: pointer; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 72px; height: 72px; border-radius: 999px; background: rgba(255,255,255,0.92); color: #0C0C0D; display: flex; align-items: center; justify-content: center">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 28px; height: 28px; fill: currentColor; margin-left: 4px"><path d="M7 4.5v15l12-7.5z"/></svg>
+    </button>
+    <div style="position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; align-items: center; gap: 10px">
+      <span style="font-size: 12.5px; font-variant-numeric: tabular-nums">0:00</span>
+      <div style="flex: 1; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.25)">
+        <div style="width: 0%; height: 100%; border-radius: 999px; background: #FFFFFF"></div>
+      </div>
+      <span style="font-size: 12.5px; font-variant-numeric: tabular-nums">1:20</span>
+    </div>
+  </div>
+
+  <a href="#" style="display: flex; align-items: center; justify-content: center; gap: 10px; height: 54px; border-radius: 999px; background: #FFFFFF; color: #0C0C0D; font-size: 16px; font-weight: 600">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2.2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/></svg>
+    ดาวน์โหลด MP4
+  </a>
+
+  <div style="display: flex; gap: 10px">
+    <a href="#" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; height: 48px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); font-size: 15px; font-weight: 500">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg>
+      แชร์
+    </a>
+    <a href="Fix.dc.html" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; height: 48px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); font-size: 15px; font-weight: 500">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      สั่งแก้
+    </a>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 16px; background: #151516; border: 1px solid rgba(255,255,255,0.10)">
+    <span style="width: 36px; height: 36px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); display: inline-flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.72); flex-shrink: 0">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    </span>
+    <span style="flex: 1; font-size: 13.5px; line-height: 1.55; color: rgba(255,255,255,0.72)">เก็บไฟล์ไว้ให้ [จำนวน] วัน ดาวน์โหลดเก็บไว้ก่อนหมดเวลา</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1160}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { view: 'after' }; }
+  renderVals() {
+    const v = this.state.view;
+    return {
+      shot: v === 'after' ? '/_blob/9d787f9bfc8592ec1cbb6d209d93a910' : '/_blob/ff5d3ed305efb37e5bcc27b09e16b9ec',
+      shotAlt: v === 'after' ? 'ภาพจากคลิปที่ตัดต่อแล้ว' : 'ภาพจากคลิปดิบ',
+      views: [['before', 'ก่อน'], ['after', 'หลัง']].map(([id, label]) => ({
+        label, on: v === id,
+        bg: v === id ? '#FFFFFF' : 'transparent', fg: v === id ? '#0C0C0D' : 'rgba(255,255,255,0.72)',
+        pick: () => this.setState({ view: id })
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

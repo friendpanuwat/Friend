@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>CutPack สั่งแก้</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Anuphan:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#0C0C0D}
+a{color:#F2F2F0;text-decoration:none}
+.scr{font-family:'Geist','Anuphan',system-ui,sans-serif;color:#F2F2F0;-webkit-font-smoothing:antialiased}
+.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.back{width:40px;height:40px;border-radius:999px;border:1px solid rgba(255,255,255,0.14);display:inline-flex;align-items:center;justify-content:center;color:#F2F2F0}
+.chip{all:unset;cursor:pointer;height:34px;padding:0 14px;border-radius:999px;font:500 13.5px 'Geist','Anuphan',sans-serif;display:inline-flex;align-items:center}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 1160px; box-sizing: border-box; overflow: hidden; position: relative; background: #0C0C0D; background-image: radial-gradient(120% 45% at 50% -14%, rgba(255,255,255,0.12), rgba(255,255,255,0) 62%); padding: 20px 20px 32px; display: flex; flex-direction: column; gap: 18px">
+
+  <div style="display: flex; align-items: center; justify-content: space-between">
+    <a href="Result.dc.html" class="back" aria-label="ย้อนกลับ">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+    </a>
+    <span style="font-size: 13px; color: rgba(255,255,255,0.5)">สั่งแก้คลิป</span>
+    <span style="width: 40px"></span>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <h1 style="margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.4px">อยากแก้ตรงไหน</h1>
+    <p style="margin: 0; font-size: 15px; line-height: 1.6; color: rgba(255,255,255,0.72)">บอกเวลาและสิ่งที่อยากให้เปลี่ยน ระบบจะแก้เฉพาะจุดนั้น</p>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 16px; background: #151516; border: 1px solid rgba(255,255,255,0.10)">
+    <img src="/_blob/9d787f9bfc8592ec1cbb6d209d93a910" alt="" style="width: 44px; height: 58px; border-radius: 10px; object-fit: cover; background: #222; flex-shrink: 0">
+    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+      <span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">ราคาไม่ใช่เรื่องเดียวที่ลูกค้าดู</span>
+      <span style="font-size: 13px; color: rgba(255,255,255,0.5)">Editorial · 1:20</span>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 10px; padding: 0 2px">
+    <h2 style="margin: 0; font-size: 19px; font-weight: 600">จุดที่จะแก้</h2>
+    <span style="min-width: 22px; height: 22px; padding: 0 6px; box-sizing: border-box; border-radius: 999px; background: rgba(255,255,255,0.10); font-size: 12px; color: rgba(255,255,255,0.72); display: inline-flex; align-items: center; justify-content: center">{{count}}</span>
+  </div>
+
+  <sc-for list="{{points}}" as="p" hint-placeholder-count="2">
+    <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 20px; background: #151516; border: 1px solid rgba(255,255,255,0.10)">
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="width: 28px; height: 28px; border-radius: 999px; background: #FFFFFF; color: #0C0C0D; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center">{{p.k}}</span>
+          <span style="height: 30px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.14); font-size: 14px; font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; gap: 6px">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 14px; height: 14px; color: rgba(255,255,255,0.5)"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            {{p.t}}
+          </span>
+        </div>
+        <button onClick="{{p.remove}}" aria-label="ลบจุดนี้" style="all: unset; cursor: pointer; width: 32px; height: 32px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.5)">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 16px; height: 16px"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px">
+        <sc-for list="{{p.kinds}}" as="k" hint-placeholder-count="4">
+          <button class="chip" onClick="{{k.pick}}" aria-pressed="{{k.on}}" style="background: {{k.bg}}; color: {{k.fg}}; border: 1px solid {{k.line}}">{{k.label}}</button>
+        </sc-for>
+      </div>
+      <div style="padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); background: #0F0F10; font-size: 14.5px; line-height: 1.55; min-height: 44px; box-sizing: border-box">{{p.note}}</div>
+    </div>
+  </sc-for>
+
+  <button onClick="{{add}}" style="all: unset; cursor: pointer; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; height: 48px; border-radius: 16px; border: 1.5px dashed rgba(255,255,255,0.22); font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.72)">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+    เพิ่มจุดที่จะแก้
+  </button>
+
+  <div style="flex: 1"></div>
+
+  <a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 10px; height: 54px; border-radius: 999px; background: #FFFFFF; color: #0C0C0D; font-size: 16px; font-weight: 600">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2.2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+    ส่งให้แก้
+  </a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1160}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { points: [
+      { t: '0:14', kind: 'gfx', note: 'การ์ดนี้ไม่ตรงกับที่พูด อยากได้รูปคนจับมือ' },
+      { t: '0:41', kind: 'sub', note: 'คำว่า แบรน ต้องเป็น แบรนด์' }
+    ] };
+  }
+  renderVals() {
+    const kinds = [['sub', 'ซับผิด'], ['gfx', 'กราฟิก'], ['face', 'บังหน้า'], ['sound', 'เสียง'], ['other', 'อื่น ๆ']];
+    const pts = this.state.points;
+    const setKind = (i, id) => this.setState({ points: pts.map((p, j) => j === i ? { ...p, kind: id } : p) });
+    return {
+      count: pts.length,
+      add: () => this.setState({ points: [...pts, { t: '0:00', kind: 'other', note: 'พิมพ์สิ่งที่อยากให้แก้' }] }),
+      points: pts.map((p, i) => ({
+        k: String.fromCharCode(65 + i), t: p.t, note: p.note,
+        remove: () => this.setState({ points: pts.filter((_, j) => j !== i) }),
+        kinds: kinds.map(([id, label]) => {
+          const on = p.kind === id;
+          return { label, on, bg: on ? '#FFFFFF' : 'transparent', fg: on ? '#0C0C0D' : 'rgba(255,255,255,0.72)',
+            line: on ? '#FFFFFF' : 'rgba(255,255,255,0.14)', pick: () => setKind(i, id) };
+        })
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

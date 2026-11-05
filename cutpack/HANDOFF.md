@@ -77,6 +77,7 @@ git checkout -B <สาขาที่ session ใหม่ได้รับ> o
 | `asr-test/` | เทียบตัวถอดเสียงภาษาไทย (`bench.py`) ผลกับเสียงอ่าน 40 ประโยค: Typhoon ASR Realtime แม่นสุดกับคำไทยและเร็วสุด ดู `asr-test/README.md` |
 | mockup หน้าแก้ซับ (ขั้นที่ 4) | https://claude.ai/artifact/1Cn4eKCgufq8xEs8szjtkk หน้าจอมือถือที่กดลองได้: เล่นตัวอย่างซับ แก้ทีละบรรทัดแบบแยกท่อน แทนที่คำทั้งคลิป เปิดปิดการตัดคำลงท้าย คำที่ระบบไม่แน่ใจเป็นสีส้ม และหน้ายืนยัน (2026-11-04 รอ Friend ให้ความเห็น) |
 | `library/webapp-mockup/` | เว็บแอปทั้งระบบแบบ dark mode ที่กดลองได้ครบ 8 หน้า (หน้าหลัก + 7 ขั้น) ที่ https://claude.ai/artifact/VJt7uuxPuu2MNZ2Z2wfV8r สิ่งที่สมมติไว้อยู่ใน `README.md` (2026-11-04 รอ Friend ให้ความเห็น) |
+| `library/webapp-mockup-mono/` | เว็บแอปชุดเดียวกันในโทนโมโนโครม (ดำ ขาว แคปซูลขาว การ์ดเส้นขอบบาง) ตามเว็บตัวอย่างที่ Friend ส่งมา ที่ https://claude.ai/artifact/C4jZsFkbvFe9x2N7RJK8pf สิ่งที่สมมติไว้อยู่ใน `README.md` (2026-11-05 รอ Friend ให้ความเห็น) |
 | `library/topic-packs/` | ชุดเฉพาะหมวด 4 แกลเลอรี หมวดละ 11 ชิ้น (ลิงก์อยู่ใน `README.md`, 2026-11-04 รอ Friend กด) ตัวอย่าง คลิป ตัววัด และตัวสร้างแกลเลอรีอยู่ที่นี่ โค้ดชิ้นส่วนอยู่ที่ `engine/styles/editorial/packs/` ดู `README.md` |
 | `library/real-test/` | คลิปทดสอบ 18 วินาทีที่ Friend ผ่านแล้ว, `head-at-top/` (กรณีหัวชิดขอบบน) และ `real1/` คลิปจริงคลิปแรก 52 วินาทีที่รันผ่านระบบจริง พร้อมเวลาแต่ละขั้นใน `real1/README.md` |
 | `library/sample-clip/` | คลิปตัวอย่างที่ Friend ส่งมา (10 วินาที) |
@@ -96,7 +97,7 @@ git checkout -B <สาขาที่ session ใหม่ได้รับ> o
 3. ~~ผลการเลือกวิดเจ็ต overlay~~ ได้แล้ว: เก็บครบ 30 แบบ หมายเหตุแก้แล้ว (B01-v2 Friend ตอบในแชทว่าเก็บ 2026-11-04 ดู `library/widgets/README.md`) อ่านซ้ำได้ด้วย `ArtifactData` `list` ที่ collection `variants` ของ https://claude.ai/artifact/2hSrmqkhJdryvRzei7Zh6R
 4. ~~คีย์ API~~ ได้แล้ว (2026-11-05 อยู่ในตัวแปร `KEY`) เครดิตเหลือราว 0.35 ดอลลาร์ ดูหัวข้อ "เริ่มแชทถัดไปที่นี่"
 5. **คลิปดิบที่มีเสียงพูด** ได้มา 4 คลิป (2026-11-05, เป็นคลิป TikTok ที่มีลายน้ำ) ยังอยากได้คลิปดิบจริงที่ไม่มีลายน้ำ หลายความยาว เพื่อวัดต้นทุนคลิปสั้นและคุณภาพ
-6. **ความเห็นต่อคลิปจริงที่เรนเดอร์ทั้งสองสไตล์** (`library/real-test/real1/`) และ **ต่อ mockup หน้าแก้ซับ** https://claude.ai/artifact/1Cn4eKCgufq8xEs8szjtkk และ **ต่อเว็บแอป dark mode** https://claude.ai/artifact/VJt7uuxPuu2MNZ2Z2wfV8r
+6. **ความเห็นต่อคลิปจริงที่เรนเดอร์ทั้งสองสไตล์** (`library/real-test/real1/`) และ **ต่อ mockup หน้าแก้ซับ** https://claude.ai/artifact/1Cn4eKCgufq8xEs8szjtkk และ **ต่อเว็บแอป dark mode** https://claude.ai/artifact/VJt7uuxPuu2MNZ2Z2wfV8r และ **ต่อเว็บแอปโทนโมโนโครม** https://claude.ai/artifact/C4jZsFkbvFe9x2N7RJK8pf
 7. **ตัดสิน:**
    - ~~วิธีบีบอัดวิดีโอ~~ Friend ตกลงเปลี่ยนเป็น `medium` crf 21 แล้ว (2026-11-04) และแก้เอนจินแล้ว
    - ~~วิดเจ็ต B01-v2 เก็บหรือตัด~~ Friend ดูคลิปแล้วตอบว่าเก็บ (2026-11-04)
