@@ -1,0 +1,352 @@
+{
+ "topic": "edu",
+ "camera": [
+  {
+   "move": "push",
+   "t": 12.3
+  },
+  {
+   "move": "pull",
+   "t": 14.8,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 30.6
+  },
+  {
+   "move": "pull",
+   "t": 32.4,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 42.3
+  },
+  {
+   "move": "pull",
+   "t": 44.5,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 56.3
+  },
+  {
+   "move": "pull",
+   "t": 57.2,
+   "cut": true
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 1.5,
+   "t1": 3.5,
+   "say": "ยังมีบางคนใช้วิธีเรียน",
+   "shows": "a crowd, one person highlighted",
+   "part": "B10.v1",
+   "bg": "glow",
+   "hit": 2.06,
+   "need": "",
+   "slots": {
+    "who": "บางคน",
+    "lead": "ยังมี",
+    "key": "บางคน"
+   }
+  },
+  {
+   "t0": 4.0,
+   "t1": 5.7,
+   "say": "เหมาะสมกับตัวเองมากที่สุด",
+   "shows": "big check mark drawn",
+   "part": "B08.v4",
+   "bg": "white",
+   "hit": 4.48,
+   "need": "",
+   "slots": {
+    "goal": "เหมาะกับตัวเอง",
+    "icon": "target",
+    "key": "ที่สุด"
+   }
+  },
+  {
+   "t0": 6.5,
+   "t1": 8.7,
+   "say": "วิธีหนึ่งที่เรียกว่า Conprentblenport",
+   "shows": "tip card with the method name highlighted",
+   "part": "B13.v4",
+   "bg": "cream",
+   "hit": 7.28,
+   "need": "",
+   "slots": {
+    "tip": "Conprentblenport",
+    "lead": "เรียกว่า"
+   }
+  },
+  {
+   "t0": 9.4,
+   "t1": 11.8,
+   "say": "เพื่อบางคนใช้แล้วพูดง่าย",
+   "shows": "a social comment with a heart",
+   "part": "B11.v4",
+   "bg": "glow",
+   "hit": 11.44,
+   "need": "",
+   "slots": {
+    "text": "ใช้แล้วพูดง่าย",
+    "who": "บางคน"
+   }
+  },
+  {
+   "t0": 14.8,
+   "t1": 16.9,
+   "say": "แล้วอีกเดี๋ยวจะเข้าใจแล้ว",
+   "shows": "progress bar fills, check at the end",
+   "part": "B08.v2",
+   "bg": "white",
+   "hit": 15.12,
+   "need": "",
+   "slots": {
+    "goal": "เข้าใจแล้ว",
+    "icon": "brain",
+    "key": "เข้าใจแล้ว"
+   }
+  },
+  {
+   "t0": 17.5,
+   "t1": 19.4,
+   "say": "ฟังซ้ำไปเรื่อยแต่เติมอะไรใหม่",
+   "shows": "repeating crossed out, new thing appears",
+   "part": "B05.v1",
+   "bg": "cream",
+   "hit": 18.08,
+   "need": "",
+   "slots": {
+    "x": "ฟังซ้ำ",
+    "y": "เติมของใหม่",
+    "aty": 18.56,
+    "lead": "เรื่อยแต่"
+   }
+  },
+  {
+   "t0": 22.4,
+   "t1": 24.4,
+   "say": "สิ่งใหม่ จากบริบทเดิม",
+   "shows": "slider reveals the new thing after old context",
+   "part": "B03.v4",
+   "bg": "glow",
+   "hit": 22.8,
+   "need": "",
+   "slots": {
+    "a": "บริบทเดิม",
+    "b": "สิ่งใหม่",
+    "ia": "house",
+    "ib": "sparkles",
+    "win": "b"
+   }
+  },
+  {
+   "t0": 24.9,
+   "t1": 27.0,
+   "say": "คำศัพท์ใหม่ ไม่รู้คำว่า Consic",
+   "shows": "vocabulary card flips",
+   "part": "EDU.h1",
+   "bg": "cream",
+   "hit": 26.4,
+   "need": "",
+   "slots": {
+    "word": "Consic",
+    "lead": "ไม่รู้คำว่า"
+   }
+  },
+  {
+   "t0": 27.6,
+   "t1": 29.9,
+   "say": "ไม่ใช้ประโยคอังกฤษ เราจะใช้ประโยคไทย",
+   "shows": "English chip crossed, Thai chip ticked",
+   "part": "B05.v2",
+   "bg": "white",
+   "hit": 28.1,
+   "need": "",
+   "slots": {
+    "x": "ประโยคอังกฤษ",
+    "y": "ประโยคไทย",
+    "aty": 29.68,
+    "lead": "ไม่ใช้"
+   }
+  },
+  {
+   "t0": 32.4,
+   "t1": 34.5,
+   "say": "คนพูดอังกฤษคำไทยคำ",
+   "shows": "English side versus Thai side",
+   "part": "B03.v1",
+   "bg": "cream",
+   "hit": 33.04,
+   "need": "",
+   "slots": {
+    "a": "อังกฤษ",
+    "b": "ไทย",
+    "ia": "globe",
+    "ib": "languages",
+    "win": ""
+   }
+  },
+  {
+   "t0": 34.6,
+   "t1": 36.6,
+   "say": "จะไม่เฉลยความหมาย",
+   "shows": "phone alert with a red dot",
+   "part": "B07.v3",
+   "bg": "white",
+   "hit": 34.96,
+   "need": "",
+   "slots": {
+    "text": "ไม่เฉลยความหมาย",
+    "icon": "eye-off",
+    "lead": "จะไม่"
+   }
+  },
+  {
+   "t0": 39.3,
+   "t1": 41.6,
+   "say": "เรียนรู้ความหมายจากบริบทเอง",
+   "shows": "context arrow leads to meaning",
+   "part": "B12.v1",
+   "bg": "cream",
+   "hit": 40.16,
+   "need": "",
+   "slots": {
+    "a": "บริบท",
+    "ia": "book",
+    "b": "ความหมาย",
+    "ib": "lightbulb",
+    "key": "ความหมาย"
+   }
+  },
+  {
+   "t0": 44.5,
+   "t1": 46.8,
+   "say": "โกหกครั้งเดียว ต้องโกหกไปอีกสิบรอบ",
+   "shows": "big arrow up with ten rounds",
+   "part": "B02.v3",
+   "bg": "glow",
+   "hit": 46.4,
+   "need": "",
+   "slots": {
+    "dir": "up",
+    "num": "สิบรอบ",
+    "icon": "repeat",
+    "lead": "ต้องโกหกไปอีก"
+   }
+  },
+  {
+   "t0": 47.0,
+   "t1": 49.6,
+   "say": "ผลของการโกหกคือไม่มีวันจบ",
+   "shows": "cracked infinity icon",
+   "part": "B07.v2",
+   "bg": "cream",
+   "hit": 48.72,
+   "need": "",
+   "slots": {
+    "text": "ไม่มีวันจบ",
+    "icon": "infinity",
+    "lead": "คือมัน"
+   }
+  },
+  {
+   "t0": 53.4,
+   "t1": 55.8,
+   "say": "จะเห็นได้ชัดในอีกยี่สิบปี",
+   "shows": "clock stops at twenty years",
+   "part": "B09.v1",
+   "bg": "white",
+   "hit": 55.28,
+   "need": "",
+   "slots": {
+    "when": "ยี่สิบปี",
+    "icon": "clock",
+    "lead": "ในอีก"
+   }
+  },
+  {
+   "t0": 57.2,
+   "t1": 60.9,
+   "say": "ทิ้งขยะลงแม่น้ำ น้ำเน่า ปลาตาย",
+   "shows": "cycle trash to dirty water to dead fish",
+   "part": "B12.v4",
+   "bg": "cream",
+   "hit": 60.56,
+   "need": "",
+   "slots": {
+    "a": "ทิ้งขยะ",
+    "ia": "trash-2",
+    "b": "น้ำเน่า",
+    "ib": "droplets",
+    "c": "ปลาตาย",
+    "ic": "fish"
+   }
+  },
+  {
+   "t0": 63.3,
+   "t1": 65.5,
+   "say": "ไม่แคร์สิ่งแวดล้อม",
+   "shows": "warning sign over leaf",
+   "part": "B07.v1",
+   "bg": "glow",
+   "hit": 63.68,
+   "need": "",
+   "slots": {
+    "text": "ไม่แคร์สิ่งแวดล้อม",
+    "icon": "leaf",
+    "lead": "การไม่"
+   }
+  },
+  {
+   "t0": 66.8,
+   "t1": 69.4,
+   "say": "บริษัทไม่เคยฟังเสียงพนักงาน",
+   "shows": "chat message read, ignored",
+   "part": "B11.v1",
+   "bg": "cream",
+   "hit": 69.04,
+   "need": "",
+   "slots": {
+    "text": "ไม่ฟังเสียงพนักงาน",
+    "who": "บริษัท"
+   }
+  },
+  {
+   "t0": 70.4,
+   "t1": 73.1,
+   "say": "คนเก่งทยอยกันลาออกหมดเลย",
+   "shows": "bars fall, red last bar",
+   "part": "B02.v1",
+   "bg": "white",
+   "hit": 72.8,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "users",
+    "lead": "คนเก่งทยอยกัน",
+    "key": "ลาออก"
+   }
+  },
+  {
+   "t0": 73.7,
+   "t1": 76.37,
+   "say": "ถ้าดูแล้วว่า consicnce ไปว่าอะไร",
+   "shows": "lightbulb lights up",
+   "part": "B13.v1",
+   "bg": "glow",
+   "hit": 74.72,
+   "need": "",
+   "slots": {
+    "tip": "ดูว่าไปทางไหน",
+    "icon": "lightbulb",
+    "lead": "ถ้าดูแล้ว"
+   }
+  }
+ ]
+}

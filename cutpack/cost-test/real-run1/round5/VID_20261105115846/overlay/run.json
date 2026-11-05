@@ -1,0 +1,54 @@
+{
+ "clip": "VID_20261105115846.mp4",
+ "duration_s": 76.37,
+ "style": "overlay",
+ "status": "ok",
+ "topic": "edu",
+ "calls": [
+  {
+   "stage": "scene",
+   "model": "claude-sonnet-5-5",
+   "served": "claude-sonnet-5-5",
+   "in": 2532,
+   "out": 11491,
+   "cache_read": 18853,
+   "cache_write_5m": 0,
+   "cache_write_1h": 0,
+   "stop": "end_turn"
+  },
+  {
+   "stage": "custom_scene",
+   "model": "claude-sonnet-5-5",
+   "served": "claude-sonnet-5-5",
+   "in": 491,
+   "out": 1151,
+   "cache_read": 0,
+   "cache_write_5m": 3841,
+   "cache_write_1h": 0,
+   "stop": "end_turn"
+  },
+  {
+   "stage": "scene",
+   "model": "claude-sonnet-5-5",
+   "served": "claude-sonnet-5-5",
+   "in": 14233,
+   "out": 5618,
+   "cache_read": 18853,
+   "cache_write_5m": 0,
+   "cache_write_1h": 0,
+   "stop": "end_turn"
+  },
+  {
+   "stage": "custom_scene",
+   "model": "claude-sonnet-5-5",
+   "served": "claude-sonnet-5-5",
+   "in": 491,
+   "out": 798,
+   "cache_read": 3841,
+   "cache_write_5m": 0,
+   "cache_write_1h": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "time": "2026-11-05T13:28:25"
+}

@@ -1,0 +1,85 @@
+{
+ "status": "no-plan",
+ "topic": "none",
+ "log": [
+  "plan request failed: answer cut off at max_tokens"
+ ],
+ "fallback": [],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "cards cover 0% of the clip, need ≥ 40%"
+  },
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "0 cards, need ≥ 20 for 80.0 s"
+  },
+  {
+   "level": "error",
+   "code": "aroll-long",
+   "where": "0.00–80.02",
+   "msg": "80.0 s of talking head without a card (max 4.5)"
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 20.0–22.16 \"ฮอร์โมน / สุขภาพจิต / แล้วก็ ความสัมพันธ์\"",
+   "msg": "chunk \"แล้วก็ ความสัมพันธ์\" is 13 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 34.64–35.84 \"เกิดจาก การ / กิน น้อย / อย่างเดียว นะครับ\"",
+   "msg": "chunk \"อย่างเดียว นะครับ\" is 13 letters, aim ≤ 12",
+   "sub": 18
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 41.28–44.16 \"การ อดอาหาร / อย่ามอง ว่าการ / ทรมาน ตัวเองเนี่ย\"",
+   "msg": "chunk \"ทรมาน ตัวเองเนี่ย\" is 13 letters, aim ≤ 12",
+   "sub": 22
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 50.08–51.84 \"บางคนจะ เป็นการ / ที่ ทำให้ / คุณ รู้สึกว่า\"",
+   "msg": "chunk \"บางคนจะ เป็นการ\" is 13 letters, aim ≤ 12",
+   "sub": 26
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 60.64–62.56 \"เป้าหมาย ของการ / ฟิตเนสเนี่ย / ไม่ใช่ การ\"",
+   "msg": "chunk \"เป้าหมาย ของการ\" is 13 letters, aim ≤ 12",
+   "sub": 32
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 74.88–76.48 \"ไม่ใช่ / การทำลาย ตัวเองครับ\"",
+   "msg": "chunk \"การทำลาย ตัวเองครับ\" is 15 letters, aim ≤ 12",
+   "sub": 39
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 76.48–78.64 \"เคยผ่าน การ / อดอาหาร / แบบสุดโต่ง นะครับ\"",
+   "msg": "chunk \"แบบสุดโต่ง นะครับ\" is 13 letters, aim ≤ 12",
+   "sub": 40
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 78.64–80.016 \"คอมเมนต์ว่า เคยนะ / ครับผม\"",
+   "msg": "chunk \"คอมเมนต์ว่า เคยนะ\" is 14 letters, aim ≤ 12",
+   "sub": 41
+  }
+ ]
+}

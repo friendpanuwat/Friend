@@ -1,0 +1,31 @@
+{
+ "status": "ok",
+ "topic": "edu",
+ "log": [
+  "fix round (plan): 3 errors sent back"
+ ],
+ "fallback": [],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-high",
+   "where": "scenes",
+   "msg": "cards cover 61% of the clip, keep ≤ 60% so the speaker is seen"
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 30.0–32.0 \"ไทย แล้วก็ใช้ / คำว่า / conskence เข้าไป\"",
+   "msg": "chunk \"conskence เข้าไป\" is 14 letters, aim ≤ 12",
+   "sub": 7
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 51.44–53.36 \"ประเทศ ที่ไม่ / ลงทุนกับ การศึกษา\"",
+   "msg": "chunk \"ลงทุนกับ การศึกษา\" is 13 letters, aim ≤ 12",
+   "sub": 13
+  }
+ ]
+}

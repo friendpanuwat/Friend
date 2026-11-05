@@ -1,0 +1,57 @@
+{
+ "status": "no-plan",
+ "topic": "none",
+ "log": [
+  "plan request failed: answer cut off at max_tokens"
+ ],
+ "fallback": [],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "0 widgets, need ≥ 21 for 76.4 s with room"
+  },
+  {
+   "level": "error",
+   "code": "bare-long",
+   "where": "0.00–76.37",
+   "msg": "76.4 s without a widget (max 6.0)"
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 6.48–8.8 \"วิธีหนึ่งที่ เรียกว่า / Conprentblenport\"",
+   "msg": "chunk \"Conprentblenport\" is 16 letters, aim ≤ 12",
+   "sub": 3
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 51.44–54.24 \"ประเทศ ที่ไม่ / ลงทุนกับ การศึกษา / consicance จะ\"",
+   "msg": "chunk \"ลงทุนกับ การศึกษา\" is 13 letters, aim ≤ 12",
+   "sub": 22
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 69.2–72.32 \"เสียงของ พนักงาน / เลย consiquence / คือ คนเก่ง\"",
+   "msg": "chunk \"เสียงของ พนักงาน\" is 13 letters, aim ≤ 12",
+   "sub": 28
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 69.2–72.32 \"เสียงของ พนักงาน / เลย consiquence / คือ คนเก่ง\"",
+   "msg": "chunk \"เลย consiquence\" is 14 letters, aim ≤ 12",
+   "sub": 28
+  },
+  {
+   "level": "warn",
+   "code": "sub-face",
+   "where": "layout",
+   "msg": "the chin is low: subtitles may touch the face when zoomed"
+  }
+ ]
+}
