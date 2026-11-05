@@ -7,7 +7,7 @@ placed for its own time on screen, not for the whole clip: the face box is the u
 breathing), so it never covers the face, mid-push included. Hair may sit under a widget; the face may not.
 
 Order (Friend 2026-11-05: "ถ้ามีพื้นที่ว่างบนหัวก็เอาไว้บนหัว … ตรงหน้าอกก็ได้ … ใส่ตรงที่มีพื้นที่ว่างเท่านั้น"):
-  1. above the head   short widget 600×190 at y 150, centred on the face, if it ends 20 px above the (zoomed) face
+  1. above the head   short widget 600×190 at y 150, in the middle of the frame, if it ends 20 px above the (zoomed) face
   2. at chest level    short widget between the zoomed chin (+40) and the subtitles (−20)
   3. beside the head   narrow widget 210×380, left if there is room, else right (never in the app's button strip)
   4. no room          the widget is left out (fallback.py drops it); the checker counts density only where there is room
@@ -60,7 +60,7 @@ def spots(keep, sub_top):
     """Every place a widget fits next to this keep-out box: {'top' | 'chest': short pos, 'left' | 'right': narrow pos}."""
     kx0, ky0, kx1, ky1 = keep
     out = {}
-    sx = int(min(max(40, (kx0 + kx1) / 2 - SHORT[0] / 2), RIGHT_UI - SHORT[0]))
+    sx = (W - SHORT[0]) // 2   # the middle of the frame, like the subtitles (Friend 2026-11-05: "ทำไมไม่อยู่ตรงกลางคลิป")
     if TOPBAR + SHORT[1] + 20 <= ky0: out['top'] = {'x': sx, 'y': TOPBAR}
     band0, band1 = ky1 + 40, sub_top - 20
     if band1 - band0 >= SHORT[1]: out['chest'] = {'x': sx, 'y': round(band0 + (band1 - band0 - SHORT[1]) / 2)}

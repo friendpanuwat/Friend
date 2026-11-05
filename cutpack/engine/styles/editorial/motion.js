@@ -168,7 +168,9 @@ function widgetAt(cat, v, kind, t0, t1, opts) {
   if (short) FITS.push(() => {   // after the text has been shrunk to fit: card width = visual + text + margins (the text box is the kit's, or B14's own)
     const tb = w.querySelector('[data-wtext]'); if (!tb) return;
     const tw = Math.max(0, ...[...tb.children].map(e => e.offsetLeft + e.offsetWidth)), CW = Math.min(L.W, Math.ceil(tb.offsetLeft + tw + 32));
-    w.style.width = `${CW}px`; if (!opts.pos) w.style.left = `${at.x + (L.W - CW) / 2}px`;
+    // centred in its slot also when the plan gives the slot (Friend 2026-11-05: in real clips the card sat at the slot's left
+    // edge, off the middle; the slot is centred on the face, and the card stays inside it, so it still keeps off the face)
+    w.style.width = `${CW}px`; w.style.left = `${at.x + (L.W - CW) / 2}px`;
   });
   return w;
 }

@@ -17,7 +17,8 @@ Layout (1080×1920, decisions in DECISIONS.md). The keep-out box is the face box
 reach (CAM.max 1.08 × breathing 1.014, around the video's transform-origin 50% 45%), so nothing covers the face even
 mid-push (the overlay skill: "ไม่บังหน้าแม้ตอนซูม"). Hair may sit under a widget; the face may not.
   subtitleTop  = max(1300, zoomed chin + 40), at most 1380 so it ends above the app's bottom bar; a lower chin → `subOverFace`
-  short widget = 600×190, centred on the face, in the first place that has room (Friend 2026-11-04):
+  short widget = 600×190, in the middle of the frame (Friend 2026-11-05; was centred on the face), in the first place
+                 that has room (Friend 2026-11-04):
                  1. above the head: y 150 (under the app's top bar), if it ends 20 px above the face
                  2. at chest level, when the head is at the top edge: centred between the chin (+40, zoomed) and the
                     subtitles (−20); it may cover the hands, never the face. `shortPlace` says which (top | chest | none)
@@ -72,7 +73,7 @@ def layout(boxes, n_samples):
     keep = zoomed(face)
     kx0, ky0, kx1, ky1 = keep
     sub_top = min(SUB_TOP_MAX, max(SUB_TOP_MIN, ky1 + 40))
-    sx = int(min(max(40, (kx0 + kx1) / 2 - SHORT[0] / 2), RIGHT_UI - SHORT[0]))
+    sx = (W - SHORT[0]) // 2   # the middle of the frame, like the subtitles (Friend 2026-11-05)
     band0, band1 = ky1 + 40, sub_top - 20   # chest: below the (zoomed) chin, above the subtitles
     if TOPBAR + SHORT[1] + 20 > ky0 and band1 - band0 < SHORT[1] and band0 + SHORT[1] + 20 <= SUB_TOP_MAX:
         sub_top = band0 + SHORT[1] + 20; band1 = sub_top - 20   # no room above the head: let the subtitles down (≤ 1380) to open the chest
