@@ -1,0 +1,12 @@
+{
+ "scenes": [
+  {
+   "i": 15,
+   "code": "const w = tile(vis, 'wallet', T.t0 + .1, 'left:45px;top:62px', {size: 60, bg: '#EEF0F4', color: NAVY, sound: false, float: false});\nconst coin = div('left:60px;top:8px;width:30px;height:30px;opacity:0', vis, ico('coins', 30, ACC, 2.5));\nmv.fly(coin, T.hit - .2, 'translateY(-40px)');\nmv.show(coin, T.hit - .2);\nmv.punch(w.inner, T.hit);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 21,
+   "code": "const base = tile(vis, 'banknote', T.t0 + .1, 'left:15px;top:45px', {size: 60, bg: '#EEF0F4', color: NAVY, sound: false, float: false});\nfor (let i = 0; i < 3; i++) {\n  const d = div(`left:${88 + i * 20}px;top:${82 + 0}px;width:14px;height:14px;border-radius:7px;background:${i === 2 ? ACC : NAVY};opacity:0`, vis);\n  mv.pop(d, T.hit + i * .18);\n  snd(i === 0 ? 'hit' : 'tick', T.hit + i * .18);\n}"
+  }
+ ]
+}

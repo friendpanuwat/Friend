@@ -1,0 +1,46 @@
+{
+ "status": "ok",
+ "topic": "none",
+ "log": [],
+ "fallback": [],
+ "library_missing": [
+  "a camera with a blinking REC dot starts recording at the word content, no library part for making content"
+ ],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B14.v2 7.7",
+   "msg": "two scenes of the same category in a row",
+   "scene": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 4.8–7.68 \"อ่ะ ช่องทาง / นั้นน่ะสิ่งที่คุณ กำลังทำ / อยู่อ่ะ มันคือ\"",
+   "msg": "chunk \"นั้นน่ะสิ่งที่คุณ กำลังทำ\" is 13 letters, aim ≤ 12",
+   "sub": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 32.88–34.88 \"เพราะว่า อย่า / เอาเวลาของ You / ไป ใช้แล้วยู\"",
+   "msg": "chunk \"เอาเวลาของ You\" is 13 letters, aim ≤ 12",
+   "sub": 7
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 41.68–44.0 \"แบบแค่เป็น รายได้ / เสริมอ่ะ\"",
+   "msg": "chunk \"แบบแค่เป็น รายได้\" is 13 letters, aim ≤ 12",
+   "sub": 10
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 46.24–47.28 \"ผมทำ คอนเทนต์แล้ว / ผมก็ ทำเป็น\"",
+   "msg": "chunk \"ผมทำ คอนเทนต์แล้ว\" is 13 letters, aim ≤ 12",
+   "sub": 11
+  }
+ ]
+}

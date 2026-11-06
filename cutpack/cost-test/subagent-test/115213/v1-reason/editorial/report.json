@@ -1,0 +1,53 @@
+{
+ "status": "ok",
+ "topic": "none",
+ "log": [],
+ "fallback": [],
+ "library_missing": [
+  "A phone camera recording with a record dot blinking and a small play icon appears at the word 'content'; the library has no content-creation scene."
+ ],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 32.88–34.88 \"เพราะว่า อย่า / เอาเวลาของ You / ไป ใช้แล้วยู\"",
+   "msg": "chunk \"เอาเวลาของ You\" is 13 letters, aim ≤ 12",
+   "sub": 7
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 41.68–44.0 \"แบบแค่เป็น รายได้ / เสริมอ่ะ\"",
+   "msg": "chunk \"แบบแค่เป็น รายได้\" is 13 letters, aim ≤ 12",
+   "sub": 9
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 46.24–47.28 \"ผมทำ คอนเทนต์แล้ว / ผมก็ ทำเป็น\"",
+   "msg": "chunk \"ผมทำ คอนเทนต์แล้ว\" is 13 letters, aim ≤ 12",
+   "sub": 10
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 49.52–50.8 \"เซตผมมันไม่ เหมือนกับ / อย่างงี้เลย\"",
+   "msg": "chunk \"เซตผมมันไม่ เหมือนกับ\" is 16 letters, aim ≤ 12",
+   "sub": 11
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 54.4–56.16 \"ผมก็ยังเห็น Infonser / บางคนเขาก็ พูดว่า\"",
+   "msg": "chunk \"ผมก็ยังเห็น Infonser\" is 16 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 54.4–56.16 \"ผมก็ยังเห็น Infonser / บางคนเขาก็ พูดว่า\"",
+   "msg": "chunk \"บางคนเขาก็ พูดว่า\" is 13 letters, aim ≤ 12",
+   "sub": 12
+  }
+ ]
+}

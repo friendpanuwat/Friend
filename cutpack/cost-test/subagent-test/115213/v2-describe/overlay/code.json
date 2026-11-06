@@ -1,0 +1,8 @@
+{
+ "scenes": [
+  {
+   "i": 14,
+   "code": "const P = [[10, 10], [84, 10], [84, 84], [10, 84]];\nconst names = ['star', 'heart', 'bell', 'gem'];\nconst cols = [NAVY, NAVY, ACC, NAVY];\nconst nxt = [1, 2, 3, 0];\nfor (let i = 0; i < 4; i++) {\n  const w = div(`left:${P[i][0]}px;top:${P[i][1]}px;width:56px;height:56px`, vis);\n  tile(w, names[i], T.t0 + .05 + i * .08, 'left:0;top:0', {size: 56, bg: '#EEF0F4', color: cols[i], sound: false, float: false});\n  const dx = P[nxt[i]][0] - P[i][0];\n  const dy = P[nxt[i]][1] - P[i][1];\n  mv.slide(w, T.hit, 'translate(0px,0px)', `translate(${dx}px,${dy}px)`);\n}\nsnd('hit', T.hit);\n"
+  }
+ ]
+}

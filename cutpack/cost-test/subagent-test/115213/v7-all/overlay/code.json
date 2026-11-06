@@ -1,0 +1,16 @@
+{
+ "scenes": [
+  {
+   "i": 15,
+   "code": "const cam = tile(vis, 'video', T.t0 + .1, 'left:14px;top:30px', {size: 100, bg: '#EEF0F4', color: NAVY, sound: false, float: false});\nconst tag = tile(vis, 'coins', T.hit, 'left:82px;top:6px', {size: 62, bg: ACC, color: '#FFFFFF', sound: false, float: false});\nmv.punch(cam.inner, T.hit);\nmv.wobble(tag.inner, T.hit + .3);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 18,
+   "code": "const card = div('left:10px;top:30px;width:130px;height:100px;border-radius:20px;border:6px solid ' + NAVY + ';background:#EEF0F4;opacity:0', vis);\nmv.pop(card, T.t0 + .1);\nconst tv = div('left:24px;top:46px;width:56px;height:56px;opacity:0', vis, ico('video', 56, NAVY, 2.5));\nmv.show(tv, T.t0 + .2);\nconst coin = div('left:92px;top:48px;width:36px;height:36px;opacity:0', vis, ico('coins', 36, ACC, 2.5));\nmv.pop(coin, T.t0 + .35);\nconst up = tile(vis, 'thumbs-up', T.hit, 'left:70px;top:0px', {size: 76, bg: ACC, color: '#FFFFFF', sound: false, float: false});\nmv.punch(up.inner, T.hit + .25);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 19,
+   "code": "const b = svg(S, S, `<ellipse cx=\"75\" cy=\"58\" rx=\"66\" ry=\"44\" fill=\"#FFFFFF\" stroke=\"${NAVY}\" stroke-width=\"6\"/><circle cx=\"50\" cy=\"118\" r=\"9\" fill=\"#FFFFFF\" stroke=\"${NAVY}\" stroke-width=\"5\"/><circle cx=\"34\" cy=\"140\" r=\"5\" fill=\"#FFFFFF\" stroke=\"${NAVY}\" stroke-width=\"4\"/>`, 'left:0;top:0;opacity:0', vis);\nmv.pop(b, T.t0 + .1);\nconst w = div('left:20px;top:36px;width:110px;height:44px;opacity:0;text-align:center;line-height:44px;font-family:KeySans;font-size:34px;color:' + ACC + ';white-space:nowrap', vis, 'รายได้');\nfitW(w, 100);\nmv.pop(w, T.hit);\nmv.punch(b, T.hit);\nsnd('hit', T.hit);"
+  }
+ ]
+}

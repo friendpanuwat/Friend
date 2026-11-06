@@ -1,0 +1,34 @@
+{
+ "status": "ok",
+ "topic": "none",
+ "log": [
+  "code mended 1 numbers: 1 → 0 errors, no fix round needed"
+ ],
+ "fallback": [],
+ "library_missing": [
+  "A camera on a tripod starts recording with a red dot at 'content' - the library has no content-creation or filming scene"
+ ],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 32.88–34.08 \"เพราะว่า อย่า / เอาเวลาของ You\"",
+   "msg": "chunk \"เอาเวลาของ You\" is 13 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 46.24–47.28 \"ผมทำ คอนเทนต์แล้ว / ผมก็ ทำเป็น\"",
+   "msg": "chunk \"ผมทำ คอนเทนต์แล้ว\" is 13 letters, aim ≤ 12",
+   "sub": 7
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 49.52–50.8 \"เซตผมมันไม่ เหมือนกับ / อย่างงี้เลย\"",
+   "msg": "chunk \"เซตผมมันไม่ เหมือนกับ\" is 16 letters, aim ≤ 12",
+   "sub": 8
+  }
+ ]
+}

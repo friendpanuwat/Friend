@@ -1,0 +1,70 @@
+{
+ "status": "ok",
+ "topic": "biz",
+ "log": [
+  "code mended 1 numbers: 3 → 1 errors",
+  "fix round (plan): 1 errors sent back",
+  "the fixed plan was worse; kept the first one"
+ ],
+ "fallback": [],
+ "library_missing": [
+  "Arrows swapping or a card flipping at the word 'เปลี่ยนไป' to show things changing a lot; the library has no plain 'change' picture."
+ ],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "12 cards, need ≥ 15 for 60.6 s"
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 5.68–7.68 \"นั้นน่ะสิ่งที่คุณ กำลังทำ / อยู่อ่ะ มันคือ\"",
+   "msg": "chunk \"นั้นน่ะสิ่งที่คุณ กำลังทำ\" is 13 letters, aim ≤ 12",
+   "sub": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 25.29–27.04 \"ว่าการ เฮด / ความเสี่ยงกับมัน เว้ย\"",
+   "msg": "chunk \"ความเสี่ยงกับมัน เว้ย\" is 15 letters, aim ≤ 12",
+   "sub": 7
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 32.88–34.08 \"เพราะว่า อย่า / เอาเวลาของ You\"",
+   "msg": "chunk \"เอาเวลาของ You\" is 13 letters, aim ≤ 12",
+   "sub": 9
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 41.68–44.0 \"แบบแค่เป็น รายได้ / เสริมอ่ะ\"",
+   "msg": "chunk \"แบบแค่เป็น รายได้\" is 13 letters, aim ≤ 12",
+   "sub": 11
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 47.28–49.52 \"รายได้เสริมอ่ะ ประจำ / ผมไป ใช่ป่ะ\"",
+   "msg": "chunk \"รายได้เสริมอ่ะ ประจำ\" is 15 letters, aim ≤ 12",
+   "sub": 13
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 49.52–50.8 \"เซตผมมันไม่ เหมือนกับ / อย่างงี้เลย\"",
+   "msg": "chunk \"เซตผมมันไม่ เหมือนกับ\" is 16 letters, aim ≤ 12",
+   "sub": 14
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 58.72–60.581 \"ซึ่งถ้า คุณแค่ / คิดว่ามันเป็น รายได้\"",
+   "msg": "chunk \"คิดว่ามันเป็น รายได้\" is 14 letters, aim ≤ 12",
+   "sub": 16
+  }
+ ]
+}
