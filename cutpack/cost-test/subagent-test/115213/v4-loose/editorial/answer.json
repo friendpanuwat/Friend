@@ -1,0 +1,319 @@
+{
+ "topic": "none",
+ "camera": [
+  {
+   "move": "push",
+   "t": 0.6
+  },
+  {
+   "move": "pull",
+   "t": 3.3,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 9.8
+  },
+  {
+   "move": "pull",
+   "t": 11.4,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 25.0
+  },
+  {
+   "move": "pull",
+   "t": 27.0,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 37.8
+  },
+  {
+   "move": "pull",
+   "t": 39.2,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 47.0
+  },
+  {
+   "move": "pull",
+   "t": 50.8,
+   "cut": true
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 3.3,
+   "t1": 5.1,
+   "say": "มองว่ารายได้ของคุณ",
+   "shows": "the word income highlighted in a box",
+   "part": "B14.v1",
+   "bg": "white",
+   "hit": 3.68,
+   "need": "",
+   "slots": {
+    "words": [
+     "มองว่า",
+     "รายได้",
+     "ของคุณ"
+    ],
+    "key": 1
+   }
+  },
+  {
+   "t0": 7.7,
+   "t1": 9.7,
+   "say": "รายได้เสริมนะเอง มันก็จะเป็นรายได้เสริมต่อไป",
+   "shows": "side income arrow leads to endless loop of side income",
+   "part": "B12.v1",
+   "bg": "cream",
+   "hit": 9.28,
+   "need": "",
+   "slots": {
+    "a": "รายได้เสริม",
+    "ia": "wallet",
+    "b": "เสริมต่อไป",
+    "ib": "infinity",
+    "lead": "มันก็จะเป็น"
+   }
+  },
+  {
+   "t0": 11.4,
+   "t1": 13.0,
+   "say": "ไม่มีทางเป็นเมน",
+   "shows": "big words, never becomes main",
+   "part": "B14.v2",
+   "bg": "glow",
+   "hit": 11.68,
+   "need": "",
+   "slots": {
+    "words": [
+     "เสริมต่อไป",
+     "ไม่มีทาง",
+     "เป็นเมน"
+    ],
+    "key": 1
+   }
+  },
+  {
+   "t0": 14.1,
+   "t1": 16.1,
+   "say": "คนพูดว่า อยากหารายได้เสริม",
+   "shows": "chat bubble with someone saying they want side income",
+   "part": "B11.v1",
+   "bg": "white",
+   "hit": 14.56,
+   "need": "",
+   "slots": {
+    "text": "อยากหารายได้เสริม",
+    "who": "คน",
+    "lead": "คนพูดว่า"
+   }
+  },
+  {
+   "t0": 17.5,
+   "t1": 19.5,
+   "say": "แล้วรายได้หลัก",
+   "shows": "side income dims, main income wins",
+   "part": "B03.v1",
+   "bg": "cream",
+   "hit": 18.4,
+   "need": "",
+   "slots": {
+    "a": "รายได้เสริม",
+    "b": "รายได้หลัก",
+    "ia": "wallet",
+    "ib": "briefcase",
+    "win": "b"
+   }
+  },
+  {
+   "t0": 20.6,
+   "t1": 22.2,
+   "say": "ถ้าอยากให้มันมาเป็น active income",
+   "shows": "progress bar fills to the goal Active Income",
+   "part": "B08.v2",
+   "bg": "glow",
+   "hit": 21.28,
+   "need": "",
+   "slots": {
+    "goal": "Active Income",
+    "icon": "trending-up",
+    "lead": "ถ้าอยากให้มัน"
+   }
+  },
+  {
+   "t0": 23.3,
+   "t1": 24.9,
+   "say": "ยูต้องมองมันเป็น business",
+   "shows": "light bulb lights up with business",
+   "part": "B13.v1",
+   "bg": "white",
+   "hit": 24.48,
+   "need": "",
+   "slots": {
+    "tip": "มองมันเป็น business",
+    "icon": "briefcase"
+   }
+  },
+  {
+   "t0": 27.0,
+   "t1": 28.8,
+   "say": "คำว่ารายได้เสริม โดยส่วนใหญ่",
+   "shows": "handwritten word side income underlined",
+   "part": "B14.v3",
+   "bg": "cream",
+   "hit": 27.6,
+   "need": "",
+   "slots": {
+    "words": [
+     "คำว่า",
+     "รายได้เสริม",
+     "โดยส่วนใหญ่"
+    ],
+    "key": 1
+   }
+  },
+  {
+   "t0": 29.8,
+   "t1": 32.3,
+   "say": "ไม่มีความเสี่ยง ไม่มีคำว่าเจ๊ง ไม่มีคำว่าขาดทุน",
+   "shows": "three no-risk items ticked one by one",
+   "part": "B04.v2",
+   "bg": "glow",
+   "hit": 31.92,
+   "need": "",
+   "slots": {
+    "items": [
+     "ไม่มีความเสี่ยง",
+     "ไม่มีคำว่าเจ๊ง",
+     "ไม่มีขาดทุน"
+    ],
+    "at": [
+     30.16,
+     31.28,
+     31.92
+    ]
+   }
+  },
+  {
+   "t0": 33.3,
+   "t1": 34.9,
+   "say": "อย่าเอาเวลาของ You ไปใช้",
+   "shows": "warning sign over an hourglass",
+   "part": "B07.v1",
+   "bg": "white",
+   "hit": 33.84,
+   "need": "",
+   "slots": {
+    "text": "อย่าเอาเวลาของ You",
+    "icon": "hourglass"
+   }
+  },
+  {
+   "t0": 35.9,
+   "t1": 37.7,
+   "say": "คิดในมุมของ Misset",
+   "shows": "key turns in a lock, a mindset idea",
+   "part": "B13.v3",
+   "bg": "cream",
+   "hit": 36.24,
+   "need": "",
+   "slots": {
+    "tip": "คิดในมุมของ Misset",
+    "icon": "brain"
+   }
+  },
+  {
+   "t0": 39.2,
+   "t1": 41.0,
+   "say": "ความเสี่ยงให้มากที่สุด",
+   "shows": "big arrow down next to risk shield",
+   "part": "B02.v3",
+   "bg": "glow",
+   "hit": 39.92,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "shield-alert",
+    "lead": "ความเสี่ยง",
+    "key": "ที่สุด"
+   }
+  },
+  {
+   "t0": 42.2,
+   "t1": 43.9,
+   "say": "แบบแค่เป็นรายได้เสริม",
+   "shows": "folded tip card, highlight under just side income",
+   "part": "B13.v4",
+   "bg": "white",
+   "hit": 42.64,
+   "need": "",
+   "slots": {
+    "tip": "แค่เป็นรายได้เสริม",
+    "icon": "coins"
+   }
+  },
+  {
+   "t0": 44.9,
+   "t1": 46.9,
+   "say": "ตอนที่ผมทำคอนเทนต์",
+   "shows": "a person in a group lit up, the speaker as creator",
+   "part": "B10.v1",
+   "bg": "glow",
+   "hit": 46.48,
+   "need": "",
+   "slots": {
+    "who": "ผมทำคอนเทนต์"
+   }
+  },
+  {
+   "t0": 50.8,
+   "t1": 52.5,
+   "say": "มันมีหลายอย่างที่เปลี่ยนไปมากมาก",
+   "shows": "many things shift around at once",
+   "part": "custom",
+   "bg": "cream",
+   "hit": 52.0,
+   "need": "Many items on the card shift and swap places at the hit on 'เปลี่ยนไป' to show lots of things changing; the library has no 'things change' scene.",
+   "slots": {
+    "lead": "หลายอย่าง",
+    "key": "เปลี่ยนไป"
+   }
+  },
+  {
+   "t0": 55.4,
+   "t1": 57.8,
+   "say": "บางคนเขาก็พูดว่า เป็นช่องทางหารายได้เสริมที่ดี",
+   "shows": "social comment with heart filling",
+   "part": "B11.v4",
+   "bg": "glow",
+   "hit": 57.2,
+   "need": "",
+   "slots": {
+    "text": "เป็นช่องทางหารายได้เสริมที่ดี",
+    "who": "บางคน"
+   }
+  },
+  {
+   "t0": 58.8,
+   "t1": 60.5,
+   "say": "ซึ่งถ้าคุณแค่คิดว่ามันเป็นรายได้",
+   "shows": "alert notification: just thinking it is income",
+   "part": "B07.v3",
+   "bg": "white",
+   "hit": 59.92,
+   "need": "",
+   "slots": {
+    "text": "คิดว่าเป็นรายได้",
+    "icon": "wallet"
+   }
+  }
+ ]
+}
