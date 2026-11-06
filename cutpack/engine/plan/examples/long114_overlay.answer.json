@@ -1,0 +1,462 @@
+{
+ "topic": "fit",
+ "camera": [
+  {
+   "move": "push",
+   "t": 0.3
+  },
+  {
+   "move": "pull",
+   "t": 4.8
+  },
+  {
+   "move": "push",
+   "t": 11.5
+  },
+  {
+   "move": "pull",
+   "t": 15.0
+  },
+  {
+   "move": "push",
+   "t": 38.0
+  },
+  {
+   "move": "pull",
+   "t": 42.0
+  },
+  {
+   "move": "push",
+   "t": 60.6
+  },
+  {
+   "move": "pull",
+   "t": 65.0
+  },
+  {
+   "move": "push",
+   "t": 70.5
+  },
+  {
+   "move": "pull",
+   "t": 76.4
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 2.2,
+   "t1": 4.0,
+   "say": "แล้วสิ่งที่ผมกลัวที่สุด",
+   "shows": "a red warning sign: what he fears most",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 2.64,
+   "need": "",
+   "slots": {
+    "text": "สิ่งที่ผมกลัว",
+    "icon": "utensils-crossed",
+    "wlead": "สิ่งที่ผม",
+    "wkey": "กลัว"
+   }
+  },
+  {
+   "t0": 5.3,
+   "t1": 7.6,
+   "say": "คิดว่ายิ่งอดได้เยอะ ยิ่งเก่ง",
+   "shows": "starving more leads to a trophy (the wrong belief)",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 7.2,
+   "need": "",
+   "slots": {
+    "a": "อดได้เยอะ",
+    "ia": "utensils-crossed",
+    "b": "ยิ่งเก่ง",
+    "ib": "trophy",
+    "wlead": "ยิ่งอดได้เยอะ",
+    "wkey": "ยิ่งเก่ง"
+   }
+  },
+  {
+   "t0": 8.0,
+   "t1": 9.9,
+   "say": "สี่ร้อยแคลต่อวัน",
+   "shows": "a big 400 kcal counting up",
+   "part": "B01.v1",
+   "size": "short",
+   "hit": 8.96,
+   "need": "",
+   "slots": {
+    "num": 400,
+    "unit": "แคล",
+    "icon": "flame",
+    "wlead": "ต่อวัน",
+    "wkey": "400 แคล"
+   }
+  },
+  {
+   "t0": 12.5,
+   "t1": 14.5,
+   "say": "แผนที่ทำให้ร่างกายหมดออกตลอด",
+   "shows": "a red warning sign: the body runs empty",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 13.92,
+   "need": "",
+   "slots": {
+    "text": "ร่างกายหมดออก",
+    "icon": "battery-low",
+    "wlead": "ร่างกาย",
+    "wkey": "หมดออก"
+   }
+  },
+  {
+   "t0": 14.9,
+   "t1": 16.9,
+   "say": "น้ำหนักที่มันหายไป",
+   "shows": "a bathroom scale swings down",
+   "part": "B02.fit1",
+   "size": "short",
+   "hit": 15.76,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "weight",
+    "wlead": "น้ำหนัก",
+    "wkey": "หายไป"
+   }
+  },
+  {
+   "t0": 18.3,
+   "t1": 21.0,
+   "say": "กล้ามเนื้อ พลังงาน ฮอร์โมน สุขภาพจิต",
+   "shows": "the four things lost come in one by one",
+   "part": "B14.v1",
+   "size": "narrow",
+   "hit": 20.48,
+   "need": "",
+   "slots": {
+    "words": [
+     "กล้ามเนื้อ",
+     "พลังงาน",
+     "ฮอร์โมน",
+     "สุขภาพจิต"
+    ],
+    "key": 3,
+    "at": [
+     18.72,
+     19.36,
+     20.0,
+     20.48
+    ],
+    "icon": "brain",
+    "wlead": "ไม่ใช่แค่",
+    "wkey": "ไขมัน"
+   }
+  },
+  {
+   "t0": 23.4,
+   "t1": 24.6,
+   "say": "เริ่มไม่มีแรง",
+   "shows": "bars fall: energy drops",
+   "part": "B02.v1",
+   "size": "short",
+   "hit": 24.24,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "battery-low",
+    "wlead": "เริ่มไม่มี",
+    "wkey": "แรง"
+   }
+  },
+  {
+   "t0": 25.0,
+   "t1": 26.2,
+   "say": "นอนไม่ค่อยได้",
+   "shows": "a sleep graph through a bad night",
+   "part": "FIT.h5",
+   "size": "short",
+   "hit": 25.44,
+   "need": "",
+   "slots": {
+    "wlead": "นอน",
+    "wkey": "ไม่ค่อยได้"
+   }
+  },
+  {
+   "t0": 26.6,
+   "t1": 29.2,
+   "say": "อารมณ์เหวี่ยง หลุดกินเยอะ",
+   "shows": "the words in handwriting: mood swings, then a binge",
+   "part": "B14.v3",
+   "size": "short",
+   "hit": 28.16,
+   "need": "",
+   "slots": {
+    "words": [
+     "อารมณ์เหวี่ยง",
+     "หลุดกินเยอะ"
+    ],
+    "key": 1,
+    "at": [
+     26.6,
+     28.16
+    ],
+    "icon": "frown",
+    "wlead": "อารมณ์เหวี่ยง",
+    "wkey": "หลุด"
+   }
+  },
+  {
+   "t0": 30.4,
+   "t1": 32.2,
+   "say": "เห็นอาหารก็ไม่กล้า",
+   "shows": "seeing food leads to fear of eating",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 31.6,
+   "need": "",
+   "slots": {
+    "a": "เห็นอาหาร",
+    "ia": "utensils",
+    "b": "ไม่กล้า",
+    "ib": "ban",
+    "wlead": "เห็นอาหาร",
+    "wkey": "ไม่กล้า"
+   }
+  },
+  {
+   "t0": 34.9,
+   "t1": 37.7,
+   "say": "ไม่ได้เกิดจากการกินน้อยอย่างเดียว สุขภาพมีหลายปัจจัย",
+   "shows": "'กินน้อยอย่างเดียว' struck out, 'หลายปัจจัย' comes in",
+   "part": "B05.v1",
+   "size": "short",
+   "hit": 35.36,
+   "need": "",
+   "slots": {
+    "x": "กินน้อยอย่างเดียว",
+    "y": "หลายปัจจัย",
+    "aty": 37.36,
+    "wlead": "สุขภาพมี",
+    "wkey": "หลายปัจจัย"
+   }
+  },
+  {
+   "t0": 40.2,
+   "t1": 41.9,
+   "say": "อย่าโรแมนติไซส์การอดอาหาร",
+   "shows": "a light bulb: the one thing to know",
+   "part": "B13.v1",
+   "size": "short",
+   "hit": 41.52,
+   "need": "",
+   "slots": {
+    "tip": "อย่าโรแมนตีไซส์",
+    "icon": "utensils-crossed",
+    "wlead": "อย่าโรแมนตีไซส์",
+    "wkey": "อดอาหาร"
+   }
+  },
+  {
+   "t0": 42.3,
+   "t1": 44.8,
+   "say": "อย่ามองว่าการทรมานตัวเองคือวินัย",
+   "shows": "the words come in, \"ทรมานตัวเอง\" boxed: the belief to drop",
+   "part": "B14.v1",
+   "size": "short",
+   "hit": 43.12,
+   "need": "",
+   "slots": {
+    "words": [
+     "อย่ามองว่า",
+     "ทรมานตัวเอง",
+     "คือวินัย"
+    ],
+    "key": 1,
+    "at": [
+     42.48,
+     43.12,
+     44.4
+    ],
+    "icon": "frown",
+    "wlead": "อย่ามองว่า",
+    "wkey": "ทรมานตัวเอง"
+   }
+  },
+  {
+   "t0": 45.2,
+   "t1": 46.9,
+   "say": "การลดน้ำหนักที่ดี",
+   "shows": "a big tick: good weight loss",
+   "part": "B08.v4",
+   "size": "short",
+   "hit": 45.76,
+   "need": "",
+   "slots": {
+    "goal": "การลดน้ำหนักที่ดี",
+    "icon": "circle-check",
+    "wlead": "การลดน้ำหนัก",
+    "wkey": "ที่ดี"
+   }
+  },
+  {
+   "t0": 49.2,
+   "t1": 52.2,
+   "say": "ไม่ใช่ลงโทษตัวเอง แต่แข็งแรงขึ้น",
+   "shows": "a slider wipes 'ลงโทษตัวเอง' away to reveal 'แข็งแรงขึ้น'",
+   "part": "B03.v4",
+   "size": "short",
+   "hit": 51.84,
+   "need": "",
+   "slots": {
+    "a": "ลงโทษตัวเอง",
+    "ia": "frown",
+    "b": "แข็งแรงขึ้น",
+    "ib": "biceps-flexed",
+    "win": "b",
+    "wlead": "คุณ",
+    "wkey": "แข็งแรงขึ้น"
+   }
+  },
+  {
+   "t0": 53.4,
+   "t1": 55.2,
+   "say": "ใช้ชีวิตได้ดีขึ้น",
+   "shows": "bars climbing: life gets better",
+   "part": "B02.v1",
+   "size": "short",
+   "hit": 53.92,
+   "need": "",
+   "slots": {
+    "dir": "up",
+    "icon": "heart-pulse",
+    "wlead": "ใช้ชีวิต",
+    "wkey": "ได้ดีขึ้น"
+   }
+  },
+  {
+   "t0": 58.6,
+   "t1": 60.4,
+   "say": "แลกกับร่างกายที่มันพัง",
+   "shows": "a heartbeat line spikes red: the body breaks",
+   "part": "B07.fit1",
+   "size": "short",
+   "hit": 59.64,
+   "need": "",
+   "slots": {
+    "text": "ร่างกายที่มันพัง",
+    "icon": "heart-crack",
+    "wlead": "ไม่คุ้ม",
+    "wkey": "ร่างกายพัง"
+   }
+  },
+  {
+   "t0": 62.3,
+   "t1": 64.6,
+   "say": "ไม่ใช่กินน้อยที่สุด คือกินให้พอดี",
+   "shows": "'กินน้อยที่สุด' crossed out, 'กินให้พอดี' ticked",
+   "part": "B05.v2",
+   "size": "short",
+   "hit": 63.28,
+   "need": "",
+   "slots": {
+    "x": "กินน้อยที่สุด",
+    "y": "กินให้พอดี",
+    "ix": "utensils-crossed",
+    "iy": "utensils",
+    "aty": 64.0,
+    "wlead": "ไม่ใช่",
+    "wkey": "กินน้อยที่สุด"
+   }
+  },
+  {
+   "t0": 65.4,
+   "t1": 67.9,
+   "say": "ทำต่อได้ โดยที่ไม่เกลียดอาหาร",
+   "shows": "a loop: eat enough, keep going, no hating food",
+   "part": "B12.v4",
+   "size": "narrow",
+   "hit": 67.44,
+   "need": "",
+   "slots": {
+    "a": "กินให้พอดี",
+    "ia": "utensils",
+    "b": "ทำต่อได้",
+    "ib": "repeat",
+    "c": "ไม่เกลียดอาหาร",
+    "ic": "heart",
+    "wlead": "คุณทำต่อได้",
+    "wkey": "ไม่เกลียด"
+   }
+  },
+  {
+   "t0": 70.4,
+   "t1": 72.0,
+   "say": "ผมอยากให้คุณจำคำนี้ไว้เลย",
+   "shows": "a key opens a padlock: the line that unlocks it",
+   "part": "B13.v3",
+   "size": "short",
+   "hit": 71.12,
+   "need": "",
+   "slots": {
+    "tip": "จำคำนี้ไว้",
+    "icon": "key-round",
+    "wlead": "จำคำนี้",
+    "wkey": "ไว้เลย"
+   }
+  },
+  {
+   "t0": 73.4,
+   "t1": 75.8,
+   "say": "คือการดูแลตัวเอง ไม่ใช่การทำลายตัวเอง",
+   "shows": "'ดูแลตัวเอง' vs 'ทำลายตัวเอง', caring wins",
+   "part": "B03.v1",
+   "size": "short",
+   "hit": 73.92,
+   "need": "",
+   "slots": {
+    "a": "ดูแลตัวเอง",
+    "ia": "heart-handshake",
+    "b": "ทำลายตัวเอง",
+    "ib": "skull",
+    "win": "a",
+    "wlead": "คือการ",
+    "wkey": "ดูแลตัวเอง"
+   }
+  },
+  {
+   "t0": 77.0,
+   "t1": 78.3,
+   "say": "เคยผ่านการอดอาหารแบบสุดโต่ง",
+   "shows": "a big question mark: have you been there?",
+   "part": "B06.v1",
+   "size": "short",
+   "hit": 77.84,
+   "need": "",
+   "slots": {
+    "q": "เคยอดอาหารแบบสุดโต่ง",
+    "icon": "utensils-crossed",
+    "wlead": "เคยผ่าน",
+    "wkey": "สุดโต่ง"
+   }
+  },
+  {
+   "t0": 78.7,
+   "t1": 80.0,
+   "say": "คอมเมนต์ว่าเคย",
+   "shows": "the comment icon gets pressed",
+   "part": "B15.v3",
+   "size": "short",
+   "hit": 79.12,
+   "need": "",
+   "slots": {
+    "action": "comment",
+    "text": "คอมเมนต์ว่าเคย",
+    "wlead": "คอมเมนต์",
+    "wkey": "ว่าเคย"
+   }
+  }
+ ]
+}

@@ -676,6 +676,36 @@ class TopicPacks(unittest.TestCase):
                 self.assertTrue(any('topic-part' in line for line in plan['fallbackLog']), plan['fallbackLog'])
 
 
+class PlanWays(unittest.TestCase):
+    """The ways to plan better without thinking (Friend 2026-11-06), test options only: off by default."""
+    def test_default_request_unchanged_and_ways_add_text(self):
+        old = os.environ.pop('CUTPACK_PLAN_WAYS', None)
+        try:
+            for style in ('editorial', 'overlay'):
+                base = prompt.request(INPUT, style)
+                self.assertEqual(base, prompt.request(INPUT, style, ways=''))
+                for w in prompt.WAYS:
+                    r = prompt.request(INPUT, style, ways=w)
+                    self.assertNotEqual(r, base, w)
+                    self.assertEqual(r['system'][0]['text'].startswith(base['system'][0]['text'][:200]), True)
+                props = prompt.request(INPUT, style, ways='all')['output_config']['format']['schema']['properties']['scenes']['items']['properties']
+                self.assertEqual(list(props)[:7], ['t0', 't1', 'say', 'shows', 'job', 'pick', 'part'])
+        finally:
+            if old is not None: os.environ['CUTPACK_PLAN_WAYS'] = old
+        with self.assertRaises(ValueError): prompt.ways_of('reasn')
+
+    def test_every_part_has_a_note_and_the_long_example_is_clean(self):
+        notes = prompt.part_notes()
+        self.assertEqual(set(notes), {p['id'] for p in CAT['cards']})
+        inp = load(EX, 'long114_input.json')
+        for style in ('editorial', 'overlay'):
+            plan = assemble.assemble(inp, load(EX, f'long114_{style}.answer.json'), style)
+            R, _ = V.validate(plan, CAT, None, None, render=True)
+            scene_errors = [i for i in R.issues if i['level'] == 'error' and not i['code'].startswith('sub-')]
+            self.assertEqual(scene_errors, [], style)   # the subtitle notes come from the transcript, not the plan
+            self.assertGreaterEqual(len(plan['scenes']), 20, style)
+
+
 @unittest.skipUnless(os.environ.get('CUTPACK_SLOW'), 'set CUTPACK_SLOW=1 to sweep the whole library')
 class Library(unittest.TestCase):
     def test_whole_library_renders_clean(self):
