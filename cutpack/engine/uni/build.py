@@ -16,6 +16,7 @@ def main():
     ap.add_argument('--index', type=int, default=0)
     ap.add_argument('--t0', type=float, default=.5); ap.add_argument('--t1', type=float, default=4.5)
     ap.add_argument('--slots', default='{}')
+    ap.add_argument('--extra', action='append', default=[], help='more scene files (e.g. recipes written by the AI), loaded after scenes/')
     a = ap.parse_args()
     proj = os.path.abspath(a.proj); os.makedirs(os.path.join(proj, 'fonts'), exist_ok=True)
     for f in glob.glob(os.path.join(UNI, 'fonts', '*.ttf')):
@@ -23,7 +24,7 @@ def main():
         if not os.path.exists(dst): shutil.copy(f, dst)
     rd = lambda p: open(os.path.join(UNI, p)).read()
     js = [f'const ICONS = {open(os.path.join(ENGINE, "icons", "lucide.json")).read()};', rd('core.js'), rd('kit.js'),
-          rd(f'styles/{a.style}.js')] + [open(f).read() for f in sorted(glob.glob(os.path.join(UNI, 'scenes', '*.js')))]
+          rd(f'styles/{a.style}.js')] + [open(f).read() for f in sorted(glob.glob(os.path.join(UNI, 'scenes', '*.js')))] + [open(f).read() for f in a.extra]
     js.append(f"""
 ['Lead', 'CardSans', 'KeySans', 'Hand', 'Anu'].forEach(f => div(`left:-9999px;top:0;font-family:${{f}}`, document.body, 'กขคฅ ึ่้ 0123'));
 useStyle({json.dumps(a.style)});
