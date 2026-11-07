@@ -8,13 +8,31 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Anuphan:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Anuphan:wght@400;500;600;700&amp;family=Mitr:wght@500;600&amp;family=Sriracha&amp;display=swap">
 <style>
 body{margin:0;background:#0C0C0D}
-a{color:#F2F2F0;text-decoration:none}a:hover{color:#FFFFFF}
+a{color:#F2F2F0;text-decoration:none}
 .scr{font-family:'Geist','Anuphan',system-ui,sans-serif;color:#F2F2F0;-webkit-font-smoothing:antialiased}
-.body{scrollbar-width:none}.body::-webkit-scrollbar{display:none}
+.body,.chips{scrollbar-width:none}.body::-webkit-scrollbar,.chips::-webkit-scrollbar{display:none}
 .icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tile{position:relative;display:block;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,0.10);background:#151516;color:#F2F2F0;box-sizing:border-box}
+.ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.scrim{position:absolute;left:0;right:0;bottom:0;height:62%;background:linear-gradient(to top,rgba(0,0,0,0.8),rgba(0,0,0,0))}
+.lab{position:absolute;left:12px;right:12px;bottom:10px;display:flex;flex-direction:column;gap:1px}
+.nm{font-size:14.5px;font-weight:600;line-height:1.3;color:#F2F2F0}
+.ds{font-size:11.5px;line-height:1.4;color:rgba(255,255,255,0.72)}
+.lt .nm{color:#0C0C0D}.lt .ds{color:rgba(12,12,13,0.62)}
+.badge{position:absolute;top:10px;left:10px;height:22px;padding:0 8px;border-radius:999px;background:rgba(12,12,13,0.8);color:#F2F2F0;font-size:11px;display:inline-flex;align-items:center;gap:4px}
+.badge.r{left:auto;right:10px}
+.room{position:absolute;inset:0;background:radial-gradient(90% 60% at 50% 18%,#38383E,#18181B 72%)}
+.who{position:absolute;left:50%;width:120px;height:184px;margin-left:-60px;transform-origin:50% 100%}
+.who i{position:absolute;display:block;background:#4A4A52}
+.who .hd{left:31px;top:0;width:58px;height:70px;border-radius:999px}
+.who .bd{left:0;top:78px;width:120px;height:106px;border-radius:60px 60px 0 0}
+.who.sep i{background:#5E452E}
+.who.blk i{background:#0C0C0D}
+.sk{position:absolute;height:7px;border-radius:999px;background:rgba(12,12,13,0.14)}
+.ab{position:absolute}
 </style>
 </helmet>
 <div class="scr" style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; position: relative; background: #0C0C0D; background-image: radial-gradient(120% 40% at 50% -12%, rgba(255,255,255,0.12), rgba(255,255,255,0) 62%); display: flex; flex-direction: column">
@@ -33,55 +51,208 @@ a{color:#F2F2F0;text-decoration:none}a:hover{color:#FFFFFF}
   </div>
 
   <div class="body" style="flex: 1; min-height: 0; overflow-y: auto">
-    <div style="padding: 14px 20px 28px; display: flex; flex-direction: column; gap: 20px">
+    <div style="padding: 12px 20px 28px; display: flex; flex-direction: column; gap: 16px">
       <div style="display: flex; flex-direction: column; gap: 8px">
         <h1 style="margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.5px; line-height: 1.25">เลือกสไตล์คลิป<br>ที่อยากได้</h1>
-        <p style="margin: 0; font-size: 14.5px; line-height: 1.6; color: rgba(255,255,255,0.72)">อัปโหลดคลิปพูดหน้ากล้อง ระบบตัดต่อ ใส่ซับ และกราฟิกให้ในสไตล์ที่เลือก</p>
+        <p style="margin: 0; font-size: 14.5px; line-height: 1.6; color: rgba(255,255,255,0.72)">20 สไตล์ แตะเพื่อดูตัวอย่าง ชอบแบบไหนกดใช้ได้เลย</p>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
-        <sc-for list="{{styles}}" as="s" hint-placeholder-count="2">
-          <a href="{{s.href}}" style="display: flex; flex-direction: column; gap: 10px">
-            <div style="position: relative; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #151516; border: 1px solid rgba(255,255,255,0.10)">
-              <video src="{{s.video}}" poster="{{s.poster}}" autoPlay="{{yes}}" muted="{{yes}}" loop="{{yes}}" playsInline="{{yes}}" aria-label="{{s.alt}}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block"></video>
-              <span style="position: absolute; top: 10px; left: 10px; height: 24px; padding: 0 9px; border-radius: 999px; background: rgba(12,12,13,0.78); font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 12px; height: 12px; fill: #F2F2F0; stroke: none"><path d="M7 4v16l13-8z"/></svg>
-                ตัวอย่าง
-              </span>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 2px">
-              <span style="font-size: 16px; font-weight: 600">{{s.name}}</span>
-              <span style="font-size: 13px; line-height: 1.45; color: rgba(255,255,255,0.72)">{{s.desc}}</span>
-            </div>
-          </a>
+      <div class="chips" style="display: flex; gap: 8px; overflow-x: auto; margin: 0 -20px; padding: 0 20px">
+        <sc-for list="{{chips}}" as="c" hint-placeholder-count="6">
+          <button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="all: unset; cursor: pointer; flex-shrink: 0; height: 36px; padding: 0 14px; border-radius: 999px; font-size: 13.5px; white-space: nowrap; background: {{c.bg}}; color: {{c.ink}}; border: {{c.border}}; display: inline-flex; align-items: center; gap: 6px">{{c.name}}<span style="font-size: 12px; opacity: 0.6">{{c.n}}</span></button>
         </sc-for>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 10px">
-        <div style="display: flex; align-items: center; gap: 10px; padding: 0 2px">
-          <h2 style="margin: 0; font-size: 17px; font-weight: 600">สไตล์ใหม่</h2>
-          <span style="height: 22px; padding: 0 8px; border-radius: 999px; background: rgba(255,255,255,0.10); font-size: 12px; color: rgba(255,255,255,0.72); display: inline-flex; align-items: center">เร็ว ๆ นี้</span>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
-          <div style="height: 96px; border-radius: 16px; border: 1px dashed rgba(255,255,255,0.18); display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 16px">
-            <span style="font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.72)">Minimal</span>
-            <span style="font-size: 12.5px; color: rgba(255,255,255,0.5)">พื้นขาว เส้นบาง</span>
-          </div>
-          <div style="height: 96px; border-radius: 16px; border: 1px dashed rgba(255,255,255,0.18); display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 16px">
-            <span style="font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.72)">Motion</span>
-            <span style="font-size: 12.5px; color: rgba(255,255,255,0.5)">ตัวอักษรพลิก 3D</span>
-          </div>
-        </div>
-      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 112px; grid-auto-flow: row dense; gap: 10px">
 
-      <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 20px; background: #151516; border: 1px solid rgba(255,255,255,0.10)">
-        <span style="font-size: 15px; font-weight: 600">ทำคลิปใน 3 ขั้น</span>
-        <sc-for list="{{how}}" as="h" hint-placeholder-count="3">
-          <div style="display: flex; align-items: center; gap: 12px">
-            <span style="width: 28px; height: 28px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18); font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0">{{h.n}}</span>
-            <span style="font-size: 14px; color: rgba(255,255,255,0.72)">{{h.t}}</span>
+        <a href="StyleEditorial.dc.html" class="tile" style="grid-column: span 2; grid-row: span 3; display: {{show.editorial}}">
+          <video class="ph" src="/_blob/4900715959e4cab6c90f059b5bb60292" poster="/_blob/9580e8f04b43d51b8499294d13e489f5" autoPlay="{{yes}}" muted="{{yes}}" loop="{{yes}}" playsInline="{{yes}}" aria-label="ตัวอย่างคลิปสไตล์ Editorial" style="object-position: 50% 35%"></video>
+          <div class="scrim"></div>
+          <span class="badge">ยอดนิยม</span>
+          <span class="badge r"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 11px; height: 11px; fill: #F2F2F0; stroke: none"><path d="M7 4v16l13-8z"/></svg>ตัวอย่างจริง</span>
+          <div class="lab"><span class="nm" style="font-size: 20px">Editorial</span><span class="ds" style="font-size: 13px">การ์ดกราฟิกเต็มจอ สลับกับหน้าคนพูด</span></div>
+        </a>
+
+        <div class="tile" style="grid-column: span 2; grid-row: span 1; display: {{show.info}}; flex-direction: column; justify-content: center; gap: 10px; padding: 0 16px; background: #FFFFFF; border: none; color: #0C0C0D">
+          <span style="font-size: 12.5px; color: rgba(12,12,13,0.6)">ทำคลิปใน 3 ขั้น</span>
+          <div style="display: flex; align-items: center; justify-content: space-between">
+            <span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 600"><span style="width: 20px; height: 20px; border-radius: 999px; background: #0C0C0D; color: #FFFFFF; font-size: 11px; display: inline-flex; align-items: center; justify-content: center">1</span>เลือกสไตล์</span>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 13px; height: 13px; color: rgba(12,12,13,0.4)"><path d="m9 18 6-6-6-6"/></svg>
+            <span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 600"><span style="width: 20px; height: 20px; border-radius: 999px; background: #0C0C0D; color: #FFFFFF; font-size: 11px; display: inline-flex; align-items: center; justify-content: center">2</span>อัปโหลด แก้ซับ</span>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 13px; height: 13px; color: rgba(12,12,13,0.4)"><path d="m9 18 6-6-6-6"/></svg>
+            <span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 600"><span style="width: 20px; height: 20px; border-radius: 999px; background: #0C0C0D; color: #FFFFFF; font-size: 11px; display: inline-flex; align-items: center; justify-content: center">3</span>ได้คลิป</span>
           </div>
-        </sc-for>
+        </div>
+
+        <a href="StyleOverlay.dc.html" class="tile" style="grid-column: span 1; grid-row: span 3; display: {{show.overlay}}">
+          <video class="ph" src="/_blob/0bacc8ac134f2bc351cb2e2f60b464e0" poster="/_blob/0d4b0a526b289d997e5b6035d1196aa8" autoPlay="{{yes}}" muted="{{yes}}" loop="{{yes}}" playsInline="{{yes}}" aria-label="ตัวอย่างคลิปสไตล์ Overlay"></video>
+          <div class="scrim"></div>
+          <span class="badge">ยอดนิยม</span>
+          <div class="lab"><span class="nm" style="font-size: 16px">Overlay</span><span class="ds">เห็นหน้าตลอด กราฟิกเด้งเหนือหัว</span></div>
+        </a>
+
+        <a href="StyleEditorial.dc.html" class="tile lt" style="grid-column: span 1; grid-row: span 2; display: {{show.minimal}}; background: #FFFFFF; border: none">
+          <div class="who blk" style="top: 40px; transform: scale(0.5); transform-origin: 0 0; left: 26px; margin-left: 0"><i class="hd"></i><i class="bd"></i></div>
+          <span class="ab" style="left: 100px; top: 54px; width: 34px; height: 60px; border: 2px solid #0C0C0D; border-radius: 8px; box-sizing: border-box"></span>
+          <span class="ab" style="left: 126px; top: 46px; width: 12px; height: 12px; border-radius: 999px; background: #E5322D"></span>
+          <span class="ab" style="left: 16px; right: 16px; top: 134px; height: 1.5px; background: #0C0C0D"></span>
+          <div class="lab"><span class="nm">Minimal</span><span class="ds">พื้นขาว คนสีดำ แดงจุดเดียว</span></div>
+        </a>
+
+        <a href="StyleOverlay.dc.html" class="tile" style="grid-column: span 1; grid-row: span 1; display: {{show.karaoke}}">
+          <div class="ab" style="left: 12px; right: 12px; top: 12px; text-align: center; font-family: 'Anuphan', sans-serif; font-weight: 700; font-size: 17px; line-height: 1.35"><span style="color: #FFD43B">ลูกค้าซื้อ</span><span style="color: rgba(255,255,255,0.38)">เพราะเชื่อใจ</span></div>
+          <div class="lab"><span class="nm">Karaoke</span><span class="ds">ซับไล่สีตามเสียง</span></div>
+        </a>
+
+        <a href="StyleEditorial.dc.html" class="tile" style="grid-column: span 2; grid-row: span 2; display: {{show.motion}}">
+          <div class="ab" style="inset: -12px; filter: blur(7px)"><div class="room"></div><div class="who" style="bottom: -20px; transform: scale(1.1)"><i class="hd"></i><i class="bd"></i></div></div>
+          <div class="ab" style="left: 50%; top: 36px; width: 236px; height: 78px; margin-left: -118px; border-radius: 18px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.32); display: flex; align-items: center; justify-content: center; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 32px; color: #FFFFFF">
+            <span style="display: inline-block">พ</span><span style="display: inline-block">ลิ</span><span style="display: inline-block">ก</span><span style="display: inline-block">ที</span><span style="display: inline-block">ล</span><span style="display: inline-block; transform: perspective(220px) rotateX(38deg); opacity: 0.7">ะ</span><span style="display: inline-block; transform: perspective(220px) rotateX(66deg); opacity: 0.4">ตั</span><span style="display: inline-block; transform: perspective(220px) rotateX(84deg); opacity: 0.15">ว</span>
+          </div>
+          <div class="scrim"></div>
+          <div class="lab"><span class="nm" style="font-size: 16px">Motion 3D</span><span class="ds">ตัวอักษรพลิกทีละตัว บนกระจกฝ้า</span></div>
+        </a>
+
+        <a href="StyleEditorial.dc.html" class="tile" style="grid-column: span 1; grid-row: span 2; display: {{show.glass}}; background: linear-gradient(160deg, #0B1B44 0%, #1F55E0 100%); border: none">
+          <div class="ab" style="left: 12px; right: 12px; top: 14px; height: 84px; border-radius: 16px; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.38)">
+            <span class="ab" style="left: 11px; top: 11px; width: 34px; height: 34px; border-radius: 10px; background: #FFFFFF; color: #1F55E0; display: inline-flex; align-items: center; justify-content: center"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; stroke-width: 2.2"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-6"/></svg></span>
+            <span class="ab" style="left: 55px; top: 15px; width: 66px; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.75)"></span>
+            <span class="ab" style="left: 55px; top: 31px; width: 42px; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.45)"></span>
+            <span class="ab" style="left: 11px; right: 11px; top: 60px; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.2)"><span class="ab" style="left: 0; top: 0; bottom: 0; width: 70%; border-radius: 999px; background: #FFFFFF"></span></span>
+          </div>
+          <span class="ab" style="right: 14px; top: 108px; width: 44px; height: 44px; border-radius: 999px; border: 2px solid #FFFFFF; background: rgba(255,255,255,0.18); color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 22px; height: 22px"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
+          <div class="lab"><span class="nm">Glass UI</span><span class="ds">การ์ดกระจกสีฟ้า</span></div>
+        </a>
+
+        <a href="StyleEditorial.dc.html" class="tile lt" style="grid-column: span 1; grid-row: span 3; display: {{show.poster}}; background: #F2EADB; border: none">
+          <div class="ab" style="left: 14px; right: 10px; top: 16px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 30px; line-height: 1.14; color: #0C0C0D">ราคา<br>ไม่ใช่<br><span style="text-decoration: underline; text-decoration-color: #FF8A3D; text-decoration-thickness: 4px; text-underline-offset: 6px">ทุกอย่าง</span></div>
+          <div class="ab" style="left: 30px; top: 150px; width: 110px; height: 138px; border-radius: 14px; overflow: hidden; border: 4px solid #FFFFFF; box-shadow: 0 8px 20px rgba(0,0,0,0.18); transform: rotate(-4deg); background: #2B2B30">
+            <div class="room"></div>
+            <div class="who" style="bottom: -24px; transform: scale(0.62)"><i class="hd"></i><i class="bd"></i></div>
+          </div>
+          <div class="lab"><span class="nm">Poster</span><span class="ds">โปสเตอร์ครีม พาดหัวใหญ่</span></div>
+        </a>
+
+        <a href="StyleOverlay.dc.html" class="tile" style="grid-column: span 1; grid-row: span 1; display: {{show.neon}}; background: #08080A">
+          <span class="badge r">ใหม่</span>
+          <div class="ab" style="left: 0; right: 0; top: 24px; text-align: center; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 28px; line-height: 1.2; color: #FFE3F1; text-shadow: 0 0 4px #FF6FAE, 0 0 14px #FF6FAE, 0 0 30px #FF2F8E">เชื่อใจ</div>
+          <div class="lab"><span class="nm">Neon</span><span class="ds">ตัวอักษรเรืองแสง</span></div>
+        </a>
+
+        <a href="StyleOverlay.dc.html" class="tile" style="grid-column: span 1; grid-row: span 3; display: {{show.minov}}">
+          <div class="room"></div>
+          <div class="who" style="bottom: 0"><i class="hd"></i><i class="bd"></i></div>
+          <div class="ab" style="left: 14px; right: 14px; top: 40px; height: 78px; border-radius: 14px; background: #FFFFFF">
+            <svg class="ab" viewBox="0 0 24 24" aria-hidden="true" style="left: 12px; top: 18px; width: 40px; height: 40px; fill: none; stroke: #0C0C0D; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2Z"/></svg>
+            <span class="ab" style="left: 44px; top: 14px; width: 10px; height: 10px; border-radius: 999px; background: #E5322D"></span>
+            <span class="sk" style="left: 64px; top: 28px; width: 58px"></span>
+            <span class="sk" style="left: 64px; top: 44px; width: 38px"></span>
+          </div>
+          <div class="ab" style="left: 8px; right: 8px; top: 250px; text-align: center; font-family: 'Anuphan', sans-serif; font-weight: 600; font-size: 14px; color: #FFFFFF; text-shadow: 0 2px 6px rgba(0,0,0,0.6)">เริ่มจากสัญญาเล็ก ๆ</div>
+          <div class="scrim" style="height: 30%"></div>
+          <div class="lab"><span class="nm">Minimal Overlay</span><span class="ds">การ์ดขาวเส้นบาง เหนือหัว</span></div>
+        </a>
+
+        <a href="StyleEditorial.dc.html" class="tile lt" style="grid-column: span 1; grid-row: span 1; display: {{show.hand}}; background: #FAF7EE; border: none">
+          <div class="ab" style="left: 14px; top: 10px; font-family: 'Sriracha', cursive; font-size: 24px; color: #1F55E0; transform: rotate(-4deg)">จดไว้นะ!</div>
+          <svg class="ab" viewBox="0 0 100 10" aria-hidden="true" style="left: 14px; top: 48px; width: 96px; height: 10px; fill: none; stroke: #FF8A3D; stroke-width: 2.5; stroke-linecap: round"><path d="M2 6 Q 12 1 22 6 T 42 6 T 62 6 T 82 6 T 98 5"/></svg>
+          <div class="lab"><span class="nm">Handwritten</span><span class="ds">ลายมือ เหมือนจดโน้ต</span></div>
+        </a>
+
+        <a href="StyleEditorial.dc.html" class="tile" style="grid-column: span 1; grid-row: span 2; display: {{show.data}}">
+          <div class="ab" style="left: 14px; top: 12px; font-family: 'Geist', sans-serif; font-weight: 700; font-size: 32px; letter-spacing: -1px; color: #C6F432">+38%</div>
+          <div class="ab" style="left: 14px; right: 14px; top: 64px; height: 84px; display: flex; align-items: flex-end; gap: 8px">
+            <span style="flex: 1; height: 30%; border-radius: 6px 6px 2px 2px; background: rgba(255,255,255,0.45)"></span>
+            <span style="flex: 1; height: 48%; border-radius: 6px 6px 2px 2px; background: rgba(255,255,255,0.45)"></span>
+            <span style="flex: 1; height: 62%; border-radius: 6px 6px 2px 2px; background: rgba(255,255,255,0.45)"></span>
+            <span style="flex: 1; height: 92%; border-radius: 6px 6px 2px 2px; background: #C6F432"></span>
+          </div>
+          <div class="lab"><span class="nm">Data</span><span class="ds">กราฟและตัวเลข สายการเงิน</span></div>
+        </a>
+
+        <a href="StyleOverlay.dc.html" class="tile" style="grid-column: span 2; grid-row: span 1; display: {{show.news}}">
+          <div class="room"></div>
+          <div class="who" style="left: 72%; bottom: -36px; transform: scale(0.68)"><i class="hd"></i><i class="bd"></i></div>
+          <div class="ab" style="left: 0; right: 0; top: 0; height: 60%; background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0))"></div>
+          <div class="lab" style="top: 10px; bottom: auto"><span class="nm">Newsroom</span><span class="ds">แถบข่าวด้านล่าง</span></div>
+          <div class="ab" style="left: 12px; bottom: 12px; display: flex; align-items: stretch; height: 26px; box-shadow: 0 4px 12px rgba(0,0,0,0.3)">
+            <span style="background: #E5322D; color: #FFFFFF; font-size: 12px; font-weight: 700; padding: 0 8px; display: inline-flex; align-items: center">ด่วน</span>
+            <span style="background: #FFFFFF; color: #0C0C0D; font-size: 12.5px; font-weight: 600; padding: 0 10px; display: inline-flex; align-items: center">ลูกค้าซื้อเพราะเชื่อใจ</span>
+          </div>
+        </a>
+
+        <a href="StyleOverlay.dc.html" class="tile" style="grid-column: span 1; grid-row: span 2; display: {{show.podcast}}">
+          <div class="ab" style="left: 10px; right: 10px; top: 10px; height: 76px; border-radius: 12px; overflow: hidden">
+            <div class="room"></div>
+            <div class="who" style="bottom: -58px; transform: scale(0.56)"><i class="hd"></i><i class="bd"></i></div>
+          </div>
+          <div class="ab" style="left: 10px; right: 10px; top: 92px; height: 76px; border-radius: 12px; overflow: hidden">
+            <div class="room" style="background: radial-gradient(90% 60% at 50% 18%, #3A3546, #1B1A21 72%)"></div>
+            <div class="who" style="bottom: -58px; transform: scale(0.56)"><i class="hd" style="background: #5A5368"></i><i class="bd" style="background: #5A5368"></i></div>
+          </div>
+          <span class="badge r" style="top: 16px">ใหม่</span>
+          <div class="lab"><span class="nm">Podcast</span><span class="ds">สองกรอบ คุยกันสองคน</span></div>
+        </a>
+
+        <a href="StyleOverlay.dc.html" class="tile" style="grid-column: span 1; grid-row: span 2; display: {{show.popov}}">
+          <div class="room"></div>
+          <div class="who" style="bottom: -30px"><i class="hd"></i><i class="bd"></i></div>
+          <div class="ab" style="left: 12px; right: 12px; top: 14px; height: 54px; border-radius: 14px; background: rgba(16,16,20,0.94); border: 1px solid rgba(255,255,255,0.16)">
+            <span class="ab" style="left: 10px; top: 10px; width: 32px; height: 32px; border-radius: 9px; background: #C6F432; color: #0C0C0D; display: inline-flex; align-items: center; justify-content: center"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 17px; height: 17px; stroke-width: 2.4"><path d="m3 17 6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></span>
+            <span class="ab" style="left: 52px; top: 9px; font-size: 13px; font-weight: 600; color: #FFFFFF">ยอดขาย</span>
+            <span class="ab" style="left: 52px; top: 32px; width: 70px; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.18)"><span class="ab" style="left: 0; top: 0; bottom: 0; width: 75%; border-radius: 999px; background: #C6F432"></span></span>
+          </div>
+          <div class="scrim" style="height: 45%"></div>
+          <div class="lab"><span class="nm">Pop Overlay</span><span class="ds">การ์ดมืดเด้งเหนือหัว</span></div>
+        </a>
+
+        <a href="StyleEditorial.dc.html" class="tile lt" style="grid-column: span 2; grid-row: span 2; display: {{show.mono}}; background: #FFFFFF; border: none">
+          <span class="ab" style="left: 16px; top: 16px; height: 24px; padding: 0 10px; border-radius: 999px; border: 1.5px solid #0C0C0D; box-sizing: border-box; font-size: 11.5px; font-weight: 600; color: #0C0C0D; display: inline-flex; align-items: center">ธุรกิจ</span>
+          <div class="ab" style="left: 16px; right: 16px; top: 50px; font-family: 'Anuphan', sans-serif; font-weight: 700; font-size: 30px; line-height: 1.2; letter-spacing: -0.4px; color: #0C0C0D">ขายดีขึ้น<br>โดย<span style="text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 6px">ไม่ลดราคา</span></div>
+          <div class="ab" style="right: 16px; top: 14px; font-family: 'Geist', sans-serif; font-weight: 700; font-size: 56px; letter-spacing: -2px; line-height: 1; color: rgba(12,12,13,0.08)">01</div>
+          <div class="lab"><span class="nm" style="font-size: 16px">Bold Mono</span><span class="ds">ขาวดำ ตัวหนา ดูมืออาชีพ</span></div>
+        </a>
+
+        <a href="StyleEditorial.dc.html" class="tile lt" style="grid-column: span 1; grid-row: span 1; display: {{show.comic}}; background: #FFD43B; border: none">
+          <span class="ab" style="left: 22px; top: 44px; width: 12px; height: 12px; background: #FFFFFF; border-right: 2.5px solid #0C0C0D; border-bottom: 2.5px solid #0C0C0D; transform: rotate(45deg)"></span>
+          <div class="ab" style="left: 12px; top: 10px; width: 94px; height: 42px; border-radius: 16px; background: #FFFFFF; border: 2.5px solid #0C0C0D; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-family: 'Sriracha', cursive; font-size: 21px; color: #0C0C0D">ว้าว!</div>
+          <span class="badge r">ใหม่</span>
+          <div class="lab"><span class="nm">Comic</span><span class="ds">กรอบคำพูดการ์ตูน</span></div>
+        </a>
+
+        <a href="StyleOverlay.dc.html" class="tile" style="grid-column: span 1; grid-row: span 1; display: {{show.sticker}}">
+          <span class="ab" style="left: 14px; top: 12px; width: 38px; height: 38px; border-radius: 11px; background: #FFFFFF; transform: rotate(-10deg); display: inline-flex; align-items: center; justify-content: center; color: #FF6FAE"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px; fill: #FF6FAE; stroke: none"><path d="M12 21s-7.5-4.6-9.5-9.3C1.1 8.3 3.2 4.5 7 4.5c2.1 0 3.6 1.2 5 3 1.4-1.8 2.9-3 5-3 3.8 0 5.9 3.8 4.5 7.2C19.5 16.4 12 21 12 21Z"/></svg></span>
+          <span class="ab" style="left: 62px; top: 10px; width: 38px; height: 38px; border-radius: 11px; background: #FFFFFF; transform: rotate(7deg); display: inline-flex; align-items: center; justify-content: center"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px; fill: #FFD43B; stroke: #0C0C0D; stroke-width: 1.4"><path d="m12 3 2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8Z"/></svg></span>
+          <span class="ab" style="left: 110px; top: 13px; width: 38px; height: 38px; border-radius: 11px; background: #FFFFFF; transform: rotate(-5deg); display: inline-flex; align-items: center; justify-content: center"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px; fill: #C6F432; stroke: #0C0C0D; stroke-width: 1.4"><path d="M13 2 4 14h7l-1 8 9-12h-7Z"/></svg></span>
+          <div class="lab"><span class="nm">Sticker</span><span class="ds">สติกเกอร์เด้งตามคำ</span></div>
+        </a>
+
+        <a href="StyleOverlay.dc.html" class="tile" style="grid-column: span 1; grid-row: span 3; display: {{show.cine}}">
+          <div class="room"></div>
+          <div class="who" style="bottom: 60px"><i class="hd"></i><i class="bd"></i></div>
+          <div class="ab" style="left: 0; right: 0; top: 0; height: 52px; background: #000000"></div>
+          <div class="ab" style="left: 0; right: 0; bottom: 0; height: 100px; background: #000000"></div>
+          <div class="ab" style="left: 8px; right: 8px; bottom: 112px; text-align: center; font-family: 'Anuphan', sans-serif; font-weight: 500; font-size: 12.5px; letter-spacing: 0.4px; color: #FFFFFF; text-shadow: 0 1px 4px rgba(0,0,0,0.7)">ความเงียบก็ขายได้</div>
+          <div class="lab" style="bottom: 14px"><span class="nm">Cinematic</span><span class="ds">แถบดำบนล่าง ซับเรียบ</span></div>
+        </a>
+
+        <a href="StyleOverlay.dc.html" class="tile" style="grid-column: span 1; grid-row: span 2; display: {{show.retro}}">
+          <div class="room" style="background: radial-gradient(90% 60% at 50% 18%, #7A5A3A, #2E2014 75%)"></div>
+          <div class="who sep" style="bottom: -30px"><i class="hd"></i><i class="bd"></i></div>
+          <div class="ab" style="inset: 0; background: radial-gradient(70% 60% at 50% 45%, rgba(0,0,0,0), rgba(0,0,0,0.55))"></div>
+          <div class="ab" style="left: 0; right: 0; top: 118px; text-align: center; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 26px; color: #FF9F45; text-shadow: 2px 2px 0 #2A1608">ย้อนวัย</div>
+          <span class="badge">ใหม่</span>
+          <div class="scrim" style="height: 30%"></div>
+          <div class="lab"><span class="nm">Retro</span><span class="ds">ฟิล์มเก่า สีอุ่น</span></div>
+        </a>
+
+        <a href="StyleOverlay.dc.html" class="tile" style="grid-column: span 1; grid-row: span 1; display: {{show.clean}}">
+          <div class="room"></div>
+          <div class="who" style="bottom: -62px; transform: scale(0.6)"><i class="hd"></i><i class="bd"></i></div>
+          <div class="ab" style="left: 8px; right: 8px; top: 14px; text-align: center; font-family: 'Anuphan', sans-serif; font-weight: 700; font-size: 15px; color: #FFFFFF; text-shadow: 0 1px 4px #000000, 0 0 2px #000000">ซับเรียบ อ่านง่าย</div>
+          <div class="scrim"></div>
+          <div class="lab"><span class="nm">Clean</span><span class="ds">ซับอย่างเดียว ไม่มีกราฟิก</span></div>
+        </a>
       </div>
     </div>
   </div>
@@ -89,18 +260,33 @@ a{color:#F2F2F0;text-decoration:none}a:hover{color:#FFFFFF}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { f: 'all' }; }
   renderVals() {
+    const tags = {
+      editorial: ['pop', 'cards'], overlay: ['pop', 'face'], minimal: ['pop', 'cards', 'min'], karaoke: ['pop', 'face'],
+      motion: ['pop', 'cards'], glass: ['cards'], poster: ['cards'], neon: ['new', 'face'], minov: ['face', 'min'],
+      hand: ['cards', 'min'], data: ['cards'], news: ['face'], podcast: ['new', 'face'], popov: ['face'],
+      mono: ['cards', 'min'], comic: ['new', 'cards'], sticker: ['face'], cine: ['face'], retro: ['new', 'face'], clean: ['face', 'min']
+    };
+    const f = this.state.f;
+    const keys = Object.keys(tags);
+    const show = { info: f === 'all' ? 'flex' : 'none' };
+    keys.forEach((k) => { show[k] = f === 'all' || tags[k].includes(f) ? 'block' : 'none'; });
+    const list = [
+      { id: 'all', name: 'ทั้งหมด' }, { id: 'pop', name: 'ยอดนิยม' }, { id: 'new', name: 'ใหม่' },
+      { id: 'face', name: 'เห็นหน้าตลอด' }, { id: 'cards', name: 'การ์ดเต็มจอ' }, { id: 'min', name: 'มินิมอล' }
+    ];
     return {
       yes: true,
-      styles: [
-        { href: 'StyleEditorial.dc.html', name: 'Editorial', desc: 'การ์ดกราฟิกเต็มจอ สลับกับหน้าคนพูด', video: '/_blob/4900715959e4cab6c90f059b5bb60292', poster: '/_blob/9580e8f04b43d51b8499294d13e489f5', alt: 'ตัวอย่างคลิปสไตล์ Editorial' },
-        { href: 'StyleOverlay.dc.html', name: 'Overlay', desc: 'เห็นหน้าตลอด กราฟิกเด้งเหนือหัว', video: '/_blob/0bacc8ac134f2bc351cb2e2f60b464e0', poster: '/_blob/0d4b0a526b289d997e5b6035d1196aa8', alt: 'ตัวอย่างคลิปสไตล์ Overlay' }
-      ],
-      how: [
-        { n: '1', t: 'เลือกสไตล์ที่ชอบ' },
-        { n: '2', t: 'อัปโหลดคลิป แล้วแก้ซับ' },
-        { n: '3', t: 'รอสักครู่ ได้คลิปพร้อมโพสต์' }
-      ]
+      show,
+      chips: list.map((c) => {
+        const on = c.id === f;
+        return { ...c, on,
+          n: c.id === 'all' ? keys.length : keys.filter((k) => tags[k].includes(c.id)).length,
+          bg: on ? '#FFFFFF' : 'transparent', ink: on ? '#0C0C0D' : 'rgba(255,255,255,0.72)',
+          border: on ? '1px solid #FFFFFF' : '1px solid rgba(255,255,255,0.14)',
+          pick: () => this.setState({ f: c.id }) };
+      })
     };
   }
 }
