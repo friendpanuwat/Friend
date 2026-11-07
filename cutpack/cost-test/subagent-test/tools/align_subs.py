@@ -2,13 +2,14 @@
 """A corrected transcript with times to the second (Friend 2026-11-06: "mm:ss text" per line) → words with the
 fine times the engine needs, taken from the transcriber's words where the letters match.
 
-usage: align_subs.py <asr words.json> <corrected.txt> <out words.json>
+usage: align_subs.py <asr words.json> <corrected.txt> <out words.json> [clip seconds]
 
 Each corrected line is cut into words (pythainlp, English kept whole). The letters of the corrected text are matched
 in order to the letters of the transcriber's words (difflib); a matched letter takes the time it had there, the rest
 are spread between their matched neighbours, never before their line's second and never backwards. A word starts at
 its first letter and ends at its last letter (or where the next word starts). This stands in for step 4 of the web
-app, where the customer corrects the words of the transcript.
+app, where the customer corrects the words of the transcript. With the clip length, the words after the last matched
+letter are spread so the last one ends before the clip does.
 """
 import difflib, json, re, sys
 
@@ -17,7 +18,7 @@ def letters(w):
     return [c for c in w.lower() if not c.isspace()]
 
 
-def main(asr_path, txt_path, out_path):
+def main(asr_path, txt_path, out_path, duration=None):
     asr = json.load(open(asr_path))
     asr = asr['words'] if isinstance(asr, dict) else asr
     A, At0, At1 = [], [], []   # transcriber letters with start and end times
@@ -52,6 +53,14 @@ def main(asr_path, txt_path, out_path):
         if q is None: t0[i] = t1[i] = t1[p]; continue
         f = (i - p) / (q - p)
         t0[i] = t1[p] + (t0[q] - t1[p]) * f; t1[i] = t0[i]
+    if duration:   # the last line runs past the end of the clip: squeeze that line (keeping its rhythm) to end inside it
+        end, top = float(duration) - 0.05, max(t1)
+        if top > end:
+            anchor = min(t0[i] for i in range(len(B)) if toks[owner[i]]['line'] == toks[owner[-1]]['line'])
+            k = (end - anchor) / (top - anchor)
+            for i in range(len(B)):
+                if t0[i] >= anchor: t0[i] = anchor + (t0[i] - anchor) * k
+                if t1[i] >= anchor: t1[i] = anchor + (t1[i] - anchor) * k
     last = 0.0
     for i in range(len(B)):   # never before the line's second, never backwards
         t0[i] = max(t0[i], toks[owner[i]]['sec'], last); t1[i] = max(t1[i], t0[i]); last = t0[i]
@@ -64,6 +73,7 @@ def main(asr_path, txt_path, out_path):
         if words[j]['t1'] > nxt: words[j]['t1'] = nxt
         if words[j]['t1'] <= words[j]['t0']: words[j]['t1'] = round(min(nxt, words[j]['t0'] + 0.15), 3)
     if words and words[-1]['t1'] <= words[-1]['t0']: words[-1]['t1'] = round(words[-1]['t0'] + 0.3, 3)
+    if duration and words: words[-1]['t1'] = round(min(words[-1]['t1'], float(duration)), 3)
     json.dump({'words': words}, open(out_path, 'w'), ensure_ascii=False, indent=1)
     print(f'{len(words)} words, {matched}/{len(B)} letters matched to the transcriber ({matched / len(B):.0%})')
     for li, (sec, text) in enumerate(lines):   # each line's first word time against the second Friend wrote
@@ -73,5 +83,5 @@ def main(asr_path, txt_path, out_path):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 4: sys.exit(__doc__)
+    if len(sys.argv) not in (4, 5): sys.exit(__doc__)
     main(*sys.argv[1:])

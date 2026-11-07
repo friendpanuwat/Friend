@@ -1,0 +1,8 @@
+{
+ "scenes": [
+  {
+   "i": 12,
+   "code": "const o = ON[T.bg];\nconst glow = svg(760, 760, `<circle cx=\"380\" cy=\"380\" r=\"330\" fill=\"${ACC}\" opacity=\".22\"/><circle cx=\"380\" cy=\"380\" r=\"250\" fill=\"${ACC}\" opacity=\".22\"/>`, 'left:160px;top:320px;opacity:0', c);\nconst old = div('left:300px;top:460px;width:480px;height:480px;opacity:0', c, ico('brain', 480, o.soft, 2.4));\nmv.show(old, T.t0 + .05);\nmv.float(old, T.t0 + .05, T.hit, 10);\nmv.dim(old, T.hit - .1);\nmv.slide(old, T.hit - .1, 'translateX(0px) scale(1)', 'translateX(-260px) scale(.6)');\nconst fresh = div('left:300px;top:460px;width:480px;height:480px;opacity:0', c, ico('brain', 480, ACC, 3));\nmv.pop(glow, T.hit);\nmv.pop(fresh, T.hit);\nmv.punch(fresh, T.hit + .25);\nconst arr = div('left:470px;top:1020px;width:140px;height:140px;opacity:0', c, ico('refresh-cw', 140, ACC, 3));\nmv.pop(arr, T.hit + .1);\nsnd('hit', T.hit);\n"
+  }
+ ]
+}
