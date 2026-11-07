@@ -91,48 +91,6 @@ def place(track, t0, t1, size, camera, sub_top, face_box):
     return None
 
 
-FREE_MAX, FREE_MIN = (760, 380), (180, 150)   # way 'hero' (Friend 2026-11-07): the AI sizes its widget to the room it gets
-
-
-def free_spots(keep, sub_top):
-    """Every free box around this keep-out box, as big as it can be (capped at FREE_MAX): [(where, x, y, W, H)].
-    Above the head and at chest level the box is centred like the subtitles; beside the head it hugs the side."""
-    kx0, ky0, kx1, ky1 = keep
-    out = []
-    h = min(FREE_MAX[1], ky0 - 20 - TOPBAR)
-    if h >= FREE_MIN[1]: out.append(('top', (W - FREE_MAX[0]) // 2, TOPBAR, FREE_MAX[0], int(h)))
-    band0, band1 = ky1 + 40, sub_top - 20
-    h = min(FREE_MAX[1], band1 - band0)
-    if h >= FREE_MIN[1]: out.append(('chest', (W - FREE_MAX[0]) // 2, int(band1 - h), FREE_MAX[0], int(h)))
-    y = int(max(TOPBAR + 10, ky0)); h = int(min(FREE_MAX[1], sub_top - 20 - y))
-    right_max = RIGHT_UI if y + h > RIGHT_Y[0] else W - 36
-    w = int(min(FREE_MAX[0], kx0 - 20 - 36))
-    if w >= FREE_MIN[0] and h >= FREE_MIN[1]: out.append(('left', 36, y, w, h))
-    w = int(min(FREE_MAX[0], right_max - (kx1 + 20)))
-    if w >= FREE_MIN[0] and h >= FREE_MIN[1]: out.append(('right', int(kx1 + 20), y, w, h))
-    return out
-
-
-def place_free(track, t0, t1, camera, sub_top, face_box, box=None):
-    """Way 'hero': → {'where', 'x', 'y', 'W', 'H'} — the biggest free box during [t0, t1]; with `box` ({'W', 'H'}, the size
-    the scene was designed for), the first free place in the usual order where that box fits (centred in it). None: no room."""
-    free = free_spots(keep_out(track, t0, t1, camera, face_box), sub_top)
-    if not free: return None
-    if box is None:
-        where, x, y, w, h = max(free, key=lambda f: f[3] * f[4])
-        return {'where': where, 'x': x, 'y': y, 'W': w, 'H': h}
-    for where, x, y, w, h in sorted(free, key=lambda f: ['top', 'chest', 'left', 'right'].index(f[0])):
-        if box['W'] <= w and box['H'] <= h:
-            return {'where': where, 'x': int(x + (w - box['W']) / 2) if where in ('top', 'chest') else (x if where == 'left' else x),
-                    'y': int(y + (h - box['H']) / 2) if where != 'top' else y, 'W': box['W'], 'H': box['H']}
-    return None
-
-
-def answer_camera(cam):
-    """The AI's camera list ({'move', 't', 'z'}) in the plan's form ({'push': t, 'z'} / {'pull': t})."""
-    return [{'push': c['t'], **({'z': c['z']} if c.get('z') else {})} if c.get('move') == 'push' else {'pull': c['t']} for c in cam or []]
-
-
 def windows(track, dur, sub_top, face_box):
     """The times with room for a widget when the camera is not pushed in, merged into ranges:
     [{'t0', 't1', 'sizes': ['short', 'narrow']}] (for the prompt and the density check)."""

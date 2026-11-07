@@ -57,9 +57,7 @@ def assemble(inp, ans, style):
         if s.get('shows'): x['shows'] = s['shows']
         if s['part'] == 'custom':   # AI-written: what it should show, and its code from the second call (none yet → refused)
             x['need'] = s.get('need', ''); x['code'] = s.get('code', '')
-            if kind == 'widget' and 'hero' in prompt.ways_of():   # test way 'hero': the AI draws the whole widget in its own box
-                x['kit'] = 'full'
-                if s.get('box'): x['box'] = dict(s['box'])
+            if kind == 'widget' and 'hero' in prompt.ways_of(): x['kit'] = 'full'   # test way 'hero': the AI draws the whole card
         scenes.append(x)
     cam = []
     for c in ans.get('camera', []):
@@ -71,10 +69,6 @@ def assemble(inp, ans, style):
             'camera': cam, 'subtitles': subtitles(inp, cards), 'scenes': scenes}
     lay = {k: v for k, v in (inp.get('layout') or {}).items() if k in ('subtitleTop', 'widgetPos')}
     if lay: plan['layout'] = lay
-    ways = prompt.ways_of()
-    if kind == 'widget' and 'nowords' in ways:   # Friend 2026-11-07: no spoken words on widgets (the subtitles say them)
-        plan['widgetWords'] = False
-        for s in scenes: s['slots'] = {k: v for k, v in s['slots'].items() if k not in ('wlead', 'wkey')}
     if kind == 'widget' and inp.get('track'): place_widgets(plan, inp)
     return plan
 
@@ -85,12 +79,8 @@ def place_widgets(plan, inp):
     top = (inp.get('layout') or {}).get('subtitleTop', 1300)
     tight = room.tight(inp['track'], plan['clip']['duration'], top, inp['faceBox'])
     for s in plan['scenes']:
-        for k in ('pos', 'where', 'shrink'): s.pop(k, None)
-        if s.get('kit') == 'full':   # way 'hero': the box the scene was designed for, wherever it fits now
-            got = room.place_free(inp['track'], s['t0'], s['t1'], plan['camera'], top, inp['faceBox'], s.get('box'))
-            if got: s['pos'], s['where'], s['box'] = {'x': got['x'], 'y': got['y']}, got['where'], {'W': got['W'], 'H': got['H']}
-            continue
         got = room.place(inp['track'], s['t0'], s['t1'], s.get('size'), plan['camera'], top, inp['faceBox'])
+        for k in ('pos', 'where', 'shrink'): s.pop(k, None)
         if got: s['size'], s['pos'], s['where'] = got
         elif tight:   # no room now, in a clip that is short of room: the speaker shrinks for this widget
             s.update(size='short', pos=dict(room.SHRINK['pos']), where='shrink', shrink=True)

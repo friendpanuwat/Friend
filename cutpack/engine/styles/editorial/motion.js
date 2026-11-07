@@ -271,14 +271,8 @@ function customWidget(kind, t0, t1, opts, build) {
 /* way 'hero' (test, Friend 2026-11-07, "แบบ D"): the AI draws the whole white widget card (W×H) itself, with its own
    words, instead of a small square beside the kit's text. build(box, W, H, T). */
 function customWidgetFull(kind, t0, t1, opts, build) {
-  /* Friend 2026-11-07: the size is the free room at that moment (room.place_free, opts.box), no card of the kit's and no
-     words from the subtitles: the scene draws its own card(s) with panel() or floats its pieces. */
-  const {hit = t0 + .5, pos = WAT[kind] ?? WAT.short, box = WSIZE[kind] ?? WSIZE.short} = opts;
-  const b = div(`left:${pos.x}px;top:${pos.y}px;width:${box.W}px;height:${box.H}px;opacity:0`, G);
-  A(b, [{opacity: 0, transform: `translateY(${WIN.dy}px) scale(${WIN.s})`}, {opacity: 1, transform: 'none'}], t0, WIN.d, {e: WIN.e});
-  A(b, [{opacity: 1, transform: 'none'}, {opacity: 0, transform: `scale(${WOUT.s})`}], t1 - WOUT.d, WOUT.d, {f: 'forwards', e: 'ease-in'});
-  sfx('softswish', t0 - .03, -25);
-  build(b, box.W, box.H, {t0, t1, hit, kind});
-  cleanScene(b); FITS.push(() => cleanScene(b));
-  return b;
+  const v = `c${CUSTOM_N++}`;
+  WIDGET('CU', v, {name: 'AI-written', slots: {}, dur: [1, 3.5], hit: 'AI-written', full: true},
+    (vis, S, s, T, L, w) => { build(w, L.W, L.H, T); cleanScene(w); FITS.push(() => cleanScene(w)); });
+  return widgetAt('CU', v, kind, t0, t1, opts);
 }

@@ -380,7 +380,7 @@ def check_places(plan, cat, R, layout, faces):
             if not s.get('pos'): R.err('place-nofit', w, f"no room for a widget at {s['t0']}–{s['t1']}: the face fills the frame then"); continue
             keep = room.keep_out(track, s['t0'], s['t1'], plan.get('camera'), faces.get('face') or keep)
         p = s.get('pos') or layout.get('widgetPos', {}).get(s['size']) or cat['widgetAt'][s['size']]
-        W, H = (s['box']['W'], s['box']['H']) if s.get('box') else (sizes[s['size']]['W'], sizes[s['size']]['H'])
+        W, H = sizes[s['size']]['W'], sizes[s['size']]['H']
         b = [p['x'], p['y'], p['x'] + W, p['y'] + H]
         e = RULES['edge']
         if b[0] < e or b[2] > 1080 - e: R.err('place-edge', w, f'widget {b} runs off the side of the frame')

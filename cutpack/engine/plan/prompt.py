@@ -33,16 +33,15 @@ KIND = {'editorial': 'card', 'overlay': 'widget'}
 #   loose     the AI is told code fixes lengths, hit times and gaps, so the meaning of each picture comes first
 #   count     this clip's density rules as numbers (the targets taken out on 2026-11-05, now without "count and check")
 #   hero      (Friend 2026-11-07, "แบบ D") the 6–8 sentences that carry the clip become AI-written scenes built in beats,
-#             with the skill's UI pieces (prompt/kit_hero.md); overlay ones are sized to the free room. Not part of 'all'.
-#   nowords   (Friend 2026-11-07) overlay widgets carry no spoken words: no wlead/wkey, no text widgets. Not part of 'all'.
-WAYS = ('reason', 'describe', 'example', 'loose', 'count', 'hero', 'nowords')
+#             with the skill's UI pieces (prompt/kit_hero.md); overlay ones draw their whole card. Not part of 'all'.
+WAYS = ('reason', 'describe', 'example', 'loose', 'count', 'hero')
 
 
 def ways_of(ways=None):
     """The ways asked for: the argument, else $CUTPACK_PLAN_WAYS ('all' = every way). Unknown names stop the run."""
     if ways is None: ways = os.environ.get('CUTPACK_PLAN_WAYS', '')
     if isinstance(ways, str): ways = [w.strip() for w in ways.split(',') if w.strip()]
-    ways = (set(WAYS) - {'hero', 'nowords'}) | set(ways) - {'all'} if 'all' in ways else set(ways)
+    ways = (set(WAYS) - {'hero'}) | set(ways) - {'all'} if 'all' in ways else set(ways)
     bad = ways - set(WAYS)
     if bad: raise ValueError(f'unknown plan ways: {sorted(bad)} (known: {", ".join(WAYS)}, all)')
     return frozenset(ways)
@@ -376,17 +375,13 @@ def code_request(inp, style, answer, cat=None, ways=None):
         words = [w for w in inp.get('words', []) if s['t0'] - .3 <= w['t0'] < s['t1']]
         sl = s.get('slots') or {}
         size = cat['widgetSizes'].get(s.get('size'), {})
-        if hero and kind == 'widget' and inp.get('track'):   # the room it will get, from the face at its own time
-            top = (inp.get('layout') or {}).get('subtitleTop', 1300)
-            got = room.place_free(inp['track'], s['t0'], s['t1'], room.answer_camera(answer.get('camera')), top, inp['faceBox'])
-            if got: s['box'] = {'W': got['W'], 'H': got['H']}; size = s['box']
-        wdesc = (f" · widget: the room you get is W = {size.get('W')}, H = {size.get('H')} px" if hero else
+        wdesc = (f" · widget {s.get('size')}, the whole card W = {size.get('W')}, H = {size.get('H')}" if hero else
                  f" · widget {s.get('size')}, S = {150 if s.get('size') == 'short' else 180}")
         rows += [f"## scene {i} · {kind}" + (f" · background {s.get('bg')}" if kind == 'card' else wdesc),
                  f"t0 {s['t0']} · hit {s['hit']} · t1 {s['t1']}",
                  f"show: {s.get('need', '')}",
                  'words said: ' + ' '.join(f"{w['w']}@{w['t0']:.2f}" for w in words),
-                 ('words: none of the words said (the subtitles show them); at most two small screen labels'
+                 ('words the scene shows (draw them yourself, ≤ 3 words): ' + (' / '.join(x for x in (sl.get('wlead'), sl.get('wkey')) if x) or 'your choice from the words said')
                   if hero and kind == 'widget' else
                   'text code adds under it: ' + (' / '.join(x for x in (sl.get('lead') or sl.get('wlead'), sl.get('key') or sl.get('wkey')) if x) or 'none')), '']
     return {
@@ -411,8 +406,6 @@ WAY_RULES = {   # added after the `shows` rule of system.md, in this order
             "'<key word>' <the hit>\": the objects of the sentence (product, price tag, cart, chat, wallet, checklist…), what "
             "appears or changes on which word, and the hit. Plan every other scene from the library as usual. Never reuse "
             "a scene from an example or an earlier clip: design each from this clip's words.",
-    'nowords': "- Overlay widgets show no spoken words: the subtitles already say them. Leave `wlead` and `wkey` out, and "
-               "never use B14 (words only) as a widget: the picture alone must carry the sentence.",
     'loose': "- Code moves each scene's t0, t1 and hit onto the word times, fits its length into the part's range and "
              "opens the gaps between widgets, so rough seconds are fine. Put your care into the meaning: which sentences "
              "get a scene, and a picture that means the words.",

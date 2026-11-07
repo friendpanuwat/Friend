@@ -45,7 +45,7 @@ def convert(plan, guard=False):
                 pos = s.get('pos') or lay.get('widgetPos', {}).get(s['size'])
                 if pos: args['pos'] = pos
                 if s.get('kit') == 'full':   # way 'hero': the AI drew the whole card, words included
-                    args = {'hit': s['hit'], **({'pos': pos} if pos else {}), **({'box': s['box']} if s.get('box') else {})}
+                    args = {'hit': s['hit'], **({'pos': pos} if pos else {})}
                     call(f"customWidgetFull({js(s['size'])}, {js(s['t0'])}, {js(s['t1'])}, {js(args)}, (box, W, H, T) => {{\n{s['code']}\n}});", 'scene', i)
                 else:
                     call(f"customWidget({js(s['size'])}, {js(s['t0'])}, {js(s['t1'])}, {js(args)}, (vis, S, T) => {{\n{s['code']}\n}});", 'scene', i)
