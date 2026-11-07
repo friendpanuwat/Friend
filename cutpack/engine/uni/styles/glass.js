@@ -103,7 +103,7 @@ STYLE('glass', {
       const L = div('', el); L.className = 'g-line'; L.style.position = 'relative';
       const c = document.createElement('span'); c.className = cls; L.appendChild(c);
       graphemes(txt).forEach((ch, i) => {
-        const g = document.createElement('span'); g.className = 'g-g'; g.textContent = ch; c.appendChild(g);
+        const g = document.createElement('span'); g.className = 'g-g'; g.textContent = ch === ' ' ? '\u00A0' : ch; c.appendChild(g);   // a space in an inline-block collapses, keep it
         const ti = t + i * (big ? .032 : .016);
         A(g, [{opacity: 0, transform: `translateY(${big ? 55 : 40}%) rotateX(${big ? -85 : -60}deg) scale(${big ? 1.15 : 1.05})`, filter: 'blur(10px)'},
           {opacity: 1, transform: 'none', filter: 'blur(0)'}], ti, big ? .48 : .36, {e: 'cubic-bezier(.22,1.35,.36,1)'});

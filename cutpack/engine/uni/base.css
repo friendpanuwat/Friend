@@ -49,3 +49,15 @@ svg{overflow:visible}
 .u-pulse-acc{border-color:var(--ac-line, var(--ac))}
 .u-bubble-text{color:var(--text)}
 .u-acc .u-bubble-text{color:inherit}
+/* round 2: variants (ring gauge, receipt, beacon, stamp) — painted from the same role variables */
+.u-ring{fill:none;stroke:var(--tr);stroke-width:var(--ring-w, 40)}
+.u-ring-edge{fill:none;stroke:var(--ac-line, var(--ac));stroke-width:calc(var(--ring-w, 40) + 2 * var(--lw-ac, 0));stroke-linecap:round}
+.u-ring-on{fill:none;stroke:var(--ac);stroke-width:var(--ring-w, 40);stroke-linecap:round}
+.u-dash{stroke-dasharray:14 16}
+.u-receipt-wrap{filter:drop-shadow(var(--paper-shadow, 0 18px 26px rgba(0,0,0,.18)))}
+.u-lamp{fill:var(--neg);stroke:var(--ink);stroke-width:calc(var(--lw) * .6);stroke-linejoin:round}
+.u-beam{background:conic-gradient(from 0deg, color-mix(in srgb, var(--neg) 34%, transparent) 0deg 26deg, transparent 26deg 180deg, color-mix(in srgb, var(--neg) 34%, transparent) 180deg 206deg, transparent 206deg);
+  -webkit-mask:radial-gradient(circle, #000 12%, transparent 70%);mask:radial-gradient(circle, #000 12%, transparent 70%)}
+.u-flash{background:radial-gradient(circle, color-mix(in srgb, var(--neg) 60%, transparent) 0%, transparent 66%)}
+.u-stamp{fill:none;stroke:var(--neg);stroke-width:calc(var(--lw-cross, 14) * 1.5);stroke-linecap:round;stroke-linejoin:round}
+.u-stamp-dot{fill:var(--neg)}

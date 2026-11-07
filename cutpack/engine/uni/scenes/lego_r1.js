@@ -122,7 +122,7 @@ LAYOUT('number', {name: 'ตัวเลขเด่น'}, (K, r, T) => {
   K.ghost(K.stage, 210, 110, 640, 470, T.b[0] - .05);
   const P = K.panel(180, 80, 640, 470, T.b[0]);
   K.halo(P.p, 320, 210, 200, T.b[1]);
-  R1.counter(K, P.p, 320, 210, 230, T.b[1], r.value, T.hit - T.b[1]);
+  R1.counter(K, P.p, 320, 210, Math.min(230, Math.round(560 / (.6 * Math.max(1, String(r.value).length)))), T.b[1], r.value, T.hit - T.b[1]);   // long numbers shrink to fit the card
   if (r.unit) K.chipC(P.p, r.unit, 320, 380, T.hit - .2, {size: 52, tone: 'acc'});
   if (r.icon) K.sat(K.stage, r.icon, 210, 90, 120, T.b[0] + .2, {tone: 'main'});
   if (r.dir) K.sat(K.stage, r.dir === 'down' ? 'trending-down' : 'trending-up', 820, 130, 104, T.hit, {tone: r.dir === 'down' ? 'soft' : 'acc'});

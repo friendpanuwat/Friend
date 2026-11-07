@@ -22,10 +22,16 @@ const build = (id, dir) => execFileSync('python3', [path.join(__dirname, 'build.
       await page.evaluate(t => window.seek(t), t);
       (await page.evaluate(() => {
         const vis = el => { let o = 1; for (let e = el; e && e.id !== 'SC'; e = e.parentElement) { const cs = getComputedStyle(e); if (cs.display === 'none' || cs.visibility === 'hidden') return 0; o *= +cs.opacity; } return o; };
+        /* what is really on screen: the element's box cut by every parent that hides its overflow */
+        const clipped = e => { let r = e.getBoundingClientRect(), x0 = r.left, y0 = r.top, x1 = r.right, y1 = r.bottom;
+          for (let a = e.parentElement; a && a.id !== 'SC'; a = a.parentElement) { const o = getComputedStyle(a).overflow;
+            if (o === 'hidden' || o === 'clip') { const q = a.getBoundingClientRect(); x0 = Math.max(x0, q.left); y0 = Math.max(y0, q.top); x1 = Math.min(x1, q.right); y1 = Math.min(y1, q.bottom); } }
+          return {left: x0, top: y0, right: x1, bottom: y1, width: Math.max(0, x1 - x0), height: Math.max(0, y1 - y0)}; };
         const R = [...document.querySelectorAll('#SC .u-panel, #SC .u-badge, #SC .u-chip, #SC .u-bubble')].filter(e => vis(e) > .3)
-          .map(e => ({e, r: e.getBoundingClientRect()})).filter(x => x.r.width > 4);
+          .map(e => ({e, r: clipped(e)})).filter(x => x.r.width > 4 && x.r.height > 4);
         const area = r => r.width * r.height;
-        const inter = (a, c) => Math.max(0, Math.min(a.right, c.right) - Math.max(a.left, c.left)) * Math.max(0, Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top));
+        const inter = (a, c) => { const ix = Math.min(a.right, c.right) - Math.max(a.left, c.left), iy = Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top);
+          return ix < 6 || iy < 6 ? 0 : ix * iy; };                            // touching edges (under 6 px) is not crossing
         const name = e => e.className.replace(/\s+/g, '.');
         const box = r => [r.left, r.top, r.width, r.height].map(Math.round).join(',');
         const out = [];

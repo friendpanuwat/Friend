@@ -35,6 +35,10 @@
 `not-worth.lego undecided.lego fewer-customers.lego not-first.lego fix-spot.lego price-cut.lego lego.views-sales@0 lego.value-price@1 lego.short-long@2 lego.money-gone@3 lego.viewers-drop@4 lego.followers-up@5 lego.team-grows@0 lego.three-steps@1 lego.skip-step@2 lego.happy@3 lego.sales-jump@4 lego.bell-on@5 lego.right-people@0 lego.weak-spot@1 lego.on-target@2`
 (`@n` = ลำดับในคลิปที่สไตล์ใช้สลับพื้น ฉากที่ไม่มี `@` ใช้ลำดับของความหมาย)
 
+## หมวดและร่าง (Friend 2026-11-07)
+`scenes/cats.js` มี 16 หมวด (B01–B16) และตัวเลือกร่าง: ประโยค 1 ประโยค = `SENTENCE(id, {cat, say, …ใบประกอบ})` โปรแกรมเลือกร่างจาก `VARIANT` ของหมวดนั้นเอง (เฉพาะร่างที่ `fits`, ใช้น้อยสุดในคลิปก่อน, ไม่ซ้ำติดกัน, ผลเดิมทุกครั้ง) ฉาก `<id>.<ร่าง>` บังคับร่างไว้ทดสอบ ใบประกอบของแต่ละหมวดอยู่หัวไฟล์ `scenes/lego_r2.js` ทดสอบตัวเลือก: `node test_picker.js`
+รอบที่ 2: `r2.money.big@0 r2.money.ring@1 r2.money.receipt@2 r2.loan.sign@0 r2.loan.beacon@1 r2.loan.stamp@2 r2.review.phone@0 r2.review.review@1 r2.review.notify@2 r2.goal.target@0 r2.goal.stairs@1 r2.goal.trophy@2`
+
 ## ตรวจของทับกัน
 `NODE_PATH=$(npm root -g) node check_overlap.js <style> <work_dir>` สร้างทุกฉากในสไตล์นั้นแล้วหาการ์ดที่ทับกันและชิ้นที่คร่อมขอบการ์ด (Friend 2026-11-07) สไตล์ที่การ์ดโปร่งใสต้องไม่มี "card×card" ยกเว้นปึกการ์ดที่ตั้งใจ
 
