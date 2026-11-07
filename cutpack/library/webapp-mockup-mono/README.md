@@ -1,6 +1,6 @@
 # เว็บแอป CutPack โทนโมโนโครม (prototype)
 
-หน้าที่กดลองได้: https://claude.ai/artifact/C4jZsFkbvFe9x2N7RJK8pf (สร้างจากชนิด Design, 2026-11-05)
+หน้าที่กดลองได้: https://claude.ai/artifact/Np3VkxtwgibzxCtCB6QLHF (สร้างใหม่ 2026-11-07 จากไฟล์ชุดนี้ เพราะลิงก์เดิม https://claude.ai/artifact/C4jZsFkbvFe9x2N7RJK8pf เปิดจาก session หลังไม่ได้; ภาพในหน้าเปลี่ยนเป็นเฟรมจากคลิปทดสอบ 115213 ส่วน `/_blob/` ในไฟล์ของโฟลเดอร์นี้ยังเป็น id ของหน้าเดิม)
 
 Friend ส่งเว็บตัวอย่างมาให้ (https://thedankoe.eden.so/) แล้วบอกว่าอยากได้ UI สไตล์นี้ ชุดนี้จึงใช้แค่ "หน้าตา" ของเว็บนั้น ไม่ได้เอาชื่อ รูป หรือเนื้อหาของเขามาใช้:
 
