@@ -1,0 +1,24 @@
+{
+ "scenes": [
+  {
+   "i": 0,
+   "code": "const bc = tile(c, 'briefcase', T.t0 + 0.1, 'left:250px;top:330px;width:460px;height:460px', {size:260});\nconst pk = div('left:790px;top:520px;width:170px;height:130px;border-radius:32px;border:6px solid ' + ACC + ';opacity:0', c);\nmv.show(pk, T.t0 + 0.3);\nconst w = div('left:110px;top:740px;width:120px;height:120px', c);\ntile(w, 'coins', 2.88, 'left:0px;top:0px;width:120px;height:120px', {size:70, bg:ACC, color:NAVY});\nmv.slide(w, T.hit, 'translate(0px,0px)', 'translate(705px,-215px)');\npill(c, 'รายได้', T.hit + 0.15, 'left:790px;top:690px');\nmv.punch(bc.inner, T.hit);\nsnd('pop', 2.88);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 3,
+   "code": "const st = ['left:100px;top:1000px;width:160px;height:120px', 'left:260px;top:940px;width:160px;height:180px', 'left:420px;top:880px;width:160px;height:240px'];\nfor (let i = 0; i < 3; i++) {\n  const s = div(st[i] + ';border-radius:16px;background:' + ON[T.bg].tile + ';opacity:0', c);\n  mv.rise(s, T.t0 + 0.1 + i * 0.1);\n}\ntile(c, 'lock', T.t0 + 0.1, 'left:540px;top:260px;width:400px;height:400px', {size:220, bg:ON[T.bg].tile});\ntile(c, 'lock', T.hit, 'left:540px;top:260px;width:400px;height:400px', {size:220, bg:ACC, color:NAVY});\npill(c, 'MAIN', T.hit + 0.1, 'left:620px;top:690px');\nconst w = div('left:125px;top:890px;width:110px;height:110px', c);\ntile(w, 'coins', T.t0 + 0.2, 'left:0px;top:0px;width:110px;height:110px', {size:64, bg:ACC, color:NAVY});\nmv.slide(w, 11.95, 'translate(0px,0px)', 'translate(160px,-60px)');\ncross(c, 12.48, 'left:225px;top:770px', {size:130});\nsnd('hit', T.hit);\nsnd('cross', 12.48);"
+  },
+  {
+   "i": 7,
+   "code": "const cart = tile(c, 'shopping-cart', 23.3, 'left:410px;top:540px;width:260px;height:260px', {size:150});\nconst shop = tile(c, 'store', 23.65, 'left:270px;top:400px;width:540px;height:540px', {size:300});\npill(c, 'business', T.hit, 'left:370px;top:1010px');\nmv.punch(shop.inner, T.hit);\nsnd('pop', 23.65);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 9,
+   "code": "const fall = trend(c, [[0, 20], [150, 80], [300, 170], [450, 320], [600, 430]], 31.6, 'left:240px;top:300px', {w:600, h:460, color:RED, sw:14, d:0.5});\nconst zero = div('left:240px;top:530px;width:600px;height:6px;border-radius:3px;background:' + ON[T.bg].track + ';opacity:0', c);\nmv.show(zero, T.hit);\nmv.dim(fall, T.hit);\ntrend(c, [[0, 230], [600, 230]], T.hit + 0.05, 'left:240px;top:300px', {w:600, h:460, color:ACC, sw:14, d:0.4});\ntile(c, 'minus', 31.75, 'left:420px;top:850px;width:240px;height:240px', {size:130});\ntile(c, 'ban', T.hit, 'left:420px;top:850px;width:240px;height:240px', {size:200, bg:RED, color:'#ffffff'});\nsnd('hit', T.hit);\nsnd('cross', 31.6);"
+  },
+  {
+   "i": 15,
+   "code": "const tops = [330, 550, 770];\nfor (let i = 0; i < 3; i++) {\n  const a = panel(c, 'left:300px;top:' + tops[i] + 'px;width:480px;height:180px', 51.3 + i * 0.15, {style:'white'});\n  skel(a, 'left:40px;top:50px;width:400px', [0.8, 0.55], {t:51.3 + i * 0.15, h:22, gap:18});\n}\nfor (let i = 0; i < 3; i++) {\n  const b = panel(c, 'left:300px;top:' + tops[i] + 'px;width:480px;height:180px', T.hit + i * 0.08, {style:'navy'});\n  div('left:195px;top:45px;width:90px;height:90px', b, ico('refresh-cw', 90, '#ffffff', 3));\n}\nconst ar = div('left:200px;top:1020px;width:600px;height:180px;opacity:0', c, ico('arrow-right', 180, ACC, 6));\nmv.fly(ar, 52.4, 'translateX(-500px)');\nsnd('hit', T.hit);\nsnd('swipe', 52.4);"
+  }
+ ]
+}

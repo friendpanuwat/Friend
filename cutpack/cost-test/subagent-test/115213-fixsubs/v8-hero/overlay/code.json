@@ -1,0 +1,36 @@
+{
+ "scenes": [
+  {
+   "i": 0,
+   "code": "const tx=(s,css,t)=>{const e=div('white-space:nowrap;font-family:KeySans;color:'+NAVY+';opacity:0;'+css,box,s);mv.rise(e,t);return e;};\ntx('ตราบใดที่','left:24px;top:62px;font-size:44px',1.78);\nconst cw=div('left:290px;top:45px;width:100px;height:100px',box);\nconst coin=div('left:0px;top:0px;width:100px;height:100px;opacity:0',cw,ico('circle-dollar-sign',100,ACC,2.4));\nmv.pop(coin,1.78);\nconst lens=div('left:300px;top:60px;width:90px;height:90px;opacity:0',box,ico('search',90,NAVY,3));\nmv.fly(lens,2.88,'translateX(190px)');\nmv.slide(cw,T.hit,'scale(1)','scale(0.5)');\nconst tag=div('left:410px;top:55px;width:166px;height:80px;border-radius:40px;background:'+ACC+';color:#fff;font-family:KeySans;font-size:40px;text-align:center;line-height:80px;opacity:0',box,'รายได้');\nmv.pop(tag,T.hit);\nsnd('pop',1.78);\nsnd('hit',T.hit);"
+  },
+  {
+   "i": 2,
+   "code": "const cw=div('left:65px;top:20px;width:80px;height:80px',box);\ntile(cw,'coins',9.38,'left:0px;top:0px;width:80px;height:80px',{size:48,bg:NAVY,color:'#fff'});\nconst lb=div('left:20px;top:116px;width:170px;height:50px;text-align:center;white-space:nowrap;font-family:KeySans;font-size:32px;line-height:50px;color:'+NAVY+';opacity:0',box,'เสริมต่อไป');\nfitW(lb,170);\nmv.rise(lb,9.96);\nconst lw=div('left:55px;top:190px;width:100px;height:100px',box);\nconst lp=div('left:0px;top:0px;width:100px;height:100px;opacity:0',lw,ico('repeat',100,ACC,3));\nmv.pop(lp,T.hit);\nmv.slide(lw,T.hit,'rotate(0deg)','rotate(360deg)');\nconst k=div('left:20px;top:308px;width:170px;height:50px;text-align:center;white-space:nowrap;font-family:KeySans;font-size:38px;line-height:50px;color:'+ACC+';opacity:0',box,'เรื่อยๆ');\nfitW(k,170);\nmv.rise(k,T.hit);\nsnd('pop',9.38);\nsnd('hit',T.hit);"
+  },
+  {
+   "i": 6,
+   "code": "tile(box,'wallet',20.5,'left:65px;top:20px;width:80px;height:80px',{size:46,bg:'#e5e7eb',color:INK});\nconst lb=div('left:20px;top:108px;width:170px;height:40px;text-align:center;white-space:nowrap;font-family:KeySans;font-size:28px;line-height:40px;color:'+INK+';opacity:0',box,'ถ้าอยากให้');\nfitW(lb,170);\nmv.rise(lb,20.5);\nconst ar=div('left:83px;top:156px;width:44px;height:44px;opacity:0',box,ico('arrow-down',44,NAVY,3.5));\nmv.rise(ar,21.0);\ntile(box,'briefcase',T.hit,'left:65px;top:208px;width:80px;height:80px',{size:46,bg:NAVY,color:'#fff'});\nconst sp=div('left:140px;top:198px;width:44px;height:44px;opacity:0',box,ico('sparkles',44,ACC,3));\nmv.pop(sp,21.5);\nconst k=div('left:20px;top:300px;width:170px;height:50px;text-align:center;white-space:nowrap;font-family:KeySans;font-size:40px;line-height:50px;color:'+ACC+';opacity:0',box,'active');\nmv.key(k,T.hit);\nsnd('pop',20.5);\nsnd('hit',T.hit);"
+  },
+  {
+   "i": 9,
+   "code": "const sh=div('left:24px;top:55px;width:230px;height:80px;border-radius:40px;background:'+NAVY+';color:#fff;font-family:KeySans;font-size:36px;text-align:center;line-height:80px;white-space:nowrap;opacity:0',box,'side hustle');\nfitW(sh,200);\nmv.pop(sh,28.1);\nconst wg=div('left:290px;top:55px;width:80px;height:80px',box);\nconst ws=div('left:0px;top:0px;width:80px;height:80px;opacity:0',wg,ico('triangle-alert',80,RED,3));\nmv.pop(ws,29.84);\nconst lb=div('left:390px;top:60px;width:190px;height:70px;white-space:nowrap;font-family:KeySans;font-size:40px;line-height:70px;color:'+INK+';opacity:0',box,'ความเสี่ยง');\nfitW(lb,186);\nmv.rise(lb,29.9);\ncross(wg,T.hit,'left:-15px;top:-15px',{size:110,color:RED,sw:10});\nmv.dim(lb,T.hit+0.1);\nsnd('pop',28.1);\nsnd('hit',T.hit);"
+  },
+  {
+   "i": 10,
+   "code": "const chip=(s,css,t)=>{const e=div('border-radius:40px;background:'+NAVY+';color:#fff;font-family:KeySans;font-size:42px;text-align:center;line-height:80px;white-space:nowrap;opacity:0;'+css,box,s);mv.pop(e,t);return e;};\nchip('เจ๊ง','left:24px;top:55px;width:250px;height:80px',30.74);\ncross(box,31.28,'left:84px;top:40px',{size:110,color:RED,sw:10});\nchip('ขาดทุน','left:326px;top:55px;width:250px;height:80px',31.52);\ncross(box,T.hit,'left:386px;top:40px',{size:110,color:RED,sw:10});\nsnd('cross',31.28);\nsnd('hit',T.hit);"
+  },
+  {
+   "i": 13,
+   "code": "const tx=(s,css,t)=>{const e=div('white-space:nowrap;font-family:KeySans;color:'+NAVY+';opacity:0;'+css,box,s);mv.rise(e,t);return e;};\ntx('minimize','left:24px;top:62px;font-size:46px',38.18);\nbars(box,[1],38.18,'left:290px;top:25px;width:70px;height:140px',{w:70,gap:0,h:140,color:RED,last:RED,to:[0.08],tTo:T.hit});\ntx('ความเสี่ยง','left:395px;top:62px;font-size:42px',T.hit);\nsnd('pop',38.18);\nsnd('hit',T.hit);"
+  },
+  {
+   "i": 15,
+   "code": "tile(box,'smartphone',44.1,'left:24px;top:45px;width:100px;height:100px',{size:60,bg:NAVY,color:'#fff'});\nconst dot=div('left:100px;top:38px;width:30px;height:30px;border-radius:15px;background:'+ACC+';opacity:0',box);\nmv.pop(dot,44.5);\nmv.punch(dot,44.9);\nconst lb=div('left:145px;top:62px;width:200px;height:60px;white-space:nowrap;font-family:KeySans;font-size:36px;line-height:60px;color:'+NAVY+';opacity:0',box,'ตอนที่ผมทำ');\nfitW(lb,200);\nmv.rise(lb,44.1);\nconst cl=div('left:365px;top:30px;width:211px;height:130px;border-radius:28px;background:'+NAVY+';opacity:0',box);\nconst pl=div('left:20px;top:35px;width:60px;height:60px',cl,ico('play',60,'#fff',3));\nconst ct=div('left:90px;top:35px;width:110px;height:60px;white-space:nowrap;font-family:KeySans;font-size:28px;line-height:60px;color:#fff',cl,'คอนเทนต์');\nfitW(ct,110);\nmv.pop(cl,T.hit);\nsnd('pop',44.1);\nsnd('hit',T.hit);"
+  },
+  {
+   "i": 21,
+   "code": "const cw=div('left:50px;top:48px;width:70px;height:70px',box);\nconst coin=div('left:0px;top:0px;width:70px;height:70px;opacity:0',cw,ico('circle-dollar-sign',70,ACC,2.6));\nmv.pop(coin,59.7);\nconst bb=div('left:24px;top:24px;width:340px;height:142px;border-radius:71px;border:5px solid '+NAVY+';opacity:0',box);\nmv.pop(bb,T.hit);\nconst lb=div('left:140px;top:48px;width:200px;height:70px;white-space:nowrap;font-family:KeySans;font-size:38px;line-height:70px;color:'+INK+';opacity:0',box,'รายได้เสริม');\nfitW(lb,200);\nmv.rise(lb,60.2);\nconst th=div('left:390px;top:60px;width:190px;height:70px;white-space:nowrap;font-family:KeySans;font-size:38px;line-height:70px;color:'+NAVY+';opacity:0',box,'คิดว่าเป็น');\nfitW(th,186);\nmv.rise(th,T.hit);\nsnd('pop',59.7);\nsnd('hit',T.hit);"
+  }
+ ]
+}
