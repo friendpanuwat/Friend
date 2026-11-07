@@ -64,6 +64,7 @@ STYLE('card', {
     draw:  {d: .7, e: EASE.inout},
     stroke: {d: .18},
     stagger: .12,
+    fall:  {d: 1.0},                 // a row of dominoes from the first push to the last one lying flat
     float: {a: 8, p: 2.4},
     glow:  {kf: [{opacity: 0, transform: 'scale(.5)'}, {opacity: 1, transform: 'none'}], d: .7, e: EASE.smooth},
   },

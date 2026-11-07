@@ -76,6 +76,7 @@ STYLE('split', {
     draw:  {d: 1.0, e: EASE.inout},
     stroke: {d: .3},
     stagger: .16,
+    fall:  {d: 1.4},                 // a row of dominoes from the first push to the last one lying flat
     float: {a: 4, p: 3.4},
     glow:  {kf: [{opacity: 0, transform: 'scale(.8)'}, {opacity: 1, transform: 'none'}], d: .8, e: EASE.gentle},
   },

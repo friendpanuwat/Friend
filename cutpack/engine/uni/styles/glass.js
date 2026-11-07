@@ -43,6 +43,16 @@ STYLE('glass', {
 .u-bar-main{background:rgba(235,246,255,.75)}
 .u-neg{color:#FF7A8A;border:2px solid #FF7A8A;background:rgba(255,122,138,.14);box-shadow:0 0 30px rgba(255,122,138,.35)}
 .g-root{--cursor:#FFFFFF;--cursor-line:#05070D;--lw-star:3}
+/* glass on glass (Friend 2026-11-07: cards must not show through each other): only the blurred speaker may show
+   through a card. No stacked "ghost" card for depth (two see-through outlines read as a mistake); a card is dark
+   enough to hide a card under it; a small piece that sits on a card edge (✓, sign, arrow, tile) is solid. */
+.g-root .u-ghost{display:none}
+.g-root .u-panel{background:linear-gradient(160deg,rgba(255,255,255,.13),rgba(255,255,255,.04)),rgba(8,13,24,.8)}
+.g-root .u-badge{background-color:#0D1526}
+.g-root .u-badge.u-acc{background:linear-gradient(rgba(143,211,255,.16),rgba(143,211,255,.16)),#0D1526}
+.g-root .u-badge.u-soft{background:linear-gradient(rgba(255,255,255,.04),rgba(255,255,255,.04)),#0D1526}
+.g-root .u-badge.u-neg{background:linear-gradient(rgba(255,122,138,.14),rgba(255,122,138,.14)),#0D1526}
+.g-root .u-badge.u-ok{background:#8FD3FF}
 .g-text{position:absolute;left:60px;width:960px;top:230px;display:flex;flex-direction:column;align-items:center;row-gap:6px}
 .g-line{display:flex;justify-content:center;white-space:nowrap;perspective:900px;position:relative}
 .g-g{display:inline-block;opacity:0;transform-origin:50% 80%}
@@ -67,6 +77,7 @@ STYLE('glass', {
     draw:  {d: .9, e: EASE.inout},
     stroke: {d: .28},
     stagger: .14,
+    fall:  {d: 1.3},                 // a row of dominoes from the first push to the last one lying flat
     float: {a: 7, p: 3.0},
     glow:  {kf: [{opacity: 0, transform: 'scale(.6)', filter: 'blur(20px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], d: .9, e: EASE.soft},
   },

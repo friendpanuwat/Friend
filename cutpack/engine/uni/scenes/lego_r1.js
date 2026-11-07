@@ -10,13 +10,46 @@
    pulse, track, clock, phone, bubble. Same rules as every base scene: no colour, font or speed in here.
    ===================================================================== */
 const R1 = {
-  /* a tall tile with an icon that can tip over its bottom-right corner */
+  /* a tall tile with an icon that can fall over its bottom-right corner (R1.topple moves it) */
   domino(K, parent, cx, base, w, h, it, t) {
     const n = node(parent, cx - w / 2, base - h, w, h, `u-badge u-${it.tone ?? 'main'} u-tile`, ICO(it.icon, Math.round(w * .55)));
     n.p.style.borderRadius = `calc(${w}px * var(--tile-r))`; n.m.style.transformOrigin = '100% 100%';
-    K.enter(n.o, t, 'rise');
-    let a = 0;
-    return Object.assign(n, {tip(t, deg) { K.move(n.m, t, `rotate(${a}deg)`, `rotate(${deg}deg)`, {kind: 'tilt'}); a = deg; }});
+    K.enter(n.o, t, 'rise'); return n;
+  },
+  /* the whole row falls in one smooth push (Friend 2026-11-07: the domino must move more smoothly).
+     One driver angle runs without stopping from tA to the landing tL, so the push travels down the row and speeds up
+     like a real chain; whichever tile is falling takes the driver, every tile behind it rests on the one in front
+     (its top corner on that one's back, or its side on that one's top edge: real contact, nothing goes through).
+     The last tile lies flat on the floor at tL and settles a little. How long the push takes is the style's
+     motion.fall (the scene only asks for it to land on the key word). Sampled into keyframes 60 times a second. */
+  topple(ds, X, base, w, h, tA, tL) {
+    const n = ds.length, r = Math.PI / 180, settle = .35;
+    const top = (i, a) => [X[i] + h * Math.sin(a * r), base - h * Math.cos(a * r)];          // top-right corner of tile i
+    const foot = (j, b) => [X[j] - w * Math.cos(b * r), base - w * Math.sin(b * r)];         // bottom of tile j's back
+    const into = (q, j, b) => { const B = foot(j, b); return Math.sin(b * r) * (q[1] - B[1]) + Math.cos(b * r) * (q[0] - B[0]); };
+    const lean = (i, b) => {                                                                  // tile i resting on tile i+1 at angle b
+      let lo = 0, hi = 90;
+      if (into(top(i, 90), i + 1, b) <= 0) lo = 90;
+      else for (let k = 0; k < 40; k++) { const m = (lo + hi) / 2; if (into(top(i, m), i + 1, b) > 0) hi = m; else lo = m; }
+      const B = foot(i + 1, b), dx = B[0] - X[i], dy = base - B[1];
+      return Math.min(lo, Math.hypot(dx, dy) <= h ? Math.atan2(dx, dy) / r : 90);
+    };
+    const touch = []; for (let i = 0; i < n - 1; i++) touch.push(lean(i, 0));                 // where each tile meets the next standing one
+    const span = touch.reduce((a, b) => a + b, 0) + 90;
+    const pose = (L, last) => {
+      const a = new Array(n).fill(0); let k = 0, acc = 0;
+      if (last == null) { while (k < n - 1 && L >= acc + touch[k]) acc += touch[k++]; a[k] = Math.min(k < n - 1 ? touch[k] : 90, L - acc); }
+      else { k = n - 1; a[k] = last; }
+      for (let j = k - 1; j >= 0; j--) a[j] = lean(j, a[j + 1]);
+      return a;
+    };
+    const D = Math.max(.3, tL - tA), all = D + settle, N = Math.ceil(all * 60), kf = ds.map(() => []);
+    for (let s = 0; s <= N; s++) {
+      const t = all * s / N, u = Math.min(1, t / D);
+      const a = t <= D ? pose(span * (.25 * u + .75 * u * u)) : pose(0, 90 - 4 * Math.sin(Math.PI * (t - D) / settle));
+      a.forEach((v, i) => kf[i].push({transform: `rotate(${v.toFixed(2)}deg)`, offset: s / N}));
+    }
+    ds.forEach((d, i) => A(d.m, kf[i], tA, all, {e: 'linear'}));
   },
   /* a big number that counts from 0 to the value said (recomputed on every seek, so it is exact frame by frame) */
   counter(K, parent, cx, cy, size, t, value, d = 1.1) {
@@ -72,14 +105,14 @@ LAYOUT('chain', {name: 'เหตุ → ผล'}, (K, r, T) => {
     K.punch(nodes[2].c.p, T.hit);
     K.move(nodes[2].c.m, T.after, 'none', 'translateY(-16px) scale(1.05)');
   } else {                                                                   // dominoes
-    const dx = [190, 430, 670];                                              // 240 apart: a tile 250 tall leaning 28° touches the next one
-    const ds = its.map((it, i) => R1.domino(K, K.stage, dx[i], 560, 140, 250, {...it, tone: it.tone ?? (i === 2 ? 'acc' : 'main')}, T.b[0] + i * .12));
+    const w = 120, h = 260, X = [240, 440, 640].slice(0, its.length);         // bottom-right corners; the last one lies flat up to x 900
+    const ds = its.map((it, i) => R1.domino(K, K.stage, X[i] - w / 2, 560, w, h, {...it, tone: it.tone ?? (i === its.length - 1 ? 'acc' : 'main')}, T.b[0] + i * .12));
     const floor = div('left:0;top:0;width:1000px;height:700px', K.stage, '<svg width="1000" height="700" style="overflow:visible"><path class="ln u-thin" d="M120 562H900"/></svg>');
     K.draw(floor.querySelector('path'), T.b[0]);
-    ds[0].tip(T.b[1], 28); ds[1].tip(T.b[2], 28);
-    ds[0].tip(T.b[2] + .05, 44); ds[2].tip(T.hit - .1, 64);                  // the last one falls on the key word
-    R1.pulse(K, K.stage, 820, 520, 120, T.hit);
-    its.forEach((it, i) => { if (it.label) K.chipC(K.stage, it.label, dx[i], 640, T.b[0] + i * .12 + .3, {size: 38}); });
+    const ready = T.b[0] + (its.length - 1) * .12 + .6, tA = Math.max(ready, T.hit - (ST.motion.fall?.d ?? 1.2)), tL = Math.max(tA + .6, T.hit);
+    R1.topple(ds, X, 560, w, h, tA, tL);                                     // the last one lands on the key word
+    R1.pulse(K, K.stage, X[X.length - 1] + h / 2, 560 - w / 2, 130, tL);
+    its.forEach((it, i) => { if (it.label) K.chipC(K.stage, it.label, X[i] - w / 2, 640, T.b[0] + i * .12 + .3, {size: 38}); });
   }
   if (r.end) { K.halo(K.stage, 860, 140, 110, T.after); K.sat(K.stage, r.end.icon, 860, 140, 120, T.after, {tone: r.end.tone ?? 'acc'}); }
 });
