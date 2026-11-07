@@ -23,7 +23,7 @@ const LG = {
     let l = null;
     if (it.label) {
       l = div(`left:${cx - 300}px;top:${cy + size / 2 + 18}px;width:600px;text-align:center;white-space:nowrap;font-size:${it.ls ?? 46}px;line-height:1.25`, parent);
-      l.className = 'u-label'; l.textContent = it.label; K.enter(l, t + .1, 'lead');
+      l.className = 'u-label u-text'; l.textContent = it.label; K.enter(l, t + .1, 'lead');
     }
     return {b, l};
   },

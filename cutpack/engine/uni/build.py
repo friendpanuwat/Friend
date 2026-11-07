@@ -23,8 +23,10 @@ def main():
         dst = os.path.join(proj, 'fonts', os.path.basename(f))
         if not os.path.exists(dst): shutil.copy(f, dst)
     rd = lambda p: open(os.path.join(UNI, p)).read()
-    js = [f'const ICONS = {open(os.path.join(ENGINE, "icons", "lucide.json")).read()};', rd('core.js'), rd('kit.js'),
-          rd(f'styles/{a.style}.js')] + [open(f).read() for f in sorted(glob.glob(os.path.join(UNI, 'scenes', '*.js')))] + [open(f).read() for f in a.extra]
+    # an overlay style ("card-overlay", "card-overlay-big") is its full-screen style + its overlay file (overlay.js holds the frame)
+    base = a.style.split('-overlay')[0]
+    styles = [f'styles/{base}.js', f'styles/{base}-overlay.js'] if '-overlay' in a.style else [f'styles/{a.style}.js']
+    js = [f'const ICONS = {open(os.path.join(ENGINE, "icons", "lucide.json")).read()};', rd('core.js'), rd('kit.js'), rd('overlay.js')] + [rd(f) for f in styles] + [open(f).read() for f in sorted(glob.glob(os.path.join(UNI, 'scenes', '*.js')))] + [open(f).read() for f in a.extra]
     js.append(f"""
 ['Lead', 'CardSans', 'KeySans', 'Hand', 'Anu'].forEach(f => div(`left:-9999px;top:0;font-family:${{f}}`, document.body, 'กขคฅ ึ่้ 0123'));
 useStyle({json.dumps(a.style)});

@@ -24,6 +24,9 @@ function jigsawPath(s, edges, ox = 0, oy = 0) {
   return `M${ox} ${oy}` + edge(0, 0, 1, 0, t) + edge(s, 0, 0, 1, rt) + edge(s, s, -1, 0, bt) + edge(0, s, 0, -1, l) + 'Z';
 }
 
+/* icons that only decorate (an overlay too small for them leaves them out) */
+const DECOR_ICONS = new Set(['sparkles', 'star', 'hourglass']);
+
 function kit(F, T) {
   const M = ST.motion;
   const snd = (name, t) => { const s = ST.sound?.[name]; if (s) sfx(s[0], t, s[1]); };
@@ -57,22 +60,23 @@ function kit(F, T) {
     /* ---------- surfaces ---------- */
     /* a soft light / ring behind the hero thing (the style paints .u-halo) */
     halo(parent, cx, cy, r, t) {
-      const h = div(`left:${cx - r}px;top:${cy - r}px;width:${2 * r}px;height:${2 * r}px;border-radius:50%`, parent); h.className = 'u-halo';
+      const h = div(`left:${cx - r}px;top:${cy - r}px;width:${2 * r}px;height:${2 * r}px;border-radius:50%`, parent); h.className = 'u-halo u-decor';
       K.enter(h, t, 'glow'); return h;
     },
     /* a small satellite tile that floats beside the hero (✓ ? ✦ ↑ …) */
     sat(parent, icon, cx, cy, size, t, {tone = 'main', shape = 'tile', k = 1.4} = {}) {
       const n = K.badge(parent, icon, cx, cy, size, t, {tone, shape});
+      if (DECOR_ICONS.has(icon)) n.o.classList.add('u-decor');                  // a small overlay drops pure decoration
       K.float(n, t + .5, T.t1, k); return n;
     },
     /* a faded card behind a card, for depth */
     ghost(parent, x, y, w, h, t) {
-      const n = node(parent, x, y, w, h, 'u-panel u-ghost'); K.enter(n.o, t, 'rise'); return n;
+      const n = node(parent, x, y, w, h, 'u-panel u-ghost'); n.o.classList.add('u-decor'); K.enter(n.o, t, 'rise'); return n;
     },
     /* a word chip centred on (cx, cy) */
     chipC(parent, txt, cx, cy, t, {tone = 'main', size = 40} = {}) {
       const w = div(`left:${cx - 300}px;top:${cy - size * .75}px;width:600px;height:${size * 1.5}px;display:flex;justify-content:center;align-items:center`, parent);
-      const c = document.createElement('span'); c.className = `u-chip u-${tone}`; c.style.fontSize = size + 'px'; c.textContent = txt; w.appendChild(c);
+      const c = document.createElement('span'); c.className = `u-chip u-${tone}`; c.style.fontSize = size + 'px'; c.textContent = txt; w.appendChild(c); w.classList.add('u-text');
       K.enter(w, t, 'chip'); return w;
     },
     panel(x, y, w, h, t, {parent = F.stage, kind = 'rise'} = {}) {
@@ -81,12 +85,12 @@ function kit(F, T) {
     skel(parent, x, y, widths, t, {h = 18, gap = 26} = {}) {
       return widths.map((w, i) => {
         const l = div(`left:${x}px;top:${y + i * (h + gap)}px;width:${w}px;height:${h}px;border-radius:${h / 2}px;transform-origin:0 50%`, parent);
-        l.className = 'u-skel'; K.grow(l, t + i * M.stagger); return l;
+        l.className = 'u-skel u-decor'; K.grow(l, t + i * M.stagger); return l;
       });
     },
     label(parent, txt, x, y, {size = 40, cls = 'u-label', anchor = 'left'} = {}) {
       const l = div(`left:${x}px;top:${y}px;white-space:nowrap;font-size:${size}px;line-height:1.25;${anchor === 'center' ? 'transform:translateX(-50%)' : ''}`, parent);
-      l.className = cls; l.textContent = txt; return l;
+      l.className = cls + ' u-text'; l.textContent = txt; return l;
     },
     /* icon in the style's holder. tone: main | acc | soft | neg · shape: tile | round */
     badge(parent, icon, cx, cy, size, t, {tone = 'main', shape = 'tile', kind = 'pop'} = {}) {
@@ -98,7 +102,7 @@ function kit(F, T) {
     chip(parent, txt, x, y, t, {tone = 'main', size = 40, dot = false} = {}) {
       const n = node(parent, x, y, 0, 0, '');
       const c = div(`left:0;top:0;white-space:nowrap;font-size:${size}px`, n.p, (dot ? '<i class="u-dot"></i>' : '') + `<span>${txt}</span>`);
-      c.className = `u-chip u-${tone}`;
+      c.className = `u-chip u-${tone}`; n.o.classList.add('u-text');
       if (t != null) K.enter(n.o, t, 'chip');
       return n;
     },
