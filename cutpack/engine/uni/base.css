@@ -38,3 +38,8 @@ svg{overflow:visible}
 .u-cursor path{fill:var(--cursor, #FFFFFF);stroke:var(--cursor-line, #14213D)}
 .u-cursor{filter:drop-shadow(0 8px 14px rgba(0,0,0,.3))}
 .u-tgt{fill:var(--tr);stroke:var(--ink);stroke-width:var(--lw-fl, 4)}   /* target disc: --fl can equal --ink on dark cards */
+/* step 2: depth and life */
+.u-chip{padding:.14em .7em .22em;border-radius:999px;font-family:var(--chip-font, "CardSans");line-height:1.2;white-space:nowrap}
+.u-halo{background:radial-gradient(circle, var(--halo, rgba(0,0,0,.06)) 0%, transparent 68%)}
+.u-ghost{opacity:.5}
+.u-trend{stroke:var(--ac-line, var(--ink));stroke-dasharray:none}

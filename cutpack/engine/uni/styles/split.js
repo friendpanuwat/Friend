@@ -51,7 +51,9 @@ STYLE('split', {
 .p-dark .u-col-acc{background:#D9CCF6}
 .u-bar-main{background:#5E7F92}
 .u-neg{background:#C2667A;color:#FFFFFF;border-color:var(--ink)}
-.p-win{--cursor:#FFFFFF;--cursor-line:#4B3D6E}
+.p-win{--cursor:#FFFFFF;--cursor-line:#4B3D6E;--chip-font:"Anu"}
+.p-light{--halo:rgba(126,102,190,.20)}.p-dark{--halo:rgba(217,204,246,.28)}
+.u-chip{font-weight:600;border:2px solid var(--ink)}
 .p-frame{position:absolute;border-radius:44px;opacity:0;box-shadow:0 0 0 6px rgba(255,255,255,.55),0 30px 60px rgba(30,45,65,.25)}
 .p-text{position:absolute;left:90px;width:800px;top:950px;display:flex;flex-direction:column;align-items:center;row-gap:4px;opacity:0}
 .p-text div{position:relative;white-space:nowrap}
@@ -73,6 +75,8 @@ STYLE('split', {
     draw:  {d: 1.0, e: EASE.inout},
     stroke: {d: .3},
     stagger: .16,
+    float: {a: 4, p: 3.4},
+    glow:  {kf: [{opacity: 0, transform: 'scale(.8)'}, {opacity: 1, transform: 'none'}], d: .8, e: EASE.gentle},
   },
   sound: {hit: ['pop_lo', -27]},
 

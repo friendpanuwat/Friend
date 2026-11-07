@@ -6,12 +6,12 @@
    ===================================================================== */
 const ICO = (name, size, cls = 'u-ico') =>
   `<svg class="${cls}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
-/* a drawn thing has 3 nested layers so its moves never fight: o = enter/leave, m = state moves, p = punch/shake */
+/* a drawn thing has 4 nested layers so its moves never fight: o = enter/leave, f = idle float, m = state moves, p = punch/shake */
 function node(parent, x, y, w, h, cls = '', html = '') {
   const o = div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
-  const m = div('inset:0', o), p = div('inset:0', m, html);
+  const f = div('inset:0', o), m = div('inset:0', f), p = div('inset:0', m, html);
   if (cls) p.className = cls;
-  return {o, m, p, x, y, w, h};
+  return {o, f, m, p, x, y, w, h};
 }
 /* jigsaw piece outline, clockwise, edges [top, right, bottom, left]: 1 tab out, -1 tab in, 0 flat */
 function jigsawPath(s, edges, ox = 0, oy = 0) {
@@ -47,7 +47,34 @@ function kit(F, T) {
     /* grow a bar from its start (origin set by the caller) */
     grow(el, t, axis = 'X', d = M.draw.d) { A(el, [{transform: `scale${axis}(0)`}, {transform: 'none'}], t, d, {e: M.draw.e}); },
 
+    /* idle float (style's amplitude and period) from t0 to t1, so a finished picture is never frozen */
+    float(n, t0, t1 = T.t1, k = 1) {
+      const fl = M.float; if (!fl || !n.f || t1 <= t0) return;
+      const it = Math.max(1, Math.ceil((t1 - t0) / fl.p)), a = fl.a * k;
+      A(n.f, [{transform: 'translateY(0)'}, {transform: `translateY(${-a}px)`}, {transform: 'translateY(0)'}], t0, fl.p, {e: 'ease-in-out', f: 'none', it});
+    },
+
     /* ---------- surfaces ---------- */
+    /* a soft light / ring behind the hero thing (the style paints .u-halo) */
+    halo(parent, cx, cy, r, t) {
+      const h = div(`left:${cx - r}px;top:${cy - r}px;width:${2 * r}px;height:${2 * r}px;border-radius:50%`, parent); h.className = 'u-halo';
+      K.enter(h, t, 'glow'); return h;
+    },
+    /* a small satellite tile that floats beside the hero (✓ ? ✦ ↑ …) */
+    sat(parent, icon, cx, cy, size, t, {tone = 'main', shape = 'tile', k = 1.4} = {}) {
+      const n = K.badge(parent, icon, cx, cy, size, t, {tone, shape});
+      K.float(n, t + .5, T.t1, k); return n;
+    },
+    /* a faded card behind a card, for depth */
+    ghost(parent, x, y, w, h, t) {
+      const n = node(parent, x, y, w, h, 'u-panel u-ghost'); K.enter(n.o, t, 'rise'); return n;
+    },
+    /* a word chip centred on (cx, cy) */
+    chipC(parent, txt, cx, cy, t, {tone = 'main', size = 40} = {}) {
+      const w = div(`left:${cx - 300}px;top:${cy - size * .75}px;width:600px;height:${size * 1.5}px;display:flex;justify-content:center;align-items:center`, parent);
+      const c = document.createElement('span'); c.className = `u-chip u-${tone}`; c.style.fontSize = size + 'px'; c.textContent = txt; w.appendChild(c);
+      K.enter(w, t, 'chip'); return w;
+    },
     panel(x, y, w, h, t, {parent = F.stage, kind = 'rise'} = {}) {
       const n = node(parent, x, y, w, h, 'u-panel'); K.enter(n.o, t, kind); return n;
     },
@@ -180,7 +207,7 @@ function kit(F, T) {
 
     /* ---------- more shared things (round 2: other pictures of the same meanings) ---------- */
     /* vertical bars on a floor: values 0..1; set(t, values) moves them to new heights */
-    bars(parent, x, y, w, h, values, t, {gap = 26, acc = -1, step = M.stagger} = {}) {
+    bars(parent, x, y, w, h, values, t, {gap = 26, acc = -1, step = M.stagger, trend = false} = {}) {
       const n = values.length, bw = (w - gap * (n - 1)) / n;
       const floor = div(`left:${x - 10}px;top:${y + h}px;width:${w + 20}px;height:0`, parent,
         `<svg width="${w + 20}" height="10" style="overflow:visible"><path class="ln u-thin" d="M0 0H${w + 20}"/></svg>`);
@@ -192,6 +219,12 @@ function kit(F, T) {
         A(c, [{transform: 'scaleY(0)'}, {transform: `scaleY(${v})`}], t + .1 + i * step, M.draw.d * .8, {e: M.move.e});
         return c;
       });
+      if (trend) {                                               // a line through the tops, drawn after the last bar
+        const pts = values.map((v, i) => [x + i * (bw + gap) + bw / 2, y + h * (1 - v)]);
+        const tl = div('left:0;top:0;width:1px;height:1px', parent,
+          `<svg width="1" height="1" style="overflow:visible"><path class="ln u-thin u-trend" d="M${pts.map(p => p.map(n => n.toFixed(1)).join(' ')).join('L')}"/></svg>`);
+        K.draw(tl.querySelector('path'), t + .1 + n * step + .2, .6);
+      }
       return {cols, set(t, nv) { cols.forEach((c, i) => A(c, [{transform: `scaleY(${cur[i]})`}, {transform: `scaleY(${nv[i]})`}], t + i * M.stagger * .5, M.move.d, {e: M.move.e, f: 'forwards'})); cur = nv.slice(); }};
     },
     /* one horizontal measure: icon holder + a track that fills to v */

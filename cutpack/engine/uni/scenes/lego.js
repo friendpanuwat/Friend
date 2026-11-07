@@ -42,142 +42,200 @@ const LG = {
   spread: (t0, t1, n) => [...Array(n)].map((_, k) => n < 2 ? t1 : t0 + (t1 - t0) * k / (n - 1)),
 };
 
+/* Step 2 (Friend 2026-11-07, quality bar): every frame now has a bigger hero, a soft halo behind it, small floating
+   satellite tiles (✓ ? ✦ ↑ ↓), word chips, a faded card behind cards for depth, an idle float after things land,
+   and one more beat after the key word (the winner lifts, the loser steps back). Recipes are unchanged. */
+
 /* ---------- A เทียบ B: two things side by side, one wins ---------- */
 LAYOUT('versus', {name: 'A เทียบ B'}, (K, r, T) => {
   const {a, b} = r, win = r.win ?? 'b', lose = win === 'a' ? 'b' : 'a';
   if (r.as === 'scale') {
-    const B = K.scale(K.stage, 500, 150, T.b[0]);
-    const ia = K.badge(B.panL.p, a.icon, B.panL.item.cx, B.panL.item.cy, 132, T.b[1], {tone: a.tone ?? 'acc', kind: 'drop'});
-    const ib = K.badge(B.panR.p, b.icon, B.panR.item.cx, B.panR.item.cy, 132, T.b[2], {tone: b.tone ?? 'main', kind: 'drop'});
-    B.tilt(T.hit - .1, win === 'a' ? -11 : 11);                  // the heavier side goes down
+    const q = K.sat(K.stage, 'circle-help', 500, 54, 84, T.b[1] - .1, {tone: 'soft'});      // weighing…
+    const B = K.scale(K.stage, 500, 170, T.b[0]);
+    const ia = K.badge(B.panL.p, a.icon, B.panL.item.cx, B.panL.item.cy, 150, T.b[1], {tone: a.tone ?? 'acc', kind: 'drop'});
+    const ib = K.badge(B.panR.p, b.icon, B.panR.item.cx, B.panR.item.cy, 150, T.b[2], {tone: b.tone ?? 'main', kind: 'drop'});
+    K.float(ia, T.b[1] + .6, T.hit - .2, .6); K.float(ib, T.b[2] + .6, T.hit - .2, .6);
+    B.tilt(T.hit - .1, win === 'a' ? -11 : 11);                                             // the heavier side goes down
     K.punch((win === 'a' ? ia : ib).p, T.hit);
+    K.fade(q.o, T.hit, 1, 0);
+    K.sat(K.stage, 'arrow-down', win === 'a' ? 120 : 880, 420, 80, T.after, {tone: 'acc'});
   } else if (r.as === 'measure') {
-    const P = K.panel(110, 90, 780, 420, T.b[0]);
-    const m = {a: K.measure(P.p, 60, 130, 660, T.b[1], a.v, a.icon, {tone: a.tone ?? 'main', fill: win === 'a' ? 'u-bar-on' : 'u-bar-main'}),
-               b: K.measure(P.p, 60, 290, 660, T.b[2], b.v, b.icon, {tone: b.tone ?? 'main', fill: win === 'b' ? 'u-bar-on' : 'u-bar-main'})};
-    const y = {a: 130, b: 290};
-    if (r.how !== 'check') { K.shake(m[lose].track.p, T.hit); K.mark(P.p, 'cross', m[lose].end + 70, y[lose], 76, T.hit); }
-    if (r.how !== 'cross') K.mark(P.p, 'check', m[win].end + 70, y[win], 76, T.after);
-  } else if (r.as === 'buttons') {                                 // the pointer cannot choose
-    K.badge(K.stage, r.top ?? 'shopping-cart', 500, 110, 140, T.b[0], {tone: 'main'});
-    K.button(K.stage, 300, 360, 300, 130, a.icon, T.b[0] + .15, {tone: a.tone ?? 'acc'});
-    K.button(K.stage, 700, 360, 300, 130, b.icon, T.b[0] + .25, {tone: b.tone ?? 'soft'});
-    K.cursor(K.stage, [[T.b[1] - .2, 520, 640], [T.b[1] + .3, 330, 400], [T.b[2] + .3, 730, 400], [T.hit, 520, 420], [T.t1 - .2, 520, 420]]);
-    K.badge(K.stage, 'circle-help', 520, 250, 100, T.hit, {tone: 'acc'});
-  } else {                                                          // two cards
-    const P = {a: K.panel(90, 60, 380, 470, T.b[0]), b: K.panel(530, 60, 380, 470, T.b[1])};
+    K.ghost(K.stage, 120, 100, 800, 440, T.b[0] - .05);
+    const P = K.panel(90, 70, 800, 440, T.b[0]);
+    const y = {a: 150, b: 330};
+    const m = {a: K.measure(P.p, 70, y.a, 660, T.b[1], a.v, a.icon, {tone: a.tone ?? 'main', fill: win === 'a' ? 'u-bar-on' : 'u-bar-main', size: 120}),
+               b: K.measure(P.p, 70, y.b, 660, T.b[2], b.v, b.icon, {tone: b.tone ?? 'main', fill: win === 'b' ? 'u-bar-on' : 'u-bar-main', size: 120})};
+    if (r.how !== 'check') { K.shake(m[lose].track.p, T.hit); K.mark(P.p, 'cross', m[lose].end + 72, y[lose], 76, T.hit); }
+    if (r.how !== 'cross') { K.sat(P.p, 'check', m[win].end + 72, y[win], 76, T.after, {tone: 'ok'}); K.sat(P.p, 'sparkles', 740, 72, 84, T.after + .15, {tone: 'acc'}); }
+  } else if (r.as === 'buttons') {                                                          // the pointer cannot choose
+    K.halo(K.stage, 500, 120, 150, T.b[0]);
+    const top = K.badge(K.stage, r.top ?? 'shopping-cart', 500, 120, 160, T.b[0], {tone: 'main'});
+    K.float(top, T.b[0] + .6);
+    K.button(K.stage, 290, 400, 330, 140, a.icon, T.b[0] + .15, {tone: a.tone ?? 'acc'});
+    K.button(K.stage, 710, 400, 330, 140, b.icon, T.b[0] + .25, {tone: b.tone ?? 'soft'});
+    K.cursor(K.stage, [[T.b[1] - .2, 520, 660], [T.b[1] + .3, 320, 440], [T.b[2] + .3, 740, 440], [T.hit, 520, 460], [T.t1 - .2, 520, 460]]);
+    K.sat(K.stage, 'circle-help', 640, 230, 96, T.hit, {tone: 'acc'});
+    K.sat(K.stage, 'circle-help', 380, 260, 66, T.hit + .2, {tone: 'soft'});
+  } else {                                                                                   // two cards
+    const X = {a: 70, b: 530}, P = {}, hero = {};
     for (const k of ['a', 'b']) {
-      const tk = (k === 'a' ? T.b[0] : T.b[1]) + .15;
-      LG.thing(K, P[k].p, r[k], 190, 170, 150, tk);
-      if (!r[k].label) K.skel(P[k].p, 90, 300, [200, 140], tk + .1);
+      const tk = k === 'a' ? T.b[0] : T.b[1];
+      P[k] = K.panel(X[k], 70, 400, 500, tk);
+      K.halo(P[k].p, 200, 170, 140, tk + .15);
+      hero[k] = K.badge(P[k].p, r[k].icon, 200, 170, 170, tk + .15, {tone: r[k].tone ?? 'main'});
+      K.float(hero[k], tk + .8, T.hit - .1, .7);
+      if (r[k].label) K.chipC(P[k].p, r[k].label, 200, 330, tk + .3, {size: 44});
+      K.skel(P[k].p, 100, r[k].label ? 400 : 330, [200, 130], tk + .35);
     }
-    if (r.how !== 'check') { K.mark(P[lose].p, 'cross', 330, 52, 80, T.hit); K.fade(P[lose].o, T.hit + .15, 1, .45); }
-    if (r.how !== 'cross') { K.punch(P[win].p, T.hit); K.mark(P[win].p, 'check', 330, 52, 80, T.after); }
+    K.sat(K.stage, 'arrow-left-right', 500, 320, 84, T.b[1] + .4, {tone: 'soft', shape: 'round'});
+    if (r.how !== 'check') { K.mark(P[lose].p, 'cross', 352, 46, 80, T.hit); K.fade(P[lose].o, T.hit + .15, 1, .45); K.move(P[lose].m, T.after, 'none', 'translateY(20px) scale(.95)'); }
+    if (r.how !== 'cross') {
+      K.punch(P[win].p, T.hit); K.move(P[win].m, T.after, 'none', 'translateY(-16px) scale(1.04)');
+      K.sat(P[win].p, 'check', 352, 46, 80, T.after, {tone: 'ok'}); K.sat(P[win].p, 'sparkles', 52, 460, 84, T.after + .2, {tone: 'acc'});
+    }
   }
 });
 
 /* ---------- มากขึ้น / น้อยลง: things arrive or leave one by one ---------- */
 LAYOUT('count', {name: 'มากขึ้น / น้อยลง'}, (K, r, T) => {
   const n = r.n ?? 4, keep = r.keep ?? 1, up = r.dir === 'up', it = r.item ?? {icon: 'user', shape: 'round'};
-  const leaveAt = LG.spread(T.b[2], T.hit, n - keep);                      // last ones go first
+  const leaveAt = LG.spread(T.b[2], T.hit, n - keep);                       // last ones go first
   const comeAt = up ? LG.spread(T.b[1], T.hit, n) : [...Array(n)].map((_, i) => T.b[0] + .35 + i * .1);
-  let items = [], endAt = [640, 100], parent = K.stage, centerNode = null;
+  const trendIcon = up ? 'trending-up' : 'trending-down';
+  let items = [], parent = K.stage, centerNode = null;
   if (r.as === 'bars') {
-    const P = K.panel(130, 30, 740, 560, T.b[0]);
-    K.badge(P.p, r.center?.icon ?? 'chart-column', 80, 78, 92, T.b[0] + .15, {tone: 'main'}); K.skel(P.p, 150, 64, [260], T.b[0] + .2);   // the chart's subject (optional)
-    K.bars(P.p, 70, 170, 600, 330, up ? [.22, .45, .7, .95] : [.95, .72, .48, .22], T.b[1] - .1, {step: (T.hit - T.b[1]) / 3.4, acc: up ? -1 : -1});
-    K.badge(P.p, up ? 'trending-up' : 'trending-down', up ? 130 : 640, 210, 100, T.hit, {tone: 'acc'});
+    K.ghost(K.stage, 160, 50, 740, 560, T.b[0] - .05);
+    const P = K.panel(130, 20, 740, 560, T.b[0]);
+    K.badge(P.p, r.center?.icon ?? 'chart-column', 84, 82, 100, T.b[0] + .15, {tone: 'main'}); K.skel(P.p, 160, 66, [260, 170], T.b[0] + .2);
+    K.bars(P.p, 80, 190, 580, 320, up ? [.22, .45, .7, .95] : [.95, .72, .48, .22], T.b[1] - .1, {step: (T.hit - T.b[1]) / 3.4, trend: true});
+    K.halo(P.p, up ? 140 : 610, 230, 90, T.hit);
+    K.sat(P.p, trendIcon, up ? 140 : 610, 230, 104, T.hit, {tone: 'acc'});
     return;
   } else if (r.as === 'ring') {
-    const pos = [[220, 140], [780, 140], [220, 540], [780, 540]].slice(0, n);
+    const pos = [[210, 130], [790, 130], [210, 560], [790, 560]].slice(0, n);
     const lines = div('left:0;top:0;width:1000px;height:700px', K.stage,
-      `<svg width="1000" height="700" style="overflow:visible">${pos.map(([x, y]) => `<path class="ln u-thin" d="M500 340L${x} ${y}"/>`).join('')}</svg>`);
+      `<svg width="1000" height="700" style="overflow:visible">${pos.map(([x, y]) => `<path class="ln u-thin" d="M500 345L${x} ${y}"/>`).join('')}</svg>`);
     const ls = lines.querySelectorAll('path');
-    centerNode = K.badge(K.stage, r.center.icon, 500, 340, 210, T.b[0], {tone: r.center.tone ?? 'main'});
-    items = pos.map(([x, y], i) => { K.draw(ls[i], comeAt[i] - .1); return K.badge(K.stage, it.icon, x, y, 128, comeAt[i] + .1, {tone: it.tone ?? 'main', shape: it.shape ?? 'round'}); });
+    K.halo(K.stage, 500, 345, 220, T.b[0]);
+    centerNode = K.badge(K.stage, r.center.icon, 500, 345, 220, T.b[0], {tone: r.center.tone ?? 'main'});
+    items = pos.map(([x, y], i) => { K.draw(ls[i], comeAt[i] - .1); const b = K.badge(K.stage, it.icon, x, y, 136, comeAt[i] + .1, {tone: it.tone ?? 'main', shape: it.shape ?? 'round'}); K.float(b, comeAt[i] + .7, T.t1, .6); return b; });
     if (!up) [...Array(n - keep)].forEach((_, k) => { const i = n - 1 - k; K.leave(items[i].o, leaveAt[k]); K.fade(ls[i], leaveAt[k], 1, 0); });
-    endAt = [500, 340];
-  } else {                                                                  // a row in a card
-    const P = K.panel(130, 50, 740, 460, T.b[0]); parent = P.p;
-    centerNode = K.badge(P.p, r.center.icon, 100, 100, 120, T.b[0] + .15, {tone: r.center.tone ?? 'main'});
-    K.skel(P.p, 190, 72, [330, 210], T.b[0] + .2);
-    items = [...Array(n)].map((_, i) => K.badge(P.p, it.icon, 120 + i * 166, 318, 132, comeAt[i], {tone: it.tone ?? 'main', shape: it.shape ?? 'round'}));
+    K.sat(K.stage, trendIcon, 650, 230, 96, T.hit, {tone: up ? 'acc' : 'soft'});
+  } else {                                                                   // a row in a card
+    K.ghost(K.stage, 160, 80, 740, 470, T.b[0] - .05);
+    const P = K.panel(130, 50, 740, 470, T.b[0]); parent = P.p;
+    centerNode = K.badge(P.p, r.center.icon, 104, 104, 128, T.b[0] + .15, {tone: r.center.tone ?? 'main'});
+    K.skel(P.p, 200, 76, [330, 210], T.b[0] + .2);
+    items = [...Array(n)].map((_, i) => { const b = K.badge(P.p, it.icon, 125 + i * 163, 330, 140, comeAt[i], {tone: it.tone ?? 'main', shape: it.shape ?? 'round'}); K.float(b, comeAt[i] + .6, T.t1, .5); return b; });
     if (!up) [...Array(n - keep)].forEach((_, k) => K.leave(items[n - 1 - k].o, leaveAt[k]));
-    endAt = [640, 100];
+    if (!r.end) K.sat(P.p, trendIcon, 640, 104, 92, T.hit, {tone: up ? 'acc' : 'soft'});
   }
   if (up) K.punch(items[n - 1].p, T.after);
-  if (!up && keep === 0 && !r.end && centerNode) { K.shake(centerNode.p, T.hit); K.fade(centerNode.o, T.hit + .3, 1, .45); }   // all gone: the owner is left empty
-  if (r.end) { const e = K.badge(parent, r.end.icon, endAt[0] + (r.as === 'ring' ? 170 : 0), endAt[1] - (r.as === 'ring' ? 170 : 0), 100, T.hit, {tone: r.end.tone ?? 'neg'}); K.shake(e.p, T.after); }
+  if (!up && keep === 0 && !r.end && centerNode) { K.shake(centerNode.p, T.hit); K.fade(centerNode.o, T.hit + .3, 1, .45); }
+  if (r.end) { const e = K.badge(parent, r.end.icon, r.as === 'ring' ? 650 : 640, r.as === 'ring' ? 230 : 104, 100, T.hit, {tone: r.end.tone ?? 'neg'}); K.shake(e.p, T.after); }
 });
 
 /* ---------- ขั้นตอน: steps in order, one of them is marked ---------- */
 LAYOUT('steps', {name: 'ขั้นตอน'}, (K, r, T) => {
   const its = r.items, m = r.mark ?? {at: its.length - 1, how: 'light'};
   if (r.as === 'list') {
+    K.ghost(K.stage, 170, 100, 720, 440, T.b[0] - .05);
     const P = K.panel(140, 70, 720, 440, T.b[0]);
     const rows = K.checklist(P.p, 70, 40, 580, its.map(it => it.label ? {text: it.label} : {skel: it.skel ?? .6}), T.b[1]);
     const row = rows[m.at];
-    if (m.how === 'cross') { K.mark(P.p, 'cross', row.cx, row.cy, 84, T.hit); if (row.label) K.fade(row.label, T.hit + .1, 1, .38); K.punch(P.p, T.hit); }
-    else K.mark(P.p, 'check', row.cx, row.cy, 84, T.hit);
+    if (m.how === 'cross') { K.mark(P.p, 'cross', row.cx, row.cy, 84, T.hit); if (row.label) K.fade(row.label, T.hit + .1, 1, .38); K.punch(P.p, T.hit); K.sat(K.stage, 'circle-alert', 820, 90, 84, T.after, {tone: 'neg'}); }
+    else { K.mark(P.p, 'check', row.cx, row.cy, 84, T.hit); K.sat(K.stage, 'sparkles', 820, 90, 72, T.after, {tone: 'acc'}); }
     return;
   }
-  const xs = [200, 500, 800], when = [T.b[0], T.b[1], T.b[2]];
-  const nodes = its.map((it, i) => LG.thing(K, K.stage, it, xs[i], 270, 170, when[i]));
-  for (let i = 0; i < 2; i++) LG.arrow(K, K.stage, xs[i] + 110, xs[i + 1] - 110, 270, when[i + 1] - .25);
-  const x = xs[m.at], target = nodes[m.at];
-  if (m.how === 'cross') { K.mark(K.stage, 'cross', x + 80, 180, 90, T.hit); K.fade(target.b.o, T.hit + .15, 1, .4); }
-  else if (m.how === 'check') K.mark(K.stage, 'check', x + 80, 180, 90, T.hit);
-  else LG.light(K, K.stage, its[m.at].icon, x, 270, 170, T.hit);
+  const xs = [185, 500, 815], when = [T.b[0], T.b[1], T.b[2]], cards = [];
+  its.forEach((it, i) => {
+    const c = K.panel(xs[i] - 135, 80, 270, 320, when[i]);
+    if (i === m.at && m.how === 'light') K.halo(c.p, 135, 128, 130, T.hit);
+    const b = K.badge(c.p, it.icon, 135, 128, 170, when[i] + .1, {tone: it.tone ?? 'main'});
+    K.float(b, when[i] + .7, T.t1, .5);
+    if (it.label) K.chipC(c.p, it.label, 135, 270, when[i] + .25, {size: 44}); else K.skel(c.p, 70, 262, [130], when[i] + .25);
+    cards.push({c, b});
+  });
+  for (let i = 0; i < 2; i++) K.sat(K.stage, 'arrow-right', (xs[i] + xs[i + 1]) / 2, 240, 60, when[i + 1] - .2, {tone: 'soft', shape: 'round', k: .6});
+  for (let i = 0; i < m.at; i++) if (m.how !== 'cross') K.sat(cards[i].c.p, 'check', 240, 24, 72, when[i + 1] + .2, {tone: 'ok', k: .5});   // steps before are done
+  const target = cards[m.at];
+  if (m.how === 'cross') { K.mark(target.c.p, 'cross', 240, 24, 84, T.hit); K.fade(target.c.o, T.hit + .15, 1, .45); K.move(target.c.m, T.after, 'none', 'translateY(20px)'); }
+  else if (m.how === 'check') K.sat(target.c.p, 'check', 240, 24, 84, T.hit, {tone: 'ok'});
+  else { LG.light(K, target.c.p, its[m.at].icon, 135, 128, 170, T.hit); K.move(target.c.m, T.after, 'none', 'translateY(-16px) scale(1.05)'); K.sat(K.stage, 'sparkles', xs[m.at] + 120, 64, 84, T.after, {tone: 'acc'}); }
 });
 
 /* ---------- ก่อน → หลัง: one thing changes ---------- */
 LAYOUT('change', {name: 'ก่อน → หลัง'}, (K, r, T) => {
   if (r.as === 'swap') {
-    const a = K.badge(K.stage, r.from.icon, 250, 300, 210, T.b[0], {tone: r.from.tone ?? 'soft'});
-    LG.arrow(K, K.stage, 390, 610, 300, T.b[1]);
-    const b = K.badge(K.stage, r.to.icon, 750, 300, 210, T.hit, {tone: r.to.tone ?? 'acc'});
-    K.fade(a.o, T.hit, 1, .4); K.punch(b.p, T.after);
+    const A0 = K.panel(80, 130, 340, 400, T.b[0]);
+    K.badge(A0.p, r.from.icon, 170, 170, 170, T.b[0] + .15, {tone: r.from.tone ?? 'soft'});
+    if (r.from.label) K.chipC(A0.p, r.from.label, 170, 320, T.b[0] + .3, {size: 40}); else K.skel(A0.p, 80, 310, [180, 120], T.b[0] + .3);
+    K.sat(K.stage, 'arrow-right', 500, 330, 96, T.b[1], {tone: 'main', shape: 'round', k: .5});
+    const B1 = K.panel(580, 130, 340, 400, T.hit - .05);
+    K.halo(B1.p, 170, 170, 150, T.hit);
+    const hero = K.badge(B1.p, r.to.icon, 170, 170, 180, T.hit, {tone: r.to.tone ?? 'acc'});
+    K.float(hero, T.hit + .6, T.t1, .7);
+    if (r.to.label) K.chipC(B1.p, r.to.label, 170, 320, T.hit + .15, {size: 40}); else K.skel(B1.p, 80, 310, [180, 120], T.hit + .15);
+    K.fade(A0.o, T.hit, 1, .45); K.move(A0.m, T.hit, 'none', 'translateY(18px) scale(.95)');
+    K.sat(K.stage, 'sparkles', 900, 120, 84, T.after, {tone: 'acc'}); K.sat(K.stage, 'sparkles', 600, 560, 72, T.after + .15, {tone: 'acc'});
     return;
   }
   if (r.as === 'meter') {
-    const P = K.panel(110, 60, 780, 260, T.b[0]);
-    K.measure(P.p, 60, 130, 660, T.b[0] + .15, r.v0, r.icon, {tone: 'acc', fill: 'u-bar-on'}).set(T.b[1] + .2, r.v1);
-  } else {                                                                  // a switch turns on (or off)
-    K.badge(K.stage, r.icon, 500, 150, 170, T.b[0], {tone: 'main'});
-    const sw = K.toggle(K.stage, 300, 310, 400, T.b[0] + .15);
+    K.ghost(K.stage, 140, 90, 760, 270, T.b[0] - .05);
+    const P = K.panel(110, 60, 780, 270, T.b[0]);
+    const mm = K.measure(P.p, 70, 135, 640, T.b[0] + .15, r.v0, r.icon, {tone: 'acc', fill: 'u-bar-on', size: 120});
+    mm.set(T.b[1] + .2, r.v1);
+    K.sat(P.p, r.v1 >= r.v0 ? 'trending-up' : 'trending-down', 720, 40, 76, T.b[1] + .6, {tone: 'soft', k: .6});
+  } else {                                                                   // a switch turns on (or off), in a settings card
+    K.ghost(K.stage, 170, 170, 700, 300, T.b[0] - .05);
+    const P = K.panel(140, 140, 700, 300, T.b[0]);
+    K.halo(P.p, 130, 150, 110, T.b[0] + .1);
+    K.badge(P.p, r.icon, 130, 150, 140, T.b[0] + .1, {tone: 'main'});
+    K.skel(P.p, 230, 120, [190, 130], T.b[0] + .2);
+    const sw = K.toggle(P.p, 450, 100, 200, T.b[0] + .2);
     if (r.on === false) { sw.set(T.b[1], 1); sw.set(T.hit - .2, 0); } else sw.set(T.hit - .2, 1);
   }
   if (r.then) {
-    const [x, y] = r.as === 'meter' ? [500, 500] : [790, 330];
-    const o = r.as === 'meter' ? K.badge(K.stage, r.then.icon, x, y, 170, T.b[2], {tone: r.then.how === 'cross' ? 'soft' : 'main'}) : null;
-    if (r.then.how === 'cross') { if (o) K.shake(o.p, T.hit); K.mark(K.stage, 'cross', x + 100, y - 90, 84, T.hit); }
-    else { if (o) K.punch(o.p, T.hit); K.mark(K.stage, 'check', x + 100, y - 90, 84, T.after); }
+    const [x, y] = r.as === 'meter' ? [500, 520] : [790, 520];
+    if (r.as === 'meter') {
+      K.halo(K.stage, x, y, 140, T.b[2]);
+      const o = K.badge(K.stage, r.then.icon, x, y, 180, T.b[2], {tone: r.then.how === 'cross' ? 'soft' : 'main'});
+      if (r.then.how === 'cross') { K.shake(o.p, T.hit); K.mark(K.stage, 'cross', x + 110, y - 95, 84, T.hit); }
+      else { K.punch(o.p, T.hit); K.sat(K.stage, 'check', x + 110, y - 95, 84, T.after, {tone: 'ok'}); }
+    } else if (r.then.how === 'check') K.sat(K.stage, 'check', 760, 160, 84, T.after, {tone: 'ok'});
+    else K.mark(K.stage, 'cross', 760, 160, 84, T.after);
   }
+  if (r.as === 'toggle' && r.on !== false) K.sat(K.stage, 'sparkles', 860, 470, 80, T.after + .15, {tone: 'acc'});
 });
 
 /* ---------- หาให้เจอ: among several things, find the one (and fix it, pick it or cross it) ---------- */
 LAYOUT('aim', {name: 'หาให้เจอ'}, (K, r, T) => {
   if (r.as === 'target') {
-    K.target(K.stage, 500, 330, 250, T.b[0]).hit(T.hit, {angle: -35, dist: 460});
-    K.mark(K.stage, 'check', 790, 110, 100, T.after);
+    K.halo(K.stage, 500, 330, 320, T.b[0]);
+    K.target(K.stage, 500, 330, 260, T.b[0]).hit(T.hit, {angle: -35, dist: 460});
+    K.sat(K.stage, 'check', 800, 110, 100, T.after, {tone: 'ok'});
+    K.sat(K.stage, 'sparkles', 200, 560, 84, T.after + .2, {tone: 'acc'});
     return;
   }
-  const n = r.items.length, xs = n === 3 ? [220, 500, 780] : [170, 390, 610, 830], size = n === 3 ? 170 : 140, shape = r.round ? 'round' : 'tile';
-  const its = r.items.map((ic, i) => K.badge(K.stage, ic, xs[i], 300, size, T.b[0] + i * .1, {tone: i === r.at && r.bad ? 'neg' : 'main', shape}));
+  const n = r.items.length, xs = n === 3 ? [210, 500, 790] : [160, 385, 615, 840], size = n === 3 ? 180 : 150, shape = r.round ? 'round' : 'tile', y = 320;
+  const its = r.items.map((ic, i) => { const b = K.badge(K.stage, ic, xs[i], y, size, T.b[0] + i * .1, {tone: i === r.at && r.bad ? 'neg' : 'main', shape}); K.float(b, T.b[0] + .7 + i * .1, T.b[1] + .2, .5); return b; });
   const x = xs[r.at];
   if (r.bad) K.shake(its[r.at].p, T.b[1]);
-  K.brackets(K.stage, x, 300, size + 80, T.b[1] + .2, T.b[1] + .3);        // the focus closes in
+  K.halo(K.stage, x, y, size, T.b[1] + .3);
+  K.brackets(K.stage, x, y, size + 90, T.b[1] + .2, T.b[1] + .3);                     // the focus closes in
   if (r.how === 'fix') {
-    const w = K.badge(K.stage, 'wrench', x > 600 ? x - 140 : x + 140, 470, 110, T.b[2], {tone: 'acc'});
+    const w = K.sat(K.stage, 'wrench', x > 600 ? x - 150 : x + 150, 500, 112, T.b[2], {tone: 'acc'});
     K.shake(w.p, T.hit - .3);
-    LG.light(K, K.stage, r.items[r.at], x, 300, size, T.hit, shape);
-    K.mark(K.stage, 'check', x + size * .7, 300 - size * .75, 90, T.after);
+    LG.light(K, K.stage, r.items[r.at], x, y, size, T.hit, shape);
+    K.sat(K.stage, 'check', x + size * .72, y - size * .78, 90, T.after, {tone: 'ok'});
   } else if (r.how === 'cross') {
-    K.mark(K.stage, 'cross', x + size * .82, 300 - size * .82, 90, T.hit);
-  } else {                                                                  // pick: the one lights up, the rest step back
-    LG.light(K, K.stage, r.items[r.at], x, 300, size, T.hit, shape);
-    its.forEach((b, i) => { if (i !== r.at) K.fade(b.o, T.hit, 1, .4); });
-    K.mark(K.stage, 'check', x + size * .6, 300 - size * .7, 90, T.after);
+    K.mark(K.stage, 'cross', x + size * .82, y - size * .82, 90, T.hit);
+    its.forEach((b, i) => { if (i !== r.at) K.fade(b.o, T.after, 1, .5); });
+  } else {                                                                   // pick: the one lights up, the rest step back
+    LG.light(K, K.stage, r.items[r.at], x, y, size, T.hit, shape);
+    its.forEach((b, i) => { if (i !== r.at) { K.fade(b.o, T.hit, 1, .4); K.move(b.m, T.hit, 'none', 'translateY(18px) scale(.92)'); } });
+    K.sat(K.stage, 'check', x + size * .62, y - size * .72, 90, T.after, {tone: 'ok'});
+    K.sat(K.stage, 'sparkles', x - size * .7, y + size * .6, 80, T.after + .2, {tone: 'acc'});
   }
 });
 

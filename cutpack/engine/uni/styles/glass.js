@@ -18,6 +18,8 @@ STYLE('glass', {
   --fl:rgba(255,255,255,.08);--fl-line:rgba(235,246,255,.85);--lw-fl:5;--ac:rgba(143,211,255,.30);--ac-line:#8FD3FF;--lw-ac:6;
   --tr:rgba(255,255,255,.16);--neg:#FF7A8A;--slot-line:rgba(143,211,255,.55);--lw-slot:4;--ico-w:1.8;--tile-r:.5;--box-r:.3;--text:#FFFFFF;--lw-cross:10}
 .g-root svg{filter:drop-shadow(0 0 10px rgba(143,211,255,.5))}
+.g-root{--halo:rgba(143,211,255,.34)}
+.u-chip.u-main{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.28);color:#FFFFFF}
 .u-panel{border-radius:36px;background:linear-gradient(160deg,rgba(255,255,255,.13),rgba(255,255,255,.04));border:1.5px solid rgba(255,255,255,.2);
   box-shadow:0 40px 90px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.2)}
 .u-badge{border:1.5px solid rgba(255,255,255,.28);background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.05));box-shadow:0 20px 50px rgba(0,0,0,.4)}
@@ -64,6 +66,8 @@ STYLE('glass', {
     draw:  {d: .9, e: EASE.inout},
     stroke: {d: .28},
     stagger: .14,
+    float: {a: 7, p: 3.0},
+    glow:  {kf: [{opacity: 0, transform: 'scale(.6)', filter: 'blur(20px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], d: .9, e: EASE.soft},
   },
   sound: {hit: ['softswish', -22], cross: ['swipe', -24], key: ['softswish', -21]},
 

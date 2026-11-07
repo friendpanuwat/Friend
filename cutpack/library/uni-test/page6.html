@@ -1,0 +1,115 @@
+<title>มาตรฐานความสวยเลโก้</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* layout: summary first, then one section per test clip; each picture = the line said + the AI's choice + the clip it became */
+:root{
+  --bg:#F3F4F6; --card:#FFFFFF; --fg:#16181D; --muted:#5E6470; --line:#DEE1E7; --accent:#1F6F6A; --accent-soft:#DCEEEC; --bad:#A1352B; --bad-soft:#F8E3E0;
+  --display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif; --body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --bad:#F09487; --bad-soft:#3A1E1A; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --bad:#F09487; --bad-soft:#3A1E1A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(26px,6vw,36px);font-weight:700}
+h2{font-size:22px;font-weight:700}
+p{margin:0}
+.lede{display:flex;flex-direction:column;gap:12px}
+.lede p{color:var(--muted);max-width:62ch}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.stat b{font-family:var(--display);font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--muted)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.box ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--muted)}
+.box b{color:var(--fg);font-weight:600}
+.clip{display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--line);padding-top:22px}
+.clip > p{color:var(--muted);font-size:14px}
+.pic{display:grid;grid-template-columns:minmax(0,120px) minmax(0,1fr);gap:12px;align-items:start}
+.pic .meta{display:flex;flex-direction:column;gap:4px;min-width:0;font-size:14px}
+.pic .said{color:var(--muted)}
+.pic .said em{font-style:normal;color:var(--fg)}
+.pic .words{font-weight:600}
+.pic .how{font-size:13px;color:var(--accent)}
+.pic .no{font-size:13px;color:var(--bad);background:var(--bad-soft);border-radius:8px;padding:2px 8px;align-self:start}
+button.vid{all:unset;cursor:pointer;display:block;border-radius:10px;overflow:hidden;aspect-ratio:9/16;max-width:100%;background:#000}
+button.vid:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.vid video{width:100%;height:100%;object-fit:cover;display:block}
+.empty{aspect-ratio:9/16;border-radius:10px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;text-align:center;padding:8px}
+.lb{position:fixed;inset:0;background:rgba(8,9,12,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:20;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.lb video{height:min(76vh,720px);max-width:90vw;aspect-ratio:9/16;object-fit:cover;border-radius:12px;background:#000}
+.lb .cap{color:#fff;font-size:14px;text-align:center;max-width:520px}
+.lb button{font:inherit;color:#fff;background:rgba(255,255,255,.14);border:0;border-radius:999px;padding:6px 16px;cursor:pointer}
+.rec{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:20px}
+.rec h2{font-size:19px}
+.say{font-size:14px;color:var(--muted)}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cell{display:flex;flex-direction:column;gap:4px;min-width:0}
+.cell span{font-size:12px;color:var(--muted);font-weight:500}
+.cell.new span{color:var(--accent)}
+.ref img{width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:10px;display:block}
+</style>
+
+<div class="wrap">
+  <header class="lede">
+    <h1>มาตรฐานความสวยของเลโก้</h1>
+    <p>ขั้นที่ 2: ทำโครงเรื่องทั้ง 5 แบบใหม่ให้ใกล้คลิปตัวอย่างของ Friend สูตรทั้ง 21 สูตรเหมือนเดิมทุกตัวอักษร ที่เปลี่ยนคือตัวต่อกับโครงเรื่อง ภาพที่ AI เขียนสูตรไว้ก็ได้หน้าตาใหม่นี้ไปด้วยโดยไม่ต้องเขียนสูตรใหม่</p>
+  </header>
+  <section class="box">
+    <h2>เพิ่มอะไร (ได้มาจากคลิปตัวอย่างของ Friend)</h2>
+    <ul>
+      <li><b>แสงหลังภาพหลัก</b> ให้รู้ว่าอะไรสำคัญ</li>
+      <li><b>ไอคอนเล็กลอยรอบ ๆ</b> เช่น เครื่องหมายถูก เครื่องหมายคำถาม ประกาย ลูกศรขึ้นลง</li>
+      <li><b>คำในกรอบแคปซูล</b> แทนตัวหนังสือเปล่า</li>
+      <li><b>การ์ดซ้อนด้านหลัง</b> ให้ภาพมีมิติ</li>
+      <li><b>ภาพลอยเบา ๆ</b> หลังวางเสร็จ ภาพจึงไม่นิ่งค้าง</li>
+      <li><b>อีก 1 จังหวะหลังคำสำคัญ</b> เช่น ฝั่งที่ชนะลอยขึ้นและใหญ่ขึ้น ฝั่งที่แพ้ถอยลงและจาง ขั้นที่ทำแล้วได้เครื่องหมายถูกทีละขั้น</li>
+      <li><b>ภาพหลักใหญ่ขึ้น</b> และกราฟแท่งมีเส้นแนวโน้มลากผ่านยอดแท่ง</li>
+    </ul>
+    <p style="color:var(--muted)">แถวบนของแต่ละสูตร: เดิม · ใหม่ · คลิปของ Friend (ถ้ามีประโยคเดียวกัน) แถวล่าง: ใหม่ในแบบ 2 และแบบ 3 แตะคลิปเพื่อดูใหญ่</p>
+  </section>
+  <div id="recs" style="display:flex;flex-direction:column;gap:24px"></div>
+</div>
+<script>
+const RECS = [["not-worth.lego", "ไม่คุ้ม", "บางคนกลัวว่าซื้อไปแล้ว ไม่คุ้ม", "not-worth"], ["undecided.lego", "ลังเล", "หรือไม่รู้ว่า จะซื้อดีไหม", "undecided"], ["fewer-customers.lego", "ลูกค้าน้อยลง", "พอเห็นลูกค้า น้อยลง", "fewer-customers"], ["not-first.lego", "ข้อแรกไม่ใช่", "สิ่งที่ควรทำอย่างแรก ไม่ใช่", "not-first"], ["fix-spot.lego", "แก้ให้ถูกจุด", "แล้วแก้ปัญหาให้ ถูกจุด", "fix-spot"], ["price-cut.lego", "ลดราคาแล้วก็ยังไม่ซื้อ", "ต่อให้เราลดราคาเพิ่ม ยังไม่ซื้อ", "price-cut"], ["lego.views-sales", "ไม่ใช่ยอดวิว แต่เป็นยอดขาย", "สิ่งที่สำคัญไม่ใช่ยอดวิว แต่เป็นยอดขาย", null], ["lego.value-price", "คุณค่ามากกว่าราคา", "ลูกค้าดูที่คุณค่า มากกว่าราคา", null], ["lego.short-long", "เลือกทางยาว", "ระหว่างทางลัดกับทางยาว เลือกทางยาว", null], ["lego.money-gone", "เงินหมด", "ทำไปทำมา เงินหมด", null], ["lego.viewers-drop", "คนดูปัดทิ้ง", "คนดูค่อย ๆ ปัดทิ้ง", null], ["lego.followers-up", "ผู้ติดตามเพิ่ม", "พอโพสต์ทุกวัน ผู้ติดตามเพิ่ม", null], ["lego.team-grows", "คนเข้ามาเรื่อย ๆ", "พอเริ่มบอกต่อ คนก็เข้ามาเรื่อย ๆ", null], ["lego.three-steps", "ถ่าย ตัด โพสต์", "แค่ถ่าย ตัด แล้ว โพสต์", null], ["lego.skip-step", "ขั้นที่คนชอบข้าม", "ขั้นที่คนชอบข้ามคือ เขียนบท", null], ["lego.happy", "ลูกค้าพอใจ", "พอแก้ตรงนี้ ลูกค้าก็ พอใจ", null], ["lego.sales-jump", "ยอดพุ่ง", "หลังจากเปลี่ยนวิธีขาย ยอดพุ่ง", null], ["lego.bell-on", "เปิดแจ้งเตือน", "อย่าลืม เปิดแจ้งเตือน", null], ["lego.right-people", "คนที่ใช่", "เลือกขายให้ คนที่ใช่", null], ["lego.weak-spot", "ปัญหาอยู่ที่ภาพปก", "ปัญหาจริงอยู่ที่ ภาพปก", null], ["lego.on-target", "ตรงกลุ่ม", "ทำคอนเทนต์ให้ ตรงกลุ่ม", null]];
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const vid = (src, label) => {
+  const b = el('button', 'vid'); b.type = 'button'; b.setAttribute('aria-label', `${label} ดูใหญ่`);
+  const v = el('video'); Object.assign(v, {muted: true, loop: true, playsInline: true, preload: 'metadata', poster: src.replace('.mp4', '.jpg')});
+  v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.src = src; b.append(v);
+  b.addEventListener('click', () => open(src, label)); return b;
+};
+const cell = (cls, label, node) => { const c = el('div', 'cell ' + cls); c.append(el('span', '', label), node); return c; };
+const host = document.getElementById('recs');
+for (const [id, name, say, ref] of RECS) {
+  const sec = el('section', 'rec');
+  sec.append(el('h2', '', name), el('p', 'say', `ประโยค “${say}”`));
+  const top = el('div', 'grid3');
+  top.append(cell('', 'เดิม', vid(`old/card_${id}.mp4`, `${name} เดิม`)), cell('new', 'ใหม่', vid(`new/card_${id}.mp4`, `${name} ใหม่`)));
+  if (ref) { const d = el('div', 'ref'); const im = el('img'); im.src = `ref/${ref}_1.jpg`; im.alt = 'คลิปตัวอย่างของ Friend'; im.loading = 'lazy'; d.append(im); top.append(cell('', 'คลิปของ Friend', d)); }
+  const bot = el('div', 'grid3');
+  bot.append(cell('new', 'ใหม่ แบบ 2', vid(`new/glass_${id}.mp4`, `${name} แบบ 2`)), cell('new', 'ใหม่ แบบ 3', vid(`new/split_${id}.mp4`, `${name} แบบ 3`)));
+  sec.append(top, bot); host.append(sec);
+}
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+  const v = e.target; if (e.isIntersecting) v.play().catch(() => {}); else v.pause();
+}), {threshold: .4}) : null;
+document.querySelectorAll('button.vid video').forEach(v => io ? io.observe(v) : v.play().catch(() => {}));
+function open(src, label) {
+  const box = el('div', 'lb'); box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', label);
+  box.append(el('div', 'cap', label));
+  const v = el('video'); Object.assign(v, {muted: true, loop: true, playsInline: true, autoplay: true}); v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.src = src;
+  const close = el('button', '', 'ปิด'); close.type = 'button';
+  box.append(v, close); document.body.append(box); v.play().catch(() => {}); close.focus();
+  const shut = () => { box.remove(); document.removeEventListener('keydown', esc); };
+  const esc = e => { if (e.key === 'Escape') shut(); };
+  close.addEventListener('click', shut); box.addEventListener('click', e => { if (e.target === box) shut(); });
+  document.addEventListener('keydown', esc);
+}
+</script>
