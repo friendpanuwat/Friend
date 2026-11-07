@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>CutPack เลือกสไตล์</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Anuphan:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#0C0C0D}
+a{color:#F2F2F0;text-decoration:none}a:hover{color:#FFFFFF}
+.scr{font-family:'Geist','Anuphan',system-ui,sans-serif;color:#F2F2F0;-webkit-font-smoothing:antialiased}
+.body{scrollbar-width:none}.body::-webkit-scrollbar{display:none}
+.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; position: relative; background: #0C0C0D; background-image: radial-gradient(120% 40% at 50% -12%, rgba(255,255,255,0.12), rgba(255,255,255,0) 62%); display: flex; flex-direction: column">
+
+  <div style="flex-shrink: 0; padding: 14px 20px 6px; display: flex; align-items: center; justify-content: space-between">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <span style="width: 34px; height: 34px; border-radius: 999px; background: #FFFFFF; color: #0C0C0D; display: inline-flex; align-items: center; justify-content: center">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; stroke-width: 2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88"/><path d="M14.47 14.48 20 20"/><path d="M8.12 8.12 12 12"/></svg>
+      </span>
+      <span style="font-size: 17px; font-weight: 600; letter-spacing: -0.2px">CutPack</span>
+    </div>
+    <a href="MyClips.dc.html" aria-label="คลิปของฉัน" style="height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: rgba(255,255,255,0.72)">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 17px; height: 17px"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      คลิปของฉัน
+    </a>
+  </div>
+
+  <div class="body" style="flex: 1; min-height: 0; overflow-y: auto">
+    <div style="padding: 14px 20px 28px; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.5px; line-height: 1.25">เลือกสไตล์คลิป<br>ที่อยากได้</h1>
+        <p style="margin: 0; font-size: 14.5px; line-height: 1.6; color: rgba(255,255,255,0.72)">อัปโหลดคลิปพูดหน้ากล้อง ระบบตัดต่อ ใส่ซับ และกราฟิกให้ในสไตล์ที่เลือก</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+        <sc-for list="{{styles}}" as="s" hint-placeholder-count="2">
+          <a href="{{s.href}}" style="display: flex; flex-direction: column; gap: 10px">
+            <div style="position: relative; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #151516; border: 1px solid rgba(255,255,255,0.10)">
+              <video src="{{s.video}}" poster="{{s.poster}}" autoPlay="{{yes}}" muted="{{yes}}" loop="{{yes}}" playsInline="{{yes}}" aria-label="{{s.alt}}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block"></video>
+              <span style="position: absolute; top: 10px; left: 10px; height: 24px; padding: 0 9px; border-radius: 999px; background: rgba(12,12,13,0.78); font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 12px; height: 12px; fill: #F2F2F0; stroke: none"><path d="M7 4v16l13-8z"/></svg>
+                ตัวอย่าง
+              </span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 2px">
+              <span style="font-size: 16px; font-weight: 600">{{s.name}}</span>
+              <span style="font-size: 13px; line-height: 1.45; color: rgba(255,255,255,0.72)">{{s.desc}}</span>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 0 2px">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 600">สไตล์ใหม่</h2>
+          <span style="height: 22px; padding: 0 8px; border-radius: 999px; background: rgba(255,255,255,0.10); font-size: 12px; color: rgba(255,255,255,0.72); display: inline-flex; align-items: center">เร็ว ๆ นี้</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+          <div style="height: 96px; border-radius: 16px; border: 1px dashed rgba(255,255,255,0.18); display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 16px">
+            <span style="font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.72)">Minimal</span>
+            <span style="font-size: 12.5px; color: rgba(255,255,255,0.5)">พื้นขาว เส้นบาง</span>
+          </div>
+          <div style="height: 96px; border-radius: 16px; border: 1px dashed rgba(255,255,255,0.18); display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 16px">
+            <span style="font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.72)">Motion</span>
+            <span style="font-size: 12.5px; color: rgba(255,255,255,0.5)">ตัวอักษรพลิก 3D</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 20px; background: #151516; border: 1px solid rgba(255,255,255,0.10)">
+        <span style="font-size: 15px; font-weight: 600">ทำคลิปใน 3 ขั้น</span>
+        <sc-for list="{{how}}" as="h" hint-placeholder-count="3">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <span style="width: 28px; height: 28px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18); font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0">{{h.n}}</span>
+            <span style="font-size: 14px; color: rgba(255,255,255,0.72)">{{h.t}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true,
+      styles: [
+        { href: 'StyleEditorial.dc.html', name: 'Editorial', desc: 'การ์ดกราฟิกเต็มจอ สลับกับหน้าคนพูด', video: '/_blob/4900715959e4cab6c90f059b5bb60292', poster: '/_blob/9580e8f04b43d51b8499294d13e489f5', alt: 'ตัวอย่างคลิปสไตล์ Editorial' },
+        { href: 'StyleOverlay.dc.html', name: 'Overlay', desc: 'เห็นหน้าตลอด กราฟิกเด้งเหนือหัว', video: '/_blob/0bacc8ac134f2bc351cb2e2f60b464e0', poster: '/_blob/0d4b0a526b289d997e5b6035d1196aa8', alt: 'ตัวอย่างคลิปสไตล์ Overlay' }
+      ],
+      how: [
+        { n: '1', t: 'เลือกสไตล์ที่ชอบ' },
+        { n: '2', t: 'อัปโหลดคลิป แล้วแก้ซับ' },
+        { n: '3', t: 'รอสักครู่ ได้คลิปพร้อมโพสต์' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

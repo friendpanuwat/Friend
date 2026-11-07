@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>CutPack คลิปเสร็จแล้ว</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Anuphan:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#0C0C0D}
+a{color:#F2F2F0;text-decoration:none}
+.scr{font-family:'Geist','Anuphan',system-ui,sans-serif;color:#F2F2F0;-webkit-font-smoothing:antialiased}
+.body{scrollbar-width:none}.body::-webkit-scrollbar{display:none}
+.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; position: relative; background: #0C0C0D; background-image: radial-gradient(120% 40% at 50% -12%, rgba(255,255,255,0.12), rgba(255,255,255,0) 62%); display: flex; flex-direction: column">
+
+  <div style="flex-shrink: 0; padding: 14px 20px 6px; display: flex; align-items: center; justify-content: space-between">
+    <a href="Main.dc.html" aria-label="กลับหน้าแรก" style="width: 40px; height: 40px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); display: inline-flex; align-items: center; justify-content: center">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+    </a>
+    <span style="font-size: 15px; font-weight: 600">คลิปเสร็จแล้ว</span>
+    <a href="MyClips.dc.html" aria-label="คลิปของฉัน" style="width: 40px; height: 40px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); display: inline-flex; align-items: center; justify-content: center">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 17px; height: 17px"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    </a>
+  </div>
+
+  <div class="body" style="flex: 1; min-height: 0; overflow-y: auto">
+    <div style="padding: 10px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+      <div style="position: relative; width: 268px; align-self: center; aspect-ratio: 9 / 16; border-radius: 20px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.10)">
+        <video src="/_blob/4412bc272efea653a9550cfe95667ddf" poster="/_blob/9580e8f04b43d51b8499294d13e489f5" controls="{{yes}}" playsInline="{{yes}}" aria-label="คลิปที่ทำเสร็จ" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block"></video>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 4px; align-items: center; text-align: center">
+        <span style="font-size: 17px; font-weight: 600">IMG_4821 · Editorial</span>
+        <span style="font-size: 13px; color: rgba(255,255,255,0.5)">0:58 · 1080×1920 · MP4</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+        <button onClick="{{save}}" style="all: unset; cursor: pointer; box-sizing: border-box; height: 54px; border-radius: 999px; background: #FFFFFF; color: #0C0C0D; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2.2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          {{saveText}}
+        </button>
+        <button style="all: unset; cursor: pointer; box-sizing: border-box; height: 54px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4"/><path d="m15.4 6.5-6.8 4"/></svg>
+          แชร์
+        </button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 16px; background: #151516; border: 1px solid rgba(255,255,255,0.10)">
+        <div style="display: flex; justify-content: space-between; font-size: 14px">
+          <span style="color: rgba(255,255,255,0.72)">ใช้ไป</span>
+          <span>100 เครดิต</span>
+        </div>
+        <div style="height: 1px; background: rgba(255,255,255,0.08)"></div>
+        <div style="display: flex; justify-content: space-between; font-size: 14px">
+          <span style="color: rgba(255,255,255,0.72)">เหลือ</span>
+          <span>4,900 เครดิต · ราว 49 คลิป</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex-shrink: 0; padding: 12px 20px 24px">
+    <a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 10px; height: 54px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); font-size: 16px; font-weight: 600">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+      สร้างคลิปใหม่
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { saved: false }; }
+  renderVals() {
+    return {
+      yes: true,
+      saveText: this.state.saved ? 'บันทึกแล้ว' : 'ดาวน์โหลด',
+      save: () => this.setState({ saved: true })
+    };
+  }
+}
+</script>
+</body>
+</html>
