@@ -131,6 +131,7 @@ const WIN = Object.freeze({d: .48, e: BOUNCE, dy: 46, s: .78}), WOUT = Object.fr
 const WSIZE = Object.freeze({short: {W: 600, H: 190}, narrow: {W: 210, H: 380}});
 const WAT = Object.freeze({short: {x: 240, y: 150}, narrow: {x: 36, y: 400}});    // free space in the sample clip
 const WPARTS = {};
+let WIDGET_WORDS = true;   // false (way 'nowords', Friend 2026-11-07): library widgets keep their card size, no words
 function WIDGET(cat, v, meta, build) { (WPARTS[cat] ??= {})[v] = {meta, build}; }
 function wbox(css, t0, t1) {
   const w = div(css + ';opacity:0;background:#fff;border-radius:36px;box-shadow:0 24px 60px rgba(0,0,0,.45),0 4px 12px rgba(0,0,0,.25);overflow:hidden', G);
@@ -149,7 +150,19 @@ function widgetAt(cat, v, kind, t0, t1, opts) {
     if (spec.type === 'icon' && s[k] && !ICONS[s[k]]) throw new Error(`${cat}.${v} widget: unknown icon ${s[k]}`);
   }
   const w = wbox(`left:${at.x}px;top:${at.y}px;width:${L.W}px;height:${L.H}px`, t0, t1);
-  const short = kind === 'short', S = short ? L.H - 36 : L.W - 30;
+  const short = kind === 'short';
+  if (!WIDGET_WORDS && !P.meta.full) {
+    /* Friend 2026-11-07: "เอาตัวหนังสือออก แต่ขนาดเท่าเดิม ขยายไอคอนหรือเพิ่มอะไรก็ได้": the card keeps its size, the
+       picture grows to the card's height (short) or width (narrow), and grey placeholder lines fill where the words were */
+    const S2 = short ? L.H - 24 : L.W - 24, VW2 = short && P.meta.wide ? Math.round(S2 * P.meta.wide) : S2; L.VW = VW2;
+    const vis2 = div(short ? `left:16px;top:12px;width:${VW2}px;height:${S2}px` : `left:12px;top:16px;width:${S2}px;height:${S2}px`, w);
+    const T2 = {t0, t1, hit, kind};
+    P.build(vis2, S2, s, T2, L, w);
+    skel(w, short ? `left:${VW2 + 48}px;top:${Math.round(L.H / 2 - 52)}px;width:${L.W - VW2 - 84}px` : `left:28px;top:${S2 + 44}px;width:${L.W - 56}px`,
+         short ? [.92, .62, .78] : [.9, .6, .8, .5], {t: t0 + .25, h: short ? 22 : 18, gap: short ? 20 : 16});
+    return w;
+  }
+  const S = short ? L.H - 36 : L.W - 30;
   /* short size (Friend 2026-11-05: "พื้นที่ว่างด้านขวามากเกินไป ใช้พื้นที่ให้คุ้ม", packs first, then the base widgets too): the card
      shrinks to fit its text, centred where the full card would be; meta.wide makes the visual box wider than tall (L.VW).
      narrow size: the text is centred across the card (Friend 2026-11-05: "การ์ดแนวตั้งอยากให้ตัวหนังสืออยู่กึ่งกลาง") */
