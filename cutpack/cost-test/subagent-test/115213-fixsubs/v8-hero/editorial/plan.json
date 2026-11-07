@@ -1,0 +1,469 @@
+{
+ "version": 1,
+ "style": "editorial",
+ "clip": {
+  "file": "VID_20261105115213.mp4",
+  "duration": 60.581,
+  "customer": "test"
+ },
+ "topic": "edu",
+ "script": "แล้วผม รู้สึกว่า ตราบใดที่ คุณยัง มองว่า รายได้ ของคุณน่ะ ช่องทาง นั้นน่ะ สิ่งที่คุณ กำลังทำ อยู่อ่ะมันคือ รายได้ เสริมนะ เว้ย มันก็จะ เป็นรายได้ เสริมต่อไป เรื่อยๆ มันจะ ไม่มีทาง เป็น Main income ได้มีแต่คน พูดว่า อยากหารายได้ เสริม อยากหา side hustle WTF the mean hustle แล้ว รายได้หลัก active income อ่ะผม รู้สึกว่า ถ้าอยากให้ มันมา เป็น active income นะคือยู ต้อง มองมัน เป็น business หรือว่ากล้า เทค ความเสี่ยง กับมัน เว้ยคำว่า รายได้เสริม หรือว่า side hustle โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง ไม่มีคำว่า เจ๊ง ไม่มีคำว่า ขาดทุนนะ เพราะว่ายูเอา เวลา ของยู ไปใช้แล้ว ยูจะ คิดในมุม ของ mindset ที่ เอ่อ minimize minimize ความเสี่ยง ให้มาก ที่สุดเลย ทำให้ยังไง ก็ได้ ให้มันแบบแค่ เป็น รายได้ เสริมอ่ะ ตอนที่ผมทำ คอนเทนต์นะ ผมยกตัวอย่าง ตอนที่ ผมทำ คอนเทนต์ แล้วผมก็ ทำเป็น รายได้เสริม งานประจำ ของผม ไปใช่ป่ะ Mindset ผมมัน ไม่ เหมือนกับ อย่างนี้เลย มันมัน มีหลายอย่าง ที่มัน เปลี่ยนไป มากๆ แล้วมัน ผมก็ ยังเห็น อินฟลู เอนเซอร์ บางคนเค้าก็ พูดว่า เอออันเนี้ย เป็น ช่องทาง หารายได้ เสริมที่ดี ซึ่งถ้า คุณแค่ คิดว่ามันเป็น รายได้ เสริม",
+ "camera": [
+  {
+   "push": 0.5
+  },
+  {
+   "pull": 2.6,
+   "cut": true
+  },
+  {
+   "push": 10.9
+  },
+  {
+   "pull": 11.8,
+   "cut": true
+  },
+  {
+   "push": 25.0
+  },
+  {
+   "pull": 28.8,
+   "cut": true
+  },
+  {
+   "push": 35.7
+  },
+  {
+   "pull": 37.9,
+   "cut": true
+  },
+  {
+   "push": 49.0
+  },
+  {
+   "pull": 51.2,
+   "cut": true
+  }
+ ],
+ "subtitles": [
+  {
+   "t0": 0.56,
+   "t1": 1.68,
+   "text": "แล้วผม รู้สึกว่า"
+  },
+  {
+   "t0": 4.32,
+   "t1": 6.24,
+   "text": "ของคุณน่ะ ช่องทาง / นั้นน่ะ"
+  },
+  {
+   "t0": 8.0,
+   "t1": 9.28,
+   "text": "เสริมนะ เว้ย"
+  },
+  {
+   "t0": 14.0,
+   "t1": 14.8,
+   "text": "อยากหารายได้ เสริม"
+  },
+  {
+   "t0": 17.067,
+   "t1": 17.6,
+   "text": "hustle"
+  },
+  {
+   "t0": 19.6,
+   "t1": 20.4,
+   "text": "อ่ะผม รู้สึกว่า"
+  },
+  {
+   "t0": 22.16,
+   "t1": 23.2,
+   "text": "นะคือยู ต้อง"
+  },
+  {
+   "t0": 25.12,
+   "t1": 25.92,
+   "text": "หรือว่ากล้า เทค"
+  },
+  {
+   "t0": 25.92,
+   "t1": 27.76,
+   "text": "ความเสี่ยง กับมัน / เว้ยคำว่า รายได้เสริม"
+  },
+  {
+   "t0": 27.76,
+   "t1": 28.72,
+   "text": "หรือว่า side hustle"
+  },
+  {
+   "t0": 30.64,
+   "t1": 31.52,
+   "text": "ไม่มีคำว่า เจ๊ง"
+  },
+  {
+   "t0": 32.88,
+   "t1": 33.76,
+   "text": "เพราะว่ายูเอา เวลา"
+  },
+  {
+   "t0": 36.08,
+   "t1": 37.6,
+   "text": "ของ mindset ที่"
+  },
+  {
+   "t0": 39.6,
+   "t1": 40.56,
+   "text": "ให้มาก ที่สุดเลย"
+  },
+  {
+   "t0": 40.56,
+   "t1": 41.44,
+   "text": "ทำให้ยังไง ก็ได้"
+  },
+  {
+   "t0": 46.24,
+   "t1": 46.72,
+   "text": "ผมทำ คอนเทนต์"
+  },
+  {
+   "t0": 46.72,
+   "t1": 47.28,
+   "text": "แล้วผมก็ ทำเป็น"
+  },
+  {
+   "t0": 49,
+   "t1": 50.8,
+   "text": "Mindset ผมมัน / ไม่ เหมือนกับ / อย่างนี้เลย"
+  },
+  {
+   "t0": 56.8,
+   "t1": 57.2,
+   "text": "ช่องทาง"
+  },
+  {
+   "t0": 60.531,
+   "t1": 60.581,
+   "text": "เสริม"
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 2.6,
+   "t1": 4.4,
+   "kind": "card",
+   "part": "custom",
+   "bg": "glow",
+   "hit": 3.68,
+   "slots": {
+    "lead": "ตราบใดที่คุณยัง",
+    "key": "รายได้"
+   },
+   "say": "ตราบใดที่คุณยังมองว่ารายได้",
+   "shows": "a small coin pushed to a side pocket labelled as extra",
+   "need": "at 'มองว่า' a small coin appears next to a big briefcase; at 'รายได้' the coin slides into a tiny side pocket; at 'รายได้' a small side tag lights up — no card shows income seen as only a side thing",
+   "code": "const bc = tile(c, 'briefcase', T.t0 + 0.1, 'left:250px;top:330px;width:460px;height:460px', {size:260});\nconst pk = div('left:790px;top:520px;width:170px;height:130px;border-radius:32px;border:6px solid ' + ACC + ';opacity:0', c);\nmv.show(pk, T.t0 + 0.3);\nconst w = div('left:110px;top:740px;width:120px;height:120px', c);\ntile(w, 'coins', 2.88, 'left:0px;top:0px;width:120px;height:120px', {size:70, bg:ACC, color:NAVY});\nmv.slide(w, T.hit, 'translate(0px,0px)', 'translate(705px,-215px)');\npill(c, 'รายได้', T.hit + 0.15, 'left:790px;top:690px');\nmv.punch(bc.inner, T.hit);\nsnd('pop', 2.88);\nsnd('hit', T.hit);"
+  },
+  {
+   "t0": 6.24,
+   "t1": 8.0,
+   "kind": "card",
+   "part": "B14.v3",
+   "bg": "cream",
+   "hit": 7.68,
+   "slots": {
+    "words": [
+     "สิ่งที่คุณกำลังทำ",
+     "คือ",
+     "รายได้เสริม"
+    ],
+    "key": 2,
+    "at": [
+     6.24,
+     7.04,
+     7.68
+    ]
+   },
+   "say": "สิ่งที่คุณกำลังทำอยู่คือรายได้เสริม",
+   "shows": "phrase builds up and the word side income is highlighted"
+  },
+  {
+   "t0": 9.2,
+   "t1": 10.8,
+   "kind": "card",
+   "part": "B12.v1",
+   "bg": "white",
+   "hit": 10.4,
+   "slots": {
+    "a": "รายได้เสริม",
+    "ia": "hand-coins",
+    "b": "เสริมต่อไป",
+    "ib": "repeat",
+    "lead": "มันก็จะเป็น"
+   },
+   "say": "มันก็จะเป็นรายได้เสริมต่อไปเรื่อยๆ",
+   "shows": "side income arrow loops back into side income"
+  },
+  {
+   "t0": 11.8,
+   "t1": 13.4,
+   "kind": "card",
+   "part": "custom",
+   "bg": "glow",
+   "hit": 12.29,
+   "slots": {
+    "lead": "ไม่มีทางเป็น",
+    "key": "Main income"
+   },
+   "say": "มันจะไม่มีทางเป็น Main income",
+   "shows": "small coin cannot climb into a big MAIN income vault, red cross",
+   "need": "at 'ไม่มีทาง' a small coin tries to climb a step toward a big vault; at 'Main' the vault labelled MAIN lights up out of reach; at 'income' a red cross stamps on the coin — library has no unreachable-goal scene",
+   "code": "const st = ['left:100px;top:1000px;width:160px;height:120px', 'left:260px;top:940px;width:160px;height:180px', 'left:420px;top:880px;width:160px;height:240px'];\nfor (let i = 0; i < 3; i++) {\n  const s = div(st[i] + ';border-radius:16px;background:' + ON[T.bg].tile + ';opacity:0', c);\n  mv.rise(s, T.t0 + 0.1 + i * 0.1);\n}\ntile(c, 'lock', T.t0 + 0.1, 'left:540px;top:260px;width:400px;height:400px', {size:220, bg:ON[T.bg].tile});\ntile(c, 'lock', T.hit, 'left:540px;top:260px;width:400px;height:400px', {size:220, bg:ACC, color:NAVY});\npill(c, 'MAIN', T.hit + 0.1, 'left:620px;top:690px');\nconst w = div('left:125px;top:890px;width:110px;height:110px', c);\ntile(w, 'coins', T.t0 + 0.2, 'left:0px;top:0px;width:110px;height:110px', {size:64, bg:ACC, color:NAVY});\nmv.slide(w, 11.95, 'translate(0px,0px)', 'translate(160px,-60px)');\ncross(c, 12.48, 'left:225px;top:770px', {size:130});\nsnd('hit', T.hit);\nsnd('cross', 12.48);"
+  },
+  {
+   "t0": 14.8,
+   "t1": 17.05,
+   "kind": "card",
+   "part": "B06.v3",
+   "bg": "cream",
+   "hit": 16.71,
+   "slots": {
+    "q": "WTF the mean hustle",
+    "icon": "message-circle-question",
+    "lead": "อยากหา side hustle"
+   },
+   "say": "อยากหา side hustle WTF the mean hustle",
+   "shows": "question marks floating around a question about what hustle means"
+  },
+  {
+   "t0": 18.05,
+   "t1": 19.6,
+   "kind": "card",
+   "part": "B14.v1",
+   "bg": "white",
+   "hit": 18.96,
+   "slots": {
+    "words": [
+     "รายได้หลัก",
+     "active",
+     "income"
+    ],
+    "key": 2,
+    "at": [
+     18.08,
+     18.64,
+     18.96
+    ]
+   },
+   "say": "แล้วรายได้หลัก active income",
+   "shows": "main income phrase then active income highlighted"
+  },
+  {
+   "t0": 20.6,
+   "t1": 22.2,
+   "kind": "card",
+   "part": "B08.v1",
+   "bg": "glow",
+   "hit": 21.68,
+   "slots": {
+    "goal": "active income",
+    "icon": "target",
+    "lead": "อยากให้มันเป็น"
+   },
+   "say": "ถ้าอยากให้มันมาเป็น active income",
+   "shows": "arrow lands in the centre of a target"
+  },
+  {
+   "t0": 23.2,
+   "t1": 24.8,
+   "kind": "card",
+   "part": "custom",
+   "bg": "cream",
+   "hit": 24.48,
+   "slots": {
+    "lead": "ต้องมองมันเป็น",
+    "key": "business"
+   },
+   "say": "ต้องมองมันเป็น business",
+   "shows": "a street stall turns into a shop with a BUSINESS sign",
+   "need": "at 'มองมัน' a tiny street stall cart appears; at 'เป็น' the stall swaps into a shop front; at 'business' the BUSINESS sign lights up — a stall turning into a business",
+   "code": "const cart = tile(c, 'shopping-cart', 23.3, 'left:410px;top:540px;width:260px;height:260px', {size:150});\nconst shop = tile(c, 'store', 23.65, 'left:270px;top:400px;width:540px;height:540px', {size:300});\npill(c, 'business', T.hit, 'left:370px;top:1010px');\nmv.punch(shop.inner, T.hit);\nsnd('pop', 23.65);\nsnd('hit', T.hit);"
+  },
+  {
+   "t0": 28.8,
+   "t1": 30.5,
+   "kind": "card",
+   "part": "B08.v4",
+   "bg": "white",
+   "hit": 30.16,
+   "slots": {
+    "goal": "ไม่มีความเสี่ยง",
+    "icon": "shield-check",
+    "lead": "โดยส่วนใหญ่"
+   },
+   "say": "รายได้เสริมโดยส่วนใหญ่ไม่มีความเสี่ยง",
+   "shows": "a big check mark for no risk"
+  },
+  {
+   "t0": 31.5,
+   "t1": 32.8,
+   "kind": "card",
+   "part": "custom",
+   "bg": "glow",
+   "hit": 31.92,
+   "slots": {
+    "lead": "ไม่มีคำว่า",
+    "key": "ขาดทุน"
+   },
+   "say": "ไม่มีคำว่าเจ๊ง ไม่มีคำว่าขาดทุน",
+   "shows": "a falling red line is flattened and a no sign covers the coin",
+   "need": "at 'เจ๊ง' a red falling line appears; at 'ขาดทุน' a no-sign covers the minus coin and the line goes flat at zero — a loss being ruled out, which no library part does",
+   "code": "const fall = trend(c, [[0, 20], [150, 80], [300, 170], [450, 320], [600, 430]], 31.6, 'left:240px;top:300px', {w:600, h:460, color:RED, sw:14, d:0.5});\nconst zero = div('left:240px;top:530px;width:600px;height:6px;border-radius:3px;background:' + ON[T.bg].track + ';opacity:0', c);\nmv.show(zero, T.hit);\nmv.dim(fall, T.hit);\ntrend(c, [[0, 230], [600, 230]], T.hit + 0.05, 'left:240px;top:300px', {w:600, h:460, color:ACC, sw:14, d:0.4});\ntile(c, 'minus', 31.75, 'left:420px;top:850px;width:240px;height:240px', {size:130});\ntile(c, 'ban', T.hit, 'left:420px;top:850px;width:240px;height:240px', {size:200, bg:RED, color:'#ffffff'});\nsnd('hit', T.hit);\nsnd('cross', 31.6);"
+  },
+  {
+   "t0": 33.8,
+   "t1": 35.6,
+   "kind": "card",
+   "part": "B09.v4",
+   "bg": "cream",
+   "hit": 34.08,
+   "slots": {
+    "when": "เวลาของยู",
+    "icon": "hourglass",
+    "lead": "เอาเวลา",
+    "key": "ไปใช้แล้ว"
+   },
+   "say": "เวลาของยูไปใช้แล้ว",
+   "shows": "hourglass flips for the time you spend"
+  },
+  {
+   "t0": 37.9,
+   "t1": 39.6,
+   "kind": "card",
+   "part": "B02.v4",
+   "bg": "white",
+   "hit": 39.28,
+   "slots": {
+    "dir": "down",
+    "icon": "shield",
+    "lead": "minimize",
+    "key": "ความเสี่ยง"
+   },
+   "say": "minimize ความเสี่ยงให้มากที่สุด",
+   "shows": "risk gauge needle swings down"
+  },
+  {
+   "t0": 41.4,
+   "t1": 43.0,
+   "kind": "card",
+   "part": "B14.v2",
+   "bg": "glow",
+   "hit": 42.64,
+   "slots": {
+    "words": [
+     "แบบแค่",
+     "เป็น",
+     "รายได้เสริม"
+    ],
+    "key": 2,
+    "at": [
+     41.44,
+     42.48,
+     42.64
+    ]
+   },
+   "say": "ให้มันแบบแค่เป็นรายได้เสริม",
+   "shows": "big words coloured one by one ending on side income"
+  },
+  {
+   "t0": 44.3,
+   "t1": 45.9,
+   "kind": "card",
+   "part": "B10.v1",
+   "bg": "white",
+   "hit": 45.04,
+   "slots": {
+    "who": "ผมทำคอนเทนต์",
+    "lead": "ตอนที่",
+    "key": "คอนเทนต์"
+   },
+   "say": "ตอนที่ผมทำคอนเทนต์",
+   "shows": "person highlighted among a group, making content"
+  },
+  {
+   "t0": 47.3,
+   "t1": 48.9,
+   "kind": "card",
+   "part": "B03.v2",
+   "bg": "cream",
+   "hit": 47.78,
+   "slots": {
+    "a": "รายได้เสริม",
+    "b": "งานประจำ",
+    "ia": "video",
+    "ib": "briefcase"
+   },
+   "say": "ทำเป็นรายได้เสริม งานประจำของผม",
+   "shows": "video side card next to a briefcase job card"
+  },
+  {
+   "t0": 51.2,
+   "t1": 53.0,
+   "kind": "card",
+   "part": "custom",
+   "bg": "glow",
+   "hit": 52.0,
+   "slots": {
+    "lead": "มีหลายอย่าง",
+    "key": "เปลี่ยนไป"
+   },
+   "say": "มีหลายอย่างที่เปลี่ยนไปมากๆ",
+   "shows": "a stack of small cards all flip to a new side",
+   "need": "at 'มีหลายอย่าง' several small cards stack up; at 'เปลี่ยนไป' they all flip to their new side; at 'มากๆ' a big arrow pushes through — many things changing at once",
+   "code": "const tops = [330, 550, 770];\nfor (let i = 0; i < 3; i++) {\n  const a = panel(c, 'left:300px;top:' + tops[i] + 'px;width:480px;height:180px', 51.3 + i * 0.15, {style:'white'});\n  skel(a, 'left:40px;top:50px;width:400px', [0.8, 0.55], {t:51.3 + i * 0.15, h:22, gap:18});\n}\nfor (let i = 0; i < 3; i++) {\n  const b = panel(c, 'left:300px;top:' + tops[i] + 'px;width:480px;height:180px', T.hit + i * 0.08, {style:'navy'});\n  div('left:195px;top:45px;width:90px;height:90px', b, ico('refresh-cw', 90, '#ffffff', 3));\n}\nconst ar = div('left:200px;top:1020px;width:600px;height:180px;opacity:0', c, ico('arrow-right', 180, ACC, 6));\nmv.fly(ar, 52.4, 'translateX(-500px)');\nsnd('hit', T.hit);\nsnd('swipe', 52.4);"
+  },
+  {
+   "t0": 54.7,
+   "t1": 56.5,
+   "kind": "card",
+   "part": "B11.v1",
+   "bg": "white",
+   "hit": 56.16,
+   "slots": {
+    "text": "ช่องทางหารายได้เสริมที่ดี",
+    "who": "บางคน",
+    "lead": "อินฟลูเอนเซอร์"
+   },
+   "say": "อินฟลูเอนเซอร์บางคนพูดว่า เป็นช่องทางหารายได้เสริมที่ดี",
+   "shows": "chat message from someone showing as read"
+  },
+  {
+   "t0": 58.4,
+   "t1": 60.58,
+   "kind": "card",
+   "part": "B07.v1",
+   "bg": "glow",
+   "hit": 59.92,
+   "slots": {
+    "text": "คิดว่าเป็นรายได้เสริม",
+    "icon": "briefcase",
+    "lead": "ซึ่งถ้าคุณแค่"
+   },
+   "say": "ซึ่งถ้าคุณแค่คิดว่ามันเป็นรายได้เสริม",
+   "shows": "warning triangle about thinking it is only side income"
+  }
+ ],
+ "layout": {
+  "subtitleTop": 1380,
+  "widgetPos": {
+   "short": {
+    "x": 240,
+    "y": 150
+   },
+   "narrow": {
+    "x": 36,
+    "y": 570
+   }
+  }
+ }
+}

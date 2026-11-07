@@ -1,0 +1,38 @@
+{
+ "status": "ok",
+ "topic": "edu",
+ "log": [
+  "fix round (plan): 1 errors sent back"
+ ],
+ "fallback": [],
+ "library_missing": [
+  "at 'มองว่า' a small coin appears next to a big briefcase; at 'รายได้' the coin slides into a tiny side pocket; at 'รายได้' a small side tag lights up — no card shows income seen as only a side thing",
+  "at 'ไม่มีทาง' a small coin tries to climb a step toward a big vault; at 'Main' the vault labelled MAIN lights up out of reach; at 'income' a red cross stamps on the coin — library has no unreachable-goal scene",
+  "at 'มองมัน' a tiny street stall cart appears; at 'เป็น' the stall swaps into a shop front; at 'business' the BUSINESS sign lights up — a stall turning into a business",
+  "at 'เจ๊ง' a red falling line appears; at 'ขาดทุน' a no-sign covers the minus coin and the line goes flat at zero — a loss being ruled out, which no library part does",
+  "at 'มีหลายอย่าง' several small cards stack up; at 'เปลี่ยนไป' they all flip to their new side; at 'มากๆ' a big arrow pushes through — many things changing at once"
+ ],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 4.32–6.24 \"ของคุณน่ะ ช่องทาง / นั้นน่ะ\"",
+   "msg": "chunk \"ของคุณน่ะ ช่องทาง\" is 13 letters, aim ≤ 12",
+   "sub": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 25.92–27.76 \"ความเสี่ยง กับมัน / เว้ยคำว่า รายได้เสริม\"",
+   "msg": "chunk \"เว้ยคำว่า รายได้เสริม\" is 15 letters, aim ≤ 12",
+   "sub": 8
+  },
+  {
+   "level": "error",
+   "code": "sub-fast",
+   "where": "subtitles 60.531–60.581 \"เสริม\"",
+   "msg": "1 chunks in 0.05 s is too fast to read",
+   "sub": 19
+  }
+ ]
+}
