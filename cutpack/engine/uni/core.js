@@ -35,6 +35,10 @@ function STYLE(id, def) { STYLES[id] = Object.assign({id}, def); }
 /* SCENE(id, meta, build): meta = {name, story, slots: {name: {type, max, sample}}, beats: n}
    build(K, s, T): K = kit bound to the style, s = slot values, T = {t0, t1, hit, b: [beat times]} */
 function SCENE(id, meta, build) { SCENES[id] = {meta, build}; }
+/* MEANING(id, meta): what a sentence means (the AI picks this); several SCENEs (meta.meaning = id) are different pictures of it.
+   meta = {name, when}. A scene without meta.meaning is its own meaning (the first six). */
+const MEANINGS = {};
+function MEANING(id, meta) { MEANINGS[id] = meta; }
 function useStyle(id) {
   ST = STYLES[id]; if (!ST) throw new Error('unknown style ' + id);
   const css = document.createElement('style'); css.textContent = ST.css; document.head.appendChild(css);

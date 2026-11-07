@@ -57,7 +57,7 @@ SCENE('fewer-customers', {name: 'ลูกค้าน้อยลง', story: '
   const P = K.panel(130, 50, 740, 460, T.b[0]);
   K.badge(P.p, s.place, 100, 100, 120, T.b[0] + .15, {tone: 'main'});
   K.skel(P.p, 190, 72, [330, 210], T.b[0] + .2);
-  const people = [0, 1, 2, 3].map(i => K.avatar(P.p, 120 + i * 166, 318, 132, T.b[1] + i * .1));
+  const people = [0, 1, 2, 3].map(i => K.avatar(P.p, 120 + i * 166, 318, 132, T.b[0] + .35 + i * .1));
   K.leave(people[3].o, T.b[2]);
   K.leave(people[2].o, T.b[2] + (T.hit - T.b[2]) / 2);
   K.leave(people[1].o, T.hit);

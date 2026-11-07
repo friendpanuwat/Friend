@@ -4,8 +4,9 @@
 
 | ชั้น | ไฟล์ | มีอะไร |
 |---|---|---|
+| ความหมาย | `scenes/base6_more.js` | `MEANING(id, {name, when})` สิ่งที่ประโยคหมายถึง (AI จะเลือกตรงนี้) แต่ละความหมายมีหลายภาพ คือหลาย `SCENE` ที่ `meta.meaning` ชี้มาที่ความหมายนั้น (Friend 2026-11-07: ร่างแยก = motion graphics หน้าตาแบบไหนก็ได้ที่สื่อความหมายเดียวกัน) ฉากแรก 6 ฉากใน `base6.js` ใช้ id เดียวกับความหมาย |
 | บท (ชุดฐาน ใช้ร่วมกันทุกสไตล์) | `scenes/*.js` | `SCENE(id, meta, build)` บอกแค่ว่ามีอะไร อยู่ตรงไหนบนผ้าใบ 1000 × 700 และเกิดตอนจังหวะไหน (`T.b[]`, `T.hit`, `T.after`) ห้ามมีสี ฟอนต์ ความหนาเส้น หรือความเร็วในบท ช่องที่เติมได้อยู่ใน `meta.slots` |
-| เครื่องมือกลาง | `kit.js` | สิ่งที่บทเรียกได้: ท่า (`enter` `leave` `punch` `shake` `move` `fade` `draw` `grow`), พื้นผิว (`panel` `skel` `label` `badge` `chip` `mark`), ของ (`toggle` `slider` `checklist` `avatar` `scale` ตาชั่ง `puzzle` จิ๊กซอว์) และ `say(lead, key)` ทุกชิ้นได้แค่ชื่อบทบาท (`u-panel` `u-badge u-acc` `ln` `sd` `fl` `ac` …) |
+| เครื่องมือกลาง | `kit.js` | สิ่งที่บทเรียกได้: ท่า (`enter` `leave` `punch` `shake` `move` `fade` `draw` `grow`), พื้นผิว (`panel` `skel` `label` `badge` `chip` `mark`), ของ (`toggle` `slider` แนวนอนหรือตั้ง `checklist` `avatar` `scale` ตาชั่งแขวนหรือกระดานกระดก `puzzle` จิ๊กซอว์ขนาดใดก็ได้ `bars` `measure` `stars` `button` `cursor` `gauge` `target` `brackets` `signpost`) และ `say(lead, key)` ทุกชิ้นได้แค่ชื่อบทบาท (`u-panel` `u-badge u-acc` `ln` `sd` `fl` `ac` …) |
 | กฎของสไตล์ (1 ไฟล์ต่อสไตล์) | `styles/*.js` | ตอบแบบฟอร์ม 7 ข้อ: จัดจอ (`frame`), กรอบและพื้น + วิธีวาดของ + ชุดสี (`css` ตั้งตัวแปรบทบาท `--ink --lw --sd --fl --ac --tr --neg …` และหน้าตาของ `u-*`), ตัวหนังสือ (`text`), ท่าขยับ (`motion` ทุกท่าที่ kit เรียก), เสียง (`sound`) และ `setup()` / `blurred` ถ้าต้องใช้ |
 
 `core.js` คือเวลาและหน้า (`A()`, `seek`, `SFX`) ใช้สัญญาเดียวกับ `../core/render.js` เรนเดอร์ด้วยตัวเดิมได้เลย
@@ -16,7 +17,7 @@
 - `split` หน้าตาคลิปที่ 3 (ยังไม่รู้ว่า skill ไหน เขียนกฎจากคลิปอย่างเดียว): แบ่งจอ หน้าต่างพาสเทลด้านบน ภาพคนพูดหดลงกรอบด้านล่าง ตำแหน่งหน้า `SPLIT.faceY` ยังเป็นค่าคงที่ของคลิปตัวอย่าง (ใช้จริงต้องมาจาก `faces.json`)
 
 ## วิธีใช้
-- ทั้งชุด: `bash render_test.sh <โฟลเดอร์งาน> <โฟลเดอร์ผลลัพธ์> ["card glass split"] ["price-cut not-worth …"]` ได้ MP4 720 px 5 วินาที ไม่มีเสียง + ภาพปกที่วินาที 3.5 บนคลิปตัวอย่าง `library/sample-clip/`
+- ทั้งชุด: `bash render_test.sh <โฟลเดอร์งาน> <โฟลเดอร์ผลลัพธ์> ["card glass split"] ["price-cut not-worth.stars …"]` (id ฉาก = `<ความหมาย>` หรือ `<ความหมาย>.<ภาพ>` ภาพของความหมายเดียวกันได้ index เท่ากัน, `WIDTH=540` เปลี่ยนความกว้าง) ได้ MP4 720 px 5 วินาที ไม่มีเสียง + ภาพปกที่วินาที 3.5 บนคลิปตัวอย่าง `library/sample-clip/`
 - ภาพนิ่งตรวจเร็ว: `PREVIEW=1 bash render_test.sh …` ได้แผ่นรวม `sheet_<สไตล์>.jpg`
 - หน้าเดียว: `python3 build.py <โฟลเดอร์> <สไตล์> <ฉาก> --index N` แล้ว `node ../core/render.js <โฟลเดอร์> preview 1.0,2.5` (`index` คือลำดับฉากในคลิป สไตล์ใช้สลับพื้น)
 

@@ -28,3 +28,12 @@ svg{overflow:visible}
 .u-chip{display:inline-flex;align-items:center;gap:14px}
 .u-dot{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--ac)}
 .u-label{white-space:nowrap}
+/* round 2 shared things — painted from the same role variables (a style may override any of them) */
+.u-neg{background:var(--neg);color:#FFFFFF}
+.u-col{background:var(--col, var(--ink))}
+.u-col-acc{background:var(--ac)}
+.u-bar-main{background:var(--col, var(--ink))}
+.u-star{fill:var(--tr);stroke:var(--ink);stroke-width:var(--lw-star, 4);stroke-linejoin:round}
+.u-star-on{stroke:var(--ac-line, var(--ink));stroke-width:var(--lw-star, 4)}
+.u-cursor path{fill:var(--cursor, #FFFFFF);stroke:var(--cursor-line, #14213D)}
+.u-cursor{filter:drop-shadow(0 8px 14px rgba(0,0,0,.3))}

@@ -35,6 +35,11 @@ STYLE('glass', {
 .u-label{font-family:"CardSans";color:#FFFFFF}
 .u-skel{background:rgba(255,255,255,.18)}
 .u-dotc{fill:#8FD3FF}
+.u-col{background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.10));border:1.5px solid rgba(255,255,255,.3)}
+.u-col-acc{background:linear-gradient(180deg,#8FD3FF,#4E9BFF);border:0;box-shadow:0 0 30px rgba(143,211,255,.55)}
+.u-bar-main{background:rgba(235,246,255,.75)}
+.u-neg{color:#FF7A8A;border:2px solid #FF7A8A;background:rgba(255,122,138,.14);box-shadow:0 0 30px rgba(255,122,138,.35)}
+.g-root{--cursor:#FFFFFF;--cursor-line:#05070D;--lw-star:3}
 .g-text{position:absolute;left:60px;width:960px;top:230px;display:flex;flex-direction:column;align-items:center;row-gap:6px}
 .g-line{display:flex;justify-content:center;white-space:nowrap;perspective:900px;position:relative}
 .g-g{display:inline-block;opacity:0;transform-origin:50% 80%}
