@@ -1,0 +1,30 @@
+/* CutPack · uni · page base. Every style sets the role variables (--ink, --lw, --sd, --fl, --ac …) on its scene root. */
+@font-face{font-family:"Lead";src:url(fonts/Mitr-Regular.ttf)}
+@font-face{font-family:"CardSans";src:url(fonts/Mitr-SemiBold.ttf)}
+@font-face{font-family:"KeySans";src:url(fonts/Mitr-Bold.ttf)}
+@font-face{font-family:"Hand";src:url(fonts/Sriracha-Regular.ttf)}
+@font-face{font-family:"Anu";src:url(fonts/Anuphan-VF.ttf);font-weight:100 700}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
+body{position:relative;color:#fff;font-family:"Lead",sans-serif}
+.layer{position:absolute;inset:0;pointer-events:none}
+#v,#vb{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0}
+#vb{opacity:0;filter:blur(36px)}
+
+/* role classes of shared things — painted only through the style's variables */
+.ln{fill:none;stroke:var(--ink);stroke-width:var(--lw);stroke-linecap:round;stroke-linejoin:round}
+.ln.u-thick{stroke-width:calc(var(--lw) * 1.3)}
+.ln.u-thin{stroke-width:calc(var(--lw) * .55)}
+.sd{fill:var(--sd);stroke:var(--sd-line, var(--sd));stroke-width:var(--lw-sd, 0);stroke-linejoin:round}
+.fl{fill:var(--fl);stroke:var(--fl-line, none);stroke-width:var(--lw-fl, 0);stroke-linejoin:round}
+.ac{fill:var(--ac);stroke:var(--ac-line, none);stroke-width:var(--lw-ac, 0);stroke-linejoin:round}
+.u-slot{fill:var(--slot-fill, none);stroke:var(--slot-line);stroke-width:var(--lw-slot, 4);stroke-dasharray:var(--slot-dash, 14 12);stroke-linejoin:round}
+.u-cross{fill:none;stroke:var(--neg);stroke-width:var(--lw-cross, 14);stroke-linecap:round}
+svg{overflow:visible}
+.u-ico{display:block;stroke-width:var(--ico-w, 2)}
+.u-badge{display:flex;align-items:center;justify-content:center}
+.u-knob{display:flex;align-items:center;justify-content:center}
+.u-skel{background:var(--tr)}
+.u-chip{display:inline-flex;align-items:center;gap:14px}
+.u-dot{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--ac)}
+.u-label{white-space:nowrap}

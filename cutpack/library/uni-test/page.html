@@ -1,0 +1,169 @@
+<title>ชุดฐานข้ามสไตล์</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* layout: one narrow reading column; each scene = its sentence, then the same scene in 3 looks side by side, then Friend's own frames */
+:root{
+  --bg:#F3F4F6; --card:#FFFFFF; --fg:#16181D; --muted:#5E6470; --line:#DEE1E7; --accent:#1F6F6A; --accent-soft:#DCEEEC;
+  --display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif; --body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(26px,6vw,36px);font-weight:700}
+h2{font-size:22px;font-weight:700}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+.lede{display:flex;flex-direction:column;gap:12px}
+.lede p{color:var(--muted);max-width:62ch}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.fact{font-size:14px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:4px 12px;font-weight:500}
+.styles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:620px){.styles{grid-template-columns:1fr}}
+details.rule{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;min-width:0}
+details.rule summary{cursor:pointer;font-family:var(--display);font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:8px}
+details.rule summary::after{content:"ดูกฎ";font-family:var(--body);font-weight:500;font-size:13px;color:var(--accent)}
+details.rule[open] summary::after{content:"ซ่อน"}
+details.rule ol{margin:10px 0 0;padding-left:20px;font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+details.rule b{color:var(--fg);font-weight:600}
+.scene{display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--line);padding-top:24px}
+.say{font-size:15px;color:var(--muted)}
+.say q{color:var(--fg);font-weight:500;quotes:"“" "”"}
+.story{font-size:14px;color:var(--muted)}
+.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cell{display:flex;flex-direction:column;gap:6px;min-width:0}
+.tag{font-size:12px;letter-spacing:.02em;color:var(--muted);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+button.vid{all:unset;cursor:pointer;display:block;border-radius:12px;overflow:hidden;aspect-ratio:9/16;max-width:100%;background:#000;position:relative}
+button.vid:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.vid video,.ref img{width:100%;height:100%;object-fit:cover;display:block}
+.ref{border-radius:10px;overflow:hidden;aspect-ratio:9/16;max-width:100%;background:var(--line);opacity:.92}
+.reflabel{font-size:12px;color:var(--muted);margin-top:-4px}
+.note{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.note ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;color:var(--muted)}
+.box{position:fixed;inset:0;background:rgba(8,9,12,.9);display:flex;align-items:center;justify-content:center;gap:12px;z-index:20;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.box video,.box img{height:min(78vh,720px);max-width:46vw;aspect-ratio:9/16;object-fit:cover;border-radius:14px;background:#000}
+.box .cap{position:absolute;left:0;right:0;top:calc(10px + env(safe-area-inset-top,0px));text-align:center;color:#fff;font-size:14px}
+.box button{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:calc(8px + env(safe-area-inset-top,0px));font:inherit;color:#fff;background:rgba(255,255,255,.14);border:0;border-radius:999px;padding:6px 14px;cursor:pointer}
+@media (prefers-reduced-motion: reduce){button.vid video{animation:none}}
+</style>
+
+<div class="wrap">
+  <header class="lede">
+    <h1>ชุดฐานเดียว ใช้ได้ทุกสไตล์</h1>
+    <p>ทดสอบวิธี "เขียนบทครั้งเดียว แล้วให้แต่ละสไตล์วาดตามกฎของตัวเอง" บท 6 ฉากด้านล่างเขียนไว้ชุดเดียว ไม่มีสี ฟอนต์ หรือท่าขยับอยู่ในบทเลย ส่วนหน้าตาทั้งหมดมาจากกฎของแต่ละสไตล์ ชุดละ 1 ไฟล์</p>
+    <div class="facts"><span class="fact">บท 6 ฉาก</span><span class="fact">กฎ 3 ชุด</span><span class="fact">คลิป 18 คลิป</span><span class="fact">คลิปละ 5 วินาที ไม่มีเสียง</span></div>
+    <p>แตะคลิปเพื่อดูใหญ่คู่กับภาพจากคลิปของ Friend ภาพคนพูดในคลิปทดสอบเป็นคลิปตัวอย่างเดิมที่ใช้ทำภาพตัวอย่าง ส่วนแถวล่างของแต่ละฉากเป็นภาพจากคลิปของ Friend ประโยคเดียวกัน ไว้เทียบว่าหน้าตาเหมือนสไตล์นั้นไหม</p>
+  </header>
+
+  <section class="lede">
+    <h2>กฎ 3 ชุด</h2>
+    <div class="styles" id="rules"></div>
+  </section>
+
+  <div id="scenes" style="display:flex;flex-direction:column;gap:36px"></div>
+
+  <section class="note">
+    <h3>สิ่งที่ยังไม่ได้ทดสอบในรอบนี้</h3>
+    <ul>
+      <li>เสียงประกอบ (กฎของแต่ละสไตล์มีเสียงแล้ว แต่คลิปทดสอบไม่ได้ใส่)</li>
+      <li>ซับระหว่างช่วงเห็นหน้า และการเว้นจังหวะตามเสียงพูดจริง (รอบนี้จังหวะตั้งตายตัว)</li>
+      <li>ขนาดเล็กเหนือหัวและข้างหัวสำหรับแบบ overlay</li>
+      <li>สไตล์ที่ 3 ยังไม่ได้อ่าน skill ต้นฉบับ เขียนกฎจากคลิปที่ Friend ส่งมาอย่างเดียว</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+const STYLES = [
+  {id: 'card', name: 'แบบ 1 · การ์ดเต็มจอ', short: 'แบบ 1 การ์ด', ref: 1, rules: [
+    ['จัดจอ', 'ตัดเข้าการ์ดเต็มจอ ภาพอยู่กลางบน คำอยู่ล่าง'],
+    ['กรอบและพื้น', 'การ์ดขาวมุมมนมีเงา กล่องไอคอนสี่เหลี่ยมมน'],
+    ['วิธีวาดของ', 'เส้นหนา ลงสีทึบ ไม่มีแสงเรือง'],
+    ['ชุดสี', 'พื้นดำเรืองแสง ครีม ขาว สลับกัน หมึกกรมท่า สีเน้นเขียวมะนาวสีเดียว แดงเฉพาะความหมายลบ'],
+    ['ตัวหนังสือ', 'คำนำตัวเล็ก + คำใหญ่ Mitr (บนพื้นสว่างเป็นกล่องเขียวมะนาว)'],
+    ['ท่าขยับ', 'เด้งเข้าแบบมีเลยนิด ๆ และหมุนหน่อย แผงลอยขึ้น จังหวะสำคัญเด้งขยาย'],
+    ['เสียง', 'ฟิ้วตอนตัด ป๊อป และตุ้บตรงคำสำคัญ']]},
+  {id: 'glass', name: 'แบบ 2 · กระจกบนภาพเบลอ', short: 'แบบ 2 กระจก', ref: 2, rules: [
+    ['จัดจอ', 'ไม่มีการ์ด ภาพคนพูดเบลอเป็นพื้น ภาพลอยกลางล่าง คำอยู่บน ทั้งฉากเอียงช้า ๆ แบบ 3 มิติ'],
+    ['กรอบและพื้น', 'แผงกระจกฝ้าขอบบางสว่าง ไอคอนอยู่ในวงกลมกระจก'],
+    ['วิธีวาดของ', 'เส้นบางสีสว่างเรืองแสง ของทึบกลายเป็นกระจกมีขอบ'],
+    ['ชุดสี', 'พื้นมืด ตัวหนังสือและเส้นขาว สีเน้นฟ้าอ่อนเรืองแสงสีเดียว'],
+    ['ตัวหนังสือ', 'ทุกตัวอักษรพลิกขึ้นแบบ 3 มิติ คำใหญ่ติดไฟขาวแล้วกลายเป็นฟ้า'],
+    ['ท่าขยับ', 'ช้า นุ่ม โผล่ออกจากความเบลอ จังหวะสำคัญสว่างขึ้นแทนการเด้ง'],
+    ['เสียง', 'ฟิ้วตอนเบลอเข้า เสียงปัดเบา ๆ ตรงคำสำคัญ']]},
+  {id: 'split', name: 'แบบ 3 · แบ่งจอพาสเทล', short: 'แบบ 3 แบ่งจอ', ref: 3, rules: [
+    ['จัดจอ', 'แบ่งจอ หน้าต่างภาพอยู่บน คำอยู่กลาง ภาพคนพูดหดลงไปอยู่ในกรอบด้านล่าง'],
+    ['กรอบและพื้น', 'หน้าต่างแอปสีอ่อนมีจุด 3 จุดและเวลา การ์ดขาวขอบบาง'],
+    ['วิธีวาดของ', 'เส้นม่วงเข้มบาง ลงสีลาเวนเดอร์เรียบ ไม่เรือง ไม่มีเงา'],
+    ['ชุดสี', 'พื้นฟ้าเทาหมอก ลาเวนเดอร์ ม่วง ทุกหน้าต่างที่ 3 เป็นม่วงเข้ม ชมพูหม่นเฉพาะความหมายลบ'],
+    ['ตัวหนังสือ', '2 บรรทัดใต้หน้าต่าง (Anuphan) ประโยคขึ้นสีจางรอไว้ แล้วเข้มขึ้นตอนพูดถึง'],
+    ['ท่าขยับ', 'เรียบ ๆ เลื่อนขึ้นนิดหน่อยแล้วค่อย ๆ ชัด ไม่เด้ง จังหวะสำคัญขยายเบา ๆ'],
+    ['เสียง', 'แทบไม่มี ป๊อปเบา ๆ ตรงจังหวะสำคัญ']]},
+];
+const SCENES = [
+  {id: 'price-cut', name: 'ลดราคาแล้วก็ยังไม่ซื้อ', say: ['ต่อให้เราลดราคาเพิ่ม', 'ยังไม่ซื้อ'], story: 'แถบราคาเลื่อนลง แต่ตะกร้าไม่ขยับ แล้วโดนกากบาท'},
+  {id: 'not-worth', name: 'ชั่งแล้วไม่คุ้ม', say: ['บางคนกลัวว่าซื้อไปแล้ว', 'ไม่คุ้ม'], story: 'ตาชั่งวางเงินกับสินค้า แล้วเอียงลงฝั่งเงิน'},
+  {id: 'undecided', name: 'ลังเล', say: ['หรือไม่รู้ว่า', 'จะซื้อดีไหม'], story: 'สวิตช์เปิด ปิด แล้วค้างครึ่งทาง มีเครื่องหมายคำถามโผล่'},
+  {id: 'fewer-customers', name: 'ลูกค้าน้อยลง', say: ['พอเห็นลูกค้า', 'น้อยลง'], story: 'การ์ดร้านมีลูกค้า 4 คน แล้วหายไปทีละคนจนเหลือคนเดียว'},
+  {id: 'not-first', name: 'ข้อแรกไม่ใช่', say: ['สิ่งที่ควรทำอย่างแรก', 'ไม่ใช่'], story: 'เช็กลิสต์ 3 ข้อ ข้อแรก "การลดราคา" โดนกากบาท'},
+  {id: 'fix-spot', name: 'แก้ให้ถูกจุด', say: ['แล้วแก้ปัญหาให้', 'ถูกจุด'], story: 'จิ๊กซอว์ขาดชิ้นเดียว ชิ้นที่ขาดลอยมาเข้าที่พอดี แล้วขึ้นเครื่องหมายถูก'},
+];
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+
+const rules = document.getElementById('rules');
+for (const s of STYLES) {
+  const d = el('details', 'rule');
+  d.append(el('summary', '', s.name));
+  const ol = el('ol'); s.rules.forEach(([k, v]) => ol.append(el('li', '', `<b>${k}</b> ${v}`))); d.append(ol);
+  rules.append(d);
+}
+
+const host = document.getElementById('scenes');
+for (const sc of SCENES) {
+  const sec = el('section', 'scene');
+  sec.append(el('h2', '', sc.name));
+  sec.append(el('p', 'say', `ประโยค <q>${sc.say[0]} ${sc.say[1]}</q>`));
+  sec.append(el('p', 'story', `บท: ${sc.story}`));
+  const row = el('div', 'row'), refs = el('div', 'row');
+  for (const s of STYLES) {
+    const c = el('div', 'cell');
+    c.append(el('span', 'tag', s.short));
+    const b = el('button', 'vid'); b.type = 'button'; b.setAttribute('aria-label', `${sc.name} ${s.name} ดูใหญ่`);
+    const v = el('video'); Object.assign(v, {muted: true, loop: true, playsInline: true, preload: 'metadata', poster: `clips/${s.id}_${sc.id}.jpg`});
+    v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.src = `clips/${s.id}_${sc.id}.mp4`;
+    b.append(v); c.append(b); row.append(c);
+    b.addEventListener('click', () => open(sc, s));
+    const r = el('div', 'cell'); const im = el('div', 'ref'); const img = el('img'); img.alt = `คลิปที่ ${s.ref} ของ Friend ประโยคเดียวกัน`; img.loading = 'lazy'; img.src = `ref/${sc.id}_${s.ref}.jpg`;
+    im.append(img); r.append(im); r.append(el('span', 'reflabel', `คลิปที่ ${s.ref} ของ Friend`)); refs.append(r);
+  }
+  sec.append(row, refs);
+  host.append(sec);
+}
+
+/* play only the clips on screen (18 videos at once is heavy on a phone) */
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+  const v = e.target; if (e.isIntersecting) v.play().catch(() => {}); else v.pause();
+}), {threshold: .4}) : null;
+document.querySelectorAll('button.vid video').forEach(v => io ? io.observe(v) : v.play().catch(() => {}));
+
+function open(sc, s) {
+  const box = el('div', 'box'); box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', `${sc.name} ${s.name}`);
+  box.append(el('div', 'cap', `${sc.name} · ${s.name} (ซ้าย) เทียบคลิปที่ ${s.ref} ของ Friend (ขวา)`));
+  const v = el('video'); Object.assign(v, {muted: true, loop: true, playsInline: true, autoplay: true, controls: false});
+  v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.src = `clips/${s.id}_${sc.id}.mp4`;
+  const img = el('img'); img.src = `ref/${sc.id}_${s.ref}.jpg`; img.alt = `คลิปที่ ${s.ref} ของ Friend`;
+  const close = el('button', '', 'ปิด'); close.type = 'button';
+  box.append(v, img, close); document.body.append(box); v.play().catch(() => {}); close.focus();
+  const shut = () => { box.remove(); document.removeEventListener('keydown', esc); };
+  const esc = e => { if (e.key === 'Escape') shut(); };
+  close.addEventListener('click', shut); box.addEventListener('click', e => { if (e.target === box) shut(); });
+  document.addEventListener('keydown', esc);
+}
+</script>
