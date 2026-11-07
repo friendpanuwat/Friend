@@ -1,0 +1,378 @@
+{
+ "topic": "biz",
+ "camera": [
+  {
+   "move": "push",
+   "t": 1.0
+  },
+  {
+   "move": "pull",
+   "t": 6.4
+  },
+  {
+   "move": "push",
+   "t": 12.0
+  },
+  {
+   "move": "pull",
+   "t": 17.0
+  },
+  {
+   "move": "push",
+   "t": 24.0
+  },
+  {
+   "move": "pull",
+   "t": 28.0
+  },
+  {
+   "move": "push",
+   "t": 35.0
+  },
+  {
+   "move": "pull",
+   "t": 40.5
+  },
+  {
+   "move": "push",
+   "t": 49.0
+  },
+  {
+   "move": "pull",
+   "t": 53.0
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 1.0,
+   "t1": 4.2,
+   "say": "ตราบใดที่คุณยังมองว่ารายได้ของคุณ",
+   "shows": "a small coin tag labelled as extra; at income the coin shrinks",
+   "part": "custom",
+   "size": "short",
+   "hit": 3.68,
+   "need": "at 'ตราบใดที่' a coin appears; at 'มองว่า' a small side label sticks on it; at 'รายได้' the coin shrinks to a small side coin — no library part shows income being seen as small",
+   "slots": {}
+  },
+  {
+   "t0": 4.6,
+   "t1": 6.2,
+   "say": "ช่องทางนั้น",
+   "shows": "magnifier finds the income channel",
+   "part": "B06.v4",
+   "size": "short",
+   "hit": 5.12,
+   "need": "",
+   "slots": {
+    "q": "ช่องทางรายได้",
+    "icon": "search"
+   }
+  },
+  {
+   "t0": 6.6,
+   "t1": 8.4,
+   "say": "สิ่งที่คุณกำลังทำคือรายได้เสริม",
+   "shows": "what you do vs side income, side income highlighted",
+   "part": "B03.v1",
+   "size": "short",
+   "hit": 7.68,
+   "need": "",
+   "slots": {
+    "a": "สิ่งที่ทำ",
+    "b": "รายได้เสริม",
+    "ia": "briefcase",
+    "ib": "coins",
+    "win": "b"
+   }
+  },
+  {
+   "t0": 8.8,
+   "t1": 11.3,
+   "say": "เป็นรายได้เสริมต่อไปเรื่อยๆ",
+   "shows": "side income loops on and on forever",
+   "part": "B12.v4",
+   "size": "short",
+   "hit": 10.96,
+   "need": "",
+   "slots": {
+    "a": "รายได้เสริม",
+    "ia": "coins",
+    "b": "ต่อไป",
+    "ib": "repeat",
+    "c": "เรื่อยๆ",
+    "ic": "infinity"
+   }
+  },
+  {
+   "t0": 11.7,
+   "t1": 13.3,
+   "say": "มันจะไม่มีทางเป็น Main income",
+   "shows": "Main income crossed out",
+   "part": "B05.v1",
+   "size": "short",
+   "hit": 12.48,
+   "need": "",
+   "slots": {
+    "x": "Main income",
+    "y": "รายได้เสริม",
+    "aty": 12.9
+   }
+  },
+  {
+   "t0": 13.7,
+   "t1": 16.0,
+   "say": "มีแต่คนพูดว่าอยากหารายได้เสริม อยากหา side hustle",
+   "shows": "people's speech bubbles asking for side income, the side hustle bubble pops",
+   "part": "custom",
+   "size": "narrow",
+   "hit": 15.64,
+   "need": "at 'คนพูดว่า' two speech bubbles appear; at 'รายได้เสริม' a coin pops in the first bubble; at 'hustle' the second bubble grows with a briefcase — no quote part with several voices",
+   "slots": {}
+  },
+  {
+   "t0": 16.4,
+   "t1": 17.5,
+   "say": "WTF the mean hustle",
+   "shows": "big question mark over hustle",
+   "part": "B06.v1",
+   "size": "short",
+   "hit": 17.07,
+   "need": "",
+   "slots": {
+    "q": "hustle คืออะไร",
+    "icon": "message-circle-question"
+   }
+  },
+  {
+   "t0": 17.9,
+   "t1": 19.5,
+   "say": "รายได้หลัก active income",
+   "shows": "main income leads to active income",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 18.96,
+   "need": "",
+   "slots": {
+    "a": "รายได้หลัก",
+    "ia": "briefcase",
+    "b": "active",
+    "ib": "zap"
+   }
+  },
+  {
+   "t0": 19.9,
+   "t1": 22.1,
+   "say": "ถ้าอยากให้มันมาเป็น active income",
+   "shows": "empty wallet fills with coins",
+   "part": "custom",
+   "size": "short",
+   "hit": 21.68,
+   "need": "at 'ถ้าอยากให้' an empty wallet appears; at 'มันมา' coins drop toward it; at 'active income' the wallet fills and glows — a wallet that fills with active income",
+   "slots": {}
+  },
+  {
+   "t0": 22.5,
+   "t1": 25.0,
+   "say": "ต้องมองมันเป็น business",
+   "shows": "a stall turns into a shop with sign",
+   "part": "custom",
+   "size": "narrow",
+   "hit": 24.48,
+   "need": "at 'ต้อง' a small stall appears; at 'มองมัน' it grows; at 'business' a shop sign flips on and the shop lights up — a stall becoming a business",
+   "slots": {}
+  },
+  {
+   "t0": 25.4,
+   "t1": 27.0,
+   "say": "กล้าเทคความเสี่ยง",
+   "shows": "warning sign pops",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 25.92,
+   "need": "",
+   "slots": {
+    "text": "ความเสี่ยง",
+    "icon": "triangle-alert"
+   }
+  },
+  {
+   "t0": 28.4,
+   "t1": 30.5,
+   "say": "side hustle ไม่มีความเสี่ยง",
+   "shows": "risk bars fall to zero",
+   "part": "B02.v1",
+   "size": "short",
+   "hit": 30.16,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "shield-check"
+   }
+  },
+  {
+   "t0": 30.9,
+   "t1": 32.8,
+   "say": "ไม่มีคำว่าเจ๊ง ไม่มีคำว่าขาดทุน",
+   "shows": "red loss chart crossed out",
+   "part": "custom",
+   "size": "short",
+   "hit": 31.92,
+   "need": "at 'เจ๊ง' a red broken shop sign appears; at 'ขาดทุน' a falling red chart appears; at 'ขาดทุน' a big cross stamps over both — no part that cancels two losses",
+   "slots": {}
+  },
+  {
+   "t0": 33.2,
+   "t1": 34.8,
+   "say": "เอาเวลาของยูไปใช้แล้ว",
+   "shows": "hourglass flips, time spent",
+   "part": "B09.v4",
+   "size": "short",
+   "hit": 34.08,
+   "need": "",
+   "slots": {
+    "when": "เวลาของยู",
+    "icon": "hourglass"
+   }
+  },
+  {
+   "t0": 35.2,
+   "t1": 37.0,
+   "say": "คิดในมุมของ mindset",
+   "shows": "lightbulb in the head turns on",
+   "part": "B13.v1",
+   "size": "short",
+   "hit": 36.24,
+   "need": "",
+   "slots": {
+    "tip": "mindset",
+    "icon": "brain"
+   }
+  },
+  {
+   "t0": 37.5,
+   "t1": 40.3,
+   "say": "minimize ความเสี่ยงให้มากที่สุด",
+   "shows": "risk bars shrink to the smallest",
+   "part": "custom",
+   "size": "narrow",
+   "hit": 39.92,
+   "need": "at 'minimize' three tall red risk bars appear; at 'ความเสี่ยง' they start to shrink; at 'ที่สุดเลย' they drop to a tiny sliver and a green check appears — risk reduced to minimum",
+   "slots": {}
+  },
+  {
+   "t0": 40.7,
+   "t1": 43.3,
+   "say": "แค่เป็นรายได้เสริม",
+   "shows": "big check for side income",
+   "part": "B08.v4",
+   "size": "short",
+   "hit": 42.96,
+   "need": "",
+   "slots": {
+    "goal": "รายได้เสริม",
+    "icon": "coins"
+   }
+  },
+  {
+   "t0": 43.8,
+   "t1": 45.6,
+   "say": "ตอนที่ผมทำคอนเทนต์",
+   "shows": "the content creator highlighted",
+   "part": "B10.v1",
+   "size": "narrow",
+   "hit": 45.04,
+   "need": "",
+   "slots": {
+    "who": "คนทำคอนเทนต์"
+   }
+  },
+  {
+   "t0": 46.1,
+   "t1": 48.6,
+   "say": "ทำเป็นรายได้เสริม งานประจำของผม",
+   "shows": "day job slides to side income",
+   "part": "B03.v4",
+   "size": "short",
+   "hit": 47.78,
+   "need": "",
+   "slots": {
+    "a": "งานประจำ",
+    "b": "รายได้เสริม",
+    "ia": "briefcase",
+    "ib": "coins",
+    "win": "b"
+   }
+  },
+  {
+   "t0": 49.0,
+   "t1": 51.0,
+   "say": "Mindset ผมไม่เหมือนกับอย่างนี้เลย",
+   "shows": "old mindset crossed, new mindset right",
+   "part": "B05.v2",
+   "size": "short",
+   "hit": 50.0,
+   "need": "",
+   "slots": {
+    "x": "Mindset เดิม",
+    "y": "Mindset ใหม่",
+    "aty": 50.24
+   }
+  },
+  {
+   "t0": 51.4,
+   "t1": 52.9,
+   "say": "มีหลายอย่างที่เปลี่ยนไปมากๆ",
+   "shows": "big arrow up, much changed",
+   "part": "B02.v3",
+   "size": "short",
+   "hit": 52.4,
+   "need": "",
+   "slots": {
+    "dir": "up",
+    "icon": "trending-up"
+   }
+  },
+  {
+   "t0": 53.3,
+   "t1": 56.3,
+   "say": "อินฟลูเอนเซอร์บางคนเค้าก็พูดว่า",
+   "shows": "chat message from an influencer",
+   "part": "B11.v1",
+   "size": "narrow",
+   "hit": 55.84,
+   "need": "",
+   "slots": {
+    "text": "เป็นช่องทางหารายได้เสริม",
+    "who": "อินฟลู"
+   }
+  },
+  {
+   "t0": 56.7,
+   "t1": 58.3,
+   "say": "ช่องทางหารายได้เสริมที่ดี",
+   "shows": "arrow hits the center of the target",
+   "part": "B08.v1",
+   "size": "short",
+   "hit": 57.6,
+   "need": "",
+   "slots": {
+    "goal": "รายได้เสริมที่ดี",
+    "icon": "target"
+   }
+  },
+  {
+   "t0": 58.7,
+   "t1": 60.58,
+   "say": "คิดว่ามันเป็นรายได้เสริม",
+   "shows": "key opens the padlock of side income",
+   "part": "B13.v3",
+   "size": "short",
+   "hit": 60.28,
+   "need": "",
+   "slots": {
+    "tip": "รายได้เสริม",
+    "icon": "key"
+   }
+  }
+ ]
+}
