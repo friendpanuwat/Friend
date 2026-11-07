@@ -6,9 +6,15 @@ The planner reads a clip's caption lines and writes, for the lines that deserve 
 recipe; the good ones become scenes every style can draw.
 
 usage:
-  recipe_ai.py ask   <captions.json> <duration_s> <ask_dir>        write system.txt + user.txt (the request)
-  recipe_ai.py check <ask_dir> <answer.json> <out_dir> <prefix>     check the answer → out_dir/recipes.js, report.json,
-                                                                    scenes.txt (ids for render_test.sh, with @index)
+  recipe_ai.py ask   <captions.json> <duration_s> <ask_dir> [2]      write system.txt + user.txt (the request); 2 = prompt v2
+  recipe_ai.py check <ask_dir> <answer.json> <out_dir> <prefix> [<fix_answer.json>]
+        check the answer (+ the fix round's answer, whose pictures replace the same lines) → out_dir/recipes.js,
+        report.json, scenes.txt (ids for render_test.sh, with @index)
+  recipe_ai.py fix   <ask_dir> <out_dir>                               after check: the fix-round request for the
+        pictures that failed (fix_system.txt + fix_user.txt), or "nothing to fix"
+Prompt v2 = step 1 (Friend 2026-11-07): the AI first writes what the viewer sees ("shows"), varies the frames, makes at
+most 2 icon swaps per clip, never uses harsh icons, copies the words exactly, and reuses the library only for the same
+meaning. The fix round is the product's: one more call for the failed pictures (Haiku 5.5), then plain text cards.
 """
 import json, os, re, sys
 
@@ -38,6 +44,28 @@ LIBRARY = [  # id, what it shows — the recipes of scenes/lego.js
     ('lego.bell-on', 'a bell and a switch that turns on (turn on notifications)'),
     ('lego.right-people', 'four people, one is focused and lights up (the right people)'),
     ('lego.on-target', 'an arrow hits the bullseye (on target)'),
+]
+
+HARSH = {'skull', 'bomb', 'sword', 'swords', 'axe', 'biohazard', 'radiation', 'ghost', 'syringe', 'cigarette', 'wine', 'beer', 'flame'}
+CORE_ICONS_V2 = '\n'.join(' '.join(w for w in l.split(' ') if w not in HARSH) for l in CORE_ICONS.splitlines())
+LIBRARY_V2 = [  # id, what it says (and what it is NOT for)
+    ('not-worth.lego', 'a balance tips to the money side: paying more than you get, not worth it. Not for: worth it, good value'),
+    ('undecided.lego', 'a pointer goes between yes and no and stops in the middle: undecided, hesitating'),
+    ('fewer-customers.lego', 'people leave a shop one by one: fewer customers, it gets quiet. Not for: growth'),
+    ('not-first.lego', 'the first line of a checklist is crossed: the first thing to do is NOT this'),
+    ('fix-spot.lego', 'the broken gear among three is found and repaired: find the real problem and fix it'),
+    ('price-cut.lego', 'the price drops but the cart is crossed: a lower price still does not sell'),
+    ('lego.views-sales', 'views crossed, sales ticked: what matters is not X but Y'),
+    ('lego.value-price', 'price bar short, value bar long, value ticked: value matters more than price'),
+    ('lego.money-gone', 'coins leave the wallet until none, a warning: money runs out, a loss. Not for: no loss, saving, earning'),
+    ('lego.viewers-drop', 'a bar chart going down: viewers (or anything) drop'),
+    ('lego.followers-up', 'a bar chart going up: followers (or anything) grow'),
+    ('lego.three-steps', 'three steps with arrows, the last lights up: a simple sequence that ends in the goal'),
+    ('lego.happy', 'a frown turns into a smile: someone becomes happy, satisfied'),
+    ('lego.sales-jump', 'a bar grows from short to long, tick: a result jumps up'),
+    ('lego.bell-on', 'a switch turns a bell on: turn on notifications, a call to act'),
+    ('lego.right-people', 'one of four people is picked and lights up: the right people, the target customer'),
+    ('lego.on-target', 'an arrow hits the bullseye: exactly right, on target'),
 ]
 
 SYSTEM = """You plan the pictures of a Thai talking-head short. Every picture is a LEGO RECIPE: a story frame + the things in it + what happens. Code turns each recipe into a moving graphic in the customer's style, so you write NO code and choose NO colours, fonts or motion.
@@ -88,13 +116,53 @@ Only JSON, no other text:
 """
 
 
-def ask(captions, duration, out):
+V2_EDITS = [   # (text of v1, text of v2) — step 1, from what round four showed
+    ('For each picture write the words on screen, taken from that line:',
+     'For each picture first write "shows": one short English sentence of what the viewer will see and why it says the same as the line, '
+     'with the same yes or no, good or bad. Then write the recipe that draws exactly that.\nThen write the words on screen, taken from that line:'),
+    ('- Pick the frame by what the line does:',
+     '- Vary the pictures: use at least 4 different frames in a clip, the same frame kind (layout + as) at most 3 times. "change" + "swap" '
+     '(one icon turns into another) is the weakest picture: at most 2 in a clip, only for a real before → after. Prefer frames with a small '
+     'story in steps (cards, scale, measure, count, steps, aim).\n'
+     '- "keep": 0 (everything leaves) only when the line says all of it is gone; otherwise keep 1.\n'
+     '- Pick the frame by what the line does:'),
+    ('- Every word on screen (lead, key, labels) comes from that line, spelled as said (spaces may differ). Labels at most 12 letters. Numbers only if said.',
+     '- Every word on screen (lead, key, labels) is COPIED from that line (or the next one when the sentence runs on): you may leave words out '
+     'at the start or the end, but never reorder, rephrase, shorten or add a word. Spaces may differ. Count every letter, spaces and Latin '
+     'letters included: key and labels at most 12, lead at most 22. Numbers only if said.\n'
+     '- Never use these icons (harsh or off-brand): ' + ', '.join(sorted(HARSH)) + '. For harm or danger use triangle-alert, shield-alert, '
+     'heart-crack, battery-low or thumbs-down.'),
+    ('# Library (reuse with {{"use": id}} when it fits exactly; you may still write new words)',
+     '# Library (reuse with {{"use": id}} only when it says the SAME thing as the line, with the same yes or no: "there is no loss" is NOT '
+     '"money runs out"; you may still write new words)'),
+    ('{{"pictures":[{{"line":7,"lead"', '{{"pictures":[{{"line":7,"shows":"…","lead"'),
+    ('{{"line":12,"lead"', '{{"line":12,"shows":"…","lead"'),
+]
+FIX = '''
+
+# Fix round
+The pictures below broke the rules. Write them again — only these, in the same JSON form ({"pictures":[…]}), each on the same line.
+You may change the frame. All the rules above still hold.
+'''
+
+
+def system_v2():
+    t = SYSTEM
+    for a, b in V2_EDITS:
+        assert a in t, a[:50]
+        t = t.replace(a, b)
+    return t
+
+
+def ask(captions, duration, out, v=1):
     caps = json.load(open(captions))
     caps = caps['captions'] if isinstance(caps, dict) else caps
     os.makedirs(out, exist_ok=True)
     n = max(3, round(duration / 5)); nmax = round(duration / 4)
-    lib = '\n'.join(f'- {i}: {d}' for i, d in LIBRARY)
-    open(os.path.join(out, 'system.txt'), 'w').write(SYSTEM.format(n=n, nmax=nmax, library=lib, icons=CORE_ICONS))
+    lib = '\n'.join(f'- {i}: {d}' for i, d in (LIBRARY_V2 if v == 2 else LIBRARY))
+    text = (system_v2() if v == 2 else SYSTEM).format(n=n, nmax=nmax, library=lib, icons=CORE_ICONS_V2 if v == 2 else CORE_ICONS)
+    open(os.path.join(out, 'system.txt'), 'w').write(text)
+    json.dump({'v': v, 'n': n, 'nmax': nmax}, open(os.path.join(out, 'ask.json'), 'w'))
     lines = [f'{k + 1}. [{c["t0"]:.1f}-{c["t1"]:.1f}] {re.sub(r"\s+", " ", c["text"].replace(" / ", " ")).strip()}' for k, c in enumerate(caps)]
     open(os.path.join(out, 'user.txt'), 'w').write(f'Clip: {duration:.1f} seconds, {len(caps)} caption lines.\n\n' + '\n'.join(lines) + '\n')
     json.dump({'lines': [l.split('] ', 1)[1] for l in lines], 'duration': duration}, open(os.path.join(out, 'lines.json'), 'w'), ensure_ascii=False)
@@ -164,14 +232,39 @@ def problems(r, line):
     return bad
 
 
-def check(ask_dir, answer, out, prefix):
+def icons_in(r):
+    out = []
+    def walk(x, k=None):
+        if isinstance(x, dict):
+            for kk, v in x.items():
+                if kk == 'icon' and isinstance(v, str): out.append(v)
+                else: walk(v, kk)
+        elif isinstance(x, list):
+            for v in x:
+                if k == 'items' and isinstance(v, str): out.append(v)
+                else: walk(v, k)
+    walk(r)
+    return out
+
+
+def read_pictures(path):
+    raw = open(path).read()
+    return json.loads(re.search(r'\{.*\}', raw, re.S).group(0))['pictures']
+
+
+def check(ask_dir, answer, out, prefix, fix_answer=None):
     lines = json.load(open(os.path.join(ask_dir, 'lines.json')))['lines']
+    v = json.load(open(os.path.join(ask_dir, 'ask.json'))).get('v', 1) if os.path.exists(os.path.join(ask_dir, 'ask.json')) else 1
     lib = {i for i, _ in LIBRARY}
-    raw = open(answer).read()
-    m = re.search(r'\{.*\}', raw, re.S)
-    pics = json.loads(m.group(0))['pictures']
+    pics = read_pictures(answer)
+    fixed = set()
+    if fix_answer:                                                     # the fix round's pictures replace the same lines
+        by_line = {p.get('line'): p for p in read_pictures(fix_answer)}
+        fixed = set(by_line)
+        pics = [by_line.get(p.get('line'), p) for p in pics]
     os.makedirs(out, exist_ok=True)
     js, report, ids, used = [], [], [], set()
+    swaps, kinds = 0, {}
     for k, p in enumerate(pics):
         n = p.get('line'); line = lines[n - 1] if isinstance(n, int) and 0 < n <= len(lines) else ''
         near = ' '.join(lines[max(0, n - 2):n + 1]) if line else ''       # a sentence often runs over the next caption line
@@ -183,34 +276,61 @@ def check(ask_dir, answer, out, prefix):
             if w and glen(w) > most: bad.append(f'{where} "{w}" longer than {most}')
             if w and line and flat(w) not in flat(near): bad.append(f'{where} "{w}" not said here')
         if not key: bad.append('no key word')
+        rec = p.get('recipe') or {}
         if 'use' in p:
             if p['use'] not in lib: bad.append(f'unknown library recipe {p["use"]}')
             kind = 'library'
         else:
-            bad += problems(p.get('recipe') or {}, near); kind = 'new'
+            bad += problems(rec, near); kind = 'new'
+        if v == 2:                                                     # step-1 rules
+            harsh = sorted(set(icons_in(rec)) & HARSH)
+            if harsh: bad.append(f'harsh icon {", ".join(harsh)}')
+            fk = (rec.get('layout'), rec.get('as')) if kind == 'new' else None
+            if fk == ('change', 'swap'):
+                swaps += 1
+                if swaps > 2: bad.append('more than 2 icon swaps in this clip: tell it with another frame')
+            if fk:
+                kinds[fk] = kinds.get(fk, 0) + 1
+                if kinds[fk] > 3 and fk != ('change', 'swap'): bad.append(f'frame {fk[0]}/{fk[1]} used more than 3 times: use another frame')
         sid = f'{prefix}.{k + 1:02d}'
-        report.append({'id': sid, 'line': n, 'text': line, 'near': near, 'lead': lead, 'key': key, 'meaning': p.get('meaning'), 'kind': kind,
-                       'use': p.get('use'), 'recipe': p.get('recipe'), 'ok': not bad, 'problems': bad})
+        report.append({'id': sid, 'line': n, 'text': line, 'near': near, 'lead': lead, 'key': key, 'meaning': p.get('meaning'),
+                       'shows': p.get('shows'), 'kind': kind, 'use': p.get('use'), 'recipe': p.get('recipe'), 'ok': not bad,
+                       'problems': bad, 'fixed': n in fixed, 'picture': p})
         if bad: continue
         if kind == 'library':
             js.append(f"RECIPE({json.dumps(sid)}, Object.assign({{}}, SCENES[{json.dumps(p['use'])}].meta.lego, "
                       f"{{say: {json.dumps([lead, key], ensure_ascii=False)}, recipe: {json.dumps(p.get('meaning') or '', ensure_ascii=False)}}}));")
         else:
-            r = dict(p['recipe'], say=[lead, key], meaning=p.get('meaning') or '', name=p.get('meaning') or '', recipe=p.get('meaning') or '')
+            r = dict(rec, say=[lead, key], meaning=p.get('meaning') or '', name=p.get('meaning') or '', recipe=p.get('meaning') or '')
             js.append(f'RECIPE({json.dumps(sid)}, {json.dumps(r, ensure_ascii=False)});')
         ids.append(f'{sid}@{len(ids) % 6}')
     open(os.path.join(out, 'recipes.js'), 'w').write('/* recipes written by the AI for one clip (recipe_ai.py check) */\n' + '\n'.join(js) + '\n')
     json.dump(report, open(os.path.join(out, 'report.json'), 'w'), ensure_ascii=False, indent=1)
     open(os.path.join(out, 'scenes.txt'), 'w').write(' '.join(ids) + '\n')
     ok = sum(r['ok'] for r in report)
-    print(f'{prefix}: {len(report)} pictures, {ok} pass, {sum(r["kind"] == "library" and r["ok"] for r in report)} from the library')
+    print(f'{prefix}: {len(report)} pictures, {ok} pass, {sum(r["kind"] == "library" and r["ok"] for r in report)} from the library'
+          + (f', {len(fixed)} from the fix round' if fix_answer else ''))
     for r in report:
         if not r['ok']: print('  ', r['id'], r['problems'])
+
+
+def fix(ask_dir, out):
+    """the fix-round request: the same system prompt + the failed pictures with what is wrong"""
+    report = json.load(open(os.path.join(out, 'report.json')))
+    failed = [r for r in report if not r['ok']]
+    if not failed:
+        print('nothing to fix'); return
+    open(os.path.join(out, 'fix_system.txt'), 'w').write(open(os.path.join(ask_dir, 'system.txt')).read() + FIX)
+    body = open(os.path.join(ask_dir, 'user.txt')).read() + '\n# Pictures to write again\n' + '\n'.join(
+        json.dumps({'line': r['line'], 'your_answer': r['picture'], 'what_is_wrong': r['problems']}, ensure_ascii=False) for r in failed) + '\n'
+    open(os.path.join(out, 'fix_user.txt'), 'w').write(body)
+    print(f'fix round: {len(failed)} pictures')
 
 
 if __name__ == '__main__':
     a = sys.argv[1:]
     if not a: sys.exit(__doc__)
-    if a[0] == 'ask': ask(a[1], float(a[2]), a[3])
-    elif a[0] == 'check': check(a[1], a[2], a[3], a[4])
+    if a[0] == 'ask': ask(a[1], float(a[2]), a[3], int(a[4]) if len(a) > 4 else 1)
+    elif a[0] == 'check': check(a[1], a[2], a[3], a[4], a[5] if len(a) > 5 else None)
+    elif a[0] == 'fix': fix(a[1], a[2])
     else: sys.exit(__doc__)
