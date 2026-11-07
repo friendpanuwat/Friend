@@ -97,7 +97,8 @@ def repair(plan, cat=None, faces=None, history=None, render=True, rounds=4):
                 s = p['scenes'][i['scene']]
                 # a scene whose own shape is wrong (times not numbers…) cannot become a B14 either: drop it
                 # nor one with no room at its time: a B14 there would cover the face just the same (Friend 2026-11-05: left out)
-                (drop_scene if last or s.get('fallback') or i['code'] in ('shape', 'place-nofit') else swap_scene).add(i['scene'])
+                no_words = p.get('widgetWords') is False and s.get('kind') == 'widget'   # Friend 2026-11-07: no text widgets
+                (drop_scene if last or no_words or s.get('fallback') or i['code'] in ('shape', 'place-nofit') else swap_scene).add(i['scene'])
             elif 'sub' in i:
                 sub = p['subtitles'][i['sub']]
                 if last or sub.get('_fixed'): drop_sub.add(i['sub']); continue

@@ -2,7 +2,8 @@ You write the code of the key scenes of a Thai talking-head short: the sentences
 
 # The two kinds of scene
 - **card** (style editorial): body of `(c, T) => { … }`. `c` is a full-screen card stage, 1080×1920 px, its background already drawn (`T.bg` is `glow` dark, `white` or `cream`). Draw the visual between y 160 and y 1250, x 90–990, and make it big: the main piece 500–800 px wide, centred. The lead line and the big key word under the visual (y 1350+) are added by code from the scene's `lead` / `key`: do not write them. Anything below y 860 must end left of x 940 (the app's buttons).
-- **widget** (style overlay): body of `(box, W, H, T) => { … }`. `box` is a white rounded card of W×H px (short: 600×190, above the head; narrow: 210×380, beside the head) that code pops in at `T.t0` and out at `T.t1`. Draw everything inside 0…W × 0…H, its few words included (≤ 3 words, from the words said). Fill the card: no large empty areas, pieces at least 40 px tall, 16–24 px from the edges. The background is white: use NAVY, INK, ACC (and RED only for a negative meaning).
+- **widget** (style overlay): body of `(box, W, H, T) => { … }`. `box` is an empty, see-through area of W×H px: the free room next to the speaker's face at this moment (each scene gets its own size; the request gives it). Code pops it in at `T.t0` and out at `T.t1`. Design for that room: one white card made with `panel(box, …)`, two or three cards, or icon tiles floating with no card — whatever shows the sentence best. Stay inside 0…W × 0…H and use most of it (a small widget in a big room looks lost; leave 10–20 px for shadows).
+  **No words from the speech**: the subtitles under the chin already say them. At most two small screen labels (≤ 2 words, 26–34 px), only as part of the drawn screen (a title on a card, a label on a button), never a word the speaker says in this scene. Cards are white: draw on them with NAVY, INK, ACC (RED only for a negative meaning).
 - `T` = `{t0, t1, hit}` in seconds (cards also `T.bg`).
 
 # Beats
@@ -43,6 +44,6 @@ Plain JavaScript: `const`, `let`, `for (let i = 0; i < n; i++)`, `if`, arrow fun
 
 # Content rules
 - Show what the sentence says; the hit is the moment it lands. A tick means yes or good, a red ✗ means wrong or no: never tick something the speaker is warning against.
-- Words on screen come from the transcript, short (≤ 14 letters per label); numbers only if the speaker said them.
+- Cards: words on screen come from the transcript, short (≤ 14 letters per label); numbers only if the speaker said them. Widgets: no spoken words (above).
 - Flat, clean, the house style: white rounded cards with soft shadows, navy icon tiles, grey skeleton lines, one accent colour, thick strokes. No photos, no logos, no people's faces, no glass, no emoji.
 - Keep it under about 70 lines.
