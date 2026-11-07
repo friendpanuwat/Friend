@@ -1,0 +1,608 @@
+[
+ {
+  "id": "c2_114123.01",
+  "line": 3,
+  "text": "แต่ คือ คน ที่ คิด ว่า ยิ่ง อด ได้ เยอะ",
+  "near": "ไม่ ใช่ คน ล้ม หนัก ไม่ สำเร็จ นะ ครับ แต่ คือ คน ที่ คิด ว่า ยิ่ง อด ได้ เยอะ ยิ่ง เก่ง คือ สี่ ร้อย แค ล่ว ต่อ วัน",
+  "lead": "คิดว่ายิ่งอด",
+  "key": "ได้เยอะ",
+  "meaning": "fast more",
+  "shows": "A long bar for fasting a lot beats a short bar for eating, matching the belief that more fasting is better.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "measure",
+   "a": {
+    "icon": "utensils-crossed",
+    "tone": "main",
+    "v": 0.9
+   },
+   "b": {
+    "icon": "utensils",
+    "tone": "soft",
+    "v": 0.3
+   },
+   "win": "a"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 3,
+   "shows": "A long bar for fasting a lot beats a short bar for eating, matching the belief that more fasting is better.",
+   "lead": "คิดว่ายิ่งอด",
+   "key": "ได้เยอะ",
+   "meaning": "fast more",
+   "recipe": {
+    "layout": "versus",
+    "as": "measure",
+    "a": {
+     "icon": "utensils-crossed",
+     "tone": "main",
+     "v": 0.9
+    },
+    "b": {
+     "icon": "utensils",
+     "tone": "soft",
+     "v": 0.3
+    },
+    "win": "a"
+   }
+  }
+ },
+ {
+  "id": "c2_114123.02",
+  "line": 6,
+  "text": "แผน ล้ม หนัก ครับ",
+  "near": "สำหรับ คน ส่วนใหญ่ เนี่ย มัน จะ ไม่ ใช่ แผน ล้ม หนัก ครับ มัน จะ เป็น แผนที่ ทำให้ ร่างกาย อยู่ หมด ออก",
+  "lead": "แผน",
+  "key": "ล้มหนัก",
+  "meaning": "plan collapses hard",
+  "shows": "A bar chart falls and a red warning appears, the plan crashes hard.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "bars",
+   "dir": "down",
+   "center": {
+    "icon": "chart-column"
+   },
+   "keep": 1,
+   "end": {
+    "icon": "triangle-alert",
+    "tone": "neg"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": true,
+  "picture": {
+   "line": 6,
+   "shows": "A bar chart falls and a red warning appears, the plan crashes hard.",
+   "lead": "แผน",
+   "key": "ล้มหนัก",
+   "meaning": "plan collapses hard",
+   "recipe": {
+    "layout": "count",
+    "as": "bars",
+    "dir": "down",
+    "center": {
+     "icon": "chart-column"
+    },
+    "keep": 1,
+    "end": {
+     "icon": "triangle-alert",
+     "tone": "neg"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_114123.03",
+  "line": 8,
+  "text": "ตลอด นะ ครับ ซึ่ง น้ำหนัก ที่ มัน หาย ไป แน่นอน ว่า มัน ไม่ ใช่ แค่ ไขมัน",
+  "near": "มัน จะ เป็น แผนที่ ทำให้ ร่างกาย อยู่ หมด ออก ตลอด นะ ครับ ซึ่ง น้ำหนัก ที่ มัน หาย ไป แน่นอน ว่า มัน ไม่ ใช่ แค่ ไขมัน อาจจะ เป็น ทั้ง กล้ามเนื้อ พลังงาน ฮอร์โมน",
+  "lead": "น้ำหนักที่มันหายไป",
+  "key": "ไขมัน",
+  "meaning": "loses more than fat",
+  "shows": "A person card loses items one by one until one is left, more than fat is lost.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "row",
+   "dir": "down",
+   "center": {
+    "icon": "weight"
+   },
+   "item": {
+    "icon": "droplet",
+    "tone": "main"
+   },
+   "n": 3,
+   "keep": 1
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 8,
+   "shows": "A person card loses items one by one until one is left, more than fat is lost.",
+   "lead": "น้ำหนักที่มันหายไป",
+   "key": "ไขมัน",
+   "meaning": "loses more than fat",
+   "recipe": {
+    "layout": "count",
+    "as": "row",
+    "dir": "down",
+    "center": {
+     "icon": "weight"
+    },
+    "item": {
+     "icon": "droplet",
+     "tone": "main"
+    },
+    "n": 3,
+    "keep": 1
+   }
+  }
+ },
+ {
+  "id": "c2_114123.04",
+  "line": 11,
+  "text": "เริ่ม ไม่ มี แรง หิวจัด นอน ไม่ค่อย ได้ อารมณ์",
+  "near": "สุขภาพจิต แล้วก็ ความสัมพันธ์ กับ อาหาร บางคน เนี่ย จะ เริ่ม ไม่ มี แรง หิวจัด นอน ไม่ค่อย ได้ อารมณ์ เหวี่ยง เอิ่ม หลุด กิน เยอะ หรือ บางที ก็",
+  "lead": "เริ่มไม่มี",
+  "key": "แรง",
+  "meaning": "no energy",
+  "shows": "An energy battery drains to almost empty.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "meter",
+   "icon": "battery-low",
+   "v0": 0.8,
+   "v1": 0.1
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 11,
+   "shows": "An energy battery drains to almost empty.",
+   "lead": "เริ่มไม่มี",
+   "key": "แรง",
+   "meaning": "no energy",
+   "recipe": {
+    "layout": "change",
+    "as": "meter",
+    "icon": "battery-low",
+    "v0": 0.8,
+    "v1": 0.1
+   }
+  }
+ },
+ {
+  "id": "c2_114123.05",
+  "line": 15,
+  "text": "เกิด จาก การ กิน น้อย อย่าง เดียว นะ ครับ",
+  "near": "บอก นะ ว่า เคส ที่ กำลัง ไวรัล อยู่ เนี่ย เกิด จาก การ กิน น้อย อย่าง เดียว นะ ครับ เพราะว่า เรื่อง สุขภาพ เนี่ย มัน มี หลาย ปัจจัย",
+  "lead": "เกิดจากการ",
+  "key": "กินน้อย",
+  "meaning": "not only eating less",
+  "shows": "Eating less alone is crossed out as the only cause.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "cards",
+   "a": {
+    "icon": "utensils-crossed",
+    "label": "กินน้อย",
+    "tone": "neg"
+   },
+   "b": {
+    "icon": "puzzle",
+    "tone": "soft"
+   },
+   "win": "b",
+   "how": "cross"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 15,
+   "shows": "Eating less alone is crossed out as the only cause.",
+   "lead": "เกิดจากการ",
+   "key": "กินน้อย",
+   "meaning": "not only eating less",
+   "recipe": {
+    "layout": "versus",
+    "as": "cards",
+    "a": {
+     "icon": "utensils-crossed",
+     "label": "กินน้อย",
+     "tone": "neg"
+    },
+    "b": {
+     "icon": "puzzle",
+     "tone": "soft"
+    },
+    "win": "b",
+    "how": "cross"
+   }
+  }
+ },
+ {
+  "id": "c2_114123.06",
+  "line": 16,
+  "text": "เพราะว่า เรื่อง สุขภาพ เนี่ย มัน มี หลาย ปัจจัย",
+  "near": "เกิด จาก การ กิน น้อย อย่าง เดียว นะ ครับ เพราะว่า เรื่อง สุขภาพ เนี่ย มัน มี หลาย ปัจจัย แต่ สิ่ง ที่ ผม อยาก ให้ ทุกคน เลย รู้จัก เรื่อง นี้ ก็ คือ",
+  "lead": "สุขภาพเนี่ยมันมี",
+  "key": "หลายปัจจัย",
+  "meaning": "many factors",
+  "shows": "Health in the center with several factors arriving around it.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "ring",
+   "dir": "up",
+   "center": {
+    "icon": "heart-pulse"
+   },
+   "item": {
+    "icon": "puzzle",
+    "tone": "main"
+   },
+   "n": 4,
+   "keep": 0
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 16,
+   "shows": "Health in the center with several factors arriving around it.",
+   "lead": "สุขภาพเนี่ยมันมี",
+   "key": "หลายปัจจัย",
+   "meaning": "many factors",
+   "recipe": {
+    "layout": "count",
+    "as": "ring",
+    "dir": "up",
+    "center": {
+     "icon": "heart-pulse"
+    },
+    "item": {
+     "icon": "puzzle",
+     "tone": "main"
+    },
+    "n": 4,
+    "keep": 0
+   }
+  }
+ },
+ {
+  "id": "c2_114123.07",
+  "line": 18,
+  "text": "อย่า โร แมน ตี ไซส์ การ อดอาหาร",
+  "near": "แต่ สิ่ง ที่ ผม อยาก ให้ ทุกคน เลย รู้จัก เรื่อง นี้ ก็ คือ อย่า โร แมน ตี ไซส์ การ อดอาหาร อย่า มอง ว่าการ ทรมาน ตัวเอง เนี่ย คือ วินัย",
+  "lead": "อย่าโรแมนตีไซส์การ",
+  "key": "อดอาหาร",
+  "meaning": "don't glorify fasting",
+  "shows": "The fasting card is crossed out, do not romanticize it.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "cards",
+   "a": {
+    "icon": "utensils-crossed",
+    "label": "อดอาหาร",
+    "tone": "neg"
+   },
+   "b": {
+    "icon": "heart",
+    "tone": "acc"
+   },
+   "win": "b",
+   "how": "cross"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 18,
+   "shows": "The fasting card is crossed out, do not romanticize it.",
+   "lead": "อย่าโรแมนตีไซส์การ",
+   "key": "อดอาหาร",
+   "meaning": "don't glorify fasting",
+   "recipe": {
+    "layout": "versus",
+    "as": "cards",
+    "a": {
+     "icon": "utensils-crossed",
+     "label": "อดอาหาร",
+     "tone": "neg"
+    },
+    "b": {
+     "icon": "heart",
+     "tone": "acc"
+    },
+    "win": "b",
+    "how": "cross"
+   }
+  }
+ },
+ {
+  "id": "c2_114123.08",
+  "line": 19,
+  "text": "อย่า มอง ว่าการ ทรมาน ตัวเอง เนี่ย คือ วินัย",
+  "near": "อย่า โร แมน ตี ไซส์ การ อดอาหาร อย่า มอง ว่าการ ทรมาน ตัวเอง เนี่ย คือ วินัย การลดน้ำหนัก ที่ ดี อะ ครับ",
+  "lead": "อย่ามองว่าการ",
+  "key": "ทรมาน",
+  "meaning": "torture is not discipline",
+  "shows": "Among the options the self-torture icon is picked out as the wrong one.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "pick",
+   "items": [
+    "heart-crack",
+    "medal",
+    "dumbbell"
+   ],
+   "at": 0,
+   "bad": true,
+   "round": false,
+   "how": "cross"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 19,
+   "shows": "Among the options the self-torture icon is picked out as the wrong one.",
+   "lead": "อย่ามองว่าการ",
+   "key": "ทรมาน",
+   "meaning": "torture is not discipline",
+   "recipe": {
+    "layout": "aim",
+    "as": "pick",
+    "items": [
+     "heart-crack",
+     "medal",
+     "dumbbell"
+    ],
+    "at": 0,
+    "bad": true,
+    "round": false,
+    "how": "cross"
+   }
+  }
+ },
+ {
+  "id": "c2_114123.09",
+  "line": 23,
+  "text": "ที่ ทำให้ คุณ รู้สึก ว่า คุณ แข็งแรง",
+  "near": "ทำโทษ เลย ลงโทษ ตัวเอง บางคน จะ เป็นการ ที่ ทำให้ คุณ รู้สึก ว่า คุณ แข็งแรง ขึ้น นะ ครับ ใช้ชีวิต ได้ดี ขึ้นอยู่กับ",
+  "lead": "ทำให้คุณรู้สึกว่าคุณ",
+  "key": "แข็งแรง",
+  "meaning": "feel strong",
+  "shows": "A frown turns into a smile, you feel strong.",
+  "kind": "library",
+  "use": "lego.happy",
+  "recipe": null,
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 23,
+   "shows": "A frown turns into a smile, you feel strong.",
+   "lead": "ทำให้คุณรู้สึกว่าคุณ",
+   "key": "แข็งแรง",
+   "meaning": "feel strong",
+   "use": "lego.happy"
+  }
+ },
+ {
+  "id": "c2_114123.10",
+  "line": 26,
+  "text": "ผม บอก เลย ว่า ไม่ คุ้ม นะ ครับ",
+  "near": "ร่างกาย ตัวเอง ได้ นาน ขึ้น พร้อม เร็ว เนี่ย ผม บอก เลย ว่า ไม่ คุ้ม นะ ครับ ถ้า มัน ต้อง แลก กับ ร่างกาย ที่ มัน พัง",
+  "lead": "ผมบอกเลยว่า",
+  "key": "ไม่คุ้ม",
+  "meaning": "not worth it",
+  "shows": "A balance tips to the money side, not worth it.",
+  "kind": "library",
+  "use": "not-worth.lego",
+  "recipe": null,
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 26,
+   "shows": "A balance tips to the money side, not worth it.",
+   "lead": "ผมบอกเลยว่า",
+   "key": "ไม่คุ้ม",
+   "meaning": "not worth it",
+   "use": "not-worth.lego"
+  }
+ },
+ {
+  "id": "c2_114123.11",
+  "line": 29,
+  "text": "เรา กิน น้อยที่สุด คือ การ กิน ให้ พอ ดีแล้ว",
+  "near": "เป้าหมาย ของ การ ฟิตเนส เนี่ย ไม่ ใช่ การ ที่ เรา กิน น้อยที่สุด คือ การ กิน ให้ พอ ดีแล้ว คุณ ทำต่อ ได้ โดยที่ คุณ ไม่ เกลียด",
+  "lead": "คือการกินให้",
+  "key": "พอดี",
+  "meaning": "eat just enough",
+  "shows": "An arrow hits the bullseye, eating enough is exactly right.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "target"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 29,
+   "shows": "An arrow hits the bullseye, eating enough is exactly right.",
+   "lead": "คือการกินให้",
+   "key": "พอดี",
+   "meaning": "eat just enough",
+   "recipe": {
+    "layout": "aim",
+    "as": "target"
+   }
+  }
+ },
+ {
+  "id": "c2_114123.12",
+  "line": 30,
+  "text": "คุณ ทำต่อ ได้ โดยที่ คุณ ไม่ เกลียด",
+  "near": "เรา กิน น้อยที่สุด คือ การ กิน ให้ พอ ดีแล้ว คุณ ทำต่อ ได้ โดยที่ คุณ ไม่ เกลียด อาหาร แล้วก็ เกลียด ตัวเอง ถ้า คุณ กำลัง ลดน้ำหนัก",
+  "lead": "คุณทำต่อ",
+  "key": "ได้",
+  "meaning": "keep going",
+  "shows": "A switch turns on and is ticked, you can keep going.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "toggle",
+   "icon": "heart",
+   "on": true,
+   "then": {
+    "how": "check"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 30,
+   "shows": "A switch turns on and is ticked, you can keep going.",
+   "lead": "คุณทำต่อ",
+   "key": "ได้",
+   "meaning": "keep going",
+   "recipe": {
+    "layout": "change",
+    "as": "toggle",
+    "icon": "heart",
+    "on": true,
+    "then": {
+     "how": "check"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_114123.13",
+  "line": 33,
+  "text": "ว่า การ ล้น หนัก คือ การ ดูแลตัวเอง",
+  "near": "อยู่ นะ ผม อยาก ให้ คุณ จำ คำ นี้ ไว้ เลย นะ ว่า การ ล้น หนัก คือ การ ดูแลตัวเอง ไม่ ใช่ การ ทำลาย ตัวเอง ครับ",
+  "lead": "การล้นหนักคือการ",
+  "key": "ดูแลตัวเอง",
+  "meaning": "care for yourself",
+  "shows": "Caring for yourself wins and is ticked against harming yourself.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "cards",
+   "a": {
+    "icon": "heart-handshake",
+    "label": "ดูแลตัวเอง",
+    "tone": "acc"
+   },
+   "b": {
+    "icon": "heart-crack",
+    "tone": "neg"
+   },
+   "win": "a",
+   "how": "both"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 33,
+   "shows": "Caring for yourself wins and is ticked against harming yourself.",
+   "lead": "การล้นหนักคือการ",
+   "key": "ดูแลตัวเอง",
+   "meaning": "care for yourself",
+   "recipe": {
+    "layout": "versus",
+    "as": "cards",
+    "a": {
+     "icon": "heart-handshake",
+     "label": "ดูแลตัวเอง",
+     "tone": "acc"
+    },
+    "b": {
+     "icon": "heart-crack",
+     "tone": "neg"
+    },
+    "win": "a",
+    "how": "both"
+   }
+  }
+ },
+ {
+  "id": "c2_114123.14",
+  "line": 36,
+  "text": "คอมเมนต์ ว่า เคย นะ ครับผม",
+  "near": "เคย ผ่าน การ อดอาหาร แบบ สุดโต่ง นะ ครับ คอมเมนต์ ว่า เคย นะ ครับผม",
+  "lead": "คอมเมนต์ว่า",
+  "key": "เคย",
+  "meaning": "comment if you did",
+  "shows": "Focus lands on the comment icon among three, asking who has been through it.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "pick",
+   "items": [
+    "message-circle",
+    "heart",
+    "thumbs-up"
+   ],
+   "at": 0,
+   "bad": false,
+   "round": false,
+   "how": "pick"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 36,
+   "shows": "Focus lands on the comment icon among three, asking who has been through it.",
+   "lead": "คอมเมนต์ว่า",
+   "key": "เคย",
+   "meaning": "comment if you did",
+   "recipe": {
+    "layout": "aim",
+    "as": "pick",
+    "items": [
+     "message-circle",
+     "heart",
+     "thumbs-up"
+    ],
+    "at": 0,
+    "bad": false,
+    "round": false,
+    "how": "pick"
+   }
+  }
+ }
+]

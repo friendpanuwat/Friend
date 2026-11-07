@@ -84,7 +84,7 @@ LAYOUT('count', {name: 'มากขึ้น / น้อยลง'}, (K, r, T) 
   let items = [], endAt = [640, 100], parent = K.stage, centerNode = null;
   if (r.as === 'bars') {
     const P = K.panel(130, 30, 740, 560, T.b[0]);
-    K.badge(P.p, r.center.icon, 80, 78, 92, T.b[0] + .15, {tone: 'main'}); K.skel(P.p, 150, 64, [260], T.b[0] + .2);
+    K.badge(P.p, r.center?.icon ?? 'chart-column', 80, 78, 92, T.b[0] + .15, {tone: 'main'}); K.skel(P.p, 150, 64, [260], T.b[0] + .2);   // the chart's subject (optional)
     K.bars(P.p, 70, 170, 600, 330, up ? [.22, .45, .7, .95] : [.95, .72, .48, .22], T.b[1] - .1, {step: (T.hit - T.b[1]) / 3.4, acc: up ? -1 : -1});
     K.badge(P.p, up ? 'trending-up' : 'trending-down', up ? 130 : 640, 210, 100, T.hit, {tone: 'acc'});
     return;

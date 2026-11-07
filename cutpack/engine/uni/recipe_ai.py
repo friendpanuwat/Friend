@@ -200,7 +200,7 @@ def problems(r, line):
     elif L == 'count':
         if r.get('dir', 'down') not in ('down', 'up'): bad.append('count: dir must be down or up')
         if a != 'bars': thing(r.get('item'), 'item')
-        thing(r.get('center'), 'center')
+        if a != 'bars' or r.get('center') is not None: thing(r.get('center'), 'center')     # a chart needs no owner
         n, keep = r.get('n', 4), r.get('keep', 1)
         if not (isinstance(n, int) and 2 <= n <= 4): bad.append('count: n must be 2-4')
         if r.get('dir', 'down') == 'down' and not (isinstance(keep, int) and 0 <= keep < n): bad.append('count: keep must be 0..n-1')

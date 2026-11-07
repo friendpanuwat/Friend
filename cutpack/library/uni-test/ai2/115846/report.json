@@ -1,0 +1,642 @@
+[
+ {
+  "id": "c2_115846.01",
+  "line": 3,
+  "text": "ที่ ยัง ไม่ เหมาะสม กับ ตัวเอง มาก ที่สุด",
+  "near": "ยังมี บาง คนใช้ วิธี เรียน ภาษาอังกฤษ ที่ ยัง ไม่ เหมาะสม กับ ตัวเอง มาก ที่สุด เพราะ วันนี้ เรา จะ ไม่ แนะนำ วิธี หนึ่ง ที่ เรียก ว่า",
+  "lead": "ที่ ยัง",
+  "key": "ไม่ เหมาะสม",
+  "meaning": "method not suitable",
+  "shows": "A focus closes in on one study method and crosses it out as the wrong fit.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "pick",
+   "items": [
+    "book",
+    "languages",
+    "message-circle",
+    "brain"
+   ],
+   "at": 1,
+   "bad": false,
+   "round": false,
+   "how": "cross"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 3,
+   "shows": "A focus closes in on one study method and crosses it out as the wrong fit.",
+   "lead": "ที่ ยัง",
+   "key": "ไม่ เหมาะสม",
+   "meaning": "method not suitable",
+   "recipe": {
+    "layout": "aim",
+    "as": "pick",
+    "items": [
+     "book",
+     "languages",
+     "message-circle",
+     "brain"
+    ],
+    "at": 1,
+    "bad": false,
+    "round": false,
+    "how": "cross"
+   }
+  }
+ },
+ {
+  "id": "c2_115846.02",
+  "line": 7,
+  "text": "เกือบ เข้าใจ แล้ว อีก เดียว จะ เข้าใจ",
+  "near": "พูด ง่าย มัน คือ การ หา อะไร ที่ เรา เกือบ เข้าใจ แล้ว อีก เดียว จะ เข้าใจ แล้ว เรา ก็ อยู่ กับ มัน ฟัง ซ้ำ ไป เรื่อย",
+  "lead": "เกือบ",
+  "key": "เข้าใจ",
+  "meaning": "almost understand",
+  "shows": "A brain meter climbs almost to full but not quite, almost understanding.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "meter",
+   "icon": "brain",
+   "v0": 0.2,
+   "v1": 0.9
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 7,
+   "shows": "A brain meter climbs almost to full but not quite, almost understanding.",
+   "lead": "เกือบ",
+   "key": "เข้าใจ",
+   "meaning": "almost understand",
+   "recipe": {
+    "layout": "change",
+    "as": "meter",
+    "icon": "brain",
+    "v0": 0.2,
+    "v1": 0.9
+   }
+  }
+ },
+ {
+  "id": "c2_115846.03",
+  "line": 8,
+  "text": "แล้ว เรา ก็ อยู่ กับ มัน ฟัง ซ้ำ ไป เรื่อย",
+  "near": "เกือบ เข้าใจ แล้ว อีก เดียว จะ เข้าใจ แล้ว เรา ก็ อยู่ กับ มัน ฟัง ซ้ำ ไป เรื่อย เรื่อย แต่ เติม อะไร ใหม่ เข้ามา",
+  "lead": "ฟัง",
+  "key": "ซ้ำ ไป",
+  "meaning": "listen on repeat",
+  "shows": "Headphones turn into a repeat loop, listening again and again.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "headphones",
+    "tone": "main"
+   },
+   "to": {
+    "icon": "repeat",
+    "tone": "neg"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 8,
+   "shows": "Headphones turn into a repeat loop, listening again and again.",
+   "lead": "ฟัง",
+   "key": "ซ้ำ ไป",
+   "meaning": "listen on repeat",
+   "recipe": {
+    "layout": "change",
+    "as": "swap",
+    "from": {
+     "icon": "headphones",
+     "tone": "main"
+    },
+    "to": {
+     "icon": "repeat",
+     "tone": "neg"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_115846.04",
+  "line": 9,
+  "text": "เรื่อย แต่ เติม อะไร ใหม่ เข้ามา",
+  "near": "แล้ว เรา ก็ อยู่ กับ มัน ฟัง ซ้ำ ไป เรื่อย เรื่อย แต่ เติม อะไร ใหม่ เข้ามา พูด ง่าย ง่าย มัน คือ การเรียน สิ่งใหม่",
+  "lead": "เติม อะไร",
+  "key": "ใหม่",
+  "meaning": "add something new",
+  "shows": "New things arrive one by one around the learner's brain.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "row",
+   "dir": "up",
+   "center": {
+    "icon": "brain"
+   },
+   "item": {
+    "icon": "sparkles",
+    "tone": "acc"
+   },
+   "n": 3,
+   "keep": 1
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 9,
+   "shows": "New things arrive one by one around the learner's brain.",
+   "lead": "เติม อะไร",
+   "key": "ใหม่",
+   "meaning": "add something new",
+   "recipe": {
+    "layout": "count",
+    "as": "row",
+    "dir": "up",
+    "center": {
+     "icon": "brain"
+    },
+    "item": {
+     "icon": "sparkles",
+     "tone": "acc"
+    },
+    "n": 3,
+    "keep": 1
+   }
+  }
+ },
+ {
+  "id": "c2_115846.05",
+  "line": 13,
+  "text": "เรา จะ ไม่ ใช้ ประโยค อังกฤษ ด้วย เรา จะ ใช้ ประโยค ไทย แล้วก็",
+  "near": "ใหม่ เผื่อ บางคน ไม่ รู้ คำ ว่า Consic เรา จะ ไม่ ใช้ ประโยค อังกฤษ ด้วย เรา จะ ใช้ ประโยค ไทย แล้วก็ ใช้ คำ ว่า conskence เข้าไป เหมือน เวลา คนพูด",
+  "lead": "เรา จะ",
+  "key": "ไม่ ใช้",
+  "meaning": "not English, use Thai",
+  "shows": "Two cards: the English sentence is crossed, the Thai sentence is ticked.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "cards",
+   "a": {
+    "icon": "languages",
+    "label": "อังกฤษ",
+    "tone": "soft"
+   },
+   "b": {
+    "icon": "message-circle",
+    "label": "ไทย",
+    "tone": "acc"
+   },
+   "win": "b",
+   "how": "both"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 13,
+   "shows": "Two cards: the English sentence is crossed, the Thai sentence is ticked.",
+   "lead": "เรา จะ",
+   "key": "ไม่ ใช้",
+   "meaning": "not English, use Thai",
+   "recipe": {
+    "layout": "versus",
+    "as": "cards",
+    "a": {
+     "icon": "languages",
+     "label": "อังกฤษ",
+     "tone": "soft"
+    },
+    "b": {
+     "icon": "message-circle",
+     "label": "ไทย",
+     "tone": "acc"
+    },
+    "win": "b",
+    "how": "both"
+   }
+  }
+ },
+ {
+  "id": "c2_115846.06",
+  "line": 15,
+  "text": "อังกฤษ คำ ไทย คำ เรา ก็ จะ ไม่ เฉลย",
+  "near": "ใช้ คำ ว่า conskence เข้าไป เหมือน เวลา คนพูด อังกฤษ คำ ไทย คำ เรา ก็ จะ ไม่ เฉลย ความหมาย ด้วย เพราะว่า จุดประสงค์ ของ การเรียน แบบ",
+  "lead": "เรา ก็ จะ",
+  "key": "ไม่ เฉลย",
+  "meaning": "do not reveal",
+  "shows": "A light switches off: the meaning is not revealed.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "toggle",
+   "icon": "lightbulb",
+   "on": false
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 15,
+   "shows": "A light switches off: the meaning is not revealed.",
+   "lead": "เรา ก็ จะ",
+   "key": "ไม่ เฉลย",
+   "meaning": "do not reveal",
+   "recipe": {
+    "layout": "change",
+    "as": "toggle",
+    "icon": "lightbulb",
+    "on": false
+   }
+  }
+ },
+ {
+  "id": "c2_115846.07",
+  "line": 18,
+  "text": "มัน จาก บริบท เอง งั้น มา รอง ประโยค แรก เลย",
+  "near": "Conprensible inpood คือ เรา เรียนรู้ ความหมาย ของ มัน จาก บริบท เอง งั้น มา รอง ประโยค แรก เลย เขา โกหก ครั้ง เดียว แต่ ต้อง โกหก",
+  "lead": "จาก",
+  "key": "บริบท เอง",
+  "meaning": "from context",
+  "shows": "An arrow hits the bullseye: the meaning is learned from the context itself.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "target"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 18,
+   "shows": "An arrow hits the bullseye: the meaning is learned from the context itself.",
+   "lead": "จาก",
+   "key": "บริบท เอง",
+   "meaning": "from context",
+   "recipe": {
+    "layout": "aim",
+    "as": "target"
+   }
+  }
+ },
+ {
+  "id": "c2_115846.08",
+  "line": 19,
+  "text": "เขา โกหก ครั้ง เดียว แต่ ต้อง โกหก",
+  "near": "มัน จาก บริบท เอง งั้น มา รอง ประโยค แรก เลย เขา โกหก ครั้ง เดียว แต่ ต้อง โกหก ไป อีก สิบ รอบ เพราะ คอน ซิ ควน",
+  "lead": "โกหก ครั้ง เดียว แต่",
+  "key": "ต้อง โกหก",
+  "meaning": "must keep lying",
+  "shows": "Lies pile up around a person, one after another, ending in a warning.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "ring",
+   "dir": "up",
+   "center": {
+    "icon": "user"
+   },
+   "item": {
+    "icon": "message-circle-warning",
+    "tone": "neg"
+   },
+   "n": 4,
+   "keep": 1,
+   "end": {
+    "icon": "triangle-alert",
+    "tone": "neg"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 19,
+   "shows": "Lies pile up around a person, one after another, ending in a warning.",
+   "lead": "โกหก ครั้ง เดียว แต่",
+   "key": "ต้อง โกหก",
+   "meaning": "must keep lying",
+   "recipe": {
+    "layout": "count",
+    "as": "ring",
+    "dir": "up",
+    "center": {
+     "icon": "user"
+    },
+    "item": {
+     "icon": "message-circle-warning",
+     "tone": "neg"
+    },
+    "n": 4,
+    "keep": 1,
+    "end": {
+     "icon": "triangle-alert",
+     "tone": "neg"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_115846.09",
+  "line": 21,
+  "text": "ของ การ โกหก คือ มัน ไม่ มี วัน จบ",
+  "near": "ไป อีก สิบ รอบ เพราะ คอน ซิ ควน ของ การ โกหก คือ มัน ไม่ มี วัน จบ ประโยค ที่สอง ประเทศ ที่ ไม่",
+  "lead": "มัน ไม่ มี วัน",
+  "key": "จบ",
+  "meaning": "never ends",
+  "shows": "An infinity bar keeps growing and never ends.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "meter",
+   "icon": "infinity",
+   "v0": 0.3,
+   "v1": 1
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 21,
+   "shows": "An infinity bar keeps growing and never ends.",
+   "lead": "มัน ไม่ มี วัน",
+   "key": "จบ",
+   "meaning": "never ends",
+   "recipe": {
+    "layout": "change",
+    "as": "meter",
+    "icon": "infinity",
+    "v0": 0.3,
+    "v1": 1
+   }
+  }
+ },
+ {
+  "id": "c2_115846.10",
+  "line": 23,
+  "text": "ลงทุน กับ การศึกษา consicance จะ เห็นได้ชัด",
+  "near": "ประโยค ที่สอง ประเทศ ที่ ไม่ ลงทุน กับ การศึกษา consicance จะ เห็นได้ชัด ใน อีก ยี่สิบ ปี ข้างหน้า",
+  "lead": "ลงทุน กับ",
+  "key": "การศึกษา",
+  "meaning": "no education investment",
+  "shows": "An education meter shrinks and a falling trend is crossed: no investment, bad result.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "meter",
+   "icon": "graduation-cap",
+   "v0": 0.7,
+   "v1": 0.2,
+   "then": {
+    "icon": "trending-down",
+    "how": "cross"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 23,
+   "shows": "An education meter shrinks and a falling trend is crossed: no investment, bad result.",
+   "lead": "ลงทุน กับ",
+   "key": "การศึกษา",
+   "meaning": "no education investment",
+   "recipe": {
+    "layout": "change",
+    "as": "meter",
+    "icon": "graduation-cap",
+    "v0": 0.7,
+    "v1": 0.2,
+    "then": {
+     "icon": "trending-down",
+     "how": "cross"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_115846.11",
+  "line": 25,
+  "text": "ประโยค ที่สาม ทิ้ง ขยะ ลง แม่น้ำ น้ำเน่า",
+  "near": "ใน อีก ยี่สิบ ปี ข้างหน้า ประโยค ที่สาม ทิ้ง ขยะ ลง แม่น้ำ น้ำเน่า ปลา ตาย คนใน ชุมชน เดือดร้อน Conskence ของ",
+  "lead": "ทิ้ง ขยะ ลง แม่น้ำ",
+  "key": "น้ำเน่า",
+  "meaning": "dump trash, water rots",
+  "shows": "Trash goes into the river, the water turns bad, and it is crossed as wrong.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "steps",
+   "as": "row",
+   "items": [
+    {
+     "icon": "trash-2"
+    },
+    {
+     "icon": "droplets"
+    },
+    {
+     "icon": "fish"
+    }
+   ],
+   "mark": {
+    "at": 1,
+    "how": "cross"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 25,
+   "shows": "Trash goes into the river, the water turns bad, and it is crossed as wrong.",
+   "lead": "ทิ้ง ขยะ ลง แม่น้ำ",
+   "key": "น้ำเน่า",
+   "meaning": "dump trash, water rots",
+   "recipe": {
+    "layout": "steps",
+    "as": "row",
+    "items": [
+     {
+      "icon": "trash-2"
+     },
+     {
+      "icon": "droplets"
+     },
+     {
+      "icon": "fish"
+     }
+    ],
+    "mark": {
+     "at": 1,
+     "how": "cross"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_115846.12",
+  "line": 27,
+  "text": "การ ไม่ แคร์ สิ่งแวดล้อม ไม่ ได้ กระทบ คน แค่ คนเดียว",
+  "near": "ปลา ตาย คนใน ชุมชน เดือดร้อน Conskence ของ การ ไม่ แคร์ สิ่งแวดล้อม ไม่ ได้ กระทบ คน แค่ คนเดียว ประโยค ที่สี่ บริษัท นี้ ไม่ เคย ฟัง เสียง ของ พนักงาน",
+  "lead": "ไม่ ได้ กระทบ คน",
+  "key": "แค่ คนเดียว",
+  "meaning": "affects many people",
+  "shows": "Many people appear around the environment, all affected, not just one.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "ring",
+   "dir": "up",
+   "center": {
+    "icon": "leaf"
+   },
+   "item": {
+    "icon": "users",
+    "tone": "main"
+   },
+   "n": 4,
+   "keep": 1
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 27,
+   "shows": "Many people appear around the environment, all affected, not just one.",
+   "lead": "ไม่ ได้ กระทบ คน",
+   "key": "แค่ คนเดียว",
+   "meaning": "affects many people",
+   "recipe": {
+    "layout": "count",
+    "as": "ring",
+    "dir": "up",
+    "center": {
+     "icon": "leaf"
+    },
+    "item": {
+     "icon": "users",
+     "tone": "main"
+    },
+    "n": 4,
+    "keep": 1
+   }
+  }
+ },
+ {
+  "id": "c2_115846.13",
+  "line": 28,
+  "text": "ประโยค ที่สี่ บริษัท นี้ ไม่ เคย ฟัง เสียง ของ พนักงาน",
+  "near": "การ ไม่ แคร์ สิ่งแวดล้อม ไม่ ได้ กระทบ คน แค่ คนเดียว ประโยค ที่สี่ บริษัท นี้ ไม่ เคย ฟัง เสียง ของ พนักงาน เลย consiquence คือ คนเก่ง ทยอย กัน ลาออก หมด เลย",
+  "lead": "บริษัท นี้",
+  "key": "ไม่ เคย ฟัง",
+  "meaning": "never listens",
+  "shows": "An ear switches off: the company never listens.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "toggle",
+   "icon": "ear",
+   "on": false
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 28,
+   "shows": "An ear switches off: the company never listens.",
+   "lead": "บริษัท นี้",
+   "key": "ไม่ เคย ฟัง",
+   "meaning": "never listens",
+   "recipe": {
+    "layout": "change",
+    "as": "toggle",
+    "icon": "ear",
+    "on": false
+   }
+  }
+ },
+ {
+  "id": "c2_115846.14",
+  "line": 29,
+  "text": "เลย consiquence คือ คนเก่ง ทยอย กัน ลาออก หมด เลย",
+  "near": "ประโยค ที่สี่ บริษัท นี้ ไม่ เคย ฟัง เสียง ของ พนักงาน เลย consiquence คือ คนเก่ง ทยอย กัน ลาออก หมด เลย ถ้า ดู แล้ว ว่า consicnce ไป ว่า อะไร ก็ อย่า",
+  "lead": "คนเก่ง ทยอย กัน",
+  "key": "ลาออก",
+  "meaning": "talent all quit",
+  "shows": "Employees leave the company one by one until none remain.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "row",
+   "dir": "down",
+   "center": {
+    "icon": "building"
+   },
+   "item": {
+    "icon": "user",
+    "tone": "main"
+   },
+   "n": 4,
+   "keep": 0,
+   "end": {
+    "icon": "triangle-alert",
+    "tone": "neg"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 29,
+   "shows": "Employees leave the company one by one until none remain.",
+   "lead": "คนเก่ง ทยอย กัน",
+   "key": "ลาออก",
+   "meaning": "talent all quit",
+   "recipe": {
+    "layout": "count",
+    "as": "row",
+    "dir": "down",
+    "center": {
+     "icon": "building"
+    },
+    "item": {
+     "icon": "user",
+     "tone": "main"
+    },
+    "n": 4,
+    "keep": 0,
+    "end": {
+     "icon": "triangle-alert",
+     "tone": "neg"
+    }
+   }
+  }
+ }
+]

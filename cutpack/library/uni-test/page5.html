@@ -1,0 +1,135 @@
+<title>สูตรเลโก้ รอบปรับคำสั่ง</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* layout: summary first, then one section per test clip; each picture = the line said + the AI's choice + the clip it became */
+:root{
+  --bg:#F3F4F6; --card:#FFFFFF; --fg:#16181D; --muted:#5E6470; --line:#DEE1E7; --accent:#1F6F6A; --accent-soft:#DCEEEC; --bad:#A1352B; --bad-soft:#F8E3E0;
+  --display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif; --body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --bad:#F09487; --bad-soft:#3A1E1A; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --bad:#F09487; --bad-soft:#3A1E1A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(26px,6vw,36px);font-weight:700}
+h2{font-size:22px;font-weight:700}
+p{margin:0}
+.lede{display:flex;flex-direction:column;gap:12px}
+.lede p{color:var(--muted);max-width:62ch}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.stat b{font-family:var(--display);font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--muted)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.box ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--muted)}
+.box b{color:var(--fg);font-weight:600}
+.clip{display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--line);padding-top:22px}
+.clip > p{color:var(--muted);font-size:14px}
+.pic{display:grid;grid-template-columns:minmax(0,120px) minmax(0,1fr);gap:12px;align-items:start}
+.pic .meta{display:flex;flex-direction:column;gap:4px;min-width:0;font-size:14px}
+.pic .said{color:var(--muted)}
+.pic .said em{font-style:normal;color:var(--fg)}
+.pic .words{font-weight:600}
+.pic .how{font-size:13px;color:var(--accent)}
+.pic .no{font-size:13px;color:var(--bad);background:var(--bad-soft);border-radius:8px;padding:2px 8px;align-self:start}
+button.vid{all:unset;cursor:pointer;display:block;border-radius:10px;overflow:hidden;aspect-ratio:9/16;max-width:100%;background:#000}
+button.vid:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.vid video{width:100%;height:100%;object-fit:cover;display:block}
+.empty{aspect-ratio:9/16;border-radius:10px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;text-align:center;padding:8px}
+.lb{position:fixed;inset:0;background:rgba(8,9,12,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:20;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.lb video{height:min(76vh,720px);max-width:90vw;aspect-ratio:9/16;object-fit:cover;border-radius:12px;background:#000}
+.lb .cap{color:#fff;font-size:14px;text-align:center;max-width:520px}
+.lb button{font:inherit;color:#fff;background:rgba(255,255,255,.14);border:0;border-radius:999px;padding:6px 16px;cursor:pointer}
+.cmp{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.cmp th,.cmp td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.cmp th{font-weight:600;color:var(--muted);font-size:13px}
+.cmp td.n{white-space:nowrap}
+.cmp td.up{color:var(--accent);font-weight:600}
+.tag{font-size:12px;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:1px 8px;align-self:start}
+.tblwrap{overflow-x:auto}
+</style>
+
+<div class="wrap">
+  <header class="lede">
+    <h1>สูตรเลโก้ หลังปรับคำสั่ง</h1>
+    <p>ขั้นที่ 1 ตามที่ Friend ตกลง: แก้คำสั่งให้ AI เลือกภาพดีขึ้น แล้วลองกับ 4 คลิปเดิม ใช้ Sonnet 5.5 เขียนสูตร และ Haiku 5.5 ทำรอบแก้ แบบเดียวกับระบบจริง (ผ่านผู้ช่วยย่อย เพราะแชทนี้ไม่มีคีย์ API)</p>
+    <p>รอบก่อนหน้าดูได้ที่หน้า "AI เขียนสูตรเลโก้"</p>
+  </header>
+  <section class="box">
+    <h2>ก่อน → หลัง ปรับคำสั่ง</h2>
+    <div class="tblwrap"><table class="cmp">
+      <thead><tr><th>เรื่อง</th><th>รอบก่อน</th><th>รอบนี้</th></tr></thead>
+      <tbody>
+        <tr><td>ผ่านตัวตรวจตั้งแต่รอบแรก</td><td class="n">53 / 61 (87%)</td><td class="n up">52 / 55 (95%)</td></tr>
+        <tr><td>ผ่านหลังรอบแก้</td><td class="n">ยังไม่มีรอบแก้</td><td class="n up">55 / 55</td></tr>
+        <tr><td>ภาพแบบสลับไอคอน (บางที่สุด)</td><td class="n">19</td><td class="n up">3</td></tr>
+        <tr><td>แบบย่อยของโครงเรื่องที่ใช้ (มี 14)</td><td class="n">11</td><td class="n up">13 (+1 ผ่านสูตรในคลัง = ครบ 14)</td></tr>
+        <tr><td>ไอคอนแรงเกินเรื่อง เช่น หัวกะโหลก</td><td class="n">3</td><td class="n up">0</td></tr>
+        <tr><td>ใช้สูตรในคลังแล้วไม่เข้าเรื่อง</td><td class="n">2 จาก 4</td><td class="n">1 จาก 3</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+  <section class="box">
+    <h2>แก้อะไรไปบ้าง</h2>
+    <ul>
+      <li>ให้ AI เขียนก่อนว่าคนดูจะเห็นอะไร และทำไมถึงตรงกับประโยค แล้วค่อยเขียนสูตร</li>
+      <li>บังคับให้ใช้หลายโครงเรื่องในคลิปเดียว ภาพแบบสลับไอคอนได้ไม่เกิน 2 ภาพ (ตัวตรวจคุมด้วย)</li>
+      <li>ห้ามไอคอนที่แรงเกินเรื่อง (หัวกะโหลก ระเบิด อาวุธ บุหรี่ เหล้า ฯลฯ) และบอกไอคอนที่ใช้แทนได้</li>
+      <li>คำบนจอต้องคัดจากที่พูดตรง ๆ ห้ามเรียงใหม่หรือย่อเอง</li>
+      <li>สูตรในคลังมีคำอธิบายว่าใช้กับความหมายไหน และห้ามใช้กับความหมายไหน</li>
+      <li>เพิ่มรอบแก้ 1 รอบให้ภาพที่ไม่ผ่าน (ทั้ง 3 ภาพแก้ผ่านในรอบเดียว)</li>
+    </ul>
+  </section>
+  <section class="box">
+    <h2>ยังต้องแก้ต่อ</h2>
+    <ul>
+      <li><b>สูตรในคลังยังถูกใช้ไม่เข้าเรื่อง 1 ครั้ง</b> AI ใช้สูตร "ถ่าย ตัด โพสต์" กับประโยคเรื่องรายได้ เพราะสูตรในคลังล็อกไอคอนไว้ ควรให้ AI เปลี่ยนไอคอนในสูตรคลังได้ หรือเลิกมีคลังแล้วเขียนสูตรใหม่ทุกครั้ง</li>
+      <li><b>3 ภาพที่ไม่ผ่านรอบแรกเป็นความผิดของคำสั่งผม</b> คือกราฟแท่งที่ไม่ได้ใส่ไอคอนหัวกราฟ คำสั่งทำให้เข้าใจว่าไม่ต้องใส่ ตอนนี้แก้โค้ดให้ไม่ต้องใส่ได้แล้ว</li>
+      <li>ตัวตรวจยังจับความหมายผิดไม่ได้ ต้องดูด้วยตาต่อไป</li>
+    </ul>
+  </section>
+  <div id="clips" style="display:flex;flex-direction:column;gap:32px"></div>
+</div>
+<script>
+const DATA = [{"clip": "115213", "name": "รายได้เสริม", "dur": 60.6, "rows": [{"id": "c2_115213.01", "line": 5, "text": "มันจะ ไม่มีทาง เป็น Main income", "lead": "มันจะ ไม่มีทาง เป็น", "key": "Main income", "how": "ก่อน → หลัง · แถบวัด", "ok": true, "fixed": false}, {"id": "c2_115213.02", "line": 9, "text": "อ่ะผม รู้สึกว่า ถ้าอยากให้ มันมา เป็น active income", "lead": "ถ้าอยากให้ มันมา เป็น", "key": "active", "how": "ใช้สูตรในคลัง (ถ่าย ตัด โพสต์)", "ok": true, "fixed": false}, {"id": "c2_115213.03", "line": 10, "text": "นะคือยู ต้อง มองมัน เป็น", "lead": "ต้อง มองมัน เป็น", "key": "business", "how": "A เทียบ B · การ์ด", "ok": true, "fixed": false}, {"id": "c2_115213.04", "line": 12, "text": "ความเสี่ยง กับมัน เว้ยคำว่า รายได้เสริม", "lead": "", "key": "ความเสี่ยง", "how": "หาให้เจอ · เล็งเลือก", "ok": true, "fixed": false}, {"id": "c2_115213.05", "line": 13, "text": "หรือว่า side hustle โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง", "lead": "ไม่มี", "key": "ความเสี่ยง", "how": "ก่อน → หลัง · สวิตช์", "ok": true, "fixed": false}, {"id": "c2_115213.06", "line": 16, "text": "เอ่อ minimize minimize ความเสี่ยง ให้มาก ที่สุดเลย", "lead": "minimize minimize", "key": "ความเสี่ยง", "how": "มากขึ้น / น้อยลง · กราฟแท่ง", "ok": true, "fixed": true}, {"id": "c2_115213.07", "line": 19, "text": "แล้วผมก็ ทำเป็น รายได้เสริม งานประจำ ของผม ไปใช่ป่ะ", "lead": "ทำเป็น", "key": "รายได้เสริม", "how": "ขั้นตอน · แถว", "ok": true, "fixed": false}, {"id": "c2_115213.08", "line": 20, "text": "Mindset ผมมัน ไม่ เหมือนกับ อย่างนี้เลย", "lead": "", "key": "Mindset", "how": "ก่อน → หลัง · สลับไอคอน", "ok": true, "fixed": false}, {"id": "c2_115213.09", "line": 21, "text": "มันมัน มีหลายอย่าง ที่มัน เปลี่ยนไป มากๆ แล้วมัน", "lead": "มีหลายอย่าง ที่มัน", "key": "เปลี่ยนไป", "how": "มากขึ้น / น้อยลง · ล้อมรอบ", "ok": true, "fixed": false}, {"id": "c2_115213.10", "line": 24, "text": "ซึ่งถ้า คุณแค่ คิดว่ามันเป็น รายได้ เสริม", "lead": "คิดว่ามันเป็น", "key": "รายได้ เสริม", "how": "A เทียบ B · แถบวัด", "ok": true, "fixed": false}]}, {"clip": "105656", "name": "แบรนด์", "dur": 89.7, "rows": [{"id": "c2_105656.01", "line": 3, "text": "ก็ ต้อง ของ ผม แพง กว่า", "lead": "ก็ ต้อง ของ ผม", "key": "แพง กว่า", "how": "A เทียบ B · แถบวัด", "ok": true, "fixed": false}, {"id": "c2_105656.02", "line": 4, "text": "แล้ว ถ้า เกิด มัน เหมือนกัน ทั้งสอง อย่าง ไม่ มี แบรนด์", "lead": "มัน เหมือนกัน ทั้งสอง", "key": "ไม่ มี แบรนด์", "how": "A เทียบ B · ปุ่มกับเมาส์", "ok": true, "fixed": false}, {"id": "c2_105656.03", "line": 6, "text": "ทำไม ก็ ต้อง มา เลือก ของ ผม", "lead": "ทำไม ก็ ต้อง มา", "key": "เลือก ของ ผม", "how": "หาให้เจอ · เล็งเลือก", "ok": true, "fixed": false}, {"id": "c2_105656.04", "line": 7, "text": "เพราะฉะนั้น แบรนด์ คือ อะไร แบรนด์ คือ สัญญา ต่อ ผู้บริโภค", "lead": "แบรนด์ คือ", "key": "สัญญา", "how": "ก่อน → หลัง · สลับไอคอน", "ok": true, "fixed": false}, {"id": "c2_105656.05", "line": 9, "text": "จำได้ ง่าย และ มีความหมาย", "lead": "จำได้ ง่าย และ", "key": "มีความหมาย", "how": "ขั้นตอน · แถว", "ok": true, "fixed": false}, {"id": "c2_105656.06", "line": 12, "text": "เห็น โลโก้ แล้ว จำได้", "lead": "เห็น โลโก้ แล้ว", "key": "จำได้", "how": "หาให้เจอ · เล็งเลือก", "ok": true, "fixed": false}, {"id": "c2_105656.07", "line": 15, "text": "เกิด ไหม มี ความผูกพัน ไหม ไม่ มี", "lead": "มี ความผูกพัน ไหม", "key": "ไม่ มี", "how": "ก่อน → หลัง · แถบวัด", "ok": true, "fixed": false}, {"id": "c2_105656.08", "line": 17, "text": "อาจจะ มีความหมาย แต่ ชื่อ จำ ไม่ ได้", "lead": "แต่ ชื่อ", "key": "จำ ไม่ ได้", "how": "A เทียบ B · การ์ด", "ok": true, "fixed": false}, {"id": "c2_105656.09", "line": 18, "text": "ไป เจอกัน อีกครั้ง ก็ จำ ไม่ ได้ แบรนด์ ก็ คือ เหมือน พูด", "lead": "ไป เจอกัน อีกครั้ง ก็", "key": "จำ ไม่ ได้", "how": "ก่อน → หลัง · แถบวัด", "ok": true, "fixed": false}, {"id": "c2_105656.10", "line": 21, "text": "แล้ว คุณ ซื้อ กลับมา คราวหน้า ผู้บริโภค", "lead": "คุณ ซื้อ", "key": "กลับมา", "how": "มากขึ้น / น้อยลง · กราฟแท่ง", "ok": true, "fixed": true}, {"id": "c2_105656.11", "line": 22, "text": "ไม่ ไม่ ควร ที่จะ ต้อง ศึกษา อีกต่อไป", "lead": "ไม่ ควร ที่จะ ต้อง", "key": "ศึกษา", "how": "ก่อน → หลัง · สวิตช์", "ok": true, "fixed": false}, {"id": "c2_105656.12", "line": 24, "text": "จาก การ ที่ เขา ศึกษา เค้า แล้ว ครั้งแรก", "lead": "เขา ศึกษา เค้า แล้ว", "key": "ครั้งแรก", "how": "ขั้นตอน · รายการ", "ok": true, "fixed": false}, {"id": "c2_105656.13", "line": 26, "text": "นี่ คือ สิ่ง ที่ ดี ต่อ ครอบครัว ของ เขา", "lead": "นี่ คือ สิ่ง ที่ ดี ต่อ", "key": "ครอบครัว", "how": "มากขึ้น / น้อยลง · ล้อมรอบ", "ok": true, "fixed": false}, {"id": "c2_105656.14", "line": 30, "text": "คราวหน้า เขา ไม่ต้อง มา นั่ง เลือก อี กรอบ นึง แล้ว", "lead": "เขา ไม่ต้อง มา นั่ง", "key": "เลือก", "how": "ก่อน → หลัง · สวิตช์", "ok": true, "fixed": false}, {"id": "c2_105656.15", "line": 33, "text": "เนี่ย คือ คือ คำ ว่า แบรนด์ ที่ แท้จริง มัน ไม่ ใช่ โลโก้", "lead": "มัน ไม่ ใช่", "key": "โลโก้", "how": "A เทียบ B · การ์ด", "ok": true, "fixed": false}, {"id": "c2_105656.16", "line": 35, "text": "สี อะไร มัน ไม่ ใช่ ว่า ใช้ แพ ค กระ จิ้ง แบบ", "lead": "มัน ไม่ ใช่ ว่า ใช้", "key": "แพ ค กระ", "how": "A เทียบ B · การ์ด", "ok": true, "fixed": false}, {"id": "c2_105656.17", "line": 37, "text": "แต่ว่า มัน คือ คำสัญญา ที่ ให้ กับ ผู้", "lead": "แต่ว่า มัน คือ", "key": "คำสัญญา", "how": "หาให้เจอ · เป้า", "ok": true, "fixed": false}]}, {"clip": "114123", "name": "อดอาหาร", "dur": 80.0, "rows": [{"id": "c2_114123.01", "line": 3, "text": "แต่ คือ คน ที่ คิด ว่า ยิ่ง อด ได้ เยอะ", "lead": "คิดว่ายิ่งอด", "key": "ได้เยอะ", "how": "A เทียบ B · แถบวัด", "ok": true, "fixed": false}, {"id": "c2_114123.02", "line": 6, "text": "แผน ล้ม หนัก ครับ", "lead": "แผน", "key": "ล้มหนัก", "how": "มากขึ้น / น้อยลง · กราฟแท่ง", "ok": true, "fixed": true}, {"id": "c2_114123.03", "line": 8, "text": "ตลอด นะ ครับ ซึ่ง น้ำหนัก ที่ มัน หาย ไป แน่นอน ว่า มัน ไม่ ใช่ แค่ ไขมัน", "lead": "น้ำหนักที่มันหายไป", "key": "ไขมัน", "how": "มากขึ้น / น้อยลง · แถว", "ok": true, "fixed": false}, {"id": "c2_114123.04", "line": 11, "text": "เริ่ม ไม่ มี แรง หิวจัด นอน ไม่ค่อย ได้ อารมณ์", "lead": "เริ่มไม่มี", "key": "แรง", "how": "ก่อน → หลัง · แถบวัด", "ok": true, "fixed": false}, {"id": "c2_114123.05", "line": 15, "text": "เกิด จาก การ กิน น้อย อย่าง เดียว นะ ครับ", "lead": "เกิดจากการ", "key": "กินน้อย", "how": "A เทียบ B · การ์ด", "ok": true, "fixed": false}, {"id": "c2_114123.06", "line": 16, "text": "เพราะว่า เรื่อง สุขภาพ เนี่ย มัน มี หลาย ปัจจัย", "lead": "สุขภาพเนี่ยมันมี", "key": "หลายปัจจัย", "how": "มากขึ้น / น้อยลง · ล้อมรอบ", "ok": true, "fixed": false}, {"id": "c2_114123.07", "line": 18, "text": "อย่า โร แมน ตี ไซส์ การ อดอาหาร", "lead": "อย่าโรแมนตีไซส์การ", "key": "อดอาหาร", "how": "A เทียบ B · การ์ด", "ok": true, "fixed": false}, {"id": "c2_114123.08", "line": 19, "text": "อย่า มอง ว่าการ ทรมาน ตัวเอง เนี่ย คือ วินัย", "lead": "อย่ามองว่าการ", "key": "ทรมาน", "how": "หาให้เจอ · เล็งเลือก", "ok": true, "fixed": false}, {"id": "c2_114123.09", "line": 23, "text": "ที่ ทำให้ คุณ รู้สึก ว่า คุณ แข็งแรง", "lead": "ทำให้คุณรู้สึกว่าคุณ", "key": "แข็งแรง", "how": "ใช้สูตรในคลัง (ลูกค้าพอใจ)", "ok": true, "fixed": false}, {"id": "c2_114123.10", "line": 26, "text": "ผม บอก เลย ว่า ไม่ คุ้ม นะ ครับ", "lead": "ผมบอกเลยว่า", "key": "ไม่คุ้ม", "how": "ใช้สูตรในคลัง (ไม่คุ้ม)", "ok": true, "fixed": false}, {"id": "c2_114123.11", "line": 29, "text": "เรา กิน น้อยที่สุด คือ การ กิน ให้ พอ ดีแล้ว", "lead": "คือการกินให้", "key": "พอดี", "how": "หาให้เจอ · เป้า", "ok": true, "fixed": false}, {"id": "c2_114123.12", "line": 30, "text": "คุณ ทำต่อ ได้ โดยที่ คุณ ไม่ เกลียด", "lead": "คุณทำต่อ", "key": "ได้", "how": "ก่อน → หลัง · สวิตช์", "ok": true, "fixed": false}, {"id": "c2_114123.13", "line": 33, "text": "ว่า การ ล้น หนัก คือ การ ดูแลตัวเอง", "lead": "การล้นหนักคือการ", "key": "ดูแลตัวเอง", "how": "A เทียบ B · การ์ด", "ok": true, "fixed": false}, {"id": "c2_114123.14", "line": 36, "text": "คอมเมนต์ ว่า เคย นะ ครับผม", "lead": "คอมเมนต์ว่า", "key": "เคย", "how": "หาให้เจอ · เล็งเลือก", "ok": true, "fixed": false}]}, {"clip": "115846", "name": "เรียนภาษาอังกฤษ", "dur": 76.4, "rows": [{"id": "c2_115846.01", "line": 3, "text": "ที่ ยัง ไม่ เหมาะสม กับ ตัวเอง มาก ที่สุด", "lead": "ที่ ยัง", "key": "ไม่ เหมาะสม", "how": "หาให้เจอ · เล็งเลือก", "ok": true, "fixed": false}, {"id": "c2_115846.02", "line": 7, "text": "เกือบ เข้าใจ แล้ว อีก เดียว จะ เข้าใจ", "lead": "เกือบ", "key": "เข้าใจ", "how": "ก่อน → หลัง · แถบวัด", "ok": true, "fixed": false}, {"id": "c2_115846.03", "line": 8, "text": "แล้ว เรา ก็ อยู่ กับ มัน ฟัง ซ้ำ ไป เรื่อย", "lead": "ฟัง", "key": "ซ้ำ ไป", "how": "ก่อน → หลัง · สลับไอคอน", "ok": true, "fixed": false}, {"id": "c2_115846.04", "line": 9, "text": "เรื่อย แต่ เติม อะไร ใหม่ เข้ามา", "lead": "เติม อะไร", "key": "ใหม่", "how": "มากขึ้น / น้อยลง · แถว", "ok": true, "fixed": false}, {"id": "c2_115846.05", "line": 13, "text": "เรา จะ ไม่ ใช้ ประโยค อังกฤษ ด้วย เรา จะ ใช้ ประโยค ไทย แล้วก็", "lead": "เรา จะ", "key": "ไม่ ใช้", "how": "A เทียบ B · การ์ด", "ok": true, "fixed": false}, {"id": "c2_115846.06", "line": 15, "text": "อังกฤษ คำ ไทย คำ เรา ก็ จะ ไม่ เฉลย", "lead": "เรา ก็ จะ", "key": "ไม่ เฉลย", "how": "ก่อน → หลัง · สวิตช์", "ok": true, "fixed": false}, {"id": "c2_115846.07", "line": 18, "text": "มัน จาก บริบท เอง งั้น มา รอง ประโยค แรก เลย", "lead": "จาก", "key": "บริบท เอง", "how": "หาให้เจอ · เป้า", "ok": true, "fixed": false}, {"id": "c2_115846.08", "line": 19, "text": "เขา โกหก ครั้ง เดียว แต่ ต้อง โกหก", "lead": "โกหก ครั้ง เดียว แต่", "key": "ต้อง โกหก", "how": "มากขึ้น / น้อยลง · ล้อมรอบ", "ok": true, "fixed": false}, {"id": "c2_115846.09", "line": 21, "text": "ของ การ โกหก คือ มัน ไม่ มี วัน จบ", "lead": "มัน ไม่ มี วัน", "key": "จบ", "how": "ก่อน → หลัง · แถบวัด", "ok": true, "fixed": false}, {"id": "c2_115846.10", "line": 23, "text": "ลงทุน กับ การศึกษา consicance จะ เห็นได้ชัด", "lead": "ลงทุน กับ", "key": "การศึกษา", "how": "ก่อน → หลัง · แถบวัด", "ok": true, "fixed": false}, {"id": "c2_115846.11", "line": 25, "text": "ประโยค ที่สาม ทิ้ง ขยะ ลง แม่น้ำ น้ำเน่า", "lead": "ทิ้ง ขยะ ลง แม่น้ำ", "key": "น้ำเน่า", "how": "ขั้นตอน · แถว", "ok": true, "fixed": false}, {"id": "c2_115846.12", "line": 27, "text": "การ ไม่ แคร์ สิ่งแวดล้อม ไม่ ได้ กระทบ คน แค่ คนเดียว", "lead": "ไม่ ได้ กระทบ คน", "key": "แค่ คนเดียว", "how": "มากขึ้น / น้อยลง · ล้อมรอบ", "ok": true, "fixed": false}, {"id": "c2_115846.13", "line": 28, "text": "ประโยค ที่สี่ บริษัท นี้ ไม่ เคย ฟัง เสียง ของ พนักงาน", "lead": "บริษัท นี้", "key": "ไม่ เคย ฟัง", "how": "ก่อน → หลัง · สวิตช์", "ok": true, "fixed": false}, {"id": "c2_115846.14", "line": 29, "text": "เลย consiquence คือ คนเก่ง ทยอย กัน ลาออก หมด เลย", "lead": "คนเก่ง ทยอย กัน", "key": "ลาออก", "how": "มากขึ้น / น้อยลง · แถว", "ok": true, "fixed": false}]}];
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const host = document.getElementById('clips');
+for (const c of DATA) {
+  const sec = el('section', 'clip');
+  sec.append(el('h2', '', `คลิป${c.name}`), el('p', '', `${c.dur.toFixed(0)} วินาที · ${c.rows.length} ภาพ`));
+  for (const r of c.rows) {
+    const pic = el('div', 'pic');
+    const b = el('button', 'vid'); b.type = 'button'; b.setAttribute('aria-label', `ภาพบรรทัด ${r.line} ดูใหญ่`);
+    const v = el('video'); Object.assign(v, {muted: true, loop: true, playsInline: true, preload: 'metadata', poster: `clips/card_${r.id}.jpg`});
+    v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.src = `clips/card_${r.id}.mp4`;
+    b.append(v); b.addEventListener('click', () => open(r)); pic.append(b);
+    const m = el('div', 'meta');
+    m.append(el('p', 'said', `บรรทัด ${r.line}: <em>${r.text}</em>`), el('p', 'words', `${r.lead} <span style="color:var(--accent)">${r.key}</span>`), el('p', 'how', r.how));
+    if (r.fixed) m.append(el('span', 'tag', 'แก้ในรอบแก้'));
+    pic.append(m); sec.append(pic);
+  }
+  host.append(sec);
+}
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+  const v = e.target; if (e.isIntersecting) v.play().catch(() => {}); else v.pause();
+}), {threshold: .4}) : null;
+document.querySelectorAll('button.vid video').forEach(v => io ? io.observe(v) : v.play().catch(() => {}));
+function open(r) {
+  const box = el('div', 'lb'); box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', `บรรทัด ${r.line}`);
+  box.append(el('div', 'cap', `บรรทัด ${r.line}: ${r.text}`));
+  const v = el('video'); Object.assign(v, {muted: true, loop: true, playsInline: true, autoplay: true}); v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
+  v.src = `clips/card_${r.id}.mp4`;
+  const close = el('button', '', 'ปิด'); close.type = 'button';
+  box.append(v, close); document.body.append(box); v.play().catch(() => {}); close.focus();
+  const shut = () => { box.remove(); document.removeEventListener('keydown', esc); };
+  const esc = e => { if (e.key === 'Escape') shut(); };
+  close.addEventListener('click', shut); box.addEventListener('click', e => { if (e.target === box) shut(); });
+  document.addEventListener('keydown', esc);
+}
+</script>

@@ -1,0 +1,790 @@
+[
+ {
+  "id": "c2_105656.01",
+  "line": 3,
+  "text": "ก็ ต้อง ของ ผม แพง กว่า",
+  "near": "ว่า ใคร จะ แพง กว่า ก็ ต้อง ของ ผม แพง กว่า แล้ว ถ้า เกิด มัน เหมือนกัน ทั้งสอง อย่าง ไม่ มี แบรนด์",
+  "lead": "ก็ ต้อง ของ ผม",
+  "key": "แพง กว่า",
+  "meaning": "mine costs more",
+  "shows": "Two bars, mine is longer, meaning mine costs more.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "measure",
+   "a": {
+    "icon": "banknote",
+    "tone": "acc",
+    "v": 0.9
+   },
+   "b": {
+    "icon": "banknote",
+    "tone": "soft",
+    "v": 0.5
+   },
+   "win": "a"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 3,
+   "shows": "Two bars, mine is longer, meaning mine costs more.",
+   "lead": "ก็ ต้อง ของ ผม",
+   "key": "แพง กว่า",
+   "meaning": "mine costs more",
+   "recipe": {
+    "layout": "versus",
+    "as": "measure",
+    "a": {
+     "icon": "banknote",
+     "tone": "acc",
+     "v": 0.9
+    },
+    "b": {
+     "icon": "banknote",
+     "tone": "soft",
+     "v": 0.5
+    },
+    "win": "a"
+   }
+  }
+ },
+ {
+  "id": "c2_105656.02",
+  "line": 4,
+  "text": "แล้ว ถ้า เกิด มัน เหมือนกัน ทั้งสอง อย่าง ไม่ มี แบรนด์",
+  "near": "ก็ ต้อง ของ ผม แพง กว่า แล้ว ถ้า เกิด มัน เหมือนกัน ทั้งสอง อย่าง ไม่ มี แบรนด์ เนี่ย",
+  "lead": "มัน เหมือนกัน ทั้งสอง",
+  "key": "ไม่ มี แบรนด์",
+  "meaning": "identical, no brand",
+  "shows": "A pointer hesitates between two identical buttons with no brand.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "buttons",
+   "a": {
+    "icon": "package"
+   },
+   "b": {
+    "icon": "package"
+   },
+   "win": "a",
+   "top": "tag"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 4,
+   "shows": "A pointer hesitates between two identical buttons with no brand.",
+   "lead": "มัน เหมือนกัน ทั้งสอง",
+   "key": "ไม่ มี แบรนด์",
+   "meaning": "identical, no brand",
+   "recipe": {
+    "layout": "versus",
+    "as": "buttons",
+    "a": {
+     "icon": "package"
+    },
+    "b": {
+     "icon": "package"
+    },
+    "win": "a",
+    "top": "tag"
+   }
+  }
+ },
+ {
+  "id": "c2_105656.03",
+  "line": 6,
+  "text": "ทำไม ก็ ต้อง มา เลือก ของ ผม",
+  "near": "เนี่ย ทำไม ก็ ต้อง มา เลือก ของ ผม เพราะฉะนั้น แบรนด์ คือ อะไร แบรนด์ คือ สัญญา ต่อ ผู้บริโภค",
+  "lead": "ทำไม ก็ ต้อง มา",
+  "key": "เลือก ของ ผม",
+  "meaning": "why choose mine",
+  "shows": "A focus closes in on one product among several, the one chosen.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "pick",
+   "items": [
+    "package",
+    "package",
+    "package"
+   ],
+   "at": 1,
+   "bad": false,
+   "round": false,
+   "how": "pick"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 6,
+   "shows": "A focus closes in on one product among several, the one chosen.",
+   "lead": "ทำไม ก็ ต้อง มา",
+   "key": "เลือก ของ ผม",
+   "meaning": "why choose mine",
+   "recipe": {
+    "layout": "aim",
+    "as": "pick",
+    "items": [
+     "package",
+     "package",
+     "package"
+    ],
+    "at": 1,
+    "bad": false,
+    "round": false,
+    "how": "pick"
+   }
+  }
+ },
+ {
+  "id": "c2_105656.04",
+  "line": 7,
+  "text": "เพราะฉะนั้น แบรนด์ คือ อะไร แบรนด์ คือ สัญญา ต่อ ผู้บริโภค",
+  "near": "ทำไม ก็ ต้อง มา เลือก ของ ผม เพราะฉะนั้น แบรนด์ คือ อะไร แบรนด์ คือ สัญญา ต่อ ผู้บริโภค ที่",
+  "lead": "แบรนด์ คือ",
+  "key": "สัญญา",
+  "meaning": "brand is a promise",
+  "shows": "A tag icon turns into a handshake: a brand is a promise.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "tag",
+    "tone": "soft"
+   },
+   "to": {
+    "icon": "handshake",
+    "tone": "acc"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 7,
+   "shows": "A tag icon turns into a handshake: a brand is a promise.",
+   "lead": "แบรนด์ คือ",
+   "key": "สัญญา",
+   "meaning": "brand is a promise",
+   "recipe": {
+    "layout": "change",
+    "as": "swap",
+    "from": {
+     "icon": "tag",
+     "tone": "soft"
+    },
+    "to": {
+     "icon": "handshake",
+     "tone": "acc"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_105656.05",
+  "line": 9,
+  "text": "จำได้ ง่าย และ มีความหมาย",
+  "near": "ที่ จำได้ ง่าย และ มีความหมาย แบรนด์ ก็ คือ พรม ที่ ให้ กับ ลูกค้า ที่ ทั้ง มี นิ่ง ฟู และ Marrable",
+  "lead": "จำได้ ง่าย และ",
+  "key": "มีความหมาย",
+  "meaning": "easy to remember, meaningful",
+  "shows": "Three steps, see, remember, feel meaning, the last one lights up.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "steps",
+   "as": "row",
+   "items": [
+    {
+     "icon": "eye"
+    },
+    {
+     "icon": "brain"
+    },
+    {
+     "icon": "heart"
+    }
+   ],
+   "mark": {
+    "at": 2,
+    "how": "light"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 9,
+   "shows": "Three steps, see, remember, feel meaning, the last one lights up.",
+   "lead": "จำได้ ง่าย และ",
+   "key": "มีความหมาย",
+   "meaning": "easy to remember, meaningful",
+   "recipe": {
+    "layout": "steps",
+    "as": "row",
+    "items": [
+     {
+      "icon": "eye"
+     },
+     {
+      "icon": "brain"
+     },
+     {
+      "icon": "heart"
+     }
+    ],
+    "mark": {
+     "at": 2,
+     "how": "light"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_105656.06",
+  "line": 12,
+  "text": "เห็น โลโก้ แล้ว จำได้",
+  "near": "บางที จำ ง่าย อย่าง ที่ พี่ เปย์ เห็น โลโก้ แล้ว จำได้ แต่ ไม่ มี นิ่ง ฟู หรือว่า ไม่ มีความหมาย อะไร กัน สำหรับ เขา ก็ โอเค เสีย",
+  "lead": "เห็น โลโก้ แล้ว",
+  "key": "จำได้",
+  "meaning": "recognise the logo",
+  "shows": "A focus picks out the logo that people recognise.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "pick",
+   "items": [
+    "eye",
+    "gem",
+    "star"
+   ],
+   "at": 1,
+   "bad": false,
+   "round": false,
+   "how": "pick"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 12,
+   "shows": "A focus picks out the logo that people recognise.",
+   "lead": "เห็น โลโก้ แล้ว",
+   "key": "จำได้",
+   "meaning": "recognise the logo",
+   "recipe": {
+    "layout": "aim",
+    "as": "pick",
+    "items": [
+     "eye",
+     "gem",
+     "star"
+    ],
+    "at": 1,
+    "bad": false,
+    "round": false,
+    "how": "pick"
+   }
+  }
+ },
+ {
+  "id": "c2_105656.07",
+  "line": 15,
+  "text": "เกิด ไหม มี ความผูกพัน ไหม ไม่ มี",
+  "near": "ตังค์ ให้ เขา เห็น ไป แต่ว่า ถาม ว่า มี แบรนด์ เลิฟ เกิด ไหม มี ความผูกพัน ไหม ไม่ มี บาง อัน",
+  "lead": "มี ความผูกพัน ไหม",
+  "key": "ไม่ มี",
+  "meaning": "no attachment",
+  "shows": "A heart bond shrinks to nothing and is crossed: no attachment.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "meter",
+   "icon": "heart",
+   "v0": 0.5,
+   "v1": 0,
+   "then": {
+    "icon": "heart-off",
+    "how": "cross"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 15,
+   "shows": "A heart bond shrinks to nothing and is crossed: no attachment.",
+   "lead": "มี ความผูกพัน ไหม",
+   "key": "ไม่ มี",
+   "meaning": "no attachment",
+   "recipe": {
+    "layout": "change",
+    "as": "meter",
+    "icon": "heart",
+    "v0": 0.5,
+    "v1": 0,
+    "then": {
+     "icon": "heart-off",
+     "how": "cross"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_105656.08",
+  "line": 17,
+  "text": "อาจจะ มีความหมาย แต่ ชื่อ จำ ไม่ ได้",
+  "near": "บาง อัน อาจจะ มีความหมาย แต่ ชื่อ จำ ไม่ ได้ ไป เจอกัน อีกครั้ง ก็ จำ ไม่ ได้ แบรนด์ ก็ คือ เหมือน พูด",
+  "lead": "แต่ ชื่อ",
+  "key": "จำ ไม่ ได้",
+  "meaning": "name not remembered",
+  "shows": "Meaningful card is kept, the card that cannot be remembered is crossed.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "cards",
+   "a": {
+    "icon": "sparkles",
+    "tone": "acc"
+   },
+   "b": {
+    "icon": "brain",
+    "tone": "neg"
+   },
+   "win": "a",
+   "how": "cross"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 17,
+   "shows": "Meaningful card is kept, the card that cannot be remembered is crossed.",
+   "lead": "แต่ ชื่อ",
+   "key": "จำ ไม่ ได้",
+   "meaning": "name not remembered",
+   "recipe": {
+    "layout": "versus",
+    "as": "cards",
+    "a": {
+     "icon": "sparkles",
+     "tone": "acc"
+    },
+    "b": {
+     "icon": "brain",
+     "tone": "neg"
+    },
+    "win": "a",
+    "how": "cross"
+   }
+  }
+ },
+ {
+  "id": "c2_105656.09",
+  "line": 18,
+  "text": "ไป เจอกัน อีกครั้ง ก็ จำ ไม่ ได้ แบรนด์ ก็ คือ เหมือน พูด",
+  "near": "อาจจะ มีความหมาย แต่ ชื่อ จำ ไม่ ได้ ไป เจอกัน อีกครั้ง ก็ จำ ไม่ ได้ แบรนด์ ก็ คือ เหมือน พูด ง่าย ง่าย คือ ถ้า เกิด คุณ",
+  "lead": "ไป เจอกัน อีกครั้ง ก็",
+  "key": "จำ ไม่ ได้",
+  "meaning": "cannot remember",
+  "shows": "Memory of the brand falls to almost nothing, crossed.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "meter",
+   "icon": "brain",
+   "v0": 0.8,
+   "v1": 0.1,
+   "then": {
+    "icon": "brain",
+    "how": "cross"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 18,
+   "shows": "Memory of the brand falls to almost nothing, crossed.",
+   "lead": "ไป เจอกัน อีกครั้ง ก็",
+   "key": "จำ ไม่ ได้",
+   "meaning": "cannot remember",
+   "recipe": {
+    "layout": "change",
+    "as": "meter",
+    "icon": "brain",
+    "v0": 0.8,
+    "v1": 0.1,
+    "then": {
+     "icon": "brain",
+     "how": "cross"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_105656.10",
+  "line": 21,
+  "text": "แล้ว คุณ ซื้อ กลับมา คราวหน้า ผู้บริโภค",
+  "near": "หยิบ สินค้า ก็ มา ใช้ นิดนึง คุณ ศึกษา มา แล้ว แล้ว คุณ ซื้อ กลับมา คราวหน้า ผู้บริโภค ไม่ ไม่ ควร ที่จะ ต้อง ศึกษา อีกต่อไป",
+  "lead": "คุณ ซื้อ",
+  "key": "กลับมา",
+  "meaning": "buy again, repeat purchase",
+  "shows": "A bar chart rises as the buyer comes back to buy again.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "bars",
+   "dir": "up",
+   "center": {
+    "icon": "user",
+    "tone": "main"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": true,
+  "picture": {
+   "line": 21,
+   "shows": "A bar chart rises as the buyer comes back to buy again.",
+   "lead": "คุณ ซื้อ",
+   "key": "กลับมา",
+   "meaning": "buy again, repeat purchase",
+   "recipe": {
+    "layout": "count",
+    "as": "bars",
+    "dir": "up",
+    "center": {
+     "icon": "user",
+     "tone": "main"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_105656.11",
+  "line": 22,
+  "text": "ไม่ ไม่ ควร ที่จะ ต้อง ศึกษา อีกต่อไป",
+  "near": "แล้ว คุณ ซื้อ กลับมา คราวหน้า ผู้บริโภค ไม่ ไม่ ควร ที่จะ ต้อง ศึกษา อีกต่อไป แล้ว เพราะ เขา เชื่อ ไป แล้ว",
+  "lead": "ไม่ ควร ที่จะ ต้อง",
+  "key": "ศึกษา",
+  "meaning": "no need to study",
+  "shows": "A switch for studying more turns off: no need to study again.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "toggle",
+   "icon": "book-open",
+   "on": false
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 22,
+   "shows": "A switch for studying more turns off: no need to study again.",
+   "lead": "ไม่ ควร ที่จะ ต้อง",
+   "key": "ศึกษา",
+   "meaning": "no need to study",
+   "recipe": {
+    "layout": "change",
+    "as": "toggle",
+    "icon": "book-open",
+    "on": false
+   }
+  }
+ },
+ {
+  "id": "c2_105656.12",
+  "line": 24,
+  "text": "จาก การ ที่ เขา ศึกษา เค้า แล้ว ครั้งแรก",
+  "near": "แล้ว เพราะ เขา เชื่อ ไป แล้ว จาก การ ที่ เขา ศึกษา เค้า แล้ว ครั้งแรก เขา เห็น แล้ว ว่า โอ้โห นี่ คือ สิ่ง ที่ พรีเมียร์",
+  "lead": "เขา ศึกษา เค้า แล้ว",
+  "key": "ครั้งแรก",
+  "meaning": "studied the first time",
+  "shows": "A checklist where the first-time study is ticked as done.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "steps",
+   "as": "list",
+   "items": [
+    {
+     "label": "ครั้งแรก"
+    },
+    {
+     "skel": 0.6
+    },
+    {
+     "skel": 0.4
+    }
+   ],
+   "mark": {
+    "at": 0,
+    "how": "check"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 24,
+   "shows": "A checklist where the first-time study is ticked as done.",
+   "lead": "เขา ศึกษา เค้า แล้ว",
+   "key": "ครั้งแรก",
+   "meaning": "studied the first time",
+   "recipe": {
+    "layout": "steps",
+    "as": "list",
+    "items": [
+     {
+      "label": "ครั้งแรก"
+     },
+     {
+      "skel": 0.6
+     },
+     {
+      "skel": 0.4
+     }
+    ],
+    "mark": {
+     "at": 0,
+     "how": "check"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_105656.13",
+  "line": 26,
+  "text": "นี่ คือ สิ่ง ที่ ดี ต่อ ครอบครัว ของ เขา",
+  "near": "เขา เห็น แล้ว ว่า โอ้โห นี่ คือ สิ่ง ที่ พรีเมียร์ นี่ คือ สิ่ง ที่ ดี ต่อ ครอบครัว ของ เขา นี่ คือ สิ่ง ที่ เฮลตี้ นี่ คือ สิ่ง ที่ ลด การ",
+  "lead": "นี่ คือ สิ่ง ที่ ดี ต่อ",
+  "key": "ครอบครัว",
+  "meaning": "good for family",
+  "shows": "Hearts arrive around the family one by one: good for the family.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "ring",
+   "dir": "up",
+   "center": {
+    "icon": "users"
+   },
+   "item": {
+    "icon": "heart",
+    "tone": "acc"
+   },
+   "n": 3,
+   "keep": 3
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 26,
+   "shows": "Hearts arrive around the family one by one: good for the family.",
+   "lead": "นี่ คือ สิ่ง ที่ ดี ต่อ",
+   "key": "ครอบครัว",
+   "meaning": "good for family",
+   "recipe": {
+    "layout": "count",
+    "as": "ring",
+    "dir": "up",
+    "center": {
+     "icon": "users"
+    },
+    "item": {
+     "icon": "heart",
+     "tone": "acc"
+    },
+    "n": 3,
+    "keep": 3
+   }
+  }
+ },
+ {
+  "id": "c2_105656.14",
+  "line": 30,
+  "text": "คราวหน้า เขา ไม่ต้อง มา นั่ง เลือก อี กรอบ นึง แล้ว",
+  "near": "ชาวนา อยู่ สิ่ง เหล่านี้ คือ สิ่ง ที่ เขา ชอบ เพราะฉะนั้น คราวหน้า เขา ไม่ต้อง มา นั่ง เลือก อี กรอบ นึง แล้ว เขา จะ ใช้ น้ำมัน ชนิด ไหน เขา ก็ ควรจะ ใช้ น้ำมัน หลัง",
+  "lead": "เขา ไม่ต้อง มา นั่ง",
+  "key": "เลือก",
+  "meaning": "no need to choose",
+  "shows": "A choosing switch turns off: he does not need to choose again.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "toggle",
+   "icon": "search",
+   "on": false
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 30,
+   "shows": "A choosing switch turns off: he does not need to choose again.",
+   "lead": "เขา ไม่ต้อง มา นั่ง",
+   "key": "เลือก",
+   "meaning": "no need to choose",
+   "recipe": {
+    "layout": "change",
+    "as": "toggle",
+    "icon": "search",
+    "on": false
+   }
+  }
+ },
+ {
+  "id": "c2_105656.15",
+  "line": 33,
+  "text": "เนี่ย คือ คือ คำ ว่า แบรนด์ ที่ แท้จริง มัน ไม่ ใช่ โลโก้",
+  "near": "ข้าว ผม อย่างงี้ เนี่ย คือ คือ คำ ว่า แบรนด์ ที่ แท้จริง มัน ไม่ ใช่ โลโก้ อย่าง ที่ ทั้งสอง ท่าน ได้ พูด มัน ไม่ ใช่ ว่า ใช้",
+  "lead": "มัน ไม่ ใช่",
+  "key": "โลโก้",
+  "meaning": "not the logo",
+  "shows": "The logo card is crossed, the promise card is ticked.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "cards",
+   "a": {
+    "icon": "image",
+    "label": "โลโก้",
+    "tone": "soft"
+   },
+   "b": {
+    "icon": "handshake",
+    "tone": "acc"
+   },
+   "win": "b",
+   "how": "both"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 33,
+   "shows": "The logo card is crossed, the promise card is ticked.",
+   "lead": "มัน ไม่ ใช่",
+   "key": "โลโก้",
+   "meaning": "not the logo",
+   "recipe": {
+    "layout": "versus",
+    "as": "cards",
+    "a": {
+     "icon": "image",
+     "label": "โลโก้",
+     "tone": "soft"
+    },
+    "b": {
+     "icon": "handshake",
+     "tone": "acc"
+    },
+    "win": "b",
+    "how": "both"
+   }
+  }
+ },
+ {
+  "id": "c2_105656.16",
+  "line": 35,
+  "text": "สี อะไร มัน ไม่ ใช่ ว่า ใช้ แพ ค กระ จิ้ง แบบ",
+  "near": "อย่าง ที่ ทั้งสอง ท่าน ได้ พูด มัน ไม่ ใช่ ว่า ใช้ สี อะไร มัน ไม่ ใช่ ว่า ใช้ แพ ค กระ จิ้ง แบบ ไหน มัน มัน เป็น ส่วน นึง",
+  "lead": "มัน ไม่ ใช่ ว่า ใช้",
+  "key": "แพ ค กระ",
+  "meaning": "not the packaging",
+  "shows": "The packaging card is crossed, the promise card is ticked.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "cards",
+   "a": {
+    "icon": "package-open",
+    "tone": "soft"
+   },
+   "b": {
+    "icon": "handshake",
+    "tone": "acc"
+   },
+   "win": "b",
+   "how": "both"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 35,
+   "shows": "The packaging card is crossed, the promise card is ticked.",
+   "lead": "มัน ไม่ ใช่ ว่า ใช้",
+   "key": "แพ ค กระ",
+   "meaning": "not the packaging",
+   "recipe": {
+    "layout": "versus",
+    "as": "cards",
+    "a": {
+     "icon": "package-open",
+     "tone": "soft"
+    },
+    "b": {
+     "icon": "handshake",
+     "tone": "acc"
+    },
+    "win": "b",
+    "how": "both"
+   }
+  }
+ },
+ {
+  "id": "c2_105656.17",
+  "line": 37,
+  "text": "แต่ว่า มัน คือ คำสัญญา ที่ ให้ กับ ผู้",
+  "near": "ไหน มัน มัน เป็น ส่วน นึง แต่ว่า มัน คือ คำสัญญา ที่ ให้ กับ ผู้",
+  "lead": "แต่ว่า มัน คือ",
+  "key": "คำสัญญา",
+  "meaning": "it is a promise",
+  "shows": "An arrow hits the bullseye: the brand is exactly the promise.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "target"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 37,
+   "shows": "An arrow hits the bullseye: the brand is exactly the promise.",
+   "lead": "แต่ว่า มัน คือ",
+   "key": "คำสัญญา",
+   "meaning": "it is a promise",
+   "recipe": {
+    "layout": "aim",
+    "as": "target"
+   }
+  }
+ }
+]
