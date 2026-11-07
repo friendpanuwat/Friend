@@ -37,3 +37,4 @@ svg{overflow:visible}
 .u-star-on{stroke:var(--ac-line, var(--ink));stroke-width:var(--lw-star, 4)}
 .u-cursor path{fill:var(--cursor, #FFFFFF);stroke:var(--cursor-line, #14213D)}
 .u-cursor{filter:drop-shadow(0 8px 14px rgba(0,0,0,.3))}
+.u-tgt{fill:var(--tr);stroke:var(--ink);stroke-width:var(--lw-fl, 4)}   /* target disc: --fl can equal --ink on dark cards */

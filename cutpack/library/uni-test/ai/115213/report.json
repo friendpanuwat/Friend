@@ -1,0 +1,305 @@
+[
+ {
+  "id": "c115213.01",
+  "line": 3,
+  "text": "สิ่งที่คุณ กำลังทำ อยู่อ่ะมันคือ รายได้",
+  "near": "ของคุณน่ะ ช่องทาง นั้นน่ะ สิ่งที่คุณ กำลังทำ อยู่อ่ะมันคือ รายได้ เสริมนะ เว้ย มันก็จะ เป็นรายได้ เสริมต่อไป เรื่อยๆ",
+  "lead": "สิ่งที่คุณกำลังทำ คือ",
+  "key": "รายได้เสริม",
+  "meaning": "what you do is side income",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "briefcase",
+    "tone": "soft"
+   },
+   "to": {
+    "icon": "coins",
+    "tone": "main",
+    "label": "รายได้เสริม"
+   }
+  },
+  "ok": false,
+  "problems": [
+   "lead \"สิ่งที่คุณกำลังทำ คือ\" not said here"
+  ]
+ },
+ {
+  "id": "c115213.02",
+  "line": 5,
+  "text": "มันจะ ไม่มีทาง เป็น Main income",
+  "near": "เสริมนะ เว้ย มันก็จะ เป็นรายได้ เสริมต่อไป เรื่อยๆ มันจะ ไม่มีทาง เป็น Main income ได้มีแต่คน พูดว่า อยากหารายได้ เสริม",
+  "lead": "ไม่มีทางเป็น",
+  "key": "Main income",
+  "meaning": "never becomes main income",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "cards",
+   "a": {
+    "icon": "coins",
+    "label": "รายได้เสริม",
+    "tone": "soft"
+   },
+   "b": {
+    "icon": "briefcase",
+    "label": "Main income",
+    "tone": "neg"
+   },
+   "win": "a",
+   "how": "cross"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115213.03",
+  "line": 8,
+  "text": "แล้ว รายได้หลัก active income",
+  "near": "อยากหา side hustle WTF the mean hustle แล้ว รายได้หลัก active income อ่ะผม รู้สึกว่า ถ้าอยากให้ มันมา เป็น active income",
+  "lead": "รายได้หลัก",
+  "key": "active income",
+  "meaning": "main income is active income",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "meter",
+   "icon": "banknote",
+   "v0": 0.2,
+   "v1": 0.9,
+   "then": {
+    "icon": "briefcase",
+    "how": "check"
+   }
+  },
+  "ok": false,
+  "problems": [
+   "key \"active income\" longer than 12"
+  ]
+ },
+ {
+  "id": "c115213.04",
+  "line": 11,
+  "text": "business หรือว่ากล้า เทค",
+  "near": "นะคือยู ต้อง มองมัน เป็น business หรือว่ากล้า เทค ความเสี่ยง กับมัน เว้ยคำว่า รายได้เสริม",
+  "lead": "ต้องมองมันเป็น",
+  "key": "business",
+  "meaning": "treat it as a business",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "coins",
+    "tone": "soft"
+   },
+   "to": {
+    "icon": "store",
+    "tone": "acc",
+    "label": "business"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115213.05",
+  "line": 12,
+  "text": "ความเสี่ยง กับมัน เว้ยคำว่า รายได้เสริม",
+  "near": "business หรือว่ากล้า เทค ความเสี่ยง กับมัน เว้ยคำว่า รายได้เสริม หรือว่า side hustle โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง",
+  "lead": "กล้าเทค",
+  "key": "ความเสี่ยง",
+  "meaning": "dare to take risk",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "pick",
+   "items": [
+    "shield",
+    "triangle-alert",
+    "rocket"
+   ],
+   "at": 1,
+   "bad": false,
+   "round": false,
+   "how": "pick"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115213.06",
+  "line": 13,
+  "text": "หรือว่า side hustle โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง",
+  "near": "ความเสี่ยง กับมัน เว้ยคำว่า รายได้เสริม หรือว่า side hustle โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง ไม่มีคำว่า เจ๊ง ไม่มีคำว่า ขาดทุนนะ",
+  "lead": "side hustle โดยส่วนใหญ่",
+  "key": "ไม่มีความเสี่ยง",
+  "meaning": "side hustle has no risk",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "toggle",
+   "icon": "shield-check",
+   "on": true,
+   "then": {
+    "how": "check"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115213.07",
+  "line": 14,
+  "text": "ไม่มีคำว่า เจ๊ง ไม่มีคำว่า ขาดทุนนะ",
+  "near": "หรือว่า side hustle โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง ไม่มีคำว่า เจ๊ง ไม่มีคำว่า ขาดทุนนะ เพราะว่ายูเอา เวลา ของยู ไปใช้แล้ว ยูจะ คิดในมุม ของ mindset ที่",
+  "lead": "ไม่มีคำว่า",
+  "key": "ขาดทุน",
+  "meaning": "no such thing as loss",
+  "kind": "library",
+  "use": "lego.money-gone",
+  "recipe": null,
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115213.08",
+  "line": 16,
+  "text": "เอ่อ minimize minimize ความเสี่ยง ให้มาก ที่สุดเลย",
+  "near": "เพราะว่ายูเอา เวลา ของยู ไปใช้แล้ว ยูจะ คิดในมุม ของ mindset ที่ เอ่อ minimize minimize ความเสี่ยง ให้มาก ที่สุดเลย ทำให้ยังไง ก็ได้ ให้มันแบบแค่ เป็น รายได้ เสริมอ่ะ",
+  "lead": "minimize",
+  "key": "ความเสี่ยง",
+  "meaning": "minimize risk",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "bars",
+   "dir": "down",
+   "center": {
+    "icon": "triangle-alert"
+   },
+   "n": 4,
+   "keep": 1
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115213.09",
+  "line": 17,
+  "text": "ทำให้ยังไง ก็ได้ ให้มันแบบแค่ เป็น รายได้ เสริมอ่ะ",
+  "near": "เอ่อ minimize minimize ความเสี่ยง ให้มาก ที่สุดเลย ทำให้ยังไง ก็ได้ ให้มันแบบแค่ เป็น รายได้ เสริมอ่ะ ตอนที่ผมทำ คอนเทนต์นะ ผมยกตัวอย่าง ตอนที่ ผมทำ คอนเทนต์",
+  "lead": "แค่เป็น",
+  "key": "รายได้เสริม",
+  "meaning": "just keep it side income",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "steps",
+   "as": "row",
+   "items": [
+    {
+     "icon": "briefcase"
+    },
+    {
+     "icon": "clock"
+    },
+    {
+     "icon": "coins",
+     "label": "รายได้เสริม"
+    }
+   ],
+   "mark": {
+    "at": 2,
+    "how": "light"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115213.10",
+  "line": 20,
+  "text": "Mindset ผมมัน ไม่ เหมือนกับ อย่างนี้เลย",
+  "near": "แล้วผมก็ ทำเป็น รายได้เสริม งานประจำ ของผม ไปใช่ป่ะ Mindset ผมมัน ไม่ เหมือนกับ อย่างนี้เลย มันมัน มีหลายอย่าง ที่มัน เปลี่ยนไป มากๆ แล้วมัน",
+  "lead": "ผมมัน",
+  "key": "Mindset",
+  "meaning": "mindset is not the same",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "brain",
+    "tone": "soft"
+   },
+   "to": {
+    "icon": "lightbulb",
+    "tone": "acc",
+    "label": "Mindset"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115213.11",
+  "line": 21,
+  "text": "มันมัน มีหลายอย่าง ที่มัน เปลี่ยนไป มากๆ แล้วมัน",
+  "near": "Mindset ผมมัน ไม่ เหมือนกับ อย่างนี้เลย มันมัน มีหลายอย่าง ที่มัน เปลี่ยนไป มากๆ แล้วมัน ผมก็ ยังเห็น อินฟลู เอนเซอร์ บางคนเค้าก็ พูดว่า เอออันเนี้ย เป็น",
+  "lead": "มีหลายอย่างที่",
+  "key": "เปลี่ยนไป",
+  "meaning": "many things changed",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "bars",
+   "dir": "up",
+   "center": {
+    "icon": "chart-column"
+   },
+   "n": 4,
+   "keep": 0
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115213.12",
+  "line": 24,
+  "text": "ซึ่งถ้า คุณแค่ คิดว่ามันเป็น รายได้ เสริม",
+  "near": "ช่องทาง หารายได้ เสริมที่ดี ซึ่งถ้า คุณแค่ คิดว่ามันเป็น รายได้ เสริม",
+  "lead": "ถ้าคุณแค่คิดว่ามันเป็น",
+  "key": "รายได้เสริม",
+  "meaning": "if you only think side income",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "scale",
+   "a": {
+    "icon": "coins",
+    "tone": "soft"
+   },
+   "b": {
+    "icon": "briefcase",
+    "tone": "main"
+   },
+   "win": "b",
+   "how": "both"
+  },
+  "ok": true,
+  "problems": []
+ }
+]

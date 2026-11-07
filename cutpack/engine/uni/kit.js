@@ -250,7 +250,7 @@ function kit(F, T) {
     /* a target of rings; hit(t, from) flies an arrow into the middle */
     target(parent, cx, cy, r, t) {
       const g = node(parent, cx - r, cy - r, 2 * r, 2 * r, '',
-        `<svg width="${2 * r}" height="${2 * r}" style="overflow:visible"><circle class="fl" cx="${r}" cy="${r}" r="${r}"/><circle class="ln" cx="${r}" cy="${r}" r="${r * .66}"/>` +
+        `<svg width="${2 * r}" height="${2 * r}" style="overflow:visible"><circle class="u-tgt" cx="${r}" cy="${r}" r="${r}"/><circle class="ln" cx="${r}" cy="${r}" r="${r * .66}"/>` +
         `<circle class="ln" cx="${r}" cy="${r}" r="${r * .34}"/><circle class="ac" cx="${r}" cy="${r}" r="${r * .14}"/></svg>`);
       K.enter(g.o, t, 'pop');
       return {g, hit(t, {angle = -35, dist = 420} = {}) {     // the arrow flies in along its own line, tail up-right

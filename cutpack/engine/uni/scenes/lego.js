@@ -81,7 +81,7 @@ LAYOUT('count', {name: 'มากขึ้น / น้อยลง'}, (K, r, T) 
   const n = r.n ?? 4, keep = r.keep ?? 1, up = r.dir === 'up', it = r.item ?? {icon: 'user', shape: 'round'};
   const leaveAt = LG.spread(T.b[2], T.hit, n - keep);                      // last ones go first
   const comeAt = up ? LG.spread(T.b[1], T.hit, n) : [...Array(n)].map((_, i) => T.b[0] + .35 + i * .1);
-  let items = [], endAt = [640, 100], parent = K.stage;
+  let items = [], endAt = [640, 100], parent = K.stage, centerNode = null;
   if (r.as === 'bars') {
     const P = K.panel(130, 30, 740, 560, T.b[0]);
     K.badge(P.p, r.center.icon, 80, 78, 92, T.b[0] + .15, {tone: 'main'}); K.skel(P.p, 150, 64, [260], T.b[0] + .2);
@@ -93,19 +93,20 @@ LAYOUT('count', {name: 'มากขึ้น / น้อยลง'}, (K, r, T) 
     const lines = div('left:0;top:0;width:1000px;height:700px', K.stage,
       `<svg width="1000" height="700" style="overflow:visible">${pos.map(([x, y]) => `<path class="ln u-thin" d="M500 340L${x} ${y}"/>`).join('')}</svg>`);
     const ls = lines.querySelectorAll('path');
-    K.badge(K.stage, r.center.icon, 500, 340, 210, T.b[0], {tone: r.center.tone ?? 'main'});
+    centerNode = K.badge(K.stage, r.center.icon, 500, 340, 210, T.b[0], {tone: r.center.tone ?? 'main'});
     items = pos.map(([x, y], i) => { K.draw(ls[i], comeAt[i] - .1); return K.badge(K.stage, it.icon, x, y, 128, comeAt[i] + .1, {tone: it.tone ?? 'main', shape: it.shape ?? 'round'}); });
     if (!up) [...Array(n - keep)].forEach((_, k) => { const i = n - 1 - k; K.leave(items[i].o, leaveAt[k]); K.fade(ls[i], leaveAt[k], 1, 0); });
     endAt = [500, 340];
   } else {                                                                  // a row in a card
     const P = K.panel(130, 50, 740, 460, T.b[0]); parent = P.p;
-    K.badge(P.p, r.center.icon, 100, 100, 120, T.b[0] + .15, {tone: r.center.tone ?? 'main'});
+    centerNode = K.badge(P.p, r.center.icon, 100, 100, 120, T.b[0] + .15, {tone: r.center.tone ?? 'main'});
     K.skel(P.p, 190, 72, [330, 210], T.b[0] + .2);
     items = [...Array(n)].map((_, i) => K.badge(P.p, it.icon, 120 + i * 166, 318, 132, comeAt[i], {tone: it.tone ?? 'main', shape: it.shape ?? 'round'}));
     if (!up) [...Array(n - keep)].forEach((_, k) => K.leave(items[n - 1 - k].o, leaveAt[k]));
     endAt = [640, 100];
   }
   if (up) K.punch(items[n - 1].p, T.after);
+  if (!up && keep === 0 && !r.end && centerNode) { K.shake(centerNode.p, T.hit); K.fade(centerNode.o, T.hit + .3, 1, .45); }   // all gone: the owner is left empty
   if (r.end) { const e = K.badge(parent, r.end.icon, endAt[0] + (r.as === 'ring' ? 170 : 0), endAt[1] - (r.as === 'ring' ? 170 : 0), 100, T.hit, {tone: r.end.tone ?? 'neg'}); K.shake(e.p, T.after); }
 });
 

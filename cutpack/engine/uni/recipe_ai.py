@@ -119,7 +119,7 @@ def problems(r, line):
         if t.get('label'): words(t['label'], f'{where} label')
     def words(w, where, most=12):
         if glen(w) > most: bad.append(f'{where} "{w}" longer than {most}')
-        if flat(w) not in flat(line): bad.append(f'{where} "{w}" not in the line')
+        if flat(w) not in flat(line): bad.append(f'{where} "{w}" not said here')
         for d in re.findall(r'\d+', w):
             if d not in line: bad.append(f'{where}: number {d} not said')
     if L == 'versus':
@@ -174,21 +174,22 @@ def check(ask_dir, answer, out, prefix):
     js, report, ids, used = [], [], [], set()
     for k, p in enumerate(pics):
         n = p.get('line'); line = lines[n - 1] if isinstance(n, int) and 0 < n <= len(lines) else ''
+        near = ' '.join(lines[max(0, n - 2):n + 1]) if line else ''       # a sentence often runs over the next caption line
         bad = [] if line else [f'line {n} does not exist']
         if n in used: bad.append(f'line {n} has two pictures')
         used.add(n)
         lead, key = p.get('lead', ''), p.get('key', '')
         for w, most, where in ((lead, 22, 'lead'), (key, 12, 'key')):
             if w and glen(w) > most: bad.append(f'{where} "{w}" longer than {most}')
-            if w and line and flat(w) not in flat(line): bad.append(f'{where} "{w}" not in the line')
+            if w and line and flat(w) not in flat(near): bad.append(f'{where} "{w}" not said here')
         if not key: bad.append('no key word')
         if 'use' in p:
             if p['use'] not in lib: bad.append(f'unknown library recipe {p["use"]}')
             kind = 'library'
         else:
-            bad += problems(p.get('recipe') or {}, line); kind = 'new'
+            bad += problems(p.get('recipe') or {}, near); kind = 'new'
         sid = f'{prefix}.{k + 1:02d}'
-        report.append({'id': sid, 'line': n, 'text': line, 'lead': lead, 'key': key, 'meaning': p.get('meaning'), 'kind': kind,
+        report.append({'id': sid, 'line': n, 'text': line, 'near': near, 'lead': lead, 'key': key, 'meaning': p.get('meaning'), 'kind': kind,
                        'use': p.get('use'), 'recipe': p.get('recipe'), 'ok': not bad, 'problems': bad})
         if bad: continue
         if kind == 'library':
