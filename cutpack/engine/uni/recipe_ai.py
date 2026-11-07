@@ -146,6 +146,30 @@ You may change the frame. All the rules above still hold.
 '''
 
 
+FRAMES_R1 = '''6. "chain" — a cause runs into an effect, step by step.
+   {{"layout":"chain","as":"domino"|"arrows","items":[THING,THING,THING],"end":THING}}
+   - domino: three tiles fall onto each other, the last one on the key word. arrows: three cards, the push travels along. "end": optional sign of the result.
+7. "number" — only when the line SAYS a number: it counts up to it.
+   {{"layout":"number","value":"30%","unit":"words said","icon":…,"dir":"up"|"down"}}  value copied exactly as said (digits, % or a comma).
+8. "warn" — a warning: a sign lands on the risky thing.
+   {{"layout":"warn","thing":THING,"sign":"triangle-alert"|"octagon-alert"|…,"how":"cross"|"alert"}}  cross = don't do it (it gets a cross), alert = be careful.
+9. "time" — time passes.
+   - {{"layout":"time","as":"line","points":[THING,THING,THING],"at":0-2}}: a marker travels along three moments and stops at "at".
+   - {{"layout":"time","as":"clock","icon":…,"tone":…,"turns":1-6}}: a clock runs fast, then the result icon appears.
+8. "chat" — someone says or asks something.
+   {{"layout":"chat","bubbles":[{{"side":"left"|"right","label":"words said"}}, …2-4],"react":icon,"seen":true}}  left = them, right = me; bubbles without a label show blank lines; react = a reaction icon at the end; seen = the last message fades (no answer).
+'''.replace('8. "chat"', '10. "chat"')
+
+
+def system_v3():
+    t = system_v2()
+    a = 'THING = {{"icon": icon name'
+    assert a in t
+    t = t.replace(a, FRAMES_R1 + a, 1)
+    t = t.replace('- Pick the frame by what the line does:', '- Pick the frame by what the line does: a cause and its effect → chain; a number said → number; a warning → warn; time passing → time; someone says or asks → chat;', 1)
+    return t
+
+
 def system_v2():
     t = SYSTEM
     for a, b in V2_EDITS:
@@ -159,8 +183,8 @@ def ask(captions, duration, out, v=1):
     caps = caps['captions'] if isinstance(caps, dict) else caps
     os.makedirs(out, exist_ok=True)
     n = max(3, round(duration / 5)); nmax = round(duration / 4)
-    lib = '\n'.join(f'- {i}: {d}' for i, d in (LIBRARY_V2 if v == 2 else LIBRARY))
-    text = (system_v2() if v == 2 else SYSTEM).format(n=n, nmax=nmax, library=lib, icons=CORE_ICONS_V2 if v == 2 else CORE_ICONS)
+    lib = '\n'.join(f'- {i}: {d}' for i, d in (LIBRARY_V2 if v >= 2 else LIBRARY))
+    text = (system_v3() if v == 3 else system_v2() if v == 2 else SYSTEM).format(n=n, nmax=nmax, library=lib, icons=CORE_ICONS_V2 if v >= 2 else CORE_ICONS)
     open(os.path.join(out, 'system.txt'), 'w').write(text)
     json.dump({'v': v, 'n': n, 'nmax': nmax}, open(os.path.join(out, 'ask.json'), 'w'))
     lines = [f'{k + 1}. [{c["t0"]:.1f}-{c["t1"]:.1f}] {re.sub(r"\s+", " ", c["text"].replace(" / ", " ")).strip()}' for k, c in enumerate(caps)]
@@ -170,7 +194,9 @@ def ask(captions, duration, out, v=1):
 
 
 AS = {'versus': {'cards', 'scale', 'measure', 'buttons'}, 'count': {'row', 'ring', 'bars'}, 'steps': {'row', 'list'},
-      'change': {'swap', 'meter', 'toggle'}, 'aim': {'pick', 'target'}}
+      'change': {'swap', 'meter', 'toggle'}, 'aim': {'pick', 'target'},
+      # step 3 round 1 (scenes/lego_r1.js); None = the frame has one kind and "as" may be left out
+      'chain': {'domino', 'arrows', None}, 'number': {'big', None}, 'warn': {'sign', None}, 'time': {'line', 'clock'}, 'chat': {'phone', None}}
 TONES = {'main', 'acc', 'soft', 'neg', None}
 
 
@@ -229,6 +255,37 @@ def problems(r, line):
             if ic not in ICONS: bad.append(f'aim: unknown icon {ic}')
         if not (isinstance(r.get('at'), int) and 0 <= r['at'] < len(its)): bad.append('aim: at out of range')
         if r.get('how', 'pick') not in ('pick', 'fix', 'cross'): bad.append('aim: how must be pick|fix|cross')
+    elif L == 'chain':
+        its = r.get('items') or []
+        if len(its) != 3: bad.append('chain: exactly 3 items')
+        for k, it in enumerate(its): thing(it, f'chain {k + 1}')
+        if r.get('end'): thing(r['end'], 'end')
+    elif L == 'number':
+        v = str(r.get('value', ''))
+        if not re.search(r'\d', v): bad.append('number: value must be a number that is said')
+        elif flat(v) not in flat(line): bad.append(f'number "{v}" not said here')
+        if r.get('unit'): words(r['unit'], 'unit')
+        if r.get('icon') and r['icon'] not in ICONS: bad.append(f'number: unknown icon {r["icon"]}')
+        if r.get('dir') not in (None, 'up', 'down'): bad.append('number: dir must be up or down')
+    elif L == 'warn':
+        thing(r.get('thing'), 'thing')
+        if r.get('sign') and r['sign'] not in ICONS: bad.append(f'warn: unknown sign {r["sign"]}')
+        if r.get('how') not in (None, 'cross', 'alert'): bad.append('warn: how must be cross or alert')
+    elif L == 'time' and a == 'line':
+        pts = r.get('points') or []
+        if len(pts) != 3: bad.append('time: exactly 3 points')
+        for k, it in enumerate(pts): thing(it, f'point {k + 1}')
+        if r.get('at', 2) not in (0, 1, 2): bad.append('time: at must be 0-2')
+    elif L == 'time':
+        if r.get('icon') and r['icon'] not in ICONS: bad.append(f'clock: unknown icon {r["icon"]}')
+        if not (isinstance(r.get('turns', 3), int) and 1 <= r.get('turns', 3) <= 6): bad.append('clock: turns 1-6')
+    elif L == 'chat':
+        bs = r.get('bubbles') or []
+        if not 2 <= len(bs) <= 4: bad.append('chat: 2-4 bubbles')
+        for k, b in enumerate(bs):
+            if b.get('side', 'left') not in ('left', 'right'): bad.append(f'bubble {k + 1}: side left or right')
+            if b.get('label'): words(b['label'], f'bubble {k + 1} label')
+        if r.get('react') and r['react'] not in ICONS: bad.append(f'chat: unknown react icon {r["react"]}')
     return bad
 
 
@@ -282,7 +339,7 @@ def check(ask_dir, answer, out, prefix, fix_answer=None):
             kind = 'library'
         else:
             bad += problems(rec, near); kind = 'new'
-        if v == 2:                                                     # step-1 rules
+        if v >= 2:                                                     # step-1 rules
             harsh = sorted(set(icons_in(rec)) & HARSH)
             if harsh: bad.append(f'harsh icon {", ".join(harsh)}')
             fk = (rec.get('layout'), rec.get('as')) if kind == 'new' else None

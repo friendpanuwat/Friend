@@ -17,7 +17,7 @@ STYLE('card', {
   --tr:rgba(20,33,61,.12);--neg:#E5484D;--slot-line:rgba(20,33,61,.35);--ico-w:2.2;--tile-r:.28;--box-r:.26;--text:#14213D}
 .c-dark{--ink:#FFFFFF;--lw:15;--sd:#FFFFFF;--fl:#FFFFFF;--fl-line:#FFFFFF;--lw-fl:0;--ac:#DDFF45;--ac-line:#DDFF45;--lw-ac:0;
   --tr:rgba(255,255,255,.14);--neg:#FF5A5F;--slot-line:rgba(255,255,255,.4);--ico-w:2.2;--tile-r:.28;--box-r:.26;--text:#FFFFFF}
-.c-light{--halo:rgba(20,33,61,.09)}.c-dark{--halo:rgba(221,255,69,.42)}
+.c-light{--halo:rgba(20,33,61,.09);--num:#14213D}.c-dark .u-num{color:#DDFF45}.c-dark{--halo:rgba(221,255,69,.42)}
 .c-dark .u-chip.u-main{background:#FFFFFF;color:#050505}.c-light .u-chip.u-main{background:#14213D;color:#FFFFFF}
 .c-cream{background:#F2EDE2}.c-white{background:#FFFFFF}.c-glow{background:#050505}
 .u-panel{border-radius:40px}

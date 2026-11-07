@@ -43,3 +43,9 @@ svg{overflow:visible}
 .u-halo{background:radial-gradient(circle, var(--halo, rgba(0,0,0,.06)) 0%, transparent 68%)}
 .u-ghost{opacity:.5}
 .u-trend{stroke:var(--ac-line, var(--ink));stroke-dasharray:none}
+/* step 3 round 1 */
+.u-num{font-family:var(--num-font, "KeySans");color:var(--num, var(--ink));line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:-2px}
+.u-pulse{border:6px solid var(--neg)}
+.u-pulse-acc{border-color:var(--ac-line, var(--ac))}
+.u-bubble-text{color:var(--text)}
+.u-acc .u-bubble-text{color:inherit}

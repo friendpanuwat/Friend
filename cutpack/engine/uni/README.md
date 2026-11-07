@@ -34,3 +34,7 @@
 ## รายชื่อฉากของรอบเลโก้ (คัดลอกไปใส่ `render_test.sh` ได้เลย)
 `not-worth.lego undecided.lego fewer-customers.lego not-first.lego fix-spot.lego price-cut.lego lego.views-sales@0 lego.value-price@1 lego.short-long@2 lego.money-gone@3 lego.viewers-drop@4 lego.followers-up@5 lego.team-grows@0 lego.three-steps@1 lego.skip-step@2 lego.happy@3 lego.sales-jump@4 lego.bell-on@5 lego.right-people@0 lego.weak-spot@1 lego.on-target@2`
 (`@n` = ลำดับในคลิปที่สไตล์ใช้สลับพื้น ฉากที่ไม่มี `@` ใช้ลำดับของความหมาย)
+
+## รายชื่อฉากของขั้นที่ 3 รอบผลิตที่ 1 (`scenes/lego_r1.js`)
+`r1.chain-post@0 r1.chain-word@1 r1.chain-diet@2 r1.num-years@0 r1.num-percent@1 r1.num-one@2 r1.warn-diet@0 r1.warn-ads@1 r1.warn-loan@2 r1.time-line@0 r1.time-clock@1 r1.time-grow@2 r1.chat-price@0 r1.chat-review@1 r1.chat-ask@2`
+โครงเรื่องใหม่ `chain` `number` `warn` `time` `chat` ตอนนี้รวม 10 โครง
