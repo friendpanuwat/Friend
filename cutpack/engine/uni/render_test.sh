@@ -25,12 +25,13 @@ one() {
 export -f one; export W OUT HERE CORE WIDTH
 jobs=()
 idx() { local i=0 m; for m in $MEANINGS; do [ "$m" = "${1%%.*}" ] && { echo $i; return; }; i=$((i+1)); done; echo 0; }
-for st in $STYLES; do for sc in $SCENES; do jobs+=("$st $sc $(idx $sc)"); done; done
+# a scene id may carry its place in the clip: <id>@<index>
+for st in $STYLES; do for sc in $SCENES; do case $sc in *@*) jobs+=("$st ${sc%@*} ${sc#*@}");; *) jobs+=("$st $sc $(idx $sc)");; esac; done; done
 printf '%s\n' "${jobs[@]}" | xargs -P 4 -L 1 bash -c 'one $0 $1 $2'
 if [ -n "${PREVIEW:-}" ]; then
   for st in $STYLES; do
-    for sc in $SCENES; do ffmpeg -y -loglevel error -pattern_type glob -i "$W/${st}_${sc}/prev/p_*.jpg" -vf "scale=180:320,tile=8x1" "$W/row_${st}_${sc}.jpg"; done
-    ffmpeg -y -loglevel error $(for sc in $SCENES; do printf -- '-i %s ' "$W/row_${st}_${sc}.jpg"; done) -filter_complex "vstack=$(echo $SCENES | wc -w)" "$W/sheet_${st}.jpg"
+    for sc in $SCENES; do sc=${sc%@*}; ffmpeg -y -loglevel error -pattern_type glob -i "$W/${st}_${sc}/prev/p_*.jpg" -vf "scale=180:320,tile=8x1" "$W/row_${st}_${sc}.jpg"; done
+    ffmpeg -y -loglevel error $(for sc in $SCENES; do printf -- '-i %s ' "$W/row_${st}_${sc%@*}.jpg"; done) -filter_complex "vstack=$(echo $SCENES | wc -w)" "$W/sheet_${st}.jpg"
     echo "sheet: $W/sheet_${st}.jpg"
   done
 fi

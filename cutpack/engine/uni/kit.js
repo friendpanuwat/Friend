@@ -202,7 +202,9 @@ function kit(F, T) {
       const f = div(`left:0;top:0;width:${bw}px;height:${h}px;border-radius:${h / 2}px;transform-origin:0 50%`, tr.p); f.className = fill;
       K.enter(tr.o, t + .1, 'rise');
       A(f, [{transform: 'scaleX(0)'}, {transform: `scaleX(${v})`}], t + .3, M.move.d * 1.3, {e: M.move.e});
-      return {track: tr, end: bx + bw * v, bx, bw};
+      let cur = v;
+      return {track: tr, end: bx + bw * v, bx, bw, at: k => bx + bw * k,
+        set(t, nv) { A(f, [{transform: `scaleX(${cur})`}, {transform: `scaleX(${nv})`}], t, M.move.d * 1.3, {e: M.move.e, f: 'forwards'}); cur = nv; }};
     },
     /* n stars in a row; light(t, k) lights the first k */
     stars(parent, cx, cy, n, size, t) {

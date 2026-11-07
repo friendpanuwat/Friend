@@ -5,6 +5,7 @@
 | ชั้น | ไฟล์ | มีอะไร |
 |---|---|---|
 | ความหมาย | `scenes/base6_more.js` | `MEANING(id, {name, when})` สิ่งที่ประโยคหมายถึง (AI จะเลือกตรงนี้) แต่ละความหมายมีหลายภาพ คือหลาย `SCENE` ที่ `meta.meaning` ชี้มาที่ความหมายนั้น (Friend 2026-11-07: ร่างแยก = motion graphics หน้าตาแบบไหนก็ได้ที่สื่อความหมายเดียวกัน) ฉากแรก 6 ฉากใน `base6.js` ใช้ id เดียวกับความหมาย |
+| เลโก้ | `scenes/lego.js` | `LAYOUT(id, meta, build)` โครงเรื่อง 5 แบบ (`versus` `count` `steps` `change` `aim`) และ `RECIPE(id, สูตร)` ภาพที่เป็นข้อมูลล้วน (โครงเรื่อง + ของ + ท่า) ไม่ต้องเขียนโค้ด กลายเป็น `SCENE` ให้ทุกสไตล์วาดได้ (Friend 2026-11-07: ทำเป็นชิ้นส่วนแล้วต่อกันได้หลายแบบเหมือนเลโก้) |
 | บท (ชุดฐาน ใช้ร่วมกันทุกสไตล์) | `scenes/*.js` | `SCENE(id, meta, build)` บอกแค่ว่ามีอะไร อยู่ตรงไหนบนผ้าใบ 1000 × 700 และเกิดตอนจังหวะไหน (`T.b[]`, `T.hit`, `T.after`) ห้ามมีสี ฟอนต์ ความหนาเส้น หรือความเร็วในบท ช่องที่เติมได้อยู่ใน `meta.slots` |
 | เครื่องมือกลาง | `kit.js` | สิ่งที่บทเรียกได้: ท่า (`enter` `leave` `punch` `shake` `move` `fade` `draw` `grow`), พื้นผิว (`panel` `skel` `label` `badge` `chip` `mark`), ของ (`toggle` `slider` แนวนอนหรือตั้ง `checklist` `avatar` `scale` ตาชั่งแขวนหรือกระดานกระดก `puzzle` จิ๊กซอว์ขนาดใดก็ได้ `bars` `measure` `stars` `button` `cursor` `gauge` `target` `brackets` `signpost`) และ `say(lead, key)` ทุกชิ้นได้แค่ชื่อบทบาท (`u-panel` `u-badge u-acc` `ln` `sd` `fl` `ac` …) |
 | กฎของสไตล์ (1 ไฟล์ต่อสไตล์) | `styles/*.js` | ตอบแบบฟอร์ม 7 ข้อ: จัดจอ (`frame`), กรอบและพื้น + วิธีวาดของ + ชุดสี (`css` ตั้งตัวแปรบทบาท `--ink --lw --sd --fl --ac --tr --neg …` และหน้าตาของ `u-*`), ตัวหนังสือ (`text`), ท่าขยับ (`motion` ทุกท่าที่ kit เรียก), เสียง (`sound`) และ `setup()` / `blurred` ถ้าต้องใช้ |
@@ -29,3 +30,7 @@
 - ตัวที่ต้องเริ่มจากที่อื่น (เช่น ชิ้นจิ๊กซอว์ที่ลอยมา) ใช้ `move(..., {hold: true})`
 - ห้ามวางตำแหน่งด้วย `transform` ใช้ `left/top` เพราะท่าขยับเขียนทับ `transform`
 - ยังไม่ได้ต่อเข้าแผน D, ตัวตรวจ และชุดทดสอบของ `plan/` เป็นต้นแบบแยกไว้ก่อน
+
+## รายชื่อฉากของรอบเลโก้ (คัดลอกไปใส่ `render_test.sh` ได้เลย)
+`not-worth.lego undecided.lego fewer-customers.lego not-first.lego fix-spot.lego price-cut.lego lego.views-sales@0 lego.value-price@1 lego.short-long@2 lego.money-gone@3 lego.viewers-drop@4 lego.followers-up@5 lego.team-grows@0 lego.three-steps@1 lego.skip-step@2 lego.happy@3 lego.sales-jump@4 lego.bell-on@5 lego.right-people@0 lego.weak-spot@1 lego.on-target@2`
+(`@n` = ลำดับในคลิปที่สไตล์ใช้สลับพื้น ฉากที่ไม่มี `@` ใช้ลำดับของความหมาย)
