@@ -16,12 +16,13 @@ usage: custom_check.py <file.js>    → prints the problems, exit 1 if any
 """
 import re, sys
 
-MAX_CHARS = 5000
+MAX_CHARS = 9000   # way 'hero' scenes are built in beats and run longer (2026-11-07)
 KIT = {   # helpers a scene may call (engine_head.html, motion.js, parts/*.js)
     'mv', 'snd', 'div', 'svg', 'ico', 'tile', 'pill', 'chunk', 'trend', 'ripple', 'cursor', 'fitW', 'mt', 'graphemes',
     'ON', 'NAVY', 'ACC', 'INK', 'CREAM', 'RED', 'MOTION', 'SAFE_W', 'STRIP', 'ACT', 'STAR', 'FITS',
+    'panel', 'bubble', 'skel', 'bars', 'stars', 'target', 'cross', 'num',   # the skill's UI pieces (kit_hero.md)
 }
-PARAMS = {'c', 'T', 'vis', 'S'}
+PARAMS = {'c', 'T', 'vis', 'S', 'box', 'W', 'H'}
 JS = {   # keywords and harmless globals
     'const', 'let', 'for', 'of', 'in', 'if', 'else', 'return', 'true', 'false', 'null', 'undefined', 'typeof',
     'Math', 'Array', 'Object', 'String', 'Number', 'parseFloat', 'parseInt', 'isNaN', 'Infinity', 'NaN', 'break', 'continue',

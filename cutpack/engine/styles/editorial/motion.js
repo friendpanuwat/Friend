@@ -268,3 +268,11 @@ function customWidget(kind, t0, t1, opts, build) {
     (vis, S, s, T) => { build(vis, S, T); cleanScene(vis); FITS.push(() => cleanScene(vis)); });
   return widgetAt('CU', v, kind, t0, t1, opts);
 }
+/* way 'hero' (test, Friend 2026-11-07, "แบบ D"): the AI draws the whole white widget card (W×H) itself, with its own
+   words, instead of a small square beside the kit's text. build(box, W, H, T). */
+function customWidgetFull(kind, t0, t1, opts, build) {
+  const v = `c${CUSTOM_N++}`;
+  WIDGET('CU', v, {name: 'AI-written', slots: {}, dur: [1, 3.5], hit: 'AI-written', full: true},
+    (vis, S, s, T, L, w) => { build(w, L.W, L.H, T); cleanScene(w); FITS.push(() => cleanScene(w)); });
+  return widgetAt('CU', v, kind, t0, t1, opts);
+}

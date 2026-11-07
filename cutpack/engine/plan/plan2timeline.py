@@ -44,7 +44,11 @@ def convert(plan, guard=False):
                 args = {k: sl[k] for k in ('wlead', 'wkey') if sl.get(k)}; args['hit'] = s['hit']
                 pos = s.get('pos') or lay.get('widgetPos', {}).get(s['size'])
                 if pos: args['pos'] = pos
-                call(f"customWidget({js(s['size'])}, {js(s['t0'])}, {js(s['t1'])}, {js(args)}, (vis, S, T) => {{\n{s['code']}\n}});", 'scene', i)
+                if s.get('kit') == 'full':   # way 'hero': the AI drew the whole card, words included
+                    args = {'hit': s['hit'], **({'pos': pos} if pos else {})}
+                    call(f"customWidgetFull({js(s['size'])}, {js(s['t0'])}, {js(s['t1'])}, {js(args)}, (box, W, H, T) => {{\n{s['code']}\n}});", 'scene', i)
+                else:
+                    call(f"customWidget({js(s['size'])}, {js(s['t0'])}, {js(s['t1'])}, {js(args)}, (vis, S, T) => {{\n{s['code']}\n}});", 'scene', i)
             continue
         cat, v = s['part'].split('.')
         args = dict(s.get('slots', {}), hit=s['hit'])

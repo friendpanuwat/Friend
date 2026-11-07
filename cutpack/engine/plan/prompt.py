@@ -32,14 +32,16 @@ KIND = {'editorial': 'card', 'overlay': 'widget'}
 #   example   the worked example is a whole 80 s clip of each style instead of the 18 s one
 #   loose     the AI is told code fixes lengths, hit times and gaps, so the meaning of each picture comes first
 #   count     this clip's density rules as numbers (the targets taken out on 2026-11-05, now without "count and check")
-WAYS = ('reason', 'describe', 'example', 'loose', 'count')
+#   hero      (Friend 2026-11-07, "แบบ D") the 6–8 sentences that carry the clip become AI-written scenes built in beats,
+#             with the skill's UI pieces (prompt/kit_hero.md); overlay ones draw their whole card. Not part of 'all'.
+WAYS = ('reason', 'describe', 'example', 'loose', 'count', 'hero')
 
 
 def ways_of(ways=None):
     """The ways asked for: the argument, else $CUTPACK_PLAN_WAYS ('all' = every way). Unknown names stop the run."""
     if ways is None: ways = os.environ.get('CUTPACK_PLAN_WAYS', '')
     if isinstance(ways, str): ways = [w.strip() for w in ways.split(',') if w.strip()]
-    ways = set(WAYS) if 'all' in ways else set(ways)
+    ways = (set(WAYS) - {'hero'}) | set(ways) - {'all'} if 'all' in ways else set(ways)
     bad = ways - set(WAYS)
     if bad: raise ValueError(f'unknown plan ways: {sorted(bad)} (known: {", ".join(WAYS)}, all)')
     return frozenset(ways)
@@ -357,30 +359,36 @@ def code_schema():
                                                                  'properties': {'i': {'type': 'integer'}, 'code': {'type': 'string'}}}}}}
 
 
-def code_system_text(cat):
+def code_system_text(cat, ways=frozenset()):
     """Cached block of the scene-code call: the kit guide and the icon names (the same for every clip)."""
-    return read('prompt', 'kit.md').strip() + '\n\n' + icons_text(cat)
+    return read('prompt', 'kit_hero.md' if 'hero' in ways else 'kit.md').strip() + '\n\n' + icons_text(cat)
 
 
-def code_request(inp, style, answer, cat=None):
+def code_request(inp, style, answer, cat=None, ways=None):
     """The second call (DECISIONS 2, step 5), only when the plan has custom scenes: write their code."""
-    cat = cat or load_catalog()
+    cat, ways = cat or load_catalog(), ways_of(ways)
+    hero = 'hero' in ways
     kind = KIND[style]
     rows = ['Write the code of these scenes. Answer {"scenes": [{"i": scene number, "code": function body}]}.', '']
     for i, s in enumerate(answer['scenes']):
         if s.get('part') != 'custom': continue
         words = [w for w in inp.get('words', []) if s['t0'] - .3 <= w['t0'] < s['t1']]
         sl = s.get('slots') or {}
-        rows += [f"## scene {i} · {kind}" + (f" · background {s.get('bg')}" if kind == 'card' else f" · widget {s.get('size')}, S = {150 if s.get('size') == 'short' else 180}"),
+        size = cat['widgetSizes'].get(s.get('size'), {})
+        wdesc = (f" · widget {s.get('size')}, the whole card W = {size.get('W')}, H = {size.get('H')}" if hero else
+                 f" · widget {s.get('size')}, S = {150 if s.get('size') == 'short' else 180}")
+        rows += [f"## scene {i} · {kind}" + (f" · background {s.get('bg')}" if kind == 'card' else wdesc),
                  f"t0 {s['t0']} · hit {s['hit']} · t1 {s['t1']}",
                  f"show: {s.get('need', '')}",
                  'words said: ' + ' '.join(f"{w['w']}@{w['t0']:.2f}" for w in words),
-                 'text code adds under it: ' + (' / '.join(x for x in (sl.get('lead') or sl.get('wlead'), sl.get('key') or sl.get('wkey')) if x) or 'none'), '']
+                 ('words the scene shows (draw them yourself, ≤ 3 words): ' + (' / '.join(x for x in (sl.get('wlead'), sl.get('wkey')) if x) or 'your choice from the words said')
+                  if hero and kind == 'widget' else
+                  'text code adds under it: ' + (' / '.join(x for x in (sl.get('lead') or sl.get('wlead'), sl.get('key') or sl.get('wkey')) if x) or 'none')), '']
     return {
         'model': MODEL, 'max_tokens': 16000,
         'betas': ['server-side-fallback-2026-07-01'], 'fallbacks': 'default',
         'output_config': {'effort': EFFORT, 'format': {'type': 'json_schema', 'schema': code_schema()}},
-        'system': [{'type': 'text', 'text': code_system_text(cat), 'cache_control': {'type': 'ephemeral'}}],
+        'system': [{'type': 'text', 'text': code_system_text(cat, ways), 'cache_control': {'type': 'ephemeral'}}],
         'messages': [{'role': 'user', 'content': '\n'.join(rows)}],
     }
 
@@ -392,6 +400,12 @@ WAY_RULES = {   # added after the `shows` rule of system.md, in this order
               "the picture, change `job`, or use B14.",
     'describe': "- Every library part says `shows:` what its picture means and `not for:` the sentences it would mislead "
                 "on. Choose the part whose `shows` means the same as yours, never one whose `not for` fits the sentence.",
+    'hero': "- Choose the 6–8 sentences that carry this clip (the hook, the main claim, each turn, the punch line) and make "
+            "each one `part: \"custom\"`: a scene designed for this sentence alone. In `need`, write it as a short story "
+            "in 2–4 beats tied to the words said, in the form \"at '<word>' <what appears>; at '<word>' <what changes>; at "
+            "'<key word>' <the hit>\": the objects of the sentence (product, price tag, cart, chat, wallet, checklist…), what "
+            "appears or changes on which word, and the hit. Plan every other scene from the library as usual. Never reuse "
+            "a scene from an example or an earlier clip: design each from this clip's words.",
     'loose': "- Code moves each scene's t0, t1 and hit onto the word times, fits its length into the part's range and "
              "opens the gaps between widgets, so rough seconds are fine. Put your care into the meaning: which sentences "
              "get a scene, and a picture that means the words.",

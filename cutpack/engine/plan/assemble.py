@@ -57,6 +57,7 @@ def assemble(inp, ans, style):
         if s.get('shows'): x['shows'] = s['shows']
         if s['part'] == 'custom':   # AI-written: what it should show, and its code from the second call (none yet → refused)
             x['need'] = s.get('need', ''); x['code'] = s.get('code', '')
+            if kind == 'widget' and 'hero' in prompt.ways_of(): x['kit'] = 'full'   # test way 'hero': the AI draws the whole card
         scenes.append(x)
     cam = []
     for c in ans.get('camera', []):
