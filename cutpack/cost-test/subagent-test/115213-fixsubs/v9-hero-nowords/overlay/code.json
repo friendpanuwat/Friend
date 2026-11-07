@@ -1,0 +1,28 @@
+{
+ "scenes": [
+  {
+   "i": 0,
+   "code": "const p = panel(box, 'left:10px;top:10px;width:740px;height:360px', T.t0 + 0.1, {style:'white'});\nconst coin = div('left:90px;top:70px;width:220px;height:220px', p, ico('circle-dollar-sign', 220, ACC, 2.5));\nmv.pop(coin, 1.68);\nconst lab = pill(p, 'mini', 2.88, 'left:330px;top:150px');\nmv.slide(coin, T.hit, 'translate(0px,0px) scale(1)', 'translate(380px,60px) scale(0.35)');\nmv.punch(lab, T.hit);\nsnd('pop', 1.68);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 5,
+   "code": "const b1 = bubble(box, '...', 13.8, 'left:20px;top:30px;width:380px;height:150px', {side:'left'});\nconst b2 = bubble(box, '...', 14.8, 'left:360px;top:200px;width:380px;height:150px', {side:'right'});\nconst c1 = tile(b1, 'coins', 14.56, 'left:150px;top:25px', {size:100, bg:ACC, color:'#fff'});\nconst t2 = tile(b2, 'briefcase', T.hit, 'left:140px;top:25px', {size:100, bg:NAVY, color:'#fff'});\nmv.punch(b2, T.hit);\nsnd('pop', 14.56);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 8,
+   "code": "const p = panel(box, 'left:10px;top:10px;width:740px;height:360px', T.t0 + 0.1, {style:'white'});\nconst glow = div('left:240px;top:60px;width:260px;height:260px;border-radius:130px;background:' + ACC + ';opacity:0', p);\nconst w = div('left:250px;top:130px;width:240px;height:240px', p, ico('wallet', 200, NAVY, 2.5));\nmv.pop(w, 20.4);\nconst xs = [270, 340, 410];\nfor (let i = 0; i < 3; i++) {\n  const k = div('left:' + xs[i] + 'px;top:80px;width:90px;height:90px;opacity:0', p, ico('coins', 80, ACC, 2.5));\n  mv.fly(k, 20.96 + i * 0.22, 'translateY(-220px)');\n}\nconst track = div('left:600px;top:60px;width:34px;height:240px;border-radius:17px;background:#e5e7eb', p);\nconst lvl = div('left:600px;top:60px;width:34px;height:240px;border-radius:17px;background:' + ACC, p);\nmv.fill(lvl, T.hit, 0.1, 1, 'Y');\nmv.pop(glow, T.hit);\nmv.punch(w, T.hit);\nsnd('tick', 21.0);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 9,
+   "code": "const p = panel(box, 'left:10px;top:10px;width:740px;height:360px', T.t0 + 0.1, {style:'white'});\nconst glow = div('left:240px;top:50px;width:280px;height:280px;border-radius:140px;background:' + ACC + ';opacity:0', p);\nconst outer = div('left:260px;top:90px;width:240px;height:240px', p, '');\nconst inner = div('left:0px;top:0px;width:240px;height:240px;transform:scale(0.55)', outer, ico('store', 240, NAVY, 2.5));\nmv.pop(outer, 23.04);\nmv.slide(inner, 23.4, 'scale(0.55)', 'scale(1)');\nconst sign = pill(p, 'OPEN', T.hit, 'left:310px;top:30px');\nmv.pop(glow, T.hit);\nmv.punch(outer, T.hit);\nsnd('pop', 23.04);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 12,
+   "code": "const p1 = panel(box, 'left:10px;top:30px;width:350px;height:320px', 31.2, {style:'white'});\nconst p2 = panel(box, 'left:400px;top:30px;width:350px;height:320px', 31.7, {style:'white'});\nconst s = div('left:85px;top:60px;width:180px;height:180px', p1, ico('store', 180, RED, 2.5));\nmv.wobble(s, 31.3);\nconst tr = trend(p2, [[0,30],[90,80],[170,120],[250,230]], 31.7, 'left:40px;top:50px', {w:270, h:240, color:RED, sw:12, d:0.4});\nconst x = cross(box, T.hit, 'left:190px;top:20px', {size:380, color:RED, sw:26});\nsnd('cross', T.hit);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 15,
+   "code": "const p = panel(box, 'left:10px;top:10px;width:740px;height:360px', T.t0 + 0.1, {style:'white'});\nbars(p, [0.95, 0.8, 1.0], 38.08, 'left:90px;top:30px', {w:100, gap:50, h:300, color:RED, last:RED, to:[0.06, 0.05, 0.04], tTo:39.4});\nconst ok = tile(p, 'circle-check', T.hit, 'left:520px;top:100px', {size:160, bg:ACC, color:'#fff'});\nmv.punch(ok.inner, T.hit + 0.2);\nsnd('tick', 39.3);\nsnd('hit', T.hit);"
+  }
+ ]
+}
