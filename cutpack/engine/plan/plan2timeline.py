@@ -23,7 +23,6 @@ def convert(plan, guard=False):
     scenes = sorted(enumerate(plan.get('scenes', [])), key=lambda x: x[1]['t0'])   # keep each scene's index in the plan
     cards = [[s['t0'], s['t1']] for _, s in scenes if s['kind'] == 'card']
     if cards: out.append(f"cards({js(cards)});")
-    if plan.get('widgetWords') is False: out.append("WIDGET_WORDS = false;")   # way 'nowords' (Friend 2026-11-07)
     for i, c in enumerate(plan.get('camera', [])):
         if 'push' in c: call(f"push({js(c['push'])}{', ' + js(c['z']) if 'z' in c else ''});", 'camera', i)
         elif 'pull' in c: call(f"pull({js(c['pull'])}{', true' if c.get('cut') else ''});", 'camera', i)
