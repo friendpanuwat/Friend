@@ -90,8 +90,11 @@ R3.both('B06', 'think', 'คนกับฟองคำถาม', (K, s, T, g) 
   });
   const q = K.badge(g, 'circle-help', Q.x, Q.y, 2 * Q.r, T.b[2], {tone: 'main', shape: 'round'});
   if (s.answer) {                                     // the question gets its answer on the key word
-    const ans = LG.light(K, g, s.answer.icon, 438, 104, 150, T.hit, 'round'); R1.ripple(K, ans, T.hit + .15);
-    if (s.answer.label) SM.word(K, g, s.answer.label, 438, 196, 40, T.hit + .1, 'center');
+    /* the answer sits exactly on the question bubble and the bubble goes once it is covered (Friend 2026-11-08: it sat
+       a little off and left a white edge, "ไอคอนมันเหลื่อมๆนิดนึงเหมือนมันทิ้งขอบสีขาวไว้") */
+    const ans = LG.lightUp(K, g, s.answer.icon, Q.x, Q.y, 2 * Q.r, T.hit, 'round');
+    K.fade(q.o, ans.done, 1, 0); R1.ripple(K, ans, ans.done);
+    if (s.answer.label) SM.word(K, g, s.answer.label, Q.x, Q.y + Q.r + 8, 40, ans.done, 'center');
   } else { K.shake(q.p, T.hit); K.punch(who.p, T.hit + .1); }
 });
 

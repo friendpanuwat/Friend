@@ -175,7 +175,10 @@ LAYOUT('steps', {name: 'ขั้นตอน'}, (K, r, T) => {
   const target = cards[m.at];
   if (m.how === 'cross') { K.mark(target.c.p, 'cross', 240, 24, 84, T.hit); K.fade(target.c.o, T.hit + .15, 1, .45); K.move(target.c.m, T.after, 'none', 'translateY(20px)'); }
   else if (m.how === 'check') K.sat(target.c.p, 'check', 240, 24, 84, T.hit, {tone: 'ok'});
-  else { LG.light(K, target.c.p, its[m.at].icon, 135, 128, 170, T.hit); K.move(target.c.m, T.after, 'none', 'translateY(-16px) scale(1.05)'); K.sat(K.stage, 'sparkles', xs[m.at] + 120, 64, 84, T.after, {tone: 'acc'}); }
+  else {
+    /* the lit icon floats with the icon under it, so the one below never shows at its edge (Friend 2026-11-08: "เหลื่อม ๆ … ทิ้งขอบ") */
+    const lit = LG.light(K, target.c.p, its[m.at].icon, 135, 128, 170, T.hit); K.float(lit, when[m.at] + .7, T.t1, .5);
+    K.move(target.c.m, T.after, 'none', 'translateY(-16px) scale(1.05)'); K.sat(K.stage, 'sparkles', xs[m.at] + 120, 64, 84, T.after, {tone: 'acc'}); }
 });
 
 /* ---------- ก่อน → หลัง: one thing changes ---------- */

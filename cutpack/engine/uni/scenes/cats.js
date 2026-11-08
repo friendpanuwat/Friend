@@ -40,11 +40,22 @@ function pickVariant(cat, slots, seed = '') {
   const v = pool[hashOf(seed) % pool.length]; used.push(v.id); return v;
 }
 
+/* a red sign never sits on a red thing (Friend 2026-11-08: the warning stamp on a red icon, "สัญลักษณ์มันเป็นสีเดียวกับไอคอน
+   ซึ่งมันจะทำให้ไม่สวย"): in the categories whose variants put a red mark (stamp, warning sign, cross) on their things,
+   a "neg" tone the AI gave a thing becomes the plain "main" tone (not dropped: some variants' own default is the
+   highlight, which would light up a loser), so the mark alone is red */
+const CALM = {B03: ['a', 'b'], B04: ['items'], B07: ['thing']};
+function calm(r) {
+  const keys = CALM[r.cat]; if (!keys) return r;
+  const out = {...r}, off = t => t && t.tone === 'neg' ? {...t, tone: 'main'} : t;
+  for (const k of keys) out[k] = Array.isArray(r[k]) ? r[k].map(off) : off(r[k]);
+  return out;
+}
 /* one sentence of a category = one scene; it also gets one scene per variant that fits (<id>.<variant>) for tests */
 function SENTENCE(id, r) {
   const meta = v => ({meaning: r.cat, name: r.name + (v ? ' · ' + v.name : ''), story: CATS[r.cat].name, beats: 4, cat: r.cat, variant: v?.id,
     slots: {lead: {type: 'text', max: 22, sample: r.say[0]}, key: {type: 'text', max: 12, sample: r.say[1]}}});
-  const draw = (v, K, T) => (ST.overlay && v.small ? v.small : v.build)(K, r, T);        // an overlay widget uses the variant's small form
+  const c = calm(r), draw = (v, K, T) => (ST.overlay && v.small ? v.small : v.build)(K, c, T);   // an overlay widget uses the variant's small form
   const fit = CATS[r.cat].variants.filter(v => v.fits(r));
   SCENE(id, {...meta(null), small: fit.every(v => v.small)}, (K, s, T) => { draw(pickVariant(r.cat, r, r.say.join(' ')), K, T); K.say(s.lead, s.key); });
   fit.forEach(v => SCENE(`${id}.${v.id}`, {...meta(v), small: !!v.small}, (K, s, T) => { draw(v, K, T); K.say(s.lead, s.key); }));
