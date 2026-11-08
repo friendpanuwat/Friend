@@ -80,7 +80,8 @@ THING = {{"icon": icon name, "label": optional words, "tone": optional "acc"|"so
 Only JSON, no other text:
 {{"pictures":[{{"line":7,"shows":"…","cat":"B03","slots":{{…}},"lead":"…","key":"…"}}, {{"line":12,"cat":"none","need":"…"}}]}}
 """
-# Prompt v5 (Friend 2026-11-08: the editorial skill as a clearer manual, "ทำให้คู่มือละเอียดขึ้นโดยที่ไม่ต้องยาวขึ้น"): ordered steps,
+# Prompt v5 (v5.1: + the letter count example, after the test on clip 115213 lost a fix round to two labels "active income")
+# (Friend 2026-11-08: the editorial skill as a clearer manual, "ทำให้คู่มือละเอียดขึ้นโดยที่ไม่ต้องยาวขึ้น"): ordered steps,
 # the speaker's stance before the picture, the categories the AI mixes up. THE DEFAULT since Friend 2026-11-08 ("ใช้คำสั่งใหม่
 # เป็นค่าเริ่มต้นของเลโก้เลย"); $CUTPACK_CAT_PROMPT=v4 gives the old prompt above.
 SYSTEM_V5 = """You plan the pictures of a Thai talking-head short. Each picture is ONE CATEGORY (what the line does) + its SLOTS (the few things in it). Code draws it in the customer's style (no code, colours or layout from you).
@@ -128,7 +129,7 @@ B16 definition — what something is, "X is Y".
 THING = {{"icon": icon name, "label": optional words, "tone": optional "acc"|"soft"|"neg", "shape": optional "round"}}. acc = the one highlight, soft = faded, neg = red (harm only). Leave out every optional slot the line does not give.
 
 # Rules
-- Every word on screen (lead, key, labels, quote, tags, unit) is COPIED from that line (or the next one when the sentence runs on): you may leave words out at the start or the end, but never reorder, rephrase, shorten or add a word. Spaces may differ. Count every letter, spaces and Latin letters included: key, labels, quote and tags at most 12, lead at most 22. Numbers only if said.
+- Every word on screen (lead, key, labels, quote, tags, unit) is COPIED from that line (or the next one when the sentence runs on): you may leave words out at the start or the end, but never reorder, rephrase, shorten or add a word. Spaces may differ. Count every letter, spaces and Latin letters included: key, labels, quote and tags at most 12, lead at most 22 ("active income" is 13: too long for a label). Numbers only if said.
 - Icons: only names from the icon list below (Lucide). Never use these icons (harsh or off-brand): {harsh}. For harm or danger use triangle-alert, shield-alert, heart-crack, battery-low or thumbs-down.
 - Vary the categories.
 
