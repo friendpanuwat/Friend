@@ -1,0 +1,129 @@
+<title>คำสั่ง AI เลโก้ v5</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* layout: one reading column; what changed, three before/after cases from the same clip, then every picture as a strip */
+:root{
+  --bg:#F3F4F6; --card:#FFFFFF; --fg:#16181D; --muted:#5E6470; --line:#DEE1E7; --accent:#1F6F6A; --accent-soft:#DCEEEC;
+  --good:#1F7A4D; --good-soft:#DFF1E7; --warn:#8A5A12; --warn-soft:#F6ECDB;
+  --display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif; --body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E;
+  --good:#6FD39E; --good-soft:#163024; --warn:#E3B66A; --warn-soft:#2E2414; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E;
+  --good:#6FD39E; --good-soft:#163024; --warn:#E3B66A; --warn-soft:#2E2414; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.65;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(26px,6vw,34px);font-weight:700}
+h2{font-size:21px;font-weight:700}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+.lede{display:flex;flex-direction:column;gap:12px}
+.lede p{color:var(--muted);max-width:62ch}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.fact{font-size:14px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:4px 12px;font-weight:500}
+section{display:flex;flex-direction:column;gap:14px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.case{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.case img{width:100%;max-width:100%;border-radius:10px;display:block}
+.case .t{display:flex;flex-direction:column;gap:6px;min-width:0}
+.case q{font-weight:600;quotes:"“" "”"}
+.old{color:var(--warn);font-weight:600}
+.new{color:var(--good);font-weight:600}
+.strip{overflow-x:auto;border-radius:12px;border:1px solid var(--line);background:#1e1e1e}
+.strip img{display:block;height:300px;max-width:none}
+.note{font-size:14px;color:var(--muted)}
+table{border-collapse:collapse;font-size:14px;width:100%}
+td,th{border-bottom:1px solid var(--line);padding:7px 4px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:13px}
+td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+@media (max-width:460px){.case{grid-template-columns:110px minmax(0,1fr)}}
+</style>
+
+<div class="wrap">
+  <header class="lede">
+    <h1>คำสั่ง AI เลโก้ v5: ลองกับคลิปรายได้เสริม</h1>
+    <p>คราวนี้ทดสอบบนระบบเลโก้ที่เราใช้อยู่ ผมเขียนคำสั่งที่ AI อ่านใหม่ (AI เลือกประโยค เลือกหมวด และเขียนใบประกอบ) ให้ทำทีละขั้น และดูก่อนว่าคนพูดเห็นด้วยหรือกำลังติ</p>
+    <p>ทั้งคำสั่งเดิมและคำสั่งใหม่ใช้คลิปเดียวกัน AI รุ่นเดียวกับระบบจริง และร่างเลโก้ชุดปัจจุบัน</p>
+    <div class="facts"><span class="fact">ระบบเลโก้</span><span class="fact">ยาวเท่าเดิม</span><span class="fact">ภาพกลับความหมายหายไป</span></div>
+  </header>
+
+  <section>
+    <h2>คำสั่งใหม่ต่างจากเดิมยังไง</h2>
+    <div class="box">
+      <ul>
+        <li>ให้ทำทีละขั้น: เลือกประโยค แล้วดูว่าคนพูดเห็นด้วยหรือกำลังติ จากนั้นค่อยเลือกหมวด</li>
+        <li>บอกหมวดที่ AI มักสับสน เช่น คำว่า "ตอนที่" หรือ "เรื่อยๆ" ไม่นับเป็นหมวดเวลา</li>
+        <li>บอกว่าคำใหญ่ห้ามเป็นคำลงท้าย สรรพนาม หรือครึ่งคำ</li>
+      </ul>
+    </div>
+    <table>
+      <tr><th>วัดจากไฟล์จริง</th><th>คำสั่งเดิม (v4)</th><th>คำสั่งใหม่ (v5)</th></tr>
+      <tr><td>ความยาว (ตัวอักษร)</td><td class="n">6,697</td><td class="n">6,694</td></tr>
+      <tr><td>จำนวนภาพในคลิปนี้</td><td class="n">12</td><td class="n">11</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>ที่ดีขึ้น</h2>
+    <div class="case">
+      <img src="img/v4_card_115213.07.jpg" alt="ภาพจากคำสั่งเดิม ป้ายเตือนบนคำว่าความเสี่ยง" loading="lazy">
+      <div class="t">
+        <p>คนพูดชวนให้ <q>กล้าเทคความเสี่ยงกับมัน</q></p>
+        <p><span class="old">คำสั่งเดิม:</span> ใส่ป้ายเตือน เหมือนห้ามเสี่ยง ความหมายกลับกัน</p>
+        <p><span class="new">คำสั่งใหม่:</span> ไม่ใส่ป้ายเตือน ประโยคนี้รวมอยู่ในภาพเคล็ดลับ "มองเป็น business"</p>
+      </div>
+    </div>
+    <div class="case">
+      <img src="img/v4_card_115213.11.jpg" alt="ภาพจากคำสั่งเดิม ข้อความกับนิ้วโป้งชื่นชม" loading="lazy">
+      <div class="t">
+        <p>คนพูดไม่เห็นด้วยกับอินฟลูเอนเซอร์ที่บอกว่า <q>เป็นช่องทางหารายได้เสริมที่ดี</q></p>
+        <p><span class="old">คำสั่งเดิม:</span> ข้อความพร้อมนิ้วโป้งชื่นชม เหมือนคนพูดเห็นด้วย</p>
+        <p><span class="new">คำสั่งใหม่:</span> ไม่ทำภาพชื่นชมประโยคนี้</p>
+        <p class="note">ภาพสุดท้ายของคำสั่งใหม่ (หมวดประโยคเด็ด "รายได้เสริม") AI บอกถูกแล้วว่าให้จาง แต่ร่างเครื่องหมายคำพูดยังทำให้ไอคอนติดไฟเสมอ เป็นเรื่องของร่าง ต้องแก้ในโค้ดต่อ</p>
+      </div>
+    </div>
+    <div class="case">
+      <img src="img/v4_card_115213.02.jpg" alt="ภาพจากคำสั่งเดิม เส้นเวลา" loading="lazy">
+      <div class="t">
+        <p><q>มันก็จะเป็นรายได้เสริมต่อไปเรื่อยๆ</q></p>
+        <p><span class="old">คำสั่งเดิม:</span> ภาพเส้นเวลา ทั้งที่ประโยคไม่ได้พูดถึงเวลา</p>
+        <p><span class="new">คำสั่งใหม่:</span> ภาพเฟืองเหตุกับผล มองแบบนี้ ก็เลยเป็นรายได้เสริมต่อไป</p>
+      </div>
+    </div>
+    <p class="note">AI ตอบไม่เหมือนกันทุกครั้ง ผลนี้มาจากการลองแบบละครั้งเดียว ทั้งสองแบบผ่านตัวตรวจครบหลังรอบแก้ (คำสั่งใหม่มีป้ายคำยาวเกิน 2 ภาพ รอบแก้ของ Haiku แก้ให้)</p>
+  </section>
+
+  <section>
+    <h2>ภาพทั้งหมด (สไตล์การ์ด)</h2>
+    <p class="note">เรียงตามลำดับในคลิป เลื่อนดูทางขวาได้</p>
+    <h3>คำสั่งเดิม (v4)</h3>
+    <div class="strip"><img src="img/v4_card.jpg" alt="ภาพทุกภาพจากคำสั่งเดิม สไตล์การ์ดเต็มจอ" loading="lazy"></div>
+    <h3>คำสั่งใหม่ (v5)</h3>
+    <div class="strip"><img src="img/v5_card.jpg" alt="ภาพทุกภาพจากคำสั่งใหม่ สไตล์การ์ดเต็มจอ" loading="lazy"></div>
+  </section>
+
+  <section>
+    <h2>ภาพทั้งหมด (สไตล์การ์ด overlay)</h2>
+    <h3>คำสั่งเดิม (v4)</h3>
+    <div class="strip"><img src="img/v4_card-overlay.jpg" alt="ภาพทุกภาพจากคำสั่งเดิม สไตล์การ์ด overlay" loading="lazy"></div>
+    <h3>คำสั่งใหม่ (v5)</h3>
+    <div class="strip"><img src="img/v5_card-overlay.jpg" alt="ภาพทุกภาพจากคำสั่งใหม่ สไตล์การ์ด overlay" loading="lazy"></div>
+  </section>
+
+  <section>
+    <h2>ข้อควรรู้</h2>
+    <div class="box">
+      <ul>
+        <li>เลโก้ยังไม่ได้ต่อกับตัวรันคลิปจริง ผลจึงเป็นภาพทีละประโยค ยังไม่ใช่คลิปเต็ม</li>
+        <li>คำสั่งใหม่ยังเป็นตัวเลือกทดสอบ ระบบยังใช้คำสั่งเดิมจนกว่า Friend จะผ่าน</li>
+      </ul>
+    </div>
+  </section>
+</div>

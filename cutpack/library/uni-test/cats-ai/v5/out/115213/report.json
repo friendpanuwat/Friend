@@ -1,0 +1,424 @@
+[
+ {
+  "id": "v5i.01",
+  "line": 4,
+  "text": "เสริมนะ เว้ย มันก็จะ เป็นรายได้ เสริมต่อไป เรื่อยๆ",
+  "cat": "B12",
+  "shows": "Seeing it as side income leads to staying side income forever, shown as a faded coin in a loop.",
+  "need": null,
+  "lead": "มันก็จะ เป็นรายได้",
+  "key": "เสริมต่อไป",
+  "slots": {
+   "items": [
+    {
+     "icon": "eye"
+    },
+    {
+     "icon": "coins",
+     "label": "รายได้เสริม",
+     "tone": "soft"
+    },
+    {
+     "icon": "repeat"
+    }
+   ]
+  },
+  "fixed": false,
+  "picture": {
+   "line": 4,
+   "shows": "Seeing it as side income leads to staying side income forever, shown as a faded coin in a loop.",
+   "cat": "B12",
+   "slots": {
+    "items": [
+     {
+      "icon": "eye"
+     },
+     {
+      "icon": "coins",
+      "label": "รายได้เสริม",
+      "tone": "soft"
+     },
+     {
+      "icon": "repeat"
+     }
+    ]
+   },
+   "lead": "มันก็จะ เป็นรายได้",
+   "key": "เสริมต่อไป"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "v5i.02",
+  "line": 5,
+  "text": "มันจะ ไม่มีทาง เป็น Main income",
+  "cat": "B03",
+  "shows": "Side income stays, while main income is crossed out as never happening.",
+  "need": null,
+  "lead": "มันจะ",
+  "key": "ไม่มีทาง",
+  "slots": {
+   "mode": "versus",
+   "a": {
+    "icon": "coins",
+    "tone": "soft"
+   },
+   "b": {
+    "icon": "briefcase",
+    "label": "Main income"
+   },
+   "win": "a",
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 5,
+   "shows": "Side income stays, while main income is crossed out as never happening.",
+   "cat": "B03",
+   "slots": {
+    "mode": "versus",
+    "a": {
+     "icon": "coins",
+     "tone": "soft"
+    },
+    "b": {
+     "icon": "briefcase",
+     "label": "Main income"
+    },
+    "win": "a",
+    "how": "cross"
+   },
+   "lead": "มันจะ",
+   "key": "ไม่มีทาง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "v5i.03",
+  "line": 7,
+  "text": "อยากหา side hustle WTF the mean hustle",
+  "cat": "B11",
+  "shows": "A chat bubble quoting people who say they want a side hustle.",
+  "need": null,
+  "lead": "อยากหา",
+  "key": "side hustle",
+  "slots": {
+   "kind": "chat",
+   "quote": "side hustle",
+   "react": "message-circle-question"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 7,
+   "shows": "A chat bubble quoting people who say they want a side hustle.",
+   "cat": "B11",
+   "slots": {
+    "kind": "chat",
+    "quote": "side hustle",
+    "react": "message-circle-question"
+   },
+   "lead": "อยากหา",
+   "key": "side hustle"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "v5i.04",
+  "line": 8,
+  "text": "แล้ว รายได้หลัก active income",
+  "cat": "B16",
+  "shows": "Main income is defined as active income.",
+  "need": null,
+  "lead": "แล้ว",
+  "key": "รายได้หลัก",
+  "slots": {
+   "term": {
+    "icon": "briefcase",
+    "label": "รายได้หลัก"
+   },
+   "means": [
+    {
+     "icon": "trending-up",
+     "label": "active",
+     "tone": "acc"
+    }
+   ]
+  },
+  "fixed": true,
+  "picture": {
+   "line": 8,
+   "shows": "Main income is defined as active income.",
+   "cat": "B16",
+   "slots": {
+    "term": {
+     "icon": "briefcase",
+     "label": "รายได้หลัก"
+    },
+    "means": [
+     {
+      "icon": "trending-up",
+      "label": "active",
+      "tone": "acc"
+     }
+    ]
+   },
+   "lead": "แล้ว",
+   "key": "รายได้หลัก"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "v5i.05",
+  "line": 9,
+  "text": "อ่ะผม รู้สึกว่า ถ้าอยากให้ มันมา เป็น active income",
+  "cat": "B08",
+  "shows": "A target reached: active income is the goal.",
+  "need": null,
+  "lead": "ถ้าอยากให้ มันมา เป็น",
+  "key": "active",
+  "slots": {
+   "goal": {
+    "icon": "target",
+    "label": "active",
+    "tone": "acc"
+   },
+   "who": "user"
+  },
+  "fixed": true,
+  "picture": {
+   "line": 9,
+   "shows": "A target reached: active income is the goal.",
+   "cat": "B08",
+   "slots": {
+    "goal": {
+     "icon": "target",
+     "label": "active",
+     "tone": "acc"
+    },
+    "who": "user"
+   },
+   "lead": "ถ้าอยากให้ มันมา เป็น",
+   "key": "active"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "v5i.06",
+  "line": 11,
+  "text": "business หรือว่ากล้า เทค",
+  "cat": "B13",
+  "shows": "A tip: treat it as a business, highlighted.",
+  "need": null,
+  "lead": "",
+  "key": "business",
+  "slots": {
+   "secret": {
+    "icon": "lightbulb",
+    "label": "business",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 11,
+   "shows": "A tip: treat it as a business, highlighted.",
+   "cat": "B13",
+   "slots": {
+    "secret": {
+     "icon": "lightbulb",
+     "label": "business",
+     "tone": "acc"
+    }
+   },
+   "lead": "",
+   "key": "business"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "v5i.07",
+  "line": 13,
+  "text": "หรือว่า side hustle โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง",
+  "cat": "B07",
+  "shows": "Risk is said to be absent from side income, so the risk sign is crossed out.",
+  "need": null,
+  "lead": "ไม่มี",
+  "key": "ความเสี่ยง",
+  "slots": {
+   "thing": {
+    "icon": "shield-alert",
+    "label": "ความเสี่ยง"
+   },
+   "how": "cross",
+   "sign": "triangle-alert"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 13,
+   "shows": "Risk is said to be absent from side income, so the risk sign is crossed out.",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "shield-alert",
+     "label": "ความเสี่ยง"
+    },
+    "how": "cross",
+    "sign": "triangle-alert"
+   },
+   "lead": "ไม่มี",
+   "key": "ความเสี่ยง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "v5i.08",
+  "line": 15,
+  "text": "เพราะว่ายูเอา เวลา ของยู ไปใช้แล้ว ยูจะ คิดในมุม ของ mindset ที่",
+  "cat": "B09",
+  "shows": "Your own time is spent, shown as an hourglass.",
+  "need": null,
+  "lead": "เอา",
+  "key": "เวลา",
+  "slots": {
+   "result": {
+    "icon": "hourglass",
+    "label": "เวลา"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 15,
+   "shows": "Your own time is spent, shown as an hourglass.",
+   "cat": "B09",
+   "slots": {
+    "result": {
+     "icon": "hourglass",
+     "label": "เวลา"
+    }
+   },
+   "lead": "เอา",
+   "key": "เวลา"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "v5i.09",
+  "line": 16,
+  "text": "เอ่อ minimize minimize ความเสี่ยง ให้มาก ที่สุดเลย",
+  "cat": "B02",
+  "shows": "Risk signs shrink to the minimum.",
+  "need": null,
+  "lead": "",
+  "key": "minimize",
+  "slots": {
+   "dir": "down",
+   "item": {
+    "icon": "triangle-alert"
+   },
+   "n": 3,
+   "keep": 1
+  },
+  "fixed": false,
+  "picture": {
+   "line": 16,
+   "shows": "Risk signs shrink to the minimum.",
+   "cat": "B02",
+   "slots": {
+    "dir": "down",
+    "item": {
+     "icon": "triangle-alert"
+    },
+    "n": 3,
+    "keep": 1
+   },
+   "lead": "",
+   "key": "minimize"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "v5i.10",
+  "line": 20,
+  "text": "Mindset ผมมัน ไม่ เหมือนกับ อย่างนี้เลย",
+  "cat": "B03",
+  "shows": "The speaker's mindset changed from the old way to a new one.",
+  "need": null,
+  "lead": "",
+  "key": "Mindset",
+  "slots": {
+   "mode": "change",
+   "a": {
+    "icon": "brain",
+    "tone": "soft"
+   },
+   "b": {
+    "icon": "lightbulb",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 20,
+   "shows": "The speaker's mindset changed from the old way to a new one.",
+   "cat": "B03",
+   "slots": {
+    "mode": "change",
+    "a": {
+     "icon": "brain",
+     "tone": "soft"
+    },
+    "b": {
+     "icon": "lightbulb",
+     "tone": "acc"
+    }
+   },
+   "lead": "",
+   "key": "Mindset"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "v5i.11",
+  "line": 24,
+  "text": "ซึ่งถ้า คุณแค่ คิดว่ามันเป็น รายได้ เสริม",
+  "cat": "B14",
+  "shows": "Just thinking of it as side income is faded out as the wrong mindset.",
+  "need": null,
+  "lead": "คิดว่ามันเป็น",
+  "key": "รายได้เสริม",
+  "slots": {
+   "idea": {
+    "icon": "coins",
+    "label": "รายได้เสริม",
+    "tone": "soft"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 24,
+   "shows": "Just thinking of it as side income is faded out as the wrong mindset.",
+   "cat": "B14",
+   "slots": {
+    "idea": {
+     "icon": "coins",
+     "label": "รายได้เสริม",
+     "tone": "soft"
+    }
+   },
+   "lead": "คิดว่ามันเป็น",
+   "key": "รายได้เสริม"
+  },
+  "ok": true,
+  "problems": []
+ }
+]

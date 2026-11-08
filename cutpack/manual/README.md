@@ -4,6 +4,12 @@
 
 > **ผลในหัวข้อนี้ใช้ไม่ได้ (Friend 2026-11-08):** ทดสอบบนระบบเก่า (แผน D, คลังชิ้นส่วนก่อนเลโก้) ไม่ใช่ระบบเลโก้ที่ใช้อยู่ ดู LESSONS ข้อ 37 คู่มือเลโก้คือคำสั่งใน `engine/uni/cat_ai.py`
 
+## editorial บนระบบเลโก้ (ระบบปัจจุบัน, 2026-11-08)
+- คำสั่ง AI ของเลโก้ v5 = `SYSTEM_V5` ใน `engine/uni/cat_ai.py` (เปิดด้วย `CUTPACK_CAT_PROMPT=v5` ค่าเริ่มต้นยังเป็น v4) ยาว 6,694 ตัวอักษร (v4 6,697): ทำทีละขั้น 5 ขั้น · ดูก่อนว่าคนพูดเห็นด้วยหรือกำลังติ · หมายเหตุหมวดที่มักสับสน (B01 B05 B08 B09 B12 B14) · กฎคำใหญ่
+- ลองกับคลิป 115213 (Sonnet 5.5 low วางแผน, Haiku 5.5 low รอบแก้) เทียบกับผล v4 เดิม ภาพทั้งสองชุดทำใหม่ด้วยร่างชุดปัจจุบัน (`cats-ai/stills_cmp.sh`) หน้า 20 https://claude.ai/artifact/K3w6AeYY7Y2rjEMDj2CAUa
+- ผล: v5 แก้ภาพกลับความหมาย 2 จุดและหมวดเวลาผิด 1 จุด · ร่าง B14 `quote` ไม่สนใจ `tone: soft` (ต้องแก้ในโค้ด) · ลองครั้งเดียว
+- รันซ้ำ: `CUTPACK_CAT_PROMPT=v5 python3 engine/uni/cat_ai.py ask <captions.json> <วินาที> <ask>` → ผู้ช่วยย่อย Sonnet low เขียน `answer.raw.json` → `cat_ai.py check <ask> <ask>/answer.raw.json <out> <prefix>` → ถ้ามีภาพไม่ผ่าน `cat_ai.py fix <ask> <out>` → Haiku low เขียน `<out>/fix.raw.json` → `check` อีกครั้งพร้อม fix → `cats-ai/stills_cmp.sh <work> <img> <out> <ชื่อ> card`
+
 ## editorial บนแผน D (ระบบเก่า)
 - ไฟล์: `engine/plan/prompt/v2/editorial.md` (คู่มือวางแผน 8 ขั้นตามลำดับ) และ `engine/plan/prompt/v2/kit_editorial.md` (คู่มือออกแบบการ์ดเอง มีตัวเลขการจัดวาง) ไม่แตะ skill ส่วนตัวใน `.claude/skills/`
 - เปิดด้วย `CUTPACK_MANUAL=v2` ใช้กับสไตล์ editorial เท่านั้น ค่าเริ่มต้นไม่เปลี่ยน (คำขอเดิมเหมือนเดิมทุกตัวอักษร ตรวจแล้ว) ชุดทดสอบ 65 ข้อผ่าน
