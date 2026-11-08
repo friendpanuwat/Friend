@@ -6,7 +6,7 @@ const fs = require('fs'), path = require('path'), vm = require('vm'), assert = r
 const load = () => {
   const ctx = {SCENE() {}, LAYOUTS: {}, console};
   vm.createContext(ctx);
-  for (const f of ['scenes/cats.js', 'scenes/lego_r2.js', 'scenes/lego_v2.js']) vm.runInContext(fs.readFileSync(path.join(__dirname, f), 'utf8'), ctx);
+  for (const f of ['scenes/cats.js', 'scenes/lego_r2.js', 'scenes/lego_r3.js', 'scenes/lego_v2.js']) vm.runInContext(fs.readFileSync(path.join(__dirname, f), 'utf8'), ctx);
   vm.runInContext('this.pick = (c, s) => pickVariant(c, s, s.say.join(" ")).id; this.reset = () => { for (const k in PICKS) delete PICKS[k]; }; this.CATS = CATS;', ctx);
   return ctx;
 };

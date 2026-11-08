@@ -61,3 +61,5 @@ svg{overflow:visible}
 .u-flash{background:radial-gradient(circle, color-mix(in srgb, var(--neg) 60%, transparent) 0%, transparent 66%)}
 .u-stamp{fill:none;stroke:var(--neg);stroke-width:calc(var(--lw-cross, 14) * 1.5);stroke-linecap:round;stroke-linejoin:round}
 .u-stamp-dot{fill:var(--neg)}
+/* round 3 */
+.u-btn-text{font-family:"CardSans";white-space:nowrap;color:inherit;line-height:1}
