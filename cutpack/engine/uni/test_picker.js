@@ -6,7 +6,7 @@ const fs = require('fs'), path = require('path'), vm = require('vm'), assert = r
 const load = () => {
   const ctx = {SCENE() {}, LAYOUTS: {}, console};
   vm.createContext(ctx);
-  for (const f of ['scenes/cats.js', 'scenes/lego_r2.js']) vm.runInContext(fs.readFileSync(path.join(__dirname, f), 'utf8'), ctx);
+  for (const f of ['scenes/cats.js', 'scenes/lego_r2.js', 'scenes/lego_v2.js']) vm.runInContext(fs.readFileSync(path.join(__dirname, f), 'utf8'), ctx);
   vm.runInContext('this.pick = (c, s) => pickVariant(c, s, s.say.join(" ")).id; this.reset = () => { for (const k in PICKS) delete PICKS[k]; }; this.CATS = CATS;', ctx);
   return ctx;
 };
@@ -29,7 +29,12 @@ assert(!c.includes('review'), 'no stars for a plain chat: ' + c);
 // 4. same clip → same picks
 C.reset(); const again = [1, 2, 3, 4].map(k => C.pick('B01', money(k)));
 assert.deepStrictEqual(again, m, 'picks repeat exactly for the same clip');
-// 5. every category is there, B14 is text only, B16 exists
+// 5. versus and change never mix: a "before → after" sentence gets only change pictures
+C.reset(); const ch = [1, 2, 3].map(k => C.pick('B03', {mode: 'change', a: {icon: 'user', v: .2}, b: {icon: 'users', v: .8}, switch: true, say: ['จาก', `ตอนนี้ ${k}`]}));
+assert(ch.every(v => ['swap', 'meter', 'toggle'].includes(v)) && new Set(ch).size === 3, 'change pictures only: ' + ch);
+// 6. every variant of the picker categories has its small form (the overlay widget)
+for (const c of Object.values(C.CATS)) for (const v of c.variants) assert(v.small, `no small form: ${c.id}.${v.id}`);
+// 7. every category is there, B14 is text only, B16 exists
 assert.strictEqual(Object.keys(C.CATS).length, 16); assert(C.CATS.B14.text); assert(C.CATS.B16);
 console.log('picker ok');
 console.log('  money ×4 :', m.join(' → '));
