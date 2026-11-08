@@ -97,6 +97,10 @@ STYLE('split', {
       const s = 1 - (1 - s1) * p, tx = F.x * p, ty = (F.y - top * s1) * p;
       V.style.transform = p ? `translate(${tx}px,${ty}px) scale(${s})` : 'none';
       V.style.clipPath = p ? `inset(${top * p}px 0 ${(1920 - top - F.h / s1) * p}px 0 round ${F.r / s1 * p}px)` : 'none';
+      /* the frame's ring rides on the edge of the shrinking video (Friend 2026-11-08: it used to wait at the end spot
+         and cut across the face while the video was still big) */
+      const y0 = ty + s * top * p, y1 = ty + s * (1920 - (1920 - top - F.h / s1) * p);
+      Object.assign(fr.style, {left: tx + 'px', top: y0 + 'px', width: 1080 * s + 'px', height: (y1 - y0) + 'px', borderRadius: s * F.r / s1 * p + 'px'});
       fr.style.opacity = p;
     });
   },
@@ -105,8 +109,8 @@ STYLE('split', {
     const dark = index % 3 === 1, W = SPLIT.win;
     const root = div(`left:${W.x}px;top:${W.y}px;width:${W.w}px;height:${W.h}px`, SC);
     root.className = `p-win ${dark ? 'p-dark' : 'p-light'}`;
-    A(root, [{opacity: 0, transform: 'translateY(-30px)'}, {opacity: 1, transform: 'none'}], t0 + .1, .55, {e: EASE.gentle});
-    A(root, [{opacity: 1}, {opacity: 0}], t1 - .35, .3, {e: EASE.gentle, f: 'forwards'});
+    A(root, [{opacity: 0, transform: 'translateY(-30px)'}, {opacity: 1, transform: 'none'}], t0 + SPLIT.inD * .55, .5, {e: EASE.gentle});   // the face has left the window area
+    A(root, [{opacity: 1}, {opacity: 0}], t1 - SPLIT.outD - .15, .3, {e: EASE.gentle, f: 'forwards'});                                 // gone before the speaker grows back
     const tc = `00:00:${String(10 + index * 7).padStart(2, '0')}:00`;
     div('', root, `<div class="p-dots"><i></i><i></i><i></i></div><div class="p-tc">${tc}</div>`).className = 'p-bar';
     const stage = div('left:30px;top:64px;width:1000px;height:700px;transform-origin:0 0;transform:scale(.74)', root);
@@ -115,15 +119,15 @@ STYLE('split', {
   /* the sentence waits in pale ink, each part darkens when it is said (karaoke in two tones) */
   text(F, T, lead, key) {
     const el = div('', SC); el.className = `p-text ${F.dark ? 'p-dark' : 'p-light'}`;
-    A(el, [{opacity: 0, transform: 'translateY(12px)'}, {opacity: 1, transform: 'none'}], T.t0 + .2, .45, {e: EASE.gentle});
-    A(el, [{opacity: 1}, {opacity: 0}], T.t1 - .35, .3, {f: 'forwards'});
+    A(el, [{opacity: 0, transform: 'translateY(12px)'}, {opacity: 1, transform: 'none'}], T.t0 + SPLIT.inD * .8, .4, {e: EASE.gentle});      // once the video is below the words
+    A(el, [{opacity: 1}, {opacity: 0}], T.t1 - SPLIT.outD - .15, .25, {f: 'forwards'});
     const ink = '#4B3D6E';
     const row = (txt, t) => {
       const r = document.createElement('div'); el.appendChild(r); const s = document.createElement('span'); s.textContent = txt; r.appendChild(s);
       A(s, [{color: '#B8AECF'}, {color: ink}], t, .35, {e: 'ease-out'});
       FITS.push(() => { const w = s.offsetWidth; if (w > 800) r.style.transform = `scale(${800 / w})`; });
     };
-    if (lead) row(lead, T.t0 + .35);
+    if (lead) row(lead, T.t0 + SPLIT.inD * .8 + .1);
     if (key) row(key, T.hit);
     return el;
   },
