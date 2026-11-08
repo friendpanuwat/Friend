@@ -80,6 +80,64 @@ THING = {{"icon": icon name, "label": optional words, "tone": optional "acc"|"so
 Only JSON, no other text:
 {{"pictures":[{{"line":7,"shows":"…","cat":"B03","slots":{{…}},"lead":"…","key":"…"}}, {{"line":12,"cat":"none","need":"…"}}]}}
 """
+# Prompt v5 (Friend 2026-11-08: the editorial skill as a clearer manual, "ทำให้คู่มือละเอียดขึ้นโดยที่ไม่ต้องยาวขึ้น"): ordered steps,
+# the speaker's stance before the picture, the categories the AI mixes up. Under test: $CUTPACK_CAT_PROMPT=v5, default v4.
+SYSTEM_V5 = """You plan the pictures of a Thai talking-head short. Each picture is ONE CATEGORY (what the line does) + its SLOTS (the few things in it). Code draws it in the customer's style (no code, colours or layout from you).
+
+# Work in this order
+1. Lines (number, seconds, words): about one picture every 4-6 seconds (this clip: about {n} pictures, at most {nmax}), never two on one line. First: numbers said, turns (after แต่ / ไม่ใช่ / ไม่มีทาง / อย่า), the main claim, the punch line, things you can show. Never filler (เอ่อ อ่ะ นะครับ ใช่ป่ะ).
+2. Stance. Is the speaker FOR the thing the line names, or AGAINST it (warning, mocking, not enough)? AGAINST words: ไม่ ไม่มี ไม่ต้อง อย่า แค่ เลิก ผิด พลาด เสี่ยง เจ๊ง ขาดทุน. FOR: the thing gets the highlight (tone acc), a tick, goes up. AGAINST: it is crossed, goes down or fades (tone soft, or neg for harm). Never tick, raise or acc what the speaker is against: "ถ้าคุณแค่คิดว่ามันเป็นรายได้เสริม" is AGAINST รายได้เสริม.
+3. "shows": one short English sentence of what the viewer sees, with the line's stance (same meaning, sound off).
+4. "cat": what the line DOES (list below); "slots": that category's only. If a line deserves a picture but no category fits, do not force one: {{"line":7,"cat":"none","need":"what the line does, in a few English words"}} (never a way to skip a line).
+5. "lead" and "key": the words on screen, from that line. lead = the words before the key. key = the word that carries the line: the number, the thing or the verb of change; never a particle (ครับ ค่ะ นะ อ่ะ เว้ย), a pronoun (ผม คุณ ยู มัน) or half of a word said (รายได้เสริม, not เสริม).
+
+# Categories (id — when — slots)
+B01 big number — the line SAYS a number (an amount, a percent, a count, years, a price) and the number is the point. No number said → not B01.
+  {{"value":"3,000","unit":"บาท","icon":…,"dir":"up"|"down"}}  value copied exactly as said (digits, comma, %); unit = the word said right after it (optional); icon optional (what the number is about); dir optional.
+B02 more / less — something grows or shrinks, arrives or leaves, rises or falls.
+  {{"dir":"up"|"down","item":THING,"center":THING,"n":2-4,"keep":0-3,"end":THING}}  item = what grows or leaves (one icon, drawn n times); center = optional owner (a shop, a wallet, a video); keep = how many stay when it goes down (0 only when the line says ALL of it is gone); end = optional sign at the end.
+B03 compare / before → after — two things side by side, or one thing that changed.
+  {{"mode":"versus"|"change","a":THING,"b":THING,"win":"a"|"b","how":"cross"|"check","switch":true|false}}  versus: a and b side by side, win = the better one, how = only cross the loser or only tick the winner (optional). change: a = before, b = after. Put "v" (0.1-1, long = more) in a and b when the line is about more or less of something. switch only when something is turned on (true) or off (false).
+B04 steps / checklist — a sequence, or a list of things to do.
+  {{"items":[THING,THING,THING],"mark":{{"at":0-2,"how":"light"|"check"|"cross"}}}}  three items in order, each with an icon (and a label if said); mark optional = the step that matters (light), is done (check) or is wrong (cross).
+B05 right vs wrong, "not X but Y" — one thing is wrong, the other is right (both said).
+  {{"wrong":THING,"right":THING}}
+B06 question / doubt — someone asks, wonders or hesitates.
+  {{"about":THING,"options":[THING,THING],"answer":THING}}  about = who or what is in doubt; options only when the line names two choices; answer only when the line gives the answer.
+B07 warning / problem — don't do this, watch out, a risk, a mistake.
+  {{"thing":THING,"how":"cross"|"flag","sign":icon}}  thing = the risky thing; cross = do not do it; flag = be careful; sign optional (triangle-alert, octagon-alert, shield-alert, …).
+B08 goal / result / success — reaching a goal, winning, the result the speaker WANTS.
+  {{"goal":THING,"who":icon}}  goal = what is reached; who optional (who gets there).
+B09 time / timeline / deadline — an amount of time, a date, a deadline, moments in order. ตอนที่ / เมื่อ / แล้ว alone are not time.
+  {{"points":[THING,THING,THING],"at":0-2,"result":THING}}  points = three moments (as said, e.g. day 1, month 1, year 1), at = where it stops; result = what the time brought. Give points, or result, or both.
+B10 people / target audience — who this is for, a kind of person, a crowd.
+  {{"who":THING,"label":"words","tags":["words","words"]}}  who = the person icon (user, users, …); label = the kind of person, as said; tags optional (at most 2, as said).
+B11 what someone says / chat / comment / review — a message, a question in a chat, a comment, a review.
+  {{"kind":"chat"|"comment"|"review"|"message","quote":"words said","mood":"good"|"bad","react":icon,"gone":true}}  quote = the words of the message, as said (at most 12 letters); mood optional; react optional reaction icon; gone = no reply, they disappeared.
+B12 cause → effect — one thing leads to the next (ทำให้, เลย, จึง, เพราะ).
+  {{"items":[THING,THING,THING],"end":THING}}  three links of the chain in order; end optional sign of the result.
+B13 tip / secret — a tip, a trick, a hidden key point.
+  {{"secret":THING}}  the tip itself.
+B14 punchline — a line to remember, nothing else to show; never when another category fits.
+  {{"idea":THING}}  the heart of the line.
+B15 call to action / ending — follow, comment, save, share, like.
+  {{"action":"follow"|"comment"|"save"|"share"|"like","label":"words said"}}  label optional.
+B16 definition — what something is, "X is Y".
+  {{"term":THING,"means":[THING]}}  term with a label (the word defined); means = 1-3 things it is.
+THING = {{"icon": icon name, "label": optional words, "tone": optional "acc"|"soft"|"neg", "shape": optional "round"}}. acc = the one highlight, soft = faded, neg = red (harm only). Leave out every optional slot the line does not give.
+
+# Rules
+- Every word on screen (lead, key, labels, quote, tags, unit) is COPIED from that line (or the next one when the sentence runs on): you may leave words out at the start or the end, but never reorder, rephrase, shorten or add a word. Spaces may differ. Count every letter, spaces and Latin letters included: key, labels, quote and tags at most 12, lead at most 22. Numbers only if said.
+- Icons: only names from the icon list below (Lucide). Never use these icons (harsh or off-brand): {harsh}. For harm or danger use triangle-alert, shield-alert, heart-crack, battery-low or thumbs-down.
+- Vary the categories.
+
+# Icons
+{icons}
+
+# Answer
+Only JSON, no other text:
+{{"pictures":[{{"line":7,"shows":"…","cat":"B03","slots":{{…}},"lead":"…","key":"…"}}, {{"line":12,"cat":"none","need":"…"}}]}}
+"""
 FIX = '''
 
 # Fix round
@@ -101,7 +159,7 @@ def ask(captions, duration, out):
     caps = caps['captions'] if isinstance(caps, dict) else caps
     os.makedirs(out, exist_ok=True)
     n = max(3, round(duration / 5)); nmax = round(duration / 4)
-    text = SYSTEM.format(n=n, nmax=nmax, harsh=', '.join(sorted(HARSH)), icons=CORE_ICONS_V2)
+    text = (SYSTEM_V5 if os.environ.get('CUTPACK_CAT_PROMPT') == 'v5' else SYSTEM).format(n=n, nmax=nmax, harsh=', '.join(sorted(HARSH)), icons=CORE_ICONS_V2)
     open(os.path.join(out, 'system.txt'), 'w').write(text)
     lines = [f'{k + 1}. [{c["t0"]:.1f}-{c["t1"]:.1f}] {re.sub(r"\s+", " ", c["text"].replace(" / ", " ")).strip()}' for k, c in enumerate(caps)]
     open(os.path.join(out, 'user.txt'), 'w').write(f'Clip: {duration:.1f} seconds, {len(caps)} caption lines.\n\n' + '\n'.join(lines) + '\n')
