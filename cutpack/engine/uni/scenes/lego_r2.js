@@ -147,7 +147,12 @@ VARIANT('B11', 'notify', {name: 'แจ้งเตือนเด้งซ้�
 }});
 
 /* ================= B08 เป้าหมาย / ผลลัพธ์ ================= */
-VARIANT('B08', 'target', {name: 'ลูกศรเข้าเป้า', build: (K, s, T) => LAYOUTS.aim.build(K, {as: 'target'}, T)});
+VARIANT('B08', 'target', {name: 'ลูกศรเข้าเป้า', build(K, s, T) {
+  LAYOUTS.aim.build(K, {as: 'target'}, T);
+  /* the goal itself, once the arrow is in (round 15: the target never showed what the sentence's goal was) */
+  const gl = K.badge(K.stage, s.goal?.icon ?? 'flag', 190, 140, 140, T.after, {tone: 'acc'}); R1.ripple(K, gl, LG.arrive('pop', T.after));
+  if (s.goal?.label) K.chipC(K.stage, s.goal.label, 190, 262, T.after + .15, {size: 40});
+}});
 
 VARIANT('B08', 'stairs', {name: 'ไต่บันไดถึงธง', build(K, s, T) {
   const xs = [150, 320, 490, 660], hs = [100, 190, 280, 370], bottom = 620, sw = 160, M = 92;
@@ -169,11 +174,10 @@ VARIANT('B08', 'stairs', {name: 'ไต่บันไดถึงธง', build
 }});
 
 VARIANT('B08', 'trophy', {name: 'แถบความคืบหน้าเต็ม ได้ถ้วยรางวัล', build(K, s, T) {
-  const P = K.panel(150, 320, 700, 280, T.b[0]);
-  const bar = K.measure(P.p, 50, 185, 600, T.b[0] + .15, 0, s.goal?.icon ?? 'target', {fill: 'u-bar-on'});
+  const P = K.panel(150, 400, 700, 180, T.b[0]);                          // only the bar now (the made-up "100%" is gone)
+  const bar = K.measure(P.p, 50, 90, 600, T.b[0] + .15, 0, s.goal?.icon ?? 'target', {fill: 'u-bar-on'});
   const fillAt = Math.max(T.b[1], T.hit - 1.2);
   bar.set(fillAt, 1);
-  R1.counter(K, P.p, 350, 78, 92, fillAt, '100%', T.hit - fillAt);
   K.halo(K.stage, 500, 150, 240, T.hit);
   const cup = K.badge(K.stage, 'trophy', 500, 150, 180, T.hit - .05, {tone: 'acc'});
   K.punch(cup.p, T.hit + .3); K.float(cup, T.hit + .9, T.t1);
@@ -321,7 +325,8 @@ SMALLV('B11', 'notify', (K, s, T) => {
 /* B08 เป้าหมาย / ผลลัพธ์ */
 SMALLV('B08', 'target', (K, s, T) => {
   K.target(K.stage, 300, 178, 138, T.b[0]).hit(T.hit, {angle: -35, dist: 300});
-  K.sat(K.stage, 'check', 486, 64, 76, T.after, {tone: 'ok', k: .5});
+  const gl = K.badge(K.stage, s.goal?.icon ?? 'flag', 92, 74, 96, T.after, {tone: 'acc'}); R1.ripple(K, gl, LG.arrive('pop', T.after));   // the goal, once the arrow is in
+  if (s.goal?.label) R4.word(K, K.stage, s.goal.label, 92, 128, 32, T.after + .15, 170);
 });
 SMALLV('B08', 'stairs', (K, s, T) => {
   const xs = [80, 190, 300, 410], hs = [56, 112, 168, 224], bottom = 326, sw = 104, M = 72;
@@ -343,7 +348,7 @@ SMALLV('B08', 'trophy', (K, s, T) => {
   const bar = K.measure(P.p, 26, 70, 470, T.b[0] + .15, 0, s.goal?.icon ?? 'target', {fill: 'u-bar-on', size: 84});
   const fillAt = Math.max(T.b[1], T.hit - 1.2);
   bar.set(fillAt, 1);
-  R1.counter(K, K.stage, 470, 118, 64, fillAt, '100%', T.hit - fillAt);
+  if (s.goal?.label) R4.word(K, K.stage, s.goal.label, 450, 74, 40, T.hit, 200);   // no made-up "100%" (round 15): the goal's own words
   const cup = K.badge(K.stage, 'trophy', 240, 92, 150, T.hit - .05, {tone: 'acc'});
   K.punch(cup.p, T.hit + .3); R1.ripple(K, cup, T.hit + .25);
 });
