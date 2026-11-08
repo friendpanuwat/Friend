@@ -18,11 +18,11 @@ const R5 = {
     const n_ = node(g, cx - R, cy - R, 2 * R, 2 * R, '', `<svg width="${2 * R}" height="${2 * R}" style="overflow:visible"><path class="ln u-thin" d="${d}Z"/></svg>`);
     n_.m.style.transformOrigin = '50% 50%'; K.enter(n_.o, t, 'pop'); return n_;
   },
-  /* an arrow-shaped board (dir -1 = points left, 1 = right) in the style's main holder */
+  /* an arrow-shaped board (dir -1 = points left, 1 = right), a solid shape with the style's outline: it must read on
+     every background (rule 10: in glass a see-through holder vanished on the blurred speaker) */
   board(K, g, x, y, w, h, dir, t) {
-    const b = node(g, x, y, w, h, 'u-badge u-main'); const k = h / 2;
-    b.p.style.borderRadius = '10px';
-    b.p.style.clipPath = dir < 0 ? `polygon(${k}px 0,100% 0,100% 100%,${k}px 100%,0 50%)` : `polygon(0 0,calc(100% - ${k}px) 0,100% 50%,calc(100% - ${k}px) 100%,0 100%)`;
+    const k = h / 2, d = dir < 0 ? `M${k} 0H${w}V${h}H${k}L0 ${k}Z` : `M0 0H${w - k}L${w} ${k}L${w - k} ${h}H0Z`;
+    const b = node(g, x, y, w, h, '', `<svg width="${w}" height="${h}" style="overflow:visible"><path class="sd" d="${d}"/></svg>`);
     K.enter(b.o, t, 'pop'); return b;
   },
 };
@@ -54,14 +54,14 @@ R3.both('B06', 'search', 'แว่นขยายส่องหา', (K, s, T,
 /* 2 · a signpost with two ways; the one in doubt stands at its foot and looks both ways */
 R3.both('B06', 'signpost', 'ป้ายทางแยกสองทาง', (K, s, T, g) => {
   const it = s.about ?? {icon: 'user'}, X = 300, opts = s.options?.length === 2 ? s.options : null;
-  const post = node(g, X - 10, 92, 20, 220, 'u-col'); post.p.style.borderRadius = '8px'; K.enter(post.o, T.b[0], 'rise');
+  /* the post only where no board is, so it never shows through a see-through board (glass, split) */
+  const post = div('left:0;top:0;width:600px;height:340px', g, `<svg width="600" height="340">` +
+    [[86, 100], [166, 176], [242, 312]].map(([y0, y1]) => `<rect class="sd" x="${X - 10}" y="${y0}" width="20" height="${y1 - y0}" rx="${y0 === 86 ? 8 : 0}"/>`).join('') + '</svg>');
+  K.enter(post, T.b[0], 'rise');
   const B = [R5.board(K, g, X - 200, 100, 200, 66, -1, T.b[0] + .25), R5.board(K, g, X, 176, 200, 66, 1, T.b[0] + .4)];
   B.forEach((b, i) => {
     const o = opts?.[i];
-    if (o) {
-      SM.ico(K, b.p, o.icon, i ? 52 : 148, 33, 40, T.b[0] + .5 + i * .1);
-      if (o.label) R4.word(K, b.p, o.label, i ? 128 : 72, 12, 30, T.b[0] + .55 + i * .1, 80);
-    }
+    if (o) K.badge(b.p, o.icon, i ? 70 : 130, 33, 52, T.b[0] + .5 + i * .1, {tone: 'acc', shape: 'round'});   // the way's icon on its board
   });
   const who = K.badge(g, it.icon, X, 290, 88, T.b[0] + .15, {tone: it.tone ?? 'main', shape: 'round'});
   /* it looks one way, then the other, then back (small turns of the head, not a walk) */
@@ -97,8 +97,9 @@ R3.both('B07', 'tape', 'เทปกั้นคาด', (K, s, T, g) => {
 R3.both('B07', 'hand', 'มือห้ามดันกลับ', (K, s, T, g) => {
   const it = s.thing, C = {x: 200, y: 150}, S = 150;
   const hero = K.badge(g, it.icon, C.x, C.y, S, T.b[0], {tone: it.tone ?? 'main'});
-  if (it.label) R4.word(K, g, it.label, C.x, C.y + S / 2 + 12, 40, T.b[0] + .2, 260);
+  const lab = it.label ? R4.word(K, g, it.label, C.x, C.y + S / 2 + 12, 40, T.b[0] + .2, 260) : null;
   const go = T.hit - (ST.motion.snap?.d ?? .5) * .85, land = LG.arrive('snap', go);
+  if (lab) { K.move(lab, land, 'none', 'translateX(-26px)'); K.fade(lab, land + .1, 1, .5); }   // the word goes back with its icon
   const hand = K.badge(g, 'hand', 420, C.y, 150, null, {tone: 'neg', shape: 'round'});
   K.fade(hand.o, go, 0, 1, {hold: true}); K.move(hand.m, go, 'translateX(150px)', 'none', {hold: true, kind: 'snap'});
   K.move(hero.m, land, 'none', 'translateX(-26px) scale(.94)');            // pushed back once the hand is there
@@ -109,7 +110,7 @@ R3.both('B07', 'hand', 'มือห้ามดันกลับ', (K, s, T, g
 /* 1 · the wrong one is crossed and drops into the bin, then the right one lights up */
 R3.both('B05', 'bin', 'ข้อผิดลงถังขยะ', (K, s, T, g) => {
   const X = 140, R = {x: 410, y: 150};
-  const bin = K.badge(g, 'trash-2', X, 256, 120, T.b[0], {tone: 'soft'});
+  const bin = K.badge(g, 'trash-2', X, 256, 120, T.b[0], {tone: 'main'});   // a clear bin (soft was too faint on glass and split)
   const w = K.badge(g, s.wrong.icon, X, 80, 110, T.b[0] + .15, {tone: 'main'});
   const wl = s.wrong.label ? R4.word(K, g, s.wrong.label, X, 140, 34, T.b[0] + .3, 230) : null;
   K.badge(g, s.right.icon, R.x, R.y, 150, T.b[1], {tone: 'soft'});
@@ -164,7 +165,7 @@ R3.both('B12', 'bounce', 'ลูกบอลกระเด้งส่งต่
   K.draw(floor.querySelector('path'), T.b[0]);
   const ts = its.map((it, i) => K.badge(g, it.icon, xs[i], Y, S, T.b[0] + .1 + i * .1, {tone: it.tone ?? 'main'}));
   its.forEach((it, i) => { if (it.label) R4.word(K, g, it.label, xs[i], Y + S / 2 + 12, 32, T.b[0] + .25 + i * .1, 160); });
-  const ball = node(g, 0, 0, D, D, 'u-badge u-main');   // not the accent: it ends on the lit (accent) tile ball.p.style.borderRadius = '50%';
+  const ball = node(g, 0, 0, D, D, 'u-badge u-ok'); ball.p.style.borderRadius = '50%';   // solid in every style (rule 10); not the accent: it lands on the lit tile
   const top = i => [xs[i] - D / 2, Y - S / 2 - D], start = [8, 0];
   const hops = [[T.b[0] + .4, start, top(0)], [T.b[1] + .2, top(0), top(1)], [T.hit - .42, top(1), top(2)]];
   K.enter(ball.o, hops[0][0], 'pop');
@@ -173,6 +174,7 @@ R3.both('B12', 'bounce', 'ลูกบอลกระเด้งส่งต่
     if (i < 2) A(ts[i].m, [{transform: 'translateY(0)'}, {transform: 'translateY(10px)'}, {transform: 'translateY(0)'}], t + .42, .3, {e: 'ease-out', f: 'none'});
   });
   const lit = LG.lightUp(K, g, its[2].icon, xs[2], Y, S, T.hit);           // the ball has landed on it (hop ends at the key word)
+  K.fade(ball.o, T.hit + .05, 1, 0);                                        // its job is done: it does not sit on the lit tile
   R1.ripple(K, lit, lit.done);
   if (s.end) K.sat(g, s.end.icon, 544, 50, 66, lit.done, {tone: s.end.tone ?? 'main'});
 });
@@ -192,7 +194,7 @@ R3.both('B08', 'finish', 'วิ่งเข้าเส้นชัย', (K, s,
   K.badge(g, s.goal.icon, G.x, G.y, 96, T.b[0] + .2, {tone: 'soft'});
   if (s.goal.label) R4.word(K, g, s.goal.label, G.x, G.y + 54, 34, T.b[0] + .35, 170);
   const runner = K.badge(g, s.who ?? 'user', G.x, FY - 50, 96, T.b[1] - .25, {tone: 'main', shape: 'round'});
-  A(runner.m, [{transform: 'translateX(-340px)'}, {transform: 'none'}], T.b[1], T.hit - T.b[1], {e: 'cubic-bezier(.3,0,.25,1)', f: 'both'});
+  A(runner.m, [{transform: 'translateX(-340px)'}, {transform: 'none'}], T.b[1], T.hit - T.b[1], {e: 'cubic-bezier(.45,0,.75,.9)', f: 'both'});   // speeds up and reaches the ribbon on the key word
   /* the ribbon breaks where the runner reaches it (its middle, on the key word) */
   K.move(L.m, T.hit, 'none', 'rotate(70deg)', {kind: 'tilt'}); K.move(Rr.m, T.hit, 'none', 'rotate(-70deg)', {kind: 'tilt'});
   const lit = LG.lightUp(K, g, s.goal.icon, G.x, G.y, 96, T.hit + .05);

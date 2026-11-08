@@ -70,3 +70,6 @@
 - `python3 cat_ai.py check <ask_dir> <answer.json> <out_dir> <prefix> [<fix.json>]` → `sentences.js` (เรียก `SENTENCE` ใช้กับ `build.py --extra` หรือ `EXTRA=` ของ `render_test.sh`), `report.json`, `scenes.txt`
 - `python3 cat_ai.py fix <ask_dir> <out_dir>` → คำขอรอบแก้ (Haiku 5.5) สำหรับภาพที่ไม่ผ่าน
 - `node cat_stats.js <out_dir>…` → หมวดไหนใช้กี่ภาพ ร่างซ้ำในคลิปกี่ครั้ง ภาพที่ใช้ได้ร่างเดียว และประโยคที่ AI บอกว่าไม่เข้าหมวด
+
+## รอบที่ 5 (2026-11-08): เพิ่มร่าง 5 หมวดที่ขาดที่สุด (ผลจากหน้า 16)
+`scenes/lego_r5.js` หมวดละ 2 ร่าง ด้วย `R3.both`: B06 แว่นขยาย (`search`) ป้ายทางแยก (`signpost`, ใช้ได้กับประโยคที่มีแค่ `about`) · B07 เทปกั้น (`tape`) มือห้าม (`hand`, เฉพาะ `how: 'cross'`) · B05 ถังขยะ (`bin`) นิ้วโป้ง (`thumbs`) · B12 เฟือง (`gears`) ลูกบอลกระเด้ง (`bounce`) · B08 เส้นชัย (`finish`) กุญแจ (`unlock`) ของใหม่: `.u-tape` ใน `base.css` ร่างเป้าหมายเดิมแก้ใน `lego_r2.js` (ลูกศรเข้าเป้าแสดง `goal`, ถ้วยไม่มีเลข 100%) **ตอนนี้ 16 หมวด 52 ร่าง** ตรวจสี `check_contrast.js` ตรวจของทับกัน `check_overlap.js` ผ่านทั้ง 6 สไตล์
