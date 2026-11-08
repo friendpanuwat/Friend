@@ -88,6 +88,7 @@ git checkout -B <สาขาที่ session ใหม่ได้รับ> o
 ### หน้าที่ Friend ดู (ใหม่สุดก่อน) ทุกหน้าเป็น artifact ส่วนตัว สำเนาอยู่ใน `library/uni-test/page<N>.html`
 | หน้า | เรื่อง | ลิงก์ | คลิปใน repo |
 |---|---|---|---|
+| 18 | อธิบายเลโก้ทีละชั้น: ร่างถังขยะ (ถูกกับผิด) แยกเป็นหมวด ใบประกอบ ร่าง ตัวเลโก้ สไตล์ (Friend ขอให้ยกตัวอย่าง) | https://claude.ai/artifact/CoY7mEVj3fG7SPD8Q3kono | ใช้คลิป `round5/*_r5.post.bin` (ในหน้า `v/`) ภาพนิ่งทำใหม่ได้จากฉาก `r5.post.bin@1` |
 | 17 | รอบที่ 5: 10 ร่างใหม่ของ 5 หมวดที่ขาดที่สุด เต็มจอ + overlay | https://claude.ai/artifact/WFJyMA65zhzPsANQVoPkAt | `round5/` (ในหน้าอยู่ที่ `r5/`) |
 | 16 | งาน ก.: AI เขียนใบประกอบตามหมวดกับบทพูดจริง 6 เรื่อง หมวดไหนใช้บ่อย ขาดร่างตรงไหน ทุกภาพที่ AI เลือก | https://claude.ai/artifact/YFS9TTZV3gUrUp4VGzztye | `cats-ai/stills/` (ในหน้าอยู่ที่ `st/`) |
 | 15 | รอบที่ 4: B14 ประโยคเด็ดในเลโก้ 3 ร่าง เต็มจอ + overlay | https://claude.ai/artifact/CxgVhgAzsoXmuQgoJUv6Tw | `round4/` (ในหน้าอยู่ที่ `r4/`) |

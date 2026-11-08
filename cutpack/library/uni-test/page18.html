@@ -1,0 +1,116 @@
+<title>เลโก้ทีละชั้น</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* layout: one reading column; a section per story frame; each recipe = its words + recipe line + the same picture in 3 styles */
+:root{
+  --bg:#F3F4F6; --card:#FFFFFF; --fg:#16181D; --muted:#5E6470; --line:#DEE1E7; --accent:#1F6F6A; --accent-soft:#DCEEEC; --warm:#8A5A12; --warm-soft:#F6ECDB;
+  --display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif; --body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --warm:#E3B66A; --warm-soft:#2E2414; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --warm:#E3B66A; --warm-soft:#2E2414; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(26px,6vw,36px);font-weight:700}
+h2{font-size:22px;font-weight:700}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+.lede{display:flex;flex-direction:column;gap:12px}
+.lede p{color:var(--muted);max-width:62ch}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.fact{font-size:14px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:4px 12px;font-weight:500}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.box ul,.box ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;color:var(--muted)}
+.box b{color:var(--fg);font-weight:600}
+.recipe-line{font-size:14px;background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:8px 12px;color:var(--fg)}
+.frame{display:flex;flex-direction:column;gap:20px;border-top:1px solid var(--line);padding-top:24px}
+.frame > p{color:var(--muted);font-size:15px}
+.rec{display:flex;flex-direction:column;gap:8px}
+.rec .top{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+.chip{font-size:12px;font-weight:600;border-radius:999px;padding:2px 10px;background:var(--warm-soft);color:var(--warm)}
+.say{font-size:14px;color:var(--muted)}
+.say q{color:var(--fg);font-weight:500;quotes:"“" "”"}
+.heads,.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.heads{font-size:12px;color:var(--muted);font-weight:500}
+.sub{font-size:13px;color:var(--warm);font-weight:500;margin-top:4px}
+button.vid{all:unset;cursor:pointer;display:block;border-radius:12px;overflow:hidden;aspect-ratio:9/16;max-width:100%;background:#000}
+button.vid:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.vid video{width:100%;height:100%;object-fit:cover;display:block}
+.lb{position:fixed;inset:0;background:rgba(8,9,12,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:20;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.lb .three{display:flex;gap:8px;justify-content:center;max-width:100%}
+.lb video{height:min(74vh,700px);max-width:31vw;aspect-ratio:9/16;object-fit:cover;border-radius:12px;background:#000}
+.lb .cap{color:#fff;font-size:14px;text-align:center}
+.lb button{font:inherit;color:#fff;background:rgba(255,255,255,.14);border:0;border-radius:999px;padding:6px 16px;cursor:pointer}
+.tag{font-size:12px;font-weight:600;border-radius:999px;padding:2px 10px;background:var(--accent-soft);color:var(--accent)}
+.vname{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-top:6px}
+.vname b{font-family:var(--display);font-weight:600;font-size:15px}
+.note{font-size:13px;color:var(--warm)}
+table{border-collapse:collapse;font-size:14px;width:100%}
+td,th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:13px}
+.kind{font-size:12px;font-weight:600;color:var(--muted);margin-top:2px}
+.kind.ov{color:var(--accent)}
+</style>
+
+<style>
+.step{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:22px}
+.num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--card);font-weight:700;font-size:15px;flex:none}
+.sh{display:flex;align-items:center;gap:10px}
+.who{font-size:13px;font-weight:600;color:var(--warm);background:var(--warm-soft);border-radius:999px;padding:2px 10px}
+.slots{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:15px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.slots dt{color:var(--muted)} .slots dd{margin:0;font-weight:500}
+.tl{display:flex;flex-direction:column;gap:12px}
+.tli{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px}
+.tli img{width:100%;border-radius:8px;display:block}
+.tli b{display:block;font-size:15px} .tli span{font-size:14px;color:var(--muted)}
+.lego{display:inline-block;font-size:13px;background:var(--accent-soft);color:var(--accent);border-radius:6px;padding:1px 8px;margin:2px 4px 0 0;font-weight:500}
+.vids{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.vids figure{margin:0;display:flex;flex-direction:column;gap:4px;min-width:0}
+.vids video{width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:10px;background:#000;display:block}
+.vids figcaption{font-size:12px;color:var(--muted);text-align:center}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pair figure{margin:0;min-width:0} .pair img{width:100%;border-radius:10px;display:block} .pair figcaption{font-size:13px;color:var(--muted);margin-top:4px}
+@media (max-width:420px){.tli{grid-template-columns:110px minmax(0,1fr)}}
+</style>
+<div class="wrap">
+  <header class="lede">
+    <h1>ภาพเดียว แยกเป็นเลโก้ทีละชั้น</h1>
+    <p>ตัวอย่างจากหมวดถูกกับผิด ประโยค <q>ไม่ต้องโพสต์เยอะ แค่สม่ำเสมอ</q></p>
+  </header>
+  <div class="vids"><figure><video src="v/card_r5.post.bin.mp4" poster="v/card_r5.post.bin.jpg" muted loop autoplay playsinline preload="metadata"></video><figcaption>สไตล์การ์ด</figcaption></figure><figure><video src="v/glass_r5.post.bin.mp4" poster="v/glass_r5.post.bin.jpg" muted loop autoplay playsinline preload="metadata"></video><figcaption>สไตล์กระจก</figcaption></figure><figure><video src="v/split_r5.post.bin.mp4" poster="v/split_r5.post.bin.jpg" muted loop autoplay playsinline preload="metadata"></video><figcaption>สไตล์แบ่งจอ</figcaption></figure></div>
+
+  <section class="step"><div class="sh"><span class="num">1</span><h2>AI เลือกหมวด</h2><span class="who">AI ทำ</span></div>
+    <p>AI อ่านประโยคแล้วตอบว่าเป็นประโยคแบบไหน ประโยคนี้บอกว่าอย่างหนึ่งผิด อีกอย่างถูก จึงเป็นหมวด <b>ถูกกับผิด</b></p></section>
+
+  <section class="step"><div class="sh"><span class="num">2</span><h2>AI เขียนใบประกอบ</h2><span class="who">AI ทำ</span></div>
+    <p>หมวดถูกกับผิดมีช่องให้เขียนแค่ 2 ช่อง</p>
+    <dl class="slots"><dt>ข้อผิด</dt><dd>ไอคอนกองกระดาษ + คำว่า "โพสต์เยอะ"</dd><dt>ข้อถูก</dt><dd>ไอคอนปฏิทินติ๊ก + คำว่า "สม่ำเสมอ"</dd></dl>
+    <p>AI เขียนแค่นี้ ไม่ได้วาดอะไรเลย</p></section>
+
+  <section class="step"><div class="sh"><span class="num">3</span><h2>โปรแกรมเลือกร่าง</h2><span class="who">โปรแกรมทำ</span></div>
+    <p>หมวดถูกกับผิดมี 4 ร่าง (ขีดฆ่า · การ์ดพลิก · ถังขยะ · นิ้วโป้ง) โปรแกรมเลือกร่างที่ยังใช้น้อยที่สุดในคลิปนั้น ครั้งนี้ได้ร่าง <b>ถังขยะ</b></p></section>
+
+  <section class="step"><div class="sh"><span class="num">4</span><h2>ร่างถังขยะต่อจากตัวเลโก้เหล่านี้</h2><span class="who">วาดไว้แล้ว</span></div>
+    <p>ร่างคือการเอาตัวเลโก้มาวางและกำหนดว่าตัวไหนขยับตอนไหน ตัวเลโก้ทุกตัวใช้ซ้ำได้ในร่างอื่น</p>
+    <div class="tl"><div class="tli"><img src="img/s1.jpg" alt="0.9 วินาที: ถังขยะกับข้อผิดขึ้นมา"><div><b>0.9 วินาที</b><span>ถังขยะกับข้อผิดขึ้นมา</span><div><span class="lego">กล่องไอคอน (ถังขยะ)</span><span class="lego">กล่องไอคอน (ข้อผิด)</span><span class="lego">ท่าเด้งเข้า</span></div></div></div><div class="tli"><img src="img/s2.jpg" alt="1.4 วินาที: คำใต้ข้อผิด และข้อถูกขึ้นแบบจาง ๆ รออยู่"><div><b>1.4 วินาที</b><span>คำใต้ข้อผิด และข้อถูกขึ้นแบบจาง ๆ รออยู่</span><div><span class="lego">คำใต้ไอคอน</span><span class="lego">กล่องไอคอนสีจาง (ข้อถูก)</span></div></div></div><div class="tli"><img src="img/s3.jpg" alt="2.0 วินาที: ข้อผิดโดนกากบาท"><div><b>2.0 วินาที</b><span>ข้อผิดโดนกากบาท</span><div><span class="lego">กากบาทสีแดง</span></div></div></div><div class="tli"><img src="img/s4.jpg" alt="2.3 วินาที: ข้อผิดตกลงถังตรง ๆ แล้วหายไป"><div><b>2.3 วินาที</b><span>ข้อผิดตกลงถังตรง ๆ แล้วหายไป</span><div><span class="lego">ท่าตกลง</span><span class="lego">ท่าจางหาย</span><span class="lego">ถังเด้งรับ</span></div></div></div><div class="tli"><img src="img/s5.jpg" alt="2.6 วินาที (คำสำคัญ): ข้อถูกติดไฟ"><div><b>2.6 วินาที (คำสำคัญ)</b><span>ข้อถูกติดไฟ</span><div><span class="lego">ไอคอนติดไฟ</span></div></div></div><div class="tli"><img src="img/s6.jpg" alt="3.4 วินาที: คลื่นรอบข้อถูก คำขึ้น และเครื่องหมายถูก"><div><b>3.4 วินาที</b><span>คลื่นรอบข้อถูก คำขึ้น และเครื่องหมายถูก</span><div><span class="lego">คลื่นทรงเดียวกับกล่อง</span><span class="lego">คำใต้ไอคอน</span><span class="lego">เครื่องหมายถูก</span></div></div></div></div></section>
+
+  <section class="step"><div class="sh"><span class="num">5</span><h2>สไตล์ทาสีและเลือกท่า</h2><span class="who">วาดไว้แล้ว</span></div>
+    <p>ร่างเดียวกัน เลโก้ชุดเดียวกัน แต่ละสไตล์ทาสี ทำพื้นการ์ด และกำหนดความเร็วของท่าเอง คลิปด้านบนคือ 3 สไตล์เต็มจอ ด้านล่างคือแบบเล็ก (overlay) ที่ใช้ร่างเดียวกัน</p>
+    <div class="vids"><figure><video src="v/card-overlay_r5.post.bin.mp4" poster="v/card-overlay_r5.post.bin.jpg" muted loop autoplay playsinline preload="metadata"></video><figcaption>การ์ด overlay</figcaption></figure><figure><video src="v/glass-overlay_r5.post.bin.mp4" poster="v/glass-overlay_r5.post.bin.jpg" muted loop autoplay playsinline preload="metadata"></video><figcaption>กระจก overlay</figcaption></figure><figure><video src="v/split-overlay_r5.post.bin.mp4" poster="v/split-overlay_r5.post.bin.jpg" muted loop autoplay playsinline preload="metadata"></video><figcaption>แบ่งจอ overlay</figcaption></figure></div></section>
+
+  <section class="step"><div class="sh"><span class="num">6</span><h2>เปลี่ยนประโยค ร่างเดิมก็ใช้ได้</h2></div>
+    <p>ประโยคใหม่ <q>สิ่งที่ควรทำไม่ใช่ลดราคา แต่ตอบคำถาม</q> AI เปลี่ยนแค่ใบประกอบ (ป้ายราคา "ลดราคา" → ฟองแชต "ตอบคำถาม") ร่างและเลโก้เหมือนเดิมทุกอย่าง</p>
+    <div class="pair"><figure><img src="img/s6.jpg" alt="ประโยคแรก"><figcaption>โพสต์เยอะ → สม่ำเสมอ</figcaption></figure><figure><img src="img/alt.jpg" alt="ประโยคที่สอง"><figcaption>ลดราคา → ตอบคำถาม</figcaption></figure></div></section>
+
+  <section class="box"><h2>สรุปสั้น ๆ</h2><ul>
+    <li><b>หมวด</b> = ประโยคแบบไหน (AI เลือก)</li>
+    <li><b>ใบประกอบ</b> = ไอคอนกับคำในภาพ (AI เขียน)</li>
+    <li><b>ร่าง</b> = หน้าตาของภาพ ต่อจากตัวเลโก้หลายตัว (โปรแกรมเลือก)</li>
+    <li><b>สไตล์</b> = สี พื้น และความเร็วท่า (ลูกค้าเลือก)</li></ul></section>
+</div>
