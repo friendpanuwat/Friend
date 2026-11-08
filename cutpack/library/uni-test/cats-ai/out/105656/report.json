@@ -1,0 +1,670 @@
+[
+ {
+  "id": "105656.01",
+  "line": 1,
+  "text": "เราผลิตร้อย ขวดก็ ผลิตล้าน ขวด ต้นทุนมัน จะ เท่ากัน",
+  "cat": "B03",
+  "shows": "Making a hundred bottles and making a million bottles at the same cost, shown as a small pile and a huge pile, the big one wins.",
+  "need": null,
+  "lead": "เราผลิตร้อย ขวดก็",
+  "key": "ผลิตล้าน",
+  "slots": {
+   "mode": "versus",
+   "a": {
+    "icon": "package",
+    "label": "ร้อย",
+    "v": 0.2
+   },
+   "b": {
+    "icon": "factory",
+    "label": "ล้าน",
+    "v": 1
+   },
+   "win": "b"
+  },
+  "fixed": true,
+  "picture": {
+   "line": 1,
+   "shows": "Making a hundred bottles and making a million bottles at the same cost, shown as a small pile and a huge pile, the big one wins.",
+   "cat": "B03",
+   "slots": {
+    "mode": "versus",
+    "a": {
+     "icon": "package",
+     "label": "ร้อย",
+     "v": 0.2
+    },
+    "b": {
+     "icon": "factory",
+     "label": "ล้าน",
+     "v": 1
+    },
+    "win": "b"
+   },
+   "lead": "เราผลิตร้อย ขวดก็",
+   "key": "ผลิตล้าน"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.02",
+  "line": 3,
+  "text": "ก็ ต้อง ของ ผม แพง กว่า",
+  "cat": "B03",
+  "shows": "Two products side by side where the speaker's one is the pricier, bigger one, saying his costs more.",
+  "need": null,
+  "lead": "ต้อง ของ ผม",
+  "key": "แพง กว่า",
+  "slots": {
+   "mode": "versus",
+   "a": {
+    "icon": "store",
+    "label": "ของ ผม",
+    "v": 1
+   },
+   "b": {
+    "icon": "store",
+    "tone": "soft",
+    "v": 0.4
+   },
+   "win": "a"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 3,
+   "shows": "Two products side by side where the speaker's one is the pricier, bigger one, saying his costs more.",
+   "cat": "B03",
+   "slots": {
+    "mode": "versus",
+    "a": {
+     "icon": "store",
+     "label": "ของ ผม",
+     "v": 1
+    },
+    "b": {
+     "icon": "store",
+     "tone": "soft",
+     "v": 0.4
+    },
+    "win": "a"
+   },
+   "lead": "ต้อง ของ ผม",
+   "key": "แพง กว่า"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.03",
+  "line": 6,
+  "text": "ทำไม ก็ ต้อง มา เลือก ของ ผม",
+  "cat": "B06",
+  "shows": "A customer in doubt asking why they should choose this one, shown as a person with a question mark.",
+  "need": null,
+  "lead": "ทำไม ก็ ต้อง มา",
+  "key": "เลือก ของ ผม",
+  "slots": {
+   "about": {
+    "icon": "users"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 6,
+   "shows": "A customer in doubt asking why they should choose this one, shown as a person with a question mark.",
+   "cat": "B06",
+   "slots": {
+    "about": {
+     "icon": "users"
+    }
+   },
+   "lead": "ทำไม ก็ ต้อง มา",
+   "key": "เลือก ของ ผม"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.04",
+  "line": 7,
+  "text": "เพราะฉะนั้น แบรนด์ คือ อะไร แบรนด์ คือ สัญญา ต่อ ผู้บริโภค",
+  "cat": "B16",
+  "shows": "The word brand defined as a promise, shown as a brand award icon with a handshake meaning promise.",
+  "need": null,
+  "lead": "แบรนด์ คือ",
+  "key": "สัญญา",
+  "slots": {
+   "term": {
+    "icon": "award",
+    "label": "แบรนด์"
+   },
+   "means": [
+    {
+     "icon": "handshake",
+     "label": "สัญญา"
+    }
+   ]
+  },
+  "fixed": false,
+  "picture": {
+   "line": 7,
+   "shows": "The word brand defined as a promise, shown as a brand award icon with a handshake meaning promise.",
+   "cat": "B16",
+   "slots": {
+    "term": {
+     "icon": "award",
+     "label": "แบรนด์"
+    },
+    "means": [
+     {
+      "icon": "handshake",
+      "label": "สัญญา"
+     }
+    ]
+   },
+   "lead": "แบรนด์ คือ",
+   "key": "สัญญา"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.05",
+  "line": 9,
+  "text": "จำได้ ง่าย และ มีความหมาย",
+  "cat": "B14",
+  "shows": "A brand is easy to remember and has meaning, shown as a brain with the words easy to remember as the main message.",
+  "need": null,
+  "lead": "จำได้ ง่าย และ",
+  "key": "มีความหมาย",
+  "slots": {
+   "idea": {
+    "icon": "brain",
+    "label": "จำได้ ง่าย"
+   }
+  },
+  "fixed": true,
+  "picture": {
+   "line": 9,
+   "shows": "A brand is easy to remember and has meaning, shown as a brain with the words easy to remember as the main message.",
+   "cat": "B14",
+   "slots": {
+    "idea": {
+     "icon": "brain",
+     "label": "จำได้ ง่าย"
+    }
+   },
+   "lead": "จำได้ ง่าย และ",
+   "key": "มีความหมาย"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.06",
+  "line": 12,
+  "text": "เห็น โลโก้ แล้ว จำได้",
+  "cat": "B12",
+  "shows": "Seeing a logo leads to remembering it, shown as eye then logo image then brain.",
+  "need": null,
+  "lead": "เห็น โลโก้ แล้ว",
+  "key": "จำได้",
+  "slots": {
+   "items": [
+    {
+     "icon": "eye",
+     "label": "เห็น"
+    },
+    {
+     "icon": "image",
+     "label": "โลโก้"
+    },
+    {
+     "icon": "brain",
+     "label": "จำได้",
+     "tone": "acc"
+    }
+   ]
+  },
+  "fixed": false,
+  "picture": {
+   "line": 12,
+   "shows": "Seeing a logo leads to remembering it, shown as eye then logo image then brain.",
+   "cat": "B12",
+   "slots": {
+    "items": [
+     {
+      "icon": "eye",
+      "label": "เห็น"
+     },
+     {
+      "icon": "image",
+      "label": "โลโก้"
+     },
+     {
+      "icon": "brain",
+      "label": "จำได้",
+      "tone": "acc"
+     }
+    ]
+   },
+   "lead": "เห็น โลโก้ แล้ว",
+   "key": "จำได้"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.07",
+  "line": 15,
+  "text": "เกิด ไหม มี ความผูกพัน ไหม ไม่ มี",
+  "cat": "B06",
+  "shows": "Asking whether there is any bond with the brand and the answer is no, shown as a heart with a red cross.",
+  "need": null,
+  "lead": "มี ความผูกพัน ไหม",
+  "key": "ไม่ มี",
+  "slots": {
+   "about": {
+    "icon": "heart-handshake",
+    "label": "ความผูกพัน"
+   },
+   "answer": {
+    "icon": "x",
+    "label": "ไม่ มี",
+    "tone": "neg"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 15,
+   "shows": "Asking whether there is any bond with the brand and the answer is no, shown as a heart with a red cross.",
+   "cat": "B06",
+   "slots": {
+    "about": {
+     "icon": "heart-handshake",
+     "label": "ความผูกพัน"
+    },
+    "answer": {
+     "icon": "x",
+     "label": "ไม่ มี",
+     "tone": "neg"
+    }
+   },
+   "lead": "มี ความผูกพัน ไหม",
+   "key": "ไม่ มี"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.08",
+  "line": 17,
+  "text": "อาจจะ มีความหมาย แต่ ชื่อ จำ ไม่ ได้",
+  "cat": "B07",
+  "shows": "A name that may have meaning but cannot be remembered, shown as a flagged brain that fails to remember.",
+  "need": null,
+  "lead": "แต่ ชื่อ",
+  "key": "จำ ไม่ ได้",
+  "slots": {
+   "thing": {
+    "icon": "brain",
+    "label": "จำ ไม่ ได้",
+    "tone": "neg"
+   },
+   "how": "flag",
+   "sign": "triangle-alert"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 17,
+   "shows": "A name that may have meaning but cannot be remembered, shown as a flagged brain that fails to remember.",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "brain",
+     "label": "จำ ไม่ ได้",
+     "tone": "neg"
+    },
+    "how": "flag",
+    "sign": "triangle-alert"
+   },
+   "lead": "แต่ ชื่อ",
+   "key": "จำ ไม่ ได้"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.09",
+  "line": 20,
+  "text": "หยิบ สินค้า ก็ มา ใช้ นิดนึง คุณ ศึกษา มา แล้ว",
+  "cat": "B04",
+  "shows": "Steps of a customer: pick up the product, study it, then buy, shown in order.",
+  "need": null,
+  "lead": "หยิบ สินค้า ก็ มา ใช้",
+  "key": "ศึกษา",
+  "slots": {
+   "items": [
+    {
+     "icon": "package-open",
+     "label": "หยิบ สินค้า"
+    },
+    {
+     "icon": "search",
+     "label": "ศึกษา"
+    },
+    {
+     "icon": "shopping-cart",
+     "label": "ซื้อ"
+    }
+   ]
+  },
+  "fixed": false,
+  "picture": {
+   "line": 20,
+   "shows": "Steps of a customer: pick up the product, study it, then buy, shown in order.",
+   "cat": "B04",
+   "slots": {
+    "items": [
+     {
+      "icon": "package-open",
+      "label": "หยิบ สินค้า"
+     },
+     {
+      "icon": "search",
+      "label": "ศึกษา"
+     },
+     {
+      "icon": "shopping-cart",
+      "label": "ซื้อ"
+     }
+    ]
+   },
+   "lead": "หยิบ สินค้า ก็ มา ใช้",
+   "key": "ศึกษา"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.10",
+  "line": 22,
+  "text": "ไม่ ไม่ ควร ที่จะ ต้อง ศึกษา อีกต่อไป",
+  "cat": "B07",
+  "shows": "Consumers should not have to study again, shown as a search icon crossed out.",
+  "need": null,
+  "lead": "ไม่ ควร ที่จะ ต้อง",
+  "key": "ศึกษา",
+  "slots": {
+   "thing": {
+    "icon": "search",
+    "label": "ศึกษา"
+   },
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 22,
+   "shows": "Consumers should not have to study again, shown as a search icon crossed out.",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "search",
+     "label": "ศึกษา"
+    },
+    "how": "cross"
+   },
+   "lead": "ไม่ ควร ที่จะ ต้อง",
+   "key": "ศึกษา"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.11",
+  "line": 23,
+  "text": "แล้ว เพราะ เขา เชื่อ ไป แล้ว",
+  "cat": "B14",
+  "shows": "Because they already believe, shown as a trusted shield as the point to remember.",
+  "need": null,
+  "lead": "เพราะ เขา",
+  "key": "เชื่อ",
+  "slots": {
+   "idea": {
+    "icon": "shield-check",
+    "label": "เชื่อ",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 23,
+   "shows": "Because they already believe, shown as a trusted shield as the point to remember.",
+   "cat": "B14",
+   "slots": {
+    "idea": {
+     "icon": "shield-check",
+     "label": "เชื่อ",
+     "tone": "acc"
+    }
+   },
+   "lead": "เพราะ เขา",
+   "key": "เชื่อ"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.12",
+  "line": 27,
+  "text": "นี่ คือ สิ่ง ที่ เฮลตี้ นี่ คือ สิ่ง ที่ ลด การ",
+  "cat": "B04",
+  "shows": "A list of good things for the customer: premium, good for family, healthy, with only the healthy one ticked.",
+  "need": null,
+  "lead": "นี่ คือ สิ่ง ที่",
+  "key": "เฮลตี้",
+  "slots": {
+   "items": [
+    {
+     "icon": "crown"
+    },
+    {
+     "icon": "users"
+    },
+    {
+     "icon": "heart-pulse",
+     "label": "เฮลตี้"
+    }
+   ],
+   "mark": {
+    "at": 2,
+    "how": "check"
+   }
+  },
+  "fixed": true,
+  "picture": {
+   "line": 27,
+   "shows": "A list of good things for the customer: premium, good for family, healthy, with only the healthy one ticked.",
+   "cat": "B04",
+   "slots": {
+    "items": [
+     {
+      "icon": "crown"
+     },
+     {
+      "icon": "users"
+     },
+     {
+      "icon": "heart-pulse",
+      "label": "เฮลตี้"
+     }
+    ],
+    "mark": {
+     "at": 2,
+     "how": "check"
+    }
+   },
+   "lead": "นี่ คือ สิ่ง ที่",
+   "key": "เฮลตี้"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.13",
+  "line": 28,
+  "text": "ต้นไม้ ทำลาย ปลา นี่ คือ สิ่ง ที่ ช่วยเหลือ",
+  "cat": "B08",
+  "shows": "This is what helps others, shown as a helping hand reaching a goal.",
+  "need": null,
+  "lead": "นี่ คือ สิ่ง ที่",
+  "key": "ช่วยเหลือ",
+  "slots": {
+   "goal": {
+    "icon": "hand-helping",
+    "label": "ช่วยเหลือ"
+   },
+   "who": "user"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 28,
+   "shows": "This is what helps others, shown as a helping hand reaching a goal.",
+   "cat": "B08",
+   "slots": {
+    "goal": {
+     "icon": "hand-helping",
+     "label": "ช่วยเหลือ"
+    },
+    "who": "user"
+   },
+   "lead": "นี่ คือ สิ่ง ที่",
+   "key": "ช่วยเหลือ"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.14",
+  "line": 30,
+  "text": "คราวหน้า เขา ไม่ต้อง มา นั่ง เลือก อี กรอบ นึง แล้ว",
+  "cat": "B05",
+  "shows": "Next time they no longer need to sit and choose again: choosing is wrong, not needing to is right.",
+  "need": null,
+  "lead": "คราวหน้า เขา",
+  "key": "ไม่ต้อง",
+  "slots": {
+   "wrong": {
+    "icon": "search",
+    "label": "เลือก",
+    "tone": "neg"
+   },
+   "right": {
+    "icon": "circle-check",
+    "label": "ไม่ต้อง",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 30,
+   "shows": "Next time they no longer need to sit and choose again: choosing is wrong, not needing to is right.",
+   "cat": "B05",
+   "slots": {
+    "wrong": {
+     "icon": "search",
+     "label": "เลือก",
+     "tone": "neg"
+    },
+    "right": {
+     "icon": "circle-check",
+     "label": "ไม่ต้อง",
+     "tone": "acc"
+    }
+   },
+   "lead": "คราวหน้า เขา",
+   "key": "ไม่ต้อง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.15",
+  "line": 33,
+  "text": "เนี่ย คือ คือ คำ ว่า แบรนด์ ที่ แท้จริง มัน ไม่ ใช่ โลโก้",
+  "cat": "B05",
+  "shows": "The real brand is not a logo, shown as the logo marked wrong and the brand marked right.",
+  "need": null,
+  "lead": "คำ ว่า แบรนด์ ที่",
+  "key": "แท้จริง",
+  "slots": {
+   "wrong": {
+    "icon": "image",
+    "label": "โลโก้",
+    "tone": "neg"
+   },
+   "right": {
+    "icon": "award",
+    "label": "แบรนด์",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 33,
+   "shows": "The real brand is not a logo, shown as the logo marked wrong and the brand marked right.",
+   "cat": "B05",
+   "slots": {
+    "wrong": {
+     "icon": "image",
+     "label": "โลโก้",
+     "tone": "neg"
+    },
+    "right": {
+     "icon": "award",
+     "label": "แบรนด์",
+     "tone": "acc"
+    }
+   },
+   "lead": "คำ ว่า แบรนด์ ที่",
+   "key": "แท้จริง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "105656.16",
+  "line": 37,
+  "text": "แต่ว่า มัน คือ คำสัญญา ที่ ให้ กับ ผู้",
+  "cat": "B14",
+  "shows": "The main message: a brand is a promise, shown as a handshake.",
+  "need": null,
+  "lead": "แต่ว่า มัน คือ",
+  "key": "คำสัญญา",
+  "slots": {
+   "idea": {
+    "icon": "handshake",
+    "label": "คำสัญญา",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 37,
+   "shows": "The main message: a brand is a promise, shown as a handshake.",
+   "cat": "B14",
+   "slots": {
+    "idea": {
+     "icon": "handshake",
+     "label": "คำสัญญา",
+     "tone": "acc"
+    }
+   },
+   "lead": "แต่ว่า มัน คือ",
+   "key": "คำสัญญา"
+  },
+  "ok": true,
+  "problems": []
+ }
+]

@@ -1,0 +1,1233 @@
+{
+ "clips": 6,
+ "pictures": 72,
+ "table": [
+  {
+   "id": "B01",
+   "name": "ตัวเลขเด่น",
+   "used": 0,
+   "clips": 0,
+   "variants": 3,
+   "repeats": 0,
+   "onefit": 0,
+   "nofit": 0
+  },
+  {
+   "id": "B02",
+   "name": "เพิ่มขึ้น / ลดลง",
+   "used": 5,
+   "clips": 4,
+   "variants": 3,
+   "repeats": 0,
+   "onefit": 2,
+   "nofit": 0
+  },
+  {
+   "id": "B03",
+   "name": "เปรียบเทียบ / ก่อนกับหลัง",
+   "used": 5,
+   "clips": 4,
+   "variants": 6,
+   "repeats": 0,
+   "onefit": 1,
+   "nofit": 0
+  },
+  {
+   "id": "B04",
+   "name": "ขั้นตอน / เช็กลิสต์",
+   "used": 3,
+   "clips": 2,
+   "variants": 2,
+   "repeats": 0,
+   "onefit": 0,
+   "nofit": 0
+  },
+  {
+   "id": "B05",
+   "name": "ถูกกับผิด / ไม่ใช่ X แต่เป็น Y",
+   "used": 8,
+   "clips": 5,
+   "variants": 2,
+   "repeats": 1,
+   "onefit": 0,
+   "nofit": 0
+  },
+  {
+   "id": "B06",
+   "name": "คำถาม / ความสงสัย",
+   "used": 8,
+   "clips": 6,
+   "variants": 2,
+   "repeats": 2,
+   "onefit": 8,
+   "nofit": 0
+  },
+  {
+   "id": "B07",
+   "name": "ปัญหา / คำเตือน",
+   "used": 13,
+   "clips": 5,
+   "variants": 3,
+   "repeats": 1,
+   "onefit": 0,
+   "nofit": 0
+  },
+  {
+   "id": "B08",
+   "name": "เป้าหมาย / ผลลัพธ์ / สำเร็จ",
+   "used": 6,
+   "clips": 5,
+   "variants": 3,
+   "repeats": 0,
+   "onefit": 0,
+   "nofit": 0
+  },
+  {
+   "id": "B09",
+   "name": "เวลา / ไทม์ไลน์ / เส้นตาย",
+   "used": 3,
+   "clips": 3,
+   "variants": 2,
+   "repeats": 0,
+   "onefit": 1,
+   "nofit": 0
+  },
+  {
+   "id": "B10",
+   "name": "คน / กลุ่มเป้าหมาย",
+   "used": 1,
+   "clips": 1,
+   "variants": 2,
+   "repeats": 0,
+   "onefit": 0,
+   "nofit": 0
+  },
+  {
+   "id": "B11",
+   "name": "คำพูด / แชต / รีวิว",
+   "used": 4,
+   "clips": 3,
+   "variants": 3,
+   "repeats": 0,
+   "onefit": 0,
+   "nofit": 0
+  },
+  {
+   "id": "B12",
+   "name": "เหตุกับผล",
+   "used": 5,
+   "clips": 3,
+   "variants": 2,
+   "repeats": 1,
+   "onefit": 0,
+   "nofit": 0
+  },
+  {
+   "id": "B13",
+   "name": "ไอเดีย / เคล็ดลับ / ความลับ",
+   "used": 2,
+   "clips": 2,
+   "variants": 2,
+   "repeats": 0,
+   "onefit": 0,
+   "nofit": 0
+  },
+  {
+   "id": "B14",
+   "name": "ประโยคเด็ดตัวใหญ่",
+   "used": 5,
+   "clips": 3,
+   "variants": 3,
+   "repeats": 0,
+   "onefit": 0,
+   "nofit": 0
+  },
+  {
+   "id": "B15",
+   "name": "ปิดคลิป / ชวนทำต่อ",
+   "used": 1,
+   "clips": 1,
+   "variants": 2,
+   "repeats": 0,
+   "onefit": 0,
+   "nofit": 0
+  },
+  {
+   "id": "B16",
+   "name": "นิยาม / อธิบายว่าคืออะไร",
+   "used": 3,
+   "clips": 3,
+   "variants": 2,
+   "repeats": 0,
+   "onefit": 0,
+   "nofit": 0
+  }
+ ],
+ "none": [],
+ "perClip": [
+  {
+   "clip": "105656",
+   "pictures": [
+    {
+     "id": "105656.01",
+     "cat": "B03",
+     "say": [
+      "เราผลิตร้อย ขวดก็",
+      "ผลิตล้าน"
+     ],
+     "fit": [
+      "cards",
+      "scale",
+      "measure"
+     ],
+     "pick": "cards",
+     "repeat": false
+    },
+    {
+     "id": "105656.02",
+     "cat": "B03",
+     "say": [
+      "ต้อง ของ ผม",
+      "แพง กว่า"
+     ],
+     "fit": [
+      "cards",
+      "scale",
+      "measure"
+     ],
+     "pick": "scale",
+     "repeat": false
+    },
+    {
+     "id": "105656.03",
+     "cat": "B06",
+     "say": [
+      "ทำไม ก็ ต้อง มา",
+      "เลือก ของ ผม"
+     ],
+     "fit": [
+      "think"
+     ],
+     "pick": "think",
+     "repeat": false
+    },
+    {
+     "id": "105656.04",
+     "cat": "B16",
+     "say": [
+      "แบรนด์ คือ",
+      "สัญญา"
+     ],
+     "fit": [
+      "equals",
+      "card"
+     ],
+     "pick": "card",
+     "repeat": false
+    },
+    {
+     "id": "105656.05",
+     "cat": "B14",
+     "say": [
+      "จำได้ ง่าย และ",
+      "มีความหมาย"
+     ],
+     "fit": [
+      "quote",
+      "spot",
+      "mega"
+     ],
+     "pick": "spot",
+     "repeat": false
+    },
+    {
+     "id": "105656.06",
+     "cat": "B12",
+     "say": [
+      "เห็น โลโก้ แล้ว",
+      "จำได้"
+     ],
+     "fit": [
+      "domino",
+      "arrows"
+     ],
+     "pick": "arrows",
+     "repeat": false
+    },
+    {
+     "id": "105656.07",
+     "cat": "B06",
+     "say": [
+      "มี ความผูกพัน ไหม",
+      "ไม่ มี"
+     ],
+     "fit": [
+      "think"
+     ],
+     "pick": "think",
+     "repeat": true
+    },
+    {
+     "id": "105656.08",
+     "cat": "B07",
+     "say": [
+      "แต่ ชื่อ",
+      "จำ ไม่ ได้"
+     ],
+     "fit": [
+      "sign",
+      "beacon",
+      "stamp"
+     ],
+     "pick": "stamp",
+     "repeat": false
+    },
+    {
+     "id": "105656.09",
+     "cat": "B04",
+     "say": [
+      "หยิบ สินค้า ก็ มา ใช้",
+      "ศึกษา"
+     ],
+     "fit": [
+      "row",
+      "list"
+     ],
+     "pick": "list",
+     "repeat": false
+    },
+    {
+     "id": "105656.10",
+     "cat": "B07",
+     "say": [
+      "ไม่ ควร ที่จะ ต้อง",
+      "ศึกษา"
+     ],
+     "fit": [
+      "sign",
+      "beacon",
+      "stamp"
+     ],
+     "pick": "sign",
+     "repeat": false
+    },
+    {
+     "id": "105656.11",
+     "cat": "B14",
+     "say": [
+      "เพราะ เขา",
+      "เชื่อ"
+     ],
+     "fit": [
+      "quote",
+      "spot",
+      "mega"
+     ],
+     "pick": "quote",
+     "repeat": false
+    },
+    {
+     "id": "105656.12",
+     "cat": "B04",
+     "say": [
+      "นี่ คือ สิ่ง ที่",
+      "เฮลตี้"
+     ],
+     "fit": [
+      "row",
+      "list"
+     ],
+     "pick": "row",
+     "repeat": false
+    },
+    {
+     "id": "105656.13",
+     "cat": "B08",
+     "say": [
+      "นี่ คือ สิ่ง ที่",
+      "ช่วยเหลือ"
+     ],
+     "fit": [
+      "target",
+      "stairs",
+      "trophy"
+     ],
+     "pick": "trophy",
+     "repeat": false
+    },
+    {
+     "id": "105656.14",
+     "cat": "B05",
+     "say": [
+      "คราวหน้า เขา",
+      "ไม่ต้อง"
+     ],
+     "fit": [
+      "strike",
+      "flip"
+     ],
+     "pick": "flip",
+     "repeat": false
+    },
+    {
+     "id": "105656.15",
+     "cat": "B05",
+     "say": [
+      "คำ ว่า แบรนด์ ที่",
+      "แท้จริง"
+     ],
+     "fit": [
+      "strike",
+      "flip"
+     ],
+     "pick": "strike",
+     "repeat": false
+    },
+    {
+     "id": "105656.16",
+     "cat": "B14",
+     "say": [
+      "แต่ว่า มัน คือ",
+      "คำสัญญา"
+     ],
+     "fit": [
+      "quote",
+      "spot",
+      "mega"
+     ],
+     "pick": "mega",
+     "repeat": false
+    }
+   ],
+   "failed": 0
+  },
+  {
+   "clip": "114123",
+   "pictures": [
+    {
+     "id": "114123.01",
+     "cat": "B07",
+     "say": [
+      "สิ่ง ที่ ผม",
+      "กลัว ที่สุด"
+     ],
+     "fit": [
+      "sign",
+      "beacon",
+      "stamp"
+     ],
+     "pick": "sign",
+     "repeat": false
+    },
+    {
+     "id": "114123.02",
+     "cat": "B05",
+     "say": [
+      "ไม่ ใช่ คน",
+      "ล้ม หนัก"
+     ],
+     "fit": [
+      "strike",
+      "flip"
+     ],
+     "pick": "flip",
+     "repeat": false
+    },
+    {
+     "id": "114123.03",
+     "cat": "B07",
+     "say": [
+      "ยิ่ง เก่ง คือ",
+      "สี่ ร้อย แค ล่ว"
+     ],
+     "fit": [
+      "sign",
+      "beacon",
+      "stamp"
+     ],
+     "pick": "stamp",
+     "repeat": false
+    },
+    {
+     "id": "114123.04",
+     "cat": "B02",
+     "say": [
+      "น้ำหนัก ที่ มัน",
+      "หาย ไป"
+     ],
+     "fit": [
+      "row",
+      "ring",
+      "bars"
+     ],
+     "pick": "bars",
+     "repeat": false
+    },
+    {
+     "id": "114123.05",
+     "cat": "B04",
+     "say": [
+      "อาจจะ เป็น ทั้ง",
+      "กล้ามเนื้อ"
+     ],
+     "fit": [
+      "row",
+      "list"
+     ],
+     "pick": "list",
+     "repeat": false
+    },
+    {
+     "id": "114123.06",
+     "cat": "B07",
+     "say": [
+      "เริ่ม",
+      "ไม่ มี แรง"
+     ],
+     "fit": [
+      "sign",
+      "beacon",
+      "stamp"
+     ],
+     "pick": "beacon",
+     "repeat": false
+    },
+    {
+     "id": "114123.07",
+     "cat": "B05",
+     "say": [
+      "เกิด จาก การ",
+      "กิน น้อย"
+     ],
+     "fit": [
+      "strike",
+      "flip"
+     ],
+     "pick": "strike",
+     "repeat": false
+    },
+    {
+     "id": "114123.08",
+     "cat": "B07",
+     "say": [
+      "อย่า โร แมน ตี ไซส์ การ",
+      "อดอาหาร"
+     ],
+     "fit": [
+      "sign",
+      "beacon",
+      "stamp"
+     ],
+     "pick": "stamp",
+     "repeat": true
+    },
+    {
+     "id": "114123.09",
+     "cat": "B08",
+     "say": [
+      "รู้สึก ว่า คุณ",
+      "แข็งแรง"
+     ],
+     "fit": [
+      "target",
+      "stairs",
+      "trophy"
+     ],
+     "pick": "stairs",
+     "repeat": false
+    },
+    {
+     "id": "114123.10",
+     "cat": "B14",
+     "say": [
+      "ผม บอก เลย ว่า",
+      "ไม่ คุ้ม"
+     ],
+     "fit": [
+      "quote",
+      "spot",
+      "mega"
+     ],
+     "pick": "mega",
+     "repeat": false
+    },
+    {
+     "id": "114123.11",
+     "cat": "B05",
+     "say": [
+      "เรา",
+      "กิน น้อยที่สุด"
+     ],
+     "fit": [
+      "strike",
+      "flip"
+     ],
+     "pick": "flip",
+     "repeat": true
+    },
+    {
+     "id": "114123.12",
+     "cat": "B08",
+     "say": [
+      "คุณ",
+      "ทำต่อ ได้"
+     ],
+     "fit": [
+      "target",
+      "stairs",
+      "trophy"
+     ],
+     "pick": "trophy",
+     "repeat": false
+    },
+    {
+     "id": "114123.13",
+     "cat": "B03",
+     "say": [
+      "การ ล้น หนัก คือ การ",
+      "ดูแลตัวเอง"
+     ],
+     "fit": [
+      "cards",
+      "scale"
+     ],
+     "pick": "cards",
+     "repeat": false
+    },
+    {
+     "id": "114123.14",
+     "cat": "B06",
+     "say": [
+      "เคย ผ่าน การ",
+      "อดอาหาร"
+     ],
+     "fit": [
+      "think"
+     ],
+     "pick": "think",
+     "repeat": false
+    },
+    {
+     "id": "114123.15",
+     "cat": "B15",
+     "say": [
+      "คอมเมนต์ ว่า",
+      "เคย"
+     ],
+     "fit": [
+      "button",
+      "icons"
+     ],
+     "pick": "icons",
+     "repeat": false
+    }
+   ],
+   "failed": 0
+  },
+  {
+   "clip": "115213",
+   "pictures": [
+    {
+     "id": "115213.01",
+     "cat": "B16",
+     "say": [
+      "สิ่งที่คุณ กำลังทำ",
+      "รายได้"
+     ],
+     "fit": [
+      "equals",
+      "card"
+     ],
+     "pick": "equals",
+     "repeat": false
+    },
+    {
+     "id": "115213.02",
+     "cat": "B09",
+     "say": [
+      "เป็นรายได้ เสริมต่อไป",
+      "เรื่อยๆ"
+     ],
+     "fit": [
+      "line",
+      "clock"
+     ],
+     "pick": "line",
+     "repeat": false
+    },
+    {
+     "id": "115213.03",
+     "cat": "B05",
+     "say": [
+      "มันจะ ไม่มีทาง เป็น",
+      "Main income"
+     ],
+     "fit": [
+      "strike",
+      "flip"
+     ],
+     "pick": "strike",
+     "repeat": false
+    },
+    {
+     "id": "115213.04",
+     "cat": "B06",
+     "say": [
+      "อยากหา",
+      "side hustle"
+     ],
+     "fit": [
+      "think"
+     ],
+     "pick": "think",
+     "repeat": false
+    },
+    {
+     "id": "115213.05",
+     "cat": "B08",
+     "say": [
+      "ถ้าอยากให้ มันมา เป็น",
+      "active"
+     ],
+     "fit": [
+      "target",
+      "stairs",
+      "trophy"
+     ],
+     "pick": "target",
+     "repeat": false
+    },
+    {
+     "id": "115213.06",
+     "cat": "B13",
+     "say": [
+      "ต้อง มองมัน เป็น",
+      "business"
+     ],
+     "fit": [
+      "reveal",
+      "bulb"
+     ],
+     "pick": "reveal",
+     "repeat": false
+    },
+    {
+     "id": "115213.07",
+     "cat": "B07",
+     "say": [
+      "กล้า เทค",
+      "ความเสี่ยง"
+     ],
+     "fit": [
+      "sign",
+      "beacon",
+      "stamp"
+     ],
+     "pick": "stamp",
+     "repeat": false
+    },
+    {
+     "id": "115213.08",
+     "cat": "B07",
+     "say": [
+      "ไม่มีคำว่า",
+      "ขาดทุน"
+     ],
+     "fit": [
+      "sign",
+      "beacon",
+      "stamp"
+     ],
+     "pick": "sign",
+     "repeat": false
+    },
+    {
+     "id": "115213.09",
+     "cat": "B02",
+     "say": [
+      "minimize",
+      "ความเสี่ยง"
+     ],
+     "fit": [
+      "bars"
+     ],
+     "pick": "bars",
+     "repeat": false
+    },
+    {
+     "id": "115213.10",
+     "cat": "B03",
+     "say": [
+      "Mindset ผมมัน",
+      "ไม่ เหมือนกับ"
+     ],
+     "fit": [
+      "swap"
+     ],
+     "pick": "swap",
+     "repeat": false
+    },
+    {
+     "id": "115213.11",
+     "cat": "B11",
+     "say": [
+      "ช่องทาง",
+      "หารายได้"
+     ],
+     "fit": [
+      "phone",
+      "review",
+      "notify"
+     ],
+     "pick": "notify",
+     "repeat": false
+    },
+    {
+     "id": "115213.12",
+     "cat": "B07",
+     "say": [
+      "คิดว่ามันเป็น",
+      "รายได้ เสริม"
+     ],
+     "fit": [
+      "sign",
+      "beacon",
+      "stamp"
+     ],
+     "pick": "beacon",
+     "repeat": false
+    }
+   ],
+   "failed": 0
+  },
+  {
+   "clip": "115846",
+   "pictures": [
+    {
+     "id": "115846.01",
+     "cat": "B10",
+     "say": [
+      "ยังมี",
+      "บาง คนใช้"
+     ],
+     "fit": [
+      "crowd",
+      "persona"
+     ],
+     "pick": "persona",
+     "repeat": false
+    },
+    {
+     "id": "115846.02",
+     "cat": "B07",
+     "say": [
+      "วันนี้ เรา จะ",
+      "ไม่ แนะนำ"
+     ],
+     "fit": [
+      "sign",
+      "beacon",
+      "stamp"
+     ],
+     "pick": "stamp",
+     "repeat": false
+    },
+    {
+     "id": "115846.03",
+     "cat": "B06",
+     "say": [
+      "",
+      "เกือบ เข้าใจ"
+     ],
+     "fit": [
+      "think"
+     ],
+     "pick": "think",
+     "repeat": false
+    },
+    {
+     "id": "115846.04",
+     "cat": "B12",
+     "say": [
+      "ฟัง ซ้ำ",
+      "ไป เรื่อย"
+     ],
+     "fit": [
+      "domino",
+      "arrows"
+     ],
+     "pick": "arrows",
+     "repeat": false
+    },
+    {
+     "id": "115846.05",
+     "cat": "B16",
+     "say": [
+      "ง่าย มัน คือ การเรียน",
+      "สิ่งใหม่"
+     ],
+     "fit": [
+      "equals",
+      "card"
+     ],
+     "pick": "equals",
+     "repeat": false
+    },
+    {
+     "id": "115846.06",
+     "cat": "B05",
+     "say": [
+      "ไม่ ใช้ ประโยค",
+      "อังกฤษ"
+     ],
+     "fit": [
+      "strike",
+      "flip"
+     ],
+     "pick": "flip",
+     "repeat": false
+    },
+    {
+     "id": "115846.07",
+     "cat": "B07",
+     "say": [
+      "เรา ก็ จะ",
+      "ไม่ เฉลย"
+     ],
+     "fit": [
+      "sign",
+      "beacon",
+      "stamp"
+     ],
+     "pick": "beacon",
+     "repeat": false
+    },
+    {
+     "id": "115846.08",
+     "cat": "B13",
+     "say": [
+      "มัน จาก",
+      "บริบท เอง"
+     ],
+     "fit": [
+      "reveal",
+      "bulb"
+     ],
+     "pick": "bulb",
+     "repeat": false
+    },
+    {
+     "id": "115846.09",
+     "cat": "B12",
+     "say": [
+      "เขา",
+      "โกหก"
+     ],
+     "fit": [
+      "domino",
+      "arrows"
+     ],
+     "pick": "domino",
+     "repeat": false
+    },
+    {
+     "id": "115846.10",
+     "cat": "B14",
+     "say": [
+      "มัน ไม่ มี",
+      "วัน จบ"
+     ],
+     "fit": [
+      "quote",
+      "spot",
+      "mega"
+     ],
+     "pick": "spot",
+     "repeat": false
+    },
+    {
+     "id": "115846.11",
+     "cat": "B07",
+     "say": [
+      "ไม่ ลงทุน กับ",
+      "การศึกษา"
+     ],
+     "fit": [
+      "sign",
+      "beacon",
+      "stamp"
+     ],
+     "pick": "sign",
+     "repeat": false
+    },
+    {
+     "id": "115846.12",
+     "cat": "B09",
+     "say": [
+      "ใน อีก",
+      "ยี่สิบ ปี"
+     ],
+     "fit": [
+      "clock"
+     ],
+     "pick": "clock",
+     "repeat": false
+    },
+    {
+     "id": "115846.13",
+     "cat": "B12",
+     "say": [
+      "ทิ้ง ขยะ ลง แม่น้ำ",
+      "น้ำเน่า"
+     ],
+     "fit": [
+      "domino",
+      "arrows"
+     ],
+     "pick": "arrows",
+     "repeat": true
+    },
+    {
+     "id": "115846.14",
+     "cat": "B02",
+     "say": [
+      "",
+      "ปลา ตาย"
+     ],
+     "fit": [
+      "bars"
+     ],
+     "pick": "bars",
+     "repeat": false
+    },
+    {
+     "id": "115846.15",
+     "cat": "B03",
+     "say": [
+      "กระทบ คน แค่",
+      "คนเดียว"
+     ],
+     "fit": [
+      "cards",
+      "scale"
+     ],
+     "pick": "scale",
+     "repeat": false
+    },
+    {
+     "id": "115846.16",
+     "cat": "B11",
+     "say": [
+      "บริษัท นี้",
+      "ไม่ เคย ฟัง"
+     ],
+     "fit": [
+      "phone",
+      "review",
+      "notify"
+     ],
+     "pick": "phone",
+     "repeat": false
+    },
+    {
+     "id": "115846.17",
+     "cat": "B02",
+     "say": [
+      "คนเก่ง ทยอย กัน",
+      "ลาออก"
+     ],
+     "fit": [
+      "row",
+      "ring",
+      "bars"
+     ],
+     "pick": "ring",
+     "repeat": false
+    }
+   ],
+   "failed": 0
+  },
+  {
+   "clip": "customers",
+   "pictures": [
+    {
+     "id": "customers.01",
+     "cat": "B11",
+     "say": [
+      "สินค้า แล้วก็",
+      "หายไป"
+     ],
+     "fit": [
+      "phone",
+      "notify"
+     ],
+     "pick": "notify",
+     "repeat": false
+    },
+    {
+     "id": "customers.02",
+     "cat": "B06",
+     "say": [
+      "เฮ้ย มันเป็นเพราะ",
+      "ของเราแพง"
+     ],
+     "fit": [
+      "think"
+     ],
+     "pick": "think",
+     "repeat": false
+    },
+    {
+     "id": "customers.03",
+     "cat": "B07",
+     "say": [
+      "รีบ",
+      "ลดราคา"
+     ],
+     "fit": [
+      "sign",
+      "beacon",
+      "stamp"
+     ],
+     "pick": "beacon",
+     "repeat": false
+    },
+    {
+     "id": "customers.04",
+     "cat": "B05",
+     "say": [
+      "แต่เขาอาจจะ ต้องการ",
+      "คำตอบ"
+     ],
+     "fit": [
+      "strike",
+      "flip"
+     ],
+     "pick": "flip",
+     "repeat": false
+    },
+    {
+     "id": "customers.05",
+     "cat": "B12",
+     "say": [
+      "เขาก็",
+      "ไม่กล้า"
+     ],
+     "fit": [
+      "domino",
+      "arrows"
+     ],
+     "pick": "arrows",
+     "repeat": false
+    },
+    {
+     "id": "customers.06",
+     "cat": "B11",
+     "say": [
+      "ซื้อไปแล้วจะ",
+      "ไม่คุ้ม"
+     ],
+     "fit": [
+      "phone",
+      "review",
+      "notify"
+     ],
+     "pick": "review",
+     "repeat": false
+    },
+    {
+     "id": "customers.07",
+     "cat": "B06",
+     "say": [
+      "เขา",
+      "ติดอะไรอยู่"
+     ],
+     "fit": [
+      "think"
+     ],
+     "pick": "think",
+     "repeat": true
+    },
+    {
+     "id": "customers.08",
+     "cat": "B08",
+     "say": [
+      "แล้วก็",
+      "แก้ปัญหานั้น"
+     ],
+     "fit": [
+      "target",
+      "stairs",
+      "trophy"
+     ],
+     "pick": "trophy",
+     "repeat": false
+    }
+   ],
+   "failed": 0
+  },
+  {
+   "clip": "retire",
+   "pictures": [
+    {
+     "id": "retire.01",
+     "cat": "B02",
+     "say": [
+      "เวลาไปหามาเนี่ย",
+      "เงินมันหยุด"
+     ],
+     "fit": [
+      "row",
+      "ring",
+      "bars"
+     ],
+     "pick": "ring",
+     "repeat": false
+    },
+    {
+     "id": "retire.02",
+     "cat": "B06",
+     "say": [
+      "คุณอยู่ได้",
+      "กี่เดือน"
+     ],
+     "fit": [
+      "think"
+     ],
+     "pick": "think",
+     "repeat": false
+    },
+    {
+     "id": "retire.03",
+     "cat": "B09",
+     "say": [
+      "1 ปี 2 ปี 3 ปี เขาไม่",
+      "เรียกว่ารวย"
+     ],
+     "fit": [
+      "line",
+      "clock"
+     ],
+     "pick": "line",
+     "repeat": false
+    },
+    {
+     "id": "retire.04",
+     "cat": "B08",
+     "say": [
+      "อันเนี่ยเขาเรียกว่า",
+      "รวย"
+     ],
+     "fit": [
+      "target",
+      "stairs",
+      "trophy"
+     ],
+     "pick": "target",
+     "repeat": false
+    }
+   ],
+   "failed": 0
+  }
+ ]
+}

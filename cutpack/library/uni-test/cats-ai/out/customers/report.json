@@ -1,0 +1,286 @@
+[
+ {
+  "id": "customers.01",
+  "line": 2,
+  "text": "รายละเอียด สินค้า แล้วก็หายไปเนี่ย",
+  "cat": "B11",
+  "shows": "A chat message asking for product details that gets no reply because the customer disappeared.",
+  "need": null,
+  "lead": "สินค้า แล้วก็",
+  "key": "หายไป",
+  "slots": {
+   "kind": "chat",
+   "quote": "รายละเอียด",
+   "gone": true
+  },
+  "fixed": false,
+  "picture": {
+   "line": 2,
+   "shows": "A chat message asking for product details that gets no reply because the customer disappeared.",
+   "cat": "B11",
+   "slots": {
+    "kind": "chat",
+    "quote": "รายละเอียด",
+    "gone": true
+   },
+   "lead": "สินค้า แล้วก็",
+   "key": "หายไป"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "customers.02",
+  "line": 4,
+  "text": "เฮ้ย มันเป็นเพราะ ของเราแพง",
+  "cat": "B06",
+  "shows": "A shopper in doubt about whether the price tag is the reason, a question mark over an expensive price.",
+  "need": null,
+  "lead": "เฮ้ย มันเป็นเพราะ",
+  "key": "ของเราแพง",
+  "slots": {
+   "about": {
+    "icon": "tags"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 4,
+   "shows": "A shopper in doubt about whether the price tag is the reason, a question mark over an expensive price.",
+   "cat": "B06",
+   "slots": {
+    "about": {
+     "icon": "tags"
+    }
+   },
+   "lead": "เฮ้ย มันเป็นเพราะ",
+   "key": "ของเราแพง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "customers.03",
+  "line": 11,
+  "text": "รีบลดราคา ทั้งที่บางครั้งเนี่ย",
+  "cat": "B07",
+  "shows": "A discount tag crossed out, showing rushing to cut prices is the wrong move.",
+  "need": null,
+  "lead": "รีบ",
+  "key": "ลดราคา",
+  "slots": {
+   "thing": {
+    "icon": "badge-percent"
+   },
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 11,
+   "shows": "A discount tag crossed out, showing rushing to cut prices is the wrong move.",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "badge-percent"
+    },
+    "how": "cross"
+   },
+   "lead": "รีบ",
+   "key": "ลดราคา"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "customers.04",
+  "line": 13,
+  "text": "แต่เขาอาจจะ ต้องการ คำตอบ ที่เขากังวลอยู่",
+  "cat": "B05",
+  "shows": "A discount tag marked wrong beside an answer bubble marked right, since the customer wants answers, not discounts.",
+  "need": null,
+  "lead": "แต่เขาอาจจะ ต้องการ",
+  "key": "คำตอบ",
+  "slots": {
+   "wrong": {
+    "icon": "badge-percent",
+    "tone": "neg"
+   },
+   "right": {
+    "icon": "message-circle-question",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 13,
+   "shows": "A discount tag marked wrong beside an answer bubble marked right, since the customer wants answers, not discounts.",
+   "cat": "B05",
+   "slots": {
+    "wrong": {
+     "icon": "badge-percent",
+     "tone": "neg"
+    },
+    "right": {
+     "icon": "message-circle-question",
+     "tone": "acc"
+    }
+   },
+   "lead": "แต่เขาอาจจะ ต้องการ",
+   "key": "คำตอบ"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "customers.05",
+  "line": 16,
+  "text": "เขาก็ ไม่กล้าจ่ายเงินอยู่ดี",
+  "cat": "B12",
+  "shows": "A customer with a question leads to a closed wallet and no payment, a red cross at the end.",
+  "need": null,
+  "lead": "เขาก็",
+  "key": "ไม่กล้า",
+  "slots": {
+   "items": [
+    {
+     "icon": "user"
+    },
+    {
+     "icon": "message-circle-question"
+    },
+    {
+     "icon": "wallet",
+     "tone": "soft"
+    }
+   ],
+   "end": {
+    "icon": "x",
+    "tone": "neg"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 16,
+   "shows": "A customer with a question leads to a closed wallet and no payment, a red cross at the end.",
+   "cat": "B12",
+   "slots": {
+    "items": [
+     {
+      "icon": "user"
+     },
+     {
+      "icon": "message-circle-question"
+     },
+     {
+      "icon": "wallet",
+      "tone": "soft"
+     }
+    ],
+    "end": {
+     "icon": "x",
+     "tone": "neg"
+    }
+   },
+   "lead": "เขาก็",
+   "key": "ไม่กล้า"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "customers.06",
+  "line": 18,
+  "text": "เรื่องคุณภาพ บางคนกลัวว่า ซื้อไปแล้วจะไม่คุ้ม",
+  "cat": "B11",
+  "shows": "A bad review bubble with a thumbs-down saying it is not worth it.",
+  "need": null,
+  "lead": "ซื้อไปแล้วจะ",
+  "key": "ไม่คุ้ม",
+  "slots": {
+   "kind": "review",
+   "quote": "ไม่คุ้ม",
+   "mood": "bad",
+   "react": "thumbs-down"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 18,
+   "shows": "A bad review bubble with a thumbs-down saying it is not worth it.",
+   "cat": "B11",
+   "slots": {
+    "kind": "review",
+    "quote": "ไม่คุ้ม",
+    "mood": "bad",
+    "react": "thumbs-down"
+   },
+   "lead": "ซื้อไปแล้วจะ",
+   "key": "ไม่คุ้ม"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "customers.07",
+  "line": 28,
+  "text": "เขาติดอะไรอยู่กันแน่",
+  "cat": "B06",
+  "shows": "A seller wondering what exactly the customer is stuck on, a search icon with a question.",
+  "need": null,
+  "lead": "เขา",
+  "key": "ติดอะไรอยู่",
+  "slots": {
+   "about": {
+    "icon": "user"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 28,
+   "shows": "A seller wondering what exactly the customer is stuck on, a search icon with a question.",
+   "cat": "B06",
+   "slots": {
+    "about": {
+     "icon": "user"
+    }
+   },
+   "lead": "เขา",
+   "key": "ติดอะไรอยู่"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "customers.08",
+  "line": 29,
+  "text": "แล้วก็แก้ปัญหานั้น ให้ถูกจุด",
+  "cat": "B08",
+  "shows": "A target reached by fixing the customer's exact problem, the result you want.",
+  "need": null,
+  "lead": "แล้วก็",
+  "key": "แก้ปัญหานั้น",
+  "slots": {
+   "goal": {
+    "icon": "target",
+    "tone": "acc"
+   },
+   "who": "user-check"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 29,
+   "shows": "A target reached by fixing the customer's exact problem, the result you want.",
+   "cat": "B08",
+   "slots": {
+    "goal": {
+     "icon": "target",
+     "tone": "acc"
+    },
+    "who": "user-check"
+   },
+   "lead": "แล้วก็",
+   "key": "แก้ปัญหานั้น"
+  },
+  "ok": true,
+  "problems": []
+ }
+]

@@ -64,3 +64,9 @@
 4. ภาพนิ่งก่อน: `PREVIEW=1 bash render_test.sh <งาน> <ผล> "card glass split card-overlay glass-overlay split-overlay" "<ฉาก>@<index>"` ดูแผ่นรวมเองทุกสไตล์ แล้วรัน `check_overlap.js` ทั้ง 6 สไตล์
 5. กฎที่ Friend ติไว้ (ดู DECISIONS หัวข้อกฎการจัดวางและจังหวะของร่าง): ของที่เชื่อมสองสิ่งอยู่บนแนวตรงระหว่างสองสิ่ง · แสง วงกระเพื่อม และคำ ขึ้นหลังสิ่งที่เคลื่อนมาถึงที่แล้ว · เครื่องหมายระหว่างสองสิ่งอยู่กลางช่องว่าง · คำใต้ไอคอนอยู่กึ่งกลางและอยู่บรรทัดเดียวกันทั้งแถว · คลื่นรอบของชิ้นไหนใช้ `R1.ripple(K, ชิ้น, เวลา)` (ทรงเดียวกับชิ้น ออกจากขอบด้านหลัง) ไม่ใช้ `R1.pulse` ที่เป็นวงกลมวิ่งผ่านชิ้น · ไอคอนที่ติดไฟใช้ `LG.lightUp` (ห้ามใช้ `LG.light` ในร่างใหม่ ไอคอนจะจางหายแวบหนึ่งในสไตล์แบ่งจอ) แล้วเริ่มคลื่นกับคำที่ `.done` · การ์ดไม่ทับกัน · ไม่มีประโยคในร่างเล็ก (ประโยคอยู่ซับใต้คาง)
 6. คลิปจริง: `WIDTH=540 bash render_test.sh` สไตล์เต็มจอ 3 แบบ และ `BUILD_ARGS="--speaker .86" WIDTH=540 bash render_test.sh` สไตล์ overlay 3 แบบ (สั่งจากโฟลเดอร์ `engine/uni/` เท่านั้น ไม่งั้นหา `render_test.sh` ไม่เจอ)
+
+## AI เขียนใบประกอบตามหมวด (คำสั่ง v4, รอบสิบห้า 2026-11-08)
+- `python3 cat_ai.py ask <captions.json> <วินาที> <ask_dir>` → `system.txt` + `user.txt` (คำขอ) · ให้ AI (Sonnet 5.5 effort low) ตอบ JSON ลง `answer.raw.json`
+- `python3 cat_ai.py check <ask_dir> <answer.json> <out_dir> <prefix> [<fix.json>]` → `sentences.js` (เรียก `SENTENCE` ใช้กับ `build.py --extra` หรือ `EXTRA=` ของ `render_test.sh`), `report.json`, `scenes.txt`
+- `python3 cat_ai.py fix <ask_dir> <out_dir>` → คำขอรอบแก้ (Haiku 5.5) สำหรับภาพที่ไม่ผ่าน
+- `node cat_stats.js <out_dir>…` → หมวดไหนใช้กี่ภาพ ร่างซ้ำในคลิปกี่ครั้ง ภาพที่ใช้ได้ร่างเดียว และประโยคที่ AI บอกว่าไม่เข้าหมวด

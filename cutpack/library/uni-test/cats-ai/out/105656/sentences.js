@@ -1,0 +1,17 @@
+/* category plans written by the AI for one clip (cat_ai.py check) */
+SENTENCE("105656.01", {"mode": "versus", "a": {"icon": "package", "label": "ร้อย", "v": 0.2}, "b": {"icon": "factory", "label": "ล้าน", "v": 1}, "win": "b", "cat": "B03", "name": "เราผลิตร้อย ขวดก็ ผลิตล้าน", "say": ["เราผลิตร้อย ขวดก็", "ผลิตล้าน"]});
+SENTENCE("105656.02", {"mode": "versus", "a": {"icon": "store", "label": "ของ ผม", "v": 1}, "b": {"icon": "store", "tone": "soft", "v": 0.4}, "win": "a", "cat": "B03", "name": "ต้อง ของ ผม แพง กว่า", "say": ["ต้อง ของ ผม", "แพง กว่า"]});
+SENTENCE("105656.03", {"about": {"icon": "users"}, "cat": "B06", "name": "ทำไม ก็ ต้อง มา เลือก ของ ผม", "say": ["ทำไม ก็ ต้อง มา", "เลือก ของ ผม"]});
+SENTENCE("105656.04", {"term": {"icon": "award", "label": "แบรนด์"}, "means": [{"icon": "handshake", "label": "สัญญา"}], "cat": "B16", "name": "แบรนด์ คือ สัญญา", "say": ["แบรนด์ คือ", "สัญญา"]});
+SENTENCE("105656.05", {"idea": {"icon": "brain", "label": "จำได้ ง่าย"}, "cat": "B14", "name": "จำได้ ง่าย และ มีความหมาย", "say": ["จำได้ ง่าย และ", "มีความหมาย"]});
+SENTENCE("105656.06", {"items": [{"icon": "eye", "label": "เห็น"}, {"icon": "image", "label": "โลโก้"}, {"icon": "brain", "label": "จำได้", "tone": "acc"}], "cat": "B12", "name": "เห็น โลโก้ แล้ว จำได้", "say": ["เห็น โลโก้ แล้ว", "จำได้"]});
+SENTENCE("105656.07", {"about": {"icon": "heart-handshake", "label": "ความผูกพัน"}, "answer": {"icon": "x", "label": "ไม่ มี", "tone": "neg"}, "cat": "B06", "name": "มี ความผูกพัน ไหม ไม่ มี", "say": ["มี ความผูกพัน ไหม", "ไม่ มี"]});
+SENTENCE("105656.08", {"thing": {"icon": "brain", "label": "จำ ไม่ ได้", "tone": "neg"}, "how": "flag", "sign": "triangle-alert", "cat": "B07", "name": "แต่ ชื่อ จำ ไม่ ได้", "say": ["แต่ ชื่อ", "จำ ไม่ ได้"]});
+SENTENCE("105656.09", {"items": [{"icon": "package-open", "label": "หยิบ สินค้า"}, {"icon": "search", "label": "ศึกษา"}, {"icon": "shopping-cart", "label": "ซื้อ"}], "cat": "B04", "name": "หยิบ สินค้า ก็ มา ใช้ ศึกษา", "say": ["หยิบ สินค้า ก็ มา ใช้", "ศึกษา"]});
+SENTENCE("105656.10", {"thing": {"icon": "search", "label": "ศึกษา"}, "how": "cross", "cat": "B07", "name": "ไม่ ควร ที่จะ ต้อง ศึกษา", "say": ["ไม่ ควร ที่จะ ต้อง", "ศึกษา"]});
+SENTENCE("105656.11", {"idea": {"icon": "shield-check", "label": "เชื่อ", "tone": "acc"}, "cat": "B14", "name": "เพราะ เขา เชื่อ", "say": ["เพราะ เขา", "เชื่อ"]});
+SENTENCE("105656.12", {"items": [{"icon": "crown"}, {"icon": "users"}, {"icon": "heart-pulse", "label": "เฮลตี้"}], "mark": {"at": 2, "how": "check"}, "cat": "B04", "name": "นี่ คือ สิ่ง ที่ เฮลตี้", "say": ["นี่ คือ สิ่ง ที่", "เฮลตี้"]});
+SENTENCE("105656.13", {"goal": {"icon": "hand-helping", "label": "ช่วยเหลือ"}, "who": "user", "cat": "B08", "name": "นี่ คือ สิ่ง ที่ ช่วยเหลือ", "say": ["นี่ คือ สิ่ง ที่", "ช่วยเหลือ"]});
+SENTENCE("105656.14", {"wrong": {"icon": "search", "label": "เลือก", "tone": "neg"}, "right": {"icon": "circle-check", "label": "ไม่ต้อง", "tone": "acc"}, "cat": "B05", "name": "คราวหน้า เขา ไม่ต้อง", "say": ["คราวหน้า เขา", "ไม่ต้อง"]});
+SENTENCE("105656.15", {"wrong": {"icon": "image", "label": "โลโก้", "tone": "neg"}, "right": {"icon": "award", "label": "แบรนด์", "tone": "acc"}, "cat": "B05", "name": "คำ ว่า แบรนด์ ที่ แท้จริง", "say": ["คำ ว่า แบรนด์ ที่", "แท้จริง"]});
+SENTENCE("105656.16", {"idea": {"icon": "handshake", "label": "คำสัญญา", "tone": "acc"}, "cat": "B14", "name": "แต่ว่า มัน คือ คำสัญญา", "say": ["แต่ว่า มัน คือ", "คำสัญญา"]});

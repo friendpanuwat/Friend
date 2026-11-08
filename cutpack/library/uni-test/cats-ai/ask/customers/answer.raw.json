@@ -1,0 +1,10 @@
+{"pictures":[
+{"line":2,"shows":"A chat message asking for product details that gets no reply because the customer disappeared.","cat":"B11","slots":{"kind":"chat","quote":"รายละเอียด","gone":true},"lead":"สินค้า แล้วก็","key":"หายไป"},
+{"line":4,"shows":"A shopper in doubt about whether the price tag is the reason, a question mark over an expensive price.","cat":"B06","slots":{"about":{"icon":"tags"}},"lead":"เฮ้ย มันเป็นเพราะ","key":"ของเราแพง"},
+{"line":11,"shows":"A discount tag crossed out, showing rushing to cut prices is the wrong move.","cat":"B07","slots":{"thing":{"icon":"badge-percent"},"how":"cross"},"lead":"รีบ","key":"ลดราคา"},
+{"line":13,"shows":"A discount tag marked wrong beside an answer bubble marked right, since the customer wants answers, not discounts.","cat":"B05","slots":{"wrong":{"icon":"badge-percent","tone":"neg"},"right":{"icon":"message-circle-question","tone":"acc"}},"lead":"แต่เขาอาจจะ ต้องการ","key":"คำตอบ"},
+{"line":16,"shows":"A customer with a question leads to a closed wallet and no payment, a red cross at the end.","cat":"B12","slots":{"items":[{"icon":"user"},{"icon":"message-circle-question"},{"icon":"wallet","tone":"soft"}],"end":{"icon":"x","tone":"neg"}},"lead":"เขาก็","key":"ไม่กล้า"},
+{"line":18,"shows":"A bad review bubble with a thumbs-down saying it is not worth it.","cat":"B11","slots":{"kind":"review","quote":"ไม่คุ้ม","mood":"bad","react":"thumbs-down"},"lead":"ซื้อไปแล้วจะ","key":"ไม่คุ้ม"},
+{"line":28,"shows":"A seller wondering what exactly the customer is stuck on, a search icon with a question.","cat":"B06","slots":{"about":{"icon":"user"}},"lead":"เขา","key":"ติดอะไรอยู่"},
+{"line":29,"shows":"A target reached by fixing the customer's exact problem, the result you want.","cat":"B08","slots":{"goal":{"icon":"target","tone":"acc"},"who":"user-check"},"lead":"แล้วก็","key":"แก้ปัญหานั้น"}
+]}
