@@ -1,0 +1,85 @@
+[3] สิ่งที่คุณ กำลังทำ อยู่อ่ะมันคือ รายได้
+  I B16   | A coins icon defined as a faded side wallet, saying what you are doing now is si
+  K B16   | A wallet labelled income is defined as a side income, the thing you are doing is
+[4] เสริมนะ เว้ย มันก็จะ เป็นรายได้ เสริมต่อไป เรื่อยๆ
+  C B16  wallet:soft | The label side income is shown faded, as the thing the speaker says will just st
+  F B16   | A side income is just a side income that stays that way forever.
+  H B12   | A side-income wallet loops on and on, stuck as side income forever
+  I B09  infinity:soft | Time keeps passing and ends in an endless faded loop, so side income stays side 
+  K B09   | Side income keeps going on and on forever, never growing into more
+  L B12   | Side income keeps going in a loop forever, never growing.
+[5] มันจะ ไม่มีทาง เป็น Main income
+  C B07 how=cross  | Main income is crossed out because it will never get there.
+  F B07 how=cross  | Main income is crossed out: a side income will never become it.
+  H B07 how=cross crown:soft | A crown for main income is crossed out, it will never get there
+  I B05  wallet:neg briefcase:acc | A faded side wallet is wrong and a briefcase for main income is the right one, s
+  K B07 how=cross  | Main income is crossed out, it will never become that
+  L B07 how=cross  | Main income is crossed out: it will never get there.
+[6] ได้มีแต่คน พูดว่า อยากหารายได้ เสริม
+  F B11   | A chat bubble where people say they want a side income.
+[7] อยากหา side hustle WTF the mean hustle
+  C B06   | A person wonders what side hustle really means.
+  H B06   | A person wonders what a side hustle even means
+  I B06   | A person wondering what side hustle means, a question sign about it
+  K B06   | A person wonders what side hustle really means
+  L B06   | A person wonders what side hustle even means.
+[8] แล้ว รายได้หลัก active income
+  C B03 mode=versus win=b wallet:soft briefcase:acc | Side income is faded while main income is highlighted as the winner.
+  H B08  trophy:acc | A trophy marks main income as the goal to reach
+  L B16   | Main income is defined as active income.
+[9] อ่ะผม รู้สึกว่า ถ้าอยากให้ มันมา เป็น active income
+  F B08   | The goal is reached: a rising chart for active income.
+  I B08  target:acc | A target reached with a person, the goal of making it active income
+  K B08   | Active income is the goal you reach, the money you want
+  L B08  trophy:acc | The goal of active income is reached and highlighted.
+[10] นะคือยู ต้อง มองมัน เป็น
+  F B03 mode=change coins:soft store:acc | Change from a small coin to a store: see it as a business.
+  H B03 mode=change coins:soft briefcase:acc | Faded coins change into a highlighted briefcase for business
+  I B13  briefcase:acc | A lightbulb tip with a briefcase: you have to see it as a business
+  K B13  briefcase:acc | A tip: see it as a business, a briefcase highlighted
+[11] business หรือว่ากล้า เทค
+  C B13  briefcase:acc | A tip to see it as a business is highlighted.
+  L B03 mode=versus win=b coins:soft store:acc | A faded side hustle sits next to a highlighted business, business wins.
+[12] ความเสี่ยง กับมัน เว้ยคำว่า รายได้เสริม
+  I B07 how=flag  | A flagged risk sign, be bold and take the risk with it
+  K B07 how=flag  | Be careful, taking on risk is flagged
+[13] หรือว่า side hustle โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง
+  F B03 how=cross mode=versus win=b triangle-alert:neg shield-check:acc | Risk is crossed out and safety ticked: a side hustle has no risk.
+  H B07 how=cross triangle-alert:soft | A warning sign is crossed out, there is no risk
+[14] ไม่มีคำว่า เจ๊ง ไม่มีคำว่า ขาดทุนนะ
+  C B07 how=cross  | Loss is shown with a down trend and crossed out, as something that is not there 
+  F B05  heart-crack:neg shield-check:acc | Going bust is wrong, safety is right: there is no such thing as failing.
+  H B02 dir=down coins:neg | Coins fall away until none are left, no loss
+  I B07 how=cross trending-down:neg | A falling chart crossed out, there is no loss and no going broke
+  K B07 how=cross trending-down:neg | Loss is crossed out, there is no losing
+  L B07 how=cross trending-down:neg | Going bust is crossed out and shown as harm.
+[16] เอ่อ minimize minimize ความเสี่ยง ให้มาก ที่สุดเลย
+  F B02 dir=down  | Risk shrinks to the smallest it can be.
+  I B02 dir=down  | Risk signs shrink to one left, minimizing risk as much as possible
+  K B02 dir=down  | Risk shrinks down to as little as possible
+  L B02 dir=down  | Risk icons shrink down to one left.
+[19] แล้วผมก็ ทำเป็น รายได้เสริม งานประจำ ของผม ไปใช่ป่ะ
+  L B03 mode=change coins:soft | Day job turns into a faded side income.
+[20] Mindset ผมมัน ไม่ เหมือนกับ อย่างนี้เลย
+  C B03 mode=change brain:soft brain:acc | The old mindset is faded and the new mindset is highlighted.
+  F B03 mode=change brain:soft brain:acc | Mindset changes from faded to bright: not the same as before.
+  H B14  brain:acc | A brain stands out as the mindset that is different
+  I B03 mode=change wallet:soft brain:acc | A faded wallet changes into a glowing brain, the mindset is not the same
+  K B03 mode=change brain:soft brain:acc | Mindset changed, before is not the same as now
+  L B03 mode=change brain:soft brain:acc | The old mindset changes into a new one.
+[21] มันมัน มีหลายอย่าง ที่มัน เปลี่ยนไป มากๆ แล้วมัน
+  C B02 dir=up  | Many things go up as they change a lot.
+[23] ช่องทาง หารายได้ เสริมที่ดี
+  C B11 mood=good  | A comment praises side income as a good channel.
+  F B11   | A message from an influencer calling it a good side channel.
+  H B11 mood=good  | A good comment praising the channel as a nice side income
+  I B11 mood=good  | A good message with a thumbs up saying it is a good channel
+  K B11   | A comment says it is a good side channel
+  L B11   | A comment from an influencer praising the side income channel.
+[24] ซึ่งถ้า คุณแค่ คิดว่ามันเป็น รายได้ เสริม
+  C B07 how=cross  | Side income is crossed out as the thing the speaker warns against thinking of.
+  F B07 how=flag  | Be careful: if you only think of it as a side income, it stays small.
+  H B07 how=cross wallet:soft | A faded wallet marked with a cross, thinking of it as just side income is wrong
+  I B07 how=flag wallet:soft | A wallet with a careful flag, if you only think of it as side income it is a tra
+  K B14   | If you only think it is side income, the idea is highlighted
+  L B07 how=cross  | Side income is crossed out as the wrong way to think.

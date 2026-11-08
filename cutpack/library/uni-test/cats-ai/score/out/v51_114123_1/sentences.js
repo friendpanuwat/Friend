@@ -1,0 +1,15 @@
+/* category plans written by the AI for one clip (cat_ai.py check) */
+SENTENCE("sv511141231.02", {"wrong": {"icon": "user-x", "label": "คนล้มหนัก", "tone": "soft"}, "right": {"icon": "brain", "label": "ยิ่งอด"}, "cat": "B05", "name": "ไม่ใช่คน ล้มหนัก", "say": ["ไม่ใช่คน", "ล้มหนัก"]});
+SENTENCE("sv511141231.04", {"thing": {"icon": "battery-low", "label": "ร่างกาย", "tone": "neg"}, "how": "flag", "sign": "triangle-alert", "cat": "B07", "name": "ทำให้ ร่างกาย", "say": ["ทำให้", "ร่างกาย"]});
+SENTENCE("sv511141231.05", {"dir": "down", "item": {"icon": "weight", "tone": "soft"}, "n": 3, "keep": 1, "cat": "B02", "name": "ซึ่ง น้ำหนัก", "say": ["ซึ่ง", "น้ำหนัก"]});
+SENTENCE("sv511141231.06", {"items": [{"icon": "biceps-flexed", "label": "กล้ามเนื้อ", "tone": "soft"}, {"icon": "zap", "label": "พลังงาน", "tone": "soft"}, {"icon": "activity", "label": "ฮอร์โมน", "tone": "soft"}], "cat": "B04", "name": "อาจจะเป็นทั้ง กล้ามเนื้อ", "say": ["อาจจะเป็นทั้ง", "กล้ามเนื้อ"]});
+SENTENCE("sv511141231.07", {"items": [{"icon": "battery-low", "label": "ไม่มีแรง"}, {"icon": "utensils", "label": "หิวจัด"}, {"icon": "bed", "label": "นอนไม่ค่อย"}], "end": {"icon": "triangle-alert", "tone": "neg"}, "cat": "B12", "name": "เริ่มไม่มีแรง หิวจัด", "say": ["เริ่มไม่มีแรง", "หิวจัด"]});
+SENTENCE("sv511141231.08", {"thing": {"icon": "utensils", "label": "กินน้อย", "tone": "soft"}, "how": "cross", "cat": "B07", "name": "เกิดจากการ กินน้อย", "say": ["เกิดจากการ", "กินน้อย"]});
+SENTENCE("sv511141231.09", {"thing": {"icon": "utensils-crossed", "label": "การอดอาหาร", "tone": "soft"}, "how": "cross", "sign": "octagon-alert", "cat": "B07", "name": "อย่าโรแมนตีไซส์ การอดอาหาร", "say": ["อย่าโรแมนตีไซส์", "การอดอาหาร"]});
+SENTENCE("sv511141231.10", {"goal": {"icon": "biceps-flexed", "label": "แข็งแรง", "tone": "acc"}, "who": "user", "cat": "B08", "name": "คุณรู้สึกว่าคุณ แข็งแรง", "say": ["คุณรู้สึกว่าคุณ", "แข็งแรง"]});
+SENTENCE("sv511141231.11", {"dir": "up", "item": {"icon": "heart-pulse", "tone": "acc"}, "n": 3, "cat": "B02", "name": "ร่างกายตัวเองได้ นานขึ้น", "say": ["ร่างกายตัวเองได้", "นานขึ้น"]});
+SENTENCE("sv511141231.12", {"idea": {"icon": "thumbs-down", "label": "ไม่คุ้ม"}, "cat": "B14", "name": "ผมบอกเลยว่า ไม่คุ้ม", "say": ["ผมบอกเลยว่า", "ไม่คุ้ม"]});
+SENTENCE("sv511141231.13", {"mode": "versus", "a": {"icon": "utensils-crossed", "label": "กินน้อยที่สุด", "tone": "soft", "v": 0.2}, "b": {"icon": "salad", "label": "กินให้พอดี", "tone": "acc", "v": 0.6}, "win": "b", "how": "cross", "cat": "B03", "name": "คือการ กินให้พอดี", "say": ["คือการ", "กินให้พอดี"]});
+SENTENCE("sv511141231.14", {"who": {"icon": "user"}, "label": "ลดน้ำหนัก", "cat": "B10", "name": "ถ้าคุณกำลัง ลดน้ำหนัก", "say": ["ถ้าคุณกำลัง", "ลดน้ำหนัก"]});
+SENTENCE("sv511141231.15", {"term": {"icon": "scale", "label": "ล้นหนัก"}, "means": [{"icon": "hand-heart", "label": "ดูแลตัวเอง", "tone": "acc"}], "cat": "B16", "name": "การ ดูแลตัวเอง", "say": ["การ", "ดูแลตัวเอง"]});
+SENTENCE("sv511141231.16", {"action": "comment", "label": "คอมเมนต์", "cat": "B15", "name": "คอมเมนต์", "say": ["", "คอมเมนต์"]});

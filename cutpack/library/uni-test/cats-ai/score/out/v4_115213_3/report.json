@@ -1,0 +1,424 @@
+[
+ {
+  "id": "sv41152133.01",
+  "line": 4,
+  "text": "เสริมนะ เว้ย มันก็จะ เป็นรายได้ เสริมต่อไป เรื่อยๆ",
+  "cat": "B16",
+  "shows": "A side income is just a side income that stays that way forever.",
+  "need": null,
+  "lead": "มันก็จะ เป็น",
+  "key": "รายได้ เสริม",
+  "slots": {
+   "term": {
+    "icon": "coins",
+    "label": "รายได้ เสริม"
+   },
+   "means": [
+    {
+     "icon": "briefcase",
+     "tone": "soft"
+    }
+   ]
+  },
+  "fixed": false,
+  "picture": {
+   "line": 4,
+   "shows": "A side income is just a side income that stays that way forever.",
+   "cat": "B16",
+   "slots": {
+    "term": {
+     "icon": "coins",
+     "label": "รายได้ เสริม"
+    },
+    "means": [
+     {
+      "icon": "briefcase",
+      "tone": "soft"
+     }
+    ]
+   },
+   "lead": "มันก็จะ เป็น",
+   "key": "รายได้ เสริม"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152133.02",
+  "line": 5,
+  "text": "มันจะ ไม่มีทาง เป็น Main income",
+  "cat": "B07",
+  "shows": "Main income is crossed out: a side income will never become it.",
+  "need": null,
+  "lead": "มันจะ ไม่มีทาง เป็น",
+  "key": "Main income",
+  "slots": {
+   "thing": {
+    "icon": "banknote",
+    "label": "Main income"
+   },
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 5,
+   "shows": "Main income is crossed out: a side income will never become it.",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "banknote",
+     "label": "Main income"
+    },
+    "how": "cross"
+   },
+   "lead": "มันจะ ไม่มีทาง เป็น",
+   "key": "Main income"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152133.03",
+  "line": 6,
+  "text": "ได้มีแต่คน พูดว่า อยากหารายได้ เสริม",
+  "cat": "B11",
+  "shows": "A chat bubble where people say they want a side income.",
+  "need": null,
+  "lead": "อยากหา",
+  "key": "รายได้ เสริม",
+  "slots": {
+   "kind": "chat",
+   "quote": "รายได้ เสริม",
+   "react": "coins"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 6,
+   "shows": "A chat bubble where people say they want a side income.",
+   "cat": "B11",
+   "slots": {
+    "kind": "chat",
+    "quote": "รายได้ เสริม",
+    "react": "coins"
+   },
+   "lead": "อยากหา",
+   "key": "รายได้ เสริม"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152133.04",
+  "line": 9,
+  "text": "อ่ะผม รู้สึกว่า ถ้าอยากให้ มันมา เป็น active income",
+  "cat": "B08",
+  "shows": "The goal is reached: a rising chart for active income.",
+  "need": null,
+  "lead": "ถ้าอยากให้ มันมา เป็น",
+  "key": "active",
+  "slots": {
+   "goal": {
+    "icon": "trending-up",
+    "label": "active"
+   },
+   "who": "user"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 9,
+   "shows": "The goal is reached: a rising chart for active income.",
+   "cat": "B08",
+   "slots": {
+    "goal": {
+     "icon": "trending-up",
+     "label": "active"
+    },
+    "who": "user"
+   },
+   "lead": "ถ้าอยากให้ มันมา เป็น",
+   "key": "active"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152133.05",
+  "line": 10,
+  "text": "นะคือยู ต้อง มองมัน เป็น",
+  "cat": "B03",
+  "shows": "Change from a small coin to a store: see it as a business.",
+  "need": null,
+  "lead": "มองมัน เป็น",
+  "key": "business",
+  "slots": {
+   "mode": "change",
+   "a": {
+    "icon": "coins",
+    "tone": "soft"
+   },
+   "b": {
+    "icon": "store",
+    "label": "business",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 10,
+   "shows": "Change from a small coin to a store: see it as a business.",
+   "cat": "B03",
+   "slots": {
+    "mode": "change",
+    "a": {
+     "icon": "coins",
+     "tone": "soft"
+    },
+    "b": {
+     "icon": "store",
+     "label": "business",
+     "tone": "acc"
+    }
+   },
+   "lead": "มองมัน เป็น",
+   "key": "business"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152133.06",
+  "line": 13,
+  "text": "หรือว่า side hustle โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง",
+  "cat": "B03",
+  "shows": "Risk is crossed out and safety ticked: a side hustle has no risk.",
+  "need": null,
+  "lead": "ไม่มี",
+  "key": "ความเสี่ยง",
+  "slots": {
+   "mode": "versus",
+   "a": {
+    "icon": "triangle-alert",
+    "label": "ความเสี่ยง",
+    "tone": "neg"
+   },
+   "b": {
+    "icon": "shield-check",
+    "tone": "acc"
+   },
+   "win": "b",
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 13,
+   "shows": "Risk is crossed out and safety ticked: a side hustle has no risk.",
+   "cat": "B03",
+   "slots": {
+    "mode": "versus",
+    "a": {
+     "icon": "triangle-alert",
+     "label": "ความเสี่ยง",
+     "tone": "neg"
+    },
+    "b": {
+     "icon": "shield-check",
+     "tone": "acc"
+    },
+    "win": "b",
+    "how": "cross"
+   },
+   "lead": "ไม่มี",
+   "key": "ความเสี่ยง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152133.07",
+  "line": 14,
+  "text": "ไม่มีคำว่า เจ๊ง ไม่มีคำว่า ขาดทุนนะ",
+  "cat": "B05",
+  "shows": "Going bust is wrong, safety is right: there is no such thing as failing.",
+  "need": null,
+  "lead": "ไม่มีคำว่า",
+  "key": "เจ๊ง",
+  "slots": {
+   "wrong": {
+    "icon": "heart-crack",
+    "label": "เจ๊ง",
+    "tone": "neg"
+   },
+   "right": {
+    "icon": "shield-check",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 14,
+   "shows": "Going bust is wrong, safety is right: there is no such thing as failing.",
+   "cat": "B05",
+   "slots": {
+    "wrong": {
+     "icon": "heart-crack",
+     "label": "เจ๊ง",
+     "tone": "neg"
+    },
+    "right": {
+     "icon": "shield-check",
+     "tone": "acc"
+    }
+   },
+   "lead": "ไม่มีคำว่า",
+   "key": "เจ๊ง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152133.08",
+  "line": 16,
+  "text": "เอ่อ minimize minimize ความเสี่ยง ให้มาก ที่สุดเลย",
+  "cat": "B02",
+  "shows": "Risk shrinks to the smallest it can be.",
+  "need": null,
+  "lead": "เอ่อ",
+  "key": "minimize",
+  "slots": {
+   "dir": "down",
+   "item": {
+    "icon": "triangle-alert"
+   },
+   "n": 3,
+   "keep": 1
+  },
+  "fixed": false,
+  "picture": {
+   "line": 16,
+   "shows": "Risk shrinks to the smallest it can be.",
+   "cat": "B02",
+   "slots": {
+    "dir": "down",
+    "item": {
+     "icon": "triangle-alert"
+    },
+    "n": 3,
+    "keep": 1
+   },
+   "lead": "เอ่อ",
+   "key": "minimize"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152133.09",
+  "line": 20,
+  "text": "Mindset ผมมัน ไม่ เหมือนกับ อย่างนี้เลย",
+  "cat": "B03",
+  "shows": "Mindset changes from faded to bright: not the same as before.",
+  "need": null,
+  "lead": "",
+  "key": "Mindset",
+  "slots": {
+   "mode": "change",
+   "a": {
+    "icon": "brain",
+    "tone": "soft"
+   },
+   "b": {
+    "icon": "brain",
+    "label": "Mindset",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 20,
+   "shows": "Mindset changes from faded to bright: not the same as before.",
+   "cat": "B03",
+   "slots": {
+    "mode": "change",
+    "a": {
+     "icon": "brain",
+     "tone": "soft"
+    },
+    "b": {
+     "icon": "brain",
+     "label": "Mindset",
+     "tone": "acc"
+    }
+   },
+   "lead": "",
+   "key": "Mindset"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152133.10",
+  "line": 23,
+  "text": "ช่องทาง หารายได้ เสริมที่ดี",
+  "cat": "B11",
+  "shows": "A message from an influencer calling it a good side channel.",
+  "need": null,
+  "lead": "ช่องทาง หารายได้",
+  "key": "เสริมที่ดี",
+  "slots": {
+   "kind": "message",
+   "quote": "เสริมที่ดี",
+   "react": "thumbs-up"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 23,
+   "shows": "A message from an influencer calling it a good side channel.",
+   "cat": "B11",
+   "slots": {
+    "kind": "message",
+    "quote": "เสริมที่ดี",
+    "react": "thumbs-up"
+   },
+   "lead": "ช่องทาง หารายได้",
+   "key": "เสริมที่ดี"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152133.11",
+  "line": 24,
+  "text": "ซึ่งถ้า คุณแค่ คิดว่ามันเป็น รายได้ เสริม",
+  "cat": "B07",
+  "shows": "Be careful: if you only think of it as a side income, it stays small.",
+  "need": null,
+  "lead": "คิดว่ามันเป็น",
+  "key": "รายได้ เสริม",
+  "slots": {
+   "thing": {
+    "icon": "coins",
+    "label": "รายได้ เสริม"
+   },
+   "how": "flag",
+   "sign": "triangle-alert"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 24,
+   "shows": "Be careful: if you only think of it as a side income, it stays small.",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "coins",
+     "label": "รายได้ เสริม"
+    },
+    "how": "flag",
+    "sign": "triangle-alert"
+   },
+   "lead": "คิดว่ามันเป็น",
+   "key": "รายได้ เสริม"
+  },
+  "ok": true,
+  "problems": []
+ }
+]

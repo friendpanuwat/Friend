@@ -1,0 +1,15 @@
+/* category plans written by the AI for one clip (cat_ai.py check) */
+SENTENCE("sv41141233.02", {"wrong": {"icon": "trending-down", "label": "ล้มหนัก", "tone": "neg"}, "right": {"icon": "utensils-crossed", "label": "อดได้เยอะ", "tone": "acc"}, "cat": "B05", "name": "ไม่ใช่คน ล้มหนัก", "say": ["ไม่ใช่คน", "ล้มหนัก"]});
+SENTENCE("sv41141233.04", {"thing": {"icon": "battery-low", "label": "ร่างกาย", "tone": "neg"}, "how": "flag", "sign": "triangle-alert", "cat": "B07", "name": "แผนที่ทำให้ ร่างกาย", "say": ["แผนที่ทำให้", "ร่างกาย"]});
+SENTENCE("sv41141233.05", {"dir": "down", "item": {"icon": "weight"}, "n": 3, "keep": 1, "cat": "B02", "name": "น้ำหนักที่มัน หายไป", "say": ["น้ำหนักที่มัน", "หายไป"]});
+SENTENCE("sv41141233.06", {"items": [{"icon": "biceps-flexed", "label": "กล้ามเนื้อ"}, {"icon": "zap", "label": "พลังงาน"}, {"icon": "activity", "label": "ฮอร์โมน"}], "cat": "B04", "name": "อาจจะเป็นทั้ง กล้ามเนื้อ", "say": ["อาจจะเป็นทั้ง", "กล้ามเนื้อ"]});
+SENTENCE("sv41141233.07", {"items": [{"icon": "battery-low", "label": "ไม่มีแรง", "tone": "neg"}, {"icon": "utensils", "label": "หิวจัด"}, {"icon": "frown", "label": "อารมณ์", "tone": "neg"}], "cat": "B12", "name": "เริ่ม ไม่มีแรง", "say": ["เริ่ม", "ไม่มีแรง"]});
+SENTENCE("sv41141233.08", {"thing": {"icon": "utensils-crossed", "label": "กินน้อย"}, "how": "cross", "cat": "B07", "name": "เกิดจากการ กินน้อย", "say": ["เกิดจากการ", "กินน้อย"]});
+SENTENCE("sv41141233.09", {"thing": {"icon": "utensils-crossed", "label": "อดอาหาร"}, "how": "cross", "sign": "octagon-alert", "cat": "B07", "name": "อย่าโรแมนตีไซส์การ อดอาหาร", "say": ["อย่าโรแมนตีไซส์การ", "อดอาหาร"]});
+SENTENCE("sv41141233.10", {"thing": {"icon": "frown", "label": "ลงโทษตัวเอง"}, "how": "cross", "cat": "B07", "name": "ทำโทษเลย ลงโทษตัวเอง", "say": ["ทำโทษเลย", "ลงโทษตัวเอง"]});
+SENTENCE("sv41141233.11", {"goal": {"icon": "biceps-flexed", "label": "แข็งแรง", "tone": "acc"}, "who": "user", "cat": "B08", "name": "ทำให้คุณรู้สึกว่าคุณ แข็งแรง", "say": ["ทำให้คุณรู้สึกว่าคุณ", "แข็งแรง"]});
+SENTENCE("sv41141233.12", {"thing": {"icon": "heart-crack", "label": "ร่างกาย", "tone": "neg"}, "how": "cross", "cat": "B07", "name": "ถ้ามันต้องแลกกับ ร่างกาย", "say": ["ถ้ามันต้องแลกกับ", "ร่างกาย"]});
+SENTENCE("sv41141233.13", {"wrong": {"icon": "utensils-crossed", "label": "น้อยที่สุด", "tone": "neg"}, "right": {"icon": "utensils", "label": "กินให้พอดี", "tone": "acc"}, "cat": "B05", "name": "คือการ กินให้พอดี", "say": ["คือการ", "กินให้พอดี"]});
+SENTENCE("sv41141233.14", {"goal": {"icon": "repeat", "label": "ทำต่อได้", "tone": "acc"}, "who": "user", "cat": "B08", "name": "คุณ ทำต่อได้", "say": ["คุณ", "ทำต่อได้"]});
+SENTENCE("sv41141233.15", {"term": {"icon": "scale", "label": "ล้นหนัก"}, "means": [{"icon": "heart-handshake", "label": "ดูแลตัวเอง", "tone": "acc"}], "cat": "B16", "name": "ว่าการล้นหนักคือการ ดูแลตัวเอง", "say": ["ว่าการล้นหนักคือการ", "ดูแลตัวเอง"]});
+SENTENCE("sv41141233.16", {"action": "comment", "label": "เคย", "cat": "B15", "name": "คอมเมนต์ว่า เคย", "say": ["คอมเมนต์ว่า", "เคย"]});

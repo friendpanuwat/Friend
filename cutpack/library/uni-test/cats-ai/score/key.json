@@ -1,0 +1,66 @@
+{
+ "runs": {
+  "v4|115213|1": {
+   "dir": "ask/115213",
+   "check": "sv41152131: 12 lines, 12 pictures pass, 0 need a category we do not have"
+  },
+  "v51|115213|1": {
+   "dir": "v51/ask/115213",
+   "check": "sv511152131: 10 lines, 10 pictures pass, 0 need a category we do not have"
+  },
+  "v4|115213|2": {
+   "dir": "rep/v4/115213/run2",
+   "check": "sv41152132: 12 lines, 12 pictures pass, 0 need a category we do not have"
+  },
+  "v51|115213|2": {
+   "dir": "rep/v51/115213/run2",
+   "check": "sv511152132: 10 lines, 10 pictures pass, 0 need a category we do not have"
+  },
+  "v4|115213|3": {
+   "dir": "rep/v4/115213/run3",
+   "check": "sv41152133: 11 lines, 11 pictures pass, 0 need a category we do not have"
+  },
+  "v51|115213|3": {
+   "dir": "rep/v51/115213/run3",
+   "check": "sv511152133: 12 lines, 12 pictures pass, 0 need a category we do not have"
+  },
+  "v4|114123|1": {
+   "dir": "ask/114123",
+   "check": "sv41141231: 15 lines, 13 pictures pass, 0 need a category we do not have"
+  },
+  "v51|114123|1": {
+   "dir": "rep/v51/114123/run1",
+   "check": "sv511141231: 16 lines, 14 pictures pass, 0 need a category we do not have"
+  },
+  "v4|114123|2": {
+   "dir": "rep/v4/114123/run2",
+   "check": "sv41141232: 16 lines, 14 pictures pass, 0 need a category we do not have"
+  },
+  "v51|114123|2": {
+   "dir": "rep/v51/114123/run2",
+   "check": "sv511141232: 16 lines, 14 pictures pass, 0 need a category we do not have"
+  },
+  "v4|114123|3": {
+   "dir": "rep/v4/114123/run3",
+   "check": "sv41141233: 16 lines, 14 pictures pass, 0 need a category we do not have"
+  },
+  "v51|114123|3": {
+   "dir": "rep/v51/114123/run3",
+   "check": "sv511141233: 16 lines, 14 pictures pass, 0 need a category we do not have"
+  }
+ },
+ "blind": {
+  "A": "v51|114123|1",
+  "B": "v51|114123|3",
+  "C": "v51|115213|2",
+  "D": "v4|114123|3",
+  "E": "v4|114123|2",
+  "F": "v4|115213|3",
+  "G": "v51|114123|2",
+  "H": "v51|115213|1",
+  "I": "v4|115213|1",
+  "J": "v4|114123|1",
+  "K": "v4|115213|2",
+  "L": "v51|115213|3"
+ }
+}

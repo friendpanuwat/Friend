@@ -1,0 +1,374 @@
+[
+ {
+  "id": "sv511152131.01",
+  "line": 4,
+  "text": "เสริมนะ เว้ย มันก็จะ เป็นรายได้ เสริมต่อไป เรื่อยๆ",
+  "cat": "B12",
+  "shows": "A side-income wallet loops on and on, stuck as side income forever",
+  "need": null,
+  "lead": "เป็นรายได้ เสริมต่อไป",
+  "key": "เรื่อยๆ",
+  "slots": {
+   "items": [
+    {
+     "icon": "wallet",
+     "tone": "soft"
+    },
+    {
+     "icon": "repeat",
+     "tone": "soft"
+    },
+    {
+     "icon": "wallet",
+     "tone": "soft"
+    }
+   ]
+  },
+  "fixed": false,
+  "picture": {
+   "line": 4,
+   "shows": "A side-income wallet loops on and on, stuck as side income forever",
+   "cat": "B12",
+   "slots": {
+    "items": [
+     {
+      "icon": "wallet",
+      "tone": "soft"
+     },
+     {
+      "icon": "repeat",
+      "tone": "soft"
+     },
+     {
+      "icon": "wallet",
+      "tone": "soft"
+     }
+    ]
+   },
+   "lead": "เป็นรายได้ เสริมต่อไป",
+   "key": "เรื่อยๆ"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511152131.02",
+  "line": 5,
+  "text": "มันจะ ไม่มีทาง เป็น Main income",
+  "cat": "B07",
+  "shows": "A crown for main income is crossed out, it will never get there",
+  "need": null,
+  "lead": "มันจะ ไม่มีทาง เป็น",
+  "key": "Main income",
+  "slots": {
+   "thing": {
+    "icon": "crown",
+    "label": "Main income",
+    "tone": "soft"
+   },
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 5,
+   "shows": "A crown for main income is crossed out, it will never get there",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "crown",
+     "label": "Main income",
+     "tone": "soft"
+    },
+    "how": "cross"
+   },
+   "lead": "มันจะ ไม่มีทาง เป็น",
+   "key": "Main income"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511152131.03",
+  "line": 7,
+  "text": "อยากหา side hustle WTF the mean hustle",
+  "cat": "B06",
+  "shows": "A person wonders what a side hustle even means",
+  "need": null,
+  "lead": "อยากหา side",
+  "key": "hustle",
+  "slots": {
+   "about": {
+    "icon": "user"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 7,
+   "shows": "A person wonders what a side hustle even means",
+   "cat": "B06",
+   "slots": {
+    "about": {
+     "icon": "user"
+    }
+   },
+   "lead": "อยากหา side",
+   "key": "hustle"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511152131.04",
+  "line": 8,
+  "text": "แล้ว รายได้หลัก active income",
+  "cat": "B08",
+  "shows": "A trophy marks main income as the goal to reach",
+  "need": null,
+  "lead": "แล้ว",
+  "key": "รายได้หลัก",
+  "slots": {
+   "goal": {
+    "icon": "trophy",
+    "label": "รายได้หลัก",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 8,
+   "shows": "A trophy marks main income as the goal to reach",
+   "cat": "B08",
+   "slots": {
+    "goal": {
+     "icon": "trophy",
+     "label": "รายได้หลัก",
+     "tone": "acc"
+    }
+   },
+   "lead": "แล้ว",
+   "key": "รายได้หลัก"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511152131.05",
+  "line": 10,
+  "text": "นะคือยู ต้อง มองมัน เป็น",
+  "cat": "B03",
+  "shows": "Faded coins change into a highlighted briefcase for business",
+  "need": null,
+  "lead": "ต้อง มองมัน เป็น",
+  "key": "business",
+  "slots": {
+   "mode": "change",
+   "a": {
+    "icon": "coins",
+    "tone": "soft"
+   },
+   "b": {
+    "icon": "briefcase",
+    "label": "business",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 10,
+   "shows": "Faded coins change into a highlighted briefcase for business",
+   "cat": "B03",
+   "slots": {
+    "mode": "change",
+    "a": {
+     "icon": "coins",
+     "tone": "soft"
+    },
+    "b": {
+     "icon": "briefcase",
+     "label": "business",
+     "tone": "acc"
+    }
+   },
+   "lead": "ต้อง มองมัน เป็น",
+   "key": "business"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511152131.06",
+  "line": 13,
+  "text": "หรือว่า side hustle โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง",
+  "cat": "B07",
+  "shows": "A warning sign is crossed out, there is no risk",
+  "need": null,
+  "lead": "ไม่มี",
+  "key": "ความเสี่ยง",
+  "slots": {
+   "thing": {
+    "icon": "triangle-alert",
+    "label": "ความเสี่ยง",
+    "tone": "soft"
+   },
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 13,
+   "shows": "A warning sign is crossed out, there is no risk",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "triangle-alert",
+     "label": "ความเสี่ยง",
+     "tone": "soft"
+    },
+    "how": "cross"
+   },
+   "lead": "ไม่มี",
+   "key": "ความเสี่ยง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511152131.07",
+  "line": 14,
+  "text": "ไม่มีคำว่า เจ๊ง ไม่มีคำว่า ขาดทุนนะ",
+  "cat": "B02",
+  "shows": "Coins fall away until none are left, no loss",
+  "need": null,
+  "lead": "ไม่มีคำว่า",
+  "key": "ขาดทุน",
+  "slots": {
+   "dir": "down",
+   "item": {
+    "icon": "coins",
+    "tone": "neg"
+   },
+   "n": 3,
+   "keep": 0
+  },
+  "fixed": false,
+  "picture": {
+   "line": 14,
+   "shows": "Coins fall away until none are left, no loss",
+   "cat": "B02",
+   "slots": {
+    "dir": "down",
+    "item": {
+     "icon": "coins",
+     "tone": "neg"
+    },
+    "n": 3,
+    "keep": 0
+   },
+   "lead": "ไม่มีคำว่า",
+   "key": "ขาดทุน"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511152131.08",
+  "line": 20,
+  "text": "Mindset ผมมัน ไม่ เหมือนกับ อย่างนี้เลย",
+  "cat": "B14",
+  "shows": "A brain stands out as the mindset that is different",
+  "need": null,
+  "lead": "",
+  "key": "Mindset",
+  "slots": {
+   "idea": {
+    "icon": "brain",
+    "label": "Mindset",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 20,
+   "shows": "A brain stands out as the mindset that is different",
+   "cat": "B14",
+   "slots": {
+    "idea": {
+     "icon": "brain",
+     "label": "Mindset",
+     "tone": "acc"
+    }
+   },
+   "lead": "",
+   "key": "Mindset"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511152131.09",
+  "line": 23,
+  "text": "ช่องทาง หารายได้ เสริมที่ดี",
+  "cat": "B11",
+  "shows": "A good comment praising the channel as a nice side income",
+  "need": null,
+  "lead": "ช่องทาง หารายได้",
+  "key": "เสริมที่ดี",
+  "slots": {
+   "kind": "comment",
+   "quote": "เสริมที่ดี",
+   "mood": "good",
+   "react": "thumbs-up"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 23,
+   "shows": "A good comment praising the channel as a nice side income",
+   "cat": "B11",
+   "slots": {
+    "kind": "comment",
+    "quote": "เสริมที่ดี",
+    "mood": "good",
+    "react": "thumbs-up"
+   },
+   "lead": "ช่องทาง หารายได้",
+   "key": "เสริมที่ดี"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511152131.10",
+  "line": 24,
+  "text": "ซึ่งถ้า คุณแค่ คิดว่ามันเป็น รายได้ เสริม",
+  "cat": "B07",
+  "shows": "A faded wallet marked with a cross, thinking of it as just side income is wrong",
+  "need": null,
+  "lead": "ซึ่งถ้า คุณแค่ คิดว่ามันเป็น",
+  "key": "รายได้เสริม",
+  "slots": {
+   "thing": {
+    "icon": "wallet",
+    "label": "รายได้เสริม",
+    "tone": "soft"
+   },
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 24,
+   "shows": "A faded wallet marked with a cross, thinking of it as just side income is wrong",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "wallet",
+     "label": "รายได้เสริม",
+     "tone": "soft"
+    },
+    "how": "cross"
+   },
+   "lead": "ซึ่งถ้า คุณแค่ คิดว่ามันเป็น",
+   "key": "รายได้เสริม"
+  },
+  "ok": true,
+  "problems": []
+ }
+]

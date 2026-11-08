@@ -1,0 +1,120 @@
+[1] ผม ยู ไซ เนส เนี่ย มา ประมาณ สี่ ปี แล้ว สิ่ง ที่ ผม กลัว ที่สุด
+  A B01   | The number four years appears next to a calendar.
+  B B09   | A calendar marks about four years of the speaker doing this work.
+  D B01   | A big 'four years' figure with a calendar icon: the speaker has been doing this 
+  E B01   | The number four years shown big: the speaker has been doing this for about four 
+  G B01   | The number four years appears with a calendar, the speaker's time in the field.
+  J B01   | The number four years is shown big next to a calendar, matching the speaker's fo
+[2] ไม่ ใช่ คน ล้ม หนัก ไม่ สำเร็จ นะ ครับ
+  A B05  user-x:soft | People who fail hard are crossed out, the people who keep cutting more are what 
+  B B05  trending-down:soft | A crossed-out big failure is set against the person who thinks the more they sta
+  D B05  trending-down:neg utensils-crossed:acc | Wrong: a person who fails hard (crossed out), right: a person who cuts food too 
+  E B05  user-x:neg user:soft | Not the person who fails hard is the thing he fears most; the failing person is 
+  J B05  user-x:neg trending-down:acc | A crossed-out failing person on the wrong side and a highlighted tick-free winne
+[3] แต่ คือ คน ที่ คิด ว่า ยิ่ง อด ได้ เยอะ
+  G B07 how=flag utensils-crossed:neg | A warning flag on people who think starving more is better.
+[4] ยิ่ง เก่ง คือ สี่ ร้อย แค ล่ว ต่อ วัน
+  A B01 dir=down  | The number four hundred appears and goes down, a warning about too few calories 
+  B B01 dir=down  | A big number of four hundred calories a day shown going down, as the speaker moc
+  D B01   | A big number 400 calories per day, the extreme amount some people think is 'best
+  E B01 dir=down  | The number four hundred calories per day, the amount people think is the best.
+  G B01 dir=down  | A low calorie number shown going down, as a warning of too little food.
+  J B01 dir=down  | The number four hundred is shown big with a zap icon for calories per day, the e
+[7] มัน จะ เป็น แผนที่ ทำให้ ร่างกาย อยู่ หมด ออก
+  A B07 how=flag battery-low:neg | A drained battery flagged with a warning sign: the body is worn out.
+  B B12  triangle-alert:neg | A plan leads to a drained body and a worn-out person, a warning chain.
+  D B07 how=flag battery-low:neg | A drained battery: the plan leaves the body exhausted, which is bad.
+  E B07 how=flag battery-low:neg | A warning sign over a drained body: this plan wears the body out.
+[8] ตลอด นะ ครับ ซึ่ง น้ำหนัก ที่ มัน หาย ไป แน่นอน ว่า มัน ไม่ ใช่ แค่ ไขมัน
+  A B02 dir=down weight:soft | Weight icons leave a person, with one staying: what is lost is not just fat.
+  D B02 dir=down  | Weight icons disappearing, but most of what leaves is not only fat.
+  G B02 dir=down  | Body weight icons disappear, showing that more than fat is lost.
+  J B02 dir=down  | Weight icons leave the body, with some still staying, showing the weight that di
+[9] อาจจะ เป็น ทั้ง กล้ามเนื้อ พลังงาน ฮอร์โมน
+  A B04   | Three things that get lost one by one: muscle, energy, hormones.
+  B B04   | Muscle, energy and hormones are listed as things lost, all marked as harm.
+  D B04   | Three things that can be lost along with weight: muscle, energy, hormones.
+  E B04   | Three things that are lost besides fat: muscle, energy, hormones.
+  G B04   | Three things the body loses are listed: muscle, energy and hormones.
+  J B04   | Three things the body loses in order: muscle, energy and hormones.
+[11] เริ่ม ไม่ มี แรง หิวจัด นอน ไม่ค่อย ได้ อารมณ์
+  A B12  triangle-alert:neg | A chain from no energy to extreme hunger to poor sleep, ending in a warning.
+  B B02 dir=down  | Energy bolts drain away until none are left, as the person has no strength.
+  D B12   | A chain of bad effects: no energy, extreme hunger, then mood trouble.
+  E B12   | A chain of bad effects: no strength, extreme hunger, poor sleep.
+  G B12  heart-crack:neg | Having no strength leads to extreme hunger and bad sleep, the harm of starving.
+  J B07 how=flag battery-low:neg | A drained battery with a warning flag: no energy is a sign to be careful.
+[13] เห็น อาหาร ก็ ไม่ กล้า กิน แล้ว ผม ไม่ ได้
+  B B03 mode=change utensils-crossed:neg | A person who ate normally now sees food and is too afraid to eat it.
+[15] เกิด จาก การ กิน น้อย อย่าง เดียว นะ ครับ
+  A B07 how=cross utensils:soft | Eating less is crossed out as the only cause of the viral cases.
+  D B07 how=cross  | Eating too little is crossed out: not every viral case comes from eating little 
+  E B05  utensils-crossed:neg puzzle:acc | Eating too little alone is crossed out as the cause; many factors are the right 
+  G B05  utensils-crossed:neg puzzle:acc | Eating too little alone is wrong, many factors is right.
+  J B05  utensils:neg puzzle:acc | Eating too little alone is crossed as the wrong cause; many factors is the right
+[17] แต่ สิ่ง ที่ ผม อยาก ให้ ทุกคน เลย รู้จัก เรื่อง นี้ ก็ คือ
+  B B13  lightbulb:acc | A lightbulb marks the one thing the speaker wants everyone to know.
+[18] อย่า โร แมน ตี ไซส์ การ อดอาหาร
+  A B07 how=cross utensils-crossed:soft | Extreme fasting is crossed out: do not glamorize it.
+  B B07 how=cross  | Fasting is crossed out with a warning: do not glamorize it.
+  D B07 how=cross  | Do not glamorize starving: a crossed-out skipped meal.
+  E B07 how=cross utensils-crossed:neg | Fasting is shown with a cross: do not glamorize it.
+  G B07 how=cross  | Do not romanticize starving: the idea of fasting is crossed out.
+  J B07 how=cross utensils-crossed:neg | Starving yourself is crossed out: do not romanticize extreme dieting.
+[22] ทำโทษ เลย ลงโทษ ตัวเอง บางคน จะ เป็นการ
+  D B07 how=cross  | Punishing yourself is crossed out: weight loss should not feel like punishment.
+  E B05  heart-crack:neg heart:soft | Punishing yourself is crossed out as the wrong way.
+[23] ที่ ทำให้ คุณ รู้สึก ว่า คุณ แข็งแรง
+  A B08  biceps-flexed:acc | A person reaching the goal of feeling strong.
+  D B08  biceps-flexed:acc | A strong arm as the goal: feeling stronger is the result you want.
+  E B08  biceps-flexed:acc | Reaching the goal of feeling strong.
+  G B08  biceps-flexed:acc | A strong arm shows the good result of feeling stronger.
+  J B08  biceps-flexed:acc | A strong arm as the goal: a good diet should make you feel strong.
+[25] ร่างกาย ตัวเอง ได้ นาน ขึ้น พร้อม เร็ว เนี่ย
+  A B02 dir=up heart-pulse:acc | Health icons grow in number as the body lasts longer.
+[26] ผม บอก เลย ว่า ไม่ คุ้ม นะ ครับ
+  A B14   | A thumbs-down: it is not worth it.
+  B B14  scale:soft | A scale tips against the plan because it is not worth it.
+  E B14  thumbs-down:neg | A thumbs down: it is not worth it.
+  G B14  thumbs-down:neg | A thumbs down says it is not worth it.
+  J B14  thumbs-down:neg | A thumbs-down on the idea: it is not worth it.
+[27] ถ้า มัน ต้อง แลก กับ ร่างกาย ที่ มัน พัง
+  D B07 how=cross heart-crack:neg | A broken heart as a warning: not worth it if you trade it for a body that breaks
+[29] เรา กิน น้อยที่สุด คือ การ กิน ให้ พอ ดีแล้ว
+  A B03 how=cross mode=versus win=b utensils-crossed:soft salad:acc | Eating the least is crossed out, eating just enough wins.
+  B B05  battery-low:soft salad:acc | Eating the least is crossed out and eating enough is highlighted as the right wa
+  D B05  utensils-crossed:neg utensils:acc | Wrong: eating the least; right: eating enough.
+  E B05  utensils-crossed:neg utensils:acc | Eating the least is wrong; eating enough is right.
+  G B05  utensils-crossed:neg circle-check:acc | Eating the least is wrong, eating enough is right.
+  J B05  utensils-crossed:neg scale:acc | Eating the least is wrong; eating just enough is right.
+[30] คุณ ทำต่อ ได้ โดยที่ คุณ ไม่ เกลียด
+  B B08  smile:acc | A smiling person who keeps going, reaching the goal of continuing without hate.
+  D B08  repeat:acc | A repeat icon as the goal: you can keep going without hating it.
+  G B08  refresh-cw:acc | The goal of keeping going is reached, shown as a highlighted repeat icon.
+  J B08  infinity:acc | An infinity sign: you can keep going for the long run without hating it.
+[31] อาหาร แล้วก็ เกลียด ตัวเอง ถ้า คุณ กำลัง ลดน้ำหนัก
+  A B10   | The audience is people who are losing weight right now.
+  E B07 how=cross heart-off:neg | Hating yourself is warned against and crossed.
+[32] อยู่ นะ ผม อยาก ให้ คุณ จำ คำ นี้ ไว้ เลย นะ
+  G B13  lightbulb:acc | A lightbulb tip: remember this phrase.
+[33] ว่า การ ล้น หนัก คือ การ ดูแลตัวเอง
+  A B16   | Losing weight is defined as taking care of yourself.
+  B B16   | Weight loss is defined as taking care of yourself.
+  D B16   | Losing weight is defined as taking care of yourself.
+  E B16   | Losing weight is defined as taking care of yourself.
+  G B16   | A term is defined as taking care of yourself.
+  J B03 how=cross mode=versus win=a  | Caring for yourself is ticked as the right way and destroying yourself is crosse
+[34] ไม่ ใช่ การ ทำลาย ตัวเอง ครับ
+  B B07 how=cross  | Hurting yourself is crossed out: do not do it.
+  E B05  heart-crack:neg heart-handshake:soft | Destroying yourself is crossed out; it is not what weight loss is.
+  G B07 how=cross  | Harming yourself is crossed out and rejected.
+[35] เคย ผ่าน การ อดอาหาร แบบ สุดโต่ง นะ ครับ
+  B B06   | A person wonders whether they have ever gone through extreme fasting.
+  J B06   | A person with a question about having gone through extreme fasting.
+[36] คอมเมนต์ ว่า เคย นะ ครับผม
+  A B15   | A comment button prompts viewers to comment if they have been there.
+  B B15   | A comment button asks viewers to comment that they have.
+  D B15   | A comment button: the speaker asks viewers to comment if they have been there.
+  E B15   | A call to comment if you have been through it.
+  G B15   | A call to leave a comment if you have been through it.
+  J B15   | A comment button asking viewers to comment if they have been through it.

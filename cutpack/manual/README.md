@@ -13,6 +13,8 @@
 - **v5 เป็นค่าเริ่มต้นแล้ว (Friend 2026-11-08) และแก้เป็น v5.1:** เพิ่มตัวอย่างนับตัวอักษรข้อเดียว ลองกับ 115213: ผ่านรอบแรก ไม่ต้องมีรอบแก้ คำตอบสั้นลง ต้นทุนกะว่าถูกลงราว 0.03 บาทต่อคลิป (กฎที่เพิ่มแพงขึ้นไม่ถึง 0.01 บาท) แต่มีภาพไม่ตรง 2 จุดที่ไม่เกี่ยวกับกฎนี้ (ดู HANDOFF) ผลอยู่ใน `cats-ai/v51/`
 - รันซ้ำ (ตอนนี้ไม่ต้องใส่ตัวแปร v5 เป็นค่าเริ่มต้น ใส่ `CUTPACK_CAT_PROMPT=v4` เพื่อใช้คำสั่งเดิม): `CUTPACK_CAT_PROMPT=v5 python3 engine/uni/cat_ai.py ask <captions.json> <วินาที> <ask>` → ผู้ช่วยย่อย Sonnet low เขียน `answer.raw.json` → `cat_ai.py check <ask> <ask>/answer.raw.json <out> <prefix>` → ถ้ามีภาพไม่ผ่าน `cat_ai.py fix <ask> <out>` → Haiku low เขียน `<out>/fix.raw.json` → `check` อีกครั้งพร้อม fix → `cats-ai/stills_cmp.sh <work> <img> <out> <ชื่อ> card`
 
+- **ลองซ้ำ 3 ครั้ง × 2 คลิป (2026-11-08):** v5.1 ภาพผิด 5/80 · v4 11/82 (ให้คะแนนแบบซ่อนชื่อ `cats-ai/score/`) ร่าง B14 ทั้ง 3 ร่างจางเมื่อ `tone` เป็น soft/neg แล้ว (`R4.land`)
+
 ## editorial บนแผน D (ระบบเก่า)
 - ไฟล์: `engine/plan/prompt/v2/editorial.md` (คู่มือวางแผน 8 ขั้นตามลำดับ) และ `engine/plan/prompt/v2/kit_editorial.md` (คู่มือออกแบบการ์ดเอง มีตัวเลขการจัดวาง) ไม่แตะ skill ส่วนตัวใน `.claude/skills/`
 - เปิดด้วย `CUTPACK_MANUAL=v2` ใช้กับสไตล์ editorial เท่านั้น ค่าเริ่มต้นไม่เปลี่ยน (คำขอเดิมเหมือนเดิมทุกตัวอักษร ตรวจแล้ว) ชุดทดสอบ 65 ข้อผ่าน

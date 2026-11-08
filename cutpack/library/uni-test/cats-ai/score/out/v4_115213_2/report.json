@@ -1,0 +1,418 @@
+[
+ {
+  "id": "sv41152132.01",
+  "line": 3,
+  "text": "สิ่งที่คุณ กำลังทำ อยู่อ่ะมันคือ รายได้",
+  "cat": "B16",
+  "shows": "A wallet labelled income is defined as a side income, the thing you are doing is only extra money",
+  "need": null,
+  "lead": "อยู่อ่ะมันคือ",
+  "key": "รายได้เสริม",
+  "slots": {
+   "term": {
+    "icon": "wallet",
+    "label": "รายได้"
+   },
+   "means": [
+    {
+     "icon": "coins",
+     "label": "เสริม"
+    }
+   ]
+  },
+  "fixed": false,
+  "picture": {
+   "line": 3,
+   "shows": "A wallet labelled income is defined as a side income, the thing you are doing is only extra money",
+   "cat": "B16",
+   "slots": {
+    "term": {
+     "icon": "wallet",
+     "label": "รายได้"
+    },
+    "means": [
+     {
+      "icon": "coins",
+      "label": "เสริม"
+     }
+    ]
+   },
+   "lead": "อยู่อ่ะมันคือ",
+   "key": "รายได้เสริม"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152132.02",
+  "line": 4,
+  "text": "เสริมนะ เว้ย มันก็จะ เป็นรายได้ เสริมต่อไป เรื่อยๆ",
+  "cat": "B09",
+  "shows": "Side income keeps going on and on forever, never growing into more",
+  "need": null,
+  "lead": "เสริมต่อไป",
+  "key": "เรื่อยๆ",
+  "slots": {
+   "result": {
+    "icon": "infinity",
+    "label": "เรื่อยๆ"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 4,
+   "shows": "Side income keeps going on and on forever, never growing into more",
+   "cat": "B09",
+   "slots": {
+    "result": {
+     "icon": "infinity",
+     "label": "เรื่อยๆ"
+    }
+   },
+   "lead": "เสริมต่อไป",
+   "key": "เรื่อยๆ"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152132.03",
+  "line": 5,
+  "text": "มันจะ ไม่มีทาง เป็น Main income",
+  "cat": "B07",
+  "shows": "Main income is crossed out, it will never become that",
+  "need": null,
+  "lead": "มันจะ ไม่มีทาง เป็น",
+  "key": "Main income",
+  "slots": {
+   "thing": {
+    "icon": "briefcase",
+    "label": "Main income"
+   },
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 5,
+   "shows": "Main income is crossed out, it will never become that",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "briefcase",
+     "label": "Main income"
+    },
+    "how": "cross"
+   },
+   "lead": "มันจะ ไม่มีทาง เป็น",
+   "key": "Main income"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152132.04",
+  "line": 7,
+  "text": "อยากหา side hustle WTF the mean hustle",
+  "cat": "B06",
+  "shows": "A person wonders what side hustle really means",
+  "need": null,
+  "lead": "อยากหา",
+  "key": "side hustle",
+  "slots": {
+   "about": {
+    "icon": "user"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 7,
+   "shows": "A person wonders what side hustle really means",
+   "cat": "B06",
+   "slots": {
+    "about": {
+     "icon": "user"
+    }
+   },
+   "lead": "อยากหา",
+   "key": "side hustle"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152132.05",
+  "line": 9,
+  "text": "อ่ะผม รู้สึกว่า ถ้าอยากให้ มันมา เป็น active income",
+  "cat": "B08",
+  "shows": "Active income is the goal you reach, the money you want",
+  "need": null,
+  "lead": "มันมา เป็น active",
+  "key": "income",
+  "slots": {
+   "goal": {
+    "icon": "banknote",
+    "label": "income"
+   },
+   "who": "user"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 9,
+   "shows": "Active income is the goal you reach, the money you want",
+   "cat": "B08",
+   "slots": {
+    "goal": {
+     "icon": "banknote",
+     "label": "income"
+    },
+    "who": "user"
+   },
+   "lead": "มันมา เป็น active",
+   "key": "income"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152132.06",
+  "line": 10,
+  "text": "นะคือยู ต้อง มองมัน เป็น",
+  "cat": "B13",
+  "shows": "A tip: see it as a business, a briefcase highlighted",
+  "need": null,
+  "lead": "ต้อง มองมัน เป็น",
+  "key": "business",
+  "slots": {
+   "secret": {
+    "icon": "briefcase",
+    "label": "business",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 10,
+   "shows": "A tip: see it as a business, a briefcase highlighted",
+   "cat": "B13",
+   "slots": {
+    "secret": {
+     "icon": "briefcase",
+     "label": "business",
+     "tone": "acc"
+    }
+   },
+   "lead": "ต้อง มองมัน เป็น",
+   "key": "business"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152132.07",
+  "line": 12,
+  "text": "ความเสี่ยง กับมัน เว้ยคำว่า รายได้เสริม",
+  "cat": "B07",
+  "shows": "Be careful, taking on risk is flagged",
+  "need": null,
+  "lead": "กล้า เทค",
+  "key": "ความเสี่ยง",
+  "slots": {
+   "thing": {
+    "icon": "triangle-alert",
+    "label": "ความเสี่ยง"
+   },
+   "how": "flag"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 12,
+   "shows": "Be careful, taking on risk is flagged",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "triangle-alert",
+     "label": "ความเสี่ยง"
+    },
+    "how": "flag"
+   },
+   "lead": "กล้า เทค",
+   "key": "ความเสี่ยง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152132.08",
+  "line": 14,
+  "text": "ไม่มีคำว่า เจ๊ง ไม่มีคำว่า ขาดทุนนะ",
+  "cat": "B07",
+  "shows": "Loss is crossed out, there is no losing",
+  "need": null,
+  "lead": "ไม่มีคำว่า",
+  "key": "ขาดทุน",
+  "slots": {
+   "thing": {
+    "icon": "trending-down",
+    "label": "ขาดทุน",
+    "tone": "neg"
+   },
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 14,
+   "shows": "Loss is crossed out, there is no losing",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "trending-down",
+     "label": "ขาดทุน",
+     "tone": "neg"
+    },
+    "how": "cross"
+   },
+   "lead": "ไม่มีคำว่า",
+   "key": "ขาดทุน"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152132.09",
+  "line": 16,
+  "text": "เอ่อ minimize minimize ความเสี่ยง ให้มาก ที่สุดเลย",
+  "cat": "B02",
+  "shows": "Risk shrinks down to as little as possible",
+  "need": null,
+  "lead": "minimize",
+  "key": "ความเสี่ยง",
+  "slots": {
+   "dir": "down",
+   "item": {
+    "icon": "triangle-alert"
+   },
+   "n": 3,
+   "keep": 1
+  },
+  "fixed": false,
+  "picture": {
+   "line": 16,
+   "shows": "Risk shrinks down to as little as possible",
+   "cat": "B02",
+   "slots": {
+    "dir": "down",
+    "item": {
+     "icon": "triangle-alert"
+    },
+    "n": 3,
+    "keep": 1
+   },
+   "lead": "minimize",
+   "key": "ความเสี่ยง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152132.10",
+  "line": 20,
+  "text": "Mindset ผมมัน ไม่ เหมือนกับ อย่างนี้เลย",
+  "cat": "B03",
+  "shows": "Mindset changed, before is not the same as now",
+  "need": null,
+  "lead": "Mindset ผมมัน",
+  "key": "ไม่ เหมือนกับ",
+  "slots": {
+   "mode": "change",
+   "a": {
+    "icon": "brain",
+    "tone": "soft"
+   },
+   "b": {
+    "icon": "brain",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 20,
+   "shows": "Mindset changed, before is not the same as now",
+   "cat": "B03",
+   "slots": {
+    "mode": "change",
+    "a": {
+     "icon": "brain",
+     "tone": "soft"
+    },
+    "b": {
+     "icon": "brain",
+     "tone": "acc"
+    }
+   },
+   "lead": "Mindset ผมมัน",
+   "key": "ไม่ เหมือนกับ"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152132.11",
+  "line": 23,
+  "text": "ช่องทาง หารายได้ เสริมที่ดี",
+  "cat": "B11",
+  "shows": "A comment says it is a good side channel",
+  "need": null,
+  "lead": "หารายได้",
+  "key": "เสริมที่ดี",
+  "slots": {
+   "kind": "comment",
+   "quote": "เสริมที่ดี"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 23,
+   "shows": "A comment says it is a good side channel",
+   "cat": "B11",
+   "slots": {
+    "kind": "comment",
+    "quote": "เสริมที่ดี"
+   },
+   "lead": "หารายได้",
+   "key": "เสริมที่ดี"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv41152132.12",
+  "line": 24,
+  "text": "ซึ่งถ้า คุณแค่ คิดว่ามันเป็น รายได้ เสริม",
+  "cat": "B14",
+  "shows": "If you only think it is side income, the idea is highlighted",
+  "need": null,
+  "lead": "คิดว่ามันเป็น",
+  "key": "รายได้ เสริม",
+  "slots": {
+   "idea": {
+    "icon": "coins",
+    "label": "รายได้ เสริม"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 24,
+   "shows": "If you only think it is side income, the idea is highlighted",
+   "cat": "B14",
+   "slots": {
+    "idea": {
+     "icon": "coins",
+     "label": "รายได้ เสริม"
+    }
+   },
+   "lead": "คิดว่ามันเป็น",
+   "key": "รายได้ เสริม"
+  },
+  "ok": true,
+  "problems": []
+ }
+]

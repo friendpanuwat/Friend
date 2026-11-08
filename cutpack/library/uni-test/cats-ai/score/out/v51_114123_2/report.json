@@ -1,0 +1,638 @@
+[
+ {
+  "id": "sv511141232.01",
+  "line": 1,
+  "text": "ผม ยู ไซ เนส เนี่ย มา ประมาณ สี่ ปี แล้ว สิ่ง ที่ ผม กลัว ที่สุด",
+  "cat": "B01",
+  "shows": "The number four years appears with a calendar, the speaker's time in the field.",
+  "need": null,
+  "lead": "เนี่ย มา ประมาณ",
+  "key": "สี่ ปี",
+  "slots": {
+   "value": "สี่",
+   "unit": "ปี",
+   "icon": "calendar"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 1,
+   "shows": "The number four years appears with a calendar, the speaker's time in the field.",
+   "cat": "B01",
+   "slots": {
+    "value": "สี่",
+    "unit": "ปี",
+    "icon": "calendar"
+   },
+   "lead": "เนี่ย มา ประมาณ",
+   "key": "สี่ ปี"
+  },
+  "ok": false,
+  "problems": [
+   "value must be a number that is said"
+  ]
+ },
+ {
+  "id": "sv511141232.02",
+  "line": 3,
+  "text": "แต่ คือ คน ที่ คิด ว่า ยิ่ง อด ได้ เยอะ",
+  "cat": "B07",
+  "shows": "A warning flag on people who think starving more is better.",
+  "need": null,
+  "lead": "คิด ว่า ยิ่ง",
+  "key": "อด ได้ เยอะ",
+  "slots": {
+   "thing": {
+    "icon": "utensils-crossed",
+    "label": "อด ได้ เยอะ",
+    "tone": "neg"
+   },
+   "how": "flag",
+   "sign": "triangle-alert"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 3,
+   "shows": "A warning flag on people who think starving more is better.",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "utensils-crossed",
+     "label": "อด ได้ เยอะ",
+     "tone": "neg"
+    },
+    "how": "flag",
+    "sign": "triangle-alert"
+   },
+   "lead": "คิด ว่า ยิ่ง",
+   "key": "อด ได้ เยอะ"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511141232.03",
+  "line": 4,
+  "text": "ยิ่ง เก่ง คือ สี่ ร้อย แค ล่ว ต่อ วัน",
+  "cat": "B01",
+  "shows": "A low calorie number shown going down, as a warning of too little food.",
+  "need": null,
+  "lead": "ยิ่ง เก่ง คือ",
+  "key": "สี่ ร้อย",
+  "slots": {
+   "value": "สี่ ร้อย",
+   "icon": "utensils",
+   "dir": "down"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 4,
+   "shows": "A low calorie number shown going down, as a warning of too little food.",
+   "cat": "B01",
+   "slots": {
+    "value": "สี่ ร้อย",
+    "icon": "utensils",
+    "dir": "down"
+   },
+   "lead": "ยิ่ง เก่ง คือ",
+   "key": "สี่ ร้อย"
+  },
+  "ok": false,
+  "problems": [
+   "value must be a number that is said"
+  ]
+ },
+ {
+  "id": "sv511141232.04",
+  "line": 8,
+  "text": "ตลอด นะ ครับ ซึ่ง น้ำหนัก ที่ มัน หาย ไป แน่นอน ว่า มัน ไม่ ใช่ แค่ ไขมัน",
+  "cat": "B02",
+  "shows": "Body weight icons disappear, showing that more than fat is lost.",
+  "need": null,
+  "lead": "น้ำหนัก ที่ มัน",
+  "key": "หาย ไป",
+  "slots": {
+   "dir": "down",
+   "item": {
+    "icon": "weight"
+   },
+   "center": {
+    "icon": "person-standing"
+   },
+   "n": 4,
+   "keep": 2
+  },
+  "fixed": false,
+  "picture": {
+   "line": 8,
+   "shows": "Body weight icons disappear, showing that more than fat is lost.",
+   "cat": "B02",
+   "slots": {
+    "dir": "down",
+    "item": {
+     "icon": "weight"
+    },
+    "center": {
+     "icon": "person-standing"
+    },
+    "n": 4,
+    "keep": 2
+   },
+   "lead": "น้ำหนัก ที่ มัน",
+   "key": "หาย ไป"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511141232.05",
+  "line": 9,
+  "text": "อาจจะ เป็น ทั้ง กล้ามเนื้อ พลังงาน ฮอร์โมน",
+  "cat": "B04",
+  "shows": "Three things the body loses are listed: muscle, energy and hormones.",
+  "need": null,
+  "lead": "อาจจะ เป็น ทั้ง",
+  "key": "กล้ามเนื้อ",
+  "slots": {
+   "items": [
+    {
+     "icon": "biceps-flexed",
+     "label": "กล้ามเนื้อ",
+     "tone": "neg"
+    },
+    {
+     "icon": "zap",
+     "label": "พลังงาน",
+     "tone": "neg"
+    },
+    {
+     "icon": "activity",
+     "label": "ฮอร์โมน",
+     "tone": "neg"
+    }
+   ]
+  },
+  "fixed": false,
+  "picture": {
+   "line": 9,
+   "shows": "Three things the body loses are listed: muscle, energy and hormones.",
+   "cat": "B04",
+   "slots": {
+    "items": [
+     {
+      "icon": "biceps-flexed",
+      "label": "กล้ามเนื้อ",
+      "tone": "neg"
+     },
+     {
+      "icon": "zap",
+      "label": "พลังงาน",
+      "tone": "neg"
+     },
+     {
+      "icon": "activity",
+      "label": "ฮอร์โมน",
+      "tone": "neg"
+     }
+    ]
+   },
+   "lead": "อาจจะ เป็น ทั้ง",
+   "key": "กล้ามเนื้อ"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511141232.06",
+  "line": 11,
+  "text": "เริ่ม ไม่ มี แรง หิวจัด นอน ไม่ค่อย ได้ อารมณ์",
+  "cat": "B12",
+  "shows": "Having no strength leads to extreme hunger and bad sleep, the harm of starving.",
+  "need": null,
+  "lead": "เริ่ม",
+  "key": "ไม่ มี แรง",
+  "slots": {
+   "items": [
+    {
+     "icon": "battery-low",
+     "label": "ไม่ มี แรง",
+     "tone": "neg"
+    },
+    {
+     "icon": "utensils",
+     "label": "หิวจัด",
+     "tone": "neg"
+    },
+    {
+     "icon": "bed",
+     "label": "นอน ไม่ค่อย",
+     "tone": "neg"
+    }
+   ],
+   "end": {
+    "icon": "heart-crack",
+    "tone": "neg"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 11,
+   "shows": "Having no strength leads to extreme hunger and bad sleep, the harm of starving.",
+   "cat": "B12",
+   "slots": {
+    "items": [
+     {
+      "icon": "battery-low",
+      "label": "ไม่ มี แรง",
+      "tone": "neg"
+     },
+     {
+      "icon": "utensils",
+      "label": "หิวจัด",
+      "tone": "neg"
+     },
+     {
+      "icon": "bed",
+      "label": "นอน ไม่ค่อย",
+      "tone": "neg"
+     }
+    ],
+    "end": {
+     "icon": "heart-crack",
+     "tone": "neg"
+    }
+   },
+   "lead": "เริ่ม",
+   "key": "ไม่ มี แรง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511141232.07",
+  "line": 15,
+  "text": "เกิด จาก การ กิน น้อย อย่าง เดียว นะ ครับ",
+  "cat": "B05",
+  "shows": "Eating too little alone is wrong, many factors is right.",
+  "need": null,
+  "lead": "เกิด จาก การ",
+  "key": "กิน น้อย",
+  "slots": {
+   "wrong": {
+    "icon": "utensils-crossed",
+    "label": "กิน น้อย",
+    "tone": "neg"
+   },
+   "right": {
+    "icon": "puzzle",
+    "label": "หลาย ปัจจัย",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 15,
+   "shows": "Eating too little alone is wrong, many factors is right.",
+   "cat": "B05",
+   "slots": {
+    "wrong": {
+     "icon": "utensils-crossed",
+     "label": "กิน น้อย",
+     "tone": "neg"
+    },
+    "right": {
+     "icon": "puzzle",
+     "label": "หลาย ปัจจัย",
+     "tone": "acc"
+    }
+   },
+   "lead": "เกิด จาก การ",
+   "key": "กิน น้อย"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511141232.08",
+  "line": 18,
+  "text": "อย่า โร แมน ตี ไซส์ การ อดอาหาร",
+  "cat": "B07",
+  "shows": "Do not romanticize starving: the idea of fasting is crossed out.",
+  "need": null,
+  "lead": "อย่า โร แมน ตี ไซส์ การ",
+  "key": "อดอาหาร",
+  "slots": {
+   "thing": {
+    "icon": "utensils-crossed",
+    "label": "อดอาหาร"
+   },
+   "how": "cross",
+   "sign": "octagon-alert"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 18,
+   "shows": "Do not romanticize starving: the idea of fasting is crossed out.",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "utensils-crossed",
+     "label": "อดอาหาร"
+    },
+    "how": "cross",
+    "sign": "octagon-alert"
+   },
+   "lead": "อย่า โร แมน ตี ไซส์ การ",
+   "key": "อดอาหาร"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511141232.09",
+  "line": 23,
+  "text": "ที่ ทำให้ คุณ รู้สึก ว่า คุณ แข็งแรง",
+  "cat": "B08",
+  "shows": "A strong arm shows the good result of feeling stronger.",
+  "need": null,
+  "lead": "รู้สึก ว่า คุณ",
+  "key": "แข็งแรง",
+  "slots": {
+   "goal": {
+    "icon": "biceps-flexed",
+    "label": "แข็งแรง",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 23,
+   "shows": "A strong arm shows the good result of feeling stronger.",
+   "cat": "B08",
+   "slots": {
+    "goal": {
+     "icon": "biceps-flexed",
+     "label": "แข็งแรง",
+     "tone": "acc"
+    }
+   },
+   "lead": "รู้สึก ว่า คุณ",
+   "key": "แข็งแรง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511141232.10",
+  "line": 26,
+  "text": "ผม บอก เลย ว่า ไม่ คุ้ม นะ ครับ",
+  "cat": "B14",
+  "shows": "A thumbs down says it is not worth it.",
+  "need": null,
+  "lead": "ผม บอก เลย ว่า",
+  "key": "ไม่ คุ้ม",
+  "slots": {
+   "idea": {
+    "icon": "thumbs-down",
+    "label": "ไม่ คุ้ม",
+    "tone": "neg"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 26,
+   "shows": "A thumbs down says it is not worth it.",
+   "cat": "B14",
+   "slots": {
+    "idea": {
+     "icon": "thumbs-down",
+     "label": "ไม่ คุ้ม",
+     "tone": "neg"
+    }
+   },
+   "lead": "ผม บอก เลย ว่า",
+   "key": "ไม่ คุ้ม"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511141232.11",
+  "line": 29,
+  "text": "เรา กิน น้อยที่สุด คือ การ กิน ให้ พอ ดีแล้ว",
+  "cat": "B05",
+  "shows": "Eating the least is wrong, eating enough is right.",
+  "need": null,
+  "lead": "คือ การ",
+  "key": "กิน ให้ พอ",
+  "slots": {
+   "wrong": {
+    "icon": "utensils-crossed",
+    "label": "น้อยที่สุด",
+    "tone": "neg"
+   },
+   "right": {
+    "icon": "circle-check",
+    "label": "กิน ให้ พอ",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 29,
+   "shows": "Eating the least is wrong, eating enough is right.",
+   "cat": "B05",
+   "slots": {
+    "wrong": {
+     "icon": "utensils-crossed",
+     "label": "น้อยที่สุด",
+     "tone": "neg"
+    },
+    "right": {
+     "icon": "circle-check",
+     "label": "กิน ให้ พอ",
+     "tone": "acc"
+    }
+   },
+   "lead": "คือ การ",
+   "key": "กิน ให้ พอ"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511141232.12",
+  "line": 30,
+  "text": "คุณ ทำต่อ ได้ โดยที่ คุณ ไม่ เกลียด",
+  "cat": "B08",
+  "shows": "The goal of keeping going is reached, shown as a highlighted repeat icon.",
+  "need": null,
+  "lead": "คุณ",
+  "key": "ทำต่อ ได้",
+  "slots": {
+   "goal": {
+    "icon": "refresh-cw",
+    "label": "ทำต่อ ได้",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 30,
+   "shows": "The goal of keeping going is reached, shown as a highlighted repeat icon.",
+   "cat": "B08",
+   "slots": {
+    "goal": {
+     "icon": "refresh-cw",
+     "label": "ทำต่อ ได้",
+     "tone": "acc"
+    }
+   },
+   "lead": "คุณ",
+   "key": "ทำต่อ ได้"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511141232.13",
+  "line": 32,
+  "text": "อยู่ นะ ผม อยาก ให้ คุณ จำ คำ นี้ ไว้ เลย นะ",
+  "cat": "B13",
+  "shows": "A lightbulb tip: remember this phrase.",
+  "need": null,
+  "lead": "ผม อยาก ให้ คุณ",
+  "key": "จำ คำ นี้",
+  "slots": {
+   "secret": {
+    "icon": "lightbulb",
+    "label": "จำ คำ นี้",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 32,
+   "shows": "A lightbulb tip: remember this phrase.",
+   "cat": "B13",
+   "slots": {
+    "secret": {
+     "icon": "lightbulb",
+     "label": "จำ คำ นี้",
+     "tone": "acc"
+    }
+   },
+   "lead": "ผม อยาก ให้ คุณ",
+   "key": "จำ คำ นี้"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511141232.14",
+  "line": 33,
+  "text": "ว่า การ ล้น หนัก คือ การ ดูแลตัวเอง",
+  "cat": "B16",
+  "shows": "A term is defined as taking care of yourself.",
+  "need": null,
+  "lead": "ว่า การ",
+  "key": "ดูแลตัวเอง",
+  "slots": {
+   "term": {
+    "icon": "weight",
+    "label": "ล้น หนัก"
+   },
+   "means": [
+    {
+     "icon": "heart-handshake",
+     "label": "ดูแลตัวเอง",
+     "tone": "acc"
+    }
+   ]
+  },
+  "fixed": false,
+  "picture": {
+   "line": 33,
+   "shows": "A term is defined as taking care of yourself.",
+   "cat": "B16",
+   "slots": {
+    "term": {
+     "icon": "weight",
+     "label": "ล้น หนัก"
+    },
+    "means": [
+     {
+      "icon": "heart-handshake",
+      "label": "ดูแลตัวเอง",
+      "tone": "acc"
+     }
+    ]
+   },
+   "lead": "ว่า การ",
+   "key": "ดูแลตัวเอง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511141232.15",
+  "line": 34,
+  "text": "ไม่ ใช่ การ ทำลาย ตัวเอง ครับ",
+  "cat": "B07",
+  "shows": "Harming yourself is crossed out and rejected.",
+  "need": null,
+  "lead": "ไม่ ใช่ การ",
+  "key": "ทำลาย ตัวเอง",
+  "slots": {
+   "thing": {
+    "icon": "heart-crack",
+    "label": "ทำลาย ตัวเอง"
+   },
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 34,
+   "shows": "Harming yourself is crossed out and rejected.",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "heart-crack",
+     "label": "ทำลาย ตัวเอง"
+    },
+    "how": "cross"
+   },
+   "lead": "ไม่ ใช่ การ",
+   "key": "ทำลาย ตัวเอง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "sv511141232.16",
+  "line": 36,
+  "text": "คอมเมนต์ ว่า เคย นะ ครับผม",
+  "cat": "B15",
+  "shows": "A call to leave a comment if you have been through it.",
+  "need": null,
+  "lead": "",
+  "key": "คอมเมนต์",
+  "slots": {
+   "action": "comment",
+   "label": "คอมเมนต์"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 36,
+   "shows": "A call to leave a comment if you have been through it.",
+   "cat": "B15",
+   "slots": {
+    "action": "comment",
+    "label": "คอมเมนต์"
+   },
+   "lead": "",
+   "key": "คอมเมนต์"
+  },
+  "ok": true,
+  "problems": []
+ }
+]
