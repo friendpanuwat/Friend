@@ -37,6 +37,20 @@ KIND = {'editorial': 'card', 'overlay': 'widget'}
 WAYS = ('reason', 'describe', 'example', 'loose', 'count', 'hero')
 
 
+# Manual v2 (Friend 2026-11-08: "เขียนไฟล์สกิลให้ละเอียดกว่านี้" and "ทำให้คู่มือละเอียดขึ้นโดยที่ไม่ต้องยาวขึ้น ... ลดความคลุมเครือ"):
+# the editorial skill rewritten as an ordered manual with exact rules for the system's model (prompt/v2/editorial.md,
+# prompt/v2/kit_editorial.md; it has the designed scenes of way 'hero' built in). Under test: off unless
+# $CUTPACK_MANUAL=v2, and editorial only, so every other request stays byte-identical.
+MANUALS = ('v2',)
+
+
+def manual_of(style, manual=None):
+    """'v2' when the new manual is asked for and the style has one, else ''."""
+    if manual is None: manual = os.environ.get('CUTPACK_MANUAL', '')
+    if manual and manual not in MANUALS: raise ValueError(f'unknown manual: {manual} (known: {", ".join(MANUALS)})')
+    return manual if style == 'editorial' else ''
+
+
 def ways_of(ways=None):
     """The ways asked for: the argument, else $CUTPACK_PLAN_WAYS ('all' = every way). Unknown names stop the run."""
     if ways is None: ways = os.environ.get('CUTPACK_PLAN_WAYS', '')
@@ -359,9 +373,10 @@ def code_schema():
                                                                  'properties': {'i': {'type': 'integer'}, 'code': {'type': 'string'}}}}}}
 
 
-def code_system_text(cat, ways=frozenset()):
+def code_system_text(cat, ways=frozenset(), style=None):
     """Cached block of the scene-code call: the kit guide and the icon names (the same for every clip)."""
-    return read('prompt', 'kit_hero.md' if 'hero' in ways else 'kit.md').strip() + '\n\n' + icons_text(cat)
+    kit = ('v2', f'kit_{style}.md') if style and manual_of(style) else ('kit_hero.md' if 'hero' in ways else 'kit.md',)
+    return read('prompt', *kit).strip() + '\n\n' + icons_text(cat)
 
 
 def code_request(inp, style, answer, cat=None, ways=None):
@@ -388,7 +403,7 @@ def code_request(inp, style, answer, cat=None, ways=None):
         'model': MODEL, 'max_tokens': 16000,
         'betas': ['server-side-fallback-2026-07-01'], 'fallbacks': 'default',
         'output_config': {'effort': EFFORT, 'format': {'type': 'json_schema', 'schema': code_schema()}},
-        'system': [{'type': 'text', 'text': code_system_text(cat, ways), 'cache_control': {'type': 'ephemeral'}}],
+        'system': [{'type': 'text', 'text': code_system_text(cat, ways, style), 'cache_control': {'type': 'ephemeral'}}],
         'messages': [{'role': 'user', 'content': '\n'.join(rows)}],
     }
 
@@ -421,7 +436,8 @@ def system_md(ways=frozenset()):
 
 
 def system_text(style, cat, ways=frozenset()):
-    return '\n\n'.join([system_md(ways), library_text(style, cat, ways), example_text(style, ways, cat)])
+    md = read('prompt', 'v2', f'{style}.md').strip() if manual_of(style) else system_md(ways)
+    return '\n\n'.join([md, library_text(style, cat, ways), example_text(style, ways, cat)])
 
 
 def request(inp, style, cat=None, ttl='5m', model=None, thinking=THINKING, ways=None):
