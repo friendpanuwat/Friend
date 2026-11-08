@@ -39,5 +39,10 @@ const CARD_OV = {
     A(V, [{transform: Z}, {transform: Z}], T.hit, T.t1 - T.hit, {f: 'none'});
   },
 };
+/* a small form floats on the video (c-dark: white lines) but its cards are white (c-light). Every ".c-dark X" rule of the
+   card style would also reach inside those white cards and win (same weight, later in the file): white box borders and
+   white tiles on a white card (Friend 2026-11-08: the checklist boxes "กลืนไปกับพื้นหลังเพราะมันเป็นสีเดียวกัน").
+   So every ".c-light X" rule is repeated one step heavier for a white card inside the dark frame. */
+CARD_OV.css += (STYLES.card.css.match(/\.c-light \.[^{]+\{[^}]*\}/g) ?? []).map(r => '.c-dark ' + r).join('\n');
 OVERLAY('card-overlay', 'card', CARD_OV);
 OVERLAY('card-overlay-big', 'card', {...CARD_OV, name: 'การ์ด แบบ overlay (ใหญ่ ย่อคนพูด)', size: 'big'});

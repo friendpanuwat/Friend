@@ -11,7 +11,7 @@
    usage: node cat_stats.js <out_dir>… > stats.json
    ===================================================================== */
 const fs = require('fs'), path = require('path'), vm = require('vm');
-const LIB = ['scenes/cats.js', 'scenes/lego_r2.js', 'scenes/lego_r3.js', 'scenes/lego_r4.js', 'scenes/lego_v2.js'];
+const LIB = ['scenes/cats.js', 'scenes/lego_r2.js', 'scenes/lego_r3.js', 'scenes/lego_r4.js', 'scenes/lego_r5.js', 'scenes/lego_v2.js'];
 const load = sentences => {
   const ctx = {SCENE() {}, LAYOUTS: {}, console};
   vm.createContext(ctx);
