@@ -34,11 +34,25 @@ const LG = {
     const [p, h] = a.querySelectorAll('path'); K.draw(p, t); K.draw(h, t + .35, .25);
     return a;
   },
-  /* the same icon in the accent holder fades in over a thing (it "lights up" / is fixed) */
+  /* the same icon in the accent holder fades in over a thing (it "lights up" / is fixed).
+     OLD VARIANTS ONLY: the cross-fade turns the icon the colour of its holder half way in split (Friend 2026-11-08:
+     the old ones stay as they are); every NEW variant uses LG.lightUp below */
   light(K, parent, icon, cx, cy, size, t, shape = 'tile') {
     const ok = K.badge(parent, icon, cx, cy, size, null, {tone: 'acc', shape});
     K.fade(ok.o, t, 0, 1, {hold: true}); K.punch(ok.p, t + .05); return ok;
   },
+  /* the way a thing lights up in every new variant (Friend 2026-11-08: "อันต่อๆไปที่จะทำในอนาคตก็แก้ปัญหานี้ด้วยนะ"):
+     the lit holder appears solid in its middle at once and grows over the old one (the style's snap), so the icon is
+     seen the whole time. A cross-fade (LG.light) turns the icon the colour of its holder half way wherever the two
+     holders swap light and dark (split). Returns the lit node; .done = when it is full size (start a ripple or a word then) */
+  lightUp(K, parent, icon, cx, cy, size, t, shape = 'tile') {
+    const ok = K.badge(parent, icon, cx, cy, size, null, {tone: 'acc', shape});
+    A(ok.o, [{opacity: 0}, {opacity: 1}], t, .04);
+    K.move(ok.m, t, 'scale(.72)', 'none', {hold: true, kind: 'snap'});
+    ok.done = LG.arrive('snap', t); K.punch(ok.p, ok.done); return ok;
+  },
+  /* when a move of this kind that starts at t is in place (most of the style's duration; springs settle after) */
+  arrive: (kind, t) => t + (ST.motion[kind]?.d ?? .5) * .85,
   spread: (t0, t1, n) => [...Array(n)].map((_, k) => n < 2 ? t1 : t0 + (t1 - t0) * k / (n - 1)),
 };
 
