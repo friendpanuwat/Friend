@@ -81,7 +81,8 @@ Only JSON, no other text:
 {{"pictures":[{{"line":7,"shows":"…","cat":"B03","slots":{{…}},"lead":"…","key":"…"}}, {{"line":12,"cat":"none","need":"…"}}]}}
 """
 # Prompt v5 (Friend 2026-11-08: the editorial skill as a clearer manual, "ทำให้คู่มือละเอียดขึ้นโดยที่ไม่ต้องยาวขึ้น"): ordered steps,
-# the speaker's stance before the picture, the categories the AI mixes up. Under test: $CUTPACK_CAT_PROMPT=v5, default v4.
+# the speaker's stance before the picture, the categories the AI mixes up. THE DEFAULT since Friend 2026-11-08 ("ใช้คำสั่งใหม่
+# เป็นค่าเริ่มต้นของเลโก้เลย"); $CUTPACK_CAT_PROMPT=v4 gives the old prompt above.
 SYSTEM_V5 = """You plan the pictures of a Thai talking-head short. Each picture is ONE CATEGORY (what the line does) + its SLOTS (the few things in it). Code draws it in the customer's style (no code, colours or layout from you).
 
 # Work in this order
@@ -159,7 +160,7 @@ def ask(captions, duration, out):
     caps = caps['captions'] if isinstance(caps, dict) else caps
     os.makedirs(out, exist_ok=True)
     n = max(3, round(duration / 5)); nmax = round(duration / 4)
-    text = (SYSTEM_V5 if os.environ.get('CUTPACK_CAT_PROMPT') == 'v5' else SYSTEM).format(n=n, nmax=nmax, harsh=', '.join(sorted(HARSH)), icons=CORE_ICONS_V2)
+    text = (SYSTEM if os.environ.get('CUTPACK_CAT_PROMPT') == 'v4' else SYSTEM_V5).format(n=n, nmax=nmax, harsh=', '.join(sorted(HARSH)), icons=CORE_ICONS_V2)
     open(os.path.join(out, 'system.txt'), 'w').write(text)
     lines = [f'{k + 1}. [{c["t0"]:.1f}-{c["t1"]:.1f}] {re.sub(r"\s+", " ", c["text"].replace(" / ", " ")).strip()}' for k, c in enumerate(caps)]
     open(os.path.join(out, 'user.txt'), 'w').write(f'Clip: {duration:.1f} seconds, {len(caps)} caption lines.\n\n' + '\n'.join(lines) + '\n')

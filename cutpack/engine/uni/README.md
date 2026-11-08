@@ -66,6 +66,7 @@
 6. คลิปจริง: `WIDTH=540 bash render_test.sh` สไตล์เต็มจอ 3 แบบ และ `BUILD_ARGS="--speaker .86" WIDTH=540 bash render_test.sh` สไตล์ overlay 3 แบบ (สั่งจากโฟลเดอร์ `engine/uni/` เท่านั้น ไม่งั้นหา `render_test.sh` ไม่เจอ)
 
 ## AI เขียนใบประกอบตามหมวด (คำสั่ง v4, รอบสิบห้า 2026-11-08)
+- **คำสั่งค่าเริ่มต้นคือ v5 แล้ว** (Friend 2026-11-08 "ใช้คำสั่งใหม่เป็นค่าเริ่มต้นของเลโก้เลย") คำสั่ง v4 เดิมใช้ได้ด้วย `CUTPACK_CAT_PROMPT=v4` ผลเทียบอยู่ในหน้า 20 และ `cutpack/manual/README.md`
 - `python3 cat_ai.py ask <captions.json> <วินาที> <ask_dir>` → `system.txt` + `user.txt` (คำขอ) · ให้ AI (Sonnet 5.5 effort low) ตอบ JSON ลง `answer.raw.json`
 - `python3 cat_ai.py check <ask_dir> <answer.json> <out_dir> <prefix> [<fix.json>]` → `sentences.js` (เรียก `SENTENCE` ใช้กับ `build.py --extra` หรือ `EXTRA=` ของ `render_test.sh`), `report.json`, `scenes.txt`
 - `python3 cat_ai.py fix <ask_dir> <out_dir>` → คำขอรอบแก้ (Haiku 5.5) สำหรับภาพที่ไม่ผ่าน
