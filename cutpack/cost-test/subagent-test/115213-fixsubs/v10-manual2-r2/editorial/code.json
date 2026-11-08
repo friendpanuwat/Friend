@@ -1,0 +1,28 @@
+{
+ "scenes": [
+  {
+   "i": 1,
+   "code": "const w = div('left:360px;top:520px;width:360px;height:360px', c);\nconst p = tile(w, 'wallet', T.t0 + 0.1, 'left:0px;top:0px', {size: 360});\nconst tg = div('left:790px;top:440px;width:200px;height:200px', c);\nconst tt = tile(tg, 'tag', 6.64, 'left:0px;top:0px', {size: 200});\nmv.slide(tg, 6.64, 'translateX(300px)', 'translateX(0px)');\nconst lb = pill(c, 'รายได้เสริม', T.hit, 'left:270px;top:960px;width:500px;height:90px;font-size:48px');\nmv.slide(w, T.hit, 'scale(1)', 'scale(0.7)');\nmv.dim(p, T.hit);\nmv.punch(tg, T.hit);\nsnd('pop', T.t0 + 0.1);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 4,
+   "code": "const tg = pill(c, 'side hustle', T.t0, 'left:90px;top:720px;width:190px;height:80px;font-size:34px');\nconst tw = div('left:90px;top:720px;width:190px;height:80px;opacity:0', c);\nconst pn = panel(c, 'left:280px;top:440px;width:520px;height:560px', 18.08, {style: 'white', radius: 48});\nconst ic = tile(pn, 'banknote', 18.2, 'left:150px;top:50px', {size: 220});\nskel(pn, 'left:60px;top:330px;width:400px', [0.9, 0.6], {t: 18.3, h: 22, gap: 18});\nconst bar = div('left:60px;top:440px;width:400px;height:60px;border-radius:30px;opacity:0;background:' + ACC, pn);\nmv.show(bar, T.hit);\nmv.punch(pn, T.hit);\nmv.slide(tg, T.hit, 'scale(1)', 'scale(0.75)');\nmv.dim(tg, T.hit);\nsnd('chip', T.t0 + 0.1);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 7,
+   "code": "const w = div('left:360px;top:420px;width:360px;height:360px', c);\nconst bx = tile(w, 'package', T.t0 + 0.1, 'left:0px;top:0px', {size: 360});\nconst co = tile(c, 'coins', 30.16, 'left:110px;top:560px', {size: 180});\nconst a = div('left:140px;top:880px;width:360px;height:120px;font-family:KeySans;font-size:96px;text-align:center;opacity:0;color:' + ON[T.bg].ink, c, 'เจ๊ง');\nconst b = div('left:540px;top:880px;width:360px;height:120px;font-family:KeySans;font-size:96px;text-align:center;opacity:0;color:' + ON[T.bg].ink, c, 'ขาดทุน');\nfitW(a, 360);\nfitW(b, 360);\nmv.rise(a, 31.28);\ncross(c, 31.36, 'left:260px;top:880px', {size: 120, color: RED, sw: 10});\nmv.rise(b, 31.6);\ncross(c, T.hit, 'left:660px;top:880px', {size: 120, color: RED, sw: 10});\nmv.slide(w, T.hit, 'scale(1)', 'scale(0.7)');\nmv.dim(bx, T.hit);\nsnd('pop', T.t0 + 0.1);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 10,
+   "code": "const tr = div('left:190px;top:620px;width:700px;height:90px;border-radius:45px;overflow:hidden;background:' + ON[T.bg].track, c);\nconst fl = div('left:0px;top:0px;width:700px;height:90px;border-radius:45px;background:' + NAVY, tr);\nmv.growX(fl, 41.54, 0.5);\nmv.show(tr, 41.54);\nconst st = tile(c, 'hourglass', 42.48, 'left:100px;top:300px', {size: 180});\nmv.wobble(tr, 42.48);\nconst lb = pill(c, 'รายได้เสริม', T.hit, 'left:290px;top:800px;width:500px;height:90px;font-size:48px');\nmv.dim(tr, T.hit);\nmv.dim(st, T.hit);\nsnd('pop', 41.54);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 12,
+   "code": "const cw = div('left:70px;top:560px;width:200px;height:200px', c);\nconst cm = tile(cw, 'camera', 47.12, 'left:0px;top:0px', {size: 200});\nconst lb = pill(c, 'รายได้เสริม', 47.28, 'left:40px;top:800px;width:320px;height:80px;font-size:40px');\nconst pn = panel(c, 'left:280px;top:380px;width:520px;height:640px', T.hit, {style: 'navy', radius: 48});\nconst br = tile(pn, 'briefcase', T.hit + 0.1, 'left:150px;top:60px', {size: 220});\nskel(pn, 'left:60px;top:360px;width:400px', [0.9, 0.6], {t: T.hit + 0.2, h: 22, gap: 18});\nconst bar = div('left:60px;top:500px;width:400px;height:60px;border-radius:30px;background:' + ACC, pn);\nmv.fill(bar, T.t1 - 0.3, 0, 1, 'X');\nmv.slide(cw, T.hit, 'scale(1)', 'scale(0.8)');\nmv.dim(cm, T.hit);\nsnd('pop', 47.12);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 15,
+   "code": "const w = div('left:360px;top:520px;width:360px;height:360px', c);\nconst p = tile(w, 'wallet', T.t0 + 0.1, 'left:0px;top:0px', {size: 360});\nmv.slide(w, 59.6, 'scale(1)', 'scale(0.7)');\nconst tg = div('left:790px;top:440px;width:200px;height:200px', c);\nconst tt = tile(tg, 'tag', 59.92, 'left:0px;top:0px', {size: 200});\nmv.slide(tg, 59.92, 'translateX(300px)', 'translateX(0px)');\nconst lb = pill(c, 'รายได้เสริม', T.hit, 'left:270px;top:960px;width:500px;height:90px;font-size:48px');\nmv.dim(p, T.hit);\nmv.punch(tg, T.hit);\nsnd('pop', T.t0 + 0.1);\nsnd('hit', T.hit);"
+  }
+ ]
+}

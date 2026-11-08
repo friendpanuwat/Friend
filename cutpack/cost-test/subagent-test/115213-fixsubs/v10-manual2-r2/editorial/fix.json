@@ -1,0 +1,307 @@
+{
+ "topic": "none",
+ "camera": [
+  {
+   "move": "push",
+   "t": 0.6
+  },
+  {
+   "move": "pull",
+   "t": 2.48,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 8.2
+  },
+  {
+   "move": "pull",
+   "t": 11.36,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 15.8
+  },
+  {
+   "move": "pull",
+   "t": 17.6,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 26.2
+  },
+  {
+   "move": "pull",
+   "t": 29.84,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 52.7
+  },
+  {
+   "move": "pull",
+   "t": 56.6,
+   "cut": true
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 2.48,
+   "t1": 4.1,
+   "say": "คุณยังมองว่ารายได้",
+   "shows": "wallet icon, the word income highlighted",
+   "part": "B14.v2",
+   "bg": "glow",
+   "hit": 3.68,
+   "need": "",
+   "slots": {
+    "words": [
+     "คุณยัง",
+     "มองว่า",
+     "รายได้"
+    ],
+    "key": 2,
+    "at": [
+     2.48,
+     2.88,
+     3.68
+    ],
+    "icon": "wallet"
+   }
+  },
+  {
+   "t0": 6.24,
+   "t1": 8.1,
+   "say": "สิ่งที่คุณกำลังทำอยู่มันคือรายได้เสริม",
+   "shows": "a small side-income tag stays tiny and dim",
+   "part": "custom",
+   "bg": "white",
+   "hit": 7.68,
+   "need": "at 'สิ่งที่คุณ' a small coin purse appears; at 'กำลังทำ' a tag slides onto it; at 'รายได้' the tag 'รายได้เสริม' stamps on and the purse stays small and dim (AGAINST).",
+   "slots": {
+    "lead": "สิ่งที่คุณกำลังทำ",
+    "key": "รายได้เสริม"
+   }
+  },
+  {
+   "t0": 11.36,
+   "t1": 12.9,
+   "say": "มันจะไม่มีทางเป็น Main income",
+   "shows": "'ไม่มีทาง' highlighted, ban icon",
+   "part": "B14.v1",
+   "bg": "cream",
+   "hit": 11.68,
+   "need": "",
+   "slots": {
+    "words": [
+     "ไม่มีทาง",
+     "เป็น",
+     "Main income"
+    ],
+    "key": 0,
+    "at": [
+     11.68,
+     12.08,
+     12.29
+    ],
+    "icon": "ban"
+   }
+  },
+  {
+   "t0": 14.0,
+   "t1": 15.7,
+   "say": "อยากหารายได้เสริม",
+   "shows": "chat bubble with the phrase, marked read",
+   "part": "B11.v1",
+   "bg": "glow",
+   "hit": 14.56,
+   "need": "",
+   "slots": {
+    "text": "อยากหารายได้เสริม",
+    "who": "คนส่วนใหญ่",
+    "lead": "มีแต่คนพูดว่า",
+    "key": "รายได้เสริม"
+   }
+  },
+  {
+   "t0": 17.6,
+   "t1": 19.4,
+   "say": "แล้วรายได้หลัก active income",
+   "shows": "side hustle fades, active income grows bold",
+   "part": "custom",
+   "bg": "white",
+   "hit": 18.64,
+   "need": "at 'แล้ว' a faded 'side hustle' tag sits at the side; at 'รายได้หลัก' a solid income block rises beside it; at 'active' the block lights up with the accent and the tag shrinks.",
+   "slots": {
+    "lead": "รายได้หลัก",
+    "key": "active income"
+   }
+  },
+  {
+   "t0": 21.0,
+   "t1": 22.4,
+   "say": "ถ้าอยากให้มันมาเป็น active income",
+   "shows": "progress bar fills, check appears",
+   "part": "B08.v2",
+   "bg": "glow",
+   "hit": 21.28,
+   "need": "",
+   "slots": {
+    "goal": "active income",
+    "icon": "trending-up",
+    "lead": "ถ้าอยากให้มันมาเป็น",
+    "key": "active income"
+   }
+  },
+  {
+   "t0": 23.65,
+   "t1": 26.1,
+   "say": "มองมันเป็น business กล้าเทคความเสี่ยง",
+   "shows": "tip card with briefcase, highlight under business",
+   "part": "B13.v4",
+   "bg": "cream",
+   "hit": 24.48,
+   "need": "",
+   "slots": {
+    "tip": "เป็น business",
+    "icon": "briefcase",
+    "lead": "ต้องมองมัน",
+    "key": "business"
+   }
+  },
+  {
+   "t0": 29.84,
+   "t1": 32.5,
+   "say": "ไม่มีความเสี่ยง ไม่มีคำว่าเจ๊ง ไม่มีคำว่าขาดทุน",
+   "shows": "a safe little box with no stakes, loss crossed out",
+   "part": "custom",
+   "bg": "glow",
+   "hit": 31.92,
+   "need": "at 'ไม่มี' a small padded box with a tiny coin appears; at 'เจ๊ง' the word 'เจ๊ง' is struck through in red; at 'ขาดทุน' the word 'ขาดทุน' is struck through too and the box stays small and dim (AGAINST).",
+   "slots": {
+    "lead": "ไม่มีคำว่าเจ๊ง",
+    "key": "ขาดทุน"
+   }
+  },
+  {
+   "t0": 34.72,
+   "t1": 36.6,
+   "say": "ยูจะคิดในมุมของ mindset",
+   "shows": "clock leads to brain",
+   "part": "B12.v1",
+   "bg": "white",
+   "hit": 36.24,
+   "need": "",
+   "slots": {
+    "a": "เอาเวลาไปใช้",
+    "ia": "clock",
+    "b": "mindset",
+    "ib": "brain",
+    "lead": "คิดในมุมของ",
+    "key": "mindset"
+   }
+  },
+  {
+   "t0": 38.0,
+   "t1": 39.6,
+   "say": "minimize ความเสี่ยง",
+   "shows": "risk bars fall",
+   "part": "B02.v1",
+   "bg": "glow",
+   "hit": 39.28,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "triangle-alert",
+    "lead": "minimize",
+    "key": "ความเสี่ยง"
+   }
+  },
+  {
+   "t0": 41.44,
+   "t1": 43.0,
+   "say": "ให้มันแบบแค่เป็นรายได้เสริม",
+   "shows": "a lazy half-effort bar stays small",
+   "part": "custom",
+   "bg": "white",
+   "hit": 42.64,
+   "need": "at 'ให้มันแบบแค่' a thin half-filled bar appears; at 'เป็น' it stays stuck; at 'รายได้' the label 'รายได้เสริม' lands on it and the bar dims (AGAINST).",
+   "slots": {
+    "lead": "ให้มันแบบแค่เป็น",
+    "key": "รายได้เสริม"
+   }
+  },
+  {
+   "t0": 44.1,
+   "t1": 45.6,
+   "say": "ตอนที่ผมทำคอนเทนต์",
+   "shows": "person highlighted, content creator",
+   "part": "B10.v1",
+   "bg": "cream",
+   "hit": 45.04,
+   "need": "",
+   "slots": {
+    "who": "ผมทำคอนเทนต์",
+    "lead": "ตอนที่",
+    "key": "คอนเทนต์"
+   }
+  },
+  {
+   "t0": 47.0,
+   "t1": 48.7,
+   "say": "ทำเป็นรายได้เสริม งานประจำของผม",
+   "shows": "content as a small side tag next to a desk job",
+   "part": "custom",
+   "bg": "glow",
+   "hit": 47.78,
+   "need": "at 'ทำเป็น' a small camera tag appears; at 'รายได้เสริม' it is labelled and stays small; at 'งานประจำ' a big desk and briefcase block fills the card beside it.",
+   "slots": {
+    "lead": "ทำเป็นรายได้เสริม",
+    "key": "งานประจำ"
+   }
+  },
+  {
+   "t0": 51.0,
+   "t1": 52.5,
+   "say": "หลายอย่างที่มันเปลี่ยนไปมากๆ",
+   "shows": "brain icon, big arrow up",
+   "part": "B02.v3",
+   "bg": "white",
+   "hit": 52.0,
+   "need": "",
+   "slots": {
+    "dir": "up",
+    "icon": "brain",
+    "lead": "หลายอย่างที่มัน",
+    "key": "เปลี่ยนไป"
+   }
+  },
+  {
+   "t0": 56.6,
+   "t1": 57.9,
+   "say": "เป็นช่องทางหารายได้เสริมที่ดี",
+   "shows": "quoted phrase, underline under หารายได้",
+   "part": "B14.v3",
+   "bg": "cream",
+   "hit": 57.2,
+   "need": "",
+   "slots": {
+    "words": [
+     "ช่องทาง",
+     "หารายได้",
+     "เสริมที่ดี"
+    ],
+    "key": 1,
+    "at": [
+     56.8,
+     57.2,
+     57.6
+    ],
+    "icon": "message-circle"
+   }
+  }
+ ]
+}
