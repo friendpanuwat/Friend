@@ -30,20 +30,21 @@ const R5 = {
 /* ================= B06 คำถาม: about {icon, label?}, options? [2], answer? ================= */
 /* 1 · a magnifier searches over the one in doubt and stops on it: a ? (or the answer) once it has stopped */
 R3.both('B06', 'search', 'แว่นขยายส่องหา', (K, s, T, g) => {
-  const it = s.about ?? {icon: 'user'}, C = {x: 240, y: 150}, S = 150, LR = 80, HL = 115;
+  const it = s.about ?? {icon: 'user'}, C = {x: 240, y: 150}, S = 120, LR = 104, HL = 110;   // the ring stays clear of the tile's corners
   const who = K.badge(g, it.icon, C.x, C.y, S, T.b[0], {tone: it.tone ?? 'main'});
-  const lab = it.label ? R4.word(K, g, it.label, C.x, C.y + S / 2 + 12, 40, T.b[0] + .2, 260) : null;
+  const LY = C.y + LR + 2;                                                   // words under the lens ring, centred on the icon
+  const lab = it.label ? R4.word(K, g, it.label, C.x, LY, 40, T.b[0] + .2, 260) : null;
   /* the lens is centred on its node's (LR, LR); the handle points right along the lens's own middle line */
   const W = 2 * LR + HL + 20, mg = node(g, C.x - LR, C.y - LR, W, 2 * LR, '',
-    `<svg width="${W}" height="${2 * LR}" style="overflow:visible"><circle class="u-tgt" style="stroke:none;opacity:.55" cx="${LR}" cy="${LR}" r="${LR - 6}"/>` +
+    `<svg width="${W}" height="${2 * LR}" style="overflow:visible">` +
     `<circle class="ln" cx="${LR}" cy="${LR}" r="${LR - 6}"/><path class="ln u-thick" d="M${2 * LR} ${LR}H${2 * LR + HL}"/></svg>`);
-  const path = [[-110, -30], [90, -40], [-40, 30], [0, 0]];                  // where the lens goes (offsets from its stop)
+  const path = [[-90, -20], [70, -30], [-30, 20], [0, 0]];                  // where the lens goes (offsets from its stop)
   A(mg.m, path.map(([x, y], i) => ({transform: `translate(${x}px,${y}px)`, offset: i / (path.length - 1)})), T.b[1], T.hit - T.b[1], {e: EASE.inout, f: 'both'});
   A(mg.o, [{opacity: 0}, {opacity: 1}], T.b[1] - .1, .25, {f: 'both'});
   if (s.answer) {
     const ans = LG.lightUp(K, g, s.answer.icon, C.x, C.y, S, T.hit + .05, it.shape ?? 'tile');
     K.fade(who.o, ans.done, 1, 0); R1.ripple(K, ans, ans.done);
-    if (s.answer.label) { if (lab) K.fade(lab, ans.done - .1, 1, 0); R4.word(K, g, s.answer.label, C.x, C.y + S / 2 + 12, 40, ans.done, 260); }
+    if (s.answer.label) { if (lab) K.fade(lab, ans.done - .1, 1, 0); R4.word(K, g, s.answer.label, C.x, LY, 40, ans.done, 260); }
   } else {
     const q = K.badge(g, 'circle-help', 440, 58, 84, T.hit + .05, {tone: 'acc', shape: 'round'});
     K.shake(who.p, T.hit + .1); R1.ripple(K, q, LG.arrive('pop', T.hit + .05));
@@ -60,7 +61,7 @@ R3.both('B06', 'signpost', 'ป้ายทางแยกสองทาง', (
     if (o) {
       SM.ico(K, b.p, o.icon, i ? 52 : 148, 33, 40, T.b[0] + .5 + i * .1);
       if (o.label) R4.word(K, b.p, o.label, i ? 128 : 72, 12, 30, T.b[0] + .55 + i * .1, 80);
-    } else K.skel(b.p, i ? 26 : 56, 26, [110], T.b[0] + .5 + i * .1, {h: 14});
+    }
   });
   const who = K.badge(g, it.icon, X, 290, 88, T.b[0] + .15, {tone: it.tone ?? 'main', shape: 'round'});
   /* it looks one way, then the other, then back (small turns of the head, not a walk) */
@@ -163,7 +164,7 @@ R3.both('B12', 'bounce', 'ลูกบอลกระเด้งส่งต่
   K.draw(floor.querySelector('path'), T.b[0]);
   const ts = its.map((it, i) => K.badge(g, it.icon, xs[i], Y, S, T.b[0] + .1 + i * .1, {tone: it.tone ?? 'main'}));
   its.forEach((it, i) => { if (it.label) R4.word(K, g, it.label, xs[i], Y + S / 2 + 12, 32, T.b[0] + .25 + i * .1, 160); });
-  const ball = node(g, 0, 0, D, D, 'u-badge u-acc'); ball.p.style.borderRadius = '50%';
+  const ball = node(g, 0, 0, D, D, 'u-badge u-main');   // not the accent: it ends on the lit (accent) tile ball.p.style.borderRadius = '50%';
   const top = i => [xs[i] - D / 2, Y - S / 2 - D], start = [8, 0];
   const hops = [[T.b[0] + .4, start, top(0)], [T.b[1] + .2, top(0), top(1)], [T.hit - .42, top(1), top(2)]];
   K.enter(ball.o, hops[0][0], 'pop');

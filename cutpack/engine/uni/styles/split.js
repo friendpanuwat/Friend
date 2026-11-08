@@ -36,6 +36,7 @@ STYLE('split', {
 .p-dark .u-acc{background:#D9CCF6;color:#4B3D6E}
 .u-soft{background:transparent;color:var(--slot-line);border-color:var(--slot-line);border-style:dashed}
 .u-ok{background:#5E7F92;color:#FFFFFF;border-color:#5E7F92}
+.p-dark .u-ok{background:#C9E3EC;color:#3A4F5A;border-color:#C9E3EC}   /* on the dark window the slate tick tile was nearly the window's colour (rule 10) */
 .u-track{background:var(--tr);border:3px solid var(--ink)}
 .u-track-on{background:#9C84D6}
 .u-knob{background:var(--knob);border:3px solid var(--ink)}
