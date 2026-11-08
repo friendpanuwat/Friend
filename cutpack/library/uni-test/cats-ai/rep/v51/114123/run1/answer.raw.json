@@ -1,0 +1,18 @@
+{"pictures":[
+{"line":1,"shows":"The number four years appears next to a calendar.","cat":"B01","slots":{"value":"สี่","unit":"ปี","icon":"calendar"},"lead":"มาประมาณ","key":"สี่ปี"},
+{"line":2,"shows":"People who fail hard are crossed out, the people who keep cutting more are what he fears.","cat":"B05","slots":{"wrong":{"icon":"user-x","label":"คนล้มหนัก","tone":"soft"},"right":{"icon":"brain","label":"ยิ่งอด"}},"lead":"ไม่ใช่คน","key":"ล้มหนัก"},
+{"line":4,"shows":"The number four hundred appears and goes down, a warning about too few calories per day.","cat":"B01","slots":{"value":"สี่ร้อย","icon":"utensils","dir":"down"},"lead":"ยิ่งเก่งคือ","key":"สี่ร้อย"},
+{"line":7,"shows":"A drained battery flagged with a warning sign: the body is worn out.","cat":"B07","slots":{"thing":{"icon":"battery-low","label":"ร่างกาย","tone":"neg"},"how":"flag","sign":"triangle-alert"},"lead":"ทำให้","key":"ร่างกาย"},
+{"line":8,"shows":"Weight icons leave a person, with one staying: what is lost is not just fat.","cat":"B02","slots":{"dir":"down","item":{"icon":"weight","tone":"soft"},"n":3,"keep":1},"lead":"ซึ่ง","key":"น้ำหนัก"},
+{"line":9,"shows":"Three things that get lost one by one: muscle, energy, hormones.","cat":"B04","slots":{"items":[{"icon":"biceps-flexed","label":"กล้ามเนื้อ","tone":"soft"},{"icon":"zap","label":"พลังงาน","tone":"soft"},{"icon":"activity","label":"ฮอร์โมน","tone":"soft"}]},"lead":"อาจจะเป็นทั้ง","key":"กล้ามเนื้อ"},
+{"line":11,"shows":"A chain from no energy to extreme hunger to poor sleep, ending in a warning.","cat":"B12","slots":{"items":[{"icon":"battery-low","label":"ไม่มีแรง"},{"icon":"utensils","label":"หิวจัด"},{"icon":"bed","label":"นอนไม่ค่อย"}],"end":{"icon":"triangle-alert","tone":"neg"}},"lead":"เริ่มไม่มีแรง","key":"หิวจัด"},
+{"line":15,"shows":"Eating less is crossed out as the only cause of the viral cases.","cat":"B07","slots":{"thing":{"icon":"utensils","label":"กินน้อย","tone":"soft"},"how":"cross"},"lead":"เกิดจากการ","key":"กินน้อย"},
+{"line":18,"shows":"Extreme fasting is crossed out: do not glamorize it.","cat":"B07","slots":{"thing":{"icon":"utensils-crossed","label":"การอดอาหาร","tone":"soft"},"how":"cross","sign":"octagon-alert"},"lead":"อย่าโรแมนตีไซส์","key":"การอดอาหาร"},
+{"line":23,"shows":"A person reaching the goal of feeling strong.","cat":"B08","slots":{"goal":{"icon":"biceps-flexed","label":"แข็งแรง","tone":"acc"},"who":"user"},"lead":"คุณรู้สึกว่าคุณ","key":"แข็งแรง"},
+{"line":25,"shows":"Health icons grow in number as the body lasts longer.","cat":"B02","slots":{"dir":"up","item":{"icon":"heart-pulse","tone":"acc"},"n":3},"lead":"ร่างกายตัวเองได้","key":"นานขึ้น"},
+{"line":26,"shows":"A thumbs-down: it is not worth it.","cat":"B14","slots":{"idea":{"icon":"thumbs-down","label":"ไม่คุ้ม"}},"lead":"ผมบอกเลยว่า","key":"ไม่คุ้ม"},
+{"line":29,"shows":"Eating the least is crossed out, eating just enough wins.","cat":"B03","slots":{"mode":"versus","a":{"icon":"utensils-crossed","label":"กินน้อยที่สุด","tone":"soft","v":0.2},"b":{"icon":"salad","label":"กินให้พอดี","tone":"acc","v":0.6},"win":"b","how":"cross"},"lead":"คือการ","key":"กินให้พอดี"},
+{"line":31,"shows":"The audience is people who are losing weight right now.","cat":"B10","slots":{"who":{"icon":"user"},"label":"ลดน้ำหนัก"},"lead":"ถ้าคุณกำลัง","key":"ลดน้ำหนัก"},
+{"line":33,"shows":"Losing weight is defined as taking care of yourself.","cat":"B16","slots":{"term":{"icon":"scale","label":"ล้นหนัก"},"means":[{"icon":"hand-heart","label":"ดูแลตัวเอง","tone":"acc"}]},"lead":"การ","key":"ดูแลตัวเอง"},
+{"line":36,"shows":"A comment button prompts viewers to comment if they have been there.","cat":"B15","slots":{"action":"comment","label":"คอมเมนต์"},"lead":"","key":"คอมเมนต์"}
+]}
