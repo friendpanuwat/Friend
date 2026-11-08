@@ -132,4 +132,4 @@
 - เจอเองระหว่างดูทีละเฟรม: ไอคอนติดไฟแบบจางไขว้ (`LG.light`) ในสไตล์แบ่งจอ ไอคอนกลืนกับพื้นแวบหนึ่ง (พื้นสว่าง ไอคอนเข้ม → พื้นเข้ม ไอคอนสว่าง) B14 ใช้ `R4.light` แทน: การ์ดสีเน้นทึบโผล่ที่กลางแล้วขยายทับ ไอคอนจึงเห็นตลอด ร่างเก่าที่ใช้ `LG.light` ยังเป็นแบบเดิม (ยังไม่ได้แก้ รอถาม Friend)
 - ลองประโยคอื่นนอกชุดตัวอย่างแล้ว (ป้ายยาว "ความสม่ำเสมอทุกวัน", ไม่มีป้าย, ไอคอนนาฬิกา / ปฏิทิน) ภาพไม่พัง ป้ายยาวย่อลงเอง (โทรโข่งย่อมากสุด เพราะต้องไม่เลยขอบขวา x 940)
 - ตรวจแล้ว: ภาพทีละเฟรม 0.1 วินาทีรอบคำสำคัญครบ 6 สไตล์ · `check_overlap.js` 6 สไตล์ไม่เจอ · `node test_picker.js` ผ่าน (ทุกหมวดมีอย่างน้อย 2 ร่าง)
-- คลิป (`ฉาก@index`): `r4.daily.quote@0 r4.start.spot@1 r4.trust.mega@2` × (เต็มจอ `card glass split` + overlay `card-overlay glass-overlay split-overlay` ด้วย `--speaker .86`) = 18 คลิป 540 px ใน `round4/`
+- คลิป (`ฉาก@index`): `r4.daily.quote@0 r4.start.spot@1 r4.trust.mega@2` × (เต็มจอ `card glass split` + overlay `card-overlay glass-overlay split-overlay` ด้วย `--speaker .86`) = 18 คลิป 540 px ใน `round4/` หน้า **https://claude.ai/artifact/CxgVhgAzsoXmuQgoJUv6Tw** (สำเนา `page15.html`)
