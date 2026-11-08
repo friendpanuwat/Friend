@@ -44,8 +44,8 @@ SMALLV('B03', 'scale', (K, s, T) => {                // the same floating scale 
   const beam = div('left:0;top:0;width:600px;height:340px', g.p, '<svg width="600" height="340"><path class="ln" d="M70 226H530"/></svg>');
   K.draw(beam.querySelector('path'), T.b[0]);
   K.enter(div('left:0;top:0;width:600px;height:340px', K.stage, '<svg width="600" height="340"><path class="sd" d="M300 232L248 312H352Z"/></svg>'), T.b[0] + .1, 'rise');
-  const A_ = K.badge(g.p, s.a.icon, 150, 150, 142, T.b[1], {tone: s.a.tone ?? 'acc', kind: 'drop'});
-  const B_ = K.badge(g.p, s.b.icon, 450, 150, 142, T.b[1] + .18, {tone: s.b.tone ?? 'main', kind: 'drop'});
+  const A_ = K.badge(g.p, s.a.icon, 150, 150, 142, T.b[1], {tone: s.a.tone ?? (win === 'a' ? 'acc' : 'main'), kind: 'drop'});   // the winner is the highlight (Friend 2026-11-08)
+  const B_ = K.badge(g.p, s.b.icon, 450, 150, 142, T.b[1] + .18, {tone: s.b.tone ?? (win === 'b' ? 'acc' : 'main'), kind: 'drop'});
   K.move(g.m, T.hit - .15, 'rotate(0deg)', `rotate(${win === 'a' ? -9 : 9}deg)`, {kind: 'tilt'});   // the side that matters goes down
   K.punch((win === 'a' ? A_ : B_).p, T.hit + .2);
 });

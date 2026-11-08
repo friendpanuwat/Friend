@@ -66,8 +66,8 @@ LAYOUT('versus', {name: 'A เทียบ B'}, (K, r, T) => {
   if (r.as === 'scale') {
     const q = K.sat(K.stage, 'circle-help', 500, 54, 84, T.b[1] - .1, {tone: 'soft'});      // weighing…
     const B = K.scale(K.stage, 500, 170, T.b[0]);
-    const ia = K.badge(B.panL.p, a.icon, B.panL.item.cx, B.panL.item.cy, 150, T.b[1], {tone: a.tone ?? 'acc', kind: 'drop'});
-    const ib = K.badge(B.panR.p, b.icon, B.panR.item.cx, B.panR.item.cy, 150, T.b[2], {tone: b.tone ?? 'main', kind: 'drop'});
+    const ia = K.badge(B.panL.p, a.icon, B.panL.item.cx, B.panL.item.cy, 150, T.b[1], {tone: a.tone ?? (win === 'a' ? 'acc' : 'main'), kind: 'drop'});   // the winner is the highlight (Friend 2026-11-08: "แก้ตราชั่ง")
+    const ib = K.badge(B.panR.p, b.icon, B.panR.item.cx, B.panR.item.cy, 150, T.b[2], {tone: b.tone ?? (win === 'b' ? 'acc' : 'main'), kind: 'drop'});
     K.float(ia, T.b[1] + .6, T.hit - .2, .6); K.float(ib, T.b[2] + .6, T.hit - .2, .6);
     B.tilt(T.hit - .1, win === 'a' ? -11 : 11);                                             // the heavier side goes down
     K.punch((win === 'a' ? ia : ib).p, T.hit);
