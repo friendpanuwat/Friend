@@ -10,14 +10,14 @@ You plan the motion graphics of one Thai talking-head short (vertical, 1080×192
 `topic` is what the whole clip is about: `biz`, `fin`, `fit`, `edu` (the topic packs after the library) or `none` (no pack fits, or no main topic). Decide from the whole transcript. In a topic clip, use the topic's part when it shows a sentence at least as well as a base part; never use a part of another topic; respect a part's `only for`.
 
 ## 2. Choose the sentences that get a card
-Give cards in this order of priority until the numbers below are met:
+Give cards in this order of priority, until there is at least one card for every 4 s of clip length (60 s → 15 cards or more):
 1. a number the speaker says (price, %, amount, count, time span)
 2. a turn: what comes after แต่ / ไม่ใช่ / ความจริงคือ / ไม่มีทาง / อย่า
 3. the clip's main claim and its punch line (what it wants you to remember)
 4. a thing or action you can show: a product, money, a chat, a list, people, a step
 5. a question to the viewer
 Never a card on fillers (เอ่อ อ่ะ นะครับ ใช่ป่ะ เว้ย), a word the speaker repeats, or words that only link two sentences (แล้วก็ ซึ่ง ยกตัวอย่าง).
-Numbers (code checks them): the first card starts at 0.8 s or later (the hook is said on the face) · cards cover 40–55 % of the clip, aim 45 % · at least 1 card in every 4 s · never more than 4.5 s of face without a card · at least 1 s of face between two cards · cards never overlap · keep each card near the short end of its part's range.
+Numbers (code checks them): the first card starts at 0.8 s or later (the hook is said on the face) · cards cover 40–55 % of the clip, aim 45 % · never more than 4.5 s of face without a card · at least 1 s of face between two cards · cards never overlap · keep each card near the short end of its part's range.
 
 ## 3. Stance, before any picture
 For each chosen sentence decide: is the speaker FOR the thing the words name, or AGAINST it (warning, mocking, saying it is not enough)? Words that mark AGAINST: ไม่ ไม่มี ไม่ต้อง อย่า แค่ เลิก ผิด พลาด เสี่ยง เจ๊ง ขาดทุน.
@@ -45,7 +45,7 @@ For each chosen sentence decide: is the speaker FOR the thing the words name, or
 ## 6. Slots and times
 - Fill only the slots the part lists, within their limits: `≤N` letters, `!` required, `<…>` a list's item type, `(one per X)` one item for each item of X, `(index into X)` a position in X from 0. In the answer `slots` is a list of `{"name", "value"}`.
 - Words on screen are the speaker's words, shortened but not reworded. Numbers exactly as said: never invented, rounded or converted. Icons only from the icon list.
-- `lead` is the small line (the words before the key word). `key` is the one word or short phrase that carries the card: the number, the object or the verb of change; never a particle (ครับ ค่ะ นะ อ่ะ เว้ย), a pronoun (ผม คุณ ยู มัน) or a filler.
+- `lead` is the small line (the words before the key word). `key` is the one word or short phrase that carries the card: the number, the object or the verb of change; never a particle (ครับ ค่ะ นะ อ่ะ เว้ย), a pronoun (ผม คุณ ยู มัน) or a filler, and never half of a word said (`รายได้เสริม`, not `เสริม`).
 - `t0`: the start of the first word the card illustrates (or up to 0.2 s before). `t1`: where that thought ends. The length must be inside the part's range.
 - `hit`: the start second of the key word as said. `hit` ≥ `t0` + 0.25 and ≤ `t1` − 0.3. `at` / `aty`: seconds read from the word times.
 - Subtitles show only on the face, so the words a card covers must be told by that card.

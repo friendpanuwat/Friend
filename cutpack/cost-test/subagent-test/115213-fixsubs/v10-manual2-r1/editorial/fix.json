@@ -1,0 +1,303 @@
+{
+ "topic": "none",
+ "camera": [
+  {
+   "move": "push",
+   "t": 0.3
+  },
+  {
+   "move": "pull",
+   "t": 1.68,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 8.8
+  },
+  {
+   "move": "pull",
+   "t": 11.36,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 18.0
+  },
+  {
+   "move": "pull",
+   "t": 20.4,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 31.0
+  },
+  {
+   "move": "pull",
+   "t": 34.52,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 44.3
+  },
+  {
+   "move": "pull",
+   "t": 47.1,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 52.7
+  },
+  {
+   "move": "pull",
+   "t": 54.7,
+   "cut": true
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 1.68,
+   "t1": 4.0,
+   "say": "ตราบใดที่คุณยังมองว่ารายได้",
+   "shows": "words appear one by one, 'รายได้' boxed",
+   "part": "B14.v1",
+   "bg": "white",
+   "hit": 3.68,
+   "need": "",
+   "slots": {
+    "words": [
+     "ตราบใดที่",
+     "คุณยัง",
+     "มองว่า",
+     "รายได้"
+    ],
+    "key": 3,
+    "at": [
+     1.68,
+     2.48,
+     2.88,
+     3.68
+    ]
+   }
+  },
+  {
+   "t0": 6.24,
+   "t1": 8.6,
+   "say": "สิ่งที่คุณกำลังทำอยู่มันคือรายได้เสริม",
+   "shows": "small coin stack stays tiny with a side tag",
+   "part": "custom",
+   "bg": "glow",
+   "hit": 8.0,
+   "need": "at 'กำลังทำ' a single coin stack appears; at 'รายได้' a small tag lands on it; at 'เสริม' the stack shrinks and dims, the tag stays tiny (against)",
+   "slots": {
+    "lead": "สิ่งที่คุณกำลังทำ",
+    "key": "รายได้เสริม"
+   }
+  },
+  {
+   "t0": 11.36,
+   "t1": 13.2,
+   "say": "มันจะไม่มีทางเป็น Main income",
+   "shows": "a barrier blocks the way to a crown tag",
+   "part": "custom",
+   "bg": "cream",
+   "hit": 12.29,
+   "need": "at 'มันจะ' a small coin stack appears low; at 'ไม่มีทาง' a barrier bar slides across its path; at 'Main' a crown 'Main income' tag stays out of reach behind the barrier",
+   "slots": {
+    "lead": "ไม่มีทางเป็น",
+    "key": "Main income"
+   }
+  },
+  {
+   "t0": 14.8,
+   "t1": 17.5,
+   "say": "อยากหา side hustle WTF the mean hustle",
+   "shows": "question typed in a box, question mark pops",
+   "part": "B06.v2",
+   "bg": "glow",
+   "hit": 17.07,
+   "need": "",
+   "slots": {
+    "q": "WTF the mean hustle",
+    "icon": "message-circle-question",
+    "lead": "อยากหา side hustle"
+   }
+  },
+  {
+   "t0": 20.4,
+   "t1": 22.16,
+   "say": "ถ้าอยากให้มันมาเป็น active income",
+   "shows": "small coin stack grows tall and lights up",
+   "part": "custom",
+   "bg": "white",
+   "hit": 21.28,
+   "need": "at 'ถ้าอยากให้' a small coin stack sits low; at 'มันมา' an up arrow appears under it; at 'active' the stack grows tall and lights with the accent and the 'active income' tag lands",
+   "slots": {
+    "lead": "ถ้าอยากให้มันมาเป็น",
+    "key": "active income"
+   }
+  },
+  {
+   "t0": 23.2,
+   "t1": 26.0,
+   "say": "มองมันเป็น business หรือว่ากล้าเทคความเสี่ยง",
+   "shows": "arrow hits the centre of a target",
+   "part": "B08.v1",
+   "bg": "glow",
+   "hit": 24.48,
+   "need": "",
+   "slots": {
+    "goal": "มองเป็น business",
+    "icon": "briefcase",
+    "lead": "หรือว่ากล้าเทค",
+    "key": "business"
+   }
+  },
+  {
+   "t0": 27.76,
+   "t1": 30.5,
+   "say": "side hustle โดยส่วนใหญ่ ไม่มีความเสี่ยง",
+   "shows": "tiny tagged stack, risk meter stays empty and dims",
+   "part": "custom",
+   "bg": "cream",
+   "hit": 30.16,
+   "need": "at 'side hustle' a small tag appears on a tiny coin stack; at 'ไม่มี' a risk meter appears beside it; at 'ความเสี่ยง' the meter stays empty and the whole card dims (against)",
+   "slots": {
+    "lead": "side hustle ไม่มี",
+    "key": "ความเสี่ยง"
+   }
+  },
+  {
+   "t0": 31.52,
+   "t1": 33.2,
+   "say": "ไม่มีคำว่าเจ๊ง ไม่มีคำว่าขาดทุนนะ",
+   "shows": "warning triangle pops on the loss words",
+   "part": "B07.v1",
+   "bg": "glow",
+   "hit": 31.92,
+   "need": "",
+   "slots": {
+    "text": "เจ๊ง ขาดทุน",
+    "icon": "wallet",
+    "lead": "ไม่มีคำว่า",
+    "key": "ขาดทุน"
+   }
+  },
+  {
+   "t0": 34.52,
+   "t1": 37.3,
+   "say": "ยูจะคิดในมุมของ mindset",
+   "shows": "words appear, 'mindset' underlined",
+   "part": "B14.v3",
+   "bg": "white",
+   "hit": 36.24,
+   "need": "",
+   "slots": {
+    "words": [
+     "ยูจะ",
+     "คิดในมุม",
+     "ของ mindset"
+    ],
+    "key": 2,
+    "at": [
+     34.72,
+     35.36,
+     36.08
+    ]
+   }
+  },
+  {
+   "t0": 38.68,
+   "t1": 40.56,
+   "say": "minimize ความเสี่ยง ให้มากที่สุด",
+   "shows": "risk gauge needle swings down",
+   "part": "B02.v4",
+   "bg": "glow",
+   "hit": 39.28,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "shield-alert",
+    "lead": "minimize",
+    "key": "ความเสี่ยง"
+   }
+  },
+  {
+   "t0": 42.4,
+   "t1": 44.0,
+   "say": "เป็นรายได้เสริมอ่ะ",
+   "shows": "coin stack shrinks to one coin and fades",
+   "part": "custom",
+   "bg": "cream",
+   "hit": 42.96,
+   "need": "at 'รายได้' a coin stack appears low in the frame; at 'เสริมอ่ะ' it shrinks to a single coin and fades with a small cross tag (against)",
+   "slots": {
+    "lead": "เป็นรายได้",
+    "key": "เสริม"
+   }
+  },
+  {
+   "t0": 47.1,
+   "t1": 48.5,
+   "say": "ทำเป็นรายได้เสริม งานประจำของผม",
+   "shows": "side income card beside day job card",
+   "part": "B03.v1",
+   "bg": "glow",
+   "hit": 47.78,
+   "need": "",
+   "slots": {
+    "a": "รายได้เสริม",
+    "b": "งานประจำ",
+    "ia": "coins",
+    "ib": "briefcase",
+    "win": "",
+    "lead": "ผมทำเป็น"
+   }
+  },
+  {
+   "t0": 50.0,
+   "t1": 52.4,
+   "say": "ไม่เหมือนกับอย่างนี้เลย มีหลายอย่างที่เปลี่ยนไป",
+   "shows": "old card slides away, three icons flip and grow",
+   "part": "custom",
+   "bg": "white",
+   "hit": 52.0,
+   "need": "at 'ไม่เหมือน' an old coin-stack card slides to the left; at 'หลายอย่าง' three small icons (briefcase, coins, brain) appear in a row; at 'เปลี่ยนไป' they flip and grow with the accent",
+   "slots": {
+    "lead": "หลายอย่างที่",
+    "key": "เปลี่ยนไป"
+   }
+  },
+  {
+   "t0": 54.7,
+   "t1": 56.3,
+   "say": "อินฟลูเอนเซอร์บางคนเค้าก็พูดว่า",
+   "shows": "one person in a group lights up",
+   "part": "B10.v1",
+   "bg": "cream",
+   "hit": 54.99,
+   "need": "",
+   "slots": {
+    "who": "อินฟลูเอนเซอร์",
+    "lead": "ยังเห็น",
+    "key": "อินฟลูเอนเซอร์"
+   }
+  },
+  {
+   "t0": 59.0,
+   "t1": 60.58,
+   "say": "ถ้าคุณแค่คิดว่ามันเป็นรายได้เสริม",
+   "shows": "coin stack squeezed small and dimmed",
+   "part": "custom",
+   "bg": "glow",
+   "hit": 59.92,
+   "need": "at 'คุณแค่' a coin stack appears; at 'คิดว่ามันเป็น' it is squeezed flat and dims; at 'รายได้เสริม' a tiny tag stays small, never grows (against)",
+   "slots": {
+    "lead": "ถ้าคุณแค่คิดว่ามันเป็น",
+    "key": "รายได้เสริม"
+   }
+  }
+ ]
+}

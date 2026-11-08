@@ -1,0 +1,32 @@
+{
+ "scenes": [
+  {
+   "i": 1,
+   "code": "const w = div('left:360px;top:520px;width:360px;height:360px', c);\ntile(w, 'coins', 6.64, 'left:0px;top:0px', {size: 360});\nconst g = div('left:790px;top:540px;width:200px;height:80px', c);\npill(g, 'รายได้', 7.68, 'left:0px;top:0px');\nmv.slide(w, T.hit, 'scale(1)', 'scale(0.45)');\nmv.dim(w, T.hit);\nmv.slide(g, T.hit, 'scale(1)', 'scale(0.7)');\nsnd('pop', 6.64);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 2,
+   "code": "const s = div('left:140px;top:760px;width:300px;height:300px', c);\ntile(s, 'coins', 11.36, 'left:0px;top:0px', {size: 300});\nconst b = div(`left:500px;top:420px;width:70px;height:640px;background:${RED};border-radius:35px;opacity:0`, c);\nmv.fly(b, 11.68, 'translateY(-600px)');\nconst k = div('left:690px;top:480px;width:240px;height:240px', c);\ntile(k, 'crown', T.hit, 'left:0px;top:0px', {size: 240});\npill(c, 'Main income', T.hit, 'left:620px;top:760px');\nmv.dim(k, 12.6);\nsnd('pop', 11.36);\nsnd('swipe', 11.68);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 4,
+   "code": "tile(c, 'coins', 20.4, 'left:90px;top:760px', {size: 200});\nbars(c, [0.2], 20.4, 'left:420px;top:460px', {w: 240, h: 600, color: NAVY, last: ACC, to: [1], tTo: T.hit});\ntile(c, 'arrow-up', 20.96, 'left:450px;top:1070px', {size: 170});\npill(c, 'active income', T.hit, 'left:700px;top:440px');\nsnd('pop', 20.4);\nsnd('chip', 20.96);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 6,
+   "code": "const g = div('left:0px;top:0px;width:1080px;height:1300px', c);\ntile(g, 'coins', 28.07, 'left:150px;top:600px', {size: 260});\npill(g, 'side hustle', 28.07, 'left:130px;top:500px');\nconst p = panel(g, 'left:620px;top:480px;width:300px;height:580px', 29.84);\ndiv(`left:40px;top:40px;width:70px;height:500px;border-radius:35px;background:${ON[T.bg].track}`, p);\ndiv('left:150px;top:40px;width:110px;height:110px', p, ico('gauge', 110, ON[T.bg].ink, 3));\nmv.dim(g, T.hit);\nsnd('pop', 28.07);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 9,
+   "code": "const w = div('left:330px;top:700px;width:360px;height:360px', c);\ntile(w, 'coins', 42.64, 'left:0px;top:0px', {size: 360});\nmv.slide(w, T.hit, 'scale(1)', 'scale(0.4)');\nmv.dim(w, T.hit);\ncross(c, T.hit, 'left:700px;top:620px', {size: 200});\nsnd('pop', 42.64);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 11,
+   "code": "const o = div('left:90px;top:620px;width:220px;height:220px', c);\nconst q = panel(o, 'left:0px;top:0px;width:220px;height:220px', 50.1, {radius: 40});\ndiv('left:30px;top:30px;width:160px;height:160px', q, ico('coins', 160, ON[T.bg].sub, 2.5));\nmv.slide(o, 50.1, 'translateX(380px)', 'translateX(0px)');\nconst p = panel(c, 'left:330px;top:500px;width:640px;height:320px', 51.22);\nconst names = ['briefcase', 'coins', 'brain'];\nfor (let i = 0; i < 3; i++) {\n  const a = div(`left:${30 + i * 200}px;top:80px;width:160px;height:160px;opacity:0`, p, ico(names[i], 150, ON[T.bg].sub, 2.5));\n  mv.rise(a, 51.4 + i * 0.15);\n  const h = div(`left:${30 + i * 200}px;top:80px;width:160px;height:160px;opacity:0`, p, ico(names[i], 150, ACC, 3));\n  mv.pop(h, T.hit);\n}\nsnd('swipe', 50.1);\nsnd('hit', T.hit);"
+  },
+  {
+   "i": 13,
+   "code": "const w = div('left:360px;top:520px;width:360px;height:360px', c);\ntile(w, 'coins', 59.6, 'left:0px;top:0px', {size: 360});\nmv.slide(w, T.hit, 'scale(1,1)', 'scale(1.2,0.25)');\nmv.dim(w, T.hit);\nconst g = div('left:700px;top:560px;width:260px;height:80px;transform:scale(0.7)', c);\npill(g, 'รายได้เสริม', 60.29, 'left:0px;top:0px');\nsnd('pop', 59.6);\nsnd('hit', T.hit);"
+  }
+ ]
+}

@@ -6,9 +6,10 @@ You write the code of the key cards of a Thai talking-head short: the sentences 
 
 # Layout (follow these numbers)
 - Picture area: x 90–990, y 160–1250. The picture is centred on x 540, y 700.
-- 1 main piece, 520–760 px wide, centred, e.g. `panel(c, 'left:200px;top:380px;width:680px;height:640px', …)` or a tile with `size: 360` at left 360, top 520.
+- Place the main piece first: 520–760 px wide, centred, e.g. `panel(c, 'left:200px;top:380px;width:680px;height:640px', …)` or a tile with `size: 360` at left 360, top 520.
 - 1–2 secondary pieces, 160–240 px, beside the main piece (left of x 300 or right of x 780), never over its middle. At most 4 pieces in all, chips and labels included.
-- Nothing smaller than 120 px except words. Anything below y 860 must end left of x 940 (the app's buttons).
+- Nothing smaller than 120 px except words. Show "small" or "less" by comparison or by a shrink at the hit, never by drawing the main piece small.
+- Every word box: a width that ends inside x 990, text centred in it, then `fitW(el, width)`. Anything below y 860 must end left of x 940 (the app's buttons).
 - Inside a panel, place pieces from its own top-left corner.
 
 # Beats
