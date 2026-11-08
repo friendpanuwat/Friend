@@ -19,7 +19,7 @@ function VARIANT(cat, id, v) {
  ['B05', 'ถูกกับผิด / ไม่ใช่ X แต่เป็น Y'], ['B06', 'คำถาม / ความสงสัย'], ['B07', 'ปัญหา / คำเตือน'], ['B08', 'เป้าหมาย / ผลลัพธ์ / สำเร็จ'],
  ['B09', 'เวลา / ไทม์ไลน์ / เส้นตาย'], ['B10', 'คน / กลุ่มเป้าหมาย'], ['B11', 'คำพูด / แชต / รีวิว'], ['B12', 'เหตุกับผล'],
  ['B13', 'ไอเดีย / เคล็ดลับ / ความลับ'], ['B14', 'ประโยคเด็ดตัวใหญ่'], ['B15', 'ปิดคลิป / ชวนทำต่อ'], ['B16', 'นิยาม / อธิบายว่าคืออะไร'],
-].forEach(([id, name]) => CATEGORY(id, name, {text: id === 'B14'}));
+].forEach(([id, name]) => CATEGORY(id, name));          // B14 was words only until round 4 (2026-11-08)
 
 /* give a variant its small form (the overlay widget), designed for it, using the same slots */
 function SMALLV(cat, id, small) {
