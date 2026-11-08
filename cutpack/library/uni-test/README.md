@@ -147,3 +147,10 @@
 - แก้ตาม Friend: คำตอบของคำถามวางตรงฟอง, สัญลักษณ์แดงไม่อยู่บนของแดง (`calm`), ภาพทำใหม่ตามร่างที่คลิปจริงเลือก, ตาชั่งฝั่งชนะเป็นสีเน้น (ทำคลิป `small-lego/*-overlay_c2.vs.scale` ใหม่ ด้วย `c2.vs.scale@1`)
 - หน้า **https://claude.ai/artifact/YFS9TTZV3gUrUp4VGzztye** (สำเนา `page16.html`, ภาพนิ่งใน `cats-ai/stills/` ทำด้วย `cats-ai/stills.sh`, หน้าทำด้วย `cats-ai/make_page.py`)
 - ข้อเสนอ (รอ Friend): เพิ่มร่าง 5 หมวดก่อน คำถาม คำเตือน ถูกกับผิด เหตุกับผล เป้าหมาย · แก้ตัวเลขที่เป็นคำและร่างเป้าหมาย · ขอบทพูดเพิ่ม (6 เรื่องยังน้อย)
+
+## สีกลืน (Friend 2026-11-08 หลังดูหน้า 12)
+- Friend: "กรอบช่องติ๊กถูกมันกลืนไปกับพื้นหลังเพราะมันเป็นสีเดียวกัน" ต้นเหตุ: การ์ดขาวในร่างเล็กของสไตล์การ์ด overlay ได้สีของพื้นมืดข้างนอก (กรอบขาว ไอคอนในกล่องขาว) แก้ใน `styles/card-overlay.js` (กฎสีของการ์ดขาวชนะข้างใน)
+- ตัวตรวจใหม่ `engine/uni/check_contrast.js` ไล่ทุกร่างทุกสไตล์ทุกพื้น (0, 1, 2) เจอเพิ่ม: เครื่องหมายถูกในหน้าต่างม่วงเข้มของแบ่งจอเกือบกลืน (แก้ใน `styles/split.js`) ตอนนี้ไม่เหลือจุดที่ตัวตรวจเจอ
+- คลิปที่ทำใหม่ (ลำดับเดิม หาจากภาพเก่า): หน้า 12 `small-lego/` card-overlay `c2.vs.cards@0 c2.down.row@0 r2.money.big@0 c2.vs.measure@2 c2.change.toggle@2 r2.review.review@1 r2.goal.trophy@2 c2.down.bars@2 r2.review.notify@2 r2.loan.stamp@2 c2.steps.list@1 r2.goal.target@0`, glass/split-overlay `r2.goal.target@0 r2.goal.trophy@2`, split-overlay `r2.goal.stairs@1 c2.steps.list@1` · หน้า 13 `round3/` card-overlay `r3.who.persona@2 r3.wrong.strike@0`, split + split-overlay `r3.wrong.flip@1` · หน้า 9 `round2/` split `r2.goal.stairs@1`, card/glass/split `r2.goal.target@0 r2.goal.trophy@2`
+- ร่างเป้าหมายแก้พร้อมกัน: ลูกศรเข้าเป้าแสดงไอคอนเป้าหมายของประโยค, ถ้วยไม่มีเลข 100% (ไม่ได้พูด)
+
