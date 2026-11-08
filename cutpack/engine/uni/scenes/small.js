@@ -81,6 +81,6 @@ SMALL('fix-spot', (K, s, T) => {
   K.brackets(K.stage, cx, cy, 240, T.b[1], T.b[1] + .15);
   const ok = K.badge(K.stage, 'check', cx, cy, 128, null, {tone: 'acc'});
   K.fade(ok.o, T.hit, 0, 1, {hold: true}); K.punch(ok.p, T.hit + .05);
-  R1.pulse(K, K.stage, cx, cy, 140, T.hit, 1, 'acc');
+  R1.ripple(K, ok, T.hit + .15);
   K.say(s.lead, s.key);
 });

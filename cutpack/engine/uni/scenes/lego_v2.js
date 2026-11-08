@@ -63,7 +63,7 @@ SMALLV('B03', 'swap', (K, s, T) => {
   ar.querySelectorAll('path').forEach((p, i) => K.draw(p, T.b[1] + i * .3, .3));
   const to = K.badge(K.stage, s.b.icon, 470, 150, 150, T.hit - .05, {tone: s.b.tone ?? 'acc'});
   if (s.b.label) SM.word(K, K.stage, s.b.label, 470, 244, 44, T.hit + .1, 'center');
-  K.fade(from.o, T.hit, 1, .45); R1.pulse(K, K.stage, 470, 150, 110, T.hit, 1, 'acc');
+  K.fade(from.o, T.hit, 1, .45); R1.ripple(K, to, T.hit + .2);
 });
 SMALLV('B03', 'meter', (K, s, T) => {
   const P = K.panel(40, 90, 520, 170, T.b[0]);
@@ -173,7 +173,7 @@ SMALLV('B09', 'clock', (K, s, T) => {
   A(mh.m, [{transform: 'rotate(0deg)'}, {transform: `rotate(${360 * turns}deg)`}], T.b[1], T.hit - T.b[1], {e: EASE.inout, f: 'forwards'});
   A(hh.m, [{transform: 'rotate(0deg)'}, {transform: `rotate(${30 * turns}deg)`}], T.b[1], T.hit - T.b[1], {e: EASE.inout, f: 'forwards'});
   const r = K.badge(K.stage, s.result.icon, 450, 170, 150, T.hit, {tone: s.result.tone ?? 'acc'});
-  R1.pulse(K, K.stage, 450, 170, 110, T.hit, 1, s.result.tone === 'neg' ? 'neg' : 'acc');
+  R1.ripple(K, r, T.hit + .2, {tone: s.result.tone === 'neg' ? 'neg' : 'acc'});
   if (s.result.label) SM.word(K, K.stage, s.result.label, 450, 262, 40, T.hit + .1, 'center');
 });
 
@@ -198,7 +198,7 @@ SMALLV('B12', 'arrows', (K, s, T) => {
     if (i) {
       const a = div('left:0;top:0;width:600px;height:340px', K.stage, `<svg width="600" height="340"><path class="ln u-thin" d="M${xs[i - 1] + 74} 140H${xs[i] - 76}"/><path class="ln u-thin" d="M${xs[i] - 96} 124L${xs[i] - 76} 140L${xs[i] - 96} 156"/></svg>`);
       a.querySelectorAll('path').forEach((p, k) => K.draw(p, when[i] - .25 + k * .2, .2));
-      R1.pulse(K, K.stage, xs[i], 140, 90, when[i] + .2, 1, 'acc');
+      R1.ripple(K, b, when[i] + .35, {grow: 28});
     }
     return b;
   });

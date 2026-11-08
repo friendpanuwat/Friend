@@ -71,6 +71,25 @@ const R1 = {
       A(c, [{opacity: .9, transform: 'scale(.55)'}, {opacity: 0, transform: 'scale(1.5)'}], t + i * .35, .8, {e: EASE.out, f: 'none'});
     }
   },
+  /* a wave the same shape as a card or tile, from its edge outward and behind it (Friend 2026-11-08: a round ring over a
+     square card "แปลก ๆ"): it never crosses the icon or the words on the thing, and it follows the thing's float.
+     Works for round things too (a circle from their edge). pulse() is kept for impacts that belong to no thing
+     (a domino hitting the ground, a stamp landing, a lamp's light). n = a node(); start it once the thing has arrived;
+     r = the radius when the node is not itself the round shape (e.g. '50%'). */
+  ripple(K, n, t, {grow = 40, times = 1, tone = 'acc', d = .7, r} = {}) {
+    const cs = String(r ?? (getComputedStyle(n.p).borderRadius || '0'));
+    const rad = cs.includes('%') ? Math.min(n.w, n.h) * parseFloat(cs) / 100 : parseFloat(cs) || 0;
+    for (let i = 0; i < times; i++) {
+      const c = document.createElement('div'); c.className = `u-pulse u-pulse-${tone}`;
+      c.style.cssText = `position:absolute;left:0;top:0;width:${n.w}px;height:${n.h}px;box-sizing:border-box;border-radius:${rad}px;opacity:0`;
+      n.f.insertBefore(c, n.m);
+      // leaves the edge fast and slows down (a wave), fading evenly; EASE.out starts slow and made the old ring hang on the card
+      A(c, [{left: '0px', top: '0px', width: n.w + 'px', height: n.h + 'px', borderRadius: rad + 'px'},
+            {left: -grow + 'px', top: -grow + 'px', width: n.w + 2 * grow + 'px', height: n.h + 2 * grow + 'px', borderRadius: rad + grow + 'px'}],
+        t + i * .3, d, {e: EASE.smooth, f: 'none'});
+      A(c, [{opacity: .9}, {opacity: 0}], t + i * .3, d, {f: 'none'});
+    }
+  },
   /* a phone frame; content goes in .p, the screen starts below the notch */
   phone(K, x, y, w, h, t) {
     const P = K.panel(x, y, w, h, t);
@@ -99,7 +118,7 @@ LAYOUT('chain', {name: 'เหตุ → ผล'}, (K, r, T) => {
       const c = K.panel(xs[i] - 115, 150, 230, 290, when[i]);
       const b = K.badge(c.p, it.icon, 115, 115, 140, when[i] + .1, {tone: it.tone ?? (i === 2 ? 'acc' : 'main')});
       if (it.label) K.chipC(c.p, it.label, 115, 236, when[i] + .25, {size: 38}); else K.skel(c.p, 55, 228, [120], when[i] + .25);
-      if (i) { K.sat(K.stage, 'arrow-right', (xs[i - 1] + xs[i]) / 2, 295, 64, when[i] - .25, {tone: 'soft', shape: 'round', k: .5}); R1.pulse(K, c.p, 115, 115, 110, when[i] + .2, 1, 'acc'); }
+      if (i) { K.sat(K.stage, 'arrow-right', (xs[i - 1] + xs[i]) / 2, 295, 64, when[i] - .25, {tone: 'soft', shape: 'round', k: .5}); R1.ripple(K, b, when[i] + .35, {grow: 34}); }
       return {c, b};
     });
     K.halo(nodes[2].c.p, 115, 115, 120, T.hit);
@@ -139,10 +158,10 @@ LAYOUT('warn', {name: 'คำเตือน'}, (K, r, T) => {
   K.float(hero, T.b[0] + .8, T.b[2]);
   if (it.label) K.chipC(P.p, it.label, 260, 355, T.b[0] + .3, {size: 44}); else K.skel(P.p, 130, 340, [260, 170], T.b[0] + .3);
   const sign = K.sat(K.stage, r.sign ?? 'triangle-alert', 760, 130, 150, T.b[1], {tone: 'neg'});
-  R1.pulse(K, K.stage, 760, 130, 130, T.b[1] + .1, 3);
+  R1.ripple(K, sign, T.b[1] + .3, {times: 3, tone: 'neg', grow: 44});
   K.shake(sign.p, T.b[2]);
   if (r.how === 'cross') { K.mark(P.p, 'cross', 430, 60, 96, T.hit); K.fade(hero.o, T.hit + .1, 1, .45); }
-  else { K.shake(P.p, T.hit); R1.pulse(K, P.p, 260, 190, 150, T.hit, 2); }
+  else { K.shake(P.p, T.hit); R1.ripple(K, hero, T.hit, {times: 2, tone: 'neg', grow: 44}); }
 });
 
 /* ---------- เวลา ---------- */
@@ -190,7 +209,7 @@ LAYOUT('chat', {name: 'แชต / คำพูด'}, (K, r, T) => {
   const when = LG.spread(T.b[0] + .4, T.hit - .1, n);
   const nodes = bs.map((b, i) => R1.bubble(K, P.p, b.side === 'right' ? 460 : 40, 90 + i * 132, b.label ? Math.min(420, 90 + b.label.length * 34) : 340, b.side ?? (i % 2 ? 'right' : 'left'), when[i], b.label));
   K.punch(nodes[n - 1].p, T.hit + .05);
-  if (r.react) { const s = K.sat(K.stage, r.react, 760, 90 + (n - 1) * 132 + 40, 110, T.after, {tone: 'acc', shape: 'round'}); R1.pulse(K, K.stage, 760, 90 + (n - 1) * 132 + 40, 90, T.after, 1, 'acc'); }
+  if (r.react) { const s = K.sat(K.stage, r.react, 760, 90 + (n - 1) * 132 + 40, 110, T.after, {tone: 'acc', shape: 'round'}); R1.ripple(K, s, T.after + .2, {grow: 30}); }
   if (r.seen) { K.fade(nodes[n - 1].o, T.after + .3, 1, .4); K.sat(K.stage, 'eye-off', 760, 590, 90, T.after + .3, {tone: 'soft'}); }
 });
 

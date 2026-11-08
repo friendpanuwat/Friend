@@ -39,7 +39,7 @@ VARIANT('B01', 'ring', {name: 'วงแหวนวิ่งถึงตัว�
   const size = R2.fitSize(s.value, 360, 150);
   R1.counter(K, K.stage, cx, cy - (s.unit ? 28 : 0), size, T.b[1], s.value, d);
   if (s.unit) K.chipC(K.stage, s.unit, cx, cy + 92, T.hit - .2, {size: 44, tone: 'acc'});
-  K.punch(g.p, T.hit); R1.pulse(K, K.stage, cx, cy, R + 40, T.hit, 1, 'acc');
+  K.punch(g.p, T.hit); R1.ripple(K, g, T.hit + .1, {r: '50%', grow: 50});
   if (s.icon) K.sat(K.stage, s.icon, 150, 110, 110, T.b[0] + .2, {tone: 'main'});
   if (s.dir) K.sat(K.stage, s.dir === 'down' ? 'trending-down' : 'trending-up', 850, 130, 100, T.hit, {tone: s.dir === 'down' ? 'soft' : 'acc'});
   K.sat(K.stage, 'sparkles', 840, 560, 72, T.after, {tone: 'acc'});
@@ -124,7 +124,7 @@ VARIANT('B11', 'review', {name: 'การ์ดรีวิวมีดาว',
   if (!q) K.skel(P.p, 120, 370, [420, 300], T.b[2]);
   if (q) K.punch(q, T.hit + .05);
   const r = K.sat(P.p, s.react ?? (bad ? 'thumbs-down' : 'heart'), 570, 110, 96, T.after, {tone: bad ? 'neg' : 'acc', shape: 'round'});
-  R1.pulse(K, P.p, 570, 110, 80, T.after, 1, bad ? 'neg' : 'acc');
+  R1.ripple(K, r, T.after + .2, {tone: bad ? 'neg' : 'acc', grow: 30});
 }});
 
 VARIANT('B11', 'notify', {name: 'แจ้งเตือนเด้งซ้อนกัน', build(K, s, T) {
@@ -215,7 +215,7 @@ SMALLV('B01', 'ring', (K, s, T) => {
   if (s.unit) SM.word(K, K.stage, s.unit, cx, cy + 30, 36, T.hit - .2, 'center');
   if (s.icon) K.badge(K.stage, s.icon, 90, 96, 104, T.b[0] + .2, {tone: 'main'});
   if (s.dir) K.badge(K.stage, s.dir === 'down' ? 'trending-down' : 'trending-up', 510, 96, 88, T.hit, {tone: s.dir === 'down' ? 'neg' : 'acc', shape: 'round'});
-  K.punch(g.p, T.hit); R1.pulse(K, K.stage, cx, cy, R + 30, T.hit, 1, 'acc');
+  K.punch(g.p, T.hit); R1.ripple(K, g, T.hit + .1, {r: '50%', grow: 34});
 });
 SMALLV('B01', 'receipt', (K, s, T) => {
   const W = 300, H = 250, x = 150, top = 80;
@@ -241,10 +241,10 @@ SMALLV('B07', 'sign', (K, s, T) => {
   K.float(hero, T.b[0] + .7, T.b[2], .6);
   if (it.label) SM.word(K, K.stage, it.label, 240, 258, 42, T.b[0] + .3, 'center');
   const sign = K.badge(K.stage, s.sign ?? 'triangle-alert', 410, 92, 124, T.b[1], {tone: 'neg'});
-  R1.pulse(K, K.stage, 410, 92, 104, T.b[1] + .1, 2);
+  R1.ripple(K, sign, T.b[1] + .3, {times: 2, tone: 'neg', grow: 34});
   K.shake(sign.p, T.b[2]);
   if (s.how === 'cross') { K.mark(K.stage, 'cross', 240, 160, 150, T.hit); K.fade(hero.o, T.hit + .1, 1, .45); }
-  else { K.shake(hero.p, T.hit); R1.pulse(K, K.stage, 240, 160, 120, T.hit, 2); }
+  else { K.shake(hero.p, T.hit); R1.ripple(K, hero, T.hit, {times: 2, tone: 'neg', grow: 36}); }
 });
 SMALLV('B07', 'beacon', (K, s, T) => {
   const it = s.thing, lx = 300, ly = 98;
@@ -289,7 +289,7 @@ SMALLV('B11', 'phone', (K, s, T) => {                // the person and what they
     K.sat(K.stage, 'eye-off', 520, 220, 72, T.hit + .3, {tone: 'soft', shape: 'round', k: .6});
   } else if (s.react) {
     const r = K.sat(K.stage, s.react, 470, 236, 84, T.hit, {tone: s.mood === 'bad' ? 'neg' : 'acc', shape: 'round', k: .6});
-    R1.pulse(K, K.stage, 470, 236, 70, T.hit, 1, s.mood === 'bad' ? 'neg' : 'acc');
+    R1.ripple(K, r, T.hit + .2, {tone: s.mood === 'bad' ? 'neg' : 'acc', grow: 26});
   }
 });
 SMALLV('B11', 'review', (K, s, T) => {
@@ -345,7 +345,7 @@ SMALLV('B08', 'trophy', (K, s, T) => {
   bar.set(fillAt, 1);
   R1.counter(K, K.stage, 470, 118, 64, fillAt, '100%', T.hit - fillAt);
   const cup = K.badge(K.stage, 'trophy', 240, 92, 150, T.hit - .05, {tone: 'acc'});
-  K.punch(cup.p, T.hit + .3); R1.pulse(K, K.stage, 240, 92, 110, T.hit, 1, 'acc');
+  K.punch(cup.p, T.hit + .3); R1.ripple(K, cup, T.hit + .25);
 });
 
 /* ================= sample sentences of round 2 (one per category, shown in every variant) ================= */

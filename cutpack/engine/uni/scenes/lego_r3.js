@@ -60,7 +60,7 @@ R3.both('B05', 'flip', 'การ์ดพลิกจากผิดเป็�
   const back = face(s.right, 'acc');
   A(back.m, [{transform: 'scaleX(0)'}, {transform: 'scaleX(1)'}], T.hit, .28, {e: 'cubic-bezier(.2,.9,.3,1.2)'});
   K.mark(back.p, 'check', 252, 48, 72, T.hit + .3);
-  R1.pulse(K, g, 300, 170, 170, T.hit + .1, 1, 'acc');
+  R1.ripple(K, back, T.hit + .26, {grow: 44});
 });
 
 /* ================= B06 คำถาม / ลังเล ================= */
@@ -90,7 +90,7 @@ R3.both('B06', 'think', 'คนกับฟองคำถาม', (K, s, T, g) 
   });
   const q = K.badge(g, 'circle-help', Q.x, Q.y, 2 * Q.r, T.b[2], {tone: 'main', shape: 'round'});
   if (s.answer) {                                     // the question gets its answer on the key word
-    LG.light(K, g, s.answer.icon, 438, 104, 150, T.hit, 'round'); R1.pulse(K, g, 438, 104, 110, T.hit, 1, 'acc');
+    const ans = LG.light(K, g, s.answer.icon, 438, 104, 150, T.hit, 'round'); R1.ripple(K, ans, T.hit + .15);
     if (s.answer.label) SM.word(K, g, s.answer.label, 438, 196, 40, T.hit + .1, 'center');
   } else { K.shake(q.p, T.hit); K.punch(who.p, T.hit + .1); }
 });
@@ -129,7 +129,7 @@ R3.both('B13', 'reveal', 'กล่องเปิด ของลอยขึ�
   K.move(lid.m, T.hit - .2, 'none', 'rotate(-100deg)', {kind: 'snap'});              // the lid swings up on its left hinge, out of the way
   /* the ring and the word wait until the secret has risen into place (Friend 2026-11-08: the ring came before the icon) */
   const arrive = T.hit - .05 + (ST.motion.snap?.d ?? .7) * .85;
-  R1.pulse(K, g, 300, 96, 110, arrive, 1, 'acc');
+  R1.ripple(K, sec, arrive);
   if (it.label) SM.word(K, g, it.label, 404, 66, 44, arrive);
   K.sat(g, 'sparkles', 190, 70, 64, Math.max(T.after, arrive + .1), {tone: 'acc', k: .5});
 });
@@ -138,8 +138,8 @@ R3.both('B13', 'bulb', 'คำถาม → หลอดไฟติด', (K, s,
   K.badge(g, 'circle-help', 120, 150, 128, T.b[0], {tone: 'main'});
   R3.line(K, g, 'M196 150H384', T.b[1], .5);
   K.badge(g, 'lightbulb', 470, 150, 150, T.b[1] + .3, {tone: 'soft', shape: 'round'});
-  LG.light(K, g, it.icon ?? 'lightbulb', 470, 150, 150, T.hit, 'round');
-  R1.pulse(K, g, 470, 150, 116, T.hit, 2, 'acc');
+  const lit = LG.light(K, g, it.icon ?? 'lightbulb', 470, 150, 150, T.hit, 'round');
+  R1.ripple(K, lit, T.hit + .15, {times: 2});
   if (it.label) SM.word(K, g, it.label, 470, 240, 42, T.hit + .15, 'center');
 });
 
@@ -156,7 +156,7 @@ R3.both('B15', 'button', 'ปุ่มที่เมาส์มากด', (K,
   pill('main', i0, T.b[0]);
   const on = pill('acc', i1, null); K.fade(on.o, T.hit - .05, 0, 1, {hold: true}); K.punch(on.p, T.hit);
   K.cursor(g, [[T.b[1], 520, 330], [T.hit - .3, 330, 176], [T.t1 - .2, 330, 176]], {clicks: [T.hit - .15], size: 84});
-  R1.pulse(K, g, 300, 160, 170, T.hit, 1, 'acc');
+  R1.ripple(K, on, T.hit + .1, {grow: 36});
 });
 R3.both('B15', 'icons', 'แถวไอคอน ไอคอนที่ชวนเด้งขึ้น', (K, s, T, g) => {
   const acts = ['like', 'comment', 'save', 'share'], xs = [120, 240, 360, 480], k = Math.max(0, acts.indexOf(s.action ?? 'follow'));
@@ -165,13 +165,13 @@ R3.both('B15', 'icons', 'แถวไอคอน ไอคอนที่ชว
   if (follow) {
     its.forEach(b => K.fade(b.o, T.hit, 1, .35));
     const f = K.badge(g, 'user-plus', 300, 104, 140, T.hit - .05, {tone: 'acc', shape: 'round'}); K.punch(f.p, T.hit + .2);
-    R1.pulse(K, g, 300, 104, 100, T.hit, 1, 'acc');
+    R1.ripple(K, f, T.hit + .15);
     if (s.label) SM.word(K, g, s.label, 390, 76, 44, T.hit + .1);
     return;
   } else {
     its.forEach((b, i) => { if (i !== k) K.fade(b.o, T.hit, 1, .35); });
-    LG.light(K, g, R3.ACT[acts[k]][1], xs[k], 170, 104, T.hit, 'round'); K.move(its[k].m, T.hit, 'none', 'scale(1.25)');
-    R1.pulse(K, g, xs[k], 170, 90, T.hit, 1, 'acc');
+    const lit = LG.light(K, g, R3.ACT[acts[k]][1], xs[k], 170, 104, T.hit, 'round'); K.move(its[k].m, T.hit, 'none', 'scale(1.25)'); K.move(lit.m, T.hit, 'none', 'scale(1.25)');
+    R1.ripple(K, lit, T.hit + .2, {grow: 30});
   }
   if (s.label) SM.word(K, g, s.label, 300, 34, 44, T.hit + .1, 'center');
 });
