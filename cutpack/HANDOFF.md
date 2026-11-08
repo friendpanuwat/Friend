@@ -57,6 +57,7 @@ git checkout -B <สาขาที่ session ใหม่ได้รับ> o
 ### หน้าที่ Friend ดู (ใหม่สุดก่อน) ทุกหน้าเป็น artifact ส่วนตัว สำเนาอยู่ใน `library/uni-test/page<N>.html`
 | หน้า | เรื่อง | ลิงก์ | คลิปใน repo |
 |---|---|---|---|
+| 14 | B14 ประโยคเด็ด: ร่างเดิมของระบบ editorial (เต็มจอ 3 ร่าง + ร่างเล็ก 2 ร่าง) ระบบเลโก้ยังไม่มี B14 | https://claude.ai/artifact/ApTSPEi854y596mrvKtmez | `library/base-parts/clips/B14_*` (`e_`) และ `library/widgets/clips/B14_*` (`w_`) ในหน้าอยู่ที่ `clips/` |
 | 13 | รอบที่ 3: 6 หมวดใหม่ หมวดละ 2 ร่าง เต็มจอ + overlay | https://claude.ai/artifact/U3iQL8Tfq2g2Kor2nmM3wz | `round3/` (ในหน้าอยู่ที่ `r3/`) |
 | 12 | ร่างเล็กเข้าระบบเลโก้ 9 หมวด 27 ร่าง | https://claude.ai/artifact/EMRUSm6LExtqUGviD44rMf | `small-lego/` (ในหน้าอยู่ที่ `ls/`) |
 | 11 | ร่างเล็กเทียบคลิปของ Friend (มีคลิปของ Friend ในหน้า ห้ามเอาเข้า repo) | https://claude.ai/artifact/SKhD64mPc9sWZPKgJ9A2ui | `small/` |
