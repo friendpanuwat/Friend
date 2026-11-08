@@ -42,6 +42,9 @@
 ## overlay (ทดสอบ 2026-11-07)
 สไตล์ `<สไตล์>-overlay` (เล็ก 600 × 190 เหนือหัว) และ `<สไตล์>-overlay-big` (600 × 380 ย่อคนพูด 80%) = หน้าตาของสไตล์เต็มจอ + กรอบใน `overlay.js` ไฟล์ `styles/<สไตล์>-overlay.js` ให้แค่สีการ์ด ตัวหนังสือในการ์ด และกล้อง ร่างไม่ต้องแก้: กรอบวัดสิ่งที่วาดจริงแล้วย่อให้พอดี ตัด `u-decor` กับ `u-text` และทำการ์ดที่เป็นทั้งภาพให้แบน ชิ้นใหม่ใน kit ที่เป็นของตกแต่งต้องติด `u-decor` คำในภาพติด `u-text` มีแล้ว: `card-overlay`, `glass-overlay` (แบ่งจอยังไม่มี)
 
+## ร่างเล็ก (overlay ระดับคลิปของ Friend, 2026-11-07)
+`SMALL(ฉาก, build)` หรือ `VARIANT(หมวด, id, {build, small})`: สไตล์ overlay วาดร่างเล็กแทนการย่อภาพเต็มจอ ผืน 600 × 340 วาด 1:1 ไม่มีประโยคในการ์ด (ซับใต้คาง `ovSub`) สไตล์ overlay ให้ `smallCls` (พื้นของบนคลิป), `panelTheme` (สีการ์ด), `sub()` (ซับ), หรือ `smallFrame()` (เช่น หน้าต่างของแบ่งจอ) ทดสอบ: `BUILD_ARGS="--speaker .86" render_test.sh … "card-overlay glass-overlay split-overlay" "ov.ask.phone-small@0 undecided@1 not-worth@2 price-cut@0 not-first@1 fix-spot@2"`
+
 ## ตรวจของทับกัน
 `NODE_PATH=$(npm root -g) node check_overlap.js <style> <work_dir>` สร้างทุกฉากในสไตล์นั้นแล้วหาการ์ดที่ทับกันและชิ้นที่คร่อมขอบการ์ด (Friend 2026-11-07) สไตล์ที่การ์ดโปร่งใสต้องไม่มี "card×card" ยกเว้นปึกการ์ดที่ตั้งใจ
 

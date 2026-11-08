@@ -82,6 +82,7 @@ const R1 = {
   bubble(K, parent, x, y, w, side, t, label) {
     const h = label ? 104 : 96;
     const n = node(parent, side === 'left' ? x : x - w, y, w, h, side === 'left' ? 'u-panel u-bubble' : 'u-badge u-acc u-bubble');
+    if (side === 'left' && ST.panelTheme) n.p.classList.add(...ST.panelTheme.split(' '));   // the other person's bubble is a card
     n.p.style.borderRadius = side === 'left' ? '34px 34px 34px 10px' : '34px 34px 10px 34px';
     if (label) { const l = div('left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;white-space:nowrap;font-size:42px', n.p); l.className = 'u-label u-bubble-text'; l.textContent = label; }
     else K.skel(n.p, 34, 28, [w - 120, (w - 120) * .6], t + .1, {h: 14, gap: 14});

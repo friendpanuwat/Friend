@@ -22,7 +22,22 @@ const OV_CSS = `
 .ov-flat{background:none !important;border-color:transparent !important;box-shadow:none !important}
 .ov-text{position:absolute;display:flex}
 .ov-text>div{position:relative;white-space:nowrap}
+.ovs{opacity:0}
+.ov-sub{position:absolute;left:90px;width:900px;display:flex;flex-direction:column;align-items:center;row-gap:6px}
+.ov-sub>div{position:relative;white-space:nowrap}
+.ov-ico{position:absolute;display:flex;align-items:center;justify-content:center;color:var(--ink)}
 `;
+/* the subtitle under the chin: one row per part, shrunk (never wrapped) to 900 px; returns the moving spans */
+function ovSub(T, rows) {
+  const el = div(`top:${OV.subTop}px`, SC); el.className = 'ov-sub';
+  A(el, [{opacity: 0}, {opacity: 1}], T.t0 + .05, .25); A(el, [{opacity: 1}, {opacity: 0}], T.t1 - .2, .2, {f: 'forwards'});
+  return rows.map(([txt, cls]) => {
+    const r = document.createElement('div'); el.appendChild(r);
+    const s = document.createElement('span'); s.className = cls; s.textContent = txt; r.appendChild(s);
+    FITS.push(() => { const w = s.offsetWidth; if (w > 900) r.style.transform = `scale(${900 / w})`; });
+    return s;
+  });
+}
 /* what the scene really drew, in canvas units, at time tm (solid things only: no decoration, words, rings or glows) */
 function drawnBox(stage, tm) {
   ANIMS.forEach(a => { a.pause(); a.currentTime = ms(tm); });
@@ -35,12 +50,30 @@ function drawnBox(stage, tm) {
   });
   return x1 > x0 ? {x0, y0, x1, y1, w: x1 - x0, h: y1 - y0} : {x0: 0, y0: 0, x1: 1000, y1: 700, w: 1000, h: 700};
 }
+/* SMALL FORMS (Friend 2026-11-07 after comparing with Friend's overlay sample clips: "ยังไม่ชอบ", then "ตกลงตามแนวทางนี้"):
+   a scene or a variant can have its own small form, designed for the widget above the head instead of shrunk:
+   no sentence inside the widget (the sentence is the subtitle at chest height), 1–3 big things (icons ~100 px and up),
+   at most 1–2 words of label, one event on the key word, a card or nothing behind it. Drawn 1:1 on a 600 × 340 canvas. */
+const SMALLS = {};
+function SMALL(id, build) { SMALLS[id] = build; }
+OV.small = {x: 240, y: 190, w: 600, h: 340};       // where the small canvas sits (above the head of a clip framed like Friend's)
+OV.subTop = 1230;                                   // the subtitle at chest height
 function OVERLAY(id, base, def) {
   const B = STYLES[base]; if (!B) throw new Error('overlay of unknown style ' + base);
   const kind = def.size ?? 'short', big = kind === 'big';
-  STYLE(id, {name: def.name, overlay: kind, css: B.css + OV_CSS + (def.css ?? ''), motion: B.motion, sound: B.sound,
-    frame(t0, t1, {index}) {
-      const L = OV.size[kind], look = def.card(index), m = B.motion;
+  STYLE(id, {name: def.name, overlay: kind, css: B.css + OV_CSS + (def.css ?? ''), motion: B.motion, sound: B.sound, panelTheme: def.panelTheme,
+    frame(t0, t1, {index, scene}) {
+      const m = B.motion;
+      if (SMALLS[scene] || SCENES[scene]?.meta.small) {               // the scene has a small form: draw it 1:1, words go to the subtitle
+        const C = OV.small;
+        const F = def.smallFrame ? def.smallFrame(t0, t1, index, C) : (() => {
+          const root = div(`left:${C.x}px;top:${C.y}px;width:${C.w}px;height:${C.h}px`, SC); root.className = `ovs ${def.smallCls ?? ''}`;
+          return {root, stage: div(`left:0;top:0;width:${C.w}px;height:${C.h}px`, root)};
+        })();
+        if (!def.smallFrame) { A(F.root, [{opacity: 0}, {opacity: 1}], t0 - .01, .01); A(F.root, m.leave.kf, t1 - m.leave.d, m.leave.d, {e: m.leave.e, f: 'forwards'}); }
+        return Object.assign(F, {small: true, index, dark: F.dark ?? true});
+      }
+      const L = OV.size[kind], look = def.card(index);
       const root = div(`left:${L.x}px;top:${L.y}px;width:${L.w}px;height:${L.h}px`, SC);
       root.className = `ov-card ${look.cls} ov-compact`;                 // a widget is always small: no decoration, no words inside the picture
       A(root, m.pop.kf, t0, m.pop.d, {e: m.pop.e});
@@ -76,7 +109,7 @@ function OVERLAY(id, base, def) {
       });
       return F;
     },
-    text(F, T, lead, key) { def.text(F, T, lead, key); if (!F.big && def.camera) def.camera(T); },
+    text(F, T, lead, key) { (F.small ? def.sub : def.text)(F, T, lead, key); if (!F.big && def.camera) def.camera(T); },
   });
 }
 /* one line of words in the card, shrunk (never wrapped) to the room it has */

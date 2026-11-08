@@ -13,7 +13,7 @@ const CATS = {};
 function CATEGORY(id, name, {text = false} = {}) { CATS[id] = {id, name, text, variants: []}; }
 function VARIANT(cat, id, v) {
   if (!CATS[cat]) throw new Error('unknown category ' + cat);
-  CATS[cat].variants.push({id, name: v.name, fits: v.fits ?? (() => true), build: v.build});
+  CATS[cat].variants.push({id, name: v.name, fits: v.fits ?? (() => true), build: v.build, small: v.small});
 }
 [['B01', 'ตัวเลขเด่น'], ['B02', 'เพิ่มขึ้น / ลดลง'], ['B03', 'เปรียบเทียบ / ก่อนกับหลัง'], ['B04', 'ขั้นตอน / เช็กลิสต์'],
  ['B05', 'ถูกกับผิด / ไม่ใช่ X แต่เป็น Y'], ['B06', 'คำถาม / ความสงสัย'], ['B07', 'ปัญหา / คำเตือน'], ['B08', 'เป้าหมาย / ผลลัพธ์ / สำเร็จ'],
@@ -39,6 +39,8 @@ function pickVariant(cat, slots, seed = '') {
 function SENTENCE(id, r) {
   const meta = v => ({meaning: r.cat, name: r.name + (v ? ' · ' + v.name : ''), story: CATS[r.cat].name, beats: 4, cat: r.cat, variant: v?.id,
     slots: {lead: {type: 'text', max: 22, sample: r.say[0]}, key: {type: 'text', max: 12, sample: r.say[1]}}});
-  SCENE(id, meta(null), (K, s, T) => { pickVariant(r.cat, r, r.say.join(' ')).build(K, r, T); K.say(s.lead, s.key); });
-  CATS[r.cat].variants.filter(v => v.fits(r)).forEach(v => SCENE(`${id}.${v.id}`, meta(v), (K, s, T) => { v.build(K, r, T); K.say(s.lead, s.key); }));
+  const draw = (v, K, T) => (ST.overlay && v.small ? v.small : v.build)(K, r, T);        // an overlay widget uses the variant's small form
+  const fit = CATS[r.cat].variants.filter(v => v.fits(r));
+  SCENE(id, {...meta(null), small: fit.every(v => v.small)}, (K, s, T) => { draw(pickVariant(r.cat, r, r.say.join(' ')), K, T); K.say(s.lead, s.key); });
+  fit.forEach(v => SCENE(`${id}.${v.id}`, {...meta(v), small: !!v.small}, (K, s, T) => { draw(v, K, T); K.say(s.lead, s.key); }));
 }

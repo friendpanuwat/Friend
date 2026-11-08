@@ -16,6 +16,7 @@ def main():
     ap.add_argument('--index', type=int, default=0)
     ap.add_argument('--t0', type=float, default=.5); ap.add_argument('--t1', type=float, default=4.5)
     ap.add_argument('--slots', default='{}')
+    ap.add_argument('--speaker', type=float, default=1, help='scale the speaker from the bottom middle (test headroom like Friend\'s clips)')
     ap.add_argument('--extra', action='append', default=[], help='more scene files (e.g. recipes written by the AI), loaded after scenes/')
     a = ap.parse_args()
     proj = os.path.abspath(a.proj); os.makedirs(os.path.join(proj, 'fonts'), exist_ok=True)
@@ -29,6 +30,7 @@ def main():
     js = [f'const ICONS = {open(os.path.join(ENGINE, "icons", "lucide.json")).read()};', rd('core.js'), rd('kit.js'), rd('overlay.js')] + [rd(f) for f in styles] + [open(f).read() for f in sorted(glob.glob(os.path.join(UNI, 'scenes', '*.js')))] + [open(f).read() for f in a.extra]
     js.append(f"""
 ['Lead', 'CardSans', 'KeySans', 'Hand', 'Anu'].forEach(f => div(`left:-9999px;top:0;font-family:${{f}}`, document.body, 'กขคฅ ึ่้ 0123'));
+if ({a.speaker} !== 1) [V, VB].forEach(e => {{ e.style.scale = {a.speaker}; e.style.translate = `${{540 * (1 - {a.speaker})}}px ${{1920 * (1 - {a.speaker})}}px`; }});
 useStyle({json.dumps(a.style)});
 play({json.dumps(a.scene)}, {a.t0}, {a.t1}, {a.slots}, {{index: {a.index}}});
 window.SFX = SFX;""")

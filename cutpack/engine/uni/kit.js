@@ -80,7 +80,8 @@ function kit(F, T) {
       K.enter(w, t, 'chip'); return w;
     },
     panel(x, y, w, h, t, {parent = F.stage, kind = 'rise'} = {}) {
-      const n = node(parent, x, y, w, h, 'u-panel'); K.enter(n.o, t, kind); return n;
+      const n = node(parent, x, y, w, h, 'u-panel'); if (ST.panelTheme) n.p.classList.add(...ST.panelTheme.split(' '));
+      K.enter(n.o, t, kind); return n;
     },
     skel(parent, x, y, widths, t, {h = 18, gap = 26} = {}) {
       return widths.map((w, i) => {
