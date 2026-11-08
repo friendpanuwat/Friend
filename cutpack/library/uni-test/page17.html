@@ -66,6 +66,16 @@ th{color:var(--muted);font-weight:500;font-size:13px}
     <p><b>แก้ร่างเป้าหมายเดิมด้วย:</b> ลูกศรเข้าเป้าแสดงไอคอนเป้าหมายของประโยค และร่างถ้วยไม่มีเลข 100% แล้ว</p>
     <div class="facts"><span class="fact">10 ร่างใหม่</span><span class="fact">เต็มจอ + overlay</span><span class="fact">ครบ 16 หมวด 52 ร่าง</span></div>
   </header>
+  <section class="box" style="border-color:var(--accent)">
+    <h2>อัปเดต: ร่างใหม่แทนเทปกั้น</h2>
+    <p>Friend ไม่ชอบร่างเทปกั้นคาดเป็นกากบาท ผมเอาร่างนั้นออกจากระบบแล้ว และทำร่างคำเตือนใหม่มาให้เลือก 2 ร่าง</p>
+    <ul>
+      <li><b>ไฟคนข้ามเปลี่ยนเป็นแดง:</b> ไฟของสิ่งนั้นติดอยู่ก่อน พอถึงคำสำคัญ ไฟดับแล้วไฟมือแดงติดแทน</li>
+      <li><b>เข็มวัดความเสี่ยง:</b> เข็มค่อย ๆ ขึ้น พอถึงคำสำคัญ เข็มพุ่งเข้าโซนแดง โซนแดงสว่างขึ้น แล้วป้ายเตือนเด้งขึ้น</li>
+    </ul>
+    <p>เลือกเก็บได้ทั้งสองร่าง หรือเก็บร่างเดียวก็ได้ครับ</p>
+    <p><a href="#cat-r5.ads" style="color:var(--accent);font-weight:600">ไปดูร่างใหม่ในหมวดคำเตือน ↓</a></p>
+  </section>
   <div id="cats" style="display:flex;flex-direction:column;gap:36px"></div>
   <section class="box">
     <h2>ตรวจแล้วก่อนส่ง</h2>
@@ -80,7 +90,7 @@ th{color:var(--muted);font-weight:500;font-size:13px}
 const FULL = [{id: 'card', name: 'การ์ด'}, {id: 'glass', name: 'กระจก'}, {id: 'split', name: 'แบ่งจอพาสเทล'}];
 const CATS = [
   {name: 'คำถาม / ลังเล', id: 'r5.start', say: 'มือใหม่หลายคนสงสัยว่า ต้องเริ่มยังไง', vs: [['search', 'แว่นขยายส่องหา แล้วขึ้น ?'], ['signpost', 'ป้ายทางแยกสองทาง คนมองซ้ายมองขวา']]},
-  {name: 'คำเตือน', id: 'r5.ads', say: 'ยังไม่มีรีวิว อย่าเพิ่งยิงแอด', vs: [['tape', 'เทปกั้นคาดทับ'], ['hand', 'มือห้ามดันกลับ (ใช้กับ "อย่า")']]},
+  {name: 'คำเตือน', id: 'r5.ads', say: 'ยังไม่มีรีวิว อย่าเพิ่งยิงแอด', vs: [['signal', 'ไฟคนข้ามเปลี่ยนเป็นแดง', 'ใหม่'], ['meter', 'เข็มวัดความเสี่ยงพุ่งเข้าแดง', 'ใหม่'], ['hand', 'มือห้ามดันกลับ (ใช้กับ "อย่า")']]},
   {name: 'ถูกกับผิด', id: 'r5.post', say: 'ไม่ต้องโพสต์เยอะ แค่สม่ำเสมอ', vs: [['bin', 'ข้อผิดลงถังขยะ ข้อถูกติดไฟ'], ['thumbs', 'นิ้วโป้งลงกับนิ้วโป้งขึ้น']]},
   {name: 'เหตุกับผล', id: 'r5.sleep', say: 'นอนน้อย ก็เหนื่อย งานก็พลาด', vs: [['gears', 'เฟืองสามตัวหมุนต่อกัน'], ['bounce', 'ลูกบอลกระเด้งส่งต่อ']]},
   {name: 'เป้าหมาย', id: 'r5.first', say: 'ในที่สุดก็ ขายได้ชิ้นแรก', vs: [['finish', 'วิ่งเข้าเส้นชัย ริบบิ้นขาด'], ['unlock', 'กุญแจปลดล็อก']]},
@@ -91,11 +101,11 @@ const video = src => { const v = el('video'); Object.assign(v, {muted: true, loo
 const src = (st, id, ov) => `r5/${st}${ov ? '-overlay' : ''}_${id}.mp4`;
 const host = document.getElementById('cats');
 for (const c of CATS) {
-  const sec = el('section', 'frame');
+  const sec = el('section', 'frame'); sec.id = `cat-${c.id}`;
   const heads = el('div', 'heads'); FULL.forEach(s => heads.append(el('span', '', s.name)));
   sec.append(el('h2', '', `หมวด: ${c.name}`), el('p', 'say', `ประโยคตัวอย่าง <q>${c.say}</q>`), heads);
-  for (const [vid, vname] of c.vs) {
-    const id = `${c.id}.${vid}`, top = el('div', 'vname'); top.append(el('b', '', vname)); sec.append(top);
+  for (const [vid, vname, tag] of c.vs) {
+    const id = `${c.id}.${vid}`, top = el('div', 'vname'); top.append(el('b', '', vname)); if (tag) top.append(el('span', 'tag', tag)); sec.append(top);
     for (const ov of [false, true]) {
       const r = el('div', 'row');
       for (const s of FULL) { const b = el('button', 'vid'); b.type = 'button'; b.setAttribute('aria-label', `${vname} ${s.name} ${ov ? 'overlay' : 'เต็มจอ'} ดูใหญ่`);

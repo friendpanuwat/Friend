@@ -66,4 +66,4 @@ svg{overflow:visible}
 /* round 4 (B14): the light of a lamp, strong at the lamp and fading toward the floor */
 .u-spot{background:linear-gradient(180deg, color-mix(in srgb, var(--spot, var(--ac)) 78%, transparent), color-mix(in srgb, var(--spot, var(--ac)) 14%, transparent))}
 /* round 5 (B07 tape): caution tape, red and white stripes */
-.u-tape{background:repeating-linear-gradient(-45deg, var(--neg) 0 24px, var(--tape, #FFFFFF) 24px 48px);border:4px solid var(--neg);border-radius:6px;box-shadow:0 10px 24px rgba(0,0,0,.25)}
+.ln.u-negl{stroke:var(--neg)}

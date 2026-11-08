@@ -18,6 +18,19 @@ const R5 = {
     const n_ = node(g, cx - R, cy - R, 2 * R, 2 * R, '', `<svg width="${2 * R}" height="${2 * R}" style="overflow:visible"><path class="ln u-thin" d="${d}Z"/></svg>`);
     n_.m.style.transformOrigin = '50% 50%'; K.enter(n_.o, t, 'pop'); return n_;
   },
+  /* a lamp coming on in a tone (the way LG.lightUp lights a thing: solid in the middle at once, then grows over the
+     lamp that is off, so the icon is seen the whole time); .done = full size */
+  lamp(K, parent, icon, cx, cy, size, t, tone) {
+    const on = K.badge(parent, icon, cx, cy, size, null, {tone, shape: 'round'});
+    A(on.o, [{opacity: 0}, {opacity: 1}], t, .04);
+    K.move(on.m, t, 'scale(.72)', 'none', {hold: true, kind: 'snap'});
+    on.done = LG.arrive('snap', t); K.punch(on.p, on.done); on.off = null; return on;
+  },
+  /* the same lamp going out: it shrinks back into the middle (still covering the icon of the lamp under it) and is gone */
+  lampOff(K, on, t) {
+    A(on.m, [{transform: 'none'}, {transform: 'scale(.72)'}], t, .22, {e: 'ease-in', f: 'forwards'});
+    A(on.p, [{opacity: 1}, {opacity: 0}], t + .2, .03, {f: 'forwards'});
+  },
   /* an arrow-shaped board (dir -1 = points left, 1 = right), a solid shape with the style's outline: it must read on
      every background (rule 10: in glass a see-through holder vanished on the blurred speaker) */
   board(K, g, x, y, w, h, dir, t) {
@@ -72,25 +85,64 @@ R3.both('B06', 'signpost', 'ป้ายทางแยกสองทาง', (
 });
 
 /* ================= B07 คำเตือน: thing {icon, label?}, how ('cross' | 'flag'), sign? ================= */
-/* 1 · caution tape: two tapes cross over the thing (don't) or one stretches in front of it (careful) */
-R3.both('B07', 'tape', 'เทปกั้นคาด', (K, s, T, g) => {
-  const it = s.thing, P = R3.panel(K, g, 140, 22, 320, 296, T.b[0]);
-  const hero = K.badge(P.p, it.icon, 160, 118, 140, T.b[0] + .15, {tone: it.tone ?? 'main'});
-  if (it.label) K.chipC(P.p, it.label, 160, 238, T.b[0] + .3, {size: 38}); else K.skel(P.p, 70, 230, [180], T.b[0] + .3);
-  const tape = (cx, cy, len, deg, t) => {
-    const w = div(`left:${cx - len / 2}px;top:${cy - 22}px;width:${len}px;height:44px;transform:rotate(${deg}deg)`, g);
-    const band = div('inset:0;transform-origin:0 50%', w); band.className = 'u-tape';
-    A(band, [{transform: 'scaleX(0)'}, {transform: 'none'}], t, .22, {e: 'cubic-bezier(.2,.8,.3,1)'});
-    return w;
-  };
-  if (s.how === 'cross') {
-    tape(300, 150, 440, -18, T.hit - .12); tape(300, 150, 440, 18, T.hit + .06);
-    K.shake(P.p, T.hit + .3); K.fade(hero.o, T.after, 1, .5);
-  } else {
-    tape(300, 296, 460, -4, T.hit - .05);
-    K.shake(P.p, T.hit + .2);
+/* 1 · a crossing light standing up: a red hand on top, the thing below. The thing's lamp is lit (go) while the sentence
+   builds; on the key word it goes out and the red lamp (the sign, a hand unless the AI gave one) lights.
+   'flag' (watch out): the red lamp blinks and comes on, the thing's lamp stays on.
+   Replaces the caution-tape picture (Friend 2026-11-08, of the crossed tapes: "ไม่ชอบ design") */
+R3.both('B07', 'signal', 'ไฟคนข้ามเปลี่ยนเป็นแดง', (K, s, T, g) => {
+  const it = s.thing, BX = 150, BY = 12, BW = 148, BH = 316, CX = BX + BW / 2, YR = 92, YT = 248, S = 118, cross = s.how === 'cross';
+  const box = R3.panel(K, g, BX, BY, BW, BH, T.b[0]);
+  const at = y => ({x: CX - BX, y: y - BY});                                 // a lamp's place inside the housing
+  const a = at(YR), b = at(YT);
+  K.badge(box.p, s.sign ?? 'hand', a.x, a.y, S, T.b[0] + .15, {tone: 'soft', shape: 'round'});   // both lamps off
+  K.badge(box.p, it.icon, b.x, b.y, S, T.b[0] + .25, {tone: 'soft', shape: 'round'});
+  if (it.label) {                                                            // beside the thing's lamp, shrinks to fit (never past x 550)
+    const l = K.label(g, it.label, BX + BW + 26, YT - 26, {size: 42}); K.enter(l, T.b[0] + .35, 'lead');
+    FITS.push(() => { const w = l.offsetWidth, m = 548 - (BX + BW + 26); if (w > m) l.style.fontSize = (42 * m / w).toFixed(1) + 'px'; });
   }
-  K.sat(g, s.sign ?? 'triangle-alert', 470, 36, 76, T.b[1], {tone: 'neg'});
+  const go = R5.lamp(K, box.p, it.icon, b.x, b.y, S, T.b[1], 'acc');        // the thing's lamp: go
+  if (cross) R5.lampOff(K, go, T.hit);
+  const tR = cross ? T.hit + .1 : T.hit, red = R5.lamp(K, box.p, s.sign ?? 'hand', a.x, a.y, S, tR, 'neg');
+  if (!cross) A(red.p, [{opacity: 1}, {opacity: 0, offset: .2}, {opacity: 0, offset: .45}, {opacity: 1, offset: .55}, {opacity: 0, offset: .7},
+                        {opacity: 0, offset: .85}, {opacity: 1}], red.done, .9, {f: 'none'});   // blinks, then stays on
+  const lit = cross ? red.done : red.done + .9;                              // 'flag': once it stops blinking
+  R1.ripple(K, red, lit, {tone: 'neg', times: 2, grow: 30});
+  K.shake(box.p, lit);
+});
+
+/* 1b · a risk meter: the needle creeps up while the sentence builds, then jumps into the red on the key word; the red
+   lights up, the meter shakes and the warning comes up. The thing is the meter's round hub (the needle starts outside
+   it, so nothing shows through a see-through holder). 'cross' ends deep in the red, 'flag' just inside it */
+R3.both('B07', 'meter', 'เข็มวัดความเสี่ยงพุ่งเข้าแดง', (K, s, T, g) => {
+  const it = s.thing, C = {x: 290, y: 226}, R = 168, S = 108, RED = 30, end = s.how === 'cross' ? 62 : 44;
+  const P = (deg, r) => { const a = (deg - 90) * Math.PI / 180; return `${(C.x + r * Math.cos(a)).toFixed(1)} ${(C.y + r * Math.sin(a)).toFixed(1)}`; };
+  const ticks = [-90, -60, -30, 0, 30, 60, 90].map(d => `<path class="ln u-thin${d > RED ? ' u-negl' : ''}" d="M${P(d, R - 34)}L${P(d, R - 18)}"/>`).join('');
+  const dial = node(g, 0, 0, 600, 340, '', `<svg width="600" height="340" style="overflow:visible">` +
+    `<path class="ln u-thin" d="M${P(-90, R)}A${R} ${R} 0 0 1 ${P(RED - 4, R)}"/>` +
+    `<path class="ln u-thick u-negl" d="M${P(RED, R)}A${R} ${R} 0 0 1 ${P(90, R)}"/>${ticks}</svg>`);
+  const [arc, red, ...tk] = dial.p.querySelectorAll('path');
+  K.draw(arc, T.b[0], .5);
+  tk.forEach((p, i) => A(p, [{opacity: 0}, {opacity: 1}], T.b[0] + .2 + i * .05, .15));
+  K.draw(red, T.b[0] + .4, .3);
+  A(red, [{opacity: 0}, {opacity: .4}], T.b[0] + .4, .02);                  // dim until the needle is in it
+  const L = R - 40, IN = S / 2 + 12;                                         // the needle runs from just outside the hub
+  const nd = node(dial.p, C.x - 12, C.y - L, 24, L, '', `<svg width="24" height="${L}" style="overflow:visible"><path class="sd" d="M4 ${L - IN}L12 6L20 ${L - IN}Z"/></svg>`);
+  nd.m.style.transformOrigin = `12px ${L}px`;
+  A(nd.o, [{opacity: 0}, {opacity: 1}], T.b[1] - .15, .25);
+  const t0 = T.b[1], t1 = T.hit + 1.1, at = t => (t - t0) / (t1 - t0), land = T.hit + .32;
+  A(nd.m, [{transform: 'rotate(-72deg)', easing: 'ease-in-out'},
+           {transform: 'rotate(-28deg)', offset: at(T.hit - .02), easing: 'cubic-bezier(.2,.9,.3,1)'},   // creeps up
+           {transform: `rotate(${end + 8}deg)`, offset: at(land), easing: 'ease-in-out'},                // jumps into the red
+           {transform: `rotate(${end - 4}deg)`, offset: at(T.hit + .5), easing: 'ease-in-out'},
+           {transform: `rotate(${end + 3}deg)`, offset: at(T.hit + .68), easing: 'ease-in-out'},
+           {transform: `rotate(${end - 1}deg)`, offset: at(T.hit + .86), easing: 'ease-in-out'},
+           {transform: `rotate(${end}deg)`}], t0, t1 - t0);
+  K.badge(dial.p, it.icon, C.x, C.y, S, T.b[0] + .15, {tone: it.tone ?? 'main', shape: 'round'});
+  if (it.label) R4.word(K, g, it.label, C.x, C.y + S / 2 + 8, 34, T.b[0] + .3, 240);
+  A(red, [{opacity: .4}, {opacity: 1}], land - .04, .16, {f: 'forwards'});  // the red lights once the needle is in it
+  K.shake(dial.p, land);
+  const tS = land + .08, sign = K.sat(g, s.sign ?? 'triangle-alert', 500, 62, 80, tS, {tone: 'neg'});
+  R1.ripple(K, sign, LG.arrive('pop', tS), {tone: 'neg'});
 });
 
 /* 2 · a stop hand comes in front of the thing and pushes it back (only for "do not") */
