@@ -90,7 +90,10 @@ function kit(F, T) {
       });
     },
     label(parent, txt, x, y, {size = 40, cls = 'u-label', anchor = 'left'} = {}) {
-      const l = div(`left:${x}px;top:${y}px;white-space:nowrap;font-size:${size}px;line-height:1.25;${anchor === 'center' ? 'transform:translateX(-50%)' : ''}`, parent);
+      /* centred words sit in a wide box with centred text, not shifted by a transform: an entrance move would undo the shift
+         (Friend 2026-11-08: "ตัวอักษรไม่อยู่กึ่งกลางไอคอน") */
+      const l = div(anchor === 'center' ? `left:${x - 400}px;top:${y}px;width:800px;text-align:center;white-space:nowrap;font-size:${size}px;line-height:1.25`
+                                        : `left:${x}px;top:${y}px;white-space:nowrap;font-size:${size}px;line-height:1.25`, parent);
       l.className = cls + ' u-text'; l.textContent = txt; return l;
     },
     /* icon in the style's holder. tone: main | acc | soft | neg · shape: tile | round */

@@ -77,14 +77,18 @@ R3.both('B06', 'switch', 'สวิตช์ค้างกลางระหว
   K.punch(kn.p, T.hit + .3);
 }, s => s.options?.length === 2);
 R3.both('B06', 'think', 'คนกับฟองคำถาม', (K, s, T, g) => {
-  const it = s.about ?? {icon: 'user'};
-  const who = K.badge(g, it.icon, 150, 210, 150, T.b[0], {tone: it.tone ?? 'main'});
-  if (it.label) SM.word(K, g, it.label, 150, 292, 38, T.b[0] + .2, 'center');
-  [[248, 126, 22], [282, 96, 30], [322, 70, 38]].forEach(([x, y, d], i) => {
+  const it = s.about ?? {icon: 'user'}, P = {x: 150, y: 232, r: 75}, Q = {x: 440, y: 92, r: 75};
+  const who = K.badge(g, it.icon, P.x, P.y, 2 * P.r, T.b[0], {tone: it.tone ?? 'main'});
+  if (it.label) SM.word(K, g, it.label, P.x, P.y + P.r + 8, 38, T.b[0] + .2, 'center');
+  /* the thought dots sit on the straight line from the person's top corner to the edge of the bubble
+     (Friend 2026-11-08: "ไอคอนมันต้องตรงกับจุดสิ"), evenly spaced, growing toward the bubble */
+  const a = {x: P.x + P.r * .9, y: P.y - P.r * .9}, dx = a.x - Q.x, dy = a.y - Q.y, L = Math.hypot(dx, dy);
+  const b = {x: Q.x + dx / L * (Q.r + 6), y: Q.y + dy / L * (Q.r + 6)};
+  [[.2, 20], [.5, 28], [.8, 36]].forEach(([k, d], i) => {
+    const x = a.x + (b.x - a.x) * k, y = a.y + (b.y - a.y) * k;
     const dot = node(g, x - d / 2, y - d / 2, d, d, 'u-badge u-soft'); dot.p.style.borderRadius = '50%'; K.enter(dot.o, T.b[1] + i * .12, 'pop');
   });
-  const q = K.badge(g, 'circle-help', 438, 104, 150, T.b[2], {tone: 'main', shape: 'round'});
-  K.float(q, T.b[2] + .5, T.hit, .7);
+  const q = K.badge(g, 'circle-help', Q.x, Q.y, 2 * Q.r, T.b[2], {tone: 'main', shape: 'round'});
   if (s.answer) {                                     // the question gets its answer on the key word
     LG.light(K, g, s.answer.icon, 438, 104, 150, T.hit, 'round'); R1.pulse(K, g, 438, 104, 110, T.hit, 1, 'acc');
     if (s.answer.label) SM.word(K, g, s.answer.label, 438, 196, 40, T.hit + .1, 'center');
@@ -123,9 +127,11 @@ R3.both('B13', 'reveal', 'กล่องเปิด ของลอยขึ�
   K.enter(lid.o, T.b[0] + .1, 'drop');
   K.shake(body.p, T.b[2]); K.shake(lid.p, T.b[2]);
   K.move(lid.m, T.hit - .2, 'none', 'rotate(-100deg)', {kind: 'snap'});              // the lid swings up on its left hinge, out of the way
-  R1.pulse(K, g, 300, 96, 110, T.hit + .1, 1, 'acc');
-  if (it.label) SM.word(K, g, it.label, 404, 66, 44, T.hit + .15);
-  K.sat(g, 'sparkles', 190, 70, 64, T.after, {tone: 'acc', k: .5});
+  /* the ring and the word wait until the secret has risen into place (Friend 2026-11-08: the ring came before the icon) */
+  const arrive = T.hit - .05 + (ST.motion.snap?.d ?? .7) * .85;
+  R1.pulse(K, g, 300, 96, 110, arrive, 1, 'acc');
+  if (it.label) SM.word(K, g, it.label, 404, 66, 44, arrive);
+  K.sat(g, 'sparkles', 190, 70, 64, Math.max(T.after, arrive + .1), {tone: 'acc', k: .5});
 });
 R3.both('B13', 'bulb', 'คำถาม → หลอดไฟติด', (K, s, T, g) => {
   const it = s.secret;
@@ -172,17 +178,20 @@ R3.both('B15', 'icons', 'แถวไอคอน ไอคอนที่ชว
 
 /* ================= B16 นิยาม / อธิบายว่าคืออะไร ================= */
 R3.both('B16', 'equals', 'คำนี้ = ความหมาย', (K, s, T, g) => {
-  const m = s.means.slice(0, 3), n = m.length;
-  K.badge(g, s.term.icon, 110, 140, 140, T.b[0], {tone: 'main'});
-  if (s.term.label) SM.word(K, g, s.term.label, 110, 226, 44, T.b[0] + .15, 'center');
-  R3.line(K, g, 'M206 124H262', T.b[1], .25); R3.line(K, g, 'M206 156H262', T.b[1] + .1, .25);
-  const xs = n === 1 ? [430] : n === 2 ? [370, 510] : [340, 440, 540], size = n === 1 ? 150 : n === 2 ? 120 : 92;
-  const tiles = m.map((it, i) => {
-    const b = K.badge(g, it.icon, xs[i], 140, size, T.b[2] + i * .15, {tone: 'soft'});
-    if (it.label) SM.word(K, g, it.label, xs[i], 140 + size / 2 + 12, n === 3 ? 30 : 40, T.b[2] + i * .15 + .1, 'center');
-    return b;
+  const m = s.means.slice(0, 3), n = m.length, Y = 132;
+  const tx = n === 1 ? 150 : n === 2 ? 110 : 100, ts = n === 1 ? 140 : 120;                 // the term on the left
+  const xs = n === 1 ? [450] : n === 2 ? [380, 510] : [330, 440, 550], size = n === 1 ? 140 : n === 2 ? 110 : 92;
+  const ly = Y + Math.max(ts, size) / 2 + 14;                                               // every word on one line
+  K.badge(g, s.term.icon, tx, Y, ts, T.b[0], {tone: 'main'});
+  if (s.term.label) SM.word(K, g, s.term.label, tx, ly, 42, T.b[0] + .15, 'center');
+  /* "=" in the middle of the gap between the term and the meanings (Friend 2026-11-08: it was not in the middle) */
+  const ex = ((tx + ts / 2) + (xs[0] - size / 2)) / 2;
+  R3.line(K, g, `M${ex - 28} ${Y - 16}H${ex + 28}`, T.b[1], .25); R3.line(K, g, `M${ex - 28} ${Y + 16}H${ex + 28}`, T.b[1] + .1, .25);
+  m.forEach((it, i) => {
+    K.badge(g, it.icon, xs[i], Y, size, T.b[2] + i * .15, {tone: 'soft'});
+    if (it.label) SM.word(K, g, it.label, xs[i], ly, n === 3 ? 30 : 42, T.b[2] + i * .15 + .1, 'center');
   });
-  m.forEach((it, i) => LG.light(K, g, it.icon, xs[i], 140, size, T.hit + i * .1));
+  m.forEach((it, i) => LG.light(K, g, it.icon, xs[i], Y, size, T.hit + i * .1));
 });
 R3.both('B16', 'card', 'การ์ดพจนานุกรม', (K, s, T, g) => {
   const P = R3.panel(K, g, 40, 24, 520, 292, T.b[0]);
