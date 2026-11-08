@@ -17,21 +17,7 @@ const SM = {
   },
 };
 
-/* ---------- คำพูด / แชต: someone asks, then is gone (B11 phone → small) ---------- */
-VARIANT('B11', 'phone-small', {name: 'คนทักมาแล้วหายไป (ร่างเล็ก)', fits: s => !!s.quote && s.kind === 'chat',
-  build: (K, s, T) => LAYOUTS.chat.build(K, R2chat(s), T),
-  small(K, s, T) {
-    const who = K.badge(K.stage, s.who ?? 'user', 110, 196, 140, T.b[0], {tone: 'main'});
-    K.float(who, T.b[0] + .6, T.hit, .5);
-    const w = Math.min(400, 120 + graphemes(s.quote).length * 22);
-    const b = R1.bubble(K, K.stage, 210, 74, w, 'left', T.b[1], s.quote);
-    K.punch(b.p, T.b[2]);
-    if (s.gone) {                                   // the key word: the person and the question fade away, nobody is there any more
-      K.fade(b.o, T.hit, 1, .15); K.fade(who.o, T.hit + .12, 1, .22);
-      K.move(who.m, T.hit + .12, 'none', 'translateY(16px) scale(.94)');
-      K.sat(K.stage, 'eye-off', 520, 220, 72, T.hit + .3, {tone: 'soft', shape: 'round', k: .6});
-    }
-  }});
+/* ---------- คำพูด / แชต: the B11 'phone' variant has its small form in lego_r2.js (SMALLV) ---------- */
 SENTENCE('ov.ask', {cat: 'B11', name: 'ลูกค้าทักมาถามรายละเอียดสินค้า แล้วหายไป', say: ['ทักมาถามรายละเอียดสินค้า', 'แล้วหายไป'],
   kind: 'chat', quote: 'รายละเอียดสินค้า?', gone: true});
 

@@ -182,6 +182,172 @@ VARIANT('B08', 'trophy', {name: 'แถบความคืบหน้าเ�
   K.sat(K.stage, 'star', 710, 110, 66, T.after + .15, {tone: 'acc', shape: 'round'});
 }});
 
+/* ================= SMALL FORMS (Friend 2026-11-08: "ไปทำของระบบเลโก้เลย") =================
+   The overlay widget of every variant above, drawn 1:1 on the 600 × 340 canvas (overlay.js), from the same slots.
+   Rules from Friend's overlay sample clips: no sentence inside (it is the subtitle), 1–3 big things (icons ~100–150 px),
+   at most 1–2 words that come from the slots, one clear event on the key word, a card or nothing behind it. */
+R2.card = n => { if (ST.panelTheme) n.p.classList.add(...ST.panelTheme.split(' ')); return n; };   // a card made with node() looks like K.panel
+R2.ring = (K, cx, cy, R, w, t) => {                  // a ring track with the accent arc (both arcs start empty)
+  const S = R + w, c = `cx="${S}" cy="${S}" r="${R}"`, arc = cls => `<circle class="${cls}" ${c} pathLength="100" stroke-dasharray="100 100" stroke-dashoffset="100" transform="rotate(-90 ${S} ${S})"/>`;
+  const g = node(K.stage, cx - S, cy - S, 2 * S, 2 * S, '', `<svg width="${2 * S}" height="${2 * S}"><circle class="u-ring" ${c} style="stroke-width:${w}px"/>${arc('u-ring-edge')}${arc('u-ring-on')}</svg>`);
+  g.p.querySelectorAll('.u-ring-on').forEach(a => a.style.strokeWidth = w + 'px');
+  g.p.querySelectorAll('.u-ring-edge').forEach(a => a.style.strokeWidth = `calc(${w}px + 2px * var(--lw-ac, 0))`);
+  K.enter(g.o, t, 'pop'); return g;
+};
+
+/* B01 ตัวเลขเด่น */
+SMALLV('B01', 'big', (K, s, T) => {
+  const P = K.panel(50, 50, 500, 240, T.b[0]);
+  K.badge(P.p, s.icon ?? 'hash', 104, 120, 124, T.b[0] + .15, {tone: 'main'});
+  const nb = R1.counter(K, P.p, 330, s.unit ? 98 : 120, R2.fitSize(s.value, 260, 132), T.b[1], s.value, T.hit - T.b[1]);
+  if (s.unit) SM.word(K, P.p, s.unit, 330, 160, 46, T.hit - .2, 'center');
+  if (s.dir) K.badge(P.p, s.dir === 'down' ? 'trending-down' : 'trending-up', 450, 196, 62, T.hit, {tone: s.dir === 'down' ? 'neg' : 'acc', shape: 'round'});
+  K.punch(nb, T.hit + .05);
+});
+SMALLV('B01', 'ring', (K, s, T) => {
+  const cx = 300, cy = 170, R = 128, w = 26, pct = /%/.test(s.value) ? Math.min(1, R2.num(s) / 100) : 1, d = T.hit - T.b[1];
+  const g = R2.ring(K, cx, cy, R, w, T.b[0]);
+  g.p.querySelectorAll('.u-ring-edge,.u-ring-on').forEach(a => {
+    A(a, [{opacity: 0}, {opacity: 1}], T.b[1], .12);
+    A(a, [{strokeDashoffset: 100}, {strokeDashoffset: 100 - 100 * pct}], T.b[1], d, {e: 'cubic-bezier(.33,1,.68,1)'});
+  });
+  R1.counter(K, K.stage, cx, cy - (s.unit ? 20 : 0), R2.fitSize(s.value, 180, 104), T.b[1], s.value, d);
+  if (s.unit) SM.word(K, K.stage, s.unit, cx, cy + 30, 36, T.hit - .2, 'center');
+  if (s.icon) K.badge(K.stage, s.icon, 90, 96, 104, T.b[0] + .2, {tone: 'main'});
+  if (s.dir) K.badge(K.stage, s.dir === 'down' ? 'trending-down' : 'trending-up', 510, 96, 88, T.hit, {tone: s.dir === 'down' ? 'neg' : 'acc', shape: 'round'});
+  K.punch(g.p, T.hit); R1.pulse(K, K.stage, cx, cy, R + 30, T.hit, 1, 'acc');
+});
+SMALLV('B01', 'receipt', (K, s, T) => {
+  const W = 300, H = 250, x = 150, top = 80;
+  const box = div(`left:${x - 30}px;top:${top}px;width:${W + 60}px;height:${H + 30}px;overflow:hidden`, K.stage);
+  const rc = R2.card(node(box, 30, 0, W, H, 'u-panel u-receipt')); rc.o.classList.add('u-receipt-wrap');
+  const teeth = 12, tw = W / teeth, zig = [...Array(teeth)].map((_, i) => `${(i * tw).toFixed(1)}px ${H}px, ${((i + .5) * tw).toFixed(1)}px ${H - 14}px`).join(', ');
+  rc.p.style.borderRadius = '0'; rc.p.style.clipPath = `polygon(0 0, 100% 0, 100% ${H}px, ${zig}, 0 ${H}px)`;
+  A(rc.m, [{transform: `translateY(${-H}px)`}, {transform: `translateY(${-H * .5}px)`, offset: .4}, {transform: `translateY(${-H * .5}px)`, offset: .52}, {transform: 'translateY(0)'}],
+    T.b[0] + .3, T.b[2] - T.b[0], {e: 'linear', f: 'both'});
+  [34, 70].forEach((y, i) => { K.skel(rc.p, 30, y, [150], T.b[0] + .35 + i * .05); K.skel(rc.p, W - 100, y, [70], T.b[0] + .4 + i * .05); });
+  const cut = div('left:0;top:0;width:100%;height:100%', rc.p, `<svg width="${W}" height="${H}"><path class="ln u-thin u-dash" d="M26 112H${W - 26}"/></svg>`); K.enter(cut, T.b[0] + .45, 'lead');
+  const nb = R1.counter(K, rc.p, W / 2, 162, R2.fitSize(s.value, W - 50, 92), T.b[1], s.value, T.hit - T.b[1]);
+  if (s.unit) SM.word(K, rc.p, s.unit, W / 2, 196, 34, T.hit - .2, 'center');
+  K.punch(nb, T.hit + .05);
+  const pr = K.panel(100, 20, 400, 64, T.b[0]);
+  const slot = div('left:0;top:0;width:100%;height:100%', pr.p, '<svg width="400" height="64"><path class="ln" d="M60 40H340"/></svg>'); K.enter(slot, T.b[0] + .15, 'lead');
+});
+
+/* B07 คำเตือน */
+SMALLV('B07', 'sign', (K, s, T) => {
+  const it = s.thing;
+  const hero = K.badge(K.stage, it.icon, 240, 160, 170, T.b[0], {tone: it.tone ?? 'main'});
+  K.float(hero, T.b[0] + .7, T.b[2], .6);
+  if (it.label) SM.word(K, K.stage, it.label, 240, 258, 42, T.b[0] + .3, 'center');
+  const sign = K.badge(K.stage, s.sign ?? 'triangle-alert', 410, 92, 124, T.b[1], {tone: 'neg'});
+  R1.pulse(K, K.stage, 410, 92, 104, T.b[1] + .1, 2);
+  K.shake(sign.p, T.b[2]);
+  if (s.how === 'cross') { K.mark(K.stage, 'cross', 240, 160, 150, T.hit); K.fade(hero.o, T.hit + .1, 1, .45); }
+  else { K.shake(hero.p, T.hit); R1.pulse(K, K.stage, 240, 160, 120, T.hit, 2); }
+});
+SMALLV('B07', 'beacon', (K, s, T) => {
+  const it = s.thing, lx = 300, ly = 98;
+  const beam = div(`left:${lx - 280}px;top:${ly - 280}px;width:560px;height:560px;border-radius:50%;opacity:0`, K.stage); beam.className = 'u-beam';
+  A(beam, [{opacity: 0}, {opacity: 1}], T.b[1], .3, {f: 'forwards'});
+  A(beam, [{transform: 'rotate(0deg)'}, {transform: 'rotate(720deg)'}], T.b[1], T.t1 - T.b[1], {e: 'linear', f: 'both'});
+  const base = node(K.stage, lx - 76, ly + 8, 152, 40, 'u-badge u-main'); base.p.style.borderRadius = '14px'; K.enter(base.o, T.b[0] + .15, 'pop');
+  const lamp = node(K.stage, lx - 64, ly - 64, 128, 80, '', '<svg width="128" height="80"><path class="u-lamp" d="M6 76A58 58 0 0 1 122 76Z"/></svg>');
+  K.enter(lamp.o, T.b[0] + .2, 'drop');
+  const flash = div(`left:${lx - 120}px;top:${ly - 130}px;width:240px;height:240px;border-radius:50%;opacity:0`, K.stage); flash.className = 'u-flash';
+  A(flash, [{opacity: 0}, {opacity: 1, offset: .3}, {opacity: 0}], T.b[1], .55, {e: 'ease-out', f: 'none', it: Math.ceil((T.t1 - T.b[1]) / .55)});
+  const hero = K.badge(K.stage, it.icon, lx, 248, 150, T.b[0] + .1, {tone: it.tone ?? 'main'});
+  if (it.label) SM.word(K, K.stage, it.label, lx + 96, 222, 42, T.b[0] + .3);
+  K.shake(lamp.p, T.b[2]); R1.pulse(K, K.stage, lx, ly - 10, 120, T.hit, 3);
+  K.shake(hero.p, T.hit);
+  if (s.how === 'cross') { K.mark(K.stage, 'cross', lx, 248, 130, T.hit); K.fade(hero.o, T.hit + .1, 1, .45); }
+});
+SMALLV('B07', 'stamp', (K, s, T) => {
+  const it = s.thing, Z = 250;
+  const P = K.panel(140, 14, 320, 312, T.b[0]);
+  const hero = K.badge(P.p, it.icon, 160, 130, 160, T.b[0] + .15, {tone: it.tone ?? 'main'});
+  if (it.label) SM.word(K, P.p, it.label, 160, 232, 42, T.b[0] + .3, 'center');
+  const mark = s.how === 'cross'
+    ? '<circle class="u-stamp" cx="125" cy="125" r="104"/><path class="u-stamp" d="M52 52L198 198"/>'
+    : '<path class="u-stamp" d="M125 26L226 210H24Z"/><path class="u-stamp" d="M125 90V148"/><circle class="u-stamp-dot" cx="125" cy="180" r="11"/>';
+  const st = node(K.stage, 300 - Z / 2, 144 - Z / 2, Z, Z, '', `<svg width="${Z}" height="${Z}">${mark}</svg>`);
+  A(st.o, [{opacity: 0, transform: 'scale(1.9) rotate(-26deg)'}, {opacity: 1, transform: 'scale(1) rotate(-12deg)'}], T.hit - .22, .22, {e: 'cubic-bezier(.55,0,1,.45)'});
+  K.punch(P.p, T.hit); R1.pulse(K, K.stage, 300, 144, 150, T.hit, 1);
+  if (s.how === 'cross') K.fade(hero.o, T.after, 1, .5);
+});
+
+/* B11 คำพูด / แชต / รีวิว */
+SMALLV('B11', 'phone', (K, s, T) => {                // the person and what they said; if they are gone, both fade away
+  const who = K.badge(K.stage, s.who ?? 'user', 110, 196, 140, T.b[0], {tone: 'main'});
+  K.float(who, T.b[0] + .6, T.hit, .5);
+  const b = s.quote ? R1.bubble(K, K.stage, 210, 74, Math.min(400, 120 + graphemes(s.quote).length * 22), 'left', T.b[1], s.quote)
+                    : R1.bubble(K, K.stage, 210, 84, 300, 'left', T.b[1]);
+  K.punch(b.p, T.b[2]);
+  if (s.gone) {
+    K.fade(b.o, T.hit, 1, .15); K.fade(who.o, T.hit + .12, 1, .22);
+    K.move(who.m, T.hit + .12, 'none', 'translateY(16px) scale(.94)');
+    K.sat(K.stage, 'eye-off', 520, 220, 72, T.hit + .3, {tone: 'soft', shape: 'round', k: .6});
+  } else if (s.react) {
+    const r = K.sat(K.stage, s.react, 470, 236, 84, T.hit, {tone: s.mood === 'bad' ? 'neg' : 'acc', shape: 'round', k: .6});
+    R1.pulse(K, K.stage, 470, 236, 70, T.hit, 1, s.mood === 'bad' ? 'neg' : 'acc');
+  }
+});
+SMALLV('B11', 'review', (K, s, T) => {
+  const bad = s.mood === 'bad';
+  const P = K.panel(50, 30, 500, 280, T.b[0]);
+  K.badge(P.p, s.who ?? 'user', 84, 82, 96, T.b[0] + .15, {tone: 'main', shape: 'round'});
+  K.skel(P.p, 152, 66, [170], T.b[0] + .25);
+  const st = K.stars(P.p, 250, 166, 5, 64, T.b[0] + .35); st.light(T.b[1], bad ? 1 : s.mood === 'good' ? 5 : 4);
+  if (s.quote) { const q = K.chipC(P.p, s.quote, 250, 238, T.b[2], {size: 44, tone: bad ? 'main' : 'acc'}); K.punch(q, T.hit + .05); }
+  K.sat(P.p, s.react ?? (bad ? 'thumbs-down' : 'heart'), 430, 82, 80, T.after, {tone: bad ? 'neg' : 'acc', shape: 'round', k: .6});
+});
+SMALLV('B11', 'notify', (K, s, T) => {
+  const n = 2, when = LG.spread(T.b[0] + .3, T.hit - .15, n), X = 50, Y = 60, Wd = 470, Hd = 116, gap = 136;
+  const bell = K.sat(K.stage, 'bell', 560, 50, 80, T.b[0], {tone: 'acc', shape: 'round', k: .5});
+  const cards = [];
+  for (let k = 0; k < n; k++) {
+    const last = k === n - 1, c = R2.card(node(K.stage, X, Y, Wd, Hd, 'u-panel u-note'));
+    c.p.style.borderRadius = '30px'; K.enter(c.o, when[k], 'drop');
+    K.badge(c.p, s.app ?? 'message-circle', 64, Hd / 2, 80, when[k] + .08, {tone: last ? 'acc' : 'main'});
+    if (last && s.quote) SM.word(K, c.p, s.quote, 124, Hd / 2 - 28, 44, when[k] + .15);
+    else K.skel(c.p, 126, 38, [280, 180], when[k] + .12, {h: 16, gap: 20});
+    K.shake(bell.p, when[k]);
+    cards.forEach((o, i) => K.move(o.m, when[k] - .4, `translateY(${(k - 1 - i) * gap}px)`, `translateY(${(k - i) * gap}px)`));
+    cards.push(c);
+  }
+  K.punch(cards[n - 1].p, T.hit);
+});
+
+/* B08 เป้าหมาย / ผลลัพธ์ */
+SMALLV('B08', 'target', (K, s, T) => {
+  K.target(K.stage, 300, 178, 138, T.b[0]).hit(T.hit, {angle: -35, dist: 300});
+  K.sat(K.stage, 'check', 486, 64, 76, T.after, {tone: 'ok', k: .5});
+});
+SMALLV('B08', 'stairs', (K, s, T) => {
+  const xs = [80, 190, 300, 410], hs = [56, 112, 168, 224], bottom = 326, sw = 104, M = 72;
+  hs.forEach((h, i) => { const b = node(K.stage, xs[i], bottom - h, sw, h, 'u-col u-step'); b.p.style.borderRadius = '16px 16px 6px 6px'; K.enter(b.o, T.b[0] + i * .08, 'rise'); });
+  const top = bottom - hs[3], flagX = 500;
+  const pole = div('left:0;top:0;width:600px;height:340px', K.stage, `<svg width="600" height="340"><path class="ln u-thin" d="M${flagX - 30} ${top}V${top - 92}"/></svg>`);
+  K.enter(pole, T.b[0] + .35, 'lead');
+  const flag = K.badge(K.stage, s.goal?.icon ?? 'flag', flagX, top - 92, 76, T.b[0] + .4, {tone: 'main'});
+  flag.m.style.transformOrigin = '0% 50%';
+  const at = i => [xs[i] + sw / 2 - M / 2 - (i === 3 ? 26 : 0), bottom - hs[i] - M - 4];
+  const who = K.badge(K.stage, s.who ?? 'user', at(0)[0] + M / 2, at(0)[1] + M / 2, M, T.b[0] + .45, {tone: 'acc', shape: 'round'});
+  const rel = i => [at(i)[0] - at(0)[0], at(i)[1] - at(0)[1]];
+  LG.spread(T.b[1], T.hit - .4, 3).forEach((t, i) => R2.hop(who.m, t, .4, rel(i), rel(i + 1), 56));
+  A(flag.m, [{transform: 'rotate(0deg)'}, {transform: 'rotate(-12deg)'}, {transform: 'rotate(7deg)'}, {transform: 'rotate(-3deg)'}, {transform: 'rotate(0deg)'}], T.hit, .9, {e: 'ease-in-out', f: 'none'});
+  K.mark(K.stage, 'check', 560, 196, 70, T.after);
+});
+SMALLV('B08', 'trophy', (K, s, T) => {
+  const P = K.panel(40, 186, 520, 140, T.b[0]);
+  const bar = K.measure(P.p, 26, 70, 470, T.b[0] + .15, 0, s.goal?.icon ?? 'target', {fill: 'u-bar-on', size: 84});
+  const fillAt = Math.max(T.b[1], T.hit - 1.2);
+  bar.set(fillAt, 1);
+  R1.counter(K, K.stage, 470, 118, 64, fillAt, '100%', T.hit - fillAt);
+  const cup = K.badge(K.stage, 'trophy', 240, 92, 150, T.hit - .05, {tone: 'acc'});
+  K.punch(cup.p, T.hit + .3); R1.pulse(K, K.stage, 240, 92, 110, T.hit, 1, 'acc');
+});
+
 /* ================= sample sentences of round 2 (one per category, shown in every variant) ================= */
 SENTENCE('r2.money', {cat: 'B01', name: 'ค่าโฆษณาเดือนละ 3,000 บาท', say: ['ค่าโฆษณาเดือนละ', '3,000 บาท'], value: '3,000', unit: 'บาท', icon: 'megaphone'});
 SENTENCE('r2.years', {cat: 'B01', name: 'ทำคลิปมา 4 ปี', say: ['ผมทำคลิปมา', '4 ปี'], value: '4', unit: 'ปี', icon: 'video'});

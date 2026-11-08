@@ -21,6 +21,11 @@ function VARIANT(cat, id, v) {
  ['B13', 'ไอเดีย / เคล็ดลับ / ความลับ'], ['B14', 'ประโยคเด็ดตัวใหญ่'], ['B15', 'ปิดคลิป / ชวนทำต่อ'], ['B16', 'นิยาม / อธิบายว่าคืออะไร'],
 ].forEach(([id, name]) => CATEGORY(id, name, {text: id === 'B14'}));
 
+/* give a variant its small form (the overlay widget), designed for it, using the same slots */
+function SMALLV(cat, id, small) {
+  const v = CATS[cat]?.variants.find(v => v.id === id); if (!v) throw new Error(`no variant ${cat}.${id}`);
+  v.small = small;
+}
 /* what this clip has used so far (category → variant ids in order); a later step can preload a customer's past clips */
 const PICKS = {};
 const hashOf = s => { let h = 2166136261; for (const c of String(s)) h = Math.imul(h ^ c.codePointAt(0), 16777619) >>> 0; return h; };

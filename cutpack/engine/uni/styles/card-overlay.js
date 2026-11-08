@@ -16,6 +16,7 @@ const CARD_OV = {
 .ov-lead{font-family:"CardSans";line-height:1.25}
 .ov-white .ov-lead{color:#14213D}.ov-navy .ov-lead{color:#FFFFFF}
 .ov-key{display:inline-block;font-family:"KeySans";line-height:1.15;letter-spacing:-1px;color:#0A0A0A;background:#DDFF45;border-radius:12px;padding:0 .14em .04em}
+.c-dark .c-light .u-num,.c-light .u-num{color:#14213D}
 .u-panel.c-light{background:#FFFFFF;border-radius:36px;box-shadow:0 26px 60px rgba(0,0,0,.38),0 3px 10px rgba(0,0,0,.18)}
 .ov-sl{font-family:"Lead";font-size:50px;line-height:1.2;color:#FFFFFF;text-shadow:0 3px 16px rgba(0,0,0,.75)}
 .ov-k{font-family:"KeySans";font-size:120px;line-height:1.1;letter-spacing:-2px;color:#DDFF45;text-shadow:0 6px 26px rgba(0,0,0,.6)}
