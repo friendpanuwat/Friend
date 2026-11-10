@@ -74,9 +74,12 @@ R3.both('B17', 'basket', 'ของหล่นลงตะกร้า', (K, s,
     K.move(b.m, when[i], `translateY(-220px) rotate(${i % 2 ? 14 : -14}deg)`, 'none', {hold: true, kind: 'snap'});
     return b;
   });
-  /* the front of the basket covers the lower half of the things: a solid body with light stripes woven across it */
-  const front = div('left:0;top:0;width:600px;height:340px', grp, `<svg width="600" height="340"><path class="sd" d="M148 ${rim}H452L424 322H176Z"/>` +
-    [rim + 30, rim + 62, rim + 94].map(y => `<rect class="fl u-decor" x="${172 + (y - rim) * .28}" y="${y}" width="${256 - (y - rim) * .56}" height="9" rx="4.5"/>`).join('') + '</svg>');
+  /* the front of the basket covers the lower half of the things: solid bands with gaps between them, so the weave is the
+     background showing through and reads the same in every style (Friend 2026-11-10: in the card style light stripes on the
+     basket vanished, "ทำไมตะกร้ามันไม่เหมือนอีก 2 สไตล์") */
+  const xl = y => 148 + (y - rim) * 28 / 116, xr = y => 452 - (y - rim) * 28 / 116;
+  const band = (a, b) => `M${xl(rim + a).toFixed(1)} ${rim + a}H${xr(rim + a).toFixed(1)}L${xr(rim + b).toFixed(1)} ${rim + b}H${xl(rim + b).toFixed(1)}Z`;
+  const front = div('left:0;top:0;width:600px;height:340px', grp, `<svg width="600" height="340"><path class="sd" d="${band(0, 44)}${band(54, 80)}${band(90, 116)}"/></svg>`);
   K.enter(front, T.b[0], 'rise');
   K.punch(grp, T.hit);
   items.forEach((b, i) => A(b.p, [{transform: 'none'}, {transform: 'translateY(-36px)', offset: .4}, {transform: 'none'}], T.hit + i * .06, .5, {e: 'ease-out', f: 'none'}));
@@ -178,10 +181,10 @@ R3.both('B19', 'portrait', 'หน้าคนเปลี่ยนสีหน�
 /* 3 · the two in one photo frame; when the link is over, the photo tears in two and the halves fall apart */
 R3.both('B20', 'frame', 'รูปคู่ในกรอบรูป', (K, s, T, g) => {
   const cut = s.cut === true;
-  const draw = parent => {
+  const draw = (parent, only) => {
     const P = R2.card(node(parent, 130, 22, 340, 236, 'u-panel')); P.p.style.borderRadius = '20px'; K.enter(P.o, T.b[0], 'rise');
     const ph = node(P.p, 18, 18, 304, 200, 'u-track'); ph.p.style.borderRadius = '12px'; K.enter(ph.o, T.b[0] + .1, 'pop');
-    const ab = [[s.a, 90, T.b[1]], [s.b, 214, T.b[1] + .2]].map(([it, x, t]) => {
+    const ab = [[s.a, 90, T.b[1], 'a'], [s.b, 214, T.b[1] + .2, 'b']].filter(([, , , k]) => !only || only === k).map(([it, x, t]) => {
       const gp = R6.group(ph.p);
       K.badge(gp, it.icon, x, 92, 108, t, {tone: it.tone ?? 'main', shape: it.shape ?? 'round'});
       if (it.label) R4.word(K, gp, it.label, x, 152, 30, t + .15, 120);
@@ -204,7 +207,7 @@ R3.both('B20', 'frame', 'รูปคู่ในกรอบรูป', (K, s, 
     const edge = (k < 0 ? zz : [...zz].reverse()).map(([x, y]) => `${x}px ${y}px`).join(',');
     h.style.clipPath = k < 0 ? `polygon(-60px -60px,${edge},-60px 400px)` : `polygon(660px 400px,${edge},660px -60px)`;
     h.style.transformOrigin = k < 0 ? '300px 340px' : '300px 340px';
-    draw(h); return h;
+    draw(h, k < 0 ? 'a' : 'b'); return h;   // each half only its own person: the other one's edge showed white at the tear (Friend 2026-11-10)
   });
   if (s.label) K.chipC(g, s.label, 300, 298, T.b[2], {tone: 'main', size: 36});
   const crack = R6.line(K, g, 'M' + zz.slice(1, 9).map(([x, y]) => `${x} ${Math.min(Math.max(y, 28), 252)}`).join('L'), T.hit - .3, .25);
@@ -243,10 +246,7 @@ R3.both('B20', 'puzzle', 'จิ๊กซอว์สองชิ้นต่อ
 /* 3 · a map: a route draws itself from the start to the place, the walker follows it, a pin drops on arrival */
 R3.both('B21', 'route', 'เส้นทางบนแผนที่ไปถึงหมุด', (K, s, T, g) => {
   const P = R3.panel(K, g, 40, 24, 500, 292, T.b[0]), X = 400, Y = 124, S = 100;
-  [[0, 236, 500, 28], [214, 0, 28, 292]].forEach(([x, y, w, h], i) => {
-    const r = div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px;border-radius:${Math.min(w, h) / 2}px;transform-origin:0 0`, P.p);
-    r.className = 'u-track u-decor'; K.grow(r, T.b[0] + .15 + i * .1, w > h ? 'X' : 'Y');
-  });
+  R6.roads(K, P.p, 500, 292, 'M0 250H500M228 0V292', T.b[0] + .15);
   const place = K.badge(P.p, s.place.icon, X, Y, S, T.b[0] + .3, {tone: s.place.tone ?? 'main', shape: s.place.shape ?? 'tile'});
   if (s.place.label) R4.word(K, P.p, s.place.label, X, Y + S / 2 + 6, 34, T.b[0] + .45, 180);
   const d = `M46 252C130 266 118 166 196 176S286 240 318 174S334 ${Y + 4} ${X - S / 2 - 10} ${Y}`;

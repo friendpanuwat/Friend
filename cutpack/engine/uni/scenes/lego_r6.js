@@ -42,6 +42,12 @@ const R6 = {
     if (t != null) K.enter(l, t, 'lead');
     return l;
   },
+  /* streets on a map: ONE path for every street, so where two cross the colour is the same, not darker
+     (Friend 2026-11-10: "ไม่อยากให้เห็นความทับซ้อนของเส้นถนนอะ ทำให้มันเป็นเนื้อเดียวกันได้ไหม": two see-through bands doubled up) */
+  roads(K, parent, w, h, d, t, width = 28) {
+    const e = div(`left:0;top:0;width:${w}px;height:${h}px`, parent, `<svg width="${w}" height="${h}"><path d="${d}" style="fill:none;stroke:var(--tr);stroke-width:${width}px;stroke-linecap:butt"/></svg>`);
+    e.classList.add('u-decor'); A(e, [{opacity: 0}, {opacity: 1}], t, .01, {f: 'both'}); K.draw(e.querySelector('path'), t, .6); return e;
+  },
   /* the time a "snap" or "pop" that starts at t is in place */
   at: (kind, t) => LG.arrive(kind, t),
 };
@@ -222,11 +228,8 @@ R3.both('B20', 'rings', 'วงกลมสองวงซ้อนกัน', (
 /* 1 · a map card: the place sits on the streets, a pin drops onto it on the key word, then the spots are named beside it */
 R3.both('B21', 'pin', 'หมุดปักลงแผนที่', (K, s, T, g) => {
   const P = R3.panel(K, g, 40, 24, 500, 292, T.b[0]), spots = (s.spots ?? []).slice(0, 2);
-  /* streets: two soft bands along the left and the bottom of the card, clear of the place and the words */
-  [[0, 244, 500, 30], [92, 0, 30, 292], ...(spots.length ? [] : [[392, 0, 30, 292]])].forEach(([x, y, w, h], i) => {
-    const r = div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px;border-radius:${Math.min(w, h) / 2}px;transform-origin:0 0`, P.p);
-    r.className = 'u-track u-decor'; K.grow(r, T.b[0] + .15 + i * .1, w > h ? 'X' : 'Y');
-  });
+  /* streets along the left and the bottom of the card (and the right when no spots sit there), clear of the place and the words */
+  R6.roads(K, P.p, 500, 292, 'M0 259H500M107 0V292' + (spots.length ? '' : 'M407 0V292'), T.b[0] + .15);
   const X = spots.length ? 236 : 250, Y = 132, S = 104;               // the pin on top stays inside the card
   const place = K.badge(P.p, s.place.icon, X, Y, S, T.b[1], {tone: s.place.tone ?? 'main', shape: s.place.shape ?? 'tile'});
   if (s.place.label) R4.word(K, P.p, s.place.label, X, Y + S / 2 + 6, 34, T.b[1] + .15, 200);
