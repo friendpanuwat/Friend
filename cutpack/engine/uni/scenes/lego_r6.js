@@ -267,22 +267,4 @@ R3.both('B21', 'plan', 'ผังห้อง เดินเข้าไปถ�
   K.fade(tiles[last].o, lit.done, 1, 0); R1.ripple(K, lit, lit.done);
 }, s => (s.spots ?? []).length > 0);
 
-/* ================= sample sentences (from the 26 scripts Friend sent, round 17; not Friend's own) ================= */
-SENTENCE('r6.layers', {cat: 'B17', name: '3 เลเยอร์ของชุดนักเรียน', say: ['เสื้อชั้นใน เสื้อกล้ามทับ', 'ชุดนักเรียน'],
-  items: [{icon: 'shirt', label: 'เสื้อชั้นใน'}, {icon: 'shirt', label: 'เสื้อกล้าม'}, {icon: 'shirt', label: 'ชุดนักเรียน'}], label: '3 เลเยอร์'});
-SENTENCE('r6.gpu', {cat: 'B17', name: 'กู้ซื้อ GPU ได้แค่ 4 เจ้า', say: ['มีแค่ Microsoft, Meta', 'แล้วก็ SpaceX'],
-  items: [{icon: 'building-2', label: 'Microsoft'}, {icon: 'building-2', label: 'Meta'}, {icon: 'building-2', label: 'Google'}, {icon: 'rocket', label: 'SpaceX'}]});
-SENTENCE('r6.arrest', {cat: 'B18', name: 'ปี 2022 ถูกจับ', say: ['ปี 2022 เติร์กก็', 'ถูกจับในคดีใหญ่'],
-  what: {icon: 'siren', label: 'ถูกจับ'}, who: {icon: 'mic', label: 'เติร์ก'}, when: 'ปี 2022'});
-SENTENCE('r6.closed', {cat: 'B18', name: 'สาขาแรกเจ๊ง', say: ['ขยายสาขาแรก', 'เจ๊ง'], what: {icon: 'store', label: 'สาขาแรก'}});
-SENTENCE('r6.relief', {cat: 'B19', name: 'รู้สึกสบายใจขึ้น', say: ['ผมก็รู้สึก', 'สบายใจขึ้นเยอะ'],
-  feel: {icon: 'smile', label: 'สบายใจ'}, who: {icon: 'user', label: 'ผม'}, mood: 'good'});
-SENTENCE('r6.angry', {cat: 'B19', name: 'จำความรู้สึกโกรธแค้นได้', say: ['ผมยังจำความรู้สึก', 'โกรธแค้นได้เลย'],
-  feel: {icon: 'angry', label: 'โกรธแค้น'}, mood: 'bad'});
-SENTENCE('r6.ex', {cat: 'B20', name: 'ร้านของแฟนเก่า', say: ['เป็นร้านของ', 'แฟนเก่าพี่เอง'],
-  a: {icon: 'user', label: 'พี่'}, b: {icon: 'store', label: 'ร้าน'}, label: 'แฟนเก่า', cut: true});
-SENTENCE('r6.collab', {cat: 'B20', name: 'คอลแล็บกับแสนสิริ', say: ['วันนี้เราได้มาคอลแล็บ', 'กับแสนสิริ'],
-  a: {icon: 'users', label: 'เรา'}, b: {icon: 'building-2', label: 'แสนสิริ'}, label: 'คอลแล็บ'});
-SENTENCE('r6.mall', {cat: 'B21', name: 'ชั้น G หน้า KFC', say: ['มันอยู่ตรงชั้น G', 'ตรงหน้า KFC'],
-  place: {icon: 'building-2', label: 'มิตรทาวน์'}, spots: [{icon: 'building', label: 'ชั้น G'}, {icon: 'utensils', label: 'หน้า KFC'}]});
-SENTENCE('r6.canada', {cat: 'B21', name: 'ย้ายมาแคนาดา', say: ['ใครที่อยากย้ายมา', 'แคนาดา'], place: {icon: 'flag', label: 'แคนาดา'}});
+/* the sample sentences of round 6 are at the end of lego_r6b.js (after the second half of the variants) */
