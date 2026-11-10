@@ -174,8 +174,7 @@ R3.both('B04', 'deck', 'กองการ์ด หยิบออกทีล�
   const its = s.items.slice(0, 3), n = its.length, mk = s.mark ?? {at: n - 1, how: 'light'}, at = Math.min(mk.at ?? n - 1, n - 1);
   const D = {x: 262, y: 20, w: 236, h: 248};
   /* card k is on top from show[k]; card `at` is on top on the key word */
-  const show = [T.b[0]].concat(R7.steps(T, n, at, T.b[1] + .3).slice(1).map(t => t - .25));
-  if (at === 0) for (let k = 1; k < n; k++) show[k] = T.hit + .55 * k;
+  const show = [...Array(n)].map((_, k) => k <= at ? LG.spread(T.b[0], T.hit - .25, at + 1)[k] : T.hit + .55 * (k - at));
   /* the cards still under the top one, as edges below it (only the top card is a card: no card shows through another) */
   for (let j = 0; j < n - 1; j++) {
     const e = div(`left:${D.x + 14 + j * 10}px;top:${D.y + D.h + 4 + j * 9}px;width:${D.w - 28 - j * 20}px;height:7px;border-radius:4px`, g);
@@ -190,9 +189,9 @@ R3.both('B04', 'deck', 'กองการ์ด หยิบออกทีล�
     const b = K.badge(c.p, it.icon, D.w / 2, 112, 112, null, {tone: it.tone ?? 'main', shape: it.shape ?? 'tile'});
     if (it.label) R4.word(K, c.p, it.label, D.w / 2, 182, 34, null, D.w - 30);
     if (k < n - 1) {                                       // to the done pile on the left (the one before it leaves the pile)
-      const go = show[k + 1] - .22;
+      const go = show[k + 1] - .34;                         // it is clear of the deck before the next card shows (glass: no card through another)
       K.move(c.m, go, 'none', 'translate(-218px,46px) scale(.48) rotate(-8deg)');
-      if (k > 0) K.fade(cards[k - 1].o, go + .35, 1, 0);
+      if (k > 0) K.fade(cards[k - 1].o, go + .15, 1, 0);   // the old one leaves the pile before this one lands on it
     }
     cards.push({c, b, o: c.o});
   });
@@ -251,7 +250,7 @@ R3.both('B09', 'sun', 'พระอาทิตย์เคลื่อนข้
     const q = pos(ang[k], R);
     K.badge(g, p.icon, q.x, q.y, 64, T.b[0] + .2 + k * .08, {tone: 'soft', shape: p.shape ?? 'round'});
     const dx = C.x - q.x, dy = C.y - q.y, L0 = Math.hypot(dx, dy) || 1;   // the word inside the sky, clear of the dashed arc
-    if (p.label) R4.word(K, g, p.label, q.x + 62 * dx / L0, q.y + 62 * dy / L0 - 17, 28, T.b[0] + .3 + k * .08, 110);
+    if (p.label) R4.word(K, g, p.label, q.x + 80 * dx / L0, q.y + 80 * dy / L0 - 17, 28, T.b[0] + .3 + k * .08, 100);
     const L = R7.up(K, g, p.icon, q.x, q.y, 64, reach[k], p.shape ?? 'round', k === at ? 'acc' : 'main');
     if (k === at) R1.ripple(K, L, L.done);
   });
@@ -266,7 +265,7 @@ R3.both('B09', 'sun', 'พระอาทิตย์เคลื่อนข้
   const sun = K.badge(g, 'sun', 0, 0, 62, null, {tone: 'acc', shape: 'round'}); sun.o.classList.add('u-decor');
   A(sun.m, kf, t0, t1 - t0, {e: 'linear', f: 'both'}); K.enter(sun.o, t0, 'pop');
   if (s.result) {
-    const r = K.badge(g, s.result.icon, C.x, 252, 70, T.hit + .3, {tone: s.result.tone ?? 'acc', shape: 'round'});
+    const r = K.badge(g, s.result.icon, C.x, 266, 60, T.hit + .3, {tone: s.result.tone ?? 'acc', shape: 'round'});
     R1.ripple(K, r, R6.at('pop', T.hit + .3));
   }
 });
@@ -286,14 +285,14 @@ R3.both('B10', 'door', 'คนที่ใช่เดินเข้าปร�
   /* four people walk in from the left; the nearest one goes through the door */
   const xs = [64, 146, 228, 310], ppl = xs.map((x, i) => {
     const p = K.badge(g, icon, x, Y, S, null, {tone: 'main', shape: 'round'});
-    K.fade(p.o, T.b[0] + i * .1, 0, 1, {hold: true}); K.move(p.m, T.b[0] + i * .1, 'translateX(-120px)', 'none', {hold: true});
+    K.fade(p.o, T.b[0], 0, 1, {hold: true}); K.move(p.m, T.b[0], 'translateX(-140px)', 'none', {hold: true});   // they walk in together, never over each other
     return p;
   });
   const go = T.hit - .45; K.move(ppl[3].m, go, 'none', `translateX(${cx - xs[3]}px)`);
   const lit = R7.up(K, g, icon, cx, Y, S, LG.arrive('move', go), 'round'); K.fade(ppl[3].o, lit.done, 1, 0);
   R1.ripple(K, lit, lit.done);
   ppl.slice(0, 3).forEach(p => K.fade(p.o, T.hit, 1, .3));
-  (s.tags ?? []).slice(0, 2).forEach((w, i) => K.chip(g, w, 36, 40 + i * 62, lit.done + .1 + i * .12, {tone: 'acc', size: 30}));
+  (s.tags ?? []).slice(0, 2).forEach((w, i) => K.chip(g, w, 36, 40 + i * 62, LG.arrive('move', go) + .25 + i * .12, {tone: 'acc', size: 30}));
 });
 
 /* 4 · a profile page: the cover, the person and the name come in, the tags pop under the name on the key word */
@@ -305,7 +304,7 @@ R3.both('B10', 'profile', 'หน้าโปรไฟล์ แล้วป้�
   const tags = (s.tags ?? []).slice(0, 2);
   if (tags.length) tags.forEach((w, i) => K.chipC(P.p, w, 130, 234 + i * 54, T.hit + i * .15, {tone: 'acc', size: 30}));
   else K.skel(P.p, 50, 222, [160, 110], T.hit);
-  K.punch(av.p, T.hit); R1.ripple(K, av, T.hit + .1);
+  K.punch(av.p, T.hit); R1.ripple(K, P, T.hit + .1);   // from the page's edge, behind it: a ring from the face ran over the name
 });
 
 /* ================= B11 คำพูด / แชต / รีวิว: quote?, kind, mood?, react?, gone?, app? ================= */
@@ -318,7 +317,9 @@ R3.both('B11', 'letter', 'ซองจดหมายเปิดออกเป
   const box = `x="${E.x}" y="${E.y}" width="${E.w}" height="${E.h}" rx="14"`;
   svg(`<rect class="fl" style="stroke:none" ${box}/><rect class="u-fl-edge" ${box}/>`, 0);
   /* the letter: inside until the flap is open, then it rises on the key word */
-  const paper = R2.card(node(env, E.x + 26, 22, E.w - 52, 150, 'u-panel')); paper.o.style.zIndex = 2; paper.p.style.borderRadius = '16px';
+  /* seen only above the pocket's edge: in a see-through style it showed through the pocket, in the overlay below the envelope */
+  const slot = div(`left:0;top:0;width:600px;height:340px;z-index:2;clip-path:polygon(0 -200px,600px -200px,600px ${E.y + 44}px,${E.x + E.w}px ${E.y + 44}px,${cx}px ${E.y + 106}px,${E.x}px ${E.y + 44}px,0 ${E.y + 44}px)`, env);
+  const paper = R2.card(node(slot, E.x + 26, 22, E.w - 52, 150, 'u-panel')); paper.p.style.borderRadius = '16px';
   if (s.quote) R4.word(K, paper.p, s.quote, (E.w - 52) / 2, 44, 42, null, E.w - 96);
   else K.skel(paper.p, 34, 46, [190, 130], T.hit);
   const open = T.b[2], rise = T.hit - .15;
@@ -388,10 +389,10 @@ R3.both('B13', 'whisper', 'มือป้องปากกระซิบ', (K
   const it = s.secret, Ax = 100, Bx = 466, Y = 146, S = 120;
   K.badge(g, 'user', Ax, Y, S, T.b[0], {tone: 'main', shape: 'round'});
   K.badge(g, 'user', Bx, Y, S, T.b[0] + .1, {tone: 'main', shape: 'round'});
-  const hand = {x: Ax + 88, y: Y + 22}, ear = {x: Bx - 82, y: Y - 4};
-  K.badge(g, 'hand', hand.x, hand.y, 56, T.b[1], {tone: 'soft', shape: 'round'});
-  K.badge(g, 'ear', ear.x, ear.y, 52, T.b[1] + .1, {tone: 'soft', shape: 'round'});
-  const dots = R6.line(K, g, `M${hand.x + 34} ${hand.y - 2}L${ear.x - 32} ${ear.y + 1}`, T.b[2] - .2, .35);
+  const hand = {x: Ax + 92, y: Y + 24}, ear = {x: Bx - 90, y: Y - 4};
+  K.badge(g, 'hand', hand.x, hand.y, 66, T.b[1], {tone: 'soft', shape: 'round'});
+  K.badge(g, 'ear', ear.x, ear.y, 62, T.b[1] + .1, {tone: 'soft', shape: 'round'});
+  const dots = R6.line(K, g, `M${hand.x + 40} ${hand.y - 3}L${ear.x - 38} ${ear.y + 1}`, T.b[2] - .2, .35);
   dots.querySelector('path').classList.add('u-thin', 'u-dash'); dots.classList.add('u-decor');
   /* the secret rides the line from the hand to the ear */
   const sec = K.badge(g, it.icon, 0, 0, 84, null, {tone: 'acc'}), go = T.b[2], arrive = T.hit - .08;
@@ -400,8 +401,8 @@ R3.both('B13', 'whisper', 'มือป้องปากกระซิบ', (K
   R7.show(sec.o, go); R7.hide(sec.o, arrive);
   const lit = R7.up(K, g, 'user', Bx, Y, S, arrive, 'round');
   R1.ripple(K, lit, lit.done);
-  K.badge(g, it.icon, Bx, Y - S / 2 - 30, 64, lit.done, {tone: 'acc'});
-  if (it.label) R4.word(K, g, it.label, Bx, Y + S / 2 + 12, 38, lit.done + .05, 160);
+  K.badge(g, it.icon, Bx, Y - S / 2 - 30, 64, arrive + .2, {tone: 'acc'});
+  if (it.label) R4.word(K, g, it.label, Bx, Y + S / 2 + 12, 38, arrive + .25, 160);
 });
 
 /* ================= B14 ประโยคเด็ด: idea {icon, label?} ================= */
@@ -411,21 +412,23 @@ R3.both('B14', 'stamp', 'ตราประทับปั๊มลงกระ�
   K.skel(P.p, 40, 30, [250, 170], T.b[0] + .15, {h: 14, gap: 18});
   K.skel(P.p, 40, 206, [320], T.b[0] + .2, {h: 14});
   const MW = it.label ? 300 : 150, MH = 104, mark = node(P.p, 200 - MW / 2, 128 - MH / 2, MW, MH, 'u-badge u-acc');
-  mark.p.style.borderRadius = '18px'; mark.m.style.transform = 'rotate(-6deg)'; mark.p.style.gap = '16px';
+  mark.p.style.borderRadius = '18px'; mark.o.style.transform = 'rotate(-6deg)'; mark.p.style.gap = '16px';   // turned on the outer layer, so its ring turns too
   mark.p.innerHTML = ICO(it.icon, 62) + (it.label ? `<span class="u-btn-text" style="font-size:44px">${it.label}</span>` : '');
   if (it.label) { const sp = mark.p.querySelector('span'); FITS.push(() => { const w = sp.offsetWidth, room = MW - 110; if (w > room) sp.style.fontSize = (44 * room / w).toFixed(1) + 'px'; }); }
   R7.show(mark.o, T.hit);
-  A(mark.p, [{transform: 'scale(1.12)'}, {transform: 'scale(1)'}], T.hit, .25, {e: 'ease-out', f: 'both'});
-  /* the stamp: knob, neck and a wide base; it hovers, slams down, lifts away */
-  const tool = R6.group(g);
-  R7.plain(tool, 290, 70, 20, 64, 'main', '8px'); R7.plain(tool, 270, 30, 60, 60, 'main', '50%');
-  R7.plain(tool, 182, 126, 236, 50, 'main', '14px');
+  /* the stamp: knob, neck and a face as big as the print; it hovers, comes down over the place, lifts away and shows the print */
+  /* in the accent, like the print it leaves (a plain one was white on the white paper in the overlay); turned like the print */
+  const tool = R6.group(g), rot = div('left:0;top:0;width:600px;height:340px;transform-origin:300px 198px;transform:rotate(-6deg)', tool);
+  const BW = MW + 28, BH = MH + 14, by = 198 - BH / 2;
+  R7.plain(rot, 288, by - 66, 24, 70, 'acc', '8px'); R7.plain(rot, 268, by - 112, 64, 64, 'acc', '50%');
+  R7.plain(rot, 300 - BW / 2, by, BW, BH, 'acc', '20px');
   A(tool, [{opacity: 0}, {opacity: 1}], T.b[1], .2, {f: 'both'});
-  A(tool, [{transform: 'translateY(-260px)'}, {transform: 'translateY(-70px)'}], T.b[1], .5, {e: EASE.smooth, f: 'both'});
-  A(tool, [{transform: 'translateY(-70px)'}, {transform: 'translateY(0)'}], T.hit - .14, .14, {e: 'ease-in', f: 'forwards'});
-  A(tool, [{transform: 'translateY(0)'}, {transform: 'translateY(-300px)'}], T.hit + .22, .4, {e: 'ease-in', f: 'forwards'});
-  A(tool, [{opacity: 1}, {opacity: 0}], T.hit + .4, .2, {f: 'forwards'});
-  K.shake(P.p, T.hit); R1.pulse(K, P.p, 200, 128, 150, T.hit, 1, 'acc');
+  A(tool, [{transform: 'translateY(-360px)'}, {transform: 'translateY(-200px)'}], T.b[1], .5, {e: EASE.smooth, f: 'both'});   // hovers clear of the paper
+  A(tool, [{transform: 'translateY(-200px)'}, {transform: 'translateY(0)'}], T.hit - .16, .16, {e: 'ease-in', f: 'forwards'});
+  A(tool, [{transform: 'translateY(0)'}, {transform: 'translateY(-340px)'}], T.hit + .2, .4, {e: 'ease-in', f: 'forwards'});
+  A(tool, [{opacity: 1}, {opacity: 0}], T.hit + .38, .2, {f: 'forwards'});
+  K.shake(P.p, T.hit);
+  R1.ripple(K, mark, T.hit + .45);                         // once the stamp is off it, from its edge (a round ring ran over the words)
 });
 
 /* 5 · a sign hangs on two chains; on the key word it flickers on like a neon light */
@@ -498,7 +501,7 @@ R3.both('B16', 'board', 'กระดาน เขียนคำแล้วเ
     if (i === 0) R1.ripple(K, b, R6.at('pop', when[i]));
     if (!it.label) return;
     const l = n === 1 ? R6.wordL(K, P.p, it.label, 126, Y - 30, 46, null, 330) : R4.word(K, P.p, it.label, xs[i], Y + 38, 28, null, 140);
-    R7.write(l, when[i] + .1);
+    R7.write(l, when[i] + .05, .35);
   });
 });
 
@@ -523,7 +526,7 @@ R3.both('B16', 'xray', 'เครื่องเอกซเรย์ส่อ�
   const ly = B.y + B.h + 14;
   if (s.term.label) { const a = R4.word(K, g, s.term.label, 300, ly, 40, T.b[0] + .2, 380); K.fade(a, T.hit + .1, 1, 0); }
   const said = m.map(it => it.label).filter(Boolean).join(' · ');
-  if (said) R4.word(K, g, said, 300, ly, 40, T.hit + .2, 420);
+  if (said) R4.word(K, g, said, 300, ly, 40, T.hit + .45, 420);   // after the word it replaces has gone (no two words on one spot)
   R1.ripple(K, inner, T.hit + .35);
 });
 
