@@ -1,0 +1,19 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "po:whistle"
+    },
+    "tags": ["crafting_table"],
+    "ingredients": [
+      { "item": "minecraft:bread" },
+      { "item": "minecraft:stick" }
+    ],
+    "unlock": [
+      { "item": "minecraft:bread" }
+    ],
+    "result": {
+      "item": "po:whistle"
+    }
+  }
+}

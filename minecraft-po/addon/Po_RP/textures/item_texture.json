@@ -1,0 +1,9 @@
+{
+  "resource_pack_name": "po",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "po_whistle": {
+      "textures": "textures/items/po_whistle"
+    }
+  }
+}

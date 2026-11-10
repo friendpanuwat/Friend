@@ -1,0 +1,50 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "po:friend",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/entity/po"
+      },
+      "geometry": {
+        "default": "geometry.po"
+      },
+      "scripts": {
+        "pre_animation": [
+          "variable.tcos0 = Math.cos(query.modified_distance_moved * 38.17) * query.modified_move_speed * 57.3;",
+          "variable.emote = query.property('po:emote');"
+        ],
+        "animate": [
+          { "look_at_target": "variable.emote != 2" },
+          { "walk": "variable.emote == 0 || variable.emote == 5" },
+          { "idle_arms": "variable.emote == 0" },
+          { "attack": "variable.attack_time > 0.0" },
+          { "wave": "variable.emote == 1" },
+          { "dance": "variable.emote == 2" },
+          { "sit": "variable.emote == 3" },
+          { "cheer": "variable.emote == 4" },
+          { "scared": "variable.emote == 5" },
+          { "point": "variable.emote == 6" },
+          { "sleep": "variable.emote == 7" }
+        ]
+      },
+      "animations": {
+        "look_at_target": "animation.po.look_at_target",
+        "walk": "animation.po.walk",
+        "idle_arms": "animation.po.idle_arms",
+        "attack": "animation.po.attack",
+        "wave": "animation.po.wave",
+        "dance": "animation.po.dance",
+        "sit": "animation.po.sit",
+        "cheer": "animation.po.cheer",
+        "scared": "animation.po.scared",
+        "point": "animation.po.point",
+        "sleep": "animation.po.sleep"
+      },
+      "render_controllers": ["controller.render.po"]
+    }
+  }
+}

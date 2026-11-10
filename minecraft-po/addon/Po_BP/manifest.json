@@ -1,0 +1,38 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Po - เพื่อนบอท",
+    "description": "Po เพื่อนที่เดินตาม คุ้มกัน คุยภาษาไทย และจำเรื่องราวได้",
+    "uuid": "7e49ac73-fe93-4217-8e29-e9ee42ebf0d5",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 21, 130]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "2a3ce8f0-5070-4cda-9a38-b7f010051b43",
+      "version": [1, 0, 0]
+    },
+    {
+      "type": "script",
+      "language": "javascript",
+      "entry": "scripts/main.js",
+      "uuid": "74610fc4-ceb6-487b-980f-88cacebc31b3",
+      "version": [1, 0, 0]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "c01bb56e-6c08-48e0-8418-e62af2b23371",
+      "version": [1, 0, 0]
+    },
+    {
+      "module_name": "@minecraft/server",
+      "version": "2.4.0"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "2.0.0"
+    }
+  ]
+}
