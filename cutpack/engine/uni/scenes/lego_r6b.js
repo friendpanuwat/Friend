@@ -56,7 +56,12 @@ R3.both('B17', 'note', 'กระดาษโน้ตเขียนทีล�
   /* the loop round every line on the key word */
   /* drawn on the paper itself, so it takes the paper's ink (on the video a white line vanished on a white pad) */
   const cy = (top + PH - 20) / 2, ry = (PH - 20 - top) / 2 + 6, cx = PW / 2, rx = PW / 2 - 8;
-  R6.line(K, P.p, `M${cx - rx} ${cy}A${rx} ${ry} 0 1 1 ${cx + rx} ${cy}A${rx} ${ry} 0 1 1 ${cx - rx + 4} ${cy - 22}`, T.hit, .5, PW, PH);
+  /* in the accent colour with the accent's edge (Friend 2026-11-10: "ใช้วงสีเขียวก็ได้นะ"); the edge keeps it readable on a light pad */
+  const d = `M${cx - rx} ${cy}A${rx} ${ry} 0 1 1 ${cx + rx} ${cy}A${rx} ${ry} 0 1 1 ${cx - rx + 4} ${cy - 22}`, w = 12;
+  const loop = div(`left:0;top:0;width:${PW}px;height:${PH}px`, P.p, `<svg width="${PW}" height="${PH}" style="overflow:visible">` +
+    `<path class="u-ring-edge" d="${d}" style="stroke-width:calc(${w}px + 2px * var(--lw-ac, 0))"/><path class="u-ring-on" d="${d}" style="stroke-width:${w}px"/></svg>`);
+  A(loop, [{opacity: 0}, {opacity: 1}], T.hit, .01, {f: 'both'});
+  loop.querySelectorAll('path').forEach(pth => K.draw(pth, T.hit, .5));
   K.punch(P.p, T.hit + .5);
 });
 
@@ -69,7 +74,7 @@ R3.both('B17', 'basket', 'ของหล่นลงตะกร้า', (K, s,
   K.enter(back, T.b[0], 'rise');
   const when = LG.spread(T.b[0] + .35, T.b[2] + .1, n);
   const items = its.map((it, i) => {
-    const b = K.badge(grp, it.icon, xs[i], rim - 34, S, null, {tone: it.tone ?? 'main', shape: it.shape ?? 'tile'});
+    const b = K.badge(grp, it.icon, xs[i], rim - 34, S, null, {tone: it.tone ?? 'acc', shape: it.shape ?? 'tile'});   // the accent: a plain tile was the basket's own colour (Friend 2026-11-10: "สีไอคอนกับตะกร้ามันกลืนกัน")
     K.fade(b.o, when[i], 0, 1, {hold: true});
     K.move(b.m, when[i], `translateY(-220px) rotate(${i % 2 ? 14 : -14}deg)`, 'none', {hold: true, kind: 'snap'});
     return b;
@@ -79,11 +84,20 @@ R3.both('B17', 'basket', 'ของหล่นลงตะกร้า', (K, s,
      basket vanished, "ทำไมตะกร้ามันไม่เหมือนอีก 2 สไตล์") */
   const xl = y => 148 + (y - rim) * 28 / 116, xr = y => 452 - (y - rim) * 28 / 116;
   const band = (a, b) => `M${xl(rim + a).toFixed(1)} ${rim + a}H${xr(rim + a).toFixed(1)}L${xr(rim + b).toFixed(1)} ${rim + b}H${xl(rim + b).toFixed(1)}Z`;
-  const front = div('left:0;top:0;width:600px;height:340px', grp, `<svg width="600" height="340"><path class="sd" d="${band(0, 44)}${band(54, 80)}${band(90, 116)}"/></svg>`);
+  /* an edge round the whole body and a rim on top (Friend 2026-11-10: "ทำให้มันมีขอบด้วย ตอนนี้มันไม่สวย"): the bands alone
+     looked like three loose slabs; with the edge the gaps read as slots in one basket */
+  /* every line drawn once (Friend 2026-11-10, glass: "ดูเรื่องเส้นด้วย"): the bands have no edge of their own; one edge round
+     the body; each slot gets one line only in styles that edge their solids (class sd, no fill), so in the card style the
+     gaps stay plain; the rim is one solid bar */
+  const body = `M${xl(rim)} ${rim}H${xr(rim)}L${xr(rim + 116)} ${rim + 116}H${xl(rim + 116)}Z`, rimBar = `x="${xl(rim) - 12}" y="${rim - 10}" width="${xr(rim) - xl(rim) + 24}" height="24" rx="12"`;
+  const front = div('left:0;top:0;width:600px;height:340px', grp, `<svg width="600" height="340" style="overflow:visible">` +
+    `<path class="sd" style="stroke:none" d="${band(0, 58)}${band(66, 90)}${band(98, 116)}"/>` +
+    `<path class="sd" style="fill:none" d="${[62, 94].map(y => `M${xl(rim + y).toFixed(1)} ${rim + y}H${xr(rim + y).toFixed(1)}`).join('')}"/>` +
+    `<path class="ln u-thin" d="${body}"/><rect class="sd" ${rimBar}/></svg>`);
   K.enter(front, T.b[0], 'rise');
   K.punch(grp, T.hit);
   items.forEach((b, i) => A(b.p, [{transform: 'none'}, {transform: 'translateY(-36px)', offset: .4}, {transform: 'none'}], T.hit + i * .06, .5, {e: 'ease-out', f: 'none'}));
-  if (s.label) K.chipC(g, s.label, 300, 270, T.hit + .3, {tone: 'acc', size: 38});
+  if (s.label) K.chipC(g, s.label, 300, rim + 32, T.hit + .3, {tone: 'acc', size: 36});   // on the plain top band, clear of the slot lines
 });
 
 /* ================= B18 เล่าเหตุการณ์: what, who?, when? ================= */
