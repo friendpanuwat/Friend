@@ -2,7 +2,7 @@
 """Category plans written by the AI — prompt v4 (Friend 2026-11-08: "เริ่มงาน ก. สอน AI ให้เขียนใบประกอบตามหมวด แล้วลองกับ
 บทพูดหลาย ๆ เรื่อง จะได้รู้ว่าหมวดไหนใช้บ่อยและยังขาดร่าง").
 
-The planner reads a clip's caption lines and, for the lines that deserve a picture, writes ONE CATEGORY (B01–B16, what
+The planner reads a clip's caption lines and, for the lines that deserve a picture, writes ONE CATEGORY (B01–B21, what
 kind of sentence it is) + that category's SLOTS (the ใบประกอบ: the few things in the picture). The program then picks the
 variant (scenes/cats.js) and the style draws it, so the AI's instructions do not grow with the number of variants.
 A line that deserves a picture but fits no category is written as cat "none" + what it needs: that is how we find
@@ -64,10 +64,21 @@ B15 call to action / ending — follow, comment, save, share, like.
   {{"action":"follow"|"comment"|"save"|"share"|"like","label":"words said"}}  label optional.
 B16 definition — what something is, "X is Y".
   {{"term":THING,"means":[THING]}}  term with a label (the word defined); means = 1-3 things it is.
+B17 list — several things named together that are NOT steps in order and NOT things to do: examples, parts, layers, members, reasons, costs.
+  {{"items":[THING,THING,…],"label":"words"}}  items = 2-4 things as said, each with an icon (and a label if said); label optional = the name of the group, as said.
+B18 event — something happened, or someone did something, in a story or in the speaker's own life (was arrested, opened a shop, walked up to him).
+  {{"what":THING,"who":THING,"when":"words"}}  what = what happened (an icon of it, label optional); who optional = who did it or who it happened to; when optional = the time as said (a year, a day, an age).
+B19 feeling — the speaker or someone says how they feel: angry, relieved, happy, scared, loves it, enjoys it.
+  {{"feel":THING,"who":THING,"mood":"good"|"bad"}}  feel = the feeling (icon such as smile, laugh, frown, angry, annoyed, meh, heart, heart-crack, party-popper; label = the feeling word as said); who optional; mood = good or bad.
+B20 relationship — how two people (or a person and a brand) are linked: family, an ex, friends, partners, a collab, one has power over the other.
+  {{"a":THING,"b":THING,"label":"words","cut":true}}  a and b = the two (icons, labels if said); label optional = the link as said (แฟนเก่า, ลุงกับหลาน); cut = true only when the link is over (broke up, an ex).
+B21 place — where someone is or something happens, a place's name, or what is where inside a place.
+  {{"place":THING,"spots":[THING]}}  place = the place (an icon of it, label = its name as said); spots optional = 1-2 things there or where in it, as said (ชั้น G, หน้า KFC, ห้องนั่งเล่น).
 THING = {{"icon": icon name, "label": optional words, "tone": optional "acc"|"soft"|"neg", "shape": optional "round"}}. acc = the one highlight (positive), soft = faded or inactive, neg = red, only for a negative meaning. Leave out every optional slot the line does not give.
 
 # Rules
 - Pick the category by what the line DOES, not by its topic: a number said and the point → B01; "not X but Y" → B05; a warning → B07; "X is Y" → B16; a short line to remember → B14.
+- Several things named together → B17, not B04 (B04 is only steps in order or things to do). Telling what happened → B18. Saying a feeling → B19. Two people and how they are linked → B20. Where → B21.
 - The picture must say what the line says, so a viewer gets it with the sound off. A tick means yes / good, a cross means no / wrong: never tick what the speaker warns against.
 - Every word on screen (lead, key, labels, quote, tags, unit) is COPIED from that line (or the next one when the sentence runs on): you may leave words out at the start or the end, but never reorder, rephrase, shorten or add a word. Spaces may differ. Count every letter, spaces and Latin letters included: key, labels, quote and tags at most 12, lead at most 22. Numbers only if said.
 - Icons: only names from the icon list below (Lucide). Never use these icons (harsh or off-brand): {harsh}. For harm or danger use triangle-alert, shield-alert, heart-crack, battery-low or thumbs-down.
@@ -87,13 +98,15 @@ The pictures below broke the rules. Write them again — only these, in the same
 You may change the category. All the rules above still hold.
 '''
 
-CATS = {f'B{i:02d}' for i in range(1, 17)}
+CATS = {f'B{i:02d}' for i in range(1, 22)}       # B17–B21 added 2026-11-10 (round 6)
 TONES = {None, 'main', 'acc', 'soft', 'neg'}
 SLOTS = {'B01': {'value', 'unit', 'icon', 'dir', 'money'}, 'B02': {'dir', 'item', 'center', 'n', 'keep', 'end'},
          'B03': {'mode', 'a', 'b', 'win', 'how', 'switch'}, 'B04': {'items', 'mark'}, 'B05': {'wrong', 'right'},
          'B06': {'about', 'options', 'answer'}, 'B07': {'thing', 'how', 'sign'}, 'B08': {'goal', 'who'},
          'B09': {'points', 'at', 'result'}, 'B10': {'who', 'label', 'tags'}, 'B11': {'kind', 'quote', 'mood', 'react', 'gone', 'app'},
-         'B12': {'items', 'end'}, 'B13': {'secret'}, 'B14': {'idea'}, 'B15': {'action', 'label'}, 'B16': {'term', 'means'}}
+         'B12': {'items', 'end'}, 'B13': {'secret'}, 'B14': {'idea'}, 'B15': {'action', 'label'}, 'B16': {'term', 'means'},
+         'B17': {'items', 'label'}, 'B18': {'what', 'who', 'when'}, 'B19': {'feel', 'who', 'mood'}, 'B20': {'a', 'b', 'label', 'cut'},
+         'B21': {'place', 'spots'}}
 
 
 def ask(captions, duration, out):
@@ -213,6 +226,24 @@ def problems(cat, s, near):
     elif cat == 'B16':
         thing(s.get('term'), 'term', label=True)
         things(s.get('means'), 'means', lo=1, hi=3)
+    elif cat == 'B17':
+        things(s.get('items'), 'items', lo=2, hi=4)
+        if s.get('label'): words(s['label'], 'label')
+    elif cat == 'B18':
+        thing(s.get('what'), 'what')
+        if s.get('who') is not None: thing(s['who'], 'who')
+        if s.get('when'): words(s['when'], 'when')
+    elif cat == 'B19':
+        thing(s.get('feel'), 'feel')
+        if s.get('who') is not None: thing(s['who'], 'who')
+        if s.get('mood') not in (None, 'good', 'bad'): bad.append('mood must be good or bad')
+    elif cat == 'B20':
+        thing(s.get('a'), 'a'); thing(s.get('b'), 'b')
+        if s.get('label'): words(s['label'], 'label')
+        if s.get('cut') not in (None, True, False): bad.append('cut must be true or false')
+    elif cat == 'B21':
+        thing(s.get('place'), 'place')
+        if s.get('spots') is not None: things(s['spots'], 'spots', lo=1, hi=2)
     return bad
 
 

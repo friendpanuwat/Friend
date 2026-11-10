@@ -7,7 +7,8 @@
      · only variants whose fits(slots) is true (a variant made for money numbers is skipped for "4 ปี")
      · the least used one in this clip first, never the same one twice in a row
      · ties broken by the sentence itself, so the same input always gives the same clip
-   16 categories: the 15 Friend kept on 2026-11-03 (B01–B15) + B16 นิยาม / อธิบายว่าคืออะไร (2026-11-07).
+   21 categories: the 15 Friend kept on 2026-11-03 (B01–B15) + B16 นิยาม / อธิบายว่าคืออะไร (2026-11-07)
+   + B17–B21 (2026-11-10): ไล่รายการ, เล่าเหตุการณ์, ความรู้สึก, ความสัมพันธ์ของคน, สถานที่.
    ===================================================================== */
 const CATS = {};
 function CATEGORY(id, name, {text = false} = {}) { CATS[id] = {id, name, text, variants: []}; }
@@ -19,6 +20,8 @@ function VARIANT(cat, id, v) {
  ['B05', 'ถูกกับผิด / ไม่ใช่ X แต่เป็น Y'], ['B06', 'คำถาม / ความสงสัย'], ['B07', 'ปัญหา / คำเตือน'], ['B08', 'เป้าหมาย / ผลลัพธ์ / สำเร็จ'],
  ['B09', 'เวลา / ไทม์ไลน์ / เส้นตาย'], ['B10', 'คน / กลุ่มเป้าหมาย'], ['B11', 'คำพูด / แชต / รีวิว'], ['B12', 'เหตุกับผล'],
  ['B13', 'ไอเดีย / เคล็ดลับ / ความลับ'], ['B14', 'ประโยคเด็ดตัวใหญ่'], ['B15', 'ปิดคลิป / ชวนทำต่อ'], ['B16', 'นิยาม / อธิบายว่าคืออะไร'],
+ /* round 6 (Friend 2026-11-10: "เพิ่ม 5 หมวดนี้เลย", from Claude's reading of 26 other people's scripts, page 19) */
+ ['B17', 'ไล่รายการหลายอย่าง'], ['B18', 'เล่าเหตุการณ์'], ['B19', 'ความรู้สึก'], ['B20', 'ความสัมพันธ์ของคน'], ['B21', 'สถานที่'],
 ].forEach(([id, name]) => CATEGORY(id, name));          // B14 was words only until round 4 (2026-11-08)
 
 /* give a variant its small form (the overlay widget), designed for it, using the same slots */
