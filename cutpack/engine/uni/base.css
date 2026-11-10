@@ -53,6 +53,8 @@ svg{overflow:visible}
 .u-ring{fill:none;stroke:var(--tr);stroke-width:var(--ring-w, 40)}
 .u-ring-edge{fill:none;stroke:var(--ac-line, var(--ac));stroke-width:calc(var(--ring-w, 40) + 2 * var(--lw-ac, 0));stroke-linecap:round}
 .u-ring-on{fill:none;stroke:var(--ac);stroke-width:var(--ring-w, 40);stroke-linecap:round}
+/* a line in the accent colour (a pen loop); a style whose accent is see-through gives a solid one in --ac-stroke */
+.u-acc-line{fill:none;stroke:var(--ac-stroke, var(--ac));stroke-linecap:round}
 .u-dash{stroke-dasharray:14 16}
 .u-receipt-wrap{filter:drop-shadow(var(--paper-shadow, 0 18px 26px rgba(0,0,0,.18)))}
 .u-lamp{fill:var(--neg);stroke:var(--ink);stroke-width:calc(var(--lw) * .6);stroke-linejoin:round}

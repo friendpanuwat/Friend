@@ -15,7 +15,7 @@ STYLE('glass', {
   blurred: true,
   css: `
 .g-root{opacity:0;--ink:rgba(235,246,255,.92);--lw:6;--sd:rgba(143,211,255,.14);--sd-line:rgba(235,246,255,.9);--lw-sd:5;
-  --fl:rgba(255,255,255,.08);--fl-line:rgba(235,246,255,.85);--lw-fl:5;--ac:rgba(143,211,255,.30);--ac-line:#8FD3FF;--lw-ac:6;
+  --fl:rgba(255,255,255,.08);--fl-line:rgba(235,246,255,.85);--lw-fl:5;--ac:rgba(143,211,255,.30);--ac-line:#8FD3FF;--lw-ac:6;--ac-stroke:#8FD3FF;
   --tr:rgba(255,255,255,.16);--neg:#FF7A8A;--slot-line:rgba(143,211,255,.55);--lw-slot:4;--ico-w:1.8;--tile-r:.5;--box-r:.3;--text:#FFFFFF;--lw-cross:10}
 .g-root svg{filter:drop-shadow(0 0 10px rgba(143,211,255,.5))}
 .g-root{--halo:rgba(143,211,255,.34);--num:#8FD3FF;--spot:#8FD3FF}

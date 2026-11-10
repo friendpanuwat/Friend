@@ -56,12 +56,13 @@ R3.both('B17', 'note', 'กระดาษโน้ตเขียนทีล�
   /* the loop round every line on the key word */
   /* drawn on the paper itself, so it takes the paper's ink (on the video a white line vanished on a white pad) */
   const cy = (top + PH - 20) / 2, ry = (PH - 20 - top) / 2 + 6, cx = PW / 2, rx = PW / 2 - 8;
-  /* in the accent colour with the accent's edge (Friend 2026-11-10: "ใช้วงสีเขียวก็ได้นะ"); the edge keeps it readable on a light pad */
-  const d = `M${cx - rx} ${cy}A${rx} ${ry} 0 1 1 ${cx + rx} ${cy}A${rx} ${ry} 0 1 1 ${cx - rx + 4} ${cy - 22}`, w = 12;
+  /* in the accent colour, like a highlighter (Friend 2026-11-10: "ใช้วงสีเขียวก็ได้นะ"), no edge: a dark edge made it heavy
+     (Friend: "แล้วจะใส่ขอบให้วงเพื่อ?"); glass's accent is see-through, so it gives a solid --ac-stroke */
+  const d = `M${cx - rx} ${cy}A${rx} ${ry} 0 1 1 ${cx + rx} ${cy}A${rx} ${ry} 0 1 1 ${cx - rx + 4} ${cy - 22}`, w = 9;   // thinner (Friend 2026-11-10: "ลดความหนาลงด้วยนิดนึง")
   const loop = div(`left:0;top:0;width:${PW}px;height:${PH}px`, P.p, `<svg width="${PW}" height="${PH}" style="overflow:visible">` +
-    `<path class="u-ring-edge" d="${d}" style="stroke-width:calc(${w}px + 2px * var(--lw-ac, 0))"/><path class="u-ring-on" d="${d}" style="stroke-width:${w}px"/></svg>`);
+    `<path class="u-acc-line" d="${d}" style="stroke-width:${w}px"/></svg>`);
   A(loop, [{opacity: 0}, {opacity: 1}], T.hit, .01, {f: 'both'});
-  loop.querySelectorAll('path').forEach(pth => K.draw(pth, T.hit, .5));
+  K.draw(loop.querySelector('path'), T.hit, .5);
   K.punch(P.p, T.hit + .5);
 });
 
