@@ -53,6 +53,9 @@ svg{overflow:visible}
 .u-ring{fill:none;stroke:var(--tr);stroke-width:var(--ring-w, 40)}
 .u-ring-edge{fill:none;stroke:var(--ac-line, var(--ac));stroke-width:calc(var(--ring-w, 40) + 2 * var(--lw-ac, 0));stroke-linecap:round}
 .u-ring-on{fill:none;stroke:var(--ac);stroke-width:var(--ring-w, 40);stroke-linecap:round}
+/* the edge of a light (fl) thing, drawn as its own line: it must show on the light thing in every palette, so a palette whose
+   own lines are white (the card style on the video) gives a dark --fl-edge (Friend 2026-11-10: the basket's edges in the overlay) */
+.u-fl-edge{fill:none;stroke:var(--fl-edge, var(--fl-line, var(--ink)));stroke-width:calc(var(--lw) * .55);stroke-linecap:round;stroke-linejoin:round}
 /* a line in the accent colour (a pen loop); a style whose accent is see-through gives a solid one in --ac-stroke */
 .u-acc-line{fill:none;stroke:var(--ac-stroke, var(--ac));stroke-linecap:round}
 .u-dash{stroke-dasharray:14 16}

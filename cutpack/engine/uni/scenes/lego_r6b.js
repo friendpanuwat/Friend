@@ -89,8 +89,8 @@ R3.both('B17', 'basket', 'ของหล่นลงตะกร้า', (K, s,
   const rimBar = `x="${xl(rim) - 12}" y="${rim - 10}" width="${xr(rim) - xl(rim) + 24}" height="24" rx="12"`;
   const front = div('left:0;top:0;width:600px;height:340px', grp, `<svg width="600" height="340" style="overflow:visible">` +
     `<path class="fl" style="stroke:none" d="${band(0, 56)}${band(70, 88)}${band(102, H)}"/>` +
-    `<path class="ln u-thin" d="${slot(63)}${slot(95)}${body}"/>` +
-    `<rect class="fl" style="stroke:none" ${rimBar}/><rect class="ln u-thin" ${rimBar}/></svg>`);
+    `<path class="u-fl-edge" d="${slot(63)}${slot(95)}${body}"/>` +
+    `<rect class="fl" style="stroke:none" ${rimBar}/><rect class="u-fl-edge" ${rimBar}/></svg>`);   // edges of the light body: dark in the overlay too
   K.enter(front, T.b[0], 'rise');
   K.punch(grp, T.hit);
   items.forEach((b, i) => A(b.p, [{transform: 'none'}, {transform: 'translateY(-36px)', offset: .4}, {transform: 'none'}], T.hit + i * .06, .5, {e: 'ease-out', f: 'none'}));
