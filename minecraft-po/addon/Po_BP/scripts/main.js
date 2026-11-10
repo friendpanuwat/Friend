@@ -11,11 +11,16 @@ import {
 } from "@minecraft/server";
 import { PO_TYPE, WHISTLE } from "./util.js";
 import { dataOf, loadById, touch, startAutosave } from "./store.js";
-import { getPo, summon, tick, cleanup, poSay, setEmote, EMOTE } from "./po.js";
+import { getPo, summon, tick, cleanup, poSay, poSayText, setEmote, EMOTE, hooks } from "./po.js";
+import { tickTasks, activeReserve } from "./tasks.js";
+import { syncCombat, startArmorRefresh, autoGear } from "./equip.js";
+import * as Smelt from "./smelt.js";
 import { handleTalk } from "./brain.js";
 import { openMenu } from "./menu.js";
 import { subscribe, periodic, onSpawn } from "./watch.js";
 import { FOOD_HEAL, itemTh } from "./names.js";
+
+hooks.afterSummon = (owner, data) => syncCombat(owner, data);
 import { ready, notice } from "./speech.js";
 
 /** @typedef {import("@minecraft/server").Player} Player */
@@ -180,6 +185,53 @@ world.afterEvents.worldLoad.subscribe(() => {
       console.warn(`[Po] cleanup: ${e}`);
     }
   }, 40);
+  system.runInterval(() => {
+    try {
+      tickTasks();
+    } catch (e) {
+      console.warn(`[Po] tasks: ${e}`);
+    }
+  }, 1);
+  system.runInterval(() => {
+    try {
+      furnaces();
+    } catch (e) {
+      console.warn(`[Po] furnace: ${e}`);
+    }
+  }, 20);
+  startArmorRefresh(() =>
+    world
+      .getPlayers()
+      .map((owner) => ({ owner, data: dataOf(owner) }))
+      .filter(({ data }) => !!getPo(data)),
+  );
 });
+
+/** Po's furnace keeps working while Po is around. */
+function furnaces() {
+  for (const owner of world.getPlayers()) {
+    const data = dataOf(owner);
+    if (!getPo(data) || data.smelt.jobs.length === 0) continue;
+    const events = Smelt.step(data.smelt, data.bag, data.settings.fast ? 40 : 20);
+    if (events.length === 0) continue;
+    touch(owner.id);
+    for (const ev of events) {
+      const job = ev.job;
+      if (!job) continue;
+      if (ev.type === "item") {
+        try {
+          owner.onScreenDisplay.setActionBar(`§6${data.name}:§r เผา${itemTh(job.in)} ${job.done}/${job.total}`);
+        } catch {}
+      } else if (ev.type === "finished") {
+        poSayText(owner, data, `เผาเสร็จแล้ว! ได้${itemTh(job.out)} ${job.total}`);
+        autoGear(owner, data, { quiet: false, reserve: activeReserve(owner.id) });
+      } else if (ev.type === "nofuel" && ready(`nofuel:${owner.id}`, 120)) {
+        poSayText(owner, data, "เตาผมเชื้อเพลิงหมดแล้ว ขอถ่านหรือไม้หน่อย (ฝากของได้เลย)");
+      } else if (ev.type === "nofurnace" && ready(`nofurnace:${owner.id}`, 120)) {
+        poSayText(owner, data, "ผมไม่มีเตาเผา ขอหินกรวด 8 ก้อนหน่อยนะ");
+      }
+    }
+  }
+}
 
 subscribe();

@@ -1,12 +1,16 @@
 // Po's menu (big buttons that work well on a phone screen).
 import { system } from "@minecraft/server";
 import { ActionFormData, ModalFormData, FormCancelationReason } from "@minecraft/server-ui";
-import { dataOf, touch } from "./store.js";
+import { dataOf, touch, releaseKeep } from "./store.js";
 import { getPo, setMode, bring, guide, summon, poSay, poSayText, MODE_TH } from "./po.js";
 import { handleTalk, depositHeld } from "./brain.js";
 import * as Bag from "./bag.js";
 import { itemTh } from "./names.js";
 import { posText, dimThai, PO_NAME_DEFAULT } from "./util.js";
+import { startTask, cancelTask, taskOf, progressText } from "./tasks.js";
+import { WOODS, ORES } from "./blocks.js";
+import * as G from "./gear.js";
+import { autoGear } from "./equip.js";
 
 /** @typedef {import("@minecraft/server").Player} Player */
 /** @typedef {import("./store.js").PoData} PoData */
@@ -61,7 +65,8 @@ export async function openMenu(player) {
     const max = Math.round(hp?.effectiveMax ?? 40);
     body =
       `§lเลือด§r ${cur}/${max}   §lโหมด§r ${MODE_TH[data.mode]}\n` +
-      `§lเพื่อนกันมา§r ${data.stats.days} วัน   §lกระเป๋า§r ${Bag.slotsUsed(data.bag)}/${Bag.BAG_SLOTS} ช่อง`;
+      `§lเพื่อนกันมา§r ${data.stats.days} วัน   §lกระเป๋า§r ${Bag.slotsUsed(data.bag)}/${Bag.BAG_SLOTS} ช่อง` +
+      (taskOf(player.id) ? `\n§6${progressText(player.id)}§r` : "");
     const mark = (/** @type {string} */ m) => (data.mode === m ? " §2(ตอนนี้)" : "");
     buttons.push(
       { text: `คุยกับ ${data.name}`, icon: "textures/items/book_writable", run: () => talkForm(player) },
@@ -69,6 +74,7 @@ export async function openMenu(player) {
       { text: `คุ้มกัน${mark("guard")}`, icon: "textures/items/iron_sword", run: () => setMode(player, data, "guard") },
       { text: `รอตรงนี้${mark("stay")}`, icon: "textures/items/bed_red", run: () => setMode(player, data, "stay") },
       { text: "เรียกมาหา", icon: "textures/items/ender_pearl", run: () => void (bring(player, data) && poSay(player, data, "come")) },
+      { text: "งาน (ตัดไม้ ขุดแร่ คราฟต์ เผา)", icon: "textures/items/iron_pickaxe", run: () => workMenu(player) },
       { text: "กระเป๋า", icon: "textures/blocks/chest_front", run: () => bagMenu(player) },
     );
   } else if (Date.now() < data.deadUntil) {
@@ -127,6 +133,7 @@ async function bagMenu(player) {
         run: () => {
           const got = Bag.take(data.bag, id, n);
           Bag.giveToPlayer(player, id, got);
+          releaseKeep(data, id, got);
           touch(player.id);
           poSayText(player, data, `เอาไป! ${itemTh(id)} ${got} ชิ้น`);
         },
@@ -181,10 +188,16 @@ async function settingsForm(player) {
     .title(`ตั้งค่า ${data.name}`)
     .dropdown("ช่างพูดแค่ไหน", ["เงียบ (พูดเฉพาะตอนอันตราย)", "ปกติ", "ช่างคุย"], { defaultValueIndex: data.settings.talk })
     .textField("ชื่อ", PO_NAME_DEFAULT, { defaultValue: data.name })
+    .toggle("ใช้เพชร/ทองทำอุปกรณ์ตัวเองได้เลย ไม่ต้องถาม", { defaultValue: data.settings.rareOk })
+    .toggle("ทำงานเร็วขึ้น 2 เท่า (ไม่สมจริง)", { defaultValue: data.settings.fast })
+    .toggle("เผาแร่ดิบอัตโนมัติ", { defaultValue: data.settings.autoSmelt })
     .submitButton("บันทึก");
   const res = await showModal(player, form);
   if (!res || res.canceled || !res.formValues) return;
-  const [talk, name] = res.formValues;
+  const [talk, name, rareOk, fast, autoSmelt] = res.formValues;
+  if (typeof rareOk === "boolean") data.settings.rareOk = rareOk;
+  if (typeof fast === "boolean") data.settings.fast = fast;
+  if (typeof autoSmelt === "boolean") data.settings.autoSmelt = autoSmelt;
   if (typeof talk === "number") data.settings.talk = talk;
   if (typeof name === "string") {
     const clean = name.replace(/§./g, "").trim().slice(0, 16);
@@ -198,3 +211,150 @@ async function settingsForm(player) {
   poSayText(player, data, ["โอเค ผมจะเงียบๆ นะ พูดเฉพาะเรื่องสำคัญ", "โอเค ตั้งค่าเรียบร้อย!", "เย้! ผมจะคุยเยอะๆ เลยนะ"][data.settings.talk] ?? "บันทึกแล้ว");
 }
 
+
+// ------------------------------------------------------------------ jobs
+
+const WOOD_KEYS = Object.keys(WOODS);
+const ORE_KEYS = ["coal", "iron", "copper", "gold", "redstone", "lapis", "diamond", "emerald", "stone", "deepslate", "dirt", "sand", "gravel", "clay", "quartz", "nether_gold", "debris", "obsidian"];
+
+/** @param {Player} player */
+async function workMenu(player) {
+  const data = dataOf(player);
+  const busyNow = taskOf(player.id);
+  /** @type {{ text: string, icon: string, run: () => void | Promise<void> }[]} */
+  const buttons = [];
+  if (busyNow) buttons.push({ text: "หยุดงานที่ทำอยู่", icon: "textures/blocks/barrier", run: () => void cancelTask(player.id) });
+  buttons.push(
+    { text: "ตัดไม้", icon: "textures/items/stone_axe", run: () => woodForm(player) },
+    { text: "ขุดแร่ / หาของ", icon: "textures/items/iron_pickaxe", run: () => mineForm(player) },
+    { text: "คราฟต์ของให้", icon: "textures/blocks/crafting_table_front", run: () => craftMenu(player) },
+    { text: "เผา / ย่าง", icon: "textures/items/coal", run: () => smeltMenu(player) },
+    { text: "อุปกรณ์ของ Po", icon: "textures/items/iron_sword", run: () => gearMenu(player) },
+    { text: "หีบคลังของ", icon: "textures/blocks/chest_front", run: () => chestMenu(player) },
+    { text: "กลับ", icon: "textures/items/paper", run: () => openMenu(player) },
+  );
+  const jobs = data.smelt.jobs.filter((j) => j.done < j.total);
+  const body =
+    (busyNow ? `§6${progressText(player.id)}§r\n` : "ตอนนี้ว่างอยู่\n") +
+    (jobs.length ? `เตาเผา: ${jobs.map((j) => `${itemTh(j.in)} ${j.done}/${j.total}`).join(", ")}` : "เตาเผาว่าง");
+  const form = new ActionFormData().title(`งานของ ${data.name}`).body(body);
+  for (const b of buttons) form.button(b.text, b.icon);
+  const res = await showAction(player, form);
+  if (!res || res.canceled || res.selection === undefined) return;
+  await buttons[res.selection]?.run();
+}
+
+/** @param {Player} player */
+async function woodForm(player) {
+  const form = new ModalFormData()
+    .title("ตัดไม้")
+    .dropdown("ไม้ชนิดไหน", ["ชนิดไหนก็ได้", ...WOOD_KEYS.map((k) => WOODS[/** @type {keyof typeof WOODS} */ (k)].th)], { defaultValueIndex: 0 })
+    .slider("กี่ท่อน", 1, 64, { valueStep: 1, defaultValue: 16 })
+    .submitButton("ไปเลย");
+  const res = await showModal(player, form);
+  if (!res || res.canceled || !res.formValues) return;
+  const [idx, n] = res.formValues;
+  const wood = typeof idx === "number" && idx > 0 ? WOOD_KEYS[idx - 1] : null;
+  const count = typeof n === "number" ? n : 16;
+  const data = dataOf(player);
+  if (startTask(player, { kind: "wood", wood, count })) {
+    poSayText(player, data, `ได้เลย! ไปตัดไม้${wood ? WOODS[/** @type {keyof typeof WOODS} */ (wood)].th : ""} ${count} ท่อนนะ`);
+  }
+}
+
+/** @param {Player} player */
+async function mineForm(player) {
+  const form = new ModalFormData()
+    .title("ขุดแร่ / หาของ")
+    .dropdown("หาอะไร", ORE_KEYS.map((k) => ORES[/** @type {keyof typeof ORES} */ (k)].th), { defaultValueIndex: 1 })
+    .slider("จำนวน", 1, 64, { valueStep: 1, defaultValue: 10 })
+    .submitButton("ไปเลย");
+  const res = await showModal(player, form);
+  if (!res || res.canceled || !res.formValues) return;
+  const [idx, n] = res.formValues;
+  const ore = ORE_KEYS[typeof idx === "number" ? idx : 1];
+  const count = typeof n === "number" ? n : 10;
+  const data = dataOf(player);
+  if (startTask(player, { kind: "mine", ore, count })) {
+    poSayText(player, data, `ได้เลย! ไปหา${ORES[/** @type {keyof typeof ORES} */ (ore)].th} ${count} นะ`);
+  }
+}
+
+/** @param {Player} player */
+async function craftMenu(player) {
+  const items = [
+    ["คบไฟ 8 อัน", "ทำคบไฟ 8 ให้หน่อย", "textures/blocks/torch_on"],
+    ["อีเต้อ (ดีที่สุดที่ทำได้)", "ทำอีเต้อให้หน่อย", "textures/items/iron_pickaxe"],
+    ["ดาบ (ดีที่สุดที่ทำได้)", "ทำดาบให้หน่อย", "textures/items/iron_sword"],
+    ["ขวาน", "ทำขวานให้หน่อย", "textures/items/iron_axe"],
+    ["พลั่ว", "ทำพลั่วให้หน่อย", "textures/items/iron_shovel"],
+    ["โต๊ะคราฟต์", "ทำโต๊ะคราฟต์ให้หน่อย", "textures/blocks/crafting_table_front"],
+    ["เตาเผา", "ทำเตาเผาให้หน่อย", "textures/blocks/furnace_front_off"],
+    ["หีบ", "ทำหีบให้หน่อย", "textures/blocks/chest_front"],
+    ["ไม้แท่ง 8", "ทำไม้แท่ง 8 ให้หน่อย", "textures/items/stick"],
+    ["หมวกเหล็ก", "ทำหมวกเหล็กให้หน่อย", "textures/items/iron_helmet"],
+    ["เสื้อเกราะเหล็ก", "ทำเสื้อเหล็กให้หน่อย", "textures/items/iron_chestplate"],
+    ["กางเกงเหล็ก", "ทำกางเกงเหล็กให้หน่อย", "textures/items/iron_leggings"],
+    ["รองเท้าเหล็ก", "ทำรองเท้าเหล็กให้หน่อย", "textures/items/iron_boots"],
+    ["ธนู", "ทำธนูให้หน่อย", "textures/items/bow_standby"],
+    ["ลูกธนู 8", "ทำลูกธนู 8 ให้หน่อย", "textures/items/arrow"],
+    ["ถัง", "ทำถังให้หน่อย", "textures/items/bucket_empty"],
+    ["โล่", "ทำโล่ให้หน่อย", "textures/items/iron_ingot"],
+  ];
+  const form = new ActionFormData().title("คราฟต์ของให้").body("Po ใช้วัตถุดิบในกระเป๋าของ Po (และในหีบคลังถ้าอยู่ใกล้)");
+  for (const [label, , icon] of items) form.button(label, icon);
+  const res = await showAction(player, form);
+  if (!res || res.canceled || res.selection === undefined) return;
+  const pickd = items[res.selection];
+  if (pickd) handleTalk(player, pickd[1]);
+}
+
+/** @param {Player} player */
+async function smeltMenu(player) {
+  const items = [
+    ["เผาแร่ดิบทั้งหมด (เหล็ก ทอง ทองแดง)", "เผาแร่"],
+    ["ย่างเนื้อดิบทั้งหมด", "ย่างเนื้อ"],
+    ["ทำถ่านไม้ 8 ก้อน", "ทำถ่าน 8"],
+    ["เผาทรายเป็นแก้ว", "เผาทราย"],
+    ["เผาหินกรวดเป็นหินเรียบ", "เผาหิน"],
+  ];
+  const form = new ActionFormData().title("เผา / ย่าง").body("ต้องมีเตาเผาและเชื้อเพลิง (ถ่าน ไม้ หรือแผ่นไม้) ชิ้นละ 10 วินาที");
+  for (const [label] of items) form.button(label, "textures/blocks/furnace_front_on");
+  const res = await showAction(player, form);
+  if (!res || res.canceled || res.selection === undefined) return;
+  const pickd = items[res.selection];
+  if (pickd) handleTalk(player, pickd[1]);
+}
+
+/** @param {Player} player */
+async function gearMenu(player) {
+  const data = dataOf(player);
+  const form = new ActionFormData()
+    .title(`อุปกรณ์ของ ${data.name}`)
+    .body(G.describe(data.gear).map((l) => `• ${l}`).join("\n") + "\n\nให้อุปกรณ์ Po: ถืออุปกรณ์แล้วกด \"ฝากของที่ถืออยู่\" ในกระเป๋า")
+    .button("อัปเกรดด้วยของที่มี", "textures/items/diamond_pickaxe")
+    .button("กลับ", "textures/items/paper");
+  const res = await showAction(player, form);
+  if (!res || res.canceled || res.selection === undefined) return;
+  if (res.selection === 0) {
+    const made = autoGear(player, data, { quiet: false });
+    if (!made.length) handleTalk(player, "อัปเกรด");
+  } else void workMenu(player);
+}
+
+/** @param {Player} player */
+async function chestMenu(player) {
+  const data = dataOf(player);
+  const where = data.chest ? `${posText(data.chest)} (${dimThai(data.chest.dim)})` : "ยังไม่ได้ตั้ง";
+  const form = new ActionFormData()
+    .title("หีบคลังของ")
+    .body(`หีบคลังของ Po: ${where}\nPo จะเก็บอุปกรณ์จำเป็นไว้กับตัว (โต๊ะคราฟต์ เตา คบไฟ ถ่าน อาหาร) ที่เหลือเอาเข้าหีบ`)
+    .button("ตั้งหีบที่ฉันมองอยู่", "textures/blocks/chest_front")
+    .button("เอาของเข้าหีบตอนนี้", "textures/items/totem")
+    .button("กลับ", "textures/items/paper");
+  const res = await showAction(player, form);
+  if (!res || res.canceled || res.selection === undefined) return;
+  if (res.selection === 0) handleTalk(player, "ตั้งหีบนี้");
+  else if (res.selection === 1) startTask(player, { kind: "deposit" });
+  else void workMenu(player);
+}

@@ -5,6 +5,9 @@ import { dataOf, loadById, touch, remember, rememberFind } from "./store.js";
 import { getPo, poSay, poSayText, onPoDied, lastHurt, setEmote, EMOTE, faceTo, bring } from "./po.js";
 import { mobTh } from "./names.js";
 import { ready } from "./speech.js";
+import * as G from "./gear.js";
+import { replaceBroken, syncCombat } from "./equip.js";
+import { busy } from "./po.js";
 
 /** @typedef {import("@minecraft/server").Player} Player */
 /** @typedef {import("./store.js").PoData} PoData */
@@ -32,6 +35,10 @@ export function subscribe() {
       if (typeof ownerId !== "string") return;
       const owner = playerById(ownerId);
       const data = loadById(ownerId);
+      if (data && ev.damage > 0 && G.wearArmor(data.gear)) {
+        touch(ownerId);
+        if (owner) poSayText(owner, data, "ชุดเกราะของผมพังแล้ว!");
+      }
       const hp = hurt.getComponent("minecraft:health");
       if (owner && data && hp && hp.currentValue > 0 && hp.currentValue < 12 && ready(`polow:${ownerId}`, 30)) {
         poSay(owner, data, "po_low_hp");
@@ -48,6 +55,19 @@ export function subscribe() {
   });
 
   world.afterEvents.entityHitEntity.subscribe((ev) => {
+    if (ev.damagingEntity.typeId === PO_TYPE) {
+      const ownerId = ev.damagingEntity.getDynamicProperty("po:owner");
+      const data = typeof ownerId === "string" ? loadById(ownerId) : undefined;
+      const owner = typeof ownerId === "string" ? playerById(ownerId) : undefined;
+      if (data && data.gear.sword && G.wear(data.gear, "sword")) {
+        touch(/** @type {string} */ (ownerId));
+        if (owner) {
+          replaceBroken(owner, data, "sword");
+          syncCombat(owner, data);
+        }
+      }
+      return;
+    }
     if (ev.hitEntity.typeId !== PO_TYPE || ev.damagingEntity.typeId !== "minecraft:player") return;
     const player = /** @type {Player} */ (ev.damagingEntity);
     const ownerId = ev.hitEntity.getDynamicProperty("po:owner");
@@ -194,6 +214,7 @@ export function periodic() {
         faceTo(po, c.location);
         setEmote(po, data, EMOTE.point, 40);
       }
+      if (creepers.length > 0 && data.mode !== "stay" && !busy.has(player.id)) shootAt(po, player, data, creepers[0]);
     } catch {}
 
     // a group of monsters
@@ -270,3 +291,45 @@ export function onSpawn(player, initial) {
   }, 60);
 }
 
+
+/**
+ * Po shoots an arrow at a creeper (needs a bow and arrows).
+ * @param {import("@minecraft/server").Entity} po @param {Player} owner @param {PoData} data
+ * @param {import("@minecraft/server").Entity} target
+ */
+function shootAt(po, owner, data, target) {
+  if (!data.gear.bow || (data.bag["minecraft:arrow"] ?? 0) <= 0) return;
+  if (!ready(`bow:${po.id}`, 1.5)) return;
+  const from = { x: po.location.x, y: po.location.y + 1.5, z: po.location.z };
+  const to = { x: target.location.x, y: target.location.y + 0.9, z: target.location.z };
+  const dx = to.x - from.x;
+  const dz = to.z - from.z;
+  const d = Math.hypot(dx, dz);
+  if (d > 16 || d < 2) return;
+  const dy = to.y - from.y + d * 0.04; // aim a little high for the drop
+  const len = Math.hypot(dx, dy, dz);
+  const speed = 2.4;
+  const start = { x: from.x + (dx / len) * 0.8, y: from.y + (dy / len) * 0.8, z: from.z + (dz / len) * 0.8 };
+  try {
+    const arrow = po.dimension.spawnEntity("minecraft:arrow", start);
+    const proj = arrow.getComponent("minecraft:projectile");
+    if (!proj) {
+      arrow.remove();
+      return;
+    }
+    proj.owner = po;
+    proj.shoot({ x: (dx / len) * speed, y: (dy / len) * speed, z: (dz / len) * speed });
+  } catch {
+    return;
+  }
+  faceTo(po, to);
+  setEmote(po, data, EMOTE.point, 20);
+  try {
+    po.dimension.playSound("random.bow", po.location);
+  } catch {}
+  data.bag["minecraft:arrow"] -= 1;
+  if (data.bag["minecraft:arrow"] <= 0) delete data.bag["minecraft:arrow"];
+  if (G.wear(data.gear, "bow")) replaceBroken(owner, data, "bow");
+  touch(owner.id);
+  if (ready(`bowsay:${owner.id}`, 30)) poSayText(owner, data, "ยิงครีปเปอร์! อย่าเข้าใกล้มันนะ");
+}

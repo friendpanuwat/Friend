@@ -2,6 +2,8 @@
 // and survives Po dying or being re-summoned. One record per owner.
 import { world, system } from "@minecraft/server";
 import { PO_NAME_DEFAULT } from "./util.js";
+import { emptyGear } from "./gear.js";
+import { emptySmelt } from "./smelt.js";
 
 const KEY = "po:d:";
 const MAX_LOG = 30;
@@ -25,7 +27,12 @@ const MAX_FINDS = 10;
  *   deathSpot: (Spot & { day: number }) | null,
  *   finds: (Spot & { what: string, day: number })[],
  *   log: { day: number, text: string }[],
- *   settings: { talk: number },
+ *   settings: { talk: number, rareOk: boolean, fast: boolean, autoSmelt: boolean },
+ *   gear: import("./gear.js").Gear,
+ *   smelt: import("./smelt.js").SmeltState,
+ *   chest: Spot | null,
+ *   seen: (Spot & { key: string, th: string, day: number })[],
+ *   keep: { m: string, n: number }[],
  *   gotWhistle: boolean,
  *   lastPos: Spot | null,
  *   stayAt: Spot | null,
@@ -55,7 +62,12 @@ function fresh(ownerName) {
     deathSpot: null,
     finds: [],
     log: [],
-    settings: { talk: 1 },
+    settings: { talk: 1, rareOk: false, fast: false, autoSmelt: true },
+    gear: emptyGear(),
+    smelt: emptySmelt(),
+    chest: null,
+    seen: [],
+    keep: [],
     gotWhistle: false,
     lastPos: null,
     stayAt: null,
@@ -81,6 +93,9 @@ export function loadById(ownerId, ownerName) {
       // fill fields added in later versions
       loaded.stats = Object.assign(fresh("").stats, loaded.stats);
       loaded.settings = Object.assign(fresh("").settings, loaded.settings);
+      loaded.gear = Object.assign(emptyGear(), loaded.gear);
+      loaded.smelt = Object.assign(emptySmelt(), loaded.smelt);
+      if (!Array.isArray(loaded.keep)) loaded.keep = [];
       data = loaded;
     } catch {
       data = undefined;
@@ -141,4 +156,39 @@ export function startAutosave() {
   system.runInterval(() => {
     for (const id of [...dirty]) saveNow(id);
   }, 100);
+}
+
+/**
+ * Items Po collected for the owner ("keep"): Po never uses them for his own gear.
+ * m is an item id, or "wood:<key>" / "wood:any" for logs.
+ * @param {string} m @returns {(id: string) => boolean}
+ */
+export function keepMatcher(m) {
+  if (m.startsWith("wood:")) {
+    const w = m.slice(5);
+    return (id) => /_(log|stem)$/.test(id) && !id.includes("stripped") && (w === "any" || id === `minecraft:${w}_log`);
+  }
+  const smelted = { "minecraft:raw_iron": "minecraft:iron_ingot", "minecraft:raw_gold": "minecraft:gold_ingot", "minecraft:raw_copper": "minecraft:copper_ingot", "minecraft:ancient_debris": "minecraft:netherite_scrap" }[m];
+  return (id) => id === m || id === smelted;
+}
+
+/** @param {PoData} data @param {string} m @param {number} n */
+export function addKeep(data, m, n) {
+  if (n <= 0) return;
+  const e = data.keep.find((k) => k.m === m);
+  if (e) e.n += n;
+  else data.keep.push({ m, n });
+}
+
+/** The owner took some items: release that much of the keep list. @param {PoData} data @param {string} id @param {number} n */
+export function releaseKeep(data, id, n) {
+  let left = n;
+  for (const e of data.keep) {
+    if (left <= 0) break;
+    if (!keepMatcher(e.m)(id)) continue;
+    const r = Math.min(left, e.n);
+    e.n -= r;
+    left -= r;
+  }
+  data.keep = data.keep.filter((e) => e.n > 0);
 }

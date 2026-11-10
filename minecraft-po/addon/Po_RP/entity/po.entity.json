@@ -18,17 +18,45 @@
           "variable.emote = query.property('po:emote');"
         ],
         "animate": [
-          { "look_at_target": "variable.emote != 2" },
-          { "walk": "variable.emote == 0 || variable.emote == 5" },
-          { "idle_arms": "variable.emote == 0" },
-          { "attack": "variable.attack_time > 0.0" },
-          { "wave": "variable.emote == 1" },
-          { "dance": "variable.emote == 2" },
-          { "sit": "variable.emote == 3" },
-          { "cheer": "variable.emote == 4" },
-          { "scared": "variable.emote == 5" },
-          { "point": "variable.emote == 6" },
-          { "sleep": "variable.emote == 7" }
+          {
+            "look_at_target": "variable.emote != 2"
+          },
+          {
+            "walk": "variable.emote == 0 || variable.emote == 5"
+          },
+          {
+            "idle_arms": "variable.emote == 0"
+          },
+          {
+            "attack": "variable.attack_time > 0.0"
+          },
+          {
+            "wave": "variable.emote == 1"
+          },
+          {
+            "dance": "variable.emote == 2"
+          },
+          {
+            "sit": "variable.emote == 3"
+          },
+          {
+            "cheer": "variable.emote == 4"
+          },
+          {
+            "scared": "variable.emote == 5"
+          },
+          {
+            "point": "variable.emote == 6"
+          },
+          {
+            "sleep": "variable.emote == 7"
+          },
+          {
+            "walk_loop": "variable.emote == 8"
+          },
+          {
+            "work": "variable.emote == 9"
+          }
         ]
       },
       "animations": {
@@ -42,9 +70,13 @@
         "cheer": "animation.po.cheer",
         "scared": "animation.po.scared",
         "point": "animation.po.point",
-        "sleep": "animation.po.sleep"
+        "sleep": "animation.po.sleep",
+        "walk_loop": "animation.po.walk_loop",
+        "work": "animation.po.work"
       },
-      "render_controllers": ["controller.render.po"]
+      "render_controllers": [
+        "controller.render.po"
+      ]
     }
   }
 }

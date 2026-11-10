@@ -1,17 +1,26 @@
 // Po's body: summoning, modes, following across distance and dimensions,
 // healing, emotes, death, and cleaning up duplicates.
-import { world, system } from "@minecraft/server";
+import { world, system, ItemStack } from "@minecraft/server";
 import { PO_TYPE, dist, posText, relativeDir, compassThai, dimThai } from "./util.js";
 import { dataOf, loadById, touch, saveNow, remember, allOwnerIds } from "./store.js";
 import * as Bag from "./bag.js";
 import { say, line, notice } from "./speech.js";
+import * as G from "./gear.js";
+import { pending as smeltPending } from "./smelt.js";
 
 /** @typedef {import("./store.js").PoData} PoData */
 /** @typedef {import("@minecraft/server").Player} Player */
 /** @typedef {import("@minecraft/server").Entity} Entity */
 /** @typedef {import("@minecraft/server").Vector3} Vector3 */
 
-export const EMOTE = { none: 0, wave: 1, dance: 2, sit: 3, cheer: 4, scared: 5, point: 6, sleep: 7 };
+export const EMOTE = { none: 0, wave: 1, dance: 2, sit: 3, cheer: 4, scared: 5, point: 6, sleep: 7, walk: 8, work: 9 };
+
+/** Owners whose Po is busy with a job (tasks.js); Po is then not pulled back to the owner. */
+export const busy = new Set();
+
+/** Set by main.js: runs after Po appears (applies sword/armour). */
+/** @type {{ afterSummon: (owner: Player, data: PoData) => void }} */
+export const hooks = { afterSummon: () => {} };
 export const MODE_TH = { follow: "เดินตาม", guard: "คุ้มกัน", stay: "รออยู่กับที่" };
 
 /** @type {Map<string, number>} Po id -> emote token */
@@ -148,6 +157,7 @@ export function summon(player, reason) {
   setEmote(po, data, EMOTE.wave, 50);
   const key = reason === "first" ? "first_meet" : reason;
   system.runTimeout(() => poSay(player, data, key), 10);
+  system.runTimeout(() => hooks.afterSummon(player, data), 2);
   return po;
 }
 
@@ -262,8 +272,15 @@ export function onPoDied(dead) {
       dim = world.getDimension(data.lastPos.dim);
     }
   }
-  const hadItems = Object.keys(data.bag).length > 0;
-  if (where && dim) Bag.dropAll(dim, where, data.bag);
+  // like a player: everything Po carries falls on the ground
+  for (const [id, n] of Object.entries(smeltPending(data.smelt))) data.bag[id] = (data.bag[id] ?? 0) + n;
+  data.smelt.jobs = [];
+  const hadItems = Object.keys(data.bag).length > 0 || G.TOOL_KINDS.some((kd) => data.gear[kd]) || !!data.gear.armor || !!data.gear.bow;
+  if (where && dim) {
+    Bag.dropAll(dim, where, data.bag);
+    dropGear(dim, where, data.gear);
+  }
+  data.gear = G.emptyGear();
   data.poId = null;
   data.deadUntil = Date.now() + 60_000;
   data.stats.poDeaths++;
@@ -300,7 +317,7 @@ export function tick() {
       touch(player.id);
     }
 
-    if (data.mode !== "stay") {
+    if (data.mode !== "stay" && !busy.has(player.id)) {
       let far = false;
       try {
         far = po.dimension.id !== player.dimension.id || dist(po.location, player.location) > 20;
@@ -336,7 +353,7 @@ export function isAlive(player) {
  * @param {Player} player @param {PoData} data
  */
 function handleMissing(player, data) {
-  if (data.mode === "stay" || !isAlive(player)) return;
+  if (data.mode === "stay" || busy.has(player.id) || !isAlive(player)) return;
   const since = missingSince.get(player.id);
   if (since === undefined) {
     missingSince.set(player.id, Date.now());
@@ -412,4 +429,32 @@ function adopt(po) {
   saveNow(best.id);
   const who = best;
   system.runTimeout(() => poSay(who, data, data.stats.days > 0 ? "summon" : "first_meet"), 10);
+  system.runTimeout(() => hooks.afterSummon(who, data), 2);
+}
+
+/**
+ * Drop Po's tools and armour as real items with their wear.
+ * @param {import("@minecraft/server").Dimension} dim @param {Vector3} at @param {G.Gear} gear
+ */
+function dropGear(dim, at, gear) {
+  /** @type {[string, number, number][]} id, durability left, max */
+  const items = [];
+  for (const kd of G.TOOL_KINDS) {
+    const t = gear[kd];
+    if (t) items.push([G.toolItemId(t.tier, kd), t.dur, G.MAX_DUR[t.tier]]);
+  }
+  if (gear.bow) items.push(["minecraft:bow", gear.bow.dur, G.BOW_DUR]);
+  if (gear.armor) {
+    const p = G.PREFIX[gear.armor.tier];
+    const share = gear.armor.dur / G.ARMOR_DUR[gear.armor.tier];
+    for (const piece of ["helmet", "chestplate", "leggings", "boots"]) items.push([`minecraft:${p}_${piece}`, share, 1]);
+  }
+  for (const [id, left, max] of items) {
+    try {
+      const stack = new ItemStack(id, 1);
+      const d = stack.getComponent("minecraft:durability");
+      if (d) d.damage = Math.max(0, Math.min(d.maxDurability - 1, Math.round(d.maxDurability * (1 - left / max))));
+      dim.spawnItem(stack, at);
+    } catch {}
+  }
 }
