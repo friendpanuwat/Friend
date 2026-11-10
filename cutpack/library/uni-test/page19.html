@@ -1,0 +1,218 @@
+<title>หมวดที่ยังขาด</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* layout: one reading column like pages 16-18; a bar list of missing groups first, then each group with every line it holds */
+:root{
+  --bg:#F3F4F6; --card:#FFFFFF; --fg:#16181D; --muted:#5E6470; --line:#DEE1E7; --accent:#1F6F6A; --accent-soft:#DCEEEC; --warm:#8A5A12; --warm-soft:#F6ECDB;
+  --off:#B4441C; --off-soft:#FBE7DE; --track:#E6E8EC;
+  --display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif; --body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --warm:#E3B66A; --warm-soft:#2E2414;
+  --off:#F08A62; --off-soft:#3A2016; --track:#23272E; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --warm:#E3B66A; --warm-soft:#2E2414;
+  --off:#F08A62; --off-soft:#3A2016; --track:#23272E; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(26px,6vw,34px);font-weight:700} h2{font-size:22px;font-weight:700} h3{font-size:18px;font-weight:600}
+p{margin:0} b{font-weight:600}
+.lede{display:flex;flex-direction:column;gap:12px} .lede p{color:var(--muted);max-width:62ch}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.fact{font-size:14px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:4px 12px;font-weight:500}
+.fact.off{background:var(--off-soft);color:var(--off)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.box ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+section{display:flex;flex-direction:column;gap:12px}
+.chart{display:flex;flex-direction:column;gap:4px}
+.bar,.cbar{display:grid;grid-template-columns:11em minmax(0,1fr) 2em 4em;align-items:center;gap:8px;font-size:14px;border-radius:8px;padding:3px 4px;color:inherit;text-decoration:none}
+.cbar{grid-template-columns:11em minmax(0,1fr) 2em}
+.bar:hover,.bar:focus-visible{background:var(--accent-soft);outline:none}
+.bname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track{height:12px;background:var(--track);border-radius:4px;overflow:hidden}
+.fill{display:block;height:100%;background:var(--off);border-radius:0 4px 4px 0} .fill.soft{background:var(--accent)}
+.bval{font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+.nv{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--muted)}
+.group{border-top:1px solid var(--line);padding-top:20px;gap:8px;scroll-margin-top:16px}
+.ghead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px}
+.count{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.why{color:var(--muted)}
+.chip{display:inline-block;font-size:13px;font-weight:600;border-radius:999px;padding:2px 10px}
+.chip.new{background:var(--accent-soft);color:var(--accent)} .chip.draft{background:var(--warm-soft);color:var(--warm)}
+.chip.wait{background:var(--track);color:var(--muted)}
+details summary{cursor:pointer;color:var(--accent);font-weight:500;font-size:15px;width:fit-content}
+details summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.lines{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:10px}
+.lines li{display:flex;flex-direction:column;gap:2px;min-width:0}
+.lines q{quotes:"“" "”"}
+.meta{font-size:13px;color:var(--muted)}
+.tag{font-weight:600} .tag.none{color:var(--off)} .tag.forced{color:var(--warm)}
+@media (max-width:420px){.bar{grid-template-columns:8.6em minmax(0,1fr) 1.6em 3.6em;gap:6px} .cbar{grid-template-columns:8.6em minmax(0,1fr) 1.6em;gap:6px}}
+</style>
+<div class="wrap">
+  <header class="lede">
+    <h1>หมวดที่ยังขาด</h1>
+    <p>ผมอ่านบทพูดคลิปของคนอื่นที่ Friend ส่งมาเองทั้งหมด แบ่งเป็นช่วงที่มีเนื้อหาพอจะมีภาพ แล้วดูทีละช่วงว่าเข้าหมวดไหน เข้าแบบฝืน หรือไม่มีหมวดเลย</p>
+    <div class="facts"><span class="fact">26 คลิป</span><span class="fact">344 ช่วง</span>
+      <span class="fact">เข้าหมวดได้ 70%</span><span class="fact off">ไม่มีหมวดที่ตรง 30%</span></div>
+    <p class="note">ไม่มีหมวดที่ตรง = ฝืน 33 ช่วง (ภาพจะผิดความหมาย) กับไม่มีหมวดเลย 70 ช่วง · ผมจัดเองคนเดียว ช่วงที่ก้ำกึ่งอาจตัดสินต่างจาก Friend ได้</p>
+  </header>
+
+  <section>
+    <h2>ช่วงที่ไม่มีหมวด แบ่งเป็นกลุ่ม</h2>
+    <p class="note">ตัวเลขคือจำนวนช่วง ข้างหลังคือเจอในกี่คลิป กลุ่มที่เจอในหลายคลิปใช้ได้กว้างกว่า กดชื่อกลุ่มเพื่อดูประโยค</p>
+    <div class="chart"><a class="bar" href="#list"><span class="bname">ไล่รายการหลายอย่าง</span>
+<span class="track"><span class="fill" style="width:100%"></span></span>
+<span class="bval">15</span><span class="nv">13 คลิป</span></a><a class="bar" href="#event"><span class="bname">เล่าเหตุการณ์</span>
+<span class="track"><span class="fill" style="width:93%"></span></span>
+<span class="bval">14</span><span class="nv">7 คลิป</span></a><a class="bar" href="#feel"><span class="bname">ความรู้สึก</span>
+<span class="track"><span class="fill" style="width:87%"></span></span>
+<span class="bval">13</span><span class="nv">7 คลิป</span></a><a class="bar" href="#relation"><span class="bname">ความสัมพันธ์ของคน</span>
+<span class="track"><span class="fill" style="width:53%"></span></span>
+<span class="bval">8</span><span class="nv">6 คลิป</span></a><a class="bar" href="#place"><span class="bname">สถานที่</span>
+<span class="track"><span class="fill" style="width:53%"></span></span>
+<span class="bval">8</span><span class="nv">5 คลิป</span></a><a class="bar" href="#social"><span class="bname">โพสต์ / ค้นหาในโซเชียล</span>
+<span class="track"><span class="fill" style="width:53%"></span></span>
+<span class="bval">8</span><span class="nv">4 คลิป</span></a><a class="bar" href="#topic"><span class="bname">เปิดหัวข้อ</span>
+<span class="track"><span class="fill" style="width:53%"></span></span>
+<span class="bval">8</span><span class="nv">4 คลิป</span></a><a class="bar" href="#analogy"><span class="bname">เปรียบเปรย</span>
+<span class="track"><span class="fill" style="width:47%"></span></span>
+<span class="bval">7</span><span class="nv">5 คลิป</span></a><a class="bar" href="#level"><span class="bname">ระดับ / จัดอันดับ</span>
+<span class="track"><span class="fill" style="width:40%"></span></span>
+<span class="bval">6</span><span class="nv">2 คลิป</span></a><a class="bar" href="#equal"><span class="bname">ไม่ต่างกัน</span>
+<span class="track"><span class="fill" style="width:33%"></span></span>
+<span class="bval">5</span><span class="nv">4 คลิป</span></a><a class="bar" href="#dream"><span class="bname">ความฝัน / อยากเป็น</span>
+<span class="track"><span class="fill" style="width:33%"></span></span>
+<span class="bval">5</span><span class="nv">3 คลิป</span></a><a class="bar" href="#opinion"><span class="bname">ความเห็นของคนพูด</span>
+<span class="track"><span class="fill" style="width:20%"></span></span>
+<span class="bval">3</span><span class="nv">2 คลิป</span></a><a class="bar" href="#match"><span class="bname">เหมาะกัน / ตอบโจทย์</span>
+<span class="track"><span class="fill" style="width:13%"></span></span>
+<span class="bval">2</span><span class="nv">2 คลิป</span></a><a class="bar" href="#other"><span class="bname">อื่น ๆ</span>
+<span class="track"><span class="fill" style="width:7%"></span></span>
+<span class="bval">1</span><span class="nv">1 คลิป</span></a></div>
+  </section>
+
+  <section class="box">
+    <h2>ผมแนะนำ</h2>
+    <ol>
+      <li><b>เพิ่ม 5 หมวดใหม่ก่อน:</b> ไล่รายการ · เล่าเหตุการณ์ · ความรู้สึก · ความสัมพันธ์ของคน · สถานที่ (เจอในหลายคลิปที่สุด)</li>
+      <li><b>บางกลุ่มไม่ต้องเป็นหมวดใหม่</b> ทำเป็นร่างใหม่ในหมวดเดิมได้ เช่น "ไม่ต่างกัน" เป็นร่างของเปรียบเทียบ "ความฝัน" เป็นร่างของเป้าหมาย "โพสต์ / ค้นหาในโซเชียล" เป็นร่างของแชต</li>
+      <li><b>"เปิดหัวข้อ"</b> เป็นหมวดใหม่รอบถัดไป</li>
+      <li><b>กลุ่มที่เจอแค่ 2 คลิป</b> รอดูบทพูดเพิ่มก่อน</li>
+    </ol>
+    <p class="note">ป้ายใต้แต่ละกลุ่มด้านล่างบอกว่าผมแนะนำแบบไหน Friend เป็นคนเลือก</p>
+  </section>
+
+  <section class="group" id="list">
+<div class="ghead"><h3>ไล่รายการหลายอย่าง</h3><span class="count">15 ช่วง · 13 คลิป</span></div>
+<p><b>ประโยคทำอะไร:</b> ของหลายอย่างที่ไม่ใช่ขั้นตอน (3 เลเยอร์ของชุดนักเรียน · Microsoft Meta Google SpaceX)</p>
+<p class="why"><b>ทำไมหมวดเดิมไม่พอ:</b> ขั้นตอนมีลำดับหรือติ๊กถูก ซึ่งบอกว่าเป็นสิ่งที่ต้องทำ แต่รายการพวกนี้ไม่ใช่</p>
+<div><span class="chip new">หมวดใหม่</span></div>
+<details><summary>ดูทุกช่วง (15)</summary><ul class="lines"><li><q>ลูกนกแก้ว ลูกนกเค้า ลูกนกเงือกมาวางขายโจ่งครึ่ม</q><span class="meta">ตลาดสัตว์จตุจักร · <span class="tag forced">ฝืนเข้า B04 ขั้นตอน</span></span></li><li><q>ต้องเทียบบัญญัติไตรยางศ์ พื้นดิน ความดันบรรยากาศ แรงโน้มถ่วง ฟิสิกส์ เคมี</q><span class="meta">นายกกับน้ำท่วม · <span class="tag forced">ฝืนเข้า B04 ขั้นตอน</span></span></li><li><q>ห้องไว้ Hang out เล่นกีต้าร์ เล่นเปียโน แล้วก็มี Drink</q><span class="meta">รีวิวบ้านในฝัน · <span class="tag forced">ฝืนเข้า B04 ขั้นตอน</span></span></li><li><q>บ้านเรานะ ยังไงก็ต้องมีสระว่ายน้ำ</q><span class="meta">รีวิวบ้านในฝัน · <span class="tag forced">ฝืนเข้า B04 ขั้นตอน</span></span></li><li><q>ปีนี้สิ่งที่เรามาโฟกัสคือการทำ Marketing การทำ Community</q><span class="meta">Passion หรือ Money · <span class="tag forced">ฝืนเข้า B04 ขั้นตอน</span></span></li><li><q>แบรนด์หลายอย่างโฟกัสแค่ออนไลน์ การจ้างคนมารีวิว การจ้างให้เห็น</q><span class="meta">การตลาดผ่านคอมมูนิตี้ · <span class="tag forced">ฝืนเข้า B04 ขั้นตอน</span></span></li><li><q>1 วันของพี่ก็จะไปเที่ยวกับเพื่อน แล้วก็คงจะขายของอยู่มั้ง</q><span class="meta">สัมภาษณ์ร้านก๋วยเตี๋ยว · <span class="tag forced">ฝืนเข้า B04 ขั้นตอน</span></span></li><li><q>แถมยังมีค่าโอนและค่าใช้จ่ายอื่นๆ ในวันซื้ออีก</q><span class="meta">ซื้อหรือเช่าคอนโด · <span class="tag forced">ฝืนเข้า B04 ขั้นตอน</span></span></li><li><q>มันแชร์ง่าย ย่อยง่าย วิธีอธิบายเห็นภาพชัดเจน มันก็เลยดัง</q><span class="meta">หมอกลัวเชื้อรา (วิเคราะห์คลิป) · <span class="tag forced">ฝืนเข้า B12 เหตุกับผล</span></span></li><li><q>โฟลว์แปลกๆ เสียงสูงๆ และการใช้เสียงเหมือนเป็นเครื่องดนตรี</q><span class="meta">แรปเปอร์ยังเติร์ก · <span class="tag forced">ฝืนเข้า B04 ขั้นตอน</span></span></li><li><q>ต้องใส่ทั้งหมด 3 เลเยอร์ เสื้อชั้นใน เสื้อกล้ามทับ แล้วก็ชุดนักเรียน</q><span class="meta">ชุดนักเรียนสีขาว · <span class="tag forced">ฝืนเข้า B04 ขั้นตอน</span></span></li><li><q>ทำครีเอทีฟเก่ง ตัดต่อเก่ง เล่าสตอรี่เทลลิ่งเก่ง ไฟแนนเชียลแอนาลิซิสเก่ง</q><span class="meta">เรซูเม่กับผลงาน · <span class="tag forced">ฝืนเข้า B04 ขั้นตอน</span></span></li><li><q>สงครามยืดเยื้อ เงินเฟ้อ ค่าน้ำมัน ค่าครองชีพ ดอกเบี้ยเพิ่มขึ้น</q><span class="meta">ฟองสบู่ AI · <span class="tag forced">ฝืนเข้า B02 เพิ่มขึ้น / ลดลง</span></span></li><li><q>คนที่กู้ไปซื้อ GPU ได้ มีแค่ Microsoft, Meta, Google แล้วก็ SpaceX</q><span class="meta">ฟองสบู่ AI · <span class="tag forced">ฝืนเข้า B04 ขั้นตอน</span></span></li><li><q>ศาลพิจารณาทั้งอัตราโทษ โอกาสที่จะหนี โอกาสที่จะยุ่งกับพยานหลักฐาน</q><span class="meta">ทนายกับคดีประกันตัว · <span class="tag forced">ฝืนเข้า B04 ขั้นตอน</span></span></li></ul></details>
+</section><section class="group" id="event">
+<div class="ghead"><h3>เล่าเหตุการณ์</h3><span class="count">14 ช่วง · 7 คลิป</span></div>
+<p><b>ประโยคทำอะไร:</b> เล่าว่าใครทำอะไรหรือเกิดอะไรขึ้น (ถูกจับ เปิดร้าน เดินเข้าไปหา นั่งคุยครึ่งชั่วโมง)</p>
+<p class="why"><b>ทำไมหมวดเดิมไม่พอ:</b> เวลาวาดได้แค่ลำดับ เหตุกับผลต้องมีผลตามมา ไม่มีหมวดที่วาด &quot;สิ่งที่เกิดขึ้น&quot; ตรง ๆ</p>
+<div><span class="chip new">หมวดใหม่</span></div>
+<details><summary>ดูทุกช่วง (14)</summary><ul class="lines"><li><q>เห็นคลิปทรายสมุทรปลอมตัวไปถ่ายคลิปที่ตลาดจตุจักร</q><span class="meta">ตลาดสัตว์จตุจักร · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>สมัยก่อนผมทำงาน Banking ผมเข้าไปเพราะว่าผมอยากได้เงิน</q><span class="meta">Passion หรือ Money · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>พี่พึ่งเปิดร้านอบนวดไปแล้วตอนนี้</q><span class="meta">สัมภาษณ์ร้านก๋วยเตี๋ยว · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>พี่ก็เคยไปขอซื้อแฟรนไชส์ก๋วยเตี๋ยวไก่มาขาย แต่เขาไม่ขาย</q><span class="meta">สัมภาษณ์ร้านก๋วยเตี๋ยว · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ปี 2022 เติร์กก็ถูกจับในคดีใหญ่</q><span class="meta">แรปเปอร์ยังเติร์ก · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>เพลงของเขาหลายเพลงถูกเอาไปใช้เป็นหลักฐานในศาล</q><span class="meta">แรปเปอร์ยังเติร์ก · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>วันนี้ผมจ้างเชฟคนนึงมาส่งอาหารให้ผมทุกวัน</q><span class="meta">Fastwork สายงานเชฟ · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>แต่งงานแล้วแต่ว่าไม่มีทายาท</q><span class="meta">แต่งงานในเครือญาติ · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>จากประสบการณ์ที่ผมพยายามจะคุยกับผู้บริหารหลายคนมากๆ</q><span class="meta">เทคนิคคุยกับผู้บริหาร · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>อาจจะฟังดูแบบได้หรือเปล่าวะ แต่ผมเคยไปลองทำมาแล้ว</q><span class="meta">เทคนิคคุยกับผู้บริหาร · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ผมทำธุรกิจตู้หยอดเหรียญก็น็อคมาก่อน</q><span class="meta">เทคนิคคุยกับผู้บริหาร · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ผมไปที่สามย่านมิตรทาวน์ก่อนงานวันนึง ไปดูว่าสถานที่เป็นยังไง</q><span class="meta">เทคนิคคุยกับผู้บริหาร · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>จังหวะที่พี่คิมเดินลงจากเวทีปุ๊บ ผมก็เดินเข้าไปหาเขาเลย ไปแนะนำตัว</q><span class="meta">เทคนิคคุยกับผู้บริหาร · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>วันนั้นผมได้นั่งคุยกับพี่คิมประมาณครึ่งชั่วโมง</q><span class="meta">เทคนิคคุยกับผู้บริหาร · <span class="tag none">ไม่มีหมวด</span></span></li></ul></details>
+</section><section class="group" id="feel">
+<div class="ghead"><h3>ความรู้สึก</h3><span class="count">13 ช่วง · 7 คลิป</span></div>
+<p><b>ประโยคทำอะไร:</b> คนพูดบอกความรู้สึกของตัวเองหรือของคนอื่น (โกรธ สบายใจ สนุก ฟิน กลัว)</p>
+<p class="why"><b>ทำไมหมวดเดิมไม่พอ:</b> ไม่มีหมวดไหนวาดอารมณ์ ใกล้สุดคือประโยคเด็ด แต่ภาพไม่บอกว่ารู้สึกอะไร</p>
+<div><span class="chip new">หมวดใหม่</span></div>
+<details><summary>ดูทุกช่วง (13)</summary><ul class="lines"><li><q>ผมยังจำความรู้สึกโกรธแค้นได้เลย</q><span class="meta">ตลาดสัตว์จตุจักร · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>รู้สึกหงุดหงิดรำคาญตลาดจตุจักรมากๆ เลย</q><span class="meta">ตลาดสัตว์จตุจักร · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ผมก็รู้สึกสบายใจขึ้นเยอะเลย</q><span class="meta">ตลาดสัตว์จตุจักร · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ไอเป็นคนที่ชอบบ้านโปร่งๆ แบบนี้มาก</q><span class="meta">รีวิวบ้านในฝัน · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ลองวิ่งเสร็จแล้วก็มาดิ๊บลงน้ำ โคตรฟิน</q><span class="meta">รีวิวบ้านในฝัน · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ในทางกลับกันคือผมไม่ได้เอ็นจอยกับมัน</q><span class="meta">Passion หรือ Money · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>มันฟูลฟิล Passion ผมกว่าเยอะ</q><span class="meta">Passion หรือ Money · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>พี่โคตรพีคเลย ไม่คิดเลย</q><span class="meta">สัมภาษณ์ร้านก๋วยเตี๋ยว · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ทำแล้วมันก็สนุก</q><span class="meta">หมอที่อยากเป็นนักแสดง · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>หวังว่าคลิปของหนูจะทำให้ทุกคนยิ้มได้เหมือนที่ทุกคนทำให้หนูยิ้มได้</q><span class="meta">หมอที่อยากเป็นนักแสดง · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>บางทีก็สงสารคนตอบนะ แต่ว่าก็หยุดถามไม่ได้อยู่ดี</q><span class="meta">คำถามลองใจแฟน · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ความรู้สึกนี้อาจจะทำให้คุณรู้สึกชอบผมก็ได้ หรือว่ากลัวกับบางสิ่ง</q><span class="meta">นักขายที่ดีที่สุด · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ทำให้คุณรู้สึกกลัว ทำให้คุณรู้สึกหวั่นไหว ทำให้คุณรู้สึกโลภ</q><span class="meta">นักขายที่ดีที่สุด · <span class="tag none">ไม่มีหมวด</span></span></li></ul></details>
+</section><section class="group" id="relation">
+<div class="ghead"><h3>ความสัมพันธ์ของคน</h3><span class="count">8 ช่วง · 6 คลิป</span></div>
+<p><b>ประโยคทำอะไร:</b> คนสองคนหรือหลายคนเกี่ยวกันอย่างไร (แฟนเก่า ลุงกับหลาน เพื่อนกัน คอลแล็บ)</p>
+<p class="why"><b>ทำไมหมวดเดิมไม่พอ:</b> หมวดคนวาดได้แค่คนหรือฝูงคน ไม่มีเส้นเชื่อมระหว่างคน</p>
+<div><span class="chip new">หมวดใหม่</span></div>
+<details><summary>ดูทุกช่วง (8)</summary><ul class="lines"><li><q>วันนี้เราได้มาคอลแล็บกับแสนสิริ</q><span class="meta">Passion หรือ Money · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ใช่ เป็นร้านของแฟนเก่าพี่เอง</q><span class="meta">สัมภาษณ์ร้านก๋วยเตี๋ยว · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>เด็กไม่ได้มีอำนาจการตัดสินใจ เค้าไม่สามารถปฏิเสธพ่อแม่ได้</q><span class="meta">พ่อแม่โพสต์เรื่องลูก · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>บางคู่เลิกกันดี ไม่ได้เกลียดกัน เลยกลับมาทักทายได้ ปรึกษากันได้</q><span class="meta">เพื่อนกับแฟนเก่า · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>วันที่ต่างคนต่างมีแฟนใหม่แล้ว มันก็ควรจะมีขอบเขตนิดนึง</q><span class="meta">เพื่อนกับแฟนเก่า · <span class="tag forced">ฝืนเข้า B07 คำเตือน</span></span></li><li><q>ควรให้เกียรติแฟนปัจจุบันของเรา แล้วก็แฟนใหม่ของแฟนเก่าเราด้วย</q><span class="meta">เพื่อนกับแฟนเก่า · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>พ่อกับแม่เขาเป็นลุงกับหลานกัน แล้วปู่ย่าตายายก็เครือญาติกันอีก</q><span class="meta">แต่งงานในเครือญาติ · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ได้แลกคอนแทกต์กัน จนตอนนี้เป็นเพื่อนกันในเฟซบุ๊ก เป็นเพื่อนกันในไลน์</q><span class="meta">เทคนิคคุยกับผู้บริหาร · <span class="tag none">ไม่มีหมวด</span></span></li></ul></details>
+</section><section class="group" id="place">
+<div class="ghead"><h3>สถานที่</h3><span class="count">8 ช่วง · 5 คลิป</span></div>
+<p><b>ประโยคทำอะไร:</b> บอกว่าอยู่ที่ไหน หรืออะไรอยู่ตรงไหน (สามย่านมิตรทาวน์ ชั้น G หน้า KFC · ด้านขวาเป็นห้องนั่งเล่น)</p>
+<p class="why"><b>ทำไมหมวดเดิมไม่พอ:</b> ไม่มีหมวดที่มีหมุดแผนที่หรือผังห้อง</p>
+<div><span class="chip new">หมวดใหม่</span></div>
+<details><summary>ดูทุกช่วง (8)</summary><ul class="lines"><li><q>Living room อยู่ด้านขวา ด้านซ้ายเราจะมีห้อง Multi Purpose Room</q><span class="meta">รีวิวบ้านในฝัน · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ชั้น 2 มันมีโซนตรงกลางโปร่งๆ ให้แสงธรรมชาติเข้าได้</q><span class="meta">รีวิวบ้านในฝัน · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ชื่อโครงการอะไร Wisdom First Residence</q><span class="meta">รีวิวบ้านในฝัน · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>วันนี้เราอยู่ที่แสนสิรินะครับ</q><span class="meta">การตลาดผ่านคอมมูนิตี้ · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ก๋วยเตี๋ยวไก่ราชวัตร ตรงข้ามกับธนาคารกรุงเทพ</q><span class="meta">สัมภาษณ์ร้านก๋วยเตี๋ยว · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>แล้วเชื้อรามันอยู่ในไหนบ้าง / อยู่ทุกที่</q><span class="meta">หมอกลัวเชื้อรา (วิเคราะห์คลิป) · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>เจอว่าพี่คิมจะไปพูดที่สามย่านมิตรทาวน์</q><span class="meta">เทคนิคคุยกับผู้บริหาร · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>มันอยู่ตรงชั้น G ตรงหน้า KFC ซึ่งมันไม่ได้ใหญ่มาก</q><span class="meta">เทคนิคคุยกับผู้บริหาร · <span class="tag none">ไม่มีหมวด</span></span></li></ul></details>
+</section><section class="group" id="social">
+<div class="ghead"><h3>โพสต์ / ค้นหาในโซเชียล</h3><span class="count">8 ช่วง · 4 คลิป</span></div>
+<p><b>ประโยคทำอะไร:</b> โพสต์ แคปแชตลง ถ่ายคลิปลง ค้นหาแล้วไม่เจอหรือเจอ</p>
+<p class="why"><b>ทำไมหมวดเดิมไม่พอ:</b> มือถือในหมวดแชตวาดได้แค่ข้อความ ไม่มีหน้าโพสต์หรือช่องค้นหา</p>
+<div><span class="chip draft">ร่างใหม่ใน B11 คำพูด / แชต / รีวิว</span></div>
+<details><summary>ดูทุกช่วง (8)</summary><ul class="lines"><li><q>ก็เลยแอบทำ TikTok ทำอะไรของเรา</q><span class="meta">หมอที่อยากเป็นนักแสดง · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ลูกมาปรึกษาพ่อแม่ แต่พ่อแม่แคปแชทอันนั้นมาลงโซเชียล</q><span class="meta">พ่อแม่โพสต์เรื่องลูก · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ถ่ายคลิปลูกใส่ชุดนักเรียน เห็นชื่อโรงเรียน เห็นชื่อจริงนามสกุลลูก</q><span class="meta">พ่อแม่โพสต์เรื่องลูก · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ปัญหาที่ลูกเจอในโรงเรียนก็เอามาเล่าให้คนในโซเชียลฟัง</q><span class="meta">พ่อแม่โพสต์เรื่องลูก · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>เสิร์ชคำว่า personal trainer ใน IG ใน Facebook ใน Google ชื่อคุณไม่มีทางโผล่</q><span class="meta">Fastwork เปิดค้นหา · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>เขาต้องเสิร์ช username ของคุณ หรือชื่อเป๊ะๆ ใน Facebook</q><span class="meta">Fastwork เปิดค้นหา · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ใน Fastwork ลูกค้าเสิร์ชคำว่า personal trainer แล้วคุณโผล่ขึ้นมาได้</q><span class="meta">Fastwork เปิดค้นหา · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ทำงานดีจนงานของเราอยู่ในโซเชียลมีเดียเห็นอยู่แล้ว</q><span class="meta">เรซูเม่กับผลงาน · <span class="tag none">ไม่มีหมวด</span></span></li></ul></details>
+</section><section class="group" id="topic">
+<div class="ghead"><h3>เปิดหัวข้อ</h3><span class="count">8 ช่วง · 4 คลิป</span></div>
+<p><b>ประโยคทำอะไร:</b> ประกาศว่ากำลังจะพูดเรื่องอะไร (&quot;หัวข้อแรก…&quot; &quot;อันที่ 3…&quot; &quot;ยินดีต้อนรับเข้าสู่รายการ&quot;)</p>
+<p class="why"><b>ทำไมหมวดเดิมไม่พอ:</b> ไม่มีหมวดที่เป็นป้ายหัวข้อ ถ้าใช้ขั้นตอนต้องรู้ทุกข้อล่วงหน้า</p>
+<div><span class="chip new">หมวดใหม่ รอบถัดไป</span></div>
+<details><summary>ดูทุกช่วง (8)</summary><ul class="lines"><li><q>อยากมารีวิวชีวิตตอนนี้มาก ในฐานะคนที่เพิ่งออกมาจากวงการเฟิร์สจ๊อบเบอร์</q><span class="meta">คอร์ปอเรทกับสตาร์ทอัพ · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>หัวข้อแรกรายได้และความมั่นคง</q><span class="meta">คอร์ปอเรทกับสตาร์ทอัพ · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>เวิร์คไลฟ์บาลานซ์ (หัวข้อที่ 2)</q><span class="meta">คอร์ปอเรทกับสตาร์ทอัพ · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>อันที่ 3 เนื้องาน</q><span class="meta">คอร์ปอเรทกับสตาร์ทอัพ · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>สุดท้าย คีย์ ออฟ ซักเซส</q><span class="meta">คอร์ปอเรทกับสตาร์ทอัพ · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>รีวิวบ้านในฝันของพวกเรา</q><span class="meta">รีวิวบ้านในฝัน · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>วันนี้เราจะลองคำนวณให้เห็นกันชัดๆ</q><span class="meta">ซื้อหรือเช่าคอนโด · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>สวัสดีค่ะ ยินดีต้อนรับเข้าสู่รายการคนไทยหาทำ</q><span class="meta">แต่งงานในเครือญาติ · <span class="tag none">ไม่มีหมวด</span></span></li></ul></details>
+</section><section class="group" id="analogy">
+<div class="ghead"><h3>เปรียบเปรย</h3><span class="count">7 ช่วง · 5 คลิป</span></div>
+<p><b>ประโยคทำอะไร:</b> ใช้ของอื่นแทนความหมาย (ฟองสบู่แตก · ไก่กับไข่ · ถอยหลังลงคลอง)</p>
+<p class="why"><b>ทำไมหมวดเดิมไม่พอ:</b> ภาพต้องเป็นของที่เปรียบ ซึ่งต่างกันทุกประโยค ทำเป็นเลโก้ยาก</p>
+<div><span class="chip wait">ทำเป็นเลโก้ยาก ภาพต่างกันทุกประโยค</span></div>
+<details><summary>ดูทุกช่วง (7)</summary><ul class="lines"><li><q>ในโลกของ Marketplace มันมีปัญหาเรื่องไก่กับไข่</q><span class="meta">Fastwork เปิดค้นหา · <span class="tag forced">ฝืนเข้า B16 นิยาม</span></span></li><li><q>วิธีคิดอย่างเนี้ยไม่ใช่แค่เรซูเม่นะ ธุรกิจก็เหมือนกัน</q><span class="meta">เรซูเม่กับผลงาน · <span class="tag forced">ฝืนเข้า B16 นิยาม</span></span></li><li><q>หนูต้องการแรงบันดาลใจในการกินข้าวไหม ไม่ต้อง</q><span class="meta">แรงบันดาลใจกับวินัย · <span class="tag forced">ฝืนเข้า B06 คำถาม</span></span></li><li><q>หนูต้องการแรงบันดาลใจในการดื่มน้ำไหม ไม่ครับ</q><span class="meta">แรงบันดาลใจกับวินัย · <span class="tag forced">ฝืนเข้า B06 คำถาม</span></span></li><li><q>ฟองสบู่ AI เหมือนกำลังจะแตก</q><span class="meta">ฟองสบู่ AI · <span class="tag forced">ฝืนเข้า B07 คำเตือน</span></span></li><li><q>ฟองสบู่อันแรกที่น่าจะแตกแน่ๆ คือ Neocloud Company</q><span class="meta">ฟองสบู่ AI · <span class="tag forced">ฝืนเข้า B07 คำเตือน</span></span></li><li><q>ถอยหลังลงคลองแค่ไหนก็ได้ แต่อย่าถอยหลังลงหลุม</q><span class="meta">แต่งงานในเครือญาติ · <span class="tag forced">ฝืนเข้า B07 คำเตือน</span></span></li></ul></details>
+</section><section class="group" id="level">
+<div class="ghead"><h3>ระดับ / จัดอันดับ</h3><span class="count">6 ช่วง · 2 คลิป</span></div>
+<p><b>ประโยคทำอะไร:</b> ไล่ขั้นจากน้อยไปมาก (เลเวล 1 2 แอดวานซ์ · นักขายที่ดี เจ๋ง ดีที่สุด)</p>
+<p class="why"><b>ทำไมหมวดเดิมไม่พอ:</b> ขั้นตอนเป็นลำดับการทำ ไม่ได้บอกว่าขั้นบนดีกว่าหรือหนักกว่า</p>
+<div><span class="chip wait">รอดูบทเพิ่ม</span></div>
+<details><summary>ดูทุกช่วง (6)</summary><ul class="lines"><li><q>เลเวล 1 ก็แค่ถามว่าเธอรักเขาไหม</q><span class="meta">คำถามลองใจแฟน · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>เลเวล 2 ถ้าวันนึงเขาไม่สวยขึ้นมาเธอจะยังรักเขาไหม</q><span class="meta">คำถามลองใจแฟน · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>แอดวานซ์เลย ถ้าเธอไปอยู่ในห้องที่เต็มไปด้วยผู้หญิง เธอจะยังเลือกเขาไหม</q><span class="meta">คำถามลองใจแฟน · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>นักขายที่ดีอ่ะจะขายฟีเจอร์</q><span class="meta">นักขายที่ดีที่สุด · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>นักขายที่เจ๋งมากๆ อ่ะจะขายผล</q><span class="meta">นักขายที่ดีที่สุด · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>นักขายที่ดีที่สุดอ่ะจะขายความรู้สึก</q><span class="meta">นักขายที่ดีที่สุด · <span class="tag none">ไม่มีหมวด</span></span></li></ul></details>
+</section><section class="group" id="equal">
+<div class="ghead"><h3>ไม่ต่างกัน</h3><span class="count">5 ช่วง · 4 คลิป</span></div>
+<p><b>ประโยคทำอะไร:</b> สองทางให้ผลเท่ากัน (ยื่นหรือไม่ยื่นประกันตัวก็ไม่ต่าง · ซื้อไม่ได้ดีกว่าเช่าเสมอไป)</p>
+<p class="why"><b>ทำไมหมวดเดิมไม่พอ:</b> เปรียบเทียบมีฝั่งชนะเสมอ ยังไม่มีแบบเสมอกัน</p>
+<div><span class="chip draft">ร่างใหม่ใน B03 เปรียบเทียบ / ก่อนกับหลัง</span></div>
+<details><summary>ดูทุกช่วง (5)</summary><ul class="lines"><li><q>ไม่ว่าทุกคนจะเลือกทางไหน มันมีจุดที่เหนื่อยเหมือนกันอยู่แล้ว</q><span class="meta">คอร์ปอเรทกับสตาร์ทอัพ · <span class="tag forced">ฝืนเข้า B03 เปรียบเทียบ / ก่อนกับหลัง</span></span></li><li><q>ไม่ใช่ว่าซื้อดีกว่าเช่า หรือเช่าดีกว่าซื้อเสมอไป</q><span class="meta">ซื้อหรือเช่าคอนโด · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>มีแรงบันดาลใจ ไม่มีแรงบันดาลใจ หนูทำมันอยู่ดี เพราะมันดีกับหนู</q><span class="meta">แรงบันดาลใจกับวินัย · <span class="tag forced">ฝืนเข้า B03 เปรียบเทียบ / ก่อนกับหลัง</span></span></li><li><q>มันไม่ต่างอะไรกับกรณีได้รับประกันตัวแล้วอยู่นอกคุก</q><span class="meta">ทนายกับคดีประกันตัว · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ยื่นประกันตัวหรือไม่ยื่น ไม่ได้ทำให้เรื่องนี้แตกต่างกันเท่าไหร่</q><span class="meta">ทนายกับคดีประกันตัว · <span class="tag none">ไม่มีหมวด</span></span></li></ul></details>
+</section><section class="group" id="dream">
+<div class="ghead"><h3>ความฝัน / อยากเป็น</h3><span class="count">5 ช่วง · 3 คลิป</span></div>
+<p><b>ประโยคทำอะไร:</b> อยากเป็นหรืออยากมีอะไรสักอย่าง (อยากเป็นพ่อค้า อยากเป็นนักแสดง)</p>
+<p class="why"><b>ทำไมหมวดเดิมไม่พอ:</b> เข้าหมวดเป้าหมายได้แบบฝืน ภาพเป้าหมายบอก &quot;ทำสำเร็จ&quot; ไม่ใช่ &quot;ฝันอยาก&quot;</p>
+<div><span class="chip draft">ร่างใหม่ใน B08 เป้าหมาย</span></div>
+<details><summary>ดูทุกช่วง (5)</summary><ul class="lines"><li><q>อยากมีบ้านพักที่พัทยาป่ะ</q><span class="meta">รีวิวบ้านในฝัน · <span class="tag forced">ฝืนเข้า B08 เป้าหมาย</span></span></li><li><q>พี่เป็นคนแบบมีความใฝ่ฝัน พี่อยากเป็นพ่อค้า</q><span class="meta">สัมภาษณ์ร้านก๋วยเตี๋ยว · <span class="tag forced">ฝืนเข้า B08 เป้าหมาย</span></span></li><li><q>พี่อยากขายก๋วยเตี๋ยว พี่อยากเปิดร้านอาหาร</q><span class="meta">สัมภาษณ์ร้านก๋วยเตี๋ยว · <span class="tag forced">ฝืนเข้า B08 เป้าหมาย</span></span></li><li><q>ความฝันตอนเด็ก หนูก็อยากเป็นนักแสดง</q><span class="meta">หมอที่อยากเป็นนักแสดง · <span class="tag forced">ฝืนเข้า B08 เป้าหมาย</span></span></li><li><q>อยากลองทำด้านนี้ให้เต็มที่ เพราะมันก็เป็นอีกหนึ่งความฝันของหนู</q><span class="meta">หมอที่อยากเป็นนักแสดง · <span class="tag forced">ฝืนเข้า B08 เป้าหมาย</span></span></li></ul></details>
+</section><section class="group" id="opinion">
+<div class="ghead"><h3>ความเห็นของคนพูด</h3><span class="count">3 ช่วง · 2 คลิป</span></div>
+<p><b>ประโยคทำอะไร:</b> คนพูดบอกว่าตัวเองเห็นด้วย ไม่เห็นด้วย ชอบ หรือไม่ชอบเรื่องหนึ่ง</p>
+<p class="why"><b>ทำไมหมวดเดิมไม่พอ:</b> ถูกกับผิดต้องมีสองฝั่ง ประโยคพวกนี้มีแค่จุดยืนของคนพูด</p>
+<div><span class="chip wait">รอดูบทเพิ่ม</span></div>
+<details><summary>ดูทุกช่วง (3)</summary><ul class="lines"><li><q>คำถามนี้เป็นคำถามยอดฮิต พี่พูดตลอดว่าพี่ไม่ชอบ</q><span class="meta">แรงบันดาลใจกับวินัย · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>ทำไมผมไม่เห็นด้วยกับเรื่องนี้</q><span class="meta">ทนายกับคดีประกันตัว · <span class="tag none">ไม่มีหมวด</span></span></li><li><q>สำหรับผมทนายเพชรก็ทำหน้าที่อย่างตรงไปตรงมา ทุกอย่างปกติมาก</q><span class="meta">ทนายกับคดีประกันตัว · <span class="tag none">ไม่มีหมวด</span></span></li></ul></details>
+</section><section class="group" id="match">
+<div class="ghead"><h3>เหมาะกัน / ตอบโจทย์</h3><span class="count">2 ช่วง · 2 คลิป</span></div>
+<p><b>ประโยคทำอะไร:</b> สองสิ่งเข้ากันพอดี (สายงานคุณตอบโจทย์ Fastwork)</p>
+<p class="why"><b>ทำไมหมวดเดิมไม่พอ:</b> เข้าหมวดเป้าหมายได้แบบฝืน</p>
+<div><span class="chip wait">รอดูบทเพิ่ม</span></div>
+<details><summary>ดูทุกช่วง (2)</summary><ul class="lines"><li><q>ยูทำ Get Ready With Me ยูต้องใช้แสงธรรมชาติ ไอว่าอันนี้เหมาะเลย</q><span class="meta">รีวิวบ้านในฝัน · <span class="tag forced">ฝืนเข้า B08 เป้าหมาย</span></span></li><li><q>สายงานคุณน่ะตอบโจทย์กับ Fastwork มาก</q><span class="meta">Fastwork สายงานเชฟ · <span class="tag forced">ฝืนเข้า B08 เป้าหมาย</span></span></li></ul></details>
+</section><section class="group" id="other">
+<div class="ghead"><h3>อื่น ๆ</h3><span class="count">1 ช่วง · 1 คลิป</span></div>
+<p><b>ประโยคทำอะไร:</b> อวยพรปิดคลิป (&quot;ขอให้โชคดี&quot;)</p>
+<p class="why"><b>ทำไมหมวดเดิมไม่พอ:</b> ปิดคลิปมีแค่ปุ่มกดกับไอคอนชวนทำต่อ</p>
+<div><span class="chip wait">รอดูบทเพิ่ม</span></div>
+<details><summary>ดูทุกช่วง (1)</summary><ul class="lines"><li><q>ขอให้โชคดีนะคะ</q><span class="meta">แคนาดารับพลเมือง · <span class="tag forced">ฝืนเข้า B15 ปิดคลิป / ชวนทำต่อ</span></span></li></ul></details>
+</section>
+
+  <section class="group">
+    <h2>หมวดเดิมที่ใช้ได้ตรง</h2>
+    <p class="note">นับเฉพาะช่วงที่เข้าหมวดได้ไม่ฝืน (241 ช่วง)</p>
+    <div class="chart"><div class="cbar"><span class="bname">B01 ตัวเลขเด่น</span>
+<span class="track"><span class="fill soft" style="width:32%"></span></span><span class="bval">12</span></div><div class="cbar"><span class="bname">B02 เพิ่มขึ้น / ลดลง</span>
+<span class="track"><span class="fill soft" style="width:32%"></span></span><span class="bval">12</span></div><div class="cbar"><span class="bname">B03 เปรียบเทียบ / ก่อนกับหลัง</span>
+<span class="track"><span class="fill soft" style="width:51%"></span></span><span class="bval">19</span></div><div class="cbar"><span class="bname">B04 ขั้นตอน</span>
+<span class="track"><span class="fill soft" style="width:16%"></span></span><span class="bval">6</span></div><div class="cbar"><span class="bname">B05 ถูกกับผิด</span>
+<span class="track"><span class="fill soft" style="width:41%"></span></span><span class="bval">15</span></div><div class="cbar"><span class="bname">B06 คำถาม</span>
+<span class="track"><span class="fill soft" style="width:95%"></span></span><span class="bval">35</span></div><div class="cbar"><span class="bname">B07 คำเตือน</span>
+<span class="track"><span class="fill soft" style="width:65%"></span></span><span class="bval">24</span></div><div class="cbar"><span class="bname">B08 เป้าหมาย</span>
+<span class="track"><span class="fill soft" style="width:19%"></span></span><span class="bval">7</span></div><div class="cbar"><span class="bname">B09 เวลา</span>
+<span class="track"><span class="fill soft" style="width:32%"></span></span><span class="bval">12</span></div><div class="cbar"><span class="bname">B10 คน / กลุ่มเป้าหมาย</span>
+<span class="track"><span class="fill soft" style="width:35%"></span></span><span class="bval">13</span></div><div class="cbar"><span class="bname">B11 คำพูด / แชต / รีวิว</span>
+<span class="track"><span class="fill soft" style="width:41%"></span></span><span class="bval">15</span></div><div class="cbar"><span class="bname">B12 เหตุกับผล</span>
+<span class="track"><span class="fill soft" style="width:100%"></span></span><span class="bval">37</span></div><div class="cbar"><span class="bname">B13 เคล็ดลับ / ความลับ</span>
+<span class="track"><span class="fill soft" style="width:19%"></span></span><span class="bval">7</span></div><div class="cbar"><span class="bname">B14 ประโยคเด็ด</span>
+<span class="track"><span class="fill soft" style="width:32%"></span></span><span class="bval">12</span></div><div class="cbar"><span class="bname">B15 ปิดคลิป / ชวนทำต่อ</span>
+<span class="track"><span class="fill soft" style="width:19%"></span></span><span class="bval">7</span></div><div class="cbar"><span class="bname">B16 นิยาม</span>
+<span class="track"><span class="fill soft" style="width:22%"></span></span><span class="bval">8</span></div></div>
+  </section>
+</div>
