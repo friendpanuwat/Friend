@@ -199,31 +199,47 @@ R3.both('B10', 'parcel', 'กล่องพัสดุ ใบจ่าหน�
 });
 
 /* ================= B12 เหตุกับผล: items [3 {icon, label?}], end? ================= */
-/* 11 · a snowball rolling down a snowy hill: it is small at the first cause, bigger at the second, and big at the
-   bottom (the effect). Redrawn so the hill and the snow read at once (Friend 2026-11-11 "แก้เลย") */
-R3.both('B12', 'snowball', 'ก้อนหิมะกลิ้งลงเนิน ผ่านแต่ละเหตุแล้วใหญ่ขึ้น', (K, s, T, g) => {
-  const it = (s.items ?? []).slice(0, 3), Bz = [[80, 110], [220, 110], [360, 200], [550, 310]];
-  const bz = t => { const u = 1 - t; return [0, 1].map(i => u * u * u * Bz[0][i] + 3 * u * u * t * Bz[1][i] + 3 * u * t * t * Bz[2][i] + t * t * t * Bz[3][i]); };
-  const on = (x, r) => { let a = 0, z = 1; for (let i = 0; i < 30; i++) { const m = (a + z) / 2; if (bz(m)[0] < x) a = m; else z = m; }
-    const t = (a + z) / 2, p = bz(t), q = bz(Math.min(1, t + .01)), d = Math.hypot(q[0] - p[0], q[1] - p[1]);
-    return {x: p[0] + r * (q[1] - p[1]) / d, y: p[1] - r * (q[0] - p[0]) / d}; };
-  /* the hill: rises from the ground on the left, then the long slope down to the right (one shape, edged along its top) */
-  const crv = `M8 332C8 196 30 110 ${Bz[0]}C${Bz[1]} ${Bz[2]} ${Bz[3]}`;
-  R8.svg(g, `<path class="fl" style="stroke:none" d="${crv}V332Z"/><path class="u-fl-edge" d="${crv}"/>`);
-  R7.plain(g, 0, 330, 550, 8, 'main', '4px');
-  const ball = (p, x, r, last) => {
-    const c = on(x, r), neg = p?.tone === 'neg' && last, b = S10.disc(g, c.x, c.y, r, neg ? 'neg' : 'card');
-    b.p.style.boxShadow = '0 0 0 3px var(--ink)'; if (!last) b.o.style.opacity = .7;
-    if (p?.icon) R9.ico(b.p, p.icon, r, last && p.label ? r - 18 : r, last ? 56 : r * 1.05, neg ? 'u-inherit' : 'u-label');
-    return {b, c};
-  };
-  [[136, 26, 0], [276, 44, 1]].forEach(([x, r, k]) => {
-    const p = it[k]; if (!p) return; const {c} = ball(p, x, r, false);
-    if (p.label) { const cd = R9.card(g, c.x - 70, c.y - r - 62, 140, 50, 16); R4.word(K, cd.p, p.label, 70, 7, 26, null, 124); K.enter(cd.o, T.b[k], 'pop'); }
-  });
-  const last = it[2] ?? it[it.length - 1] ?? {icon: 'snowflake'}, R = 76, {b} = ball(last, 432, R, true);
-  if (last.label) { const w = R4.word(K, b.p, last.label, R, R + 14, 28, null, 2 * R - 24); if (last.tone === 'neg') w.style.color = 'inherit'; }
-  K.enter(b.o, T.hit, 'pop');
+/* 11a · a seesaw: the first cause drops onto one end, the other end flips the second one up, and it lands in the
+   basket (the effect), which lights up. Replaces the snowball (Friend 2026-11-11: "ไม่ชอบอันนี้ design ใหม่ครับ") */
+R3.both('B12', 'seesaw', 'กระดานหก ของหล่นลงฝั่งหนึ่ง ดีดอีกชิ้นลงตะกร้า', (K, s, T, g) => {
+  const it = (s.items ?? []).slice(0, 3);
+  R7.plain(g, 30, 330, 520, 8, 'main', '4px');
+  R8.svg(g, `<path class="sd" d="M300 242L252 330H348Z"/>` +
+    `<path style="fill:none;stroke:var(--ink);stroke-width:24px;stroke-linecap:round" d="M56 306L544 190"/>` +
+    `<path class="ln u-thin u-dash" d="M126 54V156"/><path class="ln u-thin" d="M110 140L126 158L142 140"/>` +
+    `<path class="ln u-thin u-dash" d="M548 168Q590 96 520 40"/>`);
+  /* the first cause: a heavy block that fell on the low end */
+  const w = R9.card(g, 56, 172, 140, 104, 20); if (it[0]) S10.iconWord(K, w.p, it[0], 140, 12, 40, 28);
+  /* the effect: a basket up on the right; the second cause has landed in it and sits on top (drawn first, so the basket's
+     front hides its lower part) */
+  if (it[1]) { const b = S10.disc(g, 440, 58, 50, 'main'); S10.inkIco(b.p, it[1].icon, 50, it[1].label ? 34 : 50, 38);
+    if (it[1].label) { const l = R4.word(K, b.p, it[1].label, 50, 50, 20, null, 84); l.style.color = 'inherit'; } }
+  const bk = R9.acc(g, 340, 96, 200, 96, 0);
+  bk.p.style.clipPath = `path('M0 0H200L182 84Q180 96 168 96H32Q20 96 18 84Z')`; bk.p.style.boxShadow = 'none';
+  if (it[2]) { R9.ico(bk.p, it[2].icon, 46, 42, 36, 'u-bubble-text'); if (it[2].label) { const l = R6.wordL(K, bk.p, it[2].label, 70, 18, 32, null, 112); l.classList.add('u-bubble-text'); } }
+  K.enter(bk.o, T.hit, 'pop');
+});
+
+/* 11b · a tap: it opens, the water runs along the pipe through the middle cause and fills the tank (the effect).
+   Second choice for the snowball's place */
+R3.both('B12', 'pipe', 'ก๊อกเปิด น้ำไหลตามท่อไปเติมแท็งก์', (K, s, T, g) => {
+  const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg';
+  const route = 'M150 84H432Q456 84 456 108V150';
+  R8.svg(g, `<path style="fill:none;stroke:var(--ink);stroke-width:40px;stroke-linejoin:round" d="${route}"/>` +
+    `<path class="u-acc-line u-dash" style="stroke-width:14px" d="${route}"/>`);
+  /* the tap: the wall plate, the tap body and the T handle that is turned (the first cause) */
+  R7.plain(g, 14, 36, 30, 100, 'main', '10px'); R7.plain(g, 44, 62, 110, 44, 'main', '12px');
+  R7.plain(g, 88, 34, 20, 30, 'main', '4px');
+  const hd = R9.acc(g, 46, 6, 104, 34, 17); if (it[0]) R9.ico(hd.p, it[0].icon, 52, 17, 26, 'u-bubble-text');
+  if (it[0]?.label) { const c = R9.card(g, 24, 126, 160, 50, 16); R4.word(K, c.p, it[0].label, 80, 7, 28, null, 144); }
+  /* the middle cause: a valve wheel on the pipe */
+  const v = S10.disc(g, 262, 84, 48, 'card'); v.p.style.boxShadow = '0 0 0 5px var(--ink)'; if (it[1]) R9.ico(v.p, it[1].icon, 48, 48, 44);
+  if (it[1]?.label) R4.word(K, g, it[1].label, 262, 140, 30, null, 150);
+  /* the tank: the water rises near the brim (red when the effect is bad: ท่วม) */
+  const tk = R9.card(g, 346, 150, 204, 182, 24); tk.p.style.overflow = 'hidden';
+  const lv = div('left:0;right:0;bottom:0;height:66%', tk.p); lv.className = neg ? 'u-neg' : 'u-col-acc';
+  A(lv, [{transform: 'translateY(100%)'}, {transform: 'none'}], T.hit, 1, {e: EASE.inout});
+  if (it[2]) { R9.ico(tk.p, it[2].icon, 38, 32, 32); if (it[2].label) R6.wordL(K, tk.p, it[2].label, 62, 12, 30, null, 130); }
 });
 
 /* 12 · a pool shot: the cue hits the first ball, it hits the second, and the second goes into the pocket, where the
