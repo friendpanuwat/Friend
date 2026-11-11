@@ -199,29 +199,9 @@ R3.both('B10', 'parcel', 'กล่องพัสดุ ใบจ่าหน�
 });
 
 /* ================= B12 เหตุกับผล: items [3 {icon, label?}], end? ================= */
-/* 11a · a seesaw: the first cause drops onto one end, the other end flips the second one up, and it lands in the
-   basket (the effect), which lights up. Replaces the snowball (Friend 2026-11-11: "ไม่ชอบอันนี้ design ใหม่ครับ") */
-R3.both('B12', 'seesaw', 'กระดานหก ของหล่นลงฝั่งหนึ่ง ดีดอีกชิ้นลงตะกร้า', (K, s, T, g) => {
-  const it = (s.items ?? []).slice(0, 3);
-  R7.plain(g, 30, 330, 520, 8, 'main', '4px');
-  R8.svg(g, `<path class="sd" d="M300 242L252 330H348Z"/>` +
-    `<path style="fill:none;stroke:var(--ink);stroke-width:24px;stroke-linecap:round" d="M56 306L544 190"/>` +
-    `<path class="ln u-thin u-dash" d="M126 54V156"/><path class="ln u-thin" d="M110 140L126 158L142 140"/>` +
-    `<path class="ln u-thin u-dash" d="M548 168Q590 96 520 40"/>`);
-  /* the first cause: a heavy block that fell on the low end */
-  const w = R9.card(g, 56, 172, 140, 104, 20); if (it[0]) S10.iconWord(K, w.p, it[0], 140, 12, 40, 28);
-  /* the effect: a basket up on the right; the second cause has landed in it and sits on top (drawn first, so the basket's
-     front hides its lower part) */
-  if (it[1]) { const b = S10.disc(g, 440, 58, 50, 'main'); S10.inkIco(b.p, it[1].icon, 50, it[1].label ? 34 : 50, 38);
-    if (it[1].label) { const l = R4.word(K, b.p, it[1].label, 50, 50, 20, null, 84); l.style.color = 'inherit'; } }
-  const bk = R9.acc(g, 340, 96, 200, 96, 0);
-  bk.p.style.clipPath = `path('M0 0H200L182 84Q180 96 168 96H32Q20 96 18 84Z')`; bk.p.style.boxShadow = 'none';
-  if (it[2]) { R9.ico(bk.p, it[2].icon, 46, 42, 36, 'u-bubble-text'); if (it[2].label) { const l = R6.wordL(K, bk.p, it[2].label, 70, 18, 32, null, 112); l.classList.add('u-bubble-text'); } }
-  K.enter(bk.o, T.hit, 'pop');
-});
 
-/* 11b · a tap: it opens, the water runs along the pipe through the middle cause and fills the tank (the effect).
-   Second choice for the snowball's place */
+/* 11 · a tap: it opens, the water runs along the pipe through the middle cause and fills the tank (the effect).
+   In place of the snowball; Friend 2026-11-11 kept it and dropped the other choice: "ตัดกระดานหก เก็บก๊อกน้ำ" */
 R3.both('B12', 'pipe', 'ก๊อกเปิด น้ำไหลตามท่อไปเติมแท็งก์', (K, s, T, g) => {
   const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg';
   const route = 'M150 84H432Q456 84 456 108V150';
