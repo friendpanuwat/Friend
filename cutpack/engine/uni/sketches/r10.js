@@ -142,33 +142,53 @@ R3.both('B09', 'stopwatch', 'นาฬิกาจับเวลา กดป�
   });
 });
 
-/* 8 · a tree through time: bare, then in leaf, then bearing fruit (ผล); the moments run along the ground under it */
+/* 8 · a tree through time: bare, then in leaf, then bearing fruit (ผล); the moments run along the ground under it.
+   Drawn as a real tree (Friend 2026-11-11: "ต้นไม้มันไม่เหมือนต้นไม้เลย ตั้งใจทำหน่อย"): a bumpy crown of leaves, a trunk that
+   narrows and forks into branches under the crown, round fruit on the leaves */
 R3.both('B09', 'tree', 'ต้นไม้เปลี่ยนตามเวลา จนออกผล', (K, s, T, g) => {
   const pts = (s.points ?? []).slice(0, 3), n = pts.length, at = n ? Math.min(s.at ?? n - 1, n - 1) : 2, res = s.result;
-  const cx = res ? 260 : 300;
-  R7.plain(g, cx - 18, 176, 36, 82, 'main', '6px');
-  const cn = R9.card(g, cx - 136, 14, 272, 170, '50%');
-  [[70, 70], [130, 46], [196, 74], [104, 118], [176, 124]].slice(0, at === 2 ? 5 : at === 1 ? 2 : 0).forEach(([x, y]) => S10.dot(cn.p, x, y, 16));
-  R7.plain(g, 40, 258, 520, 10, 'main', '5px');
+  const c = res ? 236 : 300, G = 266, C = {x: c, y: 96}, rx = 140, ry = 80;
+  /* the trunk: wide at the ground, narrowing, forking into two branches that go up into the crown */
+  const trunk = `M${c - 26} ${G}C${c - 18} ${G - 16} ${c - 13} ${G - 28} ${c - 13} ${G - 48}L${c - 58} ${C.y + 50}L${c - 42} ${C.y + 38}L${c} ${C.y + 66}` +
+    `L${c + 42} ${C.y + 38}L${c + 58} ${C.y + 50}L${c + 13} ${G - 48}C${c + 13} ${G - 28} ${c + 18} ${G - 16} ${c + 26} ${G}Z`;
+  /* the crown: a ring of round bumps (arcs bulging out between points round an ellipse), one closed shape */
+  const nb = 10, P = [...Array(nb)].map((_, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / nb; return [C.x + rx * Math.cos(a), C.y + ry * Math.sin(a)]; });
+  const crown = 'M' + P[0].map(v => v.toFixed(1)).join(' ') + P.map((q, i) => { const r = P[(i + 1) % nb], L = Math.hypot(r[0] - q[0], r[1] - q[1]), R = (L * .6).toFixed(1);
+    return `A${R} ${R} 0 0 1 ${r[0].toFixed(1)} ${r[1].toFixed(1)}`; }).join('') + 'Z';
+  R7.plain(g, 40, G, 520, 10, 'main', '5px');
+  R8.svg(g, `<path class="sd" d="${trunk}"/>`);
+  const cr = R6.group(g); R8.svg(cr, `<path class="ac" d="${crown}"/>`);
+  cr.style.transformOrigin = `${c}px ${C.y + 90}px`; A(cr, [{transform: 'scale(.2)', opacity: 0}, {transform: 'none', opacity: 1}], T.b[1], .9, {e: EASE.smooth});
+  /* the fruit (ผล): round, each with an ink rim so it shows on the leaves in every style; how many = how far the time got */
+  const F = [[-74, -6], [-26, -44], [34, -30], [82, 12], [-40, 34], [26, 32]].slice(0, at === 2 ? 6 : at === 1 ? 2 : 0);
+  F.forEach(([dx, dy], k) => {
+    const x = C.x + dx, y = C.y + dy, fr = R6.group(g); fr.style.transformOrigin = `${x}px ${y}px`; K.enter(fr, T.hit + k * .08, 'pop');
+    R8.svg(fr, `<path style="fill:none;stroke:var(--ink);stroke-width:4px;stroke-linecap:round" d="M${x} ${y - 14}Q${x} ${y - 22} ${x + 4} ${y - 27}"/>` +
+      `<ellipse style="fill:var(--ink)" cx="${x + 11}" cy="${y - 24}" rx="8" ry="4.5" transform="rotate(-28 ${x + 11} ${y - 24})"/>`);
+    const f = S10.disc(fr, x, y, 16, 'card'); f.p.style.boxShadow = '0 0 0 3px var(--ink)';
+  });
   pts.forEach((p, k) => {
-    const x = [50, 230, 410][k], lit = k === at, ch = (lit ? R9.acc : R9.card)(g, x, 280, 140, 50, 16);
+    const x = [50, 230, 410][k], lit = k === at, ch = (lit ? R9.acc : R9.card)(g, x, 282, 140, 50, 16);
     if (p.label) { const w = R4.word(K, ch.p, p.label, 70, 8, 28, null, 120); if (lit) w.classList.add('u-bubble-text'); }
     else R9.ico(ch.p, p.icon, 70, 25, 28, lit ? 'u-bubble-text' : 'u-label');
     if (k > at) ch.o.style.opacity = .35;
   });
-  if (res) { const r = R9.acc(g, 420, 60, 140, 104, 20); S10.iconWord(K, r.p, res, 140, 12, 40, 28, true); K.enter(r.o, T.hit, 'pop'); }
+  if (res) { const r = R9.acc(g, 412, 62, 140, 104, 20); S10.iconWord(K, r.p, res, 140, 12, 40, 28, true); K.enter(r.o, T.hit + .4, 'pop'); }
 });
 
 /* ================= B10 คน: who? {icon, label?}, label?, tags? [≤2] ================= */
-/* 9 · a chair with a reserved card on the seat: the card flips up, made out to this kind of person */
+/* 9 · a cinema seat (from the front) with a reserved card on it: the card flips up, made out to this kind of person.
+   Drawn so it reads as a seat at once (LESSONS 45): tall rounded back, a cushion, armrests down to the floor */
 R3.both('B10', 'seat', 'เก้าอี้มีป้ายจองไว้ให้คนกลุ่มนี้', (K, s, T, g) => {
   const who = s.who ?? {icon: 'user'}, tags = (s.tags ?? []).slice(0, 2);
-  R7.plain(g, 140, 26, 36, 214, 'main', '14px'); R7.plain(g, 140, 240, 290, 30, 'main', '12px');
-  R7.plain(g, 156, 270, 20, 60, 'main', '4px'); R7.plain(g, 392, 270, 20, 60, 'main', '4px');
-  const W = 220, H = 186, c = R9.card(g, 196, 240 - H, W, H, 18);
-  const av = S10.disc(c.p, W / 2, 44, 30, 'acc'); R9.ico(av.p, who.icon, 30, 30, 34, 'u-bubble-text');
-  if (s.label) R4.word(K, c.p, s.label, W / 2, 84, 32, null, W - 24);
-  tags.forEach((t, k) => { const w = tags.length === 2 ? 98 : 150, x = tags.length === 2 ? 10 + k * 104 : (W - w) / 2, ch = R9.acc(c.p, x, 136, w, 36, 18); R9.accWord(K, ch.p, t, w / 2, 3, 22, null, w - 14); });
+  R7.plain(g, 100, 326, 400, 10, 'main', '5px');
+  R7.plain(g, 178, 6, 244, 188, 'main', '44px 44px 16px 16px');
+  R7.plain(g, 182, 202, 236, 58, 'main', '18px');
+  [[128, 150], [422, 150]].forEach(([x, y]) => { R7.plain(g, x, y, 50, 24, 'main', '12px'); R7.plain(g, x + 8, y + 30, 34, 326 - y - 30, 'main', '8px 8px 2px 2px'); });
+  const W = 214, H = 150, c = R9.card(g, 300 - W / 2, 202 - H, W, H, 18);
+  const av = S10.disc(c.p, W / 2, 38, 26, 'acc'); R9.ico(av.p, who.icon, 26, 26, 30, 'u-bubble-text');
+  if (s.label) R4.word(K, c.p, s.label, W / 2, 70, 30, null, W - 24);
+  tags.forEach((t, k) => { const w = tags.length === 2 ? 96 : 140, x = tags.length === 2 ? 9 + k * 100 : (W - w) / 2, ch = R9.acc(c.p, x, 112, w, 30, 15); R9.accWord(K, ch.p, t, w / 2, 1, 20, null, w - 14); });
   c.m.style.transformOrigin = '50% 100%'; A(c.m, [{transform: 'perspective(700px) rotateX(80deg)'}, {transform: 'none'}], T.hit, .7, {e: EASE.smooth});
 });
 
@@ -274,21 +294,23 @@ R3.both('B17', 'folder', 'โฟลเดอร์แอปในมือถื
   });
 });
 
-/* 16 · a cantilever toolbox: the trays swing out to both sides and show what the kit holds; the group's name on the box */
+/* 16 · a cantilever toolbox: the trays swing up and out on their arms and show what the kit holds; the group's name on the box.
+   Drawn so it reads as a toolbox (LESSONS 45): the box with its carry handle, two open trays, the parallel arms with their pivots */
 R3.both('B17', 'toolbox', 'กล่องเครื่องมือ ถาดกางออกเป็นชั้น', (K, s, T, g) => {
   const it = (s.items ?? []).slice(0, 4), n = it.length, L = it.slice(0, Math.ceil(n / 2)), Rr = it.slice(Math.ceil(n / 2));
-  /* the arms that hold each tray to the box (drawn first, under everything) */
-  R8.svg(g, `<path class="ln u-thin" d="M200 232L118 196M250 232L168 196M400 232L482 196M350 232L432 196"/>`);
-  const base = R9.card(g, 176, 222, 248, 106, 22);
-  R7.plain(g, 260, 204, 80, 18, 'main', '9px 9px 0 0');
-  if (s.label) R4.word(K, base.p, s.label, 124, 30, 36, null, 214); else R9.ico(base.p, 'wrench', 124, 53, 44);
-  [[L, 48], [Rr, 362]].forEach(([grp, x]) => {
+  const arms = [[210, 206, 120, 160], [246, 206, 156, 160], [390, 206, 480, 160], [354, 206, 444, 160]];
+  R8.svg(g, arms.map(([x0, y0, x1, y1]) => `<path style="fill:none;stroke:var(--sd);stroke-width:12px;stroke-linecap:round" d="M${x0} ${y0}L${x1} ${y1}"/>`).join('') +
+    arms.flatMap(([x0, y0, x1, y1]) => [[x0, y0], [x1, y1]]).map(([x, y]) => `<circle class="fl" cx="${x}" cy="${y}" r="7"/><circle class="u-fl-edge" cx="${x}" cy="${y}" r="7"/>`).join('') +
+    `<path class="ln" d="M264 206V186Q264 176 274 176H326Q336 176 336 186V206"/>`);
+  const base = R9.card(g, 196, 206, 208, 118, 18);
+  if (s.label) R4.word(K, base.p, s.label, 104, 38, 34, null, 180); else R9.ico(base.p, 'wrench', 104, 59, 44);
+  [[L, 40], [Rr, 364]].forEach(([grp, x]) => {
     if (!grp.length) return;
-    const W = 190;
+    const W = 196, cxs = grp.length === 1 ? [W / 2] : [52, W - 52];
     /* the things stand in the tray: drawn first, the tray's front then hides their lower part */
-    grp.forEach((p, k) => { const cx = grp.length === 1 ? W / 2 : 50 + k * 90; const ic = R9.ico(g, p.icon, x + cx, 112, 60); K.enter(ic, T.b[1] + .2 + k * .1, 'rise'); });
-    const tr = R9.card(g, x, 126, W, 70, 16); K.enter(tr.o, T.b[1], 'rise');
-    grp.forEach((p, k) => { const cx = grp.length === 1 ? W / 2 : 50 + k * 90; if (p.label) R4.word(K, tr.p, p.label, cx, 16, 26, null, grp.length === 1 ? 170 : 86); });
+    grp.forEach((p, k) => { const ic = R9.ico(g, p.icon, x + cxs[k], 84, 60); K.enter(ic, T.b[1] + .2 + k * .1, 'rise'); });
+    const tr = R9.card(g, x, 96, W, 64, 14); K.enter(tr.o, T.b[1], 'rise');
+    grp.forEach((p, k) => { if (p.label) R4.word(K, tr.p, p.label, cxs[k], 14, 26, null, grp.length === 1 ? 176 : 88); });
   });
 });
 
