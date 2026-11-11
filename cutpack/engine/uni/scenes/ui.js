@@ -115,15 +115,15 @@ R3.both('B15', 'compose', 'ช่องพิมพ์ข้อความ ก�
   R7.hide(box, T.hit);
   blink(T.hit + .2, T.t1);
   K.punch(send.p, T.hit - .1);
-  /* the bubble goes up from the field to the right */
-  const BW = 300, B = node(g, 546 - BW, 132, BW, 96, 'u-badge u-acc u-bubble'); B.p.style.borderRadius = '34px 34px 10px 34px';
+  /* the bubble goes up out of the field, its right edge on the field's (a bubble on the send button's edge crossed the button) */
+  const BR = 472, BW = 300, B = node(g, BR - BW, 132, BW, 96, 'u-badge u-acc u-bubble'); B.p.style.borderRadius = '34px 34px 10px 34px';
   B.o.style.transformOrigin = '100% 100%';
   if (s.label) {
     const bt = div('left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;white-space:nowrap', B.p);
     const sp = document.createElement('span'); sp.className = 'u-label u-bubble-text'; sp.style.fontSize = '40px'; sp.textContent = s.label; bt.appendChild(sp);
     FITS.push(() => {                                      // the bubble as wide as its words (a long one shrinks to 380)
       let w = sp.offsetWidth; if (w > 316) { sp.style.fontSize = (40 * 316 / w).toFixed(1) + 'px'; w = 316; }
-      const bw = Math.max(150, w + 64); B.o.style.left = 546 - bw + 'px'; B.o.style.width = bw + 'px';
+      const bw = Math.max(150, w + 64); B.o.style.left = BR - bw + 'px'; B.o.style.width = bw + 'px';
     });
   } else K.skel(B.p, 34, 28, [BW - 110, (BW - 110) * .6], T.hit + .1, {h: 14, gap: 14})
     .forEach(l => Object.assign(l.style, {background: 'currentColor', opacity: .45}));   // the bubble's own text colour: a grey bar vanished on the lime bubble (rule 10)
