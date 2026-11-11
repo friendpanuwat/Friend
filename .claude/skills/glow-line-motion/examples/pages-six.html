@@ -1,0 +1,31 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* page — longer clip: 6 items as 2 pages of 3 rows; page 1 fades out before page 2 draws.
+   Also shows a custom pair defined right in the scene with GL.pair(). */
+GL.run(() => {
+  GL.stage();
+  const { parts, C } = GL;
+  GL.pair('closet', {                       // custom drawing: crammed wardrobe → 5 tees on a rail
+    messy(p) {
+      p.rect(-150, -175, 300, 355, { rx: 6, fill: C.fill, dur: .4 });
+      p.line(-140, -140, 140, -140, { sw: 2.4, at: .25, dur: .25 });
+      for (let i = 0; i < 11; i++) { const x = -125 + i * 25;
+        p.path(`M ${x} -140 l -14 30 l 0 ${GL.rr(90, 150)} l 28 0 l 0 -${GL.rr(60, 120)} Z`, { fill: C.fill, sw: 1.8, at: .35 + i * .04, dur: .25 }); }
+      for (let i = 0; i < 5; i++) p.path(`M ${-130 + i * 50} 178 q 25 -30 50 0`, { sw: 1.8, at: .8 + i * .04, dur: .2 });
+    },
+    clean(p) {
+      p.line(-190, -120, 190, -120, { dur: .35 });
+      [-140, -70, 0, 70, 140].forEach((x, i) => p.path(`M ${x - 30} -80 L ${x - 10} -100 Q ${x} -90 ${x + 10} -100 L ${x + 30} -80 L ${x + 24} -60 L ${x + 16} -64 L ${x + 16} 20 L ${x - 16} 20 L ${x - 16} -64 L ${x - 24} -60 Z`,
+        { fill: C.fill, at: .25 + i * .08, dur: .35 }));
+      [-140, -70, 0, 70, 140].forEach((x, i) => p.path(`M ${x} -120 L ${x} -106`, { sw: 2, at: .2 + i * .08, dur: .1 }));
+    },
+  });
+  const top = GL.title({ kicker: '6 WAYS TO', main: 'SIMPLIFY', sub: 'ทีละอย่าง ไม่ต้องรีบ' });
+  let t = GL.page(.9, at => GL.rows([
+    { label: '1. DESK', pair: 'desk' }, { label: '2. CALENDAR', pair: 'calendar' }, { label: '3. FILES', pair: 'files' }], { top, at }));
+  GL.page(t, at => GL.rows([
+    { label: '4. CLOSET', pair: 'closet' }, { label: '5. WALLET', pair: 'wallet' }, { label: '6. FOCUS', pair: 'focus' }], { top, at }), { out: false });
+});
+</script></body></html>

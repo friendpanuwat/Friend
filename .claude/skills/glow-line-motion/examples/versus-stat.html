@@ -1,0 +1,15 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* versus + stat on two pages. NOTE: numbers here are placeholders — in real work use only the user's numbers. */
+GL.run(() => {
+  GL.stage();
+  let t = GL.page(.3, at => {
+    const top = GL.title({ kicker: 'WHO MATTERS MORE', main: 'NEW vs OLD', at });
+    return GL.versus({ left: { icon: 'team', label: 'ลูกค้าใหม่', sub: 'ต้องหาใหม่ทุกเดือน' },
+                       right: { icon: 'bust', label: 'ลูกค้าเก่า', sub: 'รู้จักเราอยู่แล้ว' }, win: 'right' }, { top, at: at + .7 });
+  });
+  GL.page(t, at => GL.stat({ value: 68, suffix: '%', icon: 'chart', label: 'ยอดขายจากลูกค้าเก่า', sub: 'ตัวเลขตัวอย่าง' }, { at }), { out: false });
+});
+</script></body></html>

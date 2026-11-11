@@ -1,0 +1,16 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* flow — process steps joined by dotted connectors (zig-zag on 9:16) */
+GL.run(() => {
+  GL.stage();
+  const top = GL.title({ kicker: 'FROM STRANGER TO', main: 'CUSTOMER', sub: 'เส้นทางของลูกค้า 4 ขั้น' });
+  GL.flow([
+    { icon: 'phone', label: '1. เห็นโพสต์', sub: 'หยุดนิ้วได้ใน 2 วินาที' },
+    { icon: 'bubble', label: '2. ทักแชต', sub: 'ตอบเร็ว ตอบตรง' },
+    { icon: 'bag', label: '3. ซื้อครั้งแรก', sub: 'จ่ายง่าย ไม่มีขั้นตอนเยอะ' },
+    { icon: 'team', label: '4. กลับมาซื้อซ้ำ', sub: 'และชวนเพื่อนมา' },
+  ], { top, bottom: GL.H - 120 });
+});
+</script></body></html>
