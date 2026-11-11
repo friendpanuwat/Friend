@@ -14,6 +14,11 @@
    KIT-LIKE (Friend 2026-11-11: "ไอเดียที่เสนอมามันดูรกไป อยากให้ดูชุด kit ของ skill เป็นแบบอย่าง" · "โอเคครับ แก้ทั้งหมด"): every
    draft is like a picture in the skill's references/kit.jpg: ONE main thing in the middle, big enough to fill the frame (no empty
    look), at most one word under it or on it; no extra cards, chips, floors, ghosts or decoration.
+   DRAWN LIKE FRIEND'S REF ("20 WAYS TO SIMPLIFY", Friend 2026-11-11: "เหมือนงานเด็กมัธยมวาด ให้คุณลองดู ref นี้" · "เอาแนวนี้เลย"
+   · "ตั้งใจวาดนะครับ โดยเฉพาะสิ้นส่วนอะไรที่เป็นของมนุษย์"): bodies shaded from the top left (fill 'shade'), thickness (a second
+   edge, things layered), small real details (stitching, buttons, rims, highlights) in thin quiet lines, the outer line strong;
+   real proportions and small corner radii. People and hands are figures (Pen.figure): one outline round the whole body,
+   7½ heads tall, a collar, a belt, shoes, hands with a thumb; LESSONS 48.
    Still pictures only (the end state): NOT in scenes/; load with EXTRA=sketches/r11.js.
    ===================================================================== */
 (() => {
@@ -41,14 +46,37 @@ const LP = (() => {
   const pts = a => typeof a === 'string' ? a : a.map(q => q.join(',')).join(' ');
   /* tone: undefined (line + body), 'acc' (the accent body with its line), 'neg' (red line), 'soft' (a quiet detail line) */
   class Pen {
-    constructor(g, k, grad) { this.g = g; this.k = k; this.grad = grad; }
-    child(attrs = {}, sc = 1) { const e = document.createElementNS(NS, 'g'); for (const a in attrs) e.setAttribute(a, attrs[a]); this.g.appendChild(e); return new Pen(e, this.k / sc, this.grad); }
+    constructor(g, k, grad, defs) { this.g = g; this.k = k; this.grad = grad; this.defs = defs; }
+    child(attrs = {}, sc = 1) { const e = document.createElementNS(NS, 'g'); for (const a in attrs) e.setAttribute(a, attrs[a]); this.g.appendChild(e); return new Pen(e, this.k / sc, this.grad, this.defs); }
+    /* a light-to-shadow fill laid across a whole figure (user space of this pen), so all its parts share one light */
+    ugrad(x1, y1, x2, y2, acc = false) {
+      const id = 'lpu' + (++LPN), a = acc ? 'var(--lp-acc)' : 'var(--lp-shade-a, var(--lp-fill))', b = acc ? 'color-mix(in srgb, var(--lp-acc) 80%, #000)' : 'var(--lp-shade-b, var(--lp-fill))';
+      this.defs.insertAdjacentHTML('beforeend', `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"><stop offset="0" style="stop-color:${a}"/><stop offset="1" style="stop-color:${b}"/></linearGradient>`);
+      return `url(#${id})`;
+    }
+    _raw(tag, a, style) { const e = document.createElementNS(NS, tag); for (const n in a) e.setAttribute(n, a[n]); e.setAttribute('style', style); this.g.appendChild(e); return e; }
+    /* ONE outlined, shaded shape out of many parts (people, hands): parts = [{d} a closed shape | {d, w} a limb of width w];
+       pass 1 paints every part fattened by the line width in the line colour, pass 2 the body over it, so the outline runs
+       round the whole figure and there are no seams inside. details = thin lines drawn on top (collar, belt, fingers) */
+    figure(parts, {tone, box = [-30, -110, 30, 0], details = [], dsw = 1.5} = {}) {
+      const acc = tone === 'acc', line = acc ? C.accLine : C.ink, sw = 3 * this.k, body = this.ugrad(box[0], box[1], box[2], box[3], acc);
+      const g = this.child(); if (acc) g.g.classList.add('lp-acc');
+      const each = (fn) => parts.forEach(pt => fn(pt));
+      each(pt => pt.w ? g._raw('path', {d: pt.d}, `fill:none;stroke:${line};stroke-width:${pt.w + 2 * sw}px;stroke-linecap:round;stroke-linejoin:round`)
+                      : g._raw('path', {d: pt.d}, `fill:${line};stroke:${line};stroke-width:${2 * sw}px;stroke-linejoin:round`));
+      each(pt => pt.w ? g._raw('path', {d: pt.d}, `fill:none;stroke:var(--lp-fill);stroke-width:${pt.w}px;stroke-linecap:round;stroke-linejoin:round`)
+                      : g._raw('path', {d: pt.d}, 'fill:var(--lp-fill);stroke:none'));
+      each(pt => pt.w ? g._raw('path', {d: pt.d}, `fill:none;stroke:${body};stroke-width:${pt.w}px;stroke-linecap:round;stroke-linejoin:round`)
+                      : g._raw('path', {d: pt.d}, `fill:${body};stroke:none`));
+      details.forEach(d => g._raw('path', {d}, `fill:none;stroke:${acc ? 'var(--lp-acc-ink)' : 'var(--lp-soft)'};stroke-width:${dsw * this.k}px;stroke-linecap:round;stroke-linejoin:round${acc ? ';opacity:.4' : ''}`));
+      return g;
+    }
     _d(tag, a, o = {}) {
       const e = document.createElementNS(NS, tag);
       for (const n in a) e.setAttribute(n, a[n]);
       /* fill: true = the flat body colour, 'shade' = the body lit from the top left (the ref's soft volume) */
       let fill = o.fill === true ? C.fill : o.fill === 'shade' ? `url(#${this.grad})` : o.fill || 'none', stroke = o.stroke || C.ink;
-      if (o.tone === 'acc') { fill = o.fill === 'none' ? 'none' : C.acc; stroke = C.accLine; e.classList.add('lp-acc'); }
+      if (o.tone === 'acc') { fill = o.fill === 'none' ? 'none' : o.fill === 'shade' ? `url(#${this.grad}a)` : C.acc; stroke = C.accLine; e.classList.add('lp-acc'); }
       if (o.tone === 'neg') { stroke = C.neg; if (o.fill && o.fill !== 'none') fill = C.neg; }
       if (o.tone === 'soft') stroke = C.soft;
       e.setAttribute('style', `fill:${fill};stroke:${stroke};stroke-width:${((o.sw ?? 3) * this.k).toFixed(3)}px;stroke-linecap:round;stroke-linejoin:round${o.dash ? `;stroke-dasharray:${o.dash.map(v => v * this.k).join(' ')}` : ''}${o.op != null ? `;opacity:${o.op}` : ''}`);
@@ -79,8 +107,9 @@ const LP = (() => {
   const layer = (g, small, z) => {
     const id = 'lpg' + (++LPN);
     const d = div(`left:0;top:0;width:600px;height:340px${z != null ? `;z-index:${z}` : ''}`, g, `<svg width="600" height="340" style="overflow:visible"><defs>
-      <linearGradient id="${id}" x1="0" y1="0" x2=".35" y2="1" gradientUnits="objectBoundingBox"><stop offset="0" style="stop-color:var(--lp-shade-a, var(--lp-fill))"/><stop offset="1" style="stop-color:var(--lp-shade-b, var(--lp-fill))"/></linearGradient></defs><g></g></svg>`);
-    return {el: d, p: new Pen(d.querySelector('svg > g'), small ? 1 : 1 / 1.6, id)};
+      <linearGradient id="${id}" x1="0" y1="0" x2=".35" y2="1" gradientUnits="objectBoundingBox"><stop offset="0" style="stop-color:var(--lp-shade-a, var(--lp-fill))"/><stop offset="1" style="stop-color:var(--lp-shade-b, var(--lp-fill))"/></linearGradient>
+      <linearGradient id="${id}a" x1="0" y1="0" x2=".35" y2="1" gradientUnits="objectBoundingBox"><stop offset="0" style="stop-color:var(--lp-acc)"/><stop offset="1" style="stop-color:color-mix(in srgb, var(--lp-acc) 80%, #000)"/></linearGradient></defs><g></g></svg>`);
+    return {el: d, p: new Pen(d.querySelector('svg > g'), small ? 1 : 1 / 1.6, id, d.querySelector('defs'))};
   };
   /* words in the line colour (or on the accent), from the slots only */
   const word = (K, g, txt, cx, y, size, maxW, on = false) => { const w = R4.word(K, g, txt, cx, y, size, null, maxW); w.classList.add('lp-t'); if (on) w.classList.add('lp-on'); return w; };
@@ -186,69 +215,140 @@ const LP = (() => {
 })();
 const S11 = {human: icon => /^(user|users|baby|person|contact|smile)/.test(icon ?? 'user')};
 
+/* ================= people and hands (units: a person is 100 tall, feet at 0, up is negative) ================= */
+const HU = (() => {
+  const E = (cx, cy, rx, ry = rx) => `M ${cx - rx} ${cy} A ${rx} ${ry} 0 1 0 ${cx + rx} ${cy} A ${rx} ${ry} 0 1 0 ${cx - rx} ${cy} Z`;
+  const mir = d => d.replace(/(-?\d+\.?\d*) (-?\d+\.?\d*)/g, (m, x, y) => `${-x} ${y}`);
+  const F = {
+    head: E(0, -91.6, 7.4), neck: 'M -3.4 -85 L 3.4 -85 L 3.7 -78 L -3.7 -78 Z',
+    torso: 'M -6 -80.5 L 6 -80.5 Q 13.6 -80 14.6 -73 L 13.4 -58 L 12.3 -45 L -12.3 -45 L -13.4 -58 L -14.6 -73 Q -13.6 -80 -6 -80.5 Z',
+    hips: 'M -12.3 -46.5 L 12.3 -46.5 L 12 -39 L -12 -39 Z',
+    legL: 'M -12.1 -40.5 L -0.9 -40.5 L -1.8 -5.8 L -10.6 -5.8 Z', shoeL: 'M -12.2 0 L -12.2 -2.8 Q -12.2 -6.4 -8.6 -6.4 L -3 -6.4 Q -1 -6.4 -1 -3.4 L -1 0 Z',
+    armDownL: 'M -12.8 -75 Q -15.2 -64 -15.5 -58 L -15.8 -48', handDownL: E(-15.9, -44.6, 3.3, 4.1),
+  };
+  const front = {head: F.head, neck: F.neck, torso: F.torso, hips: F.hips};
+  const legs = [{d: F.legL}, {d: mir(F.legL)}, {d: F.shoeL}, {d: mir(F.shoeL)}];
+  const fDet = ['M -3.7 -80.3 L 0 -76.2 L 3.7 -80.3', 'M -12.2 -45.6 L 12.2 -45.6', 'M 0 -45.4 L 0 -40.5', 'M -11.6 -2.7 L -1.6 -2.7', 'M 11.6 -2.7 L 1.6 -2.7'];
+  const poses = {
+    stand: {arms: [{d: F.armDownL, w: 6.2}, {d: mir(F.armDownL), w: 6.2}], hands: [{d: F.handDownL}, {d: E(15.9, -44.6, 3.3, 4.1)}]},
+    /* the right hand up and open (palm to us), its thumb out to the side */
+    wave: {arms: [{d: F.armDownL, w: 6.2}, {d: 'M 12.8 -75 L 21.4 -80 L 24.8 -93.5', w: 6.2}],
+      hands: [{d: F.handDownL}, {d: E(25.2, -97.6, 3.4, 3.8)}, {d: 'M 22.7 -100 L 22.4 -104.6', w: 1.9}, {d: 'M 24.5 -100.6 L 24.5 -105.8', w: 1.9}, {d: 'M 26.3 -100.6 L 26.6 -105.4', w: 1.9}, {d: 'M 27.9 -99.8 L 28.6 -103.8', w: 1.8}, {d: 'M 22.3 -96.2 L 20 -99.4', w: 2}],
+      det: []},
+    /* both arms out to the sides of a sign held at the chest; the hands are drawn in front of the sign (handsFront) */
+    hold: {arms: [{d: 'M -12.8 -75 L -26 -69 L -38 -64.5', w: 6.2}, {d: 'M 12.8 -75 L 26 -69 L 38 -64.5', w: 6.2}], hands: [],
+      front: [{d: 'M -44 -69 Q -44 -71 -42 -71 L -36.4 -71 Q -34.6 -71 -34.6 -69 L -34.6 -58.6 Q -34.6 -56.6 -36.4 -56.6 L -42 -56.6 Q -44 -56.6 -44 -58.6 Z'}, {d: 'M 44 -69 Q 44 -71 42 -71 L 36.4 -71 Q 34.6 -71 34.6 -69 L 34.6 -58.6 Q 34.6 -56.6 36.4 -56.6 L 42 -56.6 Q 44 -56.6 44 -58.6 Z'}],
+      frontDet: ['M -43 -67.4 L -35.6 -67.4', 'M -43 -63.8 L -35.6 -63.8', 'M -43 -60.2 L -35.6 -60.2', 'M 43 -67.4 L 35.6 -67.4', 'M 43 -63.8 L 35.6 -63.8', 'M 43 -60.2 L 35.6 -60.2']},
+    /* the right arm points up to the right, the index finger out */
+    present: {arms: [{d: F.armDownL, w: 6.2}, {d: 'M 12.8 -75 L 22.2 -80 L 31.2 -86', w: 6.2}],
+      hands: [{d: F.handDownL}, {d: E(33, -87.4, 3.6, 3.4)}, {d: 'M 35.2 -88.6 L 40.4 -91.4', w: 2.4}, {d: 'M 31.6 -85.2 L 33.4 -84.2', w: 2.2}]},
+  };
+  const side = {
+    parts: [{d: E(0.8, -91.6, 7.4)}, {d: 'M 7.4 -94.4 L 10.4 -90 Q 10.8 -89 9.6 -88.8 L 7.6 -88.6 Z'}, {d: 'M -2.6 -85 L 3.4 -85 L 3.4 -78 L -2.8 -78 Z'},
+      {d: 'M -6.8 -80.5 L 3.4 -80.5 Q 8.8 -79.6 8.9 -73 L 7.9 -58 L 7.1 -45 L -7.5 -45 L -8.1 -58 L -9.1 -73 Q -9.3 -80.2 -6.8 -80.5 Z'},
+      {d: 'M -7.5 -46.5 L 7.1 -46.5 L 6.9 -39 L -7.3 -39 Z'},
+      {d: 'M -7.2 -40.5 L 2.4 -40.5 L 1.6 -5.8 L -6.2 -5.8 Z'}, {d: 'M -2.6 -40.5 L 6.8 -40.5 L 5.4 -5.8 L -2.2 -5.8 Z'},
+      {d: 'M -8 0 L -8 -3.4 Q -8 -6.8 -4.6 -6.8 L 3.6 -6.8 Q 9.8 -6.4 11.2 -2.6 L 11.2 0 Z'},
+      {d: 'M 0.4 -76 Q 1.6 -66 3.4 -60 L 6.4 -50', w: 6}, {d: E(7.4, -46.6, 3.1, 3.9)}],
+    det: ['M -1.4 -80.3 L 3.2 -76.8', 'M -7.4 -45.6 L 7 -45.6', 'M -2.4 -38.5 L -2 -8', 'M -7.6 -2.6 L 11 -2.6', 'M 4.6 -92.6 Q 3 -91 4.4 -89.4'],
+  };
+  return {
+    /* a person: (x, y) = the floor point under the feet, h = height in px; returns {front} for things held in front */
+    person(p, {x, y, h, pose = 'stand', face = 1, tone} = {}) {
+      const s = h / 100, q = p.child({transform: `translate(${x} ${y}) scale(${(s * face).toFixed(4)} ${s.toFixed(4)})`}, s);
+      if (pose === 'side') { q.figure(side.parts, {tone, box: [-20, -100, 20, 0], details: side.det}); return {q}; }
+      const P = poses[pose], parts = [...P.arms.filter(a => pose === 'hold'), {d: front.head}, {d: front.neck}, {d: front.torso}, {d: front.hips}, ...legs, ...P.arms.filter(a => pose !== 'hold'), ...P.hands];
+      q.figure(parts, {tone, box: [-30, -100, 30, 0], details: [...fDet, ...(P.det ?? [])]});
+      return {q, front: () => P.front && q.figure(P.front, {tone, box: [-44, -72, 44, -56], details: P.frontDet, dsw: 1.3})};
+    },
+    /* head and shoulders (a member of a group): (x, y) = the middle of the shoulders' bottom, size = height */
+    bust(p, {x, y, size, tone, op}) {
+      const s = size / 130, q = p.child({transform: `translate(${x} ${y}) scale(${s})`}, s); if (op != null) q.g.style.opacity = op;
+      q.figure([{d: E(0, -96, 26)}, {d: 'M -11 -74 L 11 -74 L 12 -58 L -12 -58 Z'},
+        {d: 'M -60 0 L -60 -22 Q -60 -52 -28 -56 L -10 -61 L 10 -61 L 28 -56 Q 60 -52 60 -22 L 60 0 Z'}],
+        {tone, box: [-60, -122, 60, 0], details: ['M -14 -60 L 0 -44 L 14 -60', 'M 0 -44 L 0 -2', 'M -40 -40 Q -44 -24 -44 -4', 'M 40 -40 Q 44 -24 44 -4']});
+      return q;
+    },
+    E,
+  };
+})();
+
 /* ================= B10 คน: who? {icon, label?}, label?, tags? [≤2] ================= */
 /* 1 · the one this is for raises a hand and lights up; the kind of person under it */
 R3.both('B10', 'raise', 'คนที่ใช่ยกมือ', (K, s, T, g, small) => {
   const {p} = LP.layer(g, small);
-  LP.person(p, {x: 300, y: 270, h: 262, pose: 'wave', tone: 'acc'});
+  HU.person(p, {x: 300, y: 272, h: 254, pose: 'wave', tone: 'acc'});
   const w = s.label ?? s.who?.label; if (w) LP.word(K, g, w, 300, 280, 36, 340);
 });
 
-/* 2 · a person waiting at arrivals holds up a sign; on the sign is the kind of person */
+/* 2 · a person waiting at arrivals holds up a cardboard sign; on the sign is the kind of person */
 R3.both('B10', 'sign', 'คนถือป้ายรอรับ บนป้ายคือคนกลุ่มนี้', (K, s, T, g, small) => {
-  const G = 336, H = 332, X = 300, {p} = LP.layer(g, small);
-  LP.person(p, {x: X, y: G, h: H, pose: 'hold'});
-  p.rect(X - 172, 98, 344, 136, {rx: 10, fill: true});
-  [[-172, -58], [172, -58]].forEach(([px, py]) => { const [hx, hy] = LP.at(X, G, H, px, py); p.circle(hx, hy, 13, {fill: true, sw: 2.6}); });
-  const w = s.label ?? s.who?.label; if (w) LP.word(K, g, w, X, 136, 46, 290);
+  const X = 300, G = 338, H = 330, {p} = LP.layer(g, small);
+  const man = HU.person(p, {x: X, y: G, h: H, pose: 'hold'});
+  p.rect(X - 140, 80, 280, 142, {rx: 4, fill: 'shade'});
+  p.line(X - 132, 88, X + 132, 88, {sw: 1.4, tone: 'soft'}); p.line(X - 132, 214, X + 132, 214, {sw: 1.4, tone: 'soft'});
+  man.front();
+  const w = s.label ?? s.who?.label; if (w) LP.word(K, g, w, X, 124, 44, 236);
 });
 
 /* ================= B13 เคล็ดลับ: secret {icon, label?} ================= */
 /* 3 · a secret file with a padlock on the cover: the paper with the tip slides up out of it */
 R3.both('B13', 'dossier', 'แฟ้มลับ กระดาษเคล็ดลับเลื่อนออกมา', (K, s, T, g, small) => {
   const it = s.secret ?? {icon: 'lightbulb'}, back = LP.layer(g, small).p;
-  back.path('M 84 72 Q 84 58 98 58 L 214 58 L 234 80 L 502 80 Q 516 80 516 94 L 516 318 Q 516 332 502 332 L 98 332 Q 84 332 84 318 Z', {fill: true});
-  back.rect(140, 10, 320, 250, {rx: 6, fill: true});
-  LP.ico(g, it.icon, 300, 54, 52); if (it.label) LP.word(K, g, it.label, 300, 86, 40, 290);
+  back.path('M 84 72 Q 84 60 96 60 L 210 60 Q 216 60 220 65 L 234 82 L 504 82 Q 516 82 516 94 L 516 320 Q 516 332 504 332 L 96 332 Q 84 332 84 320 Z', {fill: 'shade'});
+  back.rect(136, 14, 328, 250, {rx: 3, fill: true}); back.line(156, 150, 444, 150, {sw: 1.4, tone: 'soft'}); back.line(156, 172, 380, 172, {sw: 1.4, tone: 'soft'});
+  back.path('M 168 6 L 168 46 Q 168 54 176 54 Q 184 54 184 46 L 184 14 Q 184 10 180 10 Q 176 10 176 14 L 176 40', {sw: 2});
+  LP.ico(g, it.icon, 300, 56, 50); if (it.label) LP.word(K, g, it.label, 300, 86, 40, 290);
   const fr = LP.layer(g, small).p;
-  fr.path('M 84 190 L 516 170 L 516 318 Q 516 332 502 332 L 98 332 Q 84 332 84 318 Z', {fill: true});
-  fr.rect(276, 254, 48, 38, {rx: 6, sw: 3}); fr.path('M 286 254 L 286 242 Q 286 226 300 226 Q 314 226 314 242 L 314 254', {sw: 3});
+  fr.path('M 96 188 L 504 168 Q 516 168 516 180 L 516 320 Q 516 332 504 332 L 96 332 Q 84 332 84 320 L 84 200 Q 84 188 96 188 Z', {fill: 'shade'});
+  fr.line(94, 196, 506, 176, {sw: 1.4, tone: 'soft'});
+  /* the padlock: a thick shackle, a shaded body, the keyhole */
+  fr.path('M 280 252 L 280 236 Q 280 214 300 214 Q 320 214 320 236 L 320 252', {sw: 12}); fr.path('M 280 252 L 280 236 Q 280 214 300 214 Q 320 214 320 236 L 320 252', {sw: 6, stroke: 'var(--lp-fill)'});
+  fr.rect(268, 248, 64, 52, {rx: 8, fill: 'shade', sw: 3}); fr.circle(300, 268, 6, {sw: 2}); fr.line(300, 274, 300, 286, {sw: 3});
 });
 
 /* 4 · a torch in the dark: the beam sweeps across and stops on the tip, which lights up */
 R3.both('B13', 'torch', 'ไฟฉายส่องหาในที่มืด เจอเคล็ดลับ', (K, s, T, g, small) => {
   const it = s.secret ?? {icon: 'lightbulb'}, {p} = LP.layer(g, small);
-  p.path('M 236 222 L 340 16 L 548 16 L 548 196 L 258 254 Z', {fill: 'var(--lp-acc)', stroke: 'none', op: .26});
-  p.rect(352, 30, 186, 150, {rx: 22, fill: true, tone: 'acc'});
-  LP.ico(g, it.icon, 445, 76, 50, true); if (it.label) LP.word(K, g, it.label, 445, 108, 30, 166, true);
-  const tq = p.child({transform: 'rotate(-32 190 280)'});
-  tq.rect(24, 254, 150, 54, {rx: 14, fill: true});
-  [70, 96, 122].forEach(x => tq.line(x, 264, x, 298, {sw: 1.8, tone: 'soft'}));
-  tq.path('M 172 246 L 226 232 Q 236 232 236 242 L 236 320 Q 236 330 226 330 L 172 316 Z', {fill: true});
-  tq.line(248, 238, 248, 324, {sw: 6, tone: 'acc'});
+  p.path('M 246 226 L 340 18 L 548 18 L 548 196 L 268 258 Z', {fill: 'var(--lp-acc)', stroke: 'none', op: .24});
+  p.rect(352, 32, 186, 148, {rx: 16, fill: 'shade', tone: 'acc'}); p.rect(362, 42, 166, 128, {rx: 10, tone: 'acc', fill: 'none', sw: 1.4});
+  LP.ico(g, it.icon, 445, 78, 50, true); if (it.label) LP.word(K, g, it.label, 445, 108, 30, 160, true);
+  const tq = p.child({transform: 'rotate(-32 190 284)'});
+  tq.rect(30, 258, 148, 52, {rx: 10, fill: 'shade'}); tq.line(36, 268, 172, 268, {sw: 1.4, tone: 'soft'});
+  [64, 82, 100, 118].forEach(x => tq.line(x, 272, x, 302, {sw: 1.6, tone: 'soft'}));
+  tq.rect(136, 248, 26, 12, {rx: 4, fill: 'shade', sw: 2.2});
+  tq.path('M 176 252 L 230 236 Q 240 234 240 244 L 240 324 Q 240 334 230 332 L 176 316 Z', {fill: 'shade'});
+  tq.line(184, 258, 184, 310, {sw: 1.4, tone: 'soft'});
+  tq.rect(238, 232, 16, 104, {rx: 6, fill: 'shade', tone: 'acc'});
 });
 
 /* ================= B20 ความสัมพันธ์: a {icon, label?}, b {icon, label?}, label?, cut? ================= */
 /* 5 · two people turn to face each other; the link under them. When it is over they stand back to back */
 R3.both('B20', 'face', 'สองคนหันหน้าเข้าหากัน (จบกัน = หันหลังให้กัน)', (K, s, T, g, small) => {
-  const a = s.a ?? {icon: 'user'}, b = s.b ?? {icon: 'user'}, cut = !!s.cut, G = 280, H = 272, {p} = LP.layer(g, small);
-  const one = (it, x, face) => { if (S11.human(it.icon)) LP.person(p, {x, y: G, h: H, pose: 'side', face}); else { p.rect(x - 76, G - 200, 152, 200, {rx: 16, fill: true}); LP.ico(g, it.icon, x, G - 100, 80); } };
-  one(a, 214, cut ? -1 : 1); one(b, 386, cut ? 1 : -1);
-  if (cut) LP.parts.cross(p, 300, 150, .4);
+  const a = s.a ?? {icon: 'user'}, b = s.b ?? {icon: 'user'}, cut = !!s.cut, G = 280, H = 266, {p} = LP.layer(g, small);
+  const one = (it, x, face) => { if (S11.human(it.icon)) HU.person(p, {x, y: G, h: H, pose: 'side', face});
+    else { p.rect(x - 76, G - 200, 152, 200, {rx: 10, fill: 'shade'}); LP.ico(g, it.icon, x, G - 100, 80); } };
+  one(a, 222, cut ? -1 : 1); one(b, 378, cut ? 1 : -1);
+  if (cut) LP.parts.cross(p, 300, 150, .36);
   if (s.label) LP.word(K, g, s.label, 300, 286, 34, 320);
 });
 
 /* 6 · two hands meet in a handshake on the key word; when it is over they let go */
 R3.both('B20', 'shake', 'มือสองข้างจับมือกัน (จบกัน = ปล่อยมือ)', (K, s, T, g, small) => {
-  const cut = !!s.cut, d = cut ? 40 : 0, {p} = LP.layer(g, small);
-  const q = p.child({transform: 'translate(300 150) scale(1.3) translate(-300 -218)'}, 1.3);
-  const L = q.child({transform: `translate(${-d} 0)`});
-  L.rect(40, 186, 140, 66, {rx: 12, fill: true}); L.rect(166, 180, 26, 78, {rx: 8, fill: true, tone: 'acc'});
-  L.rect(190, 192, 104, 56, {rx: 24, fill: true}); L.tube([[214, 196], [270, 176], [298, 178]], 22);
-  const R = q.child({transform: `translate(${d} 0)`});
-  R.rect(420, 186, 140, 66, {rx: 12, fill: true}); R.rect(408, 180, 26, 78, {rx: 8, fill: true, tone: 'acc'});
-  R.rect(312, 188, 104, 62, {rx: 24, fill: true});
-  [0, 1, 2, 3].forEach(k => R.tube([[330, 196 + k * 15], [254 + k * 4, 200 + k * 15]], 15));
+  const cut = !!s.cut, d = cut ? 42 : 0, {p} = LP.layer(g, small);
+  const q = p.child({transform: 'translate(300 140) scale(1.12)'}, 1.12), box = [-200, -60, 200, 60];
+  const L = q.child({transform: `translate(${-d} 0)`}), R = q.child({transform: `translate(${d} 0)`});
+  /* the left person's arm: sleeve, cuff, palm (behind the right hand's fingers) */
+  L.figure([{d: 'M -300 -40 L -132 -36 L -132 38 L -300 42 Z'}], {box, details: ['M -290 -16 L -150 -14', 'M -250 20 L -160 22']});
+  L.figure([{d: 'M -138 -44 L -108 -46 L -108 46 L -138 44 Z'}], {tone: 'acc', box, details: ['M -128 -40 L -128 40']});
+  L.figure([{d: 'M -110 -36 Q -70 -42 -30 -36 L -6 -30 Q 8 -24 8 -10 L 6 24 Q 2 38 -16 38 L -110 34 Z'}], {box});
+  /* the right person's arm and palm */
+  R.figure([{d: 'M 300 -42 L 132 -38 L 132 36 L 300 40 Z'}], {box, details: ['M 290 -18 L 150 -16', 'M 250 18 L 160 20']});
+  R.figure([{d: 'M 138 -46 L 108 -44 L 108 44 L 138 46 Z'}], {tone: 'acc', box, details: ['M 128 -40 L 128 40']});
+  R.figure([{d: 'M 110 -38 L 40 -36 Q 14 -34 10 -16 L 10 20 Q 14 36 40 38 L 110 36 Z'}], {box});
+  /* the right hand's four fingers wrap over the left palm (in front); the left thumb lies over the right hand */
+  R.figure([0, 1, 2, 3].map(k => ({d: `M 30 ${-22 + k * 15} L ${-62 + k * 6} ${-20 + k * 15.5}`, w: 14})), {box, details: [0, 1, 2].map(k => `M ${-56 + k * 6} ${-12.5 + k * 15.5} L 22 ${-14.5 + k * 15}`)});
+  L.figure([{d: 'M -84 -34 Q -54 -58 -12 -52 L 22 -46', w: 17}], {box, details: ['M 8 -52 Q 16 -50 18 -44']});
   if (s.label) LP.word(K, g, s.label, 300, 280, 36, 320);
 });
 
@@ -256,33 +356,40 @@ R3.both('B20', 'shake', 'มือสองข้างจับมือกั�
 /* 7 · a big road sign on two posts slides in as if driving past, and stops: the name of the place */
 R3.both('B21', 'roadsign', 'ป้ายริมทางบนเสาสองต้น บอกชื่อที่', (K, s, T, g, small) => {
   const pl = s.place ?? {icon: 'map-pin'}, {p} = LP.layer(g, small);
-  p.rect(150, 170, 24, 166, {rx: 5, fill: true}); p.rect(426, 170, 24, 166, {rx: 5, fill: true});
-  p.rect(60, 14, 480, 168, {rx: 20, fill: true, tone: 'acc'}); p.rect(76, 30, 448, 136, {rx: 12, tone: 'acc', fill: 'none', sw: 2.2});
-  LP.ico(g, pl.icon, 300, 64, 58, true);
-  if (pl.label) LP.word(K, g, pl.label, 300, 96, 48, 420, true);
+  [150, 426].forEach(x => { p.rect(x, 166, 24, 158, {rx: 3, fill: 'shade'}); p.line(x + 7, 176, x + 7, 314, {sw: 1.4, tone: 'soft'}); p.rect(x - 10, 318, 44, 16, {rx: 3, fill: 'shade'}); });
+  p.rect(60, 14, 480, 168, {rx: 14, fill: 'shade', tone: 'acc'}); p.rect(74, 28, 452, 140, {rx: 8, tone: 'acc', fill: 'none', sw: 2.4});
+  [[86, 40], [514, 40], [86, 156], [514, 156]].forEach(([x, y]) => p.circle(x, y, 4, {tone: 'acc', fill: 'none', sw: 1.6}));
+  LP.ico(g, pl.icon, 300, 62, 56, true);
+  if (pl.label) LP.word(K, g, pl.label, 300, 94, 48, 420, true);
 });
 
 /* 8 · a hand holds up a phone and takes a picture of the place: the place is on the screen */
 R3.both('B21', 'snap', 'มือถือมือถือ ถ่ายรูปสถานที่', (K, s, T, g, small) => {
-  const pl = s.place ?? {icon: 'map-pin'}, {p} = LP.layer(g, small);
-  const ph = LP.holdPhone(p, {x: 300, y: 178, size: 336}), k = ph.s, sx = v => 300 + v * k, sy = v => 178 + v * k;
-  /* the viewfinder corners on the screen */
-  [[-56, -170, 1, 1], [56, -170, -1, 1], [-56, 40, 1, -1], [56, 40, -1, -1]].forEach(([x, y, dx, dy]) =>
-    ph.q.poly([[x, y + 22 * dy], [x, y], [x + 22 * dx, y]], {sw: 3, tone: 'acc', fill: 'none'}));
-  ph.after();
-  LP.ico(g, pl.icon, sx(-6), sy(-112), 54); if (pl.label) LP.word(K, g, pl.label, sx(-6), sy(-76), 24, 96);
+  const pl = s.place ?? {icon: 'map-pin'}, {p} = LP.layer(g, small), box = [150, 0, 450, 340];
+  /* the hand behind the phone: the wrist from the lower left, the palm across the back of the phone */
+  p.figure([{d: 'M 172 344 L 208 284 Q 224 260 260 251 L 362 236 Q 392 236 396 266 L 392 300 Q 384 330 350 334 L 270 344 Z'}], {box: [160, 220, 400, 344], details: ['M 186 322 L 278 332']});
+  /* the phone: shaded case, the screen, the camera, a side button */
+  p.rect(210, 10, 182, 300, {rx: 26, fill: 'shade'}); p.rect(392, 70, 6, 40, {rx: 3, fill: 'shade', sw: 2});
+  p.rect(222, 22, 158, 276, {rx: 18, fill: true, sw: 1.8}); p.rect(282, 30, 38, 10, {rx: 5, fill: 'shade', sw: 1.6});
+  [[238, 52, 1, 1], [364, 52, -1, 1], [238, 238, 1, -1], [364, 238, -1, -1]].forEach(([x, y, dx, dy]) => p.poly([[x, y + 22 * dy], [x, y], [x + 22 * dx, y]], {sw: 3, tone: 'acc', fill: 'none'}));
+  p.circle(301, 274, 13, {sw: 2.2}); p.circle(301, 274, 8, {fill: 'var(--lp-acc)', stroke: 'none'});
+  LP.ico(g, pl.icon, 301, 112, 66); if (pl.label) LP.word(K, g, pl.label, 301, 156, 30, 134);
+  /* fingertips round the right edge, the thumb over the left edge */
+  p.figure([0, 1, 2, 3].map(k => ({d: `M 378 ${150 + k * 24} L ${398 - (k === 3 ? 4 : 0)} ${152 + k * 24}`, w: 19})), {box, details: [0, 1, 2, 3].map(k => `M 394 ${145 + k * 24} Q ${401 - (k === 3 ? 4 : 0)} ${149 + k * 24} ${398 - (k === 3 ? 4 : 0)} ${157 + k * 24}`)});
+  p.figure([{d: 'M 214 300 Q 210 262 222 238 L 240 208', w: 23}, {d: 'M 206 330 Q 200 300 214 290 L 234 280', w: 30}], {box: [180, 200, 260, 340], details: ['M 232 206 Q 242 208 244 216', 'M 216 262 Q 222 256 228 258']});
 });
 
 /* ================= B12 เหตุกับผล: items [3 {icon, label?, tone?}], end? ================= */
 /* 9 · a stone drops into still water; the rings spread out, the outer one is the effect */
 R3.both('B12', 'ripple', 'หินตกน้ำ วงคลื่นกระเพื่อมออกไปทีละวง', (K, s, T, g, small) => {
   const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg', C = [300, 206], {p} = LP.layer(g, small);
-  p.ellipse(C[0], C[1], 250, 72, {fill: true});
-  p.ellipse(C[0], C[1], 56, 16, {sw: 2.4}); p.ellipse(C[0], C[1], 130, 37, {sw: 2.2, tone: 'soft'});
-  p.ellipse(C[0], C[1], 210, 58, {sw: 5, tone: neg ? 'neg' : 'acc', fill: 'none'});
-  p.line(C[0], 104, C[0], C[1] - 24, {sw: 1.8, tone: 'soft', dash: [6, 10]});
-  p.path('M 256 62 C 252 30 278 12 304 14 C 334 16 352 34 348 62 C 344 88 320 98 300 98 C 276 98 258 88 256 62 Z', {fill: true});
-  p.path('M 276 34 Q 290 24 308 26', {sw: 1.8, tone: 'soft'});
+  p.ellipse(C[0], C[1], 250, 72, {fill: 'shade'});
+  p.ellipse(C[0], C[1], 54, 15, {sw: 2.6}); p.ellipse(C[0], C[1], 128, 36, {sw: 2, tone: 'soft'});
+  p.ellipse(C[0], C[1], 208, 58, {sw: 5, tone: neg ? 'neg' : 'acc', fill: 'none'});
+  [[-30, -24, 4], [26, -28, 5], [4, -38, 3.5]].forEach(([dx, dy, r]) => p.ellipse(C[0] + dx, C[1] + dy, r * .8, r, {fill: 'shade', sw: 1.8}));
+  p.line(C[0], 104, C[0], C[1] - 46, {sw: 1.8, tone: 'soft', dash: [6, 10]});
+  p.path('M 254 62 C 250 30 278 12 304 14 C 336 16 354 36 350 62 C 346 90 320 100 300 100 C 274 100 256 90 254 62 Z', {fill: 'shade'});
+  p.path('M 272 36 Q 286 24 306 26', {sw: 2, op: .7}); p.path('M 262 74 Q 280 92 312 90', {sw: 1.4, tone: 'soft'});
   if (it[0]) LP.ico(g, it[0].icon, 302, 58, 36);
   if (it[2]?.label) { const w = LP.word(K, g, it[2].label, 300, 286, 36, 360); if (neg) w.style.color = 'var(--lp-neg)'; }
 });
@@ -290,109 +397,150 @@ R3.both('B12', 'ripple', 'หินตกน้ำ วงคลื่นกร�
 /* 10 · a toaster: the lever goes down (the cause) and the toast pops up (the effect) */
 R3.both('B12', 'toaster', 'เครื่องปิ้งขนมปัง กดคันโยก ขนมปังเด้งขึ้น', (K, s, T, g, small) => {
   const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg', {p} = LP.layer(g, small);
-  /* the toast first (behind), half out of the slot */
-  p.path('M 214 150 L 214 66 Q 196 62 196 42 Q 196 14 230 14 L 370 14 Q 404 14 404 42 Q 404 62 386 66 L 386 150 Z', {fill: true, tone: neg ? undefined : 'acc'});
-  if (neg) p.path('M 214 150 L 214 66 Q 196 62 196 42 Q 196 14 230 14 L 370 14 Q 404 14 404 42 Q 404 62 386 66 L 386 150 Z', {tone: 'neg', sw: 3.4});
-  if (it[2]?.icon) LP.ico(g, it[2].icon, 300, it[2].label ? 44 : 64, 40, !neg);
-  if (it[2]?.label) { const w = LP.word(K, g, it[2].label, 300, 64, 28, 168, !neg); if (neg) w.style.color = 'var(--lp-neg)'; }
-  p.path('M 150 128 Q 150 106 172 106 L 428 106 Q 450 106 450 128 L 460 284 Q 462 304 440 304 L 160 304 Q 138 304 140 284 Z', {fill: true});
-  p.rect(206, 98, 188, 16, {rx: 8, fill: true});
-  p.rect(176, 312, 40, 14, {rx: 6, fill: true}); p.rect(384, 312, 40, 14, {rx: 6, fill: true});
-  p.rect(456, 214, 34, 22, {rx: 8, fill: true}); p.line(450, 160, 450, 270, {sw: 1.8, tone: 'soft'});
-  p.circle(300, 220, 26, {sw: 2.2}); p.line(300, 220, 314, 206, {sw: 2.2});
+  [262, 300, 338].forEach((x, k) => p.path(`M ${x} 36 C ${x - 8} 28 ${x + 8} 20 ${x} ${12 - k * 2}`, {sw: 1.8, tone: 'soft'}));
+  const bread = `M 210 170 L 210 86 C 190 82 184 58 198 46 C 214 32 240 38 254 46 C 272 36 328 36 346 46 C 360 38 386 32 402 46 C 416 58 410 82 390 86 L 390 170 Z`;
+  p.path(bread, {fill: 'shade', tone: neg ? undefined : 'acc'}); if (neg) p.path(bread, {tone: 'neg', sw: 3.2});
+  p.child({transform: 'translate(300 108) scale(.9) translate(-300 -108)'}, .9).path(bread, {sw: 1.6, tone: neg ? 'neg' : 'soft'});
+  if (it[2]?.icon) LP.ico(g, it[2].icon, 300, it[2].label ? 62 : 80, 32, !neg);
+  if (it[2]?.label) { const w = LP.word(K, g, it[2].label, 300, 76, 24, 150, !neg); if (neg) w.style.color = 'var(--lp-neg)'; }
+  p.path('M 128 296 L 128 156 Q 128 116 168 116 L 432 116 Q 472 116 472 156 L 472 296 Z', {fill: 'shade'});
+  p.rect(196, 112, 208, 12, {rx: 6, fill: true, sw: 2.2});
+  p.path('M 152 150 Q 148 160 148 190 L 148 250', {sw: 2, op: .65}); p.line(164, 160, 164, 220, {sw: 1.4, op: .45});
+  p.line(446, 140, 446, 270, {sw: 1.6, tone: 'soft'});
+  p.rect(436, 230, 66, 22, {rx: 10, fill: 'shade', sw: 2.4});
+  p.circle(300, 214, 32, {fill: 'shade', sw: 2.6});
+  for (let k = 0; k < 7; k++) { const a = (-210 + k * 40) * Math.PI / 180; p.line(300 + Math.cos(a) * 40, 214 + Math.sin(a) * 40, 300 + Math.cos(a) * 47, 214 + Math.sin(a) * 47, {sw: 1.6, tone: 'soft'}); }
+  p.line(300, 214, 316, 196, {sw: 2.6});
+  p.line(170, 270, 430, 270, {sw: 1.4, tone: 'soft'});
+  p.rect(116, 292, 368, 22, {rx: 9, fill: 'shade'});
+  p.rect(150, 314, 44, 14, {rx: 5, fill: true}); p.rect(406, 314, 44, 14, {rx: 5, fill: true});
 });
 
 /* ================= B05 ถูกกับผิด: wrong {icon, label?}, right {icon, label?} ================= */
 /* 11 · a USB plug: the wrong way up it will not go in; turned the right way, it goes in */
 R3.both('B05', 'usb', 'หัว USB ด้านผิดเสียบไม่เข้า ด้านถูกเสียบได้', (K, s, T, g, small) => {
   const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'}, {p} = LP.layer(g, small);
-  p.path('M -20 172 Q 60 172 92 172', {sw: 3}); p.path('M -20 186 Q 60 186 92 186', {sw: 3});
-  p.rect(88, 140, 150, 78, {rx: 16, fill: true, tone: 'acc'});
-  p.rect(236, 150, 92, 58, {rx: 4, fill: true});
-  p.rect(262, 164, 14, 12, {rx: 2, sw: 2}); p.rect(290, 164, 14, 12, {rx: 2, sw: 2});
-  /* the port the plug goes into (in front of the metal tip) */
-  p.rect(290, 118, 236, 122, {rx: 18, fill: true}); p.rect(312, 140, 192, 78, {rx: 8, sw: 2.2}); p.rect(330, 160, 156, 20, {rx: 4, sw: 1.8, tone: 'soft'});
-  LP.ico(g, r.icon, 163, 179, 40, true);
+  p.rect(-20, 166, 112, 26, {rx: 13, fill: 'shade'}); p.line(-10, 172, 84, 172, {sw: 1.4, op: .5});
+  p.rect(84, 158, 26, 42, {rx: 8, fill: 'shade'});
+  p.rect(104, 136, 140, 86, {rx: 14, fill: 'shade', tone: 'acc'});
+  [0, 1, 2, 3].forEach(k => p.line(122 + k * 9, 150, 122 + k * 9, 208, {sw: 1.6, tone: 'acc', op: .6}));
+  p.rect(242, 148, 92, 62, {rx: 3, fill: 'shade'}); p.line(246, 156, 330, 156, {sw: 1.4, tone: 'soft'});
+  p.rect(266, 164, 14, 12, {rx: 2, sw: 2}); p.rect(294, 164, 14, 12, {rx: 2, sw: 2});
+  /* the port, on the side of a device (in front of the metal tip) */
+  p.rect(292, 112, 236, 134, {rx: 16, fill: 'shade'}); p.rect(300, 120, 220, 118, {rx: 11, sw: 1.4, tone: 'soft'});
+  p.rect(314, 140, 192, 78, {rx: 6, fill: true, sw: 2.4}); p.rect(332, 160, 156, 20, {rx: 4, fill: 'shade', sw: 1.6});
+  LP.ico(g, r.icon, 196, 179, 40, true);
   if (r.label) LP.word(K, g, r.label, 300, 270, 38, 360);
-  if (w.label) LP.strike(K, g, w.label, 300, 42, 30, 300);
+  if (w.label) LP.strike(K, g, w.label, 300, 40, 30, 300);
 });
 
 /* 12 · one ticket gate: the right card is tapped and the gate opens (the wrong one, struck, above) */
 R3.both('B05', 'gate', 'ประตูกั้นรถไฟฟ้า บัตรถูกแตะแล้วเปิด', (K, s, T, g, small) => {
   const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'}, {p} = LP.layer(g, small);
-  p.rect(212, 178, 52, 40, {rx: 14, fill: true, tone: 'acc'}); p.rect(336, 178, 52, 40, {rx: 14, fill: true, tone: 'acc'});
-  [[110, 212], [388, 490]].forEach(([x0, x1]) => { p.path(`M ${x0} 336 L ${x0} 120 Q ${x0} 102 ${x0 + 18} 102 L ${x1 - 18} 102 Q ${x1} 102 ${x1} 120 L ${x1} 336`, {fill: true});
-    p.rect(x0 + 22, 116, x1 - x0 - 44, 18, {rx: 5, sw: 2.2}); });
-  p.rect(130, 20, 170, 108, {rx: 14, fill: true, tone: 'acc'});
-  LP.ico(g, r.icon, 215, 52, 40, true); if (r.label) LP.word(K, g, r.label, 215, 78, 28, 150, true);
-  if (w.label) LP.strike(K, g, w.label, 430, 40, 28, 200);
+  p.path('M 214 176 L 262 172 Q 270 172 270 180 L 270 212 Q 270 220 262 220 L 214 216 Z', {fill: 'shade', tone: 'acc'});
+  p.path('M 386 176 L 338 172 Q 330 172 330 180 L 330 212 Q 330 220 338 220 L 386 216 Z', {fill: 'shade', tone: 'acc'});
+  [[110, 214], [386, 490]].forEach(([x0, x1], k) => {
+    p.path(`M ${x0} 336 L ${x0} 124 Q ${x0} 100 ${x0 + 24} 100 L ${x1 - 24} 100 Q ${x1} 100 ${x1} 124 L ${x1} 336`, {fill: 'shade'});
+    p.line(x0 + 10, 132, x1 - 10, 132, {sw: 1.4, tone: 'soft'}); p.line(x0 + 10, 300, x1 - 10, 300, {sw: 1.4, tone: 'soft'});
+    p.rect(x0 + 18, 108, x1 - x0 - 36, 16, {rx: 5, fill: true, sw: 2}); });
+  /* the reader on the left gate: a pad with the tap sign; the right card lies on it */
+  p.rect(124, 140, 76, 46, {rx: 8, fill: true, sw: 2});
+  [10, 17, 24].forEach(rr => p.path(`M ${150 + rr * .7} ${163 - rr * .7} A ${rr} ${rr} 0 0 1 ${150 + rr * .7} ${163 + rr * .7}`, {sw: 1.6, tone: 'soft'}));
+  const cq = p.child({transform: 'rotate(-8 196 70)'});
+  cq.rect(116, 18, 168, 108, {rx: 12, fill: 'shade', tone: 'acc'}); cq.rect(134, 34, 28, 22, {rx: 4, tone: 'acc', fill: 'none', sw: 1.6});
+  const hold = R6.group(g); hold.style.transformOrigin = '196px 70px'; hold.style.transform = 'rotate(-8deg)';
+  LP.ico(hold, r.icon, 214, 56, 36, true); if (r.label) LP.word(K, hold, r.label, 200, 80, 28, 150, true);
+  if (w.label) LP.strike(K, g, w.label, 440, 40, 28, 200);
 });
 
 /* ================= B11 คำพูด: kind, quote, mood?, react?, gone? ================= */
-/* 13 · a home phone: the handset is picked up and what was said comes out of it */
+/* 13 · a rotary home phone: the handset is picked up and what was said comes out of it */
 R3.both('B11', 'phone', 'โทรศัพท์บ้าน ยกหู คำพูดออกมา', (K, s, T, g, small) => {
   const {p} = LP.layer(g, small);
-  p.path('M 80 320 L 116 210 Q 120 198 134 198 L 314 198 Q 328 198 332 210 L 368 320 Q 370 334 356 334 L 92 334 Q 78 334 80 320 Z', {fill: true});
-  p.circle(224, 268, 36, {sw: 2.2}); p.circle(224, 268, 11, {sw: 1.8, tone: 'soft'});
+  p.path('M 64 330 C 40 330 36 310 52 300 C 30 296 30 278 48 272 C 28 266 30 248 50 244 C 32 236 38 218 58 218 C 46 206 58 190 76 194', {sw: 2, tone: 'soft'});
+  p.path('M 84 322 L 114 214 Q 120 196 140 196 L 308 196 Q 328 196 334 214 L 364 322 Q 368 334 354 334 L 94 334 Q 80 334 84 322 Z', {fill: 'shade'});
+  p.line(104, 314, 344, 314, {sw: 1.4, tone: 'soft'});
+  p.circle(224, 266, 44, {fill: 'shade', sw: 2.4}); p.circle(224, 266, 16, {fill: true, sw: 1.8});
+  for (let k = 0; k < 10; k++) { const a = (-120 + k * 28) * Math.PI / 180; p.circle(224 + Math.cos(a) * 31, 266 + Math.sin(a) * 31, 6, {sw: 1.6, fill: true}); }
   const hs = p.child({transform: 'rotate(-12 224 136)'});
-  hs.path('M 112 136 Q 112 110 138 110 L 310 110 Q 336 110 336 136 L 336 148 Q 336 168 316 168 L 288 168 Q 276 168 274 156 L 270 142 L 178 142 L 174 156 Q 172 168 160 168 L 132 168 Q 112 168 112 148 Z', {fill: true});
-  LP.parts.bubble(p, 438, 80, 216, 110, false, {sw: 2.6});
-  if (s.quote) LP.word(K, g, s.quote, 438, 56, 38, 190);
+  hs.path('M 112 138 Q 112 110 140 110 L 308 110 Q 336 110 336 138 L 336 150 Q 336 170 316 170 L 290 170 Q 278 170 276 158 L 272 144 L 176 144 L 172 158 Q 170 170 158 170 L 132 170 Q 112 170 112 150 Z', {fill: 'shade'});
+  hs.line(150, 122, 300, 122, {sw: 1.4, op: .5});
+  [[136, 158], [146, 162], [306, 158], [316, 162]].forEach(([x, y]) => hs.dot(x, y, 2.4, {fill: 'var(--lp-soft)', stroke: 'none'}));
+  LP.parts.bubble(p, 440, 80, 216, 110, false, {sw: 2.6}); p.line(350, 40, 520, 40, {sw: 1.4, op: 0});
+  if (s.quote) LP.word(K, g, s.quote, 440, 56, 38, 190);
 });
 
 /* 14 · a typewriter types the message onto the paper, which rolls up out of it */
 R3.both('B11', 'typewriter', 'เครื่องพิมพ์ดีดพิมพ์ข้อความ กระดาษเลื่อนขึ้น', (K, s, T, g, small) => {
   const {p} = LP.layer(g, small);
-  p.rect(160, 8, 280, 180, {rx: 4, fill: true});
-  if (s.quote) LP.word(K, g, s.quote, 300, 60, 44, 240);
-  p.rect(110, 160, 380, 38, {rx: 19, fill: true}); p.circle(94, 179, 20, {fill: true}); p.circle(506, 179, 20, {fill: true});
-  p.path('M 104 214 Q 104 200 118 200 L 482 200 Q 496 200 498 214 L 526 312 Q 530 334 508 334 L 92 334 Q 70 334 74 312 Z', {fill: true});
-  [[150, 236, 8], [170, 270, 7]].forEach(([x0, y, n]) => { for (let k = 0; k < n; k++) p.circle(x0 + k * 42 + 12, y, 12, {sw: 2}); });
-  p.rect(220, 300, 160, 14, {rx: 7, sw: 2});
+  p.rect(160, 6, 280, 184, {rx: 3, fill: true}); p.line(184, 130, 416, 130, {sw: 1.4, tone: 'soft'}); p.line(184, 152, 340, 152, {sw: 1.4, tone: 'soft'});
+  if (s.quote) LP.word(K, g, s.quote, 300, 52, 44, 240);
+  p.rect(108, 158, 384, 40, {rx: 20, fill: 'shade'}); p.line(130, 168, 470, 168, {sw: 1.4, op: .5});
+  p.rect(70, 164, 34, 28, {rx: 10, fill: 'shade'}); p.rect(496, 164, 34, 28, {rx: 10, fill: 'shade'});
+  p.path('M 100 214 Q 100 200 116 200 L 484 200 Q 500 200 502 214 L 528 312 Q 532 334 510 334 L 90 334 Q 68 334 72 312 Z', {fill: 'shade'});
+  p.line(92, 226, 508, 226, {sw: 1.4, tone: 'soft'});
+  [[146, 248, 8], [166, 280, 7]].forEach(([x0, y, n]) => { for (let k = 0; k < n; k++) { p.circle(x0 + k * 42 + 12, y, 13, {fill: 'shade', sw: 2.2}); p.circle(x0 + k * 42 + 12, y, 8, {sw: 1.4, tone: 'soft'}); } });
+  p.rect(214, 306, 172, 16, {rx: 8, fill: 'shade', sw: 2.2});
 });
 
 /* ================= B01 ตัวเลขเด่น: value, unit?, icon?, dir?, money? ================= */
 /* 15 · a price tag hangs on its string, swings and comes to rest: the amount on it (money only) */
 R3.both('B01', 'pricetag', 'ป้ายราคาแขวน แกว่งแล้วหยุด', (K, s, T, g, small) => {
   const {p} = LP.layer(g, small);
-  p.path('M 300 -10 Q 288 30 300 62', {sw: 2.4});
-  const tg = p.child({transform: 'rotate(-6 300 62)'});
-  tg.path('M 278 44 Q 300 30 322 44 L 436 108 Q 448 116 448 130 L 448 318 Q 448 334 432 334 L 168 334 Q 152 334 152 318 L 152 130 Q 152 116 164 108 Z', {fill: true});
-  tg.circle(300, 74, 13, {sw: 2.8});
-  const hold = R6.group(g); hold.style.transformOrigin = '300px 62px'; hold.style.transform = 'rotate(-6deg)';
+  const tg = p.child({transform: 'rotate(-6 300 74)'});
+  tg.path('M 278 44 Q 300 30 322 44 L 436 108 Q 448 116 448 130 L 448 318 Q 448 334 432 334 L 168 334 Q 152 334 152 318 L 152 130 Q 152 116 164 108 Z', {fill: 'shade'});
+  tg.path('M 280 56 Q 300 44 320 56 L 428 116 Q 436 122 436 132 L 436 312 Q 436 322 426 322 L 174 322 Q 164 322 164 312 L 164 132 Q 164 122 172 116 Z', {sw: 1.4, tone: 'soft'});
+  tg.circle(300, 76, 15, {fill: 'shade', sw: 2.6}); tg.circle(300, 76, 8, {fill: true, sw: 2});
+  p.path('M 300 -10 C 290 20 316 46 306 70 C 300 82 290 80 292 72', {sw: 2.4});
+  const hold = R6.group(g); hold.style.transformOrigin = '300px 74px'; hold.style.transform = 'rotate(-6deg)';
   const n = div('left:152px;top:128px;width:296px;text-align:center', hold, `<span class="u-num lp-t" style="font-size:92px">${s.value}</span>`);
   FITS.push(() => { const sp = n.firstChild; if (sp.offsetWidth > 260) sp.style.fontSize = (92 * 260 / sp.offsetWidth).toFixed(1) + 'px'; });
   if (s.unit) LP.word(K, hold, s.unit, 300, 236, 34, 240);
 }, R2.money);
 
-/* 16 · a wallet opens and a banknote slides up out of it: the amount is on the note (money only) */
+/* 16 · a wallet opens and the banknotes slide up out of it: the amount is on the top note (money only) */
 R3.both('B01', 'wallet', 'กระเป๋าสตางค์เปิด ธนบัตรเลื่อนออก มีจำนวนเงิน', (K, s, T, g, small) => {
   const bk = LP.layer(g, small).p;
-  bk.rect(128, 10, 344, 176, {rx: 8, fill: true}); bk.rect(142, 24, 316, 148, {rx: 5, sw: 1.8, tone: 'soft'});
-  const n = div('left:128px;top:30px;width:344px;text-align:center', g, `<span class="u-num lp-t" style="font-size:76px">${s.value}</span>`);
+  bk.path('M 104 168 L 104 150 Q 104 138 116 138 L 484 138 Q 496 138 496 150 L 496 168', {fill: 'shade'});
+  const note = (rot, dy, top) => { const q = bk.child({transform: `rotate(${rot} 300 230)`});
+    q.rect(128, 18 + dy, 344, 168, {rx: 6, fill: 'shade'}); q.rect(138, 28 + dy, 324, 148, {rx: 4, sw: 1.4, tone: 'soft'});
+    q.circle(156, 46 + dy, 7, {sw: 1.4, tone: 'soft'}); q.circle(444, 158 + dy, 7, {sw: 1.4, tone: 'soft'});
+    if (!top) q.line(170, 60 + dy, 260, 60 + dy, {sw: 1.4, tone: 'soft'}); };
+  note(-9, 18, false); note(-4, 8, false); note(0, 0, true);
+  const n = div('left:128px;top:34px;width:344px;text-align:center', g, `<span class="u-num lp-t" style="font-size:76px">${s.value}</span>`);
   FITS.push(() => { const sp = n.firstChild; if (sp.offsetWidth > 290) sp.style.fontSize = (76 * 290 / sp.offsetWidth).toFixed(1) + 'px'; });
-  if (s.unit) LP.word(K, g, s.unit, 300, 116, 30, 260);
+  if (s.unit) LP.word(K, g, s.unit, 300, 118, 30, 260);
   const {p} = LP.layer(g, small);
-  p.rect(94, 156, 412, 178, {rx: 26, fill: true}); p.rect(108, 170, 384, 150, {rx: 16, sw: 1.6, tone: 'soft'});
-  p.rect(398, 210, 126, 74, {rx: 26, fill: true}); p.circle(488, 247, 11, {sw: 2.8, tone: 'acc', fill: true});
+  p.rect(92, 152, 416, 182, {rx: 18, fill: 'shade'});
+  p.line(100, 160, 500, 160, {sw: 1.4, tone: 'soft'});
+  p.rect(106, 172, 388, 148, {rx: 10, sw: 1.4, tone: 'soft', dash: [6, 6]});
+  p.path('M 110 186 Q 104 196 104 222', {sw: 2, op: .7});
+  p.path('M 410 206 L 506 206 Q 534 206 534 246 Q 534 286 506 286 L 410 286 Z', {fill: 'shade'});
+  p.path('M 420 216 L 504 216 Q 524 216 524 246 Q 524 276 504 276 L 420 276', {sw: 1.4, tone: 'soft', dash: [6, 6]});
+  p.circle(492, 246, 17, {fill: 'shade', sw: 2.6}); p.circle(492, 246, 8, {sw: 1.6, tone: 'soft'}); p.dot(487, 241, 2.5, {op: .8});
 }, R2.money);
 
 /* ================= B02 เพิ่ม / ลด: dir, item, center?, n?, keep?, end? ================= */
 /* 17 · a group of people: more people join behind the first one (up), or they leave until one is left (down). People only */
 R3.both('B02', 'team', 'กลุ่มคน คนมาเพิ่มหรือหายไป', (K, s, T, g, small) => {
   const up = s.dir !== 'down', {p} = LP.layer(g, small);
-  if (up) LP.team(p, {x: 300, y: 152, size: 420, tone: 'acc'});
-  else { const q = LP.team(p, {x: 300, y: 152, size: 420, back: .16}); }
+  HU.bust(p, {x: 176, y: 286, size: 236, op: up ? null : .16}); HU.bust(p, {x: 424, y: 286, size: 236, op: up ? null : .16});
+  HU.bust(p, {x: 300, y: 334, size: 300, tone: up ? 'acc' : undefined});
 }, s => S11.human(s.item?.icon));
 
-/* 18 · boxes stack up one on another (up), or are taken off until one is left (down) */
+/* 18 · cardboard boxes stack up one on another (up), or are taken off until one is left (down) */
 R3.both('B02', 'boxes', 'กล่องซ้อนสูงขึ้น หรือถูกหยิบออกทีละกล่อง', (K, s, T, g, small) => {
-  const up = s.dir !== 'down', it = s.item ?? {icon: 'package'}, {p} = LP.layer(g, small), H = 92;
+  const up = s.dir !== 'down', it = s.item ?? {icon: 'package'}, {p} = LP.layer(g, small), H = 96, Wd = 132;
   [0, 1, 2].forEach(k => {
-    const on = up || k === 0, before = p.g.childNodes.length;
-    const bx = LP.isoBox(p, {x: 300, y: 334 - k * H, w: 120, dp: 120, h: H, tone: up && k === 2 ? 'acc' : undefined, tape: true});
-    if (!on) [...p.g.childNodes].slice(before).forEach(e => { e.style.opacity = .2; e.style.strokeDasharray = '6 7'; });
-    else { const f = bx.front, cx = (f[0][0] + f[1][0]) / 2, cy = (f[0][1] + f[2][1]) / 2 + 4; LP.ico(g, it.icon, cx, cy, 34); }
+    const on = up || k === 0, top = up && k === 2, before = p.g.childNodes.length, y = 334 - k * H;
+    const P = (X, Y, Z) => { const [a, b] = LP.iso(X, Y, Z); return [300 + a, y + b]; }, hw = Wd / 2;
+    p.shape([P(-hw, 0, hw), P(hw, 0, hw), P(hw, H, hw), P(-hw, H, hw)], {fill: 'shade'});
+    p.shape([P(hw, 0, hw), P(hw, 0, -hw), P(hw, H, -hw), P(hw, H, hw)], {fill: true});
+    p.shape([P(-hw, H, -hw), P(hw, H, -hw), P(hw, H, hw), P(-hw, H, hw)], {fill: 'shade', tone: top ? 'acc' : undefined});
+    p.poly([P(0, H, -hw), P(0, H, hw), P(0, H * .6, hw)], {sw: 6, tone: top ? 'acc' : 'soft', op: top ? 1 : .55});
+    p.poly([P(-hw, H * .9, hw), P(hw, H * .9, hw)], {sw: 1.2, tone: 'soft'});
+    if (!on) [...p.g.childNodes].slice(before).forEach(e => { e.style.opacity = .16; e.style.strokeDasharray = '6 7'; });
+    else { const c = P(-hw * .45, H * .42, hw); LP.ico(g, it.icon, c[0], c[1], 30); }
   });
 });
 
@@ -400,25 +548,28 @@ R3.both('B02', 'boxes', 'กล่องซ้อนสูงขึ้น หร
 /* 19 · an open book; a highlighter runs along one line and the line it marks is the punchline */
 R3.both('B14', 'highlight', 'ปากกาไฮไลต์ขีดประโยคในหนังสือ', (K, s, T, g, small) => {
   const it = s.idea ?? {icon: 'quote'}, {p} = LP.layer(g, small);
-  p.path('M 300 34 Q 168 8 34 30 L 34 324 Q 168 304 300 330 Z', {fill: true});
-  p.path('M 300 34 Q 432 8 566 30 L 566 324 Q 432 304 300 330 Z', {fill: true});
-  [92, 150, 266].forEach((y, k) => p.line(70, y, k === 2 ? 190 : 266, y, {sw: 1.8, tone: 'soft'}));
-  [92, 266].forEach((y, k) => p.line(334, y, k === 1 ? 450 : 530, y, {sw: 1.8, tone: 'soft'}));
-  p.rect(320, 154, 214, 68, {rx: 6, fill: 'var(--lp-acc)', stroke: 'none'});
-  LP.row(K, g, it.label ? {label: it.label} : it, 427, 166, 34, 200, true);
-  /* the highlighter pen, its chisel tip at the end of the line */
+  p.path('M 300 44 Q 168 18 40 40 L 40 334 Q 168 312 300 340 Q 432 312 560 334 L 560 40 Q 432 18 300 44 Z', {fill: 'shade'});
+  [6, 12].forEach(d => { p.path(`M ${40 + d} ${328 - d * .3} Q 168 ${306 - d} 300 ${334 - d}`, {sw: 1.2, tone: 'soft'}); p.path(`M ${560 - d} ${328 - d * .3} Q 432 ${306 - d} 300 ${334 - d}`, {sw: 1.2, tone: 'soft'}); });
+  p.path('M 300 34 Q 168 8 34 30 L 34 320 Q 168 298 300 326 Z', {fill: true}); p.path('M 300 34 Q 432 8 566 30 L 566 320 Q 432 298 300 326 Z', {fill: true});
+  p.path('M 300 36 L 300 324', {sw: 2}); p.path('M 290 40 Q 296 180 290 320', {sw: 1.4, tone: 'soft'}); p.path('M 310 40 Q 304 180 310 320', {sw: 1.4, tone: 'soft'});
+  [92, 124, 156, 240, 272].forEach((y, k) => p.line(70, y, k === 4 ? 190 : 264, y, {sw: 1.6, tone: 'soft'}));
+  [92, 124, 240, 272].forEach((y, k) => p.line(336, y, k === 3 ? 450 : 530, y, {sw: 1.6, tone: 'soft'}));
+  p.rect(322, 150, 214, 66, {rx: 4, fill: 'var(--lp-acc)', stroke: 'none', op: .9});
+  LP.row(K, g, it.label ? {label: it.label} : it, 427, 162, 34, 200, true);
   const pen = p.child({transform: 'rotate(38 540 214)'});
-  pen.rect(524, 100, 34, 96, {rx: 8, fill: true}); pen.rect(524, 100, 34, 28, {rx: 8, fill: true, tone: 'acc'});
-  pen.path('M 528 196 L 554 196 L 548 216 L 534 216 Z', {fill: true});
+  pen.rect(522, 112, 36, 84, {rx: 6, fill: 'shade'}); pen.line(530, 120, 530, 188, {sw: 1.4, op: .5});
+  pen.rect(522, 84, 36, 34, {rx: 8, fill: 'shade', tone: 'acc'}); pen.rect(556, 90, 6, 30, {rx: 3, fill: 'shade', tone: 'acc', sw: 1.6});
+  pen.path('M 526 196 L 554 196 L 548 218 L 532 218 Z', {fill: 'shade'}); pen.path('M 533 218 L 547 218 L 544 226 L 536 226 Z', {fill: 'shade', tone: 'acc', sw: 1.6});
 });
 
 /* 20 · a speaker points at the screen, and the punchline is up on it */
 R3.both('B14', 'slides', 'คนยืนชี้จอสไลด์ ประโยคขึ้นจอ', (K, s, T, g, small) => {
   const it = s.idea ?? {icon: 'quote'}, G = 338, H = 300, X = 112, {p} = LP.layer(g, small);
-  p.line(392, 204, 392, 300, {sw: 3}); p.line(392, 294, 340, G, {sw: 3}); p.line(392, 294, 444, G, {sw: 3});
-  p.rect(206, 8, 340, 200, {rx: 14, fill: true});
-  if (it.label) LP.word(K, g, it.label, 376, 84, 44, 300); else LP.ico(g, it.icon, 376, 108, 80);
-  LP.person(p, {x: X, y: G, h: H, pose: 'present'});
+  p.line(392, 200, 392, 300, {sw: 3}); p.line(392, 294, 340, G, {sw: 3}); p.line(392, 294, 444, G, {sw: 3}); p.line(392, 294, 392, G, {sw: 2, tone: 'soft'});
+  p.rect(204, 6, 344, 202, {rx: 8, fill: 'shade'}); p.rect(216, 18, 320, 178, {rx: 4, fill: true, sw: 1.8});
+  p.rect(376, 200, 32, 10, {rx: 3, fill: 'shade', sw: 2});
+  if (it.label) LP.word(K, g, it.label, 376, 82, 44, 290); else LP.ico(g, it.icon, 376, 106, 80);
+  HU.person(p, {x: X, y: G, h: H, pose: 'present'});
 });
 
 /* ================= sample sentences (s11.*), general ones (not Friend's script) ================= */
