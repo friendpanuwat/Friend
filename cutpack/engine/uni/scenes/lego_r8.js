@@ -87,7 +87,7 @@ R3.both('B12', 'plant', 'รดน้ำต้นกล้า แล้วต้
   K.move(can.m, T.b[1] - .2, 'none', 'rotate(16deg)');
   for (let k = 0; k < 3; k++) {
     const dr = node(g, 0, 0, 16, 22, '', `<svg width="16" height="22"><path class="ac" d="M8 0C12 8 16 12 16 15A8 8 0 0 1 0 15C0 12 4 8 8 0Z"/></svg>`);
-    dr.o.classList.add('u-decor');
+    dr.o.classList.add('u-decor'); dr.o.style.opacity = 0;
     const t = T.b[1] + k * .18;
     A(dr.o, [{opacity: 0}, {opacity: 1, offset: .1}, {opacity: 1, offset: .85}, {opacity: 0}], t, .5, {f: 'none'});
     R2.hop(dr.m, t, .5, [C.x + 52, C.y + 10], [X - 20 + k * 14, soil - 18], 30);
@@ -169,7 +169,7 @@ R3.both('B06', 'type', 'ช่องค้นหา พิมพ์คำถา�
 R3.both('B07', 'traffic', 'ไฟจราจรเปลี่ยนเป็นสีแดง', (K, s, T, g) => {
   const it = s.thing, H = {x: 84, y: 16, w: 112, h: 300}, cx = H.x + H.w / 2, ly = [H.y + 58, H.y + 150, H.y + 242], r = 36;
   const box = R8.svg(g, `<rect class="sd" x="${H.x}" y="${H.y}" width="${H.w}" height="${H.h}" rx="30"/>` +
-    ly.map(y => `<circle style="fill:var(--tr)" cx="${cx}" cy="${y}" r="${r}"/>`).join(''));
+    ly.map(y => `<circle class="fl" style="opacity:.22" cx="${cx}" cy="${y}" r="${r}"/>`).join(''));
   K.enter(box, T.b[0], 'rise');
   const lamp = (y, cls, t0, t1) => {
     const e = R8.svg(g, `<circle class="${cls}" cx="${cx}" cy="${y}" r="${r}"/>`); R7.show(e, t0); if (t1 != null) R7.hide(e, t1); return e;
@@ -206,14 +206,13 @@ R3.both('B07', 'fuse', 'ไฟวิ่งตามสายชนวนเข�
   A(path, [{strokeDashoffset: 0}, {strokeDashoffset: -100}], go, arrive - go, {f: 'forwards'});
   const pts = R8.along(path, 40);
   const sp = node(g, pts[0].x - 18, pts[0].y - 18, 36, 36, 'u-badge u-acc u-round'); sp.p.style.borderRadius = '50%';
-  const fl = div('left:-22px;top:-22px;width:80px;height:80px;border-radius:50%', sp.f); fl.className = 'u-flash u-decor'; sp.f.insertBefore(fl, sp.m);
+  const fl = div('left:-22px;top:-22px;width:80px;height:80px;border-radius:50%', sp.m); fl.className = 'u-flash u-decor'; sp.m.insertBefore(fl, sp.p);
   R7.show(sp.o, go); R8.travel(sp.m, pts, go, arrive - go);
   A(sp.p, [{transform: 'scale(1)'}, {transform: 'scale(.7)'}, {transform: 'scale(1)'}], go, .2, {it: Math.max(1, Math.round((arrive - go) / .2)), f: 'none'});
   K.fade(sp.o, arrive + .05, 1, 0);
-  LG.pulse(K, g, pts.at(-1).x, pts.at(-1).y, 60, arrive);
-  K.shake(hero.p, arrive + .05);
-  const sign = K.badge(g, s.sign ?? (s.how === 'cross' ? 'octagon-alert' : 'triangle-alert'), P.x + 62, P.y - 66, 70, arrive + .1, {tone: 'neg', shape: 'round'});
-  R1.ripple(K, sign, LG.arrive('pop', arrive + .1), {tone: 'neg'});
+  R7.hide(cord, arrive);
+  K.shake(hero.p, arrive + .05); R1.ripple(K, hero, arrive + .05, {tone: 'neg'});
+  K.badge(g, s.sign ?? (s.how === 'cross' ? 'octagon-alert' : 'triangle-alert'), P.x + 62, P.y - 66, 70, arrive + .1, {tone: 'neg', shape: 'round'});
 });
 
 /* ================= B03 เปรียบเทียบ: a, b {icon, label?, v?}, win, how?, mode ================= */
@@ -222,8 +221,8 @@ R3.both('B03', 'race', 'สองลู่วิ่งแข่งกัน', (K
   const win = s.win ?? 'b', lose = win === 'a' ? 'b' : 'a', F = 506, lanes = {a: 92, b: 226}, S = 84, x0 = 196, h = 104;
   const tr = R8.svg(g, Object.values(lanes).map(y => `<rect style="fill:var(--tr)" x="160" y="${y - h / 2}" width="${F - 160}" height="${h}" rx="${h / 2}"/>`).join(''));
   tr.classList.add('u-decor'); K.enter(tr, T.b[0], 'rise');
-  const fin = R6.line(K, g, `M${F} ${lanes.a - h / 2 - 10}V${lanes.b + h / 2 + 10}`, T.b[0] + .15, .4);
-  fin.querySelector('path').classList.add('u-dash');
+  const fin = R8.svg(g, `<path class="ln u-thin u-dash" d="M${F} ${lanes.a - h / 2 - 10}V${lanes.b + h / 2 + 10}"/>`);
+  K.enter(fin, T.b[0] + .15, 'pop');
   const run = {};
   ['a', 'b'].forEach((k, i) => {
     const it = s[k], y = lanes[k];
@@ -348,7 +347,7 @@ R3.both('B11', 'live', 'คอมเมนต์ไหลขึ้นแบบ�
   /* reactions float up beside the screen once the quoted one is in */
   const ic = s.react ?? (s.mood === 'bad' ? 'frown' : 'heart'), t0 = LG.arrive('move', T.hit - .3);
   [0, 1, 2, 3].forEach(i => {
-    const x = 508 + [0, -12, 10, -4][i], r = K.badge(g, ic, x, 300, 50, null, {tone: i % 2 ? 'main' : 'acc', shape: 'round'}); r.o.classList.add('u-decor');
+    const x = 508 + [0, -12, 10, -4][i], r = K.badge(g, ic, x, 300, 50, null, {tone: i % 2 ? 'main' : 'acc', shape: 'round'}); r.o.classList.add('u-decor'); r.o.style.opacity = 0;
     A(r.o, [{opacity: 0, transform: 'translateY(0) scale(.6)'}, {opacity: 1, transform: 'translateY(-60px) scale(1)', offset: .2}, {opacity: 1, offset: .7}, {opacity: 0, transform: 'translateY(-250px) scale(.9)'}], t0 + i * .22, 1.3, {e: 'ease-out', f: 'none'});
   });
 });
@@ -359,7 +358,7 @@ R3.both('B11', 'board', 'กระดาษโน้ตแปะบนบอร�
   const bd = R2.card(node(g, Bd.x, Bd.y, Bd.w, Bd.h, 'u-panel')); bd.p.style.borderRadius = '22px'; K.enter(bd.o, T.b[0], 'rise');
   const pin = (parent, x, y, t, cls = 'ac') => { const p = node(parent, x - 12, y - 12, 24, 24, '', `<svg width="24" height="24"><circle class="${cls}" cx="12" cy="12" r="11"/></svg>`); K.enter(p.o, t, 'pop'); return p; };
   /* plain notes on the left (never under the quoted one) */
-  [[64, 30, -4], [80, 176, 3]].forEach(([x, y, r], i) => {
+  [[64, 22, -4], [80, 186, 3]].forEach(([x, y, r], i) => {
     const t = T.b[1] - .25 + i * .3;
     const nt = node(g, x, y, 150, 130, '', `<svg width="150" height="130"><rect class="fl" x="0" y="0" width="150" height="130" rx="8"/><rect class="u-fl-edge" x="0" y="0" width="150" height="130" rx="8"/></svg>`);
     nt.o.style.transform = `rotate(${r}deg)`; K.enter(nt.p, t, 'pop');
@@ -470,13 +469,12 @@ R3.both('B18', 'film', 'ม้วนฟิล์มเลื่อนทีล�
   const view = div(`left:${V.x}px;top:${V.y}px;width:${V.w}px;height:${V.h}px;overflow:hidden;border-radius:18px`, g);
   K.enter(view, T.b[0], 'rise');
   const N = 4, L = N * step + 400, strip = node(view, 0, 0, L, V.h, '');
-  const holes = [...Array(Math.ceil(L / 34))].map((_, i) => `<rect style="fill:var(--tr)" x="${i * 34 + 8}" y="Y" width="18" height="16" rx="4"/>`).join('');
-  div(`left:0;top:12px;width:${L}px;height:${V.h - 24}px`, strip.p, `<svg width="${L}" height="${V.h - 24}"><rect class="sd" x="0" y="0" width="${L}" height="${V.h - 24}" rx="8"/>${holes.replaceAll('Y', 10)}${holes.replaceAll('Y', V.h - 24 - 26)}</svg>`);
-  const fx = k => 200 + k * step;                                         // a frame's left edge on the strip
-  const frames = [...Array(N)].map((_, k) => {
-    const f = node(strip.p, fx(k), (V.h - fh) / 2, fw, fh, '', `<svg width="${fw}" height="${fh}"><rect class="fl" x="0" y="0" width="${fw}" height="${fh}" rx="10"/><rect class="u-fl-edge" x="0" y="0" width="${fw}" height="${fh}" rx="10"/></svg>`);
-    return f;
-  });
+  const fx = k => 200 + k * step, SH = V.h - 24, fy = (V.h - fh) / 2 - 12;  // a frame's left edge on the strip; frames' top in the strip
+  const rr = (x, y, w, h, r) => `M${x + r} ${y}H${x + w - r}Q${x + w} ${y} ${x + w} ${y + r}V${y + h - r}Q${x + w} ${y + h} ${x + w - r} ${y + h}H${x + r}Q${x} ${y + h} ${x} ${y + h - r}V${y + r}Q${x} ${y} ${x + r} ${y}Z`;
+  const cut = [...Array(Math.ceil(L / 34))].flatMap((_, i) => [rr(i * 34 + 8, 10, 18, 16, 4), rr(i * 34 + 8, SH - 26, 18, 16, 4)])
+    .concat([...Array(N)].map((_, k) => rr(fx(k), fy, fw, fh, 10))).join('');
+  div(`left:0;top:12px;width:${L}px;height:${SH}px`, strip.p, `<svg width="${L}" height="${SH}"><path class="sd" fill-rule="evenodd" d="${rr(0, 0, L, SH, 8)}${cut}"/></svg>`);
+  const frames = [...Array(N)].map((_, k) => { const f = node(strip.p, fx(k), (V.h - fh) / 2, fw, fh, ''); f.p.style.borderRadius = '10px'; return f; });
   if (s.who) K.badge(frames[0].p, s.who.icon, fw / 2, fh / 2, 78, null, {tone: s.who.tone ?? 'main', shape: 'round'}); else K.skel(frames[0].p, 30, 34, [90, 60], null, {h: 12, gap: 18});
   K.skel(frames[1].p, 30, 34, [80, 100], null, {h: 12, gap: 18}); K.skel(frames[3].p, 30, 34, [100, 70], null, {h: 12, gap: 18});
   const w0 = K.badge(frames[2].p, s.what.icon, fw / 2, fh / 2, 84, null, {tone: 'soft'});
@@ -533,8 +531,8 @@ R3.both('B19', 'sky', 'ท้องฟ้าเหนือหัวคน แ�
   if (s.feel.label) R6.wordL(K, g, s.feel.label, P.x + 78, P.y - 26, 42, T.b[0] + .2, 260);
   else if (s.who?.label) R6.wordL(K, g, s.who.label, P.x + 78, P.y - 22, 34, T.b[0] + .2, 260);
   /* the sun waits behind the cloud */
-  const sun = R7.plain(g, Cl.x + 112, Cl.y - 26, 92, 92, 'acc', '50%'); sun.o.classList.add('u-decor');
-  K.enter(sun.o, T.b[0] + .2, 'pop');
+  const sun = bad ? null : R7.plain(g, Cl.x + 112, Cl.y - 26, 92, 92, 'acc', '50%');
+  if (sun) { sun.o.classList.add('u-decor'); K.enter(sun.o, T.b[0] + .2, 'pop'); }
   const cloud = (cls, edge) => { const e = div(`left:${Cl.x}px;top:${Cl.y}px;width:200px;height:96px`, g, `<svg width="200" height="96"><path class="${cls}" d="${R8.CLOUD}"/>${edge ? `<path class="u-fl-edge" d="${R8.CLOUD}"/>` : ''}</svg>`); return e; };
   const c1 = cloud('fl', true); K.enter(c1, T.b[0] + .3, 'pop');
   K.move(c1, T.b[1], 'none', 'translateX(-14px)');
@@ -547,7 +545,7 @@ R3.both('B19', 'sky', 'ท้องฟ้าเหนือหัวคน แ�
     const c2 = cloud('sd', false); R7.show(c2, T.b[2]); A(c2, [{opacity: 0, transform: 'translateX(-14px)'}, {opacity: 1, transform: 'translateX(-14px)'}], T.b[2], .4, {f: 'both'});
     const xs = [126, 158, 190, 222, 254];
     xs.forEach((x, i) => {
-      const r = R8.svg(g, `<path class="u-acc-line" style="stroke-width:6px" d="M${x} ${Cl.y + 100}l-6 22"/>`); r.classList.add('u-decor');
+      const r = R8.svg(g, `<path class="u-acc-line" style="stroke-width:6px" d="M${x} ${Cl.y + 100}l-6 22"/>`); r.classList.add('u-decor'); r.style.opacity = 0;
       A(r, [{opacity: 0, transform: 'translateY(0)'}, {opacity: 1, transform: 'translateY(14px)', offset: .3}, {opacity: 0, transform: 'translateY(52px)'}], T.hit - .1 + i * .07, .55, {it: 4, f: 'none'});
     });
     K.shake(who.p, T.hit + .2);
@@ -607,22 +605,22 @@ SENTENCE('r8.how', {cat: 'B06', name: 'ขายออนไลน์เริ�
   about: {icon: 'store', label: 'ขายออนไลน์'}, answer: {icon: 'video', label: 'ไลฟ์ขาย'}});
 SENTENCE('r8.debt', {cat: 'B07', name: 'อย่ากู้มาลงทุน', say: ['หยุดก่อน อย่าเพิ่ง', 'กู้มาลงทุน'], thing: {icon: 'landmark', label: 'กู้มาลงทุน'}, how: 'cross'});
 SENTENCE('r8.burn', {cat: 'B07', name: 'ระวังหมดไฟ', say: ['งานล้นมือแบบนี้', 'ระวังหมดไฟ'], thing: {icon: 'briefcase', label: 'งานล้นมือ'}, how: 'flag', sign: 'triangle-alert'});
-SENTENCE('r8.walk', {cat: 'B03', name: 'เดินเร็วได้ผลกว่าวิ่งนาน', say: ['เดินเร็วทุกวัน', 'ได้ผลกว่าวิ่งนาน ๆ'], mode: 'versus',
+SENTENCE('r8.walk', {cat: 'B03', name: 'เดินเร็วได้ผลกว่าวิ่งนาน', say: ['เดินเร็วทุกวัน', 'ดีกว่าวิ่งนาน'], mode: 'versus',
   a: {icon: 'footprints', label: 'เดินเร็ว'}, b: {icon: 'timer', label: 'วิ่งนาน'}, win: 'a'});
 SENTENCE('r8.room', {cat: 'B03', name: 'จัดห้องใหม่ จากรกเป็นโล่ง', say: ['จัดห้องใหม่', 'จากรกเป็นโล่ง'], mode: 'change',
   a: {icon: 'boxes', label: 'ห้องรก'}, b: {icon: 'sofa', label: 'ห้องโล่ง'}});
 SENTENCE('r8.cheap', {cat: 'B05', name: 'ไม่ใช่ถูกสุด แต่คุ้มสุด', say: ['ไม่ใช่ราคาถูกที่สุด', 'แต่คุ้มที่สุด'], wrong: {icon: 'tag', label: 'ถูกสุด'}, right: {icon: 'gem', label: 'คุ้มสุด'}});
-SENTENCE('r8.word', {cat: 'B05', name: 'อย่าเขียนขายของ เขียนแก้ปัญหา', say: ['อย่าเขียนว่าขายของ', 'เขียนว่าช่วยแก้ปัญหา'],
+SENTENCE('r8.word', {cat: 'B05', name: 'อย่าเขียนขายของ เขียนแก้ปัญหา', say: ['อย่าเขียนว่าขายของ', 'ให้เขียนแก้ปัญหา'],
   wrong: {icon: 'shopping-cart', label: 'ขายของ'}, right: {icon: 'life-buoy', label: 'แก้ปัญหา'}});
 SENTENCE('r8.live', {cat: 'B11', name: 'คนในไลฟ์พิมพ์ว่าอยากได้อีก', say: ['คนในไลฟ์พิมพ์มาว่า', 'อยากได้อีก'], kind: 'comment', quote: 'อยากได้อีก!', mood: 'good', react: 'heart'});
 SENTENCE('r8.memo', {cat: 'B11', name: 'ทีมแปะโน้ตว่าลูกค้าชอบสีนี้', say: ['ทีมแปะโน้ตไว้ว่า', 'ลูกค้าชอบสีนี้'], kind: 'message', quote: 'ลูกค้าชอบสีนี้', mood: 'good'});
 SENTENCE('r8.kit', {cat: 'B17', name: 'กล้อง ไมค์ ไฟ', say: ['ของที่ต้องมีคือ', 'กล้อง ไมค์ ไฟ'], label: 'ของต้องมี',
   items: [{icon: 'camera', label: 'กล้อง'}, {icon: 'mic', label: 'ไมค์'}, {icon: 'lamp', label: 'ไฟ'}]});
-SENTENCE('r8.pay', {cat: 'B17', name: 'จ่ายได้ 4 ทาง', say: ['จ่ายได้ทั้ง', 'โอน บัตร เงินสด คิวอาร์'], label: 'ช่องทางจ่าย',
+SENTENCE('r8.pay', {cat: 'B17', name: 'จ่ายได้ 4 ทาง', say: ['จ่ายได้ทั้งโอน บัตร', 'เงินสด คิวอาร์'], label: 'ช่องทางจ่าย',
   items: [{icon: 'smartphone', label: 'โอน'}, {icon: 'credit-card', label: 'บัตร'}, {icon: 'banknote', label: 'เงินสด'}, {icon: 'qr-code', label: 'คิวอาร์'}]});
 SENTENCE('r8.shop', {cat: 'B18', name: 'ปี 2015 แม่เปิดร้านแรก', say: ['ปี 2015 แม่ตัดสินใจ', 'เปิดร้านแรก'], what: {icon: 'store', label: 'เปิดร้าน'}, who: {icon: 'user', label: 'แม่'}, when: 'ปี 2015'});
 SENTENCE('r8.viral', {cat: 'B18', name: 'คืนนั้นคลิปไวรัล', say: ['คืนนั้นคลิปของผม', 'กลายเป็นไวรัล'], what: {icon: 'flame', label: 'คลิปไวรัล'}, when: 'คืนนั้น'});
 SENTENCE('r8.love', {cat: 'B19', name: 'ตื่นเต้นมาก', say: ['วันแรกที่เปิดร้าน', 'ตื่นเต้นมาก'], feel: {icon: 'smile', label: 'ตื่นเต้น'}, who: {icon: 'user'}, mood: 'good'});
 SENTENCE('r8.rain', {cat: 'B19', name: 'เครียดมาก', say: ['ยอดขายตกทั้งเดือน', 'เครียดมาก'], feel: {icon: 'frown', label: 'เครียด'}, mood: 'bad'});
-SENTENCE('r8.mom', {cat: 'B10', name: 'แม่ค้าออนไลน์มือใหม่', say: ['คลิปนี้สำหรับ', 'แม่ค้าออนไลน์มือใหม่'], who: {icon: 'user'}, label: 'แม่ค้าออนไลน์', tags: ['มือใหม่', 'งบน้อย']});
+SENTENCE('r8.mom', {cat: 'B10', name: 'แม่ค้าออนไลน์มือใหม่', say: ['คลิปนี้สำหรับแม่ค้าออนไลน์', 'มือใหม่'], who: {icon: 'user'}, label: 'แม่ค้าออนไลน์', tags: ['มือใหม่', 'งบน้อย']});
 SENTENCE('r8.fans', {cat: 'B10', name: 'ดึงคนสายสุขภาพ', say: ['ทำคอนเทนต์ตรงจุด', 'ดึงคนสายสุขภาพ'], who: {icon: 'user'}, label: 'สายสุขภาพ'});
