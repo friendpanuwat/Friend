@@ -11,8 +11,8 @@ one() {
   local st=$1 sc=${2%@*} i=${2#*@} P="$W/s_$1_${2%@*}" args=""
   rm -rf "$P"; mkdir -p "$P"; ln -sfn "$W/base/src_frames" "$P/src_frames"
   case $st in *-overlay) args="--speaker .86";; esac
-  python3 "$U/build.py" "$P" "$st" "$sc" --index "$i" $args >/dev/null && node "$U/../core/render.js" "$P" preview "$AT" >/dev/null && \
+  python3 "$U/build.py" "$P" "$st" "$sc" --index "$i" $args ${EXTRA:+--extra "$EXTRA"} >/dev/null && node "$U/../core/render.js" "$P" preview "$AT" >/dev/null && \
   ffmpeg -y -loglevel error -i "$P/prev/p_$(printf '%06.2f' "$AT").jpg" -vf "scale=540:-2" -q:v 4 "$OUT/${st}_${sc}.jpg" && echo "ok $st $sc" || echo "FAIL $st $sc"
 }
-export -f one; export W OUT U AT
+export -f one; export W OUT U AT EXTRA
 for st in $STYLES; do for sc in $SCENES; do echo "$st $sc"; done; done | xargs -P 4 -L 1 bash -c 'one $0 $1'
