@@ -142,7 +142,7 @@ R3.both('B06', 'type', 'ช่องค้นหา พิมพ์คำถา�
     A(car, [{opacity: 1}, {opacity: 1, offset: .5}, {opacity: 0, offset: .5}, {opacity: 0}], t1, .5, {it: 6, f: 'none'});   // the caret blinks after the last letter
   } else K.skel(tx, 0, Bar.h / 2 - 9, [250], t0);
   /* below: what the search finds */
-  const R = {x: 60, y: 132, w: 440};
+  const R = {x: 60, y: 132, w: 400};                                    // the rows end before the question mark on their right
   if (s.answer) {
     const res = R2.card(node(g, R.x, R.y, R.w, 150, 'u-panel')); res.p.style.borderRadius = '28px';
     K.enter(res.o, T.hit - .1, 'rise');
@@ -159,7 +159,7 @@ R3.both('B06', 'type', 'ช่องค้นหา พิมพ์คำถา�
       if (o) { K.badge(r.p, o.icon, 50, 41, 56, null, {tone: 'main', shape: 'round'}); if (o.label) R6.wordL(K, r.p, o.label, 96, 18, 32, null, 300); else K.skel(r.p, 96, 32, [200]); }
       else { K.badge(r.p, 'circle-help', 50, 41, 56, null, {tone: 'soft', shape: 'round'}); K.skel(r.p, 96, 32, [i ? 170 : 230], null); }
     });
-    const q = K.badge(g, 'circle-help', 520, 132, 64, LG.arrive('rise', T.hit + .02), {tone: 'acc', shape: 'round'});
+    const q = K.badge(g, 'circle-help', 508, 158, 64, LG.arrive('rise', T.hit + .02), {tone: 'acc', shape: 'round'});
     K.punch(q.p, LG.arrive('pop', LG.arrive('rise', T.hit + .02)));
   }
 }, undefined, {ui: true});
@@ -339,7 +339,7 @@ R3.both('B11', 'live', 'คอมเมนต์ไหลขึ้นแบบ�
     const av = K.badge(list, 'user', 40, y + rowH / 2, 46, null, {tone: quoted ? 'acc' : 'soft', shape: 'round'});
     if (quoted) {
       const b = node(list, 76, y + 8, Sc.w - 100, rowH - 16, 'u-badge u-acc'); b.p.style.borderRadius = '22px';
-      if (s.quote) R4.word(K, b.p, s.quote, (Sc.w - 100) / 2, 6, 36, null, Sc.w - 140); else K.skel(b.p, 24, 20, [200], null, {h: 16});
+      if (s.quote) R4.word(K, b.p, s.quote, (Sc.w - 100) / 2, 6, 36, null, Sc.w - 140).className = 'u-label u-bubble-text'; else K.skel(b.p, 24, 20, [200], null, {h: 16});
     } else K.skel(list, 76, y + rowH / 2 - 8, [[230, 170, 260, 200][k]], null, {h: 16});
     K.move(list, t, `translateY(${-k * rowH}px)`, `translateY(${-(k + 1) * rowH}px)`);
     void av;
@@ -368,7 +368,7 @@ R3.both('B11', 'board', 'กระดาษโน้ตแปะบนบอร�
   /* the quoted note */
   const Q = {x: 262, y: 54, w: 240, h: 200};
   const q = node(g, Q.x, Q.y, Q.w, Q.h, 'u-badge u-acc'); q.p.style.borderRadius = '10px'; q.o.style.transform = 'rotate(-3deg)';
-  if (s.quote) R4.word(K, q.p, s.quote, Q.w / 2, Q.h / 2 - 26, 40, null, Q.w - 36); else K.skel(q.p, 36, 70, [160, 110], null, {h: 16});
+  if (s.quote) R4.word(K, q.p, s.quote, Q.w / 2, Q.h / 2 - 26, 40, null, Q.w - 36).className = 'u-label u-bubble-text'; else K.skel(q.p, 36, 70, [160, 110], null, {h: 16});
   const go = T.hit - (ST.motion.snap?.d ?? .5) * .85, land = LG.arrive('snap', go);
   K.fade(q.o, go, 0, 1, {hold: true}); K.move(q.m, go, 'translate(70px,-60px) scale(1.25)', 'none', {hold: true, kind: 'snap'});
   pin(g, Q.x + Q.w / 2, Q.y + 8, land, 'sd');
