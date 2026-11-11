@@ -135,12 +135,15 @@ STYLE('gold', {
       sh.style.opacity = 0;
       let c;
       if (w && w.look === 'A') {                    // shrink into the photo, hold, grow back (the face stays in the middle)
-        const pin = ease((t - w.t0) / GOLD.shrinkD), pout = ease((t - (w.t1 - GOLD.growD)) / GOLD.growD);
+        const i = this.wins.indexOf(w), pv = this.wins[i - 1], nx = this.wins[i + 1], held = x => x && x.look === 'A' && Math.abs(x.t0 - w.t1) < .3 || false;
+        const fromA = pv && pv.look === 'A' && w.t0 - pv.t1 < .3, toA = held(nx);       // A right after A: the photo stays put
+        const pin = fromA ? 1 : ease((t - w.t0) / GOLD.shrinkD), pout = toA ? 0 : ease((t - (w.t1 - GOLD.growD)) / GOLD.growD);
         c = mix(full(w.t0, zoomAt(w.t0)), photo(w), pin);
         if (pout > 0) c = mix(c, full(w.t1, zoomAt(w.t1 + .01)), pout);
         const rad = c.rad;
         Object.assign(sh.style, {left: c.tx + c.s * c.l + 'px', top: c.ty + c.s * c.tp + 'px', width: c.s * (1080 - c.l - c.r) + 'px', height: c.s * (1920 - c.tp - c.bt) + 'px',
           borderRadius: rad * c.s + 'px', boxShadow: '0 24px 60px rgba(0,0,0,.18)', opacity: Math.min(pin, 1 - pout)});
+        if (fromA) c = mix(photo(pv), photo(w), ease((t - w.t0) / GOLD.shrinkD));       // the face may sit a little elsewhere in the next scene
       } else if (w) c = full(t, 1);                 // look B covers the speaker
       else c = full(t, zoomAt(t));
       V.style.transform = c.s === 1 && !c.tx && !c.ty ? 'none' : `translate(${c.tx}px,${c.ty}px) scale(${c.s})`;
@@ -180,9 +183,11 @@ STYLE('gold', {
       goldGrid(page, t0, t1, true);
       const C = GOLD.A.card, card = div(`left:${C.x}px;top:${C.y}px;width:${C.w}px;height:${C.h}px;border-radius:${C.r}px`, root);
       card.className = 'gd-main';
-      A(card, [{transform: 'translateY(1150px)'}, {transform: 'none'}], t0 + .05, GOLD.cardD, {e: 'cubic-bezier(.16,1,.3,1)'});            // up from below the screen
+      const pv = this.wins.at(-2), fromA = pv && pv.look === 'A' && t0 - pv.t1 < .3;
+      if (!fromA) A(card, [{transform: 'translateY(1150px)'}, {transform: 'none'}], t0 + .05, GOLD.cardD, {e: 'cubic-bezier(.16,1,.3,1)'});   // up from below the screen
+      else { const k = ANIMS.indexOf(pv.cardOut); if (k >= 0) { ANIMS[k].cancel(); ANIMS.splice(k, 1); } }   // A after A: the card stays (the one before is cut, not dropped)
       /* out: the card drops away fast and fades before the photo has grown much (it is above the video, so it must not linger on the speaker) */
-      A(card, [{transform: 'none', opacity: 1}, {transform: 'translateY(700px)', opacity: 0}], t1 - GOLD.growD - .05, GOLD.cardOutD, {e: 'cubic-bezier(.3,0,.6,1)', f: 'forwards'});
+      this.wins.at(-1).cardOut = A(card, [{transform: 'none', opacity: 1}, {transform: 'translateY(700px)', opacity: 0}], t1 - GOLD.growD - .05, GOLD.cardOutD, {e: 'cubic-bezier(.3,0,.6,1)', f: 'forwards'});
       const sw = 1000 * GOLD.A.picS, shh = 700 * GOLD.A.picS;
       stage = div(`left:${(C.w - sw) / 2}px;top:${(C.h - shh) / 2}px;width:1000px;height:700px;transform-origin:0 0;transform:scale(${GOLD.A.picS})`, card);
     } else {
