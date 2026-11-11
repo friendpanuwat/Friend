@@ -72,27 +72,7 @@ R3.both('B06', 'signpost', 'ป้ายทางแยกสองทาง', (
 });
 
 /* ================= B07 คำเตือน: thing {icon, label?}, how ('cross' | 'flag'), sign? ================= */
-/* 1 · caution tape: two tapes cross over the thing (don't) or one stretches in front of it (careful) */
-R3.both('B07', 'tape', 'เทปกั้นคาด', (K, s, T, g) => {
-  const it = s.thing, P = R3.panel(K, g, 140, 22, 320, 296, T.b[0]);
-  const hero = K.badge(P.p, it.icon, 160, 118, 140, T.b[0] + .15, {tone: it.tone ?? 'main'});
-  if (it.label) K.chipC(P.p, it.label, 160, 238, T.b[0] + .3, {size: 38}); else K.skel(P.p, 70, 230, [180], T.b[0] + .3);
-  const tape = (cx, cy, len, deg, t) => {
-    const w = div(`left:${cx - len / 2}px;top:${cy - 22}px;width:${len}px;height:44px;transform:rotate(${deg}deg)`, g);
-    const band = div('inset:0;transform-origin:0 50%', w); band.className = 'u-tape';
-    A(band, [{transform: 'scaleX(0)'}, {transform: 'none'}], t, .22, {e: 'cubic-bezier(.2,.8,.3,1)'});
-    return w;
-  };
-  if (s.how === 'cross') {
-    tape(300, 150, 440, -18, T.hit - .12); tape(300, 150, 440, 18, T.hit + .06);
-    K.shake(P.p, T.hit + .3); K.fade(hero.o, T.after, 1, .5);
-  } else {
-    tape(300, 296, 460, -4, T.hit - .05);
-    K.shake(P.p, T.hit + .2);
-  }
-  K.sat(g, s.sign ?? 'triangle-alert', 470, 36, 76, T.b[1], {tone: 'neg'});
-});
-
+/* (เทปกั้น `tape` ถูกลบ: Friend 2026-11-11 "เอาออกจากทุกสไตล์ ลบไปเลย") */
 /* 2 · a stop hand comes in front of the thing and pushes it back (only for "do not") */
 R3.both('B07', 'hand', 'มือห้ามดันกลับ', (K, s, T, g) => {
   const it = s.thing, C = {x: 200, y: 150}, S = 150;

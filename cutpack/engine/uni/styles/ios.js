@@ -56,7 +56,7 @@ STYLE('ios', {
 .i-app{--ink:#1C1C1E;--lw:7;--ico-w:2;--tile-r:.26;--box-r:.3;--sd:#1C1C1E;--sd-line:#1C1C1E;--lw-sd:0;
   --fl:#FFFFFF;--fl-line:#D1D1D6;--lw-fl:3;--fl-edge:#AEAEB2;--ac:#0A84FF;--ac-line:#0A84FF;--lw-ac:0;--ac-stroke:#0A84FF;
   --tr:rgba(60,60,67,.10);--neg:#FF3B30;--slot-line:#AEAEB2;--lw-slot:4;--text:#1C1C1E;--num:#1C1C1E;--num-font:"Anu";--chip-font:"Anu";
-  --halo:rgba(10,132,255,.10);--lw-cross:10;--knob:#FFFFFF;--cursor:#FFFFFF;--cursor-line:#1C1C1E;--col:#8E8E93;--lw-star:4;--tape:#FFFFFF}
+  --halo:rgba(10,132,255,.10);--lw-cross:10;--knob:#FFFFFF;--cursor:#FFFFFF;--cursor-line:#1C1C1E;--col:#8E8E93;--lw-star:4}
 .i-pic{opacity:0}
 .i-app .u-panel{background:#FFFFFF;border-radius:28px;border:1.5px solid rgba(17,24,39,.07);box-shadow:0 14px 40px rgba(17,24,39,.08),0 2px 6px rgba(17,24,39,.05)}
 .i-app .u-panel.u-bubble{background:#E9E9EB;border:0;box-shadow:none}
