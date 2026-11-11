@@ -1,3 +1,5 @@
+/* ARCHIVED 2026-11-11 (Friend: "ผมชอบรอบที่ 1-10 มากกว่าอะ ไม่ต้องใช้ skill นี้วาดแล้ว กลับไปใช้ลายเส้นแบบเดิม และออกแบบใหม่ทั้งหมด (ไม่เอาคน)").
+   Taken out of scenes/: none of these 22 variants is in the system any more. Kept only as the record of the glow-line-motion round. */
 /* =====================================================================
    CutPack · uni · LEGO round 11 (Friend 2026-11-11: "ทั้ง 2 แบบครับ แล้วก็อันอื่นผ่านแล้วเริ่มทำขั้นตอนต่อไปได้" on the stills of
    engine/uni/sketches/r11.js, all four styles). 22 variants for ten categories:
