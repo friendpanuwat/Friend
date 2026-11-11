@@ -98,3 +98,11 @@
 - สไตล์ไม่มีสีเขียว: "ไฟเขียว" ของปุ่มเกมโชว์และไฟจราจรเป็นสีเน้นของสไตล์
 - `tools/frames.sh` รู้จัก `gold` และ `gold-overlay` แล้ว (ค่าเริ่ม 8 แถว)
 - **ตอนนี้ 21 หมวด 114 ร่าง** ตรวจ `check_overlap.js` / `check_contrast.js` (ทั้ง 3 พื้น) ผ่านทั้ง 8 สไตล์ ฉากที่ใช้ทำคลิป (`ฉาก@index`): `r8.light.wire@0 r8.habit.plant@1 r8.why.box@2 r8.how.type@0 r8.debt.traffic@1 r8.burn.fuse@2 r8.walk.race@0 r8.room.slider@1 r8.cheap.buzzer@2 r8.word.eraser@0 r8.live.live@1 r8.memo.board@2 r8.kit.shelf@0 r8.pay.fan@1 r8.shop.book@2 r8.viral.film@0 r8.love.heart@1 r8.rain.sky@2 r8.mom.tag@0 r8.fans.magnet@1`
+
+## รอบที่ 9 (2026-11-11): กฎหน้าตาใหม่ ไม่ให้คล้ายร่างในคลัง
+ที่มา: Friend "เริ่มรอบที่ 9 ตามตารางที่เสนอเลยครับ" หลังบอกว่าร่างรอบ 1–8 เริ่มคล้ายกัน ไฟล์ `scenes/lego_r9.js` ด้วย `R3.both` กฎ: ของชิ้นใหญ่ชิ้นเดียววาดเป็นรูปทรง (ไม่ใส่ไอคอนในกรอบ) · คำอยู่บนตัวของ · ของวิ่งผ่านขอบได้ (`R9.clip`) · ของเปลี่ยนรูปไปเรื่อย ๆ · ไม่ใช้วงกลมไอคอนคน
+- B09 เทียนละลาย (`candle`) · รถไฟกับป้ายสถานี (`train`, ต้องมี points ≥ 2) / B13 ตู้เซฟ (`safe`) / B16 ตู้หยอดเหรียญ (`vending`) / B20 สะพาน ขาดเมื่อ `cut` (`bridge`) · โทรศัพท์กระป๋อง (`cans`) / B21 ลูกโลก (`globe`) · หน้าร้าน (`shop`) / B01 เทอร์โมมิเตอร์ (`thermo`) / B02 แก้วน้ำ (`cup`) · ลิฟต์ (`lift`) / B14 เครื่องบินลากป้าย (`plane`) · กระดานบนขาตั้ง (`chalk`) / B08 แป้นบาส (`hoop`) · จรวดถึงดาว (`rocket`) / B15 กระดิ่ง (`bell`) · ตั๋วฉีก (`ticket`)
+- ลบแล้วตามที่ Friend สั่ง: B16 `letters` · B13 `pearl` · B01 `drop`
+- ของใหม่ใน `R9`: `clip` (หน้าต่างขนาดผืน) · `card` · `acc` (พื้นสีเน้น คำบนนั้นใช้ `accWord`/`u-bubble-text`) · `ico` (ไอคอนเปล่าไม่มีกรอบ) · `track` (ค่าที่ขยับเป็นขั้นตามเวลา)
+- ข้อควรรู้: ของที่ซ่อนอยู่นอกหน้าต่าง (แผนที่ลูกโลก) ต้องติด `u-decor` ไม่งั้นสไตล์ gold นับมันตอนจัดกรอบแล้วภาพหดเล็ก · ประตูลิฟต์อยู่ในห้องลิฟต์ที่ `overflow:hidden` · คำบนของที่วาดด้วย `fl`/`sd` มองไม่เห็นในพื้นมืด (ทั้งสองเป็นสีขาว) จึงวางคำบนการ์ดหรือพื้นสีเน้นเท่านั้น
+- **ตอนนี้ 21 หมวด 131 ร่าง** ฉากที่ใช้ทำคลิป: `r9.diet.candle@0 r9.wait.train@1 r9.price.safe@2 r9.cash.vending@2 r9.friend.bridge@0 r9.friend.cans@1 r9.japan.globe@2 r9.cafe.shop@0 r9.temp.thermo@2 r9.fans.cup@0 r9.fans.lift@1 r9.slow.plane@2 r9.learn.chalk@0 r9.million.hoop@1 r9.dream.rocket@2 r9.bell.bell@0 r9.save.ticket@1`
