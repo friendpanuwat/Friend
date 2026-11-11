@@ -106,3 +106,10 @@
 - ของใหม่ใน `R9`: `clip` (หน้าต่างขนาดผืน) · `card` · `acc` (พื้นสีเน้น คำบนนั้นใช้ `accWord`/`u-bubble-text`) · `ico` (ไอคอนเปล่าไม่มีกรอบ) · `track` (ค่าที่ขยับเป็นขั้นตามเวลา)
 - ข้อควรรู้: ของที่ซ่อนอยู่นอกหน้าต่าง (แผนที่ลูกโลก) ต้องติด `u-decor` ไม่งั้นสไตล์ gold นับมันตอนจัดกรอบแล้วภาพหดเล็ก · ประตูลิฟต์อยู่ในห้องลิฟต์ที่ `overflow:hidden` · คำบนของที่วาดด้วย `fl`/`sd` มองไม่เห็นในพื้นมืด (ทั้งสองเป็นสีขาว) จึงวางคำบนการ์ดหรือพื้นสีเน้นเท่านั้น
 - **Friend เก็บแค่ 6 ร่าง (candle safe vending cans shop rocket) ร่างอื่นของรอบนี้ลบแล้ว ตอนนี้ 21 หมวด 120 ร่าง** ฉากที่ใช้ทำคลิป: `r9.diet.candle@0 r9.price.safe@2 r9.cash.vending@2 r9.friend.cans@1 r9.cafe.shop@0 r9.dream.rocket@2`
+
+## รอบที่ 9 ร่างเติม (2026-11-11): 14 ร่างตามวิธีออกแบบฉากใน skill talking-head-motion
+ที่มา: Friend ลบ 14 จาก 20 ร่างของรอบที่ 9 แล้วให้คิดไอเดียใหม่ (ภาพนิ่ง 4 ชุดใน `sketches/r9b.js` … `r9e.js`, ชุดที่ 4 ผ่าน "เริ่มได้") ไฟล์ `scenes/lego_r9b.js` ด้วย `R3.both`
+- B09 ตารางวัน (`days`) / B13 ช่องรหัส (`password`) / B16 กล่องความหมาย (`tooltip`) / B20 เส้นวนเลขแปด (`loop`, ขาดเมื่อ `cut`) / B21 เข็มทิศ (`compass`) / B08 วงแหวนปิดวง (`ring`) / B01 การ์ดสถิติ (`stat`) · ล้อตัวเลข (`odometer`) / B02 โดนัท (`donut`) · การ์ดจุด (`dots`) / B14 ปักหมุด (`pinned`) · โพสต์ (`post`) / B15 วงแหวนรอบไอคอน (`circle`) · ปุ่มเติมสี (`press`)
+- หลัก (จาก skill): ของหลัก 1 ชิ้น + ขยับที่มีความหมาย 1 อย่างตรงคำสำคัญ แล้วค้างนิ่ง · ไม่มีของตกแต่ง · ไม่วนซ้ำเร็ว
+- ข้อควรรู้: ของที่ซ่อนอยู่นอกช่อง (ตัวเลขในล้อ) ติด `u-decor` ให้ gold ไม่นับตอนจัดกรอบ · ไอคอนบนพื้น `--tr` ซ้อนพื้น `--tr` อีกชั้นสีจางเกินในสไตล์แบ่งจอ
+- **ตอนนี้ 21 หมวด 134 ร่าง** ฉากที่ใช้ทำคลิป: `r9b.diet.days@0 r9b.price.password@1 r9b.cash.tooltip@2 r9b.friend.loop@0 r9b.ex.loop@1 r9b.cafe.compass@2 r9b.million.ring@0 r9b.fans.stat@1 r9b.fans.odometer@2 r9b.orders.donut@0 r9b.save.donut@1 r9b.orders.dots@2 r9b.save.dots@0 r9b.daily.pinned@1 r9b.learn.post@2 r9b.follow.circle@0 r9b.keep.press@1`
