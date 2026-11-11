@@ -9,7 +9,7 @@
    full screen; nothing past x 550 below y 200; words only from the slots; cards never overlap at rest).
      B09 เวลา         เทียนไขละลายสั้นลงทีละขั้น (candle) · รถไฟวิ่ง ป้ายสถานีผ่านทีละป้าย (train)
      B13 เคล็ดลับ      ตู้เซฟหมุนรหัส แล้วประตูเปิด (safe) · หอยเปิดออก เจอไข่มุก (pearl)
-     B16 นิยาม        คำตัวใหญ่ ตัวอักษรตกลงมาประกอบกัน (letters) · ตู้หยอดเหรียญ ได้ความหมายออกมา (vending)
+     B16 นิยาม        ตู้หยอดเหรียญ ได้ความหมายออกมา (vending) · ~~ตัวอักษรตกลงมา (letters)~~ ลบแล้ว Friend 2026-11-11 "ลบเลยครับ ผมไม่ชอบ"
    ===================================================================== */
 const R9 = {
   /* a window the size of the canvas: things that enter from outside are cut at its edge (look rule 3) */
@@ -198,46 +198,6 @@ R3.both('B13', 'pearl', 'หอยเปิดออก เจอไข่มุ
 });
 
 /* ================= B16 นิยาม: term {icon?, label}, means [1-3 {icon, label?}] ================= */
-/* 5 · the word itself, big: its letters fall in and land one by one; a rule is drawn under it and the meaning is typed below */
-R3.both('B16', 'letters', 'คำตัวใหญ่ ตัวอักษรตกลงมาประกอบกัน', (K, s, T, g) => {
-  const term = s.term ?? {}, means = (s.means ?? []).slice(0, 3), clip = R9.clip(g);
-  const gs = graphemes(term.label ?? ''), row = div('left:0;top:16px;width:600px;height:150px;display:flex;justify-content:center;align-items:flex-end', clip);
-  const inner = div('position:relative;display:flex;align-items:flex-end;white-space:nowrap', row);
-  inner.style.position = 'relative';
-  const L0 = T.b[0] + .1, L1 = T.b[2] - .1;
-  if (term.icon) {
-    const ic = document.createElement('span'); ic.className = 'u-label'; ic.style.cssText = 'display:inline-block;margin:0 18px 22px 0'; ic.innerHTML = ICO(term.icon, 84); inner.appendChild(ic);
-    A(ic, [{transform: 'translateY(-260px)'}, {transform: 'none'}], L0 - .1, .5, {e: EASE.bounce});
-  }
-  const word = document.createElement('span'); word.className = 'u-num'; word.style.cssText = 'display:inline-flex;font-size:128px;letter-spacing:0'; inner.appendChild(word);
-  gs.forEach((c, i) => {
-    const e = document.createElement('span'); e.textContent = c; e.style.display = 'inline-block'; word.appendChild(e);
-    const t = L0 + (L1 - L0) * i / Math.max(1, gs.length - 1);
-    A(e, [{transform: `translateY(-300px) rotate(${(i % 2 ? 1 : -1) * 14}deg)`, easing: 'cubic-bezier(.5,0,.9,.6)'}, {transform: 'translateY(0)', offset: .7, easing: 'ease-out'},
-      {transform: 'translateY(-16px)', offset: .85, easing: 'ease-in'}, {transform: 'none'}], t, .55, {f: 'both'});
-  });
-  FITS.push(() => { const w = inner.offsetWidth; if (w > 540) { inner.style.transform = `scale(${540 / w})`; inner.style.transformOrigin = '50% 100%'; } });
-  /* the landing of the last letter shakes the word a little */
-  A(row, [{transform: 'none'}, {transform: 'translateY(5px)'}, {transform: 'none'}], L1 + .38, .22, {f: 'none'});
-  const rule = R6.line(K, g, 'M60 178H540', T.b[2] + .1, .4);
-  void rule;
-  /* the meaning, typed letter by letter under the rule; on the key word an accent line runs under it */
-  const y0 = 194, step = means.length > 2 ? 46 : 60, size = means.length > 2 ? 34 : means.length > 1 ? 42 : 48;
-  const t0 = T.b[2] + .35, t1 = T.hit - .15;
-  means.forEach((m, k) => {
-    const ln = div(`left:40px;top:${y0 + k * step}px;width:520px;display:flex;justify-content:center;align-items:center;gap:12px;white-space:nowrap`, g);
-    const ic = document.createElement('span'); ic.className = 'u-label'; ic.innerHTML = ICO(m.icon, size); ln.appendChild(ic);
-    const sp = document.createElement('span'); sp.className = 'u-label u-text'; sp.style.cssText = `font-size:${size}px;position:relative`; ln.appendChild(sp);
-    const a = t0 + (t1 - t0) * k / means.length, b = t0 + (t1 - t0) * (k + 1) / means.length;
-    R7.show(ic, a);
-    const cs = graphemes(m.label ?? '');
-    cs.forEach((c, i) => { const e = document.createElement('span'); e.textContent = c; sp.appendChild(e); R7.show(e, a + .08 + (b - a - .1) * i / Math.max(1, cs.length)); });
-    const ul = div('left:0;right:0;bottom:-2px;height:8px;border-radius:4px;transform-origin:0 50%', sp); ul.className = 'u-col-acc';
-    A(ul, [{transform: 'scaleX(0)'}, {transform: 'none'}], T.hit + k * .12, .35, {e: EASE.smooth});
-    FITS.push(() => { const w = [...ln.children].reduce((a, c) => a + c.offsetWidth, 12); if (w > 480) ln.style.transform = `scale(${480 / w})`; });
-  });
-});
-
 /* 6 · a vending machine: the word on its sign, the meanings on its shelves; a coin drops in, it shakes, and the meaning comes out */
 R3.both('B16', 'vending', 'ตู้หยอดเหรียญ ใส่คำเข้าไป ได้ความหมายออกมา', (K, s, T, g) => {
   const term = s.term ?? {}, means = (s.means ?? []).slice(0, 3), X = 64, Y = 8, W = 240, H = 324;
