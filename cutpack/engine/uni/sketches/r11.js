@@ -4,21 +4,17 @@
    B01 ตัวเลขเด่น · B02 เพิ่ม/ลด · B14 ประโยคเด็ด. Ideas: one main thing + one move on the key word, then it holds
    (talking-head-motion), checked against every draft in all 21 categories and the deleted ones (DECISIONS round 11).
 
-   DRAWN THE WAY FRIEND'S glow-line-motion SKILL DRAWS (Friend 2026-11-11: "ก. ครับ" · "เส้นมันหนาไป วาดตาม skill ที่ผมส่งให้สิ"
-   · "วาดตาม skill 100% แต่ธีมสีและการเรืองแสง ให้ทำตามสไตล์นั้นๆ"): flat front view, few details (one outline + 1–3 detail
-   lines), every line 3 px on screen (details 1.6–2.2), round ends and corners, closed shapes filled with the body colour so
-   what is behind is hidden, people / hands / iso boxes from the skill's kit (same joint points and sizes). The pen (LP), the
-   parts and the kit below are ported from the skill's assets/glowline.js; only the colours changed: the skill's white line and
-   dark fill become each style's own line, body and accent colours (--lp-* below), and the glow is the style's own (glass glows
-   blue on every line, gold glows orange on the accent, card and split do not glow).
-   KIT-LIKE (Friend 2026-11-11: "ไอเดียที่เสนอมามันดูรกไป อยากให้ดูชุด kit ของ skill เป็นแบบอย่าง" · "โอเคครับ แก้ทั้งหมด"): every
-   draft is like a picture in the skill's references/kit.jpg: ONE main thing in the middle, big enough to fill the frame (no empty
-   look), at most one word under it or on it; no extra cards, chips, floors, ghosts or decoration.
-   DRAWN LIKE FRIEND'S REF ("20 WAYS TO SIMPLIFY", Friend 2026-11-11: "เหมือนงานเด็กมัธยมวาด ให้คุณลองดู ref นี้" · "เอาแนวนี้เลย"
-   · "ตั้งใจวาดนะครับ โดยเฉพาะสิ้นส่วนอะไรที่เป็นของมนุษย์"): bodies shaded from the top left (fill 'shade'), thickness (a second
-   edge, things layered), small real details (stitching, buttons, rims, highlights) in thin quiet lines, the outer line strong;
-   real proportions and small corner radii. People and hands are figures (Pen.figure): one outline round the whole body,
-   7½ heads tall, a collar, a belt, shoes, hands with a thumb; LESSONS 48.
+   DRAWN THE WAY FRIEND'S glow-line-motion SKILL IN THE REPO DRAWS, 100% (Friend 2026-11-11: "ข ครับ Skill ใน repo เป็นเวอร์ชั่นปัจจุบัน",
+   after "วาดตาม skill 100% แต่ธีมสีและการเรืองแสง ให้ทำตามสไตล์นั้นๆ"; .claude/skills/glow-line-motion/references/style.md + drawing.md):
+   flat front (or side) view, an outline + a FLAT body fill (no shading, no gradient in things), round corners, 1–3 details in
+   thin soft lines (1.4–1.8), main lines 3, no line thicker than 7; people are the skill's pictograms (parts.person / bust / team:
+   round head, capsule arms and legs, no face, no fingers), the hand is the skill's parts.hand, the bulb, bubble and arrows are
+   the skill's parts (SK below, same shapes and numbers). Only the colours are each style's own (--lp-* below) and the glow is
+   the style's own (glass glows blue on every line, gold glows orange on the accent, card and split do not glow).
+   KIT-LIKE (Friend 2026-11-11: "อยากให้ดูชุด kit ของ skill เป็นแบบอย่าง"): ONE main thing in the middle, big enough to fill the
+   frame, at most one word under it or on it; no extra cards, chips, floors, ghosts or decoration.
+   The ideas are the category's own signs (Friend 2026-11-11, LESSONS 41). The earlier shaded "20 WAYS" drawing of these 20
+   drafts is no longer used (DECISIONS round 11).
    Still pictures only (the end state): NOT in scenes/; load with EXTRA=sketches/r11.js.
    ===================================================================== */
 (() => {
@@ -31,9 +27,9 @@
 .p-light{--lp-ink:#4B3D6E;--lp-fill:#FFFFFF;--lp-soft:rgba(75,61,110,.5);--lp-acc:#9C84D6;--lp-acc-line:#4B3D6E;--lp-acc-ink:#FFFFFF;--lp-neg:#C2667A}
 .p-dark{--lp-ink:#F1ECFB;--lp-fill:#6F5F97;--lp-soft:rgba(241,236,251,.55);--lp-acc:#D9CCF6;--lp-acc-line:#F1ECFB;--lp-acc-ink:#4B3D6E;--lp-neg:#F09AA8}
 .gd{--lp-ink:#F2F2F4;--lp-fill:#141417;--lp-soft:rgba(242,242,244,.48);--lp-acc:#FF9A2E;--lp-acc-line:#FFB04A;--lp-acc-ink:#1A0E00;--lp-neg:#FF5A4E}
-.c-light,.p-light{--lp-shade-a:var(--lp-fill);--lp-shade-b:color-mix(in srgb, var(--lp-ink) 11%, var(--lp-fill))}
-.c-dark,.g-root,.p-dark,.gd{--lp-shade-a:color-mix(in srgb, var(--lp-ink) 20%, var(--lp-fill));--lp-shade-b:color-mix(in srgb, var(--lp-ink) 5%, var(--lp-fill))}
 .gd .lp-acc{filter:drop-shadow(0 0 7px rgba(255,140,40,.8))}
+.c-light,.p-light,.g-root{--lp-acc-edge:var(--lp-acc-line)}
+.c-dark,.p-dark,.gd{--lp-acc-edge:var(--lp-acc-ink)}
 .lp-t{white-space:nowrap;line-height:1.25;color:var(--lp-ink)}
 .lp-t.lp-on{color:var(--lp-acc-ink)}
 .lp-ico{color:var(--lp-ink)}.lp-ico.lp-on{color:var(--lp-acc-ink)}`;
@@ -42,41 +38,18 @@
 
 const LP = (() => {
   const NS = 'http://www.w3.org/2000/svg'; let LPN = 0;
-  const C = {ink: 'var(--lp-ink)', fill: 'var(--lp-fill)', soft: 'var(--lp-soft)', mute: 'var(--lp-soft)', acc: 'var(--lp-acc)', accLine: 'var(--lp-acc-line)', neg: 'var(--lp-neg)'};
+  const C = {edge: 'var(--lp-acc-edge)', ink: 'var(--lp-ink)', fill: 'var(--lp-fill)', soft: 'var(--lp-soft)', mute: 'var(--lp-soft)', acc: 'var(--lp-acc)', accLine: 'var(--lp-acc-line)', neg: 'var(--lp-neg)'};
   const pts = a => typeof a === 'string' ? a : a.map(q => q.join(',')).join(' ');
   /* tone: undefined (line + body), 'acc' (the accent body with its line), 'neg' (red line), 'soft' (a quiet detail line) */
   class Pen {
     constructor(g, k, grad, defs) { this.g = g; this.k = k; this.grad = grad; this.defs = defs; }
     child(attrs = {}, sc = 1) { const e = document.createElementNS(NS, 'g'); for (const a in attrs) e.setAttribute(a, attrs[a]); this.g.appendChild(e); return new Pen(e, this.k / sc, this.grad, this.defs); }
-    /* a light-to-shadow fill laid across a whole figure (user space of this pen), so all its parts share one light */
-    ugrad(x1, y1, x2, y2, acc = false) {
-      const id = 'lpu' + (++LPN), a = acc ? 'var(--lp-acc)' : 'var(--lp-shade-a, var(--lp-fill))', b = acc ? 'color-mix(in srgb, var(--lp-acc) 80%, #000)' : 'var(--lp-shade-b, var(--lp-fill))';
-      this.defs.insertAdjacentHTML('beforeend', `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"><stop offset="0" style="stop-color:${a}"/><stop offset="1" style="stop-color:${b}"/></linearGradient>`);
-      return `url(#${id})`;
-    }
-    _raw(tag, a, style) { const e = document.createElementNS(NS, tag); for (const n in a) e.setAttribute(n, a[n]); e.setAttribute('style', style); this.g.appendChild(e); return e; }
-    /* ONE outlined, shaded shape out of many parts (people, hands): parts = [{d} a closed shape | {d, w} a limb of width w];
-       pass 1 paints every part fattened by the line width in the line colour, pass 2 the body over it, so the outline runs
-       round the whole figure and there are no seams inside. details = thin lines drawn on top (collar, belt, fingers) */
-    figure(parts, {tone, box = [-30, -110, 30, 0], details = [], dsw = 1.5} = {}) {
-      const acc = tone === 'acc', line = acc ? C.accLine : C.ink, sw = 3 * this.k, body = this.ugrad(box[0], box[1], box[2], box[3], acc);
-      const g = this.child(); if (acc) g.g.classList.add('lp-acc');
-      const each = (fn) => parts.forEach(pt => fn(pt));
-      each(pt => pt.w ? g._raw('path', {d: pt.d}, `fill:none;stroke:${line};stroke-width:${pt.w + 2 * sw}px;stroke-linecap:round;stroke-linejoin:round`)
-                      : g._raw('path', {d: pt.d}, `fill:${line};stroke:${line};stroke-width:${2 * sw}px;stroke-linejoin:round`));
-      each(pt => pt.w ? g._raw('path', {d: pt.d}, `fill:none;stroke:var(--lp-fill);stroke-width:${pt.w}px;stroke-linecap:round;stroke-linejoin:round`)
-                      : g._raw('path', {d: pt.d}, 'fill:var(--lp-fill);stroke:none'));
-      each(pt => pt.w ? g._raw('path', {d: pt.d}, `fill:none;stroke:${body};stroke-width:${pt.w}px;stroke-linecap:round;stroke-linejoin:round`)
-                      : g._raw('path', {d: pt.d}, `fill:${body};stroke:none`));
-      details.forEach(d => g._raw('path', {d}, `fill:none;stroke:${acc ? 'var(--lp-acc-ink)' : 'var(--lp-soft)'};stroke-width:${dsw * this.k}px;stroke-linecap:round;stroke-linejoin:round${acc ? ';opacity:.4' : ''}`));
-      return g;
-    }
     _d(tag, a, o = {}) {
       const e = document.createElementNS(NS, tag);
       for (const n in a) e.setAttribute(n, a[n]);
-      /* fill: true = the flat body colour, 'shade' = the body lit from the top left (the ref's soft volume) */
-      let fill = o.fill === true ? C.fill : o.fill === 'shade' ? `url(#${this.grad})` : o.fill || 'none', stroke = o.stroke || C.ink;
-      if (o.tone === 'acc') { fill = o.fill === 'none' ? 'none' : o.fill === 'shade' ? `url(#${this.grad}a)` : C.acc; stroke = C.accLine; e.classList.add('lp-acc'); }
+      /* fill: true = the flat body colour (the skill: no shading, no gradient in things) */
+      let fill = o.fill === true ? C.fill : o.fill || 'none', stroke = o.stroke || C.ink;
+      if (o.tone === 'acc') { fill = !o.fill || o.fill === 'none' ? 'none' : C.acc; stroke = o.stroke || C.accLine; e.classList.add('lp-acc'); }
       if (o.tone === 'neg') { stroke = C.neg; if (o.fill && o.fill !== 'none') fill = C.neg; }
       if (o.tone === 'soft') stroke = C.soft;
       e.setAttribute('style', `fill:${fill};stroke:${stroke};stroke-width:${((o.sw ?? 3) * this.k).toFixed(3)}px;stroke-linecap:round;stroke-linejoin:round${o.dash ? `;stroke-dasharray:${o.dash.map(v => v * this.k).join(' ')}` : ''}${o.op != null ? `;opacity:${o.op}` : ''}`);
@@ -98,22 +71,27 @@ const LP = (() => {
       const d = typeof p === 'string' ? p : 'M ' + p.map(q => q.join(' ')).join(' L '), sw = (o.sw ?? 3) * this.k, acc = o.tone === 'acc';
       const a = this._d('path', {d}, Object.assign({}, o, {fill: 'none', tone: undefined, stroke: acc ? C.accLine : C.ink}));
       a.style.strokeWidth = (T + 2 * sw) + 'px'; if (acc) a.classList.add('lp-acc');
-      /* core: the body colour, or 'shade' (lit from the top left; the accent's own shade on an accent tube) */
-      const core = o.core === 'shade' ? `url(#${this.grad}${acc ? 'a' : ''})` : acc ? C.acc : C.fill;
-      if (acc || o.core === 'shade') { const u = this._d('path', {d}, Object.assign({}, o, {fill: 'none', tone: undefined, stroke: C.fill})); u.style.strokeWidth = T + 'px'; }
+      const core = acc ? C.acc : C.fill;
+      if (acc) { const u = this._d('path', {d}, Object.assign({}, o, {fill: 'none', tone: undefined, stroke: C.fill})); u.style.strokeWidth = T + 'px'; }
       const b = this._d('path', {d}, Object.assign({}, o, {fill: 'none', tone: undefined, stroke: core}));
       b.style.strokeWidth = T + 'px';
       return b;
     }
+    /* a pen whose drawing is hidden along a band: (d, width) a path stroked that wide, only inside the rectangle (x, y, w, h).
+       Used where one ring passes in front of the next: the next ring is hidden exactly along the first ring's outline */
+    masked(d, width, x, y, w, h) {
+      const id = 'lpm' + (++LPN);
+      this.defs.insertAdjacentHTML('beforeend', `<clipPath id="${id}c" clipPathUnits="userSpaceOnUse"><rect x="${x}" y="${y}" width="${w}" height="${h}"/></clipPath><mask id="${id}" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="4600" height="4400"><rect x="-2000" y="-2000" width="4600" height="4400" fill="white"/><path d="${d}" clip-path="url(#${id}c)" style="fill:none;stroke:black;stroke-width:${width}px"/></mask>`);
+      return this.child({mask: `url(#${id})`});
+    }
     /* a pen whose drawing is cut to a rectangle (for one link passing in front of the next) */
-    clipped(x, y, w, h) { const id = 'lpc' + (++LPN); this.defs.insertAdjacentHTML('beforeend', `<clipPath id="${id}" clipPathUnits="userSpaceOnUse"><rect x="${x}" y="${y}" width="${w}" height="${h}"/></clipPath>`); return this.child({'clip-path': `url(#${id})`}); }
+    clipped(x, y, w, h) { const id = 'lpc' + (++LPN); this.defs.insertAdjacentHTML('beforeend', `<clipPath id="${id}" clipPathUnits="userSpaceOnUse"><rect shape-rendering="crispEdges" x="${x}" y="${y}" width="${w}" height="${h}"/></clipPath>`); return this.child({'clip-path': `url(#${id})`}); }
   }
   /* a drawing layer the size of the canvas; small (the overlay widget) is drawn 1:1, the full screen picture 1.6× */
   const layer = (g, small, z) => {
     const id = 'lpg' + (++LPN);
     const d = div(`left:0;top:0;width:600px;height:340px${z != null ? `;z-index:${z}` : ''}`, g, `<svg width="600" height="340" style="overflow:visible"><defs>
-      <linearGradient id="${id}" x1="0" y1="0" x2=".35" y2="1" gradientUnits="objectBoundingBox"><stop offset="0" style="stop-color:var(--lp-shade-a, var(--lp-fill))"/><stop offset="1" style="stop-color:var(--lp-shade-b, var(--lp-fill))"/></linearGradient>
-      <linearGradient id="${id}a" x1="0" y1="0" x2=".35" y2="1" gradientUnits="objectBoundingBox"><stop offset="0" style="stop-color:var(--lp-acc)"/><stop offset="1" style="stop-color:color-mix(in srgb, var(--lp-acc) 80%, #000)"/></linearGradient></defs><g></g></svg>`);
+</defs><g></g></svg>`);
     return {el: d, p: new Pen(d.querySelector('svg > g'), small ? 1 : 1 / 1.6, id, d.querySelector('defs'))};
   };
   /* words in the line colour (or on the accent), from the slots only */
@@ -128,420 +106,338 @@ const LP = (() => {
     FITS.push(() => { const tw = ic + l.firstChild.offsetWidth, x0 = cx - tw / 2; if (i) i.style.left = x0 + 'px'; l.style.left = x0 + ic + 'px'; });
   };
 
-  /* ---- the skill's kit: people (pictograms built from tubes), hands, iso box ---- */
-  const AD = s => [[s * 31, -90], [s * 47, -38], [s * 53, 14]], LEGS = [[[-15, 10], [-17, 90], [-18, 165]], [[15, 10], [17, 90], [18, 165]]];
-  const POSES = {
-    stand: {legs: LEGS, back: [AD(-1), AD(1)]},
-    wave: {legs: LEGS, back: [AD(-1)], front: [[[31, -90], [78, -98], [92, -154]]]},
-    cheer: {legs: LEGS, back: [[[-31, -90], [-64, -128], [-80, -172]], [[31, -90], [64, -128], [80, -172]]]},
-    walk: {side: 1, legs: [[[0, 10], [-20, 88], [-46, 160]], [[0, 10], [22, 86], [30, 165]]], back: [[[0, -90], [-20, -44], [-32, 0]]], front: [[[0, -90], [20, -44], [40, -6]]]},
-    /* new here, same joints: standing seen from the side · holding a sign at the chest · a selfie · presenting */
-    side: {side: 1, legs: [[[0, 10], [-2, 90], [-3, 165]], [[0, 10], [4, 90], [6, 165]]], back: [], front: [[[0, -90], [8, -40], [10, 12]]]},
-    hold: {legs: LEGS, front: [[[-31, -90], [-96, -76], [-172, -58]], [[31, -90], [96, -76], [172, -58]]]},
-    selfie: {legs: LEGS, back: [AD(-1)], front: [[[31, -90], [84, -124], [116, -172]]]},
-    present: {legs: LEGS, back: [AD(-1)], front: [[[31, -90], [74, -118], [116, -146]]]},
-  };
-  const TORSO_F = 'M -20 -106 L 20 -106 Q 42 -106 42 -84 L 33 12 Q 32 22 23 22 L -23 22 Q -32 22 -33 12 L -42 -84 Q -42 -106 -20 -106 Z';
-  const TORSO_S = 'M -10 -106 L 10 -106 Q 27 -106 27 -88 L 21 12 Q 20 22 11 22 L -11 22 Q -20 22 -21 12 L -27 -88 Q -27 -106 -10 -106 Z';
-  /* (x, y) = the floor point under the feet, h = height, face 1 right / -1 left, tone 'acc' = the one that matters */
-  const person = (p, {x = 0, y = 0, h = 300, pose = 'stand', face = 1, tone} = {}) => {
-    const P = POSES[pose], s = h / 350, gy = 178, q = p.child({transform: `translate(${x} ${y}) scale(${s * face} ${s}) translate(0 ${-gy})`}, s);
-    const o = tone ? {tone} : {};
-    const far = P.side ? {tone: 'soft'} : o;
-    P.legs.forEach((l, i) => q.tube(l, 26, i === 0 && P.legs.length > 1 && P.side ? {} : o));
-    (P.back || []).forEach(l => q.tube(l, 21, o));
-    q.path(P.side ? TORSO_S : TORSO_F, Object.assign({fill: true}, o));
-    q.circle(P.side ? 5 : 0, -142, 28, Object.assign({fill: true}, o));
-    (P.front || []).forEach(l => q.tube(l, 21, o));
-    return q;
-  };
-  const at = (x, y, h, px, py, face = 1) => { const s = h / 350; return [x + px * s * face, y + (py - 178) * s]; };
-  const iso = (X, Y, Z) => [(X - Z) * .866, (X + Z) * .5 - Y];
-  const isoBox = (p, {x = 0, y = 0, w = 160, dp = 160, h = 110, tone, tape = false} = {}) => {
-    const P = (X, Y, Z) => { const [a, b] = iso(X, Y, Z); return [x + a, y + b]; }, hw = w / 2, hd = dp / 2, o = {fill: true};
-    p.shape([P(-hw, 0, hd), P(hw, 0, hd), P(hw, h, hd), P(-hw, h, hd)], o);
-    p.shape([P(hw, 0, hd), P(hw, 0, -hd), P(hw, h, -hd), P(hw, h, hd)], o);
-    p.shape([P(-hw, h, -hd), P(hw, h, -hd), P(hw, h, hd), P(-hw, h, hd)], tone ? {fill: true, tone} : o);
-    if (tape) p.poly([P(0, h, -hd), P(0, h, hd), P(0, h * .55, hd)], {sw: 2, tone: 'soft'});
-    return {front: [P(-hw, 0, hd), P(hw, 0, hd), P(hw, h, hd), P(-hw, h, hd)], P};
-  };
-  /* the skill's parts used here */
-  const parts = {
-    bubble(p, x, y, w, h, flip = false, o = {}) {       // speech bubble, (x, y) centre
-      const l = x - w / 2, t = y - h / 2, r = x + w / 2, b = y + h / 2, rad = Math.min(14, h / 3), tx = flip ? r - w * .25 : l + w * .25, s = flip ? 1 : -1;
-      return p.path(`M ${l + rad} ${t} H ${r - rad} Q ${r} ${t} ${r} ${t + rad} V ${b - rad} Q ${r} ${b} ${r - rad} ${b} H ${tx + 10} L ${tx + s * 8} ${b + 14} L ${tx - 6} ${b} H ${l + rad} Q ${l} ${b} ${l} ${b - rad} V ${t + rad} Q ${l} ${t} ${l + rad} ${t} Z`, Object.assign({fill: true, sw: 2.2}, o));
-    },
-    burst(p, {x = 0, y = 0, r1 = 46, r2 = 74, n = 8, from = -90, spread = 360, sw = 3, tone} = {}) {
-      const full = spread >= 360;
-      for (let i = 0; i < n; i++) {
-        const a = (from + (full ? i * 360 / n : (n === 1 ? 0 : -spread / 2 + i * spread / (n - 1)))) * Math.PI / 180;
-        p.line(x + Math.cos(a) * r1, y + Math.sin(a) * r1, x + Math.cos(a) * r2, y + Math.sin(a) * r2, {sw, tone});
-      }
-    },
-    link(p, x1, y1, x2, y2, o = {}) {                    // plain arrow line with a head at (x2, y2)
-      const a = Math.atan2(y2 - y1, x2 - x1), h = o.head || 11;
-      p.line(x1, y1, x2, y2, Object.assign({sw: 2}, o));
-      p.poly([[x2 - Math.cos(a - .5) * h, y2 - Math.sin(a - .5) * h], [x2, y2], [x2 - Math.cos(a + .5) * h, y2 - Math.sin(a + .5) * h]], Object.assign({sw: 2}, o));
-    },
-    check(p, x, y, s = 1, o = {}) { p.poly([[x - 60 * s, y], [x - 20 * s, y + 42 * s], [x + 66 * s, y - 52 * s]], Object.assign({sw: 6}, o)); },
-    cross(p, x, y, s = 1, o = {}) { p.line(x - 40 * s, y - 40 * s, x + 40 * s, y + 40 * s, Object.assign({sw: 6, tone: 'neg'}, o)); p.line(x + 40 * s, y - 40 * s, x - 40 * s, y + 40 * s, Object.assign({sw: 6, tone: 'neg'}, o)); },
-    floor(p, x1, x2, y) { p.line(x1, y, x2, y, {sw: 2.2, tone: 'soft'}); },
-  };
-  /* the skill's kit.bust / kit.team / kit.holdPhone */
-  const bust = (p, {x = 0, y = 0, size = 200, tone, op} = {}) => {
-    const s = size / 330, q = p.child({transform: `translate(${x} ${y}) scale(${s})`}, s), o = {fill: true, tone};
-    if (op) q.g.style.opacity = op;
-    q.path('M -142 165 L -142 112 Q -142 22 -46 22 L 46 22 Q 142 22 142 112 L 142 165 Z', o); q.circle(0, -88, 74, o); return q;
-  };
-  const team = (p, {x = 0, y = 0, size = 360, tone, back} = {}) => {
-    const s = size / 420, q = p.child({transform: `translate(${x} ${y}) scale(${s})`}, s);
-    bust(q, {x: -125, y: -26, size: 230, op: back}); bust(q, {x: 125, y: -26, size: 230, op: back}); bust(q, {x: 0, y: 26, size: 300, tone}); return q;
-  };
-  const holdPhone = (p, {x = 0, y = 0, size = 360} = {}) => {
-    const s = size / 400, q = p.child({transform: `translate(${x} ${y}) scale(${s})`}, s);
-    q.rect(-94, 34, 188, 140, {rx: 48, fill: true});
-    q.rect(-82, -198, 164, 300, {rx: 26, fill: true});
-    q.rect(-71, -186, 142, 276, {rx: 17, sw: 1.6, tone: 'soft'});
-    q.line(-14, -175, 14, -175, {sw: 4});
-    return {q, s, after() {
-      [-34, 2, 38].forEach(yy => q.tube([[122, yy + 6], [70, yy]], 30, {sw: 2.6}));
-      q.tube('M -66 152 Q -100 92 -60 34', 34, {sw: 2.6});
-      q.rect(-58, 160, 116, 40, {rx: 8, fill: true});
-    }};
-  };
-  /* a word struck through in red (the wrong one) */
-  const strike = (K, g, txt, cx, y, size, maxW) => {
-    const w = word(K, g, txt, cx, y, size, maxW); w.style.opacity = .7;
-    const st = div(`left:0;top:${y + size * .68}px;height:4px;border-radius:2px;background:var(--lp-neg)`, g);
-    FITS.push(() => { const sp = w.firstChild, ww = sp.offsetWidth + 14; st.style.left = (cx - ww / 2) + 'px'; st.style.width = ww + 'px'; });
-    return w;
-  };
-  return {C, Pen, layer, word, wordL, ico, row, person, at, iso, isoBox, parts, bust, team, holdPhone, strike};
+  return {C, Pen, layer, word, wordL, ico, row};
 })();
 const S11 = {human: icon => /^(user|users|baby|person|contact|smile)/.test(icon ?? 'user')};
 
-/* ================= people and hands (units: a person is 100 tall, feet at 0, up is negative) ================= */
-const HU = (() => {
-  const E = (cx, cy, rx, ry = rx) => `M ${cx - rx} ${cy} A ${rx} ${ry} 0 1 0 ${cx + rx} ${cy} A ${rx} ${ry} 0 1 0 ${cx - rx} ${cy} Z`;
-  const mir = d => d.replace(/(-?\d+\.?\d*) (-?\d+\.?\d*)/g, (m, x, y) => `${-x} ${y}`);
-  const F = {
-    head: E(0, -91.6, 7.4), neck: 'M -3.4 -85 L 3.4 -85 L 3.7 -78 L -3.7 -78 Z',
-    torso: 'M -6 -80.5 L 6 -80.5 Q 13.6 -80 14.6 -73 L 13.4 -58 L 12.3 -45 L -12.3 -45 L -13.4 -58 L -14.6 -73 Q -13.6 -80 -6 -80.5 Z',
-    hips: 'M -12.3 -46.5 L 12.3 -46.5 L 12 -39 L -12 -39 Z',
-    legL: 'M -12.1 -40.5 L -0.9 -40.5 L -1.8 -5.8 L -10.6 -5.8 Z', shoeL: 'M -12.2 0 L -12.2 -2.8 Q -12.2 -6.4 -8.6 -6.4 L -3 -6.4 Q -1 -6.4 -1 -3.4 L -1 0 Z',
-    armDownL: 'M -12.8 -75 Q -15.2 -64 -15.5 -58 L -15.8 -48', handDownL: E(-15.9, -44.6, 3.3, 4.1),
-  };
-  const front = {head: F.head, neck: F.neck, torso: F.torso, hips: F.hips};
-  const legs = [{d: F.legL}, {d: mir(F.legL)}, {d: F.shoeL}, {d: mir(F.shoeL)}];
-  const fDet = ['M -3.7 -80.3 L 0 -76.2 L 3.7 -80.3', 'M -12.2 -45.6 L 12.2 -45.6', 'M 0 -45.4 L 0 -40.5', 'M -11.6 -2.7 L -1.6 -2.7', 'M 11.6 -2.7 L 1.6 -2.7'];
-  const poses = {
-    stand: {arms: [{d: F.armDownL, w: 6.2}, {d: mir(F.armDownL), w: 6.2}], hands: [{d: F.handDownL}, {d: E(15.9, -44.6, 3.3, 4.1)}]},
-    /* the right hand up and open (palm to us), its thumb out to the side */
-    wave: {arms: [{d: F.armDownL, w: 6.2}, {d: 'M 12.8 -75 L 21.4 -80 L 24.8 -93.5', w: 6.2}],
-      hands: [{d: F.handDownL}, {d: E(25.2, -97.6, 3.4, 3.8)}, {d: 'M 22.7 -100 L 22.4 -104.6', w: 1.9}, {d: 'M 24.5 -100.6 L 24.5 -105.8', w: 1.9}, {d: 'M 26.3 -100.6 L 26.6 -105.4', w: 1.9}, {d: 'M 27.9 -99.8 L 28.6 -103.8', w: 1.8}, {d: 'M 22.3 -96.2 L 20 -99.4', w: 2}],
-      det: []},
-    /* both arms out to the sides of a sign held at the chest; the hands are drawn in front of the sign (handsFront) */
-    hold: {arms: [{d: 'M -12.8 -75 L -26 -69 L -38 -64.5', w: 6.2}, {d: 'M 12.8 -75 L 26 -69 L 38 -64.5', w: 6.2}], hands: [],
-      front: [{d: 'M -44 -69 Q -44 -71 -42 -71 L -36.4 -71 Q -34.6 -71 -34.6 -69 L -34.6 -58.6 Q -34.6 -56.6 -36.4 -56.6 L -42 -56.6 Q -44 -56.6 -44 -58.6 Z'}, {d: 'M 44 -69 Q 44 -71 42 -71 L 36.4 -71 Q 34.6 -71 34.6 -69 L 34.6 -58.6 Q 34.6 -56.6 36.4 -56.6 L 42 -56.6 Q 44 -56.6 44 -58.6 Z'}],
-      frontDet: ['M -43 -67.4 L -35.6 -67.4', 'M -43 -63.8 L -35.6 -63.8', 'M -43 -60.2 L -35.6 -60.2', 'M 43 -67.4 L 35.6 -67.4', 'M 43 -63.8 L 35.6 -63.8', 'M 43 -60.2 L 35.6 -60.2']},
-    /* the right arm points up to the right, the index finger out */
-    present: {arms: [{d: F.armDownL, w: 6.2}, {d: 'M 12.8 -75 L 22.2 -80 L 31.2 -86', w: 6.2}],
-      hands: [{d: F.handDownL}, {d: E(33, -87.4, 3.6, 3.4)}, {d: 'M 35.2 -88.6 L 40.4 -91.4', w: 2.4}, {d: 'M 31.6 -85.2 L 33.4 -84.2', w: 2.2}]},
-  };
-  const side = {
-    parts: [{d: E(0.8, -91.6, 7.4)}, {d: 'M 7.4 -94.4 L 10.4 -90 Q 10.8 -89 9.6 -88.8 L 7.6 -88.6 Z'}, {d: 'M -2.6 -85 L 3.4 -85 L 3.4 -78 L -2.8 -78 Z'},
-      {d: 'M -6.8 -80.5 L 3.4 -80.5 Q 8.8 -79.6 8.9 -73 L 7.9 -58 L 7.1 -45 L -7.5 -45 L -8.1 -58 L -9.1 -73 Q -9.3 -80.2 -6.8 -80.5 Z'},
-      {d: 'M -7.5 -46.5 L 7.1 -46.5 L 6.9 -39 L -7.3 -39 Z'},
-      {d: 'M -7.2 -40.5 L 2.4 -40.5 L 1.6 -5.8 L -6.2 -5.8 Z'}, {d: 'M -2.6 -40.5 L 6.8 -40.5 L 5.4 -5.8 L -2.2 -5.8 Z'},
-      {d: 'M -8 0 L -8 -3.4 Q -8 -6.8 -4.6 -6.8 L 3.6 -6.8 Q 9.8 -6.4 11.2 -2.6 L 11.2 0 Z'},
-      {d: 'M 0.4 -76 Q 1.6 -66 3.4 -60 L 6.4 -50', w: 6}, {d: E(7.4, -46.6, 3.1, 3.9)}],
-    det: ['M -1.4 -80.3 L 3.2 -76.8', 'M -7.4 -45.6 L 7 -45.6', 'M -2.4 -38.5 L -2 -8', 'M -7.6 -2.6 L 11 -2.6', 'M 4.6 -92.6 Q 3 -91 4.4 -89.4'],
-  };
-  return {
-    /* a person: (x, y) = the floor point under the feet, h = height in px; returns {front} for things held in front */
-    person(p, {x, y, h, pose = 'stand', face = 1, tone} = {}) {
-      const s = h / 100, q = p.child({transform: `translate(${x} ${y}) scale(${(s * face).toFixed(4)} ${s.toFixed(4)})`}, s);
-      if (pose === 'side') { q.figure(side.parts, {tone, box: [-20, -100, 20, 0], details: side.det}); return {q}; }
-      const P = poses[pose], parts = [...P.arms.filter(a => pose === 'hold'), {d: front.head}, {d: front.neck}, {d: front.torso}, {d: front.hips}, ...legs, ...P.arms.filter(a => pose !== 'hold'), ...P.hands];
-      q.figure(parts, {tone, box: [-30, -100, 30, 0], details: [...fDet, ...(P.det ?? [])]});
-      return {q, front: () => P.front && q.figure(P.front, {tone, box: [-44, -72, 44, -56], details: P.frontDet, dsw: 1.3})};
+/* ================= the skill's parts (glow-line-motion assets/glowline.js), drawn with LP's pen =================
+   Same shapes and numbers as the skill; only o.tone added so the one that matters takes the style's accent. */
+const SK = (() => {
+  const f = v => v.toFixed(1);
+  const SK = {
+    /* a capsule with a body fill (arms, legs, handles) */
+    capsule(p, x1, y1, x2, y2, r, o = {}) {
+      const a = Math.atan2(y2 - y1, x2 - x1), nx = -Math.sin(a) * r, ny = Math.cos(a) * r;
+      return p.path(`M ${f(x1 + nx)} ${f(y1 + ny)} L ${f(x2 + nx)} ${f(y2 + ny)} A ${r} ${r} 0 0 0 ${f(x2 - nx)} ${f(y2 - ny)} L ${f(x1 - nx)} ${f(y1 - ny)} A ${r} ${r} 0 0 0 ${f(x1 + nx)} ${f(y1 + ny)} Z`, Object.assign({fill: true}, o));
     },
-    /* head and shoulders (a member of a group): (x, y) = the middle of the shoulders' bottom, size = height */
-    bust(p, {x, y, size, tone, op}) {
-      const s = size / 130, q = p.child({transform: `translate(${x} ${y}) scale(${s})`}, s); if (op != null) q.g.style.opacity = op;
-      q.figure([{d: E(0, -96, 26)}, {d: 'M -11 -74 L 11 -74 L 12 -58 L -12 -58 Z'},
-        {d: 'M -60 0 L -60 -22 Q -60 -52 -28 -56 L -10 -61 L 10 -61 L 28 -56 Q 60 -52 60 -22 L 60 0 Z'}],
-        {tone, box: [-60, -122, 60, 0], details: ['M -14 -60 L 0 -44 L 14 -60', 'M 0 -44 L 0 -2', 'M -40 -40 Q -44 -24 -44 -4', 'M 40 -40 Q 44 -24 44 -4']});
+    /* the skill's standing pictogram (parts.person), but (x, y) = the floor point under the feet; h = height.
+       pose: stand wave cheer point think (the skill's) + side (new here, same parts: seen from the side, face 1 right / -1 left) */
+    person(p, {x, y, h = 200, pose = 'stand', face = 1, tone} = {}) {
+      const sc = h / 200, q = p.child({transform: `translate(${x} ${y - 99.5 * sc}) scale(${f(sc * face)} ${f(sc)})`}, sc), o = {fill: true, tone, stroke: tone === 'acc' ? LP.C.edge : undefined};
+      if (pose === 'side') {
+        SK.capsule(q, -3, 12, -5, 90, 9.5, o); SK.capsule(q, -5, 92, 13, 92, 7.5, o);
+        SK.capsule(q, 4, 12, 5, 90, 9.5, o); SK.capsule(q, 4, 92, 22, 92, 7.5, o);
+        q.path('M -16 -38 Q -16 -50 -4 -50 L 6 -50 Q 18 -50 18 -38 L 15 12 Q 14 18 8 18 L -9 18 Q -15 18 -15 12 Z', o);
+        SK.capsule(q, 2, -40, 9, 20, 8, o);
+        q.circle(5, -76, 20, o);
+        return q;
+      }
+      const A = {stand: [10, 10], wave: [10, 155], cheer: [150, 150], point: [10, 88], think: [10, 150]}[pose] || [10, 10];
+      SK.capsule(q, -11, 12, -12, 90, 9.5, o); SK.capsule(q, 11, 12, 12, 90, 9.5, o);
+      q.path('M -30 -38 Q -30 -50 -18 -50 L 18 -50 Q 30 -50 30 -38 L 24 12 Q 23 18 16 18 L -16 18 Q -23 18 -24 12 Z', o);
+      [-1, 1].forEach((side, i) => {
+        const th = A[i] * Math.PI / 180, sx = side * 25, sy = -40, L = pose === 'think' && side > 0 ? 40 : 62;
+        const ex = sx + side * Math.sin(th) * L, ey = sy + Math.cos(th) * L;
+        if (pose === 'think' && side > 0) { SK.capsule(q, sx, sy, ex + 8, ey + 44, 8, o); SK.capsule(q, ex + 8, ey + 44, 14, -60, 7.5, o); }
+        else SK.capsule(q, sx, sy, ex, ey, 8, o);
+      });
+      q.circle(0, -76, 20, o);
       return q;
     },
-    E,
+    /* the skill's parts.bust: head + shoulders, box ±60 × ±62 around (x, y) */
+    bust(p, x, y, sc = 1, {tone, op} = {}) {
+      const q = p.child({transform: `translate(${x} ${y}) scale(${sc})`}, sc), o = {fill: true, tone, stroke: tone === 'acc' ? LP.C.edge : undefined};
+      if (op != null) q.g.style.opacity = op;
+      q.path('M -58 62 C -58 16, -32 6, 0 6 C 32 6, 58 16, 58 62 Z', o); q.circle(0, -28, 28, o);
+      return q;
+    },
+    /* the skill's parts.team: two behind, the middle one in front */
+    team(p, x, y, sc = 1, {tone, back} = {}) {
+      SK.bust(p, x - 72 * sc, y + 14 * sc, .8 * sc, {op: back}); SK.bust(p, x + 72 * sc, y + 14 * sc, .8 * sc, {op: back});
+      SK.bust(p, x, y, sc, {tone});
+    },
+    /* the skill's parts.hand: a pointing hand, fingertip at (x, y - 64·sc) */
+    hand(p, x, y, sc = 1, o = {}) {
+      const q = p.child({transform: `translate(${x} ${y}) scale(${sc})`}, sc);
+      q.rect(-8, 48, 56, 24, Object.assign({rx: 5, fill: true}, o));
+      q.path(`M -10 -10 L -10 -54 A 10 10 0 0 1 10 -54 L 10 -18 A 8 8 0 0 1 26 -18 L 26 -14 A 8 8 0 0 1 42 -14 L 42 -8 A 7.5 7.5 0 0 1 57 -8
+        L 57 22 Q 57 46 40 50 L 2 50 Q -20 46 -26 30 L -38 8 A 8 8 0 0 1 -24 0 L -10 14 Z`, Object.assign({fill: true}, o));
+      q.line(26, -14, 26, -2, {sw: 2}); q.line(42, -8, 42, 2, {sw: 2});
+      return q;
+    },
+    /* the skill's parts.bulb (rays on): the bulb's middle at (x, y) */
+    bulb(p, x, y, sc = 1, {tone} = {}) {
+      const q = p.child({transform: `translate(${x} ${y}) scale(${sc})`}, sc);
+      q.path('M -22 40 C -22 18, -50 4, -50 -24 A 50 50 0 1 1 50 -24 C 50 4, 22 18, 22 40 Z', {fill: true, tone});
+      q.poly([[-12, 40], [-12, 8], [-6, -2], [0, 8], [6, -2], [12, 8], [12, 40]], {sw: 2.2, fill: 'none', stroke: tone === 'acc' ? LP.C.edge : undefined});
+      q.line(-20, 50, 20, 50); q.line(-18, 60, 18, 60); q.path('M -10 68 Q 0 76 10 68');
+      [-180, -150, -120, -90, -60, -30, 0].forEach(deg => { const a = deg * Math.PI / 180; q.line(Math.cos(a) * 68, -24 + Math.sin(a) * 68, Math.cos(a) * 88, -24 + Math.sin(a) * 88, {sw: 3, tone, fill: 'none'}); });
+      return q;
+    },
+    /* the skill's parts.bubble; tail 'down' (the skill's, under the left or right quarter) or 'left' / 'right' (out of the side,
+       low, for a speaker beside the bubble) */
+    bubble(p, x, y, w, h, {tail = 'down', flip = false, tone, sw = 2.6} = {}) {
+      const l = x - w / 2, t = y - h / 2, r = x + w / 2, b = y + h / 2, rad = Math.min(18, h / 3);
+      let d;
+      if (tail === 'down') { const tx = flip ? r - w * .25 : l + w * .25, s = flip ? 1 : -1;
+        d = `M ${l + rad} ${t} H ${r - rad} Q ${r} ${t} ${r} ${t + rad} V ${b - rad} Q ${r} ${b} ${r - rad} ${b} H ${tx + 10} L ${tx + s * 8} ${b + 18} L ${tx - 6} ${b} H ${l + rad} Q ${l} ${b} ${l} ${b - rad} V ${t + rad} Q ${l} ${t} ${l + rad} ${t} Z`; }
+      else if (tail === 'left') { const ty = b - rad - 10;
+        d = `M ${l + rad} ${t} H ${r - rad} Q ${r} ${t} ${r} ${t + rad} V ${b - rad} Q ${r} ${b} ${r - rad} ${b} H ${l + rad} Q ${l} ${b} ${l} ${b - rad} V ${ty + 10} L ${l - 24} ${ty + 16} L ${l} ${ty - 10} V ${t + rad} Q ${l} ${t} ${l + rad} ${t} Z`; }
+      else { const ty = b - rad - 10;
+        d = `M ${l + rad} ${t} H ${r - rad} Q ${r} ${t} ${r} ${t + rad} V ${ty - 10} L ${r + 24} ${ty + 16} L ${r} ${ty + 10} V ${b - rad} Q ${r} ${b} ${r - rad} ${b} H ${l + rad} Q ${l} ${b} ${l} ${b - rad} V ${t + rad} Q ${l} ${t} ${l + rad} ${t} Z`; }
+      return p.path(d, {fill: true, sw, tone});
+    },
+    /* the skill's parts.connect: a curved arrow, the head along the curve's end direction */
+    connect(p, x1, y1, x2, y2, {bend = 0, head = 13, sw = 2.6, tone = 'soft'} = {}) {
+      const L = Math.hypot(x2 - x1, y2 - y1), mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      const cx = mx - (y2 - y1) / L * bend * L, cy = my + (x2 - x1) / L * bend * L, a = Math.atan2(y2 - cy, x2 - cx);
+      p.path(`M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`, {sw, tone});
+      p.poly([[x2 - Math.cos(a - .5) * head, y2 - Math.sin(a - .5) * head], [x2, y2], [x2 - Math.cos(a + .5) * head, y2 - Math.sin(a + .5) * head]], {sw, tone});
+    },
+    check(p, x, y, s = 1, o = {}) { p.poly([[x - 60 * s, y], [x - 20 * s, y + 42 * s], [x + 66 * s, y - 52 * s]], Object.assign({sw: 6}, o)); },
+    cross(p, x, y, s = 1) { p.line(x - 40 * s, y - 40 * s, x + 40 * s, y + 40 * s, {sw: 6, tone: 'neg'}); p.line(x + 40 * s, y - 40 * s, x - 40 * s, y + 40 * s, {sw: 6, tone: 'neg'}); },
   };
+  return SK;
 })();
+const iso = (X, Y, Z) => [(X - Z) * .866, (X + Z) * .5 - Y];
 
 /* ================= B10 คน: who? {icon, label?}, label?, tags? [≤2] ================= */
-/* 1 · the one this is for raises a hand and lights up; the kind of person under it */
+/* 1 · the one this is for raises a hand (the skill's wave pictogram, in the accent) */
 R3.both('B10', 'raise', 'คนที่ใช่ยกมือ', (K, s, T, g, small) => {
   const {p} = LP.layer(g, small);
-  HU.person(p, {x: 300, y: 272, h: 254, pose: 'wave', tone: 'acc'});
+  SK.person(p, {x: 300, y: 266, h: 250, pose: 'wave', tone: 'acc'});
   const w = s.label ?? s.who?.label; if (w) LP.word(K, g, w, 300, 280, 36, 340);
 });
 
+/* 2 · a target sight closes in on one person: the person inside the ring, the four ticks outside it */
+R3.both('B10', 'aim', 'วงเล็งเป้าล็อกที่คนหนึ่งคน', (K, s, T, g, small) => {
+  const {p} = LP.layer(g, small), X = 300, Y = 136, R = 112;
+  p.circle(X, Y, R - 13, {sw: 1.6, tone: 'soft'});
+  SK.person(p, {x: X, y: Y + 96, h: 192, tone: 'acc'});
+  p.circle(X, Y, R, {sw: 4, tone: 'acc', fill: 'none'});
+  [[0, -1], [0, 1], [-1, 0], [1, 0]].forEach(([dx, dy]) => p.line(X + dx * (R + 6), Y + dy * (R + 6), X + dx * (R + 26), Y + dy * (R + 26), {sw: 4, tone: 'acc', fill: 'none'}));
+  const w = s.label ?? s.who?.label; if (w) LP.word(K, g, w, 300, 284, 34, 340);
+});
+
 /* ================= B13 เคล็ดลับ: secret {icon, label?} ================= */
-/* 3 · a secret file with a padlock on the cover: the paper with the tip slides up out of it */
+/* 3 · a secret folder with a padlock on the front: the paper with the tip slides up out of it */
 R3.both('B13', 'dossier', 'แฟ้มลับ กระดาษเคล็ดลับเลื่อนออกมา', (K, s, T, g, small) => {
   const it = s.secret ?? {icon: 'lightbulb'}, back = LP.layer(g, small).p;
-  back.path('M 84 72 Q 84 60 96 60 L 210 60 Q 216 60 220 65 L 234 82 L 504 82 Q 516 82 516 94 L 516 320 Q 516 332 504 332 L 96 332 Q 84 332 84 320 Z', {fill: 'shade'});
-  back.rect(136, 14, 328, 250, {rx: 3, fill: true}); back.line(156, 150, 444, 150, {sw: 1.4, tone: 'soft'}); back.line(156, 172, 380, 172, {sw: 1.4, tone: 'soft'});
-  back.path('M 168 6 L 168 46 Q 168 54 176 54 Q 184 54 184 46 L 184 14 Q 184 10 180 10 Q 176 10 176 14 L 176 40', {sw: 2});
-  LP.ico(g, it.icon, 300, 56, 50); if (it.label) LP.word(K, g, it.label, 300, 86, 40, 290);
+  back.path('M 84 76 Q 84 62 98 62 L 206 62 Q 214 62 218 68 L 230 84 L 502 84 Q 516 84 516 98 L 516 318 Q 516 332 502 332 L 98 332 Q 84 332 84 318 Z', {fill: true});
+  back.rect(136, 16, 328, 250, {rx: 8, fill: true}); back.line(164, 152, 436, 152, {sw: 1.6, tone: 'soft'}); back.line(164, 174, 380, 174, {sw: 1.6, tone: 'soft'});
+  LP.ico(g, it.icon, 300, 58, 50); if (it.label) LP.word(K, g, it.label, 300, 88, 40, 290);
   const fr = LP.layer(g, small).p;
-  fr.path('M 96 188 L 504 168 Q 516 168 516 180 L 516 320 Q 516 332 504 332 L 96 332 Q 84 332 84 320 L 84 200 Q 84 188 96 188 Z', {fill: 'shade'});
-  fr.line(94, 196, 506, 176, {sw: 1.4, tone: 'soft'});
-  /* the padlock: a thick shackle, a shaded body, the keyhole */
-  fr.path('M 280 252 L 280 236 Q 280 214 300 214 Q 320 214 320 236 L 320 252', {sw: 12}); fr.path('M 280 252 L 280 236 Q 280 214 300 214 Q 320 214 320 236 L 320 252', {sw: 6, stroke: 'var(--lp-fill)'});
-  fr.rect(268, 248, 64, 52, {rx: 8, fill: 'shade', sw: 3}); fr.circle(300, 268, 6, {sw: 2}); fr.line(300, 274, 300, 286, {sw: 3});
+  fr.path('M 98 190 L 502 172 Q 516 172 516 186 L 516 318 Q 516 332 502 332 L 98 332 Q 84 332 84 318 L 84 204 Q 84 190 98 190 Z', {fill: true});
+  /* the padlock: shackle, body, keyhole */
+  fr.path('M 282 250 L 282 236 Q 282 216 300 216 Q 318 216 318 236 L 318 250', {sw: 5});
+  fr.rect(266, 246, 68, 54, {rx: 10, fill: true}); fr.circle(300, 266, 6, {sw: 2}); fr.line(300, 272, 300, 284, {sw: 2.6});
+});
+
+/* 4 · a light bulb (the skill's) lights up over a person (the skill's bust): the tip beside it */
+R3.both('B13', 'idea', 'หลอดไฟติดเหนือหัวคน ได้เคล็ดลับ', (K, s, T, g, small) => {
+  const it = s.secret ?? {icon: 'lightbulb'}, {p} = LP.layer(g, small), X = 200;
+  SK.bust(p, X, 276, 1.15);
+  SK.bulb(p, X, 102, .95, {tone: 'acc'});
+  if (it.icon) LP.ico(g, it.icon, 430, it.label ? 104 : 150, 56);
+  if (it.label) LP.word(K, g, it.label, 430, 140, 38, 220);
 });
 
 /* ================= B20 ความสัมพันธ์: a {icon, label?}, b {icon, label?}, label?, cut? ================= */
-/* 5 · two people turn to face each other; the link under them. When it is over they stand back to back */
+/* 5 · two people (pictograms seen from the side) face each other; when it is over they stand back to back */
 R3.both('B20', 'face', 'สองคนหันหน้าเข้าหากัน (จบกัน = หันหลังให้กัน)', (K, s, T, g, small) => {
-  const a = s.a ?? {icon: 'user'}, b = s.b ?? {icon: 'user'}, cut = !!s.cut, G = 280, H = 266, {p} = LP.layer(g, small);
-  const one = (it, x, face) => { if (S11.human(it.icon)) HU.person(p, {x, y: G, h: H, pose: 'side', face});
-    else { p.rect(x - 76, G - 200, 152, 200, {rx: 10, fill: 'shade'}); LP.ico(g, it.icon, x, G - 100, 80); } };
+  const a = s.a ?? {icon: 'user'}, b = s.b ?? {icon: 'user'}, cut = !!s.cut, G = 268, {p} = LP.layer(g, small);
+  const one = (it, x, face) => { if (S11.human(it.icon)) SK.person(p, {x, y: G, h: 250, pose: 'side', face});
+    else { p.rect(x - 72, G - 196, 144, 196, {rx: 14, fill: true}); LP.ico(g, it.icon, x, G - 98, 80); } };
   one(a, 222, cut ? -1 : 1); one(b, 378, cut ? 1 : -1);
-  if (cut) LP.parts.cross(p, 300, 150, .36);
-  if (s.label) LP.word(K, g, s.label, 300, 286, 34, 320);
+  if (cut) SK.cross(p, 300, 140, .32);
+  if (s.label) LP.word(K, g, s.label, 300, 282, 34, 320);
 });
 
-/* 6 · two hands meet in a handshake on the key word; when it is over they let go */
+/* 6 · a handshake: two sleeves with a cuff each, the right hand's fingers over the left hand, the left thumb over them.
+   When it is over the hands are apart */
 R3.both('B20', 'shake', 'มือสองข้างจับมือกัน (จบกัน = ปล่อยมือ)', (K, s, T, g, small) => {
-  const cut = !!s.cut, d = cut ? 42 : 0, {p} = LP.layer(g, small);
-  const q = p.child({transform: 'translate(300 140) scale(1.12)'}, 1.12), box = [-200, -60, 200, 60];
-  const L = q.child({transform: `translate(${-d} 0)`}), R = q.child({transform: `translate(${d} 0)`});
-  /* the left person's arm: sleeve, cuff, palm (behind the right hand's fingers) */
-  L.figure([{d: 'M -300 -40 L -132 -36 L -132 38 L -300 42 Z'}], {box, details: ['M -290 -16 L -150 -14', 'M -250 20 L -160 22']});
-  L.figure([{d: 'M -138 -44 L -108 -46 L -108 46 L -138 44 Z'}], {tone: 'acc', box, details: ['M -128 -40 L -128 40']});
-  L.figure([{d: 'M -110 -36 Q -70 -42 -30 -36 L -6 -30 Q 8 -24 8 -10 L 6 24 Q 2 38 -16 38 L -110 34 Z'}], {box});
-  /* the right person's arm and palm */
-  R.figure([{d: 'M 300 -42 L 132 -38 L 132 36 L 300 40 Z'}], {box, details: ['M 290 -18 L 150 -16', 'M 250 18 L 160 20']});
-  R.figure([{d: 'M 138 -46 L 108 -44 L 108 44 L 138 46 Z'}], {tone: 'acc', box, details: ['M 128 -40 L 128 40']});
-  R.figure([{d: 'M 110 -38 L 40 -36 Q 14 -34 10 -16 L 10 20 Q 14 36 40 38 L 110 36 Z'}], {box});
-  /* the right hand's four fingers wrap over the left palm (in front); the left thumb lies over the right hand */
-  R.figure([0, 1, 2, 3].map(k => ({d: `M 30 ${-22 + k * 15} L ${-62 + k * 6} ${-20 + k * 15.5}`, w: 14})), {box, details: [0, 1, 2].map(k => `M ${-56 + k * 6} ${-12.5 + k * 15.5} L 22 ${-14.5 + k * 15}`)});
-  L.figure([{d: 'M -84 -34 Q -54 -58 -12 -52 L 22 -46', w: 17}], {box, details: ['M 8 -52 Q 16 -50 18 -44']});
-  if (s.label) LP.word(K, g, s.label, 300, 280, 36, 320);
+  const cut = !!s.cut, d = cut ? 46 : 0, {p} = LP.layer(g, small), Y = 140;
+  const L = p.child({transform: `translate(${-d} 0)`}), R = p.child({transform: `translate(${d} 0)`});
+  L.rect(-20, Y - 34, 196, 68, {rx: 16, fill: true}); L.rect(166, Y - 40, 26, 80, {rx: 8, fill: true, tone: 'acc'});
+  L.rect(178, Y - 30, 120, 62, {rx: 26, fill: true});                                   // the left palm (behind)
+  R.rect(424, Y - 34, 196, 68, {rx: 16, fill: true}); R.rect(408, Y - 40, 26, 80, {rx: 8, fill: true, tone: 'acc'});
+  /* the right hand's four fingers come out of its palm and wrap over the left palm (finger capsules, like the skill's hand) */
+  [Y - 24, Y - 8, Y + 8, Y + 24].forEach((y, k) => SK.capsule(R, 330, y, 236 + k * 6, y + 2, 8));
+  R.rect(300, Y - 36, 122, 72, {rx: 30, fill: true});                                   // the right palm, over the finger roots
+  SK.capsule(p.child({transform: `translate(${-d} 0)`}), 214, Y - 26, 300, Y - 40, 9);   // the left thumb over them
 });
 
 /* ================= B21 สถานที่: place {icon, label?}, spots? [1-2 {icon, label?}] ================= */
-/* 7 · a big road sign on two posts slides in as if driving past, and stops: the name of the place */
+/* 7 · a big road sign on two posts: the name of the place */
 R3.both('B21', 'roadsign', 'ป้ายริมทางบนเสาสองต้น บอกชื่อที่', (K, s, T, g, small) => {
   const pl = s.place ?? {icon: 'map-pin'}, {p} = LP.layer(g, small);
-  [150, 426].forEach(x => { p.rect(x, 166, 24, 158, {rx: 3, fill: 'shade'}); p.line(x + 7, 176, x + 7, 314, {sw: 1.4, tone: 'soft'}); p.rect(x - 10, 318, 44, 16, {rx: 3, fill: 'shade'}); });
-  p.rect(60, 14, 480, 168, {rx: 14, fill: 'shade', tone: 'acc'}); p.rect(74, 28, 452, 140, {rx: 8, tone: 'acc', fill: 'none', sw: 2.4});
-  [[86, 40], [514, 40], [86, 156], [514, 156]].forEach(([x, y]) => p.circle(x, y, 4, {tone: 'acc', fill: 'none', sw: 1.6}));
+  [150, 426].forEach(x => { p.rect(x, 166, 24, 156, {rx: 6, fill: true}); p.rect(x - 10, 318, 44, 16, {rx: 5, fill: true}); });
+  p.rect(60, 14, 480, 168, {rx: 16, fill: true, tone: 'acc'}); p.rect(74, 28, 452, 140, {rx: 10, tone: 'acc', fill: 'none', sw: 1.8});
+  [[88, 42], [512, 42], [88, 154], [512, 154]].forEach(([x, y]) => p.circle(x, y, 4, {tone: 'acc', fill: 'none', sw: 1.6}));
   LP.ico(g, pl.icon, 300, 62, 56, true);
   if (pl.label) LP.word(K, g, pl.label, 300, 94, 48, 420, true);
 });
 
+/* 8 · a map pin stands on a building: here */
+R3.both('B21', 'building', 'หมุดปักลงบนตึก', (K, s, T, g, small) => {
+  const pl = s.place ?? {icon: 'map-pin'}, {p} = LP.layer(g, small);
+  p.line(110, 282, 490, 282, {sw: 2, tone: 'soft'});
+  p.rect(196, 136, 208, 146, {rx: 6, fill: true}); p.rect(188, 126, 224, 14, {rx: 5, fill: true});
+  [0, 1, 2].forEach(r => [0, 1, 2].forEach(c => { if (r === 2 && c === 1) return; p.rect(218 + c * 62, 154 + r * 40, 40, 24, {rx: 4, sw: 1.8, tone: 'soft'}); }));
+  p.rect(282, 234, 36, 48, {rx: 5, fill: true, sw: 2.2}); p.dot(310, 260, 2.6);
+  p.path('M 300 124 C 290 104 252 84 252 50 A 48 48 0 1 1 348 50 C 348 84 310 104 300 124 Z', {fill: true, tone: 'acc'});
+  p.circle(300, 48, 30, {fill: true, sw: 2.2});
+  LP.ico(g, pl.icon, 300, 48, 34);
+  if (pl.label) LP.word(K, g, pl.label, 300, 288, 34, 360);
+});
+
+/* ================= B12 เหตุกับผล: items [3 {icon, label?, tone?}] ================= */
+/* 9 · three things in a row; an arrow (the skill's connect) from each to the next, and the last (the effect) lights up */
+R3.both('B12', 'flow', 'สามไอคอน ลูกศรวาดต่อกันจากเหตุไปผล', (K, s, T, g, small) => {
+  const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg', {p} = LP.layer(g, small), xs = [104, 300, 496], Y = 128, R = 56;
+  [0, 1].forEach(k => SK.connect(p, xs[k] + R + 10, Y - 12, xs[k + 1] - R - 10, Y - 12, {bend: -.32, sw: 2.6}));
+  xs.forEach((x, k) => {
+    const last = k === 2, on = last && !neg;
+    p.circle(x, Y, R, {fill: true, tone: on ? 'acc' : undefined}); p.circle(x, Y, R - 10, {sw: 1.6, tone: on ? 'acc' : 'soft', fill: 'none'});
+    if (last && neg) p.circle(x, Y, R, {tone: 'neg', sw: 3.4});
+    if (it[k]) LP.ico(g, it[k].icon, x, Y, 46, on);
+    if (it[k]?.label) { const w = LP.word(K, g, it[k].label, x, Y + R + 16, 26, 170); if (last && neg) w.style.color = 'var(--lp-neg)'; }
+  });
+});
+
+/* 10 · a chain of three links; the last link (the effect) is lit. Each link passes in front of the next at the bottom */
+R3.both('B12', 'chain', 'โซ่สามข้อ ข้อสุดท้ายติดสี', (K, s, T, g, small) => {
+  const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg', {p} = LP.layer(g, small), xs = [146, 300, 454], Y = 140, W = 186, H = 112, T0 = 26;
+  const d = x => `M ${x - W / 2 + H / 2} ${Y - H / 2} L ${x + W / 2 - H / 2} ${Y - H / 2} A ${H / 2} ${H / 2} 0 0 1 ${x + W / 2 - H / 2} ${Y + H / 2} L ${x - W / 2 + H / 2} ${Y + H / 2} A ${H / 2} ${H / 2} 0 0 1 ${x - W / 2 + H / 2} ${Y - H / 2} Z`;
+  /* each link is drawn whole; the next one goes over it at the top but is hidden along this link's outline at the bottom,
+     so the links read as hooked together and nothing is drawn twice (no seam) */
+  xs.forEach((x, k) => (k === 0 ? p : p.masked(d(xs[k - 1]), T0 + 6 * p.k, xs[k - 1], Y, W, H)).tube(d(x), T0, {tone: k === 2 && !neg ? 'acc' : undefined}));
+  xs.forEach((x, k) => { if (it[k]) { const i = LP.ico(g, it[k].icon, x, Y, 36); if (k === 2) i.style.color = neg ? 'var(--lp-neg)' : 'var(--lp-acc-line)'; }
+    if (it[k]?.label) { const w = LP.word(K, g, it[k].label, x, Y + H / 2 + 24, 26, 150); if (k === 2 && neg) w.style.color = 'var(--lp-neg)'; } });
+});
+
+/* ================= B05 ถูกกับผิด: wrong {icon, label?}, right {icon, label?} ================= */
+/* 11 · a no-entry sign is stamped on the wrong one; the right one gets its tick */
+R3.both('B05', 'nosign', 'ป้ายห้ามประทับบนข้อผิด ข้อถูกได้เครื่องหมายถูก', (K, s, T, g, small) => {
+  const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'}, {p} = LP.layer(g, small);
+  p.rect(70, 40, 190, 190, {rx: 22, fill: true}); p.rect(84, 54, 162, 162, {rx: 14, sw: 1.6, tone: 'soft'});
+  p.rect(340, 40, 190, 190, {rx: 22, fill: true, tone: 'acc'}); p.rect(354, 54, 162, 162, {rx: 14, sw: 1.6, tone: 'acc', fill: 'none', op: .6});
+  LP.ico(g, w.icon, 165, 135, 84); LP.ico(g, r.icon, 435, 135, 84, true);
+  const ns = LP.layer(g, small).p; ns.circle(165, 135, 80, {sw: 7, tone: 'neg'}); ns.line(108, 78, 222, 192, {sw: 7, tone: 'neg'});
+  ns.circle(522, 48, 30, {fill: true, sw: 3}); SK.check(ns, 522, 50, .26, {sw: 5});
+  if (w.label) { const e = LP.word(K, g, w.label, 165, 252, 32, 220); e.style.opacity = .7; }
+  if (r.label) LP.word(K, g, r.label, 435, 252, 32, 220);
+});
+
+/* 12 · a hand (the skill's) points at the right one; the wrong one fades */
+R3.both('B05', 'point', 'มือชี้ไปที่ข้อถูก ข้อผิดจางลง', (K, s, T, g, small) => {
+  const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'}, {p} = LP.layer(g, small);
+  const wq = p.child(); wq.g.style.opacity = .38;
+  wq.rect(56, 30, 176, 150, {rx: 20, fill: true}); LP.ico(g, w.icon, 144, 92, 66).style.opacity = .38;
+  if (w.label) LP.word(K, g, w.label, 144, 128, 28, 150).style.opacity = .38;
+  p.rect(300, 30, 176, 150, {rx: 20, fill: true, tone: 'acc'}); LP.ico(g, r.icon, 388, 92, 66, true);
+  if (r.label) LP.word(K, g, r.label, 388, 128, 28, 150, true);
+  SK.hand(LP.layer(g, small).p, 388, 262, 1.12);
+});
+
+/* ================= B11 คำพูด: quote, kind, mood, react? ================= */
+/* 13 · a person (the skill's bust) speaks; what was said is in a speech bubble whose tail points at the head */
+R3.both('B11', 'speak', 'คนพูด ฟองคำพูดเด้งออกมา', (K, s, T, g, small) => {
+  const q = s.quote ?? '', bad = s.mood === 'bad', {p} = LP.layer(g, small);
+  SK.bust(p, 140, 254, 1.38);
+  SK.bubble(p, 404, 112, 280, 150, {tail: 'left', sw: 3});
+  if (q) LP.word(K, g, q, 404, 82, 44, 230);
+  if (s.react) { p.circle(532, 180, 26, {fill: true, tone: bad ? 'neg' : 'acc', sw: 2.4}); LP.ico(g, s.react, 532, 180, 28, !bad); }
+});
+
+/* 14 · a chat: a bubble from one side (dots of text), then the answer (the words said) from the other side */
+R3.both('B11', 'chat', 'ฟองแชตสองฝั่งโต้ตอบกัน', (K, s, T, g, small) => {
+  const q = s.quote ?? '', bad = s.mood === 'bad', {p} = LP.layer(g, small);
+  SK.bust(p, 62, 118, .56); SK.bust(p, 538, 286, .56, {tone: 'acc'});
+  SK.bubble(p, 232, 78, 236, 104, {tail: 'left'});
+  [62, 84].forEach((y, k) => p.line(140, y, k ? 280 : 316, y, {sw: 2.2, tone: 'soft'})); p.line(140, 106, 220, 106, {sw: 2.2, tone: 'soft'});
+  SK.bubble(p, 352, 246, 264, 112, {tail: 'right', tone: 'acc'});
+  if (q) LP.word(K, g, q, 352, 220, 42, 230, true);
+  if (s.react) { p.circle(222, 294, 24, {fill: true, tone: bad ? 'neg' : undefined, sw: 2.4}); LP.ico(g, s.react, 222, 294, 26); }
+});
+
 /* ================= B01 ตัวเลขเด่น: value, unit?, icon?, dir?, money? ================= */
-/* 15 · a price tag hangs on its string, swings and comes to rest: the amount on it (money only) */
+/* 15 · a price tag hangs on its string (threaded through the hole), swings and comes to rest: the amount (money only) */
 R3.both('B01', 'pricetag', 'ป้ายราคาแขวน แกว่งแล้วหยุด', (K, s, T, g, small) => {
   const {p} = LP.layer(g, small);
-  const tg = p.child({transform: 'rotate(-6 300 74)'});
-  tg.path('M 278 44 Q 300 30 322 44 L 436 108 Q 448 116 448 130 L 448 318 Q 448 334 432 334 L 168 334 Q 152 334 152 318 L 152 130 Q 152 116 164 108 Z', {fill: 'shade'});
-  tg.path('M 280 56 Q 300 44 320 56 L 428 116 Q 436 122 436 132 L 436 312 Q 436 322 426 322 L 174 322 Q 164 322 164 312 L 164 132 Q 164 122 172 116 Z', {sw: 1.4, tone: 'soft'});
-  tg.circle(300, 76, 15, {fill: 'shade', sw: 2.6}); tg.circle(300, 76, 8, {fill: true, sw: 2});
-  p.path('M 300 -10 C 290 20 316 46 306 70 C 300 82 290 80 292 72', {sw: 2.4});
-  const hold = R6.group(g); hold.style.transformOrigin = '300px 74px'; hold.style.transform = 'rotate(-6deg)';
+  p.path('M 300 76 C 316 60 318 30 312 -10', {sw: 2.2});                         // the string going back up behind the tag
+  const tg = p.child({transform: 'rotate(-6 300 76)'});
+  tg.path('M 280 42 Q 300 30 320 42 L 434 106 Q 448 114 448 130 L 448 318 Q 448 334 432 334 L 168 334 Q 152 334 152 318 L 152 130 Q 152 114 166 106 Z', {fill: true});
+  tg.path('M 282 56 Q 300 46 318 56 L 426 116 Q 436 122 436 134 L 436 310 Q 436 322 424 322 L 176 322 Q 164 322 164 310 L 164 134 Q 164 122 174 116 Z', {sw: 1.6, tone: 'soft'});
+  tg.circle(300, 76, 12, {sw: 2.6});
+  p.path('M 290 -10 C 284 24 296 50 300 76', {sw: 2.2});                         // the string coming down into the hole
+  const hold = R6.group(g); hold.style.transformOrigin = '300px 76px'; hold.style.transform = 'rotate(-6deg)';
   const n = div('left:152px;top:128px;width:296px;text-align:center', hold, `<span class="u-num lp-t" style="font-size:92px">${s.value}</span>`);
   FITS.push(() => { const sp = n.firstChild; if (sp.offsetWidth > 260) sp.style.fontSize = (92 * 260 / sp.offsetWidth).toFixed(1) + 'px'; });
   if (s.unit) LP.word(K, hold, s.unit, 300, 236, 34, 240);
 }, R2.money);
 
-/* 16 · a wallet opens and the banknotes slide up out of it: the amount is on the top note (money only) */
+/* 16 · a wallet (the skill's: a rounded body + an inner line) is open and the banknotes stand up out of it: the amount on the top note */
 R3.both('B01', 'wallet', 'กระเป๋าสตางค์เปิด ธนบัตรเลื่อนออก มีจำนวนเงิน', (K, s, T, g, small) => {
   const bk = LP.layer(g, small).p;
-  bk.path('M 104 168 L 104 150 Q 104 138 116 138 L 484 138 Q 496 138 496 150 L 496 168', {fill: 'shade'});
   const note = (rot, dy, top) => { const q = bk.child({transform: `rotate(${rot} 300 230)`});
-    q.rect(128, 18 + dy, 344, 168, {rx: 6, fill: 'shade'}); q.rect(138, 28 + dy, 324, 148, {rx: 4, sw: 1.4, tone: 'soft'});
-    q.circle(156, 46 + dy, 7, {sw: 1.4, tone: 'soft'}); q.circle(444, 158 + dy, 7, {sw: 1.4, tone: 'soft'});
-    if (!top) q.line(170, 60 + dy, 260, 60 + dy, {sw: 1.4, tone: 'soft'}); };
-  note(-9, 18, false); note(-4, 8, false); note(0, 0, true);
-  const n = div('left:128px;top:34px;width:344px;text-align:center', g, `<span class="u-num lp-t" style="font-size:76px">${s.value}</span>`);
-  FITS.push(() => { const sp = n.firstChild; if (sp.offsetWidth > 290) sp.style.fontSize = (76 * 290 / sp.offsetWidth).toFixed(1) + 'px'; });
-  if (s.unit) LP.word(K, g, s.unit, 300, 118, 30, 260);
+    q.rect(128, 14 + dy, 344, 168, {rx: 8, fill: true}); q.rect(140, 26 + dy, 320, 144, {rx: 5, sw: 1.6, tone: 'soft'});
+    if (!top) q.circle(158, 46 + dy, 8, {sw: 1.6, tone: 'soft'}); };
+  note(-8, 16, false); note(-4, 8, false); note(0, 0, true);
+  const n = div('left:128px;top:26px;width:344px;text-align:center', g, `<span class="u-num lp-t" style="font-size:74px">${s.value}</span>`);
+  FITS.push(() => { const sp = n.firstChild; if (sp.offsetWidth > 290) sp.style.fontSize = (74 * 290 / sp.offsetWidth).toFixed(1) + 'px'; });
+  if (s.unit) LP.word(K, g, s.unit, 300, 106, 28, 260);
   const {p} = LP.layer(g, small);
-  p.rect(92, 152, 416, 182, {rx: 18, fill: 'shade'});
-  p.line(100, 160, 500, 160, {sw: 1.4, tone: 'soft'});
-  p.rect(106, 172, 388, 148, {rx: 10, sw: 1.4, tone: 'soft', dash: [6, 6]});
-  p.path('M 110 186 Q 104 196 104 222', {sw: 2, op: .7});
-  p.path('M 410 206 L 506 206 Q 534 206 534 246 Q 534 286 506 286 L 410 286 Z', {fill: 'shade'});
-  p.path('M 420 216 L 504 216 Q 524 216 524 246 Q 524 276 504 276 L 420 276', {sw: 1.4, tone: 'soft', dash: [6, 6]});
-  p.circle(492, 246, 17, {fill: 'shade', sw: 2.6}); p.circle(492, 246, 8, {sw: 1.6, tone: 'soft'}); p.dot(487, 241, 2.5, {op: .8});
+  p.rect(92, 160, 416, 174, {rx: 22, fill: true}); p.rect(104, 172, 392, 150, {rx: 14, sw: 1.6, tone: 'soft'});
+  p.path('M 412 210 L 508 210 Q 534 210 534 248 Q 534 286 508 286 L 412 286 Z', {fill: true});
+  p.circle(494, 248, 15, {fill: true, sw: 2.6});
 }, R2.money);
 
 /* ================= B02 เพิ่ม / ลด: dir, item, center?, n?, keep?, end? ================= */
-/* 17 · a group of people: more people join behind the first one (up), or they leave until one is left (down). People only */
+/* 17 · a group of people (the skill's team): all three when it goes up (the front one lit), the two behind faded when it
+   goes down. People only */
 R3.both('B02', 'team', 'กลุ่มคน คนมาเพิ่มหรือหายไป', (K, s, T, g, small) => {
   const up = s.dir !== 'down', {p} = LP.layer(g, small);
-  HU.bust(p, {x: 176, y: 286, size: 236, op: up ? null : .16}); HU.bust(p, {x: 424, y: 286, size: 236, op: up ? null : .16});
-  HU.bust(p, {x: 300, y: 334, size: 300, tone: up ? 'acc' : undefined});
+  SK.team(p, 300, 196, 2.25, {tone: up ? 'acc' : undefined, back: up ? null : .16});
 }, s => S11.human(s.item?.icon));
 
-/* 18 · cardboard boxes stack up one on another (up), or are taken off until one is left (down) */
+/* 18 · cardboard boxes (iso, as the skill allows for stacks) stack up (up), or are taken off until one is left (down) */
 R3.both('B02', 'boxes', 'กล่องซ้อนสูงขึ้น หรือถูกหยิบออกทีละกล่อง', (K, s, T, g, small) => {
-  const up = s.dir !== 'down', it = s.item ?? {icon: 'package'}, {p} = LP.layer(g, small), H = 96, Wd = 132;
+  const up = s.dir !== 'down', it = s.item ?? {icon: 'package'}, {p} = LP.layer(g, small), H = 80, Wd = 112;
   [0, 1, 2].forEach(k => {
-    const on = up || k === 0, top = up && k === 2, before = p.g.childNodes.length, y = 334 - k * H;
-    const P = (X, Y, Z) => { const [a, b] = LP.iso(X, Y, Z); return [300 + a, y + b]; }, hw = Wd / 2;
-    p.shape([P(-hw, 0, hw), P(hw, 0, hw), P(hw, H, hw), P(-hw, H, hw)], {fill: 'shade'});
+    const on = up || k === 0, top = up && k === 2, before = p.g.childNodes.length, y = 290 - k * H;
+    const P = (X, Y, Z) => { const [a, b] = iso(X, Y, Z); return [300 + a, y + b]; }, hw = Wd / 2;
+    p.shape([P(-hw, 0, hw), P(hw, 0, hw), P(hw, H, hw), P(-hw, H, hw)], {fill: true});
     p.shape([P(hw, 0, hw), P(hw, 0, -hw), P(hw, H, -hw), P(hw, H, hw)], {fill: true});
-    p.shape([P(-hw, H, -hw), P(hw, H, -hw), P(hw, H, hw), P(-hw, H, hw)], {fill: 'shade', tone: top ? 'acc' : undefined});
-    p.poly([P(0, H, -hw), P(0, H, hw), P(0, H * .6, hw)], {sw: 6, tone: top ? 'acc' : 'soft', op: top ? 1 : .55});
-    p.poly([P(-hw, H * .9, hw), P(hw, H * .9, hw)], {sw: 1.2, tone: 'soft'});
+    p.shape([P(-hw, H, -hw), P(hw, H, -hw), P(hw, H, hw), P(-hw, H, hw)], {fill: true, tone: top ? 'acc' : undefined});
+    p.poly([P(0, H, -hw), P(0, H, hw), P(0, H * .62, hw)], {sw: 2.2, fill: 'none', tone: top ? 'acc' : 'soft'});
     if (!on) [...p.g.childNodes].slice(before).forEach(e => { e.style.opacity = .16; e.style.strokeDasharray = '6 7'; });
-    else { const c = P(-hw * .45, H * .42, hw); LP.ico(g, it.icon, c[0], c[1], 30); }
+    else { const c = P(-hw * .5, H * .4, hw); LP.ico(g, it.icon, c[0], c[1], 28); }
   });
 });
 
 /* ================= B14 ประโยคเด็ด: idea {icon?, label} ================= */
-/* 19 · an open book; a highlighter runs along one line and the line it marks is the punchline */
+/* 19 · an open book; a highlighter has just marked one line, and the line it marks is the punchline */
 R3.both('B14', 'highlight', 'ปากกาไฮไลต์ขีดประโยคในหนังสือ', (K, s, T, g, small) => {
   const it = s.idea ?? {icon: 'quote'}, {p} = LP.layer(g, small);
-  p.path('M 300 44 Q 168 18 40 40 L 40 334 Q 168 312 300 340 Q 432 312 560 334 L 560 40 Q 432 18 300 44 Z', {fill: 'shade'});
-  [6, 12].forEach(d => { p.path(`M ${40 + d} ${328 - d * .3} Q 168 ${306 - d} 300 ${334 - d}`, {sw: 1.2, tone: 'soft'}); p.path(`M ${560 - d} ${328 - d * .3} Q 432 ${306 - d} 300 ${334 - d}`, {sw: 1.2, tone: 'soft'}); });
-  p.path('M 300 34 Q 168 8 34 30 L 34 320 Q 168 298 300 326 Z', {fill: true}); p.path('M 300 34 Q 432 8 566 30 L 566 320 Q 432 298 300 326 Z', {fill: true});
-  p.path('M 300 36 L 300 324', {sw: 2}); p.path('M 290 40 Q 296 180 290 320', {sw: 1.4, tone: 'soft'}); p.path('M 310 40 Q 304 180 310 320', {sw: 1.4, tone: 'soft'});
-  [92, 124, 156, 240, 272].forEach((y, k) => p.line(70, y, k === 4 ? 190 : 264, y, {sw: 1.6, tone: 'soft'}));
-  [92, 124, 240, 272].forEach((y, k) => p.line(336, y, k === 3 ? 450 : 530, y, {sw: 1.6, tone: 'soft'}));
-  p.rect(322, 150, 214, 66, {rx: 4, fill: 'var(--lp-acc)', stroke: 'none', op: .9});
-  LP.row(K, g, it.label ? {label: it.label} : it, 427, 162, 34, 200, true);
+  p.path('M 300 44 Q 168 20 40 40 L 40 334 Q 168 314 300 340 Q 432 314 560 334 L 560 40 Q 432 20 300 44 Z', {fill: true});
+  p.path('M 300 34 Q 168 10 34 30 L 34 322 Q 168 302 300 328 Z', {fill: true}); p.path('M 300 34 Q 432 10 566 30 L 566 322 Q 432 302 300 328 Z', {fill: true});
+  [92, 124, 156, 240, 272].forEach((y, k) => p.line(72, y, k === 4 ? 190 : 262, y, {sw: 1.6, tone: 'soft'}));
+  [92, 124, 240, 272].forEach((y, k) => p.line(338, y, k === 3 ? 450 : 528, y, {sw: 1.6, tone: 'soft'}));
+  p.rect(322, 152, 210, 64, {rx: 6, fill: 'var(--lp-acc)', stroke: 'none', op: .9});
+  LP.row(K, g, it.label ? {label: it.label} : it, 427, 163, 34, 196, true);
   const pen = p.child({transform: 'rotate(38 540 214)'});
-  pen.rect(522, 112, 36, 84, {rx: 6, fill: 'shade'}); pen.line(530, 120, 530, 188, {sw: 1.4, op: .5});
-  pen.rect(522, 84, 36, 34, {rx: 8, fill: 'shade', tone: 'acc'}); pen.rect(556, 90, 6, 30, {rx: 3, fill: 'shade', tone: 'acc', sw: 1.6});
-  pen.path('M 526 196 L 554 196 L 548 218 L 532 218 Z', {fill: 'shade'}); pen.path('M 533 218 L 547 218 L 544 226 L 536 226 Z', {fill: 'shade', tone: 'acc', sw: 1.6});
+  pen.rect(522, 112, 36, 84, {rx: 8, fill: true}); pen.rect(522, 84, 36, 32, {rx: 8, fill: true, tone: 'acc'});
+  pen.path('M 526 196 L 554 196 L 548 216 L 532 216 Z', {fill: true}); pen.path('M 534 216 L 546 216 L 543 224 L 537 224 Z', {fill: true, tone: 'acc', sw: 2});
 });
 
-/* 20 · a speaker points at the screen, and the punchline is up on it */
+/* 20 · a speaker (the skill's point pictogram) points at the screen, and the punchline is up on it */
 R3.both('B14', 'slides', 'คนยืนชี้จอสไลด์ ประโยคขึ้นจอ', (K, s, T, g, small) => {
-  const it = s.idea ?? {icon: 'quote'}, G = 338, H = 300, X = 112, {p} = LP.layer(g, small);
-  p.line(392, 200, 392, 300, {sw: 3}); p.line(392, 294, 340, G, {sw: 3}); p.line(392, 294, 444, G, {sw: 3}); p.line(392, 294, 392, G, {sw: 2, tone: 'soft'});
-  p.rect(204, 6, 344, 202, {rx: 8, fill: 'shade'}); p.rect(216, 18, 320, 178, {rx: 4, fill: true, sw: 1.8});
-  p.rect(376, 200, 32, 10, {rx: 3, fill: 'shade', sw: 2});
-  if (it.label) LP.word(K, g, it.label, 376, 82, 44, 290); else LP.ico(g, it.icon, 376, 106, 80);
-  HU.person(p, {x: X, y: G, h: H, pose: 'present'});
-});
-
-/* ================= round 11, second set: each picture is the category's own sign (Friend 2026-11-11: "ให้ตรงกับจุดประสงค์ของ
-   หมวดนั้นๆจริงๆ ไม่จำเป็นจะต้องคิดนอกกรอบ" · "OK ลองทำเป็นภาพมาให้ดูก่อน") ================= */
-
-/* B10 · a target sight closes in on one person: this is who it is for */
-R3.both('B10', 'aim', 'วงเล็งเป้าล็อกที่คนหนึ่งคน', (K, s, T, g, small) => {
-  const {p} = LP.layer(g, small), C = [300, 150], R = 128;
-  HU.person(p, {x: 300, y: 276, h: 236, tone: 'acc'});
-  p.circle(C[0], C[1], R, {sw: 4, tone: 'acc', fill: 'none'}); p.circle(C[0], C[1], R - 14, {sw: 1.4, tone: 'soft'});
-  [[0, -1], [0, 1], [-1, 0], [1, 0]].forEach(([dx, dy]) => p.line(C[0] + dx * (R - 26), C[1] + dy * (R - 26), C[0] + dx * (R + 18), C[1] + dy * (R + 18), {sw: 4, tone: 'acc'}));
-  const w = s.label ?? s.who?.label; if (w) LP.word(K, g, w, 300, 284, 34, 340);
-});
-
-/* B13 · a light bulb lights up over a person's head: the tip, beside it */
-R3.both('B13', 'idea', 'หลอดไฟติดเหนือหัวคน ได้เคล็ดลับ', (K, s, T, g, small) => {
-  const it = s.secret ?? {icon: 'lightbulb'}, {p} = LP.layer(g, small), X = 214;
-  HU.bust(p, {x: X, y: 342, size: 176});
-  const B = p.child({transform: `translate(${X} 92)`});
-  B.path('M -24 38 C -24 20 -50 8 -50 -18 A 50 50 0 1 1 50 -18 C 50 8 24 20 24 38 Z', {fill: 'shade', tone: 'acc'});
-  B.path('M -12 36 L -12 6 L -6 -4 L 0 6 L 6 -4 L 12 6 L 12 36', {sw: 2, tone: 'acc', fill: 'none', op: .8});
-  B.path('M -30 -26 Q -28 -42 -14 -48', {sw: 2.4, op: .6});
-  B.rect(-24, 38, 48, 26, {rx: 5, fill: 'shade'}); [46, 54].forEach(y => B.line(-22, y, 22, y, {sw: 1.4, tone: 'soft'}));
-  B.path('M -12 64 Q 0 74 12 64', {sw: 2.6});
-  [-160, -125, -90, -55, -20].forEach(deg => { const a = deg * Math.PI / 180; B.line(Math.cos(a) * 66, -18 + Math.sin(a) * 66, Math.cos(a) * 84, -18 + Math.sin(a) * 84, {sw: 3, tone: 'acc'}); });
-  if (it.icon) LP.ico(g, it.icon, 430, it.label ? 104 : 150, 56);
-  if (it.label) LP.word(K, g, it.label, 430, 140, 38, 220);
-});
-
-/* B21 · a map pin drops onto a building: here */
-R3.both('B21', 'building', 'หมุดปักลงบนตึก', (K, s, T, g, small) => {
-  const pl = s.place ?? {icon: 'map-pin'}, {p} = LP.layer(g, small);
-  p.line(110, 282, 490, 282, {sw: 2, tone: 'soft'});
-  p.rect(196, 136, 208, 146, {rx: 4, fill: 'shade'}); p.rect(188, 128, 224, 12, {rx: 3, fill: 'shade'});
-  [0, 1, 2].forEach(r => [0, 1, 2].forEach(c => { if (r === 2 && c === 1) return; p.rect(216 + c * 62, 152 + r * 40, 44, 26, {rx: 2, fill: true, sw: 1.8}); p.line(238 + c * 62, 154 + r * 40, 238 + c * 62, 176 + r * 40, {sw: 1.2, tone: 'soft'}); }));
-  p.rect(280, 232, 40, 50, {rx: 3, fill: true, sw: 2}); p.dot(312, 258, 2.6);
-  p.path('M 300 128 C 290 108 252 86 252 50 A 48 48 0 1 1 348 50 C 348 86 310 108 300 128 Z', {fill: 'shade', tone: 'acc'});
-  p.circle(300, 48, 30, {fill: true, sw: 2}); p.ellipse(300, 130, 16, 4, {sw: 1.6, tone: 'soft'});
-  LP.ico(g, pl.icon, 300, 48, 34);
-  if (pl.label) LP.word(K, g, pl.label, 300, 288, 34, 360);
-});
-
-/* B12 · three things in a row; an arrow draws itself from each to the next, and the last (the effect) lights up */
-R3.both('B12', 'flow', 'สามไอคอน ลูกศรวาดต่อกันจากเหตุไปผล', (K, s, T, g, small) => {
-  const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg', {p} = LP.layer(g, small), xs = [104, 300, 496], Y = 128, R = 56;
-  [0, 1].forEach(k => { const x1 = xs[k] + R + 8, x2 = xs[k + 1] - R - 10;
-    p.path(`M ${x1} ${Y - 14} Q ${(x1 + x2) / 2} ${Y - 58} ${x2} ${Y - 14}`, {sw: 3});
-    p.poly([[x2 - 18, Y - 30], [x2, Y - 14], [x2 - 21, Y - 8]], {sw: 3}); });
-  xs.forEach((x, k) => {
-    const last = k === 2; p.circle(x, Y, R, {fill: 'shade', tone: last && !neg ? 'acc' : undefined}); p.circle(x, Y, R - 9, {sw: 1.4, tone: last && !neg ? 'acc' : 'soft', fill: 'none'});
-    if (last && neg) p.circle(x, Y, R, {tone: 'neg', sw: 3.4});
-    if (it[k]) LP.ico(g, it[k].icon, x, Y, 46, last && !neg);
-    if (it[k]?.label) { const w = LP.word(K, g, it[k].label, x, Y + R + 16, 26, 170); if (last && neg) w.style.color = 'var(--lp-neg)'; }
-  });
-});
-
-/* B12 · a chain of three links; one pulls the next, and the last link (the effect) is lit */
-R3.both('B12', 'chain', 'โซ่สามข้อ ข้อสุดท้ายติดสี', (K, s, T, g, small) => {
-  const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg', {p} = LP.layer(g, small), xs = [146, 300, 454], Y = 140, W = 186, H = 112, T0 = 26;
-  const ring = (pen, x, last) => pen.tube(`M ${x - W / 2 + H / 2} ${Y - H / 2} L ${x + W / 2 - H / 2} ${Y - H / 2} A ${H / 2} ${H / 2} 0 0 1 ${x + W / 2 - H / 2} ${Y + H / 2} L ${x - W / 2 + H / 2} ${Y + H / 2} A ${H / 2} ${H / 2} 0 0 1 ${x - W / 2 + H / 2} ${Y - H / 2} Z`, T0, {core: 'shade', tone: last && !neg ? 'acc' : undefined});
-  xs.forEach((x, k) => ring(p, x, k === 2));
-  /* each link passes in front of the next one at the bottom, so they read as hooked together */
-  [0, 1].forEach(k => ring(p.clipped(xs[k] + 20, Y + 10, W, H), xs[k], false));
-  xs.forEach((x, k) => { if (it[k]) { const i = LP.ico(g, it[k].icon, x, Y, 36); if (k === 2) i.style.color = neg ? 'var(--lp-neg)' : 'var(--lp-acc-line)'; }
-    if (it[k]?.label) { const w = LP.word(K, g, it[k].label, x, Y + H / 2 + 24, 26, 150); if (k === 2 && neg) w.style.color = 'var(--lp-neg)'; } });
-});
-
-/* B05 · a no-entry sign is stamped on the wrong one; the right one gets its tick */
-R3.both('B05', 'nosign', 'ป้ายห้ามประทับบนข้อผิด ข้อถูกได้เครื่องหมายถูก', (K, s, T, g, small) => {
-  const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'}, {p} = LP.layer(g, small);
-  p.rect(70, 40, 190, 190, {rx: 22, fill: 'shade'}); p.rect(82, 52, 166, 166, {rx: 14, sw: 1.4, tone: 'soft'});
-  p.rect(340, 40, 190, 190, {rx: 22, fill: 'shade', tone: 'acc'}); p.rect(352, 52, 166, 166, {rx: 14, sw: 1.4, tone: 'acc', fill: 'none', op: .6});
-  LP.ico(g, w.icon, 165, 135, 84); LP.ico(g, r.icon, 435, 135, 84, true);
-  const ns = LP.layer(g, small).p; ns.circle(165, 135, 86, {sw: 12, tone: 'neg'}); ns.line(104, 74, 226, 196, {sw: 12, tone: 'neg'});
-  ns.circle(522, 48, 30, {fill: 'shade', sw: 2.6}); LP.parts.check(ns, 522, 50, .26, {sw: 5});
-  if (w.label) { const e = LP.word(K, g, w.label, 165, 252, 32, 220); e.style.opacity = .7; }
-  if (r.label) LP.word(K, g, r.label, 435, 252, 32, 220);
-});
-
-/* B05 · a hand points at the right one; the wrong one fades */
-R3.both('B05', 'point', 'มือชี้ไปที่ข้อถูก ข้อผิดจางลง', (K, s, T, g, small) => {
-  const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'}, {p} = LP.layer(g, small);
-  const wq = p.child(); wq.g.style.opacity = .38;
-  wq.rect(56, 30, 176, 150, {rx: 20, fill: 'shade'}); LP.ico(g, w.icon, 144, 92, 66).style.opacity = .38;
-  if (w.label) LP.word(K, g, w.label, 144, 128, 28, 150).style.opacity = .38;
-  p.rect(300, 30, 176, 150, {rx: 20, fill: 'shade', tone: 'acc'}); LP.ico(g, r.icon, 388, 92, 66, true);
-  if (r.label) LP.word(K, g, r.label, 388, 128, 28, 150, true);
-  const hp = LP.layer(g, small).p, H = hp.child({transform: 'translate(388 272) rotate(-8)'}), box = [-60, -90, 60, 80];
-  H.figure([{d: 'M -34 80 L -30 36 L 32 36 L 36 80 Z'}], {box, details: ['M -32 50 L 34 50']});
-  H.figure([{d: 'M -34 -14 Q -34 -32 -16 -32 L 22 -32 Q 38 -32 38 -14 L 38 26 Q 38 40 24 40 L -20 40 Q -34 40 -34 26 Z'}, {d: 'M -18 -30 L -18 -84', w: 20}],
-    {box, details: ['M -6 -30 L -6 -18', 'M 8 -30 L 8 -18', 'M 22 -30 L 22 -18', 'M -12 -84 Q -18 -80 -24 -84']});
-  H.figure([{d: 'M -30 8 Q -10 16 14 6', w: 15}], {box, details: []});
-});
-
-/* B11 · a person (side view) speaks; what was said comes out in a speech bubble */
-R3.both('B11', 'speak', 'คนพูด ฟองคำพูดเด้งออกมา', (K, s, T, g, small) => {
-  const q = s.quote ?? '', bad = s.mood === 'bad', win = R9.clip(g), {p} = LP.layer(win, small);
-  HU.person(p, {x: 156, y: 462, h: 410, pose: 'side'});
-  LP.parts.bubble(p, 410, 108, 268, 144, false, {sw: 3, fill: 'shade'});
-  if (q) LP.word(K, g, q, 410, 78, 44, 230);
-  if (s.react) { p.circle(530, 172, 26, {fill: 'shade', tone: bad ? 'neg' : 'acc', sw: 2.4}); LP.ico(g, s.react, 530, 172, 28, !bad); }
-});
-
-/* B11 · a chat: a bubble from one side, then the answer (the words said) from the other side */
-R3.both('B11', 'chat', 'ฟองแชตสองฝั่งโต้ตอบกัน', (K, s, T, g, small) => {
-  const q = s.quote ?? '', bad = s.mood === 'bad', {p} = LP.layer(g, small);
-  HU.bust(p, {x: 66, y: 150, size: 70}); HU.bust(p, {x: 534, y: 318, size: 70, tone: 'acc'});
-  p.path('M 120 30 L 330 30 Q 348 30 348 48 L 348 112 Q 348 130 330 130 L 132 130 L 108 148 L 112 124 Q 102 118 102 106 L 102 48 Q 102 30 120 30 Z', {fill: 'shade', sw: 2.6});
-  [64, 86].forEach((y, k) => p.line(126, y, k ? 260 : 320, y, {sw: 6, tone: 'soft'})); p.line(126, 108, 200, 108, {sw: 6, tone: 'soft'});
-  p.path('M 480 182 L 240 182 Q 220 182 220 202 L 220 282 Q 220 302 240 302 L 470 302 L 494 322 L 490 296 Q 500 290 500 278 L 500 202 Q 500 182 480 182 Z', {fill: 'shade', tone: 'acc', sw: 2.6});
-  if (q) LP.word(K, g, q, 360, 218, 42, 250, true);
-  if (s.react) { p.circle(222, 290, 24, {fill: 'shade', tone: bad ? 'neg' : undefined, sw: 2.4}); LP.ico(g, s.react, 222, 290, 26); }
+  const it = s.idea ?? {icon: 'quote'}, {p} = LP.layer(g, small), G = 336;
+  p.line(410, 204, 410, 300, {sw: 3}); p.line(410, 294, 362, G, {sw: 3}); p.line(410, 294, 458, G, {sw: 3});
+  p.rect(256, 10, 308, 196, {rx: 14, fill: true}); p.rect(270, 24, 280, 168, {rx: 8, sw: 1.6, tone: 'soft'});
+  if (it.label) LP.word(K, g, it.label, 410, 84, 42, 250); else LP.ico(g, it.icon, 410, 108, 80);
+  SK.person(p, {x: 128, y: G, h: 290, pose: 'point'});
 });
 
 /* ================= sample sentences (s11.*), general ones (not Friend's script) ================= */
