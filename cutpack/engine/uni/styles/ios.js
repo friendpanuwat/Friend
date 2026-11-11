@@ -68,6 +68,7 @@ STYLE('ios', {
 .i-app .u-neg{background:#FF3B30;color:#FFFFFF}
 .i-app .u-soft{background:#F7F7FA;color:#AEAEB2;box-shadow:none}
 .i-app .u-track{background:#E9E9EB}
+.i-app .u-track .u-main{background:#AEAEB2}            /* a grey tile on a grey track (a photo) blended: rule 14 */
 .i-app .u-track-on{background:#28A745}
 .i-app .u-knob{background:#FFFFFF;box-shadow:0 3px 8px rgba(0,0,0,.18)}
 .i-app .u-knob-ico{color:#1C1C1E}
