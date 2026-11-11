@@ -1,0 +1,15 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* Scene = one clip. Edit only inside GL.run(). API: references/api.md · drawings: references/pairs.md */
+GL.run(() => {
+  GL.stage({ w: 1080, h: 1920 });                       // 9:16 · square: {w:1080,h:1080} · landscape: {w:1920,h:1080}
+  const top = GL.title({ kicker: '3 WAYS TO', main: 'SIMPLIFY', sub: 'ตัดให้เหลือแค่สิ่งที่จำเป็น' });
+  GL.rows([
+    { label: '1. INBOX', pair: 'inbox' },
+    { label: '2. PHONE', pair: 'phone' },
+    { label: '3. GOALS', pair: 'goals' },
+  ], { top });
+});
+</script></body></html>

@@ -1,0 +1,11 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* grid — poster of many cells (2 columns). Also the catalogue of every built-in pair. */
+GL.run(() => {
+  GL.stage();
+  const top = GL.title({ kicker: '12 WAYS TO', main: 'SIMPLIFY', size: 130 });
+  GL.grid(Object.keys(GL.pairs).map((k, i) => ({ label: `${i + 1}. ${k.toUpperCase()}`, pair: k })), { top, stagger: .45 });
+});
+</script></body></html>

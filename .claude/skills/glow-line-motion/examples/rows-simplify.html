@@ -1,0 +1,15 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* rows — 3 before→after rows under a title (the first approved sample) */
+GL.run(() => {
+  GL.stage();
+  const top = GL.title({ kicker: '3 WAYS TO', main: 'SIMPLIFY', sub: 'ตัดให้เหลือแค่สิ่งที่จำเป็น' });
+  GL.rows([
+    { label: '1. INBOX', pair: 'inbox' },
+    { label: '2. PHONE', pair: 'phone' },
+    { label: '3. GOALS', pair: 'goals' },
+  ], { top });
+});
+</script></body></html>
