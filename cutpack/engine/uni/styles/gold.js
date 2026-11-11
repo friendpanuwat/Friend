@@ -22,6 +22,11 @@ const GOLD = Object.freeze({
   B: {pic: {x: 40, y: 470}, sub: {x: 70, y: 1240, w: 860, h: 0}},
   chest: 1230,                                    // the subtitle on the speaker when there is no faces.json (test clip)
   alwaysA: ['B04', 'B09', 'B17'],
+  /* transitions, from the reference frame by frame (Friend 2026-11-11: "เขาไม่ได้ตัดไปเฉยๆ การย่อการขยายของรูป มันมีทรานซิชั่นของมัน"):
+     A in: the full-screen video shrinks into the photo (.3 s) while the black card slides up from below the screen (.5 s);
+     A out: the card slides back down while the photo grows back to full screen (.3 s);
+     B in: the scene comes in out of a blur, a little big (1.08 → 1, .45 s), then pushes in slowly (1 → 1.04); B out: a cut */
+  shrinkD: .3, growD: .3, cardD: .5, cardOutD: .3, blurD: .45,
   ease: 'cubic-bezier(.2,.8,.2,1)',
 });
 const GOLD_GRAD = 'linear-gradient(180deg,#FFE09A 0%,#FFB04A 45%,#FF8A1F 100%)';
@@ -118,23 +123,28 @@ STYLE('gold', {
     this.wins = [];
     if (typeof CAPTIONS !== 'undefined') FITS.unshift(() => CAPTIONS.forEach(c => this.caption(c)));   // a real clip: every word, once every scene is known
     const P = GOLD.A.photo;
+    const ease = p => 1 - Math.pow(1 - Math.min(1, Math.max(0, p)), 3);
+    /* the video's framing on the full screen: zoom z around the face (talk between scenes swaps wide / close) */
+    const full = (t, z) => { const [fx, fy] = this.face(t); return {s: z, tx: fx * (1 - z), ty: fy * (1 - z), l: 0, r: 0, tp: 0, bt: 0, rad: 0}; };
+    const photo = w => { const s = Math.max(P.w / 1080, P.h / GOLD.srcH), hw = P.w / 2 / s, hh = P.h / 2 / s;
+      return {s, tx: P.x + P.w / 2 - w.fx * s, ty: P.y + P.h / 2 - w.fy * s, l: w.fx - hw, r: 1080 - w.fx - hw, tp: w.fy - hh, bt: 1920 - w.fy - hh, rad: P.r / s}; };
+    const mix = (a, b, p) => Object.fromEntries(Object.keys(a).map(k => [k, a[k] + (b[k] - a[k]) * p]));
+    const zoomAt = t => this.wins.filter(x => x.t1 <= t).length % 2 ? GOLD.zoom : 1;
     HOOKS.push(t => {
       const w = this.wins.find(x => t >= x.t0 && t < x.t1);
       sh.style.opacity = 0;
-      if (w && w.look === 'A') {                    // the speaker is the rounded photo on the white page, the face in its middle
-        const s = Math.max(P.w / 1080, P.h / GOLD.srcH), hw = P.w / 2 / s, hh = P.h / 2 / s;
-        V.style.transform = `translate(${P.x + P.w / 2 - w.fx * s}px,${P.y + P.h / 2 - w.fy * s}px) scale(${s})`;
-        V.style.clipPath = `inset(${w.fy - hh}px ${1080 - w.fx - hw}px ${1920 - w.fy - hh}px ${w.fx - hw}px round ${P.r / s}px)`;
-        Object.assign(sh.style, {left: P.x + 'px', top: P.y + 'px', width: P.w + 'px', height: P.h + 'px', borderRadius: P.r + 'px', boxShadow: '0 24px 60px rgba(0,0,0,.18)', opacity: 1});
-        return;
-      }
-      V.style.clipPath = 'none';
-      if (w) { V.style.transform = 'none'; return; }           // look B covers the speaker
-      /* talk between scenes: wide before the first scene, then close / wide in turn after each scene (gold.md 6) */
-      const k = this.wins.filter(x => x.t1 <= t).length, z = k % 2 ? GOLD.zoom : 1;
-      if (z === 1) { V.style.transform = 'none'; return; }
-      const [fx, fy] = this.face(t);
-      V.style.transform = `translate(${fx * (1 - z)}px,${fy * (1 - z)}px) scale(${z})`;
+      let c;
+      if (w && w.look === 'A') {                    // shrink into the photo, hold, grow back (the face stays in the middle)
+        const pin = ease((t - w.t0) / GOLD.shrinkD), pout = ease((t - (w.t1 - GOLD.growD)) / GOLD.growD);
+        c = mix(full(w.t0, zoomAt(w.t0)), photo(w), pin);
+        if (pout > 0) c = mix(c, full(w.t1, zoomAt(w.t1 + .01)), pout);
+        const rad = c.rad;
+        Object.assign(sh.style, {left: c.tx + c.s * c.l + 'px', top: c.ty + c.s * c.tp + 'px', width: c.s * (1080 - c.l - c.r) + 'px', height: c.s * (1920 - c.tp - c.bt) + 'px',
+          borderRadius: rad * c.s + 'px', boxShadow: '0 24px 60px rgba(0,0,0,.18)', opacity: Math.min(pin, 1 - pout)});
+      } else if (w) c = full(t, 1);                 // look B covers the speaker
+      else c = full(t, zoomAt(t));
+      V.style.transform = c.s === 1 && !c.tx && !c.ty ? 'none' : `translate(${c.tx}px,${c.ty}px) scale(${c.s})`;
+      V.style.clipPath = c.l || c.r || c.tp || c.bt ? `inset(${c.tp}px ${c.r}px ${c.bt}px ${c.l}px round ${c.rad}px)` : 'none';
     });
   },
   /* where the face is around time t (faces.json of a real clip), kept so the zoomed clip never shows past its edge */
@@ -170,22 +180,30 @@ STYLE('gold', {
       goldGrid(page, t0, t1, true);
       const C = GOLD.A.card, card = div(`left:${C.x}px;top:${C.y}px;width:${C.w}px;height:${C.h}px;border-radius:${C.r}px`, root);
       card.className = 'gd-main';
+      A(card, [{transform: 'translateY(1150px)'}, {transform: 'none'}], t0 + .05, GOLD.cardD, {e: 'cubic-bezier(.16,1,.3,1)'});            // up from below the screen
+      /* out: the card drops away fast and fades before the photo has grown much (it is above the video, so it must not linger on the speaker) */
+      A(card, [{transform: 'none', opacity: 1}, {transform: 'translateY(700px)', opacity: 0}], t1 - GOLD.growD - .05, GOLD.cardOutD, {e: 'cubic-bezier(.3,0,.6,1)', f: 'forwards'});
       const sw = 1000 * GOLD.A.picS, shh = 700 * GOLD.A.picS;
       stage = div(`left:${(C.w - sw) / 2}px;top:${(C.h - shh) / 2}px;width:1000px;height:700px;transform-origin:0 0;transform:scale(${GOLD.A.picS})`, card);
     } else {
       root.classList.add('gd-dark');                 // a dark moving grid, darker at the edges, a soft orange light behind the picture
-      goldGrid(root, t0, t1, false);
-      div('inset:0;background:radial-gradient(ellipse 75% 55% at 50% 45%,transparent 30%,rgba(0,0,0,.75) 100%)', root);
-      const g1 = div('left:90px;top:370px;width:900px;height:900px;background:radial-gradient(circle,rgba(255,128,30,.22),transparent 62%)', root);
+      const lens = div('inset:0', root);              // the whole scene comes into focus, then the camera pushes in slowly
+      A(lens, [{filter: 'blur(16px)', transform: 'scale(1.08)'}, {filter: 'blur(0px)', transform: 'none'}], t0, GOLD.blurD, {e: GOLD.ease});
+      const push = div('inset:0', lens);
+      A(push, [{transform: 'none'}, {transform: 'scale(1.04)'}], t0 + GOLD.blurD, Math.max(.1, t1 - t0 - GOLD.blurD), {e: 'linear', f: 'none'});
+      goldGrid(push, t0, t1, false);
+      div('inset:0;background:radial-gradient(ellipse 75% 55% at 50% 45%,transparent 30%,rgba(0,0,0,.75) 100%)', push);
+      const g1 = div('left:90px;top:370px;width:900px;height:900px;background:radial-gradient(circle,rgba(255,128,30,.22),transparent 62%)', push);
       g1.className = 'gd-glow';
-      stage = div(`left:${GOLD.B.pic.x}px;top:${GOLD.B.pic.y}px;width:1000px;height:700px`, root);
+      stage = div(`left:${GOLD.B.pic.x}px;top:${GOLD.B.pic.y}px;width:1000px;height:700px`, push);
     }
     return {root, stage, look, dark: true};
   },
   /* the words of a scene: the small lead, then the big gold key word on the word (gold.md 5) */
   text(F, T, lead, key) {
     const S = F.look === 'A' ? GOLD.A.sub : GOLD.B.sub;
-    return this.words(F.root, S, F.look === 'A', [[lead, T.t0 + .15, 'l'], [key, T.hit, 'k']], T.t0, T.t1, true);
+    const a = F.look === 'A' ? T.t0 + GOLD.shrinkD : T.t0, b = F.look === 'A' ? T.t1 - GOLD.growD : T.t1;   // A: after the shrink, gone before the grow
+    return this.words(F.root, S, F.look === 'A', [[lead, a + .05, 'l'], [key, Math.max(T.hit, a + .1), 'k']], a, b, true);
   },
   /* one block of words seen from a to b: rows of lead phrases (small) and the key phrase (big gold), each from its own time.
      A block that another one follows straight on is cut, not faded (a fade left a blank moment at every join) */
@@ -216,7 +234,7 @@ STYLE('gold', {
   caption(c) {
     const w = this.wins.find(x => c.t0 < x.t1 && c.t1 > x.t0);
     let a = c.t0, b = c.t1;
-    if (w) { a = Math.max(a, w.t0); b = Math.min(b, w.t1); }
+    if (w) { a = Math.max(a, w.t0 + (w.look === 'A' ? GOLD.shrinkD : 0)); b = Math.min(b, w.t1 - (w.look === 'A' ? GOLD.growD : 0)); }
     else this.wins.forEach(x => { if (x.t1 > a && x.t1 <= b && x.t0 < a) a = x.t1; if (x.t0 < b && x.t0 >= a) b = Math.min(b, x.t0); });
     if (b - a < .15) return;
     const S = w ? (w.look === 'A' ? GOLD.A.sub : GOLD.B.sub) : {x: 70, y: this.chest(), w: 860, h: 0};
