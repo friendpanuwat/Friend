@@ -6,14 +6,14 @@
      B04 ขั้นตอน       ตัวต่อซ้อนเป็นตึก (tower) · เบี้ยบนกระดานเกม (board)
      B06 คำถาม        โพลสองตัวเลือก (poll, needs two options) · หลอดไฟมี ? (bulb)
      B07 คำเตือน       ป้ายระวังพื้นลื่น (wetfloor) · เหยื่อบนเบ็ดตกปลา (hook)
-     B09 เวลา         นาฬิกาจับเวลา (stopwatch) · ต้นไม้จนออกผล (tree)
-     B10 คน           เก้าอี้มีป้ายจอง (seat) · กล่องพัสดุจ่าหน้า (parcel)
-     B12 เหตุกับผล      ก๊อกน้ำกับท่อ (pipe) · ลูกพูลชนลงหลุม (pool)
+     B09 เวลา         นาฬิกาจับเวลา (stopwatch)
+     B12 เหตุกับผล      ลูกพูลชนลงหลุม (pool)
      B16 นิยาม        บัตรคำร้อยห่วง (flash) · เครื่องพิมพ์ฉลาก (labeler)
      B17 ไล่รายการ      โฟลเดอร์ในมือถือ (folder) · กล่องเครื่องมือถาดกาง (toolbox)
      B18 เล่าเหตุการณ์    ม่านเวที (curtain) · วิดีโอย้อนกลับ (rewind)
      B19 ความรู้สึก      ตัวคนเติมสี (fill) · แถบเลื่อนอารมณ์ (slider)
    Removed in the sketch stage, never bring back: B12 snowball, seesaw (DECISIONS, round 10).
+   Removed after review page 25, never bring back: B09 tree · B10 seat, parcel · B12 pipe (Friend 2026-11-11: "ลบออกครับ ไม่ชอบ").
    Loaded after lego_r9b.js (R9 helpers) and before lego_v2.js. Same frame rules as R3.both (600 × 340, nothing past
    x 550 below y 200, words only from the slots).
    ===================================================================== */
@@ -181,91 +181,7 @@ R3.both('B09', 'stopwatch', 'นาฬิกาจับเวลา กดป�
   });
 });
 
-/* 8 · a tree through time: a bare trunk, then a crown of leaves, then fruit (ผล); the moments along the ground light in turn */
-R3.both('B09', 'tree', 'ต้นไม้เปลี่ยนตามเวลา จนออกผล', (K, s, T, g) => {
-  const pts = (s.points ?? []).slice(0, 3), n = pts.length, at = n ? Math.min(s.at ?? n - 1, n - 1) : 2, res = s.result;
-  const c = res ? 236 : 300, G = 266, C = {x: c, y: 96}, rx = 140, ry = 80, st = [T.b[1], T.b[2], T.hit];
-  const trunk = `M${c - 26} ${G}C${c - 18} ${G - 16} ${c - 13} ${G - 28} ${c - 13} ${G - 48}L${c - 58} ${C.y + 50}L${c - 42} ${C.y + 38}L${c} ${C.y + 66}` +
-    `L${c + 42} ${C.y + 38}L${c + 58} ${C.y + 50}L${c + 13} ${G - 48}C${c + 13} ${G - 28} ${c + 18} ${G - 16} ${c + 26} ${G}Z`;
-  const nb = 10, P = [...Array(nb)].map((_, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / nb; return [C.x + rx * Math.cos(a), C.y + ry * Math.sin(a)]; });
-  const crown = 'M' + P[0].map(v => v.toFixed(1)).join(' ') + P.map((q, i) => { const r = P[(i + 1) % nb], L = Math.hypot(r[0] - q[0], r[1] - q[1]), Rr = (L * .6).toFixed(1);
-    return `A${Rr} ${Rr} 0 0 1 ${r[0].toFixed(1)} ${r[1].toFixed(1)}`; }).join('') + 'Z';
-  const gd = R7.plain(g, 40, G, 520, 10, 'main', '5px'); K.enter(gd.o, T.b[0], 'rise');
-  const tr = R10.group(g, c, G); R8.svg(tr, `<path class="sd" d="${trunk}"/>`); A(tr, [{transform: 'scaleY(0)'}, {transform: 'none'}], st[0] - .1, .7, {e: EASE.smooth});
-  if (at >= 1) { const cr = R10.group(g, c, C.y + 90); R8.svg(cr, `<path class="ac" d="${crown}"/>`); A(cr, [{transform: 'scale(.2)', opacity: 0}, {transform: 'none', opacity: 1}], st[1] - .2, .9, {e: EASE.smooth}); }
-  const F = [[-74, -6], [-26, -44], [34, -30], [82, 12], [-40, 34], [26, 32]].slice(0, at === 2 ? 6 : at === 1 ? 2 : 0), ft = at === 2 ? st[2] : st[1] + .7;
-  F.forEach(([dx, dy], k) => {
-    const x = C.x + dx, y = C.y + dy, fr = R10.group(g, x, y); K.enter(fr, ft + k * .08, 'pop');
-    R8.svg(fr, `<path style="fill:none;stroke:var(--ink);stroke-width:4px;stroke-linecap:round" d="M${x} ${y - 14}Q${x} ${y - 22} ${x + 4} ${y - 27}"/>` +
-      `<ellipse style="fill:var(--ink)" cx="${x + 11}" cy="${y - 24}" rx="8" ry="4.5" transform="rotate(-28 ${x + 11} ${y - 24})"/>`);
-    const f = R10.disc(fr, x, y, 16, 'card'); f.p.style.boxShadow = '0 0 0 3px var(--ink)';
-  });
-  pts.forEach((p, k) => {
-    const x = [50, 230, 410][k], ch = R9.card(g, x, 282, 140, 50, 16); K.enter(ch.o, T.b[0] + .1 + k * .08, 'pop');
-    const put = (n, acc) => { if (p.label) { const w = R4.word(K, n.p, p.label, 70, 8, 28, null, 120); if (acc) w.classList.add('u-bubble-text'); } else R9.ico(n.p, p.icon, 70, 25, 28, acc ? 'u-bubble-text' : 'u-label'); };
-    put(ch, false); if (k > at) ch.o.style.opacity = .35;
-    if (k <= at) { const l = R10.lit(K, g, x, 282, 140, 50, 16, st[k]); put(l, true); if (k < at) R7.hide(l.o, st[k + 1]); }
-  });
-  if (res) { const r = R9.acc(g, 412, 62, 140, 104, 20); R10.iconWord(K, r.p, res, 140, 12, 40, 28, true); K.enter(r.o, T.hit + .45, 'pop'); }
-});
-
-/* ================= B10 คน: who? {icon, label?}, label?, tags? [≤2] ================= */
-/* 9 · a cinema seat with a reserved card on it: on the key word the card flips up, made out to this kind of person */
-R3.both('B10', 'seat', 'เก้าอี้มีป้ายจองไว้ให้คนกลุ่มนี้', (K, s, T, g) => {
-  const who = s.who ?? {icon: 'user'}, tags = (s.tags ?? []).slice(0, 2);
-  const ch = R10.group(g, 300, 330); K.enter(ch, T.b[0], 'rise');
-  R7.plain(ch, 100, 326, 400, 10, 'main', '5px');
-  R7.plain(ch, 178, 6, 244, 188, 'main', '44px 44px 16px 16px');
-  R7.plain(ch, 182, 202, 236, 58, 'main', '18px');
-  [[128, 150], [422, 150]].forEach(([x, y]) => { R7.plain(ch, x, y, 50, 24, 'main', '12px'); R7.plain(ch, x + 8, y + 30, 34, 326 - y - 30, 'main', '8px 8px 2px 2px'); });
-  const W = 214, H = 150, c = R9.card(g, 300 - W / 2, 202 - H, W, H, 18);
-  const av = R10.disc(c.p, W / 2, 38, 26, 'acc'); R9.ico(av.p, who.icon, 26, 26, 30, 'u-bubble-text');
-  if (s.label) R4.word(K, c.p, s.label, W / 2, 70, 30, null, W - 24);
-  tags.forEach((t, k) => { const w = tags.length === 2 ? 96 : 140, x = tags.length === 2 ? 9 + k * 100 : (W - w) / 2, cp = R9.acc(c.p, x, 112, w, 30, 15); R9.accWord(K, cp.p, t, w / 2, 1, 20, null, w - 14); K.enter(cp.o, T.hit + .5 + k * .1, 'pop'); });
-  const t0 = T.hit - .3; A(c.o, [{opacity: 0}, {opacity: 1}], t0, .15);
-  c.m.style.transformOrigin = '50% 100%'; A(c.m, [{transform: 'perspective(700px) rotateX(84deg)'}, {transform: 'none'}], t0, .75, {e: EASE.smooth});
-});
-
-/* 10 · a parcel: on the key word the shipping label made out to this kind of person is slapped on the box */
-R3.both('B10', 'parcel', 'กล่องพัสดุ ใบจ่าหน้าถึงคนกลุ่มนี้แปะลงบนกล่อง', (K, s, T, g) => {
-  const who = s.who ?? {icon: 'user'}, tags = (s.tags ?? []).slice(0, 2);
-  const F = 'M110 128H380V318H110Z', Tp = 'M110 128L172 80H442L380 128Z', Sd = 'M380 128L442 80V270L380 318Z';
-  const bx = R10.group(g, 276, 318); K.enter(bx, T.b[0], 'rise');
-  R8.svg(bx, `<path class="fl" d="${Tp}"/><path class="u-fl-edge" d="${Tp}"/><path class="fl" d="${Sd}"/><path class="u-fl-edge" d="${Sd}"/><path class="fl" d="${F}"/><path class="u-fl-edge" d="${F}"/>` +
-    `<path class="ac" style="stroke:none" d="M226 128L288 80H322L260 128Z"/><rect class="ac" style="stroke:none" x="226" y="128" width="34" height="40"/>`);
-  const W = 222, c = R9.card(g, 134, 152, W, 142, 14);
-  const av = R10.disc(c.p, 44, 46, 28, 'acc'); R9.ico(av.p, who.icon, 28, 28, 32, 'u-bubble-text');
-  if (s.label) R6.wordL(K, c.p, s.label, 82, 24, 32, null, W - 96); else R10.bar(c.p, 82, 40, 110, 14);
-  tags.forEach((t, k) => { const cp = R9.acc(c.p, 20 + k * 102, 92, 94, 32, 16); R9.accWord(K, cp.p, t, 47, 2, 20, null, 82); K.enter(cp.o, T.hit + .45 + k * .1, 'pop'); });
-  if (!tags.length) [0, 1].forEach(k => R10.bar(c.p, 20, 92 + k * 22, 150 - k * 50, 12));
-  K.enter(c.o, T.hit - .15, 'drop'); K.punch(c.p, LG.arrive('drop', T.hit - .15));
-});
-
 /* ================= B12 เหตุกับผล: items [3 {icon, label?, tone?}], end? ================= */
-/* 11 · a tap: the handle turns, the water runs along the pipe through the valve (the middle cause) and fills the tank (the
-   effect; red when it is bad: ท่วม). In place of the snowball (Friend 2026-11-11: "ตัดกระดานหก เก็บก๊อกน้ำ") */
-R3.both('B12', 'pipe', 'ก๊อกเปิด น้ำไหลตามท่อไปเติมแท็งก์', (K, s, T, g) => {
-  const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg', route = 'M150 84H432Q456 84 456 108V150';
-  const pp = R8.svg(g, `<path style="fill:none;stroke:var(--ink);stroke-width:40px;stroke-linejoin:round" d="${route}"/>`); K.enter(pp, T.b[0], 'lead');
-  const wt = R8.svg(g, `<path class="u-acc-line" style="stroke-width:14px" d="${route}"/>`); R7.show(wt, T.b[1] + .35); K.draw(wt.querySelector('path'), T.b[1] + .35, .9);
-  /* the tap: the wall plate, the tap body and the T handle that is turned (the first cause) */
-  const tp = R10.group(g, 80, 90); K.enter(tp, T.b[0], 'pop');
-  R7.plain(tp, 14, 36, 30, 100, 'main', '10px'); R7.plain(tp, 44, 62, 110, 44, 'main', '12px'); R7.plain(tp, 88, 34, 20, 30, 'main', '4px');
-  const hd = R9.acc(tp, 46, 6, 104, 34, 17); if (it[0]) R9.ico(hd.p, it[0].icon, 52, 17, 26, 'u-bubble-text');
-  A(hd.m, [{transform: 'none'}, {transform: 'rotate(-24deg)'}, {transform: 'rotate(-18deg)'}], T.b[1], .45, {e: EASE.inout, f: 'forwards'});
-  if (it[0]?.label) { const c = R9.card(g, 24, 146, 160, 50, 16); R4.word(K, c.p, it[0].label, 80, 7, 28, null, 144); K.enter(c.o, T.b[0] + .25, 'pop'); }
-  /* the middle cause: a valve wheel on the pipe, which the water turns as it goes through */
-  const v = R10.disc(g, 262, 84, 48, 'card'); v.p.style.boxShadow = '0 0 0 5px var(--ink)'; K.enter(v.o, T.b[0] + .2, 'pop');
-  if (it[1]) R9.ico(v.p, it[1].icon, 48, 48, 44);
-  K.punch(v.p, T.b[1] + .75);
-  if (it[1]?.label) R4.word(K, g, it[1].label, 262, 140, 30, T.b[0] + .35, 150);
-  /* the tank: the water rises near the brim on the key word */
-  const tk = R9.card(g, 346, 150, 204, 182, 24); tk.p.style.overflow = 'hidden'; K.enter(tk.o, T.b[0] + .15, 'rise');
-  const lv = div('left:0;right:0;bottom:0;height:66%', tk.p); lv.className = neg ? 'u-neg' : 'u-col-acc';
-  A(lv, [{transform: 'translateY(100%)'}, {transform: 'none'}], T.hit - .25, 1, {e: EASE.inout});
-  if (it[2]) { R9.ico(tk.p, it[2].icon, 38, 32, 32); if (it[2].label) R6.wordL(K, tk.p, it[2].label, 62, 12, 30, T.b[0] + .4, 130); }
-});
-
 /* 12 · a pool shot: the cue hits the first ball, it rolls into the second, and the second rolls to the pocket, where the
    effect lights up */
 R3.both('B12', 'pool', 'ลูกพูลชนต่อกัน แล้วลงหลุม', (K, s, T, g) => {
@@ -462,12 +378,6 @@ SENTENCE('r10.loan', {cat: 'B07', name: 'ระวังก่อนกู้เ
 SENTENCE('r10.cheap', {cat: 'B07', name: 'อย่าหลงของถูก', say: ['อย่าหลงเชื่อ', 'ของถูกเกินจริง'], thing: {icon: 'tag', label: 'ของถูก'}, how: 'cross'});
 SENTENCE('r10.run', {cat: 'B09', name: 'อาทิตย์แรก เดือนแรก สามเดือน', say: ['วิ่งทุกวัน อาทิตย์แรก', 'จนครบสามเดือน'],
   points: [{icon: 'calendar', label: 'อาทิตย์แรก'}, {icon: 'calendar-days', label: 'เดือนแรก'}, {icon: 'calendar-check', label: 'สามเดือน'}], at: 2});
-SENTENCE('r10.grow', {cat: 'B09', name: 'ปีแรก ปีที่สอง ปีที่ห้าเห็นผล', say: ['ปีแรก ปีที่สอง', 'ปีที่ห้าเริ่มเห็นผล'],
-  points: [{icon: 'sprout', label: 'ปีแรก'}, {icon: 'leaf', label: 'ปีที่สอง'}, {icon: 'trees', label: 'ปีที่ห้า'}], at: 2, result: {icon: 'trending-up', label: 'เห็นผล'}});
-SENTENCE('r10.mom', {cat: 'B10', name: 'คุณแม่มือใหม่', say: ['สำหรับคุณแม่มือใหม่', 'ที่ลูกยังเล็ก'], who: {icon: 'user'}, label: 'คุณแม่มือใหม่', tags: ['ลูกยังเล็ก']});
-SENTENCE('r10.seller', {cat: 'B10', name: 'แม่ค้าออนไลน์มือใหม่', say: ['คลิปนี้สำหรับแม่ค้าออนไลน์', 'มือใหม่'], who: {icon: 'store'}, label: 'แม่ค้าออนไลน์', tags: ['มือใหม่']});
-SENTENCE('r10.debt', {cat: 'B12', name: 'รูดบัตร ดอกเบี้ย หนี้ท่วม', say: ['รูดบัตร ดอกเบี้ยทบ', 'จนหนี้ท่วม'],
-  items: [{icon: 'credit-card', label: 'รูดบัตร'}, {icon: 'percent', label: 'ดอกเบี้ย'}, {icon: 'trending-down', label: 'หนี้ท่วม', tone: 'neg'}]});
 SENTENCE('r10.share', {cat: 'B12', name: 'พอใจ บอกต่อ ยอดเพิ่ม', say: ['ลูกค้าพอใจ ก็บอกต่อ', 'ยอดเพิ่มเอง'],
   items: [{icon: 'smile', label: 'ลูกค้าพอใจ'}, {icon: 'share-2', label: 'บอกต่อ'}, {icon: 'trending-up', label: 'ยอดเพิ่ม'}]});
 SENTENCE('r10.fomo', {cat: 'B16', name: 'FOMO คืออาการกลัวตกขบวน', say: ['FOMO คืออาการ', 'กลัวตกขบวน'], term: {icon: 'zap', label: 'FOMO'}, means: [{icon: 'clock', label: 'กลัวตกขบวน'}]});
@@ -486,6 +396,4 @@ SENTENCE('r10.pick', {cat: 'B06', name: 'ซื้อหรือไม่ซื
   about: {icon: 'user', label: 'ลูกค้า'}, options: [{icon: 'check', label: 'ซื้อ'}, {icon: 'x', label: 'ไม่ซื้อ'}], answer: {icon: 'check', label: 'ซื้อ'}});
 SENTENCE('r10.idea', {cat: 'B06', name: 'เริ่มยังไง เริ่มจากไลฟ์', say: ['ต้องเริ่มยังไง', 'เริ่มจากไลฟ์ก่อน'], about: {icon: 'rocket', label: 'เริ่มยังไง'}, answer: {icon: 'video', label: 'ไลฟ์ก่อน'}});
 SENTENCE('r10.scam', {cat: 'B07', name: 'ระวังลิงก์แปลก', say: ['ระวังให้ดี', 'ลิงก์แปลก ๆ'], thing: {icon: 'link', label: 'ลิงก์แปลก'}, how: 'flag', sign: 'shield-alert'});
-SENTENCE('r10.half', {cat: 'B09', name: 'ปีที่สองยังไม่เห็นผล', say: ['ตอนนี้เพิ่งผ่าน', 'ปีที่สอง'],
-  points: [{icon: 'sprout', label: 'ปีแรก'}, {icon: 'leaf', label: 'ปีที่สอง'}, {icon: 'trees', label: 'ปีที่ห้า'}], at: 1});
 SENTENCE('r10.calm', {cat: 'B19', name: 'โล่งใจ', say: ['พอรู้ผลแล้ว', 'โล่งใจมาก'], feel: {icon: 'smile', label: 'โล่งใจ'}, mood: 'good'});
