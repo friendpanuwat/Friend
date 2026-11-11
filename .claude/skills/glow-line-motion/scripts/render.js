@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /* render.js — scene.html → MP4 (+ still.png + storyboard.jpg)
-   usage: node render.js <scene.html> [outdir] [--name clip] [--fps 30] [--still] [--alpha] [--workers N]
+   usage: node render.js <scene.html> [outdir] [--name clip] [--fps 30] [--still] [--at 3.5] [--alpha] [--workers N]
      --still   only still.png (last frame) + storyboard.jpg — fast check while designing
+     --at T    with --still: still.png at T seconds instead of the last frame (check page 1 of a multi-page clip)
      --alpha   transparent background → <name>.mov (ProRes 4444 with alpha) for overlaying on video
    Prints DURATION / frames / output paths. Scene errors are printed as "SCENE ERROR". */
 const path = require('path'), fs = require('fs'), os = require('os');
@@ -12,7 +13,7 @@ catch { ({ chromium } = require(path.join(execFileSync('npm', ['root', '-g']).to
 
 const argv = process.argv.slice(2), flag = f => argv.includes(f);
 const opt = (f, d) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : d; };
-const pos = argv.filter((a, i) => !a.startsWith('--') && !['--name', '--fps', '--workers'].includes(argv[i - 1]));
+const pos = argv.filter((a, i) => !a.startsWith('--') && !['--name', '--fps', '--workers', '--at'].includes(argv[i - 1]));
 if (!pos[0]) { console.error('usage: node render.js <scene.html> [outdir] [--name clip] [--fps 30] [--still] [--alpha]'); process.exit(2); }
 const scene = path.resolve(pos[0]);
 const out = path.resolve(pos[1] || path.join(path.dirname(scene), 'out'));
@@ -49,7 +50,8 @@ const shot = (page, t, file) => page.evaluate(t => setT(t), t).then(() => page.s
   const { w, h, dur } = first;
 
   // still + storyboard (6 moments)
-  await shot(first.page, dur, path.join(out, 'still.png'));
+  const AT = opt('--at') != null ? +opt('--at') : dur;
+  await shot(first.page, AT, path.join(out, 'still.png'));
   const moments = [.14, .3, .46, .62, .8, 1].map(f => +(f * dur).toFixed(2));
   const sb = [];
   for (let i = 0; i < moments.length; i++) { const f = path.join(out, `.sb${i}.png`); await shot(first.page, moments[i], f); sb.push(f); }
@@ -59,7 +61,7 @@ const shot = (page, t, file) => page.evaluate(t => setT(t), t).then(() => page.s
     '-q:v', '3', path.join(out, 'storyboard.jpg')]);
   sb.forEach(f => fs.rmSync(f));
   console.log(`DURATION ${dur}s  STAGE ${w}x${h}  storyboard @ ${moments.join(', ')}s`);
-  if (flag('--still')) { await browser.close(); console.log(`STILL ${out}/still.png\nSTORYBOARD ${out}/storyboard.jpg`); return; }
+  if (flag('--still')) { await browser.close(); console.log(`STILL ${out}/still.png (t=${AT}s)\nSTORYBOARD ${out}/storyboard.jpg`); return; }
 
   // frames, split across workers
   const frames = path.join(out, '.frames');

@@ -1,0 +1,13 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* 16:9 landscape — flow becomes a single row automatically */
+GL.run(() => {
+  GL.stage({ w: 1920, h: 1080 });
+  const top = GL.title({ kicker: 'HOW IT WORKS', main: 'FOUR STEPS', size: 110 });
+  GL.flow([
+    { icon: 'idea', label: 'IDEA' }, { icon: 'todo', label: 'PLAN' }, { icon: 'laptop', label: 'BUILD' }, { icon: 'cheer', label: 'LAUNCH' },
+  ], { top, bottom: GL.H - 40 });
+});
+</script></body></html>

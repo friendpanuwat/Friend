@@ -9,7 +9,7 @@
      });
 
    Everything is driven by window.setT(seconds) so scripts/render.js can step frame by frame.
-   API reference: references/api.md  ·  drawing catalogue: references/pairs.md            */
+   API reference: references/api.md  ·  style: references/style.md · catalogue: references/library.md            */
 (function () {
   const NS = 'http://www.w3.org/2000/svg';
   const HERE = document.currentScript ? document.currentScript.src.replace(/[^/]*$/, '') : '';
@@ -121,18 +121,25 @@
 
   /* bloom pulse on a finished drawing (needs the drawing's <g> with an id) */
   function pulse(g, start, filter = 'bloom', strength = 1) {
-    const u = mk('use', { href: '#' + g.id, filter: `url(#${filter})`, opacity: 0 }, g.parentNode.parentNode);
+    if (!g.id) g.id = 'gl' + (++uid);
+    const anchor = g.parentNode.hasAttribute('filter') && g.parentNode.dataset.wrap ? g.parentNode : g;
+    const u = document.createElementNS(NS, 'use');
+    u.setAttribute('href', '#' + g.id); u.setAttribute('filter', `url(#${filter})`); u.setAttribute('opacity', 0);
+    anchor.parentNode.insertBefore(u, anchor.nextSibling);
     items.push({ type: 'pulse', e: u, start, strength });
   }
 
   /* ---------------- drawing placement ---------------- */
   function strokeK(s) { return s >= 1 ? 1 / Math.sqrt(s) : Math.max(1, .8 / s); }   // keeps lines ~2.4–4px on screen
-  function art(fn, { x, y, s = 1, at = 0, ts = 1, filter = 'glow', parent = cur } = {}) {
-    const wrap = mk('g', { filter: filter ? `url(#${filter})` : null }, parent);
-    const g = mk('g', { transform: `translate(${x} ${y}) scale(${s})`, id: 'gl' + (++uid) }, wrap);
+  function art(fn, { x, y, s = 1, w, at = 0, ts = 1, filter = 'glow', parent = cur, float } = {}) {
+    if (w) s = w / 400;                                   // w = on-screen width of the ±200 drawing box
+    const wrap = mk('g', { filter: filter ? `url(#${filter})` : null, 'data-wrap': 1 }, parent);
+    const fl = float ? mk('g', { id: 'gl' + (++uid) }, wrap) : null;
+    const g = mk('g', { transform: `translate(${x} ${y}) scale(${s})`, id: 'gl' + (++uid) }, fl || wrap);
     const p = new Pen(g, at, strokeK(s), ts);
     fn(p);
-    return { wrap, g, end: p.span.end };
+    if (fl) items.push(Object.assign({ type: 'float', e: fl, start: p.span.end, amp: 8, period: 3.2, dx: 0 }, float === true ? {} : float));
+    return { wrap, g: fl || g, end: p.span.end };
   }
   function pairOf(it) {
     if (it.messy && it.clean) return it;
@@ -253,6 +260,102 @@
     return t;
   }
 
+
+  /* spot: one drawing big in the middle + label above + caption below (statement scene). Returns end time. */
+  function spot(it, { at = .4, y = H * .48, w, label = it.label, caption = it.caption, float = true } = {}) {
+    const s = w ? w / 400 : Math.min((W - 220) / 440, H * .36 / 400);
+    if (label) text(label, { y: y - 200 * s - 60, size: Math.min(96, W * .085), at, rise: 26 });
+    const a = art(single(it.icon || it.pair), { x: W / 2, y, s, at: at + .25, float });
+    if (caption) text(caption, { y: y + 200 * s + 100, size: 46, weight: 600, color: C.soft, glow: false, at: a.end - .2, rise: 14, maxW: W - 120 });
+    pulse(a.g, a.end + .1);
+    return a.end;
+  }
+
+  /* flow: process steps joined by dotted connectors — zig-zag on 9:16, a row on 16:9. Returns end time. */
+  function flow(list, { top = 340, bottom = H, at = .9, dir = W > H ? 'right' : 'down', dots = true } = {}) {
+    const n = list.length, span = bottom - top;
+    let pos, s, lab;
+    if (dir === 'right') {
+      s = Math.min(W / n * .62 / 440, span * .5 / 400); lab = clamp(W / n * .09, 28, 56);
+      pos = list.map((_, i) => [W * (i + .5) / n, top + span * .42]);
+    } else {
+      const rh = span / n; s = Math.min(rh * .6 / 370, W * .3 / 440); lab = clamp(rh * .12, 32, 60);
+      pos = list.map((_, i) => [i % 2 ? W * .7 : W * .3, top + rh * i + rh * .4]);
+    }
+    let t = at;
+    list.forEach((it, i) => {
+      const [x, y] = pos[i];
+      const a = art(single(it.icon || it.pair), { x, y, s, at: t });
+      const ly = y + 185 * s + lab * 1.25, mw = dir === 'right' ? W / n - 30 : W * .55;
+      if (it.label) text(it.label, { x, y: ly, size: lab, at: t + .2, maxW: mw, rise: 14 });
+      if (it.sub) text(it.sub, { x, y: ly + lab * 1.05, size: lab * .66, weight: 500, color: C.sub, glow: false, at: t + .3, maxW: mw, rise: 10 });
+      pulse(a.g, a.end + .05, 'bloom', .7);
+      t = Math.max(a.end, t + .6);
+      if (i < n - 1) {
+        const [nx, ny] = pos[i + 1], g = mk('g', { filter: 'url(#glow)' }, cur), pen = new Pen(g, t);
+        if (dir === 'right') parts.connect(pen, x + 200 * s + 18, y, nx - 200 * s - 18, ny, 0, .45, { dots });
+        else { const sd = Math.sign(nx - x); parts.connect(pen, x + sd * (200 * s + 18), y, nx, ny - 185 * s - 24, 0, .5, { dots, ctrl: [nx, y] }); }
+        t = pen.span.end + .05;
+      }
+    });
+    return t;
+  }
+
+  /* versus: A vs B side by side with labels; win: 'left' | 'right' dims the loser. Returns end time. */
+  function versus({ left, right, vs = 'VS', win } = {}, { top = 340, bottom = H, at = .9 } = {}) {
+    const span = bottom - top, s = Math.min((W / 2 - 80) / 440, span * .4 / 400), cy = top + span * .42;
+    const lab = clamp(W * .05, 32, 60), ly = cy + 190 * s + lab * 1.3;
+    vline(W / 2, top + 40, cy - lab * 1.4, at - .2); vline(W / 2, cy + lab * 1.4, bottom - 60, at - .2);
+    const side = (it, x, t) => {
+      const a = art(single(it.icon || it.pair), { x, y: cy, s, at: t });
+      if (it.label) text(it.label, { x, y: ly, size: lab, at: t + .2, maxW: W / 2 - 50, rise: 14 });
+      if (it.sub) text(it.sub, { x, y: ly + lab * 1.1, size: lab * .62, weight: 500, color: C.sub, glow: false, at: t + .3, maxW: W / 2 - 60, rise: 10 });
+      return a;
+    };
+    const A = side(left, W * .25, at);
+    text(vs, { y: cy + lab * .35, size: lab * 1.1, at: A.end - .1, color: C.kicker, rise: 10 });
+    const B = side(right, W * .75, A.end + .15);
+    const end = B.end + .1;
+    if (win) {
+      const [wn, ls] = win === 'left' ? [A, B] : [B, A];
+      tween(ls.wrap, end, .5, { o: 1 }, { o: .42 }, { ease: easeIO });
+      pulse(wn.g, end + .1);
+    } else { pulse(A.g, end, 'bloom', .6); pulse(B.g, end, 'bloom', .6); }
+    return end + .5;
+  }
+
+  /* counter: a number that counts up (from → value). Returns { g, end }. */
+  function counter(value, { from = 0, prefix = '', suffix = '', decimals = 0, at = 0, dur = 1.4, ...o } = {}) {
+    const nf = new Intl.NumberFormat('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    const fmt = v => prefix + nf.format(v) + suffix;
+    const g = text(fmt(value), Object.assign({ at, dur: .3, rise: 0 }, o));
+    items.push({ type: 'count', e: g.querySelector('tspan'), start: at, dur, from, to: value, fmt });
+    bump(at + dur);
+    return { g, end: at + dur };
+  }
+
+  /* stat: big glowing number (+ optional icon above, label + sub below). Returns end time. */
+  function stat({ value, from = 0, prefix = '', suffix = '', decimals = 0, label, sub, icon } = {}, { at = .4, top = 0, bottom = H, size } = {}) {
+    const span = bottom - top, ns = size || Math.min(W * .3, span * .22, 340), lab = clamp(ns * .24, 32, 64), ss = lab * .66;
+    const s = icon ? Math.min(span * .26 / 370, W * .45 / 440) : 0;
+    const blockH = (icon ? 370 * s + 50 : 0) + ns * .75 + (label ? lab * 2.1 : 0) + (sub ? ss * 1.7 : 0);
+    let y = top + (span - blockH) / 2, t = at;
+    if (icon) { const a = art(single(icon), { x: W / 2, y: y + 185 * s, s, at: t }); y += 370 * s + 50; t = a.end; pulse(a.g, a.end + 1.4, 'bloom', .6); }
+    y += ns * .75;
+    const c = counter(value, { from, prefix, suffix, decimals, y, size: ns, at: t, maxW: W - 120 });
+    if (label) { y += lab * 2.1; text(label, { y, size: lab, at: t + .3, maxW: W - 120, rise: 14 }); }
+    if (sub) { y += ss * 1.7; text(sub, { y, size: ss, weight: 500, color: C.sub, glow: false, at: t + .45, maxW: W - 120, rise: 10 }); }
+    pulse(c.g, c.end, 'bloom', .55);
+    return c.end;
+  }
+
+  /* connect: free arrow / dotted path between two points on the stage. Returns end time. */
+  function connect(x1, y1, x2, y2, { at = 0, dur = .5, ...o } = {}) {
+    const pen = new Pen(mk('g', { filter: 'url(#glow)' }, cur), at);
+    parts.connect(pen, x1, y1, x2, y2, 0, dur, o);
+    return pen.span.end;
+  }
+
   /* page: groups a layout so it fades out before the next one (multi-page clips). fn(at) must return its end time. */
   function page(at, fn, { hold = 1.2, out = true } = {}) {
     const prev = cur, g = mk('g', {}, root);
@@ -278,6 +381,12 @@
         it.e.setAttribute('stroke-dashoffset', 1 - q);
         it.e.setAttribute('stroke-opacity', p > 0 ? 1 : 0);
         if (it.hasFill) it.e.setAttribute('fill-opacity', clamp(q * 1.6));
+      } else if (it.type === 'float') {
+        const u = t - it.start, k = clamp(u / .8), w = Math.sin(u / it.period * Math.PI * 2) * k;
+        it.e.setAttribute('transform', `translate(${(w * it.dx).toFixed(2)} ${(w * -it.amp).toFixed(2)})`);
+      } else if (it.type === 'count') {
+        const q = easeOut(clamp((t - it.start) / it.dur));
+        it.e.textContent = it.fmt(it.from + (it.to - it.from) * q);
       } else if (it.type === 'pulse') {
         const u = t - it.start;
         let o = 0;
@@ -473,6 +582,95 @@
       p.rect(x - w / 2, y - h / 2, w, h, { rx: 22, fill: C.fill, at, dur: d });
       p.rect(x - w / 2 + 12, y - h / 2 + 12, w - 24, h - 24, { rx: 14, sw: 1.4, stroke: C.mute, at: at + d * .5, dur: d * .5 });
     },
+
+    /* ---- people, hands, pointers (pictogram style: outlined capsules, dark fill) ---- */
+    capsule(p, x1, y1, x2, y2, r, o = {}) {
+      const a = Math.atan2(y2 - y1, x2 - x1), nx = -Math.sin(a) * r, ny = Math.cos(a) * r, f = v => v.toFixed(1);
+      return p.path(`M ${f(x1 + nx)} ${f(y1 + ny)} L ${f(x2 + nx)} ${f(y2 + ny)} A ${r} ${r} 0 0 0 ${f(x2 - nx)} ${f(y2 - ny)} L ${f(x1 - nx)} ${f(y1 - ny)} A ${r} ${r} 0 0 0 ${f(x1 + nx)} ${f(y1 + ny)} Z`,
+        Object.assign({ fill: C.fill }, o));
+    },
+    person(p, x, y, h = 200, at = 0, d = .6, { pose = 'stand' } = {}) {   // standing pictogram, (x, y) = centre, h = height
+      const sc = h / 200, q = p.child({ transform: `translate(${x} ${y}) scale(${sc})` }, sc);
+      const A = { stand: [10, 10], wave: [10, 155], cheer: [150, 150], point: [10, 88], think: [10, 150] }[pose] || [10, 10];
+      parts.capsule(q, -11, 12, -12, 90, 9.5, { at: at + d * .55, dur: d * .4 });
+      parts.capsule(q, 11, 12, 12, 90, 9.5, { at: at + d * .6, dur: d * .4 });
+      q.path('M -30 -38 Q -30 -50 -18 -50 L 18 -50 Q 30 -50 30 -38 L 24 12 Q 23 18 16 18 L -16 18 Q -23 18 -24 12 Z', { fill: C.fill, at: at + d * .2, dur: d * .45 });
+      [-1, 1].forEach((side, i) => {
+        const th = A[i] * Math.PI / 180, sx = side * 25, sy = -40, L = pose === 'think' && side > 0 ? 40 : 62;
+        const ex = sx + side * Math.sin(th) * L, ey = sy + Math.cos(th) * L;
+        if (pose === 'think' && side > 0) {                 // hand to chin: upper arm out, forearm back to the face
+          parts.capsule(q, sx, sy, ex + 8, ey + 44, 8, { at: at + d * .45, dur: d * .3 });
+          parts.capsule(q, ex + 8, ey + 44, 14, -60, 7.5, { at: at + d * .65, dur: d * .3 });
+        } else parts.capsule(q, sx, sy, ex, ey, 8, { at: at + d * .45 + i * .05, dur: d * .35 });
+      });
+      q.circle(0, -76, 20, { fill: C.fill, at, dur: d * .35 });
+    },
+    bust(p, x, y, sc = 1, at = 0, d = .5) {              // avatar: head + shoulders, box ±60 × ±62
+      const q = p.child({ transform: `translate(${x} ${y}) scale(${sc})` }, sc);
+      q.path('M -58 62 C -58 16, -32 6, 0 6 C 32 6, 58 16, 58 62 Z', { fill: C.fill, at: at + d * .3, dur: d * .6 });
+      q.circle(0, -28, 28, { fill: C.fill, at, dur: d * .5 });
+    },
+    team(p, x, y, sc = 1, at = 0, d = .5) {
+      parts.bust(p, x - 72 * sc, y + 14 * sc, .8 * sc, at + .15, d);
+      parts.bust(p, x + 72 * sc, y + 14 * sc, .8 * sc, at + .25, d);
+      parts.bust(p, x, y, sc, at, d);
+    },
+    hand(p, x, y, sc = 1, at = 0, d = .55) {             // pointing hand (tap), fingertip at (x, y - 64·sc)
+      const q = p.child({ transform: `translate(${x} ${y}) scale(${sc})` }, sc);
+      q.rect(-8, 48, 56, 24, { rx: 5, fill: C.fill, at: at + d * .7, dur: d * .3 });
+      q.path(`M -10 -10 L -10 -54 A 10 10 0 0 1 10 -54 L 10 -18 A 8 8 0 0 1 26 -18 L 26 -14 A 8 8 0 0 1 42 -14 L 42 -8 A 7.5 7.5 0 0 1 57 -8
+        L 57 22 Q 57 46 40 50 L 2 50 Q -20 46 -26 30 L -38 8 A 8 8 0 0 1 -24 0 L -10 14 Z`, { fill: C.fill, at, dur: d });
+      q.line(26, -14, 26, -2, { sw: 2, at: at + d * .8, dur: .1 }); q.line(42, -8, 42, 2, { sw: 2, at: at + d * .85, dur: .1 });
+    },
+    cursor(p, x, y, sc = 1, at = 0, d = .35, { click = false } = {}) {   // arrow pointer, tip at (x, y)
+      const q = p.child({ transform: `translate(${x} ${y}) scale(${sc})` }, sc);
+      q.path('M 0 0 L 0 46 L 12 35 L 21 54 L 29 50 L 20 32 L 35 32 Z', { fill: C.fill, at, dur: d });
+      if (click) [[-9, -9, -19, -19], [-12, 3, -25, 5], [3, -12, 5, -25]].forEach(([a, b, c, e], i) => q.line(a, b, c, e, { sw: 2.6, at: at + d + i * .04, dur: .12 }));
+    },
+    card(p, x, y, w, h, { text, size, at = 0, dur = .4, rx = 14, color } = {}) {   // rounded label box
+      p.rect(x - w / 2, y - h / 2, w, h, { rx, fill: C.fill, at, dur });
+      if (text) p.text(text, x, y + (size || h * .36) * .36, { size: size || h * .36, at: at + dur * .8, color });
+    },
+    connect(p, x1, y1, x2, y2, at = 0, d = .5, { bend = 0, ctrl, dots = false, head = 13, stroke = C.soft, sw = 2.6 } = {}) {
+      const L = Math.hypot(x2 - x1, y2 - y1), mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      const [cx, cy] = ctrl || [mx - (y2 - y1) / L * bend * L, my + (x2 - x1) / L * bend * L];
+      const P = t => [(1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * cx + t * t * x2, (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * cy + t * t * y2];
+      if (dots) { const n = Math.max(3, Math.round(L / 20)); for (let i = 0; i < n; i++) { const [px, py] = P(i / n); p.dot(px, py, sw * 1.2, { at: at + d * i / n, dur: .06, fill: stroke }); } }
+      else p.path(`M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`, { stroke, sw, at, dur: d });
+      const a = Math.atan2(y2 - cy, x2 - cx);
+      p.poly([[x2 - Math.cos(a - .5) * head, y2 - Math.sin(a - .5) * head], [x2, y2], [x2 - Math.cos(a + .5) * head, y2 - Math.sin(a + .5) * head]], { stroke, sw, at: at + d * .9, dur: .15 });
+    },
+    /* ---- money, shopping, charts ---- */
+    coins(p, x, by, n = 5, r = 40, at = 0, d = .5) {     // coin stack, by = bottom of the lowest coin
+      const ry = r * .34, th = r * .26;
+      for (let i = 0; i < n; i++) {
+        const yy = by - ry - i * th, j = rr(-3, 3) * r / 40, f = v => v.toFixed(1);
+        p.path(`M ${f(x - r + j)} ${f(yy)} A ${r} ${ry} 0 0 0 ${f(x + r + j)} ${f(yy)} L ${f(x + r + j)} ${f(yy - th)} A ${r} ${ry} 0 0 1 ${f(x - r + j)} ${f(yy - th)} Z`,
+          { fill: C.fill, sw: 2.4, at: at + i * d / n, dur: .18 });
+        if (i === n - 1) { p.ellipse(x + j, yy - th, r, ry, { fill: C.fill, sw: 2.4, at: at + d, dur: .2 }); p.ellipse(x + j, yy - th, r * .62, ry * .6, { sw: 1.6, stroke: C.soft, at: at + d + .1, dur: .15 }); }
+      }
+    },
+    bag(p, x, y, sc = 1, at = 0, d = .5) {               // shopping bag, box ±60 × ±90
+      const q = p.child({ transform: `translate(${x} ${y}) scale(${sc})` }, sc);
+      q.path('M -26 -40 C -26 -92, 26 -92, 26 -40', { sw: 3.4, at, dur: d * .5 });
+      q.rect(-62, -44, 124, 134, { rx: 10, fill: C.fill, at: at + d * .3, dur: d * .6 });
+      q.circle(-26, -26, 4, { sw: 2, at: at + d * .8, dur: .1 }); q.circle(26, -26, 4, { sw: 2, at: at + d * .85, dur: .1 });
+    },
+    bars(p, x, y, w, h, values, at = 0, d = .6, { accent } = {}) {   // bar chart in a w × h box centred on (x, y)
+      const n = values.length, max = Math.max(...values), slot = w / n, bw = slot * .62, by = y + h / 2, ai = accent ?? n - 1;
+      values.forEach((v, i) => {
+        const bh = Math.max(4, h * .92 * v / max), hot = i === ai;
+        p.rect(x - w / 2 + i * slot + (slot - bw) / 2, by - bh, bw, bh, { rx: Math.min(8, bw * .2), fill: C.fill, sw: hot ? 3.4 : 2.4, stroke: hot ? C.ink : C.soft, at: at + i * d / n, dur: .3 });
+      });
+      p.line(x - w / 2 - 12, by, x + w / 2 + 12, by, { sw: 2.4, at, dur: d * .5 });
+    },
+    lineChart(p, x, y, w, h, values, at = 0, d = .8, { dots = true } = {}) {
+      const n = values.length, min = Math.min(...values), max = Math.max(...values), l = x - w / 2, b = y + h / 2;
+      const P = values.map((v, i) => [l + w * i / (n - 1), b - h * .1 - h * .8 * (v - min) / ((max - min) || 1)]);
+      p.poly([[l, y - h / 2], [l, b], [l + w + 10, b]], { sw: 2, stroke: C.mute, at, dur: d * .4 });
+      p.poly(P, { sw: 3.4, at: at + d * .3, dur: d });
+      if (dots) P.forEach(([px, py], i) => p.circle(px, py, i === n - 1 ? 9 : 5, { fill: i === n - 1 ? C.ink : C.fill, sw: 2.2, at: at + d * .3 + d * i / (n - 1), dur: .12 }));
+    },
   };
 
   /* simple single icons (for steps / custom scenes) */
@@ -497,6 +695,19 @@
     wifi: p => parts.wifi(p, 0, -20, 4, 0, .5),
     bubble: p => { parts.bubble(p, 0, -10, 320, 200, 0, .5); [-50, 0, 50].forEach((yy, i) => p.line(-110, yy - 10, 110 - i * 50, yy - 10, { sw: 3, at: .45 + i * .06, dur: .2 })); },
     wallet: p => parts.wallet(p, 0, 0, 300, 190, 0, .5),
+    person: p => parts.person(p, 0, 0, 360, 0, .7),
+    wave: p => parts.person(p, 0, 0, 360, 0, .7, { pose: 'wave' }),
+    cheer: p => parts.person(p, 0, 0, 360, 0, .7, { pose: 'cheer' }),
+    point: p => parts.person(p, -40, 0, 360, 0, .7, { pose: 'point' }),
+    think: p => { parts.person(p, -20, 15, 340, 0, .7, { pose: 'think' }); parts.bubble(p, 120, -140, 120, 74, .6, .3, true); [-28, 0, 28].forEach((dx, i) => p.dot(120 + dx, -140, 5, { at: .85 + i * .06 })); },
+    bust: p => parts.bust(p, 0, 0, 2.6, 0, .55),
+    team: p => parts.team(p, 0, 10, 1.55, 0, .5),
+    hand: p => parts.hand(p, -20, -10, 2.4, 0, .6),
+    cursor: p => parts.cursor(p, -40, -80, 3.2, 0, .45, { click: true }),
+    coins: p => { parts.coins(p, -60, 150, 7, 80, 0, .7); parts.coins(p, 100, 150, 4, 70, .3, .5); },
+    bag: p => parts.bag(p, 0, 0, 2, 0, .55),
+    chart: p => parts.bars(p, 0, 0, 340, 300, [3, 5, 4, 7, 9], 0, .7),
+    linechart: p => parts.lineChart(p, 0, 0, 360, 280, [2, 3, 2.5, 4, 3.6, 6], 0, .9),
   };
 
   /* =====================================================================================
@@ -709,7 +920,7 @@
     },
   });
 
-  window.GL = { C, stage, run, Pen, art, text, title, rows, grid, hero, steps, page, finish, tween, fade, pulse, hline, vline, midArrow,
+  window.GL = { C, stage, run, Pen, art, text, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
     parts, icons, pairs, pair, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
 
   async function run(build) {

@@ -1,6 +1,30 @@
-# คู่ภาพสำเร็จรูป (before → after)
+# คลังภาพสำเร็จรูป
 
-ดูทั้งหมดในภาพเดียว: `references/catalog.jpg` (render จาก `examples/grid-catalog.html`).
+ภาพรวม: `references/icons.jpg` (ภาพเดี่ยวทั้งหมด — `examples/icons-catalog.html`) · `references/catalog.jpg` (คู่ก่อน→หลังทั้งหมด — `examples/grid-catalog.html`).
+ทุกชิ้นวาดตาม `style.md` จึงผสมกันในฉากเดียวได้เลย.
+
+## ภาพเดี่ยว (`icon:` ใน steps / flow / versus / spot / stat, หรือ `GL.art(GL.icons.ชื่อ, …)`)
+
+| หมวด | ชื่อ |
+|---|---|
+| คน | `person` `wave` `cheer` `point` `think` (คน + กล่องความคิด) `bust` (อวาตาร์) `team` (3 คน) |
+| มือ / ตัวชี้ | `hand` (นิ้วชี้กด) `cursor` (เมาส์ + คลิก) |
+| เงิน / ขาย / ผลลัพธ์ | `coins` `wallet` `bag` `chart` (แท่ง แท่งสุดท้ายเด่น) `linechart` (เส้นขึ้น) |
+| อุปกรณ์ / สื่อสาร | `phone` `laptop` `tablet` `tv` `gamepad` `wifi` `globe` `bell` `envelope` `bubble` |
+| งาน / เอกสาร / เวลา | `folder` `doc` `calendar` `clock` `moon` |
+| ความหมาย | `check` `star` `bulb` `target` |
+
+ชื่อ pair ใช้แทน icon ได้ (ได้ฝั่งเรียบ), หรือส่งฟังก์ชัน `p => { … }` ที่วาดเอง.
+
+## ชิ้นส่วนสำหรับประกอบฉากเอง (`GL.parts.*` — signature ใน `api.md`)
+
+คน: `person` (5 ท่า, กำหนดความสูง) · `bust` · `team` · `capsule` (แขนขา/ท่อ) ·
+ตัวชี้: `hand` · `cursor` (click) · โครงสร้าง: `card` (กล่องป้าย + ข้อความ) · `connect` (ลูกศรโค้ง/จุดไข่ปลา) · `link` ·
+ข้อมูล: `bars` · `lineChart` · `coins` · ของใช้: `bag` `wallet` `envelope` `phone` `laptop` `tablet` `folder` `doc` `calendar` `clock` `bulb` `tv` `gamepad` `wifi` `globe` `bell` `moon` `zzz` ·
+ลายเส้นยุ่ง: `scribble` `tangle` `paperStack` · ระบบเป้า: `target` `arrow` · เครื่องหมาย: `check` `checkbox` `star` `bubble` `appIcon`
+
+## คู่ก่อน→หลัง (`pair:` ใน rows / grid / hero)
+
 ใช้ใน item: `{ label: '1. INBOX', pair: 'inbox' }`. ชื่อคู่เป็นคำกลาง ๆ — ป้ายข้อจะเขียนอะไรก็ได้ (ไทย/อังกฤษ).
 
 | pair | ฝั่งรก (messy) | ฝั่งเรียบ (clean) | ใช้กับหัวข้อ |
@@ -20,11 +44,6 @@
 
 ตัวอย่างคู่ที่วาดเองใน scene: `closet` (ตู้เสื้อผ้าแน่น → เสื้อ 5 ตัวบนราว) ใน `examples/pages-six.html`.
 
-## ไอคอนเดี่ยว (`GL.steps` / `icon:`)
-
-`check` `star` `bulb` `clock` `moon` `target` `phone` `laptop` `tablet` `folder` `doc` `envelope` `calendar` `globe` `bell` `gamepad` `tv` `wifi` `bubble` `wallet`
-— หรือใช้ชื่อ pair ใดก็ได้ (ได้ฝั่งเรียบ), หรือส่งฟังก์ชัน `p => { … }`.
-
 ## หัวข้อที่ยังไม่มีคู่ — แนวคิดสำหรับวาดใหม่ (ดู `drawing.md`)
 
 | หัวข้อ | ฝั่งรก | ฝั่งเรียบ |
@@ -40,4 +59,4 @@
 | social / โซเชียล | หน้าฟีดยาว + หัวใจ + แจ้งเตือน | หนังสือหนึ่งเล่ม |
 | home / บ้าน | ห้องนั่งเล่นแน่น ทีวี ชั้นหนังสือ กล่อง | เก้าอี้ตัวเดียว + ต้นไม้ |
 
-คู่ที่ผู้ใช้อนุมัติแล้วและน่าจะใช้ซ้ำ → ย้ายเข้า `assets/glowline.js` (ส่วน PAIRS) + เพิ่มแถวในตารางบน + render `grid-catalog` ใหม่เป็น `catalog.jpg`.
+ภาพ/คู่ที่ผู้ใช้อนุมัติแล้วและน่าจะใช้ซ้ำ → ย้ายเข้า `assets/glowline.js` + เพิ่มในไฟล์นี้ + render `icons-catalog` / `grid-catalog` ใหม่เป็น `icons.jpg` / `catalog.jpg`.

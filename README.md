@@ -13,8 +13,10 @@
 
 ## Glow Line Motion
 
-- `.claude/skills/glow-line-motion/` — skill ทำ motion graphics ลายเส้นขาวเรืองแสงบนพื้นดำ (เส้นวาดตัวเอง, ก่อน→หลัง แบบ "20 WAYS TO SIMPLIFY").
-  สั่งได้เลย: "ทำ motion graphic ตาม skill glow-line-motion เรื่อง 5 วิธี…" — มีคู่ภาพสำเร็จ 12 คู่ (ดู `references/catalog.jpg`) และวาดคู่ใหม่ได้
-- เลย์เอาต์: rows (1–4 ข้อ), หลายหน้า, grid (โปสเตอร์ 6–20 ข้อ), hero (ข้อเดียวเต็มจอ / B-roll), steps (ไอคอน + ข้อความ)
-- ส่งออก MP4 1080×1920 (+ 1:1 / 16:9), PNG, storyboard และ MOV พื้นใส (`--alpha`)
-- `motion-samples/glow-line-simplify/` — ตัวอย่างแรกที่เป็นต้นแบบของสไตล์
+- `.claude/skills/glow-line-motion/` — skill ทำ motion graphics ทุกแนวในลายเส้นขาวเรืองแสงบนพื้นดำ (ไอคอนเส้นที่วาดตัวเอง)
+  สั่งได้เลย: "ทำ motion graphic ตาม skill glow-line-motion เรื่อง …" — แค่หัวข้อก็ได้
+- คู่มือสไตล์ลายเส้น: `references/style.md` (แสง สี รูปทรง น้ำหนักเส้น ตัวอักษร การเคลื่อนไหว สิ่งที่ห้าม อุปมา)
+- รูปแบบ: ก่อน→หลัง (rows / grid / hero), ขั้นตอน (flow), เปรียบเทียบ (versus), ตัวเลขนับขึ้น (stat), ทิป (steps),
+  ฉากเดี่ยว (spot), ฉากอิสระมีของเคลื่อนที่ — ภาพสำเร็จดูที่ `references/icons.jpg` + `catalog.jpg`
+- ส่งออก MP4 9:16 / 1:1 / 16:9, PNG, storyboard และ MOV พื้นใส (`--alpha`)
+- `motion/glow-line-demo/` — คลิปตัวอย่างจาก skill · `motion-samples/glow-line-simplify/` — ต้นแบบแรกของสไตล์
