@@ -97,11 +97,16 @@ const LP = (() => {
     tube(p, T, o = {}) {
       const d = typeof p === 'string' ? p : 'M ' + p.map(q => q.join(' ')).join(' L '), sw = (o.sw ?? 3) * this.k, acc = o.tone === 'acc';
       const a = this._d('path', {d}, Object.assign({}, o, {fill: 'none', tone: undefined, stroke: acc ? C.accLine : C.ink}));
-      a.style.strokeWidth = (T + sw) + 'px'; if (acc) a.classList.add('lp-acc');
-      const b = this._d('path', {d}, Object.assign({}, o, {fill: 'none', tone: undefined, stroke: acc ? C.acc : C.fill}));
-      b.style.strokeWidth = Math.max(.1, T - sw) + 'px';
+      a.style.strokeWidth = (T + 2 * sw) + 'px'; if (acc) a.classList.add('lp-acc');
+      /* core: the body colour, or 'shade' (lit from the top left; the accent's own shade on an accent tube) */
+      const core = o.core === 'shade' ? `url(#${this.grad}${acc ? 'a' : ''})` : acc ? C.acc : C.fill;
+      if (acc || o.core === 'shade') { const u = this._d('path', {d}, Object.assign({}, o, {fill: 'none', tone: undefined, stroke: C.fill})); u.style.strokeWidth = T + 'px'; }
+      const b = this._d('path', {d}, Object.assign({}, o, {fill: 'none', tone: undefined, stroke: core}));
+      b.style.strokeWidth = T + 'px';
       return b;
     }
+    /* a pen whose drawing is cut to a rectangle (for one link passing in front of the next) */
+    clipped(x, y, w, h) { const id = 'lpc' + (++LPN); this.defs.insertAdjacentHTML('beforeend', `<clipPath id="${id}" clipPathUnits="userSpaceOnUse"><rect x="${x}" y="${y}" width="${w}" height="${h}"/></clipPath>`); return this.child({'clip-path': `url(#${id})`}); }
   }
   /* a drawing layer the size of the canvas; small (the overlay widget) is drawn 1:1, the full screen picture 1.6× */
   const layer = (g, small, z) => {
@@ -281,16 +286,6 @@ R3.both('B10', 'raise', 'คนที่ใช่ยกมือ', (K, s, T, g, 
   const w = s.label ?? s.who?.label; if (w) LP.word(K, g, w, 300, 280, 36, 340);
 });
 
-/* 2 · a person waiting at arrivals holds up a cardboard sign; on the sign is the kind of person */
-R3.both('B10', 'sign', 'คนถือป้ายรอรับ บนป้ายคือคนกลุ่มนี้', (K, s, T, g, small) => {
-  const X = 300, G = 338, H = 330, {p} = LP.layer(g, small);
-  const man = HU.person(p, {x: X, y: G, h: H, pose: 'hold'});
-  p.rect(X - 140, 80, 280, 142, {rx: 4, fill: 'shade'});
-  p.line(X - 132, 88, X + 132, 88, {sw: 1.4, tone: 'soft'}); p.line(X - 132, 214, X + 132, 214, {sw: 1.4, tone: 'soft'});
-  man.front();
-  const w = s.label ?? s.who?.label; if (w) LP.word(K, g, w, X, 124, 44, 236);
-});
-
 /* ================= B13 เคล็ดลับ: secret {icon, label?} ================= */
 /* 3 · a secret file with a padlock on the cover: the paper with the tip slides up out of it */
 R3.both('B13', 'dossier', 'แฟ้มลับ กระดาษเคล็ดลับเลื่อนออกมา', (K, s, T, g, small) => {
@@ -305,21 +300,6 @@ R3.both('B13', 'dossier', 'แฟ้มลับ กระดาษเคล็�
   /* the padlock: a thick shackle, a shaded body, the keyhole */
   fr.path('M 280 252 L 280 236 Q 280 214 300 214 Q 320 214 320 236 L 320 252', {sw: 12}); fr.path('M 280 252 L 280 236 Q 280 214 300 214 Q 320 214 320 236 L 320 252', {sw: 6, stroke: 'var(--lp-fill)'});
   fr.rect(268, 248, 64, 52, {rx: 8, fill: 'shade', sw: 3}); fr.circle(300, 268, 6, {sw: 2}); fr.line(300, 274, 300, 286, {sw: 3});
-});
-
-/* 4 · a torch in the dark: the beam sweeps across and stops on the tip, which lights up */
-R3.both('B13', 'torch', 'ไฟฉายส่องหาในที่มืด เจอเคล็ดลับ', (K, s, T, g, small) => {
-  const it = s.secret ?? {icon: 'lightbulb'}, {p} = LP.layer(g, small);
-  p.path('M 246 226 L 340 18 L 548 18 L 548 196 L 268 258 Z', {fill: 'var(--lp-acc)', stroke: 'none', op: .24});
-  p.rect(352, 32, 186, 148, {rx: 16, fill: 'shade', tone: 'acc'}); p.rect(362, 42, 166, 128, {rx: 10, tone: 'acc', fill: 'none', sw: 1.4});
-  LP.ico(g, it.icon, 445, 78, 50, true); if (it.label) LP.word(K, g, it.label, 445, 108, 30, 160, true);
-  const tq = p.child({transform: 'rotate(-32 190 284)'});
-  tq.rect(30, 258, 148, 52, {rx: 10, fill: 'shade'}); tq.line(36, 268, 172, 268, {sw: 1.4, tone: 'soft'});
-  [64, 82, 100, 118].forEach(x => tq.line(x, 272, x, 302, {sw: 1.6, tone: 'soft'}));
-  tq.rect(136, 248, 26, 12, {rx: 4, fill: 'shade', sw: 2.2});
-  tq.path('M 176 252 L 230 236 Q 240 234 240 244 L 240 324 Q 240 334 230 332 L 176 316 Z', {fill: 'shade'});
-  tq.line(184, 258, 184, 310, {sw: 1.4, tone: 'soft'});
-  tq.rect(238, 232, 16, 104, {rx: 6, fill: 'shade', tone: 'acc'});
 });
 
 /* ================= B20 ความสัมพันธ์: a {icon, label?}, b {icon, label?}, label?, cut? ================= */
@@ -361,126 +341,6 @@ R3.both('B21', 'roadsign', 'ป้ายริมทางบนเสาสอ�
   [[86, 40], [514, 40], [86, 156], [514, 156]].forEach(([x, y]) => p.circle(x, y, 4, {tone: 'acc', fill: 'none', sw: 1.6}));
   LP.ico(g, pl.icon, 300, 62, 56, true);
   if (pl.label) LP.word(K, g, pl.label, 300, 94, 48, 420, true);
-});
-
-/* 8 · a hand holds up a phone and takes a picture of the place: the place is on the screen */
-R3.both('B21', 'snap', 'มือถือมือถือ ถ่ายรูปสถานที่', (K, s, T, g, small) => {
-  const pl = s.place ?? {icon: 'map-pin'}, {p} = LP.layer(g, small), box = [150, 0, 450, 340];
-  /* the hand behind the phone: the wrist from the lower left, the palm across the back of the phone */
-  p.figure([{d: 'M 172 344 L 208 284 Q 224 260 260 251 L 362 236 Q 392 236 396 266 L 392 300 Q 384 330 350 334 L 270 344 Z'}], {box: [160, 220, 400, 344], details: ['M 186 322 L 278 332']});
-  /* the phone: shaded case, the screen, the camera, a side button */
-  p.rect(210, 10, 182, 300, {rx: 26, fill: 'shade'}); p.rect(392, 70, 6, 40, {rx: 3, fill: 'shade', sw: 2});
-  p.rect(222, 22, 158, 276, {rx: 18, fill: true, sw: 1.8}); p.rect(282, 30, 38, 10, {rx: 5, fill: 'shade', sw: 1.6});
-  [[238, 52, 1, 1], [364, 52, -1, 1], [238, 238, 1, -1], [364, 238, -1, -1]].forEach(([x, y, dx, dy]) => p.poly([[x, y + 22 * dy], [x, y], [x + 22 * dx, y]], {sw: 3, tone: 'acc', fill: 'none'}));
-  p.circle(301, 274, 13, {sw: 2.2}); p.circle(301, 274, 8, {fill: 'var(--lp-acc)', stroke: 'none'});
-  LP.ico(g, pl.icon, 301, 112, 66); if (pl.label) LP.word(K, g, pl.label, 301, 156, 30, 134);
-  /* fingertips round the right edge, the thumb over the left edge */
-  p.figure([0, 1, 2, 3].map(k => ({d: `M 378 ${150 + k * 24} L ${398 - (k === 3 ? 4 : 0)} ${152 + k * 24}`, w: 19})), {box, details: [0, 1, 2, 3].map(k => `M 394 ${145 + k * 24} Q ${401 - (k === 3 ? 4 : 0)} ${149 + k * 24} ${398 - (k === 3 ? 4 : 0)} ${157 + k * 24}`)});
-  p.figure([{d: 'M 214 300 Q 210 262 222 238 L 240 208', w: 23}, {d: 'M 206 330 Q 200 300 214 290 L 234 280', w: 30}], {box: [180, 200, 260, 340], details: ['M 232 206 Q 242 208 244 216', 'M 216 262 Q 222 256 228 258']});
-});
-
-/* ================= B12 เหตุกับผล: items [3 {icon, label?, tone?}], end? ================= */
-/* 9 · a stone drops into still water; the rings spread out, the outer one is the effect */
-R3.both('B12', 'ripple', 'หินตกน้ำ วงคลื่นกระเพื่อมออกไปทีละวง', (K, s, T, g, small) => {
-  const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg', C = [300, 206], {p} = LP.layer(g, small);
-  p.ellipse(C[0], C[1], 250, 72, {fill: 'shade'});
-  p.ellipse(C[0], C[1], 54, 15, {sw: 2.6}); p.ellipse(C[0], C[1], 128, 36, {sw: 2, tone: 'soft'});
-  p.ellipse(C[0], C[1], 208, 58, {sw: 5, tone: neg ? 'neg' : 'acc', fill: 'none'});
-  [[-30, -24, 4], [26, -28, 5], [4, -38, 3.5]].forEach(([dx, dy, r]) => p.ellipse(C[0] + dx, C[1] + dy, r * .8, r, {fill: 'shade', sw: 1.8}));
-  p.line(C[0], 104, C[0], C[1] - 46, {sw: 1.8, tone: 'soft', dash: [6, 10]});
-  p.path('M 254 62 C 250 30 278 12 304 14 C 336 16 354 36 350 62 C 346 90 320 100 300 100 C 274 100 256 90 254 62 Z', {fill: 'shade'});
-  p.path('M 272 36 Q 286 24 306 26', {sw: 2, op: .7}); p.path('M 262 74 Q 280 92 312 90', {sw: 1.4, tone: 'soft'});
-  if (it[0]) LP.ico(g, it[0].icon, 302, 58, 36);
-  if (it[2]?.label) { const w = LP.word(K, g, it[2].label, 300, 286, 36, 360); if (neg) w.style.color = 'var(--lp-neg)'; }
-});
-
-/* 10 · a toaster: the lever goes down (the cause) and the toast pops up (the effect) */
-R3.both('B12', 'toaster', 'เครื่องปิ้งขนมปัง กดคันโยก ขนมปังเด้งขึ้น', (K, s, T, g, small) => {
-  const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg', {p} = LP.layer(g, small);
-  [262, 300, 338].forEach((x, k) => p.path(`M ${x} 36 C ${x - 8} 28 ${x + 8} 20 ${x} ${12 - k * 2}`, {sw: 1.8, tone: 'soft'}));
-  const bread = `M 210 170 L 210 86 C 190 82 184 58 198 46 C 214 32 240 38 254 46 C 272 36 328 36 346 46 C 360 38 386 32 402 46 C 416 58 410 82 390 86 L 390 170 Z`;
-  p.path(bread, {fill: 'shade', tone: neg ? undefined : 'acc'}); if (neg) p.path(bread, {tone: 'neg', sw: 3.2});
-  p.child({transform: 'translate(300 108) scale(.9) translate(-300 -108)'}, .9).path(bread, {sw: 1.6, tone: neg ? 'neg' : 'soft'});
-  if (it[2]?.icon) LP.ico(g, it[2].icon, 300, it[2].label ? 62 : 80, 32, !neg);
-  if (it[2]?.label) { const w = LP.word(K, g, it[2].label, 300, 76, 24, 150, !neg); if (neg) w.style.color = 'var(--lp-neg)'; }
-  p.path('M 128 296 L 128 156 Q 128 116 168 116 L 432 116 Q 472 116 472 156 L 472 296 Z', {fill: 'shade'});
-  p.rect(196, 112, 208, 12, {rx: 6, fill: true, sw: 2.2});
-  p.path('M 152 150 Q 148 160 148 190 L 148 250', {sw: 2, op: .65}); p.line(164, 160, 164, 220, {sw: 1.4, op: .45});
-  p.line(446, 140, 446, 270, {sw: 1.6, tone: 'soft'});
-  p.rect(436, 230, 66, 22, {rx: 10, fill: 'shade', sw: 2.4});
-  p.circle(300, 214, 32, {fill: 'shade', sw: 2.6});
-  for (let k = 0; k < 7; k++) { const a = (-210 + k * 40) * Math.PI / 180; p.line(300 + Math.cos(a) * 40, 214 + Math.sin(a) * 40, 300 + Math.cos(a) * 47, 214 + Math.sin(a) * 47, {sw: 1.6, tone: 'soft'}); }
-  p.line(300, 214, 316, 196, {sw: 2.6});
-  p.line(170, 270, 430, 270, {sw: 1.4, tone: 'soft'});
-  p.rect(116, 292, 368, 22, {rx: 9, fill: 'shade'});
-  p.rect(150, 314, 44, 14, {rx: 5, fill: true}); p.rect(406, 314, 44, 14, {rx: 5, fill: true});
-});
-
-/* ================= B05 ถูกกับผิด: wrong {icon, label?}, right {icon, label?} ================= */
-/* 11 · a USB plug: the wrong way up it will not go in; turned the right way, it goes in */
-R3.both('B05', 'usb', 'หัว USB ด้านผิดเสียบไม่เข้า ด้านถูกเสียบได้', (K, s, T, g, small) => {
-  const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'}, {p} = LP.layer(g, small);
-  p.rect(-20, 166, 112, 26, {rx: 13, fill: 'shade'}); p.line(-10, 172, 84, 172, {sw: 1.4, op: .5});
-  p.rect(84, 158, 26, 42, {rx: 8, fill: 'shade'});
-  p.rect(104, 136, 140, 86, {rx: 14, fill: 'shade', tone: 'acc'});
-  [0, 1, 2, 3].forEach(k => p.line(122 + k * 9, 150, 122 + k * 9, 208, {sw: 1.6, tone: 'acc', op: .6}));
-  p.rect(242, 148, 92, 62, {rx: 3, fill: 'shade'}); p.line(246, 156, 330, 156, {sw: 1.4, tone: 'soft'});
-  p.rect(266, 164, 14, 12, {rx: 2, sw: 2}); p.rect(294, 164, 14, 12, {rx: 2, sw: 2});
-  /* the port, on the side of a device (in front of the metal tip) */
-  p.rect(292, 112, 236, 134, {rx: 16, fill: 'shade'}); p.rect(300, 120, 220, 118, {rx: 11, sw: 1.4, tone: 'soft'});
-  p.rect(314, 140, 192, 78, {rx: 6, fill: true, sw: 2.4}); p.rect(332, 160, 156, 20, {rx: 4, fill: 'shade', sw: 1.6});
-  LP.ico(g, r.icon, 196, 179, 40, true);
-  if (r.label) LP.word(K, g, r.label, 300, 270, 38, 360);
-  if (w.label) LP.strike(K, g, w.label, 300, 40, 30, 300);
-});
-
-/* 12 · one ticket gate: the right card is tapped and the gate opens (the wrong one, struck, above) */
-R3.both('B05', 'gate', 'ประตูกั้นรถไฟฟ้า บัตรถูกแตะแล้วเปิด', (K, s, T, g, small) => {
-  const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'}, {p} = LP.layer(g, small);
-  p.path('M 214 176 L 262 172 Q 270 172 270 180 L 270 212 Q 270 220 262 220 L 214 216 Z', {fill: 'shade', tone: 'acc'});
-  p.path('M 386 176 L 338 172 Q 330 172 330 180 L 330 212 Q 330 220 338 220 L 386 216 Z', {fill: 'shade', tone: 'acc'});
-  [[110, 214], [386, 490]].forEach(([x0, x1], k) => {
-    p.path(`M ${x0} 336 L ${x0} 124 Q ${x0} 100 ${x0 + 24} 100 L ${x1 - 24} 100 Q ${x1} 100 ${x1} 124 L ${x1} 336`, {fill: 'shade'});
-    p.line(x0 + 10, 132, x1 - 10, 132, {sw: 1.4, tone: 'soft'}); p.line(x0 + 10, 300, x1 - 10, 300, {sw: 1.4, tone: 'soft'});
-    p.rect(x0 + 18, 108, x1 - x0 - 36, 16, {rx: 5, fill: true, sw: 2}); });
-  /* the reader on the left gate: a pad with the tap sign; the right card lies on it */
-  p.rect(124, 140, 76, 46, {rx: 8, fill: true, sw: 2});
-  [10, 17, 24].forEach(rr => p.path(`M ${150 + rr * .7} ${163 - rr * .7} A ${rr} ${rr} 0 0 1 ${150 + rr * .7} ${163 + rr * .7}`, {sw: 1.6, tone: 'soft'}));
-  const cq = p.child({transform: 'rotate(-8 196 70)'});
-  cq.rect(116, 18, 168, 108, {rx: 12, fill: 'shade', tone: 'acc'}); cq.rect(134, 34, 28, 22, {rx: 4, tone: 'acc', fill: 'none', sw: 1.6});
-  const hold = R6.group(g); hold.style.transformOrigin = '196px 70px'; hold.style.transform = 'rotate(-8deg)';
-  LP.ico(hold, r.icon, 214, 56, 36, true); if (r.label) LP.word(K, hold, r.label, 200, 80, 28, 150, true);
-  if (w.label) LP.strike(K, g, w.label, 440, 40, 28, 200);
-});
-
-/* ================= B11 คำพูด: kind, quote, mood?, react?, gone? ================= */
-/* 13 · a rotary home phone: the handset is picked up and what was said comes out of it */
-R3.both('B11', 'phone', 'โทรศัพท์บ้าน ยกหู คำพูดออกมา', (K, s, T, g, small) => {
-  const {p} = LP.layer(g, small);
-  p.path('M 64 330 C 40 330 36 310 52 300 C 30 296 30 278 48 272 C 28 266 30 248 50 244 C 32 236 38 218 58 218 C 46 206 58 190 76 194', {sw: 2, tone: 'soft'});
-  p.path('M 84 322 L 114 214 Q 120 196 140 196 L 308 196 Q 328 196 334 214 L 364 322 Q 368 334 354 334 L 94 334 Q 80 334 84 322 Z', {fill: 'shade'});
-  p.line(104, 314, 344, 314, {sw: 1.4, tone: 'soft'});
-  p.circle(224, 266, 44, {fill: 'shade', sw: 2.4}); p.circle(224, 266, 16, {fill: true, sw: 1.8});
-  for (let k = 0; k < 10; k++) { const a = (-120 + k * 28) * Math.PI / 180; p.circle(224 + Math.cos(a) * 31, 266 + Math.sin(a) * 31, 6, {sw: 1.6, fill: true}); }
-  const hs = p.child({transform: 'rotate(-12 224 136)'});
-  hs.path('M 112 138 Q 112 110 140 110 L 308 110 Q 336 110 336 138 L 336 150 Q 336 170 316 170 L 290 170 Q 278 170 276 158 L 272 144 L 176 144 L 172 158 Q 170 170 158 170 L 132 170 Q 112 170 112 150 Z', {fill: 'shade'});
-  hs.line(150, 122, 300, 122, {sw: 1.4, op: .5});
-  [[136, 158], [146, 162], [306, 158], [316, 162]].forEach(([x, y]) => hs.dot(x, y, 2.4, {fill: 'var(--lp-soft)', stroke: 'none'}));
-  LP.parts.bubble(p, 440, 80, 216, 110, false, {sw: 2.6}); p.line(350, 40, 520, 40, {sw: 1.4, op: 0});
-  if (s.quote) LP.word(K, g, s.quote, 440, 56, 38, 190);
-});
-
-/* 14 · a typewriter types the message onto the paper, which rolls up out of it */
-R3.both('B11', 'typewriter', 'เครื่องพิมพ์ดีดพิมพ์ข้อความ กระดาษเลื่อนขึ้น', (K, s, T, g, small) => {
-  const {p} = LP.layer(g, small);
-  p.rect(160, 6, 280, 184, {rx: 3, fill: true}); p.line(184, 130, 416, 130, {sw: 1.4, tone: 'soft'}); p.line(184, 152, 340, 152, {sw: 1.4, tone: 'soft'});
-  if (s.quote) LP.word(K, g, s.quote, 300, 52, 44, 240);
-  p.rect(108, 158, 384, 40, {rx: 20, fill: 'shade'}); p.line(130, 168, 470, 168, {sw: 1.4, op: .5});
-  p.rect(70, 164, 34, 28, {rx: 10, fill: 'shade'}); p.rect(496, 164, 34, 28, {rx: 10, fill: 'shade'});
-  p.path('M 100 214 Q 100 200 116 200 L 484 200 Q 500 200 502 214 L 528 312 Q 532 334 510 334 L 90 334 Q 68 334 72 312 Z', {fill: 'shade'});
-  p.line(92, 226, 508, 226, {sw: 1.4, tone: 'soft'});
-  [[146, 248, 8], [166, 280, 7]].forEach(([x0, y, n]) => { for (let k = 0; k < n; k++) { p.circle(x0 + k * 42 + 12, y, 13, {fill: 'shade', sw: 2.2}); p.circle(x0 + k * 42 + 12, y, 8, {sw: 1.4, tone: 'soft'}); } });
-  p.rect(214, 306, 172, 16, {rx: 8, fill: 'shade', sw: 2.2});
 });
 
 /* ================= B01 ตัวเลขเด่น: value, unit?, icon?, dir?, money? ================= */
@@ -570,6 +430,118 @@ R3.both('B14', 'slides', 'คนยืนชี้จอสไลด์ ปร�
   p.rect(376, 200, 32, 10, {rx: 3, fill: 'shade', sw: 2});
   if (it.label) LP.word(K, g, it.label, 376, 82, 44, 290); else LP.ico(g, it.icon, 376, 106, 80);
   HU.person(p, {x: X, y: G, h: H, pose: 'present'});
+});
+
+/* ================= round 11, second set: each picture is the category's own sign (Friend 2026-11-11: "ให้ตรงกับจุดประสงค์ของ
+   หมวดนั้นๆจริงๆ ไม่จำเป็นจะต้องคิดนอกกรอบ" · "OK ลองทำเป็นภาพมาให้ดูก่อน") ================= */
+
+/* B10 · a target sight closes in on one person: this is who it is for */
+R3.both('B10', 'aim', 'วงเล็งเป้าล็อกที่คนหนึ่งคน', (K, s, T, g, small) => {
+  const {p} = LP.layer(g, small), C = [300, 150], R = 128;
+  HU.person(p, {x: 300, y: 276, h: 236, tone: 'acc'});
+  p.circle(C[0], C[1], R, {sw: 4, tone: 'acc', fill: 'none'}); p.circle(C[0], C[1], R - 14, {sw: 1.4, tone: 'soft'});
+  [[0, -1], [0, 1], [-1, 0], [1, 0]].forEach(([dx, dy]) => p.line(C[0] + dx * (R - 26), C[1] + dy * (R - 26), C[0] + dx * (R + 18), C[1] + dy * (R + 18), {sw: 4, tone: 'acc'}));
+  const w = s.label ?? s.who?.label; if (w) LP.word(K, g, w, 300, 284, 34, 340);
+});
+
+/* B13 · a light bulb lights up over a person's head: the tip, beside it */
+R3.both('B13', 'idea', 'หลอดไฟติดเหนือหัวคน ได้เคล็ดลับ', (K, s, T, g, small) => {
+  const it = s.secret ?? {icon: 'lightbulb'}, {p} = LP.layer(g, small), X = 214;
+  HU.bust(p, {x: X, y: 342, size: 176});
+  const B = p.child({transform: `translate(${X} 92)`});
+  B.path('M -24 38 C -24 20 -50 8 -50 -18 A 50 50 0 1 1 50 -18 C 50 8 24 20 24 38 Z', {fill: 'shade', tone: 'acc'});
+  B.path('M -12 36 L -12 6 L -6 -4 L 0 6 L 6 -4 L 12 6 L 12 36', {sw: 2, tone: 'acc', fill: 'none', op: .8});
+  B.path('M -30 -26 Q -28 -42 -14 -48', {sw: 2.4, op: .6});
+  B.rect(-24, 38, 48, 26, {rx: 5, fill: 'shade'}); [46, 54].forEach(y => B.line(-22, y, 22, y, {sw: 1.4, tone: 'soft'}));
+  B.path('M -12 64 Q 0 74 12 64', {sw: 2.6});
+  [-160, -125, -90, -55, -20].forEach(deg => { const a = deg * Math.PI / 180; B.line(Math.cos(a) * 66, -18 + Math.sin(a) * 66, Math.cos(a) * 84, -18 + Math.sin(a) * 84, {sw: 3, tone: 'acc'}); });
+  if (it.icon) LP.ico(g, it.icon, 430, it.label ? 104 : 150, 56);
+  if (it.label) LP.word(K, g, it.label, 430, 140, 38, 220);
+});
+
+/* B21 · a map pin drops onto a building: here */
+R3.both('B21', 'building', 'หมุดปักลงบนตึก', (K, s, T, g, small) => {
+  const pl = s.place ?? {icon: 'map-pin'}, {p} = LP.layer(g, small);
+  p.line(110, 282, 490, 282, {sw: 2, tone: 'soft'});
+  p.rect(196, 136, 208, 146, {rx: 4, fill: 'shade'}); p.rect(188, 128, 224, 12, {rx: 3, fill: 'shade'});
+  [0, 1, 2].forEach(r => [0, 1, 2].forEach(c => { if (r === 2 && c === 1) return; p.rect(216 + c * 62, 152 + r * 40, 44, 26, {rx: 2, fill: true, sw: 1.8}); p.line(238 + c * 62, 154 + r * 40, 238 + c * 62, 176 + r * 40, {sw: 1.2, tone: 'soft'}); }));
+  p.rect(280, 232, 40, 50, {rx: 3, fill: true, sw: 2}); p.dot(312, 258, 2.6);
+  p.path('M 300 128 C 290 108 252 86 252 50 A 48 48 0 1 1 348 50 C 348 86 310 108 300 128 Z', {fill: 'shade', tone: 'acc'});
+  p.circle(300, 48, 30, {fill: true, sw: 2}); p.ellipse(300, 130, 16, 4, {sw: 1.6, tone: 'soft'});
+  LP.ico(g, pl.icon, 300, 48, 34);
+  if (pl.label) LP.word(K, g, pl.label, 300, 288, 34, 360);
+});
+
+/* B12 · three things in a row; an arrow draws itself from each to the next, and the last (the effect) lights up */
+R3.both('B12', 'flow', 'สามไอคอน ลูกศรวาดต่อกันจากเหตุไปผล', (K, s, T, g, small) => {
+  const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg', {p} = LP.layer(g, small), xs = [104, 300, 496], Y = 128, R = 56;
+  [0, 1].forEach(k => { const x1 = xs[k] + R + 8, x2 = xs[k + 1] - R - 10;
+    p.path(`M ${x1} ${Y - 14} Q ${(x1 + x2) / 2} ${Y - 58} ${x2} ${Y - 14}`, {sw: 3});
+    p.poly([[x2 - 18, Y - 30], [x2, Y - 14], [x2 - 21, Y - 8]], {sw: 3}); });
+  xs.forEach((x, k) => {
+    const last = k === 2; p.circle(x, Y, R, {fill: 'shade', tone: last && !neg ? 'acc' : undefined}); p.circle(x, Y, R - 9, {sw: 1.4, tone: last && !neg ? 'acc' : 'soft', fill: 'none'});
+    if (last && neg) p.circle(x, Y, R, {tone: 'neg', sw: 3.4});
+    if (it[k]) LP.ico(g, it[k].icon, x, Y, 46, last && !neg);
+    if (it[k]?.label) { const w = LP.word(K, g, it[k].label, x, Y + R + 16, 26, 170); if (last && neg) w.style.color = 'var(--lp-neg)'; }
+  });
+});
+
+/* B12 · a chain of three links; one pulls the next, and the last link (the effect) is lit */
+R3.both('B12', 'chain', 'โซ่สามข้อ ข้อสุดท้ายติดสี', (K, s, T, g, small) => {
+  const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg', {p} = LP.layer(g, small), xs = [146, 300, 454], Y = 140, W = 186, H = 112, T0 = 26;
+  const ring = (pen, x, last) => pen.tube(`M ${x - W / 2 + H / 2} ${Y - H / 2} L ${x + W / 2 - H / 2} ${Y - H / 2} A ${H / 2} ${H / 2} 0 0 1 ${x + W / 2 - H / 2} ${Y + H / 2} L ${x - W / 2 + H / 2} ${Y + H / 2} A ${H / 2} ${H / 2} 0 0 1 ${x - W / 2 + H / 2} ${Y - H / 2} Z`, T0, {core: 'shade', tone: last && !neg ? 'acc' : undefined});
+  xs.forEach((x, k) => ring(p, x, k === 2));
+  /* each link passes in front of the next one at the bottom, so they read as hooked together */
+  [0, 1].forEach(k => ring(p.clipped(xs[k] + 20, Y + 10, W, H), xs[k], false));
+  xs.forEach((x, k) => { if (it[k]) { const i = LP.ico(g, it[k].icon, x, Y, 36); if (k === 2) i.style.color = neg ? 'var(--lp-neg)' : 'var(--lp-acc-line)'; }
+    if (it[k]?.label) { const w = LP.word(K, g, it[k].label, x, Y + H / 2 + 24, 26, 150); if (k === 2 && neg) w.style.color = 'var(--lp-neg)'; } });
+});
+
+/* B05 · a no-entry sign is stamped on the wrong one; the right one gets its tick */
+R3.both('B05', 'nosign', 'ป้ายห้ามประทับบนข้อผิด ข้อถูกได้เครื่องหมายถูก', (K, s, T, g, small) => {
+  const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'}, {p} = LP.layer(g, small);
+  p.rect(70, 40, 190, 190, {rx: 22, fill: 'shade'}); p.rect(82, 52, 166, 166, {rx: 14, sw: 1.4, tone: 'soft'});
+  p.rect(340, 40, 190, 190, {rx: 22, fill: 'shade', tone: 'acc'}); p.rect(352, 52, 166, 166, {rx: 14, sw: 1.4, tone: 'acc', fill: 'none', op: .6});
+  LP.ico(g, w.icon, 165, 135, 84); LP.ico(g, r.icon, 435, 135, 84, true);
+  const ns = LP.layer(g, small).p; ns.circle(165, 135, 86, {sw: 12, tone: 'neg'}); ns.line(104, 74, 226, 196, {sw: 12, tone: 'neg'});
+  ns.circle(522, 48, 30, {fill: 'shade', sw: 2.6}); LP.parts.check(ns, 522, 50, .26, {sw: 5});
+  if (w.label) { const e = LP.word(K, g, w.label, 165, 252, 32, 220); e.style.opacity = .7; }
+  if (r.label) LP.word(K, g, r.label, 435, 252, 32, 220);
+});
+
+/* B05 · a hand points at the right one; the wrong one fades */
+R3.both('B05', 'point', 'มือชี้ไปที่ข้อถูก ข้อผิดจางลง', (K, s, T, g, small) => {
+  const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'}, {p} = LP.layer(g, small);
+  const wq = p.child(); wq.g.style.opacity = .38;
+  wq.rect(56, 30, 176, 150, {rx: 20, fill: 'shade'}); LP.ico(g, w.icon, 144, 92, 66).style.opacity = .38;
+  if (w.label) LP.word(K, g, w.label, 144, 128, 28, 150).style.opacity = .38;
+  p.rect(300, 30, 176, 150, {rx: 20, fill: 'shade', tone: 'acc'}); LP.ico(g, r.icon, 388, 92, 66, true);
+  if (r.label) LP.word(K, g, r.label, 388, 128, 28, 150, true);
+  const hp = LP.layer(g, small).p, H = hp.child({transform: 'translate(388 272) rotate(-8)'}), box = [-60, -90, 60, 80];
+  H.figure([{d: 'M -34 80 L -30 36 L 32 36 L 36 80 Z'}], {box, details: ['M -32 50 L 34 50']});
+  H.figure([{d: 'M -34 -14 Q -34 -32 -16 -32 L 22 -32 Q 38 -32 38 -14 L 38 26 Q 38 40 24 40 L -20 40 Q -34 40 -34 26 Z'}, {d: 'M -18 -30 L -18 -84', w: 20}],
+    {box, details: ['M -6 -30 L -6 -18', 'M 8 -30 L 8 -18', 'M 22 -30 L 22 -18', 'M -12 -84 Q -18 -80 -24 -84']});
+  H.figure([{d: 'M -30 8 Q -10 16 14 6', w: 15}], {box, details: []});
+});
+
+/* B11 · a person (side view) speaks; what was said comes out in a speech bubble */
+R3.both('B11', 'speak', 'คนพูด ฟองคำพูดเด้งออกมา', (K, s, T, g, small) => {
+  const q = s.quote ?? '', bad = s.mood === 'bad', win = R9.clip(g), {p} = LP.layer(win, small);
+  HU.person(p, {x: 156, y: 462, h: 410, pose: 'side'});
+  LP.parts.bubble(p, 410, 108, 268, 144, false, {sw: 3, fill: 'shade'});
+  if (q) LP.word(K, g, q, 410, 78, 44, 230);
+  if (s.react) { p.circle(530, 172, 26, {fill: 'shade', tone: bad ? 'neg' : 'acc', sw: 2.4}); LP.ico(g, s.react, 530, 172, 28, !bad); }
+});
+
+/* B11 · a chat: a bubble from one side, then the answer (the words said) from the other side */
+R3.both('B11', 'chat', 'ฟองแชตสองฝั่งโต้ตอบกัน', (K, s, T, g, small) => {
+  const q = s.quote ?? '', bad = s.mood === 'bad', {p} = LP.layer(g, small);
+  HU.bust(p, {x: 66, y: 150, size: 70}); HU.bust(p, {x: 534, y: 318, size: 70, tone: 'acc'});
+  p.path('M 120 30 L 330 30 Q 348 30 348 48 L 348 112 Q 348 130 330 130 L 132 130 L 108 148 L 112 124 Q 102 118 102 106 L 102 48 Q 102 30 120 30 Z', {fill: 'shade', sw: 2.6});
+  [64, 86].forEach((y, k) => p.line(126, y, k ? 260 : 320, y, {sw: 6, tone: 'soft'})); p.line(126, 108, 200, 108, {sw: 6, tone: 'soft'});
+  p.path('M 480 182 L 240 182 Q 220 182 220 202 L 220 282 Q 220 302 240 302 L 470 302 L 494 322 L 490 296 Q 500 290 500 278 L 500 202 Q 500 182 480 182 Z', {fill: 'shade', tone: 'acc', sw: 2.6});
+  if (q) LP.word(K, g, q, 360, 218, 42, 250, true);
+  if (s.react) { p.circle(222, 290, 24, {fill: 'shade', tone: bad ? 'neg' : undefined, sw: 2.4}); LP.ico(g, s.react, 222, 290, 26); }
 });
 
 /* ================= sample sentences (s11.*), general ones (not Friend's script) ================= */
