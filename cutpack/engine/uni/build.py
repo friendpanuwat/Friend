@@ -19,7 +19,7 @@ def main():
     ap.add_argument('--hit', type=float, default=None, help="the key word's time (a real clip); default the middle of the scene")
     ap.add_argument('--speaker', type=float, default=1, help='scale the speaker from the bottom middle (test headroom like Friend\'s clips)')
     ap.add_argument('--extra', action='append', default=[], help='more scene files (e.g. recipes written by the AI), loaded after scenes/')
-    ap.add_argument('--then', action='append', default=[], help='one more scene after the first: id,t0,t1[,index[,hit]] (several scenes in one clip, e.g. to see the ios video card move)')
+    ap.add_argument('--then', action='append', default=[], help='one more scene after the first: id,t0,t1[,index[,hit]] (several scenes in one clip, e.g. to see a style move between scenes)')
     a = ap.parse_args()
     proj = os.path.abspath(a.proj); os.makedirs(os.path.join(proj, 'fonts'), exist_ok=True)
     for f in glob.glob(os.path.join(UNI, 'fonts', '*.ttf')):

@@ -7,7 +7,7 @@
      tile      a holder against what is behind it, when it has no clear edge (colour distance ≥ 12, or its border ≥ 3)
      word      a word / chip text against what is behind it                  (≥ 3)
    "Behind" = the nearest parent with a solid colour (a gradient counts by its first colour); things straight on the
-   video count as on a dark grey (the test clip), or on the style's page colour (ST.page: ios is a white app page). Glass is see-through by design, so its tiles are checked by their
+   video count as on a dark grey (the test clip), or on the style's page colour (ST.page, for a style whose things sit on a page, not the video). Glass is see-through by design, so its tiles are checked by their
    edge only. Prints every problem; writes <work>/contrast.json.
    usage: NODE_PATH=$(npm root -g) node check_contrast.js <style> <work_dir> [scene ids…]  (ids may end with @index)
    ===================================================================== */
@@ -38,7 +38,7 @@ const build = (id, i, dir) => execFileSync('python3', [path.join(__dirname, 'bui
         const l = Math.cbrt(.4122214708 * R + .5363325363 * G + .0514459929 * B), m = Math.cbrt(.2119034982 * R + .6806995451 * G + .1073969566 * B), s = Math.cbrt(.0883024619 * R + .2817188376 * G + .6299787005 * B);
         return [.2104542553 * l + .793617785 * m - .0040720468 * s, 1.9779984951 * l - 2.428592205 * m + .4505937099 * s, .0259040371 * l + .7827717662 * m - .808675766 * s]; };
       const dE = (x, y) => { const a = lab(x), b = lab(y); return 100 * Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]); };
-      const VIDEO = (typeof ST !== 'undefined' && ST.page && (rgba(ST.page) ?? hex(ST.page))) || {r: 28, g: 28, b: 30, a: 1};   // a style with an app page (ios) has no video behind its things
+      const VIDEO = (typeof ST !== 'undefined' && ST.page && (rgba(ST.page) ?? hex(ST.page))) || {r: 28, g: 28, b: 30, a: 1};   // a style with a page has no video behind its things
       const fill = e => { const cs = getComputedStyle(e); let c = rgba(cs.backgroundColor); const g = cs.backgroundImage.match(/rgba?\([^)]+\)|#[0-9a-f]{6}/i);
         if ((!c || c.a < .05) && g) c = rgba(g[0]) ?? hex(g[0]); return c && c.a >= .05 ? c : null; };
       const behind = e => { const stack = []; for (let a = e.parentElement; a && a.id !== 'SC' && a !== document.body; a = a.parentElement) { const c = fill(a); if (c) { stack.push(c); if (c.a > .95) break; } }

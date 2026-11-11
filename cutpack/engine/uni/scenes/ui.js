@@ -1,7 +1,8 @@
 /* =====================================================================
-   CutPack · uni · APP-SCREEN variants (Friend 2026-11-11: the iOS style, "OK ครับ"; cutpack/style-rules/ios.md 8 and 10).
+   CutPack · uni · APP-SCREEN variants (made 2026-11-11 for the iOS style, which Friend dropped the same day: "ลบสไตล์ทิ้งเลย";
+   the variants stay in the shared base set until Friend says otherwise).
    Variants of the shared base set that look like an app screen. They are drawn for every style like any other variant
-   (Friend: the base set "ต้องสามารถใช้ได้กับเกือบทุกสไตล์"); the ios style picks them first (ui: true, prefer: 'ui').
+   (Friend: the base set "ต้องสามารถใช้ได้กับเกือบทุกสไตล์"); a style may pick them first (ui: true, prefer: 'ui').
    Same slots as before (cat_ai.py), same rules (R3.both: one composition on the 600 × 340 small canvas, scaled 1.6× full
    screen; nothing past x 550 below y 200; words only from the slots).
      B04 sheet     a sheet of steps: one row per step, a thin loading bar runs under each name, then its number turns into a tick

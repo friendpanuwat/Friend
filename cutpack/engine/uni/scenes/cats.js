@@ -32,8 +32,8 @@ function SMALLV(cat, id, small) {
 /* what this clip has used so far (category → variant ids in order); a later step can preload a customer's past clips */
 const PICKS = {};
 const hashOf = s => { let h = 2166136261; for (const c of String(s)) h = Math.imul(h ^ c.codePointAt(0), 16777619) >>> 0; return h; };
-/* prefer: a style may want one kind of variant first (ios: 'ui' = the ones that look like an app screen, Friend 2026-11-11
-   "OK ครับ", style-rules/ios.md 8): when the category has such variants that fit, only those take turns; else every variant does */
+/* prefer: a style may want one kind of variant first ('ui' = the ones that look like an app screen; made for the iOS style,
+   which Friend dropped 2026-11-11): when the category has such variants that fit, only those take turns; else every variant does */
 function pickVariant(cat, slots, seed = '', prefer = typeof ST !== 'undefined' && ST ? ST.prefer : undefined) {
   const C = CATS[cat]; if (!C) throw new Error('unknown category ' + cat);
   let ok = C.variants.filter(v => v.fits(slots));
@@ -61,7 +61,7 @@ function calm(r) {
 function SENTENCE(id, r) {
   const meta = v => ({meaning: r.cat, name: r.name + (v ? ' · ' + v.name : ''), story: CATS[r.cat].name, beats: 4, cat: r.cat, variant: v?.id,
     slots: {lead: {type: 'text', max: 22, sample: r.say[0]}, key: {type: 'text', max: 12, sample: r.say[1]}}});
-  const c = calm(r), draw = (v, K, T) => ((ST.overlay || ST.useSmall) && v.small ? v.small : v.build)(K, c, T);   // an overlay widget (and ios) uses the variant's small form
+  const c = calm(r), draw = (v, K, T) => ((ST.overlay || ST.useSmall) && v.small ? v.small : v.build)(K, c, T);   // an overlay widget (and a style with useSmall) uses the variant's small form
   const fit = CATS[r.cat].variants.filter(v => v.fits(r));
   SCENE(id, {...meta(null), small: fit.every(v => v.small)}, (K, s, T) => { draw(pickVariant(r.cat, r, r.say.join(' ')), K, T); K.say(s.lead, s.key); });
   fit.forEach(v => SCENE(`${id}.${v.id}`, {...meta(v), small: !!v.small}, (K, s, T) => { draw(v, K, T); K.say(s.lead, s.key); }));

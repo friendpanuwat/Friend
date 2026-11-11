@@ -13,7 +13,7 @@
    ===================================================================== */
 const R3 = {
   /* one variant, two sizes */
-  both(cat, id, name, draw, fits, more = {}) {      // more: {ui: true} for a variant that looks like an app screen (style-rules/ios.md 8)
+  both(cat, id, name, draw, fits, more = {}) {      // more: {ui: true} for a variant that looks like an app screen (cats.js prefer)
     VARIANT(cat, id, {name, fits, ...more,
       build(K, s, T) { const g = div('left:20px;top:78px;width:600px;height:340px;transform-origin:0 0;transform:scale(1.6)', K.stage); draw(K, s, T, g, false); },
       small: (K, s, T) => draw(K, s, T, K.stage, true)});

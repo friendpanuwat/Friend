@@ -37,12 +37,12 @@ for (const c of Object.values(C.CATS)) for (const v of c.variants) assert(v.smal
 // 7. every category is there and has at least two variants (B14 got its pictures in round 4)
 assert.strictEqual(Object.keys(C.CATS).length, 21);   // B17–B21 added in round 6 (2026-11-10)
 for (const c of Object.values(C.CATS)) assert(c.variants.length >= 2, `${c.id} has ${c.variants.length} variants`);
-// 8. a style that prefers app screens (ios, style-rules/ios.md 8) gets only the 'ui' variants of a category that has them,
+// 8. a style that prefers app screens (prefer: 'ui') gets only the 'ui' variants of a category that has them,
 //    still taking turns; a category without one is picked as before; a style that prefers nothing may get any variant
 const steps = k => ({items: [{icon: 'camera'}, {icon: 'scissors'}, {icon: 'send', label: `โพสต์ ${k}`}], say: ['ถ่าย ตัด', `โพสต์ ${k}`]});
 const ui = cat => Object.values(C.CATS).find(c => c.id === cat).variants.filter(v => v.ui).map(v => v.id);
 C.reset(); const st = [1, 2, 3, 4].map(k => C.pick('B04', steps(k), 'ui'));
-assert(st.every(v => ui('B04').includes(v)), 'only app screens for ios: ' + st);
+assert(st.every(v => ui('B04').includes(v)), 'only app screens with prefer ui: ' + st);
 assert.strictEqual(new Set(st.slice(0, ui('B04').length)).size, ui('B04').length, 'the app screens take turns: ' + st);
 C.reset(); const plain = [1, 2, 3, 4].map(k => C.pick('B04', steps(k)));
 assert(plain.some(v => !ui('B04').includes(v)), 'without prefer every variant takes part: ' + plain);
@@ -51,7 +51,7 @@ assert.strictEqual(new Set(t6).size, 3, 'a category with no app screen picks as 
 for (const [cat, ids] of Object.entries({B03: ['toggle'], B04: ['list', 'sheet'], B05: ['settings'], B11: ['phone', 'notify'], B15: ['button', 'compose']}))
   assert.deepStrictEqual([...ui(cat)].sort(), ids.sort(), `app-screen variants of ${cat}`);
 console.log('picker ok');
-console.log('  ios B04 ×4:', st.join(' → '));
+console.log('  ui B04 ×4 :', st.join(' → '));
 console.log('  money ×4 :', m.join(' → '));
 console.log('  years ×6 :', y.join(' → '));
 console.log('  chat ×3  :', c.join(' → '));
