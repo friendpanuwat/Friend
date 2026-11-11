@@ -209,6 +209,36 @@ class Numbers(unittest.TestCase):
         self.assertEqual(V.graphemes('ทำ'), 1)             # SARA AM joins the letter before
 
 
+class Align(unittest.TestCase):
+    """align.py: the script's words on Typhoon's times (Friend 2026-11-11: typed times made subtitles come early)."""
+    PIECES = [{'w': 'เวลา', 't0': .3, 't1': .5}, {'w': 'เรา', 't0': .6, 't1': .7}, {'w': 'มีไอ', 't0': .9, 't1': 1},
+              {'w': 'เดีย', 't0': 1.1, 't1': 1.2}, {'w': 'เฟซบุ๊ก', 't0': 3.0, 't1': 3.3}, {'w': 'จะเป็น', 't0': 3.6, 't1': 3.8}]
+
+    def run_align(self, script):
+        import align
+        return align.align(self.PIECES, align.read_script(script))
+
+    def test_words_are_the_script_times_are_heard(self):
+        words, lines, share = self.run_align('00:00 เวลาเรา\n00:00 มีไอเดีย\n00:02 Facebook\n00:03 จะเป็น')
+        self.assertEqual(''.join(w['w'] for w in words), 'เวลาเรามีไอเดียFacebookจะเป็น')
+        at = {w['w']: w['t0'] for w in words}
+        self.assertEqual((at['เวลา'], at['มี'], at['จะ']), (.3, .9, 3.6))           # the moments Typhoon heard
+        self.assertEqual([l['typed'] for l in lines], [0, 0, 2, 3])
+        self.assertLess(share, 1)
+
+    def test_a_misheard_word_stays_next_to_its_neighbour_across_a_pause(self):
+        words, _, _ = self.run_align('เวลาเรามีไอเดีย Facebook จะเป็น')
+        fb = next(w for w in words if w['w'] == 'Facebook')
+        self.assertTrue(2.8 < fb['t0'] < 3.6, fb)                                  # not spread over the 1.2 s gap
+        self.assertEqual([w['t0'] for w in words], sorted(w['t0'] for w in words))
+        self.assertTrue(all(w['t1'] > w['t0'] for w in words))
+
+    def test_a_corrected_word_keeps_the_time(self):
+        """The web's step 4: the customer fixes a word, its time stays where it was heard."""
+        words, _, _ = self.run_align('เวลาเรามีไอเดียเฟซบุ๊กจะเป็น')
+        self.assertEqual(next(w for w in words if 'บุ๊ก' in w['w'])['t0'], 3.0)
+
+
 class Prompt(unittest.TestCase):
     def test_system_block_is_the_same_for_every_clip(self):
         """The cached part may not depend on the clip, or the prompt cache never hits."""

@@ -35,6 +35,28 @@ def split_thai(group):
     return [group]
 
 
+def letter_times(pieces):
+    """Typhoon's pieces → (all their letters as one string, the time of each letter).
+    Each letter gets a time spread between its piece and the next one (at most PAUSE / 2 after its piece)."""
+    pieces = [p for p in pieces if p['w']]
+    s, ct = ''.join(p['w'] for p in pieces), []
+    for i, p in enumerate(pieces):
+        nxt = pieces[i + 1]['t0'] if i + 1 < len(pieces) else p['t1']
+        span = min(max(nxt - p['t0'], 0.0), PAUSE / 2) or max(p['t1'] - p['t0'], 0.05)
+        ct += [p['t0'] + span * k / len(p['w']) for k in range(len(p['w']))]
+    return s, ct
+
+
+def word_ends(words):
+    """Each word lasts until the next word starts, unless a pause follows (then 0.25 s after its last letter).
+    Takes words with 'w', 't0' and '_end' (time of the last letter) and replaces '_end' with 't1'."""
+    for i, w in enumerate(words):
+        end = w.pop('_end')
+        nxt = words[i + 1]['t0'] if i + 1 < len(words) else None
+        w['t1'] = round(nxt if nxt is not None and nxt - end < PAUSE / 2 else end + 0.25, 2)
+    return words
+
+
 def to_words(pieces, text):
     """Typhoon's sub-word pieces → whole words with times, for subtitles.
 
@@ -44,12 +66,7 @@ def to_words(pieces, text):
     unless a pause follows."""
     pieces = [p for p in pieces if p['w']]
     if not pieces: return []
-    s = ''.join(p['w'] for p in pieces)
-    ct = []   # time of each letter of s
-    for i, p in enumerate(pieces):
-        nxt = pieces[i + 1]['t0'] if i + 1 < len(pieces) else p['t1']
-        span = min(max(nxt - p['t0'], 0.0), PAUSE / 2) or max(p['t1'] - p['t0'], 0.05)
-        ct += [p['t0'] + span * k / len(p['w']) for k in range(len(p['w']))]
+    s, ct = letter_times(pieces)
     spaced = text.split()
     cuts = set()   # letter positions where a new word must start
     if ''.join(spaced) == s:
@@ -72,11 +89,7 @@ def to_words(pieces, text):
         if words and not any(ch.isalnum() for ch in w):   # punctuation alone joins the word before it
             words[-1]['w'] += w; words[-1]['_end'] = ct[b - 1]; continue
         words.append({'w': w, 't0': round(ct[a], 2), '_end': ct[b - 1]})
-    for i, w in enumerate(words):
-        end = w.pop('_end')
-        nxt = words[i + 1]['t0'] if i + 1 < len(words) else None
-        w['t1'] = round(nxt if nxt is not None and nxt - end < PAUSE / 2 else end + 0.25, 2)
-    return words
+    return word_ends(words)
 
 
 def audio16k(path):
