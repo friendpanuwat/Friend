@@ -70,8 +70,8 @@ R3.both('B04', 'tower', 'ตัวต่อซ้อนเป็นตึก ห
 R3.both('B04', 'board', 'เบี้ยเดินบนกระดานเกม กระโดดไปทีละช่อง', (K, s, T, g) => {
   const it = (s.items ?? []).slice(0, 3), mk = s.mark, at = mk ? mk.at : it.length - 1, W = 520, H = 318, TS = 84;
   const bd = R9.card(g, 30, 14, W, H, 30); K.enter(bd.o, T.b[0], 'rise');
-  const C = [[96, 222], [262, 156], [430, 96]];
-  const tk = div(`left:0;top:0;width:${W}px;height:${H}px`, bd.p, `<svg width="${W}" height="${H}"><path d="M28 222C130 222 170 156 262 156S360 96 492 96" style="fill:none;stroke:var(--tr);stroke-width:42px;stroke-linecap:round"/></svg>`);
+  const C = [[96, 236], [262, 170], [430, 110]];
+  const tk = div(`left:0;top:0;width:${W}px;height:${H}px`, bd.p, `<svg width="${W}" height="${H}"><path d="M28 236C130 236 170 170 262 170S360 110 492 110" style="fill:none;stroke:var(--tr);stroke-width:42px;stroke-linecap:round"/></svg>`);
   tk.classList.add('u-decor'); K.draw(tk.querySelector('path'), T.b[0] + .3, .8);
   /* the hops: each takes .5 s with a little gap, the last one lands just after the key word */
   const hop = k => { const end = T.hit + .1 - (at - 1 - k) * .6; return [end - .5, end]; }, arrive = at ? hop(at - 1)[1] : T.b[1] + .3;
@@ -82,8 +82,8 @@ R3.both('B04', 'board', 'เบี้ยเดินบนกระดานเ�
     if (mk?.at === k && mk.how === 'light') { const l = R10.lit(K, bd.p, cx - TS / 2, cy - TS / 2, TS, TS, '20px', arrive + .05); R9.ico(l.p, p.icon, TS / 2, TS / 2, 42, 'u-bubble-text'); R1.ripple(K, l, l.done, {grow: 22}); }
     else if (mk?.at === k) K.mark(bd.p, mk.how, cx + TS / 2, cy - TS / 2, 40, arrive + .1);
   });
-  /* the pawn: a head on a bell-shaped body, standing on the top edge of a square; it drops onto the first one, then hops */
-  const foot = k => [C[k][0], C[k][1] - TS / 2 + 14];
+  /* the pawn: a head on a bell-shaped body, standing on top of a square; it drops onto the first one, then hops */
+  const foot = k => [C[k][0], C[k][1] - TS / 2 - 2];   // on the top edge, never over the square (a lit square is the pawn's colour)
   const pw = node(bd.p, foot(0)[0], foot(0)[1], 0, 0, '', `<svg width="1" height="1" style="overflow:visible"><path class="ac" d="M-26 0Q-26 -12 -12 -16L-7 -42H7L12 -16Q26 -12 26 0Z"/><circle class="ac" cx="0" cy="-55" r="16"/></svg>`);
   K.enter(pw.o, T.b[1], 'drop');
   for (let k = 0; k < at; k++) { const [t0, t1] = hop(k), a = foot(k), b = foot(k + 1); R2.hop(pw.m, t0, t1 - t0, [a[0] - foot(0)[0], a[1] - foot(0)[1]], [b[0] - foot(0)[0], b[1] - foot(0)[1]], 70); }
@@ -117,10 +117,13 @@ R3.both('B06', 'bulb', 'หลอดไฟมีเครื่องหมา�
   const gl = R9.card(gb, X, Y, W, H, 0); gl.p.style.clipPath = clip; gl.p.style.boxShadow = 'inset 0 0 0 4px var(--tr)';
   [[250, 92, 24], [280, 80, 20], [304, 44, 16]].forEach(([y, w, h], k) => R7.plain(gb, X + W / 2 - w / 2, y, w, h, 'main', k === 2 ? '0 0 10px 10px' : '8px'));
   const qm = R10.glyph(gl.p, '?', W / 2, 100, 120); K.enter(qm, T.b[1], 'pop');
+  /* the glass's outline, so a white bulb still shows on a white page (split) */
+  const edge = () => R8.svg(gb, `<path class="ln u-thin" transform="translate(${X} ${Y})" d="M100 0A100 100 0 0 1 172 170Q150 196 146 236H54Q50 196 28 170A100 100 0 0 1 100 0Z"/>`);
   if (ans) {
     const on = R9.acc(gb, X, Y, W, H, 0); on.p.style.clipPath = clip; on.p.style.boxShadow = 'none'; A(on.o, [{opacity: 0}, {opacity: 1}], T.hit, .25);
     const ic = R9.ico(on.p, ans.icon, W / 2, 100, 86, 'u-bubble-text'); K.enter(ic, T.hit + .1, 'pop'); R6.burst(K, g, X + W / 2, Y + 100, 104, T.hit + .3, 8);
   }
+  edge();
   const it = ans ?? ab;
   if (it) { const cd = R9.card(g, 372, 70, 176, 130, 22); R10.iconWord(K, cd.p, it, 176, 18, 44, 30); K.enter(cd.o, ans ? T.hit + .35 : T.hit, 'pop'); }
 });
@@ -146,7 +149,8 @@ R3.both('B07', 'hook', 'เหยื่อบนเบ็ดตกปลา ป�
   const it = s.thing ?? {icon: 'tag'}, cx = 250, W = 250, H = 160, Y = 64, B = Y + H + 22;
   const hk = R6.group(g);
   A(hk, [{transform: 'translateY(-360px)'}, {transform: 'none'}], T.b[0], 1, {e: EASE.smooth});
-  R8.svg(hk, `<path class="ln u-thin" d="M${cx} -380V${Y + 8}"/><path class="ln" d="M${cx} ${Y + 20}V${B}Q${cx} ${B + 66} ${cx - 54} ${B + 66}Q${cx - 106} ${B + 66} ${cx - 106} ${B + 8}"/>` +
+  R8.svg(hk, `<path class="ln u-thin" d="M${cx} -380V0"/>`).classList.add('u-decor');   // the line above the canvas: gold must not count it when it frames the picture
+  R8.svg(hk, `<path class="ln u-thin" d="M${cx} 0V${Y + 8}"/><path class="ln" d="M${cx} ${Y + 20}V${B}Q${cx} ${B + 66} ${cx - 54} ${B + 66}Q${cx - 106} ${B + 66} ${cx - 106} ${B + 8}"/>` +
     `<path class="ln" d="M${cx - 106} ${B + 8}L${cx - 80} ${B + 32}"/>`);
   const c = R9.acc(hk, cx - W / 2, Y, W, H, 26); R10.iconWord(K, c.p, it, W, 22, 66, 40, true);
   const w = R10.disc(g, 470, 128, 60, 'card'); R9.ico(w.p, s.sign ?? (s.how === 'cross' ? 'octagon-x' : 'triangle-alert'), 60, 60, 66);
@@ -163,6 +167,7 @@ R3.both('B09', 'stopwatch', 'นาฬิกาจับเวลา กดป�
   const f = R10.disc(sw, C.x, C.y, R), fr = n ? (at + 1) / 3 : .7, t0 = T.b[1] + .2, d = T.hit - t0;
   const sv = div(`left:0;top:0;width:${2 * R}px;height:${2 * R}px`, f.p, `<svg width="${2 * R}" height="${2 * R}"><circle class="u-ring" style="stroke-width:22px" cx="${R}" cy="${R}" r="${R - 30}"/>` +
     `<circle class="u-ring-on" style="stroke-width:22px" cx="${R}" cy="${R}" r="${R - 30}" pathLength="100" transform="rotate(-90 ${R} ${R})"/></svg>`);
+  R7.show(sv.querySelector('.u-ring-on'), t0);   // hidden until it starts: a round cap of length 0 still shows as a dot (LESSONS 36)
   A(sv.querySelector('.u-ring-on'), [{strokeDasharray: '0 100'}, {strokeDasharray: `${(fr * 100).toFixed(1)} 100`}], t0, d, {e: 'cubic-bezier(.3,0,.4,1)'});
   const hd = div(`left:0;top:0;width:${2 * R}px;height:${2 * R}px;transform-origin:${R}px ${R}px`, f.p, `<svg width="${2 * R}" height="${2 * R}"><path class="ln u-thin" d="M${R} ${R}V54"/><circle class="sd" cx="${R}" cy="${R}" r="10"/></svg>`);
   A(hd, [{transform: 'rotate(0)'}, {transform: `rotate(${fr * 360}deg)`}], t0, d, {e: 'cubic-bezier(.3,0,.4,1)'});
@@ -248,7 +253,7 @@ R3.both('B12', 'pipe', 'ก๊อกเปิด น้ำไหลตามท�
   R7.plain(tp, 14, 36, 30, 100, 'main', '10px'); R7.plain(tp, 44, 62, 110, 44, 'main', '12px'); R7.plain(tp, 88, 34, 20, 30, 'main', '4px');
   const hd = R9.acc(tp, 46, 6, 104, 34, 17); if (it[0]) R9.ico(hd.p, it[0].icon, 52, 17, 26, 'u-bubble-text');
   A(hd.m, [{transform: 'none'}, {transform: 'rotate(-24deg)'}, {transform: 'rotate(-18deg)'}], T.b[1], .45, {e: EASE.inout, f: 'forwards'});
-  if (it[0]?.label) { const c = R9.card(g, 24, 126, 160, 50, 16); R4.word(K, c.p, it[0].label, 80, 7, 28, null, 144); K.enter(c.o, T.b[0] + .25, 'pop'); }
+  if (it[0]?.label) { const c = R9.card(g, 24, 146, 160, 50, 16); R4.word(K, c.p, it[0].label, 80, 7, 28, null, 144); K.enter(c.o, T.b[0] + .25, 'pop'); }
   /* the middle cause: a valve wheel on the pipe, which the water turns as it goes through */
   const v = R10.disc(g, 262, 84, 48, 'card'); v.p.style.boxShadow = '0 0 0 5px var(--ink)'; K.enter(v.o, T.b[0] + .2, 'pop');
   if (it[1]) R9.ico(v.p, it[1].icon, 48, 48, 44);
@@ -269,22 +274,22 @@ R3.both('B12', 'pool', 'ลูกพูลชนต่อกัน แล้ว�
   [[36, 36], [36, H - 36], [W - 36, H - 36]].forEach(([x, y]) => R10.disc(c.p, x, y, 20, 'main'));
   const PK = [W - 52, 52], pk0 = R10.disc(c.p, PK[0], PK[1], 36, 'main');
   /* the path: cue ball from cb0 to where it meets the second ball (cb), the second ball from ob0 to the pocket's lip (ob) */
-  const cb0 = [84, 236], ob0 = [270, 150], dir = [ob0[0] - cb0[0], ob0[1] - cb0[1]], dl = Math.hypot(...dir), u = dir.map(v => v / dl);
-  const cb = [ob0[0] - u[0] * 2 * R, ob0[1] - u[1] * 2 * R], ob = [PK[0] - 40, PK[1] + 58];
+  const cb0 = [74, 150], ob0 = [270, 150], dir = [ob0[0] - cb0[0], ob0[1] - cb0[1]], dl = Math.hypot(...dir), u = dir.map(v => v / dl);
+  const cb = [ob0[0] - u[0] * 2 * R, ob0[1] - u[1] * 2 * R], ob = [PK[0] - 48, PK[1] + 48];   // the cue ball comes straight from the left, so it never runs over a word
   const tS = T.b[1] + .2, tC = T.b[2] - .05, tP = T.hit - .1;
   /* the trails, seen as each ball rolls */
   const trail = (d, a, b) => { const e = div(`left:0;top:0;width:${W}px;height:${H}px`, c.p, `<svg width="${W}" height="${H}" style="overflow:visible"><path class="ln u-thin u-dash" d="${d}"/></svg>`); A(e, [{opacity: 0}, {opacity: 1}], a, b - a); };
   trail(`M${cb0[0] + u[0] * 36} ${cb0[1] + u[1] * 36}L${cb[0] - u[0] * 36} ${cb[1] - u[1] * 36}`, tS, tC);
   trail(`M${ob0[0] + 34} ${ob0[1] - 12}L${ob[0] - 30} ${ob[1] + 10}`, tC, tP);
-  const cue = R6.group(c.p); R8.svg(cue, `<path class="ln" d="M-70 ${cb0[1] + 78}L${cb0[0] - 50} ${cb0[1] + 22}"/>`);
+  const cue = R6.group(c.p); R8.svg(cue, `<path class="ln" d="M-90 ${cb0[1]}L${cb0[0] - 46} ${cb0[1]}"/>`);
   A(cue, [{transform: 'none'}, {transform: `translate(${u[0] * 16}px,${u[1] * 16}px)`}, {transform: `translate(${-u[0] * 10}px,${-u[1] * 10}px)`}], tS - .25, .4, {e: EASE.inout, f: 'forwards'});
-  const ball = (p, [x, y], [x1, y1], t0, t1) => {
+  const ball = (p, [x, y], [x1, y1], t0, t1, above) => {
     const b = node(c.p, x - R, y - R, 2 * R, 2 * R, ''); const d = R7.plain(b.p, 0, 0, 2 * R, 2 * R, 'main', '50%'); if (p) R10.inkIco(d.p, p.icon, R, R, 36);
-    if (p?.label) R4.word(K, b.p, p.label, R, 2 * R + 6, 28, null, 170);
+    if (p?.label) R4.word(K, b.p, p.label, R, above ? -40 : 2 * R + 6, 28, null, 170);
     A(b.m, [{transform: 'none'}, {transform: `translate(${x1 - x}px,${y1 - y}px)`}], t0, t1 - t0, {e: 'cubic-bezier(.15,.6,.35,1)', f: 'forwards'});
     K.enter(b.o, T.b[0] + .3, 'pop'); return b;
   };
-  ball(it[0], cb0, cb, tS, tC); ball(it[1], ob0, ob, tC, tP);
+  ball(it[0], cb0, cb, tS, tC, true); ball(it[1], ob0, ob, tC, tP, false);
   const pk = R10.lit(K, c.p, PK[0] - 36, PK[1] - 36, 72, 72, '50%', tP + .1); pk.p.style.boxShadow = '0 0 0 8px var(--tr)'; void pk0;
   if (it[2]) R9.ico(pk.p, it[2].icon, 36, 36, 40, 'u-bubble-text');
   R1.ripple(K, pk, pk.done, {grow: 22, r: '50%'});
@@ -299,7 +304,7 @@ R3.both('B16', 'flash', 'บัตรคำศัพท์ร้อยห่ว�
   [[22, 7], [11, 3.5]].forEach(([o, r]) => { const b = R9.card(all, X + o, Y + o * .4, W, H, 24); b.o.classList.add('u-decor');
     b.p.style.transform = `rotate(${r}deg)`; b.p.style.transformOrigin = `${W / 2}px 26px`; });
   /* the meaning card (seen once the word card has flipped away) */
-  const c = R9.card(all, X, Y, W, H, 24);
+  const c = R9.card(all, X, Y, W, H, 24); R7.show(c.o, T.hit - .3);   // shown only as the word card flips: a see-through (glass) word card would show it
   R10.disc(c.p, W / 2, 28, 11, 'main');
   if (term.label) R4.word(K, c.p, term.label, W / 2, 50, 28, null, W - 40);
   R10.bar(c.p, 24, 92, W - 48, 4, null, 2);
