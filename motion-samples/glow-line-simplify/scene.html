@@ -1,0 +1,218 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: "Anuphan"; src: url("../../.claude/skills/mono-bold-carousel/assets/fonts/Anuphan-VF.ttf"); font-weight: 100 900; }
+  html, body { margin: 0; padding: 0; background: #040404; }
+  svg { display: block; }
+  .lbl { font-family: "Inter Display", "Inter", sans-serif; font-weight: 700; fill: #f4f4f4; }
+  .th  { font-family: "Anuphan", sans-serif; font-weight: 500; fill: #a9a9a9; }
+</style>
+</head>
+<body>
+<svg id="s" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="75%">
+      <stop offset="0" stop-color="#121212"/><stop offset="1" stop-color="#020202"/>
+    </radialGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b1"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="11" result="b2"/>
+      <feMerge><feMergeNode in="b2"/><feMergeNode in="b1"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="bloom" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="16"/>
+    </filter>
+  </defs>
+  <rect width="1080" height="1920" fill="url(#bg)"/>
+  <g id="root"></g>
+</svg>
+<script>
+const NS = 'http://www.w3.org/2000/svg';
+const root = document.getElementById('root');
+const items = [];
+const W = '#f2f2f2', FILL = '#171717', GREY = '#8a8a8a';
+
+function mk(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  (parent || root).appendChild(e);
+  return e;
+}
+// a stroke that "draws itself" between start and start+dur
+function draw(tag, attrs, parent, start, dur) {
+  const a = Object.assign({ fill: 'none', stroke: W, 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, attrs);
+  const hasFill = a.fill !== 'none';
+  a.pathLength = 1; a['stroke-dasharray'] = '1 1';
+  const e = mk(tag, a, parent);
+  items.push({ type: 'draw', e, start, dur, hasFill });
+  return e;
+}
+function fade(e, start, dur, rise = 24) { items.push({ type: 'fade', e, start, dur, rise }); return e; }
+function dim(e, start, dur, to) { items.push({ type: 'dim', e, start, dur, to }); return e; }
+function pulse(e, start) { items.push({ type: 'pulse', e, start }); return e; }
+
+// seeded random so every render is identical
+let seed = 7;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+/* ---------- title ---------- */
+const tg1 = mk('g', { filter: 'url(#glow)' });
+mk('text', { class: 'lbl', x: 540, y: 118, 'text-anchor': 'middle', 'font-size': 50, 'letter-spacing': 10, fill: '#cfcfcf' }, tg1).textContent = '3 WAYS TO';
+fade(tg1, 0.05, 0.5);
+const tg2 = mk('g', { filter: 'url(#glow)' });
+mk('text', { class: 'lbl', x: 540, y: 246, 'text-anchor': 'middle', 'font-size': 142, 'letter-spacing': 4 }, tg2).textContent = 'SIMPLIFY';
+fade(tg2, 0.2, 0.6, 36);
+const tg3 = mk('g', {});
+mk('text', { class: 'th', x: 540, y: 306, 'text-anchor': 'middle', 'font-size': 34 }, tg3).textContent = 'ตัดให้เหลือแค่สิ่งที่จำเป็น';
+fade(tg3, 0.45, 0.5);
+
+/* ---------- panels ---------- */
+const TOP = 340, PH = (1920 - TOP) / 3;
+const LX = 285, RX = 795;
+
+function envelope(g, x, y, w, h, rot, t0, d) {
+  const e = mk('g', { transform: `translate(${x} ${y}) rotate(${rot})` }, g);
+  draw('rect', { x: -w / 2, y: -h / 2, width: w, height: h, rx: 8, fill: FILL }, e, t0, d);
+  draw('polyline', { points: `${-w / 2 + 6},${-h / 2 + 6} 0,${h * 0.08} ${w / 2 - 6},${-h / 2 + 6}` }, e, t0 + d * 0.5, d * 0.6);
+  return e;
+}
+function phone(g, x, y, t0) {
+  const p = mk('g', { transform: `translate(${x} ${y})` }, g);
+  draw('rect', { x: -98, y: -182, width: 196, height: 364, rx: 32, fill: FILL }, p, t0, 0.5);
+  draw('rect', { x: -86, y: -170, width: 172, height: 340, rx: 22, 'stroke-width': 1.6, stroke: '#bdbdbd' }, p, t0 + 0.15, 0.45);
+  draw('line', { x1: -18, y1: -158, x2: 18, y2: -158, 'stroke-width': 5 }, p, t0 + 0.3, 0.2);
+  return p;
+}
+function icon(g, x, y, s, t0, d, glyph) {
+  draw('rect', { x: x - s / 2, y: y - s / 2, width: s, height: s, rx: s * 0.26, 'stroke-width': 2.2, fill: FILL }, g, t0, d);
+  if (glyph === 0) draw('circle', { cx: x, cy: y, r: s * 0.2, 'stroke-width': 1.6 }, g, t0 + d * 0.5, d * 0.5);
+  if (glyph === 1) draw('polyline', { points: `${x - s * .22},${y + s * .15} ${x - s * .05},${y - s * .12} ${x + s * .08},${y + s * .05} ${x + s * .22},${y - s * .15}`, 'stroke-width': 1.6 }, g, t0 + d * 0.5, d * 0.5);
+  if (glyph === 2) draw('rect', { x: x - s * .2, y: y - s * .14, width: s * .4, height: s * .28, rx: 2, 'stroke-width': 1.6 }, g, t0 + d * 0.5, d * 0.5);
+}
+function target(g, x, y, t0, d) {
+  [100, 70, 42, 14].forEach((r, i) => draw('circle', { cx: x, cy: y, r, fill: i === 0 ? FILL : 'none', 'stroke-width': i === 0 ? 3.2 : 2.6 }, g, t0 + i * 0.08, d));
+}
+function arrow(g, tx, ty, ang, L, t0, d, sw = 2.6) {
+  const dx = Math.cos(ang), dy = Math.sin(ang);
+  const ax = tx - dx * L, ay = ty - dy * L;
+  const hd = (a, l) => `${tx - Math.cos(ang + a) * l},${ty - Math.sin(ang + a) * l}`;
+  draw('line', { x1: ax, y1: ay, x2: tx, y2: ty, 'stroke-width': sw }, g, t0, d);
+  draw('polyline', { points: `${hd(0.45, 15)} ${tx},${ty} ${hd(-0.45, 15)}`, 'stroke-width': sw }, g, t0 + d * 0.8, d * 0.4);
+  for (let k = 0; k < 2; k++) {
+    const bx = ax + dx * (8 + k * 11), by = ay + dy * (8 + k * 11);
+    const f = s => `${bx - Math.cos(ang + s) * 16},${by - Math.sin(ang + s) * 16}`;
+    draw('polyline', { points: `${f(0.6)} ${bx},${by} ${f(-0.6)}`, 'stroke-width': 2 }, g, t0 + d * 0.6, d * 0.4);
+  }
+}
+
+const panels = [
+  { label: '1. INBOX',
+    messy(g, cy, t) {
+      const env = [[-70, -55, 190, 122, -15], [55, -70, 180, 118, 11], [-15, -5, 200, 128, -4], [80, 40, 175, 114, 17], [-85, 55, 178, 116, -21], [20, 75, 185, 120, 6]];
+      // a letter poking out
+      const L = mk('g', { transform: `translate(${LX - 5} ${cy - 95}) rotate(-8)` }, g);
+      draw('rect', { x: -60, y: -40, width: 120, height: 80, rx: 4, fill: FILL, 'stroke-width': 2.2 }, L, t, 0.35);
+      [-20, -6, 8].forEach((yy, i) => draw('line', { x1: -42, y1: yy, x2: 42 - i * 14, y2: yy, 'stroke-width': 1.6 }, L, t + 0.2 + i * 0.05, 0.25));
+      env.forEach((e, i) => envelope(g, LX + e[0], cy + e[1], e[2], e[3], e[4], t + 0.1 + i * 0.12, 0.45));
+    },
+    clean(g, cy, t) {
+      envelope(g, RX, cy + 10, 270, 176, 0, t, 0.55);
+      draw('circle', { cx: RX + 118, cy: cy - 70, r: 36, fill: FILL }, g, t + 0.4, 0.35);
+      draw('polyline', { points: `${RX + 101},${cy - 70} ${RX + 113},${cy - 58} ${RX + 136},${cy - 83}`, 'stroke-width': 4 }, g, t + 0.65, 0.25);
+    } },
+  { label: '2. PHONE',
+    messy(g, cy, t) {
+      phone(g, LX, cy, t);
+      let k = 0;
+      for (let r = 0; r < 5; r++) for (let c = 0; c < 4; c++) {
+        const x = LX - 57 + c * 38, y = cy - 112 + r * 42;
+        icon(g, x, y, 27, t + 0.25 + k * 0.03, 0.25, k % 3); k++;
+      }
+      [[0, 0], [1, 2], [2, 3], [3, 1], [4, 2]].forEach(([r, c], i) =>
+        draw('circle', { cx: LX - 57 + c * 38 + 13, cy: cy - 112 + r * 42 - 13, r: 6, fill: W, 'stroke-width': 1 }, g, t + 0.8 + i * 0.04, 0.15));
+      draw('rect', { x: LX - 76, y: cy + 112, width: 152, height: 48, rx: 16, 'stroke-width': 1.6, stroke: '#bdbdbd' }, g, t + 0.75, 0.3);
+      for (let c = 0; c < 4; c++) icon(g, LX - 54 + c * 36, cy + 136, 25, t + 0.85 + c * 0.04, 0.2, c % 3);
+    },
+    clean(g, cy, t) {
+      phone(g, RX, cy, t);
+      for (let c = 0; c < 3; c++) {
+        icon(g, RX - 48 + c * 48, cy - 105, 34, t + 0.35 + c * 0.07, 0.3, c);
+        draw('line', { x1: RX - 60 + c * 48, y1: cy - 74, x2: RX - 36 + c * 48, y2: cy - 74, 'stroke-width': 1.6, stroke: '#9a9a9a' }, g, t + 0.55 + c * 0.05, 0.2);
+      }
+      draw('rect', { x: RX - 70, y: cy + 112, width: 140, height: 48, rx: 16, 'stroke-width': 1.6, stroke: '#bdbdbd' }, g, t + 0.55, 0.3);
+      for (let c = 0; c < 3; c++) icon(g, RX - 40 + c * 40, cy + 136, 28, t + 0.65 + c * 0.05, 0.25, c);
+    } },
+  { label: '3. GOALS',
+    messy(g, cy, t) {
+      target(g, LX, cy, t, 0.45);
+      for (let k = 0; k < 9; k++) {
+        const th = k * 0.72 + rnd() * 0.4;
+        const d = 45 + rnd() * 62;
+        const tx = LX + Math.cos(th) * d, ty = cy + Math.sin(th) * d * 0.95;
+        const ang = th + Math.PI + (rnd() - 0.5) * 0.9;
+        arrow(g, tx, ty, ang, 68, t + 0.3 + k * 0.07, 0.3);
+      }
+    },
+    clean(g, cy, t) {
+      target(g, RX, cy, t, 0.45);
+      arrow(g, RX, cy, Math.PI * 0.75, 155, t + 0.45, 0.4, 3.4);
+    } },
+];
+
+panels.forEach((P, i) => {
+  const y0 = TOP + i * PH, cy = y0 + 318, base = 0.95 + i * 2.25;
+  // divider line
+  draw('line', { x1: 40, y1: y0, x2: 1040, y2: y0, stroke: '#4a4a4a', 'stroke-width': 2 }, root, base - 0.25, 0.6);
+  const lg = mk('g', { filter: 'url(#glow)' });
+  mk('text', { class: 'lbl', x: 540, y: y0 + 88, 'text-anchor': 'middle', 'font-size': 56, 'letter-spacing': 2 }, lg).textContent = P.label;
+  fade(lg, base, 0.4, 18);
+
+  const mw = mk('g', { filter: 'url(#glow)' });
+  P.messy(mk('g', {}, mw), cy, base + 0.25);
+  dim(mw, base + 1.55, 0.5, 0.42);
+
+  // middle arrow
+  const ag = mk('g', { filter: 'url(#glow)' });
+  draw('line', { x1: 505, y1: cy, x2: 575, y2: cy, stroke: GREY, 'stroke-width': 3 }, ag, base + 1.2, 0.25);
+  draw('polyline', { points: `560,${cy - 13} 576,${cy} 560,${cy + 13}`, stroke: GREY, 'stroke-width': 3 }, ag, base + 1.38, 0.15);
+
+  const cw = mk('g', { filter: 'url(#glow)' });
+  const cg = mk('g', { id: 'clean' + i }, cw);
+  P.clean(cg, cy, base + 1.4);
+  const bl = mk('use', { href: '#clean' + i, filter: 'url(#bloom)', opacity: 0 });
+  pulse(bl, base + 2.15);
+});
+
+/* ---------- time control ---------- */
+const clamp = v => Math.max(0, Math.min(1, v));
+const ease = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const easeOut = p => 1 - Math.pow(1 - p, 3);
+window.setT = t => {
+  for (const it of items) {
+    const p = clamp((t - it.start) / it.dur);
+    if (it.type === 'draw') {
+      const q = ease(p);
+      it.e.setAttribute('stroke-dashoffset', 1 - q);
+      it.e.setAttribute('stroke-opacity', p > 0 ? 1 : 0);
+      if (it.hasFill) it.e.setAttribute('fill-opacity', clamp(q * 1.6));
+    } else if (it.type === 'fade') {
+      const q = easeOut(p);
+      it.e.setAttribute('opacity', q);
+      it.e.setAttribute('transform', `translate(0 ${(1 - q) * it.rise})`);
+    } else if (it.type === 'dim') {
+      it.e.setAttribute('opacity', 1 - (1 - it.to) * ease(p));
+    } else if (it.type === 'pulse') {
+      const u = t - it.start;
+      let o = 0;
+      if (u > 0) o = u < 0.35 ? 0.9 * easeOut(u / 0.35) : 0.35 + 0.25 * Math.cos((u - 0.35) * 2.6) + 0.3 * Math.exp(-(u - 0.35) * 3);
+      it.e.setAttribute('opacity', Math.max(0, o));
+    }
+  }
+};
+window.DURATION = 9.6;
+setT(window.DURATION);
+</script>
+</body>
+</html>

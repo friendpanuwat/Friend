@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* steps — single icons with a label and a sub line (habits / tips / checklist) */
+GL.run(() => {
+  GL.stage();
+  const top = GL.title({ kicker: 'MORNING', main: 'ROUTINE', sub: '5 อย่างที่ทำทุกเช้า' });
+  GL.steps([
+    { icon: 'clock', label: 'ตื่นเวลาเดิม', sub: 'ทุกวัน แม้แต่วันหยุด' },
+    { icon: 'check', label: 'เขียน 3 งานหลัก', sub: 'ก่อนเปิดอีเมล' },
+    { icon: 'phone', label: 'ไม่แตะมือถือ 30 นาที', sub: 'ให้สมองตื่นก่อน' },
+    { icon: 'bulb', label: 'อ่าน 10 หน้า', sub: 'หนังสือเล่มเดียว' },
+    { icon: 'target', label: 'ทบทวนเป้าหมาย', sub: 'หนึ่งประโยคพอ' },
+  ], { top });
+});
+</script></body></html>
