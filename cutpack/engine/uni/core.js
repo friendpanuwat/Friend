@@ -45,8 +45,8 @@ function useStyle(id) {
   if (ST.setup) ST.setup();
 }
 /* beats: the story's moments inside [t0, t1] — evenly placed, the key word (hit) after the build-up */
-function beatsOf(t0, t1, n = 4) {
-  const L = t1 - t0, hit = t0 + L * .5;
+function beatsOf(t0, t1, n = 4, at) {             // at: the key word's real time in a real clip (else the middle)
+  const L = t1 - t0, hit = at ?? t0 + L * .5;
   const b = [t0 + .15]; for (let i = 1; i < n; i++) b.push(t0 + .15 + (hit - t0 - .15) * i / (n - 1));
   return {hit, b, after: hit + (t1 - hit) * .35};
 }
@@ -59,7 +59,7 @@ function play(id, t0, t1, slots = {}, opt = {}) {
     if (spec.max && typeof s[k] === 'string' && graphemes(s[k]).length > spec.max) throw new Error(`${id}: slot ${k} longer than ${spec.max}`);
     if (spec.type === 'icon' && !ICONS[s[k]]) throw new Error(`${id}: unknown icon ${s[k]}`);
   }
-  const T = Object.assign({t0, t1}, beatsOf(t0, t1, S.meta.beats ?? 4), opt.T ?? {});
+  const T = Object.assign({t0, t1}, beatsOf(t0, t1, S.meta.beats ?? 4, opt.hit), opt.T ?? {});
   const F = ST.frame(t0, t1, {index: opt.index ?? 0, scene: id, label: s.label});
   F.T = T;
   const small = (ST.overlay || ST.useSmall) && typeof SMALLS !== 'undefined' ? SMALLS[id] : null;   // an overlay (or a style that sets useSmall, ios) draws the scene's small form (overlay.js)

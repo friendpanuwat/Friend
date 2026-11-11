@@ -87,6 +87,7 @@ STYLE('ios', {
 .i-sub{position:absolute;display:flex;opacity:0}
 .i-sub>div{position:relative;white-space:nowrap}
 .i-sub span{font-family:"Anu";font-weight:700;line-height:1.25;color:${IOS.grey}}
+.i-cap span{text-shadow:0 2px 14px rgba(0,0,0,.5)}
 `,
   motion: {
     pop:   {kf: [{opacity: 0, transform: 'scale(.92)'}, {opacity: 1, transform: 'none'}], d: .45, e: IOS_EASE},
@@ -115,34 +116,40 @@ STYLE('ios', {
     BGL.style.background = '#FFFFFF';
     /* the video card's shadow sits under the video (a clip-path would cut a shadow on the video itself) */
     const sh = div('', BGL); sh.className = 'i-shade';
+    /* the full-screen subtitle's dark band (ios.md 5): from see-through at y 1000 to .55 at the bottom; only on the full screen */
+    this.dim = div('left:0;top:1000px;width:1080px;height:920px;opacity:0;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.55))', SC);
     this.wins = [];
+    if (typeof CAPTIONS !== 'undefined') FITS.unshift(() => CAPTIONS.forEach(c => this.caption(c)));   // a real clip: every word, after every scene is known
     const L = IOS.L, lerp = (a, b, p) => a + (b - a) * p;
-    const look = (A0, B0, p) => {                  // the card between two places; the speaker's face stays in the middle of it
-      const a = L[A0], b = L[B0], k = n => n === 'L0' ? {s: 1, fy: 960} : {s: Math.max(L[n].w / 1080, L[n].h / IOS.srcH), fy: IOS.faceY};
-      const ka = k(A0), kb = k(B0);
+    /* the card between two places (wa, wb: the scene windows, for where the face is); the face stays in the middle of the card */
+    const look = (wa, wb, p) => {
+      const A0 = wa?.L ?? 'L0', B0 = wb?.L ?? 'L0', a = L[A0], b = L[B0];
+      const k = (n, w) => n === 'L0' ? {s: 1, fx: 540, fy: 960} : {s: Math.max(L[n].w / 1080, L[n].h / IOS.srcH), fx: w.fx, fy: w.fy};
+      const ka = k(A0, wa), kb = k(B0, wb);
       return {x: lerp(a.x, b.x, p), y: lerp(a.y, b.y, p), w: lerp(a.w, b.w, p), h: lerp(a.h, b.h, p), r: lerp(a.r, b.r, p),
-        s: lerp(ka.s, kb.s, p), fy: lerp(ka.fy, kb.fy, p), shade: A0 === 'L0' ? (B0 === 'L0' ? 0 : p) : (B0 === 'L0' ? 1 - p : 1)};
+        s: lerp(ka.s, kb.s, p), fx: lerp(ka.fx, kb.fx, p), fy: lerp(ka.fy, kb.fy, p), shade: A0 === 'L0' ? (B0 === 'L0' ? 0 : p) : (B0 === 'L0' ? 1 - p : 1)};
     };
     this.at = t => {                               // where the card is at time t
       const W = this.wins; let k = -1;
       W.forEach((w, i) => { if (w.t0 <= t) k = i; });
-      if (k < 0) return look('L0', 'L0', 0);
+      if (k < 0) return look(null, null, 0);
       const w = W[k], prev = W[k - 1], next = W[k + 1];
       const fromPrev = prev && w.t0 - prev.t1 < IOS.near, toNext = next && next.t0 - w.t1 < IOS.near;
-      if (t >= w.t1 && !toNext) return look('L0', 'L0', 0);
+      if (t >= w.t1 && !toNext) return look(null, null, 0);
       const pin = iosEase(Math.min(1, (t - w.t0) / IOS.inD));
       if (!toNext && t > w.t1 - IOS.outD) {                       // going back to full screen
         const pout = iosEase(Math.min(1, (t - (w.t1 - IOS.outD)) / IOS.outD));
-        return pin < 1 ? look(fromPrev ? prev.L : 'L0', w.L, pin * (1 - pout)) : look(w.L, 'L0', pout);
+        return pin < 1 ? look(fromPrev ? prev : null, w, pin * (1 - pout)) : look(w, null, pout);
       }
-      return look(fromPrev ? prev.L : 'L0', w.L, pin);
+      return look(fromPrev ? prev : null, w, pin);
     };
     HOOKS.push(t => {
       const c = this.at(t), full = c.shade === 0 && c.w === 1080;
+      this.dim.style.opacity = 1 - c.shade;                       // the dark band under the full-screen subtitle goes with the full screen
       if (full) { V.style.transform = 'none'; V.style.clipPath = 'none'; sh.style.opacity = 0; return; }
       const half = [c.w / 2 / c.s, c.h / 2 / c.s];
-      const l = Math.max(0, 540 - half[0]), r = Math.max(0, 1080 - 540 - half[0]), tp = Math.max(0, c.fy - half[1]), bt = Math.max(0, 1920 - c.fy - half[1]);
-      V.style.transform = `translate(${c.x + c.w / 2 - 540 * c.s}px,${c.y + c.h / 2 - c.fy * c.s}px) scale(${c.s})`;
+      const l = Math.max(0, c.fx - half[0]), r = Math.max(0, 1080 - c.fx - half[0]), tp = Math.max(0, c.fy - half[1]), bt = Math.max(0, 1920 - c.fy - half[1]);
+      V.style.transform = `translate(${c.x + c.w / 2 - c.fx * c.s}px,${c.y + c.h / 2 - c.fy * c.s}px) scale(${c.s})`;
       V.style.clipPath = `inset(${tp}px ${r}px ${bt}px ${l}px round ${c.r / c.s}px)`;
       Object.assign(sh.style, {left: c.x + 'px', top: c.y + 'px', width: c.w + 'px', height: c.h + 'px', borderRadius: c.r + 'px',
         boxShadow: '0 24px 60px rgba(17,24,39,.18)', opacity: c.shade});
@@ -150,8 +157,15 @@ STYLE('ios', {
   },
   frame(t0, t1, {scene}) {
     const meta = SCENES[scene]?.meta ?? {}, prev = this.wins.at(-1);
-    const P = iosPlace(meta.cat, prev?.L ?? null), L = IOS.L[P];
-    this.wins.push({t0, t1, L: P});
+    const P = iosPlace(meta.cat, prev?.L ?? null), L = IOS.L[P], L0 = IOS.L[P];
+    /* where the face is in this scene (faces.json of a real clip: the mean of its boxes, a little above the middle to keep the
+       hair); the test clip has none, so the fixed faceY. Kept so the card never shows past the clip's edge */
+    let fx = 540, fy = IOS.faceY;
+    const tr = typeof FACES !== 'undefined' ? FACES.track.filter(([t]) => t >= t0 && t <= t1).map(x => x[1]) : [];
+    if (tr.length) { const m = i => tr.reduce((n, b) => n + b[i], 0) / tr.length; fx = (m(0) + m(2)) / 2; fy = (m(1) + m(3)) / 2 - .1 * (m(3) - m(1)); }
+    const s = Math.max(L0.w / 1080, L0.h / IOS.srcH), hw = L0.w / 2 / s, hh = L0.h / 2 / s;
+    fx = Math.min(1080 - hw, Math.max(hw, fx)); fy = Math.min(1920 - hh, Math.max(hh, fy));
+    this.wins.push({t0, t1, L: P, fx, fy});
     const small = !!(SMALLS[scene] || meta.small);
     const root = div(`left:${L.pic.x}px;top:${L.pic.y}px;width:${IOS.picW}px;height:${IOS.picH}px`, SC); root.className = 'i-app i-pic';
     A(root, [{opacity: 0}, {opacity: 1}], t0 + IOS.showAt, .25, {e: IOS_EASE});
@@ -168,6 +182,40 @@ STYLE('ios', {
       const h = div(`left:${p.offsetWidth / 2 - 32}px`, p); h.className = 'i-handle u-decor';
     }));
     return {root, stage, place: P, small, dark: false};
+  },
+  /* every word of a real clip (CAPTIONS = [{t0, t1, parts: [[words, time said], …]}]): on the full screen white under the chin,
+     words not said yet white .45 (ios.md 5); inside a scene the same place and look as the scene's words (grey → dark).
+     A line is hidden while the video card moves (nothing over the face, and white words would vanish on the white page) */
+  caption(c) {
+    const W = this.wins, w = W.find(x => c.t0 < x.t1 && c.t1 > x.t0);
+    let a = c.t0, b = c.t1, S;
+    if (w) {                                         // the card stays put to the end when the next scene follows straight on
+      const nx = W[W.indexOf(w) + 1], held = nx && nx.t0 - w.t1 < IOS.near;
+      a = Math.max(a, w.t0 + IOS.showAt); b = Math.min(b, held ? w.t1 : w.t1 - IOS.hideBefore + .2); S = IOS.L[w.L].sub;
+    }
+    else {
+      W.forEach(x => { if (x.t1 > a - IOS.outD && x.t1 <= a) a = Math.max(a, x.t1); if (x.t0 < b + .05 && x.t0 >= a) b = Math.min(b, x.t0); });
+    }
+    if (b - a < .15) return;
+    const app = !!w, top = typeof FACES !== 'undefined' ? Math.max(1180, FACES.layout?.subtitleTop ?? 1180) : 1180;
+    const box = app ? {x: S.x, y: S.y, w: S.w, h: S.h || 0, size: S.size, align: S.align} : {x: 90, y: top, w: 900, h: 0, size: 64, align: 'center'};
+    const el = div(`left:${box.x}px;top:${box.y}px;width:${box.w}px;${box.h ? `height:${box.h}px;` : ''}`, SC);
+    el.className = 'i-sub ' + (app ? '' : 'i-cap');
+    Object.assign(el.style, {flexDirection: 'column', alignItems: box.align === 'center' ? 'center' : 'flex-start', justifyContent: box.h ? 'center' : 'flex-start', rowGap: '6px'});
+    A(el, [{opacity: 0, transform: 'translateY(12px)'}, {opacity: 1, transform: 'none'}], a, .25, {e: IOS_EASE, f: 'none'});
+    A(el, [{opacity: 1}, {opacity: 1}], a + .25, Math.max(.01, b - a - .45), {f: 'none'});
+    A(el, [{opacity: 1}, {opacity: 0}], b - .2, .2, {f: 'none'});
+    const from = app ? IOS.grey : 'rgba(255,255,255,.45)', to = app ? IOS.ink : '#FFFFFF';
+    /* lines: parts side by side while they fit the width, then a new line; a line wider than the box shrinks (never cut) */
+    const row = () => { const r = document.createElement('div'); r.style.cssText = 'position:relative;white-space:nowrap;display:flex;column-gap:' + box.size * .28 + 'px'; el.appendChild(r); return r; };
+    const spans = c.parts.map(([txt, t]) => {
+      const sp = document.createElement('span'); sp.textContent = txt; sp.style.fontSize = box.size + 'px'; sp.style.color = from;
+      A(sp, [{color: from}, {color: to}], Math.max(a, t), .3, {e: 'ease-out'}); return sp;
+    });
+    /* this already runs inside FITS (the fonts are in), so the lines are measured now: a FITS added here would never run */
+    let r = row();
+    spans.forEach(sp => { r.appendChild(sp); if (r.offsetWidth > box.w && r.children.length > 1) { r.removeChild(sp); r = row(); r.appendChild(sp); } });
+    [...el.children].forEach(x => { if (x.offsetWidth > box.w) { x.style.transform = `scale(${box.w / x.offsetWidth})`; x.style.transformOrigin = box.align === 'center' ? '50% 50%' : '0 50%'; } });
   },
   /* the sentence waits light grey, the lead turns dark when it is said, the key word on the key word (ios.md 5) */
   text(F, T, lead, key) {
