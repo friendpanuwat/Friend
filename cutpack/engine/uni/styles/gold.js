@@ -25,6 +25,27 @@ const GOLD = Object.freeze({
   ease: 'cubic-bezier(.2,.8,.2,1)',
 });
 const GOLD_GRAD = 'linear-gradient(180deg,#FFE09A 0%,#FFB04A 45%,#FF8A1F 100%)';
+/* the moving grid behind a scene (Friend 2026-11-11: "ทำให้มันแตกต่างจาก ref หน่อย … พื้นหลังตารางเคลื่อนไหว เลื่อนขึ้น"):
+   hand-drawn-looking lines that wave a little, drawn here (not an image). The pattern repeats every 3 rows, so sliding it up
+   by 3 rows loops without a seam; every column waves its own way */
+const GRID = Object.freeze({cell: 135, rows: 3, speed: 40, amp: 7, width: 3});
+function goldGrid(parent, t0, t1, light) {
+  const c = GRID.cell, L = c * GRID.rows, H = 1920 + L + c, n = Math.ceil(1080 / c) + 1, seed = k => (hashOf('grid' + k) % 1000) / 1000;
+  let d = '';
+  for (let i = 0; i <= n; i++) {                       // columns: a wave whose length is the loop (3 rows), so it joins itself
+    const x0 = i * c - 20, a = GRID.amp * (.5 + seed(i)), ph = seed(i + 50) * 6.28;
+    for (let y = -c; y <= H; y += 20) d += `${y === -c ? 'M' : 'L'}${(x0 + a * Math.sin(2 * Math.PI * y / L + ph)).toFixed(1)} ${y}`;
+  }
+  for (let j = -1; j * c <= H; j++) {                  // rows: three shapes taking turns
+    const r = ((j % GRID.rows) + GRID.rows) % GRID.rows, a = GRID.amp * (.5 + seed(100 + r)), ph = seed(200 + r) * 6.28, y0 = j * c + 30;
+    for (let x = -40; x <= 1120; x += 20) d += `${x === -40 ? 'M' : 'L'}${x} ${(y0 + a * Math.sin(2 * Math.PI * x / 900 + ph)).toFixed(1)}`;
+  }
+  const g = div(`left:0;top:0;width:1080px;height:${H}px`, parent,
+    `<svg width="1080" height="${H}" style="overflow:visible"><path d="${d}" fill="none" stroke="${light ? '#A3A3A8' : 'rgba(255,255,255,.38)'}" stroke-width="${GRID.width}" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
+  const per = L / GRID.speed;
+  A(g, [{transform: 'translateY(0)'}, {transform: `translateY(${-L}px)`}], t0, per, {it: Math.max(1, Math.ceil((t1 - t0) / per)), f: 'none'});
+  return g;
+}
 STYLE('gold', {
   name: 'ทองส้มบนการ์ดดำ',
   css: `
@@ -35,7 +56,7 @@ STYLE('gold', {
 .gd-main{background:linear-gradient(180deg,#2B2B30 0%,#111114 45%,#060608 100%);border:2px solid rgba(255,150,60,.85);
   box-shadow:0 0 36px rgba(255,120,30,.45),inset 0 1px 0 rgba(255,255,255,.22)}
 .gd-cut{opacity:0}
-.gd-dark{background:#07070A;overflow:hidden}
+.gd-dark{background:#0B0B0E;overflow:hidden}
 .gd-glow{position:absolute;border-radius:50%;filter:blur(30px)}
 .gd .u-panel{border-radius:36px;background:linear-gradient(180deg,#2B2B30 0%,#111114 45%,#060608 100%);border:1.5px solid rgba(255,255,255,.14);box-shadow:0 20px 50px rgba(0,0,0,.55)}
 .gd .u-badge{box-shadow:0 10px 26px rgba(0,0,0,.45)}
@@ -66,6 +87,7 @@ STYLE('gold', {
 .gd-l{font-family:"Anu";font-weight:600;font-size:46px;line-height:1.25;color:#FFFFFF;text-shadow:0 2px 12px rgba(0,0,0,.55)}
 .gd-k{font-family:"Anu";font-weight:700;font-size:104px;line-height:1.12;letter-spacing:-1px;background:${GOLD_GRAD};-webkit-background-clip:text;background-clip:text;color:transparent}
 .gd-onwhite .gd-l{color:#1C1C1E;text-shadow:none}
+.gd-onwhite .gd-k{background:linear-gradient(180deg,#FF9A2E 0%,#E56A0A 55%,#B84C00 100%);-webkit-background-clip:text;background-clip:text}   /* the light gold faded on the light grid page (rule 10) */
 `,
   motion: {
     pop:   {kf: [{opacity: 0, transform: 'scale(.9)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], d: .4, e: GOLD.ease},
@@ -142,18 +164,20 @@ STYLE('gold', {
     A(root, [{opacity: 1}, {opacity: 1}], t0, t1 - t0, {f: 'none'});          // hard cut in and out
     sfx('whoosh', t0, -24);
     let stage;
-    if (look === 'A') {
+    if (look === 'A') {                              // the page: a light moving grid under the video (BG layer), seen in this scene only
+      const page = div('inset:0;overflow:hidden;opacity:0;background:radial-gradient(ellipse 80% 60% at 50% 45%,#F1F1F4 0%,#DEDEE3 70%,#CFCFD5 100%)', BGL);
+      A(page, [{opacity: 1}, {opacity: 1}], t0, t1 - t0, {f: 'none'});
+      goldGrid(page, t0, t1, true);
       const C = GOLD.A.card, card = div(`left:${C.x}px;top:${C.y}px;width:${C.w}px;height:${C.h}px;border-radius:${C.r}px`, root);
       card.className = 'gd-main';
       const sw = 1000 * GOLD.A.picS, shh = 700 * GOLD.A.picS;
       stage = div(`left:${(C.w - sw) / 2}px;top:${(C.h - shh) / 2}px;width:1000px;height:700px;transform-origin:0 0;transform:scale(${GOLD.A.picS})`, card);
     } else {
-      root.classList.add('gd-dark');
-      const g1 = div('left:-600px;top:700px;width:900px;height:900px;background:radial-gradient(circle,rgba(255,128,30,.28),transparent 65%)', root);
-      const g2 = div('left:200px;top:-500px;width:800px;height:800px;background:radial-gradient(circle,rgba(255,190,90,.16),transparent 65%)', root);
-      g1.className = g2.className = 'gd-glow';
-      A(g1, [{transform: 'none'}, {transform: 'translate(120px,-80px)'}], t0, t1 - t0);
-      A(g2, [{transform: 'none'}, {transform: 'translate(-100px,90px)'}], t0, t1 - t0);
+      root.classList.add('gd-dark');                 // a dark moving grid, darker at the edges, a soft orange light behind the picture
+      goldGrid(root, t0, t1, false);
+      div('inset:0;background:radial-gradient(ellipse 75% 55% at 50% 45%,transparent 30%,rgba(0,0,0,.75) 100%)', root);
+      const g1 = div('left:90px;top:370px;width:900px;height:900px;background:radial-gradient(circle,rgba(255,128,30,.22),transparent 62%)', root);
+      g1.className = 'gd-glow';
       stage = div(`left:${GOLD.B.pic.x}px;top:${GOLD.B.pic.y}px;width:1000px;height:700px`, root);
     }
     return {root, stage, look, dark: true};
