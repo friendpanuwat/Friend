@@ -13,7 +13,8 @@
    ===================================================================== */
 const {chromium} = require('playwright'); const fs = require('fs'), path = require('path'), {execFileSync} = require('child_process');
 const [style, work, ...only] = process.argv.slice(2), AT = 3.6;
-const build = (id, i, dir) => execFileSync('python3', [path.join(__dirname, 'build.py'), dir, style, id, '--index', String(i)].concat(style.includes('-overlay') ? ['--speaker', '.86'] : []));
+const build = (id, i, dir) => execFileSync('python3', [path.join(__dirname, 'build.py'), dir, style, id, '--index', String(i)].concat(style.includes('-overlay') ? ['--speaker', '.86'] : [])
+  .concat(process.env.EXTRA ? ['--extra', process.env.EXTRA] : []));   // EXTRA=sketches/<file>.js: check still sketches too (as tools/stills.sh)
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({viewport: {width: 1080, height: 1920}});
   const open = async dir => { await page.goto('file://' + path.join(dir, 'scene.html')); await page.evaluate(() => document.fonts.ready); };
