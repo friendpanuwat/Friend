@@ -1,0 +1,27 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* สถานที่ — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  GL.text('LOCATION', { y: 300, size: 46, ls: 10, color: C.kicker, at: .1 });
+  const iso = (X, Z) => GL.iso(X, 0, Z);
+  const city = GL.art(p => {
+    p.shape([iso(-260, -260), iso(260, -260), iso(260, 260), iso(-260, 260)], { fill: C.fill, sw: 2.6, dur: .5 });
+    p.poly([iso(-260, 20), iso(260, 20)], { sw: 2, stroke: C.soft, at: .3, dur: .4 }); p.poly([iso(20, -260), iso(20, 260)], { sw: 2, stroke: C.soft, at: .35, dur: .4 });
+    [[-160, -160, 230], [-160, 110, 120], [110, -170, 280], [-50, -170, 150], [140, -40, 170]]
+      .sort((a, b) => (a[0] + a[1]) - (b[0] + b[1]))
+      .forEach(([X, Z, h], i) => { const [x, y] = iso(X, Z); kit.isoBox(p, { x, y, w: 90, dp: 90, h, at: .5 + i * .12, d: .4 }); });
+  }, { x: 540, y: 980, at: .2 });
+  const [px, py] = iso(110, 130);
+  const pin = GL.art(p => kit.pin(p, { x: px, y: py, size: 230 }), { x: 540, y: 980, at: city.end });
+  GL.tween(pin.wrap, city.end, .5, { dy: -260, o: 0 }, { dy: 0, o: 1 });
+  GL.art(p => kit.ripple(p, { x: px, y: py, r: 30, n: 2 }), { x: 540, y: 980, at: city.end + .45 });
+  GL.text('ร้านอยู่ตรงนี้', { y: 1480, size: 92, at: city.end + .5 });                                                // ✎
+  GL.caption('เดินจากสถานีรถไฟฟ้า 5 นาที', { y: 1580, at: city.end + .7 });                                             // ✎
+  GL.pulse(pin.g, city.end + .7);
+});
+</script></body></html>

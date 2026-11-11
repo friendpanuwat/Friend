@@ -13,6 +13,8 @@
 
 `person` `person-wave` `person-cheer` `person-think` `person-shrug` `person-point` `person-present` `person-walk` `person-run` `person-sit`
 `bust` `team` `hand-point` `hand-thumb` `hand-open` `hand-tap` `hand-phone` `package` `cursor` `sparkle` `cycle`
+`question` `exclaim` `warning` `right` `wrong` `lock` `pin` `heart` `face-happy` `face-sad` `face-wow` `face-angry` `face-worried` `face-neutral`
+`quote` `book` `button` `chart-up` `chart-down` `chart-bar`
 
 ## คน — `kit.person(p, { x, y, h, pose, face, dir, at, d })`
 
@@ -89,6 +91,24 @@
 | `kit.table(p, {x, y, w, h, at})` | โต๊ะหน้าตรง; `(x, y)` = พื้นใต้กลางโต๊ะ |
 | `GL.iso(X, Y, Z)` → `[sx, sy]` | แปลงพิกัด 3 มิติเป็นจอแบบ isometric — วาดชั้นวาง ตึก กองของเองให้มุมตรงกับ `isoBox` |
 | `p.tube(points \| 'path', T, o)` | ท่อหนา T: ขอบขาว แกนดำ ปลายมน (แขนขา นิ้ว หูหิ้ว สายคล้อง) — ชิ้นหลังบังชิ้นก่อน |
+
+## สัญลักษณ์ (คำถาม คำเตือน ถูก/ผิด ความลับ สถานที่ ความรู้สึก คำพูด นิยาม ปุ่ม กราฟ)
+
+| ฟังก์ชัน | |
+|---|---|
+| `kit.question(p, {x, y, size, at, d})` / `kit.exclaim(…)` | เครื่องหมาย ? / ! ตัวหนาแบบท่อ, `size` = ความสูง |
+| `kit.warning(p, {x, y, size, at, d})` | ป้ายสามเหลี่ยมมุมมน + !, `size` = ความกว้าง |
+| `kit.verdict(p, {x, y, r, ok, at, d})` | วงกลม + ติ๊ก (`ok: true`) หรือกากบาท (`ok: false`) — ถูก/ผิด |
+| `kit.lock(p, {x, y, size, part})` | แม่กุญแจ; `part: 'shackle'` / `'body'` แยกวาดใน `GL.art` คนละอัน แล้ว `GL.tween(shackle.wrap, at, .45, {dy:0}, {dy:-70})` = ปลดล็อก |
+| `kit.pin(p, {x, y, size})` | หมุดแผนที่ — `(x, y)` = ปลายแหลมที่แตะพื้น |
+| `kit.heart(p, {x, y, size, fill})` | หัวใจ |
+| `kit.face(p, {x, y, r, mood, part})` | หน้าบอกความรู้สึก: `happy` `sad` `neutral` `wow` `angry` `worried`. เปลี่ยนอารมณ์ = วาด 2 หน้าที่จุดเดิม แล้ว tween หน้าแรกให้จาง |
+| `kit.quote(p, {x, y, size, close})` | เครื่องหมายคำพูด “ (หรือ ” เมื่อ `close: true`) |
+| `kit.book(p, {x, y, size, lines})` | หนังสือเปิด (นิยาม ความรู้ บทเรียน) |
+| `kit.button(p, {x, y, w, h, text})` | ปุ่มมน + คำ (FOLLOW, BUY) — ใช้คู่ `kit.tap` |
+| `kit.chart(p, {x, y, w, h, values, kind})` | กราฟ `line` (ปลายเป็นลูกศร) หรือ `bar` (แท่งสุดท้ายเด่น); `values` เป็นค่าสัมพัทธ์ ขึ้น/ลงตามลำดับ |
+
+ตัวเลขนับขึ้น: `GL.count(72, { y, size, suffix: '%', at, dur })` · หมุนเข็มนาฬิกา: `GL.spin(g, at, dur, 0, 720)` (ดู `api.md`).
 
 ## เพิ่มชิ้นใหม่เข้าชุด
 

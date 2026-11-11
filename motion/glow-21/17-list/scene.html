@@ -1,0 +1,19 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* ไล่รายการหลายอย่าง — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  const top = GL.title({ kicker: '5 THINGS', main: 'ติดกระเป๋า', sub: 'ของที่หยิบใช้ทุกวัน' });                       // ✎
+  GL.steps([
+    { icon: 'phone', label: 'มือถือ', sub: 'งานเกือบทั้งหมดอยู่ในนี้' },                                                 // ✎
+    { icon: 'wallet', label: 'กระเป๋าสตางค์', sub: 'บัตรใบเดียวพอ' },
+    { icon: 'laptop', label: 'โน้ตบุ๊ก', sub: 'สำหรับงานยาว ๆ' },
+    { icon: 'book', label: 'หนังสือ 1 เล่ม', sub: 'อ่านตอนรอ' },
+    { icon: 'clock', label: 'นาฬิกา', sub: 'ไม่ต้องหยิบมือถือดูเวลา' },
+  ], { top, bottom: H - 220 });
+});
+</script></body></html>

@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* ตัวเลขเด่น — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  GL.text('ลูกค้ากลับมาซื้อซ้ำ', { y: 470, size: 64, color: C.kicker, at: .2 });                       // ✎
+  const t = GL.count(72, { y: 1000, size: 400, suffix: '%', at: .5, dur: 1.4 });                      // ✎ ตัวเลข
+  const u = GL.connect(250, 1080, 830, 1080, { style: 'swoosh', bend: .03, head: 'none', sw: 5, at: t - .3, d: .5 });
+  GL.art(p => { kit.sparkle(p, { x: 170, y: 640, r: 40 }); kit.sparkle(p, { x: 930, y: 760, r: 26, at: .1 }); kit.sparkle(p, { x: 890, y: 600, r: 16, at: .2 }); },
+    { x: 0, y: 0, at: t - .1 });
+  GL.text('ภายใน 3 เดือนแรก', { y: 1240, size: 56, weight: 600, color: C.soft, glow: false, at: u - .1 });                // ✎
+});
+</script></body></html>

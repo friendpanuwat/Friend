@@ -181,7 +181,7 @@
   function title({ kicker, main, sub, top = 40, at = .05, size = 142 } = {}) {
     let y = top;
     if (kicker) { y += 78; text(kicker, { y, size: 50, ls: 10, color: C.kicker, at, rise: 16 }); }
-    if (main) { y += size * .9; text(main, { y, size, ls: 4, at: at + .15, rise: 36, maxW: W - 120 }); }
+    if (main) { y += size * (/[\u0E00-\u0E7F]/.test(main) && kicker ? 1.12 : .9); text(main, { y, size, ls: 4, at: at + .15, rise: 36, maxW: W - 120 }); }   // Thai: room for upper vowels
     if (sub) { y += 60; text(sub, { y, size: 34, weight: 500, color: C.sub, glow: false, at: at + .4, rise: 14 }); }
     return y + 34;
   }
@@ -438,7 +438,7 @@
       t = page(t, t0 => {
         let y = top, tt = t0;
         if (sh.kicker) { y += 60; text(sh.kicker, { y, size: 40, ls: 8, color: C.kicker, at: tt, rise: 12 }); }
-        if (sh.title) { y += titleSize * 1.05; text(sh.title, { y, size: titleSize, at: tt + .1, rise: 24, maxW: W - 100 }); }
+        if (sh.title) { y += titleSize * (sh.kicker && /[\u0E00-\u0E7F]/.test(sh.title) ? 1.22 : 1.05); text(sh.title, { y, size: titleSize, at: tt + .1, rise: 24, maxW: W - 100 }); }
         const y0 = (sh.kicker || sh.title) ? y + 70 : top, y1 = sh.caption ? bottom - 110 : bottom;
         const bx = sh.box || [400, 370], s = sh.scale || Math.min((W - 110) / bx[0], (y1 - y0) / bx[1]), cy = sh.y ?? (y0 + y1) / 2;
         const a = art(sh.draw || single(sh.icon || sh.pair), { x: W / 2, y: cy, s, at: tt + .2, ts });
@@ -451,6 +451,23 @@
       if (marks[i]) { tween(marks[i], start, .25, { o: 0 }, { o: 1 }); if (!last) tween(marks[i], t - .5, .3, { o: 1 }, { o: 0 }); }
     });
     return t;
+  }
+
+  /* onFrame(fn): fn(t) runs on every frame — for anything the tweens cannot do (counters, rotation) */
+  function onFrame(fn) { items.push({ type: 'fn', fn }); }
+  /* count: big number that counts up (or down) from `from` to `to`. Returns end time. */
+  function count(to, { from = 0, x = W / 2, y = H / 2, size = 300, at = 0, dur = 1.2, prefix = '', suffix = '', decimals = 0, color = C.ink, maxW = W - 100, glow = true } = {}) {
+    const fmt = v => prefix + v.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + suffix;
+    const g = text(fmt(to), { x, y, size, at, dur: .3, rise: size * .12, color, maxW, glow, ls: 2 });
+    const sp = g.querySelector('tspan');
+    onFrame(t => { const q = easeOut(clamp((t - at) / dur)); sp.textContent = fmt(from + (to - from) * q); });
+    bump(at + dur);
+    return at + dur;
+  }
+  /* spin: rotate an element (a <g> with no tween of its own) from a0 to a1 degrees around (cx, cy) */
+  function spin(el, at, dur, a0, a1, cx = 0, cy = 0, ease = easeIO) {
+    onFrame(t => el.setAttribute('transform', `rotate(${a0 + (a1 - a0) * ease(clamp((t - at) / dur))} ${cx} ${cy})`));
+    bump(at + dur);
   }
 
   function finish({ hold = 1.6 } = {}) {
@@ -467,6 +484,7 @@
         it.e.setAttribute('stroke-dashoffset', 1 - q);
         it.e.setAttribute('stroke-opacity', p > 0 ? 1 : 0);
         if (it.hasFill) it.e.setAttribute('fill-opacity', clamp(q * 1.6));
+      } else if (it.type === 'fn') { it.fn(t);
       } else if (it.type === 'pulse') {
         const u = t - it.start;
         let o = 0;
@@ -938,6 +956,112 @@
     q.rect(-58, 160, 116, 40, { rx: 8, fill: C.fill, at: t(.8), dur: .2 * k });
   };
 
+  /* ---- signs & symbols (question, warning, right/wrong, lock, pin, heart, face, quote, book, button, chart) ---- */
+  const symK = (p, x, y, size, base) => { const s = size / base; return p.child({ transform: `translate(${x} ${y}) scale(${s})` }, s); };
+  /* question mark, bold tube glyph. size = height */
+  kit.question = function (p, { x = 0, y = 0, size = 300, at = 0, d = .7 } = {}) {
+    const q = symK(p, x, y, size, 300);
+    q.tube('M -62 -70 Q -62 -140 0 -140 Q 64 -140 64 -78 Q 64 -36 18 -12 Q 0 -2 0 34 L 0 46', 40, { at, dur: d * .75 });
+    q.circle(0, 114, 24, { fill: C.fill, at: at + d * .75, dur: d * .25 });
+  };
+  /* exclamation mark. size = height */
+  kit.exclaim = function (p, { x = 0, y = 0, size = 300, at = 0, d = .5 } = {}) {
+    const q = symK(p, x, y, size, 300);
+    q.tube([[0, -136], [0, 52]], 40, { at, dur: d * .7 });
+    q.circle(0, 116, 24, { fill: C.fill, at: at + d * .7, dur: d * .3 });
+  };
+  /* warning sign: rounded triangle + "!". size = width */
+  kit.warning = function (p, { x = 0, y = 0, size = 360, at = 0, d = .8 } = {}) {
+    const q = symK(p, x, y, size, 360);
+    q.path('M -24 -150 Q 0 -186 24 -150 L 172 118 Q 190 152 150 152 L -150 152 Q -190 152 -172 118 Z', { fill: C.fill, sw: 3.4, at, dur: d * .55 });
+    q.tube([[0, -78], [0, 46]], 30, { at: at + d * .55, dur: d * .3 });
+    q.circle(0, 98, 17, { fill: C.fill, at: at + d * .85, dur: d * .15 });
+  };
+  /* right / wrong badge: circle + tick or cross. r = radius */
+  kit.verdict = function (p, { x = 0, y = 0, r = 80, ok = true, at = 0, d = .6 } = {}) {
+    p.circle(x, y, r, { fill: C.fill, sw: 3.4, at, dur: d * .55 });
+    const k = r / 80, o = { sw: 6, at: at + d * .55, dur: d * .25 };
+    if (ok) p.poly([[x - 36 * k, y + 2 * k], [x - 10 * k, y + 28 * k], [x + 38 * k, y - 26 * k]], o);
+    else { p.line(x - 30 * k, y - 30 * k, x + 30 * k, y + 30 * k, o); p.line(x + 30 * k, y - 30 * k, x - 30 * k, y + 30 * k, Object.assign({}, o, { at: o.at + d * .15 })); }
+  };
+  /* padlock. part: 'all' | 'body' | 'shackle' (draw the shackle in its own GL.art to lift it open). size = height */
+  kit.lock = function (p, { x = 0, y = 0, size = 300, at = 0, d = .8, part = 'all' } = {}) {
+    const q = symK(p, x, y, size, 300);
+    if (part !== 'body') q.tube('M -62 -6 L -62 -70 Q -62 -138 0 -138 Q 62 -138 62 -70 L 62 -6', 26, { at, dur: d * .45 });
+    if (part !== 'shackle') {
+      q.rect(-104, -24, 208, 176, { rx: 26, fill: C.fill, sw: 3.4, at: at + d * .3, dur: d * .45 });
+      q.circle(0, 46, 20, { fill: C.fill, at: at + d * .7, dur: d * .15 }); q.line(0, 62, 0, 100, { sw: 6, at: at + d * .8, dur: d * .15 });
+    }
+  };
+  /* map pin; (x, y) = the tip that touches the map. size = height */
+  kit.pin = function (p, { x = 0, y = 0, size = 220, at = 0, d = .6 } = {}) {
+    const q = symK(p, x, y, size, 220);
+    q.path('M 0 0 C -22 -46 -78 -96 -78 -146 A 78 78 0 1 1 78 -146 C 78 -96 22 -46 0 0 Z', { fill: C.fill, sw: 3.4, at, dur: d * .65 });
+    q.circle(0, -146, 30, { sw: 3, at: at + d * .6, dur: d * .3 });
+  };
+  /* heart. size = width */
+  kit.heart = function (p, { x = 0, y = 0, size = 200, at = 0, d = .6, fill = C.fill } = {}) {
+    const q = symK(p, x, y, size, 200);
+    q.path('M 0 78 C -60 34 -100 4 -100 -38 C -100 -72 -74 -92 -48 -92 C -24 -92 -8 -78 0 -60 C 8 -78 24 -92 48 -92 C 74 -92 100 -72 100 -38 C 100 4 60 34 0 78 Z',
+      { fill, sw: 3.4, at, dur: d });
+  };
+  /* simple face for feelings: mood happy | sad | neutral | wow | angry | worried. part 'all' | 'head' | 'mouth' */
+  kit.face = function (p, { x = 0, y = 0, r = 120, mood = 'happy', at = 0, d = .7, part = 'all' } = {}) {
+    const q = symK(p, x, y, r * 2, 240);
+    if (part !== 'mouth') {
+      q.circle(0, 0, 120, { fill: C.fill, sw: 3.4, at, dur: d * .5 });
+      [-42, 42].forEach((ex, i) => q.dot(ex, -22, 11, { at: at + d * .5 + i * .05 }));
+      if (mood === 'angry') { q.line(-66, -62, -24, -44, { sw: 5, at: at + d * .6, dur: .15 }); q.line(66, -62, 24, -44, { sw: 5, at: at + d * .62, dur: .15 }); }
+      if (mood === 'worried' || mood === 'sad') { q.line(-64, -46, -26, -60, { sw: 5, at: at + d * .6, dur: .15 }); q.line(64, -46, 26, -60, { sw: 5, at: at + d * .62, dur: .15 }); }
+    }
+    if (part === 'head') return;
+    const M = { happy: 'M -52 30 Q 0 84 52 30', sad: 'M -48 62 Q 0 22 48 62', neutral: 'M -42 48 L 42 48', angry: 'M -46 60 Q 0 34 46 60',
+      worried: 'M -46 54 Q -23 40 0 54 Q 23 68 46 54' };
+    if (mood === 'wow') q.ellipse(0, 50, 20, 26, { sw: 5, at: at + d * .75, dur: d * .25 });
+    else q.path(M[mood] || M.happy, { sw: 6, at: at + d * .75, dur: d * .25 });
+  };
+  /* big quote marks (“). size = height of one mark */
+  kit.quote = function (p, { x = 0, y = 0, size = 120, at = 0, d = .5, close = false } = {}) {
+    const q = symK(p, x, y, size, 120);
+    [-44, 44].forEach((dx, i) => {
+      const r = q.child({ transform: `translate(${dx} 0) rotate(${close ? 180 : 0})` });
+      r.circle(0, 20, 30, { fill: C.fill, sw: 3, at: at + i * .1, dur: d * .5 });
+      r.tube('M -24 12 Q -30 -36 18 -56', 18, { at: at + i * .1 + d * .35, dur: d * .4 });
+    });
+  };
+  /* open book. size = width */
+  kit.book = function (p, { x = 0, y = 0, size = 360, at = 0, d = .8, lines = 4 } = {}) {
+    const q = symK(p, x, y, size, 360);
+    q.path('M 0 -96 Q -80 -128 -172 -104 L -172 116 Q -80 92 0 124 Z', { fill: C.fill, at, dur: d * .45 });
+    q.path('M 0 -96 Q 80 -128 172 -104 L 172 116 Q 80 92 0 124 Z', { fill: C.fill, at: at + d * .1, dur: d * .45 });
+    for (let i = 0; i < lines; i++) {
+      const yy = -62 + i * 40;
+      q.path(`M -146 ${yy} Q -80 ${yy - 16} -28 ${yy}`, { sw: 1.6, stroke: C.soft, at: at + d * .55 + i * .04, dur: d * .2 });
+      q.path(`M 28 ${yy} Q 80 ${yy - 16} ${146 - (i === lines - 1 ? 50 : 0)} ${yy}`, { sw: 1.6, stroke: C.soft, at: at + d * .6 + i * .04, dur: d * .2 });
+    }
+  };
+  /* button with a word (follow, subscribe, buy). (x, y) = centre */
+  kit.button = function (p, { x = 0, y = 0, w = 420, h = 120, text: label = 'FOLLOW', size, at = 0, d = .5 } = {}) {
+    p.rect(x - w / 2, y - h / 2, w, h, { rx: h / 2, fill: C.fill, sw: 3.4, at, dur: d * .7 });
+    p.text(label, x, y + (size || h * .36) * .36, { size: size || h * .36, ls: 3, at: at + d * .6, dur: .25 });
+  };
+  /* chart. kind 'line' (ends in an arrow) | 'bar'. values are relative (min → bottom, max → top). (x, y) = centre */
+  kit.chart = function (p, { x = 0, y = 0, w = 380, h = 280, values = [2, 3, 2.6, 4, 5.5], kind = 'line', at = 0, d = 1.2, axes = true } = {}) {
+    const l = x - w / 2, b = y + h / 2, lo = Math.min(0, ...values), hi = Math.max(...values), py = v => b - 14 - (v - lo) / (hi - lo || 1) * (h - 40);
+    if (axes) p.poly([[l, y - h / 2], [l, b], [l + w, b]], { sw: 2.4, stroke: C.soft, at, dur: d * .3 });
+    const n = values.length;
+    if (kind === 'bar') {
+      const bw = (w - 30) / n * .6;
+      values.forEach((v, i) => { const cx = l + 24 + (i + .5) * (w - 30) / n; p.rect(cx - bw / 2, py(v), bw, b - py(v), { rx: 6, fill: C.fill, sw: i === n - 1 ? 3.4 : 2.4, stroke: i === n - 1 ? C.ink : C.soft, at: at + d * .3 + i * d * .5 / n, dur: d * .3 }); });
+    } else {
+      const P = values.map((v, i) => [l + 24 + i * (w - 48) / (n - 1), py(v)]);
+      p.poly(P, { sw: 3.4, at: at + d * .3, dur: d * .6 });
+      P.slice(0, -1).forEach((q_, i) => p.dot(q_[0], q_[1], 6, { at: at + d * .3 + d * .6 * i / (n - 1) }));
+      const [a, z] = [P[n - 2], P[n - 1]];
+      arrowHead(p, [a, z], 22, 'open', { sw: 3.4, at: at + d * .85, dur: .15 });
+    }
+  };
+
   /* simple single icons (for steps / flow / diagram / custom scenes) */
   const icons = {
     check: p => parts.check(p, 0, 0, 1.7, 0, .4, 7),
@@ -975,6 +1099,21 @@
     cursor: p => kit.cursor(p, { x: -50, y: -90, size: 170, click: true }),
     sparkle: p => { kit.sparkle(p, { x: -20, y: 20, r: 120 }); kit.sparkle(p, { x: 110, y: -110, r: 50, at: .3 }); kit.sparkle(p, { x: 120, y: 110, r: 30, at: .4 }); },
     cycle: p => kit.cycle(p, { r: 150, sw: 4, hs: 24 }),
+    question: p => kit.question(p, { size: 340 }),
+    exclaim: p => kit.exclaim(p, { size: 340 }),
+    warning: p => kit.warning(p, { size: 380, y: -10 }),
+    right: p => kit.verdict(p, { r: 150 }),
+    wrong: p => kit.verdict(p, { r: 150, ok: false }),
+    lock: p => kit.lock(p, { size: 330, y: 10 }),
+    pin: p => kit.pin(p, { size: 330, y: 160 }),
+    heart: p => kit.heart(p, { size: 360, y: 10 }),
+    ...Object.fromEntries(['happy', 'sad', 'neutral', 'wow', 'angry', 'worried'].map(m => ['face-' + m, p => kit.face(p, { r: 160, mood: m })])),
+    quote: p => kit.quote(p, { size: 200 }),
+    book: p => kit.book(p, { size: 390 }),
+    button: p => kit.button(p, { w: 380, h: 130 }),
+    'chart-up': p => kit.chart(p, { w: 380, h: 320 }),
+    'chart-down': p => kit.chart(p, { w: 380, h: 320, values: [5.5, 4.4, 4.8, 3, 1.6] }),
+    'chart-bar': p => kit.chart(p, { w: 380, h: 320, kind: 'bar', values: [1.5, 2.4, 3.2, 4.6] }),
   };
 
   /* =====================================================================================
@@ -1188,7 +1327,7 @@
   });
 
   window.GL = { C, stage, run, Pen, art, place, text, caption, title, rows, grid, hero, steps, page, flow, diagram, showcase, shots, connect,
-    finish, tween, fade, pulse, hline, vline, midArrow,
+    finish, tween, fade, pulse, hline, vline, midArrow, onFrame, count, spin,
     parts, kit, icons, pairs, pair, iso, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
 
   async function run(build) {

@@ -1,0 +1,16 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* คำเตือน — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  const a = GL.art(p => kit.warning(p, { size: 520 }), { x: 540, y: 820, at: .2 });
+  GL.art(p => kit.burst(p, { r1: 330, r2: 390, n: 12, d: .4 }), { x: 540, y: 840, at: a.end - .1 });
+  GL.text('ระวัง!', { y: 1360, size: 150, at: a.end - .2 });                                                           // ✎
+  GL.caption('อย่ากดลิงก์จากคนที่ไม่รู้จัก', { y: 1480, at: a.end + .1 });                                            // ✎
+  GL.pulse(a.g, a.end + .2);
+});
+</script></body></html>

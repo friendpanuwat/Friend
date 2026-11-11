@@ -1,0 +1,18 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* นิยาม — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  GL.text('DEFINITION', { y: 260, size: 44, ls: 10, color: C.kicker, at: .1 });
+  GL.art(p => kit.book(p, { size: 340 }), { x: 540, y: 460, at: .2 });
+  GL.text('มินิมอล', { y: 790, size: 150, at: .7 });                                                                   // ✎
+  GL.text('(คำนาม)', { y: 880, size: 44, weight: 500, color: C.sub, glow: false, at: .9 });                           // ✎
+  GL.hline(950, 1, { x1: 240, x2: W - 240 });
+  GL.text('การเลือกเก็บไว้\nเฉพาะสิ่งที่มีความหมาย', { y: 1080, size: 66, weight: 600, lh: 1.35, at: 1.3 });            // ✎
+  GL.caption('ไม่ใช่การมีของให้น้อยที่สุด', { y: 1340, at: 1.7 });                                                        // ✎
+});
+</script></body></html>

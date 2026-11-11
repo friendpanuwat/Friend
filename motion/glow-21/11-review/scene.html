@@ -1,0 +1,20 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* คำพูด / แชต / รีวิว — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  GL.text('ลูกค้าพูดถึงเรา', { y: 340, size: 80, at: .1 });                                                           // ✎
+  GL.art(p => kit.bust(p, { size: 130 }), { x: 130, y: 610, at: .4 });
+  GL.art(p => parts.bubble(p, 0, 0, 720, 170, 0, .4), { x: 590, y: 590, at: .55 });
+  GL.text('ของถึงไวมาก แพ็กมาดีสุด ๆ', { x: 590, y: 608, size: 46, maxW: 660, at: .85 });                               // ✎
+  GL.art(p => parts.bubble(p, 0, 0, 600, 150, 0, .4, true), { x: 560, y: 840, at: 1.3 });
+  GL.text('ขอบคุณที่อุดหนุนนะครับ', { x: 560, y: 856, size: 44, weight: 600, color: C.soft, glow: false, maxW: 540, at: 1.6 });  // ✎
+  const st = GL.art(p => [0, 1, 2, 3, 4].forEach(i => parts.star(p, (i - 2) * 130, 0, 52, i * .12, .3, { fill: C.fill })), { x: 540, y: 1140, at: 2 });
+  GL.text('5.0 จากลูกค้าจริง', { y: 1340, size: 66, at: st.end - .1 });                                               // ✎
+  GL.pulse(st.g, st.end + .1);
+});
+</script></body></html>

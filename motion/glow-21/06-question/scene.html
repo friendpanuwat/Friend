@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* คำถาม — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  const q = GL.art(p => kit.question(p, { size: 400 }), { x: 720, y: 720, at: .3 });
+  GL.art(p => kit.person(p, { x: 300, y: 1330, h: 440, pose: 'think' }), { x: 0, y: 0, at: .2 });
+  GL.art(p => { p.circle(410, 890, 12, { fill: C.fill, sw: 2.4 }); p.circle(470, 840, 19, { fill: C.fill, sw: 2.4, at: .1 }); }, { x: 0, y: 0, at: .9 });
+  GL.text('ทำไมคลิปไม่มีคนดู?', { y: 1520, size: 76, at: 1.1 });                                                     // ✎
+  GL.caption('คำตอบอยู่ท้ายคลิป', { y: 1620, at: 1.4 });                                                               // ✎
+  GL.pulse(q.g, 1.6);
+});
+</script></body></html>

@@ -1,0 +1,24 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* เวลา — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  let hands;
+  const a = GL.art(p => {
+    p.circle(0, 0, 250, { fill: C.fill, sw: 3.6, dur: .5 });
+    for (let i = 0; i < 12; i++) { const k = i * Math.PI / 6, big = i % 3 === 0;
+      p.line(Math.sin(k) * (big ? 190 : 210), -Math.cos(k) * (big ? 190 : 210), Math.sin(k) * 228, -Math.cos(k) * 228, { sw: big ? 5 : 2.4, at: .3 + i * .02, dur: .12 }); }
+    const h = p.child({}); hands = h.g;
+    h.line(0, 0, 0, -175, { sw: 5, at: .6, dur: .2 });
+    p.line(0, 0, 90, 40, { sw: 7, at: .65, dur: .2 }); p.dot(0, 0, 12, { at: .8 });
+  }, { x: 540, y: 800, at: .2 });
+  GL.spin(hands, a.end, 1.6, 0, 720);
+  const t = GL.count(30, { y: 1390, size: 190, suffix: ' วินาที', at: a.end, dur: 1.6 });                             // ✎
+  GL.caption('ที่คนตัดสินใจว่าจะดูต่อไหม', { y: 1500, at: t - .3 });                                                   // ✎
+  GL.pulse(a.g, t);
+});
+</script></body></html>

@@ -1,0 +1,14 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* เปรียบเทียบ / ก่อนกับหลัง — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  GL.hero({ pair: 'phone' }, { swap: false, label: 'หน้าจอมือถือ', caption: 'เหลือแค่แอปที่ใช้จริง' });                    // ✎ pair + ข้อความ
+  GL.text('ก่อน', { x: W * .264, y: 690, size: 48, ls: 4, color: C.kicker, at: .6 });
+  GL.text('หลัง', { x: W * .736, y: 690, size: 48, ls: 4, at: 1.75 });
+});
+</script></body></html>

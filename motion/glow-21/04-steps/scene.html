@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* ขั้นตอน — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  const top = GL.title({ kicker: '3 STEPS', main: 'เริ่มต้น', sub: 'ทำตามนี้ทีละขั้น' });                           // ✎
+  GL.flow([
+    { icon: 'target', label: 'ตั้งเป้าให้ชัด', sub: 'หนึ่งประโยคพอ' },                                              // ✎
+    { icon: 'person-walk', label: 'ลงมือทุกวัน', sub: 'วันละนิดก็พอ' },
+    { icon: 'chart-up', label: 'วัดผลทุกสัปดาห์', sub: 'ดูว่าอะไรได้ผล' },
+  ], { top, bottom: H - 220 });
+});
+</script></body></html>

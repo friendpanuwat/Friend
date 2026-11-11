@@ -1,0 +1,23 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* ความสัมพันธ์ของคน — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  const top = GL.title({ kicker: 'PEOPLE', main: 'คนรอบตัว' });                                                      // ✎
+  GL.diagram({
+    nodes: {
+      you:    { x: .5, y: .45, icon: 'bust', label: 'คุณ', scale: 1.05 },                                              // ✎
+      family: { x: .5, y: .05, icon: 'team', label: 'ครอบครัว', scale: .75 },
+      friend: { x: .19, y: .5, icon: 'bust', label: 'เพื่อน', scale: .62 },
+      client: { x: .81, y: .5, icon: 'bust', label: 'ลูกค้า', scale: .62 },
+      mentor: { x: .5, y: .9, icon: 'bust', label: 'พี่เลี้ยง', scale: .62 },
+    },
+    edges: [['you', 'family', { head: 'none', label: 'กำลังใจ' }], ['you', 'friend', { head: 'none' }], ['you', 'client', { both: true, label: 'ไว้ใจ' }],
+      ['mentor', 'you', { dash: true, label: 'คำแนะนำ' }]],
+  }, { top: top + 30, bottom: H - 280 });
+});
+</script></body></html>

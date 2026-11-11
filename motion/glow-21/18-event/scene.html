@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* เล่าเหตุการณ์ — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  GL.shots([
+    { kicker: 'วันแรก', title: 'เริ่มจากศูนย์', icon: 'person-walk', caption: 'ไม่มีใครรู้จัก ไม่มีลูกค้า' },              // ✎
+    { kicker: 'เดือนที่ 3', title: 'เกือบถอดใจ', icon: 'person-shrug', caption: 'ยอดขายยังเป็นศูนย์' },
+    { kicker: 'วันนี้', title: 'ทำได้แล้ว', caption: 'ลูกค้ากลับมาซื้อซ้ำทุกเดือน',
+      draw: p => { kit.person(p, { y: 175, h: 350, pose: 'cheer' }); kit.sparkle(p, { x: -150, y: -120, r: 30, at: .7 }); kit.sparkle(p, { x: 150, y: -60, r: 20, at: .8 }); } },
+  ], { hold: .9 });
+});
+</script></body></html>

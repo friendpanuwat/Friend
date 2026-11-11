@@ -119,6 +119,9 @@ GL.page(t, at => GL.rows(items.slice(3, 6), { top, at }), { out: false });
 - `GL.tween(el, at, dur, from, to, {cx, cy, ease})` — `from/to` = `{o, s, dx, dy}` (opacity, scale รอบ cx/cy, เลื่อน)
 - `GL.fade(el, at, dur, rise)` — โผล่ + ลอยขึ้น
 - `GL.art(fn, {x, y, s, at, ts, filter})` → `{wrap, g, end}` — วางภาพวาดเองนอกเลย์เอาต์ (`filter: 'glow' | 'glowS' | null`)
+- `GL.count(to, {from 0, x, y, size 300, at, dur 1.2, prefix, suffix, decimals})` → เวลาจบ — ตัวเลขใหญ่นับขึ้น/ลง (ตัวเลขเด่น, +45%)
+- `GL.spin(g, at, dur, a0, a1, cx, cy)` — หมุน `<g>` (เช่น เข็มนาฬิกา: `const h = p.child({}); … GL.spin(h.g, …)`) — อย่าใช้กับ element ที่มี tween
+- `GL.onFrame(t => …)` — โค้ดที่รันทุกเฟรม สำหรับสิ่งที่ tween ทำไม่ได้
 - `GL.pulse(g, at, 'bloom' | 'bloomS')` — เรืองแสงเป็นจังหวะบนภาพที่วาดเสร็จ (`g` จาก `GL.art`)
 - `GL.midArrow(x, y, at)` — ลูกศรเทาระหว่างคู่
 - `GL.end` — เวลาสิ้นสุดล่าสุดของทุกอย่างที่สร้างแล้ว

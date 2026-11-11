@@ -1,0 +1,22 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* ความรู้สึก — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  GL.text('ความรู้สึก', { y: 340, size: 46, ls: 8, color: C.kicker, at: .1 });
+  const a = GL.art(p => kit.face(p, { r: 220, mood: 'sad' }), { x: 540, y: 900, at: .3 });
+  const l1 = GL.text('ท้อ', { y: 1330, size: 110, at: a.end - .2 });                                                    // ✎
+  const t = a.end + .9;
+  GL.tween(a.wrap, t, .4, { o: 1 }, { o: 0 }); GL.tween(l1, t, .4, { o: 1 }, { o: 0 });
+  const b = GL.art(p => kit.face(p, { r: 220, mood: 'happy' }), { x: 540, y: 900, at: t + .15 });
+  GL.text('มีแรงฮึดอีกครั้ง', { y: 1330, size: 110, at: b.end - .2 });                                                 // ✎
+  GL.art(p => { kit.heart(p, { x: -260, y: -230, size: 70 }); kit.sparkle(p, { x: 270, y: -210, r: 34, at: .1 }); kit.sparkle(p, { x: 300, y: 120, r: 20, at: .2 }); },
+    { x: 540, y: 900, at: b.end });
+  GL.caption('หลังได้ข้อความจากลูกค้าคนแรก', { y: 1450, at: b.end });                                                 // ✎
+  GL.pulse(b.g, b.end + .1);
+});
+</script></body></html>

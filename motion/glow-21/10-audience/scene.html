@@ -1,0 +1,19 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* คน / กลุ่มเป้าหมาย — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  GL.title({ kicker: 'TARGET', main: 'คนที่ใช่', sub: 'ขายให้ทุกคน = ไม่มีใครซื้อ' });                                 // ✎
+  const xs = [90, 240, 390, 540, 690, 840, 990], ps = [];
+  xs.forEach((x, i) => ps.push(GL.art(p => kit.person(p, { x, y: 1160, h: 280, pose: i === 3 ? 'wave' : 'stand', d: .6 }), { x: 0, y: 0, at: .7 + Math.abs(i - 3) * .08 })));
+  ps.forEach((a, i) => { if (i !== 3) GL.tween(a.wrap, 1.9, .5, { o: 1 }, { o: .28 }); });
+  GL.art(p => p.ellipse(540, 1020, 110, 175, { sw: 3, dur: .5 }), { x: 0, y: 0, at: 2 });
+  GL.text('วัยทำงาน 25–35', { y: 1340, size: 72, at: 2.3 });                                                         // ✎
+  GL.caption('อยากมีรายได้เสริม แต่ไม่มีเวลา', { y: 1440, at: 2.5 });                                                   // ✎
+  GL.pulse(ps[3].g, 2.5);
+});
+</script></body></html>

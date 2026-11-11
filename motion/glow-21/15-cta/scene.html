@@ -1,0 +1,18 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../../../.claude/skills/glow-line-motion/assets/glowline.js"></script></head>
+<body><script>
+/* ปิดคลิป / ชวนทำต่อ — แม่แบบ glow-line-motion. ข้อความทั้งหมดเป็นตัวอย่าง: แก้ได้ตรง ๆ ในบรรทัดที่มีเครื่องหมาย ✎ */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C, W, H } = GL;
+
+  const b = GL.art(p => parts.bell(p, 0, 0, 4.2, 0, .5), { x: 540, y: 600, at: .2 });
+  const btn = GL.art(p => kit.button(p, { w: 600, h: 160, text: 'FOLLOW' }), { x: 540, y: 980, at: .6 });
+  GL.art(p => kit.tap(p, { x: 190, y: 50, size: 300 }), { x: 540, y: 980, at: btn.end });
+  GL.art(p => kit.burst(p, { r1: 120, r2: 160, n: 7, from: -90, spread: 150, d: .3 }), { x: 540, y: 600, at: btn.end + .6 });
+  GL.pulse(btn.g, btn.end + .6); GL.pulse(b.g, btn.end + .7);
+  GL.text('ตอนหน้ามีต่อ', { y: 1420, size: 96, at: btn.end + .7 });                                                     // ✎
+  GL.caption('กดติดตามไว้ จะได้ไม่พลาด', { y: 1520, at: btn.end + .9 });                                                 // ✎
+});
+</script></body></html>
