@@ -211,8 +211,8 @@ STYLE('gold', {
     if (window.__fitted) fit(); else FITS.push(fit);
     return el;
   },
-  /* every word of a real clip (CAPTIONS = [{t0, t1, parts: [[words, time said], …]}]): the last part is the key word, the ones
-     before it the lead; on the speaker at chest height, or in the scene's place (A: on white, B: on dark) */
+  /* every word of a real clip (CAPTIONS = [{t0, t1, parts: [[words, time said, 'k' | 'l'], …]}]): 'k' = the key word (big gold),
+     'l' = lead (small); without a mark the last part is the key word; on the speaker at chest height, or in the scene's place (A: on white, B: on dark) */
   caption(c) {
     const w = this.wins.find(x => c.t0 < x.t1 && c.t1 > x.t0);
     let a = c.t0, b = c.t1;
@@ -220,7 +220,7 @@ STYLE('gold', {
     else this.wins.forEach(x => { if (x.t1 > a && x.t1 <= b && x.t0 < a) a = x.t1; if (x.t0 < b && x.t0 >= a) b = Math.min(b, x.t0); });
     if (b - a < .15) return;
     const S = w ? (w.look === 'A' ? GOLD.A.sub : GOLD.B.sub) : {x: 70, y: this.chest(), w: 860, h: 0};
-    const n = c.parts.length, parts = c.parts.map(([txt, t], i) => [txt, t, i === n - 1 ? 'k' : 'l']);
+    const n = c.parts.length, parts = c.parts.map(([txt, t, kind], i) => [txt, t, kind ?? (i === n - 1 ? 'k' : 'l')]);   // a part may say which it is (the caption step picks the key word)
     const el = this.words(SC, S, w?.look === 'A', parts, a, b, false);
     if (w) el.style.zIndex = 2;                    // above the scene's look (it is drawn after it anyway)
   },
