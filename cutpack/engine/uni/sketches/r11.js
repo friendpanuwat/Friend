@@ -132,12 +132,13 @@ const SK = (() => {
         q.circle(5, -76, 20, o);
         return q;
       }
-      const A = {stand: [10, 10], wave: [10, 155], cheer: [150, 150], point: [10, 88], think: [10, 150]}[pose] || [10, 10];
+      const A = Array.isArray(pose) ? pose : {stand: [10, 10], wave: [10, 155], cheer: [150, 150], point: [10, 88], think: [10, 150]}[pose] || [10, 10];
       SK.capsule(q, -11, 12, -12, 90, 9.5, o); SK.capsule(q, 11, 12, 12, 90, 9.5, o);
       q.path('M -30 -38 Q -30 -50 -18 -50 L 18 -50 Q 30 -50 30 -38 L 24 12 Q 23 18 16 18 L -16 18 Q -23 18 -24 12 Z', o);
       [-1, 1].forEach((side, i) => {
         const th = A[i] * Math.PI / 180, sx = side * 25, sy = -40, L = pose === 'think' && side > 0 ? 40 : 62;
         const ex = sx + side * Math.sin(th) * L, ey = sy + Math.cos(th) * L;
+        if (A[i] == null) return;
         if (pose === 'think' && side > 0) { SK.capsule(q, sx, sy, ex + 8, ey + 44, 8, o); SK.capsule(q, ex + 8, ey + 44, 14, -60, 7.5, o); }
         else SK.capsule(q, sx, sy, ex, ey, 8, o);
       });
@@ -253,29 +254,61 @@ R3.both('B20', 'face', 'สองคนหันหน้าเข้าหา�
   if (s.label) LP.word(K, g, s.label, 300, 282, 34, 320);
 });
 
-/* 6 · a handshake: two sleeves with a cuff each, the right hand's fingers over the left hand, the left thumb over them.
-   When it is over the hands are apart */
-R3.both('B20', 'shake', 'มือสองข้างจับมือกัน (จบกัน = ปล่อยมือ)', (K, s, T, g, small) => {
-  const cut = !!s.cut, d = cut ? 46 : 0, {p} = LP.layer(g, small), Y = 140;
-  const L = p.child({transform: `translate(${-d} 0)`}), R = p.child({transform: `translate(${d} 0)`});
-  L.rect(-20, Y - 34, 196, 68, {rx: 16, fill: true}); L.rect(166, Y - 40, 26, 80, {rx: 8, fill: true, tone: 'acc'});
-  L.rect(178, Y - 30, 120, 62, {rx: 26, fill: true});                                   // the left palm (behind)
-  R.rect(424, Y - 34, 196, 68, {rx: 16, fill: true}); R.rect(408, Y - 40, 26, 80, {rx: 8, fill: true, tone: 'acc'});
-  /* the right hand's four fingers come out of its palm and wrap over the left palm (finger capsules, like the skill's hand) */
-  [Y - 24, Y - 8, Y + 8, Y + 24].forEach((y, k) => SK.capsule(R, 330, y, 236 + k * 6, y + 2, 8));
-  R.rect(300, Y - 36, 122, 72, {rx: 30, fill: true});                                   // the right palm, over the finger roots
-  SK.capsule(p.child({transform: `translate(${-d} 0)`}), 214, Y - 26, 300, Y - 40, 9);   // the left thumb over them
+/* 6 (Friend 2026-11-11 deleted the handshake `shake`: "ลบอันนี้ออก และคิดไอเดียใหม่") — two new ideas to choose from: */
+/* 6a · two people (the skill's pictograms) stand side by side, one arm round the other's shoulders. When it is over they stand
+   apart, arms down, a cross between them. A brand (not a person): the person rests an arm on its card */
+R3.both('B20', 'hug', 'สองคนยืนเคียงกัน โอบไหล่ (จบกัน = ยืนห่างกัน)', (K, s, T, g, small) => {
+  const a = s.a ?? {icon: 'user'}, b = s.b ?? {icon: 'user'}, cut = !!s.cut, G = 266, H = 250, sc = H / 200, {p} = LP.layer(g, small);
+  const sh = x => [x + 25 * sc, G - 99.5 * sc - 40 * sc];            // a person's right shoulder (front view)
+  if (cut) { SK.person(p, {x: 206, y: G, h: H}); SK.person(p, {x: 394, y: G, h: H}); SK.cross(p, 300, 132, .3); }
+  else if (!S11.human(b.icon)) {
+    p.rect(330, G - 150, 150, 150, {rx: 16, fill: true}); LP.ico(g, b.icon, 405, G - 75, 70);
+    SK.person(p, {x: 240, y: G, h: H, pose: [10, null]}); const [x, y] = sh(240); SK.capsule(p, x, y, 352, G - 150, 8 * sc);
+  } else {
+    SK.person(p, {x: 352, y: G, h: H});
+    SK.person(p, {x: 248, y: G, h: H, pose: [10, null]}); const [x, y] = sh(248); SK.capsule(p, x, y, 352 + 14 * sc, y - 6, 8 * sc);
+  }
+  if (s.label) LP.word(K, g, s.label, 300, 282, 34, 320);
 });
 
+/* 6b · two people (the skill's pictograms) raise their hands and high-five above their heads; three short lines spark at the
+   touch. When it is over the arms are down and they stand apart. People only */
+R3.both('B20', 'hifive', 'สองคนแปะมือกันเหนือหัว (จบกัน = ยืนห่างกัน)', (K, s, T, g, small) => {
+  const cut = !!s.cut, G = 266, H = 236, sc = H / 200, {p} = LP.layer(g, small);
+  if (cut) { SK.person(p, {x: 206, y: G, h: H}); SK.person(p, {x: 394, y: G, h: H}); SK.cross(p, 300, 132, .3); }
+  else {
+    const top = G - 99.5 * sc - 40 * sc, hy = 34;
+    SK.person(p, {x: 226, y: G, h: H, pose: [10, null]}); SK.capsule(p, 226 + 25 * sc, top, 292, hy, 8 * sc);
+    SK.person(p, {x: 374, y: G, h: H, pose: [null, 10]}); SK.capsule(p, 374 - 25 * sc, top, 308, hy, 8 * sc);
+    [[-150, 0], [-90, 0], [-30, 0]].forEach(([deg]) => { const r = deg * Math.PI / 180; p.line(300 + Math.cos(r) * 26, hy - 8 + Math.sin(r) * 26, 300 + Math.cos(r) * 42, hy - 8 + Math.sin(r) * 42, {sw: 3, tone: 'acc', fill: 'none'}); });
+  }
+  if (s.label) LP.word(K, g, s.label, 300, 282, 34, 320);
+}, s => S11.human(s.a?.icon ?? 'user') && S11.human(s.b?.icon ?? 'user'));
+
 /* ================= B21 สถานที่: place {icon, label?}, spots? [1-2 {icon, label?}] ================= */
-/* 7 · a big road sign on two posts: the name of the place */
-R3.both('B21', 'roadsign', 'ป้ายริมทางบนเสาสองต้น บอกชื่อที่', (K, s, T, g, small) => {
-  const pl = s.place ?? {icon: 'map-pin'}, {p} = LP.layer(g, small);
-  [150, 426].forEach(x => { p.rect(x, 166, 24, 156, {rx: 6, fill: true}); p.rect(x - 10, 318, 44, 16, {rx: 5, fill: true}); });
-  p.rect(60, 14, 480, 168, {rx: 16, fill: true, tone: 'acc'}); p.rect(74, 28, 452, 140, {rx: 10, tone: 'acc', fill: 'none', sw: 1.8});
-  [[88, 42], [512, 42], [88, 154], [512, 154]].forEach(([x, y]) => p.circle(x, y, 4, {tone: 'acc', fill: 'none', sw: 1.6}));
-  LP.ico(g, pl.icon, 300, 62, 56, true);
-  if (pl.label) LP.word(K, g, pl.label, 300, 94, 48, 420, true);
+/* 7 (Friend 2026-11-11 sent the road sign `roadsign`: "คิดไอเดียใหม่") — two new ideas to choose from: */
+/* a map pin (the same shape as in 8): its round head on (x, y), radius r, the tip 1.54 r under it */
+const PIN = (p, x, y, r, o = {}) => p.path(`M ${x} ${y + r * 1.54} C ${x - r * .2} ${y + r * 1.12} ${x - r} ${y + r * .7} ${x - r} ${y} A ${r} ${r} 0 1 1 ${x + r} ${y} C ${x + r} ${y + r * .7} ${x + r * .2} ${y + r * 1.12} ${x} ${y + r * 1.54} Z`, Object.assign({fill: true}, o));
+/* 7a · a phone (the skill's) with a map app: two roads, the pin drops on the place, the place's card at the bottom */
+R3.both('B21', 'navphone', 'มือถือเปิดแผนที่ หมุดตกลงที่สถานที่ ชื่อขึ้นการ์ดล่าง', (K, s, T, g, small) => {
+  const pl = s.place ?? {icon: 'map-pin'}, {p} = LP.layer(g, small), q = p.child({transform: 'translate(300 168) scale(.9)'}, .9);
+  q.rect(-98, -182, 196, 364, {rx: 32, fill: true}); q.rect(-86, -170, 172, 340, {rx: 22, sw: 1.6, tone: 'soft'});
+  q.line(-18, -158, 18, -158, {sw: 5});
+  q.path('M -86 -60 Q -10 -40 86 -96', {sw: 1.6, tone: 'soft'}); q.path('M -40 -170 Q -20 -40 30 92', {sw: 1.6, tone: 'soft'}); q.line(-86, 40, 86, 20, {sw: 1.6, tone: 'soft'});
+  q.ellipse(-12, 4, 16, 5, {sw: 1.6, tone: 'soft'}); PIN(q, -12, -64, 40, {tone: 'acc'}); q.circle(-12, -64, 24, {fill: true, sw: 2.2});
+  LP.ico(g, pl.icon, 300 - 12 * .9, 168 - 64 * .9, 26);
+  q.rect(-74, 92, 148, 66, {rx: 14, fill: true});
+  if (pl.label) LP.word(K, g, pl.label, 300, 168 + 104 * .9, 26, 120); else LP.ico(g, pl.icon, 300, 168 + 125 * .9, 30);
+});
+
+/* 7b · a person (the skill's pictogram) has arrived: a big pin with the place on it stands beside them, the name under it */
+R3.both('B21', 'arrive', 'คนยืนข้างหมุดใหญ่ มาถึงสถานที่แล้ว', (K, s, T, g, small) => {
+  const pl = s.place ?? {icon: 'map-pin'}, {p} = LP.layer(g, small), G = 262;
+  p.line(110, G, 490, G, {sw: 2, tone: 'soft'});
+  p.ellipse(382, G, 30, 8, {sw: 1.6, tone: 'soft'});
+  PIN(p, 382, G - 102, 66, {tone: 'acc'}); p.circle(382, G - 102, 42, {fill: true, sw: 2.2}); LP.ico(g, pl.icon, 382, G - 102, 44);
+  SK.person(p, {x: 206, y: G, h: 220, pose: 'wave'});
+  if (pl.label) LP.word(K, g, pl.label, 300, 280, 34, 360);
 });
 
 /* 8 · a map pin stands on a building: here */
