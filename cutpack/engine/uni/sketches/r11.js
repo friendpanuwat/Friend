@@ -1,4 +1,7 @@
 /* =====================================================================
+   SUPERSEDED (2026-11-11): the 22 kept drafts now live, with their moves, in scenes/lego_r9d.js (Friend: "ทั้ง 2 แบบครับ แล้วก็
+   อันอื่นผ่านแล้วเริ่มทำขั้นตอนต่อไปได้"). This file defines the same names (LP, SK, S11, PIN, iso) and the same variants, so it
+   can NOT be loaded with EXTRA= any more; it stays as the record of the still stage (shake and roadsign were dropped here).
    CutPack · uni · SKETCHES for round 11 (Friend 2026-11-11: "เริ่มรอบ 11 ได้ครับ"). Two new drafts for each of ten
    categories: B10 คน · B13 เคล็ดลับ · B20 ความสัมพันธ์ · B21 สถานที่ · B12 เหตุกับผล · B05 ถูกกับผิด · B11 คำพูด ·
    B01 ตัวเลขเด่น · B02 เพิ่ม/ลด · B14 ประโยคเด็ด. Ideas: one main thing + one move on the key word, then it holds
