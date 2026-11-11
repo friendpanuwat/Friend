@@ -33,7 +33,7 @@
 .p-light{--lp-ink:#4B3D6E;--lp-fill:#FFFFFF;--lp-soft:rgba(75,61,110,.5);--lp-acc:#9C84D6;--lp-acc-line:#4B3D6E;--lp-acc-ink:#FFFFFF;--lp-neg:#C2667A}
 .p-dark{--lp-ink:#F1ECFB;--lp-fill:#6F5F97;--lp-soft:rgba(241,236,251,.55);--lp-acc:#D9CCF6;--lp-acc-line:#F1ECFB;--lp-acc-ink:#4B3D6E;--lp-neg:#F09AA8}
 .gd{--lp-ink:#F2F2F4;--lp-fill:#141417;--lp-soft:rgba(242,242,244,.48);--lp-acc:#FF9A2E;--lp-acc-line:#FFB04A;--lp-acc-ink:#1A0E00;--lp-neg:#FF5A4E}
-.gd .lp-acc{filter:drop-shadow(0 0 7px rgba(255,140,40,.8))}
+.gd .lp-acc{filter:drop-shadow(0 0 7px rgba(255,140,40,calc(.8 * var(--lp-on, 1))))}
 .c-light,.p-light,.g-root{--lp-acc-edge:var(--lp-acc-line)}
 .c-dark,.p-dark,.gd{--lp-acc-edge:var(--lp-acc-ink)}
 .lp-t{white-space:nowrap;line-height:1.25;color:var(--lp-ink)}
