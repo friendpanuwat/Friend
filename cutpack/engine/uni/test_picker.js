@@ -6,7 +6,7 @@ const fs = require('fs'), path = require('path'), vm = require('vm'), assert = r
 const load = () => {
   const ctx = {SCENE() {}, LAYOUTS: {}, console};
   vm.createContext(ctx);
-  for (const f of ['scenes/cats.js', 'scenes/lego_r2.js', 'scenes/lego_r3.js', 'scenes/lego_r4.js', 'scenes/lego_r5.js', 'scenes/lego_r6.js', 'scenes/lego_r6b.js', 'scenes/lego_r7.js', 'scenes/lego_v2.js', 'scenes/ui.js']) vm.runInContext(fs.readFileSync(path.join(__dirname, f), 'utf8'), ctx);
+  for (const f of ['scenes/cats.js', 'scenes/lego_r2.js', 'scenes/lego_r3.js', 'scenes/lego_r4.js', 'scenes/lego_r5.js', 'scenes/lego_r6.js', 'scenes/lego_r6b.js', 'scenes/lego_r7.js', 'scenes/lego_r8.js', 'scenes/lego_v2.js', 'scenes/ui.js']) vm.runInContext(fs.readFileSync(path.join(__dirname, f), 'utf8'), ctx);
   vm.runInContext('this.pick = (c, s, prefer) => pickVariant(c, s, s.say.join(" "), prefer).id; this.reset = () => { for (const k in PICKS) delete PICKS[k]; }; this.CATS = CATS;', ctx);
   return ctx;
 };
@@ -46,9 +46,9 @@ assert(st.every(v => ui('B04').includes(v)), 'only app screens with prefer ui: '
 assert.strictEqual(new Set(st.slice(0, ui('B04').length)).size, ui('B04').length, 'the app screens take turns: ' + st);
 C.reset(); const plain = [1, 2, 3, 4].map(k => C.pick('B04', steps(k)));
 assert(plain.some(v => !ui('B04').includes(v)), 'without prefer every variant takes part: ' + plain);
-C.reset(); const t6 = [1, 2, 3].map(k => C.pick('B06', {about: {icon: 'user'}, say: ['ทำดีไหม', `ข้อ ${k}`]}, 'ui'));
-assert.strictEqual(new Set(t6).size, 3, 'a category with no app screen picks as before: ' + t6);
-for (const [cat, ids] of Object.entries({B03: ['toggle'], B04: ['list', 'sheet'], B05: ['settings'], B11: ['phone', 'notify'], B15: ['button', 'compose']}))
+C.reset(); const t12 = [1, 2, 3].map(k => C.pick('B12', {items: [{icon: 'user'}, {icon: 'star'}, {icon: 'heart', label: `ข้อ ${k}`}], say: ['ทำดี', `ข้อ ${k}`]}, 'ui'));
+assert.strictEqual(new Set(t12).size, 3, 'a category with no app screen picks as before: ' + t12);
+for (const [cat, ids] of Object.entries({B03: ['toggle'], B04: ['list', 'sheet'], B05: ['settings'], B06: ['type'], B11: ['phone', 'notify'], B15: ['button', 'compose']}))
   assert.deepStrictEqual([...ui(cat)].sort(), ids.sort(), `app-screen variants of ${cat}`);
 console.log('picker ok');
 console.log('  ui B04 ×4 :', st.join(' → '));

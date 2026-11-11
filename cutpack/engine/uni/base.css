@@ -70,3 +70,6 @@ svg{overflow:visible}
 .u-btn-text{font-family:"CardSans";white-space:nowrap;color:inherit;line-height:1}
 /* round 4 (B14): the light of a lamp, strong at the lamp and fading toward the floor */
 .u-spot{background:linear-gradient(180deg, color-mix(in srgb, var(--spot, var(--ac)) 78%, transparent), color-mix(in srgb, var(--spot, var(--ac)) 14%, transparent))}
+/* round 8: a wave the shape of a drawn thing (a heart, a cloud), as R1.ripple is for cards and tiles */
+.u-wave{fill:none;stroke:var(--ac-line, var(--ac));stroke-width:6}
+.u-wave.u-wave-neg{stroke:var(--neg)}
