@@ -110,7 +110,7 @@ R3.both('B06', 'box', 'กล่องปริศนาสั่น มีเ�
   const out = div(`left:0;top:0;width:600px;height:340px;clip-path:inset(-400px -400px ${340 - B.y}px -400px)`, g);
   const body = R2.card(node(box, B.x, B.y, B.w, B.h, 'u-panel')); body.p.style.borderRadius = '18px';
   K.badge(body.p, it.icon, B.w / 2, B.h / 2, 74, null, {tone: it.tone ?? 'main'});
-  const lid = node(box, B.x - 14, B.y - 30, B.w + 28, 34, '', `<svg width="${B.w + 28}" height="34"><rect class="sd" x="0" y="0" width="${B.w + 28}" height="34" rx="10"/></svg>`);
+  const lid = node(box, B.x - 14, B.y - 24, B.w + 28, 34, '', `<svg width="${B.w + 28}" height="34"><rect class="sd" x="0" y="0" width="${B.w + 28}" height="34" rx="10"/></svg>`);
   lid.m.style.transformOrigin = '20% 100%';
   if (it.label) R4.word(K, g, it.label, cx, B.y + B.h + 10, 34, T.b[0] + .25, 300);
   /* it shakes twice, harder the second time */
@@ -143,43 +143,43 @@ R3.both('B06', 'type', 'ช่องค้นหา พิมพ์คำถา�
   } else K.skel(tx, 0, Bar.h / 2 - 9, [250], t0);
   /* below: what the search finds */
   const R = {x: 60, y: 132, w: 400};                                    // the rows end before the question mark on their right
+  const rin = Math.max(t1 + .05, T.hit - (ST.motion.rise?.d ?? .5) * .85 - .05);   // the results are in place on the key word, in every style's speed
   if (s.answer) {
     const res = R2.card(node(g, R.x, R.y, R.w, 150, 'u-panel')); res.p.style.borderRadius = '28px';
-    K.enter(res.o, T.hit - .1, 'rise');
+    K.enter(res.o, rin, 'rise');
     const a = K.badge(res.p, s.answer.icon, 84, 75, 96, null, {tone: 'soft'});
-    const lit = R7.up(K, res.p, s.answer.icon, 84, 75, 96, LG.arrive('rise', T.hit - .1));
+    const lit = R7.up(K, res.p, s.answer.icon, 84, 75, 96, Math.max(T.hit, LG.arrive('rise', rin)));
     K.fade(a.o, lit.done, 1, 0);
-    if (s.answer.label) R6.wordL(K, res.p, s.answer.label, 152, 52, 40, lit.done, 270); else K.skel(res.p, 152, 52, [220, 150], lit.done);
+    if (s.answer.label) R6.wordL(K, res.p, s.answer.label, 152, 52, 40, lit.done - .2, 270); else K.skel(res.p, 152, 52, [220, 150], lit.done - .2);
     R1.ripple(K, res, lit.done + .05);
   } else {
     const opts = s.options?.length === 2 ? s.options : [null, null];
     opts.forEach((o, i) => {
       const r = R2.card(node(g, R.x, R.y + i * 98, R.w, 82, 'u-panel')); r.p.style.borderRadius = '24px';
-      K.enter(r.o, T.hit - .1 + i * .12, 'rise');
+      K.enter(r.o, rin + i * .12, 'rise');
       if (o) { K.badge(r.p, o.icon, 50, 41, 56, null, {tone: 'main', shape: 'round'}); if (o.label) R6.wordL(K, r.p, o.label, 96, 18, 32, null, 300); else K.skel(r.p, 96, 32, [200]); }
       else { K.badge(r.p, 'circle-help', 50, 41, 56, null, {tone: 'soft', shape: 'round'}); K.skel(r.p, 96, 32, [i ? 170 : 230], null); }
     });
-    const q = K.badge(g, 'circle-help', 508, 158, 64, LG.arrive('rise', T.hit + .02), {tone: 'acc', shape: 'round'});
-    K.punch(q.p, LG.arrive('pop', LG.arrive('rise', T.hit + .02)));
+    const q = K.badge(g, 'circle-help', 508, 158, 64, T.hit, {tone: 'acc', shape: 'round'});
+    K.punch(q.p, LG.arrive('pop', T.hit));
   }
 }, undefined, {ui: true});
 
 /* ================= B07 คำเตือน: thing {icon, label?}, how ('cross' | 'flag'), sign? ================= */
 /* 3 · a traffic light: the lower lamp is on while the thing comes closer, then the top lamp turns red on the key word */
 R3.both('B07', 'traffic', 'ไฟจราจรเปลี่ยนเป็นสีแดง', (K, s, T, g) => {
-  const it = s.thing, H = {x: 84, y: 16, w: 112, h: 300}, cx = H.x + H.w / 2, ly = [H.y + 58, H.y + 150, H.y + 242], r = 36;
-  const box = R8.svg(g, `<rect class="sd" x="${H.x}" y="${H.y}" width="${H.w}" height="${H.h}" rx="30"/>` +
-    ly.map(y => `<circle class="fl" style="opacity:.22" cx="${cx}" cy="${y}" r="${r}"/>`).join(''));
-  K.enter(box, T.b[0], 'rise');
-  const lamp = (y, cls, t0, t1) => {
-    const e = R8.svg(g, `<circle class="${cls}" cx="${cx}" cy="${y}" r="${r}"/>`); R7.show(e, t0); if (t1 != null) R7.hide(e, t1); return e;
-  };
+  const it = s.thing, H = {x: 84, y: 16, w: 112, h: 300}, cx = H.x + H.w / 2, ly = [58, 150, 242], r = 36;
+  /* the housing is a card, so its lamps read on it in every style: off = the skeleton colour, on = accent / red */
+  const box = R2.card(node(g, H.x, H.y, H.w, H.h, 'u-panel')); box.p.style.borderRadius = '30px'; K.enter(box.o, T.b[0], 'rise');
+  const dot = (y, cls) => { const e = div(`left:${H.w / 2 - r}px;top:${y - r}px;width:${2 * r}px;height:${2 * r}px;border-radius:50%`, box.p); e.className = cls; return e; };
+  ly.forEach(y => dot(y, 'u-skel'));
+  const lamp = (y, cls, t0, t1) => { const e = dot(y, cls); R7.show(e, t0); if (t1 != null) R7.hide(e, t1); return e; };
   const red = T.hit - .05;
-  lamp(ly[2], 'ac', T.b[0] + .3, T.b[2]);                                 // go
-  lamp(ly[1], 'ac', T.b[2], red);                                          // the middle one: get ready
-  const glow = div(`left:${cx - 90}px;top:${ly[0] - 90}px;width:180px;height:180px;border-radius:50%;opacity:0`, g); glow.className = 'u-flash u-decor';
+  lamp(ly[2], 'u-col-acc', T.b[0] + .3, T.b[2]);                           // go
+  lamp(ly[1], 'u-col-acc', T.b[2], red);                                    // the middle one: get ready
+  const glow = div(`left:${cx - 90}px;top:${H.y + ly[0] - 90}px;width:180px;height:180px;border-radius:50%;opacity:0`, g); glow.className = 'u-flash u-decor';
   g.insertBefore(glow, g.firstChild); R7.show(glow, red);
-  lamp(ly[0], 'u-lamp', red, null);
+  lamp(ly[0], 'u-neg', red, null);
   /* the thing comes closer while the light is on, and stops when it turns red */
   const P = {x: 404, y: 132}, S = 140;
   const grp = R6.group(g);
@@ -297,29 +297,31 @@ R3.both('B05', 'buzzer', 'ปุ่มเกมโชว์ ผิดไฟแ�
 
 /* 4 · on a paper: the wrong thing is rubbed out by an eraser, then the right thing is written in its place */
 R3.both('B05', 'eraser', 'ยางลบลบคำผิด แล้วเขียนคำถูกแทน', (K, s, T, g) => {
-  const Pp = {x: 50, y: 26, w: 480, h: 280}, cy = 150;
+  /* everything on the paper is drawn IN the paper, so it takes the paper's colours (in an overlay the paper is a white
+     card on the video: words drawn beside it took the video's white and vanished on it) */
+  const Pp = {x: 50, y: 26, w: 480, h: 280}, cy = 124;
   const paper = R2.card(node(g, Pp.x, Pp.y, Pp.w, Pp.h, 'u-panel')); paper.p.style.borderRadius = '22px'; K.enter(paper.o, T.b[0], 'rise');
-  const lines = R8.svg(g, [96, 210, 252].map(y => `<path class="ln u-thin" d="M${Pp.x + 36} ${y}H${Pp.x + Pp.w - 36}"/>`).join('')); lines.classList.add('u-decor');
-  A(lines, [{opacity: 0}, {opacity: .35}], T.b[0] + .2, .3);
+  const lines = div(`left:0;top:0;width:${Pp.w}px;height:${Pp.h}px`, paper.p, `<svg width="${Pp.w}" height="${Pp.h}">${[70, 184, 226].map(y => `<path class="ln u-thin" d="M36 ${y}H${Pp.w - 36}"/>`).join('')}</svg>`);
+  lines.classList.add('u-decor'); A(lines, [{opacity: 0}, {opacity: .35}], T.b[0] + .2, .3);
   const row = (it, tone) => {
-    const r = R6.group(g);
-    K.badge(r, it.icon, 140, cy, 96, null, {tone});
-    if (it.label) R6.wordL(K, r, it.label, 206, cy - 32, 50, null, 290); else K.skel(r, 206, cy - 9, [200]);
+    const r = div(`left:0;top:0;width:${Pp.w}px;height:${Pp.h}px`, paper.p);
+    K.badge(r, it.icon, 90, cy, 96, null, {tone});
+    if (it.label) R6.wordL(K, r, it.label, 156, cy - 32, 50, null, 290); else K.skel(r, 156, cy - 9, [200]);
     return r;
   };
   const wrong = row(s.wrong, 'main'); K.enter(wrong, T.b[0] + .2, 'lead');
   /* the eraser rubs over it left and right; what it has passed is gone */
-  const e0 = T.b[1], e1 = Math.max(e0 + .5, T.hit - .4);
+  const e0 = T.b[1], e1 = Math.max(e0 + .5, T.hit - .4), Y = Pp.y + cy;
   const er = node(g, 0, 0, 132, 62, '', `<svg width="132" height="62"><rect class="fl" x="0" y="0" width="132" height="62" rx="12"/><rect class="u-fl-edge" x="0" y="0" width="132" height="62" rx="12"/><rect class="ac" x="0" y="0" width="44" height="62" rx="12"/></svg>`);
   er.o.style.transform = 'rotate(-14deg)';
-  const xs = [96, 300, 150, 400, 220, 430], ys = [cy - 56, cy - 40, cy - 30, cy - 46, cy - 20, cy - 34];
+  const xs = [96, 300, 150, 400, 220, 430], ys = [Y - 56, Y - 40, Y - 30, Y - 46, Y - 20, Y - 34];
   K.fade(er.o, e0 - .15, 0, 1, {hold: true});
   A(er.m, xs.map((x, i) => ({transform: `translate(${x}px,${ys[i]}px)`, offset: i / (xs.length - 1)})), e0 - .15, e1 - e0 + .15, {e: 'ease-in-out', f: 'both'});
-  A(wrong, [{clipPath: 'inset(-40px -40px -40px 0px)'}, {clipPath: 'inset(-40px -40px -40px 0px)', offset: .25}, {clipPath: 'inset(-40px -40px -40px 520px)'}], e0, e1 - e0, {f: 'both'});
+  A(wrong, [{clipPath: 'inset(-40px -40px -40px 0px)'}, {clipPath: 'inset(-40px -40px -40px 0px)', offset: .25}, {clipPath: 'inset(-40px -40px -40px 470px)'}], e0, e1 - e0, {f: 'both'});
   K.move(er.m, e1, `translate(${xs.at(-1)}px,${ys.at(-1)}px)`, `translate(${xs.at(-1) + 40}px,-40px)`); K.fade(er.o, e1 + .05, 1, 0);
   /* the right thing is written where the wrong one was */
   const right = row(s.right, 'acc'); R7.write(right, e1 + .1, Math.max(.3, T.hit - e1));
-  K.mark(g, 'check', 486, 66, 56, T.hit + .2);
+  K.mark(paper.p, 'check', Pp.w - 44, 40, 56, T.hit + .2);
 });
 
 /* ================= B11 คำพูด / แชต / รีวิว: quote?, kind, mood?, react?, gone? ================= */
@@ -354,27 +356,27 @@ R3.both('B11', 'live', 'คอมเมนต์ไหลขึ้นแบบ�
 
 /* 7 · a pin board: plain notes are pinned one by one, then the quoted note is slapped on and pinned on the key word */
 R3.both('B11', 'board', 'กระดาษโน้ตแปะบนบอร์ดทีละแผ่น', (K, s, T, g) => {
-  const Bd = {x: 30, y: 10, w: 500, h: 320};
+  const Bd = {x: 30, y: 10, w: 500, h: 320};                              // everything is drawn IN the board (its colours win inside)
   const bd = R2.card(node(g, Bd.x, Bd.y, Bd.w, Bd.h, 'u-panel')); bd.p.style.borderRadius = '22px'; K.enter(bd.o, T.b[0], 'rise');
-  const pin = (parent, x, y, t, cls = 'ac') => { const p = node(parent, x - 12, y - 12, 24, 24, '', `<svg width="24" height="24"><circle class="${cls}" cx="12" cy="12" r="11"/></svg>`); K.enter(p.o, t, 'pop'); return p; };
+  const pin = (x, y, t, cls = 'ac') => { const p = node(bd.p, x - 12, y - 12, 24, 24, '', `<svg width="24" height="24"><circle class="${cls}" cx="12" cy="12" r="11"/></svg>`); K.enter(p.o, t, 'pop'); return p; };
   /* plain notes on the left (never under the quoted one) */
-  [[64, 22, -4], [80, 186, 3]].forEach(([x, y, r], i) => {
+  [[34, 12, -4], [50, 176, 3]].forEach(([x, y, r], i) => {
     const t = T.b[1] - .25 + i * .3;
-    const nt = node(g, x, y, 150, 130, '', `<svg width="150" height="130"><rect class="fl" x="0" y="0" width="150" height="130" rx="8"/><rect class="u-fl-edge" x="0" y="0" width="150" height="130" rx="8"/></svg>`);
+    const nt = node(bd.p, x, y, 150, 130, '', `<svg width="150" height="130"><rect class="fl" x="0" y="0" width="150" height="130" rx="8"/><rect class="u-fl-edge" x="0" y="0" width="150" height="130" rx="8"/></svg>`);
     nt.o.style.transform = `rotate(${r}deg)`; K.enter(nt.p, t, 'pop');
     K.skel(nt.p, 22, 46, [100, 70], t + .1, {h: 12, gap: 16});
-    pin(g, x + 75, y + 10, t + .15);
+    pin(x + 75, y + 10, t + .15);
   });
   /* the quoted note */
-  const Q = {x: 262, y: 54, w: 240, h: 200};
-  const q = node(g, Q.x, Q.y, Q.w, Q.h, 'u-badge u-acc'); q.p.style.borderRadius = '10px'; q.o.style.transform = 'rotate(-3deg)';
+  const Q = {x: 232, y: 44, w: 240, h: 200};
+  const q = node(bd.p, Q.x, Q.y, Q.w, Q.h, 'u-badge u-acc'); q.p.style.borderRadius = '10px'; q.o.style.transform = 'rotate(-3deg)';
   if (s.quote) R4.word(K, q.p, s.quote, Q.w / 2, Q.h / 2 - 26, 40, null, Q.w - 36).className = 'u-label u-bubble-text'; else K.skel(q.p, 36, 70, [160, 110], null, {h: 16});
   const go = T.hit - (ST.motion.snap?.d ?? .5) * .85, land = LG.arrive('snap', go);
   K.fade(q.o, go, 0, 1, {hold: true}); K.move(q.m, go, 'translate(70px,-60px) scale(1.25)', 'none', {hold: true, kind: 'snap'});
-  pin(g, Q.x + Q.w / 2, Q.y + 8, land, 'sd');
+  pin(Q.x + Q.w / 2, Q.y + 8, land, 'sd');
   K.punch(bd.p, land); R1.ripple(K, q, land + .05);
   const ic = s.react ?? (s.mood === 'bad' ? 'frown' : s.mood === 'good' ? 'heart' : null);
-  if (ic) K.sat(g, ic, Q.x + Q.w - 6, Q.y + Q.h - 4, 58, land + .2, {tone: 'main', shape: 'round', k: .6});
+  if (ic) K.sat(bd.p, ic, Q.x + Q.w - 6, Q.y + Q.h - 4, 58, land + .2, {tone: 'main', shape: 'round', k: .6});
 });
 
 /* ================= B17 ไล่รายการ: items [2–4 {icon, label?}], label? ================= */
@@ -423,8 +425,10 @@ R3.both('B17', 'fan', 'ไพ่คลี่ออกเป็นรูปพั
 /* 5 · a book opens and its pages turn; the last turn lands on the page of what happened (who and when on the left page) */
 R3.both('B18', 'book', 'หนังสือเปิด หน้ากระดาษพลิกไปถึงเหตุการณ์', (K, s, T, g) => {
   const Bk = {x: 70, y: 34, w: 230, h: 268}, mid = Bk.x + Bk.w;
+  /* the pages are cards, so what is written on them takes the card's colours (in an overlay a page drawn as a plain
+     light shape on the video got the video's white words) */
   const page = (x, origin) => {
-    const p = node(g, x, Bk.y, Bk.w, Bk.h, '', `<svg width="${Bk.w}" height="${Bk.h}"><rect class="fl" x="0" y="0" width="${Bk.w}" height="${Bk.h}" rx="12"/><rect class="u-fl-edge" x="0" y="0" width="${Bk.w}" height="${Bk.h}" rx="12"/></svg>`);
+    const p = R2.card(node(g, x, Bk.y, Bk.w, Bk.h, 'u-panel')); p.p.style.borderRadius = origin.startsWith('0') ? '4px 14px 14px 4px' : '14px 4px 4px 14px';
     p.m.style.transformOrigin = origin; return p;
   };
   const skel = (parent, k) => K.skel(parent, 34, 60 + (k % 2) * 20, [[150, 110, 160, 90], [130, 160, 100, 140]][k % 2], null, {h: 12, gap: 26});
@@ -460,7 +464,7 @@ R3.both('B18', 'book', 'หนังสือเปิด หน้ากระ�
   if (s.who) { K.badge(LF, s.who.icon, Bk.w / 2, s.when ? 140 : 116, 92, null, {tone: s.who.tone ?? 'main', shape: 'round'}); if (s.who.label) R4.word(K, LF, s.who.label, Bk.w / 2, s.when ? 198 : 176, 32, null, Bk.w - 30); }
   else if (!s.when) skel(LF, 0);
   else K.skel(LF, 44, 110, [140, 100, 120], null, {h: 12, gap: 26});
-  const spine = R8.svg(g, `<path class="ln u-thin" d="M${mid} ${Bk.y + 6}V${Bk.y + Bk.h - 6}"/>`); R7.show(spine, t1 + 2 * half);
+  const spine = div(`left:0;top:0;width:10px;height:${Bk.h}px`, Rp.p, `<svg width="10" height="${Bk.h}"><path class="ln u-thin" d="M1 8V${Bk.h - 8}"/></svg>`); spine.classList.add('u-decor');
 });
 
 /* 6 · a strip of film moves frame by frame; the frame of what happened stops in the middle on the key word */
@@ -468,24 +472,26 @@ R3.both('B18', 'film', 'ม้วนฟิล์มเลื่อนทีล�
   const V = {x: 30, y: 62, w: 520, h: 206}, cx = V.x + V.w / 2, fw = 150, fh = 112, gap = 34, step = fw + gap;
   const view = div(`left:${V.x}px;top:${V.y}px;width:${V.w}px;height:${V.h}px;overflow:hidden;border-radius:18px`, g);
   K.enter(view, T.b[0], 'rise');
-  const N = 4, L = N * step + 400, strip = node(view, 0, 0, L, V.h, '');
-  const fx = k => 200 + k * step, SH = V.h - 24, fy = (V.h - fh) / 2 - 12;  // a frame's left edge on the strip; frames' top in the strip
+  const N = 5, L = N * step + 400, strip = node(view, 0, 0, L, V.h, '');   // a plain frame before the first one: no bare strip on the left
+  const fx = k => 30 + k * step, SH = V.h - 24, fy = (V.h - fh) / 2 - 12;  // a frame's left edge on the strip; frames' top in the strip
   const rr = (x, y, w, h, r) => `M${x + r} ${y}H${x + w - r}Q${x + w} ${y} ${x + w} ${y + r}V${y + h - r}Q${x + w} ${y + h} ${x + w - r} ${y + h}H${x + r}Q${x} ${y + h} ${x} ${y + h - r}V${y + r}Q${x} ${y} ${x + r} ${y}Z`;
   const cut = [...Array(Math.ceil(L / 34))].flatMap((_, i) => [rr(i * 34 + 8, 10, 18, 16, 4), rr(i * 34 + 8, SH - 26, 18, 16, 4)])
     .concat([...Array(N)].map((_, k) => rr(fx(k), fy, fw, fh, 10))).join('');
   div(`left:0;top:12px;width:${L}px;height:${SH}px`, strip.p, `<svg width="${L}" height="${SH}"><path class="sd" fill-rule="evenodd" d="${rr(0, 0, L, SH, 8)}${cut}"/></svg>`);
   const frames = [...Array(N)].map((_, k) => { const f = node(strip.p, fx(k), (V.h - fh) / 2, fw, fh, ''); f.p.style.borderRadius = '10px'; return f; });
-  if (s.who) K.badge(frames[0].p, s.who.icon, fw / 2, fh / 2, 78, null, {tone: s.who.tone ?? 'main', shape: 'round'}); else K.skel(frames[0].p, 30, 34, [90, 60], null, {h: 12, gap: 18});
-  K.skel(frames[1].p, 30, 34, [80, 100], null, {h: 12, gap: 18}); K.skel(frames[3].p, 30, 34, [100, 70], null, {h: 12, gap: 18});
-  const w0 = K.badge(frames[2].p, s.what.icon, fw / 2, fh / 2, 84, null, {tone: 'soft'});
+  const sk = (k, w) => K.skel(frames[k].p, 30, 34, w, null, {h: 12, gap: 18});
+  sk(0, [70, 100]);
+  if (s.who) K.badge(frames[1].p, s.who.icon, fw / 2, fh / 2, 78, null, {tone: s.who.tone ?? 'main', shape: 'round'}); else sk(1, [90, 60]);
+  sk(2, [80, 100]); sk(4, [100, 70]);
+  const w0 = K.badge(frames[3].p, s.what.icon, fw / 2, fh / 2, 84, null, {tone: 'soft'});
   /* frame k in the middle of the window = strip moved so that its centre is at the window's centre */
   const at = k => `translateX(${(V.w / 2 - (fx(k) + fw / 2)).toFixed(1)}px)`;
   const snapD = (ST.motion.snap?.d ?? .5) * .85, m1 = T.b[2] - .2, m2 = T.hit - snapD;
-  K.move(strip.m, T.b[0], at(0), at(0), {hold: true});
-  K.move(strip.m, m1, at(0), at(1), {kind: 'snap'});
-  K.move(strip.m, m2, at(1), at(2), {kind: 'snap'});
-  const lit = R7.up(K, frames[2].p, s.what.icon, fw / 2, fh / 2, 84, T.hit); K.fade(w0.o, lit.done, 1, 0);
-  R1.ripple(K, frames[2], lit.done, {grow: 18});
+  K.move(strip.m, T.b[0], at(1), at(1), {hold: true});
+  K.move(strip.m, m1, at(1), at(2), {kind: 'snap'});
+  K.move(strip.m, m2, at(2), at(3), {kind: 'snap'});
+  const lit = R7.up(K, frames[3].p, s.what.icon, fw / 2, fh / 2, 84, T.hit); K.fade(w0.o, lit.done, 1, 0);
+  R1.ripple(K, frames[3], lit.done, {grow: 18});
   if (s.when) K.chipC(g, s.when, cx, 30, T.b[0] + .2, {tone: 'acc', size: 30});
   if (s.who?.label) { const wl = R4.word(K, g, s.who.label, cx, V.y + V.h + 8, 34, T.b[0] + .3, 360); K.fade(wl, m1, 1, 0); }
   if (s.what.label) R4.word(K, g, s.what.label, cx, V.y + V.h + 8, 38, lit.done, 400);
@@ -542,7 +548,8 @@ R3.both('B19', 'sky', 'ท้องฟ้าเหนือหัวคน แ�
     K.punch(sun.p, T.hit); R1.ripple(K, sun, T.hit + .05);
     R6.burst(K, g, Cl.x + 158, Cl.y + 20, 46, T.hit + .05, 10);
   } else {
-    const c2 = cloud('sd', false); R7.show(c2, T.b[2]); A(c2, [{opacity: 0, transform: 'translateX(-14px)'}, {opacity: 1, transform: 'translateX(-14px)'}], T.b[2], .4, {f: 'both'});
+    c1.style.transformOrigin = '100px 90px';
+    A(c1, [{transform: 'translateX(-14px)'}, {transform: 'translate(0px,10px) scale(1.14)'}], T.b[2], .5, {e: EASE.smooth, f: 'forwards'});   // over the head, heavier
     const xs = [126, 158, 190, 222, 254];
     xs.forEach((x, i) => {
       const r = R8.svg(g, `<path class="u-acc-line" style="stroke-width:6px" d="M${x} ${Cl.y + 100}l-6 22"/>`); r.classList.add('u-decor'); r.style.opacity = 0;
@@ -557,8 +564,8 @@ R3.both('B19', 'sky', 'ท้องฟ้าเหนือหัวคน แ�
 /* ================= B10 คน / กลุ่มเป้าหมาย: who? {icon}, label?, tags? ================= */
 /* 5 · a person; a name sticker flies onto the chest and the group's name is written on it */
 R3.both('B10', 'tag', 'ป้ายชื่อแปะที่อกคน', (K, s, T, g) => {
-  const head = K.badge(g, s.who?.icon ?? 'user', 300, 70, 104, T.b[0], {tone: 'main', shape: 'round'});
-  const body = R8.svg(g, `<path class="sd" d="M168 340C168 214 214 150 300 150S432 214 432 340Z"/>`); K.enter(body, T.b[0] + .1, 'rise');
+  const head = K.badge(g, s.who?.icon ?? 'user', 300, 86, 104, T.b[0], {tone: 'main', shape: 'round'});
+  const body = R8.svg(g, `<path class="sd" d="M150 340C150 232 196 156 300 152C404 156 450 232 450 340Z"/>`); K.enter(body, T.b[0] + .1, 'rise');
   void head;
   const Tg = {x: 196, y: 198, w: 208, h: 110};
   const tag = R2.card(node(g, Tg.x, Tg.y, Tg.w, Tg.h, 'u-panel')); tag.p.style.borderRadius = '14px'; tag.o.style.transform = 'rotate(-3deg)';
