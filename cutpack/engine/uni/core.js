@@ -62,7 +62,7 @@ function play(id, t0, t1, slots = {}, opt = {}) {
   const T = Object.assign({t0, t1}, beatsOf(t0, t1, S.meta.beats ?? 4), opt.T ?? {});
   const F = ST.frame(t0, t1, {index: opt.index ?? 0, scene: id, label: s.label});
   F.T = T;
-  const small = ST.overlay && typeof SMALLS !== 'undefined' ? SMALLS[id] : null;   // an overlay draws the scene's small form (overlay.js)
+  const small = (ST.overlay || ST.useSmall) && typeof SMALLS !== 'undefined' ? SMALLS[id] : null;   // an overlay (or a style that sets useSmall, ios) draws the scene's small form (overlay.js)
   (small || S.build)(kit(F, T), s, T);
   return F;
 }

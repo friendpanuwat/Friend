@@ -62,6 +62,7 @@ function OVERLAY(id, base, def) {
   const B = STYLES[base]; if (!B) throw new Error('overlay of unknown style ' + base);
   const kind = def.size ?? 'short', big = kind === 'big';
   STYLE(id, {name: def.name, overlay: kind, css: B.css + OV_CSS + (def.css ?? ''), motion: B.motion, sound: B.sound, panelTheme: def.panelTheme,
+    prefer: def.prefer ?? B.prefer,              // the kind of variant the full-screen style picks first (ios: app screens)
     frame(t0, t1, {index, scene}) {
       const m = B.motion;
       if (SMALLS[scene] || SCENES[scene]?.meta.small) {               // the scene has a small form: draw it 1:1, words go to the subtitle

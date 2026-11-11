@@ -13,8 +13,8 @@
    ===================================================================== */
 const R3 = {
   /* one variant, two sizes */
-  both(cat, id, name, draw, fits) {
-    VARIANT(cat, id, {name, fits,
+  both(cat, id, name, draw, fits, more = {}) {      // more: {ui: true} for a variant that looks like an app screen (style-rules/ios.md 8)
+    VARIANT(cat, id, {name, fits, ...more,
       build(K, s, T) { const g = div('left:20px;top:78px;width:600px;height:340px;transform-origin:0 0;transform:scale(1.6)', K.stage); draw(K, s, T, g, false); },
       small: (K, s, T) => draw(K, s, T, K.stage, true)});
   },
@@ -160,7 +160,7 @@ R3.both('B15', 'button', 'ปุ่มที่เมาส์มากด', (K,
   const on = pill('acc', i1, null); K.fade(on.o, T.hit - .05, 0, 1, {hold: true}); K.punch(on.p, T.hit);
   K.cursor(g, [[T.b[1], 520, 330], [T.hit - .3, 330, 176], [T.t1 - .2, 330, 176]], {clicks: [T.hit - .15], size: 84});
   R1.ripple(K, on, T.hit + .1, {grow: 36});
-});
+}, undefined, {ui: true});
 R3.both('B15', 'icons', 'แถวไอคอน ไอคอนที่ชวนเด้งขึ้น', (K, s, T, g) => {
   const acts = ['like', 'comment', 'save', 'share'], xs = [120, 240, 360, 480], k = Math.max(0, acts.indexOf(s.action ?? 'follow'));
   const follow = s.action === 'follow', y = follow ? 256 : 170;      // "follow" is not in the row: it comes in above it

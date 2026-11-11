@@ -25,7 +25,7 @@ VARIANT('B03', 'measure', {name: 'แถบวัดสองแถบ', fits: s
 VARIANT('B03', 'swap', {name: 'ก่อน → หลัง', fits: V2.change, build: (K, s, T) => LAYOUTS.change.build(K, {as: 'swap', from: s.a, to: s.b}, T)});
 VARIANT('B03', 'meter', {name: 'แถบวัดเปลี่ยน', fits: s => V2.change(s) && V2.vals(s),
   build: (K, s, T) => LAYOUTS.change.build(K, {as: 'meter', icon: s.b.icon, v0: s.a.v, v1: s.b.v}, T)});
-VARIANT('B03', 'toggle', {name: 'สวิตช์เปิด / ปิด', fits: s => V2.change(s) && s.switch != null,
+VARIANT('B03', 'toggle', {name: 'สวิตช์เปิด / ปิด', ui: true, fits: s => V2.change(s) && s.switch != null,
   build: (K, s, T) => LAYOUTS.change.build(K, {as: 'toggle', icon: s.b.icon, on: s.switch !== false}, T)});
 
 SMALLV('B03', 'cards', (K, s, T) => {
@@ -117,7 +117,7 @@ SMALLV('B02', 'bars', (K, s, T) => {
 
 /* ================= B04 ขั้นตอน ================= */
 VARIANT('B04', 'row', {name: 'การ์ด 3 ขั้นมีลูกศร', fits: s => s.items.length <= 3, build: (K, s, T) => LAYOUTS.steps.build(K, {...s, as: 'row'}, T)});
-VARIANT('B04', 'list', {name: 'รายการติ๊ก', build: (K, s, T) => LAYOUTS.steps.build(K, {...s, as: 'list'}, T)});
+VARIANT('B04', 'list', {name: 'รายการติ๊ก', ui: true, build: (K, s, T) => LAYOUTS.steps.build(K, {...s, as: 'list'}, T)});
 
 SMALLV('B04', 'row', (K, s, T) => {
   const its = s.items, m = s.mark ?? {at: its.length - 1, how: 'light'}, xs = [100, 300, 500], when = [T.b[0], T.b[1], T.b[2]];

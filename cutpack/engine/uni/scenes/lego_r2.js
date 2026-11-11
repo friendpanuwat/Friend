@@ -110,7 +110,7 @@ const R2chat = s => {                                  // the same slots read as
   const q = {side: s.from === 'me' ? 'right' : 'left', label: s.quote};
   return {bubbles: [{side: q.side === 'left' ? 'left' : 'right'}, {side: q.side === 'left' ? 'right' : 'left'}, q], react: s.react, seen: s.gone};
 };
-VARIANT('B11', 'phone', {name: 'แชตในมือถือ', build: (K, s, T) => LAYOUTS.chat.build(K, R2chat(s), T)});
+VARIANT('B11', 'phone', {name: 'แชตในมือถือ', ui: true, build: (K, s, T) => LAYOUTS.chat.build(K, R2chat(s), T)});
 
 VARIANT('B11', 'review', {name: 'การ์ดรีวิวมีดาว', fits: s => ['comment', 'review'].includes(s.kind) || !!s.mood, build(K, s, T) {
   const bad = s.mood === 'bad';
@@ -127,7 +127,7 @@ VARIANT('B11', 'review', {name: 'การ์ดรีวิวมีดาว',
   R1.ripple(K, r, T.after + .2, {tone: bad ? 'neg' : 'acc', grow: 30});
 }});
 
-VARIANT('B11', 'notify', {name: 'แจ้งเตือนเด้งซ้อนกัน', build(K, s, T) {
+VARIANT('B11', 'notify', {name: 'แจ้งเตือนเด้งซ้อนกัน', ui: true, build(K, s, T) {
   const n = 3, when = LG.spread(T.b[0] + .3, T.hit - .15, n), X = 180, Y = 110, Wd = 640, Hd = 128, gap = 150;
   const bell = K.sat(K.stage, 'bell', 885, 70, 92, T.b[0], {tone: 'acc', shape: 'round'});
   const cards = [];

@@ -14,7 +14,7 @@ const CATS = {};
 function CATEGORY(id, name, {text = false} = {}) { CATS[id] = {id, name, text, variants: []}; }
 function VARIANT(cat, id, v) {
   if (!CATS[cat]) throw new Error('unknown category ' + cat);
-  CATS[cat].variants.push({id, name: v.name, fits: v.fits ?? (() => true), build: v.build, small: v.small});
+  CATS[cat].variants.push({id, name: v.name, fits: v.fits ?? (() => true), build: v.build, small: v.small, ui: !!v.ui});
 }
 [['B01', 'ตัวเลขเด่น'], ['B02', 'เพิ่มขึ้น / ลดลง'], ['B03', 'เปรียบเทียบ / ก่อนกับหลัง'], ['B04', 'ขั้นตอน / เช็กลิสต์'],
  ['B05', 'ถูกกับผิด / ไม่ใช่ X แต่เป็น Y'], ['B06', 'คำถาม / ความสงสัย'], ['B07', 'ปัญหา / คำเตือน'], ['B08', 'เป้าหมาย / ผลลัพธ์ / สำเร็จ'],
@@ -32,10 +32,13 @@ function SMALLV(cat, id, small) {
 /* what this clip has used so far (category → variant ids in order); a later step can preload a customer's past clips */
 const PICKS = {};
 const hashOf = s => { let h = 2166136261; for (const c of String(s)) h = Math.imul(h ^ c.codePointAt(0), 16777619) >>> 0; return h; };
-function pickVariant(cat, slots, seed = '') {
+/* prefer: a style may want one kind of variant first (ios: 'ui' = the ones that look like an app screen, Friend 2026-11-11
+   "OK ครับ", style-rules/ios.md 8): when the category has such variants that fit, only those take turns; else every variant does */
+function pickVariant(cat, slots, seed = '', prefer = typeof ST !== 'undefined' && ST ? ST.prefer : undefined) {
   const C = CATS[cat]; if (!C) throw new Error('unknown category ' + cat);
-  const ok = C.variants.filter(v => v.fits(slots));
+  let ok = C.variants.filter(v => v.fits(slots));
   if (!ok.length) throw new Error(`no variant of ${cat} fits ${JSON.stringify(slots)}`);
+  if (prefer && ok.some(v => v[prefer])) ok = ok.filter(v => v[prefer]);
   const used = PICKS[cat] ?? (PICKS[cat] = []), n = id => used.filter(u => u === id).length;
   const least = Math.min(...ok.map(v => n(v.id)));
   let pool = ok.filter(v => n(v.id) === least);
@@ -58,7 +61,7 @@ function calm(r) {
 function SENTENCE(id, r) {
   const meta = v => ({meaning: r.cat, name: r.name + (v ? ' · ' + v.name : ''), story: CATS[r.cat].name, beats: 4, cat: r.cat, variant: v?.id,
     slots: {lead: {type: 'text', max: 22, sample: r.say[0]}, key: {type: 'text', max: 12, sample: r.say[1]}}});
-  const c = calm(r), draw = (v, K, T) => (ST.overlay && v.small ? v.small : v.build)(K, c, T);   // an overlay widget uses the variant's small form
+  const c = calm(r), draw = (v, K, T) => ((ST.overlay || ST.useSmall) && v.small ? v.small : v.build)(K, c, T);   // an overlay widget (and ios) uses the variant's small form
   const fit = CATS[r.cat].variants.filter(v => v.fits(r));
   SCENE(id, {...meta(null), small: fit.every(v => v.small)}, (K, s, T) => { draw(pickVariant(r.cat, r, r.say.join(' ')), K, T); K.say(s.lead, s.key); });
   fit.forEach(v => SCENE(`${id}.${v.id}`, {...meta(v), small: !!v.small}, (K, s, T) => { draw(v, K, T); K.say(s.lead, s.key); }));
