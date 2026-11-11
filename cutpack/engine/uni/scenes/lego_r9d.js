@@ -231,7 +231,9 @@ R3.both('B10', 'raise', 'คนที่ใช่ยกมือ', (K, s, T, g, 
   const w = s.label ?? s.who?.label; if (w) LP.word(K, g, w, 300, 280, 36, 340, false, T.b[1]);
 });
 
-/* a target sight closes in on one person and locks (lights) on the key word */
+/* a target sight closes in on one person and locks on the key word (Friend 2026-11-11 on page 26: "Animation มันดูไม่มีอะไรเลย"
+   → a mechanism in steps): the person comes in · the sight comes in big off to one side and sweeps, searching, over two
+   spots · on the key word it darts onto the person, shrinks round them and locks: the person lights, a ring goes out */
 R3.both('B10', 'aim', 'วงเล็งเป้าล็อกที่คนหนึ่งคน', (K, s, T, g, small) => {
   const X = 300, Y = 136, R = 112, P = LP.piece(g, small, X, Y + 96), Q = LP.piece(g, small, X, Y);
   Q.pen.circle(X, Y, R - 13, {sw: 1.6, tone: 'soft'});
@@ -239,10 +241,20 @@ R3.both('B10', 'aim', 'วงเล็งเป้าล็อกที่คน
   const q = LP.piece(g, small, X, Y);
   q.pen.circle(X, Y, R, {sw: 4, tone: 'acc', fill: 'none'});
   [[0, -1], [0, 1], [-1, 0], [1, 0]].forEach(([dx, dy]) => q.pen.line(X + dx * (R + 6), Y + dy * (R + 6), X + dx * (R + 26), Y + dy * (R + 26), {sw: 4, tone: 'acc', fill: 'none'}));
-  K.enter(P.o, T.b[0], 'rise'); K.enter(Q.o, T.b[1], 'glow');
-  LP.slide(K, q, T.b[2], 'scale(1.7)');                                   // the sight closes in round the person
-  LP.light(K, q, T.hit); LP.light(K, P, T.hit, false);
-  const w = s.label ?? s.who?.label; if (w) LP.word(K, g, w, 300, 284, 34, 340, false, T.b[1] + .1);
+  const t0 = T.b[0] + .35, lock = T.hit - .25;
+  K.enter(P.o, T.b[0], 'rise');
+  K.enter(q.o, t0, 'glow');
+  /* the search: from the left, over to the right, back near the middle, then the dart onto the person (q.f carries the path) */
+  /* it stops on each spot for a moment, as if checking, before it moves on */
+  A(q.f, [{transform: 'translate(-200px,-20px)'}, {transform: 'translate(-200px,-20px)', offset: .18}, {transform: 'translate(200px,14px)', offset: .48},
+    {transform: 'translate(200px,14px)', offset: .64}, {transform: 'translate(-80px,34px)', offset: .9}, {transform: 'translate(-80px,34px)'}], t0, lock - t0, {e: 'ease-in-out'});
+  A(q.f, [{transform: 'translate(-80px,34px)'}, {transform: 'none'}], lock, .22, {e: EASE.smooth, f: 'forwards'});
+  K.move(q.m, lock, 'scale(1.45)', 'none', {hold: true, kind: 'snap'});                   // it closes in round the person
+  K.enter(Q.o, T.hit, 'glow');
+  LP.light(K, q, T.hit); LP.light(K, P, T.hit, false); K.punch(P.p, T.hit + .05);
+  R1.pulse(K, g, X, Y, R, T.hit + .05, 1, 'acc');
+  K.float(P, T.hit + .6, T.t1, .5);
+  const w = s.label ?? s.who?.label; if (w) LP.word(K, g, w, 300, 284, 34, 340, false, T.hit + .15);
 });
 
 /* ================= B13 เคล็ดลับ: secret {icon, label?} ================= */
@@ -467,7 +479,8 @@ R3.both('B11', 'chat', 'ฟองแชตสองฝั่งโต้ตอ�
 });
 
 /* ================= B01 ตัวเลขเด่น: value, unit?, icon?, dir?, money? ================= */
-/* a price tag drops in on its string, swings and comes to rest; the amount comes up on it on the key word (money only) */
+/* a price tag drops in on its string, swings hard and settles; the price counts up on it and lands on the key word (money only)
+   (Friend 2026-11-11 on page 26: "Animation มันดูไม่มีอะไรเลย" → a mechanism in steps) */
 R3.both('B01', 'pricetag', 'ป้ายราคาแขวน แกว่งแล้วหยุด', (K, s, T, g, small) => {
   const Tg = LP.piece(g, small, 300, -10), p = Tg.pen;
   p.path('M 300 76 C 316 60 318 30 312 -10', {sw: 2.2});
@@ -477,14 +490,17 @@ R3.both('B01', 'pricetag', 'ป้ายราคาแขวน แกว่ง
   tg.circle(300, 76, 12, {sw: 2.6});
   p.path('M 290 -10 C 284 24 296 50 300 76', {sw: 2.2});
   const hold = R6.group(Tg.p); hold.style.transformOrigin = '300px 76px'; hold.style.transform = 'rotate(-6deg)';
-  const nb = div('left:0;top:0;width:600px;height:340px', hold);
-  const n = div('left:152px;top:128px;width:296px;text-align:center', nb, `<span class="u-num lp-t" style="font-size:92px">${s.value}</span>`);
-  FITS.push(() => { const sp = n.firstChild; if (sp.offsetWidth > 260) sp.style.fontSize = (92 * 260 / sp.offsetWidth).toFixed(1) + 'px'; });
-  if (s.unit) LP.word(K, nb, s.unit, 300, 236, 34, 240);
-  nb.style.transformOrigin = '300px 190px';
-  K.enter(Tg.o, T.b[0], 'drop');
-  A(Tg.m, [{transform: 'rotate(9deg)'}, {transform: 'rotate(-5deg)'}, {transform: 'rotate(2.5deg)'}, {transform: 'rotate(-1deg)'}, {transform: 'none'}], T.b[0] + .3, Math.max(.8, T.hit - T.b[0] - .3), {e: 'ease-out'});
-  K.enter(nb, T.hit, 'pop'); K.float(Tg, T.hit + .5, T.t1, .5);
+  const nb = div('left:0;top:0;width:600px;height:340px', hold); nb.style.transformOrigin = '300px 190px';
+  const fit = sp => FITS.push(() => { if (sp.offsetWidth > 260) sp.style.fontSize = (92 * 260 / sp.offsetWidth).toFixed(1) + 'px'; });
+  /* the price counts up from 0 and lands on the real value on the key word */
+  R9B.count(K, s, nb, txt => { const n = div('left:152px;top:128px;width:296px;text-align:center', nb, `<span class="u-num lp-t" style="font-size:92px">${txt}</span>`); fit(n.firstChild); return n; }, T.b[1], T.hit, 11);
+  const U = s.unit ? LP.word(K, nb, s.unit, 300, 236, 34, 240) : null;
+  /* it falls in on its string and swings, wider at first, then settles before the price lands */
+  A(Tg.o, [{opacity: 0}, {opacity: 1}], T.b[0], .1);
+  A(Tg.m, [{transform: 'translateY(-330px) rotate(0)'}, {transform: 'translateY(0) rotate(16deg)', offset: .22}, {transform: 'rotate(-11deg)', offset: .45},
+    {transform: 'rotate(6deg)', offset: .66}, {transform: 'rotate(-2.5deg)', offset: .84}, {transform: 'none'}], T.b[0], Math.max(1.2, T.b[2] - T.b[0] + .2), {e: 'ease-out'});
+  if (U) K.enter(U, T.hit + .1, 'chip');
+  K.punch(Tg.p, T.hit); K.float(Tg, T.hit + .6, T.t1, .5);
 }, R2.money);
 
 /* a wallet comes in; on the key word the banknotes slide up out of it, the amount on the top note (money only) */
@@ -518,22 +534,38 @@ R3.both('B02', 'team', 'กลุ่มคน คนมาเพิ่มหร�
   else { K.enter(Lb.o, T.b[0] + .1, 'rise'); K.enter(Rb.o, T.b[0] + .2, 'rise'); K.fade(Lb.m, T.hit, 1, .16); K.fade(Rb.m, T.hit + .12, 1, .16); }
 }, s => S11.human(s.item?.icon));
 
-/* cardboard boxes (iso): going up they drop onto the stack one by one and the top one lights; going down the top ones are lifted
-   off and fade on the key word */
+/* cardboard boxes (iso) (Friend 2026-11-11 on page 26: "Animation มันดูไม่มีอะไรเลย" → a mechanism in steps): going up, each box
+   falls from above and lands with a thump on the one under it (the stack squashes a little), the last one on the key word,
+   and lights; going down, the top boxes are lifted off one by one and fly up out of the picture */
 R3.both('B02', 'boxes', 'กล่องซ้อนสูงขึ้น หรือถูกหยิบออกทีละกล่อง', (K, s, T, g, small) => {
-  const up = s.dir !== 'down', it = s.item ?? {icon: 'package'}, H = 80, Wd = 112;
-  [0, 1, 2].forEach(k => {
-    const y = 290 - k * H, n = LP.piece(g, small, 300, y), p = n.pen, top = up && k === 2;
+  const up = s.dir !== 'down', it = s.item ?? {icon: 'package'}, H = 80, Wd = 112, base = 290 + Wd / 2;
+  const box = k => {
+    const y = 290 - k * H, n = LP.piece(g, small, 300, base), p = n.pen, top = up && k === 2;
     const P = (X, Y, Z) => { const [a, b] = iso(X, Y, Z); return [300 + a, y + b]; }, hw = Wd / 2;
     p.shape([P(-hw, 0, hw), P(hw, 0, hw), P(hw, H, hw), P(-hw, H, hw)], {fill: true});
     p.shape([P(hw, 0, hw), P(hw, 0, -hw), P(hw, H, -hw), P(hw, H, hw)], {fill: true});
     p.shape([P(-hw, H, -hw), P(hw, H, -hw), P(hw, H, hw), P(-hw, H, hw)], {fill: true, tone: top ? 'acc' : undefined});
     p.poly([P(0, H, -hw), P(0, H, hw), P(0, H * .62, hw)], {sw: 2.2, fill: 'none', tone: top ? 'acc' : 'soft'});
     const c = P(-hw * .5, H * .4, hw); LP.ico(n.p, it.icon, c[0], c[1], 28);
-    if (up) { K.enter(n.o, [T.b[0], T.b[2] - .1, T.hit - .2][k], k ? 'drop' : 'rise'); if (top) LP.light(K, n, T.hit + .15); }
-    else { K.enter(n.o, T.b[0] + k * .12, 'rise');
-      if (k) { const t = T.hit + (2 - k) * .15; K.move(n.m, t, 'none', 'translateY(-50px)'); K.fade(n.m, t, 1, .14); } }
-  });
+    return n;
+  };
+  const B = [0, 1, 2].map(box), squash = (n, t, k = 1) => A(n.p, [{transform: 'none'}, {transform: `scale(${1 + .05 * k},${1 - .08 * k})`, offset: .3}, {transform: 'none'}], t, .4, {e: EASE.smooth, f: 'none'});
+  if (up) {
+    const land = [T.b[0] + .45, T.b[2], T.hit];
+    B.forEach((n, k) => {
+      A(n.o, [{opacity: 0}, {opacity: 1}], land[k] - .4, .08);
+      A(n.m, [{transform: 'translateY(-420px)'}, {transform: 'none'}], land[k] - .4, .4, {e: 'cubic-bezier(.55,0,1,.45)'});   // it falls, faster and faster
+      for (let j = 0; j <= k; j++) squash(B[j], land[k], j === k ? 1 : .5);                                                 // the thump goes down the stack
+    });
+    LP.light(K, B[2], T.hit + .1, false); K.float(B[2], T.hit + .7, T.t1, .4);
+  } else {
+    B.forEach((n, k) => K.enter(n.o, T.b[0] + k * .12, 'rise'));
+    [[2, T.b[2]], [1, T.hit]].forEach(([k, t]) => {
+      A(B[k].m, [{transform: 'none'}, {transform: 'translateY(-14px)', offset: .25}, {transform: 'translate(40px,-380px) rotate(8deg)'}], t - .1, .6, {e: 'cubic-bezier(.5,0,.9,.6)', f: 'forwards'});
+      A(B[k].o, [{opacity: 1}, {opacity: 0}], t + .25, .25, {f: 'forwards'});
+    });
+    K.punch(B[0].p, T.hit + .4);
+  }
 });
 
 /* ================= B14 ประโยคเด็ด: idea {icon?, label} ================= */
