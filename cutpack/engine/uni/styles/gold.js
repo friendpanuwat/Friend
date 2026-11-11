@@ -46,7 +46,7 @@ function goldGrid(parent, t0, t1, light) {
     for (let x = -40; x <= 1120; x += 20) d += `${x === -40 ? 'M' : 'L'}${x} ${(y0 + a * Math.sin(2 * Math.PI * x / 900 + ph)).toFixed(1)}`;
   }
   const g = div(`left:0;top:0;width:1080px;height:${H}px`, parent,
-    `<svg width="1080" height="${H}" style="overflow:visible"><path d="${d}" fill="none" stroke="${light ? '#A3A3A8' : 'rgba(255,255,255,.38)'}" stroke-width="${GRID.width}" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
+    `<svg width="1080" height="${H}" style="overflow:visible"><path d="${d}" fill="none" stroke="${light ? '#B5AB9B' : 'rgba(255,255,255,.38)'}" stroke-width="${GRID.width}" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
   const per = L / GRID.speed;
   A(g, [{transform: 'translateY(0)'}, {transform: `translateY(${-L}px)`}], t0, per, {it: Math.max(1, Math.ceil((t1 - t0) / per)), f: 'none'});
   return g;
@@ -91,6 +91,9 @@ STYLE('gold', {
 .gd-sub>div{position:relative;white-space:nowrap;display:flex;justify-content:center}
 .gd-l{font-family:"Anu";font-weight:600;font-size:46px;line-height:1.25;color:#FFFFFF;text-shadow:0 2px 12px rgba(0,0,0,.55)}
 .gd-k{font-family:"Anu";font-weight:700;font-size:104px;line-height:1.12;letter-spacing:-1px;background:${GOLD_GRAD};-webkit-background-clip:text;background-clip:text;color:transparent}
+/* the gradient is painted only inside the word's box, and Thai marks stand above and below it: they came out blank
+   (Friend 2026-11-11: "สระมันหายอะครับ … ◌ู ◌ุ"). Room is added above and below (and taken back, so the layout stays) */
+.gd-k{padding:.32em .08em .36em;margin:-.32em -.08em -.36em}
 .gd-onwhite .gd-l{color:#1C1C1E;text-shadow:none}
 .gd-onwhite .gd-k{background:linear-gradient(180deg,#FF9A2E 0%,#E56A0A 55%,#B84C00 100%);-webkit-background-clip:text;background-clip:text}   /* the light gold faded on the light grid page (rule 10) */
 `,
@@ -118,7 +121,7 @@ STYLE('gold', {
   sound: {hit: ['pop', -24], ok: ['pop', -24]},
 
   setup() {
-    BGL.style.background = '#FFFFFF';                // the page of look A (the video covers it everywhere else)
+    BGL.style.background = '#F5F1E8';                // the page of look A, off-white (the video covers it everywhere else)
     const sh = div('', BGL); sh.className = 'gd-shade';
     this.wins = [];
     if (typeof CAPTIONS !== 'undefined') FITS.unshift(() => CAPTIONS.forEach(c => this.caption(c)));   // a real clip: every word, once every scene is known
@@ -178,7 +181,7 @@ STYLE('gold', {
     sfx('whoosh', t0, -24);
     let stage;
     if (look === 'A') {                              // the page: a light moving grid under the video (BG layer), seen in this scene only
-      const page = div('inset:0;overflow:hidden;opacity:0;background:radial-gradient(ellipse 80% 60% at 50% 45%,#F1F1F4 0%,#DEDEE3 70%,#CFCFD5 100%)', BGL);
+      const page = div('inset:0;overflow:hidden;opacity:0;background:radial-gradient(ellipse 80% 60% at 50% 45%,#F8F4EB 0%,#EDE6DA 70%,#E2D9CA 100%)', BGL);   // off-white (Friend 2026-11-11: "อยากได้เป็นสีออฟไวท์")
       A(page, [{opacity: 1}, {opacity: 1}], t0, t1 - t0, {f: 'none'});
       goldGrid(page, t0, t1, true);
       const C = GOLD.A.card, card = div(`left:${C.x}px;top:${C.y}px;width:${C.w}px;height:${C.h}px;border-radius:${C.r}px`, root);
