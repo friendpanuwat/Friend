@@ -235,22 +235,24 @@ R3.both('B01', 'tag', 'ป้ายราคาแขวน แกว่งแ�
   if (s.unit) S12.accWord(K, t.p, s.unit, 150, 232, 34, 220);
 }, R2.money);
 
-/* 16 · a piggy bank, drawn after Friend's ref ("20 WAYS TO SIMPLIFY" #8 FINANCE, Friend 2026-11-11: "วาดหมูตามนี้"): seen from
-   the side, facing left; a round snout with two nostrils, a pointed ear, an eye, four short legs, a curly tail, the slot on its
-   back and the coin over it. The amount counts up beside it (money only) */
+/* 16 · a piggy bank, the pig of Friend's ref shape for shape ("20 WAYS TO SIMPLIFY" #8 FINANCE, Friend 2026-11-11: "วาดหมูตามนี้",
+   then "ไม่เหมือน อยากได้แบบเหมือน 100% แต่ไม่เอาเงานะ"). The outline is traced off the ref picture itself (its bright outline
+   filled and cut away from the tail, then followed as a contour, in the ref's own pixels: the pig spans x 33–216, y 41–215),
+   the edge under the ear (the ref shows it by its shading), the eye, the line on its back, the looped tail and the coin with its inner ring sit where they are in the ref. One outline
+   round the whole pig, one flat body colour: no shading on the belly or in the ear, no glow. The amount counts up beside it
+   (money only) */
 R3.both('B01', 'piggy', 'กระปุกออมสิน เหรียญหยอดทีละเหรียญ ยอดนับขึ้น', (K, s, T, g) => {
-  const X = 230, Y = 222, part = d => `<path class="fl" d="${d}"/><path class="u-fl-edge" style="stroke-width:6px" d="${d}"/>`;
-  const leg = x => `M${x} 270V318Q${x} 330 ${x + 12} 330H${x + 22}Q${x + 34} 330 ${x + 34} 318V270Z`;
-  R8.svg(g, part(leg(150)) + part(leg(290)) +                                                  // the far legs, behind
-    part('M132 160L146 104Q150 92 160 100L202 140Z') +                                                // the ear, behind the head
-    part(`M${X - 150} ${Y}C${X - 150} ${Y - 70} ${X - 80} ${Y - 98} ${X} ${Y - 98}C${X + 90} ${Y - 98} ${X + 150} ${Y - 60} ${X + 150} ${Y}C${X + 150} ${Y + 60} ${X + 90} ${Y + 92} ${X} ${Y + 92}C${X - 80} ${Y + 92} ${X - 150} ${Y + 64} ${X - 150} ${Y}Z`) +
-    part(leg(112)) + part(leg(252)) +                                                             // the near legs
-    part('M58 202Q58 186 74 186H96Q112 186 112 202V236Q112 252 96 252H74Q58 252 58 236Z') +       // the snout
-    `<ellipse style="fill:var(--fl-edge, var(--ink))" cx="76" cy="219" rx="5" ry="8"/><ellipse style="fill:var(--fl-edge, var(--ink))" cx="94" cy="219" rx="5" ry="8"/>` +
-    `<circle style="fill:var(--fl-edge, var(--ink))" cx="136" cy="188" r="8"/>` +
-    `<path d="M${X - 34} ${Y - 80}H${X + 34}" style="fill:none;stroke:var(--fl-edge, var(--ink));stroke-width:10px;stroke-linecap:round"/>` +
-    `<path style="fill:none;stroke:var(--ink);stroke-width:6px;stroke-linecap:round" d="M378 210Q404 204 404 186Q404 170 390 174Q378 180 388 194Q400 206 418 196"/>`);
-  const c = S12.disc(g, X, Y - 132, 34, 'acc'); S12.glyph(c.p, '฿', 34, 34, 42, 'u-bubble-text');
+  const k = 1.9, ox = 40 - 33 * k, oy = 6 - 41 * k, w = n => `stroke-width:${(n / k).toFixed(2)}px`;   // lines keep their width in the scaled group
+  const pig = 'M62.6 84.9 L62.4 86.1 L62.5 88.0 L63.0 90.5 L63.9 93.6 L65.1 97.4 L65.3 100.9 L64.4 104.3 L62.5 107.5 L59.5 110.5 L56.8 113.8 L54.2 117.2 L52.0 121.0 L50.0 125.0 L48.1 128.0 L46.4 130.0 L44.8 131.0 L43.2 131.0 L41.7 131.2 L40.1 131.8 L38.4 132.5 L36.6 133.5 L35.2 134.4 L34.2 135.3 L33.6 136.1 L33.4 136.9 L33.2 138.8 L33.1 141.9 L33.0 146.2 L33.0 151.8 L33.1 156.2 L33.4 159.6 L33.8 161.9 L34.2 163.1 L34.9 164.2 L35.6 165.2 L36.5 166.1 L37.5 166.9 L38.9 167.6 L40.8 168.2 L43.1 168.8 L45.9 169.2 L48.4 170.2 L50.8 171.8 L53.0 173.8 L55.0 176.2 L57.4 178.8 L60.1 181.4 L63.2 184.1 L66.8 186.9 L69.7 190.2 L72.1 194.2 L73.9 198.9 L75.1 204.1 L76.3 208.2 L77.4 211.1 L78.5 212.8 L79.5 213.2 L81.4 213.6 L84.3 213.9 L88.1 214.0 L92.9 214.0 L96.7 213.8 L99.6 213.4 L101.5 212.9 L102.5 212.1 L103.5 210.9 L104.5 209.3 L105.5 207.2 L106.5 204.8 L107.6 202.9 L108.7 201.8 L109.9 201.4 L111.1 201.6 L113.8 201.8 L117.9 201.8 L123.5 201.6 L130.5 201.4 L135.9 201.8 L139.8 202.8 L142.1 204.4 L142.9 206.6 L143.8 208.6 L144.8 210.2 L145.9 211.5 L147.1 212.5 L149.2 213.2 L152.1 213.8 L155.8 214.0 L160.2 214.0 L163.9 213.9 L166.6 213.6 L168.5 213.2 L169.5 212.8 L170.6 211.5 L171.7 209.5 L172.9 206.8 L174.1 203.2 L175.2 199.9 L176.1 196.8 L176.8 193.9 L177.2 191.1 L178.1 188.4 L179.4 185.8 L181.0 183.2 L183.0 180.8 L184.9 178.1 L186.8 175.4 L188.6 172.5 L190.4 169.5 L191.9 166.6 L193.1 163.9 L194.1 161.2 L194.9 158.8 L195.4 156.0 L195.8 153.0 L196.0 149.8 L196.0 146.2 L196.2 143.5 L196.8 141.5 L197.5 140.2 L198.5 139.8 L199.2 139.2 L199.8 138.8 L200.0 138.2 L200.0 137.8 L199.7 137.3 L199.1 136.9 L198.1 136.6 L196.9 136.4 L195.8 135.6 L194.9 134.4 L194.2 132.6 L193.8 130.4 L192.9 127.8 L191.6 124.9 L190.0 121.8 L188.0 118.2 L185.6 114.8 L182.9 111.4 L179.8 108.1 L176.2 104.9 L172.9 102.1 L169.6 99.7 L166.5 97.8 L163.5 96.2 L160.4 94.9 L157.3 93.6 L154.1 92.5 L150.9 91.5 L147.7 90.7 L144.6 90.1 L141.5 89.6 L138.5 89.4 L136.2 89.1 L134.6 88.9 L133.6 88.6 L133.4 88.4 L132.0 88.2 L129.5 88.1 L125.9 88.0 L121.1 88.0 L116.4 88.2 L111.8 88.8 L107.2 89.5 L102.8 90.5 L99.1 91.0 L96.2 91.0 L94.1 90.5 L92.9 89.5 L91.0 88.4 L88.5 87.1 L85.4 85.8 L81.6 84.2 L78.2 83.1 L75.2 82.2 L72.6 81.6 L70.4 81.4 L68.4 81.3 L66.8 81.4 L65.5 81.8 L64.5 82.2 L63.7 82.9 L63.1 83.8Z';
+  R8.svg(g, `<g transform="translate(${ox} ${oy}) scale(${k})">` +
+    `<path style="fill:none;stroke:var(--ink);${w(6)};stroke-linecap:round;stroke-linejoin:round" d="M193 139Q199 135 201 131C195 127 196 118 204 118C211 118 211 128 205 130Q211 131 214 127L216 118"/>` +
+    `<path class="fl" style="stroke:none" d="${pig}"/><path class="u-fl-edge" style="${w(6)};stroke-linejoin:round" d="${pig}"/>` +
+    `<path style="fill:none;stroke:var(--fl-edge, var(--ink));${w(5)};stroke-linecap:round" d="M64 103Q78 99 92 90"/>` +
+    `<path style="fill:none;stroke:var(--fl-edge, var(--ink));${w(6)};stroke-linecap:round" d="M109 101Q129 95 150 101"/>` +
+    `<circle style="fill:var(--fl-edge, var(--ink))" cx="68.3" cy="129.4" r="5"/></g>`);
+  const cx = ox + 128.3 * k, cy = oy + 62 * k, r = 21.5 * k, c = S12.disc(g, cx, cy, r, 'acc');
+  const ring = div(`left:${r - 32}px;top:${r - 32}px;width:64px;height:64px;border-radius:50%;border:2px solid currentColor;box-sizing:border-box`, c.p); ring.className = 'u-bubble-text';
+  S12.glyph(c.p, '฿', r, r, 38, 'u-bubble-text');
   const b = R9.card(g, 400, 10, 150, 124, 24);
   S12.num(b.p, s.value, 75, 22, 56, 130); if (s.unit) R4.word(K, b.p, s.unit, 75, 82, 28, null, 130);
 }, R2.money);
