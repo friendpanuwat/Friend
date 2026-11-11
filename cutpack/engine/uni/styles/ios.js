@@ -202,9 +202,12 @@ STYLE('ios', {
     const el = div(`left:${box.x}px;top:${box.y}px;width:${box.w}px;${box.h ? `height:${box.h}px;` : ''}`, SC);
     el.className = 'i-sub ' + (app ? '' : 'i-cap');
     Object.assign(el.style, {flexDirection: 'column', alignItems: box.align === 'center' ? 'center' : 'flex-start', justifyContent: box.h ? 'center' : 'flex-start', rowGap: '6px'});
-    A(el, [{opacity: 0, transform: 'translateY(12px)'}, {opacity: 1, transform: 'none'}], a, .25, {e: IOS_EASE, f: 'none'});
-    A(el, [{opacity: 1}, {opacity: 1}], a + .25, Math.max(.01, b - a - .45), {f: 'none'});
-    A(el, [{opacity: 1}, {opacity: 0}], b - .2, .2, {f: 'none'});
+    /* a line that follows straight on from another swaps at once (a fade out then in left a blank moment at every join) */
+    const joinIn = CAPTIONS.some(x => Math.abs(x.t1 - a) < .05), joinOut = CAPTIONS.some(x => Math.abs(x.t0 - b) < .05);
+    const din = joinIn ? .12 : .25, dout = joinOut ? 0 : .2;
+    A(el, [{opacity: 0, transform: `translateY(${joinIn ? 6 : 12}px)`}, {opacity: 1, transform: 'none'}], a, din, {e: IOS_EASE, f: 'none'});
+    A(el, [{opacity: 1}, {opacity: 1}], a + din, Math.max(.01, b - a - din - dout), {f: 'none'});
+    if (dout) A(el, [{opacity: 1}, {opacity: 0}], b - dout, dout, {f: 'none'});
     const from = app ? IOS.grey : 'rgba(255,255,255,.45)', to = app ? IOS.ink : '#FFFFFF';
     /* lines: parts side by side while they fit the width, then a new line; a line wider than the box shrinks (never cut) */
     const row = () => { const r = document.createElement('div'); r.style.cssText = 'position:relative;white-space:nowrap;display:flex;column-gap:' + box.size * .28 + 'px'; el.appendChild(r); return r; };
