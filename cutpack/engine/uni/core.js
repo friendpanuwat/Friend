@@ -8,6 +8,14 @@
 const ms = s => s * 1000;
 const ANIMS = [], HOOKS = [], FITS = [], SFX = [];
 const sfx = (s, t, db = -20) => SFX.push({s, t, db});
+/* the sound rule (Friend 2026-11-05: frequent, repeated sounds were annoying; DECISIONS 3): sounds at least 2.5 s apart, none
+   louder than −19 dB; inside any 2.5 s the strongest kind wins (the hit over the cut's whoosh), an earlier one on a tie */
+const SFX_RANK = {sub: 5, stamp: 4, thud: 4, pop: 3.5, whoosh: 3, whoosh_long: 3, swipe: 2, softswish: 1, pop_lo: 1};
+function calmSfx(list, gap = 2.5) {
+  const order = [...list].sort((a, b) => (SFX_RANK[b.s] ?? 2) - (SFX_RANK[a.s] ?? 2) || a.t - b.t), kept = [];
+  for (const c of order) if (kept.every(k => Math.abs(k.t - c.t) >= gap)) kept.push({...c, db: Math.min(c.db, -19)});
+  return kept.sort((a, b) => a.t - b.t);
+}
 /* every animation is registered so a seek can set its time (finished fill:'none' ones drop out of document.getAnimations()) */
 const A = (el, kf, t, d, o = {}) => {
   const a = el.animate(kf, {delay: ms(t), duration: ms(Math.max(d, .001)), easing: o.e ?? 'linear', fill: o.f ?? 'both', iterations: o.it ?? 1});

@@ -40,7 +40,7 @@ if ({a.speaker} !== 1) [V, VB].forEach(e => {{ e.style.scale = {a.speaker}; e.st
 useStyle({json.dumps(a.style)});
 play({json.dumps(a.scene)}, {a.t0}, {a.t1}, {a.slots}, {{index: {a.index}{f', hit: {a.hit}' if a.hit is not None else ''}}});
 {more}
-window.SFX = SFX;""")
+window.SFX = calmSfx(SFX);""")
     html = ('<!doctype html><html><head><meta charset="utf-8"><style>' + rd('base.css') + '</style></head><body>'
             '<div class="layer" id="BG"></div><img id="v"><img id="vb"><div class="layer" id="SC"></div><div class="layer" id="TX"></div>'
             + ''.join(f'<script>\n{s}\n</script>' for s in js) + '</body></html>')
