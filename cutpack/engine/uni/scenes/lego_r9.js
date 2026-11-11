@@ -8,7 +8,7 @@
    Same slots as before (cat_ai.py), same frame rules (R3.both: one composition on the 600 × 340 small canvas, scaled 1.6×
    full screen; nothing past x 550 below y 200; words only from the slots; cards never overlap at rest).
      B09 เวลา         เทียนไขละลายสั้นลงทีละขั้น (candle) · รถไฟวิ่ง ป้ายสถานีผ่านทีละป้าย (train)
-     B13 เคล็ดลับ      ตู้เซฟหมุนรหัส แล้วประตูเปิด (safe) · หอยเปิดออก เจอไข่มุก (pearl)
+     B13 เคล็ดลับ      ตู้เซฟหมุนรหัส แล้วประตูเปิด (safe) · ~~หอยเปิดเจอไข่มุก (pearl)~~ ลบแล้ว Friend 2026-11-11 "ลบ ไม่ชอบ"
      B16 นิยาม        ตู้หยอดเหรียญ ได้ความหมายออกมา (vending) · ~~ตัวอักษรตกลงมา (letters)~~ ลบแล้ว Friend 2026-11-11 "ลบเลยครับ ผมไม่ชอบ"
    ===================================================================== */
 const R9 = {
@@ -149,52 +149,6 @@ R3.both('B13', 'safe', 'ตู้เซฟหมุนรหัส แล้ว�
   [.18, .82].forEach(f => div(`left:-6px;top:${DH * f - 16}px;width:12px;height:32px;border-radius:4px;background:var(--sd)`, door.p));
   /* the door swings open toward the viewer and to the left */
   A(door.m, [{transform: 'perspective(900px) rotateY(0)'}, {transform: 'perspective(900px) rotateY(-112deg)'}], open, .6, {e: EASE.smooth, f: 'both'});
-});
-
-/* 4 · a clam, seen from the side, wobbles with light leaking from its seam; it opens and the pearl (the secret) rises out */
-R3.both('B13', 'pearl', 'หอยเปิดออก เจอไข่มุก', (K, s, T, g) => {
-  const it = s.secret ?? {icon: 'gem'}, hx = 128, hy = 228, L = 330, open = T.hit - .12;
-  /* a shell seen from the side: a scalloped rim from the hinge (left) to the lip (right), ribs fanning out from the hinge */
-  const shell = (up) => {
-    const k = up ? -1 : 1, hgt = up ? 150 : 96, N = 7, pt = u => {                  // the rim, a cubic from hinge to lip
-      const c1 = [hx + 30, hy + k * hgt], c2 = [hx + L - 40, hy + k * hgt], a = 1 - u;
-      return [a * a * a * hx + 3 * a * a * u * c1[0] + 3 * a * u * u * c2[0] + u * u * u * (hx + L), a * a * a * hy + 3 * a * a * u * c1[1] + 3 * a * u * u * c2[1] + u * u * u * hy];
-    };
-    const P = [...Array(N + 1)].map((_, i) => pt(i / N));
-    let d = `M${hx} ${hy}`;
-    for (let i = 0; i < N; i++) {                                                       // one bump outward per segment
-      const [ax, ay] = P[i], [bx, by] = P[i + 1], mx = (ax + bx) / 2, my = (ay + by) / 2, nx = by - ay, ny = ax - bx, l = Math.hypot(nx, ny) || 1, o = (up ? 1 : -1) * 13;
-      d += `Q${(mx + nx / l * o).toFixed(1)} ${(my + ny / l * o).toFixed(1)} ${bx.toFixed(1)} ${by.toFixed(1)}`;
-    }
-    const ribs = P.slice(1, N).map(([x, y]) => `M${hx + 10} ${hy}L${(hx + 10 + (x - hx - 10) * .86).toFixed(1)} ${(hy + (y - hy) * .86).toFixed(1)}`).join('');
-    return `<path class="fl" d="${d}Z"/><path class="u-fl-edge" d="${d}Z"/><path class="u-fl-edge" d="${ribs}"/>`;
-  };
-  /* the pearl, between the shells, seen from the moment it opens; it rises out and its tag hangs beside it */
-  const P = {x: hx + 206, y: hy - 30};
-  const pr = R6.group(g); R7.show(pr, open + .08);
-  const pearl = K.badge(pr, it.icon, P.x, P.y, 100, null, {tone: 'acc', shape: 'round'});
-  K.move(pearl.m, open + .1, 'translateY(40px) scale(.6)', 'translateY(-100px)', {hold: true, kind: 'snap'});
-  const up = LG.arrive('snap', open + .1);
-  R1.ripple(K, pearl, up);
-  if (it.label) {
-    const tg = R9.card(g, P.x + 64, P.y - 131, 190, 62, 14); K.enter(tg.o, up + .05, 'pop');
-    R4.word(K, tg.p, it.label, 95, 10, 32, null, 170);
-  }
-  const low = R8.svg(g, shell(false)); K.enter(low, T.b[0], 'rise');
-  /* light leaks from the seam each time it wobbles */
-  const seam = R8.svg(g, `<path class="u-acc-line" style="stroke-width:8px" d="M${hx + 40} ${hy}H${hx + L - 30}"/>`); seam.classList.add('u-decor'); seam.style.opacity = 0;
-  const lid = R6.group(g); lid.style.transformOrigin = `${hx}px ${hy}px`;
-  const top = R8.svg(lid, shell(true)); K.enter(top, T.b[0] + .08, 'rise');
-  [[T.b[1], 7], [T.b[2], 11]].forEach(([t, a]) => {
-    A(lid, [{transform: 'rotate(0)'}, {transform: `rotate(${-a}deg)`, offset: .4}, {transform: 'rotate(0)'}], t, .42, {e: 'ease-in-out', f: 'none'});
-    A(seam, [{opacity: 0}, {opacity: 1, offset: .4}, {opacity: 0}], t, .42, {f: 'none'});
-  });
-  A(lid, [{transform: 'rotate(0)'}, {transform: 'rotate(-46deg)'}], open, .5, {e: EASE.spring, f: 'forwards'});
-  /* bubbles rise (decoration) */
-  [[hx + L + 24, 300], [hx + L + 50, 262], [hx - 24, 292]].forEach(([x, y], k) => {
-    const b = div(`left:${x}px;top:${y}px;width:${18 - k * 4}px;height:${18 - k * 4}px;border-radius:50%;border:3px solid var(--tr);opacity:0`, g); b.className = 'u-decor';
-    A(b, [{opacity: 0, transform: 'none'}, {opacity: 1, offset: .2}, {opacity: 0, transform: 'translateY(-110px)'}], T.b[0] + .4 + k * .5, 1.6, {it: 2, f: 'none'});
-  });
 });
 
 /* ================= B16 นิยาม: term {icon?, label}, means [1-3 {icon, label?}] ================= */
@@ -410,34 +364,6 @@ R3.both('B21', 'shop', 'หน้าร้าน กันสาดกางอ�
 });
 
 /* ================= B01 ตัวเลขเด่น: value, unit?, icon?, dir?, money? ================= */
-/* 11 · the number, huge, falls in digit by digit and slams on the floor; the last one lands on the key word and shakes it all */
-R3.both('B01', 'drop', 'ตัวเลขยักษ์ตกลงมากระแทกพื้น', (K, s, T, g) => {
-  const ch = graphemes(String(s.value)).slice(0, 9), n = ch.length, clip = R9.clip(g), floor = 286, all = R6.group(clip);
-  R6.line(K, all, `M36 ${floor}H544`, T.b[0], .4);
-  const row = div(`left:-10px;top:0;width:600px;height:${floor + 2}px;display:flex;justify-content:center;align-items:flex-end`, all);
-  const inner = div('position:relative;display:flex;align-items:flex-end;line-height:.78', row);
-  inner.style.position = 'relative';
-  const land = ch.map((_, i) => T.b[1] + (T.hit - T.b[1]) * Math.pow(i / Math.max(1, n - 1), .8));
-  ch.forEach((c, i) => {
-    const e = document.createElement('span'); e.className = 'u-num'; e.textContent = c; e.style.cssText = 'display:inline-block;font-size:300px;transform-origin:50% 100%'; inner.appendChild(e);
-    A(e, [{transform: 'translateY(-560px)', easing: 'cubic-bezier(.55,0,1,.45)'}, {transform: 'translateY(0) scale(1.06,.86)', offset: .78, easing: 'ease-out'}, {transform: 'none'}], land[i] - .32, .42, {f: 'both'});
-  });
-  FITS.push(() => { const w = inner.offsetWidth; if (w > 500) { inner.style.transform = `scale(${500 / w})`; inner.style.transformOrigin = '50% 100%'; } });
-  /* the last one: everything shakes, dust puffs out at the floor */
-  A(all, [0, -7, 6, -4, 3, 0].map((y, k) => ({transform: `translate(${k % 2 ? 3 : -3}px,${y}px)`})), T.hit + .1, .35, {f: 'none'});
-  [[90, -1], [130, -1], [460, 1], [500, 1]].forEach(([x, d], k) => {
-    const p = div(`left:${x - 16}px;top:${floor - 30}px;width:32px;height:32px;border-radius:50%;background:var(--tr);opacity:0`, all); p.className = 'u-decor';
-    A(p, [{opacity: 1, transform: 'scale(.3)'}, {opacity: 0, transform: `translate(${d * (40 + k * 6)}px,-30px) scale(1.6)`}], T.hit + .1, .6, {e: EASE.smooth, f: 'none'});
-  });
-  /* the unit (and what it is about) on a plate on the floor */
-  if (s.unit || s.icon || s.dir) {
-    const w = 210, pl = R9.acc(g, 290 - w / 2, floor + 6, w, 46, 12); K.enter(pl.o, T.hit + .3, 'pop');
-    const ic = s.icon ?? (s.dir === 'down' ? 'trending-down' : s.dir === 'up' ? 'trending-up' : null);
-    if (ic) R9.ico(pl.p, ic, s.unit ? 30 : w / 2, 23, 28, 'u-bubble-text');
-    if (s.unit) R9.accWord(K, pl.p, s.unit, ic ? w / 2 + 16 : w / 2, 3, 30, null, ic ? w - 70 : w - 30);
-  }
-});
-
 /* 12 · a thermometer: the column climbs (or falls) to the number, which is read off on a card beside it */
 R3.both('B01', 'thermo', 'เทอร์โมมิเตอร์ ปรอทขึ้นไปถึงตัวเลข', (K, s, T, g) => {
   const down = s.dir === 'down', pct = /%/.test(String(s.value)) ? Math.min(.95, Math.max(.08, R2.num(s) / 100)) : null;
