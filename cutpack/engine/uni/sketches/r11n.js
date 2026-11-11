@@ -235,18 +235,24 @@ R3.both('B01', 'tag', 'ป้ายราคาแขวน แกว่งแ�
   if (s.unit) S12.accWord(K, t.p, s.unit, 150, 232, 34, 220);
 }, R2.money);
 
-/* 16 · a piggy bank: the coins drop in through the slot and the amount counts up beside it (money only) */
+/* 16 · a piggy bank, drawn after Friend's ref ("20 WAYS TO SIMPLIFY" #8 FINANCE, Friend 2026-11-11: "วาดหมูตามนี้"): seen from
+   the side, facing left; a round snout with two nostrils, a pointed ear, an eye, four short legs, a curly tail, the slot on its
+   back and the coin over it. The amount counts up beside it (money only) */
 R3.both('B01', 'piggy', 'กระปุกออมสิน เหรียญหยอดทีละเหรียญ ยอดนับขึ้น', (K, s, T, g) => {
-  const X = 200, Y = 230;
-  R8.svg(g, `<path class="sd" d="M${X - 96} ${Y + 40}V${Y + 104}H${X - 56}V${Y + 50}ZM${X + 52} ${Y + 50}V${Y + 104}H${X + 92}V${Y + 40}Z"/>` +
-    `<path class="sd" d="M${X - 70} ${Y - 82}L${X - 48} ${Y - 134}L${X - 18} ${Y - 92}Z"/>` +
-    `<ellipse class="sd" cx="${X}" cy="${Y}" rx="152" ry="84"/><path class="ln u-thin" d="M${X - 150} ${Y - 14}Q${X - 178} ${Y - 30} ${X - 168} ${Y - 50}Q${X - 158} ${Y - 62} ${X - 150} ${Y - 46}"/>` +
-    `<rect class="fl" x="${X + 128}" y="${Y - 40}" width="60" height="72" rx="24"/><rect class="u-fl-edge" x="${X + 128}" y="${Y - 40}" width="60" height="72" rx="24"/><circle class="sd" cx="${X + 152}" cy="${Y - 6}" r="6"/><circle class="sd" cx="${X + 162}" cy="${Y + 10}" r="6"/>` +
-    `<path d="M${X - 40} ${Y - 80}H${X + 40}" style="fill:none;stroke:var(--ink);stroke-width:12px;stroke-linecap:round"/>` +
-    `<circle style="fill:var(--ink)" cx="${X + 74}" cy="${Y - 26}" r="10"/>`);
-  const c = S12.disc(g, X, Y - 130, 36, 'acc'); S12.glyph(c.p, '฿', 36, 36, 44, 'u-bubble-text');
-  const b = R9.card(g, 390, 10, 160, 130, 24);
-  S12.num(b.p, s.value, 80, 22, 60, 140); if (s.unit) R4.word(K, b.p, s.unit, 80, 86, 28, null, 140);
+  const X = 230, Y = 222, part = d => `<path class="fl" d="${d}"/><path class="u-fl-edge" style="stroke-width:6px" d="${d}"/>`;
+  const leg = x => `M${x} 270V318Q${x} 330 ${x + 12} 330H${x + 22}Q${x + 34} 330 ${x + 34} 318V270Z`;
+  R8.svg(g, part(leg(150)) + part(leg(290)) +                                                  // the far legs, behind
+    part('M132 160L146 104Q150 92 160 100L202 140Z') +                                                // the ear, behind the head
+    part(`M${X - 150} ${Y}C${X - 150} ${Y - 70} ${X - 80} ${Y - 98} ${X} ${Y - 98}C${X + 90} ${Y - 98} ${X + 150} ${Y - 60} ${X + 150} ${Y}C${X + 150} ${Y + 60} ${X + 90} ${Y + 92} ${X} ${Y + 92}C${X - 80} ${Y + 92} ${X - 150} ${Y + 64} ${X - 150} ${Y}Z`) +
+    part(leg(112)) + part(leg(252)) +                                                             // the near legs
+    part('M58 202Q58 186 74 186H96Q112 186 112 202V236Q112 252 96 252H74Q58 252 58 236Z') +       // the snout
+    `<ellipse style="fill:var(--fl-edge, var(--ink))" cx="76" cy="219" rx="5" ry="8"/><ellipse style="fill:var(--fl-edge, var(--ink))" cx="94" cy="219" rx="5" ry="8"/>` +
+    `<circle style="fill:var(--fl-edge, var(--ink))" cx="136" cy="188" r="8"/>` +
+    `<path d="M${X - 34} ${Y - 80}H${X + 34}" style="fill:none;stroke:var(--fl-edge, var(--ink));stroke-width:10px;stroke-linecap:round"/>` +
+    `<path style="fill:none;stroke:var(--ink);stroke-width:6px;stroke-linecap:round" d="M378 210Q404 204 404 186Q404 170 390 174Q378 180 388 194Q400 206 418 196"/>`);
+  const c = S12.disc(g, X, Y - 132, 34, 'acc'); S12.glyph(c.p, '฿', 34, 34, 42, 'u-bubble-text');
+  const b = R9.card(g, 400, 10, 150, 124, 24);
+  S12.num(b.p, s.value, 75, 22, 56, 130); if (s.unit) R4.word(K, b.p, s.unit, 75, 82, 28, null, 130);
 }, R2.money);
 
 /* ================= B02 เพิ่ม / ลด: dir, item, center?, n?, keep?, end? ================= */
