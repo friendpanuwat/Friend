@@ -18,8 +18,11 @@ const GOLD = Object.freeze({
   faceY: 760,                                     // the test clip's face (a real clip reads faces.json)
   srcH: 960,                                      // the photo of A shows about this much of the clip's height (head to chest)
   zoom: 1.12,                                     // the close framing of talk between scenes
-  A: {photo: {x: 300, y: 120, w: 480, h: 480, r: 64}, sub: {x: 70, y: 630, w: 860, h: 150}, card: {x: 64, y: 800, w: 872, h: 760, r: 56}, picS: .82},
-  B: {pic: {x: 40, y: 470}, sub: {x: 70, y: 1240, w: 860, h: 0}},
+  /* A: the photo starts below the app's top bar (Friend 2026-11-11: "กลัวว่าหน้าผมมันจะถูกแถบค้นหาบัง"); the card ends above the
+     app's bottom bar (y 1620). The picture is fitted to what it really drew (gold.md 1, Friend: "อยากให้มันดูเต็มกว่านี้") */
+  A: {photo: {x: 280, y: 250, w: 520, h: 520, r: 64}, sub: {x: 70, y: 790, w: 860, h: 150}, card: {x: 64, y: 960, w: 872, h: 650, r: 56}, pad: 44},
+  B: {pic: {x: 90, y: 330, w: 820, h: 840}, sub: {x: 70, y: 1240, w: 860, h: 0}},
+  fitMax: 1.3, fitMaxB: 2.0,                      // a sparse picture grows at most this much over its 1000 × 700 drawing (B has the whole screen)
   chest: 1230,                                    // the subtitle on the speaker when there is no faces.json (test clip)
   alwaysA: ['B04', 'B09', 'B17'],
   /* transitions, from the reference frame by frame (Friend 2026-11-11: "เขาไม่ได้ตัดไปเฉยๆ การย่อการขยายของรูป มันมีทรานซิชั่นของมัน"):
@@ -33,6 +36,33 @@ const GOLD_GRAD = 'linear-gradient(180deg,#FFE09A 0%,#FFB04A 45%,#FF8A1F 100%)';
 /* the moving grid behind a scene (Friend 2026-11-11: "ทำให้มันแตกต่างจาก ref หน่อย … พื้นหลังตารางเคลื่อนไหว เลื่อนขึ้น"):
    hand-drawn-looking lines that wave a little, drawn here (not an image). The pattern repeats every 3 rows, so sliding it up
    by 3 rows loops without a seam; every column waves its own way */
+/* the 1000 × 700 drawing, fitted to what it really drew: measured once the fonts are in, at a moment when everything has come
+   in (solid things and their words; no decoration, rings, glows or things already gone), then scaled (≤ GOLD.fitMax) and
+   centred in its box, so a picture drawn in one corner of its canvas fills the card (Friend 2026-11-11: "ดูเต็มกว่านี้") */
+function goldFit(box, W, H, t0, t1, max = GOLD.fitMax, decor = true) {
+  const stage = div('left:0;top:0;width:1000px;height:700px;transform-origin:0 0', box);
+  const s0 = Math.min(W / 1000, H / 700); stage.style.transform = `translate(${(W - 1000 * s0) / 2}px,${(H - 700 * s0) / 2}px) scale(${s0})`;
+  FITS.unshift(() => {
+    const tm = Math.max(t0 + (t1 - t0) * .75, t1 - .9);
+    ANIMS.forEach(a => { a.pause(); a.currentTime = ms(tm); });
+    const keep = stage.style.transform; stage.style.transform = 'none';
+    const o = stage.getBoundingClientRect(), k = o.width / 1000 || 1;
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    stage.querySelectorAll('.u-panel,.u-badge,.u-col,.u-bar,.u-track,.u-box,.u-num,.u-label,.u-chip,path,circle,rect').forEach(e => {
+      if (e.closest('.u-pulse,.u-halo,.u-beam,.u-flash,.u-spot,.gd-glow') || e.closest('.u-decor') && (!decor || !e.closest('.u-badge'))) return;   // in a card a small decoration tile counts (it must stay in the card)
+      let op = 1; for (let a = e; a && a !== stage; a = a.parentElement) { const cs = getComputedStyle(a); if (cs.display === 'none') { op = 0; break; } op *= +cs.opacity; }
+      if (op < .05) return;
+      let r = e.getBoundingClientRect();
+      if (e.classList.contains('u-label')) { const g = document.createRange(); g.selectNodeContents(e); r = g.getBoundingClientRect(); }   // a centred word sits in an 800-wide box: measure the words themselves
+      if (r.width < 1 && r.height < 1) return;
+      x0 = Math.min(x0, (r.left - o.left) / k); y0 = Math.min(y0, (r.top - o.top) / k); x1 = Math.max(x1, (r.right - o.left) / k); y1 = Math.max(y1, (r.bottom - o.top) / k);
+    });
+    if (!(x1 > x0)) { stage.style.transform = keep; return; }
+    const s = Math.min(W / (x1 - x0), H / (y1 - y0), max);
+    stage.style.transform = `translate(${(W - (x1 - x0) * s) / 2 - x0 * s}px,${(H - (y1 - y0) * s) / 2 - y0 * s}px) scale(${s})`;
+  });
+  return stage;
+}
 const GRID = Object.freeze({cell: 135, rows: 3, speed: 40, amp: 7, width: 3});
 function goldGrid(parent, t0, t1, light) {
   const c = GRID.cell, L = c * GRID.rows, H = 1920 + L + c, n = Math.ceil(1080 / c) + 1, seed = k => (hashOf('grid' + k) % 1000) / 1000;
@@ -185,14 +215,14 @@ STYLE('gold', {
       A(page, [{opacity: 1}, {opacity: 1}], t0, t1 - t0, {f: 'none'});
       goldGrid(page, t0, t1, true);
       const C = GOLD.A.card, card = div(`left:${C.x}px;top:${C.y}px;width:${C.w}px;height:${C.h}px;border-radius:${C.r}px`, root);
-      card.className = 'gd-main';
+      card.className = 'gd-main'; card.style.overflow = 'hidden';   // nothing spills out of the card (a beacon's beam reached the face once the picture grew)
       const pv = this.wins.at(-2), fromA = pv && pv.look === 'A' && t0 - pv.t1 < .3;
       if (!fromA) A(card, [{transform: 'translateY(1150px)'}, {transform: 'none'}], t0 + .05, GOLD.cardD, {e: 'cubic-bezier(.16,1,.3,1)'});   // up from below the screen
       else { const k = ANIMS.indexOf(pv.cardOut); if (k >= 0) { ANIMS[k].cancel(); ANIMS.splice(k, 1); } }   // A after A: the card stays (the one before is cut, not dropped)
       /* out: the card drops away fast and fades before the photo has grown much (it is above the video, so it must not linger on the speaker) */
       this.wins.at(-1).cardOut = A(card, [{transform: 'none', opacity: 1}, {transform: 'translateY(700px)', opacity: 0}], t1 - GOLD.growD - .05, GOLD.cardOutD, {e: 'cubic-bezier(.3,0,.6,1)', f: 'forwards'});
-      const sw = 1000 * GOLD.A.picS, shh = 700 * GOLD.A.picS;
-      stage = div(`left:${(C.w - sw) / 2}px;top:${(C.h - shh) / 2}px;width:1000px;height:700px;transform-origin:0 0;transform:scale(${GOLD.A.picS})`, card);
+      const pd = GOLD.A.pad, box = div(`left:${pd}px;top:${pd}px;width:${C.w - 2 * pd}px;height:${C.h - 2 * pd}px`, card);
+      stage = goldFit(box, C.w - 2 * pd, C.h - 2 * pd, t0, t1);
     } else {
       root.classList.add('gd-dark');                 // a dark moving grid, darker at the edges, a soft orange light behind the picture
       const lens = div('inset:0', root);              // the whole scene comes into focus, then the camera pushes in slowly
@@ -203,7 +233,8 @@ STYLE('gold', {
       div('inset:0;background:radial-gradient(ellipse 75% 55% at 50% 45%,transparent 30%,rgba(0,0,0,.75) 100%)', push);
       const g1 = div('left:90px;top:370px;width:900px;height:900px;background:radial-gradient(circle,rgba(255,128,30,.22),transparent 62%)', push);
       g1.className = 'gd-glow';
-      stage = div(`left:${GOLD.B.pic.x}px;top:${GOLD.B.pic.y}px;width:1000px;height:700px`, push);
+      const Bp = GOLD.B.pic, box = div(`left:${Bp.x}px;top:${Bp.y}px;width:${Bp.w}px;height:${Bp.h}px`, push);
+      stage = goldFit(box, Bp.w, Bp.h, t0, t1, GOLD.fitMaxB, false);
     }
     return {root, stage, look, dark: true};
   },
