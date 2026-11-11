@@ -21,8 +21,10 @@ const GOLD = Object.freeze({
   /* A: the photo starts below the app's top bar (Friend 2026-11-11: "กลัวว่าหน้าผมมันจะถูกแถบค้นหาบัง"); the card ends above the
      app's bottom bar (y 1620). The picture is fitted to what it really drew (gold.md 1, Friend: "อยากให้มันดูเต็มกว่านี้") */
   A: {photo: {x: 280, y: 250, w: 520, h: 520, r: 64}, sub: {x: 70, y: 790, w: 860, h: 150}, card: {x: 64, y: 960, w: 872, h: 650, r: 56}, pad: 44},
-  B: {pic: {x: 90, y: 330, w: 820, h: 840}, sub: {x: 70, y: 1240, w: 860, h: 0}},
-  fitMax: 1.3, fitMaxB: 2.0,                      // a sparse picture grows at most this much over its 1000 × 700 drawing (B has the whole screen)
+  B: {pic: {x: 40, y: 400, w: 920, h: 820}, sub: {x: 70, y: 1240, w: 860, h: 0}},
+  /* the picture keeps its size (Friend 2026-11-11 after it was enlarged: "ชอบให้ motion graphics มันมีขนาดเท่าเดิมมากกว่า"):
+     A .82 and B 1.0 of its 1000 × 700 drawing (smaller only if it would not fit); it is only moved to the middle of its room */
+  fitMax: .82, fitMaxB: 1.0,
   chest: 1230,                                    // the subtitle on the speaker when there is no faces.json (test clip)
   alwaysA: ['B04', 'B09', 'B17'],
   /* transitions, from the reference frame by frame (Friend 2026-11-11: "เขาไม่ได้ตัดไปเฉยๆ การย่อการขยายของรูป มันมีทรานซิชั่นของมัน"):
@@ -36,9 +38,10 @@ const GOLD_GRAD = 'linear-gradient(180deg,#FFE09A 0%,#FFB04A 45%,#FF8A1F 100%)';
 /* the moving grid behind a scene (Friend 2026-11-11: "ทำให้มันแตกต่างจาก ref หน่อย … พื้นหลังตารางเคลื่อนไหว เลื่อนขึ้น"):
    hand-drawn-looking lines that wave a little, drawn here (not an image). The pattern repeats every 3 rows, so sliding it up
    by 3 rows loops without a seam; every column waves its own way */
-/* the 1000 × 700 drawing, fitted to what it really drew: measured once the fonts are in, at a moment when everything has come
-   in (solid things and their words; no decoration, rings, glows or things already gone), then scaled (≤ GOLD.fitMax) and
-   centred in its box, so a picture drawn in one corner of its canvas fills the card (Friend 2026-11-11: "ดูเต็มกว่านี้") */
+/* the 1000 × 700 drawing, placed by what it really drew: measured once the fonts are in, at a moment when everything has come
+   in (solid things and their words; no decoration, rings, glows or things already gone), then centred in its box at its own
+   size (≤ max; smaller only when it would not fit), so a picture drawn in one corner of its canvas does not leave half the
+   card empty (Friend 2026-11-11: "ดูเต็มกว่านี้", then "ขนาดเท่าเดิม") */
 function goldFit(box, W, H, t0, t1, max = GOLD.fitMax, decor = true) {
   const stage = div('left:0;top:0;width:1000px;height:700px;transform-origin:0 0', box);
   const s0 = Math.min(W / 1000, H / 700); stage.style.transform = `translate(${(W - 1000 * s0) / 2}px,${(H - 700 * s0) / 2}px) scale(${s0})`;
