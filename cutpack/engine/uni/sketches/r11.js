@@ -11,6 +11,9 @@
    parts and the kit below are ported from the skill's assets/glowline.js; only the colours changed: the skill's white line and
    dark fill become each style's own line, body and accent colours (--lp-* below), and the glow is the style's own (glass glows
    blue on every line, gold glows orange on the accent, card and split do not glow).
+   KIT-LIKE (Friend 2026-11-11: "ไอเดียที่เสนอมามันดูรกไป อยากให้ดูชุด kit ของ skill เป็นแบบอย่าง" · "โอเคครับ แก้ทั้งหมด"): every
+   draft is like a picture in the skill's references/kit.jpg: ONE main thing in the middle, big enough to fill the frame (no empty
+   look), at most one word under it or on it; no extra cards, chips, floors, ghosts or decoration.
    Still pictures only (the end state): NOT in scenes/; load with EXTRA=sketches/r11.js.
    ===================================================================== */
 (() => {
@@ -23,6 +26,8 @@
 .p-light{--lp-ink:#4B3D6E;--lp-fill:#FFFFFF;--lp-soft:rgba(75,61,110,.5);--lp-acc:#9C84D6;--lp-acc-line:#4B3D6E;--lp-acc-ink:#FFFFFF;--lp-neg:#C2667A}
 .p-dark{--lp-ink:#F1ECFB;--lp-fill:#6F5F97;--lp-soft:rgba(241,236,251,.55);--lp-acc:#D9CCF6;--lp-acc-line:#F1ECFB;--lp-acc-ink:#4B3D6E;--lp-neg:#F09AA8}
 .gd{--lp-ink:#F2F2F4;--lp-fill:#141417;--lp-soft:rgba(242,242,244,.48);--lp-acc:#FF9A2E;--lp-acc-line:#FFB04A;--lp-acc-ink:#1A0E00;--lp-neg:#FF5A4E}
+.c-light,.p-light{--lp-shade-a:var(--lp-fill);--lp-shade-b:color-mix(in srgb, var(--lp-ink) 11%, var(--lp-fill))}
+.c-dark,.g-root,.p-dark,.gd{--lp-shade-a:color-mix(in srgb, var(--lp-ink) 20%, var(--lp-fill));--lp-shade-b:color-mix(in srgb, var(--lp-ink) 5%, var(--lp-fill))}
 .gd .lp-acc{filter:drop-shadow(0 0 7px rgba(255,140,40,.8))}
 .lp-t{white-space:nowrap;line-height:1.25;color:var(--lp-ink)}
 .lp-t.lp-on{color:var(--lp-acc-ink)}
@@ -31,21 +36,24 @@
 })();
 
 const LP = (() => {
-  const NS = 'http://www.w3.org/2000/svg';
+  const NS = 'http://www.w3.org/2000/svg'; let LPN = 0;
   const C = {ink: 'var(--lp-ink)', fill: 'var(--lp-fill)', soft: 'var(--lp-soft)', mute: 'var(--lp-soft)', acc: 'var(--lp-acc)', accLine: 'var(--lp-acc-line)', neg: 'var(--lp-neg)'};
   const pts = a => typeof a === 'string' ? a : a.map(q => q.join(',')).join(' ');
   /* tone: undefined (line + body), 'acc' (the accent body with its line), 'neg' (red line), 'soft' (a quiet detail line) */
   class Pen {
-    constructor(g, k) { this.g = g; this.k = k; }
-    child(attrs = {}, sc = 1) { const e = document.createElementNS(NS, 'g'); for (const a in attrs) e.setAttribute(a, attrs[a]); this.g.appendChild(e); return new Pen(e, this.k / sc); }
+    constructor(g, k, grad) { this.g = g; this.k = k; this.grad = grad; }
+    child(attrs = {}, sc = 1) { const e = document.createElementNS(NS, 'g'); for (const a in attrs) e.setAttribute(a, attrs[a]); this.g.appendChild(e); return new Pen(e, this.k / sc, this.grad); }
     _d(tag, a, o = {}) {
       const e = document.createElementNS(NS, tag);
       for (const n in a) e.setAttribute(n, a[n]);
-      let fill = o.fill === true ? C.fill : o.fill || 'none', stroke = o.stroke || C.ink;
+      /* fill: true = the flat body colour, 'shade' = the body lit from the top left (the ref's soft volume) */
+      let fill = o.fill === true ? C.fill : o.fill === 'shade' ? `url(#${this.grad})` : o.fill || 'none', stroke = o.stroke || C.ink;
       if (o.tone === 'acc') { fill = o.fill === 'none' ? 'none' : C.acc; stroke = C.accLine; e.classList.add('lp-acc'); }
       if (o.tone === 'neg') { stroke = C.neg; if (o.fill && o.fill !== 'none') fill = C.neg; }
       if (o.tone === 'soft') stroke = C.soft;
       e.setAttribute('style', `fill:${fill};stroke:${stroke};stroke-width:${((o.sw ?? 3) * this.k).toFixed(3)}px;stroke-linecap:round;stroke-linejoin:round${o.dash ? `;stroke-dasharray:${o.dash.map(v => v * this.k).join(' ')}` : ''}${o.op != null ? `;opacity:${o.op}` : ''}`);
+      /* a see-through accent (glass) must still hide what is behind it: a body-coloured copy goes under it */
+      if (o.tone === 'acc' && fill !== 'none') { const u = document.createElementNS(NS, tag); for (const n in a) u.setAttribute(n, a[n]); u.setAttribute('style', 'fill:var(--lp-fill);stroke:none'); this.g.appendChild(u); }
       this.g.appendChild(e); return e;
     }
     line(x1, y1, x2, y2, o) { return this._d('line', {x1, y1, x2, y2}, o); }
@@ -69,8 +77,10 @@ const LP = (() => {
   }
   /* a drawing layer the size of the canvas; small (the overlay widget) is drawn 1:1, the full screen picture 1.6× */
   const layer = (g, small, z) => {
-    const d = div(`left:0;top:0;width:600px;height:340px${z != null ? `;z-index:${z}` : ''}`, g, `<svg width="600" height="340" style="overflow:visible"><g></g></svg>`);
-    return {el: d, p: new Pen(d.querySelector('g'), small ? 1 : 1 / 1.6)};
+    const id = 'lpg' + (++LPN);
+    const d = div(`left:0;top:0;width:600px;height:340px${z != null ? `;z-index:${z}` : ''}`, g, `<svg width="600" height="340" style="overflow:visible"><defs>
+      <linearGradient id="${id}" x1="0" y1="0" x2=".35" y2="1" gradientUnits="objectBoundingBox"><stop offset="0" style="stop-color:var(--lp-shade-a, var(--lp-fill))"/><stop offset="1" style="stop-color:var(--lp-shade-b, var(--lp-fill))"/></linearGradient></defs><g></g></svg>`);
+    return {el: d, p: new Pen(d.querySelector('svg > g'), small ? 1 : 1 / 1.6, id)};
   };
   /* words in the line colour (or on the accent), from the slots only */
   const word = (K, g, txt, cx, y, size, maxW, on = false) => { const w = R4.word(K, g, txt, cx, y, size, null, maxW); w.classList.add('lp-t'); if (on) w.classList.add('lp-on'); return w; };
@@ -143,331 +153,271 @@ const LP = (() => {
     cross(p, x, y, s = 1, o = {}) { p.line(x - 40 * s, y - 40 * s, x + 40 * s, y + 40 * s, Object.assign({sw: 6, tone: 'neg'}, o)); p.line(x + 40 * s, y - 40 * s, x - 40 * s, y + 40 * s, Object.assign({sw: 6, tone: 'neg'}, o)); },
     floor(p, x1, x2, y) { p.line(x1, y, x2, y, {sw: 2.2, tone: 'soft'}); },
   };
-  return {C, Pen, layer, word, wordL, ico, row, person, at, iso, isoBox, parts};
+  /* the skill's kit.bust / kit.team / kit.holdPhone */
+  const bust = (p, {x = 0, y = 0, size = 200, tone, op} = {}) => {
+    const s = size / 330, q = p.child({transform: `translate(${x} ${y}) scale(${s})`}, s), o = {fill: true, tone};
+    if (op) q.g.style.opacity = op;
+    q.path('M -142 165 L -142 112 Q -142 22 -46 22 L 46 22 Q 142 22 142 112 L 142 165 Z', o); q.circle(0, -88, 74, o); return q;
+  };
+  const team = (p, {x = 0, y = 0, size = 360, tone, back} = {}) => {
+    const s = size / 420, q = p.child({transform: `translate(${x} ${y}) scale(${s})`}, s);
+    bust(q, {x: -125, y: -26, size: 230, op: back}); bust(q, {x: 125, y: -26, size: 230, op: back}); bust(q, {x: 0, y: 26, size: 300, tone}); return q;
+  };
+  const holdPhone = (p, {x = 0, y = 0, size = 360} = {}) => {
+    const s = size / 400, q = p.child({transform: `translate(${x} ${y}) scale(${s})`}, s);
+    q.rect(-94, 34, 188, 140, {rx: 48, fill: true});
+    q.rect(-82, -198, 164, 300, {rx: 26, fill: true});
+    q.rect(-71, -186, 142, 276, {rx: 17, sw: 1.6, tone: 'soft'});
+    q.line(-14, -175, 14, -175, {sw: 4});
+    return {q, s, after() {
+      [-34, 2, 38].forEach(yy => q.tube([[122, yy + 6], [70, yy]], 30, {sw: 2.6}));
+      q.tube('M -66 152 Q -100 92 -60 34', 34, {sw: 2.6});
+      q.rect(-58, 160, 116, 40, {rx: 8, fill: true});
+    }};
+  };
+  /* a word struck through in red (the wrong one) */
+  const strike = (K, g, txt, cx, y, size, maxW) => {
+    const w = word(K, g, txt, cx, y, size, maxW); w.style.opacity = .7;
+    const st = div(`left:0;top:${y + size * .68}px;height:4px;border-radius:2px;background:var(--lp-neg)`, g);
+    FITS.push(() => { const sp = w.firstChild, ww = sp.offsetWidth + 14; st.style.left = (cx - ww / 2) + 'px'; st.style.width = ww + 'px'; });
+    return w;
+  };
+  return {C, Pen, layer, word, wordL, ico, row, person, at, iso, isoBox, parts, bust, team, holdPhone, strike};
 })();
 const S11 = {human: icon => /^(user|users|baby|person|contact|smile)/.test(icon ?? 'user')};
 
 /* ================= B10 คน: who? {icon, label?}, label?, tags? [≤2] ================= */
-/* 1 · people stand in a row; on the key word the one this is for raises a hand and lights up, and the words show above */
-R3.both('B10', 'hands', 'คนยืนเรียงกัน คนที่ใช่ยกมือ', (K, s, T, g, small) => {
-  const tags = (s.tags ?? []).slice(0, 2), G = 322, H = 200, xs = [100, 200, 300, 400, 500];
-  const {p} = LP.layer(g, small); LP.parts.floor(p, 50, 550, G);
-  xs.forEach((x, k) => { if (k !== 2) { const q = LP.person(p, {x, y: G, h: H}); q.g.style.opacity = .42; } });
-  LP.person(p, {x: 300, y: G, h: H, pose: 'wave', tone: 'acc'});
-  const W = 250, Hc = tags.length ? 96 : 58, y0 = 112 - Hc - 10;
-  p.rect(300 - W / 2, y0, W, Hc, {rx: 18, fill: true, sw: 2.6});
-  LP.row(K, g, {icon: s.who?.icon ?? 'user', label: s.label ?? s.who?.label}, 300, y0 + 10, 30, W - 30);
-  tags.forEach((t, k) => { const w = tags.length === 2 ? 110 : 160, x = tags.length === 2 ? 300 - 114 + k * 118 : 300 - w / 2;
-    p.rect(x, y0 + 52, w, 32, {rx: 16, fill: true, tone: 'acc', sw: 2}); LP.word(K, g, t, x + w / 2, y0 + 55, 20, w - 14, true); });
+/* 1 · the one this is for raises a hand and lights up; the kind of person under it */
+R3.both('B10', 'raise', 'คนที่ใช่ยกมือ', (K, s, T, g, small) => {
+  const {p} = LP.layer(g, small);
+  LP.person(p, {x: 300, y: 270, h: 262, pose: 'wave', tone: 'acc'});
+  const w = s.label ?? s.who?.label; if (w) LP.word(K, g, w, 300, 280, 36, 340);
 });
 
-/* 2 · a person waiting at arrivals holds up a sign made out to this kind of person */
+/* 2 · a person waiting at arrivals holds up a sign; on the sign is the kind of person */
 R3.both('B10', 'sign', 'คนถือป้ายรอรับ บนป้ายคือคนกลุ่มนี้', (K, s, T, g, small) => {
-  const tags = (s.tags ?? []).slice(0, 2), G = 330, H = 300, X = 300;
-  const {p} = LP.layer(g, small); LP.parts.floor(p, 150, 450, G);
+  const G = 336, H = 332, X = 300, {p} = LP.layer(g, small);
   LP.person(p, {x: X, y: G, h: H, pose: 'hold'});
-  const W = 300, Hs = 128, x0 = X - W / 2, y0 = 100;
-  p.rect(x0, y0, W, Hs, {rx: 10, fill: true});
-  [[-172, -58], [172, -58]].forEach(([px, py]) => { const [hx, hy] = LP.at(X, G, H, px, py); p.circle(hx, hy, 12, {fill: true, sw: 2.6}); });
-  p.circle(x0 + 40, y0 + 42, 22, {fill: true, tone: 'acc', sw: 2.2}); LP.ico(g, s.who?.icon ?? 'user', x0 + 40, y0 + 42, 24, true);
-  if (s.label) LP.wordL(K, g, s.label, x0 + 72, y0 + 22, 30, W - 100);
-  tags.forEach((t, k) => { const w = tags.length === 2 ? 118 : 160, x = x0 + 24 + k * 126;
-    p.rect(x, y0 + 80, w, 30, {rx: 15, fill: true, tone: 'acc', sw: 2}); LP.word(K, g, t, x + w / 2, y0 + 82, 19, w - 14, true); });
+  p.rect(X - 172, 98, 344, 136, {rx: 10, fill: true});
+  [[-172, -58], [172, -58]].forEach(([px, py]) => { const [hx, hy] = LP.at(X, G, H, px, py); p.circle(hx, hy, 13, {fill: true, sw: 2.6}); });
+  const w = s.label ?? s.who?.label; if (w) LP.word(K, g, w, X, 136, 46, 290);
 });
 
 /* ================= B13 เคล็ดลับ: secret {icon, label?} ================= */
-/* 3 · a secret file: the cover opens a little and the paper with the tip slides up out of it; a stamp on the cover */
+/* 3 · a secret file with a padlock on the cover: the paper with the tip slides up out of it */
 R3.both('B13', 'dossier', 'แฟ้มลับ กระดาษเคล็ดลับเลื่อนออกมา', (K, s, T, g, small) => {
-  const it = s.secret ?? {icon: 'lightbulb'};
-  const back = LP.layer(g, small).p;
-  back.path('M 100 86 Q 100 74 112 74 L 214 74 L 232 94 L 488 94 Q 500 94 500 106 L 500 314 Q 500 326 488 326 L 112 326 Q 100 326 100 314 Z', {fill: true});
-  back.rect(150, 30, 300, 240, {rx: 6, fill: true});
-  back.line(176, 150, 424, 150, {sw: 1.6, tone: 'soft'});
-  LP.ico(g, it.icon, 300, 70, 46); if (it.label) LP.word(K, g, it.label, 300, 98, 32, 260);
+  const it = s.secret ?? {icon: 'lightbulb'}, back = LP.layer(g, small).p;
+  back.path('M 84 72 Q 84 58 98 58 L 214 58 L 234 80 L 502 80 Q 516 80 516 94 L 516 318 Q 516 332 502 332 L 98 332 Q 84 332 84 318 Z', {fill: true});
+  back.rect(140, 10, 320, 250, {rx: 6, fill: true});
+  LP.ico(g, it.icon, 300, 54, 52); if (it.label) LP.word(K, g, it.label, 300, 86, 40, 290);
   const fr = LP.layer(g, small).p;
-  fr.path('M 100 186 L 500 166 L 500 314 Q 500 326 488 326 L 112 326 Q 100 326 100 314 Z', {fill: true});
-  fr.line(130, 226, 260, 226, {sw: 1.6, tone: 'soft'}); fr.line(130, 252, 220, 252, {sw: 1.6, tone: 'soft'});
-  /* the stamp: a red box with a padlock in it, a little turned */
-  const st = fr.child({transform: 'rotate(-8 384 258)'});
-  st.rect(318, 224, 132, 68, {rx: 12, tone: 'neg', sw: 3.4});
-  st.rect(368, 256, 32, 24, {rx: 4, tone: 'neg', sw: 3}); st.path('M 374 256 L 374 248 Q 374 236 384 236 Q 394 236 394 248 L 394 256', {tone: 'neg', sw: 3});
+  fr.path('M 84 190 L 516 170 L 516 318 Q 516 332 502 332 L 98 332 Q 84 332 84 318 Z', {fill: true});
+  fr.rect(276, 254, 48, 38, {rx: 6, sw: 3}); fr.path('M 286 254 L 286 242 Q 286 226 300 226 Q 314 226 314 242 L 314 254', {sw: 3});
 });
 
-/* 4 · a torch in the dark: the beam sweeps across and stops on the tip, which lights up; the rest stays faint */
+/* 4 · a torch in the dark: the beam sweeps across and stops on the tip, which lights up */
 R3.both('B13', 'torch', 'ไฟฉายส่องหาในที่มืด เจอเคล็ดลับ', (K, s, T, g, small) => {
-  const it = s.secret ?? {icon: 'lightbulb'};
-  const {p} = LP.layer(g, small);
-  [[52, 36, 150, 70], [226, 250, 130, 62], [60, 150, 96, 58]].forEach(([x, y, w, h]) => p.rect(x, y, w, h, {rx: 14, tone: 'soft', sw: 2, dash: [8, 9]}));
-  /* the beam: two lines that spread from the lens to the tip */
-  p.path('M 214 216 L 330 26 L 546 26 L 546 192 L 232 240 Z', {fill: 'var(--lp-acc)', stroke: 'none', op: .28});
-  p.line(214, 216, 330, 26, {sw: 1.6, tone: 'soft'}); p.line(232, 240, 546, 192, {sw: 1.6, tone: 'soft'});
-  p.rect(344, 44, 186, 132, {rx: 20, fill: true, tone: 'acc'});
-  LP.ico(g, it.icon, 437, 86, 46, true); if (it.label) LP.word(K, g, it.label, 437, 116, 28, 166, true);
-  /* the torch: handle with grip lines, a wider head, the lens; pointing up to the right */
-  const tq = p.child({transform: 'rotate(-30 180 262)'});
-  tq.rect(36, 242, 120, 42, {rx: 12, fill: true});
-  [70, 90, 110].forEach(x => tq.line(x, 250, x, 276, {sw: 1.6, tone: 'soft'}));
-  tq.path('M 154 236 L 196 226 Q 204 226 204 234 L 204 292 Q 204 300 196 300 L 154 290 Z', {fill: true});
-  tq.line(214, 232, 214, 294, {sw: 5, tone: 'acc'});
+  const it = s.secret ?? {icon: 'lightbulb'}, {p} = LP.layer(g, small);
+  p.path('M 236 222 L 340 16 L 548 16 L 548 196 L 258 254 Z', {fill: 'var(--lp-acc)', stroke: 'none', op: .26});
+  p.rect(352, 30, 186, 150, {rx: 22, fill: true, tone: 'acc'});
+  LP.ico(g, it.icon, 445, 76, 50, true); if (it.label) LP.word(K, g, it.label, 445, 108, 30, 166, true);
+  const tq = p.child({transform: 'rotate(-32 190 280)'});
+  tq.rect(24, 254, 150, 54, {rx: 14, fill: true});
+  [70, 96, 122].forEach(x => tq.line(x, 264, x, 298, {sw: 1.8, tone: 'soft'}));
+  tq.path('M 172 246 L 226 232 Q 236 232 236 242 L 236 320 Q 236 330 226 330 L 172 316 Z', {fill: true});
+  tq.line(248, 238, 248, 324, {sw: 6, tone: 'acc'});
 });
 
 /* ================= B20 ความสัมพันธ์: a {icon, label?}, b {icon, label?}, label?, cut? ================= */
-/* 5 · two people turn to face each other and the link shows between them; when it is over they stand back to back */
+/* 5 · two people turn to face each other; the link under them. When it is over they stand back to back */
 R3.both('B20', 'face', 'สองคนหันหน้าเข้าหากัน (จบกัน = หันหลังให้กัน)', (K, s, T, g, small) => {
-  const a = s.a ?? {icon: 'user'}, b = s.b ?? {icon: 'user'}, cut = !!s.cut, G = 318, H = 236, xa = 190, xb = 410;
-  const {p} = LP.layer(g, small); LP.parts.floor(p, 70, 530, G);
-  const one = (it, x, face) => {
-    if (S11.human(it.icon)) LP.person(p, {x, y: G, h: H, pose: 'side', face});
-    else { p.rect(x - 64, G - 150, 128, 150, {rx: 14, fill: true}); LP.ico(g, it.icon, x, G - 76, 64); }
-    if (it.label) LP.word(K, g, it.label, x, 26, 28, 160);
-  };
-  one(a, xa, cut ? -1 : 1); one(b, xb, cut ? 1 : -1);
-  if (s.label) { p.rect(232, 128, 136, 44, {rx: 22, fill: true, tone: cut ? undefined : 'acc', sw: 2.4}); LP.word(K, g, s.label, 300, 135, 24, 120, !cut); }
-  if (cut) LP.parts.cross(p, 300, 234, .45);
+  const a = s.a ?? {icon: 'user'}, b = s.b ?? {icon: 'user'}, cut = !!s.cut, G = 280, H = 272, {p} = LP.layer(g, small);
+  const one = (it, x, face) => { if (S11.human(it.icon)) LP.person(p, {x, y: G, h: H, pose: 'side', face}); else { p.rect(x - 76, G - 200, 152, 200, {rx: 16, fill: true}); LP.ico(g, it.icon, x, G - 100, 80); } };
+  one(a, 214, cut ? -1 : 1); one(b, 386, cut ? 1 : -1);
+  if (cut) LP.parts.cross(p, 300, 150, .4);
+  if (s.label) LP.word(K, g, s.label, 300, 286, 34, 320);
 });
 
-/* 6 · two hands meet in a handshake on the key word; when it is over the hands let go */
+/* 6 · two hands meet in a handshake on the key word; when it is over they let go */
 R3.both('B20', 'shake', 'มือสองข้างจับมือกัน (จบกัน = ปล่อยมือ)', (K, s, T, g, small) => {
-  const a = s.a ?? {icon: 'user'}, b = s.b ?? {icon: 'user'}, cut = !!s.cut, d = cut ? 36 : 0;
-  const {p} = LP.layer(g, small);
-  /* the left arm: sleeve, cuff, then its hand (palm, thumb over the top) */
-  const L = p.child({transform: `translate(${-d} 0)`});
-  L.rect(-10, 186, 190, 66, {rx: 12, fill: true}); L.rect(166, 180, 26, 78, {rx: 8, fill: true, tone: 'acc'});
-  L.rect(190, 192, 104, 56, {rx: 24, fill: true});
-  L.tube([[214, 196], [270, 176], [298, 178]], 22);
-  /* the right arm comes from the right; its four fingers wrap over the left hand */
-  const R = p.child({transform: `translate(${d} 0)`});
-  R.rect(420, 186, 200, 66, {rx: 12, fill: true}); R.rect(408, 180, 26, 78, {rx: 8, fill: true, tone: 'acc'});
+  const cut = !!s.cut, d = cut ? 40 : 0, {p} = LP.layer(g, small);
+  const q = p.child({transform: 'translate(300 150) scale(1.3) translate(-300 -218)'}, 1.3);
+  const L = q.child({transform: `translate(${-d} 0)`});
+  L.rect(40, 186, 140, 66, {rx: 12, fill: true}); L.rect(166, 180, 26, 78, {rx: 8, fill: true, tone: 'acc'});
+  L.rect(190, 192, 104, 56, {rx: 24, fill: true}); L.tube([[214, 196], [270, 176], [298, 178]], 22);
+  const R = q.child({transform: `translate(${d} 0)`});
+  R.rect(420, 186, 140, 66, {rx: 12, fill: true}); R.rect(408, 180, 26, 78, {rx: 8, fill: true, tone: 'acc'});
   R.rect(312, 188, 104, 62, {rx: 24, fill: true});
   [0, 1, 2, 3].forEach(k => R.tube([[330, 196 + k * 15], [254 + k * 4, 200 + k * 15]], 15));
-  const lab = (it, cx) => { if (!it.label && !it.icon) return; p.rect(cx - 90, 36, 180, 46, {rx: 23, fill: true, sw: 2.4}); LP.row(K, g, it, cx, 44, 24, 160); };
-  lab(a, 130); lab(b, 470);
-  if (s.label) { p.rect(232, 110, 136, 44, {rx: 22, fill: true, tone: cut ? undefined : 'acc', sw: 2.4}); LP.word(K, g, s.label, 300, 117, 24, 120, !cut); }
+  if (s.label) LP.word(K, g, s.label, 300, 280, 36, 320);
 });
 
 /* ================= B21 สถานที่: place {icon, label?}, spots? [1-2 {icon, label?}] ================= */
 /* 7 · a big road sign on two posts slides in as if driving past, and stops: the name of the place */
 R3.both('B21', 'roadsign', 'ป้ายริมทางบนเสาสองต้น บอกชื่อที่', (K, s, T, g, small) => {
-  const pl = s.place ?? {icon: 'map-pin'}, sp = (s.spots ?? []).slice(0, 2);
-  const {p} = LP.layer(g, small); LP.parts.floor(p, 40, 540, 322);
-  p.rect(166, 160, 22, 162, {rx: 4, fill: true}); p.rect(412, 160, 22, 162, {rx: 4, fill: true});
-  p.rect(84, 26, 432, 146, {rx: 18, fill: true, tone: 'acc'}); p.rect(98, 40, 404, 118, {rx: 10, tone: 'acc', fill: 'none', sw: 2.2});
-  LP.ico(g, pl.icon, 156, 99, 60, true);
-  if (pl.label) LP.wordL(K, g, pl.label, 206, 70, 48, 286, true);
-  sp.forEach((it, k) => { const x = sp.length === 2 ? 92 + k * 216 : 200; p.rect(x, 196, 200, 46, {rx: 10, fill: true, sw: 2.4}); LP.row(K, g, it, x + 100, 204, 24, 180); });
+  const pl = s.place ?? {icon: 'map-pin'}, {p} = LP.layer(g, small);
+  p.rect(150, 170, 24, 166, {rx: 5, fill: true}); p.rect(426, 170, 24, 166, {rx: 5, fill: true});
+  p.rect(60, 14, 480, 168, {rx: 20, fill: true, tone: 'acc'}); p.rect(76, 30, 448, 136, {rx: 12, tone: 'acc', fill: 'none', sw: 2.2});
+  LP.ico(g, pl.icon, 300, 64, 58, true);
+  if (pl.label) LP.word(K, g, pl.label, 300, 96, 48, 420, true);
 });
 
-/* 8 · a selfie: a person holds the phone up, the flash goes, and behind them is the place */
-R3.both('B21', 'selfie', 'คนยกมือถือเซลฟี่ ฉากหลังเป็นสถานที่', (K, s, T, g, small) => {
-  const pl = s.place ?? {icon: 'map-pin'}, sp = (s.spots ?? []).slice(0, 2), G = 330, H = 270, X = 190;
-  const bk = LP.layer(g, small).p;
-  bk.rect(150, 16, 394, 222, {rx: 18, fill: true});
-  LP.ico(g, pl.icon, 410, 80, 84); if (pl.label) LP.word(K, g, pl.label, 410, 130, 36, 230);
-  sp.forEach((it, k) => { const y = 248 + k * 44; bk.rect(350, y, 190, 38, {rx: 19, fill: true, sw: 2.2}); LP.row(K, g, it, 445, y + 7, 20, 170); });
-  const {p} = LP.layer(g, small); LP.parts.floor(p, 90, 300, G);
-  LP.person(p, {x: X, y: G, h: H, pose: 'selfie'});
-  const [hx, hy] = LP.at(X, G, H, 116, -172);
-  p.rect(hx - 20, hy - 46, 40, 70, {rx: 9, fill: true}); p.circle(hx, hy - 32, 5, {sw: 2});
-  LP.parts.burst(p, {x: hx, y: hy - 32, r1: 16, r2: 30, n: 5, from: -90, spread: 150, sw: 3, tone: 'acc'});
+/* 8 · a hand holds up a phone and takes a picture of the place: the place is on the screen */
+R3.both('B21', 'snap', 'มือถือมือถือ ถ่ายรูปสถานที่', (K, s, T, g, small) => {
+  const pl = s.place ?? {icon: 'map-pin'}, {p} = LP.layer(g, small);
+  const ph = LP.holdPhone(p, {x: 300, y: 178, size: 336}), k = ph.s, sx = v => 300 + v * k, sy = v => 178 + v * k;
+  /* the viewfinder corners on the screen */
+  [[-56, -170, 1, 1], [56, -170, -1, 1], [-56, 40, 1, -1], [56, 40, -1, -1]].forEach(([x, y, dx, dy]) =>
+    ph.q.poly([[x, y + 22 * dy], [x, y], [x + 22 * dx, y]], {sw: 3, tone: 'acc', fill: 'none'}));
+  ph.after();
+  LP.ico(g, pl.icon, sx(-6), sy(-112), 54); if (pl.label) LP.word(K, g, pl.label, sx(-6), sy(-76), 24, 96);
 });
 
 /* ================= B12 เหตุกับผล: items [3 {icon, label?, tone?}], end? ================= */
-/* 9 · a stone drops into still water (the first cause); the rings spread out one after the other, the outer one is the effect */
+/* 9 · a stone drops into still water; the rings spread out, the outer one is the effect */
 R3.both('B12', 'ripple', 'หินตกน้ำ วงคลื่นกระเพื่อมออกไปทีละวง', (K, s, T, g, small) => {
-  const it = (s.items ?? []).slice(0, 3), C = [300, 216], neg = it[2]?.tone === 'neg';
-  const {p} = LP.layer(g, small);
-  p.ellipse(C[0], C[1], 250, 74, {fill: true});
-  p.ellipse(C[0], C[1], 52, 15, {sw: 2.2}); p.ellipse(C[0], C[1], 124, 36, {sw: 2.2, tone: 'soft'});
-  p.ellipse(C[0], C[1], 204, 58, {sw: 4, tone: neg ? 'neg' : 'acc', fill: 'none'});
-  p.line(C[0], 108, C[0], C[1] - 22, {sw: 1.6, tone: 'soft', dash: [6, 10]});
-  p.path('M 262 74 C 258 48 280 32 304 34 C 330 36 346 52 342 74 C 338 94 318 100 300 100 C 280 100 264 94 262 74 Z', {fill: true});
-  p.path('M 280 50 Q 292 42 306 44', {sw: 1.6, tone: 'soft'});
-  if (it[0]) LP.ico(g, it[0].icon, 302, 70, 32);
-  if (it[0]?.label) LP.wordL(K, g, it[0].label, 352, 46, 28, 190);
-  if (it[1]) { p.rect(64, 160, 168, 40, {rx: 20, fill: true, sw: 2.2}); LP.row(K, g, it[1], 148, 166, 22, 150); }
-  if (it[2]) { p.rect(204, 260, 192, 46, {rx: 23, fill: true, tone: neg ? undefined : 'acc', sw: 2.4}); if (neg) p.rect(204, 260, 192, 46, {rx: 23, tone: 'neg', sw: 3}); LP.row(K, g, it[2], 300, 268, 24, 172, !neg); }
+  const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg', C = [300, 206], {p} = LP.layer(g, small);
+  p.ellipse(C[0], C[1], 250, 72, {fill: true});
+  p.ellipse(C[0], C[1], 56, 16, {sw: 2.4}); p.ellipse(C[0], C[1], 130, 37, {sw: 2.2, tone: 'soft'});
+  p.ellipse(C[0], C[1], 210, 58, {sw: 5, tone: neg ? 'neg' : 'acc', fill: 'none'});
+  p.line(C[0], 104, C[0], C[1] - 24, {sw: 1.8, tone: 'soft', dash: [6, 10]});
+  p.path('M 256 62 C 252 30 278 12 304 14 C 334 16 352 34 348 62 C 344 88 320 98 300 98 C 276 98 258 88 256 62 Z', {fill: true});
+  p.path('M 276 34 Q 290 24 308 26', {sw: 1.8, tone: 'soft'});
+  if (it[0]) LP.ico(g, it[0].icon, 302, 58, 36);
+  if (it[2]?.label) { const w = LP.word(K, g, it[2].label, 300, 286, 36, 360); if (neg) w.style.color = 'var(--lp-neg)'; }
 });
 
-/* 10 · a Newton's cradle: the first ball swings in and knocks; the force goes through the middle and the last ball flies out */
-R3.both('B12', 'cradle', 'ลูกตุ้มนิวตัน ลูกแรกชน ลูกสุดท้ายดีดออก', (K, s, T, g, small) => {
-  const it = (s.items ?? []).slice(0, 3), xs = [180, 240, 300, 360, 420], top = 40, L = 150, R = 29, neg = it[2]?.tone === 'neg';
-  const {p} = LP.layer(g, small);
-  p.rect(108, 26, 384, 14, {rx: 7, fill: true}); p.line(120, 40, 100, 300, {sw: 3}); p.line(480, 40, 500, 300, {sw: 3});
-  p.rect(72, 300, 456, 16, {rx: 8, fill: true});
-  const ang = 36 * Math.PI / 180, pos = xs.map((x, k) => k === 4 ? [x + L * Math.sin(ang), top + L * Math.cos(ang)] : [x, top + L]);
-  pos.forEach(([x, y], k) => p.line(xs[k], top, x, y - R, {sw: 1.6, tone: 'soft'}));
-  pos.forEach(([x, y], k) => {
-    const lit = k === 4; p.circle(x, y, R, {fill: true, tone: lit && !neg ? 'acc' : undefined}); if (lit && neg) p.circle(x, y, R, {tone: 'neg', sw: 3.4});
-    const i = k === 0 ? it[0] : k === 2 ? it[1] : k === 4 ? it[2] : null; if (i) LP.ico(g, i.icon, x, y, 30, lit && !neg);
-  });
-  [[0, 180], [1, 300], [2, 420]].forEach(([k, x]) => { if (it[k]?.label) LP.word(K, g, it[k].label, x, 230, 22, 110); });
+/* 10 · a toaster: the lever goes down (the cause) and the toast pops up (the effect) */
+R3.both('B12', 'toaster', 'เครื่องปิ้งขนมปัง กดคันโยก ขนมปังเด้งขึ้น', (K, s, T, g, small) => {
+  const it = (s.items ?? []).slice(0, 3), neg = it[2]?.tone === 'neg', {p} = LP.layer(g, small);
+  /* the toast first (behind), half out of the slot */
+  p.path('M 214 150 L 214 66 Q 196 62 196 42 Q 196 14 230 14 L 370 14 Q 404 14 404 42 Q 404 62 386 66 L 386 150 Z', {fill: true, tone: neg ? undefined : 'acc'});
+  if (neg) p.path('M 214 150 L 214 66 Q 196 62 196 42 Q 196 14 230 14 L 370 14 Q 404 14 404 42 Q 404 62 386 66 L 386 150 Z', {tone: 'neg', sw: 3.4});
+  if (it[2]?.icon) LP.ico(g, it[2].icon, 300, it[2].label ? 44 : 64, 40, !neg);
+  if (it[2]?.label) { const w = LP.word(K, g, it[2].label, 300, 64, 28, 168, !neg); if (neg) w.style.color = 'var(--lp-neg)'; }
+  p.path('M 150 128 Q 150 106 172 106 L 428 106 Q 450 106 450 128 L 460 284 Q 462 304 440 304 L 160 304 Q 138 304 140 284 Z', {fill: true});
+  p.rect(206, 98, 188, 16, {rx: 8, fill: true});
+  p.rect(176, 312, 40, 14, {rx: 6, fill: true}); p.rect(384, 312, 40, 14, {rx: 6, fill: true});
+  p.rect(456, 214, 34, 22, {rx: 8, fill: true}); p.line(450, 160, 450, 270, {sw: 1.8, tone: 'soft'});
+  p.circle(300, 220, 26, {sw: 2.2}); p.line(300, 220, 314, 206, {sw: 2.2});
 });
 
 /* ================= B05 ถูกกับผิด: wrong {icon, label?}, right {icon, label?} ================= */
-/* 11 · a shape-sorter box: the wrong block will not go in and bounces off; the right block drops into its hole */
-R3.both('B05', 'sorter', 'กล่องหยอดรูปทรง รูปผิดใส่ไม่ลง รูปถูกลงพอดี', (K, s, T, g, small) => {
-  const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'};
-  const {p} = LP.layer(g, small); LP.parts.floor(p, 30, 540, 322);
-  const box = LP.isoBox(p, {x: 360, y: 322, w: 190, dp: 150, h: 120});
-  /* the holes on the top face: a square, a circle, a triangle */
-  const Pt = (X, Z) => box.P(X, 120, Z);
-  p.shape([Pt(-60, 40), Pt(-20, 40), Pt(-20, 0), Pt(-60, 0)], {sw: 2.4});
-  const c = Pt(30, -20); p.ellipse(c[0], c[1], 22, 12, {sw: 2.4});
-  p.shape([Pt(40, 50), Pt(70, 40), Pt(70, 10)], {sw: 2.4});
-  /* the right block, half way into the square hole */
-  const h0 = Pt(-40, 20), rb = LP.layer(g, small);
-  rb.el.style.clipPath = `inset(0 0 ${340 - h0[1]}px 0)`;
-  rb.p.rect(h0[0] - 34, h0[1] - 92, 68, 104, {rx: 10, fill: true, tone: 'acc'});
-  LP.ico(g, r.icon, h0[0], h0[1] - 52, 36, true);
-  if (r.label) LP.word(K, g, r.label, h0[0], h0[1] - 140, 28, 180);
-  /* the wrong block lies on the floor where it bounced off, crossed */
-  const wq = p.child({transform: 'rotate(-14 100 270)'});
-  wq.path('M 100 214 L 150 312 L 50 312 Z', {fill: true});
-  LP.ico(g, w.icon, 100, 284, 30); LP.parts.cross(p, 154, 236, .32);
-  if (w.label) LP.word(K, g, w.label, 100, 162, 26, 150);
+/* 11 · a USB plug: the wrong way up it will not go in; turned the right way, it goes in */
+R3.both('B05', 'usb', 'หัว USB ด้านผิดเสียบไม่เข้า ด้านถูกเสียบได้', (K, s, T, g, small) => {
+  const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'}, {p} = LP.layer(g, small);
+  p.path('M -20 172 Q 60 172 92 172', {sw: 3}); p.path('M -20 186 Q 60 186 92 186', {sw: 3});
+  p.rect(88, 140, 150, 78, {rx: 16, fill: true, tone: 'acc'});
+  p.rect(236, 150, 92, 58, {rx: 4, fill: true});
+  p.rect(262, 164, 14, 12, {rx: 2, sw: 2}); p.rect(290, 164, 14, 12, {rx: 2, sw: 2});
+  /* the port the plug goes into (in front of the metal tip) */
+  p.rect(290, 118, 236, 122, {rx: 18, fill: true}); p.rect(312, 140, 192, 78, {rx: 8, sw: 2.2}); p.rect(330, 160, 156, 20, {rx: 4, sw: 1.8, tone: 'soft'});
+  LP.ico(g, r.icon, 163, 179, 40, true);
+  if (r.label) LP.word(K, g, r.label, 300, 270, 38, 360);
+  if (w.label) LP.strike(K, g, w.label, 300, 42, 30, 300);
 });
 
-/* 12 · ticket gates: the wrong card is tapped and the gate stays shut (red); the right card is tapped and the gate opens */
-R3.both('B05', 'gate', 'ประตูกั้นรถไฟฟ้า บัตรผิดไม่เปิด บัตรถูกเปิด', (K, s, T, g, small) => {
-  const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'};
-  const {p} = LP.layer(g, small); LP.parts.floor(p, 30, 540, 322);
-  /* the flaps: shut in the left lane (red), folded back in the right lane */
-  p.rect(130, 236, 72, 34, {rx: 14, fill: true, tone: 'neg'}); p.rect(198, 236, 72, 34, {rx: 14, fill: true, tone: 'neg'});
-  p.rect(330, 236, 34, 34, {rx: 12, fill: true, tone: 'acc'}); p.rect(436, 236, 34, 34, {rx: 12, fill: true, tone: 'acc'});
-  [60, 262, 464].forEach(x => { p.path(`M ${x} 322 L ${x} 200 Q ${x} 186 ${x + 14} 186 L ${x + 62} 186 Q ${x + 76} 186 ${x + 76} 200 L ${x + 76} 322`, {fill: true});
-    p.rect(x + 16, 196, 44, 14, {rx: 4, sw: 2}); });
-  p.line(76, 182, 120, 182, {sw: 5, tone: 'neg'}); p.line(480, 182, 524, 182, {sw: 5, tone: 'acc'});
-  const card = (it, x, ok) => {
-    p.rect(x, 30, 160, 112, {rx: 14, fill: true, tone: ok ? 'acc' : undefined});
-    LP.ico(g, it.icon, x + 80, 66, 38, ok); if (it.label) LP.word(K, g, it.label, x + 80, 92, 26, 140, ok);
-    if (ok) LP.parts.check(p, x + 150, 34, .3, {sw: 5}); else LP.parts.cross(p, x + 150, 36, .25);
-  };
-  card(w, 120, false); card(r, 322, true);
+/* 12 · one ticket gate: the right card is tapped and the gate opens (the wrong one, struck, above) */
+R3.both('B05', 'gate', 'ประตูกั้นรถไฟฟ้า บัตรถูกแตะแล้วเปิด', (K, s, T, g, small) => {
+  const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'}, {p} = LP.layer(g, small);
+  p.rect(212, 178, 52, 40, {rx: 14, fill: true, tone: 'acc'}); p.rect(336, 178, 52, 40, {rx: 14, fill: true, tone: 'acc'});
+  [[110, 212], [388, 490]].forEach(([x0, x1]) => { p.path(`M ${x0} 336 L ${x0} 120 Q ${x0} 102 ${x0 + 18} 102 L ${x1 - 18} 102 Q ${x1} 102 ${x1} 120 L ${x1} 336`, {fill: true});
+    p.rect(x0 + 22, 116, x1 - x0 - 44, 18, {rx: 5, sw: 2.2}); });
+  p.rect(130, 20, 170, 108, {rx: 14, fill: true, tone: 'acc'});
+  LP.ico(g, r.icon, 215, 52, 40, true); if (r.label) LP.word(K, g, r.label, 215, 78, 28, 150, true);
+  if (w.label) LP.strike(K, g, w.label, 430, 40, 28, 200);
 });
 
 /* ================= B11 คำพูด: kind, quote, mood?, react?, gone? ================= */
-/* 13 · a home phone rings, the handset is picked up and what was said comes out of it */
-R3.both('B11', 'landline', 'โทรศัพท์บ้านดัง ยกหูขึ้น คำพูดลอยออกมา', (K, s, T, g, small) => {
-  const q = s.quote ?? '', bad = s.mood === 'bad';
+/* 13 · a home phone: the handset is picked up and what was said comes out of it */
+R3.both('B11', 'phone', 'โทรศัพท์บ้าน ยกหู คำพูดออกมา', (K, s, T, g, small) => {
   const {p} = LP.layer(g, small);
-  /* the cord first (behind), the phone, then the lifted handset */
-  p.path([...Array(8)].map((_, k) => { const y = 262 - k * 16, x = 106 - k * 2; return `${k ? 'C' : 'M'} ${k ? `${x - 26} ${y + 10} ${x - 26} ${y - 8} ` : ''}${x} ${y}`; }).join(' '), {sw: 2.2});
-  p.path('M 112 236 L 146 186 Q 150 180 158 180 L 322 180 Q 330 180 334 186 L 368 236 L 368 302 Q 368 316 354 316 L 126 316 Q 112 316 112 302 Z', {fill: true});
-  p.rect(150, 168, 34, 16, {rx: 6, fill: true}); p.rect(296, 168, 34, 16, {rx: 6, fill: true});
-  [0, 1, 2].forEach(r => [0, 1, 2].forEach(c => p.rect(196 + c * 34, 222 + r * 28, 24, 18, {rx: 5, sw: 1.8, tone: 'soft'})));
-  const hs = p.child({transform: 'rotate(-14 230 104)'});
-  hs.rect(160, 94, 140, 24, {rx: 12, fill: true});
-  hs.path('M 132 96 Q 132 82 146 82 L 184 82 Q 196 82 196 96 L 192 130 Q 190 142 178 142 L 146 142 Q 132 142 132 128 Z', {fill: true});
-  hs.path('M 264 96 Q 264 82 278 82 L 316 82 Q 330 82 330 96 L 330 128 Q 330 142 316 142 L 284 142 Q 270 142 268 130 Z', {fill: true});
-  LP.parts.burst(p, {x: 238, y: 104, r1: 76, r2: 94, n: 3, from: -160, spread: 40, sw: 2.6, tone: 'soft'});
-  LP.parts.bubble(p, 430, 74, 220, 104, false, {sw: 2.6});
-  if (q) LP.word(K, g, q, 430, 50, 38, 196);
-  if (s.react) { p.circle(530, 128, 24, {fill: true, tone: bad ? 'neg' : 'acc', sw: 2.4}); LP.ico(g, s.react, 530, 128, 26, !bad); }
+  p.path('M 80 320 L 116 210 Q 120 198 134 198 L 314 198 Q 328 198 332 210 L 368 320 Q 370 334 356 334 L 92 334 Q 78 334 80 320 Z', {fill: true});
+  p.circle(224, 268, 36, {sw: 2.2}); p.circle(224, 268, 11, {sw: 1.8, tone: 'soft'});
+  const hs = p.child({transform: 'rotate(-12 224 136)'});
+  hs.path('M 112 136 Q 112 110 138 110 L 310 110 Q 336 110 336 136 L 336 148 Q 336 168 316 168 L 288 168 Q 276 168 274 156 L 270 142 L 178 142 L 174 156 Q 172 168 160 168 L 132 168 Q 112 168 112 148 Z', {fill: true});
+  LP.parts.bubble(p, 438, 80, 216, 110, false, {sw: 2.6});
+  if (s.quote) LP.word(K, g, s.quote, 438, 56, 38, 190);
 });
 
 /* 14 · a typewriter types the message onto the paper, which rolls up out of it */
 R3.both('B11', 'typewriter', 'เครื่องพิมพ์ดีดพิมพ์ข้อความ กระดาษเลื่อนขึ้น', (K, s, T, g, small) => {
-  const q = s.quote ?? '', bad = s.mood === 'bad';
   const {p} = LP.layer(g, small);
-  p.rect(176, 14, 248, 186, {rx: 4, fill: true});
-  if (q) LP.word(K, g, q, 300, 52, 38, 210);
-  p.line(206, 120, 394, 120, {sw: 1.6, tone: 'soft'}); p.line(206, 146, 330, 146, {sw: 1.6, tone: 'soft'});
-  p.rect(132, 166, 336, 34, {rx: 17, fill: true}); p.circle(118, 183, 18, {fill: true}); p.circle(482, 183, 18, {fill: true});
-  p.path('M 128 214 Q 128 202 140 202 L 460 202 Q 472 202 474 214 L 500 300 Q 504 318 486 318 L 114 318 Q 96 318 100 300 Z', {fill: true});
-  [[150, 232, 10], [164, 258, 9], [194, 284, 7]].forEach(([x0, y, n]) => { for (let k = 0; k < n; k++) p.circle(x0 + k * 32 + 9, y, 9, {sw: 1.8}); });
-  p.rect(236, 298, 128, 10, {rx: 5, sw: 1.8});
-  if (s.react) { p.circle(398, 120, 22, {fill: true, tone: bad ? 'neg' : 'acc', sw: 2.4}); LP.ico(g, s.react, 398, 120, 24, !bad); }
+  p.rect(160, 8, 280, 180, {rx: 4, fill: true});
+  if (s.quote) LP.word(K, g, s.quote, 300, 60, 44, 240);
+  p.rect(110, 160, 380, 38, {rx: 19, fill: true}); p.circle(94, 179, 20, {fill: true}); p.circle(506, 179, 20, {fill: true});
+  p.path('M 104 214 Q 104 200 118 200 L 482 200 Q 496 200 498 214 L 526 312 Q 530 334 508 334 L 92 334 Q 70 334 74 312 Z', {fill: true});
+  [[150, 236, 8], [170, 270, 7]].forEach(([x0, y, n]) => { for (let k = 0; k < n; k++) p.circle(x0 + k * 42 + 12, y, 12, {sw: 2}); });
+  p.rect(220, 300, 160, 14, {rx: 7, sw: 2});
 });
 
 /* ================= B01 ตัวเลขเด่น: value, unit?, icon?, dir?, money? ================= */
 /* 15 · a price tag hangs on its string, swings and comes to rest: the amount on it (money only) */
 R3.both('B01', 'pricetag', 'ป้ายราคาแขวน แกว่งแล้วหยุด', (K, s, T, g, small) => {
-  const {p, el} = LP.layer(g, small);
-  p.path('M 300 -6 Q 290 40 300 80', {sw: 2.2});
-  const tg = p.child({transform: 'rotate(-6 300 80)'});
-  tg.path('M 280 62 Q 300 50 320 62 L 422 118 Q 432 124 432 136 L 432 308 Q 432 322 418 322 L 182 322 Q 168 322 168 308 L 168 136 Q 168 124 178 118 Z', {fill: true});
-  tg.circle(300, 88, 12, {sw: 2.6});
-  tg.line(196, 290, 404, 290, {sw: 1.6, tone: 'soft'});
-  const hold = R6.group(g); hold.style.transformOrigin = '300px 80px'; hold.style.transform = 'rotate(-6deg)';
-  if (s.icon) LP.ico(hold, s.icon, 300, 136, 36);
-  const n = div(`left:168px;top:${s.icon ? 162 : 140}px;width:264px;text-align:center`, hold, `<span class="u-num lp-t" style="font-size:72px">${s.value}</span>`);
-  FITS.push(() => { const sp = n.firstChild; if (sp.offsetWidth > 230) sp.style.fontSize = (72 * 230 / sp.offsetWidth).toFixed(1) + 'px'; });
-  if (s.unit) LP.word(K, hold, s.unit, 300, s.icon ? 240 : 222, 28, 200);
+  const {p} = LP.layer(g, small);
+  p.path('M 300 -10 Q 288 30 300 62', {sw: 2.4});
+  const tg = p.child({transform: 'rotate(-6 300 62)'});
+  tg.path('M 278 44 Q 300 30 322 44 L 436 108 Q 448 116 448 130 L 448 318 Q 448 334 432 334 L 168 334 Q 152 334 152 318 L 152 130 Q 152 116 164 108 Z', {fill: true});
+  tg.circle(300, 74, 13, {sw: 2.8});
+  const hold = R6.group(g); hold.style.transformOrigin = '300px 62px'; hold.style.transform = 'rotate(-6deg)';
+  const n = div('left:152px;top:128px;width:296px;text-align:center', hold, `<span class="u-num lp-t" style="font-size:92px">${s.value}</span>`);
+  FITS.push(() => { const sp = n.firstChild; if (sp.offsetWidth > 260) sp.style.fontSize = (92 * 260 / sp.offsetWidth).toFixed(1) + 'px'; });
+  if (s.unit) LP.word(K, hold, s.unit, 300, 236, 34, 240);
 }, R2.money);
 
-/* 16 · a wallet opens and the banknotes slide up out of it; the amount is on the top note (money only) */
+/* 16 · a wallet opens and a banknote slides up out of it: the amount is on the note (money only) */
 R3.both('B01', 'wallet', 'กระเป๋าสตางค์เปิด ธนบัตรเลื่อนออก มีจำนวนเงิน', (K, s, T, g, small) => {
   const bk = LP.layer(g, small).p;
-  const note = (x, y, rot) => { const q = bk.child({transform: `rotate(${rot} ${x + 150} ${y + 75})`});
-    q.rect(x, y, 300, 150, {rx: 8, fill: true}); q.rect(x + 12, y + 12, 276, 126, {rx: 5, sw: 1.6, tone: 'soft'});
-    q.circle(x + 30, y + 30, 8, {sw: 1.6, tone: 'soft'}); q.circle(x + 270, y + 120, 8, {sw: 1.6, tone: 'soft'}); };
-  note(150, 58, -7); note(152, 46, 5); note(150, 28, 0);
-  const n = div('left:150px;top:46px;width:300px;text-align:center', g, `<span class="u-num lp-t" style="font-size:64px">${s.value}</span>`);
-  FITS.push(() => { const sp = n.firstChild; if (sp.offsetWidth > 240) sp.style.fontSize = (64 * 240 / sp.offsetWidth).toFixed(1) + 'px'; });
-  if (s.unit) LP.word(K, g, s.unit, 300, 118, 26, 220);
+  bk.rect(128, 10, 344, 176, {rx: 8, fill: true}); bk.rect(142, 24, 316, 148, {rx: 5, sw: 1.8, tone: 'soft'});
+  const n = div('left:128px;top:30px;width:344px;text-align:center', g, `<span class="u-num lp-t" style="font-size:76px">${s.value}</span>`);
+  FITS.push(() => { const sp = n.firstChild; if (sp.offsetWidth > 290) sp.style.fontSize = (76 * 290 / sp.offsetWidth).toFixed(1) + 'px'; });
+  if (s.unit) LP.word(K, g, s.unit, 300, 116, 30, 260);
   const {p} = LP.layer(g, small);
-  p.rect(112, 168, 376, 152, {rx: 22, fill: true}); p.rect(124, 180, 352, 128, {rx: 14, sw: 1.4, tone: 'soft'});
-  p.rect(388, 214, 120, 64, {rx: 22, fill: true}); p.circle(474, 246, 9, {sw: 2.6, tone: 'acc', fill: true});
-  if (s.icon) LP.ico(g, s.icon, 196, 244, 40);
+  p.rect(94, 156, 412, 178, {rx: 26, fill: true}); p.rect(108, 170, 384, 150, {rx: 16, sw: 1.6, tone: 'soft'});
+  p.rect(398, 210, 126, 74, {rx: 26, fill: true}); p.circle(488, 247, 11, {sw: 2.8, tone: 'acc', fill: true});
 }, R2.money);
 
 /* ================= B02 เพิ่ม / ลด: dir, item, center?, n?, keep?, end? ================= */
-/* 17 · a queue at a shop: people join it (up) or walk away until few are left (down). Only when the thing is people */
-R3.both('B02', 'queue', 'คิวคนหน้าร้าน ยาวขึ้นหรือสั้นลง', (K, s, T, g, small) => {
-  const up = s.dir !== 'down', keep = Math.max(1, Math.min(s.keep ?? 1, 4)), G = 322, H = 156, xs = [376, 306, 236, 166, 96];
-  const {p} = LP.layer(g, small); LP.parts.floor(p, 40, 548, G);
-  /* the shop: a box, an awning with scallops, the owner's sign, a door */
-  p.rect(424, 128, 116, 194, {rx: 6, fill: true});
-  p.path('M 412 104 L 552 104 L 552 142 ' + [...Array(5)].map((_, k) => `Q ${545 - k * 28} 160 ${538 - k * 28} 142`).join(' ') + ' L 412 142 Z', {fill: true, tone: 'acc'});
-  p.rect(454, 212, 56, 110, {rx: 6, fill: true}); p.dot(500, 268, 3.5);
-  LP.ico(g, s.center?.icon ?? 'store', 482, 176, 34);
-  xs.forEach((x, k) => {
-    const on = up || k < keep, last = up && k === xs.length - 1;
-    if (on) LP.person(p, {x, y: G, h: H, pose: last ? 'wave' : 'stand', tone: last ? 'acc' : undefined});
-    else { const q = LP.person(p, {x, y: G, h: H}); q.g.style.opacity = .16; }
-  });
-  LP.parts.link(p, up ? 60 : 96, up ? 92 : 56, up ? 96 : 60, up ? 56 : 92, {sw: 3.4, head: 16, tone: up ? undefined : 'neg'});
+/* 17 · a group of people: more people join behind the first one (up), or they leave until one is left (down). People only */
+R3.both('B02', 'team', 'กลุ่มคน คนมาเพิ่มหรือหายไป', (K, s, T, g, small) => {
+  const up = s.dir !== 'down', {p} = LP.layer(g, small);
+  if (up) LP.team(p, {x: 300, y: 152, size: 420, tone: 'acc'});
+  else { const q = LP.team(p, {x: 300, y: 152, size: 420, back: .16}); }
 }, s => S11.human(s.item?.icon));
 
-/* 18 · boxes pile up one on another (up) or are taken off until few are left (down) */
+/* 18 · boxes stack up one on another (up), or are taken off until one is left (down) */
 R3.both('B02', 'boxes', 'กล่องซ้อนสูงขึ้น หรือถูกหยิบออกทีละกล่อง', (K, s, T, g, small) => {
-  const up = s.dir !== 'down', keep = Math.max(1, Math.min(s.keep ?? 1, 5)), it = s.item ?? {icon: 'package'};
-  const {p} = LP.layer(g, small); LP.parts.floor(p, 60, 540, 322);
-  const W = 84, spots = [[-1, 0], [0, 0], [1, 0], [-.5, 1], [.5, 1], [0, 2]];
-  spots.forEach(([c, r], k) => {
-    const on = up || k < keep, x = 290 + c * W * .87 * 1.15, y = 322 - r * 74 - (r ? 0 : 0);
-    const before = p.g.childNodes.length;
-    const bx = LP.isoBox(p, {x, y, w: 70, dp: 70, h: 70, tone: up && k === spots.length - 1 ? 'acc' : undefined, tape: true});
-    if (!on) [...p.g.childNodes].slice(before).forEach(e => { e.style.opacity = .18; e.style.strokeDasharray = '5 6'; });
-    else { const f = bx.front, cx = (f[0][0] + f[1][0]) / 2, cy = (f[0][1] + f[2][1]) / 2; LP.ico(g, it.icon, cx, cy, 26); }
+  const up = s.dir !== 'down', it = s.item ?? {icon: 'package'}, {p} = LP.layer(g, small), H = 92;
+  [0, 1, 2].forEach(k => {
+    const on = up || k === 0, before = p.g.childNodes.length;
+    const bx = LP.isoBox(p, {x: 300, y: 334 - k * H, w: 120, dp: 120, h: H, tone: up && k === 2 ? 'acc' : undefined, tape: true});
+    if (!on) [...p.g.childNodes].slice(before).forEach(e => { e.style.opacity = .2; e.style.strokeDasharray = '6 7'; });
+    else { const f = bx.front, cx = (f[0][0] + f[1][0]) / 2, cy = (f[0][1] + f[2][1]) / 2 + 4; LP.ico(g, it.icon, cx, cy, 34); }
   });
-  LP.parts.link(p, 470, up ? 120 : 60, 470, up ? 60 : 120, {sw: 3.4, head: 16, tone: up ? undefined : 'neg'});
 });
 
 /* ================= B14 ประโยคเด็ด: idea {icon?, label} ================= */
 /* 19 · an open book; a highlighter runs along one line and the line it marks is the punchline */
 R3.both('B14', 'highlight', 'ปากกาไฮไลต์ขีดประโยคในหนังสือ', (K, s, T, g, small) => {
-  const it = s.idea ?? {icon: 'quote'};
-  const {p} = LP.layer(g, small);
-  p.path('M 300 50 Q 172 26 46 46 L 46 314 Q 172 296 300 318 Z', {fill: true});
-  p.path('M 300 50 Q 428 26 554 46 L 554 314 Q 428 296 300 318 Z', {fill: true});
-  [88, 124, 160, 196, 232, 268].forEach((y, k) => p.line(76, y, k === 5 ? 190 : 270, y, {sw: 1.6, tone: 'soft'}));
-  [88, 124, 232, 268].forEach((y, k) => p.line(330, y, k === 3 ? 440 : 524, y, {sw: 1.6, tone: 'soft'}));
-  p.rect(322, 150, 210, 58, {rx: 6, fill: 'var(--lp-acc)', stroke: 'none'});
-  LP.row(K, g, it, 427, 160, 28, 196, true);
+  const it = s.idea ?? {icon: 'quote'}, {p} = LP.layer(g, small);
+  p.path('M 300 34 Q 168 8 34 30 L 34 324 Q 168 304 300 330 Z', {fill: true});
+  p.path('M 300 34 Q 432 8 566 30 L 566 324 Q 432 304 300 330 Z', {fill: true});
+  [92, 150, 266].forEach((y, k) => p.line(70, y, k === 2 ? 190 : 266, y, {sw: 1.8, tone: 'soft'}));
+  [92, 266].forEach((y, k) => p.line(334, y, k === 1 ? 450 : 530, y, {sw: 1.8, tone: 'soft'}));
+  p.rect(320, 154, 214, 68, {rx: 6, fill: 'var(--lp-acc)', stroke: 'none'});
+  LP.row(K, g, it.label ? {label: it.label} : it, 427, 166, 34, 200, true);
   /* the highlighter pen, its chisel tip at the end of the line */
-  const pen = p.child({transform: 'rotate(38 538 204)'});
-  pen.rect(522, 96, 32, 92, {rx: 8, fill: true}); pen.rect(522, 96, 32, 26, {rx: 8, fill: true, tone: 'acc'});
-  pen.path('M 526 188 L 550 188 L 544 206 L 532 206 Z', {fill: true});
+  const pen = p.child({transform: 'rotate(38 540 214)'});
+  pen.rect(524, 100, 34, 96, {rx: 8, fill: true}); pen.rect(524, 100, 34, 28, {rx: 8, fill: true, tone: 'acc'});
+  pen.path('M 528 196 L 554 196 L 548 216 L 534 216 Z', {fill: true});
 });
 
-/* 20 · a speaker on a stage points at the screen, and the punchline is up on it */
+/* 20 · a speaker points at the screen, and the punchline is up on it */
 R3.both('B14', 'slides', 'คนยืนชี้จอสไลด์ ประโยคขึ้นจอ', (K, s, T, g, small) => {
-  const it = s.idea ?? {icon: 'quote'}, G = 326, H = 250, X = 124;
-  const {p} = LP.layer(g, small); LP.parts.floor(p, 40, 540, G);
-  p.line(386, 200, 386, 296, {sw: 3}); p.line(386, 290, 336, G, {sw: 3}); p.line(386, 290, 436, G, {sw: 3});
-  p.rect(222, 20, 328, 184, {rx: 12, fill: true}); p.rect(236, 34, 300, 156, {rx: 6, sw: 1.6, tone: 'soft'});
-  LP.ico(g, it.icon, 386, 82, 54); if (it.label) LP.word(K, g, it.label, 386, 118, 38, 280);
+  const it = s.idea ?? {icon: 'quote'}, G = 338, H = 300, X = 112, {p} = LP.layer(g, small);
+  p.line(392, 204, 392, 300, {sw: 3}); p.line(392, 294, 340, G, {sw: 3}); p.line(392, 294, 444, G, {sw: 3});
+  p.rect(206, 8, 340, 200, {rx: 14, fill: true});
+  if (it.label) LP.word(K, g, it.label, 376, 84, 44, 300); else LP.ico(g, it.icon, 376, 108, 80);
   LP.person(p, {x: X, y: G, h: H, pose: 'present'});
 });
 
