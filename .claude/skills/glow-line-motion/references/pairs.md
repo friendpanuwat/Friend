@@ -1,5 +1,7 @@
 # คู่ภาพสำเร็จรูป (before → after)
 
+ใช้กับเลย์เอาต์ก่อน→หลัง (`rows` `grid` `hero`). เลย์เอาต์แบบอื่นอยู่ใน `scenes.md`; คน มือ ลูกศร ใน `kit.md`.
+
 ดูทั้งหมดในภาพเดียว: `references/catalog.jpg` (render จาก `examples/grid-catalog.html`).
 ใช้ใน item: `{ label: '1. INBOX', pair: 'inbox' }`. ชื่อคู่เป็นคำกลาง ๆ — ป้ายข้อจะเขียนอะไรก็ได้ (ไทย/อังกฤษ).
 
@@ -23,7 +25,8 @@
 ## ไอคอนเดี่ยว (`GL.steps` / `icon:`)
 
 `check` `star` `bulb` `clock` `moon` `target` `phone` `laptop` `tablet` `folder` `doc` `envelope` `calendar` `globe` `bell` `gamepad` `tv` `wifi` `bubble` `wallet`
-— หรือใช้ชื่อ pair ใดก็ได้ (ได้ฝั่งเรียบ), หรือส่งฟังก์ชัน `p => { … }`.
++ ไอคอนจาก kit: `person` `person-wave` … `bust` `team` `hand-thumb` `hand-tap` `hand-phone` `package` `cursor` `sparkle` `cycle` (รายชื่อเต็มใน `kit.md`)
+— หรือใช้ชื่อ pair ใดก็ได้ (ได้ฝั่งเรียบ), หรือส่งฟังก์ชัน `p => { … }`. ใช้ได้กับ `steps` `flow` `diagram` `shots`.
 
 ## หัวข้อที่ยังไม่มีคู่ — แนวคิดสำหรับวาดใหม่ (ดู `drawing.md`)
 

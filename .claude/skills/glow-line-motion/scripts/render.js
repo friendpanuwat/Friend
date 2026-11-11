@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /* render.js — scene.html → MP4 (+ still.png + storyboard.jpg)
-   usage: node render.js <scene.html> [outdir] [--name clip] [--fps 30] [--still] [--alpha] [--workers N]
+   usage: node render.js <scene.html> [outdir] [--name clip] [--fps 30] [--still] [--alpha] [--workers N] [--at 2,5.5,9]
      --still   only still.png (last frame) + storyboard.jpg — fast check while designing
      --alpha   transparent background → <name>.mov (ProRes 4444 with alpha) for overlaying on video
+     --at      storyboard at these seconds instead of 6 even moments (e.g. the end of every shot / page)
    Prints DURATION / frames / output paths. Scene errors are printed as "SCENE ERROR". */
 const path = require('path'), fs = require('fs'), os = require('os');
 const { execFileSync } = require('child_process');
@@ -12,7 +13,7 @@ catch { ({ chromium } = require(path.join(execFileSync('npm', ['root', '-g']).to
 
 const argv = process.argv.slice(2), flag = f => argv.includes(f);
 const opt = (f, d) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : d; };
-const pos = argv.filter((a, i) => !a.startsWith('--') && !['--name', '--fps', '--workers'].includes(argv[i - 1]));
+const pos = argv.filter((a, i) => !a.startsWith('--') && !['--name', '--fps', '--workers', '--at'].includes(argv[i - 1]));
 if (!pos[0]) { console.error('usage: node render.js <scene.html> [outdir] [--name clip] [--fps 30] [--still] [--alpha]'); process.exit(2); }
 const scene = path.resolve(pos[0]);
 const out = path.resolve(pos[1] || path.join(path.dirname(scene), 'out'));
@@ -50,7 +51,8 @@ const shot = (page, t, file) => page.evaluate(t => setT(t), t).then(() => page.s
 
   // still + storyboard (6 moments)
   await shot(first.page, dur, path.join(out, 'still.png'));
-  const moments = [.14, .3, .46, .62, .8, 1].map(f => +(f * dur).toFixed(2));
+  const moments = opt('--at') ? opt('--at').split(',').map(Number).filter(v => v >= 0).map(v => Math.min(v, dur))
+    : [.14, .3, .46, .62, .8, 1].map(f => +(f * dur).toFixed(2));
   const sb = [];
   for (let i = 0; i < moments.length; i++) { const f = path.join(out, `.sb${i}.png`); await shot(first.page, moments[i], f); sb.push(f); }
   const tw = Math.round(360 * w / Math.max(w, h) * (h > w ? 1 : 1.6));

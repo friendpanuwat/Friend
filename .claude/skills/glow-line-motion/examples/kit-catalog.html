@@ -1,0 +1,27 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* the kit at a glance — every ready-made person, hand and accent, plus every arrow style (renders references/kit.jpg) */
+GL.run(() => {
+  GL.stage();
+  const { kit, C } = GL;
+  GL.text('THE KIT', { y: 112, size: 96, ls: 6, at: .05 });
+  const names = ['person', 'person-wave', 'person-cheer', 'person-think', 'person-shrug', 'person-point', 'person-present', 'person-walk', 'person-run',
+    'person-sit', 'bust', 'team', 'hand-point', 'hand-thumb', 'hand-open', 'hand-tap', 'hand-phone', 'package', 'cursor', 'sparkle', 'cycle'];
+  const cols = 4, cw = GL.W / cols, ch = 214, y0 = 170;
+  names.forEach((n, i) => {
+    const c = i % cols, r = Math.floor(i / cols), x = c * cw + cw / 2, y = y0 + r * ch + 92;
+    GL.art(GL.icons[n], { x, y, s: .42, at: .2 + i * .05, filter: 'glowS' });
+    GL.text(n, { x, y: y + 112, size: 22, weight: 600, glow: false, color: C.mute, at: .2 + i * .05, rise: 6 });
+  });
+  // arrow styles (kit.connect) — two columns
+  const styles = [['straight', {}], ['curve', {}], ['swoosh', {}], ['loop', {}], ['elbow', { via: 'hvh' }], ['dash', { style: 'curve', dash: true }], ['solid + both', { style: 'straight', head: 'solid', both: true }]];
+  styles.forEach(([n, o], i) => {
+    const c = i % 2, r = Math.floor(i / 2), x = c ? 560 : 40, y = 1540 + r * 88, at = 1.2 + i * .12;
+    GL.text(n, { x, y: y + 8, size: 24, weight: 600, glow: false, color: C.mute, anchor: 'start', at, rise: 6 });
+    GL.art(p => kit.connect(p, x + 180, y + (n === 'elbow' ? -16 : 0), x + 470, y + (n === 'elbow' ? 16 : 0), Object.assign({ style: n, d: .5, sw: 2.4, hs: 13 }, o)),
+      { x: 0, y: 0, s: 1, at, filter: 'glowS' });
+  });
+});
+</script></body></html>

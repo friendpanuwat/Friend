@@ -1,0 +1,39 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* shots — a story told frame by frame (each frame draws, holds, fades). Mixes kit pieces with parts and plain Pen lines. */
+GL.run(() => {
+  GL.stage();
+  const { kit, parts, C } = GL;
+  GL.shots([
+    { kicker: '08:00', title: 'งานเข้า', caption: 'ลูกค้าทักมาตั้งแต่เช้า', box: [400, 420],
+      draw: p => kit.holdPhone(p, { size: 400, screen: (q, s) => {
+        parts.bubble(q, s.x + 58, s.y + 70, 96, 46, s.at, .25); parts.scribble(q, s.x + 26, s.y + 70, 62, 8, s.at + .2, .2, { sw: 1.4 });
+        parts.bubble(q, s.x + s.w - 52, s.y + 140, 80, 42, s.at + .3, .25, true);
+        kit.badge(q, { x: s.x + s.w - 14, y: s.y + 26, r: 16, n: 1, at: s.at + .5 });
+      } }) },
+    { kicker: '10:00', title: 'ลงมือทำ', caption: 'โฟกัสทีละงาน ปิดแจ้งเตือน', box: [520, 420],
+      draw: p => {
+        kit.table(p, { x: 120, y: 190, w: 260, h: 170, at: .1 });
+        parts.laptop(p, 110, 8, 140, .4, .45);
+        kit.person(p, { x: -110, y: 190, h: 460, pose: 'sit' });
+        parts.clock(p, 190, -140, 40, .7, .3, { h: 10, m: 0 });
+      } },
+    { kicker: '16:00', title: 'ส่งงาน', caption: 'ส่งก่อนเวลา ลูกค้าตรวจง่าย', box: [520, 360],
+      draw: p => {
+        parts.laptop(p, -150, 60, 170, 0, .45);
+        kit.connect(p, -40, -20, 110, -20, { style: 'swoosh', at: .5, d: .5 });
+        parts.envelope(p, -150, -40, 90, 60, 0, .3, .3);
+        kit.bust(p, { x: 190, y: 0, size: 190, at: .9 });
+        kit.sparkle(p, { x: 270, y: -110, r: 22, at: 1.3 });
+      } },
+    { kicker: '18:00', title: 'ปิดงาน', caption: 'ได้รีวิวดี แล้วก็ได้งานต่อ',
+      draw: p => {
+        kit.hand(p, { size: 330, pose: 'thumb' });
+        kit.sparkle(p, { x: -150, y: -110, r: 34, at: .7 }); kit.sparkle(p, { x: 140, y: -150, r: 22, at: .8 });
+        kit.burst(p, { x: -24, y: -100, r1: 72, r2: 102, n: 5, from: -90, spread: 130, at: .8 });
+      } },
+  ]);
+});
+</script></body></html>

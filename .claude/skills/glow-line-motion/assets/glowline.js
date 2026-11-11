@@ -9,7 +9,8 @@
      });
 
    Everything is driven by window.setT(seconds) so scripts/render.js can step frame by frame.
-   API reference: references/api.md  ·  drawing catalogue: references/pairs.md            */
+   API: references/api.md · style: references/style.md · kit (people, hands, arrows): references/kit.md
+   layouts beyond before→after: references/scenes.md · before→after pairs: references/pairs.md            */
 (function () {
   const NS = 'http://www.w3.org/2000/svg';
   const HERE = document.currentScript ? document.currentScript.src.replace(/[^/]*$/, '') : '';
@@ -97,6 +98,14 @@
     shape(p, o) { return this._d('polygon', { points: pts(p) }, o); }
     path(d, o) { return this._d('path', { d }, o); }
     dot(cx, cy, r, o = {}) { return this._d('circle', { cx, cy, r }, Object.assign({ fill: C.ink, sw: 1, dur: .15 }, o)); }
+    /* tube: a thick limb (arm, leg, finger, pipe) along points or a path — white outline, dark core, round ends.
+       Drawn as one stroke that grows from the first point; later tubes cover earlier ones where they overlap. */
+    tube(pts_, T, o = {}) {
+      const d = typeof pts_ === 'string' ? pts_ : 'M ' + pts_.map(q => q.join(' ')).join(' L ');
+      const sw = (o.sw ?? 3) * this.k;
+      this._d('path', { d, 'stroke-width': T + sw }, Object.assign({}, o, { fill: 'none' }));
+      return this._d('path', { d, 'stroke-width': Math.max(.1, T - sw) }, Object.assign({}, o, { fill: 'none', stroke: o.core || C.fill }));
+    }
     text(str, x, y, o = {}) {      // text inside a drawing (fades in)
       const start = this.t0 + (o.at || 0) * this.ts, dur = (o.dur ?? .3) * this.ts;
       const e = mk('text', { x, y, 'text-anchor': o.anchor || 'middle', 'font-size': o.size || 24, 'font-weight': o.weight || 700,
@@ -262,6 +271,186 @@
     if (!out) return end;
     tween(g, end + hold, .45, { o: 1 }, { o: 0 });
     return end + hold + .5;
+  }
+
+  /* =====================================================================================
+     FREE SCENES — layouts that are not before→after: flow, diagram, showcase, shots (+ place, connect, caption)
+     Guide: references/scenes.md
+     ===================================================================================== */
+  function measure(str, size, weight = 700) {
+    const t = mk('text', { 'font-size': size, 'font-weight': weight, 'font-family': FONT }, svg);
+    t.textContent = str; const w = t.getBBox().width; t.remove(); return w;
+  }
+  /* place: put a drawing so its box (default the ±200 × ±185 drawing box = [400, 370]) fits w × h px at (x, y) */
+  function place(fn, { x = W / 2, y = H / 2, w = W - 120, h, box = [400, 370], at = 0, ts = 1, filter = 'glow' } = {}) {
+    return art(fn, { x, y, s: Math.min(w / box[0], (h ?? w) / box[1]), at, ts, filter });
+  }
+  /* arrow on the stage (clip time). Returns { end, mid, ang } */
+  function arrowS(x1, y1, x2, y2, o = {}) {
+    const at = o.at || 0; let r;
+    art(p => { r = kit.connect(p, x1, y1, x2, y2, Object.assign({}, o, { at: 0 })); }, { x: 0, y: 0, s: 1, at, filter: o.filter === undefined ? 'glow' : o.filter });
+    return { end: at + r.end, mid: r.mid, ang: r.ang };
+  }
+  const connect = (x1, y1, x2, y2, o) => arrowS(x1, y1, x2, y2, o).end;
+  /* caption: grey Thai line under the picture, above TikTok's bottom bar */
+  function caption(str, { y = H - 300, at = 0, size = 46 } = {}) {
+    return text(str, { y, size, weight: 600, color: C.soft, glow: false, at, rise: 14, maxW: W - 120 });
+  }
+
+  /* flow: steps joined by arrows that draw themselves (how-to, process, recipe, funnel).
+     item = { icon, label, sub } (icon = icon name · pair name · kit icon · p => {…}).
+     dir: 'zigzag' (9:16 default) · 'down' (icons in a column) · 'right' (16:9 / 1:1 default). Returns end time. */
+  function flow(list, { top = 340, bottom = H, at = .9, dir, numbers = true, connector, bend, gap = .12, ts = 1, labelSize } = {}) {
+    const n = list.length, N = [];
+    dir = dir || (W > H ? 'right' : 'zigzag');
+    if (dir === 'right') {
+      const cw = W / n, area = bottom - top, s = Math.min((cw - 110) / 400, area * .42 / 370), ls = labelSize || clamp(cw * .1, 28, 56), cy = top + area * .42;
+      list.forEach((it, i) => N.push({ x: (i + .5) * cw, y: cy, s, ls, anchor: 'middle', tx: (i + .5) * cw, ty: cy + 185 * s + ls * 1.5, maxW: cw - 24 }));
+    } else if (dir === 'down') {
+      const rh = (bottom - top) / n, s = Math.min(rh * .56 / 370, 250 / 400), ix = 70 + 200 * s, tx = ix + 200 * s + 56, ls = labelSize || clamp(rh * .16, 34, 64);
+      list.forEach((it, i) => { const cy = top + (i + .5) * rh; N.push({ x: ix, y: cy, s, ls, anchor: 'start', tx, ty: cy, maxW: W - tx - 50 }); });
+    } else {
+      const rh = (bottom - top) / n, s = Math.min(rh * .6 / 370, W * .34 / 400), ls = labelSize || clamp(rh * .15, 34, 60);
+      list.forEach((it, i) => {
+        const L = i % 2 === 0, cy = top + (i + .5) * rh;
+        N.push({ x: L ? W * .28 : W * .72, y: cy, s, ls, anchor: L ? 'start' : 'end', tx: L ? W * .52 : W * .48, ty: cy, maxW: W * .48 - 50 });
+      });
+    }
+    const style = connector || (dir === 'zigzag' ? 'curve' : 'straight');
+    let t = at;
+    list.forEach((it, i) => {
+      const P = N[i];
+      if (i > 0) {
+        const Q = N[i - 1], box = g => (x, y) => Math.abs(x - g.x) < 185 * g.s + 4 && Math.abs(y - g.y) < 172 * g.s + 4;
+        t = arrowS(Q.x, Q.y, P.x, P.y, { style, bend: bend ?? (dir === 'zigzag' ? (i % 2 ? .1 : -.1) : undefined), clip1: box(Q), clip2: box(P), gap: 10, at: t - .1, d: .5, stroke: C.soft, hs: 18 }).end;
+      }
+      const a = art(single(it.icon || it.pair || it.draw), { x: P.x, y: P.y, s: P.s, at: t, ts });
+      if (numbers) art(p => kit.badge(p, { r: 28, n: i + 1 }), { x: P.x - 175 * P.s, y: P.y - 165 * P.s, s: Math.max(.8, Math.min(1.2, P.s * 2.2)), at: t + .05 });
+      const ls = P.ls, mid = P.anchor === 'middle';
+      if (it.label) text(it.label, { x: P.tx, y: mid ? P.ty : (it.sub ? P.ty - ls * .15 : P.ty + ls * .35), size: ls, anchor: P.anchor, maxW: P.maxW, at: t + .15, rise: 14 });
+      if (it.sub) text(it.sub, { x: P.tx, y: mid ? P.ty + ls * 1.15 : P.ty + ls * .95, size: ls * .62, weight: 500, color: C.sub, anchor: P.anchor, glow: false, maxW: P.maxW, at: t + .3, rise: 10 });
+      pulse(a.g, a.end + .05);
+      t = Math.max(a.end, t + .6) + gap;
+    });
+    return t;
+  }
+
+  /* diagram: nodes placed anywhere + arrows between them; the graph grows node by node (how it works, system, org chart, mind map).
+     nodes = { key: { x, y, icon | draw | box: 'text' | dot: true, label, scale, size } } — x, y ≤ 1 are fractions of the area, > 1 are px.
+     edges = [[from, to, { label, style, bend, dash, both, head, via }]]. Returns end time. */
+  function diagram({ nodes, edges = [] }, { top = 340, bottom = H, at = .9, size, gap = .05, ts = 1, boxSize = 40, labelSize = 36, edge: eo = {} } = {}) {
+    const keys = Object.keys(nodes), area = bottom - top, base = (size || Math.min(W, area) * .24) / 400, G = {};
+    keys.forEach(k => {
+      const N = nodes[k], x = N.x <= 1 ? N.x * W : N.x, y = N.y <= 1 ? top + N.y * area : N.y;
+      if (N.box != null) {
+        const fs = N.size || boxSize, lines = String(N.box).split('\n'), w = Math.max(...lines.map(l => measure(l, fs))) + fs * 1.5;
+        const hh = fs * (1.3 * lines.length + .9) / 2;
+        G[k] = { x, y, hw: w / 2, hh, l: -w / 2, r: w / 2, t: -hh, b: hh, fs, lines: lines.length };
+      } else if (N.dot) G[k] = { x, y, l: -12, r: 12, t: -12, b: 12 };
+      else { const s = base * (N.scale || 1); G[k] = { x, y, s, hw: 170 * s, hh: 176 * s, l: -170 * s, r: 170 * s, t: -176 * s, b: 176 * s + (N.label ? labelSize * 1.35 : 0) }; }
+    });
+    const inside = g => (x, y) => x > g.x + g.l - 4 && x < g.x + g.r + 4 && y > g.y + g.t - 4 && y < g.y + g.b + 4;
+    const drawEdge = ([a, b, o = {}], t0) => {
+      const A = G[a], B = G[b];
+      if (!A || !B) throw new Error(`GL: diagram edge "${a}" → "${b}" names an unknown node. Nodes: ${keys.join(', ')}`);
+      const r = arrowS(A.x, A.y, B.x, B.y, Object.assign({ stroke: C.soft, d: .45, hs: 16, gap: 12 }, eo, o, { at: t0, clip1: inside(A), clip2: inside(B) }));
+      if (o.label) {
+        let nx = -Math.sin(r.ang), ny = Math.cos(r.ang); if (ny > 0) { nx = -nx; ny = -ny; }
+        const side = Math.abs(ny) < .35, fs = labelSize * .8;
+        text(o.label, { x: r.mid[0] + (side ? 22 : nx * 26), y: r.mid[1] + (side ? fs * .35 : ny * 26), size: fs, weight: 600, color: C.sub, glow: false,
+          anchor: side ? 'start' : 'middle', at: r.end - .2, rise: 8, maxW: W * .4 });
+      }
+      return r.end;
+    };
+    const drawNode = (k, t0) => {
+      const N = nodes[k], g = G[k];
+      if (N.box != null) {
+        const a = art(p => p.box(0, 0, g.hw * 2, g.hh * 2, { rx: Math.min(24, g.hh * .45), fill: C.fill, sw: N.strong ? 3.6 : 2.6, dur: .4 }), { x: g.x, y: g.y, s: 1, at: t0 });
+        text(N.box, { x: g.x, y: g.y + g.fs * .36 - (g.lines - 1) * g.fs * .65, size: g.fs, lh: 1.3, at: t0 + .2, rise: 8, maxW: g.hw * 2 - 16 });
+        if (N.strong) pulse(a.g, a.end + .1, 'bloomS');
+        return a.end + .1;
+      }
+      if (N.dot) {
+        const a = art(p => p.dot(0, 0, 11, { dur: .2 }), { x: g.x, y: g.y, s: 1, at: t0 });
+        if (N.label) text(N.label, { x: g.x + 26, y: g.y + labelSize * .35, size: labelSize, anchor: 'start', at: t0 + .1, rise: 8, maxW: W - g.x - 60 });
+        return a.end;
+      }
+      const a = art(single(N.icon || N.pair || N.draw), { x: g.x, y: g.y, s: g.s, at: t0, ts });
+      if (N.label) text(N.label, { x: g.x, y: g.y + g.hh + labelSize * .95, size: labelSize, at: t0 + .25, rise: 10, maxW: Math.max(g.hw * 2.6, 200) });
+      pulse(a.g, a.end + .05, g.s < .5 ? 'bloomS' : 'bloom');
+      return a.end;
+    };
+    let t = at; const shown = {};
+    keys.forEach(k => {
+      const es = edges.filter(e => (e[0] === k && shown[e[1]]) || (e[1] === k && shown[e[0]]));
+      if (es.length) t = Math.max(...es.map((e, j) => drawEdge(e, t + j * .12))) - .1;
+      t = drawNode(k, t) + gap;
+      shown[k] = 1;
+    });
+    return t;
+  }
+
+  /* showcase: one product large in the middle, then callout lines point out its features one by one.
+     it = { draw | icon | pair, box: [w, h] of the drawing (default [400, 370]), callouts: [{ x, y, text, sub, side }], caption }
+     callout x, y are in the drawing's own coordinates (the same numbers you drew with). Returns end time. */
+  function showcase(it, { top = 340, bottom = H - 380, at = .6, scale, stagger = .55, labelSize = 42, ts = 1 } = {}) {
+    const bx = it.box || [400, 370], cy = (top + bottom) / 2, cx = W / 2;
+    const s = scale || Math.min(W * .44 / bx[0], (bottom - top) * .9 / bx[1]);
+    const fn = it.draw || single(it.icon || it.pair);
+    const a = art(fn, { x: cx, y: cy, s, at, ts });
+    let t = a.end + .2;
+    const half = bx[0] / 2 * s, cs = (it.callouts || []).map(c => Object.assign({ px: cx + c.x * s, py: cy + c.y * s }, c));
+    ['left', 'right'].forEach(side => {
+      const L = cs.filter(c => (c.side || (c.x < 0 ? 'left' : 'right')) === side).sort((p, q) => p.py - q.py), sp = labelSize * 2.8;
+      L.forEach((c, i) => { c.ly = clamp(c.py, top + labelSize, bottom); if (i && c.ly < L[i - 1].ly + sp) c.ly = L[i - 1].ly + sp; });
+      for (let i = L.length - 1; i >= 0; i--) { const lim = i === L.length - 1 ? bottom : L[i + 1].ly - sp; if (L[i].ly > lim) L[i].ly = lim; }
+      L.forEach(c => { c.left = side === 'left'; });
+    });
+    cs.forEach((c, i) => {
+      const t0 = t + i * stagger, ex = c.left ? cx - half - 24 : cx + half + 24, sx = c.left ? 48 : W - 48;
+      art(p => { kit.callout(p, { x: c.px, y: c.py, tx: ex, ty: c.ly, shelf: sx - ex }); }, { x: 0, y: 0, s: 1, at: t0 });
+      const maxW = Math.abs(ex - sx) + 10;
+      text(c.text, { x: sx, y: c.ly - 16, size: labelSize, anchor: c.left ? 'start' : 'end', maxW, at: t0 + .3, rise: 10 });
+      if (c.sub) text(c.sub, { x: sx, y: c.ly + labelSize * .95, size: labelSize * .68, weight: 500, color: C.sub, glow: false, anchor: c.left ? 'start' : 'end', maxW, at: t0 + .4, rise: 8 });
+    });
+    t += cs.length * stagger + .25;
+    if (it.caption) caption(it.caption, { y: bottom + 110, at: t - .2 });
+    pulse(a.g, t);
+    return t + .4;
+  }
+
+  /* shots: a story told frame by frame. Each shot draws, holds, then fades before the next one.
+     shot = { draw | icon | pair, box: [w, h] (default [400, 370]), kicker, title, caption, hold, more(at, {x, y, s}) → end }.
+     Progress dots at the bottom (dots: false to hide). Returns end time. */
+  function shots(list, { at = .4, hold = 1.3, top = 200, bottom = H - 330, dots = true, ts = 1, titleSize = 92 } = {}) {
+    const n = list.length;
+    let t = at, marks = [];
+    if (dots && n > 1) {
+      const dg = mk('g', { filter: 'url(#glowS)' }, cur), y = bottom + 120;
+      for (let i = 0; i < n; i++) {
+        const x = W / 2 + (i - (n - 1) / 2) * 34;
+        new Pen(dg, at).circle(x, y, 7, { sw: 2, stroke: C.mute, dur: .2 });
+        marks.push(mk('circle', { cx: x, cy: y, r: 7, fill: C.ink }, dg));
+      }
+    }
+    list.forEach((sh, i) => {
+      const last = i === n - 1, start = t;
+      t = page(t, t0 => {
+        let y = top, tt = t0;
+        if (sh.kicker) { y += 60; text(sh.kicker, { y, size: 40, ls: 8, color: C.kicker, at: tt, rise: 12 }); }
+        if (sh.title) { y += titleSize * 1.05; text(sh.title, { y, size: titleSize, at: tt + .1, rise: 24, maxW: W - 100 }); }
+        const y0 = (sh.kicker || sh.title) ? y + 70 : top, y1 = sh.caption ? bottom - 110 : bottom;
+        const bx = sh.box || [400, 370], s = sh.scale || Math.min((W - 110) / bx[0], (y1 - y0) / bx[1]), cy = sh.y ?? (y0 + y1) / 2;
+        const a = art(sh.draw || single(sh.icon || sh.pair), { x: W / 2, y: cy, s, at: tt + .2, ts });
+        if (sh.caption) caption(sh.caption, { y: bottom - 20, at: tt + .55 });
+        let end = a.end;
+        if (sh.more) end = Math.max(end, sh.more(a.end, { x: W / 2, y: cy, s }) || 0);
+        if (sh.glow !== false) pulse(a.g, a.end + .05);
+        return end;
+      }, { hold: sh.hold ?? hold, out: !last });
+      if (marks[i]) { tween(marks[i], start, .25, { o: 0 }, { o: 1 }); if (!last) tween(marks[i], t - .5, .3, { o: 1 }, { o: 0 }); }
+    });
+    return t;
   }
 
   function finish({ hold = 1.6 } = {}) {
@@ -475,7 +664,281 @@
     },
   };
 
-  /* simple single icons (for steps / custom scenes) */
+  /* =====================================================================================
+     KIT — the hard-to-draw pieces (people, hands, connecting arrows, accents), drawn once and
+     tuned by eye so they come out the same every time. Signature: GL.kit.name(p, { options }).
+     Catalogue: references/kit.md + kit.jpg
+     ===================================================================================== */
+  let probe;
+  function sample(d, step = 3) {                       // SVG path → dense point list
+    if (!probe) probe = mk('path', { fill: 'none', stroke: 'none' }, svg.querySelector('defs'));
+    probe.setAttribute('d', d);
+    const L = probe.getTotalLength(), n = Math.max(2, Math.ceil(L / step)), a = [];
+    for (let i = 0; i <= n; i++) { const q = probe.getPointAtLength(L * i / n); a.push([q.x, q.y]); }
+    return a;
+  }
+  const seglen = (a, i) => Math.hypot(a[i][0] - a[i - 1][0], a[i][1] - a[i - 1][1]);
+  const plen = a => { let L = 0; for (let i = 1; i < a.length; i++) L += seglen(a, i); return L; };
+  function cutStart(a, g) {
+    if (g <= 0) return a.slice();
+    let acc = 0;
+    for (let i = 1; i < a.length; i++) {
+      const sl = seglen(a, i);
+      if (acc + sl >= g) { const f = (g - acc) / sl; return [[a[i - 1][0] + (a[i][0] - a[i - 1][0]) * f, a[i - 1][1] + (a[i][1] - a[i - 1][1]) * f], ...a.slice(i)]; }
+      acc += sl;
+    }
+    return a.slice(-2);
+  }
+  const trim = (a, g1, g2) => cutStart(cutStart(a, g1).reverse(), g2).reverse();
+  function roundPath(P, r) {                           // polyline with rounded corners
+    let d = `M ${P[0][0]} ${P[0][1]}`;
+    for (let i = 1; i < P.length - 1; i++) {
+      const [ax, ay] = P[i - 1], [bx, by] = P[i], [cx, cy] = P[i + 1];
+      const l1 = Math.hypot(bx - ax, by - ay) || 1, l2 = Math.hypot(cx - bx, cy - by) || 1, q = Math.min(r, l1 / 2, l2 / 2);
+      d += ` L ${bx - (bx - ax) / l1 * q} ${by - (by - ay) / l1 * q} Q ${bx} ${by} ${bx + (cx - bx) / l2 * q} ${by + (cy - by) / l2 * q}`;
+    }
+    const z = P[P.length - 1];
+    return d + ` L ${z[0]} ${z[1]}`;
+  }
+  /* route: point list from (x1,y1) to (x2,y2). style straight | curve | swoosh | elbow | loop.
+     bend = how far it bows, as a fraction of its length: + bows to the left of travel (up on a → arrow), − to the right;
+     via = elbow route hv | vh | hvh | vhv */
+  function route(x1, y1, x2, y2, { style = 'straight', bend, via, r = 26 } = {}) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, ex = dx / L, ey = dy / L, nx = -ey, ny = ex;
+    if (style === 'curve') { const b = -(bend ?? .14) * L * 2; return sample(`M ${x1} ${y1} Q ${(x1 + x2) / 2 + nx * b} ${(y1 + y2) / 2 + ny * b} ${x2} ${y2}`); }
+    if (style === 'swoosh') { const b = -(bend ?? .16) * L; return sample(`M ${x1} ${y1} C ${x1 + dx * .35 + nx * b} ${y1 + dy * .35 + ny * b} ${x1 + dx * .65 - nx * b} ${y1 + dy * .65 - ny * b} ${x2} ${y2}`); }
+    if (style === 'elbow') {
+      const rt = via || (Math.abs(dx) >= Math.abs(dy) ? 'hvh' : 'vhv');
+      let P;
+      if (rt === 'hv') P = [[x1, y1], [x2, y1], [x2, y2]];
+      else if (rt === 'vh') P = [[x1, y1], [x1, y2], [x2, y2]];
+      else if (rt === 'hvh') { const m = (x1 + x2) / 2; P = [[x1, y1], [m, y1], [m, y2], [x2, y2]]; }
+      else { const m = (y1 + y2) / 2; P = [[x1, y1], [x1, m], [x2, m], [x2, y2]]; }
+      return sample(roundPath(P, r));
+    }
+    if (style === 'loop') {                            // a single loop-de-loop in the middle
+      const s0 = .36, D = .28, lr = Math.max(L * D / (2 * Math.PI) * 1.75, 12), side = (bend ?? 1) >= 0 ? 1 : -1, a = [];
+      for (let i = 0; i <= 260; i++) {
+        const s = i / 260; let u = s * L, v = 0;
+        if (s > s0 && s < s0 + D) { const th = 2 * Math.PI * (s - s0) / D; u += lr * Math.sin(th); v = -side * lr * (1 - Math.cos(th)); }
+        a.push([x1 + ex * u + nx * v, y1 + ey * u + ny * v]);
+      }
+      return a;
+    }
+    return sample(`M ${x1} ${y1} L ${x2} ${y2}`, 6);
+  }
+  function dashes(a, on, off) {
+    const out = []; let cur = [a[0]], acc = 0, isOn = true, lim = on;
+    for (let i = 1; i < a.length; i++) {
+      let [px, py] = a[i - 1]; const [qx, qy] = a[i]; let sl = Math.hypot(qx - px, qy - py);
+      while (acc + sl >= lim) {
+        const f = (lim - acc) / sl, mx = px + (qx - px) * f, my = py + (qy - py) * f;
+        if (isOn) { cur.push([mx, my]); out.push(cur); }
+        cur = [[mx, my]]; sl -= lim - acc; px = mx; py = my; acc = 0; isOn = !isOn; lim = isOn ? on : off;
+      }
+      acc += sl; if (isOn) cur.push([qx, qy]);
+    }
+    if (isOn && cur.length > 1) out.push(cur);
+    return out;
+  }
+  function arrowHead(p, a, h, kind, o) {               // head on the last point of a
+    const tip = a[a.length - 1], bk = cutStart([...a].reverse(), h * .9)[0];
+    const ang = Math.atan2(tip[1] - bk[1], tip[0] - bk[0]), w = kind === 'solid' ? .45 : .52;
+    const l = [tip[0] - Math.cos(ang - w) * h, tip[1] - Math.sin(ang - w) * h], r = [tip[0] - Math.cos(ang + w) * h, tip[1] - Math.sin(ang + w) * h];
+    if (kind === 'solid') p.shape([l, tip, r], Object.assign({}, o, { fill: o.stroke || C.ink }));
+    else p.poly([l, tip, r], o);
+  }
+  const iso = (X, Y, Z) => [(X - Z) * .866, (X + Z) * .5 - Y];   // isometric: X → right-down, Z → left-down, Y → up
+
+  const kit = {
+    /* arrow from (x1,y1) to (x2,y2) that draws itself. Returns { end, mid, ang, pts } (end = local seconds).
+       gap / gap1 / gap2 = px cut off the ends; clip1 / clip2 = (x, y) => true while inside a shape (the arrow starts/stops at its edge) */
+    connect(p, x1, y1, x2, y2, o = {}) {
+      const { head = 'open', both = false, gap = 0, dash = false, at = 0, d = .45, sw = 2.6, stroke = C.ink, hs = 16 } = o;
+      let a = route(x1, y1, x2, y2, o);
+      if (o.clip1) { let i = 0; while (i < a.length - 2 && o.clip1(a[i][0], a[i][1])) i++; a = a.slice(i); }     // start outside shape 1
+      if (o.clip2) { let j = a.length - 1; while (j > 1 && o.clip2(a[j][0], a[j][1])) j--; a = a.slice(0, j + 1); } // stop at shape 2
+      a = trim(a, o.gap1 ?? gap, o.gap2 ?? gap);
+      const so = { sw, stroke };
+      if (dash) {
+        const on = dash === true ? 14 : dash, ds = dashes(a, on, on * .75);
+        ds.forEach((seg, i) => p.poly(seg, Object.assign({ at: at + d * i / ds.length, dur: Math.max(.04, d / ds.length) }, so)));
+      } else p.poly(a, Object.assign({ at, dur: d }, so));
+      if (head !== 'none') {
+        arrowHead(p, a, hs, head, Object.assign({ at: at + d * .88, dur: .16 }, so));
+        if (both) arrowHead(p, [...a].reverse(), hs, head, Object.assign({ at, dur: .16 }, so));
+      }
+      const i = Math.floor(a.length / 2), m = a[i], m2 = a[Math.min(a.length - 1, i + 1)];
+      return { end: at + d + .1, mid: m, ang: Math.atan2(m2[1] - m[1], m2[0] - m[0]), pts: a };
+    },
+    /* ring of n arrows chasing each other (repeat / cycle / loop process) */
+    cycle(p, { x = 0, y = 0, r = 110, n = 3, at = 0, d = .9, sw = 3, hs = 18 } = {}) {
+      const g = Math.min(.5, 1.6 / n);                 // gap between arrows (radians)
+      for (let i = 0; i < n; i++) {
+        const a0 = -Math.PI / 2 + i * 2 * Math.PI / n + g / 2, a1 = a0 + 2 * Math.PI / n - g, a = [];
+        for (let k = 0; k <= 60; k++) { const t = a0 + (a1 - a0) * k / 60; a.push([x + Math.cos(t) * r, y + Math.sin(t) * r]); }
+        const t0 = at + i * d / n * .7;
+        p.poly(a, { sw, at: t0, dur: d / n });
+        arrowHead(p, a, hs, 'open', { sw, at: t0 + d / n * .85, dur: .15 });
+      }
+    },
+    /* numbered circle for steps (n can be a number or a short string) */
+    badge(p, { x = 0, y = 0, r = 30, n = 1, at = 0, d = .3, fill = C.fill } = {}) {
+      p.circle(x, y, r, { fill, sw: 2.6, at, dur: d });
+      p.text(String(n), x, y + r * .4, { size: r * 1.12, at: at + d * .6, dur: .2 });
+    },
+    /* mouse pointer, tip at (x, y). click: true adds three tap lines */
+    cursor(p, { x = 0, y = 0, size = 64, at = 0, d = .35, click = false } = {}) {
+      const s = size / 40, q = p.child({ transform: `translate(${x} ${y}) scale(${s})` }, s);
+      q.path('M 0 0 L 0 34 L 8.5 26.5 L 14 39 L 20.5 36 L 15 23.5 L 26 23.5 Z', { fill: C.fill, sw: 2.4, at, dur: d });
+      if (click) [[-14, -2, -24, -6], [-4, -12, -8, -23], [6, -10, 12, -20]].forEach(([a, b, c, e], i) => q.line(a, b, c, e, { sw: 2.4, at: at + d + i * .04, dur: .12 }));
+    },
+    /* four-point sparkle (new / shiny / highlight) */
+    sparkle(p, { x = 0, y = 0, r = 30, at = 0, d = .3, fill = C.fill } = {}) {
+      const c = r * .16;
+      p.path(`M ${x} ${y - r} Q ${x + c} ${y - c} ${x + r} ${y} Q ${x + c} ${y + c} ${x} ${y + r} Q ${x - c} ${y + c} ${x - r} ${y} Q ${x - c} ${y - c} ${x} ${y - r} Z`, { fill, sw: 2.4, at, dur: d });
+    },
+    /* emphasis rays around a point. from / spread in degrees (0 = right, -90 = up) */
+    burst(p, { x = 0, y = 0, r1 = 46, r2 = 74, n = 8, from = -90, spread = 360, at = 0, d = .3, sw = 3 } = {}) {
+      const full = spread >= 360;
+      for (let i = 0; i < n; i++) {
+        const a = (from + (full ? i * 360 / n : (n === 1 ? 0 : -spread / 2 + i * spread / (n - 1)))) * Math.PI / 180;
+        p.line(x + Math.cos(a) * r1, y + Math.sin(a) * r1, x + Math.cos(a) * r2, y + Math.sin(a) * r2, { sw, at: at + i * d / n * .6, dur: d * .5 });
+      }
+    },
+    /* rings spreading from a point (tap, signal, sound) */
+    ripple(p, { x = 0, y = 0, r = 30, n = 2, at = 0, d = .4, stroke = C.soft } = {}) {
+      for (let i = 0; i < n; i++) p.circle(x, y, r * (1 + i * .75), { sw: 2, stroke, at: at + i * d * .35, dur: d * .6 });
+    },
+    /* callout leader: dot at the feature (x, y) → line out to (tx, ty) → short shelf. Returns where the label goes. */
+    callout(p, { x, y, tx, ty, shelf = 0, at = 0, d = .4, stroke = C.soft } = {}) {
+      p.dot(x, y, 6, { at });
+      const end = [tx + shelf, ty];
+      p.poly([[x, y], [tx, ty], end], { sw: 2.2, stroke, at: at + .08, dur: d });
+      return { x: end[0], y: ty };
+    },
+    /* isometric box. (x, y) = centre of its base on the floor. w along X (right-down), dp along Z (left-down), h up */
+    isoBox(p, { x = 0, y = 0, w = 160, dp = 160, h = 110, at = 0, d = .5, tape = false } = {}) {
+      const P = (X, Y, Z) => { const [a, b] = iso(X, Y, Z); return [x + a, y + b]; }, hw = w / 2, hd = dp / 2;
+      p.shape([P(-hw, 0, hd), P(hw, 0, hd), P(hw, h, hd), P(-hw, h, hd)], { fill: C.fill, at, dur: d * .5 });
+      p.shape([P(hw, 0, hd), P(hw, 0, -hd), P(hw, h, -hd), P(hw, h, hd)], { fill: C.fill, at: at + d * .2, dur: d * .5 });
+      p.shape([P(-hw, h, -hd), P(hw, h, -hd), P(hw, h, hd), P(-hw, h, hd)], { fill: C.fill, at: at + d * .45, dur: d * .5 });
+      if (tape) { p.poly([P(0, h, -hd), P(0, h, hd), P(0, h * .55, hd)], { sw: 2, stroke: C.soft, at: at + d * .85, dur: d * .3 }); }
+    },
+    /* table seen flat from the front. (x, y) = floor point under its centre */
+    table(p, { x = 0, y = 0, w = 300, h = 150, at = 0, d = .45 } = {}) {
+      p.rect(x - w / 2, y - h - 12, w, 12, { rx: 3, fill: C.fill, at, dur: d });
+      p.line(x - w / 2 + 14, y - h, x - w / 2 + 14, y, { at: at + d * .5, dur: d * .5 });
+      p.line(x + w / 2 - 14, y - h, x + w / 2 - 14, y, { at: at + d * .6, dur: d * .5 });
+    },
+  };
+
+  /* ---- people: plain pictogram figures (no face, no clothes) built from tubes ---- */
+  const ARM_DOWN = s => [[s * 31, -90], [s * 47, -38], [s * 53, 14]];
+  const LEGS = [[[-15, 10], [-17, 90], [-18, 165]], [[15, 10], [17, 90], [18, 165]]];
+  const POSES = {
+    stand: { legs: LEGS, back: [ARM_DOWN(-1), ARM_DOWN(1)] },
+    wave:  { legs: LEGS, back: [ARM_DOWN(-1)], front: [[[31, -90], [78, -98], [92, -154]]] },
+    cheer: { legs: LEGS, back: [[[-31, -90], [-64, -128], [-80, -172]], [[31, -90], [64, -128], [80, -172]]] },
+    think: { legs: LEGS, back: [ARM_DOWN(-1)], front: [[[31, -90], [58, -40], [14, -106]]] },
+    shrug: { legs: LEGS, back: [[[-31, -90], [-52, -44], [-96, -66]], [[31, -90], [52, -44], [96, -66]]] },
+    walk:  { side: 1, legs: [[[0, 10], [-20, 88], [-46, 160]], [[0, 10], [22, 86], [30, 165]]], back: [[[0, -90], [-20, -44], [-32, 0]]], front: [[[0, -90], [20, -44], [40, -6]]] },
+    run:   { side: 1, lean: 12, legs: [[[0, 10], [-30, 86], [-74, 130]], [[0, 10], [50, 50], [40, 124]]], back: [[[0, -90], [-32, -58], [-58, -82]]], front: [[[0, -90], [28, -50], [58, -72]]] },
+    sit:   { side: 1, ground: 113, chair: 1, legs: [[[0, 10], [72, 12], [76, 100]]], back: [], front: [[[0, -90], [16, -36], [66, -42]]] },
+  };
+  function pointPose(deg) {
+    const a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a), e = [31 + c * 48, -90 + s * 48];
+    return { legs: LEGS, back: [ARM_DOWN(-1)], front: [[[31, -90], e, [e[0] + c * 50, e[1] + s * 50]]] };
+  }
+  const TORSO_F = 'M -20 -106 L 20 -106 Q 42 -106 42 -84 L 33 12 Q 32 22 23 22 L -23 22 Q -32 22 -33 12 L -42 -84 Q -42 -106 -20 -106 Z';
+  const TORSO_S = 'M -10 -106 L 10 -106 Q 27 -106 27 -88 L 21 12 Q 20 22 11 22 L -11 22 Q -20 22 -21 12 L -27 -88 Q -27 -106 -10 -106 Z';
+  /* person: (x, y) = the floor point under the feet; h = height in px; face: 1 right / -1 left (side poses);
+     pose: stand wave cheer think shrug point present walk run sit · point/present take dir (degrees, 0 = right, -90 = up) */
+  kit.person = function (p, { x = 0, y = 0, h = 300, pose = 'stand', face = 1, at = 0, d = .9, dir } = {}) {
+    let P = typeof pose === 'object' ? pose : POSES[pose];
+    if (pose === 'point' || pose === 'present') P = pointPose(dir ?? (pose === 'present' ? -38 : -6));
+    if (!P) throw new Error(`GL: unknown person pose "${pose}". Use ${Object.keys(POSES).concat('point', 'present').join(', ')}.`);
+    const s = h / 350, k = d / .9, gy = P.ground || 178;
+    const q = p.child({ transform: `translate(${x} ${y}) scale(${s * face} ${s}) translate(0 ${-gy})` }, s);
+    const T = (pen, pts_, w, t, du, o = {}) => pen.tube(pts_, w, Object.assign({ at: at + t * k, dur: du * k }, o));
+    if (P.chair) {
+      q.rect(-46, -70, 11, 106, { rx: 5, fill: C.fill, at, dur: .3 * k });
+      q.line(-38, 36, -38, gy, { at: at + .1 * k, dur: .2 * k }); q.line(62, 36, 62, gy, { at: at + .12 * k, dur: .2 * k });
+      q.rect(-40, 26, 110, 11, { rx: 4, fill: C.fill, at: at + .05 * k, dur: .25 * k });
+    }
+    const dim = P.side ? { stroke: C.soft } : {};
+    P.legs.forEach((l, i) => T(q, l, 26, .04 + i * .07, .32, i === 0 && P.legs.length > 1 ? dim : {}));
+    const up = P.lean ? q.child({ transform: `rotate(${P.lean} 0 10)` }) : q;
+    (P.back || []).forEach((l, i) => T(up, l, 21, .14 + i * .05, .3, dim));
+    up.path(P.side ? TORSO_S : TORSO_F, { fill: C.fill, at: at + .22 * k, dur: .36 * k });
+    up.circle(P.side ? 5 : 0, -142, 28, { fill: C.fill, at: at + .38 * k, dur: .3 * k });
+    (P.front || []).forEach((l, i) => T(up, l, 21, .5 + i * .05, .3));
+  };
+  /* bust: head + shoulders (avatar, customer, user). (x, y) = centre; size = height */
+  kit.bust = function (p, { x = 0, y = 0, size = 200, at = 0, d = .6 } = {}) {
+    const s = size / 330, q = p.child({ transform: `translate(${x} ${y}) scale(${s})` }, s);
+    q.path('M -142 165 L -142 112 Q -142 22 -46 22 L 46 22 Q 142 22 142 112 L 142 165 Z', { fill: C.fill, at, dur: d * .6 });
+    q.circle(0, -88, 74, { fill: C.fill, at: at + d * .35, dur: d * .6 });
+  };
+  /* team: three busts, two behind (group, customers, community). (x, y) = centre; size = width */
+  kit.team = function (p, { x = 0, y = 0, size = 360, at = 0, d = .8 } = {}) {
+    const s = size / 420, q = p.child({ transform: `translate(${x} ${y}) scale(${s})` }, s);
+    kit.bust(q, { x: -125, y: -26, size: 230, at, d: d * .6 });
+    kit.bust(q, { x: 125, y: -26, size: 230, at: at + d * .12, d: d * .6 });
+    kit.bust(q, { x: 0, y: 26, size: 300, at: at + d * .3, d: d * .7 });
+  };
+
+  /* ---- hands: flat icon hands with a shirt cuff. (x, y) = centre, size = height ---- */
+  const HANDS = {
+    point(T, q, t) {                                   // index finger up (back of the hand)
+      T([[-26, 40], [-26, -122]], 36, 0, .35);
+      T([[6, 52], [6, -12]], 32, .12, .2); T([[36, 56], [36, -4]], 30, .16, .2); T([[62, 62], [62, 10]], 26, .2, .2);
+      q.rect(-46, 14, 124, 128, { rx: 38, fill: C.fill, at: t(.26), dur: t(.35, 1) });
+      T([[-28, 112], [-60, 56]], 30, .48, .22);
+      q.rect(-40, 128, 104, 52, { rx: 10, fill: C.fill, at: t(.58), dur: t(.25, 1) });
+    },
+    thumb(T, q, t) {                                   // thumbs up
+      T([[-20, 30], [-26, -108]], 44, 0, .3);
+      q.rect(-60, -26, 104, 150, { rx: 32, fill: C.fill, at: t(.2), dur: t(.35, 1) });
+      [-8, 26, 60, 94].forEach((yy, i) => T([[-6, yy], [62 - i * 4, yy]], 32, .36 + i * .06, .2));
+      q.rect(-62, 116, 92, 64, { rx: 10, fill: C.fill, at: t(.66), dur: t(.25, 1) });
+    },
+    open(T, q, t) {                                    // open palm: hi / stop / five
+      T([[-62, 96], [-94, 42], [-106, -12]], 32, 0, .3);
+      T([[-34, 30], [-46, -128]], 30, .06, .3); T([[-8, 20], [-8, -158]], 31, .1, .3);
+      T([[18, 22], [24, -142]], 30, .14, .3); T([[42, 36], [58, -98]], 26, .18, .3);
+      q.rect(-58, -24, 120, 154, { rx: 42, fill: C.fill, at: t(.36), dur: t(.35, 1) });
+      q.path('M -28 76 Q 2 92 32 70', { sw: 1.6, stroke: C.soft, at: t(.6), dur: t(.2, 1) });
+      q.rect(-48, 122, 100, 58, { rx: 10, fill: C.fill, at: t(.62), dur: t(.25, 1) });
+    },
+  };
+  kit.hand = function (p, { x = 0, y = 0, size = 240, pose = 'point', rot = 0, flip = false, at = 0, d = .8 } = {}) {
+    if (!HANDS[pose]) throw new Error(`GL: unknown hand pose "${pose}". Use ${Object.keys(HANDS).join(', ')} (or kit.tap / kit.holdPhone).`);
+    const s = size / 360, k = d / .8, q = p.child({ transform: `translate(${x} ${y}) rotate(${rot}) scale(${flip ? -s : s} ${s})` }, s);
+    const t = (v, isDur) => isDur ? v * k : at + v * k;
+    HANDS[pose]((pts_, w, a, du) => q.tube(pts_, w, { at: t(a), dur: t(du, 1), sw: 2.6 }), q, t);
+  };
+  /* tap: pointing hand whose fingertip touches (x, y), with rings */
+  kit.tap = function (p, { x = 0, y = 0, size = 240, at = 0, d = .8, rings = true } = {}) {
+    const s = size / 360;
+    if (rings) kit.ripple(p, { x, y, r: 30 * s / .67, n: 2, at: at + d * .7, d: .4 });
+    kit.hand(p, { x: x + 26 * s, y: y + 140 * s, size, pose: 'point', at, d });
+  };
+  /* phone held in a hand (thumb over the screen, fingertips round the right edge). (x, y) = centre, size = height.
+     screen(p, { x, y, w, h, at }) draws the screen content (in the same pen space), under the thumb. */
+  kit.holdPhone = function (p, { x = 0, y = 0, size = 360, at = 0, d = 1, screen } = {}) {
+    const s = size / 400, k = d, q = p.child({ transform: `translate(${x} ${y}) scale(${s})` }, s), t = v => at + v * k;
+    q.rect(-94, 34, 188, 140, { rx: 48, fill: C.fill, at: t(0), dur: .35 * k });
+    q.rect(-82, -198, 164, 300, { rx: 26, fill: C.fill, at: t(.12), dur: .45 * k });
+    q.rect(-71, -186, 142, 276, { rx: 17, sw: 1.6, stroke: C.soft, at: t(.3), dur: .35 * k });
+    q.line(-14, -175, 14, -175, { sw: 4, at: t(.4), dur: .15 * k });
+    if (screen) screen(q, { x: -71, y: -186, w: 142, h: 276, at: t(.45) });
+    [-34, 2, 38].forEach((yy, i) => q.tube([[122, yy + 6], [70, yy]], 30, { at: t(.55 + i * .06), dur: .2 * k, sw: 2.6 }));
+    q.tube('M -66 152 Q -100 92 -60 34', 34, { at: t(.68), dur: .3 * k, sw: 2.6 });
+    q.rect(-58, 160, 116, 40, { rx: 8, fill: C.fill, at: t(.8), dur: .2 * k });
+  };
+
+  /* simple single icons (for steps / flow / diagram / custom scenes) */
   const icons = {
     check: p => parts.check(p, 0, 0, 1.7, 0, .4, 7),
     star: p => parts.star(p, 0, 0, 120, 0, .5, { fill: C.fill }),
@@ -497,6 +960,21 @@
     wifi: p => parts.wifi(p, 0, -20, 4, 0, .5),
     bubble: p => { parts.bubble(p, 0, -10, 320, 200, 0, .5); [-50, 0, 50].forEach((yy, i) => p.line(-110, yy - 10, 110 - i * 50, yy - 10, { sw: 3, at: .45 + i * .06, dur: .2 })); },
     wallet: p => parts.wallet(p, 0, 0, 300, 190, 0, .5),
+    // kit (people, hands, accents) — sized for the ±200 × ±185 icon box
+    person: p => kit.person(p, { y: 175, h: 350 }),
+    ...Object.fromEntries(['wave', 'cheer', 'think', 'shrug', 'point', 'present', 'walk', 'run'].map(k => ['person-' + k, p => kit.person(p, { y: 175, h: 350, pose: k })])),
+    'person-sit': p => { kit.table(p, { x: 120, y: 170, w: 170, h: 150, at: .1 }); parts.laptop(p, 110, 8, 110, .5, .4); kit.person(p, { x: -60, y: 170, h: 400, pose: 'sit' }); },
+    bust: p => kit.bust(p, { size: 340 }),
+    team: p => kit.team(p, { size: 400 }),
+    'hand-point': p => kit.hand(p, { size: 360 }),
+    'hand-thumb': p => kit.hand(p, { size: 360, pose: 'thumb' }),
+    'hand-open': p => kit.hand(p, { size: 360, pose: 'open' }),
+    'hand-tap': p => { p.rect(-170, -150, 340, 190, { rx: 22, fill: C.fill, dur: .45 }); kit.tap(p, { x: 10, y: -40, size: 260, at: .3 }); },
+    'hand-phone': p => kit.holdPhone(p, { size: 370 }),
+    package: p => kit.isoBox(p, { y: 78, w: 210, dp: 170, h: 150, tape: true }),
+    cursor: p => kit.cursor(p, { x: -50, y: -90, size: 170, click: true }),
+    sparkle: p => { kit.sparkle(p, { x: -20, y: 20, r: 120 }); kit.sparkle(p, { x: 110, y: -110, r: 50, at: .3 }); kit.sparkle(p, { x: 120, y: 110, r: 30, at: .4 }); },
+    cycle: p => kit.cycle(p, { r: 150, sw: 4, hs: 24 }),
   };
 
   /* =====================================================================================
@@ -709,8 +1187,9 @@
     },
   });
 
-  window.GL = { C, stage, run, Pen, art, text, title, rows, grid, hero, steps, page, finish, tween, fade, pulse, hline, vline, midArrow,
-    parts, icons, pairs, pair, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
+  window.GL = { C, stage, run, Pen, art, place, text, caption, title, rows, grid, hero, steps, page, flow, diagram, showcase, shots, connect,
+    finish, tween, fade, pulse, hline, vline, midArrow,
+    parts, kit, icons, pairs, pair, iso, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
 
   async function run(build) {
     try {

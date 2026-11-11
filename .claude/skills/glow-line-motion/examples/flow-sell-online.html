@@ -1,0 +1,16 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* flow — how-to steps joined by arrows (zigzag on 9:16). Icons come from the kit: hand-phone, package, hand-thumb. */
+GL.run(() => {
+  GL.stage();
+  const top = GL.title({ kicker: 'HOW TO', main: 'SELL ONLINE', sub: 'เริ่มขายของออนไลน์ใน 4 ขั้น' });
+  GL.flow([
+    { icon: 'hand-phone', label: 'ถ่ายรูปสินค้า', sub: 'แสงธรรมชาติ พื้นเรียบ' },
+    { icon: 'bubble', label: 'โพสต์ + ตอบแชต', sub: 'ตอบไวได้เปรียบ' },
+    { icon: 'package', label: 'แพ็กของ', sub: 'กันกระแทกให้ดี' },
+    { icon: 'hand-thumb', label: 'ส่งถึงมือลูกค้า', sub: 'แล้วขอรีวิว' },
+  ], { top, bottom: GL.H - 200 });
+});
+</script></body></html>

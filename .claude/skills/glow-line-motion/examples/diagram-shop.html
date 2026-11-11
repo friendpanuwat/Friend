@@ -1,0 +1,27 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>glow-line scene</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* diagram — nodes anywhere + arrows; the graph grows node by node in the order the nodes are listed.
+   Node kinds: icon (with label under it), box (text in a rounded box), dot. */
+GL.run(() => {
+  GL.stage();
+  const top = GL.title({ kicker: 'HOW IT', main: 'WORKS', sub: 'ร้านออนไลน์หนึ่งออเดอร์ เดินทางยังไง' });
+  GL.diagram({
+    nodes: {
+      buyer: { x: .5, y: .1, icon: 'bust', label: 'ลูกค้า', scale: .8 },
+      order: { x: .5, y: .37, box: 'สั่งซื้อ + โอนเงิน' },
+      pack:  { x: .24, y: .64, icon: 'package', label: 'แพ็กของ', scale: .85 },
+      bill:  { x: .76, y: .64, box: 'ออกใบเสร็จ' },
+      ship:  { x: .5, y: .92, box: 'ส่งของ', strong: true },
+    },
+    edges: [
+      ['buyer', 'order', { label: 'ทักแชต' }],
+      ['order', 'pack', { style: 'curve', bend: .12 }],
+      ['order', 'bill', { style: 'curve', bend: -.12 }],
+      ['pack', 'ship', { style: 'curve', bend: .12 }],
+      ['bill', 'ship', { style: 'curve', bend: -.12, dash: true }],
+    ],
+  }, { top: top + 40, bottom: GL.H - 220 });
+});
+</script></body></html>
