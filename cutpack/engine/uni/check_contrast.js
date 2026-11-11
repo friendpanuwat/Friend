@@ -28,7 +28,9 @@ const build = (id, i, dir) => execFileSync('python3', [path.join(__dirname, 'bui
     const [id, i] = sid.split('@'), dir = path.join(work, id.replace(/[^\w.-]/g, '_') + '_' + (i ?? 0)); build(id, i ?? 0, dir); await open(dir);
     await page.evaluate(t => window.seek(t), AT);
     const hits = await page.evaluate(glass => {
-      const rgba = s => { const m = String(s).match(/rgba?\(([^)]+)\)/); if (!m) return null; const v = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return {r: v[0], g: v[1], b: v[2], a: v[3] ?? 1}; };
+      const rgba = s => { const c = String(s).match(/color\(srgb ([\d.e-]+) ([\d.e-]+) ([\d.e-]+)(?: \/ ([\d.e-]+))?\)/);   // a mixed colour (color-mix) is reported this way
+        if (c) return {r: c[1] * 255, g: c[2] * 255, b: c[3] * 255, a: c[4] != null ? +c[4] : 1};
+        const m = String(s).match(/rgba?\(([^)]+)\)/); if (!m) return null; const v = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return {r: v[0], g: v[1], b: v[2], a: v[3] ?? 1}; };
       const hex = s => { const m = String(s).match(/#([0-9a-f]{6})\b/i); return m ? {r: parseInt(m[1].slice(0, 2), 16), g: parseInt(m[1].slice(2, 4), 16), b: parseInt(m[1].slice(4), 16), a: 1} : null; };
       const over = (c, d) => ({r: c.r * c.a + d.r * (1 - c.a), g: c.g * c.a + d.g * (1 - c.a), b: c.b * c.a + d.b * (1 - c.a), a: 1});
       const lum = c => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }; return .2126 * f(c.r) + .7152 * f(c.g) + .0722 * f(c.b); };
