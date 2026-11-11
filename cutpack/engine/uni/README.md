@@ -105,4 +105,4 @@
 - ลบแล้วตามที่ Friend สั่ง: B16 `letters` · B13 `pearl` · B01 `drop`
 - ของใหม่ใน `R9`: `clip` (หน้าต่างขนาดผืน) · `card` · `acc` (พื้นสีเน้น คำบนนั้นใช้ `accWord`/`u-bubble-text`) · `ico` (ไอคอนเปล่าไม่มีกรอบ) · `track` (ค่าที่ขยับเป็นขั้นตามเวลา)
 - ข้อควรรู้: ของที่ซ่อนอยู่นอกหน้าต่าง (แผนที่ลูกโลก) ต้องติด `u-decor` ไม่งั้นสไตล์ gold นับมันตอนจัดกรอบแล้วภาพหดเล็ก · ประตูลิฟต์อยู่ในห้องลิฟต์ที่ `overflow:hidden` · คำบนของที่วาดด้วย `fl`/`sd` มองไม่เห็นในพื้นมืด (ทั้งสองเป็นสีขาว) จึงวางคำบนการ์ดหรือพื้นสีเน้นเท่านั้น
-- **ตอนนี้ 21 หมวด 131 ร่าง** ฉากที่ใช้ทำคลิป: `r9.diet.candle@0 r9.wait.train@1 r9.price.safe@2 r9.cash.vending@2 r9.friend.bridge@0 r9.friend.cans@1 r9.japan.globe@2 r9.cafe.shop@0 r9.temp.thermo@2 r9.fans.cup@0 r9.fans.lift@1 r9.slow.plane@2 r9.learn.chalk@0 r9.million.hoop@1 r9.dream.rocket@2 r9.bell.bell@0 r9.save.ticket@1`
+- **Friend เก็บแค่ 6 ร่าง (candle safe vending cans shop rocket) ร่างอื่นของรอบนี้ลบแล้ว ตอนนี้ 21 หมวด 120 ร่าง** ฉากที่ใช้ทำคลิป: `r9.diet.candle@0 r9.price.safe@2 r9.cash.vending@2 r9.friend.cans@1 r9.cafe.shop@0 r9.dream.rocket@2`
