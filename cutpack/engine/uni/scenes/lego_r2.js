@@ -79,7 +79,8 @@ VARIANT('B07', 'beacon', {name: 'ไฟเตือนหมุนกะพร�
   const hero = K.badge(P.p, it.icon, 210, 130, 160, T.b[0] + .15, {tone: it.tone ?? 'main'});
   if (it.label) K.chipC(P.p, it.label, 210, 262, T.b[0] + .3, {size: 42}); else K.skel(P.p, 110, 252, [200], T.b[0] + .3);
   const base = node(K.stage, lx - 95, ly + 12, 190, 52, 'u-badge u-main'); base.p.style.borderRadius = '16px'; K.enter(base.o, T.b[0] + .2, 'pop');
-  const lamp = node(K.stage, lx - 80, ly - 80, 160, 100, '', '<svg width="160" height="100"><path class="u-lamp" d="M8 96A72 72 0 0 1 152 96Z"/><path class="ln u-thin" d="M58 44A30 30 0 0 1 86 26"/></svg>');
+  /* the shine follows the dome's curve 20 px inside its edge (Friend 2026-11-11 "เส้นที่มันเลยออกมานิดนึงอะ": the old one poked out over the top) */
+  const lamp = node(K.stage, lx - 80, ly - 80, 160, 100, '', '<svg width="160" height="100"><path class="u-lamp" d="M8 96A72 72 0 0 1 152 96Z"/><path class="ln u-thin" d="M46.6 56.2A52 52 0 0 1 75.5 44.2"/></svg>');
   K.enter(lamp.o, T.b[0] + .25, 'drop');
   const flash = div(`left:${lx - 150}px;top:${ly - 160}px;width:300px;height:300px;border-radius:50%;opacity:0`, K.stage); flash.className = 'u-flash';
   A(flash, [{opacity: 0}, {opacity: 1, offset: .3}, {opacity: 0}], T.b[1], .55, {e: 'ease-out', f: 'none', it: Math.ceil((T.t1 - T.b[1]) / .55)});
