@@ -1,7 +1,7 @@
 """One sheet of many scenes at one moment (made in chat ccr-d06e50c1, 2026-11-10: faster than opening 20 sheets).
 usage: python3 tools/grid.py <work> <style> <time e.g. 003.30> <crop w:h:x:y> <out.jpg> [cols=5] [prefix=r7.] [filter …]
   reads <work>/<style>_<prefix>*/prev/p_<time>.jpg made by `PREVIEW=1 render_test.sh` (times 0.3 0.9 1.5 2.1 2.7 3.3 4.2 4.8)
-  crops used: card 1000:640:40:460 · glass 1000:640:40:620 · split 860:700:110:200 · *-overlay 700:420:190:150"""
+  crops used: card 1000:640:40:460 · glass 1000:640:40:620 · split 860:700:110:200 · ios 1080:1920:0:0 (the whole page) · *-overlay 700:420:190:150"""
 import sys, glob, subprocess, os
 w, st, t, crop, out = sys.argv[1:6]
 cols = int(sys.argv[6]) if len(sys.argv) > 6 else 5

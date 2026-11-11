@@ -159,9 +159,11 @@ STYLE('ios', {
     const fs = Math.min(IOS.picW / 1000, IOS.picH / 700);
     const stage = small ? div(`left:0;top:0;width:600px;height:340px;transform-origin:0 0;transform:scale(${IOS.picS})`, root)
                         : div(`left:${(IOS.picW - 1000 * fs) / 2}px;top:0;width:1000px;height:700px;transform-origin:0 0;transform:scale(${fs})`, root);
-    /* a grab handle on every big card (wider than half the canvas): the look of a sheet pulled up (ios.md 2) */
+    /* a grab handle on every big card (more than half the canvas's area): the look of a sheet pulled up (ios.md 2).
+       Not on things that are cards of their own kind (phone, receipt, notification, bubble) or a card that has its handle */
     FITS.push(() => stage.querySelectorAll('.u-panel').forEach(p => {
-      if (p.matches('.u-phone,.u-receipt,.u-note,.u-bubble,.u-ghost') || p.offsetWidth < stage.offsetWidth / 2 || p.querySelector(':scope > .i-handle')) return;
+      if (p.matches('.u-phone,.u-receipt,.u-note,.u-bubble,.u-ghost') || p.querySelector('.u-handle,.i-handle')
+          || p.offsetWidth * p.offsetHeight < stage.offsetWidth * stage.offsetHeight / 2) return;
       const h = div(`left:${p.offsetWidth / 2 - 32}px`, p); h.className = 'i-handle u-decor';
     }));
     return {root, stage, place: P, small, dark: false};

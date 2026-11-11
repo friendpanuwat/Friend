@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
-# frame-by-frame sheets: frames.sh <work> <out.jpg> <times csv> <scene@index> -- one row per style (card glass split + their overlays), cropped to the picture
+# frame-by-frame sheets: frames.sh <work> <out.jpg> <times csv> <scene@index> -- one row per style (card glass split ios + their overlays), cropped to the picture
+# env STYLES = only these rows (e.g. STYLES="ios ios-overlay"); ios is the whole page (its picture moves between places)
 # EXTRA=<file.js> loads more sentences (e.g. an AI plan). Never run two at once in one <work> dir: the row files would mix.
 set -euo pipefail
 W=$1; OUT=$2; TIMES=$3; SC=$4; U="$(cd "$(dirname "$0")/.." && pwd)"; export NODE_PATH=$(npm root -g)
 [ -d "$W/base/src_frames" ] || bash "$U/../core/pipeline.sh" "$W/base" "$U/../../library/sample-clip/character_talking.mp4" frames >/dev/null
 sc=${SC%@*}; i=${SC#*@}
-declare -A CROP=([card]="1000:620:40:470" [glass]="1000:620:40:640" [split]="860:700:110:210" [card-overlay]="700:400:190:160" [glass-overlay]="700:400:190:160" [split-overlay]="700:400:190:160")
+declare -A CROP=([card]="1000:620:40:470" [glass]="1000:620:40:640" [split]="860:700:110:210" [ios]="1080:1920:0:0" [card-overlay]="700:400:190:160" [glass-overlay]="700:400:190:160" [split-overlay]="700:400:190:160" [ios-overlay]="700:440:190:140")
+STYLES=${STYLES:-card glass split ios card-overlay glass-overlay split-overlay ios-overlay}; NS=$(echo $STYLES | wc -w)
 rows=()
-for st in card glass split card-overlay glass-overlay split-overlay; do
+for st in $STYLES; do
   P="$W/f_${st}_${sc}"; rm -rf "$P"; mkdir -p "$P"; ln -sfn "$W/base/src_frames" "$P/src_frames"
   args=""; case $st in *-overlay) args="--speaker .86";; esac
   python3 "$U/build.py" "$P" "$st" "$sc" --index "$i" $args ${EXTRA:+--extra "$EXTRA"} >/dev/null
@@ -16,5 +18,5 @@ for st in card glass split card-overlay glass-overlay split-overlay; do
   rows+=("-i" "$W/frow_${st}.jpg")
 done
 # pad rows to a common height then stack
-ffmpeg -y -loglevel error "${rows[@]}" -filter_complex "$(for k in 0 1 2 3 4 5; do printf '[%d]pad=iw:max(ih\\,110):0:0:black[r%d];' $k $k; done)[r0][r1][r2][r3][r4][r5]vstack=6" "$OUT"
+ffmpeg -y -loglevel error "${rows[@]}" -filter_complex "$(for k in $(seq 0 $((NS - 1))); do printf '[%d]pad=iw:max(ih\\,110):0:0:black[r%d];' $k $k; done)$(for k in $(seq 0 $((NS - 1))); do printf '[r%d]' $k; done)vstack=$NS" "$OUT"
 echo "$OUT"
