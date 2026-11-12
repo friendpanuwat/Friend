@@ -92,15 +92,20 @@
     on(intro, p, 0, { o: [[0, 0], [.01, 1]] });
   });
 
-  /* accessibility — a wheelchair user rolls forward and back: the spoked wheel turns exactly with the distance travelled */
+  /* accessibility — a person seated in a wheelchair (side view, same jointed body as person-standing): the arm pushes the rim,
+     the chair rolls forward and back, the spoked wheel turns exactly with the distance travelled */
+  const SEATED = { torso: 'M -28 -94 Q 0 -102 24 -92 Q 32 -86 30 -70 L 28 14 Q 0 22 -28 14 L -34 -70 Q -36 -88 -28 -94 Z', head: [6, -134, 30],
+    leg: () => ({ h: [0, 4], k: [80, 10], f: [88, 92] }), arm: () => ({ s: [0, -76], e: [22, -24], h: [66, -10] }), armOver: true };
   rig('accessibility-pro', .6, 'pop', p => {
-    const intro = sub(p), mv = sub(intro);
-    const wh = sub(mv); ring(wh, -20, 74, 92, 20); [0, 60, 120].forEach(a => wh.line(f1(-20 + Math.cos(rad(a)) * 80), f1(74 + Math.sin(rad(a)) * 80), f1(-20 - Math.cos(rad(a)) * 80), f1(74 - Math.sin(rad(a)) * 80), { sw: 2.4, stroke: C.soft })); wh.circle(-20, 74, 12, { fill: C.fill, sw: 3 });
-    tubes(mv, ['M 34 -96 L 14 0 L 92 0 L 124 96', 'M 28 -66 L 96 -44'], 24);
-    mv.circle(44, -140, 30, { fill: C.fill, sw: 3.2 });
+    const intro = sub(p), mv = sub(intro), w = mv.child({ transform: 'translate(-14 -6)' });
+    w.path('M -60 -40 L -60 30 L 40 30', { sw: 6 }); w.line(70, 98, 110, 98, { sw: 6 });
+    const wh = sub(w); ring(wh, -10, 64, 94, 20); [0, 60, 120].forEach(a => wh.line(f1(-10 + Math.cos(rad(a)) * 82), f1(64 + Math.sin(rad(a)) * 82), f1(-10 - Math.cos(rad(a)) * 82), f1(64 - Math.sin(rad(a)) * 82), { sw: 2.4, stroke: C.soft })); wh.circle(-10, 64, 12, { fill: C.fill, sw: 3 });
+    const hm = human(w, 'line', SEATED);
     const k = [[0, 0], [.3, 0], [.38, -4, 'out'], [1, 34, 'io'], [1.6, 34], [2.2, 0, 'io']];
     on(mv, p, .7, { loop: 2.6, x: k });
-    on(wh, p, .7, { loop: 2.6, ox: -20, oy: 74, r: k.map(([t, v, e]) => [t, f1(v / 92 * 180 / Math.PI), e]) });
+    on(wh, p, .7, { loop: 2.6, ox: -10, oy: 64, r: k.map(([t, v, e]) => [t, f1(v / 94 * 180 / Math.PI), e]) });
+    hm.on('upper1', p, .7, { loop: 2.6, ox: 0, oy: -76, r: [[0, 0], [.3, 0], [.38, -10, 'out'], [1, 18, 'io'], [1.6, 18], [2.2, 0, 'io']] });
+    hm.on('torso', p, .7, { loop: 2.6, ox: 0, oy: 14, r: [[0, 0], [.3, 0], [.5, 5, 'out'], [1, 0, 'soft'], [1.6, 0], [1.8, -3, 'out'], [2.2, 0, 'soft']] });
     pop(p, intro);
   });
 
@@ -132,17 +137,48 @@
     pop(p, intro);
   });
 
-  /* person-standing — the figure squats (anticipation), jumps up with arms swinging overhead, lands with a squash */
-  rig('person-standing-pro', .6, 'pop', p => {
-    const intro = sub(p), bd = sub(intro);
-    const legs = sub(bd); P.capsule(legs, -10, 34, -48, 166, 15, { sw: 3 }); P.capsule(legs, 10, 34, 48, 166, 15, { sw: 3 });
-    [-1, 1].forEach(sd => { const a = sub(bd); P.capsule(a, sd * 6, -78, sd * 82, -6, 13, { sw: 3 });
-      on(a, p, .7, { loop: 2.2, ox: 0, oy: -78, r: [[0, 0], [.2, 0], [.3, -sd * 10, 'out'], [.55, sd * 112, 'out'], [.85, sd * 112], [1.05, 0, 'in'], [1.15, -sd * 6], [1.3, 0, 'soft']] }); });
-    P.capsule(bd, 0, -88, 0, 44, 20, { sw: 3.2 });
-    bd.circle(0, -134, 32, { fill: C.fill, sw: 3.2 });
-    on(bd, p, .7, { loop: 2.2, ox: 0, oy: 180, y: [[0, 0], [.2, 0], [.32, 10, 'out'], [.6, -46, 'out'], [.8, -46, 'soft'], [1.05, 0, 'in']], sy: [[0, 1], [.2, 1], [.32, .9, 'out'], [.45, 1.05], [.6, 1], [1.05, 1], [1.1, .9, 'out'], [1.3, 1, 'soft']] });
+  /* human figure — a jointed body that reads as a person (round head apart from the body, shoulders wider than hips,
+     thick limbs that bend at elbow and knee). mode 'line' = house style (ink outline around a dark body, all parts merged as one
+     silhouette: every outline is drawn first, then every dark fill), 'solid' = filled white silhouette.
+     Returns joint groups; animate them with hm.on(name, p, start, spec) — the same keys go to the outline and the fill copies. */
+  const BODY = {
+    head: [0, -132, 31],
+    torso: 'M -38 -94 Q 0 -102 38 -94 Q 48 -90 46 -70 L 32 14 Q 0 24 -32 14 L -46 -70 Q -48 -90 -38 -94 Z',
+    arm: sd => ({ s: [sd * 36, -82], e: [sd * 54, -18], h: [sd * 58, 40] }),
+    leg: sd => ({ h: [sd * 17, 8], k: [sd * 21, 88], f: [sd * 24, 166] }) };
+  const human = (q, mode, pose = {}) => {
+    const solid = mode === 'solid', layers = solid ? [1] : [1, 0], J = {}, add = (k, g) => (J[k] = J[k] || []).push(g);
+    layers.forEach(ink => {
+      const L = sub(q), col = ink ? C.ink : C.fill, w = v => ink && !solid ? v + 7 : v, o = { stroke: col };
+      [-1, 1].forEach(sd => { const g = (pose.leg || BODY.leg)(sd), up = sub(L), lo = sub(up);
+        up.line(...g.h, ...g.k, Object.assign({ sw: w(30) }, o)); lo.line(...g.k, ...g.f, Object.assign({ sw: w(27) }, o)); add('thigh' + sd, up); add('shin' + sd, lo); });
+      const t = sub(L); t.path(pose.torso || BODY.torso, { fill: col, stroke: col, sw: ink && !solid ? 7 : .5 }); add('torso', t);
+      if (!pose.armOver) [-1, 1].forEach(sd => { const g = (pose.arm || BODY.arm)(sd), up = sub(t), lo = sub(up);
+        up.line(...g.s, ...g.e, Object.assign({ sw: w(25) }, o)); lo.line(...g.e, ...g.h, Object.assign({ sw: w(23) }, o)); add('upper' + sd, up); add('fore' + sd, lo); });
+      const h = sub(t); h.circle(...(pose.head || BODY.head), { fill: col, stroke: col, sw: ink && !solid ? 7 : .5 }); add('head', h); });
+    if (pose.armOver) { const g = pose.arm(1), up = sub(q), lo = sub(up);   // side view: the near arm lies over the body, so it keeps its own outline
+      [[up, g.s, g.e, 25], [lo, g.e, g.h, 23]].forEach(([q2, a, b, wd]) => { q2.line(...a, ...b, { sw: wd + 7 }); q2.line(...a, ...b, { sw: wd, stroke: C.fill }); });
+      q.circle(...g.s, 3, { fill: C.fill, stroke: C.fill, sw: 1 }); add('upper1', up); add('fore1', lo); }
+    return { on: (name, p, start, spec) => (J[name] || []).forEach(g => on(g, p, start, spec)), J };
+  };
+  G.parts.human = human;
+
+  /* person-standing — a real little person: bends the knees (anticipation), jumps with both arms swinging overhead,
+     lands with bent knees (squash) and straightens; the head lags a beat (follow-through) */
+  const jumper = mode => p => {
+    const intro = sub(p), wr = intro.child({ transform: 'translate(0 -6) scale(.86)' }, .86), bd = sub(wr), hm = human(bd, mode);
+    const T = 2.4, squat = (a, b) => [[0, 0], [.2, 0], [.34, a, 'out'], [.56, 0, 'out'], [1.02, 0], [1.1, b, 'out'], [1.34, 0, 'soft']];
+    [-1, 1].forEach(sd => {
+      hm.on('thigh' + sd, p, .7, { loop: T, ox: sd * 17, oy: 8, r: squat(sd * -22, sd * -18) });
+      hm.on('shin' + sd, p, .7, { loop: T, ox: sd * 21, oy: 88, r: squat(sd * 40, sd * 32) });
+      hm.on('upper' + sd, p, .7, { loop: T, ox: sd * 36, oy: -82, r: [[0, 0], [.2, 0], [.34, sd * 18, 'out'], [.6, -sd * 150, 'out'], [.85, -sd * 150], [1.1, -sd * 10, 'in'], [1.25, sd * 6], [1.45, 0, 'soft']] });
+      hm.on('fore' + sd, p, .7, { loop: T, ox: sd * 54, oy: -18, r: [[0, 0], [.2, 0], [.34, -sd * 30, 'out'], [.6, -sd * 10, 'out'], [.85, -sd * 10], [1.1, -sd * 24, 'in'], [1.45, 0, 'soft']] }); });
+    hm.on('head', p, .7, { loop: T, ox: 0, oy: -100, r: [[0, 0], [.34, 4], [.6, -5, 'out'], [.9, 0, 'soft'], [1.12, 6, 'out'], [1.4, 0, 'soft']] });
+    on(bd, p, .7, { loop: T, y: [[0, 0], [.2, 0], [.34, 14, 'out'], [.6, -44, 'out'], [.85, -44, 'soft'], [1.02, 0, 'in'], [1.1, 10, 'out'], [1.34, 0, 'soft']] });
+    const gd = sub(wr); gd.line(-110, 180, 110, 180, { sw: 4 });
     pop(p, intro);
-  });
+  };
+  rig('person-standing-pro', .6, 'pop', jumper('line'));
 
   /* user-round / users-round — round head and rounded shoulders; they nod and breathe, a ring pulses on the nod */
   const roundUser = (q, x, y, s, soft) => { const u = q.child({ transform: `translate(${x} ${y}) scale(${s})` }, s), hd = u.child();
