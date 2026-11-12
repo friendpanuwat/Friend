@@ -1,0 +1,22 @@
+<!doctype html><html><head><meta charset="utf-8"><script src="file:///home/user/Friend/.claude/skills/glow-line-motion/assets/glowline.js"></script></head><body><script>
+GL.run(() => { GL.stage({ w: 1080, h: 640 }); const C = GL.C;
+  const biz = p => {
+    // shoulders + suit
+    p.path('M -172 176 Q -174 112, -150 82 Q -124 52, -70 38 L -34 28 L 0 70 L 34 28 L 70 38 Q 124 52, 150 82 Q 174 112, 172 176 Z', { fill: C.fill, sw: 3.4 });
+    p.path('M -34 28 L -64 44 L -30 74 L -52 96 L -6 150', { sw: 2.4, stroke: C.soft }); p.path('M 34 28 L 64 44 L 30 74 L 52 96 L 6 150', { sw: 2.4, stroke: C.soft });
+    p.path('M -34 28 L 0 112 L 34 28 L 0 70 Z', { fill: C.fill, sw: 2.6 });
+    p.path('M -34 28 L -14 60 L -2 44 Z', { fill: C.fill, sw: 2.2 }); p.path('M 34 28 L 14 60 L 2 44 Z', { fill: C.fill, sw: 2.2 });
+    p.path('M -10 46 L 10 46 L 8 60 L -8 60 Z', { fill: C.fill, sw: 2.6 }); p.path('M -8 60 L -14 106 L 0 122 L 14 106 L 8 60 Z', { fill: C.fill, sw: 2.6 });
+    p.line(-11, 84, 11, 76, { sw: 1.8, stroke: C.soft });
+    p.line(-132, 106, -92, 106, { sw: 2.6 }); p.path('M -126 106 L -114 86 L -100 106', { fill: C.fill, sw: 2.2 });
+    // head
+    [-1, 1].forEach(sd => p.path('M ' + sd*60 + ' -88 Q ' + sd*84 + ' -90 ' + sd*80 + ' -66 Q ' + sd*76 + ' -46 ' + sd*58 + ' -48 Z', { fill: C.fill, sw: 2.8 }));
+    p.path('M -62 -100 C -62 -150, -32 -170, 0 -170 C 34 -170, 64 -150, 62 -100 L 60 -62 C 56 -18, 32 6, 0 6 C -32 6, -56 -18, -60 -62 Z', { fill: C.fill, sw: 3.4 });
+    p.path('M -66 -92 C -74 -152, -34 -188, 10 -186 C 52 -184, 80 -156, 70 -96 C 66 -112, 58 -126, 40 -132 C 18 -116, -12 -122, -30 -136 C -44 -124, -56 -110, -66 -92 Z', { fill: C.fill, sw: 3.2 });
+    p.path('M -30 -136 C -20 -154, -2 -166, 22 -170', { sw: 2.2, stroke: C.soft });
+  };
+  GL.art(GL.icons['user-pro'], { x: 290, y: 330, w: 400, at: .1, idle: false });
+  GL.art(biz, { x: 790, y: 330, w: 400, at: .1, idle: false, reveal: 'pop' });
+  GL.text('ตอนนี้', { x: 290, y: 600, size: 34, color: C.sub, glow: false, at: .2 }); GL.text('แบบใหม่', { x: 790, y: 600, size: 34, color: C.sub, glow: false, at: .2 });
+  GL.finish({ hold: 1 }); });
+</script></body></html>
