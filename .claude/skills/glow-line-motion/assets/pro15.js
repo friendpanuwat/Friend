@@ -40,7 +40,8 @@
     st(96, -104, 54, .5, 90); st(162, -6, 28, .58, -90); st(8, -158, 24, .64, 90);
     const wO = sub(intro), wd = sub(wO), wg = wd.child({ transform: 'translate(-50 60) rotate(45)' });
     wg.rect(-13, -110, 26, 250, { rx: 9, fill: C.fill, sw: 3.4 }); wg.rect(-13, -110, 26, 46, { rx: 9, fill: C.ink, sw: 2.4 });
-    wg.line(-13, 92, 13, 92, SOFT(2.2)); wg.line(-13, 106, 13, 106, SOFT(2.2));
+    wg.line(-13, 92, 13, 92, SOFT(2.2)); wg.line(-13, 106, 13, 106, SOFT(2.2)); wg.rect(-16, 128, 32, 16, { rx: 6, fill: C.fill, sw: 2.6 });
+    wd.path('M -30 -40 Q 0 -78 52 -70', SOFT(2.4));
     on(wd, p, .7, { loop: 2.4, ox: -149, oy: 159, r: [[0, 0], [.28, -9, 'io'], [.5, 8, 'out'], [.68, -2, 'io'], [.88, 0, 'soft']] });
     on(wO, p, 0, { ox: -149, oy: 159, r: [[0, -40], [.5, 4, 'out'], [.65, 0, 'soft']], o: [[0, 0], [.1, 1]] });
     pop(p, intro, 0, .6);
@@ -49,7 +50,7 @@
   /* apple — squats (anticipation), hops, lands with a squash; the leaf on the stem flutters after the landing (follow-through) */
   rig('apple-pro', .6, 'rise', p => {
     const intro = sub(p), ap = sub(intro);
-    const lf = sub(ap); lf.path('M 14 -122 C 40 -172, 100 -162, 118 -140 C 92 -110, 40 -104, 14 -122 Z', { fill: C.fill, sw: 3 }); lf.path('M 24 -124 Q 70 -140 108 -138', SOFT(1.8));
+    const lf = sub(ap); lf.path('M 14 -122 C 40 -172, 100 -162, 118 -140 C 92 -110, 40 -104, 14 -122 Z', { fill: C.fill, sw: 3 }); lf.path('M 24 -124 Q 70 -140 108 -138', SOFT(1.8)); lf.line(56, -134, 66, -150, SOFT(1.6)); lf.line(80, -137, 92, -150, SOFT(1.6));
     on(lf, p, .7, { loop: 2.4, ox: 14, oy: -122, r: [[0, 0], [.5, 0], [.6, -16, 'out'], [.8, 10, 'io'], [.98, -5, 'io'], [1.14, 2], [1.3, 0, 'soft']] });
     ap.path('M 0 -86 Q 2 -126 20 -150', { sw: 6 });
     ap.path('M 0 -86 C 40 -126, 150 -110, 150 0 C 150 96, 80 166, 30 150 C 12 144, -12 144, -30 150 C -80 166, -150 96, -150 0 C -150 -110, -40 -126, 0 -86 Z', { fill: C.fill, sw: 3.4 });
@@ -62,9 +63,10 @@
   /* battery-charging — the cells light up one by one (each pops in), the bolt in front pulses on every cell, then the full battery bumps and resets */
   rig('battery-charging-pro', .6, 'pop', p => {
     const intro = sub(p), bt = sub(intro);
-    bt.rect(-160, -76, 290, 152, { rx: 26, fill: C.fill, sw: 3.4 }); bt.rect(130, -32, 30, 64, { rx: 10, fill: C.fill, sw: 3 });
+    bt.rect(-160, -76, 290, 152, { rx: 26, fill: C.fill, sw: 3.4 }); bt.rect(130, -32, 30, 64, { rx: 10, fill: C.fill, sw: 3 }); bt.rect(-148, -64, 266, 128, { rx: 16, sw: 1.8, stroke: C.soft });
     [-128, -44, 40].forEach((x, i) => { const c = sub(bt), t = .3 + i * .45; c.rect(x, -44, 70, 88, { rx: 10, fill: C.ink, sw: 2 });
       on(c, p, .7, { loop: 2.8, ox: x + 35, oy: 0, o: [[0, 0], [t, 0], [t + .04, 1], [2.25, 1], [2.4, 0]], s: [[0, .6], [t, .6], [t + .2, 1.06, 'out'], [t + .32, 1, 'soft']] }); });
+    const pg = sub(bt); pg.path('M 182 0 Q 198 2 196 44 Q 194 100 160 130', { sw: 5 }); pg.rect(160, -20, 24, 40, { rx: 6, fill: C.fill, sw: 3 }); pg.line(166, -8, 178, -8, SOFT(1.8)); pg.line(166, 8, 178, 8, SOFT(1.8));
     const bo = sub(bt); bo.shape(scalePts(ZAP, .44, -6, 0), { fill: C.fill, sw: 3.4 });
     const beat = t => [[t, 1], [t + .08, 1.16, 'out'], [t + .26, 1, 'soft']];
     on(bo, p, .7, { loop: 2.8, ox: -6, oy: 0, s: [[0, 1], ...beat(.3), ...beat(.75), ...beat(1.2), [1.65, 1], [1.75, 1.24, 'out'], [2, 1, 'soft']] });
@@ -75,7 +77,7 @@
   /* battery-full — a bright sweep runs across the three full cells, then the battery hops on the spot with a squash and a "ready" flash */
   rig('battery-full-pro', .6, 'squash', p => {
     const intro = sub(p), bO = sub(intro), bt = sub(bO);
-    bt.rect(-160, -76, 290, 152, { rx: 26, fill: C.fill, sw: 3.4 }); bt.rect(130, -32, 30, 64, { rx: 10, fill: C.fill, sw: 3 });
+    bt.rect(-160, -76, 290, 152, { rx: 26, fill: C.fill, sw: 3.4 }); bt.rect(130, -32, 30, 64, { rx: 10, fill: C.fill, sw: 3 }); bt.rect(-148, -64, 266, 128, { rx: 16, sw: 1.8, stroke: C.soft });
     [-128, -49, 30].forEach((x, i) => { const c = sub(bt), t = .2 + i * .12; c.rect(x, -44, 68, 88, { rx: 10, fill: C.ink, sw: 2 });
       on(c, p, .7, { loop: 2.4, o: [[0, 1], [t, 1], [t + .06, .3, 'out'], [t + .3, 1, 'in']] }); });
     on(bt, p, .7, { loop: 2.4, ox: 0, oy: 76, y: [[0, 0], [.8, 0], [.98, -26, 'out'], [1.14, 0, 'in']], sy: [[0, 1], [.7, 1], [.8, .9, 'io'], [.94, 1.05, 'out'], [1.14, 1], [1.2, .92, 'out'], [1.34, 1.02], [1.46, 1, 'soft']] });
@@ -87,11 +89,11 @@
   /* bed — the blanket rises and falls with slow breathing; little "z"s float up from the pillow */
   rig('bed-pro', .7, 'squash', p => {
     const intro = sub(p);
-    intro.rect(-182, -84, 28, 250, { rx: 12, fill: C.fill, sw: 3.4 });
+    intro.rect(-182, -84, 28, 250, { rx: 12, fill: C.fill, sw: 3.4 }); intro.line(-168, -64, -168, 30, SOFT(2));
     intro.rect(-154, 96, 314, 22, { rx: 6, fill: C.fill, sw: 3 });
     intro.rect(-154, 42, 314, 56, { rx: 14, fill: C.fill, sw: 3.2 });
     const pl = sub(intro); pl.rect(-146, 4, 96, 42, { rx: 20, fill: C.fill, sw: 3 }); pl.path('M -132 26 Q -98 18 -64 26', SOFT(1.8));
-    const bk = sub(intro); bk.path('M -40 44 Q -40 22 -18 22 L 150 22 Q 162 22 162 36 L 162 98 L -40 98 Z', { fill: C.fill, sw: 3.2 }); bk.line(-14, 24, -14, 96, SOFT(2.2));
+    const bk = sub(intro); bk.path('M -40 44 Q -40 22 -18 22 L 150 22 Q 162 22 162 36 L 162 98 L -40 98 Z', { fill: C.fill, sw: 3.2 }); bk.line(-14, 24, -14, 96, SOFT(2.2)); bk.line(-14, 84, 160, 84, SOFT(1.8));
     on(bk, p, .7, { loop: 2.4, ox: 60, oy: 98, sy: [[0, 1], [1.2, 1.12, 'io'], [2.4, 1, 'io']] });
     intro.rect(160, 6, 22, 160, { rx: 10, fill: C.fill, sw: 3.4 });
     [0, .8, 1.6].forEach(d => zee(intro, p, -80, -40, .9, .7 + d, 2.4, 60, -110));
@@ -101,13 +103,13 @@
   /* bed-double — the two pillows get plumped one after the other (squash and puff back), the blanket smooths out with a little ripple */
   rig('bed-double-pro', .7, 'squash', p => {
     const intro = sub(p);
-    intro.rect(-176, 110, 20, 52, { rx: 6, fill: C.fill, sw: 3 }); intro.rect(156, 110, 20, 52, { rx: 6, fill: C.fill, sw: 3 });
+    [-176, 156].forEach(x => { intro.rect(x, 110, 20, 52, { rx: 6, fill: C.fill, sw: 3 }); intro.line(x + 4, 150, x + 16, 150, SOFT(1.8)); });
     intro.path('M -170 40 L -170 -96 Q -170 -136 -130 -136 L 130 -136 Q 170 -136 170 -96 L 170 40 Z', { fill: C.fill, sw: 3.4 });
     intro.rect(-146, -112, 292, 84, { rx: 20, fill: C.fill, sw: 2, stroke: C.soft });
     [[-150, .3, -85], [20, .9, 85]].forEach(([x, t, cx]) => { const pw = sub(intro); pw.rect(x, -40, 130, 64, { rx: 28, fill: C.fill, sw: 3.2 }); pw.path(`M ${x + 20} -8 Q ${x + 65} -18 ${x + 110} -8`, SOFT(1.8));
       on(pw, p, .7, { loop: 2.6, ox: cx, oy: 24, sy: [[0, 1], [t, 1], [t + .1, .8, 'out'], [t + .3, 1.08, 'out'], [t + .46, 1, 'soft']], sx: [[0, 1], [t, 1], [t + .1, 1.08, 'out'], [t + .3, .97], [t + .46, 1, 'soft']] }); });
     intro.rect(-186, 20, 372, 92, { rx: 16, fill: C.fill, sw: 3.4 });
-    const bk = sub(intro); bk.path('M -186 54 Q -90 40 0 50 Q 90 40 186 54', { sw: 3 }); bk.line(-170, 74, 170, 74, SOFT(2));
+    const bk = sub(intro); bk.path('M -186 54 Q -90 40 0 50 Q 90 40 186 54', { sw: 3 }); bk.line(-170, 74, 170, 74, SOFT(2)); bk.line(-186, 94, 186, 94, { sw: 2.6 });
     on(bk, p, .7, { loop: 2.6, ox: 0, oy: 54, sy: [[0, 1], [1.6, 1], [1.75, 1.6, 'out'], [2, .7, 'io'], [2.2, 1, 'soft']] });
     thud(p, intro, 162);
   });
@@ -125,12 +127,14 @@
       [0, 60, 120].forEach(a => { const u = rad(a); sp.line(x - Math.cos(u) * 54, y - Math.sin(u) * 54, x + Math.cos(u) * 54, y + Math.sin(u) * 54, SOFT(1.8)); });
       w.circle(x, y, 8, { fill: C.fill, sw: 3 });
       on(sp, p, .7, { loop: .7, ox: x, oy: y, r: [[0, 0], [.7, 120, 'lin']] }); });
+    const arc = (x, y, r, a0, a1) => `M ${f1(x + Math.cos(rad(a0)) * r)} ${f1(y + Math.sin(rad(a0)) * r)} A ${r} ${r} 0 0 1 ${f1(x + Math.cos(rad(a1)) * r)} ${f1(y + Math.sin(rad(a1)) * r)}`;
+    bO.path(arc(Rw[0], Rw[1], 76, -170, -40), { sw: 3.4 }); bO.path(arc(Fw[0], Fw[1], 76, -140, -20), { sw: 3.4 });
     const fr = sub(bO);
     fr.line(B[0], B[1] - 22, Rw[0], Rw[1] - 9, SOFT(2.2)); fr.line(B[0], B[1] + 22, Rw[0], Rw[1] + 9, SOFT(2.2));
     [[Rw, B], [Rw, S], [S, B], [S, H], [Hb, B]].forEach(([a, b]) => fr.line(a[0], a[1], b[0], b[1], { sw: 6 }));
     fr.line(H[0], H[1], Hb[0], Hb[1], { sw: 9 }); fr.line(Hb[0], Hb[1], Fw[0], Fw[1], { sw: 5 });
     fr.line(S[0], S[1], -58, -56, { sw: 5 }); fr.path('M -94 -62 Q -60 -76 -28 -62 Q -56 -50 -94 -62 Z', { fill: C.fill, sw: 3.2 });
-    fr.line(H[0], H[1], 74, -66, { sw: 5 }); fr.path('M 62 -70 Q 84 -76 100 -66 Q 108 -58 104 -46', { sw: 5 });
+    fr.line(H[0], H[1], 74, -66, { sw: 5 }); fr.rect(92, -36, 18, 14, { rx: 4, fill: C.ink, sw: 1.6 }); fr.path('M 62 -70 Q 84 -76 100 -66 Q 108 -58 104 -46', { sw: 5 });
     const ck = sub(bO); ck.circle(B[0], B[1], 22, { fill: C.fill, sw: 3.2 }); ck.circle(B[0], B[1], 8, { fill: C.fill, sw: 2.4, stroke: C.soft });
     [1, -1].forEach(sd => { ck.line(B[0], B[1], B[0], B[1] + sd * 38, { sw: 5 }); ck.rect(B[0] - 14, B[1] + sd * 38 - 4, 28, 8, { rx: 3, fill: C.fill, sw: 2.6 }); });
     on(ck, p, .7, { loop: 1.4, ox: B[0], oy: B[1], r: [[0, 0], [1.4, 360, 'lin']] });
@@ -147,7 +151,7 @@
     on(sm, p, .7, { loop: 2.6, y: [[0, 0], [1.2, 0], [2.1, -24, 'in']], o: [[0, 1], [1.3, 1], [2.1, 0], [2.6, 0]] });
     const cg = sub(intro);
     cg.rect(-170, 14, 300, 40, { rx: 6, fill: C.fill, sw: 3.4 }); cg.rect(-170, 14, 84, 40, { rx: 6, fill: C.fill, sw: 3 }); cg.line(-160, 34, -96, 34, SOFT(1.8));
-    cg.rect(130, 14, 26, 40, { rx: 5, fill: C.fill, sw: 2.6, stroke: C.soft });
+    cg.line(-78, 16, -78, 52, SOFT(2)); cg.poly([[130, 14], [138, 22], [132, 30], [140, 38], [132, 46], [130, 54]], SOFT(2)); cg.rect(130, 14, 26, 40, { rx: 5, fill: C.fill, sw: 2.6, stroke: C.soft });
     const em = sub(cg); em.rect(146, 18, 8, 32, { rx: 3, fill: C.ink, sw: 1.4 });
     on(em, p, .7, { loop: 2.6, o: [[0, .3], [.2, 1], [.6, .6], [.9, 1], [1.3, .4], [2.1, .15], [2.6, .3]] });
     on(cg, p, .7, { loop: 2.6, ox: 0, oy: 34, r: [[0, 0], [1.9, 0], ...at(shakeKeys(3, 1.5), 1.9).slice(1)] });
@@ -169,7 +173,7 @@
     sw.path(d, { sw: 3.2 });
     on(sw, p, .7, { loop: 1.6, x: [[0, 0], [1.6, 80, 'lin']] });
     on(sr, p, .7, { loop: 2.4, ox: 0, oy: -40, r: [[0, 0], [.5, 7, 'io'], [1.3, -8, 'io'], [2.1, 4, 'io'], [2.4, 0, 'io']] });
-    gt.line(-92, -124, 92, -124, SOFT(2)); gt.line(-76, 140, 76, 140, SOFT(2.2));
+    gt.line(-92, -124, 92, -124, SOFT(2)); gt.line(-76, 140, 76, 140, SOFT(2.2)); gt.path(DROP(66, -86, 7), { fill: C.fill, sw: 2.2 }); gt.path(DROP(56, 10, 5), { fill: C.fill, sw: 2 });
     on(gt, p, .7, { loop: 2.4, ox: 0, oy: 166, r: [[0, 0], [.4, -5, 'io'], [1.2, 5, 'io'], [2, -2, 'io'], [2.4, 0, 'io']] });
     pop(p, intro);
   });
@@ -179,6 +183,7 @@
     const intro = sub(p);
     [[-40, -74], [-74, -102], [-10, -124], [52, -84], [34, 58], [76, 36]].forEach(([tx, ty], i) => { const g = sub(intro); g.circle(0, 0, 6 + (i % 2) * 2, { fill: i % 3 ? C.fill : C.ink, sw: 2.4 });
       on(g, p, .7, { loop: 2.6, x: [[0, 0], [.5, 0], [.8, tx, 'out'], [1.6, tx * 1.15]], y: [[0, 0], [.5, 0], [.8, ty, 'out'], [1.6, ty + 50, 'in']], o: [[0, 0], [.5, 0], [.52, 1], [1.35, 1], [1.6, 0]] }); });
+    const tb = sub(intro); tb.circle(118, 116, 38, { fill: C.fill, sw: 3.2 }); tb.line(92, 116, 144, 116, SOFT(2.2)); pop(p, tb, .25);
     const pO = sub(intro), rt = sub(pO), cg = rt.child({ transform: 'rotate(-35)' });
     const L = sub(cg), Rr = sub(cg);
     L.path('M 0 -56 L -104 -56 A 56 56 0 0 0 -104 56 L 0 56 Z', { fill: C.fill, sw: 3.4 }); L.path('M -20 -40 L -100 -40', SOFT(1.8));
@@ -192,13 +197,13 @@
   rig('stethoscope-pro', .6, 'pop', p => {
     const intro = sub(p), tb = sub(intro);
     tubes(tb, ['M -112 -150 L -112 -62 Q -112 16 -70 20', 'M -28 -150 L -28 -62 Q -28 16 -70 20', 'M -70 20 Q -70 150 20 150 Q 108 150 108 60 L 108 34'], 18);
-    tb.path('M -112 -96 Q -70 -80 -28 -96', SOFT(2.2));
+    tb.path('M -112 -96 Q -70 -80 -28 -96', SOFT(2.2)); tb.rect(-82, 8, 24, 26, { rx: 6, fill: C.fill, sw: 3 });
     [-112, -28].forEach(x => tb.ellipse(x, -160, 13, 15, { fill: C.ink, sw: 2 }));
     on(tb, p, .7, { loop: 3.2, ox: -70, oy: -150, r: [[0, 0], [1.6, 1.5, 'io'], [3.2, 0, 'io']] });
     const rp = sub(intro); [.2, .45].forEach(t => { const c = sub(rp); c.circle(108, -30, 48, { sw: 2.6 });
       on(c, p, .7, { loop: 1.6, ox: 108, oy: -30, s: [[0, 1], [t, 1], [t + .5, 1.7, 'out']], o: [[0, 0], [t, 0], [t + .02, .9], [t + .5, 0]] }); });
     const cp = sub(intro), cpb = sub(cp);
-    cpb.rect(100, 12, 16, 26, { rx: 4, fill: C.fill, sw: 3 }); cpb.circle(108, -30, 48, { fill: C.fill, sw: 3.4 }); cpb.circle(108, -30, 30, { fill: C.fill, sw: 2.2, stroke: C.soft }); cpb.dot(108, -30, 5);
+    cpb.rect(100, 12, 16, 26, { rx: 4, fill: C.fill, sw: 3 }); cpb.line(98, 24, 118, 24, SOFT(2)); cpb.circle(108, -30, 48, { fill: C.fill, sw: 3.4 }); cpb.circle(108, -30, 30, { fill: C.fill, sw: 2.2, stroke: C.soft }); cpb.dot(108, -30, 5);
     on(cpb, p, .7, { loop: 1.6, ox: 108, oy: -30, s: [[0, 1], [.2, 1], [.26, 1.08, 'out'], [.38, 1, 'soft'], [.45, 1], [.51, 1.05, 'out'], [.64, 1, 'soft']] });
     pop(p, intro);
   });
@@ -210,6 +215,7 @@
     on(hw, p, .7, { loop: 3.2, y: [[0, 20], [1, 20], [2.2, -30, 'out']], o: [[0, 0], [1, 0], [1.3, 1], [1.9, 1], [2.2, 0]] });
     const tm = sub(intro);
     tm.path('M -26 76 L -26 -144 A 26 26 0 0 1 26 -144 L 26 76 A 50 50 0 1 1 -26 76 Z', { fill: C.fill, sw: 3.4 });
+    tm.line(-15, -146, -15, 84, SOFT(1.8)); tm.line(15, -146, 15, 84, SOFT(1.8)); tm.circle(80, -144, 6, { sw: 2.4 });
     for (let i = 0; i < 7; i++) { const y = -130 + i * 30, lg = i % 2 === 0; tm.line(40, y, lg ? 66 : 56, y, { sw: lg ? 3 : 2.2, stroke: lg ? C.ink : C.soft }); }
     const mc = sub(tm); mc.rect(-9, -134, 18, 236, { rx: 9, fill: C.ink, sw: 1.6 });
     on(mc, p, .7, { loop: 3.2, ox: 0, oy: 102, sy: [[0, .36], [.3, .3, 'io'], [1, 1.02, 'out'], [1.15, .97], [1.3, 1, 'soft'], [2.2, 1], [2.8, .36, 'io']] });
@@ -223,7 +229,7 @@
     const intro = sub(p);
     const sp = sub(intro); for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3 + .5; sp.line(Math.cos(a) * 120, Math.sin(a) * 120, Math.cos(a) * 146, Math.sin(a) * 146, { sw: 3 }); }
     on(sp, p, .7, { loop: 2.6, ox: 0, oy: 0, o: [[0, 0], [.4, 0], [.42, 1], [.62, 0]], s: [[0, .85], [.4, .85], [.62, 1, 'out']] });
-    const bo = sub(intro); bo.shape(scalePts(ZAP, .86), { fill: C.fill, sw: 3.4 });
+    const bo = sub(intro); bo.shape(scalePts(ZAP, .86), { fill: C.fill, sw: 3.4 }); bo.shape(scalePts(ZAP, .64, 2, 0), { sw: 1.8, stroke: C.soft });
     on(bo, p, .7, { loop: 2.6, o: [[0, .5], [.3, .5], [.32, 1], [.36, .3], [.4, 1], [.44, .4], [.6, .9], [.9, .5]], r: [[0, 0], [.6, 0], ...at(shakeKeys(3, 2), .6).slice(1)] });
     const sl = sub(intro); slash(sl, -160, -150, 160, 150);
     on(sl, p, .7, { loop: 2.6, s: [[0, 1], [.6, 1], [.7, 1.05, 'out'], [.9, 1, 'soft']] });
@@ -237,7 +243,8 @@
     const bn = sub(intro);
     bn.path('M 96 -124 L 100 -152 L 118 -150 L 112 -120', { fill: C.fill, sw: 3 });
     bn.path('M 104 -126 C 136 20, 30 128, -150 56 C -158 52, -160 42, -150 38 C -10 74, 72 4, 78 -116 Z', { fill: C.fill, sw: 3.4 });
-    bn.path('M 94 -102 C 104 14, 26 92, -128 52', SOFT(2.2)); bn.line(-150, 38, -146, 54, { sw: 5 });
+    bn.path('M 94 -102 C 104 14, 26 92, -128 52', SOFT(2.2)); bn.line(-150, 38, -146, 54, { sw: 5 }); bn.line(98, -124, 114, -122, SOFT(2));
+    [[98, -22, 7], [62, 38, 6], [12, 76, 7]].forEach(([x, y, r]) => bn.circle(x, y, r, { fill: C.soft, stroke: C.soft, sw: 1 }));
     on(bn, p, .7, { loop: 2.6, ox: -10, oy: 104, r: [[0, 0], [.65, 7, 'io'], [1.95, -7, 'io'], [2.6, 0, 'io']] });
     thud(p, intro, 108);
   });
@@ -265,7 +272,9 @@
     const pl = intro.ellipse(0, 156, 184, 12, { fill: C.fill, sw: 3 }); on(pl, p, 0, { s: [[0, 0], [.3, 1, 'out']], ox: 0, oy: 156 });
     const drips = (x0, x1, y) => { let d = `M ${x0} ${y}`; for (let x = x0, i = 0; x < x1; x += 25, i++) d += ` Q ${x + 12.5} ${y + (i % 2 ? 30 : 18)} ${x + 25} ${y}`; return d; };
     const t1 = sub(intro); t1.rect(-150, 40, 300, 112, { rx: 14, fill: C.fill, sw: 3.4 }); t1.path(drips(-150, 150, 62), { sw: 3 });
+    t1.line(-150, 122, 150, 122, SOFT(2.2));
     const t2 = sub(intro); t2.rect(-100, -50, 200, 92, { rx: 12, fill: C.fill, sw: 3.4 }); t2.path(drips(-100, 100, -30), { sw: 3 });
+    [[-54, -62], [52, -62]].forEach(([x, y]) => { t2.circle(x, y, 13, { fill: C.fill, sw: 3 }); t2.path(`M ${x} ${y - 13} Q ${x + 4} ${y - 24} ${x + 12} ${y - 28}`, { sw: 2.4 }); });
     const cd = sub(intro); cd.rect(-10, -128, 20, 80, { rx: 4, fill: C.fill, sw: 3 }); [-112, -88, -64].forEach(y => cd.line(-10, y, 10, y - 12, SOFT(2))); cd.line(0, -128, 0, -138, { sw: 2.6 });
     const fO = sub(cd), fl = sub(fO); fl.path(DROP(0, -153, 13), { fill: C.fill, sw: 3 }); fl.path(DROP(0, -146, 6), { fill: C.ink, sw: 1 });
     on(fl, p, .9, { loop: .9, ox: 0, oy: -136, sx: [[0, 1], [.15, .86, 'io'], [.3, 1.06, 'io'], [.45, .9, 'io'], [.6, 1.04, 'io'], [.9, 1, 'io']], sy: [[0, 1], [.15, 1.12, 'io'], [.3, .94, 'io'], [.45, 1.08, 'io'], [.6, .96, 'io'], [.9, 1, 'io']], r: [[0, 0], [.2, -5, 'io'], [.5, 4, 'io'], [.9, 0, 'io']] });
@@ -283,7 +292,7 @@
     const cl = sub(cg, { 'clip-path': clip(cg, 'M -89 0 A 89 63 0 1 0 89 0 A 89 63 0 1 0 -89 0 Z') }), sl = sub(cl);
     for (let x = -240; x <= 200; x += 48) sl.line(x, -80, x + 60, 80, { sw: 9, stroke: C.soft });
     on(sl, p, .7, { loop: .8, x: [[0, 0], [.8, 48, 'lin']] });
-    cg.ellipse(0, 0, 92, 66, { sw: 3.4 });
+    cg.ellipse(0, 0, 92, 66, { sw: 3.4 }); [-1, 1].forEach(sd => cg.rect(sd * 92 - 7, -16, 14, 32, { rx: 5, fill: C.fill, sw: 2.8 }));
     on(wb, p, .7, { loop: 2.4, r: [[0, 0], [.6, 6, 'io'], [1.8, -6, 'io'], [2.4, 0, 'io']] });
     on(intro, p, 0, { s: [[0, .3], [.5, 1.06, 'out'], [.65, 1]], r: [[0, 90], [.6, 0, 'out']], o: [[0, 0], [.15, 1]] });
   });
@@ -291,11 +300,12 @@
   /* carrot — pulled up out of the ground; it hops with a squash, the leafy top whips after it (follow-through) */
   rig('carrot-pro', .6, 'sink', p => {
     const intro = sub(p), hp = sub(intro), cr = hp.child({ transform: 'translate(10 10) rotate(30)' });
-    [['M 0 -104 C -30 -130, -60 -170, -46 -196 C -20 -180, -8 -140, 0 -104 Z', .06], ['M 0 -104 C -6 -150, 0 -190, 14 -204 C 28 -180, 18 -140, 0 -104 Z', 0], ['M 0 -104 C 30 -130, 64 -160, 70 -188 C 40 -180, 14 -140, 0 -104 Z', .1]].forEach(([d, l]) => {
-      const g = sub(cr); g.path(d, { fill: C.fill, sw: 3 });
+    [['M 0 -104 C -30 -130, -60 -170, -46 -196 C -20 -180, -8 -140, 0 -104 Z', .06, -46, -196], ['M 0 -104 C -6 -150, 0 -190, 14 -204 C 28 -180, 18 -140, 0 -104 Z', 0, 14, -204], ['M 0 -104 C 30 -130, 64 -160, 70 -188 C 40 -180, 14 -140, 0 -104 Z', .1, 70, -188]].forEach(([d, l, tx, ty]) => {
+      const g = sub(cr); g.path(d, { fill: C.fill, sw: 3 }); g.path(`M 0 -108 Q ${f1(tx * .3)} ${f1(-108 + (ty + 108) * .55)} ${f1(tx * .8)} ${f1(-108 + (ty + 108) * .85)}`, SOFT(1.6));
       on(g, p, .7, { loop: 2.4, ox: 0, oy: -104, r: [[0, 0], [.18 + l, 6, 'io'], [.42 + l, -12, 'out'], [.62 + l, 8, 'io'], [.8 + l, -3, 'io'], [1 + l, 0, 'soft']] }); });
     cr.path('M -60 -100 Q 0 -120 60 -100 Q 70 -90 64 -70 L 8 150 Q 0 166 -8 150 L -64 -70 Q -70 -90 -60 -100 Z', { fill: C.fill, sw: 3.4 });
     [[-52, -50, -22, -46], [26, 0, 50, -4], [-36, 50, -12, 54], [8, 100, 24, 96]].forEach(([a, b, c, d]) => cr.line(a, b, c, d, SOFT(2.4)));
+    cr.line(-50, 0, -64, -6, { sw: 2.4 }); cr.line(32, 60, 46, 56, { sw: 2.4 });
     on(hp, p, .7, { loop: 2.4, ox: 0, oy: 150, y: [[0, 0], [.18, 0], [.36, -34, 'out'], [.54, 0, 'in']], sy: [[0, 1], [.18, .9, 'io'], [.32, 1.06, 'out'], [.54, 1], [.6, .92, 'out'], [.74, 1.02], [.86, 1, 'soft']] });
     rise(p, intro, 0, 170);
   });
@@ -305,7 +315,7 @@
     const intro = sub(p), hp = sub(intro);
     const pf = sub(hp);
     pf.path('M -110 64 C -170 50, -186 -40, -128 -70 C -138 -150, -40 -170, 0 -120 C 40 -170, 138 -150, 128 -70 C 186 -40, 170 50, 110 64 Z', { fill: C.fill, sw: 3.4 });
-    [['M -50 60 Q -56 4 -72 -38'], ['M 0 60 L 0 -64'], ['M 50 60 Q 56 4 72 -38']].forEach(([d]) => pf.path(d, SOFT(2)));
+    [['M -50 60 Q -56 4 -72 -38'], ['M 0 60 L 0 -64'], ['M 50 60 Q 56 4 72 -38'], ['M 0 -120 Q 6 -104 0 -90'], ['M -128 -70 Q -112 -64 -104 -50'], ['M 128 -70 Q 112 -64 104 -50']].forEach(([d]) => pf.path(d, SOFT(2)));
     on(pf, p, .7, { loop: 2.4, ox: 0, oy: 60, sy: [[0, 1], [.24, .94, 'io'], [.42, 1.08, 'out'], [.62, 1.04], [.7, .88, 'out'], [.86, 1.04], [1, 1, 'soft']] });
     hp.rect(-112, 56, 224, 96, { rx: 12, fill: C.fill, sw: 3.4 }); hp.line(-112, 80, 112, 80, SOFT(2));
     on(hp, p, .7, { loop: 2.4, ox: 0, oy: 152, y: [[0, 0], [.2, 0], [.4, -34, 'out'], [.6, 0, 'in']], sy: [[0, 1], [.2, .92, 'io'], [.34, 1.03, 'out'], [.6, 1], [.66, .92, 'out'], [.8, 1.02], [.92, 1, 'soft']] });
@@ -318,9 +328,9 @@
     [[-84, 86, 62, 'M 30 -150 Q -30 -100 -76 26', 0], [76, 104, 58, 'M 30 -150 Q 50 -60 72 48', .5]].forEach(([x, y, r, st, ph]) => { const g = sub(intro);
       g.path(st, { sw: 4.4 }); g.circle(x, y, r, { fill: C.fill, sw: 3.4 }); g.path(`M ${x - 14} ${y - r + 8} Q ${x} ${y - r + 16} ${x + 12} ${y - r + 6}`, SOFT(2.2));
       const A = ph ? -1 : 1; on(g, p, .7, { loop: 2.8, ox: J[0], oy: J[1], r: [[0, 0], [.7, A * 5, 'io'], [1.4, -A * 4, 'io'], [2.1, A * 2.5, 'io'], [2.8, 0, 'io']] }); });
-    const lf = sub(intro); lf.path('M 30 -150 C 70 -190, 140 -184, 160 -150 C 120 -124, 70 -124, 30 -150 Z', { fill: C.fill, sw: 3 }); lf.path('M 42 -150 Q 100 -160 150 -150', SOFT(1.8));
+    const lf = sub(intro); lf.path('M 30 -150 C 70 -190, 140 -184, 160 -150 C 120 -124, 70 -124, 30 -150 Z', { fill: C.fill, sw: 3 }); lf.path('M 42 -150 Q 100 -160 150 -150', SOFT(1.8)); lf.line(84, -155, 96, -172, SOFT(1.6)); lf.line(112, -155, 124, -170, SOFT(1.6)); lf.line(96, -154, 106, -138, SOFT(1.6));
     on(lf, p, .7, { loop: 1.4, ox: J[0], oy: J[1], r: [[0, 0], [.35, -6, 'io'], [1.05, 4, 'io'], [1.4, 0, 'io']] });
-    intro.rect(J[0] - 7, J[1] - 7, 14, 14, { rx: 4, fill: C.fill, sw: 3 });
+    intro.line(J[0], J[1], J[0] - 6, J[1] - 20, { sw: 4.4 }); intro.rect(J[0] - 7, J[1] - 7, 14, 14, { rx: 4, fill: C.fill, sw: 3 });
     on(intro, p, 0, { ox: J[0], oy: J[1], y: [[0, -160], [.45, 0, 'back']], r: [[0, 0], [.4, 0], [.5, 6, 'out'], [.7, -3, 'io'], [.9, 0, 'soft']], o: [[0, 0], [.15, 1]] });
   });
 
