@@ -90,24 +90,21 @@
   /* truck — drives in and brakes (the cargo box pitches forward), then cruises: wheels spin, the road streams past, the box bounces over a bump */
   rig('truck-pro', .7, 'slide', p => {
     const intro = sub(p); show(p, intro);
-    const rd = sub(intro); rd.line(-196, 140, 196, 140, W(4));
+    const rd = sub(intro); rd.line(-196, 140, 196, 140, { sw: 4 });
     const ds = sub(rd, { 'clip-path': clip(rd, 'M -190 150 L 190 150 L 190 180 L -190 180 Z') }), dl = sub(ds);
-    for (let x = -240; x <= 240; x += 80) dl.line(x, 164, x + 40, 164, W(4));
+    for (let x = -240; x <= 240; x += 80) dl.line(x, 164, x + 40, 164, { sw: 4, stroke: C.soft });
     on(dl, p, .7, { loop: .5, x: [[0, 0], [.5, -80, 'lin']] });
     const tO = sub(intro), bO = sub(tO);
-    const bx = sub(bO); bx.rect(-188, -112, 232, 196, Object.assign({ rx: 12 }, F()));
-    for (let k = 1; k < 8; k++) bx.line(-188 + k * 29, -100, -188 + k * 29, 72, W(1.6));
-    bx.line(-188, -96, 44, -96, W(2)); bx.line(-188, 70, 44, 70, W(2)); bx.rect(-182, -10, 8, 28, Object.assign({ rx: 3 }, W(2)));
+    const bx = sub(bO); bx.rect(-188, -112, 232, 196, { rx: 14, fill: C.fill, sw: 3.4 }); bx.rect(-170, -94, 196, 160, { rx: 8, sw: 1.8, stroke: C.soft });
+    bx.line(-76, -94, -76, 66, SOFT(1.8));
     on(bx, p, .7, { loop: 2.4, ox: 44, oy: 84, y: [[0, 0], [1.2, 0], [1.3, 3, 'out'], [1.45, -8, 'out'], [1.65, 1, 'in'], [1.8, 0, 'soft']], r: [[0, 0], [1.3, 0], [1.45, -1.2, 'out'], [1.7, .6], [1.85, 0, 'soft']] });
-    const cb = sub(bO); cb.path('M 48 -40 L 128 -40 Q 148 -40 158 -22 L 186 26 Q 190 34 190 44 L 190 74 Q 190 84 180 84 L 48 84 Z', F());
-    cb.path('M 66 -24 L 122 -24 Q 134 -24 141 -12 L 160 22 L 66 22 Z', F(2.6)); cb.line(94, -24, 94, 22, W(1.8));
-    cb.path('M 66 22 L 66 76 M 66 34 L 150 34', W(1.8)); cb.line(118, 46, 134, 46, W(3));
-    cb.rect(176, 40, 12, 20, Object.assign({ rx: 4 }, { fill: C.ink, sw: 1.4 })); cb.rect(150, 68, 42, 14, Object.assign({ rx: 4 }, F(2.4)));
-    cb.path('M 128 -40 L 122 -60 L 134 -60', W(2.4));
+    const cb = sub(bO); cb.path('M 48 -40 L 128 -40 Q 148 -40 158 -22 L 186 26 Q 190 34 190 44 L 190 74 Q 190 84 180 84 L 48 84 Z', { fill: C.fill, sw: 3.4 });
+    cb.path('M 66 -24 L 122 -24 Q 134 -24 141 -12 L 160 22 L 66 22 Z', { fill: C.fill, sw: 2.6 }); cb.line(100, 34, 120, 34, SOFT(2.2));
+    cb.circle(178, 56, 6, { fill: C.ink, sw: 1.2 });
     on(cb, p, .7, { loop: 2.4, ox: 120, oy: 84, y: [[0, 0], [.25, -2, 'io'], [.5, 0, 'io'], [1.2, 0], [1.32, -6, 'out'], [1.5, 0, 'in']] });
     on(bO, p, 0, { ox: 110, oy: 108, r: [[0, 0], [.42, 0], [.55, 2.4, 'out'], [.72, -1, 'io'], [.9, 0, 'soft']] });
-    [-128, -60, 110].forEach(x => { const w = sub(tO); w.circle(x, 108, 30, F(3.2)); const hb = sub(w); hb.circle(x, 108, 13, W(2.2));
-      for (let i = 0; i < 5; i++) hb.dot(...pt(20, i * 72 - 90, x, 108), 2.6);
+    [-128, 110].forEach(x => { const w = sub(tO); w.circle(x, 108, 32, { fill: C.fill, sw: 3.4 }); const hb = sub(w); hb.circle(x, 108, 12, { fill: C.fill, sw: 2.4, stroke: C.soft });
+      hb.line(x - 22, 108, x + 22, 108, SOFT(2.4)); hb.line(x, 86, x, 130, SOFT(2.4));
       on(w, p, .7, { loop: .6, ox: x, oy: 108, r: [[0, 0], [.6, 360, 'lin']] }); on(hb, p, 0, { ox: x, oy: 108, r: [[0, -400], [.55, 0, 'out']] }); });
     on(tO, p, 0, { x: [[0, -330], [.55, 0, 'out']], o: [[0, 0], [.12, 1]] });
   });
