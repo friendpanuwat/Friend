@@ -238,7 +238,7 @@
     const a = area(o), k = a.k, ns = o.size || Math.min(G.W * .3, a.span * .2, 330 * k), th = trend && !icon ? ns * .9 : 0;
     const lab = 56 * k, ss = 38 * k, ih = icon ? Math.min(a.span * .2, 300 * k) : 0, mw = G.W - 120;
     const lh = label ? textH(label, lab, mw) : 0, sh = sub ? textH(sub, ss, mw, 500) : 0;
-    let y = a.cy - (ih + th + (icon ? 60 * k : 0) + ns * .74 + (label ? 40 * k + lh : 0) + (sub ? 20 * k + sh : 0)) / 2, t = a.at;
+    let y = a.cy - (ih + th + (icon ? 60 * k : 0) + ns * .74 + (label ? 75 * k + lh : 0) + (sub ? 20 * k + sh : 0)) / 2, t = a.at;
     if (icon) { const d = draw(icon, { x: G.W / 2, y: y + ih / 2, w: ih * 400 / 370, at: t }); t = d.end - .15; y += ih + 60 * k; }
     const ty = y + th / 2; y += th + ns * .74;
     const c = G.counter(value, { from, prefix, suffix, decimals, x: G.W / 2, y, size: ns, at: t, maxW: G.W - 120 });
@@ -249,7 +249,7 @@
             : { x: G.W / 2, y: ty, s: th / 210, at: t + .1, float: { amp: 7, period: 2.4 } });
       G.pulse(ar.g, c.end);
     }
-    if (label) { y += 40 * k; ctext(label, { cy: y + lh / 2 - lab * .1, size: lab, at: t + .35, maxW: mw }); y += lh; }
+    if (label) { y += 75 * k; ctext(label, { cy: y + lh / 2 - lab * .1, size: lab, at: t + .35, maxW: mw }); y += lh; }
     if (sub) { y += 20 * k; ctext(sub, { cy: y + sh / 2, size: ss, weight: 500, color: C.sub, glow: false, at: t + .5, maxW: mw }); }
     G.pulse(c.g, c.end, 'bloom', .5);
     return c.end + .3;

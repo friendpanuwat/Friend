@@ -138,6 +138,13 @@
     const g = mk('g', { transform: `translate(${x} ${y}) scale(${s})`, id: 'gl' + (++uid) }, fl || wrap);
     const p = new Pen(g, at, strokeK(s), ts);
     fn(p);
+    if (filter) {   // a perfectly flat/vertical drawing has a 0-px box → the glow filter would erase it; pad the box
+      const bb = g.getBBox(), m = 90 / s;
+      if (bb.width < m || bb.height < m) {
+        const w = Math.max(bb.width, m), h = Math.max(bb.height, m);
+        mk('rect', { x: bb.x + bb.width / 2 - w / 2, y: bb.y + bb.height / 2 - h / 2, width: w, height: h, fill: 'none', stroke: 'none' }, g);
+      }
+    }
     if (fl) items.push(Object.assign({ type: 'float', e: fl, start: p.span.end, amp: 8, period: 3.2, dx: 0 }, float === true ? {} : float));
     return { wrap, g: fl || g, end: p.span.end };
   }
