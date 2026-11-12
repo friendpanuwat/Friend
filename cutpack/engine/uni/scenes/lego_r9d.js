@@ -92,34 +92,6 @@ const R11 = {
 };
 
 /* ================= B10 คน: who? {icon, label?}, label?, tags? [≤2] ================= */
-/* 1 · an invitation: the card rises out of its envelope (the flap stands open behind it), and who it is for is on it.
-   Motion: the envelope comes up · the flap opens upward · the card slides up out of the pocket · on the key word who it is
-   for pops on it */
-R3.both('B10', 'invite', 'บัตรเชิญเลื่อนออกจากซอง ชื่อกลุ่มที่ใช่อยู่บนบัตร', (K, s, T, g) => {
-  const who = s.who ?? {icon: 'user'}, w = s.label ?? who.label, tags = (s.tags ?? []).slice(0, 2);
-  const L = 74, R = 526, top = 178, bot = 334, mid = 300, vy = 266;
-  const env = R6.group(g); K.enter(env, T.b[0], 'rise');
-  /* the inside of the envelope, then the open flap with its paper liner, both behind the card */
-  const back = `M${L} ${top}H${R}V${bot - 18}Q${R} ${bot} ${R - 18} ${bot}H${L + 18}Q${L} ${bot} ${L} ${bot - 18}Z`;
-  R8.svg(env, R11.paper(back) + R11.shade(back, .1));
-  const fl = R8.svg(env, R11.paper(`M${L} ${top}L${mid - 18} 66Q${mid} 54 ${mid + 18} 66L${R} ${top}Z`) +
-    `<path style="fill:var(--tr);stroke:none" d="M${L + 46} ${top - 6}L${mid} 88L${R - 46} ${top - 6}Z"/>`);
-  fl.style.transformOrigin = `300px ${top}px`;
-  A(fl, [{transform: 'scaleY(-.9)'}, {transform: 'scaleY(1.06)', offset: .7}, {transform: 'none'}], T.b[1] - .1, .5, {e: 'ease-out'});
-  /* the card: what is still in the pocket is cut away (the pocket is see-through in some styles) */
-  const cg = R6.group(env); cg.style.clipPath = `polygon(-100px -100px,700px -100px,700px ${top}px,${R}px ${top}px,${mid}px ${vy}px,${L}px ${top}px,-100px ${top}px)`;
-  const c = R9.acc(cg, 170, 8, 260, 300, 22);
-  A(c.m, [{transform: 'translateY(250px)'}, {transform: 'translateY(-16px)', offset: .75}, {transform: 'none'}], T.b[2] - .25, .75, {e: 'ease-out'});
-  const fr = div('left:12px;top:12px;right:12px;bottom:12px;border:2.5px solid currentColor;border-radius:14px;opacity:.35', c.p); fr.className = 'u-bubble-text';
-  const d = R11.disc(c.p, 130, 68, 42, 'main'); R11.inkIco(d.p, who.icon, 42, 42, 46);
-  const tx = div('left:0;top:0;width:260px;height:300px', c.p);
-  if (w) R11.accWord(K, tx, w, 130, 118, 40, 216);
-  if (tags.length) { R11.rule(tx, 104, 174, 52, .4, 'u-bubble-text'); R11.accWord(K, tx, tags.join(' · '), 130, 184, 26, 200); }
-  K.enter(tx, T.hit, 'pop'); K.punch(d.p, T.hit);
-  /* the pocket in front: its top cut in a V, the folds of its side flaps */
-  const pk = `M${L} ${top}L${mid} ${vy}L${R} ${top}V${bot - 18}Q${R} ${bot} ${R - 18} ${bot}H${L + 18}Q${L} ${bot} ${L} ${bot - 18}Z`;
-  R8.svg(env, R11.paper(pk) + R11.det(`M${L + 12} ${bot - 10}L${mid} ${vy + 36}L${R - 12} ${bot - 10}`, .22, .45));
-});
 
 /* 2 · a search with a filter: the words typed in (the cursor after them), the filter chip lit, the one result that fits
    ringed and ticked, the others dimmed out under it. Motion: the app comes up with two results · the words are typed in ·
@@ -215,58 +187,7 @@ R3.both('B20', 'cross', 'การ์ดคู่ A × B (จบกัน = ก�
   if (s.label) K.enter(R4.word(K, g, s.label, 297, 258, 44, null, 360), T.hit + .25, 'chip');
 });
 
-/* 6 · two glasses clink: each carries one side's icon in its drink, drops jump up where the rims touch (over: apart).
-   Motion: one glass comes in from the left · the other from the right · they swing toward each other and clink on the key
-   word, drops jumping up (over: they swing apart instead and a red × comes in) · the word under them */
-R3.both('B20', 'cheers', 'แก้วสองใบชนกัน ฟองกระเด็น (จบกัน = แก้วห่างกัน)', (K, s, T, g) => {
-  const a = s.a ?? {icon: 'user'}, b = s.b ?? {icon: 'user'}, cut = !!s.cut, y0 = 52, y1 = 262, tw = 78, bw = 60;
-  const glass = (it, cx, rot, side, tIn) => {
-    const mv = R6.group(g); A(mv, [{opacity: 0, transform: `translateX(${side * 170}px)`}, {opacity: 1, transform: `translateX(${side * 40}px)`}], tIn, .5, {e: 'cubic-bezier(.2,.9,.3,1)'});
-    A(mv, [{transform: `translateX(${side * 40}px)`}, {transform: 'none'}], T.hit - .3, .3, {e: 'ease-in', f: 'forwards'});
-    const h = R6.group(mv); h.style.transformOrigin = `${cx}px ${y1}px`;
-    A(h, [{transform: `rotate(${cut ? -rot * 2 : 0}deg)`}, {transform: `rotate(${rot}deg)`}], T.hit - .3, .3, {e: 'ease-in', f: 'both'});
-    const xl = y => cx - tw + (y - y0) * (tw - bw) / (y1 - y0), xr = y => 2 * cx - xl(y), wy = y0 + 50, i = 9;
-    const body = `M${cx - tw} ${y0}H${cx + tw}L${cx + bw + 2} ${y1 - 18}Q${cx + bw} ${y1} ${cx + bw - 18} ${y1}H${cx - bw + 18}Q${cx - bw} ${y1} ${cx - bw - 2} ${y1 - 18}Z`;
-    const drink = `M${(xl(wy) + i).toFixed(1)} ${wy}Q${cx - 34} ${wy - 13} ${cx} ${wy}T${(xr(wy) - i).toFixed(1)} ${wy}L${cx + bw - 6} ${y1 - 24}Q${cx + bw - 8} ${y1 - i} ${cx + bw - 26} ${y1 - i}H${cx - bw + 26}Q${cx - bw + 8} ${y1 - i} ${cx - bw + 6} ${y1 - 24}Z`;
-    const bub = [[-34, 66, 6], [26, 44, 5], [8, 90, 7], [-14, 28, 4]].map(([dx, dy, r]) => `<circle style="fill:var(--fl);opacity:.7" cx="${cx + dx}" cy="${y1 - dy}" r="${r}"/>`).join('');
-    R8.svg(h, `<path class="fl" style="stroke:none" d="${body}"/>` + R11.accP(drink, 0) + bub + `<path class="u-fl-edge" d="${body}"/>` +
-      `<path style="fill:none;stroke:#FFFFFF;stroke-width:7px;stroke-linecap:round;opacity:.45" d="M${(xl(wy + 24) + 20).toFixed(1)} ${wy + 24}L${(xl(y1 - 56) + 18).toFixed(1)} ${y1 - 56}"/>`);
-    R9.ico(h, it.icon, cx, wy + 66, 50, 'u-bubble-text');
-    if (it.label) R11.accWord(K, h, it.label, cx, wy + 98, 28, 104);
-  };
-  glass(a, cut ? 170 : 180, cut ? -4 : 12, -1, T.b[0]); glass(b, cut ? 430 : 420, cut ? 4 : -12, 1, T.b[1]);
-  const cy = y1 - 189;                                                           // where the rims touch (300, cy)
-  if (!cut) [[266, cy - 34, 9, -40], [334, cy - 34, 9, 40], [300, cy - 54, 7, 0]].forEach(([x, y, r, dx], k) => {
-    const dp = R8.svg(g, R11.accP(R11.drop(x, y, r), .4)); dp.style.transformOrigin = `${x}px ${y}px`;
-    A(dp, [{opacity: 0, transform: `translate(${-dx * .6}px,34px) scale(.4)`}, {opacity: 1, transform: 'none'}], T.hit + .02 + k * .04, .35, {e: 'cubic-bezier(.2,.9,.3,1.2)'});
-  });
-  else { const x = R11.disc(g, 300, 150, 30, 'neg'); R11.glyph(x.p, '×', 30, 30, 44, 'u-inherit'); K.enter(x.o, T.hit + .1, 'pop'); }
-  if (s.label) K.enter(R4.word(K, g, s.label, 300, 290, 34, null, 300), T.hit + .25, 'chip');
-});
-
 /* ================= B21 สถานที่: place {icon, label?}, spots? [1-2 {icon, label?}] ================= */
-/* 7 · a postcard: the place's picture on the left, its name and the spots written on the address lines on the right,
-   a perforated stamp and the postmark beside it. Motion: the card drops in with a turn · the picture and the name come in ·
-   the stamp is slapped on · on the key word the postmark stamps down beside it (a punch) and the spots are written */
-R3.both('B21', 'postcard', 'โปสการ์ด แสตมป์แปะ ตราไปรษณีย์ประทับชื่อสถานที่', (K, s, T, g) => {
-  const pl = s.place ?? {icon: 'map-pin'}, sp = (s.spots ?? []).slice(0, 2);
-  const c = R9.card(g, 36, 26, 494, 288, 20); c.p.style.transform = 'rotate(-3deg)'; K.enter(c.o, T.b[0], 'drop');
-  const pic = R9.acc(c.p, 16, 16, 226, 256, 12); K.enter(pic.o, T.b[1] - .15, 'pop');
-  const pf = div('left:10px;top:10px;right:10px;bottom:10px;border:2.5px solid currentColor;border-radius:6px;opacity:.3', pic.p); pf.className = 'u-bubble-text';
-  R9.ico(pic.p, pl.icon, 113, 128, 104, 'u-bubble-text');
-  R11.bar(c.p, 259, 22, 3, 244, null, 2);
-  const st = R7.plain(c.p, 398, 16, 78, 94, 'main', '0'); st.p.style.clipPath = R11.zig(78, 94, 9, 5); st.p.style.boxShadow = 'none';
-  div('left:10px;top:10px;right:10px;bottom:10px;border:2px solid currentColor;opacity:.4', st.p);
-  R11.inkIco(st.p, pl.icon, 39, 47, 36);
-  A(st.o, [{opacity: 0, transform: 'scale(1.7) rotate(-12deg)'}, {opacity: 1, transform: 'none'}], T.b[2], .3, {e: 'cubic-bezier(.5,0,.9,.5)'}); K.punch(c.p, T.b[2] + .3);
-  const pm = R8.svg(c.p, `<g style="fill:none;stroke:var(--ink);stroke-width:calc(var(--lw) * .2);opacity:.5"><circle cx="352" cy="62" r="32"/><circle cx="352" cy="62" r="24"/>` +
-    `<path d="M314 52q-9 -7 -18 0t-18 0M314 72q-9 -7 -18 0t-18 0"/></g>`); pm.style.transformOrigin = '352px 62px';
-  A(pm, [{opacity: 0, transform: 'scale(1.6)'}, {opacity: 1, transform: 'scale(.94)', offset: .7}, {opacity: 1, transform: 'none'}], T.hit - .05, .3, {e: 'ease-in'});
-  if (pl.label) R7.write(R6.wordL(K, c.p, pl.label, 280, 116, 38, null, 196), T.b[1] + .1, .45);
-  sp.forEach((p, k) => { const y = 176 + k * 48, row = div('left:0;top:0;width:494px;height:288px', c.p);
-    R9.ico(row, p.icon, 292, y + 18, 24); if (p.label) R6.wordL(K, row, p.label, 314, y + 2, 24, null, 160); R7.write(row, T.hit + .2 + k * .2, .35); });
-  (sp.length ? sp.map((_, k) => 176 + k * 48 + 40) : [180, 222, 264]).forEach(y => R11.bar(c.p, 280, y, 196, 3, null, 2));
-});
 
 /* 8 · a check-in in an app: a little map (its roads inside it) with the pin dropped, the place's name, the button pressed.
    Motion: the app comes up and the roads draw on the map · the pin drops onto the map and bounces, a ring going out under it ·
@@ -371,26 +292,6 @@ R3.both('B05', 'quiz', 'ควิซในแอป ตอบผิดขึ้�
   K.cursor(c.p, [[T.b[1] + .3, 360, 330], [T.b[2] - .05, 270, 150], [T.hit - .3, 270, 150], [T.hit - .05, 226, 262], [T.t1, 226, 262]], {clicks: [T.b[2] - .05, T.hit - .05], size: 58});
 });
 
-/* 12 · two answer sheets with their handwriting and a margin line, marked by a small ✗ / ✓ icon on each sheet's corner
-   (Friend 2026-11-12, the big pen strokes over the sheets taken out). Motion: the two sheets drop in · the handwriting writes
-   itself · the ✗ pops on the wrong one's corner and it shakes · on the key word the ✓ pops on the right one's (a ring) */
-R3.both('B05', 'grade', 'ครูตรวจกระดาษสองแผ่น ✗ บนแผ่นผิด ✓ บนแผ่นถูก', (K, s, T, g) => {
-  const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'};
-  const hand = (y, len) => { let d = `M56 ${y}`; for (let x = 56; x < 56 + len; x += 22) d += `q5.5 -7 11 0t11 0`; return d; };
-  [[w, 46, -3], [r, 324, 3]].forEach(([it, x, rot], k) => {
-    const c = R9.card(g, x, 16, 230, 304, 14); c.p.style.transform = `rotate(${rot}deg)`; K.enter(c.o, T.b[0] + k * .15, 'drop');
-    div('left:38px;top:0;width:3px;height:304px;background:var(--neg);opacity:.4', c.p);
-    R11.iconWord(K, c.p, it, 230, 18, 50, 32);
-    const hw = R8.svg(c.p, [[140, 150], [174, 154], [208, 132], [242, 154], [276, 88]].map(([y, l]) => `<path style="fill:none;stroke:var(--ink);stroke-width:3px;stroke-linecap:round;opacity:.3" d="${hand(y, l)}"/>`).join(''));
-    hw.querySelectorAll('path').forEach((p, j) => R11.draw(K, p, T.b[1] - .2 + k * .2 + j * .08, .3));
-    /* the mark: a small icon in a disc on the sheet's top-right corner (Friend 2026-11-12: "อยากให้ ❌✅ เป็นแค่ Icon ที่อยู่บนมุมของการ์ดก็พอ") */
-    const mk = R11.disc(c.p, 192, 36, 26, k === 0 ? 'neg' : 'acc');
-    R9.ico(mk.p, k === 0 ? 'x' : 'check', 26, 26, 30, k === 0 ? 'u-inherit' : 'u-bubble-text');
-    if (k === 0) { K.enter(mk.o, T.b[2] + .05, 'pop'); K.shake(c.m, T.b[2] + .3); }
-    else { K.enter(mk.o, T.hit, 'pop'); R1.ripple(K, mk, T.hit + .2, {grow: 16}); K.punch(c.m, T.hit + .35); }
-  });
-});
-
 /* ================= B11 คำพูด: quote, kind, mood, react? ================= */
 /* 13 · a chat: who is on the other end (online), the "typing…" dots, then the message itself (what was said) with a
    reaction on its corner. Motion: the chat comes up · the typing bubble pops and its dots bounce · on the key word the
@@ -431,66 +332,6 @@ R3.both('B11', 'call', 'สายเรียกเข้า กดรับส�
   if (s.react) { const r = R11.disc(g, 456, 72, 30, bad ? 'neg' : 'acc'); R9.ico(r.p, s.react, 30, 30, 32, bad ? 'u-inherit' : 'u-bubble-text'); K.enter(r.o, T.hit + .4, 'pop'); }
 });
 
-/* ================= B01 ตัวเลขเด่น: value, unit?, icon?, dir?, money? ================= */
-/* 15 · a price tag hanging on its string (threaded through the tag's eyelet), at rest after its swing: the amount on it,
-   a stitched edge round it (money only). Motion (Friend 2026-11-12 "เริ่มได้"): the string runs down · the tag drops in on it
-   and swings, wide at first, then settles · the price counts up from 0 · and lands on the key word (a punch), the unit after it */
-R3.both('B01', 'tag', 'ป้ายราคาแขวน แกว่งแล้วหยุด ตัวเลขนับขึ้น', (K, s, T, g) => {
-  const hx = 300, hy = 94;                                                        // the eyelet: the tag turns round it
-  const sw = R6.group(g); sw.style.transformOrigin = `${hx}px ${hy}px`;              // the drop and the swing
-  const t = R6.group(sw); t.style.transformOrigin = `${hx}px ${hy}px`; t.style.transform = 'rotate(-6deg)';
-  const pn = R6.group(t); pn.style.transformOrigin = '300px 200px';                // the punch on the key word
-  const tag = 'M300 40L428 98Q440 104 440 117V306Q440 328 418 328H182Q160 328 160 306V117Q160 104 172 98Z';
-  const c = R9.acc(pn, 160, 40, 280, 288, 0); c.p.style.display = 'block';           // the style's own accent surface, cut to the tag
-  c.p.style.clipPath = "path('M140 0L268 58Q280 64 280 77V266Q280 288 258 288H22Q0 288 0 266V77Q0 64 12 58Z')";
-  R8.svg(c.p, `<path style="fill:none;stroke:currentColor;stroke-width:2.5px;stroke-dasharray:9 8;opacity:.4" d="M140 20L260 74V260Q260 270 250 270H30Q20 270 20 260V74Z"/>`);
-  if (s.icon) R9.ico(c.p, s.icon, 140, 106, 40, 'u-bubble-text');
-  R9B.count(K, s, c.p, txt => { const n = R11.num(c.p, txt, 140, 132, 96, 236); n.firstChild.style.color = 'inherit'; return n; }, T.b[1] + .2, T.hit, 11);
-  const u = s.unit ? R11.accWord(K, c.p, s.unit, 140, 228, 34, 220) : null;
-  R8.svg(pn, `<path style="fill:none;stroke:var(--ac-line, var(--ink));stroke-width:calc(var(--lw-ac, 0) * .6);stroke-linejoin:round" d="${tag}"/>`);
-  R11.disc(pn, hx, hy, 15, 'card');
-  const str = R8.svg(g, R11.inkL(`M${hx} -24Q${hx - 8} 30 ${hx} ${hy}`, .3)); R11.draw(K, str.querySelector('path'), T.b[0], .4);
-  const t1 = T.b[0] + .12;
-  A(sw, [{opacity: 0}, {opacity: 1}], t1, .08);
-  A(sw, [{transform: 'translateY(-300px) rotate(0)', easing: 'cubic-bezier(.5,0,1,.6)'}, {transform: 'translateY(0) rotate(15deg)', offset: .2},
-    {transform: 'rotate(-10deg)', offset: .42}, {transform: 'rotate(6deg)', offset: .63}, {transform: 'rotate(-2.5deg)', offset: .82}, {transform: 'none'}],
-    t1, Math.max(1.3, T.hit - t1 - .25), {e: 'ease-out'});
-  K.punch(pn, T.hit); if (u) K.enter(u, T.hit + .12, 'chip');
-  A(t, [{transform: 'rotate(-6deg)'}, {transform: 'rotate(-4.6deg)'}, {transform: 'rotate(-6deg)'}], T.hit + .5, 2.4, {e: 'ease-in-out', f: 'none', it: 3});   // a slow sway at rest
-}, R2.money);
-
-/* 16 · a piggy bank, the pig of Friend's ref shape for shape ("20 WAYS TO SIMPLIFY" #8 FINANCE, Friend 2026-11-11: "วาดหมูตามนี้",
-   then "ไม่เหมือน อยากได้แบบเหมือน 100% แต่ไม่เอาเงานะ"). The outline is traced off the ref picture itself (its bright outline
-   filled and cut away from the tail, then followed as a contour, in the ref's own pixels: the pig spans x 33–216, y 41–215),
-   the eye, the line on its back, the looped tail and the coin with its inner ring sit where they are in the ref. One outline
-   round the whole pig, one flat body colour: no shading on the belly or in the ear, no glow. No line under the ear
-   (Friend 2026-11-12: "ลบเส้นใต้หูของหมูออกด้วย"). The amount counts up beside it (money only) */
-R3.both('B01', 'piggy', 'กระปุกออมสิน เหรียญหยอดทีละเหรียญ ยอดนับขึ้น', (K, s, T, g) => {
-  const k = 1.9, ox = 40 - 33 * k, oy = 6 - 41 * k, w = n => `stroke-width:${(n / k).toFixed(2)}px`;   // lines keep their width in the scaled group
-  const pig = 'M62.6 84.9 L62.4 86.1 L62.5 88.0 L63.0 90.5 L63.9 93.6 L65.1 97.4 L65.3 100.9 L64.4 104.3 L62.5 107.5 L59.5 110.5 L56.8 113.8 L54.2 117.2 L52.0 121.0 L50.0 125.0 L48.1 128.0 L46.4 130.0 L44.8 131.0 L43.2 131.0 L41.7 131.2 L40.1 131.8 L38.4 132.5 L36.6 133.5 L35.2 134.4 L34.2 135.3 L33.6 136.1 L33.4 136.9 L33.2 138.8 L33.1 141.9 L33.0 146.2 L33.0 151.8 L33.1 156.2 L33.4 159.6 L33.8 161.9 L34.2 163.1 L34.9 164.2 L35.6 165.2 L36.5 166.1 L37.5 166.9 L38.9 167.6 L40.8 168.2 L43.1 168.8 L45.9 169.2 L48.4 170.2 L50.8 171.8 L53.0 173.8 L55.0 176.2 L57.4 178.8 L60.1 181.4 L63.2 184.1 L66.8 186.9 L69.7 190.2 L72.1 194.2 L73.9 198.9 L75.1 204.1 L76.3 208.2 L77.4 211.1 L78.5 212.8 L79.5 213.2 L81.4 213.6 L84.3 213.9 L88.1 214.0 L92.9 214.0 L96.7 213.8 L99.6 213.4 L101.5 212.9 L102.5 212.1 L103.5 210.9 L104.5 209.3 L105.5 207.2 L106.5 204.8 L107.6 202.9 L108.7 201.8 L109.9 201.4 L111.1 201.6 L113.8 201.8 L117.9 201.8 L123.5 201.6 L130.5 201.4 L135.9 201.8 L139.8 202.8 L142.1 204.4 L142.9 206.6 L143.8 208.6 L144.8 210.2 L145.9 211.5 L147.1 212.5 L149.2 213.2 L152.1 213.8 L155.8 214.0 L160.2 214.0 L163.9 213.9 L166.6 213.6 L168.5 213.2 L169.5 212.8 L170.6 211.5 L171.7 209.5 L172.9 206.8 L174.1 203.2 L175.2 199.9 L176.1 196.8 L176.8 193.9 L177.2 191.1 L178.1 188.4 L179.4 185.8 L181.0 183.2 L183.0 180.8 L184.9 178.1 L186.8 175.4 L188.6 172.5 L190.4 169.5 L191.9 166.6 L193.1 163.9 L194.1 161.2 L194.9 158.8 L195.4 156.0 L195.8 153.0 L196.0 149.8 L196.0 146.2 L196.2 143.5 L196.8 141.5 L197.5 140.2 L198.5 139.8 L199.2 139.2 L199.8 138.8 L200.0 138.2 L200.0 137.8 L199.7 137.3 L199.1 136.9 L198.1 136.6 L196.9 136.4 L195.8 135.6 L194.9 134.4 L194.2 132.6 L193.8 130.4 L192.9 127.8 L191.6 124.9 L190.0 121.8 L188.0 118.2 L185.6 114.8 L182.9 111.4 L179.8 108.1 L176.2 104.9 L172.9 102.1 L169.6 99.7 L166.5 97.8 L163.5 96.2 L160.4 94.9 L157.3 93.6 L154.1 92.5 L150.9 91.5 L147.7 90.7 L144.6 90.1 L141.5 89.6 L138.5 89.4 L136.2 89.1 L134.6 88.9 L133.6 88.6 L133.4 88.4 L132.0 88.2 L129.5 88.1 L125.9 88.0 L121.1 88.0 L116.4 88.2 L111.8 88.8 L107.2 89.5 L102.8 90.5 L99.1 91.0 L96.2 91.0 L94.1 90.5 L92.9 89.5 L91.0 88.4 L88.5 87.1 L85.4 85.8 L81.6 84.2 L78.2 83.1 L75.2 82.2 L72.6 81.6 L70.4 81.4 L68.4 81.3 L66.8 81.4 L65.5 81.8 L64.5 82.2 L63.7 82.9 L63.1 83.8Z';
-  const pg = R6.group(g); pg.style.transformOrigin = '200px 330px'; K.enter(pg, T.b[0], 'rise');
-  R8.svg(pg, `<g transform="translate(${ox} ${oy}) scale(${k})">` +
-    `<path style="fill:none;stroke:var(--ink);${w(6)};stroke-linecap:round;stroke-linejoin:round" d="M193 139Q199 135 201 131C195 127 196 118 204 118C211 118 211 128 205 130Q211 131 214 127L216 118"/>` +
-    `<path class="fl" style="stroke:none" d="${pig}"/><path class="u-fl-edge" style="${w(6)};stroke-linejoin:round" d="${pig}"/>` +
-    `<path style="fill:none;stroke:var(--fl-edge, var(--ink));${w(6)};stroke-linecap:round" d="M109 101Q129 95 150 101"/>` +
-    `<circle style="fill:var(--fl-edge, var(--ink))" cx="68.3" cy="129.4" r="5"/></g>`);
-  const cx = ox + 128.3 * k, cy = oy + 62 * k, r = 21.5 * k, slot = oy + 98 * k;
-  const coin = (parent) => { const c = R11.disc(parent, cx, cy, r, 'acc');
-    const ring = div(`left:${r - 32}px;top:${r - 32}px;width:64px;height:64px;border-radius:50%;border:2px solid currentColor;box-sizing:border-box`, c.p); ring.className = 'u-bubble-text';
-    R11.glyph(c.p, '฿', r, r, 38, 'u-bubble-text'); return c; };
-  /* two coins drop through the slot (cut away below it), the pig bumps each time; the last one lands above the slot on the key word */
-  const cl = R6.group(g); cl.style.clipPath = `polygon(-100px -500px,700px -500px,700px ${slot - 2}px,-100px ${slot - 2}px)`;
-  [T.b[1], T.b[2]].forEach(t => { const c = coin(cl);
-    A(c.o, [{opacity: 0, transform: 'translateY(-170px)'}, {opacity: 1, transform: 'translateY(-120px)', offset: .2}, {opacity: 1, transform: `translateY(${slot - cy + r + 4}px)`}], t - .35, .4, {e: 'ease-in', f: 'both'});
-    A(pg, [{transform: 'none'}, {transform: 'scale(1.03,.95)', offset: .35}, {transform: 'none'}], t + .02, .3, {e: EASE.smooth, f: 'none'}); });
-  const c = coin(g);
-  A(c.o, [{opacity: 0, transform: 'translateY(-170px)'}, {opacity: 1, transform: 'translateY(-120px)', offset: .25}, {opacity: 1, transform: 'translateY(6px)', offset: .75}, {opacity: 1, transform: 'none'}], T.hit - .4, .5, {e: 'ease-in'});
-  K.punch(c.p, T.hit + .12);
-  const b = R9.card(g, 400, 10, 150, 124, 24); K.enter(b.o, T.b[1] - .25, 'pop');
-  R9B.count(K, s, b.p, txt => R11.num(b.p, txt, 75, 22, 56, 130), T.b[1], T.hit, 9);
-  if (s.unit) K.enter(R4.word(K, b.p, s.unit, 75, 82, 28, null, 130), T.hit + .1, 'chip');
-}, R2.money);
-
 /* ================= B02 เพิ่ม / ลด: dir, item, center?, n?, keep?, end? ================= */
 /* 17 · a battery: the bars fill up one by one (up), or drain until one red bar is left (down); each bar has its shine.
    Motion: up = the empty battery comes up · the bars fill one by one from the left, the last one (with the icon) on the key
@@ -515,53 +356,6 @@ R3.both('B02', 'battery', 'แบตเตอรี่ ขีดเติมข�
     R9.ico(red.p, it.icon, 41, 75, 40, 'u-inherit');
   });
   if (up) K.punch(bt, T.hit + .3);
-});
-
-/* 18 · cardboard boxes, drawn with their front, side and top, a strip of tape over each, stacked square on one another.
-   A box's top shows only while nothing is on it, so no hidden top shows through the box above in the see-through styles.
-   Motion (Friend 2026-11-12 "เริ่มได้"): up = the floor comes in · the boxes fall one by one, faster and faster, each landing
-   with a thump that squashes the stack, the last (lit) one on the key word; down = the four come up · the top ones are lifted
-   off one by one and fly away, a dashed outline left where each was, the last lift on the key word */
-R3.both('B02', 'stack', 'กล่องพัสดุซ้อนสูงขึ้น หรือถูกหยิบออกทีละกล่อง', (K, s, T, g) => {
-  const up = s.dir !== 'down', it = s.item ?? {icon: 'package'}, W = 212, H = 62, dx = 32, dy = 20, floor = 324, x = 178, tx = x + W / 2;
-  const fl = R7.plain(g, 132, floor, 336, 10, 'main', '5px'); K.enter(fl.o, T.b[0], 'rise');
-  const stk = R6.group(g); stk.style.transformOrigin = `300px ${floor}px`;
-  const F = k => { const y = floor - (k + 1) * H;
-    return {y, front: `M${x} ${y}H${x + W}V${y + H}H${x}Z`, topF: `M${x} ${y}L${x + dx} ${y - dy}H${x + W + dx}L${x + W} ${y}Z`,
-      side: `M${x + W} ${y}L${x + W + dx} ${y - dy}V${y + H - dy}L${x + W} ${y + H}Z`}; };
-  const box = (k, lit) => {
-    const {y, front, topF, side} = F(k), b = R6.group(stk), fill = d => lit ? R11.accP(d, 0) : `<path class="fl" style="stroke:none" d="${d}"/>`;
-    const edge = lit ? `style="fill:none;stroke:var(--ac-line, var(--ink));stroke-width:calc(var(--lw) * .45);stroke-linejoin:round"` : 'class="u-fl-edge"';
-    R8.svg(b, fill(front + side) + R11.shade(side, .2) + R11.shade(front, .06) +
-      `<path style="fill:var(--ink);opacity:.14;stroke:none" d="M${tx - 14} ${y}H${tx + 14}V${y + 24}H${tx - 14}Z"/><path ${edge} d="${front}${side}"/>`);
-    const top = R8.svg(b, fill(topF) + `<path style="fill:var(--ink);opacity:.14;stroke:none" d="M${tx - 14} ${y}L${tx - 14 + dx} ${y - dy}H${tx + 14 + dx}L${tx + 14} ${y}Z"/><path ${edge} d="${topF}"/>`);
-    if (lit) { const ink = R11.accInk(b, x, y, W, H); R9.ico(ink.p, it.icon, W / 2, H / 2 + 8, 30, 'u-bubble-text'); }
-    else { const e = R9.ico(b, it.icon, tx, y + H / 2 + 8, 30, 'u-on-fl'); e.style.color = 'var(--fl-edge, var(--ink))'; }
-    return {b, top};
-  };
-  const squash = (t, k) => A(stk, [{transform: 'none'}, {transform: `scale(${1 + .025 * k},${1 - .045 * k})`, offset: .3}, {transform: 'none'}], t, .36, {e: EASE.smooth, f: 'none'});
-  if (up) {
-    const land = [T.b[0] + .4, T.b[1] + .12, T.b[2] + .08, T.hit], B = [0, 1, 2, 3].map(k => box(k, k === 3));
-    B.forEach((n, k) => {
-      A(n.b, [{opacity: 0}, {opacity: 1}], land[k] - .36, .1);
-      A(n.b, [{transform: 'translateY(-300px)'}, {transform: 'none'}], land[k] - .36, .36, {e: 'cubic-bezier(.55,0,1,.45)'});   // it falls, faster and faster
-      if (k < 3) R7.hide(n.top, land[k + 1]);                                                                               // covered by the next one
-      squash(land[k], k + 1);
-    });
-    K.punch(B[3].b, T.hit + .32);
-  } else {
-    const off = {3: T.b[1] + .2, 2: T.b[2] + .1, 1: T.hit}, B = [0, 1, 2, 3].map(k => box(k, false));
-    [1, 2, 3].forEach(k => { const {front, topF, side} = F(k), gh = R8.svg(stk, `<path class="u-slot" style="fill:none" d="${front}${side}${k === 3 ? topF : ''}"/>`);
-      A(gh, [{opacity: 0}, {opacity: 1}], off[k] + .2, .3); });
-    B.forEach((n, k) => {
-      K.enter(n.b, T.b[0] + k * .1, 'rise');
-      if (k < 3) R7.show(n.top, off[k + 1]);                                                                                // its top shows once the one above is gone
-      if (!k) return;
-      A(n.b, [{transform: 'none'}, {transform: 'translateY(-14px)', offset: .25}, {transform: 'translate(46px,-330px) rotate(8deg)'}], off[k] - .1, .6, {e: 'cubic-bezier(.5,0,.9,.6)', f: 'forwards'});
-      A(n.b, [{opacity: 1}, {opacity: 0}], off[k] + .25, .25, {f: 'forwards'});
-    });
-    K.punch(B[0].b, T.hit + .45);
-  }
 });
 
 /* ================= B14 ประโยคเด็ด: idea {icon?, label} ================= */

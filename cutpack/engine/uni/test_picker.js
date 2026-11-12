@@ -19,9 +19,11 @@ const chat = q => ({kind: 'chat', quote: q, say: ['ลูกค้าทัก�
 C.reset(); const m = [1, 2, 3, 4].map(k => C.pick('B01', money(k)));
 assert.strictEqual(new Set(m.slice(0, 3)).size, 3, 'first three picks differ: ' + m);
 assert.notStrictEqual(m[3], m[2], 'never the same look twice in a row');
-// 2. a number that is not money never gets the receipt
+// 2. only base-set variants (Friend 2026-11-12: "เก็บไว้แค่ร่างที่เป็นชุดฐาน", "ลบทั้ง 20 ร่างเลย"): the topic-bound ones never come back
 C.reset(); const y = [1, 2, 3, 4, 5, 6].map(k => C.pick('B01', years(k)));
-assert(!y.includes('receipt'), 'receipt is only for money: ' + y);
+const GONE = ['B01.receipt', 'B01.tag', 'B01.piggy', 'B01.calc', 'B02.stack', 'B17.basket', 'B17.shelf', 'B17.toolbox', 'B21.shop', 'B21.postcard',
+  'B04.belt', 'B05.grade', 'B07.wetfloor', 'B07.hook', 'B09.sun', 'B09.candle', 'B10.invite', 'B11.mic', 'B12.plant', 'B20.cheers'];
+for (const g of GONE) { const [c, id] = g.split('.'); assert(!C.CATS[c].variants.some(v => v.id === id), 'deleted variant is back: ' + g); }
 assert.strictEqual(new Set(y.slice(0, 2)).size, 2, 'big and ring alternate: ' + y);
 // 3. a plain chat never gets the review card (stars)
 C.reset(); const c = ['ราคาเท่าไร', 'มีสีอื่นไหม', 'ส่งฟรีไหม'].map(q => C.pick('B11', chat(q)));

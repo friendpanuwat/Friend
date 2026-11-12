@@ -64,42 +64,6 @@ R3.both('B12', 'wire', 'กดสวิตช์ ไฟวิ่งตามส�
   if (s.end) K.sat(g, s.end.icon, 548, 30, 58, lit2.done + .1, {tone: s.end.tone ?? 'main'});
 });
 
-/* 2 · the first thing waters a sprout; the stem grows past the second thing (a leaf) and the last thing ripens on top */
-R3.both('B12', 'plant', 'รดน้ำต้นกล้า แล้วต้นโตออกผล', (K, s, T, g) => {
-  const its = s.items.slice(0, 3), X = 312, top = 84, soil = 262;
-  /* the pot, solid, and the stem that grows out of it (the stem stops under the fruit and the leaf's branch) */
-  const pot = R8.svg(g, `<path class="sd" d="M${X - 64} ${soil}H${X + 64}L${X + 48} 330H${X - 48}Z"/>`);
-  K.enter(pot, T.b[0], 'rise');
-  const grow0 = T.b[1] + .15, grow1 = Math.max(grow0 + .4, T.hit - .35);
-  const stem = R6.line(K, g, `M${X} ${soil}V${top + 50}`, grow0, grow1 - grow0);
-  /* leaves (decoration) on the stem, then the second thing on its own branch */
-  const leaf = (x, y, dir) => `M${x} ${y}C${x + dir * 18} ${y - 26} ${x + dir * 52} ${y - 26} ${x + dir * 64} ${y - 4}C${x + dir * 46} ${y + 14} ${x + dir * 16} ${y + 12} ${x} ${y}Z`;
-  const lv = R8.svg(g, `<path class="fl" d="${leaf(X, 232, -1)}"/><path class="u-fl-edge" d="${leaf(X, 232, -1)}"/>`); lv.classList.add('u-decor');
-  K.enter(lv, grow0 + .25, 'pop');
-  const L = {x: X + 84, y: 182};
-  R6.line(K, g, `M${X} ${L.y + 16}L${L.x - 34} ${L.y}`, grow0 + .35, .2);
-  const b1 = K.badge(g, its[1].icon, L.x, L.y, 64, grow0 + .5, {tone: its[1].tone ?? 'main', shape: 'round'});
-  if (its[1].label) R6.wordL(K, g, its[1].label, L.x + 42, L.y - 20, 30, grow0 + .6, 120);
-  /* the watering can: the first thing, tilted, drops falling on the soil */
-  const C = {x: 110, y: 96};
-  const can = K.badge(g, its[0].icon, C.x, C.y, 92, T.b[0] + .1, {tone: its[0].tone ?? 'main'});
-  if (its[0].label) R4.word(K, g, its[0].label, C.x, C.y + 58, 32, T.b[0] + .25, 180);
-  K.move(can.m, T.b[1] - .2, 'none', 'rotate(16deg)');
-  for (let k = 0; k < 3; k++) {
-    const dr = node(g, 0, 0, 16, 22, '', `<svg width="16" height="22"><path class="ac" d="M8 0C12 8 16 12 16 15A8 8 0 0 1 0 15C0 12 4 8 8 0Z"/></svg>`);
-    dr.o.classList.add('u-decor'); dr.o.style.opacity = 0;
-    const t = T.b[1] + k * .18;
-    A(dr.o, [{opacity: 0}, {opacity: 1, offset: .1}, {opacity: 1, offset: .85}, {opacity: 0}], t, .5, {f: 'none'});
-    R2.hop(dr.m, t, .5, [C.x + 52, C.y + 10], [X - 20 + k * 14, soil - 18], 30);
-  }
-  /* the fruit: a bud on the stem's top, then the last thing lights up there on the key word */
-  const bud = K.badge(g, its[2].icon, X, top, 96, grow1, {tone: 'soft', shape: 'round'});
-  const fruit = R7.up(K, g, its[2].icon, X, top, 96, T.hit, 'round'); K.fade(bud.o, fruit.done, 1, 0);
-  R1.ripple(K, fruit, fruit.done);
-  if (its[2].label) R6.wordL(K, g, its[2].label, X + 62, top - 22, 38, fruit.done, 170);
-  if (s.end) K.sat(g, s.end.icon, 474, 290, 58, fruit.done + .15, {tone: s.end.tone ?? 'main'});
-});
-
 /* ================= B06 คำถาม: about? {icon, label?}, options? [2], answer? ================= */
 /* 3 · a closed box shakes; on the key word its lid flies off and a question mark (or the answer) rises out of it */
 R3.both('B06', 'box', 'กล่องปริศนาสั่น มีเครื่องหมายคำถามลอยออกมา', (K, s, T, g) => {
@@ -380,27 +344,6 @@ R3.both('B11', 'board', 'กระดาษโน้ตแปะบนบอร�
 });
 
 /* ================= B17 ไล่รายการ: items [2–4 {icon, label?}], label? ================= */
-/* 5 · a shelf with one cubby per thing: the things drop into their cubbies one by one, the last on the key word */
-R3.both('B17', 'shelf', 'ชั้นวางของ ของวางทีละช่อง', (K, s, T, g) => {
-  const its = s.items.slice(0, 4), n = its.length, cw = n === 4 ? 120 : 130, x0 = 300 - n * cw / 2, Y0 = 70, Y1 = 250;
-  const xs = its.map((_, i) => x0 + cw * (i + .5));
-  const inner = [...Array(n - 1)].map((_, i) => `M${x0 + cw * (i + 1)} ${Y0}V${Y1}`).join('');
-  const sh = R8.svg(g, `<path class="ln" d="M${x0} ${Y1}V${Y0}H${x0 + n * cw}V${Y1}"/><path class="ln u-thin" d="${inner}"/><rect class="sd" x="${x0 - 14}" y="${Y1}" width="${n * cw + 28}" height="20" rx="6"/>`);
-  R7.show(sh, T.b[0]); sh.querySelectorAll('path').forEach((p, i) => K.draw(p, T.b[0] + i * .1, .45));
-  if (s.label) K.chipC(g, s.label, 300, 30, T.b[0] + .2, {tone: 'acc', size: 30});
-  const ts = LG.spread(T.b[1] - .2, T.hit - (ST.motion.snap?.d ?? .5) * .85, n), S = Math.min(84, cw - 36);
-  const bs = its.map((it, i) => {
-    /* seen only inside the shelf (it drops in from its top edge) */
-    const cub = div(`left:0;top:0;width:600px;height:340px;clip-path:inset(${Y0 + 3}px 0 0 0)`, g);
-    const grp = R6.group(cub);
-    const b = K.badge(grp, it.icon, xs[i], 142, S, null, {tone: it.tone ?? 'main'});
-    if (it.label) R4.word(K, grp, it.label, xs[i], 190, 28, null, cw - 14);
-    R7.show(grp, ts[i]); K.move(grp, ts[i], 'translateY(-170px)', 'none', {hold: true, kind: 'snap'});
-    return b;
-  });
-  const land = LG.arrive('snap', ts[n - 1]);
-  bs.forEach((b, i) => K.punch(b.p, land + .05 + i * .08));
-});
 
 /* 6 · a hand of cards fans open from the left: each card is one thing, the fan is fully open on the key word */
 R3.both('B17', 'fan', 'ไพ่คลี่ออกเป็นรูปพัด', (K, s, T, g) => {

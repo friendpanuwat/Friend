@@ -36,51 +36,6 @@ const R9 = {
   },
 };
 
-/* ================= B09 เวลา: points? [3 {icon, label}], at?, result? ================= */
-/* 1 · a pillar candle with the moments marked down its side; the flame burns down past them and stops at "at" */
-R3.both('B09', 'candle', 'เทียนไขละลายสั้นลงทีละขั้น', (K, s, T, g) => {
-  const pts = (s.points ?? []).slice(0, 3), n = pts.length, at = n ? Math.min(s.at ?? n - 1, n - 1) : 2;
-  const res = s.result, cx = res ? 186 : 300, W = 190, top = 62, bot = 318, H = bot - top;
-  const lv = [48, 110, 172];                                       // the marks, from the candle's top
-  const plate = R7.plain(g, cx - 130, bot - 6, 260, 22, 'main', '11px'); K.enter(plate.o, T.b[0], 'pop');
-  /* the candle: a drawn wax pillar (light, with its edge) and, wrapped round it, a paper band for each moment */
-  const cg = R6.group(g); K.enter(cg, T.b[0] + .05, 'rise');
-  const x0 = cx - W / 2, wax = `M${x0} ${top + 14}Q${x0} ${top} ${x0 + 14} ${top}H${x0 + W - 14}Q${x0 + W} ${top} ${x0 + W} ${top + 14}V${bot}H${x0}Z`;
-  R8.svg(cg, `<path class="fl" d="${wax}"/><path class="u-fl-edge" d="${wax}"/>`);
-  pts.forEach((p, k) => {
-    const b = R9.card(cg, x0 + 12, top + lv[k] - 4, W - 24, 48, 10);
-    if (p.label) R4.word(K, b.p, p.label, (W - 24) / 2, 4, 30, null, W - 44);
-    else if (p.icon) R9.ico(b.p, p.icon, (W - 24) / 2, 24, 30);
-    K.enter(b.o, T.b[0] + .25 + k * .08, 'pop');
-  });
-  if (!n) [0, 1, 2].forEach(k => R8.svg(cg, `<path class="u-fl-edge" d="M${x0 + 16} ${top + lv[k] + 20}H${x0 + W - 16}"/>`));
-  /* the burn: the candle loses its top mark by mark (clip), the flame and its wick come down with it */
-  const tk = R7.steps(T, 3, at, T.b[1] + .1), dy = k => lv[k] - 14, burn = [[T.b[0] + .5, 0]];
-  for (let k = 0; k <= at; k++) burn.push([tk[k], dy(k)]);
-  R9.track(cg, 'clipPath', burn, v => `inset(${top + v}px -60px -60px -60px)`);
-  /* the wick and the flame ride down with the top */
-  const fl = R6.group(g);
-  R8.svg(fl, `<path class="ln u-thin" d="M${cx} ${top + 4}V${top - 14}"/>`);
-  const fx = div(`left:${cx - 30}px;top:${top - 96}px;width:60px;height:84px`, fl,
-    `<svg width="60" height="84"><path class="ac" d="M30 2C40 22 58 38 58 58A28 28 0 0 1 2 58C2 38 20 22 30 2Z"/><path class="fl" d="M30 40C34 48 41 54 41 62A11 11 0 0 1 19 62C19 54 26 48 30 40Z"/></svg>`);
-  K.enter(fl, T.b[0] + .3, 'pop');
-  fx.firstChild.style.transformOrigin = '50% 100%';
-  A(fx.firstChild, [{transform: 'scale(1,1)'}, {transform: 'scale(.9,1.08) skewX(-3deg)'}, {transform: 'scale(1.06,.95) skewX(3deg)'}, {transform: 'scale(1,1)'}],
-    T.b[0] + .5, .46, {e: 'ease-in-out', f: 'none', it: 9});
-  const glow = div(`left:${cx - 70}px;top:${top - 120}px;width:140px;height:140px;border-radius:50%`, fl); glow.className = 'u-halo u-decor';
-  R9.track(fl, 'transform', burn, v => `translateY(${v}px)`);
-  /* the moment it stops on lights up on its band */
-  if (pts[at]) {
-    const hl = R9.acc(cg, x0 + 12, top + lv[at] - 4, W - 24, 48, 10); K.enter(hl.o, T.hit, 'pop');
-    if (pts[at].label) R9.accWord(K, hl.p, pts[at].label, (W - 24) / 2, 4, 30, null, W - 44);
-    else R9.ico(hl.p, pts[at].icon, (W - 24) / 2, 24, 30, 'u-bubble-text');
-  }
-  if (res) {
-    const r = R9.ico(g, res.icon, 440, 138, 104); K.enter(r, T.hit + .15, 'pop'); R6.burst(K, g, 440, 138, 62, T.hit + .3);
-    if (res.label) R4.word(K, g, res.label, 440, 200, 34, T.hit + .3, 200);
-  }
-});
-
 /* ================= B13 เคล็ดลับ: secret {icon, label?} ================= */
 /* 3 · a safe: the dial turns one way, the other way, back; the handle turns and the door swings open on the secret */
 R3.both('B13', 'safe', 'ตู้เซฟหมุนรหัส แล้วประตูเปิด', (K, s, T, g) => {
@@ -207,42 +162,6 @@ R3.both('B20', 'cans', 'โทรศัพท์กระป๋อง เสี�
   A(e2, [{d: `path("M${x1} ${Y}Q${x1 - 40} ${Y} ${mx + 6} ${Y}")`}, {d: `path("M${x1} ${Y}Q${x1 - 24} ${Y + 60} ${x1 - 30} ${Y + 120}")`}], T.hit, .5, {e: EASE.bounce, f: 'forwards'});
   K.mark(g, 'cross', mx, Y, 60, T.hit + .1);
   K.fade(B1.o, T.hit + .35, 1, .5);
-});
-
-/* ================= B21 สถานที่: place {icon, label?}, spots? [1-2 {icon?, label}] ================= */
-/* 10 · a shop front: the awning rolls down, the sign above flickers and lights up with the place's name */
-R3.both('B21', 'shop', 'หน้าร้าน กันสาดกางออก ป้ายชื่อไฟติด', (K, s, T, g) => {
-  const pl = s.place ?? {icon: 'store'}, spots = (s.spots ?? []).slice(0, 2), X = 92, Y = 14, W = 356, H = 306;
-  R6.line(K, g, 'M40 322H540', T.b[0], .4);
-  const f = R9.card(g, X, Y, W, H, '18px 18px 6px 6px'); K.enter(f.o, T.b[0] + .05, 'rise');
-  /* the sign: dark until the key word, then it flickers on */
-  const sw = W - 40, off = div(`left:20px;top:16px;width:${sw}px;height:64px;border-radius:12px;background:var(--tr)`, f.p);
-  const offW = R4.word(K, off, pl.label ?? '', sw / 2 + (pl.icon ? 20 : 0), 8, 36, null, sw - 90); offW.style.opacity = .45;
-  if (pl.icon) { const i0 = R9.ico(off, pl.icon, 36, 32, 34); i0.style.opacity = .45; }
-  const on = R9.acc(f.p, 20, 16, sw, 64, 12);
-  R9.accWord(K, on.p, pl.label ?? '', sw / 2 + (pl.icon ? 20 : 0), 8, 36, null, sw - 90);
-  if (pl.icon) R9.ico(on.p, pl.icon, 36, 32, 34, 'u-bubble-text');
-  on.o.style.opacity = 0;
-  A(on.o, [{opacity: 0}, {opacity: 1, offset: .15}, {opacity: .1, offset: .3}, {opacity: 1, offset: .45}, {opacity: .3, offset: .6}, {opacity: 1}], T.hit - .15, .5, {f: 'forwards'});
-  /* the awning: stripes, scalloped edge, rolled down from under the sign */
-  const aw = 30, n = Math.round((W + 20) / aw), AW = n * aw, ax = (W - AW) / 2, ah = 58;
-  let st = '';
-  for (let i = 0; i < n; i++) st += `<path class="${i % 2 ? 'fl' : 'ac'}" d="M${ax + i * aw} 0H${ax + (i + 1) * aw}V${ah}A${aw / 2} ${aw / 2 - 4} 0 0 1 ${ax + i * aw} ${ah}Z"/>`;
-  const awn = div(`left:0;top:92px;width:${W}px;height:${ah + 20}px;transform-origin:50% 0`, f.p,
-    `<svg width="${W}" height="${ah + 20}" style="overflow:visible">${st}<path class="u-fl-edge" d="M${ax} 0H${ax + AW}"/>` +
-    [...Array(n)].map((_, i) => `<path class="u-fl-edge" d="M${ax + i * aw} 0V${ah}A${aw / 2} ${aw / 2 - 4} 0 0 0 ${ax + (i + 1) * aw} ${ah}V0"/>`).join('') + '</svg>');
-  A(awn, [{transform: 'scaleY(0)'}, {transform: 'scaleY(1.08)', offset: .8}, {transform: 'none'}], T.b[1], .55, {e: EASE.smooth, f: 'both'});
-  /* the door and the window; the window shows the spots (or the place's own icon) */
-  div(`left:${W - 112}px;top:178px;width:76px;height:${H - 178}px;border-radius:10px 10px 0 0;background:var(--tr)`, f.p);
-  div(`left:${W - 50}px;top:${178 + (H - 178) / 2}px;width:8px;height:8px;border-radius:50%;background:var(--sd)`, f.p);
-  const wn = div(`left:24px;top:178px;width:${W - 160}px;height:96px;border-radius:12px;background:var(--tr)`, f.p);
-  if (spots.length) spots.forEach((sp, k) => {
-    const y = spots.length > 1 ? 10 + k * 42 : 28;
-    if (sp.icon) R9.ico(wn, sp.icon, 26, y + 20, 28);
-    R6.wordL(K, wn, sp.label ?? '', sp.icon ? 48 : 14, y, 30, T.b[2] + k * .12, W - 160 - (sp.icon ? 60 : 28));
-  });
-  else { const i1 = R9.ico(wn, pl.icon, (W - 160) / 2, 48, 54); K.enter(i1, T.b[2], 'pop'); }
-  R1.ripple(K, on, T.hit + .4);
 });
 
 /* ================= B08 เป้าหมาย: goal {icon, label?}, who? {icon} ================= */
