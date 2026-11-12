@@ -22,8 +22,7 @@
     b.path('M -118 150 C -118 64, -70 30, 0 30 C 70 30, 118 64, 118 150 Z', { fill: C.fill, sw: 3 });
     b.path('M -30 34 L 0 74 L 30 34', { sw: 2 });
     b.circle(0, -52, 62, { fill: C.fill, sw: 3 });
-    b.path('M -40 -80 Q -32 -104 -8 -110', { sw: 3.4 }); b.dot(-46, -64, 2.6);
-    return b;
+        return b;
   };
   const R = {}, rig = (name, dur, fn) => { fn.custom = true; fn.dur = dur; R[name] = fn; };
 
@@ -35,9 +34,7 @@
     page.path('M 150 110 L 110 150', { sw: 2 }); page.path('M 150 110 L 116 110 Q 110 110 110 116 L 110 150', { fill: C.fill, sw: 2 });
     const ro = sub(intro), rib = sub(ro);
     rib.path('M 50 -172 L 130 -172 Q 140 -172 140 -162 L 140 150 L 90 112 L 40 150 L 40 -162 Q 40 -172 50 -172 Z', { fill: C.fill, sw: 3 });
-    rib.circle(90, -100, 20, { fill: C.fill, sw: 2.2 }); star4(rib, 90, -100, 11); rib.path('M 58 -150 L 58 -60', { sw: 3 }); rib.dot(58, -44, 2.4);
-    on(rib, p, .9, { loop: 2.8, ox: 90, oy: -172, r: [[0, 0], [.7, 2.5, 'soft'], [2.1, -2.5, 'soft'], [2.8, 0, 'soft']] });
-    const sp = sub(intro); star4(sp, 168, -150, 16); twinkle(p, sp, 168, -150, 1, 2.8);
+    rib.circle(90, -100, 20, { fill: C.fill, sw: 2.2 }); star4(rib, 90, -100, 11);     on(rib, p, .9, { loop: 2.8, ox: 90, oy: -172, r: [[0, 0], [.7, 2.5, 'soft'], [2.1, -2.5, 'soft'], [2.8, 0, 'soft']] });
     on(ro, p, .25, { y: [[0, -150], [.5, 0, 'back']], o: [[0, 0], [.1, 1]] });
     pop(p, page);
   });
@@ -91,8 +88,6 @@
     on(ko, p, 0, { ox: 0, oy: 10, r: [[0, 50], [.5, 0, 'back']], x: [[0, 60], [.5, 0, 'out']], o: [[0, 0], [.15, 1]] });
     on(fi, p, .8, { loop: 2.4, ox: 0, oy: 10, r: [[0, 0], [.18, -6, 'out'], [.3, 0, 'in']] });
     on(ki, p, .8, { loop: 2.4, ox: 0, oy: 10, r: [[0, 0], [.18, 6, 'out'], [.3, 0, 'in']] });
-    const sp = sub(intro); star4(sp, 0, -66, 20); [[-1, -1], [1, -1]].forEach(([a, b]) => sp.line(a * 26, -66 + b * 26, a * 40, -66 + b * 40, { sw: 2.4 }));
-    on(sp, p, .8, { loop: 2.4, ox: 0, oy: -66, s: [[0, 0], [.28, 0], [.42, 1.15, 'out'], [.8, 0, 'in']] });
   });
 
   /* search — magnifier circles over a page of results, lines inside the lens shimmer */
@@ -103,8 +98,7 @@
     mg.circle(-24, -24, 96, { fill: C.fill, sw: 3.6 });
     const ln = sub(mg); [[-80, -60, 40], [-80, -32, 20], [-80, -4, 50], [-80, 24, 10]].forEach(([x, y, w], i) => ln.line(x, y, x + w + 40, y, i ? fine : { sw: 2 }));
     on(ln, p, .8, { loop: 1.6, o: [[0, 1], [.8, .45, 'soft'], [1.6, 1, 'soft']] });
-    mg.path('M -94 -48 A 74 74 0 0 1 -48 -94', { sw: 3.6 }); mg.dot(-100, -24, 3);
-    on(mg, p, .7, { loop: 3, x: [[0, 0], [.75, 14, 'soft'], [1.5, 0, 'soft'], [2.25, -14, 'soft'], [3, 0, 'soft']], y: [[0, 0], [.75, -10, 'soft'], [1.5, -18, 'soft'], [2.25, -10, 'soft'], [3, 0, 'soft']], r: [[0, 0], [1.5, 4, 'soft'], [3, 0, 'soft']] });
+        on(mg, p, .7, { loop: 3, x: [[0, 0], [.75, 14, 'soft'], [1.5, 0, 'soft'], [2.25, -14, 'soft'], [3, 0, 'soft']], y: [[0, 0], [.75, -10, 'soft'], [1.5, -18, 'soft'], [2.25, -10, 'soft'], [3, 0, 'soft']], r: [[0, 0], [1.5, 4, 'soft'], [3, 0, 'soft']] });
     pop(p, intro);
   });
 
@@ -130,8 +124,7 @@
     const intro = sub(p), pts = [];
     for (let i = 0; i <= 96; i++) { const t = i / 96 * Math.PI * 2, d = 1 + Math.sin(t) ** 2; pts.push([+(178 * Math.cos(t) / d).toFixed(1), +(178 * Math.sin(t) * Math.cos(t) / d).toFixed(1)]); }
     intro.poly(pts, { sw: 18 }); intro.poly(pts, { sw: 11, stroke: C.fill });
-    intro.path('M -150 -30 Q -132 -48 -110 -54', { sw: 2.6 }); intro.dot(-160, -10, 2.4);
-    [0, .12, .24].forEach((d, i) => { const g = sub(intro); g.circle(0, 0, 9 - i * 2.5, { fill: C.ink, sw: 1, stroke: C.ink }); on(g, p, 0, { o: [[0, 1 - i * .3]] }); follow(g, p, .5 - d, pts, 3); });
+        [0, .12, .24].forEach((d, i) => { const g = sub(intro); g.circle(0, 0, 9 - i * 2.5, { fill: C.ink, sw: 1, stroke: C.ink }); on(g, p, 0, { o: [[0, 1 - i * .3]] }); follow(g, p, .5 - d, pts, 3); });
     pop(p, intro);
   });
 
@@ -169,8 +162,7 @@
     t.path('M 0 -132 L 72 -64 L 72 122 Q 72 140 54 140 L -54 140 Q -72 140 -72 122 L -72 -64 Z', { fill: C.fill, sw: 3 });
     t.circle(0, -90, 12, { fill: C.fill, sw: 2.6 });
     t.circle(-24, 0, 13, { sw: 2.4 }); t.circle(24, 50, 13, { sw: 2.4 }); t.line(28, -12, -28, 62, { sw: 2.6 });
-    t.path('M -58 -40 L -58 40', { sw: 2.6 }); t.dot(-58, 54, 2.2);
-    on(sw, p, .4, { loop: 3.2, ox: 0, oy: -196, r: [[0, 0], [.2, 12, 'out'], [.5, -9], [.8, 6], [1.1, -3], [1.4, 0], [3.2, 0]] });
+        on(sw, p, .4, { loop: 3.2, ox: 0, oy: -196, r: [[0, 0], [.2, 12, 'out'], [.5, -9], [.8, 6], [1.1, -3], [1.4, 0], [3.2, 0]] });
     on(intro, p, 0, { y: [[0, -100], [.45, 0, 'back']], o: [[0, 0], [.15, 1]] });
   });
 
@@ -226,7 +218,6 @@
     intro.line(0, -110, 0, 116, { sw: 2.6 });
     intro.path('M 6 -112 L 6 150 L 16 140 L 26 150 L 26 -100', { fill: C.fill, sw: 2 });
     intro.path('M -150 -100 Q -130 -112 -100 -116', { sw: 3 });
-    const sp = sub(intro); star4(sp, 150, -150, 14); twinkle(p, sp, 150, -150, 1.5, 2.6);
     pop(p, intro);
   });
 
@@ -237,8 +228,7 @@
     ear.path('M -6 -60 C -4 -100, 40 -112, 70 -96 C 96 -80, 100 -44, 80 -20 C 66 -4, 46 4, 40 30', { sw: 2.4 });
     ear.path('M 18 -42 C 28 -58, 52 -58, 56 -40 C 58 -26, 44 -20, 38 -10', { sw: 1.8 });
     ear.path('M 20 -132 C 60 -138, 100 -118, 116 -80', fine); ear.path('M 26 100 C 30 120, 14 136, -6 134', mute);
-    ear.path('M 60 -136 Q 90 -128 110 -100', { sw: 3 }); ear.dot(118, -84, 2.4);
-    [0, 1, 2].forEach(i => { const w = sub(intro), r = 50 + i * 34;
+        [0, 1, 2].forEach(i => { const w = sub(intro), r = 50 + i * 34;
       w.path(`M ${-210 + r * Math.cos(-.7)} ${r * Math.sin(-.7)} A ${r} ${r} 0 0 1 ${-210 + r * Math.cos(.7)} ${r * Math.sin(.7)}`, { sw: 3 - i * .6, stroke: i ? C.soft : C.ink });
       on(w, p, .7 + i * .25, { loop: 1.8, x: [[0, -20], [1.4, 40, 'out']], o: [[0, 0], [.2, 1], [1.4, 0]] }); });
     on(ear, p, .7, { loop: 1.8, ox: 40, oy: 0, s: [[0, 1], [1.2, 1], [1.3, 1.03, 'out'], [1.6, 1]] });
@@ -269,7 +259,6 @@
     cr.path('M -126 30 L -138 -36', { sw: 3 });
     [-100, 0, 100].forEach((x, i) => { const j = sub(cr); j.shape([[x, 66], [x + 13, 82], [x, 98], [x - 13, 82]], { fill: C.fill, sw: 2.2 }); j.dot(x, 82, 3);
       on(j, p, .9 + i * .3, { loop: 2.4, ox: x, oy: 82, s: [[0, 1], [.15, 1.3, 'out'], [.45, 1, 'soft']] }); });
-    [[-70, -150, 14], [150, -150, 10], [-170, 20, 8]].forEach(([x, y, r], i) => { const s = sub(intro); star4(s, x, y, r); twinkle(p, s, x, y, 1 + i * .5, 2.4); });
     on(cr, p, .8, { loop: 3, ox: 0, oy: 106, r: [[0, 0], [1.5, 2.5, 'soft'], [3, 0, 'soft']] });
     on(intro, p, 0, { ox: 0, oy: 106, y: [[0, -150], [.4, 0, 'in']], sy: [[.4, .88], [.52, 1.04, 'out'], [.66, 1]], o: [[0, 0], [.1, 1]] });
   });
@@ -278,8 +267,7 @@
   rig('message-circle-question-pro', .6, p => {
     const intro = sub(p), bub = sub(intro);
     bub.path('M 0 -132 C 86 -132, 146 -76, 146 -6 C 146 64, 86 120, 0 120 C -20 120, -40 117, -58 111 L -128 140 L -108 80 C -132 58, -146 28, -146 -6 C -146 -76, -86 -132, 0 -132 Z', { fill: C.fill, sw: 3.2 });
-    bub.path('M -118 -40 C -104 -86, -60 -112, -10 -116', { sw: 3.4 }); bub.dot(-124, -16, 2.6);
-    const q = sub(bub), qq = q.child({ transform: 'translate(0 -18) scale(.9)' }, .9); qq.path(qpath, { sw: 14 }); qq.dot(0, 78, 11);
+        const q = sub(bub), qq = q.child({ transform: 'translate(0 -18) scale(.9)' }, .9); qq.path(qpath, { sw: 14 }); qq.dot(0, 78, 11);
     on(q, p, .7, { loop: 2.4, ox: 0, oy: 52, r: [[0, 0], [.4, -9, 'out'], [.9, 7], [1.3, -3], [1.6, 0]] });
     const m = sub(intro), mm = m.child({ transform: 'translate(150 -130) scale(.3)' }, .3); mm.path(qpath, { sw: 14 }); mm.dot(0, 78, 11);
     on(m, p, 1, { loop: 2.4, y: [[0, 20], [1.6, -30, 'out']], o: [[0, 0], [.2, 1], [1.2, 1], [1.6, 0]] });

@@ -23,11 +23,7 @@
     h.path(HEART, { fill: C.fill });
     h.path('M 0 50 C -66 6, -62 -52, -36 -54 C -20 -55, -8 -46, -4 -34', { stroke: C.soft, sw: 1.3 });
     h.path('M 0 50 C 66 6, 62 -52, 36 -54 C 20 -55, 8 -46, 4 -34', { stroke: C.soft, sw: 1.3 });
-    h.path('M -64 -26 Q -64 -52 -40 -58', { sw: 3.6 });
-    h.dot(-68, -12, 2.6);
-    on(beat, p, .7, { loop: 1.6, sx: [[0, 1], [.1, 1.14, 'out'], [.22, .94], [.34, 1.06], [.5, 1]], sy: [[0, 1], [.1, .88, 'out'], [.22, 1.08], [.34, .97], [.5, 1]] });
-    [[-150, -110, 18], [156, -96, 14], [132, 118, 12]].forEach(([x, y, r], i) => { const sp = sub(intro); star4(sp, x, y, r);
-      on(sp, p, .8 + i * .22, { loop: 1.6, ox: x, oy: y, s: [[0, 0], [.22, 1.1, 'back'], [.5, 0, 'in']], r: [[0, 0], [.5, 90, 'lin']] }); });
+        on(beat, p, .7, { loop: 1.6, sx: [[0, 1], [.1, 1.14, 'out'], [.22, .94], [.34, 1.06], [.5, 1]], sy: [[0, 1], [.1, .88, 'out'], [.22, 1.08], [.34, .97], [.5, 1]] });
     on(intro, p, 0, { s: [[0, .3], [.42, 1.14, 'out'], [.7, 1]], o: [[0, 0], [.18, 1]] });
   });
 
@@ -40,13 +36,12 @@
     on(wr, p, .7, { loop: 2.6, ox: 0, oy: cy, o: [[0, 0], [.12, 0], [.18, 1], [.5, 0]], s: [[.12, .9], [.5, 1.1, 'out']] });
     on(wl, p, .7, { loop: 2.6, ox: 0, oy: cy, o: [[0, 0], [.32, 0], [.38, 1], [.68, 0]], s: [[.32, .9], [.68, 1.1, 'out']] });
     const sw = sub(intro), cl = sub(sw);
-    cl.line(0, 70, 0, 100, { sw: 3 }); cl.circle(0, 110, 16, { fill: C.fill, sw: 3 }); cl.dot(-5, 105, 2.4);
+    cl.line(0, 70, 0, 100, { sw: 3 }); cl.circle(0, 110, 16, { fill: C.fill, sw: 3 });
     sw.circle(0, -128, 11, { fill: C.fill, sw: 3 });
     sw.path('M -16 -112 C -70 -104, -84 -60, -86 -6 C -88 40, -100 58, -122 72 L 122 72 C 100 58, 88 40, 86 -6 C 84 -60, 70 -104, 16 -112 Z', { fill: C.fill });
     sw.path('M -86 22 Q 0 38 86 22', { stroke: C.soft, sw: 1.6 }); sw.path('M -84 4 Q 0 20 84 4', { stroke: C.soft, sw: 1.2 });
     sw.rect(-130, 68, 260, 22, { rx: 11, fill: C.fill, sw: 3 });
-    sw.path('M -58 -62 Q -68 -24 -66 14', { sw: 3.4 }); sw.dot(-66, 30, 2.4);
-    on(sw, p, .7, { loop: 2.6, ox: 0, oy: -128, r: [[0, 0], [.14, -20, 'out'], [.34, 16], [.52, -10], [.68, 6], [.82, -2.5], [.95, 0]] });
+        on(sw, p, .7, { loop: 2.6, ox: 0, oy: -128, r: [[0, 0], [.14, -20, 'out'], [.34, 16], [.52, -10], [.68, 6], [.82, -2.5], [.95, 0]] });
     on(cl, p, .7, { loop: 2.6, ox: 0, oy: 70, r: [[0, 0], [.18, 16, 'out'], [.38, -14], [.56, 9], [.72, -4], [.9, 0]] });
     on(intro, p, 0, { y: [[0, -90], [.55, 0, 'back']], o: [[0, 0], [.22, 1]] });
   });
@@ -90,8 +85,7 @@
     const halo = sub(lit); halo.circle(0, 0, 24, { stroke: C.soft, sw: 1.4 }); halo.circle(0, 0, 36, { stroke: C.soft, sw: 1 });
     lit.path('M -34 62 C -34 30, -78 8, -78 -40 A 78 78 0 1 1 78 -40 C 78 8, 34 30, 34 62 Z', { fill: C.fill, sw: 3.2 });
     lit.path('M -62 -36 A 62 62 0 0 1 -6 -100', { stroke: C.soft, sw: 1.4 });
-    lit.path('M -54 -54 Q -50 -84 -24 -96', { sw: 3.6 }); lit.dot(-58, -38, 2.6);
-    lit.line(-14, 62, -14, 8, { sw: 2 }); lit.line(14, 62, 14, 8, { sw: 2 });
+        lit.line(-14, 62, -14, 8, { sw: 2 }); lit.line(14, 62, 14, 8, { sw: 2 });
     lit.path('M -14 8 q 3.5 -18 7 0 q 3.5 -18 7 0 q 3.5 -18 7 0 q 3.5 -18 7 0', { sw: 2.4 });
     on(halo, p, 1.0, { loop: 1.4, s: [[0, .9], [.7, 1.15, 'soft'], [1.4, .9, 'soft']], o: [[0, .9], [.7, .3, 'soft'], [1.4, .9, 'soft']] });
     intro.rect(-38, 62, 76, 14, { rx: 4, fill: C.fill, sw: 3 });
@@ -141,7 +135,7 @@
     hov.rect(-27, 86, 54, 14, { rx: 4, fill: C.fill, sw: 2.6 });
     hov.path('M 0 -152 C 34 -120, 44 -60, 44 0 L 44 70 Q 44 88 28 90 L -28 90 Q -44 88 -44 70 L -44 0 C -44 -60, -34 -120, 0 -152 Z', { fill: C.fill, sw: 3.2 });
     hov.path('M -33 -88 Q 0 -100 33 -88', { stroke: C.soft, sw: 1.6 }); hov.line(-44, 44, 44, 44, { stroke: C.soft, sw: 1.6 });
-    hov.circle(0, -30, 24, { fill: C.fill, sw: 3.2 }); hov.circle(0, -30, 15, { stroke: C.soft, sw: 1.4 }); hov.path('M -12 -38 Q -8 -46 0 -48', { sw: 2.6 });
+    hov.circle(0, -30, 24, { fill: C.fill, sw: 3.2 }); hov.circle(0, -30, 15, { stroke: C.soft, sw: 1.4 });
     hov.path('M -30 -20 Q -32 20 -30 60', { sw: 2.2, stroke: C.soft });
     on(hov, p, .8, { loop: 1.6, ox: 0, oy: 0, y: [[0, 0], [.8, -8, 'soft'], [1.6, 0, 'soft']], r: [[0, 0], [.8, 1.6, 'soft'], [1.6, 0, 'soft']] });
     on(intro, p, 0, { y: [[0, 200], [.15, 214, 'out'], [.75, 0, 'back']], o: [[0, 0], [.12, 1]] });
@@ -165,8 +159,6 @@
     const ao = sub(intro), ai = sub(ao); ai.poly([[146, -100], [168, -100], [168, -78]], { sw: 4 });
     on(ao, p, 1.55, { ox: 168, oy: -100, s: [[0, 0], [.3, 1, 'back']] });
     on(ai, p, 2, { loop: 1.6, x: [[0, 0], [.8, 6, 'soft'], [1.6, 0, 'soft']], y: [[0, 0], [.8, -6, 'soft'], [1.6, 0, 'soft']] });
-    const sp = sub(intro); star4(sp, 186, -140, 14);
-    on(sp, p, 1.8, { loop: 1.8, ox: 186, oy: -140, s: [[0, 0], [.3, 1.1, 'back'], [.8, 0, 'in']], r: [[0, 0], [.8, 90, 'lin']] });
     on(intro, p, 0, { o: [[0, 0], [.2, 1]] });
   });
 
@@ -202,7 +194,6 @@
     [88, 64, 40].forEach(r => tg.circle(0, 0, r, { sw: 2.6 }));
     tg.circle(0, 0, 16, { fill: C.ink, sw: 2 });
     [0, 1, 2, 3].forEach(i => { const a = i * Math.PI / 2; tg.line(Math.cos(a) * 100, Math.sin(a) * 100, Math.cos(a) * 120, Math.sin(a) * 120, { sw: 2.4 }); });
-    tg.path('M -90 -50 A 104 104 0 0 1 -50 -90', { sw: 3 });
     [0, 1].forEach(i => { const rp = sub(intro); rp.circle(0, 0, 22, { stroke: C.ink, sw: 2.4 });
       on(rp, p, .6, { loop: 3.2, s: [[.36 + i * .12, .6], [1.1 + i * .12, 5, 'out']], o: [[.36 + i * .12, 0], [.38 + i * .12, .8], [1.1 + i * .12, 0, 'out']] }); });
     const ao = sub(intro), ai = sub(ao);
@@ -308,8 +299,6 @@
     half(-1); half(1);
     [[-30, 40], [24, 70]].forEach(([x, y], i) => { const sh = sub(intro); sh.shape([[x, y], [x + 12, y + 6], [x + 2, y + 16]], { fill: C.fill, sw: 2 });
       on(sh, p, .5, { loop: 2.8, y: [[.62, 0], [1.6, 110 + i * 30, 'in']], o: [[0, 0], [.62, 0], [.64, 1], [1.5, 0]], r: [[.62, 0], [1.6, 120, 'lin']], ox: x, oy: y }); });
-    const sp = sub(intro); star4(sp, 0, -90, 18);
-    on(sp, p, .5, { loop: 2.8, ox: 0, oy: -90, s: [[0, 0], [2.12, 0], [2.3, 1.1, 'back'], [2.6, 0, 'in']] });
     on(intro, p, 0, { s: [[0, .6], [.45, 1.05, 'out'], [.6, 1]], o: [[0, 0], [.2, 1]] });
   });
 

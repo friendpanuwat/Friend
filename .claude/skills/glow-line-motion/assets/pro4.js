@@ -15,17 +15,17 @@
   const HEART = 'M 0 70 C -96 8, -86 -72, -38 -72 C -14 -72, 0 -54, 0 -38 C 0 -54, 14 -72, 38 -72 C 86 -72, 96 8, 0 70 Z';
   const BUBBLE = 'M 0 -132 C 86 -132, 146 -76, 146 -6 C 146 64, 86 120, 0 120 C -20 120, -40 117, -58 111 L -128 140 L -108 80 C -132 58, -146 28, -146 -6 C -146 -76, -86 -132, 0 -132 Z';
   const bubble = q => { q.path(BUBBLE, { fill: C.fill, sw: 3.2 });
-    q.path('M -118 -40 C -104 -86, -60 -112, -10 -116', { sw: 3.4 }); q.dot(-124, -16, 2.6); };
+    };
   const bust = (q, x, y, s) => { const b = q.child({ transform: `translate(${x} ${y}) scale(${s})` }, s);
     b.path('M -118 150 C -118 64, -70 30, 0 30 C 70 30, 118 64, 118 150 Z', { fill: C.fill, sw: 3 }); b.path('M -30 34 L 0 74 L 30 34', { sw: 2 });
     b.circle(0, -52, 62, { fill: C.fill, sw: 3 });
-    b.path('M -40 -80 Q -32 -104 -8 -110', { sw: 3.4 }); b.dot(-46, -64, 2.6); return b; };
+    return b; };
   /* thumbs-up hand (thumb up, fingers stacked on the right, cuff on the left) */
   const thumb = q => {
     q.rect(-160, -14, 56, 150, { rx: 10, fill: C.fill, sw: 3 }); q.line(-114, -8, -114, 130, fine); q.circle(-132, 60, 4, { sw: 1.4, stroke: C.soft });
     q.path('M -104 -14 L 8 -14 C 26 -14, 28 -44, 18 -92 C 12 -124, 40 -146, 62 -124 C 82 -104, 78 -54, 72 -14 L 112 -14 Q 142 -14 142 12 Q 142 34 124 38 Q 142 46 140 66 Q 138 84 120 88 Q 134 96 130 112 Q 124 132 100 132 L -104 132 Z', { fill: C.fill, sw: 3 });
     q.path('M 64 38 L 124 38', { sw: 1.8 }); q.path('M 60 88 L 120 88', { sw: 1.8 }); q.path('M 30 -14 C 44 -6, 56 -6, 72 -14', fine);
-    q.path('M 28 -100 Q 30 -124 50 -130', { sw: 2.6 }); q.path('M -80 110 L 40 110', mute);
+    q.path('M -80 110 L 40 110', mute);
   };
   const R = {}, rig = (name, dur, fn) => { fn.custom = true; fn.dur = dur; R[name] = fn; };
 
@@ -86,7 +86,7 @@
   /* circle-check — solid glowing disc, dark tick, confetti dots burst */
   rig('circle-check-pro', .6, p => {
     const intro = sub(p);
-    for (let i = 0; i < 10; i++) { const a = i * Math.PI / 5, d = sub(intro), x = Math.cos(a) * 150, y = Math.sin(a) * 150; i % 2 ? d.dot(x, y, 5) : star4(d, x, y, 10);
+    for (let i = 0; i < 10; i++) { const a = i * Math.PI / 5, d = sub(intro), x = Math.cos(a) * 150, y = Math.sin(a) * 150; d.dot(x, y, i % 2 ? 5 : 6.5);
       on(d, p, .7, { loop: 2.2, x: [[0, -x * .3], [.5, 0, 'out']], y: [[0, -y * .3], [.5, 0, 'out']], o: [[0, 0], [.1, 1], [.7, 0]], s: [[0, .4], [.5, 1]] }); }
     const disc = sub(intro); disc.circle(0, 0, 122, { fill: C.ink, sw: 2 }); disc.circle(0, 0, 104, { sw: 1.6, stroke: C.fill });
     disc.poly([[-52, 4], [-16, 40], [56, -36]], { sw: 14, stroke: C.fill }); disc.path('M -84 -40 A 92 92 0 0 1 -40 -84', { sw: 5, stroke: C.fill });
@@ -98,8 +98,7 @@
   rig('x-pro', .6, p => {
     const intro = sub(p), g = sub(intro);
     const a = sub(g); tube(a, 'M -110 -110 L 110 110', 34); const b = sub(g); tube(b, 'M 110 -110 L -110 110', 34);
-    a.path('M -96 -110 L -60 -74', { sw: 3 }); a.dot(-110, -96, 2.6);
-    on(a, p, 0, { ox: -110, oy: -110, s: [[0, 0], [.25, 1, 'out']] }); on(b, p, .15, { ox: 110, oy: -110, s: [[0, 0], [.25, 1, 'out']] });
+        on(a, p, 0, { ox: -110, oy: -110, s: [[0, 0], [.25, 1, 'out']] }); on(b, p, .15, { ox: 110, oy: -110, s: [[0, 0], [.25, 1, 'out']] });
     on(g, p, .7, { loop: 2.2, r: shakeKeys(6, 7, .06) });
     [[-150, -60], [150, 60], [140, -130]].forEach(([x, y], i) => { const s = sub(intro); s.line(x, y, x + (x > 0 ? 20 : -20), y - 14, { sw: 3 }); on(s, p, .7, { loop: 2.2, o: [[0, 0], [.05 + i * .02, 1], [.4, 0]] }); });
   });
@@ -121,7 +120,6 @@
     
     on(B, p, .5, { loop: 3, x: [[0, 110], [.5, 0, 'back'], [2.2, 0], [2.6, 110, 'in'], [3, 110]], r: [[0, 12], [.5, 0, 'out'], [2.2, 0], [2.6, 12, 'in']], o: [[0, 0], [.1, 1], [2.55, 1], [2.75, 0]] });
     on(A, p, .5, { loop: 3, s: [[0, 1], [.48, 1], [.56, 1.04, 'out'], [.7, 1]] });
-    const sp = sub(intro); star4(sp, 30, -40, 18); on(sp, p, .5, { loop: 3, ox: 30, oy: -40, s: [[0, 0], [.46, 0], [.6, 1.15, 'out'], [1, 0, 'in']] });
     pop(p, A);
   });
 
@@ -143,8 +141,7 @@
   /* heart-pulse — heart beats as the pulse line traces through it */
   rig('heart-pulse-pro', .5, p => {
     const intro = sub(p), hb = sub(intro), h = hb.child({ transform: 'scale(1.9)' }, 1.9);
-    h.path(HEART, { fill: C.fill, sw: 2.6 }); h.path('M -62 -22 Q -62 -50 -38 -58', { sw: 3 }); h.dot(-68, -8, 2.4);
-    const pts = [[-140, 10], [-70, 10], [-54, -8], [-40, 10], [-22, 10], [-8, -76], [10, 80], [26, 10], [60, 10], [74, -16], [88, 10], [140, 10]];
+    h.path(HEART, { fill: C.fill, sw: 2.6 });     const pts = [[-140, 10], [-70, 10], [-54, -8], [-40, 10], [-22, 10], [-8, -76], [10, 80], [26, 10], [60, 10], [74, -16], [88, 10], [140, 10]];
     intro.poly(pts, { sw: 1.2, stroke: C.rule }); const tr = intro.poly(pts, { sw: 4 });
     on(tr, p, .5, { loop: 1.8, draw: [[0, 0], [1, 1, 'lin']], o: [[0, 1], [1.2, 1], [1.7, 0]] });
     on(hb, p, .5, { loop: 1.8, s: [[0, 1], [.45, 1], [.55, 1.12, 'out'], [.7, .96], [.85, 1]] });
@@ -158,8 +155,7 @@
       on(s, p, .7, { loop: 2, ox: 0, oy: 0, o: [[0, 0], [.05, 1], [.35, 0]], s: [[0, .8], [.35, 1.15, 'out']] }); }
     const bo = sub(intro);
     bo.shape([[30, -178], [-96, 22], [-6, 22], [-40, 178], [96, -30], [6, -30]], { fill: C.fill, sw: 3.4 });
-    bo.path('M 8 -140 L -60 -16', { sw: 3 }); bo.dot(-70, 0, 2.4);
-    on(bo, p, .7, { loop: 2, o: [[0, 1], [.04, .3], [.08, 1], [.12, .4], [.16, 1]], r: shakeKeys(4, 2.5, .05) });
+        on(bo, p, .7, { loop: 2, o: [[0, 1], [.04, .3], [.08, 1], [.12, .4], [.16, 1]], r: shakeKeys(4, 2.5, .05) });
     on(intro, p, 0, { s: [[0, .2], [.25, 1.15, 'out'], [.45, 1]], o: [[0, 0], [.06, 1], [.1, .3], [.14, 1]] });
   });
 
@@ -172,7 +168,6 @@
     const back = sub(intro); bill(back.child({ transform: 'translate(20 34) rotate(5)' }), false);
     const top = sub(intro); bill(top, true);
     on(top, p, .7, { loop: 2.4, ox: -170, oy: 90, r: [[0, 0], [.18, -7, 'out'], [.36, 0, 'io'], [.54, -5, 'out'], [.72, 0, 'io']], y: [[0, 0], [.18, -10], [.36, 0], [.54, -8], [.72, 0]] });
-    const sp = sub(intro); star4(sp, 150, -120, 14); twinkle(p, sp, 150, -120, 1, 2.4);
     on(intro, p, 0, { x: [[0, -140], [.55, 0, 'back']], o: [[0, 0], [.2, 1]] });
   });
 
@@ -197,10 +192,8 @@
   rig('bookmark-check-pro', .7, p => {
     const intro = sub(p), rb = sub(intro);
     rb.path('M -84 -170 L 84 -170 Q 100 -170 100 -154 L 100 176 L 0 104 L -100 176 L -100 -154 Q -100 -170 -84 -170 Z', { fill: C.fill, sw: 3.2 });
-    rb.path('M -70 -150 L -70 -30', { sw: 3 }); rb.dot(-70, -14, 2.4);
-    const tk = rb.poly([[-46, -24], [-12, 12], [52, -54]], { sw: 12 }); on(tk, p, .7, { loop: 2.6, draw: [[0, 0], [.35, 1, 'out'], [2.3, 1], [2.5, 0]] });
+        const tk = rb.poly([[-46, -24], [-12, 12], [52, -54]], { sw: 12 }); on(tk, p, .7, { loop: 2.6, draw: [[0, 0], [.35, 1, 'out'], [2.3, 1], [2.5, 0]] });
     on(rb, p, .9, { loop: 2.6, ox: 0, oy: -170, r: [[0, 0], [.65, 2, 'soft'], [1.95, -2, 'soft'], [2.6, 0, 'soft']] });
-    const sp = sub(intro); star4(sp, 140, -150, 16); twinkle(p, sp, 140, -150, 1.1, 2.6);
     on(intro, p, 0, { y: [[0, -160], [.55, 0, 'back']], o: [[0, 0], [.1, 1]] });
   });
 
@@ -208,7 +201,6 @@
   rig('arrow-right-pro', .6, p => {
     const intro = sub(p), ar = sub(intro);
     tube(ar, 'M -150 0 L 110 0', 36); tube(ar, 'M 40 -80 L 124 0 L 40 80', 36);
-    ar.path('M -130 -10 L 40 -10', { sw: 2, stroke: C.fill }); ar.dot(-140, -6, 2.4);
     on(ar, p, .7, { loop: 1.4, x: [[0, 0], [.25, 26, 'out'], [.6, 0, 'io']] });
     [[-200, -50, 50], [-196, 50, 40], [-210, 0, 30]].forEach(([x, y, l], i) => { const s = sub(intro); s.line(x, y, x + l, y, { sw: 3, stroke: C.soft }); on(s, p, .7, { loop: 1.4, x: [[0, 20], [.3, -10, 'out']], o: [[0, 0], [.05 + i * .03, 1], [.45, 0]] }); });
     on(intro, p, 0, { x: [[0, -160], [.55, 0, 'back']], o: [[0, 0], [.15, 1]] });
@@ -247,7 +239,6 @@
     const ts = sub(cap); ts.path('M 0 -30 L 150 -20 L 150 60', { sw: 2.6 }); ts.path('M 142 60 L 158 60 L 162 106 L 138 106 Z', { fill: C.fill, sw: 2.2 }); 
     on(ts, p, 1.1, { loop: 2.4, ox: 150, oy: -20, r: [[0, 0], [.3, 10, 'out'], [.7, -8], [1.1, 4], [1.5, 0], [2.4, 0]] });
     on(cap, p, 0, { ox: 0, oy: 0, y: [[0, 0], [.4, -120, 'out'], [.8, 0, 'in'], [.9, -14, 'out'], [1, 0, 'in']], r: [[0, 0], [.8, 360, 'io']], s: [[0, .5], [.3, 1, 'out']], o: [[0, 0], [.1, 1]] });
-    const sp = sub(intro); [[-150, -140, 12], [160, -150, 9]].forEach(([x, y, r]) => star4(sp, x, y, r)); on(sp, p, 1, { loop: 2.4, o: [[0, 0], [.2, 1], [1, 0]] });
   });
 
   /* octagon-alert — drops in, ring pulses out, "!" throbs, small shake */
@@ -266,8 +257,7 @@
     const intro = sub(p), sh = sub(intro);
     const S = 'M 0 -170 C 50 -140, 100 -130, 140 -130 C 140 -10, 120 110, 0 170 C -120 110, -140 -10, -140 -130 C -100 -130, -50 -140, 0 -170 Z';
     sh.path(S, { fill: C.fill, sw: 3.4 }); sh.child({ transform: 'scale(.86)' }, .86).path(S, { sw: 1.6, stroke: C.soft });
-    sh.path('M -110 -110 C -112 -40, -100 30, -60 90', { sw: 3 }); sh.dot(-46, 104, 2.4);
-    const tk = sh.poly([[-50, 0], [-14, 38], [56, -40]], { sw: 12 }); on(tk, p, .6, { loop: 2.6, draw: [[0, 0], [.35, 1, 'out'], [2.3, 1], [2.5, 0]] });
+        const tk = sh.poly([[-50, 0], [-14, 38], [56, -40]], { sw: 12 }); on(tk, p, .6, { loop: 2.6, draw: [[0, 0], [.35, 1, 'out'], [2.3, 1], [2.5, 0]] });
     [[-1, -40], [1, 30]].forEach(([sd, y], i) => { const s = sub(intro); [[0, 0], [10, -22], [10, 22]].forEach(([dx, dy]) => s.line(sd * (156 + dx), y + dy, sd * (180 + dx), y + dy * 1.6, { sw: 2.6 }));
       on(s, p, 1 + i * .5, { loop: 2.6, o: [[0, 0], [.04, 1], [.4, 0]] }); });
     on(sh, p, .6, { loop: 2.6, s: [[0, 1], [.38, 1], [.46, 1.05, 'out'], [.7, 1]] });

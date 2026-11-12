@@ -21,8 +21,7 @@
     const intro = sub(p), zig = 'L 8 90 L -12 50 L 12 10 L -14 -30 Z';
     const L = sub(intro), Rr = sub(intro);
     L.path(`M 0 -72 C 0 -103, -27 -137, -72 -137 C -163 -137, -182 15, 0 133 ${zig}`, { fill: C.fill, sw: 3.2 });
-    L.path('M -136 -40 Q -136 -104 -84 -118', { sw: 3 }); L.dot(-140, -16, 2.6);
-    Rr.path(`M 0 -72 C 0 -103, 27 -137, 72 -137 C 163 -137, 182 15, 0 133 ${zig}`, { fill: C.fill, sw: 3.2 });
+        Rr.path(`M 0 -72 C 0 -103, 27 -137, 72 -137 C 163 -137, 182 15, 0 133 ${zig}`, { fill: C.fill, sw: 3.2 });
     const sh = sub(intro); sh.shape([[-6, 20], [8, 34], [-4, 44]], { fill: C.fill, sw: 2 }); sh.shape([[4, 64], [14, 76], [2, 80]], { fill: C.fill, sw: 2 });
     const open = (sd) => [[0, 0], [.3, 0], [.42, sd * 11, 'out'], [1.5, sd * 11], [1.8, 0, 'io'], [1.86, -sd * 1.5], [1.95, 0]];
     on(L, p, .7, { loop: 2.6, ox: 0, oy: 133, r: open(-1), x: [[0, 0], [.3, 0], [.42, -8, 'out'], [1.5, -8], [1.8, 0, 'io']] });
@@ -34,8 +33,7 @@
   /* heart-off — a slash cuts across, the heart dims and sinks a little; then it heals */
   rig('heart-off-pro', .6, 'pop', p => {
     const intro = sub(p), h = sub(intro), hh = h.child({ transform: 'scale(1.9)' }, 1.9);
-    hh.path(HEART, { fill: C.fill, sw: 1.7 }); h.path('M -136 -40 Q -136 -104 -84 -118', { sw: 3 }); h.dot(-140, -16, 2.6);
-    const gap = intro.line(-150, -150, 150, 150, { sw: 20, stroke: C.fill }), sl = intro.line(-150, -150, 150, 150, { sw: 6 });
+    hh.path(HEART, { fill: C.fill, sw: 1.7 });     const gap = intro.line(-150, -150, 150, 150, { sw: 20, stroke: C.fill }), sl = intro.line(-150, -150, 150, 150, { sw: 6 });
     [gap, sl].forEach(e => on(e, p, .7, { loop: 2.6, draw: [[0, 0], [.1, 0], [.4, 1, 'out'], [2, 1], [2.3, 0, 'in']] }));
     on(h, p, .7, { loop: 2.6, s: [[0, 1], [.35, 1], [.5, .92, 'out'], [2, .92], [2.3, 1, 'back']], o: [[0, 1], [.35, 1], [.5, .55], [2, .55], [2.3, 1]] });
     pop(p, intro);
@@ -47,8 +45,7 @@
     shd.ellipse(0, 168, 64, 13, { sw: 2, stroke: C.soft });
     pin.path('M 0 150 C -40 90, -112 24, -112 -48 A 112 112 0 0 1 112 -48 C 112 24, 40 90, 0 150 Z', { fill: C.fill, sw: 3.2 });
     pin.circle(0, -48, 42, { fill: C.fill, sw: 3 });
-    pin.path('M -84 -64 Q -78 -112 -36 -132', { sw: 3 }); pin.dot(-90, -40, 2.6);
-    on(pin, p, .7, { loop: 2.2, ox: 0, oy: 150, y: [[0, 0], [.1, 0], [.34, -46, 'out'], [.56, 0, 'in'], [.66, -8, 'out'], [.76, 0, 'in']],
+        on(pin, p, .7, { loop: 2.2, ox: 0, oy: 150, y: [[0, 0], [.1, 0], [.34, -46, 'out'], [.56, 0, 'in'], [.66, -8, 'out'], [.76, 0, 'in']],
       sy: [[0, 1], [.1, .9, 'out'], [.2, 1.05], [.56, 1], [.6, .9, 'out'], [.72, 1]], sx: [[0, 1], [.1, 1.06, 'out'], [.2, .97], [.56, 1], [.6, 1.06, 'out'], [.72, 1]] });
     on(shd, p, .7, { loop: 2.2, ox: 0, oy: 168, s: [[0, 1], [.1, 1], [.34, .7, 'out'], [.56, 1, 'in']], o: [[0, 1], [.34, .5], [.56, 1]] });
     on(pin, p, 0, { ox: 0, oy: 150, y: [[0, -180], [.4, 0, 'in']], sy: [[.4, .86], [.52, 1.05, 'out'], [.64, 1]], o: [[0, 0], [.1, 1]] });
@@ -58,8 +55,7 @@
   /* lightbulb-off — the bulb tries to switch on, sputters, and the slash cuts it off again */
   rig('lightbulb-off-pro', .6, 'blink', p => {
     const intro = sub(p), b = intro.child({ transform: 'translate(0 -10) scale(1.3)' }, 1.3), glass = sub(b);
-    glass.path(BULB, { fill: C.fill, sw: 2.6 }); glass.path('M -54 -54 Q -50 -84 -24 -96', { sw: 2.8 }); glass.dot(-58, -38, 2.2);
-    glass.line(-14, 62, -14, 14, { sw: 1.8, stroke: C.soft }); glass.line(14, 62, 14, 14, { sw: 1.8, stroke: C.soft });
+    glass.path(BULB, { fill: C.fill, sw: 2.6 });     glass.line(-14, 62, -14, 14, { sw: 1.8, stroke: C.soft }); glass.line(14, 62, 14, 14, { sw: 1.8, stroke: C.soft });
     glass.path('M -14 14 q 3.5 -14 7 0 q 3.5 -14 7 0 q 3.5 -14 7 0 q 3.5 -14 7 0', { sw: 2, stroke: C.soft });
     b.rect(-38, 62, 76, 14, { rx: 4, fill: C.fill, sw: 2.6 });
     [[-34, 76, 68], [-30, 89, 60]].forEach(([x, y, w]) => b.rect(x, y, w, 13, { rx: 6.5, fill: C.fill, sw: 2 }));
@@ -74,8 +70,7 @@
   rig('battery-low-pro', .6, 'pop', p => {
     const intro = sub(p), bt = sub(intro);
     bt.rect(-160, -76, 290, 152, { rx: 26, fill: C.fill, sw: 3.4 }); bt.rect(130, -32, 30, 64, { rx: 10, fill: C.fill, sw: 3 });
-    bt.path('M -144 -26 Q -144 -60 -110 -60', { sw: 3 }); bt.dot(-144, -6, 2.4);
-    const cell = sub(bt); cell.rect(-128, -44, 54, 88, { rx: 10, fill: C.ink, sw: 2 });
+        const cell = sub(bt); cell.rect(-128, -44, 54, 88, { rx: 10, fill: C.ink, sw: 2 });
     on(cell, p, .7, { loop: 1.6, o: [[0, 1], [.5, 1], [.55, .15, 'lin'], [.9, .15], [.95, 1, 'lin']] });
     on(bt, p, .7, { loop: 3.2, r: shakeKeys(5, 2, .05) });
     pop(p, intro);
@@ -85,8 +80,7 @@
   const DROP = (x, y, r) => `M ${x} ${y - r * 1.6} C ${x + r * .5} ${y - r * .8}, ${x + r} ${y - r * .2}, ${x + r} ${y + r * .3} A ${r} ${r} 0 0 1 ${x - r} ${y + r * .3} C ${x - r} ${y - r * .2}, ${x - r * .5} ${y - r * .8}, ${x} ${y - r * 1.6} Z`;
   rig('droplets-pro', .7, 'sink', p => {
     const intro = sub(p), big = sub(intro), sm = sub(intro), dr = sub(intro);
-    big.path(DROP(-34, 20, 92), { fill: C.fill, sw: 3.2 }); big.path('M -100 34 Q -102 -8 -74 -44', { sw: 3 }); big.dot(-102, 58, 2.6);
-    sm.path(DROP(108, -64, 42), { fill: C.fill, sw: 3 }); sm.path('M 82 -56 Q 82 -76 96 -92', { sw: 2.4 });
+    big.path(DROP(-34, 20, 92), { fill: C.fill, sw: 3.2 });     sm.path(DROP(108, -64, 42), { fill: C.fill, sw: 3 }); sm.path('M 82 -56 Q 82 -76 96 -92', { sw: 2.4 });
     dr.path(DROP(-34, 150, 14), { fill: C.fill, sw: 2.4 });
     const jelly = (q, oy, d) => on(q, p, .7 + d, { loop: 2, ox: 0, oy, sy: [[0, 1], [.25, .93, 'out'], [.5, 1.04], [.75, .98], [1, 1, 'soft']], sx: [[0, 1], [.25, 1.05, 'out'], [.5, .97], [.75, 1.01], [1, 1, 'soft']] });
     jelly(big, 140, 0); jelly(sm, -12, .4);
@@ -103,10 +97,8 @@
       q.path('M -8 -176 C 32 -154, 34 -60, 24 18 L -18 18 Z', { fill: C.fill, sw: 3 }); q.path('M -12 -120 L -12 -40', { sw: 2.6 }); };
     const fo = sub(intro), fi = sub(fo), fc = fi.child({ transform: 'translate(-64 0) scale(.94)' }, .94); fork(fc);
     const ko = sub(intro), ki = sub(ko), kc = ki.child({ transform: 'translate(64 0) scale(.94)' }, .94); knife(kc);
-    const sp = sub(intro); star4(sp, 0, -150, 18);
     on(fi, p, .7, { loop: 2.2, ox: -64, oy: 170, r: [[0, 0], [.25, 7, 'out'], [.32, 5.5], [.6, 0, 'soft']] });
     on(ki, p, .7, { loop: 2.2, ox: 64, oy: 170, r: [[0, 0], [.25, -7, 'out'], [.32, -5.5], [.6, 0, 'soft']] });
-    twinkle(p, sp, 0, -150, .95, 2.2);
     on(fo, p, 0, { y: [[0, 140], [.5, 0, 'back']], o: [[0, 0], [.15, 1]] }); on(ko, p, .1, { y: [[0, 140], [.5, 0, 'back']], o: [[0, 0], [.15, 1]] });
   });
 
@@ -118,17 +110,14 @@
     tail(-1); tail(1);
     const fl = sub(md);
     fl.circle(0, -40, 100, { fill: C.fill, sw: 3.4 }); fl.circle(0, -40, 74, { sw: 1.6, stroke: C.soft });
-    star4(fl, 0, -40, 36, { fill: C.fill, sw: 3 }); fl.path('M -70 -80 Q -58 -112 -26 -126', { sw: 3 }); fl.dot(-80, -58, 2.4);
-    on(fl, p, .7, { loop: 2.6, ox: 0, oy: -40, sx: [[0, 1], [1.4, 1], [1.7, -1, 'io'], [2, 1, 'io']] });
-    const sp = sub(intro); star4(sp, 120, -140, 14); twinkle(p, sp, 120, -140, 1.2, 2.6);
+    star4(fl, 0, -40, 36, { fill: C.fill, sw: 3 });     on(fl, p, .7, { loop: 2.6, ox: 0, oy: -40, sx: [[0, 1], [1.4, 1], [1.7, -1, 'io'], [2, 1, 'io']] });
     drop(p, intro, 0, -120);
   });
 
   /* message-circle-heart — the heart inside beats, small hearts float out of the bubble */
   rig('message-circle-heart-pro', .6, 'pop', p => {
     const intro = sub(p), bub = sub(intro);
-    bub.path(BUBBLE, { fill: C.fill, sw: 3.2 }); bub.path('M -118 -40 C -104 -86, -60 -112, -10 -116', { sw: 3.4 }); bub.dot(-124, -16, 2.6);
-    const hb = sub(bub), h = hb.child({ transform: 'translate(0 -6) scale(.95)' }, .95); h.path(HEART, { fill: C.ink, sw: 2 });
+    bub.path(BUBBLE, { fill: C.fill, sw: 3.2 });     const hb = sub(bub), h = hb.child({ transform: 'translate(0 -6) scale(.95)' }, .95); h.path(HEART, { fill: C.ink, sw: 2 });
     on(hb, p, .7, { loop: 1.6, ox: 0, oy: -6, s: [[0, 1], [.1, 1.14, 'out'], [.22, .96], [.34, 1.06], [.5, 1]] });
     [[120, -130, .3, 0], [150, -60, .22, .8]].forEach(([x, y, s, d]) => { const f = sub(intro), ff = f.child({ transform: `translate(${x} ${y}) scale(${s})` }, s); ff.path(HEART, { fill: C.fill, sw: 2.4 });
       on(f, p, .9 + d, { loop: 1.6, y: [[0, 30], [1.4, -40, 'out']], o: [[0, 0], [.2, 1], [1.1, 1], [1.4, 0]] }); });
@@ -140,7 +129,6 @@
   const arrowV = (sd) => p => {   // sd = 1 down, -1 up
     const intro = sub(p), ar = sub(intro);
     tube(ar, `M 0 ${-sd * 150} L 0 ${sd * 110}`, 36); tube(ar, `M -80 ${sd * 40} L 0 ${sd * 124} L 80 ${sd * 40}`, 36);
-    ar.path(`M -10 ${-sd * 130} L -10 ${sd * 40}`, { sw: 2, stroke: C.fill }); ar.dot(-6, -sd * 140, 2.4);
     on(ar, p, .7, { loop: 1.4, y: [[0, 0], [.25, sd * 26, 'out'], [.6, 0, 'io']] });
     [[-50, 50], [50, 40], [0, 30]].forEach(([x, l], i) => { const s = sub(intro), y0 = -sd * 168; s.line(x, y0, x, y0 - sd * l * .7, { sw: 3, stroke: C.soft });
       on(s, p, .7, { loop: 1.4, y: [[0, sd * 20], [.3, -sd * 10, 'out']], o: [[0, 0], [.05 + i * .03, 1], [.45, 0]] }); });
@@ -155,8 +143,7 @@
     const waves = sub(intro); [64, 104].forEach((r, i) => { const w = sub(waves); w.path(`M 40 ${-80 - r} A ${r} ${r} 0 0 1 ${40 + r} -80`, { sw: 3.4 - i * .8, stroke: i ? C.soft : C.ink });
       on(w, p, .7, { loop: 1.6, ox: 40, oy: -80, o: [[0, 0], [.1 + i * .1, 0], [.16 + i * .1, 1], [.7, 0]], s: [[0, .9], [.7, 1.08, 'out']] }); });
     hs.path('M -120 -150 Q -150 -150 -150 -110 C -150 40, -40 150, 110 150 Q 150 150 150 120 L 150 80 Q 150 60 130 54 L 76 40 Q 56 36 44 52 L 26 74 C -20 54, -54 20, -74 -26 L -52 -44 Q -36 -56 -40 -76 L -54 -130 Q -60 -150 -80 -150 Z', { fill: C.fill, sw: 3.2 });
-    hs.path('M -128 -96 C -128 -40, -112 0, -84 40', { sw: 3 }); hs.dot(-128, -118, 2.4);
-    on(hs, p, .7, { loop: 1.6, ox: 0, oy: 0, r: shakeKeys(7, 5, .045) });
+        on(hs, p, .7, { loop: 1.6, ox: 0, oy: 0, r: shakeKeys(7, 5, .045) });
     on(intro, p, 0, { s: [[0, .4], [.42, 1.08, 'out'], [.62, 1]], r: [[0, -30], [.5, 0, 'out']], o: [[0, 0], [.16, 1]] });
   });
 
@@ -166,10 +153,8 @@
     tube(sk, 'M -70 0 L -70 -86 A 70 70 0 0 1 70 -86 L 70 0', 24);
     bd.rect(-116, -20, 232, 176, { rx: 28, fill: C.fill, sw: 3.4 });
     bd.circle(0, 50, 17, { fill: C.ink, sw: 2 }); bd.line(0, 60, 0, 100, { sw: 10 });
-    bd.path('M -96 20 Q -96 0 -76 0', { sw: 3 }); bd.dot(-96, 40, 2.4);
-    on(sk, p, .7, { loop: 2.6, y: [[0, 0], [.2, -26, 'out'], [.9, -26], [1.02, 0, 'in']] });
+        on(sk, p, .7, { loop: 2.6, y: [[0, 0], [.2, -26, 'out'], [.9, -26], [1.02, 0, 'in']] });
     on(bd, p, .7, { loop: 2.6, ox: 0, oy: 156, sy: [[0, 1], [1.02, 1], [1.08, .95, 'out'], [1.22, 1]] });
-    const sp = sub(intro); star4(sp, 110, -110, 16); twinkle(p, sp, 110, -110, 1.72, 2.6);
     drop(p, intro, 0, -100);
   });
 
@@ -177,16 +162,14 @@
   rig('star-pro', .6, 'spin', p => {
     const intro = sub(p), st = sub(intro), pts = [];
     for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 66 : 158; pts.push([+(Math.cos(a) * r).toFixed(1), +(Math.sin(a) * r + 10).toFixed(1)]); }
-    st.shape(pts, { fill: C.fill, sw: 3.4 }); st.path('M -40 -26 L -6 -110', { sw: 3 }); st.dot(-48, -8, 2.4);
-    on(st, p, .7, { loop: 2.4, ox: 0, oy: 10, r: [[0, 0], [1.4, 0], [1.9, 72, 'io']], s: [[0, 1], [1.4, 1], [1.55, .9, 'out'], [1.9, 1.06], [2.1, 1, 'soft']] });
-    [[-150, -120, 14, 0], [150, -90, 10, .6], [130, 140, 12, 1.1]].forEach(([x, y, r, d]) => { const s = sub(intro); star4(s, x, y, r); twinkle(p, s, x, y, .8 + d, 2.4); });
+    st.shape(pts, { fill: C.fill, sw: 3.4 });     on(st, p, .7, { loop: 2.4, ox: 0, oy: 10, r: [[0, 0], [1.4, 0], [1.9, 72, 'io']], s: [[0, 1], [1.4, 1], [1.55, .9, 'out'], [1.9, 1.06], [2.1, 1, 'soft']] });
     on(intro, p, 0, { s: [[0, 0], [.45, 1.1, 'out'], [.6, 1]], r: [[0, -90], [.5, 0, 'out']], o: [[0, 0], [.15, 1]] });
   });
 
   /* arrow-left-right — the two arrows swap: top one slides left, bottom one right, then back */
   rig('arrow-left-right-pro', .7, 'pop', p => {
     const intro = sub(p), a = sub(intro), b = sub(intro);
-    tube(a, 'M 150 -64 L -130 -64', 30); tube(a, 'M -72 -124 L -138 -64 L -72 -4', 30); a.dot(140, -70, 2.4);
+    tube(a, 'M 150 -64 L -130 -64', 30); tube(a, 'M -72 -124 L -138 -64 L -72 -4', 30);
     tube(b, 'M -150 64 L 130 64', 30); tube(b, 'M 72 4 L 138 64 L 72 124', 30);
     on(a, p, .7, { loop: 2, x: [[0, 0], [.3, -24, 'out'], [.7, 0, 'io']] }); on(b, p, .7, { loop: 2, x: [[0, 0], [.15, 0], [.45, 24, 'out'], [.85, 0, 'io']] });
     on(a, p, 0, { x: [[0, 160], [.5, 0, 'back']], o: [[0, 0], [.15, 1]] }); on(b, p, .12, { x: [[0, -160], [.5, 0, 'back']], o: [[0, 0], [.15, 1]] });
@@ -218,8 +201,7 @@
   rig('send-pro', .7, { kind: 'slide', x: [[0, 0], [.14, -16, 'out'], [.55, 340, 'in']], y: [[0, 0], [.14, 16, 'out'], [.55, -300, 'in']], dur: .55, o: [[0, 1], [.4, 1], [.55, 0]] }, p => {
     const intro = sub(p), pl = sub(intro);
     pl.shape([[-150, -6], [156, -140], [40, 156], [2, 40]], { fill: C.fill, sw: 3.2 }); pl.line(2, 40, 156, -140, { sw: 2.4 });
-    pl.path('M -110 -12 L 90 -100', { sw: 2.6 }); pl.dot(-122, -6, 2.2);
-    const tr = sub(intro); [0, 1, 2].forEach(i => tr.line(-140 - i * 34, 110 + i * 30, -122 - i * 34, 94 + i * 30, { sw: 3, stroke: C.soft }));
+        const tr = sub(intro); [0, 1, 2].forEach(i => tr.line(-140 - i * 34, 110 + i * 30, -122 - i * 34, 94 + i * 30, { sw: 3, stroke: C.soft }));
     on(tr, p, .7, { loop: 1.8, o: [[0, 0], [.2, 1], [1.2, 1], [1.6, 0]], x: [[0, 10], [1.6, -14]], y: [[0, -10], [1.6, 14]] });
     on(pl, p, .7, { loop: 1.8, ox: 0, oy: 0, x: [[0, 0], [.9, 8, 'soft'], [1.8, 0, 'soft']], y: [[0, 0], [.9, -10, 'soft'], [1.8, 0, 'soft']], r: [[0, 0], [.9, -3, 'soft'], [1.8, 0, 'soft']] });
     on(intro, p, 0, { x: [[0, -220], [.6, 0, 'out']], y: [[0, 200], [.6, 0, 'out']], o: [[0, 0], [.15, 1]] });
@@ -243,8 +225,7 @@
     intro.rect(-96, -160, 192, 120, { rx: 10, fill: C.fill, sw: 2.8 });
     const out = sub(intro); out.rect(-96, -20, 192, 112, { rx: 8, fill: C.fill, sw: 2.8 }); [10, 34, 58].forEach((y, i) => out.line(-64, y, i === 2 ? 10 : 64, y, { sw: 2.2, stroke: C.soft }));
     const bd = sub(intro); bd.path('M -150 -60 L 150 -60 Q 176 -60 176 -34 L 176 70 Q 176 96 150 96 L 116 96 L 116 60 L -116 60 L -116 96 L -150 96 Q -176 96 -176 70 L -176 -34 Q -176 -60 -150 -60 Z', { fill: C.fill, sw: 3.2 });
-    bd.path('M -156 -10 Q -156 -40 -126 -40', { sw: 3 }); bd.dot(-156, 10, 2.4);
-    const lt = sub(bd); lt.dot(130, -24, 8);
+        const lt = sub(bd); lt.dot(130, -24, 8);
     on(out, p, .7, { loop: 2.8, y: [[0, 0], [.2, 0], [1.2, 78, 'io'], [2.3, 78], [2.31, 0, 'lin']], o: [[0, 1], [2.1, 1], [2.3, 0], [2.31, 0], [2.5, 1]] });
     on(bd, p, .7, { loop: 2.8, ox: 0, oy: 96, r: [[0, 0], [.2, 0], [.3, -.8, 'lin'], [.4, .8, 'lin'], [.5, -.8, 'lin'], [.6, .8, 'lin'], [.7, -.8, 'lin'], [.8, .8, 'lin'], [.9, -.8, 'lin'], [1, .8, 'lin'], [1.2, 0]] });
     on(lt, p, .7, { loop: .6, o: [[0, 1], [.3, 1], [.32, .2], [.6, .2]] });

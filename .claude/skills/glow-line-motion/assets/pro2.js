@@ -23,8 +23,7 @@
     body.path('M -30 34 L 0 74 L 30 34', { sw: 2 });
     const head = sub(intro);
     head.circle(0, -52, 62, { fill: C.fill, sw: 3 });
-    head.path('M -40 -80 Q -32 -104 -8 -110', { sw: 3.4 }); head.dot(-46, -64, 2.6);
-    on(head, p, .7, { loop: 3, ox: 0, oy: 8, r: [[0, 0], [.4, -4, 'soft'], [.9, 3, 'soft'], [1.3, 0, 'soft']], y: [[0, 0], [.4, -4, 'soft'], [1.3, 0, 'soft']] });
+        on(head, p, .7, { loop: 3, ox: 0, oy: 8, r: [[0, 0], [.4, -4, 'soft'], [.9, 3, 'soft'], [1.3, 0, 'soft']], y: [[0, 0], [.4, -4, 'soft'], [1.3, 0, 'soft']] });
     on(body, p, .7, { loop: 3, ox: 0, oy: 150, sy: [[0, 1], [1.5, 1.025, 'soft'], [3, 1, 'soft']] });
     on(intro, p, 0, { y: [[0, 60], [.55, 0, 'back']], o: [[0, 0], [.2, 1]] });
   });
@@ -69,8 +68,7 @@
       on(r, p, .9, { loop: 2.2, s: [[d, 1], [d + .9, 1.35, 'out']], o: [[d, 0], [d + .05, .6], [d + .9, 0]] }); });
     const ring = intro.circle(0, 0, 132, { fill: C.fill, sw: 3.4 });
     on(ring, p, 0, { draw: [[0, 0], [.55, 1, 'io']] });
-    intro.path('M -100 -54 A 114 114 0 0 1 -54 -100', { sw: 3 }); intro.dot(-108, -30, 2.4);
-    const tk = sub(intro), tick = tk.poly([[-58, 2], [-18, 44], [62, -42]], { sw: 9 });
+        const tk = sub(intro), tick = tk.poly([[-58, 2], [-18, 44], [62, -42]], { sw: 9 });
     on(tick, p, .45, { draw: [[0, 0], [.3, 1, 'out']] });
     on(tk, p, .45, { s: [[.25, 1], [.36, 1.14, 'out'], [.5, 1]] });
     on(intro, p, 0, { o: [[0, 0], [.08, 1]] });
@@ -84,8 +82,7 @@
     const tri = sub(intro);
     tri.path('M 0 -130 Q 14 -130 22 -116 L 140 92 Q 148 110 128 112 L -128 112 Q -148 110 -140 92 L -22 -116 Q -14 -130 0 -130 Z', { fill: C.fill, sw: 3.4 });
     tri.path('M 0 -104 L 114 94 L -114 94 Z', { sw: 1.3, stroke: C.soft });
-    tri.path('M -30 -78 L -96 40', { sw: 3 }); tri.dot(-104, 56, 2.4);
-    const ex = sub(tri); ex.line(0, -48, 0, 28, { sw: 12 }); ex.dot(0, 66, 9);
+        const ex = sub(tri); ex.line(0, -48, 0, 28, { sw: 12 }); ex.dot(0, 66, 9);
     const sh = [[0, 0]]; for (let i = 1; i <= 6; i++) sh.push([i * .05, i % 2 ? -4 : 4, 'lin']); sh.push([.36, 0, 'out']);
     on(tri, p, .6, { loop: 2, ox: 0, oy: 112, r: sh });
     on(ex, p, .6, { loop: 2, ox: 0, oy: 20, s: [[0, 1], [.1, 1.15, 'out'], [.4, 1, 'soft']] });
@@ -96,8 +93,7 @@
   rig('message-circle-pro', .6, p => {
     const intro = sub(p), bub = sub(intro);
     bub.path('M 0 -132 C 86 -132, 146 -76, 146 -6 C 146 64, 86 120, 0 120 C -20 120, -40 117, -58 111 L -128 140 L -108 80 C -132 58, -146 28, -146 -6 C -146 -76, -86 -132, 0 -132 Z', { fill: C.fill, sw: 3.2 });
-    bub.path('M -118 -40 C -104 -86, -60 -112, -10 -116', { sw: 3.4 }); bub.dot(-124, -16, 2.6);
-    const ol = sub(bub); ol.circle(118, -106, 16, { fill: C.fill, sw: 2.6 }); ol.dot(118, -106, 7);
+        const ol = sub(bub); ol.circle(118, -106, 16, { fill: C.fill, sw: 2.6 }); ol.dot(118, -106, 7);
     on(ol, p, .9, { loop: 2, ox: 118, oy: -106, s: [[0, 1], [.2, 1.2, 'out'], [.5, 1, 'soft']] });
     [-56, 0, 56].forEach((x, i) => { const d = sub(bub); d.circle(x, -6, 16, { fill: C.ink, sw: 1.4 });
       on(d, p, .7 + i * .14, { loop: 1.3, y: [[0, 0], [.18, -20, 'out'], [.4, 0, 'in']], o: [[0, .55], [.18, 1], [.5, .55]] }); });
@@ -113,11 +109,9 @@
     const intro = sub(p), stack = sub(intro);
     for (let i = 0; i < 6; i++) coin(stack, 0, 140 - i * 22, 112, 36, 22);
     stack.ellipse(0, 8, 112, 36, { fill: C.fill, sw: 2.8 }); stack.text('$', 0, 22, { size: 42, color: C.soft });
-    stack.path('M -84 0 Q -70 -14 -40 -20', { sw: 2.6 });
     const side = intro.child({ transform: 'translate(150 0)' }); for (let i = 0; i < 3; i++) coin(side, 0, 140 - i * 18, 52, 17, 18); side.ellipse(0, 86, 52, 17, { fill: C.fill, sw: 2.4 }); 
-    star4(intro, -150, 30, 12); intro.dot(-128, -10, 2.4);
     const fall = sub(intro), flip = sub(fall);
-    flip.circle(0, -90, 66, { fill: C.fill, sw: 3.2 }); flip.text('$', 0, -72, { size: 54 }); flip.path('M -40 -120 Q -30 -142 -6 -148', { sw: 3 });
+    flip.circle(0, -90, 66, { fill: C.fill, sw: 3.2 }); flip.text('$', 0, -72, { size: 54 });
     on(fall, p, .6, { loop: 1.8, y: [[0, -100], [.5, 34, 'in'], [.62, 18, 'out'], [.75, 34, 'in']], o: [[0, 0], [.06, 1], [.75, 1], [.85, 0]] });
     on(flip, p, .6, { loop: 1.8, ox: 0, oy: -90, sx: [[0, 1], [.12, -1, 'lin'], [.24, 1, 'lin'], [.36, -1, 'lin'], [.5, .3, 'lin']], sy: [[0, 1], [.5, 1], [.55, .35, 'out']] });
     on(stack, p, .6, { loop: 1.8, ox: 0, oy: 176, sy: [[0, 1], [.5, 1], [.56, .94, 'out'], [.7, 1.02], [.82, 1]], sx: [[0, 1], [.5, 1], [.56, 1.04, 'out'], [.82, 1]] });
@@ -136,8 +130,6 @@
     lid.shape([[0, -126], [138, -58], [0, 12], [-138, -58]], { fill: C.fill, sw: 3 });
     lid.shape([[75.8, -92.9], [54.2, -82.1], [-75.8, -17.1], [-54.2, -27.9]], { sw: 1.4, stroke: C.soft });
     lid.path('M -112 -58 L 0 -114', { sw: 2.4 });
-    const sp = sub(box); star4(sp, 0, -60, 26); [[-50, -96], [44, -110]].forEach(([x, y]) => sp.dot(x, y, 4));
-    on(sp, p, 1.0, { loop: 2.4, ox: 0, oy: -60, s: [[0, 0], [.35, 0], [.6, 1.15, 'back'], [1.4, .9, 'soft'], [1.8, 0, 'in']], y: [[.35, 30], [1.4, -50, 'out']] });
     on(lid, p, 1.0, { loop: 2.4, ox: 138, oy: -58, y: [[0, 0], [.3, -46, 'out'], [1.5, -46], [1.8, 0, 'in']], r: [[0, 0], [.3, 14, 'out'], [1.5, 14], [1.8, 0, 'in']] });
     on(box, p, 0, { ox: 0, oy: 150, y: [[0, -220], [.42, 0, 'in']], sy: [[.42, .86], [.56, 1.06, 'out'], [.7, 1]], sx: [[.42, 1.1], [.56, .97, 'out'], [.7, 1]] });
     on(intro, p, 0, { o: [[0, 0], [.1, 1]] });
@@ -173,8 +165,6 @@
     sw.path('M -150 -40 Q -146 -64 -120 -68', { sw: 3.2 });
     const tag = sub(sw); tag.line(40, -116, 70, -60, { sw: 1.4, stroke: C.soft }); tag.rect(58, -60, 34, 46, { rx: 5, fill: C.fill, sw: 2 }); tag.circle(75, -48, 4, { sw: 1.6 });
     on(tag, p, .6, { loop: 2.6, ox: 40, oy: -116, r: [[0, 0], [.75, -9, 'soft'], [2.05, 9, 'soft'], [2.6, 0, 'soft']] });
-    const gl = sub(sw); star4(gl, 26, -10, 14);
-    on(gl, p, .8, { loop: 2.6, ox: 26, oy: -10, s: [[0, 0], [1.2, 0], [1.4, 1.1, 'out'], [1.8, 0, 'in']] });
     on(sw, p, .6, { loop: 2.6, ox: 0, oy: -126, r: [[0, 0], [.65, 3.5, 'soft'], [1.95, -3.5, 'soft'], [2.6, 0, 'soft']] });
     on(intro, p, 0, { y: [[0, -70], [.55, 0, 'back']], o: [[0, 0], [.2, 1]] });
   });
