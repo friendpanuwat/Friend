@@ -1,0 +1,33 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>motion controls</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* motion controls demo — the same 4 icons, one row per setting (GL.art options speed / amp / loop):
+   ปกติ · เบาลง amp 0.5 · แรงขึ้น amp 1.5 · ช้าลง speed 0.5 · เร็วขึ้น speed 2 · นิ่ง loop:false. Exits at the end use the same speed. */
+GL.run(() => {
+  GL.stage();
+  GL.text('MOTION CONTROLS', { y: 112, size: 46, ls: 10, color: GL.C.kicker, at: .05, rise: 16 });
+  GL.text('ปรับท่าขยับ', { y: 250, size: 104, ls: 4, at: .2, rise: 30 });
+  GL.text('ไอคอนชุดเดียวกัน · แถวละค่า', { y: 322, size: 34, weight: 500, color: GL.C.sub, glow: false, at: .45, rise: 14 });
+  const top = 350;
+  const icons = ['bus-pro', 'bell-pro', 'flower-pro', 'timer-pro'];
+  const rows = [
+    { th: 'ปกติ', code: 'ค่าเริ่ม', o: {} },
+    { th: 'เบาลง', code: 'amp 0.5', o: { amp: .5 } },
+    { th: 'แรงขึ้น', code: 'amp 1.5', o: { amp: 1.5 } },
+    { th: 'ช้าลง', code: 'speed 0.5', o: { speed: .5 } },
+    { th: 'เร็วขึ้น', code: 'speed 2', o: { speed: 2 } },
+    { th: 'นิ่ง', code: 'loop: false', o: { loop: false } },
+  ];
+  const y0 = top + 30, rh = (GL.H - y0 - 30) / rows.length, lx = 135, x0 = 262, cw = (GL.W - 20 - x0) / icons.length;
+  const w = Math.min(cw * .84, rh * .78);
+  rows.forEach((r, j) => {
+    const cy = y0 + j * rh + rh / 2, at = .4 + j * .12;
+    if (j) GL.hline(y0 + j * rh, .2 + j * .05, { x1: 40, x2: GL.W - 40 });
+    GL.text(r.th, { x: lx, y: cy + 4, size: 46, at, rise: 8 });
+    GL.text(r.code, { x: lx, y: cy + 50, size: 26, weight: 600, color: GL.C.sub, glow: false, at: at + .1, rise: 6 });
+    icons.forEach((n, i) => GL.art(GL.icons[n], Object.assign({ x: x0 + (i + .5) * cw, y: cy, w, at: at + i * .06 }, r.o)));
+  });
+  GL.finish({ hold: 6.5, out: true, stagger: .03 });
+});
+</script></body></html>

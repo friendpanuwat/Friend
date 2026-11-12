@@ -185,7 +185,8 @@
     const set = u => mer.forEach((e, i) => { const lon = -90 + i * 45 + 45 * u / T, rx = Math.abs(Math.sin(rad(lon))) * R0;
       e.setAttribute('d', rx < .5 ? `M 0 ${-R0} L 0 ${R0}` : `M 0 ${-R0} A ${rx.toFixed(2)} ${R0} 0 0 ${lon > 0 ? 1 : 0} 0 ${R0}`);
       e.setAttribute('stroke', Math.abs(lon) > 70 ? C.soft : C.ink); });
-    set(0); HOOK.push(t => set(t < start ? 0 : (t - start) % T));
+    const M = p.motion;                                    // motion controls (speed / loop:false) — the hook runs on the rig's own clock
+    set(0); HOOK.push(t => { const tt = !M ? t : M.still ? M.freezeAt : M.time(t); set(tt < start ? 0 : (tt - start) % T); });
     on(intro, p, .7, { loop: 2.4, ox: 0, oy: 0, y: [[0, 0], [1.2, -6, 'io'], [2.4, 0, 'io']] });
     on(eO, p, 0, { s: [[0, .3], [.5, 1.06, 'out'], [.65, 1]], r: [[0, -100], [.6, 0, 'out']], o: [[0, 0], [.15, 1]] });
   });
