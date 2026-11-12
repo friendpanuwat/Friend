@@ -300,6 +300,8 @@
     on(intro, p, 0, { o: [[0, 0], [.1, 1]] });
   });
 
+  /* exits (ท่าออก) mirror each entrance; anything not listed leaves with 'pop' */
+  Object.entries({'users-pro': 'sink', 'utensils-crossed-pro': 'spin', 'handshake-pro': 'fade', 'infinity-pro': 'spin', 'user-plus-pro': 'sink', 'tag-pro': 'rise', 'repeat-pro': 'spin', 'fish-pro': 'slideL', 'crown-pro': 'rise'}).forEach(([n, k]) => { R[n].exit = k; });
   Object.assign(G.icons, R);
   const ALIAS = { bookmark: 'bookmark-pro', 'circle-help': 'circle-help-pro', users: 'users-pro', eye: 'eye-pro', 'utensils-crossed': 'utensils-crossed-pro', search: 'search-pro', magnifier: 'search-pro',
     handshake: 'handshake-pro', infinity: 'infinity-pro', image: 'image-pro', 'user-plus': 'user-plus-pro', follow: 'user-plus-pro', tag: 'tag-pro', wallet: 'wallet-pro', calendar: 'calendar-pro', repeat: 'repeat-pro',

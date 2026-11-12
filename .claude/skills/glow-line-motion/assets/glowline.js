@@ -164,11 +164,44 @@
   function strokeK(s) { return s >= 1 ? 1 / Math.sqrt(s) : Math.max(1, .8 / s); }   // keeps lines ~2.4–4px on screen
   /* art: place a drawing. Motion mode (default): it pops in already complete, then plays its idle motion
      (fn.motion, or `idle`, or `float`). reveal: 'draw' keeps the self-drawing stroke for this one (lines, connectors). */
-  function art(fn, { x, y, s = 1, w, at = 0, ts = 1, filter = 'glow', parent = cur, float, idle, reveal } = {}) {
+  /* exits ("ท่าออก") — every icon also leaves with a move that mirrors how it came in. Units: drawing px (× scale).
+     A rig picks one with fn.exit = 'rise' | { kind: 'rise', ... }; plain icons use 'pop'. */
+  const EXIT = {
+    pop:    { dur: .42, s: [[0, 1], [.12, 1.08, 'out'], [.42, 0, 'in']], o: [[0, 1], [.3, 1], [.42, 0]] },
+    rise:   { dur: .5, y: [[0, 0], [.12, 12, 'out'], [.5, -150, 'in']], o: [[0, 1], [.32, 1], [.5, 0]] },
+    sink:   { dur: .5, y: [[0, 0], [.12, -12, 'out'], [.5, 150, 'in']], o: [[0, 1], [.32, 1], [.5, 0]] },
+    slide:  { dur: .5, x: [[0, 0], [.14, -18, 'out'], [.5, 300, 'in']], o: [[0, 1], [.34, 1], [.5, 0]] },
+    slideL: { dur: .5, x: [[0, 0], [.14, 18, 'out'], [.5, -300, 'in']], o: [[0, 1], [.34, 1], [.5, 0]] },
+    launch: { dur: .62, y: [[0, 0], [.2, 18, 'out'], [.62, -900, 'in']], sy: [[0, 1], [.2, .92, 'out'], [.34, 1.1]], o: [[0, 1], [.5, 1], [.62, 0]] },
+    spin:   { dur: .5, s: [[0, 1], [.12, 1.06, 'out'], [.5, 0, 'in']], r: [[0, 0], [.5, -150, 'in']], o: [[0, 1], [.36, 1], [.5, 0]] },
+    squash: { dur: .45, oy: 150, sy: [[0, 1], [.12, 1.08, 'out'], [.45, 0, 'in']], sx: [[0, 1], [.12, .95, 'out'], [.45, 1.25, 'in']], o: [[0, 1], [.36, 1], [.45, 0]] },
+    blink:  { dur: .45, o: [[0, 1], [.06, .2, 'lin'], [.12, 1, 'lin'], [.2, .25, 'lin'], [.26, .9, 'lin'], [.45, 0, 'in']], s: [[0, 1], [.45, .9, 'in']] },
+    fade:   { dur: .4, s: [[0, 1], [.4, .9, 'in']], o: [[0, 1], [.4, 0, 'in']] },
+  };
+  const arts = [];
+  function leave(a, t, kind) {
+    if (a.left) return 0; a.left = true;
+    const spec = typeof kind === 'object' ? kind : { kind: kind || 'pop' };
+    const P = Object.assign({}, EXIT[spec.kind] || EXIT.pop, spec), k = a.s, tr = {};
+    for (const n of ['x', 'y', 's', 'sx', 'sy', 'r', 'o']) if (P[n]) tr[n] = n === 'x' || n === 'y' ? P[n].map(([u, v, e]) => [u, v * k, e]) : P[n];
+    kf(a.ex, t, { ox: a.x + (P.ox || 0) * k, oy: a.y + (P.oy || 0) * k, ...tr });
+    return P.dur;
+  }
+  /* page / finish helpers: exits for every icon in `group`, then the rest (text, lines) fades. Returns when all is gone. */
+  function leaveAll(group, t, stagger = .04) {
+    let end = t, i = 0;
+    for (const a of arts) if (!a.left && group.contains(a.wrap)) end = Math.max(end, t + i * stagger + leave(a, t + (i++) * stagger, a.exit));
+    const live = arts.filter(a => group.contains(a.wrap)).map(a => a.wrap);
+    const fadeRest = g => { for (const c of g.children) { if (c.hasAttribute('data-wrap') || c.tagName === 'defs') continue;
+      if (live.some(w => c.contains(w))) fadeRest(c); else tween(c, t + .05, .4, { o: 1 }, { o: 0 }); } };
+    fadeRest(group);
+    return Math.max(end, t + .45);
+  }
+  function art(fn, { x, y, s = 1, w, at = 0, ts = 1, filter = 'glow', parent = cur, float, idle, reveal, out, exit } = {}) {
     if (w) s = w / 400;                                   // w = on-screen width of the ±200 drawing box
     const custom = !!fn.custom, pop = !custom && (reveal ? reveal === 'pop' : MODE === 'motion');
     const wrap = mk('g', { filter: filter ? `url(#${filter})` : null, 'data-wrap': 1 }, parent);
-    const en = mk('g', {}, wrap), mo = mk('g', { id: 'gl' + (++uid) }, en);
+    const en = mk('g', {}, wrap), ex = mk('g', {}, en), mo = mk('g', { id: 'gl' + (++uid) }, ex);
     const g = mk('g', { transform: `translate(${x} ${y}) scale(${s})`, id: 'gl' + (++uid) }, mo);
     const p = new Pen(g, at, strokeK(s), ts), i0 = items.length;
     fn(p);
@@ -192,7 +225,11 @@
       const sp = Object.assign({}, LOOP[spec.kind] || {}, spec);
       items.push(Object.assign({}, sp, { type: 'loop', e: mo, start: ready + (sp.delay || 0), ox: x + (sp.ox || 0) * s, oy: y + (sp.oy || 0) * s, ps: s }));
     }
-    return { wrap, g: mo, end: custom ? ready : pop ? Math.min(p.span.end, ready) : p.span.end };
+    const a = { wrap, g: mo, ex, x, y, s, exit: exit || fn.exit || (pop || custom ? 'pop' : 'fade'), end: custom ? ready : pop ? Math.min(p.span.end, ready) : p.span.end };
+    a.leave = (t, kind) => t + leave(a, t, kind || a.exit);
+    arts.push(a);
+    if (out != null) a.leave(out);
+    return a;
   }
   function pairOf(it) {
     if (it.messy && it.clean) return it;
@@ -416,11 +453,14 @@
     const end = fn(at);
     cur = prev;
     if (!out) return end;
-    tween(g, end + hold, .45, { o: 1 }, { o: 0 });
-    return end + hold + .5;
+    const gone = MODE === 'motion' ? leaveAll(g, end + hold) : end + hold;   // icons play their exit, then text fades
+    tween(g, gone, .1, { o: 1 }, { o: 0 });
+    return gone + .15;
   }
 
-  function finish({ hold = 1.6 } = {}) {
+  /* out: true → after the hold every icon plays its exit and the rest fades (clip ends empty); then `tail` s of black */
+  function finish({ hold = 1.6, out = false, tail = .3, stagger = .04 } = {}) {
+    if (out) { const t = lastEnd + hold; window.OUT_AT = t; lastEnd = leaveAll(root, t, stagger) + tail; hold = 0; }
     window.DURATION = Math.round((lastEnd + hold) * 100) / 100;
     window.setT(window.DURATION);
     window.READY = true;
@@ -1019,7 +1059,7 @@
     },
   });
 
-  window.GL = { C, stage, run, Pen, art, text, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
+  window.GL = { C, stage, run, Pen, art, text, EXIT, leaveAll, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
     parts, icons, pairs, pair, single, LOOP, MOTION, kf, EASE, easeIO, easeOut, clamp, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
 
   /* beats.js (B01–B21 scene templates) loads next to this file */

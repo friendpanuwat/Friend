@@ -179,6 +179,8 @@
     on(intro, p, 0, { y: [[0, -70], [.55, 0, 'back']], o: [[0, 0], [.2, 1]] });
   });
 
+  /* exits (ท่าออก) mirror each entrance; anything not listed leaves with 'pop' */
+  Object.entries({'user-pro': 'sink', 'sparkles-pro': 'spin', 'triangle-alert-pro': 'rise', 'package-pro': 'rise', 'trending-down-pro': 'squash', 'briefcase-pro': 'rise'}).forEach(([n, k]) => { R[n].exit = k; });
   Object.assign(G.icons, R);
   const ALIAS = { user: 'user-pro', sparkles: 'sparkles-pro', brain: 'brain-pro', check: 'check-pro', 'triangle-alert': 'triangle-alert-pro', warn: 'triangle-alert-pro',
     'message-circle': 'message-circle-pro', bubble: 'message-circle-pro', coins: 'coins-pro', package: 'package-pro', 'trending-down': 'trending-down-pro', down: 'trending-down-pro', briefcase: 'briefcase-pro',

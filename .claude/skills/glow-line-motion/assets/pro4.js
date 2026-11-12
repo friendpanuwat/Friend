@@ -274,6 +274,8 @@
     on(intro, p, 0, { y: [[0, 60], [.55, 0, 'back']], o: [[0, 0], [.2, 1]] });
   });
 
+  /* exits (ท่าออก) mirror each entrance; anything not listed leaves with 'pop' */
+  Object.entries({'trash-2-pro': 'rise', 'user-check-pro': 'sink', 'thumbs-down-pro': 'rise', 'zap-pro': 'blink', 'store-pro': 'rise', 'bookmark-check-pro': 'rise', 'arrow-right-pro': 'slide', 'graduation-cap-pro': 'rise', 'octagon-alert-pro': 'rise', 'shield-pro': 'sink'}).forEach(([n, k]) => { R[n].exit = k; });
   Object.assign(G.icons, R);
   const ALIAS = { book: 'book-pro', languages: 'languages-pro', 'trash-2': 'trash-2-pro', trash: 'trash-2-pro', 'user-check': 'user-check-pro', 'circle-check': 'circle-check-pro', x: 'x-pro', cross: 'x-pro',
     'thumbs-down': 'thumbs-down-pro', puzzle: 'puzzle-pro', 'biceps-flexed': 'biceps-flexed-pro', 'heart-pulse': 'heart-pulse-pro', zap: 'zap-pro', banknote: 'banknote-pro', store: 'store-pro',

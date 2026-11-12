@@ -366,6 +366,8 @@
   });
   G.VARIANTS = { heart: ['heart-solid', 'heart-layers', 'heart-ecg', 'heart-oneline', 'heart-like', 'heart-broken', 'heart-balloon', 'heart-lock', 'heart-pixel', 'heart-wings'] };
 
+  /* exits (ท่าออก) mirror each entrance; anything not listed leaves with 'pop' */
+  Object.entries({'bell-pro': 'rise', 'bulb-pro': 'blink', 'mail-pro': 'slide', 'rocket-pro': 'launch', 'growth-pro': 'squash', 'gears-pro': 'spin', 'notify-pro': 'sink'}).forEach(([n, k]) => { R[n].exit = k; });
   Object.assign(G.icons, R);
   /* the user chose this set as the standard look: plain names now resolve to the rigged versions everywhere
      (beats, spot, flow, steps …). The older drawings stay reachable under '<name>-basic'. */

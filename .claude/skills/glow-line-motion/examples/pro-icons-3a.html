@@ -12,6 +12,6 @@ GL.run(() => {
     GL.art(GL.icons[n], { x, y, w: Math.min(cw * .62, ch * .78 * 400 / 370), at });
     GL.text(n.replace('-pro', '').toUpperCase(), { x, y: y + ch * .47, size: 28, weight: 600, color: GL.C.sub, glow: false, at: at + .4, rise: 6 });
   });
-  GL.finish({ hold: 4 });
+  GL.finish({ hold: 3.5, out: true, stagger: .06 });
 });
 </script></body></html>
