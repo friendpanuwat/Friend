@@ -43,6 +43,8 @@ STYLE('card', {
 .c-light .u-dotc{stroke:#14213D;stroke-width:6}
 .c-text{position:absolute;left:140px;width:800px;top:1350px;display:flex;flex-direction:column;align-items:center;row-gap:26px}
 .c-text span{display:inline-block;white-space:nowrap}
+.c-speaker{text-shadow:0 3px 18px rgba(0,0,0,.75)}.c-speaker .c-hl{text-shadow:none}
+.c-hand{font-family:"Hand";font-size:150px;line-height:1.15;color:#DDFF45}
 .c-lead{font-family:"Lead";font-size:54px;line-height:1.2}
 .c-key{font-family:"KeySans";font-size:146px;line-height:1.12;letter-spacing:-2px;color:#DDFF45}
 .c-hl{font-family:"KeySans";font-size:116px;line-height:1.1;letter-spacing:-2px;color:#0A0A0A;background:#DDFF45;padding:0 .16em .04em;border-radius:12px}
@@ -88,6 +90,8 @@ STYLE('card', {
     sfx('whoosh', t0, -24);
     return {root, stage, dark};
   },
+  /* a real clip, between scenes: the subtitle on the speaker in the dark card's words (core.js clipCaption) */
+  speakerFrame() { const root = div('inset:0', SC); root.className = 'c-dark c-speaker'; return {root, dark: true, speaker: true}; },
   text(F, T, lead, key) {
     const el = div('', F.root); el.className = 'c-text';
     const row = (txt, cls, m, t) => {                    // row = fit-to-width box, span = the moving word
@@ -98,7 +102,8 @@ STYLE('card', {
       return s;
     };
     if (lead) row(lead, 'c-lead', this.motion.lead, T.t0 + .15).style.color = 'var(--text)';
-    if (key) { row(key, F.dark ? 'c-key' : 'c-hl', this.motion.key, T.hit); sfx('softswish', T.hit - .04, -22); }
+    const look = F.speaker && T.look ? {k: 'c-key', i: 'c-hand', hl: 'c-hl'}[T.look] : F.dark ? 'c-key' : 'c-hl';   // on the speaker: the editorial turns (core.js)
+    if (key) { row(key, look, this.motion.key, T.hit); sfx('softswish', T.hit - .04, -22); }
     return el;
   },
 });

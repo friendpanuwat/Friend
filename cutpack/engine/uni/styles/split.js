@@ -60,6 +60,7 @@ STYLE('split', {
 .p-text{position:absolute;left:90px;width:800px;top:950px;display:flex;flex-direction:column;align-items:center;row-gap:4px;opacity:0}
 .p-text div{position:relative;white-space:nowrap}
 .p-text span{font-family:"Anu";font-weight:700;font-size:64px;line-height:1.3;color:#B8AECF}
+.p-speaker span{text-shadow:0 3px 16px rgba(0,0,0,.7)}
 `,
   motion: {
     pop:   {kf: [{opacity: 0, transform: 'translateY(18px) scale(.94)'}, {opacity: 1, transform: 'none'}], d: .55, e: EASE.gentle},
@@ -117,15 +118,20 @@ STYLE('split', {
     const stage = div('left:30px;top:64px;width:1000px;height:700px;transform-origin:0 0;transform:scale(.74)', root);
     return {root, stage, dark};
   },
+  /* a real clip, between scenes: the subtitle on the speaker in the window's words (core.js clipCaption) */
+  speakerFrame() { return {dark: true, speaker: true}; },
+  capShift: SPLIT.inD * .8,
+  capTail: SPLIT.outD + .15,                 // (its words leave outD + .15 s before the end, for the speaker growing back)
   /* the sentence waits in pale ink, each part darkens when it is said (karaoke in two tones) */
   text(F, T, lead, key) {
     const el = div('', SC); el.className = `p-text ${F.dark ? 'p-dark' : 'p-light'}`;
     A(el, [{opacity: 0, transform: 'translateY(12px)'}, {opacity: 1, transform: 'none'}], T.t0 + SPLIT.inD * .8, .4, {e: EASE.gentle});      // once the video is below the words
     A(el, [{opacity: 1}, {opacity: 0}], T.t1 - SPLIT.outD - .15, .25, {f: 'forwards'});
-    const ink = '#4B3D6E';
+    const ink = F.speaker ? '#FFFFFF' : '#4B3D6E', pale = F.speaker ? 'rgba(255,255,255,.5)' : '#B8AECF';   // on the speaker: white karaoke
+    if (F.speaker) el.classList.add('p-speaker');
     const row = (txt, t) => {
       const r = document.createElement('div'); el.appendChild(r); const s = document.createElement('span'); s.textContent = txt; r.appendChild(s);
-      A(s, [{color: '#B8AECF'}, {color: ink}], t, .35, {e: 'ease-out'});
+      A(s, [{color: pale}, {color: ink}], t, .35, {e: 'ease-out'});
       FITS.push(() => { const w = s.offsetWidth; if (w > 800) r.style.transform = `scale(${800 / w})`; });
     };
     if (lead) row(lead, T.t0 + SPLIT.inD * .8 + .1);

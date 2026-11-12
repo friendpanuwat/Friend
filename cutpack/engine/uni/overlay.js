@@ -30,7 +30,10 @@ const OV_CSS = `
 /* the subtitle under the chin: one row per part, shrunk (never wrapped) to 900 px; returns the moving spans */
 function ovSub(T, rows) {
   const el = div(`top:${OV.subTop}px`, SC); el.className = 'ov-sub';
-  A(el, [{opacity: 0}, {opacity: 1}], T.t0 + .05, .25); A(el, [{opacity: 1}, {opacity: 0}], T.t1 - .2, .2, {f: 'forwards'});
+  if (T.cut) {                                       // a real clip: short blocks follow each other, so cut (fades left them faint and stacked)
+    A(el, [{visibility: 'hidden'}, {visibility: 'visible'}], T.cut[0] - .02, .001);
+    A(el, [{visibility: 'visible'}, {visibility: 'hidden'}], T.cut[1] - .021, .001, {f: 'forwards'});
+  } else { A(el, [{opacity: 0}, {opacity: 1}], T.t0 + .05, .25); A(el, [{opacity: 1}, {opacity: 0}], T.t1 - .2, .2, {f: 'forwards'}); }
   return rows.map(([txt, cls]) => {
     const r = document.createElement('div'); el.appendChild(r);
     const s = document.createElement('span'); s.className = cls; s.textContent = txt; r.appendChild(s);
@@ -81,7 +84,8 @@ function OVERLAY(id, base, def) {
       A(root, m.leave.kf, t1 - m.leave.d, m.leave.d, {e: m.leave.e, f: 'forwards'});
       if (big) {                                    // the speaker steps back to make room, then comes back
         const D = t1 - t0 + .1, k = OV.shrink, S = `translate(${540 * (1 - k.s)}px,${1920 * (1 - k.s)}px) scale(${k.s})`;
-        A(V, [{transform: 'none'}, {transform: S, offset: k.d / D}, {transform: S, offset: 1 - k.d / D}, {transform: 'none'}], t0 - .1, D, {e: 'ease-in-out', f: 'none'});
+        const o = Math.min(k.d / D, .5);          // a short scene: shrink and grow back meet in the middle (the offsets must not cross, a real clip had a 1.7 s scene)
+        A(V, [{transform: 'none'}, {transform: S, offset: o}, {transform: S, offset: 1 - o}, {transform: 'none'}], t0 - .1, D, {e: 'ease-in-out', f: 'none'});
       }
       const pic = big ? {x: 24, y: 20, w: L.w - 48, h: L.h - 178} : {x: 18, y: 18, w: L.h - 36, h: L.h - 36};
       const box = div(`left:${pic.x}px;top:${pic.y}px;width:${pic.w}px;height:${pic.h}px`, root);
@@ -110,7 +114,7 @@ function OVERLAY(id, base, def) {
       });
       return F;
     },
-    text(F, T, lead, key) { (F.small ? def.sub : def.text)(F, T, lead, key); if (!F.big && def.camera) def.camera(T); },
+    text(F, T, lead, key) { (F.small ? def.sub : def.text)(F, T, lead, key); if (!F.big && def.camera && typeof ZOOMS === 'undefined') def.camera(T); },   // a real clip has its own slow camera (core.js camPlan)
   });
 }
 /* one line of words in the card, shrunk (never wrapped) to the room it has */

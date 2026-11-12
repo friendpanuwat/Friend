@@ -2,7 +2,8 @@
    STYLE · card-overlay (+ card-overlay-big) — the card style as small widgets over the speaker
    (Friend's skill talking-head-editorial-overlay). Same look as `card` (styles/card.js), only these change:
    1 frame    no full-screen card: the speaker stays on screen, the picture is a flat card above the head (overlay.js)
-   5 words    inside the card: the lead in small Mitr, the key word in the lime box; a hard zoom cut on the key word
+   5 words    inside the card: the lead in small Mitr, the key word in the lime box; a hard zoom cut on the key word (test pages only:
+              a real clip uses the slow camera of core.js, Friend 2026-11-12 "ซูมช้า 4–5 ครั้ง"); the subtitle sizes of the skill
    ===================================================================== */
 const CARD_OV = {
   name: 'การ์ด แบบ overlay',
@@ -18,13 +19,13 @@ const CARD_OV = {
 .ov-key{display:inline-block;font-family:"KeySans";line-height:1.15;letter-spacing:-1px;color:#0A0A0A;background:#DDFF45;border-radius:12px;padding:0 .14em .04em}
 .c-dark .c-light .u-num,.c-light .u-num{color:#14213D}
 .u-panel.c-light{background:#FFFFFF;border-radius:36px;box-shadow:0 26px 60px rgba(0,0,0,.38),0 3px 10px rgba(0,0,0,.18)}
-.ov-sl{font-family:"Lead";font-size:50px;line-height:1.2;color:#FFFFFF;text-shadow:0 3px 16px rgba(0,0,0,.75)}
-.ov-k{font-family:"KeySans";font-size:120px;line-height:1.1;letter-spacing:-2px;color:#DDFF45;text-shadow:0 6px 26px rgba(0,0,0,.6)}
+.ov-sl{font-family:"Lead";font-size:54px;line-height:1.2;color:#FFFFFF;text-shadow:0 3px 16px rgba(0,0,0,.75)}
+.ov-k{font-family:"KeySans";font-size:146px;line-height:1.1;letter-spacing:-2px;color:#DDFF45;text-shadow:0 6px 26px rgba(0,0,0,.6)}
 .ov-hl{display:inline-block;font-family:"KeySans";font-size:104px;line-height:1.1;letter-spacing:-2px;color:#0A0A0A;background:#DDFF45;padding:0 .16em .04em;border-radius:12px}
-.ov-hand{font-family:"Hand";font-size:124px;line-height:1.15;color:#DDFF45;text-shadow:0 6px 26px rgba(0,0,0,.6)}`,
+.ov-hand{font-family:"Hand";font-size:150px;line-height:1.15;color:#DDFF45;text-shadow:0 6px 26px rgba(0,0,0,.6)}`,
   /* the subtitle under the chin (small forms): small lead in Mitr, the key word lime in turn as Mitr / lime box / Sriracha */
   sub(F, T, lead, key) {
-    const M = STYLES.card.motion, [l, k] = ovSub(T, [[lead ?? '', 'ov-sl'], [key ?? '', ['ov-k', 'ov-hl', 'ov-hand'][F.index % 3]]]);
+    const M = STYLES.card.motion, [l, k] = ovSub(T, [[lead ?? '', 'ov-sl'], [key ?? '', T.look ? {k: 'ov-k', i: 'ov-hand', hl: 'ov-hl'}[T.look] : ['ov-k', 'ov-hl', 'ov-hand'][F.index % 3]]]);
     if (lead) A(l, M.lead.kf, T.t0 + .15, M.lead.d, {e: M.lead.e});
     if (key) { A(k, M.key.kf, T.hit, M.key.d, {e: M.key.e}); sfx('softswish', T.hit - .04, -22); }
   },
