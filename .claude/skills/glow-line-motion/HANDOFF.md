@@ -20,6 +20,7 @@ glow-line `-pro` ของ skill นี้: เส้นขาวเรือง
 | `assets/pro3.js` (ชุด 3) | bookmark circle-help users eye utensils-crossed search handshake* infinity image user-plus tag wallet calendar repeat book-open ear* fish crown message-circle-question share-2 |
 | `assets/pro4.js` (ชุด 4) | book languages trash-2 user-check circle-check x thumbs-down* puzzle biceps-flexed* heart-pulse zap banknote store bookmark-check arrow-right message-circle-warning video graduation-cap octagon-alert shield |
 | `assets/pro5.js` (ชุด 5) | heart-crack heart-off map-pin lightbulb-off battery-low droplets utensils award message-circle-heart arrow-down arrow-up phone lock star arrow-left-right link quote send pen-line printer |
+| `assets/pro9.js` (ชุด 9 = ลำดับ 2 อันที่ 21–32, แผ่น A/B 6+6) | dumbbell salad building-2 clipboard-list gem scale · shopping-cart signature tags calendar-days clock history |
 | `assets/pro8.js` (ชุด 8 = ลำดับ 2 อันที่ 1–20, แผ่น A/B) | chart-column shield-check angry leaf weight badge-percent building factory medal package-open · headphones message-square box gift palette user-x key glasses activity droplet |
 | `assets/pro7.js` (ชุด 7, แผ่น A) | smile frown (หน้าอิโมจิ — **ผู้ใช้บอกว่าไม่นับเป็นอวัยวะ**) |
 | `assets/pro6.js` (ชุด 6, แผ่น A 7 + B 6) | circle-alert lock-open eye-off flag megaphone trophy hourglass · arrow-down-up chevrons-left-right phone-off pin rewind sliders-horizontal |
@@ -35,7 +36,10 @@ book-pro: เพิ่มเส้นบรรทัดบนหน้ากร�
 **ลำดับ 2 (เริ่ม 2026-11-12)**: 37 อัน − rocket (มีแล้ว) − hand-heart hand-helping hand-coins ear-off (อวัยวะ → พัก) = 32 อัน.
 รอบแรก 20 อัน = `pro8.js`. ผู้ใช้สั่ง "เพิ่มรายละเอียดเล็ก ๆ" + "ดูอันที่ผมใช้เป็นหลัก (pro)" = **ใช้ `pro.js` ชุด 1 เป็นแบบอย่างความละเอียด**
 (เส้นขอบในสีเทา 1 เส้น, แถบ/ฐาน, ขีดแกน, จุดบนข้อมูล, ชิ้นเด่นเส้น ink ที่เหลือ soft) แต่ยังอยู่ในกฎ 2–3. ภาพเทียบ `detail8/compare-8a/8b.jpg` → ผู้ใช้ "ผ่าน ทำอนิเมชั่นแบบมืออาชีพ" → เติมหลักอนิเมชันแบบ pro.js ให้ทุกอัน
-(ย่อก่อนพุ่ง, เด้งเกินแล้วนิ่ง, ชิ้นตามช้ากว่า, ท่ารอง) แล้ว render `pro-icons-batch8a/8b.mp4` — **รอผู้ใช้ตอบ "ผ่าน" ก่อนทำรอบถัดไป**. รอบถัดไป 12 อัน: dumbbell salad building-2 clipboard-list gem scale shopping-cart signature tags calendar-days clock history.
+(ย่อก่อนพุ่ง, เด้งเกินแล้วนิ่ง, ชิ้นตามช้ากว่า, ท่ารอง) แล้ว render `pro-icons-batch8a/8b.mp4` — ผู้ใช้ "ผ่าน".
+ชุด 9 (12 อันสุดท้ายของลำดับ 2) ทำด้วยมาตรฐานเดียวกันตั้งแต่แรก → `pro-icons-batch9a/9b.mp4` (ภาพนิ่งที่ 2.9 วิ ให้เห็นลายเซ็น) — **รอผู้ใช้ตอบ**.
+ลำดับ 2 ครบแล้ว (เว้นอวัยวะ 4 อัน). ถัดไป = ลำดับ 3 (176 อัน, รายชื่อในไฟล์ icons_names.txt ของผู้ใช้ #133–308).
+หมายเหตุ signature-pro: ปากกาเดินตามเส้นด้วย `getPointAtLength` ของ path จริง (ใช้ได้เพราะ element อยู่ใน DOM ตอนวาด). 
 ไอคอนที่มีขีดฆ่า (eye-off, phone-off) — ขีดฆ่าต้องอยู่ตลอด ห้ามให้ท่าวนยกขีดออก (ไม่งั้นตอนท่าออกจะกลายเป็น eye/phone ธรรมดา).
 
 **พักไว้ (อวัยวะคน — ผู้ใช้สั่งพักอีกครั้ง: "พวกมือ หู หรืออวัยวะต่าง ๆ พักไว้ก่อน ... เพราะคุณวาดพวกนี้ได้ไม่ค่อยดีเท่าไร")**:
