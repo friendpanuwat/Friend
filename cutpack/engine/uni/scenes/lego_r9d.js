@@ -498,8 +498,10 @@ R3.both('B01', 'piggy', 'กระปุกออมสิน เหรียญ
 R3.both('B02', 'battery', 'แบตเตอรี่ ขีดเติมขึ้นทีละขีด หรือลดลงจนแดง', (K, s, T, g) => {
   const up = s.dir !== 'down', it = s.item ?? {icon: 'zap'};
   const bt = R6.group(g); bt.style.transformOrigin = '300px 185px'; K.enter(bt, T.b[0], 'rise');
-  R9.card(bt, 490, 146, 32, 78, '0 16px 16px 0');
   const b = R9.card(bt, 70, 88, 420, 194, 38);
+  /* a clear edge and a solid terminal, so the battery stands off any background (Friend 2026-11-12: "มันกลืนกับพื้นหลังไปหน่อยอะ") */
+  R8.svg(bt, `<rect x="70" y="88" width="420" height="194" rx="38" style="fill:none;stroke:var(--ink);stroke-width:calc(var(--lw) * .6)"/>` +
+    `<path style="fill:var(--ink);stroke:none" d="M498 146H506Q526 146 526 166V204Q526 224 506 224H498Z"/>`);
   const on = [T.b[0] + .45, T.b[1] + .1, T.b[2], T.hit], off = {3: T.b[1] + .1, 2: T.b[2], 1: T.hit - .2};
   [0, 1, 2, 3].forEach(k => {
     const x = 22 + k * 98; R11.bar(b.p, x, 22, 82, 150, null, 16);
