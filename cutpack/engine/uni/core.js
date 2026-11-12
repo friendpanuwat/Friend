@@ -93,7 +93,7 @@ function clipCaption(c) {
   else CLIPWINS.forEach(x => { if (x.t1 > a && x.t1 <= b && x.t0 < a) a = x.t1; if (x.t0 < b && x.t0 >= a) b = Math.min(b, x.t0); });
   if (b - a < .15) return;
   const sh = ST.capShift ?? .15;                               // how long after T.t0 the style's lead word comes in
-  const T = {t0: a - sh, t1: b, hit: Math.min(Math.max(kt, a + .05), b - .1), b: [a], after: b};
+  const T = {t0: a - sh, t1: b + (ST.capTail ?? 0), hit: Math.min(Math.max(kt, a + .05), b - .1), b: [a], after: b};   // capTail: a style that fades its words out early (split)
   let F, own = true;
   if (ST.overlay) { F = {small: true, big: true, index: w?.index ?? CLIPWINS.length}; own = false; }
   else if (w) F = w.F;

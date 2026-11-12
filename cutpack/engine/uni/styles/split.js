@@ -121,6 +121,7 @@ STYLE('split', {
   /* a real clip, between scenes: the subtitle on the speaker in the window's words (core.js clipCaption) */
   speakerFrame() { return {dark: true, speaker: true}; },
   capShift: SPLIT.inD * .8,
+  capTail: SPLIT.outD + .15,                 // (its words leave outD + .15 s before the end, for the speaker growing back)
   /* the sentence waits in pale ink, each part darkens when it is said (karaoke in two tones) */
   text(F, T, lead, key) {
     const el = div('', SC); el.className = `p-text ${F.dark ? 'p-dark' : 'p-light'}`;
