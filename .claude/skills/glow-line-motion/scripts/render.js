@@ -13,12 +13,12 @@ catch { ({ chromium } = require(path.join(execFileSync('npm', ['root', '-g']).to
 
 const argv = process.argv.slice(2), flag = f => argv.includes(f);
 const opt = (f, d) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : d; };
-const pos = argv.filter((a, i) => !a.startsWith('--') && !['--name', '--fps', '--workers', '--at'].includes(argv[i - 1]));
+const pos = argv.filter((a, i) => !a.startsWith('--') && !['--name', '--fps', '--workers', '--at', '--scale'].includes(argv[i - 1]));
 if (!pos[0]) { console.error('usage: node render.js <scene.html> [outdir] [--name clip] [--fps 30] [--still] [--alpha]'); process.exit(2); }
 const scene = path.resolve(pos[0]);
 const out = path.resolve(pos[1] || path.join(path.dirname(scene), 'out'));
 const name = opt('--name', path.basename(scene, '.html'));
-const FPS = +opt('--fps', 30), ALPHA = flag('--alpha');
+const FPS = +opt('--fps', 30), ALPHA = flag('--alpha'), SCALE = +opt('--scale', 1);   // --scale 2 = sharper stills (2x pixels)
 const WORKERS = +opt('--workers', Math.max(1, Math.min(4, os.cpus().length)));
 // point the scene at this skill's engine whatever path it was written with (scenes stay portable)
 const ENGINE = 'file://' + path.resolve(__dirname, '../assets/glowline.js');
@@ -30,7 +30,7 @@ process.on('exit', () => { try { fs.rmSync(tmp); } catch {} });
 const url = 'file://' + tmp + (ALPHA ? '?alpha=1' : '');
 
 async function open(browser) {
-  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
+  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: SCALE });
   page.on('pageerror', e => console.error('SCENE ERROR:', e.message));
   page.on('console', m => { if (m.type() === 'error') console.error('SCENE ERROR:', m.text()); });
   await page.goto(url);

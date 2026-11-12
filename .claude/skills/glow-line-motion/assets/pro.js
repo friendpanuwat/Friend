@@ -236,6 +236,131 @@
     on(intro, p, 0, { y: [[0, 60], [.5, 0, 'out']], o: [[0, 0], [.2, 1]] });
   });
 
+
+  /* ═══════════ ONE ICON, TEN LOOKS — heart variants (G.VARIANTS.heart) ═══════════ */
+  const hs = (p, sc, x = 0, y = 0) => p.child({ transform: `translate(${x} ${y}) scale(${sc})` }, sc);
+
+  /* v1 solid: filled glowing heart, beat + burst rays */
+  rig('heart-solid', .6, p => {
+    const intro = sub(p), rays = sub(intro), beat = sub(intro);
+    for (let i = 0; i < 10; i++) { const a = i * Math.PI / 5 - Math.PI / 2, r = sub(rays); r.line(Math.cos(a) * 150, Math.sin(a) * 140, Math.cos(a) * 182, Math.sin(a) * 172, { sw: 3.4 });
+      on(r, p, .6, { loop: 1.3, ox: Math.cos(a) * 150, oy: Math.sin(a) * 140, s: [[0, 0], [.08, 0], [.22, 1, 'out'], [.45, 0, 'in']], o: [[0, 0], [.08, 1], [.45, 0]] }); }
+    const h = hs(beat, 1.75); h.path(HEART, { fill: C.ink, sw: 2 });
+    h.path('M -58 -26 Q -58 -50 -36 -56', { stroke: C.fill, sw: 5 }); h.circle(-62, -10, 3.4, { fill: C.fill, stroke: C.fill, sw: 1 });
+    on(beat, p, .6, { loop: 1.3, s: [[0, 1], [.1, 1.12, 'out'], [.22, .95], [.34, 1.05], [.52, 1]] });
+    on(intro, p, 0, { s: [[0, .2], [.4, 1.15, 'out'], [.6, 1]], o: [[0, 0], [.15, 1]] });
+  });
+
+  /* v2 layers: three nested hearts, each beating a beat later (follow-through) */
+  rig('heart-layers', .7, p => {
+    const intro = sub(p), L = [[2.05, 0, 'none', 2.8], [1.45, .08, C.fill, 3], [.6, .16, C.ink, 2]];
+    L.forEach(([sc, d, fill, sw], i) => { const g = sub(intro), h = hs(g, sc); h.path(HEART, { fill: fill === 'none' ? 'none' : fill, sw, stroke: i === 0 ? C.soft : C.ink });
+      if (i === 1) h.path('M -60 -24 Q -60 -50 -36 -56', { sw: 3.4 });
+      on(g, p, .7, { loop: 1.5, s: [[d, 1], [d + .12, 1 + .1 * (i + 1), 'out'], [d + .3, .97], [d + .5, 1]] }); });
+    on(intro, p, 0, { s: [[0, .5], [.5, 1.06, 'out'], [.7, 1]], o: [[0, 0], [.2, 1]] });
+  });
+
+  /* v3 ecg: heartbeat trace runs through a heart outline; the heart thumps on the spike */
+  rig('heart-ecg', .5, p => {
+    const intro = sub(p), hb = sub(intro), h = hs(hb, 1.9); h.path(HEART, { fill: C.fill, sw: 2.6, stroke: C.soft });
+    const pts = [[-196, 10], [-80, 10], [-64, -6], [-52, 10], [-30, 10], [-16, -96], [0, 86], [16, 10], [58, 10], [72, -18], [86, 10], [196, 10]];
+    intro.poly(pts, { sw: 1.4, stroke: C.rule });
+    const tr = intro.poly(pts, { sw: 3.8 });
+    on(tr, p, .5, { loop: 2, draw: [[0, 0], [1.2, 1, 'lin']], o: [[0, 1], [1.4, 1], [1.9, 0]] });
+    on(hb, p, .5, { loop: 2, s: [[0, 1], [.5, 1], [.6, 1.12, 'out'], [.75, .96], [.9, 1]] });
+    on(intro, p, 0, { o: [[0, 0], [.3, 1]] });
+  });
+
+  /* v4 one-line: a single continuous stroke draws the heart with a flourish, fades, repeats */
+  rig('heart-oneline', .3, p => {
+    const intro = sub(p), g = hs(intro, 1.55);
+    const ln = g.path('M -125 110 C -80 112, -40 100, 0 70 C -96 8, -86 -72, -38 -72 C -14 -72, 0 -54, 0 -38 C 0 -54, 14 -72, 38 -72 C 86 -72, 96 8, 0 70 C 34 92, 70 74, 62 52 C 54 32, 26 48, 40 72 C 56 98, 96 112, 125 110', { sw: 3 });
+    on(ln, p, .3, { loop: 2.6, draw: [[0, 0], [1.5, 1, 'io']], o: [[0, 1], [2, 1], [2.5, 0]] });
+    on(intro, p, 0, { o: [[0, 0], [.1, 1]] });
+  });
+
+  /* v5 like: heart pops inside a chat bubble, +1 floats up */
+  rig('heart-like', .6, p => {
+    const intro = sub(p), bub = sub(intro);
+    bub.path('M -150 -112 Q -150 -128 -134 -128 L 134 -128 Q 150 -128 150 -112 L 150 64 Q 150 80 134 80 L -40 80 L -84 124 L -78 80 L -134 80 Q -150 80 -150 64 Z', { fill: C.fill, sw: 3.2 });
+    bub.line(-126, -100, -60, -100, { sw: 1.4, stroke: C.soft });
+    const hp = sub(bub), h = hs(hp, .95, 0, -18); h.path(HEART, { fill: C.ink, sw: 2 }); h.path('M -56 -26 Q -56 -50 -36 -56', { stroke: C.fill, sw: 5 });
+    const pl = sub(intro); pl.text('+1', 126, -150, { size: 44, at: 0, dur: .01 });
+    on(bub, p, .6, { loop: 2.2, ox: 0, oy: 80, sy: [[0, 1], [.1, .92, 'out'], [.25, 1.04], [.4, 1]], sx: [[0, 1], [.1, 1.05, 'out'], [.25, .98], [.4, 1]] });
+    on(hp, p, .6, { loop: 2.2, ox: 0, oy: -18, s: [[0, 0], [.06, 0], [.26, 1.28, 'out'], [.42, .94], [.56, 1]], r: [[0, -14], [.26, 6, 'out'], [.5, 0]] });
+    on(pl, p, .6, { loop: 2.2, y: [[.2, 10], [1.2, -50, 'out']], o: [[0, 0], [.2, 0], [.3, 1], [1, 1], [1.3, 0]] });
+    on(intro, p, 0, { y: [[0, 50], [.5, 0, 'back']], o: [[0, 0], [.2, 1]] });
+  });
+
+  /* v6 broken: cracks into two halves that tilt apart, then snap back together */
+  rig('heart-broken', .5, p => {
+    const intro = sub(p), Z = ' L -8 40 L 8 18 L -10 -4 L 6 -22 Z';
+    const half = side => { const g = sub(intro), h = hs(g, 1.9);
+      h.path(`M 0 -38 C 0 -54, ${side * 14} -72, ${side * 38} -72 C ${side * 86} -72, ${side * 96} 8, 0 70` + Z, { fill: C.fill, sw: 2.6 });
+      h.path(side < 0 ? 'M -60 -24 Q -60 -50 -38 -56' : 'M 60 0 Q 56 20 40 34', { sw: 3.2, stroke: side < 0 ? C.ink : C.soft });
+      on(g, p, .5, { loop: 2.8, ox: 0, oy: 133, r: [[0, 0], [.6, 0], [.85, side * 13, 'out'], [1.9, side * 13], [2.15, 0, 'back']], x: [[.6, 0], [.85, side * 16, 'out'], [1.9, side * 16], [2.15, 0, 'back']] });
+      return g; };
+    half(-1); half(1);
+    [[-30, 40], [24, 70]].forEach(([x, y], i) => { const sh = sub(intro); sh.shape([[x, y], [x + 12, y + 6], [x + 2, y + 16]], { fill: C.fill, sw: 2 });
+      on(sh, p, .5, { loop: 2.8, y: [[.62, 0], [1.6, 110 + i * 30, 'in']], o: [[0, 0], [.62, 0], [.64, 1], [1.5, 0]], r: [[.62, 0], [1.6, 120, 'lin']], ox: x, oy: y }); });
+    const sp = sub(intro); star4(sp, 0, -90, 18);
+    on(sp, p, .5, { loop: 2.8, ox: 0, oy: -90, s: [[0, 0], [2.12, 0], [2.3, 1.1, 'back'], [2.6, 0, 'in']] });
+    on(intro, p, 0, { s: [[0, .6], [.45, 1.05, 'out'], [.6, 1]], o: [[0, 0], [.2, 1]] });
+  });
+
+  /* v7 balloon: heart balloon bobbing on a waving string */
+  rig('heart-balloon', .8, p => {
+    const intro = sub(p), sway = sub(intro), str = sub(sway);
+    str.path('M 0 64 C 22 90, -22 118, 0 146 C 18 168, -10 180, 0 196', { sw: 2.2, stroke: C.soft });
+    on(str, p, .8, { loop: 1.6, ox: 0, oy: 64, ky: [[0, 0], [.4, 6, 'soft'], [1.2, -6, 'soft'], [1.6, 0, 'soft']] });
+    const bal = sub(sway); bal.shape([[-10, 72], [10, 72], [0, 56]], { fill: C.fill, sw: 2.4 });
+    const h = hs(bal, 1.55, 0, -46); h.path(HEART, { fill: C.fill, sw: 2.6 });
+    h.path('M -58 -22 Q -60 -50 -34 -58', { sw: 3.8 }); h.path('M -40 -30 Q -40 -40 -30 -44', { sw: 2, stroke: C.soft });
+    h.path('M 0 50 C 40 30, 64 -6, 58 -40', { sw: 1.3, stroke: C.soft });
+    on(sway, p, .8, { loop: 3.2, ox: 0, oy: 196, r: [[0, 0], [.8, 5, 'soft'], [2.4, -5, 'soft'], [3.2, 0, 'soft']], y: [[0, 0], [1.6, -14, 'soft'], [3.2, 0, 'soft']] });
+    on(intro, p, 0, { y: [[0, 230], [.8, 0, 'back']], o: [[0, 0], [.2, 1]] });
+  });
+
+  /* v8 lock: heart padlock — shackle lifts open, then clicks shut */
+  rig('heart-lock', .6, p => {
+    const intro = sub(p), sh = sub(intro);
+    sh.path('M -50 -30 L -50 -92 A 50 50 0 0 1 50 -92 L 50 -30', { sw: 17 });
+    sh.path('M -50 -30 L -50 -92 A 50 50 0 0 1 50 -92 L 50 -30', { sw: 10, stroke: C.fill });
+    const body = sub(intro), h = hs(body, 1.6, 0, 34); h.path(HEART, { fill: C.fill, sw: 2.6 });
+    h.path('M -58 -24 Q -58 -50 -36 -56', { sw: 3.4 }); hs(body, 1.6 * .8, 0, 34).path(HEART, { sw: 1.2, stroke: C.soft });
+    body.circle(0, 34, 13, { fill: C.fill, sw: 3 }); body.path('M -6 44 L -9 74 L 9 74 L 6 44', { fill: C.fill, sw: 2.6 });
+    const clk = sub(intro); [[-1, -52], [1, -52]].forEach(([sd, y]) => clk.line(sd * 84, y, sd * 104, y - 18, { sw: 3 }));
+    on(sh, p, .6, { loop: 2.8, y: [[0, 0], [.4, 0], [.65, -34, 'out'], [1.7, -34], [1.9, 0, 'in']], r: [[.65, 0], [.9, 0], [1.1, -12, 'out'], [1.5, -12], [1.7, 0, 'io']], ox: -50, oy: -30 });
+    on(body, p, .6, { loop: 2.8, s: [[1.9, 1], [1.98, 1.06, 'out'], [2.15, 1]], ox: 0, oy: 34 });
+    on(clk, p, .6, { loop: 2.8, o: [[0, 0], [1.9, 0], [1.94, 1], [2.3, 0]] });
+    on(intro, p, 0, { y: [[0, -120], [.6, 0, 'back']], o: [[0, 0], [.2, 1]] });
+  });
+
+  /* v9 pixel: 8-bit heart built row by row, light sweeps across the pixels */
+  rig('heart-pixel', 1.2, p => {
+    const intro = sub(p), M = ['..XX...XX..', '.XXXX.XXXX.', 'XXXXXXXXXXX', 'XXXXXXXXXXX', 'XXXXXXXXXXX', '.XXXXXXXXX.', '..XXXXXXX..', '...XXXXX...', '....XXX....', '.....X.....'];
+    const c = 31, x0 = -c * 5.5, y0 = -c * 5;
+    M.forEach((row, r) => [...row].forEach((ch, k) => { if (ch !== 'X') return;
+      const x = x0 + k * c + c / 2, y = y0 + r * c + c / 2, o = sub(intro), i = sub(o), hot = (r === 1 && (k === 1 || k === 2)) || (r === 2 && k === 1);
+      i.rect(x - 12.5, y - 12.5, 25, 25, { rx: 4, fill: hot ? C.ink : C.fill, sw: 2.2 });
+      on(o, p, r * .07 + k * .012, { ox: x, oy: y, s: [[0, 0], [.3, 1, 'back']] });
+      on(i, p, 1.3 + (r + k) * .05, { loop: 2.4, o: [[0, 1], [.25, .3, 'out'], [.7, 1, 'soft']] }); }));
+    on(intro, p, 1.3, { loop: 2.4, s: [[0, 1], [.12, 1.05, 'out'], [.3, 1]] });
+  });
+
+  /* v10 wings: winged heart flapping, body bobs with each stroke */
+  rig('heart-wings', .6, p => {
+    const intro = sub(p), fly = sub(intro);
+    const WING = 'M 0 18 C -30 -2, -58 -52, -66 -118 C -84 -96, -94 -72, -98 -48 C -112 -72, -132 -88, -152 -96 C -152 -66, -142 -42, -128 -24 C -146 -32, -168 -36, -186 -34 C -172 -6, -142 14, -102 22 C -70 28, -32 28, 0 26 Z';
+    [-1, 1].forEach(sd => { const pv = fly.child({ transform: `translate(${sd * 58} -24)` }), w = sub(pv), m = w.child({ transform: `scale(${sd < 0 ? 1 : -1} 1)` });
+      m.path(WING, { fill: C.fill, sw: 2.6 }); m.path('M -14 14 C -40 -10, -56 -50, -62 -96', { sw: 1.3, stroke: C.soft }); m.path('M -22 18 C -60 0, -100 -36, -136 -76', { sw: 1.3, stroke: C.soft }); m.path('M -26 22 C -80 14, -130 -4, -166 -26', { sw: 1.3, stroke: C.soft });
+      on(w, p, .6, { loop: .9, r: [[0, 0], [.3, sd * 26, 'out'], [.6, sd * -10, 'io'], [.9, 0, 'soft']] }); });
+    const h = hs(fly, 1.15, 0, -6); h.path(HEART, { fill: C.fill, sw: 2.8 }); h.path('M -58 -24 Q -58 -50 -36 -56', { sw: 3.6 }); hs(fly, 1.15 * .76, 0, -6).path(HEART, { sw: 1.2, stroke: C.soft });
+    on(fly, p, .6, { loop: .9, y: [[0, 0], [.3, 10, 'out'], [.6, -8, 'io'], [.9, 0, 'soft']] });
+    on(intro, p, 0, { s: [[0, .3], [.5, 1.08, 'out'], [.65, 1]], y: [[0, 60], [.6, 0, 'out']], o: [[0, 0], [.2, 1]] });
+  });
+  G.VARIANTS = { heart: ['heart-solid', 'heart-layers', 'heart-ecg', 'heart-oneline', 'heart-like', 'heart-broken', 'heart-balloon', 'heart-lock', 'heart-pixel', 'heart-wings'] };
+
   Object.assign(G.icons, R);
-  G.PRO = Object.keys(R);
+  G.PRO = Object.keys(R).filter(n => !G.VARIANTS.heart.includes(n));
 })();
