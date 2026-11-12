@@ -72,11 +72,45 @@ function play(id, t0, t1, slots = {}, opt = {}) {
   F.T = T;
   const small = (ST.overlay || ST.useSmall) && typeof SMALLS !== 'undefined' ? SMALLS[id] : null;   // an overlay (or a style that sets useSmall) draws the scene's small form (overlay.js)
   (small || S.build)(kit(F, T), s, T);
+  CLIPWINS.push({t0, t1, F, T, index: opt.index ?? 0});
   return F;
 }
 
+/* REAL CLIPS for every style (system test 2026-11-12: Friend "ตัดต่อคลิปนี้ด้วยสไตล์ทั้ง 8"): a plan with CAPTIONS (every word of
+   the clip, tools/clip_plan.py) is shown in each style's own subtitle look. A style with its own caption() (gold) keeps it.
+   Each block goes where it is said: inside a scene in that scene's words place (ST.text with the scene's frame), on the speaker
+   between scenes in the style's speakerFrame() at the subtitle height of faces.json, in an overlay style always as its
+   chest subtitle (its sub(), without the key-word camera). A block is cut at a scene's edge; the scene's own words are empty. */
+const CLIPWINS = [];
+function subTop() { return typeof FACES !== 'undefined' && FACES.layout?.subtitleTop ? FACES.layout.subtitleTop : 1300; }
+function clipCaption(c) {
+  const n = c.parts.length, parts = c.parts.map(([w, t, k], i) => [w, t, k ?? (i === n - 1 ? 'k' : 'l')]);
+  const lead = parts.filter(p => p[2] === 'l').map(p => p[0]).join(' '), key = parts.filter(p => p[2] === 'k').map(p => p[0]).join(' ');
+  const kt = (parts.find(p => p[2] === 'k') ?? parts[0])[1];
+  const w = CLIPWINS.find(x => c.t0 < x.t1 - .05 && c.t1 > x.t0 + .05);
+  let a = c.t0, b = c.t1;
+  if (w) { a = Math.max(a, w.t0); b = Math.min(b, w.t1); }
+  else CLIPWINS.forEach(x => { if (x.t1 > a && x.t1 <= b && x.t0 < a) a = x.t1; if (x.t0 < b && x.t0 >= a) b = Math.min(b, x.t0); });
+  if (b - a < .15) return;
+  const sh = ST.capShift ?? .15;                               // how long after T.t0 the style's lead word comes in
+  const T = {t0: a - sh, t1: b, hit: Math.min(Math.max(kt, a + .05), b - .1), b: [a], after: b};
+  let F, own = true;
+  if (ST.overlay) { F = {small: true, big: true, index: w?.index ?? CLIPWINS.length}; own = false; }
+  else if (w) F = w.F;
+  else F = ST.speakerFrame ? ST.speakerFrame(a, b) : null;
+  if (!F) return;
+  const el = ST.text(F, T, lead, key);
+  if (own && el) { A(el, [{visibility: 'hidden'}, {visibility: 'visible'}], a - .02, .001); A(el, [{visibility: 'visible'}, {visibility: 'hidden'}], b - .01, .001, {f: 'forwards'}); }
+  if (el && !w && !ST.overlay) el.style.top = subTop() + 'px';
+}
+function clipCaptions() {
+  if (typeof CAPTIONS === 'undefined' || ST.caption) return;
+  CLIPWINS.forEach(x => (x.F.root ?? x.F.cam)?.classList.add('clip-scene'));
+  CAPTIONS.forEach(clipCaption);
+}
+
 window.seek = async (t, src) => {
-  if (!window.__fitted) { window.__fitted = true; FITS.forEach(f => f()); }
+  if (!window.__fitted) { window.__fitted = true; clipCaptions(); for (let i = 0; i < FITS.length; i++) FITS[i](); }   // (FITS may grow while it runs)
   if (src) {
     V.src = src; await V.decode();
     if (ST.blurred) { VB.src = src; await VB.decode(); }

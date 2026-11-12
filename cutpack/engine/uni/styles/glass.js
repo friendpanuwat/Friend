@@ -54,6 +54,7 @@ STYLE('glass', {
 .g-root .u-badge.u-neg{background:linear-gradient(rgba(255,122,138,.14),rgba(255,122,138,.14)),#0D1526}
 .g-root .u-badge.u-ok{background:#8FD3FF}
 .g-text{position:absolute;left:60px;width:960px;top:230px;display:flex;flex-direction:column;align-items:center;row-gap:6px}
+.g-speaker{text-shadow:0 3px 18px rgba(0,0,0,.7)}
 .g-line{display:flex;justify-content:center;white-space:nowrap;perspective:900px;position:relative}
 .g-g{display:inline-block;opacity:0;transform-origin:50% 80%}
 .g-s{font-family:"Hand";font-size:62px;line-height:1.25;color:#fff}
@@ -96,6 +97,8 @@ STYLE('glass', {
     sfx('whoosh', t0 - .1, -19);
     return {root, stage, cam};
   },
+  /* a real clip, between scenes: the subtitle on the speaker in the glass words (core.js clipCaption) */
+  speakerFrame() { const root = div('inset:0', SC); root.className = 'g-speaker'; return {root, cam: root}; },
   /* every grapheme flips up in 3D with a spring; the key word ignites white → light blue */
   text(F, T, lead, key) {
     const el = div('', F.cam); el.className = 'g-text';
