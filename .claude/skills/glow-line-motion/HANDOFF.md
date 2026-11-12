@@ -38,7 +38,7 @@ bus bell flower timer × แถว ปกติ / amp 0.5 / amp 1.5 / speed 0.5 
   ตรวจด้วยตาครบ 298 อัน (แผ่นละ 20). `list-checks` จุดกลาง = ดีไซน์ตาม Lucide ไม่ต้องแก้. `egg` ไม่มีรอยร้าว = ไข่ปกติ ไม่ต้องแก้.
 - `p.motion = { speed, amp, still, pose, freezeAt, time(t) }` บน Pen — rig ที่มีโค้ดวาดเองทุกเฟรมอ่านค่านี้ (ตอนนี้มีแค่ `globe-pro`).
 - `scripts/check_icons.js` รับ JSON ตัวปรับได้: `node scripts/check_icons.js '{"speed":0.5}'`. ผ่านทั้งหมด (done 298 ไม่มี LEAK):
-  `{}` `speed 0.5` `speed 2` `loop:false` `amp 1.5` (`amp 0` ตรวจแล้วหรือไม่ — ดู log ท้ายรอบ).
+  `{}` `speed 0.5` `speed 2` `loop:false` `amp 0` `amp 1.5` (รันกับโค้ดสุดท้ายแล้ว).
 
 **สำหรับตอนรวมเข้า CutPack** (จดไว้ตามแผนผู้ใช้)
 - ค่าทั้งหมดเป็นตัวเลือกของ `GL.art` → ตัวรวมส่ง `{ speed, amp, loop }` ต่อไอคอน หรือ `GL.stage` ทั้งคลิปได้เลย ไม่ต้องรู้โครง rig.
