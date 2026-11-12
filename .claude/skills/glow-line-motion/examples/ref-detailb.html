@@ -1,0 +1,91 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>ref detail</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>window.SHEET_B = true;</script><script>
+/* "ref detail" proposal (user sent 13 reference sheets "20 … IDEAS"): same line style as -pro, but
+   - detail lines are WHITE (C.ink, sw 1.8–2.4) instead of grey, so the inside reads like the references
+   - more structural detail the object really has: full calendar grid + binder rings, 12 clock ticks + sub-dial,
+     12 alternating sun rays + inner ring, tent seams / door flaps / guy ropes / pegs, screen with table + text blocks
+   - main outline a touch thinner (3–3.2) so the extra lines do not crowd
+   - fill stays the dark see-through C.fill (user: "ยังคงโปร่งแสงเหมือนเดิม"). Left = current -pro, right = proposal.
+   window.SHEET_B picks the second sheet. */
+GL.run(() => {
+  GL.stage();
+  const C = GL.C, W = (w = 2) => ({ sw: w }), F = (w = 3.2) => ({ fill: C.fill, sw: w });
+  const pt = (r, a, cx = 0, cy = 0) => [+(cx + Math.cos(a * Math.PI / 180) * r).toFixed(1), +(cy + Math.sin(a * Math.PI / 180) * r).toFixed(1)];
+  const NEW = {
+    'calendar-check': p => {
+      p.rect(-170, -128, 340, 290, Object.assign({ rx: 18 }, F()));
+      p.line(-170, -76, 170, -76, W(3));
+      for (let i = 0; i < 7; i++) p.rect(-126 + i * 42 - 6, -148, 12, 38, Object.assign({ rx: 6 }, F(2.4)));
+      const cw = 340 / 7, rh = 238 / 4;
+      for (let k = 1; k < 7; k++) p.line(-170 + k * cw, -76, -170 + k * cw, 162, W(1.8));
+      for (let r = 1; r < 4; r++) p.line(-170, -76 + r * rh, 170, -76 + r * rh, W(1.8));
+      const cx = -170 + cw * 4.5, cy = -76 + rh * 1.5; p.circle(cx, cy, 24, W(2.6)); p.poly([[cx - 11, cy], [cx - 3, cy + 9], [cx + 12, cy - 9]], W(3));
+      const xx = -170 + cw * 1.5, xy = -76 + rh * 2.5; p.line(xx - 10, xy - 10, xx + 10, xy + 10, W(2.6)); p.line(xx + 10, xy - 10, xx - 10, xy + 10, W(2.6));
+      [[0.5, 0.5], [2.5, 0.5], [5.5, 1.5], [3.5, 2.5], [6.5, 3.5]].forEach(([c, r]) => p.dot(-170 + cw * c, -76 + rh * r, 3.4));
+    },
+    timer: p => {
+      const cy = 24;
+      p.rect(-36, -186, 72, 18, Object.assign({ rx: 8 }, F(3))); p.rect(-14, -168, 28, 26, Object.assign({ rx: 4 }, F(3)));
+      const sb = p.child({ transform: `rotate(45 0 ${cy})` }); sb.rect(-12, cy - 164, 24, 26, Object.assign({ rx: 5 }, F(2.8))); sb.line(-12, cy - 152, 12, cy - 152, W(1.8));
+      p.circle(0, cy, 142, F()); p.circle(0, cy, 124, W(2));
+      for (let i = 0; i < 60; i++) { const big = i % 15 === 0, mid = i % 5 === 0, a = i * 6 - 90, [x1, y1] = pt(116, a, 0, cy), [x2, y2] = pt(big ? 94 : mid ? 102 : 110, a, 0, cy);
+        p.line(x1, y1, x2, y2, W(big ? 3.2 : mid ? 2.4 : 1.4)); }
+      p.circle(0, cy + 52, 26, W(2)); p.line(0, cy + 52, 12, cy + 40, W(2)); p.dot(0, cy + 52, 3);
+      const [hx, hy] = pt(98, -60, 0, cy), [tx, ty] = pt(22, 120, 0, cy); p.line(tx, ty, hx, hy, W(3.6));
+      p.circle(0, cy, 11, F(3)); p.dot(0, cy, 4);
+    },
+    sun: p => {
+      for (let i = 0; i < 12; i++) { const a = i * 30 - 90, L = i % 2 ? 140 : 174; p.shape([pt(102, a - 8), pt(L, a), pt(102, a + 8)], F(2.8)); }
+      p.circle(0, 0, 84, F()); p.circle(0, 0, 66, W(2));
+    },
+    moon: p => {
+      const D = 'M 3.6 -150 A 150 150 0 1 0 143 45.2 A 120 120 0 1 1 3.6 -150 Z';
+      p.path(D, F()); p.path('M -10 -126 A 128 128 0 0 0 118 52', W(1.8));
+      [[-92, 8, 20], [-64, 90, 13], [-114, -56, 14], [-30, 126, 8], [-118, 70, 7]].forEach(([x, y, r]) => { p.circle(x, y, r, W(2)); });
+      const s4 = (x, y, r) => { const k = r * .16; p.path(`M ${x} ${y - r} Q ${x + k} ${y - k} ${x + r} ${y} Q ${x + k} ${y + k} ${x} ${y + r} Q ${x - k} ${y + k} ${x - r} ${y} Q ${x - k} ${y - k} ${x} ${y - r} Z`, F(2.6)); };
+      s4(130, -114, 24); s4(178, -36, 13); [[96, -170], [178, -150], [160, 30]].forEach(([x, y]) => p.dot(x, y, 3.6));
+    },
+    tent: p => {
+      p.line(-36, -112, -196, 146, W(1.8)); p.line(72, -136, 198, 112, W(1.8));
+      [[-196, 146], [198, 112]].forEach(([x, y]) => { p.line(x - 6, y - 10, x + 6, y + 10, W(3)); });
+      p.line(-36, -112, -40, -136, W(3.6)); p.line(72, -136, 74, -156, W(3.6));
+      p.shape([[-36, -112], [72, -136], [188, 120], [96, 146]], F());
+      [[0, -120, 128, 136], [36, -128, 160, 128]].forEach(([a, b, c, d]) => p.line(a, b, c, d, W(1.8)));
+      p.line(96, 146, 188, 120, W(1.8));
+      p.shape([[-36, -112], [96, 146], [-168, 146]], F(3.2));
+      p.shape([[-36, -40], [12, 146], [-84, 146]], { fill: '#0b0b0b', sw: 2.6 });
+      p.path('M -36 -40 Q -76 40 -110 146 L -84 146 Z', F(2.4)); p.path('M -36 -40 Q 6 40 40 146 L 12 146 Z', F(2.4));
+      p.line(-98, 92, -76, 100, W(2.4)); p.line(24, 92, 4, 100, W(2.4));
+      p.line(-36, -112, -36, -40, W(1.8));
+      p.line(-196, 150, 198, 150, W(3));
+      [[-176, 150], [-150, 150], [150, 150], [176, 150]].forEach(([x, y], i) => p.path(`M ${x - 6} ${y} L ${x - 3} ${y - 12} M ${x + 2} ${y} L ${x + 3} ${y - 16} M ${x + 8} ${y} L ${x + 6} ${y - 10}`, W(1.8)));
+    },
+    presentation: p => {
+      p.rect(-188, -168, 376, 22, Object.assign({ rx: 9 }, F(3)));
+      p.rect(-174, -146, 348, 216, F()); p.rect(-182, 66, 364, 16, Object.assign({ rx: 6 }, F(2.8)));
+      p.rect(-150, -122, 128, 168, Object.assign({ rx: 4 }, W(2)));
+      for (let k = 1; k < 3; k++) p.line(-150 + k * 128 / 3, -122, -150 + k * 128 / 3, 46, W(1.6));
+      for (let r = 1; r < 5; r++) p.line(-150, -122 + r * 168 / 5, -22, -122 + r * 168 / 5, W(1.6));
+      p.line(4, -106, 120, -106, W(4.4)); [-74, -50].forEach(y => p.line(4, y, 148, y, W(2)));
+      p.rect(4, -24, 64, 34, Object.assign({ rx: 4 }, W(2))); p.rect(84, -24, 64, 34, Object.assign({ rx: 4 }, W(2)));
+      [[16, 0, 40], [96, 0, 30]].forEach(([x, y, w]) => p.line(x, y - 8, x + w, y - 8, W(1.6)));
+      p.line(0, 82, 0, 140, W(4)); p.line(0, 140, -70, 182, W(4)); p.line(0, 140, 70, 182, W(4)); p.line(0, 140, 0, 184, W(4)); p.circle(0, 140, 6, F(2.4));
+    },
+  };
+  const B = window.SHEET_B === true;
+  const rows = B ? ['moon', 'tent', 'presentation'] : ['calendar-check', 'timer', 'sun'];
+  const top = GL.title({ kicker: 'REF DETAIL · ' + (B ? 'B' : 'A'), main: 'NOW  →  NEW', size: 96 });
+  GL.text('NOW', { x: GL.W * .25, y: top + 10, size: 30, weight: 700, color: C.sub, glow: false, at: .2 });
+  GL.text('NEW', { x: GL.W * .75, y: top + 10, size: 30, weight: 700, color: C.ink, at: .2 });
+  const ch = (GL.H - top - 60) / 3;
+  rows.forEach((n, i) => {
+    const y = top + 40 + i * ch + ch * .46, at = .4 + i * .2;
+    GL.art(GL.icons[n + '-pro'], { x: GL.W * .25, y, w: ch * .8, at });
+    GL.art(NEW[n], { x: GL.W * .75, y, w: ch * .8, at: at + .1, float: false });
+    GL.text(n.toUpperCase(), { x: GL.W / 2, y: y + ch * .47, size: 28, weight: 600, color: C.sub, glow: false, at: at + .4, rise: 6 });
+  });
+  GL.finish({ hold: 3.5 });
+});
+</script></body></html>

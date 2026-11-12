@@ -1,0 +1,123 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>style v2</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>window.SHEET_B = true;</script><script>
+/* style-v2 proposal: batch-14 icons NOW (left) vs a more illustrative glow-line look (right).
+   What changes: bolder neon outline, light as part of the picture (lantern / sun / lit windows / headlight beams, bloomed),
+   organic shapes (sagging fabric, jagged ridges, curling waves), 3/4 views where the object really has a side, a small supporting prop.
+   What stays: white line on black, the dark see-through fill, no colour, no decorative sparkles. style-v2b.html sets SHEET_B for the second sheet. */
+GL.run(() => {
+  GL.stage();
+  const C = GL.C, W5 = 5, W3 = 3;
+  const NS = 'http://www.w3.org/2000/svg', fl = document.createElementNS(NS, 'filter');
+  fl.setAttribute('id', 'v2light'); fl.setAttribute('filterUnits', 'userSpaceOnUse'); ['x', 'y'].forEach(k => fl.setAttribute(k, -4000)); ['width', 'height'].forEach(k => fl.setAttribute(k, 9000));
+  fl.innerHTML = '<feGaussianBlur stdDeviation="14"/>'; document.querySelector('svg defs').appendChild(fl);
+  const light = (q, o, fn) => { const g = q.child({ filter: 'url(#v2light)', opacity: o }); fn(g); return g; };
+  const lit = { fill: C.ink, stroke: 'none' };
+  const soft = (w = 2.6) => ({ sw: w, stroke: C.soft });
+
+  const NEW = {
+    tent: p => {
+      light(p, .55, g => { g.ellipse(-30, 156, 92, 14, lit); g.path('M -92 150 Q -58 60 -30 -6 Q -4 60 30 150 Z', lit); });
+      p.line(-110, 30, -196, 150, soft(2.2)); p.line(120, -92, 198, 46, soft(2.2)); p.line(198, 46, 192, 58, { sw: 3 }); p.line(-196, 150, -190, 138, { sw: 3 });
+      p.line(-24, -118, -30, -146, { sw: 4.4 }); p.line(120, -92, 122, -116, { sw: 4 });
+      p.path('M -24 -118 L 120 -92 Q 146 20 192 150 L 84 150 Q 18 6 -24 -118 Z', { fill: C.fill, sw: W5 });
+      p.path('M 52 -104 Q 88 8 138 150', soft(2.4));
+      p.path('M -168 150 Q -84 4 -24 -118 Q 18 6 84 150 Z', { fill: C.fill, sw: W5 });
+      const dr = p.child({ opacity: .9 }); dr.path('M -92 150 Q -58 60 -30 -6 Q -4 60 30 150 Z', { fill: C.fill, sw: W3 });
+      light(p, .9, g => g.circle(-30, 104, 26, lit));
+      p.rect(-42, 92, 24, 30, { rx: 6, fill: C.fill, sw: 3 }); p.path('M -38 92 Q -30 78 -22 92', { sw: 2.6 }); p.line(-30, 98, -30, 116, { sw: 3 });
+      p.path('M -30 -6 Q -70 66 -98 150 L -132 150 Q -92 56 -30 -6 Z', { fill: C.fill, sw: W3 }); p.line(-108, 96, -86, 104, soft(2.6));
+      p.path('M -30 -6 Q 4 64 32 150 L 62 150 Q 22 50 -30 -6 Z', { fill: C.fill, sw: W3 }); p.line(28, 96, 46, 90, soft(2.6));
+      p.line(-198, 150, 198, 150, { sw: 4.4 });
+      [[-170, 150], [160, 150]].forEach(([x, y]) => p.path(`M ${x - 10} ${y} L ${x - 6} ${y - 14} M ${x} ${y} L ${x + 1} ${y - 18} M ${x + 8} ${y} L ${x + 5} ${y - 12}`, soft(2.6)));
+    },
+    mountain: p => {
+      light(p, .8, g => g.circle(132, -112, 56, lit)); const sn = p.child({ opacity: .35 }); sn.circle(132, -112, 32, lit); p.circle(132, -112, 34, { sw: 4.4 });
+      p.shape([[-196, 160], [-176, 40], [-150, -14], [-128, 4], [-98, -48], [-74, -18], [-40, 50], [-20, 160]], { fill: C.fill, sw: 4.2 });
+      p.poly([[-118, -14], [-98, -48], [-80, -22], [-92, -12], [-100, -24], [-110, -8]], soft(2.6));
+      p.shape([[-130, 160], [-60, 40], [-40, 52], [0, -40], [18, -30], [40, -110], [60, -84], [78, -92], [110, -20], [126, -30], [196, 160]], { fill: C.fill, sw: W5 });
+      p.shape([[26, -58], [40, -110], [60, -84], [78, -92], [93, -58], [80, -50], [70, -62], [58, -44], [46, -60], [36, -48]], { fill: '#2b2b2b', sw: 3.6 });
+      [['M 2 -36 Q -8 10 -24 60', 2.6], ['M 60 -48 Q 50 20 58 96', 2.4], ['M 112 -18 Q 108 40 128 100', 2.4]].forEach(([d, w]) => p.path(d, soft(w)));
+      p.path('M -60 16 Q -28 2 4 16 Q 30 6 54 20', soft(2.4));
+      p.line(40, -110, 40, -164, { sw: 4 }); p.path('M 40 -164 Q 60 -172 82 -162 Q 68 -154 82 -142 Q 60 -150 40 -144 Z', { fill: C.fill, sw: 3.4 });
+      p.path('M -198 160 Q -120 120 -40 148 Q 40 174 120 140 Q 168 122 198 138 L 198 176 L -198 176 Z', { fill: C.fill, stroke: 'none' }); p.path('M -198 160 Q -120 120 -40 148 Q 40 174 120 140 Q 168 122 198 138', { sw: 4.4 }); p.line(-198, 176, 198, 176, { sw: 4 });
+      [[-150, 146], [-128, 140], [150, 138]].forEach(([x, y], i) => p.shape([[x - 9, y], [x, y - 26 - i * 2], [x + 9, y]], { fill: C.fill, sw: 2.6, stroke: C.soft }));
+    },
+    house: p => {
+      p.rect(110, -150, 30, 84, { fill: C.fill, sw: 4 }); p.rect(104, -160, 42, 12, { rx: 3, fill: C.fill, sw: 3.4 });
+      p.path('M 126 -164 C 108 -176, 140 -184, 124 -198', soft(2.6));
+      p.shape([[30, 0], [176, -30], [176, 140], [30, 170]], { fill: C.fill, sw: W5 });
+      [[60, 40, 96, 32], [122, 26, 156, 18]].forEach(([x1, y1, x2, y2]) => { const d = `M ${x1} ${y1} L ${x2} ${y2} L ${x2} ${y2 + 50} L ${x1} ${y1 + 50} Z`;
+        light(p, .55, g => g.path(d, lit)); p.path(d, { sw: 3.4 }); p.line((x1 + x2) / 2, (y1 + y2) / 2, (x1 + x2) / 2, (y1 + y2) / 2 + 50, soft(2.4)); p.line(x1, y1 + 25, x2, y2 + 25, soft(2.4)); });
+      p.shape([[-150, 170], [-150, 2], [-60, -86], [30, 2], [30, 170]], { fill: C.fill, sw: W5 });
+      p.path('M -60 -96 L 96 -128 L 196 -24 L 40 6 Z', { fill: C.fill, sw: W5 });
+      p.line(-25, -60, 131, -92, soft(2.4)); p.line(10, -25, 166, -55, soft(2.4));
+      p.path('M -170 14 L -60 -98 L 42 8', { sw: 14 }); p.path('M -170 14 L -60 -98 L 42 8', { sw: 7, stroke: C.fill });
+      light(p, .5, g => g.circle(-60, -24, 16, lit)); p.circle(-60, -24, 18, { fill: 'none', sw: 3.4 }); p.line(-60, -42, -60, -6, soft(2.2)); p.line(-78, -24, -42, -24, soft(2.2));
+      light(p, .45, g => { g.ellipse(-60, 174, 70, 10, lit); g.rect(-84, 96, 48, 74, lit); });
+      p.path('M -86 170 L -86 112 Q -86 92 -60 92 Q -34 92 -34 112 L -34 170', { fill: C.fill, sw: 3.6 }); p.path('M -86 170 L -86 112 Q -86 92 -72 92 L -72 170', { fill: C.fill, sw: 3 }); p.dot(-78, 134, 3.6);
+      p.rect(-138, 96, 36, 40, { rx: 4, sw: 3, stroke: C.soft });
+      p.path('M -198 170 L 30 170 L 198 134', { sw: 4.4 });
+      p.path('M -196 170 Q -200 140 -178 142 Q -172 124 -156 136 Q -146 132 -148 150 Q -140 160 -150 170', { fill: C.fill, sw: 3, stroke: C.soft });
+    },
+    ship: p => {
+      [[100, -118, 12], [78, -140, 16], [46, -154, 20], [8, -160, 22]].forEach(([x, y, r]) => p.circle(x, y, r, { fill: C.fill, sw: 2.8, stroke: C.soft }));
+      p.line(-60, -52, -60, -134, { sw: 4 }); p.line(-80, -112, -40, -112, { sw: 3.4 }); light(p, .9, g => g.circle(-60, -138, 10, lit)); p.dot(-60, -138, 5);
+      p.path('M 76 -6 L 84 -102 L 126 -102 L 130 -6 Z', { fill: C.fill, sw: 4.4 }); p.line(82, -82, 128, -82, { sw: 8, stroke: C.soft });
+      p.rect(-120, -8, 192, 50, { rx: 8, fill: C.fill, sw: 4.4 }); p.rect(-92, -54, 132, 48, { rx: 8, fill: C.fill, sw: 4.4 });
+      p.rect(-36, -96, 84, 44, { rx: 8, fill: C.fill, sw: 4.4 });
+      light(p, .6, g => [-26, -2, 22].forEach(x => g.rect(x, -86, 18, 16, lit)));
+      [-26, -2, 22].forEach(x => p.rect(x, -86, 18, 16, { rx: 3, sw: 2.6 }));
+      [-104, -70, -36, -2, 32].forEach(x => p.rect(x, 4, 22, 16, { rx: 3, sw: 2.4, stroke: C.soft }));
+      p.path('M -186 40 L 168 40 Q 188 40 196 18 L 178 96 Q 170 120 146 120 L -132 120 Q -158 120 -168 98 Z', { fill: C.fill, sw: W5 });
+      p.path('M -172 56 L 182 56', soft(2.4)); p.line(-158, 98, 174, 98, { sw: 7, stroke: C.soft });
+      light(p, .6, g => [-110, -60, -10, 40, 90].forEach(x => g.circle(x, 76, 9, lit)));
+      [-110, -60, -10, 40, 90].forEach(x => p.circle(x, 76, 9, { sw: 3 }));
+      const crest = (y, a, s) => { let d = `M -198 ${y}`; for (let x = -198; x < 198; x += s) d += ` Q ${x + s * .3} ${y - a} ${x + s * .55} ${y - a * .6} Q ${x + s * .7} ${y - a * .2} ${x + s * .6} ${y + a * .1} Q ${x + s * .8} ${y + a * .1} ${x + s} ${y}`; return d; };
+      p.path(crest(112, 20, 66) + ' L 198 128 L -198 128 Z', { fill: C.fill, stroke: 'none' }); p.path(crest(112, 20, 66), { sw: 4.4 });
+      p.path(crest(148, 12, 52), soft(3));
+      [['M 176 94 Q 190 70 200 76', 3], ['M 170 88 Q 176 62 190 58', 2.6]].forEach(([d, w]) => p.path(d, { sw: w }));
+    },
+    'party-popper': p => {
+      const M = [-65, 65];
+      light(p, .85, g => g.circle(M[0] + 22, M[1] - 22, 46, lit));
+      [[-62, 120], [-30, 150], [-2, 128], [26, 160], [56, 118], [84, 140], [104, 112]].forEach(([a, r], i) => { const u = (a - 45) * Math.PI / 180, v = u + Math.PI / 2, x = M[0] + Math.cos(u) * 40, y = M[1] + Math.sin(u) * 40, w = i % 2 ? 7 : 10;
+        p.shape([[x + Math.cos(v) * w, y + Math.sin(v) * w], [M[0] + Math.cos(u) * r, M[1] + Math.sin(u) * r], [x - Math.cos(v) * w, y - Math.sin(v) * w]], { fill: C.fill, sw: 2.8 }); });
+      [['M -40 40 C -6 10, -50 -30, -10 -54 C 24 -74, 10 -110, 46 -128 C 70 -140, 54 -170, 80 -178', 4], ['M -30 52 C 10 46, 24 8, 62 18 C 96 26, 104 -10, 140 -8 C 170 -6, 176 -36, 196 -40', 4],
+       ['M -48 30 C -50 -10, -96 -20, -92 -60 C -90 -90, -120 -100, -116 -130', 3]].forEach(([d, w]) => p.path(d, { sw: w }));
+      [[128, -110, 30], [158, 40, -20], [-40, -150, 60], [10, -40, 15], [100, -60, -40], [-150, -40, 30], [170, -150, 10]].forEach(([x, y, r], i) => { const g = p.child({ transform: `rotate(${r} ${x} ${y})` });
+        if (i % 3 === 2) g.circle(x, y, 8, { fill: C.fill, sw: 3 }); else g.rect(x - 12, y - 6, 24, 12, { rx: 3, fill: i % 3 ? C.fill : C.ink, sw: 3 }); });
+      const cg = p.child({ transform: 'translate(-92 92) rotate(45)' });
+      cg.path('M -66 -38 L -5 114 Q 0 124 5 114 L 66 -38 Z', { fill: C.fill, sw: W5 });
+      [['M -58 -18 Q 10 10 52 -6', 6], ['M -44 18 Q 0 40 38 26', 6], ['M -30 54 Q 0 72 24 62', 6]].forEach(([d, w]) => { cg.path(d, { sw: w + 6 }); cg.path(d, { sw: w, stroke: C.fill }); });
+      cg.ellipse(0, -38, 66, 20, { fill: C.fill, sw: W5 }); cg.ellipse(0, -38, 52, 13, soft(2.6));
+    },
+    'train-front': p => {
+      light(p, .35, g => { g.shape([[-66, 46], [-198, 186], [-30, 186]], lit); g.shape([[66, 46], [30, 186], [198, 186]], lit); });
+      p.line(-58, 118, -186, 188, { sw: 4.4 }); p.line(58, 118, 186, 188, { sw: 4.4 });
+      [150, 170, 188].forEach(y => { const h = 58 + (y - 118) * 128 / 70; p.line(-h + 8, y, h - 8, y, { sw: 5, stroke: C.soft }); });
+      p.path('M -104 -170 Q -100 -186 -80 -186 L 80 -186 Q 100 -186 104 -170 L 124 92 Q 126 112 104 112 L -104 112 Q -126 112 -124 92 Z', { fill: C.fill, sw: W5 });
+      light(p, .6, g => g.rect(-50, -180, 100, 18, lit)); p.rect(-50, -180, 100, 18, { rx: 5, sw: 3 });
+      p.path('M -88 -150 Q 0 -166 88 -150 L 94 -58 Q 0 -46 -94 -58 Z', { fill: C.fill, sw: 4.4 }); p.line(0, -158, 0, -52, soft(2.6)); p.line(-30, -56, -70, -98, { sw: 3.4 });
+      p.path('M -112 -26 Q 0 -14 112 -26', soft(2.6)); p.rect(-40, 18, 80, 40, { rx: 8, fill: C.fill, sw: 3, stroke: C.soft }); [30, 46].forEach(y => p.line(-28, y, 28, y, soft(2.4)));
+      [-1, 1].forEach(sd => { light(p, .9, g => g.ellipse(sd * 76, 46, 24, 18, lit)); p.ellipse(sd * 76, 46, 24, 18, { fill: C.fill, sw: 4 }); p.ellipse(sd * 76, 46, 10, 7, { fill: C.ink, sw: 1.4 }); });
+      p.path('M -112 112 L 112 112 L 92 138 L -92 138 Z', { fill: C.fill, sw: 4.2 }); [-50, 0, 50].forEach(x => p.line(x, 114, x * .82, 136, soft(2.4)));
+    },
+  };
+
+  const B = window.SHEET_B === true;
+  const rows = B ? ['ship', 'party-popper', 'train-front'] : ['tent', 'mountain', 'house'];
+  const top = GL.title({ kicker: 'STYLE V2 · PROPOSAL ' + (B ? 'B' : 'A'), main: 'NOW  →  NEW', size: 96 });
+  GL.text('NOW', { x: GL.W * .25, y: top + 10, size: 30, weight: 700, color: GL.C.sub, glow: false, at: .2 });
+  GL.text('NEW', { x: GL.W * .75, y: top + 10, size: 30, weight: 700, color: GL.C.ink, at: .2 });
+  const ch = (GL.H - top - 60) / 3;
+  rows.forEach((n, i) => {
+    const y = top + 40 + i * ch + ch * .46, at = .4 + i * .2;
+    GL.art(GL.icons[n + '-pro'], { x: GL.W * .25, y, w: ch * .8, at });
+    GL.art(NEW[n], { x: GL.W * .75, y, w: ch * .8, at: at + .1 });
+    GL.text(n.toUpperCase(), { x: GL.W / 2, y: y + ch * .47, size: 28, weight: 600, color: GL.C.sub, glow: false, at: at + .4, rise: 6 });
+  });
+  GL.finish({ hold: 3.5 });
+});
+</script></body></html>
