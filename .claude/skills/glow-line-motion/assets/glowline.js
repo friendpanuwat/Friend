@@ -43,6 +43,21 @@
     beat: { amp: .12, period: 1.4 }, breathe: { amp: .03, period: 3 }, blink: { period: 3.2 }, buzz: { amp: 5, period: 2.2 },
     hop: { amp: 16, period: 1.2 }, orbit: { amp: 12, period: 3 }, tap: { amp: .08, period: 1.6 }, flap: { amp: 7, period: 1.1 },
     grow: { amp: .22, period: 1.6 }, flash: { period: 1.2 }, rise: { amp: 40, period: 2.2 } };
+  /* keyframe tracks for rigged icons: GL.kf(el, start, { loop, ox, oy, x:[[t,v,ease]…], y, r, s, sx, sy, ky, o, draw }) */
+  const EASE = { lin: q => q, in: q => q * q * q, out: q => 1 - Math.pow(1 - q, 3), io: q => q < .5 ? 4 * q * q * q : 1 - Math.pow(-2 * q + 2, 3) / 2,
+    back: q => 1 + 2.70158 * Math.pow(q - 1, 3) + 1.70158 * Math.pow(q - 1, 2), soft: q => .5 - .5 * Math.cos(Math.PI * q) };
+  function kv(keys, u) {
+    if (u <= keys[0][0]) return keys[0][1];
+    for (let i = 1; i < keys.length; i++) if (u <= keys[i][0]) {
+      const [t0, v0] = keys[i - 1], [t1, v1, e] = keys[i], q = (u - t0) / ((t1 - t0) || 1);
+      return v0 + (v1 - v0) * (EASE[e] || EASE.io)(q);
+    }
+    return keys[keys.length - 1][1];
+  }
+  function kf(e, start, { loop = 0, ox = 0, oy = 0, ...tracks } = {}) {
+    items.push({ type: 'kf', e, start, loop, ox, oy, tracks });
+    if (!loop) bump(start + Math.max(0, ...Object.values(tracks).map(k => k[k.length - 1][0])));
+  }
   let MODE = 'motion';                                   // 'motion': icons pop in complete, then move · 'draw': strokes draw themselves
   const pts = a => typeof a === 'string' ? a : a.map(q => q.join(',')).join(' ');
 
@@ -149,16 +164,16 @@
      (fn.motion, or `idle`, or `float`). reveal: 'draw' keeps the self-drawing stroke for this one (lines, connectors). */
   function art(fn, { x, y, s = 1, w, at = 0, ts = 1, filter = 'glow', parent = cur, float, idle, reveal } = {}) {
     if (w) s = w / 400;                                   // w = on-screen width of the ±200 drawing box
-    const pop = reveal ? reveal === 'pop' : MODE === 'motion';
+    const custom = !!fn.custom, pop = !custom && (reveal ? reveal === 'pop' : MODE === 'motion');
     const wrap = mk('g', { filter: filter ? `url(#${filter})` : null, 'data-wrap': 1 }, parent);
     const en = mk('g', {}, wrap), mo = mk('g', { id: 'gl' + (++uid) }, en);
     const g = mk('g', { transform: `translate(${x} ${y}) scale(${s})`, id: 'gl' + (++uid) }, mo);
     const p = new Pen(g, at, strokeK(s), ts), i0 = items.length;
     fn(p);
-    const popDur = .5 * ts, ready = pop ? at + popDur : p.span.end;
+    const popDur = .5 * ts, ready = custom ? at + (fn.dur || .8) * ts : pop ? at + popDur : p.span.end;
     for (let i = i0; i < items.length; i++) {
       const it = items[i];
-      if (pop && it.type === 'draw') it.static = true;
+      if ((pop || custom) && it.type === 'draw') it.static = true;
       if (it.type === 'loop' && it.start == null) it.start = ready + it.rel;
     }
     if (pop) tween(en, at, popDur, { o: 0, s: .55 }, { o: 1, s: 1 }, { cx: x, cy: y, ease: easeBack });
@@ -169,12 +184,12 @@
         mk('rect', { x: bb.x + bb.width / 2 - w / 2, y: bb.y + bb.height / 2 - h / 2, width: w, height: h, fill: 'none', stroke: 'none' }, g);
       }
     }
-    const spec = idle === false ? null : idle || (float ? Object.assign({ kind: 'bob' }, float === true ? {} : float) : fn.motion);
+    const spec = idle === false || custom ? null : idle || (float ? Object.assign({ kind: 'bob' }, float === true ? {} : float) : fn.motion);
     if (spec) {
       const sp = Object.assign({}, LOOP[spec.kind] || {}, spec);
       items.push(Object.assign({}, sp, { type: 'loop', e: mo, start: ready + (sp.delay || 0), ox: x + (sp.ox || 0) * s, oy: y + (sp.oy || 0) * s, ps: s }));
     }
-    return { wrap, g: mo, end: pop ? Math.min(p.span.end, ready) : p.span.end };
+    return { wrap, g: mo, end: custom ? ready : pop ? Math.min(p.span.end, ready) : p.span.end };
   }
   function pairOf(it) {
     if (it.messy && it.clean) return it;
@@ -418,6 +433,12 @@
         it.e.setAttribute('stroke-dashoffset', 1 - q);
         it.e.setAttribute('stroke-opacity', p > 0 ? 1 : 0);
         if (it.hasFill) it.e.setAttribute('fill-opacity', clamp(q * 1.6));
+      } else if (it.type === 'kf') {
+        let u = t - it.start; u = u < 0 ? 0 : it.loop ? u % it.loop : u;
+        const T = it.tracks, v = (k, d) => T[k] ? kv(T[k], u) : d, sc = v('s', 1);
+        it.e.setAttribute('transform', `translate(${(it.ox + v('x', 0)).toFixed(2)} ${(it.oy + v('y', 0)).toFixed(2)}) rotate(${v('r', 0).toFixed(2)}) skewY(${v('ky', 0).toFixed(2)}) scale(${(v('sx', 1) * sc).toFixed(4)} ${(v('sy', 1) * sc).toFixed(4)}) translate(${-it.ox} ${-it.oy})`);
+        if (T.o) it.e.setAttribute('opacity', clamp(v('o', 1)).toFixed(3));
+        if (T.draw) it.e.setAttribute('stroke-dashoffset', (1 - clamp(v('draw', 1))).toFixed(4));
       } else if (it.type === 'loop') {
         const u = t - (it.start ?? 1e9);
         if (u <= 0) { it.e.removeAttribute('transform'); if (it.kind === 'flash' || it.kind === 'rise') it.e.setAttribute('opacity', it.kind === 'rise' ? 0 : 1); continue; }
@@ -996,13 +1017,15 @@
   });
 
   window.GL = { C, stage, run, Pen, art, text, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
-    parts, icons, pairs, pair, single, LOOP, MOTION, easeIO, easeOut, clamp, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
+    parts, icons, pairs, pair, single, LOOP, MOTION, kf, EASE, easeIO, easeOut, clamp, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
 
   /* beats.js (B01–B21 scene templates) loads next to this file */
   const beatsReady = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = HERE + 'beats.js';
-    sc.onload = res; sc.onerror = () => { console.error('GL: beats.js not found'); res(); };
-    document.head.appendChild(sc);
+    const load = names => { if (!names.length) return res();
+      const sc = document.createElement('script'); sc.src = HERE + names[0];
+      sc.onload = () => load(names.slice(1)); sc.onerror = () => { console.error('GL: ' + names[0] + ' not found'); load(names.slice(1)); };
+      document.head.appendChild(sc); };
+    load(['beats.js', 'pro.js']);
   });
 
   async function run(build) {

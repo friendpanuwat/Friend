@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>pro icons</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* 10 rigged "-pro" icons (assets/pro.js): finer detail + keyframed part animation, all looping together */
+GL.run(() => {
+  GL.stage();
+  const top = GL.title({ kicker: 'ANIMATED', main: 'ICONS', size: 120 });
+  const names = GL.PRO, cols = 2, cw = GL.W / cols, ch = (GL.H - top - 20) / Math.ceil(names.length / cols);
+  names.forEach((n, i) => {
+    const x = (i % cols + .5) * cw, y = top + Math.floor(i / cols) * ch + ch * .46, at = .4 + i * .15;
+    GL.art(GL.icons[n], { x, y, w: Math.min(cw * .62, ch * .78 * 400 / 370), at });
+    GL.text(n.replace('-pro', '').toUpperCase(), { x, y: y + ch * .47, size: 28, weight: 600, color: GL.C.sub, glow: false, at: at + .4, rise: 6 });
+  });
+  GL.finish({ hold: 4 });
+});
+</script></body></html>
