@@ -20,6 +20,7 @@ glow-line `-pro` ของ skill นี้: เส้นขาวเรือง
 | `assets/pro3.js` (ชุด 3) | bookmark circle-help users eye utensils-crossed search handshake* infinity image user-plus tag wallet calendar repeat book-open ear* fish crown message-circle-question share-2 |
 | `assets/pro4.js` (ชุด 4) | book languages trash-2 user-check circle-check x thumbs-down* puzzle biceps-flexed* heart-pulse zap banknote store bookmark-check arrow-right message-circle-warning video graduation-cap octagon-alert shield |
 | `assets/pro5.js` (ชุด 5) | heart-crack heart-off map-pin lightbulb-off battery-low droplets utensils award message-circle-heart arrow-down arrow-up phone lock star arrow-left-right link quote send pen-line printer |
+| `assets/pro13.js` (ชุด 13 = ลำดับ 3 อันที่ 61–80) | scissors shirt sofa ticket umbrella accessibility baby contact-round person-standing user-round · users-round ban circle-x shield-alert shield-x siren square-check annoyed laugh meh |
 | `assets/pro12.js` (ชุด 12 = ลำดับ 3 อันที่ 41–60) | laptop library list-checks list-ordered list-todo microscope monitor notebook notebook-pen pencil · school brush camera-off dice-5 gamepad-2 key-round lamp paintbrush recycle ruler |
 | `assets/pro11.js` (ชุด 11 = ลำดับ 3 อันที่ 21–40) | bell-ring camera clapperboard film messages-square mic mic-off music newspaper pause · play radio tv archive file-question folder folder-open inbox kanban keyboard |
 | `assets/pro10.js` (ชุด 10 = ลำดับ 3 อันที่ 1–20, แผ่น A/B) | arrow-down-right arrow-left arrow-up-right chart-bar chart-line chart-no-axes-combined chart-pie divide equal gauge · minus move-right plus redo-2 refresh-cw rotate-ccw sigma undo-2 at-sign bell-off |
@@ -45,9 +46,11 @@ book-pro: เพิ่มเส้นบรรทัดบนหน้ากร�
 **ลำดับ 3** (176 อัน #133–308): มีแล้ว 3 (smartphone settings alarm-clock), ข้ามอวัยวะ hand-metal + scan-eye (ผู้ใช้สั่ง "ข้ามก่อน" — พักไว้กับชุดอวัยวะ) → 171 อัน.
 ชุด 10 = 20 อันแรก (`pro10.js`, ไอคอนเครื่องหมาย/ลูกศรใช้เส้น tube แบบ union ผ่าน `tubes()`) — ผ่าน.
 ชุด 11 = #153–173 (`pro11.js`) — ผ่าน.
-ชุด 12 = #174–194 (`pro12.js`, ข้าม hand-metal) → `pro-icons-batch12a/12b.mp4` — **รอผู้ใช้ตอบ**.
+ชุด 12 = #174–194 (`pro12.js`, ข้าม hand-metal) — ผ่าน.
 เครื่องมือที่เดินตามเส้น (ปากกา ดินสอ พู่กัน) ใช้ `follow()` = getPointAtLength ของ path จริง; ระวังด้ามยื่นเลยกรอบ ±200 ตอนเคลื่อน.
-รอบถัดไป (ชุด 13) เริ่มที่ #195 scissors, shirt, sofa, ticket, umbrella, accessibility, baby … (ข้ามที่มีแล้ว: house/map/globe มีแบบ basic → ทำ pro ได้).
+ชุด 13 = #195–214 (`pro13.js`) render แล้วแต่ **ยังไม่ได้ส่งผู้ใช้** — ผู้ใช้ส่งภาพอ้างอิง (คนทึบขาวถือถ้วย, Neuron Visuals) บอก "อยากให้คนมันดูเป็นคนมากกว่านี้"
+→ กำลังทำโครงคนแบบมีข้อต่อ (ไหล่ ศอก สะโพก เข่า, ลำตัวไหล่กว้างสะโพกแคบ) เทียบ 2 แบบ (เส้นขอบ / ทึบขาว) ให้ผู้ใช้เลือกก่อน แล้วค่อยแก้ person-standing, accessibility ฯลฯ.
+รอบถัดไป (ชุด 14) เริ่มที่ #215 party-popper, smile-plus, bus, car, church, compass, flower, globe(basic→pro), hospital, house(basic→pro), map(basic→pro) …
 หมายเหตุ signature-pro: ปากกาเดินตามเส้นด้วย `getPointAtLength` ของ path จริง (ใช้ได้เพราะ element อยู่ใน DOM ตอนวาด). 
 ไอคอนที่มีขีดฆ่า (eye-off, phone-off) — ขีดฆ่าต้องอยู่ตลอด ห้ามให้ท่าวนยกขีดออก (ไม่งั้นตอนท่าออกจะกลายเป็น eye/phone ธรรมดา).
 
