@@ -1,10 +1,11 @@
 # CutPack: ส่งต่องานให้ session ถัดไป
 
-**งานล่าสุดอยู่ในสาขา `ccr-5d4c53b3-q87bwd` ยังไม่ได้รวมเข้าสาขาหลัก** (ต่อจาก `claude/handoff-documentation-2w2kk9` ← `ccr-6a3391ad-esjsna` ← `ccr-e630b241-381wt9` ← … มีงานของทุกสาขาครบ) สาขาหลักไม่มีโฟลเดอร์ `cutpack/` เลย session ใหม่ต้องทำก่อนอย่างอื่น:
+**สาขาหลักของ repo คือ `ccr-045810ba-gj4imq`** (Friend merge PR #16 เมื่อ 2026-11-12 รวมงานของทุกสาขาก่อนหน้า: `claude/handoff-documentation-2w2kk9` ← `ccr-6a3391ad-esjsna` ← `ccr-e630b241-381wt9` ← …) · **งานล่าสุดอยู่ในสาขา `ccr-5d4c53b3-q87bwd`** (รวมสาขาหลักไว้แล้ว ณ 2026-11-12) ถ้า Friend ยังไม่ได้ merge สาขานี้เข้าสาขาหลัก session ใหม่ต้องทำก่อนอย่างอื่น (เช็ก: `git fetch origin ccr-5d4c53b3-q87bwd && git merge-base --is-ancestor origin/ccr-5d4c53b3-q87bwd HEAD && echo มีแล้ว`):
 ```
 git fetch origin ccr-5d4c53b3-q87bwd
 git checkout -B <สาขาที่ session ใหม่ได้รับ> origin/ccr-5d4c53b3-q87bwd
 ```
+ถ้า merge แล้ว เริ่มจากสาขาหลักได้เลย ไม่ต้องดึงสาขาเก่า
 เครื่องใหม่ยังไม่มีแพ็กเกจ Python ของเอนจิน ให้รัน `pip install -r cutpack/engine/requirements.txt` ก่อนรันชุดทดสอบ (ใช้เวลาราว 2–3 นาที ถ้าค้างตอนโหลด opencv ให้หยุดแล้วลงใหม่)
 แล้วทำงานและ push ไปที่สาขาของ session ใหม่ (ต่อยอดจากงานเดิม ไม่ต้องย้อนกลับไปสาขาเก่า)
 
