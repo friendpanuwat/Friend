@@ -371,9 +371,9 @@ R3.both('B05', 'quiz', 'ควิซในแอป ตอบผิดขึ้�
   K.cursor(c.p, [[T.b[1] + .3, 360, 330], [T.b[2] - .05, 270, 150], [T.hit - .3, 270, 150], [T.hit - .05, 226, 262], [T.t1, 226, 262]], {clicks: [T.b[2] - .05, T.hit - .05], size: 58});
 });
 
-/* 12 · two answer sheets marked in pen: a big ✗ on the wrong one, a big ✓ on the right one, over the handwriting (the
-   word on top stays clear), a margin line down each sheet. Motion: the two sheets drop in · the handwriting writes itself ·
-   the ✗ is drawn across the wrong one (two strokes) · on the key word the ✓ is drawn on the right one */
+/* 12 · two answer sheets with their handwriting and a margin line, marked by a small ✗ / ✓ icon on each sheet's corner
+   (Friend 2026-11-12, the big pen strokes over the sheets taken out). Motion: the two sheets drop in · the handwriting writes
+   itself · the ✗ pops on the wrong one's corner and it shakes · on the key word the ✓ pops on the right one's (a ring) */
 R3.both('B05', 'grade', 'ครูตรวจกระดาษสองแผ่น ✗ บนแผ่นผิด ✓ บนแผ่นถูก', (K, s, T, g) => {
   const w = s.wrong ?? {icon: 'x'}, r = s.right ?? {icon: 'check'};
   const hand = (y, len) => { let d = `M56 ${y}`; for (let x = 56; x < 56 + len; x += 22) d += `q5.5 -7 11 0t11 0`; return d; };
@@ -383,10 +383,11 @@ R3.both('B05', 'grade', 'ครูตรวจกระดาษสองแผ�
     R11.iconWord(K, c.p, it, 230, 18, 50, 32);
     const hw = R8.svg(c.p, [[140, 150], [174, 154], [208, 132], [242, 154], [276, 88]].map(([y, l]) => `<path style="fill:none;stroke:var(--ink);stroke-width:3px;stroke-linecap:round;opacity:.3" d="${hand(y, l)}"/>`).join(''));
     hw.querySelectorAll('path').forEach((p, j) => R11.draw(K, p, T.b[1] - .2 + k * .2 + j * .08, .3));
-    if (k === 0) { const m = R8.svg(c.p, `<path class="u-cross" style="stroke-width:16px" d="M62 136L182 280"/><path class="u-cross" style="stroke-width:16px" d="M182 136L62 280"/>`);
-      m.querySelectorAll('path').forEach((p, j) => R11.draw(K, p, T.b[2] + j * .2, .2)); K.shake(c.m, T.b[2] + .45); }
-    else { const m = R8.svg(c.p, `<path style="fill:none;stroke:var(--ac-line, var(--ink));stroke-width:28px;stroke-linecap:round;stroke-linejoin:round" d="M58 214L100 262L188 136"/><path class="u-acc-line" style="stroke-width:18px;stroke-linejoin:round" d="M58 214L100 262L188 136"/>`);
-      m.querySelectorAll('path').forEach(p => R11.draw(K, p, T.hit, .32)); K.punch(c.m, T.hit + .35); }
+    /* the mark: a small icon in a disc on the sheet's top-right corner (Friend 2026-11-12: "อยากให้ ❌✅ เป็นแค่ Icon ที่อยู่บนมุมของการ์ดก็พอ") */
+    const mk = R11.disc(c.p, 192, 36, 26, k === 0 ? 'neg' : 'acc');
+    R9.ico(mk.p, k === 0 ? 'x' : 'check', 26, 26, 30, k === 0 ? 'u-inherit' : 'u-bubble-text');
+    if (k === 0) { K.enter(mk.o, T.b[2] + .05, 'pop'); K.shake(c.m, T.b[2] + .3); }
+    else { K.enter(mk.o, T.hit, 'pop'); R1.ripple(K, mk, T.hit + .2, {grow: 16}); K.punch(c.m, T.hit + .35); }
   });
 });
 
