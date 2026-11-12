@@ -51,7 +51,8 @@
   function keyword(word) {                                    // fallback drawing for any word
     const n = [...new Intl.Segmenter('th', { granularity: 'grapheme' }).segment(String(word))].length;
     const size = Math.min(78, 560 / Math.max(3, n));
-    return p => { p.rect(-185, -88, 370, 176, { rx: 40, fill: C.fill, dur: .45 }); p.text(String(word), 0, size * .36, { size, at: .3 }); };
+    const f = p => { p.rect(-185, -88, 370, 176, { rx: 40, fill: C.fill, dur: .45 }); p.text(String(word), 0, size * .36, { size, at: .3 }); };
+    f.motion = { kind: 'breathe', amp: .035, period: 2.6 }; return f;
   }
   function ic(x) {
     if (!x) return null;
@@ -161,7 +162,7 @@
     flag(p, x, y, s = 1, at = 0, d = .5) {                        // (x, y) = foot of the pole
       const q = p.child({ transform: `translate(${x} ${y}) scale(${s})` }, s);
       q.line(0, 0, 0, -240, { sw: 4, at, dur: d * .5 });
-      q.path('M 0 -236 Q 40 -256 80 -236 T 160 -232 L 160 -164 Q 120 -184 80 -168 T 0 -172 Z', { fill: C.fill, at: at + d * .45, dur: d * .55 });
+      q.loop({ kind: 'flap', amp: 7, period: 1.2, ox: 0, oy: -204 }, c => c.path('M 0 -236 Q 40 -256 80 -236 T 160 -232 L 160 -164 Q 120 -184 80 -168 T 0 -172 Z', { fill: C.fill, at: at + d * .45, dur: d * .55 }));
       q.rect(-40, -6, 80, 12, { rx: 6, fill: C.fill, sw: 2.4, at: at + d * .2, dur: .2 });
     },
     chest(p, x, y, s = 1, at = 0, d = .5) {                       // box body only; lid = chestLid
@@ -226,7 +227,19 @@
     eye: p => P.eye(p, 0, 0, 1.7, 0, .5),
     follow: p => { P.bust(p, -30, 10, 2.2, 0, .5); p.circle(120, 90, 44, { fill: C.fill, at: .45, dur: .25 }); p.line(96, 90, 144, 90, { sw: 6, at: .65, dur: .12 }); p.line(120, 66, 120, 114, { sw: 6, at: .72, dur: .12 }); },
   });
-  moods.forEach(m => { G.icons['face-' + m] = p => P.face(p, 0, 0, 170, m, 0, .55); });
+  const FACE_MOTION = { happy: { kind: 'hop', amp: 10, period: 1.3 }, sad: { kind: 'sway', amp: 4, period: 4 }, angry: { kind: 'buzz', amp: 4, period: 1.4 },
+    fear: { kind: 'buzz', amp: 2.5, period: .9 }, relief: { kind: 'bob', amp: 5, period: 3.6 }, love: { kind: 'beat', amp: .08, period: 1.3 },
+    doubt: { kind: 'swing', amp: 7, period: 2.6 }, surprise: { kind: 'beat', amp: .1, period: 2.2 }, tired: { kind: 'sway', amp: 3, period: 5 }, neutral: { kind: 'bob', amp: 3, period: 3.2 } };
+  moods.forEach(m => { G.icons['face-' + m] = p => P.face(p, 0, 0, 170, m, 0, .55); G.icons['face-' + m].motion = FACE_MOTION[m]; });
+  Object.assign(G.MOTION, {
+    cross: { kind: 'buzz', amp: 5, period: 2 }, warn: { kind: 'beat', amp: .1, period: 1.2 }, question: { kind: 'swing', amp: 10, oy: 110 },
+    up: { kind: 'bob', amp: 12, period: 1.4 }, down: { kind: 'bob', amp: -12, period: 1.4 }, store: { kind: 'breathe', amp: .02 },
+    house: { kind: 'breathe', amp: .02 }, building: { kind: 'breathe', amp: .015 }, pin: { kind: 'hop', amp: 18, period: 1.2 },
+    map: { kind: 'breathe', amp: .015 }, heart: { kind: 'beat', amp: .14, period: 1.2 }, bookmark: { kind: 'bob', amp: 6 },
+    share: { kind: 'swing', amp: 8 }, chest: { kind: 'buzz', amp: 3, period: 2.6 }, magnifier: { kind: 'orbit', amp: 14, period: 2.6 },
+    eye: { kind: 'blink', period: 3 }, follow: { kind: 'beat', amp: .06, period: 2 },
+  });
+  for (const n in G.MOTION) if (G.icons[n] && !G.icons[n].motion) G.icons[n].motion = G.MOTION[n];
 
   /* ======================================================================================
      BEATS — each returns its end time. Common options (o): { at, top, bottom }.
@@ -243,7 +256,7 @@
     const ty = y + th / 2; y += th + ns * .74;
     const c = G.counter(value, { from, prefix, suffix, decimals, x: G.W / 2, y, size: ns, at: t, maxW: G.W - 120 });
     const bb = c.g.getBBox();
-    G.art(p => p.line(-bb.width * .32, 0, bb.width * .32, 0, { sw: 4, dur: .5 }), { x: bb.x + bb.width / 2, y: y + ns * .15, at: c.end - .5 });
+    G.art(p => p.line(-bb.width * .32, 0, bb.width * .32, 0, { sw: 4, dur: .5 }), { x: bb.x + bb.width / 2, y: y + ns * .15, at: c.end - .5, reveal: 'draw' });
     if (trend) {
       const ar = G.art(p => P.trend(p, 0, 0, 1, 0, .45, trend), icon ? { x: Math.min(G.W - 100 * k, G.W / 2 + ih * .75), y: ty + ih / 2 - ih * .1 - th / 2 - 60 * k - ns * .0, s: ns / 300, at: t + .35, float: { amp: 7, period: 2.4 } }
             : { x: G.W / 2, y: ty, s: th / 210, at: t + .1, float: { amp: 7, period: 2.4 } });
@@ -306,7 +319,7 @@
         if (mode === 'check') { p.rect(-r * .8, -r * .8, r * 1.6, r * 1.6, { rx: 12 * k, fill: C.fill, sw: 3, dur: .3 }); P.check(p, 0, 0, r / 95, .55, .3, 6); }
         else { p.circle(0, 0, r, { fill: C.fill, dur: .35 }); p.text(String(i + 1), 0, r * .36, { size: r, at: .25 }); }
       }, { x: mx, y, at: t });
-      if (mode !== 'check' && i < n - 1) G.art(p => p.line(0, r + 10 * k, 0, rh - r - 10 * k, { sw: 2.4, stroke: C.soft, dur: .3 }), { x: mx, y, at: m.end });
+      if (mode !== 'check' && i < n - 1) G.art(p => p.line(0, r + 10 * k, 0, rh - r - 10 * k, { sw: 2.4, stroke: C.soft, dur: .3 }), { x: mx, y, at: m.end, reveal: 'draw' });
       const lg = ctext(it.label, { x: lx, cy: y, size: lab, anchor: 'start', maxW: G.W - lx - (it.icon ? 240 * k : 70), at: t + .2 });
       let ig; if (it.icon) ig = draw(it.icon, { x: G.W * .86, y, w: 150 * k, at: t + .2, filter: 'glowS' });
       rows.push([m, lg.g, ig]);
@@ -420,7 +433,7 @@
     if (title) { ctext(title, { cy: a.top + 60 * k, size: 60 * k, at: t }); t += .3; }
     if (icon) { const c = draw(icon, { x: G.W / 2, y: a.top + a.span * .2, w: 220 * k, at: t, filter: 'glowS' }); t = c.end - .2; }
     const ly = a.top + a.span * .6, x0 = G.W * .14, x1 = G.W * .86, xs = L.map((_, i) => x0 + (x1 - x0) * i / (n - 1));
-    G.art(p => p.line(x0 - 40 * k, 0, x1 + 40 * k, 0, { sw: 3, stroke: C.soft, dur: .6 }), { x: 0, y: ly, at: t });
+    G.art(p => p.line(x0 - 40 * k, 0, x1 + 40 * k, 0, { sw: 3, stroke: C.soft, dur: .6 }), { x: 0, y: ly, at: t, reveal: 'draw' });
     const mk = G.art(p => { p.circle(0, 0, 20, { fill: C.ink, sw: 2, dur: .2 }); }, { x: xs[0], y: ly, s: k, at: t + .3 });
     t += .5;
     L.forEach((it, i) => {
@@ -439,7 +452,7 @@
   B.audience = function ({ icon = 'person', label, tags = [] } = {}, o = {}) {
     const a = area(o), k = a.k; let t = a.at;
     const py = a.top + a.span * .4, pw = Math.min(G.W * .44, a.span * .34);
-    G.art(p => p.circle(0, 0, 230, { sw: 2, stroke: C.rule, dur: .7 }), { x: G.W / 2, y: py, s: pw / 400, at: t });
+    G.art(p => p.circle(0, 0, 230, { sw: 2, stroke: C.rule, dur: .7 }), { x: G.W / 2, y: py, s: pw / 400, at: t, reveal: 'draw' });
     const per = draw(icon, { x: G.W / 2, y: py, w: pw, at: t + .1 });
     t = per.end;
     tags.slice(0, 2).forEach((s, i) => {
@@ -558,7 +571,7 @@
     const hi = highlight ?? lines.length - 1;
     lines.forEach((ln, i) => {
       const g = G.text(ln, { y: y0 + i * lh + size * .35, size, at: t, rise: 14, maxW: G.W - 140 });
-      if (i === hi) { const bb = g.getBBox(); G.art(p => p.line(-bb.width / 2, 0, bb.width / 2, 0, { sw: 4.5, dur: .5 }), { x: G.W / 2, y: y0 + i * lh + size * .58, at: t + .4 }); }
+      if (i === hi) { const bb = g.getBBox(); G.art(p => p.line(-bb.width / 2, 0, bb.width / 2, 0, { sw: 4.5, dur: .5 }), { x: G.W / 2, y: y0 + i * lh + size * .58, at: t + .4, reveal: 'draw' }); }
       t += .35;
     });
     if (by) G.text('— ' + by, { y: y0 + (lines.length - 1) * lh + size * 1.6, size: 38 * k, weight: 500, color: C.sub, glow: false, at: t + .2 });
@@ -606,10 +619,10 @@
     t = c.end + .2;
     const M = meanings.map(itemOf), n = M.length, sy0 = ty + c.h / 2 + 140 * k, mh = Math.min(260 * k, a.span * .5 / Math.max(1, n));
     const bx = G.W * .14;
-    G.art(p => p.line(0, 0, 0, (n - .5) * mh, { sw: 2.4, stroke: C.soft, dur: .4 }), { x: bx, y: sy0, at: t });
+    G.art(p => p.line(0, 0, 0, (n - .5) * mh, { sw: 2.4, stroke: C.soft, dur: .4 }), { x: bx, y: sy0, at: t, reveal: 'draw' });
     M.forEach((m, i) => {
       const y = sy0 + (i + .5) * mh;
-      G.art(p => { p.line(0, 0, 40, 0, { sw: 2.4, stroke: C.soft, dur: .15 }); p.dot(54, 0, 8, { at: .12 }); }, { x: bx, y, s: k, at: t + .2 });
+      G.art(p => { p.line(0, 0, 40, 0, { sw: 2.4, stroke: C.soft, dur: .15 }); p.dot(54, 0, 8, { at: .12 }); }, { x: bx, y, s: k, at: t + .2, reveal: 'draw' });
       ctext(m.label || '', { x: bx + 100 * k, cy: y, size: 58 * k, anchor: 'start', maxW: G.W - bx - 160 * k, at: t + .3 });
       t += .45;
     });
@@ -623,7 +636,7 @@
     if (title) { const c = chip(title, G.W / 2, top + 60 * k, { size: 52 * k, at: t, stroke: C.ink, sw: 3, glow: true }); top += c.h + 110 * k; t = c.end; }
     const cols = n === 4 ? 2 : n, rows = Math.ceil(n / cols), cw = (G.W - 80) / cols, ch = Math.min((a.bottom - top) / rows, cw * 1.3);
     const y0 = top + ((a.bottom - top) - ch * rows) / 2;
-    if (title) { const by = top - 50 * k; G.art(p => { p.line(G.W * .12, by, G.W * .88, by, { sw: 2.4, stroke: C.soft, dur: .4 }); for (let c = 0; c < cols; c++) p.line(40 + (c + .5) * cw, by, 40 + (c + .5) * cw, by + 34 * k, { sw: 2.4, stroke: C.soft, at: .3, dur: .15 }); }, { x: 0, y: 0, at: t - .2 }); }
+    if (title) { const by = top - 50 * k; G.art(p => { p.line(G.W * .12, by, G.W * .88, by, { sw: 2.4, stroke: C.soft, dur: .4 }); for (let c = 0; c < cols; c++) p.line(40 + (c + .5) * cw, by, 40 + (c + .5) * cw, by + 34 * k, { sw: 2.4, stroke: C.soft, at: .3, dur: .15 }); }, { x: 0, y: 0, at: t - .2, reveal: 'draw' }); }
     const ds = L.slice(0, n).map((it, i) => {
       const r = Math.floor(i / cols), c = i % cols, x = 40 + (c + .5) * cw, y = y0 + r * ch + ch * .42;
       const iw = Math.min(cw * .62, ch * .55);
@@ -648,7 +661,7 @@
     }
     const fy0 = a.top + a.span * .2, fy1 = a.top + a.span * .76, fx0 = G.W * .08, fx1 = G.W * .92, L = 60 * k;
     G.art(p => [[fx0, fy0, 1, 1], [fx1, fy0, -1, 1], [fx0, fy1, 1, -1], [fx1, fy1, -1, -1]].forEach(([x, y, sx, sy], i) =>
-      p.poly([[x + sx * L, y], [x, y], [x, y + sy * L]], { sw: 3, stroke: C.soft, at: i * .06, dur: .25 })), { x: 0, y: 0, at: t });
+      p.poly([[x + sx * L, y], [x, y], [x, y + sy * L]], { sw: 3, stroke: C.soft, at: i * .06, dur: .25 })), { x: 0, y: 0, at: t, reveal: 'draw' });
     const sy = (fy0 + fy1) / 2;
     const P1 = draw(who, { x: G.W * .3, y: sy, w: G.W * .3, at: t + .1 });
     if (whoLabel) ctext(whoLabel, { x: G.W * .3, cy: sy + G.W * .2, size: 40 * k, color: C.soft, glow: false, weight: 600, at: P1.end - .2 });
@@ -664,7 +677,7 @@
     const a = area(o), k = a.k; let t = a.at;
     const fy = a.top + a.span * .48, r = Math.min(G.W * .26, a.span * .2);
     if (who) { const c = chip(who, G.W / 2, a.top + 60 * k, { size: 44 * k, at: t }); G.connect(G.W / 2, a.top + 60 * k + c.h / 2 + 10 * k, G.W / 2, fy - r - 40 * k, { at: c.end - .2, dur: .3, dots: true, head: 0, sw: 2 }); t = c.end - .1; }
-    const f = G.art(p => P.face(p, 0, 0, 100, mood, 0, .55), { x: G.W / 2, y: fy, s: r / 100, at: t, float: { amp: 5, period: 3 } });
+    const f = G.art(p => P.face(p, 0, 0, 100, mood, 0, .55), { x: G.W / 2, y: fy, s: r / 100, at: t, idle: FACE_MOTION[mood] || FACE_MOTION.neutral });
     t = f.end;
     const fx = (fn, x, y, s = 1, opt = {}) => G.art(fn, Object.assign({ x, y, s: s * k, at: t }, opt));
     const cx = G.W / 2;
@@ -693,7 +706,7 @@
     if (IB.label) ctext(IB.label, { x: pb[0], cy: pb[1] + iw * sb * .55 + 50 * k, size: 46 * k, maxW: G.W * .4, at: t + .5 });
     t = dB.end;
     const x1 = pa[0] + iw * sa * .55, x2 = pb[0] - iw * sb * .55, mx = (x1 + x2) / 2, my = (pa[1] + pb[1]) / 2;
-    const half = (xa, ya, xb, yb, at) => G.art(p => p.line(xa, ya, xb, yb, { sw: 3.4, dur: .35 }), { x: 0, y: 0, at });
+    const half = (xa, ya, xb, yb, at) => G.art(p => p.line(xa, ya, xb, yb, { sw: 3.4, dur: .35 }), { x: 0, y: 0, at, reveal: 'draw' });
     const h1 = half(x1, pa[1], mx, my, t), h2 = half(mx, my, x2, pb[1], t + .25);
     if (power) G.art(p => { const an = Math.atan2(pb[1] - pa[1], x2 - x1) + (power === 'b' ? Math.PI : 0), tx = power === 'b' ? x1 : x2, ty = power === 'b' ? pa[1] : pb[1];
       p.poly([[tx - Math.cos(an - .5) * 20, ty - Math.sin(an - .5) * 20], [tx, ty], [tx - Math.cos(an + .5) * 20, ty - Math.sin(an + .5) * 20]], { sw: 3.4, dur: .15 }); }, { x: 0, y: 0, at: t + .55 });
