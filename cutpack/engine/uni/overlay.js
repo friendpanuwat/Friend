@@ -30,7 +30,10 @@ const OV_CSS = `
 /* the subtitle under the chin: one row per part, shrunk (never wrapped) to 900 px; returns the moving spans */
 function ovSub(T, rows) {
   const el = div(`top:${OV.subTop}px`, SC); el.className = 'ov-sub';
-  A(el, [{opacity: 0}, {opacity: 1}], T.t0 + .05, .25); A(el, [{opacity: 1}, {opacity: 0}], T.t1 - .2, .2, {f: 'forwards'});
+  if (T.cut) {                                       // a real clip: short blocks follow each other, so cut (fades left them faint and stacked)
+    A(el, [{visibility: 'hidden'}, {visibility: 'visible'}], T.cut[0] - .02, .001);
+    A(el, [{visibility: 'visible'}, {visibility: 'hidden'}], T.cut[1] - .01, .001, {f: 'forwards'});
+  } else { A(el, [{opacity: 0}, {opacity: 1}], T.t0 + .05, .25); A(el, [{opacity: 1}, {opacity: 0}], T.t1 - .2, .2, {f: 'forwards'}); }
   return rows.map(([txt, cls]) => {
     const r = document.createElement('div'); el.appendChild(r);
     const s = document.createElement('span'); s.className = cls; s.textContent = txt; r.appendChild(s);

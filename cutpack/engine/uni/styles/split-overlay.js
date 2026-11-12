@@ -25,8 +25,9 @@ const SPLIT_OV = {
 .ov-pkey{font-family:"Anu";font-weight:700;line-height:1.2}.p-light .ov-pkey{color:#7E66BE}.p-dark .ov-pkey{color:#D9CCF6}`,
   sub(F, T, lead, key) {
     const [l, k] = ovSub(T, [[lead ?? '', 'ov-psl'], [key ?? '', 'ov-psk']]);
-    A(l, [{color: 'rgba(255,255,255,.5)'}, {color: '#FFFFFF'}], T.t0 + .3, .35, {e: 'ease-out'});
-    A(k, [{color: 'rgba(255,255,255,.5)'}, {color: '#D9C9FF'}], T.hit, .35, {e: 'ease-out'});
+    const d = T.lead != null ? .2 : .35;             // a real clip: the lead turns when it is said, quick enough for short blocks
+    A(l, [{color: 'rgba(255,255,255,.5)'}, {color: '#FFFFFF'}], T.lead ?? T.t0 + .3, d, {e: 'ease-out'});
+    A(k, [{color: 'rgba(255,255,255,.5)'}, {color: '#D9C9FF'}], T.hit, d, {e: 'ease-out'});
   },
   text(F, T, lead, key) {                            // a scene without a small form: the words inside the window (auto-fit path)
     if (lead) A(ovLine(F, lead, 'ov-plead', 34), [{opacity: 0}, {opacity: 1}], T.t0 + .25, .4);
