@@ -100,7 +100,7 @@ function clipCaption(c) {
   else F = ST.speakerFrame ? ST.speakerFrame(a, b) : null;
   if (!F) return;
   const el = ST.text(F, T, lead, key);
-  if (own && el) { A(el, [{visibility: 'hidden'}, {visibility: 'visible'}], a - .02, .001); A(el, [{visibility: 'visible'}, {visibility: 'hidden'}], b - .01, .001, {f: 'forwards'}); }
+  if (own && el) { A(el, [{visibility: 'hidden'}, {visibility: 'visible'}], a - .02, .001); A(el, [{visibility: 'visible'}, {visibility: 'hidden'}], b - .021, .001, {f: 'forwards'}); }
   if (el && !w && !ST.overlay) el.style.top = subTop() + 'px';
 }
 function clipCaptions() {

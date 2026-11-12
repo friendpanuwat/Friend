@@ -32,7 +32,7 @@ function ovSub(T, rows) {
   const el = div(`top:${OV.subTop}px`, SC); el.className = 'ov-sub';
   if (T.cut) {                                       // a real clip: short blocks follow each other, so cut (fades left them faint and stacked)
     A(el, [{visibility: 'hidden'}, {visibility: 'visible'}], T.cut[0] - .02, .001);
-    A(el, [{visibility: 'visible'}, {visibility: 'hidden'}], T.cut[1] - .01, .001, {f: 'forwards'});
+    A(el, [{visibility: 'visible'}, {visibility: 'hidden'}], T.cut[1] - .021, .001, {f: 'forwards'});
   } else { A(el, [{opacity: 0}, {opacity: 1}], T.t0 + .05, .25); A(el, [{opacity: 1}, {opacity: 0}], T.t1 - .2, .2, {f: 'forwards'}); }
   return rows.map(([txt, cls]) => {
     const r = document.createElement('div'); el.appendChild(r);
