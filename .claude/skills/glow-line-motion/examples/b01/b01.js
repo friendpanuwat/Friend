@@ -342,6 +342,52 @@
     icon(d, -395, -250, 100, c);
   });
 
+  /* 18 alternatives (user disliked BURST, 2026-11-12) — kept outside V until the user picks one */
+  const ALT18 = [];
+  const alt = (id, th, build) => ALT18.push({ id, th, build });
+
+  /* 18a ── IRIS: an aperture ring; its blades have opened and the number sits in the opening */
+  alt('iris', 'ม่านรูรับแสง', (d, c) => {
+    art(c, p => {
+      p.circle(0, -10, 290, F(3.6));
+      for (let i = 0; i < 8; i++) { const a = rad(i * 45), b = rad(i * 45 + 52);
+        p.path(`M ${f1(204 * Math.cos(a))} ${f1(-10 + 204 * Math.sin(a))} Q ${f1(262 * Math.cos(a + .28))} ${f1(-10 + 262 * Math.sin(a + .28))} ${f1(278 * Math.cos(b))} ${f1(-10 + 278 * Math.sin(b))}`, W(2)); }
+      p.circle(0, -10, 204, F(3));
+      txt(p, d.value, 0, d.unit ? 45 : 60, { size: 170, maxW: 340 });
+      if (d.unit) txt(p, d.unit, 0, 118, { size: 44, weight: 600, color: C.soft, maxW: 290 });
+      dirBadge(p, d.dir, 250, -155, 34);
+    });
+    icon(d, -390, -250, 100, c);
+  });
+
+  /* 18b ── SCROLL: a paper scroll unrolled between two rolls, the number written on it */
+  alt('scroll', 'ม้วนกระดาษ', (d, c) => {
+    art(c, p => {
+      p.rect(-340, -150, 680, 320, F(3.2));
+      [-1, 1].forEach(sd => { const x = sd * 360;
+        p.rect(x - 28, -196, 56, 412, Object.assign({ rx: 24 }, F(3.2)));
+        p.ellipse(x, -196, 28, 9, W(2)); p.line(x - 12, -150, x - 12, 170, W(1.6)); });
+      txt(p, d.value, 0, d.unit ? 55 : 75, { size: 190, maxW: 560 });
+      if (d.unit) txt(p, d.unit, 0, 135, { size: 50, weight: 600, color: C.soft, maxW: 540 });
+      dirBadge(p, d.dir, 300, -150, 32);
+    });
+    icon(d, 0, -268, 110, c);
+  });
+
+  /* 18c ── NOTE: a paper note pinned to the wall, slightly turned, corner folded */
+  alt('note', 'กระดาษโน้ตปักหมุด', (d, c) => {
+    art(c, p => {
+      const q = p.child({ transform: 'rotate(-3 0 20)' });
+      q.path('M -270 -230 L 270 -230 L 270 190 L 200 260 L -270 260 Z', F(3.4));
+      q.path('M 270 190 L 210 196 L 200 260', F(2.6));
+      txt(q, d.value, 0, d.unit ? 85 : 100, { size: 210, maxW: 450 });
+      if (d.unit) txt(q, d.unit, 0, 170, { size: 50, weight: 600, color: C.soft, maxW: 420 });
+      p.line(0, -236, 0, -206, W(3)); p.circle(0, -258, 30, F(3)); p.circle(-8, -266, 8, W(2));
+      dirBadge(q, d.dir, 205, -165, 32);
+    });
+    icon(d, -175, -150, 82, c);
+  });
+
   /* 19 ── ORBIT: two orbits circle the number; the icon rides one of them */
   variant('orbit', 'วงโคจร', (d, c) => {
     const on = (rx, ry, rot, a) => { const x = rx * Math.cos(rad(a)), y = ry * Math.sin(rad(a)), r = rad(rot); return [x * Math.cos(r) - y * Math.sin(r), x * Math.sin(r) + y * Math.cos(r)]; };
@@ -419,5 +465,5 @@
   ];
 
   G.cats = G.cats || {};          // GL.B01 is taken by the older beats.js template
-  G.cats.B01 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
+  G.cats.B01 = { variants: V, ALT18, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
 })();
