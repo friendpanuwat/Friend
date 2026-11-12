@@ -3,7 +3,7 @@ import sys, json, cv2, numpy as np
 sys.path.insert(0, '.')
 from cells import CELLS
 from picks import P, ACC, THR, DROP, MINA, THICK, TB, EDGE, CLOSE, HOLE, GAP, SEAL
-from picks import THICKB, THRB, DARK, ERASE, BCLOSE, SEALF, ACCC, HOLEF, HL, ACCGAP, FADE, HOLEMU, THICKA, ACCLMIN, ACCSMALL, BOPEN, ACCLEDGE
+from picks import THICKB, THRB, DARK, ERASE, BCLOSE, SEALF, ACCC, HOLEF, HL, ACCGAP, FADE, HOLEMU, THICKA, ACCLMIN, ACCSMALL, BOPEN, ACCLEDGE, FADEW
 S = 5; out = {}
 for id_, cat, nm, (f, x0, y0, x1, y1) in CELLS:
     g = cv2.imread(f, cv2.IMREAD_GRAYSCALE)[y0:y1, x0:x1]; h, w = g.shape
@@ -137,7 +137,7 @@ for id_, cat, nm, (f, x0, y0, x1, y1) in CELLS:
         return ''.join(d)
     out[id_] = {'cat': cat, 'name': nm, 'w': round(L.shape[1] / S, 1), 'h': round(L.shape[0] / S, 1),
                 'lines': path(L, cv2.RETR_CCOMP), 'body': path(sil, cv2.RETR_EXTERNAL), 'mid': '', 'acc': path(acc, cv2.RETR_CCOMP, 1.2, 3), 'accl': path(accz.astype(np.uint8), cv2.RETR_CCOMP, 1.0, .3),
-                'hl': path(hl, cv2.RETR_CCOMP, 1.0, .3), 'hole': path(holes, cv2.RETR_CCOMP, 1.2, 3) if id_ in HOLEF else '', 'fade': FADE.get(id_, '')}
+                'hl': path(hl, cv2.RETR_CCOMP, 1.0, .3), 'hole': path(holes, cv2.RETR_CCOMP, 1.2, 3) if id_ in HOLEF else '', 'fade': FADE.get(id_, ''), 'fw': FADEW.get(id_, '')}
     cv2.imwrite(f'tr_{id_}.png', np.dstack([mid * 120 + acc * 40, sil * 60 + L * 195 + acc * 120, L * 255 + acc * 200]))
 json.dump(out, open('traced.json', 'w'))
 print(len(out), sum(len(v['lines']) + len(v['body']) + len(v['mid']) for v in out.values()) // 1024, 'KiB')

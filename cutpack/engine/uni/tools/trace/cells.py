@@ -45,6 +45,5 @@ CELLS = [
  ('knockout', 'B14', 'นวมชกน็อก', two(PU, 1, 0)),
  ('micdrop', 'B14', 'ทิ้งไมค์', two(PU, 2, 0)),
  ('balloon', 'B14', 'ลูกโป่งแตก', two(PU, 5, 1)),
- ('fireworks', 'B14', 'พลุ', two(PU, 9, 1)),
  ('anatomy', 'B16', 'ของแยกชิ้นส่วน', two(DE, 3, 1)),
 ]
