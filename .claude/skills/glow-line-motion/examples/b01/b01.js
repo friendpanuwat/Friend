@@ -328,54 +328,8 @@
     icon(d, -313, -148, 92, c);
   });
 
-  /* 18 ── BURST: an impact burst behind the number, a few speed strokes around it */
-  variant('burst', 'แรงกระแทก', (d, c) => {
-    const pts = [], n = 18, J = [0, .07, -.04, .05, -.06, .03];
-    for (let i = 0; i < n * 2; i++) { const a = rad(-90 + i * 180 / n), r = i % 2 ? 228 : 300 * (1 + J[i / 2 % 6 | 0]); pts.push([f1(r * Math.cos(a)), f1(-10 + r * .9 * Math.sin(a))]); }
-    art(c, p => {
-      [20, 65, 115, 160, 200, 250, 295, 340].forEach(a => { if (a > 200 && a < 250 && d.icon) return; p.line(f1(330 * Math.cos(rad(a))), f1(-10 + 300 * Math.sin(rad(a))), f1(380 * Math.cos(rad(a))), f1(-10 + 345 * Math.sin(rad(a))), W(3)); });
-      p.shape(pts, F(3.2));
-      txt(p, d.value, 0, d.unit ? 50 : 70, { size: 190, maxW: 400 });
-      if (d.unit) txt(p, d.unit, 0, 128, { size: 50, weight: 600, color: C.soft, maxW: 330 });
-      dirBadge(p, d.dir, 300, -230, 34);
-    });
-    icon(d, -395, -250, 100, c);
-  });
-
-  /* 18 alternatives (user disliked BURST, 2026-11-12) — kept outside V until the user picks one */
-  const ALT18 = [];
-  const alt = (id, th, build) => ALT18.push({ id, th, build });
-
-  /* 18a ── IRIS: an aperture ring; its blades have opened and the number sits in the opening */
-  alt('iris', 'ม่านรูรับแสง', (d, c) => {
-    art(c, p => {
-      p.circle(0, -10, 290, F(3.6));
-      for (let i = 0; i < 8; i++) { const a = rad(i * 45), b = rad(i * 45 + 52);
-        p.path(`M ${f1(204 * Math.cos(a))} ${f1(-10 + 204 * Math.sin(a))} Q ${f1(262 * Math.cos(a + .28))} ${f1(-10 + 262 * Math.sin(a + .28))} ${f1(278 * Math.cos(b))} ${f1(-10 + 278 * Math.sin(b))}`, W(2)); }
-      p.circle(0, -10, 204, F(3));
-      txt(p, d.value, 0, d.unit ? 45 : 60, { size: 170, maxW: 340 });
-      if (d.unit) txt(p, d.unit, 0, 118, { size: 44, weight: 600, color: C.soft, maxW: 290 });
-      dirBadge(p, d.dir, 250, -155, 34);
-    });
-    icon(d, -390, -250, 100, c);
-  });
-
-  /* 18b ── SCROLL: a paper scroll unrolled between two rolls, the number written on it */
-  alt('scroll', 'ม้วนกระดาษ', (d, c) => {
-    art(c, p => {
-      p.rect(-340, -150, 680, 320, F(3.2));
-      [-1, 1].forEach(sd => { const x = sd * 360;
-        p.rect(x - 28, -196, 56, 412, Object.assign({ rx: 24 }, F(3.2)));
-        p.ellipse(x, -196, 28, 9, W(2)); p.line(x - 12, -150, x - 12, 170, W(1.6)); });
-      txt(p, d.value, 0, d.unit ? 55 : 75, { size: 190, maxW: 560 });
-      if (d.unit) txt(p, d.unit, 0, 135, { size: 50, weight: 600, color: C.soft, maxW: 540 });
-      dirBadge(p, d.dir, 300, -150, 32);
-    });
-    icon(d, 0, -268, 110, c);
-  });
-
-  /* 18c ── NOTE: a paper note pinned to the wall, slightly turned, corner folded */
-  alt('note', 'กระดาษโน้ตปักหมุด', (d, c) => {
+  /* 18 ── NOTE: a paper note pinned to the wall, slightly turned, corner folded (user picked it over BURST, 2026-11-12) */
+  variant('note', 'กระดาษโน้ตปักหมุด', (d, c) => {
     art(c, p => {
       const q = p.child({ transform: 'rotate(-3 0 20)' });
       q.path('M -270 -230 L 270 -230 L 270 190 L 200 260 L -270 260 Z', F(3.4));
@@ -386,6 +340,50 @@
       dirBadge(q, d.dir, 205, -165, 32);
     });
     icon(d, -175, -150, 82, c);
+  });
+
+  /* 14 alternatives (user asked to redesign CUBE, 2026-11-12) — kept outside V until the user picks one */
+  const ALT14 = [];
+  const alt = (id, th, build) => ALT14.push({ id, th, build });
+
+  /* 14a ── PLINTH: the number stands on a display plinth, the unit engraved on its front */
+  alt('plinth', 'แท่นโชว์', (d, c) => {
+    art(c, p => {
+      p.rect(-240, 296, 480, 30, Object.assign({ rx: 6 }, F(3)));
+      p.rect(-200, 128, 400, 168, F(3.2)); p.line(-170, 150, -170, 274, W(1.6)); p.line(170, 150, 170, 274, W(1.6));
+      p.rect(-232, 102, 464, 28, Object.assign({ rx: 6 }, F(3)));
+      txt(p, d.value, 0, 46, { size: 280, maxW: 780 });
+      if (d.unit) txt(p, d.unit, 0, 230, { size: 48, weight: 600, color: C.soft, maxW: 300 });
+      dirBadge(p, d.dir, 200, 128, 32);
+    });
+    icon(d, -395, -240, 100, c);
+  });
+
+  /* 14b ── SHUTTER: a roller shutter has rolled up into its box, the number stands in the opening */
+  alt('shutter', 'บานม้วน', (d, c) => {
+    art(c, p => {
+      p.rect(-370, -250, 740, 510, Object.assign({ rx: 14 }, F(3.4)));
+      p.rect(-330, -150, 660, 370, F(2.2));
+      p.rect(-370, -250, 740, 104, Object.assign({ rx: 14 }, F(3.2))); [-218, -196, -174].forEach(y => p.line(-330, y, 330, y, W(1.6)));
+      p.rect(-330, -150, 660, 24, F(2.6)); p.rect(-40, -126, 80, 12, Object.assign({ rx: 6 }, F(2)));
+      txt(p, d.value, 0, d.unit ? 110 : 130, { size: 200, maxW: 580 });
+      if (d.unit) txt(p, d.unit, 0, 190, { size: 50, weight: 600, color: C.soft, maxW: 560 });
+      dirBadge(p, d.dir, 330, -98, 30);
+    });
+    icon(d, -420, -300, 84, c);
+  });
+
+  /* 14c ── FLIP: one big split-flap tile — a hinge line runs through the middle of the number */
+  alt('flip', 'แผ่นพลิก', (d, c) => {
+    art(c, p => {
+      p.rect(-380, -200, 760, 400, Object.assign({ rx: 26 }, F(3.4)));
+      const t = txt(p, d.value, 0, 86, { size: 240, maxW: 660 }); t.e.setAttribute('y', f1(t.size * .36));
+      p.line(-380, 0, 380, 0, { sw: 9, stroke: C.fill }); p.line(-380, 0, 380, 0, W(2));
+      [-1, 1].forEach(sd => p.rect(sd * 392 - 10, -22, 20, 44, Object.assign({ rx: 6 }, F(2.6))));
+      if (d.unit) txt(p, d.unit, 0, 290, { size: 56, weight: 600, color: C.soft, maxW: 740 });
+      dirBadge(p, d.dir, 380, -200, 32);
+    });
+    icon(d, 0, -278, 110, c);
   });
 
   /* 19 ── ORBIT: two orbits circle the number; the icon rides one of them */
@@ -465,5 +463,5 @@
   ];
 
   G.cats = G.cats || {};          // GL.B01 is taken by the older beats.js template
-  G.cats.B01 = { variants: V, ALT18, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
+  G.cats.B01 = { variants: V, ALT14, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
 })();

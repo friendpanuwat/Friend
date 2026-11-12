@@ -1,14 +1,14 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><title>B01 design 18 options</title>
+<html><head><meta charset="utf-8"><title>B01 design 14 options</title>
 <script src="../../assets/glowline.js"></script><script src="b01.js"></script></head>
 <body><script>
-/* B01 design 18 — 3 replacement options (the user disliked BURST); each with an everyday sentence and a stress one */
+/* B01 design 18 — 3 replacement options (the user asked to redesign CUBE); each with an everyday sentence and a stress one */
 GL.run(() => {
   GL.stage();
-  const B = GL.cats.B01, D = [B.SAMPLES[17], B.STRESS[0]];
-  GL.text('B01 · แบบ 18 ใหม่ — เลือก 1 ทาง', { y: 74, size: 44, ls: 2, color: GL.C.kicker, glow: false });
+  const B = GL.cats.B01, D = [B.SAMPLES[13], B.STRESS[0]];
+  GL.text('B01 · แบบ 14 ใหม่ — เลือก 1 ทาง', { y: 74, size: 44, ls: 2, color: GL.C.kicker, glow: false });
   const top = 120, rh = (GL.H - top - 10) / 3, s = .48;
-  B.ALT18.forEach((v, r) => {
+  B.ALT14.forEach((v, r) => {
     const y0 = top + r * rh;
     GL.text(String.fromCharCode(65 + r) + ' · ' + v.th, { y: y0 + 46, size: 36, color: GL.C.ink, glow: false });
     D.forEach((d, k) => { const x = (k + .5) * GL.W / 2;
