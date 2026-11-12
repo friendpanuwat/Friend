@@ -1,6 +1,6 @@
 # HANDOFF — glow-line-motion · ไอคอน `-pro` (ชุดไอคอนที่ CutPack ใช้บ่อย)
 
-อัปเดตล่าสุด: 2026-11-12 · branch `ccr-01c9939d-6t0ncp` (push แล้ว, **ยังไม่มี PR** — เปิดเมื่อผู้ใช้สั่งเท่านั้น)
+อัปเดตล่าสุด: 2026-11-12 · branch `ccr-e5509ed3-id7gvt` (push แล้ว, **ยังไม่มี PR** — เปิดเมื่อผู้ใช้สั่งเท่านั้น; ชุด 1–5 merge แล้วใน PR #19)
 คุยกับผู้ใช้เป็นภาษาไทย สุภาพ ลงท้าย "ครับ". ผู้ใช้สั่งงานจากมือถือ — ห้ามขอให้เขารันคำสั่งเอง.
 
 ## งานคืออะไร
@@ -11,7 +11,7 @@ glow-line `-pro` ของ skill นี้: เส้นขาวเรือง
 
 > ไอคอนชุดนี้ **ยังไม่ได้เชื่อมเข้า CutPack** (CutPack ใช้ Lucide 24×24 คนละระบบ, และ `cutpack/HANDOFF.md` บอกว่ายกเลิก skill นี้ในฉากรอบ 11) — บอกผู้ใช้ไปแล้ว.
 
-## สถานะ: เสร็จ 80 / 95
+## สถานะ: เสร็จ 93 / 95 (ที่เหลือคือชุดอวัยวะคนที่พักไว้)
 
 | ไฟล์ | ไอคอน |
 |---|---|
@@ -20,11 +20,12 @@ glow-line `-pro` ของ skill นี้: เส้นขาวเรือง
 | `assets/pro3.js` (ชุด 3) | bookmark circle-help users eye utensils-crossed search handshake* infinity image user-plus tag wallet calendar repeat book-open ear* fish crown message-circle-question share-2 |
 | `assets/pro4.js` (ชุด 4) | book languages trash-2 user-check circle-check x thumbs-down* puzzle biceps-flexed* heart-pulse zap banknote store bookmark-check arrow-right message-circle-warning video graduation-cap octagon-alert shield |
 | `assets/pro5.js` (ชุด 5) | heart-crack heart-off map-pin lightbulb-off battery-low droplets utensils award message-circle-heart arrow-down arrow-up phone lock star arrow-left-right link quote send pen-line printer |
+| `assets/pro6.js` (ชุด 6, แผ่น A 7 + B 6) | circle-alert lock-open eye-off flag megaphone trophy hourglass · arrow-down-up chevrons-left-right phone-off pin rewind sliders-horizontal |
 
 `*` = อวัยวะคน — ทำไปก่อนผู้ใช้สั่งพัก, **ยังไม่ได้ปรับตามกฎล่าสุด** (ยังมีรายละเอียดเดิม). จะกลับมาทำทีหลังพร้อมชุดที่พักไว้.
 
-**เหลือ 13 อัน (ทำต่อได้, ผู้ใช้เคยตกลงว่าทำรอบเดียวจบ)** — ผู้ใช้สั่ง "อย่าเพิ่งทำชุดต่อไป" ตอนย้ายแชท → **รอผู้ใช้สั่งก่อน**:
-circle-alert · lock-open · eye-off · flag · megaphone · trophy · hourglass · arrow-down-up · chevrons-left-right · phone-off · pin (หมุดปัก) · rewind · sliders-horizontal
+ชุด 6 (13 อันสุดท้าย) ส่งให้ผู้ใช้ดูแล้ว — **รอผู้ใช้ตอบ "ผ่าน"/สั่งแก้**. แผ่นชุด 6 ใช้ตาราง 4 แถวคงที่ (`off` จัดกึ่งกลางแนวตั้ง) เพราะมี 7/6 อัน.
+ไอคอนที่มีขีดฆ่า (eye-off, phone-off) — ขีดฆ่าต้องอยู่ตลอด ห้ามให้ท่าวนยกขีดออก (ไม่งั้นตอนท่าออกจะกลายเป็น eye/phone ธรรมดา).
 
 **พักไว้ (อวัยวะคน — ผู้ใช้สั่งให้ข้ามไปก่อน)**: hand · thumbs-up (ใช้ `GL.parts.thumbHand` ใน pro4.js ได้) · footprints · heart-handshake ·
 smile · frown (หน้าคน — ผมพักไว้เผื่อนับเป็นอวัยวะ, บอกผู้ใช้แล้ว ยังไม่ได้คำตอบ)
@@ -80,6 +81,7 @@ rig('flag-pro', .6, 'sink', p => {          // ชื่อ, เวลาท่�
 
 ## ไฟล์ผลงาน (`motion/glow-line-pro-icons/`)
 
+- ชุด 6: `pro-icons-batch6a/6b.mp4` + `*-still.png`
 - วิดีโอล่าสุดทั้ง 8 แผ่น (ลดรายละเอียด + ไม่มีแสงสะท้อน/ดาว + มีท่าออก): `pro-icons-grid.mp4` (ชุด 1), `pro-icons-batch2.mp4`,
   `pro-icons-batch3a/3b.mp4`, `pro-icons-batch4a/4b.mp4`, `pro-icons-batch5a/5b.mp4` + `*-still.png` (ภาพนิ่งที่ 4.6 วิ)
 - `cleanup/compare-1…6.jpg` ก่อน/หลังลดรายละเอียด · `house-style/` ภาพรวม 80 อัน + ข้อเสนอแนว A/B
@@ -87,6 +89,8 @@ rig('flag-pro', .6, 'sink', p => {          // ชื่อ, เวลาท่�
 
 ## อื่น ๆ ที่ค้าง / ควรรู้
 
+- **ระวัง: `GL.kf` สองอันบน element เดียวกัน → อันที่ใส่ทีหลังทับ transform ทั้งหมด** (ท่าเข้าที่จบแล้วจะค้างค่าสุดท้ายทับท่าวน).
+  ให้ท่าเข้ากับท่าวนอยู่คนละ group (`const o = sub(intro), q = sub(o)`). `pro5.js` arrow-left-right ยังเขียนแบบเดิม (a/b มีทั้งสองอัน) — ยังไม่ได้แก้.
 - ไอคอนอวัยวะคน 4 อันที่ทำแล้ว (handshake ear thumbs-down biceps-flexed) ยังไม่ได้ผ่านกฎข้อ 2–3 — ทำตอนกลับมาทำชุดอวัยวะ.
 - push ปกติได้ (fast-forward); `--force-with-lease` เคยถูกปฏิเสธ. Default branch ของ repo คือ `ccr-045810ba-gj4imq` (PR #10–#16 merge แล้ว).
 - commit message ลงท้ายด้วยบรรทัด attribution ตามที่ระบบกำหนด; ห้ามใส่ชื่อโมเดลในไฟล์/commit.
