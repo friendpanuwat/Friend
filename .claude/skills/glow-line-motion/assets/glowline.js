@@ -69,7 +69,7 @@
   }
 
   /* ---------------- stage ---------------- */
-  function stage({ w = 1080, h = 1920, glow = 1, seed: s, icons = 'motion' } = {}) {
+  function stage({ w = 1080, h = 1920, glow = 1, seed: s, icons = 'motion', material = 'ink' } = {}) {
     W = w; H = h; if (s) seed = s; MODE = icons === 'draw' ? 'draw' : 'motion';
     svg = mk('svg', { width: w, height: h, viewBox: `0 0 ${w} ${h}` }, document.body);
     const defs = mk('defs', {}, svg);
@@ -83,8 +83,10 @@
         <feGaussianBlur in="SourceGraphic" stdDeviation="${2 * glow}" result="a"/>
         <feGaussianBlur in="SourceGraphic" stdDeviation="${6 * glow}" result="b"/>
         <feMerge><feMergeNode in="b"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <linearGradient id="glsilver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#727272"/><stop offset=".45" stop-color="#454545"/><stop offset="1" stop-color="#262626"/></linearGradient>
       <filter id="bloom" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="${16 * glow}"/></filter>
       <filter id="bloomS" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="${8 * glow}"/></filter>`;
+    C.fill = material === 'silver' ? 'url(#glsilver)' : '#171717';     // 'silver': objects filled with a top-lit grey gradient (glass/metal feel)
     if (!ALPHA) mk('rect', { width: w, height: h, fill: 'url(#glbg)' }, svg);
     root = cur = mk('g', {}, svg);
     window.STAGE = { w, h };

@@ -19,7 +19,7 @@ GL.run(() => {
 
 | ฟังก์ชัน | ตัวเลือก (ค่าเริ่ม) | หมายเหตุ |
 |---|---|---|
-| `GL.stage(o)` | `w 1080`, `h 1920`, `glow 1` (คูณความฟุ้ง), `seed`, `icons 'motion'│'draw'` | เรียกครั้งเดียวก่อนอย่างอื่น. `GL.W`, `GL.H` = ขนาด |
+| `GL.stage(o)` | `w 1080`, `h 1920`, `glow 1` (คูณความฟุ้ง), `seed`, `icons 'motion'│'draw'`, `material 'ink'│'silver'` | เรียกครั้งเดียวก่อนอย่างอื่น. `GL.W`, `GL.H` = ขนาด |
 | `GL.title(o)` → y ล่างสุด | `kicker`, `main`, `sub`, `top 40`, `at .05`, `size 142` | kicker ตัวห่าง 50px · main ตัวใหญ่เรืองแสง (ย่อเองถ้ายาว) · sub ไทยสีเทา 34px. ไม่มี sub → คืน ~280 |
 | `GL.text(str, o)` | `x W/2`, `y`, `size 56`, `at 0`, `dur .45`, `rise`, `color`, `weight 700`, `anchor 'middle'`, `ls 0`, `maxW W-80`, `glow true`, `lh 1.3` | `\n` = ขึ้นบรรทัดใหม่. ยาวเกิน `maxW` → ย่อฟอนต์อัตโนมัติ. ขึ้นแบบ fade + ลอยขึ้น |
 | `GL.hline(y, at, {x1, x2})` / `GL.vline(x, y1, y2, at)` | | เส้นแบ่งสีเทา วาดตัวเอง |
