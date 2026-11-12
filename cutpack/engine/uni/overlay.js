@@ -81,7 +81,8 @@ function OVERLAY(id, base, def) {
       A(root, m.leave.kf, t1 - m.leave.d, m.leave.d, {e: m.leave.e, f: 'forwards'});
       if (big) {                                    // the speaker steps back to make room, then comes back
         const D = t1 - t0 + .1, k = OV.shrink, S = `translate(${540 * (1 - k.s)}px,${1920 * (1 - k.s)}px) scale(${k.s})`;
-        A(V, [{transform: 'none'}, {transform: S, offset: k.d / D}, {transform: S, offset: 1 - k.d / D}, {transform: 'none'}], t0 - .1, D, {e: 'ease-in-out', f: 'none'});
+        const o = Math.min(k.d / D, .5);          // a short scene: shrink and grow back meet in the middle (the offsets must not cross, a real clip had a 1.7 s scene)
+        A(V, [{transform: 'none'}, {transform: S, offset: o}, {transform: S, offset: 1 - o}, {transform: 'none'}], t0 - .1, D, {e: 'ease-in-out', f: 'none'});
       }
       const pic = big ? {x: 24, y: 20, w: L.w - 48, h: L.h - 178} : {x: 18, y: 18, w: L.h - 36, h: L.h - 36};
       const box = div(`left:${pic.x}px;top:${pic.y}px;width:${pic.w}px;height:${pic.h}px`, root);

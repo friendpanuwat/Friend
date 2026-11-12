@@ -42,7 +42,8 @@ const GLASS_OV = {
   /* talking-head-overlay: a slow push to 1.05 in about 1.2 s on a strong line, back in about 1 s (never a cut) */
   camera(T) {
     const z = 1.05, Z = `translate(${540 * (1 - z)}px,${700 * (1 - z)}px) scale(${z})`, D = T.t1 + .9 - (T.hit - .3);
-    A(V, [{transform: 'none'}, {transform: Z, offset: 1.2 / D}, {transform: Z, offset: 1 - 1 / D}, {transform: 'none'}], T.hit - .3, D, {e: 'ease-in-out', f: 'none'});
+    const oi = Math.min(1.2 / D, .5), oo = Math.max(1 - 1 / D, oi);   // a key word near a short scene's end: in and out meet (the offsets must not cross, a real clip)
+    A(V, [{transform: 'none'}, {transform: Z, offset: oi}, {transform: Z, offset: oo}, {transform: 'none'}], T.hit - .3, D, {e: 'ease-in-out', f: 'none'});
   },
 };
 OVERLAY('glass-overlay', 'glass', GLASS_OV);
