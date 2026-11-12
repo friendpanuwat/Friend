@@ -33,7 +33,7 @@
     [[-96, 60, 1.6], [-6, -40, .7], [84, -110, 1.1]].forEach(([x, top, f], i) => {
       const bO = sub(intro), b = sub(bO), hi = i === 2; b.rect(x - 30, top, 60, 156 - top, { rx: 8, fill: C.fill, sw: hi ? 3.4 : 2.6, stroke: hi ? C.ink : C.soft });
       b.line(x - 18, top + 14, x + 18, top + 14, { sw: 2, stroke: C.soft });
-      on(b, p, .9 + i * .15, { loop: 3, ox: x, oy: 156, sy: [[0, 1], [.5, f, 'io'], [1.5, f], [2, 1, 'io']] });
+      on(b, p, .9 + i * .15, { loop: 3, ox: x, oy: 156, sy: [[0, 1], [.08, f > 1 ? .96 : 1.04, 'out'], [.55, f * (f > 1 ? 1.04 : .96), 'out'], [.75, f, 'soft'], [1.5, f], [1.95, 1, 'io'], [2.1, f > 1 ? .98 : 1.02, 'soft'], [2.3, 1, 'soft']] });
       on(bO, p, .25 + i * .1, { ox: x, oy: 156, sy: [[0, 0], [.35, 1.06, 'out'], [.5, 1]], o: [[0, 0], [.02, 1]] });
     });
   });
@@ -59,7 +59,8 @@
   rig('angry-pro', .6, 'pop', p => {
     const intro = sub(p), fc = sub(intro);
     face(fc); eyes(fc);
-    [-1, 1].forEach(sd => fc.line(sd * 88, -96, sd * 28, -68, { sw: 6 }));
+    const bw = sub(fc); [-1, 1].forEach(sd => bw.line(sd * 88, -96, sd * 28, -68, { sw: 6 }));
+    on(bw, p, .7, { loop: 2.4, y: [[0, 0], [.1, 8, 'out'], [.7, 8], [.95, 0, 'soft']] });
     fc.rect(-60, 58, 120, 42, { rx: 16, fill: C.fill, sw: 4 }); fc.line(-56, 79, 56, 79, { sw: 2.4 }); [-30, 0, 30].forEach(x => fc.line(x, 60, x, 98, { sw: 2.4 }));
     on(fc, p, .7, { loop: 2.4, s: [[0, 1], [.12, 1.05, 'out'], [.7, 1.05], [.95, 1, 'soft']], r: shakeKeys(9, 3.5, .05) });
     [-1, 1].forEach((sd, i) => { const st = sub(intro); st.path(`M ${sd * 104} -124 q ${sd * 12} -14 0 -28 q ${-sd * 12} -14 0 -28`, { sw: 3.2, stroke: C.soft });
@@ -87,7 +88,7 @@
     w.path('M -128 150 L -96 -36 Q -92 -56 -70 -56 L 70 -56 Q 92 -56 96 -36 L 128 150 Q 130 164 114 164 L -114 164 Q -130 164 -128 150 Z', { fill: C.fill, sw: 3.4 });
     w.line(-122, 132, 122, 132, { sw: 2.4, stroke: C.soft }); w.text('KG', 0, 78, { size: 64, weight: 800 });
     const du = sub(intro); [-1, 1].forEach(sd => { du.line(sd * 136, 162, sd * 176, 150, { sw: 3 }); du.line(sd * 140, 134, sd * 170, 112, { sw: 2.6, stroke: C.soft }); });
-    on(w, p, .7, { loop: 2.2, ox: 0, oy: 164, y: [[0, 0], [.2, 0], [.6, -40, 'out'], [.9, 0, 'in']], sy: [[0, 1], [.9, 1], [.96, .92, 'out'], [1.15, 1, 'soft']], sx: [[0, 1], [.9, 1], [.96, 1.05, 'out'], [1.15, 1, 'soft']] });
+    on(w, p, .7, { loop: 2.2, ox: 0, oy: 164, y: [[0, 0], [.3, 0], [.62, -40, 'out'], [.9, 0, 'in']], sy: [[0, 1], [.1, 1], [.26, .93, 'out'], [.4, 1.04], [.6, 1], [.9, 1], [.96, .9, 'out'], [1.08, 1.03], [1.2, 1, 'soft']], sx: [[0, 1], [.1, 1], [.26, 1.04, 'out'], [.4, .98], [.6, 1], [.9, 1], [.96, 1.06, 'out'], [1.08, .98], [1.2, 1, 'soft']] });
     on(du, p, .7, { loop: 2.2, o: flash(.9, 1.25) });
     thud(p, wO, 164, -200);
   });
@@ -96,7 +97,7 @@
   const BADGE = (() => { const a = []; for (let i = 0; i < 120; i++) { const t = i / 120 * Math.PI * 2, r = 142 + 12 * Math.cos(10 * t); a.push([+(Math.cos(t) * r).toFixed(1), +(Math.sin(t) * r).toFixed(1)]); } return a; })();
   rig('badge-percent-pro', .6, 'spin', p => {
     const intro = sub(p), b = sub(intro); b.shape(BADGE, { fill: C.fill, sw: 3.4 }); b.circle(0, 0, 112, { sw: 1.8, stroke: C.soft });
-    on(b, p, .7, { loop: 3, r: [[0, 0], [1.8, 0], [2.6, 36, 'io'], [3, 36]] });
+    on(b, p, .7, { loop: 3, r: [[0, 0], [1.7, 0], [1.82, -3, 'out'], [2.45, 39, 'io'], [2.65, 35, 'soft'], [2.8, 36, 'soft'], [3, 36]] });
     const pc = sub(intro); pc.line(-46, 58, 46, -58, { sw: 10 }); pc.circle(-42, -44, 20, { sw: 7 }); pc.circle(42, 44, 20, { sw: 7 });
     on(pc, p, .7, { loop: 3, s: [[0, 1], [2.5, 1], [2.65, 1.15, 'out'], [2.9, 1, 'soft']] });
     on(intro, p, 0, { s: [[0, .3], [.45, 1.08, 'out'], [.6, 1]], r: [[0, -120], [.55, 0, 'out']], o: [[0, 0], [.15, 1]] });
@@ -105,7 +106,8 @@
   /* building — rises out of the ground; its windows switch on and off as if people are working late */
   rig('building-pro', .7, 'squash', p => {
     const intro = sub(p), bO = sub(intro), bd = sub(bO);
-    bd.line(30, -176, 30, -196, { sw: 3 }); bd.circle(30, -198, 5, { fill: C.ink, sw: 1 });
+    bd.line(30, -176, 30, -196, { sw: 3 }); const al = sub(bd); al.circle(30, -198, 6, { fill: C.ink, sw: 1 });
+    on(al, p, .7, { loop: 1.2, ox: 30, oy: -198, o: [[0, 1], [.1, 1], [.14, .2], [1.1, .2], [1.14, 1]], s: [[0, 1.3], [.12, 1], [1.12, 1.3]] });
     bd.rect(-104, -168, 208, 338, { rx: 12, fill: C.fill, sw: 3.4 }); bd.rect(-114, -178, 228, 22, { rx: 6, fill: C.fill, sw: 3 });
     let i = 0;
     for (const y of [-136, -80, -24, 32]) for (const x of [-62, 22]) {
@@ -142,8 +144,9 @@
     m.shape([[112, -178], [58, -178], [-14, -44], [34, -30]], { fill: C.fill, sw: 3 });
     [[-85, -178, -10, -37], [85, -178, 10, -37]].forEach(([a, b, c, d]) => m.line(a, b + 6, c, d - 6, { sw: 2, stroke: C.soft }));
     m.rect(-22, -50, 44, 22, { rx: 8, fill: C.fill, sw: 2.8 });
-    m.circle(0, 52, 96, { fill: C.fill, sw: 3.4 }); m.circle(0, 52, 76, { sw: 1.8, stroke: C.soft });
-    m.shape(STAR5(0, 58, 44, 19), { fill: C.fill, sw: 2.8 });
+    const dk = sub(m); dk.circle(0, 52, 96, { fill: C.fill, sw: 3.4 }); dk.circle(0, 52, 76, { sw: 1.8, stroke: C.soft });
+    dk.shape(STAR5(0, 58, 44, 19), { fill: C.fill, sw: 2.8 });
+    on(dk, p, .7, { loop: 2.8, ox: 0, oy: -40, r: [[0, 0], [.95, 4, 'soft'], [2.35, -4, 'soft'], [2.8, 0, 'soft']] });
     on(m, p, .7, { loop: 2.8, ox: 0, oy: -178, r: [[0, 0], [.7, 5, 'soft'], [2.1, -5, 'soft'], [2.8, 0, 'soft']] });
     drop(p, mO, 0, -140);
   });
@@ -160,7 +163,7 @@
     bx.poly([[-130, -55], [0, -76], [130, -55]], { sw: 1.8, stroke: C.soft }); bx.line(0, -120, 0, -76, { sw: 1.8, stroke: C.soft });   // inner back walls
     bx.shape([[-130, -55], [0, 10], [0, 150], [-130, 85]], { fill: C.fill, sw: 3 });
     bx.shape([[0, 10], [130, -55], [130, 85], [0, 150]], { fill: C.fill, sw: 3 });
-    on(bx, p, .8, { loop: 2, ox: 0, oy: 150, y: [[0, 0], [1.1, 0], [1.3, -22, 'out'], [1.5, 0, 'in']], sy: [[0, 1], [1.5, 1], [1.56, .94, 'out'], [1.7, 1, 'soft']] });
+    on(bx, p, .8, { loop: 2, ox: 0, oy: 150, y: [[0, 0], [1.14, 0], [1.32, -24, 'out'], [1.5, 0, 'in']], sy: [[0, 1], [1, 1], [1.1, .94, 'out'], [1.2, 1.04], [1.32, 1], [1.5, 1], [1.56, .93, 'out'], [1.66, 1.02], [1.8, 1, 'soft']] });
     thud(p, bO, 150);
   });
 
@@ -210,7 +213,8 @@
     const intro = sub(p), gO = sub(intro), g = sub(gO);
     g.rect(-120, -10, 240, 170, { rx: 10, fill: C.fill, sw: 3.2 }); g.rect(-120, 56, 240, 34, { fill: C.fill, sw: 2.6 }); g.rect(-20, -10, 40, 170, { fill: C.fill, sw: 2.6 });
     const ld = sub(g);
-    [-1, 1].forEach(sd => ld.path(`M ${sd * -4} -74 C ${sd * 40} -140, ${sd * 122} -132, ${sd * 98} -96 C ${sd * 86} -78, ${sd * 40} -74, ${sd * 4} -74 Z`, { fill: C.fill, sw: 3 }));
+    [-1, 1].forEach(sd => { const bl = sub(ld); bl.path(`M ${sd * -4} -74 C ${sd * 40} -140, ${sd * 122} -132, ${sd * 98} -96 C ${sd * 86} -78, ${sd * 40} -74, ${sd * 4} -74 Z`, { fill: C.fill, sw: 3 });
+      on(bl, p, .7, { loop: 2.6, ox: 0, oy: -76, r: [[0, 0], [.6, 0], [.7, sd * -8, 'out'], [.9, sd * 10, 'io'], [1.05, sd * -5, 'io'], [1.2, sd * 2, 'io'], [1.35, 0, 'soft']] }); });
     ld.rect(-140, -74, 280, 64, { rx: 10, fill: C.fill, sw: 3.2 }); ld.rect(-20, -74, 40, 64, { fill: C.fill, sw: 2.6 });
     [-1, 1].forEach(sd => ld.path(`M ${sd * 6} -82 L ${sd * 40} -48 L ${sd * 30} -40 L ${sd * 20} -50 L ${sd * 14} -40 Z`, { fill: C.fill, sw: 2.4 }));
     ld.rect(-18, -92, 36, 24, { rx: 9, fill: C.fill, sw: 2.6 });
@@ -253,7 +257,9 @@
 
     t.circle(-104, 0, 64, { fill: C.fill, sw: 3.4 }); t.circle(-126, 0, 20, { sw: 3 });
     t.rect(-42, -22, 18, 44, { rx: 6, fill: C.fill, sw: 2.6 });
-    on(k, p, .7, { loop: 2.6, x: [[0, 0], [.3, 16, 'out'], [1.5, 16], [1.8, 0, 'io']], y: [[0, 0], [.3, -11.5, 'out'], [1.5, -11.5], [1.8, 0, 'io']] });
+    on(k, p, .7, { loop: 2.6, x: [[0, 0], [.12, -6, 'out'], [.34, 18, 'out'], [.42, 16, 'soft'], [1.5, 16], [1.8, 0, 'io']], y: [[0, 0], [.12, 4.3, 'out'], [.34, -12.9, 'out'], [.42, -11.5, 'soft'], [1.5, -11.5], [1.8, 0, 'io']] });
+    const ck = sub(intro); [[150, -150, 170, -170], [168, -122, 192, -130], [128, -170, 132, -194]].forEach(([a, b, c, d]) => ck.line(a, b, c, d, { sw: 3 }));
+    on(ck, p, .7, { loop: 2.6, o: [[0, 0], [.7, 0], [.72, 1], [1, 0]] });
     on(t, p, .7, { loop: 2.6, sy: [[0, 1], [.4, 1], [.7, -1, 'io'], [1.2, -1], [1.5, 1, 'io']] });
     on(kO, p, 0, { x: [[0, -170], [.6, 0, 'out']], y: [[0, 119], [.6, 0, 'out']], o: [[0, 0], [.15, 1]] });
   });
@@ -295,6 +301,7 @@
     const dO = sub(intro), d = sub(dO); d.path(DROP(0, 30, 96), { fill: C.fill, sw: 3.4 });
     on(d, p, .7, { loop: 2.2, ox: 0, oy: 155, sy: [[0, 1], [.1, .88, 'out'], [.3, 1.06], [.5, .97], [.7, 1, 'soft']], sx: [[0, 1], [.1, 1.08, 'out'], [.3, .96], [.5, 1.02], [.7, 1, 'soft']],
       y: [[0, 0], [1.6, 0], [1.9, -24, 'out'], [2.2, 0, 'in']] });
+    const st = sub(dO); st.g.appendChild(d.g); on(st, p, .7, { loop: 2.2, ox: 0, oy: 155, sy: [[0, 1], [1.45, 1], [1.6, .92, 'out'], [1.85, 1.08, 'out'], [2.1, 1.04], [2.2, 1]], sx: [[0, 1], [1.45, 1], [1.6, 1.06, 'out'], [1.85, .95, 'out'], [2.2, 1]] });
     drop(p, dO, 0, -150);
   });
 
