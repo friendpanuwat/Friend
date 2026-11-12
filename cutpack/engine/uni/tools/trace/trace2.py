@@ -3,7 +3,7 @@ import sys, os, json, cv2, numpy as np
 sys.path.insert(0, '.')
 from cells import CELLS
 from picks import P, ACC, THR, DROP, MINA, THICK, TB, EDGE, CLOSE, HOLE, GAP, SEAL
-from picks import THICKB, THRB, DARK, ERASE, BCLOSE, SEALF, ACCC, HOLEF, HL, ACCGAP, FADE, HOLEMU, THICKA, ACCLMIN, ACCSMALL, BOPEN, ACCLEDGE, FADEW, PARTS
+from picks import THICKB, THRB, DARK, ERASE, BCLOSE, SEALF, ACCC, HOLEF, HL, ACCGAP, FADE, HOLEMU, THICKA, ACCLMIN, ACCSMALL, BOPEN, ACCLEDGE, FADEW, PARTS, PATCH
 S = 5; out = {}
 for id_, cat, nm, (f, x0, y0, x1, y1) in CELLS:
     g = cv2.imread(f, cv2.IMREAD_GRAYSCALE)[y0:y1, x0:x1]; h, w = g.shape
@@ -111,7 +111,18 @@ for id_, cat, nm, (f, x0, y0, x1, y1) in CELLS:
     mid = (mid & (1 - acc)).astype(np.uint8)
     # the accent zone: the accent regions closed over the thin lines inside them (numbers, letters, facets); lines there take
     # the accent's own ink so they do not fade into it
-    accz = cv2.morphologyEx(acc, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (27, 27))) & (1 - acc) & L
+    zc = cv2.morphologyEx(acc, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (27, 27)))
+    accz = zc & (1 - acc) & L
+    # a mark that lies (mostly) in the accent (a number, a letter, the needle) takes the accent ink whole, not just where the
+    # closing reached: else it shows two inks in the styles whose ink and accent ink differ (split, dark cards)
+    zn_, zl_, zs_, _ = cv2.connectedComponentsWithStats(L.astype(np.uint8), 8)
+    for i in range(1, zn_):
+        x, y, ww, hh, a = zs_[i]
+        x0_, y0_, x1_, y1_ = max(0, x - 6), max(0, y - 6), min(L.shape[1], x + ww + 6), min(L.shape[0], y + hh + 6)
+        r = (zl_[y0_:y1_, x0_:x1_] == i).astype(np.uint8)
+        ring = cv2.dilate(r, np.ones((9, 9), np.uint8)) & (1 - r)              # what lies just round the mark
+        if zc[y0_:y1_, x0_:x1_][r > 0].mean() > .6 or acc[y0_:y1_, x0_:x1_][ring > 0].mean() > .75:
+            accz[y0_:y1_, x0_:x1_][r > 0] = 1
     if id_ in ACCLEDGE:
         dout = cv2.distanceTransform(sil.astype(np.uint8), cv2.DIST_L2, 3)
         accz = accz & (dout > ACCLEDGE[id_] * S).astype(np.uint8)
@@ -247,6 +258,9 @@ for id_, cat, nm, (f, x0, y0, x1, y1) in CELLS:
                 fp = cv2.dilate(fp, np.ones((5, 5), np.uint8))
                 for k in ('body', 'acc'):
                     restM[k] |= fill_holes(restM[k] | fp) & fp & fill_holes(restM[k])
+        for (ax, ay), (bx2, by2), th in PATCH.get(id_, []):
+            cv2.line(restM['lines'], (X(ax), Y(ay)), (X(bx2), Y(by2)), 1, max(1, int(th * h * S)))
+            restM['body'] = fill_holes(restM['body'] | restM['lines'])
         if sum(v.sum() for v in restM.values()) > S * S * 2 or not parts: parts.append(['rest', restM, None, {}])
     P_out = []
     for nm_, pm, pv, opt in parts:
@@ -266,6 +280,8 @@ for id_, cat, nm, (f, x0, y0, x1, y1) in CELLS:
         for i, (nm_, pm, pv, opt) in enumerate(parts): im[(pm['body'] | pm['acc'] | pm['hole']) > 0] = np.array(pal[i % len(pal)], np.uint8) // 3
         for i, (nm_, pm, pv, opt) in enumerate(parts): im[(pm['lines'] | pm['accl'] | pm['hl']) > 0] = np.array(pal[i % len(pal)], np.uint8)
         cv2.imwrite(f'pt_{id_}.png', im)
+        rm = [pm for nm_, pm, pv, opt in parts if nm_ == 'rest']
+        if rm: cv2.imwrite(f'rs_{id_}.png', np.dstack([rm[0]['body'] * 90, rm[0]['body'] * 90 + rm[0]['acc'] * 120, rm[0]['body'] * 90]) + np.dstack([rm[0]['lines'] * 165] * 3))
     out[id_] = {'cat': cat, 'name': nm, 'w': round(L.shape[1] / S, 1), 'h': round(L.shape[0] / S, 1), 'parts': P_out,
                 'lines': path(L, cv2.RETR_CCOMP), 'body': path(sil, cv2.RETR_EXTERNAL), 'mid': '', 'acc': path(acc, cv2.RETR_CCOMP, 1.2, 3), 'accl': path(accz.astype(np.uint8), cv2.RETR_CCOMP, 1.0, .3),
                 'hl': path(hl, cv2.RETR_CCOMP, 1.0, .3), 'hole': path(holes, cv2.RETR_CCOMP, 1.2, 3) if id_ in HOLEF else '', 'fade': FADE.get(id_, ''), 'fw': FADEW.get(id_, '')}

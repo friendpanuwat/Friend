@@ -6,7 +6,7 @@ const fs = require('fs'), path = require('path'), vm = require('vm'), assert = r
 const load = () => {
   const ctx = {SCENE() {}, LAYOUTS: {}, console};
   vm.createContext(ctx);
-  for (const f of ['scenes/cats.js', 'scenes/lego_r2.js', 'scenes/lego_r3.js', 'scenes/lego_r4.js', 'scenes/lego_r5.js', 'scenes/lego_r6.js', 'scenes/lego_r6b.js', 'scenes/lego_r7.js', 'scenes/lego_r8.js', 'scenes/lego_r9.js', 'scenes/lego_r9b.js', 'scenes/lego_r9c.js', 'scenes/lego_r9d.js', 'scenes/lego_v2.js', 'scenes/ui.js']) vm.runInContext(fs.readFileSync(path.join(__dirname, f), 'utf8'), ctx);
+  for (const f of ['scenes/cats.js', 'scenes/lego_r2.js', 'scenes/lego_r3.js', 'scenes/lego_r4.js', 'scenes/lego_r5.js', 'scenes/lego_r6.js', 'scenes/lego_r6b.js', 'scenes/lego_r7.js', 'scenes/lego_r8.js', 'scenes/lego_r9.js', 'scenes/lego_r9b.js', 'scenes/lego_r9c.js', 'scenes/lego_r9d.js', 'scenes/lego_r9e.js', 'scenes/lego_v2.js', 'scenes/ui.js']) vm.runInContext(fs.readFileSync(path.join(__dirname, f), 'utf8'), ctx);
   vm.runInContext('this.pick = (c, s, prefer) => pickVariant(c, s, s.say.join(" "), prefer).id; this.reset = () => { for (const k in PICKS) delete PICKS[k]; }; this.CATS = CATS;', ctx);
   return ctx;
 };

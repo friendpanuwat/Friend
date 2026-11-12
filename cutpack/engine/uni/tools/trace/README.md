@@ -9,3 +9,8 @@
 - `dbg.py out ids…` ต้นฉบับข้างผลลอก มีตารางสัดส่วน · `tz.py id x0 y0 x1 y1 out` ซูมผลลอก · `cell.py out id[:x0,y0,x1,y1]` ซูมต้นฉบับ
 
 รันในโฟลเดอร์นี้: `python3 trace2.py` แล้วเอา `traced.json` ไปแทน `G12D` ใน `sketches/r12g.js` (คีย์ w h lines body acc accl hl hole fade) · วิธีตรวจก่อนส่ง: LESSONS 56
+
+## ชิ้นที่ขยับได้ (รอบที่ 12, Friend: "ใส่การเคลื่อนไหวให้ 26 ร่างลายเส้น แล้วย้ายเข้าคลัง")
+- `PARTS` ใน `picks.py` ตัดภาพเป็นชิ้น (ดูคำอธิบายในไฟล์) · `PARTVIEW=1 python3 trace2.py` เขียน `pt_<ร่าง>.png` (สีต่อชิ้น) และ `rs_<ร่าง>.png` (เฉพาะส่วนที่เหลือ) · `ptv.py out ids…` รวมภาพสีต่อชิ้น · `tzp.py` / `tzr.py` ซูมแบบ `tz.py`
+- `COMPS=<ร่าง,…> python3 trace2.py` พิมพ์กรอบของทุกก้อนเส้นเป็นสัดส่วนของช่อง (ใช้ตั้งกรอบชิ้น)
+- `build_r12g.py` เขียน `scenes/lego_r9e.js` = ข้อมูล + `r12g_code.js` (การเคลื่อนไหว) + ประโยคตัวอย่าง
