@@ -29,10 +29,11 @@
   };
   const R = {}, rig = (name, dur, fn) => { fn.custom = true; fn.dur = dur; R[name] = fn; };
 
-  /* book — closed book; the cover peeks open on its spine, ribbon sways */
+  /* book — closed notebook; the cover peeks open on its spine to show ruled pages, ribbon sways */
   rig('book-pro', .6, p => {
     const intro = sub(p);
     intro.rect(-120, -150, 250, 300, { rx: 14, fill: C.fill, sw: 2.6 });
+    for (let y = -108; y <= 120; y += 32) intro.line(-104, y, 114, y, { sw: 2, stroke: C.soft });   // ruled notebook lines, seen when the cover opens
     const rb = sub(intro); rb.path('M 70 140 L 70 196 L 82 184 L 94 196 L 94 140', { fill: C.fill, sw: 2 });
     on(rb, p, .7, { loop: 2.4, ox: 82, oy: 140, r: [[0, 0], [.6, 6, 'soft'], [1.8, -6, 'soft'], [2.4, 0, 'soft']] });
     const cv = sub(intro);
