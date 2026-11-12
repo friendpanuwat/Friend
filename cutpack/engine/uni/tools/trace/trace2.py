@@ -1,9 +1,9 @@
 """trace every pick: lines (bright cores, even-odd), body (silhouette), mid (the sheet's grey fills inside the body)."""
-import sys, json, cv2, numpy as np
+import sys, os, json, cv2, numpy as np
 sys.path.insert(0, '.')
 from cells import CELLS
 from picks import P, ACC, THR, DROP, MINA, THICK, TB, EDGE, CLOSE, HOLE, GAP, SEAL
-from picks import THICKB, THRB, DARK, ERASE, BCLOSE, SEALF, ACCC, HOLEF, HL, ACCGAP, FADE, HOLEMU, THICKA, ACCLMIN, ACCSMALL, BOPEN, ACCLEDGE, FADEW
+from picks import THICKB, THRB, DARK, ERASE, BCLOSE, SEALF, ACCC, HOLEF, HL, ACCGAP, FADE, HOLEMU, THICKA, ACCLMIN, ACCSMALL, BOPEN, ACCLEDGE, FADEW, PARTS
 S = 5; out = {}
 for id_, cat, nm, (f, x0, y0, x1, y1) in CELLS:
     g = cv2.imread(f, cv2.IMREAD_GRAYSCALE)[y0:y1, x0:x1]; h, w = g.shape
@@ -135,7 +135,138 @@ for id_, cat, nm, (f, x0, y0, x1, y1) in CELLS:
             a = cv2.approxPolyDP(c, tol, True).reshape(-1, 2) / S
             if len(a) >= 3: d.append('M' + 'L'.join(f'{x:.1f} {y:.1f}' for x, y in a) + 'Z')
         return ''.join(d)
-    out[id_] = {'cat': cat, 'name': nm, 'w': round(L.shape[1] / S, 1), 'h': round(L.shape[0] / S, 1),
+    # ---- parts: the picture cut into pieces that move on their own (motion); every pixel goes to exactly one part, except a
+    # 'region' part (share) that also keeps the lines it shares with its neighbours (jigsaw pieces) ----
+    if id_ not in HOLEF: holes = np.zeros_like(L)
+    M = {'lines': L.astype(np.uint8), 'body': sil.astype(np.uint8), 'acc': acc.astype(np.uint8), 'accl': accz.astype(np.uint8),
+         'hl': hl.astype(np.uint8), 'hole': holes.astype(np.uint8)}
+    U = np.zeros_like(L)
+    for m in M.values(): U |= m
+    LAY = list(M)
+    pool = {k: M[k].copy() for k in LAY}; parts = []
+    if os.environ.get('COMPS') and id_ in os.environ['COMPS'].split(','):
+        cn, cl, cs, _ = cv2.connectedComponentsWithStats(U, connectivity=8)
+        fx = lambda v: (v / S + X0) / w; fy = lambda v: (v / S + Y0) / h
+        print(id_, [(round(fx(x), 3), round(fy(y), 3), round(fx(x + ww), 3), round(fy(y + hh), 3)) for x, y, ww, hh, a in cs[1:] if a > S * S * 1])
+    def inbox(px, py, b): return X(b[0]) <= px <= X(b[2]) and Y(b[1]) <= py <= Y(b[3])
+    def fill_holes(m):
+        iv = np.pad((1 - m).astype(np.uint8), 1, constant_values=1); mm = np.zeros((iv.shape[0] + 2, iv.shape[1] + 2), np.uint8)
+        cv2.floodFill(iv, mm, (0, 0), 2); return (iv[1:-1, 1:-1] != 2).astype(np.uint8)
+    for spec in PARTS.get(id_, []):
+        name, kind, arg = spec[:3]; opt = spec[3] if len(spec) > 3 else {}
+        lay = opt.get('only', LAY); share = kind == 'region' and opt.get('share', False)
+        cur = np.zeros_like(U)
+        for k in lay: cur |= pool[k]
+        masks = []
+        if kind == 'box':
+            m = np.zeros_like(U); m[box(*arg)] = 1; masks = [m]
+        elif kind == 'poly':
+            m = np.zeros_like(U); cv2.fillPoly(m, [np.array([[X(a), Y(b)] for a, b in arg], np.int32)], 1); masks = [m]
+        elif kind == 'reflectcut':                      # a thin thing stuck in a round one (the arrow in the target): what it covers is
+            wide = np.zeros_like(U); cv2.fillPoly(wide, [np.array([[X(a), Y(b)] for a, b in arg[0]], np.int32)], 1)   # put back by mirroring
+            fl = np.zeros_like(U); cv2.fillPoly(fl, [np.array([[X(a), Y(b)] for a, b in arg[1]], np.int32)], 1)        # the round thing
+            R = opt['r'] * w * S; cx0, cy0 = X(opt['pivot'][0]), Y(opt['pivot'][1])                                 # through its centre
+            yy, xx = np.mgrid[0:U.shape[0], 0:U.shape[1]]
+            ring = (M['body'] > 0) & (wide == 0) & (fl == 0) & (np.hypot(xx - cx0, yy - cy0) < R * 1.1)
+            cs_, _ = cv2.findContours(ring.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+            pts = np.vstack([c.reshape(-1, 2) for c in cs_]).astype(float)
+            pts = pts[np.abs(np.hypot(pts[:, 0] - cx0, pts[:, 1] - cy0) - R) < R * .1]
+            A_ = np.c_[2 * pts[:, 0], 2 * pts[:, 1], np.ones(len(pts))]; sol = np.linalg.lstsq(A_, (pts ** 2).sum(1), rcond=None)[0]
+            cx_, cy_ = sol[0], sol[1]; rr = np.sqrt(sol[2] + cx_ ** 2 + cy_ ** 2)
+            if os.environ.get('COMPS'): print(id_, 'circle', round(cx_ / S, 1), round(cy_ / S, 1), round(rr / S, 1))
+            reg = (wide > 0) & (fl == 0) & (np.hypot(xx - cx_, yy - cy_) <= rr + 2 * S)
+            # put back by turning the round thing a little round its centre, just past the band (nearby, so a ring that is not
+            # quite round still meets itself)
+            fx_, fy_ = np.nonzero(fl)[1].mean(), np.nonzero(fl)[0].mean(); ux_, uy_ = fx_ - cx_, fy_ - cy_; ul = np.hypot(ux_, uy_); ux_, uy_ = ux_ / ul, uy_ / ul
+            wp = np.array([[X(a), Y(b)] for a, b in arg[0]], float); hw = np.abs((wp[:, 0] - cx_) * -uy_ + (wp[:, 1] - cy_) * ux_).max()
+            rad = np.hypot(xx - cx_, yy - cy_) + 1e-6; th = np.arctan2(yy - cy_, xx - cx_)
+            dl = np.arcsin(np.minimum(1, hw / rad)) * 1.25 + .05
+            sx = np.clip(np.round(cx_ + rad * np.cos(th + dl)), 0, U.shape[1] - 1).astype(int); sy = np.clip(np.round(cy_ + rad * np.sin(th + dl)), 0, U.shape[0] - 1).astype(int)
+            bad = (wide[sy, sx] > 0) | (fl[sy, sx] > 0)     # still in the band (near the centre): from the far side
+            sx2 = np.clip(np.round(cx_ - rad * np.cos(th)), 0, U.shape[1] - 1).astype(int); sy2 = np.clip(np.round(cy_ - rad * np.sin(th)), 0, U.shape[0] - 1).astype(int)
+            sx = np.where(bad, sx2, sx); sy = np.where(bad, sy2, sy)
+            Rf = {kk: np.where(reg, M[kk][sy, sx], 0).astype(np.uint8) for kk in LAY}
+            core = reg & (rad < hw * 1.2)                 # the very middle: plain, as the middle is just past the band
+            rx_, ry_ = int(round(cx_ - ux_ * hw * 1.5)), int(round(cy_ - uy_ * hw * 1.5))
+            for kk in LAY: Rf[kk][core] = M[kk][ry_, rx_] if kk in ('body', 'acc', 'hole') else 0
+            ink = (M['lines'] | M['accl']) & wide; rink = cv2.dilate(Rf['lines'] | Rf['accl'], np.ones((3, 3), np.uint8))
+            shaft = (ink & (1 - rink)).astype(np.uint8)
+            ang = np.arctan2(fy_ - cy_, fx_ - cx_); Lk = int(4 * S)
+            ker = np.zeros((2 * Lk + 1, 2 * Lk + 1), np.uint8); cv2.line(ker, (int(Lk - Lk * np.cos(ang)), int(Lk - Lk * np.sin(ang))), (int(Lk + Lk * np.cos(ang)), int(Lk + Lk * np.sin(ang))), 1, 1)
+            shaft = cv2.morphologyEx(shaft, cv2.MORPH_CLOSE, ker) & wide
+            sn, sl, ss, _ = cv2.connectedComponentsWithStats(shaft, 8)          # keep the shaft, not crumbs
+            if sn > 1: shaft = (sl == 1 + np.argmax(ss[1:, 4])).astype(np.uint8)
+            m = shaft | fl
+            masks = [m]
+            for kk in LAY:                              # the rest gets the mirrored rings in the band
+                pool[kk] = np.where(reg, Rf[kk], pool[kk]).astype(np.uint8)
+            M_arrow = {kk: ((M[kk] & fl) | (shaft & (M['lines'] | M['accl']) if kk == 'lines' else 0)).astype(np.uint8) for kk in LAY}
+        elif kind == 'poly2':                           # several polygons
+            m = np.zeros_like(U)
+            for pg in arg: cv2.fillPoly(m, [np.array([[X(a), Y(b)] for a, b in pg], np.int32)], 1)
+            masks = [m]
+        elif kind in ('comp', 'comps'):
+            on = np.zeros_like(U)
+            for k in opt.get('on', lay): on |= pool[k]
+            cn, cl, cs, _ = cv2.connectedComponentsWithStats(on, connectivity=8); got = []
+            for i in range(1, cn):
+                x, y, ww, hh, a = cs[i]
+                if a >= S * S * 1 and a <= S * S * opt.get('maxa', 1e9) and inbox(x + ww / 2, y + hh / 2, arg): got.append((x + ww / 2, y + hh / 2, (cl == i).astype(np.uint8)))
+            if kind == 'comp': masks = [np.bitwise_or.reduce([g[2] for g in got])] if got else []
+            else: masks = [g[2] for g in sorted(got, key=lambda g: (g[1], g[0]) if opt.get('sort') == 'y' else (g[0], g[1]))]
+        elif kind == 'region':
+            r = np.zeros_like(U)
+            for a, b in arg:
+                lb = lab2[min(Y(b), lab2.shape[0] - 1), min(X(a), lab2.shape[1] - 1)]
+                if not lb: raise SystemExit(f'{id_}: part {name}: seed {a, b} is on no enclosed area')
+                r |= (lab2 == lb).astype(np.uint8)
+            if os.environ.get('COMPS'): print(id_, name, 'region area', r.sum() // (S * S))
+            r = fill_holes(r); d = int(opt.get('d', 5) * S)
+            masks = [cv2.dilate(r, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * d + 1, 2 * d + 1)))]
+        masks = [m & cur for m in masks]
+        if not masks or not masks[0].any(): raise SystemExit(f'{id_}: part {name} is empty')
+        for k, m in enumerate(masks):
+            nm_ = name if len(masks) == 1 else f'{name}{k}'
+            pm = {kk: (pool[kk] & m if kk in lay else np.zeros_like(U)) for kk in LAY} if kind != 'reflectcut' else M_arrow
+            if not share and kind != 'reflectcut':
+                for kk in lay: pool[kk] &= 1 - m
+            if kind == 'reflectcut':
+                for kk in LAY: pool[kk] &= 1 - fl
+            pv = (X(opt['pivot'][0]) / S, Y(opt['pivot'][1]) / S) if 'pivot' in opt else None
+            parts.append([nm_, pm, pv, opt])
+    allm = np.zeros_like(U)
+    for nm_, pm, pv, opt in parts:
+        if opt.get('share'):
+            for v in pm.values(): allm |= v
+    restM = {k: v & (1 - allm) for k, v in pool.items()}   # shared lines belong to their parts, not to the rest
+    if any(v.sum() for v in restM.values()):
+        for nm_, pm, pv, opt in parts:                  # what was under a part closes over its footprint
+            if opt.get('under'):
+                fp = np.zeros_like(U)
+                for v in pm.values(): fp |= v
+                fp = cv2.dilate(fp, np.ones((5, 5), np.uint8))
+                for k in ('body', 'acc'):
+                    restM[k] |= fill_holes(restM[k] | fp) & fp & fill_holes(restM[k])
+        if sum(v.sum() for v in restM.values()) > S * S * 2 or not parts: parts.append(['rest', restM, None, {}])
+    P_out = []
+    for nm_, pm, pv, opt in parts:
+        m = np.zeros_like(U)
+        for v in pm.values(): m |= v
+        ys, xs = np.nonzero(m)
+        bb = [round(xs.min() / S, 1), round(ys.min() / S, 1), round((xs.max() + 1) / S, 1), round((ys.max() + 1) / S, 1)]
+        ab = None
+        if pm['acc'].any():
+            ay, ax = np.nonzero(pm['acc']); ab = [round(ax.min() / S, 1), round(ay.min() / S, 1), round((ax.max() + 1) / S, 1), round((ay.max() + 1) / S, 1)]
+        P_out.append({'n': nm_, 'bb': bb, 'ab': ab, 'pv': [round(pv[0], 1), round(pv[1], 1)] if pv else [round((bb[0] + bb[2]) / 2, 1), round((bb[1] + bb[3]) / 2, 1)],
+                      'lines': path(pm['lines'], cv2.RETR_CCOMP), 'body': path(pm['body'], cv2.RETR_EXTERNAL), 'acc': path(pm['acc'], cv2.RETR_CCOMP, 1.2, 3),
+                      'accl': path(pm['accl'], cv2.RETR_CCOMP, 1.0, .3), 'hl': path(pm['hl'], cv2.RETR_CCOMP, 1.0, .3), 'hole': path(pm['hole'], cv2.RETR_CCOMP, 1.2, 3)})
+    if os.environ.get('PARTVIEW'):                      # one colour per part
+        pal = [(80, 80, 255), (80, 220, 80), (255, 120, 60), (60, 200, 255), (255, 80, 200), (200, 200, 60), (160, 100, 255), (255, 255, 255), (120, 255, 200), (255, 160, 160)]
+        im = np.zeros(U.shape + (3,), np.uint8)
+        for i, (nm_, pm, pv, opt) in enumerate(parts): im[(pm['body'] | pm['acc'] | pm['hole']) > 0] = np.array(pal[i % len(pal)], np.uint8) // 3
+        for i, (nm_, pm, pv, opt) in enumerate(parts): im[(pm['lines'] | pm['accl'] | pm['hl']) > 0] = np.array(pal[i % len(pal)], np.uint8)
+        cv2.imwrite(f'pt_{id_}.png', im)
+    out[id_] = {'cat': cat, 'name': nm, 'w': round(L.shape[1] / S, 1), 'h': round(L.shape[0] / S, 1), 'parts': P_out,
                 'lines': path(L, cv2.RETR_CCOMP), 'body': path(sil, cv2.RETR_EXTERNAL), 'mid': '', 'acc': path(acc, cv2.RETR_CCOMP, 1.2, 3), 'accl': path(accz.astype(np.uint8), cv2.RETR_CCOMP, 1.0, .3),
                 'hl': path(hl, cv2.RETR_CCOMP, 1.0, .3), 'hole': path(holes, cv2.RETR_CCOMP, 1.2, 3) if id_ in HOLEF else '', 'fade': FADE.get(id_, ''), 'fw': FADEW.get(id_, '')}
     cv2.imwrite(f'tr_{id_}.png', np.dstack([mid * 120 + acc * 40, sil * 60 + L * 195 + acc * 120, L * 255 + acc * 200]))

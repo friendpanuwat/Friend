@@ -69,3 +69,55 @@ BOPEN = {}                                                      # (box, kernel S
 ACCLEDGE = {'micdrop': 3.5}                                     # accent ink keeps this far (sheet px) from the outside: the outline stays ink with what sticks to it
 ACCSMALL = {'micdrop': 40}                                      # inside bits smaller than this (sheet px²) next to the accent take it
 ACCLMIN = {'micdrop': 14}                                       # smallest piece of accent ink kept (sheet px²; default 1): the grille's dots go
+
+# ---- parts for motion (Friend 2026-11-12: "ใส่การเคลื่อนไหวให้ 26 ร่างลายเส้น แล้วย้ายเข้าคลัง") ----
+# (name, kind, arg, opts): box (x0, y0, x1, y1) pixels · poly [points] pixels · comp box = the whole pieces whose middle is in it ·
+# comps box = one part per piece (opts sort 'x'|'y') · region [seeds] = the enclosed areas at the seeds + the lines round them
+# (opts d sheet px, share: lines shared with neighbours stay in both) · opts pivot (x, y) cell fractions · under: what is
+# beneath closes over the part's footprint. What no part takes is the part 'rest'.
+LO = {'only': ['lines', 'accl']}
+QO = {'only': ['lines', 'accl'], 'on': ['lines', 'accl'], 'maxa': 400}   # a small glyph (?) of the lines only   # a part of the lines only (the paper under it stays)
+PARTS = {
+ 'roadmap': [('start', 'box', (.13, .55, .215, .86)), ('pin', 'box', (.455, .27, .505, .405)), ('goal', 'box', (.775, .14, .86, .40))],
+ 'path': [('x1', 'comp', (.29, .29, .35, .44)), ('x2', 'comp', (.07, .7, .16, .9)), ('x3', 'comp', (.34, .7, .44, .97)),
+          ('arrow', 'comp', (.5, .45, .93, .62)), ('check', 'comp', (.74, .68, .93, .98))],
+ 'target': [('arr', 'comps', (.1, .2, .345, .98)), ('x', 'comp', (.35, .74, .43, .96)), ('check', 'comp', (.84, .72, .93, .96))],
+ 'choice': [('q1', 'comp', (.03, .58, .24, .86)), ('q2', 'comp', (.7, .33, .97, .6)),
+            ('rowA', 'box', (.29, .385, .67, .48), LO), ('rowB', 'box', (.29, .48, .67, .58), LO), ('rowC', 'box', (.29, .58, .67, .68), LO),
+            ('rowD', 'box', (.29, .68, .67, .785), LO)],
+ 'maze': [('q', 'comp', (.45, .42, .58, .64), {**QO, 'maxa': 1500})],
+ 'puzzle': [('piece', 'region', [(.78, .25)], {'d': 5}), ('q', 'comp', (.45, .42, .58, .66), {**QO, 'maxa': 3000})],
+ 'scales': [('beam', 'box', (.2, .06, .8, .245), {'pivot': (.52, .2)}), ('panL', 'box', (.12, .245, .4, .79), {'pivot': (.30, .215)}),
+            ('panR', 'box', (.58, .245, .86, .79), {'pivot': (.745, .215)})],
+ 'compass': [('needle', 'poly', [(.828, .394), (.803, .515), (.805, .545), (.801, .578), (.742, .707), (.775, .566), (.773, .536), (.777, .506)], {'under': True, 'pivot': (.789, .542)}), ('arc1', 'comp', (.83, .17, .9, .42)),
+             ('arc2', 'comp', (.67, .69, .74, .93))],
+ 'stop': [('word', 'box', (.17, .47, .35, .70), LO)],
+ 'pit': [('arrow', 'comp', (.74, .58, .78, .64))],
+ 'star': [('star', 'comp', (.7, .45, .82, .7))],
+ 'breakwall': [('wallL', 'comp', (.1, .4, .31, .96)), ('wallR', 'comp', (.36, .4, .46, .96)), ('deb', 'comps', (.25, .25, .37, .95), {'sort': 'y'})],
+ 'jigsaw': [('pA', 'region', [(.85, .4)], {'share': True}), ('pB', 'region', [(.68, .8)], {'share': True}), ('pC', 'region', [(.85, .8)], {'share': True})],
+ 'countdown': [('t3', 'comp', (.15, .25, .36, .97)), ('t2', 'comp', (.4, .25, .6, .97)), ('t1', 'comp', (.64, .25, .85, .97))],
+ 'match': [('match', 'comp', (.1, .25, .36, 1)), ('arrow', 'comp', (.4, .45, .62, .85)), ('flames', 'box', (.69, .28, .9, .715))],
+ 'iceberg': [('water', 'box', (.55, .54, .95, .575)), ('tip', 'box', (.6, .25, .9, .54))],
+ 'map': [('pin', 'region', [(.855, .36), (.855, .45)], {'d': 4, 'under': True}), ('x', 'box', (.823, .722, .869, .862), {'only': ['lines', 'acc', 'accl']}),
+         ('start', 'box', (.662, .64, .705, .8), LO), ('route', 'box', (.655, .42, .83, .87), LO)],
+ 'shortcut': [('left', 'comp', (.08, .25, .33, .9)), ('arrow', 'comp', (.33, .4, .66, .8)), ('right', 'comp', (.65, .2, .92, .9))],
+ 'cheat': [('star', 'region', [(.215, .45)], {'d': 4, 'under': True}), ('ln', 'comps', (.16, .54, .29, .86), {'only': ['lines'], 'sort': 'y'})],
+ 'nugget': [('rocksL', 'comp', (.1, .3, .35, .97)), ('diamond', 'comp', (.77, .6, .81, .68)), ('rocksR', 'comp', (.68, .66, .9, .97))],
+ 'knockout': [('gloveL', 'comp', (.37, .68, .41, .73)), ('gloveR', 'comp', (.70, .63, .74, .67)), ('speedL', 'comp', (.05, .4, .40, 1)),
+              ('speedR', 'comp', (.8, .4, .95, .75))],
+ 'anatomy': [('cube', 'comp', (.72, .53, .76, .57)), ('pTL', 'comp', (.61, .41, .65, .45)), ('pTR', 'comp', (.82, .36, .86, .40)),
+             ('pBR', 'comp', (.81, .80, .85, .84)), ('pBL', 'comp', (.63, .80, .67, .84))],
+}
+
+# the target's arrow (it flies in): measured on a zoom of the trace (px → cell fractions); the shaft band + the fletching are the
+# arrow; under it the rings are put back by mirroring the target through its centre ('reflect': the wide band, the target's radius)
+def _z(x, y): return (round(.6365 + x / 2875, 4), round(.2318 + y / 975, 4))
+def _band(p0, p1, hw, back=0):
+    import math
+    dx, dy = p1[0] - p0[0], p1[1] - p0[1]; L = math.hypot(dx, dy); ux, uy = dx / L, dy / L; nx, ny = -uy, ux
+    a = (p0[0] - ux * back, p0[1] - uy * back)
+    return [(a[0] + nx * hw, a[1] + ny * hw), (p1[0] + nx * hw, p1[1] + ny * hw), (p1[0] - nx * hw, p1[1] - ny * hw), (a[0] - nx * hw, a[1] - ny * hw)]
+_FL = [(552, 150), (560, 104), (626, 22), (652, 12), (712, 70), (646, 168), (590, 192)]
+PARTS['target'].append(('arrow', 'reflectcut', ([_z(*q) for q in _band((343, 384), (566, 174), 34, 40)], [_z(*q) for q in _FL]),
+                        {'r': .098, 'pivot': _z(345, 382)}))
