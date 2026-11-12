@@ -1,0 +1,70 @@
+{
+ "status": "ok",
+ "topic": "biz",
+ "log": [
+  "code mended 1 numbers: 6 → 5 errors",
+  "fix round (plan): 5 errors sent back",
+  "fix round on claude-haiku-5-5",
+  "code mended 18 numbers in the fixed plan"
+ ],
+ "fallback": [],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B05.v1 11.2",
+   "msg": "two scenes of the same category in a row",
+   "scene": 3
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B07.v3 44.0",
+   "msg": "two scenes of the same category in a row",
+   "scene": 12
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 41.68–44.0 \"แบบแค่เป็น รายได้ / เสริมอ่ะ\"",
+   "msg": "chunk \"แบบแค่เป็น รายได้\" is 13 letters, aim ≤ 12",
+   "sub": 13
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 46.24–47.28 \"ผมทำ คอนเทนต์แล้ว / ผมก็ ทำเป็น\"",
+   "msg": "chunk \"ผมทำ คอนเทนต์แล้ว\" is 13 letters, aim ≤ 12",
+   "sub": 14
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 49.52–50.8 \"เซตผมมันไม่ เหมือนกับ / อย่างงี้เลย\"",
+   "msg": "chunk \"เซตผมมันไม่ เหมือนกับ\" is 16 letters, aim ≤ 12",
+   "sub": 15
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 56.64–58.72 \"เป็นช่องทาง หารายได้ / เสริมที่ดี\"",
+   "msg": "chunk \"เป็นช่องทาง หารายได้\" is 16 letters, aim ≤ 12",
+   "sub": 17
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 58.72–60.581 \"ซึ่งถ้า คุณแค่ / คิดว่ามันเป็น รายได้\"",
+   "msg": "chunk \"คิดว่ามันเป็น รายได้\" is 14 letters, aim ≤ 12",
+   "sub": 18
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[0] push 8.5",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 0
+  }
+ ]
+}

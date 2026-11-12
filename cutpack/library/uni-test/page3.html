@@ -1,0 +1,157 @@
+<title>ชุดฐานแบบเลโก้</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* layout: one reading column; a section per story frame; each recipe = its words + recipe line + the same picture in 3 styles */
+:root{
+  --bg:#F3F4F6; --card:#FFFFFF; --fg:#16181D; --muted:#5E6470; --line:#DEE1E7; --accent:#1F6F6A; --accent-soft:#DCEEEC; --warm:#8A5A12; --warm-soft:#F6ECDB;
+  --display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif; --body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --warm:#E3B66A; --warm-soft:#2E2414; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --warm:#E3B66A; --warm-soft:#2E2414; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(26px,6vw,36px);font-weight:700}
+h2{font-size:22px;font-weight:700}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+.lede{display:flex;flex-direction:column;gap:12px}
+.lede p{color:var(--muted);max-width:62ch}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.fact{font-size:14px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:4px 12px;font-weight:500}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.box ul,.box ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;color:var(--muted)}
+.box b{color:var(--fg);font-weight:600}
+.recipe-line{font-size:14px;background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:8px 12px;color:var(--fg)}
+.frame{display:flex;flex-direction:column;gap:20px;border-top:1px solid var(--line);padding-top:24px}
+.frame > p{color:var(--muted);font-size:15px}
+.rec{display:flex;flex-direction:column;gap:8px}
+.rec .top{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+.chip{font-size:12px;font-weight:600;border-radius:999px;padding:2px 10px;background:var(--warm-soft);color:var(--warm)}
+.say{font-size:14px;color:var(--muted)}
+.say q{color:var(--fg);font-weight:500;quotes:"“" "”"}
+.heads,.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.heads{font-size:12px;color:var(--muted);font-weight:500}
+.sub{font-size:13px;color:var(--warm);font-weight:500;margin-top:4px}
+button.vid{all:unset;cursor:pointer;display:block;border-radius:12px;overflow:hidden;aspect-ratio:9/16;max-width:100%;background:#000}
+button.vid:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.vid video{width:100%;height:100%;object-fit:cover;display:block}
+.lb{position:fixed;inset:0;background:rgba(8,9,12,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:20;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.lb .three{display:flex;gap:8px;justify-content:center;max-width:100%}
+.lb video{height:min(74vh,700px);max-width:31vw;aspect-ratio:9/16;object-fit:cover;border-radius:12px;background:#000}
+.lb .cap{color:#fff;font-size:14px;text-align:center}
+.lb button{font:inherit;color:#fff;background:rgba(255,255,255,.14);border:0;border-radius:999px;padding:6px 16px;cursor:pointer}
+</style>
+
+<div class="wrap">
+  <header class="lede">
+    <h1>ชุดฐานแบบเลโก้</h1>
+    <p>ทดลองตามที่ Friend ถาม: ทำชิ้นส่วนแล้วเอามาต่อกันเป็นภาพหลายแบบ ทุกภาพในหน้านี้ไม่ได้เขียนโค้ดทีละภาพ แต่เป็น "สูตร" สั้น ๆ ที่บอกว่าใช้โครงเรื่องไหน ใส่ของอะไร และให้เกิดอะไรขึ้น</p>
+    <div class="facts"><span class="fact">โครงเรื่อง 5 แบบ</span><span class="fact">21 สูตร</span><span class="fact">3 สไตล์</span><span class="fact">63 คลิป ไม่มีเสียง</span></div>
+  </header>
+
+  <section class="box">
+    <h2>เลโก้ทำงานอย่างไร</h2>
+    <ol>
+      <li><b>โครงเรื่อง</b> 5 แบบ: A เทียบ B · มากขึ้น / น้อยลง · ขั้นตอน · ก่อน → หลัง · หาให้เจอ</li>
+      <li><b>ของ</b> ไอคอนกว่า 300 แบบ และชิ้นส่วนในเครื่องมือกลาง เช่น ตาชั่ง แถบวัด กราฟแท่ง สวิตช์ ปุ่ม เป้า</li>
+      <li><b>ท่า</b> เช่น โดนกากบาท ได้เครื่องหมายถูก เอียง หายทีละชิ้น ติดไฟ ซ่อม</li>
+    </ol>
+    <p class="recipe-line">ตัวอย่างสูตร: A เทียบ B + การ์ดยอดวิวกับยอดขาย + ยอดวิวโดนกากบาท ยอดขายได้เครื่องหมายถูก</p>
+    <p style="color:var(--muted)">ในระบบจริง AI เขียนสูตรนี้เป็นข้อความสั้น ๆ ให้ตรงกับประโยค ไม่ต้องเขียนโค้ด แล้วกฎของสไตล์วาดออกมาเหมือนภาพอื่น ๆ</p>
+  </section>
+
+  <div id="frames" style="display:flex;flex-direction:column;gap:36px"></div>
+
+  <section class="box">
+    <h2>สิ่งที่ได้จากการทดสอบ</h2>
+    <ul id="findings"></ul>
+  </section>
+</div>
+
+<script>
+const STYLES = [{id: 'card', name: 'แบบ 1 การ์ด'}, {id: 'glass', name: 'แบบ 2 กระจก'}, {id: 'split', name: 'แบบ 3 แบ่งจอ'}];
+const FRAMES = [
+  {name: 'A เทียบ B', about: 'ของ 2 อย่างวางคู่กัน แล้วฝั่งหนึ่งชนะ', recs: [
+    ['lego.views-sales', 'ไม่ใช่ยอดวิว แต่เป็นยอดขาย', 'สิ่งที่สำคัญไม่ใช่ยอดวิว แต่เป็นยอดขาย', 'A เทียบ B + การ์ดยอดวิวกับยอดขาย + ยอดวิวโดนกากบาท ยอดขายได้เครื่องหมายถูก'],
+    ['lego.value-price', 'คุณค่ามากกว่าราคา', 'ลูกค้าดูที่คุณค่า มากกว่าราคา', 'A เทียบ B + แถบวัดราคาสั้น แถบคุณค่ายาว + คุณค่าได้เครื่องหมายถูก'],
+    ['lego.short-long', 'เลือกทางยาว', 'ระหว่างทางลัดกับทางยาว เลือกทางยาว', 'A เทียบ B + การ์ดทางลัดกับทางยาว + ทางลัดโดนกากบาท'],
+    ['not-worth.lego', 'ไม่คุ้ม', 'บางคนกลัวว่าซื้อไปแล้ว ไม่คุ้ม', 'A เทียบ B + ตาชั่ง + เงินกับสินค้า + เอียงลงฝั่งเงิน', 'not-worth'],
+    ['undecided.lego', 'ลังเล', 'หรือไม่รู้ว่า จะซื้อดีไหม', 'A เทียบ B + ปุ่มสองปุ่ม + เมาส์ไปมาแล้วค้างกลาง', 'undecided.cursor']]},
+  {name: 'มากขึ้น / น้อยลง', about: 'ของมาทีละชิ้น หรือหายไปทีละชิ้น', recs: [
+    ['lego.money-gone', 'เงินหมด', 'ทำไปทำมา เงินหมด', 'น้อยลง + กระเป๋าเงินกับเหรียญ 4 เหรียญ + หายจนหมด ขึ้นป้ายเตือน'],
+    ['lego.viewers-drop', 'คนดูปัดทิ้ง', 'คนดูค่อย ๆ ปัดทิ้ง', 'น้อยลง + กราฟแท่งคนดูเตี้ยลงทีละแท่ง + ลูกศรลง'],
+    ['lego.followers-up', 'ผู้ติดตามเพิ่ม', 'พอโพสต์ทุกวัน ผู้ติดตามเพิ่ม', 'มากขึ้น + กราฟแท่งผู้ติดตามสูงขึ้นทีละแท่ง + ลูกศรขึ้น'],
+    ['lego.team-grows', 'คนเข้ามาเรื่อย ๆ', 'พอเริ่มบอกต่อ คนก็เข้ามาเรื่อย ๆ', 'มากขึ้น + ร้านตรงกลาง + คนโผล่มาล้อมทีละคน'],
+    ['fewer-customers.lego', 'ลูกค้าน้อยลง', 'พอเห็นลูกค้า น้อยลง', 'น้อยลง + ร้านกับลูกค้า 4 คนล้อมรอบ + หายทีละคนเหลือ 1']]},
+  {name: 'ขั้นตอน', about: 'ของเรียงเป็นลำดับ แล้วขั้นหนึ่งถูกเน้น ถูกต้อง หรือถูกกากบาท', recs: [
+    ['lego.three-steps', 'ถ่าย ตัด โพสต์', 'แค่ถ่าย ตัด แล้ว โพสต์', 'ขั้นตอน + 3 ขั้นมีลูกศรต่อกัน + ขั้นสุดท้ายติดไฟ'],
+    ['lego.skip-step', 'ขั้นที่คนชอบข้าม', 'ขั้นที่คนชอบข้ามคือ เขียนบท', 'ขั้นตอน + 3 ขั้น + ขั้นกลางติดไฟ'],
+    ['not-first.lego', 'ข้อแรกไม่ใช่', 'สิ่งที่ควรทำอย่างแรก ไม่ใช่ (การลดราคา)', 'ขั้นตอน + รายการ 3 ข้อ + ข้อแรกโดนกากบาท', 'not-first']]},
+  {name: 'ก่อน → หลัง', about: 'ของอย่างเดียวเปลี่ยนสภาพ', recs: [
+    ['lego.happy', 'ลูกค้าพอใจ', 'พอแก้ตรงนี้ ลูกค้าก็ พอใจ', 'ก่อน → หลัง + หน้าบึ้งกลายเป็นหน้ายิ้ม'],
+    ['lego.sales-jump', 'ยอดพุ่ง', 'หลังจากเปลี่ยนวิธีขาย ยอดพุ่ง', 'ก่อน → หลัง + แถบยอดขายจากสั้นเป็นยาว + เครื่องหมายถูก'],
+    ['lego.bell-on', 'เปิดแจ้งเตือน', 'อย่าลืม เปิดแจ้งเตือน', 'ก่อน → หลัง + กระดิ่งกับสวิตช์ + สวิตช์เปิด'],
+    ['price-cut.lego', 'ลดราคาแล้วก็ยังไม่ซื้อ', 'ต่อให้เราลดราคาเพิ่ม ยังไม่ซื้อ', 'ก่อน → หลัง + แถบราคาลดลง + ตะกร้าโดนกากบาท']]},
+  {name: 'หาให้เจอ', about: 'ในหลายอย่าง หาตัวที่ใช่ แล้วเลือก ซ่อม หรือกากบาท', recs: [
+    ['lego.right-people', 'คนที่ใช่', 'เลือกขายให้ คนที่ใช่', 'หาให้เจอ + คน 4 คน + เล็งคนหนึ่ง คนนั้นติดไฟ ที่เหลือจาง'],
+    ['lego.weak-spot', 'ปัญหาอยู่ที่ภาพปก', 'ปัญหาจริงอยู่ที่ ภาพปก', 'หาให้เจอ + ภาพ ตัวหนังสือ เพลง + เล็งภาพที่เสีย โดนกากบาท'],
+    ['lego.on-target', 'ตรงกลุ่ม', 'ทำคอนเทนต์ให้ ตรงกลุ่ม', 'หาให้เจอ + เป้า + ลูกศรเข้ากลาง'],
+    ['fix-spot.lego', 'แก้ให้ถูกจุด', 'แล้วแก้ปัญหาให้ ถูกจุด', 'หาให้เจอ + เฟือง 3 ตัว ตัวกลางเสีย + เล็งแล้วซ่อม', 'fix-spot.scan']]},
+];
+const FINDINGS = [
+  'ทั้ง 21 ภาพมาจากโครงเรื่อง 5 แบบกับชิ้นส่วนที่มีอยู่แล้ว ไม่ต้องเพิ่มกฎสไตล์เลย และออกมาได้ทั้ง 3 สไตล์',
+  'ภาพที่ผมเขียนเองทีละภาพในรอบสอง เขียนเป็นสูตรเลโก้ได้เหมือนเดิม (แถวที่มีป้าย "มีภาพที่เขียนเองเทียบ") เพราะภาพพวกนั้นก็ประกอบจากชิ้นส่วนชุดเดียวกันอยู่แล้ว แปลว่าภาพในคลังส่วนใหญ่ไม่ต้องเขียนโค้ดทีละภาพ',
+  'ภาพจากเลโก้ยังเป็นภาพ "ประกอบ" ไม่ประณีตเท่าฉากที่ออกแบบเฉพาะประโยค ฉากสำคัญ 6–8 ฉากต่อคลิปจึงควรให้ AI ออกแบบเองต่อไป (แบบ D)',
+  'ยิ่งเพิ่มโครงเรื่อง ของ และท่า จำนวนภาพที่ต่อได้ยิ่งคูณขึ้น เช่น 30 โครง × 300 ของ × 15 ท่า แต่ไม่ใช่ทุกคู่ที่มีความหมาย ต้องมีกฎว่าท่าไหนใช้กับของไหน และตัวตรวจคอยจับ',
+];
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const video = src => { const v = el('video'); Object.assign(v, {muted: true, loop: true, playsInline: true, preload: 'metadata', poster: src.replace('.mp4', '.jpg')});
+  v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.src = src; return v; };
+const row = (dir, id, label) => {
+  const r = el('div', 'row');
+  for (const s of STYLES) {
+    const b = el('button', 'vid'); b.type = 'button'; b.setAttribute('aria-label', `${label} ${s.name} ดูใหญ่`);
+    b.append(video(`${dir}/${s.id}_${id}.mp4`)); b.addEventListener('click', () => open(dir, id, label)); r.append(b);
+  }
+  return r;
+};
+const host = document.getElementById('frames');
+for (const f of FRAMES) {
+  const sec = el('section', 'frame');
+  const heads = el('div', 'heads'); STYLES.forEach(s => heads.append(el('span', '', s.name)));
+  sec.append(el('h2', '', `โครงเรื่อง: ${f.name}`), el('p', '', f.about), heads);
+  for (const [id, name, say, recipe, hand] of f.recs) {
+    const rec = el('div', 'rec'), top = el('div', 'top');
+    top.append(el('h3', '', name)); if (hand) top.append(el('span', 'chip', 'มีภาพที่เขียนเองเทียบ'));
+    rec.append(top, el('p', 'say', `ประโยค <q>${say}</q>`), el('p', 'recipe-line', `สูตร: ${recipe}`), row('lego', id, name));
+    if (hand) rec.append(el('p', 'sub', 'ภาพเดียวกันที่ผมเขียนเองในรอบสอง'), row('hand', hand, `${name} (เขียนเอง)`));
+    sec.append(rec);
+  }
+  host.append(sec);
+}
+const fl = document.getElementById('findings'); FINDINGS.forEach(t => fl.append(el('li', '', t)));
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+  const v = e.target; if (e.isIntersecting) v.play().catch(() => {}); else v.pause();
+}), {threshold: .4}) : null;
+document.querySelectorAll('button.vid video').forEach(v => io ? io.observe(v) : v.play().catch(() => {}));
+
+function open(dir, id, label) {
+  const box = el('div', 'lb'); box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', label);
+  box.append(el('div', 'cap', `${label} · แบบ 1 การ์ด · แบบ 2 กระจก · แบบ 3 แบ่งจอ`));
+  const three = el('div', 'three');
+  STYLES.forEach(s => { const v = video(`${dir}/${s.id}_${id}.mp4`); v.autoplay = true; three.append(v); v.play().catch(() => {}); });
+  const close = el('button', '', 'ปิด'); close.type = 'button';
+  box.append(three, close); document.body.append(box); close.focus();
+  const shut = () => { box.remove(); document.removeEventListener('keydown', esc); };
+  const esc = e => { if (e.key === 'Escape') shut(); };
+  close.addEventListener('click', shut); box.addEventListener('click', e => { if (e.target === box) shut(); });
+  document.addEventListener('keydown', esc);
+}
+</script>

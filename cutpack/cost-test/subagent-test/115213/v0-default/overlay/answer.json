@@ -1,0 +1,411 @@
+{
+ "topic": "none",
+ "camera": [
+  {
+   "move": "push",
+   "t": 0.6
+  },
+  {
+   "move": "pull",
+   "t": 7.7
+  },
+  {
+   "move": "push",
+   "t": 12.0
+  },
+  {
+   "move": "pull",
+   "t": 20.0
+  },
+  {
+   "move": "push",
+   "t": 29.8
+  },
+  {
+   "move": "pull",
+   "t": 35.0
+  },
+  {
+   "move": "push",
+   "t": 49.5
+  },
+  {
+   "move": "pull",
+   "t": 54.4
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 0.6,
+   "t1": 3.3,
+   "say": "ตราบใดที่คุณยังมองว่า",
+   "shows": "a person highlighted among a group",
+   "part": "B10.v1",
+   "size": "short",
+   "hit": 1.68,
+   "need": "",
+   "slots": {
+    "who": "คุณ",
+    "wlead": "ตราบใดที่",
+    "wkey": "มองว่า"
+   }
+  },
+  {
+   "t0": 5.0,
+   "t1": 7.9,
+   "say": "ช่องทางนั้นที่คุณกำลังทำอยู่ มันคือรายได้เสริม",
+   "shows": "the phrase side income with the key words highlighted",
+   "part": "B14.v3",
+   "size": "short",
+   "hit": 7.36,
+   "need": "",
+   "slots": {
+    "words": [
+     "ช่องทางนั้น",
+     "กำลังทำอยู่",
+     "คือรายได้เสริม"
+    ],
+    "key": 2,
+    "at": [
+     5.12,
+     6.64,
+     7.36
+    ],
+    "icon": "briefcase",
+    "wlead": "รายได้",
+    "wkey": "เสริม"
+   }
+  },
+  {
+   "t0": 8.4,
+   "t1": 10.95,
+   "say": "มันก็จะเป็นรายได้เสริมต่อไป",
+   "shows": "seeing it as side income leads to staying side income",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 10.64,
+   "need": "",
+   "slots": {
+    "a": "มองว่าเสริม",
+    "ia": "eye",
+    "b": "เสริมต่อไป",
+    "ib": "repeat",
+    "wlead": "เสริม",
+    "wkey": "ต่อไป"
+   }
+  },
+  {
+   "t0": 11.4,
+   "t1": 13.6,
+   "say": "ไม่มีทางเป็นเมนอินคัมได้",
+   "shows": "a banned sign: never main income",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 12.24,
+   "need": "",
+   "slots": {
+    "text": "ไม่มีทางเป็นเมน",
+    "icon": "ban",
+    "wlead": "ไม่มีทาง",
+    "wkey": "เมน"
+   }
+  },
+  {
+   "t0": 14.0,
+   "t1": 16.5,
+   "say": "อยากหารายได้เสริม",
+   "shows": "search for side income",
+   "part": "B06.v4",
+   "size": "short",
+   "hit": 14.56,
+   "need": "",
+   "slots": {
+    "q": "อยากหารายได้เสริม",
+    "icon": "search",
+    "wlead": "คนพูดว่า",
+    "wkey": "อยากหา"
+   }
+  },
+  {
+   "t0": 17.0,
+   "t1": 19.9,
+   "say": "แล้วรายได้หลัก Active Income",
+   "shows": "side income crossed out, Active Income right",
+   "part": "B05.v1",
+   "size": "short",
+   "hit": 18.4,
+   "need": "",
+   "slots": {
+    "x": "รายได้เสริม",
+    "y": "Active Income",
+    "aty": 18.96,
+    "wlead": "รายได้หลัก",
+    "wkey": "Active"
+   }
+  },
+  {
+   "t0": 20.3,
+   "t1": 22.0,
+   "say": "ถ้าอยากให้มันเป็น active income",
+   "shows": "arrow hits the target of active income",
+   "part": "B08.v1",
+   "size": "short",
+   "hit": 21.28,
+   "need": "",
+   "slots": {
+    "goal": "Active Income",
+    "icon": "target",
+    "wlead": "อยากให้เป็น",
+    "wkey": "Active"
+   }
+  },
+  {
+   "t0": 22.4,
+   "t1": 25.0,
+   "say": "ยูต้องมองมันเป็น business",
+   "shows": "lightbulb on: see it as a business",
+   "part": "B13.v1",
+   "size": "short",
+   "hit": 24.48,
+   "need": "",
+   "slots": {
+    "tip": "มองเป็น Business",
+    "icon": "briefcase",
+    "wlead": "ต้องมอง",
+    "wkey": "Business"
+   }
+  },
+  {
+   "t0": 25.4,
+   "t1": 27.2,
+   "say": "ว่าการเฮดความเสี่ยงกับมัน",
+   "shows": "red alert dot about hedging risk",
+   "part": "B07.v3",
+   "size": "short",
+   "hit": 25.92,
+   "need": "",
+   "slots": {
+    "text": "เฮดความเสี่ยง",
+    "icon": "shield-alert",
+    "wlead": "เฮด",
+    "wkey": "ความเสี่ยง"
+   }
+  },
+  {
+   "t0": 27.6,
+   "t1": 29.4,
+   "say": "คำว่ารายได้เสริม หรือว่าไซส์",
+   "shows": "side income versus side",
+   "part": "B03.v1",
+   "size": "short",
+   "hit": 28.0,
+   "need": "",
+   "slots": {
+    "a": "รายได้เสริม",
+    "b": "ไซส์",
+    "ia": "coins",
+    "ib": "briefcase",
+    "wlead": "รายได้เสริม",
+    "wkey": "หรือไซส์"
+   }
+  },
+  {
+   "t0": 29.8,
+   "t1": 32.5,
+   "say": "ไม่มีความเสี่ยง ไม่มีคำว่าเจ๊ง ไม่มีคำว่าขาดทุน",
+   "shows": "three no-risk points appear one by one",
+   "part": "B04.v1",
+   "size": "narrow",
+   "hit": 31.92,
+   "need": "",
+   "slots": {
+    "items": [
+     "ไม่มีความเสี่ยง",
+     "ไม่มีคำว่าเจ๊ง",
+     "ไม่มีขาดทุน"
+    ],
+    "at": [
+     30.16,
+     31.28,
+     31.92
+    ],
+    "wlead": "ไม่มี",
+    "wkey": "ขาดทุน"
+   }
+  },
+  {
+   "t0": 33.0,
+   "t1": 35.0,
+   "say": "อย่าเอาเวลาของ You ไปใช้",
+   "shows": "hourglass flips for your time",
+   "part": "B09.v4",
+   "size": "short",
+   "hit": 33.84,
+   "need": "",
+   "slots": {
+    "when": "เวลาของ You",
+    "icon": "hourglass",
+    "wlead": "อย่าเอาเวลา",
+    "wkey": "ของ You"
+   }
+  },
+  {
+   "t0": 35.4,
+   "t1": 37.4,
+   "say": "คิดในมุมของ Misset",
+   "shows": "key unlocks the mindset",
+   "part": "B13.v3",
+   "size": "short",
+   "hit": 36.24,
+   "need": "",
+   "slots": {
+    "tip": "ของ Misset",
+    "icon": "brain",
+    "wlead": "คิดในมุมของ",
+    "wkey": "Misset"
+   }
+  },
+  {
+   "t0": 37.8,
+   "t1": 40.5,
+   "say": "ความเสี่ยงให้มากที่สุด",
+   "shows": "big arrow down on risk",
+   "part": "B02.v3",
+   "size": "short",
+   "hit": 39.92,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "triangle-alert",
+    "wlead": "ความเสี่ยง",
+    "wkey": "ที่สุด"
+   }
+  },
+  {
+   "t0": 40.9,
+   "t1": 43.4,
+   "say": "ให้มันแบบแค่เป็นรายได้เสริม",
+   "shows": "a big check mark on just side income",
+   "part": "B08.v4",
+   "size": "short",
+   "hit": 42.64,
+   "need": "",
+   "slots": {
+    "goal": "แค่รายได้เสริม",
+    "icon": "check",
+    "wlead": "แค่เป็น",
+    "wkey": "รายได้เสริม"
+   }
+  },
+  {
+   "t0": 44.2,
+   "t1": 46.0,
+   "say": "ตอนที่ผมทำคอนเทนต์",
+   "shows": "video icon with the word content highlighted",
+   "part": "B14.v1",
+   "size": "short",
+   "hit": 45.04,
+   "need": "",
+   "slots": {
+    "words": [
+     "ตอนที่ผมทำ",
+     "คอนเทนต์"
+    ],
+    "key": 1,
+    "at": [
+     44.2,
+     45.04
+    ],
+    "icon": "video",
+    "wlead": "ผมทำ",
+    "wkey": "คอนเทนต์"
+   }
+  },
+  {
+   "t0": 47.3,
+   "t1": 49.0,
+   "say": "รายได้เสริมประจำ",
+   "shows": "clock hands go around for regular side income",
+   "part": "B09.v1",
+   "size": "short",
+   "hit": 47.84,
+   "need": "",
+   "slots": {
+    "when": "รายได้เสริมประจำ",
+    "icon": "calendar-days",
+    "wlead": "เสริม",
+    "wkey": "ประจำ"
+   }
+  },
+  {
+   "t0": 50.0,
+   "t1": 52.4,
+   "say": "มันมีหลายอย่างที่เปลี่ยนไปมาก",
+   "shows": "before to after reveal: much has changed",
+   "part": "B03.v4",
+   "size": "short",
+   "hit": 52.0,
+   "need": "",
+   "slots": {
+    "a": "ไม่เหมือน",
+    "b": "เปลี่ยนไป",
+    "ia": "x",
+    "ib": "refresh-cw",
+    "win": "b",
+    "wlead": "หลายอย่าง",
+    "wkey": "เปลี่ยนไป"
+   }
+  },
+  {
+   "t0": 52.8,
+   "t1": 55.4,
+   "say": "ผมก็ยังเห็น Infonser",
+   "shows": "two people joined by a line",
+   "part": "B10.v3",
+   "size": "short",
+   "hit": 54.96,
+   "need": "",
+   "slots": {
+    "who": "Infonser",
+    "wlead": "ผมเห็น",
+    "wkey": "Infonser"
+   }
+  },
+  {
+   "t0": 55.8,
+   "t1": 58.1,
+   "say": "บางคนเขาก็พูดว่า เป็นช่องทางหารายได้เสริมที่ดี",
+   "shows": "a chat message read",
+   "part": "B11.v1",
+   "size": "short",
+   "hit": 57.2,
+   "need": "",
+   "slots": {
+    "text": "เป็นช่องทางหารายได้เสริมที่ดี",
+    "who": "บางคน",
+    "wlead": "ช่องทาง",
+    "wkey": "เสริมที่ดี"
+   }
+  },
+  {
+   "t0": 58.6,
+   "t1": 60.5,
+   "say": "ถ้าคุณแค่คิดว่ามันเป็นรายได้",
+   "shows": "loop from your thinking to income",
+   "part": "B12.v4",
+   "size": "short",
+   "hit": 60.0,
+   "need": "",
+   "slots": {
+    "a": "คุณคิด",
+    "ia": "brain",
+    "b": "มันเป็น",
+    "ib": "arrow-right",
+    "c": "รายได้",
+    "ic": "banknote",
+    "wlead": "คิดว่า",
+    "wkey": "รายได้"
+   }
+  }
+ ]
+}

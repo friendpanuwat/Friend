@@ -1,0 +1,24 @@
+{
+ "status": "ok",
+ "topic": "biz",
+ "log": [
+  "plan request failed: bad request: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Schemas contains too many optional parameters (78), which would make grammar compilation inefficient. Reduce the number of optional parameters in your tool schemas (limit: 24).'}, 'request_id': 'req_011CgjEdNvPEv4YAMiFaYesS'}",
+  "asked again without the schema",
+  "fix round (plan): 12 errors sent back"
+ ],
+ "fallback": [
+  "B05.v1 78.0–80.6 → B14 text B14.v2 (slot-time)",
+  "B03.v3 43.0–45.0 dropped (engine)",
+  "camera pull 43.0: soft pull instead of a cut",
+  "subtitles rebuilt around the remaining cards"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "aroll-long",
+   "where": "41.40–47.00",
+   "msg": "5.6 s of talking head without a card (max 4.5)"
+  }
+ ]
+}

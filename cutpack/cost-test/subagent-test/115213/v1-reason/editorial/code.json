@@ -1,0 +1,8 @@
+{
+ "scenes": [
+  {
+   "i": 13,
+   "code": "const ph = div(`left:340px;top:300px;width:400px;height:760px;border-radius:64px;background:${NAVY};opacity:0`, c);\nmv.rise(ph, T.t0 + .05);\nconst scr = div('left:370px;top:360px;width:340px;height:640px;border-radius:40px;background:#FFFFFF;opacity:0', c);\nmv.show(scr, T.t0 + .15);\nconst cam = div('left:460px;top:480px;width:160px;height:160px;opacity:0', c, ico('video', 160, NAVY, 2.5));\nmv.pop(cam, T.t0 + .25);\nconst dot = div(`left:398px;top:388px;width:44px;height:44px;border-radius:22px;background:${ACC};opacity:0`, c);\nmv.pop(dot, T.hit);\nfor (let i = 1; i < 3; i++) {\n  mv.punch(dot, T.hit + .4 * i);\n}\nconst play = div('left:465px;top:740px;width:150px;height:150px;opacity:0', c, ico('play', 150, ACC, 3));\nmv.pop(play, T.hit);\nmv.punch(ph, T.hit);\nsnd('hit', T.hit);"
+  }
+ ]
+}

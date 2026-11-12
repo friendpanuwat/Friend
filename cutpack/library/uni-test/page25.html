@@ -1,0 +1,138 @@
+<title>รอบที่ 10</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* layout: one reading column; a section per story frame; each recipe = its words + recipe line + the same picture in 3 styles */
+:root{
+  --bg:#F3F4F6; --card:#FFFFFF; --fg:#16181D; --muted:#5E6470; --line:#DEE1E7; --accent:#1F6F6A; --accent-soft:#DCEEEC; --warm:#8A5A12; --warm-soft:#F6ECDB;
+  --display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif; --body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --warm:#E3B66A; --warm-soft:#2E2414; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --warm:#E3B66A; --warm-soft:#2E2414; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(26px,6vw,36px);font-weight:700}
+h2{font-size:22px;font-weight:700}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+.lede{display:flex;flex-direction:column;gap:12px}
+.lede p{color:var(--muted);max-width:62ch}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.fact{font-size:14px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:4px 12px;font-weight:500}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.box ul,.box ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;color:var(--muted)}
+.box b{color:var(--fg);font-weight:600}
+.recipe-line{font-size:14px;background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:8px 12px;color:var(--fg)}
+.frame{display:flex;flex-direction:column;gap:20px;border-top:1px solid var(--line);padding-top:24px}
+.frame > p{color:var(--muted);font-size:15px}
+.rec{display:flex;flex-direction:column;gap:8px}
+.rec .top{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+.chip{font-size:12px;font-weight:600;border-radius:999px;padding:2px 10px;background:var(--warm-soft);color:var(--warm)}
+.say{font-size:14px;color:var(--muted)}
+.say q{color:var(--fg);font-weight:500;quotes:"“" "”"}
+.heads,.row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.heads{font-size:12px;color:var(--muted);font-weight:500}
+.sub{font-size:13px;color:var(--warm);font-weight:500;margin-top:4px}
+button.vid{all:unset;cursor:pointer;display:block;border-radius:12px;overflow:hidden;aspect-ratio:9/16;max-width:100%;background:#000}
+button.vid:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.vid video{width:100%;height:100%;object-fit:cover;display:block}
+.lb{position:fixed;inset:0;background:rgba(8,9,12,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:20;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.lb .three{display:flex;gap:8px;justify-content:center;max-width:100%}
+.lb video{height:min(74vh,700px);max-width:31vw;aspect-ratio:9/16;object-fit:cover;border-radius:12px;background:#000}
+.lb .cap{color:#fff;font-size:14px;text-align:center}
+.lb button{font:inherit;color:#fff;background:rgba(255,255,255,.14);border:0;border-radius:999px;padding:6px 16px;cursor:pointer}
+.tag{font-size:12px;font-weight:600;border-radius:999px;padding:2px 10px;background:var(--accent-soft);color:var(--accent)}
+.vname{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-top:6px}
+.vname b{font-family:var(--display);font-weight:600;font-size:15px}
+.note{font-size:13px;color:var(--warm)}
+table{border-collapse:collapse;font-size:14px;width:100%}
+td,th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:13px}
+.kind{font-size:12px;font-weight:600;color:var(--muted);margin-top:2px}
+.kind.ov{color:var(--accent)}
+.newtag{display:inline-block;margin-left:8px;font-size:12px;font-weight:600;border-radius:999px;padding:1px 9px;background:var(--accent-soft);color:var(--accent);vertical-align:middle}
+button.vid img{width:100%;height:100%;object-fit:cover;display:block}
+.tile{margin:0;display:flex;flex-direction:column;gap:4px;min-width:0}
+.tile figcaption{font-size:12px;color:var(--muted);text-align:center}
+.lb img{height:min(74vh,700px);max-width:92vw;aspect-ratio:9/16;object-fit:cover;border-radius:12px;background:#000}
+.lb video{max-width:92vw}
+</style>
+
+<div class="wrap">
+  <header class="lede">
+    <h1>รอบที่ 10: 16 ร่างใหม่ใน 9 หมวด</h1>
+    <p>Friend ลบไปแล้ว 4 ร่าง ("ลบออกครับ ไม่ชอบ"): ต้นไม้ · เก้าอี้จอง · กล่องพัสดุ · ก๊อกน้ำ หน้านี้เหลือร่างที่ยังรอ Friend ดู</p>
+    <p>ภาพนิ่งที่ Friend ให้เก็บทั้งหมด ("เก็บทั้งหมด เริ่มทำการเคลื่อนไหวได้เลย") ตอนนี้ขยับได้แล้ว ทุกร่างมีของหลักชิ้นเดียว ขยับอย่างเดียวตรงคำสำคัญ แล้วค้างนิ่ง ตามวิธีใน skill talking-head-motion</p>
+    <p>ประโยคตัวอย่างเป็นเรื่องทั่วไป ไม่ได้มาจากบทของ Friend คลิปมีแค่สไตล์การ์ดแบบเต็มจอ ส่วนอีก 7 แบบเป็นภาพนิ่งหลังคำสำคัญ กดที่ภาพหรือคลิปเพื่อดูใหญ่</p>
+    <div class="facts"><span class="fact">16 ร่างใหม่ (ลบแล้ว 4)</span><span class="fact">คลิปการ์ด + ภาพ 7 แบบ</span><span class="fact">ตอนนี้ 21 หมวด 150 ร่าง</span></div>
+  </header>
+  <div id="cats" style="display:flex;flex-direction:column;gap:36px"></div>
+  <section class="box">
+    <h2>ตรวจแล้วก่อนส่ง</h2>
+    <ul>
+      <li>ดูทีละเฟรมรอบคำสำคัญครบ 8 สไตล์ แก้ 7 จุด: เบี้ยยืนทับช่องที่ติดไฟจนสีกลืน · หลอดไฟสีขาวบนพื้นขาวในแบ่งจอ (ใส่เส้นขอบ) · เบ็ดตกปลาหดเล็กใน gold · จุดเล็กบนนาฬิกาก่อนวงเริ่มวิ่ง · ความหมายโผล่ทะลุบัตรคำในสไตล์กระจก · ลูกพูลวิ่งทับคำ</li>
+      <li>ตัวตรวจสีกลืน (ทั้ง 3 พื้น) ผ่านทั้ง 8 สไตล์ · ตัวตรวจของทับกันฟ้องแค่การ์ดที่ตั้งใจวางบนของทึบ (จอในมือถือ จอในเครื่องพิมพ์ฉลาก)</li>
+    </ul>
+  </section>
+</div>
+<script>
+const STILLS = [['card-overlay', 'การ์ด ร่างเล็ก'], ['glass', 'กระจก'], ['split', 'แบ่งจอพาสเทล'], ['gold', 'gold'], ['glass-overlay', 'กระจก ร่างเล็ก'], ['split-overlay', 'แบ่งจอ ร่างเล็ก'], ['gold-overlay', 'gold ร่างเล็ก']];
+const CATS = [
+  {name: 'ขั้นตอน', vs: [['r10.shop', 'tower', 'ตัวต่อซ้อนเป็นตึก หล่นลงมาทีละชั้น', 'สมัครก่อน ลงสินค้า แล้วเปิดขาย'], ['r10.shop', 'board', 'เบี้ยเดินบนกระดานเกม กระโดดไปทีละช่อง', 'สมัครก่อน ลงสินค้า แล้วเปิดขาย']]},
+  {name: 'คำถาม', vs: [['r10.buy', 'poll', 'โพลสองตัวเลือก เติมสีตามคะแนน', 'ลูกค้ายังลังเลว่า ซื้อหรือไม่ซื้อ'], ['r10.quiet', 'bulb', 'หลอดไฟมี ? ได้คำตอบแล้วไฟติด', 'ทำไมร้านเงียบ ขนาดนี้']]},
+  {name: 'คำเตือน', vs: [['r10.loan', 'wetfloor', 'ป้ายระวังพื้นลื่น กางออกตั้งบนพื้น', 'ระวังให้ดี ก่อนกู้เงิน'], ['r10.cheap', 'hook', 'เหยื่อบนเบ็ดตกปลา ป้ายเตือนเด้งข้าง ๆ', 'อย่าหลงเชื่อ ของถูกเกินจริง']]},
+  {name: 'เวลา', vs: [['r10.run', 'stopwatch', 'นาฬิกาจับเวลา วงวิ่ง บันทึกแต่ละช่วง', 'วิ่งทุกวัน อาทิตย์แรก จนครบสามเดือน']]},
+  {name: 'เหตุกับผล', vs: [['r10.share', 'pool', 'ลูกพูลชนต่อกัน แล้วลงหลุม', 'ลูกค้าพอใจ ก็บอกต่อ ยอดเพิ่มเอง']]},
+  {name: 'นิยาม', vs: [['r10.fomo', 'flash', 'บัตรคำร้อยห่วง พลิกจากคำไปหาความหมาย', 'FOMO คืออาการ กลัวตกขบวน'], ['r10.sub', 'labeler', 'เครื่องพิมพ์ฉลาก พิมพ์ความหมายออกมา', 'Subscription คือ จ่ายรายเดือน']]},
+  {name: 'ไล่รายการ', vs: [['r10.costs', 'folder', 'โฟลเดอร์ในมือถือ เปิดออกเห็นของข้างใน', 'ต้นทุนมีทั้ง ค่าเช่า ค่าแรง ค่าไฟ'], ['r10.cafe', 'toolbox', 'กล่องเครื่องมือ ถาดกางออกเป็นชั้น', 'ร้านกาแฟต้องมีเครื่องชง นม แก้ว']]},
+  {name: 'เล่าเหตุการณ์', vs: [['r10.dad', 'curtain', 'ม่านเวทีเปิดออก เห็นเหตุการณ์', 'ปี 2010 พ่อ เปิดร้านแรก'], ['r10.quit', 'rewind', 'วิดีโอย้อนกลับไปถึงตอนนั้น', 'ห้าปีก่อน ผม ลาออกจากงาน']]},
+  {name: 'ความรู้สึก', vs: [['r10.proud', 'fill', 'ตัวคนเติมสีความรู้สึกจากเท้าขึ้นมา', 'ผมรู้สึก ภูมิใจมาก'], ['r10.tired', 'slider', 'แถบเลื่อนอารมณ์ ปุ่มหน้าเลื่อนไปจนสุด', 'ช่วงนั้น เหนื่อยมาก']]},
+];
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const video = src => { const v = el('video'); Object.assign(v, {muted: true, loop: true, playsInline: true, preload: 'metadata', poster: src.replace('.mp4', '.jpg')});
+  v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.src = src; return v; };
+const file = (st, id) => `round10/${st}_${id}`;
+const host = document.getElementById('cats');
+const tile = (child, name) => { const f = el('figure', 'tile'); f.append(child, el('figcaption', '', name)); return f; };
+for (const c of CATS) {
+  const sec = el('section', 'frame');
+  sec.append(el('h2', '', `หมวด: ${c.name}`));
+  for (const [sid, vid, vname, say] of c.vs) {
+    const id = `${sid}.${vid}`, top = el('div', 'vname'); top.append(el('b', '', vname));
+    sec.append(top, el('p', 'say', `ประโยคตัวอย่าง <q>${say}</q>`));
+    const r = el('div', 'row');
+    const b = el('button', 'vid'); b.type = 'button'; b.setAttribute('aria-label', `${vname} คลิปการ์ด ดูใหญ่`);
+    b.append(video(file('card', id) + '.mp4')); b.addEventListener('click', () => open(vname + ' · การ์ด', video(file('card', id) + '.mp4')));
+    r.append(tile(b, 'การ์ด (คลิป)'));
+    for (const [st, name] of STILLS) {
+      const ib = el('button', 'vid'); ib.type = 'button'; ib.setAttribute('aria-label', `${vname} ${name} ดูใหญ่`);
+      const img = el('img'); img.src = file(st, id) + '.jpg'; img.alt = `${vname} ${name}`; img.loading = 'lazy'; ib.append(img);
+      ib.addEventListener('click', () => { const big = el('img'); big.src = img.src; big.alt = img.alt; open(vname + ' · ' + name, big); });
+      r.append(tile(ib, name));
+    }
+    sec.append(r);
+  }
+  host.append(sec);
+}
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+  const v = e.target; if (e.isIntersecting) v.play().catch(() => {}); else v.pause();
+}), {threshold: .4}) : null;
+document.querySelectorAll('button.vid video').forEach(v => io ? io.observe(v) : v.play().catch(() => {}));
+function open(label, media) {
+  const box = el('div', 'lb'); box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', label);
+  box.append(el('div', 'cap', label));
+  const one = el('div', 'three'); one.append(media); if (media.tagName === 'VIDEO') { media.autoplay = true; media.play().catch(() => {}); }
+  const close = el('button', '', 'ปิด'); close.type = 'button';
+  box.append(one, close); document.body.append(box); close.focus();
+  const shut = () => { box.remove(); document.removeEventListener('keydown', esc); };
+  const esc = e => { if (e.key === 'Escape') shut(); };
+  close.addEventListener('click', shut); box.addEventListener('click', e => { if (e.target === box) shut(); });
+  document.addEventListener('keydown', esc);
+}
+</script>

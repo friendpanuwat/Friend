@@ -1,0 +1,170 @@
+[
+ {
+  "id": "retire.01",
+  "line": 5,
+  "text": "เวลาไปหามาเนี่ย เงินมันหยุดเข้ามา",
+  "cat": "B02",
+  "shows": "A wallet whose money icons leave one by one until none are left, matching income stopping once you stop working.",
+  "need": null,
+  "lead": "เวลาไปหามาเนี่ย",
+  "key": "เงินมันหยุด",
+  "slots": {
+   "dir": "down",
+   "item": {
+    "icon": "banknote"
+   },
+   "center": {
+    "icon": "wallet"
+   },
+   "n": 3,
+   "keep": 0
+  },
+  "fixed": false,
+  "picture": {
+   "line": 5,
+   "shows": "A wallet whose money icons leave one by one until none are left, matching income stopping once you stop working.",
+   "cat": "B02",
+   "slots": {
+    "dir": "down",
+    "item": {
+     "icon": "banknote"
+    },
+    "center": {
+     "icon": "wallet"
+    },
+    "n": 3,
+    "keep": 0
+   },
+   "lead": "เวลาไปหามาเนี่ย",
+   "key": "เงินมันหยุด"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "retire.02",
+  "line": 6,
+  "text": "คุณอยู่ได้กี่เดือน ถ้าวันนี้ คำตอบของคุณคือ",
+  "cat": "B06",
+  "shows": "A person with a question mark about how many months they could live on if they stopped working today.",
+  "need": null,
+  "lead": "คุณอยู่ได้",
+  "key": "กี่เดือน",
+  "slots": {
+   "about": {
+    "icon": "user"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 6,
+   "shows": "A person with a question mark about how many months they could live on if they stopped working today.",
+   "cat": "B06",
+   "slots": {
+    "about": {
+     "icon": "user"
+    }
+   },
+   "lead": "คุณอยู่ได้",
+   "key": "กี่เดือน"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "retire.03",
+  "line": 7,
+  "text": "1 ปี 2 ปี 3 ปี เขาไม่เรียกว่ารวย",
+  "cat": "B09",
+  "shows": "A timeline of 1 year, 2 years, 3 years ending in a thumbs-down, saying that this is not rich.",
+  "need": null,
+  "lead": "1 ปี 2 ปี 3 ปี เขาไม่",
+  "key": "เรียกว่ารวย",
+  "slots": {
+   "points": [
+    {
+     "icon": "calendar",
+     "label": "1 ปี"
+    },
+    {
+     "icon": "calendar",
+     "label": "2 ปี"
+    },
+    {
+     "icon": "calendar",
+     "label": "3 ปี"
+    }
+   ],
+   "at": 2,
+   "result": {
+    "icon": "thumbs-down",
+    "tone": "neg"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 7,
+   "shows": "A timeline of 1 year, 2 years, 3 years ending in a thumbs-down, saying that this is not rich.",
+   "cat": "B09",
+   "slots": {
+    "points": [
+     {
+      "icon": "calendar",
+      "label": "1 ปี"
+     },
+     {
+      "icon": "calendar",
+      "label": "2 ปี"
+     },
+     {
+      "icon": "calendar",
+      "label": "3 ปี"
+     }
+    ],
+    "at": 2,
+    "result": {
+     "icon": "thumbs-down",
+     "tone": "neg"
+    }
+   },
+   "lead": "1 ปี 2 ปี 3 ปี เขาไม่",
+   "key": "เรียกว่ารวย"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "retire.04",
+  "line": 10,
+  "text": "รวยแล้ว อันเนี่ยเขาเรียกว่ารวย",
+  "cat": "B08",
+  "shows": "A person reaching a crown, meaning being able to live without working is what counts as rich.",
+  "need": null,
+  "lead": "อันเนี่ยเขาเรียกว่า",
+  "key": "รวย",
+  "slots": {
+   "goal": {
+    "icon": "crown",
+    "tone": "acc"
+   },
+   "who": "user"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 10,
+   "shows": "A person reaching a crown, meaning being able to live without working is what counts as rich.",
+   "cat": "B08",
+   "slots": {
+    "goal": {
+     "icon": "crown",
+     "tone": "acc"
+    },
+    "who": "user"
+   },
+   "lead": "อันเนี่ยเขาเรียกว่า",
+   "key": "รวย"
+  },
+  "ok": true,
+  "problems": []
+ }
+]

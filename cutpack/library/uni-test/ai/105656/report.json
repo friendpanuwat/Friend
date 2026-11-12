@@ -1,0 +1,449 @@
+[
+ {
+  "id": "c105656.01",
+  "line": 1,
+  "text": "เราผลิตร้อย ขวดก็ ผลิตล้าน ขวด ต้นทุนมัน จะ เท่ากัน",
+  "near": "เราผลิตร้อย ขวดก็ ผลิตล้าน ขวด ต้นทุนมัน จะ เท่ากัน ว่า ใคร จะ แพง กว่า",
+  "lead": "เราผลิตร้อยขวดก็",
+  "key": "ผลิตล้านขวด",
+  "meaning": "hundred bottles vs million bottles",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "measure",
+   "a": {
+    "icon": "package",
+    "v": 0.2
+   },
+   "b": {
+    "icon": "package",
+    "v": 1
+   },
+   "win": "b",
+   "how": "check"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.02",
+  "line": 3,
+  "text": "ก็ ต้อง ของ ผม แพง กว่า",
+  "near": "ว่า ใคร จะ แพง กว่า ก็ ต้อง ของ ผม แพง กว่า แล้ว ถ้า เกิด มัน เหมือนกัน ทั้งสอง อย่าง ไม่ มี แบรนด์",
+  "lead": "ต้องของผม",
+  "key": "แพงกว่า",
+  "meaning": "mine costs more",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "measure",
+   "a": {
+    "icon": "tag",
+    "v": 1
+   },
+   "b": {
+    "icon": "tag",
+    "v": 0.5,
+    "tone": "soft"
+   },
+   "win": "a",
+   "how": "check"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.03",
+  "line": 4,
+  "text": "แล้ว ถ้า เกิด มัน เหมือนกัน ทั้งสอง อย่าง ไม่ มี แบรนด์",
+  "near": "ก็ ต้อง ของ ผม แพง กว่า แล้ว ถ้า เกิด มัน เหมือนกัน ทั้งสอง อย่าง ไม่ มี แบรนด์ เนี่ย",
+  "lead": "เหมือนกันทั้งสองอย่าง",
+  "key": "ไม่มีแบรนด์",
+  "meaning": "identical, undecided",
+  "kind": "library",
+  "use": "undecided.lego",
+  "recipe": null,
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.04",
+  "line": 6,
+  "text": "ทำไม ก็ ต้อง มา เลือก ของ ผม",
+  "near": "เนี่ย ทำไม ก็ ต้อง มา เลือก ของ ผม เพราะฉะนั้น แบรนด์ คือ อะไร แบรนด์ คือ สัญญา ต่อ ผู้บริโภค",
+  "lead": "ทำไมก็ต้องมา",
+  "key": "เลือก",
+  "meaning": "why choose mine",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "pick",
+   "items": [
+    "package",
+    "box",
+    "gift"
+   ],
+   "at": 1,
+   "bad": false,
+   "round": false,
+   "how": "pick"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.05",
+  "line": 7,
+  "text": "เพราะฉะนั้น แบรนด์ คือ อะไร แบรนด์ คือ สัญญา ต่อ ผู้บริโภค",
+  "near": "ทำไม ก็ ต้อง มา เลือก ของ ผม เพราะฉะนั้น แบรนด์ คือ อะไร แบรนด์ คือ สัญญา ต่อ ผู้บริโภค ที่",
+  "lead": "แบรนด์ คือ",
+  "key": "สัญญา",
+  "meaning": "brand is a promise",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "tag",
+    "tone": "soft"
+   },
+   "to": {
+    "icon": "handshake",
+    "tone": "acc"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.06",
+  "line": 9,
+  "text": "จำได้ ง่าย และ มีความหมาย",
+  "near": "ที่ จำได้ ง่าย และ มีความหมาย แบรนด์ ก็ คือ พรม ที่ ให้ กับ ลูกค้า ที่ ทั้ง มี นิ่ง ฟู และ Marrable",
+  "lead": "จำได้ง่าย และ",
+  "key": "มีความหมาย",
+  "meaning": "easy to remember and meaningful",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "steps",
+   "as": "row",
+   "items": [
+    {
+     "icon": "eye"
+    },
+    {
+     "icon": "brain"
+    },
+    {
+     "icon": "lightbulb"
+    }
+   ],
+   "mark": {
+    "at": 2,
+    "how": "check"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.07",
+  "line": 11,
+  "text": "บางที จำ ง่าย อย่าง ที่ พี่ เปย์",
+  "near": "แบรนด์ ก็ คือ พรม ที่ ให้ กับ ลูกค้า ที่ ทั้ง มี นิ่ง ฟู และ Marrable บางที จำ ง่าย อย่าง ที่ พี่ เปย์ เห็น โลโก้ แล้ว จำได้",
+  "lead": "บางที",
+  "key": "จำง่าย",
+  "meaning": "easy to remember",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "eye"
+   },
+   "to": {
+    "icon": "brain",
+    "tone": "acc"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.08",
+  "line": 12,
+  "text": "เห็น โลโก้ แล้ว จำได้",
+  "near": "บางที จำ ง่าย อย่าง ที่ พี่ เปย์ เห็น โลโก้ แล้ว จำได้ แต่ ไม่ มี นิ่ง ฟู หรือว่า ไม่ มีความหมาย อะไร กัน สำหรับ เขา ก็ โอเค เสีย",
+  "lead": "เห็นโลโก้แล้ว",
+  "key": "จำได้",
+  "meaning": "see logo and recognise",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "image"
+   },
+   "to": {
+    "icon": "circle-check",
+    "tone": "acc"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.09",
+  "line": 13,
+  "text": "แต่ ไม่ มี นิ่ง ฟู หรือว่า ไม่ มีความหมาย อะไร กัน สำหรับ เขา ก็ โอเค เสีย",
+  "near": "เห็น โลโก้ แล้ว จำได้ แต่ ไม่ มี นิ่ง ฟู หรือว่า ไม่ มีความหมาย อะไร กัน สำหรับ เขา ก็ โอเค เสีย ตังค์ ให้ เขา เห็น ไป แต่ว่า ถาม ว่า มี แบรนด์ เลิฟ",
+  "lead": "ไม่มี",
+  "key": "ความหมาย",
+  "meaning": "no meaning",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "lightbulb"
+   },
+   "to": {
+    "icon": "lightbulb-off",
+    "tone": "neg"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.10",
+  "line": 15,
+  "text": "เกิด ไหม มี ความผูกพัน ไหม ไม่ มี",
+  "near": "ตังค์ ให้ เขา เห็น ไป แต่ว่า ถาม ว่า มี แบรนด์ เลิฟ เกิด ไหม มี ความผูกพัน ไหม ไม่ มี บาง อัน",
+  "lead": "มีความผูกพันไหม",
+  "key": "ไม่มี",
+  "meaning": "no bond",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "heart"
+   },
+   "to": {
+    "icon": "heart-off",
+    "tone": "neg"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.11",
+  "line": 17,
+  "text": "อาจจะ มีความหมาย แต่ ชื่อ จำ ไม่ ได้",
+  "near": "บาง อัน อาจจะ มีความหมาย แต่ ชื่อ จำ ไม่ ได้ ไป เจอกัน อีกครั้ง ก็ จำ ไม่ ได้ แบรนด์ ก็ คือ เหมือน พูด",
+  "lead": "มีความหมายแต่ชื่อ",
+  "key": "จำไม่ได้",
+  "meaning": "name cannot be remembered",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "pick",
+   "items": [
+    "tag",
+    "brain",
+    "heart"
+   ],
+   "at": 1,
+   "bad": false,
+   "round": false,
+   "how": "cross"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.12",
+  "line": 21,
+  "text": "แล้ว คุณ ซื้อ กลับมา คราวหน้า ผู้บริโภค",
+  "near": "หยิบ สินค้า ก็ มา ใช้ นิดนึง คุณ ศึกษา มา แล้ว แล้ว คุณ ซื้อ กลับมา คราวหน้า ผู้บริโภค ไม่ ไม่ ควร ที่จะ ต้อง ศึกษา อีกต่อไป",
+  "lead": "คุณซื้อ",
+  "key": "กลับมา",
+  "meaning": "buy again",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "bars",
+   "dir": "up"
+  },
+  "ok": false,
+  "problems": [
+   "center: missing"
+  ]
+ },
+ {
+  "id": "c105656.13",
+  "line": 22,
+  "text": "ไม่ ไม่ ควร ที่จะ ต้อง ศึกษา อีกต่อไป",
+  "near": "แล้ว คุณ ซื้อ กลับมา คราวหน้า ผู้บริโภค ไม่ ไม่ ควร ที่จะ ต้อง ศึกษา อีกต่อไป แล้ว เพราะ เขา เชื่อ ไป แล้ว",
+  "lead": "ไม่ควรที่จะต้อง",
+  "key": "ศึกษา",
+  "meaning": "no need to study again",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "pick",
+   "items": [
+    "book",
+    "search",
+    "glasses"
+   ],
+   "at": 0,
+   "bad": false,
+   "round": false,
+   "how": "cross"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.14",
+  "line": 25,
+  "text": "เขา เห็น แล้ว ว่า โอ้โห นี่ คือ สิ่ง ที่ พรีเมียร์",
+  "near": "จาก การ ที่ เขา ศึกษา เค้า แล้ว ครั้งแรก เขา เห็น แล้ว ว่า โอ้โห นี่ คือ สิ่ง ที่ พรีเมียร์ นี่ คือ สิ่ง ที่ ดี ต่อ ครอบครัว ของ เขา",
+  "lead": "นี่คือสิ่งที่",
+  "key": "พรีเมียร์",
+  "meaning": "this is premium",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "toggle",
+   "icon": "crown",
+   "on": true,
+   "then": {
+    "how": "check"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.15",
+  "line": 30,
+  "text": "คราวหน้า เขา ไม่ต้อง มา นั่ง เลือก อี กรอบ นึง แล้ว",
+  "near": "ชาวนา อยู่ สิ่ง เหล่านี้ คือ สิ่ง ที่ เขา ชอบ เพราะฉะนั้น คราวหน้า เขา ไม่ต้อง มา นั่ง เลือก อี กรอบ นึง แล้ว เขา จะ ใช้ น้ำมัน ชนิด ไหน เขา ก็ ควรจะ ใช้ น้ำมัน หลัง",
+  "lead": "ไม่ต้องมานั่ง",
+  "key": "เลือก",
+  "meaning": "no need to choose again",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "message-circle-question",
+    "tone": "soft"
+   },
+   "to": {
+    "icon": "check",
+    "tone": "acc"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.16",
+  "line": 33,
+  "text": "เนี่ย คือ คือ คำ ว่า แบรนด์ ที่ แท้จริง มัน ไม่ ใช่ โลโก้",
+  "near": "ข้าว ผม อย่างงี้ เนี่ย คือ คือ คำ ว่า แบรนด์ ที่ แท้จริง มัน ไม่ ใช่ โลโก้ อย่าง ที่ ทั้งสอง ท่าน ได้ พูด มัน ไม่ ใช่ ว่า ใช้",
+  "lead": "แบรนด์ที่แท้จริงไม่ใช่",
+  "key": "โลโก้",
+  "meaning": "not the logo",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "cards",
+   "a": {
+    "icon": "image",
+    "label": "โลโก้"
+   },
+   "b": {
+    "icon": "handshake",
+    "label": "แบรนด์"
+   },
+   "win": "b",
+   "how": "both"
+  },
+  "ok": false,
+  "problems": [
+   "lead \"แบรนด์ที่แท้จริงไม่ใช่\" not said here"
+  ]
+ },
+ {
+  "id": "c105656.17",
+  "line": 35,
+  "text": "สี อะไร มัน ไม่ ใช่ ว่า ใช้ แพ ค กระ จิ้ง แบบ",
+  "near": "อย่าง ที่ ทั้งสอง ท่าน ได้ พูด มัน ไม่ ใช่ ว่า ใช้ สี อะไร มัน ไม่ ใช่ ว่า ใช้ แพ ค กระ จิ้ง แบบ ไหน มัน มัน เป็น ส่วน นึง",
+  "lead": "ไม่ใช่ว่าใช้",
+  "key": "สีอะไร",
+  "meaning": "not what colour",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "pick",
+   "items": [
+    "palette",
+    "package",
+    "image"
+   ],
+   "at": 0,
+   "bad": false,
+   "round": false,
+   "how": "cross"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c105656.18",
+  "line": 37,
+  "text": "แต่ว่า มัน คือ คำสัญญา ที่ ให้ กับ ผู้",
+  "near": "ไหน มัน มัน เป็น ส่วน นึง แต่ว่า มัน คือ คำสัญญา ที่ ให้ กับ ผู้",
+  "lead": "มันคือ",
+  "key": "คำสัญญา",
+  "meaning": "it is a promise",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "tag",
+    "tone": "soft"
+   },
+   "to": {
+    "icon": "signature",
+    "tone": "acc"
+   }
+  },
+  "ok": true,
+  "problems": []
+ }
+]

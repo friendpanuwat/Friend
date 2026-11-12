@@ -1,0 +1,8 @@
+{
+ "scenes": [
+  {
+   "i": 14,
+   "code": "const o = ON[T.bg];\nconst icons = ['shopping-bag', 'calendar', 'chart-line', 'users', 'tag', 'house', 'clock', 'star', 'package'];\nconst perm = [4, 2, 6, 0, 8, 1, 3, 7, 5];\nconst N = 230, G = 50, X0 = 140, Y0 = 290;\nfor (let i = 0; i < 9; i++) {\n  const col = i % 3, row = Math.floor(i / 3);\n  const pc = perm[i] % 3, pr = Math.floor(perm[i] / 3);\n  const w = div(`left:${X0 + col * (N + G)}px;top:${Y0 + row * (N + G)}px;width:${N}px;height:${N}px`, c);\n  const hot = i === 4;\n  tile(w, icons[i], T.t0 + .05 + i * .04, 'left:0;top:0', {size: N, bg: hot ? ACC : o.tile, color: hot ? '#FFFFFF' : o.tileInk, sound: false, float: false});\n  const dx = (pc - col) * (N + G), dy = (pr - row) * (N + G);\n  mv.slide(w, T.hit, 'translate(0px,0px)', `translate(${dx}px,${dy}px)`);\n}\nsnd('hit', T.hit);\n"
+  }
+ ]
+}

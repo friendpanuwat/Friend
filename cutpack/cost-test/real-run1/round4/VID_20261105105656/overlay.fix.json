@@ -1,0 +1,478 @@
+{
+ "topic": "biz",
+ "camera": [
+  {
+   "move": "push",
+   "t": 12.9
+  },
+  {
+   "move": "pull",
+   "t": 17.0
+  },
+  {
+   "move": "push",
+   "t": 43.0
+  },
+  {
+   "move": "pull",
+   "t": 50.0
+  },
+  {
+   "move": "push",
+   "t": 76.0
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 1.4,
+   "t1": 3.6,
+   "say": "ผลิตร้อยขวด ผลิตล้านขวด",
+   "shows": "two groups compared, small vs huge",
+   "part": "B03.v1",
+   "size": "short",
+   "hit": 2.48,
+   "need": "",
+   "slots": {
+    "a": "ร้อยขวด",
+    "b": "ล้านขวด",
+    "ia": "package",
+    "ib": "factory",
+    "win": "",
+    "wlead": "ผลิต",
+    "wkey": "ล้านขวด"
+   }
+  },
+  {
+   "t0": 4.1,
+   "t1": 6.9,
+   "say": "ใครจะแพงกว่า ของผมแพงกว่า",
+   "shows": "price tag jumps up",
+   "part": "B07.v3",
+   "size": "short",
+   "hit": 5.84,
+   "need": "",
+   "slots": {
+    "text": "ของผมแพงกว่า",
+    "icon": "tag",
+    "wlead": "ของผม",
+    "wkey": "แพงกว่า"
+   }
+  },
+  {
+   "t0": 7.4,
+   "t1": 10.2,
+   "say": "เหมือนกันทั้งสองอย่าง ไม่มีแบรนด์",
+   "shows": "question mark about brand",
+   "part": "B06.v1",
+   "size": "narrow",
+   "hit": 8.8,
+   "need": "",
+   "slots": {
+    "q": "ไม่มีแบรนด์",
+    "icon": "tag",
+    "wlead": "เหมือนกัน",
+    "wkey": "ไม่มีแบรนด์"
+   }
+  },
+  {
+   "t0": 12.5,
+   "t1": 15.5,
+   "say": "แบรนด์คืออะไร",
+   "shows": "search for brand meaning",
+   "part": "B06.v4",
+   "size": "short",
+   "hit": 13.52,
+   "need": "",
+   "slots": {
+    "q": "แบรนด์คืออะไร",
+    "icon": "search",
+    "wlead": "แบรนด์",
+    "wkey": "คืออะไร"
+   }
+  },
+  {
+   "t0": 16.0,
+   "t1": 19.4,
+   "say": "สัญญาต่อผู้บริโภค ที่จำได้ง่าย",
+   "shows": "promise handshake",
+   "part": "B14.v1",
+   "size": "narrow",
+   "hit": 16.5,
+   "need": "",
+   "slots": {
+    "words": [
+     "สัญญา",
+     "จำได้ง่าย"
+    ],
+    "key": 0,
+    "icon": "handshake",
+    "wlead": "แบรนด์คือ",
+    "wkey": "สัญญา"
+   }
+  },
+  {
+   "t0": 20.5,
+   "t1": 23.5,
+   "say": "และมีความหมาย",
+   "shows": "meaning idea",
+   "part": "B13.v1",
+   "size": "short",
+   "hit": 21.12,
+   "need": "",
+   "slots": {
+    "tip": "มีความหมาย",
+    "icon": "lightbulb",
+    "wlead": "และ",
+    "wkey": "มีความหมาย"
+   }
+  },
+  {
+   "t0": 24.0,
+   "t1": 26.9,
+   "say": "ให้กับลูกค้า",
+   "shows": "people group",
+   "part": "B10.v1",
+   "size": "narrow",
+   "hit": 24.48,
+   "need": "",
+   "slots": {
+    "who": "ลูกค้า",
+    "wlead": "ให้กับ",
+    "wkey": "ลูกค้า"
+   }
+  },
+  {
+   "t0": 27.8,
+   "t1": 30.8,
+   "say": "บางทีจำง่าย",
+   "shows": "easy to remember",
+   "part": "B14.v3",
+   "size": "short",
+   "hit": 28.56,
+   "need": "",
+   "slots": {
+    "words": [
+     "บางทีจำ",
+     "ง่าย"
+    ],
+    "key": 1,
+    "icon": "brain",
+    "wlead": "บางทีจำ",
+    "wkey": "ง่าย"
+   }
+  },
+  {
+   "t0": 31.7,
+   "t1": 34.4,
+   "say": "เห็นโลโก้แล้วจำได้ แต่ไม่มีนิ่งฟู",
+   "shows": "before and after sides",
+   "part": "B03.v4",
+   "size": "short",
+   "hit": 33.52,
+   "need": "",
+   "slots": {
+    "a": "จำได้",
+    "b": "ไม่มีนิ่งฟู",
+    "ia": "eye",
+    "ib": "x",
+    "win": "a",
+    "wlead": "จำได้",
+    "wkey": "แต่ไม่มี"
+   }
+  },
+  {
+   "t0": 35.0,
+   "t1": 37.4,
+   "say": "โอเคเสียตังค์",
+   "shows": "payment ok",
+   "part": "B08.v4",
+   "size": "narrow",
+   "hit": 36.64,
+   "need": "",
+   "slots": {
+    "goal": "เสียตังค์",
+    "icon": "wallet",
+    "wlead": "โอเค",
+    "wkey": "เสียตังค์"
+   }
+  },
+  {
+   "t0": 38.0,
+   "t1": 40.9,
+   "say": "มีความผูกพันไหม ไม่มี",
+   "shows": "link between two people",
+   "part": "B10.v3",
+   "size": "narrow",
+   "hit": 40.48,
+   "need": "",
+   "slots": {
+    "who": "ลูกค้ากับแบรนด์",
+    "wlead": "ความผูกพัน",
+    "wkey": "ไม่มี"
+   }
+  },
+  {
+   "t0": 42.9,
+   "t1": 45.8,
+   "say": "อาจจะมีความหมาย แต่ชื่อจำไม่ได้",
+   "shows": "warning sign on forgettable name",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 44.64,
+   "need": "",
+   "slots": {
+    "text": "ชื่อจำไม่ได้",
+    "icon": "tag",
+    "wlead": "ชื่อ",
+    "wkey": "จำไม่ได้"
+   }
+  },
+  {
+   "t0": 46.4,
+   "t1": 49.0,
+   "say": "ไปเจอกันอีกครั้ง ก็จำไม่ได้",
+   "shows": "forgot brand",
+   "part": "B06.v1",
+   "size": "narrow",
+   "hit": 47.12,
+   "need": "",
+   "slots": {
+    "q": "จำไม่ได้",
+    "icon": "brain",
+    "wlead": "อีกครั้ง",
+    "wkey": "จำไม่ได้"
+   }
+  },
+  {
+   "t0": 49.5,
+   "t1": 52.4,
+   "say": "หยิบสินค้ามาใช้นิดนึง",
+   "shows": "trying product",
+   "part": "B13.v3",
+   "size": "short",
+   "hit": 51.44,
+   "need": "",
+   "slots": {
+    "tip": "ใช้นิดนึง",
+    "icon": "package",
+    "wlead": "หยิบสินค้า",
+    "wkey": "ใช้"
+   }
+  },
+  {
+   "t0": 52.8,
+   "t1": 54.1,
+   "say": "ศึกษามาแล้ว",
+   "shows": "checked",
+   "part": "B08.v1",
+   "size": "narrow",
+   "hit": 53.4,
+   "need": "",
+   "slots": {
+    "goal": "ศึกษามาแล้ว",
+    "icon": "book",
+    "wlead": "ศึกษา",
+    "wkey": "แล้ว"
+   }
+  },
+  {
+   "t0": 54.2,
+   "t1": 57.0,
+   "say": "คุณซื้อกลับมา คราวหน้าผู้บริโภค",
+   "shows": "repeat purchase loop",
+   "part": "B12.v4",
+   "size": "short",
+   "hit": 56.0,
+   "need": "",
+   "slots": {
+    "a": "ซื้อ",
+    "ia": "shopping-cart",
+    "b": "ซื้อกลับมา",
+    "ib": "refresh-cw",
+    "c": "เชื่อ",
+    "ic": "heart",
+    "wlead": "คราวหน้า",
+    "wkey": "ผู้บริโภค"
+   }
+  },
+  {
+   "t0": 57.5,
+   "t1": 60.5,
+   "say": "ไม่ต้องศึกษาอีกต่อไป เพราะเขาเชื่อ",
+   "shows": "stop studying, trust",
+   "part": "B05.v2",
+   "size": "narrow",
+   "hit": 58.16,
+   "need": "",
+   "slots": {
+    "x": "ศึกษา",
+    "y": "เชื่อ",
+    "aty": 58.56,
+    "wlead": "ไม่ต้อง",
+    "wkey": "เชื่อ"
+   }
+  },
+  {
+   "t0": 61.0,
+   "t1": 63.2,
+   "say": "นี่คือสิ่งที่พรีเมียร์",
+   "shows": "checklist",
+   "part": "B04.v1",
+   "size": "short",
+   "hit": 62.56,
+   "need": "",
+   "slots": {
+    "items": [
+     "พรีเมียร์",
+     "ดีต่อครอบครัว"
+    ],
+    "at": [
+     62.0,
+     62.7
+    ],
+    "wlead": "นี่คือสิ่งที่",
+    "wkey": "ดี"
+   }
+  },
+  {
+   "t0": 63.6,
+   "t1": 65.7,
+   "say": "ดีต่อครอบครัว เฮลตี้",
+   "shows": "healthy",
+   "part": "B08.v4",
+   "size": "narrow",
+   "hit": 64.55,
+   "need": "",
+   "slots": {
+    "goal": "เฮลตี้",
+    "icon": "heart-pulse",
+    "wlead": "ดีต่อ",
+    "wkey": "เฮลตี้"
+   }
+  },
+  {
+   "t0": 66.0,
+   "t1": 68.8,
+   "say": "ลดการทำลายต้นไม้ ช่วยชาวนา",
+   "shows": "cause to effect",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 67.92,
+   "need": "",
+   "slots": {
+    "a": "ลดทำลายต้นไม้",
+    "ia": "leaf",
+    "b": "ช่วยชาวนา",
+    "ib": "hand-heart",
+    "wlead": "ช่วยเหลือ",
+    "wkey": "ชาวนา"
+   }
+  },
+  {
+   "t0": 69.2,
+   "t1": 71.6,
+   "say": "คือสิ่งที่เขาชอบ",
+   "shows": "liked",
+   "part": "B02.v3",
+   "size": "narrow",
+   "hit": 70.24,
+   "need": "",
+   "slots": {
+    "dir": "up",
+    "icon": "heart",
+    "wlead": "เขา",
+    "wkey": "ชอบ"
+   }
+  },
+  {
+   "t0": 72.0,
+   "t1": 75.0,
+   "say": "ไม่ต้องนั่งเลือกอีกรอบ",
+   "shows": "stop choosing",
+   "part": "B14.v1",
+   "size": "short",
+   "hit": 72.32,
+   "need": "",
+   "slots": {
+    "words": [
+     "ไม่ต้อง",
+     "เลือกอีกรอบ"
+    ],
+    "key": 1,
+    "icon": "check",
+    "wlead": "ไม่ต้อง",
+    "wkey": "เลือก"
+   }
+  },
+  {
+   "t0": 76.2,
+   "t1": 79.0,
+   "say": "แบรนด์ที่แท้จริงไม่ใช่โลโก้",
+   "shows": "logo crossed out",
+   "part": "B05.v1",
+   "size": "short",
+   "hit": 78.24,
+   "need": "",
+   "slots": {
+    "x": "โลโก้",
+    "y": "คำสัญญา",
+    "aty": 78.6,
+    "wlead": "ไม่ใช่",
+    "wkey": "โลโก้"
+   }
+  },
+  {
+   "t0": 79.5,
+   "t1": 82.3,
+   "say": "มันไม่ใช่ว่าใช้สีอะไร",
+   "shows": "wrong chips",
+   "part": "B05.v2",
+   "size": "narrow",
+   "hit": 80.48,
+   "need": "",
+   "slots": {
+    "x": "ใช้สีอะไร",
+    "y": "คำสัญญา",
+    "aty": 81.6,
+    "wlead": "ไม่ใช่",
+    "wkey": "สี"
+   }
+  },
+  {
+   "t0": 82.8,
+   "t1": 85.8,
+   "say": "แพคเกจจิ้งแบบไหน",
+   "shows": "package",
+   "part": "B13.v1",
+   "size": "short",
+   "hit": 83.76,
+   "need": "",
+   "slots": {
+    "tip": "แพคเกจจิ้ง",
+    "icon": "package",
+    "wlead": "แบบไหน",
+    "wkey": "แพคเกจ"
+   }
+  },
+  {
+   "t0": 86.4,
+   "t1": 89.5,
+   "say": "แต่คือคำสัญญาที่ให้กับผู้บริโภค",
+   "shows": "promise handshake",
+   "part": "B14.v3",
+   "size": "narrow",
+   "hit": 87.84,
+   "need": "",
+   "slots": {
+    "words": [
+     "คำสัญญา",
+     "ให้ผู้บริโภค"
+    ],
+    "key": 0,
+    "icon": "handshake",
+    "wlead": "แบรนด์คือ",
+    "wkey": "คำสัญญา"
+   }
+  }
+ ]
+}

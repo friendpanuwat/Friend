@@ -1,0 +1,8482 @@
+{
+ "cards": [
+  {
+   "id": "B01.v1",
+   "kind": "card",
+   "name": "ตัวเลขนับขึ้นแล้วหยุด",
+   "hit": "ตัวเลขนับถึงค่าแล้วเด้ง + วงคลื่น",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "num": {
+     "type": "number",
+     "req": true
+    },
+    "of": {
+     "type": "number"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8
+    },
+    "pre": {
+     "type": "text",
+     "max": 2
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B01.v2",
+   "kind": "card",
+   "name": "วงแหวนเปอร์เซ็นต์",
+   "hit": "วงแหวนเติมถึงค่าแล้วเด้ง",
+   "dur": [
+    1.6,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white"
+   ],
+   "slots": {
+    "num": {
+     "type": "number",
+     "req": true
+    },
+    "of": {
+     "type": "number"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8
+    },
+    "pre": {
+     "type": "text",
+     "max": 2
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B01.v3",
+   "kind": "card",
+   "name": "ตารางไอคอน 10 ช่อง",
+   "hit": "ไอคอนตามสัดส่วนเปลี่ยนเป็นสีเน้นทีละตัว",
+   "dur": [
+    1.6,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "num": {
+     "type": "number",
+     "req": true
+    },
+    "of": {
+     "type": "number"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8
+    },
+    "pre": {
+     "type": "text",
+     "max": 2
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B01.v4",
+   "kind": "card",
+   "name": "การ์ดตัวเลขแบบแดชบอร์ด",
+   "hit": "การ์ดเด้ง + ชิปป้ายขึ้นใต้การ์ด",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "num": {
+     "type": "number",
+     "req": true
+    },
+    "of": {
+     "type": "number"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8
+    },
+    "pre": {
+     "type": "text",
+     "max": 2
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B02.v1",
+   "kind": "card",
+   "name": "กราฟแท่ง",
+   "hit": "ขึ้น: แท่งสุดท้ายเด้ง + วงคลื่น · ลง: ทุกแท่งร่วงพร้อมกัน แท่งสุดท้ายเป็นสีแดง",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "dir": {
+     "type": "choice",
+     "of": [
+      "up",
+      "down"
+     ],
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B02.v2",
+   "kind": "card",
+   "name": "กราฟเส้น",
+   "hit": "เส้นวิ่งถึงปลายตรงคำ + วงคลื่นที่ปลายเส้น",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white"
+   ],
+   "slots": {
+    "dir": {
+     "type": "choice",
+     "of": [
+      "up",
+      "down"
+     ],
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B02.v3",
+   "kind": "card",
+   "name": "ลูกศรใหญ่คู่ตัวเลข",
+   "hit": "ลูกศรเด้ง + ตัวเลขขึ้นตรงคำ",
+   "dur": [
+    1,
+    3
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "dir": {
+     "type": "choice",
+     "of": [
+      "up",
+      "down"
+     ],
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B02.v4",
+   "kind": "card",
+   "name": "มาตรวัดเข็ม",
+   "hit": "เข็มตีขึ้นหรือลงตรงคำ",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "dir": {
+     "type": "choice",
+     "of": [
+      "up",
+      "down"
+     ],
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B03.v1",
+   "kind": "card",
+   "name": "แบ่งซ้ายขวา + vs",
+   "hit": "ฝั่งที่ชนะเด้ง + วงคลื่น ฝั่งที่แพ้หรี่ลง",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "win": {
+     "type": "choice",
+     "of": [
+      "a",
+      "b",
+      ""
+     ]
+    },
+    "rows": {
+     "type": "list",
+     "max": 3
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B03.v2",
+   "kind": "card",
+   "name": "การ์ดสองใบ ใบที่แพ้หรี่ลง",
+   "hit": "การ์ดที่ชนะเด้ง ใบที่แพ้หรี่และจางสี",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream"
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "win": {
+     "type": "choice",
+     "of": [
+      "a",
+      "b",
+      ""
+     ]
+    },
+    "rows": {
+     "type": "list",
+     "max": 3
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B03.v3",
+   "kind": "card",
+   "name": "ตาราง 2 คอลัมน์ ถูกและผิด",
+   "hit": "คอลัมน์ที่ชนะมีกรอบสีเน้นขึ้นตรงคำ",
+   "dur": [
+    1.8,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "win": {
+     "type": "choice",
+     "of": [
+      "a",
+      "b",
+      ""
+     ]
+    },
+    "rows": {
+     "type": "list",
+     "max": 3
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B03.v4",
+   "kind": "card",
+   "name": "แถบเลื่อนก่อนไปหลัง",
+   "hit": "แผ่นปิดเลื่อนออก เผยฝั่ง \"หลัง\" ตรงคำ",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "win": {
+     "type": "choice",
+     "of": [
+      "a",
+      "b",
+      ""
+     ]
+    },
+    "rows": {
+     "type": "list",
+     "max": 3
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B04.v1",
+   "kind": "card",
+   "name": "ขั้น 1-2-3 ขึ้นทีละขั้น",
+   "hit": "แต่ละขั้นขึ้นตรงคำของขั้นนั้น ขั้นสุดท้ายเด้ง",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "items": {
+     "type": "list",
+     "min": 2,
+     "max": 5,
+     "req": true
+    },
+    "at": {
+     "type": "list"
+    },
+    "icons": {
+     "type": "list"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B04.v2",
+   "kind": "card",
+   "name": "เช็กลิสต์ติ๊กทีละข้อ",
+   "hit": "ช่องถูกติ๊กทีละข้อตามคำ ข้อสุดท้ายตรงคำสำคัญ",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "items": {
+     "type": "list",
+     "min": 2,
+     "max": 5,
+     "req": true
+    },
+    "at": {
+     "type": "list"
+    },
+    "icons": {
+     "type": "list"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B04.v3",
+   "kind": "card",
+   "name": "เส้นทางมีจุดแวะ",
+   "hit": "จุดแวะสว่างทีละจุด จุดสุดท้ายมีธงตรงคำสำคัญ",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "items": {
+     "type": "list",
+     "min": 2,
+     "max": 5,
+     "req": true
+    },
+    "at": {
+     "type": "list"
+    },
+    "icons": {
+     "type": "list"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B04.v4",
+   "kind": "card",
+   "name": "การ์ดซ้อนขึ้นทีละใบ",
+   "hit": "การ์ดใบสุดท้ายขึ้นมาบนสุดตรงคำ",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "cream"
+   ],
+   "slots": {
+    "items": {
+     "type": "list",
+     "min": 2,
+     "max": 5,
+     "req": true
+    },
+    "at": {
+     "type": "list"
+    },
+    "icons": {
+     "type": "list"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B05.v1",
+   "kind": "card",
+   "name": "X โดนขีดฆ่าแล้ว Y ขึ้นแทน",
+   "hit": "เส้นขีดฆ่าวิ่งผ่าน X ตรงคำ \"ไม่ใช่\" แล้ว Y เด้งขึ้นตรงคำ \"แต่\"",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "white",
+    "cream",
+    "glow"
+   ],
+   "slots": {
+    "x": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "y": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "ix": {
+     "type": "icon"
+    },
+    "iy": {
+     "type": "icon"
+    },
+    "aty": {
+     "type": "number"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    }
+   }
+  },
+  {
+   "id": "B05.v2",
+   "kind": "card",
+   "name": "ชิป X โดนกากบาท ชิป Y ได้เครื่องหมายถูก",
+   "hit": "กากบาทแดงวาดทับชิป X แล้วชิป Y ขึ้นพร้อมเครื่องหมายถูก",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "x": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "y": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "ix": {
+     "type": "icon"
+    },
+    "iy": {
+     "type": "icon"
+    },
+    "aty": {
+     "type": "number"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    }
+   }
+  },
+  {
+   "id": "B05.v3",
+   "kind": "card",
+   "name": "ป้ายความเชื่อพลิกเป็นความจริง",
+   "hit": "การ์ดพลิกตรงคำ \"แต่\" ด้านหลังเป็นความจริง",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "x": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "y": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "ix": {
+     "type": "icon"
+    },
+    "iy": {
+     "type": "icon"
+    },
+    "aty": {
+     "type": "number"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    }
+   }
+  },
+  {
+   "id": "B05.v4",
+   "kind": "card",
+   "name": "ตาชั่งเอียงจาก X ไปทาง Y",
+   "hit": "คานตาชั่งเอียงไปทาง Y ตรงคำ \"แต่\"",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "x": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "y": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "ix": {
+     "type": "icon"
+    },
+    "iy": {
+     "type": "icon"
+    },
+    "aty": {
+     "type": "number"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    }
+   }
+  },
+  {
+   "id": "B06.v1",
+   "kind": "card",
+   "name": "เครื่องหมาย ? ใหญ่ส่าย",
+   "hit": "เครื่องหมาย ? ส่ายตรงคำท้ายคำถาม",
+   "dur": [
+    1,
+    3
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "q": {
+     "type": "text",
+     "max": 22,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B06.v2",
+   "kind": "card",
+   "name": "กล่องคำถามพิมพ์ทีละตัว",
+   "hit": "พิมพ์จบตรงคำท้ายคำถาม แล้วป้าย ? เด้ง",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "q": {
+     "type": "text",
+     "max": 22,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B06.v3",
+   "kind": "card",
+   "name": "ไอคอนเรื่องมี ? ลอยรอบ",
+   "hit": "เครื่องหมาย ? ตัวใหญ่เด้งตรงคำถาม",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "q": {
+     "type": "text",
+     "max": 22,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B06.v4",
+   "kind": "card",
+   "name": "ช่องค้นหาพิมพ์คำถามเอง",
+   "hit": "พิมพ์จบแล้วผลค้นหาโหลดขึ้นตรงคำ",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "q": {
+     "type": "text",
+     "max": 22,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B07.v1",
+   "kind": "card",
+   "name": "ป้ายเตือนสามเหลี่ยม",
+   "hit": "ป้ายเตือนเด้ง + วงคลื่นสีแดงตรงคำ \"ระวัง เสี่ยง\"",
+   "dur": [
+    1,
+    3
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "level": {
+     "type": "choice",
+     "of": [
+      "mid",
+      "high"
+     ]
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B07.v2",
+   "kind": "card",
+   "name": "ไอคอนเรื่องแตกร้าว",
+   "hit": "รอยร้าวสีแดงวิ่งผ่านไอคอน แล้วกล่องเอียงลง",
+   "dur": [
+    1.2,
+    3
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "level": {
+     "type": "choice",
+     "of": [
+      "mid",
+      "high"
+     ]
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B07.v3",
+   "kind": "card",
+   "name": "การ์ดแจ้งเตือนแบบหน้าจอมือถือ",
+   "hit": "แจ้งเตือนเด้ง + จุดแดงขึ้นตรงคำ",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "level": {
+     "type": "choice",
+     "of": [
+      "mid",
+      "high"
+     ]
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B07.v4",
+   "kind": "card",
+   "name": "แถบความเสี่ยงจากต่ำไปสูง",
+   "hit": "แถบวิ่งขึ้นถึงระดับเสี่ยงและเป็นสีแดงตรงคำ",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "level": {
+     "type": "choice",
+     "of": [
+      "mid",
+      "high"
+     ]
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B08.v1",
+   "kind": "card",
+   "name": "เป้าพร้อมลูกศรเข้ากลาง",
+   "hit": "ลูกศรปักกลางเป้าตรงคำ \"สำเร็จ ได้ ถึง\"",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "goal": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B08.v2",
+   "kind": "card",
+   "name": "แถบความคืบหน้าเต็ม",
+   "hit": "แถบเต็มพอดีตรงคำ แล้วเครื่องหมายถูกเด้งที่ปลายแถบ",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "goal": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B08.v3",
+   "kind": "card",
+   "name": "ธงปักบนยอด",
+   "hit": "ธงปักบนยอดเขาตรงคำ + วงคลื่น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "goal": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B08.v4",
+   "kind": "card",
+   "name": "เครื่องหมายถูกใหญ่",
+   "hit": "เครื่องหมายถูกวาดเสร็จตรงคำ + วงคลื่น",
+   "dur": [
+    1,
+    3
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "goal": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B09.v1",
+   "kind": "card",
+   "name": "นาฬิกาเข็มหมุน",
+   "hit": "เข็มยาวหมุนครบรอบแล้วหยุดตรงคำบอกเวลา",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "when": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "points": {
+     "type": "list",
+     "max": 4
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B09.v2",
+   "kind": "card",
+   "name": "ปฏิทินขีดวัน",
+   "hit": "วันสุดท้ายถูกวงกลมสีเน้นตรงคำ",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "when": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "points": {
+     "type": "list",
+     "max": 4
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B09.v3",
+   "kind": "card",
+   "name": "เส้นเวลามีจุด",
+   "hit": "จุดสุดท้ายบนเส้นเวลาเด้งตรงคำ",
+   "dur": [
+    1.4,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "when": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "points": {
+     "type": "list",
+     "max": 4
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B09.v4",
+   "kind": "card",
+   "name": "นาฬิกาทรายพลิก",
+   "hit": "นาฬิกาทรายพลิกครึ่งรอบตรงคำ",
+   "dur": [
+    1,
+    3
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "when": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "points": {
+     "type": "list",
+     "max": 4
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B10.v1",
+   "kind": "card",
+   "name": "กลุ่มคน หนึ่งคนถูกไฮไลต์",
+   "hit": "คนที่ถูกพูดถึงสว่างเป็นสีเน้น + วงคลื่น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "who": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "n": {
+     "type": "number"
+    },
+    "traits": {
+     "type": "list",
+     "max": 3
+    },
+    "link": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B10.v2",
+   "kind": "card",
+   "name": "การ์ดโปรไฟล์ลูกค้า",
+   "hit": "การ์ดเด้งเมื่อชิปลักษณะครบตรงคำ",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "who": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "n": {
+     "type": "number"
+    },
+    "traits": {
+     "type": "list",
+     "max": 3
+    },
+    "link": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B10.v3",
+   "kind": "card",
+   "name": "คนสองคนมีเส้นเชื่อม",
+   "hit": "เส้นเชื่อมวาดถึงอีกฝั่ง แล้วไอคอนตรงกลางเด้ง",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "who": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "n": {
+     "type": "number"
+    },
+    "traits": {
+     "type": "list",
+     "max": 3
+    },
+    "link": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B10.v4",
+   "kind": "card",
+   "name": "จำนวนคนค่อย ๆ เพิ่มขึ้น",
+   "hit": "คนสุดท้ายเข้ามาครบจำนวนตรงคำ",
+   "dur": [
+    1.4,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "who": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "n": {
+     "type": "number"
+    },
+    "traits": {
+     "type": "list",
+     "max": 3
+    },
+    "link": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B11.v1",
+   "kind": "card",
+   "name": "กล่องแชตมีสถานะอ่านแล้ว",
+   "hit": "สถานะ \"อ่านแล้ว\" ขึ้นใต้ข้อความตรงคำ",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 30,
+     "req": true
+    },
+    "who": {
+     "type": "text",
+     "max": 12
+    },
+    "stars": {
+     "type": "number"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B11.v2",
+   "kind": "card",
+   "name": "การ์ดรีวิวมีดาว",
+   "hit": "ดาวติดครบตามจำนวนที่พูดตรงคำ",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 30,
+     "req": true
+    },
+    "who": {
+     "type": "text",
+     "max": 12
+    },
+    "stars": {
+     "type": "number"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B11.v4",
+   "kind": "card",
+   "name": "คอมเมนต์แบบโซเชียล",
+   "hit": "หัวใจเต็มสีแล้วเด้งตรงคำ",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 30,
+     "req": true
+    },
+    "who": {
+     "type": "text",
+     "max": 12
+    },
+    "stars": {
+     "type": "number"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B12.v1",
+   "kind": "card",
+   "name": "ไอคอน A ลูกศรไปไอคอน B",
+   "hit": "ลูกศรวิ่งถึง B ตรงคำ \"ทำให้\" แล้ว B เด้ง",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "c": {
+     "type": "text",
+     "max": 12
+    },
+    "ic": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B12.v4",
+   "kind": "card",
+   "name": "วงจรวน A ไป B ไป C",
+   "hit": "ลูกศรเส้นสุดท้ายปิดวงตรงคำ",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "c": {
+     "type": "text",
+     "max": 12
+    },
+    "ic": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B13.v1",
+   "kind": "card",
+   "name": "หลอดไฟสว่าง",
+   "hit": "หลอดไฟติดเป็นสีเน้น + ประกายรอบ ๆ ตรงคำ \"เคล็ดลับ\"",
+   "dur": [
+    1,
+    3
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "tip": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B13.v3",
+   "kind": "card",
+   "name": "กุญแจไขแม่กุญแจ",
+   "hit": "กุญแจเสียบเข้าตรงคำ แม่กุญแจเปิด",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "tip": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B13.v4",
+   "kind": "card",
+   "name": "การ์ดเคล็ดลับพับมุม",
+   "hit": "แถบไฮไลต์วิ่งใต้ข้อความเคล็ดลับตรงคำ",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "tip": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B14.v1",
+   "kind": "card",
+   "name": "คำขึ้นทีละคำ แล้วไฮไลต์คำสำคัญ",
+   "hit": "คำสำคัญเด้งเป็นกล่องสีเน้น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "words": {
+     "type": "list",
+     "min": 2,
+     "max": 7,
+     "req": true
+    },
+    "key": {
+     "type": "number",
+     "req": true
+    },
+    "at": {
+     "type": "list"
+    },
+    "icon": {
+     "type": "icon"
+    }
+   }
+  },
+  {
+   "id": "B14.v2",
+   "kind": "card",
+   "name": "คำใหญ่เต็มจอ เปลี่ยนสีทีละตัว",
+   "hit": "คำใหญ่ขึ้นแล้วไล่สีทีละตัว",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow"
+   ],
+   "slots": {
+    "words": {
+     "type": "list",
+     "min": 2,
+     "max": 7,
+     "req": true
+    },
+    "key": {
+     "type": "number",
+     "req": true
+    },
+    "at": {
+     "type": "list"
+    },
+    "icon": {
+     "type": "icon"
+    }
+   }
+  },
+  {
+   "id": "B14.v3",
+   "kind": "card",
+   "name": "ลายมือ Sriracha คู่กับ Mitr",
+   "hit": "คำสำคัญเป็นลายมือ มีเส้นใต้สีเน้นวาดตรงคำ",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "words": {
+     "type": "list",
+     "min": 2,
+     "max": 7,
+     "req": true
+    },
+    "key": {
+     "type": "number",
+     "req": true
+    },
+    "at": {
+     "type": "list"
+    },
+    "icon": {
+     "type": "icon"
+    }
+   }
+  },
+  {
+   "id": "B15.v1",
+   "kind": "card",
+   "name": "ปุ่มถูกกด",
+   "hit": "เคอร์เซอร์กดปุ่มตรงคำ \"กด ติดตาม\" แล้วไอคอนเปลี่ยนเป็นเครื่องหมายถูก",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "action": {
+     "type": "choice",
+     "of": [
+      "follow",
+      "comment",
+      "save",
+      "share"
+     ],
+     "req": true
+    },
+    "text": {
+     "type": "text",
+     "max": 22,
+     "req": true
+    },
+    "points": {
+     "type": "list",
+     "max": 3
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B15.v2",
+   "kind": "card",
+   "name": "กล่องคอมเมนต์พิมพ์เอง",
+   "hit": "พิมพ์จบแล้วปุ่มส่งสว่างตรงคำ",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "action": {
+     "type": "choice",
+     "of": [
+      "follow",
+      "comment",
+      "save",
+      "share"
+     ],
+     "req": true
+    },
+    "text": {
+     "type": "text",
+     "max": 22,
+     "req": true
+    },
+    "points": {
+     "type": "list",
+     "max": 3
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B15.v3",
+   "kind": "card",
+   "name": "ไอคอนการกระทำโดนกด",
+   "hit": "ไอคอนเต็มสีเน้นแล้วเด้ง + วงคลื่นตรงคำ",
+   "dur": [
+    1,
+    3
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "action": {
+     "type": "choice",
+     "of": [
+      "follow",
+      "comment",
+      "save",
+      "share"
+     ],
+     "req": true
+    },
+    "text": {
+     "type": "text",
+     "max": 22,
+     "req": true
+    },
+    "points": {
+     "type": "list",
+     "max": 3
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B15.v4",
+   "kind": "card",
+   "name": "สรุป 3 คำแล้วการ์ดปิด",
+   "hit": "คำสรุปขึ้นทีละคำ แล้วปุ่มการกระทำเด้งตรงคำ",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "action": {
+     "type": "choice",
+     "of": [
+      "follow",
+      "comment",
+      "save",
+      "share"
+     ],
+     "req": true
+    },
+    "text": {
+     "type": "text",
+     "max": 22,
+     "req": true
+    },
+    "points": {
+     "type": "list",
+     "max": 3
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B01.biz1",
+   "kind": "card",
+   "name": "ป้ายราคาห้อยเชือก",
+   "hit": "ราคานับถึงค่า ป้ายแกว่งรับ + วงคลื่น",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "num": {
+     "type": "number",
+     "req": true
+    },
+    "of": {
+     "type": "number"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8
+    },
+    "pre": {
+     "type": "text",
+     "max": 2
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-P1"
+  },
+  {
+   "id": "B02.biz1",
+   "kind": "card",
+   "name": "ตัวนับยอดวิวของโพสต์",
+   "hit": "แถบยอดวิวเติมจนสุด (ขึ้น) หรือไหลลงเป็นสีแดง (ลง) แล้วป้ายลูกศรเด้ง",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "dir": {
+     "type": "choice",
+     "of": [
+      "up",
+      "down"
+     ],
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-P2"
+  },
+  {
+   "id": "B07.biz1",
+   "kind": "card",
+   "name": "ตะกร้าถูกทิ้ง",
+   "hit": "ตะกร้าเอียง ของหล่นออกจนหมดตรงคำ \"หาย ทิ้ง ไม่ซื้อ\" ป้ายกากบาทสีแดงเด้ง",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "level": {
+     "type": "choice",
+     "of": [
+      "mid",
+      "high"
+     ]
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-P6"
+  },
+  {
+   "id": "B08.biz1",
+   "kind": "card",
+   "name": "ใบเสร็จประทับตรา",
+   "hit": "ตราประทับ \"ชำระแล้ว\" กระแทกลงบนใบเสร็จ + วงคลื่น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "goal": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-P3"
+  },
+  {
+   "id": "B10.biz1",
+   "kind": "card",
+   "name": "คนถือถุงช้อปปิ้ง",
+   "hit": "คนที่ถูกพูดถึงสว่างเป็นสีเน้น ถุงช้อปปิ้งเด้งขึ้นที่มือ + วงคลื่น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "who": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "n": {
+     "type": "number"
+    },
+    "traits": {
+     "type": "list",
+     "max": 3
+    },
+    "link": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-P4"
+  },
+  {
+   "id": "B12.biz1",
+   "kind": "card",
+   "name": "กล่องพัสดุวิ่งตามลูกศร",
+   "hit": "กล่องพัสดุวิ่งถึงปลายลูกศรตรงคำ \"ทำให้ เลย\" แล้ว B เด้ง",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "c": {
+     "type": "text",
+     "max": 12
+    },
+    "ic": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-P5"
+  },
+  {
+   "id": "BIZ.h1",
+   "kind": "card",
+   "name": "ออเดอร์เด้งเข้า",
+   "hit": "ออเดอร์ใบสุดท้ายเด้งเข้า ยอดรวมหยุดที่ตัวเลขในบท + วงคลื่น",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "num": {
+     "type": "number",
+     "note": "the total said (orders or items sold)"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8,
+     "note": "its unit word (รายการ, ก้อน, ชิ้น)"
+    },
+    "item": {
+     "type": "text",
+     "max": 12,
+     "note": "what was sold, if said"
+    },
+    "icon": {
+     "type": "icon",
+     "note": "the product"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-H1",
+   "when": "orders or sales coming in: how many orders or items were sold (ออเดอร์เข้า 50 รายการ)"
+  },
+  {
+   "id": "BIZ.h2",
+   "kind": "card",
+   "name": "กรวยลูกค้า",
+   "hit": "ชั้นสุดท้ายของกรวยสว่างเป็นสีเน้น ชื่อและตัวเลขของชั้นนั้นขึ้น + วงคลื่น",
+   "dur": [
+    1.8,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "stages": {
+     "type": "list",
+     "min": 3,
+     "max": 4,
+     "req": true,
+     "note": "the 3–4 stages in order, in the words said (เห็นโพสต์, ทักมา, ซื้อจริง)"
+    },
+    "nums": {
+     "type": "list",
+     "item": "number",
+     "same": "stages",
+     "note": "the number at each stage, same order — only if every one was said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-H2",
+   "when": "a customer funnel: how many people go from seeing to messaging to buying (or buying again)"
+  },
+  {
+   "id": "BIZ.h3",
+   "kind": "card",
+   "name": "สถิติโพสต์",
+   "hit": "ค่าที่พูดถึงขยายใหญ่และเป็นสีเน้น + วงคลื่น (ค่าที่ไม่ได้พูดเป็นแถบเทา)",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "views": {
+     "type": "number",
+     "note": "only if said"
+    },
+    "likes": {
+     "type": "number",
+     "note": "only if said"
+    },
+    "shares": {
+     "type": "number",
+     "note": "only if said"
+    },
+    "saves": {
+     "type": "number",
+     "note": "only if said"
+    },
+    "focus": {
+     "type": "choice",
+     "of": [
+      "views",
+      "likes",
+      "shares",
+      "saves"
+     ],
+     "note": "the stat the sentence is about"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-H3",
+   "when": "the stats of one post or clip: views, likes, shares or saves"
+  },
+  {
+   "id": "BIZ.h4",
+   "kind": "card",
+   "name": "ราคาแตกเป็นต้นทุนกับกำไร",
+   "hit": "ส่วนกำไรเผยเป็นสีเน้นพร้อมตัวเลข (ถ้าพูด) + วงคลื่น",
+   "dur": [
+    1.8,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "price": {
+     "type": "number",
+     "req": true,
+     "note": "the selling price said"
+    },
+    "unit": {
+     "type": "text",
+     "max": 6
+    },
+    "pre": {
+     "type": "text",
+     "max": 2
+    },
+    "parts": {
+     "type": "list",
+     "max": 3,
+     "req": true,
+     "note": "the costs named (ต้นทุน, ค่าส่ง, ค่าโฆษณา)"
+    },
+    "amounts": {
+     "type": "list",
+     "item": "number",
+     "same": "parts",
+     "note": "each cost, same order as parts — only if every one was said"
+    },
+    "profit": {
+     "type": "number",
+     "note": "the profit, if said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-H4",
+   "when": "a selling price split into its costs and the profit left over"
+  },
+  {
+   "id": "BIZ.h5",
+   "kind": "card",
+   "name": "หน้าร้านเปิด",
+   "hit": "ป้ายหน้าร้านพลิกเป็น \"เปิด\" ไฟในร้านติดตรงคำ \"เปิด เริ่ม\" + วงคลื่น",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "shop": {
+     "type": "text",
+     "max": 14,
+     "note": "the shop, as said (ร้านออนไลน์, ร้านเรา)"
+    },
+    "icon": {
+     "type": "icon",
+     "note": "what the shop sells"
+    },
+    "open": {
+     "type": "text",
+     "max": 6,
+     "note": "the word on the door sign (default เปิด)"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-H5",
+   "when": "opening or starting a shop or a business (เปิดร้าน, เริ่มขาย)"
+  },
+  {
+   "id": "B02.edu1",
+   "kind": "card",
+   "name": "กองหนังสือ",
+   "hit": "ขึ้น: หนังสือเล่มสุดท้ายวางลงบนกอง · ลง: หนังสือหลุดออกจากกองเป็นสีแดง",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "dir": {
+     "type": "choice",
+     "of": [
+      "up",
+      "down"
+     ],
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-P4"
+  },
+  {
+   "id": "B04.edu1",
+   "kind": "card",
+   "name": "เช็กลิสต์ติ๊กด้วยปากกา",
+   "hit": "ข้อสุดท้ายถูกติ๊กด้วยปากกาและแถบเน้นวิ่งใต้คำตรงคำ + วงคลื่น",
+   "dur": [
+    1.4,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "items": {
+     "type": "list",
+     "min": 2,
+     "max": 5,
+     "req": true
+    },
+    "at": {
+     "type": "list"
+    },
+    "icons": {
+     "type": "list"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-P1"
+  },
+  {
+   "id": "B08.edu1",
+   "kind": "card",
+   "name": "ใบประกาศ",
+   "hit": "ตราติดลงบนใบประกาศตรงคำ \"ผ่าน สำเร็จ\" + วงคลื่น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "goal": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-P2"
+  },
+  {
+   "id": "B09.edu1",
+   "kind": "card",
+   "name": "ตารางเรียนรายสัปดาห์",
+   "hit": "ช่องวันสุดท้ายเติมสีตรงคำที่บอกเวลา + วงคลื่น",
+   "dur": [
+    1.4,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "when": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "points": {
+     "type": "list",
+     "max": 4
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-P5"
+  },
+  {
+   "id": "B11.edu1",
+   "kind": "card",
+   "name": "ฟองคำพูดสองภาษา",
+   "hit": "ฟองคำตอบสีเน้นเด้งขึ้นตรงคำ",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 30,
+     "req": true
+    },
+    "who": {
+     "type": "text",
+     "max": 12
+    },
+    "stars": {
+     "type": "number"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-P6"
+  },
+  {
+   "id": "B13.edu1",
+   "kind": "card",
+   "name": "กล่องคำสั่ง AI",
+   "hit": "ข้อความพิมพ์ครบ ปุ่มส่งถูกกดตรงคำ \"เคล็ดลับ วิธี\" แล้วประกายเด้ง",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "tip": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-P3"
+  },
+  {
+   "id": "EDU.h1",
+   "kind": "card",
+   "name": "บัตรคำศัพท์",
+   "hit": "บัตรพลิกตรงคำ ด้านหลังเป็นความหมายและคำอ่าน",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "word": {
+     "type": "text",
+     "max": 18,
+     "req": true,
+     "note": "the word, as said (English or Thai)"
+    },
+    "meaning": {
+     "type": "text",
+     "max": 18,
+     "note": "its meaning, if said"
+    },
+    "say": {
+     "type": "text",
+     "max": 18,
+     "note": "how to read it, if said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-H1",
+   "when": "a word or a term with its meaning or how to say it (vocabulary)"
+  },
+  {
+   "id": "EDU.h2",
+   "kind": "card",
+   "name": "แก้ประโยค",
+   "hit": "คำที่ถูกหล่นลงแทนคำที่ผิดตรงคำ \"แต่ ที่ถูก\" + วงคลื่น",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "before": {
+     "type": "text",
+     "max": 14,
+     "note": "words before the wrong one, if said"
+    },
+    "wrong": {
+     "type": "text",
+     "max": 10,
+     "req": true
+    },
+    "right": {
+     "type": "text",
+     "max": 10,
+     "req": true
+    },
+    "after": {
+     "type": "text",
+     "max": 14,
+     "note": "words after it, if said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-H2",
+   "when": "correcting a sentence: do not say X, say Y (a language mistake)"
+  },
+  {
+   "id": "EDU.h3",
+   "kind": "card",
+   "name": "บันไดอาชีพ",
+   "hit": "คนเดินถึงขั้นบนสุดตรงคำ ขั้นบนสุดสว่างเป็นสีเน้น + วงคลื่น",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "steps": {
+     "type": "list",
+     "min": 2,
+     "max": 4,
+     "req": true,
+     "note": "the 2–4 levels in order, as said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-H3",
+   "when": "steps of a career or a skill, level by level up to the top"
+  },
+  {
+   "id": "EDU.h4",
+   "kind": "card",
+   "name": "สตรีคนิสัย",
+   "hit": "ช่องวันสุดท้ายติดไฟ ตัวนับวันต่อเนื่องหยุดตรงคำ + วงคลื่น",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "habit": {
+     "type": "text",
+     "max": 16,
+     "note": "the habit, as said"
+    },
+    "days": {
+     "type": "number",
+     "note": "the days in a row, if said"
+    },
+    "icon": {
+     "type": "icon",
+     "note": "the habit"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-H4",
+   "when": "a habit kept day after day, a streak of days"
+  },
+  {
+   "id": "EDU.h5",
+   "kind": "card",
+   "name": "แผนผังความคิด",
+   "hit": "กิ่งสุดท้ายงอกออกและป้ายสว่างเป็นสีเน้นตรงคำ",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "topic": {
+     "type": "text",
+     "max": 12,
+     "req": true,
+     "note": "the topic word"
+    },
+    "branches": {
+     "type": "list",
+     "min": 3,
+     "max": 4,
+     "req": true,
+     "note": "its 3–4 parts, as said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-H5",
+   "when": "one topic with the 3–4 parts or skills that make it up"
+  },
+  {
+   "id": "B01.fin1",
+   "kind": "card",
+   "name": "ตารางเหรียญ",
+   "hit": "เหรียญตามสัดส่วนเปลี่ยนเป็นสีเน้นทีละเหรียญ ป้ายสัดส่วนขึ้น",
+   "dur": [
+    1.6,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "num": {
+     "type": "number",
+     "req": true
+    },
+    "of": {
+     "type": "number"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8
+    },
+    "pre": {
+     "type": "text",
+     "max": 2
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-P1"
+  },
+  {
+   "id": "B02.fin1",
+   "kind": "card",
+   "name": "กราฟแท่งเทียน",
+   "hit": "แท่งเทียนแท่งสุดท้ายพุ่งขึ้น (สีเน้น) หรือดิ่งลง (สีแดง) + ป้ายตัวเลข",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "dir": {
+     "type": "choice",
+     "of": [
+      "up",
+      "down"
+     ],
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-P2"
+  },
+  {
+   "id": "B07.fin1",
+   "kind": "card",
+   "name": "บัตรเครดิตแตกร้าว",
+   "hit": "รอยร้าวสีแดงวิ่งข้ามบัตรตรงคำ \"ระวัง หนี้\" บัตรแยกเป็นสองซีก",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "level": {
+     "type": "choice",
+     "of": [
+      "mid",
+      "high"
+     ]
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-P4"
+  },
+  {
+   "id": "B08.fin1",
+   "kind": "card",
+   "name": "กระเป๋าสตางค์เต็ม",
+   "hit": "เหรียญสุดท้ายหล่นลงกระเป๋าสตางค์ แถบใต้กระเป๋าเต็มพอดี + วงคลื่น",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "goal": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-P5"
+  },
+  {
+   "id": "B09.fin1",
+   "kind": "card",
+   "name": "ตารางผ่อนรายเดือน",
+   "hit": "งวดสุดท้ายถูกติ๊กตรงคำที่บอกเวลา + วงคลื่น",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "when": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "points": {
+     "type": "list",
+     "max": 4
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-P6"
+  },
+  {
+   "id": "B12.fin1",
+   "kind": "card",
+   "name": "เหรียญไหลตามลูกศร",
+   "hit": "เหรียญเหรียญสุดท้ายถึงปลายลูกศรตรงคำ \"ทำให้ เลย\" แล้ว B เด้ง",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "c": {
+     "type": "text",
+     "max": 12
+    },
+    "ic": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-P3"
+  },
+  {
+   "id": "FIN.h1",
+   "kind": "card",
+   "name": "ดอกเบี้ยทบต้น",
+   "hit": "เส้นเงินทบต้นวิ่งถึงปลาย ช่องห่างจากเงินต้นสว่างเป็นสีเน้น ยอดปลายทางขึ้น (ถ้าพูด)",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "final": {
+     "type": "number",
+     "note": "the end amount, if said"
+    },
+    "years": {
+     "type": "text",
+     "max": 10,
+     "note": "the time said (20 ปี)"
+    },
+    "unit": {
+     "type": "text",
+     "max": 6
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-H1",
+   "when": "compound interest: money that grows faster and faster when it is invested for years"
+  },
+  {
+   "id": "FIN.h2",
+   "kind": "card",
+   "name": "แบ่งเงินเป็นก้อน",
+   "hit": "ก้อนที่พูดถึงดึงออกจากวงและเป็นสีเน้น + วงคลื่น",
+   "dur": [
+    1.8,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "names": {
+     "type": "list",
+     "min": 2,
+     "max": 4,
+     "req": true,
+     "note": "the 2–4 parts, as said"
+    },
+    "shares": {
+     "type": "list",
+     "item": "number",
+     "req": true,
+     "same": "names",
+     "note": "each part in percent, same order (shown with %)"
+    },
+    "focus": {
+     "type": "number",
+     "index": "names",
+     "note": "which part the sentence stresses (0 = first)"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-H2",
+   "when": "money split into parts by percent: a budget rule or a portfolio (50/30/20, หุ้น 60%)"
+  },
+  {
+   "id": "FIN.h3",
+   "kind": "card",
+   "name": "รายการรับจ่าย",
+   "hit": "ยอดคงเหลือขึ้นท้ายใบ (ถ้าพูด ถ้าไม่พูดเป็นแถบ) + วงคลื่น",
+   "dur": [
+    1.8,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "rows": {
+     "type": "list",
+     "max": 4,
+     "req": true,
+     "item": {
+      "t": "text",
+      "v": "number",
+      "in": "bool"
+     },
+     "note": "t = what (เงินเดือน, ค่าห้อง), v = the amount said, in = true for money in, false for money out"
+    },
+    "balance": {
+     "type": "number",
+     "note": "what is left, if said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-H3",
+   "when": "money in and money out line by line, and what is left (a month of income and spending)"
+  },
+  {
+   "id": "FIN.h4",
+   "kind": "card",
+   "name": "เงินเฟ้อ",
+   "hit": "ของชิ้นสุดท้ายในตะกร้าจางหายตรงคำ \"แพงขึ้น ได้น้อยลง\" ลูกศรแดงชี้ลง",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "amount": {
+     "type": "number",
+     "note": "the amount of money, if said"
+    },
+    "unit": {
+     "type": "text",
+     "max": 6
+    },
+    "span": {
+     "type": "text",
+     "max": 12,
+     "note": "the time said (10 ปีที่แล้ว, ทุกปี)"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-H4",
+   "when": "inflation: the same money buys less as prices rise"
+  },
+  {
+   "id": "FIN.h5",
+   "kind": "card",
+   "name": "ลดหย่อนภาษี",
+   "hit": "รายการลดหย่อนข้อสุดท้ายถูกติ๊ก แถบภาษีหดถึงปลาย ยอดภาษีขึ้น (ถ้าพูด)",
+   "dur": [
+    1.8,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "items": {
+     "type": "list",
+     "max": 4,
+     "req": true,
+     "note": "the deductions named"
+    },
+    "tax": {
+     "type": "number",
+     "note": "the tax left, if said"
+    },
+    "unit": {
+     "type": "text",
+     "max": 6
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-H5",
+   "when": "tax deductions: what lowers the tax"
+  },
+  {
+   "id": "B01.fit1",
+   "kind": "card",
+   "name": "รอยเท้าเดินขึ้น (ใช้กับการเดินเท่านั้น)",
+   "hit": "รอยเท้าสว่างทีละก้าวจนถึงค่า ตัวเลขหยุดตรงคำ",
+   "dur": [
+    1.6,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "num": {
+     "type": "number",
+     "req": true
+    },
+    "of": {
+     "type": "number"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8
+    },
+    "pre": {
+     "type": "text",
+     "max": 2
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-P1",
+   "use": "เฉพาะประโยคเรื่องเดินหรือจำนวนก้าว"
+  },
+  {
+   "id": "B02.fit1",
+   "kind": "card",
+   "name": "ตาชั่งน้ำหนัก",
+   "hit": "เข็มตาชั่งหมุนไปทางขึ้นหรือลงแล้วหยุดตรงคำ ลูกศรบอกทิศเด้ง",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "dir": {
+     "type": "choice",
+     "of": [
+      "up",
+      "down"
+     ],
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-P2"
+  },
+  {
+   "id": "B03.fit1",
+   "kind": "card",
+   "name": "ร่างคนก่อนกับหลัง",
+   "hit": "ร่างฝั่งที่ชนะสว่างเป็นสีเน้น เครื่องหมายถูกเด้ง (ไม่มีฝั่งชนะ: ทั้งสองฝั่งขึ้นพร้อมกัน)",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "win": {
+     "type": "choice",
+     "of": [
+      "a",
+      "b",
+      ""
+     ]
+    },
+    "rows": {
+     "type": "list",
+     "max": 3
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-P5"
+  },
+  {
+   "id": "B07.fit1",
+   "kind": "card",
+   "name": "เส้นชีพจรกระตุก",
+   "hit": "เส้นชีพจรพุ่งเป็นสีแดงตรงคำ \"เสี่ยง อันตราย\" หัวใจกระตุก",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "level": {
+     "type": "choice",
+     "of": [
+      "mid",
+      "high"
+     ]
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-P3"
+  },
+  {
+   "id": "B08.fit1",
+   "kind": "card",
+   "name": "ดัมเบลยกขึ้น",
+   "hit": "ดัมเบลยกถึงเส้นเป้าตรงคำ \"สำเร็จ ถึงเป้า\" + วงคลื่น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "goal": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-P6"
+  },
+  {
+   "id": "B09.fit1",
+   "kind": "card",
+   "name": "นาฬิกาจับเวลา",
+   "hit": "วงรอบนาฬิกาวิ่งครบ ปุ่มถูกกดตรงคำที่บอกเวลา + วงคลื่น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "cream",
+    "white"
+   ],
+   "slots": {
+    "when": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "points": {
+     "type": "list",
+     "max": 4
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-P4"
+  },
+  {
+   "id": "FIT.h1",
+   "kind": "card",
+   "name": "จานแบ่งสัดส่วน",
+   "hit": "ส่วนที่พูดถึงบนจานสว่างเป็นสีเน้น + วงคลื่น (ไม่มีตัวเลขถ้าไม่ได้พูด)",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "names": {
+     "type": "list",
+     "min": 2,
+     "max": 4,
+     "req": true,
+     "note": "the 2–4 food groups, as said"
+    },
+    "shares": {
+     "type": "list",
+     "item": "number",
+     "req": true,
+     "same": "names",
+     "shown": false,
+     "note": "their sizes from the words (ครึ่งจาน = 2, หนึ่งในสี่ = 1); drawn as slices, never as numbers"
+    },
+    "focus": {
+     "type": "number",
+     "index": "names",
+     "note": "the group the sentence is about (0 = first)"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-H1",
+   "when": "a plate split into food groups (half vegetables, a quarter protein …)"
+  },
+  {
+   "id": "FIT.h2",
+   "kind": "card",
+   "name": "แถบสารอาหาร",
+   "hit": "แถบที่พูดถึงเป็นสีเน้นและเด้ง ตัวเลขกรัมขึ้น (ถ้าพูด)",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "items": {
+     "type": "list",
+     "max": 4,
+     "req": true,
+     "item": {
+      "t": "text",
+      "g": "number?"
+     },
+     "note": "t = the nutrient, g = its grams only if said"
+    },
+    "unit": {
+     "type": "text",
+     "max": 6,
+     "note": "unit of g (g, กรัม)"
+    },
+    "focus": {
+     "type": "number",
+     "index": "items",
+     "note": "the nutrient the sentence is about (0 = first)"
+    },
+    "icon": {
+     "type": "icon",
+     "note": "the food"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-H2",
+   "when": "the nutrients of a food or a meal: protein, carbs, fat (in grams)"
+  },
+  {
+   "id": "FIT.h3",
+   "kind": "card",
+   "name": "ร่างกายชี้จุด",
+   "hit": "จุดที่พูดถึงบนร่างกายสว่างเป็นวงสีเน้น ป้ายชื่อขึ้นข้าง ๆ",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "spot": {
+     "type": "choice",
+     "of": [
+      "head",
+      "shoulder",
+      "heart",
+      "belly",
+      "back",
+      "knee",
+      "wrist"
+     ],
+     "req": true,
+     "note": "the body part"
+    },
+    "label": {
+     "type": "text",
+     "max": 12,
+     "req": true,
+     "note": "its name, as said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-H3",
+   "when": "one part of the body: where it hurts, or what an exercise works (หลังล่าง, เข่า)"
+  },
+  {
+   "id": "FIT.h4",
+   "kind": "card",
+   "name": "ท่าออกกำลังกายพร้อมตัวนับ",
+   "hit": "ท่าสุดท้ายกลับขึ้นตรงคำ ตัวนับหยุดที่จำนวนในบท + วงคลื่น",
+   "dur": [
+    1.8,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "n": {
+     "type": "number",
+     "note": "the number of reps, if said"
+    },
+    "unit": {
+     "type": "text",
+     "max": 6,
+     "note": "ครั้ง, รอบ"
+    },
+    "move": {
+     "type": "text",
+     "max": 12,
+     "note": "the exercise, as said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-H4",
+   "when": "doing an exercise a number of times (reps)"
+  },
+  {
+   "id": "FIT.h5",
+   "kind": "card",
+   "name": "กราฟการนอน",
+   "hit": "เส้นการนอนวิ่งถึงเช้า ชั่วโมงนอนหยุดที่ตัวเลขในบท (ถ้าพูด) + วงคลื่น",
+   "dur": [
+    1.6,
+    4
+   ],
+   "bgs": [
+    "glow",
+    "white",
+    "cream"
+   ],
+   "slots": {
+    "hours": {
+     "type": "number",
+     "note": "the hours, if said"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-H5",
+   "when": "sleep: how long or how deep (hours of sleep, deep sleep)"
+  }
+ ],
+ "widgets": [
+  {
+   "id": "B01.v1",
+   "kind": "widget",
+   "name": "ตัวเลขนับขึ้น",
+   "hit": "ตัวเลขนับถึงค่าแล้วเด้ง",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "num": {
+     "type": "number",
+     "req": true
+    },
+    "of": {
+     "type": "number"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8
+    },
+    "pre": {
+     "type": "text",
+     "max": 2
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B01.v2",
+   "kind": "widget",
+   "name": "วงแหวนเปอร์เซ็นต์",
+   "hit": "วงแหวนเติมถึงค่า",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "num": {
+     "type": "number",
+     "req": true
+    },
+    "of": {
+     "type": "number"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8
+    },
+    "pre": {
+     "type": "text",
+     "max": 2
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B02.v1",
+   "kind": "widget",
+   "name": "กราฟแท่ง",
+   "hit": "ขึ้น: แท่งสุดท้ายเด้ง · ลง: แท่งร่วง",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "dir": {
+     "type": "choice",
+     "of": [
+      "up",
+      "down"
+     ],
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B02.v3",
+   "kind": "widget",
+   "name": "ลูกศรใหญ่",
+   "hit": "ลูกศรเด้งตรงคำ",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "dir": {
+     "type": "choice",
+     "of": [
+      "up",
+      "down"
+     ],
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B03.v1",
+   "kind": "widget",
+   "name": "แบ่งซ้ายขวา + vs",
+   "hit": "ฝั่งที่ชนะเด้ง ฝั่งที่แพ้จาง",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "win": {
+     "type": "choice",
+     "of": [
+      "a",
+      "b",
+      ""
+     ]
+    },
+    "rows": {
+     "type": "list",
+     "max": 3
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B03.v4",
+   "kind": "widget",
+   "name": "ก่อนไปหลัง",
+   "hit": "แผ่นปิดเลื่อนออก เผยฝั่งหลัง",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "win": {
+     "type": "choice",
+     "of": [
+      "a",
+      "b",
+      ""
+     ]
+    },
+    "rows": {
+     "type": "list",
+     "max": 3
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B04.v1",
+   "kind": "widget",
+   "name": "ขั้น 1-2-3",
+   "hit": "แต่ละขั้นขึ้นตรงคำ",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "slots": {
+    "items": {
+     "type": "list",
+     "min": 2,
+     "max": 5,
+     "req": true
+    },
+    "at": {
+     "type": "list"
+    },
+    "icons": {
+     "type": "list"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B04.v2",
+   "kind": "widget",
+   "name": "เช็กลิสต์ติ๊ก",
+   "hit": "ติ๊กทีละข้อ",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "slots": {
+    "items": {
+     "type": "list",
+     "min": 2,
+     "max": 5,
+     "req": true
+    },
+    "at": {
+     "type": "list"
+    },
+    "icons": {
+     "type": "list"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B05.v1",
+   "kind": "widget",
+   "name": "X โดนขีดฆ่า",
+   "hit": "เส้นแดงขีดฆ่า X",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "x": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "y": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "ix": {
+     "type": "icon"
+    },
+    "iy": {
+     "type": "icon"
+    },
+    "aty": {
+     "type": "number"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    }
+   }
+  },
+  {
+   "id": "B05.v2",
+   "kind": "widget",
+   "name": "ชิป X กากบาท ชิป Y ถูก",
+   "hit": "X โดนกากบาท Y ได้ถูก",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "x": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "y": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "ix": {
+     "type": "icon"
+    },
+    "iy": {
+     "type": "icon"
+    },
+    "aty": {
+     "type": "number"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    }
+   }
+  },
+  {
+   "id": "B06.v1",
+   "kind": "widget",
+   "name": "? ใหญ่ส่าย",
+   "hit": "? ส่ายตรงคำท้ายคำถาม",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "q": {
+     "type": "text",
+     "max": 22,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B06.v4",
+   "kind": "widget",
+   "name": "ค้นหา",
+   "hit": "แว่นขยายเลื่อนผ่าน แล้วผลค้นหาขึ้น",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "q": {
+     "type": "text",
+     "max": 22,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B07.v1",
+   "kind": "widget",
+   "name": "ป้ายเตือน",
+   "hit": "ป้ายเตือนเด้งตรงคำ",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "level": {
+     "type": "choice",
+     "of": [
+      "mid",
+      "high"
+     ]
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B07.v3",
+   "kind": "widget",
+   "name": "แจ้งเตือน",
+   "hit": "จุดแดงแจ้งเตือนเด้งตรงคำ",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "level": {
+     "type": "choice",
+     "of": [
+      "mid",
+      "high"
+     ]
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B08.v1",
+   "kind": "widget",
+   "name": "เป้าลูกศรเข้ากลาง",
+   "hit": "ลูกศรปักกลางเป้า",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "goal": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B08.v4",
+   "kind": "widget",
+   "name": "เครื่องหมายถูกใหญ่",
+   "hit": "เครื่องหมายถูกวาดเสร็จตรงคำ",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "goal": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B09.v1",
+   "kind": "widget",
+   "name": "นาฬิกาเข็มหมุน",
+   "hit": "เข็มหมุนครบรอบตรงคำ",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "when": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "points": {
+     "type": "list",
+     "max": 4
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B09.v4",
+   "kind": "widget",
+   "name": "นาฬิกาทรายพลิก",
+   "hit": "นาฬิกาทรายพลิกตรงคำ",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "when": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "points": {
+     "type": "list",
+     "max": 4
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B10.v1",
+   "kind": "widget",
+   "name": "กลุ่มคน หนึ่งคนถูกไฮไลต์",
+   "hit": "คนที่ถูกพูดถึงเป็นสีเน้น",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "who": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "n": {
+     "type": "number"
+    },
+    "traits": {
+     "type": "list",
+     "max": 3
+    },
+    "link": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B10.v3",
+   "kind": "widget",
+   "name": "สองคนมีเส้นเชื่อม",
+   "hit": "เส้นเชื่อมวาดถึงอีกคน",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "who": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "n": {
+     "type": "number"
+    },
+    "traits": {
+     "type": "list",
+     "max": 3
+    },
+    "link": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B11.v1",
+   "kind": "widget",
+   "name": "แชตอ่านแล้ว",
+   "hit": "ขีดอ่านแล้วขึ้นตรงคำ",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 30,
+     "req": true
+    },
+    "who": {
+     "type": "text",
+     "max": 12
+    },
+    "stars": {
+     "type": "number"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B11.v2",
+   "kind": "widget",
+   "name": "ดาวรีวิว",
+   "hit": "ดาวติดครบตามจำนวนที่พูด",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 30,
+     "req": true
+    },
+    "who": {
+     "type": "text",
+     "max": 12
+    },
+    "stars": {
+     "type": "number"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B12.v1",
+   "kind": "widget",
+   "name": "A ไป B",
+   "hit": "ลูกศรถึง B แล้ว B เด้ง",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "c": {
+     "type": "text",
+     "max": 12
+    },
+    "ic": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B12.v4",
+   "kind": "widget",
+   "name": "วงจรวน",
+   "hit": "วงปิดตรงคำ",
+   "dur": [
+    1.4,
+    3.5
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "c": {
+     "type": "text",
+     "max": 12
+    },
+    "ic": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B13.v1",
+   "kind": "widget",
+   "name": "หลอดไฟสว่าง",
+   "hit": "หลอดไฟติดตรงคำ",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "tip": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B13.v3",
+   "kind": "widget",
+   "name": "กุญแจไขแม่กุญแจ",
+   "hit": "กุญแจเสียบเข้า แม่กุญแจเปิด",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "tip": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B14.v1",
+   "kind": "widget",
+   "name": "ไอคอน + คำ ไฮไลต์คำสำคัญ",
+   "hit": "คำสำคัญเป็นกล่องสีเน้น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "words": {
+     "type": "list",
+     "min": 2,
+     "max": 7,
+     "req": true
+    },
+    "key": {
+     "type": "number",
+     "req": true
+    },
+    "at": {
+     "type": "list"
+    },
+    "icon": {
+     "type": "icon"
+    }
+   }
+  },
+  {
+   "id": "B14.v3",
+   "kind": "widget",
+   "name": "ไอคอน + ลายมือ",
+   "hit": "เส้นใต้คำสำคัญวาดตรงคำ",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "words": {
+     "type": "list",
+     "min": 2,
+     "max": 7,
+     "req": true
+    },
+    "key": {
+     "type": "number",
+     "req": true
+    },
+    "at": {
+     "type": "list"
+    },
+    "icon": {
+     "type": "icon"
+    }
+   }
+  },
+  {
+   "id": "B15.v1",
+   "kind": "widget",
+   "name": "ปุ่มถูกกด",
+   "hit": "เคอร์เซอร์กดปุ่ม ไอคอนเป็นเครื่องหมายถูก",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "action": {
+     "type": "choice",
+     "of": [
+      "follow",
+      "comment",
+      "save",
+      "share"
+     ],
+     "req": true
+    },
+    "text": {
+     "type": "text",
+     "max": 22,
+     "req": true
+    },
+    "points": {
+     "type": "list",
+     "max": 3
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B15.v3",
+   "kind": "widget",
+   "name": "ไอคอนเต็มสี",
+   "hit": "ไอคอนเต็มสีเน้นตรงคำ",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "action": {
+     "type": "choice",
+     "of": [
+      "follow",
+      "comment",
+      "save",
+      "share"
+     ],
+     "req": true
+    },
+    "text": {
+     "type": "text",
+     "max": 22,
+     "req": true
+    },
+    "points": {
+     "type": "list",
+     "max": 3
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   }
+  },
+  {
+   "id": "B01.biz1",
+   "kind": "widget",
+   "name": "ป้ายราคาห้อยเชือก",
+   "hit": "ราคานับถึงค่า ป้ายแกว่งรับ",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "num": {
+     "type": "number",
+     "req": true
+    },
+    "of": {
+     "type": "number"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8
+    },
+    "pre": {
+     "type": "text",
+     "max": 2
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-P1"
+  },
+  {
+   "id": "B02.biz1",
+   "kind": "widget",
+   "name": "ตัวนับยอดวิวของโพสต์",
+   "hit": "แถบยอดวิวเติมจนสุดหรือไหลลงเป็นสีแดง",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "dir": {
+     "type": "choice",
+     "of": [
+      "up",
+      "down"
+     ],
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-P2"
+  },
+  {
+   "id": "B07.biz1",
+   "kind": "widget",
+   "name": "ตะกร้าถูกทิ้ง",
+   "hit": "ตะกร้าเอียงของหล่นออก ป้ายกากบาทแดงเด้ง",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "level": {
+     "type": "choice",
+     "of": [
+      "mid",
+      "high"
+     ]
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-P6"
+  },
+  {
+   "id": "B08.biz1",
+   "kind": "widget",
+   "name": "ใบเสร็จประทับตรา",
+   "hit": "ตราประทับกระแทกลงบนใบเสร็จ",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "goal": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-P3"
+  },
+  {
+   "id": "B10.biz1",
+   "kind": "widget",
+   "name": "คนถือถุงช้อปปิ้ง",
+   "hit": "คนที่ถูกพูดถึงสว่าง ถุงช้อปปิ้งเด้งขึ้นที่มือ",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "who": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "n": {
+     "type": "number"
+    },
+    "traits": {
+     "type": "list",
+     "max": 3
+    },
+    "link": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-P4"
+  },
+  {
+   "id": "B12.biz1",
+   "kind": "widget",
+   "name": "กล่องพัสดุวิ่งตามลูกศร",
+   "hit": "กล่องพัสดุถึงปลายลูกศร แล้ว B เด้ง",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "c": {
+     "type": "text",
+     "max": 12
+    },
+    "ic": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-P5"
+  },
+  {
+   "id": "BIZ.h1",
+   "kind": "widget",
+   "name": "ออเดอร์เด้งเข้า",
+   "hit": "ออเดอร์ใบสุดท้ายเด้งเข้าเป็นสีเน้น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "num": {
+     "type": "number",
+     "note": "the total said (orders or items sold)"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8,
+     "note": "its unit word (รายการ, ก้อน, ชิ้น)"
+    },
+    "item": {
+     "type": "text",
+     "max": 12,
+     "note": "what was sold, if said"
+    },
+    "icon": {
+     "type": "icon",
+     "note": "the product"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-H1",
+   "when": "orders or sales coming in: how many orders or items were sold (ออเดอร์เข้า 50 รายการ)"
+  },
+  {
+   "id": "BIZ.h2",
+   "kind": "widget",
+   "name": "กรวยลูกค้า",
+   "hit": "ชั้นสุดท้ายของกรวยสว่างเป็นสีเน้น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "stages": {
+     "type": "list",
+     "min": 3,
+     "max": 4,
+     "req": true,
+     "note": "the 3–4 stages in order, in the words said (เห็นโพสต์, ทักมา, ซื้อจริง)"
+    },
+    "nums": {
+     "type": "list",
+     "item": "number",
+     "same": "stages",
+     "note": "the number at each stage, same order — only if every one was said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-H2",
+   "when": "a customer funnel: how many people go from seeing to messaging to buying (or buying again)"
+  },
+  {
+   "id": "BIZ.h3",
+   "kind": "widget",
+   "name": "สถิติโพสต์",
+   "hit": "ค่าที่พูดถึงสว่างเป็นสีเน้นและเด้ง",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "views": {
+     "type": "number",
+     "note": "only if said"
+    },
+    "likes": {
+     "type": "number",
+     "note": "only if said"
+    },
+    "shares": {
+     "type": "number",
+     "note": "only if said"
+    },
+    "saves": {
+     "type": "number",
+     "note": "only if said"
+    },
+    "focus": {
+     "type": "choice",
+     "of": [
+      "views",
+      "likes",
+      "shares",
+      "saves"
+     ],
+     "note": "the stat the sentence is about"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-H3",
+   "when": "the stats of one post or clip: views, likes, shares or saves"
+  },
+  {
+   "id": "BIZ.h4",
+   "kind": "widget",
+   "name": "ราคาแตกเป็นต้นทุนกับกำไร",
+   "hit": "ส่วนกำไรเผยเป็นสีเน้น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "price": {
+     "type": "number",
+     "req": true,
+     "note": "the selling price said"
+    },
+    "unit": {
+     "type": "text",
+     "max": 6
+    },
+    "pre": {
+     "type": "text",
+     "max": 2
+    },
+    "parts": {
+     "type": "list",
+     "max": 3,
+     "req": true,
+     "note": "the costs named (ต้นทุน, ค่าส่ง, ค่าโฆษณา)"
+    },
+    "amounts": {
+     "type": "list",
+     "item": "number",
+     "same": "parts",
+     "note": "each cost, same order as parts — only if every one was said"
+    },
+    "profit": {
+     "type": "number",
+     "note": "the profit, if said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-H4",
+   "when": "a selling price split into its costs and the profit left over"
+  },
+  {
+   "id": "BIZ.h5",
+   "kind": "widget",
+   "name": "หน้าร้านเปิด",
+   "hit": "ป้ายหน้าร้านพลิกเป็น \"เปิด\" ไฟในร้านติด",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "shop": {
+     "type": "text",
+     "max": 14,
+     "note": "the shop, as said (ร้านออนไลน์, ร้านเรา)"
+    },
+    "icon": {
+     "type": "icon",
+     "note": "what the shop sells"
+    },
+    "open": {
+     "type": "text",
+     "max": 6,
+     "note": "the word on the door sign (default เปิด)"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "biz",
+   "code": "BIZ-H5",
+   "when": "opening or starting a shop or a business (เปิดร้าน, เริ่มขาย)"
+  },
+  {
+   "id": "B02.edu1",
+   "kind": "widget",
+   "name": "กองหนังสือ",
+   "hit": "ขึ้น: หนังสือเล่มสุดท้ายวางบนกอง · ลง: หนังสือหลุดออกเป็นสีแดง",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "dir": {
+     "type": "choice",
+     "of": [
+      "up",
+      "down"
+     ],
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-P4"
+  },
+  {
+   "id": "B04.edu1",
+   "kind": "widget",
+   "name": "เช็กลิสต์ติ๊กด้วยปากกา",
+   "hit": "ข้อสุดท้ายถูกติ๊กด้วยปากกา แถบเน้นวิ่งใต้",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "items": {
+     "type": "list",
+     "min": 2,
+     "max": 5,
+     "req": true
+    },
+    "at": {
+     "type": "list"
+    },
+    "icons": {
+     "type": "list"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-P1"
+  },
+  {
+   "id": "B08.edu1",
+   "kind": "widget",
+   "name": "ใบประกาศ",
+   "hit": "ตราติดลงบนใบประกาศ",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "goal": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-P2"
+  },
+  {
+   "id": "B09.edu1",
+   "kind": "widget",
+   "name": "ตารางเรียนรายสัปดาห์",
+   "hit": "ช่องวันสุดท้ายเติมสี",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "when": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "points": {
+     "type": "list",
+     "max": 4
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-P5"
+  },
+  {
+   "id": "B11.edu1",
+   "kind": "widget",
+   "name": "ฟองคำพูดสองภาษา",
+   "hit": "ฟองคำตอบสีเน้นเด้งขึ้น",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 30,
+     "req": true
+    },
+    "who": {
+     "type": "text",
+     "max": 12
+    },
+    "stars": {
+     "type": "number"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-P6"
+  },
+  {
+   "id": "B13.edu1",
+   "kind": "widget",
+   "name": "กล่องคำสั่ง AI",
+   "hit": "ปุ่มส่งถูกกด ประกายเด้ง",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "tip": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-P3"
+  },
+  {
+   "id": "EDU.h1",
+   "kind": "widget",
+   "name": "บัตรคำศัพท์",
+   "hit": "บัตรพลิกตรงคำ ด้านหลังเป็นสีเน้น",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "word": {
+     "type": "text",
+     "max": 18,
+     "req": true,
+     "note": "the word, as said (English or Thai)"
+    },
+    "meaning": {
+     "type": "text",
+     "max": 18,
+     "note": "its meaning, if said"
+    },
+    "say": {
+     "type": "text",
+     "max": 18,
+     "note": "how to read it, if said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-H1",
+   "when": "a word or a term with its meaning or how to say it (vocabulary)"
+  },
+  {
+   "id": "EDU.h2",
+   "kind": "widget",
+   "name": "แก้ประโยค",
+   "hit": "คำที่ถูกหล่นลงแทนคำที่ผิด",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "before": {
+     "type": "text",
+     "max": 14,
+     "note": "words before the wrong one, if said"
+    },
+    "wrong": {
+     "type": "text",
+     "max": 10,
+     "req": true
+    },
+    "right": {
+     "type": "text",
+     "max": 10,
+     "req": true
+    },
+    "after": {
+     "type": "text",
+     "max": 14,
+     "note": "words after it, if said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-H2",
+   "when": "correcting a sentence: do not say X, say Y (a language mistake)"
+  },
+  {
+   "id": "EDU.h3",
+   "kind": "widget",
+   "name": "บันไดอาชีพ",
+   "hit": "คนเดินถึงขั้นบนสุดตรงคำ ขั้นบนสุดเป็นสีเน้น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "steps": {
+     "type": "list",
+     "min": 2,
+     "max": 4,
+     "req": true,
+     "note": "the 2–4 levels in order, as said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-H3",
+   "when": "steps of a career or a skill, level by level up to the top"
+  },
+  {
+   "id": "EDU.h4",
+   "kind": "widget",
+   "name": "สตรีคนิสัย",
+   "hit": "ช่องวันสุดท้ายติดไฟ",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "habit": {
+     "type": "text",
+     "max": 16,
+     "note": "the habit, as said"
+    },
+    "days": {
+     "type": "number",
+     "note": "the days in a row, if said"
+    },
+    "icon": {
+     "type": "icon",
+     "note": "the habit"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-H4",
+   "when": "a habit kept day after day, a streak of days"
+  },
+  {
+   "id": "EDU.h5",
+   "kind": "widget",
+   "name": "แผนผังความคิด",
+   "hit": "กิ่งสุดท้ายงอกออกเป็นสีเน้น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "topic": {
+     "type": "text",
+     "max": 12,
+     "req": true,
+     "note": "the topic word"
+    },
+    "branches": {
+     "type": "list",
+     "min": 3,
+     "max": 4,
+     "req": true,
+     "note": "its 3–4 parts, as said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "edu",
+   "code": "EDU-H5",
+   "when": "one topic with the 3–4 parts or skills that make it up"
+  },
+  {
+   "id": "B01.fin1",
+   "kind": "widget",
+   "name": "ตารางเหรียญ",
+   "hit": "เหรียญตามสัดส่วนเปลี่ยนเป็นสีเน้นทีละเหรียญ",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "num": {
+     "type": "number",
+     "req": true
+    },
+    "of": {
+     "type": "number"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8
+    },
+    "pre": {
+     "type": "text",
+     "max": 2
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-P1"
+  },
+  {
+   "id": "B02.fin1",
+   "kind": "widget",
+   "name": "กราฟแท่งเทียน",
+   "hit": "แท่งเทียนแท่งสุดท้ายพุ่งขึ้นหรือดิ่งลงเป็นสีแดง",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "dir": {
+     "type": "choice",
+     "of": [
+      "up",
+      "down"
+     ],
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-P2"
+  },
+  {
+   "id": "B07.fin1",
+   "kind": "widget",
+   "name": "บัตรเครดิตแตกร้าว",
+   "hit": "รอยร้าวสีแดงวิ่งข้ามบัตร บัตรแยกเป็นสองซีก เส้นแดงหายไปทันที",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "level": {
+     "type": "choice",
+     "of": [
+      "mid",
+      "high"
+     ]
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-P4"
+  },
+  {
+   "id": "B08.fin1",
+   "kind": "widget",
+   "name": "กระเป๋าสตางค์เต็ม",
+   "hit": "เหรียญสุดท้ายหล่นลงกระเป๋าสตางค์ แถบเต็มพอดี",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "goal": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-P5"
+  },
+  {
+   "id": "B09.fin1",
+   "kind": "widget",
+   "name": "ตารางผ่อนรายเดือน",
+   "hit": "งวดสุดท้ายถูกติ๊กตรงคำที่บอกเวลา",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "when": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "points": {
+     "type": "list",
+     "max": 4
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-P6"
+  },
+  {
+   "id": "B12.fin1",
+   "kind": "widget",
+   "name": "เหรียญไหลตามลูกศร",
+   "hit": "เหรียญสุดท้ายถึงปลายลูกศร แล้ว B เด้ง",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "c": {
+     "type": "text",
+     "max": 12
+    },
+    "ic": {
+     "type": "icon"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-P3"
+  },
+  {
+   "id": "FIN.h1",
+   "kind": "widget",
+   "name": "ดอกเบี้ยทบต้น",
+   "hit": "เส้นเงินทบต้นวิ่งถึงปลาย ช่องห่างสว่างเป็นสีเน้น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "final": {
+     "type": "number",
+     "note": "the end amount, if said"
+    },
+    "years": {
+     "type": "text",
+     "max": 10,
+     "note": "the time said (20 ปี)"
+    },
+    "unit": {
+     "type": "text",
+     "max": 6
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-H1",
+   "when": "compound interest: money that grows faster and faster when it is invested for years"
+  },
+  {
+   "id": "FIN.h2",
+   "kind": "widget",
+   "name": "แบ่งเงินเป็นก้อน",
+   "hit": "ก้อนที่พูดถึงดึงออกจากวงและเป็นสีเน้น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "names": {
+     "type": "list",
+     "min": 2,
+     "max": 4,
+     "req": true,
+     "note": "the 2–4 parts, as said"
+    },
+    "shares": {
+     "type": "list",
+     "item": "number",
+     "req": true,
+     "same": "names",
+     "note": "each part in percent, same order (shown with %)"
+    },
+    "focus": {
+     "type": "number",
+     "index": "names",
+     "note": "which part the sentence stresses (0 = first)"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-H2",
+   "when": "money split into parts by percent: a budget rule or a portfolio (50/30/20, หุ้น 60%)"
+  },
+  {
+   "id": "FIN.h3",
+   "kind": "widget",
+   "name": "รายการรับจ่าย",
+   "hit": "แถบยอดคงเหลือขึ้นท้ายรายการ",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "rows": {
+     "type": "list",
+     "max": 4,
+     "req": true,
+     "item": {
+      "t": "text",
+      "v": "number",
+      "in": "bool"
+     },
+     "note": "t = what (เงินเดือน, ค่าห้อง), v = the amount said, in = true for money in, false for money out"
+    },
+    "balance": {
+     "type": "number",
+     "note": "what is left, if said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-H3",
+   "when": "money in and money out line by line, and what is left (a month of income and spending)"
+  },
+  {
+   "id": "FIN.h4",
+   "kind": "widget",
+   "name": "เงินเฟ้อ",
+   "hit": "ของในตะกร้าจางหายทีละชิ้น ลูกศรแดงชี้ลง",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "amount": {
+     "type": "number",
+     "note": "the amount of money, if said"
+    },
+    "unit": {
+     "type": "text",
+     "max": 6
+    },
+    "span": {
+     "type": "text",
+     "max": 12,
+     "note": "the time said (10 ปีที่แล้ว, ทุกปี)"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-H4",
+   "when": "inflation: the same money buys less as prices rise"
+  },
+  {
+   "id": "FIN.h5",
+   "kind": "widget",
+   "name": "ลดหย่อนภาษี",
+   "hit": "ข้อลดหย่อนข้อสุดท้ายถูกติ๊ก แถบภาษีหดลง",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "items": {
+     "type": "list",
+     "max": 4,
+     "req": true,
+     "note": "the deductions named"
+    },
+    "tax": {
+     "type": "number",
+     "note": "the tax left, if said"
+    },
+    "unit": {
+     "type": "text",
+     "max": 6
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fin",
+   "code": "FIN-H5",
+   "when": "tax deductions: what lowers the tax"
+  },
+  {
+   "id": "B01.fit1",
+   "kind": "widget",
+   "name": "รอยเท้าเดินขึ้น (ใช้กับการเดินเท่านั้น)",
+   "hit": "รอยเท้าสว่างทีละก้าว",
+   "dur": [
+    1.2,
+    3
+   ],
+   "slots": {
+    "num": {
+     "type": "number",
+     "req": true
+    },
+    "of": {
+     "type": "number"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8
+    },
+    "pre": {
+     "type": "text",
+     "max": 2
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-P1",
+   "use": "เฉพาะประโยคเรื่องเดินหรือจำนวนก้าว"
+  },
+  {
+   "id": "B02.fit1",
+   "kind": "widget",
+   "name": "ตาชั่งน้ำหนัก",
+   "hit": "เข็มตาชั่งหมุนไปทางขึ้นหรือลงแล้วหยุดตรงคำ",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "dir": {
+     "type": "choice",
+     "of": [
+      "up",
+      "down"
+     ],
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-P2"
+  },
+  {
+   "id": "B03.fit1",
+   "kind": "widget",
+   "name": "ร่างคนก่อนกับหลัง",
+   "hit": "ฝั่งที่ชนะยกแขนเป็นสีเน้น",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "a": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "b": {
+     "type": "text",
+     "max": 12,
+     "req": true
+    },
+    "ia": {
+     "type": "icon",
+     "req": true
+    },
+    "ib": {
+     "type": "icon",
+     "req": true
+    },
+    "win": {
+     "type": "choice",
+     "of": [
+      "a",
+      "b",
+      ""
+     ]
+    },
+    "rows": {
+     "type": "list",
+     "max": 3
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-P5"
+  },
+  {
+   "id": "B07.fit1",
+   "kind": "widget",
+   "name": "เส้นชีพจรกระตุก",
+   "hit": "เส้นชีพจรพุ่งเป็นสีแดง หัวใจกระตุก",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "text": {
+     "type": "text",
+     "max": 18,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "level": {
+     "type": "choice",
+     "of": [
+      "mid",
+      "high"
+     ]
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-P3"
+  },
+  {
+   "id": "B08.fit1",
+   "kind": "widget",
+   "name": "ดัมเบลยกขึ้น",
+   "hit": "ดัมเบลยกถึงเส้นเป้า",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "goal": {
+     "type": "text",
+     "max": 16,
+     "req": true
+    },
+    "icon": {
+     "type": "icon",
+     "req": true
+    },
+    "num": {
+     "type": "text",
+     "max": 10
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-P6"
+  },
+  {
+   "id": "B09.fit1",
+   "kind": "widget",
+   "name": "นาฬิกาจับเวลา",
+   "hit": "วงรอบนาฬิกาวิ่งครบ ปุ่มถูกกด",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "when": {
+     "type": "text",
+     "max": 14,
+     "req": true
+    },
+    "icon": {
+     "type": "icon"
+    },
+    "points": {
+     "type": "list",
+     "max": 4
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-P4"
+  },
+  {
+   "id": "FIT.h1",
+   "kind": "widget",
+   "name": "จานแบ่งสัดส่วน",
+   "hit": "ส่วนที่พูดถึงบนจานสว่างเป็นสีเน้น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "names": {
+     "type": "list",
+     "min": 2,
+     "max": 4,
+     "req": true,
+     "note": "the 2–4 food groups, as said"
+    },
+    "shares": {
+     "type": "list",
+     "item": "number",
+     "req": true,
+     "same": "names",
+     "shown": false,
+     "note": "their sizes from the words (ครึ่งจาน = 2, หนึ่งในสี่ = 1); drawn as slices, never as numbers"
+    },
+    "focus": {
+     "type": "number",
+     "index": "names",
+     "note": "the group the sentence is about (0 = first)"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-H1",
+   "when": "a plate split into food groups (half vegetables, a quarter protein …)"
+  },
+  {
+   "id": "FIT.h2",
+   "kind": "widget",
+   "name": "แถบสารอาหาร",
+   "hit": "แถบที่พูดถึงเป็นสีเน้นและเด้ง",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "items": {
+     "type": "list",
+     "max": 4,
+     "req": true,
+     "item": {
+      "t": "text",
+      "g": "number?"
+     },
+     "note": "t = the nutrient, g = its grams only if said"
+    },
+    "unit": {
+     "type": "text",
+     "max": 6,
+     "note": "unit of g (g, กรัม)"
+    },
+    "focus": {
+     "type": "number",
+     "index": "items",
+     "note": "the nutrient the sentence is about (0 = first)"
+    },
+    "icon": {
+     "type": "icon",
+     "note": "the food"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-H2",
+   "when": "the nutrients of a food or a meal: protein, carbs, fat (in grams)"
+  },
+  {
+   "id": "FIT.h3",
+   "kind": "widget",
+   "name": "ร่างกายชี้จุด",
+   "hit": "จุดที่พูดถึงบนร่างกายสว่างเป็นวงสีเน้น",
+   "dur": [
+    1,
+    3
+   ],
+   "slots": {
+    "spot": {
+     "type": "choice",
+     "of": [
+      "head",
+      "shoulder",
+      "heart",
+      "belly",
+      "back",
+      "knee",
+      "wrist"
+     ],
+     "req": true,
+     "note": "the body part"
+    },
+    "label": {
+     "type": "text",
+     "max": 12,
+     "req": true,
+     "note": "its name, as said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-H3",
+   "when": "one part of the body: where it hurts, or what an exercise works (หลังล่าง, เข่า)"
+  },
+  {
+   "id": "FIT.h4",
+   "kind": "widget",
+   "name": "ท่าออกกำลังกายพร้อมตัวนับ",
+   "hit": "ท่าสุดท้ายกลับขึ้นตรงคำ",
+   "dur": [
+    1.6,
+    3.5
+   ],
+   "slots": {
+    "n": {
+     "type": "number",
+     "note": "the number of reps, if said"
+    },
+    "unit": {
+     "type": "text",
+     "max": 6,
+     "note": "ครั้ง, รอบ"
+    },
+    "move": {
+     "type": "text",
+     "max": 12,
+     "note": "the exercise, as said"
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-H4",
+   "when": "doing an exercise a number of times (reps)"
+  },
+  {
+   "id": "FIT.h5",
+   "kind": "widget",
+   "name": "กราฟการนอน",
+   "hit": "เส้นการนอนวิ่งถึงเช้า พระอาทิตย์ขึ้น",
+   "dur": [
+    1.2,
+    3.5
+   ],
+   "slots": {
+    "hours": {
+     "type": "number",
+     "note": "the hours, if said"
+    },
+    "unit": {
+     "type": "text",
+     "max": 8
+    },
+    "lead": {
+     "type": "text",
+     "max": 26
+    },
+    "key": {
+     "type": "text",
+     "max": 14
+    }
+   },
+   "pack": "fit",
+   "code": "FIT-H5",
+   "when": "sleep: how long or how deep (hours of sleep, deep sleep)"
+  }
+ ],
+ "packs": {
+  "biz": {
+   "name": "ธุรกิจและการตลาดออนไลน์",
+   "when": "selling online and online marketing: a shop, products, customers, orders, prices and profit, ads, posts, views and reach"
+  },
+  "edu": {
+   "name": "ความรู้และพัฒนาตัวเอง",
+   "when": "learning and self-improvement: studying, languages and words, reading, habits, focus, work skills and career"
+  },
+  "fin": {
+   "name": "การเงินและการลงทุน",
+   "when": "personal money and investing: saving, spending, budgets, debt and credit cards, interest, investing, inflation, tax"
+  },
+  "fit": {
+   "name": "สุขภาพและฟิตเนส",
+   "when": "health and fitness: exercise and workouts, walking and running, body weight, food and nutrition, sleep, pain and posture"
+  }
+ },
+ "widgetSizes": {
+  "short": {
+   "W": 600,
+   "H": 190
+  },
+  "narrow": {
+   "W": 210,
+   "H": 380
+  }
+ },
+ "widgetAt": {
+  "short": {
+   "x": 240,
+   "y": 150
+  },
+  "narrow": {
+   "x": 36,
+   "y": 400
+  }
+ },
+ "camera": {
+  "z": 1.05,
+  "d": 1.4,
+  "back": 1,
+  "gap": 4,
+  "max": 1.08,
+  "breath": 0.014
+ },
+ "subtitleTop": 1300,
+ "subtitleMax": 12,
+ "icons": [
+  "a-arrow-down",
+  "a-arrow-up",
+  "a-large-small",
+  "accessibility",
+  "activity",
+  "air-vent",
+  "airplay",
+  "alarm-clock",
+  "alarm-clock-check",
+  "alarm-clock-minus",
+  "alarm-clock-off",
+  "alarm-clock-plus",
+  "alarm-smoke",
+  "album",
+  "align-center",
+  "align-center-horizontal",
+  "align-center-vertical",
+  "align-end-horizontal",
+  "align-end-vertical",
+  "align-horizontal-distribute-center",
+  "align-horizontal-distribute-end",
+  "align-horizontal-distribute-start",
+  "align-horizontal-justify-center",
+  "align-horizontal-justify-end",
+  "align-horizontal-justify-start",
+  "align-horizontal-space-around",
+  "align-horizontal-space-between",
+  "align-justify",
+  "align-left",
+  "align-right",
+  "align-start-horizontal",
+  "align-start-vertical",
+  "align-vertical-distribute-center",
+  "align-vertical-distribute-end",
+  "align-vertical-distribute-start",
+  "align-vertical-justify-center",
+  "align-vertical-justify-end",
+  "align-vertical-justify-start",
+  "align-vertical-space-around",
+  "align-vertical-space-between",
+  "ambulance",
+  "ampersand",
+  "ampersands",
+  "amphora",
+  "anchor",
+  "angry",
+  "annoyed",
+  "antenna",
+  "anvil",
+  "aperture",
+  "app-window",
+  "app-window-mac",
+  "apple",
+  "archive",
+  "archive-restore",
+  "archive-x",
+  "armchair",
+  "arrow-big-down",
+  "arrow-big-down-dash",
+  "arrow-big-left",
+  "arrow-big-left-dash",
+  "arrow-big-right",
+  "arrow-big-right-dash",
+  "arrow-big-up",
+  "arrow-big-up-dash",
+  "arrow-down",
+  "arrow-down-0-1",
+  "arrow-down-1-0",
+  "arrow-down-a-z",
+  "arrow-down-from-line",
+  "arrow-down-left",
+  "arrow-down-narrow-wide",
+  "arrow-down-right",
+  "arrow-down-to-dot",
+  "arrow-down-to-line",
+  "arrow-down-up",
+  "arrow-down-wide-narrow",
+  "arrow-down-z-a",
+  "arrow-left",
+  "arrow-left-from-line",
+  "arrow-left-right",
+  "arrow-left-to-line",
+  "arrow-right",
+  "arrow-right-from-line",
+  "arrow-right-left",
+  "arrow-right-to-line",
+  "arrow-up",
+  "arrow-up-0-1",
+  "arrow-up-1-0",
+  "arrow-up-a-z",
+  "arrow-up-down",
+  "arrow-up-from-dot",
+  "arrow-up-from-line",
+  "arrow-up-left",
+  "arrow-up-narrow-wide",
+  "arrow-up-right",
+  "arrow-up-to-line",
+  "arrow-up-wide-narrow",
+  "arrow-up-z-a",
+  "arrows-up-from-line",
+  "asterisk",
+  "at-sign",
+  "atom",
+  "audio-lines",
+  "audio-waveform",
+  "award",
+  "axe",
+  "axis-3d",
+  "baby",
+  "backpack",
+  "badge",
+  "badge-alert",
+  "badge-cent",
+  "badge-check",
+  "badge-dollar-sign",
+  "badge-euro",
+  "badge-help",
+  "badge-indian-rupee",
+  "badge-info",
+  "badge-japanese-yen",
+  "badge-minus",
+  "badge-percent",
+  "badge-plus",
+  "badge-pound-sterling",
+  "badge-russian-ruble",
+  "badge-swiss-franc",
+  "badge-x",
+  "baggage-claim",
+  "ban",
+  "banana",
+  "bandage",
+  "banknote",
+  "barcode",
+  "baseline",
+  "bath",
+  "battery",
+  "battery-charging",
+  "battery-full",
+  "battery-low",
+  "battery-medium",
+  "battery-warning",
+  "beaker",
+  "bean",
+  "bean-off",
+  "bed",
+  "bed-double",
+  "bed-single",
+  "beef",
+  "beer",
+  "beer-off",
+  "bell",
+  "bell-dot",
+  "bell-electric",
+  "bell-minus",
+  "bell-off",
+  "bell-plus",
+  "bell-ring",
+  "between-horizontal-end",
+  "between-horizontal-start",
+  "between-vertical-end",
+  "between-vertical-start",
+  "biceps-flexed",
+  "bike",
+  "binary",
+  "binoculars",
+  "biohazard",
+  "bird",
+  "bitcoin",
+  "blend",
+  "blinds",
+  "blocks",
+  "bluetooth",
+  "bluetooth-connected",
+  "bluetooth-off",
+  "bluetooth-searching",
+  "bold",
+  "bolt",
+  "bomb",
+  "bone",
+  "book",
+  "book-a",
+  "book-audio",
+  "book-check",
+  "book-copy",
+  "book-dashed",
+  "book-down",
+  "book-headphones",
+  "book-heart",
+  "book-image",
+  "book-key",
+  "book-lock",
+  "book-marked",
+  "book-minus",
+  "book-open",
+  "book-open-check",
+  "book-open-text",
+  "book-plus",
+  "book-text",
+  "book-type",
+  "book-up",
+  "book-up-2",
+  "book-user",
+  "book-x",
+  "bookmark",
+  "bookmark-check",
+  "bookmark-minus",
+  "bookmark-plus",
+  "bookmark-x",
+  "boom-box",
+  "bot",
+  "bot-message-square",
+  "bot-off",
+  "box",
+  "boxes",
+  "braces",
+  "brackets",
+  "brain",
+  "brain-circuit",
+  "brain-cog",
+  "brick-wall",
+  "briefcase",
+  "briefcase-business",
+  "briefcase-conveyor-belt",
+  "briefcase-medical",
+  "bring-to-front",
+  "brush",
+  "bug",
+  "bug-off",
+  "bug-play",
+  "building",
+  "building-2",
+  "bus",
+  "bus-front",
+  "cable",
+  "cable-car",
+  "cake",
+  "cake-slice",
+  "calculator",
+  "calendar",
+  "calendar-1",
+  "calendar-arrow-down",
+  "calendar-arrow-up",
+  "calendar-check",
+  "calendar-check-2",
+  "calendar-clock",
+  "calendar-cog",
+  "calendar-days",
+  "calendar-fold",
+  "calendar-heart",
+  "calendar-minus",
+  "calendar-minus-2",
+  "calendar-off",
+  "calendar-plus",
+  "calendar-plus-2",
+  "calendar-range",
+  "calendar-search",
+  "calendar-x",
+  "calendar-x-2",
+  "camera",
+  "camera-off",
+  "candy",
+  "candy-cane",
+  "candy-off",
+  "cannabis",
+  "captions",
+  "captions-off",
+  "car",
+  "car-front",
+  "car-taxi-front",
+  "caravan",
+  "carrot",
+  "case-lower",
+  "case-sensitive",
+  "case-upper",
+  "cassette-tape",
+  "cast",
+  "castle",
+  "cat",
+  "cctv",
+  "chart-area",
+  "chart-bar",
+  "chart-bar-big",
+  "chart-bar-decreasing",
+  "chart-bar-increasing",
+  "chart-bar-stacked",
+  "chart-candlestick",
+  "chart-column",
+  "chart-column-big",
+  "chart-column-decreasing",
+  "chart-column-increasing",
+  "chart-column-stacked",
+  "chart-gantt",
+  "chart-line",
+  "chart-network",
+  "chart-no-axes-column",
+  "chart-no-axes-column-decreasing",
+  "chart-no-axes-column-increasing",
+  "chart-no-axes-combined",
+  "chart-no-axes-gantt",
+  "chart-pie",
+  "chart-scatter",
+  "chart-spline",
+  "check",
+  "check-check",
+  "chef-hat",
+  "cherry",
+  "chevron-down",
+  "chevron-first",
+  "chevron-last",
+  "chevron-left",
+  "chevron-right",
+  "chevron-up",
+  "chevrons-down",
+  "chevrons-down-up",
+  "chevrons-left",
+  "chevrons-left-right",
+  "chevrons-left-right-ellipsis",
+  "chevrons-right",
+  "chevrons-right-left",
+  "chevrons-up",
+  "chevrons-up-down",
+  "chrome",
+  "church",
+  "cigarette",
+  "cigarette-off",
+  "circle",
+  "circle-alert",
+  "circle-arrow-down",
+  "circle-arrow-left",
+  "circle-arrow-out-down-left",
+  "circle-arrow-out-down-right",
+  "circle-arrow-out-up-left",
+  "circle-arrow-out-up-right",
+  "circle-arrow-right",
+  "circle-arrow-up",
+  "circle-check",
+  "circle-check-big",
+  "circle-chevron-down",
+  "circle-chevron-left",
+  "circle-chevron-right",
+  "circle-chevron-up",
+  "circle-dashed",
+  "circle-divide",
+  "circle-dollar-sign",
+  "circle-dot",
+  "circle-dot-dashed",
+  "circle-ellipsis",
+  "circle-equal",
+  "circle-fading-arrow-up",
+  "circle-fading-plus",
+  "circle-gauge",
+  "circle-help",
+  "circle-minus",
+  "circle-off",
+  "circle-parking",
+  "circle-parking-off",
+  "circle-pause",
+  "circle-percent",
+  "circle-play",
+  "circle-plus",
+  "circle-power",
+  "circle-slash",
+  "circle-slash-2",
+  "circle-stop",
+  "circle-user",
+  "circle-user-round",
+  "circle-x",
+  "circuit-board",
+  "citrus",
+  "clapperboard",
+  "clipboard",
+  "clipboard-check",
+  "clipboard-copy",
+  "clipboard-list",
+  "clipboard-minus",
+  "clipboard-paste",
+  "clipboard-pen",
+  "clipboard-pen-line",
+  "clipboard-plus",
+  "clipboard-type",
+  "clipboard-x",
+  "clock",
+  "clock-1",
+  "clock-10",
+  "clock-11",
+  "clock-12",
+  "clock-2",
+  "clock-3",
+  "clock-4",
+  "clock-5",
+  "clock-6",
+  "clock-7",
+  "clock-8",
+  "clock-9",
+  "clock-alert",
+  "clock-arrow-down",
+  "clock-arrow-up",
+  "cloud",
+  "cloud-alert",
+  "cloud-cog",
+  "cloud-download",
+  "cloud-drizzle",
+  "cloud-fog",
+  "cloud-hail",
+  "cloud-lightning",
+  "cloud-moon",
+  "cloud-moon-rain",
+  "cloud-off",
+  "cloud-rain",
+  "cloud-rain-wind",
+  "cloud-snow",
+  "cloud-sun",
+  "cloud-sun-rain",
+  "cloud-upload",
+  "cloudy",
+  "clover",
+  "club",
+  "code",
+  "code-xml",
+  "codepen",
+  "codesandbox",
+  "coffee",
+  "cog",
+  "coins",
+  "columns-2",
+  "columns-3",
+  "columns-4",
+  "combine",
+  "command",
+  "compass",
+  "component",
+  "computer",
+  "concierge-bell",
+  "cone",
+  "construction",
+  "contact",
+  "contact-round",
+  "container",
+  "contrast",
+  "cookie",
+  "cooking-pot",
+  "copy",
+  "copy-check",
+  "copy-minus",
+  "copy-plus",
+  "copy-slash",
+  "copy-x",
+  "copyleft",
+  "copyright",
+  "corner-down-left",
+  "corner-down-right",
+  "corner-left-down",
+  "corner-left-up",
+  "corner-right-down",
+  "corner-right-up",
+  "corner-up-left",
+  "corner-up-right",
+  "cpu",
+  "creative-commons",
+  "credit-card",
+  "croissant",
+  "crop",
+  "cross",
+  "crosshair",
+  "crown",
+  "cuboid",
+  "cup-soda",
+  "currency",
+  "cylinder",
+  "dam",
+  "database",
+  "database-backup",
+  "database-zap",
+  "delete",
+  "dessert",
+  "diameter",
+  "diamond",
+  "diamond-minus",
+  "diamond-percent",
+  "diamond-plus",
+  "dice-1",
+  "dice-2",
+  "dice-3",
+  "dice-4",
+  "dice-5",
+  "dice-6",
+  "dices",
+  "diff",
+  "disc",
+  "disc-2",
+  "disc-3",
+  "disc-album",
+  "divide",
+  "dna",
+  "dna-off",
+  "dock",
+  "dog",
+  "dollar-sign",
+  "donut",
+  "door-closed",
+  "door-open",
+  "dot",
+  "download",
+  "drafting-compass",
+  "drama",
+  "dribbble",
+  "drill",
+  "droplet",
+  "droplets",
+  "drum",
+  "drumstick",
+  "dumbbell",
+  "ear",
+  "ear-off",
+  "earth",
+  "earth-lock",
+  "eclipse",
+  "egg",
+  "egg-fried",
+  "egg-off",
+  "ellipsis",
+  "ellipsis-vertical",
+  "equal",
+  "equal-approximately",
+  "equal-not",
+  "eraser",
+  "ethernet-port",
+  "euro",
+  "expand",
+  "external-link",
+  "eye",
+  "eye-closed",
+  "eye-off",
+  "facebook",
+  "factory",
+  "fan",
+  "fast-forward",
+  "feather",
+  "fence",
+  "ferris-wheel",
+  "figma",
+  "file",
+  "file-archive",
+  "file-audio",
+  "file-audio-2",
+  "file-axis-3d",
+  "file-badge",
+  "file-badge-2",
+  "file-box",
+  "file-chart-column",
+  "file-chart-column-increasing",
+  "file-chart-line",
+  "file-chart-pie",
+  "file-check",
+  "file-check-2",
+  "file-clock",
+  "file-code",
+  "file-code-2",
+  "file-cog",
+  "file-diff",
+  "file-digit",
+  "file-down",
+  "file-heart",
+  "file-image",
+  "file-input",
+  "file-json",
+  "file-json-2",
+  "file-key",
+  "file-key-2",
+  "file-lock",
+  "file-lock-2",
+  "file-minus",
+  "file-minus-2",
+  "file-music",
+  "file-output",
+  "file-pen",
+  "file-pen-line",
+  "file-plus",
+  "file-plus-2",
+  "file-question",
+  "file-scan",
+  "file-search",
+  "file-search-2",
+  "file-sliders",
+  "file-spreadsheet",
+  "file-stack",
+  "file-symlink",
+  "file-terminal",
+  "file-text",
+  "file-type",
+  "file-type-2",
+  "file-up",
+  "file-user",
+  "file-video",
+  "file-video-2",
+  "file-volume",
+  "file-volume-2",
+  "file-warning",
+  "file-x",
+  "file-x-2",
+  "files",
+  "film",
+  "filter",
+  "filter-x",
+  "fingerprint",
+  "fire-extinguisher",
+  "fish",
+  "fish-off",
+  "fish-symbol",
+  "flag",
+  "flag-off",
+  "flag-triangle-left",
+  "flag-triangle-right",
+  "flame",
+  "flame-kindling",
+  "flashlight",
+  "flashlight-off",
+  "flask-conical",
+  "flask-conical-off",
+  "flask-round",
+  "flip-horizontal",
+  "flip-horizontal-2",
+  "flip-vertical",
+  "flip-vertical-2",
+  "flower",
+  "flower-2",
+  "focus",
+  "fold-horizontal",
+  "fold-vertical",
+  "folder",
+  "folder-archive",
+  "folder-check",
+  "folder-clock",
+  "folder-closed",
+  "folder-code",
+  "folder-cog",
+  "folder-dot",
+  "folder-down",
+  "folder-git",
+  "folder-git-2",
+  "folder-heart",
+  "folder-input",
+  "folder-kanban",
+  "folder-key",
+  "folder-lock",
+  "folder-minus",
+  "folder-open",
+  "folder-open-dot",
+  "folder-output",
+  "folder-pen",
+  "folder-plus",
+  "folder-root",
+  "folder-search",
+  "folder-search-2",
+  "folder-symlink",
+  "folder-sync",
+  "folder-tree",
+  "folder-up",
+  "folder-x",
+  "folders",
+  "footprints",
+  "forklift",
+  "forward",
+  "frame",
+  "framer",
+  "frown",
+  "fuel",
+  "fullscreen",
+  "gallery-horizontal",
+  "gallery-horizontal-end",
+  "gallery-thumbnails",
+  "gallery-vertical",
+  "gallery-vertical-end",
+  "gamepad",
+  "gamepad-2",
+  "gauge",
+  "gavel",
+  "gem",
+  "ghost",
+  "gift",
+  "git-branch",
+  "git-branch-plus",
+  "git-commit-horizontal",
+  "git-commit-vertical",
+  "git-compare",
+  "git-compare-arrows",
+  "git-fork",
+  "git-graph",
+  "git-merge",
+  "git-pull-request",
+  "git-pull-request-arrow",
+  "git-pull-request-closed",
+  "git-pull-request-create",
+  "git-pull-request-create-arrow",
+  "git-pull-request-draft",
+  "github",
+  "gitlab",
+  "glass-water",
+  "glasses",
+  "globe",
+  "globe-lock",
+  "goal",
+  "grab",
+  "graduation-cap",
+  "grape",
+  "grid-2x2",
+  "grid-2x2-check",
+  "grid-2x2-plus",
+  "grid-2x2-x",
+  "grid-3x3",
+  "grip",
+  "grip-horizontal",
+  "grip-vertical",
+  "group",
+  "guitar",
+  "ham",
+  "hammer",
+  "hand",
+  "hand-coins",
+  "hand-heart",
+  "hand-helping",
+  "hand-metal",
+  "hand-platter",
+  "handshake",
+  "hard-drive",
+  "hard-drive-download",
+  "hard-drive-upload",
+  "hard-hat",
+  "hash",
+  "haze",
+  "hdmi-port",
+  "heading",
+  "heading-1",
+  "heading-2",
+  "heading-3",
+  "heading-4",
+  "heading-5",
+  "heading-6",
+  "headphone-off",
+  "headphones",
+  "headset",
+  "heart",
+  "heart-crack",
+  "heart-handshake",
+  "heart-off",
+  "heart-pulse",
+  "heater",
+  "hexagon",
+  "highlighter",
+  "history",
+  "hop",
+  "hop-off",
+  "hospital",
+  "hotel",
+  "hourglass",
+  "house",
+  "house-plug",
+  "house-plus",
+  "ice-cream-bowl",
+  "ice-cream-cone",
+  "id-card",
+  "image",
+  "image-down",
+  "image-minus",
+  "image-off",
+  "image-play",
+  "image-plus",
+  "image-up",
+  "images",
+  "import",
+  "inbox",
+  "indent-decrease",
+  "indent-increase",
+  "indian-rupee",
+  "infinity",
+  "info",
+  "inspection-panel",
+  "instagram",
+  "italic",
+  "iteration-ccw",
+  "iteration-cw",
+  "japanese-yen",
+  "joystick",
+  "kanban",
+  "key",
+  "key-round",
+  "key-square",
+  "keyboard",
+  "keyboard-music",
+  "keyboard-off",
+  "lamp",
+  "lamp-ceiling",
+  "lamp-desk",
+  "lamp-floor",
+  "lamp-wall-down",
+  "lamp-wall-up",
+  "land-plot",
+  "landmark",
+  "languages",
+  "laptop",
+  "laptop-minimal",
+  "laptop-minimal-check",
+  "lasso",
+  "lasso-select",
+  "laugh",
+  "layers",
+  "layers-2",
+  "layers-3",
+  "layout-dashboard",
+  "layout-grid",
+  "layout-list",
+  "layout-panel-left",
+  "layout-panel-top",
+  "layout-template",
+  "leaf",
+  "leafy-green",
+  "lectern",
+  "letter-text",
+  "library",
+  "library-big",
+  "life-buoy",
+  "ligature",
+  "lightbulb",
+  "lightbulb-off",
+  "link",
+  "link-2",
+  "link-2-off",
+  "linkedin",
+  "list",
+  "list-check",
+  "list-checks",
+  "list-collapse",
+  "list-end",
+  "list-filter",
+  "list-minus",
+  "list-music",
+  "list-ordered",
+  "list-plus",
+  "list-restart",
+  "list-start",
+  "list-todo",
+  "list-tree",
+  "list-video",
+  "list-x",
+  "loader",
+  "loader-circle",
+  "loader-pinwheel",
+  "locate",
+  "locate-fixed",
+  "locate-off",
+  "lock",
+  "lock-keyhole",
+  "lock-keyhole-open",
+  "lock-open",
+  "log-in",
+  "log-out",
+  "logs",
+  "lollipop",
+  "luggage",
+  "magnet",
+  "mail",
+  "mail-check",
+  "mail-minus",
+  "mail-open",
+  "mail-plus",
+  "mail-question",
+  "mail-search",
+  "mail-warning",
+  "mail-x",
+  "mailbox",
+  "mails",
+  "map",
+  "map-pin",
+  "map-pin-check",
+  "map-pin-check-inside",
+  "map-pin-house",
+  "map-pin-minus",
+  "map-pin-minus-inside",
+  "map-pin-off",
+  "map-pin-plus",
+  "map-pin-plus-inside",
+  "map-pin-x",
+  "map-pin-x-inside",
+  "map-pinned",
+  "martini",
+  "maximize",
+  "maximize-2",
+  "medal",
+  "megaphone",
+  "megaphone-off",
+  "meh",
+  "memory-stick",
+  "menu",
+  "merge",
+  "message-circle",
+  "message-circle-code",
+  "message-circle-dashed",
+  "message-circle-heart",
+  "message-circle-more",
+  "message-circle-off",
+  "message-circle-plus",
+  "message-circle-question",
+  "message-circle-reply",
+  "message-circle-warning",
+  "message-circle-x",
+  "message-square",
+  "message-square-code",
+  "message-square-dashed",
+  "message-square-diff",
+  "message-square-dot",
+  "message-square-heart",
+  "message-square-lock",
+  "message-square-more",
+  "message-square-off",
+  "message-square-plus",
+  "message-square-quote",
+  "message-square-reply",
+  "message-square-share",
+  "message-square-text",
+  "message-square-warning",
+  "message-square-x",
+  "messages-square",
+  "mic",
+  "mic-off",
+  "mic-vocal",
+  "microchip",
+  "microscope",
+  "microwave",
+  "milestone",
+  "milk",
+  "milk-off",
+  "minimize",
+  "minimize-2",
+  "minus",
+  "monitor",
+  "monitor-check",
+  "monitor-cog",
+  "monitor-dot",
+  "monitor-down",
+  "monitor-off",
+  "monitor-pause",
+  "monitor-play",
+  "monitor-smartphone",
+  "monitor-speaker",
+  "monitor-stop",
+  "monitor-up",
+  "monitor-x",
+  "moon",
+  "moon-star",
+  "mountain",
+  "mountain-snow",
+  "mouse",
+  "mouse-off",
+  "mouse-pointer",
+  "mouse-pointer-2",
+  "mouse-pointer-ban",
+  "mouse-pointer-click",
+  "move",
+  "move-3d",
+  "move-diagonal",
+  "move-diagonal-2",
+  "move-down",
+  "move-down-left",
+  "move-down-right",
+  "move-horizontal",
+  "move-left",
+  "move-right",
+  "move-up",
+  "move-up-left",
+  "move-up-right",
+  "move-vertical",
+  "music",
+  "music-2",
+  "music-3",
+  "music-4",
+  "navigation",
+  "navigation-2",
+  "navigation-2-off",
+  "navigation-off",
+  "network",
+  "newspaper",
+  "nfc",
+  "notebook",
+  "notebook-pen",
+  "notebook-tabs",
+  "notebook-text",
+  "notepad-text",
+  "notepad-text-dashed",
+  "nut",
+  "nut-off",
+  "octagon",
+  "octagon-alert",
+  "octagon-minus",
+  "octagon-pause",
+  "octagon-x",
+  "omega",
+  "option",
+  "orbit",
+  "origami",
+  "package",
+  "package-2",
+  "package-check",
+  "package-minus",
+  "package-open",
+  "package-plus",
+  "package-search",
+  "package-x",
+  "paint-bucket",
+  "paint-roller",
+  "paintbrush",
+  "paintbrush-vertical",
+  "palette",
+  "panel-bottom",
+  "panel-bottom-close",
+  "panel-bottom-dashed",
+  "panel-bottom-open",
+  "panel-left",
+  "panel-left-close",
+  "panel-left-dashed",
+  "panel-left-open",
+  "panel-right",
+  "panel-right-close",
+  "panel-right-dashed",
+  "panel-right-open",
+  "panel-top",
+  "panel-top-close",
+  "panel-top-dashed",
+  "panel-top-open",
+  "panels-left-bottom",
+  "panels-right-bottom",
+  "panels-top-left",
+  "paperclip",
+  "parentheses",
+  "parking-meter",
+  "party-popper",
+  "pause",
+  "paw-print",
+  "pc-case",
+  "pen",
+  "pen-line",
+  "pen-off",
+  "pen-tool",
+  "pencil",
+  "pencil-line",
+  "pencil-off",
+  "pencil-ruler",
+  "pentagon",
+  "percent",
+  "person-standing",
+  "philippine-peso",
+  "phone",
+  "phone-call",
+  "phone-forwarded",
+  "phone-incoming",
+  "phone-missed",
+  "phone-off",
+  "phone-outgoing",
+  "pi",
+  "piano",
+  "pickaxe",
+  "picture-in-picture",
+  "picture-in-picture-2",
+  "piggy-bank",
+  "pilcrow",
+  "pilcrow-left",
+  "pilcrow-right",
+  "pill",
+  "pill-bottle",
+  "pin",
+  "pin-off",
+  "pipette",
+  "pizza",
+  "plane",
+  "plane-landing",
+  "plane-takeoff",
+  "play",
+  "plug",
+  "plug-2",
+  "plug-zap",
+  "plus",
+  "pocket",
+  "pocket-knife",
+  "podcast",
+  "pointer",
+  "pointer-off",
+  "popcorn",
+  "popsicle",
+  "pound-sterling",
+  "power",
+  "power-off",
+  "presentation",
+  "printer",
+  "printer-check",
+  "projector",
+  "proportions",
+  "puzzle",
+  "pyramid",
+  "qr-code",
+  "quote",
+  "rabbit",
+  "radar",
+  "radiation",
+  "radical",
+  "radio",
+  "radio-receiver",
+  "radio-tower",
+  "radius",
+  "rail-symbol",
+  "rainbow",
+  "rat",
+  "ratio",
+  "receipt",
+  "receipt-cent",
+  "receipt-euro",
+  "receipt-indian-rupee",
+  "receipt-japanese-yen",
+  "receipt-pound-sterling",
+  "receipt-russian-ruble",
+  "receipt-swiss-franc",
+  "receipt-text",
+  "rectangle-ellipsis",
+  "rectangle-horizontal",
+  "rectangle-vertical",
+  "recycle",
+  "redo",
+  "redo-2",
+  "redo-dot",
+  "refresh-ccw",
+  "refresh-ccw-dot",
+  "refresh-cw",
+  "refresh-cw-off",
+  "refrigerator",
+  "regex",
+  "remove-formatting",
+  "repeat",
+  "repeat-1",
+  "repeat-2",
+  "replace",
+  "replace-all",
+  "reply",
+  "reply-all",
+  "rewind",
+  "ribbon",
+  "rocket",
+  "rocking-chair",
+  "roller-coaster",
+  "rotate-3d",
+  "rotate-ccw",
+  "rotate-ccw-square",
+  "rotate-cw",
+  "rotate-cw-square",
+  "route",
+  "route-off",
+  "router",
+  "rows-2",
+  "rows-3",
+  "rows-4",
+  "rss",
+  "ruler",
+  "russian-ruble",
+  "sailboat",
+  "salad",
+  "sandwich",
+  "satellite",
+  "satellite-dish",
+  "save",
+  "save-all",
+  "save-off",
+  "scale",
+  "scale-3d",
+  "scaling",
+  "scan",
+  "scan-barcode",
+  "scan-eye",
+  "scan-face",
+  "scan-line",
+  "scan-qr-code",
+  "scan-search",
+  "scan-text",
+  "school",
+  "scissors",
+  "scissors-line-dashed",
+  "screen-share",
+  "screen-share-off",
+  "scroll",
+  "scroll-text",
+  "search",
+  "search-check",
+  "search-code",
+  "search-slash",
+  "search-x",
+  "section",
+  "send",
+  "send-horizontal",
+  "send-to-back",
+  "separator-horizontal",
+  "separator-vertical",
+  "server",
+  "server-cog",
+  "server-crash",
+  "server-off",
+  "settings",
+  "settings-2",
+  "shapes",
+  "share",
+  "share-2",
+  "sheet",
+  "shell",
+  "shield",
+  "shield-alert",
+  "shield-ban",
+  "shield-check",
+  "shield-ellipsis",
+  "shield-half",
+  "shield-minus",
+  "shield-off",
+  "shield-plus",
+  "shield-question",
+  "shield-x",
+  "ship",
+  "ship-wheel",
+  "shirt",
+  "shopping-bag",
+  "shopping-basket",
+  "shopping-cart",
+  "shovel",
+  "shower-head",
+  "shrink",
+  "shrub",
+  "shuffle",
+  "sigma",
+  "signal",
+  "signal-high",
+  "signal-low",
+  "signal-medium",
+  "signal-zero",
+  "signature",
+  "signpost",
+  "signpost-big",
+  "siren",
+  "skip-back",
+  "skip-forward",
+  "skull",
+  "slack",
+  "slash",
+  "slice",
+  "sliders-horizontal",
+  "sliders-vertical",
+  "smartphone",
+  "smartphone-charging",
+  "smartphone-nfc",
+  "smile",
+  "smile-plus",
+  "snail",
+  "snowflake",
+  "sofa",
+  "soup",
+  "space",
+  "spade",
+  "sparkle",
+  "sparkles",
+  "speaker",
+  "speech",
+  "spell-check",
+  "spell-check-2",
+  "spline",
+  "split",
+  "spray-can",
+  "sprout",
+  "square",
+  "square-activity",
+  "square-arrow-down",
+  "square-arrow-down-left",
+  "square-arrow-down-right",
+  "square-arrow-left",
+  "square-arrow-out-down-left",
+  "square-arrow-out-down-right",
+  "square-arrow-out-up-left",
+  "square-arrow-out-up-right",
+  "square-arrow-right",
+  "square-arrow-up",
+  "square-arrow-up-left",
+  "square-arrow-up-right",
+  "square-asterisk",
+  "square-bottom-dashed-scissors",
+  "square-chart-gantt",
+  "square-check",
+  "square-check-big",
+  "square-chevron-down",
+  "square-chevron-left",
+  "square-chevron-right",
+  "square-chevron-up",
+  "square-code",
+  "square-dashed",
+  "square-dashed-bottom",
+  "square-dashed-bottom-code",
+  "square-dashed-kanban",
+  "square-dashed-mouse-pointer",
+  "square-divide",
+  "square-dot",
+  "square-equal",
+  "square-function",
+  "square-kanban",
+  "square-library",
+  "square-m",
+  "square-menu",
+  "square-minus",
+  "square-mouse-pointer",
+  "square-parking",
+  "square-parking-off",
+  "square-pen",
+  "square-percent",
+  "square-pi",
+  "square-pilcrow",
+  "square-play",
+  "square-plus",
+  "square-power",
+  "square-radical",
+  "square-scissors",
+  "square-sigma",
+  "square-slash",
+  "square-split-horizontal",
+  "square-split-vertical",
+  "square-square",
+  "square-stack",
+  "square-terminal",
+  "square-user",
+  "square-user-round",
+  "square-x",
+  "squircle",
+  "squirrel",
+  "stamp",
+  "star",
+  "star-half",
+  "star-off",
+  "step-back",
+  "step-forward",
+  "stethoscope",
+  "sticker",
+  "sticky-note",
+  "store",
+  "stretch-horizontal",
+  "stretch-vertical",
+  "strikethrough",
+  "subscript",
+  "sun",
+  "sun-dim",
+  "sun-medium",
+  "sun-moon",
+  "sun-snow",
+  "sunrise",
+  "sunset",
+  "superscript",
+  "swatch-book",
+  "swiss-franc",
+  "switch-camera",
+  "sword",
+  "swords",
+  "syringe",
+  "table",
+  "table-2",
+  "table-cells-merge",
+  "table-cells-split",
+  "table-columns-split",
+  "table-of-contents",
+  "table-properties",
+  "table-rows-split",
+  "tablet",
+  "tablet-smartphone",
+  "tablets",
+  "tag",
+  "tags",
+  "tally-1",
+  "tally-2",
+  "tally-3",
+  "tally-4",
+  "tally-5",
+  "tangent",
+  "target",
+  "telescope",
+  "tent",
+  "tent-tree",
+  "terminal",
+  "test-tube",
+  "test-tube-diagonal",
+  "test-tubes",
+  "text",
+  "text-cursor",
+  "text-cursor-input",
+  "text-quote",
+  "text-search",
+  "text-select",
+  "theater",
+  "thermometer",
+  "thermometer-snowflake",
+  "thermometer-sun",
+  "thumbs-down",
+  "thumbs-up",
+  "ticket",
+  "ticket-check",
+  "ticket-minus",
+  "ticket-percent",
+  "ticket-plus",
+  "ticket-slash",
+  "ticket-x",
+  "tickets",
+  "tickets-plane",
+  "timer",
+  "timer-off",
+  "timer-reset",
+  "toggle-left",
+  "toggle-right",
+  "toilet",
+  "tornado",
+  "torus",
+  "touchpad",
+  "touchpad-off",
+  "tower-control",
+  "toy-brick",
+  "tractor",
+  "traffic-cone",
+  "train-front",
+  "train-front-tunnel",
+  "train-track",
+  "tram-front",
+  "trash",
+  "trash-2",
+  "tree-deciduous",
+  "tree-palm",
+  "tree-pine",
+  "trees",
+  "trello",
+  "trending-down",
+  "trending-up",
+  "trending-up-down",
+  "triangle",
+  "triangle-alert",
+  "triangle-right",
+  "trophy",
+  "truck",
+  "turtle",
+  "tv",
+  "tv-minimal",
+  "tv-minimal-play",
+  "twitch",
+  "twitter",
+  "type",
+  "type-outline",
+  "umbrella",
+  "umbrella-off",
+  "underline",
+  "undo",
+  "undo-2",
+  "undo-dot",
+  "unfold-horizontal",
+  "unfold-vertical",
+  "ungroup",
+  "university",
+  "unlink",
+  "unlink-2",
+  "unplug",
+  "upload",
+  "usb",
+  "user",
+  "user-check",
+  "user-cog",
+  "user-minus",
+  "user-pen",
+  "user-plus",
+  "user-round",
+  "user-round-check",
+  "user-round-cog",
+  "user-round-minus",
+  "user-round-pen",
+  "user-round-plus",
+  "user-round-search",
+  "user-round-x",
+  "user-search",
+  "user-x",
+  "users",
+  "users-round",
+  "utensils",
+  "utensils-crossed",
+  "utility-pole",
+  "variable",
+  "vault",
+  "vegan",
+  "venetian-mask",
+  "vibrate",
+  "vibrate-off",
+  "video",
+  "video-off",
+  "videotape",
+  "view",
+  "voicemail",
+  "volleyball",
+  "volume",
+  "volume-1",
+  "volume-2",
+  "volume-off",
+  "volume-x",
+  "vote",
+  "wallet",
+  "wallet-cards",
+  "wallet-minimal",
+  "wallpaper",
+  "wand",
+  "wand-sparkles",
+  "warehouse",
+  "washing-machine",
+  "watch",
+  "waves",
+  "waypoints",
+  "webcam",
+  "webhook",
+  "webhook-off",
+  "weight",
+  "wheat",
+  "wheat-off",
+  "whole-word",
+  "wifi",
+  "wifi-high",
+  "wifi-low",
+  "wifi-off",
+  "wifi-zero",
+  "wind",
+  "wind-arrow-down",
+  "wine",
+  "wine-off",
+  "workflow",
+  "worm",
+  "wrap-text",
+  "wrench",
+  "x",
+  "youtube",
+  "zap",
+  "zap-off",
+  "zoom-in",
+  "zoom-out"
+ ]
+}

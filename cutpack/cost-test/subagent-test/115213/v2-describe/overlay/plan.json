@@ -1,0 +1,552 @@
+{
+ "version": 1,
+ "style": "overlay",
+ "clip": {
+  "file": "VID_20261105115213.mp4",
+  "duration": 60.581,
+  "customer": "test"
+ },
+ "topic": "none",
+ "script": "แล้วผม รู้สึกว่า ตราบใดที่คุณยัง มองว่า รายได้ ของคุณ อ่ะ ช่องทาง นั้นน่ะสิ่งที่คุณ กำลังทำ อยู่อ่ะ มันคือ รายได้เสริมนะ เอง มันก็จะเป็น รายได้ เสริม ต่อไป เรื่อยเรื่อย มันจะ ไม่มีทางเป็น เมน Incom ได้ มีแต่ คน พูดว่า อยากหารายได้ เสริม อยากหาไซส์ ทัศน มิน ทาสู้ แล้วรายได้ หลัก Active Income ผม รู้สึกว่า ถ้าอยากให้ มันมา เป็น active Incom นะคือ ยูต้อง มอง มัน เป็น busis หรือ ว่าการ เฮด ความเสี่ยงกับมัน เว้ย คำว่ารายได้ เสริม หรือว่า ไซส์ โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง ไม่มีคำว่า เจ๊ง ไม่มีคำว่า ขาดทุนนะ เพราะว่า อย่า เอาเวลาของ You ไป ใช้แล้วยู จะ คิดใน มุมของ Misset ที่ เอ่อมิ เนไม ความเสี่ยงให้มาก ที่สุด เลยทำให้ ยังไง ก็ได้ ให้มัน แบบแค่เป็น รายได้ เสริมอ่ะ ตอนที่ผมทำ คอนเทนต์ น่ะผมจะ ตอนที่ ผมทำ คอนเทนต์แล้ว ผมก็ ทำเป็น รายได้เสริมอ่ะ ประจำ ผมไป ใช่ป่ะ เซตผมมันไม่ เหมือนกับ อย่างงี้เลย มันมันมี หลายอย่าง ที่มัน เปลี่ยนไป มากมาก แล้วมัน ผมก็ยังเห็น Infonser บางคนเขาก็ พูดว่า เอออัน เนี้ย เป็นช่องทาง หารายได้ เสริมที่ดี ซึ่งถ้า คุณแค่ คิดว่ามันเป็น รายได้",
+ "camera": [
+  {
+   "push": 0.5
+  },
+  {
+   "pull": 11.5
+  },
+  {
+   "push": 21.0
+  },
+  {
+   "pull": 31.0
+  },
+  {
+   "push": 38.0
+  },
+  {
+   "pull": 46.0
+  },
+  {
+   "push": 52.5
+  }
+ ],
+ "subtitles": [
+  {
+   "t0": 0.56,
+   "t1": 4.8,
+   "text": "แล้วผม รู้สึกว่า / ตราบใดที่คุณยัง มองว่า / รายได้ ของคุณ"
+  },
+  {
+   "t0": 4.8,
+   "t1": 7.68,
+   "text": "อ่ะ ช่องทาง / นั้นน่ะสิ่งที่คุณ กำลังทำ / อยู่อ่ะ มันคือ"
+  },
+  {
+   "t0": 7.68,
+   "t1": 10.96,
+   "text": "รายได้เสริมนะ เอง / มันก็จะเป็น รายได้ / เสริม ต่อไป"
+  },
+  {
+   "t0": 10.96,
+   "t1": 13.6,
+   "text": "เรื่อยเรื่อย มันจะ / ไม่มีทางเป็น เมน / Incom / ได้ มีแต่"
+  },
+  {
+   "t0": 13.6,
+   "t1": 16.88,
+   "text": "คน พูดว่า / อยากหารายได้ เสริม / อยากหาไซส์ ทัศน"
+  },
+  {
+   "t0": 16.88,
+   "t1": 18.96,
+   "text": "มิน ทาสู้ / แล้วรายได้ หลัก / Active"
+  },
+  {
+   "t0": 18.96,
+   "t1": 21.68,
+   "text": "Income ผม รู้สึกว่า / ถ้าอยากให้ มันมา / เป็น active"
+  },
+  {
+   "t0": 21.68,
+   "t1": 24.48,
+   "text": "Incom นะคือ / ยูต้อง มอง / มัน เป็น"
+  },
+  {
+   "t0": 24.48,
+   "t1": 27.04,
+   "text": "busis หรือ / ว่าการ เฮด / ความเสี่ยงกับมัน เว้ย"
+  },
+  {
+   "t0": 27.04,
+   "t1": 29.84,
+   "text": "คำว่ารายได้ เสริม / หรือว่า ไซส์ / โดยส่วนใหญ่ / นะครับ"
+  },
+  {
+   "t0": 29.84,
+   "t1": 32.88,
+   "text": "ไม่มี ความเสี่ยง / ไม่มีคำว่า เจ๊ง / ไม่มีคำว่า ขาดทุนนะ"
+  },
+  {
+   "t0": 32.88,
+   "t1": 34.88,
+   "text": "เพราะว่า อย่า / เอาเวลาของ You / ไป ใช้แล้วยู"
+  },
+  {
+   "t0": 34.88,
+   "t1": 37.6,
+   "text": "จะ คิดใน / มุมของ Misset ที่"
+  },
+  {
+   "t0": 37.6,
+   "t1": 39.28,
+   "text": "เอ่อมิ เนไม"
+  },
+  {
+   "t0": 39.28,
+   "t1": 41.68,
+   "text": "ความเสี่ยงให้มาก ที่สุด / เลยทำให้ ยังไง / ก็ได้ ให้มัน"
+  },
+  {
+   "t0": 41.68,
+   "t1": 45.52,
+   "text": "แบบแค่เป็น รายได้ / เสริมอ่ะ / ตอนที่ผมทำ คอนเทนต์"
+  },
+  {
+   "t0": 45.52,
+   "t1": 47.28,
+   "text": "น่ะผมจะ ตอนที่ / ผมทำ คอนเทนต์แล้ว / ผมก็ ทำเป็น"
+  },
+  {
+   "t0": 47.28,
+   "t1": 49.52,
+   "text": "รายได้เสริมอ่ะ ประจำ / ผมไป ใช่ป่ะ"
+  },
+  {
+   "t0": 49.52,
+   "t1": 51.79,
+   "text": "เซตผมมันไม่ เหมือนกับ / อย่างงี้เลย / มันมันมี หลายอย่าง"
+  },
+  {
+   "t0": 51.79,
+   "t1": 54.4,
+   "text": "ที่มัน เปลี่ยนไป / มากมาก แล้วมัน"
+  },
+  {
+   "t0": 54.4,
+   "t1": 56.64,
+   "text": "ผมก็ยังเห็น Infonser / บางคนเขาก็ พูดว่า / เอออัน เนี้ย"
+  },
+  {
+   "t0": 56.64,
+   "t1": 58.72,
+   "text": "เป็นช่องทาง หารายได้ / เสริมที่ดี"
+  },
+  {
+   "t0": 58.72,
+   "t1": 60.581,
+   "text": "ซึ่งถ้า คุณแค่ / คิดว่ามันเป็น รายได้"
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 0.8,
+   "t1": 4.3,
+   "kind": "widget",
+   "part": "B14.v1",
+   "size": "short",
+   "hit": 3.68,
+   "slots": {
+    "words": [
+     "ตราบใดที่",
+     "มองว่า",
+     "รายได้ของคุณ"
+    ],
+    "key": 2,
+    "at": [
+     1.68,
+     2.88,
+     3.68
+    ],
+    "icon": "wallet",
+    "wlead": "มองว่า",
+    "wkey": "รายได้"
+   },
+   "say": "ตราบใดที่คุณยังมองว่ารายได้ของคุณ",
+   "shows": "the words come in, 'income' boxed",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 5.1,
+   "t1": 8.4,
+   "kind": "widget",
+   "part": "B14.v3",
+   "size": "short",
+   "hit": 7.68,
+   "slots": {
+    "words": [
+     "ช่องทางนั้น",
+     "ที่คุณทำอยู่",
+     "รายได้เสริม"
+    ],
+    "key": 2,
+    "at": [
+     5.12,
+     6.64,
+     7.68
+    ],
+    "icon": "briefcase",
+    "wlead": "มันคือ",
+    "wkey": "รายได้เสริม"
+   },
+   "say": "ช่องทางนั้นที่คุณกำลังทำอยู่ มันคือรายได้เสริม",
+   "shows": "handwritten 'side income' underlined",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 8.9,
+   "t1": 11.3,
+   "kind": "widget",
+   "part": "B12.v4",
+   "size": "short",
+   "hit": 10.96,
+   "slots": {
+    "a": "รายได้เสริม",
+    "ia": "wallet",
+    "b": "เสริมต่อไป",
+    "ib": "refresh-cw",
+    "c": "เรื่อยเรื่อย",
+    "ic": "infinity",
+    "wlead": "เสริมต่อไป",
+    "wkey": "เรื่อยเรื่อย"
+   },
+   "say": "มันก็จะเป็นรายได้เสริมต่อไปเรื่อยเรื่อย",
+   "shows": "side income loops back to itself forever",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 11.7,
+   "t1": 13.7,
+   "kind": "widget",
+   "part": "B05.v1",
+   "size": "short",
+   "hit": 12.24,
+   "slots": {
+    "aty": 12.48,
+    "x": "รายได้เสริม",
+    "y": "Main Income",
+    "wlead": "ไม่มีทางเป็น",
+    "wkey": "Main Income"
+   },
+   "say": "ไม่มีทางเป็น Main Income ได้",
+   "shows": "'side income' struck out, 'Main Income' comes in",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 14.1,
+   "t1": 16.7,
+   "kind": "widget",
+   "part": "B10.v1",
+   "size": "short",
+   "hit": 14.56,
+   "slots": {
+    "who": "อยากหารายได้เสริม",
+    "wlead": "คนพูดว่า",
+    "wkey": "รายได้เสริม"
+   },
+   "say": "คนพูดว่าอยากหารายได้เสริม",
+   "shows": "a crowd, one person lit",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 17.2,
+   "t1": 19.9,
+   "kind": "widget",
+   "part": "B03.v1",
+   "size": "short",
+   "hit": 18.64,
+   "slots": {
+    "a": "รายได้เสริม",
+    "b": "Active",
+    "ia": "coins",
+    "ib": "briefcase",
+    "win": "b",
+    "wlead": "รายได้หลัก",
+    "wkey": "Active"
+   },
+   "say": "รายได้เสริม เทียบกับรายได้หลัก Active Income",
+   "shows": "two incomes side by side, Active wins",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 20.4,
+   "t1": 22.6,
+   "kind": "widget",
+   "part": "B08.v1",
+   "size": "short",
+   "hit": 21.28,
+   "slots": {
+    "goal": "Active Income",
+    "icon": "target",
+    "wlead": "อยากให้เป็น",
+    "wkey": "Active"
+   },
+   "say": "ถ้าอยากให้มันมาเป็น active income",
+   "shows": "arrow hits the bullseye",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 23.0,
+   "t1": 25.0,
+   "kind": "widget",
+   "part": "B13.v3",
+   "size": "short",
+   "hit": 24.48,
+   "slots": {
+    "tip": "มองเป็น Business",
+    "icon": "briefcase",
+    "wlead": "ต้องมองเป็น",
+    "wkey": "Business"
+   },
+   "say": "ยูต้องมองมันเป็น business",
+   "shows": "a key opens a padlock: the answer is business",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 25.4,
+   "t1": 27.0,
+   "kind": "widget",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 25.92,
+   "slots": {
+    "text": "ความเสี่ยง",
+    "icon": "shield-alert",
+    "wlead": "เฮด",
+    "wkey": "ความเสี่ยง"
+   },
+   "say": "เฮดความเสี่ยงกับมัน",
+   "shows": "red warning sign for risk",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 29.8,
+   "t1": 32.6,
+   "kind": "widget",
+   "part": "B02.v3",
+   "size": "short",
+   "hit": 31.28,
+   "slots": {
+    "dir": "down",
+    "icon": "shield",
+    "wlead": "ไม่มีคำว่า",
+    "wkey": "เจ๊ง"
+   },
+   "say": "ไม่มีความเสี่ยง ไม่มีคำว่าเจ๊ง ไม่มีคำว่าขาดทุน",
+   "shows": "big arrow down: risk and loss go away",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 33.0,
+   "t1": 35.0,
+   "kind": "widget",
+   "part": "B09.v4",
+   "size": "short",
+   "hit": 33.44,
+   "slots": {
+    "when": "เวลาของยู",
+    "icon": "hourglass",
+    "wlead": "อย่าเอา",
+    "wkey": "เวลา"
+   },
+   "say": "อย่าเอาเวลาของยูไปใช้",
+   "shows": "an hourglass flips: time being spent",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 35.4,
+   "t1": 37.8,
+   "kind": "widget",
+   "part": "B13.v1",
+   "size": "short",
+   "hit": 36.24,
+   "slots": {
+    "tip": "คิดในมุมของ",
+    "icon": "brain",
+    "wlead": "คิดในมุมของ",
+    "wkey": "Mindset"
+   },
+   "say": "ยูจะคิดในมุมของ Mindset",
+   "shows": "a light bulb: a way of thinking",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 38.3,
+   "t1": 41.0,
+   "kind": "widget",
+   "part": "B02.v1",
+   "size": "short",
+   "hit": 39.92,
+   "slots": {
+    "dir": "down",
+    "icon": "shield-alert",
+    "wlead": "ความเสี่ยง",
+    "wkey": "มากที่สุด"
+   },
+   "say": "ลดความเสี่ยงให้มากที่สุด",
+   "shows": "bars fall: risk goes down",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 46.6,
+   "t1": 49.0,
+   "kind": "widget",
+   "part": "B09.v1",
+   "size": "short",
+   "hit": 47.84,
+   "slots": {
+    "when": "ประจำ",
+    "icon": "clock",
+    "wlead": "รายได้เสริม",
+    "wkey": "ประจำ"
+   },
+   "say": "ผมก็ทำเป็นรายได้เสริมประจำ",
+   "shows": "a clock hand spins: a regular routine",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 50.0,
+   "t1": 52.6,
+   "kind": "widget",
+   "part": "custom",
+   "size": "short",
+   "hit": 52.0,
+   "slots": {
+    "wlead": "หลายอย่าง",
+    "wkey": "เปลี่ยนไป"
+   },
+   "say": "มันมีหลายอย่างที่เปลี่ยนไปมากมาก",
+   "shows": "many things shifting at once",
+   "need": "Several small items shift position and swap places at the hit, showing many things changing a lot — the library has no 'things change' part",
+   "code": "const P = [[10, 10], [84, 10], [84, 84], [10, 84]];\nconst names = ['star', 'heart', 'bell', 'gem'];\nconst cols = [NAVY, NAVY, ACC, NAVY];\nconst nxt = [1, 2, 3, 0];\nfor (let i = 0; i < 4; i++) {\n  const w = div(`left:${P[i][0]}px;top:${P[i][1]}px;width:56px;height:56px`, vis);\n  tile(w, names[i], T.t0 + .05 + i * .08, 'left:0;top:0', {size: 56, bg: '#EEF0F4', color: cols[i], sound: false, float: false});\n  const dx = P[nxt[i]][0] - P[i][0];\n  const dy = P[nxt[i]][1] - P[i][1];\n  mv.slide(w, T.hit, 'translate(0px,0px)', `translate(${dx}px,${dy}px)`);\n}\nsnd('hit', T.hit);\n",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 54.4,
+   "t1": 56.5,
+   "kind": "widget",
+   "part": "B11.v1",
+   "size": "short",
+   "hit": 55.84,
+   "slots": {
+    "text": "ช่องทางหารายได้เสริมที่ดี",
+    "who": "Influencer",
+    "wlead": "บางคนพูดว่า",
+    "wkey": "เสริมที่ดี"
+   },
+   "say": "บางคนเขาก็พูดว่า เป็นช่องทางหารายได้เสริมที่ดี",
+   "shows": "chat bubble marked read, an influencer's words",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 58.8,
+   "t1": 60.5,
+   "kind": "widget",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 59.92,
+   "slots": {
+    "a": "คิดว่าเป็น",
+    "ia": "brain",
+    "b": "รายได้",
+    "ib": "wallet",
+    "wlead": "คิดว่ามันเป็น",
+    "wkey": "รายได้"
+   },
+   "say": "ถ้าคุณแค่คิดว่ามันเป็นรายได้",
+   "shows": "thinking leads to the income you get",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  }
+ ],
+ "layout": {
+  "subtitleTop": 1380,
+  "widgetPos": {
+   "short": {
+    "x": 240,
+    "y": 150
+   },
+   "narrow": {
+    "x": 36,
+    "y": 570
+   }
+  }
+ }
+}

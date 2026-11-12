@@ -1,0 +1,12 @@
+{
+ "scenes": [
+  {
+   "i": 4,
+   "code": "\nconst o = ON[T.bg];\nconst page = div(`left:240px;top:260px;width:600px;height:900px;border-radius:48px;background:${o.sub};box-shadow:0 30px 70px rgba(20,33,61,.18);opacity:0`, c);\nmv.rise(page, T.t0 + .05);\nconst av = div(`left:230px;top:70px;width:140px;height:140px;border-radius:50%;background:${NAVY};display:flex;align-items:center;justify-content:center;opacity:0`, page, ico('user', 90, '#fff', 2));\nmv.pop(av, T.t0 + .2);\nfor (let i = 0; i < 3; i++) { const l = div(`left:${90 + i * 20}px;top:${270 + i * 70}px;width:${420 - i * 40}px;height:34px;border-radius:17px;background:${o.track};opacity:0`, page); mv.show(l, T.t0 + .3 + i * .08); }\nconst btn = div(`left:70px;top:560px;width:460px;height:130px;border-radius:65px;background:${ACC};display:flex;align-items:center;justify-content:center;opacity:0`, page, ico('link', 70, INK, 2.6));\nmv.pop(btn, T.hit);\nripple(page, 300, 625, T.hit + .05, 3, ACC);\nsnd('hit', T.hit);\n"
+  },
+  {
+   "i": 11,
+   "code": "\nconst phone = div('left:300px;top:200px;width:480px;height:980px;border-radius:70px;border:10px solid rgba(255,255,255,.85);opacity:0', c);\nmv.rise(phone, T.t0 + .05);\nconst av = div('left:170px;top:90px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;opacity:0', phone, ico('user', 76, '#fff', 1.8));\nmv.pop(av, T.t0 + .2);\nfor (let i = 0; i < 2; i++) { const r = div(`left:50px;top:${300 + i * 140}px;width:360px;height:100px;border-radius:50px;background:rgba(255,255,255,.12);opacity:0`, phone); mv.chip(r, T.t0 + .3 + i * .1); }\nconst link = div(`left:50px;top:580px;width:360px;height:100px;border-radius:50px;background:${ACC};display:flex;align-items:center;justify-content:center;opacity:0`, phone, ico('briefcase', 56, INK, 2.4));\nmv.pop(link, T.hit);\ncursor(phone, [[T.hit - .5, 380, 820], [T.hit - .05, 230, 630], [T.hit + .5, 300, 760]], [T.hit], {size: 90});\nsnd('hit', T.hit);\n"
+  }
+ ]
+}

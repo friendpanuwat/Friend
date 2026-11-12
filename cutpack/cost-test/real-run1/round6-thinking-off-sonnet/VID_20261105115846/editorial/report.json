@@ -1,0 +1,59 @@
+{
+ "status": "ok",
+ "topic": "edu",
+ "log": [
+  "fix round (plan): 11 errors sent back"
+ ],
+ "fallback": [],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "15 cards, need ≥ 19 for 76.4 s"
+  },
+  {
+   "level": "error",
+   "code": "sub-fast",
+   "where": "subtitles 5.76–6.08 \"เรา จะไม่\"",
+   "msg": "1 chunks in 0.32 s is too fast to read",
+   "sub": 2
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 27.84–29.04 \"เรา จะไม่ / ใช้ประโยค อังกฤษ\"",
+   "msg": "chunk \"ใช้ประโยค อังกฤษ\" is 13 letters, aim ≤ 12",
+   "sub": 7
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 37.36–39.04 \"ของ การเรียน / แบบ Conprensible\"",
+   "msg": "chunk \"แบบ Conprensible\" is 15 letters, aim ≤ 12",
+   "sub": 9
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 74.4–76.37 \"ถ้า ดูแล้ว / ว่า consicnce ไป / ว่าอะไรก็ อย่า\"",
+   "msg": "chunk \"ว่า consicnce ไป\" is 13 letters, aim ≤ 12",
+   "sub": 16
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[2] push 25.0",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 2
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[4] push 42.5",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 4
+  }
+ ]
+}

@@ -1,0 +1,360 @@
+<title>ชิ้นฐาน CutPack</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; a screen-zone figure from Friend's sample clip, then 15 category sheets, each ending in a three-way keep / tweak / drop switch. */
+:root {
+  --bg: #F3F4F0; --surface: #FFFFFF; --ink: #14213D; --muted: #5C6579; --line: #DADDE4;
+  --keep: #DDFF45; --keep-ink: #14213D; --drop: #E5322A; --drop-ink: #FFFFFF; --tweak: #8E97AA; --err: #B42318;
+  --display: "Mitr", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --body: "IBM Plex Sans Thai", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0D1220; --surface: #161D2F; --ink: #E7EBF3; --muted: #9AA3B6; --line: #29324A;
+  --keep: #DDFF45; --keep-ink: #10172A; --drop: #FF5A50; --drop-ink: #10172A; --tweak: #8E97AA; --err: #FF7A70; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0D1220; --surface: #161D2F; --ink: #E7EBF3; --muted: #9AA3B6; --line: #29324A;
+  --keep: #DDFF45; --keep-ink: #10172A; --drop: #FF5A50; --drop-ink: #10172A; --tweak: #8E97AA; --err: #FF7A70; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.6; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; }
+.wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+h1 { font-weight: 600; font-size: 28px; line-height: 1.2; }
+h2 { font-weight: 500; font-size: 21px; line-height: 1.3; }
+h3 { font-weight: 500; font-size: 19px; line-height: 1.3; }
+p { margin: 0; }
+.lead { display: grid; gap: 8px; color: var(--muted); max-width: 62ch; }
+.lead b { color: var(--ink); font-weight: 600; }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px;
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.count { font-variant-numeric: tabular-nums; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.dot.keep { background: var(--keep); outline: 1px solid var(--ink); outline-offset: -1px; } .dot.drop { background: var(--drop); } .dot.tweak { background: var(--tweak); } .dot.none { outline: 1px dashed var(--muted); outline-offset: -1px; }
+.banner { flex-basis: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 500; line-height: 1.45; }
+.banner[data-state="ready"] { background: var(--keep); color: var(--keep-ink); border-color: transparent; }
+.banner[data-state="busy"] { border: 1px dashed var(--ink); }
+.banner[data-state="off"] { background: var(--drop); color: var(--drop-ink); border-color: transparent; }
+
+.zones { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 520px) { .zones { grid-template-columns: minmax(0, 1fr); } .shot { max-width: 260px; } }
+.shot { position: relative; aspect-ratio: 9 / 16; max-width: 100%; border-radius: 10px; overflow: hidden; background: #000 url(frame.jpg) center / cover; }
+.z { position: absolute; display: flex; align-items: flex-start; justify-content: flex-start; padding: 3px 4px; font: 600 10px/1.2 var(--body); border-radius: 4px; }
+.z.no { background: color-mix(in srgb, var(--drop) 38%, transparent); color: #fff; text-shadow: 0 1px 2px #000; }
+.z.free { border: 2px dashed var(--keep); color: var(--keep); text-shadow: 0 1px 2px #000; }
+.zones ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+
+.cat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.cat[data-choice="keep"] { box-shadow: 0 0 0 3px var(--keep); }
+.cat[data-choice="tweak"] { box-shadow: 0 0 0 3px var(--tweak); }
+.cat[data-choice="drop"] { box-shadow: 0 0 0 3px var(--drop); }
+.cat[data-choice="drop"] > :not(.act) { opacity: .5; }
+.head { display: flex; gap: 10px; align-items: baseline; }
+.code { font: 600 12px/1 var(--body); letter-spacing: .06em; color: var(--muted); font-variant-numeric: tabular-nums; }
+.when { color: var(--muted); }
+.lbl { font: 600 12px/1.4 var(--body); letter-spacing: .04em; color: var(--muted); margin-bottom: 4px; }
+.ex { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.ex li { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: 8px; }
+.topic { font-size: 13px; color: var(--muted); }
+.vars { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.vars li { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 14px; line-height: 1.45; }
+.spec { display: grid; gap: 6px; margin: 0; }
+.spec div { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 8px; font-size: 14px; }
+.spec dt { color: var(--muted); } .spec dd { margin: 0; }
+.act { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { font: 500 14px/1 var(--body); padding: 11px 0; min-height: 44px; border: 0; background: var(--surface); color: var(--ink); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"][data-v="keep"] { background: var(--keep); color: var(--keep-ink); font-weight: 600; }
+.seg button[aria-pressed="true"][data-v="tweak"] { background: var(--tweak); color: var(--keep-ink); font-weight: 600; }
+.seg button[aria-pressed="true"][data-v="drop"] { background: var(--drop); color: var(--drop-ink); font-weight: 600; }
+.seg button:disabled { cursor: default; }
+.seg button:disabled:not([aria-pressed="true"]):not([data-pending="true"]) { color: var(--muted); }
+.seg button[data-pending="true"] { background: repeating-linear-gradient(-45deg, var(--surface) 0 6px, var(--line) 6px 12px); color: var(--ink); font-weight: 600; }
+.seg button:focus-visible, textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.saved { min-height: 1.45em; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.saved[data-kind="ok"] { color: var(--ink); }
+.saved[data-kind="error"] { color: var(--err); font-weight: 500; }
+textarea { width: 100%; font: 14px/1.4 var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; resize: vertical; min-height: 44px; }
+textarea::placeholder { color: var(--muted); }
+.general { display: grid; gap: 8px; }
+.general textarea { min-height: 96px; }
+</style>
+
+<div class="wrap">
+  <header class="lead">
+    <h1>ชิ้นฐาน CutPack</h1>
+    <p>ชิ้นฐาน 15 หมวดที่แบ่งตาม<b>หน้าที่ของประโยค</b> ใช้ได้กับคลิปทุกเรื่อง เรื่องของคลิปมาจากไอคอนและคำในบทที่ AI เติมลงช่อง และจาก<b>ชุดเฉพาะหมวดเนื้อหา</b>ที่จะทำเพิ่มทีหลัง</p>
+    <p>ทุกหมวดมี<b>แบบย่อย 4 แบบ</b> แต่ละแบบวางได้หลายตำแหน่งและใช้พื้นการ์ดได้ 4 สีตาม skill ระบบจะจำว่าลูกค้าแต่ละคนใช้แบบไหนไปแล้ว คลิปถัดไปจะได้ไม่ซ้ำ ทุกแบบมีสองร่าง: <b>การ์ดเต็มจอ</b> สำหรับสไตล์ editorial และ<b>วิดเจ็ตเล็ก</b> สำหรับสไตล์ overlay</p>
+    <p>กด <b>เอา</b> / <b>ปรับ</b> / <b>ตัด</b> ท้ายแต่ละหมวด ถ้ากด "ปรับ" ให้พิมพ์ในช่องหมายเหตุว่าอยากให้ปรับอะไร ท้ายหน้ามีช่องให้บอกหมวดที่ยังขาด ยังไม่มีภาพตัวอย่างของแต่ละชิ้น จะเรนเดอร์หลังคุณยืนยันรายการนี้</p>
+  </header>
+
+  <div class="bar" role="status" aria-live="polite">
+    <span class="count"><span class="dot keep"></span>เอา <span id="n-keep">0</span></span>
+    <span class="count"><span class="dot tweak"></span>ปรับ <span id="n-tweak">0</span></span>
+    <span class="count"><span class="dot drop"></span>ตัด <span id="n-drop">0</span></span>
+    <span class="count"><span class="dot none"></span>ยังไม่เลือก <span id="n-none">15</span></span>
+    <p class="banner" id="status" data-state="wait">กำลังเชื่อมต่อที่เก็บข้อมูล… ปุ่มจะกดได้เมื่อแถบนี้เปลี่ยนเป็นสีเขียว</p>
+  </div>
+
+  <section class="zones" aria-labelledby="zones-h">
+    <div class="shot" role="img" aria-label="ภาพจากคลิปตัวอย่างของคุณ พร้อมกรอบพื้นที่ว่างและพื้นที่ห้ามวาง">
+      <span class="z no" style="left:0;top:0;width:100%;height:8%">แถบบนของแอป</span>
+      <span class="z free" style="left:3%;top:8.5%;width:80%;height:10%">ว่าง: เหนือหัว</span>
+      <span class="z free" style="left:2%;top:20%;width:21%;height:26%">ว่าง</span>
+      <span class="z free" style="left:71%;top:20%;width:27%;height:23%">ว่าง</span>
+      <span class="z no" style="left:24%;top:19%;width:46%;height:32%">หน้า ห้ามบัง</span>
+      <span class="z no" style="left:5%;top:60%;width:80%;height:21%">ซับ ระดับอก</span>
+      <span class="z no" style="left:86%;top:45%;width:14%;height:40%">ปุ่มแอป</span>
+      <span class="z no" style="left:0;top:86%;width:84%;height:14%">ชื่อบัญชีและแคปชัน</span>
+    </div>
+    <div class="lead">
+      <h2 id="zones-h">ที่ว่างในคลิปตัวอย่างของคุณ</h2>
+      <ul>
+        <li>หัวอยู่ค่อนข้างสูง ที่ว่าง<b>เหนือหัวมีแค่ราว 10% ของจอ</b></li>
+        <li><b>ข้างหัวซ้ายและขวามีที่ว่างมากกว่า</b></li>
+        <li>วิดเจ็ตแบบ overlay ทุกชิ้นจึงต้องมีสองขนาด
+          <ul>
+            <li><b>ขนาดเตี้ย</b> วางเหนือหัว</li>
+            <li><b>ขนาดแคบ</b> วางข้างหัว</li>
+          </ul>
+        </li>
+        <li>ซับอยู่ระดับอกตาม skill คือเริ่มที่ราว 60% ของความสูงจอ และเว้นขอบล่างไว้ให้ชื่อบัญชี</li>
+        <li>ระบบจะหาหน้าในแต่ละคลิปแล้วเลือกช่องที่ว่างเอง</li>
+        <li>พื้นหลังดำของคลิปนี้เข้ากับการ์ดดำแบบ Glow ของ skill</li>
+      </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="list-h" style="display:grid;gap:16px">
+    <h2 id="list-h">15 หมวด</h2>
+    <div id="cats" style="display:grid;gap:16px"></div>
+  </section>
+
+  <section class="general" aria-labelledby="gen-h">
+    <h2 id="gen-h">หมวดที่ยังขาด หรือความเห็นรวม</h2>
+    <p class="when">นึกถึงประโยคในคลิปที่คุณเคยทำ ถ้ามีประโยคที่ไม่ลงหมวดไหนเลย พิมพ์ไว้ที่นี่</p>
+    <p class="saved" id="saved-_general"></p>
+    <textarea id="note-_general" placeholder="เช่น ยังไม่มีหมวดสำหรับประโยคแนะนำสินค้า" aria-label="หมวดที่ยังขาด หรือความเห็นรวม"></textarea>
+  </section>
+</div>
+
+<script>
+// [id, name, when, [[topic, example]...], [variants], slots, hit, topic packs]
+const CATS = [
+  ['B01','ตัวเลขเด่น','ประโยคที่มีตัวเลขสำคัญ ราคา เปอร์เซ็นต์ หรือจำนวน',
+    [['การเงิน','เก็บเงินได้ 30% ของเงินเดือน'],['ขายของ','ขายได้ 1,200 ชิ้นในเดือนเดียว'],['สุขภาพ','เดินวันละ 8,000 ก้าว']],
+    ['ตัวเลขนับขึ้นแล้วหยุดพร้อมหน่วย','วงแหวนเปอร์เซ็นต์เติมจนถึงค่า','ตารางไอคอน 10 ช่อง ไฮไลต์ตามสัดส่วน เช่น 3 ใน 10','ป้ายตัวเลขใหญ่คู่ไอคอนเรื่อง'],
+    'ตัวเลข (ต้องมีในบท), หน่วย, คำอธิบายสั้น, ไอคอน','ตัวเลขหยุดนับพร้อมเสียงติ๊ก ตรงคำที่พูดตัวเลข','การเงินใช้เหรียญแทนไอคอนในตาราง ฟิตเนสใช้รอยเท้า'],
+  ['B02','เพิ่มขึ้น / ลดลง','ประโยคที่บอกว่าอะไรโตขึ้น ลดลง หายไป หรือพุ่ง',
+    [['การตลาด','ยอดวิวโตขึ้น 3 เท่า'],['ขายของ','ลูกค้าหายไปครึ่งหนึ่ง'],['ฟิตเนส','น้ำหนักลดลง 5 กิโล']],
+    ['กราฟแท่งขึ้นหรือร่วง','กราฟเส้นพุ่งหรือดิ่ง','ลูกศรใหญ่คู่ตัวเลข','มาตรวัดเข็มตีขึ้นหรือลง'],
+    'ทิศ (ขึ้นหรือลง), ตัวเลข (ถ้ามีในบท), ป้ายสั้น, ไอคอน','แท่งหรือเส้นขยับตรงคำ "ขึ้น ลด หาย" ทิศลงใช้สีแดงเพราะเป็นความหมายลบ','การเงินเป็นกราฟแท่งเทียน ฟิตเนสเป็นตาชั่ง การตลาดเป็นตัวนับยอดวิว'],
+  ['B03','เปรียบเทียบ / ก่อนกับหลัง','ประโยคที่วางของสองอย่างคู่กัน หรือเล่าสภาพก่อนและหลัง',
+    [['การเงิน','เช่ากับซื้อ อะไรคุ้มกว่า'],['ความงาม','ผิวก่อนกับหลังใช้ 2 สัปดาห์'],['การทำงาน','ทำงานหนักกับทำงานฉลาด']],
+    ['แบ่งจอซ้ายกับขวา','การ์ดสองใบ ใบที่แพ้หรี่ลง','ตาราง 2 คอลัมน์ มีถูกและผิด','แถบเลื่อนจากก่อนไปหลัง'],
+    'ชื่อฝั่ง A และ B, ข้อดีข้อเสียสั้น ๆ, ไอคอนแต่ละฝั่ง, ฝั่งที่ชนะ (ถ้ามี)','ฝั่งที่ชนะสว่างขึ้น หรือแถบเลื่อนไปฝั่ง "หลัง" ตรงคำ','ความงามและฟิตเนสใช้ภาพร่างคนก่อนกับหลัง'],
+  ['B04','ขั้นตอน / เช็กลิสต์','ประโยคที่บอกวิธีทำเป็นข้อ ๆ หรือมีหลายอย่างที่ต้องมี',
+    [['อาหาร','ขั้นแรกหมักไก่ ขั้นสองค่อยทอด'],['การตลาด','3 อย่างที่ต้องมีในโพสต์'],['ภาษา','ฝึกวันละ 3 ขั้น']],
+    ['ขั้น 1-2-3 ขึ้นทีละขั้น (ใช้เมื่อลำดับสำคัญ)','เช็กลิสต์ติ๊กทีละข้อ','เส้นทางมีจุดแวะ','การ์ดซ้อนพลิกทีละใบ'],
+    'จำนวนข้อ 2–5 ข้อ, ข้อความแต่ละข้อจากบท, ไอคอนแต่ละข้อ','แต่ละข้อขึ้นหรือถูกติ๊กตรงคำที่พูดถึงข้อนั้น','อาหารใช้การ์ดสูตร การเรียนใช้สมุดจด'],
+  ['B05','ถูกกับผิด / "ไม่ใช่ X แต่เป็น Y"','ประโยคที่แก้ความเชื่อผิด หรือบอกว่าอย่าทำแบบหนึ่งให้ทำอีกแบบ',
+    [['สุขภาพ','ไม่ใช่กินน้อย แต่กินให้ถูก'],['ขายของ','อย่าลดราคา ให้เพิ่มของแถม'],['AI','AI ไม่ได้มาแทนคุณ แต่มาแทนงานซ้ำ']],
+    ['คำ X โดนขีดฆ่าแล้วคำ Y ขึ้นแทน','ชิป X โดนกากบาท ชิป Y ได้เครื่องหมายถูก','ป้าย "ความเชื่อ" พลิกเป็น "ความจริง"','ตาชั่งเอียงจาก X ไปทาง Y'],
+    'X, Y, ไอคอน','กากบาทหรือขีดฆ่าตรงคำ "ไม่ใช่ อย่า" แล้ว Y ขึ้นตรงคำ "แต่"','ทุกหมวดใช้ไอคอนเรื่องของตัวเองบนชิป'],
+  ['B06','คำถาม / ความสงสัย','ประโยคคำถาม โดยเฉพาะคำถามเปิดคลิป',
+    [['ธุรกิจ','รู้ไหมทำไมร้านคุณไม่มีคนเข้า'],['การเงิน','เงินเดือนหมดก่อนสิ้นเดือนเพราะอะไร'],['ความสัมพันธ์','เขาชอบเราจริงไหม']],
+    ['เครื่องหมาย ? ใหญ่ส่าย','กล่องคำถามพิมพ์ทีละตัว','ไอคอนเรื่องมี ? ลอยรอบ','ช่องค้นหาที่พิมพ์คำถามเอง'],
+    'คำถาม (ย่อจากบท), ไอคอนเรื่อง','? เด้งตรงคำท้ายคำถาม','ความสัมพันธ์ใช้ฟองความคิดคู่'],
+  ['B07','ปัญหา / คำเตือน','ประโยคที่บอกความเสี่ยง ข้อผิดพลาด หรือสิ่งที่ต้องระวัง',
+    [['การเงิน','ระวังหนี้บัตรเครดิต'],['สุขภาพ','นอนน้อยเสี่ยงโรคหัวใจ'],['เทคโนโลยี','รหัสผ่านแบบนี้โดนแฮกง่าย']],
+    ['ป้ายเตือนสามเหลี่ยมกะพริบ','ไอคอนเรื่องแตกร้าว','การ์ดแจ้งเตือนแบบหน้าจอมือถือ','แถบความเสี่ยงจากต่ำไปสูง'],
+    'หัวข้อปัญหา, ระดับความรุนแรง, ไอคอน','ป้ายเด้งและเป็นสีแดงตรงคำ "ระวัง เสี่ยง ปัญหา"','สุขภาพใช้เส้นชีพจร เทคโนโลยีใช้แม่กุญแจปลดล็อก'],
+  ['B08','เป้าหมาย / ผลลัพธ์ / สำเร็จ','ประโยคที่บอกผลที่ได้ หรือเป้าที่ไปถึง',
+    [['ขายของ','ปิดการขายได้ทันที'],['ภาษา','สอบผ่านในครั้งเดียว'],['ฟิตเนส','ถึงเป้า 10 กิโล']],
+    ['เป้าพร้อมลูกศรเข้ากลาง','แถบความคืบหน้าเต็ม 100%','ธงปักบนยอด','เครื่องหมายถูกใหญ่'],
+    'เป้าหมาย, ตัวเลข (ถ้ามีในบท), ไอคอน','ลูกศรเข้าเป้าหรือแถบเต็มตรงคำ "สำเร็จ ได้ ถึง"','การเรียนใช้ใบประกาศ ขายของใช้ใบเสร็จ'],
+  ['B09','เวลา / ไทม์ไลน์ / เส้นตาย','ประโยคที่มีช่วงเวลา ระยะเวลา หรือลำดับเวลา',
+    [['ธุรกิจ','ภายใน 30 วัน'],['ภาษา','ฝึกวันละ 15 นาที'],['อสังหา','ผ่อน 30 ปี']],
+    ['นาฬิกาเข็มหมุน','ปฏิทินพลิกหรือขีดวัน','เส้นเวลามีจุด 2–4 จุด','นาฬิกาทรายหรือนับถอยหลัง'],
+    'ช่วงเวลาตามบท, จุดบนเส้นเวลา, ไอคอน','เข็มหมุนหรือวันพลิกตรงคำบอกเวลา','อสังหาใช้ตารางผ่อน ฟิตเนสใช้นาฬิกาจับเวลา'],
+  ['B10','คน / กลุ่มเป้าหมาย','ประโยคที่พูดถึงคนกลุ่มหนึ่ง ลูกค้า ทีม หรือคนสองคน',
+    [['การตลาด','ลูกค้าวัย 25–35'],['การทำงาน','ทีม 5 คน'],['ความสัมพันธ์','คนที่ชอบเก็บความรู้สึก']],
+    ['กลุ่มคนรูปทรงเรียบ มีหนึ่งคนถูกไฮไลต์','การ์ดโปรไฟล์ลูกค้า','คนสองคนมีเส้นเชื่อม','จำนวนคนค่อย ๆ เพิ่มขึ้น'],
+    'คำเรียกกลุ่ม, จำนวน, ลักษณะ 1–3 ข้อ','คนที่ถูกพูดถึงสว่างขึ้นตรงคำ','ใช้คนรูปทรงเรียบสีทึบ ไม่ใช้รูปคนจริง'],
+  ['B11','คำพูด / แชต / รีวิว','ประโยคที่เล่าว่าคนอื่นพูด ทัก หรือรีวิวว่าอะไร',
+    [['ขายของ','ลูกค้าทักมาถามราคาแล้วหาย'],['ร้านอาหาร','ได้รีวิว 5 ดาว'],['การทำงาน','หัวหน้าบอกว่าไม่ต้องรีบ']],
+    ['กล่องแชตมีสถานะอ่านแล้ว','การ์ดรีวิวมีดาว','คำพูดในเครื่องหมายคำพูดใหญ่','คอมเมนต์แบบโซเชียล ไม่มีโลโก้แบรนด์จริง'],
+    'ข้อความจากบท, ชื่อเรียกเช่น "ลูกค้า", จำนวนดาวตามบท','ข้อความพิมพ์เสร็จหรือดาวติดครบตรงคำ','ร้านอาหารใช้การ์ดรีวิวพร้อมจาน'],
+  ['B12','เหตุกับผล (A ทำให้ B)','ประโยคที่มีคำว่า ทำให้ เลย จึง หรือเล่าว่าอะไรนำไปสู่อะไร',
+    [['สุขภาพ','นอนดึกทำให้หิวบ่อย'],['การเงิน','ดอกเบี้ยขึ้น ผ่อนบ้านก็แพงขึ้น'],['การตลาด','โพสต์ทุกวัน คนเลยจำแบรนด์ได้']],
+    ['ไอคอน A ลูกศรไปไอคอน B','โดมิโนล้มต่อกัน','เฟืองหมุนส่งต่อกัน','วงจรวน A ไป B ไป C แล้วกลับ A'],
+    'A, B, C (ถ้ามี), ไอคอนแต่ละช่อง','ลูกศรวิ่งไปหา B ตรงคำ "ทำให้ เลย จึง"','การเงินใช้เหรียญไหลตามลูกศร'],
+  ['B13','ไอเดีย / เคล็ดลับ / ความลับ','ประโยคที่เผยวิธีลัด เคล็ดลับ หรือสิ่งที่คนไม่ค่อยรู้',
+    [['การทำงาน','เคล็ดลับที่คนเก่งใช้'],['อาหาร','ใส่น้ำแข็งตอนนวดแป้ง'],['AI','คำสั่งเดียวที่ช่วยประหยัดเวลา']],
+    ['หลอดไฟสว่าง','กล่องเปิดเผยของข้างใน','กุญแจไขแม่กุญแจ','การ์ดเคล็ดลับพับมุม'],
+    'หัวข้อเคล็ดลับ, ไอคอน','หลอดไฟติดหรือกล่องเปิดตรงคำ "เคล็ดลับ วิธี ความลับ"','อาหารใช้ช้อนตวง AI ใช้กล่องข้อความคำสั่ง'],
+  ['B14','ประโยคเด็ดตัวใหญ่','ประโยคที่อยากให้ค้างในหัว และไม่ต้องมีภาพประกอบ',
+    [['ขายของ','ลูกค้าไม่ได้ซื้อสินค้า เขาซื้อความรู้สึก'],['การเงิน','เงินไม่ได้หายไป เราแค่ไม่ได้จด'],['พัฒนาตัวเอง','เริ่มก่อน แล้วค่อยเก่ง']],
+    ['คำขึ้นทีละคำ แล้วไฮไลต์คำสำคัญ','คำใหญ่เต็มจอ เปลี่ยนสีทีละตัว','ลายมือ Sriracha คู่กับ Mitr','บรรทัดเลื่อนขึ้นทีละบรรทัด'],
+    'ประโยค (ต้องตรงกับซับที่ยืนยันแล้ว), คำเน้น 1 คำ','คำเน้นเปลี่ยนเป็นสีเน้นตรงคำนั้น','ไม่ใช้ เป็นชิ้นตัวอักษรล้วน และเป็นชิ้นสำรองเมื่อชิ้นอื่นไม่ผ่านโค้ดตรวจ'],
+  ['B15','ปิดคลิป / ชวนทำต่อ','ประโยคท้ายคลิปที่ชวนกดติดตาม คอมเมนต์ เซฟ หรือแชร์',
+    [['ทั่วไป','กดติดตามไว้ ตอนหน้ามีต่อ'],['ทั่วไป','คอมเมนต์บอกหน่อยว่าเคยเจอไหม'],['ทั่วไป','เซฟไว้ดูตอนจะใช้']],
+    ['ปุ่มติดตามโดนกด','กล่องคอมเมนต์พิมพ์เอง','ไอคอนเซฟโดนกด','สรุป 3 คำแล้วการ์ดปิด'],
+    'การกระทำ (ติดตาม คอมเมนต์ เซฟ แชร์), ข้อความ','ปุ่มถูกกดตรงคำ "กด ติดตาม คอมเมนต์"','ไม่ทับปุ่มจริงของแอปด้านขวา และไม่ใช้โลโก้แพลตฟอร์ม'],
+];
+const LABEL = {keep: 'เอา', tweak: 'ปรับ', drop: 'ตัด'};
+const $ = s => document.querySelector(s);
+
+function sheet([id, name, when, ex, vars, slots, hit, packs]) {
+  const el = document.createElement('article');
+  el.className = 'cat'; el.dataset.id = id;
+  el.innerHTML = `
+    <div class="head"><span class="code">${id}</span><h3></h3></div>
+    <p class="when"></p>
+    <div><p class="lbl">ตัวอย่างประโยค</p><ul class="ex"></ul></div>
+    <div><p class="lbl">แบบย่อย</p><ul class="vars"></ul></div>
+    <dl class="spec">
+      <div><dt>ช่องที่ AI เติม</dt><dd class="s1"></dd></div>
+      <div><dt>ตรงคำสำคัญ</dt><dd class="s2"></dd></div>
+      <div><dt>ชุดเฉพาะหมวด</dt><dd class="s3"></dd></div>
+    </dl>
+    <div class="act">
+      <div class="seg" role="group" aria-label="เลือกสำหรับ ${id}">
+        <button type="button" data-v="keep" aria-pressed="false">เอา</button>
+        <button type="button" data-v="tweak" aria-pressed="false">ปรับ</button>
+        <button type="button" data-v="drop" aria-pressed="false">ตัด</button>
+      </div>
+      <p class="saved" id="saved-${id}"></p>
+      <textarea id="note-${id}" rows="1" placeholder="หมายเหตุ (ไม่บังคับ)" aria-label="หมายเหตุสำหรับ ${id}"></textarea>
+    </div>`;
+  el.querySelector('h3').textContent = name;
+  el.querySelector('.when').textContent = 'ใช้กับ: ' + when;
+  const ul = el.querySelector('.ex');
+  ex.forEach(([t, s]) => { const li = document.createElement('li'); li.innerHTML = '<span class="topic"></span><span></span>'; li.children[0].textContent = t; li.children[1].textContent = '"' + s + '"'; ul.appendChild(li); });
+  const vl = el.querySelector('.vars');
+  vars.forEach(v => { const li = document.createElement('li'); li.textContent = v; vl.appendChild(li); });
+  el.querySelector('.s1').textContent = slots;
+  el.querySelector('.s2').textContent = hit;
+  el.querySelector('.s3').textContent = packs;
+  el.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => choose(id, b.dataset.v)));
+  return el;
+}
+CATS.forEach(c => $('#cats').appendChild(sheet(c)));
+const IDS = CATS.map(c => c[0]).concat('_general');
+
+// Saving: a choice shows only after the store confirms it; controls stay off until the store answers.
+const confirmed = {}, want = {}, busy = {}, timers = {};
+const drafts = new Set();
+const OFF_OPEN = 'หน้านี้บันทึกไม่ได้ ปุ่มจึงปิดไว้ เปิดลิงก์นี้ในแอป Claude หรือที่ claude.ai โดยล็อกอินบัญชีเจ้าของหน้า';
+const OFF_LOST = 'ขาดการเชื่อมต่อกับที่เก็บข้อมูล ปิดแล้วเปิดหน้านี้ใหม่ หมวดที่มีกรอบสีบันทึกไว้แล้ว';
+let db = null, mode = 'wait', offText = '', slow = false;   // wait | ready | readonly | off
+const noteEl = id => document.getElementById('note-' + id);
+IDS.forEach(id => {
+  const note = noteEl(id);
+  note.addEventListener('input', () => { drafts.add(id); clearTimeout(timers[id]); timers[id] = setTimeout(() => saveNote(id), 1200); });
+  note.addEventListener('change', () => { clearTimeout(timers[id]); saveNote(id); });
+});
+
+function paint() {
+  const n = {keep: 0, tweak: 0, drop: 0, none: 0};
+  const live = mode === 'ready';
+  let saving = 0;
+  IDS.forEach(id => {
+    if (busy[id]) saving++;
+    const note = noteEl(id);
+    if (document.activeElement !== note && !drafts.has(id)) note.value = (confirmed[id] || {}).note || '';
+    note.disabled = !live;
+    const el = document.querySelector(`.cat[data-id="${id}"]`);
+    if (!el) return;
+    const c = (confirmed[id] || {}).choice || null;
+    const asked = busy[id] && want[id] ? (want[id].choice || null) : c;
+    const pend = asked !== c ? (asked || c) : null;
+    n[c || 'none']++;
+    el.dataset.choice = c || '';
+    el.querySelectorAll('.seg button').forEach(b => {
+      b.setAttribute('aria-pressed', String(b.dataset.v === c));
+      b.dataset.pending = String(b.dataset.v === pend);
+      b.disabled = !live || !!busy[id];
+    });
+  });
+  for (const k in n) $('#n-' + k).textContent = n[k];
+  const bar = $('#status');
+  let state = mode, text = {
+    wait: slow ? 'ยังติดต่อที่เก็บข้อมูลไม่ได้ ปุ่มจึงยังปิดอยู่ รอสักครู่ หรือตรวจอินเทอร์เน็ต'
+               : 'กำลังเชื่อมต่อที่เก็บข้อมูล… ปุ่มจะกดได้เมื่อแถบนี้เปลี่ยนเป็นสีเขียว',
+    ready: 'พร้อมบันทึก · กดเลือกแล้วรอให้กรอบของหมวดเปลี่ยนสี แปลว่าบันทึกแล้ว',
+    readonly: 'ดูได้อย่างเดียว หน้านี้ให้เจ้าของหน้าเป็นคนเลือก',
+    off: offText,
+  }[mode];
+  if (live && saving) { state = 'busy'; text = `กำลังบันทึก ${saving} รายการ… อย่าเพิ่งปิดหน้านี้`; }
+  bar.dataset.state = state;
+  if (bar.textContent !== text) bar.textContent = text;
+}
+function setMode(m, text) { mode = m; if (text) offText = text; paint(); }
+function msg(id, kind, text) { const el = document.getElementById('saved-' + id); el.dataset.kind = kind; el.textContent = text; }
+const same = (a, b) => (a.choice || null) === (b.choice || null) && (a.note || '') === (b.note || '');
+
+function choose(id, v) {
+  if (mode !== 'ready' || busy[id]) return;
+  clearTimeout(timers[id]);
+  const choice = (confirmed[id] || {}).choice === v ? null : v;   // tap again to clear
+  queue(id, {choice, note: noteEl(id).value.trim()});
+}
+function saveNote(id) {
+  if (mode !== 'ready') return;
+  const base = want[id] || confirmed[id] || {};
+  queue(id, {choice: base.choice || null, note: noteEl(id).value.trim()});
+}
+function queue(id, body) { want[id] = body; if (busy[id]) { paint(); return; } run(id); }
+async function run(id) {
+  busy[id] = true; msg(id, '', 'กำลังบันทึก…'); paint();
+  while (want[id]) {
+    const body = want[id];
+    if (same(body, confirmed[id] || {})) { delete want[id]; msg(id, '', ''); break; }
+    try {
+      await write(id, body);
+      confirmed[id] = body;
+      if (want[id] === body) delete want[id];
+      if (noteEl(id).value.trim() === body.note) drafts.delete(id);
+      msg(id, 'ok', body.choice ? 'บันทึกแล้ว: ' + LABEL[body.choice] : body.note ? 'บันทึกหมายเหตุแล้ว' : 'ล้างตัวเลือกแล้ว');
+    } catch (e) {
+      delete want[id];
+      const code = e && e.code;
+      if (code === 'invalid_argument' || code === 'transform_error') { msg(id, 'error', 'บันทึกไม่ได้ หน้านี้ให้เจ้าของหน้าเป็นคนเลือก'); setMode('readonly'); }
+      else if (['revoked', 'not_granted', 'capability_disabled', 'capability_removed'].includes(code)) { msg(id, 'error', 'ยังไม่ได้บันทึก'); setMode('off', OFF_LOST); }
+      else msg(id, 'error', 'ยังไม่ได้บันทึก ลองอีกครั้ง');
+      break;
+    }
+  }
+  busy[id] = false; paint();
+}
+async function write(id, body) {
+  const ref = db.collection('base').doc(id);
+  try { await ref.set(body); }
+  catch (e) {
+    const final = ['invalid_argument', 'transform_error', 'resource_exhausted', 'quota_exceeded', 'revoked', 'not_granted', 'capability_disabled', 'capability_removed'];
+    if (e && final.includes(e.code)) throw e;
+    await new Promise(r => setTimeout(r, 400 + Math.random() * 600));   // a passing hiccup: try once more
+    await ref.set(body);
+  }
+}
+paint();
+
+(async () => {
+  const c = window.claude;
+  if (!c || typeof c.use !== 'function') { setMode('off', OFF_OPEN); return; }
+  const [d, u] = await Promise.all([c.use('db'), c.use('user')]);
+  if (!d) { setMode('off', OFF_OPEN); return; }
+  if (u && !(await u.isOwner())) mode = 'readonly';
+  db = d;
+  const timer = setTimeout(() => { slow = true; paint(); }, 10000);
+  db.collection('base').onSnapshot(snap => {
+    // a doc with hasPendingWrites is this page's own save before the store confirms it: skip it
+    snap.docs.forEach(doc => { if (doc.exists && !doc.metadata.hasPendingWrites) confirmed[doc.id] = doc.data(); });
+    snap.docChanges().forEach(ch => { if (ch.type === 'removed') delete confirmed[ch.doc.id]; });
+    if (!snap.metadata.fromCache) { clearTimeout(timer); slow = false; if (mode === 'wait') mode = 'ready'; }
+    paint();
+  }, () => { clearTimeout(timer); setMode('off', OFF_LOST); });
+})();
+</script>

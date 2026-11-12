@@ -1,0 +1,1 @@
+{"pictures":[{"line":6,"shows":"A bar chart falls and a red warning appears, the plan crashes hard.","lead":"แผน","key":"ล้มหนัก","meaning":"plan collapses hard","recipe":{"layout":"count","as":"bars","dir":"down","center":{"icon":"chart-column"},"keep":1,"end":{"icon":"triangle-alert","tone":"neg"}}}]}

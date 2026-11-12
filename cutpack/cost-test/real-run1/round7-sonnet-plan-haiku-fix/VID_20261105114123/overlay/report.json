@@ -1,0 +1,69 @@
+{
+ "status": "ok",
+ "topic": "fit",
+ "log": [
+  "code mended 19 numbers: 25 → 3 errors",
+  "fix round (plan): 3 errors sent back",
+  "fix round on claude-haiku-5-5",
+  "code mended 4 numbers in the fixed plan"
+ ],
+ "fallback": [],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 14.8–18.08 \"ซึ่งน้ำหนักที่มัน หายไป / แน่นอนว่า มันไม่ / ใช่แค่ ไขมัน\"",
+   "msg": "chunk \"ซึ่งน้ำหนักที่มัน หายไป\" is 14 letters, aim ≤ 12",
+   "sub": 7
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 21.36–25.44 \"แล้วก็ ความสัมพันธ์ / กับ อาหาร / บางคนเนี่ยจะ / เริ่มไม่มี แรง / หิวจัด\"",
+   "msg": "chunk \"แล้วก็ ความสัมพันธ์\" is 13 letters, aim ≤ 12",
+   "sub": 9
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 25.44–29.44 \"นอนไม่ค่อยได้ อารมณ์ / เหวี่ยงเอิ่ม หลุด / กิน เยอะ\"",
+   "msg": "chunk \"นอนไม่ค่อยได้ อารมณ์\" is 15 letters, aim ≤ 12",
+   "sub": 10
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 38.0–40.08 \"แต่สิ่งที่ผม อยาก / ให้ ทุกคน / เลยรู้จักเรื่องนี้ ก็คือ\"",
+   "msg": "chunk \"เลยรู้จักเรื่องนี้ ก็คือ\" is 14 letters, aim ≤ 12",
+   "sub": 15
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 46.4–50.08 \"ไม่ควรทำให้คุณ รู้สึกว่า / เหมือน เป็นการ / ทำโทษเลย ลงโทษ / ตัวเอง\"",
+   "msg": "chunk \"ไม่ควรทำให้คุณ รู้สึกว่า\" is 15 letters, aim ≤ 12",
+   "sub": 18
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 64.0–66.8 \"คือการกินให้พอ ดีแล้ว / คุณทำต่อได้ โดยที่\"",
+   "msg": "chunk \"คือการกินให้พอ ดีแล้ว\" is 15 letters, aim ≤ 12",
+   "sub": 26
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 72.1–74.88 \"นะว่าการล้น หนัก / คือการ ดูแลตัวเอง\"",
+   "msg": "chunk \"คือการ ดูแลตัวเอง\" is 13 letters, aim ≤ 12",
+   "sub": 30
+  },
+  {
+   "level": "warn",
+   "code": "sub-face",
+   "where": "layout",
+   "msg": "the chin is low: subtitles may touch the face when zoomed"
+  }
+ ]
+}

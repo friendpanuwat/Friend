@@ -1,0 +1,133 @@
+{
+ "topic": "biz",
+ "camera": [
+  {
+   "move": "push",
+   "t": 0.3
+  },
+  {
+   "move": "pull",
+   "t": 4.8
+  },
+  {
+   "move": "push",
+   "t": 8.0
+  },
+  {
+   "move": "pull",
+   "t": 12.0
+  },
+  {
+   "move": "push",
+   "t": 14.6
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 0.5,
+   "t1": 2.3,
+   "say": "ทำไมคลิปของคุณ ยอดวิวไม่ขึ้น",
+   "shows": "a big ? over 'views not rising'",
+   "part": "B06.v1",
+   "size": "short",
+   "hit": 1.3,
+   "need": "",
+   "slots": {
+    "q": "ยอดวิวไม่ขึ้น",
+    "icon": "eye",
+    "wlead": "ยอดวิว",
+    "wkey": "ไม่ขึ้น"
+   }
+  },
+  {
+   "t0": 2.9,
+   "t1": 4.8,
+   "say": "ยอดวิวกลับลดลงครึ่งหนึ่ง",
+   "shows": "eye icon, the arrow falls",
+   "part": "B02.v1",
+   "size": "short",
+   "hit": 3.6,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "eye",
+    "wlead": "ยอดวิว",
+    "wkey": "ลดลง"
+   }
+  },
+  {
+   "t0": 6.2,
+   "t1": 8.0,
+   "say": "ไม่ใช่โพสต์น้อย แต่คือ 3 วินาทีแรก",
+   "shows": "'โพสต์น้อย' marked wrong, '3 วินาทีแรก' right",
+   "part": "B05.v2",
+   "size": "short",
+   "hit": 6.6,
+   "need": "",
+   "slots": {
+    "aty": 7.0,
+    "x": "โพสต์น้อย",
+    "y": "3 วินาทีแรก",
+    "wlead": "ไม่ใช่โพสต์น้อย",
+    "wkey": "3 วินาทีแรก"
+   }
+  },
+  {
+   "t0": 9.6,
+   "t1": 11.0,
+   "say": "ภายใน 3 วินาที",
+   "shows": "3 seconds with a timer",
+   "part": "B01.v1",
+   "size": "short",
+   "hit": 10.4,
+   "need": "",
+   "slots": {
+    "num": 3,
+    "unit": "วินาที",
+    "icon": "timer",
+    "wlead": "ภายใน",
+    "wkey": "3 วินาที"
+   }
+  },
+  {
+   "t0": 12.0,
+   "t1": 14.6,
+   "say": "เปิดด้วยคำถาม ใส่ซับ ตัดช่วงเงียบ",
+   "shows": "three tips ticked one by one",
+   "part": "B04.v2",
+   "size": "narrow",
+   "hit": 14.0,
+   "need": "",
+   "slots": {
+    "items": [
+     "เปิดด้วยคำถาม",
+     "ใส่ซับ",
+     "ตัดช่วงเงียบ"
+    ],
+    "at": [
+     12.4,
+     13.2,
+     14.0
+    ],
+    "wlead": "ลองทำ",
+    "wkey": "3 อย่าง"
+   }
+  },
+  {
+   "t0": 16.3,
+   "t1": 18.1,
+   "say": "กดติดตามไว้ ตอนหน้ามีต่อ",
+   "shows": "the follow button gets pressed",
+   "part": "B15.v3",
+   "size": "short",
+   "hit": 16.8,
+   "need": "",
+   "slots": {
+    "action": "follow",
+    "text": "ตอนหน้ามีต่อ",
+    "wlead": "ตอนหน้ามีต่อ",
+    "wkey": "กดติดตาม"
+   }
+  }
+ ]
+}

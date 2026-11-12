@@ -1,0 +1,56 @@
+{
+ "status": "ok",
+ "topic": "biz",
+ "log": [
+  "plan request failed: bad request: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Schemas contains too many optional parameters (78), which would make grammar compilation inefficient. Reduce the number of optional parameters in your tool schemas (limit: 24).'}, 'request_id': 'req_011CgjFDFvQTxVyJFpf86Yqm'}",
+  "asked again without the schema",
+  "fix round (plan): 8 errors sent back"
+ ],
+ "fallback": [
+  "B11.v1 55.68–58.2 dropped (hit-late)",
+  "subtitles rebuilt around the remaining cards"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "14 cards, need ≥ 15 for 60.6 s"
+  },
+  {
+   "level": "error",
+   "code": "aroll-long",
+   "where": "52.90–58.80",
+   "msg": "5.9 s of talking head without a card (max 4.5)"
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 9.28–11.68 \"มัน ก็ จะ เป็น รายได้ / เสริม ต่อไป / เรื่อย เรื่อย มัน จะ\"",
+   "msg": "chunk \"มัน ก็ จะ เป็น รายได้\" is 13 letters, aim ≤ 12",
+   "sub": 2
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 33.76–35.36 \"ของ You ไป ใช้แล้ว / ยู จะ\"",
+   "msg": "chunk \"ของ You ไป ใช้แล้ว\" is 13 letters, aim ≤ 12",
+   "sub": 7
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 49.52–50.8 \"เซตผม มัน ไม่ / เหมือนกับ อย่างงี้ เลย\"",
+   "msg": "chunk \"เหมือนกับ อย่างงี้ เลย\" is 15 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 54.4–55.68 \"ผม ก็ ยัง เห็น / Infonser บางคน\"",
+   "msg": "chunk \"Infonser บางคน\" is 13 letters, aim ≤ 12",
+   "sub": 13
+  }
+ ]
+}

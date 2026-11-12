@@ -1,0 +1,8 @@
+{
+ "scenes": [
+  {
+   "i": 13,
+   "code": "const o = ON[T.bg];\nconst legs = svg(600, 460, `<line x1=\"300\" y1=\"0\" x2=\"80\" y2=\"440\" stroke=\"${o.ink}\" stroke-width=\"26\" stroke-linecap=\"round\"/><line x1=\"300\" y1=\"0\" x2=\"300\" y2=\"440\" stroke=\"${o.ink}\" stroke-width=\"26\" stroke-linecap=\"round\"/><line x1=\"300\" y1=\"0\" x2=\"520\" y2=\"440\" stroke=\"${o.ink}\" stroke-width=\"26\" stroke-linecap=\"round\"/>`, 'left:240px;top:760px;opacity:0', c);\nmv.rise(legs, T.t0 + .05);\nconst cam = div('left:370px;top:400px;width:340px;height:340px;opacity:0', c, ico('video', 340, o.ink, 2.4));\nmv.pop(cam, T.t0 + .2);\nconst dot = svg(80, 80, `<circle cx=\"40\" cy=\"40\" r=\"34\" fill=\"${ACC}\"/>`, 'left:700px;top:380px;opacity:0', c);\nmv.pop(dot, T.hit);\nmv.punch(cam, T.hit);\nripple(c, 740, 420, T.hit, 2.6, ACC);\nsnd('hit', T.hit);\nsnd('pop', T.t0 + .2);\n"
+  }
+ ]
+}

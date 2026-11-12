@@ -1,0 +1,16 @@
+{
+ "scenes": [
+  {
+   "i": 9,
+   "code": "const o = ON[T.bg];\nconst words = ['เจ๊ง', 'ขาดทุน'];\nfor (let i = 0; i < 2; i++) {\n  const y = 330 + i * 400;\n  const w = div(`left:90px;top:${y}px;width:850px;height:260px;opacity:0;text-align:center;font-family:KeySans;font-size:200px;line-height:260px;color:${o.ink}`, c, words[i]);\n  fitW(w, 800);\n  mv.rise(w, T.t0 + .1 + i * .2);\n  const x = svg(340, 260, `<path d='M30 20 L310 240' stroke='${RED}' stroke-width='34' stroke-linecap='round' fill='none'/><path d='M310 20 L30 240' stroke='${RED}' stroke-width='34' stroke-linecap='round' fill='none'/>`, `left:${340}px;top:${y}px`, c);\n  const ps = x.querySelectorAll('path');\n  const t = T.hit + i * .45;\n  mv.draw(ps[0], t, .2);\n  mv.draw(ps[1], t + .15, .2);\n  mv.wobble(w, t + .3);\n}\nsnd('hit', T.hit);\nsnd('pop', T.hit + .45);\n"
+  },
+  {
+   "i": 13,
+   "code": "const phone = div(`left:370px;top:360px;width:340px;height:620px;border:18px solid ${NAVY};border-radius:60px;opacity:0`, c);\nmv.pop(phone, T.t0 + .1);\nconst cam = div('left:90px;top:200px;width:100px;height:100px;opacity:0', phone, ico('video', 100, NAVY, 2.5));\nmv.show(cam, T.t0 + .3);\nconst dot = div(`left:130px;top:60px;width:44px;height:44px;border-radius:22px;background:${ACC};opacity:0`, phone);\nmv.show(dot, T.t0 + .3);\nmv.punch(dot, T.t0 + .5);\nmv.punch(dot, T.t0 + 1);\nconst coin = div('left:600px;top:260px;width:230px;height:230px;opacity:0', c, ico('circle-dollar-sign', 230, ACC, 2.5));\nmv.pop(coin, T.hit);\nmv.float(coin, T.hit + .3, T.t1, 10);\nmv.punch(phone, T.hit);\nsnd('hit', T.hit);\n"
+  },
+  {
+   "i": 17,
+   "code": "const o = ON[T.bg];\nconst big = tile(c, 'briefcase', T.t0 + .1, 'left:120px;top:380px', {size: 580, bg: o.tile, color: o.tileInk, sound: false, float: false});\nmv.punch(big.inner, T.hit);\nconst coin = div('left:760px;top:790px;width:150px;height:150px;opacity:0', c, ico('circle-dollar-sign', 150, ACC, 2.5));\nmv.pop(coin, T.hit);\nmv.wobble(coin, T.hit + .3);\nsnd('hit', T.hit);\n"
+  }
+ ]
+}

@@ -1,0 +1,270 @@
+<title>แบบชิ้นฐานรอบสอง</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; a screen-zone figure from Friend's sample clip, then 15 category sheets, each ending in a three-way keep / tweak / drop switch. */
+:root {
+  --bg: #F3F4F0; --surface: #FFFFFF; --ink: #14213D; --muted: #5C6579; --line: #DADDE4;
+  --keep: #DDFF45; --keep-ink: #14213D; --drop: #E5322A; --drop-ink: #FFFFFF; --tweak: #8E97AA; --err: #B42318;
+  --display: "Mitr", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --body: "IBM Plex Sans Thai", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0D1220; --surface: #161D2F; --ink: #E7EBF3; --muted: #9AA3B6; --line: #29324A;
+  --keep: #DDFF45; --keep-ink: #10172A; --drop: #FF5A50; --drop-ink: #10172A; --tweak: #8E97AA; --err: #FF7A70; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0D1220; --surface: #161D2F; --ink: #E7EBF3; --muted: #9AA3B6; --line: #29324A;
+  --keep: #DDFF45; --keep-ink: #10172A; --drop: #FF5A50; --drop-ink: #10172A; --tweak: #8E97AA; --err: #FF7A70; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.6; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; }
+.wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+h1 { font-weight: 600; font-size: 28px; line-height: 1.2; }
+h2 { font-weight: 500; font-size: 21px; line-height: 1.3; }
+h3 { font-weight: 500; font-size: 19px; line-height: 1.3; }
+p { margin: 0; }
+.lead { display: grid; gap: 8px; color: var(--muted); max-width: 62ch; }
+.lead b { color: var(--ink); font-weight: 600; }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px;
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.count { font-variant-numeric: tabular-nums; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.dot.keep { background: var(--keep); outline: 1px solid var(--ink); outline-offset: -1px; } .dot.drop { background: var(--drop); } .dot.tweak { background: var(--tweak); } .dot.none { outline: 1px dashed var(--muted); outline-offset: -1px; }
+.banner { flex-basis: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 500; line-height: 1.45; }
+.banner[data-state="ready"] { background: var(--keep); color: var(--keep-ink); border-color: transparent; }
+.banner[data-state="busy"] { border: 1px dashed var(--ink); }
+.banner[data-state="off"] { background: var(--drop); color: var(--drop-ink); border-color: transparent; }
+
+.zones { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 520px) { .zones { grid-template-columns: minmax(0, 1fr); } .shot { max-width: 260px; } }
+.shot { position: relative; aspect-ratio: 9 / 16; max-width: 100%; border-radius: 10px; overflow: hidden; background: #000 url(frame.jpg) center / cover; }
+.z { position: absolute; display: flex; align-items: flex-start; justify-content: flex-start; padding: 3px 4px; font: 600 10px/1.2 var(--body); border-radius: 4px; }
+.z.no { background: color-mix(in srgb, var(--drop) 38%, transparent); color: #fff; text-shadow: 0 1px 2px #000; }
+.z.free { border: 2px dashed var(--keep); color: var(--keep); text-shadow: 0 1px 2px #000; }
+.zones ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+
+.cat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.cat[data-choice="keep"] { box-shadow: 0 0 0 3px var(--keep); }
+.cat[data-choice="tweak"] { box-shadow: 0 0 0 3px var(--tweak); }
+.cat[data-choice="drop"] { box-shadow: 0 0 0 3px var(--drop); }
+.cat[data-choice="drop"] > :not(.act) { opacity: .5; }
+.head { display: flex; gap: 10px; align-items: baseline; }
+.code { font: 600 12px/1 var(--body); letter-spacing: .06em; color: var(--muted); font-variant-numeric: tabular-nums; }
+.when { color: var(--muted); }
+.lbl { font: 600 12px/1.4 var(--body); letter-spacing: .04em; color: var(--muted); margin-bottom: 4px; }
+.ex { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.ex li { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: 8px; }
+.topic { font-size: 13px; color: var(--muted); }
+.vars { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.vars li { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 14px; line-height: 1.45; }
+.spec { display: grid; gap: 6px; margin: 0; }
+.spec div { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 8px; font-size: 14px; }
+.spec dt { color: var(--muted); } .spec dd { margin: 0; }
+.act { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { font: 500 14px/1 var(--body); padding: 11px 0; min-height: 44px; border: 0; background: var(--surface); color: var(--ink); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"][data-v="keep"] { background: var(--keep); color: var(--keep-ink); font-weight: 600; }
+.seg button[aria-pressed="true"][data-v="tweak"] { background: var(--tweak); color: var(--keep-ink); font-weight: 600; }
+.seg button[aria-pressed="true"][data-v="drop"] { background: var(--drop); color: var(--drop-ink); font-weight: 600; }
+.seg button:disabled { cursor: default; }
+.seg button:disabled:not([aria-pressed="true"]):not([data-pending="true"]) { color: var(--muted); }
+.seg button[data-pending="true"] { background: repeating-linear-gradient(-45deg, var(--surface) 0 6px, var(--line) 6px 12px); color: var(--ink); font-weight: 600; }
+.seg button:focus-visible, textarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.saved { min-height: 1.45em; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.saved[data-kind="ok"] { color: var(--ink); }
+.saved[data-kind="error"] { color: var(--err); font-weight: 500; }
+textarea { width: 100%; font: 14px/1.4 var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; resize: vertical; min-height: 44px; }
+textarea::placeholder { color: var(--muted); }
+.general { display: grid; gap: 8px; }
+.general textarea { min-height: 96px; }
+
+.cat-h { display: grid; gap: 4px; }
+.vgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.clip { position: relative; aspect-ratio: 9 / 16; max-width: 100%; border-radius: 10px; overflow: hidden; background: #000 center / cover; }
+.clip video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cap { font-size: 12px; line-height: 1.4; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .clip video { display: none; } }
+</style>
+
+<div class="wrap">
+  <header class="lead">
+    <h1>แบบชิ้นฐานรอบสอง</h1>
+    <p>10 หมวด รวม <b>40 แบบ</b> เป็นการ์ดเต็มจอของสไตล์ editorial เรนเดอร์บนคลิปตัวอย่างของคุณ ทำตามกฎที่จดไว้จากรอบแรก: พื้นเข้มใช้ดำเรืองแสงเสมอ ตัวอักษรไม่ทับกัน กราฟไม่สั่น และภาพขยับไปทางเดียวกับความหมาย</p>
+    <p>แต่ละแบบมี <b>2 คลิป</b> ใส่เนื้อหาคนละเรื่องและคนละสีพื้น คลิปไม่มีเสียง กด <b>เอา</b> / <b>ปรับ</b> / <b>ตัด</b> ใต้แต่ละแบบ ถ้ากด "ปรับ" ให้พิมพ์ในหมายเหตุว่าอยากปรับอะไร</p>
+    <p><b>แก้แล้ว (3 พ.ย.)</b> แถบใน B07-v4 กับ B08-v2 วิ่งต่อเนื่องนุ่มขึ้น หัวลูกศร B08-v1 ไม่มีส่วนเกิน ไอคอนในเฟือง B12-v3 ไม่ทับเส้น ป้ายใน B12-v4 ไม่ทับเส้น และแถบไฮไลต์ B13-v4 คลุมทั้งข้อความ ส่วนแบบที่คุณตัด (B11-v3, B12-v2, B13-v2) เอาออกจากคลังแล้ว</p>
+  </header>
+
+  <div class="bar" role="status" aria-live="polite">
+    <span class="count"><span class="dot keep"></span>เอา <span id="n-keep">0</span></span>
+    <span class="count"><span class="dot tweak"></span>ปรับ <span id="n-tweak">0</span></span>
+    <span class="count"><span class="dot drop"></span>ตัด <span id="n-drop">0</span></span>
+    <span class="count"><span class="dot none"></span>ยังไม่เลือก <span id="n-none">40</span></span>
+    <p class="banner" id="status" data-state="wait">กำลังเชื่อมต่อที่เก็บข้อมูล… ปุ่มจะกดได้เมื่อแถบนี้เปลี่ยนเป็นสีเขียว</p>
+  </div>
+
+  <div id="cats" style="display:grid;gap:32px"></div>
+
+  <section class="general" aria-labelledby="gen-h">
+    <h2 id="gen-h">ความเห็นรวม</h2>
+    <p class="when">เช่น ภาพรวมแน่นไปหรือโล่งไป ความเร็ว สี หรือหมวดที่อยากให้มีแบบเพิ่ม</p>
+    <p class="saved" id="saved-_general"></p>
+    <textarea id="note-_general" placeholder="ความเห็นรวม (ไม่บังคับ)" aria-label="ความเห็นรวม"></textarea>
+  </section>
+</div>
+
+<script>
+const CLIPS = "clips2";
+const CATS = [["B05", "ถูกกับผิด / \"ไม่ใช่ X แต่เป็น Y\"", [["v1", "X โดนขีดฆ่าแล้ว Y ขึ้นแทน", "เส้นขีดฆ่าวิ่งผ่าน X ตรงคำ \"ไม่ใช่\" แล้ว Y เด้งขึ้นตรงคำ \"แต่\""], ["v2", "ชิป X โดนกากบาท ชิป Y ได้เครื่องหมายถูก", "กากบาทแดงวาดทับชิป X แล้วชิป Y ขึ้นพร้อมเครื่องหมายถูก"], ["v3", "ป้ายความเชื่อพลิกเป็นความจริง", "การ์ดพลิกตรงคำ \"แต่\" ด้านหลังเป็นความจริง"], ["v4", "ตาชั่งเอียงจาก X ไปทาง Y", "คานตาชั่งเอียงไปทาง Y ตรงคำ \"แต่\""]], ["สุขภาพ: \"ไม่ใช่กินน้อย แต่กินให้ถูก\"", "AI: \"AI ไม่ได้มาแทนคุณ แต่มาแทนงานซ้ำ\""]], ["B06", "คำถาม / ความสงสัย", [["v1", "เครื่องหมาย ? ใหญ่ส่าย", "เครื่องหมาย ? ส่ายตรงคำท้ายคำถาม"], ["v2", "กล่องคำถามพิมพ์ทีละตัว", "พิมพ์จบตรงคำท้ายคำถาม แล้วป้าย ? เด้ง"], ["v3", "ไอคอนเรื่องมี ? ลอยรอบ", "เครื่องหมาย ? ตัวใหญ่เด้งตรงคำถาม"], ["v4", "ช่องค้นหาพิมพ์คำถามเอง", "พิมพ์จบแล้วผลค้นหาโหลดขึ้นตรงคำ"]], ["ธุรกิจ: \"รู้ไหมทำไมร้านคุณไม่มีคนเข้า\"", "การเงิน: \"เงินเดือนหมดก่อนสิ้นเดือนเพราะอะไร\""]], ["B07", "ปัญหา / คำเตือน", [["v1", "ป้ายเตือนสามเหลี่ยม", "ป้ายเตือนเด้ง + วงคลื่นสีแดงตรงคำ \"ระวัง เสี่ยง\""], ["v2", "ไอคอนเรื่องแตกร้าว", "รอยร้าวสีแดงวิ่งผ่านไอคอน แล้วกล่องเอียงลง"], ["v3", "การ์ดแจ้งเตือนแบบหน้าจอมือถือ", "แจ้งเตือนเด้ง + จุดแดงขึ้นตรงคำ"], ["v4", "แถบความเสี่ยงจากต่ำไปสูง", "แถบวิ่งขึ้นถึงระดับเสี่ยงและเป็นสีแดงตรงคำ"]], ["การเงิน: \"ระวังหนี้บัตรเครดิต\"", "เทคโนโลยี: \"รหัสผ่านแบบนี้โดนแฮกง่าย\""]], ["B08", "เป้าหมาย / ผลลัพธ์ / สำเร็จ", [["v1", "เป้าพร้อมลูกศรเข้ากลาง", "ลูกศรปักกลางเป้าตรงคำ \"สำเร็จ ได้ ถึง\""], ["v2", "แถบความคืบหน้าเต็ม", "แถบเต็มพอดีตรงคำ แล้วเครื่องหมายถูกเด้งที่ปลายแถบ"], ["v3", "ธงปักบนยอด", "ธงปักบนยอดเขาตรงคำ + วงคลื่น"], ["v4", "เครื่องหมายถูกใหญ่", "เครื่องหมายถูกวาดเสร็จตรงคำ + วงคลื่น"]], ["ขายของ: \"ปิดการขายได้ทันที\"", "ฟิตเนส: \"ถึงเป้า 10 กิโลแล้ว\""]], ["B09", "เวลา / ไทม์ไลน์ / เส้นตาย", [["v1", "นาฬิกาเข็มหมุน", "เข็มยาวหมุนครบรอบแล้วหยุดตรงคำบอกเวลา"], ["v2", "ปฏิทินขีดวัน", "วันสุดท้ายถูกวงกลมสีเน้นตรงคำ"], ["v3", "เส้นเวลามีจุด", "จุดสุดท้ายบนเส้นเวลาเด้งตรงคำ"], ["v4", "นาฬิกาทรายพลิก", "นาฬิกาทรายพลิกครึ่งรอบตรงคำ"]], ["ธุรกิจ: \"ทำแบบนี้ภายใน 30 วัน\"", "ภาษา: \"ฝึกวันละ 15 นาที เริ่มวันนี้ ครบเดือนเห็นผล\""]], ["B10", "คน / กลุ่มเป้าหมาย", [["v1", "กลุ่มคน หนึ่งคนถูกไฮไลต์", "คนที่ถูกพูดถึงสว่างเป็นสีเน้น + วงคลื่น"], ["v2", "การ์ดโปรไฟล์ลูกค้า", "การ์ดเด้งเมื่อชิปลักษณะครบตรงคำ"], ["v3", "คนสองคนมีเส้นเชื่อม", "เส้นเชื่อมวาดถึงอีกฝั่ง แล้วไอคอนตรงกลางเด้ง"], ["v4", "จำนวนคนค่อย ๆ เพิ่มขึ้น", "คนสุดท้ายเข้ามาครบจำนวนตรงคำ"]], ["การตลาด: \"ลูกค้าประจำ 6 คน ชอบซื้อออนไลน์และดูรีวิวก่อน\"", "การทำงาน: \"ทีม 5 คน ช่วยกันคนละส่วน\""]], ["B11", "คำพูด / แชต / รีวิว", [["v1", "กล่องแชตมีสถานะอ่านแล้ว", "สถานะ \"อ่านแล้ว\" ขึ้นใต้ข้อความตรงคำ"], ["v2", "การ์ดรีวิวมีดาว", "ดาวติดครบตามจำนวนที่พูดตรงคำ"], ["v3", "คำพูดในเครื่องหมายคำพูดใหญ่", "เครื่องหมายคำพูดเด้งตรงคำ"], ["v4", "คอมเมนต์แบบโซเชียล", "หัวใจเต็มสีแล้วเด้งตรงคำ"]], ["ขายของ: \"ลูกค้าทักมาถามราคาแล้วหายไปเลย\"", "ร้านอาหาร: \"ได้รีวิว 5 ดาว บอกว่าอร่อยมาก\""]], ["B12", "เหตุกับผล", [["v1", "ไอคอน A ลูกศรไปไอคอน B", "ลูกศรวิ่งถึง B ตรงคำ \"ทำให้\" แล้ว B เด้ง"], ["v2", "โดมิโนล้มต่อกัน", "โดมิโนตัวสุดท้าย (B) ล้มตรงคำ"], ["v3", "เฟืองหมุนส่งต่อกัน", "เฟืองหมุนส่งแรงถึง B ตรงคำ แล้ว B เป็นสีเน้น"], ["v4", "วงจรวน A ไป B ไป C", "ลูกศรเส้นสุดท้ายปิดวงตรงคำ"]], ["สุขภาพ: \"นอนดึก ทำให้หิวบ่อย แล้วก็กินเยอะขึ้น\"", "การตลาด: \"โพสต์ทุกวัน คนเลยจำแบรนด์ได้ แล้วก็กลับมาซื้อ\""]], ["B13", "ไอเดีย / เคล็ดลับ / ความลับ", [["v1", "หลอดไฟสว่าง", "หลอดไฟติดเป็นสีเน้น + ประกายรอบ ๆ ตรงคำ \"เคล็ดลับ\""], ["v2", "กล่องเปิดเผยของข้างใน", "ฝากล่องเปิดตรงคำ ไอคอนเด้งออกมา"], ["v3", "กุญแจไขแม่กุญแจ", "กุญแจเสียบเข้าตรงคำ แม่กุญแจเปิด"], ["v4", "การ์ดเคล็ดลับพับมุม", "แถบไฮไลต์วิ่งใต้ข้อความเคล็ดลับตรงคำ"]], ["อาหาร: \"เคล็ดลับคือใส่น้ำแข็งตอนนวดแป้ง\"", "AI: \"คำสั่งเดียวที่ช่วยประหยัดเวลา\""]], ["B15", "ปิดคลิป / ชวนทำต่อ", [["v1", "ปุ่มถูกกด", "เคอร์เซอร์กดปุ่มตรงคำ \"กด ติดตาม\" แล้วไอคอนเปลี่ยนเป็นเครื่องหมายถูก"], ["v2", "กล่องคอมเมนต์พิมพ์เอง", "พิมพ์จบแล้วปุ่มส่งสว่างตรงคำ"], ["v3", "ไอคอนการกระทำโดนกด", "ไอคอนเต็มสีเน้นแล้วเด้ง + วงคลื่นตรงคำ"], ["v4", "สรุป 3 คำแล้วการ์ดปิด", "คำสรุปขึ้นทีละคำ แล้วปุ่มการกระทำเด้งตรงคำ"]], ["ทั่วไป: \"สรุปคือ ตั้งเป้า ลงมือ วัดผล กดติดตามไว้ ตอนหน้ามีต่อ\"", "ทั่วไป: \"สรุปคือ รูปสวย แคปชันสั้น ชวนกด เซฟไว้ดูตอนจะใช้\""]]];
+const LABEL = {keep: 'เอา', tweak: 'ปรับ', drop: 'ตัด'};
+const $ = s => document.querySelector(s);
+const IDS = [];
+CATS.forEach(([cat, name, vars, topics]) => {
+  const sec = document.createElement('section'); sec.style.cssText = 'display:grid;gap:14px';
+  sec.innerHTML = `<div class="cat-h"><span class="code">${cat}</span><h2></h2></div><div class="vgrid"></div>`;
+  sec.querySelector('h2').textContent = name;
+  vars.forEach(([v, vname, hit]) => {
+    const id = `${cat}-${v}`; IDS.push(id);
+    const el = document.createElement('article'); el.className = 'cat'; el.dataset.id = id;
+    el.innerHTML = `
+      <div class="head"><span class="code">${v}</span><h3></h3></div>
+      <div class="pair">${[0, 1].map(i => `<div style="display:grid;gap:4px;min-width:0"><div class="clip" style="background-image:url(${CLIPS}/${cat}_${v}_${i}.jpg)"><video src="${CLIPS}/${cat}_${v}_${i}.mp4" poster="${CLIPS}/${cat}_${v}_${i}.jpg" muted loop playsinline preload="metadata" aria-label="คลิปตัวอย่าง ${id} เรื่องที่ ${i + 1}"></video></div><p class="cap"></p></div>`).join('')}</div>
+      <p class="when"><b>ตรงคำสำคัญ:</b> <span class="hit"></span></p>
+      <div class="act">
+        <div class="seg" role="group" aria-label="เลือกสำหรับ ${id}">
+          <button type="button" data-v="keep" aria-pressed="false">เอา</button>
+          <button type="button" data-v="tweak" aria-pressed="false">ปรับ</button>
+          <button type="button" data-v="drop" aria-pressed="false">ตัด</button>
+        </div>
+        <p class="saved" id="saved-${id}"></p>
+        <textarea id="note-${id}" rows="1" placeholder="หมายเหตุ (ไม่บังคับ)" aria-label="หมายเหตุสำหรับ ${id}"></textarea>
+      </div>`;
+    el.querySelector('h3').textContent = vname;
+    el.querySelector('.hit').textContent = hit;
+    el.querySelectorAll('.cap').forEach((p, i) => { p.textContent = topics[i]; });
+    el.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => choose(id, b.dataset.v)));
+    sec.querySelector('.vgrid').appendChild(el);
+  });
+  $('#cats').appendChild(sec);
+});
+IDS.push('_general');
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => { const v = e.target; if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }), {threshold: .35}) : null;
+document.querySelectorAll('video').forEach(v => io ? io.observe(v) : v.play().catch(() => {}));
+
+// Saving: a choice shows only after the store confirms it; controls stay off until the store answers.
+const confirmed = {}, want = {}, busy = {}, timers = {};
+const drafts = new Set();
+const OFF_OPEN = 'หน้านี้บันทึกไม่ได้ ปุ่มจึงปิดไว้ เปิดลิงก์นี้ในแอป Claude หรือที่ claude.ai โดยล็อกอินบัญชีเจ้าของหน้า';
+const OFF_LOST = 'ขาดการเชื่อมต่อกับที่เก็บข้อมูล ปิดแล้วเปิดหน้านี้ใหม่ แบบที่มีกรอบสีบันทึกไว้แล้ว';
+let db = null, mode = 'wait', offText = '', slow = false;   // wait | ready | readonly | off
+const noteEl = id => document.getElementById('note-' + id);
+IDS.forEach(id => {
+  const note = noteEl(id);
+  note.addEventListener('input', () => { drafts.add(id); clearTimeout(timers[id]); timers[id] = setTimeout(() => saveNote(id), 1200); });
+  note.addEventListener('change', () => { clearTimeout(timers[id]); saveNote(id); });
+});
+
+function paint() {
+  const n = {keep: 0, tweak: 0, drop: 0, none: 0};
+  const live = mode === 'ready';
+  let saving = 0;
+  IDS.forEach(id => {
+    if (busy[id]) saving++;
+    const note = noteEl(id);
+    if (document.activeElement !== note && !drafts.has(id)) note.value = (confirmed[id] || {}).note || '';
+    note.disabled = !live;
+    const el = document.querySelector(`.cat[data-id="${id}"]`);
+    if (!el) return;
+    const c = (confirmed[id] || {}).choice || null;
+    const asked = busy[id] && want[id] ? (want[id].choice || null) : c;
+    const pend = asked !== c ? (asked || c) : null;
+    n[c || 'none']++;
+    el.dataset.choice = c || '';
+    el.querySelectorAll('.seg button').forEach(b => {
+      b.setAttribute('aria-pressed', String(b.dataset.v === c));
+      b.dataset.pending = String(b.dataset.v === pend);
+      b.disabled = !live || !!busy[id];
+    });
+  });
+  for (const k in n) $('#n-' + k).textContent = n[k];
+  const bar = $('#status');
+  let state = mode, text = {
+    wait: slow ? 'ยังติดต่อที่เก็บข้อมูลไม่ได้ ปุ่มจึงยังปิดอยู่ รอสักครู่ หรือตรวจอินเทอร์เน็ต'
+               : 'กำลังเชื่อมต่อที่เก็บข้อมูล… ปุ่มจะกดได้เมื่อแถบนี้เปลี่ยนเป็นสีเขียว',
+    ready: 'พร้อมบันทึก · กดเลือกแล้วรอให้กรอบของแบบนั้นเปลี่ยนสี แปลว่าบันทึกแล้ว',
+    readonly: 'ดูได้อย่างเดียว หน้านี้ให้เจ้าของหน้าเป็นคนเลือก',
+    off: offText,
+  }[mode];
+  if (live && saving) { state = 'busy'; text = `กำลังบันทึก ${saving} รายการ… อย่าเพิ่งปิดหน้านี้`; }
+  bar.dataset.state = state;
+  if (bar.textContent !== text) bar.textContent = text;
+}
+function setMode(m, text) { mode = m; if (text) offText = text; paint(); }
+function msg(id, kind, text) { const el = document.getElementById('saved-' + id); el.dataset.kind = kind; el.textContent = text; }
+const same = (a, b) => (a.choice || null) === (b.choice || null) && (a.note || '') === (b.note || '');
+
+function choose(id, v) {
+  if (mode !== 'ready' || busy[id]) return;
+  clearTimeout(timers[id]);
+  const choice = (confirmed[id] || {}).choice === v ? null : v;   // tap again to clear
+  queue(id, {choice, note: noteEl(id).value.trim()});
+}
+function saveNote(id) {
+  if (mode !== 'ready') return;
+  const base = want[id] || confirmed[id] || {};
+  queue(id, {choice: base.choice || null, note: noteEl(id).value.trim()});
+}
+function queue(id, body) { want[id] = body; if (busy[id]) { paint(); return; } run(id); }
+async function run(id) {
+  busy[id] = true; msg(id, '', 'กำลังบันทึก…'); paint();
+  while (want[id]) {
+    const body = want[id];
+    if (same(body, confirmed[id] || {})) { delete want[id]; msg(id, '', ''); break; }
+    try {
+      await write(id, body);
+      confirmed[id] = body;
+      if (want[id] === body) delete want[id];
+      if (noteEl(id).value.trim() === body.note) drafts.delete(id);
+      msg(id, 'ok', body.choice ? 'บันทึกแล้ว: ' + LABEL[body.choice] : body.note ? 'บันทึกหมายเหตุแล้ว' : 'ล้างตัวเลือกแล้ว');
+    } catch (e) {
+      delete want[id];
+      const code = e && e.code;
+      if (code === 'invalid_argument' || code === 'transform_error') { msg(id, 'error', 'บันทึกไม่ได้ หน้านี้ให้เจ้าของหน้าเป็นคนเลือก'); setMode('readonly'); }
+      else if (['revoked', 'not_granted', 'capability_disabled', 'capability_removed'].includes(code)) { msg(id, 'error', 'ยังไม่ได้บันทึก'); setMode('off', OFF_LOST); }
+      else msg(id, 'error', 'ยังไม่ได้บันทึก ลองอีกครั้ง');
+      break;
+    }
+  }
+  busy[id] = false; paint();
+}
+async function write(id, body) {
+  const ref = db.collection('variants').doc(id);
+  try { await ref.set(body); }
+  catch (e) {
+    const final = ['invalid_argument', 'transform_error', 'resource_exhausted', 'quota_exceeded', 'revoked', 'not_granted', 'capability_disabled', 'capability_removed'];
+    if (e && final.includes(e.code)) throw e;
+    await new Promise(r => setTimeout(r, 400 + Math.random() * 600));   // a passing hiccup: try once more
+    await ref.set(body);
+  }
+}
+paint();
+
+(async () => {
+  const c = window.claude;
+  if (!c || typeof c.use !== 'function') { setMode('off', OFF_OPEN); return; }
+  const [d, u] = await Promise.all([c.use('db'), c.use('user')]);
+  if (!d) { setMode('off', OFF_OPEN); return; }
+  if (u && !(await u.isOwner())) mode = 'readonly';
+  db = d;
+  const timer = setTimeout(() => { slow = true; paint(); }, 10000);
+  db.collection('variants').onSnapshot(snap => {
+    // a doc with hasPendingWrites is this page's own save before the store confirms it: skip it
+    snap.docs.forEach(doc => { if (doc.exists && !doc.metadata.hasPendingWrites) confirmed[doc.id] = doc.data(); });
+    snap.docChanges().forEach(ch => { if (ch.type === 'removed') delete confirmed[ch.doc.id]; });
+    if (!snap.metadata.fromCache) { clearTimeout(timer); slow = false; if (mode === 'wait') mode = 'ready'; }
+    paint();
+  }, () => { clearTimeout(timer); setMode('off', OFF_LOST); });
+})();
+</script>

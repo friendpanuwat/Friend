@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>CutPack กำลังทำคลิป</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Anuphan:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#0C0C0D}
+a{color:#F2F2F0;text-decoration:none}
+.scr{font-family:'Geist','Anuphan',system-ui,sans-serif;color:#F2F2F0;-webkit-font-smoothing:antialiased}
+.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.card{border-radius:18px;background:#151516;border:1px solid rgba(255,255,255,0.10)}
+@keyframes cpSpin{to{transform:rotate(360deg)}}
+.spin{animation:cpSpin 1s linear infinite}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; position: relative; background: #0C0C0D; background-image: radial-gradient(120% 40% at 50% -12%, rgba(255,255,255,0.12), rgba(255,255,255,0) 62%); display: flex; flex-direction: column">
+
+  <div style="flex-shrink: 0; padding: 14px 20px 0; display: flex; flex-direction: column; gap: 12px">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <a href="Main.dc.html" aria-label="กลับหน้าแรก" style="width: 40px; height: 40px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); display: inline-flex; align-items: center; justify-content: center">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      </a>
+      <span style="font-size: 13px; color: rgba(255,255,255,0.5)">ขั้นที่ 4 จาก 4</span>
+      <span style="width: 40px"></span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+      <sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <span style="height: 4px; border-radius: 999px; background: #FFFFFF"></span>
+          <span style="font-size: 11.5px; color: #F2F2F0">{{s}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="flex: 1; min-height: 0; padding: 26px 20px 0; display: flex; flex-direction: column; gap: 22px">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h1 style="margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.4px">{{title}}</h1>
+      <p style="margin: 0; font-size: 14.5px; line-height: 1.6; color: rgba(255,255,255,0.72)">{{sub}}</p>
+    </div>
+
+    <div class="card" style="padding: 16px; display: flex; align-items: center; gap: 14px">
+      <div style="width: 64px; aspect-ratio: 9 / 16; border-radius: 12px; overflow: hidden; flex-shrink: 0; background: #222">
+        <img src="{{thumb}}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block">
+      </div>
+      <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 15px; font-weight: 600">IMG_4821 · Editorial</span>
+        <div style="display: flex; justify-content: space-between; font-size: 13px">
+          <span style="color: rgba(255,255,255,0.72)">{{state}}</span>
+          <span style="font-variant-numeric: tabular-nums">{{pct}}%</span>
+        </div>
+        <div style="height: 6px; border-radius: 999px; background: rgba(255,255,255,0.10); overflow: hidden">
+          <div style="width: {{pct}}%; height: 100%; border-radius: 999px; background: #FFFFFF"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px; padding: 0 4px">
+      <sc-for list="{{jobs}}" as="j" hint-placeholder-count="4">
+        <div style="display: flex; align-items: center; gap: 12px">
+          <span style="width: 24px; height: 24px; flex-shrink: 0; position: relative; display: inline-flex; align-items: center; justify-content: center">
+            <sc-if value="{{j.done}}" hint-placeholder-val="{{true}}">
+              <span style="width: 24px; height: 24px; border-radius: 999px; background: #FFFFFF; color: #0C0C0D; display: inline-flex; align-items: center; justify-content: center">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 13px; height: 13px; stroke-width: 2.6"><path d="M20 6 9 17l-5-5"/></svg>
+              </span>
+            </sc-if>
+            <sc-if value="{{j.now}}" hint-placeholder-val="{{false}}">
+              <span class="spin" style="width: 20px; height: 20px; border-radius: 999px; border: 2px solid rgba(255,255,255,0.18); border-top-color: #FFFFFF; box-sizing: border-box"></span>
+            </sc-if>
+            <sc-if value="{{j.wait}}" hint-placeholder-val="{{false}}">
+              <span style="width: 24px; height: 24px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.3); box-sizing: border-box"></span>
+            </sc-if>
+          </span>
+          <span style="font-size: 14.5px; color: {{j.ink}}">{{j.t}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="flex-shrink: 0; padding: 12px 20px 24px; display: flex; flex-direction: column; gap: 10px">
+    <sc-if value="{{busy}}" hint-placeholder-val="{{true}}">
+      <span style="text-align: center; font-size: 13px; line-height: 1.6; color: rgba(255,255,255,0.5)">ปิดหน้านี้ได้ เสร็จแล้วคลิปจะอยู่ใน คลิปของฉัน</span>
+      <button onClick="{{finish}}" style="all: unset; cursor: pointer; box-sizing: border-box; display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.72); font-size: 15px; font-weight: 500">ดูตอนทำเสร็จ (ตัวอย่าง)</button>
+    </sc-if>
+    <sc-if value="{{done}}" hint-placeholder-val="{{false}}">
+      <a href="Result.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 10px; height: 54px; border-radius: 999px; background: #FFFFFF; color: #0C0C0D; font-size: 16px; font-weight: 600">
+        ดูคลิป
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2.2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { done: false }; }
+  renderVals() {
+    const done = this.state.done;
+    const now = done ? 4 : 2;
+    const names = ['วางแผนฉากตามคำพูด', 'สร้างกราฟิกแต่ละฉาก', 'ใส่ซับ ซูม และเสียงประกอบ', 'ส่งออกวิดีโอ'];
+    return {
+      busy: !done, done,
+      finish: () => this.setState({ done: true }),
+      title: done ? 'คลิปเสร็จแล้ว' : 'กำลังทำคลิป',
+      sub: done ? 'พร้อมดู ดาวน์โหลด และโพสต์' : 'ใช้เวลาราว 4–6 นาที ขึ้นกับความยาวคลิป',
+      state: done ? 'เสร็จแล้ว' : 'เหลือราว 3 นาที',
+      pct: done ? 100 : 46,
+      thumb: done ? '/_blob/9580e8f04b43d51b8499294d13e489f5' : '/_blob/4f80beb0fb22df8da2ca5b9a4d150faa',
+      steps: ['อัปโหลด', 'ถอดเสียง', 'แก้ซับ', 'ทำคลิป'],
+      jobs: names.map((t, i) => ({ t, done: i < now, now: i === now, wait: i > now,
+        ink: i <= now ? '#F2F2F0' : 'rgba(255,255,255,0.5)' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

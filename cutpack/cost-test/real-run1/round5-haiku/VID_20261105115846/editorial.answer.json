@@ -1,0 +1,466 @@
+{
+ "topic": "none",
+ "camera": [
+  {
+   "move": "push",
+   "t": 4.5
+  },
+  {
+   "move": "pull",
+   "t": 6.5,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 24.0
+  },
+  {
+   "move": "pull",
+   "t": 27.9,
+   "cut": true
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 0.9,
+   "t1": 2.8,
+   "say": "ยังมีบางคนใช้วิธีเรียนภาษาอังกฤษที่ไม่เหมาะกับตัวเองมากที่สุด",
+   "shows": "two sides, the wrong way loses",
+   "part": "B03.v1",
+   "bg": "glow",
+   "hit": 1.7,
+   "need": "",
+   "slots": {
+    "a": "วิธีผิด",
+    "b": "เหมาะกับตัวเอง",
+    "win": "b",
+    "ia": "x-circle",
+    "ib": "user-check",
+    "lead": "ยังมีบางคนใช้",
+    "key": "ไม่เหมาะ"
+   }
+  },
+  {
+   "t0": 6.5,
+   "t1": 8.8,
+   "say": "วิธีหนึ่งที่เรียกว่า Conprentblenport",
+   "shows": "a named method card appears",
+   "part": "B14.v1",
+   "bg": "white",
+   "hit": 7.3,
+   "need": "",
+   "slots": {
+    "words": [
+     "วิธีหนึ่ง",
+     "เรียกว่า",
+     "Conprentblenport"
+    ],
+    "key": 2,
+    "at": [
+     6.5,
+     6.96,
+     7.28
+    ]
+   }
+  },
+  {
+   "t0": 11.4,
+   "t1": 13.9,
+   "say": "พูดง่าย มันคือการหาอะไรที่เกือบเข้าใจ",
+   "shows": "a fuzzy word almost understood",
+   "part": "B14.v2",
+   "bg": "glow",
+   "hit": 12.0,
+   "need": "",
+   "slots": {
+    "words": [
+     "พูดง่าย",
+     "เกือบเข้าใจ"
+    ],
+    "key": 1,
+    "at": [
+     11.44,
+     13.12
+    ]
+   }
+  },
+  {
+   "t0": 14.9,
+   "t1": 18.9,
+   "say": "เข้าใจแล้วเราก็อยู่กับมันฟังซ้ำไปเรื่อยเรื่อย",
+   "shows": "same line repeats again and again",
+   "part": "B14.v3",
+   "bg": "cream",
+   "hit": 17.4,
+   "need": "",
+   "slots": {
+    "words": [
+     "ฟังซ้ำไปเรื่อยๆ",
+     "เข้าใจแล้ว"
+    ],
+    "key": 0,
+    "at": [
+     15.12,
+     17.44
+    ]
+   }
+  },
+  {
+   "t0": 20.9,
+   "t1": 24.0,
+   "say": "การเรียนสิ่งใหม่จากบริบทเดิม",
+   "shows": "old context holds a new word",
+   "part": "B14.v1",
+   "bg": "white",
+   "hit": 22.4,
+   "need": "",
+   "slots": {
+    "words": [
+     "การเรียนสิ่งใหม่",
+     "บริบทเดิม"
+    ],
+    "key": 1,
+    "at": [
+     20.96,
+     22.4
+    ]
+   }
+  },
+  {
+   "t0": 24.4,
+   "t1": 26.5,
+   "say": "วันนี้เราจะมาสอนคำศัพท์ใหม่",
+   "shows": "a vocabulary card flips",
+   "part": "EDU.h1",
+   "bg": "glow",
+   "hit": 25.0,
+   "need": "",
+   "slots": {
+    "word": "คำศัพท์ใหม่",
+    "lead": "วันนี้เราจะมาสอน"
+   }
+  },
+  {
+   "t0": 26.4,
+   "t1": 27.9,
+   "say": "คำว่า Consic",
+   "shows": "a word appears",
+   "part": "B14.v2",
+   "bg": "cream",
+   "hit": 26.4,
+   "need": "",
+   "slots": {
+    "words": [
+     "คำว่า",
+     "Consic"
+    ],
+    "key": 1,
+    "at": [
+     26.0,
+     26.4
+    ]
+   }
+  },
+  {
+   "t0": 28.6,
+   "t1": 32.2,
+   "say": "ประโยคไทยแล้วใช้คำว่า conskence เข้าไป",
+   "shows": "Thai sentence with an English word inserted",
+   "part": "B14.v3",
+   "bg": "glow",
+   "hit": 30.9,
+   "need": "",
+   "slots": {
+    "words": [
+     "ประโยคไทย",
+     "conskence"
+    ],
+    "key": 1,
+    "at": [
+     29.68,
+     30.88
+    ]
+   }
+  },
+  {
+   "t0": 32.6,
+   "t1": 34.4,
+   "say": "เหมือนเวลาคนพูดอังกฤษ",
+   "shows": "a speaker's bubble",
+   "part": "B11.v4",
+   "bg": "white",
+   "hit": 33.0,
+   "need": "",
+   "slots": {
+    "text": "เหมือนเวลาคนพูดอังกฤษ",
+    "lead": "เหมือนเวลา"
+   }
+  },
+  {
+   "t0": 35.0,
+   "t1": 37.3,
+   "say": "เราจะไม่เฉลยความหมายด้วย",
+   "shows": "meaning is hidden, a closed box",
+   "part": "B05.v2",
+   "bg": "cream",
+   "hit": 35.2,
+   "need": "",
+   "slots": {
+    "x": "เฉลยความหมาย",
+    "y": "ให้เดาเอง",
+    "lead": "จุดประสงค์"
+   }
+  },
+  {
+   "t0": 37.5,
+   "t1": 39.6,
+   "say": "จุดประสงค์ของการเรียนแบบ Conprensible inpood",
+   "shows": "a method name lights up",
+   "part": "B14.v1",
+   "bg": "white",
+   "hit": 38.3,
+   "need": "",
+   "slots": {
+    "words": [
+     "การเรียนแบบ",
+     "Conprensible"
+    ],
+    "key": 1,
+    "at": [
+     37.5,
+     38.24
+    ]
+   }
+  },
+  {
+   "t0": 39.7,
+   "t1": 42.3,
+   "say": "เราเรียนรู้ความหมายของมันจากบริบท",
+   "shows": "meaning learned from context",
+   "part": "B13.v4",
+   "bg": "glow",
+   "hit": 40.2,
+   "need": "",
+   "slots": {
+    "tip": "เรียนรู้จากบริบท",
+    "lead": "เราเรียนรู้ความหมาย",
+    "key": "บริบท"
+   }
+  },
+  {
+   "t0": 42.6,
+   "t1": 44.2,
+   "say": "มารองประโยคแรกเลย",
+   "shows": "first sentence highlighted",
+   "part": "B13.v1",
+   "bg": "cream",
+   "hit": 42.9,
+   "need": "",
+   "slots": {
+    "tip": "ประโยคแรก",
+    "lead": "มารอง",
+    "key": "ประโยคแรก"
+   }
+  },
+  {
+   "t0": 44.5,
+   "t1": 46.3,
+   "say": "เขาโกหกครั้งเดียวแต่ต้องโกหก",
+   "shows": "a liar warning shield",
+   "part": "B07.v1",
+   "bg": "white",
+   "hit": 44.9,
+   "need": "",
+   "slots": {
+    "text": "โกหกครั้งเดียว",
+    "icon": "ban",
+    "lead": "เขาโกหก",
+    "key": "โกหก"
+   }
+  },
+  {
+   "t0": 46.5,
+   "t1": 48.6,
+   "say": "ไปอีกสิบรอบ ของการโกหก",
+   "shows": "ten loops of repeated lies",
+   "part": "B01.v3",
+   "bg": "glow",
+   "hit": 46.5,
+   "need": "",
+   "slots": {
+    "num": 10,
+    "of": 10,
+    "unit": "รอบ",
+    "icon": "repeat",
+    "lead": "ไปอีก",
+    "key": "โกหก"
+   }
+  },
+  {
+   "t0": 48.8,
+   "t1": 51.3,
+   "say": "มันไม่มีวันจบ ประโยคที่สอง",
+   "shows": "an endless loop",
+   "part": "B14.v2",
+   "bg": "cream",
+   "hit": 49.2,
+   "need": "",
+   "slots": {
+    "words": [
+     "ไม่มีวันจบ",
+     "ประโยคที่สอง"
+    ],
+    "key": 0,
+    "at": [
+     48.88,
+     50.4
+    ]
+   }
+  },
+  {
+   "t0": 51.5,
+   "t1": 54.1,
+   "say": "ประเทศที่ไม่ลงทุนกับการศึกษา",
+   "shows": "a country with an empty school",
+   "part": "B08.v3",
+   "bg": "white",
+   "hit": 52.1,
+   "need": "",
+   "slots": {
+    "goal": "ลงทุนกับการศึกษา",
+    "icon": "school",
+    "lead": "ประเทศที่ไม่",
+    "key": "การศึกษา"
+   }
+  },
+  {
+   "t0": 54.3,
+   "t1": 57.0,
+   "say": "เห็นได้ชัดในอีกยี่สิบปีข้างหน้า",
+   "shows": "twenty years ahead on a calendar",
+   "part": "B09.v2",
+   "bg": "glow",
+   "hit": 55.3,
+   "need": "",
+   "slots": {
+    "when": "ยี่สิบปีข้างหน้า",
+    "icon": "calendar-days",
+    "lead": "เห็นได้ชัด",
+    "key": "ยี่สิบปี"
+   }
+  },
+  {
+   "t0": 57.2,
+   "t1": 60.2,
+   "say": "ประโยคที่สามทิ้งขยะลงแม่น้ำน้ำเน่า",
+   "shows": "trash dumped into a polluted river",
+   "part": "B07.v2",
+   "bg": "cream",
+   "hit": 58.3,
+   "need": "",
+   "slots": {
+    "text": "ทิ้งขยะลงแม่น้ำ",
+    "icon": "trash-2",
+    "lead": "ประโยคที่สาม",
+    "key": "น้ำเน่า"
+   }
+  },
+  {
+   "t0": 60.4,
+   "t1": 63.0,
+   "say": "ปลาตาย คนในชุมชนเดือดร้อน",
+   "shows": "dead fish, a community in trouble",
+   "part": "B12.v1",
+   "bg": "white",
+   "hit": 61.2,
+   "need": "",
+   "slots": {
+    "a": "ทิ้งขยะ",
+    "ia": "trash-2",
+    "b": "ปลาตาย",
+    "ib": "fish",
+    "lead": "ปลาตาย",
+    "key": "ชุมชนเดือดร้อน"
+   }
+  },
+  {
+   "t0": 63.2,
+   "t1": 66.6,
+   "say": "การไม่แคร์สิ่งแวดล้อมไม่ได้กระทบคนแค่คนเดียว",
+   "shows": "one person in a crowd of affected people",
+   "part": "B10.v1",
+   "bg": "glow",
+   "hit": 65.3,
+   "need": "",
+   "slots": {
+    "who": "คนแค่คนเดียว",
+    "lead": "ไม่ได้กระทบ",
+    "key": "คนเดียว"
+   }
+  },
+  {
+   "t0": 66.8,
+   "t1": 69.1,
+   "say": "ประโยคที่สี่ บริษัทนี้ไม่เคยฟัง",
+   "shows": "a closed ear",
+   "part": "B05.v1",
+   "bg": "cream",
+   "hit": 68.5,
+   "need": "",
+   "slots": {
+    "x": "ไม่เคยฟัง",
+    "y": "ฟังเสียงพนักงาน",
+    "aty": 68.9,
+    "lead": "ประโยคที่สี่"
+   }
+  },
+  {
+   "t0": 69.3,
+   "t1": 72.2,
+   "say": "เสียงของพนักงานเลย คนเก่งทยอยลาออก",
+   "shows": "skilled people leave one by one",
+   "part": "B02.v1",
+   "bg": "glow",
+   "hit": 71.6,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "user-x",
+    "lead": "คนเก่งทยอยกัน",
+    "key": "ลาออก"
+   }
+  },
+  {
+   "t0": 72.4,
+   "t1": 74.3,
+   "say": "ทยอยกันลาออกหมดเลย",
+   "shows": "a stop sign for the team",
+   "part": "B07.v3",
+   "bg": "white",
+   "hit": 73.3,
+   "need": "",
+   "slots": {
+    "text": "ลาออกหมดเลย",
+    "icon": "user-x",
+    "lead": "ทยอยกันลาออก",
+    "key": "หมดเลย"
+   }
+  },
+  {
+   "t0": 74.5,
+   "t1": 76.3,
+   "say": "ถ้าดูแล้วไปว่าอะไรก็อย่า",
+   "shows": "a closing quote and a don't-do-this sign",
+   "part": "B05.v3",
+   "bg": "cream",
+   "hit": 75.1,
+   "need": "",
+   "slots": {
+    "x": "ไปว่าอะไร",
+    "y": "อย่า",
+    "aty": 75.6,
+    "lead": "ถ้าดูแล้ว"
+   }
+  }
+ ]
+}

@@ -1,0 +1,113 @@
+<title>เลโก้ รอบผลิตที่ 1</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* layout: one reading column; a section per story frame; each recipe = its words + recipe line + the same picture in 3 styles */
+:root{
+  --bg:#F3F4F6; --card:#FFFFFF; --fg:#16181D; --muted:#5E6470; --line:#DEE1E7; --accent:#1F6F6A; --accent-soft:#DCEEEC; --warm:#8A5A12; --warm-soft:#F6ECDB;
+  --display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif; --body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --warm:#E3B66A; --warm-soft:#2E2414; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --warm:#E3B66A; --warm-soft:#2E2414; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(26px,6vw,36px);font-weight:700}
+h2{font-size:22px;font-weight:700}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+.lede{display:flex;flex-direction:column;gap:12px}
+.lede p{color:var(--muted);max-width:62ch}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.fact{font-size:14px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:4px 12px;font-weight:500}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.box ul,.box ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;color:var(--muted)}
+.box b{color:var(--fg);font-weight:600}
+.recipe-line{font-size:14px;background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:8px 12px;color:var(--fg)}
+.frame{display:flex;flex-direction:column;gap:20px;border-top:1px solid var(--line);padding-top:24px}
+.frame > p{color:var(--muted);font-size:15px}
+.rec{display:flex;flex-direction:column;gap:8px}
+.rec .top{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+.chip{font-size:12px;font-weight:600;border-radius:999px;padding:2px 10px;background:var(--warm-soft);color:var(--warm)}
+.say{font-size:14px;color:var(--muted)}
+.say q{color:var(--fg);font-weight:500;quotes:"“" "”"}
+.heads,.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.heads{font-size:12px;color:var(--muted);font-weight:500}
+.sub{font-size:13px;color:var(--warm);font-weight:500;margin-top:4px}
+button.vid{all:unset;cursor:pointer;display:block;border-radius:12px;overflow:hidden;aspect-ratio:9/16;max-width:100%;background:#000}
+button.vid:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.vid video{width:100%;height:100%;object-fit:cover;display:block}
+.lb{position:fixed;inset:0;background:rgba(8,9,12,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:20;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.lb .three{display:flex;gap:8px;justify-content:center;max-width:100%}
+.lb video{height:min(74vh,700px);max-width:31vw;aspect-ratio:9/16;object-fit:cover;border-radius:12px;background:#000}
+.lb .cap{color:#fff;font-size:14px;text-align:center}
+.lb button{font:inherit;color:#fff;background:rgba(255,255,255,.14);border:0;border-radius:999px;padding:6px 16px;cursor:pointer}
+</style>
+
+<div class="wrap">
+  <header class="lede">
+    <h1>เลโก้ รอบผลิตที่ 1</h1>
+    <p>ขั้นที่ 3 รอบแรก: โครงเรื่องใหม่ 5 แบบ เลือกจากเรื่องที่ AI เล่าไม่ได้ในรอบทดสอบ (ตอนนั้นมันหันไปใช้ภาพสลับไอคอน) ใช้มาตรฐานความสวยเดียวกับที่ Friend ผ่านในขั้นที่ 2 โครงเรื่องละ 3 สูตรตัวอย่าง ครบ 3 สไตล์</p>
+    <div class="facts"><span class="fact">โครงเรื่องใหม่ 5 แบบ</span><span class="fact">ชิ้นส่วนใหม่ 7 ชิ้น</span><span class="fact">15 สูตร × 3 สไตล์</span><span class="fact">รวมมี 10 โครงเรื่อง</span></div>
+  </header>
+  <section class="box">
+    <h2>ชิ้นส่วนใหม่</h2>
+    <ol>
+      <li><b>โดมิโน</b> ล้มทับกันทีละตัว · <b>ตัวนับเลข</b> นับขึ้นไปถึงเลขที่พูด · <b>วงสัญญาณ</b> กระจายออก (เตือนหรือแรงกระแทก)</li>
+      <li><b>เส้นเวลา</b> มีตัวชี้วิ่ง · <b>นาฬิกา</b> เข็มหมุน · <b>มือถือ</b> · <b>ฟองแชต</b> ซ้ายเป็นอีกฝ่าย ขวาเป็นเรา</li>
+    </ol>
+    <p style="color:var(--muted)">AI รู้จักโครงเรื่องใหม่แล้ว (คำสั่งชุดที่ 3) และตัวตรวจคุมให้ "ตัวเลขเด่น" ใช้ได้เฉพาะตัวเลขที่พูดจริง</p>
+  </section>
+  <div id="frames" style="display:flex;flex-direction:column;gap:36px"></div>
+</div>
+<script>
+const STYLES = [{id: 'card', name: 'แบบ 1 การ์ด'}, {id: 'glass', name: 'แบบ 2 กระจก'}, {id: 'split', name: 'แบบ 3 แบ่งจอ'}];
+const FRAMES = [{"name": "เหตุ → ผล", "about": "สาเหตุวิ่งชนผลลัพธ์ทีละขั้น แบบโดมิโนล้มต่อกัน หรือการ์ด 3 ใบที่แรงส่งวิ่งไปทีละใบ", "recs": [["r1.chain-post", "ไม่สม่ำเสมอ → คนลืม → ยอดตก", "โพสต์ไม่สม่ำเสมอ คนก็ลืม ยอดตก", "เหตุ → ผล + โดมิโน 3 ตัว + ป้ายเตือนตอนจบ"], ["r1.chain-word", "พอใจ → บอกต่อ → ยอดเพิ่ม", "ลูกค้าพอใจ ก็บอกต่อ ยอดเพิ่มเอง", "เหตุ → ผล + การ์ด 3 ใบมีลูกศร"], ["r1.chain-diet", "อดหนัก → หิวจัด → กินหนัก", "ยิ่งอดหนัก ยิ่งหิวจัด กินหนักกว่าเดิม", "เหตุ → ผล + โดมิโน 3 ตัว"]]}, {"name": "ตัวเลขเด่น", "about": "ตัวเลขใหญ่นับขึ้นไปถึงตัวเลขที่พูดจริงเท่านั้น พร้อมหน่วย", "recs": [["r1.num-years", "4 ปี", "ผมทำคลิปมา 4 ปี", "ตัวเลขเด่น + นับถึง 4 + แคปซูล \"ปี\""], ["r1.num-percent", "ยอดเพิ่ม 30%", "ยอดขายเพิ่มขึ้น 30%", "ตัวเลขเด่น + นับถึง 30% + ลูกศรขึ้น"], ["r1.num-one", "เหลือ 1 คน", "จากสิบคน เหลือแค่ 1 คน", "ตัวเลขเด่น + 1 + ลูกศรลง"]]}, {"name": "คำเตือน", "about": "ป้ายเตือนเด้งใส่สิ่งที่เสี่ยง แล้วโดนกากบาท หรือสั่นเตือน", "recs": [["r1.warn-diet", "อย่าโรแมนติไซส์การอดอาหาร", "อย่าโรแมนติไซส์ การอดอาหาร", "คำเตือน + กากบาท"], ["r1.warn-ads", "ระวังโฆษณาเกินจริง", "ระวัง โฆษณาเกินจริง", "คำเตือน + สั่นเตือน"], ["r1.warn-loan", "อย่ากู้มาลงทุน", "อย่ากู้เงิน มาลงทุน", "คำเตือน + ป้ายหยุด + กากบาท"]]}, {"name": "เวลา", "about": "ตัวชี้วิ่งไปตามเส้นเวลา 3 จุด หรือนาฬิกาหมุนเร็วแล้วขึ้นผลลัพธ์", "recs": [["r1.time-line", "วันแรก เดือนแรก ปีแรก", "วันแรก เดือนแรก ปีแรก", "เวลา + เส้นเวลา 3 จุด"], ["r1.time-clock", "เวลาผ่านไป ยอดไม่ขยับ", "เวลาผ่านไปเป็นเดือน ยอดไม่ขยับ", "เวลา + นาฬิกาหมุนเร็ว + กราฟนิ่ง"], ["r1.time-grow", "จากศูนย์ จนมีร้าน", "เริ่มจากศูนย์ จนวันนี้ มีหน้าร้าน", "เวลา + เส้นเวลา ต้นอ่อน → คน → ร้าน"]]}, {"name": "แชต / คำพูด", "about": "มือถือที่ข้อความเด้งขึ้นทีละอัน ข้อความสุดท้ายเด่น มีปฏิกิริยาตอนจบ", "recs": [["r1.chat-price", "ทักมาถามราคา แล้วหายไป", "ลูกค้าทักมาถามราคา แล้วหายไป", "แชต + ข้อความสุดท้ายจางไป"], ["r1.chat-review", "คอมเมนต์ว่าได้ผล", "คอมเมนต์ว่า ลองแล้ว ได้ผลจริง", "แชต + หัวใจ"], ["r1.chat-ask", "ถามว่าเริ่มยังไง", "ทุกคนถามว่า เริ่มยังไง", "แชต + คำถามเด้งรัว + หลอดไฟ"]]}];
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const video = src => { const v = el('video'); Object.assign(v, {muted: true, loop: true, playsInline: true, preload: 'metadata', poster: src.replace('.mp4', '.jpg')});
+  v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.src = src; return v; };
+const row = (dir, id, label) => {
+  const r = el('div', 'row');
+  for (const s of STYLES) {
+    const b = el('button', 'vid'); b.type = 'button'; b.setAttribute('aria-label', `${label} ${s.name} ดูใหญ่`);
+    b.append(video(`${dir}/${s.id}_${id}.mp4`)); b.addEventListener('click', () => open(dir, id, label)); r.append(b);
+  }
+  return r;
+};
+const host = document.getElementById('frames');
+for (const f of FRAMES) {
+  const sec = el('section', 'frame');
+  const heads = el('div', 'heads'); STYLES.forEach(s => heads.append(el('span', '', s.name)));
+  sec.append(el('h2', '', `โครงเรื่อง: ${f.name}`), el('p', '', f.about), heads);
+  for (const [id, name, say, recipe, hand] of f.recs) {
+    const rec = el('div', 'rec'), top = el('div', 'top');
+    top.append(el('h3', '', name)); if (hand) top.append(el('span', 'chip', 'มีภาพที่เขียนเองเทียบ'));
+    rec.append(top, el('p', 'say', `ประโยค <q>${say}</q>`), el('p', 'recipe-line', `สูตร: ${recipe}`), row('r1', id, name));
+    
+    sec.append(rec);
+  }
+  host.append(sec);
+}
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+  const v = e.target; if (e.isIntersecting) v.play().catch(() => {}); else v.pause();
+}), {threshold: .4}) : null;
+document.querySelectorAll('button.vid video').forEach(v => io ? io.observe(v) : v.play().catch(() => {}));
+
+function open(dir, id, label) {
+  const box = el('div', 'lb'); box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', label);
+  box.append(el('div', 'cap', `${label} · แบบ 1 การ์ด · แบบ 2 กระจก · แบบ 3 แบ่งจอ`));
+  const three = el('div', 'three');
+  STYLES.forEach(s => { const v = video(`${dir}/${s.id}_${id}.mp4`); v.autoplay = true; three.append(v); v.play().catch(() => {}); });
+  const close = el('button', '', 'ปิด'); close.type = 'button';
+  box.append(three, close); document.body.append(box); close.focus();
+  const shut = () => { box.remove(); document.removeEventListener('keydown', esc); };
+  const esc = e => { if (e.key === 'Escape') shut(); };
+  close.addEventListener('click', shut); box.addEventListener('click', e => { if (e.target === box) shut(); });
+  document.addEventListener('keydown', esc);
+}
+</script>

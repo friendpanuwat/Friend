@@ -1,0 +1,62 @@
+<title>01 Live → chat → orders</title>
+<style>
+@font-face{font-family:'Anuphan';src:url(file:///home/user/Friend/cutpack/engine/uni/fonts/Anuphan-VF.ttf);font-weight:100 700}
+#stage{font-family:'Geist','Anuphan',system-ui,sans-serif}
+.bub{position:absolute;height:54px;border-radius:27px}
+.sk{position:absolute;height:12px;border-radius:6px}
+.bar{position:absolute;bottom:0;width:78px;border-radius:14px 14px 6px 6px;transform-origin:50% 100%}
+</style>
+<div data-slot="shape">
+  <div class="L" id="Llive"><div class="row" style="transform:translate(-50%,-50%);gap:16px;color:#fff;font-size:40px;font-weight:600">
+    <span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:#FF5A1F"></span>LIVE
+    <span id="icEye" style="opacity:.7"></span><span id="cnt" style="display:inline-block">10+</span></div></div>
+  <div class="L" id="Lchat">
+    <div class="a" style="left:-226px;top:30px;font-size:30px;font-weight:600;white-space:nowrap">แชต</div>
+    <div class="a" style="left:-226px;top:80px;width:452px;height:2px;background:#ECEAE5"></div>
+    <div id="msgs"></div>
+    <div class="a" style="left:-226px;top:532px;width:340px;height:60px;border-radius:30px;background:#F1EFEA"></div>
+    <div class="a" id="send" style="left:130px;top:532px;width:96px;height:60px;border-radius:30px;background:#0B0B0B"><div class="a" id="icSend" style="left:30px;top:12px"></div></div>
+  </div>
+  <div class="L" id="Lord">
+    <div class="a" style="left:-230px;top:30px;font-size:30px;font-weight:600;white-space:nowrap">ออเดอร์</div>
+    <div class="a" id="icBox" style="left:190px;top:30px"></div>
+    <div class="a" id="bars" style="left:-200px;top:120px;width:400px;height:330px"></div>
+    <div class="a" style="left:-216px;top:452px;width:432px;height:2px;background:#E2DFD9"></div>
+    <div class="a" id="tip" style="left:20px;top:80px;white-space:nowrap;background:#0B0B0B;color:#fff;font-size:26px;font-weight:600;border-radius:999px;padding:8px 18px">เกือบเท่าตัว</div>
+  </div>
+</div><!--/shape-->
+<script>
+const $=id=>document.getElementById(id);
+M.IC.eye=['M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z','M12 9a3 3 0 1 0 0 6 3 3 0 1 0 0-6'];
+M.IC.send=['M22 2 11 13','M22 2 15 22 11 13 2 9 22 2Z'];
+M.IC.box=['M21 8 12 3 3 8v8l9 5 9-5V8Z','M3 8l9 5 9-5','M12 13v8'];
+$('icEye').innerHTML=M.icon('eye',36,'#fff'); $('icSend').innerHTML=M.icon('send',34,'#fff'); $('icBox').innerHTML=M.icon('box',36,'#0B0B0B');
+// chat: three questions come in (grey), three quick replies go out (accent) on three clicks
+const IN=[[0,110,250],[2,250,210],[4,390,280]], OUT=[[1,180,200,3.0],[3,320,180,3.35],[5,460,220,3.7]];
+$('msgs').innerHTML=IN.map(([k,y,w])=>`<div class="bub" id="m${k}" style="left:-226px;top:${y-24}px;width:${w}px;background:#F1EFEA"><div class="sk" style="left:22px;top:21px;width:${w-60}px;background:#D8D5CE"></div></div>`).join('')+
+  OUT.map(([k,y,w])=>`<div class="bub" id="m${k}" style="left:${226-w}px;top:${y-24}px;width:${w}px;background:#FF5A1F"><div class="sk" style="left:22px;top:21px;width:${w-80}px;background:#FFFFFF;opacity:.8"></div><div class="a" id="ck${k}" style="left:${w-44}px;top:13px"></div></div>`).join('');
+OUT.forEach(([k])=>$('ck'+k).innerHTML=M.icon('check',26,'#fff',3));
+const inT=[2.35,2.55,2.75];
+// orders: four bars, the last one grows to almost twice the others on "เพิ่มขึ้น"
+const BH=[120,132,140,262];
+$('bars').innerHTML=BH.map((h,i)=>`<div class="bar" id="b${i}" style="left:${i*104}px;height:${h}px;background:${i===3?'#FF5A1F':'#0B0B0B'}"></div>`).join('');
+const grow=BH.map((h,i)=>M.track(0,[[i<3?4.95+i*.08:5.45,1,i<3?M.SOFT:M.MORPH]]));
+const tipS=M.track(0,[[6.0,1,[16,.75]]]);
+const send=M.track(0,[[3.0,1,[40,1]],[3.07,0,[22,.7]],[3.35,1,[40,1]],[3.42,0,[22,.7]],[3.7,1,[40,1]],[3.77,0,[22,.7]]]);
+M.scene({
+  W:720,H:1280,bg:'#E9E7E2',T:6.6,center:[360,600],intro:0.15,
+  SH:{live:{w:440,h:116,r:58,bg:'#0B0B0B',cam:1.3}, chat:{w:500,h:620,r:40,bg:'#FFFFFF',cam:1.2}, ord:{w:520,h:500,r:40,bg:'#FFFFFF',cam:1.2}},
+  start:'live', SEQ:[[2.22,'chat'],[4.85,'ord']],
+  layers:[
+    {el:'Llive',tin:0.15,tout:2.22,update:(t)=>{const a=M.track(0,[[0.8,1,[16,.7]]])(t); $('cnt').style.transform=`scale(${Math.max(0,a).toFixed(4)})`; $('cnt').style.opacity=Math.min(1,a*1.5);}},
+    {el:'Lchat',tin:2.22,tout:4.85,anchor:'t',update:(t)=>{
+      IN.forEach(([k],i)=>M.apply($('m'+k),M.vis(t,inT[i],null,{din:0,lin:.18})));
+      OUT.forEach(([k,,,c])=>M.apply($('m'+k),M.vis(t,c+.05,null,{din:0,lin:.15})));
+      $('send').style.transform=`scale(${(1-0.12*send(t)).toFixed(4)})`;}},
+    {el:'Lord',tin:4.85,tout:null,anchor:'t',update:(t)=>{
+      BH.forEach((h,i)=>{const a=Math.max(0,grow[i](t)); $('b'+i).style.transform=`scaleY(${(i===3?.5+.5*a:a).toFixed(4)})`;});
+      const s=Math.max(0,tipS(t)); $('tip').style.transform=`translateY(${(1-s)*14}px) scale(${(.8+.2*s).toFixed(4)})`; $('tip').style.opacity=Math.min(1,s*1.4);}},
+  ],
+  cursor:{size:40,clicks:[3.0,3.35,3.7],keys:[[0,190,330],[2.5,190,330],[2.9,178,252],[3.8,178,252],[4.4,200,330],[6.6,200,330]]},
+});
+</script>

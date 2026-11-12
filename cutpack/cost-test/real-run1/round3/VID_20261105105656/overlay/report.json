@@ -1,0 +1,88 @@
+{
+ "status": "ok",
+ "topic": "biz",
+ "log": [
+  "fix round (plan): 12 errors sent back"
+ ],
+ "fallback": [
+  "B14.v3 14.95–17.5 → B14 text B14.v3 (widget-gap)",
+  "B13.v1 25.4–28.2 → B14 text B14.v3 (hit-early)",
+  "B04.v1 50.8–53.6 → B14 text B14.v1 (number-not-said)",
+  "B05.v1 76.3–79.6 → B14 text B14.v3 (length)",
+  "B14.v1 50.8–53.6 dropped (number-not-said)",
+  "B14.v3 14.95–17.5 dropped (widget-gap)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B14.v1 80.0",
+   "msg": "two scenes of the same category in a row",
+   "scene": 23
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 2.72–4.4 \"ต้นทุน มัน จะเท่ากัน / ว่า ใคร\"",
+   "msg": "chunk \"ต้นทุน มัน จะเท่ากัน\" is 13 letters, aim ≤ 12",
+   "sub": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 6.96–10.32 \"แล้ว ถ้า เกิด มัน / เหมือนกัน ทั้งสอง อย่าง / ไม่ มี แบรนด์ / เนี่ย\"",
+   "msg": "chunk \"เหมือนกัน ทั้งสอง อย่าง\" is 16 letters, aim ≤ 12",
+   "sub": 3
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 12.4–16.32 \"เพราะฉะนั้น แบรนด์ / คือ อะไร แบรนด์ / คือ สัญญา / ต่อ ผู้บริโภค\"",
+   "msg": "chunk \"เพราะฉะนั้น แบรนด์\" is 14 letters, aim ≤ 12",
+   "sub": 5
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 33.52–35.84 \"แต่ ไม่ มี นิ่ง ฟู / หรือว่า ไม่ มีความหมาย / อะไร กัน\"",
+   "msg": "chunk \"หรือว่า ไม่ มีความหมาย\" is 16 letters, aim ≤ 12",
+   "sub": 11
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 41.68–44.0 \"บาง อัน / อาจจะ มีความหมาย\"",
+   "msg": "chunk \"อาจจะ มีความหมาย\" is 14 letters, aim ≤ 12",
+   "sub": 15
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 47.68–50.8 \"แบรนด์ ก็ คือ เหมือน / พูด ง่าย ง่าย คือ / ถ้า เกิด คุณ\"",
+   "msg": "chunk \"แบรนด์ ก็ คือ เหมือน\" is 13 letters, aim ≤ 12",
+   "sub": 18
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 56.0–58.16 \"ผู้บริโภค ไม่ ไม่ / ควร ที่จะ ต้อง ศึกษา / อีกต่อไป\"",
+   "msg": "chunk \"ควร ที่จะ ต้อง ศึกษา\" is 13 letters, aim ≤ 12",
+   "sub": 21
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 69.36–70.96 \"เหล่านี้ คือ สิ่ง ที่ / เขา ชอบ เพราะฉะนั้น\"",
+   "msg": "chunk \"เขา ชอบ เพราะฉะนั้น\" is 15 letters, aim ≤ 12",
+   "sub": 30
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 70.96–72.88 \"คราวหน้า เขา ไม่ต้อง / มา นั่ง เลือก / อี กรอบ นึง\"",
+   "msg": "chunk \"คราวหน้า เขา ไม่ต้อง\" is 15 letters, aim ≤ 12",
+   "sub": 31
+  }
+ ]
+}

@@ -1,0 +1,658 @@
+[
+ {
+  "id": "115846.01",
+  "line": 2,
+  "text": "ยังมี บาง คนใช้ วิธี เรียน ภาษาอังกฤษ",
+  "cat": "B10",
+  "shows": "A group of people icon labelled some people, who use a language learning method.",
+  "need": null,
+  "lead": "ยังมี",
+  "key": "บาง คนใช้",
+  "slots": {
+   "who": {
+    "icon": "users"
+   },
+   "label": "บาง คนใช้"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 2,
+   "shows": "A group of people icon labelled some people, who use a language learning method.",
+   "cat": "B10",
+   "slots": {
+    "who": {
+     "icon": "users"
+    },
+    "label": "บาง คนใช้"
+   },
+   "lead": "ยังมี",
+   "key": "บาง คนใช้"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.02",
+  "line": 4,
+  "text": "เพราะ วันนี้ เรา จะ ไม่ แนะนำ วิธี หนึ่ง ที่ เรียก ว่า",
+  "cat": "B07",
+  "shows": "A book icon crossed out, saying this method is not recommended today.",
+  "need": null,
+  "lead": "วันนี้ เรา จะ",
+  "key": "ไม่ แนะนำ",
+  "slots": {
+   "thing": {
+    "icon": "book-open"
+   },
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 4,
+   "shows": "A book icon crossed out, saying this method is not recommended today.",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "book-open"
+    },
+    "how": "cross"
+   },
+   "lead": "วันนี้ เรา จะ",
+   "key": "ไม่ แนะนำ"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.03",
+  "line": 7,
+  "text": "เกือบ เข้าใจ แล้ว อีก เดียว จะ เข้าใจ",
+  "cat": "B06",
+  "shows": "A brain icon hesitating, almost understanding but not quite.",
+  "need": null,
+  "lead": "",
+  "key": "เกือบ เข้าใจ",
+  "slots": {
+   "about": {
+    "icon": "brain"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 7,
+   "shows": "A brain icon hesitating, almost understanding but not quite.",
+   "cat": "B06",
+   "slots": {
+    "about": {
+     "icon": "brain"
+    }
+   },
+   "lead": "",
+   "key": "เกือบ เข้าใจ"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.04",
+  "line": 8,
+  "text": "แล้ว เรา ก็ อยู่ กับ มัน ฟัง ซ้ำ ไป เรื่อย",
+  "cat": "B12",
+  "shows": "Ear listening, then repeat, then endless loop: listening again and again with no end.",
+  "need": null,
+  "lead": "ฟัง ซ้ำ",
+  "key": "ไป เรื่อย",
+  "slots": {
+   "items": [
+    {
+     "icon": "ear"
+    },
+    {
+     "icon": "repeat"
+    },
+    {
+     "icon": "infinity",
+     "tone": "neg"
+    }
+   ]
+  },
+  "fixed": false,
+  "picture": {
+   "line": 8,
+   "shows": "Ear listening, then repeat, then endless loop: listening again and again with no end.",
+   "cat": "B12",
+   "slots": {
+    "items": [
+     {
+      "icon": "ear"
+     },
+     {
+      "icon": "repeat"
+     },
+     {
+      "icon": "infinity",
+      "tone": "neg"
+     }
+    ]
+   },
+   "lead": "ฟัง ซ้ำ",
+   "key": "ไป เรื่อย"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.05",
+  "line": 10,
+  "text": "พูด ง่าย ง่าย มัน คือ การเรียน สิ่งใหม่",
+  "cat": "B16",
+  "shows": "The term is explained as learning something new.",
+  "need": null,
+  "lead": "ง่าย มัน คือ การเรียน",
+  "key": "สิ่งใหม่",
+  "slots": {
+   "term": {
+    "icon": "book-open",
+    "label": "ง่าย ง่าย"
+   },
+   "means": [
+    {
+     "icon": "sparkles",
+     "label": "สิ่งใหม่"
+    }
+   ]
+  },
+  "fixed": false,
+  "picture": {
+   "line": 10,
+   "shows": "The term is explained as learning something new.",
+   "cat": "B16",
+   "slots": {
+    "term": {
+     "icon": "book-open",
+     "label": "ง่าย ง่าย"
+    },
+    "means": [
+     {
+      "icon": "sparkles",
+      "label": "สิ่งใหม่"
+     }
+    ]
+   },
+   "lead": "ง่าย มัน คือ การเรียน",
+   "key": "สิ่งใหม่"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.06",
+  "line": 13,
+  "text": "เรา จะ ไม่ ใช้ ประโยค อังกฤษ ด้วย เรา จะ ใช้ ประโยค ไทย แล้วก็",
+  "cat": "B05",
+  "shows": "English sentence is the wrong choice, Thai sentence is the right one.",
+  "need": null,
+  "lead": "ไม่ ใช้ ประโยค",
+  "key": "อังกฤษ",
+  "slots": {
+   "wrong": {
+    "icon": "languages",
+    "label": "อังกฤษ",
+    "tone": "neg"
+   },
+   "right": {
+    "icon": "message-circle",
+    "label": "ไทย",
+    "tone": "acc"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 13,
+   "shows": "English sentence is the wrong choice, Thai sentence is the right one.",
+   "cat": "B05",
+   "slots": {
+    "wrong": {
+     "icon": "languages",
+     "label": "อังกฤษ",
+     "tone": "neg"
+    },
+    "right": {
+     "icon": "message-circle",
+     "label": "ไทย",
+     "tone": "acc"
+    }
+   },
+   "lead": "ไม่ ใช้ ประโยค",
+   "key": "อังกฤษ"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.07",
+  "line": 15,
+  "text": "อังกฤษ คำ ไทย คำ เรา ก็ จะ ไม่ เฉลย",
+  "cat": "B07",
+  "shows": "A lightbulb off and crossed, meaning the meaning is not revealed.",
+  "need": null,
+  "lead": "เรา ก็ จะ",
+  "key": "ไม่ เฉลย",
+  "slots": {
+   "thing": {
+    "icon": "lightbulb-off"
+   },
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 15,
+   "shows": "A lightbulb off and crossed, meaning the meaning is not revealed.",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "lightbulb-off"
+    },
+    "how": "cross"
+   },
+   "lead": "เรา ก็ จะ",
+   "key": "ไม่ เฉลย"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.08",
+  "line": 18,
+  "text": "มัน จาก บริบท เอง งั้น มา รอง ประโยค แรก เลย",
+  "cat": "B13",
+  "shows": "A key tip: the meaning comes from the context itself.",
+  "need": null,
+  "lead": "มัน จาก",
+  "key": "บริบท เอง",
+  "slots": {
+   "secret": {
+    "icon": "key",
+    "label": "บริบท เอง"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 18,
+   "shows": "A key tip: the meaning comes from the context itself.",
+   "cat": "B13",
+   "slots": {
+    "secret": {
+     "icon": "key",
+     "label": "บริบท เอง"
+    }
+   },
+   "lead": "มัน จาก",
+   "key": "บริบท เอง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.09",
+  "line": 19,
+  "text": "เขา โกหก ครั้ง เดียว แต่ ต้อง โกหก",
+  "cat": "B12",
+  "shows": "A person tells one lie, which leads to the need to keep lying again and again.",
+  "need": null,
+  "lead": "เขา",
+  "key": "โกหก",
+  "slots": {
+   "items": [
+    {
+     "icon": "user"
+    },
+    {
+     "icon": "message-circle-warning"
+    },
+    {
+     "icon": "repeat"
+    }
+   ]
+  },
+  "fixed": false,
+  "picture": {
+   "line": 19,
+   "shows": "A person tells one lie, which leads to the need to keep lying again and again.",
+   "cat": "B12",
+   "slots": {
+    "items": [
+     {
+      "icon": "user"
+     },
+     {
+      "icon": "message-circle-warning"
+     },
+     {
+      "icon": "repeat"
+     }
+    ]
+   },
+   "lead": "เขา",
+   "key": "โกหก"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.10",
+  "line": 21,
+  "text": "ของ การ โกหก คือ มัน ไม่ มี วัน จบ",
+  "cat": "B14",
+  "shows": "An infinity sign: lying has no end.",
+  "need": null,
+  "lead": "มัน ไม่ มี",
+  "key": "วัน จบ",
+  "slots": {
+   "idea": {
+    "icon": "infinity",
+    "label": "วัน จบ"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 21,
+   "shows": "An infinity sign: lying has no end.",
+   "cat": "B14",
+   "slots": {
+    "idea": {
+     "icon": "infinity",
+     "label": "วัน จบ"
+    }
+   },
+   "lead": "มัน ไม่ มี",
+   "key": "วัน จบ"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.11",
+  "line": 23,
+  "text": "ลงทุน กับ การศึกษา consicance จะ เห็นได้ชัด",
+  "cat": "B07",
+  "shows": "A graduation cap crossed out: a country that does not invest in education.",
+  "need": null,
+  "lead": "ไม่ ลงทุน กับ",
+  "key": "การศึกษา",
+  "slots": {
+   "thing": {
+    "icon": "graduation-cap",
+    "label": "การศึกษา"
+   },
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 23,
+   "shows": "A graduation cap crossed out: a country that does not invest in education.",
+   "cat": "B07",
+   "slots": {
+    "thing": {
+     "icon": "graduation-cap",
+     "label": "การศึกษา"
+    },
+    "how": "cross"
+   },
+   "lead": "ไม่ ลงทุน กับ",
+   "key": "การศึกษา"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.12",
+  "line": 24,
+  "text": "ใน อีก ยี่สิบ ปี ข้างหน้า",
+  "cat": "B09",
+  "shows": "The result becomes visible after twenty years.",
+  "need": null,
+  "lead": "ใน อีก",
+  "key": "ยี่สิบ ปี",
+  "slots": {
+   "result": {
+    "icon": "eye"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 24,
+   "shows": "The result becomes visible after twenty years.",
+   "cat": "B09",
+   "slots": {
+    "result": {
+     "icon": "eye"
+    }
+   },
+   "lead": "ใน อีก",
+   "key": "ยี่สิบ ปี"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.13",
+  "line": 25,
+  "text": "ประโยค ที่สาม ทิ้ง ขยะ ลง แม่น้ำ น้ำเน่า",
+  "cat": "B12",
+  "shows": "Trash dumped, the river water goes bad, fish suffer: a chain of harm.",
+  "need": null,
+  "lead": "ทิ้ง ขยะ ลง แม่น้ำ",
+  "key": "น้ำเน่า",
+  "slots": {
+   "items": [
+    {
+     "icon": "trash-2"
+    },
+    {
+     "icon": "droplets"
+    },
+    {
+     "icon": "fish"
+    }
+   ],
+   "end": {
+    "icon": "triangle-alert",
+    "tone": "neg"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 25,
+   "shows": "Trash dumped, the river water goes bad, fish suffer: a chain of harm.",
+   "cat": "B12",
+   "slots": {
+    "items": [
+     {
+      "icon": "trash-2"
+     },
+     {
+      "icon": "droplets"
+     },
+     {
+      "icon": "fish"
+     }
+    ],
+    "end": {
+     "icon": "triangle-alert",
+     "tone": "neg"
+    }
+   },
+   "lead": "ทิ้ง ขยะ ลง แม่น้ำ",
+   "key": "น้ำเน่า"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.14",
+  "line": 26,
+  "text": "ปลา ตาย คนใน ชุมชน เดือดร้อน Conskence ของ",
+  "cat": "B02",
+  "shows": "Fish disappear, they die off.",
+  "need": null,
+  "lead": "",
+  "key": "ปลา ตาย",
+  "slots": {
+   "dir": "down",
+   "item": {
+    "icon": "fish"
+   },
+   "n": 3,
+   "keep": 0
+  },
+  "fixed": false,
+  "picture": {
+   "line": 26,
+   "shows": "Fish disappear, they die off.",
+   "cat": "B02",
+   "slots": {
+    "dir": "down",
+    "item": {
+     "icon": "fish"
+    },
+    "n": 3,
+    "keep": 0
+   },
+   "lead": "",
+   "key": "ปลา ตาย"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.15",
+  "line": 27,
+  "text": "การ ไม่ แคร์ สิ่งแวดล้อม ไม่ ได้ กระทบ คน แค่ คนเดียว",
+  "cat": "B03",
+  "shows": "Not just one person but many people are affected.",
+  "need": null,
+  "lead": "กระทบ คน แค่",
+  "key": "คนเดียว",
+  "slots": {
+   "mode": "versus",
+   "a": {
+    "icon": "user",
+    "label": "คนเดียว",
+    "tone": "neg"
+   },
+   "b": {
+    "icon": "users"
+   },
+   "win": "b",
+   "how": "cross"
+  },
+  "fixed": false,
+  "picture": {
+   "line": 27,
+   "shows": "Not just one person but many people are affected.",
+   "cat": "B03",
+   "slots": {
+    "mode": "versus",
+    "a": {
+     "icon": "user",
+     "label": "คนเดียว",
+     "tone": "neg"
+    },
+    "b": {
+     "icon": "users"
+    },
+    "win": "b",
+    "how": "cross"
+   },
+   "lead": "กระทบ คน แค่",
+   "key": "คนเดียว"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.16",
+  "line": 28,
+  "text": "ประโยค ที่สี่ บริษัท นี้ ไม่ เคย ฟัง เสียง ของ พนักงาน",
+  "cat": "B11",
+  "shows": "A message from employees that gets no reply, the company never listens.",
+  "need": null,
+  "lead": "บริษัท นี้",
+  "key": "ไม่ เคย ฟัง",
+  "slots": {
+   "kind": "message",
+   "quote": "พนักงาน",
+   "mood": "bad",
+   "react": "ear-off",
+   "gone": true
+  },
+  "fixed": false,
+  "picture": {
+   "line": 28,
+   "shows": "A message from employees that gets no reply, the company never listens.",
+   "cat": "B11",
+   "slots": {
+    "kind": "message",
+    "quote": "พนักงาน",
+    "mood": "bad",
+    "react": "ear-off",
+    "gone": true
+   },
+   "lead": "บริษัท นี้",
+   "key": "ไม่ เคย ฟัง"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "115846.17",
+  "line": 29,
+  "text": "เลย consiquence คือ คนเก่ง ทยอย กัน ลาออก หมด เลย",
+  "cat": "B02",
+  "shows": "Talented people leave the company one after another until none remain.",
+  "need": null,
+  "lead": "คนเก่ง ทยอย กัน",
+  "key": "ลาออก",
+  "slots": {
+   "dir": "down",
+   "item": {
+    "icon": "user"
+   },
+   "center": {
+    "icon": "building-2"
+   },
+   "n": 4,
+   "keep": 0,
+   "end": {
+    "icon": "frown",
+    "tone": "neg"
+   }
+  },
+  "fixed": false,
+  "picture": {
+   "line": 29,
+   "shows": "Talented people leave the company one after another until none remain.",
+   "cat": "B02",
+   "slots": {
+    "dir": "down",
+    "item": {
+     "icon": "user"
+    },
+    "center": {
+     "icon": "building-2"
+    },
+    "n": 4,
+    "keep": 0,
+    "end": {
+     "icon": "frown",
+     "tone": "neg"
+    }
+   },
+   "lead": "คนเก่ง ทยอย กัน",
+   "key": "ลาออก"
+  },
+  "ok": true,
+  "problems": []
+ }
+]

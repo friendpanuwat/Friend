@@ -1,0 +1,90 @@
+{
+ "status": "ok",
+ "topic": "fit",
+ "log": [
+  "fix round (plan): 7 errors sent back"
+ ],
+ "fallback": [
+  "B06.v2 77.0–78.3 dropped (length, hit-early)",
+  "B03.v1 67.7–69.0 dropped (length)",
+  "B05.v3 32.9–35.8 dropped (text-overlap, text-overlap)",
+  "subtitles rebuilt around the remaining cards"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-high",
+   "where": "scenes",
+   "msg": "cards cover 65% of the clip, keep ≤ 60% so the speaker is seen"
+  },
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "19 cards, need ≥ 20 for 80.0 s"
+  },
+  {
+   "level": "error",
+   "code": "aroll-long",
+   "where": "29.40–38.70",
+   "msg": "9.3 s of talking head without a card (max 4.5)"
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 29.44–32.96 \"หรือบางทีก็เห็น อาหาร / ก็ไม่ กล้ากิน / แล้วผมไม่ได้ บอกนะ\"",
+   "msg": "chunk \"หรือบางทีก็เห็น อาหาร\" is 16 letters, aim ≤ 12",
+   "sub": 2
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 29.44–32.96 \"หรือบางทีก็เห็น อาหาร / ก็ไม่ กล้ากิน / แล้วผมไม่ได้ บอกนะ\"",
+   "msg": "chunk \"แล้วผมไม่ได้ บอกนะ\" is 14 letters, aim ≤ 12",
+   "sub": 2
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 32.96–34.92 \"ว่าเคสที่กำลัง ไวรัล / อยู่เนี่ยเกิด จาก\"",
+   "msg": "chunk \"ว่าเคสที่กำลัง ไวรัล\" is 13 letters, aim ≤ 12",
+   "sub": 3
+  },
+  {
+   "level": "warn",
+   "code": "cam-push-twice",
+   "where": "camera[1] push 20.5",
+   "msg": "pushed again without pulling back first",
+   "cam": 1
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[1] push 20.5",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 1
+  },
+  {
+   "level": "warn",
+   "code": "cam-push-twice",
+   "where": "camera[2] push 40.2",
+   "msg": "pushed again without pulling back first",
+   "cam": 2
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[2] push 40.2",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 2
+  },
+  {
+   "level": "warn",
+   "code": "cam-push-twice",
+   "where": "camera[3] push 70.2",
+   "msg": "pushed again without pulling back first",
+   "cam": 3
+  }
+ ]
+}

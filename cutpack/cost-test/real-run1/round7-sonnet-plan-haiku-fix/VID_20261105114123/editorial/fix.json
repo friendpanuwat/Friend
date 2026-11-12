@@ -1,0 +1,428 @@
+{
+ "topic": "fit",
+ "camera": [
+  {
+   "move": "push",
+   "t": 2.1
+  },
+  {
+   "move": "pull",
+   "t": 4.8
+  },
+  {
+   "move": "push",
+   "t": 38.0
+  },
+  {
+   "move": "pull",
+   "t": 40.08,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 60.0
+  },
+  {
+   "move": "pull",
+   "t": 62.0
+  },
+  {
+   "move": "push",
+   "t": 70.5
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 2.9,
+   "t1": 5.2,
+   "say": "สิ่งที่ผมกลัวที่สุดไม่ใช่คนล้มหนักไม่สำเร็จ",
+   "shows": "warning triangle",
+   "part": "B07.v1",
+   "bg": "glow",
+   "hit": 3.52,
+   "need": "",
+   "slots": {
+    "text": "ล้มหนักไม่สำเร็จ",
+    "icon": "scale",
+    "lead": "สิ่งที่ผมกลัว",
+    "key": "กลัว"
+   }
+  },
+  {
+   "t0": 5.4,
+   "t1": 7.6,
+   "say": "แต่คือคนที่คิดว่ายิ่งอดได้เยอะ",
+   "shows": "people ticked as list",
+   "part": "B04.v2",
+   "bg": "white",
+   "hit": 6.72,
+   "need": "",
+   "slots": {
+    "items": [
+     "คิดว่ายิ่งอดได้เยอะ",
+     "ยิ่งเก่ง"
+    ],
+    "at": [
+     5.36,
+     7.2
+    ],
+    "lead": "แต่คือคนที่",
+    "key": "ยิ่งอด"
+   }
+  },
+  {
+   "t0": 8.0,
+   "t1": 10.0,
+   "say": "สี่ร้อยแคลต่อวัน",
+   "shows": "big number counts up",
+   "part": "B01.v4",
+   "bg": "cream",
+   "hit": 8.64,
+   "need": "",
+   "slots": {
+    "num": 400,
+    "unit": "แคล",
+    "icon": "flame",
+    "lead": "ต่อวัน",
+    "key": "400"
+   }
+  },
+  {
+   "t0": 10.4,
+   "t1": 11.4,
+   "say": "ไม่ใช่แผนล้มหนัก",
+   "shows": "X crossed out",
+   "part": "B05.v3",
+   "bg": "glow",
+   "hit": 10.8,
+   "need": "",
+   "slots": {
+    "x": "แผนล้มหนัก",
+    "y": "แผน",
+    "aty": 10.9,
+    "lead": "มันจะไม่ใช่"
+   }
+  },
+  {
+   "t0": 11.52,
+   "t1": 14.8,
+   "say": "แผนที่ทำให้ร่างกายหมดออกตลอด",
+   "shows": "battery low",
+   "part": "B07.v4",
+   "bg": "glow",
+   "hit": 13.92,
+   "need": "",
+   "slots": {
+    "text": "ร่างกายหมดแรง",
+    "icon": "battery-low",
+    "level": "high",
+    "lead": "ทำให้",
+    "key": "หมดออก"
+   }
+  },
+  {
+   "t0": 15.0,
+   "t1": 17.6,
+   "say": "น้ำหนักที่หายไปไม่ใช่แค่ไขมัน",
+   "shows": "scale drops, not just fat",
+   "part": "B02.v3",
+   "bg": "white",
+   "hit": 15.76,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "num": "น้ำหนัก",
+    "icon": "weight",
+    "lead": "น้ำหนักที่หายไป",
+    "key": "ไม่ใช่แค่ไขมัน"
+   }
+  },
+  {
+   "t0": 18.08,
+   "t1": 21.3,
+   "say": "กล้ามเนื้อ พลังงาน ฮอร์โมน สุขภาพจิต",
+   "shows": "list ticked one by one",
+   "part": "B04.v2",
+   "bg": "white",
+   "hit": 20.48,
+   "need": "",
+   "slots": {
+    "items": [
+     "กล้ามเนื้อ",
+     "พลังงาน",
+     "ฮอร์โมน",
+     "สุขภาพจิต"
+    ],
+    "at": [
+     18.72,
+     19.36,
+     20.0,
+     20.48
+    ],
+    "lead": "ไม่ใช่แค่ไขมัน"
+   }
+  },
+  {
+   "t0": 21.4,
+   "t1": 24.0,
+   "say": "ความสัมพันธ์กับอาหาร",
+   "shows": "food with heart link",
+   "part": "B10.v3",
+   "bg": "cream",
+   "hit": 22.32,
+   "need": "",
+   "slots": {
+    "link": "heart-handshake",
+    "lead": "ความสัมพันธ์",
+    "key": "กับอาหาร"
+   }
+  },
+  {
+   "t0": 25.44,
+   "t1": 28.94,
+   "say": "นอนไม่ค่อยได้ อารมณ์เหวี่ยง",
+   "shows": "phone alert notification",
+   "part": "B07.v3",
+   "bg": "cream",
+   "hit": 26.48,
+   "need": "",
+   "slots": {
+    "text": "นอนไม่ได้ อารมณ์เหวี่ยง",
+    "icon": "bed",
+    "lead": "นอนไม่ค่อยได้",
+    "key": "อารมณ์เหวี่ยง"
+   }
+  },
+  {
+   "t0": 29.2,
+   "t1": 31.6,
+   "say": "อาหารก็ไม่กล้ากิน",
+   "shows": "food with warning",
+   "part": "B07.v2",
+   "bg": "glow",
+   "hit": 30.8,
+   "need": "",
+   "slots": {
+    "text": "ไม่กล้ากิน",
+    "icon": "utensils-crossed",
+    "lead": "อาหารก็ไม่",
+    "key": "กล้า"
+   }
+  },
+  {
+   "t0": 32.0,
+   "t1": 34.8,
+   "say": "เคสที่กำลังไวรัลเกิดจากการกินน้อยอย่างเดียว",
+   "shows": "single cause highlighted",
+   "part": "B12.v1",
+   "bg": "white",
+   "hit": 34.08,
+   "need": "",
+   "slots": {
+    "a": "การกินน้อย",
+    "ia": "utensils",
+    "b": "เคสไวรัล",
+    "ib": "share-2",
+    "lead": "เกิดจาก"
+   }
+  },
+  {
+   "t0": 35.84,
+   "t1": 38.0,
+   "say": "สุขภาพมีหลายปัจจัย",
+   "shows": "cause chain",
+   "part": "B12.v4",
+   "bg": "glow",
+   "hit": 37.2,
+   "need": "",
+   "slots": {
+    "a": "กิน",
+    "ia": "utensils",
+    "b": "นอน",
+    "ib": "bed",
+    "c": "อารมณ์",
+    "ic": "brain",
+    "lead": "สุขภาพ",
+    "key": "หลายปัจจัย"
+   }
+  },
+  {
+   "t0": 40.08,
+   "t1": 43.92,
+   "say": "อย่าโรแมนติไซส์การอดอาหาร",
+   "shows": "X crossed, not this",
+   "part": "B05.v2",
+   "bg": "white",
+   "hit": 41.52,
+   "need": "",
+   "slots": {
+    "x": "ทรมานตัวเอง",
+    "y": "วินัยที่ดี",
+    "aty": 43.2,
+    "lead": "อย่ามอง"
+   }
+  },
+  {
+   "t0": 46.58,
+   "t1": 49.58,
+   "say": "ไม่ควรรู้สึกเหมือนลงโทษตัวเอง",
+   "shows": "X mark big",
+   "part": "B08.v4",
+   "bg": "glow",
+   "hit": 49.28,
+   "need": "A big red cross: not punishing yourself — no negative cross card in library",
+   "slots": {
+    "goal": "ไม่ลงโทษตัวเอง",
+    "icon": "ban",
+    "lead": "ไม่ควร",
+    "key": "ลงโทษ"
+   }
+  },
+  {
+   "t0": 51.84,
+   "t1": 55.34,
+   "say": "คุณแข็งแรงขึ้น ใช้ชีวิตได้ดีขึ้น",
+   "shows": "progress bar fills",
+   "part": "B08.v2",
+   "bg": "cream",
+   "hit": 53.9,
+   "need": "",
+   "slots": {
+    "goal": "แข็งแรงขึ้น",
+    "icon": "biceps-flexed",
+    "lead": "คุณ",
+    "key": "แข็งแรง"
+   }
+  },
+  {
+   "t0": 55.9,
+   "t1": 57.2,
+   "say": "ได้นานขึ้น พร้อมเร็ว",
+   "shows": "clock ticks faster",
+   "part": "B09.v1",
+   "bg": "white",
+   "hit": 56.7,
+   "need": "",
+   "slots": {
+    "when": "ได้นานขึ้น",
+    "icon": "clock",
+    "lead": "ได้นานขึ้น",
+    "key": "พร้อม"
+   }
+  },
+  {
+   "t0": 58.4,
+   "t1": 60.6,
+   "say": "ร่างกายที่มันพัง ไม่คุ้ม",
+   "shows": "heart crack",
+   "part": "B07.v2",
+   "bg": "white",
+   "hit": 59.64,
+   "need": "",
+   "slots": {
+    "text": "ร่างกายพัง",
+    "icon": "heart-pulse",
+    "lead": "ไม่คุ้ม",
+    "key": "พัง"
+   }
+  },
+  {
+   "t0": 62.0,
+   "t1": 65.5,
+   "say": "ไม่ใช่กินน้อยที่สุด คือกินให้พอดี",
+   "shows": "not X but Y balance",
+   "part": "B05.v4",
+   "bg": "glow",
+   "hit": 64.0,
+   "need": "",
+   "slots": {
+    "x": "กินน้อยที่สุด",
+    "y": "กินให้พอดี",
+    "aty": 64.3,
+    "lead": "เป้าหมาย"
+   }
+  },
+  {
+   "t0": 66.5,
+   "t1": 68.5,
+   "say": "คุณทำต่อได้โดยที่ไม่เกลียดอาหาร",
+   "shows": "heart with food",
+   "part": "B13.v4",
+   "bg": "cream",
+   "hit": 67.44,
+   "need": "",
+   "slots": {
+    "tip": "ไม่เกลียดอาหาร",
+    "icon": "heart",
+    "lead": "คุณทำต่อได้",
+    "key": "ไม่เกลียด"
+   }
+  },
+  {
+   "t0": 68.8,
+   "t1": 72.0,
+   "say": "ผมอยากให้คุณจำคำนี้ไว้",
+   "shows": "big quote words",
+   "part": "B14.v2",
+   "bg": "glow",
+   "hit": 71.12,
+   "need": "",
+   "slots": {
+    "words": [
+     "จำคำนี้",
+     "ไว้เลย"
+    ],
+    "key": 0
+   }
+  },
+  {
+   "t0": 72.1,
+   "t1": 75.6,
+   "say": "ลดน้ำหนักคือการดูแลตัวเอง ไม่ใช่ทำลาย",
+   "shows": "two words highlighted",
+   "part": "B03.v2",
+   "bg": "cream",
+   "hit": 73.92,
+   "need": "",
+   "slots": {
+    "a": "ดูแลตัวเอง",
+    "b": "ทำลายตัวเอง",
+    "ia": "heart-handshake",
+    "ib": "skull",
+    "win": "a"
+   }
+  },
+  {
+   "t0": 76.5,
+   "t1": 78.2,
+   "say": "เคยผ่านการอดอาหารแบบสุดโต่ง",
+   "shows": "extreme fasting warning",
+   "part": "B07.v4",
+   "bg": "white",
+   "hit": 77.2,
+   "need": "",
+   "slots": {
+    "text": "อดอาหารสุดโต่ง",
+    "icon": "utensils-crossed",
+    "level": "high",
+    "lead": "เคยผ่าน",
+    "key": "สุดโต่ง"
+   }
+  },
+  {
+   "t0": 78.3,
+   "t1": 80.0,
+   "say": "คอมเมนต์ว่าเคยนะครับ",
+   "shows": "comment typed",
+   "part": "B15.v2",
+   "bg": "cream",
+   "hit": 78.64,
+   "need": "",
+   "slots": {
+    "action": "comment",
+    "text": "เคยนะครับ",
+    "lead": "คอมเมนต์"
+   }
+  }
+ ]
+}

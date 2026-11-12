@@ -1,0 +1,397 @@
+{
+ "version": 1,
+ "style": "editorial",
+ "clip": {
+  "file": "VID_20261105115213.mp4",
+  "duration": 60.581,
+  "customer": "test"
+ },
+ "topic": "none",
+ "script": "แล้วผม รู้สึกว่า ตราบใดที่คุณยัง มองว่า รายได้ ของคุณ อ่ะ ช่องทาง นั้นน่ะสิ่งที่คุณ กำลังทำ อยู่อ่ะ มันคือ รายได้เสริมนะ เอง มันก็จะเป็น รายได้ เสริม ต่อไป เรื่อยเรื่อย มันจะ ไม่มีทางเป็น เมน Incom ได้ มีแต่ คน พูดว่า อยากหารายได้ เสริม อยากหาไซส์ ทัศน มิน ทาสู้ แล้วรายได้ หลัก Active Income ผม รู้สึกว่า ถ้าอยากให้ มันมา เป็น active Incom นะคือ ยูต้อง มอง มัน เป็น busis หรือ ว่าการ เฮด ความเสี่ยงกับมัน เว้ย คำว่ารายได้ เสริม หรือว่า ไซส์ โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง ไม่มีคำว่า เจ๊ง ไม่มีคำว่า ขาดทุนนะ เพราะว่า อย่า เอาเวลาของ You ไป ใช้แล้วยู จะ คิดใน มุมของ Misset ที่ เอ่อมิ เนไม ความเสี่ยงให้มาก ที่สุด เลยทำให้ ยังไง ก็ได้ ให้มัน แบบแค่เป็น รายได้ เสริมอ่ะ ตอนที่ผมทำ คอนเทนต์ น่ะผมจะ ตอนที่ ผมทำ คอนเทนต์แล้ว ผมก็ ทำเป็น รายได้เสริมอ่ะ ประจำ ผมไป ใช่ป่ะ เซตผมมันไม่ เหมือนกับ อย่างงี้เลย มันมันมี หลายอย่าง ที่มัน เปลี่ยนไป มากมาก แล้วมัน ผมก็ยังเห็น Infonser บางคนเขาก็ พูดว่า เอออัน เนี้ย เป็นช่องทาง หารายได้ เสริมที่ดี ซึ่งถ้า คุณแค่ คิดว่ามันเป็น รายได้",
+ "camera": [
+  {
+   "push": 0.3
+  },
+  {
+   "pull": 2.88,
+   "cut": true
+  },
+  {
+   "push": 5.2
+  },
+  {
+   "pull": 7.5,
+   "cut": true
+  },
+  {
+   "push": 41.2
+  },
+  {
+   "pull": 45.0,
+   "cut": true
+  },
+  {
+   "push": 52.0
+  },
+  {
+   "pull": 55.6,
+   "cut": true
+  }
+ ],
+ "subtitles": [
+  {
+   "t0": 0.56,
+   "t1": 1.68,
+   "text": "แล้วผม รู้สึกว่า"
+  },
+  {
+   "t0": 4.8,
+   "t1": 7.04,
+   "text": "อ่ะ ช่องทาง / นั้นน่ะสิ่งที่คุณ กำลังทำ"
+  },
+  {
+   "t0": 10.4,
+   "t1": 10.96,
+   "text": "เสริม ต่อไป"
+  },
+  {
+   "t0": 13.6,
+   "t1": 14.0,
+   "text": "คน พูดว่า"
+  },
+  {
+   "t0": 25.29,
+   "t1": 25.92,
+   "text": "ว่าการ เฮด"
+  },
+  {
+   "t0": 28.72,
+   "t1": 29.44,
+   "text": "โดยส่วนใหญ่"
+  },
+  {
+   "t0": 41.2,
+   "t1": 41.68,
+   "text": "ก็ได้ ให้มัน"
+  },
+  {
+   "t0": 41.68,
+   "t1": 44.0,
+   "text": "แบบแค่เป็น รายได้ / เสริมอ่ะ"
+  },
+  {
+   "t0": 46.88,
+   "t1": 47.28,
+   "text": "ผมก็ ทำเป็น"
+  },
+  {
+   "t0": 47.28,
+   "t1": 48.08,
+   "text": "รายได้เสริมอ่ะ ประจำ"
+  },
+  {
+   "t0": 51.79,
+   "t1": 54.4,
+   "text": "ที่มัน เปลี่ยนไป / มากมาก แล้วมัน"
+  },
+  {
+   "t0": 54.4,
+   "t1": 55.44,
+   "text": "ผมก็ยังเห็น Infonser"
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 2.88,
+   "t1": 4.88,
+   "kind": "card",
+   "part": "B14.v1",
+   "bg": "white",
+   "hit": 3.68,
+   "slots": {
+    "words": [
+     "มองว่า",
+     "รายได้",
+     "ของคุณ"
+    ],
+    "key": 1,
+    "at": [
+     2.88,
+     3.68,
+     4.32
+    ]
+   },
+   "say": "มองว่ารายได้ของคุณ",
+   "shows": "three words appear, the word income highlighted"
+  },
+  {
+   "t0": 7.5,
+   "t1": 9.6,
+   "kind": "card",
+   "part": "B12.v1",
+   "bg": "glow",
+   "hit": 9.28,
+   "slots": {
+    "a": "รายได้เสริม",
+    "ia": "wallet",
+    "b": "เสริมต่อไป",
+    "ib": "repeat",
+    "lead": "มันก็จะเป็น"
+   },
+   "say": "มันคือรายได้เสริมนะเอง มันก็จะเป็นรายได้เสริมต่อไป",
+   "shows": "wallet icon with an arrow leading to a repeating loop icon"
+  },
+  {
+   "t0": 11.4,
+   "t1": 13.5,
+   "kind": "card",
+   "part": "B07.v2",
+   "bg": "cream",
+   "hit": 12.88,
+   "slots": {
+    "text": "ไม่มีทางเป็นเมน",
+    "icon": "crown",
+    "lead": "มันจะ"
+   },
+   "say": "ไม่มีทางเป็นเมน Income ได้",
+   "shows": "a crown icon cracks"
+  },
+  {
+   "t0": 14.5,
+   "t1": 16.3,
+   "kind": "card",
+   "part": "B11.v1",
+   "bg": "white",
+   "hit": 14.8,
+   "slots": {
+    "text": "อยากหารายได้เสริม",
+    "who": "คน",
+    "lead": "คนพูดว่า"
+   },
+   "say": "คนพูดว่า อยากหารายได้เสริม",
+   "shows": "a chat message from people gets marked read"
+  },
+  {
+   "t0": 17.5,
+   "t1": 19.4,
+   "kind": "card",
+   "part": "B03.v1",
+   "bg": "glow",
+   "hit": 18.4,
+   "slots": {
+    "a": "รายได้เสริม",
+    "b": "รายได้หลัก",
+    "ia": "wallet",
+    "ib": "briefcase",
+    "win": "b"
+   },
+   "say": "แล้วรายได้หลัก Active Income",
+   "shows": "side income dims, main income side wins"
+  },
+  {
+   "t0": 20.4,
+   "t1": 22.2,
+   "kind": "card",
+   "part": "B08.v1",
+   "bg": "cream",
+   "hit": 21.28,
+   "slots": {
+    "goal": "Active Income",
+    "icon": "target",
+    "lead": "ถ้าอยากให้มันมาเป็น"
+   },
+   "say": "ถ้าอยากให้มันมาเป็น active income",
+   "shows": "an arrow hits the center of a target"
+  },
+  {
+   "t0": 23.2,
+   "t1": 24.9,
+   "kind": "card",
+   "part": "B14.v3",
+   "bg": "white",
+   "hit": 24.48,
+   "slots": {
+    "words": [
+     "มอง",
+     "มัน",
+     "เป็น",
+     "busis"
+    ],
+    "key": 3,
+    "at": [
+     23.2,
+     23.52,
+     23.65,
+     24.48
+    ]
+   },
+   "say": "มองมันเป็น busis",
+   "shows": "words appear one by one, the business word highlighted with a hand-drawn underline"
+  },
+  {
+   "t0": 26.7,
+   "t1": 28.5,
+   "kind": "card",
+   "part": "B11.v4",
+   "bg": "glow",
+   "hit": 27.6,
+   "slots": {
+    "text": "คำว่ารายได้เสริม",
+    "who": "คนส่วนใหญ่",
+    "lead": "โดยส่วนใหญ่"
+   },
+   "say": "คำว่ารายได้เสริม หรือว่าไซส์ โดยส่วนใหญ่",
+   "shows": "a social comment saying the phrase gets a heart"
+  },
+  {
+   "t0": 29.6,
+   "t1": 32.3,
+   "kind": "card",
+   "part": "B04.v2",
+   "bg": "cream",
+   "hit": 31.92,
+   "slots": {
+    "items": [
+     "ไม่มีความเสี่ยง",
+     "ไม่มีคำว่าเจ๊ง",
+     "ไม่มีคำว่าขาดทุน"
+    ],
+    "at": [
+     30.16,
+     31.28,
+     31.92
+    ],
+    "lead": "ไม่มี"
+   },
+   "say": "ไม่มีความเสี่ยง ไม่มีคำว่าเจ๊ง ไม่มีคำว่าขาดทุน",
+   "shows": "three items ticked one by one"
+  },
+  {
+   "t0": 33.3,
+   "t1": 35.1,
+   "kind": "card",
+   "part": "B07.v1",
+   "bg": "white",
+   "hit": 33.84,
+   "slots": {
+    "text": "อย่าเอาเวลาของ",
+    "icon": "clock",
+    "lead": "เพราะว่า"
+   },
+   "say": "อย่าเอาเวลาของ You ไปใช้",
+   "shows": "warning triangle with a clock icon"
+  },
+  {
+   "t0": 36.1,
+   "t1": 37.9,
+   "kind": "card",
+   "part": "B13.v1",
+   "bg": "cream",
+   "hit": 36.8,
+   "slots": {
+    "tip": "มุมของ Misset",
+    "icon": "lightbulb",
+    "lead": "จะคิดใน"
+   },
+   "say": "คิดในมุมของ Misset",
+   "shows": "a light bulb switches on"
+  },
+  {
+   "t0": 39.0,
+   "t1": 40.9,
+   "kind": "card",
+   "part": "B02.v4",
+   "bg": "glow",
+   "hit": 39.92,
+   "slots": {
+    "dir": "down",
+    "icon": "shield",
+    "lead": "ความเสี่ยง",
+    "key": "ที่สุด"
+   },
+   "say": "ความเสี่ยงให้มากที่สุด",
+   "shows": "a risk gauge needle swings down"
+  },
+  {
+   "t0": 45.0,
+   "t1": 46.9,
+   "kind": "card",
+   "part": "B10.v1",
+   "bg": "white",
+   "hit": 46.48,
+   "slots": {
+    "who": "ผมทำคอนเทนต์",
+    "lead": "ตอนที่"
+   },
+   "say": "ตอนที่ผมทำคอนเทนต์",
+   "shows": "a group of people, the speaker highlighted"
+  },
+  {
+   "t0": 49.4,
+   "t1": 51.3,
+   "kind": "card",
+   "part": "custom",
+   "bg": "cream",
+   "hit": 50.0,
+   "slots": {
+    "lead": "เซตผมมัน",
+    "key": "ไม่เหมือน"
+   },
+   "say": "เซตผมมันไม่เหมือนกับอย่างงี้เลย",
+   "shows": "two setups side by side, they do not match",
+   "need": "Two similar setups shown side by side that do not match at the hit (a not-equal sign pops between them) — the library has no 'not the same as' card.",
+   "code": "const o = ON[T.bg];\nconst a = tile(c, 'scissors', T.t0 + .1, 'left:110px;top:470px;width:300px;height:300px', {size: 300, bg: o.tile, color: o.tileInk, sound: false, float: false});\nconst b = tile(c, 'brush', T.t0 + .3, 'left:580px;top:470px;width:300px;height:300px', {size: 300, bg: o.tile, color: o.tileInk, sound: false, float: false});\nconst ne = svg(140, 140, `<line x1=\"20\" y1=\"50\" x2=\"120\" y2=\"50\" stroke=\"${RED}\" stroke-width=\"14\" stroke-linecap=\"round\"/><line x1=\"20\" y1=\"92\" x2=\"120\" y2=\"92\" stroke=\"${RED}\" stroke-width=\"14\" stroke-linecap=\"round\"/><line x1=\"88\" y1=\"12\" x2=\"52\" y2=\"130\" stroke=\"${RED}\" stroke-width=\"14\" stroke-linecap=\"round\"/>`, 'left:425px;top:550px;opacity:0', c);\nmv.pop(ne, T.hit);\nmv.wobble(b.inner, T.hit);\nmv.punch(a.inner, T.hit);\nsnd('hit', T.hit);\n"
+  },
+  {
+   "t0": 55.6,
+   "t1": 57.95,
+   "kind": "card",
+   "part": "B14.v2",
+   "bg": "glow",
+   "hit": 57.6,
+   "slots": {
+    "words": [
+     "เป็นช่องทาง",
+     "หารายได้เสริม",
+     "ที่ดี"
+    ],
+    "key": 2,
+    "at": [
+     56.64,
+     57.2,
+     57.6
+    ]
+   },
+   "say": "บางคนเขาก็พูดว่า เป็นช่องทางหารายได้เสริมที่ดี",
+   "shows": "a bold phrase reads good side-income channel, the last word highlighted"
+  },
+  {
+   "t0": 59.0,
+   "t1": 60.5,
+   "kind": "card",
+   "part": "B13.v4",
+   "bg": "white",
+   "hit": 59.92,
+   "slots": {
+    "tip": "คิดว่ามันเป็นรายได้",
+    "icon": "brain",
+    "lead": "ซึ่งถ้าคุณแค่"
+   },
+   "say": "ถ้าคุณแค่คิดว่ามันเป็นรายได้",
+   "shows": "a tip card with a highlight bar under the sentence"
+  }
+ ],
+ "layout": {
+  "subtitleTop": 1380,
+  "widgetPos": {
+   "short": {
+    "x": 240,
+    "y": 150
+   },
+   "narrow": {
+    "x": 36,
+    "y": 570
+   }
+  }
+ }
+}

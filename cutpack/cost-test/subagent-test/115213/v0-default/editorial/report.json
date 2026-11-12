@@ -1,0 +1,27 @@
+{
+ "status": "ok",
+ "topic": "none",
+ "log": [
+  "fix round (plan): 1 errors sent back"
+ ],
+ "fallback": [],
+ "library_missing": [
+  "Two similar setups shown side by side that do not match at the hit (a not-equal sign pops between them) — the library has no 'not the same as' card."
+ ],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 4.8–7.04 \"อ่ะ ช่องทาง / นั้นน่ะสิ่งที่คุณ กำลังทำ\"",
+   "msg": "chunk \"นั้นน่ะสิ่งที่คุณ กำลังทำ\" is 13 letters, aim ≤ 12",
+   "sub": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 41.68–44.0 \"แบบแค่เป็น รายได้ / เสริมอ่ะ\"",
+   "msg": "chunk \"แบบแค่เป็น รายได้\" is 13 letters, aim ≤ 12",
+   "sub": 7
+  }
+ ]
+}

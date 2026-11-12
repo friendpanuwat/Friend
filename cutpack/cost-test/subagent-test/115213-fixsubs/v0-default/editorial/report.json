@@ -1,0 +1,62 @@
+{
+ "status": "ok",
+ "topic": "edu",
+ "log": [
+  "fix round (plan): 1 errors sent back"
+ ],
+ "fallback": [],
+ "library_missing": [
+  "a brain icon swaps into a different glowing brain at 'ไม่' — no part that shows one thing changing into a different one (mindset is different now)"
+ ],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 12.88–14.8 \"ได้มีแต่คน พูดว่า / อยากหารายได้ เสริม\"",
+   "msg": "chunk \"อยากหารายได้ เสริม\" is 15 letters, aim ≤ 12",
+   "sub": 3
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 20.4–22.16 \"ถ้าอยากให้ มันมา / เป็น active income\"",
+   "msg": "chunk \"เป็น active income\" is 15 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 25.92–27.76 \"ความเสี่ยง กับมัน / เว้ยคำว่า รายได้เสริม\"",
+   "msg": "chunk \"เว้ยคำว่า รายได้เสริม\" is 15 letters, aim ≤ 12",
+   "sub": 6
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 44.0–46.24 \"ตอนที่ผมทำ คอนเทนต์นะ / ผมยกตัวอย่าง ตอนที่\"",
+   "msg": "chunk \"ตอนที่ผมทำ คอนเทนต์นะ\" is 16 letters, aim ≤ 12",
+   "sub": 11
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 44.0–46.24 \"ตอนที่ผมทำ คอนเทนต์นะ / ผมยกตัวอย่าง ตอนที่\"",
+   "msg": "chunk \"ผมยกตัวอย่าง ตอนที่\" is 14 letters, aim ≤ 12",
+   "sub": 11
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 54.4–56.16 \"ผมก็ ยังเห็น / อินฟลู เอนเซอร์ / บางคนเค้าก็ พูดว่า\"",
+   "msg": "chunk \"บางคนเค้าก็ พูดว่า\" is 13 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "error",
+   "code": "sub-fast",
+   "where": "subtitles 60.531–60.581 \"เสริม\"",
+   "msg": "1 chunks in 0.05 s is too fast to read",
+   "sub": 13
+  }
+ ]
+}

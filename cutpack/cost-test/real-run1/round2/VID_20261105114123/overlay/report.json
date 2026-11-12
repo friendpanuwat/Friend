@@ -1,0 +1,222 @@
+{
+ "status": "ok",
+ "topic": "fit",
+ "log": [
+  "fix round (plan): 27 errors sent back"
+ ],
+ "fallback": [
+  "B08.v1 60.9–62.7 → B14 text B14.v1 (hit-early)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "widget-text",
+   "where": "scenes[7] B04.v1 18.2–20.9",
+   "msg": "no wkey: the widget shows no word",
+   "scene": 7
+  },
+  {
+   "level": "warn",
+   "code": "widget-text",
+   "where": "scenes[9] B04.v2 23.9–27.0",
+   "msg": "no wkey: the widget shows no word",
+   "scene": 9
+  },
+  {
+   "level": "warn",
+   "code": "widget-text",
+   "where": "scenes[24] B12.v4 65.8–67.8",
+   "msg": "no wkey: the widget shows no word",
+   "scene": 24
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 14.24–18.08 \"ตลอด นะ ครับ / ซึ่ง น้ำหนัก ที่ มัน หาย ไป / แน่นอน ว่า มัน ไม่ ใช่ แค่ ไขมัน\"",
+   "msg": "chunk \"ซึ่ง น้ำหนัก ที่ มัน หาย ไป\" is 14 letters, aim ≤ 12",
+   "sub": 7
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 14.24–18.08 \"ตลอด นะ ครับ / ซึ่ง น้ำหนัก ที่ มัน หาย ไป / แน่นอน ว่า มัน ไม่ ใช่ แค่ ไขมัน\"",
+   "msg": "chunk \"แน่นอน ว่า มัน ไม่ ใช่ แค่ ไขมัน\" is 19 letters (max 16, aim 12): split it with /",
+   "sub": 7
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 18.08–20.48 \"อาจจะ เป็น ทั้ง กล้ามเนื้อ / พลังงาน / ฮอร์โมน\"",
+   "msg": "chunk \"อาจจะ เป็น ทั้ง กล้ามเนื้อ\" is 17 letters (max 16, aim 12): split it with /",
+   "sub": 8
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 20.48–23.68 \"สุขภาพจิต แล้วก็ / ความสัมพันธ์ กับ อาหาร / บางคน เนี่ย จะ\"",
+   "msg": "chunk \"ความสัมพันธ์ กับ อาหาร\" is 16 letters, aim ≤ 12",
+   "sub": 9
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 26.96–30.56 \"เหวี่ยง เอิ่ม หลุด กิน เยอะ / หรือ บางที ก็\"",
+   "msg": "chunk \"เหวี่ยง เอิ่ม หลุด กิน เยอะ\" is 17 letters (max 16, aim 12): split it with /",
+   "sub": 11
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 30.56–32.72 \"เห็น อาหาร ก็ ไม่ กล้า / กิน แล้ว ผม ไม่ ได้\"",
+   "msg": "chunk \"เห็น อาหาร ก็ ไม่ กล้า\" is 14 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 34.64–35.84 \"เกิด จาก การ กิน น้อย / อย่าง เดียว นะ ครับ\"",
+   "msg": "chunk \"เกิด จาก การ กิน น้อย\" is 14 letters, aim ≤ 12",
+   "sub": 14
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 34.64–35.84 \"เกิด จาก การ กิน น้อย / อย่าง เดียว นะ ครับ\"",
+   "msg": "chunk \"อย่าง เดียว นะ ครับ\" is 13 letters, aim ≤ 12",
+   "sub": 14
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 35.84–38.0 \"เพราะว่า เรื่อง สุขภาพ เนี่ย / มัน มี หลาย ปัจจัย\"",
+   "msg": "chunk \"เพราะว่า เรื่อง สุขภาพ เนี่ย\" is 19 letters (max 16, aim 12): split it with /",
+   "sub": 15
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 38.0–40.08 \"แต่ สิ่ง ที่ ผม อยาก / ให้ ทุกคน / เลย รู้จัก เรื่อง นี้ ก็ คือ\"",
+   "msg": "chunk \"เลย รู้จัก เรื่อง นี้ ก็ คือ\" is 14 letters, aim ≤ 12",
+   "sub": 16
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 42.48–45.04 \"อย่า มอง ว่าการ / ทรมาน ตัวเอง เนี่ย คือ วินัย\"",
+   "msg": "chunk \"ทรมาน ตัวเอง เนี่ย คือ วินัย\" is 18 letters (max 16, aim 12): split it with /",
+   "sub": 18
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 48.72–50.72 \"ทำโทษ เลย ลงโทษ / ตัวเอง บางคน จะ เป็นการ\"",
+   "msg": "chunk \"ตัวเอง บางคน จะ เป็นการ\" is 18 letters (max 16, aim 12): split it with /",
+   "sub": 21
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 52.48–55.36 \"ขึ้น นะ ครับ / ใช้ชีวิต ได้ดี ขึ้นอยู่กับ\"",
+   "msg": "chunk \"ใช้ชีวิต ได้ดี ขึ้นอยู่กับ\" is 14 letters, aim ≤ 12",
+   "sub": 23
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 55.36–57.28 \"ร่างกาย ตัวเอง ได้ นาน ขึ้น / พร้อม เร็ว เนี่ย\"",
+   "msg": "chunk \"ร่างกาย ตัวเอง ได้ นาน ขึ้น\" is 18 letters (max 16, aim 12): split it with /",
+   "sub": 24
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 57.28–58.4 \"ผม บอก เลย ว่า ไม่ คุ้ม นะ ครับ\"",
+   "msg": "chunk \"ผม บอก เลย ว่า ไม่ คุ้ม นะ ครับ\" is 19 letters (max 16, aim 12): split it with /",
+   "sub": 25
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 58.4–60.64 \"ถ้า มัน ต้อง แลก กับ ร่างกาย / ที่ มัน พัง\"",
+   "msg": "chunk \"ถ้า มัน ต้อง แลก กับ ร่างกาย\" is 18 letters (max 16, aim 12): split it with /",
+   "sub": 26
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 60.64–62.8 \"เป้าหมาย ของ การ ฟิตเนส เนี่ย / ไม่ ใช่ การ ที่\"",
+   "msg": "chunk \"เป้าหมาย ของ การ ฟิตเนส เนี่ย\" is 21 letters (max 16, aim 12): split it with /",
+   "sub": 27
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 62.8–65.44 \"เรา กิน น้อยที่สุด / คือ การ กิน ให้ พอ ดีแล้ว\"",
+   "msg": "chunk \"คือ การ กิน ให้ พอ ดีแล้ว\" is 15 letters, aim ≤ 12",
+   "sub": 28
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 65.44–67.44 \"คุณ ทำต่อ ได้ / โดยที่ คุณ ไม่ เกลียด\"",
+   "msg": "chunk \"โดยที่ คุณ ไม่ เกลียด\" is 13 letters, aim ≤ 12",
+   "sub": 29
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 67.44–69.84 \"อาหาร แล้วก็ เกลียด ตัวเอง / ถ้า คุณ กำลัง ลดน้ำหนัก\"",
+   "msg": "chunk \"อาหาร แล้วก็ เกลียด ตัวเอง\" is 19 letters (max 16, aim 12): split it with /",
+   "sub": 30
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 67.44–69.84 \"อาหาร แล้วก็ เกลียด ตัวเอง / ถ้า คุณ กำลัง ลดน้ำหนัก\"",
+   "msg": "chunk \"ถ้า คุณ กำลัง ลดน้ำหนัก\" is 13 letters, aim ≤ 12",
+   "sub": 30
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 69.84–72.24 \"อยู่ นะ ผม อยาก / ให้ คุณ จำ คำ นี้ ไว้ เลย นะ\"",
+   "msg": "chunk \"ให้ คุณ จำ คำ นี้ ไว้ เลย นะ\" is 14 letters, aim ≤ 12",
+   "sub": 31
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 72.24–74.88 \"ว่า การ ล้น หนัก / คือ การ ดูแลตัวเอง\"",
+   "msg": "chunk \"คือ การ ดูแลตัวเอง\" is 13 letters, aim ≤ 12",
+   "sub": 32
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 74.88–76.48 \"ไม่ ใช่ การ ทำลาย ตัวเอง ครับ\"",
+   "msg": "chunk \"ไม่ ใช่ การ ทำลาย ตัวเอง ครับ\" is 19 letters (max 16, aim 12): split it with /",
+   "sub": 33
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 76.48–78.64 \"เคย ผ่าน การ อดอาหาร แบบ / สุดโต่ง นะ ครับ\"",
+   "msg": "chunk \"เคย ผ่าน การ อดอาหาร แบบ\" is 19 letters (max 16, aim 12): split it with /",
+   "sub": 34
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 78.64–80.016 \"คอมเมนต์ ว่า เคย นะ ครับผม\"",
+   "msg": "chunk \"คอมเมนต์ ว่า เคย นะ ครับผม\" is 19 letters (max 16, aim 12): split it with /",
+   "sub": 35
+  },
+  {
+   "level": "warn",
+   "code": "sub-face",
+   "where": "layout",
+   "msg": "the chin is low: subtitles may touch the face when zoomed"
+  }
+ ]
+}

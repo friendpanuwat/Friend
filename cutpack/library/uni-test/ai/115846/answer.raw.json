@@ -1,0 +1,17 @@
+{"pictures":[
+{"line":3,"lead":"ที่ ยัง ไม่","key":"เหมาะสม","meaning":"method not suited","recipe":{"layout":"aim","as":"pick","items":["book-open","brain","message-circle","ear"],"at":1,"bad":false,"round":false,"how":"cross"}},
+{"line":7,"lead":"เกือบ","key":"เข้าใจ","meaning":"almost understand","recipe":{"layout":"change","as":"meter","icon":"brain","v0":0.2,"v1":0.8}},
+{"line":8,"lead":"ฟัง","key":"ซ้ำ ไป เรื่อย","meaning":"listen on repeat","recipe":{"layout":"change","as":"swap","from":{"icon":"ear"},"to":{"icon":"repeat","tone":"acc"}}},
+{"line":10,"lead":"มัน คือ การเรียน","key":"สิ่งใหม่","meaning":"learning new things","recipe":{"layout":"change","as":"swap","from":{"icon":"book","tone":"soft"},"to":{"icon":"sparkles","tone":"acc"}}},
+{"line":13,"lead":"เรา จะ ไม่ ใช้","key":"อังกฤษ","meaning":"Thai not English sentences","recipe":{"layout":"versus","as":"cards","a":{"icon":"languages","label":"อังกฤษ","tone":"neg"},"b":{"icon":"message-circle","label":"ไทย","tone":"acc"},"win":"b","how":"both"}},
+{"line":15,"lead":"เรา ก็ จะ","key":"ไม่ เฉลย","meaning":"no revealing meaning","recipe":{"layout":"change","as":"toggle","icon":"message-circle-question","on":false}},
+{"line":18,"lead":"มัน จาก","key":"บริบท","meaning":"learn from context","recipe":{"layout":"aim","as":"pick","items":["book","message-square","lightbulb"],"at":1,"bad":false,"round":false,"how":"pick"}},
+{"line":20,"lead":"ต้อง โกหก ไป อีก","key":"สิบ รอบ","meaning":"ten more lies","recipe":{"layout":"count","as":"row","dir":"up","center":{"icon":"user"},"item":{"icon":"message-circle-warning","tone":"neg"},"n":4,"keep":0}},
+{"line":21,"lead":"มัน ไม่ มี","key":"วัน จบ","meaning":"never ends","recipe":{"layout":"change","as":"swap","from":{"icon":"repeat","tone":"soft"},"to":{"icon":"infinity","tone":"neg"}}},
+{"line":23,"lead":"ลงทุน กับ","key":"การศึกษา","meaning":"invest in education","recipe":{"layout":"versus","as":"scale","a":{"icon":"hand-coins"},"b":{"icon":"graduation-cap"},"win":"b"}},
+{"line":24,"lead":"ใน อีก","key":"ยี่สิบ ปี","meaning":"in twenty years","recipe":{"layout":"change","as":"swap","from":{"icon":"calendar"},"to":{"icon":"trending-up","tone":"acc"}}},
+{"line":25,"lead":"ทิ้ง ขยะ ลง","key":"แม่น้ำ","meaning":"dump trash in river","recipe":{"layout":"steps","as":"row","items":[{"icon":"trash-2"},{"icon":"droplets"},{"icon":"fish"}],"mark":{"at":0,"how":"cross"}}},
+{"line":26,"lead":"ปลา","key":"ตาย","meaning":"fish die","recipe":{"layout":"change","as":"swap","from":{"icon":"fish"},"to":{"icon":"skull","tone":"neg"}}},
+{"line":27,"lead":"ไม่ ได้ กระทบ คน แค่","key":"คนเดียว","meaning":"affects many people","recipe":{"layout":"count","as":"ring","dir":"up","center":{"icon":"leaf"},"item":{"icon":"user"},"n":4,"keep":0}},
+{"line":29,"lead":"คนเก่ง ทยอย กัน","key":"ลาออก","meaning":"talent leaves","recipe":{"layout":"count","as":"ring","dir":"down","center":{"icon":"building"},"item":{"icon":"user"},"n":4,"keep":0}}
+]}

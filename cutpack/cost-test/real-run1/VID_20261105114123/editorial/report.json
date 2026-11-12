@@ -1,0 +1,42 @@
+{
+ "status": "ok",
+ "topic": "fit",
+ "log": [
+  "plan request failed: bad request: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Schemas contains too many optional parameters (78), which would make grammar compilation inefficient. Reduce the number of optional parameters in your tool schemas (limit: 24).'}, 'request_id': 'req_011CgjEvWdhqFXQo3zJphL9x'}",
+  "asked again without the schema",
+  "fix round (plan): 20 errors sent back"
+ ],
+ "fallback": [
+  "B03.v3 29.44–32.72 → B14 text B14.v3 (engine)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-high",
+   "where": "scenes",
+   "msg": "cards cover 86% of the clip, keep ≤ 60% so the speaker is seen"
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B07.v2 58.4",
+   "msg": "two scenes of the same category in a row",
+   "scene": 19
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 0.24–2.32 \"ผม ยู ไซ / เนส เนี่ย มา ประมาณ / สี่ ปี แล้ว\"",
+   "msg": "chunk \"เนส เนี่ย มา ประมาณ\" is 14 letters, aim ≤ 12",
+   "sub": 0
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 68.8–70.48 \"ถ้า คุณ กำลัง ลดน้ำหนัก อยู่ นะ\"",
+   "msg": "chunk \"ถ้า คุณ กำลัง ลดน้ำหนัก อยู่ นะ\" is 17 letters (max 16, aim 12): split it with /",
+   "sub": 5
+  }
+ ]
+}

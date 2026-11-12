@@ -1,0 +1,115 @@
+{
+ "status": "ok",
+ "topic": "edu",
+ "log": [
+  "fix round (plan): 15 errors sent back"
+ ],
+ "fallback": [
+  "B07.v1 0.5–3.9 → B14 text B14.v3 (length)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "16 widgets, need ≥ 21 for 76.4 s with room"
+  },
+  {
+   "level": "error",
+   "code": "bare-long",
+   "where": "8.40–15.00",
+   "msg": "6.6 s without a widget (max 6.0)"
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 2.06–3.92 \"คนใช้วิธี / เรียน ภาษาอังกฤษ / ที่ยังไม่ เหมาะสม\"",
+   "msg": "chunk \"เรียน ภาษาอังกฤษ\" is 13 letters, aim ≤ 12",
+   "sub": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 7.28–11.44 \"Conprentblenport / เพื่อบางคน ใช้แล้ว\"",
+   "msg": "chunk \"Conprentblenport\" is 16 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 7.28–11.44 \"Conprentblenport / เพื่อบางคน ใช้แล้ว\"",
+   "msg": "chunk \"เพื่อบางคน ใช้แล้ว\" is 13 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 22.16–24.32 \"จากบริบท เดิม / อย่างเช่นวันนี้ เรา\"",
+   "msg": "chunk \"อย่างเช่นวันนี้ เรา\" is 13 letters, aim ≤ 12",
+   "sub": 10
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 29.68–32.0 \"ประโยค ไทย / แล้วก็ใช้ คำว่า / conskence เข้าไป\"",
+   "msg": "chunk \"conskence เข้าไป\" is 14 letters, aim ≤ 12",
+   "sub": 13
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 32.0–34.64 \"เหมือนเวลา คนพูด / อังกฤษคำ ไทย / คำ เราก็\"",
+   "msg": "chunk \"เหมือนเวลา คนพูด\" is 13 letters, aim ≤ 12",
+   "sub": 14
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 42.08–44.32 \"งั้นมารอง ประโยค / แรกเลย\"",
+   "msg": "chunk \"งั้นมารอง ประโยค\" is 13 letters, aim ≤ 12",
+   "sub": 18
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 51.44–53.36 \"ประเทศที่ไม่ ลงทุน / กับ การศึกษา\"",
+   "msg": "chunk \"ประเทศที่ไม่ ลงทุน\" is 13 letters, aim ≤ 12",
+   "sub": 23
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 53.36–57.12 \"consicance จะ / เห็นได้ชัด / ในอีกยี่สิบปี ข้างหน้า\"",
+   "msg": "chunk \"ในอีกยี่สิบปี ข้างหน้า\" is 14 letters, aim ≤ 12",
+   "sub": 24
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 60.24–63.04 \"ปลาตายคนใน ชุมชน / เดือดร้อน Conskence\"",
+   "msg": "chunk \"ปลาตายคนใน ชุมชน\" is 14 letters, aim ≤ 12",
+   "sub": 26
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 60.24–63.04 \"ปลาตายคนใน ชุมชน / เดือดร้อน Conskence\"",
+   "msg": "chunk \"เดือดร้อน Conskence\" is 16 letters, aim ≤ 12",
+   "sub": 26
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 74.4–76.37 \"ถ้า ดูแล้ว / ว่า consicnce ไป / ว่าอะไรก็ อย่า\"",
+   "msg": "chunk \"ว่า consicnce ไป\" is 13 letters, aim ≤ 12",
+   "sub": 30
+  },
+  {
+   "level": "warn",
+   "code": "sub-face",
+   "where": "layout",
+   "msg": "the chin is low: subtitles may touch the face when zoomed"
+  }
+ ]
+}

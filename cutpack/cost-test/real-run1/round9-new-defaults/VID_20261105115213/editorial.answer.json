@@ -1,0 +1,190 @@
+{
+ "topic": "biz",
+ "camera": [
+  {
+   "move": "push",
+   "t": 8.5
+  },
+  {
+   "move": "pull",
+   "t": 10.9
+  },
+  {
+   "move": "push",
+   "t": 24.0
+  },
+  {
+   "move": "pull",
+   "t": 27.0,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 42.0
+  },
+  {
+   "move": "pull",
+   "t": 45.5
+  },
+  {
+   "move": "push",
+   "t": 56.7
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 7.6,
+   "t1": 10.9,
+   "say": "รายได้เสริมนะเอง มันก็จะเป็นรายได้เสริมต่อไป",
+   "shows": "belief card flips to reality, side income stays side",
+   "part": "B05.v3",
+   "bg": "glow",
+   "hit": 8.5,
+   "need": "",
+   "slots": {
+    "x": "รายได้เสริม",
+    "y": "รายได้หลัก",
+    "lead": "มันก็จะเป็น"
+   }
+  },
+  {
+   "t0": 13.6,
+   "t1": 16.88,
+   "say": "คนพูดว่า อยากหารายได้เสริม",
+   "shows": "chat bubble with people saying they want side income",
+   "part": "B11.v1",
+   "bg": "white",
+   "hit": 14.56,
+   "need": "",
+   "slots": {
+    "text": "อยากหารายได้เสริม",
+    "who": "คน",
+    "lead": "คนพูดว่า"
+   }
+  },
+  {
+   "t0": 18.4,
+   "t1": 21.68,
+   "say": "รายได้หลัก Active Income",
+   "shows": "main income versus side income, main side wins",
+   "part": "B03.v2",
+   "bg": "cream",
+   "hit": 18.64,
+   "need": "",
+   "slots": {
+    "a": "รายได้เสริม",
+    "b": "Active Income",
+    "ia": "wallet",
+    "ib": "briefcase",
+    "win": "b",
+    "lead": "รายได้หลัก"
+   }
+  },
+  {
+   "t0": 24.48,
+   "t1": 27.04,
+   "say": "มองเป็นธุรกิจ ความเสี่ยง",
+   "shows": "warning sign on risk",
+   "part": "B07.v1",
+   "bg": "glow",
+   "hit": 25.92,
+   "need": "",
+   "slots": {
+    "text": "ความเสี่ยง",
+    "icon": "briefcase",
+    "lead": "มองเป็นธุรกิจ"
+   }
+  },
+  {
+   "t0": 29.84,
+   "t1": 32.88,
+   "say": "ไม่มีความเสี่ยง ไม่มีคำว่าเจ๊ง ไม่มีคำว่าขาดทุน",
+   "shows": "risk crossed out, wrong chips with crosses",
+   "part": "B05.v2",
+   "bg": "white",
+   "hit": 31.28,
+   "need": "",
+   "slots": {
+    "x": "เจ๊ง",
+    "y": "ขาดทุน",
+    "ix": "x",
+    "iy": "trending-down",
+    "aty": 31.92,
+    "lead": "ไม่มีความเสี่ยง"
+   }
+  },
+  {
+   "t0": 39.28,
+   "t1": 41.68,
+   "say": "ความเสี่ยงให้มากที่สุด",
+   "shows": "risk bar rises to high",
+   "part": "B07.v4",
+   "bg": "cream",
+   "hit": 39.92,
+   "need": "",
+   "slots": {
+    "text": "ความเสี่ยง",
+    "icon": "shield-alert",
+    "level": "high",
+    "lead": "ให้มากที่สุด"
+   }
+  },
+  {
+   "t0": 44.0,
+   "t1": 47.28,
+   "say": "ตอนที่ผมทำคอนเทนต์ ผมก็ทำเป็น",
+   "shows": "phone card with content notification",
+   "part": "B07.v3",
+   "bg": "glow",
+   "hit": 45.04,
+   "need": "",
+   "slots": {
+    "text": "ทำคอนเทนต์",
+    "icon": "video",
+    "lead": "ตอนที่ผมทำ"
+   }
+  },
+  {
+   "t0": 50.8,
+   "t1": 54.4,
+   "say": "มีหลายอย่างที่เปลี่ยนไปมากมาก",
+   "shows": "timeline of many changes",
+   "part": "B09.v3",
+   "bg": "white",
+   "hit": 52.0,
+   "need": "",
+   "slots": {
+    "when": "เปลี่ยนไปมาก",
+    "points": [
+     "ก่อน",
+     "ระหว่าง",
+     "ตอนนี้"
+    ],
+    "lead": "หลายอย่าง"
+   }
+  },
+  {
+   "t0": 56.64,
+   "t1": 58.72,
+   "say": "เป็นช่องทางหารายได้เสริมที่ดี",
+   "shows": "big line to remember",
+   "part": "B14.v1",
+   "bg": "cream",
+   "hit": 57.2,
+   "need": "",
+   "slots": {
+    "words": [
+     "ช่องทาง",
+     "หารายได้",
+     "เสริมที่ดี"
+    ],
+    "key": 2,
+    "at": [
+     56.64,
+     57.2,
+     57.6
+    ]
+   }
+  }
+ ]
+}

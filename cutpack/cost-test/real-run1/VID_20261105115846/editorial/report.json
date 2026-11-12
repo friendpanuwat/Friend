@@ -1,0 +1,36 @@
+{
+ "status": "ok",
+ "topic": "edu",
+ "log": [
+  "plan request failed: bad request: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Schemas contains too many optional parameters (78), which would make grammar compilation inefficient. Reduce the number of optional parameters in your tool schemas (limit: 24).'}, 'request_id': 'req_011CgjFPuiXb3bBw1hyCYFW2'}",
+  "asked again without the schema",
+  "fix round (plan): 7 errors sent back"
+ ],
+ "fallback": [
+  "B05.v1 27.9–30.2 → B14 text B14.v3 (hit-early)",
+  "B14.v1 40.0–42.4 dropped (slot-time)",
+  "subtitles rebuilt around the remaining cards"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-low",
+   "where": "scenes",
+   "msg": "18 cards, need ≥ 19 for 76.4 s"
+  },
+  {
+   "level": "error",
+   "code": "aroll-long",
+   "where": "36.40–44.50",
+   "msg": "8.1 s of talking head without a card (max 4.5)"
+  },
+  {
+   "level": "error",
+   "code": "sub-fast",
+   "where": "subtitles 18.56–18.88 \"เติม\"",
+   "msg": "1 chunks in 0.32 s is too fast to read",
+   "sub": 5
+  }
+ ]
+}

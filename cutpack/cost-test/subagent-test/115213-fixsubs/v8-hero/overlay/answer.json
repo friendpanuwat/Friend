@@ -1,0 +1,425 @@
+{
+ "topic": "none",
+ "camera": [
+  {
+   "move": "push",
+   "t": 3.6
+  },
+  {
+   "move": "pull",
+   "t": 8.3
+  },
+  {
+   "move": "push",
+   "t": 12.3
+  },
+  {
+   "move": "pull",
+   "t": 17.4
+  },
+  {
+   "move": "push",
+   "t": 21.3
+  },
+  {
+   "move": "pull",
+   "t": 25.9
+  },
+  {
+   "move": "push",
+   "t": 31.2
+  },
+  {
+   "move": "pull",
+   "t": 36.0
+  },
+  {
+   "move": "push",
+   "t": 39.2
+  },
+  {
+   "move": "pull",
+   "t": 44.0
+  },
+  {
+   "move": "push",
+   "t": 47.2
+  },
+  {
+   "move": "pull",
+   "t": 52.0
+  },
+  {
+   "move": "push",
+   "t": 56.0
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 1.68,
+   "t1": 4.3,
+   "say": "ตราบใดที่คุณยังมองว่ารายได้",
+   "shows": "a coin gets looked at and shrinks into a small tag",
+   "part": "custom",
+   "size": "short",
+   "hit": 3.68,
+   "need": "at 'ตราบใดที่' a coin appears; at 'มองว่า' a magnifier glides over it; at 'รายได้' the coin shrinks into a small tag — no library part shows an income being looked at and shrunk",
+   "slots": {
+    "wlead": "ตราบใดที่",
+    "wkey": "รายได้"
+   }
+  },
+  {
+   "t0": 5.12,
+   "t1": 8.1,
+   "say": "สิ่งที่คุณกำลังทำอยู่มันคือรายได้เสริม",
+   "shows": "icon with the words, 'side income' highlighted",
+   "part": "B14.v1",
+   "size": "short",
+   "hit": 7.68,
+   "need": "",
+   "slots": {
+    "words": [
+     "สิ่งที่คุณทำ",
+     "คือ",
+     "รายได้เสริม"
+    ],
+    "key": 2,
+    "at": [
+     6.24,
+     7.04,
+     7.68
+    ],
+    "icon": "coins",
+    "wlead": "คือ",
+    "wkey": "รายได้เสริม"
+   }
+  },
+  {
+   "t0": 8.6,
+   "t1": 11.3,
+   "say": "มันก็จะเป็นรายได้เสริมต่อไปเรื่อยๆ",
+   "shows": "a small coin goes round an endless loop",
+   "part": "custom",
+   "size": "narrow",
+   "hit": 10.96,
+   "need": "at 'มันก็จะ' a small coin appears; at 'เป็นรายได้' it is labelled side; at 'เรื่อยๆ' it runs round an endless loop — no library part shows something repeating forever",
+   "slots": {
+    "wlead": "เสริมต่อไป",
+    "wkey": "เรื่อยๆ"
+   }
+  },
+  {
+   "t0": 11.7,
+   "t1": 13.0,
+   "say": "มันจะไม่มีทางเป็น Main income",
+   "shows": "warning sign over 'Main income'",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 12.29,
+   "need": "",
+   "slots": {
+    "text": "Main income",
+    "icon": "ban",
+    "wlead": "ไม่มีทาง",
+    "wkey": "Main income"
+   }
+  },
+  {
+   "t0": 14.8,
+   "t1": 17.3,
+   "say": "อยากหา side hustle WTF the mean hustle",
+   "shows": "a search for the word hustle",
+   "part": "B06.v4",
+   "size": "short",
+   "hit": 16.71,
+   "need": "",
+   "slots": {
+    "q": "WTF the mean hustle",
+    "icon": "search",
+    "wlead": "WTF",
+    "wkey": "hustle"
+   }
+  },
+  {
+   "t0": 17.6,
+   "t1": 19.5,
+   "say": "แล้วรายได้หลัก active income",
+   "shows": "briefcase icon, 'active income' underlined",
+   "part": "B14.v3",
+   "size": "short",
+   "hit": 18.64,
+   "need": "",
+   "slots": {
+    "words": [
+     "รายได้หลัก",
+     "active income"
+    ],
+    "key": 1,
+    "at": [
+     18.08,
+     18.64
+    ],
+    "icon": "briefcase",
+    "wlead": "รายได้หลัก",
+    "wkey": "active"
+   }
+  },
+  {
+   "t0": 20.4,
+   "t1": 22.4,
+   "say": "ถ้าอยากให้มันมาเป็น active income",
+   "shows": "an idle pouch turns into a working briefcase",
+   "part": "custom",
+   "size": "narrow",
+   "hit": 21.28,
+   "need": "at 'ถ้าอยากให้' an idle money pouch sits still; at 'มา' an arrow moves it; at 'active' it turns into a working briefcase with a spark — no library part turns passive into active",
+   "slots": {
+    "wlead": "ถ้าอยากให้",
+    "wkey": "active"
+   }
+  },
+  {
+   "t0": 22.9,
+   "t1": 25.0,
+   "say": "ต้องมองมันเป็น business",
+   "shows": "lightbulb with 'business'",
+   "part": "B13.v1",
+   "size": "short",
+   "hit": 24.48,
+   "need": "",
+   "slots": {
+    "tip": "มองเป็น business",
+    "icon": "briefcase",
+    "wlead": "ต้องมองเป็น",
+    "wkey": "business"
+   }
+  },
+  {
+   "t0": 25.12,
+   "t1": 26.6,
+   "say": "หรือว่ากล้าเทคความเสี่ยง",
+   "shows": "red alert dot about risk",
+   "part": "B07.v3",
+   "size": "short",
+   "hit": 25.92,
+   "need": "",
+   "slots": {
+    "text": "เทคความเสี่ยง",
+    "icon": "shield-alert",
+    "wlead": "กล้าเทค",
+    "wkey": "ความเสี่ยง"
+   }
+  },
+  {
+   "t0": 28.0,
+   "t1": 30.46,
+   "say": "คำว่า side hustle โดยส่วนใหญ่ ไม่มีความเสี่ยง",
+   "shows": "a side hustle tag, a risk warning sign crossed out",
+   "part": "custom",
+   "size": "short",
+   "hit": 30.16,
+   "need": "at 'side' a hustle tag appears; at 'ไม่มี' a red warning sign shows up; at 'ความเสี่ยง' a cross wipes the sign out — no library part shows a risk being removed",
+   "slots": {
+    "wlead": "side hustle",
+    "wkey": "ความเสี่ยง"
+   }
+  },
+  {
+   "t0": 30.9,
+   "t1": 32.5,
+   "say": "ไม่มีคำว่าเจ๊ง ไม่มีคำว่าขาดทุน",
+   "shows": "two losses crossed out one by one",
+   "part": "custom",
+   "size": "short",
+   "hit": 31.92,
+   "need": "at 'เจ๊ง' a word chip is crossed with a red line; at 'ขาดทุน' a second chip is crossed out — no library part crosses two things in a row",
+   "slots": {
+    "wlead": "ไม่มีคำว่า",
+    "wkey": "ขาดทุน"
+   }
+  },
+  {
+   "t0": 32.95,
+   "t1": 34.7,
+   "say": "ยูเอาเวลาของยูไปใช้แล้ว",
+   "shows": "hourglass flips for your time",
+   "part": "B09.v4",
+   "size": "short",
+   "hit": 33.52,
+   "need": "",
+   "slots": {
+    "when": "เวลาของยู",
+    "icon": "hourglass",
+    "wlead": "เอาเวลา",
+    "wkey": "ไปใช้"
+   }
+  },
+  {
+   "t0": 35.2,
+   "t1": 36.9,
+   "say": "ยูจะคิดในมุมของ mindset",
+   "shows": "key opens a padlock, brain icon",
+   "part": "B13.v3",
+   "size": "short",
+   "hit": 36.24,
+   "need": "",
+   "slots": {
+    "tip": "คิดในมุม mindset",
+    "icon": "brain",
+    "wlead": "คิดในมุม",
+    "wkey": "mindset"
+   }
+  },
+  {
+   "t0": 37.8,
+   "t1": 40.2,
+   "say": "minimize ความเสี่ยงให้มากที่สุดเลย",
+   "shows": "a tall red risk bar shrinks to a sliver",
+   "part": "custom",
+   "size": "short",
+   "hit": 39.28,
+   "need": "at 'minimize' a tall red risk bar appears; at 'ความเสี่ยง' it starts shrinking; at 'ที่สุด' it is a tiny sliver — no library part shows something shrinking to minimum",
+   "slots": {
+    "wlead": "minimize",
+    "wkey": "ความเสี่ยง"
+   }
+  },
+  {
+   "t0": 41.0,
+   "t1": 43.5,
+   "say": "ให้มันแบบแค่เป็นรายได้เสริมอ่ะ",
+   "shows": "a big check mark for side income",
+   "part": "B08.v4",
+   "size": "short",
+   "hit": 42.64,
+   "need": "",
+   "slots": {
+    "goal": "แค่รายได้เสริม",
+    "icon": "circle-check",
+    "wlead": "แค่เป็น",
+    "wkey": "รายได้เสริม"
+   }
+  },
+  {
+   "t0": 44.0,
+   "t1": 45.9,
+   "say": "ตอนที่ผมทำคอนเทนต์",
+   "shows": "a phone films a clip, play button appears",
+   "part": "custom",
+   "size": "short",
+   "hit": 45.04,
+   "need": "at 'ตอนที่ผม' a phone appears; at 'ทำ' a record dot blinks; at 'คอนเทนต์' a clip with a play button pops out — no library part shows making content",
+   "slots": {
+    "wlead": "ตอนที่ผมทำ",
+    "wkey": "คอนเทนต์"
+   }
+  },
+  {
+   "t0": 46.4,
+   "t1": 48.4,
+   "say": "ผมก็ทำเป็นรายได้เสริม",
+   "shows": "video turns into coins",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 47.28,
+   "need": "",
+   "slots": {
+    "a": "คอนเทนต์",
+    "ia": "video",
+    "b": "รายได้เสริม",
+    "ib": "coins",
+    "wlead": "ทำเป็น",
+    "wkey": "รายได้เสริม"
+   }
+  },
+  {
+   "t0": 49.0,
+   "t1": 50.5,
+   "say": "Mindset ผมมันไม่เหมือนกับอย่างนี้เลย",
+   "shows": "brain icon with 'not the same' highlighted",
+   "part": "B14.v1",
+   "size": "short",
+   "hit": 49.92,
+   "need": "",
+   "slots": {
+    "words": [
+     "Mindset ผม",
+     "ไม่เหมือน",
+     "อย่างนี้เลย"
+    ],
+    "key": 1,
+    "at": [
+     49.0,
+     49.92,
+     50.24
+    ],
+    "icon": "brain",
+    "wlead": "Mindset",
+    "wkey": "ไม่เหมือน"
+   }
+  },
+  {
+   "t0": 51.0,
+   "t1": 53.3,
+   "say": "มีหลายอย่างที่มันเปลี่ยนไปมากๆ",
+   "shows": "big arrow pointing up for lots of change",
+   "part": "B02.v3",
+   "size": "short",
+   "hit": 52.0,
+   "need": "",
+   "slots": {
+    "dir": "up",
+    "icon": "trending-up",
+    "wlead": "หลายอย่าง",
+    "wkey": "เปลี่ยนไป"
+   }
+  },
+  {
+   "t0": 54.4,
+   "t1": 56.3,
+   "say": "อินฟลูเอนเซอร์บางคนเค้าก็พูดว่า",
+   "shows": "chat bubble from an influencer",
+   "part": "B11.v1",
+   "size": "short",
+   "hit": 55.84,
+   "need": "",
+   "slots": {
+    "text": "เอออันเนี้ยเป็น",
+    "who": "อินฟลู",
+    "wlead": "อินฟลู",
+    "wkey": "พูดว่า"
+   }
+  },
+  {
+   "t0": 56.8,
+   "t1": 58.4,
+   "say": "ช่องทางหารายได้เสริมที่ดี",
+   "shows": "arrow lands in the centre of a target",
+   "part": "B08.v1",
+   "size": "short",
+   "hit": 57.6,
+   "need": "",
+   "slots": {
+    "goal": "ช่องทางที่ดี",
+    "icon": "target",
+    "wlead": "ช่องทาง",
+    "wkey": "เสริมที่ดี"
+   }
+  },
+  {
+   "t0": 59.0,
+   "t1": 60.58,
+   "say": "ซึ่งถ้าคุณแค่คิดว่ามันเป็นรายได้เสริม",
+   "shows": "a thought bubble holding one small coin",
+   "part": "custom",
+   "size": "short",
+   "hit": 59.92,
+   "need": "at 'คุณแค่' a small coin appears; at 'คิดว่า' a thought bubble opens around it; at 'มันเป็น' the coin stays small and labelled side — no library part shows a thought that keeps income small",
+   "slots": {
+    "wlead": "คิดว่าเป็น",
+    "wkey": "รายได้เสริม"
+   }
+  }
+ ]
+}

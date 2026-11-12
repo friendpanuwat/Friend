@@ -1,0 +1,242 @@
+{
+ "camera": [
+  {
+   "move": "push",
+   "t": 0.3
+  },
+  {
+   "move": "pull",
+   "t": 2.35,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 8.97
+  },
+  {
+   "move": "pull",
+   "t": 10.4,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 20.75
+  },
+  {
+   "move": "pull",
+   "t": 22.7,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 28.2
+  },
+  {
+   "move": "pull",
+   "t": 32.3,
+   "cut": true
+  },
+  {
+   "move": "push",
+   "t": 42.95
+  },
+  {
+   "move": "pull",
+   "t": 45.8,
+   "cut": true
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 2.35,
+   "t1": 4.3,
+   "part": "B14.v2",
+   "bg": "glow",
+   "hit": 2.64,
+   "say": "ที่ชื่อว่า CK Fastwork",
+   "need": "",
+   "slots": {
+    "words": [
+     "ที่ชื่อว่า",
+     "CK Fastwork"
+    ],
+    "key": 1
+   }
+  },
+  {
+   "t0": 6.85,
+   "t1": 8.95,
+   "part": "B05.v1",
+   "bg": "white",
+   "hit": 7.2,
+   "say": "ต่อไปให้เรียกมันว่า CK Work Fast",
+   "need": "",
+   "slots": {
+    "x": "CK Fastwork",
+    "y": "CK Work Fast",
+    "aty": 7.84,
+    "lead": "ต่อไปให้เรียกมันว่า"
+   }
+  },
+  {
+   "t0": 10.4,
+   "t1": 12.35,
+   "part": "B11.v1",
+   "bg": "glow",
+   "hit": 11.36,
+   "say": "DM ไปบอก CK ว่า Portfolio ทุกคนสวยมาก",
+   "need": "",
+   "slots": {
+    "text": "Portfolio ทุกคนสวยมากเลย",
+    "who": "ถึง CK",
+    "lead": "ล่าสุด DM ไปบอก CK",
+    "key": "Portfolio"
+   }
+  },
+  {
+   "t0": 13.55,
+   "t1": 15.05,
+   "part": "B06.v1",
+   "bg": "cream",
+   "hit": 14.4,
+   "say": "ทำไมมันไม่เพิ่มไอ้ตัวแปะลิงก์",
+   "need": "",
+   "slots": {
+    "q": "ทำไมไม่เพิ่มตัวแปะลิงก์",
+    "icon": "link"
+   }
+  },
+  {
+   "t0": 15.05,
+   "t1": 17.0,
+   "part": "custom",
+   "bg": "white",
+   "hit": 15.36,
+   "say": "แปะลิงก์ไปด้วยวะ",
+   "need": "a portfolio page; a link button pops onto it on \"ลิงก์\" — the library has no page that gets a new button",
+   "slots": {
+    "key": "แปะลิงก์ไปด้วย"
+   }
+  },
+  {
+   "t0": 18.3,
+   "t1": 20.6,
+   "part": "B03.v1",
+   "bg": "glow",
+   "hit": 19.12,
+   "say": "แทน Linktree ไปเลย",
+   "need": "",
+   "slots": {
+    "a": "Linktree",
+    "b": "Portfolio",
+    "ia": "link",
+    "ib": "briefcase",
+    "win": "b",
+    "lead": "แทน Linktree ไปเลย"
+   }
+  },
+  {
+   "t0": 22.7,
+   "t1": 24.45,
+   "part": "B09.v2",
+   "bg": "cream",
+   "hit": 23.6,
+   "say": "หลังจากนั้นอาทิตย์นึง",
+   "need": "",
+   "slots": {
+    "when": "อาทิตย์นึง",
+    "icon": "calendar",
+    "lead": "หลังจากนั้น"
+   }
+  },
+  {
+   "t0": 26.4,
+   "t1": 28.1,
+   "part": "B08.v2",
+   "bg": "white",
+   "hit": 27.36,
+   "say": "ก็เร็วเลย อัปเดตเร็วมาก",
+   "need": "",
+   "slots": {
+    "goal": "อัปเดตเร็วมาก",
+    "icon": "refresh-cw",
+    "lead": "ก็เร็วเลย"
+   }
+  },
+  {
+   "t0": 32.3,
+   "t1": 34.9,
+   "part": "B09.v4",
+   "bg": "glow",
+   "hit": 34.0,
+   "say": "ถ้าเป็นเว็บไซต์อื่น เป็นชาติ เป็นครึ่งปี",
+   "need": "",
+   "slots": {
+    "when": "เป็นครึ่งปี",
+    "icon": "globe",
+    "lead": "ถ้าเป็นเว็บไซต์อื่น"
+   }
+  },
+  {
+   "t0": 36.3,
+   "t1": 38.1,
+   "part": "B13.v1",
+   "bg": "cream",
+   "hit": 37.28,
+   "say": "ทุกคนไปลองสมัครได้",
+   "need": "",
+   "slots": {
+    "tip": "ไปลองสมัครได้",
+    "icon": "user-plus",
+    "lead": "ทุกคน"
+   }
+  },
+  {
+   "t0": 40.0,
+   "t1": 42.9,
+   "part": "B12.v1",
+   "bg": "white",
+   "hit": 41.84,
+   "say": "เราก็ใช้อันเนี้ย แปะลิงก์โซเชียลมีเดีย",
+   "need": "",
+   "slots": {
+    "a": "Portfolio",
+    "ia": "briefcase",
+    "b": "โซเชียลมีเดีย",
+    "ib": "share-2",
+    "lead": "เราก็ใช้อันเนี้ย",
+    "key": "แปะลิงก์"
+   }
+  },
+  {
+   "t0": 45.8,
+   "t1": 48.4,
+   "part": "custom",
+   "bg": "glow",
+   "hit": 46.88,
+   "say": "ลิงก์ก็จะแปะเป็น Fastwork Portfolio",
+   "need": "a phone profile page; the link row lights up and a cursor taps it — the library has no profile/link-in-bio screen",
+   "slots": {
+    "lead": "ลิงก์ก็จะแปะเป็น",
+    "key": "Portfolio"
+   }
+  },
+  {
+   "t0": 49.4,
+   "t1": 51.9,
+   "part": "B14.v3",
+   "bg": "cream",
+   "hit": 50.2,
+   "say": "Fastwork Portfolio",
+   "need": "",
+   "slots": {
+    "words": [
+     "ลิงก์ก็จะแปะเป็น",
+     "Fastwork",
+     "Portfolio"
+    ],
+    "key": 2
+   }
+  }
+ ]
+}

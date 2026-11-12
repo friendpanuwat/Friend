@@ -1,0 +1,40 @@
+{
+ "status": "ok",
+ "topic": "biz",
+ "log": [
+  "fix round (plan): 8 errors sent back"
+ ],
+ "fallback": [
+  "B01.biz1 41.68–44.0 → B14 text B14.v2 (number-not-said)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-high",
+   "where": "scenes",
+   "msg": "cards cover 79% of the clip, keep ≤ 60% so the speaker is seen"
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 49.52–50.8 \"เซตผม มัน ไม่ / เหมือนกับ อย่างงี้ เลย\"",
+   "msg": "chunk \"เหมือนกับ อย่างงี้ เลย\" is 15 letters, aim ≤ 12",
+   "sub": 5
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[2] push 20.0",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 2
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[4] push 37.0",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 4
+  }
+ ]
+}

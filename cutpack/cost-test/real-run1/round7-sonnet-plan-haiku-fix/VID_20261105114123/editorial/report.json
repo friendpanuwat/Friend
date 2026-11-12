@@ -1,0 +1,72 @@
+{
+ "status": "ok",
+ "topic": "fit",
+ "log": [
+  "code mended 6 numbers: 11 → 6 errors",
+  "fix round (plan): 6 errors sent back",
+  "fix round on claude-haiku-5-5",
+  "code mended 2 numbers in the fixed plan"
+ ],
+ "fallback": [
+  "B04.v2 5.4–7.6 → B14 text B14.v1 (slot-time)",
+  "B10.v3 21.4–24.0 → B14 text B14.v3 (slot-missing)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-high",
+   "where": "scenes",
+   "msg": "cards cover 74% of the clip, keep ≤ 60% so the speaker is seen"
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B07.v2 29.2",
+   "msg": "two scenes of the same category in a row",
+   "scene": 9
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B12.v4 35.84",
+   "msg": "two scenes of the same category in a row",
+   "scene": 11
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B08.v2 51.84",
+   "msg": "two scenes of the same category in a row",
+   "scene": 14
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 38.0–40.08 \"แต่สิ่งที่ผม อยาก / ให้ ทุกคน / เลยรู้จักเรื่องนี้ ก็คือ\"",
+   "msg": "chunk \"เลยรู้จักเรื่องนี้ ก็คือ\" is 14 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "error",
+   "code": "sub-fast",
+   "where": "subtitles 55.68–55.84 \"ตัวเอง\"",
+   "msg": "1 chunks in 0.16 s is too fast to read",
+   "sub": 8
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[4] push 60.0",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 4
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[6] push 70.5",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 6
+  }
+ ]
+}

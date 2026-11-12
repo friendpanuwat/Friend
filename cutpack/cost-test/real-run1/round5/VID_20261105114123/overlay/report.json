@@ -1,0 +1,146 @@
+{
+ "status": "ok",
+ "topic": "fit",
+ "log": [
+  "fix round (plan): 30 errors sent back"
+ ],
+ "fallback": [
+  "B01.v1 8.35–11.15 → B14 text B14.v1 (widget-gap)",
+  "B14.v1 8.35–11.15 dropped (widget-gap)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 8.08–11.52 \"คือสี่ร้อยแคล่ว ต่อวัน / สำหรับคน ส่วนใหญ่เนี่ย / มันจะ ไม่ใช่ / แผนล้ม หนักครับ\"",
+   "msg": "chunk \"คือสี่ร้อยแคล่ว ต่อวัน\" is 14 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 8.08–11.52 \"คือสี่ร้อยแคล่ว ต่อวัน / สำหรับคน ส่วนใหญ่เนี่ย / มันจะ ไม่ใช่ / แผนล้ม หนักครับ\"",
+   "msg": "chunk \"สำหรับคน ส่วนใหญ่เนี่ย\" is 15 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 14.8–18.08 \"ซึ่งน้ำหนักที่มัน หาย / ไป แน่นอน / ว่ามันไม่ใช่แค่ ไขมัน\"",
+   "msg": "chunk \"ว่ามันไม่ใช่แค่ ไขมัน\" is 14 letters, aim ≤ 12",
+   "sub": 6
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 22.16–25.44 \"กับอาหาร บางคนเนี่ย / จะเริ่มไม่มีแรง หิวจัด\"",
+   "msg": "chunk \"กับอาหาร บางคนเนี่ย\" is 15 letters, aim ≤ 12",
+   "sub": 8
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 22.16–25.44 \"กับอาหาร บางคนเนี่ย / จะเริ่มไม่มีแรง หิวจัด\"",
+   "msg": "chunk \"จะเริ่มไม่มีแรง หิวจัด\" is 15 letters, aim ≤ 12",
+   "sub": 8
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 25.44–29.44 \"นอนไม่ค่อยได้ อารมณ์ / เหวี่ยงเอิ่ม หลุด / กิน เยอะ\"",
+   "msg": "chunk \"นอนไม่ค่อยได้ อารมณ์\" is 15 letters, aim ≤ 12",
+   "sub": 9
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 29.44–32.96 \"หรือบางทีก็เห็น อาหาร / ก็ไม่ กล้ากิน / แล้วผมไม่ได้ บอกนะ\"",
+   "msg": "chunk \"หรือบางทีก็เห็น อาหาร\" is 16 letters, aim ≤ 12",
+   "sub": 10
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 29.44–32.96 \"หรือบางทีก็เห็น อาหาร / ก็ไม่ กล้ากิน / แล้วผมไม่ได้ บอกนะ\"",
+   "msg": "chunk \"แล้วผมไม่ได้ บอกนะ\" is 14 letters, aim ≤ 12",
+   "sub": 10
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 32.96–34.92 \"ว่าเคสที่กำลัง ไวรัล / อยู่เนี่ยเกิด จาก\"",
+   "msg": "chunk \"ว่าเคสที่กำลัง ไวรัล\" is 13 letters, aim ≤ 12",
+   "sub": 11
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 38.64–41.28 \"อยากให้ ทุกคนเลย / รู้จักเรื่องนี้ ก็คือ / อย่าโรแมนตี ไซส์\"",
+   "msg": "chunk \"อยากให้ ทุกคนเลย\" is 13 letters, aim ≤ 12",
+   "sub": 14
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 41.28–45.76 \"การอดอาหารอย่า มอง / ว่าการ ทรมาน / ตัวเองเนี่ยคือ / วินัย การลดน้ำหนัก\"",
+   "msg": "chunk \"การอดอาหารอย่า มอง\" is 16 letters, aim ≤ 12",
+   "sub": 15
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 47.52–50.72 \"รู้สึกว่าเหมือน เป็นการ / ทำโทษเลย ลงโทษ / ตัวเอง / บางคนจะ เป็นการ\"",
+   "msg": "chunk \"รู้สึกว่าเหมือน เป็นการ\" is 16 letters, aim ≤ 12",
+   "sub": 17
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 47.52–50.72 \"รู้สึกว่าเหมือน เป็นการ / ทำโทษเลย ลงโทษ / ตัวเอง / บางคนจะ เป็นการ\"",
+   "msg": "chunk \"บางคนจะ เป็นการ\" is 13 letters, aim ≤ 12",
+   "sub": 17
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 50.72–53.52 \"ที่ทำให้คุณรู้สึก ว่าคุณ / แข็งแรงขึ้น นะครับ\"",
+   "msg": "chunk \"ที่ทำให้คุณรู้สึก ว่าคุณ\" is 13 letters, aim ≤ 12",
+   "sub": 18
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 50.72–53.52 \"ที่ทำให้คุณรู้สึก ว่าคุณ / แข็งแรงขึ้น นะครับ\"",
+   "msg": "chunk \"แข็งแรงขึ้น นะครับ\" is 13 letters, aim ≤ 12",
+   "sub": 18
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 53.52–57.12 \"ใช้ชีวิต ได้ดี / ขึ้นอยู่กับ ร่างกาย / ตัวเอง / ได้นานขึ้นพร้อม เร็ว\"",
+   "msg": "chunk \"ได้นานขึ้นพร้อม เร็ว\" is 14 letters, aim ≤ 12",
+   "sub": 19
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 60.64–64.0 \"เป้าหมาย ของ / การ ฟิตเนสเนี่ย / ไม่ใช่ / การที่เรากิน น้อยที่สุด\"",
+   "msg": "chunk \"การที่เรากิน น้อยที่สุด\" is 15 letters, aim ≤ 12",
+   "sub": 22
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 64.0–66.8 \"คือการกินให้พอ ดีแล้ว / คุณทำต่อได้ โดยที่\"",
+   "msg": "chunk \"คือการกินให้พอ ดีแล้ว\" is 15 letters, aim ≤ 12",
+   "sub": 23
+  },
+  {
+   "level": "warn",
+   "code": "sub-face",
+   "where": "layout",
+   "msg": "the chin is low: subtitles may touch the face when zoomed"
+  }
+ ]
+}

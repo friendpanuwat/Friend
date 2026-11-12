@@ -1,0 +1,18 @@
+{"pictures":[
+{"line":3,"lead":"ยิ่ง อด","key":"ได้เยอะ","meaning":"the more starving the better (wrong belief)","recipe":{"layout":"change","as":"meter","icon":"utensils-crossed","v0":0.2,"v1":0.9}},
+{"line":6,"lead":"แผน","key":"ล้มหนัก","meaning":"plan collapses","recipe":{"layout":"change","as":"swap","from":{"icon":"clipboard-list","tone":"soft"},"to":{"icon":"skull","tone":"neg"}}},
+{"line":7,"lead":"ร่างกาย","key":"อยู่หมดออก","meaning":"body runs out of energy","recipe":{"layout":"change","as":"meter","icon":"battery-low","v0":0.8,"v1":0.1}},
+{"line":9,"lead":"อาจจะ เป็นทั้ง","key":"กล้ามเนื้อ","meaning":"losing muscle and more","recipe":{"layout":"count","as":"row","dir":"down","center":{"icon":"user"},"item":{"icon":"biceps-flexed"},"n":3,"keep":0}},
+{"line":11,"lead":"เริ่ม ไม่ มี","key":"แรง","meaning":"no energy","recipe":{"layout":"change","as":"toggle","icon":"zap","on":false}},
+{"line":12,"lead":"อารมณ์","key":"เหวี่ยง","meaning":"mood swings","recipe":{"layout":"change","as":"swap","from":{"icon":"smile"},"to":{"icon":"angry","tone":"neg"}}},
+{"line":16,"lead":"สุขภาพ มี","key":"หลายปัจจัย","meaning":"many factors","recipe":{"layout":"count","as":"ring","dir":"up","center":{"icon":"heart-pulse"},"item":{"icon":"puzzle"},"n":4}},
+{"line":18,"lead":"อย่า โรแมนตีไซส์","key":"อดอาหาร","meaning":"do not glamorize starving","recipe":{"layout":"aim","as":"pick","items":["utensils-crossed","utensils","salad"],"at":0,"bad":false,"round":false,"how":"cross"}},
+{"line":19,"lead":"อย่า มอง ทรมาน คือ","key":"วินัย","meaning":"torture is not discipline","recipe":{"layout":"versus","as":"cards","a":{"icon":"angry","label":"ทรมาน","tone":"neg"},"b":{"icon":"medal","label":"วินัย"},"win":"b","how":"cross"}},
+{"line":23,"lead":"คุณ รู้สึก ว่า","key":"แข็งแรง","meaning":"feeling stronger","recipe":{"layout":"change","as":"meter","icon":"biceps-flexed","v0":0.3,"v1":0.9,"then":{"icon":"smile","how":"check"}}},
+{"line":26,"lead":"ผมบอกเลยว่า","key":"ไม่คุ้ม","meaning":"not worth it","use":"not-worth.lego"},
+{"line":29,"lead":"คือ การ กิน ให้","key":"พอดี","meaning":"eat just right","use":"lego.on-target"},
+{"line":30,"lead":"ทำต่อ ได้ ไม่","key":"เกลียด","meaning":"keep going without hating it","recipe":{"layout":"change","as":"swap","from":{"icon":"heart-off","tone":"neg"},"to":{"icon":"heart","tone":"acc"}}},
+{"line":33,"lead":"การ ลดน้ำหนัก คือ","key":"ดูแลตัวเอง","meaning":"weight loss is self care","recipe":{"layout":"change","as":"toggle","icon":"hand-heart","on":true,"then":{"how":"check"}}},
+{"line":34,"lead":"ไม่ ใช่ การ","key":"ทำลาย","meaning":"not self destruction","recipe":{"layout":"versus","as":"cards","a":{"icon":"skull","label":"ทำลาย","tone":"neg"},"b":{"icon":"heart-handshake"},"win":"b","how":"cross"}},
+{"line":36,"lead":"คอมเมนต์ ว่า","key":"เคย","meaning":"comment if you have","recipe":{"layout":"change","as":"swap","from":{"icon":"message-circle","tone":"soft"},"to":{"icon":"message-circle","tone":"acc"}}}
+]}

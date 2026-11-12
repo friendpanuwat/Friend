@@ -1,0 +1,45 @@
+=== VID_20261105114123 (spent so far 0 USD) 14:06:21
+words from VID_20261105114123.json
+12 chunks over 16 letters split by rule
+editorial planned scenes 27 (custom 1, fallback changes 5) · steps {'frames': 50.3, 'words': 0.0, 'captions': 6.7, 'faces': 5.6, 'plan': 89.3} → None
+overlay   planned scenes 30 (custom 0, fallback changes 9) · steps {'frames': 50.3, 'words': 0.0, 'captions': 6.7, 'faces': 5.6, 'plan': 56.9} → None
+--- VID_20261105114123 took 211 s · spent now 0.0496 USD
+=== VID_20261105115846 (spent so far 0.0496 USD) 14:09:52
+words from VID_20261105115846.json
+8 chunks over 16 letters split by rule
+editorial planned scenes 19 (custom 0, fallback changes 6) · steps {'frames': 47.0, 'words': 0.0, 'captions': 5.7, 'faces': 5.2, 'plan': 61.1} → None
+overlay   planned scenes 16 (custom 0, fallback changes 1) · steps {'frames': 47.0, 'words': 0.0, 'captions': 5.7, 'faces': 5.2, 'plan': 35.3} → None
+--- VID_20261105115846 took 157 s · spent now 0.0597 USD
+clips 4 · attempts 4
+cost per clip THB  mean 0.53 · median 0.30 · max 1.34
+  best ≤3.5            4  100.0%
+  mid ≤7.0             0    0.0%
+  over >7.0            0    0.0%
+  fail (refunded)      0    0.0%
+team alert (> 5.5 THB): 0 clips
+average THB per clip by stage: custom_scene 0.242 · scene 0.238 · group 0.048
+margin after API cost (credits used by delivered clips; failed clips refunded): 96%
+=== VID_20261105114123 (spent so far 0 USD) 14:12:29
+words from VID_20261105114123.json
+28 chunks over 16 letters split by rule
+editorial planned scenes 19 (custom 0, fallback changes 1) · steps {'frames': 51.7, 'words': 0.0, 'captions': 5.7, 'faces': 6.2, 'plan': 49.5} → None
+overlay   planned scenes 24 (custom 0, fallback changes 2) · steps {'frames': 51.7, 'words': 0.0, 'captions': 5.7, 'faces': 6.2, 'plan': 57.1} → None
+--- VID_20261105114123 took 172 s · spent now 0.2929 USD
+=== VID_20261105115846 (spent so far 0.2929 USD) 14:15:22
+words from VID_20261105115846.json
+3 chunks over 16 letters split by rule
+editorial planned scenes 15 (custom 0, fallback changes 0) · steps {'frames': 47.9, 'words': 0.0, 'captions': 6.3, 'faces': 5.4, 'plan': 44.0} → None
+overlay   planned scenes 9 (custom 0, fallback changes 4) · steps {'frames': 47.9, 'words': 0.0, 'captions': 6.3, 'faces': 5.4, 'plan': 22.4} → None
+--- VID_20261105115846 took 128 s · spent now 0.4019 USD
+clips 4 · attempts 4
+cost per clip THB  mean 3.42 · median 3.71 · max 5.27
+  best ≤3.5            2   50.0%
+  mid ≤7.0             2   50.0%
+  over >7.0            0    0.0%
+  fail (refunded)      0    0.0%
+team alert (> 5.5 THB): 0 clips
+average THB per clip by stage: scene 3.372 · group 0.049
+margin after API cost (credits used by delivered clips; failed clips refunded): 73%
+LEDGER {"usd": 0.46162340500000004}
+
+[exited with code 0]

@@ -1,0 +1,8 @@
+{
+ "scenes": [
+  {
+   "i": 13,
+   "code": "const o = ON[T.bg];\nconst a = tile(c, 'scissors', T.t0 + .1, 'left:110px;top:470px;width:300px;height:300px', {size: 300, bg: o.tile, color: o.tileInk, sound: false, float: false});\nconst b = tile(c, 'brush', T.t0 + .3, 'left:580px;top:470px;width:300px;height:300px', {size: 300, bg: o.tile, color: o.tileInk, sound: false, float: false});\nconst ne = svg(140, 140, `<line x1=\"20\" y1=\"50\" x2=\"120\" y2=\"50\" stroke=\"${RED}\" stroke-width=\"14\" stroke-linecap=\"round\"/><line x1=\"20\" y1=\"92\" x2=\"120\" y2=\"92\" stroke=\"${RED}\" stroke-width=\"14\" stroke-linecap=\"round\"/><line x1=\"88\" y1=\"12\" x2=\"52\" y2=\"130\" stroke=\"${RED}\" stroke-width=\"14\" stroke-linecap=\"round\"/>`, 'left:425px;top:550px;opacity:0', c);\nmv.pop(ne, T.hit);\nmv.wobble(b.inner, T.hit);\nmv.punch(a.inner, T.hit);\nsnd('hit', T.hit);\n"
+  }
+ ]
+}

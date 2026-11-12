@@ -1,0 +1,472 @@
+{
+ "topic": "edu",
+ "camera": [
+  {
+   "move": "push",
+   "t": 2.8
+  },
+  {
+   "move": "pull",
+   "t": 8.8
+  },
+  {
+   "move": "push",
+   "t": 20.9
+  },
+  {
+   "move": "pull",
+   "t": 29.0
+  },
+  {
+   "move": "push",
+   "t": 39.5
+  },
+  {
+   "move": "pull",
+   "t": 47.0
+  },
+  {
+   "move": "push",
+   "t": 57.2
+  },
+  {
+   "move": "pull",
+   "t": 65.0
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 0.98,
+   "t1": 3.98,
+   "say": "ยังมีบางคนใช้วิธีเรียนภาษาอังกฤษที่ยังไม่เหมาะสมกับตัวเอง",
+   "shows": "warning sign about unsuitable study method",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 3.68,
+   "need": "",
+   "slots": {
+    "text": "ไม่เหมาะสมกับตัวเอง",
+    "icon": "book-open",
+    "wlead": "วิธีเรียน",
+    "wkey": "ไม่เหมาะสม"
+   }
+  },
+  {
+   "t0": 6.2,
+   "t1": 8.5,
+   "say": "แนะนำวิธีหนึ่งที่เรียกว่า",
+   "shows": "a lightbulb for a tip",
+   "part": "B13.v1",
+   "size": "short",
+   "hit": 6.96,
+   "need": "",
+   "slots": {
+    "tip": "แนะนำวิธีหนึ่ง",
+    "icon": "lightbulb",
+    "wlead": "วิธีหนึ่ง",
+    "wkey": "แนะนำ"
+   }
+  },
+  {
+   "t0": 9.3,
+   "t1": 11.4,
+   "say": "บางคนใช้แล้วพูดง่าย",
+   "shows": "a check mark for easy speaking",
+   "part": "B08.v4",
+   "size": "short",
+   "hit": 9.84,
+   "need": "",
+   "slots": {
+    "goal": "พูดง่าย",
+    "icon": "check",
+    "wlead": "บางคนใช้แล้ว",
+    "wkey": "พูดง่าย"
+   }
+  },
+  {
+   "t0": 11.6,
+   "t1": 14.6,
+   "say": "มันคือการหาอะไรที่เราเกือบเข้าใจแล้ว",
+   "shows": "magnifier searching for something almost understood",
+   "part": "B06.v4",
+   "size": "short",
+   "hit": 12.4,
+   "need": "",
+   "slots": {
+    "q": "เกือบเข้าใจแล้ว",
+    "icon": "search",
+    "wlead": "การหา",
+    "wkey": "เกือบเข้าใจ"
+   }
+  },
+  {
+   "t0": 15.1,
+   "t1": 17.4,
+   "say": "เข้าใจแล้ว เราก็อยู่กับมันฟังซ้ำไปเรื่อยๆ",
+   "shows": "cycle loop repeating",
+   "part": "B12.v4",
+   "size": "short",
+   "hit": 16.88,
+   "need": "",
+   "slots": {
+    "a": "ฟัง",
+    "ia": "headphones",
+    "b": "ซ้ำ",
+    "ib": "repeat",
+    "c": "ฟังอีก",
+    "ic": "ear",
+    "wlead": "ฟังซ้ำ",
+    "wkey": "วนไป"
+   }
+  },
+  {
+   "t0": 17.8,
+   "t1": 19.6,
+   "say": "เรื่อยแต่เติมอะไรใหม่เข้ามา",
+   "shows": "new item added to a list",
+   "part": "B04.v1",
+   "size": "short",
+   "hit": 18.56,
+   "need": "",
+   "slots": {
+    "items": [
+     "เติมของใหม่",
+     "เข้ามา"
+    ],
+    "wlead": "เติมใหม่",
+    "wkey": "ของใหม่"
+   }
+  },
+  {
+   "t0": 21.5,
+   "t1": 23.0,
+   "say": "การเรียนสิ่งใหม่จากบริบทเดิม",
+   "shows": "card with context words",
+   "part": "B14.v1",
+   "size": "short",
+   "hit": 22.4,
+   "need": "",
+   "slots": {
+    "words": [
+     "เรียนสิ่งใหม่",
+     "จาก",
+     "บริบทเดิม"
+    ],
+    "key": 2,
+    "icon": "book-open",
+    "wlead": "เรียนจาก",
+    "wkey": "บริบทเดิม"
+   }
+  },
+  {
+   "t0": 25.0,
+   "t1": 26.5,
+   "say": "สอนคำศัพท์ใหม่ เผื่อบางคนไม่รู้คำ",
+   "shows": "vocabulary card flip",
+   "part": "EDU.h1",
+   "size": "narrow",
+   "hit": 25.7,
+   "need": "",
+   "slots": {
+    "word": "คำศัพท์ใหม่",
+    "wlead": "สอน",
+    "wkey": "คำศัพท์"
+   }
+  },
+  {
+   "t0": 27.2,
+   "t1": 30.0,
+   "say": "ไม่ใช้ประโยคอังกฤษ ใช้ประโยคไทย",
+   "shows": "X crossed English, Thai correct",
+   "part": "B05.v2",
+   "size": "short",
+   "hit": 28.72,
+   "need": "",
+   "slots": {
+    "x": "ประโยคอังกฤษ",
+    "y": "ประโยคไทย",
+    "aty": 29.8,
+    "wlead": "ไม่ใช้อังกฤษ",
+    "wkey": "ใช้ไทย"
+   }
+  },
+  {
+   "t0": 31.6,
+   "t1": 33.0,
+   "say": "เวลาคนพูดอังกฤษคำไทยคำ",
+   "shows": "speech bubble mixing languages",
+   "part": "B11.edu1",
+   "size": "short",
+   "hit": 32.0,
+   "need": "",
+   "slots": {
+    "text": "อังกฤษคำไทยคำ",
+    "who": "คนพูด",
+    "wlead": "เวลาคนพูด",
+    "wkey": "สองภาษา"
+   }
+  },
+  {
+   "t0": 34.0,
+   "t1": 35.9,
+   "say": "จะไม่เฉลยความหมายด้วย",
+   "shows": "answer withheld, question mark",
+   "part": "B06.v1",
+   "size": "short",
+   "hit": 34.96,
+   "need": "",
+   "slots": {
+    "q": "ไม่เฉลยความหมาย",
+    "icon": "eye-off",
+    "wlead": "จะไม่เฉลย",
+    "wkey": "ความหมาย"
+   }
+  },
+  {
+   "t0": 36.0,
+   "t1": 38.8,
+   "say": "จุดประสงค์ของการเรียนแบบ",
+   "shows": "target hit for study goal",
+   "part": "B08.v1",
+   "size": "short",
+   "hit": 36.64,
+   "need": "",
+   "slots": {
+    "goal": "จุดประสงค์ของการเรียน",
+    "icon": "target",
+    "wlead": "จุดประสงค์",
+    "wkey": "การเรียน"
+   }
+  },
+  {
+   "t0": 39.5,
+   "t1": 41.0,
+   "say": "เราเรียนรู้ความหมายจากบริบท",
+   "shows": "words linked to context card",
+   "part": "B14.v3",
+   "size": "short",
+   "hit": 40.16,
+   "need": "",
+   "slots": {
+    "words": [
+     "เรียนรู้",
+     "ความหมาย",
+     "จากบริบท"
+    ],
+    "key": 1,
+    "icon": "lightbulb",
+    "wlead": "เรียนรู้",
+    "wkey": "ความหมาย"
+   }
+  },
+  {
+   "t0": 41.1,
+   "t1": 42.9,
+   "say": "มาดูประโยคแรกเลย",
+   "shows": "first sentence highlighted",
+   "part": "B13.v3",
+   "size": "short",
+   "hit": 41.6,
+   "need": "",
+   "slots": {
+    "tip": "ประโยคแรก",
+    "icon": "key",
+    "wlead": "ประโยคแรก",
+    "wkey": "ดูก่อน"
+   }
+  },
+  {
+   "t0": 44.3,
+   "t1": 46.6,
+   "say": "เขาโกหกครั้งเดียวแต่ต้องโกหกไปอีกสิบรอบ",
+   "shows": "repeat counter of lies",
+   "part": "B01.v1",
+   "size": "short",
+   "hit": 46.0,
+   "need": "",
+   "slots": {
+    "num": 10,
+    "unit": "รอบ",
+    "icon": "repeat",
+    "wlead": "โกหกไปอีก",
+    "wkey": "สิบรอบ"
+   }
+  },
+  {
+   "t0": 46.9,
+   "t1": 48.8,
+   "say": "คอนซิควนของการโกหก",
+   "shows": "cycle arrows of lying",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 48.0,
+   "need": "",
+   "slots": {
+    "a": "โกหก",
+    "ia": "ban",
+    "b": "โกหกต่อ",
+    "ib": "repeat",
+    "wlead": "วงโกหก",
+    "wkey": "วนไป"
+   }
+  },
+  {
+   "t0": 49.0,
+   "t1": 52.0,
+   "say": "มันไม่มีวันจบ ประโยคที่สอง ประเทศที่ไม่ลงทุนกับการศึกษา",
+   "shows": "hourglass of endless time",
+   "part": "B09.v4",
+   "size": "short",
+   "hit": 49.4,
+   "need": "",
+   "slots": {
+    "when": "ไม่มีวันจบ",
+    "icon": "hourglass",
+    "wlead": "ประโยคที่สอง",
+    "wkey": "ไม่มีวันจบ"
+   }
+  },
+  {
+   "t0": 52.2,
+   "t1": 54.6,
+   "say": "ประเทศที่ไม่ลงทุนกับการศึกษา",
+   "shows": "no investment in education",
+   "part": "B07.v3",
+   "size": "short",
+   "hit": 53.36,
+   "need": "",
+   "slots": {
+    "text": "ไม่ลงทุนกับการศึกษา",
+    "icon": "school",
+    "wlead": "ประเทศ",
+    "wkey": "ไม่ลงทุน"
+   }
+  },
+  {
+   "t0": 55.0,
+   "t1": 57.0,
+   "say": "อีกยี่สิบปีข้างหน้า",
+   "shows": "a timeline of twenty years",
+   "part": "B09.v1",
+   "size": "short",
+   "hit": 55.6,
+   "need": "",
+   "slots": {
+    "when": "ยี่สิบปี",
+    "icon": "calendar",
+    "wlead": "อีกยี่สิบปี",
+    "wkey": "ข้างหน้า"
+   }
+  },
+  {
+   "t0": 57.2,
+   "t1": 60.0,
+   "say": "ประโยคที่สาม ทิ้งขยะลงแม่น้ำ น้ำเน่า",
+   "shows": "trash dumped into a river",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 58.48,
+   "need": "",
+   "slots": {
+    "text": "ทิ้งขยะลงแม่น้ำ",
+    "icon": "trash-2",
+    "wlead": "ประโยคที่สาม",
+    "wkey": "น้ำเน่า"
+   }
+  },
+  {
+   "t0": 60.2,
+   "t1": 63.0,
+   "say": "ปลาตายคนในชุมชนเดือดร้อน",
+   "shows": "dead fish, community suffering",
+   "part": "B10.v3",
+   "size": "short",
+   "hit": 60.8,
+   "need": "",
+   "slots": {
+    "who": "คนในชุมชน",
+    "link": "fish",
+    "wlead": "ปลาตาย",
+    "wkey": "เดือดร้อน"
+   }
+  },
+  {
+   "t0": 63.1,
+   "t1": 65.2,
+   "say": "การไม่แคร์สิ่งแวดล้อมกระทบคนแค่คนเดียว",
+   "shows": "one person hit by environment",
+   "part": "B10.v1",
+   "size": "short",
+   "hit": 64.4,
+   "need": "",
+   "slots": {
+    "who": "คนเดียว",
+    "wlead": "ไม่แคร์",
+    "wkey": "สิ่งแวดล้อม"
+   }
+  },
+  {
+   "t0": 65.4,
+   "t1": 68.0,
+   "say": "ประโยคที่สี่ บริษัทนี้ไม่เคยฟังเสียง",
+   "shows": "ears closed, voice ignored",
+   "part": "B07.v3",
+   "size": "short",
+   "hit": 67.0,
+   "need": "",
+   "slots": {
+    "text": "ไม่เคยฟังเสียง",
+    "icon": "ear-off",
+    "wlead": "ประโยคที่สี่",
+    "wkey": "ไม่ฟังเสียง"
+   }
+  },
+  {
+   "t0": 69.4,
+   "t1": 71.0,
+   "say": "ของพนักงานเลย",
+   "shows": "employees highlighted",
+   "part": "B10.v1",
+   "size": "short",
+   "hit": 69.6,
+   "need": "",
+   "slots": {
+    "who": "พนักงาน",
+    "wlead": "ของพนักงาน",
+    "wkey": "พนักงาน"
+   }
+  },
+  {
+   "t0": 71.0,
+   "t1": 74.0,
+   "say": "คนเก่งทยอยกันลาออกหมดเลย",
+   "shows": "downward arrow of people leaving",
+   "part": "B02.v3",
+   "size": "short",
+   "hit": 72.8,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "users",
+    "wlead": "คนเก่ง",
+    "wkey": "ลาออก"
+   }
+  },
+  {
+   "t0": 74.4,
+   "t1": 76.1,
+   "say": "ถ้าดูแล้วว่าอะไรก็อย่า",
+   "shows": "warning about doing anything",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 75.1,
+   "need": "",
+   "slots": {
+    "text": "ว่าอะไรก็อย่า",
+    "icon": "octagon-alert",
+    "wlead": "ถ้าดูแล้ว",
+    "wkey": "อย่า"
+   }
+  }
+ ]
+}

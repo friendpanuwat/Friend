@@ -1,0 +1,140 @@
+<title>รอบที่ 2 ร่างแยก</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* layout: one reading column; a section per story frame; each recipe = its words + recipe line + the same picture in 3 styles */
+:root{
+  --bg:#F3F4F6; --card:#FFFFFF; --fg:#16181D; --muted:#5E6470; --line:#DEE1E7; --accent:#1F6F6A; --accent-soft:#DCEEEC; --warm:#8A5A12; --warm-soft:#F6ECDB;
+  --display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif; --body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --warm:#E3B66A; --warm-soft:#2E2414; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; --warm:#E3B66A; --warm-soft:#2E2414; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(26px,6vw,36px);font-weight:700}
+h2{font-size:22px;font-weight:700}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+.lede{display:flex;flex-direction:column;gap:12px}
+.lede p{color:var(--muted);max-width:62ch}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.fact{font-size:14px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:4px 12px;font-weight:500}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.box ul,.box ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;color:var(--muted)}
+.box b{color:var(--fg);font-weight:600}
+.recipe-line{font-size:14px;background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:8px 12px;color:var(--fg)}
+.frame{display:flex;flex-direction:column;gap:20px;border-top:1px solid var(--line);padding-top:24px}
+.frame > p{color:var(--muted);font-size:15px}
+.rec{display:flex;flex-direction:column;gap:8px}
+.rec .top{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+.chip{font-size:12px;font-weight:600;border-radius:999px;padding:2px 10px;background:var(--warm-soft);color:var(--warm)}
+.say{font-size:14px;color:var(--muted)}
+.say q{color:var(--fg);font-weight:500;quotes:"“" "”"}
+.heads,.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.heads{font-size:12px;color:var(--muted);font-weight:500}
+.sub{font-size:13px;color:var(--warm);font-weight:500;margin-top:4px}
+button.vid{all:unset;cursor:pointer;display:block;border-radius:12px;overflow:hidden;aspect-ratio:9/16;max-width:100%;background:#000}
+button.vid:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.vid video{width:100%;height:100%;object-fit:cover;display:block}
+.lb{position:fixed;inset:0;background:rgba(8,9,12,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:20;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.lb .three{display:flex;gap:8px;justify-content:center;max-width:100%}
+.lb video{height:min(74vh,700px);max-width:31vw;aspect-ratio:9/16;object-fit:cover;border-radius:12px;background:#000}
+.lb .cap{color:#fff;font-size:14px;text-align:center}
+.lb button{font:inherit;color:#fff;background:rgba(255,255,255,.14);border:0;border-radius:999px;padding:6px 16px;cursor:pointer}
+.tag{font-size:12px;font-weight:600;border-radius:999px;padding:2px 10px;background:var(--accent-soft);color:var(--accent)}
+.vname{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-top:6px}
+.vname b{font-family:var(--display);font-weight:600;font-size:15px}
+.note{font-size:13px;color:var(--warm)}
+table{border-collapse:collapse;font-size:14px;width:100%}
+td,th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:13px}
+</style>
+
+<div class="wrap">
+  <header class="lede">
+    <h1>รอบที่ 2: ร่างแยก</h1>
+    <p>กลับไปเติมหมวดจากรอบแรกที่มีร่างเดียว ให้มีหมวดละ 3 ร่าง และให้โปรแกรมเลือกร่างเอง แต่ละหมวดใช้ประโยคเดียวกันทั้ง 3 ร่าง จะได้เห็นว่าภาพต่างกันแค่ไหนทั้งที่ความหมายเดียวกัน</p>
+    <p><b>อัปเดต (คลื่น):</b> วงกลมที่เคยวิ่งผ่านการ์ดและไอคอน เปลี่ยนเป็นคลื่นทรงเดียวกับของชิ้นนั้น (การ์ดก็สี่เหลี่ยมมุมมน ปุ่มก็ทรงปุ่ม ของกลมก็วงกลม) ออกจากขอบด้านหลัง แล้วจางหาย ไม่ทับคำ คลิปที่มีคลื่นในหน้านี้ทำใหม่แล้ว</p>
+    <p><b>อัปเดต (สีและเป้าหมาย):</b> เครื่องหมายถูกในหน้าต่างม่วงเข้มของสไตล์แบ่งจอเห็นชัดขึ้น (เดิมเกือบกลืนกับพื้น) · ร่างลูกศรเข้าเป้าแสดงไอคอนเป้าหมายของประโยคแล้ว · ร่างถ้วยไม่มีเลข 100% แล้ว (ไม่ได้มาจากคำพูด)</p>
+    <div class="facts"><span class="fact">ร่างใหม่ 8 ร่าง</span><span class="fact">4 หมวด × 3 ร่าง × 3 สไตล์</span><span class="fact">โปรแกรมเลือกร่างเอง</span><span class="fact">16 หมวด</span></div>
+  </header>
+  <section class="box">
+    <h2>โปรแกรมเลือกร่างเองยังไง</h2>
+    <ul>
+      <li><b>AI บอกแค่หมวด ของ และคำ</b> เหมือนกันทุกร่าง AI ไม่ต้องรู้ว่ามีร่างอะไรบ้าง คู่มือของ AI จึงไม่ยาวขึ้นแม้ร่างจะมีถึง 20 ร่าง</li>
+      <li><b>เลือกร่างที่ใช้น้อยที่สุดในคลิปนั้นก่อน</b> และไม่ใช้ร่างเดิมติดกันสองครั้ง ทดสอบแล้ว: คลิปที่มีประโยคเรื่องเงิน 4 ครั้ง ได้ วงแหวน → การ์ดตัวเลข → ใบเสร็จ → การ์ดตัวเลข</li>
+      <li><b>ร่างเฉพาะทางใช้เมื่อเข้ากับประโยคเท่านั้น</b> ใบเสร็จใช้กับเรื่องเงิน ("4 ปี" ไม่มีทางได้ใบเสร็จ) การ์ดรีวิวมีดาวใช้กับคอมเมนต์หรือรีวิว (แชตธรรมดาไม่ได้ดาว)</li>
+      <li><b>ประโยคเดิมได้ผลเดิมทุกครั้ง</b> ทำคลิปซ้ำก็ได้ภาพเหมือนเดิม ไม่สุ่มมั่ว</li>
+    </ul>
+  </section>
+  <div id="cats" style="display:flex;flex-direction:column;gap:36px"></div>
+  <section class="box">
+    <h2>ตอนนี้แต่ละหมวดมีกี่ร่าง</h2>
+    <table>
+      <tr><th>หมวด</th><th>ร่าง</th></tr>
+      <tr><td>ตัวเลขเด่น · คำเตือน · แชต / รีวิว · เป้าหมาย</td><td>หมวดละ 3 (รอบนี้) อยู่ในระบบเลือกร่างแล้ว</td></tr>
+      <tr><td>เปรียบเทียบ / ก่อนกับหลัง</td><td>7</td></tr>
+      <tr><td>เพิ่มขึ้น / ลดลง</td><td>3</td></tr>
+      <tr><td>ขั้นตอน · เวลา · เหตุกับผล</td><td>หมวดละ 2</td></tr>
+      <tr><td>ถูกกับผิด · คำถาม · คน · เคล็ดลับ · ปิดคลิป · นิยาม (ใหม่)</td><td>ยังไม่มีร่างของตัวเอง ทำรอบที่ 3</td></tr>
+      <tr><td>ประโยคเด็ดตัวใหญ่</td><td>ใช้ตัวหนังสืออย่างเดียว</td></tr>
+    </table>
+    <p class="note">หมวดที่มีร่างอยู่แล้วแต่ยังไม่ได้อยู่ในระบบเลือกร่าง จะย้ายเข้ามาในรอบถัดไป เป้าคือหมวดละ 20 ร่าง</p>
+  </section>
+  <section class="box">
+    <h2>แก้เพิ่มระหว่างทาง</h2>
+    <ul>
+      <li>สไตล์กระจกเคยกินช่องว่างในตัวหนังสือ ("คอมเมนต์ว่าลองแล้ว") แก้แล้ว คลิปกระจกในหน้านี้เว้นวรรคถูกแล้ว</li>
+      <li>ตัวเลขยาว ๆ เช่น "3,000" ย่อให้พอดีการ์ดเองแล้ว (เดิมล้นการ์ดในสไตล์การ์ด)</li>
+      <li>ตัวตรวจการ์ดทับกันละเอียดขึ้น: ไม่นับส่วนที่ถูกซ่อนอยู่ (กระดาษที่ยังอยู่ในเครื่องพิมพ์) และไม่นับขอบที่แค่แตะกัน ตรวจทุกฉากของสไตล์กระจก 73 ฉาก เหลือแค่ปึกการ์ดที่ตั้งใจซ้อน</li>
+    </ul>
+  </section>
+</div>
+<script>
+const STYLES = [{id: 'card', name: 'แบบ 1 การ์ด'}, {id: 'glass', name: 'แบบ 2 กระจก'}, {id: 'split', name: 'แบบ 3 แบ่งจอ'}];
+const CATS = [
+  {name: 'ตัวเลขเด่น', id: 'r2.money', say: 'ค่าโฆษณาเดือนละ 3,000 บาท', vs: [['big', 'ตัวเลขใหญ่บนการ์ด', ''], ['ring', 'วงแหวนวิ่งถึงตัวเลข', 'ใหม่'], ['receipt', 'ใบเสร็จพิมพ์ตัวเลขออกมา', 'ใหม่ · เฉพาะเรื่องเงิน']]},
+  {name: 'คำเตือน', id: 'r2.loan', say: 'อย่ากู้เงินมาลงทุน', vs: [['sign', 'ป้ายเตือนเด้งลงบนการ์ด', ''], ['beacon', 'ไฟเตือนหมุนกะพริบ', 'ใหม่'], ['stamp', 'ตราห้ามประทับลงบนของ', 'ใหม่']]},
+  {name: 'คำพูด / แชต / รีวิว', id: 'r2.review', say: 'คอมเมนต์ว่า ลองแล้ว ได้ผลจริง', vs: [['phone', 'แชตในมือถือ', ''], ['review', 'การ์ดรีวิวมีดาว', 'ใหม่ · เฉพาะคอมเมนต์ / รีวิว'], ['notify', 'แจ้งเตือนเด้งซ้อนกัน', 'ใหม่']]},
+  {name: 'เป้าหมาย / ผลลัพธ์', id: 'r2.goal', say: 'ทำต่อเนื่องทุกวัน จนถึงเป้าหมาย', vs: [['target', 'ลูกศรเข้าเป้า', ''], ['stairs', 'ไต่บันไดถึงธง', 'ใหม่'], ['trophy', 'แถบความคืบหน้าเต็ม ได้ถ้วยรางวัล', 'ใหม่']]},
+];
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const video = src => { const v = el('video'); Object.assign(v, {muted: true, loop: true, playsInline: true, preload: 'metadata', poster: src.replace('.mp4', '.jpg')});
+  v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.src = src; return v; };
+const host = document.getElementById('cats');
+for (const c of CATS) {
+  const sec = el('section', 'frame');
+  const heads = el('div', 'heads'); STYLES.forEach(s => heads.append(el('span', '', s.name)));
+  sec.append(el('h2', '', `หมวด: ${c.name}`), el('p', 'say', `ประโยคเดียวกันทั้ง 3 ร่าง <q>${c.say}</q>`), heads);
+  for (const [vid, vname, tag] of c.vs) {
+    const id = `${c.id}.${vid}`, top = el('div', 'vname'); top.append(el('b', '', vname)); if (tag) top.append(el('span', 'tag', tag));
+    const r = el('div', 'row');
+    for (const s of STYLES) { const b = el('button', 'vid'); b.type = 'button'; b.setAttribute('aria-label', `${vname} ${s.name} ดูใหญ่`);
+      b.append(video(`r2/${s.id}_${id}.mp4`)); b.addEventListener('click', () => open(id, vname)); r.append(b); }
+    sec.append(top, r);
+  }
+  host.append(sec);
+}
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+  const v = e.target; if (e.isIntersecting) v.play().catch(() => {}); else v.pause();
+}), {threshold: .4}) : null;
+document.querySelectorAll('button.vid video').forEach(v => io ? io.observe(v) : v.play().catch(() => {}));
+function open(id, label) {
+  const box = el('div', 'lb'); box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', label);
+  box.append(el('div', 'cap', `${label} · แบบ 1 การ์ด · แบบ 2 กระจก · แบบ 3 แบ่งจอ`));
+  const three = el('div', 'three');
+  STYLES.forEach(s => { const v = video(`r2/${s.id}_${id}.mp4`); v.autoplay = true; three.append(v); v.play().catch(() => {}); });
+  const close = el('button', '', 'ปิด'); close.type = 'button';
+  box.append(three, close); document.body.append(box); close.focus();
+  const shut = () => { box.remove(); document.removeEventListener('keydown', esc); };
+  const esc = e => { if (e.key === 'Escape') shut(); };
+  close.addEventListener('click', shut); box.addEventListener('click', e => { if (e.target === box) shut(); });
+  document.addEventListener('keydown', esc);
+}
+</script>

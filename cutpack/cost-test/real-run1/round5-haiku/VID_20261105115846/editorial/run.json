@@ -1,0 +1,32 @@
+{
+ "clip": "VID_20261105115846.mp4",
+ "duration_s": 76.37,
+ "style": "editorial",
+ "status": "ok",
+ "topic": "none",
+ "calls": [
+  {
+   "stage": "scene",
+   "model": "claude-haiku-5-5",
+   "served": "claude-haiku-5-5",
+   "in": 2466,
+   "out": 4368,
+   "cache_read": 22641,
+   "cache_write_5m": 0,
+   "cache_write_1h": 0,
+   "stop": "end_turn"
+  },
+  {
+   "stage": "scene",
+   "model": "claude-haiku-5-5",
+   "served": "claude-haiku-5-5",
+   "in": 7733,
+   "out": 16000,
+   "cache_read": 22641,
+   "cache_write_5m": 0,
+   "cache_write_1h": 0,
+   "stop": "max_tokens"
+  }
+ ],
+ "time": "2026-11-05T13:35:27"
+}

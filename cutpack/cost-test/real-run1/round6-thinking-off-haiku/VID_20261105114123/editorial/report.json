@@ -1,0 +1,109 @@
+{
+ "status": "ok",
+ "topic": "fit",
+ "log": [
+  "fix round (plan): 14 errors sent back"
+ ],
+ "fallback": [
+  "B01.fit1 8.08–9.76 → B14 text B14.v3 (number-not-said)",
+  "custom 26.96–29.9 → B14 text B14.v1 (hit-late)",
+  "B05.v2 41.28–45.04 → B14 text B14.v3 (length)",
+  "B05.v3 16.4–18.48 → B14 text B14.v2 (text-overlap, text-overlap)",
+  "B05.v3 72.24–74.88 → B14 text B14.v1 (text-overlap, text-overlap)"
+ ],
+ "library_missing": [
+  "A scene showing a person swinging between overeating and refusing food; the library has no mood-swing or food-refusal part.",
+  "A figure punishing itself at the hit; no library part shows self-punishment."
+ ],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-high",
+   "where": "scenes",
+   "msg": "cards cover 85% of the clip, keep ≤ 60% so the speaker is seen"
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B04.v2 23.04",
+   "msg": "two scenes of the same category in a row",
+   "scene": 7
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B07.v2 67.76",
+   "msg": "two scenes of the same category in a row",
+   "scene": 21
+  },
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B14.v1 72.24",
+   "msg": "two scenes of the same category in a row",
+   "scene": 23
+  },
+  {
+   "level": "error",
+   "code": "reuse",
+   "where": "B14.v1",
+   "msg": "B14.v1 used 3 times, max 2 in this clip"
+  },
+  {
+   "level": "warn",
+   "code": "number-word",
+   "where": "scenes[2] B14.v3",
+   "msg": "\"สี่ร้อยแคลต่อวัน\" reads as 400, which is not in the script",
+   "scene": 2
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 21.36–23.04 \"แล้วก็ ความสัมพันธ์ / กับ อาหาร\"",
+   "msg": "chunk \"แล้วก็ ความสัมพันธ์\" is 13 letters, aim ≤ 12",
+   "sub": 2
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 30.56–32.96 \"เห็นอาหารก็ไม่ กล้ากิน / แล้วผมไม่ได้ บอกนะ\"",
+   "msg": "chunk \"เห็นอาหารก็ไม่ กล้ากิน\" is 16 letters, aim ≤ 12",
+   "sub": 3
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 30.56–32.96 \"เห็นอาหารก็ไม่ กล้ากิน / แล้วผมไม่ได้ บอกนะ\"",
+   "msg": "chunk \"แล้วผมไม่ได้ บอกนะ\" is 14 letters, aim ≤ 12",
+   "sub": 3
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 34.92–35.84 \"การกินน้อยอย่าง เดียว / นะครับ\"",
+   "msg": "chunk \"การกินน้อยอย่าง เดียว\" is 16 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "error",
+   "code": "sub-fast",
+   "where": "subtitles 55.68–55.84 \"ตัวเอง\"",
+   "msg": "1 chunks in 0.16 s is too fast to read",
+   "sub": 6
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[2] push 9.76",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 2
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[4] push 60.64",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 4
+  }
+ ]
+}

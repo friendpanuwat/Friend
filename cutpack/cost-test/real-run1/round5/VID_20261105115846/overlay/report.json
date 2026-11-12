@@ -1,0 +1,119 @@
+{
+ "status": "ok",
+ "topic": "edu",
+ "log": [
+  "fix round (plan): 3 errors sent back"
+ ],
+ "fallback": [],
+ "library_missing": [
+  "trash falls into a river and the water turns dirty at the hit — no library part shows pollution",
+  "a row of people icons fading out one by one at the hit — no part shows people leaving",
+  "a word card with a question mark that pops at the word — no ending-question part"
+ ],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "widget-text",
+   "where": "scenes[5] B03.v4 13.4–15.9",
+   "msg": "no wkey: the widget shows no word",
+   "scene": 5
+  },
+  {
+   "level": "warn",
+   "code": "widget-text",
+   "where": "scenes[8] B12.v1 21.4–23.4",
+   "msg": "no wkey: the widget shows no word",
+   "scene": 8
+  },
+  {
+   "level": "warn",
+   "code": "widget-text",
+   "where": "scenes[13] B03.v1 32.6–34.1",
+   "msg": "no wkey: the widget shows no word",
+   "scene": 13
+  },
+  {
+   "level": "warn",
+   "code": "widget-text",
+   "where": "scenes[19] B12.v4 47.7–50.0",
+   "msg": "no wkey: the widget shows no word",
+   "scene": 19
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 7.15–11.44 \"ว่า / Conprentblenport / เพื่อ บางคน / ใช้แล้ว\"",
+   "msg": "chunk \"Conprentblenport\" is 16 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 23.52–25.68 \"อย่างเช่นวันนี้ เรา / จะมาสอน คำศัพท์ / ใหม่เผื่อ บางคน\"",
+   "msg": "chunk \"อย่างเช่นวันนี้ เรา\" is 13 letters, aim ≤ 12",
+   "sub": 10
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 27.84–30.0 \"เราจะ ไม่ใช้ / ประโยค อังกฤษด้วย / เราจะใช้ ประโยค\"",
+   "msg": "chunk \"ประโยค อังกฤษด้วย\" is 14 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 27.84–30.0 \"เราจะ ไม่ใช้ / ประโยค อังกฤษด้วย / เราจะใช้ ประโยค\"",
+   "msg": "chunk \"เราจะใช้ ประโยค\" is 13 letters, aim ≤ 12",
+   "sub": 12
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 30.0–32.0 \"ไทย แล้วก็ใช้ / คำว่า / conskence เข้าไป\"",
+   "msg": "chunk \"conskence เข้าไป\" is 14 letters, aim ≤ 12",
+   "sub": 13
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 38.08–40.16 \"แบบ Conprensible / inpood / คือเรา เรียนรู้\"",
+   "msg": "chunk \"แบบ Conprensible\" is 15 letters, aim ≤ 12",
+   "sub": 17
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 40.16–42.64 \"ความหมาย ของมัน / จากบริบท เอง / งั้นมา รอง\"",
+   "msg": "chunk \"ความหมาย ของมัน\" is 13 letters, aim ≤ 12",
+   "sub": 18
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 51.44–57.12 \"ประเทศ ที่ไม่ / ลงทุนกับ การศึกษา / consicance / จะ เห็นได้ชัด / ในอีก ยี่สิบปี / ข้างหน้า\"",
+   "msg": "chunk \"ลงทุนกับ การศึกษา\" is 13 letters, aim ≤ 12",
+   "sub": 22
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 66.72–74.4 \"ประโยคที่สี่ / บริษัทนี้ไม่ เคย / ฟังเสียง ของ / พนักงานเลย / consiquence คือ / คนเก่งทยอยกัน ลาออก / หมดเลย\"",
+   "msg": "chunk \"consiquence คือ\" is 13 letters, aim ≤ 12",
+   "sub": 25
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 66.72–74.4 \"ประโยคที่สี่ / บริษัทนี้ไม่ เคย / ฟังเสียง ของ / พนักงานเลย / consiquence คือ / คนเก่งทยอยกัน ลาออก / หมดเลย\"",
+   "msg": "chunk \"คนเก่งทยอยกัน ลาออก\" is 16 letters, aim ≤ 12",
+   "sub": 25
+  },
+  {
+   "level": "warn",
+   "code": "sub-face",
+   "where": "layout",
+   "msg": "the chin is low: subtitles may touch the face when zoomed"
+  }
+ ]
+}

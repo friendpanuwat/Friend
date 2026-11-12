@@ -1,0 +1,44 @@
+{
+ "status": "ok",
+ "topic": "edu",
+ "log": [
+  "fix round (plan): 13 errors sent back"
+ ],
+ "fallback": [
+  "camera pull 25.68: soft pull instead of a cut",
+  "B03.v4 20.24–23.9 → B14 text B14.v3 (length)",
+  "B14.v2 11.44–13.0 dropped (hit-early)",
+  "B10.v4 63.12–66.7 → B14 text B14.v2 (engine)",
+  "subtitles rebuilt around the remaining cards"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "error",
+   "code": "density-high",
+   "where": "scenes",
+   "msg": "cards cover 83% of the clip, keep ≤ 60% so the speaker is seen"
+  },
+  {
+   "level": "error",
+   "code": "sub-fast",
+   "where": "subtitles 42.4–42.64 \"มา รอง\"",
+   "msg": "1 chunks in 0.24 s is too fast to read",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[2] push 22.0",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 2
+  },
+  {
+   "level": "warn",
+   "code": "cam-hidden",
+   "where": "camera[4] push 42.7",
+   "msg": "push starts under a full-screen card where nobody sees it",
+   "cam": 4
+  }
+ ]
+}

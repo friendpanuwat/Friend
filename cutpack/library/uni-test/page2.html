@@ -1,0 +1,152 @@
+<title>ความหมายเดียว หลายภาพ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* layout: one reading column; each meaning = its sentence, then a grid: rows are different pictures, columns are the 3 styles */
+:root{
+  --bg:#F3F4F6; --card:#FFFFFF; --fg:#16181D; --muted:#5E6470; --line:#DEE1E7; --accent:#1F6F6A; --accent-soft:#DCEEEC;
+  --display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif; --body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1114; --card:#171A1F; --fg:#ECEEF2; --muted:#9BA2AE; --line:#262A31; --accent:#62C7BE; --accent-soft:#16302E; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(26px,6vw,36px);font-weight:700}
+h2{font-size:22px;font-weight:700}
+p{margin:0}
+.lede{display:flex;flex-direction:column;gap:12px}
+.lede p{color:var(--muted);max-width:62ch}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.fact{font-size:14px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:4px 12px;font-weight:500}
+.how{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.how ol{margin:0;padding-left:20px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.how b{color:var(--fg);font-weight:600}
+.meaning{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:24px}
+.say{font-size:15px;color:var(--muted)}
+.say q{color:var(--fg);font-weight:500;quotes:"“" "”"}
+.heads{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-size:12px;color:var(--muted);font-weight:500}
+.pic{display:flex;flex-direction:column;gap:6px}
+.pic h3{font-size:15px;font-weight:600}
+.pic h3 span{font-family:var(--body);font-weight:500;color:var(--accent);font-size:13px;margin-right:6px}
+.pic p{font-size:13px;color:var(--muted)}
+.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+button.vid{all:unset;cursor:pointer;display:block;border-radius:12px;overflow:hidden;aspect-ratio:9/16;max-width:100%;background:#000}
+button.vid:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.vid video{width:100%;height:100%;object-fit:cover;display:block}
+.note{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.note ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;color:var(--muted)}
+.box{position:fixed;inset:0;background:rgba(8,9,12,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:20;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.box .three{display:flex;gap:8px;justify-content:center;max-width:100%}
+.box video{height:min(74vh,700px);max-width:31vw;aspect-ratio:9/16;object-fit:cover;border-radius:12px;background:#000}
+.box .cap{color:#fff;font-size:14px;text-align:center}
+.box button{font:inherit;color:#fff;background:rgba(255,255,255,.14);border:0;border-radius:999px;padding:6px 16px;cursor:pointer}
+</style>
+
+<div class="wrap">
+  <header class="lede">
+    <h1>ความหมายเดียว หลายภาพ ทุกสไตล์</h1>
+    <p>ร่างแยกตามที่ Friend อธิบาย คือ motion graphics หน้าตาแบบไหนก็ได้ที่สื่อความหมายเดียวกัน รอบนี้แต่ละความหมายมี 3 ภาพที่เล่าคนละแบบ แล้วสร้างออกมาในทั้ง 3 สไตล์จากบทชุดเดียว</p>
+    <div class="facts"><span class="fact">6 ความหมาย</span><span class="fact">ความหมายละ 3 ภาพ</span><span class="fact">3 สไตล์</span><span class="fact">54 คลิป คลิปละ 5 วินาที ไม่มีเสียง</span></div>
+    <p>แต่ละความหมาย: แถวคือภาพคนละแบบ คอลัมน์คือสไตล์ แตะคลิปเพื่อดู 3 ภาพของความหมายนั้นในสไตล์เดียวกันแบบใหญ่ ภาพที่ 1 คือภาพเดิมจากหน้าทดสอบรอบแรก</p>
+  </header>
+
+  <section class="how">
+    <h2>ในระบบจริงจะใช้อย่างไร</h2>
+    <ol>
+      <li><b>AI เลือกความหมาย</b> ของประโยค เช่น "ไม่คุ้ม" และเติมคำกับไอคอนลงช่อง (ค่า AI เท่าเดิม)</li>
+      <li><b>โค้ดเลือกภาพ</b> จากภาพทั้งหมดของความหมายนั้น โดยดูว่าเข้ากับสไตล์ไหม และเลี่ยงภาพที่ลูกค้าคนนี้เพิ่งได้ไป</li>
+      <li><b>กฎของสไตล์วาดภาพนั้น</b> ออกมาเป็นหน้าตาของสไตล์ที่ลูกค้าเลือก</li>
+    </ol>
+  </section>
+
+  <div id="meanings" style="display:flex;flex-direction:column;gap:36px"></div>
+
+  <section class="note">
+    <h2>สิ่งที่ต้องรู้จากรอบนี้</h2>
+    <ul>
+      <li>ภาพใหม่ 12 ภาพต้องเพิ่มชิ้นส่วนใหม่ในเครื่องมือกลาง 9 ชิ้น (กราฟแท่ง แถบวัด ดาว ปุ่ม ลูกศรเมาส์ หน้าปัด เป้า กรอบเล็ง ป้ายบอกทาง) ชิ้นส่วนเหล่านี้ทำครั้งเดียว ใช้ได้ทุกสไตล์ และภาพต่อ ๆ ไปใช้ซ้ำได้</li>
+      <li>กฎของสไตล์ต้องเพิ่มแค่ไม่กี่บรรทัด (สีของกราฟแท่ง ปุ่มสีแดง และลูกศรเมาส์ในสไตล์ 2 และ 3) ที่เหลือได้มาจากกฎเดิมเอง</li>
+      <li>ภาพแต่ละแบบเป็นบทของตัวเอง ทำคลังให้ถึงความหมายละ 10 ภาพจึงต้องเขียนบทจริงทุกภาพ ส่วนการใช้ข้ามสไตล์ยังได้มาเองเหมือนเดิม</li>
+      <li>ยังไม่ได้ใส่เสียง ยังไม่มีขนาดเล็กเหนือหัว และจังหวะยังตั้งตายตัว ไม่ได้ตามเสียงพูดจริง</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+const STYLES = [{id: 'card', name: 'แบบ 1 การ์ด'}, {id: 'glass', name: 'แบบ 2 กระจก'}, {id: 'split', name: 'แบบ 3 แบ่งจอ'}];
+const MEANINGS = [
+  {id: 'price-cut', name: 'ลดราคาแล้วก็ยังไม่ซื้อ', say: 'ต่อให้เราลดราคาเพิ่ม ยังไม่ซื้อ', pics: [
+    ['price-cut', 'แถบราคากับตะกร้า', 'แถบราคาเลื่อนลง แต่ตะกร้าไม่ขยับ แล้วโดนกากบาท'],
+    ['price-cut.cursor', 'ลดแล้วไม่มีใครกด', 'ป้ายราคาโดนตราลดราคา ลูกศรเมาส์มาที่ปุ่มซื้อแล้วถอยออกไป ไม่กด'],
+    ['price-cut.bars', 'ราคาลง ยอดไม่ขยับ', 'กราฟราคาลดเป็นขั้น ๆ แต่กราฟยอดซื้อข้าง ๆ ยังแบนเท่าเดิม']]},
+  {id: 'not-worth', name: 'ไม่คุ้ม', say: 'บางคนกลัวว่าซื้อไปแล้ว ไม่คุ้ม', pics: [
+    ['not-worth', 'ตาชั่ง', 'วางเงินกับสินค้า แล้วตาชั่งเอียงลงฝั่งเงิน'],
+    ['not-worth.measure', 'จ่ายเยอะ ได้น้อย', 'แถบเงินที่จ่ายยาวเกือบเต็ม แถบของที่ได้สั้นนิดเดียว'],
+    ['not-worth.stars', 'ราคาแพง ดาวดวงเดียว', 'การ์ดสินค้าติดป้ายราคาใหญ่ แต่ดาวรีวิวติดดวงเดียวจากห้าดวง']]},
+  {id: 'undecided', name: 'ลังเล', say: 'หรือไม่รู้ว่า จะซื้อดีไหม', pics: [
+    ['undecided', 'สวิตช์ค้างครึ่งทาง', 'สวิตช์เปิด ปิด แล้วค้างอยู่ตรงกลาง'],
+    ['undecided.cursor', 'เมาส์ไปมาสองปุ่ม', 'ลูกศรเมาส์ไปปุ่มเอา ไปปุ่มไม่เอา แล้วค้างตรงกลาง'],
+    ['undecided.gauge', 'เข็มแกว่ง', 'เข็มหน้าปัดแกว่งไปฝั่งเอา ฝั่งไม่เอา แล้วหยุดกลาง']]},
+  {id: 'fewer-customers', name: 'ลูกค้าน้อยลง', say: 'พอเห็นลูกค้า น้อยลง', pics: [
+    ['fewer-customers', 'การ์ดร้าน', 'ร้านมีลูกค้า 4 คน แล้วหายทีละคนจนเหลือคนเดียว'],
+    ['fewer-customers.bars', 'กราฟลดลง', 'กราฟแท่งขึ้นทีละแท่ง แท่งหลังเตี้ยกว่าแท่งก่อน แล้วขึ้นลูกศรลง'],
+    ['fewer-customers.bell', 'กระดิ่งเงียบ', 'กระดิ่งร้านสั่นมีคนรายล้อม คนหายทีละคน แล้วกระดิ่งเงียบ']]},
+  {id: 'not-first', name: 'ข้อแรกไม่ใช่', say: 'สิ่งที่ควรทำอย่างแรก ไม่ใช่ (การลดราคา)', pics: [
+    ['not-first', 'เช็กลิสต์', 'รายการ 3 ข้อ ข้อแรกโดนกากบาท'],
+    ['not-first.sign', 'ป้ายทางแยก', 'ทางที่เขียนว่าการลดราคาโดนกากบาท อีกทางมีเครื่องหมายคำถามเด่นขึ้น'],
+    ['not-first.stack', 'การ์ดใบบนสุดปลิวออก', 'ใบบนสุดเขียนว่าการลดราคา โดนกากบาทแล้วปลิวออก เผยใบถัดไป']]},
+  {id: 'fix-spot', name: 'แก้ให้ถูกจุด', say: 'แล้วแก้ปัญหาให้ ถูกจุด', pics: [
+    ['fix-spot', 'จิ๊กซอว์', 'ชิ้นที่ขาดลอยมาเข้าที่พอดี แล้วขึ้นเครื่องหมายถูก'],
+    ['fix-spot.target', 'เป้า', 'ลูกศรพุ่งเข้ากลางเป้าพอดี'],
+    ['fix-spot.scan', 'เล็งแล้วซ่อม', 'กรอบเล็งหดเข้าหาเฟืองที่เสีย ประแจซ่อม แล้วเฟืองกลับมาดี']]},
+];
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const video = (src, poster) => {
+  const v = el('video'); Object.assign(v, {muted: true, loop: true, playsInline: true, preload: 'metadata'});
+  v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); if (poster) v.poster = poster; v.src = src; return v;
+};
+const host = document.getElementById('meanings');
+for (const m of MEANINGS) {
+  const sec = el('section', 'meaning');
+  sec.append(el('h2', '', m.name), el('p', 'say', `ประโยค <q>${m.say}</q>`));
+  const heads = el('div', 'heads'); STYLES.forEach(s => heads.append(el('span', '', s.name))); sec.append(heads);
+  m.pics.forEach(([id, name, story], k) => {
+    const pic = el('div', 'pic');
+    pic.append(el('h3', '', `<span>ภาพที่ ${k + 1}</span>${name}`), el('p', '', story));
+    const row = el('div', 'row');
+    for (const s of STYLES) {
+      const b = el('button', 'vid'); b.type = 'button'; b.setAttribute('aria-label', `${m.name} ภาพที่ ${k + 1} ${s.name} ดูใหญ่`);
+      b.append(video(`clips/${s.id}_${id}.mp4`, `clips/${s.id}_${id}.jpg`));
+      b.addEventListener('click', () => open(m, s));
+      row.append(b);
+    }
+    pic.append(row); sec.append(pic);
+  });
+  host.append(sec);
+}
+/* play only the clips on screen (54 videos at once is heavy on a phone) */
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+  const v = e.target; if (e.isIntersecting) v.play().catch(() => {}); else v.pause();
+}), {threshold: .4}) : null;
+document.querySelectorAll('button.vid video').forEach(v => io ? io.observe(v) : v.play().catch(() => {}));
+document.querySelectorAll('video').forEach(v => { v.muted = true; });
+
+function open(m, s) {
+  const box = el('div', 'box'); box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', `${m.name} ${s.name}`);
+  box.append(el('div', 'cap', `${m.name} · ${s.name} · ภาพที่ 1 2 3`));
+  const three = el('div', 'three');
+  m.pics.forEach(([id]) => { const v = video(`clips/${s.id}_${id}.mp4`); v.autoplay = true; three.append(v); v.play().catch(() => {}); });
+  const close = el('button', '', 'ปิด'); close.type = 'button';
+  box.append(three, close); document.body.append(box); close.focus();
+  const shut = () => { box.remove(); document.removeEventListener('keydown', esc); };
+  const esc = e => { if (e.key === 'Escape') shut(); };
+  close.addEventListener('click', shut); box.addEventListener('click', e => { if (e.target === box) shut(); });
+  document.addEventListener('keydown', esc);
+}
+</script>

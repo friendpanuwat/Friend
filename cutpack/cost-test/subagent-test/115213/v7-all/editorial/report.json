@@ -1,0 +1,29 @@
+{
+ "status": "ok",
+ "topic": "none",
+ "log": [
+  "code mended 1 numbers: 1 → 0 errors, no fix round needed"
+ ],
+ "fallback": [],
+ "library_missing": [
+  "the words 'เจ๊ง' and 'ขาดทุน' each get a red cross drawn over them one after the other at the hit — no part strikes out single words with 'there is no such word' meaning",
+  "a phone recording a video with a record dot, then a small coin pops out of it at the hit — the library has no scene for making content",
+  "a tiny coin stays small beside a big briefcase at the hit, to show 'just side income' stays small — the library has no scene for a thing staying small because of how you see it"
+ ],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 32.88–34.88 \"เพราะว่า อย่า / เอาเวลาของ You / ไป ใช้แล้วยู\"",
+   "msg": "chunk \"เอาเวลาของ You\" is 13 letters, aim ≤ 12",
+   "sub": 6
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 49.52–50.8 \"เซตผมมันไม่ เหมือนกับ / อย่างงี้เลย\"",
+   "msg": "chunk \"เซตผมมันไม่ เหมือนกับ\" is 16 letters, aim ≤ 12",
+   "sub": 9
+  }
+ ]
+}

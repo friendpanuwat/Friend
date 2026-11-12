@@ -1,0 +1,533 @@
+{
+ "topic": "edu",
+ "camera": [
+  {
+   "move": "push",
+   "t": 5.3
+  },
+  {
+   "move": "pull",
+   "t": 15.0
+  },
+  {
+   "move": "push",
+   "t": 26.0
+  },
+  {
+   "move": "pull",
+   "t": 38.0
+  },
+  {
+   "move": "push",
+   "t": 44.4
+  },
+  {
+   "move": "pull",
+   "t": 57.0
+  },
+  {
+   "move": "push",
+   "t": 66.7
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 0.5,
+   "t1": 2.3,
+   "say": "จะโกรธ ถ้าเราบอกว่า",
+   "shows": "alert dot pops, anger",
+   "part": "B07.v3",
+   "size": "short",
+   "hit": 0.96,
+   "need": "",
+   "slots": {
+    "text": "จะโกรธ",
+    "icon": "angry",
+    "wlead": "ถ้าเราบอกว่า",
+    "wkey": "จะโกรธ"
+   }
+  },
+  {
+   "t0": 2.7,
+   "t1": 5.2,
+   "say": "เรียนภาษาอังกฤษที่ยังไม่เหมาะสมกับตัวเองมาก",
+   "shows": "words with key phrase highlighted",
+   "part": "B14.v1",
+   "size": "short",
+   "hit": 3.44,
+   "need": "",
+   "slots": {
+    "words": [
+     "เรียนภาษาอังกฤษ",
+     "ยังไม่เหมาะ",
+     "กับตัวเอง"
+    ],
+    "key": 1,
+    "icon": "languages",
+    "wkey": "ยังไม่เหมาะ"
+   }
+  },
+  {
+   "t0": 5.5,
+   "t1": 8.0,
+   "say": "วันนี้เราจะไม่แนะนำ",
+   "shows": "warning sign pops",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 6.08,
+   "need": "",
+   "slots": {
+    "text": "ไม่แนะนำ",
+    "icon": "ban",
+    "wlead": "วันนี้เราจะ",
+    "wkey": "ไม่แนะนำ"
+   }
+  },
+  {
+   "t0": 8.4,
+   "t1": 10.9,
+   "say": "เพื่อบางคนใช้แล้ว",
+   "shows": "one person highlighted in a group",
+   "part": "B10.v1",
+   "size": "short",
+   "hit": 9.28,
+   "need": "",
+   "slots": {
+    "who": "บางคน",
+    "wlead": "เพื่อ",
+    "wkey": "บางคน"
+   }
+  },
+  {
+   "t0": 11.4,
+   "t1": 13.0,
+   "say": "พูดง่าย",
+   "shows": "big check mark drawn",
+   "part": "B08.v4",
+   "size": "short",
+   "hit": 11.6,
+   "need": "",
+   "slots": {
+    "goal": "พูดง่าย",
+    "icon": "check",
+    "wlead": "ใช้แล้ว",
+    "wkey": "พูดง่าย"
+   }
+  },
+  {
+   "t0": 13.4,
+   "t1": 15.9,
+   "say": "เกือบเข้าใจ แล้วอีกเดี๋ยวจะเข้าใจแล้ว",
+   "shows": "cover slides to reveal understood side",
+   "part": "B03.v4",
+   "size": "short",
+   "hit": 15.12,
+   "need": "",
+   "slots": {
+    "a": "เกือบเข้าใจ",
+    "b": "เข้าใจแล้ว",
+    "ia": "lightbulb-off",
+    "ib": "lightbulb",
+    "win": "b"
+   }
+  },
+  {
+   "t0": 16.3,
+   "t1": 18.8,
+   "say": "อยู่กับมันฟังซ้ำไปเรื่อยๆ",
+   "shows": "repeat icon with underlined word",
+   "part": "B14.v3",
+   "size": "short",
+   "hit": 16.88,
+   "need": "",
+   "slots": {
+    "words": [
+     "ฟังซ้ำ",
+     "เรื่อยๆ"
+    ],
+    "key": 0,
+    "icon": "repeat",
+    "wkey": "ฟังซ้ำ"
+   }
+  },
+  {
+   "t0": 19.2,
+   "t1": 21.0,
+   "say": "เติมอะไรใหม่เข้ามา",
+   "shows": "light bulb turns on",
+   "part": "B13.v1",
+   "size": "short",
+   "hit": 19.44,
+   "need": "",
+   "slots": {
+    "tip": "เติมอะไรใหม่",
+    "icon": "sparkles",
+    "wlead": "เติม",
+    "wkey": "อะไรใหม่"
+   }
+  },
+  {
+   "t0": 21.4,
+   "t1": 23.4,
+   "say": "การเรียนสิ่งใหม่ จากบริบทเดิม",
+   "shows": "new thing arrow to old context",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 22.4,
+   "need": "",
+   "slots": {
+    "a": "สิ่งใหม่",
+    "ia": "sparkles",
+    "b": "บริบทเดิม",
+    "ib": "book-open"
+   }
+  },
+  {
+   "t0": 23.8,
+   "t1": 25.6,
+   "say": "จะมาสอนคำศัพท์ใหม่",
+   "shows": "vocab card flips",
+   "part": "EDU.h1",
+   "size": "short",
+   "hit": 24.72,
+   "need": "",
+   "slots": {
+    "word": "คำศัพท์ใหม่",
+    "wlead": "จะมาสอน",
+    "wkey": "คำศัพท์"
+   }
+  },
+  {
+   "t0": 26.0,
+   "t1": 27.7,
+   "say": "ไม่รู้คำว่า Consic",
+   "shows": "send button pressed, spark",
+   "part": "B13.edu1",
+   "size": "short",
+   "hit": 26.4,
+   "need": "",
+   "slots": {
+    "tip": "Consic",
+    "wlead": "คำว่า",
+    "wkey": "Consic"
+   }
+  },
+  {
+   "t0": 28.1,
+   "t1": 30.0,
+   "say": "ไม่ใช้ประโยคอังกฤษ เราจะใช้ประโยคไทย",
+   "shows": "English sentence crossed out, Thai right",
+   "part": "B05.v1",
+   "size": "short",
+   "hit": 28.5,
+   "need": "",
+   "slots": {
+    "x": "ประโยคอังกฤษ",
+    "y": "ประโยคไทย",
+    "aty": 29.68,
+    "wlead": "เราจะไม่ใช้",
+    "wkey": "ประโยคไทย"
+   }
+  },
+  {
+   "t0": 30.4,
+   "t1": 32.2,
+   "say": "คำว่า conskence เข้าไป",
+   "shows": "arrow hits target center",
+   "part": "B08.v1",
+   "size": "short",
+   "hit": 30.88,
+   "need": "",
+   "slots": {
+    "goal": "conskence",
+    "icon": "target",
+    "wlead": "คำว่า",
+    "wkey": "conskence"
+   }
+  },
+  {
+   "t0": 32.6,
+   "t1": 34.1,
+   "say": "คนพูดอังกฤษคำ ไทยคำ",
+   "shows": "English vs Thai split",
+   "part": "B03.v1",
+   "size": "short",
+   "hit": 33.76,
+   "need": "",
+   "slots": {
+    "a": "อังกฤษ",
+    "b": "ไทย",
+    "ia": "globe",
+    "ib": "languages",
+    "win": "b"
+   }
+  },
+  {
+   "t0": 34.5,
+   "t1": 36.3,
+   "say": "เราก็จะไม่เฉลยความหมาย",
+   "shows": "unlit bulb for hidden meaning",
+   "part": "B13.v3",
+   "size": "short",
+   "hit": 34.96,
+   "need": "",
+   "slots": {
+    "tip": "ไม่เฉลยความหมาย",
+    "icon": "lightbulb-off",
+    "wlead": "จะไม่เฉลย",
+    "wkey": "ความหมาย"
+   }
+  },
+  {
+   "t0": 36.7,
+   "t1": 38.4,
+   "say": "จุดประสงค์ของการเรียน",
+   "shows": "certificate stamped",
+   "part": "B08.edu1",
+   "size": "short",
+   "hit": 37.36,
+   "need": "",
+   "slots": {
+    "goal": "จุดประสงค์",
+    "icon": "target",
+    "wlead": "ของการเรียน",
+    "wkey": "จุดประสงค์"
+   }
+  },
+  {
+   "t0": 38.8,
+   "t1": 42.0,
+   "say": "เรียนรู้ความหมายของมันจากบริบทเอง",
+   "shows": "steps ticked one by one",
+   "part": "B04.v2",
+   "size": "short",
+   "hit": 40.8,
+   "need": "",
+   "slots": {
+    "items": [
+     "เรียนรู้",
+     "ความหมาย",
+     "จากบริบท"
+    ],
+    "at": [
+     39.76,
+     40.16,
+     40.8
+    ],
+    "wlead": "เรียนรู้",
+    "wkey": "จากบริบท"
+   }
+  },
+  {
+   "t0": 42.4,
+   "t1": 44.3,
+   "say": "งั้นมารองประโยคแรกเลย",
+   "shows": "big question mark wobbles",
+   "part": "B06.v1",
+   "size": "short",
+   "hit": 42.96,
+   "need": "",
+   "slots": {
+    "q": "ประโยคแรกเลย",
+    "icon": "file-text",
+    "wlead": "ประโยคแรก",
+    "wkey": "ลองดู"
+   }
+  },
+  {
+   "t0": 44.7,
+   "t1": 47.3,
+   "say": "โกหกครั้งเดียวต้องโกหกไปอีกสิบรอบ",
+   "shows": "bars rising for lies",
+   "part": "B02.v1",
+   "size": "short",
+   "hit": 46.8,
+   "need": "",
+   "slots": {
+    "dir": "up",
+    "icon": "repeat",
+    "wlead": "โกหก",
+    "wkey": "อีกสิบรอบ"
+   }
+  },
+  {
+   "t0": 47.7,
+   "t1": 50.0,
+   "say": "คือมันไม่มีวันจบ",
+   "shows": "loop closes endlessly",
+   "part": "B12.v4",
+   "size": "short",
+   "hit": 49.28,
+   "need": "",
+   "slots": {
+    "a": "โกหก",
+    "ia": "message-circle-warning",
+    "b": "ไม่มีวันจบ",
+    "ib": "infinity",
+    "c": "โกหก",
+    "ic": "repeat"
+   }
+  },
+  {
+   "t0": 50.4,
+   "t1": 52.9,
+   "say": "ประเทศที่ไม่ลงทุนกับการศึกษา",
+   "shows": "books fall off the stack",
+   "part": "B02.edu1",
+   "size": "short",
+   "hit": 52.55,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "book",
+    "wlead": "ไม่ลงทุน",
+    "wkey": "การศึกษา"
+   }
+  },
+  {
+   "t0": 53.3,
+   "t1": 56.0,
+   "say": "จะเห็นได้ชัดในอีกยี่สิบปีข้างหน้า",
+   "shows": "clock hands spin to twenty years",
+   "part": "B09.v1",
+   "size": "short",
+   "hit": 55.28,
+   "need": "",
+   "slots": {
+    "when": "ยี่สิบปี",
+    "icon": "clock",
+    "wlead": "ในอีก",
+    "wkey": "ยี่สิบปี"
+   }
+  },
+  {
+   "t0": 56.4,
+   "t1": 58.9,
+   "say": "ประโยคที่สาม ทิ้งขยะลงแม่น้ำ",
+   "shows": "trash dropped into river",
+   "part": "custom",
+   "size": "short",
+   "hit": 58.48,
+   "need": "trash falls into a river and the water turns dirty at the hit — no library part shows pollution",
+   "slots": {
+    "wlead": "ทิ้งขยะลง",
+    "wkey": "แม่น้ำ"
+   }
+  },
+  {
+   "t0": 59.3,
+   "t1": 62.0,
+   "say": "น้ำเน่า ปลาตาย คนในชุมชนเดือดร้อน",
+   "shows": "chain of three consequences",
+   "part": "B04.v1",
+   "size": "short",
+   "hit": 61.52,
+   "need": "",
+   "slots": {
+    "items": [
+     "น้ำเน่า",
+     "ปลาตาย",
+     "ชุมชนเดือดร้อน"
+    ],
+    "at": [
+     59.6,
+     60.56,
+     61.52
+    ],
+    "wlead": "ผลที่ตามมา",
+    "wkey": "เดือดร้อน"
+   }
+  },
+  {
+   "t0": 62.4,
+   "t1": 64.4,
+   "say": "ของการไม่แคร์สิ่งแวดล้อม",
+   "shows": "search lens finds leaf result",
+   "part": "B06.v4",
+   "size": "short",
+   "hit": 63.68,
+   "need": "",
+   "slots": {
+    "q": "ไม่แคร์สิ่งแวดล้อม",
+    "icon": "leaf",
+    "wlead": "ไม่แคร์",
+    "wkey": "สิ่งแวดล้อม"
+   }
+  },
+  {
+   "t0": 64.8,
+   "t1": 66.6,
+   "say": "ไม่ได้กระทบคนแค่คนเดียว",
+   "shows": "two people joined by a line",
+   "part": "B10.v3",
+   "size": "short",
+   "hit": 65.28,
+   "need": "",
+   "slots": {
+    "who": "คนแค่คนเดียว",
+    "wlead": "ไม่ได้กระทบ",
+    "wkey": "หลายคน"
+   }
+  },
+  {
+   "t0": 67.0,
+   "t1": 69.3,
+   "say": "ประโยคที่สี่ บริษัทนี้ไม่เคยฟัง",
+   "shows": "chat bubble read",
+   "part": "B11.v1",
+   "size": "short",
+   "hit": 68.79,
+   "need": "",
+   "slots": {
+    "text": "บริษัทนี้ไม่เคยฟัง",
+    "who": "พนักงาน",
+    "wlead": "ประโยคที่สี่",
+    "wkey": "ไม่เคยฟัง"
+   }
+  },
+  {
+   "t0": 69.7,
+   "t1": 71.2,
+   "say": "ฟังเสียงของพนักงานเลย",
+   "shows": "arrow falls for employees",
+   "part": "B02.v3",
+   "size": "short",
+   "hit": 70.48,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "user-x",
+    "wlead": "เสียงพนักงาน",
+    "wkey": "ไม่ฟัง"
+   }
+  },
+  {
+   "t0": 71.6,
+   "t1": 73.6,
+   "say": "คนเก่งทยอยกันลาออกหมดเลย",
+   "shows": "people icons leave one by one",
+   "part": "custom",
+   "size": "short",
+   "hit": 72.8,
+   "need": "a row of people icons fading out one by one at the hit — no part shows people leaving",
+   "slots": {
+    "wlead": "คนเก่งทยอย",
+    "wkey": "ลาออก"
+   }
+  },
+  {
+   "t0": 74.0,
+   "t1": 76.3,
+   "say": "ถ้าดูแล้วว่า consicnce ไปว่าอะไรก็อย่า",
+   "shows": "question about consequence",
+   "part": "custom",
+   "size": "short",
+   "hit": 75.12,
+   "need": "a word card with a question mark that pops at the word — no ending-question part",
+   "slots": {
+    "wlead": "ดูแล้วว่า",
+    "wkey": "consicnce"
+   }
+  }
+ ]
+}

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>CutPack หน้าหลัก</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Anuphan:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#0C0C0D}
+a{color:#F2F2F0;text-decoration:none}a:hover{color:#FFFFFF}
+.scr{font-family:'Geist','Anuphan',system-ui,sans-serif;color:#F2F2F0;-webkit-font-smoothing:antialiased}
+.body,.hs{scrollbar-width:none}.body::-webkit-scrollbar,.hs::-webkit-scrollbar{display:none}
+.pill{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 16px;border-radius:999px;border:1px solid rgba(255,255,255,0.14);background:transparent;color:rgba(255,255,255,0.72);font:500 14px 'Geist','Anuphan',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.pill.on{background:#FFFFFF;color:#0C0C0D;border-color:#FFFFFF}
+.card{background:#151516;border:1px solid rgba(255,255,255,0.10);border-radius:20px}
+.row{display:flex;align-items:center;gap:14px;padding:12px;border-radius:16px;background:#151516;border:1px solid rgba(255,255,255,0.10)}
+.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; position: relative; background: #0C0C0D; background-image: radial-gradient(120% 45% at 50% -14%, rgba(255,255,255,{{glow}}), rgba(255,255,255,0) 62%); display: flex; flex-direction: column">
+
+  <div style="flex-shrink: 0; padding: 14px 20px 0; display: flex; align-items: center; justify-content: space-between">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <div style="width: 34px; height: 34px; border-radius: 999px; background: #FFFFFF; color: #0C0C0D; display: flex; align-items: center; justify-content: center">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; stroke-width: 2.2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88"/><path d="M14.47 14.48 20 20"/><path d="M8.12 8.12 12 12"/></svg>
+      </div>
+      <span style="font-size: 16px; font-weight: 600; letter-spacing: -0.2px">CutPack</span>
+    </div>
+    <span style="display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); font-size: 13px; color: rgba(255,255,255,0.72)">เหลือ <b style="color: #F2F2F0; font-weight: 600">32</b> คลิป</span>
+  </div>
+
+  <div class="body" style="flex: 1; min-height: 0; overflow-y: auto">
+    <div style="padding: 14px 20px 20px; display: flex; flex-direction: column; gap: 18px">
+
+      <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding-top: 6px">
+        <div style="width: 72px; height: 72px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18); background: #151516; box-shadow: 0 0 50px rgba(255,255,255,0.10); display: flex; align-items: center; justify-content: center">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 32px; height: 32px; stroke-width: 1.5"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 9.5v5l4-2.5z"/></svg>
+        </div>
+        <h1 style="margin: 6px 0 0; font-size: 26px; font-weight: 600; letter-spacing: -0.4px">คลิปของคุณ</h1>
+        <p style="margin: 0; font-size: 14.5px; line-height: 1.6; color: rgba(255,255,255,0.72); max-width: 300px">อัปโหลดคลิปพูดหน้ากล้อง ระบบตัดต่อ ใส่ซับ และกราฟิกให้ตามสไตล์ที่คุณเลือก</p>
+      </div>
+
+      <div class="card" style="padding: 16px 18px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+          <div style="display: flex; flex-direction: column; gap: 2px">
+            <span style="font-size: 13px; color: rgba(255,255,255,0.5)">แพ็กรายเดือน</span>
+            <span style="font-size: 17px; font-weight: 600">ใช้ไป 18 จาก 50 คลิป</span>
+          </div>
+          <a href="#" class="pill" style="height: 34px; padding: 0 14px; font-size: 13px">ดูแพ็ก</a>
+        </div>
+        <div style="height: 6px; border-radius: 999px; background: rgba(255,255,255,0.10); overflow: hidden">
+          <div style="width: 36%; height: 100%; border-radius: 999px; background: #FFFFFF"></div>
+        </div>
+        <span style="font-size: 13px; color: rgba(255,255,255,0.5)">เริ่มรอบใหม่ [วันที่รีเซ็ต]</span>
+      </div>
+
+      <div class="hs" style="display: flex; gap: 8px; overflow-x: auto; margin: 0 -20px; padding: 0 20px">
+        <sc-for list="{{filters}}" as="f" hint-placeholder-count="4">
+          <sc-if value="{{f.on}}" hint-placeholder-val="{{false}}">
+            <button class="pill on" onClick="{{f.pick}}">{{f.label}}</button>
+          </sc-if>
+          <sc-if value="{{f.off}}" hint-placeholder-val="{{true}}">
+            <button class="pill" onClick="{{f.pick}}">{{f.label}}</button>
+          </sc-if>
+        </sc-for>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 0 2px">
+          <h2 style="margin: 0; font-size: 18px; font-weight: 600">คลิปล่าสุด</h2>
+          <span style="min-width: 22px; height: 22px; padding: 0 6px; box-sizing: border-box; border-radius: 999px; background: rgba(255,255,255,0.10); font-size: 12px; color: rgba(255,255,255,0.72); display: inline-flex; align-items: center; justify-content: center">{{count}}</span>
+        </div>
+        <sc-for list="{{clips}}" as="c" hint-placeholder-count="4">
+          <a href="{{c.href}}" class="row">
+            <img src="{{c.thumb}}" alt="" style="width: 46px; height: 60px; border-radius: 10px; object-fit: cover; background: #222; flex-shrink: 0">
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 15px; font-weight: 600; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{c.title}}</span>
+              <span style="font-size: 13px; color: rgba(255,255,255,0.5)">{{c.meta}}</span>
+            </div>
+            <sc-if value="{{c.waiting}}" hint-placeholder-val="{{false}}">
+              <span style="height: 30px; padding: 0 12px; border-radius: 999px; background: #FFFFFF; color: #0C0C0D; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; flex-shrink: 0">ตรวจซับ</span>
+            </sc-if>
+            <sc-if value="{{c.making}}" hint-placeholder-val="{{false}}">
+              <span style="font-size: 13px; color: rgba(255,255,255,0.72); flex-shrink: 0">{{c.progress}}</span>
+            </sc-if>
+            <sc-if value="{{c.done}}" hint-placeholder-val="{{true}}">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; color: rgba(255,255,255,0.5); flex-shrink: 0"><path d="m9 18 6-6-6-6"/></svg>
+            </sc-if>
+          </a>
+        </sc-for>
+      </div>
+
+      <div class="card" style="padding: 18px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 13px; color: rgba(255,255,255,0.5)">ก่อนถ่ายคลิปถัดไป</span>
+          <span style="font-size: 17px; font-weight: 600">ถ่ายแบบไหนได้ผลดีที่สุด</span>
+        </div>
+        <sc-for list="{{tips}}" as="t" hint-placeholder-count="3">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12)">
+            <span style="width: 28px; height: 28px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.16); font-size: 12px; color: rgba(255,255,255,0.72); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0">{{t.k}}</span>
+            <span style="font-size: 14px; line-height: 1.5">{{t.text}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex-shrink: 0; padding: 12px 20px 24px">
+    <a href="Upload.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 10px; height: 54px; border-radius: 999px; background: #FFFFFF; color: #0C0C0D; font-size: 16px; font-weight: 600">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2.2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+      สร้างคลิปใหม่
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"glow":{"editor":"range","default":0.16,"min":0,"max":0.35,"step":0.01},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { filter: 'all' }; }
+  renderVals() {
+    const all = [
+      { title: 'ทำไมคลิปของคุณยอดวิวไม่ขึ้น', meta: 'Editorial · 0:18', status: 'done', thumb: '/_blob/9d787f9bfc8592ec1cbb6d209d93a910', href: 'Result.dc.html' },
+      { title: '3 วินาทีแรกสำคัญที่สุด', meta: 'Overlay · 0:52', status: 'making', progress: 'กำลังสร้าง 62%', thumb: '/_blob/b76a0c49e8c93abfbe2200245283840c', href: '#' },
+      { title: 'ราคาไม่ใช่เรื่องเดียวที่ลูกค้าดู', meta: 'Editorial · 1:20', status: 'waiting', thumb: '/_blob/ff5d3ed305efb37e5bcc27b09e16b9ec', href: 'Captions.dc.html' },
+      { title: 'แบรนด์คือคำสัญญาต่อลูกค้า', meta: 'Overlay · 1:29', status: 'done', thumb: '/_blob/8d6f6b2e84ece8fd0c5ff1eea50e620b', href: 'Result.dc.html' }
+    ];
+    const f = this.state.filter;
+    const clips = all.filter((c) => f === 'all' || c.status === f)
+      .map((c) => ({ ...c, done: c.status === 'done', making: c.status === 'making', waiting: c.status === 'waiting' }));
+    const filters = [['all', 'ทั้งหมด'], ['done', 'เสร็จแล้ว'], ['making', 'กำลังสร้าง'], ['waiting', 'รอตรวจซับ']]
+      .map(([id, label]) => ({ label, on: f === id, off: f !== id, pick: () => this.setState({ filter: id }) }));
+    return {
+      glow: this.props.glow ?? 0.16,
+      filters, clips, count: clips.length,
+      tips: [
+        { k: 'A', text: 'เว้นที่ว่างเหนือหัวราวหนึ่งฝ่ามือ กราฟิกจะลอยเหนือหัวได้ทั้งคลิป' },
+        { k: 'B', text: 'หน้าเต็มเฟรมก็ได้ ระบบจะย่อภาพให้ชั่วคราวตอนกราฟิกขึ้น' },
+        { k: 'C', text: 'พูดชัด ไม่มีเพลงพื้นหลัง ซับจะถอดได้แม่นขึ้น' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

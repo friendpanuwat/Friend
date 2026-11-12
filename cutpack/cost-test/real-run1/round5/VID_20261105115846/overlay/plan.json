@@ -1,0 +1,866 @@
+{
+ "version": 1,
+ "style": "overlay",
+ "clip": {
+  "file": "VID_20261105115846.mp4",
+  "duration": 76.37,
+  "customer": "test"
+ },
+ "topic": "edu",
+ "script": "จะโกรธ หมายถ้า เรา บอกว่า ยังมี บาง คนใช้วิธี เรียน ภาษาอังกฤษ ที่ ยังไม่ เหมาะสมกับ ตัวเองมาก ที่สุด เพราะ วันนี้ เราจะไม่ แนะนำ วิธีหนึ่งที่ เรียก ว่า Conprentblenport เพื่อ บางคน ใช้แล้ว พูด ง่าย มันคือ การหา อะไรที่ เรา เกือบ เข้าใจ แล้วอีก เดียว จะ เข้าใจแล้ว เราก็ อยู่กับ มันฟังซ้ำไป เรื่อย เรื่อยแต่ เติม อะไร ใหม่ เข้ามา พูดง่าย ง่ายมัน คือ การเรียน สิ่งใหม่ จาก บริบท เดิม อย่างเช่นวันนี้ เรา จะมาสอน คำศัพท์ ใหม่เผื่อ บางคน ไม่รู้ คำว่า Consic เราจะ ไม่ใช้ ประโยค อังกฤษด้วย เราจะใช้ ประโยค ไทย แล้วก็ใช้ คำว่า conskence เข้าไป เหมือน เวลา คนพูด อังกฤษ คำ ไทย คำ เราก็ จะไม่ เฉลย ความหมาย ด้วย เพราะว่า จุดประสงค์ ของ การเรียน แบบ Conprensible inpood คือเรา เรียนรู้ ความหมาย ของมัน จากบริบท เอง งั้นมา รอง ประโยค แรกเลย เขา โกหก ครั้ง เดียวแต่ ต้อง โกหก ไปอีกสิบ รอบ เพราะ คอนซิ ควน ของการ โกหก คือมันไม่มี วันจบ ประโยค ที่สอง ประเทศ ที่ไม่ ลงทุนกับ การศึกษา consicance จะ เห็นได้ชัด ในอีก ยี่สิบปี ข้างหน้า ประโยค ที่สาม ทิ้ง ขยะลง แม่น้ำ น้ำเน่า ปลา ตาย คนใน ชุมชน เดือดร้อน Conskence ของ การไม่ แคร์ สิ่งแวดล้อม ไม่ได้ กระทบ คนแค่ คนเดียว ประโยคที่สี่ บริษัทนี้ไม่ เคย ฟังเสียง ของ พนักงานเลย consiquence คือ คนเก่งทยอยกัน ลาออก หมดเลย ถ้า ดูแล้ว ว่า consicnce ไปว่า อะไรก็ อย่า",
+ "camera": [
+  {
+   "push": 5.3
+  },
+  {
+   "pull": 15.0
+  },
+  {
+   "push": 26.0
+  },
+  {
+   "pull": 38.0
+  },
+  {
+   "push": 44.4
+  },
+  {
+   "pull": 57.0
+  },
+  {
+   "push": 66.7
+  }
+ ],
+ "subtitles": [
+  {
+   "t0": 0.48,
+   "t1": 1.68,
+   "text": "จะโกรธ / หมายถ้า เรา / บอกว่า"
+  },
+  {
+   "t0": 1.68,
+   "t1": 2.8,
+   "text": "ยังมี บาง / คนใช้วิธี / เรียน"
+  },
+  {
+   "t0": 2.8,
+   "t1": 5.28,
+   "text": "ภาษาอังกฤษ / ที่ ยังไม่ / เหมาะสมกับ / ตัวเองมาก ที่สุด"
+  },
+  {
+   "t0": 5.28,
+   "t1": 7.15,
+   "text": "เพราะ วันนี้ / เราจะไม่ แนะนำ / วิธีหนึ่งที่ เรียก"
+  },
+  {
+   "t0": 7.15,
+   "t1": 11.44,
+   "text": "ว่า / Conprentblenport / เพื่อ บางคน / ใช้แล้ว"
+  },
+  {
+   "t0": 11.44,
+   "t1": 13.12,
+   "text": "พูด ง่าย / มันคือ การหา / อะไรที่ เรา"
+  },
+  {
+   "t0": 13.12,
+   "t1": 16.24,
+   "text": "เกือบ เข้าใจ / แล้วอีก เดียว / จะ เข้าใจแล้ว"
+  },
+  {
+   "t0": 16.24,
+   "t1": 18.88,
+   "text": "เราก็ อยู่กับ / มันฟังซ้ำไป เรื่อย / เรื่อยแต่ เติม"
+  },
+  {
+   "t0": 18.88,
+   "t1": 20.88,
+   "text": "อะไร ใหม่ / เข้ามา / พูดง่าย ง่ายมัน"
+  },
+  {
+   "t0": 20.88,
+   "t1": 23.52,
+   "text": "คือ การเรียน / สิ่งใหม่ จาก / บริบท เดิม"
+  },
+  {
+   "t0": 23.52,
+   "t1": 25.68,
+   "text": "อย่างเช่นวันนี้ เรา / จะมาสอน คำศัพท์ / ใหม่เผื่อ บางคน"
+  },
+  {
+   "t0": 25.68,
+   "t1": 27.84,
+   "text": "ไม่รู้ คำว่า / Consic"
+  },
+  {
+   "t0": 27.84,
+   "t1": 30.0,
+   "text": "เราจะ ไม่ใช้ / ประโยค อังกฤษด้วย / เราจะใช้ ประโยค"
+  },
+  {
+   "t0": 30.0,
+   "t1": 32.0,
+   "text": "ไทย แล้วก็ใช้ / คำว่า / conskence เข้าไป"
+  },
+  {
+   "t0": 32.0,
+   "t1": 34.08,
+   "text": "เหมือน เวลา / คนพูด อังกฤษ / คำ ไทย"
+  },
+  {
+   "t0": 34.08,
+   "t1": 35.68,
+   "text": "คำ เราก็ / จะไม่ เฉลย / ความหมาย"
+  },
+  {
+   "t0": 35.68,
+   "t1": 38.08,
+   "text": "ด้วย เพราะว่า / จุดประสงค์ ของ / การเรียน"
+  },
+  {
+   "t0": 38.08,
+   "t1": 40.16,
+   "text": "แบบ Conprensible / inpood / คือเรา เรียนรู้"
+  },
+  {
+   "t0": 40.16,
+   "t1": 42.64,
+   "text": "ความหมาย ของมัน / จากบริบท เอง / งั้นมา รอง"
+  },
+  {
+   "t0": 42.64,
+   "t1": 44.32,
+   "text": "ประโยค แรกเลย"
+  },
+  {
+   "t0": 44.32,
+   "t1": 47.04,
+   "text": "เขา โกหก / ครั้ง เดียวแต่ / ต้อง โกหก / ไปอีกสิบ รอบ"
+  },
+  {
+   "t0": 47.04,
+   "t1": 51.44,
+   "text": "เพราะ / คอนซิ ควน / ของการ โกหก / คือมันไม่มี วันจบ / ประโยค / ที่สอง"
+  },
+  {
+   "t0": 51.44,
+   "t1": 57.12,
+   "text": "ประเทศ ที่ไม่ / ลงทุนกับ การศึกษา / consicance / จะ เห็นได้ชัด / ในอีก ยี่สิบปี / ข้างหน้า"
+  },
+  {
+   "t0": 57.12,
+   "t1": 63.04,
+   "text": "ประโยค ที่สาม / ทิ้ง ขยะลง / แม่น้ำ น้ำเน่า / ปลา ตาย / คนใน ชุมชน / เดือดร้อน / Conskence"
+  },
+  {
+   "t0": 63.04,
+   "t1": 66.72,
+   "text": "ของ การไม่ / แคร์ สิ่งแวดล้อม / ไม่ได้ กระทบ / คนแค่ คนเดียว"
+  },
+  {
+   "t0": 66.72,
+   "t1": 74.4,
+   "text": "ประโยคที่สี่ / บริษัทนี้ไม่ เคย / ฟังเสียง ของ / พนักงานเลย / consiquence คือ / คนเก่งทยอยกัน ลาออก / หมดเลย"
+  },
+  {
+   "t0": 74.4,
+   "t1": 76.37,
+   "text": "ถ้า ดูแล้ว / ว่า consicnce / ไปว่า อะไรก็ / อย่า"
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 0.5,
+   "t1": 2.3,
+   "kind": "widget",
+   "part": "B07.v3",
+   "size": "short",
+   "hit": 0.96,
+   "slots": {
+    "text": "จะโกรธ",
+    "icon": "angry",
+    "wlead": "ถ้าเราบอกว่า",
+    "wkey": "จะโกรธ"
+   },
+   "say": "จะโกรธ ถ้าเราบอกว่า",
+   "shows": "alert dot pops, anger",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 2.7,
+   "t1": 5.1,
+   "kind": "widget",
+   "part": "B14.v1",
+   "size": "short",
+   "hit": 3.44,
+   "slots": {
+    "words": [
+     "เรียนภาษาอังกฤษ",
+     "ยังไม่เหมาะ",
+     "กับตัวเอง"
+    ],
+    "key": 1,
+    "icon": "languages",
+    "wkey": "ยังไม่เหมาะ"
+   },
+   "say": "เรียนภาษาอังกฤษที่ยังไม่เหมาะสมกับตัวเองมาก",
+   "shows": "words with key phrase highlighted",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 5.5,
+   "t1": 8.0,
+   "kind": "widget",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 6.08,
+   "slots": {
+    "text": "ไม่แนะนำ",
+    "icon": "ban",
+    "wlead": "วันนี้เราจะ",
+    "wkey": "ไม่แนะนำ"
+   },
+   "say": "วันนี้เราจะไม่แนะนำ",
+   "shows": "warning sign pops",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 8.4,
+   "t1": 10.9,
+   "kind": "widget",
+   "part": "B10.v1",
+   "size": "short",
+   "hit": 9.28,
+   "slots": {
+    "who": "บางคน",
+    "wlead": "เพื่อ",
+    "wkey": "บางคน"
+   },
+   "say": "เพื่อบางคนใช้แล้ว",
+   "shows": "one person highlighted in a group",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 11.3,
+   "t1": 13.0,
+   "kind": "widget",
+   "part": "B08.v4",
+   "size": "short",
+   "hit": 11.7,
+   "slots": {
+    "goal": "พูดง่าย",
+    "icon": "check",
+    "wlead": "ใช้แล้ว",
+    "wkey": "พูดง่าย"
+   },
+   "say": "พูดง่าย",
+   "shows": "big check mark drawn",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 13.4,
+   "t1": 15.9,
+   "kind": "widget",
+   "part": "B03.v4",
+   "size": "short",
+   "hit": 15.12,
+   "slots": {
+    "a": "เกือบเข้าใจ",
+    "b": "เข้าใจแล้ว",
+    "ia": "lightbulb-off",
+    "ib": "lightbulb",
+    "win": "b"
+   },
+   "say": "เกือบเข้าใจ แล้วอีกเดี๋ยวจะเข้าใจแล้ว",
+   "shows": "cover slides to reveal understood side",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 16.3,
+   "t1": 18.8,
+   "kind": "widget",
+   "part": "B14.v3",
+   "size": "short",
+   "hit": 16.88,
+   "slots": {
+    "words": [
+     "ฟังซ้ำ",
+     "เรื่อยๆ"
+    ],
+    "key": 0,
+    "icon": "repeat",
+    "wkey": "ฟังซ้ำ"
+   },
+   "say": "อยู่กับมันฟังซ้ำไปเรื่อยๆ",
+   "shows": "repeat icon with underlined word",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 19.2,
+   "t1": 21.0,
+   "kind": "widget",
+   "part": "B13.v1",
+   "size": "short",
+   "hit": 19.6,
+   "slots": {
+    "tip": "เติมอะไรใหม่",
+    "icon": "sparkles",
+    "wlead": "เติม",
+    "wkey": "อะไรใหม่"
+   },
+   "say": "เติมอะไรใหม่เข้ามา",
+   "shows": "light bulb turns on",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 21.4,
+   "t1": 23.4,
+   "kind": "widget",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 22.4,
+   "slots": {
+    "a": "สิ่งใหม่",
+    "ia": "sparkles",
+    "b": "บริบทเดิม",
+    "ib": "book-open"
+   },
+   "say": "การเรียนสิ่งใหม่ จากบริบทเดิม",
+   "shows": "new thing arrow to old context",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 23.8,
+   "t1": 25.6,
+   "kind": "widget",
+   "part": "EDU.h1",
+   "size": "short",
+   "hit": 24.72,
+   "slots": {
+    "word": "คำศัพท์ใหม่",
+    "wlead": "จะมาสอน",
+    "wkey": "คำศัพท์"
+   },
+   "say": "จะมาสอนคำศัพท์ใหม่",
+   "shows": "vocab card flips",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 26.0,
+   "t1": 27.7,
+   "kind": "widget",
+   "part": "B13.edu1",
+   "size": "short",
+   "hit": 26.4,
+   "slots": {
+    "tip": "Consic",
+    "wlead": "คำว่า",
+    "wkey": "Consic"
+   },
+   "say": "ไม่รู้คำว่า Consic",
+   "shows": "send button pressed, spark",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 28.1,
+   "t1": 30.0,
+   "kind": "widget",
+   "part": "B05.v1",
+   "size": "short",
+   "hit": 28.5,
+   "slots": {
+    "x": "ประโยคอังกฤษ",
+    "y": "ประโยคไทย",
+    "aty": 29.68,
+    "wlead": "เราจะไม่ใช้",
+    "wkey": "ประโยคไทย"
+   },
+   "say": "ไม่ใช้ประโยคอังกฤษ เราจะใช้ประโยคไทย",
+   "shows": "English sentence crossed out, Thai right",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 30.4,
+   "t1": 32.2,
+   "kind": "widget",
+   "part": "B08.v1",
+   "size": "short",
+   "hit": 30.88,
+   "slots": {
+    "goal": "conskence",
+    "icon": "target",
+    "wlead": "คำว่า",
+    "wkey": "conskence"
+   },
+   "say": "คำว่า conskence เข้าไป",
+   "shows": "arrow hits target center",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 32.6,
+   "t1": 34.1,
+   "kind": "widget",
+   "part": "B03.v1",
+   "size": "short",
+   "hit": 33.76,
+   "slots": {
+    "a": "อังกฤษ",
+    "b": "ไทย",
+    "ia": "globe",
+    "ib": "languages",
+    "win": "b"
+   },
+   "say": "คนพูดอังกฤษคำ ไทยคำ",
+   "shows": "English vs Thai split",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 34.5,
+   "t1": 36.3,
+   "kind": "widget",
+   "part": "B13.v3",
+   "size": "short",
+   "hit": 34.96,
+   "slots": {
+    "tip": "ไม่เฉลยความหมาย",
+    "icon": "lightbulb-off",
+    "wlead": "จะไม่เฉลย",
+    "wkey": "ความหมาย"
+   },
+   "say": "เราก็จะไม่เฉลยความหมาย",
+   "shows": "unlit bulb for hidden meaning",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 36.7,
+   "t1": 38.4,
+   "kind": "widget",
+   "part": "B08.edu1",
+   "size": "short",
+   "hit": 37.36,
+   "slots": {
+    "goal": "จุดประสงค์",
+    "icon": "target",
+    "wlead": "ของการเรียน",
+    "wkey": "จุดประสงค์"
+   },
+   "say": "จุดประสงค์ของการเรียน",
+   "shows": "certificate stamped",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 38.8,
+   "t1": 42.0,
+   "kind": "widget",
+   "part": "B04.v2",
+   "size": "short",
+   "hit": 40.8,
+   "slots": {
+    "items": [
+     "เรียนรู้",
+     "ความหมาย",
+     "จากบริบท"
+    ],
+    "at": [
+     39.76,
+     40.16,
+     40.8
+    ],
+    "wlead": "เรียนรู้",
+    "wkey": "จากบริบท"
+   },
+   "say": "เรียนรู้ความหมายของมันจากบริบทเอง",
+   "shows": "steps ticked one by one",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 42.4,
+   "t1": 44.3,
+   "kind": "widget",
+   "part": "B06.v1",
+   "size": "short",
+   "hit": 42.96,
+   "slots": {
+    "q": "ประโยคแรกเลย",
+    "icon": "file-text",
+    "wlead": "ประโยคแรก",
+    "wkey": "ลองดู"
+   },
+   "say": "งั้นมารองประโยคแรกเลย",
+   "shows": "big question mark wobbles",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 44.7,
+   "t1": 47.3,
+   "kind": "widget",
+   "part": "B02.v1",
+   "size": "short",
+   "hit": 46.8,
+   "slots": {
+    "dir": "up",
+    "icon": "repeat",
+    "wlead": "โกหก",
+    "wkey": "อีกสิบรอบ"
+   },
+   "say": "โกหกครั้งเดียวต้องโกหกไปอีกสิบรอบ",
+   "shows": "bars rising for lies",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 47.7,
+   "t1": 50.0,
+   "kind": "widget",
+   "part": "B12.v4",
+   "size": "short",
+   "hit": 49.28,
+   "slots": {
+    "a": "โกหก",
+    "ia": "message-circle-warning",
+    "b": "ไม่มีวันจบ",
+    "ib": "infinity",
+    "c": "โกหก",
+    "ic": "repeat"
+   },
+   "say": "คือมันไม่มีวันจบ",
+   "shows": "loop closes endlessly",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 50.4,
+   "t1": 52.9,
+   "kind": "widget",
+   "part": "B02.edu1",
+   "size": "short",
+   "hit": 52.55,
+   "slots": {
+    "dir": "down",
+    "icon": "book",
+    "wlead": "ไม่ลงทุน",
+    "wkey": "การศึกษา"
+   },
+   "say": "ประเทศที่ไม่ลงทุนกับการศึกษา",
+   "shows": "books fall off the stack",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 53.3,
+   "t1": 56.0,
+   "kind": "widget",
+   "part": "B09.v1",
+   "size": "short",
+   "hit": 55.28,
+   "slots": {
+    "when": "ยี่สิบปี",
+    "icon": "clock",
+    "wlead": "ในอีก",
+    "wkey": "ยี่สิบปี"
+   },
+   "say": "จะเห็นได้ชัดในอีกยี่สิบปีข้างหน้า",
+   "shows": "clock hands spin to twenty years",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 56.4,
+   "t1": 58.9,
+   "kind": "widget",
+   "part": "custom",
+   "size": "short",
+   "hit": 58.48,
+   "slots": {
+    "wlead": "ทิ้งขยะลง",
+    "wkey": "แม่น้ำ"
+   },
+   "say": "ประโยคที่สาม ทิ้งขยะลงแม่น้ำ",
+   "shows": "trash dropped into river",
+   "need": "trash falls into a river and the water turns dirty at the hit — no library part shows pollution",
+   "code": "const w = div('left:0;top:90px;width:150px;height:60px;background:#BFD9F2;border-radius:12px', vis);\nconst dirty = div('left:0;top:90px;width:150px;height:60px;background:#8B6B4A;border-radius:12px;opacity:0', vis);\nconst wave = svg(150, 20, '<path d=\"M0 10 Q19 0 37 10 T75 10 T112 10 T150 10\" stroke=\"#fff\" stroke-width=\"4\" fill=\"none\"/>', 'left:0;top:84px', vis);\nmv.show(w, T.t0 + .1); mv.show(wave, T.t0 + .1);\nconst tr = div('left:50px;top:-10px;width:50px;height:50px;opacity:0', vis, ico('trash-2', 50, NAVY, 2.5));\nmv.show(tr, T.t0 + .2);\nmv.slide(tr, T.hit - .6, 'translateY(0px)', 'translateY(85px)');\nmv.show(dirty, T.hit);\nmv.wobble(w, T.hit);\nsnd('hit', T.hit);",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 59.3,
+   "t1": 62.0,
+   "kind": "widget",
+   "part": "B04.v1",
+   "size": "short",
+   "hit": 61.52,
+   "slots": {
+    "items": [
+     "น้ำเน่า",
+     "ปลาตาย",
+     "ชุมชนเดือดร้อน"
+    ],
+    "at": [
+     59.6,
+     60.56,
+     61.52
+    ],
+    "wlead": "ผลที่ตามมา",
+    "wkey": "เดือดร้อน"
+   },
+   "say": "น้ำเน่า ปลาตาย คนในชุมชนเดือดร้อน",
+   "shows": "chain of three consequences",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 62.4,
+   "t1": 64.4,
+   "kind": "widget",
+   "part": "B06.v4",
+   "size": "short",
+   "hit": 63.68,
+   "slots": {
+    "q": "ไม่แคร์สิ่งแวดล้อม",
+    "icon": "leaf",
+    "wlead": "ไม่แคร์",
+    "wkey": "สิ่งแวดล้อม"
+   },
+   "say": "ของการไม่แคร์สิ่งแวดล้อม",
+   "shows": "search lens finds leaf result",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 64.8,
+   "t1": 66.6,
+   "kind": "widget",
+   "part": "B10.v3",
+   "size": "short",
+   "hit": 65.28,
+   "slots": {
+    "who": "คนแค่คนเดียว",
+    "wlead": "ไม่ได้กระทบ",
+    "wkey": "หลายคน"
+   },
+   "say": "ไม่ได้กระทบคนแค่คนเดียว",
+   "shows": "two people joined by a line",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "top"
+  },
+  {
+   "t0": 67.0,
+   "t1": 69.3,
+   "kind": "widget",
+   "part": "B11.v1",
+   "size": "short",
+   "hit": 68.79,
+   "slots": {
+    "text": "บริษัทนี้ไม่เคยฟัง",
+    "who": "พนักงาน",
+    "wlead": "ประโยคที่สี่",
+    "wkey": "ไม่เคยฟัง"
+   },
+   "say": "ประโยคที่สี่ บริษัทนี้ไม่เคยฟัง",
+   "shows": "chat bubble read",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 69.7,
+   "t1": 71.2,
+   "kind": "widget",
+   "part": "B02.v3",
+   "size": "short",
+   "hit": 70.48,
+   "slots": {
+    "dir": "down",
+    "icon": "user-x",
+    "wlead": "เสียงพนักงาน",
+    "wkey": "ไม่ฟัง"
+   },
+   "say": "ฟังเสียงของพนักงานเลย",
+   "shows": "arrow falls for employees",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 71.6,
+   "t1": 73.6,
+   "kind": "widget",
+   "part": "custom",
+   "size": "short",
+   "hit": 72.8,
+   "slots": {
+    "wlead": "คนเก่งทยอย",
+    "wkey": "ลาออก"
+   },
+   "say": "คนเก่งทยอยกันลาออกหมดเลย",
+   "shows": "people icons leave one by one",
+   "need": "a row of people icons fading out one by one at the hit — no part shows people leaving",
+   "code": "const n = 4;\nfor (let i = 0; i < n; i++) {\n  const p = div('left:' + (i * 38) + 'px;top:50px;width:36px;height:50px;opacity:0', vis, ico('user', 36, i === 0 ? ACC : NAVY, 2.5));\n  mv.pop(p, T.t0 + .1 + i * .1);\n  mv.dim(p, T.hit + i * .15);\n}\nsnd('hit', T.hit);",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  },
+  {
+   "t0": 74.0,
+   "t1": 76.3,
+   "kind": "widget",
+   "part": "custom",
+   "size": "short",
+   "hit": 75.12,
+   "slots": {
+    "wlead": "ดูแล้วว่า",
+    "wkey": "consicnce"
+   },
+   "say": "ถ้าดูแล้วว่า consicnce ไปว่าอะไรก็อย่า",
+   "shows": "question about consequence",
+   "need": "a word card with a question mark that pops at the word — no ending-question part",
+   "code": "const card = div('left:15px;top:35px;width:120px;height:80px;background:#EEF0F4;border-radius:16px', vis);\nmv.pop(card, T.t0 + .1);\nconst q = div('left:45px;top:30px;width:60px;height:90px;opacity:0;font-family:KeySans;font-size:80px;line-height:90px;text-align:center;color:' + ACC, vis, '?');\nmv.pop(q, T.hit);\nmv.punch(card, T.hit);\nsnd('hit', T.hit);",
+   "pos": {
+    "x": 240,
+    "y": 150
+   },
+   "where": "shrink",
+   "shrink": true
+  }
+ ],
+ "layout": {
+  "subtitleTop": 1380,
+  "widgetPos": {
+   "short": {
+    "x": 240,
+    "y": 150
+   },
+   "narrow": {
+    "x": 36,
+    "y": 268
+   }
+  }
+ }
+}

@@ -1,0 +1,46 @@
+{
+ "status": "ok",
+ "topic": "fit",
+ "log": [
+  "fix round (plan): 15 errors sent back"
+ ],
+ "fallback": [],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "number-word",
+   "where": "scenes[1] B14.v2",
+   "msg": "\"สี่ร้อย\" reads as 400, which is not in the script",
+   "scene": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 32.16–34.08 \"แล้ว ผม ไม่ ได้ บอก / นะ ว่า เคส ที่ กำลัง ไวรัล\"",
+   "msg": "chunk \"นะ ว่า เคส ที่ กำลัง ไวรัล\" is 15 letters, aim ≤ 12",
+   "sub": 8
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 55.36–57.28 \"ร่างกาย ตัวเอง ได้ นาน / ขึ้น พร้อม เร็ว เนี่ย\"",
+   "msg": "chunk \"ร่างกาย ตัวเอง ได้ นาน\" is 16 letters, aim ≤ 12",
+   "sub": 13
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 76.48–78.64 \"เคย ผ่าน การ อดอาหาร / แบบ สุดโต่ง นะ ครับ\"",
+   "msg": "chunk \"เคย ผ่าน การ อดอาหาร\" is 16 letters, aim ≤ 12",
+   "sub": 16
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 76.48–78.64 \"เคย ผ่าน การ อดอาหาร / แบบ สุดโต่ง นะ ครับ\"",
+   "msg": "chunk \"แบบ สุดโต่ง นะ ครับ\" is 13 letters, aim ≤ 12",
+   "sub": 16
+  }
+ ]
+}

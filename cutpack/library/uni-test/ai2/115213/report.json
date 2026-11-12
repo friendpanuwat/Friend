@@ -1,0 +1,458 @@
+[
+ {
+  "id": "c2_115213.01",
+  "line": 5,
+  "text": "มันจะ ไม่มีทาง เป็น Main income",
+  "near": "เสริมนะ เว้ย มันก็จะ เป็นรายได้ เสริมต่อไป เรื่อยๆ มันจะ ไม่มีทาง เป็น Main income ได้มีแต่คน พูดว่า อยากหารายได้ เสริม",
+  "lead": "มันจะ ไม่มีทาง เป็น",
+  "key": "Main income",
+  "meaning": "never main income",
+  "shows": "An income icon stays flat and a crown for main income is crossed, so it never becomes main income.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "meter",
+   "icon": "coins",
+   "v0": 0.3,
+   "v1": 0.3,
+   "then": {
+    "icon": "crown",
+    "how": "cross"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 5,
+   "shows": "An income icon stays flat and a crown for main income is crossed, so it never becomes main income.",
+   "lead": "มันจะ ไม่มีทาง เป็น",
+   "key": "Main income",
+   "meaning": "never main income",
+   "recipe": {
+    "layout": "change",
+    "as": "meter",
+    "icon": "coins",
+    "v0": 0.3,
+    "v1": 0.3,
+    "then": {
+     "icon": "crown",
+     "how": "cross"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_115213.02",
+  "line": 9,
+  "text": "อ่ะผม รู้สึกว่า ถ้าอยากให้ มันมา เป็น active income",
+  "near": "แล้ว รายได้หลัก active income อ่ะผม รู้สึกว่า ถ้าอยากให้ มันมา เป็น active income นะคือยู ต้อง มองมัน เป็น",
+  "lead": "ถ้าอยากให้ มันมา เป็น",
+  "key": "active",
+  "meaning": "become active income",
+  "shows": "Three steps with arrows ending in the goal, the active income.",
+  "kind": "library",
+  "use": "lego.three-steps",
+  "recipe": null,
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 9,
+   "shows": "Three steps with arrows ending in the goal, the active income.",
+   "lead": "ถ้าอยากให้ มันมา เป็น",
+   "key": "active",
+   "meaning": "become active income",
+   "use": "lego.three-steps"
+  }
+ },
+ {
+  "id": "c2_115213.03",
+  "line": 10,
+  "text": "นะคือยู ต้อง มองมัน เป็น",
+  "near": "อ่ะผม รู้สึกว่า ถ้าอยากให้ มันมา เป็น active income นะคือยู ต้อง มองมัน เป็น business หรือว่ากล้า เทค",
+  "lead": "ต้อง มองมัน เป็น",
+  "key": "business",
+  "meaning": "see it as business",
+  "shows": "Two cards: the business card is ticked and the side coins card is faded and crossed, so see it as a business.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "cards",
+   "a": {
+    "icon": "store",
+    "label": "business",
+    "tone": "acc"
+   },
+   "b": {
+    "icon": "coins",
+    "tone": "soft"
+   },
+   "win": "a",
+   "how": "both"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 10,
+   "shows": "Two cards: the business card is ticked and the side coins card is faded and crossed, so see it as a business.",
+   "lead": "ต้อง มองมัน เป็น",
+   "key": "business",
+   "meaning": "see it as business",
+   "recipe": {
+    "layout": "versus",
+    "as": "cards",
+    "a": {
+     "icon": "store",
+     "label": "business",
+     "tone": "acc"
+    },
+    "b": {
+     "icon": "coins",
+     "tone": "soft"
+    },
+    "win": "a",
+    "how": "both"
+   }
+  }
+ },
+ {
+  "id": "c2_115213.04",
+  "line": 12,
+  "text": "ความเสี่ยง กับมัน เว้ยคำว่า รายได้เสริม",
+  "near": "business หรือว่ากล้า เทค ความเสี่ยง กับมัน เว้ยคำว่า รายได้เสริม หรือว่า side hustle โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง",
+  "lead": "",
+  "key": "ความเสี่ยง",
+  "meaning": "face the risk",
+  "shows": "A focus closes in on the risk warning among several icons, so you must face the risk.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "pick",
+   "items": [
+    "triangle-alert",
+    "coins",
+    "shield",
+    "target"
+   ],
+   "at": 0,
+   "bad": false,
+   "round": false,
+   "how": "pick"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 12,
+   "shows": "A focus closes in on the risk warning among several icons, so you must face the risk.",
+   "lead": "",
+   "key": "ความเสี่ยง",
+   "meaning": "face the risk",
+   "recipe": {
+    "layout": "aim",
+    "as": "pick",
+    "items": [
+     "triangle-alert",
+     "coins",
+     "shield",
+     "target"
+    ],
+    "at": 0,
+    "bad": false,
+    "round": false,
+    "how": "pick"
+   }
+  }
+ },
+ {
+  "id": "c2_115213.05",
+  "line": 13,
+  "text": "หรือว่า side hustle โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง",
+  "near": "ความเสี่ยง กับมัน เว้ยคำว่า รายได้เสริม หรือว่า side hustle โดยส่วนใหญ่ นะครับ ไม่มี ความเสี่ยง ไม่มีคำว่า เจ๊ง ไม่มีคำว่า ขาดทุนนะ",
+  "lead": "ไม่มี",
+  "key": "ความเสี่ยง",
+  "meaning": "no risk",
+  "shows": "A risk warning switch turns off and is ticked, so a side hustle has no risk.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "toggle",
+   "icon": "triangle-alert",
+   "on": false,
+   "then": {
+    "how": "check"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 13,
+   "shows": "A risk warning switch turns off and is ticked, so a side hustle has no risk.",
+   "lead": "ไม่มี",
+   "key": "ความเสี่ยง",
+   "meaning": "no risk",
+   "recipe": {
+    "layout": "change",
+    "as": "toggle",
+    "icon": "triangle-alert",
+    "on": false,
+    "then": {
+     "how": "check"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_115213.06",
+  "line": 16,
+  "text": "เอ่อ minimize minimize ความเสี่ยง ให้มาก ที่สุดเลย",
+  "near": "เพราะว่ายูเอา เวลา ของยู ไปใช้แล้ว ยูจะ คิดในมุม ของ mindset ที่ เอ่อ minimize minimize ความเสี่ยง ให้มาก ที่สุดเลย ทำให้ยังไง ก็ได้ ให้มันแบบแค่ เป็น รายได้ เสริมอ่ะ",
+  "lead": "minimize minimize",
+  "key": "ความเสี่ยง",
+  "meaning": "minimize risk",
+  "shows": "A bar chart falls, so the risk goes down as low as possible.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "bars",
+   "dir": "down",
+   "keep": 1,
+   "center": {
+    "icon": "shield"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": true,
+  "picture": {
+   "line": 16,
+   "shows": "A bar chart falls, so the risk goes down as low as possible.",
+   "lead": "minimize minimize",
+   "key": "ความเสี่ยง",
+   "meaning": "minimize risk",
+   "recipe": {
+    "layout": "count",
+    "as": "bars",
+    "dir": "down",
+    "keep": 1,
+    "center": {
+     "icon": "shield"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_115213.07",
+  "line": 19,
+  "text": "แล้วผมก็ ทำเป็น รายได้เสริม งานประจำ ของผม ไปใช่ป่ะ",
+  "near": "ตอนที่ผมทำ คอนเทนต์นะ ผมยกตัวอย่าง ตอนที่ ผมทำ คอนเทนต์ แล้วผมก็ ทำเป็น รายได้เสริม งานประจำ ของผม ไปใช่ป่ะ Mindset ผมมัน ไม่ เหมือนกับ อย่างนี้เลย",
+  "lead": "ทำเป็น",
+  "key": "รายได้เสริม",
+  "meaning": "content as side income",
+  "shows": "Steps from a day job to making content to side income, the last one lit.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "steps",
+   "as": "row",
+   "items": [
+    {
+     "icon": "briefcase"
+    },
+    {
+     "icon": "video"
+    },
+    {
+     "icon": "coins"
+    }
+   ],
+   "mark": {
+    "at": 2,
+    "how": "light"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 19,
+   "shows": "Steps from a day job to making content to side income, the last one lit.",
+   "lead": "ทำเป็น",
+   "key": "รายได้เสริม",
+   "meaning": "content as side income",
+   "recipe": {
+    "layout": "steps",
+    "as": "row",
+    "items": [
+     {
+      "icon": "briefcase"
+     },
+     {
+      "icon": "video"
+     },
+     {
+      "icon": "coins"
+     }
+    ],
+    "mark": {
+     "at": 2,
+     "how": "light"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_115213.08",
+  "line": 20,
+  "text": "Mindset ผมมัน ไม่ เหมือนกับ อย่างนี้เลย",
+  "near": "แล้วผมก็ ทำเป็น รายได้เสริม งานประจำ ของผม ไปใช่ป่ะ Mindset ผมมัน ไม่ เหมือนกับ อย่างนี้เลย มันมัน มีหลายอย่าง ที่มัน เปลี่ยนไป มากๆ แล้วมัน",
+  "lead": "",
+  "key": "Mindset",
+  "meaning": "mindset is different",
+  "shows": "A dark idea bulb turns into a lit bulb, so the mindset is different.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "lightbulb-off",
+    "tone": "soft"
+   },
+   "to": {
+    "icon": "lightbulb",
+    "tone": "acc"
+   }
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 20,
+   "shows": "A dark idea bulb turns into a lit bulb, so the mindset is different.",
+   "lead": "",
+   "key": "Mindset",
+   "meaning": "mindset is different",
+   "recipe": {
+    "layout": "change",
+    "as": "swap",
+    "from": {
+     "icon": "lightbulb-off",
+     "tone": "soft"
+    },
+    "to": {
+     "icon": "lightbulb",
+     "tone": "acc"
+    }
+   }
+  }
+ },
+ {
+  "id": "c2_115213.09",
+  "line": 21,
+  "text": "มันมัน มีหลายอย่าง ที่มัน เปลี่ยนไป มากๆ แล้วมัน",
+  "near": "Mindset ผมมัน ไม่ เหมือนกับ อย่างนี้เลย มันมัน มีหลายอย่าง ที่มัน เปลี่ยนไป มากๆ แล้วมัน ผมก็ ยังเห็น อินฟลู เอนเซอร์ บางคนเค้าก็ พูดว่า เอออันเนี้ย เป็น",
+  "lead": "มีหลายอย่าง ที่มัน",
+  "key": "เปลี่ยนไป",
+  "meaning": "many things changed",
+  "shows": "New sparkles arrive around the person one by one, so many things changed.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "ring",
+   "dir": "up",
+   "center": {
+    "icon": "user"
+   },
+   "item": {
+    "icon": "sparkles",
+    "tone": "acc"
+   },
+   "n": 3,
+   "keep": 1
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 21,
+   "shows": "New sparkles arrive around the person one by one, so many things changed.",
+   "lead": "มีหลายอย่าง ที่มัน",
+   "key": "เปลี่ยนไป",
+   "meaning": "many things changed",
+   "recipe": {
+    "layout": "count",
+    "as": "ring",
+    "dir": "up",
+    "center": {
+     "icon": "user"
+    },
+    "item": {
+     "icon": "sparkles",
+     "tone": "acc"
+    },
+    "n": 3,
+    "keep": 1
+   }
+  }
+ },
+ {
+  "id": "c2_115213.10",
+  "line": 24,
+  "text": "ซึ่งถ้า คุณแค่ คิดว่ามันเป็น รายได้ เสริม",
+  "near": "ช่องทาง หารายได้ เสริมที่ดี ซึ่งถ้า คุณแค่ คิดว่ามันเป็น รายได้ เสริม",
+  "lead": "คิดว่ามันเป็น",
+  "key": "รายได้ เสริม",
+  "meaning": "only side income",
+  "shows": "Two bars: the side income bar is short and a rocket bar is long, so thinking only side income keeps you small.",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "measure",
+   "a": {
+    "icon": "coins",
+    "v": 0.3
+   },
+   "b": {
+    "icon": "rocket",
+    "v": 0.9
+   },
+   "win": "b",
+   "how": "both"
+  },
+  "ok": true,
+  "problems": [],
+  "fixed": false,
+  "picture": {
+   "line": 24,
+   "shows": "Two bars: the side income bar is short and a rocket bar is long, so thinking only side income keeps you small.",
+   "lead": "คิดว่ามันเป็น",
+   "key": "รายได้ เสริม",
+   "meaning": "only side income",
+   "recipe": {
+    "layout": "versus",
+    "as": "measure",
+    "a": {
+     "icon": "coins",
+     "v": 0.3
+    },
+    "b": {
+     "icon": "rocket",
+     "v": 0.9
+    },
+    "win": "b",
+    "how": "both"
+   }
+  }
+ }
+]

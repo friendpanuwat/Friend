@@ -1,0 +1,380 @@
+[
+ {
+  "id": "c115846.01",
+  "line": 3,
+  "text": "ที่ ยัง ไม่ เหมาะสม กับ ตัวเอง มาก ที่สุด",
+  "near": "ยังมี บาง คนใช้ วิธี เรียน ภาษาอังกฤษ ที่ ยัง ไม่ เหมาะสม กับ ตัวเอง มาก ที่สุด เพราะ วันนี้ เรา จะ ไม่ แนะนำ วิธี หนึ่ง ที่ เรียก ว่า",
+  "lead": "ที่ ยัง ไม่",
+  "key": "เหมาะสม",
+  "meaning": "method not suited",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "pick",
+   "items": [
+    "book-open",
+    "brain",
+    "message-circle",
+    "ear"
+   ],
+   "at": 1,
+   "bad": false,
+   "round": false,
+   "how": "cross"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115846.02",
+  "line": 7,
+  "text": "เกือบ เข้าใจ แล้ว อีก เดียว จะ เข้าใจ",
+  "near": "พูด ง่าย มัน คือ การ หา อะไร ที่ เรา เกือบ เข้าใจ แล้ว อีก เดียว จะ เข้าใจ แล้ว เรา ก็ อยู่ กับ มัน ฟัง ซ้ำ ไป เรื่อย",
+  "lead": "เกือบ",
+  "key": "เข้าใจ",
+  "meaning": "almost understand",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "meter",
+   "icon": "brain",
+   "v0": 0.2,
+   "v1": 0.8
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115846.03",
+  "line": 8,
+  "text": "แล้ว เรา ก็ อยู่ กับ มัน ฟัง ซ้ำ ไป เรื่อย",
+  "near": "เกือบ เข้าใจ แล้ว อีก เดียว จะ เข้าใจ แล้ว เรา ก็ อยู่ กับ มัน ฟัง ซ้ำ ไป เรื่อย เรื่อย แต่ เติม อะไร ใหม่ เข้ามา",
+  "lead": "ฟัง",
+  "key": "ซ้ำ ไป เรื่อย",
+  "meaning": "listen on repeat",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "ear"
+   },
+   "to": {
+    "icon": "repeat",
+    "tone": "acc"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115846.04",
+  "line": 10,
+  "text": "พูด ง่าย ง่าย มัน คือ การเรียน สิ่งใหม่",
+  "near": "เรื่อย แต่ เติม อะไร ใหม่ เข้ามา พูด ง่าย ง่าย มัน คือ การเรียน สิ่งใหม่ จาก บริบท เดิม อย่างเช่น วันนี้ เรา จะ มา สอน คำศัพท์",
+  "lead": "มัน คือ การเรียน",
+  "key": "สิ่งใหม่",
+  "meaning": "learning new things",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "book",
+    "tone": "soft"
+   },
+   "to": {
+    "icon": "sparkles",
+    "tone": "acc"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115846.05",
+  "line": 13,
+  "text": "เรา จะ ไม่ ใช้ ประโยค อังกฤษ ด้วย เรา จะ ใช้ ประโยค ไทย แล้วก็",
+  "near": "ใหม่ เผื่อ บางคน ไม่ รู้ คำ ว่า Consic เรา จะ ไม่ ใช้ ประโยค อังกฤษ ด้วย เรา จะ ใช้ ประโยค ไทย แล้วก็ ใช้ คำ ว่า conskence เข้าไป เหมือน เวลา คนพูด",
+  "lead": "เรา จะ ไม่ ใช้",
+  "key": "อังกฤษ",
+  "meaning": "Thai not English sentences",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "cards",
+   "a": {
+    "icon": "languages",
+    "label": "อังกฤษ",
+    "tone": "neg"
+   },
+   "b": {
+    "icon": "message-circle",
+    "label": "ไทย",
+    "tone": "acc"
+   },
+   "win": "b",
+   "how": "both"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115846.06",
+  "line": 15,
+  "text": "อังกฤษ คำ ไทย คำ เรา ก็ จะ ไม่ เฉลย",
+  "near": "ใช้ คำ ว่า conskence เข้าไป เหมือน เวลา คนพูด อังกฤษ คำ ไทย คำ เรา ก็ จะ ไม่ เฉลย ความหมาย ด้วย เพราะว่า จุดประสงค์ ของ การเรียน แบบ",
+  "lead": "เรา ก็ จะ",
+  "key": "ไม่ เฉลย",
+  "meaning": "no revealing meaning",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "toggle",
+   "icon": "message-circle-question",
+   "on": false
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115846.07",
+  "line": 18,
+  "text": "มัน จาก บริบท เอง งั้น มา รอง ประโยค แรก เลย",
+  "near": "Conprensible inpood คือ เรา เรียนรู้ ความหมาย ของ มัน จาก บริบท เอง งั้น มา รอง ประโยค แรก เลย เขา โกหก ครั้ง เดียว แต่ ต้อง โกหก",
+  "lead": "มัน จาก",
+  "key": "บริบท",
+  "meaning": "learn from context",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "pick",
+   "items": [
+    "book",
+    "message-square",
+    "lightbulb"
+   ],
+   "at": 1,
+   "bad": false,
+   "round": false,
+   "how": "pick"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115846.08",
+  "line": 20,
+  "text": "ไป อีก สิบ รอบ เพราะ คอน ซิ ควน",
+  "near": "เขา โกหก ครั้ง เดียว แต่ ต้อง โกหก ไป อีก สิบ รอบ เพราะ คอน ซิ ควน ของ การ โกหก คือ มัน ไม่ มี วัน จบ",
+  "lead": "ต้อง โกหก ไป อีก",
+  "key": "สิบ รอบ",
+  "meaning": "ten more lies",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "row",
+   "dir": "up",
+   "center": {
+    "icon": "user"
+   },
+   "item": {
+    "icon": "message-circle-warning",
+    "tone": "neg"
+   },
+   "n": 4,
+   "keep": 0
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115846.09",
+  "line": 21,
+  "text": "ของ การ โกหก คือ มัน ไม่ มี วัน จบ",
+  "near": "ไป อีก สิบ รอบ เพราะ คอน ซิ ควน ของ การ โกหก คือ มัน ไม่ มี วัน จบ ประโยค ที่สอง ประเทศ ที่ ไม่",
+  "lead": "มัน ไม่ มี",
+  "key": "วัน จบ",
+  "meaning": "never ends",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "repeat",
+    "tone": "soft"
+   },
+   "to": {
+    "icon": "infinity",
+    "tone": "neg"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115846.10",
+  "line": 23,
+  "text": "ลงทุน กับ การศึกษา consicance จะ เห็นได้ชัด",
+  "near": "ประโยค ที่สอง ประเทศ ที่ ไม่ ลงทุน กับ การศึกษา consicance จะ เห็นได้ชัด ใน อีก ยี่สิบ ปี ข้างหน้า",
+  "lead": "ลงทุน กับ",
+  "key": "การศึกษา",
+  "meaning": "invest in education",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "scale",
+   "a": {
+    "icon": "hand-coins"
+   },
+   "b": {
+    "icon": "graduation-cap"
+   },
+   "win": "b"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115846.11",
+  "line": 24,
+  "text": "ใน อีก ยี่สิบ ปี ข้างหน้า",
+  "near": "ลงทุน กับ การศึกษา consicance จะ เห็นได้ชัด ใน อีก ยี่สิบ ปี ข้างหน้า ประโยค ที่สาม ทิ้ง ขยะ ลง แม่น้ำ น้ำเน่า",
+  "lead": "ใน อีก",
+  "key": "ยี่สิบ ปี",
+  "meaning": "in twenty years",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "calendar"
+   },
+   "to": {
+    "icon": "trending-up",
+    "tone": "acc"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115846.12",
+  "line": 25,
+  "text": "ประโยค ที่สาม ทิ้ง ขยะ ลง แม่น้ำ น้ำเน่า",
+  "near": "ใน อีก ยี่สิบ ปี ข้างหน้า ประโยค ที่สาม ทิ้ง ขยะ ลง แม่น้ำ น้ำเน่า ปลา ตาย คนใน ชุมชน เดือดร้อน Conskence ของ",
+  "lead": "ทิ้ง ขยะ ลง",
+  "key": "แม่น้ำ",
+  "meaning": "dump trash in river",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "steps",
+   "as": "row",
+   "items": [
+    {
+     "icon": "trash-2"
+    },
+    {
+     "icon": "droplets"
+    },
+    {
+     "icon": "fish"
+    }
+   ],
+   "mark": {
+    "at": 0,
+    "how": "cross"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115846.13",
+  "line": 26,
+  "text": "ปลา ตาย คนใน ชุมชน เดือดร้อน Conskence ของ",
+  "near": "ประโยค ที่สาม ทิ้ง ขยะ ลง แม่น้ำ น้ำเน่า ปลา ตาย คนใน ชุมชน เดือดร้อน Conskence ของ การ ไม่ แคร์ สิ่งแวดล้อม ไม่ ได้ กระทบ คน แค่ คนเดียว",
+  "lead": "ปลา",
+  "key": "ตาย",
+  "meaning": "fish die",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "fish"
+   },
+   "to": {
+    "icon": "skull",
+    "tone": "neg"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115846.14",
+  "line": 27,
+  "text": "การ ไม่ แคร์ สิ่งแวดล้อม ไม่ ได้ กระทบ คน แค่ คนเดียว",
+  "near": "ปลา ตาย คนใน ชุมชน เดือดร้อน Conskence ของ การ ไม่ แคร์ สิ่งแวดล้อม ไม่ ได้ กระทบ คน แค่ คนเดียว ประโยค ที่สี่ บริษัท นี้ ไม่ เคย ฟัง เสียง ของ พนักงาน",
+  "lead": "ไม่ ได้ กระทบ คน แค่",
+  "key": "คนเดียว",
+  "meaning": "affects many people",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "ring",
+   "dir": "up",
+   "center": {
+    "icon": "leaf"
+   },
+   "item": {
+    "icon": "user"
+   },
+   "n": 4,
+   "keep": 0
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c115846.15",
+  "line": 29,
+  "text": "เลย consiquence คือ คนเก่ง ทยอย กัน ลาออก หมด เลย",
+  "near": "ประโยค ที่สี่ บริษัท นี้ ไม่ เคย ฟัง เสียง ของ พนักงาน เลย consiquence คือ คนเก่ง ทยอย กัน ลาออก หมด เลย ถ้า ดู แล้ว ว่า consicnce ไป ว่า อะไร ก็ อย่า",
+  "lead": "คนเก่ง ทยอย กัน",
+  "key": "ลาออก",
+  "meaning": "talent leaves",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "ring",
+   "dir": "down",
+   "center": {
+    "icon": "building"
+   },
+   "item": {
+    "icon": "user"
+   },
+   "n": 4,
+   "keep": 0
+  },
+  "ok": true,
+  "problems": []
+ }
+]

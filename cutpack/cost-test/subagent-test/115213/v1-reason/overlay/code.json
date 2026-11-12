@@ -1,0 +1,8 @@
+{
+ "scenes": [
+  {
+   "i": 19,
+   "code": "const b = svg(150, 150, `<ellipse cx=\"75\" cy=\"62\" rx=\"68\" ry=\"52\" stroke=\"${INK}\" stroke-width=\"4\" fill=\"none\"/><circle cx=\"38\" cy=\"128\" r=\"8\" stroke=\"${INK}\" stroke-width=\"4\" fill=\"none\"/><circle cx=\"22\" cy=\"144\" r=\"5\" stroke=\"${INK}\" stroke-width=\"4\" fill=\"none\"/>`, 'left:0;top:0;opacity:0', vis);\nmv.show(b, T.t0 + .05);\nconst ceil = div('left:30px;top:32px;width:90px;height:12px;border-radius:6px;background:' + NAVY + ';opacity:0', vis);\nmv.rise(ceil, T.t0 + .1);\nconst box = div('left:48px;top:48px;width:54px;height:54px;opacity:0', vis);\nconst coin = div('left:0;top:0;width:54px;height:54px', box, ico('circle-dollar-sign', 54, ACC, 2.5));\nmv.pop(box, T.t0 + .15);\nmv.slide(coin, T.hit - .15, 'translateY(20px)', 'translateY(0px)');\nmv.wobble(ceil, T.hit);\nmv.punch(box, T.hit);\nsnd('hit', T.hit);"
+  }
+ ]
+}

@@ -1,0 +1,164 @@
+{
+ "status": "ok",
+ "topic": "none",
+ "log": [],
+ "fallback": [],
+ "library_missing": [
+  "Several small items shift position and swap places at the hit, showing many things changing a lot — the library has no 'things change' part"
+ ],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B14.v3 5.1",
+   "msg": "two scenes of the same category in a row",
+   "scene": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 0.56–4.8 \"แล้วผม รู้สึกว่า / ตราบใดที่คุณยัง มองว่า / รายได้ ของคุณ\"",
+   "msg": "chunk \"ตราบใดที่คุณยัง มองว่า\" is 16 letters, aim ≤ 12",
+   "sub": 0
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 4.8–7.68 \"อ่ะ ช่องทาง / นั้นน่ะสิ่งที่คุณ กำลังทำ / อยู่อ่ะ มันคือ\"",
+   "msg": "chunk \"นั้นน่ะสิ่งที่คุณ กำลังทำ\" is 13 letters, aim ≤ 12",
+   "sub": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 7.68–10.96 \"รายได้เสริมนะ เอง / มันก็จะเป็น รายได้ / เสริม ต่อไป\"",
+   "msg": "chunk \"รายได้เสริมนะ เอง\" is 14 letters, aim ≤ 12",
+   "sub": 2
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 7.68–10.96 \"รายได้เสริมนะ เอง / มันก็จะเป็น รายได้ / เสริม ต่อไป\"",
+   "msg": "chunk \"มันก็จะเป็น รายได้\" is 13 letters, aim ≤ 12",
+   "sub": 2
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 13.6–16.88 \"คน พูดว่า / อยากหารายได้ เสริม / อยากหาไซส์ ทัศน\"",
+   "msg": "chunk \"อยากหารายได้ เสริม\" is 15 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 18.96–21.68 \"Income ผม รู้สึกว่า / ถ้าอยากให้ มันมา / เป็น active\"",
+   "msg": "chunk \"Income ผม รู้สึกว่า\" is 13 letters, aim ≤ 12",
+   "sub": 6
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 24.48–27.04 \"busis หรือ / ว่าการ เฮด / ความเสี่ยงกับมัน เว้ย\"",
+   "msg": "chunk \"ความเสี่ยงกับมัน เว้ย\" is 15 letters, aim ≤ 12",
+   "sub": 8
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 29.84–32.88 \"ไม่มี ความเสี่ยง / ไม่มีคำว่า เจ๊ง / ไม่มีคำว่า ขาดทุนนะ\"",
+   "msg": "chunk \"ไม่มีคำว่า ขาดทุนนะ\" is 13 letters, aim ≤ 12",
+   "sub": 10
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 32.88–34.88 \"เพราะว่า อย่า / เอาเวลาของ You / ไป ใช้แล้วยู\"",
+   "msg": "chunk \"เอาเวลาของ You\" is 13 letters, aim ≤ 12",
+   "sub": 11
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 39.28–41.68 \"ความเสี่ยงให้มาก ที่สุด / เลยทำให้ ยังไง / ก็ได้ ให้มัน\"",
+   "msg": "chunk \"ความเสี่ยงให้มาก ที่สุด\" is 16 letters, aim ≤ 12",
+   "sub": 14
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 41.68–45.52 \"แบบแค่เป็น รายได้ / เสริมอ่ะ / ตอนที่ผมทำ คอนเทนต์\"",
+   "msg": "chunk \"แบบแค่เป็น รายได้\" is 13 letters, aim ≤ 12",
+   "sub": 15
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 41.68–45.52 \"แบบแค่เป็น รายได้ / เสริมอ่ะ / ตอนที่ผมทำ คอนเทนต์\"",
+   "msg": "chunk \"ตอนที่ผมทำ คอนเทนต์\" is 14 letters, aim ≤ 12",
+   "sub": 15
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 45.52–47.28 \"น่ะผมจะ ตอนที่ / ผมทำ คอนเทนต์แล้ว / ผมก็ ทำเป็น\"",
+   "msg": "chunk \"ผมทำ คอนเทนต์แล้ว\" is 13 letters, aim ≤ 12",
+   "sub": 16
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 47.28–49.52 \"รายได้เสริมอ่ะ ประจำ / ผมไป ใช่ป่ะ\"",
+   "msg": "chunk \"รายได้เสริมอ่ะ ประจำ\" is 15 letters, aim ≤ 12",
+   "sub": 17
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 49.52–51.79 \"เซตผมมันไม่ เหมือนกับ / อย่างงี้เลย / มันมันมี หลายอย่าง\"",
+   "msg": "chunk \"เซตผมมันไม่ เหมือนกับ\" is 16 letters, aim ≤ 12",
+   "sub": 18
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 49.52–51.79 \"เซตผมมันไม่ เหมือนกับ / อย่างงี้เลย / มันมันมี หลายอย่าง\"",
+   "msg": "chunk \"มันมันมี หลายอย่าง\" is 13 letters, aim ≤ 12",
+   "sub": 18
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 54.4–56.64 \"ผมก็ยังเห็น Infonser / บางคนเขาก็ พูดว่า / เอออัน เนี้ย\"",
+   "msg": "chunk \"ผมก็ยังเห็น Infonser\" is 16 letters, aim ≤ 12",
+   "sub": 20
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 54.4–56.64 \"ผมก็ยังเห็น Infonser / บางคนเขาก็ พูดว่า / เอออัน เนี้ย\"",
+   "msg": "chunk \"บางคนเขาก็ พูดว่า\" is 13 letters, aim ≤ 12",
+   "sub": 20
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 56.64–58.72 \"เป็นช่องทาง หารายได้ / เสริมที่ดี\"",
+   "msg": "chunk \"เป็นช่องทาง หารายได้\" is 16 letters, aim ≤ 12",
+   "sub": 21
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 58.72–60.581 \"ซึ่งถ้า คุณแค่ / คิดว่ามันเป็น รายได้\"",
+   "msg": "chunk \"คิดว่ามันเป็น รายได้\" is 14 letters, aim ≤ 12",
+   "sub": 22
+  },
+  {
+   "level": "warn",
+   "code": "sub-face",
+   "where": "layout",
+   "msg": "the chin is low: subtitles may touch the face when zoomed"
+  }
+ ]
+}

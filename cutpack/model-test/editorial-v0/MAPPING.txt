@@ -1,0 +1,9 @@
+A opus   medium
+B sonnet low
+C opus   high
+D sonnet high
+E opus   low
+F sonnet medium
+G haiku  medium
+H haiku  high
+I haiku  low

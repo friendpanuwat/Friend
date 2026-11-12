@@ -1,0 +1,443 @@
+{
+ "topic": "fit",
+ "camera": [
+  {
+   "move": "push",
+   "t": 4.8
+  },
+  {
+   "move": "pull",
+   "t": 12.0
+  },
+  {
+   "move": "push",
+   "t": 38.0
+  },
+  {
+   "move": "pull",
+   "t": 46.0
+  },
+  {
+   "move": "push",
+   "t": 60.6
+  },
+  {
+   "move": "pull",
+   "t": 70.0
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 0.6,
+   "t1": 3.4,
+   "say": "ผมยูไซเนสมาประมาณสี่ปี",
+   "shows": "four years on a stopwatch",
+   "part": "B09.fit1",
+   "size": "short",
+   "hit": 1.44,
+   "need": "",
+   "slots": {
+    "when": "สี่ปี",
+    "wlead": "ยูไซเนส",
+    "wkey": "สี่ปี"
+   }
+  },
+  {
+   "t0": 4.9,
+   "t1": 7.7,
+   "say": "แต่คือคนที่คิดว่ายิ่งอดได้เยอะยิ่งเก่ง",
+   "shows": "not 'fail' but 'starving more is better'",
+   "part": "B05.v1",
+   "size": "short",
+   "hit": 5.76,
+   "need": "",
+   "slots": {
+    "x": "ล้มหนัก",
+    "y": "อดได้เยอะ",
+    "wlead": "สิ่งที่กลัว",
+    "wkey": "อดเยอะ"
+   }
+  },
+  {
+   "t0": 8.1,
+   "t1": 9.9,
+   "say": "สี่ร้อยแคลอรี่ต่อวัน",
+   "shows": "count up to 400",
+   "part": "B01.v1",
+   "size": "short",
+   "hit": 8.64,
+   "need": "",
+   "slots": {
+    "num": 400,
+    "unit": "แคล",
+    "icon": "flame",
+    "wlead": "ต่อวัน",
+    "wkey": "400 แคล"
+   }
+  },
+  {
+   "t0": 12.0,
+   "t1": 14.6,
+   "say": "แผนที่ทำให้ร่างกายหมดแรงตลอด",
+   "shows": "battery low",
+   "part": "B07.v3",
+   "size": "narrow",
+   "hit": 13.92,
+   "need": "",
+   "slots": {
+    "text": "ร่างกายหมดแรง",
+    "icon": "battery-low",
+    "wlead": "ร่างกาย",
+    "wkey": "หมดแรง"
+   }
+  },
+  {
+   "t0": 15.0,
+   "t1": 17.8,
+   "say": "น้ำหนักที่หายไปไม่ใช่แค่ไขมัน",
+   "shows": "weight scale going down",
+   "part": "B02.fit1",
+   "size": "short",
+   "hit": 15.76,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "weight",
+    "wlead": "น้ำหนัก",
+    "wkey": "หายไป"
+   }
+  },
+  {
+   "t0": 18.2,
+   "t1": 21.1,
+   "say": "กล้ามเนื้อ พลังงาน ฮอร์โมน สุขภาพจิต",
+   "shows": "checklist of things lost",
+   "part": "B04.v1",
+   "size": "narrow",
+   "hit": 20.48,
+   "need": "",
+   "slots": {
+    "items": [
+     "กล้ามเนื้อ",
+     "พลังงาน",
+     "ฮอร์โมน",
+     "สุขภาพจิต"
+    ],
+    "at": [
+     18.72,
+     19.36,
+     20.0,
+     20.48
+    ],
+    "wlead": "ที่เสียไป",
+    "wkey": "4 อย่าง"
+   }
+  },
+  {
+   "t0": 21.5,
+   "t1": 24.5,
+   "say": "ความสัมพันธ์กับอาหาร เริ่มไม่มีแรง หิวจัด",
+   "shows": "food relationship link",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 23.68,
+   "need": "",
+   "slots": {
+    "a": "อดอาหาร",
+    "ia": "utensils-crossed",
+    "b": "หิวจัด",
+    "ib": "frown",
+    "wlead": "อาหาร",
+    "wkey": "หิวจัด"
+   }
+  },
+  {
+   "t0": 25.6,
+   "t1": 29.1,
+   "say": "นอนไม่ค่อยได้ อารมณ์เหวี่ยง",
+   "shows": "sleepless in bed",
+   "part": "FIT.h5",
+   "size": "short",
+   "hit": 26.48,
+   "need": "",
+   "slots": {
+    "wlead": "นอนไม่ได้",
+    "wkey": "อารมณ์เหวี่ยง"
+   }
+  },
+  {
+   "t0": 29.2,
+   "t1": 31.4,
+   "say": "หรือบางทีก็เห็นอาหารก็ไม่กล้า",
+   "shows": "food with a crossed-out sign",
+   "part": "B05.v2",
+   "size": "short",
+   "hit": 30.56,
+   "need": "",
+   "slots": {
+    "x": "กล้ากิน",
+    "y": "เห็นอาหาร",
+    "wlead": "เห็นอาหาร",
+    "wkey": "ไม่กล้า"
+   }
+  },
+  {
+   "t0": 31.6,
+   "t1": 33.4,
+   "say": "กินแล้วผมไม่ได้",
+   "shows": "plate with a ban sign",
+   "part": "B07.v1",
+   "size": "narrow",
+   "hit": 32.48,
+   "need": "",
+   "slots": {
+    "text": "กินแล้วไม่ได้",
+    "icon": "ban",
+    "wlead": "กินไม่ได้",
+    "wkey": "ไม่ได้"
+   }
+  },
+  {
+   "t0": 33.6,
+   "t1": 35.0,
+   "say": "เคสที่กำลังไวรัลเกิดจากการกินน้อย",
+   "shows": "a viral post with a drop",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 34.08,
+   "need": "",
+   "slots": {
+    "a": "กินน้อย",
+    "ia": "utensils-crossed",
+    "b": "ไวรัล",
+    "ib": "share-2",
+    "wlead": "เคสไวรัล",
+    "wkey": "กินน้อย"
+   }
+  },
+  {
+   "t0": 35.9,
+   "t1": 38.0,
+   "say": "สุขภาพมีหลายปัจจัย",
+   "shows": "puzzle of factors",
+   "part": "B13.v3",
+   "size": "short",
+   "hit": 37.2,
+   "need": "",
+   "slots": {
+    "tip": "หลายปัจจัย",
+    "icon": "puzzle",
+    "wlead": "สุขภาพ",
+    "wkey": "หลายปัจจัย"
+   }
+  },
+  {
+   "t0": 40.2,
+   "t1": 43.2,
+   "say": "อย่าโรแมนติไซส์การอดอาหาร",
+   "shows": "warning sign",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 40.88,
+   "need": "",
+   "slots": {
+    "text": "โรแมนติไซส์อดอาหาร",
+    "icon": "ban",
+    "wlead": "อย่า",
+    "wkey": "อดอาหาร"
+   }
+  },
+  {
+   "t0": 44.0,
+   "t1": 46.1,
+   "say": "นี่คือวินัย",
+   "shows": "big words line",
+   "part": "B14.v1",
+   "size": "short",
+   "hit": 44.4,
+   "need": "",
+   "slots": {
+    "words": [
+     "การลดน้ำหนัก",
+     "ที่ดี",
+     "คือวินัย"
+    ],
+    "key": 2,
+    "icon": "crown",
+    "wlead": "ที่ดี",
+    "wkey": "วินัย"
+   }
+  },
+  {
+   "t0": 46.5,
+   "t1": 49.5,
+   "say": "ไม่ควรรู้สึกเหมือนทำโทษตัวเอง",
+   "shows": "wrong vs right",
+   "part": "B05.v2",
+   "size": "short",
+   "hit": 48.72,
+   "need": "",
+   "slots": {
+    "x": "ลงโทษตัวเอง",
+    "y": "แข็งแรงขึ้น",
+    "aty": 49.3,
+    "wlead": "ไม่ใช่",
+    "wkey": "ลงโทษ"
+   }
+  },
+  {
+   "t0": 52.0,
+   "t1": 55.0,
+   "say": "คุณแข็งแรงขึ้น ใช้ชีวิตได้ดี",
+   "shows": "flexed arm strength",
+   "part": "B08.v4",
+   "size": "short",
+   "hit": 52.96,
+   "need": "",
+   "slots": {
+    "goal": "แข็งแรงขึ้น",
+    "icon": "biceps-flexed",
+    "wlead": "ผลที่ได้",
+    "wkey": "แข็งแรง"
+   }
+  },
+  {
+   "t0": 57.4,
+   "t1": 60.4,
+   "say": "ไม่คุ้มถ้าต้องแลกกับร่างกายที่พัง",
+   "shows": "heart pulse jolt",
+   "part": "B07.fit1",
+   "size": "short",
+   "hit": 59.64,
+   "need": "",
+   "slots": {
+    "text": "ร่างกายพัง",
+    "icon": "heart-pulse",
+    "wlead": "ไม่คุ้ม",
+    "wkey": "ร่างกายพัง"
+   }
+  },
+  {
+   "t0": 61.0,
+   "t1": 63.7,
+   "say": "เป้าหมายฟิตเนสไม่ใช่กินน้อยที่สุด",
+   "shows": "target",
+   "part": "B08.v1",
+   "size": "short",
+   "hit": 61.4,
+   "need": "",
+   "slots": {
+    "goal": "เป้าหมายฟิตเนส",
+    "icon": "target",
+    "wlead": "เป้าหมาย",
+    "wkey": "ฟิตเนส"
+   }
+  },
+  {
+   "t0": 64.1,
+   "t1": 66.5,
+   "say": "คือการกินให้พอดี ทำต่อได้",
+   "shows": "scale balance",
+   "part": "B03.v1",
+   "size": "short",
+   "hit": 64.5,
+   "need": "",
+   "slots": {
+    "a": "กินน้อยสุด",
+    "b": "กินพอดี",
+    "ia": "ban",
+    "ib": "check",
+    "win": "b",
+    "wlead": "กินให้",
+    "wkey": "พอดี"
+   }
+  },
+  {
+   "t0": 66.9,
+   "t1": 70.2,
+   "say": "ไม่เกลียดอาหารและตัวเอง",
+   "shows": "heart crack",
+   "part": "B12.v4",
+   "size": "short",
+   "hit": 68.0,
+   "need": "",
+   "slots": {
+    "a": "อาหาร",
+    "ia": "utensils",
+    "b": "เกลียด",
+    "ib": "heart-crack",
+    "c": "ตัวเอง",
+    "ic": "user",
+    "wlead": "ไม่เกลียด",
+    "wkey": "ตัวเอง"
+   }
+  },
+  {
+   "t0": 70.6,
+   "t1": 71.8,
+   "say": "จำคำนี้ไว้",
+   "shows": "lightbulb",
+   "part": "B13.v1",
+   "size": "short",
+   "hit": 71.12,
+   "need": "",
+   "slots": {
+    "tip": "จำคำนี้ไว้",
+    "icon": "lightbulb",
+    "wlead": "จำไว้",
+    "wkey": "คำนี้"
+   }
+  },
+  {
+   "t0": 72.2,
+   "t1": 75.2,
+   "say": "ลดน้ำหนักคือดูแลตัวเอง ไม่ใช่ทำลาย",
+   "shows": "care vs destroy",
+   "part": "B03.v4",
+   "size": "short",
+   "hit": 73.92,
+   "need": "",
+   "slots": {
+    "a": "ทำลาย",
+    "b": "ดูแล",
+    "ia": "skull",
+    "ib": "heart-handshake",
+    "win": "b",
+    "wlead": "ลดน้ำหนัก",
+    "wkey": "ดูแลตัวเอง"
+   }
+  },
+  {
+   "t0": 76.4,
+   "t1": 78.2,
+   "say": "เคยผ่านการอดอาหารแบบสุดโต่ง",
+   "shows": "extreme fasting warning",
+   "part": "B07.v3",
+   "size": "short",
+   "hit": 77.2,
+   "need": "",
+   "slots": {
+    "text": "อดอาหารสุดโต่ง",
+    "icon": "triangle-alert",
+    "wlead": "เคยผ่าน",
+    "wkey": "สุดโต่ง"
+   }
+  },
+  {
+   "t0": 78.3,
+   "t1": 80.0,
+   "say": "คอมเมนต์ว่าเคยนะครับ",
+   "shows": "comment button",
+   "part": "B15.v1",
+   "size": "short",
+   "hit": 78.7,
+   "need": "",
+   "slots": {
+    "action": "comment",
+    "text": "คอมเมนต์ว่าเคย",
+    "wlead": "เคยไหม",
+    "wkey": "คอมเมนต์"
+   }
+  }
+ ]
+}

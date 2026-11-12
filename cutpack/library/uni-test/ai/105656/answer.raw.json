@@ -1,0 +1,20 @@
+{"pictures":[
+{"line":1,"lead":"เราผลิตร้อยขวดก็","key":"ผลิตล้านขวด","meaning":"hundred bottles vs million bottles","recipe":{"layout":"versus","as":"measure","a":{"icon":"package","v":0.2},"b":{"icon":"package","v":1},"win":"b","how":"check"}},
+{"line":3,"lead":"ต้องของผม","key":"แพงกว่า","meaning":"mine costs more","recipe":{"layout":"versus","as":"measure","a":{"icon":"tag","v":1},"b":{"icon":"tag","v":0.5,"tone":"soft"},"win":"a","how":"check"}},
+{"line":4,"lead":"เหมือนกันทั้งสองอย่าง","key":"ไม่มีแบรนด์","meaning":"identical, undecided","use":"undecided.lego"},
+{"line":6,"lead":"ทำไมก็ต้องมา","key":"เลือก","meaning":"why choose mine","recipe":{"layout":"aim","as":"pick","items":["package","box","gift"],"at":1,"bad":false,"round":false,"how":"pick"}},
+{"line":7,"lead":"แบรนด์ คือ","key":"สัญญา","meaning":"brand is a promise","recipe":{"layout":"change","as":"swap","from":{"icon":"tag","tone":"soft"},"to":{"icon":"handshake","tone":"acc"}}},
+{"line":9,"lead":"จำได้ง่าย และ","key":"มีความหมาย","meaning":"easy to remember and meaningful","recipe":{"layout":"steps","as":"row","items":[{"icon":"eye"},{"icon":"brain"},{"icon":"lightbulb"}],"mark":{"at":2,"how":"check"}}},
+{"line":11,"lead":"บางที","key":"จำง่าย","meaning":"easy to remember","recipe":{"layout":"change","as":"swap","from":{"icon":"eye"},"to":{"icon":"brain","tone":"acc"}}},
+{"line":12,"lead":"เห็นโลโก้แล้ว","key":"จำได้","meaning":"see logo and recognise","recipe":{"layout":"change","as":"swap","from":{"icon":"image"},"to":{"icon":"circle-check","tone":"acc"}}},
+{"line":13,"lead":"ไม่มี","key":"ความหมาย","meaning":"no meaning","recipe":{"layout":"change","as":"swap","from":{"icon":"lightbulb"},"to":{"icon":"lightbulb-off","tone":"neg"}}},
+{"line":15,"lead":"มีความผูกพันไหม","key":"ไม่มี","meaning":"no bond","recipe":{"layout":"change","as":"swap","from":{"icon":"heart"},"to":{"icon":"heart-off","tone":"neg"}}},
+{"line":17,"lead":"มีความหมายแต่ชื่อ","key":"จำไม่ได้","meaning":"name cannot be remembered","recipe":{"layout":"aim","as":"pick","items":["tag","brain","heart"],"at":1,"bad":false,"round":false,"how":"cross"}},
+{"line":21,"lead":"คุณซื้อ","key":"กลับมา","meaning":"buy again","recipe":{"layout":"count","as":"bars","dir":"up"}},
+{"line":22,"lead":"ไม่ควรที่จะต้อง","key":"ศึกษา","meaning":"no need to study again","recipe":{"layout":"aim","as":"pick","items":["book","search","glasses"],"at":0,"bad":false,"round":false,"how":"cross"}},
+{"line":25,"lead":"นี่คือสิ่งที่","key":"พรีเมียร์","meaning":"this is premium","recipe":{"layout":"change","as":"toggle","icon":"crown","on":true,"then":{"how":"check"}}},
+{"line":30,"lead":"ไม่ต้องมานั่ง","key":"เลือก","meaning":"no need to choose again","recipe":{"layout":"change","as":"swap","from":{"icon":"message-circle-question","tone":"soft"},"to":{"icon":"check","tone":"acc"}}},
+{"line":33,"lead":"แบรนด์ที่แท้จริงไม่ใช่","key":"โลโก้","meaning":"not the logo","recipe":{"layout":"versus","as":"cards","a":{"icon":"image","label":"โลโก้"},"b":{"icon":"handshake","label":"แบรนด์"},"win":"b","how":"both"}},
+{"line":35,"lead":"ไม่ใช่ว่าใช้","key":"สีอะไร","meaning":"not what colour","recipe":{"layout":"aim","as":"pick","items":["palette","package","image"],"at":0,"bad":false,"round":false,"how":"cross"}},
+{"line":37,"lead":"มันคือ","key":"คำสัญญา","meaning":"it is a promise","recipe":{"layout":"change","as":"swap","from":{"icon":"tag","tone":"soft"},"to":{"icon":"signature","tone":"acc"}}}
+]}

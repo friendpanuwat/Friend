@@ -1,0 +1,304 @@
+{
+ "topic": "edu",
+ "camera": [
+  {
+   "move": "push",
+   "t": 6.1
+  },
+  {
+   "move": "pull",
+   "t": 8.8
+  },
+  {
+   "move": "push",
+   "t": 25.0
+  },
+  {
+   "move": "pull",
+   "t": 29.04
+  },
+  {
+   "move": "push",
+   "t": 42.5
+  },
+  {
+   "move": "pull",
+   "t": 44.32
+  },
+  {
+   "move": "push",
+   "t": 57.2
+  },
+  {
+   "move": "pull",
+   "t": 60.24
+  },
+  {
+   "move": "push",
+   "t": 69.4
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 2.8,
+   "t1": 5.4,
+   "say": "ภาษาอังกฤษที่ยังไม่เหมาะสมกับตัวเองมากที่สุด",
+   "shows": "wrong method crossed out, right one replaces",
+   "part": "B05.v2",
+   "bg": "glow",
+   "hit": 3.68,
+   "need": "",
+   "slots": {
+    "x": "ไม่เหมาะกับตัวเอง",
+    "y": "วิธีที่เหมาะ",
+    "lead": "เรียนอังกฤษ"
+   }
+  },
+  {
+   "t0": 6.6,
+   "t1": 9.6,
+   "say": "แนะนำวิธีหนึ่งที่เรียกว่า",
+   "shows": "a tip card with highlight",
+   "part": "B13.v4",
+   "bg": "cream",
+   "hit": 7.28,
+   "need": "",
+   "slots": {
+    "tip": "วิธีเรียนใหม่",
+    "icon": "lightbulb",
+    "lead": "วิธีหนึ่ง",
+    "key": "เรียกว่า"
+   }
+  },
+  {
+   "t0": 12.0,
+   "t1": 15.0,
+   "say": "เกือบเข้าใจแล้ว อีกเดียวจะเข้าใจแล้ว",
+   "shows": "progress bar nearly full",
+   "part": "B08.v2",
+   "bg": "white",
+   "hit": 14.7,
+   "need": "",
+   "slots": {
+    "goal": "เข้าใจแล้ว",
+    "icon": "brain",
+    "lead": "เกือบ",
+    "key": "เข้าใจ"
+   }
+  },
+  {
+   "t0": 15.3,
+   "t1": 18.8,
+   "say": "อยู่กับมันฟังซ้ำไปเรื่อยๆ",
+   "shows": "repeat loop icons",
+   "part": "B12.v4",
+   "bg": "glow",
+   "hit": 17.92,
+   "need": "",
+   "slots": {
+    "a": "ฟัง",
+    "ia": "ear",
+    "b": "ซ้ำ",
+    "ib": "repeat",
+    "c": "เรื่อยๆ",
+    "ic": "refresh-cw",
+    "lead": "ฟังซ้ำไป"
+   }
+  },
+  {
+   "t0": 21.0,
+   "t1": 24.3,
+   "say": "การเรียนสิ่งใหม่จากบริบทเดิม",
+   "shows": "before to after slider",
+   "part": "B03.v4",
+   "bg": "cream",
+   "hit": 22.4,
+   "need": "",
+   "slots": {
+    "a": "บริบทเดิม",
+    "b": "สิ่งใหม่",
+    "ia": "book",
+    "ib": "sparkles",
+    "win": "b",
+    "lead": "เรียนสิ่งใหม่"
+   }
+  },
+  {
+   "t0": 24.4,
+   "t1": 27.8,
+   "say": "สอนคำศัพท์ใหม่ ว่า Consic",
+   "shows": "vocabulary flashcard flips",
+   "part": "EDU.h1",
+   "bg": "glow",
+   "hit": 26.4,
+   "need": "",
+   "slots": {
+    "word": "Consic",
+    "lead": "คำศัพท์ใหม่"
+   }
+  },
+  {
+   "t0": 29.2,
+   "t1": 32.5,
+   "say": "ใช้ประโยคไทย ใช้คำว่า conskence เข้าไป",
+   "shows": "not English but Thai sentence",
+   "part": "B05.v1",
+   "bg": "white",
+   "hit": 30.0,
+   "need": "",
+   "slots": {
+    "x": "ประโยคอังกฤษ",
+    "y": "ประโยคไทย",
+    "aty": 30.0
+   }
+  },
+  {
+   "t0": 34.6,
+   "t1": 38.0,
+   "say": "จะไม่เฉลยความหมายด้วย",
+   "shows": "warning not to reveal meaning",
+   "part": "B07.v3",
+   "bg": "cream",
+   "hit": 34.96,
+   "need": "",
+   "slots": {
+    "text": "ไม่เฉลยความหมาย",
+    "icon": "eye-off",
+    "lead": "จะไม่",
+    "key": "เฉลย"
+   }
+  },
+  {
+   "t0": 38.5,
+   "t1": 42.0,
+   "say": "เรียนรู้ความหมายของมันจากบริบทเอง",
+   "shows": "big memorable line",
+   "part": "B14.v3",
+   "bg": "white",
+   "hit": 40.16,
+   "need": "",
+   "slots": {
+    "words": [
+     "เรียนรู้",
+     "ความหมาย",
+     "จากบริบท",
+     "เอง"
+    ],
+    "key": 2,
+    "at": [
+     39.76,
+     40.16,
+     40.8,
+     41.44
+    ]
+   }
+  },
+  {
+   "t0": 44.48,
+   "t1": 47.98,
+   "say": "โกหกครั้งเดียวต้องโกหกไปอีกสิบรอบ",
+   "shows": "one lie causes ten more",
+   "part": "B12.v1",
+   "bg": "glow",
+   "hit": 47.68,
+   "need": "",
+   "slots": {
+    "a": "โกหกครั้งเดียว",
+    "ia": "message-circle-warning",
+    "b": "โกหก 10 รอบ",
+    "ib": "repeat",
+    "lead": "ประโยคแรก"
+   }
+  },
+  {
+   "t0": 49.0,
+   "t1": 51.4,
+   "say": "มันไม่มีวันจบ",
+   "shows": "infinite loop",
+   "part": "B14.v2",
+   "bg": "glow",
+   "hit": 49.28,
+   "need": "",
+   "slots": {
+    "words": [
+     "ไม่มี",
+     "วันจบ"
+    ],
+    "key": 1
+   }
+  },
+  {
+   "t0": 51.58,
+   "t1": 55.58,
+   "say": "ประเทศที่ไม่ลงทุนกับการศึกษา เห็นได้ชัดในอีกยี่สิบปี",
+   "shows": "timeline of 20 years",
+   "part": "B09.edu1",
+   "bg": "white",
+   "hit": 55.28,
+   "need": "",
+   "slots": {
+    "when": "20 ปี",
+    "lead": "ไม่ลงทุนการศึกษา"
+   }
+  },
+  {
+   "t0": 57.3,
+   "t1": 60.2,
+   "say": "ทิ้งขยะลงแม่น้ำ น้ำเน่า",
+   "shows": "cracked water risk icon",
+   "part": "B07.v2",
+   "bg": "cream",
+   "hit": 58.48,
+   "need": "",
+   "slots": {
+    "text": "ทิ้งขยะลงแม่น้ำ",
+    "icon": "droplets",
+    "lead": "น้ำเน่า"
+   }
+  },
+  {
+   "t0": 60.3,
+   "t1": 63.8,
+   "say": "ปลาตาย คนในชุมชนเดือดร้อน",
+   "shows": "people group highlighted",
+   "part": "B10.v1",
+   "bg": "glow",
+   "hit": 61.52,
+   "need": "",
+   "slots": {
+    "who": "คนในชุมชน",
+    "lead": "เดือดร้อน"
+   }
+  },
+  {
+   "t0": 66.8,
+   "t1": 69.3,
+   "say": "บริษัทนี้ไม่เคยฟังเสียงพนักงาน",
+   "shows": "ignored chat message",
+   "part": "B11.v1",
+   "bg": "white",
+   "hit": 69.0,
+   "need": "",
+   "slots": {
+    "text": "ไม่เคยฟังเสียงพนักงาน",
+    "who": "พนักงาน"
+   }
+  },
+  {
+   "t0": 70.4,
+   "t1": 73.9,
+   "say": "คนเก่งทยอยกันลาออก",
+   "shows": "people count drops",
+   "part": "B02.v1",
+   "bg": "cream",
+   "hit": 72.8,
+   "need": "",
+   "slots": {
+    "dir": "down",
+    "icon": "users",
+    "lead": "คนเก่งทยอย",
+    "key": "ลาออก"
+   }
+  }
+ ]
+}

@@ -1,0 +1,374 @@
+[
+ {
+  "id": "c114123.01",
+  "line": 3,
+  "text": "แต่ คือ คน ที่ คิด ว่า ยิ่ง อด ได้ เยอะ",
+  "near": "ไม่ ใช่ คน ล้ม หนัก ไม่ สำเร็จ นะ ครับ แต่ คือ คน ที่ คิด ว่า ยิ่ง อด ได้ เยอะ ยิ่ง เก่ง คือ สี่ ร้อย แค ล่ว ต่อ วัน",
+  "lead": "ยิ่ง อด",
+  "key": "ได้เยอะ",
+  "meaning": "the more starving the better (wrong belief)",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "meter",
+   "icon": "utensils-crossed",
+   "v0": 0.2,
+   "v1": 0.9
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c114123.02",
+  "line": 6,
+  "text": "แผน ล้ม หนัก ครับ",
+  "near": "สำหรับ คน ส่วนใหญ่ เนี่ย มัน จะ ไม่ ใช่ แผน ล้ม หนัก ครับ มัน จะ เป็น แผนที่ ทำให้ ร่างกาย อยู่ หมด ออก",
+  "lead": "แผน",
+  "key": "ล้มหนัก",
+  "meaning": "plan collapses",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "clipboard-list",
+    "tone": "soft"
+   },
+   "to": {
+    "icon": "skull",
+    "tone": "neg"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c114123.03",
+  "line": 7,
+  "text": "มัน จะ เป็น แผนที่ ทำให้ ร่างกาย อยู่ หมด ออก",
+  "near": "แผน ล้ม หนัก ครับ มัน จะ เป็น แผนที่ ทำให้ ร่างกาย อยู่ หมด ออก ตลอด นะ ครับ ซึ่ง น้ำหนัก ที่ มัน หาย ไป แน่นอน ว่า มัน ไม่ ใช่ แค่ ไขมัน",
+  "lead": "ร่างกาย",
+  "key": "อยู่หมดออก",
+  "meaning": "body runs out of energy",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "meter",
+   "icon": "battery-low",
+   "v0": 0.8,
+   "v1": 0.1
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c114123.04",
+  "line": 9,
+  "text": "อาจจะ เป็น ทั้ง กล้ามเนื้อ พลังงาน ฮอร์โมน",
+  "near": "ตลอด นะ ครับ ซึ่ง น้ำหนัก ที่ มัน หาย ไป แน่นอน ว่า มัน ไม่ ใช่ แค่ ไขมัน อาจจะ เป็น ทั้ง กล้ามเนื้อ พลังงาน ฮอร์โมน สุขภาพจิต แล้วก็ ความสัมพันธ์ กับ อาหาร บางคน เนี่ย จะ",
+  "lead": "อาจจะ เป็นทั้ง",
+  "key": "กล้ามเนื้อ",
+  "meaning": "losing muscle and more",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "row",
+   "dir": "down",
+   "center": {
+    "icon": "user"
+   },
+   "item": {
+    "icon": "biceps-flexed"
+   },
+   "n": 3,
+   "keep": 0
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c114123.05",
+  "line": 11,
+  "text": "เริ่ม ไม่ มี แรง หิวจัด นอน ไม่ค่อย ได้ อารมณ์",
+  "near": "สุขภาพจิต แล้วก็ ความสัมพันธ์ กับ อาหาร บางคน เนี่ย จะ เริ่ม ไม่ มี แรง หิวจัด นอน ไม่ค่อย ได้ อารมณ์ เหวี่ยง เอิ่ม หลุด กิน เยอะ หรือ บางที ก็",
+  "lead": "เริ่ม ไม่ มี",
+  "key": "แรง",
+  "meaning": "no energy",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "toggle",
+   "icon": "zap",
+   "on": false
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c114123.06",
+  "line": 12,
+  "text": "เหวี่ยง เอิ่ม หลุด กิน เยอะ หรือ บางที ก็",
+  "near": "เริ่ม ไม่ มี แรง หิวจัด นอน ไม่ค่อย ได้ อารมณ์ เหวี่ยง เอิ่ม หลุด กิน เยอะ หรือ บางที ก็ เห็น อาหาร ก็ ไม่ กล้า กิน แล้ว ผม ไม่ ได้",
+  "lead": "อารมณ์",
+  "key": "เหวี่ยง",
+  "meaning": "mood swings",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "smile"
+   },
+   "to": {
+    "icon": "angry",
+    "tone": "neg"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c114123.07",
+  "line": 16,
+  "text": "เพราะว่า เรื่อง สุขภาพ เนี่ย มัน มี หลาย ปัจจัย",
+  "near": "เกิด จาก การ กิน น้อย อย่าง เดียว นะ ครับ เพราะว่า เรื่อง สุขภาพ เนี่ย มัน มี หลาย ปัจจัย แต่ สิ่ง ที่ ผม อยาก ให้ ทุกคน เลย รู้จัก เรื่อง นี้ ก็ คือ",
+  "lead": "สุขภาพ มี",
+  "key": "หลายปัจจัย",
+  "meaning": "many factors",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "count",
+   "as": "ring",
+   "dir": "up",
+   "center": {
+    "icon": "heart-pulse"
+   },
+   "item": {
+    "icon": "puzzle"
+   },
+   "n": 4
+  },
+  "ok": false,
+  "problems": [
+   "lead \"สุขภาพ มี\" not said here"
+  ]
+ },
+ {
+  "id": "c114123.08",
+  "line": 18,
+  "text": "อย่า โร แมน ตี ไซส์ การ อดอาหาร",
+  "near": "แต่ สิ่ง ที่ ผม อยาก ให้ ทุกคน เลย รู้จัก เรื่อง นี้ ก็ คือ อย่า โร แมน ตี ไซส์ การ อดอาหาร อย่า มอง ว่าการ ทรมาน ตัวเอง เนี่ย คือ วินัย",
+  "lead": "อย่า โรแมนตีไซส์",
+  "key": "อดอาหาร",
+  "meaning": "do not glamorize starving",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "aim",
+   "as": "pick",
+   "items": [
+    "utensils-crossed",
+    "utensils",
+    "salad"
+   ],
+   "at": 0,
+   "bad": false,
+   "round": false,
+   "how": "cross"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c114123.09",
+  "line": 19,
+  "text": "อย่า มอง ว่าการ ทรมาน ตัวเอง เนี่ย คือ วินัย",
+  "near": "อย่า โร แมน ตี ไซส์ การ อดอาหาร อย่า มอง ว่าการ ทรมาน ตัวเอง เนี่ย คือ วินัย การลดน้ำหนัก ที่ ดี อะ ครับ",
+  "lead": "อย่า มอง ทรมาน คือ",
+  "key": "วินัย",
+  "meaning": "torture is not discipline",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "cards",
+   "a": {
+    "icon": "angry",
+    "label": "ทรมาน",
+    "tone": "neg"
+   },
+   "b": {
+    "icon": "medal",
+    "label": "วินัย"
+   },
+   "win": "b",
+   "how": "cross"
+  },
+  "ok": false,
+  "problems": [
+   "lead \"อย่า มอง ทรมาน คือ\" not said here"
+  ]
+ },
+ {
+  "id": "c114123.10",
+  "line": 23,
+  "text": "ที่ ทำให้ คุณ รู้สึก ว่า คุณ แข็งแรง",
+  "near": "ทำโทษ เลย ลงโทษ ตัวเอง บางคน จะ เป็นการ ที่ ทำให้ คุณ รู้สึก ว่า คุณ แข็งแรง ขึ้น นะ ครับ ใช้ชีวิต ได้ดี ขึ้นอยู่กับ",
+  "lead": "คุณ รู้สึก ว่า",
+  "key": "แข็งแรง",
+  "meaning": "feeling stronger",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "meter",
+   "icon": "biceps-flexed",
+   "v0": 0.3,
+   "v1": 0.9,
+   "then": {
+    "icon": "smile",
+    "how": "check"
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c114123.11",
+  "line": 26,
+  "text": "ผม บอก เลย ว่า ไม่ คุ้ม นะ ครับ",
+  "near": "ร่างกาย ตัวเอง ได้ นาน ขึ้น พร้อม เร็ว เนี่ย ผม บอก เลย ว่า ไม่ คุ้ม นะ ครับ ถ้า มัน ต้อง แลก กับ ร่างกาย ที่ มัน พัง",
+  "lead": "ผมบอกเลยว่า",
+  "key": "ไม่คุ้ม",
+  "meaning": "not worth it",
+  "kind": "library",
+  "use": "not-worth.lego",
+  "recipe": null,
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c114123.12",
+  "line": 29,
+  "text": "เรา กิน น้อยที่สุด คือ การ กิน ให้ พอ ดีแล้ว",
+  "near": "เป้าหมาย ของ การ ฟิตเนส เนี่ย ไม่ ใช่ การ ที่ เรา กิน น้อยที่สุด คือ การ กิน ให้ พอ ดีแล้ว คุณ ทำต่อ ได้ โดยที่ คุณ ไม่ เกลียด",
+  "lead": "คือ การ กิน ให้",
+  "key": "พอดี",
+  "meaning": "eat just right",
+  "kind": "library",
+  "use": "lego.on-target",
+  "recipe": null,
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c114123.13",
+  "line": 30,
+  "text": "คุณ ทำต่อ ได้ โดยที่ คุณ ไม่ เกลียด",
+  "near": "เรา กิน น้อยที่สุด คือ การ กิน ให้ พอ ดีแล้ว คุณ ทำต่อ ได้ โดยที่ คุณ ไม่ เกลียด อาหาร แล้วก็ เกลียด ตัวเอง ถ้า คุณ กำลัง ลดน้ำหนัก",
+  "lead": "ทำต่อ ได้ ไม่",
+  "key": "เกลียด",
+  "meaning": "keep going without hating it",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "heart-off",
+    "tone": "neg"
+   },
+   "to": {
+    "icon": "heart",
+    "tone": "acc"
+   }
+  },
+  "ok": false,
+  "problems": [
+   "lead \"ทำต่อ ได้ ไม่\" not said here"
+  ]
+ },
+ {
+  "id": "c114123.14",
+  "line": 33,
+  "text": "ว่า การ ล้น หนัก คือ การ ดูแลตัวเอง",
+  "near": "อยู่ นะ ผม อยาก ให้ คุณ จำ คำ นี้ ไว้ เลย นะ ว่า การ ล้น หนัก คือ การ ดูแลตัวเอง ไม่ ใช่ การ ทำลาย ตัวเอง ครับ",
+  "lead": "การ ลดน้ำหนัก คือ",
+  "key": "ดูแลตัวเอง",
+  "meaning": "weight loss is self care",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "toggle",
+   "icon": "hand-heart",
+   "on": true,
+   "then": {
+    "how": "check"
+   }
+  },
+  "ok": false,
+  "problems": [
+   "lead \"การ ลดน้ำหนัก คือ\" not said here"
+  ]
+ },
+ {
+  "id": "c114123.15",
+  "line": 34,
+  "text": "ไม่ ใช่ การ ทำลาย ตัวเอง ครับ",
+  "near": "ว่า การ ล้น หนัก คือ การ ดูแลตัวเอง ไม่ ใช่ การ ทำลาย ตัวเอง ครับ เคย ผ่าน การ อดอาหาร แบบ สุดโต่ง นะ ครับ",
+  "lead": "ไม่ ใช่ การ",
+  "key": "ทำลาย",
+  "meaning": "not self destruction",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "versus",
+   "as": "cards",
+   "a": {
+    "icon": "skull",
+    "label": "ทำลาย",
+    "tone": "neg"
+   },
+   "b": {
+    "icon": "heart-handshake"
+   },
+   "win": "b",
+   "how": "cross"
+  },
+  "ok": true,
+  "problems": []
+ },
+ {
+  "id": "c114123.16",
+  "line": 36,
+  "text": "คอมเมนต์ ว่า เคย นะ ครับผม",
+  "near": "เคย ผ่าน การ อดอาหาร แบบ สุดโต่ง นะ ครับ คอมเมนต์ ว่า เคย นะ ครับผม",
+  "lead": "คอมเมนต์ ว่า",
+  "key": "เคย",
+  "meaning": "comment if you have",
+  "kind": "new",
+  "use": null,
+  "recipe": {
+   "layout": "change",
+   "as": "swap",
+   "from": {
+    "icon": "message-circle",
+    "tone": "soft"
+   },
+   "to": {
+    "icon": "message-circle",
+    "tone": "acc"
+   }
+  },
+  "ok": true,
+  "problems": []
+ }
+]

@@ -1,0 +1,8 @@
+{
+ "scenes": [
+  {
+   "i": 11,
+   "code": "const o = ON[T.bg];\nconst cam = tile(c, 'camera', T.t0 + .1, 'left:290px;top:480px', {size: 500, bg: o.tile, color: o.tileInk, sound: false, float: false});\nconst fr = svg(700, 700, `<polyline points=\"20,150 20,20 150,20\" stroke=\"${o.soft}\" stroke-width=\"14\" fill=\"none\" stroke-linecap=\"round\"/><polyline points=\"550,20 680,20 680,150\" stroke=\"${o.soft}\" stroke-width=\"14\" fill=\"none\" stroke-linecap=\"round\"/><polyline points=\"20,550 20,680 150,680\" stroke=\"${o.soft}\" stroke-width=\"14\" fill=\"none\" stroke-linecap=\"round\"/><polyline points=\"550,680 680,680 680,550\" stroke=\"${o.soft}\" stroke-width=\"14\" fill=\"none\" stroke-linecap=\"round\"/>`, 'left:190px;top:380px;opacity:0', c);\nmv.show(fr, T.t0 + .2);\nconst dot = svg(120, 120, `<circle cx=\"60\" cy=\"60\" r=\"44\" fill=\"${ACC}\"/>`, 'left:700px;top:440px;opacity:0', c);\nconst rec = div('left:690px;top:590px;width:160px;height:70px;opacity:0;font-family:KeySans;font-size:56px;font-weight:700;color:' + ACC, c, 'REC');\nmv.pop(dot, T.hit);\nmv.rise(rec, T.hit + .1);\nmv.punch(cam.inner, T.hit);\nfor (let i = 1; i < 6; i++) {\n  mv.punch(dot, T.hit + .5 * i);\n}\nsnd('hit', T.hit);\n"
+  }
+ ]
+}

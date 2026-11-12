@@ -1,0 +1,8 @@
+{
+ "scenes": [
+  {
+   "i": 10,
+   "code": "const o = ON[T.bg];\nconst a = tile(c, 'box', T.t0 + .1, 'left:130px;top:520px', {size: 280, bg: o.tile, color: o.tileInk, sound: false, float: false});\nconst b = tile(c, 'gem', T.t0 + .3, 'left:670px;top:520px', {size: 280, bg: ACC, color: NAVY, sound: false, float: false});\nconst sw = div('left:440px;top:590px;width:200px;height:140px;opacity:0', c, ico('arrow-left-right', 140, o.ink, 3));\nmv.pop(sw, T.t0 + .5);\nmv.float(a, T.t0 + .1, T.hit, 8);\nmv.float(b, T.t0 + .3, T.hit, 8);\nmv.slide(a, T.hit, 'translateX(0px)', 'translateX(540px)');\nmv.slide(b, T.hit, 'translateX(0px)', 'translateX(-540px)');\nmv.wobble(sw, T.hit);\nmv.punch(sw, T.hit + .3);\nsnd('hit', T.hit);"
+  }
+ ]
+}

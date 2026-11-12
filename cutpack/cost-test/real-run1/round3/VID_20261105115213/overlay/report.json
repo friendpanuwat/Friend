@@ -1,0 +1,85 @@
+{
+ "status": "ok",
+ "topic": "biz",
+ "log": [
+  "fix round (plan): 14 errors sent back"
+ ],
+ "fallback": [
+  "B07.v3 25.6–28.0 → B14 text B14.v1 (hit-early)",
+  "B08.v4 28.4–29.8 → B14 text B14.v3 (hit-early)",
+  "B14.v1 39.4–41.4 → B14 text B14.v1 (hit-early)",
+  "B06.v1 59.9–60.58 dropped (length, hit-early, widget-gap)"
+ ],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "same-category",
+   "where": "B14.v3 28.4",
+   "msg": "two scenes of the same category in a row",
+   "scene": 8
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 0.56–5.12 \"แล้ว ผมรู้สึก ว่า / ตราบใดที่ คุณยังมองว่า / รายได้ ของคุณ อ่ะ\"",
+   "msg": "chunk \"ตราบใดที่ คุณยังมองว่า\" is 16 letters, aim ≤ 12",
+   "sub": 0
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 8.0–10.96 \"เสริม นะเอง / มัน ก็จะเป็น รายได้ / เสริม ต่อไป\"",
+   "msg": "chunk \"มัน ก็จะเป็น รายได้\" is 13 letters, aim ≤ 12",
+   "sub": 2
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 29.84–32.88 \"ไม่ มี ความเสี่ยง / ไม่ มี คำ ว่า เจ๊ง / ไม่ มี คำ ว่า ขาดทุน นะ\"",
+   "msg": "chunk \"ไม่ มี คำ ว่า ขาดทุน นะ\" is 13 letters, aim ≤ 12",
+   "sub": 10
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 39.28–41.52 \"ความเสี่ยง ให้ มาก / ที่สุด เลย / ทำให้ ยังไง / ก็ได้ ให้\"",
+   "msg": "chunk \"ความเสี่ยง ให้ มาก\" is 13 letters, aim ≤ 12",
+   "sub": 14
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 46.08–47.84 \"ตอนที่ ผม ทำ คอนเทนต์ / แล้ว ผม ก็ ทำเป็น / รายได้ เสริม อ่ะ\"",
+   "msg": "chunk \"ตอนที่ ผม ทำ คอนเทนต์\" is 14 letters, aim ≤ 12",
+   "sub": 17
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 49.52–50.8 \"เซตผม มัน ไม่ / เหมือนกับ อย่างงี้ เลย\"",
+   "msg": "chunk \"เหมือนกับ อย่างงี้ เลย\" is 15 letters, aim ≤ 12",
+   "sub": 19
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 50.8–54.4 \"มัน มัน มี หลายอย่าง / ที่ มัน เปลี่ยนไป / มาก มาก แล้ว มัน\"",
+   "msg": "chunk \"มัน มัน มี หลายอย่าง\" is 13 letters, aim ≤ 12",
+   "sub": 20
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 54.4–55.68 \"ผม ก็ ยัง เห็น / Infonser บางคน\"",
+   "msg": "chunk \"Infonser บางคน\" is 13 letters, aim ≤ 12",
+   "sub": 21
+  },
+  {
+   "level": "warn",
+   "code": "sub-face",
+   "where": "layout",
+   "msg": "the chin is low: subtitles may touch the face when zoomed"
+  }
+ ]
+}

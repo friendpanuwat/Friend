@@ -1,0 +1,14 @@
+{"pictures":[
+{"line":3,"lead":"สิ่งที่คุณกำลังทำ คือ","key":"รายได้เสริม","meaning":"what you do is side income","recipe":{"layout":"change","as":"swap","from":{"icon":"briefcase","tone":"soft"},"to":{"icon":"coins","tone":"main","label":"รายได้เสริม"}}},
+{"line":5,"lead":"ไม่มีทางเป็น","key":"Main income","meaning":"never becomes main income","recipe":{"layout":"versus","as":"cards","a":{"icon":"coins","label":"รายได้เสริม","tone":"soft"},"b":{"icon":"briefcase","label":"Main income","tone":"neg"},"win":"a","how":"cross"}},
+{"line":8,"lead":"รายได้หลัก","key":"active income","meaning":"main income is active income","recipe":{"layout":"change","as":"meter","icon":"banknote","v0":0.2,"v1":0.9,"then":{"icon":"briefcase","how":"check"}}},
+{"line":11,"lead":"ต้องมองมันเป็น","key":"business","meaning":"treat it as a business","recipe":{"layout":"change","as":"swap","from":{"icon":"coins","tone":"soft"},"to":{"icon":"store","tone":"acc","label":"business"}}},
+{"line":12,"lead":"กล้าเทค","key":"ความเสี่ยง","meaning":"dare to take risk","recipe":{"layout":"aim","as":"pick","items":["shield","triangle-alert","rocket"],"at":1,"bad":false,"round":false,"how":"pick"}},
+{"line":13,"lead":"side hustle โดยส่วนใหญ่","key":"ไม่มีความเสี่ยง","meaning":"side hustle has no risk","recipe":{"layout":"change","as":"toggle","icon":"shield-check","on":true,"then":{"how":"check"}}},
+{"line":14,"lead":"ไม่มีคำว่า","key":"ขาดทุน","meaning":"no such thing as loss","use":"lego.money-gone"},
+{"line":16,"lead":"minimize","key":"ความเสี่ยง","meaning":"minimize risk","recipe":{"layout":"count","as":"bars","dir":"down","center":{"icon":"triangle-alert"},"n":4,"keep":1}},
+{"line":17,"lead":"แค่เป็น","key":"รายได้เสริม","meaning":"just keep it side income","recipe":{"layout":"steps","as":"row","items":[{"icon":"briefcase"},{"icon":"clock"},{"icon":"coins","label":"รายได้เสริม"}],"mark":{"at":2,"how":"light"}}},
+{"line":20,"lead":"ผมมัน","key":"Mindset","meaning":"mindset is not the same","recipe":{"layout":"change","as":"swap","from":{"icon":"brain","tone":"soft"},"to":{"icon":"lightbulb","tone":"acc","label":"Mindset"}}},
+{"line":21,"lead":"มีหลายอย่างที่","key":"เปลี่ยนไป","meaning":"many things changed","recipe":{"layout":"count","as":"bars","dir":"up","center":{"icon":"chart-column"},"n":4,"keep":0}},
+{"line":24,"lead":"ถ้าคุณแค่คิดว่ามันเป็น","key":"รายได้เสริม","meaning":"if you only think side income","recipe":{"layout":"versus","as":"scale","a":{"icon":"coins","tone":"soft"},"b":{"icon":"briefcase","tone":"main"},"win":"b","how":"both"}}
+]}

@@ -1,0 +1,81 @@
+{
+ "status": "ok",
+ "topic": "fit",
+ "log": [
+  "fix round (plan): 21 errors sent back"
+ ],
+ "fallback": [],
+ "library_missing": [],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "number-word",
+   "where": "scenes[1] B14.v1",
+   "msg": "\"สี่ร้อย\" reads as 400, which is not in the script",
+   "scene": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 20.48–23.68 \"สุขภาพจิต แล้วก็ / ความสัมพันธ์ กับ อาหาร / บางคน เนี่ย จะ\"",
+   "msg": "chunk \"ความสัมพันธ์ กับ อาหาร\" is 16 letters, aim ≤ 12",
+   "sub": 3
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 42.48–45.04 \"อย่า มอง ว่าการ / ทรมาน ตัวเอง เนี่ย คือ วินัย\"",
+   "msg": "chunk \"ทรมาน ตัวเอง เนี่ย คือ วินัย\" is 18 letters (max 16, aim 12): split it with /",
+   "sub": 6
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 57.28–58.4 \"ผม บอก เลย ว่า ไม่ คุ้ม นะ ครับ\"",
+   "msg": "chunk \"ผม บอก เลย ว่า ไม่ คุ้ม นะ ครับ\" is 19 letters (max 16, aim 12): split it with /",
+   "sub": 10
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 60.64–62.8 \"เป้าหมาย ของ การ ฟิตเนส เนี่ย / ไม่ ใช่ การ ที่\"",
+   "msg": "chunk \"เป้าหมาย ของ การ ฟิตเนส เนี่ย\" is 21 letters (max 16, aim 12): split it with /",
+   "sub": 11
+  },
+  {
+   "level": "error",
+   "code": "sub-chunk",
+   "where": "subtitles 67.44–68.8 \"อาหาร แล้วก็ เกลียด ตัวเอง\"",
+   "msg": "chunk \"อาหาร แล้วก็ เกลียด ตัวเอง\" is 19 letters (max 16, aim 12): split it with /",
+   "sub": 14
+  },
+  {
+   "level": "warn",
+   "code": "cam-push-twice",
+   "where": "camera[1] push 17.0",
+   "msg": "pushed again without pulling back first",
+   "cam": 1
+  },
+  {
+   "level": "warn",
+   "code": "cam-push-twice",
+   "where": "camera[2] push 33.0",
+   "msg": "pushed again without pulling back first",
+   "cam": 2
+  },
+  {
+   "level": "warn",
+   "code": "cam-push-twice",
+   "where": "camera[3] push 53.0",
+   "msg": "pushed again without pulling back first",
+   "cam": 3
+  },
+  {
+   "level": "warn",
+   "code": "cam-push-twice",
+   "where": "camera[4] push 66.5",
+   "msg": "pushed again without pulling back first",
+   "cam": 4
+  }
+ ]
+}

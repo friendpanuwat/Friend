@@ -1,0 +1,39 @@
+{
+ "status": "ok",
+ "topic": "none",
+ "log": [],
+ "fallback": [],
+ "library_missing": [
+  "Many items on the card shift and swap places at the hit on 'เปลี่ยนไป' to show lots of things changing; the library has no 'things change' scene."
+ ],
+ "issues": [
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 5.68–7.68 \"นั้นน่ะสิ่งที่คุณ กำลังทำ / อยู่อ่ะ มันคือ\"",
+   "msg": "chunk \"นั้นน่ะสิ่งที่คุณ กำลังทำ\" is 13 letters, aim ≤ 12",
+   "sub": 1
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 25.29–27.04 \"ว่าการ เฮด / ความเสี่ยงกับมัน เว้ย\"",
+   "msg": "chunk \"ความเสี่ยงกับมัน เว้ย\" is 15 letters, aim ≤ 12",
+   "sub": 4
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 47.28–49.52 \"รายได้เสริมอ่ะ ประจำ / ผมไป ใช่ป่ะ\"",
+   "msg": "chunk \"รายได้เสริมอ่ะ ประจำ\" is 15 letters, aim ≤ 12",
+   "sub": 9
+  },
+  {
+   "level": "warn",
+   "code": "sub-chunk",
+   "where": "subtitles 49.52–50.8 \"เซตผมมันไม่ เหมือนกับ / อย่างงี้เลย\"",
+   "msg": "chunk \"เซตผมมันไม่ เหมือนกับ\" is 16 letters, aim ≤ 12",
+   "sub": 10
+  }
+ ]
+}

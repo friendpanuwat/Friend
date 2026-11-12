@@ -1,0 +1,37 @@
+</script>
+<script>
+/* ===================== ENGINE ===================== */
+const ease = p => 1 - Math.pow(1 - p, 3);
+/* CutPack: the camera moves the talking-head-motion way (Friend 2026-11-04) — a zoom key with {io: true} eases in AND out
+   (starts and lands softly), and window.BREATH adds that skill's slow breathing drift, kept between 1 and 1 + BREATH. */
+const easeIO = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+ZOOM.sort((a, b) => a.t - b.t);
+function zoomAt(t) { let z = 1; for (const k of ZOOM) { if (t < k.t) break; z += (k.z - z) * (k.io ? easeIO : ease)(Math.min(1, (t - k.t) / k.d)); } return z * (1 + (window.BREATH || 0) * (.5 + .5 * Math.sin(t * .3))); }   // drift stays ≥ 1: no edge ever shows (no blurred copy behind, unlike that skill)
+const V = document.getElementById('v');
+window.seek = async (t, src) => {
+  if (!window.__fitted) {
+    window.__fitted = true; FITS.forEach(f => f());
+    // a window declared in cards() with no card() hides the captions over bare footage — fail loudly (render exits 2)
+    const miss = CARD_WIN.filter(([a]) => !MADE.some(m => Math.abs(m - a) < .005));
+    if (miss.length) throw new Error('cards() windows without a card()/frame(): ' + miss.map(w => w.join('-')).join(', '));
+  }
+  if (src) { V.src = src; await V.decode(); }
+  const F = FRAMES.find(f => t >= f.t0 && t < f.t1);
+  if (F) {   // shrink-to-card
+    const p = Math.min(ease(Math.min(1, (t - F.t0) / F.d)), F.o ? easeIO(Math.min(1, (F.t1 - t) / F.o)) : 1);   // o: grow back softly
+    const s = 1 - (1 - F.s) * p, dy = (F.y - 960) * p;
+    V.style.transformOrigin = '50% 50%';
+    V.style.transform = `translateY(${dy}px) scale(${s})`;
+    V.style.clipPath = `inset(0 round ${F.r * p / s}px)`;
+    Object.assign(F.sh.style, {left: `${540 - 540 * s}px`, top: `${960 + dy - 960 * s}px`, width: `${1080 * s}px`, height: `${1920 * s}px`});
+  } else {
+    V.style.transformOrigin = '50% 45%';
+    V.style.transform = `scale(${zoomAt(t)})`;
+    V.style.clipPath = 'none';
+  }
+  ANIMS.forEach(a => { a.pause(); a.currentTime = ms(t); });
+  await Promise.all(HOOKS.map(h => h(t)));   // hooks may return a promise (B-roll frame decode)
+};
+window.SFX = calmSfx(SFX);
+</script>
+</body></html>

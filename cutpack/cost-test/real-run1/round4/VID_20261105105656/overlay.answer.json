@@ -1,0 +1,282 @@
+{
+ "topic": "biz",
+ "camera": [
+  {
+   "move": "push",
+   "t": 12.9
+  },
+  {
+   "move": "pull",
+   "t": 17.0
+  },
+  {
+   "move": "push",
+   "t": 43.0
+  },
+  {
+   "move": "pull",
+   "t": 50.0
+  },
+  {
+   "move": "push",
+   "t": 76.0
+  }
+ ],
+ "scenes": [
+  {
+   "t0": 1.4,
+   "t1": 4.0,
+   "say": "ผลิตร้อยขวด ผลิตล้านขวด",
+   "shows": "two groups compared, small vs huge",
+   "part": "B03.v1",
+   "size": "short",
+   "hit": 2.48,
+   "need": "",
+   "slots": {
+    "a": "ร้อยขวด",
+    "b": "ล้านขวด",
+    "ia": "package",
+    "ib": "factory",
+    "win": "",
+    "wlead": "ผลิต",
+    "wkey": "ล้านขวด"
+   }
+  },
+  {
+   "t0": 4.0,
+   "t1": 7.0,
+   "say": "ใครจะแพงกว่า ของผมแพงกว่า",
+   "shows": "price tag jumps up",
+   "part": "B01.biz1",
+   "size": "short",
+   "hit": 5.84,
+   "need": "",
+   "slots": {
+    "num": 1,
+    "icon": "tag",
+    "wlead": "ของผม",
+    "wkey": "แพงกว่า"
+   }
+  },
+  {
+   "t0": 7.4,
+   "t1": 10.2,
+   "say": "เหมือนกันทั้งสองอย่าง ไม่มีแบรนด์",
+   "shows": "question mark about brand",
+   "part": "B06.v1",
+   "size": "narrow",
+   "hit": 8.8,
+   "need": "",
+   "slots": {
+    "q": "ไม่มีแบรนด์",
+    "icon": "tag",
+    "wlead": "เหมือนกัน",
+    "wkey": "ไม่มีแบรนด์"
+   }
+  },
+  {
+   "t0": 12.5,
+   "t1": 15.5,
+   "say": "แบรนด์คืออะไร",
+   "shows": "search for brand meaning",
+   "part": "B06.v4",
+   "size": "short",
+   "hit": 13.52,
+   "need": "",
+   "slots": {
+    "q": "แบรนด์คืออะไร",
+    "icon": "search",
+    "wlead": "แบรนด์",
+    "wkey": "คืออะไร"
+   }
+  },
+  {
+   "t0": 16.0,
+   "t1": 22.5,
+   "say": "สัญญาต่อผู้บริโภค จำได้ง่าย มีความหมาย",
+   "shows": "checklist of two traits",
+   "part": "B04.v2",
+   "size": "narrow",
+   "hit": 21.12,
+   "need": "",
+   "slots": {
+    "items": [
+     "จำได้ง่าย",
+     "มีความหมาย"
+    ],
+    "at": [
+     16.32,
+     21.12
+    ],
+    "wlead": "สัญญา",
+    "wkey": "ผู้บริโภค"
+   }
+  },
+  {
+   "t0": 31.7,
+   "t1": 34.4,
+   "say": "เห็นโลโก้แล้วจำได้ แต่ไม่มีนิ่งฟู",
+   "shows": "before and after sides",
+   "part": "B03.v4",
+   "size": "short",
+   "hit": 33.52,
+   "need": "",
+   "slots": {
+    "a": "จำได้",
+    "b": "ไม่มีนิ่งฟู",
+    "ia": "eye",
+    "ib": "x",
+    "win": "a",
+    "wlead": "จำได้",
+    "wkey": "แต่ไม่มี"
+   }
+  },
+  {
+   "t0": 38.0,
+   "t1": 41.5,
+   "say": "มีความผูกพันไหม ไม่มี",
+   "shows": "heart handshake link people",
+   "part": "B10.v3",
+   "size": "narrow",
+   "hit": 40.48,
+   "need": "",
+   "slots": {
+    "who": "ลูกค้ากับแบรนด์",
+    "wlead": "ความผูกพัน",
+    "wkey": "ไม่มี"
+   }
+  },
+  {
+   "t0": 42.9,
+   "t1": 46.0,
+   "say": "อาจจะมีความหมาย แต่ชื่อจำไม่ได้",
+   "shows": "warning sign on forgettable name",
+   "part": "B07.v1",
+   "size": "short",
+   "hit": 44.64,
+   "need": "",
+   "slots": {
+    "text": "ชื่อจำไม่ได้",
+    "icon": "tag",
+    "wlead": "ชื่อ",
+    "wkey": "จำไม่ได้"
+   }
+  },
+  {
+   "t0": 54.2,
+   "t1": 57.0,
+   "say": "คุณซื้อกลับมา คราวหน้าผู้บริโภค",
+   "shows": "repeat purchase loop",
+   "part": "B12.v4",
+   "size": "short",
+   "hit": 56.0,
+   "need": "",
+   "slots": {
+    "a": "ซื้อ",
+    "ia": "shopping-cart",
+    "b": "ซื้อกลับมา",
+    "ib": "refresh-cw",
+    "c": "เชื่อ",
+    "ic": "heart",
+    "wlead": "คราวหน้า",
+    "wkey": "ผู้บริโภค"
+   }
+  },
+  {
+   "t0": 61.2,
+   "t1": 64.8,
+   "say": "พรีเมียร์ ดีต่อครอบครัว เฮลตี้",
+   "shows": "checklist of benefits",
+   "part": "B04.v1",
+   "size": "narrow",
+   "hit": 64.55,
+   "need": "",
+   "slots": {
+    "items": [
+     "พรีเมียร์",
+     "ดีต่อครอบครัว",
+     "เฮลตี้"
+    ],
+    "at": [
+     62.56,
+     63.68,
+     65.12
+    ],
+    "wlead": "นี่คือสิ่งที่",
+    "wkey": "ดี"
+   }
+  },
+  {
+   "t0": 65.7,
+   "t1": 69.6,
+   "say": "ลดการทำลายต้นไม้ ช่วยชาวนา",
+   "shows": "cause to effect for nature",
+   "part": "B12.v1",
+   "size": "short",
+   "hit": 67.92,
+   "need": "",
+   "slots": {
+    "a": "ลดทำลายต้นไม้",
+    "ia": "leaf",
+    "b": "ช่วยชาวนา",
+    "ib": "hand-heart",
+    "wlead": "ช่วยเหลือ",
+    "wkey": "ชาวนา"
+   }
+  },
+  {
+   "t0": 76.2,
+   "t1": 80.5,
+   "say": "แบรนด์ที่แท้จริงไม่ใช่โลโก้",
+   "shows": "logo crossed out, promise right",
+   "part": "B05.v1",
+   "size": "short",
+   "hit": 78.24,
+   "need": "",
+   "slots": {
+    "x": "โลโก้",
+    "y": "คำสัญญา",
+    "aty": 87.84,
+    "wlead": "ไม่ใช่",
+    "wkey": "โลโก้"
+   }
+  },
+  {
+   "t0": 82.3,
+   "t1": 86.0,
+   "say": "ไม่ใช่ใช้สีอะไร แพคเกจจิ้งแบบไหน",
+   "shows": "wrong chips crossed",
+   "part": "B05.v2",
+   "size": "narrow",
+   "hit": 82.4,
+   "need": "",
+   "slots": {
+    "x": "สี แพคเกจ",
+    "y": "คำสัญญา",
+    "aty": 85.4,
+    "wlead": "ไม่ใช่",
+    "wkey": "แค่สี"
+   }
+  },
+  {
+   "t0": 86.6,
+   "t1": 89.5,
+   "say": "แต่คือคำสัญญาที่ให้กับผู้บริโภค",
+   "shows": "promise handshake",
+   "part": "B14.v1",
+   "size": "short",
+   "hit": 87.84,
+   "need": "",
+   "slots": {
+    "words": [
+     "คำสัญญา",
+     "ให้ผู้บริโภค"
+    ],
+    "key": 0,
+    "icon": "handshake",
+    "wlead": "แบรนด์คือ",
+    "wkey": "คำสัญญา"
+   }
+  }
+ ]
+}

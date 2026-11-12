@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>CutPack เลือกสไตล์</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Anuphan:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#0C0C0D}
+a{color:#F2F2F0;text-decoration:none}
+.scr{font-family:'Geist','Anuphan',system-ui,sans-serif;color:#F2F2F0;-webkit-font-smoothing:antialiased}
+.body{scrollbar-width:none}.body::-webkit-scrollbar{display:none}
+.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.back{width:40px;height:40px;border-radius:999px;border:1px solid rgba(255,255,255,0.14);display:inline-flex;align-items:center;justify-content:center;color:#F2F2F0}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; position: relative; background: #0C0C0D; background-image: radial-gradient(120% 40% at 50% -12%, rgba(255,255,255,0.12), rgba(255,255,255,0) 62%); display: flex; flex-direction: column">
+
+  <div style="flex-shrink: 0; padding: 14px 20px 0; display: flex; flex-direction: column; gap: 12px">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <a href="Upload.dc.html" class="back" aria-label="ย้อนกลับ">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      </a>
+      <span style="font-size: 13px; color: rgba(255,255,255,0.5)">ขั้นที่ 2 จาก 5</span>
+      <span style="width: 40px"></span>
+    </div>
+    <div style="display: flex; gap: 6px">
+      <span style="flex: 1; height: 4px; border-radius: 999px; background: #FFFFFF"></span>
+      <span style="flex: 1; height: 4px; border-radius: 999px; background: #FFFFFF"></span>
+      <span style="flex: 1; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.14)"></span>
+      <span style="flex: 1; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.14)"></span>
+      <span style="flex: 1; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.14)"></span>
+    </div>
+  </div>
+
+  <div class="body" style="flex: 1; min-height: 0; overflow-y: auto">
+    <div style="padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <h1 style="margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.4px">เลือกสไตล์</h1>
+        <p style="margin: 0; font-size: 14.5px; line-height: 1.6; color: rgba(255,255,255,0.72)">ทั้งสองแบบมีซับตัวใหญ่และเสียงประกอบ</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <sc-for list="{{styles}}" as="s" hint-placeholder-count="2">
+          <button onClick="{{s.pick}}" aria-pressed="{{s.on}}" style="all: unset; cursor: pointer; box-sizing: border-box; border-radius: 20px; background: #151516; border: {{s.border}}; padding: 12px; display: flex; flex-direction: column; gap: 10px">
+            <div style="display: flex; align-items: center; gap: 12px">
+              <span style="width: 30px; height: 30px; border-radius: 999px; background: {{s.dotBg}}; color: {{s.dotFg}}; border: 1px solid {{s.dotLine}}; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0">{{s.k}}</span>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 1px">
+                <span style="font-size: 16px; font-weight: 600">{{s.name}}</span>
+                <span style="font-size: 13px; color: rgba(255,255,255,0.72)">{{s.short}}</span>
+              </div>
+              <sc-if value="{{s.on}}" hint-placeholder-val="{{false}}">
+                <span style="width: 24px; height: 24px; border-radius: 999px; background: #FFFFFF; color: #0C0C0D; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0">
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 13px; height: 13px; stroke-width: 2.6"><path d="M20 6 9 17l-5-5"/></svg>
+                </span>
+              </sc-if>
+            </div>
+            <div style="display: flex; gap: 8px">
+              <sc-for list="{{s.shots}}" as="p" hint-placeholder-count="2">
+                <div style="flex: 1; position: relative; height: 140px; border-radius: 12px; overflow: hidden; background: #222">
+                  <img src="{{p.src}}" alt="{{p.alt}}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block">
+                  <span style="position: absolute; left: 8px; bottom: 8px; height: 22px; padding: 0 9px; border-radius: 999px; background: rgba(12,12,13,0.78); font-size: 11.5px; color: #F2F2F0; display: inline-flex; align-items: center">{{p.tag}}</span>
+                </div>
+              </sc-for>
+            </div>
+            <span style="font-size: 13px; line-height: 1.55; color: rgba(255,255,255,0.72)">{{s.text}}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex-shrink: 0; padding: 12px 20px 24px">
+    <a href="Look.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 10px; height: 54px; border-radius: 999px; background: #FFFFFF; color: #0C0C0D; font-size: 16px; font-weight: 600">
+      ต่อไป สีและฟอนต์
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2.2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { pick: 'ed' }; }
+  renderVals() {
+    const cur = this.state.pick;
+    const list = [
+      { id: 'ed', k: 'A', name: 'Editorial', short: 'ตัดสลับการ์ดเต็มจอ',
+        text: 'สลับไปการ์ดเต็มจอตามเรื่องที่พูด เห็นหน้าคนพูดราวครึ่งคลิป',
+        shots: [
+          { src: '/_blob/8d6f6b2e84ece8fd0c5ff1eea50e620b', alt: 'ตัวอย่างช่วงหน้าคนพูด', tag: 'หน้าคนพูด' },
+          { src: '/_blob/9d787f9bfc8592ec1cbb6d209d93a910', alt: 'ตัวอย่างการ์ดเต็มจอ', tag: 'การ์ดเต็มจอ' }
+        ] },
+      { id: 'ov', k: 'B', name: 'Overlay', short: 'เห็นหน้าตลอด กราฟิกลอยเหนือหัว',
+        text: 'หน้าคนพูดอยู่บนจอทั้งคลิป กราฟิกชิ้นเล็กเด้งขึ้นในที่ว่าง ไม่บังหน้า',
+        shots: [
+          { src: '/_blob/ff5d3ed305efb37e5bcc27b09e16b9ec', alt: 'ตัวอย่างคลิปดิบ', tag: 'ก่อน' },
+          { src: '/_blob/b76a0c49e8c93abfbe2200245283840c', alt: 'ตัวอย่างกราฟิกเหนือหัว', tag: 'หลัง' }
+        ] }
+    ];
+    return {
+      styles: list.map((s) => {
+        const on = s.id === cur;
+        return { ...s, on,
+          border: on ? '1.5px solid #FFFFFF' : '1px solid rgba(255,255,255,0.10)',
+          dotBg: on ? '#FFFFFF' : 'transparent', dotFg: on ? '#0C0C0D' : 'rgba(255,255,255,0.72)',
+          dotLine: on ? '#FFFFFF' : 'rgba(255,255,255,0.18)',
+          pick: () => this.setState({ pick: s.id }) };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

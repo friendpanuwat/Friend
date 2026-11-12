@@ -1,0 +1,19 @@
+{"pictures":[
+{"line":2,"shows":"A group of people icon labelled some people, who use a language learning method.","cat":"B10","slots":{"who":{"icon":"users"},"label":"บาง คนใช้"},"lead":"ยังมี","key":"บาง คนใช้"},
+{"line":4,"shows":"A book icon crossed out, saying this method is not recommended today.","cat":"B07","slots":{"thing":{"icon":"book-open"},"how":"cross"},"lead":"วันนี้ เรา จะ","key":"ไม่ แนะนำ"},
+{"line":7,"shows":"A brain icon hesitating, almost understanding but not quite.","cat":"B06","slots":{"about":{"icon":"brain"}},"lead":"","key":"เกือบ เข้าใจ"},
+{"line":8,"shows":"Ear listening, then repeat, then endless loop: listening again and again with no end.","cat":"B12","slots":{"items":[{"icon":"ear"},{"icon":"repeat"},{"icon":"infinity","tone":"neg"}]},"lead":"ฟัง ซ้ำ","key":"ไป เรื่อย"},
+{"line":10,"shows":"The term is explained as learning something new.","cat":"B16","slots":{"term":{"icon":"book-open","label":"ง่าย ง่าย"},"means":[{"icon":"sparkles","label":"สิ่งใหม่"}]},"lead":"ง่าย มัน คือ การเรียน","key":"สิ่งใหม่"},
+{"line":13,"shows":"English sentence is the wrong choice, Thai sentence is the right one.","cat":"B05","slots":{"wrong":{"icon":"languages","label":"อังกฤษ","tone":"neg"},"right":{"icon":"message-circle","label":"ไทย","tone":"acc"}},"lead":"ไม่ ใช้ ประโยค","key":"อังกฤษ"},
+{"line":15,"shows":"A lightbulb off and crossed, meaning the meaning is not revealed.","cat":"B07","slots":{"thing":{"icon":"lightbulb-off"},"how":"cross"},"lead":"เรา ก็ จะ","key":"ไม่ เฉลย"},
+{"line":18,"shows":"A key tip: the meaning comes from the context itself.","cat":"B13","slots":{"secret":{"icon":"key","label":"บริบท เอง"}},"lead":"มัน จาก","key":"บริบท เอง"},
+{"line":19,"shows":"A person tells one lie, which leads to the need to keep lying again and again.","cat":"B12","slots":{"items":[{"icon":"user"},{"icon":"message-circle-warning"},{"icon":"repeat"}]},"lead":"เขา","key":"โกหก"},
+{"line":21,"shows":"An infinity sign: lying has no end.","cat":"B14","slots":{"idea":{"icon":"infinity","label":"วัน จบ"}},"lead":"มัน ไม่ มี","key":"วัน จบ"},
+{"line":23,"shows":"A graduation cap crossed out: a country that does not invest in education.","cat":"B07","slots":{"thing":{"icon":"graduation-cap","label":"การศึกษา"},"how":"cross"},"lead":"ไม่ ลงทุน กับ","key":"การศึกษา"},
+{"line":24,"shows":"The result becomes visible after twenty years.","cat":"B09","slots":{"result":{"icon":"eye"}},"lead":"ใน อีก","key":"ยี่สิบ ปี"},
+{"line":25,"shows":"Trash dumped, the river water goes bad, fish suffer: a chain of harm.","cat":"B12","slots":{"items":[{"icon":"trash-2"},{"icon":"droplets"},{"icon":"fish"}],"end":{"icon":"triangle-alert","tone":"neg"}},"lead":"ทิ้ง ขยะ ลง แม่น้ำ","key":"น้ำเน่า"},
+{"line":26,"shows":"Fish disappear, they die off.","cat":"B02","slots":{"dir":"down","item":{"icon":"fish"},"n":3,"keep":0},"lead":"","key":"ปลา ตาย"},
+{"line":27,"shows":"Not just one person but many people are affected.","cat":"B03","slots":{"mode":"versus","a":{"icon":"user","label":"คนเดียว","tone":"neg"},"b":{"icon":"users"},"win":"b","how":"cross"},"lead":"กระทบ คน แค่","key":"คนเดียว"},
+{"line":28,"shows":"A message from employees that gets no reply, the company never listens.","cat":"B11","slots":{"kind":"message","quote":"พนักงาน","mood":"bad","react":"ear-off","gone":true},"lead":"บริษัท นี้","key":"ไม่ เคย ฟัง"},
+{"line":29,"shows":"Talented people leave the company one after another until none remain.","cat":"B02","slots":{"dir":"down","item":{"icon":"user"},"center":{"icon":"building-2"},"n":4,"keep":0,"end":{"icon":"frown","tone":"neg"}},"lead":"คนเก่ง ทยอย กัน","key":"ลาออก"}
+]}
