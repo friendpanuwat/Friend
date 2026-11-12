@@ -41,15 +41,15 @@
 
   /* map-pin — drops onto its shadow, then hops and lands with a squash */
   rig('map-pin-pro', .7, 'rise', p => {
-    const intro = sub(p), shd = sub(intro), pin = sub(intro);
+    const intro = sub(p), shdO = sub(intro), pinO = sub(intro), shd = sub(shdO), pin = sub(pinO);   // entrance on *O, loop inside
     shd.ellipse(0, 168, 64, 13, { sw: 2, stroke: C.soft });
     pin.path('M 0 150 C -40 90, -112 24, -112 -48 A 112 112 0 0 1 112 -48 C 112 24, 40 90, 0 150 Z', { fill: C.fill, sw: 3.2 });
     pin.circle(0, -48, 42, { fill: C.fill, sw: 3 });
         on(pin, p, .7, { loop: 2.2, ox: 0, oy: 150, y: [[0, 0], [.1, 0], [.34, -46, 'out'], [.56, 0, 'in'], [.66, -8, 'out'], [.76, 0, 'in']],
       sy: [[0, 1], [.1, .9, 'out'], [.2, 1.05], [.56, 1], [.6, .9, 'out'], [.72, 1]], sx: [[0, 1], [.1, 1.06, 'out'], [.2, .97], [.56, 1], [.6, 1.06, 'out'], [.72, 1]] });
     on(shd, p, .7, { loop: 2.2, ox: 0, oy: 168, s: [[0, 1], [.1, 1], [.34, .7, 'out'], [.56, 1, 'in']], o: [[0, 1], [.34, .5], [.56, 1]] });
-    on(pin, p, 0, { ox: 0, oy: 150, y: [[0, -180], [.4, 0, 'in']], sy: [[.4, .86], [.52, 1.05, 'out'], [.64, 1]], o: [[0, 0], [.1, 1]] });
-    on(shd, p, 0, { ox: 0, oy: 168, s: [[0, .3], [.4, 1, 'in']], o: [[0, 0], [.2, 1]] });
+    on(pinO, p, 0, { ox: 0, oy: 150, y: [[0, -180], [.4, 0, 'in']], sy: [[.4, .86], [.52, 1.05, 'out'], [.64, 1]], o: [[0, 0], [.1, 1]] });
+    on(shdO, p, 0, { ox: 0, oy: 168, s: [[0, .3], [.4, 1, 'in']], o: [[0, 0], [.2, 1]] });
   });
 
   /* lightbulb-off — the bulb tries to switch on, sputters, and the slash cuts it off again */
@@ -168,11 +168,11 @@
 
   /* arrow-left-right — the two arrows swap: top one slides left, bottom one right, then back */
   rig('arrow-left-right-pro', .7, 'pop', p => {
-    const intro = sub(p), a = sub(intro), b = sub(intro);
+    const intro = sub(p), aO = sub(intro), bO = sub(intro), a = sub(aO), b = sub(bO);   // entrance on aO/bO, loop on a/b
     tube(a, 'M 150 -64 L -130 -64', 30); tube(a, 'M -72 -124 L -138 -64 L -72 -4', 30);
     tube(b, 'M -150 64 L 130 64', 30); tube(b, 'M 72 4 L 138 64 L 72 124', 30);
     on(a, p, .7, { loop: 2, x: [[0, 0], [.3, -24, 'out'], [.7, 0, 'io']] }); on(b, p, .7, { loop: 2, x: [[0, 0], [.15, 0], [.45, 24, 'out'], [.85, 0, 'io']] });
-    on(a, p, 0, { x: [[0, 160], [.5, 0, 'back']], o: [[0, 0], [.15, 1]] }); on(b, p, .12, { x: [[0, -160], [.5, 0, 'back']], o: [[0, 0], [.15, 1]] });
+    on(aO, p, 0, { x: [[0, 160], [.5, 0, 'back']], o: [[0, 0], [.15, 1]] }); on(bO, p, .12, { x: [[0, -160], [.5, 0, 'back']], o: [[0, 0], [.15, 1]] });
   });
 
   /* link — two chain links tug apart and snap back together with a spark */
