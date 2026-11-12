@@ -271,17 +271,18 @@
     icon(d, 0, -222, 140, c);
   });
 
-  /* 14 ── CUBE: a cube, the number on its front face, the icon on its top */
-  variant('cube', 'กล่องลูกบาศก์', (d, c) => {
+  /* 14 ── SHUTTER: a roller shutter has rolled up into its box, the number stands in the opening (user picked it over CUBE, 2026-11-12) */
+  variant('shutter', 'บานม้วน', (d, c) => {
     art(c, p => {
-      p.shape([[-250, -140], [130, -140], [240, -250], [-140, -250]], F(3.2));
-      p.shape([[130, -140], [240, -250], [240, 130], [130, 240]], F(3.2));
-      p.rect(-250, -140, 380, 380, F(3.4));
-      txt(p, d.value, -60, d.unit ? 92 : 112, { size: 150, maxW: 320 });
-      if (d.unit) txt(p, d.unit, -60, 172, { size: 44, weight: 600, color: C.soft, maxW: 320 });
-      if (d.dir === 'up') arrowLine(p, 185, 60, 185, -100, 5); if (d.dir === 'down') arrowLine(p, 185, -100, 185, 60, 5);
+      p.rect(-370, -250, 740, 510, Object.assign({ rx: 14 }, F(3.4)));
+      p.rect(-330, -150, 660, 370, F(2.2));
+      p.rect(-370, -250, 740, 104, Object.assign({ rx: 14 }, F(3.2))); [-218, -196, -174].forEach(y => p.line(-330, y, 330, y, W(1.6)));
+      p.rect(-330, -150, 660, 24, F(2.6)); p.rect(-40, -126, 80, 12, Object.assign({ rx: 6 }, F(2)));
+      txt(p, d.value, 0, d.unit ? 110 : 130, { size: 200, maxW: 580 });
+      if (d.unit) txt(p, d.unit, 0, 190, { size: 50, weight: 600, color: C.soft, maxW: 560 });
+      dirBadge(p, d.dir, 330, -98, 30);
     });
-    icon(d, -5, -195, 92, c);
+    icon(d, -420, -300, 84, c);
   });
 
   /* 15 ── BLOCK: the number itself as a thick 3D slab on a floor line */
@@ -340,50 +341,6 @@
       dirBadge(q, d.dir, 205, -165, 32);
     });
     icon(d, -175, -150, 82, c);
-  });
-
-  /* 14 alternatives (user asked to redesign CUBE, 2026-11-12) — kept outside V until the user picks one */
-  const ALT14 = [];
-  const alt = (id, th, build) => ALT14.push({ id, th, build });
-
-  /* 14a ── PLINTH: the number stands on a display plinth, the unit engraved on its front */
-  alt('plinth', 'แท่นโชว์', (d, c) => {
-    art(c, p => {
-      p.rect(-240, 296, 480, 30, Object.assign({ rx: 6 }, F(3)));
-      p.rect(-200, 128, 400, 168, F(3.2)); p.line(-170, 150, -170, 274, W(1.6)); p.line(170, 150, 170, 274, W(1.6));
-      p.rect(-232, 102, 464, 28, Object.assign({ rx: 6 }, F(3)));
-      txt(p, d.value, 0, 46, { size: 280, maxW: 780 });
-      if (d.unit) txt(p, d.unit, 0, 230, { size: 48, weight: 600, color: C.soft, maxW: 300 });
-      dirBadge(p, d.dir, 200, 128, 32);
-    });
-    icon(d, -395, -240, 100, c);
-  });
-
-  /* 14b ── SHUTTER: a roller shutter has rolled up into its box, the number stands in the opening */
-  alt('shutter', 'บานม้วน', (d, c) => {
-    art(c, p => {
-      p.rect(-370, -250, 740, 510, Object.assign({ rx: 14 }, F(3.4)));
-      p.rect(-330, -150, 660, 370, F(2.2));
-      p.rect(-370, -250, 740, 104, Object.assign({ rx: 14 }, F(3.2))); [-218, -196, -174].forEach(y => p.line(-330, y, 330, y, W(1.6)));
-      p.rect(-330, -150, 660, 24, F(2.6)); p.rect(-40, -126, 80, 12, Object.assign({ rx: 6 }, F(2)));
-      txt(p, d.value, 0, d.unit ? 110 : 130, { size: 200, maxW: 580 });
-      if (d.unit) txt(p, d.unit, 0, 190, { size: 50, weight: 600, color: C.soft, maxW: 560 });
-      dirBadge(p, d.dir, 330, -98, 30);
-    });
-    icon(d, -420, -300, 84, c);
-  });
-
-  /* 14c ── FLIP: one big split-flap tile — a hinge line runs through the middle of the number */
-  alt('flip', 'แผ่นพลิก', (d, c) => {
-    art(c, p => {
-      p.rect(-380, -200, 760, 400, Object.assign({ rx: 26 }, F(3.4)));
-      const t = txt(p, d.value, 0, 86, { size: 240, maxW: 660 }); t.e.setAttribute('y', f1(t.size * .36));
-      p.line(-380, 0, 380, 0, { sw: 9, stroke: C.fill }); p.line(-380, 0, 380, 0, W(2));
-      [-1, 1].forEach(sd => p.rect(sd * 392 - 10, -22, 20, 44, Object.assign({ rx: 6 }, F(2.6))));
-      if (d.unit) txt(p, d.unit, 0, 290, { size: 56, weight: 600, color: C.soft, maxW: 740 });
-      dirBadge(p, d.dir, 380, -200, 32);
-    });
-    icon(d, 0, -278, 110, c);
   });
 
   /* 19 ── ORBIT: two orbits circle the number; the icon rides one of them */
@@ -463,5 +420,5 @@
   ];
 
   G.cats = G.cats || {};          // GL.B01 is taken by the older beats.js template
-  G.cats.B01 = { variants: V, ALT14, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
+  G.cats.B01 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
 })();

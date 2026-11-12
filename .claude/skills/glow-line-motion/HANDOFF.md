@@ -27,14 +27,15 @@
   (**`GL.B01` ชื่อชนกับฉาก beats.js เดิม** ห้ามใช้). ผืน 1000 × 700 กลาง (0,0) เหมือนผืนเต็มจอของ CutPack.
 - ช่องข้อมูล = ของ CutPack B01: `value` (สตริงตามที่พูด) · `unit` · `icon` (ชื่อ Lucide → `GL.icons`) · `dir` up/down. ค่าสัดส่วน (ring bar gauge ruler)
   จริงเฉพาะ `%`; ไม่ใช่ % → `dir` เลือกสูง/ต่ำ หรือกลาง ๆ (ห้ามชี้ "เต็ม" มั่ว); ค่า 0 = ว่าง. ไม่มีตัวเลขอื่นบนจอ (ไม่มีเลขบนไม้บรรทัด/หน้าปัด, LCD ไม่มีเลข 8 จาง).
-- 20 แบบ: 01 hero · 02 drum · 03 lcd · 04 gauge · 05 ring · 06 bar · 07 ruler · 08 column · 09 frame · 10 spotlight · 11 hex · 12 sign · 13 ribbon ·
+- 20 แบบ (รอบแรก): 01 hero · 02 drum · 03 lcd · 04 gauge · 05 ring · 06 bar · 07 ruler · 08 column · 09 frame · 10 spotlight · 11 hex · 12 sign · 13 ribbon ·
   14 cube · 15 block · 16 lens · 17 card · 18 burst · 19 orbit · 20 stack (ชื่อไทยอยู่ในไฟล์). ตัดแบบที่ไม่กลาง: ตราริบบิ้นรางวัล (ชวนนึกถึงรางวัล) → hex.
 - แผ่น: `examples/b01/sheet-A1/A2.html` (ประโยคจาก 20 เรื่องต่างกัน) · `sheet-B1/B2.html` (ข้อมูลโหด: 9 หลัก, ไม่มีหน่วย/ไอคอน, อังกฤษ, 0, ทศนิยม).
   ภาพ: `motion/glow-line-cats/b01/b01-A1…B2.png`. **ส่งแล้ว รอผู้ใช้เลือกเก็บ/ลบ/แก้** → แล้วค่อยใส่ท่าขยับ 3–4 จังหวะ (เข้า → ทำงาน → ผลตรงคำสำคัญ → ค้าง)
   ตาม CATEGORIES ข้อ 9, ทำวิดีโอ.
 - ผู้ใช้: **"Design 18 ใหม่ ผมไม่ชอบแบบนั้น"** (burst) → เสนอ 3 ทาง (iris / scroll / note) → ผู้ใช้ **"เอา C"** → แบบ 18 = `note` กระดาษโน้ตปักหมุด (burst ลบแล้ว).
-- ผู้ใช้: **"Redesign 14 ด้วย"** (cube) → เสนอ 3 ทาง `GL.cats.B01.ALT14`: A plinth แท่นโชว์ · B shutter บานม้วน · C flip แผ่นพลิก
-  (แผ่น `examples/b01/alt14.html`, ภาพ `motion/glow-line-cats/b01/b01-14-options.png`). **รอผู้ใช้เลือก** → ใส่แทน cube ใน `V` แล้วลบ cube + ALT14 ที่เหลือ.
+- ผู้ใช้: **"Redesign 14 ด้วย"** (cube) → เสนอ 3 ทาง (plinth / shutter / flip) → ผู้ใช้ **"B"** → แบบ 14 = `shutter` บานม้วน (cube ลบแล้ว).
+- ตอนนี้ 20 แบบ: hero drum lcd gauge ring bar ruler column frame spotlight hex sign ribbon **shutter** block lens card **note** orbit stack.
+  **รอผู้ใช้ตอบว่าภาพนิ่งทั้ง 20 ผ่านหรือยัง** → ผ่านแล้วค่อยใส่ท่าขยับ.
 
 ## ✅ ตัวปรับท่าขยับกลาง — ทำเสร็จแล้ว (2026-11-12) · ผู้ใช้ตอบ **"ผ่าน"**
 
