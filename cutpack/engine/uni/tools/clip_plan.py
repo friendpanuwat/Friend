@@ -60,8 +60,8 @@ for i, l in enumerate(lines):
         parts = ph[k:k + len(ch)]; k += len(ch)
         if not parts: continue
         b = {'t0': parts[0]['t0'], 'parts': [[p['w'], p['t0'], 'l'] for p in parts], 'line': i}
-        txt = flat(''.join(p['w'] for p in parts))
-        if any(w in txt or (txt and txt in w and len(txt) >= 3) for w in accent.get(i, [])): b['acc'] = 1
+        big = flat(parts[-1]['w'])                                                  # the accent must be the big word itself
+        if any(big and (w in big or (big in w and len(big) >= 3)) for w in accent.get(i, [])): b['acc'] = 1
         CAP.append(b)
     if k != len(ph): print('warning: line', i + 1, 'phrases', len(ph), 'chunk words', k)
 for j, c in enumerate(CAP):
