@@ -362,5 +362,11 @@
   G.VARIANTS = { heart: ['heart-solid', 'heart-layers', 'heart-ecg', 'heart-oneline', 'heart-like', 'heart-broken', 'heart-balloon', 'heart-lock', 'heart-pixel', 'heart-wings'] };
 
   Object.assign(G.icons, R);
+  /* the user chose this set as the standard look: plain names now resolve to the rigged versions everywhere
+     (beats, spot, flow, steps …). The older drawings stay reachable under '<name>-basic'. */
+  const ALIAS = { heart: 'heart-pro', bell: 'bell-pro', bulb: 'bulb-pro', envelope: 'mail-pro', mail: 'mail-pro', rocket: 'rocket-pro',
+    chart: 'growth-pro', growth: 'growth-pro', gears: 'gears-pro', target: 'target-pro', alarm: 'alarm-pro', notify: 'notify-pro' };
+  for (const [a, pro] of Object.entries(ALIAS)) { if (G.icons[a] && !G.icons[a + '-basic']) G.icons[a + '-basic'] = G.icons[a]; G.icons[a] = R[pro]; }
+  G.PRO_ALIAS = ALIAS;
   G.PRO = Object.keys(R).filter(n => !G.VARIANTS.heart.includes(n));
 })();

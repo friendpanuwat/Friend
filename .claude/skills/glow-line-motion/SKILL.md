@@ -100,7 +100,7 @@ skill นี้ใช้สไตล์นั้นกับ **คลิปไ�
 | `examples/*.html` | ต้นแบบที่ render ผ่านแล้ว ของทุกเลย์เอาต์และทุกขนาดจอ |
 | `assets/glowline.js` | เอนจิน + parts + icons + pairs (เพิ่มภาพที่ผู้ใช้อนุมัติไว้ที่นี่) |
 | `assets/beats.js` | ฉาก B01–B21 + ไอคอนชุดใหม่ (โหลดเองพร้อมเอนจิน) |
-| `assets/pro.js` | ไอคอนแอนิเมชันระดับโปร 10 แบบ (`*-pro`) แบบ rig + คีย์เฟรม — ชุดทดลอง รอผู้ใช้อนุมัติก่อนขยายทั้งคลัง |
+| `assets/pro.js` | **มาตรฐานไอคอนที่ผู้ใช้เลือก**: 10 แบบ (`*-pro`) แบบ rig + คีย์เฟรม; ชื่อธรรมดา (`heart` `rocket` `target` …) ชี้มาที่นี่แล้ว — ไอคอนใหม่ทำตามแบบนี้ (`style.md` ข้อ 0) |
 | `assets/template.html` | scene เปล่าเริ่มต้น |
 | `scripts/render.js` | scene → MP4 / still / storyboard / MOV alpha |
 | `scripts/new_scene.sh` · `check_env.sh` · `deliver_github.sh` | สร้าง scene · ตรวจเครื่อง · ส่งไฟล์ใหญ่ผ่าน GitHub |
