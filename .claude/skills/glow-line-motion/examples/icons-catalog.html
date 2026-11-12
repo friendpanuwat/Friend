@@ -6,11 +6,11 @@
 GL.run(() => {
   GL.stage();
   const top = GL.title({ main: 'ICONS', size: 120 });
-  const names = Object.keys(GL.icons), cols = 4, cw = GL.W / cols, ch = (GL.H - top) / Math.ceil(names.length / cols);
+  const names = Object.keys(GL.icons), cols = 6, cw = GL.W / cols, ch = (GL.H - top) / Math.ceil(names.length / cols);
   names.forEach((n, i) => {
     const x = (i % cols + .5) * cw, y = top + Math.floor(i / cols) * ch + ch * .44, at = .5 + i * .06;
     GL.art(GL.icons[n], { x, y, w: Math.min(cw * .62, ch * .62 * 400 / 370), at, filter: 'glowS' });
-    GL.text(n, { x, y: y + ch * .44, size: 26, weight: 600, color: GL.C.sub, glow: false, at: at + .3, rise: 6 });
+    GL.text(n, { x, y: y + ch * .44, size: 22, weight: 600, color: GL.C.sub, glow: false, at: at + .3, rise: 6 });
   });
 });
 </script></body></html>

@@ -12,7 +12,13 @@
 | เงิน / ขาย / ผลลัพธ์ | `coins` `wallet` `bag` `chart` (แท่ง แท่งสุดท้ายเด่น) `linechart` (เส้นขึ้น) |
 | อุปกรณ์ / สื่อสาร | `phone` `laptop` `tablet` `tv` `gamepad` `wifi` `globe` `bell` `envelope` `bubble` |
 | งาน / เอกสาร / เวลา | `folder` `doc` `calendar` `clock` `moon` |
-| ความหมาย | `check` `star` `bulb` `target` |
+| ความหมาย | `check` `star` `bulb` `target` `cross` `warn` `question` `up` `down` `heart` `flag` `chest` `magnifier` `eye` |
+| สถานที่ | `store` `house` `building` `map` `pin` |
+| โซเชียล | `follow` `bookmark` `share` (+ `heart` `bubble`) |
+| อารมณ์ | `face-happy` `face-sad` `face-angry` `face-fear` `face-relief` `face-love` `face-doubt` `face-surprise` `face-tired` `face-neutral` |
+
+ไอคอนชุดสถานที่ / โซเชียล / อารมณ์ และเครื่องหมายใหม่มาจาก `assets/beats.js` (ดู `beats.md`).
+ชื่อที่ไม่มีในคลัง (เช่น `'-50%'`, `'ไข่'`) ใช้ได้กับทุกช่อง `icon` ของ beat — จะกลายเป็นป้ายคำเรืองแสง.
 
 ชื่อ pair ใช้แทน icon ได้ (ได้ฝั่งเรียบ), หรือส่งฟังก์ชัน `p => { … }` ที่วาดเอง.
 

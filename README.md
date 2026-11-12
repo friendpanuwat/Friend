@@ -19,4 +19,5 @@
 - รูปแบบ: ก่อน→หลัง (rows / grid / hero), ขั้นตอน (flow), เปรียบเทียบ (versus), ตัวเลขนับขึ้น (stat), ทิป (steps),
   ฉากเดี่ยว (spot), ฉากอิสระมีของเคลื่อนที่ — ภาพสำเร็จดูที่ `references/icons.jpg` + `catalog.jpg`
 - ส่งออก MP4 9:16 / 1:1 / 16:9, PNG, storyboard และ MOV พื้นใส (`--alpha`)
+- ฉากสำเร็จรูป 21 หมวด B01–B21 (หนึ่งประโยค = หนึ่งฉาก, ใช้ได้กับทุกเรื่อง): `references/beats.md` · ภาพรวม `references/beats.jpg`
 - `motion/glow-line-demo/` — คลิปตัวอย่างจาก skill · `motion-samples/glow-line-simplify/` — ต้นแบบแรกของสไตล์

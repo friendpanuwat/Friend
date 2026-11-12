@@ -399,9 +399,9 @@
       for (const x of list) if (x.start <= t) tw = x;
       const q = tw.ease(clamp((t - tw.start) / tw.dur));
       const v = (k, d) => { const a = tw.from[k] ?? tw.to[k] ?? d, b = tw.to[k] ?? a; return a + (b - a) * q; };
-      const o = v('o', 1), s = v('s', 1), dx = v('dx', 0), dy = v('dy', 0);
+      const o = v('o', 1), s = v('s', 1), dx = v('dx', 0), dy = v('dy', 0), r = v('r', 0);
       e.setAttribute('opacity', o.toFixed(3));
-      e.setAttribute('transform', `translate(${dx + tw.cx} ${dy + tw.cy}) scale(${s}) translate(${-tw.cx} ${-tw.cy})`);
+      e.setAttribute('transform', `translate(${dx + tw.cx} ${dy + tw.cy}) rotate(${r}) scale(${s}) translate(${-tw.cx} ${-tw.cy})`);
     }
   };
 
@@ -921,11 +921,18 @@
   });
 
   window.GL = { C, stage, run, Pen, art, text, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
-    parts, icons, pairs, pair, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
+    parts, icons, pairs, pair, single, easeIO, easeOut, clamp, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
+
+  /* beats.js (B01–B21 scene templates) loads next to this file */
+  const beatsReady = new Promise(res => {
+    const sc = document.createElement('script'); sc.src = HERE + 'beats.js';
+    sc.onload = res; sc.onerror = () => { console.error('GL: beats.js not found'); res(); };
+    document.head.appendChild(sc);
+  });
 
   async function run(build) {
     try {
-      await Promise.all([document.fonts.load('700 40px GLLatin'), document.fonts.load('700 40px GLThai', 'กขไทย'), document.fonts.load('500 40px GLThai', 'กข')]);
+      await Promise.all([beatsReady, document.fonts.load('700 40px GLLatin'), document.fonts.load('700 40px GLThai', 'กขไทย'), document.fonts.load('500 40px GLThai', 'กข')]);
       build();
       if (!window.READY) finish();
     } catch (e) { window.GL_ERROR = String(e && e.stack || e); console.error(window.GL_ERROR); }

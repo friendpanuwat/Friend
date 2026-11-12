@@ -1,0 +1,23 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>B11</title>
+<script src="../../assets/glowline.js"></script></head>
+<body><script>
+/* B11 — "ลูกค้าทักมาถามรายละเอียด แล้วก็หายไป" */
+GL.run(() => {
+  GL.stage();
+  GL.beat('B11', {
+    "name": "ลูกค้า",
+    "messages": [
+      {
+        "from": "them",
+        "text": "สนใจค่ะ ขอรายละเอียดหน่อย"
+      },
+      {
+        "from": "me",
+        "text": "ได้เลยครับ ราคา 490 บาท ส่งฟรีครับ"
+      }
+    ],
+    "ghost": true
+  });
+});
+</script></body></html>
