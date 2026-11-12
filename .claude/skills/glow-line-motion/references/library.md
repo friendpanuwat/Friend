@@ -12,9 +12,23 @@
 | เงิน / ขาย / ผลลัพธ์ | `coins` `wallet` `bag` `chart` (แท่ง แท่งสุดท้ายเด่น) `linechart` (เส้นขึ้น) |
 | อุปกรณ์ / สื่อสาร | `phone` `laptop` `tablet` `tv` `gamepad` `wifi` `globe` `bell` `envelope` `bubble` |
 | งาน / เอกสาร / เวลา | `folder` `doc` `calendar` `clock` `moon` |
-| ความหมาย | `check` `star` `bulb` `target` |
+| ความหมาย | `check` `star` `bulb` `target` `cross` `warn` `question` `up` `down` `heart` `flag` `chest` `magnifier` `eye` |
+| สถานที่ | `store` `house` `building` `map` `pin` |
+| โซเชียล | `follow` `bookmark` `share` (+ `heart` `bubble`) |
+| อารมณ์ | `face-happy` `face-sad` `face-angry` `face-fear` `face-relief` `face-love` `face-doubt` `face-surprise` `face-tired` `face-neutral` |
+
+ไอคอนชุดสถานที่ / โซเชียล / อารมณ์ และเครื่องหมายใหม่มาจาก `assets/beats.js` (ดู `beats.md`).
+ชื่อที่ไม่มีในคลัง (เช่น `'-50%'`, `'ไข่'`) ใช้ได้กับทุกช่อง `icon` ของ beat — จะกลายเป็นป้ายคำเรืองแสง.
 
 ชื่อ pair ใช้แทน icon ได้ (ได้ฝั่งเรียบ), หรือส่งฟังก์ชัน `p => { … }` ที่วาดเอง.
+
+## ไอคอนแอนิเมชันระดับโปร (`-pro`, ชุดทดลอง 10 แบบ — `assets/pro.js`)
+
+`heart-pro` `bell-pro` `alarm-pro` `bulb-pro` `mail-pro` `rocket-pro` `growth-pro` `gears-pro` `target-pro` `notify-pro`
+— ลายเส้นละเอียดกว่า (เส้นขอบใน แสงสะท้อน หมุด ขีดสเกล 60 ขีด เกลียว) และขยับทีละชิ้นส่วนด้วยคีย์เฟรม (`GL.kf`):
+ย่อก่อนพุ่ง ยืดหดตอนกระทบ ชิ้นส่วนที่ตามช้ากว่า แกว่งแล้วค่อย ๆ หยุด. แต่ละอันมีฉากเข้าของตัวเอง แล้ววนเป็นรอบ.
+ใช้ได้ทุกช่อง `icon` (beats, spot, flow …). ดู `examples/pro-icons.html` / `pro-tour.html`. วิธีสร้าง rig ใหม่: ดูโค้ดใน `pro.js`
+(หนึ่งกลุ่มต่อหนึ่งชิ้นส่วนที่ขยับ, `on(group, p, start, { loop, ox, oy, r: [[t, v, ease], …] })`).
 
 ## ชิ้นส่วนสำหรับประกอบฉากเอง (`GL.parts.*` — signature ใน `api.md`)
 

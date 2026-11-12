@@ -1,0 +1,16 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>heart detail</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* 10 high-detail heart drawings (assets/detail.js) — still preview; render with --still --scale 2 */
+GL.run(() => {
+  GL.stage({ glow: .85 });
+  const top = GL.title({ kicker: 'DETAILED', main: 'HEARTS', size: 120 });
+  const names = GL.DETAIL.heart, cols = 2, cw = GL.W / cols, ch = (GL.H - top - 20) / 5;
+  names.forEach((n, i) => {
+    const x = (i % cols + .5) * cw, y = top + Math.floor(i / cols) * ch + ch * .43;
+    GL.art(GL.icons[n], { x, y, w: Math.min(cw * .6, ch * .72 * 400 / 370), at: .3, filter: 'glowS', idle: false });
+    GL.text(`${i + 1}. ${n.replace('heart-', '').replace('-hd', '').toUpperCase()}`, { x, y: y + ch * .48, size: 26, weight: 600, color: GL.C.sub, glow: false, at: .5 });
+  });
+});
+</script></body></html>

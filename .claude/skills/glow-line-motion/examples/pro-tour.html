@@ -1,0 +1,12 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>pro icons tour</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* each rigged icon full screen for ~3.6 s */
+GL.run(() => {
+  GL.stage();
+  const L = { 'heart-pro': 'HEART', 'bell-pro': 'BELL', 'alarm-pro': 'ALARM', 'bulb-pro': 'IDEA', 'mail-pro': 'MAIL', 'rocket-pro': 'LAUNCH', 'growth-pro': 'GROWTH', 'gears-pro': 'SYSTEM', 'target-pro': 'TARGET', 'notify-pro': 'NOTIFY' };
+  let t = .3;
+  GL.PRO.forEach((n, i) => { t = GL.page(t, at => { GL.spot({ icon: n, label: L[n] }, { at }); return at + 3.2; }, { hold: 0, out: i < GL.PRO.length - 1 }); });
+});
+</script></body></html>

@@ -1,0 +1,12 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>heart variants tour</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* each heart variant full screen ~3.4 s */
+GL.run(() => {
+  GL.stage();
+  const L = ['SOLID', 'LAYERS', 'HEARTBEAT', 'ONE LINE', 'LIKE', 'BROKEN', 'BALLOON', 'LOCKED', 'PIXEL', 'WINGS'];
+  let t = .3;
+  GL.VARIANTS.heart.forEach((n, i) => { t = GL.page(t, at => { GL.spot({ icon: n, label: `${i + 1}. ${L[i]}` }, { at }); return at + 3; }, { hold: 0, out: i < 9 }); });
+});
+</script></body></html>

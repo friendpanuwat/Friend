@@ -1,0 +1,31 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>all beats</title>
+<script src="../../assets/glowline.js"></script></head>
+<body><script>
+/* all 21 beats one after another */
+GL.run(() => {
+  GL.stage();
+  let t = .3;
+  t = GL.page(t, at => GL.beat('B01', {"value":3000,"suffix":" บาท","label":"เสียเงินไป","trend":"down"}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B02', {"dir":"down","item":"bust","owner":"store","count":6,"label":"ลูกค้าน้อยลง"}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B03', {"left":{"icon":"store","label":"ร้านเล็ก"},"right":{"icon":"building","label":"ร้านใหญ่"}}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B04', {"items":["ถ่ายคลิป","ตัดต่อ","โพสต์"],"mark":2}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B05', {"wrong":{"icon":"-50%","label":"ส่วนลด"},"right":{"icon":"target","label":"สิ่งที่ลูกค้าต้องการจริง ๆ"}}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B06', {"question":"ของเราแพงหรือเปล่า","options":["แพงไป","คุ้มค่า"]}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B07', {"icon":"-50%","label":"รีบลดราคา","sign":"อย่าเพิ่ง","cross":true}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B08', {"icon":"target","label":"แก้ปัญหาให้ถูกจุด"}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B09', {"points":[{"label":"วันแรก","icon":"bag"},{"label":"เดือนแรก","icon":"coins"},{"label":"ครบปี","icon":"chart"}]}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B10', {"icon":"person","label":"คนที่เพิ่งเริ่มขายของ","tags":["มือใหม่","ร้านเล็ก"]}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B11', {"name":"ลูกค้า","messages":[{"from":"them","text":"สนใจค่ะ ขอรายละเอียดหน่อย"},{"from":"me","text":"ได้เลยครับ ราคา 490 บาท ส่งฟรีครับ"}],"ghost":true}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B12', {"chain":[{"icon":"bust","label":"ลูกค้า"},{"icon":"question","label":"ยังมีคำถามในใจ"},{"icon":"coins","label":"ไม่กล้าจ่ายเงิน"}],"links":["มี","จึง"]}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B13', {"icon":"magnifier","label":"หาว่าจริง ๆ แล้วเขาติดอะไร"}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B14', {"text":"ลูกค้าไม่ได้ซื้อของ เขาซื้อความมั่นใจ"}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B15', {"actions":["follow","like","save","share"],"label":"กดติดตามไว้ได้เลย"}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B16', {"term":"BRANDING","meanings":["ภาพที่ลูกค้าจำเราได้"]}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B17', {"title":"ทำไมยังไม่ซื้อ","items":[{"icon":"question","label":"ไม่มั่นใจในสินค้า"},{"icon":"face-doubt","label":"ไม่รู้ว่าจะซื้อดีไหม"}]}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B18', {"when":"ปีที่แล้ว","who":"person","whoLabel":"ผม","what":{"icon":"store","label":"เปิดร้านแรก"}}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B19', {"mood":"doubt","who":"ลูกค้า","label":"ลังเล"}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B20', {"a":{"label":"ผม"},"b":{"label":"หุ้นส่วน"},"relation":"หุ้นส่วน","broken":true}, { at }), { hold: .9 });
+  t = GL.page(t, at => GL.beat('B21', {"kind":"building","name":"ห้าง","spots":[{"label":"ร้านเรา","floor":0},{"label":"KFC","floor":0}]}, { at }), { hold: .9, out: false });
+});
+</script></body></html>

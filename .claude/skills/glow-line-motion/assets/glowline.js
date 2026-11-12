@@ -37,6 +37,28 @@
   const bump = t => { if (t > lastEnd) lastEnd = t; };
   const easeIO = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
   const easeOut = p => 1 - Math.pow(1 - p, 3);
+  const easeBack = p => 1 + 2.2 * Math.pow(p - 1, 3) + 1.2 * Math.pow(p - 1, 2);   // gentle overshoot (~6%)
+  /* idle motions: kind → defaults (amp in px for moves, degrees for turns, fraction for scale) */
+  const LOOP = { bob: { amp: 8, period: 2.6 }, sway: { amp: 6, period: 3 }, swing: { amp: 8, period: 2.2 }, spin: { period: 6 },
+    beat: { amp: .12, period: 1.4 }, breathe: { amp: .03, period: 3 }, blink: { period: 3.2 }, buzz: { amp: 5, period: 2.2 },
+    hop: { amp: 16, period: 1.2 }, orbit: { amp: 12, period: 3 }, tap: { amp: .08, period: 1.6 }, flap: { amp: 7, period: 1.1 },
+    grow: { amp: .22, period: 1.6 }, flash: { period: 1.2 }, rise: { amp: 40, period: 2.2 } };
+  /* keyframe tracks for rigged icons: GL.kf(el, start, { loop, ox, oy, x:[[t,v,ease]…], y, r, s, sx, sy, ky, o, draw }) */
+  const EASE = { lin: q => q, in: q => q * q * q, out: q => 1 - Math.pow(1 - q, 3), io: q => q < .5 ? 4 * q * q * q : 1 - Math.pow(-2 * q + 2, 3) / 2,
+    back: q => 1 + 2.70158 * Math.pow(q - 1, 3) + 1.70158 * Math.pow(q - 1, 2), soft: q => .5 - .5 * Math.cos(Math.PI * q) };
+  function kv(keys, u) {
+    if (u <= keys[0][0]) return keys[0][1];
+    for (let i = 1; i < keys.length; i++) if (u <= keys[i][0]) {
+      const [t0, v0] = keys[i - 1], [t1, v1, e] = keys[i], q = (u - t0) / ((t1 - t0) || 1);
+      return v0 + (v1 - v0) * (EASE[e] || EASE.io)(q);
+    }
+    return keys[keys.length - 1][1];
+  }
+  function kf(e, start, { loop = 0, ox = 0, oy = 0, ...tracks } = {}) {
+    items.push({ type: 'kf', e, start, loop, ox, oy, tracks });
+    if (!loop) bump(start + Math.max(0, ...Object.values(tracks).map(k => k[k.length - 1][0])));
+  }
+  let MODE = 'motion';                                   // 'motion': icons pop in complete, then move · 'draw': strokes draw themselves
   const pts = a => typeof a === 'string' ? a : a.map(q => q.join(',')).join(' ');
 
   function mk(tag, attrs = {}, parent) {
@@ -47,8 +69,8 @@
   }
 
   /* ---------------- stage ---------------- */
-  function stage({ w = 1080, h = 1920, glow = 1, seed: s } = {}) {
-    W = w; H = h; if (s) seed = s;
+  function stage({ w = 1080, h = 1920, glow = 1, seed: s, icons = 'motion', material = 'ink' } = {}) {
+    W = w; H = h; if (s) seed = s; MODE = icons === 'draw' ? 'draw' : 'motion';
     svg = mk('svg', { width: w, height: h, viewBox: `0 0 ${w} ${h}` }, document.body);
     const defs = mk('defs', {}, svg);
     defs.innerHTML = `
@@ -61,8 +83,10 @@
         <feGaussianBlur in="SourceGraphic" stdDeviation="${2 * glow}" result="a"/>
         <feGaussianBlur in="SourceGraphic" stdDeviation="${6 * glow}" result="b"/>
         <feMerge><feMergeNode in="b"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <linearGradient id="glsilver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#727272"/><stop offset=".45" stop-color="#454545"/><stop offset="1" stop-color="#262626"/></linearGradient>
       <filter id="bloom" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="${16 * glow}"/></filter>
       <filter id="bloomS" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="${8 * glow}"/></filter>`;
+    C.fill = material === 'silver' ? 'url(#glsilver)' : '#171717';     // 'silver': objects filled with a top-lit grey gradient (glass/metal feel)
     if (!ALPHA) mk('rect', { width: w, height: h, fill: 'url(#glbg)' }, svg);
     root = cur = mk('g', {}, svg);
     window.STAGE = { w, h };
@@ -76,6 +100,13 @@
     constructor(g, t0 = 0, k = 1, ts = 1, span) { this.g = g; this.t0 = t0; this.k = k; this.ts = ts; this.span = span || { end: t0 }; }
     child(attrs = {}, sc = 1) { return new Pen(mk('g', attrs, this.g), this.t0, this.k / sc, this.ts, this.span); }
     shift(dt) { return new Pen(this.g, this.t0 + dt * this.ts, this.k, this.ts, this.span); }
+    /* p.loop({ kind, amp, period, ox, oy, phase, delay }, q => { …draw with q… }) — the part drawn with q keeps moving
+       after the drawing has appeared (clock hands spin, an arm waves). ox/oy = pivot in this drawing's coordinates. */
+    loop(spec, fn) {
+      const g = mk('g', {}, this.g), q = new Pen(g, this.t0, this.k, this.ts, this.span);
+      items.push(Object.assign({ type: 'loop', e: g, start: null, rel: spec.delay || 0 }, LOOP[spec.kind] || {}, spec));
+      fn(q); return q;
+    }
     _end(t) { if (t > this.span.end) this.span.end = t; bump(t); }
     _d(tag, a, o = {}) {
       const start = this.t0 + (o.at || 0) * this.ts, dur = Math.max(.01, (o.dur ?? .4) * this.ts);
@@ -131,15 +162,74 @@
 
   /* ---------------- drawing placement ---------------- */
   function strokeK(s) { return s >= 1 ? 1 / Math.sqrt(s) : Math.max(1, .8 / s); }   // keeps lines ~2.4–4px on screen
-  function art(fn, { x, y, s = 1, w, at = 0, ts = 1, filter = 'glow', parent = cur, float } = {}) {
+  /* art: place a drawing. Motion mode (default): it pops in already complete, then plays its idle motion
+     (fn.motion, or `idle`, or `float`). reveal: 'draw' keeps the self-drawing stroke for this one (lines, connectors). */
+  /* exits ("ท่าออก") — every icon also leaves with a move that mirrors how it came in. Units: drawing px (× scale).
+     A rig picks one with fn.exit = 'rise' | { kind: 'rise', ... }; plain icons use 'pop'. */
+  const EXIT = {
+    pop:    { dur: .42, s: [[0, 1], [.12, 1.08, 'out'], [.42, 0, 'in']], o: [[0, 1], [.3, 1], [.42, 0]] },
+    rise:   { dur: .5, y: [[0, 0], [.12, 12, 'out'], [.5, -150, 'in']], o: [[0, 1], [.32, 1], [.5, 0]] },
+    sink:   { dur: .5, y: [[0, 0], [.12, -12, 'out'], [.5, 150, 'in']], o: [[0, 1], [.32, 1], [.5, 0]] },
+    slide:  { dur: .5, x: [[0, 0], [.14, -18, 'out'], [.5, 300, 'in']], o: [[0, 1], [.34, 1], [.5, 0]] },
+    slideL: { dur: .5, x: [[0, 0], [.14, 18, 'out'], [.5, -300, 'in']], o: [[0, 1], [.34, 1], [.5, 0]] },
+    launch: { dur: .62, y: [[0, 0], [.2, 18, 'out'], [.62, -900, 'in']], sy: [[0, 1], [.2, .92, 'out'], [.34, 1.1]], o: [[0, 1], [.5, 1], [.62, 0]] },
+    spin:   { dur: .5, s: [[0, 1], [.12, 1.06, 'out'], [.5, 0, 'in']], r: [[0, 0], [.5, -150, 'in']], o: [[0, 1], [.36, 1], [.5, 0]] },
+    squash: { dur: .45, oy: 150, sy: [[0, 1], [.12, 1.08, 'out'], [.45, 0, 'in']], sx: [[0, 1], [.12, .95, 'out'], [.45, 1.25, 'in']], o: [[0, 1], [.36, 1], [.45, 0]] },
+    blink:  { dur: .45, o: [[0, 1], [.06, .2, 'lin'], [.12, 1, 'lin'], [.2, .25, 'lin'], [.26, .9, 'lin'], [.45, 0, 'in']], s: [[0, 1], [.45, .9, 'in']] },
+    fade:   { dur: .4, s: [[0, 1], [.4, .9, 'in']], o: [[0, 1], [.4, 0, 'in']] },
+  };
+  const arts = [];
+  function leave(a, t, kind) {
+    if (a.left) return 0; a.left = true;
+    const spec = typeof kind === 'object' ? kind : { kind: kind || 'pop' };
+    const P = Object.assign({}, EXIT[spec.kind] || EXIT.pop, spec), k = a.s, tr = {};
+    for (const n of ['x', 'y', 's', 'sx', 'sy', 'r', 'o']) if (P[n]) tr[n] = n === 'x' || n === 'y' ? P[n].map(([u, v, e]) => [u, v * k, e]) : P[n];
+    kf(a.ex, t, { ox: a.x + (P.ox || 0) * k, oy: a.y + (P.oy || 0) * k, ...tr });
+    return P.dur;
+  }
+  /* page / finish helpers: exits for every icon in `group`, then the rest (text, lines) fades. Returns when all is gone. */
+  function leaveAll(group, t, stagger = .04) {
+    let end = t, i = 0;
+    for (const a of arts) if (!a.left && group.contains(a.wrap)) end = Math.max(end, t + i * stagger + leave(a, t + (i++) * stagger, a.exit));
+    const live = arts.filter(a => group.contains(a.wrap)).map(a => a.wrap);
+    const fadeRest = g => { for (const c of g.children) { if (c.hasAttribute('data-wrap') || c.tagName === 'defs') continue;
+      if (live.some(w => c.contains(w))) fadeRest(c); else tween(c, t + .05, .4, { o: 1 }, { o: 0 }); } };
+    fadeRest(group);
+    return Math.max(end, t + .45);
+  }
+  function art(fn, { x, y, s = 1, w, at = 0, ts = 1, filter = 'glow', parent = cur, float, idle, reveal, out, exit } = {}) {
     if (w) s = w / 400;                                   // w = on-screen width of the ±200 drawing box
+    const custom = !!fn.custom, pop = !custom && (reveal ? reveal === 'pop' : MODE === 'motion');
     const wrap = mk('g', { filter: filter ? `url(#${filter})` : null, 'data-wrap': 1 }, parent);
-    const fl = float ? mk('g', { id: 'gl' + (++uid) }, wrap) : null;
-    const g = mk('g', { transform: `translate(${x} ${y}) scale(${s})`, id: 'gl' + (++uid) }, fl || wrap);
-    const p = new Pen(g, at, strokeK(s), ts);
+    const en = mk('g', {}, wrap), ex = mk('g', {}, en), mo = mk('g', { id: 'gl' + (++uid) }, ex);
+    const g = mk('g', { transform: `translate(${x} ${y}) scale(${s})`, id: 'gl' + (++uid) }, mo);
+    const p = new Pen(g, at, strokeK(s), ts), i0 = items.length;
     fn(p);
-    if (fl) items.push(Object.assign({ type: 'float', e: fl, start: p.span.end, amp: 8, period: 3.2, dx: 0 }, float === true ? {} : float));
-    return { wrap, g: fl || g, end: p.span.end };
+    const popDur = .5 * ts, ready = custom ? at + (fn.dur || .8) * ts : pop ? at + popDur : p.span.end;
+    for (let i = i0; i < items.length; i++) {
+      const it = items[i];
+      if ((pop || custom) && it.type === 'draw') it.static = true;
+      if (it.type === 'loop' && it.start == null) it.start = ready + it.rel;
+    }
+    if (custom) kf(en, at, { o: [[0, 0], [.001, 1]] });   // safety: nothing of a rig shows before its own start time
+    if (pop) tween(en, at, popDur, { o: 0, s: .55 }, { o: 1, s: 1 }, { cx: x, cy: y, ease: easeBack });
+    if (filter) {   // a perfectly flat/vertical drawing has a 0-px box → the glow filter would erase it; pad the box
+      const bb = g.getBBox(), m = 90 / s;
+      if (bb.width < m || bb.height < m) {
+        const w = Math.max(bb.width, m), h = Math.max(bb.height, m);
+        mk('rect', { x: bb.x + bb.width / 2 - w / 2, y: bb.y + bb.height / 2 - h / 2, width: w, height: h, fill: 'none', stroke: 'none' }, g);
+      }
+    }
+    const spec = idle === false || custom ? null : idle || (float ? Object.assign({ kind: 'bob' }, float === true ? {} : float) : fn.motion);
+    if (spec) {
+      const sp = Object.assign({}, LOOP[spec.kind] || {}, spec);
+      items.push(Object.assign({}, sp, { type: 'loop', e: mo, start: ready + (sp.delay || 0), ox: x + (sp.ox || 0) * s, oy: y + (sp.oy || 0) * s, ps: s }));
+    }
+    const a = { wrap, g: mo, ex, x, y, s, exit: exit || fn.exit || (pop || custom ? 'pop' : 'fade'), end: custom ? ready : pop ? Math.min(p.span.end, ready) : p.span.end };
+    a.leave = (t, kind) => t + leave(a, t, kind || a.exit);
+    arts.push(a);
+    if (out != null) a.leave(out);
+    return a;
   }
   function pairOf(it) {
     if (it.messy && it.clean) return it;
@@ -262,7 +352,7 @@
 
 
   /* spot: one drawing big in the middle + label above + caption below (statement scene). Returns end time. */
-  function spot(it, { at = .4, y = H * .48, w, label = it.label, caption = it.caption, float = true } = {}) {
+  function spot(it, { at = .4, y = H * .48, w, label = it.label, caption = it.caption, float } = {}) {
     const s = w ? w / 400 : Math.min((W - 220) / 440, H * .36 / 400);
     if (label) text(label, { y: y - 200 * s - 60, size: Math.min(96, W * .085), at, rise: 26 });
     const a = art(single(it.icon || it.pair), { x: W / 2, y, s, at: at + .25, float });
@@ -363,11 +453,14 @@
     const end = fn(at);
     cur = prev;
     if (!out) return end;
-    tween(g, end + hold, .45, { o: 1 }, { o: 0 });
-    return end + hold + .5;
+    const gone = MODE === 'motion' ? leaveAll(g, end + hold) : end + hold;   // icons play their exit, then text fades
+    tween(g, gone, .1, { o: 1 }, { o: 0 });
+    return gone + .15;
   }
 
-  function finish({ hold = 1.6 } = {}) {
+  /* out: true → after the hold every icon plays its exit and the rest fades (clip ends empty); then `tail` s of black */
+  function finish({ hold = 1.6, out = false, tail = .3, stagger = .04 } = {}) {
+    if (out) { const t = lastEnd + hold; window.OUT_AT = t; lastEnd = leaveAll(root, t, stagger) + tail; hold = 0; }
     window.DURATION = Math.round((lastEnd + hold) * 100) / 100;
     window.setT(window.DURATION);
     window.READY = true;
@@ -376,14 +469,44 @@
   /* ---------------- time control ---------------- */
   window.setT = t => {
     for (const it of items) {
-      if (it.type === 'draw') {
+      if (it.type === 'draw' && it.static) {
+        if (!it.done) { it.e.setAttribute('stroke-dashoffset', 0); it.e.setAttribute('stroke-opacity', 1); if (it.hasFill) it.e.setAttribute('fill-opacity', 1); it.done = 1; }
+      } else if (it.type === 'draw') {
         const p = clamp((t - it.start) / it.dur), q = easeIO(p);
         it.e.setAttribute('stroke-dashoffset', 1 - q);
         it.e.setAttribute('stroke-opacity', p > 0 ? 1 : 0);
         if (it.hasFill) it.e.setAttribute('fill-opacity', clamp(q * 1.6));
-      } else if (it.type === 'float') {
-        const u = t - it.start, k = clamp(u / .8), w = Math.sin(u / it.period * Math.PI * 2) * k;
-        it.e.setAttribute('transform', `translate(${(w * it.dx).toFixed(2)} ${(w * -it.amp).toFixed(2)})`);
+      } else if (it.type === 'kf') {
+        let u = t - it.start; u = u < 0 ? 0 : it.loop ? u % it.loop : u;
+        const T = it.tracks, v = (k, d) => T[k] ? kv(T[k], u) : d, sc = v('s', 1);
+        it.e.setAttribute('transform', `translate(${(it.ox + v('x', 0)).toFixed(2)} ${(it.oy + v('y', 0)).toFixed(2)}) rotate(${v('r', 0).toFixed(2)}) skewY(${v('ky', 0).toFixed(2)}) scale(${(v('sx', 1) * sc).toFixed(4)} ${(v('sy', 1) * sc).toFixed(4)}) translate(${-it.ox} ${-it.oy})`);
+        if (T.o) it.e.setAttribute('opacity', clamp(v('o', 1)).toFixed(3));
+        if (T.draw) it.e.setAttribute('stroke-dashoffset', (1 - clamp(v('draw', 1))).toFixed(4));
+      } else if (it.type === 'loop') {
+        const u = t - (it.start ?? 1e9);
+        if (u <= 0) { it.e.removeAttribute('transform'); if (it.kind === 'flash' || it.kind === 'rise') it.e.setAttribute('opacity', it.kind === 'rise' ? 0 : 1); continue; }
+        const P = it.period || 2, k = clamp(u / .5), w = 2 * Math.PI * u / P + (it.phase || 0), A = (it.amp ?? 0) * k, ph = ((u / P + (it.phase || 0) / (2 * Math.PI)) % 1 + 1) % 1;
+        let dx = 0, dy = 0, r = 0, sx = 1, sy = 1, ky = 0, o = null;
+        switch (it.kind) {
+          case 'bob': dy = -A * Math.sin(w); break;
+          case 'sway': dx = A * Math.sin(w); break;
+          case 'swing': r = A * Math.sin(w); break;
+          case 'spin': r = 360 * u / P * (it.dir || 1); break;
+          case 'beat': { const b = ph < .14 ? Math.sin(ph / .14 * Math.PI) : ph < .3 ? .55 * Math.sin((ph - .14) / .16 * Math.PI) : 0; sx = sy = 1 + A * b; break; }
+          case 'breathe': sx = sy = 1 + A * Math.sin(w); break;
+          case 'blink': sy = ph > .9 ? 1 - .92 * Math.sin((ph - .9) / .1 * Math.PI) : 1; break;
+          case 'buzz': r = ph < .22 ? A * Math.sin(u * 2 * Math.PI / .09) : 0; break;
+          case 'hop': dy = -A * Math.abs(Math.sin(Math.PI * ph)); break;
+          case 'orbit': dx = A * Math.cos(w); dy = A * Math.sin(w); break;
+          case 'tap': { const b = ph < .22 ? Math.sin(ph / .22 * Math.PI) : 0; sx = sy = 1 - A * b; dy = A * 60 * b; break; }
+          case 'flap': ky = A * Math.sin(w); break;
+          case 'grow': sy = 1 - A * (.5 + .5 * Math.sin(w)); break;
+          case 'flash': o = .25 + .75 * (.5 + .5 * Math.sin(w)); break;
+          case 'rise': dy = -A * ph; o = ph < .2 ? ph / .2 : 1 - (ph - .2) / .8; break;
+        }
+        const ps = it.ps || 1, ox = it.ox || 0, oy = it.oy || 0;
+        it.e.setAttribute('transform', `translate(${(ox + dx * ps).toFixed(2)} ${(oy + dy * ps).toFixed(2)}) rotate(${r.toFixed(2)}) skewY(${ky.toFixed(2)}) scale(${sx.toFixed(4)} ${sy.toFixed(4)}) translate(${-ox} ${-oy})`);
+        if (o != null) it.e.setAttribute('opacity', o.toFixed(3));
       } else if (it.type === 'count') {
         const q = easeOut(clamp((t - it.start) / it.dur));
         it.e.textContent = it.fmt(it.from + (it.to - it.from) * q);
@@ -399,9 +522,9 @@
       for (const x of list) if (x.start <= t) tw = x;
       const q = tw.ease(clamp((t - tw.start) / tw.dur));
       const v = (k, d) => { const a = tw.from[k] ?? tw.to[k] ?? d, b = tw.to[k] ?? a; return a + (b - a) * q; };
-      const o = v('o', 1), s = v('s', 1), dx = v('dx', 0), dy = v('dy', 0);
+      const o = v('o', 1), s = v('s', 1), dx = v('dx', 0), dy = v('dy', 0), r = v('r', 0);
       e.setAttribute('opacity', o.toFixed(3));
-      e.setAttribute('transform', `translate(${dx + tw.cx} ${dy + tw.cy}) scale(${s}) translate(${-tw.cx} ${-tw.cy})`);
+      e.setAttribute('transform', `translate(${dx + tw.cx} ${dy + tw.cy}) rotate(${r}) scale(${s}) translate(${-tw.cx} ${-tw.cy})`);
     }
   };
 
@@ -478,10 +601,10 @@
       q.poly([[-12, 40], [-12, 8], [-6, -2], [0, 8], [6, -2], [12, 8], [12, 40]], { sw: 2.2, at: at + d * .6, dur: d * .5 });
       q.line(-20, 50, 20, 50, { at: at + d * .7, dur: .15 }); q.line(-18, 60, 18, 60, { at: at + d * .8, dur: .15 });
       q.path('M -10 68 Q 0 76 10 68', { at: at + d * .9, dur: .15 });
-      if (rays) [-180, -150, -120, -90, -60, -30, 0].forEach((deg, i) => {
+      if (rays) q.loop({ kind: 'flash', period: 1.4 }, r => [-180, -150, -120, -90, -60, -30, 0].forEach((deg, i) => {
         const a = deg * Math.PI / 180;
-        q.line(Math.cos(a) * 68, -24 + Math.sin(a) * 68, Math.cos(a) * 88, -24 + Math.sin(a) * 88, { sw: 3, at: at + d + i * .04, dur: .15 });
-      });
+        r.line(Math.cos(a) * 68, -24 + Math.sin(a) * 68, Math.cos(a) * 88, -24 + Math.sin(a) * 88, { sw: 3, at: at + d + i * .04, dur: .15 });
+      }));
     },
     clock(p, x, y, r, at = 0, d = .5, { h = 10, m = 10, fill = C.fill, ticks = true } = {}) {
       p.circle(x, y, r, { fill, at, dur: d });
@@ -491,8 +614,8 @@
           { sw: big ? 3 : 1.6, at: at + d * .5 + i * .02, dur: .12 });
       }
       const ha = (h % 12 + m / 60) * Math.PI / 6, ma = m * Math.PI / 30;
-      p.line(x, y, x + Math.sin(ha) * r * .48, y - Math.cos(ha) * r * .48, { sw: 4, at: at + d * .9, dur: .2 });
-      p.line(x, y, x + Math.sin(ma) * r * .7, y - Math.cos(ma) * r * .7, { sw: 3, at: at + d, dur: .2 });
+      p.loop({ kind: 'spin', period: 60, ox: x, oy: y }, q => q.line(x, y, x + Math.sin(ha) * r * .48, y - Math.cos(ha) * r * .48, { sw: 4, at: at + d * .9, dur: .2 }));
+      p.loop({ kind: 'spin', period: 5, ox: x, oy: y }, q => q.line(x, y, x + Math.sin(ma) * r * .7, y - Math.cos(ma) * r * .7, { sw: 3, at: at + d, dur: .2 }));
       p.dot(x, y, Math.max(3, r * .06), { at: at + d * 1.1 });
     },
     check(p, x, y, s = 1, at = 0, d = .3, sw = 6) {
@@ -527,8 +650,8 @@
       q.path(`M 0 ${-r} A ${r} ${r} 0 1 0 0 ${r} A ${r * .62} ${r} 0 0 1 0 ${-r} Z`, { fill: C.fill, at, dur: d });
     },
     zzz(p, x, y, at = 0, d = .45) {
-      [[0, 0, 12], [20, -24, 16], [46, -54, 21]].forEach(([dx, dy, s], i) =>
-        p.poly([[x + dx, y + dy], [x + dx + s, y + dy], [x + dx, y + dy + s], [x + dx + s, y + dy + s]], { sw: 2.4, at: at + i * d / 3, dur: d / 2 }));
+      [[0, 0, 12], [20, -24, 16], [46, -54, 21]].forEach(([dx, dy, s], i) => p.loop({ kind: 'rise', amp: 26, period: 2.4, delay: i * .8 }, q =>
+        q.poly([[x + dx, y + dy], [x + dx + s, y + dy], [x + dx, y + dy + s], [x + dx + s, y + dy + s]], { sw: 2.4, at: at + i * d / 3, dur: d / 2 })));
     },
     paperStack(p, x, y, n, w, at = 0, d = .6) {         // isometric stack, (x, y) = bottom sheet centre
       for (let i = 0; i < n; i++) {
@@ -549,7 +672,7 @@
     },
     wifi(p, x, y, s = 1, at = 0, d = .35) {
       [12, 24, 36].forEach((r, i) => { r *= s; const a1 = -Math.PI * .75, a2 = -Math.PI * .25;
-        p.path(`M ${x + Math.cos(a1) * r} ${y + 14 * s + Math.sin(a1) * r} A ${r} ${r} 0 0 1 ${x + Math.cos(a2) * r} ${y + 14 * s + Math.sin(a2) * r}`, { sw: 3, at: at + i * d / 4, dur: d / 2 }); });
+        p.loop({ kind: 'flash', period: 1.5, phase: -i * 1.1 }, q => q.path(`M ${x + Math.cos(a1) * r} ${y + 14 * s + Math.sin(a1) * r} A ${r} ${r} 0 0 1 ${x + Math.cos(a2) * r} ${y + 14 * s + Math.sin(a2) * r}`, { sw: 3, at: at + i * d / 4, dur: d / 2 })); });
       p.dot(x, y + 14 * s, 3.5 * s, { at: at + d * .8 });
     },
     gamepad(p, x, y, s = 1, at = 0, d = .4) {
@@ -601,7 +724,9 @@
         if (pose === 'think' && side > 0) {                 // hand to chin: upper arm out, forearm back to the face
           parts.capsule(q, sx, sy, ex + 8, ey + 44, 8, { at: at + d * .45, dur: d * .3 });
           parts.capsule(q, ex + 8, ey + 44, 14, -60, 7.5, { at: at + d * .65, dur: d * .3 });
-        } else parts.capsule(q, sx, sy, ex, ey, 8, { at: at + d * .45 + i * .05, dur: d * .35 });
+        } else if ((pose === 'wave' && side > 0) || pose === 'cheer')
+          q.loop({ kind: 'swing', amp: pose === 'wave' ? 18 : 10, period: pose === 'wave' ? 1.1 : 1.3, phase: side > 0 ? 0 : Math.PI, ox: sx, oy: sy }, a => parts.capsule(a, sx, sy, ex, ey, 8, { at: at + d * .45 + i * .05, dur: d * .35 }));
+        else parts.capsule(q, sx, sy, ex, ey, 8, { at: at + d * .45 + i * .05, dur: d * .35 });
       });
       q.circle(0, -76, 20, { fill: C.fill, at, dur: d * .35 });
     },
@@ -659,8 +784,8 @@
     bars(p, x, y, w, h, values, at = 0, d = .6, { accent } = {}) {   // bar chart in a w × h box centred on (x, y)
       const n = values.length, max = Math.max(...values), slot = w / n, bw = slot * .62, by = y + h / 2, ai = accent ?? n - 1;
       values.forEach((v, i) => {
-        const bh = Math.max(4, h * .92 * v / max), hot = i === ai;
-        p.rect(x - w / 2 + i * slot + (slot - bw) / 2, by - bh, bw, bh, { rx: Math.min(8, bw * .2), fill: C.fill, sw: hot ? 3.4 : 2.4, stroke: hot ? C.ink : C.soft, at: at + i * d / n, dur: .3 });
+        const bh = Math.max(4, h * .92 * v / max), hot = i === ai, bx = x - w / 2 + i * slot + slot / 2;
+        p.loop({ kind: 'grow', amp: .16, period: 1.8, phase: -i * .9, ox: bx, oy: by }, p => p.rect(x - w / 2 + i * slot + (slot - bw) / 2, by - bh, bw, bh, { rx: Math.min(8, bw * .2), fill: C.fill, sw: hot ? 3.4 : 2.4, stroke: hot ? C.ink : C.soft, at: at + i * d / n, dur: .3 }));
       });
       p.line(x - w / 2 - 12, by, x + w / 2 + 12, by, { sw: 2.4, at, dur: d * .5 });
     },
@@ -699,7 +824,7 @@
     wave: p => parts.person(p, 0, 0, 360, 0, .7, { pose: 'wave' }),
     cheer: p => parts.person(p, 0, 0, 360, 0, .7, { pose: 'cheer' }),
     point: p => parts.person(p, -40, 0, 360, 0, .7, { pose: 'point' }),
-    think: p => { parts.person(p, -20, 15, 340, 0, .7, { pose: 'think' }); parts.bubble(p, 120, -140, 120, 74, .6, .3, true); [-28, 0, 28].forEach((dx, i) => p.dot(120 + dx, -140, 5, { at: .85 + i * .06 })); },
+    think: p => { parts.person(p, -20, 15, 340, 0, .7, { pose: 'think' }); parts.bubble(p, 120, -140, 120, 74, .6, .3, true); [-28, 0, 28].forEach((dx, i) => p.loop({ kind: 'flash', period: 1.2, phase: -i * 1.2 }, q => q.dot(120 + dx, -140, 5, { at: .85 + i * .06 }))); },
     bust: p => parts.bust(p, 0, 0, 2.6, 0, .55),
     team: p => parts.team(p, 0, 10, 1.55, 0, .5),
     hand: p => parts.hand(p, -20, -10, 2.4, 0, .6),
@@ -709,6 +834,20 @@
     chart: p => parts.bars(p, 0, 0, 340, 300, [3, 5, 4, 7, 9], 0, .7),
     linechart: p => parts.lineChart(p, 0, 0, 360, 280, [2, 3, 2.5, 4, 3.6, 6], 0, .9),
   };
+
+  /* idle motion of each icon (kind from LOOP; ox/oy = pivot in the icon's ±200 box) */
+  const MOTION = {
+    check: { kind: 'beat', amp: .08, period: 2 }, star: { kind: 'swing', amp: 10, period: 2.4 }, bulb: { kind: 'breathe', amp: .03 },
+    moon: { kind: 'swing', amp: 6, period: 3 }, target: { kind: 'beat', amp: .06, period: 1.8 }, phone: { kind: 'buzz', amp: 4, period: 2.4 },
+    laptop: { kind: 'bob', amp: 4 }, tablet: { kind: 'bob', amp: 5 }, folder: { kind: 'bob', amp: 5 }, doc: { kind: 'swing', amp: 3 },
+    envelope: { kind: 'bob', amp: 6 }, calendar: { kind: 'swing', amp: 3, oy: -150 }, globe: { kind: 'swing', amp: 8 },
+    bell: { kind: 'swing', amp: 14, period: 1.4, oy: -120 }, gamepad: { kind: 'swing', amp: 6 }, tv: { kind: 'bob', amp: 4 },
+    bubble: { kind: 'bob', amp: 6 }, wallet: { kind: 'bob', amp: 5 }, person: { kind: 'bob', amp: 4, period: 3 }, cheer: { kind: 'hop', amp: 10, period: 1.3 },
+    point: { kind: 'sway', amp: 5 }, think: { kind: 'bob', amp: 3, period: 3.4 }, bust: { kind: 'bob', amp: 4 }, team: { kind: 'bob', amp: 4 },
+    hand: { kind: 'tap', amp: .08, period: 1.4 }, cursor: { kind: 'tap', amp: .1, period: 1.6 }, coins: { kind: 'hop', amp: 8, period: 1.6 },
+    bag: { kind: 'swing', amp: 6, oy: -170 }, linechart: { kind: 'breathe', amp: .03 },
+  };
+  for (const n in MOTION) if (icons[n]) icons[n].motion = MOTION[n];
 
   /* =====================================================================================
      PAIRS — before (messy) → after (clean). Drawn inside a ±200 × ±185 box around (0, 0).
@@ -920,12 +1059,21 @@
     },
   });
 
-  window.GL = { C, stage, run, Pen, art, text, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
-    parts, icons, pairs, pair, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
+  window.GL = { C, stage, run, Pen, art, text, EXIT, leaveAll, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
+    parts, icons, pairs, pair, single, LOOP, MOTION, kf, EASE, easeIO, easeOut, clamp, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
+
+  /* beats.js (B01–B21 scene templates) loads next to this file */
+  const beatsReady = new Promise(res => {
+    const load = names => { if (!names.length) return res();
+      const sc = document.createElement('script'); sc.src = HERE + names[0];
+      sc.onload = () => load(names.slice(1)); sc.onerror = () => { console.error('GL: ' + names[0] + ' not found'); load(names.slice(1)); };
+      document.head.appendChild(sc); };
+    load(['beats.js', 'pro.js', 'detail.js', 'sets.js', 'pro2.js', 'pro3.js', 'pro4.js', 'pro5.js']);
+  });
 
   async function run(build) {
     try {
-      await Promise.all([document.fonts.load('700 40px GLLatin'), document.fonts.load('700 40px GLThai', 'กขไทย'), document.fonts.load('500 40px GLThai', 'กข')]);
+      await Promise.all([beatsReady, document.fonts.load('700 40px GLLatin'), document.fonts.load('700 40px GLThai', 'กขไทย'), document.fonts.load('500 40px GLThai', 'กข')]);
       build();
       if (!window.READY) finish();
     } catch (e) { window.GL_ERROR = String(e && e.stack || e); console.error(window.GL_ERROR); }

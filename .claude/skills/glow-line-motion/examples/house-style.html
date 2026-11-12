@@ -1,0 +1,65 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>house style</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* house-style proposal: the same 6 icons in the current (Lucide-like) shapes and two directions of our own */
+GL.run(() => {
+  GL.stage();
+  const C = GL.C, P = GL.parts;
+  const RCV = 'M -160 -20 Q -160 -76 -104 -76 L 104 -76 Q 160 -76 160 -20 L 160 10 Q 160 34 136 34 L 84 34 Q 60 34 60 10 L 60 -14 L -60 -14 L -60 10 Q -60 34 -84 34 L -136 34 Q -160 34 -160 10 Z';
+  const fillOnly = { fill: C.fill, stroke: C.fill, sw: 1 };
+  const arc = (cx, cy, r, a0, a1) => { const p = a => [cx + r * Math.cos(a * Math.PI / 180), cy + r * Math.sin(a * Math.PI / 180)], [x0, y0] = p(a0), [x1, y1] = p(a1);
+    return `M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r} ${r} 0 ${Math.abs(a1 - a0) > 180 ? 1 : 0} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`; };
+  /* rounded rect outline with a gap over the top-left corner (direction B signature) */
+  const rrGap = (x, y, w, h, r, g = 34) => `M ${x + r + g} ${y} L ${x + w - r} ${y} Q ${x + w} ${y} ${x + w} ${y + r} L ${x + w} ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} L ${x + r} ${y + h} Q ${x} ${y + h} ${x} ${y + h - r} L ${x} ${y + r + g}`;
+  const D = 28;                       // direction A: depth offset (always down-right)
+  const depth = (p, draw) => { const b = p.child({ transform: `translate(${D} ${D})` }); draw(b, { fill: C.fill, sw: 2.4, stroke: C.soft }); draw(p, { fill: C.fill, sw: 3.2 }); };
+
+  const A = {   // ── direction A: มีมิติ (every object has a real thickness, offset down-right)
+    lock: p => { p.path('M -64 -10 L -64 -86 A 64 64 0 0 1 64 -86 L 64 -10', { sw: 22 }); p.path('M -64 -10 L -64 -86 A 64 64 0 0 1 64 -86 L 64 -10', { sw: 15, stroke: C.fill });
+      depth(p, (q, o) => q.rect(-120, -20, 240, 170, Object.assign({ rx: 22 }, o)));
+      p.circle(0, 50, 16, { fill: C.ink, sw: 2 }); p.line(0, 60, 0, 98, { sw: 10 }); },
+    phone: p => { const g = p.child({ transform: 'rotate(-18) translate(0 20)' }); depth(g, (q, o) => q.path(RCV, o)); },
+    send: p => { p.shape([[-160, 10], [160, -120], [10, 30]], { fill: C.fill, sw: 3.2 });            // upper wing
+      p.shape([[10, 30], [160, -120], [60, 150]], { fill: C.fill, sw: 3.2 });                        // lower wing
+      p.shape([[10, 30], [60, 150], [20, 110]], { fill: C.fill, sw: 2.4, stroke: C.soft });          // keel (the folded underside)
+    },
+    trash: p => { p.path('M -100 -60 L -80 150 Q 0 176 80 150 L 100 -60', { fill: C.fill, sw: 3.2 });
+      p.ellipse(0, -60, 100, 24, { fill: C.fill, sw: 3 }); [-44, 0, 44].forEach(x => p.line(x, -24, x * .82, 136, { sw: 2.4, stroke: C.soft }));
+      const lid = p.child({ transform: 'rotate(-14 -110 -96)' }); lid.ellipse(0, -96, 112, 26, { fill: C.fill, sw: 3 }); lid.path('M -112 -96 L -112 -86 A 112 26 0 0 0 112 -86 L 112 -96', { fill: C.fill, sw: 2.4, stroke: C.soft });
+      lid.ellipse(0, -110, 26, 8, { fill: C.fill, sw: 2.6 }); },
+    arrow: p => depth(p, (q, o) => q.shape([[-150, -34], [30, -34], [30, -100], [150, 0], [30, 100], [30, 34], [-150, 34]], Object.assign({}, o))),
+    search: p => { depth(p, (q, o) => P.capsule(q, 52, 52, 144, 144, 22, o));
+      p.circle(-30, -30, 112, { fill: C.fill, sw: 2.4, stroke: C.soft }); p.circle(-30, -30, 100, { fill: C.fill, sw: 3.2 }); p.circle(-30, -30, 80, { sw: 1.6, stroke: C.soft }); },
+  };
+
+  const B = {   // ── direction B: เส้นเว้นช่อง (chunkier, rounder shapes; one deliberate break in each outline)
+    lock: p => { p.path('M -60 0 L -60 -70 A 60 60 0 0 1 60 -70 L 60 -24', { sw: 20 }); p.path('M -60 0 L -60 -70 A 60 60 0 0 1 60 -70 L 60 -24', { sw: 13, stroke: C.fill });
+      p.rect(-130, -10, 260, 170, Object.assign({ rx: 56 }, fillOnly)); p.path(rrGap(-130, -10, 260, 170, 56), { sw: 3.6 });
+      p.circle(0, 64, 22, { sw: 3.6 }); },
+    phone: p => { const g = p.child({ transform: 'rotate(-18) translate(0 20)' }); g.path(RCV, fillOnly);
+      g.path('M -66 -76 L 104 -76 Q 160 -76 160 -20 L 160 10 Q 160 34 136 34 L 84 34 Q 60 34 60 10 L 60 -14 L -60 -14 L -60 10 Q -60 34 -84 34 L -136 34 Q -160 34 -160 10 L -160 -20 Q -160 -60 -128 -72', { sw: 3.6 }); },
+    send: p => { p.shape([[-150, 0], [150, -130], [30, 150], [0, 40]], fillOnly);
+      p.path('M -126 -10 L 150 -130 L 30 150 L 0 40 L -150 0', { sw: 3.6 }); p.path('M 0 40 L 90 -64', { sw: 3.6 }); },
+    trash: p => { p.path('M -110 -50 L -88 140 Q -84 160 -64 160 L 64 160 Q 84 160 88 140 L 110 -50 Z', fillOnly);
+      p.path('M -106 -16 L -88 140 Q -84 160 -64 160 L 64 160 Q 84 160 88 140 L 110 -50', { sw: 3.6 }); [-36, 36].forEach(x => p.line(x, -10, x * .86, 120, { sw: 3.6 }));
+      p.rect(-140, -96, 280, 44, Object.assign({ rx: 22 }, fillOnly)); p.path(rrGap(-140, -96, 280, 44, 22, 10), { sw: 3.6 }); p.path('M -40 -96 Q -40 -136 0 -136 Q 40 -136 40 -96', { sw: 3.6 }); },
+    arrow: p => { p.path('M -150 0 L -40 0', { sw: 30 }); p.path('M 0 0 L 110 0', { sw: 30 }); p.path('M 30 -96 L 130 0 L 30 96', { sw: 30 });
+      p.path('M -150 0 L -40 0', { sw: 22, stroke: C.fill }); p.path('M 0 0 L 110 0', { sw: 22, stroke: C.fill }); p.path('M 30 -96 L 130 0 L 30 96', { sw: 22, stroke: C.fill }); },
+    search: p => { P.capsule(p, 50, 50, 140, 140, 24, fillOnly); p.path('M 64 40 L 140 116 A 24 24 0 0 1 116 140 L 40 64', { sw: 3.6 });
+      p.circle(-30, -30, 104, fillOnly); p.path(arc(-30, -30, 104, -100, 196), { sw: 3.6 }); },
+  };
+
+  const names = ['lock', 'phone', 'send', 'trash', 'arrow', 'search'], cur = ['lock', 'phone', 'send', 'trash-2', 'arrow-right', 'search'];
+  const top = 230, cw = GL.W / 3, ch = (GL.H - top - 40) / names.length;
+  ['ตอนนี้', 'A · มีมิติ', 'B · เส้นเว้นช่อง'].forEach((t, c) => GL.text(t, { x: (c + .5) * cw, y: 150, size: 40, weight: 700, at: 0 }));
+  GL.text('HOUSE STYLE', { x: GL.W / 2, y: 80, size: 34, weight: 700, ls: 6, color: GL.C.kicker, glow: false, at: 0 });
+  names.forEach((n, r) => {
+    const y = top + r * ch + ch / 2, w = Math.min(cw * .62, ch * .78);
+    GL.art(GL.icons[cur[r]], { x: cw * .5, y, w, at: 0 });
+    GL.art(A[n], { x: cw * 1.5, y, w, at: 0, idle: false });
+    GL.art(B[n], { x: cw * 2.5, y, w, at: 0, idle: false });
+  });
+  GL.finish({ hold: 1 });
+});
+</script></body></html>

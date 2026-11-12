@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>heart variants</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* one icon, ten looks — GL.VARIANTS.heart (assets/pro.js) */
+GL.run(() => {
+  GL.stage();
+  const top = GL.title({ kicker: '1 ICON', main: '10 HEARTS', size: 120 });
+  const names = GL.VARIANTS.heart, cols = 2, cw = GL.W / cols, ch = (GL.H - top - 20) / 5;
+  names.forEach((n, i) => {
+    const x = (i % cols + .5) * cw, y = top + Math.floor(i / cols) * ch + ch * .45, at = .4 + i * .15;
+    GL.art(GL.icons[n], { x, y, w: Math.min(cw * .58, ch * .74 * 400 / 370), at });
+    GL.text(`${i + 1}. ${n.replace('heart-', '').toUpperCase()}`, { x, y: y + ch * .48, size: 28, weight: 600, color: GL.C.sub, glow: false, at: at + .4, rise: 6 });
+  });
+  GL.finish({ hold: 4.5 });
+});
+</script></body></html>

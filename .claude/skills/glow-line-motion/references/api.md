@@ -19,7 +19,7 @@ GL.run(() => {
 
 | ฟังก์ชัน | ตัวเลือก (ค่าเริ่ม) | หมายเหตุ |
 |---|---|---|
-| `GL.stage(o)` | `w 1080`, `h 1920`, `glow 1` (คูณความฟุ้ง), `seed` | เรียกครั้งเดียวก่อนอย่างอื่น. `GL.W`, `GL.H` = ขนาด |
+| `GL.stage(o)` | `w 1080`, `h 1920`, `glow 1` (คูณความฟุ้ง), `seed`, `icons 'motion'│'draw'`, `material 'ink'│'silver'` | เรียกครั้งเดียวก่อนอย่างอื่น. `GL.W`, `GL.H` = ขนาด |
 | `GL.title(o)` → y ล่างสุด | `kicker`, `main`, `sub`, `top 40`, `at .05`, `size 142` | kicker ตัวห่าง 50px · main ตัวใหญ่เรืองแสง (ย่อเองถ้ายาว) · sub ไทยสีเทา 34px. ไม่มี sub → คืน ~280 |
 | `GL.text(str, o)` | `x W/2`, `y`, `size 56`, `at 0`, `dur .45`, `rise`, `color`, `weight 700`, `anchor 'middle'`, `ls 0`, `maxW W-80`, `glow true`, `lh 1.3` | `\n` = ขึ้นบรรทัดใหม่. ยาวเกิน `maxW` → ย่อฟอนต์อัตโนมัติ. ขึ้นแบบ fade + ลอยขึ้น |
 | `GL.hline(y, at, {x1, x2})` / `GL.vline(x, y1, y2, at)` | | เส้นแบ่งสีเทา วาดตัวเอง |
@@ -41,7 +41,7 @@ item ของ rows / grid / hero = `{ label, pair: 'inbox' }` หรือ `{ l
 | `GL.flow(items, o)` | `top 340`, `bottom H`, `at .9`, `dir auto`, `dots true` | ขั้นตอนต่อกันด้วยจุดไข่ปลา: 9:16 = ซิกแซกซ้าย-ขวา (≤ 4–5 ขั้น), 16:9 = แถวเดียว (≤ 5 ขั้น). item = `{ icon, label, sub }` |
 | `GL.versus({left, right, vs, win}, o)` | `top 340`, `bottom H`, `at .9`; `vs 'VS'`, `win 'left'│'right'` | A vs B สองคอลัมน์ มีเส้นแบ่งกลาง; `win` = ฝั่งที่แพ้หรี่ ฝั่งที่ชนะเรืองแสง. left/right = `{ icon, label, sub }` |
 | `GL.stat({value, …}, o)` | item: `value`, `from 0`, `prefix`, `suffix`, `decimals 0`, `label`, `sub`, `icon`; o: `at .4`, `top 0`, `bottom H`, `size auto` | ตัวเลขใหญ่นับขึ้น (+ ไอคอนด้านบน) จัดกลางแนวตั้งเอง. ตัวเลขต้องมาจากผู้ใช้เท่านั้น |
-| `GL.page(at, at => layout(…), o)` | `hold 1.2`, `out true` | ห่อเลย์เอาต์เป็นหน้า: จบแล้วค้าง `hold` วิ แล้วจางออกก่อนหน้าถัดไป. คืนเวลาเริ่มหน้าถัดไป. หน้าสุดท้ายใส่ `{ out: false }` |
+| `GL.page(at, at => layout(…), o)` | `hold 1.2`, `out true` | ห่อเลย์เอาต์เป็นหน้า: จบแล้วค้าง `hold` วิ แล้ว **ไอคอนทุกตัวเล่นท่าออก** ตัวหนังสือ/เส้นจางออก ก่อนหน้าถัดไป. คืนเวลาเริ่มหน้าถัดไป. หน้าสุดท้ายใส่ `{ out: false }` |
 
 ตัวอย่างหลายหน้า (`examples/pages-six.html`):
 ```js
@@ -112,11 +112,29 @@ GL.page(t, at => GL.rows(items.slice(3, 6), { top, at }), { out: false });
 | bars | `(p, x, y, w, h, values, at, d, {accent})` | กราฟแท่ง (แท่ง `accent` เด่น — ค่าเริ่ม = แท่งสุดท้าย) |
 | lineChart | `(p, x, y, w, h, values, at, d, {dots})` | กราฟเส้น + แกน + จุดปลายเด่น |
 
+## การขยับของไอคอน (idle motion)
+
+`kind` (ค่าเริ่มอยู่ใน `GL.LOOP`): `bob` ลอยขึ้นลง · `sway` ส่ายซ้ายขวา · `swing` แกว่งรอบจุดหมุน · `spin` หมุนรอบ ·
+`beat` เต้นตุบ ๆ · `breathe` ขยายหดช้า ๆ · `blink` กะพริบ (หดแนวตั้ง) · `buzz` สั่นเป็นช่วง ๆ · `hop` กระโดด ·
+`orbit` วนเป็นวง · `tap` กด · `flap` สะบัด (ธง) · `grow` ยืดหด (แท่งกราฟ) · `flash` จางเข้าออก · `rise` ลอยขึ้นแล้วจาง.
+`amp` = px (เลื่อน), องศา (หมุน), สัดส่วน (ขยาย); `ox/oy` = จุดหมุนในพิกัดกรอบ ±200 ของภาพ; `phase` เหลื่อมจังหวะ; `delay` หน่วงเริ่ม.
+
+- ทั้งชิ้น: ตั้ง `myIcon.motion = { kind: 'swing', amp: 10, oy: -120 }` หรือส่ง `idle` ให้ `GL.art` — ตารางของไอคอนในคลัง: `GL.MOTION`
+- บางส่วนของภาพ: ใน drawing ใช้ `p.loop({ kind: 'spin', period: 5, ox, oy }, q => q.line(...))` — ส่วนที่วาดด้วย `q` จะขยับ
+  (ตัวอย่างใน parts: เข็มนาฬิกา, แขนโบก, รัศมีหลอดไฟ, แท่งกราฟ, ผ้าธง, Z Z Z, wifi)
+
 ## เวลาและเอฟเฟกต์ระดับกลุ่ม
 
 - `GL.tween(el, at, dur, from, to, {cx, cy, ease})` — `from/to` = `{o, s, dx, dy}` (opacity, scale รอบ cx/cy, เลื่อน)
 - `GL.fade(el, at, dur, rise)` — โผล่ + ลอยขึ้น
-- `GL.art(fn, {x, y, s | w, at, ts, filter, float})` → `{wrap, g, end}` — วางภาพวาดเองนอกเลย์เอาต์.
+- `GL.art(fn, {x, y, s | w, at, ts, filter, float, idle, reveal, out, exit})` → `{wrap, g, end, leave}` — วางภาพวาดเองนอกเลย์เอาต์.
+  **ท่าออก**: `out: T` = เล่นท่าออกที่วินาที T · `a.leave(T, kind?)` สั่งทีหลังได้ (คืนเวลาที่หายไปหมด) ·
+  `exit` / `fn.exit` เลือกท่า: `pop` (ค่าเริ่ม) `rise` `sink` `slide` `slideL` `launch` `spin` `squash` `blink` `fade` (ตาราง `GL.EXIT`).
+  ไอคอน `-pro` ทุกตัวมีท่าออกที่สอดคล้องกับท่าเข้าของมันแล้ว. ไอคอนใหม่: ตั้ง `fn.exit` ทุกครั้ง.
+- `GL.finish({ hold, out: true, stagger })` — ค้าง `hold` วิ แล้วไอคอนทั้งหมดเล่นท่าออกทีละตัว (ห่าง `stagger` วิ) จบที่จอดำ.
+  ภาพนิ่งตอนนั้นจะว่าง — เช็กด้วย `render.js --still --at <วินาทีก่อนออก>`.
+  โหมด `motion` (ค่าเริ่ม): ภาพโผล่มาครบทั้งชิ้นใน 0.5 วิ แล้วเล่น idle motion ของมัน (`fn.motion` ของไอคอนในคลัง).
+  `idle: { kind, amp, period, ox, oy, phase, delay }` = กำหนด/ทับการขยับ · `idle: false` = นิ่ง · `reveal: 'draw'` = ชิ้นนี้วาดเส้นแทน (ใช้กับเส้นจริง ๆ).
   `w` = ความกว้างบนจอ (px) ของกรอบ ±200 (แทน `s`), `filter: 'glow' | 'glowS' | null`,
   `float: true | {amp 8, period 3.2, dx 0}` = ลอยขึ้นลงเบา ๆ หลังวาดเสร็จ (ให้ฉากนิ่งมีชีวิต)
 - **ของเคลื่อนที่**: tween ที่ `wrap` ของภาพ — `GL.tween(a.wrap, at, .9, {dx: 0, dy: 0}, {dx: -150, dy: -330})` (เลื่อน),
