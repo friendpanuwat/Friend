@@ -20,6 +20,7 @@ glow-line `-pro` ของ skill นี้: เส้นขาวเรือง
 | `assets/pro3.js` (ชุด 3) | bookmark circle-help users eye utensils-crossed search handshake* infinity image user-plus tag wallet calendar repeat book-open ear* fish crown message-circle-question share-2 |
 | `assets/pro4.js` (ชุด 4) | book languages trash-2 user-check circle-check x thumbs-down* puzzle biceps-flexed* heart-pulse zap banknote store bookmark-check arrow-right message-circle-warning video graduation-cap octagon-alert shield |
 | `assets/pro5.js` (ชุด 5) | heart-crack heart-off map-pin lightbulb-off battery-low droplets utensils award message-circle-heart arrow-down arrow-up phone lock star arrow-left-right link quote send pen-line printer |
+| `assets/pro8.js` (ชุด 8 = ลำดับ 2 อันที่ 1–20, แผ่น A/B) | chart-column shield-check angry leaf weight badge-percent building factory medal package-open · headphones message-square box gift palette user-x key glasses activity droplet |
 | `assets/pro7.js` (ชุด 7, แผ่น A) | smile frown (หน้าอิโมจิ — **ผู้ใช้บอกว่าไม่นับเป็นอวัยวะ**) |
 | `assets/pro6.js` (ชุด 6, แผ่น A 7 + B 6) | circle-alert lock-open eye-off flag megaphone trophy hourglass · arrow-down-up chevrons-left-right phone-off pin rewind sliders-horizontal |
 
@@ -31,6 +32,10 @@ render วิดีโอ 6a/6b ใหม่แล้ว (ภาพนิ่ง�
 ทำงานค้างแล้ว (2026-11-12): ชุด 7 = smile/frown (`pro-icons-batch7a.mp4`), แก้บั๊ก kf ซ้อน 3 อัน (arrow-left-right, map-pin ใน pro5; puzzle ใน pro4 —
 ท่าวนไม่เคยเล่น) + render 4a/5a/5b ใหม่, render `pro-icons-tour.mp4` ใหม่ (ใช้ GL.PRO ชุด 1 = ตรงกับแผ่น grid ที่ผ่านแล้ว).
 book-pro: เพิ่มเส้นบรรทัดบนหน้ากระดาษ (เห็นตอนปกเปิด, ภาพ `cleanup/book-ruled-lines.png`) — **ผู้ใช้ตอบ "ผ่าน" ทั้งหมดแล้ว**. งานที่เหลือมีแค่ชุดอวัยวะที่พักไว้ (รอผู้ใช้สั่ง).
+**ลำดับ 2 (เริ่ม 2026-11-12)**: 37 อัน − rocket (มีแล้ว) − hand-heart hand-helping hand-coins ear-off (อวัยวะ → พัก) = 32 อัน.
+รอบแรก 20 อัน = `pro8.js`. ผู้ใช้สั่ง "เพิ่มรายละเอียดเล็ก ๆ" + "ดูอันที่ผมใช้เป็นหลัก (pro)" = **ใช้ `pro.js` ชุด 1 เป็นแบบอย่างความละเอียด**
+(เส้นขอบในสีเทา 1 เส้น, แถบ/ฐาน, ขีดแกน, จุดบนข้อมูล, ชิ้นเด่นเส้น ink ที่เหลือ soft) แต่ยังอยู่ในกฎ 2–3. ส่งภาพเทียบ `detail8/compare-8a/8b.jpg` แล้ว —
+**รอผู้ใช้ตอบก่อน render วิดีโอ 8a/8b**. รอบถัดไป 12 อัน: dumbbell salad building-2 clipboard-list gem scale shopping-cart signature tags calendar-days clock history.
 ไอคอนที่มีขีดฆ่า (eye-off, phone-off) — ขีดฆ่าต้องอยู่ตลอด ห้ามให้ท่าวนยกขีดออก (ไม่งั้นตอนท่าออกจะกลายเป็น eye/phone ธรรมดา).
 
 **พักไว้ (อวัยวะคน — ผู้ใช้สั่งพักอีกครั้ง: "พวกมือ หู หรืออวัยวะต่าง ๆ พักไว้ก่อน ... เพราะคุณวาดพวกนี้ได้ไม่ค่อยดีเท่าไร")**:
