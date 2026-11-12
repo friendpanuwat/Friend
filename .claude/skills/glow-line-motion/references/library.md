@@ -30,6 +30,9 @@
 ใช้ได้ทุกช่อง `icon` (beats, spot, flow …). ดู `examples/pro-icons.html` / `pro-tour.html`. วิธีสร้าง rig ใหม่: ดูโค้ดใน `pro.js`
 (หนึ่งกลุ่มต่อหนึ่งชิ้นส่วนที่ขยับ, `on(group, p, start, { loop, ox, oy, r: [[t, v, ease], …] })`).
 
+**ชุด `-pro` ทั้งหมด (200+ อัน, ไฟล์ `assets/pro*.js` + `people.js`)**: รายชื่อและสถานะอยู่ใน `HANDOFF.md`; ทุกชื่อ Lucide ที่ทำแล้วเรียกได้ทั้ง
+`<ชื่อ>` และ `<ชื่อ>-pro` (ตัวเก่าเป็น `<ชื่อ>-basic`). คน: `GL.parts.human` (ทั้งตัว, pro13.js) · `GL.parts.bizUser` (ครึ่งตัว, people.js).
+
 ## ชิ้นส่วนสำหรับประกอบฉากเอง (`GL.parts.*` — signature ใน `api.md`)
 
 คน: `person` (5 ท่า, กำหนดความสูง) · `bust` · `team` · `capsule` (แขนขา/ท่อ) ·
