@@ -210,7 +210,7 @@ R3.both('B20', 'cross', 'การ์ดคู่ A × B (จบกัน = ก�
     if (cut) { A(c.m, [{transform: 'none'}, {transform: `translateX(${side * 14}px) rotate(${side * 6}deg)`}], T.hit, .4, {e: EASE.spring, f: 'forwards'}); A(c.o, [{opacity: 1}, {opacity: .8}], T.hit, .4, {f: 'forwards'}); }
     R11.iconWord(K, c.p, it, 206, it.label ? 34 : 62, 92, 40);
   });
-  const x = R11.disc(g, 297, 125, 50, cut ? 'neg' : 'acc'); R11.glyph(x.p, '×', 50, 50, 78, cut ? 'u-inherit' : 'u-bubble-text');
+  const x = R11.disc(g, 297, 125, 44, cut ? 'neg' : 'acc'); R11.glyph(x.p, '×', 44, 44, 70, cut ? 'u-inherit' : 'u-bubble-text');
   K.enter(x.o, T.hit, 'pop'); if (!cut) R1.ripple(K, x, T.hit + .3, {grow: 26});
   if (s.label) K.enter(R4.word(K, g, s.label, 297, 258, 44, null, 360), T.hit + .25, 'chip');
 });
