@@ -178,6 +178,7 @@
       if ((pop || custom) && it.type === 'draw') it.static = true;
       if (it.type === 'loop' && it.start == null) it.start = ready + it.rel;
     }
+    if (custom) kf(en, at, { o: [[0, 0], [.001, 1]] });   // safety: nothing of a rig shows before its own start time
     if (pop) tween(en, at, popDur, { o: 0, s: .55 }, { o: 1, s: 1 }, { cx: x, cy: y, ease: easeBack });
     if (filter) {   // a perfectly flat/vertical drawing has a 0-px box → the glow filter would erase it; pad the box
       const bb = g.getBBox(), m = 90 / s;

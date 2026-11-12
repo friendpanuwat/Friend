@@ -57,16 +57,17 @@
       on(t1, p, .6, { loop: 3.2, o: [[0, 1], [1.4, 1], [1.6, 0], [3, 0], [3.2, 1]] }); on(t2, p, .6, { loop: 3.2, o: [[0, 0], [1.4, 0], [1.6, 1], [3, 1], [3.2, 0]] });
       q.path('M -60 -40 L -60 -60 L -40 -60', { sw: 2.6 }); return g; };
     const L = card(-96, -50, -6, 'A', 'ก'), Rr = card(96, 60, 6, 'ก', 'A');
-    const ar = sub(intro);
+    const arw = sub(intro), ar = sub(arw);
     ar.path('M -30 70 C -60 100, -70 130, -40 150', { sw: 3 }); ar.poly([[-52, 140], [-38, 152], [-26, 136]], { sw: 3 });
     ar.path('M 30 -70 C 60 -100, 70 -130, 40 -150', { sw: 3 }); ar.poly([[52, -140], [38, -152], [26, -136]], { sw: 3 });
-    on(ar, p, .6, { loop: 3.2, r: [[0, 0], [1.3, 0], [1.7, 180, 'io'], [2.9, 180], [3.2, 180]] });
+    on(ar, p, .6, { loop: 3.2, r: [[0, 0], [1.3, 0], [1.7, 180, 'io'], [2.9, 180], [3.2, 180]] }); pop(p, arw, .3, .3);
     on(L, p, 0, { x: [[0, -80], [.5, 0, 'back']], o: [[0, 0], [.15, 1]] }); on(Rr, p, .1, { x: [[0, 80], [.5, 0, 'back']], o: [[0, 0], [.15, 1]] });
   });
 
   /* trash-2 — lid swings open, a crumpled paper drops in, lid shuts */
   rig('trash-2-pro', .6, p => {
-    const intro = sub(p);
+    const root = sub(p), intro = sub(root);
+    on(root, p, 0, { y: [[0, -70], [.5, 0, 'back']], o: [[0, 0], [.18, 1]] });
     const ball = sub(intro); ball.circle(10, -40, 30, { fill: C.fill, sw: 2.6 }); ['M -8 -58 L 6 -36 L -6 -24', 'M 18 -66 L 22 -44 L 36 -38', 'M -14 -40 L 8 -46 L 30 -26'].forEach(d => ball.path(d, mute));
     on(ball, p, .7, { loop: 2.8, ox: 10, oy: -40, y: [[0, -170], [.4, -170], [.75, 60, 'in'], [.8, 60]], o: [[0, 0], [.4, 0], [.42, 1], [.78, 1], [.8, 0]], r: [[.4, 0], [.8, 160, 'lin']] });
     intro.path('M -104 -70 L 104 -70 L 86 150 Q 84 164 70 164 L -70 164 Q -84 164 -86 150 Z', { fill: C.fill, sw: 3.2 });
@@ -101,7 +102,7 @@
   rig('x-pro', .6, p => {
     const intro = sub(p), g = sub(intro);
     const a = sub(g); tube(a, 'M -110 -110 L 110 110', 34); const b = sub(g); tube(b, 'M 110 -110 L -110 110', 34);
-    g.path('M -96 -110 L -60 -74', { sw: 3 }); g.dot(-110, -96, 2.6);
+    a.path('M -96 -110 L -60 -74', { sw: 3 }); a.dot(-110, -96, 2.6);
     on(a, p, 0, { ox: -110, oy: -110, s: [[0, 0], [.25, 1, 'out']] }); on(b, p, .15, { ox: 110, oy: -110, s: [[0, 0], [.25, 1, 'out']] });
     on(g, p, .7, { loop: 2.2, r: shakeKeys(6, 7, .06) });
     [[-150, -60], [150, 60], [140, -130]].forEach(([x, y], i) => { const s = sub(intro); s.line(x, y, x + (x > 0 ? 20 : -20), y - 14, { sw: 3 }); on(s, p, .7, { loop: 2.2, o: [[0, 0], [.05 + i * .02, 1], [.4, 0]] }); });
