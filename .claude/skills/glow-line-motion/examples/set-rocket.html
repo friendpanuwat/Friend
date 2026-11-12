@@ -1,0 +1,18 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>rocket set</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* 10 rockets in the reference line style (assets/sets.js) — still preview: render with --still --scale 2 */
+GL.run(() => {
+  GL.stage({ glow: .9 });
+  const top = GL.title({ kicker: '10 LOOKS', main: 'ROCKETS', size: 120 });
+  const names = GL.SETS.rocket, cols = 2, cw = GL.W / cols, ch = (GL.H - top - 20) / 5;
+  names.forEach((n, i) => {
+    const r = Math.floor(i / cols), x = (i % cols + .5) * cw, y = top + r * ch + ch * .43;
+    if (i % cols === 0) GL.hline(top + r * ch, .1, { x1: 0, x2: GL.W });
+    GL.art(GL.icons[n], { x, y, w: Math.min(cw * .56, ch * .66 * 400 / 370), at: .3, idle: false });
+    GL.text(`${i + 1}. ${n.split('.')[1].toUpperCase()}`, { x, y: y + ch * .47, size: 30, at: .5, rise: 0 });
+  });
+  GL.vline(GL.W / 2, top, GL.H, .1);
+});
+</script></body></html>
