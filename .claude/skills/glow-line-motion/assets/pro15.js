@@ -50,7 +50,7 @@
   /* apple — squats (anticipation), hops, lands with a squash; the leaf on the stem flutters after the landing (follow-through) */
   rig('apple-pro', .6, 'rise', p => {
     const intro = sub(p), ap = sub(intro);
-    const lf = sub(ap); lf.path('M 14 -122 C 40 -172, 100 -162, 118 -140 C 92 -110, 40 -104, 14 -122 Z', { fill: C.fill, sw: 3 }); lf.path('M 24 -124 Q 70 -140 108 -138', SOFT(1.8)); lf.line(56, -134, 66, -150, SOFT(1.6)); lf.line(80, -137, 92, -150, SOFT(1.6));
+    const lf = sub(ap); lf.path('M 14 -122 C 40 -172, 100 -162, 118 -140 C 92 -110, 40 -104, 14 -122 Z', { fill: C.fill, sw: 3 }); lf.path('M 24 -126 C 42 -138, 94 -137, 108 -139', SOFT(1.8)); lf.line(56, -134, 66, -150, SOFT(1.6)); lf.line(80, -137, 92, -150, SOFT(1.6));
     on(lf, p, .7, { loop: 2.4, ox: 14, oy: -122, r: [[0, 0], [.5, 0], [.6, -16, 'out'], [.8, 10, 'io'], [.98, -5, 'io'], [1.14, 2], [1.3, 0, 'soft']] });
     ap.path('M 0 -86 Q 2 -126 20 -150', { sw: 6 });
     ap.path('M 0 -86 C 40 -126, 150 -110, 150 0 C 150 96, 80 166, 30 150 C 12 144, -12 144, -30 150 C -80 166, -150 96, -150 0 C -150 -110, -40 -126, 0 -86 Z', { fill: C.fill, sw: 3.4 });
@@ -300,12 +300,17 @@
   /* carrot — pulled up out of the ground; it hops with a squash, the leafy top whips after it (follow-through) */
   rig('carrot-pro', .6, 'sink', p => {
     const intro = sub(p), hp = sub(intro), cr = hp.child({ transform: 'translate(10 10) rotate(30)' });
-    [['M 0 -104 C -30 -130, -60 -170, -46 -196 C -20 -180, -8 -140, 0 -104 Z', .06, -46, -196], ['M 0 -104 C -6 -150, 0 -190, 14 -204 C 28 -180, 18 -140, 0 -104 Z', 0, 14, -204], ['M 0 -104 C 30 -130, 64 -160, 70 -188 C 40 -180, 14 -140, 0 -104 Z', .1, 70, -188]].forEach(([d, l, tx, ty]) => {
-      const g = sub(cr); g.path(d, { fill: C.fill, sw: 3 }); g.path(`M 0 -108 Q ${f1(tx * .3)} ${f1(-108 + (ty + 108) * .55)} ${f1(tx * .8)} ${f1(-108 + (ty + 108) * .85)}`, SOFT(1.6));
+    /* leaves: blade + a midrib that runs down its centre (the average of the blade's two edges), stopping short of the tip */
+    [['M 0 -104 C -30 -130, -60 -170, -46 -196 C -20 -180, -8 -140, 0 -104 Z', 'M -4 -118 C -19 -135, -37 -168, -42 -184', .06],
+     ['M 0 -104 C -6 -150, 0 -190, 14 -204 C 28 -180, 18 -140, 0 -104 Z', 'M 2 -118 C 6 -145, 12 -178, 13 -192', 0],
+     ['M 0 -104 C 30 -130, 64 -160, 70 -188 C 40 -180, 14 -140, 0 -104 Z', 'M 4 -116 C 22 -135, 48 -166, 60 -178', .1]].forEach(([d, rib, l]) => {
+      const g = sub(cr); g.path(d, { fill: C.fill, sw: 3 }); g.path(rib, SOFT(1.6));
       on(g, p, .7, { loop: 2.4, ox: 0, oy: -104, r: [[0, 0], [.18 + l, 6, 'io'], [.42 + l, -12, 'out'], [.62 + l, 8, 'io'], [.8 + l, -3, 'io'], [1 + l, 0, 'soft']] }); });
+    /* edges of the root: x at height y (left / right). Ring marks start just INSIDE the edge and curve inward — nothing crosses the outline */
+    const eL = y => f1(-64 + (y + 70) * 56 / 220 + 8), eR = y => f1(64 - (y + 70) * 56 / 220 - 8);
     cr.path('M -60 -100 Q 0 -120 60 -100 Q 70 -90 64 -70 L 8 150 Q 0 166 -8 150 L -64 -70 Q -70 -90 -60 -100 Z', { fill: C.fill, sw: 3.4 });
-    [[-52, -50, -22, -46], [26, 0, 50, -4], [-36, 50, -12, 54], [8, 100, 24, 96]].forEach(([a, b, c, d]) => cr.line(a, b, c, d, SOFT(2.4)));
-    cr.line(-50, 0, -64, -6, { sw: 2.4 }); cr.line(32, 60, 46, 56, { sw: 2.4 });
+    [[-40, -1, 26], [4, 1, 24], [52, -1, 20], [104, 1, 14]].forEach(([y, sd, w]) => { const x = sd < 0 ? eL(y) : eR(y);
+      cr.path(`M ${x} ${y} Q ${f1(x - sd * w * .5)} ${y + 5} ${f1(x - sd * w)} ${y + 2}`, SOFT(2.4)); });
     on(hp, p, .7, { loop: 2.4, ox: 0, oy: 150, y: [[0, 0], [.18, 0], [.36, -34, 'out'], [.54, 0, 'in']], sy: [[0, 1], [.18, .9, 'io'], [.32, 1.06, 'out'], [.54, 1], [.6, .92, 'out'], [.74, 1.02], [.86, 1, 'soft']] });
     rise(p, intro, 0, 170);
   });
