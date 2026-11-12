@@ -11,9 +11,9 @@
 - **รายชื่อทั้งหมด + ลำดับความสำคัญ: `references/cutpack-icon-list.txt`** (ไฟล์ของผู้ใช้, ลำดับ 1 = #1–95, ลำดับ 2 = #96–132, ลำดับ 3 = #133–308)
 - ไอคอนชุดนี้ **ยังไม่ได้เชื่อมเข้า CutPack** (CutPack ใช้ Lucide 24×24 คนละระบบ) — บอกผู้ใช้ไปแล้ว.
 
-## สถานะ (2026-11-12): เสร็จ 247 / 308 · พักไว้ (อวัยวะ) 10 · **เหลือทำ 51**
+## สถานะ (2026-11-12): เสร็จ 267 / 308 · พักไว้ (อวัยวะ) 10 · **เหลือทำ 31**
 
-- ลำดับ 1 ✅ (เว้นอวัยวะ) · ลำดับ 2 ✅ (เว้นอวัยวะ) · ลำดับ 3 ทำแล้ว 120 จาก 171 (#133–255 ✅ เว้น scan-eye)
+- ลำดับ 1 ✅ (เว้นอวัยวะ) · ลำดับ 2 ✅ (เว้นอวัยวะ) · ลำดับ 3 ทำแล้ว 140 จาก 171 (#133–275 ✅ เว้น scan-eye)
 - ทุกชุดถึงชุด 13 ผู้ใช้ตอบ "ผ่าน" แล้ว (user ใหม่ `people.js` ผู้ใช้ไม่ได้ติ แล้วสั่งเริ่มชุด 14 ต่อเลย).
 - ชุด 14 ส่งแล้ว (`pro14.js`, ภาพ/วิดีโอ `pro-icons-batch14a/b`). ผู้ใช้ติว่า "เหมือนงาน canva" + ส่งภาพอ้างอิง 15 แผ่น →
   ลองให้ดู 2 ทาง แล้ว **ผู้ใช้ไม่เอาทั้งคู่: "สรุปคือเอาแบบเดิมครับ"** — ชุด 14 ใช้ตามที่ส่งไปครั้งแรก (ไม่ได้แก้อะไร).
@@ -25,16 +25,15 @@
   ผู้ใช้ติแครอท: **"เส้นที่สันเลยออกมาจากตัวแครอท"** → ลบรากฝอยที่ยื่นออกนอกตัว, ขีดวงแหวนเริ่มใน
   ขอบเข้าไป 8px แล้วโค้งเข้าข้างใน, เส้นกลางใบอยู่กลางใบจริง (ภาพ `detail15/carrot-fix.png`). ปรับเส้นกลางใบแอปเปิลให้อยู่กลางด้วย.
   **กฎใหม่: รายละเอียดข้างในห้ามแตะหรือเลยเส้นขอบออกไปนอกตัววัตถุ** (คำนวณจากขอบจริง ไม่กะด้วยตา).
-  ผู้ใช้สั่ง "ทำเป็นคลิปเลย" → render วิดีโอ + ภาพนิ่ง 15a/15b ใหม่ (มีรายละเอียดเพิ่ม) ส่งแล้ว. **รอ "ผ่าน"** ก่อนเริ่มชุด 16.
+  ผู้ใช้สั่ง "ทำเป็นคลิปเลย" → render วิดีโอ + ภาพนิ่ง 15a/15b ใหม่ (มีรายละเอียดเพิ่ม) ส่งแล้ว → ผู้ใช้สั่งเริ่มชุด 16 (= 15 ผ่าน).
+- **ชุด 16 ส่งแล้ว (`pro16.js`, ระดับรายละเอียดเท่าชุด 15, ทุกเส้นในอยู่ในขอบ) — รอ "ผ่าน"** ก่อนเริ่มชุด 17.
 
-### รอบถัดไป — ชุด 16 (`pro16.js`)
-citrus · coffee · cookie · cooking-pot · croissant · cup-soda · egg · grape · ice-cream-cone · pizza · sandwich · soup · wheat ·
-bot · cloud · code · cog · cpu · database · filter
+### รอบถัดไป — ชุด 17 (`pro17.js`)
+hammer · link-2 · plug · power · qr-code · wifi · wifi-off · wrench · badge-dollar-sign · calculator · circle-dollar-sign · clipboard-check ·
+contact · credit-card · file-text · goal · id-card · landmark · percent · piggy-bank
 
-### ที่เหลือหลังจากนั้น (31 อัน, ตามลำดับในไฟล์)
-hammer link-2 plug power qr-code wifi wifi-off wrench ·
-badge-dollar-sign calculator circle-dollar-sign clipboard-check contact credit-card file-text goal id-card landmark percent piggy-bank presentation receipt
-shopping-bag truck · calendar-check calendar-x moon sun sunrise sunset timer
+### ที่เหลือหลังจากนั้น (11 อัน = ชุด 18 รอบสุดท้าย)
+presentation receipt shopping-bag truck · calendar-check calendar-x moon sun sunrise sunset timer
 (wifi/moon มีแบบ basic → ทำ pro ใหม่. settings = gears-pro, alarm-clock = alarm-pro, smartphone = notify-pro มีแล้ว)
 
 ### พักไว้ — อวัยวะคน (ผู้ใช้: "พวกมือ หู หรืออวัยวะต่าง ๆ พักไว้ก่อน ... เพราะคุณวาดพวกนี้ได้ไม่ค่อยดีเท่าไร")
@@ -61,6 +60,7 @@ heart-handshake · thumbs-up · hand · footprints · hand-heart · hand-helping
 | `pro13.js` | 13 A/B | scissors shirt sofa ticket umbrella accessibility baby contact-round* person-standing user-round* · users-round* ban circle-x shield-alert shield-x siren square-check annoyed laugh meh — **มี `GL.parts.human`** |
 | `pro14.js` | 14 A/B | party-popper smile-plus bus car church compass flower globe hospital house · map mountain navigation plane ship sprout tent train-front trees star-off — **globe วาดเส้นเมริเดียนใหม่ทุกเฟรมผ่าน `HOOK` (ห่อ `window.setT`)**; มี `puff()` (ควัน) |
 | `pro15.js` | 15 A/B | wand-sparkles apple battery-charging battery-full bed bed-double bike cigarette-off glass-water pill · stethoscope thermometer zap-off banana beef cake candy carrot chef-hat cherry — มี `zee()` (ตัว z ลอย), `STAR4`, `ZAP` |
+| `pro16.js` | 16 A/B | citrus coffee cookie cooking-pot croissant cup-soda egg grape ice-cream-cone pizza · sandwich soup wheat bot cloud code cog cpu database filter — มี `steam()` |
 | `people.js` | — (โหลดท้ายสุด) | **user แบบใหม่** แทนทุกอันที่มี `*` (user users user-plus user-check user-x user-round users-round contact-round) — **มี `GL.parts.bizUser`** |
 
 `*` = ถูก `people.js` ทับแล้ว (โค้ดเก่ายังอยู่ในไฟล์เดิม แต่ทุกชื่อ/alias ชี้ไปตัวใหม่). `†` = อวัยวะที่พักไว้.
@@ -133,7 +133,7 @@ rig('flag-pro', .6, 'rise', p => {           // ชื่อ, เวลาท่
 
 ## ไฟล์ผลงาน (`motion/glow-line-pro-icons/`)
 
-- วิดีโอ + ภาพนิ่งทุกแผ่น: `pro-icons-grid.mp4` (ชุด 1), `pro-icons-batch2.mp4`, `pro-icons-batch3a/3b … 15a/15b.mp4`, `pro-icons-batch7a.mp4`,
+- วิดีโอ + ภาพนิ่งทุกแผ่น: `pro-icons-grid.mp4` (ชุด 1), `pro-icons-batch2.mp4`, `pro-icons-batch3a/3b … 16a/16b.mp4`, `pro-icons-batch7a.mp4`,
   `pro-icons-people.mp4` (user ใหม่ทั้ง 8 อัน) + `*-still.png`; `pro-icons-tour.mp4` (ชุด 1 ทีละอันเต็มจอ).
 - แผ่นที่มีไอคอนคนถูก render ใหม่หลังเปลี่ยน user แล้ว: batch2, 3a, 4a, 8b, 13a, 13b.
 - ภาพเทียบ: `detail6/` `detail8/` (ก่อน-หลังเพิ่มรายละเอียด), `cleanup/` (ลดรายละเอียด, `book-ruled-lines.png`, `human-figure.png`),
