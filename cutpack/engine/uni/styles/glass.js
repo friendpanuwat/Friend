@@ -59,6 +59,8 @@ STYLE('glass', {
 .g-g{display:inline-block;opacity:0;transform-origin:50% 80%}
 .g-s{font-family:"Hand";font-size:62px;line-height:1.25;color:#fff}
 .g-s .g-g{text-shadow:0 4px 22px rgba(0,0,0,.65)}
+.g-m{font-family:"CardSans";font-size:90px;line-height:1.16;color:#fff}
+.g-m .g-g{text-shadow:0 4px 22px rgba(0,0,0,.65)}
 .g-k{font-family:"KeySans";font-size:136px;line-height:1.14;letter-spacing:-1px;color:#8FD3FF}
 .g-k .g-g{text-shadow:0 0 34px rgba(143,211,255,.55),0 6px 24px rgba(0,0,0,.55)}
 `,
@@ -98,7 +100,7 @@ STYLE('glass', {
     return {root, stage, cam};
   },
   /* a real clip, between scenes: the subtitle on the speaker in the glass words (core.js clipCaption) */
-  speakerFrame() { const root = div('inset:0', SC); root.className = 'g-speaker'; return {root, cam: root}; },
+  speakerFrame() { const root = div('inset:0', SC); root.className = 'g-speaker'; return {root, cam: root, speaker: true}; },
   /* every grapheme flips up in 3D with a spring; the key word ignites white → light blue */
   text(F, T, lead, key) {
     const el = div('', F.cam); el.className = 'g-text';
@@ -114,8 +116,13 @@ STYLE('glass', {
       });
       FITS.push(() => { const w = c.offsetWidth; if (w > 900) L.style.transform = `scale(${900 / w})`; });
     };
+    /* on the speaker in a real clip, talking-head-motion's three sizes: s (Sriracha 60) · m (white Mitr 90) · k (light blue 136)
+       only on the AI's accent words, 1–2 per sentence ("ถ้าทุกคำสำคัญ จะไม่มีคำไหนสำคัญ"); the block leaves blurring upwards */
+    const acc = !(F.speaker && T.clip) || T.acc;
     if (lead) line(lead, 'g-s', T.t0 + .15, false);
-    if (key) { line(key, 'g-k', T.hit, true); sfx('softswish', T.hit - .05, -21); }
+    if (key) { line(key, acc ? 'g-k' : 'g-m', T.hit, acc); if (acc) sfx('softswish', T.hit - .05, -21); }
+    if (F.speaker && T.clip) A(el, [{opacity: 1, filter: 'blur(0)', translate: '0 0'}, {opacity: 0, filter: 'blur(16px)', translate: '0 -50px'}],
+      T.end - .18, .16, {e: 'cubic-bezier(.5,0,.9,.5)', f: 'forwards'});
     return el;
   },
 });

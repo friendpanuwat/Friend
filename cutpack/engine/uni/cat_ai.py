@@ -11,7 +11,8 @@ categories we do not have yet. Same model as the web plan (Sonnet 5.5, effort lo
 usage:
   cat_ai.py ask   <captions.json> <duration_s> <ask_dir>             system.txt + user.txt (the request) + lines.json
   cat_ai.py check <ask_dir> <answer.json> <out_dir> <prefix> [<fix_answer.json>]
-        → out_dir/sentences.js (SENTENCE calls, one per good picture), report.json, scenes.txt (ids for render_test.sh)
+        → out_dir/sentences.js (SENTENCE calls, one per good picture), report.json (with each picture's rank 1–3), scenes.txt
+          (ids for render_test.sh), camera.json (zoom: the strongest lines · accent: 1–2 words per sentence; tools/clip_plan.py)
   cat_ai.py fix   <ask_dir> <out_dir>                                 the fix-round request for the pictures that failed
 captions.json = [{"t0": s, "t1": s, "text": "…"}, …] (or {"captions": […]})
 """
@@ -24,7 +25,8 @@ from recipe_ai import ICONS, HARSH, CORE_ICONS_V2, glen, flat, read_pictures  # 
 SYSTEM = """You plan the pictures of a Thai talking-head short. Every picture is ONE CATEGORY (what kind of sentence the line is) + that category's SLOTS (the few things in the picture). Code picks how the picture looks and draws it in the customer's style, so you write NO code and choose NO colours, fonts, motion or layout.
 
 # Your job
-Read the caption lines (each: number, seconds, words). Pick the lines that carry an idea and give each of them one picture, about one picture every 4-6 seconds (this clip: about {n} pictures, at most {nmax}). Skip filler lines. Never two pictures on one line.
+Read the caption lines (each: number, seconds, words). Pick the lines that carry an idea and give each of them one picture, about one picture every 3 seconds (this clip: about {n} pictures, at most {nmax}). Skip filler lines. Never two pictures on one line.
+The same plan serves every style: a calm style shows only the strongest pictures, a busy one shows them all. So give each picture a "rank": 1 = the line is one of the main points (about a third of the pictures), 2 = it helps a lot, 3 = it only adds.
 For each picture:
 1. "shows": one short English sentence of what the viewer will see and why it says the same as the line, with the same yes or no, good or bad.
 2. "cat": the category of what the line DOES (list below), and "slots": the slots of that category only.
@@ -87,9 +89,13 @@ THING = {{"icon": icon name, "label": optional words, "tone": optional "acc"|"so
 # Icons
 {icons}
 
+# Camera and key words (for every line, with or without a picture)
+- "zoom": the 6 to 8 strongest lines (a claim, a turn, the point of the clip), strongest first. The camera slowly pushes in on 4 or 5 of them.
+- "accent": the words that matter most, 1 or 2 per sentence (a sentence often runs over several lines); a filler line gets none. Each is {{"line":n,"word":"…"}} with "word" copied from that line (one phrase, at most 12 letters). These words light up in the accent colour; the rest of the subtitle stays white.
+
 # Answer
 Only JSON, no other text:
-{{"pictures":[{{"line":7,"shows":"…","cat":"B03","slots":{{…}},"lead":"…","key":"…"}}, {{"line":12,"cat":"none","need":"…"}}]}}
+{{"pictures":[{{"line":7,"rank":1,"shows":"…","cat":"B03","slots":{{…}},"lead":"…","key":"…"}}, {{"line":12,"rank":2,"cat":"none","need":"…"}}],"zoom":[7,3,15,11,19,1],"accent":[{{"line":2,"word":"…"}}]}}
 """
 FIX = '''
 
@@ -113,7 +119,7 @@ def ask(captions, duration, out):
     caps = json.load(open(captions))
     caps = caps['captions'] if isinstance(caps, dict) else caps
     os.makedirs(out, exist_ok=True)
-    n = max(3, round(duration / 5)); nmax = round(duration / 4)
+    n = max(3, round(duration / 3)); nmax = round(duration / 2.5)   # the busiest style's count (editorial-overlay: a widget about every 3 s); calmer styles keep the best ranks
     text = SYSTEM.format(n=n, nmax=nmax, harsh=', '.join(sorted(HARSH)), icons=CORE_ICONS_V2)
     open(os.path.join(out, 'system.txt'), 'w').write(text)
     lines = [f'{k + 1}. [{c["t0"]:.1f}-{c["t1"]:.1f}] {re.sub(r"\s+", " ", c["text"].replace(" / ", " ")).strip()}' for k, c in enumerate(caps)]
@@ -267,7 +273,8 @@ def check(ask_dir, answer, out, prefix, fix_answer=None):
         cat = p.get('cat')
         sid = f'{prefix}.{k + 1:02d}'
         row = {'id': sid, 'line': n, 'text': line, 'cat': cat, 'shows': p.get('shows'), 'need': p.get('need'),
-               'lead': p.get('lead', ''), 'key': p.get('key', ''), 'slots': p.get('slots'), 'fixed': n in fixed, 'picture': p}
+               'lead': p.get('lead', ''), 'key': p.get('key', ''), 'slots': p.get('slots'), 'fixed': n in fixed, 'picture': p,
+               'rank': p.get('rank') if p.get('rank') in (1, 2, 3) else 2}
         if cat == 'none':
             row.update(ok=not bad, problems=bad); report.append(row); continue
         if cat not in CATS: bad.append(f'unknown category {cat}')
@@ -285,11 +292,25 @@ def check(ask_dir, answer, out, prefix, fix_answer=None):
     open(os.path.join(out, 'sentences.js'), 'w').write('/* category plans written by the AI for one clip (cat_ai.py check) */\n' + '\n'.join(js) + '\n')
     json.dump(report, open(os.path.join(out, 'report.json'), 'w'), ensure_ascii=False, indent=1)
     open(os.path.join(out, 'scenes.txt'), 'w').write(' '.join(ids) + '\n')
+    camera_and_accent(answer, lines, out)
     ok = [r for r in report if r['ok'] and r['cat'] != 'none']
     print(f'{prefix}: {len(report)} lines, {len(ok)} pictures pass, {sum(r["cat"] == "none" for r in report)} need a category we do not have'
           + (f', {len(fixed)} from the fix round' if fix_answer else ''))
     for r in report:
         if not r['ok']: print('  ', r['id'], r['cat'], r['problems'])
+
+
+def camera_and_accent(answer, lines, out):
+    """zoom lines (strongest first) and accent words, checked: a line must exist, an accent word must be said on its line"""
+    raw = json.loads(re.search(r'\{.*\}', open(answer).read(), re.S).group(0))
+    zoom = [n for n in raw.get('zoom', []) if isinstance(n, int) and 0 < n <= len(lines)]
+    acc, dropped = [], []
+    for a in raw.get('accent', []):
+        n, w = a.get('line'), a.get('word', '')
+        if isinstance(n, int) and 0 < n <= len(lines) and w and glen(w) <= 12 and flat(w) in flat(lines[n - 1]): acc.append({'line': n, 'word': w})
+        else: dropped.append(a)
+    json.dump({'zoom': list(dict.fromkeys(zoom)), 'accent': acc}, open(os.path.join(out, 'camera.json'), 'w'), ensure_ascii=False)
+    print(f'camera: {len(zoom)} zoom lines · {len(acc)} accent words' + (f' ({len(dropped)} dropped: {dropped})' if dropped else ''))
 
 
 def fix(ask_dir, out):

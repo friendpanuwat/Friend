@@ -83,7 +83,7 @@ function play(id, t0, t1, slots = {}, opt = {}) {
    chest subtitle (its sub(), without the key-word camera). A block is cut at a scene's edge; the scene's own words are empty. */
 const CLIPWINS = [];
 function subTop() { return typeof FACES !== 'undefined' && FACES.layout?.subtitleTop ? FACES.layout.subtitleTop : 1300; }
-function clipCaption(c) {
+function clipCaption(c, j) {
   const n = c.parts.length, parts = c.parts.map(([w, t, k], i) => [w, t, k ?? (i === n - 1 ? 'k' : 'l')]);
   const lead = parts.filter(p => p[2] === 'l').map(p => p[0]).join(' '), key = parts.filter(p => p[2] === 'k').map(p => p[0]).join(' ');
   const kt = (parts.find(p => p[2] === 'k') ?? parts[0])[1];
@@ -93,7 +93,8 @@ function clipCaption(c) {
   else CLIPWINS.forEach(x => { if (x.t1 > a && x.t1 <= b && x.t0 < a) a = x.t1; if (x.t0 < b && x.t0 >= a) b = Math.min(b, x.t0); });
   if (b - a < .15) return;
   const sh = ST.capShift ?? .15;                               // how long after T.t0 the style's lead word comes in
-  const T = {t0: a - sh, t1: b + (ST.capTail ?? 0), hit: Math.min(Math.max(kt, a + .05), b - .1), b: [a], after: b};   // capTail: a style that fades its words out early (split)
+  const T = {t0: a - sh, t1: b + (ST.capTail ?? 0), hit: Math.min(Math.max(kt, a + .05), b - .1), b: [a], after: b,   // capTail: a style that fades its words out early (split)
+    clip: true, acc: !!c.acc, look: c.look, end: b};                // a real clip's block: accent word? the big word's look (editorial)
   let F, own = true;
   if (ST.overlay) { F = {small: true, big: true, index: w?.index ?? CLIPWINS.length}; own = false; T.cut = [a, b]; T.lead = a; }
   else if (w) F = w.F;
@@ -106,7 +107,33 @@ function clipCaption(c) {
 function clipCaptions() {
   if (typeof CAPTIONS === 'undefined' || ST.caption) return;
   CLIPWINS.forEach(x => (x.F.root ?? x.F.cam)?.classList.add('clip-scene'));
+  /* editorial (card, card-overlay): the big word takes turns between bold Mitr (k) and handwritten Sriracha (i); a word the AI
+     marked as mattering most gets the highlight box (hl) now and then (talking-head-editorial: "สลับคำสำคัญระหว่าง ตัวหนา Mitr
+     กับ ลายมือ Sriracha ให้มีจังหวะ; ไฮไลต์กล่องสี (hl) ใช้กับคำที่เป็นการกระทำ/ตัวปัญหา") */
+  let turn = 0, lastHl = -9;
+  CAPTIONS.forEach((c, j) => {
+    if (c.acc && j - lastHl >= 6) { c.look = 'hl'; lastHl = j; }
+    else c.look = turn++ % 2 ? 'i' : 'k';
+  });
   CAPTIONS.forEach(clipCaption);
+  if (typeof ZOOMS !== 'undefined') camPlan();
+}
+
+/* CAMERA of a real clip (Friend 2026-11-12: "ซูมช้า 4–5 ครั้ง", the talking-head-motion way, plan in ZOOMS from clip_plan.py):
+   slow pushes, eased in and out, and a soft breath between 1.0 and 1.014 so the frame never looks frozen (and never shows an
+   edge). It moves the speaker's video only (the words and pictures do not zoom), about a point at the face (50% 45%), through
+   the separate translate/scale properties so a style's own moves of the video (split's frame, an overlay that shrinks the
+   speaker) still work under it. A push whose time meets an overlay that shrinks the speaker is left out. */
+let CAM = null;
+function camPlan() {
+  const keys = [...ZOOMS].sort((x, y) => x.t - y.t), pairs = [];
+  keys.forEach(k => { if (k.z > 1) pairs.push([k]); else if (pairs.length) pairs[pairs.length - 1].push(k); });
+  const shrink = CLIPWINS.filter(x => x.F.big && !x.F.small && ST.overlay);
+  CAM = pairs.filter(p => { const a = p[0].t, e = p[p.length - 1].t + p[p.length - 1].d; return !shrink.some(x => a < x.t1 && e > x.t0); }).flat();
+}
+function camAt(t) {
+  let z = 1; for (const k of CAM) { if (t < k.t) break; z += (k.z - z) * easeIO(Math.min(1, (t - k.t) / k.d)); }
+  return z * (1 + .007 * (1 + Math.sin(t * .3)));
 }
 
 window.seek = async (t, src) => {
@@ -116,5 +143,6 @@ window.seek = async (t, src) => {
     if (ST.blurred) { VB.src = src; await VB.decode(); }
   }
   ANIMS.forEach(a => { a.pause(); a.currentTime = ms(t); });
+  if (CAM) { const z = camAt(t); V.style.translate = `${540 * (1 - z)}px ${864 * (1 - z)}px`; V.style.scale = String(z); }
   for (const h of HOOKS) await h(t);
 };

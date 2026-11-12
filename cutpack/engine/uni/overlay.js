@@ -114,7 +114,7 @@ function OVERLAY(id, base, def) {
       });
       return F;
     },
-    text(F, T, lead, key) { (F.small ? def.sub : def.text)(F, T, lead, key); if (!F.big && def.camera) def.camera(T); },
+    text(F, T, lead, key) { (F.small ? def.sub : def.text)(F, T, lead, key); if (!F.big && def.camera && typeof ZOOMS === 'undefined') def.camera(T); },   // a real clip has its own slow camera (core.js camPlan)
   });
 }
 /* one line of words in the card, shrunk (never wrapped) to the room it has */

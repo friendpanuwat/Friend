@@ -25,14 +25,20 @@ const GLASS_OV = {
 .ov-glead{font-family:"Hand";line-height:1.25;color:#FFFFFF}
 .ov-gkey{font-family:"KeySans";line-height:1.12;letter-spacing:-1px;color:#8FD3FF;text-shadow:0 0 26px rgba(143,211,255,.55)}
 .ov-sub>div{perspective:900px}
-.ov-gsl{font-family:"CardSans";font-size:52px;line-height:1.25;color:#FFFFFF;text-shadow:0 4px 22px rgba(0,0,0,.65)}
-.ov-gsk{font-family:"KeySans";font-size:112px;line-height:1.12;letter-spacing:-1px;color:#8FD3FF;text-shadow:0 0 34px rgba(143,211,255,.55),0 6px 24px rgba(0,0,0,.55)}`,
+.ov-gsl{font-family:"Hand";font-size:60px;line-height:1.25;color:#FFFFFF;text-shadow:0 4px 22px rgba(0,0,0,.65)}
+.ov-gsm{font-family:"CardSans";font-size:90px;line-height:1.16;color:#FFFFFF;text-shadow:0 4px 22px rgba(0,0,0,.65)}
+.ov-gsk{font-family:"KeySans";font-size:136px;line-height:1.12;letter-spacing:-1px;color:#8FD3FF;text-shadow:0 0 34px rgba(143,211,255,.55),0 6px 24px rgba(0,0,0,.55)}`,
   smallCls: 'g-root',
   /* the subtitle under the chin (small forms), letters flipping up like the full-screen glass style */
+  /* talking-head-overlay's three sizes: the small words in Sriracha (s 60), the big word white Mitr (m 90), and only the 1–2 words
+     per sentence that matter most in light blue (k 136, the AI's accent words); a block leaves blurring upwards in 0.16 s */
   sub(F, T, lead, key) {
-    const [l, k] = ovSub(T, [['', 'ov-gsl'], ['', 'ov-gsk']]);
+    const acc = !T.clip || T.acc;
+    const [l, k] = ovSub(T, [['', 'ov-gsl'], ['', acc ? 'ov-gsk' : 'ov-gsm']]);
     if (lead) GLASS_FLIP(l, lead, T.t0 + .15, false);
-    if (key) { GLASS_FLIP(k, key, T.hit, true); sfx('softswish', T.hit - .05, -21); }
+    if (key) { GLASS_FLIP(k, key, T.hit, acc); if (acc) sfx('softswish', T.hit - .05, -21); }
+    if (T.cut) A(l.parentNode.parentNode, [{opacity: 1, filter: 'blur(0)', translate: '0 0'}, {opacity: 0, filter: 'blur(16px)', translate: '0 -50px'}],
+      T.cut[1] - .18, .16, {e: 'cubic-bezier(.5,0,.9,.5)', f: 'forwards'});
   },
   text(F, T, lead, key) {
     const line = (txt, cls, size, t, big) => GLASS_FLIP(ovLine(F, '', cls, size), txt, t, big);
