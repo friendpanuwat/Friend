@@ -257,18 +257,20 @@
     icon(d, 0, -78, 88, c);
   });
 
-  /* 13 ── RIBBON: a banner with folded tails, unit under it, icon above */
-  variant('ribbon', 'แถบริบบิ้น', (d, c) => {
+  /* 13 ── LABEL MAKER: a hand label maker has printed the number on a strip of tape (user's pick over RIBBON, 2026-11-12) */
+  variant('labelmaker', 'เครื่องพิมพ์ฉลาก', (d, c) => {
     art(c, p => {
-      [-1, 1].forEach(s => { p.shape([[s * 470, -30], [s * 330, -30], [s * 330, 150], [s * 470, 150], [s * 425, 60]], F(3));
-        p.shape([[s * 380, 90], [s * 330, 150], [s * 330, 90]], F(2.6)); });
-      p.rect(-380, -90, 760, 180, Object.assign({ rx: 6 }, F(3.4)));
-      p.line(-350, -66, 350, -66, W(1.6)); p.line(-350, 66, 350, 66, W(1.6));
-      txt(p, d.value, 0, 52, { size: 150, maxW: 640 });
-      if (d.unit) txt(p, d.unit, 0, 245, { size: 58, weight: 600, color: C.soft, maxW: 720 });
-      dirBadge(p, d.dir, 380, -90, 32);
+      p.rect(-200, -78, 650, 156, Object.assign({ rx: 6 }, F(3)));
+      p.rect(-470, -190, 280, 390, Object.assign({ rx: 44 }, F(3.4)));
+      p.rect(-436, -150, 212, 80, Object.assign({ rx: 12 }, { fill: C.fill, sw: 2, stroke: C.soft }));
+      for (let r = 0; r < 3; r++) for (let k = 0; k < 5 - (r === 2 ? 1 : 0); k++) p.rect(-434 + k * 42 + (r === 2 ? 21 : 0), -36 + r * 44, 32, 30, Object.assign({ rx: 7 }, F(1.8)));
+      p.rect(-404, 100, 152, 30, Object.assign({ rx: 9 }, F(1.8)));
+      p.rect(-196, -26, 12, 52, Object.assign({ rx: 4 }, F(2)));
+      txt(p, d.value, 125, 46, { size: 130, maxW: 560 });
+      if (d.unit) txt(p, d.unit, 125, 160, { size: 52, weight: 600, color: C.soft, maxW: 600 });
+      dirBadge(p, d.dir, 450, -78, 30);
     });
-    icon(d, 0, -222, 140, c);
+    icon(d, 125, -190, 110, c);
   });
 
   /* 14 ── SHUTTER: a roller shutter has rolled up into its box, the number stands in the opening (user picked it over CUBE, 2026-11-12) */
@@ -343,29 +345,8 @@
     icon(d, -175, -150, 82, c);
   });
 
-  /* round-2 alternatives (2026-11-12): the user turned down neon / marker / letterboard for 19, and asked to redesign 13 too —
-     everyday objects with a mechanism (what the user picked so far: pinned note, roller shutter). Kept outside V until picked. */
-  const ALT19 = [], ALT13 = [];
-  const alt = (L, id, th, build) => L.push({ id, th, build });
-
-  /* 19a ── STAMP: a rubber stamp has just printed the number onto a sheet of paper */
-  alt(ALT19, 'stamp', 'ตรายาง', (d, c) => {
-    art(c, p => {
-      const q = p.child({ transform: 'rotate(-3 -110 70)' });
-      q.rect(-420, -140, 620, 400, Object.assign({ rx: 10 }, F(3.2)));
-      const t = txt(q, d.value, -110, d.unit ? 95 : 115, { size: 170, maxW: 460 }), bb = t.bb;
-      const bw = Math.max(bb.width, d.unit ? 260 : 0) + 70;
-      q.rect(f1(-110 - bw / 2), -40, f1(bw), d.unit ? 230 : 210, { rx: 18, sw: 4.4 });
-      if (d.unit) txt(q, d.unit, -110, 165, { size: 44, weight: 700, maxW: bw - 50 });
-      p.rect(200, -168, 200, 36, Object.assign({ rx: 6 }, F(3))); p.rect(214, -232, 172, 64, Object.assign({ rx: 10 }, F(3.2)));
-      p.rect(278, -286, 44, 54, F(2.8)); p.ellipse(300, -306, 58, 34, F(3.2)); p.line(228, -200, 372, -200, W(1.6));
-      dirBadge(p, d.dir, -420, -140, 32);
-    });
-    icon(d, 60, -250, 100, c);
-  });
-
-  /* 19b ── TYPEWRITER: the number has been typed on a sheet that sits in the platen roller */
-  alt(ALT19, 'typewriter', 'พิมพ์ดีด', (d, c) => {
+  /* 19 ── TYPEWRITER: the number has been typed on a sheet that sits in the platen roller (user's pick over ORBIT, 2026-11-12) */
+  variant('typewriter', 'พิมพ์ดีด', (d, c) => {
     art(c, p => {
       p.path('M -420 190 L 420 190 L 460 300 L -460 300 Z', F(3.2));
       for (let i = 0; i < 9; i++) p.rect(-300 + i * 66, 228, 42, 34, Object.assign({ rx: 8 }, F(2)));
@@ -377,87 +358,6 @@
       dirBadge(p, d.dir, 300, -270, 32);
     });
     icon(d, -220, -195, 80, c);
-  });
-
-  /* 19c ── DOT BOARD: an LED dot board — the number is made of lit dots (unlit dots are not drawn) */
-  const DOTS = { 0: ['01110', '10001', '10011', '10101', '11001', '10001', '01110'], 1: ['00100', '01100', '00100', '00100', '00100', '00100', '01110'],
-    2: ['01110', '10001', '00001', '00010', '00100', '01000', '11111'], 3: ['11110', '00001', '00001', '01110', '00001', '00001', '11110'],
-    4: ['00010', '00110', '01010', '10010', '11111', '00010', '00010'], 5: ['11111', '10000', '11110', '00001', '00001', '10001', '01110'],
-    6: ['00110', '01000', '10000', '11110', '10001', '10001', '01110'], 7: ['11111', '00001', '00010', '00100', '01000', '01000', '01000'],
-    8: ['01110', '10001', '10001', '01110', '10001', '10001', '01110'], 9: ['01110', '10001', '10001', '01111', '00001', '00010', '01100'],
-    ',': ['00', '00', '00', '00', '00', '01', '10'], '.': ['0', '0', '0', '0', '0', '0', '1'], '%': ['11001', '11010', '00010', '00100', '01000', '01011', '10011'] };
-  alt(ALT19, 'dots', 'ป้ายจุดไฟ', (d, c) => {
-    const G2 = [...String(d.value)].map(ch => DOTS[ch]).filter(Boolean), cols = G2.reduce((n, g) => n + g[0].length + 1, -1);
-    const pitch = Math.min(40, 740 / cols, 300 / 7), r = pitch * .36, w = cols * pitch, cy = d.unit ? -30 : 0;
-    art(c, p => {
-      p.rect(-420, -230, 840, 460, Object.assign({ rx: 28 }, F(3.4)));
-      p.rect(-390, -200, 780, 400, { rx: 14, fill: C.fill, sw: 2, stroke: C.soft });
-      let x = -w / 2 + pitch / 2;
-      G2.forEach(g => { g.forEach((row, ry) => [...row].forEach((b, cx) => { if (b === '1') p.circle(f1(x + cx * pitch), f1(cy - 3 * pitch + ry * pitch), f1(r), { fill: C.ink, sw: 1 }); })); x += (g[0].length + 1) * pitch; });
-      if (d.unit) txt(p, d.unit, 0, 168, { size: 50, weight: 600, color: C.soft, maxW: 700 });
-      dirBadge(p, d.dir, 420, -230, 32);
-    });
-    icon(d, -360, -290, 90, c);
-  });
-
-  /* 13a ── LABEL MAKER: a hand label maker has printed the number on a strip of tape */
-  alt(ALT13, 'labelmaker', 'เครื่องพิมพ์ฉลาก', (d, c) => {
-    art(c, p => {
-      p.rect(-200, -78, 650, 156, Object.assign({ rx: 6 }, F(3)));
-      p.rect(-470, -190, 280, 390, Object.assign({ rx: 44 }, F(3.4)));
-      p.rect(-436, -150, 212, 80, Object.assign({ rx: 12 }, { fill: C.fill, sw: 2, stroke: C.soft }));
-      for (let r = 0; r < 3; r++) for (let k = 0; k < 5 - (r === 2 ? 1 : 0); k++) p.rect(-434 + k * 42 + (r === 2 ? 21 : 0), -36 + r * 44, 32, 30, Object.assign({ rx: 7 }, F(1.8)));
-      p.rect(-404, 100, 152, 30, Object.assign({ rx: 9 }, F(1.8)));
-      p.rect(-196, -26, 12, 52, Object.assign({ rx: 4 }, F(2)));
-      txt(p, d.value, 125, 46, { size: 130, maxW: 560 });
-      if (d.unit) txt(p, d.unit, 125, 160, { size: 52, weight: 600, color: C.soft, maxW: 600 });
-      dirBadge(p, d.dir, 450, -78, 30);
-    });
-    icon(d, 125, -190, 110, c);
-  });
-
-  /* 13b ── STICKER: a round sticker, its edge curling up where it is being pressed on */
-  alt(ALT13, 'sticker', 'สติกเกอร์', (d, c) => {
-    const P = a => [f1(250 * Math.cos(rad(a))), f1(-10 + 250 * Math.sin(rad(a)))], A = P(18), B = P(72);
-    art(c, p => {
-      p.path(`M ${A[0]} ${A[1]} A 250 250 0 1 0 ${B[0]} ${B[1]} Z`, F(3.4));
-      p.path(`M ${A[0]} ${A[1]} Q 110 90 ${B[0]} ${B[1]} Q 150 140 ${A[0]} ${A[1]} Z`, { fill: C.fill, sw: 2.6, stroke: C.soft });
-      txt(p, d.value, -20, d.unit ? 40 : 60, { size: 180, maxW: 380 });
-      if (d.unit) txt(p, d.unit, -20, 112, { size: 46, weight: 600, color: C.soft, maxW: 300 });
-      dirBadge(p, d.dir, -200, -170, 32);
-    });
-    icon(d, -20, -160, 90, c);
-  });
-
-  /* 13c ── TENT SIGN: a folded card stands on a table, the number on its front face */
-  alt(ALT13, 'tent', 'ป้ายตั้งโต๊ะ', (d, c) => {
-    art(c, p => {
-      p.line(-470, 206, 470, 206, { sw: 2.2, stroke: C.soft });
-      p.path('M -350 -168 L 350 -168 L 330 -196 L -330 -196 Z', F(2.6));
-      p.path('M -350 -168 L 350 -168 L 392 204 L -392 204 Z', F(3.4));
-      p.line(-350, -168, 350, -168, W(3));
-      txt(p, d.value, 0, d.unit ? 72 : 95, { size: 210, maxW: 640 });
-      if (d.unit) txt(p, d.unit, 0, 152, { size: 50, weight: 600, color: C.soft, maxW: 620 });
-      dirBadge(p, d.dir, 350, -168, 32);
-    });
-    icon(d, 0, -268, 110, c);
-  });
-
-  /* 19 ── ORBIT: two orbits circle the number; the icon rides one of them */
-  variant('orbit', 'วงโคจร', (d, c) => {
-    const on = (rx, ry, rot, a) => { const x = rx * Math.cos(rad(a)), y = ry * Math.sin(rad(a)), r = rad(rot); return [x * Math.cos(r) - y * Math.sin(r), x * Math.sin(r) + y * Math.cos(r)]; };
-    const ip = on(420, 130, -14, 200), dp = on(420, 130, 14, 330);
-    art(c, p => {
-      p.child({ transform: 'rotate(-14)' }).ellipse(0, 0, 420, 130, { sw: 2.2, stroke: C.soft });
-      p.child({ transform: 'rotate(14)' }).ellipse(0, 0, 420, 130, { sw: 2.2, stroke: C.soft });
-      p.ellipse(0, 10, 285, 160, { fill: C.fill, stroke: 'none', sw: 0 });
-      txt(p, d.value, 0, d.unit ? 50 : 70, { size: 190, maxW: 480 });
-      if (d.unit) txt(p, d.unit, 0, 128, { size: 48, weight: 600, color: C.soft, maxW: 400 });
-      const pp = on(420, 130, -14, 20); p.circle(f1(pp[0]), f1(pp[1]), 14, F(3));
-      if (d.icon) p.circle(f1(ip[0]), f1(ip[1]), 62, F(3));
-      if (d.dir) dirBadge(p, d.dir, dp[0], dp[1], 32); else p.circle(f1(dp[0]), f1(dp[1]), 10, F(3));
-    });
-    icon(d, ip[0], ip[1], 90, c);
   });
 
   /* 20 ── STACK: a fan of three cards, the number on the front one */
@@ -520,5 +420,5 @@
   ];
 
   G.cats = G.cats || {};          // GL.B01 is taken by the older beats.js template
-  G.cats.B01 = { variants: V, ALT19, ALT13, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
+  G.cats.B01 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
 })();

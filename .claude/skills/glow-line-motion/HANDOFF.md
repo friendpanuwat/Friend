@@ -34,14 +34,12 @@
   ตาม CATEGORIES ข้อ 9, ทำวิดีโอ.
 - ผู้ใช้: **"Design 18 ใหม่ ผมไม่ชอบแบบนั้น"** (burst) → เสนอ 3 ทาง (iris / scroll / note) → ผู้ใช้ **"เอา C"** → แบบ 18 = `note` กระดาษโน้ตปักหมุด (burst ลบแล้ว).
 - ผู้ใช้: **"Redesign 14 ด้วย"** (cube) → เสนอ 3 ทาง (plinth / shutter / flip) → ผู้ใช้ **"B"** → แบบ 14 = `shutter` บานม้วน (cube ลบแล้ว).
-- ตอนนี้ 20 แบบ: hero drum lcd gauge ring bar ruler column frame spotlight hex sign ribbon **shutter** block lens card **note** orbit stack.
-  **รอผู้ใช้ตอบว่าภาพนิ่งทั้ง 20 ผ่านหรือยัง** → ผ่านแล้วค่อยใส่ท่าขยับ.
 - ผู้ใช้: **"Redesign 19"** (orbit) → รอบ 1 เสนอ neon / marker / letterboard → ผู้ใช้ **"ไม่ชอบเลยเอาใหม่" + "Redesign 13 ด้วย"** (ribbon).
   รสนิยมที่เห็น: เลือก **ของในชีวิตประจำวันที่มีกลไก** (กระดาษโน้ตปักหมุด, บานม้วน); ไม่เลือก: burst cube orbit ribbon neon marker letterboard iris scroll plinth flip.
-  → รอบ 2 เสนอ `ALT19`: A stamp ตรายาง · B typewriter พิมพ์ดีด · C dots ป้ายจุดไฟ (`alt19.html`, `b01-19-options.png`)
-  และ `ALT13`: A labelmaker เครื่องพิมพ์ฉลาก (แป้นแบบคีย์บอร์ด — แบบ 3×3 ดูเป็นเครื่องคิดเลข ไม่กลาง) · B sticker สติกเกอร์ · C tent ป้ายตั้งโต๊ะ
-  (`alt13.html`, `b01-13-options.png`). **รอผู้ใช้เลือก** → ใส่แทนใน `V` (orbit / ribbon) แล้วลบ ALT + แผ่น alt + ภาพ options
-  (python ตัดบล็อก, เปลี่ยน `alt(ALT19, ` → `variant(`, เอา ALT ออกจาก export).
+  → รอบ 2 เสนอ 19: stamp / typewriter / dots และ 13: labelmaker / sticker / tent → ผู้ใช้ **"19 b 13 a"** →
+  แบบ 19 = `typewriter` พิมพ์ดีด · แบบ 13 = `labelmaker` เครื่องพิมพ์ฉลาก (orbit, ribbon ลบแล้ว).
+- **ตอนนี้ 20 แบบ:** hero drum lcd gauge ring bar ruler column frame spotlight hex sign labelmaker shutter block lens card note typewriter stack.
+  แผ่นทั้ง 4 อัปเดตแล้ว. **รอผู้ใช้ตอบว่าภาพนิ่งทั้ง 20 "ผ่าน"** → แล้วค่อยใส่ท่าขยับ 3–4 จังหวะทีละแบบ + วิดีโอ.
 
 ## ✅ ตัวปรับท่าขยับกลาง — ทำเสร็จแล้ว (2026-11-12) · ผู้ใช้ตอบ **"ผ่าน"**
 
