@@ -14,6 +14,10 @@
   const slash = (q, x1, y1, x2, y2) => [q.line(x1, y1, x2, y2, { sw: 22, stroke: C.fill }), q.line(x1, y1, x2, y2, { sw: 6 })];
   /* a short flash: visible from a to b (in loop time) */
   const flash = (a, b) => [[0, 0], [a, 0], [a + .02, 1], [b, 0]];
+  /* clip-path made from a path in the drawing's own coordinates (returns the url to put on a group) */
+  let clipN = 0;
+  const clip = (q, d) => { const NS = 'http://www.w3.org/2000/svg', id = 'gl6clip' + (++clipN), cp = document.createElementNS(NS, 'clipPath'), pt = document.createElementNS(NS, 'path');
+    cp.setAttribute('id', id); pt.setAttribute('d', d); cp.appendChild(pt); q.g.appendChild(cp); return `url(#${id})`; };
   const R = {}, rig = (name, dur, exit, fn) => { fn.custom = true; fn.dur = dur; fn.exit = exit; R[name] = fn; };
 
   /* circle-alert — the disc lands, the tapered "!" jumps up as a warning, the disc rattles (shake marks), a ring pulses out */
@@ -119,11 +123,13 @@
     gl.path('M -84 -148 C -84 -60, -16 -30, -16 0 C -16 30, -84 60, -84 148 L 84 148 C 84 60, 16 30, 16 0 C 16 -30, 84 -60, 84 -148 Z', { fill: C.fill, sw: 3.2 });
     const sand = sub(hg), SAND = { fill: C.mute, stroke: C.soft, sw: 2.2 };
     on(sand, p, .7, { loop: T, o: [[0, 1], [2.4, 1], [2.55, 0], [3.05, 0], [3.3, 1], [T, 1]] });
-    const top = sub(sand), bot = sub(sand), fall = sub(sand);
-    top.path('M -62 -82 Q 0 -92 62 -82 C 48 -46, 16 -24, 6 -6 L -6 -6 C -16 -24, -48 -46, -62 -82 Z', SAND);
-    bot.path('M -80 142 C -64 100, -26 82, 0 80 C 26 82, 64 100, 80 142 Z', SAND);
-    on(top, p, .7, { loop: T, ox: 0, oy: -6, sy: [[0, 1], [.1, 1], [2.2, 0, 'lin'], [2.6, 0], [2.61, 1, 'lin'], [T, 1]], sx: [[0, 1], [1.6, .9], [2.2, .4], [2.6, .4], [2.61, 1, 'lin'], [T, 1]] });
-    on(bot, p, .7, { loop: T, ox: 0, oy: 142, sy: [[0, 0], [.2, 0], [2.3, 1, 'lin'], [2.6, 1], [2.61, 0, 'lin'], [T, 0]], sx: [[0, .5], [.2, .5], [2.3, 1, 'out'], [2.6, 1], [2.61, .5, 'lin'], [T, .5]] });
+    /* sand is clipped to the inside of each bulb, so it can never poke through the glass: the top surface sinks, the pile rises */
+    const inner = sd => `M -81 ${sd * 148} C -81 ${sd * 60}, -13 ${sd * 30}, -13 0 L 13 0 C 13 ${sd * 30}, 81 ${sd * 60}, 81 ${sd * 148} Z`;
+    const top = sub(sub(sand, { 'clip-path': clip(sand, inner(-1)) })), bot = sub(sub(sand, { 'clip-path': clip(sand, inner(1)) })), fall = sub(sand);
+    top.path('M -96 -84 Q 0 -96 96 -84 L 96 4 L -96 4 Z', SAND);
+    bot.path('M -100 156 L -100 140 C -64 98, -26 80, 0 78 C 26 80, 64 98, 100 140 L 100 156 Z', SAND);
+    on(top, p, .7, { loop: T, y: [[0, 0], [.1, 0], [2.2, 86, 'lin'], [2.6, 86], [2.61, 0, 'lin'], [T, 0]] });
+    on(bot, p, .7, { loop: T, y: [[0, 84], [.2, 84], [2.3, 0, 'out'], [2.6, 0], [2.61, 84, 'lin'], [T, 84]] });
     on(fall, p, .7, { loop: T, o: [[0, 0], [.1, 0], [.15, 1], [2.2, 1], [2.3, 0], [T, 0]] });
     fall.line(0, 0, 0, 130, { sw: 1.6, stroke: C.soft });
     [0, 1, 2].forEach(i => { const gr = sub(fall); gr.dot(-3 + i * 3, 0, 3.6, { fill: C.soft, stroke: C.soft });
