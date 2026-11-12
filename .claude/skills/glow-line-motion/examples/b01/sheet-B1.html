@@ -1,0 +1,21 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>B01 sheet B1</title>
+<script src="../../assets/glowline.js"></script><script src="b01.js"></script></head>
+<body><script>
+/* B01 ตัวเลขเด่น — designs 1–10, data set B (A = sentences from unrelated topics, B = stress data) */
+GL.run(() => {
+  GL.stage();
+  const SET = 'B', PG = 1, data = SET === 'A' ? GL.cats.B01.SAMPLES : GL.cats.B01.STRESS;
+  GL.text('B01 · ตัวเลขเด่น', { y: 70, size: 46, ls: 4, color: GL.C.kicker, glow: false });
+  GL.text(SET === 'A' ? 'ข้อมูลตัวอย่างจากหลายเรื่อง · แบบ ' + ((PG - 1) * 10 + 1) + '–' + PG * 10 : 'ข้อมูลโหด (ยาว / ไม่มีหน่วย / ไม่มีไอคอน) · แบบ ' + ((PG - 1) * 10 + 1) + '–' + PG * 10,
+    { y: 118, size: 30, weight: 500, color: GL.C.sub, glow: false });
+  const top = 150, rh = (GL.H - top - 10) / 5, s = .4;
+  for (let k = 0; k < 10; k++) {
+    const i = (PG - 1) * 10 + k, v = GL.cats.B01.variants[i], d = data[i], x = (k % 2 + .5) * GL.W / 2, y0 = top + Math.floor(k / 2) * rh, cy = y0 + 700 * s / 2 + 4;
+    GL.cats.B01.draw(i, d, { x, y: cy, s, at: 0 });
+    GL.text(String(i + 1).padStart(2, '0') + ' ' + v.id.toUpperCase() + ' · ' + v.th, { x, y: y0 + 700 * s + 34, size: 25, weight: 700, color: GL.C.ink, glow: false });
+    GL.text('“' + d.say + '”', { x, y: y0 + 700 * s + 62, size: 20, weight: 500, color: GL.C.mute, glow: false, maxW: GL.W / 2 - 30 });
+  }
+  GL.finish({ hold: 2 });
+});
+</script></body></html>
