@@ -1068,7 +1068,7 @@
       const sc = document.createElement('script'); sc.src = HERE + names[0];
       sc.onload = () => load(names.slice(1)); sc.onerror = () => { console.error('GL: ' + names[0] + ' not found'); load(names.slice(1)); };
       document.head.appendChild(sc); };
-    load(['beats.js', 'pro.js', 'detail.js', 'sets.js', 'pro2.js', 'pro3.js', 'pro4.js', 'pro5.js', 'pro6.js', 'pro7.js', 'pro8.js', 'pro9.js', 'pro10.js', 'pro11.js', 'pro12.js', 'pro13.js', 'people.js']);
+    load(['beats.js', 'pro.js', 'detail.js', 'sets.js', 'pro2.js', 'pro3.js', 'pro4.js', 'pro5.js', 'pro6.js', 'pro7.js', 'pro8.js', 'pro9.js', 'pro10.js', 'pro11.js', 'pro12.js', 'pro13.js', 'pro14.js', 'people.js']);
   });
 
   async function run(build) {

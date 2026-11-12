@@ -1,6 +1,6 @@
 # HANDOFF — glow-line-motion · ไอคอน `-pro` (ชุดไอคอนที่ CutPack ใช้)
 
-อัปเดตล่าสุด: 2026-11-12 · branch `ccr-e5509ed3-id7gvt` (push แล้ว, **ยังไม่มี PR** — เปิดเมื่อผู้ใช้สั่งเท่านั้น; ชุด 1–5 merge แล้วใน PR #19)
+อัปเดตล่าสุด: 2026-11-12 · branch `ccr-5f414913-nr4ptm` (push แล้ว, **ยังไม่มี PR** — เปิดเมื่อผู้ใช้สั่งเท่านั้น; ถึงชุด 13 + people.js merge แล้วใน PR #19/#20)
 คุยกับผู้ใช้เป็นภาษาไทย สุภาพ ลงท้าย "ครับ". ผู้ใช้สั่งงานจากมือถือ — ห้ามขอให้เขารันคำสั่งเอง.
 
 ## งานคืออะไร
@@ -11,20 +11,18 @@
 - **รายชื่อทั้งหมด + ลำดับความสำคัญ: `references/cutpack-icon-list.txt`** (ไฟล์ของผู้ใช้, ลำดับ 1 = #1–95, ลำดับ 2 = #96–132, ลำดับ 3 = #133–308)
 - ไอคอนชุดนี้ **ยังไม่ได้เชื่อมเข้า CutPack** (CutPack ใช้ Lucide 24×24 คนละระบบ) — บอกผู้ใช้ไปแล้ว.
 
-## สถานะ (2026-11-12): เสร็จ 207 / 308 · พักไว้ (อวัยวะ) 10 · **เหลือทำ 91**
+## สถานะ (2026-11-12): เสร็จ 227 / 308 · พักไว้ (อวัยวะ) 10 · **เหลือทำ 71**
 
-- ลำดับ 1 ✅ (เว้นอวัยวะ) · ลำดับ 2 ✅ (เว้นอวัยวะ) · ลำดับ 3 ทำแล้ว 80 จาก 171 (#133–214 ✅)
-- ทุกชุดถึงชุด 13 ผู้ใช้ตอบ "ผ่าน" แล้ว. งานล่าสุด = **ไอคอน user แบบใหม่** (`people.js`) ส่งแล้ว ผู้ใช้ไม่ได้ติ แล้วสั่งให้ทำ handoff นี้
-  → แชทใหม่: ถามผู้ใช้สั้น ๆ ว่า user ใหม่ผ่านไหม แล้วเริ่ม **ชุด 14** เมื่อผู้ใช้สั่ง
+- ลำดับ 1 ✅ (เว้นอวัยวะ) · ลำดับ 2 ✅ (เว้นอวัยวะ) · ลำดับ 3 ทำแล้ว 100 จาก 171 (#133–235 ✅ เว้น scan-eye)
+- ทุกชุดถึงชุด 13 ผู้ใช้ตอบ "ผ่าน" แล้ว (user ใหม่ `people.js` ผู้ใช้ไม่ได้ติ แล้วสั่งเริ่มชุด 14 ต่อเลย).
+- **ชุด 14 ส่งแล้ว (`pro14.js`) — รอผู้ใช้ตอบ "ผ่าน"** ก่อนเริ่มชุด 15.
 
-### รอบถัดไป — ชุด 14 (`pro14.js`, ลำดับ 3 #215–235, ข้าม scan-eye)
-party-popper · smile-plus · bus · car · church · compass · flower · globe · hospital · house · map · mountain · navigation · plane · ship ·
-sprout · tent · train-front · trees · star-off
-(globe/house/map มีแบบ basic อยู่แล้ว → ทำ `-pro` ใหม่, ของเดิมจะถูกเก็บเป็น `<ชื่อ>-basic` อัตโนมัติด้วยโค้ด ALIAS)
+### รอบถัดไป — ชุด 15 (`pro15.js`)
+wand-sparkles · apple · battery-charging · battery-full · bed · bed-double · bike · cigarette-off · glass-water · pill · stethoscope ·
+thermometer · zap-off · banana · beef · cake · candy · carrot · chef-hat · cherry
 
-### ที่เหลือหลังจากนั้น (71 อัน, ตามลำดับในไฟล์)
-wand-sparkles apple battery-charging battery-full bed bed-double bike cigarette-off glass-water pill stethoscope thermometer zap-off ·
-banana beef cake candy carrot chef-hat cherry citrus coffee cookie cooking-pot croissant cup-soda egg grape ice-cream-cone pizza sandwich soup wheat ·
+### ที่เหลือหลังจากนั้น (51 อัน, ตามลำดับในไฟล์)
+citrus coffee cookie cooking-pot croissant cup-soda egg grape ice-cream-cone pizza sandwich soup wheat ·
 bot cloud code cog cpu database filter hammer link-2 plug power qr-code wifi wifi-off wrench ·
 badge-dollar-sign calculator circle-dollar-sign clipboard-check contact credit-card file-text goal id-card landmark percent piggy-bank presentation receipt
 shopping-bag truck · calendar-check calendar-x moon sun sunrise sunset timer
@@ -52,6 +50,7 @@ heart-handshake · thumbs-up · hand · footprints · hand-heart · hand-helping
 | `pro11.js` | 11 A/B | bell-ring camera clapperboard film messages-square mic mic-off music newspaper pause · play radio tv archive file-question folder folder-open inbox kanban keyboard |
 | `pro12.js` | 12 A/B | laptop library list-checks list-ordered list-todo microscope monitor notebook notebook-pen pencil · school brush camera-off dice-5 gamepad-2 key-round lamp paintbrush recycle ruler |
 | `pro13.js` | 13 A/B | scissors shirt sofa ticket umbrella accessibility baby contact-round* person-standing user-round* · users-round* ban circle-x shield-alert shield-x siren square-check annoyed laugh meh — **มี `GL.parts.human`** |
+| `pro14.js` | 14 A/B | party-popper smile-plus bus car church compass flower globe hospital house · map mountain navigation plane ship sprout tent train-front trees star-off — **globe วาดเส้นเมริเดียนใหม่ทุกเฟรมผ่าน `HOOK` (ห่อ `window.setT`)**; มี `puff()` (ควัน) |
 | `people.js` | — (โหลดท้ายสุด) | **user แบบใหม่** แทนทุกอันที่มี `*` (user users user-plus user-check user-x user-round users-round contact-round) — **มี `GL.parts.bizUser`** |
 
 `*` = ถูก `people.js` ทับแล้ว (โค้ดเก่ายังอยู่ในไฟล์เดิม แต่ทุกชื่อ/alias ชี้ไปตัวใหม่). `†` = อวัยวะที่พักไว้.
@@ -110,7 +109,7 @@ rig('flag-pro', .6, 'rise', p => {           // ชื่อ, เวลาท่
 - ท้ายไฟล์: `Object.assign(G.icons, R)` + ALIAS (ชื่อ Lucide → `-pro`, ของเดิมเก็บเป็น `-basic`) + `G.PRO14 = names.map(n => n + '-pro')`.
   เพิ่มไฟล์เข้า loader ใน `assets/glowline.js` **ก่อน `'people.js'`** (people.js ต้องโหลดท้ายสุด).
 
-## ขั้นตอนต่อรอบ
+## ขั้นตอนต่อรอบ (ตัวอย่างเขียนเป็นชุด 14 — เปลี่ยนเลขเป็นชุดปัจจุบัน)
 
 1. เขียน `assets/pro14.js` + เพิ่มเข้า loader (ก่อน people.js).
 2. แผ่น: `for v in a b; do sed -e "s/GL.PRO13/GL.PRO14/" -e "s/BATCH 13 · /BATCH 14 · /" -e "s/pro13.js/pro14.js/" examples/pro-icons-13$v.html > examples/pro-icons-14$v.html; done`
@@ -124,7 +123,7 @@ rig('flag-pro', .6, 'rise', p => {           // ชื่อ, เวลาท่
 
 ## ไฟล์ผลงาน (`motion/glow-line-pro-icons/`)
 
-- วิดีโอ + ภาพนิ่งทุกแผ่น: `pro-icons-grid.mp4` (ชุด 1), `pro-icons-batch2.mp4`, `pro-icons-batch3a/3b … 13a/13b.mp4`, `pro-icons-batch7a.mp4`,
+- วิดีโอ + ภาพนิ่งทุกแผ่น: `pro-icons-grid.mp4` (ชุด 1), `pro-icons-batch2.mp4`, `pro-icons-batch3a/3b … 14a/14b.mp4`, `pro-icons-batch7a.mp4`,
   `pro-icons-people.mp4` (user ใหม่ทั้ง 8 อัน) + `*-still.png`; `pro-icons-tour.mp4` (ชุด 1 ทีละอันเต็มจอ).
 - แผ่นที่มีไอคอนคนถูก render ใหม่หลังเปลี่ยน user แล้ว: batch2, 3a, 4a, 8b, 13a, 13b.
 - ภาพเทียบ: `detail6/` `detail8/` (ก่อน-หลังเพิ่มรายละเอียด), `cleanup/` (ลดรายละเอียด, `book-ruled-lines.png`, `human-figure.png`),
