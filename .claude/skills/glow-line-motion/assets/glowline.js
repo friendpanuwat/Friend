@@ -1027,7 +1027,7 @@
       const sc = document.createElement('script'); sc.src = HERE + names[0];
       sc.onload = () => load(names.slice(1)); sc.onerror = () => { console.error('GL: ' + names[0] + ' not found'); load(names.slice(1)); };
       document.head.appendChild(sc); };
-    load(['beats.js', 'pro.js', 'detail.js', 'sets.js', 'pro2.js', 'pro3.js']);
+    load(['beats.js', 'pro.js', 'detail.js', 'sets.js', 'pro2.js', 'pro3.js', 'pro4.js']);
   });
 
   async function run(build) {
