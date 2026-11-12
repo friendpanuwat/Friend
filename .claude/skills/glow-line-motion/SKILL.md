@@ -102,6 +102,8 @@ skill นี้ใช้สไตล์นั้นกับ **คลิปไ�
 | `assets/beats.js` | ฉาก B01–B21 + ไอคอนชุดใหม่ (โหลดเองพร้อมเอนจิน) |
 | `assets/pro.js` | **มาตรฐานไอคอนที่ผู้ใช้เลือก**: 10 แบบ (`*-pro`) แบบ rig + คีย์เฟรม; ชื่อธรรมดา (`heart` `rocket` `target` …) ชี้มาที่นี่แล้ว — ไอคอนใหม่ทำตามแบบนี้ (`style.md` ข้อ 0) |
 | `assets/template.html` | scene เปล่าเริ่มต้น |
+| `HANDOFF.md` | สถานะงานไอคอน `-pro` (80/95), กฎที่ผู้ใช้ตั้ง, วิธีทำรอบต่อไป — อ่านก่อนทำไอคอนเพิ่ม |
+| `scripts/check_icons.js` | ตรวจว่าไม่มีไอคอน `-pro` ไหนโผล่ก่อนเวลา (รันทุกครั้งที่แก้/เพิ่มไอคอน) |
 | `scripts/render.js` | scene → MP4 / still / storyboard / MOV alpha |
 | `scripts/new_scene.sh` · `check_env.sh` · `deliver_github.sh` | สร้าง scene · ตรวจเครื่อง · ส่งไฟล์ใหญ่ผ่าน GitHub |
 

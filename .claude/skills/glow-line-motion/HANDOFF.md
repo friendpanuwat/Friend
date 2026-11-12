@@ -1,0 +1,93 @@
+# HANDOFF — glow-line-motion · ไอคอน `-pro` (ชุดไอคอนที่ CutPack ใช้บ่อย)
+
+อัปเดตล่าสุด: 2026-11-12 · branch `ccr-01c9939d-6t0ncp` (push แล้ว, **ยังไม่มี PR** — เปิดเมื่อผู้ใช้สั่งเท่านั้น)
+คุยกับผู้ใช้เป็นภาษาไทย สุภาพ ลงท้าย "ครับ". ผู้ใช้สั่งงานจากมือถือ — ห้ามขอให้เขารันคำสั่งเอง.
+
+## งานคืออะไร
+
+วาดไอคอนที่ผู้ใช้ใช้บ่อยใน CutPack (PDF `icons_preview.pdf` ของผู้ใช้: Lucide 308 อัน, **ลำดับ 1 = 95 อัน**) ใหม่ในสไตล์
+glow-line `-pro` ของ skill นี้: เส้นขาวเรืองแสงบนพื้นดำ, ถมดำโปร่ง, ชิ้นส่วนแยกเป็น rig ขยับด้วยคีย์เฟรม.
+ตั้งชื่อตาม Lucide ภาษาอังกฤษ (`<ชื่อ>-pro` + alias ชื่อธรรมดา). ทำรอบละ ~20 อัน แบ่ง 2 แผ่น (A/B แผ่นละ 10).
+
+> ไอคอนชุดนี้ **ยังไม่ได้เชื่อมเข้า CutPack** (CutPack ใช้ Lucide 24×24 คนละระบบ, และ `cutpack/HANDOFF.md` บอกว่ายกเลิก skill นี้ในฉากรอบ 11) — บอกผู้ใช้ไปแล้ว.
+
+## สถานะ: เสร็จ 80 / 95
+
+| ไฟล์ | ไอคอน |
+|---|---|
+| `assets/pro.js` (ชุด 1) | heart bell alarm bulb mail rocket growth gears target notify |
+| `assets/pro2.js` (ชุด 2) | user sparkles brain check triangle-alert message-circle coins package trending-down briefcase |
+| `assets/pro3.js` (ชุด 3) | bookmark circle-help users eye utensils-crossed search handshake* infinity image user-plus tag wallet calendar repeat book-open ear* fish crown message-circle-question share-2 |
+| `assets/pro4.js` (ชุด 4) | book languages trash-2 user-check circle-check x thumbs-down* puzzle biceps-flexed* heart-pulse zap banknote store bookmark-check arrow-right message-circle-warning video graduation-cap octagon-alert shield |
+| `assets/pro5.js` (ชุด 5) | heart-crack heart-off map-pin lightbulb-off battery-low droplets utensils award message-circle-heart arrow-down arrow-up phone lock star arrow-left-right link quote send pen-line printer |
+
+`*` = อวัยวะคน — ทำไปก่อนผู้ใช้สั่งพัก, **ยังไม่ได้ปรับตามกฎล่าสุด** (ยังมีรายละเอียดเดิม). จะกลับมาทำทีหลังพร้อมชุดที่พักไว้.
+
+**เหลือ 13 อัน (ทำต่อได้, ผู้ใช้เคยตกลงว่าทำรอบเดียวจบ)** — ผู้ใช้สั่ง "อย่าเพิ่งทำชุดต่อไป" ตอนย้ายแชท → **รอผู้ใช้สั่งก่อน**:
+circle-alert · lock-open · eye-off · flag · megaphone · trophy · hourglass · arrow-down-up · chevrons-left-right · phone-off · pin (หมุดปัก) · rewind · sliders-horizontal
+
+**พักไว้ (อวัยวะคน — ผู้ใช้สั่งให้ข้ามไปก่อน)**: hand · thumbs-up (ใช้ `GL.parts.thumbHand` ใน pro4.js ได้) · footprints · heart-handshake ·
+smile · frown (หน้าคน — ผมพักไว้เผื่อนับเป็นอวัยวะ, บอกผู้ใช้แล้ว ยังไม่ได้คำตอบ)
+
+## กฎที่ผู้ใช้ตั้ง (สำคัญ — สะสมมาทั้งแชท, บันทึกไว้ใน `references/style.md` §0 ด้วย)
+
+1. **ทรง = แบบ `-pro` ปัจจุบัน** — ผู้ใช้ดูภาพรวม 80 อันแล้วบอก "เอาแบบเดิมแหละครับ ผมชอบสุด". เคยเสนอแนว A "มีมิติ" / B "เส้นเว้นช่อง"
+   (`examples/house-style.html`, ภาพ `motion/glow-line-pro-icons/house-style/`) — ไม่เลือก. ห้ามเปลี่ยนแนวเองโดยไม่ถาม.
+   (ก่อนหน้านั้นผู้ใช้เคยบอก "อยากให้ลอกต้นฉบับ Lucide น้อย ๆ หน่อย" — แต่สุดท้ายเลือกแบบเดิม; ถ้าจะออกแบบอันใหม่ ให้เป็นภาพวาดของเราเองที่ไม่ใช่ glyph Lucide เป๊ะ ๆ แต่ยังอยู่ในแนวเดิม.)
+2. **รายละเอียดเท่าที่มีความหมาย** — ไม่ใส่ตะเข็บเส้นประ, หมุด/น็อตเรียงแถว, วงขีดรอบวงกลม, เส้นขอบในซ้อน, กระดุม, บาร์โค้ด, ตัวหนังสือจิ๋ว, เส้น `C.mute` บาง ๆ.
+   อันไหนใส่ไม่ได้ก็ไม่ต้องพยายามใส่.
+3. **ไม่มีแสงสะท้อน "เส้นโค้ง + จุด"** (ผู้ใช้ว่าดูเหมือน "!") และ **ไม่มีดาวระยิบระยับประดับ** (ดาวได้เฉพาะเมื่อดาวคือความหมาย หรือเป็นลายบนวัตถุ).
+4. **ทุกไอคอนต้องมีท่าเข้า + ท่าขยับวน + ท่าออก** ("อย่าลืมท่าออกนะครับ"). ท่าออกสะท้อนท่าเข้า (ดูตารางด้านล่าง).
+5. **ห้ามมีชิ้นไหนโผล่ก่อนเวลาของมัน** (เคยเป็นบั๊ก: ถังขยะ/ภาษา/กากบาท) — รัน `node scripts/check_icons.js` ทุกครั้ง ต้องได้ `done N` ไม่มีบรรทัด `LEAK`.
+6. อวัยวะคน → ข้ามไปก่อน.
+7. แก้ทั้งชุดใหญ่ ๆ → **ส่งเป็นภาพก่อน** (ภาพนิ่ง / ภาพเทียบก่อน-หลัง) แล้วค่อยทำวิดีโอ.
+8. ไม่มีสี — ขาว/เทา/ดำ, วัสดุดำโปร่ง (ไม่เอาสีเงิน).
+
+## โครงไอคอน `-pro` (วิธีเขียนอันใหม่)
+
+เริ่มจากคัดลอกหัวไฟล์ `assets/pro5.js` (helper: `sub` `on` `pop` `drop` `twinkle` `tube` `shakeKeys` `star4`, `HEART` `BUBBLE` `BULB`).
+
+```js
+rig('flag-pro', .6, 'sink', p => {          // ชื่อ, เวลาท่าเข้า (วิ), ท่าออก, ฟังก์ชันวาด
+  const intro = sub(p), part = sub(intro);   // ทุกชิ้นที่ขยับ = group ของตัวเอง
+  part.path('...', { fill: C.fill, sw: 3.2 }); // เส้นหลัก ~3, ถม C.fill; รายละเอียด sw 1.4–2.4 C.soft
+  on(part, p, .7, { loop: 2.4, ox, oy, r: [[0, 0], [.3, 8, 'out'], [.8, 0, 'soft']] });  // วน — เริ่มหลังท่าเข้า
+  pop(p, intro);                             // ท่าเข้า — ทุกชิ้นต้องอยู่ใต้ intro (หรือมี kf o:0 ของตัวเอง)
+});
+```
+
+- กล่องวาด ±200 (เลข 400 = ความกว้างใน `GL.art(..., { w })`). ป้ายชื่อในแผ่นอยู่ใต้ไอคอน — อย่าให้ของล้นลงไปเกิน y ≈ 190.
+- คีย์เฟรม: `GL.kf(el, start, { loop, ox, oy, x, y, r, s, sx, sy, ky, o, draw })`, ease: `lin in out io back soft`.
+  ก่อนเริ่ม = ค่าคีย์แรก → ของที่ต้องซ่อนก่อนถึงคิวให้คีย์แรก `o: 0`.
+- ท่าออก (`GL.EXIT` ใน `glowline.js`): `pop` `rise` `sink` `slide` `slideL` `launch` `spin` `squash` `blink` `fade` หรือ object ตั้งเอง
+  (เช่น send-pro บินขึ้นขวา `{ kind:'slide', x:[...], y:[...] }`). กฎจับคู่: หล่นลงมา→`rise`, ลอยขึ้นมา→`sink`, เข้าจากซ้าย→`slide`,
+  จรวด→`launch`, หลอดไฟ/สายฟ้า→`blink`, เฟือง/ดาว/วงวน→`spin`, กล่อง/กราฟ→`squash`, ที่เหลือ→`pop`.
+  ไฟล์เก่า (pro–pro4) ตั้งท่าออกด้วย `Object.entries({...}).forEach(([n,k]) => R[n].exit = k)` ท้ายไฟล์; pro5 ส่งเป็นอาร์กิวเมนต์ที่ 3 ของ `rig`.
+- เอนจิน: `art(..., { out: T, exit })`, `a.leave(T)`, `GL.page` เล่นท่าออกเองก่อนเปลี่ยนหน้า, `GL.finish({ hold, out: true, stagger })`.
+- ท้ายไฟล์: `Object.assign(G.icons, R)` + ALIAS (ชื่อ Lucide → `-pro`, ของเดิมเก็บเป็น `<ชื่อ>-basic`) + `G.PRO6 = Object.keys(R)`.
+- เพิ่มไฟล์ใหม่เข้า loader ใน `assets/glowline.js`: `load([... 'pro5.js', 'pro6.js'])`.
+
+## ขั้นตอนต่อรอบ (ที่ใช้มาตลอด)
+
+1. เขียน `assets/proN.js` (20 อัน) + เพิ่มเข้า loader.
+2. แผ่น: `sed -e "s/GL.PRO5/GL.PRO6/" -e "s/BATCH 5 · A/BATCH 6 · A/" examples/pro-icons-5a.html > examples/pro-icons-6a.html` (และ b — `slice(10, 20)`).
+3. `node scripts/check_icons.js` → ต้องไม่มี LEAK.
+4. ภาพนิ่ง (ก่อนท่าออก): `node scripts/render.js examples/pro-icons-6a.html <scratch>/a --still --at 4.2 --scale 2` → เปิดดู แก้ของล้น/ชน.
+5. วิดีโอ: `node scripts/render.js examples/pro-icons-6a.html <scratch>/va --name pro-icons-batch6a` (~1 นาที/แผ่น).
+   ดูท่าออก: `ffmpeg -ss <ยาว-1.4> -i x.mp4 -vf "fps=8,scale=270:-1,tile=6x2" -frames:v 1 ex.jpg`.
+6. คัดลอก mp4 + still ไป `motion/glow-line-pro-icons/` (`pro-icons-batch6a.mp4`, `pro-icons-batch6a-still.png`), commit + push.
+7. ส่งผู้ใช้ (SendUserFile) + สรุปไทย: ตาราง A/B, ท่าขยับเด่น, ที่แก้ระหว่างทำ, ความคืบหน้า, รายชื่อรอบถัดไป → **รอ "ผ่าน" ก่อนเริ่มรอบใหม่**.
+
+## ไฟล์ผลงาน (`motion/glow-line-pro-icons/`)
+
+- วิดีโอล่าสุดทั้ง 8 แผ่น (ลดรายละเอียด + ไม่มีแสงสะท้อน/ดาว + มีท่าออก): `pro-icons-grid.mp4` (ชุด 1), `pro-icons-batch2.mp4`,
+  `pro-icons-batch3a/3b.mp4`, `pro-icons-batch4a/4b.mp4`, `pro-icons-batch5a/5b.mp4` + `*-still.png` (ภาพนิ่งที่ 4.6 วิ)
+- `cleanup/compare-1…6.jpg` ก่อน/หลังลดรายละเอียด · `house-style/` ภาพรวม 80 อัน + ข้อเสนอแนว A/B
+- `pro-icons-tour.mp4` = **ของเก่า** (ก่อนลดรายละเอียด) — ยังไม่ได้ render ใหม่
+
+## อื่น ๆ ที่ค้าง / ควรรู้
+
+- ไอคอนอวัยวะคน 4 อันที่ทำแล้ว (handshake ear thumbs-down biceps-flexed) ยังไม่ได้ผ่านกฎข้อ 2–3 — ทำตอนกลับมาทำชุดอวัยวะ.
+- push ปกติได้ (fast-forward); `--force-with-lease` เคยถูกปฏิเสธ. Default branch ของ repo คือ `ccr-045810ba-gj4imq` (PR #10–#16 merge แล้ว).
+- commit message ลงท้ายด้วยบรรทัด attribution ตามที่ระบบกำหนด; ห้ามใส่ชื่อโมเดลในไฟล์/commit.
+- ทิศทางที่ลองแล้วไม่ถูกเลือก (เก็บไว้เป็นทางเลือก): `assets/detail.js` (-hd/-mn), `assets/sets.js`, วัสดุสีเงิน, `examples/house-style.html`.
