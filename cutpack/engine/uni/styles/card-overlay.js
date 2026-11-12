@@ -2,7 +2,8 @@
    STYLE · card-overlay (+ card-overlay-big) — the card style as small widgets over the speaker
    (Friend's skill talking-head-editorial-overlay). Same look as `card` (styles/card.js), only these change:
    1 frame    no full-screen card: the speaker stays on screen, the picture is a flat card above the head (overlay.js)
-   5 words    inside the card: the lead in small Mitr, the key word in the lime box; a hard zoom cut on the key word
+   5 words    inside the card: the lead in small Mitr, the key word in the lime box; a hard zoom cut on the key word (test pages only:
+              a real clip uses the slow camera of core.js, Friend 2026-11-12 "ซูมช้า 4–5 ครั้ง"); the subtitle sizes of the skill
    ===================================================================== */
 const CARD_OV = {
   name: 'การ์ด แบบ overlay',

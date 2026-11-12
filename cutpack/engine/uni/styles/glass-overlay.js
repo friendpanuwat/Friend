@@ -4,6 +4,7 @@
    1 frame    the speaker is NOT blurred or darkened; the picture is a dark see-through card above the head (overlay.js),
               no backdrop blur (the skill says so)
    5 words    inside the card, every letter flips up in 3D, the key word lights up light blue; a slow push-in, never a cut
+              (a real clip: the slow camera of core.js); the subtitle in the skill's three sizes (Sriracha / white Mitr / light blue)
    ===================================================================== */
 /* every letter flips up in 3D; a big line lights white → light blue */
 function GLASS_FLIP(s, txt, t, big) {
