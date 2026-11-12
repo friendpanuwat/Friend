@@ -343,6 +343,53 @@
     icon(d, -175, -150, 82, c);
   });
 
+  /* 19 alternatives (user asked to redesign ORBIT, 2026-11-12) — kept outside V until the user picks one */
+  const ALT19 = [];
+  const alt = (id, th, build) => ALT19.push({ id, th, build });
+
+  /* 19a ── NEON: the number is a bent glass tube on a backboard that hangs on two wires, a cord runs off */
+  alt('neon', 'ป้ายไฟนีออน', (d, c) => {
+    art(c, p => {
+      p.line(-300, -330, -300, -200, W(2)); p.line(300, -330, 300, -200, W(2));
+      p.path('M 400 140 C 450 150, 455 230, 420 260 C 395 282, 420 320, 470 322', W(2.6));
+      p.rect(-400, -200, 800, 380, Object.assign({ rx: 30 }, F(3.2)));
+      [[-360, -160], [360, -160], [-360, 140], [360, 140]].forEach(([x, y]) => p.circle(x, y, 8, W(2)));
+      const t = txt(p, d.value, 0, d.unit ? 55 : 75, { size: 220, maxW: 660, color: 'none' });
+      t.e.setAttribute('stroke', C.ink); t.e.setAttribute('stroke-width', 11); t.e.setAttribute('stroke-linejoin', 'round');
+      const u = t.e.cloneNode(true); u.setAttribute('stroke', C.fill); u.setAttribute('stroke-width', 4); t.e.parentNode.appendChild(u);
+      if (d.unit) txt(p, d.unit, 0, 138, { size: 50, weight: 600, color: C.soft, maxW: 640 });
+      dirBadge(p, d.dir, 400, -200, 32);
+    });
+    icon(d, -300, -130, 80, c);
+  });
+
+  /* 19b ── MARKER: a pen loop circles the number and a swoosh underlines it */
+  alt('marker', 'วงปากกาเน้น', (d, c) => {
+    art(c, p => {
+      const t = txt(p, d.value, 0, 70, { size: 240, maxW: 640 }), bb = t.bb;
+      const rx = bb.width / 2 + 60, ry = 175, cx = bb.x + bb.width / 2, cy = -12;
+      p.path(`M ${f1(cx + rx * .7)} ${f1(cy - ry * .78)} C ${f1(cx + rx * 1.36)} ${f1(cy - ry * .2)}, ${f1(cx + rx * 1.2)} ${f1(cy + ry * .98)}, ${f1(cx)} ${f1(cy + ry)}` +
+        ` C ${f1(cx - rx * 1.36)} ${f1(cy + ry * 1.02)}, ${f1(cx - rx * 1.38)} ${f1(cy - ry * .92)}, ${f1(cx - rx * .05)} ${f1(cy - ry * 1.02)} C ${f1(cx + rx * .45)} ${f1(cy - ry * 1.08)}, ${f1(cx + rx * .8)} ${f1(cy - ry * .9)}, ${f1(cx + rx * .92)} ${f1(cy - ry * .62)}`, { sw: 6 });
+      p.path(`M ${f1(cx - rx * .7)} 228 Q ${f1(cx)} 200 ${f1(cx + rx * .75)} 214`, { sw: 6 });
+      if (d.unit) txt(p, d.unit, 0, 300, { size: 54, weight: 600, color: C.soft, maxW: 700 });
+      dirBadge(p, d.dir, Math.min(450, cx + rx + 30), cy - ry * .6, 32);
+    });
+    icon(d, -420, -270, 100, c);
+  });
+
+  /* 19c ── LETTERBOARD: a framed board with grooves, the number pressed in as letters, the unit on the row below */
+  alt('letterboard', 'กระดานตัวอักษร', (d, c) => {
+    art(c, p => {
+      p.rect(-430, -240, 860, 480, Object.assign({ rx: 12 }, F(3.6)));
+      p.rect(-400, -210, 800, 420, { rx: 4, fill: C.fill, sw: 2, stroke: C.soft });
+      for (let y = -186; y <= 190; y += 28) p.line(-392, y, 392, y, { sw: 1.2, stroke: C.rule });
+      txt(p, d.value, 0, d.unit ? 70 : 90, { size: 200, maxW: 700, ls: 12 });
+      if (d.unit) txt(p, d.unit, 0, 164, { size: 56, weight: 700, maxW: 680, ls: 6 });
+      dirBadge(p, d.dir, 430, -240, 32);
+    });
+    icon(d, 0, -300, 96, c);
+  });
+
   /* 19 ── ORBIT: two orbits circle the number; the icon rides one of them */
   variant('orbit', 'วงโคจร', (d, c) => {
     const on = (rx, ry, rot, a) => { const x = rx * Math.cos(rad(a)), y = ry * Math.sin(rad(a)), r = rad(rot); return [x * Math.cos(r) - y * Math.sin(r), x * Math.sin(r) + y * Math.cos(r)]; };
@@ -420,5 +467,5 @@
   ];
 
   G.cats = G.cats || {};          // GL.B01 is taken by the older beats.js template
-  G.cats.B01 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
+  G.cats.B01 = { variants: V, ALT19, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
 })();

@@ -36,6 +36,9 @@
 - ผู้ใช้: **"Redesign 14 ด้วย"** (cube) → เสนอ 3 ทาง (plinth / shutter / flip) → ผู้ใช้ **"B"** → แบบ 14 = `shutter` บานม้วน (cube ลบแล้ว).
 - ตอนนี้ 20 แบบ: hero drum lcd gauge ring bar ruler column frame spotlight hex sign ribbon **shutter** block lens card **note** orbit stack.
   **รอผู้ใช้ตอบว่าภาพนิ่งทั้ง 20 ผ่านหรือยัง** → ผ่านแล้วค่อยใส่ท่าขยับ.
+- ผู้ใช้: **"Redesign 19"** (orbit) → เสนอ 3 ทาง `GL.cats.B01.ALT19`: A neon ป้ายไฟนีออน · B marker วงปากกาเน้น · C letterboard กระดานตัวอักษร
+  (แผ่น `examples/b01/alt19.html`, ภาพ `motion/glow-line-cats/b01/b01-19-options.png`). **รอผู้ใช้เลือก** → ใส่แทน orbit ใน `V` แล้วลบ orbit + ALT19 ที่เหลือ
+  (ทำแบบเดียวกับรอบ 14/18: python ตัดบล็อก, เปลี่ยน alt( → variant(, เอา ALT ออกจาก export, ลบแผ่น altNN.html + ภาพ options).
 
 ## ✅ ตัวปรับท่าขยับกลาง — ทำเสร็จแล้ว (2026-11-12) · ผู้ใช้ตอบ **"ผ่าน"**
 
