@@ -73,35 +73,6 @@ R3.both('B01', 'flip', 'ป้ายตัวเลขพลิกแบบส�
   if (s.dir) { const d = K.badge(g, s.dir === 'down' ? 'trending-down' : 'trending-up', Math.min(x0 + W + 30, 560), Y - th / 2 - 22, 60, T.hit + .2, {tone: 'acc', shape: 'round'}); K.punch(d.p, T.hit + .5); }
 });
 
-/* 6 · a calculator: keys are pressed one by one, the number grows on the screen, "=" lands it on the key word */
-R3.both('B01', 'calc', 'เครื่องคิดเลข กดแล้วตัวเลขขึ้นจอ', (K, s, T, g) => {
-  const C = {x: 116, y: 12, w: 250, h: 316}, v = String(s.value);
-  const body = R2.card(node(g, C.x, C.y, C.w, C.h, 'u-panel')); body.p.style.borderRadius = '30px'; K.enter(body.o, T.b[0], 'rise');
-  const scr = node(body.p, 20, 20, C.w - 40, 88, 'u-track'); scr.p.style.borderRadius = '16px'; K.enter(scr.o, T.b[0] + .1, 'pop');
-  const kw = 62, kh = 48, keys = [];
-  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
-    const last = r === 2 && c === 2, k = R7.plain(body.p, 20 + c * (kw + 12), 126 + r * (kh + 12), kw, kh, last ? 'acc' : 'soft', '14px');
-    if (last) k.p.innerHTML = ICO('equal', 28);
-    k.o.classList.add('u-decor'); K.enter(k.o, T.b[0] + .2 + (r * 3 + c) * .03, 'pop'); keys.push(k);
-  }
-  /* what the screen shows: 0, then the number growing digit by digit */
-  const digits = [...v].reduce((a, c, i) => /\d/.test(c) ? a.concat(i) : a, []).slice(0, 6);
-  const shown = ['0'].concat(digits.map((d, k) => k === digits.length - 1 ? v : v.slice(0, d + 1)));
-  const press = LG.spread(T.b[1], T.hit - .32, Math.max(1, digits.length)), at = [T.b[0] + .2].concat(press);
-  const fs = R2.fitSize(v, 180, 62);
-  shown.forEach((txt, k) => {
-    const e = div(`left:0;top:0;width:${C.w - 64}px;height:88px;display:flex;align-items:center;justify-content:flex-end;font-size:${fs}px`, scr.p);
-    e.className = 'u-num'; e.textContent = txt; R7.show(e, at[k]); if (k < shown.length - 1) R7.hide(e, at[k + 1]);
-  });
-  press.forEach((t, k) => { const key = keys[R7.rnd(v, k) % 8]; K.punch(key.p, t - .05);
-    const lit = R7.plain(key.p, 0, 0, kw, kh, 'acc', '14px'); lit.o.style.opacity = 0; A(lit.o, [{opacity: 0}, {opacity: 1, offset: .15}, {opacity: 1, offset: .6}, {opacity: 0}], t - .05, .3, {f: 'none'}); });
-  K.punch(keys[8].p, T.hit - .12);
-  K.punch(scr.p, T.hit); R1.ripple(K, scr, T.hit + .05);
-  const iy = s.unit ? 96 : 130;
-  if (s.icon) K.badge(g, s.icon, 466, iy, 104, T.b[0] + .3, {tone: 'acc'});
-  if (s.unit) R4.word(K, g, s.unit, 466, s.icon ? 158 : 110, 42, T.hit + .12, 150);
-});
-
 /* ================= B02 เพิ่มขึ้น / ลดลง: dir, item {icon}, center? {icon}, end? {icon} ================= */
 /* 4 · a line chart draws itself up (or down); the thing pops out at its tip on the key word */
 R3.both('B02', 'line', 'กราฟเส้นพุ่งขึ้นหรือดิ่งลง', (K, s, T, g) => {
@@ -138,36 +109,6 @@ R3.both('B02', 'balloon', 'ลูกโป่งพองขึ้นหรื�
 });
 
 /* ================= B04 ขั้นตอน: items [{icon, label?}] (3), mark? {at, how} ================= */
-/* 3 · a conveyor belt: a box rides under each step in turn; the marked step lights up (or gets ✓ / ✗) as the box reaches it */
-R3.both('B04', 'belt', 'สายพาน ของเลื่อนผ่านทีละจุด', (K, s, T, g) => {
-  const its = s.items.slice(0, 3), n = its.length, xs = {1: [300], 2: [190, 410], 3: [130, 300, 470]}[n];
-  const SY = 74, SS = 84, BY = 258, mk = s.mark ?? {at: n - 1, how: 'light'}, at = Math.min(mk.at ?? n - 1, n - 1);
-  const belt = node(g, 50, BY - 22, 480, 44, 'u-track'); belt.p.style.borderRadius = '22px'; K.enter(belt.o, T.b[0], 'rise');
-  const dash = div('left:0;top:0;width:600px;height:340px', g, `<svg width="600" height="340"><path class="ln u-thin u-dash" d="M86 ${BY}H494"/>` +
-    `<circle class="ln u-thin" cx="74" cy="${BY}" r="12"/><circle class="ln u-thin" cx="506" cy="${BY}" r="12"/></svg>`);
-  dash.classList.add('u-decor'); K.enter(dash, T.b[0] + .1, 'pop');
-  A(dash.querySelector('.u-dash'), [{strokeDashoffset: 0}, {strokeDashoffset: -240}], T.b[1], T.t1 - T.b[1], {e: 'linear'});
-  const st = its.map((it, i) => {
-    const b = K.badge(g, it.icon, xs[i], SY, SS, T.b[0] + .1 + i * .1, {tone: it.tone ?? 'main', shape: it.shape ?? 'tile'});
-    if (it.label) R4.word(K, g, it.label, xs[i], SY + SS / 2 + 8, 30, T.b[0] + .2 + i * .1, 150);
-    return b;
-  });
-  /* the box: arrives under step k at arr[k], so the marked step is reached on the key word */
-  const arr = R7.steps(T, n, at, T.b[1] + .45), box = R7.plain(g, -28, BY - 22 - 58, 56, 56, 'acc', '12px');
-  const kf = [{t: T.b[1] - .1, x: 82}];
-  arr.forEach((t, k) => { kf.push({t: Math.max(kf.at(-1).t + .05, t - .42), x: kf.at(-1).x}); kf.push({t, x: xs[k]}); });
-  const t0 = kf[0].t, t1 = kf.at(-1).t;
-  A(box.m, kf.map(p => ({transform: `translateX(${p.x}px)`, offset: (p.t - t0) / (t1 - t0), easing: 'cubic-bezier(.45,0,.3,1)'})), t0, t1 - t0, {f: 'both'});
-  K.enter(box.o, t0 - .15, 'pop');
-  arr.forEach((t, k) => {
-    K.punch(box.p, t);
-    if (k !== at) { K.punch(st[k].p, t); return; }
-    const it = its[k];
-    if (mk.how === 'check') { K.punch(st[k].p, t); K.mark(g, 'check', xs[k] + SS / 2 - 2, SY - SS / 2 + 2, 46, t); }
-    else if (mk.how === 'cross') K.mark(g, 'cross', xs[k], SY, 72, t);
-    else { const L = R7.up(K, g, it.icon, xs[k], SY, SS, t, it.shape ?? 'tile'); R1.ripple(K, L, L.done); }
-  });
-});
 
 /* 4 · a deck of cards: the top card shows a step, then flies to the done pile and the next one shows */
 R3.both('B04', 'deck', 'กองการ์ด หยิบออกทีละใบ', (K, s, T, g) => {
@@ -234,39 +175,6 @@ R3.both('B09', 'sand', 'นาฬิกาทราย ทรายไหลล�
   if (s.result) {
     const r = K.badge(g, s.result.icon, cx, bot - 62, 86, T.hit + .1, {tone: s.result.tone ?? 'acc', shape: 'round'});
     R1.ripple(K, r, R6.at('pop', T.hit + .1));
-  }
-});
-
-/* 4 · the sun crosses the sky over the times; the one that matters lights up when the sun is over it */
-R3.both('B09', 'sun', 'พระอาทิตย์เคลื่อนข้ามฟ้า', (K, s, T, g) => {
-  const pts = s.points.slice(0, 3), n = pts.length, at = Math.min(s.at ?? n - 1, n - 1), C = {x: 300, y: 300}, R = 190, Rs = 264;
-  const ang = {1: [90], 2: [140, 40], 3: [152, 90, 32]}[n], rad = a => a * Math.PI / 180;
-  const pos = (a, r) => ({x: C.x + r * Math.cos(rad(a)), y: C.y - r * Math.sin(rad(a))});
-  R6.line(K, g, `M40 ${C.y}H${C.x + R + 30}`, T.b[0], .4).classList.add('u-decor');
-  const sky = R6.line(K, g, `M${C.x - R} ${C.y}A${R} ${R} 0 0 1 ${C.x + R} ${C.y}`, T.b[0] + .1, .6);
-  sky.querySelector('path').classList.add('u-thin', 'u-dash'); sky.classList.add('u-decor');
-  const reach = R7.steps(T, n, at, T.b[1] + .3);
-  pts.forEach((p, k) => {
-    const q = pos(ang[k], R);
-    K.badge(g, p.icon, q.x, q.y, 64, T.b[0] + .2 + k * .08, {tone: 'soft', shape: p.shape ?? 'round'});
-    const dx = C.x - q.x, dy = C.y - q.y, L0 = Math.hypot(dx, dy) || 1;   // the word inside the sky, clear of the dashed arc
-    if (p.label) R4.word(K, g, p.label, q.x + 80 * dx / L0, q.y + 80 * dy / L0 - 17, 28, T.b[0] + .3 + k * .08, 100);
-    const L = R7.up(K, g, p.icon, q.x, q.y, 64, reach[k], p.shape ?? 'round', k === at ? 'acc' : 'main');
-    if (k === at) R1.ripple(K, L, L.done);
-  });
-  /* the sun: rises at the left and stops over each time when it is reached */
-  const key = [{t: T.b[0] + .2, a: 172}].concat(reach.map((t, k) => ({t, a: ang[k]})));
-  const t0 = key[0].t, t1 = key.at(-1).t, kf = [];
-  for (let i = 0; i <= 48; i++) {
-    const t = t0 + (t1 - t0) * i / 48, j = Math.max(0, key.findIndex((q, k) => k > 0 && t <= q.t) - 1), a0 = key[j], a1 = key[j + 1];
-    const u = (t - a0.t) / Math.max(.001, a1.t - a0.t), e = u < .5 ? 2 * u * u : 1 - 2 * (1 - u) * (1 - u), q = pos(a0.a + (a1.a - a0.a) * e, Rs);
-    kf.push({transform: `translate(${q.x.toFixed(1)}px,${q.y.toFixed(1)}px)`});
-  }
-  const sun = K.badge(g, 'sun', 0, 0, 62, null, {tone: 'acc', shape: 'round'}); sun.o.classList.add('u-decor');
-  A(sun.m, kf, t0, t1 - t0, {e: 'linear', f: 'both'}); K.enter(sun.o, t0, 'pop');
-  if (s.result) {
-    const r = K.badge(g, s.result.icon, C.x, 266, 60, T.hit + .3, {tone: s.result.tone ?? 'acc', shape: 'round'});
-    R1.ripple(K, r, R6.at('pop', T.hit + .3));
   }
 });
 
@@ -337,25 +245,6 @@ R3.both('B11', 'letter', 'ซองจดหมายเปิดออกเป
   K.punch(paper.p, land);
   if (s.react || s.mood) { const r = K.badge(env, s.react ?? (bad ? 'thumbs-down' : 'heart'), E.x + E.w - 14, 34, 62, land + .1, {tone: bad ? 'neg' : 'acc', shape: 'round'}); r.o.style.zIndex = 6; R1.ripple(K, r, R6.at('pop', land + .1), {tone: bad ? 'neg' : 'acc'}); }
   if (s.gone) K.fade(env, T.after + .2, 1, .35);
-});
-
-/* 5 · an interview: a microphone reaches in to the person, and what they said pops up above them */
-R3.both('B11', 'mic', 'ไมค์สัมภาษณ์ยื่นเข้ามา', (K, s, T, g) => {
-  const bad = s.mood === 'bad', who = K.badge(g, s.who ?? 'user', 442, 228, 128, T.b[0], {tone: 'main', shape: 'round'});
-  const mic = R6.group(g), tilt = div('left:0;top:0;width:600px;height:340px;transform-origin:300px 238px;transform:rotate(40deg)', mic);
-  const handle = R7.plain(tilt, 284, 262, 32, 112, 'main', '16px');
-  const head = K.badge(tilt, 'audio-lines', 300, 238, 76, null, {tone: 'acc', shape: 'round'});
-  K.fade(mic, T.b[1], 0, 1, {hold: true}); K.move(mic, T.b[1], 'translate(-200px,160px)', 'none', {hold: true, kind: 'snap'});
-  const near = R6.at('snap', T.b[1]);
-  K.punch(head.p, T.hit - .1);
-  const bub = R2.card(node(g, 150, 18, 360, 118, 'u-panel u-bubble')); bub.p.style.borderRadius = '30px 30px 8px 30px';
-  K.enter(bub.o, T.hit, 'pop');
-  if (s.quote) R4.word(K, bub.p, s.quote, 180, 30, 44, null, 316); else K.skel(bub.p, 34, 40, [260, 170], T.hit + .1);
-  const land = R6.at('pop', T.hit);
-  R1.ripple(K, bub, land);
-  if (s.react || s.mood) K.sat(g, s.react ?? (bad ? 'thumbs-down' : 'heart'), 548, 40, 62, land + .15, {tone: bad ? 'neg' : 'acc', shape: 'round', k: .5});
-  if (s.gone) { K.fade(bub.o, T.after + .2, 1, .3); K.fade(who.o, T.after + .2, 1, .3); }
-  void near; void handle;
 });
 
 /* ================= B13 เคล็ดลับ / ความลับ: secret {icon, label?} ================= */

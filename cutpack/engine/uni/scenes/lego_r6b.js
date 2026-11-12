@@ -66,37 +66,6 @@ R3.both('B17', 'note', 'กระดาษโน้ตเขียนทีล�
   K.punch(P.p, T.hit + .5);
 });
 
-/* 4 · the things drop into a basket one by one; on the key word the basket bounces and its tag gets the group's name */
-R3.both('B17', 'basket', 'ของหล่นลงตะกร้า', (K, s, T, g) => {
-  /* (Friend 2026-11-10) the basket is a light body with dark edges in the card style ("ข้อ 1": an edge that can be seen), every
-     line drawn once and nothing crosses the things in glass ("ดูเรื่องเส้นซ้อนกันของสไตล์ 2"): the things never overlap each
-     other and sit on the rim, not behind it */
-  const its = s.items.slice(0, 4), n = its.length, S = {2: 100, 3: 92, 4: 76}[n], gap = {2: 112, 3: 100, 4: 84}[n], rim = 206;
-  const xs = its.map((_, i) => 300 + (i - (n - 1) / 2) * gap), Y = rim - 12 - S / 2;
-  const grp = div('left:0;top:0;width:600px;height:340px;transform-origin:300px 322px', g);
-  const when = LG.spread(T.b[0] + .35, T.b[2] + .1, n);
-  const items = its.map((it, i) => {
-    const b = K.badge(grp, it.icon, xs[i], Y, S, null, {tone: it.tone ?? 'acc', shape: it.shape ?? 'tile'});   // the accent: a plain tile was the basket's own colour ("สีไอคอนกับตะกร้ามันกลืนกัน")
-    K.fade(b.o, when[i], 0, 1, {hold: true});
-    K.move(b.m, when[i], `translateY(-200px) rotate(${i % 2 ? 14 : -14}deg)`, 'none', {hold: true, kind: 'snap'});
-    return b;
-  });
-  /* the body: light bands (no edge of their own) with gaps; one line in each gap, one edge round the body, one round the rim */
-  const H = 116, xl = y => 130 + (y - rim) * 30 / H, xr = y => 470 - (y - rim) * 30 / H, f = v => v.toFixed(1);
-  const band = (a, b) => `M${f(xl(rim + a))} ${rim + a}H${f(xr(rim + a))}L${f(xr(rim + b))} ${rim + b}H${f(xl(rim + b))}Z`;
-  const slot = y => `M${f(xl(rim + y))} ${rim + y}H${f(xr(rim + y))}`;
-  const body = `M${f(xl(rim + 14))} ${rim + 14}L${f(xl(rim + H))} ${rim + H}H${f(xr(rim + H))}L${f(xr(rim + 14))} ${rim + 14}`;   // sides and bottom only: a top edge ran inside the see-through rim in glass (Friend: "เส้นที่ขอบตะกร้าอะ")
-  const rimBar = `x="${xl(rim) - 12}" y="${rim - 10}" width="${xr(rim) - xl(rim) + 24}" height="24" rx="12"`;
-  const front = div('left:0;top:0;width:600px;height:340px', grp, `<svg width="600" height="340" style="overflow:visible">` +
-    `<path class="fl" style="stroke:none" d="${band(0, 56)}${band(70, 88)}${band(102, H)}"/>` +
-    `<path class="u-fl-edge" d="${slot(63)}${slot(95)}${body}"/>` +
-    `<rect class="fl" style="stroke:none" ${rimBar}/><rect class="u-fl-edge" ${rimBar}/></svg>`);   // edges of the light body: dark in the overlay too
-  K.enter(front, T.b[0], 'rise');
-  K.punch(grp, T.hit);
-  items.forEach((b, i) => A(b.p, [{transform: 'none'}, {transform: 'translateY(-36px)', offset: .4}, {transform: 'none'}], T.hit + i * .06, .5, {e: 'ease-out', f: 'none'}));
-  if (s.label) K.chipC(g, s.label, 300, rim + 30, T.hit + .3, {tone: 'acc', size: 36});   // on the plain top band, clear of the lines
-});
-
 /* ================= B18 เล่าเหตุการณ์: what, who?, when? ================= */
 /* 3 · a newspaper spins in: the event in the photo, the time in the corner, the headline lands on the key word */
 R3.both('B18', 'news', 'หนังสือพิมพ์หมุนเข้ามา', (K, s, T, g) => {

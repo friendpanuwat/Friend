@@ -128,35 +128,6 @@ R3.both('B06', 'bulb', 'หลอดไฟมีเครื่องหมา�
   if (it) { const cd = R9.card(g, 372, 70, 176, 130, 22); R10.iconWord(K, cd.p, it, 176, 18, 44, 30); K.enter(cd.o, ans ? T.hit + .35 : T.hit, 'pop'); }
 });
 
-/* ================= B07 คำเตือน: thing {icon, label?}, how cross|flag, sign? ================= */
-/* 5 · a wet-floor sign: the A-frame opens up and stands; on the key word the warning on it punches (cross = it gets the ✗) */
-R3.both('B07', 'wetfloor', 'ป้ายระวังพื้นลื่น กางออกตั้งบนพื้น', (K, s, T, g) => {
-  const it = s.thing ?? {icon: 'triangle-alert'}, X = 180, Y = 24, W = 240, H = 292;
-  const fl = R7.plain(g, X - 40, Y + H + 2, W + 80, 10, 'main', '5px'); K.enter(fl.o, T.b[0], 'rise');
-  const b = R9.acc(g, X, Y, W, H, 0);
-  b.p.style.clipPath = `path('M68 0H172Q184 0 187 12L240 278Q242 ${H} 228 ${H}H12Q-2 ${H} 0 278L53 12Q56 0 68 0Z')`;
-  A(b.o, [{opacity: 0}, {opacity: 1}], T.b[0] + .1, .25);
-  b.m.style.transformOrigin = '50% 100%'; A(b.m, [{transform: 'scaleY(.15)'}, {transform: 'none'}], T.b[0] + .1, .8, {e: EASE.smooth});
-  R10.bar(b.p, W / 2 - 34, 18, 68, 18, null, 9);
-  const sg = R9.ico(b.p, s.sign ?? 'triangle-alert', W / 2, 92, 84, 'u-bubble-text'); K.enter(sg, T.b[1] + .2, 'pop');
-  const ti = R9.ico(b.p, it.icon, W / 2, 186, 58, 'u-bubble-text'); K.enter(ti, T.b[2], 'pop');
-  if (it.label) R9.accWord(K, b.p, it.label, W / 2, 222, 36, T.b[2] + .1, W - 70);
-  if (s.how === 'cross') K.mark(b.p, 'cross', W / 2, 186, 84, T.hit); else K.punch(b.p, T.hit);
-});
-
-/* 6 · a fishing hook comes down with the risky thing as its bait; a warning sign pops up beside it on the key word */
-R3.both('B07', 'hook', 'เหยื่อบนเบ็ดตกปลา ป้ายเตือนเด้งข้าง ๆ', (K, s, T, g) => {
-  const it = s.thing ?? {icon: 'tag'}, cx = 250, W = 250, H = 160, Y = 64, B = Y + H + 22;
-  const hk = R6.group(g);
-  A(hk, [{transform: 'translateY(-360px)'}, {transform: 'none'}], T.b[0], 1, {e: EASE.smooth});
-  R8.svg(hk, `<path class="ln u-thin" d="M${cx} -380V0"/>`).classList.add('u-decor');   // the line above the canvas: gold must not count it when it frames the picture
-  R8.svg(hk, `<path class="ln u-thin" d="M${cx} 0V${Y + 8}"/><path class="ln" d="M${cx} ${Y + 20}V${B}Q${cx} ${B + 66} ${cx - 54} ${B + 66}Q${cx - 106} ${B + 66} ${cx - 106} ${B + 8}"/>` +
-    `<path class="ln" d="M${cx - 106} ${B + 8}L${cx - 80} ${B + 32}"/>`);
-  const c = R9.acc(hk, cx - W / 2, Y, W, H, 26); R10.iconWord(K, c.p, it, W, 22, 66, 40, true);
-  const w = R10.disc(g, 470, 128, 60, 'card'); R9.ico(w.p, s.sign ?? (s.how === 'cross' ? 'octagon-x' : 'triangle-alert'), 60, 60, 66);
-  K.enter(w.o, T.hit, 'pop'); R1.ripple(K, w, LG.arrive('pop', T.hit), {grow: 24, tone: 'neg'});
-});
-
 /* ================= B09 เวลา: points? [3 {icon, label?}], at?, result? ================= */
 /* 7 · a stopwatch: the button is pressed, the ring runs round, and each moment is logged as a lap beside it as it passes */
 R3.both('B09', 'stopwatch', 'นาฬิกาจับเวลา กดปุ่มแล้ววงวิ่ง บันทึกแต่ละช่วงข้าง ๆ', (K, s, T, g) => {
@@ -273,30 +244,6 @@ R3.both('B17', 'folder', 'โฟลเดอร์แอปในมือถื
     if (p.label) R4.word(K, fd.p, p.label, x + ts / 2, y + ts + 2, 20, tt[k] + .1, ts + 34);
     K.enter(t.o, tt[k], 'pop');
   });
-});
-
-/* 16 · a cantilever toolbox: the trays swing up and out on their arms and show what the kit holds; the group's name on the box */
-R3.both('B17', 'toolbox', 'กล่องเครื่องมือ ถาดกางออกเป็นชั้น', (K, s, T, g) => {
-  const it = (s.items ?? []).slice(0, 4), n = it.length, L = it.slice(0, Math.ceil(n / 2)), Rr = it.slice(Math.ceil(n / 2)), t0 = T.b[1] + .1, d = .9;
-  const arms = [[196, 214, 104, 172], [236, 214, 144, 172], [404, 214, 496, 172], [364, 214, 456, 172]];
-  const am = R8.svg(g, arms.map(([x0, y0, x1, y1]) => `<path style="fill:none;stroke:var(--sd);stroke-width:14px;stroke-linecap:round" d="M${x0} ${y0}L${x1} ${y1}"/>`).join('') +
-    arms.flatMap(([x0, y0, x1, y1]) => [[x0, y0], [x1, y1]]).map(([x, y]) => `<circle class="fl" cx="${x}" cy="${y}" r="8"/><circle class="u-fl-edge" cx="${x}" cy="${y}" r="8"/>`).join(''));
-  A(am, [{opacity: 0}, {opacity: 1}], t0 + .2, .4);
-  const bx = R10.group(g, 300, 330); K.enter(bx, T.b[0], 'rise');
-  R8.svg(bx, `<path class="ln" d="M256 206V182Q256 170 268 170H332Q344 170 344 182V206"/>`);
-  /* the trays: they start shut on top of the box and swing out to the sides */
-  [[L, 14], [Rr, 366]].forEach(([grp, x]) => {
-    if (!grp.length) return;
-    const W = 220, cxs = grp.length === 1 ? [W / 2] : [56, W - 56], tg = R6.group(g);
-    grp.forEach((p, k) => R9.ico(tg, p.icon, x + cxs[k], 70, 70));
-    R7.plain(tg, x, 88, W, 14, 'main', '7px 7px 0 0');
-    const tr = R9.card(tg, x, 102, W, 70, 0); tr.p.style.borderRadius = '0 0 16px 16px';
-    grp.forEach((p, k) => { if (p.label) R4.word(K, tr.p, p.label, cxs[k], 16, 28, null, grp.length === 1 ? 196 : 100); });
-    A(tg, [{opacity: 0, transform: `translate(${190 - x}px,96px)`}, {opacity: 1, transform: 'none'}], t0, d, {e: EASE.smooth});
-  });
-  R7.plain(bx, 176, 206, 248, 16, 'main', '8px 8px 0 0');
-  const base = R9.card(bx, 176, 222, 248, 110, 0); base.p.style.borderRadius = '0 0 22px 22px';
-  if (s.label) R4.word(K, base.p, s.label, 124, 30, 38, T.b[0] + .3, 214); else R9.ico(base.p, 'wrench', 124, 55, 48);
 });
 
 /* ================= B18 เล่าเหตุการณ์: what {icon, label?}, who?, when? ================= */

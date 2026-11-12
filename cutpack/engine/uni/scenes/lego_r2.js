@@ -45,28 +45,6 @@ VARIANT('B01', 'ring', {name: 'วงแหวนวิ่งถึงตัว�
   K.sat(K.stage, 'sparkles', 840, 560, 72, T.after, {tone: 'acc'});
 }});
 
-VARIANT('B01', 'receipt', {name: 'ใบเสร็จพิมพ์ตัวเลขออกมา', fits: R2.money, build(K, s, T) {
-  const W = 420, H = 470, x = 290, top = 170;
-  K.halo(K.stage, 500, 400, 330, T.b[1]);
-  const box = div(`left:${x - 30}px;top:${top}px;width:${W + 60}px;height:${H + 50}px;overflow:hidden`, K.stage);   // the paper only shows below the slot
-  const rc = node(box, 30, 0, W, H, 'u-panel u-receipt'); rc.o.classList.add('u-receipt-wrap');
-  const teeth = 14, tw = W / teeth, zig = [...Array(teeth)].map((_, i) => `${(i * tw).toFixed(1)}px ${H}px, ${((i + .5) * tw).toFixed(1)}px ${H - 18}px`).join(', ');
-  rc.p.style.borderRadius = '0'; rc.p.style.clipPath = `polygon(0 0, 100% 0, 100% ${H}px, ${zig}, 0 ${H}px)`;
-  A(rc.m, [{transform: `translateY(${-H}px)`}, {transform: `translateY(${-H * .55}px)`, offset: .4}, {transform: `translateY(${-H * .55}px)`, offset: .52}, {transform: 'translateY(0)'}],
-    T.b[0] + .35, T.b[2] - T.b[0], {e: 'linear', f: 'both'});                                              // printing, with a short pause
-  [50, 100, 150].forEach((y, i) => { K.skel(rc.p, 40, y, [190], T.b[0] + .4 + i * .05); K.skel(rc.p, W - 130, y, [90], T.b[0] + .45 + i * .05); });
-  const cut = div('left:0;top:0;width:100%;height:100%', rc.p, `<svg width="${W}" height="${H}"><path class="ln u-thin u-dash" d="M34 212H${W - 34}"/></svg>`);
-  K.enter(cut, T.b[0] + .5, 'lead');
-  const nb = R1.counter(K, rc.p, W / 2, 300, R2.fitSize(s.value, W - 80, 120), T.b[1], s.value, T.hit - T.b[1]);
-  if (s.unit) K.chipC(rc.p, s.unit, W / 2, 400, T.hit - .2, {size: 40, tone: 'acc'});
-  K.punch(nb, T.hit + .05);
-  const pr = K.panel(210, 60, 580, 110, T.b[0]);                                                            // the printer, drawn last (on top)
-  const slot = div('left:0;top:0;width:100%;height:100%', pr.p, '<svg width="580" height="110"><path class="ln" d="M70 66H510"/></svg>'); K.enter(slot, T.b[0] + .15, 'lead');
-  K.sat(K.stage, s.icon ?? 'receipt', 120, 115, 100, T.b[0] + .25, {tone: 'main'});
-  if (s.dir) K.sat(K.stage, s.dir === 'down' ? 'trending-down' : 'trending-up', 140, 380, 96, T.hit, {tone: s.dir === 'down' ? 'soft' : 'acc'});
-  K.sat(K.stage, 'sparkles', 820, 520, 72, T.after, {tone: 'acc'});
-}});
-
 /* ================= B07 คำเตือน ================= */
 VARIANT('B07', 'sign', {name: 'ป้ายเตือนเด้งลงบนการ์ด', build: (K, s, T) => LAYOUTS.warn.build(K, s, T)});
 
@@ -221,22 +199,6 @@ SMALLV('B01', 'ring', (K, s, T) => {
   if (s.icon) K.badge(K.stage, s.icon, 90, 96, 104, T.b[0] + .2, {tone: 'main'});
   if (s.dir) K.badge(K.stage, s.dir === 'down' ? 'trending-down' : 'trending-up', 510, 96, 88, T.hit, {tone: s.dir === 'down' ? 'neg' : 'acc', shape: 'round'});
   K.punch(g.p, T.hit); R1.ripple(K, g, T.hit + .1, {r: '50%', grow: 34});
-});
-SMALLV('B01', 'receipt', (K, s, T) => {
-  const W = 300, H = 250, x = 150, top = 80;
-  const box = div(`left:${x - 30}px;top:${top}px;width:${W + 60}px;height:${H + 30}px;overflow:hidden`, K.stage);
-  const rc = R2.card(node(box, 30, 0, W, H, 'u-panel u-receipt')); rc.o.classList.add('u-receipt-wrap');
-  const teeth = 12, tw = W / teeth, zig = [...Array(teeth)].map((_, i) => `${(i * tw).toFixed(1)}px ${H}px, ${((i + .5) * tw).toFixed(1)}px ${H - 14}px`).join(', ');
-  rc.p.style.borderRadius = '0'; rc.p.style.clipPath = `polygon(0 0, 100% 0, 100% ${H}px, ${zig}, 0 ${H}px)`;
-  A(rc.m, [{transform: `translateY(${-H}px)`}, {transform: `translateY(${-H * .5}px)`, offset: .4}, {transform: `translateY(${-H * .5}px)`, offset: .52}, {transform: 'translateY(0)'}],
-    T.b[0] + .3, T.b[2] - T.b[0], {e: 'linear', f: 'both'});
-  [34, 70].forEach((y, i) => { K.skel(rc.p, 30, y, [150], T.b[0] + .35 + i * .05); K.skel(rc.p, W - 100, y, [70], T.b[0] + .4 + i * .05); });
-  const cut = div('left:0;top:0;width:100%;height:100%', rc.p, `<svg width="${W}" height="${H}"><path class="ln u-thin u-dash" d="M26 112H${W - 26}"/></svg>`); K.enter(cut, T.b[0] + .45, 'lead');
-  const nb = R1.counter(K, rc.p, W / 2, 162, R2.fitSize(s.value, W - 50, 92), T.b[1], s.value, T.hit - T.b[1]);
-  if (s.unit) SM.word(K, rc.p, s.unit, W / 2, 196, 34, T.hit - .2, 'center');
-  K.punch(nb, T.hit + .05);
-  const pr = K.panel(100, 20, 400, 64, T.b[0]);
-  const slot = div('left:0;top:0;width:100%;height:100%', pr.p, '<svg width="400" height="64"><path class="ln" d="M60 40H340"/></svg>'); K.enter(slot, T.b[0] + .15, 'lead');
 });
 
 /* B07 คำเตือน */
