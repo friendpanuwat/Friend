@@ -38,12 +38,12 @@ R3.both('B04', 'track', 'ติดตามพัสดุในแอป รถ
   const it = (s.items ?? []).slice(0, 3), at = s.mark?.at ?? it.length - 1, xs = [96, 266, 436], ly = 200;
   const c = R9.card(g, 44, 8, 512, 316, 28);
   const hd = R11.disc(c.p, 50, 50, 28, 'acc'); R9.ico(hd.p, 'package', 28, 28, 30, 'u-bubble-text');
-  [0, 1, 2].forEach(k => { const b = k <= at ? R9.acc(c.p, 100 + k * 114, 44, 104, 12, 6) : R7.plain(c.p, 100 + k * 114, 44, 104, 12, 'soft', '6px'); b.p.style.boxShadow = 'none'; });
-  const st = R11.disc(c.p, 464, 50, 26, 'main'); R11.inkIco(st.p, it[at]?.icon ?? 'check', 26, 26, 28);   // the step it is at, at the end of the bar
+  const ok = R11.disc(c.p, 112, 50, 16, 'acc'); ok.p.style.boxShadow = 'none'; R9.ico(ok.p, 'check', 16, 16, 20, 'u-bubble-text');
+  if (it[at]?.label) R12.word(K, c.p, it[at].label, 138, 30, 32, 340); else R9.ico(c.p, it[at]?.icon ?? 'check', 160, 50, 32);
   R11.bar(c.p, 0, 96, 512, 2, null, 1);
   R8.svg(c.p, `<path style="fill:none;stroke:var(--tr);stroke-width:12px;stroke-linecap:round" d="M${xs[0]} ${ly}H${xs[2]}"/>` +
     (at ? `<path style="fill:none;stroke:var(--ac-line, var(--ink));stroke-width:16px;stroke-linecap:round" d="M${xs[0]} ${ly}H${xs[at]}"/><path class="u-acc-line" style="stroke-width:10px" d="M${xs[0]} ${ly}H${xs[at]}"/>` : ''));
-  R12.truck(c.p, at ? xs[at] - 84 : xs[0] + 84, ly + 2, .95);
+  R12.truck(c.p, at ? xs[at] - 96 : xs[0] + 96, ly + 2, .9);
   it.forEach((p, k) => {
     const on = k <= at, d = on ? R11.disc(c.p, xs[k], ly, 30, 'acc') : R11.disc(c.p, xs[k], ly, 30, 'soft');
     R9.ico(d.p, p.icon, 30, 30, 30, on ? 'u-bubble-text' : 'u-inherit');
@@ -57,7 +57,7 @@ R3.both('B04', 'steps', 'รอยเท้าเดินทีละก้า�
   const it = (s.items ?? []).slice(0, 3), mk = s.mark, lit = mk ? (mk.how === 'light' ? mk.at : -1) : it.length - 1;
   const C = [[20, 196], [222, 112], [420, 28]], W = 130, H = 112;
   let prints = '';
-  [[C[0][0] - 40, C[0][1] + 140, C[0][0] + 10, C[0][1] + H + 10, 2], [C[0][0] + W + 4, C[0][1] + 60, C[1][0] - 8, C[1][1] + 70, 3], [C[1][0] + W + 4, C[1][1] + 60, C[2][0] - 8, C[2][1] + 70, 3]]
+  [[C[0][0] + W + 18, C[0][1] + 66, C[1][0] - 20, C[1][1] + 86, 3], [C[1][0] + W + 18, C[1][1] + 66, C[2][0] - 20, C[2][1] + 86, 3]]
     .forEach(([x0, y0, x1, y1, n]) => { const a = Math.atan2(x1 - x0, -(y1 - y0)); for (let i = 0; i < n; i++) { const t = (i + .5) / n; const off = (i % 2 ? 1 : -1) * 9; prints += R12.foot(x0 + (x1 - x0) * t + off * Math.cos(a), y0 + (y1 - y0) * t + off * Math.sin(a), a, i % 2 ? 1 : -1, 1.15); } });
   R8.svg(g, `<g style="fill:var(--ink);opacity:.45">${prints}</g>`);
   it.forEach((p, k) => {
@@ -71,7 +71,7 @@ R3.both('B04', 'steps', 'รอยเท้าเดินทีละก้า�
 /* 3 · a mountain: a winding trail climbs it, and the goal's flag is planted on the peak */
 R3.both('B08', 'summit', 'เส้นทางขึ้นเขา ธงปักบนยอด', (K, s, T, g) => {
   const it = s.goal ?? {icon: 'flag'}, px = 262, py = 96;
-  const back = 'M300 330L414 150Q426 134 438 150L548 330Z', main = `M40 330L${px - 14} ${py + 12}Q${px} ${py - 6} ${px + 14} ${py + 12}L500 330Z`;
+  const back = 'M377 208L414 150Q426 134 438 150L548 330H500Z', main = `M40 330L${px - 14} ${py + 12}Q${px} ${py - 6} ${px + 14} ${py + 12}L500 330Z`;
   R8.svg(g, R11.paper(back) + R11.shade(back, .12) + R11.paper(main) +
     `<path style="fill:var(--tr);stroke:none" d="M${px - 14} ${py + 12}Q${px} ${py - 6} ${px + 14} ${py + 12}L${px + 52} ${py + 66}Q${px + 40} ${py + 60} ${px + 26} ${py + 52}Q${px + 16} ${py + 72} ${px + 4} ${py + 72}Q${px - 6} ${py + 56} ${px - 18} ${py + 54}Q${px - 34} ${py + 70} ${px - 50} ${py + 70}Z"/>` +
     R11.det(`M150 322C210 300 300 300 330 268S250 226 230 196S330 170 296 140S${px} ${py + 30} ${px} ${py + 8}`, .22, .55).replace('stroke-linejoin:round', 'stroke-linejoin:round;stroke-dasharray:10 12'));
@@ -84,8 +84,8 @@ R3.both('B08', 'summit', 'เส้นทางขึ้นเขา ธงป�
 /* 4 · a medal on its ribbon: the goal is on the medal, sparkles round it, the goal's name on a plate under it */
 R3.both('B08', 'medal', 'เหรียญรางวัลห้อยริบบิ้น เป็นประกาย', (K, s, T, g) => {
   const it = s.goal ?? {icon: 'trophy'}, cx = 300, cy = 178, r = 74;
-  R8.svg(g, R11.paper('M214 -6H270L320 128H268Z') + `<path style="fill:var(--ac-stroke, var(--ac));stroke:none" d="M234 -6H250L300 128H284Z"/>` +
-    R11.accP('M386 -6H330L280 128H332Z', .5) + `<path style="fill:var(--fl);stroke:none;opacity:.9" d="M366 -6H350L300 128H316Z"/>` +
+  R8.svg(g, R11.paper('M214 -6H270L300 92H268Z') + `<path style="fill:var(--ac-stroke, var(--ac));stroke:none" d="M235 -6H249L284 92H279Z"/>` +
+    R11.accP('M386 -6H330L300 92H332Z', .5) + `<path style="fill:var(--fl);stroke:none;opacity:.9" d="M365 -6H351L316 92H321Z"/>` +
     `<rect x="${cx - 34}" y="${cy - r - 16}" width="68" height="26" rx="8" class="fl" style="stroke:none"/><rect x="${cx - 34}" y="${cy - r - 16}" width="68" height="26" rx="8" class="u-fl-edge"/>`);
   const m = R11.disc(g, cx, cy, r, 'acc');
   const ring = div(`left:12px;top:12px;width:${2 * r - 24}px;height:${2 * r - 24}px;border-radius:50%;border:3px solid currentColor;opacity:.4`, m.p); ring.className = 'u-bubble-text';
@@ -102,7 +102,7 @@ R3.both('B09', 'alarm', 'นาฬิกาปลุก เข็มเดิน
   R8.svg(g, R11.accP(`M${cx - 104} ${cy - 66}A44 44 0 0 1 ${cx - 52} ${cy - 118}Z`, .5) + R11.accP(`M${cx + 104} ${cy - 66}A44 44 0 0 0 ${cx + 52} ${cy - 118}Z`, .5) +
     R11.inkL(`M${cx - 70} ${cy + 96}L${cx - 92} ${cy + 136}M${cx + 70} ${cy + 96}L${cx + 92} ${cy + 136}M${cx} ${cy - R}V${cy - R - 22}M${cx - 18} ${cy - R - 22}H${cx + 18}`, .4) +
     R11.inkL(`M${cx - 150} ${cy - 96}L${cx - 132} ${cy - 84}M${cx - 160} ${cy - 50}L${cx - 138} ${cy - 46}M${cx + 150} ${cy - 96}L${cx + 132} ${cy - 84}M${cx + 160} ${cy - 50}L${cx + 138} ${cy - 46}`, .28));
-  const b = R11.disc(g, cx, cy, R);
+  const b = R11.disc(g, cx, cy, R); b.p.style.boxShadow = '0 0 0 9px var(--ink), 0 20px 40px rgba(0,0,0,.25)';
   const ticks = [...Array(12)].map((_, i) => { const a = i * Math.PI / 6, r0 = i % 3 ? 86 : 80, r1 = 96; return `M${(R + r0 * Math.sin(a)).toFixed(1)} ${(R - r0 * Math.cos(a)).toFixed(1)}L${(R + r1 * Math.sin(a)).toFixed(1)} ${(R - r1 * Math.cos(a)).toFixed(1)}`; }).join('');
   R8.svg(b.p, `<path style="fill:none;stroke:var(--ink);stroke-width:5px;stroke-linecap:round" d="${ticks}"/>` +
     `<path style="fill:none;stroke:var(--ink);stroke-width:10px;stroke-linecap:round" d="M${R} ${R}L${R - 34} ${R + 40}"/>` +
@@ -119,19 +119,18 @@ R3.both('B09', 'alarm', 'นาฬิกาปลุก เข็มเดิน
    it; the bundle it has reached is struck in the accent */
 R3.both('B09', 'tally', 'ขีดนับวันบนกระดาน ขีดที่ห้าขีดทับ', (K, s, T, g) => {
   const pts = (s.points ?? []).slice(0, 3), n = pts.length || 3, at = pts.length ? Math.min(s.at ?? n - 1, n - 1) : 2;
-  const b = R7.plain(g, 40, 14, 512, 312, 'main', '22px');
-  const fr = div('left:12px;top:12px;right:12px;bottom:12px;border-radius:12px;border:3px solid currentColor;opacity:.25', b.p); fr.className = 'u-inherit';
+  const b = R9.card(g, 40, 14, 512, 312, 22);
+  const fr = div('left:12px;top:12px;right:12px;bottom:12px;border-radius:12px;border:3px solid var(--ink);opacity:.2', b.p);
   const xs = n === 3 ? [118, 256, 394] : [190, 322], st = R8.svg(b.p, '');
   let d = '';
   xs.slice(0, n).forEach((x, k) => {
     if (k > at) return;
     for (let i = 0; i < 4; i++) { const x0 = x - 33 + i * 22; d += `M${x0} ${70 + (i % 2) * 4}Q${x0 + 3} ${120} ${x0 - 1} ${172 - (i % 2) * 3}`; }
   });
-  st.innerHTML = `<svg width="600" height="340" style="overflow:visible"><path style="fill:none;stroke:currentColor;stroke-width:9px;stroke-linecap:round" d="${d}"/>` +
-    xs.slice(0, n).map((x, k) => k > at ? '' : k === at ? `<path style="fill:none;stroke:var(--ac-line, currentColor);stroke-width:18px;stroke-linecap:round" d="M${x - 56} ${156}L${x + 52} ${86}"/><path class="u-acc-line" style="stroke-width:12px" d="M${x - 56} ${156}L${x + 52} ${86}"/>`
-      : `<path style="fill:none;stroke:currentColor;stroke-width:9px;stroke-linecap:round" d="M${x - 56} ${156}L${x + 52} ${86}"/>`).join('') + '</svg>';
-  st.className = 'u-inherit';
-  pts.forEach((p, k) => { const w = R4.word(K, b.p, p.label ?? '', xs[k], 210, 28, null, 128); w.style.color = 'inherit'; if (k > at) w.style.opacity = .4; R9.ico(b.p, p.icon, xs[k], 274, 30, 'u-inherit').style.opacity = k > at ? .4 : 1; });
+  st.innerHTML = `<svg width="600" height="340" style="overflow:visible"><path style="fill:none;stroke:var(--ink);stroke-width:9px;stroke-linecap:round" d="${d}"/>` +
+    xs.slice(0, n).map((x, k) => k > at ? '' : k === at ? `<path style="fill:none;stroke:var(--ac-line, var(--ink));stroke-width:18px;stroke-linecap:round" d="M${x - 56} ${156}L${x + 52} ${86}"/><path class="u-acc-line" style="stroke-width:12px" d="M${x - 56} ${156}L${x + 52} ${86}"/>`
+      : `<path style="fill:none;stroke:var(--ink);stroke-width:9px;stroke-linecap:round" d="M${x - 56} ${156}L${x + 52} ${86}"/>`).join('') + '</svg>';
+  pts.forEach((p, k) => { const w = R4.word(K, b.p, p.label ?? '', xs[k], 210, 28, null, 128); if (k > at) w.style.opacity = .4; R9.ico(b.p, p.icon, xs[k], 274, 30).style.opacity = k > at ? .4 : 1; });
 });
 
 /* ================= B15 ปิดคลิป: action, label? ================= */
@@ -140,7 +139,7 @@ R3.both('B15', 'bell', 'กระดิ่งแจ้งเตือนสั�
   const ic = (R3.ACT[s.action] ?? ['bell', 'bell-ring'])[1], cx = 300;
   const bl = R6.group(g); bl.style.transformOrigin = `${cx}px 24px`; bl.style.transform = 'rotate(-10deg)';
   const bell = `M${cx} 28Q${cx + 14} 28 ${cx + 16} 44Q${cx + 76} 58 ${cx + 80} 136Q${cx + 82} 186 ${cx + 106} 210Q${cx + 112} 218 ${cx + 104} 222H${cx - 104}Q${cx - 112} 218 ${cx - 106} 210Q${cx - 82} 186 ${cx - 80} 136Q${cx - 76} 58 ${cx - 16} 44Q${cx - 14} 28 ${cx} 28Z`;
-  R8.svg(bl, `<circle cx="${cx}" cy="228" r="22" style="fill:var(--ink)"/>` + R11.accP(bell, .5) +
+  R8.svg(bl, `<path d="M${cx - 22} 222A22 22 0 0 0 ${cx + 22} 222Z" style="fill:var(--ink)"/>` + R11.accP(bell, .5) +
     `<path style="fill:none;stroke:#FFFFFF;stroke-width:9px;stroke-linecap:round;opacity:.45" d="M${cx - 48} 110Q${cx - 50} 76 ${cx - 26} 64"/>`);
   R8.svg(g, R11.inkL(`M${cx - 140} 70Q${cx - 160} 110 ${cx - 140} 150M${cx - 170} 50Q${cx - 196} 110 ${cx - 170} 170M${cx + 140} 70Q${cx + 160} 110 ${cx + 140} 150M${cx + 170} 50Q${cx + 196} 110 ${cx + 170} 170`, .3));
   const dot = R11.disc(g, cx + 70, 58, 24, 'neg'); dot.p.style.boxShadow = '0 0 0 5px var(--bg-dot, rgba(255,255,255,.9))';
@@ -164,16 +163,16 @@ R3.both('B15', 'profile', 'การ์ดโปรไฟล์ เมาส์�
 /* 9 · a coin toss between the two options: the coin has landed showing the answer's side; the option it chose is lit */
 R3.both('B06', 'coin', 'โยนเหรียญระหว่างสองทาง ตกลงหน้าคำตอบ', (K, s, T, g) => {
   const op = (s.options ?? []).slice(0, 2), pick = s.answer ? Math.max(0, op.findIndex(o => o.icon === s.answer.icon || o.label === s.answer.label)) : 0;
-  R8.svg(g, R11.inkL('M190 250Q190 60 300 50Q410 60 410 250', .22, .45).replace('stroke-linejoin:round', 'stroke-linejoin:round;stroke-dasharray:4 14'));
+  R8.svg(g, R11.inkL('M196 214Q196 60 300 50Q404 60 404 214', .22, .45).replace('stroke-linejoin:round', 'stroke-linejoin:round;stroke-dasharray:4 14'));
   const cx = 300, cy = 170, rx = 92, ry = 60;
-  R8.svg(g, R11.accP(`M${cx - rx} ${cy}V${cy + 22}A${rx} ${ry} 0 0 0 ${cx + rx} ${cy + 22}V${cy}Z`, .5) + R11.shade(`M${cx - rx} ${cy}V${cy + 22}A${rx} ${ry} 0 0 0 ${cx + rx} ${cy + 22}V${cy}Z`, .2) +
+  R8.svg(g, R11.accP(`M${cx - rx} ${cy}A${rx} ${ry} 0 0 0 ${cx + rx} ${cy}V${cy + 22}A${rx} ${ry} 0 0 1 ${cx - rx} ${cy + 22}Z`, .5) + R11.shade(`M${cx - rx} ${cy}A${rx} ${ry} 0 0 0 ${cx + rx} ${cy}V${cy + 22}A${rx} ${ry} 0 0 1 ${cx - rx} ${cy + 22}Z`, .2) +
     R11.accP(`M${cx - rx} ${cy}A${rx} ${ry} 0 1 1 ${cx + rx} ${cy}A${rx} ${ry} 0 1 1 ${cx - rx} ${cy}Z`, .5));
   const face = R11.accInk(g, cx - rx, cy - ry, 2 * rx, 2 * ry);
   const rg = div(`left:14px;top:10px;width:${2 * rx - 28}px;height:${2 * ry - 20}px;border-radius:50%;border:3px solid currentColor;opacity:.35`, face.p); rg.className = 'u-bubble-text';
   R9.ico(face.p, (op[pick] ?? s.answer ?? {icon: 'circle-help'}).icon, rx, ry, 52, 'u-bubble-text');
   op.forEach((o, k) => {
     const on = k === pick, x = k ? 410 : 34, c = on ? R9.acc(g, x, 238, 156, 92, 22) : R9.card(g, x, 238, 156, 92, 22);
-    R11.iconWord(K, c.p, o, 156, o.label ? 8 : 24, 40, 26, on); if (!on) c.o.style.opacity = .55;
+    const ct = div('left:0;top:0;width:156px;height:92px', c.p); R11.iconWord(K, ct, o, 156, o.label ? 8 : 24, 40, 26, on); if (!on) ct.style.opacity = .5;
   });
 }, s => (s.options?.length ?? 0) >= 2);
 
@@ -184,7 +183,7 @@ R3.both('B06', 'askbox', 'สติกเกอร์ถามคำถามใ
   const c = R9.card(g, 100, 6, 400, ans ? 236 : 300, 30);
   const top = R9.acc(c.p, 0, 0, 400, 92, '30px 30px 0 0'); top.p.style.boxShadow = 'none';
   const av = R11.disc(top.p, 200, 46, 30, 'main'); R11.inkIco(av.p, ab.icon, 30, 30, 32);
-  R11.glyph(top.p, '?', 330, 46, 46, 'u-bubble-text');
+ 
   const f = R7.plain(c.p, 24, 112, 352, ans ? 64 : 116, 'soft', '20px');
   const q = R4.word(K, f.p, (ab.label ?? '') + ' ?', 176, ans ? 14 : 36, 34, null, 320);
   const caret = div('left:0;top:0;width:4px;height:36px;border-radius:2px;background:var(--ink)', f.p);
@@ -254,13 +253,16 @@ R3.both('B03', 'jars', 'โหลสองใบ ของเติมไม่�
 R3.both('B03', 'update', 'อัปเดตแอป ของเดิมหมุนโหลดแล้วกลายเป็นของใหม่', (K, s, T, g) => {
   const a = s.a ?? {icon: 'circle'}, b = s.b ?? {icon: 'circle'};
   const old = R9.card(g, 34, 112, 128, 128, 30); old.o.style.opacity = .45; R11.iconWord(K, old.p, a, 128, a.label ? 16 : 36, 52, 24);
-  R8.svg(g, R11.inkL('M178 176H236M222 162L238 176L222 190', .35, .45));
+  R8.svg(g, R11.inkL('M178 176H218M204 162L220 176L204 190', .35, .45));
   const cx = 370, cy = 168, r = 136, A = d => [cx + r * Math.cos(d * Math.PI / 180), cy + r * Math.sin(d * Math.PI / 180)].map(v => v.toFixed(1)).join(' ');
-  const ring = `M${A(-70)}A${r} ${r} 0 1 1 ${A(-110)}`, [ex, ey] = A(-70).split(' ').map(Number);
+  /* the refresh arrow: an arc that leaves a gap at the top, with a solid arrowhead on its end pointing along it */
+  const [ex, ey] = A(-70).split(' ').map(Number), th = -70 * Math.PI / 180, dx = Math.sin(th), dy = -Math.cos(th), px = -dy, py = dx;
+  const ring = `M${A(-110)}A${r} ${r} 0 1 0 ${A(-70)}`, f = v => v.toFixed(1);
+  const head = `M${f(ex + dx * 30)} ${f(ey + dy * 30)}L${f(ex + px * 22 - dx * 6)} ${f(ey + py * 22 - dy * 6)}L${f(ex - px * 22 - dx * 6)} ${f(ey - py * 22 - dy * 6)}Z`;
   R8.svg(g, `<path style="fill:none;stroke:var(--ac-line, var(--ink));stroke-width:20px;stroke-linecap:round" d="${ring}"/><path class="u-acc-line" style="stroke-width:13px" d="${ring}"/>` +
-    R11.accP(`M${ex - 2} ${ey - 26}L${ex + 30} ${ey + 2}L${ex - 6} ${ey + 22}Z`, .5));
+    `<path style="fill:var(--ac-stroke, var(--ac));stroke:var(--ac-line, var(--ink));stroke-width:3.5px;stroke-linejoin:round" d="${head}"/>`);
   const t = R9.acc(g, cx - 92, cy - 92, 184, 184, 44); R11.iconWord(K, t.p, b, 184, b.label ? 34 : 56, 72, 32, true);
-  const nb = R11.disc(g, cx + 80, cy + 78, 24, 'main'); R11.inkIco(nb.p, 'check', 24, 24, 26);
+  const nb = R11.disc(g, cx + 92, cy - 92, 24, 'main'); R11.inkIco(nb.p, 'check', 24, 24, 26);
 });
 
 /* ================= B17 ไล่รายการ: items [2-4 {icon, label?}], label? ================= */
@@ -270,7 +272,8 @@ R3.both('B17', 'suitcase', 'กระเป๋าเดินทางเปิ�
   const it = (s.items ?? []).slice(0, 4), n = it.length, L = 60, R = 470, mid = (L + R) / 2, lid = `M${L + 10} 150V44Q${L + 10} 20 ${L + 34} 20H${R - 34}Q${R - 10} 20 ${R - 10} 44V150Z`;
   R8.svg(g, R11.paper(lid) + R11.shade(lid, .1) + R11.det(`M${L + 40} 44V136M${R - 40} 44V136`, .2, .4) + R11.det(`M${mid - 50} 20V8H${mid + 50}V20`, .35, .8));
   const iw = Math.min(104, (R - L - 50) / Math.max(n, 1));
-  it.forEach((p, k) => { const x = mid + (k - (n - 1) / 2) * (iw + 8), c = R9.card(g, x - iw / 2, 70 + (k % 2) * 10, iw, 130, 18);
+  const inside = R6.group(g); inside.style.clipPath = 'polygon(-100px -100px, 700px -100px, 700px 184px, -100px 184px)';
+  it.forEach((p, k) => { const x = mid + (k - (n - 1) / 2) * (iw + 8), c = R9.card(inside, x - iw / 2, 70 + (k % 2) * 10, iw, 130, 18);
     R11.iconWord(K, c.p, p, iw, 12, 38, 22); c.p.style.transform = `rotate(${(k % 2 ? 1 : -1) * 3}deg)`; });
   const base = `M${L} 184H${R}V306Q${R} 330 ${R - 24} 330H${L + 24}Q${L} 330 ${L} 306Z`;
   R8.svg(g, R11.accP(base, .5) + `<path style="fill:none;stroke:var(--ac-line, var(--ink));stroke-width:4px;opacity:.45" d="M${L} 200H${R}"/>` +
@@ -307,7 +310,7 @@ R3.both('B18', 'cctv', 'จอกล้องวงจรปิด จุดบ�
   const w = s.what ?? {icon: 'circle-alert'};
   const cam = 'M92 22H176Q190 22 192 36L196 58Q198 70 186 70H96Q84 70 84 58V34Q84 22 92 22Z';
   R8.svg(g, `<rect x="44" y="4" width="18" height="44" rx="6" class="fl" style="stroke:none"/><rect x="44" y="4" width="18" height="44" rx="6" class="u-fl-edge"/>` +
-    R11.inkL('M62 26H86', .35) + `<g transform="rotate(14 140 46)">${R11.paper(cam)}<circle cx="190" cy="46" r="13" style="fill:var(--ink)"/><circle cx="190" cy="46" r="6" style="fill:var(--ac-stroke, var(--ac))"/><circle cx="106" cy="36" r="5" style="fill:var(--neg)"/></g>`);
+    R11.inkL('M62 26H86', .35) + `<g transform="translate(0 -6) rotate(8 140 46)">${R11.paper(cam)}<circle cx="190" cy="46" r="13" style="fill:var(--ink)"/><circle cx="190" cy="46" r="6" style="fill:var(--ac-stroke, var(--ac))"/><circle cx="106" cy="36" r="5" style="fill:var(--neg)"/></g>`);
   const m = R7.plain(g, 120, 62, 430, 270, 'main', '24px');
   const sc = R9.card(m.p, 16, 16, 398, 238, 12);
   R8.svg(sc.p, `<path style="fill:none;stroke:var(--ink);stroke-width:5px;stroke-linecap:round;opacity:.6" d="M30 64V30H64M334 30H368V64M368 174V208H334M64 208H30V174"/>`);
