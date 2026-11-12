@@ -292,10 +292,14 @@
     const er = sub(pg);
     er.path('M 26 -84 Q 44 -124 84 -134 Q 98 -136 96 -122 Q 92 -96 74 -76 Q 50 -70 26 -84 Z', F(3));
     er.path('M 44 -88 Q 58 -110 84 -122', W(1.8));
-    /* coin slot on the back */
-    pg.rect(-78, -98, 88, 14, Object.assign({ rx: 7 }, F(2.8)));
-    /* the coin: rim thickness + face + $, clipped at the slot so it really goes in */
-    const hole = sub(intro, { 'clip-path': clip(intro, 'M -220 -280 L 220 -280 L 220 -91 L -220 -91 Z') }), cn = sub(hole);
+    /* coin slot on the back — a curved slit that follows the back's curve (16 px inside the outline) */
+    const backY = x => 18 - 128 * Math.sqrt(1 - ((x + 12) / 160) ** 2) + 16, SY = f1(backY(-34));
+    const tilt = Math.atan(128 * ((-34 + 12) / 160) / (160 * Math.sqrt(1 - ((-34 + 12) / 160) ** 2))) * 180 / Math.PI;   // slope of the back at the coin
+    const slotD = 'M ' + [-80, -66, -52, -38, -24, -10, 4, 12].map(x => `${x} ${f1(backY(x))}`).join(' L ');
+    pg.path(slotD, { sw: 17 }); pg.path(slotD, { sw: 10, stroke: C.fill });
+    /* the coin: rim thickness + face + $, tilted with the slot and clipped along the slit so it really sinks in */
+    const clipD = 'M -220 -280 L 220 -280 L 220 ' + f1(backY(60)) + ' L ' + [60, 40, 20, 0, -20, -40, -60, -80, -100, -120].map(x => `${x} ${f1(backY(x))}`).join(' L ') + ' L -220 ' + f1(backY(-120)) + ' Z';
+    const hole = sub(intro, { 'clip-path': clip(intro, clipD) }), tg = sub(hole, { transform: `rotate(${f1(tilt)} -34 ${SY}) translate(0 ${f1(SY + 91)})` }), cn = sub(tg);
     cn.ellipse(-42, -107, 32, 37, F(3)); cn.ellipse(-34, -107, 32, 37, F(3));
     cn.path('M -25 -119 Q -25 -127 -34 -127 Q -44 -127 -44 -117 Q -44 -109 -34 -107 Q -24 -105 -24 -96 Q -24 -87 -34 -87 Q -42 -87 -44 -94 M -34 -133 L -34 -81', W(2.6));
     on(cn, p, .7, { loop: 2.6, ox: -34, oy: -91,
@@ -304,8 +308,8 @@
       o: [[0, 0], [.12, 0], [.2, 1], [1.2, 1], [1.22, 0], [2.6, 0]] });
     /* clink: three short strokes spring from the slot as the coin lands inside */
     const ck = sub(intro); [-150, -90, -30].forEach(a => { const r0 = 46, r1 = 64, c = Math.cos(a * Math.PI / 180), s = Math.sin(a * Math.PI / 180);
-      ck.line(-34 + c * r0, -91 + s * r0, -34 + c * r1, -91 + s * r1, { sw: 3.2 }); });
-    on(ck, p, .7, { loop: 2.6, ox: -34, oy: -91, o: flash(1.2, 1.5), s: [[0, .7], [1.2, .7], [1.4, 1.1, 'out'], [2.6, 1.1]] });
+      ck.line(-34 + c * r0, SY + s * r0, -34 + c * r1, SY + s * r1, { sw: 3.2 }); });
+    on(ck, p, .7, { loop: 2.6, ox: -34, oy: SY, o: flash(1.2, 1.5), s: [[0, .7], [1.2, .7], [1.4, 1.1, 'out'], [2.6, 1.1]] });
     on(pg, p, .7, { loop: 2.6, ox: 0, oy: 168, sy: [[0, 1], [1.18, 1], [1.26, .93, 'out'], [1.42, 1.04, 'out'], [1.58, .99], [1.7, 1, 'soft']],
       sx: [[0, 1], [1.18, 1], [1.26, 1.05, 'out'], [1.42, .98, 'out'], [1.58, 1.005], [1.7, 1, 'soft']] });
     on(tl, p, .7, { loop: 2.6, ox: -166, oy: 10, r: [[0, 0], [1.22, 0], [1.32, 18, 'out'], [1.5, -14, 'io'], [1.68, 8, 'io'], [1.86, 0, 'soft']] });
