@@ -37,9 +37,10 @@
   tent-pro ชุด 14 ไม่แตะ) render + ส่งแล้ว. ผู้ใช้ตอบ **"ไม่ต้องย้อนกลับไปแก้"** — ชุด 1–17 คงแบบเดิม, แบบใหม่ใช้กับงานต่อจากนี้.
   ผู้ใช้สั่ง **"ทำให้รถบรรทุกกลับมาเป็นเวอร์ชั่นก่อนหน้านี้"** → truck-pro กลับเป็นแบบเดิม (2 ล้อ, ตู้มีเส้นขอบในเทา) render 18a ใหม่แล้ว.
 
-### รอบถัดไป — ชุด 18 (`pro18.js`, รอบสุดท้าย 11 อัน → ใช้แม่แบบตาราง 4 แถวคงที่ของ `pro-icons-6a.html` ถ้าแผ่นไม่เต็ม)
-presentation · receipt · shopping-bag · truck · calendar-check · calendar-x · moon · sun · sunrise · sunset · timer
-(wifi/moon มีแบบ basic → ทำ pro ใหม่. settings = gears-pro, alarm-clock = alarm-pro, smartphone = notify-pro มีแล้ว)
+### ถัดไป
+- รายชื่อ CutPack **ครบแล้ว** (ชุด 18 ส่งแล้ว รอผู้ใช้ตอบ "ผ่าน"). เหลือแค่อวัยวะ 10 อันข้างล่าง — ทำเมื่อผู้ใช้สั่งเท่านั้น.
+- ไอคอนใหม่ที่ผู้ใช้ขอเพิ่ม → ใช้แบบ **ref detail** (`pro18.js`): `W()` = เส้นรายละเอียดสีขาว, `F()` = เส้นขอบ + ถมดำโปร่ง.
+- ข้อยกเว้นที่ผู้ใช้เลือกแบบเดิม: `moon-pro`, `tent-pro`, `truck-pro`.
 
 ### พักไว้ — อวัยวะคน (ผู้ใช้: "พวกมือ หู หรืออวัยวะต่าง ๆ พักไว้ก่อน ... เพราะคุณวาดพวกนี้ได้ไม่ค่อยดีเท่าไร")
 heart-handshake · thumbs-up · hand · footprints · hand-heart · hand-helping · ear-off · hand-coins · hand-metal · scan-eye (ตา — ผู้ใช้ "ข้ามก่อน")
@@ -67,6 +68,7 @@ heart-handshake · thumbs-up · hand · footprints · hand-heart · hand-helping
 | `pro15.js` | 15 A/B | wand-sparkles apple battery-charging battery-full bed bed-double bike cigarette-off glass-water pill · stethoscope thermometer zap-off banana beef cake candy carrot chef-hat cherry — มี `zee()` (ตัว z ลอย), `STAR4`, `ZAP` |
 | `pro16.js` | 16 A/B | citrus coffee cookie cooking-pot croissant cup-soda egg grape ice-cream-cone pizza · sandwich soup wheat bot cloud code cog cpu database filter — มี `steam()` |
 | `pro17.js` | 17 A/B | hammer link-2 plug power qr-code wifi wifi-off wrench badge-dollar-sign calculator · circle-dollar-sign clipboard-check contact credit-card file-text goal id-card landmark percent piggy-bank — มี `DOLLAR()`, `bust()` (bizUser ย่อ + clip ในกรอบ), `WAVES` |
+| `pro18.js` | 18 A/B (6+5) | presentation receipt shopping-bag truck† calendar-check calendar-x · moon† sun sunrise sunset timer — **แบบ ref detail** (`W()` `F()` `calendar()` `cell()` `rays()`); † = แบบเดิมตามที่ผู้ใช้เลือก |
 | `people.js` | — (โหลดท้ายสุด) | **user แบบใหม่** แทนทุกอันที่มี `*` (user users user-plus user-check user-x user-round users-round contact-round) — **มี `GL.parts.bizUser`** |
 
 `*` = ถูก `people.js` ทับแล้ว (โค้ดเก่ายังอยู่ในไฟล์เดิม แต่ทุกชื่อ/alias ชี้ไปตัวใหม่). `†` = อวัยวะที่พักไว้.
@@ -139,7 +141,7 @@ rig('flag-pro', .6, 'rise', p => {           // ชื่อ, เวลาท่
 
 ## ไฟล์ผลงาน (`motion/glow-line-pro-icons/`)
 
-- วิดีโอ + ภาพนิ่งทุกแผ่น: `pro-icons-grid.mp4` (ชุด 1), `pro-icons-batch2.mp4`, `pro-icons-batch3a/3b … 17a/17b.mp4`, `pro-icons-batch7a.mp4`,
+- วิดีโอ + ภาพนิ่งทุกแผ่น: `pro-icons-grid.mp4` (ชุด 1), `pro-icons-batch2.mp4`, `pro-icons-batch3a/3b … 18a/18b.mp4`, `pro-icons-batch7a.mp4`,
   `pro-icons-people.mp4` (user ใหม่ทั้ง 8 อัน) + `*-still.png`; `pro-icons-tour.mp4` (ชุด 1 ทีละอันเต็มจอ).
 - แผ่นที่มีไอคอนคนถูก render ใหม่หลังเปลี่ยน user แล้ว: batch2, 3a, 4a, 8b, 13a, 13b.
 - ภาพเทียบ: `detail6/` `detail8/` (ก่อน-หลังเพิ่มรายละเอียด), `cleanup/` (ลดรายละเอียด, `book-ruled-lines.png`, `human-figure.png`),

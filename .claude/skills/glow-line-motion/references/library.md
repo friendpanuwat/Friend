@@ -22,15 +22,15 @@
 
 ชื่อ pair ใช้แทน icon ได้ (ได้ฝั่งเรียบ), หรือส่งฟังก์ชัน `p => { … }` ที่วาดเอง.
 
-## ไอคอนแอนิเมชันระดับโปร (`-pro`, ชุดทดลอง 10 แบบ — `assets/pro.js`)
+## ไอคอนแอนิเมชันระดับโปร (`-pro`) — คลังหลัก 298 อัน (`assets/pro.js` … `pro18.js` + `people.js`)
 
-`heart-pro` `bell-pro` `alarm-pro` `bulb-pro` `mail-pro` `rocket-pro` `growth-pro` `gears-pro` `target-pro` `notify-pro`
-— ลายเส้นละเอียดกว่า (เส้นขอบใน แสงสะท้อน หมุด ขีดสเกล 60 ขีด เกลียว) และขยับทีละชิ้นส่วนด้วยคีย์เฟรม (`GL.kf`):
+ชุดแรก (`pro.js`): `heart-pro` `bell-pro` `alarm-pro` `bulb-pro` `mail-pro` `rocket-pro` `growth-pro` `gears-pro` `target-pro` `notify-pro`
+— ลายเส้นละเอียดกว่า (เส้นขอบใน หมุด ขีดสเกล เกลียว — ไม่มีแสงสะท้อน) และขยับทีละชิ้นส่วนด้วยคีย์เฟรม (`GL.kf`):
 ย่อก่อนพุ่ง ยืดหดตอนกระทบ ชิ้นส่วนที่ตามช้ากว่า แกว่งแล้วค่อย ๆ หยุด. แต่ละอันมีฉากเข้าของตัวเอง แล้ววนเป็นรอบ.
 ใช้ได้ทุกช่อง `icon` (beats, spot, flow …). ดู `examples/pro-icons.html` / `pro-tour.html`. วิธีสร้าง rig ใหม่: ดูโค้ดใน `pro.js`
 (หนึ่งกลุ่มต่อหนึ่งชิ้นส่วนที่ขยับ, `on(group, p, start, { loop, ox, oy, r: [[t, v, ease], …] })`).
 
-**ชุด `-pro` ทั้งหมด (200+ อัน, ไฟล์ `assets/pro*.js` + `people.js`)**: รายชื่อและสถานะอยู่ใน `HANDOFF.md`; ทุกชื่อ Lucide ที่ทำแล้วเรียกได้ทั้ง
+**ชุด `-pro` ทั้งหมด (298 อัน = ทุกชื่อ Lucide ที่ CutPack ใช้ ยกเว้นอวัยวะ 10 อันที่พักไว้)**: รายชื่อต่อไฟล์อยู่ใน `HANDOFF.md`; ทุกชื่อ Lucide ที่ทำแล้วเรียกได้ทั้ง
 `<ชื่อ>` และ `<ชื่อ>-pro` (ตัวเก่าเป็น `<ชื่อ>-basic`). คน: `GL.parts.human` (ทั้งตัว, pro13.js) · `GL.parts.bizUser` (ครึ่งตัว, people.js).
 
 ## ชิ้นส่วนสำหรับประกอบฉากเอง (`GL.parts.*` — signature ใน `api.md`)
