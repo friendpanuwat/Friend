@@ -1161,7 +1161,7 @@
      Found by rendering all 298 with loop:false (HANDOFF: motion controls). Override per call with GL.art(…, { pose }). */
   const POSE = { 'user-check-pro': 1.5, 'puzzle-pro': 1.2, 'bookmark-check-pro': 1, 'heart-pulse-pro': 1.2, 'heart-off-pro': 1.2,
     'signature-pro': 2.3, 'party-popper-pro': 1.2, 'clipboard-check-pro': 1.4, 'file-text-pro': 2.2, 'calendar-check-pro': 1.5,
-    'calendar-x-pro': 1.5, 'sunrise-pro': 1.5 };
+    'calendar-x-pro': 1.5, 'sunrise-pro': 1.5, 'piggy-bank-pro': .8 };
 
   /* amp > 1 makes these rigs hop / swing past their ±200 box (measured at amp 1.5, visible pixels over one loop) →
      amp is capped at this value for them. Lift it per call with GL.art(…, { amp: 1.5, ampMax: 2 }) when there is room around. */

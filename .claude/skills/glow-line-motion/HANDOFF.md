@@ -53,6 +53,17 @@ bus bell flower timer × แถว ปกติ / amp 0.5 / amp 1.5 / speed 0.5 
 วาง `Object.keys(GL.icons).filter(k => k.endsWith('-pro')).slice(k*20, k*20+20)` ด้วย `{ loop: false }` ถ่ายที่ t=3; หา pose = สแกน pose 0–4 วิ
 นับพิกเซลสว่าง (>90) เลือกกลางช่วงที่ภาพเต็ม; ล้นกรอบ = กล่องพิกเซลสว่างตลอดรอบ (t = dur…dur+4 ทุก 0.1) ที่ amp 1 เทียบ 1.5 บนแคนวาส 600×600, w 300.
 
+## ▶ แก้ไอคอน `piggy-bank-pro` ตามภาพอ้างอิงของผู้ใช้ (2026-11-12) — **ส่งภาพนิ่งเทียบแล้ว รอผู้ใช้ตอบ**
+
+ผู้ใช้ส่งภาพอ้างอิง (หมูออมสินการ์ตูนสีชมพู มุม 3/4, เหรียญ $ ค้างในช่อง) "แก้ไข icon กระปุกออมสินหมู ... ห้าม copy reference มา 100%".
+- วาดใหม่ใน `pro17.js` แบบ **ref detail** (`W()` `F()` ในตัว rig): ตัวกลมอ้วนมุม 3/4 **หันขวา** (ภาพอ้างอิงหันซ้าย), จมูกทรงกระบอกมีโคนโค้ง + รูจมูก,
+  หู 2 ข้าง (ข้างไกลหลังลำตัว, ข้างใกล้แปะบนตัว) มีเส้นพับใน, ตา 2 ข้าง (ใกล้ใหญ่/ไกลเล็ก), หางขด, ขา 4 ข้าง (ข้างใกล้มีเส้นกีบ), เส้นท้องสั้นแนบท้องด้านหลัง,
+  ช่องหยอด + เหรียญมีขอบหนา + `$` (clip ที่ช่องให้จมลงจริง). **ไม่เอา**: สี, แสงสะท้อน, แก้มแดง, ลายขอบเหรียญ, ปาก.
+- ท่าวน 2.6 วิ: เหรียญหล่น → ค้างครึ่งช่อง โยก → จมลง "กริ๊ง" (3 ขีด) → ตัวหมูยุบ-เด้ง, หางสะบัด, หูกระดิก, กะพริบตา. ท่าเข้า pop, ท่าออก pop.
+- `GL.POSE['piggy-bank-pro'] = .8` (ตอนนิ่ง = เหรียญค้างครึ่งช่อง). check_icons ผ่าน, amp 1.5 อยู่ในกรอบ (ไม่ต้องใส่ AMPMAX).
+- ภาพเทียบ: `motion/glow-line-pro-icons/piggy-redesign/compare.png`. **ยังไม่ทำวิดีโอ** (กฎข้อ 12) — ทำเมื่อผู้ใช้ตอบผ่าน/สั่งทำคลิป
+  (แผ่นตัวอย่าง: วางไอคอนเดี่ยว w 820 บนจอ 1080×1080 หรือใส่ในแผ่น `pro-icons-17b.html`).
+
 ## พักไว้ — อวัยวะคน (ผู้ใช้: "พวกมือ หู หรืออวัยวะต่าง ๆ พักไว้ก่อน ... เพราะคุณวาดพวกนี้ได้ไม่ค่อยดีเท่าไร")
 heart-handshake · thumbs-up · hand · footprints · hand-heart · hand-helping · ear-off · hand-coins · hand-metal · scan-eye (ตา — "ข้ามก่อน")
 + 4 อันเก่าที่ยังไม่ได้ลดรายละเอียดตามกฎ: handshake ear thumbs-down biceps-flexed. **ห้ามแตะจนกว่าผู้ใช้สั่ง** — ถ้ากลับมาทำ เสนอแนวทางเป็นภาพก่อน.
@@ -90,7 +101,7 @@ heart-handshake · thumbs-up · hand · footprints · hand-heart · hand-helping
 | `pro14.js` | 14 | party-popper smile-plus bus car church compass flower globe hospital house map mountain navigation plane ship sprout tent train-front trees star-off — globe ใช้ `HOOK`; `puff()` |
 | `pro15.js` | 15 | wand-sparkles apple battery-charging battery-full bed bed-double bike cigarette-off glass-water pill stethoscope thermometer zap-off banana beef cake candy carrot chef-hat cherry — `zee()` `STAR4` `ZAP` |
 | `pro16.js` | 16 | citrus coffee cookie cooking-pot croissant cup-soda egg grape ice-cream-cone pizza sandwich soup wheat bot cloud code cog cpu database filter — `steam()` |
-| `pro17.js` | 17 | hammer link-2 plug power qr-code wifi wifi-off wrench badge-dollar-sign calculator circle-dollar-sign clipboard-check contact credit-card file-text goal id-card landmark percent piggy-bank — `DOLLAR()` `bust()` `WAVES` |
+| `pro17.js` | 17 | hammer link-2 plug power qr-code wifi wifi-off wrench badge-dollar-sign calculator circle-dollar-sign clipboard-check contact credit-card file-text goal id-card landmark percent piggy-bank (วาดใหม่แบบ ref detail 2026-11-12) — `DOLLAR()` `bust()` `WAVES` |
 | `pro18.js` | 18 (6+5) | presentation receipt shopping-bag truck‡ calendar-check calendar-x moon‡ sun sunrise sunset timer — **แบบ ref detail** (`W()` `F()` `calendar()` `cell()` `rays()`) |
 | `people.js` | — (โหลดท้ายสุด) | user แบบใหม่ แทนทุกอันที่มี `*` — **`GL.parts.bizUser`** |
 
