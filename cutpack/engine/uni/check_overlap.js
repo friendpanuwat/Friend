@@ -3,12 +3,13 @@
    Builds every scene in one style and looks at 5 moments of each for
      card × card      two visible cards that cross each other (one fully inside the other is fine)
      thing on edge    a badge / chip that sits across a card's edge (fine only if the style draws it solid)
-   usage: NODE_PATH=$(npm root -g) node check_overlap.js <style> <work_dir> [scene ids…]   (no ids = every scene)
+   usage: NODE_PATH=$(npm root -g) node check_overlap.js <style> <work_dir> [scene ids…]   (no ids = every scene; EXTRA=<sketch file> adds sketches)
    writes <work_dir>/overlaps.json and prints the scenes that have any
    ===================================================================== */
 const {chromium} = require('playwright'); const fs = require('fs'), path = require('path'), {execFileSync} = require('child_process');
 const [style, work, ...only] = process.argv.slice(2), TIMES = [1.6, 2.4, 2.9, 3.5, 4.1];
-const build = (id, dir) => execFileSync('python3', [path.join(__dirname, 'build.py'), dir, style, id]);
+const build = (id, dir) => execFileSync('python3', [path.join(__dirname, 'build.py'), dir, style, id]
+  .concat(process.env.EXTRA ? ['--extra', process.env.EXTRA] : []));   // EXTRA=sketches/<file>.js: check still sketches too (as check_contrast.js)
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({viewport: {width: 1080, height: 1920}});
   const open = async dir => { await page.goto('file://' + path.join(dir, 'scene.html')); await page.evaluate(() => document.fonts.ready); };
