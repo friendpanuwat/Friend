@@ -164,4 +164,79 @@
 
   Object.assign(G.icons, D);
   G.DETAIL = { heart: Object.keys(D) };
+
+  /* ═══ MODERN MINIMAL + DETAIL ('-mn'): monoline (2.6 main · 1.1 fine), outlines only, one solid accent,
+     detail through precision — an outline gap, one offset contour, tiny dots & ticks, lots of empty space ═══ */
+  const M1 = { sw: 2.6 }, M2 = { sw: 1.1, stroke: C.soft }, DOT = r => ({ r });
+  /* the path drawn as an open line with a gap between fractions a..b (0–1 along the path) */
+  const gap = (p, d, a, b, o = M1) => { const pts = sample(d, 180); const keep = pts.filter((_, i) => { const f = i / 180; return a < b ? (f < a || f > b) : (f > b && f < a); });
+    const i0 = pts.findIndex((_, i) => i / 180 > b); const ordered = a < b ? [...pts.slice(i0), ...pts.slice(0, Math.floor(a * 180))] : keep; return p.poly(ordered, o); };
+  const DM = {}, dm = (name, fn) => { DM[name] = fn; };
+
+  dm('heart-gem-mn', p => {
+    gap(p, H(2), .04, .1);
+    p.line(-150, -56, 150, -56, M2); p.poly([[-150, -56], [-60, -144], [0, -76], [60, -144], [150, -56]], M2);
+    p.poly([[-96, -56], [0, 140], [96, -56]], M2); p.line(0, -76, 0, -56, M2);
+    star4(p, 118, -150, 11); p.dot(-150, 96, 2.6);
+  });
+  dm('heart-contour-mn', p => {
+    gap(p, H(2.05), .9, .96); p.path(H(1.6, 0, 4), M2); p.path(H(1.15, 0, 8), M2);
+    p.path(H(.58, 0, 10), { fill: C.ink, sw: 1.4 });
+    [-1, 1].forEach(sd => p.line(sd * 176, -6, sd * 196, -6, M2));
+  });
+  dm('heart-monitor-mn', p => {
+    p.rect(-176, -118, 352, 220, { rx: 26, sw: 2.6 }); p.line(-40, 150, 40, 150, M1); p.line(0, 102, 0, 150, M2);
+    p.poly([[-150, 10], [-70, 10], [-52, -60], [-32, 70], [-14, 10], [40, 10], [54, -14], [68, 10], [118, 10]], { sw: 2.6 });
+    p.circle(118, 10, 5, { fill: C.ink, sw: 1 }); p.circle(118, 10, 14, M2);
+    p.path(H(.22, -140, -88), { fill: C.ink, sw: 1 }); p.line(-114, -88, -82, -88, M2);
+    [-140, -120, -100].forEach(x => p.dot(x + 270, -88, 2.2));
+  });
+  dm('heart-script-mn', p => {
+    const q = p.child({ transform: 'scale(1.6)' }, 1.6);
+    q.path('M -110 104 C -64 104, -34 92, 0 70 C -96 8, -86 -72, -38 -72 C -14 -72, 0 -54, 0 -38 C 0 -54, 14 -72, 38 -72 C 86 -72, 96 8, 0 70 C 30 88, 64 74, 58 54 C 52 38, 30 48, 40 68 C 52 92, 84 104, 110 104', { sw: 1.7 });
+    q.dot(-110, 104, 2.2); q.dot(110, 104, 2.2);
+  });
+  dm('heart-post-mn', p => {
+    p.rect(-150, -180, 300, 360, { rx: 28, sw: 2.6 });
+    p.circle(-114, -144, 12, M2); p.line(-90, -144, -30, -144, M2);
+    p.rect(-122, -114, 244, 180, { rx: 14, sw: 1.1, stroke: C.soft });
+    gap(p, H(.95, 0, -24), .04, .12);
+    p.path(H(.22, -112, 112), { fill: C.ink, sw: 1 }); p.line(-88, 112, -48, 112, M2);
+    p.line(-122, 148, 40, 148, M2); [76, 98, 120].forEach(x => p.dot(x, 112, 2.2));
+  });
+  dm('heart-mended-mn', p => {
+    const Z = ' L -8 40 L 8 18 L -10 -4 L 6 -22 Z';
+    [-1, 1].forEach(sd => p.child({ transform: `translate(${sd * 9} 0) scale(1.95)` }, 1.95).path(`M 0 -38 C 0 -54, ${sd * 14} -72, ${sd * 38} -72 C ${sd * 86} -72, ${sd * 96} 8, 0 70` + Z, { sw: 1.35 }));
+    [-30, 22, 84].forEach(y => p.line(-16, y, 16, y, M2));
+    p.dot(0, -120, 2.6);
+  });
+  dm('heart-balloon-mn', p => {
+    gap(p, H(1.55, 0, -50), .08, .13);
+    p.path('M -48 -96 Q -58 -60 -48 -34', M2);
+    p.poly([[-8, 66], [8, 66], [0, 56]], { sw: 2 });
+    p.path('M 0 66 C 26 96, -26 126, 0 156 C 18 176, -8 188, 0 198', M2);
+  });
+  dm('heart-padlock-mn', p => {
+    p.path('M -48 -70 L -48 -100 A 48 48 0 0 1 48 -100 L 48 -70', { sw: 2.6 });
+    p.path('M -36 -74 L -36 -100 A 36 36 0 0 1 36 -100 L 36 -74', M2);
+    gap(p, H(1.7, 0, 46), .9, .95); p.path(H(1.48, 0, 42), M2);
+    p.circle(0, 30, 10, { fill: C.ink, sw: 1 }); p.line(0, 40, 0, 62, { sw: 2.6 });
+  });
+  dm('heart-8bit-mn', p => {
+    const M = ['.XX.XX.', 'XXXXXXX', 'XXXXXXX', '.XXXXX.', '..XXX..', '...X...'], c = 46, x0 = -c * 3.5, y0 = -c * 3;
+    M.forEach((row, r) => [...row].forEach((ch, k) => { if (ch !== 'X') return; const hot = r === 1 && k === 1;
+      p.rect(x0 + k * c + 5, y0 + r * c + 5, c - 10, c - 10, hot ? { rx: 6, fill: C.ink, sw: 1 } : { rx: 6, sw: 1.6 }); }));
+    p.rect(150, -170, 12, 12, { rx: 3, fill: C.ink, sw: 1 }); p.rect(-170, 120, 10, 10, { rx: 3, sw: 1.4 });
+  });
+  dm('heart-angel-mn', p => {
+    gap(p, H(1.1, 0, 10), .04, .1);
+    [-1, 1].forEach(sd => { const w = p.child({ transform: `scale(${sd} 1)` });
+      w.path('M -80 -10 C -120 -40, -160 -50, -190 -40 C -170 -20, -140 -6, -100 0', { sw: 2.6 });
+      w.path('M -84 8 C -120 -10, -150 -14, -174 -6 C -150 10, -120 18, -94 18', M2);
+      w.path('M -88 24 C -112 16, -132 16, -150 22', M2); });
+    p.ellipse(0, -110, 52, 11, { sw: 1.8 });
+  });
+  Object.assign(G.icons, DM);
+  G.DETAIL.heartMin = Object.keys(DM);
+
 })();
