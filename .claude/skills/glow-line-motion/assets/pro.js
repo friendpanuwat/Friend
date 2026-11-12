@@ -25,7 +25,6 @@
     h.path('M 0 50 C 66 6, 62 -52, 36 -54 C 20 -55, 8 -46, 4 -34', { stroke: C.soft, sw: 1.3 });
     h.path('M -64 -26 Q -64 -52 -40 -58', { sw: 3.6 });
     h.dot(-68, -12, 2.6);
-    h.child({ transform: 'translate(0 -6) scale(.62)' }, .62).path(HEART, mute); h.path('M 48 18 Q 40 36 24 46', fine); h.dot(30, -54, 1.8);
     on(beat, p, .7, { loop: 1.6, sx: [[0, 1], [.1, 1.14, 'out'], [.22, .94], [.34, 1.06], [.5, 1]], sy: [[0, 1], [.1, .88, 'out'], [.22, 1.08], [.34, .97], [.5, 1]] });
     [[-150, -110, 18], [156, -96, 14], [132, 118, 12]].forEach(([x, y, r], i) => { const sp = sub(intro); star4(sp, x, y, r);
       on(sp, p, .8 + i * .22, { loop: 1.6, ox: x, oy: y, s: [[0, 0], [.22, 1.1, 'back'], [.5, 0, 'in']], r: [[0, 0], [.5, 90, 'lin']] }); });
@@ -47,8 +46,6 @@
     sw.path('M -86 22 Q 0 38 86 22', { stroke: C.soft, sw: 1.6 }); sw.path('M -84 4 Q 0 20 84 4', { stroke: C.soft, sw: 1.2 });
     sw.rect(-130, 68, 260, 22, { rx: 11, fill: C.fill, sw: 3 });
     sw.path('M -58 -62 Q -68 -24 -66 14', { sw: 3.4 }); sw.dot(-66, 30, 2.4);
-    for (let x = -108; x <= 108; x += 27) sw.circle(x, 79, 2.6, { sw: 1.2, stroke: C.soft });
-    sw.path('M -30 -110 Q 0 -120 30 -110', fine); dash(sw, -88, 46, 88, 46, 5, 7, mute); sw.circle(0, -128, 5, mute);
     on(sw, p, .7, { loop: 2.6, ox: 0, oy: -128, r: [[0, 0], [.14, -20, 'out'], [.34, 16], [.52, -10], [.68, 6], [.82, -2.5], [.95, 0]] });
     on(cl, p, .7, { loop: 2.6, ox: 0, oy: 70, r: [[0, 0], [.18, 16, 'out'], [.38, -14], [.56, 9], [.72, -4], [.9, 0]] });
     on(intro, p, 0, { y: [[0, -90], [.55, 0, 'back']], o: [[0, 0], [.22, 1]] });
@@ -64,11 +61,9 @@
     const vib = sd => { const v = sub(body); [[0, 0], [16, 22]].forEach(([dx, dy]) => v.path(`M ${sd * (140 + dx)} ${-130 + dy} q ${sd * 10} 14 0 28`, { stroke: C.soft, sw: 2.6 })); return v; };
     const vr = vib(1), vl = vib(-1);
     body.circle(0, 0, 122, { fill: C.fill, sw: 3.4 }); body.circle(0, 0, 108, { stroke: C.soft, sw: 1.6 });
-    for (let i = 0; i < 60; i++) { const a = i * Math.PI / 30, big = i % 5 === 0, r1 = big ? 84 : 92;
-      body.line(Math.sin(a) * r1, -Math.cos(a) * r1, Math.sin(a) * 98, -Math.cos(a) * 98, { sw: big ? 3 : 1.1, stroke: big ? C.ink : C.soft }); }
+    for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; body.line(Math.sin(a) * 84, -Math.cos(a) * 84, Math.sin(a) * 98, -Math.cos(a) * 98, { sw: 3 }); }
     body.path('M -84 -44 A 95 95 0 0 1 -44 -84', { sw: 3.2 });
-    [-1, 1].forEach(sd => { body.circle(sd * 98, 142, 6, { fill: C.fill, sw: 2 }); body.circle(sd * 80, -108, 4, { sw: 1.4, stroke: C.soft }); });
-    body.line(-22, 46, 22, 46, mute); body.line(-14, 56, 14, 56, mute);
+    [-1, 1].forEach(sd => body.circle(sd * 98, 142, 6, { fill: C.fill, sw: 2 }));
     const hr = sub(body); hr.line(0, 8, 0, -52, { sw: 6.5 });
     const mn = sub(body); mn.line(0, 12, 0, -78, { sw: 4.4 });
     const sc = sub(body); sc.line(0, 22, 0, -90, { sw: 1.6 }); sc.circle(0, -70, 5, { fill: C.fill, sw: 1.6 });
@@ -102,8 +97,6 @@
     intro.rect(-38, 62, 76, 14, { rx: 4, fill: C.fill, sw: 3 });
     [[-34, 76, 68], [-31, 89, 62], [-28, 102, 56]].forEach(([x, y, w]) => intro.rect(x, y, w, 13, { rx: 6.5, fill: C.fill, sw: 2.4 }));
     intro.path('M -14 115 Q 0 130 14 115', { sw: 3.2 });
-    [82, 95, 108].forEach((y, i) => intro.line(-26 + i * 3, y, -6 + i * 3, y, { sw: 1.8 })); intro.line(-30, 69, 30, 69, mute);
-    lit.path('M 52 -64 Q 60 -40 52 -16', fine); lit.dot(40, -96, 2);
     on(lit, p, .35, { o: [[0, .3], [.3, .3], [.34, 1, 'lin'], [.4, .35, 'lin'], [.46, 1, 'lin'], [.53, .55, 'lin'], [.6, 1, 'lin']] });
     on(intro, p, 0, { y: [[0, 40], [.45, 0, 'out']], o: [[0, 0], [.2, 1]] });
   });
@@ -117,9 +110,7 @@
     li.rect(-122, -58, 244, 150, { rx: 6, fill: C.fill, sw: 2.6 });
     li.line(-96, -30, 30, -30, { sw: 3 });
     [-6, 14, 34].forEach((y, i) => li.line(-96, y, 96 - i * 30, y, { sw: 1.5, stroke: C.soft }));
-    li.path('M 40 66 q 10 -12 20 0 t 20 0 t 20 0', { sw: 1.6 });
-    li.rect(56, -48, 46, 54, { rx: 3, sw: 2 }); li.rect(63, -41, 32, 40, { rx: 2, ...mute }); for (let i = 0; i < 6; i++) { li.circle(56 + i * 9.2, -48, 1.6, mute); li.circle(56 + i * 9.2, 6, 1.6, mute); }
-    li.path('M 46 -30 q 8 -6 16 0 t 16 0 t 16 0 t 16 0', mute); li.path('M 46 -16 q 8 -6 16 0 t 16 0 t 16 0 t 16 0', mute);
+    li.rect(56, -48, 46, 54, { rx: 3, sw: 2 });
     intro.path('M -150 -60 L 0 44 L 150 -60 L 150 108 Q 150 120 138 120 L -138 120 Q -150 120 -150 108 Z', { fill: C.fill, sw: 3 });
     intro.line(-142, 112, -26, 30, { sw: 1.4, stroke: C.soft }); intro.line(142, 112, 26, 30, { sw: 1.4, stroke: C.soft });
     const front = sub(intro); front.shape([[-150, -70], [0, 40], [150, -70]], { fill: C.fill, sw: 3 }); front.path('M -118 -64 L 0 18 L 118 -64', { stroke: C.soft, sw: 1.3 });
@@ -150,11 +141,8 @@
     hov.rect(-27, 86, 54, 14, { rx: 4, fill: C.fill, sw: 2.6 });
     hov.path('M 0 -152 C 34 -120, 44 -60, 44 0 L 44 70 Q 44 88 28 90 L -28 90 Q -44 88 -44 70 L -44 0 C -44 -60, -34 -120, 0 -152 Z', { fill: C.fill, sw: 3.2 });
     hov.path('M -33 -88 Q 0 -100 33 -88', { stroke: C.soft, sw: 1.6 }); hov.line(-44, 44, 44, 44, { stroke: C.soft, sw: 1.6 });
-    [-30, -10, 10, 30].forEach(x => hov.dot(x, 56, 2.4));
     hov.circle(0, -30, 24, { fill: C.fill, sw: 3.2 }); hov.circle(0, -30, 15, { stroke: C.soft, sw: 1.4 }); hov.path('M -12 -38 Q -8 -46 0 -48', { sw: 2.6 });
     hov.path('M -30 -20 Q -32 20 -30 60', { sw: 2.2, stroke: C.soft });
-    for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3; hov.dot(Math.cos(a) * 29, -30 + Math.sin(a) * 29, 1.8); }
-    hov.path('M -62 72 L -48 54', fine); hov.path('M 62 72 L 48 54', fine); dash(hov, 30, -70, 30, 36, 6, 7, mute); hov.line(-8, -138, 8, -138, fine);
     on(hov, p, .8, { loop: 1.6, ox: 0, oy: 0, y: [[0, 0], [.8, -8, 'soft'], [1.6, 0, 'soft']], r: [[0, 0], [.8, 1.6, 'soft'], [1.6, 0, 'soft']] });
     on(intro, p, 0, { y: [[0, 200], [.15, 214, 'out'], [.75, 0, 'back']], o: [[0, 0], [.12, 1]] });
   });
@@ -164,12 +152,11 @@
     const intro = sub(p), base = 130;
     [60, -10, -80].forEach(y => intro.line(-166, y, 178, y, { stroke: C.rule, sw: 1.2 }));
     intro.line(-170, -150, -170, base, { sw: 3 }); intro.line(-170, base, 182, base, { sw: 3 });
-    [60, -10, -80].forEach(y => { intro.line(-178, y, -170, y, { sw: 2 }); for (let x = -150; x < 180; x += 24) intro.dot(x, y, 1.3, { fill: C.mute, stroke: C.mute }); });
+    [60, -10, -80].forEach(y => intro.line(-178, y, -170, y, { sw: 2 }));
     [-130, -70, -10, 50, 110].forEach(x => intro.line(x, base, x, base + 10, { sw: 1.6 }));
     const xs = [-130, -70, -10, 50, 110], hs = [52, 88, 70, 126, 174];
     xs.forEach((x, i) => { const bo = sub(intro), bi = sub(bo), last = i === xs.length - 1, top = base - hs[i];
       bi.rect(x - 20, top, 40, hs[i], { rx: 6, fill: C.fill, sw: last ? 3.4 : 2.4, stroke: last ? C.ink : C.soft });
-      bi.line(x - 10, top + 12, x - 10, base - 10, { sw: 1.2, stroke: C.soft });
       on(bo, p, .2 + i * .1, { ox: x, oy: base, sy: [[0, 0], [.45, 1, 'back']] });
       on(bi, p, 1.8 + i * .12, { loop: 2.2, ox: x, oy: base, sy: [[0, 1], [.3, 1.06, 'out'], [.7, 1, 'soft']] }); });
     const pts = [[-110, 64], [-50, 28], [10, 46], [70, -14], [130, -62], [166, -98]];
@@ -196,8 +183,7 @@
       g.path(gear(R, N), { fill: C.fill, sw: 3 });
       g.circle(0, 0, R - 34, { stroke: C.soft, sw: 1.6 });
       for (let i = 0; i < holes; i++) { const a = i * 2 * Math.PI / holes; g.circle(Math.cos(a) * (R - 58) * .9, Math.sin(a) * (R - 58) * .9, R * .1, { stroke: C.soft, sw: 1.6 }); }
-      g.circle(0, 0, R - 20, mute); g.circle(0, 0, R * .26, { fill: C.fill, sw: 3 }); g.circle(0, 0, R * .1, { sw: 2 });
-      for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + .4; g.dot(Math.cos(a) * R * .18, Math.sin(a) * R * .18, 2); }
+      g.circle(0, 0, R * .26, { fill: C.fill, sw: 3 }); g.circle(0, 0, R * .1, { sw: 2 });
       g.path(`M ${-(R - 26) * .7} ${-(R - 26) * .7} A ${R - 26} ${R - 26} 0 0 1 0 ${-(R - 26)}`, { sw: 2.4 });
       on(g, p, .7, { loop: period, r: [[0, rot0], [period, rot0 + turn, 'lin']] });
     };
@@ -216,7 +202,6 @@
     [88, 64, 40].forEach(r => tg.circle(0, 0, r, { sw: 2.6 }));
     tg.circle(0, 0, 16, { fill: C.ink, sw: 2 });
     [0, 1, 2, 3].forEach(i => { const a = i * Math.PI / 2; tg.line(Math.cos(a) * 100, Math.sin(a) * 100, Math.cos(a) * 120, Math.sin(a) * 120, { sw: 2.4 }); });
-    for (let i = 0; i < 24; i++) { const a = i * Math.PI / 12; tg.line(Math.cos(a) * 106, Math.sin(a) * 106, Math.cos(a) * 110, Math.sin(a) * 110, mute); }
     tg.path('M -90 -50 A 104 104 0 0 1 -50 -90', { sw: 3 });
     [0, 1].forEach(i => { const rp = sub(intro); rp.circle(0, 0, 22, { stroke: C.ink, sw: 2.4 });
       on(rp, p, .6, { loop: 3.2, s: [[.36 + i * .12, .6], [1.1 + i * .12, 5, 'out']], o: [[.36 + i * .12, 0], [.38 + i * .12, .8], [1.1 + i * .12, 0, 'out']] }); });
@@ -241,8 +226,6 @@
     ph.rect(-78, -158, 156, 316, { rx: 20, stroke: C.soft, sw: 1.6 });
     ph.rect(-24, -152, 48, 11, { rx: 5.5, fill: C.fill, sw: 2 });
     ph.line(-30, 148, 30, 148, { sw: 3 });
-    ph.text('9:41', -50, -132, { size: 14, color: C.soft }); ph.rect(44, -142, 22, 11, { rx: 3, sw: 1.4, stroke: C.soft }); ph.line(48, -136.5, 58, -136.5, { sw: 3, stroke: C.soft });
-    [0, 1, 2].forEach(i => ph.line(26 + i * 5, -132, 26 + i * 5, -136 - i * 3, { sw: 2, stroke: C.soft })); ph.circle(12, -147, 2.6, { sw: 1.2, stroke: C.soft });
     ph.path('M -82 -100 L -82 40', { sw: 2.6 });
     [-36, 24, 84].forEach(y => { ph.circle(-48, y, 14, { stroke: C.soft, sw: 1.6 }); ph.line(-24, y - 6, 52, y - 6, { stroke: C.soft, sw: 2 }); ph.line(-24, y + 8, 22, y + 8, { stroke: C.soft, sw: 1.3 }); });
     const nt = sub(ph);

@@ -14,12 +14,11 @@
   const shakeKeys = (n, amp, step = .05) => { const k = [[0, 0]]; for (let i = 1; i <= n; i++) k.push([i * step, i % 2 ? -amp : amp, 'lin']); k.push([(n + 1) * step, 0, 'out']); return k; };
   const HEART = 'M 0 70 C -96 8, -86 -72, -38 -72 C -14 -72, 0 -54, 0 -38 C 0 -54, 14 -72, 38 -72 C 86 -72, 96 8, 0 70 Z';
   const BUBBLE = 'M 0 -132 C 86 -132, 146 -76, 146 -6 C 146 64, 86 120, 0 120 C -20 120, -40 117, -58 111 L -128 140 L -108 80 C -132 58, -146 28, -146 -6 C -146 -76, -86 -132, 0 -132 Z';
-  const bubble = q => { q.path(BUBBLE, { fill: C.fill, sw: 3.2 }); q.path('M 0 -114 C 74 -114, 126 -66, 128 -6', fine); q.path('M -112 82 L -120 124 L -64 100', mute);
+  const bubble = q => { q.path(BUBBLE, { fill: C.fill, sw: 3.2 });
     q.path('M -118 -40 C -104 -86, -60 -112, -10 -116', { sw: 3.4 }); q.dot(-124, -16, 2.6); };
   const bust = (q, x, y, s) => { const b = q.child({ transform: `translate(${x} ${y}) scale(${s})` }, s);
-    b.path('M -118 150 C -118 64, -70 30, 0 30 C 70 30, 118 64, 118 150 Z', { fill: C.fill, sw: 3 }); b.path('M -30 34 L 0 74 L 30 34', { sw: 2 }); b.path('M -96 150 C -96 86, -60 52, -20 46', fine);
-    [94, 116, 138].forEach(yy => b.circle(0, yy, 3.2, { sw: 1.3, stroke: C.soft }));
-    b.circle(0, -52, 62, { fill: C.fill, sw: 3 }); b.circle(0, -52, 50, fine); b.path('M -58 -70 C -50 -112, 40 -126, 60 -66', { sw: 1.4, stroke: C.soft });
+    b.path('M -118 150 C -118 64, -70 30, 0 30 C 70 30, 118 64, 118 150 Z', { fill: C.fill, sw: 3 }); b.path('M -30 34 L 0 74 L 30 34', { sw: 2 });
+    b.circle(0, -52, 62, { fill: C.fill, sw: 3 });
     b.path('M -40 -80 Q -32 -104 -8 -110', { sw: 3.4 }); b.dot(-46, -64, 2.6); return b; };
   /* thumbs-up hand (thumb up, fingers stacked on the right, cuff on the left) */
   const thumb = q => {
@@ -34,16 +33,13 @@
   rig('book-pro', .6, p => {
     const intro = sub(p);
     intro.rect(-120, -150, 250, 300, { rx: 14, fill: C.fill, sw: 2.6 });
-    for (let i = 0; i < 6; i++) intro.line(126, -134 + i * 4, 126, 134 - i * 4, i ? mute : fine);
-    [-90, -60, -30, 0, 30, 60, 90].forEach(y => intro.line(-60, y, 90, y, mute));
     const rb = sub(intro); rb.path('M 70 140 L 70 196 L 82 184 L 94 196 L 94 140', { fill: C.fill, sw: 2 });
     on(rb, p, .7, { loop: 2.4, ox: 82, oy: 140, r: [[0, 0], [.6, 6, 'soft'], [1.8, -6, 'soft'], [2.4, 0, 'soft']] });
     const cv = sub(intro);
     cv.rect(-140, -160, 260, 310, { rx: 16, fill: C.fill, sw: 3.2 }); cv.rect(-140, -160, 40, 310, { rx: 12, fill: C.fill, sw: 2.6 });
-    [-130, 130].forEach(y => cv.line(-136, y, -104, y, fine));
-    cv.rect(-60, -110, 140, 64, { rx: 8, sw: 2.2 }); cv.line(-36, -88, 56, -88, fine); cv.line(-36, -70, 30, -70, mute);
+    cv.rect(-60, -110, 140, 64, { rx: 8, sw: 2.2 }); cv.line(-36, -78, 56, -78, { sw: 2 });
     [[120, -160, -1, 1], [120, 150, -1, -1]].forEach(([x, y, a, b]) => cv.path(`M ${x} ${y + b * 30} L ${x} ${y + b * 10} Q ${x} ${y} ${x + a * 10} ${y} L ${x + a * 30} ${y}`, { sw: 4.4 }));
-    star4(cv, 10, 40, 22); cv.circle(10, 40, 36, mute); cv.path('M -88 -130 L -88 -30', { sw: 3 });
+    star4(cv, 10, 40, 22); cv.path('M -88 -130 L -88 -30', { sw: 3 });
     on(cv, p, .8, { loop: 3, ox: -140, oy: 0, sx: [[0, 1], [.4, .8, 'io'], [1.6, .8], [2, 1, 'io']] });
     on(intro, p, 0, { r: [[0, -14], [.55, 0, 'back']], s: [[0, .6], [.5, 1, 'out']], o: [[0, 0], [.15, 1]], ox: 0, oy: 150 });
   });
@@ -52,7 +48,7 @@
   rig('languages-pro', .6, p => {
     const intro = sub(p);
     const card = (x, y, r, a, b) => { const g = sub(intro), q = g.child({ transform: `translate(${x} ${y}) rotate(${r})` });
-      q.rect(-78, -78, 156, 156, { rx: 22, fill: C.fill, sw: 3 }); q.rect(-66, -66, 132, 132, { rx: 14, ...mute });
+      q.rect(-78, -78, 156, 156, { rx: 22, fill: C.fill, sw: 3 });
       const t1 = sub(q), t2 = sub(q); t1.text(a, 0, 34, { size: 100, at: 0, dur: .01 }); t2.text(b, 0, 34, { size: 100, at: 0, dur: .01 });
       on(t1, p, .6, { loop: 3.2, o: [[0, 1], [1.4, 1], [1.6, 0], [3, 0], [3.2, 1]] }); on(t2, p, .6, { loop: 3.2, o: [[0, 0], [1.4, 0], [1.6, 1], [3, 1], [3.2, 0]] });
       q.path('M -60 -40 L -60 -60 L -40 -60', { sw: 2.6 }); return g; };
@@ -68,11 +64,11 @@
   rig('trash-2-pro', .6, p => {
     const root = sub(p), intro = sub(root);
     on(root, p, 0, { y: [[0, -70], [.5, 0, 'back']], o: [[0, 0], [.18, 1]] });
-    const ball = sub(intro); ball.circle(10, -40, 30, { fill: C.fill, sw: 2.6 }); ['M -8 -58 L 6 -36 L -6 -24', 'M 18 -66 L 22 -44 L 36 -38', 'M -14 -40 L 8 -46 L 30 -26'].forEach(d => ball.path(d, mute));
+    const ball = sub(intro); ball.circle(10, -40, 30, { fill: C.fill, sw: 2.6 }); ball.path('M -6 -56 L 8 -38 L 30 -28', { sw: 2 });
     on(ball, p, .7, { loop: 2.8, ox: 10, oy: -40, y: [[0, -170], [.4, -170], [.75, 60, 'in'], [.8, 60]], o: [[0, 0], [.4, 0], [.42, 1], [.78, 1], [.8, 0]], r: [[.4, 0], [.8, 160, 'lin']] });
     intro.path('M -104 -70 L 104 -70 L 86 150 Q 84 164 70 164 L -70 164 Q -84 164 -86 150 Z', { fill: C.fill, sw: 3.2 });
-    [-50, 0, 50].forEach(x => intro.line(x * .9, -40, x * .78, 136, { sw: 2.4 })); intro.path('M -84 -40 L -72 140', mute); intro.path('M -90 -50 L -80 60', { sw: 3 });
-    const lid = sub(intro); lid.rect(-126, -100, 252, 30, { rx: 10, fill: C.fill, sw: 3 }); lid.path('M -36 -100 L -36 -124 Q -36 -132 -28 -132 L 28 -132 Q 36 -132 36 -124 L 36 -100', { fill: C.fill, sw: 3 }); lid.line(-110, -86, 110, -86, mute);
+    [-50, 0, 50].forEach(x => intro.line(x * .9, -40, x * .78, 136, { sw: 2.4 })); intro.path('M -90 -50 L -80 60', { sw: 3 });
+    const lid = sub(intro); lid.rect(-126, -100, 252, 30, { rx: 10, fill: C.fill, sw: 3 }); lid.path('M -36 -100 L -36 -124 Q -36 -132 -28 -132 L 28 -132 Q 36 -132 36 -124 L 36 -100', { fill: C.fill, sw: 3 }); 
     on(lid, p, .7, { loop: 2.8, ox: -126, oy: -70, r: [[0, 0], [.25, -32, 'out'], [.85, -32], [1.05, 0, 'in'], [1.12, 2], [1.2, 0]] });
     on(intro, p, .7, { loop: 2.8, ox: 0, oy: 164, sy: [[0, 1], [1.05, 1], [1.12, .96, 'out'], [1.3, 1]] });
   });
@@ -80,7 +76,7 @@
   /* user-check — profile rises, a check badge ticks itself in */
   rig('user-check-pro', .9, p => {
     const intro = sub(p), b = sub(intro); bust(b, -20, 0, 1);
-    const cb = sub(intro); cb.circle(116, 100, 44, { fill: C.fill, sw: 3.2 }); cb.circle(116, 100, 34, fine);
+    const cb = sub(intro); cb.circle(116, 100, 44, { fill: C.fill, sw: 3.2 });
     const tk = cb.poly([[96, 100], [110, 116], [138, 84]], { sw: 7 }); on(tk, p, .9, { loop: 2.6, draw: [[0, 0], [.3, 1, 'out'], [2.3, 1], [2.5, 0]] });
     on(cb, p, .5, { ox: 116, oy: 100, s: [[0, 0], [.4, 1.12, 'out'], [.55, 1]] });
     const ring = sub(intro); ring.circle(116, 100, 44, { stroke: C.soft, sw: 2 }); on(ring, p, 1.2, { loop: 2.6, ox: 116, oy: 100, s: [[0, 1], [1, 1.6, 'out']], o: [[0, .8], [1, 0]] });
@@ -119,10 +115,10 @@
   rig('puzzle-pro', .6, p => {
     const intro = sub(p);
     const A = sub(intro); A.path('M -110 -100 L -10 -100 L -10 -30 C 20 -40, 40 -20, 40 0 C 40 20, 20 40, -10 30 L -10 100 L -110 100 Q -120 100 -120 90 L -120 -90 Q -120 -100 -110 -100 Z', { fill: C.fill, sw: 3 });
-    A.path('M -104 -86 L -24 -86', mute); [[-80, -50], [-60, 60], [-90, 20]].forEach(([x, y]) => A.dot(x, y, 2));
+    
     A.path('M -104 -70 L -104 40', { sw: 3 });
     const B = sub(intro); B.path('M -10 -100 L 30 -100 C 20 -130, 40 -150, 60 -150 C 80 -150, 100 -130, 90 -100 L 120 -100 Q 130 -100 130 -90 L 130 90 Q 130 100 120 100 L -10 100 L -10 30 C 20 40, 40 20, 40 0 C 40 -20, 20 -40, -10 -30 Z', { fill: C.fill, sw: 3 });
-    B.path('M 116 -86 L 116 86', mute); [[90, 40], [70, -60]].forEach(([x, y]) => B.dot(x, y, 2));
+    
     on(B, p, .5, { loop: 3, x: [[0, 110], [.5, 0, 'back'], [2.2, 0], [2.6, 110, 'in'], [3, 110]], r: [[0, 12], [.5, 0, 'out'], [2.2, 0], [2.6, 12, 'in']], o: [[0, 0], [.1, 1], [2.55, 1], [2.75, 0]] });
     on(A, p, .5, { loop: 3, s: [[0, 1], [.48, 1], [.56, 1.04, 'out'], [.7, 1]] });
     const sp = sub(intro); star4(sp, 30, -40, 18); on(sp, p, .5, { loop: 3, ox: 30, oy: -40, s: [[0, 0], [.46, 0], [.6, 1.15, 'out'], [1, 0, 'in']] });
@@ -147,7 +143,7 @@
   /* heart-pulse — heart beats as the pulse line traces through it */
   rig('heart-pulse-pro', .5, p => {
     const intro = sub(p), hb = sub(intro), h = hb.child({ transform: 'scale(1.9)' }, 1.9);
-    h.path(HEART, { fill: C.fill, sw: 2.6 }); h.child({ transform: 'translate(0 -4) scale(.84)' }, .84).path(HEART, fine); h.path('M -62 -22 Q -62 -50 -38 -58', { sw: 3 }); h.dot(-68, -8, 2.4);
+    h.path(HEART, { fill: C.fill, sw: 2.6 }); h.path('M -62 -22 Q -62 -50 -38 -58', { sw: 3 }); h.dot(-68, -8, 2.4);
     const pts = [[-140, 10], [-70, 10], [-54, -8], [-40, 10], [-22, 10], [-8, -76], [10, 80], [26, 10], [60, 10], [74, -16], [88, 10], [140, 10]];
     intro.poly(pts, { sw: 1.2, stroke: C.rule }); const tr = intro.poly(pts, { sw: 4 });
     on(tr, p, .5, { loop: 1.8, draw: [[0, 0], [1, 1, 'lin']], o: [[0, 1], [1.2, 1], [1.7, 0]] });
@@ -162,7 +158,7 @@
       on(s, p, .7, { loop: 2, ox: 0, oy: 0, o: [[0, 0], [.05, 1], [.35, 0]], s: [[0, .8], [.35, 1.15, 'out']] }); }
     const bo = sub(intro);
     bo.shape([[30, -178], [-96, 22], [-6, 22], [-40, 178], [96, -30], [6, -30]], { fill: C.fill, sw: 3.4 });
-    bo.poly([[18, -138], [-72, 8], [10, 8]], fine); bo.path('M 8 -140 L -60 -16', { sw: 3 }); bo.dot(-70, 0, 2.4);
+    bo.path('M 8 -140 L -60 -16', { sw: 3 }); bo.dot(-70, 0, 2.4);
     on(bo, p, .7, { loop: 2, o: [[0, 1], [.04, .3], [.08, 1], [.12, .4], [.16, 1]], r: shakeKeys(4, 2.5, .05) });
     on(intro, p, 0, { s: [[0, .2], [.25, 1.15, 'out'], [.45, 1]], o: [[0, 0], [.06, 1], [.1, .3], [.14, 1]] });
   });
@@ -171,8 +167,8 @@
   rig('banknote-pro', .6, p => {
     const intro = sub(p);
     const bill = (q, o) => { q.rect(-170, -90, 340, 180, { rx: 14, fill: C.fill, sw: o ? 3 : 2.4, stroke: o ? C.ink : C.soft }); if (!o) return;
-      q.rect(-154, -74, 308, 148, { rx: 8, ...fine }); q.circle(0, 0, 46, { sw: 2.4 }); q.circle(0, 0, 36, mute); q.text('$', 0, 18, { size: 54 });
-      [[-124, -46], [124, -46], [-124, 46], [124, 46]].forEach(([x, y]) => q.circle(x, y, 12, { sw: 1.8 })); dash(q, -100, 56, -40, 56, 4, 5, mute); dash(q, 40, -56, 100, -56, 4, 5, mute); q.path('M -150 -40 L -150 30', { sw: 2.6 }); };
+      q.circle(0, 0, 46, { sw: 2.4 }); q.text('$', 0, 18, { size: 54 });
+      [[-120, 0], [120, 0]].forEach(([x, y]) => q.circle(x, y, 12, { sw: 2 })); q.path('M -150 -40 L -150 30', { sw: 2.6 }); };
     const back = sub(intro); bill(back.child({ transform: 'translate(20 34) rotate(5)' }), false);
     const top = sub(intro); bill(top, true);
     on(top, p, .7, { loop: 2.4, ox: -170, oy: 90, r: [[0, 0], [.18, -7, 'out'], [.36, 0, 'io'], [.54, -5, 'out'], [.72, 0, 'io']], y: [[0, 0], [.18, -10], [.36, 0], [.54, -8], [.72, 0]] });
@@ -184,15 +180,15 @@
   rig('store-pro', .6, p => {
     const intro = sub(p);
     intro.rect(-160, -40, 320, 196, { rx: 10, fill: C.fill, sw: 3 }); intro.line(-180, 156, 180, 156, { sw: 3 });
-    [[-140, 0], [40, 0]].forEach(([x, y]) => { intro.rect(x, y, 100, 86, { rx: 6, sw: 2.4 }); intro.line(x + 50, y, x + 50, y + 86, mute); intro.line(x, y + 43, x + 100, y + 43, mute); });
+    [[-140, 0], [40, 0]].forEach(([x, y]) => { intro.rect(x, y, 100, 86, { rx: 6, sw: 2.4 }); });
     const lights = [[-112, 20], [-68, 64], [70, 22], [116, 60]].map(([x, y], i) => { const l = sub(intro); l.dot(x, y, 4); on(l, p, .8 + i * .3, { loop: 1.6, o: [[0, .2], [.4, 1, 'soft'], [1.6, .2, 'soft']] }); return l; });
     intro.rect(-34, 40, 68, 116, { rx: 6, fill: C.fill, sw: 2.6 }); intro.circle(20, 100, 3.4, { sw: 1.4 });
-    const sign = sub(intro); sign.line(-12, 44, -20, 60, mute); sign.line(12, 44, 20, 60, mute); sign.rect(-28, 58, 56, 24, { rx: 4, fill: C.fill, sw: 1.8 }); sign.text('OPEN', 0, 75, { size: 13, ls: 1 });
+    const sign = sub(intro); sign.line(-12, 44, -20, 60, { sw: 1.6 }); sign.line(12, 44, 20, 60, { sw: 1.6 }); sign.rect(-28, 58, 56, 24, { rx: 4, fill: C.fill, sw: 1.8 }); sign.text('OPEN', 0, 75, { size: 13, ls: 1 });
     on(sign, p, .7, { loop: 2.6, ox: 0, oy: 44, r: [[0, 0], [.4, 10, 'out'], [.8, -7], [1.2, 4], [1.6, 0], [2.6, 0]] });
     const aw = sub(intro); let a = 'M -180 -40 L -156 -120 L 156 -120 L 180 -40';
     for (let i = 1; i <= 6; i++) a += ` A 30 22 0 0 1 ${180 - 60 * i} -40`;
     aw.path(a + ' Z', { fill: C.fill, sw: 3 }); [-120, -60, 0, 60, 120].forEach(x => aw.line(x * 1.0, -118, x * 1.1, -44, { sw: 1.4, stroke: C.soft }));
-    aw.rect(-70, -170, 140, 40, { rx: 8, fill: C.fill, sw: 2.6 }); aw.line(-40, -150, 40, -150, fine); aw.line(-50, -170, -50, -120, mute); aw.line(50, -170, 50, -120, mute);
+    aw.rect(-70, -170, 140, 40, { rx: 8, fill: C.fill, sw: 2.6 }); aw.line(-40, -150, 40, -150, { sw: 2.4 });
     on(aw, p, .7, { loop: 2.2, ox: 0, oy: -120, ky: [[0, 0], [.55, 1.2, 'soft'], [1.65, -1.2, 'soft'], [2.2, 0, 'soft']] });
     pop(p, intro, 0, .6);
   });
@@ -201,7 +197,7 @@
   rig('bookmark-check-pro', .7, p => {
     const intro = sub(p), rb = sub(intro);
     rb.path('M -84 -170 L 84 -170 Q 100 -170 100 -154 L 100 176 L 0 104 L -100 176 L -100 -154 Q -100 -170 -84 -170 Z', { fill: C.fill, sw: 3.2 });
-    dash(rb, -84, -150, -84, 140); dash(rb, 84, -150, 84, 140); rb.path('M -70 -150 L -70 -30', { sw: 3 }); rb.dot(-70, -14, 2.4);
+    rb.path('M -70 -150 L -70 -30', { sw: 3 }); rb.dot(-70, -14, 2.4);
     const tk = rb.poly([[-46, -24], [-12, 12], [52, -54]], { sw: 12 }); on(tk, p, .7, { loop: 2.6, draw: [[0, 0], [.35, 1, 'out'], [2.3, 1], [2.5, 0]] });
     on(rb, p, .9, { loop: 2.6, ox: 0, oy: -170, r: [[0, 0], [.65, 2, 'soft'], [1.95, -2, 'soft'], [2.6, 0, 'soft']] });
     const sp = sub(intro); star4(sp, 140, -150, 16); twinkle(p, sp, 140, -150, 1.1, 2.6);
@@ -231,14 +227,13 @@
   rig('video-pro', .6, p => {
     const intro = sub(p);
     const reel = (x, y, r) => { const g = sub(intro); g.circle(x, y, r, { fill: C.fill, sw: 3 }); g.circle(x, y, r * .3, { sw: 2 });
-      for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5; g.circle(x + Math.cos(a) * r * .62, y + Math.sin(a) * r * .62, r * .16, mute); }
       on(g, p, .6, { loop: 2.4, ox: x, oy: y, r: [[0, 0], [2.4, 360, 'lin']] }); };
     reel(-80, -104, 52); reel(40, -96, 44);
     intro.shape([[90, 0], [180, -50], [180, 90], [90, 40]], { fill: C.fill, sw: 3 }); intro.line(180, -50, 180, 90, { sw: 4 });
-    intro.rect(-160, -40, 260, 150, { rx: 22, fill: C.fill, sw: 3.2 }); intro.rect(-146, -26, 232, 122, { rx: 14, ...mute });
-    intro.rect(-130, -10, 80, 40, { rx: 6, sw: 1.8 }); [0, 1, 2].forEach(i => intro.line(-120, 2 + i * 9, -60 - i * 10, 2 + i * 9, mute));
+    intro.rect(-160, -40, 260, 150, { rx: 22, fill: C.fill, sw: 3.2 });
+    
     intro.path('M -140 20 L -140 80', { sw: 3 });
-    const rec = sub(intro); rec.dot(60, 0, 9); on(rec, p, .6, { loop: 1.2, o: [[0, 1], [.6, 1], [.62, .15], [1.2, .15]] }); intro.text('REC', 30, 6, { size: 14, color: C.soft });
+    const rec = sub(intro); rec.dot(60, 0, 9); on(rec, p, .6, { loop: 1.2, o: [[0, 1], [.6, 1], [.62, .15], [1.2, .15]] });
     intro.line(-60, 110, -80, 160, { sw: 3 }); intro.line(0, 110, 20, 160, { sw: 3 }); intro.line(-30, 110, -30, 164, { sw: 2.4 });
     pop(p, intro);
   });
@@ -246,10 +241,10 @@
   /* graduation-cap — tossed up spinning, lands, the tassel swings */
   rig('graduation-cap-pro', 1, p => {
     const intro = sub(p), cap = sub(intro);
-    cap.path('M -100 10 L -100 80 C -60 110, 60 110, 100 80 L 100 10', { fill: C.fill, sw: 3 }); cap.path('M -86 70 C -50 92, 50 92, 86 70', mute);
-    cap.shape([[0, -110], [190, -30], [0, 50], [-190, -30]], { fill: C.fill, sw: 3.2 }); cap.shape([[0, -88], [150, -30], [0, 28], [-150, -30]], fine);
+    cap.path('M -100 10 L -100 80 C -60 110, 60 110, 100 80 L 100 10', { fill: C.fill, sw: 3 }); 
+    cap.shape([[0, -110], [190, -30], [0, 50], [-190, -30]], { fill: C.fill, sw: 3.2 }); 
     cap.circle(0, -30, 10, { fill: C.fill, sw: 2.4 }); cap.path('M -140 -40 L -40 -82', { sw: 3 });
-    const ts = sub(cap); ts.path('M 0 -30 L 150 -20 L 150 60', { sw: 2.6 }); ts.path('M 142 60 L 158 60 L 162 106 L 138 106 Z', { fill: C.fill, sw: 2.2 }); [144, 150, 156].forEach(x => ts.line(x, 76, x, 104, mute));
+    const ts = sub(cap); ts.path('M 0 -30 L 150 -20 L 150 60', { sw: 2.6 }); ts.path('M 142 60 L 158 60 L 162 106 L 138 106 Z', { fill: C.fill, sw: 2.2 }); 
     on(ts, p, 1.1, { loop: 2.4, ox: 150, oy: -20, r: [[0, 0], [.3, 10, 'out'], [.7, -8], [1.1, 4], [1.5, 0], [2.4, 0]] });
     on(cap, p, 0, { ox: 0, oy: 0, y: [[0, 0], [.4, -120, 'out'], [.8, 0, 'in'], [.9, -14, 'out'], [1, 0, 'in']], r: [[0, 0], [.8, 360, 'io']], s: [[0, .5], [.3, 1, 'out']], o: [[0, 0], [.1, 1]] });
     const sp = sub(intro); [[-150, -140, 12], [160, -150, 9]].forEach(([x, y, r]) => star4(sp, x, y, r)); on(sp, p, 1, { loop: 2.4, o: [[0, 0], [.2, 1], [1, 0]] });
@@ -259,8 +254,7 @@
   rig('octagon-alert-pro', .6, p => {
     const intro = sub(p), oct = r => { const a = []; for (let i = 0; i < 8; i++) { const t = Math.PI / 8 + i * Math.PI / 4; a.push([+(Math.cos(t) * r).toFixed(1), +(Math.sin(t) * r).toFixed(1)]); } return a; };
     const pr = sub(intro); pr.shape(oct(140), { stroke: C.soft, sw: 2 }); on(pr, p, .7, { loop: 2, s: [[0, 1], [.9, 1.35, 'out']], o: [[0, .7], [.9, 0]] });
-    const g = sub(intro); g.shape(oct(140), { fill: C.fill, sw: 3.4 }); g.shape(oct(122), { sw: 1.4, stroke: C.soft }); g.shape(oct(112), mute);
-    oct(131).forEach(([x, y]) => g.circle(x, y, 3.4, { sw: 1.2, stroke: C.soft }));
+    const g = sub(intro); g.shape(oct(140), { fill: C.fill, sw: 3.4 }); g.shape(oct(122), { sw: 1.4, stroke: C.soft });
     const ex = sub(g); ex.line(0, -66, 0, 20, { sw: 16 }); ex.dot(0, 62, 12); on(ex, p, .7, { loop: 2, s: [[0, 1], [.1, 1.15, 'out'], [.4, 1, 'soft']] });
     g.path('M -100 -40 L -40 -100', { sw: 3 });
     on(g, p, .7, { loop: 2, r: shakeKeys(4, 3, .05) });
@@ -271,8 +265,8 @@
   rig('shield-pro', .6, p => {
     const intro = sub(p), sh = sub(intro);
     const S = 'M 0 -170 C 50 -140, 100 -130, 140 -130 C 140 -10, 120 110, 0 170 C -120 110, -140 -10, -140 -130 C -100 -130, -50 -140, 0 -170 Z';
-    sh.path(S, { fill: C.fill, sw: 3.4 }); sh.child({ transform: 'scale(.86)' }, .86).path(S, { sw: 1.6, stroke: C.soft }); sh.child({ transform: 'scale(.78)' }, .78).path(S, mute);
-    sh.line(0, -146, 0, 146, mute); sh.path('M -110 -110 C -112 -40, -100 30, -60 90', { sw: 3 }); sh.dot(-46, 104, 2.4);
+    sh.path(S, { fill: C.fill, sw: 3.4 }); sh.child({ transform: 'scale(.86)' }, .86).path(S, { sw: 1.6, stroke: C.soft });
+    sh.path('M -110 -110 C -112 -40, -100 30, -60 90', { sw: 3 }); sh.dot(-46, 104, 2.4);
     const tk = sh.poly([[-50, 0], [-14, 38], [56, -40]], { sw: 12 }); on(tk, p, .6, { loop: 2.6, draw: [[0, 0], [.35, 1, 'out'], [2.3, 1], [2.5, 0]] });
     [[-1, -40], [1, 30]].forEach(([sd, y], i) => { const s = sub(intro); [[0, 0], [10, -22], [10, 22]].forEach(([dx, dy]) => s.line(sd * (156 + dx), y + dy, sd * (180 + dx), y + dy * 1.6, { sw: 2.6 }));
       on(s, p, 1 + i * .5, { loop: 2.6, o: [[0, 0], [.04, 1], [.4, 0]] }); });
