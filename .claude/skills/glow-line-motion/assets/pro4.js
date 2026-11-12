@@ -113,14 +113,14 @@
   /* puzzle — the second piece slides in and clicks into the first */
   rig('puzzle-pro', .6, p => {
     const intro = sub(p);
-    const A = sub(intro); A.path('M -110 -100 L -10 -100 L -10 -30 C 20 -40, 40 -20, 40 0 C 40 20, 20 40, -10 30 L -10 100 L -110 100 Q -120 100 -120 90 L -120 -90 Q -120 -100 -110 -100 Z', { fill: C.fill, sw: 3 });
+    const AO = sub(intro), A = sub(AO); A.path('M -110 -100 L -10 -100 L -10 -30 C 20 -40, 40 -20, 40 0 C 40 20, 20 40, -10 30 L -10 100 L -110 100 Q -120 100 -120 90 L -120 -90 Q -120 -100 -110 -100 Z', { fill: C.fill, sw: 3 });
     
     A.path('M -104 -70 L -104 40', { sw: 3 });
     const B = sub(intro); B.path('M -10 -100 L 30 -100 C 20 -130, 40 -150, 60 -150 C 80 -150, 100 -130, 90 -100 L 120 -100 Q 130 -100 130 -90 L 130 90 Q 130 100 120 100 L -10 100 L -10 30 C 20 40, 40 20, 40 0 C 40 -20, 20 -40, -10 -30 Z', { fill: C.fill, sw: 3 });
     
     on(B, p, .5, { loop: 3, x: [[0, 110], [.5, 0, 'back'], [2.2, 0], [2.6, 110, 'in'], [3, 110]], r: [[0, 12], [.5, 0, 'out'], [2.2, 0], [2.6, 12, 'in']], o: [[0, 0], [.1, 1], [2.55, 1], [2.75, 0]] });
     on(A, p, .5, { loop: 3, s: [[0, 1], [.48, 1], [.56, 1.04, 'out'], [.7, 1]] });
-    pop(p, A);
+    pop(p, AO);
   });
 
   /* biceps-flexed — arm flexes: forearm curls in, the biceps swells, power lines flash */

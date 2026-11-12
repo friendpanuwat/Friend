@@ -11,7 +11,7 @@ glow-line `-pro` ของ skill นี้: เส้นขาวเรือง
 
 > ไอคอนชุดนี้ **ยังไม่ได้เชื่อมเข้า CutPack** (CutPack ใช้ Lucide 24×24 คนละระบบ, และ `cutpack/HANDOFF.md` บอกว่ายกเลิก skill นี้ในฉากรอบ 11) — บอกผู้ใช้ไปแล้ว.
 
-## สถานะ: เสร็จ 93 / 95 (ที่เหลือคือชุดอวัยวะคนที่พักไว้)
+## สถานะ: ไอคอนที่ไม่ใช่อวัยวะเสร็จครบแล้ว (ชุด 1–7) — เหลือเฉพาะชุดอวัยวะคนที่พักไว้
 
 | ไฟล์ | ไอคอน |
 |---|---|
@@ -20,6 +20,7 @@ glow-line `-pro` ของ skill นี้: เส้นขาวเรือง
 | `assets/pro3.js` (ชุด 3) | bookmark circle-help users eye utensils-crossed search handshake* infinity image user-plus tag wallet calendar repeat book-open ear* fish crown message-circle-question share-2 |
 | `assets/pro4.js` (ชุด 4) | book languages trash-2 user-check circle-check x thumbs-down* puzzle biceps-flexed* heart-pulse zap banknote store bookmark-check arrow-right message-circle-warning video graduation-cap octagon-alert shield |
 | `assets/pro5.js` (ชุด 5) | heart-crack heart-off map-pin lightbulb-off battery-low droplets utensils award message-circle-heart arrow-down arrow-up phone lock star arrow-left-right link quote send pen-line printer |
+| `assets/pro7.js` (ชุด 7, แผ่น A) | smile frown (หน้าอิโมจิ — **ผู้ใช้บอกว่าไม่นับเป็นอวัยวะ**) |
 | `assets/pro6.js` (ชุด 6, แผ่น A 7 + B 6) | circle-alert lock-open eye-off flag megaphone trophy hourglass · arrow-down-up chevrons-left-right phone-off pin rewind sliders-horizontal |
 
 `*` = อวัยวะคน — ทำไปก่อนผู้ใช้สั่งพัก, **ยังไม่ได้ปรับตามกฎล่าสุด** (ยังมีรายละเอียดเดิม). จะกลับมาทำทีหลังพร้อมชุดที่พักไว้.
@@ -27,11 +28,13 @@ glow-line `-pro` ของ skill นี้: เส้นขาวเรือง
 ชุด 6 (13 อันสุดท้าย): รอบ 2 = ผู้ใช้สั่ง "แก้นาฬิกาทราย + เพิ่มรายละเอียดเล็ก ๆ ทุกอัน" (ภาพเทียบ `motion/glow-line-pro-icons/detail6/`) →
 ผู้ใช้ชี้ว่าทรายทะลุแก้ว → แก้ด้วย clip-path (`clip()` ใน pro6.js) ให้ทรายอยู่ในกระเปาะเสมอ, ผิวทรายบนเลื่อนลง/กองล่างเลื่อนขึ้น (ไม่ใช้ scale).
 render วิดีโอ 6a/6b ใหม่แล้ว (ภาพนิ่งที่ 3.2 วิ ให้เห็นทรายกำลังไหล) — **ผู้ใช้ตอบ "ผ่าน" แล้ว (2026-11-12)**.
-**งานถัดไปที่เหลือ** (รอผู้ใช้สั่ง): ชุดอวัยวะคน (ดูรายการ "พักไว้" ด้านล่าง + 4 อันที่ยังไม่ผ่านกฎ 2–3), แก้ arrow-left-right ใน pro5 (kf ซ้อน), render `pro-icons-tour.mp4` ใหม่.
+ทำงานค้างแล้ว (2026-11-12): ชุด 7 = smile/frown (`pro-icons-batch7a.mp4`), แก้บั๊ก kf ซ้อน 3 อัน (arrow-left-right, map-pin ใน pro5; puzzle ใน pro4 —
+ท่าวนไม่เคยเล่น) + render 4a/5a/5b ใหม่, render `pro-icons-tour.mp4` ใหม่ (ใช้ GL.PRO ชุด 1 = ตรงกับแผ่น grid ที่ผ่านแล้ว). ส่งผู้ใช้แล้ว — รอตอบ.
 ไอคอนที่มีขีดฆ่า (eye-off, phone-off) — ขีดฆ่าต้องอยู่ตลอด ห้ามให้ท่าวนยกขีดออก (ไม่งั้นตอนท่าออกจะกลายเป็น eye/phone ธรรมดา).
 
-**พักไว้ (อวัยวะคน — ผู้ใช้สั่งให้ข้ามไปก่อน)**: hand · thumbs-up (ใช้ `GL.parts.thumbHand` ใน pro4.js ได้) · footprints · heart-handshake ·
-smile · frown (หน้าคน — ผมพักไว้เผื่อนับเป็นอวัยวะ, บอกผู้ใช้แล้ว ยังไม่ได้คำตอบ)
+**พักไว้ (อวัยวะคน — ผู้ใช้สั่งพักอีกครั้ง: "พวกมือ หู หรืออวัยวะต่าง ๆ พักไว้ก่อน ... เพราะคุณวาดพวกนี้ได้ไม่ค่อยดีเท่าไร")**:
+hand · thumbs-up · footprints · heart-handshake + ปรับ 4 อันเดิม (handshake ear thumbs-down biceps-flexed). **ห้ามแตะจนกว่าผู้ใช้สั่ง** —
+ผมเคยเริ่มร่าง/ลดรายละเอียดไปแล้วแต่ย้อนคืนทั้งหมด (ไม่มีในไฟล์). ถ้ากลับมาทำ ควรเสนอแนวทางวาดให้ผู้ใช้ดูเป็นภาพก่อน.
 
 ## กฎที่ผู้ใช้ตั้ง (สำคัญ — สะสมมาทั้งแชท, บันทึกไว้ใน `references/style.md` §0 ด้วย)
 
@@ -88,12 +91,12 @@ rig('flag-pro', .6, 'sink', p => {          // ชื่อ, เวลาท่�
 - วิดีโอล่าสุดทั้ง 8 แผ่น (ลดรายละเอียด + ไม่มีแสงสะท้อน/ดาว + มีท่าออก): `pro-icons-grid.mp4` (ชุด 1), `pro-icons-batch2.mp4`,
   `pro-icons-batch3a/3b.mp4`, `pro-icons-batch4a/4b.mp4`, `pro-icons-batch5a/5b.mp4` + `*-still.png` (ภาพนิ่งที่ 4.6 วิ)
 - `cleanup/compare-1…6.jpg` ก่อน/หลังลดรายละเอียด · `house-style/` ภาพรวม 80 อัน + ข้อเสนอแนว A/B
-- `pro-icons-tour.mp4` = **ของเก่า** (ก่อนลดรายละเอียด) — ยังไม่ได้ render ใหม่
+- `pro-icons-tour.mp4` = render ใหม่แล้ว (ชุด 1, 37 วิ)
 
 ## อื่น ๆ ที่ค้าง / ควรรู้
 
 - **ระวัง: `GL.kf` สองอันบน element เดียวกัน → อันที่ใส่ทีหลังทับ transform ทั้งหมด** (ท่าเข้าที่จบแล้วจะค้างค่าสุดท้ายทับท่าวน).
-  ให้ท่าเข้ากับท่าวนอยู่คนละ group (`const o = sub(intro), q = sub(o)`). `pro5.js` arrow-left-right ยังเขียนแบบเดิม (a/b มีทั้งสองอัน) — ยังไม่ได้แก้.
+  ให้ท่าเข้ากับท่าวนอยู่คนละ group (`const o = sub(intro), q = sub(o)`). สแกนทุกไฟล์แล้ว แก้ครบ (arrow-left-right, map-pin, puzzle).
 - ไอคอนอวัยวะคน 4 อันที่ทำแล้ว (handshake ear thumbs-down biceps-flexed) ยังไม่ได้ผ่านกฎข้อ 2–3 — ทำตอนกลับมาทำชุดอวัยวะ.
 - push ปกติได้ (fast-forward); `--force-with-lease` เคยถูกปฏิเสธ. Default branch ของ repo คือ `ccr-045810ba-gj4imq` (PR #10–#16 merge แล้ว).
 - commit message ลงท้ายด้วยบรรทัด attribution ตามที่ระบบกำหนด; ห้ามใส่ชื่อโมเดลในไฟล์/commit.
