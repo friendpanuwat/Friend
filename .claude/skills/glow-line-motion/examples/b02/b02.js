@@ -223,39 +223,14 @@
     center(d, -390, 25, 130, c);
   });
 
-  /* 12 ── TREND: a big tapered arrow sweeps up (or down) in a soft S — thin at its tail, wide at its head; the copies ride along it */
-  variant('trend', 'ลูกศรเทรนด์', (d, c) => {
-    const n = N(d), up = d.dir === 'up', fy = y => up ? y : -y + 20;
-    const P = [[-450, fy(250)], [-140, fy(250)], [60, fy(20)], [390, fy(-215)]];
-    const B = t => { const u = 1 - t; return [0, 1].map(k => u * u * u * P[0][k] + 3 * u * u * t * P[1][k] + 3 * u * t * t * P[2][k] + t * t * t * P[3][k]); };
-    const D = t => { const u = 1 - t; return [0, 1].map(k => 3 * u * u * (P[1][k] - P[0][k]) + 6 * u * t * (P[2][k] - P[1][k]) + 3 * t * t * (P[3][k] - P[2][k])); };
-    art(c, p => {
-      const tH = .86, L = [], R = [], M = [];
-      for (let k = 0; k <= 40; k++) { const t = tH * k / 40, [x, y] = B(t), [dx, dy] = D(t), l = Math.hypot(dx, dy), nx = -dy / l, ny = dx / l, w = 7 + 25 * (t / tH);
-        L.push([f1(x + nx * w), f1(y + ny * w)]); R.push([f1(x - nx * w), f1(y - ny * w)]); if (k > 2 && k < 38) M.push([f1(x), f1(y)]); }
-      const [hx, hy] = B(tH), [tx, ty] = D(tH), tl = Math.hypot(tx, ty), ux = tx / tl, uy = ty / tl, nx = -uy, ny = ux, hw = 62, hl = 120;
-      const tip = [f1(hx + ux * hl), f1(hy + uy * hl)];
-      p.shape([...L, [f1(hx + nx * hw), f1(hy + ny * hw)], tip, [f1(hx - nx * hw), f1(hy - ny * hw)], ...R.reverse()], F(3.2));
-      p.poly(M, { sw: 1.6, stroke: C.soft });
-      labels(p, d, up ? 250 : -250, 300, up ? -380 : 380, up ? -300 : 330);
-      endSym(p, d, up ? 420 : 420, up ? 60 : -60, c);
-    });
-    for (let i = 0; i < n; i++) { const t = .18 + .58 * i / (n - 1), [x, y] = B(t), [dx, dy] = D(t), l = Math.hypot(dx, dy);
-      let nx = -dy / l, ny = dx / l; if (ny > 0) { nx = -nx; ny = -ny; }              // always ride on the upper side of the arrow
-      item(d, i, x + nx * 100, y + ny * 100, 100 + (up ? i * 14 : (n - 1 - i) * 14), c); }
-    center(d, up ? -380 : 380, up ? -220 : 250, 120, c);
-  });
-
-  /* 12 alternatives (user: "Design เส้นเทรนด์ใหม่", 2026-11-13) — kept outside V until the user picks one */
-  const ALT12 = [];
-  const alt = (id, th, build) => ALT12.push({ id, th, build });
   const cub = (P) => ({ B: t => { const u = 1 - t; return [0, 1].map(k => u * u * u * P[0][k] + 3 * u * u * t * P[1][k] + 3 * u * t * t * P[2][k] + t * t * t * P[3][k]); },
     D: t => { const u = 1 - t; return [0, 1].map(k => 3 * u * u * (P[1][k] - P[0][k]) + 6 * u * t * (P[2][k] - P[1][k]) + 3 * t * t * (P[3][k] - P[2][k])); },
     d: `M ${P[0][0]} ${P[0][1]} C ${P[1][0]} ${P[1][1]}, ${P[2][0]} ${P[2][1]}, ${P[3][0]} ${P[3][1]}` });
   const upSide = (D, t) => { const [dx, dy] = D(t), l = Math.hypot(dx, dy); let nx = -dy / l, ny = dx / l; if (ny > 0) { nx = -nx; ny = -ny; } return [nx, ny]; };
 
-  /* 12a ── NODES: a smooth line with a node under every copy, plain axes (no numbers), a glowing end point */
-  alt('nodes', 'เส้นมีจุด', (d, c) => {
+  /* 12 ── NODES (trend): a smooth line with a node under every copy, plain axes (no numbers), a glowing end point
+     (user's pick for the trend line, 2026-11-13, over tapered arrow / ribbon / step line) */
+  variant('trend', 'เส้นเทรนด์มีจุด', (d, c) => {
     const n = N(d), up = d.dir === 'up', fy = y => up ? y : -y + 10;
     const K3 = cub([[-380, fy(230)], [-120, fy(220)], [80, fy(-20)], [400, fy(-200)]]), ts = [...Array(n)].map((_, i) => .2 + .62 * i / (n - 1));
     art(c, p => {
@@ -268,44 +243,6 @@
     });
     ts.forEach((t, i) => { const [x, y] = K3.B(t), [nx, ny] = upSide(K3.D, t); item(d, i, x + nx * 95, y + ny * 95, 105, c); });
     center(d, up ? -330 : 330, up ? -210 : 230, 110, c);
-  });
-
-  /* 12b ── RIBBON: a wide ribbon sweeps up (or down) and turns over once on the way, ending in an arrow tip */
-  alt('ribbon', 'ริบบิ้นพลิ้ว', (d, c) => {
-    const n = N(d), up = d.dir === 'up', fy = y => up ? y : -y + 10;
-    const K3 = cub([[-450, fy(200)], [-200, fy(280)], [80, fy(-40)], [360, fy(-180)]]), ts = [...Array(n)].map((_, i) => .16 + .6 * i / (n - 1));
-    art(c, p => {
-      const W0 = 34, L = [], R = [], tw = .45;                        // the ribbon narrows to a twist at t = tw, then widens again
-      for (let k = 0; k <= 48; k++) { const t = .9 * k / 48, [x, y] = K3.B(t), [dx, dy] = K3.D(t), l = Math.hypot(dx, dy), w = W0 * Math.max(.08, Math.abs((t - tw) / tw) ** .7);
-        L.push([x - dy / l * w, y + dx / l * w]); R.push([x + dy / l * w, y - dx / l * w]); }
-      const half = (a, b) => [...L.slice(a, b), ...R.slice(a, b).reverse()].map(([x, y]) => [f1(x), f1(y)]);
-      const kt = Math.round(tw / .9 * 48);
-      p.shape(half(0, kt + 1), { fill: C.fill, sw: 2.6, stroke: C.soft });
-      p.shape(half(kt, 49), F(3.2));
-      const [hx, hy] = K3.B(.9), [tx, ty] = K3.D(.9), tl = Math.hypot(tx, ty), ux = tx / tl, uy = ty / tl;
-      p.shape([[f1(hx - uy * 64), f1(hy + ux * 64)], [f1(hx + ux * 110), f1(hy + uy * 110)], [f1(hx + uy * 64), f1(hy - ux * 64)]], F(3.4));
-      labels(p, d, up ? 260 : -260, 335, up ? -360 : 360, up ? -290 : 330);
-      endSym(p, d, 420, up ? 80 : -60, c);
-    });
-    ts.forEach((t, i) => { const [x, y] = K3.B(t), [nx, ny] = upSide(K3.D, t); item(d, i, x + nx * 105, y + ny * 105, 105, c); });
-    center(d, up ? -360 : 360, up ? -210 : 230, 110, c);
-  });
-
-  /* 12c ── STEPS LINE: a line climbs (or drops) in clean steps — one step per copy — and ends in an arrow */
-  alt('stepline', 'เส้นขั้นบันได', (d, c) => {
-    const n = N(d), up = d.dir === 'up', sx = 820 / (n + .6), x0 = -430, yA = up ? 250 : -230, dy = (up ? -1 : 1) * 420 / n;
-    art(c, p => {
-      const pts = [[x0, yA]];
-      for (let i = 0; i < n; i++) { const y = yA + dy * (i + 1); pts.push([x0 + sx * (i + .5), yA + dy * i], [x0 + sx * (i + .5), y]); }
-      const last = pts[pts.length - 1], ex = last[0] + sx * .9; pts.push([ex, last[1]]);
-      p.poly(pts.map(([x, y]) => [f1(x), f1(y)]), { sw: 8 });
-      p.shape([[f1(ex + 40), f1(last[1])], [f1(ex - 6), f1(last[1] - 30)], [f1(ex - 6), f1(last[1] + 30)]], { fill: C.ink, sw: 2 });
-      for (let i = 0; i < n; i++) { const x = x0 + sx * (i + .5), y = yA + dy * (i + 1); p.circle(f1(x), f1(y), 13, gone(d, i) ? { fill: C.fill, sw: 2.4, stroke: C.rule } : F(3.4)); }
-      labels(p, d, up ? 260 : -260, up ? 335 : 335, up ? -360 : 360, up ? -290 : 330);
-      endSym(p, d, 420, up ? 120 : -100, c);
-    });
-    for (let i = 0; i < n; i++) item(d, i, x0 + sx * (i + 1), yA + dy * (i + 1) - 80, 110, c);
-    center(d, up ? -360 : 360, up ? -210 : 230, 110, c);
   });
 
   /* 13 ── SHELF: copies stand on a wall shelf — a new one is set down (or the gaps show the ones taken) */
@@ -477,5 +414,5 @@
   ];
 
   G.cats = G.cats || {};
-  G.cats.B02 = { variants: V, ALT12, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
+  G.cats.B02 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
 })();
