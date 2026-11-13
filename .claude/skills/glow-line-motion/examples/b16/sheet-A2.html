@@ -1,0 +1,23 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>B16 sheet A2</title>
+<script src="../../assets/glowline.js"></script><script src="b16.js"></script></head>
+<body><script>
+/* B16 นิยาม — designs 11–20, data set A (A = sentences from unrelated topics, B = stress data) */
+GL.run(() => {
+  GL.stage();
+  const SET = 'A', PG = 2, data = SET === 'A' ? GL.cats.B16.SAMPLES : GL.cats.B16.STRESS;
+  GL.text('B16 · นิยาม', { y: 70, size: 46, ls: 4, color: GL.C.kicker, glow: false });
+  GL.text(SET === 'A' ? 'ข้อมูลตัวอย่างจากหลายเรื่อง · แบบ ' + ((PG - 1) * 10 + 1) + '–' + Math.min(PG * 10, GL.cats.B16.variants.length) : 'ข้อมูลโหด (ป้ายยาว / ไม่มีป้าย / ไม่มีไอคอน) · แบบ ' + ((PG - 1) * 10 + 1) + '–' + Math.min(PG * 10, GL.cats.B16.variants.length),
+    { y: 118, size: 30, weight: 500, color: GL.C.sub, glow: false });
+  const top = 150, rh = (GL.H - top - 10) / 5, s = .4;
+  for (let k = 0; k < 10; k++) {
+    if ((PG - 1) * 10 + k >= GL.cats.B16.variants.length) break;
+    if ((PG - 1) * 10 + k >= GL.cats.B16.variants.length) break;
+    const i = (PG - 1) * 10 + k, v = GL.cats.B16.variants[i], d = data[i], x = (k % 2 + .5) * GL.W / 2, y0 = top + Math.floor(k / 2) * rh, cy = y0 + 700 * s / 2 + 4;
+    GL.cats.B16.draw(i, d, { x, y: cy, s, at: .3 + k * .04, hit: 1.9 });
+    GL.text(String(i + 1).padStart(2, '0') + ' ' + v.id.toUpperCase() + ' · ' + v.th, { x, y: y0 + 700 * s + 34, size: 25, weight: 700, color: GL.C.ink, glow: false });
+    GL.text('“' + d.say + '”', { x, y: y0 + 700 * s + 62, size: 20, weight: 500, color: GL.C.mute, glow: false, maxW: GL.W / 2 - 30 });
+  }
+  GL.finish({ hold: 2.4, out: true, stagger: .02 });
+});
+</script></body></html>
