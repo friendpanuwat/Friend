@@ -1,0 +1,22 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Category motion controls</title>
+<script src="../assets/glowline.js"></script>
+<script src="b01/b01.js"></script><script src="b02/b02.js"></script><script src="b03/b03.js"></script><script src="b04/b04.js"></script><script src="b05/b05.js"></script></head>
+<body><script>
+/* the central motion controls on the category scenes B01–B05 (one design per row): columns = default · amp 0 · amp 1.5 · loop:false.
+   Set per column with GL.motion({ amp, loop }) — the same knob as GL.stage for a whole clip. The keyword stays on the speech in every column. */
+GL.run(() => {
+  GL.stage();
+  const ROWS = [['B01', 0], ['B02', 2], ['B03', 1], ['B04', 4], ['B05', 30]];
+  const COLS = [{ t: 'ปกติ', m: {} }, { t: 'amp 0 · ไม่แกว่ง', m: { amp: 0 } }, { t: 'amp 1.5 · แกว่งแรงขึ้น', m: { amp: 1.5 } }, { t: 'loop: false · เข้าแล้วนิ่ง', m: { loop: false } }];
+  GL.text('ตัวปรับท่าขยับกลาง กับฉากหมวด B01–B05', { y: 70, size: 42, ls: 1, color: GL.C.kicker, glow: false });
+  GL.text('ปุ่มเดียวกับไอคอน · ท่าเข้าและคำสำคัญเหมือนเดิมทุกคอลัมน์ · ต่างแค่ท่าวนตอนค้าง', { y: 114, size: 26, weight: 500, color: GL.C.sub, glow: false });
+  const top = 180, cw = GL.W / 4, rh = (GL.H - top - 10) / ROWS.length, s = .25, at0 = .3;
+  COLS.forEach((col, j) => GL.text(col.t, { x: (j + .5) * cw, y: top - 10, size: 22, weight: 700, color: GL.C.ink, glow: false, maxW: cw - 12 }));
+  ROWS.forEach(([cat, i], r) => { const B = GL.cats[cat], d = B.SAMPLES[i];
+    COLS.forEach((col, j) => { const x = (j + .5) * cw, cy = top + 14 + r * rh + 700 * s / 2;
+      const old = GL.motion(col.m); B.draw(i, d, { x, y: cy, s, at: at0 }); GL.motion(old); });
+    GL.text(cat + ' · ' + String(i + 1).padStart(2, '0') + ' ' + B.variants[i].th, { x: GL.W / 2, y: top + 14 + r * rh + 700 * s + 30, size: 20, weight: 600, color: GL.C.mute, glow: false }); });
+  GL.finish({ hold: 3.2, out: true, stagger: .02 });
+});
+</script></body></html>

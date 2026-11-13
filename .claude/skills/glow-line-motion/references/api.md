@@ -169,6 +169,9 @@ GL.pulse(a.g, a.end + .1);
 | `ampMax` | ค่าเริ่ม `fn.ampMax` (ตาราง `GL.AMPMAX`) | เพดาน `amp` ของไอคอนนั้น; ใส่ค่าสูงกว่าเมื่อรอบไอคอนมีที่ว่าง |
 
 ตั้งได้ 4 ระดับ (บนสุดชนะ): `GL.art(…, { speed })` → `GL.tune(icon, {…})` → `GL.motion({…})` → `GL.stage({…})`.
+- **ฉากหมวด `GL.cats.B01…B05.draw(i, data, { …, speed, hit, no })`** อ่านปุ่มเดียวกัน แต่มีระบบเวลาของตัวเอง (บล็อก TIMING หัวไฟล์ `examples/b0x/b0x.js`):
+  คำสำคัญ `hit` (และ `no` ของ B05) ยึดตามเสียง ไม่ขยับ · `speed` เปลี่ยนความเร็วท่า (ช้าได้เท่าที่ประโยคให้) · `amp` / `loop:false` ส่งต่อให้ท่าวนในฉากและไอคอนในฉาก.
+  `GL.cats.Bxx.timing(c)` คืนเวลาที่ใช้จริง. ทดสอบแล้ว 2026-11-13 (`examples/sheet-controls.html`).
 - `GL.motion({ speed, amp, loop })` — ค่าเริ่มของทุกไอคอนที่วาง**หลัง**คำสั่งนี้; คืนค่าเดิมไว้ตั้งกลับ: `const old = GL.motion({ speed: .5 }); … GL.motion(old);`
   (ต่างจาก `GL.MOTION` ตัวใหญ่ = ตารางท่าวนของไอคอนรุ่นเก่า)
 - `GL.tune('bus-pro', { speed: .5, amp: 0 })` → ไอคอนตัวใหม่ที่จำค่าไว้ ใช้ได้ทุกที่ที่รับไอคอน: `GL.spot({ icon: GL.tune('bell-pro', { amp: 1.5 }) })`,

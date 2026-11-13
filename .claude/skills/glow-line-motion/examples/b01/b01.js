@@ -34,8 +34,9 @@
   const sub = (p, a) => { const q = p.child(a || {}); q.H = p.H; q.motion = p.motion; return q; };   // sub-pens keep the keyword time + clock
   const on = (q, p, t, spec) => kf(q.g || q, p.t0 + t * p.ts, spec);
   const layers = (p, n) => { const a = [sub(p)]; for (let i = 1; i < n; i++) a.push(sub(a[i - 1])); return a; };
-  /* seconds since this design started, on its own clock (follows the motion controls: speed / still) */
-  const rel = (p, t) => p.motion && p.motion.still ? 99 : ((p.motion ? p.motion.time(t) : t) - p.t0) / p.ts;
+  /* seconds since this design started. The rig runs at engine speed 1 (the TIMING block scales the design itself), so this is plain time.
+     loop:false only stops the idle loops — the count still plays (it used to jump straight to the end: fixed 2026-11-13). */
+  const rel = (p, t) => ((p.motion ? p.motion.time(t) : t) - p.t0) / p.ts;
   const appear = (q, p, t, dy = 18) => on(q, p, t, { o: [[0, 0], [tu(.16), 1]], y: [[0, dy], [tu(.28), 0, 'out']] });
   const pop = (q, p, t, ox = 0, oy = 0, from = .5) => on(q, p, t, { ox, oy, s: [[0, from], [tu(.24), 1.06, 'out'], [tu(.38), 1, 'soft']], o: [[0, 0], [tu(.1), 1]] });
   const punch = (q, p, t, ox, oy, k = 1.1) => on(q, p, t, { ox, oy, s: [[0, 1], [tu(.07), k, 'out'], [tu(.3), 1, 'soft']] });
