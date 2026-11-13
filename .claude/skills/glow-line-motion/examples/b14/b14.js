@@ -3,7 +3,8 @@
    CutPack (references/cutpack-CATEGORIES.md v2, cat_ai.py): idea THING = the heart of the line (icon + short label).
    First try (very minimal: quote marks / an open ring) → user: "เอาแบบเดิมดีกว่าครับ … ออกแบบมาเหมือนตั้งแต่ 1 ถึง 13 อยากได้ให้มันคงสไตล์นั้นไว้
    แต่ทำตามไอเดียในไฟล์ที่ผมแนบไป" → the house style of B01–B13 (real things, real structure) from the ideas in references/cutpack-visual-ideas.md:
-   "ตัวอักษรบนโปสเตอร์" → 01 poster · "คนถือป้ายข้อความ" → 02 placard (whole person, no detailed hands).
+   "ตัวอักษรบนโปสเตอร์" → 01 poster · "คนถือป้ายข้อความ" → 02 placard (whole person, no detailed hands) … 20 designs; 15 = the ticket dispenser
+   (redesigned twice: quotation marks are out — user "ไม่เอาสัญลักษณ์ “ ”").
    No icon → the label is the hero in big type; nothing → a lit four-point star.
    GL.cats.B14.draw(i, data, { x, y, s, at, hit, speed }) — canvas 1000 × 700 centred at (0,0); hit = seconds after `at` (default 1.9). */
 (function () {
@@ -150,267 +151,308 @@
     /* ---------- B14 parts ---------- */
   const st = d => has(d && d.idea) ? d.idea : null;
   const star4 = (q, x, y, r, o) => q.path(`M ${x} ${y - r} Q ${f1(x + r * .16)} ${f1(y - r * .16)} ${x + r} ${y} Q ${f1(x + r * .16)} ${f1(y + r * .16)} ${x} ${y + r} Q ${f1(x - r * .16)} ${f1(y + r * .16)} ${x - r} ${y} Q ${f1(x - r * .16)} ${f1(y - r * .16)} ${x} ${y - r} Z`, o || { fill: C.ink, sw: 1.2 });
-  /* the hero: the idea's picture (w) + its label under it — or, with no picture, the label alone in big type (it IS the hero then) */
-  function hero(q, c, X, x, y, w, ly, o = {}) {
-    if (!X) { star4(q, x, y, w * .3); return; }
-    if (!picOf(X)) { txt(q, X.label, x, y + (o.bigDy ?? 22), { size: o.bigSize || 72, maxW: o.bigW || 560, weight: 800, color: C.ink, wrap: 'mid' }); return; }
-    put(q, c, X, x, y, w, null, { t: tu(.2) });
-    if (X.label) txt(q, X.label, x, ly, { size: o.size || 50, maxW: o.maxW || 560, weight: 800, color: C.ink, wrap: 'down' });
-  }
+  /* ---------- motion (user 2026-11-13 "เลือก B ครับ อันอื่นผ่านหมดทำเคลื่อนไหวได้เลย"): every part comes in on its own → the holder does
+     its thing (unrolls, rises, flips, unfurls, lights, prints …) → on the keyword the idea lands, lit (halo + ripple) → hold.
+     T0 = when the holder's main move starts (a long sentence waits, then goes) · H = the keyword. Last frame = the approved still. ---------- */
   const screw = (q, x, y, r = 5) => { q.circle(x, y, r, S(1.4)); q.line(x - r * .6, y - r * .6, x + r * .6, y + r * .6, S(1.2)); };
+  const lines = (q, x, y, w, n, gap, o = S(2), short = []) => { for (let k = 0; k < n; k++) q.line(x, y + k * gap, x + (short.includes(k) ? w * .6 : w), y + k * gap, o); };
+  const ell = (q, x, y, rx, ry, o) => q.path(`M ${x - rx} ${y} A ${rx} ${ry} 0 1 0 ${x + rx} ${y} A ${rx} ${ry} 0 1 0 ${x - rx} ${y} Z`, o);
+  const fadeIn = (t, d = .1) => [[0, 0], [t, 0], [t + tu(d), 1]];
+  const slideX = (t, dx = -70) => [[0, dx], [t, dx], [t + tu(.32), 4, 'out'], [t + tu(.42), 0, 'soft']];
+  const floorD = (p, y = 290) => drawAt(p.line(-480, y, 480, y, S(2)), p, 0, tu(.4));
+  /* the idea lands at o.t (default the keyword): halo blooms (o.halo = radius), a ripple, then the picture pops in and its label follows;
+     no picture → the label is the hero, popping in big; nothing → a lit star */
+  function hero(q, c, X, x, y, w, ly, o = {}) { const t = o.t ?? Z.H - tu(.06);
+    if (o.halo) haloH(q, x, y, o.halo, t + tu(.02)); if (o.rip !== false) ripple(q, x, y, o.rip || w * .6, t + tu(.04));
+    if (!X) { star4(popAt(q, x, y, t), x, y, w * .3); return; }
+    if (!picOf(X)) { const by = y + (o.bigDy ?? 22); txt(popAt(q, x, by - 20, t), X.label, x, by, { size: o.bigSize || 72, maxW: o.bigW || 560, weight: 800, color: C.ink, wrap: 'mid' }); return; }
+    put(q, c, X, x, y, w, null, { t, mv: o.mv });
+    if (X.label) txt(atG(q, t + tu(.12)), X.label, x, ly, { size: o.size || 50, maxW: o.maxW || 560, weight: 800, color: C.ink, wrap: 'down' });
+  }
+  /* sideways: picture at (ix, iy), label beside it (anchor start at lx); no picture → the label big at (cx, cy) */
+  function heroH(q, c, X, ix, iy, w, lx, ly, o = {}) { const t = o.t ?? Z.H - tu(.06);
+    if (o.rip !== false) ripple(q, ix, iy, w * .6, t + tu(.04));
+    if (!X) { star4(popAt(q, o.cx ?? ix, o.cy ?? iy, t), o.cx ?? ix, o.cy ?? iy, w * .3); return; }
+    if (!picOf(X)) { const cx = o.cx ?? 0, cy = (o.cy ?? iy) + 20; txt(popAt(q, cx, cy - 20, t), X.label, cx, cy, { size: o.bigSize || 64, maxW: o.bigW || 560, weight: 800, color: C.ink, wrap: 'mid' }); return; }
+    put(q, c, X, ix, iy, w, null, { t, mv: o.mv });
+    if (X.label) txt(o.lg || atG(q, t + tu(.12)), X.label, lx, ly, { size: o.size || 50, maxW: o.maxW || 360, weight: 800, color: C.ink, anchor: 'start', wrap: 'mid' });
+  }
 
   const V = [];
   const variant = (id, th, build) => V.push({ id, th, build });
 
-  /* 01 ── POSTER (idea "ตัวอักษรบนโปสเตอร์"): a poster hangs from a nail on a cord; top and bottom rods with end caps, a printed border,
-     the idea big in the middle */
-  variant('poster', 'โปสเตอร์แขวนผนัง', (d, c) => { const X = st(d), x0 = -240, x1 = 240, y0 = -244, y1 = 226;
-    art(c, p => { p.circle(0, -318, 9, F(2.6)); p.circle(0, -318, 3, SOLID(1)); p.path(`M ${x0 + 24} ${y0 - 8} L 0 -312 L ${x1 - 24} ${y0 - 8}`, W(2.2));
-      R(p, x0, y0, x1 - x0, y1 - y0, 4, F(3.4)); R(p, x0 + 24, y0 + 30, x1 - x0 - 48, y1 - y0 - 58, 6, S(1.6));
-      const rod = (y, h) => { R(p, x0 - 22, y, x1 - x0 + 44, h, h / 2, F(3)); [x0 - 22, x1 + 22].forEach(x => p.circle(x, y + h / 2, h / 2 + 4, F(2.6))); };
-      rod(y0 - 14, 22); rod(y1 - 6, 24);
+  /* 01 ── POSTER: the nail pops, the cord draws, the top rod drops onto it; the poster unrolls down from the rod (the bottom rod rides its
+     edge and bounces), the printed border draws; the idea lands on the keyword */
+  variant('poster', 'โปสเตอร์แขวนผนัง', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, x0 = -240, x1 = 240, y0 = -244, y1 = 226, uE = H - tu(.18);
+    art(c, p => { const nl = popAt(p, 0, -318, tu(.05)); nl.circle(0, -318, 9, F(2.6)); nl.circle(0, -318, 3, SOLID(1));
+      drawAt(p.path(`M ${x0 + 24} ${y0 - 8} L 0 -312 L ${x1 - 24} ${y0 - 8}`, W(2.2)), p, tu(.12), tu(.25));
+      const roll = { sy: [[0, .02], [T0, .02], [uE, 1.03, 'out'], [uE + tu(.12), 1, 'soft']] }, ty = y0 - 3;
+      const sh = mvG(p, Object.assign({ px: 0, py: ty }, roll)); R(sh, x0, y0, x1 - x0, y1 - y0, 4, F(3.4));
+      drawAt(R(p, x0 + 24, y0 + 30, x1 - x0 - 48, y1 - y0 - 58, 6, S(1.6)), p, uE, tu(.3));
+      const rod = (g, y, h) => { R(g, x0 - 22, y, x1 - x0 + 44, h, h / 2, F(3)); [x0 - 22, x1 + 22].forEach(x => g.circle(x, y + h / 2, h / 2 + 4, F(2.6))); };
+      rod(inG(p, 'drop', 0, y0, tu(.18)), y0 - 14, 22);
+      const dy = y1 - 6 - (y0 + 8); rod(mvG(p, { o: fadeIn(tu(.24)), y: [[0, -dy], [T0, -dy], [uE, 10, 'out'], [uE + tu(.12), 0, 'soft']] }), y1 - 6, 24);
       const big = X && !picOf(X);
       hero(p, c, X, 0, big ? -14 : -54, 170, 110, { maxW: 400, size: 46, bigSize: 66, bigW: 400 });
-      p.line(-40, big ? 70 : 150, 40, big ? 70 : 150, S(2.4));
+      drawAt(p.line(-40, big ? 70 : 150, 40, big ? 70 : 150, S(2.4)), p, H + tu(.2), tu(.2));
     }); });
 
-  /* 02 ── HOLDING UP A SIGN (idea "คนถือป้ายข้อความ"): a person stands and holds a placard up high on its stick; framed board, two bolts
-     where the stick meets it, grip wraps on the stick; the idea on the board */
-  variant('placard', 'คนชูป้าย', (d, c) => { const X = st(d), px = -120, k = .76, arm = { s: [4, -76], e: [50, -112], h: [88, -152] };
-    art(c, p => { p.line(-480, 290, 480, 290, S(2));
+  /* 02 ── HOLDING UP A SIGN: the person walks in; the sign comes up from below on its stick (the stick slides up through the hand), overshoots and
+     settles; the person dips with the effort; the idea lands on the board */
+  variant('placard', 'คนชูป้าย', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, px = -120, k = .76, arm = { s: [4, -76], e: [50, -112], h: [88, -152] }, up = 230;
+    art(c, p => { floorD(p);
       const hd = pAt(px, 290, k, 88, -152), sx = f1(hd[0] + 2), bx0 = sx - 250, bx1 = sx + 250, by0 = -338, by1 = -74;
-      R(p, sx - 9, by1, 18, hd[1] - by1 + 70, 6, F(2.6)); [hd[1] + 30, hd[1] + 46].forEach(y => p.line(sx - 9, y, sx + 9, y - 6, S(1.6)));
-      person(p, px, 290, k, arm, { far: { s: [-4, -74], e: [40, -96], h: [80, -124] } });
-      R(p, sx - 26, by1 - 4, 52, 30, 6, F(2.6)); screw(p, sx, by1 + 12, 4);
-      R(p, bx0, by0, bx1 - bx0, by1 - by0, 16, F(3.4)); R(p, bx0 + 18, by0 + 18, bx1 - bx0 - 36, by1 - by0 - 36, 8, S(1.6));
+      const sg = mvG(clipG(p, -500, -350, 1000, 700), { y: [[0, up], [T0, up], [H - tu(.2), -12, 'out'], [H - tu(.06), 0, 'soft']], o: fadeIn(T0 - tu(.1)) });
+      R(sg, sx - 9, by1, 18, hd[1] - by1 + 70, 6, F(2.6)); [hd[1] + 30, hd[1] + 46].forEach(y => sg.line(sx - 9, y, sx + 9, y - 6, S(1.6)));
+      const pg = mvG(p, { x: slideX(tu(.04)), o: fadeIn(tu(.04)) }), pd = mvG(pg, { px, py: 290, sy: [[0, 1], [T0, 1], [T0 + tu(.12), .95, 'in'], [T0 + tu(.4), 1.02, 'out'], [T0 + tu(.55), 1, 'soft']] });
+      person(pd, px, 290, k, arm, { far: { s: [-4, -74], e: [40, -96], h: [80, -124] } });
+      R(sg, sx - 26, by1 - 4, 52, 30, 6, F(2.6)); screw(sg, sx, by1 + 12, 4);
+      R(sg, bx0, by0, bx1 - bx0, by1 - by0, 16, F(3.4)); R(sg, bx0 + 18, by0 + 18, bx1 - bx0 - 36, by1 - by0 - 36, 8, S(1.6));
       const big = X && !picOf(X);
       hero(p, c, X, sx, big ? -206 : -250, 120, -124, { maxW: 420, size: 42, bigSize: 60, bigW: 420, bigDy: 18 });
     }); });
 
-  const lines = (q, x, y, w, n, gap, o = S(2), short = []) => { for (let k = 0; k < n; k++) q.line(x, y + k * gap, x + (short.includes(k) ? w * .6 : w), y + k * gap, o); };
-  /* ---------- 03–20 (user 2026-11-13: "ok ครับขอ creative ขึ้นมานิดนึงแต่ยังคงความเป็นกลางไว้") — the rest of the ideas in the user's file,
-     each read as a real thing with its own structure, a different shape and layout each time ---------- */
-  /* the idea laid out sideways: picture at (ix, iy) and the label beside it (anchor start at lx); no picture → the label big at (cx, cy) */
-  function heroH(q, c, X, ix, iy, w, lx, ly, o = {}) {
-    if (!X) { star4(q, o.cx ?? ix, o.cy ?? iy, w * .3); return; }
-    if (!picOf(X)) { txt(q, X.label, o.cx ?? 0, (o.cy ?? iy) + 20, { size: o.bigSize || 64, maxW: o.bigW || 560, weight: 800, color: C.ink, wrap: 'mid' }); return; }
-    put(q, c, X, ix, iy, w, null, { t: tu(.2) });
-    if (X.label) txt(q, X.label, lx, ly, { size: o.size || 50, maxW: o.maxW || 360, weight: 800, color: C.ink, anchor: 'start', wrap: 'mid' });
-  }
-  const ell = (q, x, y, rx, ry, o) => q.path(`M ${x - rx} ${y} A ${rx} ${ry} 0 1 0 ${x + rx} ${y} A ${rx} ${ry} 0 1 0 ${x - rx} ${y} Z`, o);
-  /* quotation mark like a small "6" (head + tail rising from its left, sweeping right); dir −1 = turned round (”) */
-  function qmark(q, x, y, r, dir = 1, o = F(3.2)) { const g = dir > 0 ? q : rot(q, 180, x, y);
-    g.path(`M ${f1(x - r * .95)} ${f1(y - r * .2)} C ${f1(x - r * 1.05)} ${f1(y - r * 1.9)} ${f1(x + r * .2)} ${f1(y - r * 2.9)} ${f1(x + r * 1.1)} ${f1(y - r * 3.1)} C ${f1(x + r * .25)} ${f1(y - r * 2.4)} ${f1(x - r * .1)} ${f1(y - r * 1.6)} ${f1(x + r * .2)} ${f1(y - r * .6)} Z`, o);
-    g.circle(x, y, r, o); }
-  const floorL = (p, y = 290) => p.line(-480, y, 480, y, S(2));
-
-  /* 03 ── THE PEDESTAL (idea "คำหนึ่งคำบนแท่น"): a fluted column on stepped plinths, a small plate on its shaft; the idea floats above it, lit */
-  variant('pedestal', 'เสาแท่นโชว์', (d, c) => { const X = st(d);
-    art(c, p => { floorL(p);
-      R(p, -170, 252, 340, 38, 6, F(3)); R(p, -146, 222, 292, 32, 6, F(3)); R(p, -104, -28, 208, 252, 4, F(3.4));
-      [-64, -32, 0, 32, 64].forEach(x => p.line(x, -6, x, 204, S(1.6)));
-      R(p, -136, -60, 272, 34, 8, F(3)); R(p, -118, -78, 236, 20, 6, F(2.6)); R(p, -52, 118, 104, 40, 6, F(2.4)); p.line(-30, 138, 30, 138, S(1.4));
-      halo(p, 0, -238, 96); hero(p, c, X, 0, -240, 140, -116, { maxW: 420, size: 40, bigSize: 56, bigW: 440, bigDy: 34 });
+  /* 03 ── THE PEDESTAL: the plinths and the shaft rise one after another, the capital drops on, the little plate pops; the idea floats down
+     onto the air above it and its halo blooms */
+  variant('pedestal', 'เสาแท่นโชว์', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0;
+    art(c, p => { floorD(p);
+      R(inG(p, 'rise', 0, 270, tu(.04)), -170, 252, 340, 38, 6, F(3)); R(inG(p, 'rise', 0, 238, tu(.12)), -146, 222, 292, 32, 6, F(3));
+      const sh = mvG(p, { px: 0, py: 224, sy: [[0, 0], [tu(.2), 0], [T0 + tu(.2), 1.03, 'out'], [T0 + tu(.3), 1, 'soft']], o: fadeIn(tu(.2), .04) }); R(sh, -104, -28, 208, 252, 4, F(3.4));
+      [-64, -32, 0, 32, 64].forEach((x, i) => drawAt(p.line(x, -6, x, 204, S(1.6)), p, T0 + tu(.3 + .04 * i), tu(.2)));
+      const cp = mvG(p, { y: [[0, -120], [T0 + tu(.3), -120], [T0 + tu(.52), 0, 'in'], [T0 + tu(.6), -8, 'out'], [T0 + tu(.7), 0, 'soft']], o: fadeIn(T0 + tu(.3)) });
+      R(cp, -136, -60, 272, 34, 8, F(3)); R(cp, -118, -78, 236, 20, 6, F(2.6));
+      const pl = popAt(p, 0, 138, T0 + tu(.5)); R(pl, -52, 118, 104, 40, 6, F(2.4)); pl.line(-30, 138, 30, 138, S(1.4));
+      hero(p, c, X, 0, -240, 140, -116, { maxW: 420, size: 40, bigSize: 56, bigW: 440, bigDy: 34, halo: 96, mv: { y: [[0, -70], [H - tu(.06), -70], [H + tu(.3), 4, 'out'], [H + tu(.42), 0, 'soft']] } });
     }); });
 
-  /* 04 ── THE FLIP CHART (idea "คำสำคัญบนกระดาน"): a pad on a tripod; used pages are flipped back over the top bar, a marker on the ledge */
-  variant('flipchart', 'กระดานฟลิปชาร์ต', (d, c) => { const X = st(d);
-    art(c, p => { floorL(p);
-      [[-150, -230, -230, 290], [150, -230, 230, 290], [0, -250, 40, 290]].forEach(([a, b, e, f], i) => p.line(a, b, e, f, i === 2 ? S(3) : W(5)));
-      p.path('M -190 -282 Q -110 -340 0 -332 Q 110 -340 190 -282', F(2.6)); p.path('M -170 -282 Q -90 -324 0 -318 Q 90 -324 170 -282', S(1.4));
-      R(p, -200, -270, 400, 420, 6, F(3.4)); R(p, -218, -292, 436, 32, 8, F(3)); [-150, 150].forEach(x => screw(p, x, -276, 5));
-      R(p, -214, 150, 428, 22, 6, F(2.8)); R(p, 60, 128, 110, 22, 10, F(2.4)); R(p, 150, 132, 26, 14, 4, F(2));
+  /* 04 ── THE FLIP CHART: the legs draw, the pad drops onto the tripod; two used pages flip back over the top bar one after the other,
+     the marker rolls on the ledge; the idea lands on the fresh page */
+  variant('flipchart', 'กระดานฟลิปชาร์ต', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, by = -276;
+    art(c, p => { floorD(p);
+      [[-150, -230, -230, 290], [150, -230, 230, 290], [0, -250, 40, 290]].forEach(([a, b, e, f], i) => drawAt(p.line(a, b, e, f, i === 2 ? S(3) : W(5)), p, tu(.04 + .05 * i), tu(.3)));
+      const back = litG(p, T0 + tu(.2)); back.path('M -190 -282 Q -110 -340 0 -332 Q 110 -340 190 -282', F(2.6)); back.path('M -170 -282 Q -90 -324 0 -318 Q 90 -324 170 -282', S(1.4));
+      const pad = inG(p, 'drop', 0, -60, tu(.18)); R(pad, -200, -270, 400, 420, 6, F(3.4));
+      [0, 1].forEach(k => { const t0 = T0 + tu(k * .32), pg = mvG(pad, { px: 0, py: by, sy: [[0, 1], [t0, 1], [t0 + tu(.3), -.12, 'io']], o: [[0, 1], [t0 + tu(.3), 1], [t0 + tu(.31), 0]] });
+        R(pg, -196, -266, 392, 412, 4, F(2.6)); lines(pg, -150, -180, 300, 4, 60, S(1.8), [3]); });
+      R(pad, -218, -292, 436, 32, 8, F(3)); [-150, 150].forEach(x => screw(pad, x, -276, 5));
+      R(pad, -214, 150, 428, 22, 6, F(2.8));
+      const mk = mvG(pad, { x: [[0, -140], [T0 + tu(.5), -140], [T0 + tu(.8), 6, 'out'], [T0 + tu(.9), 0, 'soft']] }); R(mk, 60, 128, 110, 22, 10, F(2.4)); R(mk, 150, 132, 26, 14, 4, F(2));
       hero(p, c, X, 0, -116, 150, 34, { maxW: 340, size: 44, bigSize: 58, bigW: 340 });
     }); });
 
-  /* 05 ── THE BANNER (idea "ข้อความบนแถบสีพื้น"): a cloth banner tied between two poles by its corner rings, guy ropes pegged to the ground */
-  variant('banner', 'ป้ายผ้าขึงเสา', (d, c) => { const X = st(d), bx0 = -350, bx1 = 350, by0 = -206, by1 = 40;
-    art(c, p => { floorL(p);
-      [-1, 1].forEach(sd => { const x = sd * 420; R(p, x - 10, -290, 20, 580, 8, F(2.6)); p.circle(x, -300, 14, F(2.4)); p.line(x, -280, x + sd * 70, 290, S(1.6)); shape(p, [[x + sd * 62, 290], [x + sd * 78, 290], [x + sd * 70, 270]], F(1.8)); });
-      p.path(`M ${bx0} ${by0} L ${bx1} ${by0} L ${bx1} ${by1} Q 0 ${by1 + 26} ${bx0} ${by1} Z`, F(3.4)); p.path(`M ${bx0 + 22} ${by0 + 22} L ${bx1 - 22} ${by0 + 22} L ${bx1 - 22} ${by1 - 18} Q 0 ${by1 + 6} ${bx0 + 22} ${by1 - 18} Z`, S(1.4));
-      [[bx0, by0], [bx1, by0], [bx0, by1], [bx1, by1]].forEach(([x, y]) => { const ix = x + (x < 0 ? 16 : -16), iy = y + (y < 0 ? 16 : -16); p.circle(ix, iy, 8, F(2)); p.line(ix, iy, x < 0 ? -410 : 410, y < 0 ? y - 10 : y + 6, W(2)); });
+  /* 05 ── THE BANNER: the poles rise, the guy ropes draw down to their pegs; the banner unfurls from the left pole to the right one, its corner
+     rings pop and the ties draw; the idea lands on the cloth */
+  variant('banner', 'ป้ายผ้าขึงเสา', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, bx0 = -350, bx1 = 350, by0 = -206, by1 = 40, uE = H - tu(.16);
+    art(c, p => { floorD(p);
+      [-1, 1].forEach((sd, i) => { const x = sd * 420, g = inG(p, 'rise', x, 0, tu(.04 + .08 * i)); R(g, x - 10, -290, 20, 580, 8, F(2.6)); g.circle(x, -300, 14, F(2.4));
+        drawAt(p.line(x, -280, x + sd * 70, 290, S(1.6)), p, tu(.4 + .08 * i), tu(.3)); shape(popAt(p, x + sd * 70, 280, tu(.6 + .08 * i)), [[x + sd * 62, 290], [x + sd * 78, 290], [x + sd * 70, 270]], F(1.8)); });
+      const bn = mvG(p, { px: bx0, py: 0, sx: [[0, .02], [T0, .02], [uE, 1.02, 'out'], [uE + tu(.1), 1, 'soft']], o: fadeIn(T0, .02) });
+      bn.path(`M ${bx0} ${by0} L ${bx1} ${by0} L ${bx1} ${by1} Q 0 ${by1 + 26} ${bx0} ${by1} Z`, F(3.4)); bn.path(`M ${bx0 + 22} ${by0 + 22} L ${bx1 - 22} ${by0 + 22} L ${bx1 - 22} ${by1 - 18} Q 0 ${by1 + 6} ${bx0 + 22} ${by1 - 18} Z`, S(1.4));
+      [[bx0, by0], [bx1, by0], [bx0, by1], [bx1, by1]].forEach(([x, y]) => { const ix = x + (x < 0 ? 16 : -16), iy = y + (y < 0 ? 16 : -16), t = x < 0 ? T0 : uE;
+        popAt(p, ix, iy, t).circle(ix, iy, 8, F(2)); drawAt(p.line(ix, iy, x < 0 ? -410 : 410, y < 0 ? y - 10 : y + 6, W(2)), p, t + tu(.02), tu(.12)); });
       heroH(p, c, X, -200, -84, 140, -110, -84, { cx: 0, cy: -84, size: 52, maxW: 420, bigSize: 64, bigW: 600 });
     }); });
 
-  /* 06 ── THE HIGHLIGHTED LINE (idea "คำคมบนหน้ากระดาษ"): an open book; on the right page one line is marked with a highlighter (the idea) —
-     the highlighter lies across the corner */
-  variant('highlight', 'หนังสือขีดเน้น', (d, c) => { const X = st(d);
-    art(c, p => { [-1, 1].forEach(sd => { p.path(`M 0 -196 Q ${sd * 190} -238 ${sd * 396} -196 L ${sd * 396} 214 Q ${sd * 190} 176 0 214 Z`, F(3.4));
-        p.path(`M ${sd * 10} 222 Q ${sd * 190} 190 ${sd * 404} 228`, S(1.6)); });
-      p.line(0, -196, 0, 214, W(2.4));
-      for (let k = 0; k < 7; k++) { const y = -150 + k * 50; p.line(-360, y, -40, y + (k === 6 ? 0 : 0), S(2)); }
-      lines(p, 40, -150, 320, 2, 40, S(2));
-      const big = X && !picOf(X);
-      R(p, 34, big ? -46 : 30, 336, big ? 110 : 66, 10, { fill: 'rgba(255,255,255,.16)', sw: 0, stroke: 'none' });
-      if (big) txt(p, X.label, 202, 26, { size: 52, maxW: 320, weight: 800, color: C.ink, wrap: 'mid' });
-      else if (X) { put(p, c, X, 202, -36, 100, null, { t: tu(.2) }); if (X.label) txt(p, X.label, 202, 76, { size: 40, maxW: 320, weight: 800, color: C.ink }); }
-      else star4(p, 202, 10, 40);
-      lines(p, 40, 130, 320, 2, 40, S(2), [1]);
-      const hg = rot(p, -24, 300, 260); R(hg, 190, 236, 210, 46, 12, F(3)); R(hg, 380, 238, 52, 42, 10, F(2.6)); shape(hg, [[190, 244], [190, 274], [162, 266], [162, 252]], F(2.2));
+  /* 06 ── THE HIGHLIGHTED LINE: the book drops in and opens from its spine, the lines of text draw; the highlighter comes in and sweeps along
+     one line, the highlight growing behind it, then goes back to rest on the corner; the idea lands in the highlight */
+  variant('highlight', 'หนังสือขีดเน้น', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, big = X && !picOf(X), ly = big ? 9 : 63, hS = T0 + tu(.1), hE = H - tu(.12);
+    art(c, p => { const bk = inG(p, 'drop', 0, 0, tu(.04));
+      [-1, 1].forEach(sd => { const pg = mvG(bk, { px: 0, py: 0, sx: [[0, .05], [tu(.22), .05], [tu(.5), 1.02, 'out'], [tu(.6), 1, 'soft']] });
+        pg.path(`M 0 -196 Q ${sd * 190} -238 ${sd * 396} -196 L ${sd * 396} 214 Q ${sd * 190} 176 0 214 Z`, F(3.4)); pg.path(`M ${sd * 10} 222 Q ${sd * 190} 190 ${sd * 404} 228`, S(1.6)); });
+      bk.line(0, -196, 0, 214, W(2.4));
+      for (let k = 0; k < 7; k++) drawAt(p.line(-360, -150 + k * 50, -40, -150 + k * 50, S(2)), p, tu(.5 + .03 * k), tu(.2));
+      [-150, -110, 130].forEach((y, i) => drawAt(p.line(40, y, i === 2 ? 40 + 320 : 360, y, S(2)), p, tu(.6 + .03 * i), tu(.2))); drawAt(p.line(40, 170, 232, 170, S(2)), p, tu(.7), tu(.2));
+      const hl = mvG(p, { px: 34, py: 0, sx: [[0, 0], [hS, 0], [hE, 1, 'io']], o: fadeIn(hS, .02) }); R(hl, 34, big ? -46 : 30, 336, big ? 110 : 66, 10, { fill: 'rgba(255,255,255,.16)', sw: 0, stroke: 'none' });
+      const dyp = ly - 30 - 260, K = { x: [[0, 260], [tu(.5), 260], [hS - tu(.2), -146, 'out'], [hS, -146], [hE, 190, 'io'], [hE + tu(.36), 0, 'io']], y: [[0, dyp], [hS, dyp], [hE, dyp], [hE + tu(.36), 0, 'io']],
+        r: [[0, 0], [hE, 0], [hE + tu(.36), 0]] };
+      const hg0 = mvG(p, Object.assign({ o: fadeIn(tu(.5)) }, K)), hg = rot(hg0, -24, 300, 260); R(hg, 190, 236, 210, 46, 12, F(3)); R(hg, 380, 238, 52, 42, 10, F(2.6)); shape(hg, [[190, 244], [190, 274], [162, 266], [162, 252]], F(2.2));
+      if (big) txt(popAt(p, 202, 6, H - tu(.06)), X.label, 202, 26, { size: 52, maxW: 320, weight: 800, color: C.ink, wrap: 'mid' });
+      else if (X) { put(p, c, X, 202, -36, 100, null, { t: H - tu(.06) }); ripple(p, 202, -36, 60, H - tu(.02)); if (X.label) txt(atG(p, H + tu(.06)), X.label, 202, 76, { size: 40, maxW: 320, weight: 800, color: C.ink }); }
+      else star4(popAt(p, 202, 10, H - tu(.06)), 202, 10, 40);
     }); });
 
-  /* 07 ── THE SPEECH STANDEE (idea "แผ่นคำพูดพร้อมชื่อผู้กล่าว"): a speech-bubble board on a pole with a weighted round base; a blank line
-     for the speaker under the words (no name is ever written) */
-  variant('bubblestand', 'ป้ายฟองคำพูดตั้งพื้น', (d, c) => { const X = st(d);
-    art(c, p => { floorL(p); ell(p, 0, 270, 130, 22, F(3)); R(p, -40, 238, 80, 30, 8, F(2.6)); R(p, -10, 40, 20, 202, 6, F(2.6));
-      p.path('M -260 -300 L 260 -300 Q 300 -300 300 -260 L 300 0 Q 300 40 260 40 L -40 40 L -120 112 L -110 40 L -260 40 Q -300 40 -300 0 L -300 -260 Q -300 -300 -260 -300 Z', F(3.4));
-      R(p, -276, -276, 552, 292, 30, S(1.4));
+  /* 07 ── THE SPEECH STANDEE: the base drops, the pole grows up out of it, the bubble pops out at the top of the pole (from its tail) with a
+     little sway; the speaker's line draws; the idea lands in the bubble */
+  variant('bubblestand', 'ป้ายฟองคำพูดตั้งพื้น', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0;
+    art(c, p => { floorD(p); const bs = inG(p, 'drop', 0, 262, tu(.04)); ell(bs, 0, 270, 130, 22, F(3)); R(bs, -40, 238, 80, 30, 8, F(2.6));
+      const pl = mvG(p, { px: 0, py: 242, sy: [[0, 0], [tu(.2), 0], [T0, 1, 'out']], o: fadeIn(tu(.2), .04) }); R(pl, -10, 40, 20, 202, 6, F(2.6));
+      const bb = mvG(p, { px: -110, py: 100, s: [[0, .1], [T0, .1], [T0 + tu(.3), 1.06, 'out'], [T0 + tu(.44), 1, 'soft']], r: [[0, -8], [T0, -8], [T0 + tu(.3), 3, 'out'], [T0 + tu(.6), -1.5, 'io'], [T0 + tu(.85), 0, 'soft']], o: fadeIn(T0, .04) });
+      bb.path('M -260 -300 L 260 -300 Q 300 -300 300 -260 L 300 0 Q 300 40 260 40 L -40 40 L -120 112 L -110 40 L -260 40 Q -300 40 -300 0 L -300 -260 Q -300 -300 -260 -300 Z', F(3.4));
+      R(bb, -276, -276, 552, 292, 30, S(1.4)); drawAt(bb.line(-60, 0, 60, 0, S(2)), p, T0 + tu(.5), tu(.2)); bb.circle(-82, 0, 6, S(1.6));
       hero(p, c, X, 0, -164, 140, -40, { maxW: 480, size: 46, bigSize: 64, bigW: 500, bigDy: 10 });
-      p.line(-60, 0, 60, 0, S(2)); p.circle(-82, 0, 6, S(1.6));
     }); });
 
-  /* 08 ── THE TAG (idea "ป้ายข้อความพร้อมสัญลักษณ์ดาว"): a card tag on a looped string, reinforced eyelet, a little star punched in its corner */
-  variant('tag', 'ป้ายแท็กดาว', (d, c) => { const X = st(d);
-    art(c, p => { const g = rot(p, -6, 0, -190);
-      p.circle(0, -330, 9, F(2.6)); p.path('M 0 -322 C -40 -280 -36 -214 -8 -196 M 0 -322 C 40 -280 30 -212 8 -196', W(2.4));
+  /* 08 ── THE TAG: the nail pops; the tag drops in on its string and swings on the nail (past, back, settle at its tilt); on the keyword the
+     little star in its corner flashes and the idea lands */
+  variant('tag', 'ป้ายแท็กดาว', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0;
+    art(c, p => { const nl = popAt(p, 0, -330, tu(.05)); nl.circle(0, -330, 9, F(2.6));
+      const sw = mvG(p, { px: 0, py: -330, y: [[0, -260], [tu(.12), -260], [T0 - tu(.1), 10, 'in'], [T0, 0, 'out']], r: [[0, 0], [T0, 0], [T0 + tu(.2), 14, 'out'], [T0 + tu(.5), -7, 'io'], [T0 + tu(.8), 3, 'io'], [H - tu(.1), 0, 'soft']], o: fadeIn(tu(.12)) });
+      sw.path('M 0 -322 C -40 -280 -36 -214 -8 -196 M 0 -322 C 40 -280 30 -212 8 -196', W(2.4));
+      const g = rot(sw, -6, 0, -190);
       shape(g, [[-200, -120], [-112, -228], [112, -228], [200, -120], [200, 262], [-200, 262]], F(3.4)); shape(g, [[-178, -112], [-100, -206], [100, -206], [178, -112], [178, 240], [-178, 240]], S(1.4));
       ring(g, 0, -176, 26, 12, F(2.6)); g.circle(0, -176, 34, S(1.4));
-      star4(g, 140, 196, 20, { fill: C.fill, sw: 2.4 });
+      const stg = mvG(g, { px: 140, py: 196, s: bumpK(H - tu(.04), 1.5) }); star4(stg, 140, 196, 20, { fill: C.fill, sw: 2.4 }); sparkAt(g, 140, 196, 30, 44, H - tu(.04), 6, 0, []);
       hero(g, c, X, 0, -24, 150, 124, { maxW: 330, size: 44, bigSize: 56, bigW: 330 });
     }); });
 
-  /* 09 ── THE LIGHTBOX (idea "ประโยคในกรอบหนา"): a thick-framed lightbox on the wall, its face lit; the cord drops to a plug in the socket */
-  variant('lightbox', 'กล่องไฟกรอบหนา', (d, c) => { const X = st(d);
-    art(c, p => { R(p, -330, -250, 660, 420, 26, F(3.6)); R(p, -300, -220, 600, 360, 10, F(2.6)); R(p, -284, -204, 568, 328, 6, { fill: 'rgba(255,255,255,.1)', sw: 1.4, stroke: C.soft });
-      [-300, 300].forEach(x => [-220, 140].forEach(y => screw(p, x + (x < 0 ? -15 : 15), y + (y < 0 ? -15 : 15), 4)));
-      p.path('M 260 170 C 260 230 330 210 340 262', W(2.4)); R(p, 322, 260, 40, 26, 6, F(2.4)); R(p, 312, 280, 60, 30, 8, F(2.6)); [330, 354].forEach(x => p.line(x, 290, x, 300, S(1.4)));
+  /* 09 ── THE LIGHTBOX: the frame pops onto the wall, the cord draws down; the plug slides into the socket — the face flickers and lights up;
+     the idea lands on the lit face */
+  variant('lightbox', 'กล่องไฟกรอบหนา', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, tOn = T0 + tu(.2);
+    art(c, p => { const fr = inG(p, 'pop', 0, -40, tu(.04)); R(fr, -330, -250, 660, 420, 26, F(3.6)); R(fr, -300, -220, 600, 360, 10, F(2.6));
+      const lit = sub(fr); on(lit, p, 0, { o: [[0, 0], [tOn, 0], [tOn + tu(.04), .8], [tOn + tu(.08), .1], [tOn + tu(.14), 1], [tOn + tu(.18), .3], [tOn + tu(.26), 1]] }); R(lit, -284, -204, 568, 328, 6, { fill: 'rgba(255,255,255,.1)', sw: 1.4, stroke: C.soft });
+      R(fr, -284, -204, 568, 328, 6, { fill: 'none', sw: 1.4, stroke: C.soft });
+      [-300, 300].forEach(x => [-220, 140].forEach(y => screw(fr, x + (x < 0 ? -15 : 15), y + (y < 0 ? -15 : 15), 4)));
+      drawAt(p.path('M 260 170 C 260 230 330 210 340 262', W(2.4)), p, tu(.3), tu(.3)); R(popAt(p, 342, 298, tu(.25)), 312, 280, 60, 30, 8, F(2.6));
+      const pg = mvG(p, { y: [[0, -40], [tu(.5), -40], [T0, 0, 'in'], [T0 + tu(.05), -3, 'out'], [T0 + tu(.12), 0, 'soft']], o: fadeIn(tu(.5)) }); R(pg, 322, 260, 40, 26, 6, F(2.4)); [330, 354].forEach(x => pg.line(x, 286, x, 296, S(1.4)));
+      sparkAt(p, 342, 284, 22, 34, T0 + tu(.02), 5, -90, []);
       hero(p, c, X, 0, -70, 160, 82, { maxW: 480, size: 46, bigSize: 64, bigW: 500 });
     }); });
 
-  /* 10 ── THE ROUND SHOP SIGN (idea "ข้อความในกรอบวงกลม"): a round sign hanging on two rings from a scrolled bracket on the wall */
-  variant('roundsign', 'ป้ายกลมแขวนแขนเหล็ก', (d, c) => { const X = st(d), cx = 60, cy = 40, Rr = 206;
-    art(c, p => { R(p, -450, -330, 20, 380, 4, S(2)); R(p, -440, -300, 36, 120, 8, F(2.6)); [-264, -216].forEach(y => screw(p, -422, y, 4));
-      R(p, -404, -272, 530, 18, 8, F(2.8)); p.path('M -404 -196 Q -300 -200 -200 -262', W(3)); p.circle(-300, -230, 22, S(1.8)); p.circle(126, -263, 10, F(2.2));
-      [-80, 80].forEach(dx => { p.circle(cx + dx, -238, 12, F(2.2)); p.line(cx + dx, -226, cx + dx * .9, cy - Rr * .94, W(2.4)); });
-      ring(p, cx, cy, Rr, Rr - 22, F(3.4)); p.circle(cx, cy, Rr - 22, F(1)); p.circle(cx, cy, Rr - 38, S(1.4));
-      hero(p, c, X, cx, cy - 34, 150, cy + 86, { maxW: 300, size: 42, bigSize: 56, bigW: 320 });
+  /* 10 ── THE ROUND SHOP SIGN: the wall plate and bracket arm draw out from the wall, the rings pop; the sign drops onto its rings and swings
+     from them, settling; the idea lands on it */
+  variant('roundsign', 'ป้ายกลมแขวนแขนเหล็ก', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, cx = 60, cy = 40, Rr = 206;
+    art(c, p => { R(p, -450, -330, 20, 380, 4, S(2)); const wp = inG(p, 'pop', -422, -240, tu(.04)); R(wp, -440, -300, 36, 120, 8, F(2.6)); [-264, -216].forEach(y => screw(wp, -422, y, 4));
+      const arm = mvG(p, { px: -404, py: -263, sx: [[0, .02], [tu(.15), .02], [tu(.5), 1, 'out']], o: fadeIn(tu(.15), .04) }); R(arm, -404, -272, 530, 18, 8, F(2.8)); arm.circle(126, -263, 10, F(2.2));
+      drawAt(p.path('M -404 -196 Q -300 -200 -200 -262', W(3)), p, tu(.45), tu(.25)); drawAt(p.circle(-300, -230, 22, S(1.8)), p, tu(.55), tu(.2));
+      [-80, 80].forEach((dx, i) => popAt(p, cx + dx, -238, tu(.6 + .05 * i)).circle(cx + dx, -238, 12, F(2.2)));
+      const sw = mvG(p, { px: cx, py: -238, y: [[0, -200], [T0 - tu(.2), -200], [T0, 6, 'in'], [T0 + tu(.08), 0, 'out']], r: [[0, 0], [T0 + tu(.04), 0], [T0 + tu(.24), 6, 'out'], [T0 + tu(.5), -3.5, 'io'], [T0 + tu(.76), 1.5, 'io'], [H - tu(.1), 0, 'soft']], o: fadeIn(T0 - tu(.2)) });
+      [-80, 80].forEach(dx => sw.line(cx + dx, -226, cx + dx * .9, cy - Rr * .94, W(2.4)));
+      ring(sw, cx, cy, Rr, Rr - 22, F(3.4)); sw.circle(cx, cy, Rr - 22, F(1)); sw.circle(cx, cy, Rr - 38, S(1.4));
+      hero(sw, c, X, cx, cy - 34, 150, cy + 86, { maxW: 300, size: 42, bigSize: 56, bigW: 320 });
     }); });
 
-  /* 11 ── SITTING ON THE IDEA (idea "คนยืนข้างข้อความเด่น" → creative): a person sits on top of a big block with their legs over its edge;
-     the idea is on the block's face */
-  variant('sitter', 'คนนั่งบนกล่องใจความ', (d, c) => { const X = st(d), k = .88, hipY = -46, px = -96;
-    art(c, p => { floorL(p);
-      shape(p, [[-200, -20], [190, -20], [236, -70], [-154, -70]], F(3.2)); shape(p, [[190, -20], [236, -70], [236, 244], [190, 290]], F(3.2));
-      R(p, -200, -20, 390, 310, 6, F(3.4)); R(p, -176, 4, 342, 262, 4, S(1.6));
+  /* 11 ── SITTING ON THE IDEA: the block rises; the person drops onto its top and settles (a squash on landing, a little lean back);
+     the block thumps and the idea lands on its face */
+  variant('sitter', 'คนนั่งบนกล่องใจความ', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, k = .88, hipY = -46, px = -96;
+    art(c, p => { floorD(p);
+      const bl = mvG(inG(p, 'rise', 0, 140, tu(.04)), { px: 0, py: 290, sy: bumpK(H - tu(.08), .97) });
+      shape(bl, [[-200, -20], [190, -20], [236, -70], [-154, -70]], F(3.2)); shape(bl, [[190, -20], [236, -70], [236, 244], [190, 290]], F(3.2));
+      R(bl, -200, -20, 390, 310, 6, F(3.4)); R(bl, -176, 4, 342, 262, 4, S(1.6));
       const sit = sd => ({ h: [sd * 6, 8], k: [sd < 0 ? 56 : 62, sd < 0 ? 2 : -6], f: [sd < 0 ? 120 : 130, sd < 0 ? 4 : -10] });
-      person(p, px, hipY + 158 * k, k, { s: [4, -76], e: [-22, -38], h: [-44, 2] }, { leg: sit, lean: -10, far: { s: [-4, -74], e: [-30, -34], h: [-52, 4] } });
+      const pd = mvG(clipG(p, -500, -350, 1000, 700), { px, py: hipY, y: [[0, -200], [T0 - tu(.26), -200], [T0, 0, 'in']], sy: [[0, 1], [T0, 1], [T0 + tu(.06), .9, 'out'], [T0 + tu(.24), 1, 'soft']], o: fadeIn(T0 - tu(.26)) });
+      const pl = mvG(pd, { px, py: hipY, r: [[0, 0], [T0 + tu(.2), 0], [T0 + tu(.5), -4, 'io'], [T0 + tu(.8), 0, 'soft']] });
+      person(pl, px, hipY + 158 * k, k, { s: [4, -76], e: [-22, -38], h: [-44, 2] }, { leg: sit, lean: -10, far: { s: [-4, -74], e: [-30, -34], h: [-52, 4] } });
       hero(p, c, X, 0, 104, 150, 230, { maxW: 320, size: 42, bigSize: 58, bigW: 320, bigDy: 30 });
     }); });
 
-  /* 12 ── THE ONE-LINE SCROLLER (idea "ตัวอักษรหนึ่งบรรทัด"): a long dot-matrix panel on two legs showing the idea in one line */
-  variant('scroller', 'ป้ายไฟวิ่งบรรทัดเดียว', (d, c) => { const X = st(d), y0 = -140, y1 = 60;
-    art(c, p => { floorL(p); [-300, 300].forEach(x => { R(p, x - 10, y1, 20, 230, 4, F(2.6)); R(p, x - 50, 276, 100, 14, 6, F(2.4)); });
-      R(p, -440, y0, 880, y1 - y0, 22, F(3.6)); R(p, -416, y0 + 22, 832, y1 - y0 - 44, 8, F(2));
-      for (let y = y0 + 40; y < y1 - 30; y += 22) for (let x = -398; x < 400; x += 22) p.circle(x, y, 2.2, { fill: 'rgba(255,255,255,.14)', sw: 0, stroke: 'none' });
-      p.circle(398, y1 - 12, 5, SOLID(1)); p.path(`M 300 ${y1 + 20} Q 360 ${y1 + 80} 340 290`, S(1.8));
-      heroH(p, c, X, -300, -40, 110, -220, -40, { cx: 0, cy: -40, size: 58, maxW: 600, bigSize: 64, bigW: 760 });
+  /* 12 ── THE ONE-LINE SCROLLER: the legs rise and the panel pops on; its dots twinkle on in a sweep; the idea scrolls in from the right edge
+     and stops in place on the keyword */
+  variant('scroller', 'ป้ายไฟวิ่งบรรทัดเดียว', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, y0 = -140, y1 = 60, sS = T0, sE = H - tu(.06), dx = 680;
+    art(c, p => { floorD(p); [-300, 300].forEach((x, i) => { const g = inG(p, 'rise', x, 180, tu(.04 + .06 * i)); R(g, x - 10, y1, 20, 230, 4, F(2.6)); R(g, x - 50, 276, 100, 14, 6, F(2.4)); });
+      const pn = inG(p, 'pop', 0, (y0 + y1) / 2, tu(.2)); R(pn, -440, y0, 880, y1 - y0, 22, F(3.6)); R(pn, -416, y0 + 22, 832, y1 - y0 - 44, 8, F(2));
+      for (let x = -398; x < 400; x += 22) { const col = sub(pn); on(col, p, 0, { o: [[0, 0], [tu(.4) + (x + 400) / 800 * tu(.3), 0], [tu(.42) + (x + 400) / 800 * tu(.3), 1]] }); for (let y = y0 + 40; y < y1 - 30; y += 22) col.circle(x, y, 2.2, { fill: 'rgba(255,255,255,.14)', sw: 0, stroke: 'none' }); }
+      const led = sub(pn); on(led, p, 0, { o: [[0, .3], [T0, .3], [T0 + tu(.02), 1]] }); led.circle(398, y1 - 12, 5, SOLID(1)); drawAt(p.path(`M 300 ${y1 + 20} Q 360 ${y1 + 80} 340 290`, S(1.8)), p, tu(.3), tu(.3));
+      const sk = [[0, dx], [sS, dx], [sE, -6, 'out'], [sE + tu(.1), 0, 'soft']], cl = clipG(p, -416, y0 + 22, 832, y1 - y0 - 44), lg = mvG(cl, { x: sk, o: fadeIn(sS, .02) });
+      if (X && picOf(X)) { put(p, c, X, -300, -40, 110, null, { t: sS, mv: { x: sk } }); if (X.label) txt(lg, X.label, -220, -40, { size: 58, maxW: 600, weight: 800, color: C.ink, anchor: 'start', wrap: 'mid' }); }
+      else if (X) txt(lg, X.label, 0, -20, { size: 64, maxW: 760, weight: 800, color: C.ink, wrap: 'mid' });
+      else star4(lg, 0, -40, 33);
+      ripple(p, 0, -40, 90, sE + tu(.02));
     }); });
 
-  /* 13 ── THE HEADLINE (idea "ข้อความขนาดใหญ่กลางภาพ"): a folded paper on another; the masthead, a big headline box with the idea, columns */
-  variant('headline', 'พาดหัวหน้ากระดาษ', (d, c) => { const X = st(d);
-    art(c, p => { const b = rot(p, 6, 60, 20); R(b, -220, -250, 520, 520, 4, F(3)); lines(b, -190, 180, 460, 2, 26, S(1.6));
-      const g = rot(p, -4, -20, 0); R(g, -300, -280, 540, 560, 4, F(3.4)); g.line(-270, -226, 210, -226, W(3.2)); g.line(-270, -214, 210, -214, S(1.4));
-      [-240, -150, -60].forEach(x => g.line(x, -252, x + 60, -252, S(2.2))); R(g, -270, -196, 480, 280, 6, S(1.6));
-      [-270, -105, 60].forEach(x => lines(g, x, 108, 140, 5, 30, S(1.6), [4]));
-      g.line(-30, 100, -30, 260, S(1.2));
+  /* 13 ── THE HEADLINE: the paper underneath slides in, the front page drops on and settles at its tilt; the masthead and the columns draw;
+     the headline box draws and the idea lands in it */
+  variant('headline', 'พาดหัวหน้ากระดาษ', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0;
+    art(c, p => { const b0 = mvG(p, { x: slideX(tu(.04), 90), o: fadeIn(tu(.04)) }), b = rot(b0, 6, 60, 20); R(b, -220, -250, 520, 520, 4, F(3)); lines(b, -190, 180, 460, 2, 26, S(1.6));
+      const g0 = mvG(p, { px: -20, py: 0, y: [[0, -90], [tu(.16), -90], [tu(.4), 0, 'in'], [tu(.48), -6, 'out'], [tu(.56), 0, 'soft']], r: [[0, 6], [tu(.16), 6], [tu(.48), -1], [tu(.6), 0, 'soft']], o: fadeIn(tu(.16)) }), g = rot(g0, -4, -20, 0);
+      R(g, -300, -280, 540, 560, 4, F(3.4)); drawAt(g.line(-270, -226, 210, -226, W(3.2)), p, tu(.5), tu(.2)); g.line(-270, -214, 210, -214, S(1.4));
+      [-240, -150, -60].forEach((x, i) => drawAt(g.line(x, -252, x + 60, -252, S(2.2)), p, tu(.55 + .04 * i), tu(.15)));
+      drawAt(R(g, -270, -196, 480, 280, 6, S(1.6)), p, T0, tu(.4));
+      [-270, -105, 60].forEach((x, i) => { for (let k = 0; k < 5; k++) drawAt(g.line(x, 108 + k * 30, x + (k === 4 ? 84 : 140), 108 + k * 30, S(1.6)), p, T0 + tu(.2 + .05 * (i * 5 + k) / 3), tu(.15)); });
+      drawAt(g.line(-30, 100, -30, 260, S(1.2)), p, T0 + tu(.2), tu(.3));
       hero(g, c, X, -30, -98, 140, 40, { maxW: 440, size: 50, bigSize: 64, bigW: 440 });
     }); });
 
-  /* 14 ── THE YARD SIGN (idea "ข้อความบนแผ่นป้าย"): a sign pushed into the grass on its wire stake, a few blades of grass at its feet */
-  variant('yardsign', 'ป้ายปักสนาม', (d, c) => { const X = st(d);
-    art(c, p => { floorL(p, 270); for (let x = -440; x <= 440; x += 46) p.path(`M ${x} 270 L ${x + 6} 250 M ${x + 10} 270 L ${x + 18} 244 M ${x + 20} 270 L ${x + 24} 256`, S(1.6));
-      [-150, 150].forEach(x => { p.line(x, 80, x, 286, W(3)); p.line(x - 14, 160, x + 14, 160, W(2.4)); });
-      R(p, -270, -250, 540, 340, 14, F(3.4)); R(p, -246, -226, 492, 292, 8, S(1.6)); [-246, 246].forEach(x => p.circle(x, 66, 5, S(1.4)));
+  /* 14 ── THE YARD SIGN: the grass line and blades draw; the sign comes down and is pushed into the ground on its stake (a thump: squash,
+     a few dust ticks); the idea lands on it */
+  variant('yardsign', 'ป้ายปักสนาม', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0;
+    art(c, p => { drawAt(p.line(-480, 270, 480, 270, S(2)), p, 0, tu(.4)); for (let x = -440; x <= 440; x += 46) drawAt(p.path(`M ${x} 270 L ${x + 6} 250 M ${x + 10} 270 L ${x + 18} 244 M ${x + 20} 270 L ${x + 24} 256`, S(1.6)), p, tu(.1 + (x + 440) / 880 * .3), tu(.15));
+      const cl = clipG(p, -500, -350, 1000, 620), sg = mvG(cl, { y: [[0, -420], [T0 - tu(.3), -420], [T0, 30, 'in'], [T0 + tu(.06), 22, 'out'], [T0 + tu(.24), 0, 'soft']], o: fadeIn(T0 - tu(.3)) });
+      const sq = mvG(sg, { px: 0, py: 90, sy: [[0, 1], [T0, 1], [T0 + tu(.05), .94, 'out'], [T0 + tu(.2), 1, 'soft']] });
+      [-150, 150].forEach(x => { sq.line(x, 80, x, 286, W(3)); sq.line(x - 14, 160, x + 14, 160, W(2.4)); });
+      R(sq, -270, -250, 540, 340, 14, F(3.4)); R(sq, -246, -226, 492, 292, 8, S(1.6)); [-246, 246].forEach(x => sq.circle(x, 66, 5, S(1.4)));
+      [-150, 150].forEach(x => sparkAt(p, x, 268, 18, 34, T0 + tu(.02), 5, -180, [3, 4], false));
       hero(p, c, X, 0, -110, 150, 30, { maxW: 440, size: 46, bigSize: 64, bigW: 460 });
     }); });
 
-  /* 15 ── THE GIANT QUOTE MARKS (idea "ข้อความพร้อมเครื่องหมายอัญประกาศ"): two big quotation marks stand on the floor like sculptures
-     (solid, with depth) and hold the idea between them */
-  variant('quotes', 'อัญประกาศยักษ์', (d, c) => { const X = st(d);
-    art(c, p => { floorL(p);
-      [[-380, 232, 1], [-262, 232, 1]].forEach(([x, y]) => { qmark(p, x + 14, y - 12, 50, 1, S(1.8)); qmark(p, x, y, 50, 1); });
-      [[262, 135, -1], [380, 135, -1]].forEach(([x, y]) => { qmark(p, x + 14, y - 12, 50, -1, S(1.8)); qmark(p, x, y, 50, -1); });
-      halo(p, 0, -120, 120); hero(p, c, X, 0, -140, 170, 16, { maxW: 380, size: 48, bigSize: 64, bigW: 420 });
+  /* 15 ── THE TICKET DISPENSER (user picked B of round 2): the dispenser pops onto the wall; its button is pressed (squash, a click), the display
+     ticks, and the long ticket runs out of the slot, torn line and all, swinging a little as it stops; the idea lands on the ticket */
+  variant('dispenser', 'เครื่องกดบัตรคิว', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, rE = H - tu(.16);
+    art(c, p => {
+      const tk0 = mvG(clipG(p, -500, -75, 1000, 430), { y: [[0, -380], [T0 + tu(.1), -380], [rE, 8, 'out'], [rE + tu(.12), 0, 'soft']] }), tk1 = mvG(tk0, { px: 0, py: -75, r: [[0, 0], [rE, 0], [rE + tu(.14), 2.5, 'out'], [rE + tu(.4), -1, 'io'], [H + tu(.3), 0, 'soft']] });
+      const g = rot(tk1, -3, 0, -75); R(g, -150, -80, 300, 370, 6, F(3.4)); for (let x = -140; x <= 140; x += 14) g.circle(x, -20, 2.4, SOLID(1)); g.line(-120, -52, 60, -52, S(1.6));
+      const bx = inG(p, 'pop', 0, -180, tu(.04)); R(bx, -230, -320, 460, 280, 30, F(3.6)); R(bx, -200, -290, 400, 120, 12, S(1.6));
+      [-150, -110, -70].forEach((x, i) => { const dg = sub(bx); on(dg, p, 0, { o: [[0, .3], [T0 + tu(.06 + .05 * i), .3], [T0 + tu(.08 + .05 * i), 1]] }); dg.line(x, -245, x + 30, -245, S(1.6)); });
+      const bt = mvG(bx, { px: 150, py: -230, s: [[0, 1], [T0 - tu(.06), 1], [T0, .82, 'in'], [T0 + tu(.14), 1, 'out']] }); bt.circle(150, -230, 22, F(2.6)); bt.circle(150, -230, 12, S(1.4));
+      sparkAt(p, 150, -230, 30, 42, T0 + tu(.01), 6, 0, []);
+      R(bx, -170, -88, 340, 26, 10, { fill: C.fill, sw: 2.4 }); [-212, 212].forEach(x => [-302, -58].forEach(y => screw(bx, x, y, 4)));
+      hero(g, c, X, 0, 90, 126, 210, { maxW: 260, size: 40, bigSize: 50, bigW: 260, bigDy: 50 });
     }); });
 
-  /* 16 ── THE STAGE SIGN (idea "ป้ายคำพูดกลางเวที"): a round stage with a microphone stand; a sign hangs over it on two wires, two lamps light it */
-  variant('stagesign', 'ป้ายแขวนกลางเวที', (d, c) => { const X = st(d);
-    art(c, p => { ell(p, 0, 236, 380, 50, F(3)); R(p, -380, 236, 760, 40, 0, { fill: C.fill, sw: 0, stroke: 'none' }); ell(p, 0, 276, 380, 50, F(3)); R(p, -378, 234, 756, 44, 0, { fill: C.fill, sw: 0, stroke: 'none' }); ell(p, 0, 236, 380, 50, F(3)); [-380, 380].forEach(x => p.line(x, 236, x, 276, W(3)));
-      p.line(-180, 236, -180, 40, W(3)); ell(p, -180, 236, 40, 8, F(2.4)); p.line(-180, 40, -160, 14, W(3)); R(p, -170, -20, 24, 40, 10, F(2.4));
-      [-1, 1].forEach(sd => { p.line(sd * 190, -350, sd * 190, -262, W(2)); const lg = rot(p, sd * -24, sd * 420, -300); R(lg, sd * 420 - 30, -324, 60, 50, 10, F(2.6)); shape(p, [[sd * 390, -280], [sd * 450, -300], [sd * 60, 236], [sd * -120, 236]].map(([a, b]) => [a, b]), { fill: 'rgba(255,255,255,.05)', sw: 0, stroke: 'none' }); });
-      R(p, -280, -262, 560, 196, 14, F(3.4)); R(p, -260, -242, 520, 156, 8, S(1.4));
+  /* 16 ── THE STAGE SIGN: the stage rises, the mic stand pops up; the sign is let down on its wires from above and stops with a small bob;
+     the two lamps flicker on and light it; the idea lands on the sign */
+  variant('stagesign', 'ป้ายแขวนกลางเวที', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, tL = H - tu(.24);
+    art(c, p => { const st0 = inG(p, 'rise', 0, 256, tu(.04)); ell(st0, 0, 236, 380, 50, F(3)); R(st0, -380, 236, 760, 40, 0, { fill: C.fill, sw: 0, stroke: 'none' }); ell(st0, 0, 276, 380, 50, F(3)); R(st0, -378, 234, 756, 44, 0, { fill: C.fill, sw: 0, stroke: 'none' }); ell(st0, 0, 236, 380, 50, F(3)); [-380, 380].forEach(x => st0.line(x, 236, x, 276, W(3)));
+      const mc = mvG(p, { px: -180, py: 236, sy: [[0, 0], [tu(.2), 0], [tu(.5), 1.04, 'out'], [tu(.6), 1, 'soft']], o: fadeIn(tu(.2), .04) }); mc.line(-180, 236, -180, 40, W(3)); ell(mc, -180, 236, 40, 8, F(2.4)); mc.line(-180, 40, -160, 14, W(3)); R(mc, -170, -20, 24, 40, 10, F(2.4));
+      [-1, 1].forEach(sd => { const lg0 = popAt(p, sd * 420, -300, tu(.3)), lg = rot(lg0, sd * -24, sd * 420, -300); R(lg, sd * 420 - 30, -324, 60, 50, 10, F(2.6));
+        const bm = sub(p); on(bm, p, 0, { o: [[0, 0], [tL, 0], [tL + tu(.04), .7], [tL + tu(.08), .1], [tL + tu(.14), 1]] }); shape(bm, [[sd * 390, -280], [sd * 450, -300], [sd * 60, 236], [sd * -120, 236]], { fill: 'rgba(255,255,255,.05)', sw: 0, stroke: 'none' }); });
+      const sg = mvG(clipG(p, -500, -350, 1000, 700), { y: [[0, -380], [T0, -380], [tL - tu(.1), 10, 'out'], [tL + tu(.06), -4, 'io'], [tL + tu(.2), 0, 'soft']] });
+      [-1, 1].forEach(sd => sg.line(sd * 190, -760, sd * 190, -262, W(2)));
+      R(sg, -280, -262, 560, 196, 14, F(3.4)); R(sg, -260, -242, 520, 156, 8, S(1.4));
       heroH(p, c, X, -170, -164, 120, -90, -164, { cx: 0, cy: -164, size: 46, maxW: 330, bigSize: 56, bigW: 500 });
     }); });
 
-  /* 17 ── THE INFO TOTEM (idea "ประโยคเด่นในกรอบสี่เหลี่ยม"): a tall standing kiosk with a screen, a small speaker grille and a base plate */
-  variant('totem', 'ตู้ป้ายดิจิทัลตั้งพื้น', (d, c) => { const X = st(d);
-    art(c, p => { floorL(p); R(p, -170, 266, 340, 24, 8, F(2.8)); R(p, -150, -310, 300, 578, 34, F(3.6)); R(p, -122, -276, 244, 380, 12, { fill: 'rgba(255,255,255,.08)', sw: 1.8, stroke: C.soft });
-      for (let r = 0; r < 3; r++) for (let q2 = 0; q2 < 7; q2++) p.circle(-54 + q2 * 18, 150 + r * 18, 3, S(1.2)); R(p, -40, 220, 80, 14, 6, S(1.4));
+  /* 17 ── THE INFO TOTEM: the base and the body rise; the screen boots (a flicker, a scan line runs down) and the grille dots come up;
+     the idea lands on the screen */
+  variant('totem', 'ตู้ป้ายดิจิทัลตั้งพื้น', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, tB = T0 + tu(.1);
+    art(c, p => { floorD(p); R(inG(p, 'rise', 0, 278, tu(.04)), -170, 266, 340, 24, 8, F(2.8));
+      const bd = inG(p, 'rise', 0, 0, tu(.12)); R(bd, -150, -310, 300, 578, 34, F(3.6)); R(bd, -122, -276, 244, 380, 12, F(1.8));
+      const sc = sub(bd); on(sc, p, 0, { o: [[0, 0], [tB, 0], [tB + tu(.04), .9], [tB + tu(.08), .1], [tB + tu(.16), 1]] }); R(sc, -122, -276, 244, 380, 12, { fill: 'rgba(255,255,255,.08)', sw: 1.8, stroke: C.soft });
+      const sl = mvG(clipG(p, -122, -276, 244, 380), { y: [[0, 0], [tB + tu(.16), 0], [tB + tu(.66), 380, 'lin']], o: [[0, 0], [tB + tu(.16), 0], [tB + tu(.17), 1], [tB + tu(.64), 1], [tB + tu(.66), 0]] }); sl.line(-122, -276, 122, -276, W(2));
+      for (let r = 0; r < 3; r++) { const row = atG(bd, tu(.5 + .05 * r)); for (let q2 = 0; q2 < 7; q2++) row.circle(-54 + q2 * 18, 150 + r * 18, 3, S(1.2)); } R(bd, -40, 220, 80, 14, 6, S(1.4));
       hero(p, c, X, 0, -150, 140, 10, { maxW: 220, size: 38, bigSize: 48, bigW: 220 });
     }); });
 
-  /* 18 ── THE BILLBOARD (idea "ป้ายข้อความบนแผ่นป้าย" → big): a billboard on legs with cross-bracing, a walkway rail, three lamps on arms
-     and a ladder up one leg */
-  variant('billboard', 'บิลบอร์ด', (d, c) => { const X = st(d), y0 = -270, y1 = 50;
-    art(c, p => { floorL(p); [-250, 250].forEach(x => R(p, x - 14, y1, 28, 240, 4, F(2.6))); p.line(-236, 110, 236, 250, S(2)); p.line(236, 110, -236, 250, S(2));
-      R(p, -400, y1 + 18, 800, 12, 4, F(2.2)); for (let x = -390; x <= 390; x += 60) p.line(x, y1 + 18, x, y1 - 8, S(1.4)); p.line(-400, y1 - 8, 400, y1 - 8, S(1.6));
-      [300, 330].forEach(x => p.line(x, y1 + 30, x, 290, W(2.2))); for (let y = y1 + 60; y < 290; y += 34) p.line(300, y, 330, y, W(2));
-      [-260, 0, 260].forEach(x => { p.line(x, y0, x, y0 - 36, W(2.4)); p.line(x, y0 - 36, x + 20, y0 - 54, W(2.4)); R(p, x + 6, y0 - 68, 46, 24, 8, F(2.4)); });
-      R(p, -420, y0, 840, y1 - y0, 10, F(3.6)); R(p, -396, y0 + 22, 792, y1 - y0 - 44, 4, S(1.6));
+  /* 18 ── THE BILLBOARD: the legs rise, the bracing and the ladder draw, the board drops onto the walkway; the lamps come up on their arms and
+     flick on one by one; the idea lands on the board */
+  variant('billboard', 'บิลบอร์ด', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, y0 = -270, y1 = 50;
+    art(c, p => { floorD(p); [-250, 250].forEach((x, i) => R(inG(p, 'rise', x, 170, tu(.04 + .06 * i)), x - 14, y1, 28, 240, 4, F(2.6)));
+      drawAt(p.line(-236, 110, 236, 250, S(2)), p, tu(.3), tu(.25)); drawAt(p.line(236, 110, -236, 250, S(2)), p, tu(.36), tu(.25));
+      const wk = inG(p, 'pop', 0, y1, tu(.34)); R(wk, -400, y1 + 18, 800, 12, 4, F(2.2)); for (let x = -390; x <= 390; x += 60) wk.line(x, y1 + 18, x, y1 - 8, S(1.4)); wk.line(-400, y1 - 8, 400, y1 - 8, S(1.6));
+      [300, 330].forEach(x => drawAt(p.line(x, y1 + 30, x, 290, W(2.2)), p, tu(.4), tu(.25))); for (let y = y1 + 60, i = 0; y < 290; y += 34, i++) drawAt(p.line(300, y, 330, y, W(2)), p, tu(.5 + .03 * i), tu(.08));
+      const bd = inG(p, 'drop', 0, (y0 + y1) / 2, tu(.42)); R(bd, -420, y0, 840, y1 - y0, 10, F(3.6)); R(bd, -396, y0 + 22, 792, y1 - y0 - 44, 4, S(1.6));
+      [-260, 0, 260].forEach((x, i) => { const t = T0 + tu(.12 * i), lm = mvG(p, { px: x, py: y0, sy: [[0, 0], [T0 - tu(.3), 0], [T0 - tu(.1), 1, 'out']], o: fadeIn(T0 - tu(.3), .04) });
+        lm.line(x, y0, x, y0 - 36, W(2.4)); lm.line(x, y0 - 36, x + 20, y0 - 54, W(2.4)); R(lm, x + 6, y0 - 68, 46, 24, 8, F(2.4));
+        const on2 = sub(lm); on(on2, p, 0, { o: [[0, 0], [t, 0], [t + tu(.03), 1], [t + tu(.06), .2], [t + tu(.1), 1]] }); R(on2, x + 10, y0 - 46, 38, 4, 2, { fill: C.ink, sw: 0, stroke: 'none' }); });
       heroH(p, c, X, -230, (y0 + y1) / 2, 160, -120, (y0 + y1) / 2, { cx: 0, cy: (y0 + y1) / 2, size: 56, maxW: 480, bigSize: 66, bigW: 720 });
     }); });
 
-  /* 19 ── THE PAINTED SHEET (idea "ตัวอักษรขนาดใหญ่บนพื้นเรียบ"): a big plain sheet taped to the wall, the idea painted on it; the roller
-     rests in its tray on the floor */
-  variant('painted', 'แผ่นกระดาษทาสีติดผนัง', (d, c) => { const X = st(d);
-    art(c, p => { floorL(p); R(p, -320, -280, 560, 450, 4, F(3.4));
-      [[-320, -280, 30], [240, -280, -30], [-320, 170, -30], [240, 170, 30]].forEach(([x, y, a]) => { const g = rot(p, a, x, y); R(g, x - 40, y - 12, 80, 24, 3, { fill: 'rgba(255,255,255,.16)', sw: 1.4 }); });
-      hero(p, c, X, -40, -100, 160, 60, { maxW: 460, size: 52, bigSize: 66, bigW: 480 });
-      [-120, 40].forEach((x, i) => p.circle(x, 112 + i * 16, 4 + i, { fill: 'rgba(255,255,255,.3)', sw: 0, stroke: 'none' }));
-      shape(p, [[250, 290], [450, 290], [430, 236], [270, 236]], F(3)); p.line(280, 254, 420, 254, S(1.4));
-      const rg = rot(p, -10, 350, 230); R(rg, 290, 206, 130, 46, 20, F(3)); p.path('M 416 214 L 456 214 L 470 150', W(3)); R(p, 456, 60, 30, 96, 12, F(2.6)); [80, 100, 120].forEach(y => p.line(460, y, 482, y, S(1.4)));
+  /* 19 ── THE PAINTED SHEET: the sheet goes up on the wall and the tape strips press on corner by corner; the tray slides in, the roller rises
+     from it and paints the sheet in a few strokes (spots fly), then goes back to rest in the tray; the idea is there on the keyword */
+  variant('painted', 'แผ่นกระดาษทาสีติดผนัง', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, pS = T0 - tu(.1), pE = H - tu(.14);
+    art(c, p => { floorD(p); R(inG(p, 'pop', -40, -55, tu(.04)), -320, -280, 560, 450, 4, F(3.4));
+      [[-320, -280, 30], [240, -280, -30], [-320, 170, -30], [240, 170, 30]].forEach(([x, y, a], i) => { const g = rot(popAt(p, x, y, tu(.24 + .06 * i)), a, x, y); R(g, x - 40, y - 12, 80, 24, 3, { fill: 'rgba(255,255,255,.16)', sw: 1.4 }); });
+      [-120, 40].forEach((x, i) => popAt(p, x, 112 + i * 16, pS + (pE - pS) * (.4 + .4 * i)).circle(x, 112 + i * 16, 4 + i, { fill: 'rgba(255,255,255,.3)', sw: 0, stroke: 'none' }));
+      const tr = mvG(p, { x: slideX(tu(.3), 160), o: fadeIn(tu(.3)) }); shape(tr, [[250, 290], [450, 290], [430, 236], [270, 236]], F(3)); tr.line(280, 254, 420, 254, S(1.4));
+      const KX = [[0, 160], [tu(.3), 160], [tu(.48), 0, 'out'], [pS - tu(.2), 0], [pS, -520, 'io']], KY = [[0, 0], [pS - tu(.2), 0], [pS, -330, 'io']], n = 4;
+      for (let i = 0; i < n; i++) { const t1 = pS + (pE - pS) * (i + .5) / n, t2 = pS + (pE - pS) * (i + 1) / n; KX.push([t1, -520 + 90 * i + 45], [t2, -520 + 90 * (i + 1)]); KY.push([t1, -10], [t2, -330]); }
+      KX.push([pE + tu(.4), 0, 'io']); KY.push([pE + tu(.4), 0, 'io']);
+      const rl = mvG(p, { x: KX, y: KY, o: fadeIn(tu(.3)) }); R(rot(rl, -10, 350, 230), 290, 206, 130, 46, 20, F(3)); rl.path('M 416 214 L 456 214 L 470 150', W(3)); R(rl, 456, 60, 30, 96, 12, F(2.6)); [80, 100, 120].forEach(y => rl.line(460, y, 482, y, S(1.4)));
+      hero(p, c, X, -40, -100, 160, 60, { maxW: 460, size: 52, bigSize: 66, bigW: 480, t: pE - tu(.02) });
     }); });
 
-  /* 20 ── THE AIRSHIP (idea "ป้ายคำพูด" → in the sky): a small airship floats by with a panel on its side carrying the idea; fins, a gondola,
-     two soft clouds */
-  variant('airship', 'เรือเหาะติดป้าย', (d, c) => { const X = st(d), cx = -20, cy = -60;
-    art(c, p => { [[-360, 200, 1], [340, -250, .8]].forEach(([x, y, k2]) => p.path(`M ${x - 80 * k2} ${y} Q ${x - 80 * k2} ${y - 40 * k2} ${x - 30 * k2} ${y - 40 * k2} Q ${x - 10 * k2} ${y - 80 * k2} ${x + 40 * k2} ${y - 60 * k2} Q ${x + 90 * k2} ${y - 60 * k2} ${x + 90 * k2} ${y} Z`, S(1.8)));
-      [[1, -1], [1, 1]].forEach(([a, b]) => shape(p, [[cx + 290, cy + b * 40], [cx + 400, cy + b * 130], [cx + 420, cy + b * 130], [cx + 380, cy + b * 20]], F(3)));
-      ell(p, cx, cy, 380, 150, F(3.6)); p.path(`M ${cx - 300} ${cy - 92} Q ${cx} ${cy - 160} ${cx + 300} ${cy - 92}`, S(1.4)); p.path(`M ${cx - 300} ${cy + 92} Q ${cx} ${cy + 160} ${cx + 300} ${cy + 92}`, S(1.4));
-      R(p, cx - 90, cy + 150, 180, 52, 18, F(3)); [cx - 60, cx, cx + 60].forEach(x => R(p, x - 16, cy + 162, 32, 22, 4, S(1.4))); [cx - 60, cx + 60].forEach(x => p.line(x, cy + 140, x, cy + 152, W(2)));
-      R(p, cx - 250, cy - 92, 470, 184, 16, F(3)); R(p, cx - 234, cy - 76, 438, 152, 10, S(1.2));
+  /* 20 ── THE AIRSHIP: the clouds drift; the airship glides in from the left, slows and stops with a nose-down bob, its gondola windows light;
+     the idea lands on its side panel; it keeps a gentle float */
+  variant('airship', 'เรือเหาะติดป้าย', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, cx = -20, cy = -60, aE = H - tu(.18);
+    art(c, p => { const cl = clipG(p, -500, -350, 1000, 700);
+      [[-360, 200, 1, 40], [340, -250, .8, -30]].forEach(([x, y, k2, dx]) => { const g = mvG(cl, { x: [[0, dx], [tu(4), -dx, 'lin']], o: fadeIn(0, .3) }); g.path(`M ${x - 80 * k2} ${y} Q ${x - 80 * k2} ${y - 40 * k2} ${x - 30 * k2} ${y - 40 * k2} Q ${x - 10 * k2} ${y - 80 * k2} ${x + 40 * k2} ${y - 60 * k2} Q ${x + 90 * k2} ${y - 60 * k2} ${x + 90 * k2} ${y} Z`, S(1.8)); });
+      const am = mvG(cl, { px: cx, py: cy, x: [[0, -900], [tu(.1), -900], [aE, 14, 'out'], [aE + tu(.2), 0, 'soft']], r: [[0, 0], [aE - tu(.1), 0], [aE + tu(.06), 2.5, 'out'], [aE + tu(.3), -1, 'io'], [aE + tu(.5), 0, 'soft']] });
+      [[1, -1], [1, 1]].forEach(([a, b]) => shape(am, [[cx + 290, cy + b * 40], [cx + 400, cy + b * 130], [cx + 420, cy + b * 130], [cx + 380, cy + b * 20]], F(3)));
+      ell(am, cx, cy, 380, 150, F(3.6)); am.path(`M ${cx - 300} ${cy - 92} Q ${cx} ${cy - 160} ${cx + 300} ${cy - 92}`, S(1.4)); am.path(`M ${cx - 300} ${cy + 92} Q ${cx} ${cy + 160} ${cx + 300} ${cy + 92}`, S(1.4));
+      R(am, cx - 90, cy + 150, 180, 52, 18, F(3)); [cx - 60, cx, cx + 60].forEach((x, i) => { R(am, x - 16, cy + 162, 32, 22, 4, S(1.4)); const w2 = sub(am); on(w2, p, 0, { o: [[0, 0], [aE + tu(.04 * i), 0], [aE + tu(.04 * i + .03), 1]] }); R(w2, x - 16, cy + 162, 32, 22, 4, { fill: 'rgba(255,255,255,.2)', sw: 0, stroke: 'none' }); });
+      [cx - 60, cx + 60].forEach(x => am.line(x, cy + 140, x, cy + 152, W(2)));
+      R(am, cx - 250, cy - 92, 470, 184, 16, F(3)); R(am, cx - 234, cy - 76, 438, 152, 10, S(1.2));
       heroH(p, c, X, cx - 150, cy, 116, cx - 76, cy, { cx: cx - 15, cy, size: 46, maxW: 270, bigSize: 52, bigW: 420 });
     }); });
-
-  /* ---------- redesign 15 (user: "15 redesign" → round 1 with quotation marks → "ไม่เอาสัญลักษณ์ “ ”") — round 2: the unused idea
-     "คำคมบนการ์ด", three ways; the chosen one moves into V, the rest are deleted ---------- */
-  const ALT = [];
-  /* A ── THE CARD BOX: a box of cards with its lid flipped back; one card has been drawn up out of it, the idea on that card */
-  ALT.push({ id: 'cardbox', th: 'กล่องการ์ดดึงขึ้น', build: (d, c) => { const X = st(d);
-    art(c, p => { p.line(-480, 290, 480, 290, S(2));
-      shape(p, [[-190, 30], [190, 30], [230, -20], [-150, -20]], F(3)); shape(p, [[-150, -20], [230, -20], [230, -150], [-150, -150]], F(3)); R(p, -130, -132, 340, 96, 6, S(1.2));
-      [-12, -2, 8].forEach((dy, k) => R(p, -168 + k * 6, 30 + dy - 22, 330, 30, 4, F(2)));
-      const g = rot(p, 4, 0, 60); R(g, -150, -320, 300, 380, 14, F(3.4)); R(g, -132, -302, 264, 344, 8, S(1.4));
-      hero(g, c, X, 0, -200, 126, -78, { maxW: 240, size: 38, bigSize: 48, bigW: 250, bigDy: 70 });
-      R(p, -190, 30, 380, 260, 10, F(3.4)); shape(p, [[190, 30], [230, -20], [230, 240], [190, 290]], F(3)); R(p, -90, 120, 180, 70, 10, F(2.4)); p.line(-50, 155, 50, 155, S(1.6));
-    }); } });
-  /* B ── THE TICKET DISPENSER: a dispenser on the wall; a long ticket has run out of its slot, torn line and all — the idea on the ticket */
-  ALT.push({ id: 'dispenser', th: 'เครื่องกดบัตรคิว', build: (d, c) => { const X = st(d);
-    art(c, p => { R(p, -230, -320, 460, 280, 30, F(3.6)); R(p, -200, -290, 400, 120, 12, S(1.6)); p.circle(150, -230, 22, F(2.6)); p.circle(150, -230, 12, S(1.4)); [-150, -110, -70].forEach(x => p.line(x, -245, x + 30, -245, S(1.6)));
-      R(p, -170, -88, 340, 26, 10, { fill: C.fill, sw: 2.4 }); [-212, 212].forEach(x => [-302, -58].forEach(y => screw(p, x, y, 4)));
-      const g = rot(p, -3, 0, -75); R(g, -150, -80, 300, 370, 6, F(3.4));
-      for (let x = -140; x <= 140; x += 14) g.circle(x, -20, 2.4, SOLID(1));
-      g.line(-120, -52, 60, -52, S(1.6));
-      hero(g, c, X, 0, 90, 126, 210, { maxW: 260, size: 40, bigSize: 50, bigW: 260, bigDy: 50 });
-    }); } });
-  /* C ── THE ACRYLIC STAND: a clear L-shaped stand on the desk holds the card upright; you see the stand's edges and its base, the card inside */
-  ALT.push({ id: 'acrylic', th: 'ป้ายอะคริลิกตั้งโต๊ะ', build: (d, c) => { const X = st(d);
-    art(c, p => { p.line(-480, 270, 480, 270, S(2)); p.line(-440, 300, 440, 300, S(1.2));
-      shape(p, [[-260, 270], [260, 270], [300, 226], [-220, 226]], { fill: 'rgba(255,255,255,.07)', sw: 2.4 });
-      R(p, -232, -300, 464, 526, 10, { fill: 'rgba(255,255,255,.07)', sw: 2.6 }); p.line(-232 + 16, -300, -232 + 16, 226, S(1.2)); p.line(232 - 16, -300, 232 - 16, 226, S(1.2));
-      R(p, -202, -270, 404, 466, 6, F(3.2)); R(p, -184, -252, 368, 430, 4, S(1.4));
-      hero(p, c, X, 0, -110, 150, 50, { maxW: 340, size: 44, bigSize: 56, bigW: 340, bigDy: 70 });
-    }); } });
 
   /* ---------- sample data (A: key lines from unrelated topics · B: stress) ---------- */
   const I = (icon, label) => label ? { icon, label } : { icon };
@@ -460,5 +502,5 @@
   ];
 
   G.cats = G.cats || {};
-  G.cats.B14 = { variants: V, ALT, drawAlt: (k, d, c) => { setZ(c); CUR = ALT[k].id; ALT[k].build(d || {}, c); }, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d || {}, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
+  G.cats.B14 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d || {}, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
 })();
