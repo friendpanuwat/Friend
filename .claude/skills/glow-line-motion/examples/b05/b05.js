@@ -1,16 +1,14 @@
-/* b05.js — category B05 "ถูกกับผิด" ("ไม่ใช่ X แต่คือ Y"): STILL DRAFTS, round 2 (waiting for the user's pick).
-   User 2026-11-13: "อยากได้ชุดฐาน ไม่ใช่อันที่มีความหมายเฉพาะตัว … เอาไปปรับใช้กับเนื้อหาแบบไหนมันก็ยังดูเข้ากัน".
-   → BASE SET (GL.cats.B05.variants, 20): holders and displays with a real mechanism and no topic of their own (sheet, sign holder, board,
-     card deck, turning sign, belt, pull card, signpost, hanging signs, corkboard, drawers, keys, glass dome, pulley, magnet, blinds, cradle,
-     clip stands, slot box, frosted pane). The mechanism only says "the wrong one is put out, the right one comes in / gets the tick / lights".
-   → THEMED SET (GL.cats.B05.THEMED, 13, each with .tag): round-1 designs whose object carries a topic (toaster = food, bulb = idea …) —
-     kept for when a sentence is about that topic; CutPack's picker would need the topic first. Draw with drawThemed(i, d, c).
+/* b05.js — category B05 "ถูกกับผิด" ("ไม่ใช่ X แต่คือ Y"): 33 designs, all in the base set. STILLS approved (2026-11-13); motion not done yet.
+   Round 1 (everyday objects) → user: "อยากได้ชุดฐาน ไม่ใช่อันที่มีความหมายเฉพาะตัว" → round 2 (holders/displays with no topic of their own) →
+   user: "ชอบของทั้ง 2 รอบเลย เก็บไว้ทั้งหมดเลยครับเป็นชุดฐาน เราจะไม่ทำชุดเฉพาะเรื่อง". Sheet order: round 2 = 01–20, round 1 = 21–33.
+   The mechanism of each design rejects the wrong side (stamped, struck through, slid out, flicked off, turned away, dropped, shut away,
+   left in the dark, does not fit …) and the right side takes its place / gets the tick / lights up.
    Order as spoken: wrong first, right after (CutPack CATEGORIES.md B05 — references/cutpack-CATEGORIES.md).
    Slots (same as CutPack): wrong { icon, label? } · right { icon, label? }. A missing / unknown icon → its label stands in for the picture.
    GL.cats.B05.draw(i, data, { x, y, s, at, no, hit }) — canvas 1000 × 700 centred at (0,0).
      no  = seconds after `at` when the wrong side is rejected (the word "ไม่ใช่"; default hit − 1.15)
      hit = seconds after `at` of the keyword: the right side is confirmed (default 1.9).
-   This round only places the parts in their final pose (groups appear + the wrong side fades); the full motion comes after the user picks.
+   So far the parts sit in their final pose (groups appear + the wrong side fades); the full motion is the next step.
    A faded side lays its dark fills again, solid, underneath (duo()) — a see-through fill lets the rig's glow show through in blotches. */
 (function () {
   const G = window.GL, C = G.C;
@@ -154,7 +152,7 @@
       floor(p);
       const L = sub(p); atT(L, p, 0); L.path('M -404 -8 L -410 -150 Q -410 -172 -388 -172 L -152 -172 Q -130 -172 -130 -150 L -124 -8', F(3)); L.line(-390, -150, -150, -150, S(1.6));   // lid swung open, seen from below
       const gw = side(p, c, 'wrong'), cg = rot(gw, cw.r, cw.x, cw.y); R(cg, cw.x - 105, cw.y - 125, 210, 250, 14, F(3));
-      lbl(gw, d, 'wrong', -270, -205, { maxW: 260 });
+      lbl(gw, d, 'wrong', -270, -262, { maxW: 260 });
       const B = sub(p); atT(B, p, 0);
       B.path('M -400 14 L -140 14 L -160 284 Q -162 294 -172 294 L -368 294 Q -378 294 -380 284 Z', F(3.4)); R(B, -414, -10, 302, 26, 10, F(3));
       B.line(-386, 250, -154, 250, S(1.6)); R(B, -306, 284, 76, 16, 6, F(2.6));                                  // seam + pedal
@@ -702,6 +700,19 @@
     { say: 'ไม่ใช่ซื้อใหม่ แต่ซ่อมของเดิม', wrong: I('package', 'ซื้อใหม่'), right: I('hammer', 'ซ่อมของเดิม') },
     { say: 'ไม่ใช่ความฉลาด แต่คือความอดทน', wrong: I('brain', 'ความฉลาด'), right: I('hourglass', 'ความอดทน') },
     { say: 'กุญแจไม่ใช่สอนเยอะ แต่ถามให้ถูก', wrong: I('book', 'สอนเยอะ'), right: I('circle-help', 'ถามให้ถูก') },
+    { say: 'ไม่ใช่ทำงานหนัก แต่ทำให้ฉลาด', wrong: I('dumbbell', 'ทำงานหนัก'), right: I('brain', 'ทำให้ฉลาด') },
+    { say: 'ไม่ใช่โชค แต่คือการเตรียมตัว', wrong: I('star', 'โชค'), right: I('clipboard-check', 'การเตรียมตัว') },
+    { say: 'แผลไม่ได้หายเพราะยา แต่เพราะได้พัก', wrong: I('pill', 'ยา'), right: I('moon', 'ได้พัก') },
+    { say: 'ไม่ใช่ปลาตัวใหญ่ แต่ปลาที่สด', wrong: I('fish', 'ตัวใหญ่'), right: I('fish', 'ปลาที่สด') },
+    { say: 'ไม่ใช่บ้านหลังใหญ่ แต่คือคนในบ้าน', wrong: I('house', 'บ้านหลังใหญ่'), right: I('users', 'คนในบ้าน') },
+    { say: 'ไม่ต้องรีบตอบ คิดก่อนพูด', wrong: I('message-circle', 'รีบตอบ'), right: I('lightbulb', 'คิดก่อนพูด') },
+    { say: 'ต้นไม้ไม่ได้ขาดปุ๋ย แต่ขาดน้ำ', wrong: I('sprout', 'ขาดปุ๋ย'), right: I('droplets', 'ขาดน้ำ') },
+    { say: 'ลูกค้าไม่ได้ดูราคา แต่ดูบริการ', wrong: I('tag', 'ราคา'), right: I('smile', 'บริการ') },
+    { say: 'อย่าเก็บไว้คนเดียว เล่าให้เพื่อนฟัง', wrong: I('lock', 'เก็บไว้คนเดียว'), right: I('message-circle', 'เล่าให้เพื่อนฟัง') },
+    { say: 'ไม่ใช่ของแพง แต่คือการซ้อม', wrong: I('gem', 'ของแพง'), right: I('repeat', 'การซ้อม') },
+    { say: 'ไม่ใช่เครื่องมือ แต่คือฝีมือ', wrong: I('wrench', 'เครื่องมือ'), right: I('star', 'ฝีมือ') },
+    { say: 'ไม่ต้องขับรถ ขี่จักรยานไปก็ได้', wrong: I('car', 'ขับรถ'), right: I('bike', 'ขี่จักรยาน') },
+    { say: 'ไม่ใช่ทีวีที่ช่วยให้หลับ แต่คือเพลงเบา ๆ', wrong: I('tv', 'ทีวี'), right: I('music', 'เพลงเบา ๆ') },
   ];
   const STRESS = [
     { say: 'ไม่มีป้ายเลย', wrong: I('cigarette-off'), right: I('salad') },
@@ -724,16 +735,28 @@
     { say: 'ป้ายยาว 12 ตัวทั้งคู่', wrong: I('cloud', 'ฝนตกทั้งวันเลย'), right: I('umbrella', 'พกร่มติดตัวไว้') },
     { say: 'คำเดียวทั้งคู่ (อังกฤษ)', wrong: I('lock', 'Hide'), right: I('eye', 'Show') },
     { say: 'ไม่มีป้ายทั้งคู่ (ไอคอนแรง)', wrong: I('trash-2'), right: I('recycle') },
+    { say: 'ไม่มีป้ายเลย', wrong: I('coffee'), right: I('glass-water') },
+    { say: 'ป้ายยาว 12 ตัวทั้งคู่', wrong: I('calendar', 'ทำทุกวันไม่หยุด'), right: I('timer', 'พักบ้างเป็นระยะ') },
+    { say: 'ภาษาอังกฤษ', wrong: I('rocket', 'Fast'), right: I('target', 'Right') },
+    { say: 'ไม่มีไอคอน (ป้ายแทนภาพ)', wrong: { label: 'จำนวน' }, right: { label: 'คุณภาพ' } },
+    { say: 'ไอคอนเดียวกัน ต่างแค่ป้าย', wrong: I('sun', 'แดดเช้า'), right: I('sun', 'แดดบ่าย') },
+    { say: 'ตัวเลขเป็นป้าย', wrong: I('coins', '100 บาท'), right: I('coins', '10 บาท') },
+    { say: 'ฝั่งถูกไม่มีป้าย', wrong: I('car', 'ขับรถ'), right: I('bike') },
+    { say: 'ฝั่งผิดไม่มีป้าย', wrong: I('pizza'), right: I('salad', 'สลัด') },
+    { say: 'ชื่อไอคอนที่ไม่มี', wrong: I('no-such-icon', 'เดาเอา'), right: I('search', 'หาข้อมูล') },
+    { say: 'คนเดียว ↔ กลุ่ม', wrong: I('user', 'ทำคนเดียว'), right: I('users', 'ช่วยกัน') },
+    { say: 'ป้ายสั้นมาก', wrong: I('cloud', 'ฝน'), right: I('sun', 'แดด') },
+    { say: 'ภาษาอังกฤษยาว', wrong: I('megaphone', 'Louder ads'), right: I('heart', 'Better care') },
+    { say: 'ไอคอนเส้นเยอะ', wrong: I('truck', 'ส่งด่วน'), right: I('package', 'แพ็กให้ดี') },
   ];
 
-  /* the base set (user 2026-11-13: "ชุดฐาน" — any content must still fit) in sheet order, and the themed set: designs whose object carries a
-     topic of its own (good when the sentence is about that topic — the picker would need the topic first). tag = when it fits. */
-  const BASE = ['stamp', 'slotsign', 'whiteboard', 'deck', 'prism', 'sorter', 'pullcard', 'signpost', 'chains', 'corkboard',
-    'drawers', 'keys', 'dome', 'pulley', 'magnet', 'louvre', 'fit', 'clipstand', 'slotbox', 'frosted'];
-  const TAGS = { shredder: 'เอกสาร ความลับ', bin: 'ทิ้ง ขยะ', key: 'ความปลอดภัย วิธีที่ใช่', lamp: 'โฟกัส การทำงาน', phone: 'แอป โซเชียล', signal: 'จราจร การเดินทาง',
-    easel: 'ศิลปะ', patch: 'ไฟฟ้า การเชื่อมต่อ', pencil: 'การเรียน การเขียน', toaster: 'อาหาร', bulb: 'ไอเดีย ไฟฟ้า', claw: 'โชค การเลือก', radio: 'การฟัง สื่อ' };
-  const byId = Object.fromEntries(V.map(v => [v.id, v]));
-  const BV = BASE.map(id => byId[id]), THEMED = Object.keys(TAGS).map(id => Object.assign(byId[id], { tag: TAGS[id] }));
+  /* sheet order: round 2 (01–20) then round 1's topic-like objects (21–33). User 2026-11-13: "ชอบของทั้ง 2 รอบเลย เก็บไว้ทั้งหมดเลย
+     เป็นชุดฐาน เราจะไม่ทำชุดเฉพาะเรื่อง" — all 33 are the base set, the picker may use any of them for any sentence. */
+  const ORDER = ['stamp', 'slotsign', 'whiteboard', 'deck', 'prism', 'sorter', 'pullcard', 'signpost', 'chains', 'corkboard',
+    'drawers', 'keys', 'dome', 'pulley', 'magnet', 'louvre', 'fit', 'clipstand', 'slotbox', 'frosted',
+    'shredder', 'bin', 'key', 'lamp', 'phone', 'signal', 'easel', 'patch', 'pencil', 'toaster', 'bulb', 'claw', 'radio'];
+  const byId = Object.fromEntries(V.map(v => [v.id, v])), BV = ORDER.map(id => byId[id]);
+  if (BV.length !== V.length || BV.some(v => !v)) console.error('B05: ORDER does not match the designs');
   G.cats = G.cats || {};
-  G.cats.B05 = { variants: BV, THEMED, SAMPLES, STRESS, draw: (i, d, c) => BV[i].build(d, c), drawThemed: (i, d, c) => THEMED[i].build(d, c) };
+  G.cats.B05 = { variants: BV, SAMPLES, STRESS, draw: (i, d, c) => BV[i].build(d, c) };
 })();
