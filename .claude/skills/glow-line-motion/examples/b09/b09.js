@@ -246,25 +246,18 @@
         item(p, c, S0, i, cxm, y0 + 92, Math.min(i === 3 ? 125 : 110, cw * .66), y0 + ch - 24, { lab: { maxW: cw - 22, size: 30, wrap: 'up' }, pic: i === 3 ? { t: T.tI(3) } : {} }); }
     }); });
 
-  /* 06 ── LIFT DIAL: the needle swings over from the left, pauses on each moment and stops on `at`; with a result the doors slide open
-     on the keyword and the result is inside */
-  variant('liftdial', 'หน้าปัดลิฟต์เก่า', (d, c) => { const S0 = st(d), T = tl(S0), oy = -45, A = [150, 90, 30], pt = (a, r) => [r * Math.cos(rad(a)), oy - r * Math.sin(rad(a))];
+  /* 06 ── DIAL: the old lift's floor dial on its own (user 2026-11-13: "06 เอาลิฟออก ให้เหลือไว้แค่ด้านบน") — the needle swings over from
+     the left, pauses on each moment and stops on `at`; the result pops up under the dial on the keyword */
+  variant('liftdial', 'หน้าปัดเข็มชี้', (d, c) => { const S0 = st(d), T = tl(S0), R0 = 255, oy = S0.R ? 25 : 140, A = [150, 90, 30], pt = (a, r) => [r * Math.cos(rad(a)), oy - r * Math.sin(rad(a))];
     art(c, p => {
-      drawAt(p.line(-460, 300, 460, 300, S(2)), p, 0, tu(.4));
-      const D = inG(p, 'rise', 0, 300, 0), open = !!S0.R;
-      R(D, -195, -15, 390, 315, 10, F(3.4)); R(D, -160, 15, 320, 285, 4, { fill: C.fill, sw: 2 });
-      if (open) { const gl = sub(D); on(gl, p, 0, { o: [[0, 0], [T.H, 0], [aH(.2), 1]] }); R(gl, -160, 15, 320, 285, 4, { fill: GLASS, sw: 2 });
-        const op = clipG(D, -160, 15, 320, 285), sl = dx => mvG(op, { x: [[0, 0], [T.H - tu(.02), 0], [aH(.32), dx, 'io']] });
-        R(sl(-126), -160, 15, 160, 285, 3, F(3)); R(sl(126), 0, 15, 160, 285, 3, F(3)); }
-      else { R(D, -160, 15, 160, 285, 3, F(3)); R(D, 0, 15, 160, 285, 3, F(3)); }
-      const Dl = inG(p, 'pop', 0, oy, tu(.12)); Dl.path(`M -215 ${oy} A 215 215 0 0 1 215 ${oy} Z`, F(3.4));
-      N3.forEach(i => { const [a1, b1] = pt(A[i], 178), [a2, b2] = pt(A[i], 202); Dl.line(a1, b1, a2, b2, W(4.5)); });
+      const Dl = inG(p, 'pop', 0, oy, 0); Dl.path(`M ${-R0} ${oy} A ${R0} ${R0} 0 0 1 ${R0} ${oy} Z`, F(3.4)); R(Dl, -R0 - 18, oy, 2 * R0 + 36, 18, 6, F(2.8));
+      N3.forEach(i => { const [a1, b1] = pt(A[i], R0 * .83), [a2, b2] = pt(A[i], R0 * .94); Dl.line(a1, b1, a2, b2, W(4.5)); });
       const aN = A[Math.min(S0.now, 2)], nd = mvG(Dl, { px: 0, py: oy, r: relK(travA(T, 180, [A[0], A[1], A[2], A[2]]), aN, -1) });
-      const [hx, hy] = pt(aN, 86), [lx, ly] = pt(aN + 90, 7), [rx2, ry2] = pt(aN - 90, 7);
-      shape(nd, [[lx, ly], [hx, hy], [rx2, ry2]], SOLID(1.6)); Dl.circle(0, oy, 16, SOLID());
-      N3.forEach(i => { const [x, y] = pt(A[i], 128), [lx2, ly2] = pt(A[i], 245);
-        item(p, c, S0, i, x, y, 72, null); itLab(p, S0, i, i === 1 ? 0 : lx2 + (i === 0 ? 10 : -10), i === 1 ? ly2 - 20 : ly2, { anchor: i === 0 ? 'end' : i === 2 ? 'start' : 'middle', maxW: 190, size: 30 }); });
-      if (S0.R) { if (S0.now === 3) haloH(p, 0, 140, 120, aH(.1)); item(p, c, S0, 3, 0, 135, 150, 268, { lab: { maxW: 230, size: 32 }, pic: { t: reached(S0, 3) ? aH(.08) : T.tI(3) } }); }
+      const [hx, hy] = pt(aN, R0 * .42), [lx, ly] = pt(aN + 90, 8), [rx2, ry2] = pt(aN - 90, 8);
+      shape(nd, [[lx, ly], [hx, hy], [rx2, ry2]], SOLID(1.6)); Dl.circle(0, oy, 18, SOLID());
+      N3.forEach(i => { const [x, y] = pt(A[i], R0 * .62), [lx2, ly2] = pt(A[i], R0 + 32);
+        item(p, c, S0, i, x, y, 86, null); itLab(p, S0, i, i === 1 ? 0 : lx2 + (i === 0 ? 10 : -10), i === 1 ? ly2 - 18 : ly2, { anchor: i === 0 ? 'end' : i === 2 ? 'start' : 'middle', maxW: 190, size: 32 }); });
+      if (S0.R) { if (S0.now === 3) haloH(p, 0, 180, 98); item(p, c, S0, 3, 0, 180, 120, 312, { lab: { maxW: 260, size: 34 } }); }
     }); });
 
   /* 07 ── FLAP BOARD: the rows flip in one by one, the arrow steps down the rows (each row's lamp comes on as it passes) and stops on `at`;
