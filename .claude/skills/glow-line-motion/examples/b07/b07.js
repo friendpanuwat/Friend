@@ -285,16 +285,16 @@
     if (S0.cross) strike(c, -220, -20, 160);
   });
 
-  /* 10 ── LIFT OUT OF ORDER (user's pick 10B): the lift's indicator and call button blink at the alert beats — on the keyword the indicator
-     shows "!" (flag) or ✕ (cross, the thing struck through) */
+  /* 10 ── LIFT OUT OF ORDER (user's pick 10B): the lift's indicator and call button blink at the alert beats — on the keyword the warning
+     pops up on the front of the doors (user): "!" (flag) or ✕ (cross, the thing struck through) */
   variant('lift', 'ลิฟต์งดใช้', (d, c) => {
     const S0 = st(d), x = 220;
     art(c, p => { floor(p, 300); thingAt(p, c, S0, -250, -10, 230, S0.cross ? 185 : 155);
       const B = inG(sub(p), 'rise', x, 300); R(B, x - 180, -200, 360, 500, 8, F(3.4)); R(B, x - 160, -180, 158, 480, 4, F(2.8)); R(B, x + 2, -180, 158, 480, 4, F(2.8));
       R(B, x - 90, -320, 180, 90, 14, F(3.2));
       const fl = sub(B); on(fl, p, 0, { o: flashK(0, 0, tu(.3)) }); R(fl, x - 80, -310, 160, 70, 10, { fill: LIT, sw: 0, stroke: 'none' });   // indicator blinks
-      if (S0.cross) cross(popG(B, x, -275), x, -275, 22); else flagSign(B, c, S0, x, -273, 62);
       R(B, x + 196, -40, 40, 80, 10, F(2.6)); B.circle(x + 216, 0, 11, W(2.2));
+      if (S0.cross) xBadge(popG(B, x, 50), x, 50, 66); else flagSign(B, c, S0, x, 50, 160);                                     // the sign on the doors (user: on the front of the lift doors)
       const bt = sub(B); on(bt, p, 0, { o: flashK(0, 1, tu(.3)) }); bt.circle(x + 216, 0, 11, { fill: C.ink, sw: 1.6 });          // call button
     });
     if (S0.cross) strike(c, -250, -10, 150);
@@ -458,7 +458,7 @@
   });
 
   /* 19 ── WARNING TRIANGLE (user's pick 19A): the reflective triangle is unfolded and set on the floor, it glints at the alert beats — on the
-     keyword its sign pops: "!" (flag) or ✕ (cross, the thing struck through) */
+     keyword its "!" pops (user: "!" in both modes); cross → the thing is struck through as well */
   variant('hazard', 'สามเหลี่ยมฉุกเฉิน', (d, c) => {
     const S0 = st(d), x = 240, h = 330, b = 270;
     art(c, p => { floor(p, 300); thingAt(p, c, S0, -230, -10, 240, S0.cross ? 190 : 160);
@@ -466,7 +466,7 @@
       const T = mvG(B, { px: x, py: b, sy: [[0, .12], [tu(.15), .12], [tu(.42), 1, 'back']] });                                    // it is unfolded upright
       T.path(rpoly([[x, b - h], [x + h * .6, b], [x - h * .6, b]], 24), F(3.4));
       const gl = sub(T); on(gl, p, 0, { o: flashK(.72, .72, tu(.4)) }); gl.path(rpoly([[x, b - h + 80], [x + h * .6 - 70, b - 34], [x - h * .6 + 70, b - 34]], 14), W(2.4));   // the reflector glints
-      const sy = popG(T, x, b - 100); if (S0.cross) cross(sy, x, b - 80, 30); else bang(sy, x, b - 100, 120);
+      bang(popG(T, x, b - 100), x, b - 100, 120);                                                                                  // always "!" (user)
       if (!S0.cross && S0.sign && picOf({ icon: S0.sign })) pic({ icon: S0.sign }, x, -260, 90, c, { pop: true }); });
     if (S0.cross) strike(c, -230, -10, 160);
   });
