@@ -187,17 +187,246 @@
       hero(p, c, X, sx, big ? -206 : -250, 120, -124, { maxW: 420, size: 42, bigSize: 60, bigW: 420, bigDy: 18 });
     }); });
 
-  /* ---------- sample data ---------- */
+  const lines = (q, x, y, w, n, gap, o = S(2), short = []) => { for (let k = 0; k < n; k++) q.line(x, y + k * gap, x + (short.includes(k) ? w * .6 : w), y + k * gap, o); };
+  /* ---------- 03–20 (user 2026-11-13: "ok ครับขอ creative ขึ้นมานิดนึงแต่ยังคงความเป็นกลางไว้") — the rest of the ideas in the user's file,
+     each read as a real thing with its own structure, a different shape and layout each time ---------- */
+  /* the idea laid out sideways: picture at (ix, iy) and the label beside it (anchor start at lx); no picture → the label big at (cx, cy) */
+  function heroH(q, c, X, ix, iy, w, lx, ly, o = {}) {
+    if (!X) { star4(q, o.cx ?? ix, o.cy ?? iy, w * .3); return; }
+    if (!picOf(X)) { txt(q, X.label, o.cx ?? 0, (o.cy ?? iy) + 20, { size: o.bigSize || 64, maxW: o.bigW || 560, weight: 800, color: C.ink, wrap: 'mid' }); return; }
+    put(q, c, X, ix, iy, w, null, { t: tu(.2) });
+    if (X.label) txt(q, X.label, lx, ly, { size: o.size || 50, maxW: o.maxW || 360, weight: 800, color: C.ink, anchor: 'start', wrap: 'mid' });
+  }
+  const ell = (q, x, y, rx, ry, o) => q.path(`M ${x - rx} ${y} A ${rx} ${ry} 0 1 0 ${x + rx} ${y} A ${rx} ${ry} 0 1 0 ${x - rx} ${y} Z`, o);
+  /* quotation mark like a small "6" (head + tail rising from its left, sweeping right); dir −1 = turned round (”) */
+  function qmark(q, x, y, r, dir = 1, o = F(3.2)) { const g = dir > 0 ? q : rot(q, 180, x, y);
+    g.path(`M ${f1(x - r * .95)} ${f1(y - r * .2)} C ${f1(x - r * 1.05)} ${f1(y - r * 1.9)} ${f1(x + r * .2)} ${f1(y - r * 2.9)} ${f1(x + r * 1.1)} ${f1(y - r * 3.1)} C ${f1(x + r * .25)} ${f1(y - r * 2.4)} ${f1(x - r * .1)} ${f1(y - r * 1.6)} ${f1(x + r * .2)} ${f1(y - r * .6)} Z`, o);
+    g.circle(x, y, r, o); }
+  const floorL = (p, y = 290) => p.line(-480, y, 480, y, S(2));
+
+  /* 03 ── THE PEDESTAL (idea "คำหนึ่งคำบนแท่น"): a fluted column on stepped plinths, a small plate on its shaft; the idea floats above it, lit */
+  variant('pedestal', 'เสาแท่นโชว์', (d, c) => { const X = st(d);
+    art(c, p => { floorL(p);
+      R(p, -170, 252, 340, 38, 6, F(3)); R(p, -146, 222, 292, 32, 6, F(3)); R(p, -104, -28, 208, 252, 4, F(3.4));
+      [-64, -32, 0, 32, 64].forEach(x => p.line(x, -6, x, 204, S(1.6)));
+      R(p, -136, -60, 272, 34, 8, F(3)); R(p, -118, -78, 236, 20, 6, F(2.6)); R(p, -52, 118, 104, 40, 6, F(2.4)); p.line(-30, 138, 30, 138, S(1.4));
+      halo(p, 0, -238, 96); hero(p, c, X, 0, -240, 140, -116, { maxW: 420, size: 40, bigSize: 56, bigW: 440, bigDy: 34 });
+    }); });
+
+  /* 04 ── THE FLIP CHART (idea "คำสำคัญบนกระดาน"): a pad on a tripod; used pages are flipped back over the top bar, a marker on the ledge */
+  variant('flipchart', 'กระดานฟลิปชาร์ต', (d, c) => { const X = st(d);
+    art(c, p => { floorL(p);
+      [[-150, -230, -230, 290], [150, -230, 230, 290], [0, -250, 40, 290]].forEach(([a, b, e, f], i) => p.line(a, b, e, f, i === 2 ? S(3) : W(5)));
+      p.path('M -190 -282 Q -110 -340 0 -332 Q 110 -340 190 -282', F(2.6)); p.path('M -170 -282 Q -90 -324 0 -318 Q 90 -324 170 -282', S(1.4));
+      R(p, -200, -270, 400, 420, 6, F(3.4)); R(p, -218, -292, 436, 32, 8, F(3)); [-150, 150].forEach(x => screw(p, x, -276, 5));
+      R(p, -214, 150, 428, 22, 6, F(2.8)); R(p, 60, 128, 110, 22, 10, F(2.4)); R(p, 150, 132, 26, 14, 4, F(2));
+      hero(p, c, X, 0, -116, 150, 34, { maxW: 340, size: 44, bigSize: 58, bigW: 340 });
+    }); });
+
+  /* 05 ── THE BANNER (idea "ข้อความบนแถบสีพื้น"): a cloth banner tied between two poles by its corner rings, guy ropes pegged to the ground */
+  variant('banner', 'ป้ายผ้าขึงเสา', (d, c) => { const X = st(d), bx0 = -350, bx1 = 350, by0 = -206, by1 = 40;
+    art(c, p => { floorL(p);
+      [-1, 1].forEach(sd => { const x = sd * 420; R(p, x - 10, -290, 20, 580, 8, F(2.6)); p.circle(x, -300, 14, F(2.4)); p.line(x, -280, x + sd * 70, 290, S(1.6)); shape(p, [[x + sd * 62, 290], [x + sd * 78, 290], [x + sd * 70, 270]], F(1.8)); });
+      p.path(`M ${bx0} ${by0} L ${bx1} ${by0} L ${bx1} ${by1} Q 0 ${by1 + 26} ${bx0} ${by1} Z`, F(3.4)); p.path(`M ${bx0 + 22} ${by0 + 22} L ${bx1 - 22} ${by0 + 22} L ${bx1 - 22} ${by1 - 18} Q 0 ${by1 + 6} ${bx0 + 22} ${by1 - 18} Z`, S(1.4));
+      [[bx0, by0], [bx1, by0], [bx0, by1], [bx1, by1]].forEach(([x, y]) => { const ix = x + (x < 0 ? 16 : -16), iy = y + (y < 0 ? 16 : -16); p.circle(ix, iy, 8, F(2)); p.line(ix, iy, x < 0 ? -410 : 410, y < 0 ? y - 10 : y + 6, W(2)); });
+      heroH(p, c, X, -200, -84, 140, -110, -84, { cx: 0, cy: -84, size: 52, maxW: 420, bigSize: 64, bigW: 600 });
+    }); });
+
+  /* 06 ── THE HIGHLIGHTED LINE (idea "คำคมบนหน้ากระดาษ"): an open book; on the right page one line is marked with a highlighter (the idea) —
+     the highlighter lies across the corner */
+  variant('highlight', 'หนังสือขีดเน้น', (d, c) => { const X = st(d);
+    art(c, p => { [-1, 1].forEach(sd => { p.path(`M 0 -196 Q ${sd * 190} -238 ${sd * 396} -196 L ${sd * 396} 214 Q ${sd * 190} 176 0 214 Z`, F(3.4));
+        p.path(`M ${sd * 10} 222 Q ${sd * 190} 190 ${sd * 404} 228`, S(1.6)); });
+      p.line(0, -196, 0, 214, W(2.4));
+      for (let k = 0; k < 7; k++) { const y = -150 + k * 50; p.line(-360, y, -40, y + (k === 6 ? 0 : 0), S(2)); }
+      lines(p, 40, -150, 320, 2, 40, S(2));
+      const big = X && !picOf(X);
+      R(p, 34, big ? -46 : 30, 336, big ? 110 : 66, 10, { fill: 'rgba(255,255,255,.16)', sw: 0, stroke: 'none' });
+      if (big) txt(p, X.label, 202, 26, { size: 52, maxW: 320, weight: 800, color: C.ink, wrap: 'mid' });
+      else if (X) { put(p, c, X, 202, -36, 100, null, { t: tu(.2) }); if (X.label) txt(p, X.label, 202, 76, { size: 40, maxW: 320, weight: 800, color: C.ink }); }
+      else star4(p, 202, 10, 40);
+      lines(p, 40, 130, 320, 2, 40, S(2), [1]);
+      const hg = rot(p, -24, 300, 260); R(hg, 190, 236, 210, 46, 12, F(3)); R(hg, 380, 238, 52, 42, 10, F(2.6)); shape(hg, [[190, 244], [190, 274], [162, 266], [162, 252]], F(2.2));
+    }); });
+
+  /* 07 ── THE SPEECH STANDEE (idea "แผ่นคำพูดพร้อมชื่อผู้กล่าว"): a speech-bubble board on a pole with a weighted round base; a blank line
+     for the speaker under the words (no name is ever written) */
+  variant('bubblestand', 'ป้ายฟองคำพูดตั้งพื้น', (d, c) => { const X = st(d);
+    art(c, p => { floorL(p); ell(p, 0, 270, 130, 22, F(3)); R(p, -40, 238, 80, 30, 8, F(2.6)); R(p, -10, 40, 20, 202, 6, F(2.6));
+      p.path('M -260 -300 L 260 -300 Q 300 -300 300 -260 L 300 0 Q 300 40 260 40 L -40 40 L -120 112 L -110 40 L -260 40 Q -300 40 -300 0 L -300 -260 Q -300 -300 -260 -300 Z', F(3.4));
+      R(p, -276, -276, 552, 292, 30, S(1.4));
+      hero(p, c, X, 0, -164, 140, -40, { maxW: 480, size: 46, bigSize: 64, bigW: 500, bigDy: 10 });
+      p.line(-60, 0, 60, 0, S(2)); p.circle(-82, 0, 6, S(1.6));
+    }); });
+
+  /* 08 ── THE TAG (idea "ป้ายข้อความพร้อมสัญลักษณ์ดาว"): a card tag on a looped string, reinforced eyelet, a little star punched in its corner */
+  variant('tag', 'ป้ายแท็กดาว', (d, c) => { const X = st(d);
+    art(c, p => { const g = rot(p, -6, 0, -190);
+      p.circle(0, -330, 9, F(2.6)); p.path('M 0 -322 C -40 -280 -36 -214 -8 -196 M 0 -322 C 40 -280 30 -212 8 -196', W(2.4));
+      shape(g, [[-200, -120], [-112, -228], [112, -228], [200, -120], [200, 262], [-200, 262]], F(3.4)); shape(g, [[-178, -112], [-100, -206], [100, -206], [178, -112], [178, 240], [-178, 240]], S(1.4));
+      ring(g, 0, -176, 26, 12, F(2.6)); g.circle(0, -176, 34, S(1.4));
+      star4(g, 140, 196, 20, { fill: C.fill, sw: 2.4 });
+      hero(g, c, X, 0, -24, 150, 124, { maxW: 330, size: 44, bigSize: 56, bigW: 330 });
+    }); });
+
+  /* 09 ── THE LIGHTBOX (idea "ประโยคในกรอบหนา"): a thick-framed lightbox on the wall, its face lit; the cord drops to a plug in the socket */
+  variant('lightbox', 'กล่องไฟกรอบหนา', (d, c) => { const X = st(d);
+    art(c, p => { R(p, -330, -250, 660, 420, 26, F(3.6)); R(p, -300, -220, 600, 360, 10, F(2.6)); R(p, -284, -204, 568, 328, 6, { fill: 'rgba(255,255,255,.1)', sw: 1.4, stroke: C.soft });
+      [-300, 300].forEach(x => [-220, 140].forEach(y => screw(p, x + (x < 0 ? -15 : 15), y + (y < 0 ? -15 : 15), 4)));
+      p.path('M 260 170 C 260 230 330 210 340 262', W(2.4)); R(p, 322, 260, 40, 26, 6, F(2.4)); R(p, 312, 280, 60, 30, 8, F(2.6)); [330, 354].forEach(x => p.line(x, 290, x, 300, S(1.4)));
+      hero(p, c, X, 0, -70, 160, 82, { maxW: 480, size: 46, bigSize: 64, bigW: 500 });
+    }); });
+
+  /* 10 ── THE ROUND SHOP SIGN (idea "ข้อความในกรอบวงกลม"): a round sign hanging on two rings from a scrolled bracket on the wall */
+  variant('roundsign', 'ป้ายกลมแขวนแขนเหล็ก', (d, c) => { const X = st(d), cx = 60, cy = 40, Rr = 206;
+    art(c, p => { R(p, -450, -330, 20, 380, 4, S(2)); R(p, -440, -300, 36, 120, 8, F(2.6)); [-264, -216].forEach(y => screw(p, -422, y, 4));
+      R(p, -404, -272, 530, 18, 8, F(2.8)); p.path('M -404 -196 Q -300 -200 -200 -262', W(3)); p.circle(-300, -230, 22, S(1.8)); p.circle(126, -263, 10, F(2.2));
+      [-80, 80].forEach(dx => { p.circle(cx + dx, -238, 12, F(2.2)); p.line(cx + dx, -226, cx + dx * .9, cy - Rr * .94, W(2.4)); });
+      ring(p, cx, cy, Rr, Rr - 22, F(3.4)); p.circle(cx, cy, Rr - 22, F(1)); p.circle(cx, cy, Rr - 38, S(1.4));
+      hero(p, c, X, cx, cy - 34, 150, cy + 86, { maxW: 300, size: 42, bigSize: 56, bigW: 320 });
+    }); });
+
+  /* 11 ── SITTING ON THE IDEA (idea "คนยืนข้างข้อความเด่น" → creative): a person sits on top of a big block with their legs over its edge;
+     the idea is on the block's face */
+  variant('sitter', 'คนนั่งบนกล่องใจความ', (d, c) => { const X = st(d), k = .88, hipY = -46, px = -96;
+    art(c, p => { floorL(p);
+      shape(p, [[-200, -20], [190, -20], [236, -70], [-154, -70]], F(3.2)); shape(p, [[190, -20], [236, -70], [236, 244], [190, 290]], F(3.2));
+      R(p, -200, -20, 390, 310, 6, F(3.4)); R(p, -176, 4, 342, 262, 4, S(1.6));
+      const sit = sd => ({ h: [sd * 6, 8], k: [sd < 0 ? 56 : 62, sd < 0 ? 2 : -6], f: [sd < 0 ? 120 : 130, sd < 0 ? 4 : -10] });
+      person(p, px, hipY + 158 * k, k, { s: [4, -76], e: [-22, -38], h: [-44, 2] }, { leg: sit, lean: -10, far: { s: [-4, -74], e: [-30, -34], h: [-52, 4] } });
+      hero(p, c, X, 0, 104, 150, 230, { maxW: 320, size: 42, bigSize: 58, bigW: 320, bigDy: 30 });
+    }); });
+
+  /* 12 ── THE ONE-LINE SCROLLER (idea "ตัวอักษรหนึ่งบรรทัด"): a long dot-matrix panel on two legs showing the idea in one line */
+  variant('scroller', 'ป้ายไฟวิ่งบรรทัดเดียว', (d, c) => { const X = st(d), y0 = -140, y1 = 60;
+    art(c, p => { floorL(p); [-300, 300].forEach(x => { R(p, x - 10, y1, 20, 230, 4, F(2.6)); R(p, x - 50, 276, 100, 14, 6, F(2.4)); });
+      R(p, -440, y0, 880, y1 - y0, 22, F(3.6)); R(p, -416, y0 + 22, 832, y1 - y0 - 44, 8, F(2));
+      for (let y = y0 + 40; y < y1 - 30; y += 22) for (let x = -398; x < 400; x += 22) p.circle(x, y, 2.2, { fill: 'rgba(255,255,255,.14)', sw: 0, stroke: 'none' });
+      p.circle(398, y1 - 12, 5, SOLID(1)); p.path(`M 300 ${y1 + 20} Q 360 ${y1 + 80} 340 290`, S(1.8));
+      heroH(p, c, X, -300, -40, 110, -220, -40, { cx: 0, cy: -40, size: 58, maxW: 600, bigSize: 64, bigW: 760 });
+    }); });
+
+  /* 13 ── THE HEADLINE (idea "ข้อความขนาดใหญ่กลางภาพ"): a folded paper on another; the masthead, a big headline box with the idea, columns */
+  variant('headline', 'พาดหัวหน้ากระดาษ', (d, c) => { const X = st(d);
+    art(c, p => { const b = rot(p, 6, 60, 20); R(b, -220, -250, 520, 520, 4, F(3)); lines(b, -190, 180, 460, 2, 26, S(1.6));
+      const g = rot(p, -4, -20, 0); R(g, -300, -280, 540, 560, 4, F(3.4)); g.line(-270, -226, 210, -226, W(3.2)); g.line(-270, -214, 210, -214, S(1.4));
+      [-240, -150, -60].forEach(x => g.line(x, -252, x + 60, -252, S(2.2))); R(g, -270, -196, 480, 280, 6, S(1.6));
+      [-270, -105, 60].forEach(x => lines(g, x, 108, 140, 5, 30, S(1.6), [4]));
+      g.line(-30, 100, -30, 260, S(1.2));
+      hero(g, c, X, -30, -98, 140, 40, { maxW: 440, size: 50, bigSize: 64, bigW: 440 });
+    }); });
+
+  /* 14 ── THE YARD SIGN (idea "ข้อความบนแผ่นป้าย"): a sign pushed into the grass on its wire stake, a few blades of grass at its feet */
+  variant('yardsign', 'ป้ายปักสนาม', (d, c) => { const X = st(d);
+    art(c, p => { floorL(p, 270); for (let x = -440; x <= 440; x += 46) p.path(`M ${x} 270 L ${x + 6} 250 M ${x + 10} 270 L ${x + 18} 244 M ${x + 20} 270 L ${x + 24} 256`, S(1.6));
+      [-150, 150].forEach(x => { p.line(x, 80, x, 286, W(3)); p.line(x - 14, 160, x + 14, 160, W(2.4)); });
+      R(p, -270, -250, 540, 340, 14, F(3.4)); R(p, -246, -226, 492, 292, 8, S(1.6)); [-246, 246].forEach(x => p.circle(x, 66, 5, S(1.4)));
+      hero(p, c, X, 0, -110, 150, 30, { maxW: 440, size: 46, bigSize: 64, bigW: 460 });
+    }); });
+
+  /* 15 ── THE GIANT QUOTE MARKS (idea "ข้อความพร้อมเครื่องหมายอัญประกาศ"): two big quotation marks stand on the floor like sculptures
+     (solid, with depth) and hold the idea between them */
+  variant('quotes', 'อัญประกาศยักษ์', (d, c) => { const X = st(d);
+    art(c, p => { floorL(p);
+      [[-380, 232, 1], [-262, 232, 1]].forEach(([x, y]) => { qmark(p, x + 14, y - 12, 50, 1, S(1.8)); qmark(p, x, y, 50, 1); });
+      [[262, 135, -1], [380, 135, -1]].forEach(([x, y]) => { qmark(p, x + 14, y - 12, 50, -1, S(1.8)); qmark(p, x, y, 50, -1); });
+      halo(p, 0, -120, 120); hero(p, c, X, 0, -140, 170, 16, { maxW: 380, size: 48, bigSize: 64, bigW: 420 });
+    }); });
+
+  /* 16 ── THE STAGE SIGN (idea "ป้ายคำพูดกลางเวที"): a round stage with a microphone stand; a sign hangs over it on two wires, two lamps light it */
+  variant('stagesign', 'ป้ายแขวนกลางเวที', (d, c) => { const X = st(d);
+    art(c, p => { ell(p, 0, 236, 380, 50, F(3)); R(p, -380, 236, 760, 40, 0, { fill: C.fill, sw: 0, stroke: 'none' }); ell(p, 0, 276, 380, 50, F(3)); R(p, -378, 234, 756, 44, 0, { fill: C.fill, sw: 0, stroke: 'none' }); ell(p, 0, 236, 380, 50, F(3)); [-380, 380].forEach(x => p.line(x, 236, x, 276, W(3)));
+      p.line(-180, 236, -180, 40, W(3)); ell(p, -180, 236, 40, 8, F(2.4)); p.line(-180, 40, -160, 14, W(3)); R(p, -170, -20, 24, 40, 10, F(2.4));
+      [-1, 1].forEach(sd => { p.line(sd * 190, -350, sd * 190, -262, W(2)); const lg = rot(p, sd * -24, sd * 420, -300); R(lg, sd * 420 - 30, -324, 60, 50, 10, F(2.6)); shape(p, [[sd * 390, -280], [sd * 450, -300], [sd * 60, 236], [sd * -120, 236]].map(([a, b]) => [a, b]), { fill: 'rgba(255,255,255,.05)', sw: 0, stroke: 'none' }); });
+      R(p, -280, -262, 560, 196, 14, F(3.4)); R(p, -260, -242, 520, 156, 8, S(1.4));
+      heroH(p, c, X, -170, -164, 120, -90, -164, { cx: 0, cy: -164, size: 46, maxW: 330, bigSize: 56, bigW: 500 });
+    }); });
+
+  /* 17 ── THE INFO TOTEM (idea "ประโยคเด่นในกรอบสี่เหลี่ยม"): a tall standing kiosk with a screen, a small speaker grille and a base plate */
+  variant('totem', 'ตู้ป้ายดิจิทัลตั้งพื้น', (d, c) => { const X = st(d);
+    art(c, p => { floorL(p); R(p, -170, 266, 340, 24, 8, F(2.8)); R(p, -150, -310, 300, 578, 34, F(3.6)); R(p, -122, -276, 244, 380, 12, { fill: 'rgba(255,255,255,.08)', sw: 1.8, stroke: C.soft });
+      for (let r = 0; r < 3; r++) for (let q2 = 0; q2 < 7; q2++) p.circle(-54 + q2 * 18, 150 + r * 18, 3, S(1.2)); R(p, -40, 220, 80, 14, 6, S(1.4));
+      hero(p, c, X, 0, -150, 140, 10, { maxW: 220, size: 38, bigSize: 48, bigW: 220 });
+    }); });
+
+  /* 18 ── THE BILLBOARD (idea "ป้ายข้อความบนแผ่นป้าย" → big): a billboard on legs with cross-bracing, a walkway rail, three lamps on arms
+     and a ladder up one leg */
+  variant('billboard', 'บิลบอร์ด', (d, c) => { const X = st(d), y0 = -270, y1 = 50;
+    art(c, p => { floorL(p); [-250, 250].forEach(x => R(p, x - 14, y1, 28, 240, 4, F(2.6))); p.line(-236, 110, 236, 250, S(2)); p.line(236, 110, -236, 250, S(2));
+      R(p, -400, y1 + 18, 800, 12, 4, F(2.2)); for (let x = -390; x <= 390; x += 60) p.line(x, y1 + 18, x, y1 - 8, S(1.4)); p.line(-400, y1 - 8, 400, y1 - 8, S(1.6));
+      [300, 330].forEach(x => p.line(x, y1 + 30, x, 290, W(2.2))); for (let y = y1 + 60; y < 290; y += 34) p.line(300, y, 330, y, W(2));
+      [-260, 0, 260].forEach(x => { p.line(x, y0, x, y0 - 36, W(2.4)); p.line(x, y0 - 36, x + 20, y0 - 54, W(2.4)); R(p, x + 6, y0 - 68, 46, 24, 8, F(2.4)); });
+      R(p, -420, y0, 840, y1 - y0, 10, F(3.6)); R(p, -396, y0 + 22, 792, y1 - y0 - 44, 4, S(1.6));
+      heroH(p, c, X, -230, (y0 + y1) / 2, 160, -120, (y0 + y1) / 2, { cx: 0, cy: (y0 + y1) / 2, size: 56, maxW: 480, bigSize: 66, bigW: 720 });
+    }); });
+
+  /* 19 ── THE PAINTED SHEET (idea "ตัวอักษรขนาดใหญ่บนพื้นเรียบ"): a big plain sheet taped to the wall, the idea painted on it; the roller
+     rests in its tray on the floor */
+  variant('painted', 'แผ่นกระดาษทาสีติดผนัง', (d, c) => { const X = st(d);
+    art(c, p => { floorL(p); R(p, -320, -280, 560, 450, 4, F(3.4));
+      [[-320, -280, 30], [240, -280, -30], [-320, 170, -30], [240, 170, 30]].forEach(([x, y, a]) => { const g = rot(p, a, x, y); R(g, x - 40, y - 12, 80, 24, 3, { fill: 'rgba(255,255,255,.16)', sw: 1.4 }); });
+      hero(p, c, X, -40, -100, 160, 60, { maxW: 460, size: 52, bigSize: 66, bigW: 480 });
+      [-120, 40].forEach((x, i) => p.circle(x, 112 + i * 16, 4 + i, { fill: 'rgba(255,255,255,.3)', sw: 0, stroke: 'none' }));
+      shape(p, [[250, 290], [450, 290], [430, 236], [270, 236]], F(3)); p.line(280, 254, 420, 254, S(1.4));
+      const rg = rot(p, -10, 350, 230); R(rg, 290, 206, 130, 46, 20, F(3)); p.path('M 416 214 L 456 214 L 470 150', W(3)); R(p, 456, 60, 30, 96, 12, F(2.6)); [80, 100, 120].forEach(y => p.line(460, y, 482, y, S(1.4)));
+    }); });
+
+  /* 20 ── THE AIRSHIP (idea "ป้ายคำพูด" → in the sky): a small airship floats by with a panel on its side carrying the idea; fins, a gondola,
+     two soft clouds */
+  variant('airship', 'เรือเหาะติดป้าย', (d, c) => { const X = st(d), cx = -20, cy = -60;
+    art(c, p => { [[-360, 200, 1], [340, -250, .8]].forEach(([x, y, k2]) => p.path(`M ${x - 80 * k2} ${y} Q ${x - 80 * k2} ${y - 40 * k2} ${x - 30 * k2} ${y - 40 * k2} Q ${x - 10 * k2} ${y - 80 * k2} ${x + 40 * k2} ${y - 60 * k2} Q ${x + 90 * k2} ${y - 60 * k2} ${x + 90 * k2} ${y} Z`, S(1.8)));
+      [[1, -1], [1, 1]].forEach(([a, b]) => shape(p, [[cx + 290, cy + b * 40], [cx + 400, cy + b * 130], [cx + 420, cy + b * 130], [cx + 380, cy + b * 20]], F(3)));
+      ell(p, cx, cy, 380, 150, F(3.6)); p.path(`M ${cx - 300} ${cy - 92} Q ${cx} ${cy - 160} ${cx + 300} ${cy - 92}`, S(1.4)); p.path(`M ${cx - 300} ${cy + 92} Q ${cx} ${cy + 160} ${cx + 300} ${cy + 92}`, S(1.4));
+      R(p, cx - 90, cy + 150, 180, 52, 18, F(3)); [cx - 60, cx, cx + 60].forEach(x => R(p, x - 16, cy + 162, 32, 22, 4, S(1.4))); [cx - 60, cx + 60].forEach(x => p.line(x, cy + 140, x, cy + 152, W(2)));
+      R(p, cx - 250, cy - 92, 470, 184, 16, F(3)); R(p, cx - 234, cy - 76, 438, 152, 10, S(1.2));
+      heroH(p, c, X, cx - 150, cy, 116, cx - 76, cy, { cx: cx - 15, cy, size: 46, maxW: 270, bigSize: 52, bigW: 420 });
+    }); });
+
+  /* ---------- sample data (A: key lines from unrelated topics · B: stress) ---------- */
   const I = (icon, label) => label ? { icon, label } : { icon };
   const SAMPLES = [
     { say: 'ทำน้อย แต่ได้มาก', idea: I('sparkles', 'น้อยแต่มาก') },
     { say: 'สุขภาพต้องมาก่อนเสมอ', idea: I('heart-pulse', 'สุขภาพมาก่อน') },
+    { say: 'ความรู้คือสิ่งที่ไม่มีใครเอาไปได้', idea: I('book-open', 'ความรู้ติดตัว') },
+    { say: 'เวลาคือของมีค่าที่สุด', idea: I('clock', 'เวลามีค่า') },
     { say: 'เริ่มเลย ไม่ต้องรอพร้อม', idea: { label: 'ไม่ต้องรอพร้อม' } },
+    { say: 'ทุกคนเริ่มจากศูนย์', idea: I('sprout', 'เริ่มจากศูนย์') },
+    { say: 'ฟังให้มากกว่าพูด', idea: I('message-circle', 'ฟังให้มาก') },
+    { say: 'เงินเก็บคือความอิสระ', idea: I('piggy-bank', 'เงินเก็บ = อิสระ') },
+    { say: 'ทำทุกวัน ดีกว่าทำเยอะวันเดียว', idea: I('repeat', 'ทำทุกวัน') },
+    { say: 'บ้านคือที่ที่ใจอยู่', idea: I('house', 'บ้านคือใจ') },
+    { say: 'ความสม่ำเสมอชนะพรสวรรค์', idea: I('target', 'สม่ำเสมอ') },
+    { say: 'ล้มได้ แต่ต้องลุก', idea: I('trending-up', 'ล้มแล้วลุก') },
+    { say: 'ลูกค้าคือหัวใจของร้าน', idea: I('store', 'ลูกค้าคือหัวใจ') },
+    { say: 'น้ำคือชีวิต', idea: I('droplets', 'น้ำคือชีวิต') },
+    { say: 'ใจเย็น ๆ ทุกอย่างมีทางออก', idea: I('smile', 'ใจเย็น') },
+    { say: 'คุณภาพสำคัญกว่าปริมาณ', idea: I('gem', 'คุณภาพก่อน') },
+    { say: 'ทีมที่ดีชนะทุกอย่าง', idea: I('users', 'ทีมคือทุกอย่าง') },
+    { say: 'เรียบง่ายคือที่สุด', idea: I('leaf', 'เรียบง่าย') },
+    { say: 'ความคิดเปลี่ยนชีวิต', idea: I('brain', 'ความคิดเปลี่ยนชีวิต') },
+    { say: 'ฝันให้ไกล ไปให้ถึง', idea: I('rocket', 'ฝันให้ไกล') },
   ];
   const STRESS = [
     { say: 'ไอคอนอย่างเดียว', idea: I('target') },
     { say: 'ป้ายยาว', idea: I('book-open', 'ความรู้คือสิ่งเดียวที่ไม่มีใครขโมยไปได้') },
+    { say: 'ภาษาอังกฤษ', idea: I('sparkles', 'Less is more') },
+    { say: 'ไม่มีไอคอน (ป้ายแทนภาพ)', idea: { label: 'ทำทีละอย่าง' } },
+    { say: 'ชื่อไอคอนที่ไม่มี', idea: I('no-such-icon', 'ใจความ') },
     { say: 'ไม่มีอะไรเลย', idea: {} },
+    { say: 'ตัวเลขในป้าย', idea: I('clock', '1% ทุกวัน') },
+    { say: 'อังกฤษยาว', idea: I('rocket', 'Done is better than perfect') },
+    { say: 'ไอคอนอย่างเดียว 2', idea: I('heart') },
+    { say: 'ป้ายแทนภาพยาว', idea: { label: 'ไม่มีอะไรสายเกินไปสำหรับการเริ่มต้น' } },
+    { say: 'ป้ายสั้นมาก', idea: I('sun', 'สู้') },
+    { say: 'ไม่มีป้าย 2', idea: I('leaf') },
+    { say: 'ป้ายแทนภาพเป็นตัวเลข', idea: { label: '80/20' } },
+    { say: 'ป้ายสั้น', idea: I('smile', 'ยิ้มไว้') },
+    { say: 'อังกฤษยาว 2', idea: I('users', 'Together we go further') },
+    { say: 'ชื่อไอคอนที่ไม่มี 2', idea: I('no-such', 'ไม่มีไอคอนจริง') },
+    { say: 'ป้ายปกติ', idea: I('gem', 'ค่าของคน') },
+    { say: 'ป้ายแทนภาพอังกฤษ', idea: { label: 'Keep going' } },
+    { say: 'ป้ายยาวมาก', idea: I('brain', 'คิดให้ดีก่อนพูดเสมอแล้วจะไม่ต้องเสียใจทีหลัง') },
+    { say: 'ไม่มีอะไรเลย 2', idea: null },
   ];
 
   G.cats = G.cats || {};
