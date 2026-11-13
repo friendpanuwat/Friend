@@ -360,6 +360,55 @@
     icon(d.a.icon, 0, -190, 120, c, .1, { dimTo: .35, dimAt: H - .4 }); icon(d.b.icon, 0, 140, 140, c, H - .15, { punch: true });
   }, d => d.mode === 'change');
 
+  /* 16 alternatives (user: "16 Redesign ใหม่", 2026-11-13) — all take versus AND change; kept outside V until the user picks one */
+  const ALT16 = [];
+  const alt = (id, th, build) => ALT16.push({ id, th, build });
+
+  /* 16a ── TEAR PAD: the top page (the loser / "before") is torn off and flies away; the winner / "after" is the page left on the pad */
+  alt('pad', 'กระดาษฉีก', (d, c) => {
+    const T = st(d), keep = T.win || 'b', torn = keep === 'a' ? 'b' : 'a', px = -255, py = -10, pr = -14;
+    art(c, p => {
+      p.rect(-50, -190, 380, 440, Object.assign({ rx: 18 }, F(3.4)));
+      p.rect(-50, -235, 380, 56, Object.assign({ rx: 14 }, F(3.2))); [10, 90, 170, 250].forEach(x => p.circle(x, -207, 9, W(2)));
+      if (d[keep].label) txt(p, d[keep].label, 140, 205, { maxW: 320 });
+      const tp = sub(p, { transform: `rotate(${pr} ${px} ${py})` });
+      const zz = []; for (let k = 0; k <= 12; k++) zz.push([px - 170 + k * 340 / 12, py - 205 + (k % 2 ? 12 : 0)]);
+      tp.path(`M ${px - 170} ${py + 205} L ${px - 170} ${py - 205} ` + zz.map(([x, y]) => `L ${f1(x)} ${f1(y)}`).join(' ') + ` L ${px + 170} ${py + 205} Z`, T.win ? { fill: C.fill, sw: 2.6, stroke: C.rule } : F(3.2));
+      if (d[torn].label) txt(tp, d[torn].label, px, py + 160, { maxW: 280, color: T.win ? C.mute : C.soft });
+      [[-470, -260], [-440, -300], [-400, -320]].forEach(([x, y]) => p.line(x, y, x + 26, y + 18, { sw: 3, stroke: C.soft }));
+      marks(p, d, { [keep]: [320, -170], [torn]: [px + 150, py - 230] });
+    });
+    icon(d[keep].icon, 140, 20, 210, c, .1);
+    icon(d[torn].icon, px, py - 30, 160, c, .1, { dimTo: T.win ? .3 : 1, keys: { r: [[0, pr]] }, pivot: [px, py] });
+  });
+
+  /* 16b ── TURNTABLE: a round stage turns — the winner / "after" comes round to the front and big, the other goes to the back, small and faint */
+  alt('stage', 'เวทีหมุน', (d, c) => {
+    const T = st(d), front = T.win || (T.change ? 'b' : null), back = front ? (front === 'a' ? 'b' : 'a') : null;
+    art(c, p => {
+      p.path('M -420 120 L -420 155 A 420 115 0 0 0 420 155 L 420 120', F(3.2)); p.ellipse(0, 120, 420, 115, F(3.4)); p.ellipse(0, 120, 330, 82, { sw: 1.6, stroke: C.soft });
+      if (front) { if (d[front].label) txt(p, d[front].label, 0, 335, { maxW: 360 }); if (d[back].label) txt(p, d[back].label, 330, -20, { maxW: 200, color: C.mute }); }
+      else ['a', 'b'].forEach(s => d[s].label && txt(p, d[s].label, s === 'a' ? -200 : 200, 335, { maxW: 300 }));
+      marks(p, d, front ? { [front]: [150, -250], [back]: [400, -180] } : {});
+    });
+    if (front) { icon(d[front].icon, 0, -20, 250, c, .1, { punch: true }); icon(d[back].icon, 300, -120, 130, c, .1, { dimTo: .3 }); }
+    else { icon(d.a.icon, -200, 10, 200, c, .1); icon(d.b.icon, 200, 10, 200, c, .1); }
+  });
+
+  /* 16c ── COMPARE FRAME: one picture split by a sliding handle — "before" on the left, "after" on the right; the handle shows more of the winner */
+  alt('compare', 'กรอบเลื่อนเทียบ', (d, c) => {
+    const T = st(d), hx = T.win === 'a' ? 140 : T.win === 'b' ? -140 : 0, L = -400, R = 400, top = -250, bot = 200;
+    art(c, p => {
+      p.rect(L, top, R - L, bot - top, Object.assign({ rx: 22 }, F(3.6)));
+      if (T.lose) { const lx = T.lose === 'a'; p.rect(lx ? L + 6 : hx, top + 6, lx ? hx - L - 6 : R - hx - 6, bot - top - 12, { rx: 18, fill: '#0b0b0b', sw: 0, stroke: 'none' }); }
+      p.line(hx, top, hx, bot, W(4)); p.circle(hx, (top + bot) / 2, 40, F(3.4));
+      p.poly([[hx - 10, -40], [hx - 24, -25], [hx - 10, -10]], W(3)); p.poly([[hx + 10, -40], [hx + 24, -25], [hx + 10, -10]], W(3));
+      ['a', 'b'].forEach(s => { if (!d[s].label) return; const cx = s === 'a' ? (L + hx) / 2 : (hx + R) / 2; txt(p, d[s].label, cx, 290, { maxW: 300, color: s === T.lose ? C.mute : C.soft }); });
+      marks(p, d, { a: [L + 40, top + 40], b: [R - 40, top + 40] });
+    });
+    ['a', 'b'].forEach(s => { const w = s === 'a' ? hx - L : R - hx, cx = s === 'a' ? (L + hx) / 2 : (hx + R) / 2; icon(d[s].icon, cx, -25, Math.min(220, w * .62), c, .1, { dimTo: T.dim(s) }); });
+  });
+
   /* 17 ── BALLOT: both rows come in with empty boxes — on the keyword the winner is ticked, the loser crossed (or "before" struck out) */
   variant('ballot', 'ช่องติ๊ก', (d, c) => {
     const T = st(d), H = hitOf(c), Y = { a: -120, b: 120 };
@@ -476,5 +525,5 @@
   ];
 
   G.cats = G.cats || {};
-  G.cats.B03 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
+  G.cats.B03 = { variants: V, ALT16, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
 })();
