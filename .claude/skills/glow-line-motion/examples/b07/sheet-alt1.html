@@ -1,0 +1,20 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>B07 redesign options 1</title>
+<script src="../../assets/glowline.js"></script><script src="b07.js"></script></head>
+<body><script>
+/* B07 redesign options (user: "2, 3, 6, 10, 19 design ใหม่") — each design: a row with "flag" data and a row with "cross" data, options A B C */
+GL.run(() => {
+  GL.stage();
+  const B = GL.cats.B07, NS = [2, 3, 6];
+  GL.text('B07 · แบบใหม่ ' + NS.map(n => String(n).padStart(2, '0')).join(' · '), { y: 70, size: 46, ls: 3, color: GL.C.kicker, glow: false });
+  GL.text('แต่ละแบบ 3 ทาง (A / B / C) · แถวบน = ธง (ระวัง) · แถวล่าง = กากบาท (อย่าทำ)', { y: 118, size: 28, weight: 500, color: GL.C.sub, glow: false });
+  const top = 150, rh = 290, s = .32; let r = 0;
+  NS.forEach(n => ['flag', 'cross'].forEach(how => {
+    const base = B.SAMPLES[n - 1], d = Object.assign({}, base, { how }); if (how === 'cross') delete d.sign;
+    B.ALT[n].forEach((o, k) => { const x = (k + .5) * GL.W / 3, y0 = top + r * rh, cy = y0 + 700 * s / 2 + 4;
+      B.drawAlt(n, k, d, { x, y: cy, s, at: .3 + (r * 3 + k) * .03, hit: 1.9 });
+      GL.text(String(n).padStart(2, '0') + ' ' + 'ABC'[k] + ' · ' + o.th + (how === 'flag' ? ' · ธง' : ' · กากบาท'), { x, y: y0 + 700 * s + 34, size: 22, weight: 700, color: GL.C.ink, glow: false }); });
+    r++; }));
+  GL.finish({ hold: 2.4, out: true, stagger: .02 });
+});
+</script></body></html>

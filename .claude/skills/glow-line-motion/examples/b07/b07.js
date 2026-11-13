@@ -100,9 +100,8 @@
     if (S0.cross) {
       art(c, p => { floor(p, 300);
         const B = sub(p); atT(B, p, 0);
-        R(B, -70, 286, 140, 14, 5, F(2.6)); R(B, -15, 30, 30, 260, 6, F(3)); B.line(-5, 120, -5, 280, S(1.4));                       // base + post
-        R(B, -34, 70, 68, 22, 5, F(2.4)); R(B, -34, -150, 68, 22, 5, F(2.4));                                                         // clamps
-        B.circle(0, -95, 205, F(3.4)); B.circle(0, -95, 190, S(1.4));                                                                   // the plate (folded rim)
+        R(B, -70, 286, 140, 14, 5, F(2.6)); R(B, -15, 30, 30, 260, 6, F(3));                                                             // base + post
+        B.circle(0, -95, 205, F(3.4));                                                                                                  // the plate
         if (S0.thing && S0.thing.label && picOf(S0.thing)) R(B, -165, 150, 330, 82, 12, F(3));                                       // label plate (only with a label)
         thingAt(p, c, S0, 0, -95, 210, 207, { lab: { maxW: 240, size: 40 } });
       });
@@ -110,8 +109,7 @@
     } else art(c, p => { floor(p, 300);
       thingAt(p, c, S0, -210, -20, 240, 160);
       const B = sub(p); atT(B, p, 0); const x = 250;
-      R(B, x - 60, 286, 120, 14, 5, F(2.6)); R(B, x - 14, -150, 28, 440, 6, F(3)); B.line(x - 4, -60, x - 4, 280, S(1.4));
-      R(B, x - 32, -120, 64, 20, 5, F(2.4)); R(B, x - 32, -10, 64, 20, 5, F(2.4));
+      R(B, x - 60, 286, 120, 14, 5, F(2.6)); R(B, x - 14, -150, 28, 440, 6, F(3));
       flagSign(B, c, S0, x, -95, 240);
     });
   });
@@ -165,14 +163,14 @@
       thingAt(p, c, S0, -210, -40, 240, S0.cross ? 170 : 140);
       const B = sub(p); atT(B, p, 0);
       R(B, x - 60, 286, 120, 14, 5, F(2.6)); R(B, x - 15, 160, 30, 130, 6, F(3));
-      R(B, x - 85, -285, 170, 450, 34, F(3.4)); R(B, x - 110, -250, 25, 380, 8, F(2.6));                                    // housing + side bracket
+      R(B, x - 85, -285, 170, 450, 34, F(3.4));                                                                                // housing
       ys.forEach((y, i) => { const lit = i === on1;
         B.path(`M ${x - 66} ${y - 22} A 66 66 0 0 1 ${x + 66} ${y - 22} L ${x + 74} ${y - 50} A 80 80 0 0 0 ${x - 74} ${y - 50} Z`, F(2.6));   // visor
         B.circle(x, y, 52, lit ? { fill: GLASS, sw: 4.4 } : F(3));
         if (lit) { B.circle(x, y, 70, S(2));
           if (S0.cross) { B.line(x - 20, y - 20, x + 20, y + 20, W(6)); B.line(x + 20, y - 20, x - 20, y + 20, W(6)); }
           else { R(B, x - 6, y - 28, 12, 36, 5, INK); B.circle(x, y + 22, 7, INK); } }
-        else B.circle(x, y, 30, S(1.4)); });
+      });
     });
     if (S0.cross) over(c, p => { const g = sub(p); atT(g, p, .1); noMark(g, -210, -40, 160); });
   });
@@ -182,8 +180,7 @@
   function aframe(q, x, top, bot, wt, wb) {
     q.path(rpoly([[x - wt / 2 + 6, top + 14], [x + wt / 2 - 6, top + 14], [x + wb / 2 + 34, bot], [x - wb / 2 - 34, bot]], 20), F(2.6));   // the back panel, splayed behind
     q.path(rpoly([[x - wt / 2, top], [x + wt / 2, top], [x + wb / 2, bot], [x - wb / 2, bot]], 22), F(3.4));
-    R(q, x - 46, top + 22, 92, 30, 14, F(2.4));                                                                                // handle slot
-    R(q, x - wb / 2 - 4, bot - 8, 46, 16, 5, F(2.4)); R(q, x + wb / 2 - 42, bot - 8, 46, 16, 5, F(2.4)); }                     // feet
+    R(q, x - 46, top + 22, 92, 30, 14, F(2.4)); }                                                                              // handle slot
   variant('aframe', 'ป้ายตั้งพื้น', (d, c) => {
     const S0 = st(d);
     if (S0.cross) {
@@ -221,7 +218,7 @@
     art(c, p => {
       const B = sub(p); atT(B, p, 0);
       R(B, -175, -330, 350, 650, 52, F(3.4)); R(B, -152, -306, 304, 602, 34, S(1.6)); R(B, -42, -292, 84, 22, 11, F(2.2));     // body, screen edge, island
-      R(B, -183, -200, 10, 60, 4, F(2)); R(B, -183, -120, 10, 60, 4, F(2)); R(B, 173, -170, 10, 90, 4, F(2)); B.line(-50, 280, 50, 280, W(3.4));   // keys, home bar
+      B.line(-50, 280, 50, 280, W(3.4));                                                                                        // home bar
       thingAt(p, c, S0, 0, 10, 220, S0.cross ? 205 : 180, { lab: { maxW: 280 } });
       const bn = sub(p); R(bn, -136, -250, 272, 92, 20, F(3)); bn.line(-40, -222, 100, -222, S(2.4)); bn.line(-40, -192, 60, -192, S(2));   // banner + its lines
       if (S0.cross) xBadge(bn, -88, -204, 28); else if (!flagSign(bn, c, S0, -88, -207, 56)) {}
@@ -237,13 +234,11 @@
     art(c, p => { floor(p, 300);
       thingAt(p, c, S0, -230, -30, 240, S0.cross ? 180 : 140);
       const B = sub(p); atT(B, p, 0);
-      R(B, gx - 18, gy + Rr - 4, 36, 60, 4, F(2.8)); B.shape(P2([[gx - 32, gy + Rr + 56], [gx + 32, gy + Rr + 56], [gx + 40, gy + Rr + 80], [gx + 32, gy + Rr + 104], [gx - 32, gy + Rr + 104], [gx - 40, gy + Rr + 80]]), F(2.8));   // stem + hex nut
-      R(B, gx - 16, gy + Rr + 104, 32, 70, 4, F(2.8)); R(B, 40, 214, 400, 40, 8, F(3)); [70, 410].forEach(x => R(B, x - 14, 200, 28, 68, 6, F(2.6)));           // pipe + flanges
+      R(B, gx - 18, gy + Rr - 4, 36, 300 - gy - Rr + 4, 4, F(2.8)); R(B, gx - 60, 286, 120, 14, 5, F(2.6));                                                              // stem + foot
       ring(B, gx, gy, Rr, Rr - 20, F(3.4)); B.circle(gx, gy, Rr - 20, { fill: C.fill, sw: 0, stroke: 'none' });                                                      // bezel + face
       const zr0 = Rr - 58, zr1 = Rr - 36, za = a1 - dz;                                                                                                               // danger band
       B.path(`M ${P(za, zr1).join(' ')} A ${zr1} ${zr1} 0 0 1 ${P(a1, zr1).join(' ')} L ${P(a1, zr0).join(' ')} A ${zr0} ${zr0} 0 0 0 ${P(za, zr0).join(' ')} Z`, F(2.6));
-      for (let a = za + 8; a < a1 - 2; a += 11) B.line(...P(a, zr0 + 3), ...P(a + 7, zr1 - 3), S(1.4));
-      for (let a = a0; a <= a1 + .1; a += 27) B.line(...P(a, Rr - 34), ...P(a, Rr - 56), W(a % 54 === 0 ? 3 : 2));
+      for (let a = a0; a <= a1 + .1; a += 54) B.line(...P(a, Rr - 34), ...P(a, Rr - 56), W(2.6));
       B.circle(...P(a1 + 12, Rr - 46), 7, F(2.2));                                                                                                                    // stop pin
       if (!S0.cross) flagSign(B, c, S0, gx, gy + 78, 66);
       const N = rot(B, na, gx, gy); N.shape(P2([[gx - 9, gy + 20], [gx, gy - Rr + 50], [gx + 9, gy + 20]]), F(2.6)); B.circle(gx, gy, 20, F(3)); B.circle(gx, gy, 7, W(2));
@@ -261,8 +256,7 @@
       R(B, x - 60, 286, 120, 14, 5, F(2.6)); R(B, x - 14, by + 40, 28, 290 - by - 40, 6, F(3));
       R(B, x - 80, by, 160, 46, 10, F(3.2)); R(B, x - 92, by + 40, 184, 18, 6, F(2.8));                                       // base
       B.path(`M ${x - 66} ${by} L ${x - 66} ${by - 70} A 66 66 0 0 1 ${x + 66} ${by - 70} L ${x + 66} ${by} Z`, { fill: GLASS, sw: 3.6 });   // dome
-      [-34, 0, 34].forEach(dx => B.line(x + dx, by - 6, x + dx, by - (dx ? 108 : 128), S(1.4)));
-      R(B, x - 14, by - 92, 28, 74, 6, F(2.6)); R(B, x - 30, by - 104, 60, 18, 6, F(2.4));                                    // lamp + reflector
+      R(B, x - 14, by - 92, 28, 74, 6, F(2.6));                                                                                // lamp
       [[-104, -100, -128, -116], [104, -100, 128, -116], [0, -158, 0, -186]].forEach(([a, b, e, f]) => B.line(x + a, by + b + 50, x + e, by + f + 50, W(3)));
       if (!S0.cross) flagSign(B, c, S0, x, 140, 120);
     });
@@ -293,13 +287,12 @@
     const S0 = st(d);
     art(c, p => { floor(p, 300);
       const B = sub(p); atT(B, p, 0);
-      [-1, 1].forEach(s => { const x = s * 225; R(B, x - 40, -230, 80, 520, 14, F(3.4)); for (let y = -180; y <= 230; y += 58) B.line(x - 24, y, x + 24, y, S(1.4));
+      [-1, 1].forEach(s => { const x = s * 225; R(B, x - 40, -230, 80, 520, 14, F(3.4)); 
         R(B, x - 56, 284, 112, 16, 6, F(2.6)); });
       R(B, -280, -300, 560, 76, 16, F(3.4)); R(B, -70, -286, 140, 48, 8, F(2.8));                                            // top beam + display
       if (S0.cross) { B.line(-14, -276, 14, -250, W(4)); B.line(14, -276, -14, -250, W(4)); } else { R(B, -4, -280, 8, 22, 3, INK); B.circle(0, -250, 5, INK); }
       B.path('M -40 -300 L -40 -322 A 40 40 0 0 1 40 -322 L 40 -300 Z', { fill: GLASS, sw: 4 });                                // lamp, lit
       [[-62, -320, -86, -334], [62, -320, 86, -334]].forEach(([a, b, e, f]) => B.line(a, b, e, f, W(3)));
-      [-1, 1].forEach(s => { const g = sub(B); R(g, s * 225 - 30, -150, 60, 300, 10, { fill: GLASS, sw: 0, stroke: 'none' }); });   // the side panels glow
       thingAt(p, c, S0, 0, 10, 220, S0.cross ? 205 : 185);
       if (!S0.cross && S0.sign && picOf({ icon: S0.sign })) pic({ icon: S0.sign }, 330, -150, 100, c);
     });
@@ -310,9 +303,8 @@
      is struck through */
   function megaphone(q, x, y, a) { const g = rot(q, a, x, y);
     g.path(`M ${x} ${y - 34} L ${x - 190} ${y - 110} Q ${x - 206} ${y} ${x - 190} ${y + 110} L ${x} ${y + 34} Z`, F(3.4));     // horn
-    g.ellipse(x - 196, y, 22, 110, F(3)); R(g, x - 4, y - 40, 120, 80, 18, F(3.2)); g.line(x + 40, y - 40, x + 40, y + 40, S(1.4));   // mouth, body
-    g.path(`M ${x + 60} ${y + 40} L ${x + 70} ${y + 120} Q ${x + 74} ${y + 134} ${x + 90} ${y + 134} L ${x + 100} ${y + 134} L ${x + 92} ${y + 40}`, F(3));   // grip
-    R(g, x + 40, y + 46, 18, 36, 6, F(2.4)); R(g, x + 116, y - 22, 26, 44, 8, F(2.6)); }
+    g.ellipse(x - 196, y, 22, 110, F(3)); R(g, x - 4, y - 40, 120, 80, 18, F(3.2));                                         // mouth, body
+    g.path(`M ${x + 60} ${y + 40} L ${x + 70} ${y + 120} Q ${x + 74} ${y + 134} ${x + 90} ${y + 134} L ${x + 100} ${y + 134} L ${x + 92} ${y + 40}`, F(3)); }   // grip
   variant('megaphone', 'โทรโข่ง', (d, c) => {
     const S0 = st(d);
     art(c, p => { floor(p, 300);
@@ -334,11 +326,10 @@
       const B = sub(p); atT(B, p, 0);
       R(B, -120, 230, 240, 70, 14, F(3)); R(B, -170, 286, 340, 16, 6, F(2.6));                                                   // stand
       ring(B, cx, cy, Rr, Rr - 24, F(3.4)); B.circle(cx, cy, Rr - 24, { fill: C.fill, sw: 0, stroke: 'none' });
-      [80, 160].forEach(r => B.circle(cx, cy, r, S(1.4))); B.line(cx - Rr + 30, cy, cx + Rr - 30, cy, S(1.2)); B.line(cx, cy - Rr + 30, cx, cy + Rr - 30, S(1.2));
+      B.circle(cx, cy, 130, S(1.4)); B.line(cx - Rr + 30, cy, cx + Rr - 30, cy, S(1.2)); B.line(cx, cy - Rr + 30, cx, cy + Rr - 30, S(1.2));
       const sw = rad(-58), sw2 = rad(-20);                                                                                        // the sweep (after the thing)
       B.path(`M ${cx} ${cy} L ${f1(cx + Math.cos(sw) * (Rr - 30))} ${f1(cy + Math.sin(sw) * (Rr - 30))} A ${Rr - 30} ${Rr - 30} 0 0 1 ${f1(cx + Math.cos(sw2) * (Rr - 30))} ${f1(cy + Math.sin(sw2) * (Rr - 30))} Z`, { fill: GLASS, sw: 0, stroke: 'none' });
       B.line(cx, cy, f1(cx + Math.cos(sw2) * (Rr - 30)), f1(cy + Math.sin(sw2) * (Rr - 30)), W(2.4)); B.circle(cx, cy, 8, F(2.4));
-      [[-130, 70], [-60, 150], [120, 110]].forEach(([x, y]) => B.circle(x, y, 6, S(2)));                                           // other blips
       const k = 96, L = 30; [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sy]) => B.poly([[tx + sx * k, ty + sy * (k - L)], [tx + sx * k, ty + sy * k], [tx + sx * (k - L), ty + sy * k]], W(3.6)));   // lock-on brackets
       thingAt(p, c, S0, tx, ty, 150, null);
       if (S0.thing && S0.thing.label && picOf(S0.thing)) lab(sub(p), S0.thing, tx, ty + 162, { size: 34, maxW: 220 });
@@ -353,7 +344,7 @@
     for (let r = 0; r < 3; r++) for (let k = 0; k < 3; k++) R(q, x - 54 + k * 40, y - 24 + r * 40, 30, 28, 7, F(2.2));
     R(q, x - 50, y - 152, 100, 16, 6, F(2.6)); }
   function lbl(q, x, y, w, h, a, kind) { const g = rot(q, a, x, y); R(g, x - w / 2, y - h / 2, w, h, 10, F(3));
-    if (kind === 'x') { const k = h * .26; g.line(x - k, y - k, x + k, y + k, W(5.5)); g.line(x + k, y - k, x - k, y + k, W(5.5)); g.line(x - w / 2 + 26, y, x - h * .5, y, S(2)); g.line(x + h * .5, y, x + w / 2 - 26, y, S(2)); }
+    if (kind === 'x') { const k = h * .24; g.line(x - k, y - k, x + k, y + k, W(5.5)); g.line(x + k, y - k, x - k, y + k, W(5.5)); }
     else warnTri(g, x, y + 2, h * .66); }
   variant('labelmaker', 'เครื่องพิมพ์ฉลาก', (d, c) => {
     const S0 = st(d), bx = 130, by = -40;
@@ -362,10 +353,10 @@
       R(B, bx - 200, by - 230, 400, 470, 18, F(3.4)); B.line(bx - 200, by - 170, bx + 200, by - 170, S(1.6)); B.line(bx, by - 230, bx, by - 170, S(1.6));   // box + flaps
       R(B, -362, -118, 44, 92, 4, F(2.4)); B.path('M -362 -118 L -351 -106 L -340 -118 L -329 -106 L -318 -118', S(1.6)); printer(B, -340, 120);   // the printed strip (cut end) + printer
       thingAt(p, c, S0, bx, by + 20, 220, by + 185);
-      if (!S0.cross) { if (S0.sign && picOf({ icon: S0.sign })) pic({ icon: S0.sign }, bx + 150, by - 200, 100, c); else lbl(B, bx + 140, by - 200, 130, 84, 8, 'tri'); }
+      if (S0.cross) lbl(B, bx + 140, by - 200, 130, 84, 8, 'x');                                                           // the ✕ label at the box's top corner (user)
+      else if (S0.sign && picOf({ icon: S0.sign })) pic({ icon: S0.sign }, bx + 150, by - 200, 100, c); else lbl(B, bx + 140, by - 200, 130, 84, 8, 'tri');
     });
-    if (S0.cross) over(c, p => { const g = sub(p); atT(g, p, .1); lbl(g, bx, by + 62, 380, 72, -12, 'x'); });
-  });
+      });
 
   /* 15 ── DOOR HANGER: a door with a hanger on its knob, the thing beside it — flag → the hanger shows the warning;
      cross → it shows no-entry and the thing is struck through */
@@ -375,11 +366,9 @@
       thingAt(p, c, S0, -250, -20, 230, S0.cross ? 180 : 155);
       const B = sub(p); atT(B, p, 0);
       R(B, dx - 190, -330, 380, 630, 10, F(3.4)); R(B, dx - 165, -305, 330, 605, 6, F(3));                                    // frame + door
-      R(B, dx - 120, -260, 240, 190, 8, S(1.6)); R(B, dx - 120, -20, 240, 270, 8, S(1.6));                                    // panels
-      [-200, 160].forEach(y => R(B, dx - 172, y, 12, 50, 4, F(2.2)));                                                          // hinges
       const kx = dx + 120, ky = 0; R(B, kx - 18, ky - 60, 36, 120, 16, F(2.8)); B.circle(kx, ky, 22, F(3));                     // rose + knob
       const hg = rot(B, 7, kx, ky); hg.path(`M ${kx - 60} ${ky + 10} Q ${kx - 60} ${ky - 8} ${kx - 42} ${ky - 8} L ${kx + 42} ${ky - 8} Q ${kx + 60} ${ky - 8} ${kx + 60} ${ky + 10} L ${kx + 60} ${ky + 230} Q ${kx + 60} ${ky + 248} ${kx + 42} ${ky + 248} L ${kx - 42} ${ky + 248} Q ${kx - 60} ${ky + 248} ${kx - 60} ${ky + 230} Z`, F(3.2));
-      hg.circle(kx, ky + 26, 24, S(2)); hg.line(kx - 24, ky + 26, kx - 12, ky + 52, S(1.6)); hg.line(kx + 24, ky + 26, kx + 12, ky + 52, S(1.6));   // the hole + slit
+      hg.circle(kx, ky + 26, 24, S(2));                                                                                          // the hole
       if (S0.cross) noEntry(hg, kx, ky + 150, 46); else if (S0.sign && picOf({ icon: S0.sign })) pic({ icon: S0.sign }, kx - 10, ky + 160, 96, c, { r: 7 }); else warnTri(hg, kx, ky + 152, 78);
     });
     if (S0.cross) over(c, p => { const g = sub(p); atT(g, p, .1); noMark(g, -250, -20, 150); });
@@ -391,7 +380,7 @@
     art(c, p => {
       thingAt(p, c, S0, -230, -10, 240, S0.cross ? 195 : 155);
       const B = sub(p); atT(B, p, 0);
-      R(B, x - 120, y - 170, 240, 340, 24, F(3.2)); [y - 140, y + 140].forEach(yy => B.circle(x, yy, 8, W(2)));                // wall plate + 2 screws
+      R(B, x - 120, y - 170, 240, 340, 24, F(3.2));                                                                          // wall plate
       B.circle(x, y, 135, F(3.6)); B.circle(x, y, 100, S(1.6)); B.circle(x, y, 22, F(3)); B.circle(x, y, 7, W(2));              // gong (dome rim) + centre nut
       R(B, x - 40, y + 120, 80, 50, 10, F(3)); B.line(x, y + 120, x + 34, y + 100, W(4)); B.circle(x + 40, y + 96, 14, F(2.8));  // striker box, arm, hammer
       [[-160, -40, -190, -60], [-170, 10, -205, 10], [-160, 60, -190, 80], [160, -40, 190, -60], [170, 10, 205, 10], [160, 60, 190, 80]].forEach(([a, b, e, f]) => B.line(x + a, y + b, x + e, y + f, W(3)));
@@ -425,7 +414,7 @@
     art(c, p => { floor(p, 300); thingAt(p, c, S0, 0, -80, 230, null); });
     over(c, p => { const g = sub(p); atT(g, p, .1);
       if (S0.cross) noMark(g, 0, -80, 150);
-      const top = -280, bot = 296, l = -360, r = 360, st = 64;
+      const top = -280, bot = 296, l = -360, r = 360, st = 96;
       for (let k = l - (bot - top); k < r; k += st) { const a = Math.max(l, k), b = Math.min(r, k + (bot - top)); if (b > a) g.line(a, top + (a - k), b, top + (b - k), S(1.3)); }
       for (let k = r + (bot - top); k > l; k -= st) { const a = Math.min(r, k), b = Math.max(l, k - (bot - top)); if (a > b) g.line(a, top + (k - a), b, top + (k - b), S(1.3)); }
       R(g, l - 16, top - 10, r - l + 32, 18, 8, F(2.8));                                                                          // top rail
@@ -459,17 +448,152 @@
     art(c, p => { floor(p, 300);
       thingAt(p, c, S0, -230, -10, 240, S0.cross ? 195 : 155);
       const B = sub(p); atT(B, p, 0);
-      B.path(`M ${x - 60} 230 Q ${x - 60} 296 ${x - 150} 296`, S(3)); R(B, x - 78, 210, 36, 26, 6, F(2.4));                    // cable + gland
-      R(B, x - 140, top, 280, 340, 26, F(3.4));                                                                                  // box
+      R(B, x - 140, top, 280, 420 - top, 26, F(3.4));                                                                                  // box
       B.ellipse(x, top, 110, 30, F(3));                                                                                          // guard collar
       B.path(`M ${x - 62} ${top} L ${x - 62} ${top - 40 + pr} L ${x + 62} ${top - 40 + pr} L ${x + 62} ${top} Z`, F(3));       // stem
       B.ellipse(x, top - 40 + pr, 90, 26, F(3.2)); B.path(`M ${x - 90} ${top - 40 + pr} Q ${x - 88} ${top - 92 + pr} ${x} ${top - 96 + pr} Q ${x + 88} ${top - 92 + pr} ${x + 90} ${top - 40 + pr}`, F(3.4));   // mushroom cap
-      B.path(`M ${x - 60} ${top - 70 + pr} Q ${x} ${top - 84 + pr} ${x + 60} ${top - 70 + pr}`, S(1.6));
       if (S0.cross) { B.circle(x, top + 100, 40, { fill: GLASS, sw: 3.6 }); B.circle(x, top + 100, 56, S(2)); } else flagSign(B, c, S0, x, top + 112, 120);
       if (S0.cross) [[-150, -90, -175, -110], [150, -90, 175, -110]].forEach(([a, b, e, f]) => B.line(x + a, top + b, x + e, top + f, W(3)));
     });
     if (S0.cross) over(c, p => { const g = sub(p); atT(g, p, .1); noMark(g, -230, -10, 160); });
   });
+
+
+  /* ---------- redesign options (user 2026-11-13: "2, 3, 6, 10, 19 design ใหม่") — three ways each, same slots ---------- */
+  const ALT = {}; const alt = (n, id, th, build) => (ALT[n] = ALT[n] || []).push({ id, th, build });
+  const strike = (c, x, y, r) => over(c, p => { const g = sub(p); atT(g, p, .1); noMark(g, x, y, r); });
+  const post = (q, x, top) => { R(q, x - 60, 286, 120, 14, 5, F(2.6)); R(q, x - 14, top, 28, 290 - top, 6, F(3)); };
+
+  /* 02A ── RAILWAY SIGNAL: the signal arm on its post — cross → arm level (stop), lamp lit; flag → arm lowered (caution) */
+  alt(2, 'semaphore', 'สัญญาณแขนรถไฟ', (d, c) => { const S0 = st(d), x = 250, py = -190, a = S0.cross ? 0 : -40;
+    art(c, p => { floor(p, 300); thingAt(p, c, S0, -220, -20, 240, S0.cross ? 190 : 160);
+      const B = sub(p); atT(B, p, 0); post(B, x, -280); B.circle(x, -296, 16, F(2.6));
+      const A = rot(B, a, x, py); R(A, x - 250, py - 26, 260, 52, 8, F(3.2)); A.line(x - 200, py - 26, x - 200, py + 26, S(2));      // arm
+      B.circle(x, py, 16, F(2.8)); B.circle(x + 50, py + 70, 30, S0.cross ? { fill: GLASS, sw: 4.2 } : F(3)); B.line(x, py, x + 50, py + 40, W(3));   // lamp
+      if (!S0.cross) flagSign(B, c, S0, x, 120, 120); });
+    if (S0.cross) strike(c, -220, -20, 160); });
+  /* 02B ── ROLLING SHUTTER: the shutter comes half down over the window the thing is in — the plate on it warns (flag) or forbids (cross) */
+  alt(2, 'shutter', 'บานม้วนเลื่อนลง', (d, c) => { const S0 = st(d), down = -40;
+    art(c, p => { floor(p, 300);
+      const B = sub(p); atT(B, p, 0); R(B, -300, -300, 600, 600, 10, F(3.4)); R(B, -320, -320, 640, 70, 16, F(3.2));         // frame + roller box
+      thingAt(p, c, S0, 0, 115, 180, 278);
+      const Sh = sub(p); atT(Sh, p, 0); R(Sh, -280, -250, 560, down + 250, 4, F(3)); for (let y = -210; y < down; y += 40) Sh.line(-280, y, 280, y, S(1.4));
+      R(Sh, -280, down - 18, 560, 22, 6, F(3)); R(Sh, -30, down - 4, 60, 14, 5, F(2.4));                                    // bottom rail + handle
+      if (S0.cross) noEntry(Sh, 0, -140, 58); else flagSign(Sh, c, S0, 0, -138, 110); });
+    if (S0.cross) strike(c, 0, 115, 115); });
+  /* 02C ── WARNING FLAG: a flag on a pole planted in a weighted base waves beside the thing */
+  alt(2, 'flagpole', 'ธงเตือน', (d, c) => { const S0 = st(d), x = 200;
+    art(c, p => { floor(p, 300); thingAt(p, c, S0, -230, -20, 240, S0.cross ? 190 : 160);
+      const B = sub(p); atT(B, p, 0); B.path(`M ${x - 70} 296 L ${x - 40} 240 L ${x + 40} 240 L ${x + 70} 296 Z`, F(3)); R(B, x - 10, -300, 20, 545, 6, F(3)); B.circle(x, -306, 14, F(2.6));
+      B.path(`M ${x + 10} -280 C ${x + 110} -310, ${x + 180} -240, ${x + 280} -270 L ${x + 280} -80 C ${x + 180} -50, ${x + 110} -120, ${x + 10} -90 Z`, F(3.2));
+      if (S0.cross) xBadge(B, x + 145, -180, 46); else flagSign(B, c, S0, x + 145, -176, 100); });
+    if (S0.cross) strike(c, -230, -20, 160); });
+
+  /* 03A ── PINNED NOTE: the thing's card is pinned up, and a note is pinned on its corner — "!" (flag) or ✕ (cross, the thing struck through) */
+  const pin = (q, x, y) => { q.circle(x, y, 16, F(3)); q.line(x + 4, y + 14, x + 10, y + 30, W(2)); };
+  alt(3, 'note', 'กระดาษโน้ตปักหมุด', (d, c) => { const S0 = st(d);
+    art(c, p => { const B = sub(p); atT(B, p, 0); R(B, -250, -280, 400, 480, 12, F(3.2)); pin(B, -50, -258);
+      thingAt(p, c, S0, -50, -60, 240, 140);
+      const N = rot(sub(p), 8, 250, 120); atT(N, p, 0); N.path('M 130 0 L 370 0 L 370 190 L 320 240 L 130 240 Z', F(3.2)); N.path('M 320 240 L 330 200 L 370 190', S(1.6)); pin(N, 250, 22);
+      if (S0.cross) { N.line(215, 85, 285, 155, W(6)); N.line(285, 85, 215, 155, W(6)); } else flagSign(N, c, S0, 250, 125, 110); });
+    if (S0.cross) strike(c, -50, -60, 155); });
+  /* 03B ── HANGING SIGN: a board hangs from a nail by its string — it shows the warning beside the thing (flag), or the thing struck through (cross) */
+  alt(3, 'hangsign', 'ป้ายแขวนเชือก', (d, c) => { const S0 = st(d), x = S0.cross ? 0 : 230, w = S0.cross ? 420 : 300, h = S0.cross ? 360 : 280, top = -180;
+    art(c, p => { if (!S0.cross) thingAt(p, c, S0, -230, -10, 240, 160);
+      const B = sub(p); atT(B, p, 0); B.circle(x, -310, 12, F(2.6)); B.path(`M ${x - w * .36} ${top} L ${x} -310 L ${x + w * .36} ${top}`, S(2.4));
+      R(B, x - w / 2, top, w, h, 18, F(3.4)); [-1, 1].forEach(s => B.circle(x + s * w * .36, top + 22, 9, W(2.2)));
+      if (S0.cross) thingAt(p, c, S0, x, top + h / 2 - 20, 210, top + h - 30); else flagSign(B, c, S0, x, top + h / 2 + 10, 170); });
+    if (S0.cross) strike(c, 0, -20, 140); });
+  /* 03C ── STOP PADDLE: a stop paddle stands in its weighted base beside the thing — "!" (flag) or ✕ (cross) */
+  alt(3, 'paddle', 'ป้ายหยุดแบบถือ', (d, c) => { const S0 = st(d), x = 240, cy = -130;
+    art(c, p => { floor(p, 300); thingAt(p, c, S0, -220, -10, 240, S0.cross ? 195 : 160);
+      const B = sub(p); atT(B, p, 0); B.ellipse(x, 290, 90, 16, F(3)); R(B, x - 12, cy + 130, 24, 290 - cy - 130, 6, F(3)); R(B, x - 22, cy + 120, 44, 70, 10, F(2.8));   // base, handle, grip
+      B.circle(x, cy, 140, F(3.4));
+      if (S0.cross) { B.line(x - 50, cy - 50, x + 50, cy + 50, W(8)); B.line(x + 50, cy - 50, x - 50, cy + 50, W(8)); } else flagSign(B, c, S0, x, cy + 6, 150); });
+    if (S0.cross) strike(c, -220, -10, 160); });
+
+  /* 06A ── KITCHEN SCALE: the thing sits on the scale and the needle swings into the danger band (flag) / hits the stop (cross) */
+  alt(6, 'scale', 'ตาชั่งเข็มเกิน', (d, c) => { const S0 = st(d), gx = 0, gy = 140, Rr = 110, na = S0.cross ? 128 : 100;
+    const P = (a, r) => [f1(gx + Math.sin(rad(a)) * r), f1(gy - Math.cos(rad(a)) * r)];
+    art(c, p => { floor(p, 300);
+      const B = sub(p); atT(B, p, 0); R(B, -220, -20, 440, 316, 40, F(3.4)); R(B, -250, -50, 500, 26, 10, F(3)); R(B, -40, -30, 80, 14, 4, F(2.4));   // body, tray, stem
+      B.circle(gx, gy, Rr, F(3.2)); const za = 60;
+      B.path(`M ${P(za, Rr - 14).join(' ')} A ${Rr - 14} ${Rr - 14} 0 0 1 ${P(135, Rr - 14).join(' ')} L ${P(135, Rr - 34).join(' ')} A ${Rr - 34} ${Rr - 34} 0 0 0 ${P(za, Rr - 34).join(' ')} Z`, F(2.4));
+      [-135, -67, 0].forEach(a => B.line(...P(a, Rr - 14), ...P(a, Rr - 30), W(2.4)));
+      const N = rot(B, na, gx, gy); N.shape(P2([[gx - 7, gy + 14], [gx, gy - Rr + 28], [gx + 7, gy + 14]]), F(2.4)); B.circle(gx, gy, 13, F(2.6));
+      thingAt(p, c, S0, 0, -170, 220, null);
+      if (!S0.cross) flagSign(B, c, S0, 300, -180, 120); });
+    if (S0.cross) strike(c, 0, -170, 140);
+    if (S0.thing && S0.thing.label && picOf(S0.thing)) art(c, p => { lab(sub(p), S0.thing, -155, -150, { maxW: 280, anchor: 'end' }); }); });
+  /* 06B ── LOCKED BOX: the thing is on a box with a hasp — the padlock snaps shut and the thing is struck through (cross), or a tag with "!" hangs from the lock (flag) */
+  alt(6, 'lockbox', 'กล่องคล้องกุญแจ', (d, c) => { const S0 = st(d);
+    art(c, p => { floor(p, 300); const B = sub(p); atT(B, p, 0);
+      R(B, -280, -200, 560, 490, 18, F(3.4)); B.line(-280, -110, 280, -110, S(2));                                         // box + lid line
+      R(B, -30, -150, 60, 110, 10, F(2.8)); padlock(B, 0, -40, .9);                                                        // hasp + padlock
+      if (!S0.cross) { B.line(40, 40, 120, 120, S(2)); flagSign(B, c, S0, 170, 150, 100); }
+      thingAt(p, c, S0, S0.cross ? 0 : -130, 120, 200, S0.cross ? null : 260); });
+    if (S0.cross) { strike(c, 0, 120, 130); if (S0.thing && S0.thing.label && picOf(S0.thing)) art(c, p => lab(sub(p), S0.thing, 0, -150, { maxW: 300 })); } });
+  /* 06C ── THERMOMETER: the column rises past the danger mark beside the thing */
+  alt(6, 'thermo', 'เทอร์โมมิเตอร์', (d, c) => { const S0 = st(d), x = 250, top = -300, bulb = 220, lv = S0.cross ? -260 : -200;
+    art(c, p => { floor(p, 300); thingAt(p, c, S0, -210, -20, 240, S0.cross ? 190 : 160);
+      const B = sub(p); atT(B, p, 0);
+      B.path(`M ${x - 34} ${bulb - 50} L ${x - 34} ${top + 34} A 34 34 0 0 1 ${x + 34} ${top + 34} L ${x + 34} ${bulb - 50} A 70 70 0 1 1 ${x - 34} ${bulb - 50} Z`, F(3.4));
+      R(B, x - 12, lv, 24, bulb - lv, 12, { fill: C.ink, sw: 1.6 }); B.circle(x, bulb, 48, { fill: C.ink, sw: 1.6 });          // the column
+      [-150, -60, 30, 120].forEach(y => B.line(x + 44, y, x + 70, y, W(2.4))); R(B, x + 44, -240, 60, 10, 4, F(2.2));         // marks + the danger mark
+      if (!S0.cross) flagSign(B, c, S0, x + 120, -280, 80); });
+    if (S0.cross) strike(c, -210, -20, 160); });
+
+  /* 10A ── SMOKE ALARM: the alarm on the ceiling above the thing blinks and beeps */
+  alt(10, 'alarm', 'เครื่องตรวจควันเพดาน', (d, c) => { const S0 = st(d), ay = -270;
+    art(c, p => { const B = sub(p); atT(B, p, 0); B.line(-470, -330, 470, -330, S(2));
+      B.path(`M -150 -330 L -150 ${ay - 10} Q -150 ${ay + 30} -110 ${ay + 30} L 110 ${ay + 30} Q 150 ${ay + 30} 150 ${ay - 10} L 150 -330`, F(3.4));
+      B.line(-120, ay + 2, 120, ay + 2, S(1.6)); B.circle(90, ay - 20, 9, { fill: C.ink, sw: 1.6 });
+      [70, 110].forEach(r => { B.path(`M ${-r * .9} ${ay + 30 + r * .45} Q 0 ${ay + 30 + r} ${r * .9} ${ay + 30 + r * .45}`, S(2.4)); });
+      thingAt(p, c, S0, S0.cross ? 0 : -150, 70, 220, S0.cross ? 280 : 235);
+      if (!S0.cross) flagSign(B, c, S0, 200, 70, 150); });
+    if (S0.cross) strike(c, 0, 70, 140); });
+  /* 10B ── LIFT OUT OF ORDER: the lift's indicator shows "!" (flag) / ✕ (cross) beside the thing */
+  alt(10, 'lift', 'ลิฟต์งดใช้', (d, c) => { const S0 = st(d), x = 220;
+    art(c, p => { floor(p, 300); thingAt(p, c, S0, -250, -10, 230, S0.cross ? 185 : 155);
+      const B = sub(p); atT(B, p, 0); R(B, x - 180, -200, 360, 500, 8, F(3.4)); R(B, x - 160, -180, 158, 480, 4, F(2.8)); R(B, x + 2, -180, 158, 480, 4, F(2.8));
+      R(B, x - 90, -320, 180, 90, 14, F(3.2));
+      if (S0.cross) { B.line(x - 22, -297, x + 22, -253, W(6)); B.line(x + 22, -297, x - 22, -253, W(6)); } else flagSign(B, c, S0, x, -273, 62);
+      R(B, x + 196, -40, 40, 80, 10, F(2.6)); B.circle(x + 216, 0, 11, W(2.2));
+    });
+    if (S0.cross) strike(c, -250, -10, 150); });
+  /* 10C ── WALKIE-TALKIE: a radio on its stand crackles out the warning beside the thing */
+  alt(10, 'radio', 'วิทยุสื่อสาร', (d, c) => { const S0 = st(d), x = 250;
+    art(c, p => { floor(p, 300); thingAt(p, c, S0, -230, -10, 240, S0.cross ? 190 : 160);
+      const B = sub(p); atT(B, p, 0); R(B, x + 40, -310, 22, 120, 8, F(2.8)); R(B, x - 100, -200, 200, 420, 34, F(3.4));       // antenna + body
+      [-150, -120, -90].forEach(y => B.line(x - 60, y, x + 60, y, S(2))); R(B, x - 70, -50, 140, 80, 10, F(2.8)); R(B, x - 40, 240 - 20, 80, 70, 10, F(2.6));
+      B.circle(x + 70, -270, 8, { fill: C.ink, sw: 1.6 }); [36, 62].forEach(r => B.path(`M ${x + 90 + r * .5} ${-300 - r * .6} A ${r} ${r} 0 0 1 ${x + 90 + r * .5} ${-240 + r * .1}`, S(2.4)));
+      if (S0.cross) { B.line(x - 18, -28, x + 18, 8, W(5)); B.line(x + 18, -28, x - 18, 8, W(5)); } else flagSign(B, c, S0, x, -6, 60); });
+    if (S0.cross) strike(c, -230, -10, 160); });
+
+  /* 19A ── WARNING TRIANGLE: the reflective triangle is set up on the floor beside the thing */
+  alt(19, 'hazard', 'สามเหลี่ยมฉุกเฉิน', (d, c) => { const S0 = st(d), x = 240, h = 330, b = 270;
+    art(c, p => { floor(p, 300); thingAt(p, c, S0, -230, -10, 240, S0.cross ? 190 : 160);
+      const B = sub(p); atT(B, p, 0); B.line(x - 120, b, x - 170, 296, W(3.4)); B.line(x + 120, b, x + 170, 296, W(3.4));     // legs
+      B.path(rpoly([[x, b - h], [x + h * .6, b], [x - h * .6, b]], 24), F(3.4)); B.path(rpoly([[x, b - h + 80], [x + h * .6 - 70, b - 34], [x - h * .6 + 70, b - 34]], 14), S(2.4));
+      if (S0.cross) { B.line(x - 30, b - 110, x + 30, b - 50, W(6)); B.line(x + 30, b - 110, x - 30, b - 50, W(6)); } else { R(B, x - 8, b - 160, 16, 70, 6, INK); B.circle(x, b - 66, 10, INK); }
+      if (!S0.cross && S0.sign && picOf({ icon: S0.sign })) pic({ icon: S0.sign }, x, -260, 90, c); });
+    if (S0.cross) strike(c, -230, -10, 160); });
+  /* 19B ── CRACKED GLASS: a pane in front of the thing cracks from one point — a warning sticker (flag) / the thing struck through (cross) */
+  alt(19, 'glass', 'กระจกร้าว', (d, c) => { const S0 = st(d), ix = 90, iy = -60;
+    art(c, p => { thingAt(p, c, S0, 0, -30, 240, 175); });
+    over(c, p => { const g = sub(p); atT(g, p, .1); R(g, -320, -310, 640, 600, 14, { fill: 'none', sw: 3.4 });
+      [[-1, -120], [130, -230], [210, 40], [40, 150], [-170, 60], [-230, -150]].forEach(([dx, dy], i) => { const ex = ix + (i ? dx : 230), ey = iy + (i ? dy : -200);
+        g.poly([[ix, iy], [f1(ix + (ex - ix) * .45 + (i % 2 ? 14 : -14)), f1(iy + (ey - iy) * .45)], [f1(ex), f1(ey)]], S(2)); });
+      g.circle(ix, iy, 26, S(2));
+      if (S0.cross) noMark(g, 0, -30, 160); else flagSign(g, c, S0, 230, 200, 110); }); });
+  /* 19C ── PARCEL: the thing is on the parcel — a warning sticker goes on (flag), or tape is crossed over it (cross) */
+  alt(19, 'parcel', 'กล่องพัสดุ', (d, c) => { const S0 = st(d);
+    art(c, p => { floor(p, 300); const B = sub(p); atT(B, p, 0);
+      B.path('M -300 -170 L -260 -250 L 260 -250 L 300 -170 Z', F(3)); R(B, -300, -170, 600, 466, 10, F(3.4)); B.line(0, -250, 0, -170, S(2));   // lid flaps + box
+      thingAt(p, c, S0, -40, 50, 220, 225);
+      if (!S0.cross) { const k = rot(B, 8, 200, -60); R(k, 120, -140, 160, 160, 16, F(3)); flagSign(k, c, S0, 200, -55, 100); } });
+    if (S0.cross) over(c, p => { const g = sub(p); atT(g, p, .1);
+      [[-1], [1]].forEach(([s]) => { const t = rot(g, s * 34, -40, 50); R(t, -340, 22, 600, 56, 6, { fill: GLASS, sw: 2.6 }); }); }); });
 
   /* samples from unrelated topics (neutrality) + a stress set */
   const I = (icon, label) => label ? { icon, label } : { icon };
@@ -519,5 +643,6 @@
   ];
 
   G.cats = G.cats || {};
-  G.cats.B07 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
+  G.cats.B07 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)),
+    ALT, drawAlt: (n, k, d, c) => { setZ(c); CUR = ALT[n][k].id; ALT[n][k].build(d, c); } };
 })();
