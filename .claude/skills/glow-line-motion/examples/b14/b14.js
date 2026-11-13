@@ -382,31 +382,34 @@
       heroH(p, c, X, cx - 150, cy, 116, cx - 76, cy, { cx: cx - 15, cy, size: 46, maxW: 270, bigSize: 52, bigW: 420 });
     }); });
 
-  /* ---------- redesign 15 (user: "15 redesign") — three options; the chosen one moves into V, the rest are deleted ---------- */
+  /* ---------- redesign 15 (user: "15 redesign" → round 1 with quotation marks → "ไม่เอาสัญลักษณ์ “ ”") — round 2: the unused idea
+     "คำคมบนการ์ด", three ways; the chosen one moves into V, the rest are deleted ---------- */
   const ALT = [];
-  /* A ── THE MOBILE: a balance rod hangs from a hook; the two quotation marks hang at its ends, the idea's card in the middle */
-  ALT.push({ id: 'mobile', th: 'โมบายอัญประกาศ', build: (d, c) => { const X = st(d), r = 34, yr = -258;
-    art(c, p => { p.circle(0, -340, 8, F(2.4)); p.line(0, -332, 0, yr - 10, W(2.2)); R(p, -340, yr - 8, 680, 16, 8, F(2.6)); p.circle(0, yr, 7, F(2));
-      const L = [-300, yr], Rr = [300, yr], ql = [-300 - 1.1 * r, -60], qr = [300, -170];
-      p.line(L[0], yr + 8, ql[0] + 1.1 * r, ql[1] - 3.1 * r, W(2)); qmark(p, ql[0] + 14, ql[1] - 10, r, 1, S(1.6)); qmark(p, ...ql, r, 1); qmark(p, ql[0] + 70, ql[1], r, 1);
-      p.line(Rr[0], yr + 8, qr[0], qr[1] - r, W(2)); qmark(p, qr[0] + 14, qr[1] - 10, r, -1, S(1.6)); qmark(p, ...qr, r, -1); qmark(p, qr[0] + 70, qr[1], r, -1);
-      p.line(0, yr + 8, 0, -128, W(2)); p.circle(0, -118, 10, F(2)); R(p, -190, -108, 380, 300, 22, F(3.4)); R(p, -170, -88, 340, 260, 14, S(1.4));
-      hero(p, c, X, 0, -12, 140, 124, { maxW: 320, size: 42, bigSize: 56, bigW: 320, bigDy: 74 });
+  /* A ── THE CARD BOX: a box of cards with its lid flipped back; one card has been drawn up out of it, the idea on that card */
+  ALT.push({ id: 'cardbox', th: 'กล่องการ์ดดึงขึ้น', build: (d, c) => { const X = st(d);
+    art(c, p => { p.line(-480, 290, 480, 290, S(2));
+      shape(p, [[-190, 30], [190, 30], [230, -20], [-150, -20]], F(3)); shape(p, [[-150, -20], [230, -20], [230, -150], [-150, -150]], F(3)); R(p, -130, -132, 340, 96, 6, S(1.2));
+      [-12, -2, 8].forEach((dy, k) => R(p, -168 + k * 6, 30 + dy - 22, 330, 30, 4, F(2)));
+      const g = rot(p, 4, 0, 60); R(g, -150, -320, 300, 380, 14, F(3.4)); R(g, -132, -302, 264, 344, 8, S(1.4));
+      hero(g, c, X, 0, -200, 126, -78, { maxW: 240, size: 38, bigSize: 48, bigW: 250, bigDy: 70 });
+      R(p, -190, 30, 380, 260, 10, F(3.4)); shape(p, [[190, 30], [230, -20], [230, 240], [190, 290]], F(3)); R(p, -90, 120, 180, 70, 10, F(2.4)); p.line(-50, 155, 50, 155, S(1.6));
     }); } });
-  /* B ── THE BOOKENDS: a shelf on two brackets; two big quotation-mark bookends (with depth) hold a standing card with the idea */
-  ALT.push({ id: 'bookends', th: 'ที่กั้นหนังสืออัญประกาศ', build: (d, c) => { const X = st(d), r = 46, sy = 200;
-    art(c, p => { R(p, -440, sy, 880, 26, 6, F(3)); [-320, 320].forEach(x => { shape(p, [[x - 12, sy + 26], [x + 12, sy + 26], [x + 12, sy + 110], [x - 60 * Math.sign(x), sy + 26]], F(2.4)); screw(p, x, sy + 60, 4); });
-      [-352, -262].forEach(lx => { qmark(p, lx + 14, sy - r - 12, r, 1, S(1.8)); qmark(p, lx, sy - r, r, 1); });
-      [262, 352].forEach(rx => { qmark(p, rx + 14, sy - 3.1 * r - 12, r, -1, S(1.8)); qmark(p, rx, sy - 3.1 * r, r, -1); });
-      const g = rot(p, -3, 0, sy); R(g, -180, -170, 360, sy + 170, 12, F(3.4)); R(g, -160, -150, 320, sy + 130, 8, S(1.4));
-      hero(g, c, X, 0, -50, 140, 92, { maxW: 300, size: 42, bigSize: 54, bigW: 300, bigDy: 85 });
+  /* B ── THE TICKET DISPENSER: a dispenser on the wall; a long ticket has run out of its slot, torn line and all — the idea on the ticket */
+  ALT.push({ id: 'dispenser', th: 'เครื่องกดบัตรคิว', build: (d, c) => { const X = st(d);
+    art(c, p => { R(p, -230, -320, 460, 280, 30, F(3.6)); R(p, -200, -290, 400, 120, 12, S(1.6)); p.circle(150, -230, 22, F(2.6)); p.circle(150, -230, 12, S(1.4)); [-150, -110, -70].forEach(x => p.line(x, -245, x + 30, -245, S(1.6)));
+      R(p, -170, -88, 340, 26, 10, { fill: C.fill, sw: 2.4 }); [-212, 212].forEach(x => [-302, -58].forEach(y => screw(p, x, y, 4)));
+      const g = rot(p, -3, 0, -75); R(g, -150, -80, 300, 370, 6, F(3.4));
+      for (let x = -140; x <= 140; x += 14) g.circle(x, -20, 2.4, SOLID(1));
+      g.line(-120, -52, 60, -52, S(1.6));
+      hero(g, c, X, 0, 90, 126, 210, { maxW: 260, size: 40, bigSize: 50, bigW: 260, bigDy: 50 });
     }); } });
-  /* C ── THE HOOKS: two closing quotation marks bolted to the wall work as hooks; chains hang from their tails and carry a plank sign */
-  ALT.push({ id: 'hooks', th: 'ตะขออัญประกาศแขวนป้าย', build: (d, c) => { const X = st(d), r = 40, hy = -236;
-    art(c, p => { [-250, 250].forEach(x => { [x - 70, x].forEach(x2 => { qmark(p, x2 + 12, hy - 10, r, -1, S(1.6)); qmark(p, x2, hy, r, -1); screw(p, x2, hy, 6); });
-        const tip = [x - 1.1 * r, hy + 3.1 * r], end = [x < 0 ? -230 : 230, -10]; for (let k = 0; k <= 5; k++) { const u = k / 5, cx = lerp(tip[0], end[0], u), cy = lerp(tip[1], end[1], u); ell(p, cx, cy, k % 2 ? 5 : 8, k % 2 ? 9 : 6, F(2)); } });
-      R(p, -320, -10, 640, 250, 14, F(3.4)); R(p, -296, 14, 592, 202, 8, S(1.4)); [-230, 230].forEach(x => { p.circle(x, 4, 7, F(2)); });
-      hero(p, c, X, 0, 78, 120, 190, { maxW: 480, size: 42, bigSize: 58, bigW: 520, bigDy: 57 });
+  /* C ── THE ACRYLIC STAND: a clear L-shaped stand on the desk holds the card upright; you see the stand's edges and its base, the card inside */
+  ALT.push({ id: 'acrylic', th: 'ป้ายอะคริลิกตั้งโต๊ะ', build: (d, c) => { const X = st(d);
+    art(c, p => { p.line(-480, 270, 480, 270, S(2)); p.line(-440, 300, 440, 300, S(1.2));
+      shape(p, [[-260, 270], [260, 270], [300, 226], [-220, 226]], { fill: 'rgba(255,255,255,.07)', sw: 2.4 });
+      R(p, -232, -300, 464, 526, 10, { fill: 'rgba(255,255,255,.07)', sw: 2.6 }); p.line(-232 + 16, -300, -232 + 16, 226, S(1.2)); p.line(232 - 16, -300, 232 - 16, 226, S(1.2));
+      R(p, -202, -270, 404, 466, 6, F(3.2)); R(p, -184, -252, 368, 430, 4, S(1.4));
+      hero(p, c, X, 0, -110, 150, 50, { maxW: 340, size: 44, bigSize: 56, bigW: 340, bigDy: 70 });
     }); } });
 
   /* ---------- sample data (A: key lines from unrelated topics · B: stress) ---------- */
