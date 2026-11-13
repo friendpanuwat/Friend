@@ -46,7 +46,8 @@
     else if (gone(d, i)) { const [sx, sy] = o.start || [x, y], dx = sx - fin[0], dy = sy - fin[1]; t0 = T.t0;
       keys.x = [[0, dx], [.12, dx * 1.08, 'out'], [T.dur, 0, 'in']];
       keys.y = o.arc ? [[0, dy], [.12, dy + 8, 'out'], [T.dur * .5, Math.min(dy, 0) - o.arc, 'out'], [T.dur, 0, 'in']] : [[0, dy], [.12, dy + (dy < 0 ? 10 : -10), 'out'], [T.dur, 0, 'in']];
-      keys.o = [[0, 1], [.14, 1], [T.dur, .2]];
+      keys.o = o.vanish ? [[0, 1], [.14, 1], [T.dur * .55, 1], [T.dur, 0, 'in']] : [[0, 1], [.14, 1], [T.dur, .2]];   // vanish: gone completely, no ghost
+      if (o.spin) keys.r = [[0, 0], [.12, -o.spin * .3, 'out'], [T.dur, o.spin, 'in']];
       return { fin, T, keys, t0 }; }
     else if (R) { keys.y = [[0, R.dy]]; t0 = 0; }
     else return { fin, T, keys: null, t0: 0 };
@@ -60,7 +61,7 @@
     if (!fn) { console.warn('B02: no icon', d.item.icon); return null; }
     const tv = travel(d, i, x, y, c, o), at0 = c.at || 0, [fx, fy] = tv.fin, up = d.dir === 'up';
     const a = G.art(fn, { x: c.x + fx * c.s, y: c.y + fy * c.s, w: w * c.s, at: at0 + (up ? Math.max(0, tv.t0 - .05) : .06 + i * .05) });
-    if (tv.keys) G.kf(a.wrap, at0 + tv.t0, scaleKeys(tv.keys, c.s));
+    if (tv.keys) G.kf(a.wrap, at0 + tv.t0, Object.assign(scaleKeys(tv.keys, c.s), tv.keys.r ? { r: tv.keys.r, ox: c.x + fx * c.s, oy: c.y + fy * c.s } : {}));
     const bx = c.x + fx * c.s, by = c.y + (fy + w * .42) * c.s;               // landing squash / kept copies react on the keyword
     if (up) G.kf(a.g, at0 + tv.T.end, { ox: bx, oy: by, sy: [[0, 1], [.06, .86, 'out'], [.18, 1.05], [.32, 1, 'soft']], sx: [[0, 1], [.06, 1.08, 'out'], [.18, .97], [.32, 1, 'soft']] });
     else if (!gone(d, i)) G.kf(a.g, at0 + hitOf(c) + .04, { ox: bx, oy: by, sy: [[0, 1], [.08, .92, 'out'], [.3, 1, 'soft']] });
@@ -347,7 +348,7 @@
       labels(p, d, 0, 330, -380, 330);
       endSym(p, d, 380, 220, c);
     });
-    xs.forEach((x, i) => { const r = item(d, i, x, ry(x) + 105, 140, c, { from: [x, ry(x) + 330], to: [x, ry(x) + 210] });
+    xs.forEach((x, i) => { const r = item(d, i, x, ry(x) + 105, 140, c, { from: [x, ry(x) + 330], to: [x + 30, ry(x) + 430], vanish: true, spin: i % 2 ? -14 : 14 });
       if (r && d.dir === 'up') G.kf(r.a.g, (c.at || 0) + r.tv.T.end + .3, { ox: c.x + x * c.s, oy: c.y + (ry(x) + 4) * c.s, r: [[0, 0], [.1, 9, 'out'], [.3, -6], [.5, 3], [.7, 0, 'soft']] }); });
     center(d, -380, 235, 110, c);
   });
