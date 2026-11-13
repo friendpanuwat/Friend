@@ -49,6 +49,7 @@
     const K = {}, k = o.keys || {};
     if (k.x) K.x = k.x.map(([u, v, e]) => [u, v * c.s, e]); if (k.y) K.y = k.y.map(([u, v, e]) => [u, v * c.s, e]);
     if (k.s) { K.s = k.s; K.ox = X; K.oy = Y; }
+    if (k.r) { K.r = k.r; K.ox = c.x + o.pivot[0] * c.s; K.oy = c.y + o.pivot[1] * c.s; }   // turn with the thing it hangs on
     if ((o.dimTo ?? 1) < 1) K.o = dimK(o.dimAt ?? H, o.dimTo);
     if (Object.keys(K).length) G.kf(a.wrap, at, K);
     if (o.punch) G.kf(a.g, at + H, { ox: X, oy: Y, s: [[0, 1], [.07, 1.1, 'out'], [.32, 1, 'soft']] });
@@ -182,7 +183,6 @@
       const fr = sub(p); on(fr, p, tf, { x: [[0, 520], [.45, 0, 'out'], [.55, -8], [.7, 0, 'soft']], o: [[0, 0], [.1, 1]] });
       fr.rect(-110, -170, 400, 450, Object.assign({ rx: 32 }, F(3.6)));
       if (d[front].label) txt(fr, d[front].label, 90, 230, { maxW: 340 });
-      if (T.change) { const ar = sub(p); ar.path('M -340 -330 Q -40 -395 135 -220', W(4)); ar.poly([[112, -244], [137, -218], [104, -208]], W(4)); on(ar, p, tf, { o: [[0, 0], [.2, 1]] }); }
       marks(p, d, { [front]: [270, -150], [back]: [-290, -240] });
     });
     icon(d[back].icon, -210, -110, 120, c, .12, { keys: { x: [[0, 190], [tf, 190], [tf + .45, 0, 'out']], y: [[0, 90], [tf, 90], [tf + .45, 0, 'out']] }, dimTo: T.win ? .3 : 1 });
@@ -234,19 +234,19 @@
   /* 10 ── LENS: the magnifier glides in and hovers between them — on the keyword it settles over the winner, which grows */
   variant('lens', 'แว่นขยาย', (d, c) => {
     const T = st(d), H = hitOf(c), X = { a: -240, b: 240 }, lx = T.win ? X[T.win] : 0, ly = T.win ? -10 : -120;
-    art(c, p => {
+    ['a', 'b'].forEach(s => thing(d, s, X[s], -10, s === T.win ? 200 : 150, c, s === T.win ? 270 : 220, s === T.win ? { keys: { s: [[0, .75], [H - .2, .75], [H, 1, 'back']] } } : {}));
+    art(c, p => {                                   // the lens is drawn last: it sits above the things (user: top layer); clear glass — only its rim
       const L = sub(p);
       if (T.win) { on(L, p, .2, { ox: lx, oy: ly, x: [[0, 380 - lx], [.45, -lx, 'out'], [.75, -lx + 30, 'soft'], [H - .55, -lx - 20, 'soft'], [H - .2, 0, 'out'], [H - .05, Math.sign(lx) * -8], [H + .1, 0, 'soft']].map(([t, v, e]) => [Math.max(0, t), v, e]),
           y: [[0, -320], [.45, -110, 'out'], [H - .55, -110], [H - .2, 0, 'out']], o: [[0, 0], [.1, 1]] });
         L.line(lx + 125, ly + 125, lx + 240, ly + 240, { sw: 46 }); L.line(lx + 125, ly + 125, lx + 240, ly + 240, { sw: 37, stroke: C.fill });
-        L.circle(lx, ly, 170, F(4)); L.circle(lx, ly, 150, { sw: 1.6, stroke: C.soft }); }
+        L.circle(lx, ly, 170, W(4)); L.circle(lx, ly, 150, { sw: 1.6, stroke: C.soft }); }
       else { on(L, p, .2, { y: [[0, -300], [.45, 0, 'out'], [.75, -14, 'soft'], [1.05, 0, 'soft']], o: [[0, 0], [.1, 1]] });
         L.line(0, -30, 0, 150, { sw: 46 }); L.line(0, -30, 0, 150, { sw: 37, stroke: C.fill });
-        L.circle(0, -160, 130, F(4)); L.circle(0, -160, 112, { sw: 1.6, stroke: C.soft }); }
+        L.circle(0, -160, 130, W(4)); L.circle(0, -160, 112, { sw: 1.6, stroke: C.soft }); }
       if (T.change) arrow(p, -90, 230, 90, 230, 4);
       marks(p, d, { a: [X.a + 140, -170], b: [X.b + 140, -170] });
     });
-    ['a', 'b'].forEach(s => thing(d, s, X[s], -10, s === T.win ? 200 : 150, c, s === T.win ? 270 : 220, s === T.win ? { keys: { s: [[0, .75], [H - .2, .75], [H, 1, 'back']] } } : {}));
   });
 
   /* 11 ── SPOTLIGHTS: both lamps flicker on — on the keyword the loser's lamp flickers out (change: a's goes out as b's comes on) */
@@ -406,7 +406,9 @@
       if (T.change) arrow(p, -40, 0, 40, 0, 4);
       marks(p, d, { a: [X.a + 160, -170], b: [X.b + 160, -170] });
     });
-    ['a', 'b'].forEach(s => icon(d[s].icon, X[s], 0, 170, c, tIn(d, s, H) + .2, { dimTo: T.dim(s), punch: s === T.win }));
+    ['a', 'b'].forEach(s => { const t = tIn(d, s, H), ang = s === 'a' ? -9 : 9, r = [[0, -22], [t, -22], [t + .35, 7, 'out'], [t + .55, -3], [t + .75, 0, 'soft']];
+      if (s === T.lose) r.push([H, 0], [H + .18, ang * 1.25, 'in'], [H + .32, ang * .85], [H + .46, ang, 'soft']);
+      icon(d[s].icon, X[s], 0, 170, c, t + .2, { dimTo: T.dim(s), punch: s === T.win, keys: { r }, pivot: [X[s], -250] }); });
   });
 
   /* 20 ── SPLIT CIRCLE: the circle is shared half and half — on the keyword the seam slides to the amounts, the loser's part darkens */
