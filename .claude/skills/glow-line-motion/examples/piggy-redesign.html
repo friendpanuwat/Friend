@@ -1,0 +1,12 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>piggy-bank redesign</title>
+<script src="../assets/glowline.js"></script></head>
+<body><script>
+/* piggy-bank-pro redrawn (ref-detail, 3/4 view): single icon, a few loops, then its exit */
+GL.run(() => {
+  GL.stage({ w: 1080, h: 1080 });
+  GL.art(GL.icons['piggy-bank-pro'], { x: 540, y: 500, w: 760, at: .3 });
+  GL.text('PIGGY-BANK', { y: 1000, size: 40, weight: 600, ls: 6, color: GL.C.sub, glow: false, at: .7, rise: 8 });
+  GL.finish({ hold: 7.2, out: true });
+});
+</script></body></html>

@@ -29,7 +29,7 @@
 
   const items = [];            // stroke draws + pulses
   const tweens = new Map();    // element -> [{start, dur, from, to, ...}]
-  let svg, root, cur, W = 1080, H = 1920, lastEnd = 0, uid = 0;
+  let svg, root, cur, W = 1080, H = 1920, lastEnd = 0, uid = 0, CAP = null;
   let seed = 7;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   const rr = (a, b) => a + (b - a) * rnd();
@@ -61,6 +61,81 @@
   let MODE = 'motion';                                   // 'motion': icons pop in complete, then move · 'draw': strokes draw themselves
   const pts = a => typeof a === 'string' ? a : a.map(q => q.join(',')).join(' ');
 
+  /* ---------------- motion controls (ตัวปรับท่าขยับกลาง) ----------------
+     Work on EVERY icon (rigs included) without touching its code — art() rescales what the drawing created:
+       speed  1 = as designed · 0.5 = half as fast · 2 = twice as fast — entrance, idle loop and exit together
+       amp    1 = as designed · 0 = no swing · 1.5 = stronger — only the idle loop's back-and-forth moves
+       loop   false (or still: true) = come in, then hold still (the exit still plays) · pose = seconds into the loop to hold
+     Set them per icon (GL.art options / GL.tune) or for everything placed after (GL.stage / GL.motion). */
+  const MOVE0 = { speed: 1, amp: 1, loop: true };
+  let MOVE = Object.assign({}, MOVE0);
+  function normMove({ speed, amp, loop, still, pose } = {}) {
+    const o = {};
+    if (speed != null) o.speed = Math.min(20, Math.max(.05, +speed || 1));
+    if (amp != null) o.amp = Math.max(0, +amp);
+    if (loop != null) o.loop = loop !== false;
+    if (still != null) o.loop = !still;
+    if (pose != null) o.pose = +pose;
+    return o;
+  }
+  /* GL.motion({ speed, amp, loop }) — defaults for every icon placed after this call; returns the previous defaults */
+  function motion(o) { const prev = Object.assign({}, MOVE); if (o) Object.assign(MOVE, normMove(o)); return prev; }
+  /* GL.tune(icon, { speed, amp, loop, pose }) — the same icon with its own settings; use it anywhere an icon goes
+     (GL.art, GL.spot({ icon: GL.tune('bus-pro', { speed: .5 }) }), steps / flow items, beats …) */
+  function tune(icon, o = {}) {
+    const fn = single(icon), t = p => fn(p);
+    Object.assign(t, fn);
+    t.tune = Object.assign({}, fn.tune, normMove(o));
+    return t;
+  }
+  const SWING = ['r', 'x', 'y', 'ky', 's', 'sx', 'sy'];
+  /* rescale everything one drawing created (items from index i0, tweens in caps). Times scale around `at`. */
+  function applyMove(i0, caps, p, { at, speed, amp, still, pose }) {
+    const f = 1 / speed, tm = t => at + (t - at) * f;
+    /* still: every loop is held at the moment `pose` s after the drawing's first loop starts (pose 0 = the loops' rest pose,
+       later-starting loops keep their offset) */
+    let first = Infinity;
+    for (let i = i0; i < items.length; i++) if (items[i].type === 'kf' && items[i].loop > 0) first = Math.min(first, items[i].start);
+    const freezeAt = (first < Infinity ? first : at) + pose;
+    if (still) p.motion.freezeAt = freezeAt;
+    for (let i = i0; i < items.length; i++) {
+      const it = items[i];
+      if (it.type === 'kf' && it.loop > 0 && still) {                   // hold the loop at one moment
+        const u = Math.max(0, freezeAt - it.start) % it.loop, T = {};
+        for (const k in it.tracks) T[k] = [[0, kv(it.tracks[k], u)]];
+        it.tracks = T; it.loop = 0;
+      } else if (it.type === 'kf' && it.loop > 0 && amp !== 1) {        // stronger / softer swing
+        const T = it.tracks, fades = k => T[k] && T[k].some(q => q[1] < .999);
+        if (fades('o') || fades('draw')) continue;                       // pieces that appear and vanish (confetti, coins, steam) travel as designed
+        const path = T.x && T.y && T.x.length >= 8 && T.y.length >= 8;  // follows a drawn line (dot on ∞, pen signing) → stays on it
+        for (const k of SWING) {
+          const keys = T[k]; if (!keys || keys.length < 2) continue;
+          const v0 = keys[0][1];
+          if (Math.abs(keys[keys.length - 1][1] - v0) > 1e-6) continue;  // keeps turning / flowing (gears, hands, road marks) → leave it
+          if ((k === 'x' || k === 'y') && (path || keys.some(q => Math.abs(q[1] - v0) > 80))) continue;   // a trip across the icon, not a swing
+          T[k] = keys.map(([t, v, e]) => [t, v0 + (v - v0) * amp, e]);
+        }
+      } else if (it.type === 'loop') {
+        if (still) it.hold = it.kind === 'rise' ? .2 * (it.period || 2) : 0;
+        else if (amp !== 1 && it.amp != null) it.amp *= amp;
+      }
+    }
+    if (speed !== 1) {
+      for (let i = i0; i < items.length; i++) {
+        const it = items[i];
+        if (it.type === 'kf') {
+          it.start = tm(it.start); it.loop *= f;
+          const T = {}; for (const k in it.tracks) T[k] = it.tracks[k].map(([t, v, e]) => [t * f, v, e]); it.tracks = T;
+        } else if (it.type === 'draw' || it.type === 'count') { it.start = tm(it.start); it.dur *= f; }
+        else if (it.type === 'pulse') it.start = tm(it.start);
+        else if (it.type === 'loop') { it.period = (it.period || 2) * f; it.rel *= f; }
+      }
+      for (const tw of caps) { tw.start = tm(tw.start); tw.dur *= f; }
+      for (const e of new Set(caps.map(c => c.e))) tweens.get(e).sort((a, b) => a.start - b.start);
+      p.span.end = tm(p.span.end);
+    }
+  }
+
   function mk(tag, attrs = {}, parent) {
     const e = document.createElementNS(NS, tag);
     for (const k in attrs) if (attrs[k] != null) e.setAttribute(k, attrs[k]);
@@ -69,8 +144,9 @@
   }
 
   /* ---------------- stage ---------------- */
-  function stage({ w = 1080, h = 1920, glow = 1, seed: s, icons = 'motion', material = 'ink' } = {}) {
+  function stage({ w = 1080, h = 1920, glow = 1, seed: s, icons = 'motion', material = 'ink', speed, amp, loop, still } = {}) {
     W = w; H = h; if (s) seed = s; MODE = icons === 'draw' ? 'draw' : 'motion';
+    MOVE = Object.assign({}, MOVE0, normMove({ speed, amp, loop, still }));   // whole-clip motion defaults
     svg = mk('svg', { width: w, height: h, viewBox: `0 0 ${w} ${h}` }, document.body);
     const defs = mk('defs', {}, svg);
     defs.innerHTML = `
@@ -108,13 +184,23 @@
       fn(q); return q;
     }
     _end(t) { if (t > this.span.end) this.span.end = t; bump(t); }
+    /* stroke width on the drawing. A plain line (sw ≤ 3) keeps its line weight at any size (× k). A THICKER stroke is a body:
+       only 3 of it is line weight, the rest is geometry and scales with the icon — so fat dots, bold bars and limbs keep their
+       shape when the icon is made small or big (user: "เวลาย่อและขยายมันต้องไม่เปลี่ยน"). Pairs on the same path (outlined
+       "tube" = thick ink + thinner dark fill; "gap" = dark band cut around a thinner ink line) are settled in fitStrokes().
+       o.abs: sw is already geometry. */
+    _sw(o, a) {
+      const sw = o.sw ?? 3, k = this.k; if (o.abs || k === 1) return sw;
+      return (o.stroke || C.ink) === C.fill || sw <= 3 ? sw * k : 3 * k + sw - 3;
+    }
     _d(tag, a, o = {}) {
       const start = this.t0 + (o.at || 0) * this.ts, dur = Math.max(.01, (o.dur ?? .4) * this.ts);
       const fill = o.fill || 'none';
       const e = mk(tag, Object.assign({
-        fill, stroke: o.stroke || C.ink, 'stroke-width': (o.sw ?? 3) * this.k,
+        fill, stroke: o.stroke || C.ink, 'stroke-width': this._sw(o, a),
         'stroke-linecap': 'round', 'stroke-linejoin': 'round', pathLength: 1, 'stroke-dasharray': '1 1',
       }, a), this.g);
+      if (!o.abs && this.k !== 1) e._gl = { sw: o.sw ?? 3, k: this.k, dark: (o.stroke || C.ink) === C.fill, key: this.k + tag + JSON.stringify(a) };
       items.push({ type: 'draw', e, start, dur, hasFill: fill !== 'none' });
       this._end(start + dur);
       return e;
@@ -142,8 +228,9 @@
   /* ---------------- tweens (opacity / scale / move on a whole group) ---------------- */
   function tween(e, start, dur, from, to, { cx = 0, cy = 0, ease = easeOut } = {}) {
     if (!tweens.has(e)) tweens.set(e, []);
-    const list = tweens.get(e);
-    list.push({ start, dur: Math.max(.01, dur), from, to, cx, cy, ease });
+    const list = tweens.get(e), tw = { start, dur: Math.max(.01, dur), from, to, cx, cy, ease };
+    list.push(tw);
+    if (CAP) CAP.push(Object.assign(tw, { e }));          // art() is drawing → it may rescale this tween (speed)
     list.sort((a, b) => a.start - b.start);
     bump(start + dur);
     return e;
@@ -161,6 +248,21 @@
   }
 
   /* ---------------- drawing placement ---------------- */
+  /* after a drawing is built: tube = thick ink + thinner dark fill on the same path → the ink edge keeps a line-weight outline
+     (7 = 3.5 each side), the dark fill is the body and scales; gap = dark band around a thinner ink line (the slash of an
+     "-off" icon) → its margin scales too, but never below one line weight, so the slash never touches what it crosses. */
+  function fitStrokes(i0) {
+    const ink = new Map(), dark = [];
+    for (let i = i0; i < items.length; i++) { const e = items[i].e, m = e && e._gl; if (!m) continue;
+      if (m.dark) dark.push(e); else (ink.get(m.key) || ink.set(m.key, []).get(m.key)).push(e); }
+    const W = e => +e.getAttribute('stroke-width');
+    for (const d of dark) { const m = d._gl, all = ink.get(m.key); if (!all) continue;
+      const fat = all.filter(e => e._gl.sw > m.sw).sort((a, b) => a._gl.sw - b._gl.sw)[0], thin = all.filter(e => e._gl.sw < m.sw).sort((a, b) => b._gl.sw - a._gl.sw)[0];
+      if (fat) { const f = fat._gl, k = m.k; if (f.sw > 7) fat.setAttribute('stroke-width', 7 * k + f.sw - 7);
+        else fat.setAttribute('stroke-width', f.sw * k);
+        d.setAttribute('stroke-width', Math.max(0, W(fat) - (f.sw - m.sw) * k)); }
+      else if (thin) { const gap = m.sw - thin._gl.sw; d.setAttribute('stroke-width', W(thin) + Math.max(gap, Math.min(gap, 3) * m.k)); } }
+  }
   function strokeK(s) { return s >= 1 ? 1 / Math.sqrt(s) : Math.max(1, .8 / s); }   // keeps lines ~2.4–4px on screen
   /* art: place a drawing. Motion mode (default): it pops in already complete, then plays its idle motion
      (fn.motion, or `idle`, or `float`). reveal: 'draw' keeps the self-drawing stroke for this one (lines, connectors). */
@@ -182,10 +284,11 @@
   function leave(a, t, kind) {
     if (a.left) return 0; a.left = true;
     const spec = typeof kind === 'object' ? kind : { kind: kind || 'pop' };
-    const P = Object.assign({}, EXIT[spec.kind] || EXIT.pop, spec), k = a.s, tr = {};
+    const P = Object.assign({}, EXIT[spec.kind] || EXIT.pop, spec), k = a.s, tr = {}, f = 1 / (a.speed || 1);
     for (const n of ['x', 'y', 's', 'sx', 'sy', 'r', 'o']) if (P[n]) tr[n] = n === 'x' || n === 'y' ? P[n].map(([u, v, e]) => [u, v * k, e]) : P[n];
+    if (f !== 1) for (const n in tr) tr[n] = tr[n].map(([u, v, e]) => [u * f, v, e]);   // speed: the exit plays slower / faster too
     kf(a.ex, t, { ox: a.x + (P.ox || 0) * k, oy: a.y + (P.oy || 0) * k, ...tr });
-    return P.dur;
+    return P.dur * f;
   }
   /* page / finish helpers: exits for every icon in `group`, then the rest (text, lines) fades. Returns when all is gone. */
   function leaveAll(group, t, stagger = .04) {
@@ -197,15 +300,33 @@
     fadeRest(group);
     return Math.max(end, t + .45);
   }
-  function art(fn, { x, y, s = 1, w, at = 0, ts = 1, filter = 'glow', parent = cur, float, idle, reveal, out, exit } = {}) {
+  function art(fn, { x, y, s = 1, w, at = 0, ts = 1, filter = 'glow', parent = cur, float, idle, reveal, out, exit, speed, amp, loop, still, pose, ampMax } = {}) {
     if (w) s = w / 400;                                   // w = on-screen width of the ±200 drawing box
     const custom = !!fn.custom, pop = !custom && (reveal ? reveal === 'pop' : MODE === 'motion');
+    /* motion controls: this call > GL.tune(icon) > GL.stage / GL.motion defaults. pose: this call > tune > fn.pose (set on rigs whose loop starts empty) */
+    const mv = Object.assign({}, MOVE, fn.tune, normMove({ speed, amp, loop, still }));
+    const cap = Math.max(1, ampMax ?? fn.ampMax ?? Infinity);              // rigs that would leave their box (AMPMAX) swing at most this much
+    const spd = mv.speed, am = mv.amp > 1 ? Math.min(mv.amp, cap) : mv.amp, frozen = !mv.loop, f = 1 / spd;
+    const hold = pose ?? (fn.tune && fn.tune.pose) ?? fn.pose ?? 0;
     const wrap = mk('g', { filter: filter ? `url(#${filter})` : null, 'data-wrap': 1 }, parent);
     const en = mk('g', {}, wrap), ex = mk('g', {}, en), mo = mk('g', { id: 'gl' + (++uid) }, ex);
     const g = mk('g', { transform: `translate(${x} ${y}) scale(${s})`, id: 'gl' + (++uid) }, mo);
-    const p = new Pen(g, at, strokeK(s), ts), i0 = items.length;
-    fn(p);
-    const popDur = .5 * ts, ready = custom ? at + (fn.dur || .8) * ts : pop ? at + popDur : p.span.end;
+    const p = new Pen(g, at, strokeK(s), ts), i0 = items.length, le0 = lastEnd, cap0 = CAP;
+    /* rigs with their own per-frame code (globe-pro) read this: time(t) = playback time → the rig's own time; still → draw freezeAt */
+    p.motion = { speed: spd, amp: am, still: frozen, pose: hold, freezeAt: null, time: spd === 1 ? t => t : t => at + (t - at) * spd };
+    let caps; CAP = [];
+    try { fn(p); } finally { caps = CAP; CAP = cap0; }
+    fitStrokes(i0);
+    if (spd !== 1 || am !== 1 || frozen) {
+      applyMove(i0, caps, p, { at, speed: spd, amp: am, still: frozen, pose: hold });
+      lastEnd = le0;                                      // end times changed → measure this drawing again
+      for (let i = i0; i < items.length; i++) { const it = items[i];
+        if (it.type === 'draw' || it.type === 'count') bump(it.start + it.dur);
+        else if (it.type === 'kf' && !it.loop) bump(it.start + Math.max(0, ...Object.values(it.tracks).map(k => k[k.length - 1][0]))); }
+      for (const tw of caps) bump(tw.start + tw.dur);
+      bump(p.span.end);
+    }
+    const popDur = .5 * ts * f, ready = custom ? at + (fn.dur || .8) * ts * f : pop ? at + popDur : p.span.end;
     for (let i = i0; i < items.length; i++) {
       const it = items[i];
       if ((pop || custom) && it.type === 'draw') it.static = true;
@@ -220,12 +341,14 @@
         mk('rect', { x: bb.x + bb.width / 2 - w / 2, y: bb.y + bb.height / 2 - h / 2, width: w, height: h, fill: 'none', stroke: 'none' }, g);
       }
     }
-    const spec = idle === false || custom ? null : idle || (float ? Object.assign({ kind: 'bob' }, float === true ? {} : float) : fn.motion);
+    const spec = idle === false || custom || frozen ? null : idle || (float ? Object.assign({ kind: 'bob' }, float === true ? {} : float) : fn.motion);
     if (spec) {
       const sp = Object.assign({}, LOOP[spec.kind] || {}, spec);
+      if (am !== 1 && sp.amp != null) sp.amp *= am;
+      if (f !== 1) { sp.period = (sp.period || 2) * f; if (sp.delay) sp.delay *= f; }
       items.push(Object.assign({}, sp, { type: 'loop', e: mo, start: ready + (sp.delay || 0), ox: x + (sp.ox || 0) * s, oy: y + (sp.oy || 0) * s, ps: s }));
     }
-    const a = { wrap, g: mo, ex, x, y, s, exit: exit || fn.exit || (pop || custom ? 'pop' : 'fade'), end: custom ? ready : pop ? Math.min(p.span.end, ready) : p.span.end };
+    const a = { wrap, g: mo, ex, x, y, s, speed: spd, exit: exit || fn.exit || (pop || custom ? 'pop' : 'fade'), end: custom ? ready : pop ? Math.min(p.span.end, ready) : p.span.end };
     a.leave = (t, kind) => t + leave(a, t, kind || a.exit);
     arts.push(a);
     if (out != null) a.leave(out);
@@ -483,7 +606,7 @@
         if (T.o) it.e.setAttribute('opacity', clamp(v('o', 1)).toFixed(3));
         if (T.draw) it.e.setAttribute('stroke-dashoffset', (1 - clamp(v('draw', 1))).toFixed(4));
       } else if (it.type === 'loop') {
-        const u = t - (it.start ?? 1e9);
+        const u = it.hold != null ? (t > (it.start ?? 1e9) ? it.hold : 0) : t - (it.start ?? 1e9);   // hold = loop switched off (still)
         if (u <= 0) { it.e.removeAttribute('transform'); if (it.kind === 'flash' || it.kind === 'rise') it.e.setAttribute('opacity', it.kind === 'rise' ? 0 : 1); continue; }
         const P = it.period || 2, k = clamp(u / .5), w = 2 * Math.PI * u / P + (it.phase || 0), A = (it.amp ?? 0) * k, ph = ((u / P + (it.phase || 0) / (2 * Math.PI)) % 1 + 1) % 1;
         let dx = 0, dy = 0, r = 0, sx = 1, sy = 1, ky = 0, o = null;
@@ -1059,12 +1182,27 @@
     },
   });
 
-  window.GL = { C, stage, run, Pen, art, text, EXIT, leaveAll, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
-    parts, icons, pairs, pair, single, LOOP, MOTION, kf, EASE, easeIO, easeOut, clamp, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
+  /* loop:false holds each rig at the start of its loop. These rigs only finish their picture later in the loop
+     (the tick is drawn, the sun is up, confetti is out) → hold them at this many seconds into the loop instead.
+     Found by rendering all 298 with loop:false (HANDOFF: motion controls). Override per call with GL.art(…, { pose }). */
+  const POSE = { 'user-check-pro': 1.5, 'puzzle-pro': 1.2, 'bookmark-check-pro': 1, 'heart-pulse-pro': 1.2, 'heart-off-pro': 1.2,
+    'signature-pro': 2.3, 'party-popper-pro': 1.2, 'clipboard-check-pro': 1.4, 'file-text-pro': 2.2, 'calendar-check-pro': 1.5,
+    'calendar-x-pro': 1.5, 'sunrise-pro': 1.5, 'piggy-bank-pro': .8 };
+
+  /* amp > 1 makes these rigs hop / swing past their ±200 box (measured at amp 1.5, visible pixels over one loop) →
+     amp is capped at this value for them. Lift it per call with GL.art(…, { amp: 1.5, ampMax: 2 }) when there is room around. */
+  const AMPMAX = {
+    'archive-pro': 1.05, 'apple-pro': 1.1, 'chef-hat-pro': 1.1, 'map-pin-pro': 1.1, 'package-pro': 1.1, 'trash-2-pro': 1.1, 'carrot-pro': 1.15,
+    'library-pro': 1.15, 'ticket-pro': 1.15, 'trophy-pro': 1.15, 'weight-pro': 1.15, 'package-open-pro': 1.25, 'pin-pro': 1.25,
+    'clapperboard-pro': 1.3, 'credit-card-pro': 1.3, 'salad-pro': 1.3, 'id-card-pro': 1.35, 'bell-pro': 1.4, 'folder-open-pro': 1.45,
+    'notify-pro': 1.45, 'thermometer-pro': 1.45 };
+  window.GL = { C, stage, run, Pen, art, motion, tune, text, EXIT, leaveAll, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
+    parts, icons, pairs, pair, single, LOOP, MOTION, POSE, AMPMAX, kf, EASE, easeIO, easeOut, clamp, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
 
   /* beats.js (B01–B21 scene templates) loads next to this file */
   const beatsReady = new Promise(res => {
-    const load = names => { if (!names.length) return res();
+    const load = names => { if (!names.length) { for (const n in POSE) if (icons[n] && icons[n].pose == null) icons[n].pose = POSE[n];
+      for (const n in AMPMAX) if (icons[n] && icons[n].ampMax == null) icons[n].ampMax = AMPMAX[n]; return res(); }
       const sc = document.createElement('script'); sc.src = HERE + names[0];
       sc.onload = () => load(names.slice(1)); sc.onerror = () => { console.error('GL: ' + names[0] + ' not found'); load(names.slice(1)); };
       document.head.appendChild(sc); };

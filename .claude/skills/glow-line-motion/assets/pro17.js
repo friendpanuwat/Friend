@@ -267,23 +267,54 @@
     pop(p, intro);
   });
 
-  /* piggy-bank — a coin drops into the slot: the pig squashes as it lands inside, the curly tail wiggles after it */
+  /* piggy-bank (redrawn 2026-11-12, ref-detail style; idea from the user's reference, not copied) — a plump pig in 3/4 view:
+     the coin drops onto the slot and rests half in, wobbles, then sinks in with a clink: the pig squashes, its tail and ear flick, it blinks */
   rig('piggy-bank-pro', .6, 'pop', p => {
-    const intro = sub(p);
-    const cn = sub(intro); cn.circle(0, -150, 26, { fill: C.fill, sw: 3 }); cn.circle(0, -150, 16, SOFT(2));
-    on(cn, p, .7, { loop: 2.4, y: [[0, -30], [.1, -30], [.5, 54, 'in']], sy: [[0, 1], [.46, 1], [.5, .3, 'out']], o: [[0, 0], [.1, 0], [.18, 1], [.48, 1], [.52, 0]], ox: 0, oy: -124 });
-    const pg = sub(intro);
-    const tl = sub(pg); tl.path('M -146 0 C -170 -10, -186 -30, -172 -44 C -160 -54, -150 -38, -162 -30 C -176 -20, -190 -4, -186 14', { sw: 4 });
-    on(tl, p, .7, { loop: 2.4, ox: -146, oy: 0, r: [[0, 0], [.5, 0], [.6, 16, 'out'], [.8, -12, 'io'], [1, 6, 'io'], [1.16, 0, 'soft']] });
-    [-96, -40, 40, 96].forEach(x => pg.rect(x - 14, 100, 28, 54, { rx: 8, fill: C.fill, sw: 3 }));
-    pg.shape([[40, -70], [64, -122], [96, -76]], { fill: C.fill, sw: 3 });
-    pg.ellipse(0, 20, 152, 108, { fill: C.fill, sw: 3.4 }); pg.path('M 58 -86 L 66 -104 L 76 -88', SOFT(2));
-    pg.rect(124, -8, 50, 60, { rx: 20, fill: C.fill, sw: 3.2 }); [140, 158].forEach(x => pg.ellipse(x, 22, 4, 8, SOFT(2.2)));
-    pg.dot(88, -20, 6); pg.rect(-34, -74, 68, 12, { rx: 6, fill: C.fill, sw: 2.8 });
-    pg.path('M -90 70 Q -60 92 -20 96', SOFT(2));
-    on(pg, p, .7, { loop: 2.4, ox: 0, oy: 154, sy: [[0, 1], [.5, 1], [.58, .9, 'out'], [.74, 1.05, 'out'], [.9, 1, 'soft']], sx: [[0, 1], [.5, 1], [.58, 1.06, 'out'], [.74, .97], [.9, 1, 'soft']] });
-    const ck = sub(intro); [[-46, -106, -62, -122], [46, -106, 62, -122]].forEach(([a, b, c, d]) => ck.line(a, b, c, d, { sw: 3 }));
-    on(ck, p, .7, { loop: 2.4, o: flash(.5, .75) });
+    const W = (w = 2) => ({ sw: w }), F = (w = 3.2) => ({ fill: C.fill, sw: w });
+    const intro = sub(p), pg = sub(intro);
+    /* far side (drawn first, the body covers their roots): far legs, far ear, tail */
+    const leg = (x, y0, y1, w0, w1, sw) => pg.path(`M ${x - w0} ${y0} L ${x - w1} ${y1 - 10} Q ${x - w1} ${y1} ${x - w1 + 10} ${y1} L ${x + w1 - 10} ${y1} Q ${x + w1} ${y1} ${x + w1} ${y1 - 10} L ${x + w0} ${y0} Z`, F(sw));
+    leg(-114, 96, 150, 19, 16, 3); leg(104, 70, 146, 19, 16, 3);
+    pg.path('M 92 -70 Q 108 -104 140 -116 Q 154 -120 152 -104 Q 148 -70 128 -42 Z', F(3));
+    pg.path('M 108 -78 Q 120 -96 140 -104', W(1.8));
+    const tl = sub(pg);
+    tl.path('M -166 10 C -184 6, -196 -10, -186 -22 C -176 -32, -160 -22, -168 -12 C -176 -2, -194 6, -190 24', { sw: 4.2 });
+    [[-72, 108, 168], [70, 106, 166]].forEach(([x, y0, y1]) => { leg(x, y0, y1, 24, 21, 3.2); pg.line(x, y1 - 13, x, y1 - 2, W(2)); });
+    /* body + belly line (inside the outline) */
+    pg.ellipse(-12, 18, 160, 128, F(3.4));
+    pg.path('M -128 90 Q -100 126 -40 132', W(1.8));
+    /* snout: a short barrel — its root meets the face in a curve, nostrils on the front face */
+    pg.path('M 132 -2 L 158 -4 A 26 37 0 0 1 158 70 L 132 68 A 20 35 0 0 1 132 -2 Z', F(3));
+    pg.ellipse(158, 33, 26, 37, F(3)); [149, 167].forEach(x => pg.ellipse(x, 33, 4.2, 8.5, W(2.4)));
+    /* eyes (blink) */
+    const eyes = sub(pg); eyes.dot(90, -12, 7.5); eyes.dot(126, -22, 5.5);
+    /* near ear lies on the body and flicks */
+    const er = sub(pg);
+    er.path('M 26 -84 Q 44 -124 84 -134 Q 98 -136 96 -122 Q 92 -96 74 -76 Q 50 -70 26 -84 Z', F(3));
+    er.path('M 44 -88 Q 58 -110 84 -122', W(1.8));
+    /* coin slot on the back — a curved slit that follows the back's curve (16 px inside the outline) */
+    const backY = x => 18 - 128 * Math.sqrt(1 - ((x + 12) / 160) ** 2) + 16, SY = f1(backY(-34));
+    const tilt = Math.atan(128 * ((-34 + 12) / 160) / (160 * Math.sqrt(1 - ((-34 + 12) / 160) ** 2))) * 180 / Math.PI;   // slope of the back at the coin
+    const slotD = 'M ' + [-80, -66, -52, -38, -24, -10, 4, 12].map(x => `${x} ${f1(backY(x))}`).join(' L ');
+    pg.path(slotD, { sw: 17 }); pg.path(slotD, { sw: 10, stroke: C.fill });
+    /* the coin: rim thickness + face + $, tilted with the slot and clipped along the slit so it really sinks in */
+    const clipD = 'M -220 -280 L 220 -280 L 220 ' + f1(backY(60)) + ' L ' + [60, 40, 20, 0, -20, -40, -60, -80, -100, -120].map(x => `${x} ${f1(backY(x))}`).join(' L ') + ' L -220 ' + f1(backY(-120)) + ' Z';
+    const hole = sub(intro, { 'clip-path': clip(intro, clipD) }), tg = sub(hole, { transform: `rotate(${f1(tilt)} -34 ${SY}) translate(0 ${f1(SY + 91)})` }), cn = sub(tg);
+    cn.ellipse(-42, -107, 32, 37, F(3)); cn.ellipse(-34, -107, 32, 37, F(3));
+    cn.path('M -25 -119 Q -25 -127 -34 -127 Q -44 -127 -44 -117 Q -44 -109 -34 -107 Q -24 -105 -24 -96 Q -24 -87 -34 -87 Q -42 -87 -44 -94 M -34 -133 L -34 -81', W(2.6));
+    on(cn, p, .7, { loop: 2.6, ox: -34, oy: -91,
+      y: [[0, -50], [.12, -50], [.42, 0, 'in'], [.5, -7, 'out'], [.58, 0, 'in'], [.95, 0], [1.2, 84, 'in'], [2.6, 84]],
+      r: [[0, 0], [.58, 0], [.66, -6, 'out'], [.76, 4, 'io'], [.88, 0, 'soft'], [2.6, 0]],
+      o: [[0, 0], [.12, 0], [.2, 1], [1.2, 1], [1.22, 0], [2.6, 0]] });
+    /* clink: three short strokes spring from the slot as the coin lands inside */
+    const ck = sub(intro); [-150, -90, -30].forEach(a => { const r0 = 46, r1 = 64, c = Math.cos(a * Math.PI / 180), s = Math.sin(a * Math.PI / 180);
+      ck.line(-34 + c * r0, SY + s * r0, -34 + c * r1, SY + s * r1, { sw: 3.2 }); });
+    on(ck, p, .7, { loop: 2.6, ox: -34, oy: SY, o: flash(1.2, 1.5), s: [[0, .7], [1.2, .7], [1.4, 1.1, 'out'], [2.6, 1.1]] });
+    on(pg, p, .7, { loop: 2.6, ox: 0, oy: 168, sy: [[0, 1], [1.18, 1], [1.26, .93, 'out'], [1.42, 1.04, 'out'], [1.58, .99], [1.7, 1, 'soft']],
+      sx: [[0, 1], [1.18, 1], [1.26, 1.05, 'out'], [1.42, .98, 'out'], [1.58, 1.005], [1.7, 1, 'soft']] });
+    on(tl, p, .7, { loop: 2.6, ox: -166, oy: 10, r: [[0, 0], [1.22, 0], [1.32, 18, 'out'], [1.5, -14, 'io'], [1.68, 8, 'io'], [1.86, 0, 'soft']] });
+    on(er, p, .7, { loop: 2.6, ox: 50, oy: -80, r: [[0, 0], [1.24, 0], [1.34, -12, 'out'], [1.52, 6, 'io'], [1.7, 0, 'soft']] });
+    on(eyes, p, .7, { loop: 2.6, ox: 108, oy: -17, sy: [[0, 1], [2.0, 1], [2.05, .12, 'in'], [2.13, 1, 'out']] });
     pop(p, intro);
   });
 

@@ -149,7 +149,9 @@
   const human = (q, mode, pose = {}) => {
     const solid = mode === 'solid', layers = solid ? [1] : [1, 0], J = {}, add = (k, g) => (J[k] = J[k] || []).push(g);
     layers.forEach(ink => {
-      const L = sub(q), col = ink ? C.ink : C.fill, w = v => ink && !solid ? v + 7 : v, o = { stroke: col };
+      /* limb widths are the BODY (geometry): the engine (Pen._sw) scales thick strokes with the icon, only the outline (+7) keeps
+         line weight (user: "ไม่ว่าจะย่อหรือขยาย ไอ้คนมันต้องไม่เปลี่ยนแปลง"); solid limbs have no outline → abs (pure geometry) */
+      const L = sub(q), col = ink ? C.ink : C.fill, w = v => ink && !solid ? v + 7 : v, o = { stroke: col, abs: solid };
       [-1, 1].forEach(sd => { const g = (pose.leg || BODY.leg)(sd), up = sub(L), lo = sub(up);
         up.line(...g.h, ...g.k, Object.assign({ sw: w(30) }, o)); lo.line(...g.k, ...g.f, Object.assign({ sw: w(27) }, o)); add('thigh' + sd, up); add('shin' + sd, lo); });
       const t = sub(L); t.path(pose.torso || BODY.torso, { fill: col, stroke: col, sw: ink && !solid ? 7 : .5 }); add('torso', t);
