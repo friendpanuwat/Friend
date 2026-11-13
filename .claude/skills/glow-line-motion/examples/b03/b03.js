@@ -78,6 +78,16 @@
   /* change arrow: slides in along its direction while a turns into b */
   function arrow(p, x1, y1, x2, y2, w = 5, t) { const g = sub(p); arrowLine(g, x1, y1, x2, y2, w); const l = Math.hypot(x2 - x1, y2 - y1);
     on(g, p, t ?? p.H - .55, { o: [[0, 0], [.15, 1]], x: [[0, -(x2 - x1) / l * 40], [.4, 0, 'out']], y: [[0, -(y2 - y1) / l * 40], [.4, 0, 'out']] }); return g; }
+  /* magnifier (redesigned at the user's request): a thick double rim around clear glass, a collar where the handle joins,
+     a rounded handle with grip grooves (inside its outline). R = glass radius, ang = handle direction (deg). No reflection marks (user rule). */
+  const magnifier = (q, cx, cy, R, ang) => { const k = R / 170, g = sub(q, { transform: `rotate(${ang} ${cx} ${cy})` }), Ro = R + 26 * k;
+    g.rect(cx + Ro - 6 * k, cy - 22 * k, 52 * k, 44 * k, Object.assign({ rx: 8 * k }, F(3)));                       // collar
+    g.line(cx + Ro + 20 * k, cy - 22 * k, cx + Ro + 20 * k, cy + 22 * k, W(1.8));
+    g.rect(cx + Ro + 44 * k, cy - 30 * k, 170 * k, 60 * k, Object.assign({ rx: 30 * k }, F(3.4)));                  // handle
+    for (let i = 0; i < 4; i++) { const x = cx + Ro + (84 + i * 26) * k; g.line(x, cy - 15 * k, x, cy + 15 * k, W(2)); }
+    g.path(`M ${cx + Ro} ${cy} A ${Ro} ${Ro} 0 1 0 ${cx - Ro} ${cy} A ${Ro} ${Ro} 0 1 0 ${cx + Ro} ${cy} Z M ${cx + R} ${cy} A ${R} ${R} 0 1 1 ${cx - R} ${cy} A ${R} ${R} 0 1 1 ${cx + R} ${cy} Z`,
+      { fill: C.fill, sw: 3.4, 'fill-rule': 'evenodd' });                                                              // rim band
+    g.circle(cx, cy, R + 13 * k, { sw: 1.6, stroke: C.soft }); };
   const vsMark = (p, x, y, r = 46) => { p.circle(x, y, r, F(3)); txt(p, 'VS', x, y + 14, { size: 38, weight: 700, color: C.ink }); };
   /* settle keys: hold `from` until H - lead, then go to 0 on the keyword with a small overshoot */
   const settle = (from, H, lead = .4, os = .15) => [[0, from], [H - lead, from], [H, 0, 'out'], [H + .18, -from * os], [H + .4, 0, 'soft']];
@@ -239,11 +249,9 @@
       const L = sub(p);
       if (T.win) { on(L, p, .2, { ox: lx, oy: ly, x: [[0, 380 - lx], [.45, -lx, 'out'], [.75, -lx + 30, 'soft'], [H - .55, -lx - 20, 'soft'], [H - .2, 0, 'out'], [H - .05, Math.sign(lx) * -8], [H + .1, 0, 'soft']].map(([t, v, e]) => [Math.max(0, t), v, e]),
           y: [[0, -320], [.45, -110, 'out'], [H - .55, -110], [H - .2, 0, 'out']], o: [[0, 0], [.1, 1]] });
-        L.line(lx + 125, ly + 125, lx + 240, ly + 240, { sw: 46 }); L.line(lx + 125, ly + 125, lx + 240, ly + 240, { sw: 37, stroke: C.fill });
-        L.circle(lx, ly, 170, W(4)); L.circle(lx, ly, 150, { sw: 1.6, stroke: C.soft }); }
+        magnifier(L, lx, ly, 150, 45); }
       else { on(L, p, .2, { y: [[0, -300], [.45, 0, 'out'], [.75, -14, 'soft'], [1.05, 0, 'soft']], o: [[0, 0], [.1, 1]] });
-        L.line(0, -30, 0, 150, { sw: 46 }); L.line(0, -30, 0, 150, { sw: 37, stroke: C.fill });
-        L.circle(0, -160, 130, W(4)); L.circle(0, -160, 112, { sw: 1.6, stroke: C.soft }); }
+        magnifier(L, 0, -150, 110, 90); }
       if (T.change) arrow(p, -90, 230, 90, 230, 4);
       marks(p, d, { a: [X.a + 140, -170], b: [X.b + 140, -170] });
     });
