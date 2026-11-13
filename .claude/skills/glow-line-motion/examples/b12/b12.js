@@ -1,9 +1,10 @@
 /* b12.js — category B12 "เหตุ → ผล": 20 neutral designs (stills first — the user picks, then motion).
    CutPack CATEGORIES.md B12 (references/cutpack-CATEGORIES.md, cat_ai.py): items [THING ×3] = three links of the chain, in order ·
    end THING (optional) = the sign of the result. "แรงส่งเดินทางทางเดียว ทอดแรกทำให้ทอดถัดไปขยับ — เห็นว่าเกิดต่อกันเอง ไม่ใช่วางเรียงเฉย ๆ".
-   Every design is a real thing whose own mechanism passes the push on (B09–B11 rules: new things — no dominoes, gears, Newton's cradle,
-   ramps, catapults, pulleys, conveyors, cascades, taps/pipes, snowballs, seesaws, matches, hammer-and-crack — all used before or cut;
-   the result comes out of the thing's own mechanism; the layouts differ from design to design).
+   Round 1 (science things: circuit board, laser, hydraulics, flasks, steam engine …) → user: "ทำไมมันดูเป็นวิทยาศาสตร์ไปหมด … ผมแค่ต้องการ
+   อะไรที่มันเป็นกลาง simple ง่าย ๆ แต่ก็ไม่น้อยจนเกินไป ใส่รายละเอียดเล็ก ๆ น้อย ๆ" + their editorial clips (plain cards, rows, chips, bars,
+   connectors) as the example → round 2: neutral cards / tiles / rows / chips / connectors and plain everyday things, in the house glow line.
+   Still avoided: dominoes, gears, Newton's cradle, ramps, catapults, pulleys, conveyors, cascades, taps/pipes, snowballs, seesaws, matches.
    Still = the moment after the keyword: the push has gone all the way through, link 3 has fired, the end sign (if any) is lit.
    No end → link 3 gets the halo. A link with no icon → its label in big type; no icon and no label → the holder stays empty.
    GL.cats.B12.draw(i, data, { x, y, s, at, hit, speed }) — canvas 1000 × 700 centred at (0,0); hit = seconds after `at` (default 1.9). */
@@ -101,11 +102,245 @@
   function endAt(q, c, S0, x, y, r, ly, o = {}) { if (!S0.E) return false; halo(q, x, y, r + 26); q.circle(x, y, r, F(3.4)); thing(q, c, S0, 3, x, y, r * 1.25, ly, Object.assign({ maxW: 200 }, o)); return true; }
   /* no end sign → the last link is the result: it gets the halo */
   const lastHalo = (q, S0, x, y, r) => { if (!S0.E) halo(q, x, y, r); };
+  /* the same glow for a card / tile / chip: a rounded box around it */
+  const lastHaloR = (q, S0, x, y, w, h, rx = 30, pad = 24) => { if (S0.E) return; R(q, x - w / 2 - pad, y - h / 2 - pad, w + 2 * pad, h + 2 * pad, rx + pad, { fill: 'rgba(255,255,255,.06)', sw: 0, stroke: 'none' }); R(q, x - w / 2 - pad, y - h / 2 - pad, w + 2 * pad, h + 2 * pad, rx + pad, S(1.8)); };
 
   const V = [];
   const variant = (id, th, build) => V.push({ id, th, build });
 
-  /* 01 ── BILLIARDS (seen from above): the cue strikes the white ball, it knocks link 1, link 1 knocks link 2, link 2 sends link 3 into the corner pocket */
+  /* ---------- neutral parts (user 2026-11-13 "เป็นกลาง simple ง่าย ๆ แต่ไม่น้อยเกินไป ใส่รายละเอียดเล็ก ๆ" + their editorial clips as the example:
+     plain cards, tiles, rows, chips, connectors — drawn in the house glow line) ---------- */
+  /* a card: rounded plate + a small header (dot + short line) */
+  function card(q, x, y, w, h, o = {}) { R(q, x - w / 2, y - h / 2, w, h, o.rx ?? 20, o.f || F(3.2));
+    if (o.head !== false) { q.circle(x - w / 2 + 26, y - h / 2 + 26, 6, S(1.8)); q.line(x - w / 2 + 42, y - h / 2 + 26, x - w / 2 + 42 + Math.min(90, w * .35), y - h / 2 + 26, S(2)); } }
+  const tile = (q, x, y, s, o) => R(q, x - s / 2, y - s / 2, s, s, s * .24, o || F(3.2));
+  /* a connector with an arrow head at the end (pts = a polyline) */
+  function arrowP(q, pts, o = W(3.2), hd = 16) { q.path(pathOf(pts, false), o); const [a, b] = pts.slice(-2), an = Math.atan2(b[1] - a[1], b[0] - a[0]);
+    q.poly([[b[0] - hd * Math.cos(an - .5), b[1] - hd * Math.sin(an - .5)], b, [b[0] - hd * Math.cos(an + .5), b[1] - hd * Math.sin(an + .5)]], o); }
+  const glowP = (q, pts, w = 4) => { q.path(pathOf(pts, false), { sw: 14, stroke: 'rgba(255,255,255,.12)' }); q.path(pathOf(pts, false), W(w)); };
+  const pulse = (q, x, y) => { halo(q, x, y, 22); q.circle(x, y, 10, SOLID()); };
+  const labT = (q, S0, i, x, y, o = {}) => { const it = itOf(S0, i); if (it && it.label && picOf(it)) txt(atG(q, tu(.2 + .1 * i)), it.label, x, y, Object.assign({ maxW: 200, color: C.ink, weight: 700, size: 32, wrap: 'down' }, o)); };
+
+  /* 01 ── NODES: three round nodes on one line; the light runs from node to node (each segment's arrow says which way) to the end */
+  variant('nodes', 'จุดต่อจุด', (d, c) => { const S0 = st(d), X = S0.E ? [-370, -130, 110] : [-320, 0, 320], y = -10, r = 80;
+    art(c, p => { const xe = S0.E ? 380 : X[2];
+      glowP(p, [[-470, y], [X[0] - r, y]], 3); p.circle(-470, y, 9, SOLID());
+      for (let i = 0; i < (S0.E ? 3 : 2); i++) { const a = X[i] + r, b = (i < 2 ? X[i + 1] - r : xe - 86), m = (a + b) / 2; glowP(p, [[a, y], [b, y]]); p.poly([[m - 8, y - 12], [m + 6, y], [m - 8, y + 12]], W(3)); }
+      X.forEach((x, i) => { if (i === 2) lastHalo(p, S0, x, y, r + 30); p.circle(x, y, r, F(3.4)); p.circle(x, y, r - 12, S(1.6)); thing(p, c, S0, i, x, y, 84, y + r + 46); });
+      endAt(p, c, S0, xe, y, 86, y + 140);
+    }); });
+
+  /* 02 ── CARDS: three cards in a row, an arrow from each to the next; the last card is the outcome */
+  variant('cards', 'การ์ดต่อการ์ด', (d, c) => { const S0 = st(d), X = S0.E ? [-360, -120, 120] : [-310, 0, 310], y = -20, w = 190, h = 250;
+    art(c, p => {
+      X.forEach((x, i) => { if (i === 2) lastHaloR(p, S0, x, y, w, h, 20); card(p, x, y, w, h); tile(p, x, y - 22, 100, F(2.8));
+        thing(p, c, S0, i, x, y - 22, 70, y + 78, { maxW: w - 30, size: 30, wrap: null }); p.line(x - 50, y + 100, x + 50, y + 100, S(2));
+        if (i < 2 || S0.E) arrowP(p, [[x + w / 2 + 12, y], [(i < 2 ? X[i + 1] : 370) - (i < 2 ? w / 2 : 72) - 12, y]]); });
+      endAt(p, c, S0, 385, y, 66, y + 110);
+    }); });
+
+  /* 03 ── FLOW LIST: one card, three rows; a rail on the left joins the rows top to bottom, the last row is lit, the outcome comes out of it */
+  variant('flowlist', 'รายการไหลต่อกัน', (d, c) => { const S0 = st(d), ox = S0.E ? -90 : 0, Y = [-150, -5, 140];
+    art(c, p => { card(p, ox, -10, 440, 470);
+      for (let i = 0; i < 2; i++) arrowP(p, [[ox - 140, Y[i] + 50], [ox - 140, Y[i + 1] - 50]], W(3), 13);
+      Y.forEach((y, i) => { const last = i === 2;
+        R(p, ox - 200, y - 58, 400, 116, 16, last ? { fill: LIT, sw: 3 } : S(1.8)); tile(p, ox - 140, y, 84, F(3));
+        thing(p, c, S0, i, ox - 140, y, 58, null); const it = itOf(S0, i);
+        if (it && it.label && picOf(it)) txt(atG(p, tu(.2 + .1 * i)), it.label, ox - 80, y + 11, { maxW: 250, color: C.ink, weight: 700, size: 32, anchor: 'start' });
+        else p.line(ox - 80, y, ox + 60, y, S(2));
+        if (last && !S0.E) { p.circle(ox + 160, y, 18, SOLID()); p.poly([[ox + 151, y], [ox + 158, y + 8], [ox + 170, y - 7]], { sw: 3.4, stroke: C.fill }); } });
+      if (S0.E) { arrowP(p, [[ox + 200, Y[2]], [ox + 300, Y[2]]]); endAt(p, c, S0, 385, Y[2], 62, Y[2] + 104); }
+    }); });
+
+  /* 04 ── STEPS DOWN: three small cards step down to the right, each joined to the next by an elbow line */
+  variant('stairs', 'การ์ดขั้นบันไดต่อกัน', (d, c) => { const S0 = st(d), P = S0.E ? [[-330, -200], [-90, -30], [150, 140]] : [[-270, -190], [0, 0], [270, 190]], w = 230, h = 120;
+    art(c, p => {
+      for (let i = 0; i < 2; i++) { const [x, y] = P[i], [x2, y2] = P[i + 1]; arrowP(p, [[x + w / 2, y], [x2, y], [x2, y2 - h / 2 - 8]], W(3), 14); p.circle(x + w / 2, y, 6, SOLID(1)); }
+      P.forEach(([x, y], i) => { if (i === 2) lastHaloR(p, S0, x, y, w, h, 18); card(p, x, y, w, h, { head: false, rx: 18 }); tile(p, x - 62, y, 82, F(2.8)); thing(p, c, S0, i, x - 62, y, 56, null);
+        const it = itOf(S0, i); if (it && it.label && picOf(it)) txt(atG(p, tu(.2 + .1 * i)), it.label, x + 42, y + 11, { maxW: 110, color: C.ink, weight: 700, size: 30 }); else { p.line(x + 5, y - 10, x + 85, y - 10, S(2)); p.line(x + 5, y + 14, x + 60, y + 14, S(2)); } });
+      if (S0.E) { const [x, y] = P[2]; arrowP(p, [[x + w / 2, y], [330, y]]); endAt(p, c, S0, 395, y, 58, y - 90); }
+    }); });
+
+  /* 05 ── TOGGLE: the switch on the first panel flips on, the current runs along the wire and lights tile 2, then tile 3 */
+  variant('toggle', 'สวิตช์เปิดต่อกัน', (d, c) => { const S0 = st(d), X = S0.E ? [-340, -80, 160] : [-310, 0, 300], y = -20;
+    art(c, p => {
+      const seg = [[X[0] + 100, y + 60], [X[0] + 140, y + 60], [X[0] + 140, y], [X[1] - 80, y]];
+      glowP(p, seg); glowP(p, [[X[1] + 80, y], [X[2] - 80, y]]); if (S0.E) glowP(p, [[X[2] + 80, y], [330, y]]);
+      [[X[0] + 140, y + 60], [X[0] + 140, y]].forEach(([a, b]) => p.circle(a, b, 7, F(2.2)));
+      card(p, X[0], y, 200, 270, { rx: 22 }); tile(p, X[0], y - 40, 92, F(2.8)); thing(p, c, S0, 0, X[0], y - 40, 62, y + 180);
+      R(p, X[0] - 60, y + 34, 120, 56, 28, { fill: LIT, sw: 3 }); p.circle(X[0] + 32, y + 62, 22, SOLID());
+      [1, 2].forEach(i => { const x = X[i]; if (i === 2) lastHaloR(p, S0, x, y, 160, 160, 38); tile(p, x, y, 160, { fill: LIT, sw: 3.4 }); R(p, x - 66, y - 66, 132, 132, 30, S(1.6)); thing(p, c, S0, i, x, y, 90, y + 180);
+        [-1, 1].forEach(sd => p.line(x + sd * 96, y - 96, x + sd * 112, y - 112, W(2.4))); });
+      endAt(p, c, S0, 395, y, 62, y + 120);
+    }); });
+
+  /* 06 ── CLICK: the cursor clicks the first card's button, card 2 pops up over it, card 2's button brings up card 3 */
+  variant('click', 'คลิกแล้วเด้งต่อกัน', (d, c) => { const S0 = st(d), P = S0.E ? [[-290, -120], [-40, 10], [210, 140]] : [[-250, -130], [0, 0], [250, 130]], w = 230, h = 170;
+    art(c, p => {
+      P.forEach(([x, y], i) => { if (i === 2) lastHaloR(p, S0, x, y, w, h, 20); card(p, x, y, w, h, { head: false }); tile(p, x - 62, y - 22, 80, F(2.8)); thing(p, c, S0, i, x - 62, y - 22, 54, null);
+        const it = itOf(S0, i); if (it && it.label && picOf(it)) txt(atG(p, tu(.2 + .1 * i)), it.label, x + 45, y - 12, { maxW: 110, color: C.ink, weight: 700, size: 28 }); else p.line(x, y - 22, x + 80, y - 22, S(2));
+        R(p, x - 90, y + 36, 180, 36, 18, i < 2 ? SOLID(2) : S(2)); });
+      const [cx, cy] = [P[0][0] + 30, P[0][1] + 58]; shape(p, [[cx, cy], [cx, cy + 62], [cx + 15, cy + 48], [cx + 26, cy + 72], [cx + 36, cy + 67], [cx + 25, cy + 44], [cx + 45, cy + 44]], F(3));
+      [[-1, -1], [0, -1.3], [-1.3, 0]].forEach(([a, b]) => p.line(cx + a * 18, cy + b * 18, cx + a * 32, cy + b * 32, W(2.4)));
+      if (S0.E) endAt(p, c, S0, 405, -170, 58, -78);
+    }); });
+
+  /* 07 ── SLIDERS: three linked sliders — moving the first pushes the second further, the second pushes the third all the way */
+  variant('sliders', 'แถบเลื่อนตามกัน', (d, c) => { const S0 = st(d), ox = S0.E ? -95 : 0, Y = [-140, 0, 140], v = [.45, .7, 1];
+    art(c, p => { card(p, ox, 0, 600, 430);
+      Y.forEach((y, i) => { tile(p, ox - 230, y, 82, F(2.8)); thing(p, c, S0, i, ox - 230, y, 56, null); const a = ox - 165, b = ox + 215, k = lerp(a, b, v[i]);
+        const it = itOf(S0, i); if (it && it.label && picOf(it)) txt(atG(p, tu(.2 + .1 * i)), it.label, a, y - 14, { maxW: 240, color: C.ink, weight: 700, size: 28, anchor: 'start' }); else p.line(a, y - 22, a + 90, y - 22, S(2));
+        R(p, a, y + 14, b - a, 14, 7, F(2.2)); R(p, a, y + 14, k - a, 14, 7, SOLID(1.6)); if (i === 2) halo(p, k, y + 21, 36); p.circle(k, y + 21, 18, SOLID());
+        if (i < 2) arrowP(p, [[ox + 250, y + 30], [ox + 268, y + 70], [ox + 250, Y[i + 1] - 10]], W(2.6), 12); });
+      if (S0.E) { arrowP(p, [[ox + 300, Y[2] + 20], [330, Y[2] + 20]]); endAt(p, c, S0, 392, Y[2] - 20, 58, Y[2] - 115); }
+    }); });
+
+  /* 08 ── RINGS: ring 1 fills up and passes it on, ring 2 fills, ring 3 fills — each arrow hands the full ring on to the next */
+  variant('rings', 'วงเติมเต็มต่อกัน', (d, c) => { const S0 = st(d), X = S0.E ? [-360, -120, 120] : [-310, 0, 310], y = -20, r = 86;
+    art(c, p => {
+      X.forEach((x, i) => { if (i === 2) lastHalo(p, S0, x, y, r + 34); ring(p, x, y, r + 10, r - 10, F(2.6)); p.circle(x, y, r, { sw: 9 }); p.circle(x, y, r - 22, S(1.4));
+        p.circle(x, y - r, 11, SOLID()); thing(p, c, S0, i, x, y, 80, y + r + 56);
+        if (i < 2 || S0.E) arrowP(p, [[x + r + 18, y], [(i < 2 ? X[i + 1] - r : 385 - 66) - 18, y]]); });
+      endAt(p, c, S0, 385, y, 62, y + 108);
+    }); });
+
+  /* 09 ── GRID PATH: a board of squares; the line enters, turns through link 1, 2, 3 and stops on the outcome square */
+  variant('grid', 'ทางเดินบนตาราง', (d, c) => { const S0 = st(d), cs = 130, cx = k => -390 + 65 + cs * k, cy = k => -260 + 65 + cs * k;
+    art(c, p => { R(p, -400, -270, 800, 540, 22, F(3.4)); for (let k = 1; k < 6; k++) p.line(-390 + cs * k, -260, -390 + cs * k, 260, S(1.3)); for (let k = 1; k < 4; k++) p.line(-390, -260 + cs * k, 390, -260 + cs * k, S(1.3));
+      const A = [cx(1), cy(0)], B = [cx(2), cy(2)], Cc = [cx(4), cy(1)], E = [cx(5), cy(3)];
+      const path = [[-430, cy(0)], A, [cx(2), cy(0)], B, [cx(4), cy(2)], Cc]; if (S0.E) path.push([cx(5), cy(1)], E);
+      glowP(p, path, 5); p.circle(-430, cy(0), 9, SOLID());
+      [A, B, Cc].forEach(([x, y], i) => { if (i === 2) lastHaloR(p, S0, x, y, 108, 108, 26, 12); tile(p, x, y, 108, F(3.2)); thing(p, c, S0, i, x, y - 14, 50, y + 40, { maxW: 98, size: 21, wrap: null }); });
+      if (S0.E) { tile(p, E[0], E[1], 112, { fill: LIT, sw: 3.4 }); halo(p, E[0], E[1], 84); thing(p, c, S0, 3, E[0], E[1] - 14, 52, E[1] + 40, { maxW: 98, size: 21, wrap: null }); }
+    }); });
+
+  /* 10 ── CHIPS: three capsule chips in a zigzag, joined by smooth S-curves; the last chip leads to the outcome */
+  variant('chips', 'ชิปต่อเส้นโค้ง', (d, c) => { const S0 = st(d), P = S0.E ? [[-230, -200], [80, -20], [-170, 160]] : [[-180, -190], [150, 0], [-120, 190]], w = 310, h = 100;
+    art(c, p => {
+      for (let i = 0; i < 2; i++) { const [x, y] = P[i], [x2, y2] = P[i + 1], a = i === 0 ? [x + w / 2, y] : [x - w / 2, y], b = i === 0 ? [x2 - w / 2 + 40, y2 - h / 2] : [x2 + w / 2 - 40, y2 - h / 2];
+        const k = i === 0 ? 1 : -1; p.path(`M ${a[0]} ${a[1]} C ${a[0] + k * 120} ${a[1]}, ${b[0]} ${b[1] - 90}, ${b[0]} ${b[1] - 8}`, W(3)); p.poly([[b[0] - 11, b[1] - 20], [b[0], b[1] - 6], [b[0] + 11, b[1] - 20]], W(3)); p.circle(...a, 6, SOLID(1)); }
+      P.forEach(([x, y], i) => { if (i === 2) lastHaloR(p, S0, x, y, w, h, h / 2); R(p, x - w / 2, y - h / 2, w, h, h / 2, F(3.2)); p.circle(x - w / 2 + 52, y, 36, F(2.8)); thing(p, c, S0, i, x - w / 2 + 52, y, 50, null);
+        const it = itOf(S0, i); if (it && it.label && picOf(it)) txt(atG(p, tu(.2 + .1 * i)), it.label, x + 35, y + 12, { maxW: 190, color: C.ink, weight: 700, size: 32 }); else { p.line(x - 30, y - 8, x + 100, y - 8, S(2)); p.line(x - 30, y + 14, x + 60, y + 14, S(2)); } });
+      if (S0.E) { const [x, y] = P[2]; arrowP(p, [[x + w / 2 + 12, y], [320, y]]); endAt(p, c, S0, 390, y, 60, y - 100); }
+    }); });
+
+  /* 11 ── KNOB, METER, LAMP: the knob (link 1) is turned up, the meter (link 2) climbs, the lamp (link 3) lights */
+  variant('knob', 'ปุ่มหมุน แถบ ไฟ', (d, c) => { const S0 = st(d), X = S0.E ? [-330, -60, 170] : [-300, 0, 300], y = -20;
+    art(c, p => {
+      glowP(p, [[X[0] + 115, y], [X[1] - 62, y]]); glowP(p, [[X[1] + 62, y], [X[2] - 92, y]]); if (S0.E) glowP(p, [[X[2] + 92, y], [330, y]]);
+      const x0 = X[0]; for (let a = -135; a <= 135; a += 27) { const u = rad(a - 90); p.line(x0 + Math.cos(u) * 104, y + Math.sin(u) * 104, x0 + Math.cos(u) * 118, y + Math.sin(u) * 118, a <= 108 ? W(3) : S(2)); }
+      p.circle(x0, y, 90, F(3.4)); p.circle(x0, y, 70, S(1.6)); const u = rad(108 - 90); p.line(x0 + Math.cos(u) * 74, y + Math.sin(u) * 74, x0 + Math.cos(u) * 88, y + Math.sin(u) * 88, W(5));
+      thing(p, c, S0, 0, x0, y, 74, y + 170);
+      const x1 = X[1]; R(p, x1 - 58, y - 150, 116, 300, 18, F(3.2)); for (let k = 0; k < 6; k++) R(p, x1 - 38, y + 100 - k * 40, 76, 28, 6, k < 5 ? SOLID(1.6) : S(1.8));
+      R(p, x1 - 50, y - 250, 100, 84, 18, F(2.8)); thing(p, c, S0, 1, x1, y - 208, 58, y + 190);
+      const x2 = X[2]; if (true) lastHalo(p, S0, x2, y, 128); p.circle(x2, y, 88, { fill: LIT, sw: 3.6 }); p.circle(x2, y, 66, S(1.6)); R(p, x2 - 30, y + 88, 60, 40, 8, F(2.8));
+      for (let a = 0; a < 360; a += 45) { const v = rad(a); if (a === 90) continue; p.line(x2 + Math.cos(v) * 104, y + Math.sin(v) * 104, x2 + Math.cos(v) * 124, y + Math.sin(v) * 124, W(2.6)); }
+      thing(p, c, S0, 2, x2, y, 80, y + 190);
+      endAt(p, c, S0, 395, y, 58, y + 108);
+    }); });
+
+  /* 12 ── BEAD TUBE: the plunger pushes into the clear tube — bead 1 pushes bead 2, bead 2 pushes bead 3 out of the open end */
+  variant('beads', 'ลูกปัดดันในหลอดใส', (d, c) => { const S0 = st(d), y = 0, r = 54;
+    art(c, p => { const t0 = -360, t1 = 250;
+      R(p, t0, y - 66, t1 - t0, 132, 66, { fill: GLASS, sw: 3.4 }); p.line(t0 + 40, y - 44, t1 - 50, y - 44, S(1.6));
+      [t0 + 70, t1 - 70].forEach(x => { p.line(x, y + 66, x, 200, W(3)); R(p, x - 44, 200, 88, 16, 6, F(2.6)); });
+      R(p, -480, y - 10, 400, 20, 6, F(2.6)); R(p, -500, y - 50, 24, 100, 8, F(3)); R(p, -82, y - 56, 22, 112, 8, F(3));
+      const X = [0, 108, 360]; X.forEach((x, i) => { if (i === 2) lastHalo(p, S0, x, y, r + 30); p.circle(x, y, r, F(3.4)); thing(p, c, S0, i, x, y, 70, y + 140); });
+      [[t1 + 16, -30], [t1 + 24, 0], [t1 + 16, 30]].forEach(([x, yy]) => p.line(x, y + yy, x + 26, y + yy, S(2)));
+      if (S0.E) endAt(p, c, S0, 360, -200, 58, null), labT(p, S0, 3, 230, -200, { maxW: 150 });
+    }); });
+
+  /* 13 ── GROWING TILES: three tiles, each bigger than the one before, with chevrons between — one thing leads to a bigger one */
+  variant('grow', 'ใหญ่ขึ้นทีละทอด', (d, c) => { const S0 = st(d), sz = [120, 165, 220], X = S0.E ? [-370, -170, 70] : [-330, -90, 210], by = 130;
+    art(c, p => { p.line(-470, by + 14, 470, by + 14, S(1.8));
+      X.forEach((x, i) => { const s = sz[i], y = by - s / 2; if (i === 2) lastHalo(p, S0, x, y, s * .7 + 10); tile(p, x, y, s, F(3.4)); p.circle(x - s / 2 + 22, y - s / 2 + 22, 5, S(1.6));
+        thing(p, c, S0, i, x, y, s * .58, by + 62, { maxW: Math.max(170, s) });
+        if (i < 2 || S0.E) { const xa = x + s / 2 + 16, xb = (i < 2 ? X[i + 1] - sz[i + 1] / 2 : 300) - 16, m = (xa + xb) / 2; [-14, 8].forEach(o => p.poly([[m + o - 8, by - 64 - 16], [m + o + 6, by - 64], [m + o - 8, by - 64 + 16]], W(3.4))); } });
+      endAt(p, c, S0, 385, by - 120, 76, by + 62);
+    }); });
+
+  /* 14 ── DOORS: the first door is pushed open, it swings into the second and opens it, the second opens the third */
+  variant('doors', 'ประตูเปิดดันกันต่อ', (d, c) => { const S0 = st(d), X = S0.E ? [-355, -115, 125] : [-290, 0, 290], fy = 220, w = 130, h = 280;
+    art(c, p => { p.line(-480, fy, 480, fy, S(2));
+      X.forEach((x, i) => { const L = x - w / 2, T = fy - h; if (i === 2) lastHaloR(p, S0, x + 24, fy - h / 2 - 7, w + 90, h + 14, 10, 18);
+        R(p, L - 14, T - 14, w + 28, h + 14, 8, F(3)); R(p, L, T, w, h, 4, { fill: LIT, sw: 2.2 });
+        shape(p, [[L + w, T], [L + w + 62, T + 26], [L + w + 62, fy - 8], [L + w, fy]], F(3.2)); p.circle(L + w + 50, fy - h / 2, 5, SOLID(1));
+        p.path(`M ${L} ${fy} L ${L + w} ${fy} L ${L + w + 40} ${fy + 50} L ${L - 30} ${fy + 50} Z`, { fill: 'rgba(255,255,255,.08)', sw: 0, stroke: 'none' });
+        thing(p, c, S0, i, x - 6, fy - h / 2, 80, fy + 92); });
+      if (S0.E) endAt(p, c, S0, 395, fy - h / 2, 58, fy + 92);
+    }); });
+
+  /* 15 ── BLOCKS ON A TABLE: the ball rolls in and knocks block 1, which shoves block 2, which tips block 3 off the edge into the box */
+  variant('blocks', 'บล็อกดันกันตกกล่อง', (d, c) => { const S0 = st(d), ty = 120, s = 130;
+    art(c, p => { R(p, -480, ty, 640, 20, 6, F(3)); [-440, 120].forEach(x => p.line(x, ty + 20, x, 300, W(3)));
+      p.circle(-420, ty - 34, 34, F(3.2)); p.path(`M -470 ${ty - 34} l -24 0 M -466 ${ty - 56} l -18 -8 M -466 ${ty - 12} l -18 8`, S(2));
+      const blk = (x, y, a, i) => { const g = rot(p, a, x, y); shape(g, [[x - s / 2, y - s / 2], [x - s / 2 + 20, y - s / 2 - 18], [x + s / 2 + 20, y - s / 2 - 18], [x + s / 2, y - s / 2]], F(2.6)); R(g, x - s / 2, y - s / 2, s, s, 12, F(3.4)); thing(p, c, S0, i, x, y, 84, null, { r: a }); };
+      blk(-260, ty - s / 2, 0, 0); blk(-125, ty - s / 2, 0, 1);
+      lastHalo(p, S0, 230, 135, 110); blk(230, 120, 28, 2);
+      p.path(`M 120 ${ty + 30} Q 190 ${ty - 30} 228 50`, S(1.6));
+      R(p, 150, 210, 200, 90, 8, F(3.2)); shape(p, [[150, 210], [120, 176], [150, 186]], F(2.4)); shape(p, [[350, 210], [380, 176], [350, 186]], F(2.4));
+      labT(p, S0, 0, -260, ty + 66); labT(p, S0, 1, -110, ty + 66); labT(p, S0, 2, 250, 340, { maxW: 200 });
+      endAt(p, c, S0, 400, -100, 60, 5);
+    }); });
+
+  /* 16 ── POWER STRIP: the plug (link 1) goes in, the strip's lights come on socket by socket, the last socket powers link 3 */
+  variant('strip', 'ปลั๊กพ่วงไฟวิ่ง', (d, c) => { const S0 = st(d), y = 120, x0 = -300, x1 = S0.E ? 190 : 300;
+    art(c, p => {
+      R(p, x0, y - 50, x1 - x0, 100, 24, F(3.4)); R(p, x0 - 50, y - 26, 50, 52, 10, F(3)); tube(p, `M ${x0 - 50} ${y} L -470 ${y} L -470 300`, 14);
+      const sx = [lerp(x0, x1, .22), lerp(x0, x1, .5), lerp(x0, x1, .78)];
+      sx.forEach((x, i) => { p.circle(x, y, 26, F(2.6)); [-1, 1].forEach(sd => R(p, x + sd * 10 - 3, y - 8, 6, 16, 2, SOLID(1))); p.circle(x + 40, y - 30, 7, SOLID(1));
+        const ty = -110, last = i === 2; if (last) lastHaloR(p, S0, x, ty, 120, 120, 29, 18);
+        p.line(x, y - 26, x, ty + 66, last ? W(3.6) : S(2)); tile(p, x, ty, 120, i < 2 ? F(3.2) : { fill: LIT, sw: 3.4 });
+        thing(p, c, S0, i, x, ty, 76, ty - 92, { maxW: 128, size: 30, wrap: 'up' }); });
+      glowP(p, [[x0 + 20, y + 30], [x1 - 20, y + 30]], 3);
+      if (S0.E) endAt(p, c, S0, 390, -110, 60, -10);
+    }); });
+
+  /* 17 ── STACKED BOXES: the ball drops into box 1, falls through its floor into box 2, then box 3, and rolls out to the end */
+  variant('boxes', 'กล่องซ้อนลูกบอลหล่น', (d, c) => { const S0 = st(d), P = [[-150, -210], [-10, -30], [130, 150]], w = 220, h = 110;
+    art(c, p => { p.line(-480, 300, 480, 300, S(1.8));
+      p.path(`M ${P[0][0]} -340 L ${P[0][0]} ${P[0][1]} L ${P[1][0]} ${P[1][1]} L ${P[2][0]} ${P[2][1]} L ${P[2][0]} 278 L ${S0.E ? 330 : P[2][0] + 60} 278`, S(1.6));
+      P.forEach(([x, y], i) => { if (i === 2) lastHaloR(p, S0, x, y - 14, w + 80, h + 40, 14, 14);
+        shape(p, [[x - w / 2, y - h / 2], [x - w / 2 - 40, y - h / 2 - 36], [x - w / 2 + 20, y - h / 2 - 30]], F(2.6)); shape(p, [[x + w / 2, y - h / 2], [x + w / 2 + 40, y - h / 2 - 36], [x + w / 2 - 20, y - h / 2 - 30]], F(2.6));
+        R(p, x - w / 2, y - h / 2, w, h, 8, F(3.4)); p.line(x - w / 2 + 14, y - h / 2 + 16, x + w / 2 - 14, y - h / 2 + 16, S(1.6));
+        thing(p, c, S0, i, x, y + 6, 62, null); labT(p, S0, i, x - w / 2 - 90, y + 12, { maxW: 150, wrap: null }); });
+      p.circle(S0.E ? 290 : P[2][0] + 60, 278, 22, SOLID());
+      if (S0.E) endAt(p, c, S0, 390, 200, 58, 100);
+    }); });
+
+  /* 18 ── FAN, PINWHEEL, FLAG: the fan (link 1) blows, the pinwheel (link 2) spins and its breeze lifts the flag (link 3) */
+  variant('fan', 'พัดลม กังหัน ธง', (d, c) => { const S0 = st(d), fy = 270, fx = -350, wx = -40, gx = S0.E ? 190 : 250;
+    art(c, p => { p.line(-480, fy, 480, fy, S(2));
+      p.line(fx, 100, fx, fy - 20, W(3)); p.ellipse(fx, fy - 12, 74, 13, F(2.6));
+      [0, 120, 240].forEach(a => { const g = rot(p, a + 20, fx, 0); g.ellipse(fx, -54, 24, 44, S(2)); });
+      ring(p, fx, 0, 104, 92); [0, 45, 90, 135].forEach(a => { const x = Math.cos(rad(a)), y = Math.sin(rad(a)); p.line(fx - x * 92, -y * 92, fx + x * 92, y * 92, S(1.2)); });
+      p.circle(fx, 0, 46, F(3.2)); thing(p, c, S0, 0, fx, 0, 60, fy + 44);
+      [-40, 10, 60].forEach((y, k) => p.path(`M ${fx + 125} ${y} q 30 -14 60 0 t 60 0`, k === 1 ? W(2.4) : S(2.2)));
+      p.line(wx, -30, wx, fy, W(3.2));
+      [0, 90, 180, 270].forEach(a => { const g = rot(p, a + 15, wx, -30); g.path(`M ${wx} -30 L ${wx} -140 Q ${wx + 60} -120 ${wx} -30 Z`, F(3)); });
+      p.circle(wx, -30, 40, F(3.2)); thing(p, c, S0, 1, wx, -30, 52, fy + 44);
+      [-110, -60].forEach((y, k) => p.path(`M ${wx + 110} ${y} q 30 -12 60 0 t 50 0`, k ? S(2.2) : W(2.4)));
+      lastHalo(p, S0, gx + 80, -150, 110);
+      p.line(gx, -240, gx, fy, W(3.4)); p.circle(gx, -246, 8, SOLID(1));
+      p.path(`M ${gx} -230 C ${gx + 60} -260, ${gx + 110} -200, ${gx + 170} -225 L ${gx + 170} -85 C ${gx + 110} -60, ${gx + 60} -120, ${gx} -90 Z`, F(3.4)); thing(p, c, S0, 2, gx + 86, -155, 70, fy + 44, { lx: gx });
+      endAt(p, c, S0, 400, 90, 58, 186);
+    }); });
+
+  /* 19 ── ROPE WAVE: a person flicks the rope — the wave runs along it, lifting link 1, 2, 3 in turn, and slaps into the post at the far end */
+  variant('rope', 'สะบัดเชือกคลื่นวิ่ง', (d, c) => { const S0 = st(d), fy = 290, ry = 120, k = .8, px = -420;
+    art(c, p => { floor(p, fy);
+      const arm = { s: [4, -76], e: [44, -56], h: [86, -38] }; person(p, px, fy, k, arm, { leg: stride });
+      const hd = pAt(px, fy, k, 86, -38), postX = 420, xc = 345, pts = [];
+      for (let x = hd[0]; x <= postX; x += 8) { const u = (x - xc) / 52, w = 1 - Math.min(1, Math.max(0, (x - hd[0]) / 60)); pts.push([x, ry - 86 * Math.exp(-u * u) + (hd[1] - ry) * w]); }
+      pts.push([postX, ry]); tube(p, pathOf(pts, false), 13);
+      R(p, postX - 20, 40, 40, 250, 8, F(3.2)); p.circle(postX, ry, 15, F(2.6)); [-1, 1].forEach(sd => arcs(p, postX + 30, ry - 40, 1, 2, 18, 14, 40, W(2.4)));
+      const X = [-200, 0, 200]; X.forEach((x, i) => { p.circle(x, ry, 56, F(3.2)); thing(p, c, S0, i, x, ry, 74, ry + 96, { maxW: 190 }); });
+      [-1, 1].forEach(sd => { p.path(`M ${X[2] + sd * 70} ${ry - 64} q ${sd * 10} -10 ${sd * 22} -6`, S(2)); });
+      if (!endAt(p, c, S0, postX, -100, 62, -200)) lastHalo(p, S0, X[2], ry, 84);
+    }); });
+
+
+  /* 20 ── BILLIARDS (seen from above): the cue strikes the white ball, it knocks link 1, link 1 knocks link 2, link 2 sends link 3 into the corner pocket */
   variant('billiards', 'บิลเลียดชนต่อกัน', (d, c) => { const S0 = st(d), ox = S0.E ? -80 : 0;
     art(c, p => { const cl = clipG(p, -500, -350, 1000, 700);
       R(p, ox - 380, -235, 760, 470, 46, F(3.4)); R(p, ox - 342, -197, 684, 394, 20, S(2));
@@ -123,341 +358,6 @@
       endAt(p, c, S0, 395, -40, 62, 70);
     }); });
 
-  /* 02 ── TUNING FORKS: the mallet strikes fork 1 — its ring sets fork 2 humming, fork 2 sets fork 3 ringing loudest */
-  variant('forks', 'ส้อมเสียงก้องต่อกัน', (d, c) => { const S0 = st(d), X = S0.E ? [-300, -50, 200] : [-290, 0, 290], fy = 250;
-    art(c, p => { floor(p, fy);
-      X.forEach((x, i) => { const top = -130 + i * 0 - [0, 15, 30][i];
-        R(p, x - 105, 140, 210, 110, 10, F(3.2)); R(p, x - 105, 140, 210, 14, 6, S(1.8));
-        R(p, x - 8, 108, 16, 34, 4, F(2.4));
-        tube(p, `M ${x - 28} ${top} L ${x - 28} 82 Q ${x - 28} 110 ${x} 110 Q ${x + 28} 110 ${x + 28} 82 L ${x + 28} ${top}`, 17);
-        const vib = i === 2 ? W(2.8) : S(2.2); [-1, 1].forEach(sd => arcs(p, x + sd * 34, top + 60, sd, i === 2 ? 3 : 2, 22, 16, 32, vib));
-        thing(p, c, S0, i, x, 196, 78, fy + 48, { maxW: 210 }); });
-      lastHalo(p, S0, X[2], 195, 92);
-      [0, 1].forEach(i => { const mx = (X[i] + X[i + 1]) / 2; arcs(p, mx - 40, -20, 1, 3, 30, 20, 30, S(2.2)); });
-      const hx = X[0] - 120, hy = -40; tube(p, `M ${hx - 20} ${hy + 30} L ${hx - 110} ${hy + 170}`, 15); p.ellipse(hx, hy, 26, 34, F(3.2)); p.line(hx - 14, hy - 22, hx - 14, hy + 22, S(1.6));
-      if (S0.E) { arcs(p, X[2] + 70, -20, 1, 3, 30, 20, 30, W(2.4)); endAt(p, c, S0, 400, -20, 62, 90); }
-    }); });
-
-  /* 03 ── HIGH STRIKER: a person swings the mallet onto the pad (link 1), the puck shoots up past the lamp (link 2) and rings the bell (link 3) */
-  variant('striker', 'ค้อนตีระฆังวัดแรง', (d, c) => { const S0 = st(d), tx = S0.E ? 70 : 140, fy = 290;
-    art(c, p => { floor(p, fy);
-      R(p, tx - 26, -205, 52, 495, 8, F(3.2)); p.line(tx, -190, tx, 205, S(1.6));
-      R(p, tx - 80, 205, 160, 85, 10, F(3.4)); thing(p, c, S0, 0, tx, 248, 70, fy + 44, { maxW: 200 });
-      const pd = tx - 230; R(p, pd - 50, 262, 100, 18, 6, F(2.8)); p.line(pd + 50, 271, tx - 80, 271, W(3));
-      /* lamp (link 2) on an arm */
-      p.line(tx - 26, -30, tx - 70, -30, W(3)); p.circle(tx - 128, -30, 56, F(3.2)); thing(p, c, S0, 1, tx - 128, -30, 72, 58, { maxW: 180 });
-      /* the bell (link 3) and the puck that hit it */
-      lastHalo(p, S0, tx, -262, 100);
-      p.line(tx, -205, tx, -222, W(3));
-      p.path(`M ${tx - 66} ${-224} Q ${tx - 60} ${-300} ${tx} ${-302} Q ${tx + 60} ${-300} ${tx + 66} ${-224} Z`, F(3.4)); R(p, tx - 76, -228, 152, 14, 7, F(2.8));
-      thing(p, c, S0, 2, tx, -262, 60, null);
-      const lb = itOf(S0, 2); if (lb && lb.label && picOf(lb)) txt(atG(p, tu(.4)), lb.label, tx - 120, -150, { maxW: 170, color: C.ink, weight: 700, size: 32, wrap: 'down' });
-      R(p, tx - 24, -202, 48, 30, 8, SOLID());
-      [-1, 1].forEach(sd => arcs(p, tx + sd * 82, -256, sd, 2, 18, 16, 40, W(2.6)));
-      /* the person and the mallet on the pad */
-      const px = tx - 470, k = .8, lean = 12, arm = { s: [4, -76], e: [46, -44], h: [90, -18] };
-      person(p, px, fy, k, arm, { lean, leg: stride });
-      const hd = pAt(px, fy, k, 90, -18, lean), hc = [pd, 232];
-      tube(p, `M ${hd[0]} ${hd[1]} L ${hc[0]} ${hc[1] - 26}`, 15); R(p, hc[0] - 50, hc[1] - 26, 100, 52, 10, F(3.2));
-      [-1, 1].forEach(sd => p.line(pd + sd * 64, 248, pd + sd * 82, 236, W(2.4)));
-      endAt(p, c, S0, 340, -230, 62, -128);
-    }); });
-
-  /* 04 ── CIRCUIT BOARD: the signal comes in at the edge connector, runs the copper trace through chip 1, chip 2, chip 3 and lights the LED */
-  variant('pcb', 'แผงวงจรส่งสัญญาณ', (d, c) => { const S0 = st(d), X = S0.E ? [-260, 0, 250] : [-290, 0, 290], Y = [-90, 85, -90];
-    art(c, p => {
-      R(p, -470, -262, 940, 504, 26, F(3.4)); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => p.circle(a * 435, b * 225, 12, S(2)));
-      R(p, -470, -150, 30, 120, 4, F(2.4)); for (let y = -138; y < -40; y += 22) p.line(-466, y, -446, y, W(2));
-      const q = sub(p); [[-440, -90], [X[0] - 92, -90]];
-      const trace = [[[-440, -90], [X[0] - 92, -90]], [[X[0] + 92, -90], [X[0] + 140, -90], [X[0] + 140, Y[1]], [X[1] - 92, Y[1]]], [[X[1] + 92, Y[1]], [X[1] + 130, Y[1]], [X[1] + 130, -90], [X[2] - 92, -90]]];
-      if (S0.E) trace.push([[X[2] + 92, -90], [395, -90], [395, 50]]);
-      trace.forEach(t => { q.path(pathOf(t, false), { sw: 12, stroke: 'rgba(255,255,255,.12)' }); q.path(pathOf(t, false), W(4.4)); t.slice(1, -1).forEach(([x, y]) => q.circle(x, y, 8, F(2.4))); });
-      [[-200, 175], [-150, 175]].forEach(([x, y]) => { p.line(x - 40, y + 20, x + 40, y + 20, S(2)); });
-      R(p, -150, 168, 64, 22, 6, F(2.4)); p.line(-180, 179, -150, 179, S(2)); p.line(-86, 179, -56, 179, S(2));
-      p.circle(160, 180, 20, F(2.4)); p.line(160, 200, 160, 222, S(2)); p.line(-40, -200, 120, -200, S(2)); p.line(120, -200, 120, -150, S(2)); p.circle(-40, -200, 7, F(2));
-      X.forEach((x, i) => { const y = Y[i]; if (i === 2) lastHalo(p, S0, x, y, 120);
-        R(p, x - 75, y - 75, 150, 150, 12, F(3.2)); p.circle(x - 52, y - 52, 6, S(1.6));
-        [-45, -15, 15, 45].forEach(o => { [-1, 1].forEach(sd => { p.line(x + sd * 75, y + o, x + sd * 92, y + o, W(2.6)); p.line(x + o, y + sd * 75, x + o, y + sd * 92, W(2.6)); }); });
-        thing(p, c, S0, i, x, y, 84, y + 132, { maxW: 200, size: 32 }); });
-      if (S0.E) { p.line(375, 150, 375, 205, W(2.4)); p.line(415, 150, 415, 205, W(2.4)); endAt(p, c, S0, 395, 108, 56, null); const e = S0.E; if (e.label && picOf(e)) txt(atG(p, tu(.5)), e.label, 395, -150, { maxW: 150, color: C.ink, weight: 700, size: 32 }); }
-    }); });
-
-  /* 05 ── ROPE WAVE: a person flicks the rope — the wave runs along it, lifting link 1, 2, 3 in turn, and slaps into the post at the far end */
-  variant('rope', 'สะบัดเชือกคลื่นวิ่ง', (d, c) => { const S0 = st(d), fy = 290, ry = 120, k = .8, px = -420;
-    art(c, p => { floor(p, fy);
-      const arm = { s: [4, -76], e: [44, -56], h: [86, -38] }; person(p, px, fy, k, arm, { leg: stride });
-      const hd = pAt(px, fy, k, 86, -38), postX = 420, xc = 345, pts = [];
-      for (let x = hd[0]; x <= postX; x += 8) { const u = (x - xc) / 52, w = 1 - Math.min(1, Math.max(0, (x - hd[0]) / 60)); pts.push([x, ry - 86 * Math.exp(-u * u) + (hd[1] - ry) * w]); }
-      pts.push([postX, ry]); tube(p, pathOf(pts, false), 13);
-      R(p, postX - 20, 40, 40, 250, 8, F(3.2)); p.circle(postX, ry, 15, F(2.6)); [-1, 1].forEach(sd => arcs(p, postX + 30, ry - 40, 1, 2, 18, 14, 40, W(2.4)));
-      const X = [-200, 0, 200]; X.forEach((x, i) => { p.circle(x, ry, 56, F(3.2)); thing(p, c, S0, i, x, ry, 74, ry + 96, { maxW: 190 }); });
-      [-1, 1].forEach(sd => { p.path(`M ${X[2] + sd * 70} ${ry - 64} q ${sd * 10} -10 ${sd * 22} -6`, S(2)); });
-      if (!endAt(p, c, S0, postX, -100, 62, -200)) lastHalo(p, S0, X[2], ry, 84);
-    }); });
-
-  /* 06 ── MIRRORS: the laser hits mirror 1, which throws it to mirror 2, then mirror 3, and on to the sensor */
-  variant('mirrors', 'เลเซอร์สะท้อนกระจก', (d, c) => { const S0 = st(d), fy = 240, M = [[-215, -150], [35, 115], [265, -150]], r = 62;
-    art(c, p => { floor(p, fy);
-      R(p, -470, 182, 124, 58, 10, F(3.2)); R(p, -346, 194, 26, 24, 4, F(2.4)); p.circle(-440, 211, 8, S(1.6)); p.line(-420, 222, -370, 222, S(1.6));
-      const end = S0.E ? [420, 100] : [500, 30], L = [[-320, 206], ...M, end], cut = [];
-      for (let i = 0; i < L.length - 1; i++) { const [a, b] = [L[i], L[i + 1]], dx = b[0] - a[0], dy = b[1] - a[1], n = Math.hypot(dx, dy), ra = i ? r : 0, rb = i < 3 ? r : (S0.E ? 60 : 0);
-        cut.push([[a[0] + dx / n * ra, a[1] + dy / n * ra], [b[0] - dx / n * rb, b[1] - dy / n * rb]]); }
-      const cl = clipG(p, -500, -350, 1000, 700); cut.forEach(s => beam(cl, s));
-      [M[0], M[2]].forEach(([x, y]) => { p.line(x, -350, x, y - r - 10, W(3)); R(p, x - 16, y - r - 18, 32, 14, 4, F(2.4)); });
-      p.line(M[1][0], M[1][1] + r + 2, M[1][0], fy - 14, W(3)); R(p, M[1][0] - 46, fy - 14, 92, 14, 6, F(2.6));
-      M.forEach(([x, y], i) => { if (i === 2) lastHalo(p, S0, x, y, r + 30); p.circle(x, y, r, F(3.6)); p.circle(x, y, r - 11, S(1.6)); });
-      thing(p, c, S0, 0, M[0][0], M[0][1], 76, M[0][1] + 8, { lx: -375, maxW: 140, size: 30 });
-      thing(p, c, S0, 1, M[1][0], M[1][1], 76, fy + 44, { maxW: 200 });
-      thing(p, c, S0, 2, M[2][0], M[2][1], 76, M[2][1] + 8, { lx: 410, maxW: 140, size: 30 });
-      if (S0.E) { p.line(420, 160, 420, fy - 12, W(3)); R(p, 380, fy - 12, 80, 12, 5, F(2.4)); endAt(p, c, S0, 420, 100, 60, fy + 44); }
-    }); });
-
-  /* 07 ── HYDRAULICS: link 1 weighs its piston down, the oil pushes piston 2 up, piston 2's line lifts piston 3 highest */
-  variant('hydraulic', 'กระบอกไฮดรอลิก', (d, c) => { const S0 = st(d), X = S0.E ? [-330, -75, 180] : [-290, 0, 290], fy = 250, top = [60, -20, -100], pis = [170, 10, -70];
-    art(c, p => { floor(p, fy); R(p, -440, fy - 24, X[2] + 520 > 880 ? 880 : X[2] + 140 + 440 - 0, 24, 6, F(2.8));
-      tube(p, `M ${X[0]} 205 L ${X[2]} 205`, 22);
-      X.forEach((x, i) => { const yt = top[i], yp = pis[i], pl = yp - 80;
-        if (i === 2) lastHalo(p, S0, x, pl - 64, 96);
-        R(p, x - 58, yt, 116, 226 - yt, 10, F(3.2)); R(p, x - 50, yp + 12, 100, 218 - yp - 12, 6, { fill: LIT, sw: 0, stroke: 'none' });
-        R(p, x - 50, yp, 100, 14, 4, SOLID(1.6)); R(p, x - 66, yt - 10, 132, 16, 6, F(2.6));
-        R(p, x - 9, pl + 10, 18, yp - pl - 10, 4, F(2.4)); R(p, x - 70, pl, 140, 14, 6, F(3));
-        thing(p, c, S0, i, x, pl - 60, 104, fy + 46, { maxW: 210 }); });
-      p.path(`M ${X[0] - 14} ${pis[0] - 140} l 0 36 m -14 -14 l 14 14 l 14 -14`, W(3));
-      endAt(p, c, S0, 405, -200, 62, -100);
-    }); });
-
-  /* 08 ── STAGED ROCKET: stage 1 burns and drops away, stage 2 fires and drops away, the top stage (link 3) flies on to the end */
-  variant('rocket', 'จรวดแยกท่อน', (d, c) => { const S0 = st(d);
-    art(c, p => { const cl = clipG(p, -500, -350, 1000, 700);
-      p.path('M -400 300 C -380 40, -170 -150, 175 -195', S(2)); R(p, -450, 292, 100, 12, 5, F(2.4));
-      [[-415, 278, 22], [-385, 284, 16], [-440, 286, 14]].forEach(([x, y, r]) => p.circle(x, y, r, S(1.8)));
-      const stage = (x, y, a, kind, i) => { const g = rot(p, a, x, y), w = kind === 2 ? 42 : 46;
-        if (kind === 2) { g.path(`M ${x - w} ${y + 55} L ${x - w} ${y - 30} Q ${x - w} ${y - 90} ${x} ${y - 125} Q ${x + w} ${y - 90} ${x + w} ${y - 30} L ${x + w} ${y + 55} Z`, F(3.4));
-          g.path(`M ${x - 24} ${y + 62} Q ${x - 30} ${y + 120} ${x} ${y + 150} Q ${x + 30} ${y + 120} ${x + 24} ${y + 62}`, W(2.6)); g.path(`M ${x - 10} ${y + 66} Q ${x - 12} ${y + 100} ${x} ${y + 116} Q ${x + 12} ${y + 100} ${x + 10} ${y + 66}`, S(2));
-          shape(g, [[x - w, y + 10], [x - w - 26, y + 55], [x - w, y + 55]], F(2.6)); shape(g, [[x + w, y + 10], [x + w + 26, y + 55], [x + w, y + 55]], F(2.6)); }
-        else { R(g, x - w, y - 75, w * 2, 150, 12, F(3.4)); g.line(x - w, y - 52, x + w, y - 52, S(1.6));
-          shape(g, [[x - 24, y + 75], [x + 24, y + 75], [x + 34, y + 104], [x - 34, y + 104]], F(2.6));
-          if (kind === 0) { shape(g, [[x - w, y + 20], [x - w - 28, y + 75], [x - w, y + 75]], F(2.6)); shape(g, [[x + w, y + 20], [x + w + 28, y + 75], [x + w, y + 75]], F(2.6)); } }
-        thing(p, c, S0, i, x, y + (kind === 2 ? 0 : 8), 72, null, {}); if (a) { const e = itOf(S0, i); } return g; };
-      stage(-305, 150, 160, 0, 0); stage(-70, -30, 128, 1, 1);
-      lastHalo(p, S0, 175, -195, 130); stage(175, -195, 62, 2, 2);
-      [[-250, 60], [-10, -120]].forEach(([x, y]) => [[0, 0, 16], [20, 10, 11], [-14, 14, 9]].forEach(([a, b, r]) => p.circle(x + a, y + b, r, S(1.8))));
-      const lab = (i, x, y) => { const it = itOf(S0, i); if (it && it.label && picOf(it)) txt(atG(p, tu(.3)), it.label, x, y, { maxW: 190, color: C.ink, weight: 700, size: 32, wrap: 'down' }); };
-      lab(0, -160, 250); lab(1, 90, 70); lab(2, 220, -40);
-      endAt(p, c, S0, 405, -230, 60, -132);
-    }); });
-
-  /* 09 ── PINBALL: the plunger fires the ball up the lane; it kicks off bumper 1 onto bumper 2, then bumper 3, which lights the target */
-  variant('pinball', 'ตู้พินบอล', (d, c) => { const S0 = st(d), ox = S0.E ? -95 : 0;
-    art(c, p => {
-      p.path(`M ${ox - 300} 310 L ${ox - 300} -120 Q ${ox - 300} -330 ${ox} -330 Q ${ox + 300} -330 ${ox + 300} -120 L ${ox + 300} 310`, F(3.4));
-      p.line(ox + 236, 310, ox + 236, -130, W(3)); p.path(`M ${ox + 236} -130 Q ${ox + 236} -268 ${ox + 110} -290`, S(2));
-      R(p, ox + 248, 236, 40, 22, 6, F(2.6)); p.poly([[ox + 268, 258], [ox + 254, 268], [ox + 282, 278], [ox + 254, 288], [ox + 268, 298]], W(2.2));
-      p.circle(ox + 268, -60, 14, SOLID(1));
-      p.line(ox - 300, 120, ox - 190, 210, W(3)); p.line(ox + 236, 120, ox + 126, 210, W(3));
-      tube(p, `M ${ox - 190} 210 L ${ox - 78} 246`, 22); tube(p, `M ${ox + 126} 210 L ${ox + 14} 246`, 22);
-      const B = [[ox - 130, -170], [ox + 95, -185], [ox - 20, 10]], pts = [[ox + 236, -140], [ox + 150, -280], [ox - 40, -290], [ox - 150, -238], B[0], B[1], B[2], [ox + 30, 150]];
-      p.path(pathOf(pts, false), S(1.6));
-      [-1, 1].forEach(sd => shape(p, [[ox + sd * 210, 40], [ox + sd * 210, 130], [ox + sd * 160, 160]], F(2.6)));
-      B.forEach(([x, y], i) => { if (i === 2) lastHalo(p, S0, x, y, 96); ring(p, x, y, 68, 54); p.circle(x, y, 54, S(1.6)); thing(p, c, S0, i, x, y, 72, y + 104, { maxW: 190, size: 32 }); });
-      p.circle(ox + 30, 152, 20, SOLID());
-      endAt(p, c, S0, 370, -40, 62, 70);
-    }); });
-
-  /* 10 ── FAN & SAIL CART: the fan (link 1) blows, the cart's sail (link 2) fills and rolls it into the buffer, which lights the lamp (link 3) */
-  variant('sailcart', 'พัดลมเป่ารถใบเรือ', (d, c) => { const S0 = st(d), fy = 270, fx = -380, cx = -40, bx = S0.E ? 175 : 230;
-    art(c, p => { floor(p, fy);
-      p.line(fx, 125, fx, 240, W(3)); p.ellipse(fx, fy - 12, 80, 14, F(2.8));
-      [0, 120, 240].forEach(a => { const g = rot(p, a + 20, fx, 20); g.ellipse(fx, 20 - 58, 26, 48, S(2)); });
-      ring(p, fx, 20, 108, 96); p.circle(fx, 20, 76, S(1.4)); [0, 45, 90, 135].forEach(a => { const x = Math.cos(rad(a)), y = Math.sin(rad(a)); p.line(fx + x * 76, 20 + y * 76, fx + x * 98, 20 + y * 98, S(1.4)); p.line(fx - x * 76, 20 - y * 76, fx - x * 98, 20 - y * 98, S(1.4)); });
-      p.circle(fx, 20, 48, F(3.2)); thing(p, c, S0, 0, fx, 20, 62, fy + 44, { maxW: 200 });
-      [-30, 30, 90].forEach((y, k) => p.path(`M ${fx + 135} ${y} q 40 -16 80 0 t 80 0 t ${k === 1 ? 60 : 40} 0`, k === 1 ? W(2.4) : S(2.2)));
-      R(p, cx - 110, 168, 220, 62, 12, F(3.2)); [-70, 70].forEach(x => { p.circle(cx + x, 240, 28, F(3)); p.circle(cx + x, 240, 7, SOLID(1)); });
-      p.line(cx - 20, 168, cx - 20, -205, W(3.4)); p.line(cx - 20, 150, cx + 95, 150, W(3));
-      p.path(`M ${cx - 14} -200 C ${cx + 170} -140, ${cx + 175} 70, ${cx - 14} 144 Z`, F(3.2)); thing(p, c, S0, 1, cx + 62, -28, 88, fy + 44, { lx: cx, maxW: 200 });
-      R(p, cx + 110, 186, 14, 26, 4, F(2.4));
-      R(p, bx - 54, 176, 108, fy - 176, 8, F(3.2)); [-1, 1].forEach(sd => p.circle(bx - 54 - 0, 190 + sd * 0, 0.1, S(1)));
-      R(p, bx - 70, 186, 16, 26, 4, F(2.4)); p.line(bx, 176, bx, 70, W(3));
-      lastHalo(p, S0, bx, 14, 88); p.circle(bx, 14, 58, F(3.4)); [-1, 1].forEach(sd => arcs(p, bx + sd * 70, 14, sd, 2, 14, 14, 40, W(2.4)));
-      thing(p, c, S0, 2, bx, 14, 76, fy + 44, { maxW: 200 });
-      endAt(p, c, S0, 400, -150, 62, -48);
-    }); });
-
-  /* 11 ── RELAY MASTS: mast 1 sends, mast 2 catches and passes it over the hill, mast 3 catches it and sends it on to the end */
-  variant('towers', 'เสาส่งสัญญาณต่อกัน', (d, c) => { const S0 = st(d), X = S0.E ? [-360, -95, 165] : [-320, 0, 320], by = [215, 175, 230], ty = [-60, -140, -40];
-    art(c, p => { const cl = clipG(p, -500, -350, 1000, 700);
-      cl.path(`M -520 300 C -440 ${by[0]} ${X[0] - 60} ${by[0] - 10} ${X[0]} ${by[0]} C ${X[0] + 90} ${by[0] + 10} ${X[1] - 120} ${by[1] - 5} ${X[1]} ${by[1]} C ${X[1] + 120} ${by[1] + 5} ${X[2] - 80} ${by[2] - 6} ${X[2]} ${by[2]} C ${X[2] + 90} ${by[2] + 6} 460 270 520 300`, S(2.2));
-      X.forEach((x, i) => { const b = by[i], t = ty[i] + 50, h = b - t;
-        p.line(x - 46, b, x - 12, t, W(3)); p.line(x + 46, b, x + 12, t, W(3));
-        for (let k = 0; k < 4; k++) { const y0 = t + h * k / 4, y1 = t + h * (k + 1) / 4, w0 = 12 + 34 * k / 4, w1 = 12 + 34 * (k + 1) / 4; p.line(x - w0, y0, x + w1, y1, S(1.6)); p.line(x + w0, y0, x - w1, y1, S(1.6)); p.line(x - w1, y1, x + w1, y1, S(1.6)); }
-        if (i === 2) lastHalo(p, S0, x, ty[i], 90);
-        p.circle(x, ty[i], 58, F(3.4)); p.line(x, ty[i] - 58, x, ty[i] - 86, W(3)); p.circle(x, ty[i] - 90, 6, SOLID(1));
-        thing(p, c, S0, i, x, ty[i], 76, b + 54, { maxW: 200 }); });
-      for (let i = 0; i < 2; i++) { const a = [X[i] + 64, ty[i] - 20], b = [X[i + 1] - 64, ty[i + 1] - 20], m = [(a[0] + b[0]) / 2, Math.min(a[1], b[1]) - 110];
-        p.path(`M ${a[0]} ${a[1]} Q ${m[0]} ${m[1]} ${b[0]} ${b[1]}`, W(2.6)); arcs(p, a[0] - 4, a[1] - 6, 1, 2, 14, 14, 40, S(2)); }
-      if (S0.E) { const a = [X[2] + 64, ty[2] - 20]; p.path(`M ${a[0]} ${a[1]} Q ${a[0] + 90} ${-230} 350 -200`, W(2.6)); endAt(p, c, S0, 410, -190, 60, -90); }
-    }); });
-
-  /* 12 ── MODEL STEAM ENGINE: the burner (link 1) heats the boiler (link 2), the steam drives the piston and spins the flywheel (link 3) */
-  variant('steam', 'เครื่องจักรไอน้ำจำลอง', (d, c) => { const S0 = st(d), wx = S0.E ? 255 : 290, wy = 70;
-    art(c, p => {
-      R(p, -470, 232, 940, 28, 8, F(3)); p.line(-470, 290, 470, 290, S(1.8));
-      [-410, -180].forEach(x => p.line(x, 70, x, 232, W(3)));
-      R(p, -380, 158, 180, 74, 10, F(3.2)); p.circle(-290, 195, 30, F(2.8)); thing(p, c, S0, 0, -290, 195, 44, 300 + 32, { maxW: 200 });
-      [-345, -290, -235].forEach(x => p.path(`M ${x - 12} 150 Q ${x - 14} 126 ${x} 110 Q ${x + 14} 126 ${x + 12} 150`, W(2.4)));
-      R(p, -440, -60, 300, 160, 78, F(3.4)); p.circle(-290, 20, 52, S(1.8)); thing(p, c, S0, 1, -290, 20, 72, -82, { lx: -340, maxW: 170, size: 30 });
-      R(p, -224, -175, 40, 118, 6, F(3)); R(p, -232, -188, 56, 16, 5, F(2.6));
-      [[-198, -232, 22], [-170, -270, 28], [-130, -300, 20]].forEach(([x, y, r]) => p.circle(x, y, r, S(2)));
-      tube(p, `M -170 -58 L -170 -100 Q -170 -122 -148 -122 L 0 -122 Q 22 -122 22 -100 L 22 72`, 16);
-      R(p, -60, 72, 160, 80, 10, F(3.2)); [-30, 70].forEach(x => p.line(x, 152, x, 232, W(3)));
-      R(p, 100, 106, 38, 14, 4, F(2.4)); R(p, 132, 96, 26, 34, 5, F(2.6));
-      const pin = [wx - 78, wy + 62]; tube(p, `M 158 113 L ${pin[0]} ${pin[1]}`, 15);
-      lastHalo(p, S0, wx, wy, 172);
-      [-1, 1].forEach(sd => p.line(wx, wy, wx + sd * 80, 232, W(3)));
-      ring(p, wx, wy, 150, 124, F(3.4)); for (let a = 0; a < 360; a += 60) { const x = Math.cos(rad(a + 15)), y = Math.sin(rad(a + 15)); p.line(wx + x * 58, wy + y * 58, wx + x * 124, wy + y * 124, W(3)); }
-      p.circle(wx, wy, 58, F(3.4)); p.circle(...pin, 9, F(2.4)); thing(p, c, S0, 2, wx, wy, 74, 300 + 32, { maxW: 220 });
-      endAt(p, c, S0, 420, -235, 58, -140);
-    }); });
-
-  /* 13 ── LAB FLASKS: link 1 is heated, its vapour bubbles through flask 2, flask 2's gas makes the beaker (link 3) foam up */
-  variant('flasks', 'ขวดทดลองทำปฏิกิริยา', (d, c) => { const S0 = st(d), X = S0.E ? [-330, -70, 190] : [-300, 0, 300], ty = 250;
-    art(c, p => { R(p, -480, ty, 960, 22, 6, F(3)); p.line(-480, 300, 480, 300, S(1.8));
-      const x0 = X[0], x1 = X[1], x2 = X[2];
-      p.line(-450, ty, -450, -150, W(3)); R(p, -476, ty - 14, 70, 14, 5, F(2.4)); p.line(-450, -110, x0 - 24, -110, W(3)); R(p, x0 - 30, -122, 14, 26, 4, F(2.4));
-      R(p, x0 - 26, 200, 52, 50, 8, F(3)); p.path(`M ${x0 - 12} 196 Q ${x0 - 14} 176 ${x0} 162 Q ${x0 + 14} 176 ${x0 + 12} 196`, W(2.4));
-      p.path(`M ${x0 - 22} -130 L ${x0 - 22} -40 A 88 88 0 1 0 ${x0 + 22} -40 L ${x0 + 22} -130 Z`, F(3.4));
-      p.path(`M ${x0 - 84} 66 Q ${x0} 76 ${x0 + 84} 66 A 88 88 0 0 1 ${x0 - 84} 66 Z`, { fill: LIT, sw: 0, stroke: 'none' }); p.path(`M ${x0 - 84} 66 Q ${x0} 76 ${x0 + 84} 66`, S(1.8));
-      thing(p, c, S0, 0, x0, 30, 84, ty + 54, { maxW: 200 });
-      tube(p, `M ${x0} -130 L ${x0} -168 Q ${x0} -190 ${x0 + 22} -190 L ${x1 - 22} -190 Q ${x1} -190 ${x1} -168 L ${x1} 170`, 14);
-      const er = (x, w) => p.path(`M ${x - 26} -60 L ${x - 26} 20 L ${x - w} ${ty - 6} Q ${x - w} ${ty} ${x - w + 8} ${ty} L ${x + w - 8} ${ty} Q ${x + w} ${ty} ${x + w} ${ty - 6} L ${x + 26} 20 L ${x + 26} -60 Z`, F(3.4));
-      er(x1, 112); p.path(`M ${x1 - 78} 130 L ${x1 + 78} 130 L ${x1 + 110} ${ty - 4} L ${x1 - 110} ${ty - 4} Z`, { fill: LIT, sw: 0, stroke: 'none' }); p.line(x1 - 78, 130, x1 + 78, 130, S(1.8));
-      [[x1 - 40, 112, 8], [x1 + 30, 100, 6], [x1 + 6, 76, 9], [x1 - 14, 48, 6]].forEach(([x, y, r]) => p.circle(x, y, r, S(1.8)));
-      thing(p, c, S0, 1, x1, 170, 80, ty + 54, { maxW: 200 });
-      tube(p, `M ${x1 + 14} -60 L ${x1 + 14} -110 Q ${x1 + 14} -132 ${x1 + 36} -132 L ${x2 - 22} -132 Q ${x2} -132 ${x2} -110 L ${x2} 150`, 14);
-      lastHalo(p, S0, x2, 140, 140);
-      p.path(`M ${x2 - 110} 20 L ${x2 - 110} ${ty - 10} Q ${x2 - 110} ${ty} ${x2 - 100} ${ty} L ${x2 + 100} ${ty} Q ${x2 + 110} ${ty} ${x2 + 110} ${ty - 10} L ${x2 + 110} 20 L ${x2 + 126} 6`, F(3.4));
-      R(p, x2 - 104, 60, 208, ty - 66, 6, { fill: LIT, sw: 0, stroke: 'none' });
-      p.path(`M ${x2 - 110} 60 C ${x2 - 90} 20 ${x2 - 60} 50 ${x2 - 40} 18 C ${x2 - 20} -10 ${x2 + 10} 34 ${x2 + 30} 10 C ${x2 + 52} -14 ${x2 + 80} 40 ${x2 + 110} 30`, W(2.4));
-      [[x2 - 60, -40, 18], [x2 + 40, -60, 22], [x2 - 10, -96, 16]].forEach(([x, y, r]) => p.circle(x, y, r, S(2)));
-      thing(p, c, S0, 2, x2, 150, 84, ty + 54, { maxW: 200 });
-      endAt(p, c, S0, 405, -170, 58, -72);
-    }); });
-
-  /* 14 ── WATER WHEEL & STAMP: water from the trough (link 1) turns the wheel (link 2), its shaft's cam lifts and drops the stamp (link 3) */
-  variant('waterwheel', 'กังหันน้ำตอกเสาเข็ม', (d, c) => { const S0 = st(d), wx = -160, wy = 30, Rw = 165, sx = S0.E ? 200 : 260;
-    art(c, p => { p.line(-480, 290, 480, 290, S(1.8));
-      p.path('M -470 250 q 40 -14 80 0 t 80 0 t 80 0 t 80 0', S(2)); p.path('M -430 275 q 40 -12 80 0 t 80 0 t 80 0', S(1.6));
-      R(p, -480, -330, 160, 118, 12, F(3.4)); thing(p, c, S0, 0, -400, -271, 74, -172, { maxW: 150, size: 30 });
-      shape(p, [[-320, -258], [-215, -214], [-215, -190], [-320, -232]], F(2.8));
-      p.path('M -224 -200 Q -210 -184 -206 -150', W(2.6)); p.path('M -236 -196 Q -228 -176 -226 -146', S(2)); p.path('M -214 -204 Q -196 -190 -190 -158', S(2));
-      [-1, 1].forEach(sd => p.line(wx, wy, wx + sd * 110, 290, W(3)));
-      ring(p, wx, wy, Rw, Rw - 22, F(3.2));
-      for (let a = 0; a < 360; a += 30) { const x = Math.cos(rad(a)), y = Math.sin(rad(a)); shape(p, [[wx + x * (Rw - 4) - y * 8, wy + y * (Rw - 4) + x * 8], [wx + x * (Rw + 34) - y * 8, wy + y * (Rw + 34) + x * 8], [wx + x * (Rw + 34) + y * 8, wy + y * (Rw + 34) - x * 8], [wx + x * (Rw - 4) + y * 8, wy + y * (Rw - 4) - x * 8]], F(2.4)); }
-      for (let a = 0; a < 360; a += 60) { const x = Math.cos(rad(a + 30)), y = Math.sin(rad(a + 30)); p.line(wx + x * 56, wy + y * 56, wx + x * (Rw - 22), wy + y * (Rw - 22), W(3)); }
-      tube(p, `M ${wx + 56} ${wy} L ${sx + 40} ${wy}`, 18);
-      p.circle(wx, wy, 56, F(3.4)); thing(p, c, S0, 1, wx, wy, 72, 290 + 44, { maxW: 200 });
-      [-70, 70].forEach(o => R(p, sx + o - 9, -230, 18, 520, 4, F(2.8))); R(p, sx - 86, -238, 172, 16, 6, F(2.6)); R(p, sx - 70, -120, 140, 14, 5, S(2));
-      p.ellipse(sx, wy - 14, 30, 24, F(3)); R(p, sx - 10, -210, 20, 330, 4, F(2.6)); R(p, sx - 34, -70, 68, 18, 5, F(2.6));
-      lastHalo(p, S0, sx, 168, 100);
-      R(p, sx - 62, 118, 124, 96, 10, F(3.4)); R(p, sx - 86, 226, 172, 64, 8, F(3)); [-1, 1].forEach(sd => p.line(sx + sd * 70, 222, sx + sd * 96, 208, W(2.4)));
-      thing(p, c, S0, 2, sx, 166, 66, 290 + 44, { maxW: 200 });
-      endAt(p, c, S0, 410, -230, 58, -132);
-    }); });
-
-  /* 15 ── SPARK SPHERES: sphere 1 charges up, the spark jumps to sphere 2, then to sphere 3, and on to the end */
-  variant('sparks', 'ลูกบอลประกายไฟ', (d, c) => { const S0 = st(d), X = S0.E ? [-350, -95, 160] : [-310, 0, 310], y = -80, r = 80, fy = 270;
-    art(c, p => { p.line(-480, fy, 480, fy, S(1.8));
-      const bolt = (a, b, seed) => { const n = 6, pts = [a]; for (let k = 1; k < n; k++) { const u = k / n, j = ((k * 37 + seed * 11) % 5 - 2) * 9; pts.push([lerp(a[0], b[0], u), lerp(a[1], b[1], u) + (k % 2 ? -1 : 1) * (14 + Math.abs(j))]); } pts.push(b); beam(p, pts, 3.6); };
-      for (let i = 0; i < 2; i++) bolt([X[i] + r, y], [X[i + 1] - r, y], i);
-      if (S0.E) bolt([X[2] + r, y], [410 - 60, y], 3);
-      X.forEach((x, i) => { R(p, x - 20, y + r, 40, fy - 40 - y - r, 6, F(3)); [0, 1, 2].forEach(k => p.ellipse(x, y + r + 40 + k * 40, 34, 10, F(2.4)));
-        R(p, x - 72, fy - 40, 144, 40, 8, F(3.2)); if (i === 2) lastHalo(p, S0, x, y, r + 30);
-        p.circle(x, y, r, F(3.6)); p.path(`M ${x - r + 16} ${y - 20} A ${r - 8} ${r - 8} 0 0 1 ${x - 20} ${y - r + 16}`, S(1.8));
-        [[-1, -1], [1, -1], [1, 1]].forEach(([a, b]) => p.line(x + a * (r + 10), y + b * (r * .55), x + a * (r + 24), y + b * (r * .55 + 12), S(2)));
-        thing(p, c, S0, i, x, y, 98, fy + 46, { maxW: 200 }); });
-      endAt(p, c, S0, 410, y, 60, y + 108);
-    }); });
-
-  /* 16 ── MARBLE RUN: the marble rolls down rail 1 and rings plate 1, drops onto rail 2 and rings plate 2, then plate 3, and lands in the cup */
-  variant('marble', 'รางลูกแก้วซิกแซก', (d, c) => { const S0 = st(d);
-    art(c, p => { const D = [[230, -200], [-400, -40], [262, 150]], r = 56;
-      tube(p, 'M -450 -282 Q -100 -250 170 -205', 16); tube(p, 'M 220 -120 Q -60 -96 -335 -40', 16); tube(p, 'M -370 64 Q -60 100 200 150', 16);
-      [[-430, -280], [-100, -246], [160, -110], [-160, -84], [-350, 64], [-40, 104]].forEach(([x, y]) => { p.line(x, y + 8, x, y + 26, S(2)); p.circle(x, y + 30, 5, S(1.6)); });
-      p.path('M -420 -300 Q -100 -272 186 -228 Q 240 -170 220 -132 Q -60 -112 -340 -60 Q -400 0 -366 46 Q -60 80 206 130 Q 290 186 330 205', S(1.6));
-      D.forEach(([x, y], i) => { if (i === 2) lastHalo(p, S0, x, y, r + 30); p.circle(x, y, r, F(3.4)); p.line(x, y - r, x, y - r - 24, W(2.6)); R(p, x - 16, y - r - 32, 32, 10, 4, F(2.2)); });
-      thing(p, c, S0, 0, D[0][0], D[0][1], 72, D[0][1] - 104, { maxW: 200, size: 30 });
-      thing(p, c, S0, 1, D[1][0], D[1][1], 72, D[1][1] + 96, { maxW: 170, size: 30 });
-      thing(p, c, S0, 2, D[2][0], D[2][1], 72, D[2][1] + 96, { maxW: 200, size: 30 });
-      [[230, -260], [-400, -100], [262, 90]].forEach(([x, y]) => [-1, 1].forEach(sd => p.line(x + sd * 50, y - 10 + 10, x + sd * 64, y - 2, S(2))));
-      if (S0.E) { p.path('M 350 215 L 362 278 L 458 278 L 470 215', F(3.2)); p.circle(410, 252, 20, SOLID()); endAt(p, c, S0, 410, 100, 56, null); const e = S0.E; if (e.label && picOf(e)) txt(atG(p, tu(.5)), e.label, 410, 10, { maxW: 150, color: C.ink, weight: 700, size: 30 }); }
-      else p.circle(332, 206, 20, SOLID());
-    }); });
-
-  /* 17 ── LENSES: the lamp's light goes through lens 1, lens 2 and lens 3 on the bench, each one gathers it tighter, until it lands as one bright spot */
-  variant('lens', 'แสงผ่านเลนส์ต่อกัน', (d, c) => { const S0 = st(d), y0 = -30, X = S0.E ? [-200, 20, 220] : [-190, 60, 300], fy = 250;
-    art(c, p => { R(p, -470, 196, 940, 22, 8, F(3)); p.line(-470, fy + 40, 470, fy + 40, S(1.8));
-      R(p, -470, y0 - 70, 130, 140, 16, F(3.4)); shape(p, [[-340, y0 - 52], [-310, y0 - 70], [-310, y0 + 70], [-340, y0 + 52]], F(3)); R(p, -425, y0 + 70, 40, 126, 6, F(2.8)); [-40, -10, 20].forEach(o => p.line(-450, y0 + o, -366, y0 + o, S(1.6)));
-      const xe = S0.E ? 410 : 470, hw = [70, 56, 34, 12];
-      const cone = (xa, ha, xb, hb) => { p.path(pathOf([[xa, y0 - ha], [xb, y0 - hb], [xb, y0 + hb], [xa, y0 + ha]]), { fill: 'rgba(255,255,255,.1)', sw: 0, stroke: 'none' }); p.line(xa, y0 - ha, xb, y0 - hb, S(1.6)); p.line(xa, y0 + ha, xb, y0 + hb, S(1.6)); };
-      cone(-310, 70, X[0], hw[0]); cone(X[0], hw[0], X[1], hw[1]); cone(X[1], hw[1], X[2], hw[2]); cone(X[2], hw[2], xe - (S0.E ? 60 : 0), hw[3]);
-      X.forEach((x, i) => { const h = 112 - i * 8; R(p, x - 10, y0 + h - 6, 20, 196 - y0 - h + 6, 4, F(2.8)); R(p, x - 40, 182, 80, 14, 5, F(2.6));
-        if (i === 2) lastHalo(p, S0, x, y0, h + 24);
-        p.path(`M ${x} ${y0 - h} Q ${x + 44} ${y0} ${x} ${y0 + h} Q ${x - 44} ${y0} ${x} ${y0 - h} Z`, F(3.4)); R(p, x - 16, y0 - h - 12, 32, 14, 5, F(2.4)); R(p, x - 16, y0 + h - 2, 32, 14, 5, F(2.4));
-        thing(p, c, S0, i, x, y0 - h - 72, 92, fy + 40 - 6 + 40, { maxW: 200, size: 32 }); });
-      if (S0.E) endAt(p, c, S0, 410, y0, 60, 90); else p.circle(470, y0, 12, SOLID());
-    }); });
-
-  /* 18 ── LAMP, SOLAR PANEL, FAN: the lamp (link 1) shines on the panel (link 2), the current spins the little fan (link 3) */
-  variant('solar', 'แผงโซลาร์หมุนพัดลม', (d, c) => { const S0 = st(d), fy = 270, fx = S0.E ? 190 : 270;
-    art(c, p => { floor(p, fy);
-      p.line(-380, fy, -380, -150, W(3.2)); p.ellipse(-380, fy - 10, 70, 12, F(2.6)); p.line(-380, -150, -330, -190, W(3)); p.circle(-380, -150, 10, F(2.4));
-      const lg = rot(p, 30, -300, -210); lg.path('M -360 -270 L -260 -270 L -230 -150 L -390 -150 Z', F(3.4)); lg.line(-385, -160, -235, -160, S(1.8));
-      thing(p, c, S0, 0, -305, -218, 62, -45, { lx: -260, maxW: 170, size: 30 });
-      p.path('M -218 -150 L -40 -40 L -120 60 L -282 -86 Z', { fill: 'rgba(255,255,255,.1)', sw: 0, stroke: 'none' });
-      [[-218, -150, -40, -40], [-282, -86, -120, 60]].forEach(([a, b, e, f]) => p.line(a, b, e, f, S(1.6)));
-      const pg = rot(p, -30, -40, 30); R(pg, -170, -40, 260, 150, 10, F(3.4));
-      for (let k = 1; k < 4; k++) pg.line(-170 + k * 65, -40, -170 + k * 65, 110, S(1.6)); pg.line(-170, 35, 90, 35, S(1.6));
-      R(pg, -78, -6, 76, 82, 8, F(2)); thing(p, c, S0, 1, -40, 22, 66, fy + 44, { maxW: 200 });
-      p.line(-20, 108, -20, fy, W(3.2)); R(p, -70, fy - 14, 100, 14, 5, F(2.6));
-      tube(p, `M 10 160 Q 40 ${fy - 6} 100 ${fy - 6} L ${fx - 30} ${fy - 6} Q ${fx} ${fy - 6} ${fx} ${fy - 40}`, 12);
-      R(p, fx - 40, fy - 40, 80, 40, 8, F(3)); p.line(fx, fy - 40, fx, 20, W(3.2)); R(p, fx - 30, 10, 60, 50, 10, F(3));
-      lastHalo(p, S0, fx, -70, 110);
-      [0, 120, 240].forEach(a => { const g = rot(p, a + 10, fx, -70); g.path(`M ${fx} -70 C ${fx - 46} -110, ${fx - 34} -160, ${fx} -164 C ${fx + 30} -160, ${fx + 22} -110, ${fx} -70 Z`, F(3)); });
-      p.circle(fx, -70, 44, F(3.4)); thing(p, c, S0, 2, fx, -70, 58, fy + 44, { maxW: 200 });
-      [[fx - 120, -150], [fx + 120, -150]].forEach(([x, y], k) => p.path(`M ${x} ${y} A 150 150 0 0 ${k} ${x + (k ? -30 : 30)} ${y - 40}`, S(2)));
-      endAt(p, c, S0, 400, -190, 60, -92);
-    }); });
-
-  /* 19 ── SLINKY: a push squeezes the first coils, the squeeze runs along the spring past link 1, 2, 3 and kicks the bell at the far end */
-  variant('slinky', 'สปริงยาวส่งแรง', (d, c) => { const S0 = st(d), y0 = 120, fy = 230, xa = -380, xb = S0.E ? 250 : 330;
-    art(c, p => { R(p, -480, fy, 960, 24, 8, F(3)); p.line(-480, fy + 70, 480, fy + 70, S(1.8));
-      R(p, -470, y0 - 70, 70, 140, 10, F(3.2)); R(p, -400, y0 - 50, 20, 100, 4, F(2.6)); p.line(-470, y0, -490, y0, W(3)); p.path(`M -455 ${y0 - 110} l 40 0 m -14 -14 l 14 14 l -14 14`, W(3));
-      const coils = []; let x = xa; const comp = u => 1 - .6 * Math.exp(-Math.pow((u - .9) / .06, 2));
-      while (x < xb) { coils.push(x); x += 34 * comp((x - xa) / (xb - xa)); }
-      coils.forEach(cx => p.ellipse(cx, y0, 9, 62, S(1.8))); coils.forEach((cx, k) => { if (k % 1 === 0) p.path(`M ${cx} ${y0 - 62} A 10 62 0 0 1 ${cx} ${y0 + 62}`, W(2.6)); });
-      const X = [xa + (xb - xa) * .2, xa + (xb - xa) * .48, xa + (xb - xa) * .76];
-      X.forEach((x, i) => { p.line(x, y0 - 62, x, y0 - 100, W(3)); if (i === 2) lastHalo(p, S0, x, y0 - 160, 88); p.circle(x, y0 - 160, 58, F(3.4)); thing(p, c, S0, i, x, y0 - 160, 76, fy + 60, { maxW: 200 }); });
-      R(p, xb + 4, y0 - 40, 40, 80, 8, F(3)); p.line(xb + 44, y0, xb + 70, y0, W(3));
-      if (!endAt(p, c, S0, 410, y0 - 30, 60, y0 + 70)) [-1, 1].forEach(sd => arcs(p, xb + 60, y0, 1, 2, 18, 16, 40, W(2.4)));
-    }); });
-
-  /* 20 ── FLOAT VALVE: the jug (link 1) pours, the float (link 2) rises with the water and pushes its rod up, which raises the flag (link 3) */
-  variant('float', 'ลูกลอยยกธง', (d, c) => { const S0 = st(d), tx = -40, ty = 250, tw = 300, lvl = 40, fx = tx + 60;
-    art(c, p => { p.line(-480, ty, 480, ty, S(2));
-      const jg = rot(p, 52, -330, -150); jg.path('M -380 -250 L -280 -250 L -270 -90 Q -270 -60 -300 -60 L -360 -60 Q -390 -60 -390 -90 Z', F(3.4)); jg.path('M -280 -230 Q -230 -220 -240 -150 Q -248 -110 -272 -110', S(2.4)); jg.path('M -380 -250 L -400 -276', W(3));
-      thing(p, c, S0, 0, -312, -150, 70, -20, { lx: -400, maxW: 160, size: 30 });
-      p.path(`M -205 -205 Q -150 -190 -142 ${lvl}`, W(2.6)); p.path(`M -214 -196 Q -170 -170 -168 ${lvl}`, S(2));
-      R(p, tx - tw / 2, -60, tw, ty + 0 + 60, 12, F(3.4)); R(p, tx - tw / 2 + 8, lvl, tw - 16, ty - lvl - 8, 6, { fill: LIT, sw: 0, stroke: 'none' });
-      p.path(`M ${tx - tw / 2 + 8} ${lvl} q 30 -10 60 0 t 60 0 t 60 0 t 60 0 t 44 0`, W(2.2));
-      [[-142, lvl + 10, 10], [-120, lvl + 30, 7]].forEach(([x, y, r]) => p.circle(x, y, r, S(1.8)));
-      R(p, fx - 8, -260, 16, 270, 4, F(2.6)); R(p, fx - 30, -64, 60, 16, 5, F(2.6));
-      p.circle(fx, lvl + 4, 62, F(3.4)); thing(p, c, S0, 1, fx, lvl + 4, 80, ty + 46, { lx: tx, maxW: 200 });
-      lastHalo(p, S0, fx + 92, -282, 82);
-      p.line(fx, -255, fx, -330, W(3)); shape(p, [[fx + 6, -330], [fx + 170, -310], [fx + 160, -250], [fx + 6, -240]], F(3.4));
-      thing(p, c, S0, 2, fx + 84, -284, 62, null);
-      const it = itOf(S0, 2); if (it && it.label && picOf(it)) txt(atG(p, tu(.5)), it.label, fx + 250, -280, { maxW: 150, color: C.ink, weight: 700, size: 30, anchor: 'middle' });
-      endAt(p, c, S0, 380, -60, 60, 40);
-    }); });
 
   /* ---------- sample data (A: sentences from unrelated topics · B: stress) ---------- */
   const I = (icon, label) => label ? { icon, label } : { icon };
