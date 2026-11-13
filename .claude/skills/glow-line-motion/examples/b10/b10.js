@@ -448,47 +448,62 @@
       labTags(hg, S0, 0, -200, { size: 36, tsize: 26, dy: 56, lo: -400, hi: 400, t: aH(.02) });
     }); });
 
-  /* ---------- redesign options for 14 (user 2026-11-13: "Design 14 ใหม่ มันเหมือนลูกโป่งมากกว่ากระจก") — temporary: the pick moves into V ---------- */
+  /* ---------- redesign options for 14 — round 2 (user 2026-11-13: the mirror "เหมือนลูกโป่ง" → round 1 cheval / vanity / globe not taken,
+     "Redesign เลยได้ไหม" → a pop-up box was drawn, "มันมีแบบนี้แล้วนิ" (B08 12 popup, and 15 gacha opens the same way) → dropped →
+     three objects not used in any category so far, "วาดมาให้ผมเลือก"). Temporary: the pick moves into V ---------- */
   const ALT = [], altV = (id, th, build) => ALT.push({ id, th, build });
-  const sideTags = (p, S0, xs, y) => S0.tags.forEach((t, i) => { const x = xs[i], g = sub(popW(p, x, y, aH(.14 + .06 * i)), { transform: `translate(${x} ${y})` }); chip(g, t, { size: 26, strong: false, maxW: 200 }); });
-  /* A ── CHEVAL MIRROR: a tall rectangular mirror swung between two posts on feet — it tilts on its pivots and settles; the person appears in it */
-  altV('cheval', 'กระจกบานยาวตั้งพื้น', (d, c) => { const S0 = st(d);
+  /* A ── FERRIS WHEEL: people ride in the cabins; the wheel turns, slows and stops with one cabin at the bottom — that one lights up */
+  altV('ferris', 'ชิงช้าสวรรค์', (d, c) => { const S0 = st(d), T0 = T0f(), ox = -80, oy = -125, Rw = 205, A = k => 90 + 45 * k, pos = a => [ox + Rw * Math.cos(rad(a)), oy + Rw * Math.sin(rad(a))];
+    const D = 225, N = 24, tA = j => T0 + (Z.H - T0) * j / N, dl = j => D * Math.pow(1 - j / N, 2.2);       // degrees still to turn
+    const trK = k => { const [fx, fy] = pos(A(k)), KX = [[0, 0], [T0, 0]], KY = [[0, 0], [T0, 0]];
+      for (let j = 0; j <= N; j++) { const [x, y] = pos(A(k) - dl(j)); KX.push([tA(j), f1(x - fx)]); KY.push([tA(j), f1(y - fy)]); } return { x: KX, y: KY }; };
     art(c, p => {
-      drawAt(p.line(-480, 296, 480, 296, S(2)), p, 0, tu(.4));
-      const P = inG(p, 'rise', 0, 296, 0); [-1, 1].forEach(sd => { R(P, sd * 228 - 9, -150, 18, 446, 5, F(2.6)); R(P, sd * 228 - 60, 282, 120, 14, 6, F(2.6)); });
-      const M = mvG(p, { px: 0, py: -20, r: [[0, -14], [tu(.2), -14], [tu(.55), 4, 'out'], [tu(.8), -1.5, 'io'], [tu(1), 0, 'soft']], o: [[0, 0], [tu(.15), 0], [tu(.25), 1]] });
-      R(M, -200, -300, 400, 560, 12, F(3.8)); R(M, -178, -278, 356, 516, 6, { fill: GLASS, sw: 0, stroke: 'none' });
-      [-1, 1].forEach(sd => P.circle(sd * 214, -20, 13, F(2.8)));
-      whoAt(c, p, S0, 0, -70, 230);
-      if (S0.label) chipRow(popW(p, 0, 160, aH(.04)), [[S0.label, { size: 38 }]], 0, 160, { lo: -170, hi: 170 });
-      sideTags(p, S0, [-360, 360], -20);
+      drawAt(p.line(-480, 292, 480, 292, S(2)), p, 0, tu(.4));
+      const L = inG(p, 'rise', ox, 292, 0); L.line(ox, oy, ox - 190, 292, W(5)); L.line(ox, oy, ox + 190, 292, W(5));
+      const wh = mvG(p, { px: ox, py: oy, r: [[0, -D], [T0, -D]].concat([...Array(N + 1)].map((_, j) => [tA(j), f1(-dl(j))])), o: [[0, 0], [tu(.1), 0], [tu(.2), 1]] });
+      wh.circle(ox, oy, Rw, { sw: 3.4 }); wh.circle(ox, oy, Rw - 26, S(1.8)); for (let k = 0; k < 4; k++) { const [x1, y1] = pos(45 * k), [x2, y2] = pos(45 * k + 180); wh.line(x1, y1, x2, y2, W(2)); }
+      wh.circle(ox, oy, 22, F(3));
+      const cr = crowdG(p);
+      for (let k = 0; k < 8; k++) { const [x, y] = pos(A(k)), me = k === 0, g = mvG(me ? p : cr, Object.assign({ o: [[0, 0], [tC(k), 0], [tC(k) + tu(.08), 1]] }, trK(k)));
+        const cw = me ? 136 : 104, chh = me ? 110 : 84; g.line(x, y, x, y + 16, W(2.4)); g.circle(x, y, 6, SOLID()); R(g, x - cw / 2, y + 16, cw, chh, 14, F(3)); g.line(x - cw / 2, y + 16 + chh * .36, x + cw / 2, y + 16 + chh * .36, W(1.6));
+        if (me) R(litG(g, Z.H - tu(.04)), x - cw / 2, y + 16, cw, chh, 14, { fill: LIT, sw: 3.2 }); else bust(g, x, y + 60, .42); }
+      const [cx, cy] = pos(A(0)); haloH(p, cx, cy + 68, 92);
+      whoAt(c, p, S0, cx, cy + 68, 112, { t: tC(0), mv: trK(0) });
+      labTags(p, S0, 330, 150, { size: 32, tsize: 24, dy: 52, lo: 170, hi: 492 });
     }); });
-  /* B ── VANITY: a dressing table with an arched mirror on it — the person appears in the glass; the kind is on the mirror's foot,
-     the tags stand on the table top */
-  altV('vanity', 'โต๊ะเครื่องแป้ง', (d, c) => { const S0 = st(d);
+  /* B ── ESCALATOR: people ride up an escalator; on the keyword the one we mean steps off at the top landing — the label pops under them */
+  altV('escalator', 'บันไดเลื่อน', (d, c) => { const S0 = st(d), T0 = T0f(), P0 = [-430, 272], P1 = [170, -150], at2 = u => [lerp(P0[0], P1[0], u), lerp(P0[1], P1[1], u)];
     art(c, p => {
-      drawAt(p.line(-480, 300, 480, 300, S(2)), p, 0, tu(.4));
-      const T = inG(p, 'rise', 0, 300, 0); R(T, -330, 168, 660, 24, 6, F(3.2)); R(T, -300, 192, 20, 108, 4, F(2.6)); R(T, 280, 192, 20, 108, 4, F(2.6));
-      R(T, -130, 192, 260, 62, 8, F(2.8)); T.circle(0, 223, 8, F(2.4));
-      const M = inG(p, 'pop', 0, 160, tu(.2)); M.path('M -175 160 L -175 -160 Q -175 -310 0 -310 Q 175 -310 175 -160 L 175 160 Z', F(3.8));
-      M.path('M -153 150 L -153 -158 Q -153 -288 0 -288 Q 153 -288 153 -158 L 153 150 Z', { fill: GLASS, sw: 0, stroke: 'none' }); R(M, -195, 150, 390, 20, 6, F(3));
-      whoAt(c, p, S0, 0, -80, 215);
-      if (S0.label) chipRow(popW(p, 0, 100, aH(.04)), [[S0.label, { size: 36 }]], 0, 100, { lo: -150, hi: 150 });
-      sideTags(p, S0, [-300, 300], 120);
+      drawAt(p.line(-480, 292, 480, 292, S(2)), p, 0, tu(.4));
+      const E = inG(p, 'rise', 0, 292, 0);
+      E.path(`M -470 292 L -400 292 L 200 -130 L 470 -130 L 470 -100 L 230 -100 L -330 292 Z`, F(3));
+      E.path(`M ${P0[0] - 40} ${P0[1] - 120} L ${P1[0] - 40} ${P1[1] - 120} L ${P1[0] + 30} ${P1[1] - 120}`, { sw: 9 }); E.path(`M ${P0[0] - 40} ${P0[1] - 120} L ${P1[0] - 40} ${P1[1] - 120} L ${P1[0] + 30} ${P1[1] - 120}`, { sw: 3, stroke: C.fill });
+      E.path(`M ${P0[0] - 40} ${P0[1] - 112} L ${P1[0] - 40} ${P1[1] - 112} L ${P1[0] + 20} ${P1[1] - 112} L ${P1[0] + 20} ${P1[1]} L ${P0[0]} ${P0[1]} Z`, { fill: GLASS, sw: 0, stroke: 'none' });
+      let st2 = `M ${P0[0]} ${P0[1]}`; for (let k = 1; k <= 12; k++) { const [x, y] = at2(k / 12), [xp, yp] = at2((k - 1) / 12); st2 += ` L ${f1(xp + (x - xp) * .15)} ${f1(y)} L ${f1(x)} ${f1(y)}`; } E.path(st2, W(2.4));
+      R(E, 200, -150, 280, 20, 4, F(2.8));
+      const cr = crowdG(clipG(p, -500, -350, 1000, 700));
+      [.18, .45, .72].forEach((u, i) => { const [fx, fy] = at2(u), du = .16, [sx0, sy0] = at2(u - du), g = mvG(cr, { x: [[0, f1(sx0 - fx)], [T0, f1(sx0 - fx)], [Z.H, 0, 'io']], y: [[0, f1(sy0 - fy)], [T0, f1(sy0 - fy)], [Z.H, 0, 'io']], o: [[0, 0], [tC(i), 0], [tC(i) + tu(.08), 1]] });
+        stand(g, fx, fy, .62); });
+      haloH(p, 345, -225, 95);
+      whoAt(c, p, S0, 345, -225, 150, { t: Z.H - tu(.34), mv: { x: [[0, -150], [Z.H - tu(.34), -150], [Z.H, 0, 'out']], y: [[0, 20], [Z.H - tu(.34), 20], [Z.H - tu(.17), -14, 'out'], [Z.H, 0, 'in']] } });
+      labTags(p, S0, 335, -40, { size: 32, tsize: 24, dy: 52, lo: 190, hi: 492 });
     }); });
-  /* C ── SNOW GLOBE: a glass globe on a base — it is shaken, the flakes swirl, and when they settle the person is inside;
-     the kind is on the base's plate */
-  altV('globe', 'ลูกแก้วหิมะ', (d, c) => { const S0 = st(d), T0 = T0f();
+  /* C ── PHOTO BOOTH: two people wait outside a photo booth; the flash goes off behind the curtain, the curtain is pulled open on the
+     keyword — the person is inside — and the photo strip slides out of the side with the label over it */
+  altV('photobooth', 'ตู้ถ่ายรูป', (d, c) => { const S0 = st(d);
     art(c, p => {
-      const G0 = mvG(p, { px: 0, py: 250, r: [[0, 0], [T0, 0], [T0 + tu(.1), -6, 'io'], [T0 + tu(.22), 5, 'io'], [T0 + tu(.34), -3, 'io'], [T0 + tu(.46), 0, 'soft']], o: [[0, 0], [tu(.05), 0], [tu(.15), 1]] });
-      G0.circle(0, -70, 205, F(3.6)); G0.circle(0, -70, 186, { fill: GLASS, sw: 0, stroke: 'none' });
-      const fl = sub(G0); on(fl, p, T0, { loop: 2.4, y: [[0, -30], [2.4, 30]] });
-      [[-120, -170], [90, -200], [-60, -10], [130, -40], [-140, 20], [40, -150], [150, -120], [-90, -110]].forEach(([x, y]) => fl.circle(x, y, 5, { fill: C.ink, sw: 1 }));
-      G0.path('M -170 110 L 170 110 L 210 260 L -210 260 Z', F(3.4)); R(G0, -230, 256, 460, 22, 6, F(3));
-      R(G0, -150, 150, 300, 70, 10, F(2.6));
-      whoAt(c, p, S0, 0, -80, 200);
-      if (S0.label) txt(popW(G0, 0, 185, aH(.04)), S0.label, 0, 197, { size: 36, maxW: 270, weight: 700, color: C.ink });
-      sideTags(p, S0, [-355, 355], -70);
+      drawAt(p.line(-480, 292, 480, 292, S(2)), p, 0, tu(.4));
+      const bk = sub(p), cr = crowdG(p); [[-430, {}], [-320, { arm: RELAX }]].forEach(([x, pose], i) => crowdPerson(inC(bk, i, x, 292, 'rise'), inC(cr, i, x, 292, 'rise'), x, 292, .62, pose));
+      const B = inG(p, 'rise', 0, 292, 0); R(B, -195, -285, 375, 577, 14, F(3.6)); R(B, -195, -285, 375, 62, 14, F(3)); B.circle(-10, -254, 16, F(2.6));
+      R(B, -165, -200, 255, 445, 6, { fill: C.fill, sw: 2.4 }); B.line(-170, -200, 95, -200, W(4));
+      const fl = sub(B); on(fl, p, 0, { o: [[0, 0], [Z.H - tu(.45), 0], [Z.H - tu(.42), 1], [Z.H - tu(.3), 0], [Z.H - tu(.24), 1], [Z.H - tu(.12), 0]] }); R(fl, -165, -200, 255, 445, 6, { fill: LIT, sw: 0, stroke: 'none' });
+      R(B, -80, 150, 110, 16, 6, F(2.6)); B.line(-25, 166, -25, 245, W(4)); R(B, 150, 92, 12, 50, 3, F(2.4));
+      whoAt(c, p, S0, -35, 40, 175);
+      const cu = mvG(B, { px: -165, py: 0, sx: [[0, 1], [Z.H - tu(.08), 1], [aH(.2), .17, 'io']] });
+      R(cu, -165, -196, 255, 440, 4, F(2.8)); [-115, -65, -15, 35].forEach(x => cu.line(x, -186, x, 234, W(1.6)));
+      const sc = clipG(p, 160, -350, 340, 700), sl = mvG(sc, { x: [[0, -320], [aH(.05), -320], [aH(.4), 0, 'out']] });
+      R(sl, 160, 70, 320, 94, 6, F(2.8)); [0, 1, 2].forEach(k => { const x = 178 + k * 100; R(sl, x, 82, 84, 70, 4, k === 0 ? { fill: LIT, sw: 2 } : S(1.8)); bust(sl, x + 42, 125, .38, k === 0 ? { fill: LIT, sw: 2.4 } : S(1.6)); });
+      labTags(p, S0, 330, -40, { size: 32, tsize: 24, dy: 52, lo: 190, hi: 492, t: aH(.3) });
     }); });
 
   /* samples from unrelated topics (neutrality) + a stress set */
