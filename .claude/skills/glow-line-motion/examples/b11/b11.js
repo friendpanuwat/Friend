@@ -1,4 +1,4 @@
-/* b11.js — category B11 "คำพูด / แชต / คอมเมนต์ / รีวิว": 20 neutral designs — STILL DRAFTS (round 1, waiting for the user's pick).
+/* b11.js — category B11 "คำพูด / แชต / คอมเมนต์ / รีวิว": 20 neutral designs — STILL DRAFTS (round 2, waiting for the user's pick).
    Kind of design: everyday things with a real mechanism that carry / show a message, all objects new (none used in an earlier category —
    user: "ไม่ต้อง copy reference นะ ห้ามเลย"; checked against every category's list in HANDOFF, cut rounds included).
    Slots (CutPack CATEGORIES.md B11 — references/cutpack-CATEGORIES.md, cat_ai.py): kind chat | comment | review | message · quote (≤ 12 letters,
@@ -123,222 +123,226 @@
       R(q, x1 - w * .45 - 90, sy - 24, w * .34, 48, 24, S(1.8)); }
     return { h, top: k === 'message' ? y0 - h * .36 : y0, bot: k === 'chat' ? y1 + h * .3 : y1 }; }
 
-  /* 01 ── PNEUMATIC TUBE: a capsule shoots down the tube into the station, it opens on the tray and the message comes out of it */
-  variant('tube', 'ท่อส่งแคปซูล', (d, c) => { const S0 = st(d), tD = 'M -310 -345 L -310 22';
+  /* round 2 (user 2026-11-13: "ลองรีดีไซน์ใหม่ได้ไหมมันดูธรรมดาไปนิดนึง" — round 1 was almost all "a thing on the left, the card on the right";
+     round 1 kept in scratch only): the message comes out of the thing's own mechanism, and the layouts change from design to design. */
+  const botOff = (k, w) => { const h = msgH(k, w); return k === 'chat' ? h / 2 + h * .3 : h / 2; };
+  const topOff = (k, w) => { const h = msgH(k, w); return k === 'message' ? h / 2 + h * .36 : h / 2; };
+  const puffs = (q, pts, r0 = 10, r1 = 18) => pts.forEach(([x, y], i) => q.circle(x, y, f1(lerp(r0, r1, i / Math.max(1, pts.length - 1))), S(1.8)));
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const bez2 = (a, b, c2, t) => [(1 - t) * (1 - t) * a[0] + 2 * (1 - t) * t * b[0] + t * t * c2[0], (1 - t) * (1 - t) * a[1] + 2 * (1 - t) * t * b[1] + t * t * c2[1]];
+
+  /* 01 ── SKYWRITING: a small plane loops across the sky and its smoke trail becomes the message */
+  variant('skywriting', 'เครื่องบินพ่นควันเขียนฟ้า', (d, c) => { const S0 = st(d), mx = -60, my = 20, w = 460;
     art(c, p => {
-      p.line(-480, 292, 480, 292, S(2)); p.path(tD, { sw: 48 }); p.path(tD, { sw: 38, stroke: C.fill });
-      R(p, -400, 20, 180, 170, 14, F(3.4)); R(p, -372, 48, 124, 72, 8, { fill: GLASS, sw: 2 }); R(p, -430, 190, 240, 18, 6, F(2.8));
-      p.line(-390, 208, -390, 292, W(3)); p.line(-230, 208, -230, 292, W(3));
-      R(p, -395, 158, 74, 32, 16, F(2.8)); R(p, -312, 158, 74, 32, 16, F(2.8)); p.line(-358, 158, -358, 190, W(1.6)); p.line(-275, 158, -275, 190, W(1.6));
-      R(p, -338, -262, 56, 20, 6, F(2.6)); R(p, -338, -92, 56, 20, 6, F(2.6)); p.line(-246, 136, -246, 170, W(3)); p.circle(-238, 36, 6, F(2));
-      msg(p, c, S0, 200, 60, 420);
+      const P = [[mx + w / 2 + 10, my - 90], [430, -330], [330, -250]];
+      puffs(p, [...Array(9)].map((_, i) => bez2(P[0], P[1], P[2], i / 8)), 9, 15);
+      const pl = rot(p, -18, 360, -258);
+      pl.path('M 300 -258 Q 310 -280 350 -280 L 430 -276 Q 462 -270 466 -258 Q 462 -246 430 -242 L 350 -238 Q 310 -238 300 -258 Z', F(3.2));
+      pl.path('M 370 -262 L 340 -310 L 324 -310 L 344 -262 Z', F(2.6)); pl.path('M 312 -262 L 296 -288 L 286 -288 L 296 -258 Z', F(2.4)); pl.ellipse(470, -258, 5, 20, F(2)); R(pl, 410, -270, 26, 12, 4, W(1.6));
+      msg(p, c, S0, mx, my, w);
+      puffs(p, [[mx - w / 2 - 20, my + 40], [mx - w / 2 - 50, my + 70], [mx - w / 2 - 70, my + 110]], 12, 8);
     }); });
 
-  /* 02 ── MAILBOX: a letterbox on a post — the message arrives, the door drops open and it comes out; the flag is up (gone: down) */
-  variant('mailbox', 'ตู้จดหมายมีธง', (d, c) => { const S0 = st(d);
+  /* 02 ── HAND FAN: a folding paper fan opened out — the message is painted across its leaf */
+  variant('fan', 'พัดกระดาษคลี่', (d, c) => { const S0 = st(d), ox = 0, oy = 268, R1 = 330, R0 = 120, A = [200, 340];
+    const pt = (a, r) => [ox + r * Math.cos(rad(a)), oy + r * Math.sin(rad(a))];
     art(c, p => {
-      p.line(-480, 292, 480, 292, S(2)); R(p, -223, 58, 28, 234, 4, F(2.8));
-      p.path('M -385 60 L -385 -100 A 70 70 0 0 1 -315 -170 L -105 -170 A 70 70 0 0 1 -35 -100 L -35 60 Z', F(3.6)); p.line(-385, -60, -35, -60, S(1.6));
-      R(p, -35, 44, 150, 16, 6, F(2.8));
-      if (S0.gone) { R(p, -140, -110, 14, 70, 4, F(2.4)); R(p, -140, -54, 92, 14, 4, F(2.4)); }
-      else { R(p, -140, -290, 14, 150, 4, F(2.6)); R(p, -140, -290, 92, 52, 6, F(3)); }
-      R(p, -247, 280, 76, 12, 4, F(2.4)); p.circle(-35, 52, 6, F(2)); R(p, 100, 26, 12, 20, 3, F(2)); p.circle(-133, S0.gone ? -104 : -148, 6, F(2));
-      msg(p, c, S0, 270, -70, 400);
+      const [a1, b1] = pt(A[0], R1), [a2, b2] = pt(A[1], R1), [c1, d1] = pt(A[0], R0), [c2, d2] = pt(A[1], R0);
+      p.path(`M ${f1(c1)} ${f1(d1)} L ${f1(a1)} ${f1(b1)} A ${R1} ${R1} 0 0 1 ${f1(a2)} ${f1(b2)} L ${f1(c2)} ${f1(d2)} A ${R0} ${R0} 0 0 0 ${f1(c1)} ${f1(d1)} Z`, F(3.4));
+      for (let k = 1; k < 10; k++) { const a = lerp(A[0], A[1], k / 10), [x1, y1] = pt(a, R0), [x2, y2] = pt(a, R1); p.line(x1, y1, x2, y2, S(1.4)); }
+      for (let k = 0; k <= 10; k++) { const a = lerp(A[0], A[1], k / 10), [x1, y1] = pt(a, 26), [x2, y2] = pt(a, R0); p.line(x1, y1, x2, y2, W(2.6)); }
+      p.circle(ox, oy, 16, F(2.6)); p.circle(ox, oy, 5, SOLID()); p.path(`M ${ox} ${oy + 16} Q ${ox + 8} ${oy + 50} ${ox - 6} ${oy + 76}`, W(2));
+      msg(p, c, S0, 0, 60, 300, { size: 32 });
     }); });
 
-  /* 03 ── TIN-CAN PHONE: two cans on a taut string — the message travels along it and arrives above; gone: the string hangs slack */
-  variant('tincan', 'โทรศัพท์กระป๋อง', (d, c) => { const S0 = st(d);
+  /* 03 ── POP-UP CARD: a greeting card opened out — the message stands up out of the fold on two paper tabs */
+  variant('popup', 'การ์ดป๊อปอัพ', (d, c) => { const S0 = st(d), w = 380, my = 120 - botOff(st(d).kind, 380);
     art(c, p => {
-      const can = (sd) => { const x = sd * 390; R(p, x - 60, -10, 120, 120, 12, F(3.2)); p.line(x - 60, 20, x + 60, 20, S(1.6)); p.line(x - 60, 80, x + 60, 80, S(1.6)); p.ellipse(x - sd * 60, 50, 18, 60, F(3)); };
-      can(-1); can(1);
-      if (S0.gone) p.path('M -330 50 Q 0 260 330 50', S(2.4)); else p.line(-330, 50, 330, 50, W(2.4));
-      [-1, 1].forEach(sd => { p.ellipse(sd * 450, 50, 14, 60, S(1.8)); p.circle(sd * 330, 50, 6, SOLID()); });
-      msg(p, c, S0, 0, -150, 380);
+      shape(p, [[-440, 270], [0, 210], [0, -120], [-440, -40]], F(3.2)); shape(p, [[0, 210], [440, 270], [440, -40], [0, -120]], F(3.2));
+      p.line(0, -120, 0, 210, W(2.4));
+      const yb = my + botOff(S0.kind, w) - 4; p.line(-120, yb, -170, 205, W(2.6)); p.line(120, yb, 170, 205, W(2.6)); p.line(-120, yb, 0, yb + 40, S(1.6)); p.line(120, yb, 0, yb + 40, S(1.6));
+      msg(p, c, S0, 0, my, w);
     }); });
 
-  /* 04 ── DRONE: a delivery drone flies the message in and hangs it on its line */
-  variant('drone', 'โดรนส่งข้อความ', (d, c) => { const S0 = st(d);
+  /* 04 ── CUCKOO CLOCK: the little door above the dial opens and the bird comes out on its stick, holding the message */
+  variant('cuckoo', 'นาฬิกากุ๊กกู', (d, c) => { const S0 = st(d);
     art(c, p => {
-      [-1, 1].forEach(sd => { p.line(sd * 60, -262, sd * 190, -276, W(5)); R(p, sd * 190 - 9, -300, 18, 30, 4, F(2.4)); p.ellipse(sd * 190, -304, 70, 10, F(2.6)); p.line(sd * 40, -232, sd * 64, -208, W(3)); });
-      R(p, -80, -284, 160, 52, 18, F(3.4)); p.circle(0, -258, 10, W(2.4)); p.line(-80, -206, 80, -206, W(3));
-      const m = st(d); const hh = msgH(m.kind, 420), top = 30 - hh / 2 - (m.kind === 'message' ? hh * .36 : 0);
-      p.line(0, -232, 0, top, W(2.4));
-      [-1, 1].forEach(sd => { p.circle(sd * 190, -304, 7, SOLID()); p.line(sd * 64 - 14, -208, sd * 64 + 14, -208, W(3)); }); p.path('M -26 -232 A 26 22 0 0 0 26 -232 Z', F(2.4)); p.circle(0, -222, 7, W(1.6)); p.line(-56, -272, -30, -272, S(1.6)); p.line(30, -272, 56, -272, S(1.6));
-      msg(p, c, S0, 0, 30, 420);
+      shape(p, [[-260, -190], [-100, -320], [60, -190]], F(3.2)); R(p, -230, -190, 260, 300, 10, F(3.4));
+      p.circle(-100, 0, 86, F(3)); p.line(-100, 0, -100, -56, W(3.4)); p.line(-100, 0, -60, 20, W(3.4)); p.circle(-100, 0, 7, SOLID());
+      R(p, -136, -170, 72, 70, 6, { fill: C.fill, sw: 2.4 }); shape(p, [[-136, -170], [-176, -160], [-176, -94], [-136, -100]], F(2.6));
+      p.line(-100, -134, -10, -134, W(2.4));
+      p.path('M -40 -134 Q -24 -168 6 -160 Q 26 -152 22 -134 Q 6 -118 -20 -120 Q -40 -122 -40 -134 Z', F(2.8)); p.circle(14, -160, 4, SOLID()); shape(p, [[24, -156], [40, -150], [24, -146]], F(2));
+      [-150, -50].forEach(x => { p.line(x, 110, x, 236, S(1.8)); p.ellipse(x, 262, 16, 30, F(2.6)); }); p.line(-100, 110, -100, 200, W(2)); p.circle(-100, 214, 18, F(2.6));
+      msg(p, c, S0, 240, -60, 380);
     }); });
 
-  /* 05 ── MICROPHONE: a microphone on a stand — the words come out of it as the message, with two sound rings */
-  variant('mic', 'ไมโครโฟนตั้งพื้น', (d, c) => { const S0 = st(d);
+  /* 05 ── LIGHTHOUSE: the lighthouse's beam sweeps out over the sea — the message is in the light */
+  variant('lighthouse', 'ประภาคารส่องข้อความ', (d, c) => { const S0 = st(d);
     art(c, p => {
-      p.line(-480, 292, 480, 292, S(2)); p.ellipse(-280, 286, 92, 14, F(2.8)); R(p, -288, -40, 16, 326, 4, F(2.6));
-      p.line(-280, -40, -200, -130, W(5)); const mh = rot(p, 38, -180, -160); R(mh, -218, -235, 76, 120, 38, F(3.4)); [-205, -185, -165].forEach(y => mh.line(-210, y, -150, y, S(1.6)));
-      [70, 110].forEach(r => p.path(`M ${-130 + r * .5} ${-230 - r * .3} A ${r} ${r} 0 0 1 ${-130 + r * .75} ${-150 + r * .2}`, S(2.4)));
-      p.circle(-280, -40, 12, F(2.6)); p.circle(-202, -128, 9, F(2.4)); p.path('M -212 -116 Q -250 -60 -262 0 L -262 278', S(1.8)); p.ellipse(-280, 280, 44, 6, S(1.6));
-      msg(p, c, S0, 210, -60, 400);
+      p.path('M -480 268 Q -440 252 -400 268 T -320 268 T -240 268 T -160 268 T -80 268 T 0 268 T 80 268 T 160 268 T 240 268 T 320 268 T 400 268 T 480 268', S(2));
+      p.path('M -470 300 Q -460 250 -400 240 L -250 240 Q -200 250 -190 300 Z', F(2.8));
+      shape(p, [[-380, 240], [-260, 240], [-284, -160], [-356, -160]], F(3.4)); [100, 0, -100].forEach(y => p.line(-372 + (240 - y) * .02 - 4, y, -268 - (240 - y) * .02 + 4, y, S(1.6)));
+      R(p, -370, -172, 100, 16, 4, F(2.6)); R(p, -356, -250, 72, 78, 8, { fill: LIT, sw: 3 }); shape(p, [[-366, -250], [-274, -250], [-298, -284], [-342, -284]], F(2.8)); p.circle(-320, -290, 6, SOLID());
+      p.path(pathOf([[-284, -236], [-284, -186], [480, 80], [480, -350]]), { fill: GLASS, sw: 0, stroke: 'none' });
+      msg(p, c, S0, 180, -110, 400);
     }); });
 
-  /* 06 ── DESK PHONE: the phone rings, the handset lifts and the message comes through (gone: it rings out, the handset stays down) */
-  variant('deskphone', 'โทรศัพท์ตั้งโต๊ะ', (d, c) => { const S0 = st(d), up = !S0.gone;
+  /* 06 ── ROBOT ARM: an arm on the table draws the message on a board with its pen */
+  variant('plotter', 'แขนกลเขียนข้อความ', (d, c) => { const S0 = st(d), mx = -110, my = -50, w = 420;
     art(c, p => {
-      R(p, -470, 240, 940, 22, 6, F(3)); p.path('M -390 240 L -350 100 Q -340 80 -310 80 L -150 80 Q -120 80 -110 100 L -70 240 Z', F(3.6));
-      for (let r = 0; r < 2; r++) for (let k = 0; k < 3; k++) R(p, -300 + k * 56, 140 + r * 46, 40, 30, 8, F(2.2));
-      const hs = up ? rot(p, -24, -230, 10) : sub(p), hy = up ? -40 : 30;
-      R(hs, -360, hy, 260, 30, 15, F(3)); R(hs, -400, hy + 10, 82, 42, 16, F(3)); R(hs, -142, hy + 10, 82, 42, 16, F(3));
-      p.path(up ? 'M -100 200 C -20 200, -20 120, -60 60 C -90 20, -120 40, -110 0' : 'M -80 200 Q -40 210 -50 240', W(2)); if (!up) [[-420, 60], [-50, 60]].forEach(([x, y], i) => [0, 1, 2].forEach(k => p.line(x + (i ? 1 : -1) * k * 14, y - 20 + k * 20, x + (i ? 1 : -1) * (k * 14 + 22), y - 20 + k * 20, S(2.4))));
-      R(p, -326, 66, 20, 16, 4, F(2.2)); R(p, -154, 66, 20, 16, 4, F(2.2)); R(p, -290, 100, 120, 26, 6, { fill: GLASS, sw: 1.8 });
-      msg(p, c, S0, 230, -60, 400);
+      R(p, -470, 250, 940, 20, 6, F(3)); R(p, -400, -290, 560, 450, 10, F(3)); p.line(-380, 160, -420, 250, W(3)); p.line(140, 160, 180, 250, W(3));
+      const pen = [mx + w / 2 + 6, my + 20];
+      R(p, 300, 200, 120, 50, 12, F(3.2)); p.circle(360, 190, 26, F(3));
+      p.line(360, 190, 330, 10, { sw: 30 }); p.line(360, 190, 330, 10, { sw: 22, stroke: C.fill }); p.circle(330, 10, 20, F(3));
+      p.line(330, 10, pen[0] + 34, pen[1] - 26, { sw: 24 }); p.line(330, 10, pen[0] + 34, pen[1] - 26, { sw: 16, stroke: C.fill }); p.circle(pen[0] + 34, pen[1] - 26, 14, F(2.6));
+      p.line(pen[0] + 34, pen[1] - 26, pen[0], pen[1], W(4));
+      msg(p, c, S0, mx, my, w);
     }); });
 
-  /* 07 ── POSTCARD RACK: a turning rack of cards — one card is pulled out and shown: the message */
-  variant('postcards', 'ชั้นหมุนโปสการ์ด', (d, c) => { const S0 = st(d), tiers = [-200, -40, 120];
+  /* 07 ── 3D PRINTER: the print head moves over the bed and builds the message up out of the plate */
+  variant('printer3d', 'เครื่องพิมพ์สามมิติ', (d, c) => { const S0 = st(d), w = 360, bed = 196, my = bed - botOff(st(d).kind, 360);
     art(c, p => {
-      p.line(-480, 292, 480, 292, S(2)); R(p, -262, -300, 14, 560, 4, F(2.6)); p.ellipse(-255, 284, 110, 14, F(2.8)); p.circle(-255, -306, 12, F(2.6));
-      tiers.forEach((y, ti) => [-1, 1].forEach(sd => { const x = -255 + sd * 85, out = ti === 1 && sd === 1;
-        if (!out) R(p, x - 62, y - 60, 124, 110, 6, F(2.4)); R(p, x - 72, y, 144, 64, 6, F(3)); }));
-      R(p, -282, -320, 54, 14, 5, F(2.4)); tiers.forEach((y, ti) => { p.circle(-255, y + 30, 9, F(2.2)); [-1, 1].forEach(sd => { const x = -255 + sd * 85; if (!(ti === 1 && sd === 1)) R(p, x - 46, y - 50, 92, 36, 4, S(1.4)); }); });
-      msg(p, c, S0, 230, -40, 400);
+      R(p, -300, -300, 26, 560, 6, F(2.8)); R(p, 274, -300, 26, 560, 6, F(2.8)); R(p, -320, -312, 640, 30, 8, F(3)); R(p, -330, 250, 660, 30, 8, F(3));
+      R(p, -280, -210, 560, 14, 5, F(2.4)); const hx = 40, hy = my - topOff(S0.kind, w) - 50; p.line(-280, hy - 20, 280, hy - 20, S(1.6));
+      R(p, hx - 44, hy - 40, 88, 56, 10, F(3)); shape(p, [[hx - 12, hy + 16], [hx + 12, hy + 16], [hx, hy + 34]], F(2.2));
+      p.circle(390, -230, 44, F(2.8)); p.circle(390, -230, 12, W(2)); p.path(`M 380 -190 Q 330 ${f1(hy - 90)} ${hx + 20} ${f1(hy - 40)}`, W(1.6));
+      R(p, -250, bed, 500, 18, 4, F(2.8)); p.line(-180, bed + 18, -180, 250, W(2.4)); p.line(180, bed + 18, 180, 250, W(2.4));
+      msg(p, c, S0, 0, my, w);
     }); });
 
-  /* 08 ── SATELLITE DISH: a dish on a pole catches the signal coming down; the message pops up beside it */
-  variant('dish', 'จานดาวเทียม', (d, c) => { const S0 = st(d);
+  /* 08 ── SPRAY CAN: a spray can paints the message onto a brick wall, the fresh paint runs a little */
+  variant('spray', 'สเปรย์พ่นผนัง', (d, c) => { const S0 = st(d), mx = -70, my = -40, w = 440;
     art(c, p => {
-      p.line(-480, 292, 480, 292, S(2)); R(p, -308, 60, 16, 232, 4, F(2.6)); p.ellipse(-300, 286, 80, 12, F(2.6));
-      const g = rot(p, -35, -300, 40); g.path('M -470 40 Q -300 190 -130 40 Q -300 90 -470 40 Z', F(3.4)); g.line(-300, 100, -300, -60, W(3)); R(g, -318, -86, 36, 30, 6, F(2.6));
-      [40, 80, 120].forEach(r => p.path(`M ${-60 - r * .9} ${-250 + r * .15} A ${r} ${r} 0 0 0 ${-60 + r * .2} ${-250 + r * .9}`, S(2.4)));
-      g.line(-430, 52, -305, -62, S(1.8)); g.line(-170, 52, -295, -62, S(1.8)); R(p, -322, 40, 44, 28, 6, F(2.4)); p.path('M -294 70 Q -270 180 -290 288', S(1.6));
-      msg(p, c, S0, 230, 60, 400);
+      for (let r = 0; r < 3; r++) for (let k = 0; k < 6; k++) { const x = -470 + k * 160 + (r % 2) * 80, x2 = Math.min(x + 150, 470); if (x2 - x > 40) R(p, x, 190 + r * 40, x2 - x, 34, 3, S(1.4)); }
+      const yb = my + botOff(S0.kind, w); [[mx - 120, 34], [mx + 30, 54], [mx + 150, 26]].forEach(([x, l]) => { p.line(x, yb - 2, x, yb + l, W(3)); p.circle(x, yb + l + 6, 6, SOLID()); });
+      const cn = rot(p, -28, 370, 120); R(cn, 330, 40, 80, 190, 18, F(3.4)); R(cn, 342, 14, 56, 28, 8, F(2.6)); R(cn, 358, 0, 24, 16, 4, F(2.4)); cn.line(334, 100, 406, 100, S(1.6));
+      [[280, 0], [262, -14], [266, 18], [244, 4], [250, -30], [236, 30]].forEach(([x, y]) => p.circle(x, y, 4, S(1.4)));
+      msg(p, c, S0, mx, my, w);
     }); });
 
-  /* 09 ── ANSWERING MACHINE: its lamp blinks — a new message; play, the reels turn, the message is heard (gone: the lamp stays dark) */
-  variant('answering', 'เครื่องตอบรับ', (d, c) => { const S0 = st(d);
+  /* 09 ── BOOMBOX: a boombox pumps — the sound comes out of its speakers as the message */
+  variant('boombox', 'วิทยุเทปพกพา', (d, c) => { const S0 = st(d);
     art(c, p => {
-      R(p, -470, 240, 940, 22, 6, F(3)); R(p, -440, 40, 330, 200, 20, F(3.6)); R(p, -410, 70, 170, 80, 10, { fill: GLASS, sw: 2.2 }); ring(p, -370, 110, 26, 9, F(2.6)); ring(p, -280, 110, 26, 9, F(2.6));
-      [0, 1, 2].forEach(k => R(p, -410 + k * 62, 176, 48, 34, 8, F(2.4))); [0, 1, 2].forEach(k => p.line(-200, 80 + k * 22, -140, 80 + k * 22, S(2)));
-      p.circle(-160, 190, 16, S0.gone ? F(2.4) : { fill: LIT, sw: 2.6 }); if (!S0.gone) halo(p, -160, 190, 34);
-      [-370, -280].forEach(x => p.line(x - 16, 110, x + 16, 110, S(1.4))); p.line(-370, 136, -280, 136, S(1.6)); p.path('M -110 200 Q -60 214 -40 240', W(2));
-      msg(p, c, S0, 200, -60, 420);
+      p.path('M -200 66 L -200 30 Q -200 10 -180 10 L 180 10 Q 200 10 200 30 L 200 66', W(4)); R(p, -310, 66, 620, 224, 28, F(3.6));
+      [-1, 1].forEach(sd => { ring(p, sd * 175, 184, 82, 30, F(3)); p.circle(sd * 175, 184, 12, SOLID()); [110, 140].forEach(r => p.path(`M ${sd * 175 + sd * r * .7} ${184 - r * .7} A ${r} ${r} 0 0 ${sd > 0 ? 1 : 0} ${sd * 175 + sd * r * .7} ${184 + r * .7}`, S(2))); });
+      R(p, -70, 130, 140, 76, 8, { fill: GLASS, sw: 2.2 }); ring(p, -32, 168, 18, 6, F(2)); ring(p, 32, 168, 18, 6, F(2));
+      [-60, -20, 20].forEach(x => R(p, x, 80, 34, 16, 4, F(2))); p.line(-60, 236, 60, 236, S(2)); p.line(-60, 254, 60, 254, S(2));
+      msg(p, c, S0, 0, -190, 420);
     }); });
 
-  /* 10 ── BANNER PLANE: a small plane tows the message across the sky on its line */
-  variant('bannerplane', 'เครื่องบินลากป้าย', (d, c) => { const S0 = st(d);
+  /* 10 ── CAFÉ TABLE: two people at a small table with their cups — the message is what passes between them */
+  variant('cafe', 'โต๊ะคุยกัน', (d, c) => { const S0 = st(d);
     art(c, p => {
-      p.path('M -460 -200 Q -440 -232 -380 -232 L -250 -228 L -200 -268 L -176 -268 L -196 -222 L -176 -218 Q -170 -196 -196 -192 L -390 -184 Q -450 -182 -460 -200 Z', F(3.4));
-      p.path('M -360 -206 L -300 -140 L -276 -140 L -300 -206 Z', F(2.8)); R(p, -400, -224, 40, 16, 6, W(1.8));
-      p.ellipse(-466, -202, 6, 34, F(2.4)); p.circle(-462, -202, 6, SOLID());
-      const m = msgH(S0.kind, 420), top = -40 - m / 2;
-      p.path(`M -178 -205 Q -120 -170 ${30 - 210} ${top + 10}`, W(2)); p.line(-180, top + 10, -180, top + m * .5, S(1.6));
-      p.line(-330, -186, -330, -162, W(2.4)); p.circle(-330, -152, 10, F(2.4)); p.line(-204, -262, -198, -224, S(1.6));
-      msg(p, c, S0, 30, -40, 420);
+      R(p, -250, 150, 500, 18, 8, F(3)); p.line(0, 168, 0, 280, W(4)); p.ellipse(0, 284, 90, 12, F(2.6));
+      [-1, 1].forEach(sd => { const x = sd * 90; R(p, x - 26, 106, 52, 44, 8, F(2.6)); p.path(`M ${x + sd * 26} ${116} Q ${x + sd * 46} ${126} ${x + sd * 26} ${138}`, W(2.4)); p.ellipse(x, 150, 40, 6, F(2)); });
+      bust(p, -360, 110, 2); bust(p, 360, 110, 2);
+      msg(p, c, S0, -20, -170, 420);
     }); });
 
-  /* 11 ── ORDER RAIL: cards slide along a rail on clips; the newest card is the message */
-  variant('ticketrail', 'ราวหนีบการ์ด', (d, c) => { const S0 = st(d), rail = -262;
+  /* 11 ── KETTLE: the kettle boils on the stove — the steam from its spout curls up and becomes the message */
+  variant('kettle', 'กาน้ำเดือด', (d, c) => { const S0 = st(d);
     art(c, p => {
-      R(p, -470, rail - 10, 940, 20, 8, F(3)); [-420, 420].forEach(x => p.line(x, rail - 10, x, rail - 60, W(3)));
-      [-400, -275].forEach(x => { p.circle(x, rail + 18, 12, F(2.6)); R(p, x - 52, rail + 30, 104, 150, 6, F(2.8)); [0, 1, 2].forEach(k => p.line(x - 34, rail + 70 + k * 30, x + 34 - k * 14, rail + 70 + k * 30, S(3))); });
-      const m = msgH(S0.kind, 420), top = 10 - m / 2 - (S0.kind === 'message' ? m * .36 : 0); p.circle(190, rail + 18, 14, F(2.8)); p.line(190, rail + 32, 190, top, W(2.4));
-      [-470, 470].forEach(x => p.circle(x, rail, 12, F(2.4))); [-400, -275, 190].forEach(x => p.line(x - 7, rail + 12, x + 7, rail + 26, S(1.4)));
-      msg(p, c, S0, 190, 10, 420);
+      R(p, -300, 250, 440, 30, 8, F(3)); [-150, -10].forEach(x => R(p, x - 40, 238, 80, 12, 4, F(2.2)));
+      p.path('M -260 240 Q -280 80 -80 70 Q 120 80 100 240 Z', F(3.4)); p.path('M -200 80 Q -80 -40 40 80', { sw: 9 }); p.path('M -200 80 Q -80 -40 40 80', { sw: 3, stroke: C.fill });
+      p.ellipse(-80, 72, 40, 10, F(2.4)); p.circle(-80, 60, 9, F(2.2));
+      p.path('M 80 170 Q 150 150 190 70 L 214 84 Q 180 170 96 210 Z', F(3));
+      puffs(p, [[226, 46], [240, 10], [236, -30], [214, -64]], 10, 18);
+      msg(p, c, S0, 180, -200, 380);
     }); });
 
-  /* 12 ── WATCH: a wrist watch laid out with its strap — the message lights up its screen */
-  variant('watch', 'นาฬิกาข้อมือแจ้งเตือน', (d, c) => { const S0 = st(d);
+  /* 12 ── DRONE SHOW: a swarm of lit drones over the city forms the message in the night sky */
+  variant('droneshow', 'โดรนแปรอักษร', (d, c) => { const S0 = st(d), mx = 0, my = -120, w = 460;
     art(c, p => {
-      R(p, -150, -350, 300, 140, 30, F(3)); R(p, -150, 210, 300, 140, 30, F(3));
-      R(p, -230, -230, 460, 460, 92, F(3.8)); R(p, -200, -200, 400, 400, 70, { fill: GLASS, sw: 0, stroke: 'none' }); R(p, 228, -70, 28, 70, 8, F(2.6));
-      R(p, -160, 244, 320, 18, 6, F(2.2)); R(p, -70, 300, 140, 40, 10, F(2.4)); p.line(0, 300, 0, 340, W(2)); R(p, 228, 20, 22, 40, 8, F(2.2));
-      msg(p, c, S0, 0, -10, 320, { size: 34 });
+      [[-470, 170, 90], [-370, 120, 70], [-290, 200, 110], [-170, 150, 80], [-80, 100, 70], [0, 180, 120], [130, 130, 70], [210, 210, 90], [310, 140, 100], [420, 190, 80]].forEach(([x, top, wd]) => R(p, x, top, wd, 300 - top, 3, F(2.6)));
+      p.line(-480, 300, 480, 300, S(2));
+      const h = msgH(S0.kind, w), x0 = mx - w / 2 - 22, x1 = mx + w / 2 + 22, y0 = my - topOff(S0.kind, w) - 22, y1 = my + botOff(S0.kind, w) + 22;
+      for (let k = 0; k <= 10; k++) { const x = lerp(x0, x1, k / 10); [y0, y1].forEach(y => { p.circle(x, y, 5, { fill: LIT, sw: 1.6 }); p.line(x - 9, y - 7, x + 9, y - 7, S(1.4)); }); }
+      for (let k = 1; k < 4; k++) { const y = lerp(y0, y1, k / 4); [x0, x1].forEach(x => { p.circle(x, y, 5, { fill: LIT, sw: 1.6 }); p.line(x - 9, y - 7, x + 9, y - 7, S(1.4)); }); }
+      msg(p, c, S0, mx, my, w);
     }); });
 
-  /* 13 ── BILLBOARD: a billboard on legs by the road — the message is pasted up on it, the lamps above light it */
-  variant('billboard', 'ป้ายโฆษณาริมทาง', (d, c) => { const S0 = st(d);
+  /* 13 ── LECTERN: someone speaks at a lectern into its microphone — the message rises over the room */
+  variant('lectern', 'แท่นพูด', (d, c) => { const S0 = st(d);
     art(c, p => {
-      p.line(-480, 292, 480, 292, S(2)); R(p, -250, 70, 24, 222, 4, F(2.6)); R(p, 226, 70, 24, 222, 4, F(2.6)); R(p, -440, 62, 880, 16, 4, F(2.6));
-      R(p, -420, -300, 840, 362, 10, F(3.6)); [-240, 240].forEach(x => { p.line(x, -300, x, -326, W(2.4)); p.line(x, -326, x + 40, -326, W(2.4)); R(p, x + 30, -334, 34, 16, 6, F(2.4)); });
-      p.line(266, 80, 266, 292, S(1.8)); p.line(296, 80, 296, 292, S(1.8)); [120, 170, 220, 270].forEach(y => p.line(266, y, 296, y, S(1.6)));
-      msg(p, c, S0, 0, -120, 420);
+      p.line(-480, 292, 480, 292, S(2)); bust(p, 0, 70, 1.9);
+      shape(p, [[-150, 292], [150, 292], [130, 120], [-130, 120]], F(3.4)); shape(p, [[-170, 120], [170, 120], [190, 84], [-190, 84]], F(3)); R(p, -70, 170, 140, 60, 8, S(1.8));
+      p.path('M 110 90 Q 120 40 70 14', W(3)); R(p, 50, 0, 34, 22, 10, F(2.4));
+      msg(p, c, S0, 0, -200, 420);
     }); });
 
-  /* 14 ── MAIL SLOT: the flap of a mail slot in a wall — the message comes through and lands on the mat below */
-  variant('mailslot', 'ช่องจดหมายที่ผนัง', (d, c) => { const S0 = st(d);
+  /* 14 ── FRIDGE DOOR: the message is held on the fridge door by two magnets */
+  variant('fridge', 'ประตูตู้เย็น', (d, c) => { const S0 = st(d), w = 380, my = 20;
     art(c, p => {
-      p.line(-480, 292, 480, 292, S(2)); R(p, -460, -330, 920, 500, 6, { fill: GLASS, sw: 0, stroke: 'none' }); p.line(-460, 170, 460, 170, W(2.4));
-      R(p, -200, -290, 400, 100, 14, F(3.4)); R(p, -160, -260, 320, 34, 6, { fill: C.fill, sw: 2.4 }); shape(p, [[-160, -262], [160, -262], [176, -300], [-144, -300]], F(2.8));
-      shape(p, [[-330, 292], [330, 292], [290, 250], [-290, 250]], F(2.8));
-      p.circle(-180, -272, 5, F(1.6)); p.circle(180, -208, 5, F(1.6)); R(p, -460, 150, 920, 20, 2, F(2.2)); shape(p, [[-290, 284], [290, 284], [262, 258], [-262, 258]], S(1.6));
-      msg(p, c, S0, 0, 40, 420);
+      R(p, -230, -330, 460, 640, 30, F(3.6)); p.line(-230, -170, 230, -170, W(2.4)); R(p, 190, -300, 16, 100, 8, F(2.6)); R(p, 190, -130, 16, 160, 8, F(2.6));
+      R(p, -200, 300, 40, 22, 4, F(2.4)); R(p, 160, 300, 40, 22, 4, F(2.4));
+      msg(p, c, S0, -10, my, w);
+      const ty = my - topOff(S0.kind, w); [-1, 1].forEach(sd => { p.circle(-10 + sd * 120, ty + 6, 20, F(3)); p.circle(-10 + sd * 120, ty + 6, 8, W(1.6)); });
     }); });
 
-  /* 15 ── PIGEON: a pigeon flies in with the message on a string from its beak */
-  variant('pigeon', 'นกพิราบส่งจดหมาย', (d, c) => { const S0 = st(d);
+  /* 15 ── FISHBOWL: the fish blows a bubble that grows up out of the bowl into the message */
+  variant('fishbowl', 'ตู้ปลาเป่าฟอง', (d, c) => { const S0 = st(d);
     art(c, p => {
-      p.path('M -390 -196 L -462 -228 Q -470 -196 -462 -164 Z', F(2.8));                                                                  // tail fan
-      p.path('M -400 -196 Q -380 -250 -290 -256 Q -210 -260 -186 -222 Q -200 -168 -290 -156 Q -370 -150 -400 -196 Z', F(3.2));          // body
-      p.path('M -330 -240 Q -360 -330 -300 -350 Q -290 -318 -262 -320 Q -262 -292 -236 -290 Q -244 -262 -270 -246 Z', F(3));              // raised wing
-      p.line(-300, -332, -282, -258, S(1.6)); p.line(-266, -306, -262, -254, S(1.6));
-      p.circle(-182, -250, 30, F(3)); p.circle(-174, -256, 5, SOLID()); shape(p, [[-154, -252], [-128, -244], [-154, -236]], F(2.2));
-      p.line(-300, -158, -300, -138, W(2.2)); p.line(-270, -158, -266, -138, W(2.2));
-      const m = msgH(S0.kind, 400), top = 20 - m / 2 - (S0.kind === 'message' ? m * .36 : 0); p.path(`M -130 -242 Q -60 -160 ${30} ${f1(top)}`, W(2));
-      p.circle(-174, -256, 10, S(1.4)); p.line(-394, -196, -456, -214, S(1.4)); p.line(-394, -196, -456, -180, S(1.4)); p.line(-300, -138, -310, -132, W(2)); p.line(-266, -138, -256, -132, W(2));
-      msg(p, c, S0, 120, 20, 400);
+      R(p, -380, 284, 300, 18, 6, F(2.8));
+      p.path('M -330 -10 A 175 175 0 1 0 -130 -10 Z', F(3.4)); p.ellipse(-230, -10, 100, 14, F(2.6)); p.path('M -380 140 Q -230 120 -80 140', S(1.8));
+      p.path('M -300 170 Q -250 120 -200 160 L -170 132 L -168 192 L -200 166 Q -250 210 -300 170 Z', F(2.8)); p.circle(-282, 162, 5, SOLID());
+      [[-300, 110, 9], [-290, 60, 12], [-250, -60, 16], [-190, -130, 20]].forEach(([x, y, r]) => p.circle(x, y, r, S(2)));
+      msg(p, c, S0, 160, -170, 400);
     }); });
 
-  /* 16 ── COMIC STRIP: three panels of a comic — in the last, big panel someone says the message */
-  variant('comic', 'การ์ตูนช่อง', (d, c) => { const S0 = st(d);
+  /* 16 ── PARROT: a parrot on its perch says it out loud */
+  variant('parrot', 'นกแก้วพูด', (d, c) => { const S0 = st(d);
     art(c, p => {
-      R(p, -470, -300, 280, 285, 8, F(3.2)); R(p, -470, 15, 280, 285, 8, F(3.2)); R(p, -170, -300, 640, 600, 8, F(3.4));
-      bust(p, -330, -110, 1.3); bust(p, -330, 210, 1.3); p.line(-380, -250, -280, -250, S(4)); bust(p, -40, 210, 1.9);
-      p.line(-460, -54, -200, -54, S(1.6)); p.line(-460, 264, -200, 264, S(1.6)); [[-122, 84, -104, 100], [-100, 62, -92, 84], [-70, 56, -70, 80]].forEach(([a, b, c2, d2]) => p.line(a, b, c2, d2, W(2.4)));
-      msg(p, c, S0, 200, -90, 400);
+      p.line(-480, 292, 480, 292, S(2)); R(p, -318, -30, 16, 322, 4, F(2.6)); p.ellipse(-310, 286, 80, 12, F(2.6)); R(p, -420, -40, 230, 16, 8, F(2.8));
+      p.path('M -330 -40 L -360 140 L -320 140 Z', F(2.6));
+      p.path('M -350 -40 Q -380 -140 -320 -200 Q -270 -230 -246 -180 Q -230 -120 -280 -40 Z', F(3.2));
+      p.path('M -340 -80 Q -330 -150 -300 -170', S(1.8)); p.circle(-276, -196, 30, F(3)); p.circle(-268, -202, 5, SOLID());
+      p.path('M -250 -206 Q -224 -200 -228 -176 Q -238 -184 -248 -186 Z', F(2.4));
+      p.line(-310, -40, -316, -24, W(2.4)); p.line(-290, -40, -284, -24, W(2.4));
+      msg(p, c, S0, 160, -150, 400);
     }); });
 
-  /* 17 ── FEEDBACK KIOSK: a stand with three face buttons — the one for the mood is pressed and the feedback card comes up */
-  variant('feedback', 'ตู้กดประเมินหน้ายิ้ม', (d, c) => { const S0 = st(d), pick = S0.mood === 'good' ? 0 : S0.mood === 'bad' ? 2 : 1;
+  /* 17 ── BIKE TRAILER: a bicycle pulls a little trailer with the message standing in it */
+  variant('bike', 'จักรยานลากข้อความ', (d, c) => { const S0 = st(d), w = 360, tb = 186, my = tb - botOff(st(d).kind, 360) + 6;
     art(c, p => {
-      p.line(-480, 292, 480, 292, S(2)); R(p, -16, 190, 32, 102, 4, F(2.6)); p.ellipse(0, 286, 110, 14, F(2.8));
-      shape(p, [[-260, 190], [260, 190], [230, 70], [-230, 70]], F(3.4));
-      [-150, 0, 150].forEach((x, i) => { const y = 130, me = i === pick; p.circle(x, y, 44, me ? { fill: LIT, sw: 3.4 } : F(2.8)); if (me) halo(p, x, y, 64);
-        p.circle(x - 15, y - 10, 5, SOLID()); p.circle(x + 15, y - 10, 5, SOLID());
-        p.path(i === 0 ? `M ${x - 20} ${y + 10} Q ${x} ${y + 28} ${x + 20} ${y + 10}` : i === 2 ? `M ${x - 20} ${y + 22} Q ${x} ${y + 6} ${x + 20} ${y + 22}` : `M ${x - 18} ${y + 16} L ${x + 18} ${y + 16}`, W(3)); });
-      p.line(-236, 84, 236, 84, S(1.6)); R(p, -120, 40, 240, 24, 8, F(2.2)); R(p, -24, 188, 48, 14, 4, F(2.2));
-      msg(p, c, S0, 0, -115, 380);
+      p.line(-480, 292, 480, 292, S(2));
+      [[140, 230], [360, 230]].forEach(([x, y]) => { ring(p, x, y, 62, 54, F(2.4)); p.circle(x, y, 8, SOLID()); [0, 60, 120].forEach(a => p.line(x - 54 * Math.cos(rad(a)), y - 54 * Math.sin(rad(a)), x + 54 * Math.cos(rad(a)), y + 54 * Math.sin(rad(a)), S(1.4))); });
+      p.poly([[140, 230], [210, 130], [320, 130], [250, 230], [140, 230]], W(4)); p.line(250, 230, 200, 120, W(4)); p.line(320, 130, 360, 230, W(4)); p.line(320, 130, 330, 96, W(4));
+      R(p, 180, 106, 50, 14, 6, F(2.4)); p.line(318, 96, 352, 90, W(4));
+      R(p, -360, tb, 300, 56, 8, F(3.2)); p.circle(-210, 262, 30, F(2.6)); p.circle(-210, 262, 7, SOLID()); p.line(-60, 214, 140, 230, W(3));
+      msg(p, c, S0, -210, my, w);
     }); });
 
-  /* 18 ── TELEPROMPTER: the prompter's glass on its tripod — the message rolls up on the glass */
-  variant('prompter', 'เครื่องอ่านบท', (d, c) => { const S0 = st(d);
+  /* 18 ── HOLOGRAM: a small projector on the table throws up a cone of light — the message floats in it */
+  variant('hologram', 'โฮโลแกรม', (d, c) => { const S0 = st(d);
     art(c, p => {
-      p.line(-480, 292, 480, 292, S(2)); p.line(0, 140, -170, 292, W(3.4)); p.line(0, 140, 170, 292, W(3.4)); p.line(0, 140, 0, 292, W(3.4)); R(p, -40, 112, 80, 30, 8, F(2.8));
-      R(p, -300, -300, 600, 420, 18, F(3.6)); R(p, -272, -272, 544, 364, 8, { fill: GLASS, sw: 0, stroke: 'none' }); [-1, 1].forEach(sd => R(p, sd * 300 - (sd > 0 ? 0 : 26), -140, 26, 90, 8, F(2.6)));
-      p.line(40, 126, 130, 150, W(3)); p.circle(134, 151, 8, F(2)); p.line(-88, 216, 88, 216, S(1.8)); [-1, 1].forEach(sd => p.circle(sd * 313, -95, 7, F(2)));
-      msg(p, c, S0, 0, -100, 400);
+      R(p, -470, 270, 940, 20, 6, F(3));
+      p.path(pathOf([[-90, 214], [90, 214], [270, -330], [-270, -330]]), { fill: GLASS, sw: 0, stroke: 'none' }); p.line(-90, 214, -270, -330, S(1.4)); p.line(90, 214, 270, -330, S(1.4));
+      p.ellipse(0, 250, 170, 30, F(3.2)); R(p, -150, 214, 300, 36, 10, F(3)); p.ellipse(0, 214, 110, 16, { fill: LIT, sw: 2.4 });
+      msg(p, c, S0, 0, -70, 400);
     }); });
 
-  /* 19 ── ROBOT: a little robot answers — its screen face, and the message beside it */
-  variant('robot', 'หุ่นยนต์ตอบ', (d, c) => { const S0 = st(d);
+  /* 19 ── QUILL: a quill dipped in the ink pot writes the message on a sheet of paper */
+  variant('quill', 'ขนนกจุ่มหมึก', (d, c) => { const S0 = st(d), mx = -40, my = 30, w = 420;
     art(c, p => {
-      p.line(-480, 292, 480, 292, S(2)); p.line(-260, -170, -260, -230, W(3)); p.circle(-260, -240, 12, F(2.6));
-      R(p, -370, -170, 220, 160, 30, F(3.6)); R(p, -345, -145, 170, 110, 18, { fill: GLASS, sw: 2 });
-      p.circle(-295, -100, 10, SOLID()); p.circle(-225, -100, 10, SOLID()); p.path('M -290 -66 Q -260 -50 -230 -66', W(3));
-      R(p, -390, 10, 260, 200, 26, F(3.4)); R(p, -310, 50, 100, 60, 10, F(2.4)); [-1, 1].forEach(sd => R(p, -260 + sd * 150 - 16, 40, 32, 130, 16, F(2.8)));
-      R(p, -370, 210, 220, 30, 10, F(2.8)); [-320, -200].forEach(x => p.circle(x, 262, 28, F(3)));
-      [-376, -144].forEach(x => p.circle(x, -90, 10, F(2.4))); R(p, -290, -12, 60, 22, 4, F(2.2)); [-200, -168].forEach(x => p.circle(x, 152, 9, F(2))); [-320, -200].forEach(x => p.circle(x, 262, 7, SOLID()));
-      msg(p, c, S0, 210, -90, 400);
+      shape(p, [[-420, 280], [360, 280], [320, -230], [-380, -230]], F(3));
+      R(p, 330, 170, 120, 100, 18, F(3.2)); R(p, 350, 140, 80, 34, 8, F(2.8)); p.ellipse(390, 140, 40, 8, { fill: C.ink, sw: 1.6 });
+      const nib = [mx + w / 2 - 20, my + botOff(S0.kind, w) - 30];
+      p.path(`M ${nib[0]} ${nib[1]} Q ${nib[0] + 60} ${nib[1] - 140} ${nib[0] + 200} ${nib[1] - 320} Q ${nib[0] + 150} ${nib[1] - 180} ${nib[0] + 20} ${nib[1] - 12} Z`, F(2.8));
+      p.line(nib[0] + 6, nib[1] - 6, nib[0] + 180, nib[1] - 300, S(1.6));
+      msg(p, c, S0, mx, my, w);
     }); });
 
-  /* 20 ── TV SET: an old TV switches on — the message is on its screen */
-  variant('crt', 'โทรทัศน์จอตู้', (d, c) => { const S0 = st(d);
+  /* 20 ── RING LIGHT: a ring light on its stand, the kind used to go live — the message shows inside the ring */
+  variant('ringlight', 'ไฟวงแหวนไลฟ์สด', (d, c) => { const S0 = st(d);
     art(c, p => {
-      p.line(-480, 292, 480, 292, S(2)); p.line(-60, -262, -170, -340, W(2.4)); p.line(-40, -262, 70, -340, W(2.4)); p.ellipse(-50, -262, 40, 12, F(2.6));
-      R(p, -360, -262, 640, 460, 34, F(3.6)); R(p, -330, -232, 460, 400, 40, { fill: GLASS, sw: 2.6 });
-      ring(p, 205, -150, 34, 12, F(2.6)); ring(p, 205, -50, 26, 9, F(2.6)); [0, 1, 2, 3].forEach(k => p.line(170, 40 + k * 26, 240, 40 + k * 26, S(2)));
-      [-1, 1].forEach(sd => p.line(-40 + sd * 250, 198, -40 + sd * 290, 292, W(3.4)));
-      R(p, 178, 146, 54, 22, 6, F(2)); p.path('M 280 120 Q 330 180 320 290', W(2)); p.line(-90, 198, 10, 198, S(1.6));
-      msg(p, c, S0, -100, -50, 380);
+      p.line(-480, 292, 480, 292, S(2)); [-150, 0, 150].forEach(x => p.line(0, 200, x, 292, W(3.4))); R(p, -10, 120, 20, 90, 4, F(2.6));
+      ring(p, 0, -90, 215, 180, { fill: LIT, sw: 3.2 }); R(p, -24, 118, 48, 20, 6, F(2.6));
+      msg(p, c, S0, 0, -90, 300, { size: 32 });
     }); });
 
   /* samples from unrelated topics (neutrality) + a stress set */
   const SAMPLES = [
-    { say: 'ส่งข้อความผ่านท่อถึงฝ่ายบัญชี', kind: 'message', quote: 'บิลเดือนนี้', mood: 'good', react: 'check' },
+    { say: 'มีคนเขียนมาบอกว่าคิดถึง', kind: 'chat', quote: 'คิดถึงนะ', mood: 'good', react: 'heart' },
     { say: 'หัวหน้าส่งข้อความมาว่าเก่งมาก', kind: 'message', quote: 'เก่งมาก', mood: 'good', react: 'star' },
     { say: 'ทักไปแล้วเงียบหาย', kind: 'chat', quote: 'ว่างไหม', gone: true },
     { say: 'เพื่อนส่งมาว่าขอโทษ', kind: 'chat', quote: 'ขอโทษนะ', mood: 'good', react: 'heart' },
