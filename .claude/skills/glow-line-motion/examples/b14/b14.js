@@ -382,6 +382,33 @@
       heroH(p, c, X, cx - 150, cy, 116, cx - 76, cy, { cx: cx - 15, cy, size: 46, maxW: 270, bigSize: 52, bigW: 420 });
     }); });
 
+  /* ---------- redesign 15 (user: "15 redesign") — three options; the chosen one moves into V, the rest are deleted ---------- */
+  const ALT = [];
+  /* A ── THE MOBILE: a balance rod hangs from a hook; the two quotation marks hang at its ends, the idea's card in the middle */
+  ALT.push({ id: 'mobile', th: 'โมบายอัญประกาศ', build: (d, c) => { const X = st(d), r = 34, yr = -258;
+    art(c, p => { p.circle(0, -340, 8, F(2.4)); p.line(0, -332, 0, yr - 10, W(2.2)); R(p, -340, yr - 8, 680, 16, 8, F(2.6)); p.circle(0, yr, 7, F(2));
+      const L = [-300, yr], Rr = [300, yr], ql = [-300 - 1.1 * r, -60], qr = [300, -170];
+      p.line(L[0], yr + 8, ql[0] + 1.1 * r, ql[1] - 3.1 * r, W(2)); qmark(p, ql[0] + 14, ql[1] - 10, r, 1, S(1.6)); qmark(p, ...ql, r, 1); qmark(p, ql[0] + 70, ql[1], r, 1);
+      p.line(Rr[0], yr + 8, qr[0], qr[1] - r, W(2)); qmark(p, qr[0] + 14, qr[1] - 10, r, -1, S(1.6)); qmark(p, ...qr, r, -1); qmark(p, qr[0] + 70, qr[1], r, -1);
+      p.line(0, yr + 8, 0, -128, W(2)); p.circle(0, -118, 10, F(2)); R(p, -190, -108, 380, 300, 22, F(3.4)); R(p, -170, -88, 340, 260, 14, S(1.4));
+      hero(p, c, X, 0, -12, 140, 124, { maxW: 320, size: 42, bigSize: 56, bigW: 320, bigDy: 74 });
+    }); } });
+  /* B ── THE BOOKENDS: a shelf on two brackets; two big quotation-mark bookends (with depth) hold a standing card with the idea */
+  ALT.push({ id: 'bookends', th: 'ที่กั้นหนังสืออัญประกาศ', build: (d, c) => { const X = st(d), r = 46, sy = 200;
+    art(c, p => { R(p, -440, sy, 880, 26, 6, F(3)); [-320, 320].forEach(x => { shape(p, [[x - 12, sy + 26], [x + 12, sy + 26], [x + 12, sy + 110], [x - 60 * Math.sign(x), sy + 26]], F(2.4)); screw(p, x, sy + 60, 4); });
+      [-352, -262].forEach(lx => { qmark(p, lx + 14, sy - r - 12, r, 1, S(1.8)); qmark(p, lx, sy - r, r, 1); });
+      [262, 352].forEach(rx => { qmark(p, rx + 14, sy - 3.1 * r - 12, r, -1, S(1.8)); qmark(p, rx, sy - 3.1 * r, r, -1); });
+      const g = rot(p, -3, 0, sy); R(g, -180, -170, 360, sy + 170, 12, F(3.4)); R(g, -160, -150, 320, sy + 130, 8, S(1.4));
+      hero(g, c, X, 0, -50, 140, 92, { maxW: 300, size: 42, bigSize: 54, bigW: 300, bigDy: 85 });
+    }); } });
+  /* C ── THE HOOKS: two closing quotation marks bolted to the wall work as hooks; chains hang from their tails and carry a plank sign */
+  ALT.push({ id: 'hooks', th: 'ตะขออัญประกาศแขวนป้าย', build: (d, c) => { const X = st(d), r = 40, hy = -236;
+    art(c, p => { [-250, 250].forEach(x => { [x - 70, x].forEach(x2 => { qmark(p, x2 + 12, hy - 10, r, -1, S(1.6)); qmark(p, x2, hy, r, -1); screw(p, x2, hy, 6); });
+        const tip = [x - 1.1 * r, hy + 3.1 * r], end = [x < 0 ? -230 : 230, -10]; for (let k = 0; k <= 5; k++) { const u = k / 5, cx = lerp(tip[0], end[0], u), cy = lerp(tip[1], end[1], u); ell(p, cx, cy, k % 2 ? 5 : 8, k % 2 ? 9 : 6, F(2)); } });
+      R(p, -320, -10, 640, 250, 14, F(3.4)); R(p, -296, 14, 592, 202, 8, S(1.4)); [-230, 230].forEach(x => { p.circle(x, 4, 7, F(2)); });
+      hero(p, c, X, 0, 78, 120, 190, { maxW: 480, size: 42, bigSize: 58, bigW: 520, bigDy: 57 });
+    }); } });
+
   /* ---------- sample data (A: key lines from unrelated topics · B: stress) ---------- */
   const I = (icon, label) => label ? { icon, label } : { icon };
   const SAMPLES = [
@@ -430,5 +457,5 @@
   ];
 
   G.cats = G.cats || {};
-  G.cats.B14 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d || {}, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
+  G.cats.B14 = { variants: V, ALT, drawAlt: (k, d, c) => { setZ(c); CUR = ALT[k].id; ALT[k].build(d || {}, c); }, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d || {}, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
 })();
