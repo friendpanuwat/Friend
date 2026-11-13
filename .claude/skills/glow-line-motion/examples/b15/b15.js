@@ -197,176 +197,245 @@
   const disc = (q, x, y, r) => { ring(q, x, y, r, r - 20, F(3.4)); q.circle(x, y, r - 20, F(1)); q.circle(x, y, r - 34, S(1.4)); };
   const post = (q, x, y0, y1 = 290, bw = 80) => { R(q, x - 10, y0, 20, y1 - y0 - 6, 6, F(2.6)); ell(q, x, y1 - 6, bw, 11, F(2.6)); };
 
-  /* 01 ── POINTING OUT AT YOU: a person (front view) points down-forward, out at the viewer; the call is on a plain card on the wall */
-  variant('pointout', 'คนชี้มาทางผู้ชม', (d, c) => { const X = st(d);
+  /* ---------- motion (user 2026-11-13 "ผ่านทั้งหมดครับทำเคลื่อนไหวได้เลย"): every part comes in on its own → the thing does its job
+     (drops and swings, rises, flips open, is pressed, is pointed at, rings …) → on the keyword the call lands, lit (ripple + icon pops, label follows)
+     → hold. T0 = the main move (a long sentence waits, then goes) · H = the keyword. Last frame = the approved still. ---------- */
+  const f3 = v => +v.toFixed(3);
+  /* an arm joint swings from r0 into place between t0 and t1 (overshoots a little, settles) */
+  const armK = (r0, t0, t1, os = -5) => [[0, r0], [t0, r0], [t1, os, 'out'], [f3(t1 + tu(.1)), 0, 'soft']];
+  /* a waving forearm: swings up from r0 at t0, then waves (± a) until t1, settles */
+  function waveK(r0, t0, t1, a = 16) { const K = [[0, r0], [t0, r0], [f3(t0 + tu(.3)), 0, 'out']]; let t = t0 + tu(.3), sg = 1;
+    while (t + tu(.16) <= t1) { t += tu(.16); K.push([f3(t), sg * a, 'io']); sg = -sg; } K.push([f3(t + tu(.16)), 0, 'soft']); return K; }
+  /* a thing that drops in on its hanger and swings on (px, py) until just before the keyword */
+  const swingK = (t0, H, a = 7) => ({ y: [[0, -300], [tu(.1), -300], [t0 - tu(.1), 10, 'in'], [t0, 0, 'out']],
+    r: [[0, 0], [t0, 0], [t0 + tu(.2), a, 'out'], [t0 + tu(.5), -a * .55, 'io'], [t0 + tu(.8), a * .2, 'io'], [H - tu(.1), 0, 'soft']], o: fadeIn(tu(.1)) });
+  const growY = (x, y, t, d = .25) => ({ px: x, py: y, sy: [[0, 0], [t, 0], [t + tu(d), 1.04, 'out'], [t + tu(d + .1), 1, 'soft']], o: fadeIn(t, .04) });
+  const CL = p => clipG(p, -500, -350, 1000, 700);
+
+  /* 01 ── POINTING OUT AT YOU: the card pops onto the wall and its screws go in; the person rises in, then thrusts the arm out at the viewer —
+     a burst at its end, and the call lands on the card */
+  variant('pointout', 'คนชี้มาทางผู้ชม', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0;
     art(c, p => { floorD(p);
-      card(p, -440, -250, 400, 300); [[-418, -228], [-62, -228], [-418, 28], [-62, 28]].forEach(([x, y]) => screw(p, x, y, 4));
+      card(inG(p, 'pop', -240, -100, tu(.04)), -440, -250, 400, 300); [[-418, -228], [-62, -228], [-418, 28], [-62, 28]].forEach(([x, y], i) => screw(popAt(p, x, y, tu(.2 + .04 * i)), x, y, 4));
+      const px = 210, k = 1.04, hm = front(inG(p, 'rise', px, 140, tu(.12)), px, 290, k, { 1: { s: [36, -82], e: [84, -44], h: [124, -8] } });
+      hm.on('upper1', p, 0, { ox: 36, oy: -82, r: armK(36, T0, H - tu(.14)) }); hm.on('fore1', p, 0, { ox: 84, oy: -44, r: armK(8, T0, H - tu(.14), 0) });
+      const [hx, hy] = fAt(px, 290, k, 136, 2); sparkAt(p, hx, hy, 20, 36, H - tu(.06), 8, 0, [3, 4, 5, 6, 7], true);
       hero(p, c, X, -240, -136, 140, 6, { maxW: 320, size: 42, bigSize: 52, bigW: 330 });
-      const px = 210, k = 1.04; front(p, px, 290, k, { 1: { s: [36, -82], e: [84, -44], h: [124, -8] } });
-      const [hx, hy] = fAt(px, 290, k, 136, 2); burst(p, hx, hy, 20, 36, 8, 0, [3, 4, 5, 6, 7]);
     }); });
 
-  /* 02 ── THE CLICK: a big pointer arrow clicks the call button (a plain pill) */
-  variant('click', 'ลูกศรเมาส์กดปุ่ม', (d, c) => { const X = st(d), tx = 160, ty = 50;
+  /* 02 ── THE CLICK: the pill button pops; the pointer glides in along one smooth curve, stops on the button and clicks (pointer dips,
+     button squashes, click ticks) — the call lands */
+  variant('click', 'ลูกศรเมาส์กดปุ่ม', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, tx = 160, ty = 50, tC = H - tu(.1);
     art(c, p => {
-      R(p, -380, -150, 640, 220, 110, F(3.6)); R(p, -358, -128, 596, 176, 88, S(1.4));
+      const pl = mvG(inG(p, 'pop', -60, -40, tu(.04)), { px: -60, py: -40, sy: bumpK(tC, .93), sx: bumpK(tC, 1.015) });
+      R(pl, -380, -150, 640, 220, 110, F(3.6)); R(pl, -358, -128, 596, 176, 88, S(1.4));
+      const cg = mvG(CL(p), Object.assign({ o: fadeIn(tu(.3)) }, pathK([[560, 380], [380, 300], [240, 140], [tx, ty]], Math.max(tu(.3), T0 - tu(.3)), tC - tu(.04), [tx, ty])));
+      const pr = mvG(cg, { px: tx, py: ty, s: [[0, 1], [tC - tu(.04), 1], [tC, .86, 'in'], [tC + tu(.14), 1, 'out']] });
+      shape(pr, [[0, 0], [0, 170], [42, 132], [72, 198], [102, 184], [72, 120], [126, 120]].map(([x, y]) => [tx + x, ty + y]), F(3.4));
+      sparkAt(p, tx, ty, 28, 52, tC, 9, -170, [3, 4, 5, 6, 7, 8], true);
       heroH(p, c, X, -230, -40, 110, -150, -26, { cx: -60, cy: -40, size: 50, maxW: 330, bigSize: 54, bigW: 520 });
-      const ar = [[0, 0], [0, 170], [42, 132], [72, 198], [102, 184], [72, 120], [126, 120]].map(([x, y]) => [tx + x, ty + y]); shape(p, ar, F(3.4));
-      [[-120, 8], [-150, 45], [-95, -28]].forEach(([a], i) => tick(p, tx, ty, -150 + i * 40 - 20, 28, 52));
     }); });
 
-  /* 03 ── WAVING: a person (front view) waves next to a plain sign on a post */
-  variant('wave', 'คนโบกมือ', (d, c) => { const X = st(d), px = -250, k = 1.02;
+  /* 03 ── WAVING: the person rises in; the post grows up out of its base and the sign drops onto it; the person lifts an arm and waves —
+     the wave arcs light on the keyword, with the call */
+  variant('wave', 'คนโบกมือ', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, px = -250, k = 1.02;
     art(c, p => { floorD(p);
-      front(p, px, 290, k, { 1: { s: [36, -82], e: [94, -126], h: [86, -200] } });
-      const [hx, hy] = fAt(px, 290, k, 86, -210); waveArcs(p, hx + 22, hy, 1); waveArcs(p, hx - 24, hy, -1);
-      post(p, 180, 40); card(p, -10, -270, 380, 310);
+      const hm = front(inG(p, 'rise', px, 140, tu(.04)), px, 290, k, { 1: { s: [36, -82], e: [94, -126], h: [86, -200] } });
+      hm.on('upper1', p, 0, { ox: 36, oy: -82, r: armK(111, T0, T0 + tu(.3)) }); hm.on('fore1', p, 0, { ox: 94, oy: -126, r: waveK(71, T0, H + tu(.2)) });
+      const [hx, hy] = fAt(px, 290, k, 86, -210), wa = litG(p, H - tu(.1)); waveArcs(wa, hx + 22, hy, 1); waveArcs(wa, hx - 24, hy, -1);
+      ell(popAt(p, 180, 284, tu(.12)), 180, 284, 80, 11, F(2.6)); R(mvG(p, growY(180, 284, tu(.16))), 170, 40, 20, 244, 6, F(2.6));
+      card(inG(CL(p), 'drop', 180, -115, tu(.4)), -10, -270, 380, 310);
       hero(p, c, X, 180, -150, 140, -10, { maxW: 300, size: 42, bigSize: 52, bigW: 310 });
     }); });
 
-  /* 04 ── THE SIGN ON A NAIL: a plain sign hangs from one nail on its string */
-  variant('nailsign', 'ป้ายแขวนตะปู', (d, c) => { const X = st(d);
-    art(c, p => { p.circle(0, -322, 9, F(2.6)); p.path('M -190 -214 L 0 -316 L 190 -214', W(2.2));
-      card(p, -280, -220, 560, 420, 18); [-190, 190].forEach(x => { p.circle(x, -196, 9, F(2.2)); });
+  /* 04 ── THE SIGN ON A NAIL: the nail pops; the sign drops in on its string, catches on the nail and swings, settling; the call lands */
+  variant('nailsign', 'ป้ายแขวนตะปู', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0;
+    art(c, p => { const nl = popAt(p, 0, -322, tu(.04)); nl.circle(0, -322, 9, F(2.6));
+      const sw = mvG(CL(p), Object.assign({ px: 0, py: -316 }, swingK(Math.max(tu(.5), T0 - tu(.2)), H)));
+      sw.path('M -190 -214 L 0 -316 L 190 -214', W(2.2)); card(sw, -280, -220, 560, 420, 18); [-190, 190].forEach(x => sw.circle(x, -196, 9, F(2.2)));
       hero(p, c, X, 0, -50, 160, 106, { maxW: 450, size: 48, bigSize: 60, bigW: 460 });
     }); });
 
-  /* 05 ── AT THE PODIUM: a person (front view) behind a plain podium raises one arm; the call is on the podium's front */
-  variant('podium', 'คนยกแขนหลังโพเดียม', (d, c) => { const X = st(d), k = 1.14;
+  /* 05 ── AT THE PODIUM: the podium rises; the person comes up behind it and shoots one arm up — the call lands on the podium's front */
+  variant('podium', 'คนยกแขนหลังโพเดียม', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, k = 1.14;
     art(c, p => { floorD(p);
-      front(p, 0, 290, k, { 1: { s: [36, -82], e: [70, -152], h: [62, -224] } });
-      R(p, -250, 66, 500, 30, 8, F(3)); shape(p, [[-220, 96], [220, 96], [200, 290], [-200, 290]], F(3.4)); shape(p, [[-196, 116], [196, 116], [182, 270], [-182, 270]], S(1.4));
+      const pg = mvG(clipG(p, -500, -350, 1000, 640), { y: [[0, 300], [tu(.3), 300], [T0 - tu(.05), -8, 'out'], [T0 + tu(.08), 0, 'soft']] });
+      const hm = front(pg, 0, 290, k, { 1: { s: [36, -82], e: [70, -152], h: [62, -224] } });
+      hm.on('upper1', p, 0, { ox: 36, oy: -82, r: armK(138, T0, H - tu(.16)) }); hm.on('fore1', p, 0, { ox: 70, oy: -152, r: armK(44, T0, H - tu(.16), 0) });
+      const pd = inG(p, 'rise', 0, 180, tu(.04)); R(pd, -250, 66, 500, 30, 8, F(3)); shape(pd, [[-220, 96], [220, 96], [200, 290], [-200, 290]], F(3.4)); shape(pd, [[-196, 116], [196, 116], [182, 270], [-182, 270]], S(1.4));
       hero(p, c, X, 0, 168, 100, 254, { maxW: 340, size: 36, bigSize: 48, bigW: 350, bigDy: 26 });
     }); });
 
-  /* 06 ── THE TENT CARD: a folded card stands on the table — the call on its front */
-  variant('tentcard', 'ป้ายตั้งโต๊ะ', (d, c) => { const X = st(d);
-    art(c, p => { R(p, -470, 210, 940, 20, 4, F(3)); [-440, 440].forEach(x => p.line(x, 230, x, 340, S(2)));
-      shape(p, [[-226, -190], [226, -190], [254, 210], [-254, 210]], F(3.4)); shape(p, [[-206, -170], [206, -170], [230, 190], [-230, 190]], S(1.4)); p.line(-226, -190, 226, -190, W(4));
+  /* 06 ── THE TENT CARD: the table top pops and its legs draw; the card drops onto the table and squashes on landing; the call lands */
+  variant('tentcard', 'ป้ายตั้งโต๊ะ', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0;
+    art(c, p => { R(inG(p, 'pop', 0, 220, tu(.04)), -470, 210, 940, 20, 4, F(3)); [-440, 440].forEach(x => drawAt(p.line(x, 230, x, 340, S(2)), p, tu(.16), tu(.2)));
+      const cg = mvG(CL(p), { px: 0, py: 210, y: [[0, -440], [tu(.3), -440], [T0, 0, 'in']], sy: [[0, 1], [T0, 1], [T0 + tu(.06), .92, 'out'], [T0 + tu(.24), 1, 'soft']], o: fadeIn(tu(.3)) });
+      shape(cg, [[-226, -190], [226, -190], [254, 210], [-254, 210]], F(3.4)); shape(cg, [[-206, -170], [206, -170], [230, 190], [-230, 190]], S(1.4)); cg.line(-226, -190, 226, -190, W(4));
       hero(p, c, X, 0, -40, 150, 112, { maxW: 400, size: 46, bigSize: 58, bigW: 410 });
     }); });
 
-  /* 07 ── THE BIG BUTTON: one big round push button on a plain wall plate */
-  variant('bigbutton', 'ปุ่มกดขนาดใหญ่', (d, c) => { const X = st(d);
+  /* 07 ── THE BIG BUTTON: the plate pops onto the wall, screws go in, the bezel ring pops; the cap pops in, then is pressed (it sinks
+     and springs back) — the call lands on it */
+  variant('bigbutton', 'ปุ่มกดขนาดใหญ่', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, tP = H - tu(.14);
     art(c, p => {
-      R(p, -250, -280, 500, 500, 50, F(3.4)); [[-214, -244], [214, -244], [-214, 184], [214, 184]].forEach(([x, y]) => screw(p, x, y, 5));
-      ring(p, 0, -30, 196, 176, F(3)); p.circle(0, -30, 176, F(1)); p.circle(0, -30, 160, F(3.2)); p.circle(0, -30, 144, S(1.4));
+      R(inG(p, 'pop', 0, -30, tu(.04)), -250, -280, 500, 500, 50, F(3.4)); [[-214, -244], [214, -244], [-214, 184], [214, 184]].forEach(([x, y], i) => screw(popAt(p, x, y, tu(.18 + .04 * i)), x, y, 5));
+      const rg = popAt(p, 0, -30, tu(.3)); ring(rg, 0, -30, 196, 176, F(3)); rg.circle(0, -30, 176, F(1));
+      const cp = mvG(popAt(p, 0, -30, Math.max(tu(.4), T0 - tu(.2))), { px: 0, py: -30, s: [[0, 1], [tP, 1], [tP + tu(.06), .9, 'in'], [tP + tu(.2), 1.03, 'out'], [tP + tu(.32), 1, 'soft']] });
+      cp.circle(0, -30, 160, F(3.2)); cp.circle(0, -30, 144, S(1.4));
       hero(p, c, X, 0, -74, 130, 46, { maxW: 200, size: 38, bigSize: 46, bigW: 250 });
     }); });
 
-  /* 08 ── ON THE STAGE: a person stands on a low stage by the mic stand; the call is on the board behind */
-  variant('stage', 'คนยืนบนเวที', (d, c) => { const X = st(d);
+  /* 08 ── ON THE STAGE: the stage and the posts rise, the mic stand grows; the person pops on stage; the board is let down onto the posts and
+     the person gives a little hop — the call lands on the board */
+  variant('stage', 'คนยืนบนเวที', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0;
     art(c, p => { floorD(p);
-      [-300, 300].forEach(x => R(p, x - 10, -90, 20, 290, 4, F(2.4)));
-      card(p, -360, -300, 720, 220, 14);
-      R(p, -440, 196, 880, 94, 6, F(3.4)); p.line(-420, 218, 420, 218, S(1.4));
-      p.line(-150, 196, -150, 24, W(3)); ell(p, -150, 194, 40, 7, F(2.2)); p.line(-150, 24, -128, -6, W(3)); R(p, -138, -46, 22, 40, 10, F(2.2));
-      front(p, 70, 196, .78);
+      [-300, 300].forEach((x, i) => R(inG(p, 'rise', x, 50, tu(.12 + .05 * i)), x - 10, -90, 20, 290, 4, F(2.4)));
+      const bd = mvG(CL(p), { y: [[0, -360], [T0 - tu(.1), -360], [H - tu(.24), 8, 'out'], [H - tu(.12), -3, 'io'], [H, 0, 'soft']] }); card(bd, -360, -300, 720, 220, 14);
+      const st0 = inG(p, 'rise', 0, 240, tu(.04)); R(st0, -440, 196, 880, 94, 6, F(3.4)); st0.line(-420, 218, 420, 218, S(1.4));
+      const mc = mvG(p, growY(-150, 194, tu(.3))); mc.line(-150, 196, -150, 24, W(3)); ell(mc, -150, 194, 40, 7, F(2.2)); mc.line(-150, 24, -128, -6, W(3)); R(mc, -138, -46, 22, 40, 10, F(2.2));
+      front(mvG(inG(p, 'pop', 70, 120, tu(.4)), { px: 70, py: 196, y: [[0, 0], [H - tu(.04), 0], [H + tu(.1), -18, 'out'], [H + tu(.24), 0, 'in']], sy: bumpK(H + tu(.24), .95) }), 70, 196, .78);
       heroH(p, c, X, -230, -190, 100, -150, -176, { cx: 0, cy: -190, size: 46, maxW: 470, bigSize: 52, bigW: 620 });
     }); });
 
-  /* 09 ── THE ROUND SIGN ON A POST: a round sign stands on its post and base */
-  variant('roundpost', 'ป้ายกลมบนเสา', (d, c) => { const X = st(d);
-    art(c, p => { floorD(p); post(p, 0, 40, 290, 110); disc(p, 0, -110, 200);
+  /* 09 ── THE ROUND SIGN ON A POST: the base pops, the post grows up; the round sign turns to face us (edge-on → full) and the call lands */
+  variant('roundpost', 'ป้ายกลมบนเสา', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0;
+    art(c, p => { floorD(p); ell(popAt(p, 0, 284, tu(.04)), 0, 284, 110, 11, F(2.6)); R(mvG(p, growY(0, 284, tu(.1), .3)), -10, 40, 20, 244, 6, F(2.6));
+      disc(mvG(p, { px: 0, py: -110, sx: [[0, .04], [T0, .04], [H - tu(.14), 1.04, 'out'], [H, 1, 'soft']], o: fadeIn(T0, .04) }), 0, -110, 200);
       hero(p, c, X, 0, -146, 140, -24, { maxW: 280, size: 40, bigSize: 50, bigW: 290 });
     }); });
 
-  /* 10 ── THE CARD ON THE SHELF: a card leans on the wall, standing on a plain shelf */
-  variant('shelf', 'การ์ดวางบนชั้น', (d, c) => { const X = st(d);
+  /* 10 ── THE CARD ON THE SHELF: the shelf slides out from the wall, the brackets pop; the card drops onto the shelf, rocks and leans back
+     against the wall; the call lands */
+  variant('shelf', 'การ์ดวางบนชั้น', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0;
     art(c, p => {
-      R(p, -400, 130, 800, 24, 4, F(3)); [-300, 300].forEach(x => { R(p, x - 9, 154, 18, 70, 4, F(2.4)); screw(p, x, 200, 4); });
-      const g = rot(p, -3, -200, 130); card(g, -220, -250, 440, 380, 12);
+      R(mvG(p, { px: 0, py: 142, sx: [[0, .05], [tu(.04), .05], [tu(.3), 1.02, 'out'], [tu(.4), 1, 'soft']], o: fadeIn(tu(.04), .04) }), -400, 130, 800, 24, 4, F(3));
+      [-300, 300].forEach((x, i) => { const g = popAt(p, x, 190, tu(.3 + .05 * i)); R(g, x - 9, 154, 18, 70, 4, F(2.4)); screw(g, x, 200, 4); });
+      const cg = mvG(CL(p), { px: -220, py: 130, y: [[0, -420], [tu(.4), -420], [T0, 0, 'in'], [T0 + tu(.06), -8, 'out'], [T0 + tu(.14), 0, 'soft']],
+        r: [[0, 0], [T0 + tu(.14), 0], [T0 + tu(.3), 3, 'out'], [T0 + tu(.5), 0, 'io']], o: fadeIn(tu(.4)) });
+      const g = rot(cg, -3, -200, 130); card(g, -220, -250, 440, 380, 12);
       hero(g, c, X, 0, -90, 150, 56, { maxW: 360, size: 44, bigSize: 56, bigW: 370 });
     }); });
 
-  /* 11 ── THE BOOKMARK TAG: a bookmark-shaped tag hangs from a wall hook */
-  variant('bookmark', 'ป้ายรูปที่คั่นหนังสือ', (d, c) => { const X = st(d);
-    art(c, p => { R(p, -30, -340, 60, 22, 6, F(2.4)); p.path('M 0 -318 L 0 -290 Q 0 -270 -18 -270', W(3));
-      ring(p, 0, -248, 20, 10, F(2.4));
-      shape(p, [[-180, -276], [180, -276], [180, 260], [0, 180], [-180, 260]], F(3.4)); shape(p, [[-158, -254], [158, -254], [158, 222], [0, 152], [-158, 222]], S(1.4));
+  /* 11 ── THE BOOKMARK TAG: the hook goes into the wall and draws its bend, the ring pops; the tag drops in on the ring and swings, settling */
+  variant('bookmark', 'ป้ายรูปที่คั่นหนังสือ', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0;
+    art(c, p => { R(popAt(p, 0, -330, tu(.04)), -30, -340, 60, 22, 6, F(2.4)); drawAt(p.path('M 0 -318 L 0 -290 Q 0 -270 -18 -270', W(3)), p, tu(.12), tu(.15));
+      const sw = mvG(CL(p), Object.assign({ px: 0, py: -270 }, swingK(Math.max(tu(.5), T0 - tu(.2)), H, 6)));
+      shape(sw, [[-180, -276], [180, -276], [180, 260], [0, 180], [-180, 260]], F(3.4)); shape(sw, [[-158, -254], [158, -254], [158, 222], [0, 152], [-158, 222]], S(1.4));
+      ring(sw, 0, -248, 20, 10, F(2.4));
       hero(p, c, X, 0, -96, 140, 40, { maxW: 290, size: 42, bigSize: 52, bigW: 300 });
     }); });
 
-  /* 12 ── THREE BUTTONS IN A ROW: three round buttons on a plain plate — the call's own button is bright, the other two dim */
-  variant('threebtn', 'ปุ่มสามปุ่มเรียงกัน', (d, c) => { const X = st(d), act = ICON[d && d.action] ? d.action : null, others = ACTS.filter(a => a !== act).slice(0, 2);
+  /* 12 ── THREE BUTTONS IN A ROW: the plate pops, the buttons pop one by one; the call's own button is pressed and lights — its icon and
+     label come up; the other two stay dim */
+  variant('threebtn', 'ปุ่มสามปุ่มเรียงกัน', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, act = ICON[d && d.action] ? d.action : null, others = ACTS.filter(a => a !== act).slice(0, 2), tP = H - tu(.16);
     art(c, p => {
-      R(p, -440, -80, 880, 240, 44, F(3.4)); R(p, -420, -60, 840, 200, 32, S(1.4));
-      [-280, 280].forEach((x, i) => { ring(p, x, 40, 88, 72, F(2.6)); p.circle(x, 40, 72, F(1.4)); put(p, c, { icon: ICON[others[i]] }, x, 40, 92, null, { o: [[0, .4]] }); });
-      ring(p, 0, 40, 104, 84, F(3.4)); p.circle(0, 40, 84, F(1.6));
-      if (X && picOf(X)) { put(p, c, X, 0, 40, 110, null, { t: Z.H - tu(.06) }); if (X.label) { shape(p, [[-16, -120], [16, -120], [0, -98]], F(2)); txt(p, X.label, 0, -146, { size: 46, maxW: 760, weight: 800, color: C.ink }); } }
-      else if (X) txt(p, X.label, 0, -170, { size: 56, maxW: 760, weight: 800, color: C.ink, wrap: 'mid' }); else star4(p, 0, 40, 40);
+      const pl = inG(p, 'pop', 0, 40, tu(.04)); R(pl, -440, -80, 880, 240, 44, F(3.4)); R(pl, -420, -60, 840, 200, 32, S(1.4));
+      [-280, 280].forEach((x, i) => { const t = tu(.24 + .16 * i), g = popAt(p, x, 40, t); ring(g, x, 40, 88, 72, F(2.6)); g.circle(x, 40, 72, F(1.4));
+        put(p, c, { icon: ICON[others[i]] }, x, 40, 92, null, { t: t + tu(.04), o: [[0, 0], [t + tu(.04), 0], [t + tu(.14), .4]] }); });
+      const mb = mvG(popAt(p, 0, 40, tu(.32)), { px: 0, py: 40, s: [[0, 1], [tP, 1], [tP + tu(.06), .88, 'in'], [tP + tu(.2), 1.04, 'out'], [tP + tu(.32), 1, 'soft']] });
+      ring(mb, 0, 40, 104, 84, F(3.4)); mb.circle(0, 40, 84, F(1.6)); ripple(p, 0, 40, 110, H);
+      if (X && picOf(X)) { put(p, c, X, 0, 40, 110, null, { t: H - tu(.06) }); if (X.label) { const lg = atG(p, H + tu(.12)); shape(lg, [[-16, -120], [16, -120], [0, -98]], F(2)); txt(lg, X.label, 0, -146, { size: 46, maxW: 760, weight: 800, color: C.ink }); } }
+      else if (X) txt(popAt(p, 0, -190, H - tu(.06)), X.label, 0, -170, { size: 56, maxW: 760, weight: 800, color: C.ink, wrap: 'mid' }); else star4(popAt(p, 0, 40, H - tu(.06)), 0, 40, 40);
     }); });
 
-  /* 13 ── PINNED AND LINKED: three discs pinned on the wall, joined by a string (the "pass it on" shape); the call is on the big one */
-  variant('pinned', 'แผ่นกลมปักหมุดโยงเชือก', (d, c) => { const X = st(d), A0 = [-150, 10], P1 = [270, -200], P2 = [270, 210];
-    art(c, p => {
-      [P1, P2].forEach(([x, y]) => p.line(A0[0], A0[1] - 196, x, y, W(2)));
-      disc(p, ...A0, 196); [P1, P2].forEach(([x, y]) => { disc(p, x, y, 80); p.circle(x, y, 10, F(2.2)); });
-      p.circle(A0[0], A0[1] - 196, 10, F(2.2));
-      hero(p, c, X, A0[0], A0[1] - 34, 140, A0[1] + 78, { maxW: 230, size: 38, bigSize: 50, bigW: 290, rip: false });
+  /* 13 ── PINNED AND LINKED: the big disc pops onto the wall and its pin goes in; strings run out from the pin to two more pins, and the small
+     discs pop onto them one after the other — the call lands on the big one */
+  variant('pinned', 'แผ่นกลมปักหมุดโยงเชือก', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, A0 = [-150, 10], P1 = [270, -200], P2 = [270, 210], pin = [A0[0], A0[1] - 196];
+    art(c, p => { const tS = Math.max(tu(.4), T0 - tu(.1));
+      [P1, P2].forEach(([x, y], i) => drawAt(p.line(...pin, x, y, W(2)), p, tS + tu(.12 * i), tu(.3)));
+      disc(inG(p, 'pop', ...A0, tu(.04)), ...A0, 196); popAt(p, ...pin, tu(.3)).circle(...pin, 10, F(2.2));
+      [P1, P2].forEach(([x, y], i) => { const g = popAt(p, x, y, tS + tu(.28 + .12 * i)); disc(g, x, y, 80); g.circle(x, y, 10, F(2.2)); });
+      ripple(p, A0[0], A0[1], 200, H); hero(p, c, X, A0[0], A0[1] - 34, 140, A0[1] + 78, { maxW: 230, size: 38, bigSize: 50, bigW: 290, rip: false });
     }); });
 
-  /* 14 ── HOLDING THE SIGN: a person (front view, no face) holds a plain sign in front; a small smile mark sits in its corner */
-  variant('holdsign', 'คนถือป้าย', (d, c) => { const X = st(d), k = 1.28;
-    art(c, p => { floorD(p);
-      front(p, 0, 290, k, { [-1]: { s: [-36, -82], e: [-92, -40], h: [-124, -4] }, 1: { s: [36, -82], e: [92, -40], h: [124, -4] } });
-      card(p, -230, -30, 460, 250, 14); [-1, 1].forEach(sd => R(p, sd * 206 - 18, 20, 36, 60, 14, F(2.6)));
-      put(p, c, { icon: 'smile' }, 178, 18, 44, null, {});
+  /* 14 ── HOLDING THE SIGN: the person rises in holding the sign; the sign is shown off with a little rock; the call lands and the smile pops */
+  variant('holdsign', 'คนถือป้าย', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, k = 1.28;
+    art(c, p => { floorD(p); const pg = inG(p, 'rise', 0, 100, tu(.04));
+      front(pg, 0, 290, k, { [-1]: { s: [-36, -82], e: [-92, -40], h: [-124, -4] }, 1: { s: [36, -82], e: [92, -40], h: [124, -4] } });
+      const sg = mvG(pg, { px: 0, py: 60, r: [[0, 0], [T0, 0], [T0 + tu(.16), -2.5, 'out'], [T0 + tu(.4), 1.8, 'io'], [T0 + tu(.62), -.8, 'io'], [H - tu(.1), 0, 'soft']], y: [[0, 0], [T0, 0], [T0 + tu(.16), -10, 'out'], [H - tu(.1), 0, 'soft']] });
+      card(sg, -230, -30, 460, 250, 14); [-1, 1].forEach(sd => R(sg, sd * 206 - 18, 20, 36, 60, 14, F(2.6)));
+      put(p, c, { icon: 'smile' }, 178, 18, 44, null, { t: H + tu(.18), punch: H + tu(.3) });
       hero(p, c, X, 0, 54, 120, 166, { maxW: 300, size: 40, bigSize: 52, bigW: 380, rip: false });
     }); });
 
-  /* 15 ── POINTING AT THE BUTTON: a person (side view) points at the call button on the wall; a dotted line marks the aim */
-  variant('pointbtn', 'คนชี้ไปที่ปุ่ม', (d, c) => { const X = st(d), px = -330, k = .96, bx = 230, by = -60;
+  /* 15 ── POINTING AT THE BUTTON: the plate and the button pop; the person slides in and raises the arm to point; the dotted line runs out
+     to the button, which is pressed — the call lands */
+  variant('pointbtn', 'คนชี้ไปที่ปุ่ม', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, px = -330, k = .96, bx = 230, by = -60, tP = H - tu(.12);
     art(c, p => { floorD(p);
-      R(p, 60, -250, 340, 400, 30, F(3.4)); disc(p, bx, by, 130);
-      person(p, px, 290, k, { s: [4, -76], e: [56, -96], h: [108, -108] }, { far: { s: [-4, -74], e: [8, -30], h: [16, 16] } });
-      const [hx, hy] = pAt(px, 290, k, 124, -110); dots(p, [hx + 6, hy], [bx - 140, by + 4], 9);
-      hero(p, c, X, bx, by, 120, 116, { maxW: 300, size: 36, bigSize: 42, bigW: 210, rip: false });
+      R(inG(p, 'pop', bx, by, tu(.04)), 60, -250, 340, 400, 30, F(3.4)); disc(mvG(popAt(p, bx, by, tu(.18)), { px: bx, py: by, s: [[0, 1], [tP, 1], [tP + tu(.06), .9, 'in'], [tP + tu(.2), 1.03, 'out'], [tP + tu(.3), 1, 'soft']] }), bx, by, 130);
+      const hm = person(mvG(p, { x: slideX(tu(.08), -140), o: fadeIn(tu(.08)) }), px, 290, k, { s: [4, -76], e: [56, -96], h: [108, -108] }, { far: { s: [-4, -74], e: [8, -30], h: [16, 16] } });
+      hm.on('upper1', p, 0, { ox: 4, oy: -76, r: armK(101, T0, T0 + tu(.3)) }); hm.on('fore1', p, 0, { ox: 56, oy: -96, r: armK(-8, T0, T0 + tu(.3), 0) });
+      const [hx, hy] = pAt(px, 290, k, 124, -110), a = [hx + 6, hy], b = [bx - 140, by + 4];
+      for (let i = 0; i <= 9; i++) litG(p, T0 + tu(.34 + .025 * i), .04).circle(f1(lerp(a[0], b[0], i / 9)), f1(lerp(a[1], b[1], i / 9)), 3.4, { fill: C.soft, sw: 0, stroke: 'none' });
+      hero(p, c, X, bx, by, 120, 116, { maxW: 300, size: 36, bigSize: 42, bigW: 210, rip: false }); ripple(p, bx, by, 136, H);
     }); });
 
-  /* 16 ── THE DESK BELL: a plain service bell on the counter rings; the call comes up above it */
-  variant('deskbell', 'กระดิ่งตั้งโต๊ะ', (d, c) => { const X = st(d);
-    art(c, p => { R(p, -480, 230, 960, 22, 4, F(3)); [-450, 450].forEach(x => p.line(x, 252, x, 340, S(2)));
-      R(p, -170, 200, 340, 30, 10, F(3)); p.path('M -140 200 C -140 80 -76 50 0 50 C 76 50 140 80 140 200 Z', F(3.4));
-      R(p, -8, 16, 16, 36, 4, F(2.2)); ell(p, 0, 14, 34, 9, F(2.6));
-      [-1, 1].forEach(sd => arcs(p, sd * 190, 120, sd, 2, 30, 22, 40, W(2.4)));
+  /* 16 ── THE DESK BELL: the counter pops, the legs draw; the bell drops onto it; its plunger is struck — the bell shivers, the sound rings
+     out in arcs — and the call comes up above it on the keyword */
+  variant('deskbell', 'กระดิ่งตั้งโต๊ะ', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, tS = Math.max(tu(.6), T0);
+    art(c, p => { R(inG(p, 'pop', 0, 240, tu(.04)), -480, 230, 960, 22, 4, F(3)); [-450, 450].forEach(x => drawAt(p.line(x, 252, x, 340, S(2)), p, tu(.14), tu(.2)));
+      const bl = mvG(inG(CL(p), 'drop', 0, 200, tu(.24)), { px: 0, py: 230, r: buzzK(tS + tu(.04), 2.4) });
+      R(bl, -170, 200, 340, 30, 10, F(3)); bl.path('M -140 200 C -140 80 -76 50 0 50 C 76 50 140 80 140 200 Z', F(3.4));
+      const kn = mvG(bl, { y: [[0, 0], [tS - tu(.04), 0], [tS, 12, 'in'], [tS + tu(.12), 0, 'out']] }); R(kn, -8, 16, 16, 36, 4, F(2.2)); ell(kn, 0, 14, 34, 9, F(2.6));
+      [-1, 1].forEach(sd => arcsAt(p, sd * 190, 120, sd, 2, 30, 22, 40, tS + tu(.04)));
       hero(p, c, X, 0, -190, 140, -54, { maxW: 760, size: 48, bigSize: 60, bigW: 700 });
     }); });
 
-  /* 17 ── THE COMMENT BOX: a plain box with a slot on top; a card stands up out of the slot — the call on it */
-  variant('slotbox', 'กล่องรับความคิดเห็น', (d, c) => { const X = st(d);
+  /* 17 ── THE COMMENT BOX: the box rises, the lid with its slot drops on; a card comes up out of the slot (overshoots, settles) and the call
+     lands on it */
+  variant('slotbox', 'กล่องรับความคิดเห็น', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, tE = H - tu(.14);
     art(c, p => { floorD(p);
-      card(p, -150, -280, 300, 330, 12);
-      R(p, -280, 30, 560, 30, 8, F(3)); R(p, -170, 38, 340, 12, 6, { fill: C.fill, sw: 2 });
-      R(p, -260, 60, 520, 230, 8, F(3.4)); R(p, -240, 80, 480, 190, 4, S(1.4));
+      card(mvG(clipG(p, -500, -350, 1000, 388), { y: [[0, 340], [T0, 340], [tE, -12, 'out'], [tE + tu(.12), 0, 'soft']] }), -150, -280, 300, 330, 12);
+      const lid = inG(p, 'drop', 0, 44, tu(.2)); R(lid, -280, 30, 560, 30, 8, F(3)); R(lid, -170, 38, 340, 12, 6, { fill: C.fill, sw: 2 });
+      const bx = inG(p, 'rise', 0, 180, tu(.04)); R(bx, -260, 60, 520, 230, 8, F(3.4)); R(bx, -240, 80, 480, 190, 4, S(1.4));
       hero(p, c, X, 0, -156, 120, -30, { maxW: 230, size: 36, bigSize: 44, bigW: 240 });
     }); });
 
-  /* 18 ── THE CLOSING SIGN: a wide plain sign hangs from the ceiling on two wires */
-  variant('ceiling', 'ป้ายแขวนเพดาน', (d, c) => { const X = st(d);
-    art(c, p => { p.line(-480, -340, 480, -340, S(2));
-      [-300, 300].forEach(x => { R(p, x - 22, -340, 44, 12, 4, F(2)); p.line(x, -328, x, -200, W(2)); });
-      card(p, -400, -200, 800, 300, 18);
+  /* 18 ── THE CLOSING SIGN: the ceiling line draws and the mounts pop; the sign is let down on its two wires, bobs and settles; the call lands */
+  variant('ceiling', 'ป้ายแขวนเพดาน', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, tE = H - tu(.22);
+    art(c, p => { drawAt(p.line(-480, -340, 480, -340, S(2)), p, 0, tu(.3));
+      const sg = mvG(clipG(p, -500, -334, 1000, 690), { y: [[0, -420], [Math.max(tu(.4), T0 - tu(.2)), -420], [tE, 10, 'out'], [tE + tu(.12), -4, 'io'], [tE + tu(.22), 0, 'soft']] });
+      [-300, 300].forEach(x => sg.line(x, -760, x, -200, W(2))); card(sg, -400, -200, 800, 300, 18);
+      [-300, 300].forEach((x, i) => R(popAt(p, x, -334, tu(.12 + .05 * i)), x - 22, -340, 44, 12, 4, F(2)));
       heroH(p, c, X, -220, -50, 140, -120, -32, { cx: 0, cy: -50, size: 58, maxW: 460, bigSize: 64, bigW: 700 });
     }); });
 
-  /* 19 ── THE INVITATION: a person (side view) opens an arm toward the call sign standing on two legs */
-  variant('invite', 'คนยืนเชิญชวน', (d, c) => { const X = st(d), px = -340, k = .94;
+  /* 19 ── THE INVITATION: the legs rise and the sign drops onto them; the person slides in and opens an arm toward it — the call lands */
+  variant('invite', 'คนยืนเชิญชวน', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, px = -340, k = .94;
     art(c, p => { floorD(p);
-      [-10, 390].forEach(x => { R(p, x - 9, 40, 18, 250, 4, F(2.4)); R(p, x - 34, 278, 68, 12, 5, F(2)); });
-      card(p, -60, -250, 500, 320, 14);
-      person(p, px, 290, k, { s: [4, -76], e: [50, -64], h: [100, -80] }, { far: { s: [-4, -74], e: [-6, -28], h: [0, 16] } });
+      [-10, 390].forEach((x, i) => { const g = inG(p, 'rise', x, 160, tu(.04 + .05 * i)); R(g, x - 9, 40, 18, 250, 4, F(2.4)); R(g, x - 34, 278, 68, 12, 5, F(2)); });
+      card(inG(CL(p), 'drop', 190, -90, tu(.28)), -60, -250, 500, 320, 14);
+      const hm = person(mvG(p, { x: slideX(tu(.2), -140), o: fadeIn(tu(.2)) }), px, 290, k, { s: [4, -76], e: [50, -64], h: [100, -80] }, { far: { s: [-4, -74], e: [-6, -28], h: [0, 16] } });
+      hm.on('upper1', p, 0, { ox: 4, oy: -76, r: armK(65, T0, H - tu(.16)) }); hm.on('fore1', p, 0, { ox: 50, oy: -64, r: armK(33, T0, H - tu(.16), 0) });
       hero(p, c, X, 190, -140, 130, -4, { maxW: 400, size: 44, bigSize: 54, bigW: 410 });
     }); });
 
-  /* 20 ── WAVING GOODBYE: a person walks to the open door, turning to wave; the call is on the plain sign over the door */
-  variant('goodbye', 'คนโบกมือลา', (d, c) => { const X = st(d), px = -160, k = .9;
+  /* 20 ── WAVING GOODBYE (user: "ตัวคนต้องหันหน้าตรงมา"): the door frame draws, the sign pops above it; the door swings open; the person,
+     facing us beside the open door, raises an arm and waves goodbye — the call lands on the sign */
+  variant('goodbye', 'คนโบกมือลา', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, px = -170, k = .98;
     art(c, p => { floorD(p);
-      R(p, 170, -70, 250, 360, 4, { fill: 'rgba(255,255,255,.06)', sw: 3.2 }); shape(p, [[170, -70], [250, -40], [250, 300], [170, 290]], F(3)); p.circle(234, 120, 7, F(2));
-      card(p, 110, -320, 370, 200, 14);
-      person(p, px, 290, k, { s: [4, -76], e: [-40, -124], h: [-58, -192] }, { leg: stride, far: { s: [-4, -74], e: [28, -36], h: [40, 10] } });
-      const [hx, hy] = pAt(px, 290, k, -62, -204); waveArcs(p, hx - 24, hy, -1); waveArcs(p, hx + 24, hy, 1);
+      R(litG(p, T0 + tu(.2), .2), 170, -70, 250, 360, 4, { fill: 'rgba(255,255,255,.06)', sw: 0, stroke: 'none' }); drawAt(R(p, 170, -70, 250, 360, 4, { fill: 'none', sw: 3.2 }), p, tu(.04), tu(.35));
+      const dr = mvG(p, { px: 170, py: 110, sx: [[0, 3.1], [T0, 3.1], [T0 + tu(.4), .9, 'out'], [T0 + tu(.52), 1, 'soft']], o: fadeIn(tu(.2)) });
+      shape(dr, [[170, -70], [250, -40], [250, 300], [170, 290]], F(3)); dr.circle(234, 120, 7, F(2));
+      card(inG(p, 'pop', 295, -220, tu(.3)), 110, -320, 370, 200, 14);
+      const hm = front(inG(p, 'rise', px, 140, tu(.12)), px, 290, k, { [-1]: { s: [-36, -82], e: [-94, -126], h: [-86, -200] } });
+      hm.on('upper-1', p, 0, { ox: -36, oy: -82, r: armK(-111, T0, T0 + tu(.3), 5) }); hm.on('fore-1', p, 0, { ox: -94, oy: -126, r: waveK(-71, T0, H + tu(.5)) });
+      const [hx, hy] = fAt(px, 290, k, -86, -210), wa = litG(p, H - tu(.1)); waveArcs(wa, hx - 24, hy, -1); waveArcs(wa, hx + 22, hy, 1);
       heroH(p, c, X, 190, -220, 90, 250, -207, { cx: 295, cy: -220, size: 36, maxW: 200, bigSize: 42, bigW: 320 });
+    }); });
+
+  /* 21 ── THE BOOKMARK BANNERS (round 1, kept by the user as a 21st design): the rod pops up with its brackets and caps; the two side banners
+     unroll down from their rings, then the long middle one — the call lands on it */
+  variant('bookmarks', 'ป้ายที่คั่นหนังสือแขวน', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, mark = (q, x, w, y1, notch) => shape(q, [[x - w, -270], [x + w, -270], [x + w, y1], [x, y1 - notch], [x - w, y1]], F(3.2));
+    art(c, p => {
+      [[-290, 90, 60, 50, tu(.34)], [290, 90, 10, 50, tu(.44)], [0, 180, 250, 80, Math.max(tu(.6), T0)]].forEach(([x, w, y1, n, t]) => {
+        const e = x === 0 ? H - tu(.16) : t + tu(.3), g = mvG(p, { px: x, py: -270, sy: [[0, .02], [t, .02], [e, 1.04, 'out'], [e + tu(.1), 1, 'soft']], o: fadeIn(t, .02) });
+        mark(g, x, w, y1, n); shape(g, [[x - w + 18, -252], [x + w - 18, -252], [x + w - 18, y1 - 22], [x, y1 - n - 18], [x - w + 18, y1 - 22]], S(1.3));
+        if (x) { star4(g, x, -150, 16, { fill: C.fill, sw: 2 }); lines(g, x - 40, -90, 80, 3, 30, S(1.8), [2]); } });
+      const rd = inG(p, 'pop', 0, -297, tu(.04)); R(rd, -440, -306, 880, 18, 8, F(2.6)); [-440, 440].forEach(x => rd.circle(x, -297, 16, F(2.4)));
+      [-400, 400].forEach(x => { rd.line(x, -330, x, -306, W(2.4)); R(rd, x - 20, -350, 40, 20, 6, F(2.2)); });
+      [[-290, 90], [290, 90], [0, 180]].forEach(([x, w], i) => [-1, 1].forEach(sd => ring(popAt(p, x + sd * w * .6, -296, tu(.2 + .04 * i)), x + sd * w * .6, -296, 13, 7, F(2))));
+      hero(p, c, X, 0, -110, 150, 30, { maxW: 300, size: 42, bigSize: 52, bigW: 300 });
     }); });
 
   /* ---------- sample data (A: calls from unrelated topics · B: stress) ---------- */
@@ -392,6 +461,7 @@
     Object.assign({ say: 'จบแล้วครับ ฝากกดไลก์ด้วย' }, A('like', 'ฝากกดไลก์')),
     Object.assign({ say: 'เชิญเลย แชร์ให้คนที่คุณรัก' }, A('share', 'แชร์ให้คนที่รัก')),
     Object.assign({ say: 'บ๊ายบาย อย่าลืมเซฟคลิปนี้' }, A('save', 'อย่าลืมเซฟ')),
+    Object.assign({ say: 'แล้วเจอกันคลิปหน้า กดติดตามไว้' }, A('follow', 'เจอกันคลิปหน้า')),
   ];
   const STRESS = [
     Object.assign({ say: 'ไม่มีป้าย' }, A('follow')),
@@ -414,6 +484,7 @@
     Object.assign({ say: 'ป้ายแทนภาพยาว' }, A('', 'ขอบคุณที่ดูจนจบนะครับ')),
     Object.assign({ say: 'อังกฤษยาว 2' }, A('comment', 'Tell me what you think below')),
     Object.assign({ say: 'ไม่มีอะไรเลย 2' }, null),
+    Object.assign({ say: 'ป้ายยาวมาก 2' }, A('save', 'บันทึกคลิปนี้ไว้แล้วกลับมาดูอีกครั้งตอนที่พร้อมลงมือทำ')),
   ];
 
   G.cats = G.cats || {};
