@@ -366,7 +366,7 @@
   /* 15 ── THE GARLAND OF DISCS: the nails pop, the string draws across; the discs slide along the string from the left nail, one by one, and swing
      into place */
   variant('garland', 'วงกลมหลายวงพร้อมป้าย', (d, c) => { const its = IT(d), n = N(its), L = GN(d), xs = spread(n, -420, 420), r = Math.min(116, 840 / n / 2 - 12), Q = TL(), ti = tI(Q, its);
-    const sy = x => { const u = (x + 460) / 920; return f1((1 - u) * (1 - u) * -240 + 2 * u * (1 - u) * -60 + u * u * -240); };
+    const sy = x => { const u = (x + 460) / 920; return f1((1 - u) * (1 - u) * -240 + 2 * u * (1 - u) * 120 + u * u * -240); };   // the same curve as the string (Q 0 120)
     art(c, p => { head(p, L, 0, -292, { maxW: 600, t: Q.T0 }); [-460, 460].forEach((x, i) => popAt(p, x, -240, tu(.04 + .05 * i)).circle(x, -240, 10, F(2.6))); drawAt(p.path('M -460 -240 Q 0 120 460 -240', W(2.6)), p, tu(.14), tu(.35));
       xs.forEach((x, i) => { const t = ti(i), top = +sy(x) + 8, cy = top + r + 22, L2 = []; for (let k = 0; k <= 10; k++) { const xx = lerp(-460, x, k / 10); L2.push([xx, +sy(xx)]); }
         g = mvG(p, { y: [[0, -90], [t - tu(.2), -90], [t, 6, 'in'], [t + tu(.06), 0, 'out']], o: fadeIn(t - tu(.2), .06) }), rK = [[0, 0], [t, 0], [t + tu(.14), -8, 'out'], [t + tu(.34), 4, 'io'], [t + tu(.54), 0, 'soft']], sw = mvG(g, { px: x, py: +sy(x), r: rK });
