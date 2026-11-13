@@ -222,22 +222,21 @@
     over(c, p => { const g = sub(p); atT(g, p, .1); magnifier(g, at[0], at[1], 120, 50); if (S0.chose) tick(p, at[0] + 105, at[1] - 125); });
   });
 
-  /* 09 ── MAZE: the path wanders into the maze — on the keyword it comes out at the chosen exit; with no answer it stops at the "?" in the middle */
-  variant('maze', 'เขาวงกต', (d, c) => {
-    const S0 = st(d), M0 = 300;
+  /* 09 ── OLD LIFT DIAL (user's pick 2026-11-13, replaces the maze): the needle over the lift doors swings between the two options —
+     on the keyword the doors open on the answer (the "?" on the doors becomes the answer in the same place, the same size) */
+  variant('liftdial', 'หน้าปัดลิฟต์เก่า', (d, c) => {
+    const S0 = st(d), open = !!S0.ans, ang = S0.chose ? (S0.ai === 0 ? -58 : 58) : 0, dc = [0, -170];
     art(c, p => {
       const B = sub(p); atT(B, p, 0);
-      B.path(`M -${M0} -${M0 - 40} L -60 -${M0 - 40} M 60 -${M0 - 40} L ${M0} -${M0 - 40} L ${M0} ${M0 - 60} L 60 ${M0 - 60} M -60 ${M0 - 60} L -${M0} ${M0 - 60} L -${M0} -${M0 - 40}`, W(5));    // outer wall: exits top (2), entrance bottom
-      if (S0.has2) B.line(0, -(M0 - 40), 0, -150, W(5));
-      [[-200, -170, -200, 40], [-200, 40, -90, 40], [200, -170, 200, 40], [90, 40, 200, 40], [-110, 140, 110, 140], [-110, -90, -110, 0], [110, -90, 110, 0], [-200, 140, -200, 230], [200, 140, 200, 230]].forEach(([a, b, e, f]) => B.line(a, b, e, f, W(5)));
-      const route = S0.chose ? (S0.ai === 0 ? 'M 0 240 L 0 190 L -150 190 L -150 90 L -250 90 L -250 -210 L -60 -210 L -40 -290' : 'M 0 240 L 0 190 L 150 190 L 150 90 L 250 90 L 250 -210 L 60 -210 L 40 -290')
-        : 'M 0 240 L 0 190 L -150 190 L -150 90 L -30 90 L -30 -40';
-      const pr = sub(p); pr.path(route, { sw: 6, stroke: C.soft }); atT(pr, p, .2);
-      if (!S0.chose) qSpot(p, c, S0, 0, -60, 120, { ly: null }); else tick(p, S0.ai === 0 ? -150 : 150, -320, 26);
-      if (S0.has2) [-1, 1].forEach((s, k) => optAt(p, c, S0, k, s * 410, -230, 110, -150, { maxW: 170 }));
-      if (S0.ans && !S0.chose && S0.ans.label && picOf(S0.ans)) lab(sub(p), S0.ans, 0, 60, { color: C.ink, weight: 700, maxW: 200, size: 36 });
-      aboutAt(p, c, S0, 0, 300, 80, null);
-      if (S0.about && S0.about.label && picOf(S0.about)) lab(sub(p), S0.about, 90, 312, { anchor: 'start', maxW: 300, size: 36 });
+      R(B, -200, -70, 400, 370, 10, F(3.4)); B.line(-200, 300, 200, 300, W(3));                                                   // door frame
+      B.path(`M ${dc[0] - 150} ${dc[1] + 40} A 150 150 0 0 1 ${dc[0] + 150} ${dc[1] + 40} Z`, F(3.2));                                // dial
+      [-58, 0, 58].forEach(a => { const u = rad(a - 90); B.line(f1(dc[0] + Math.cos(u) * 120), f1(dc[1] + 40 + Math.sin(u) * 120), f1(dc[0] + Math.cos(u) * 138), f1(dc[1] + 40 + Math.sin(u) * 138), W(a ? 3 : 2)); });
+      const N = rot(B, ang, dc[0], dc[1] + 40); N.line(dc[0], dc[1] + 40, dc[0], dc[1] - 75, W(5)); B.circle(dc[0], dc[1] + 40, 12, F(2.6));
+      if (open) { R(B, -180, -50, 50, 340, 4, F(2.8)); R(B, 130, -50, 50, 340, 4, F(2.8)); const lt = sub(B); R(lt, -130, -50, 260, 340, 4, { fill: GLASS, sw: 0, stroke: 'none' }); atT(lt, p, hitOf()); }   // doors slid open
+      else { R(B, -180, -50, 178, 340, 4, F(2.8)); R(B, 2, -50, 178, 340, 4, F(2.8)); }
+      qSpot(p, c, S0, 0, 90, 140, { ly: 230 });
+      if (S0.has2) [-1, 1].forEach((s, k) => { optAt(p, c, S0, k, s * 330, -230, 110, -140, { maxW: 200 }); if (S0.ai === k) tick(p, s * 330 + 75, -295, 26); });
+      aboutAt(p, c, S0, S0.has2 ? -370 : -340, 170, 100, 275, { maxW: 200 });
     });
   });
 
@@ -404,55 +403,6 @@
     });
   });
 
-  /* ---------- replacement options for design 09 (user 2026-11-13: "Design 09 ใหม่") — GL.cats.B06.ALT09 ---------- */
-  const ALT09 = [];
-  /* A ── PENDULUM: a "?" bob swings from one option to the other — on the keyword it stops toward the chosen one (or hangs still on "?") */
-  ALT09.push({ id: 'pendulum', th: 'ลูกตุ้มแขวน', build: (d, c) => {
-    const S0 = st(d), ang = S0.chose ? (S0.ai === 0 ? 24 : -24) : 0, px = 0, py = -300, L0 = 330, bx = px - Math.sin(rad(ang)) * L0, by = py + Math.cos(rad(ang)) * L0;
-    art(c, p => {
-      const B = sub(p); atT(B, p, 0); R(B, -330, -338, 660, 26, 8, F(3)); [-300, 300].forEach(x => B.path(`M ${x} -312 L ${x} -280`, W(3)));
-      B.path(`M ${px - 30} -312 L ${px} -290 L ${px + 30} -312`, F(2.6));
-      const A = rot(B, ang, px, py); A.line(px, py, px, py + L0 - 80, W(4)); A.circle(px, py, 10, F(2.6)); A.circle(px, py + L0, 80, F(3.4)); A.circle(px, py + L0, 66, S(1.4));
-      if (!S0.chose) qSpot(p, c, S0, px, py + L0, 110, { ly: py + L0 + 125 });
-      else { const it = S0.opts[S0.ai]; pic(it, bx, by, 100, c, { punch: true }); }
-      if (S0.has2) [-1, 1].forEach((s, k) => { optAt(p, c, S0, k, s * 360, 90, 120, null, { frame: 160 }); if (S0.ai === k) tick(p, s * 360 + 85, 5); });
-      aboutAt(p, c, S0, S0.has2 ? 0 : -300, S0.has2 ? 285 : 40, 90, null);
-      if (S0.about && S0.about.label && picOf(S0.about)) lab(sub(p), S0.about, S0.has2 ? 70 : -300, S0.has2 ? 298 : 150, { anchor: S0.has2 ? 'start' : 'middle', maxW: 260, size: 36 });
-    });
-  } });
-  /* B ── OLD LIFT DIAL: the needle over the lift doors swings between the two options — on the keyword the doors open on the answer
-     (the "?" on the doors becomes the answer in the same place) */
-  ALT09.push({ id: 'liftdial', th: 'หน้าปัดลิฟต์เก่า', build: (d, c) => {
-    const S0 = st(d), open = !!S0.ans, ang = S0.chose ? (S0.ai === 0 ? -58 : 58) : 0, dc = [0, -170];
-    art(c, p => {
-      const B = sub(p); atT(B, p, 0);
-      R(B, -200, -70, 400, 370, 10, F(3.4)); B.line(-200, 300, 200, 300, W(3));                                                   // door frame
-      B.path(`M ${dc[0] - 150} ${dc[1] + 40} A 150 150 0 0 1 ${dc[0] + 150} ${dc[1] + 40} Z`, F(3.2));                                // dial
-      [-58, 0, 58].forEach(a => { const u = rad(a - 90); B.line(f1(dc[0] + Math.cos(u) * 120), f1(dc[1] + 40 + Math.sin(u) * 120), f1(dc[0] + Math.cos(u) * 138), f1(dc[1] + 40 + Math.sin(u) * 138), W(a ? 3 : 2)); });
-      const N = rot(B, ang, dc[0], dc[1] + 40); N.line(dc[0], dc[1] + 40, dc[0], dc[1] - 75, W(5)); B.circle(dc[0], dc[1] + 40, 12, F(2.6));
-      if (open) { R(B, -180, -50, 50, 340, 4, F(2.8)); R(B, 130, -50, 50, 340, 4, F(2.8)); const lt = sub(B); R(lt, -130, -50, 260, 340, 4, { fill: GLASS, sw: 0, stroke: 'none' }); atT(lt, p, hitOf()); }   // doors slid open
-      else { R(B, -180, -50, 178, 340, 4, F(2.8)); R(B, 2, -50, 178, 340, 4, F(2.8)); }
-      qSpot(p, c, S0, 0, 90, 140, { ly: 230 });
-      if (S0.has2) [-1, 1].forEach((s, k) => { optAt(p, c, S0, k, s * 330, -230, 110, -140, { maxW: 200 }); if (S0.ai === k) tick(p, s * 330 + 75, -295, 26); });
-      aboutAt(p, c, S0, S0.has2 ? -370 : -340, 170, 100, 275, { maxW: 200 });
-    });
-  } });
-  /* C ── STEELYARD: the "?" weight slides along the beam from one option's end to the other — on the keyword it settles at the chosen end
-     (the beam tips that way); with no options it hangs in the middle */
-  ALT09.push({ id: 'steelyard', th: 'คันชั่งตุ้มเลื่อน', build: (d, c) => {
-    const S0 = st(d), tilt = S0.chose ? (S0.ai === 0 ? -6 : 6) : 0, wx = S0.chose ? (S0.ai === 0 ? -290 : 290) : 0, by = -190;
-    art(c, p => {
-      const B = sub(p); atT(B, p, 0); B.line(0, -350, 0, -300, W(3)); B.path('M -14 -300 Q 0 -280 14 -300', W(3)); B.circle(0, -270, 18, F(2.8));
-      const T = rot(B, tilt, 0, by); R(T, -400, by - 11, 800, 22, 10, F(3.2)); for (let x = -360; x <= 360; x += 60) if (x) T.line(x, by - 4, x, by + 4, S(1.4));
-      T.line(0, -270, 0, by, W(3));
-      const Wt = sub(T); Wt.line(wx, by + 11, wx, by + 50, W(3)); Wt.circle(wx, by + 11, 9, W(2.4)); Wt.path(`M ${wx - 80} ${by + 50} L ${wx + 80} ${by + 50} L ${wx + 95} ${by + 210} Q ${wx + 95} ${by + 225} ${wx + 80} ${by + 225} L ${wx - 80} ${by + 225} Q ${wx - 95} ${by + 225} ${wx - 95} ${by + 210} Z`, F(3.4));
-      if (!S0.chose) qSpot(p, c, S0, 0, by + 138, 120, { ly: by + 290 });
-      else pic(S0.opts[S0.ai], wx, by + 138 + Math.sin(rad(tilt)) * wx, 100, c, { punch: true });
-      if (S0.has2) [-1, 1].forEach((s, k) => { optAt(p, c, S0, k, s * 390, -290, 100, null, { frame: 130 }); if (S0.ai === k) tick(p, s * 390 + 70, -355, 24); });
-      aboutAt(p, c, S0, 0, 250, 90, null); if (S0.about && S0.about.label && picOf(S0.about)) lab(sub(p), S0.about, 70, 263, { anchor: 'start', maxW: 280, size: 36 });
-    });
-  } });
-
   /* samples from unrelated topics (neutrality) + a stress set */
   const I = (icon, label) => label ? { icon, label } : { icon };
   const SAMPLES = [
@@ -501,5 +451,5 @@
   ];
 
   G.cats = G.cats || {};
-  G.cats.B06 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)), ALT09, drawAlt: (alt, i, d, c) => { setZ(c); CUR = alt[i].id; alt[i].build(d, c); } };
+  G.cats.B06 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
 })();
