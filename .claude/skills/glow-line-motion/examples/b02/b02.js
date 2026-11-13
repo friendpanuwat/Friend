@@ -133,7 +133,6 @@
     art(c, p => {
       const b = sub(p); pop(b, p, 0, cx, 290); const bd = sub(b); on(bd, p, 0, { ox: cx, oy: 298, sy: reactKeys(d, c, 1, .75) });
       bd.rect(cx - 130, 280, 260, 18, Object.assign({ rx: 6 }, F(2.6)));
-      if (d.dir === 'up') arrow(p, cx + 160, 240, cx + 160, -150, 5); else arrow(p, cx + 160, -150, cx + 160, 240, 5);
       labels(p, d, d.center ? cx + 270 : cx - 250, 300, -300, 300, { maxW: 200 });
       endSym(p, d, cx - 200, -200, c);
     });
@@ -149,7 +148,6 @@
       on(Jr, p, 0, { ox: 0, oy: 275, r: reactKeys(d, c, 0, 2.5) });
       Jr.path('M -120 -150 L -120 -205 L 120 -205 L 120 -150 Q 190 -140 190 -70 L 190 220 Q 190 275 135 275 L -135 275 Q -190 275 -190 220 L -190 -70 Q -190 -140 -120 -150 Z', F(3.4));
       Jr.rect(-140, -235, 280, 32, Object.assign({ rx: 10 }, F(3))); Jr.line(-160, -60, -160, 200, W(1.8));
-      if (d.dir === 'up') arrow(p, 0, -340, 0, -248, 5); else arrow(p, 60, -250, 210, -330, 5);
       labels(p, d, 0, 325, 330, 180);
       endSym(p, d, -300, -230, c);
     });
@@ -187,7 +185,6 @@
       for (let x = -395 - 280; x < 480; x += 70) chev(ch, x, 165, up ? 'right' : 'left', 11);
       on(ch, p, .35, { x: [[0, 0], [H - .35, (up ? 1 : -1) * 280, 'io']] });
       if (!d.center) { const bin = sub(p); pop(bin, p, .05, 375, 230); bin.rect(290, 30, 170, 200, Object.assign({ rx: 10 }, F(3.2))); bin.line(290, 80, 460, 80, W(2)); }
-      if (!up) arrow(p, -250, -90, -440, -90, 5); else arrow(p, -60, -110, 120, -110, 5);
       labels(p, d, -110, 270, 375, 300);
       endSym(p, d, 375, -150, c);
     });
@@ -203,7 +200,6 @@
       const S = sub(p); on(S, p, 0, { ox: x0, oy: 290, sy: [[0, 0], [.32, 1.04, 'out'], [.45, 1, 'soft']], o: [[0, 0], [.05, 1]] });
       const pts = [[x0, 290]]; for (let i = 0; i < n; i++) { pts.push([x0 + i * sw, top(i)], [x0 + (i + 1) * sw, top(i)]); } pts.push([x0 + n * sw, 290]);
       S.shape(pts, F(3.2));
-      if (up) arrow(p, x0 + 40, 120, x0 + n * sw - 40, top(n - 1) - 150, 5); else arrow(p, x0 + 40, top(0) - 150, x0 + n * sw - 40, 120, 5);
       labels(p, d, 300, 335, 400, -110);
       endSym(p, d, up ? -380 : 380, -250, c);
     });
@@ -223,7 +219,6 @@
       sc.line(-170, 280, 170, py + 26, W(3)); sc.line(170, 280, -170, py + 26, W(3)); sc.circle(0, (280 + py + 26) / 2, 8, F(2));
       const pl = sub(p); on(pl, p, 0, { y: [[0, gy - py], [ride.t, gy - py], [ride.t + .45, 0, 'io']], o: [[0, 0], [.2, 1]] });
       pl.rect(-240, py, 480, 26, Object.assign({ rx: 6 }, F(3.2)));
-      if (up) arrow(p, 320, 200, 320, -60, 5); else arrow(p, 320, -60, 320, 200, 5);
       labels(p, d, 360, 300, -390, 120, { maxW: 220 });
       endSym(p, d, 390, -250, c);
     });
@@ -244,7 +239,6 @@
       on(nd, p, 0, { ox: 0, oy: 222, r });
       const pan = sub(S); on(pan, p, 0, { y: reactKeys(d, c, 0, 10) });
       pan.rect(-30, 110, 60, 30, F(2.6)); pan.path('M -270 92 Q 0 128 270 92 L 250 110 Q 0 140 -250 110 Z', F(3));
-      if (up) arrow(p, 0, -320, 0, -190, 5); else arrow(p, 120, -170, 280, -300, 5);
       labels(p, d, -360, 300, 390, 120, { maxW: 220 });
       endSym(p, d, -390, -250, c);
     });
@@ -296,11 +290,11 @@
       const w = g4 ? 460 : n * 210 + 50, h = g4 ? 360 : 240;
       T.rect(sh - w / 2, 25 - h / 2, w, h, Object.assign({ rx: 30 }, F(3.4)));
       S.forEach(([x, y]) => T.rect(x - sz / 2, y - sz / 2, sz, sz, { rx: 22, fill: C.fill, sw: 2, stroke: C.soft }));
-      const last = S[n - 1]; if (d.dir === 'up') arrow(p, last[0] + 150, last[1] - 230, last[0] + 50, last[1] - 110, 5);
       labels(p, d, sh, 300, -390, 120);
-      endSym(p, d, 400, -250, c);
+      endSym(p, d, 380, 60, c);
     });
-    S.forEach(([x, y], i) => item(d, i, x, y, g4 ? 110 : 130, c, { from: [x, y - 300], to: [x + 30, y - (g4 ? 90 : 120) - (i % 2) * 20] }));
+    const gx = j => sh + (j - (n - 1) / 2) * (g4 ? 150 : 210), gyT = g4 ? -270 : -220;   // taken-out copies: clear of the tray, in a row above it
+    S.forEach(([x, y], i) => item(d, i, x, y, g4 ? 110 : 130, c, { from: [x, y - 300], to: [gx(i), gyT] }));
     center(d, -390, 25, 130, c);
   });
 
@@ -336,7 +330,6 @@
       const Sh = sub(p); appear(Sh, p, 0, 0, 20); const Sd = sub(Sh); on(Sd, p, 0, { y: reactKeys(d, c, 0, 7) });
       Sd.rect(-430, 130, 860, 28, Object.assign({ rx: 6 }, F(3.2)));
       [-330, 330].forEach(x => Sh.path(`M ${x - 10} 158 L ${x + 10} 158 L ${x + 10} 240 Z`, F(2.6)));
-      if (d.dir === 'up') arrow(p, xs[n - 1], -250, xs[n - 1], -110, 5); else arrow(p, xs[n - 1] - 20, -100, xs[n - 1] + 90, -240, 5);
       labels(p, d, 0, 300, -360, -100);
       endSym(p, d, 400, -260, c);
     });
@@ -351,7 +344,6 @@
       [-460, 460].forEach(x => drawIn(p.line(x, -280, x, 300, W(3)), p, 0, .3));
       drawIn(p.path('M -460 -230 Q 0 -10 460 -230', W(2.6)), p, .15, .35);
       const pg = sub(p); xs.forEach(x => pg.rect(f1(x - 8), f1(ry(x) - 16), 16, 40, Object.assign({ rx: 4 }, F(2.4)))); appear(pg, p, .35, 0, -10);
-      if (d.dir === 'up') arrow(p, xs[n - 1], 270, xs[n - 1], 150, 5); else arrow(p, xs[n - 1], 150, xs[n - 1], 270, 5);
       labels(p, d, 0, 330, -380, 330);
       endSym(p, d, 380, 220, c);
     });
@@ -385,7 +377,6 @@
     const dd = Object.assign({}, d, { dir: 'up' }), T = plan(dd, hitOf(c));
     art(c, p => {
       drawIn(p.line(-460, 230, 460, 230, { sw: 2, stroke: C.soft }), p, 0, .35);
-      arrow(p, -380, 275, 380, 275, 4);
       labels(p, d, 0, 335, -400, -80);
       endSym(p, d, 420, -250, c);
     });
@@ -408,7 +399,6 @@
       });
       if (!d.center) { const mb = sub(p); [[-330, 300, 14], [-290, 270, 9], [-360, 250, 7]].forEach(([x, y, r]) => mb.circle(x, y, r, { sw: 2, stroke: C.soft }));
         on(mb, p, .1, { y: [[0, 40], [1.5, -10, 'out']], o: [[0, 0], [.2, 1]] }); }
-      if (d.dir === 'up') arrow(p, 380, 200, 380, -60, 5); else arrow(p, 380, -60, 380, 200, 5);
       labels(p, d, 200, 300, -400, 300);
       endSym(p, d, -380, -230, c);
     });
@@ -446,7 +436,6 @@
     art(c, p => {
       drawIn(p.line(-470, 268, 470, 268, { sw: 2.4, stroke: C.soft }), p, 0, .35);
       const t = P[n - 1];
-      if (d.dir === 'up') arrow(p, t[0] + sh + 40, -300, t[0] + sh + 10, -60, 5); else arrow(p, t[0] + sh + 90, -90, t[0] + sh + 260, -260, 5);
       labels(p, d, sh, 335, -360, 300);
       endSym(p, d, 400, 150, c);
     });
@@ -464,7 +453,6 @@
         follow(b, p, d, i, right(i), 0, c, { from: [left(n - 1 - i) - 120, 0], to: [left(i - ok), 0] });
         if (d.dir === 'down' && !gone(d, i)) on(bi, p, .06 + i * .05, { ox: right(i), oy: 0, s: [[0, .5], [.25, 1.06, 'out'], [.4, 1, 'soft']], o: [[0, 0], [.1, 1]] });
         if (gone(d, i)) on(bi, p, .06 + i * .05, { ox: right(i), oy: 0, s: [[0, .5], [.25, 1.06, 'out'], [.4, 1, 'soft']], o: [[0, 0], [.1, 1]] }); }
-      if (up) arrow(p, -150, -150, 150, -150, 5); else arrow(p, 150, -150, -150, -150, 5);
       labels(p, d, 0, 200, -390, -280);
       endSym(p, d, 400, -250, c);
     });
