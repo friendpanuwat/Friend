@@ -1,12 +1,17 @@
-/* b05.js — category B05 "ถูกกับผิด" ("ไม่ใช่ X แต่คือ Y"): 20 neutral designs — STILL DRAFTS (round 1, waiting for the user's pick).
-   Every design is an everyday object with a real mechanism: the wrong side is rejected by that mechanism (stamped, struck through,
-   shredded, binned, does not fit, pushed off, left in the dark, falls off, is swiped away …) and the right side takes its place / gets
-   the tick / lights up. Order as spoken: wrong first, right after (CutPack CATEGORIES.md B05 — references/cutpack-CATEGORIES.md).
+/* b05.js — category B05 "ถูกกับผิด" ("ไม่ใช่ X แต่คือ Y"): STILL DRAFTS, round 2 (waiting for the user's pick).
+   User 2026-11-13: "อยากได้ชุดฐาน ไม่ใช่อันที่มีความหมายเฉพาะตัว … เอาไปปรับใช้กับเนื้อหาแบบไหนมันก็ยังดูเข้ากัน".
+   → BASE SET (GL.cats.B05.variants, 20): holders and displays with a real mechanism and no topic of their own (sheet, sign holder, board,
+     card deck, turning sign, belt, pull card, signpost, hanging signs, corkboard, drawers, keys, glass dome, pulley, magnet, blinds, cradle,
+     clip stands, slot box, frosted pane). The mechanism only says "the wrong one is put out, the right one comes in / gets the tick / lights".
+   → THEMED SET (GL.cats.B05.THEMED, 13, each with .tag): round-1 designs whose object carries a topic (toaster = food, bulb = idea …) —
+     kept for when a sentence is about that topic; CutPack's picker would need the topic first. Draw with drawThemed(i, d, c).
+   Order as spoken: wrong first, right after (CutPack CATEGORIES.md B05 — references/cutpack-CATEGORIES.md).
    Slots (same as CutPack): wrong { icon, label? } · right { icon, label? }. A missing / unknown icon → its label stands in for the picture.
    GL.cats.B05.draw(i, data, { x, y, s, at, no, hit }) — canvas 1000 × 700 centred at (0,0).
      no  = seconds after `at` when the wrong side is rejected (the word "ไม่ใช่"; default hit − 1.15)
      hit = seconds after `at` of the keyword: the right side is confirmed (default 1.9).
-   This round only places the parts in their final pose (groups appear + the wrong side fades); the full motion comes after the user picks. */
+   This round only places the parts in their final pose (groups appear + the wrong side fades); the full motion comes after the user picks.
+   A faded side lays its dark fills again, solid, underneath (duo()) — a see-through fill lets the rig's glow show through in blotches. */
 (function () {
   const G = window.GL, C = G.C;
   const W = (w = 2) => ({ sw: w }), F = (w = 3.2) => ({ fill: C.fill, sw: w }), S = (w = 2) => ({ sw: w, stroke: C.soft });
@@ -65,6 +70,7 @@
     if (to < 1) K.o = [[0, 1], [N + .1, 1], [N + .35, to]];
     if (o.r) { K.r = [[0, o.r[0]]]; K.ox = c.x + o.r[1] * c.s; K.oy = c.y + o.r[2] * c.s; }
     if (o.sy) { K.sy = [[0, o.sy]]; K.ox = X; K.oy = Y; }
+    if (o.sx) { K.sx = [[0, o.sx]]; K.ox = X; K.oy = Y; }
     if (Object.keys(K).length) G.kf(a.wrap, at, K);
     if (s === 'right') G.kf(a.g, at + H, { ox: X, oy: Y, s: [[0, 1], [.07, 1.1, 'out'], [.32, 1, 'soft']] });
     return a;
@@ -82,6 +88,7 @@
     const g = sub(p); g.circle(x, y, r, { fill: GLASS, sw: 0, stroke: 'none' }); g.circle(x, y, r, S(2.4));
     on(g, p, p.H, { ox: x, oy: y, s: [[0, .6], [.2, 1.08, 'out'], [.4, 1, 'soft']], o: [[0, 0], [.12, 1]] });
   }
+  const over = (c, fn) => art(Object.assign({}, c), fn);
   const floor = (p, y = 300, a = -470, b = 470) => { const g = sub(p); g.line(a, y, b, y, S(2)); atT(g, p, 0); return g; };
   const R = (q, x, y, w, h, rx, o) => q.rect(x, y, w, h, Object.assign({ rx }, o));
 
@@ -461,6 +468,217 @@
     icon(d, 'wrong', X.wrong, -245, 140, c); icon(d, 'right', X.right, -245, 140, c);
   });
 
+
+  /* ================= the neutral base set (holders and displays — no topic of their own) ================= */
+
+  /* SLOT SIGN: a wall sign holder (two rails) — the wrong insert slides out and drops ✕, the right insert slides in ✓ */
+  variant('slotsign', 'ช่องเสียบป้าย', (d, c) => {
+    const wc = { x: -130, y: 150, r: -6 };
+    art(c, p => {
+      floor(p, 315);
+      const H0 = sub(p); atT(H0, p, 0);
+      const gr = side(p, c, 'right'); R(gr, -262, -306, 524, 246, 8, F(3)); lbl(gr, d, 'right', -55, -165, { anchor: 'start', maxW: 290, size: 50 });
+      [-332, -64].forEach(y => { R(H0, -285, y, 570, 26, 8, F(3)); H0.line(-272, y + (y < -100 ? 20 : 6), 272, y + (y < -100 ? 20 : 6), S(1.4)); H0.circle(-268, y + 13, 5, W(1.8)); H0.circle(268, y + 13, 5, W(1.8)); });
+      R(H0, 272, -332, 16, 294, 6, F(2.6));                                                                   // end stop
+      const gw = side(p, c, 'wrong'), wg = rot(gw, wc.r, wc.x, wc.y); R(wg, wc.x - 262, wc.y - 123, 524, 246, 8, F(3));
+      lbl(wg, d, 'wrong', wc.x + 75, wc.y + 17, { anchor: 'start', maxW: 290, size: 46 });
+      badge(p, 'x', wc.x - 262, wc.y - 95, 30); badge(p, 'check', 288, -332, 34);
+    });
+    icon(d, 'wrong', wc.x - 140, wc.y, 140, c, { r: [wc.r, wc.x, wc.y] }); icon(d, 'right', -150, -183, 150, c);
+  });
+
+  /* DECK: a stack of cards — the wrong card on top is peeled off and flicked aside ✕, the right card under it shows ✓ */
+  variant('deck', 'กองการ์ด', (d, c) => {
+    const rc = { x: 150, y: -30 }, wc = { x: -275, y: -10, r: -16 };
+    art(c, p => {
+      const D = sub(p); atT(D, p, 0); [[24, 24], [12, 12]].forEach(([dx, dy]) => R(D, rc.x - 165 + dx, rc.y - 210 + dy, 330, 420, 18, F(2.6)));
+      const gr = side(p, c, 'right'); R(gr, rc.x - 165, rc.y - 210, 330, 420, 18, F(3.2)); lbl(gr, d, 'right', rc.x, rc.y + 150, { maxW: 280 });
+      const gw = side(p, c, 'wrong'), wg = rot(gw, wc.r, wc.x, wc.y); R(wg, wc.x - 165, wc.y - 210, 330, 420, 18, F(3.2)); lbl(wg, d, 'wrong', wc.x, wc.y + 150, { maxW: 270 });
+      badge(p, 'x', wc.x - 170, wc.y - 225, 32); badge(p, 'check', rc.x + 165, rc.y - 210, 36);
+    });
+    icon(d, 'wrong', wc.x, wc.y - 40, 170, c, { r: [wc.r, wc.x, wc.y] }); icon(d, 'right', rc.x, rc.y - 40, 190, c);
+  });
+
+  /* PRISM: a turning three-sided sign in its frame — it turns from the wrong face (now turned away, narrow) to the right face ✓ */
+  variant('prism', 'ป้ายสามเหลี่ยมหมุน', (d, c) => {
+    const k = .42, wx = -235, ax = -47;
+    art(c, p => {
+      const P = sub(p); atT(P, p, 0);
+      R(P, -400, -342, 800, 22, 8, F(3)); R(P, -400, 252, 800, 22, 8, F(3)); [-390, 390].forEach(x => { R(P, x - 10, -342, 20, 640, 6, F(2.8)); P.line(x - 40, 300, x + 40, 300, W(4)); });
+      R(P, ax - 7, -322, 14, 40, 4, F(2.4)); R(P, ax - 7, 212, 14, 42, 4, F(2.4));                                      // axle stubs
+      const gw = side(p, c, 'wrong'); gw.path('M -330 -287 L -140 -270 L -140 212 L -330 212 Z', F(3)); const sq = sub(gw, { transform: `translate(${wx} 0) scale(${k} 1) translate(${-wx} 0)` });
+      lbl(sq, d, 'wrong', wx, 120, { maxW: 380 });
+      const gr = side(p, c, 'right'); gr.path('M -140 -270 L 330 -287 L 330 212 L -140 212 Z', F(3.2)); lbl(gr, d, 'right', 95, 130, { maxW: 400 });
+      P.path('M -330 -287 L -140 -270 L 330 -287 L 40 -300 Z', F(2.8));                                                // top face: the third side meets here
+      badge(p, 'x', -330, -280, 30); badge(p, 'check', 330, -282, 34);
+    });
+    icon(d, 'wrong', wx, -60, 170, c, { sx: k }); icon(d, 'right', 95, -55, 200, c);
+  });
+
+  /* PULL CARD: a sleeve with a window and a pull tab — the strip is pulled: the wrong part slides out of the sleeve ✕,
+     the right part slides into the window ✓ */
+  variant('pullcard', 'การ์ดดึงเลื่อน', (d, c) => {
+    art(c, p => {
+      const S0 = sub(p); atT(S0, p, 0);
+      R(S0, -360, -125, 790, 250, 12, F(3)); R(S0, 430, -56, 56, 112, 22, F(3)); S0.circle(462, 0, 12, W(2.2));       // the strip + its tab
+      const sl = S0.path('M -400 -180 L 130 -180 Q 150 -180 150 -160 L 150 160 Q 150 180 130 180 L -400 180 Q -420 180 -420 160 L -420 -160 Q -420 -180 -400 -180 Z ' +
+        'M -356 -130 L 6 -130 Q 26 -130 26 -110 L 26 110 Q 26 130 6 130 L -356 130 Q -376 130 -376 110 L -376 -110 Q -376 -130 -356 -130 Z', F(3.4));
+      sl.setAttribute('fill-rule', 'evenodd'); S0.line(-400, 156, 130, 156, S(1.4));
+      const gr = side(p, c, 'right'); lbl(gr, d, 'right', -150, 18, { anchor: 'start', maxW: 165, size: 46 });
+      const gw = side(p, c, 'wrong'); lbl(gw, d, 'wrong', 290, 85, { maxW: 230, size: 38 });
+      badge(p, 'x', 410, -125, 30); badge(p, 'check', 26, -130, 34);
+    });
+    icon(d, 'wrong', 290, -30, 120, c); icon(d, 'right', -255, 0, 150, c);
+  });
+
+  /* HANGING SIGNS: two signs on chains under a bar — one chain of the wrong sign comes unhooked and it swings askew ✕;
+     the right sign hangs level ✓ */
+  const chain = (q, x1, y1, x2, y2) => { const L = Math.hypot(x2 - x1, y2 - y1), n = Math.max(2, Math.round(L / 30)), a = f1(Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI - 90);
+    for (let i = 0; i < n; i++) { const t = (i + .5) / n, x = x1 + (x2 - x1) * t, y = y1 + (y2 - y1) * t, g = rot(q, a, x, y);
+      if (i % 2) g.line(x, y - 14, x, y + 14, W(2.4)); else g.ellipse(x, y, 7, 16, W(2)); } };
+  variant('chains', 'ป้ายแขวนโซ่', (d, c) => {
+    const ar = 28, pv = [-370, -190];
+    art(c, p => {
+      const T0 = sub(p); atT(T0, p, 0); R(T0, -470, -350, 940, 22, 8, F(3));
+      [[70, 350]].forEach(([a, b]) => { chain(T0, a, -328, a, -168); chain(T0, b, -328, b, -168); });
+      chain(T0, pv[0], -328, pv[0], pv[1] + 10); chain(T0, -100, -328, -112, -236);
+      const gr = side(p, c, 'right'); R(gr, 40, -160, 340, 230, 14, F(3.2)); gr.circle(70, -150, 8, W(2)); gr.circle(350, -150, 8, W(2)); lbl(gr, d, 'right', 210, 40, { maxW: 300 });
+      const gw = side(p, c, 'wrong'), wg = rot(gw, ar, pv[0], pv[1]); R(wg, pv[0] - 30, pv[1] - 10, 340, 230, 14, F(3.2)); wg.circle(pv[0], pv[1], 8, W(2)); wg.circle(pv[0] + 280, pv[1], 8, W(2));
+      lbl(wg, d, 'wrong', pv[0] + 140, pv[1] + 190, { maxW: 290 });
+      badge(p, 'x', -190, 150, 30); badge(p, 'check', 380, -160, 34);
+    });
+    icon(d, 'wrong', pv[0] + 140, pv[1] + 85, 130, c, { r: [ar, pv[0], pv[1]] }); icon(d, 'right', 210, -65, 140, c);
+  });
+
+  /* KEYS: two big keys on a panel — the wrong key stays up ✕; the right key is pressed down and lights ✓ */
+  variant('keys', 'ปุ่มกดสองปุ่ม', (d, c) => {
+    const X = { wrong: -220, right: 220 }, b0 = -190, b1 = 120;
+    const TOP = { wrong: [-205, 25], right: [-165, 80] };                // key top (y from, y to): up = tall skirt below, pressed = sunk in
+    art(c, p => {
+      const B = sub(p); atT(B, p, 0); R(B, -450, -250, 900, 420, 28, F(3.4));
+      ['wrong', 'right'].forEach(s => { const x = X[s], [t0, t1] = TOP[s], g = side(p, c, s, s === 'wrong' ? { to: .55 } : {});
+        R(g, x - 160, b0, 320, b1 - b0, 30, F(3)); R(g, x - 122, t0, 244, t1 - t0, 24, F(3.2));
+        [[x - 152, b0 + 8, x - 116, t0 + 6], [x + 152, b0 + 8, x + 116, t0 + 6], [x - 152, b1 - 8, x - 116, t1 - 6], [x + 152, b1 - 8, x + 116, t1 - 6]].forEach(([a1, a2, a3, a4]) => g.line(a1, a2, a3, a4, S(1.6)));
+        lbl(g, d, s, x, 220, { maxW: 340 }); });
+      const lit = sub(p); R(lit, X.right - 122, TOP.right[0], 244, TOP.right[1] - TOP.right[0], 24, { fill: GLASS, sw: 3.8 }); R(lit, X.right - 180, b0 - 20, 360, b1 - b0 + 40, 40, S(2)); atT(lit, p, p.H);
+      badge(p, 'x', X.wrong + 160, b0, 30); badge(p, 'check', X.right + 175, b0 - 15, 34);
+    });
+    icon(d, 'wrong', X.wrong, -95, 150, c, { to: .4 }); icon(d, 'right', X.right, -45, 150, c);
+  });
+
+  /* GLASS DOME: two bell jars on stands — the wrong one stays shut under its glass ✕; the right dome is lifted off ✓ */
+  const dome = (q, x, rim) => { q.path(`M ${x - 140} ${rim} L ${x - 140} ${rim - 150} A 140 140 0 0 1 ${x + 140} ${rim - 150} L ${x + 140} ${rim}`, { fill: 'rgba(255,255,255,.06)', sw: 3.2 });
+    q.ellipse(x, rim, 140, 20, W(2)); q.line(x, rim - 290, x, rim - 304, W(5)); q.circle(x, rim - 316, 15, F(3)); };
+  variant('dome', 'โดมแก้วครอบ', (d, c) => {
+    const X = { wrong: -230, right: 230 }, py = 180;
+    art(c, p => {
+      floor(p, 232);
+      ['wrong', 'right'].forEach(s => { const x = X[s], g = side(p, c, s, { to: s === 'wrong' ? .6 : 1 });
+        g.path(`M ${x - 40} ${py + 6} L ${x - 70} 232 L ${x + 70} 232 L ${x + 40} ${py + 6} Z`, F(2.8)); g.ellipse(x, py, 165, 26, F(3.2));
+        lbl(g, d, s, x, 290, { maxW: 320 }); });
+      halo(p, X.right, 90, 120);
+    });
+    icon(d, 'wrong', X.wrong, 90, 150, c); icon(d, 'right', X.right, 90, 160, c);
+    over(c, p => { const g = sub(p); atT(g, p, .05); dome(g, X.wrong, py); const u = sub(p); atT(u, p, .1); dome(u, X.right, -30);
+      badge(p, 'x', X.wrong + 135, -110, 30); badge(p, 'check', X.right + 160, -40, 34); });
+  });
+
+  /* MAGNET: a magnet comes down over both — it pulls the right card up ✓; the wrong card is left standing ✕ */
+  variant('magnet', 'แม่เหล็กดูด', (d, c) => {
+    const mx = 180, wc = { x: -250, b: 300, r: -5 };
+    art(c, p => {
+      floor(p);
+      const M = sub(p); atT(M, p, 0); M.line(mx, -350, mx, -276, S(3)); M.circle(mx, -268, 9, W(2.4));
+      const U = `M ${mx - 58} -112 L ${mx - 58} -200 A 58 58 0 0 1 ${mx + 58} -200 L ${mx + 58} -112`;
+      M.path(U, { sw: 58 }); M.path(U, { sw: 48, stroke: C.fill }); [-58, 58].forEach(dx => { R(M, mx + dx - 29, -142, 58, 34, 6, F(3)); M.line(mx + dx - 20, -125, mx + dx + 20, -125, S(1.4)); });
+      const gr = side(p, c, 'right'), rg = rot(gr, 3, mx, -108); R(rg, mx - 125, -108, 250, 300, 16, F(3.2)); lbl(rg, d, 'right', mx, 150, { maxW: 220 });
+      const fl = sub(p); [-1, 1].forEach(k => fl.path(`M ${mx + k * 100} -150 q ${k * 26} 16 ${k * 8} 42`, S(2))); atT(fl, p, p.H);
+      const gw = side(p, c, 'wrong'), wg = rot(gw, wc.r, wc.x, wc.b); R(wg, wc.x - 125, wc.b - 300, 250, 300, 16, F(3.2)); lbl(wg, d, 'wrong', wc.x, wc.b - 45, { maxW: 220 });
+      badge(p, 'x', wc.x + 125, -15, 30); badge(p, 'check', mx + 140, -105, 34);
+    });
+    icon(d, 'wrong', wc.x, wc.b - 175, 150, c, { r: [wc.r, wc.x, wc.b] }); icon(d, 'right', mx, 15, 150, c, { r: [3, mx, -108] });
+  });
+
+  /* BLINDS: two windows — the wrong window's blind drops shut (the wrong is left behind the slats) ✕;
+     the right window's blind rolls up and the right one is in the light ✓ */
+  variant('louvre', 'มู่ลี่หน้าต่าง', (d, c) => {
+    const X = { wrong: -220, right: 220 }, y0 = -255, y1 = 115;
+    art(c, p => {
+      ['wrong', 'right'].forEach(s => { const x = X[s], g = sub(p); atT(g, p, 0);
+        R(g, x - 190, -280, 380, 420, 8, F(3.4)); R(g, x - 165, y0, 330, y1 - y0, 4, { sw: 1.6, stroke: C.rule }); R(g, x - 210, 140, 420, 20, 6, F(2.8));
+        const l = side(p, c, s); lbl(l, d, s, x, 215, { maxW: 340 }); });
+      const lt = sub(p); R(lt, X.right - 165, -205, 330, 320, 4, { fill: GLASS, sw: 0, stroke: 'none' }); atT(lt, p, p.H);
+      const rb = sub(p); atT(rb, p, 0); for (let k = 0; k < 4; k++) R(rb, X.right - 168, y0 + k * 12, 336, 12, 4, F(2));       // blind rolled up
+      rb.line(X.right + 140, y0 + 48, X.right + 140, y0 + 150, S(1.8)); rb.circle(X.right + 140, y0 + 158, 7, W(2));
+    });
+    icon(d, 'wrong', X.wrong, -70, 170, c, { to: .5 }); icon(d, 'right', X.right, -60, 180, c);
+    over(c, p => { const g = sub(p); atT(g, p, .05);
+      for (let y = y0; y < y1 - 10; y += 47) R(g, X.wrong - 168, y, 336, 38, 4, F(2.4));
+      g.line(X.wrong + 140, y0, X.wrong + 140, y1 - 6, S(1.8)); g.circle(X.wrong + 140, y1 + 4, 7, W(2));
+      badge(p, 'x', X.wrong + 190, -280, 30); badge(p, 'check', X.right + 190, -280, 34); });
+  });
+
+  /* SHAPE FIT: a stand with two round cradles — the wrong (square) tile does not sit in its cradle and rocks askew on the rim ✕;
+     the right (round) tile drops into its cradle and settles ✓ */
+  variant('fit', 'แท่นรองรูปทรง', (d, c) => {
+    const X = { wrong: -230, right: 210 }, top = 130, cy = 40, Rr = 150, wr = 13;
+    art(c, p => {
+      floor(p);
+      const B = sub(p); atT(B, p, 0); const half = Math.sqrt(Rr * Rr - (top - cy) ** 2);
+      let D = `M -470 ${top}`; [X.wrong, X.right].forEach(x => { D += ` L ${f1(x - half)} ${top} A ${Rr} ${Rr} 0 0 0 ${f1(x + half)} ${top}`; });
+      D += ` L 470 ${top} L 470 262 Q 470 272 460 272 L -460 272 Q -470 272 -470 262 Z`; B.path(D, F(3.4));
+      [-420, 420].forEach(x => R(B, x - 30, 272, 60, 26, 6, F(2.6))); B.line(-450, 160, 450, 160, S(1.4));
+      const gr = side(p, c, 'right'); gr.circle(X.right, cy, Rr - 4, F(3.2)); lbl(gr, d, 'right', X.right, 232, { maxW: 360 });
+      const gw = side(p, c, 'wrong'), wg = rot(gw, wr, X.wrong, -30); R(wg, X.wrong - 135, -165, 270, 270, 18, F(3.2)); lbl(gw, d, 'wrong', X.wrong, 232, { maxW: 360 });
+      badge(p, 'x', X.wrong + 150, -170, 30); badge(p, 'check', X.right + 120, cy - 125, 34);
+    });
+    icon(d, 'wrong', X.wrong, -30, 150, c, { r: [wr, X.wrong, -30] }); icon(d, 'right', X.right, cy, 170, c);
+  });
+
+  /* CLIP STANDS: two card clips on the desk — the wrong clip springs open and its card drops ✕; the right card stays clipped ✓ */
+  const clipBase = (q, x, y) => { R(q, x - 65, y - 30, 130, 30, 10, F(3)); q.line(x, y - 30, x, y - 96, W(4)); };
+  variant('clipstand', 'ที่หนีบการ์ด', (d, c) => {
+    const rx = 205, dy = 262, wc = { x: -300, y: 110, r: -13 };
+    art(c, p => {
+      floor(p, dy, -480, 480);
+      const B = sub(p); atT(B, p, 0); clipBase(B, rx, dy); clipBase(B, -150, dy);
+      B.path(`M -150 166 L -190 118 M -150 166 L -110 118`, W(5)); B.circle(-150, 168, 9, F(2.4));                         // the open clip
+      const gr = side(p, c, 'right'); R(gr, rx - 140, -300, 280, 450, 14, F(3.2)); lbl(gr, d, 'right', rx, 95, { maxW: 240 });
+      R(B, rx - 36, 136, 72, 34, 8, F(3)); B.circle(rx, 176, 8, F(2.4)); B.line(rx - 26, 152, rx + 26, 152, S(1.4));             // the closed clip on the card
+      const gw = side(p, c, 'wrong'), wg = rot(gw, wc.r, wc.x, wc.y); R(wg, wc.x - 140, wc.y - 225, 280, 450, 14, F(3.2)); lbl(wg, d, 'wrong', wc.x, wc.y + 160, { maxW: 240 });
+      badge(p, 'x', -150, 60, 30); badge(p, 'check', rx + 140, -300, 34);
+    });
+    icon(d, 'wrong', wc.x, wc.y - 40, 150, c, { r: [wc.r, wc.x, wc.y] }); icon(d, 'right', rx, -90, 170, c);
+  });
+
+  /* SLOT BOX: a box with a card slot and a lamp — the wrong card is pushed back out ✕; the right card goes in and the lamp lights ✓ */
+  variant('slotbox', 'กล่องช่องเสียบ', (d, c) => {
+    const bx = 190, wc = { x: -300, y: 150, r: -8 };
+    art(c, p => {
+      floor(p);
+      const gr = side(p, c, 'right'); R(gr, bx - 115, -320, 230, 340, 14, F(3.2)); lbl(gr, d, 'right', bx, -45, { maxW: 200, size: 40 });
+      const B = sub(p); atT(B, p, 0); R(B, bx - 230, -10, 460, 310, 26, F(3.4)); R(B, bx - 140, -16, 280, 12, 6, { fill: '#040404', sw: 2.4 });
+      B.line(bx - 210, 250, bx + 210, 250, S(1.4)); B.circle(bx + 150, 80, 20, F(2.6)); R(B, bx - 170, 60, 200, 60, 10, W(2));
+      const lit = sub(p); lit.circle(bx + 150, 80, 20, { fill: C.ink, sw: 2 }); lit.circle(bx + 150, 80, 38, S(1.8)); atT(lit, p, p.H);
+      const gw = side(p, c, 'wrong'), wg = rot(gw, wc.r, wc.x, wc.y); R(wg, wc.x - 115, wc.y - 150, 230, 300, 14, F(3.2)); lbl(wg, d, 'wrong', wc.x, wc.y + 110, { maxW: 200, size: 38 });
+      badge(p, 'x', wc.x + 115, -20, 30); badge(p, 'check', bx + 115, -320, 34);
+    });
+    icon(d, 'wrong', wc.x, wc.y - 30, 140, c, { r: [wc.r, wc.x, wc.y] }); icon(d, 'right', bx, -190, 150, c);
+  });
+
+  /* FROSTED PANE: a frame with two panes — a frosted panel slides across in front of the wrong one ✕; the right pane stays clear ✓ */
+  variant('frosted', 'บานกระจกฝ้า', (d, c) => {
+    const X = { wrong: -215, right: 215 };
+    art(c, p => {
+      const B = sub(p); atT(B, p, 0); R(B, -450, -300, 900, 520, 14, F(3.4)); R(B, -460, -312, 920, 22, 8, F(3)); R(B, -460, 210, 920, 22, 8, F(3));
+      ['wrong', 'right'].forEach(s => { const x = X[s]; R(B, x - 200, -270, 400, 460, 6, { sw: 1.6, stroke: C.rule }); const g = side(p, c, s, s === 'wrong' ? { to: .6 } : {}); lbl(g, d, s, x, 130, { maxW: 340 }); });
+    });
+    icon(d, 'wrong', X.wrong, -60, 170, c, { to: .45 }); icon(d, 'right', X.right, -60, 180, c);
+    over(c, p => { const g = sub(p); atT(g, p, .05); R(g, X.wrong - 210, -280, 420, 480, 8, { fill: 'rgba(255,255,255,.13)', sw: 3.2 });
+      R(g, X.wrong + 170, -100, 16, 160, 8, F(2.6)); [[-380, -240], [-310, -250], [-160, -245], [-60, -235]].forEach(([x, y]) => g.line(x, y, x + 40, y + 40, S(1.4)));
+      badge(p, 'x', X.wrong + 210, -280, 30); badge(p, 'check', X.right + 200, -270, 34); });
+  });
+
   /* samples from unrelated topics (neutrality) + a stress set */
   const I = (icon, label) => label ? { icon, label } : { icon };
   const SAMPLES = [
@@ -508,6 +726,14 @@
     { say: 'ไม่มีป้ายทั้งคู่ (ไอคอนแรง)', wrong: I('trash-2'), right: I('recycle') },
   ];
 
+  /* the base set (user 2026-11-13: "ชุดฐาน" — any content must still fit) in sheet order, and the themed set: designs whose object carries a
+     topic of its own (good when the sentence is about that topic — the picker would need the topic first). tag = when it fits. */
+  const BASE = ['stamp', 'slotsign', 'whiteboard', 'deck', 'prism', 'sorter', 'pullcard', 'signpost', 'chains', 'corkboard',
+    'drawers', 'keys', 'dome', 'pulley', 'magnet', 'louvre', 'fit', 'clipstand', 'slotbox', 'frosted'];
+  const TAGS = { shredder: 'เอกสาร ความลับ', bin: 'ทิ้ง ขยะ', key: 'ความปลอดภัย วิธีที่ใช่', lamp: 'โฟกัส การทำงาน', phone: 'แอป โซเชียล', signal: 'จราจร การเดินทาง',
+    easel: 'ศิลปะ', patch: 'ไฟฟ้า การเชื่อมต่อ', pencil: 'การเรียน การเขียน', toaster: 'อาหาร', bulb: 'ไอเดีย ไฟฟ้า', claw: 'โชค การเลือก', radio: 'การฟัง สื่อ' };
+  const byId = Object.fromEntries(V.map(v => [v.id, v]));
+  const BV = BASE.map(id => byId[id]), THEMED = Object.keys(TAGS).map(id => Object.assign(byId[id], { tag: TAGS[id] }));
   G.cats = G.cats || {};
-  G.cats.B05 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
+  G.cats.B05 = { variants: BV, THEMED, SAMPLES, STRESS, draw: (i, d, c) => BV[i].build(d, c), drawThemed: (i, d, c) => THEMED[i].build(d, c) };
 })();
