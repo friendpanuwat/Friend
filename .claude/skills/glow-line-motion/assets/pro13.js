@@ -149,7 +149,9 @@
   const human = (q, mode, pose = {}) => {
     const solid = mode === 'solid', layers = solid ? [1] : [1, 0], J = {}, add = (k, g) => (J[k] = J[k] || []).push(g);
     layers.forEach(ink => {
-      const L = sub(q), col = ink ? C.ink : C.fill, w = v => ink && !solid ? v + 7 : v, o = { stroke: col };
+      /* limb widths are the BODY (geometry): divide by the pen's stroke factor so they keep their size at any icon size —
+         only the outline (+7) thickens when the icon is small, like every other line (user: "ไม่ว่าจะย่อหรือขยาย ไอ้คนมันต้องไม่เปลี่ยนแปลง") */
+      const L = sub(q), K = L.k || 1, col = ink ? C.ink : C.fill, w = v => ink && !solid ? v / K + 7 : v / K, o = { stroke: col };
       [-1, 1].forEach(sd => { const g = (pose.leg || BODY.leg)(sd), up = sub(L), lo = sub(up);
         up.line(...g.h, ...g.k, Object.assign({ sw: w(30) }, o)); lo.line(...g.k, ...g.f, Object.assign({ sw: w(27) }, o)); add('thigh' + sd, up); add('shin' + sd, lo); });
       const t = sub(L); t.path(pose.torso || BODY.torso, { fill: col, stroke: col, sw: ink && !solid ? 7 : .5 }); add('torso', t);
@@ -157,7 +159,7 @@
         up.line(...g.s, ...g.e, Object.assign({ sw: w(25) }, o)); lo.line(...g.e, ...g.h, Object.assign({ sw: w(23) }, o)); add('upper' + sd, up); add('fore' + sd, lo); });
       const h = sub(t); h.circle(...(pose.head || BODY.head), { fill: col, stroke: col, sw: ink && !solid ? 7 : .5 }); add('head', h); });
     if (pose.armOver) { const g = pose.arm(1), up = sub(q), lo = sub(up);   // side view: the near arm lies over the body, so it keeps its own outline
-      [[up, g.s, g.e, 25], [lo, g.e, g.h, 23]].forEach(([q2, a, b, wd]) => { q2.line(...a, ...b, { sw: wd + 7 }); q2.line(...a, ...b, { sw: wd, stroke: C.fill }); });
+      const K = q.k || 1; [[up, g.s, g.e, 25], [lo, g.e, g.h, 23]].forEach(([q2, a, b, wd]) => { q2.line(...a, ...b, { sw: wd / K + 7 }); q2.line(...a, ...b, { sw: wd / K, stroke: C.fill }); });
       q.circle(...g.s, 3, { fill: C.fill, stroke: C.fill, sw: 1 }); add('upper1', up); add('fore1', lo); }
     return { on: (name, p, start, spec) => (J[name] || []).forEach(g => on(g, p, start, spec)), J };
   };

@@ -266,7 +266,10 @@
     art(c, p => {
       p.rect(-210, -310, 420, 30, Object.assign({ rx: 10 }, F(3.2))); p.rect(-210, 280, 420, 30, Object.assign({ rx: 10 }, F(3.2)));
       p.path('M -170 -280 L 170 -280 C 170 -140, 30 -60, 30 0 C 30 60, 170 140, 170 280 L -170 280 C -170 140, -30 60, -30 0 C -30 -60, -170 -140, -170 -280 Z', F(3.4));
-      p.path('M -120 -110 Q 0 -60 120 -110', { sw: 2, stroke: C.soft }); p.line(0, -10, 0, 190, { sw: 2.4, stroke: C.soft, 'stroke-dasharray': '6 10' });
+      /* sand level in the top bulb: ends placed from the real glass outline, kept 14 units inside it (inner marks stay inside the outline) */
+      const bez = t => { const u = 1 - t; return [u * u * u * 170 + 3 * u * u * t * 170 + 3 * u * t * t * 30 + t * t * t * 30, u * u * u * -280 + 3 * u * u * t * -140 + 3 * u * t * t * -60]; };
+      let gx = 0; for (let t = 0; t <= 1; t += .005) { const [x, y] = bez(t); if (y >= -120) { gx = x; break; } }
+      const ex = f1(gx - 14); p.path(`M ${-ex} -120 Q 0 -78 ${ex} -120`, { sw: 2, stroke: C.soft }); p.line(0, -10, 0, 190, { sw: 2.4, stroke: C.soft, 'stroke-dasharray': '6 10' });
       p.path('M -140 270 Q 0 170 140 270 Z', { fill: C.ink, sw: 2, 'fill-opacity': .18 });
       if (d.a.label) txt(p, d.a.label, -260, -150, { anchor: 'end', maxW: 220, color: C.mute }); if (d.b.label) txt(p, d.b.label, 260, 170, { anchor: 'start', maxW: 220 });
     });
