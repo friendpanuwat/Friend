@@ -409,6 +409,62 @@
       if (Q.F) { halo(p, sx, sy - 10, 110); put(p, c, Q.F, sx, sy - 14, 120, sy + 92, { k: 6, maxW: 260, size: 30, wrap: null }); }
     }); });
 
+  /* ---------- design 16 redesign (user 2026-11-13 "16 Redesign ใหม่ ที่เหลือผ่าน" — marble run out): three options to pick from ---------- */
+  const ALT = []; const alt = (id, th, build) => ALT.push({ id, th, build });
+
+  /* A ── HAND PUMP: the handle (cause) is pumped, the water runs along the trough past each marker, and fills the bucket (effect) */
+  alt('handpump', 'ปั๊มน้ำมือโยก', (d, c) => { const Q = ch(d), fy = 280, px = -300;
+    art(c, p => { p.line(-480, fy, 480, fy, S(2));
+      R(p, px - 70, fy - 30, 140, 30, 8, F(3)); R(p, px - 44, -90, 88, fy - 30 + 90, 18, F(3.4)); R(p, px - 54, -110, 108, 26, 10, F(3));
+      tube(p, `M ${px + 44} -50 L ${px + 120} -50 L ${px + 120} -24`, 22); p.circle(px, -128, 10, F(2.4));
+      tube(p, `M ${px} -128 L ${px - 120} -220`, 16); R(p, px - 150, -250, 54, 40, 12, F(3)); p.path(`M ${px - 100} -290 a 40 40 0 0 0 -40 30`, S(2)); p.poly([[px - 144, -276], [px - 140, -260], [px - 124, -266]], S(2));
+      put(p, c, Q.C, px, 110, 70, fy + 44, { k: 0 });
+      p.path(`M ${px + 120} -20 Q ${px + 124} 20 ${px + 130} 52`, W(3)); p.path(`M ${px + 110} -20 Q ${px + 112} 20 ${px + 116} 52`, S(2));
+      R(p, px + 90, 52, 420, 30, 6, F(3)); p.path(`M ${px + 100} 60 q 25 -6 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0`, S(1.8));
+      [px + 150, px + 450].forEach(x => p.line(x, 82, x, fy, W(2.6)));
+      const xs = spread(Q.M.length, px + 170, px + 400); Q.M.forEach((it, i) => { p.line(xs[i], 52, xs[i], 20, W(2.4)); plate(p, c, it, xs[i], -26, 44, -90, { k: 1 + i, maxW: 140, size: 28, wrap: 'up' }); });
+      p.path(`M ${px + 510} 60 Q ${px + 540} 70 ${px + 546} 130`, W(3)); p.path(`M ${px + 506} 72 Q ${px + 530} 86 ${px + 534} 130`, S(2));
+      const bx = 230; if (Q.F) halo(p, bx, 205, 112);
+      p.path(`M ${bx - 90} 130 L ${bx + 90} 130 L ${bx + 72} ${fy} L ${bx - 72} ${fy} Z`, F(3.4)); p.path(`M ${bx - 84} 152 L ${bx + 84} 152 L ${bx + 72} ${fy - 6} L ${bx - 72} ${fy - 6} Z`, { fill: LIT, sw: 0, stroke: 'none' });
+      p.path(`M ${bx - 84} 152 q 21 -8 42 0 t 42 0 t 42 0 t 42 0`, W(2)); p.path(`M ${bx - 90} 130 Q ${bx} 40 ${bx + 90} 130`, S(2));
+      put(p, c, Q.F, bx, 214, 70, fy + 44, { k: 6, maxW: 200 });
+    }); });
+
+  /* B ── MUSIC BOX: the crank (cause) is turned, the notes rise out of the box one after another, and the last note becomes the effect */
+  alt('musicbox', 'กล่องดนตรีไขลาน', (d, c) => { const Q = ch(d), bx = -150, by = 170, w = 380, h = 160;
+    art(c, p => { p.line(-480, 300, 480, 300, S(1.8));
+      shape(p, [[bx - w / 2, by - h / 2], [bx + w / 2, by - h / 2], [bx + w / 2 + 40, by - h / 2 - 170], [bx - w / 2 + 40, by - h / 2 - 170]], F(3.2));
+      shape(p, [[bx - w / 2 + 26, by - h / 2 - 14], [bx + w / 2 - 20, by - h / 2 - 14], [bx + w / 2 + 14, by - h / 2 - 150], [bx - w / 2 + 58, by - h / 2 - 150]], S(1.6));
+      R(p, bx - w / 2, by - h / 2, w, h, 12, F(3.4)); R(p, bx - w / 2 + 16, by - h / 2 + 16, w - 32, h - 32, 8, S(1.6)); R(p, bx - 20, by - h / 2 + 4, 40, 12, 4, F(2));
+      [[-1, 0], [1, 0]].forEach(([sd]) => R(p, bx + sd * (w / 2 - 40) - 20, by + h / 2, 40, 300 - by - h / 2, 6, F(2.6)));
+      p.line(bx - w / 2, by, bx - w / 2 - 50, by, W(4)); p.line(bx - w / 2 - 50, by, bx - w / 2 - 50, by - 70, W(4));
+      p.circle(bx - w / 2 - 50, by - 110, 48, F(3.4)); put(p, c, Q.C, bx - w / 2 - 50, by - 110, 60, by + 136, { k: 0, lx: bx - w / 2 - 50 });
+      const note = (x, y, s2) => { p.ellipse(x, y, 16 * s2, 12 * s2, SOLID(1.6)); p.line(x + 15 * s2, y - 2, x + 15 * s2, y - 52 * s2, W(3)); p.path(`M ${x + 15 * s2} ${y - 52 * s2} q 18 6 20 26`, W(3)); };
+      note(bx + 60, by - 140, 1); note(bx + 150, by - 200, .8);
+      const P = Q.M.map((_, i) => [bx + 230 + i * 110, by - 150 - i * 90]);
+      p.path(`M ${bx + 40} ${by - h / 2 - 10} C ${bx + 120} -120, ${bx + 260} -60, 330 -190`, S(2));
+      Q.M.forEach((it, i) => { plate(p, c, it, P[i][0], P[i][1], 44, P[i][1] + 10, { k: 1 + i, maxW: 150, size: 28, lx: P[i][0] + 56, anchor: 'start', wrap: null }); });
+      if (Q.F) { halo(p, 360, -220, 100); p.circle(360, -220, 70, F(3.4)); note(290, -280, .7); note(420, -150, .6); put(p, c, Q.F, 360, -220, 88, -122, { k: 6 }); }
+    }); });
+
+  /* C ── MELTING ICE: the ice (cause) melts on the ledge, drop after drop falls (the links between) and fills the glass (effect) */
+  alt('ice', 'น้ำแข็งละลายหยด', (d, c) => { const Q = ch(d), lx = -120, ly = -150, gx = 220;
+    art(c, p => { p.line(-480, 300, 480, 300, S(1.8));
+      R(p, -480, ly, 440, 26, 6, F(3)); [-440, -110].forEach(x => { p.path(`M ${x} ${ly + 26} L ${x} ${ly + 90} L ${x + 50} ${ly + 26}`, W(2.6)); });
+      const ix = lx - 150; p.path(`M ${ix - 70} ${ly} L ${ix - 64} ${ly - 120} Q ${ix - 62} ${ly - 134} ${ix - 48} ${ly - 134} L ${ix + 54} ${ly - 128} Q ${ix + 68} ${ly - 126} ${ix + 68} ${ly - 112} L ${ix + 74} ${ly} Z`, F(3.4));
+      p.line(ix - 40, ly - 110, ix - 10, ly - 112, S(1.6)); p.line(ix + 40, ly - 118, ix + 54, ly - 100, S(1.6)); [[-70, -40], [74, -50]].forEach(([a, b]) => p.path(`M ${ix + a} ${ly + b} q ${a < 0 ? -8 : 8} 14 0 26`, S(2))); put(p, c, Q.C, ix, ly - 62, 72, null, { k: 0 }); if (Q.C && Q.C.label && picOf(Q.C)) txt(atG(p, tu(.2)), Q.C.label, ix, ly + 66, { maxW: 200, color: C.ink, weight: 700, size: 30 });
+      p.path(`M ${ix - 80} ${ly} q 40 10 80 4 q 40 -4 80 2 L -40 ${ly} `, W(2.2)); p.path(`M -40 ${ly + 2} Q -20 ${ly + 6} -12 ${ly + 22}`, W(2.4));
+      const drop = (x, y, r) => p.path(`M ${x} ${y - r * 1.6} Q ${x + r} ${y - r * .2} ${x + r} ${y + r * .3} A ${r} ${r} 0 0 1 ${x - r} ${y + r * .3} Q ${x - r} ${y - r * .2} ${x} ${y - r * 1.6} Z`, F(3));
+      const P = Q.M.map((_, i) => { const u = (i + 1) / (Q.M.length + 1); return [lerp(-20, gx - 70, u) + (Q.M.length > 1 ? (i ? 30 : -30) : 0), lerp(ly + 70, -10, u) + (i % 2 ? 40 : 0)]; });
+      p.path(`M -12 ${ly + 24} Q 60 ${ly + 20} ${gx - 10} 40`, S(1.6));
+      Q.M.forEach((it, i) => { drop(P[i][0], P[i][1], 38); put(p, c, it, P[i][0], P[i][1] + 6, 42, P[i][1] + 70, { k: 1 + i, maxW: 130, size: 26 }); });
+      if (!Q.M.length) drop(60, -40, 22);
+      if (Q.F) halo(p, gx, 190, 130);
+      p.path(`M ${gx - 100} 60 L ${gx - 80} 296 L ${gx + 80} 296 L ${gx + 100} 60`, F(3.4)); p.path(`M ${gx - 90} 140 L ${gx - 82} 288 L ${gx + 82} 288 L ${gx + 90} 140 Z`, { fill: LIT, sw: 0, stroke: 'none' });
+      p.path(`M ${gx - 90} 140 q 22 -8 45 0 t 45 0 t 45 0 t 45 0`, W(2)); [[gx - 40, 100, 14], [gx + 20, 80, 9]].forEach(([x, y, r]) => p.circle(x, y, r, S(1.6)));
+      put(p, c, Q.F, gx, 214, 84, null, { k: 6 }); if (Q.F && Q.F.label && picOf(Q.F)) txt(atG(p, tu(.5)), Q.F.label, gx + 170, 220, { maxW: 140, color: C.ink, weight: 700, size: 30 });
+    }); });
+
   /* ---------- sample data (A: sentences from unrelated topics, 1–4 links · B: stress) ---------- */
   const I = (icon, label) => label ? { icon, label } : { icon };
   const SAMPLES = [
@@ -457,5 +513,5 @@
   ];
 
   G.cats = G.cats || {};
-  G.cats.B12 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
+  G.cats.B12 = { variants: V, SAMPLES, STRESS, ALT, drawAlt: (k, d, c) => { setZ(c); CUR = ALT[k].id; ALT[k].build(d, c); }, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
 })();
