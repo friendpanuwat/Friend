@@ -351,18 +351,23 @@
   /* 09 ── THE DOG-EARED PAGE (user: "เคล็ดลับมันอยู่ตรงมุมและพื้นที่มันนิดเดียว"): a big corner of the top page turns over on its crease (the flap
      scales along the fold's normal from −1 = lying flat, through edge-on, to +1 = turned back) and the secret has a wide space on the page beneath.
      Crease: x + y = FK · pivot = the middle of the crease */
-  variant('dogear', 'มุมกระดาษพับ', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, tF = T0 + tu(.24), tE = T0 + tu(.62), FK = 180, ax = -100, ay = 280, bx = 360, by = -180, pvx = 130, pvy = 50, sx = 222, sy = 126;
+  variant('dogear', 'มุมกระดาษพับ', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, tF = T0 + tu(.24), tE = T0 + tu(.86), FK = 180, ax = -100, ay = 280, bx = 360, by = -180, pvx = 130, pvy = 50, sx = 222, sy = 126;
     art(c, p => { const pg = inG(p, 'drop', 0, 0, tu(.05));
       R(pg, -364, -272, 724, 556, 10, F(3)); haloH(pg, sx, sy + 6, 114, H);
       shape(pg, [[-380, -290], [360, -290], [bx, by], [ax, ay], [-380, 280]], { fill: C.fill, sw: 0, stroke: 'none' }); pg.path(`M ${bx} ${by} L 360 -290 L -380 -290 L -380 280 L ${ax} ${ay}`, W(3.4));
       drawAt(pg.line(ax, ay, bx, by, W(3.4)), p, tF, tu(.08));
       const rowEnd = k => k % 3 === 2 ? 0 : 320, pageEnd = (k, y) => Math.min(rowEnd(k), FK - 30 - y);
       for (let k = 0; k < 9; k++) { const y = -236 + k * 54, e = pageEnd(k, y); if (e > -330) drawAt(pg.line(-330, y, e, y, S(2.2)), p, tu(.2 + .03 * k), tu(.25)); }
-      const cp = sub(pg); on(cp, p, 0, { o: [[0, 1], [tF, 1], [tF + tu(.005), 0]] });
-      shape(cp, [[ax, ay], [360, 280], [bx, by]], { fill: C.fill, sw: 0, stroke: 'none' }); cp.path(`M ${bx} ${by} L 360 280 L ${ax} ${ay}`, W(3.4));
-      for (let k = 0; k < 9; k++) { const y = -236 + k * 54, e = pageEnd(k, y), x0 = Math.max(e, -330); if (x0 < rowEnd(k) && FK - y < rowEnd(k)) drawAt(cp.line(x0, y, rowEnd(k), y, S(2.2)), p, tu(.2 + .03 * k), tu(.25)); }
-      const a1 = rot(pg, -45, pvx, pvy), fs = mvG(a1, { px: pvx, py: pvy, sy: [[0, -1], [tF, -1], [tE, 1.05, 'io'], [tE + tu(.1), 1, 'soft']], o: [[0, 0], [tF, 0], [tF + tu(.005), 1]] }), fl = rot(fs, 45, pvx, pvy);
-      shape(fl, [[ax, ay], [bx, by], [ax, by]], F(3)); const inr = litG(fl, lerp(tF, tE, .5), .01); inr.line(ax + 32, by + 40, ax + 32, ay - 80, S(1.2)); inr.line(ax + 32, by + 40, bx - 80, by + 40, S(1.2));
+      /* the corner turns over its crease by a real angle θ 0 → 180 (ease in-out): its projection on the fold's normal is −cos θ; it lifts a touch
+         toward us in the middle (s + .045·sin θ). Front of the corner (text lines) while θ < 90, then its back (user: "ทำให้มัน smooth กว่านี้") */
+      const N = 18, kS = [[0, -1], [tF, -1]], kL = [[0, 1], [tF, 1]]; for (let j2 = 1; j2 <= N; j2++) { const u = j2 / N, e = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2, th = Math.PI * e, t = tF + (tE - tF) * u;
+        kS.push([t, +(-Math.cos(th)).toFixed(4)]); kL.push([t, +(1 + .045 * Math.sin(th)).toFixed(4)]); }
+      const tM = lerp(tF, tE, .5), lg = mvG(pg, { px: pvx, py: pvy, s: kL }), a1 = rot(lg, -45, pvx, pvy), fs = mvG(a1, { px: pvx, py: pvy, sy: kS }), fl = rot(fs, 45, pvx, pvy);
+      const frO = sub(fl); on(frO, p, 0, { o: [[0, 1], [tM, 1], [tM + tu(.003), 0]] }); const fr = sub(frO, { transform: `matrix(0 -1 -1 0 ${FK} ${FK})` });   // fade on its own group: a kf rewrites its group's transform
+      shape(fr, [[ax, ay], [360, 280], [bx, by]], { fill: C.fill, sw: 0, stroke: 'none' }); fr.path(`M ${bx} ${by} L 360 280 L ${ax} ${ay}`, W(3.4));
+      for (let k = 0; k < 9; k++) { const y = -236 + k * 54, e = pageEnd(k, y), x0 = Math.max(e, -330); if (x0 < rowEnd(k) && FK - y < rowEnd(k)) drawAt(fr.line(x0, y, rowEnd(k), y, S(2.2)), p, tu(.2 + .03 * k), tu(.25)); }
+      const bk = sub(fl); on(bk, p, 0, { o: [[0, 0], [tM, 0], [tM + tu(.003), 1]] });
+      shape(bk, [[ax, ay], [bx, by], [ax, by]], F(3)); bk.line(ax + 32, by + 40, ax + 32, ay - 80, S(1.2)); bk.line(ax + 32, by + 40, bx - 80, by + 40, S(1.2));
       reveal(p, c, X, sx, sy, 166, null, { halo: false }); ripple(p, sx, sy, 96, H);
       if (X && X.label && picOf(X)) txt(atG(p, H + tu(.12)), X.label, sx, sy + 122, { maxW: 240, color: C.ink, weight: 700, size: 34 });
     }); });
