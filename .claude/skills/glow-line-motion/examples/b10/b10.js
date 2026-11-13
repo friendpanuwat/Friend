@@ -99,6 +99,17 @@
   function stand(q, x, fy, k = 1, o = F(3)) { q.path(`M ${f1(x - 34 * k)} ${f1(fy)} L ${f1(x - 34 * k)} ${f1(fy - 118 * k)} Q ${f1(x - 34 * k)} ${f1(fy - 150 * k)} ${f1(x)} ${f1(fy - 150 * k)} Q ${f1(x + 34 * k)} ${f1(fy - 150 * k)} ${f1(x + 34 * k)} ${f1(fy - 118 * k)} L ${f1(x + 34 * k)} ${f1(fy)} Z`, o);
     q.line(x, fy - 62 * k, x, fy - 2 * k, W(2)); q.circle(x, fy - 176 * k, 24 * k, o); }
 
+  /* a whole person (GL.parts.human, front view: head, body, jointed arms and legs — no face, no clothes); feet on fy, scale k.
+     User 2026-11-13 (B10 11): "ทำให้คน ฝั่งละ 2 คน เป็นคนที่สมจริง" */
+  function person(q, x, fy, k = .75, pose = {}, mode = 'line') { const g = q.child({ transform: `translate(${f1(x)} ${f1(fy - 166 * k)}) scale(${k})` }, k);
+    g.H = q.H; g.motion = q.motion; return G.parts.human(g, mode, pose); }
+  /* a person in the crowd that fades back: an opaque dark silhouette (not faded) under it, so the glow does not show through the faded
+     body as blotches (B05 lesson, duo()) */
+  function crowdPerson(back, cr, x, fy, k, pose) { const bk = sub(back); person(bk, x, fy, k, pose, 'solid');
+    bk.g.querySelectorAll('*').forEach(e => { if (e.getAttribute('fill') && e.getAttribute('fill') !== 'none') e.setAttribute('fill', C.fill); if (e.getAttribute('stroke')) e.setAttribute('stroke', C.fill); });
+    return person(cr, x, fy, k, pose); }
+  const RELAX = sd => ({ s: [sd * 36, -82], e: [sd * 48, -16], h: [sd * 44, 42] }), STANCE = sd => ({ h: [sd * 17, 8], k: [sd * 25, 88], f: [sd * 32, 166] });
+
   /* ---------- label + tags ---------- */
   /* a pill with a word in it, centred at (0,0) of its own group; strong = the label (bold ring), else a tag (soft ring) */
   function chip(q, str, { size = 36, strong = true, maxW = 420 } = {}) { size *= 1.18; const g = sub(q), t = txt(g, str, 0, size * .35, { size, maxW, weight: 700, color: strong ? C.ink : C.soft });
@@ -233,7 +244,7 @@
   /* 11 ── GUIDE SIGN: a tour guide's sign held up high over a group — the sign carries the kind; the group under it is the person icon */
   variant('guideflag', 'ป้ายไกด์ชูนำกลุ่ม', (d, c) => { const S0 = st(d), sx = 150;
     art(c, p => {
-      const cr = crowdG(p); [-400, -300, 330, 430].forEach(x => bust(cr, x, 232, .9));
+      p.line(-480, 292, 480, 292, S(2)); const bk = sub(p), cr = crowdG(p); [[-420, {}], [-300, { arm: RELAX }], [310, { leg: STANCE }], [425, { arm: RELAX }]].forEach(([x, pose]) => crowdPerson(bk, cr, x, 292, .74, pose));
       R(p, sx - 6, -180, 12, 440, 5, F(2.2));
       if (S0.label) { const g = sub(p, { transform: `translate(${sx} -230)` }), t = txt(g, S0.label, 0, 15, { size: 42, maxW: 520, weight: 700, color: C.ink }), w = Math.max(160, t.getBBox().width + 60);
         g.g.insertBefore(g.rect(f1(-w / 2), -48, f1(w), 96, { rx: 16, fill: C.fill, sw: 3.4 }), t); }
