@@ -85,6 +85,18 @@
   function runner(p, c, S0, x, y, w, o = {}) { if (S0.who) return pic(S0.who, x, y, w, c, o); const g = sub(p); atT(g, p, 0); g.circle(x, y + w * .3, w * .17, { fill: C.ink, sw: 1.6 }); return g; }
   const tickMark = (q, x, y, r) => { q.circle(x, y, r, F(3.2)); q.poly([[x - r * .42, y + 2], [x - r * .1, y + r * .34], [x + r * .44, y - r * .32]], W(5.5)); };
 
+  /* a person doing the design's activity (GL.parts.human, side view, facing right — part of the design, not the `who` slot):
+     arm = the near arm { s, e, h } (shoulder, elbow, hand), o.leg(sd) = legs, o.lean = degrees about the feet; feet on fy, scale k */
+  const SIDE = { torso: 'M -38 -94 Q 0 -104 32 -92 Q 42 -86 40 -70 L 34 14 Q 0 24 -36 14 L -44 -70 Q -46 -88 -38 -94 Z', head: [8, -134, 31], armOver: true };
+  const stand = sd => ({ h: [sd * 6, 8], k: [sd * 10, 88], f: [sd * 14, 166] });
+  const stride = sd => sd < 0 ? { h: [-6, 8], k: [-30, 86], f: [-62, 166] } : { h: [6, 8], k: [34, 84], f: [44, 166] };
+  function person(q, x, fy, k, arm, o = {}) { const g = q.child({ transform: `translate(${x} ${f1(fy - 166 * k)}) rotate(${o.lean || 0} 0 166) scale(${k})` }, k);
+    g.H = q.H; g.motion = q.motion;
+    const far = o.far || { s: [arm.s[0] - 8, arm.s[1] + 2], e: [arm.e[0] - 14, arm.e[1] + 10], h: [arm.h[0] - 18, arm.h[1] + 12] }, fa = sub(g);   // the far arm, behind the body
+    [[far.s, far.e, 25], [far.e, far.h, 23]].forEach(([a, b, wd]) => fa.line(...a, ...b, { sw: wd + 7 })); [[far.s, far.e, 25], [far.e, far.h, 23]].forEach(([a, b, wd]) => fa.line(...a, ...b, { sw: wd, stroke: C.fill }));
+    /* the near arm lies over the body with its own outline (seams at the shoulder and elbow — user: "เปลี่ยนกลับไปมีรอยต่อเหมือนเดิมดีกว่า") */
+    return G.parts.human(g, 'line', Object.assign({}, SIDE, { arm: () => arm, leg: o.leg || stand })); }
+
   const V = [];
   const variant = (id, th, build) => V.push({ id, th, build });
   const ground = (p, y = 300) => floor(p, y);
@@ -95,10 +107,10 @@
   /* 01 ── DOMINOES: one push and the row falls, the last one knocks the goal's token off its post into the light */
   variant('domino', 'โดมิโนล้มต่อกัน', (d, c) => { const S0 = st(d);
     art(c, p => { ground(p); const B = sub(p); atT(B, p, 0);
-      for (let i = 0; i < 6; i++) { const x = -380 + i * 92, g = rot(B, 58, x + 22, 296); R(g, x, 136, 44, 160, 8, F(3)); g.circle(x + 22, 176, 7, W(2)); g.circle(x + 22, 252, 7, W(2)); }   // fallen row
+      person(B, -440, 300, .8, { s: [4, -76], e: [56, -58], h: [110, -66] }, { lean: 10, leg: stride });                // the one who gave the push
+      for (let i = 0; i < 6; i++) { const x = -318 + i * 86, g = rot(B, 58, x + 22, 296); R(g, x, 136, 44, 160, 8, F(3)); g.circle(x + 22, 176, 7, W(2)); g.circle(x + 22, 252, 7, W(2)); }   // fallen row
       R(B, 250, 210, 40, 86, 6, F(2.8)); halo(B, 300, 30, 150);                                                                // post
-      token(B, c, S0, 300, 30, 115, -170);
-      whoAt(p, c, S0, -400, 60, 110); }); });
+      token(B, c, S0, 300, 30, 115, -170); }); });
 
   /* 02 ── MARBLE RAMP: the goal's token rolls down the curved ramp and settles in the cradle at the bottom */
   variant('ramp', 'รางกลิ้งลงแอ่ง', (d, c) => { const S0 = st(d);
@@ -121,10 +133,10 @@
   /* 04 ── CRADLE: the swinging balls pass the knock along and the last one rings the goal */
   variant('cradle', 'ลูกตุ้มส่งแรง', (d, c) => { const S0 = st(d);
     art(c, p => { ground(p); const B = sub(p); atT(B, p, 0);
-      R(B, -360, -250, 470, 24, 10, F(3)); [-350, 100].forEach(x => B.line(x, -226, x - 30 * Math.sign(x + 1), 296, W(4)));   // frame
-      for (let i = 0; i < 5; i++) { const x = -250 + i * 84; B.line(x - 20, -226, x, 80, S(1.8)); B.line(x + 20, -226, x, 80, S(1.8)); B.circle(x, 80, 42, F(3.2)); }   // balls
-      halo(B, 330, -20, 160); token(B, c, S0, 330, -20, 120, 200);
-      whoAt(p, c, S0, -400, 200, 100); }); });
+      R(B, -262, -250, 434, 24, 10, F(3)); B.line(-250, -226, -280, 296, W(4)); B.line(160, -226, 190, 296, W(4));           // frame
+      for (let i = 0; i < 4; i++) { const x = -150 + i * 84; B.line(x - 20, -226, x, 80, S(1.8)); B.line(x + 20, -226, x, 80, S(1.8)); B.circle(x, 80, 42, F(3.2)); }   // balls
+      person(B, -415, 300, .8, { s: [4, -76], e: [52, -94], h: [104, -102] });                                              // the one who let the first ball go
+      halo(B, 340, -20, 150); token(B, c, S0, 340, -20, 112, 190); }); });
 
   /* 05 ── RIPPLE: a drop falls, the rings spread on the surface and the goal rises from the middle */
   variant('ripple', 'หยดน้ำกระเพื่อม', (d, c) => { const S0 = st(d);
@@ -166,11 +178,10 @@
   variant('pulley', 'รอกดึงขึ้น', (d, c) => { const S0 = st(d), wx = 160, wy = -280;
     art(c, p => { ground(p); const B = sub(p); atT(B, p, 0);
       B.line(-470, -330, 470, -330, S(2)); R(B, wx - 10, -330, 20, 30, 4, F(2.6)); B.circle(wx, wy, 52, F(3.2)); B.circle(wx, wy, 14, W(2.4));   // ceiling, bracket, wheel
-      B.line(wx - 52, wy, wx - 52, 200, W(3)); B.line(wx + 52, wy, wx + 52, -150, W(3));                                        // rope
-      R(B, wx - 112, 200, 120, 96, 12, F(3.2)); B.line(wx - 52, 200, wx - 52, 180, W(3));                                       // counterweight (down)
-      R(B, wx - 50, -150, 204, 16, 6, F(2.8));                                                                                  // the goal's swing seat
-      goalAt(p, c, S0, wx + 52, -70, 170, null); if (S0.goal) lab(sub(p), S0.goal, wx + 130, 40, { anchor: 'start', maxW: 170 });
-      whoAt(p, c, S0, -330, 190, 150); }); });
+      B.line(wx - 52, wy, wx - 52, 34, W(3)); B.path(`M ${wx - 52} 34 Q ${wx - 30} 240 ${wx + 20} 290 Q ${wx + 50} 300 ${wx + 80} 292`, W(3));   // rope down to the hands, slack on the floor
+      B.line(wx + 52, wy, wx + 52, -150, W(3)); R(B, wx - 50, -150, 204, 16, 6, F(2.8));                                     // the goal's side + its seat
+      person(B, wx - 52 - 7, 300, .8, { s: [4, -76], e: [46, -118], h: [78, -158] }, { lean: -12, leg: sd => sd < 0 ? { h: [-6, 8], k: [-22, 88], f: [-34, 166] } : { h: [6, 8], k: [42, 80], f: [70, 160] } });   // hauling
+      goalAt(p, c, S0, wx + 52, -70, 170, null); if (S0.goal) lab(sub(p), S0.goal, wx + 140, 40, { anchor: 'start', maxW: 170 }); }); });
 
   /* 10 ── BRIM: the glass fills to the brim and the goal floats up to the top */
   variant('brim', 'น้ำเต็มแก้ว', (d, c) => { const S0 = st(d), x = S0.who ? 90 : 0;
@@ -182,12 +193,12 @@
 
   /* 11 ── FISHING: the line is reeled in and the goal comes up out of the water on the hook */
   variant('fishing', 'ตกเบ็ดได้', (d, c) => { const S0 = st(d), hx = 280, hy = -150;
-    art(c, p => { const B = sub(p); atT(B, p, 0);
+    art(c, p => { const B = sub(p); atT(B, p, 0); B.line(-470, 300, 40, 300, S(2));
       B.path('M 60 210 Q 170 190 280 210 T 470 210', S(2.4)); B.path('M 120 250 Q 220 236 320 250 T 470 250', S(1.6));       // water
-      B.path(`M -400 270 Q -210 -60 ${hx - 150} -300`, { sw: 9 }); B.circle(-330, 160, 26, F(2.8)); B.line(-330, 160, -300, 140, W(2.4));   // rod + reel
+      person(B, -427, 300, .8, { s: [4, -76], e: [44, -40], h: [86, -60] });                                                   // the angler
+      B.path(`M -420 230 Q -230 -120 ${hx - 150} -300`, { sw: 9 }); B.circle(-356, 132, 24, F(2.8)); B.line(-356, 132, -330, 112, W(2.4));   // rod + reel
       B.line(hx - 150, -300, hx, hy - 80, S(2)); B.path(`M ${hx} ${hy - 80} L ${hx} ${hy - 50} Q ${hx} ${hy - 26} ${hx + 18} ${hy - 32}`, W(3.2));   // line + hook
-      goalAt(p, c, S0, hx, hy + 50, 190, null); if (S0.goal) lab(sub(p), S0.goal, hx, 80, {});
-      whoAt(p, c, S0, -420, 190, 120); }); });
+      goalAt(p, c, S0, hx, hy + 50, 190, null); if (S0.goal) lab(sub(p), S0.goal, hx, 80, {}); }); });
 
   /* 12 ── CABLE CAR: the gondola climbs the cable and docks at the top station with the goal */
   variant('cablecar', 'กระเช้าถึงสถานี', (d, c) => { const S0 = st(d), gx = 170, gy = -40;
@@ -243,13 +254,13 @@
       whoAt(p, c, S0, 390, 60, 120); }); });
 
   /* 18 ── KITE: the kite climbs on the wind with the goal on it */
-  variant('kite', 'ว่าวขึ้นสูง', (d, c) => { const S0 = st(d), kx = 200, ky = -150;
+  variant('kite', 'ว่าวขึ้นสูง', (d, c) => { const S0 = st(d), kx = 200, ky = -150, hx = -358, hy = 18;
     art(c, p => { ground(p); const B = sub(p); atT(B, p, 0);
       B.path(`M ${kx} ${ky - 190} L ${kx + 150} ${ky - 10} L ${kx} ${ky + 170} L ${kx - 150} ${ky - 10} Z`, F(3.4)); B.line(kx, ky - 190, kx, ky + 170, S(1.4)); B.line(kx - 150, ky - 10, kx + 150, ky - 10, S(1.4));
       B.path(`M ${kx} ${ky + 170} Q ${kx - 30} ${ky + 230} ${kx + 10} ${ky + 270} Q ${kx + 40} ${ky + 310} ${kx} ${ky + 360}`, S(2)); [[kx - 22, ky + 230], [kx + 22, ky + 300]].forEach(([x, y]) => B.path(`M ${x - 16} ${y - 10} L ${x + 16} ${y + 10} M ${x + 16} ${y - 10} L ${x - 16} ${y + 10}`, W(2.6)));   // tail + bows
-      B.path(`M ${kx} ${ky + 20} Q -150 100 -330 250`, S(1.8));                                                                // string
-      goalAt(p, c, S0, kx, ky - 10, 150, null); if (S0.goal) lab(sub(p), S0.goal, kx + 170, ky + 120, { anchor: 'start', maxW: 140 });
-      whoAt(p, c, S0, -360, 220, 120); }); });
+      B.path(`M ${kx} ${ky + 20} Q -120 -10 ${hx} ${hy}`, S(1.8));                                                              // string, down to the hand
+      person(B, -400, 300, .8, { s: [4, -76], e: [30, -130], h: [52, -186] });                                                // the one flying it
+      goalAt(p, c, S0, kx, ky - 10, 150, null); if (S0.goal) lab(sub(p), S0.goal, kx + 170, ky + 120, { anchor: 'start', maxW: 140 }); }); });
 
   /* 19 ── ZIPPER: the zip runs open and the goal shows through the opening */
   variant('zipper', 'ซิปรูดเปิด', (d, c) => { const S0 = st(d), x = S0.who ? 80 : 0;
@@ -270,6 +281,63 @@
       B.line(px - 30, py, sx - 30, sy, S(2)); B.line(px + 30, py, sx + 30, sy, S(2)); R(B, sx - 60, sy, 120, 18, 6, F(3));     // ropes + seat, swung up
       halo(B, 370, -170, 130); goalAt(p, c, S0, 370, -170, 170, 10);
       whoAt(p, c, S0, sx, sy - 60, 110); }); });
+
+
+  /* ---------- redesign options (user 2026-11-13: "10, 20 design ใหม่") — three ways each ---------- */
+  const ALT = {}; const alt = (n, id, th, build) => (ALT[n] = ALT[n] || []).push({ id, th, build });
+  /* 10A ── SCISSOR LIFT: the scissor arms open and raise the goal's platform to the top */
+  alt(10, 'scissor', 'ลิฟต์กรรไกรยกขึ้น', (d, c) => { const S0 = st(d), x = S0.who ? 80 : 0;
+    art(c, p => { ground(p); const B = sub(p); atT(B, p, 0);
+      R(B, x - 190, 262, 380, 34, 10, F(3.2)); [x - 150, x + 150].forEach(xx => B.circle(xx, 296, 14, F(2.6)));               // base + wheels
+      const lv = [262, 150, 38, -74]; for (let i = 0; i < 3; i++) { const y0 = lv[i], y1 = lv[i + 1]; B.line(x - 150, y0, x + 150, y1, { sw: 14 }); B.line(x - 150, y0, x + 150, y1, { sw: 8, stroke: C.fill });
+        B.line(x + 150, y0, x - 150, y1, { sw: 14 }); B.line(x + 150, y0, x - 150, y1, { sw: 8, stroke: C.fill }); B.circle(x, (y0 + y1) / 2, 9, F(2.4)); }   // the scissor arms
+      R(B, x - 200, -100, 400, 28, 8, F(3.2));                                                                                 // platform
+      goalAt(p, c, S0, x, -200, 180, null); if (S0.goal) lab(sub(p), S0.goal, x + 210, -150, { anchor: 'start', maxW: 170 });
+      whoAt(p, c, S0, -390, 200, 120); }); });
+  /* 10B ── BUBBLE: a bubble rises from the bottom carrying the goal up to the surface */
+  alt(10, 'bubble', 'ฟองลอยขึ้น', (d, c) => { const S0 = st(d), x = S0.who ? 80 : 0;
+    art(c, p => { const B = sub(p); atT(B, p, 0);
+      B.path(`M -470 -250 Q -350 -270 -230 -250 T 10 -250 T 250 -250 T 470 -250`, S(2.4));                                    // the surface
+      B.circle(x, -60, 170, { fill: 'rgba(255,255,255,.05)', sw: 3 }); B.path(`M ${x - 120} -120 A 130 130 0 0 1 ${x - 40} -180`, S(2));   // the bubble (a curve of shine along its edge)
+      [[x - 60, 200, 34], [x + 40, 270, 20], [x - 20, 320, 12]].forEach(([xx, yy, r]) => B.circle(xx, yy - 40, r, { fill: 'rgba(255,255,255,.05)', sw: 2.2 }));
+      goalAt(p, c, S0, x, -60, 200, 150);
+      whoAt(p, c, S0, -390, 200, 120); }); });
+  /* 10C ── POP-UP BOX: the lid flips open and the spring pops the goal up out of the box */
+  alt(10, 'popup', 'กล่องเด้ง', (d, c) => { const S0 = st(d), x = S0.who ? 80 : 0;
+    art(c, p => { ground(p); const B = sub(p); atT(B, p, 0);
+      B.path(`M ${x - 170} 90 L ${x - 210} -40 L ${x + 130} -40 L ${x + 170} 90 Z`, F(3));                                   // lid, flipped open (back)
+      let z = `M ${x} 90`; for (let i = 1; i <= 6; i++) z += ` L ${x + (i % 2 ? 34 : -34)} ${90 - i * 30}`; B.path(z + ` L ${x} -110`, W(4));   // spring
+      R(B, x - 170, 90, 340, 206, 14, F(3.4));                                                                                 // box
+      token(B, c, S0, x, -200, 112, null); if (S0.goal) lab(sub(p), S0.goal, x, 200, {});
+      whoAt(p, c, S0, -390, 200, 120); }); });
+  /* 20A ── PARACHUTE: the goal floats down under its parachute and lands on the mark */
+  alt(20, 'parachute', 'ร่มชูชีพลงจุด', (d, c) => { const S0 = st(d), x = S0.who ? 80 : 0;
+    art(c, p => { ground(p); const B = sub(p); atT(B, p, 0);
+      B.ellipse(x, 296, 180, 22, S(2));                                                                                         // the landing mark
+      let cn = `M ${x - 230} -170 Q ${x - 230} -330 ${x} -330 Q ${x + 230} -330 ${x + 230} -170`; for (let i = 0; i < 4; i++) { const a = x + 230 - i * 115; cn += ` Q ${a - 57} -200 ${a - 115} -170`; }
+      B.path(cn + ' Z', F(3.4)); [-115, 0, 115].forEach(dx => B.path(`M ${x + dx} -175 Q ${x + dx * .9} -280 ${x} -330`, S(1.6)));   // canopy + seams
+      [-230, -115, 115, 230].forEach(dx => B.line(x + dx, -170, x + dx * .28, 110, S(1.6)));                                   // lines
+      token(B, c, S0, x, 180, 110, null); if (S0.goal) lab(sub(p), S0.goal, x + 250, 200, { anchor: 'start', maxW: 170 });
+      whoAt(p, c, S0, -390, 200, 120); }); });
+  /* 20B ── CONVEYOR: the belt carries the goal's token to the end and it drops into the cradle */
+  alt(20, 'conveyor', 'สายพานส่งลงแอ่ง', (d, c) => { const S0 = st(d);
+    art(c, p => { ground(p); const B = sub(p); atT(B, p, 0);
+      R(B, -460, -60, 560, 60, 30, F(3.2)); [-430, -280, -130, 20, 70].forEach(x => B.circle(x, -30, 18, W(2.4)));             // belt + rollers
+      [-400, 40].forEach(x => R(B, x - 10, 0, 20, 296, 5, F(2.6)));                                                             // legs
+      B.path('M 170 170 Q 300 290 430 170', { sw: 12 }); B.path('M 170 170 Q 300 290 430 170', { sw: 6, stroke: C.fill }); [190, 410].forEach(x => R(B, x - 8, 178, 16, 118, 5, F(2.4)));   // the cradle
+      token(B, c, S0, 300, 120, 105, -60);
+      whoAt(p, c, S0, -260, -200, 110); }); });
+  /* 20C ── STATION: the little train pulls in under the station sign that shows the goal */
+  alt(20, 'station', 'รถไฟถึงสถานี', (d, c) => { const S0 = st(d), sx = 230;
+    art(c, p => { const B = sub(p); atT(B, p, 0);
+      B.line(-470, 290, 470, 290, W(3)); for (let x = -440; x <= 440; x += 70) R(B, x - 20, 290, 40, 10, 3, F(2));              // rail + sleepers
+      R(B, 40, 214, 430, 30, 6, F(3));                                                                                         // platform
+      R(B, sx - 10, -110, 20, 324, 5, F(2.8)); R(B, sx - 150, -300, 300, 200, 18, F(3.4));                                      // sign post + sign
+      goalAt(p, c, S0, sx, -230, 120, -130, { lab: { maxW: 260, size: 38 } });
+      R(B, -330, 110, 280, 150, 26, F(3.4)); R(B, -300, 130, 90, 60, 10, F(2.6)); R(B, -190, 130, 90, 60, 10, F(2.6));         // car
+      B.path('M -40 260 L -40 120 Q -40 70 10 70 L 70 70 Q 110 70 110 130 L 110 260 Z', F(3.4)); R(B, -10, 96, 70, 56, 10, F(2.6));   // front car (driver's cab)
+      [-280, -100, 0, 80].forEach(x => B.circle(x, 270, 22, F(3))); R(B, -60, 220, 30, 14, 4, F(2.4));                        // wheels, coupling
+      whoAt(p, c, S0, 340, 140, 110); }); });
 
   /* samples from unrelated topics (neutrality) + a stress set */
   const I = (icon, label) => label ? { icon, label } : { icon };
@@ -319,5 +387,6 @@
   ];
 
   G.cats = G.cats || {};
-  G.cats.B08 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
+  G.cats.B08 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)),
+    ALT, drawAlt: (n, k, d, c) => { setZ(c); CUR = ALT[n][k].id; ALT[n][k].build(d, c); } };
 })();
