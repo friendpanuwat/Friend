@@ -325,17 +325,19 @@
       reveal(dg, c, X, 160, -40, 140, 90, { halo: 104, r: 4, maxW: 280 });
     }); });
 
-  /* 09 ── THE DOG-EARED PAGE: the pages drop in flat; the corner of the top page lifts, folds back, and the secret is on the page underneath */
-  variant('dogear', 'มุมกระดาษพับ', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0;
+  /* 09 ── THE DOG-EARED PAGE: the pages drop in flat; the corner of the top page turns over on its crease (the flap scales along the
+     fold's normal from −1 = lying flat in the corner, through edge-on, to +1 = turned back) and the secret is on the page underneath */
+  variant('dogear', 'มุมกระดาษพับ', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, tF = T0 + tu(.24), tE = T0 + tu(.58);
     art(c, p => { const pg = inG(p, 'drop', 0, 0, tu(.05));
       R(pg, -364, -272, 724, 556, 10, F(3)); haloH(pg, 272, 190, 80, H);
-      shape(pg, [[-380, -290], [360, -290], [360, 0], [80, 280], [-380, 280]], F(3.4));
+      shape(pg, [[-380, -290], [360, -290], [360, 0], [80, 280], [-380, 280]], { fill: C.fill, sw: 0, stroke: 'none' }); pg.path('M 360 0 L 360 -290 L -380 -290 L -380 280 L 80 280', W(3.4));
+      drawAt(pg.line(80, 280, 360, 0, W(3.4)), p, tF, tu(.08));
       for (let k = 0; k < 9; k++) { const y = -236 + k * 54, xe = Math.min(320, 330 - y); drawAt(pg.line(-330, y, k % 3 === 2 ? Math.min(xe, 0) : xe, y, S(2.2)), p, tu(.2 + .03 * k), tu(.25)); }
-      const cp = mvG(pg, { px: 220, py: 140, s: [[0, 1], [T0 + tu(.24), 1], [T0 + tu(.4), .2, 'in']], o: [[0, 1], [T0 + tu(.4), 1], [T0 + tu(.405), 0]] });
+      const cp = sub(pg); on(cp, p, 0, { o: [[0, 1], [tF, 1], [tF + tu(.005), 0]] });
       shape(cp, [[80, 280], [360, 280], [360, 0]], { fill: C.fill, sw: 0, stroke: 'none' }); cp.path('M 360 0 L 360 280 L 80 280', W(3.4));
-      for (let k = 0; k < 9; k++) { const y = -236 + k * 54, x0 = 372 - y; if (y > 0 && x0 < 320 && k % 3 !== 2) cp.line(x0, y, 320, y, S(2.2)); }
-      const fl = mvG(pg, { px: 220, py: 140, s: [[0, .2], [T0 + tu(.4), .2], [T0 + tu(.56), 1.05, 'out'], [T0 + tu(.66), 1, 'soft']], o: [[0, 0], [T0 + tu(.4), 0], [T0 + tu(.405), 1]] });
-      shape(fl, [[80, 280], [360, 0], [80, 0]], F(3)); fl.line(112, 40, 112, 200, S(1.2)); fl.line(112, 40, 290, 40, S(1.2));
+      for (let k = 0; k < 9; k++) { const y = -236 + k * 54, x0 = 330 - y; if (y > 0 && 372 - y < 320 && k % 3 !== 2) drawAt(cp.line(x0, y, 320, y, S(2.2)), p, tu(.2 + .03 * k), tu(.25)); }
+      const a1 = rot(pg, -45, 220, 140), fs = mvG(a1, { px: 220, py: 140, sy: [[0, -1], [tF, -1], [tE, 1.06, 'io'], [tE + tu(.1), 1, 'soft']], o: [[0, 0], [tF, 0], [tF + tu(.005), 1]] }), fl = rot(fs, 45, 220, 140);
+      shape(fl, [[80, 280], [360, 0], [80, 0]], F(3)); const inr = litG(fl, lerp(tF, tE, .5), .01); inr.line(112, 40, 112, 200, S(1.2)); inr.line(112, 40, 290, 40, S(1.2));
       reveal(p, c, X, 274, 186, 110, null, { halo: false }); ripple(p, 274, 186, 64, H);
       if (X && X.label && picOf(X)) txt(atG(p, H + tu(.12)), X.label, 262, 266, { maxW: 200, color: C.ink, weight: 700, size: 30 });
     }); });
