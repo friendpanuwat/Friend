@@ -131,21 +131,23 @@
       haloH(B, 300, 30, 150); B.circle(300, 30, 115, F(3.4)); goalAt(B, c, S0, 300, 30, 167, -170, { t: tu(.15), punch: true }); cheer(B, 300, 30, 150); }); });
 
   /* 02 ── RAMP: the goal's token rolls down the curved ramp, faster and faster, and rocks to rest in the cradle at the bottom */
-  variant('ramp', 'รางกลิ้งลงแอ่ง', (d, c) => { const S0 = st(d), H = Z.H, fx = 270, fy = 88, r0 = 108;
-    const P0 = [-460, -250], P1 = [-220, -250], P2 = [-150, 160], P3 = [120, 168], pts = [];
-    for (let k = 0; k <= 8; k++) { const t = .14 + .86 * k / 8, [x, y] = bez(P0, P1, P2, P3, t), [x2, y2] = bez(P0, P1, P2, P3, Math.min(1, t + .01)), dx = x2 - x, dy = y2 - y, L = Math.hypot(dx, dy) || 1; pts.push([x + dy / L * r0, y - dx / L * r0]); }
-    pts.push([170, 60]); let dist = 0; const T0 = tu(.3), T1 = H, n = pts.length + 1;
-    const P = pts.concat([[fx, fy]]).map((q, i, a) => { if (i) dist += Math.hypot(q[0] - a[i - 1][0], q[1] - a[i - 1][1]); return [T0 + (T1 - T0) * Math.sqrt(i / (a.length - 1)), q[0], q[1], dist]; });
-    const turns = 360 * Math.round(dist / (2 * Math.PI * r0)), K = track(P.map(([t, x, y, s]) => [t, x, y, s / dist * turns - turns]), fx, fy, 'lin');
-    K.x.push([aH(.14), 14, 'out'], [aH(.3), -6, 'soft'], [aH(.44), 0, 'soft']); K.r.push([aH(.14), 8, 'out'], [aH(.3), -3, 'soft'], [aH(.44), 0, 'soft']);
+  variant('ramp', 'รางกลิ้งลงแอ่ง', (d, c) => { const S0 = st(d), H = Z.H, fx = 270, fy = 90, r0 = 100, off = r0 + 7;
+    const P0 = [-470, -130], P1 = [-250, -130], P2 = [-150, 160], P3 = [120, 168], ramp = `M ${P0[0]} ${P0[1]} C ${P1[0]} ${P1[1]}, ${P2[0]} ${P2[1]}, ${P3[0]} ${P3[1]} L 440 168`;
+    const on2 = t => { const [x, y] = bez(P0, P1, P2, P3, t), [x2, y2] = bez(P0, P1, P2, P3, Math.min(1, t + .01)), [x0, y0] = bez(P0, P1, P2, P3, Math.max(0, t - .01)), dx = x2 - x0, dy = y2 - y0, L = Math.hypot(dx, dy) || 1; return [x + dy / L * off, y - dx / L * off]; };
+    const T0 = tu(.45), T1 = bH(.12), N = 10, pts = [[0, ...on2(.06)], [tu(.3), ...on2(.06)], [T0, ...on2(.1)]];                // sits on top, a nudge
+    for (let k = 1; k <= N; k++) pts.push([T0 + (T1 - T0) * Math.pow(k / N, .75), ...on2(.1 + .9 * k / N)]);                    // rolls down, faster and faster
+    pts.push([H, fx, fy]);
+    const K = track(pts.map(([t, x, y]) => [t, x, y]), fx, fy, 'lin'); K.x[K.x.length - 1][2] = 'out'; K.y[K.y.length - 1][2] = 'out';
+    K.x.push([aH(.14), 18, 'soft'], [aH(.3), -9, 'soft'], [aH(.46), 4, 'soft'], [aH(.6), 0, 'soft']); K.y.push([aH(.14), -3, 'soft'], [aH(.3), -1, 'soft'], [aH(.46), 0, 'soft']);   // rocks to rest in the dip
+    delete K.r;
     art(c, p => { ground(p); const B = sub(p); atT(B, p, 0);
-      B.path('M -460 -250 C -220 -250, -150 160, 120 168 L 440 168', { sw: 14 }); B.path('M -460 -250 C -220 -250, -150 160, 120 168 L 440 168', { sw: 8, stroke: C.fill });   // the ramp
-      [-400, -150, 120, 380].forEach((x, i) => R(B, x - 8, [-236, 60, 180, 180][i], 16, 300 - [-236, 60, 180, 180][i], 4, F(2.4)));   // legs
+      B.path(ramp, { sw: 14 }); B.path(ramp, { sw: 8, stroke: C.fill });                                                       // the ramp
+      [-400, -150, 120, 380].forEach((x, i) => R(B, x - 8, [-120, 70, 180, 180][i], 16, 300 - [-120, 70, 180, 180][i], 4, F(2.4)));   // legs
       B.path('M 170 168 Q 270 240 370 168', { sw: 10 });                                                                       // the cradle (dip)
-      const tk = mvG(B, { px: fx, py: fy, x: K.x, y: K.y, r: K.r }); tk.circle(fx, fy, r0, F(3.4));
-      goalAt(B, c, S0, fx, fy, r0 * 1.45, -60, { t: tu(.12), mv: { x: K.x, y: K.y, r: K.r }, punch: true, labT: H });
-      cheer(B, fx, fy, 140);
-      whoAt(p, c, S0, -400, -330, 100); }); });
+      const tk = mvG(B, { px: fx, py: fy, x: K.x, y: K.y }); tk.circle(fx, fy, r0, F(3.4));
+      goalAt(B, c, S0, fx, fy, r0 * 1.45, -55, { t: tu(.12), mv: { x: K.x, y: K.y }, punch: true, labT: H });
+      cheer(B, fx, fy, 130);
+      whoAt(p, c, S0, -400, -300, 90); }); });
 
   /* 03 ── BRIDGE: the planks drop into place one by one, the rope draws across, and who (if any) walks over to the goal */
   variant('bridge', 'สะพานต่อถึง', (d, c) => { const S0 = st(d), H = Z.H;
@@ -162,8 +164,8 @@
   variant('cradle', 'ลูกตุ้มส่งแรง', (d, c) => { const S0 = st(d), H = Z.H;
     art(c, p => { ground(p); const B = sub(p); atT(B, p, 0);
       R(B, -262, -250, 434, 24, 10, F(3)); B.line(-250, -226, -280, 296, W(4)); B.line(160, -226, 190, 296, W(4));           // frame
-      const K0 = [[0, -38], [tu(.45), -38], [tu(.7), 0, 'in'], [tu(1.2), 0], [tu(1.36), -30, 'out'], [bH(.4), -30], [bH(.25), 0, 'in']];
-      const K3 = [[0, 0], [tu(.7), 0], [tu(.95), 30, 'out'], [tu(1.2), 0, 'in'], [bH(.25), 0], [H, 34, 'out'], [aH(.28), 0, 'in']];
+      const K0 = [[0, 38], [tu(.45), 38], [tu(.7), 0, 'in'], [tu(1.2), 0], [tu(1.36), 30, 'out'], [bH(.4), 30], [bH(.25), 0, 'in']];          // the first ball, held out by the person, then let go
+      const K3 = [[0, 0], [tu(.7), 0], [tu(.95), -30, 'out'], [tu(1.2), 0, 'in'], [bH(.25), 0], [H, -34, 'out'], [aH(.28), 0, 'in']];       // the last ball swings out to the right (rings the goal on the keyword)
       for (let i = 0; i < 4; i++) { const x = -150 + i * 84, g = mvG(B, { px: x, py: -226, r: i === 0 ? K0 : i === 3 ? K3 : null }); g.line(x - 20, -226, x, 80, S(1.8)); g.line(x + 20, -226, x, 80, S(1.8)); g.circle(x, 80, 42, F(3.2)); }
       const hm = person(B, -415, 300, .8, { s: [4, -76], e: [52, -94], h: [104, -102] });
       hm.on('upper1', p, 0, { ox: 4, oy: -76, r: [[0, -14], [tu(.45), -14], [tu(.55), 8, 'out'], [tu(.7), 0, 'soft']] });   // lets go
@@ -419,10 +421,22 @@
       R(B, 40, 214, 430, 30, 6, F(3));                                                                                         // platform
       R(B, sx - 10, -110, 20, 324, 5, F(2.8)); R(B, sx - 150, -300, 300, 200, 18, F(3.4));                                      // sign post + sign
       goalAt(p, c, S0, sx, -230, 120, -130, { t: tu(.15), punch: true, lab: { maxW: 260, size: 38 } }); cheer(B, sx, -200, 170);
-      const tr = mvG(clipG(B, -470, -400, 940, 800), { x: [[0, -820], [tu(.2), -820], [H, 8, 'out'], [aH(.1), -4, 'soft'], [aH(.22), 0, 'soft']] });
-      R(tr, -330, 110, 280, 150, 26, F(3.4)); R(tr, -300, 130, 90, 60, 10, F(2.6)); R(tr, -190, 130, 90, 60, 10, F(2.6));      // car
-      tr.path('M -40 260 L -40 120 Q -40 70 10 70 L 70 70 Q 110 70 110 130 L 110 260 Z', F(3.4)); R(tr, -10, 96, 70, 56, 10, F(2.6));   // front car (driver's cab)
-      [-280, -100, 0, 80].forEach(x => tr.circle(x, 270, 22, F(3))); R(tr, -60, 220, 30, 14, 4, F(2.4));                       // wheels, coupling
+      const run = [[0, -820], [tu(.2), -820], [H, 8, 'out'], [aH(.1), -4, 'soft'], [aH(.22), 0, 'soft']], tr = mvG(clipG(B, -470, -400, 940, 800), { x: run });
+      /* passenger car */
+      R(tr, -472, 84, 330, 22, 10, F(3)); R(tr, -462, 104, 310, 112, 14, F(3.4));                                             // roof + body
+      [-440, -372, -304, -236].forEach(x => R(tr, x, 124, 50, 40, 8, F(2.6))); tr.line(-462, 184, -152, 184, S(1.6));            // windows + waist line
+      R(tr, -470, 216, 326, 14, 5, F(2.8)); [-420, -372, -244, -196].forEach(x => { tr.circle(x, 262, 22, F(3)); tr.circle(x, 262, 6, W(2)); });   // frame + bogie wheels
+      tr.line(-144, 222, -118, 222, W(4));                                                                                     // coupling
+      /* steam locomotive (cab at the back, boiler, dome, chimney, buffer, lamp) */
+      R(tr, -126, 52, 116, 18, 6, F(3)); R(tr, -114, 70, 92, 146, 8, F(3.4)); R(tr, -96, 92, 54, 44, 8, F(2.6));                // cab roof, cab, window
+      R(tr, -22, 116, 166, 96, 44, F(3.4)); [26, 76].forEach(x => tr.line(x, 120, x, 208, S(1.6)));                            // boiler + bands
+      tr.path('M 8 116 A 24 24 0 0 1 56 116 Z', F(3)); tr.path('M 92 116 L 84 66 L 124 66 L 116 116 Z', F(3.2)); R(tr, 78, 52, 52, 16, 5, F(3));   // dome, chimney + cap
+      tr.circle(144, 150, 11, F(2.6)); R(tr, 140, 186, 22, 34, 5, F(2.8));                                                     // lamp, buffer
+      R(tr, -124, 210, 284, 20, 6, F(3));                                                                                      // running frame
+      [-64, 22].forEach(x => { const wg = mvG(tr, { px: x, py: 254, r: run.map(([t, v, e]) => [t, f1(v / 36 * 57.3), e]) }); wg.circle(x, 254, 36, F(3.2)); wg.line(x, 224, x, 284, S(1.6)); wg.line(x - 30, 254, x + 30, 254, S(1.6)); wg.circle(x, 254, 7, W(2)); });   // driving wheels (turning)
+      tr.circle(112, 266, 20, F(3)); tr.line(-64, 268, 22, 268, W(5));                                                         // leading wheel, coupling rod
+      const pf = mvG(tr, null); on(pf, p, 0, { o: [[0, 0], [tu(.25), 0], [tu(.3), 1], [bH(.1), 1], [aH(.3), 0]] });              // puffs from the chimney while it runs
+      [[104, 26, 16, 0], [80, 0, 22, .25], [44, -20, 28, .5]].forEach(([x, y, r, ph]) => { const g = sub(pf); on(g, p, tu(.3), { loop: tu(.9), ox: x, oy: y, y: [[0, 20], [tu(.9), -30]], s: [[0, .5], [tu(.9), 1.2]], o: [[0, 0], [tu(.1), 1], [tu(.9), 0]] }); g.circle(x, y, r, S(2)); });
       whoAt(p, c, S0, 340, 140, 110); }); });
 
   /* samples from unrelated topics (neutrality) + a stress set */
