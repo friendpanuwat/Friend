@@ -9,26 +9,39 @@
    a few copies need time to arrive one by one). The last frame equals the approved still. */
 (function () {
   const G = window.GL, C = G.C;
+  /* TIMING (same system as b05.js, 2026-11-13: user "ย้าย B01–B04 มาใช้ระบบเวลาใหม่"): the keyword c.hit comes from the speech and never
+     moves. M = how long each move takes = 1 / speed (c.speed, else the clip's GL.stage / GL.motion speed), but at most hit / HIT0 —
+     a sentence shorter than the designed 1.8 s squeezes the whole design evenly, so nothing overlaps. Every time constant is u(x) = x·M;
+     times before / after the keyword are bH(x) = hit − x·M / aH(x) = hit + x·M. Defaults (speed 1, hit 1.8) = the approved timing exactly.
+     setZ(c) runs at the start of every draw(); kf() keeps every key in time order (CLAMPS counts any fix, for the checker). */
+  const HIT0 = 1.8; let Z = null; const CLAMPS = {}; let CUR = '';
+  function setZ(c) { const sp = Math.min(20, Math.max(.05, +(c.speed ?? G.motion().speed ?? 1) || 1)), H = c.hit ?? HIT0, M = Math.max(.4, Math.min(1 / sp, H / HIT0));
+    Z = { sp: 1 / M, want: sp, M, H }; }
+  const tu = x => x * Z.M, bH = x => Z.H - x * Z.M, aH = x => Z.H + x * Z.M;
+  function fixT(spec) { for (const n in spec) { const k = spec[n]; if (!Array.isArray(k)) continue;
+    for (let i = 1; i < k.length; i++) if (k[i][0] < k[i - 1][0] - 1e-9) { k[i] = [k[i - 1][0], k[i][1], k[i][2]]; CLAMPS[CUR] = (CLAMPS[CUR] || 0) + 1; } } return spec; }
+  const kf = (e, t, spec) => G.kf(e, t, fixT(spec));
+
   const W = (w = 2) => ({ sw: w }), F = (w = 3.2) => ({ fill: C.fill, sw: w });
   const rad = d => d * Math.PI / 180, f1 = v => +v.toFixed(1);
   const N = d => Math.max(2, Math.min(4, d.n || 3));
   const K = d => d.dir === 'down' ? Math.max(0, Math.min(N(d) - 1, d.keep ?? 1)) : N(d);
   const gone = (d, i) => d.dir === 'down' && i >= K(d);           // this copy leaves (ends as a faint ghost)
-  const hitOf = c => c.hit ?? 1.8;
+  const hitOf = () => Z.H;
 
   /* ---------- motion plumbing (same as b01.js) ---------- */
   const sub = (p, a) => { const q = p.child(a || {}); q.H = p.H; q.motion = p.motion; return q; };
-  const on = (q, p, t, spec) => G.kf(q.g || q, p.t0 + t * p.ts, spec);
-  const appear = (q, p, t, dx = 0, dy = 16) => on(q, p, t, { o: [[0, 0], [.16, 1]], x: [[0, dx], [.28, 0, 'out']], y: [[0, dy], [.28, 0, 'out']] });
-  const pop = (q, p, t, ox = 0, oy = 0, from = .5) => on(q, p, t, { ox, oy, s: [[0, from], [.24, 1.06, 'out'], [.38, 1, 'soft']], o: [[0, 0], [.1, 1]] });
-  const drawIn = (el, p, t, dur = .4) => on(el, p, t, { draw: [[0, 0], [dur, 1, 'out']] });
+  const on = (q, p, t, spec) => kf(q.g || q, p.t0 + t * p.ts, spec);
+  const appear = (q, p, t, dx = 0, dy = 16) => on(q, p, t, { o: [[0, 0], [tu(.16), 1]], x: [[0, dx], [tu(.28), 0, 'out']], y: [[0, dy], [tu(.28), 0, 'out']] });
+  const pop = (q, p, t, ox = 0, oy = 0, from = .5) => on(q, p, t, { ox, oy, s: [[0, from], [tu(.24), 1.06, 'out'], [tu(.38), 1, 'soft']], o: [[0, 0], [tu(.1), 1]] });
+  const drawIn = (el, p, t, dur = tu(.4)) => on(el, p, t, { draw: [[0, 0], [dur, 1, 'out']] });
   /* every design's own drawing is a rig: parts get their own keyframes; it leaves with a pop */
-  const art = (c, fn) => { const f = p => { p.H = hitOf(c); fn(p); }; f.custom = true; f.dur = .35; f.exit = 'pop'; return G.art(f, { x: c.x, y: c.y, s: c.s, at: c.at || 0 }); };
+  const art = (c, fn) => { const f = p => { p.H = hitOf(c); fn(p); }; f.custom = true; f.dur = tu(.35); f.exit = 'pop'; const a = G.art(f, { x: c.x, y: c.y, s: c.s, at: c.at || 0, speed: 1 }); a.speed = Z.sp; return a; };
 
   /* when each copy moves: up → copies arrive in order 0…n-1; down → the leaving copies go from the highest index down; the last move ends at `end` (default the keyword) */
   function plan(d, end) {
     const n = N(d), k = K(d), ord = d.dir === 'up' ? [...Array(n).keys()] : [...Array(n).keys()].filter(i => i >= k).reverse();
-    const dur = .42, m = ord.length, gap = m > 1 ? Math.min(.38, (end - .4 - dur) / (m - 1)) : 0, T = {};
+    const dur = tu(.42), m = ord.length, gap = m > 1 ? Math.min(tu(.38), (end - tu(.4) - dur) / (m - 1)) : 0, T = {};
     ord.forEach((i, j) => { const e = end - (m - 1 - j) * gap; T[i] = { t0: e - dur, dur, end: e }; });
     return T;
   }
@@ -42,16 +55,16 @@
     if (up) { const [fx, fy] = o.from || [x, y - 170], dx = fx - x, rd = R ? R.dy : 0, dy = fy - y; t0 = T.t0;
       keys.x = [[0, dx], [T.dur, 0, 'back']];
       keys.y = o.arc ? [[0, dy], [T.dur * .45, Math.min(dy, rd) - o.arc, 'out'], [T.dur, rd, 'in']] : [[0, dy], [T.dur, rd, 'back']];
-      keys.o = [[0, 0], [.08, 1]]; if (o.dim != null) keys.o.push([o.dim - t0, 1], [o.dim - t0 + .25, .2]); }
+      keys.o = [[0, 0], [tu(.08), 1]]; if (o.dim != null) keys.o.push([o.dim - t0, 1], [o.dim - t0 + tu(.25), .2]); }
     else if (gone(d, i)) { const [sx, sy] = o.start || [x, y], dx = sx - fin[0], dy = sy - fin[1]; t0 = T.t0;
-      keys.x = [[0, dx], [.12, dx * 1.08, 'out'], [T.dur, 0, 'in']];
-      keys.y = o.arc ? [[0, dy], [.12, dy + 8, 'out'], [T.dur * .5, Math.min(dy, 0) - o.arc, 'out'], [T.dur, 0, 'in']] : [[0, dy], [.12, dy + (dy < 0 ? 10 : -10), 'out'], [T.dur, 0, 'in']];
-      keys.o = o.vanish ? [[0, 1], [.14, 1], [T.dur * .55, 1], [T.dur, 0, 'in']] : [[0, 1], [.14, 1], [T.dur, .2]];   // vanish: gone completely, no ghost
-      if (o.spin) keys.r = [[0, 0], [.12, -o.spin * .3, 'out'], [T.dur, o.spin, 'in']];
+      keys.x = [[0, dx], [tu(.12), dx * 1.08, 'out'], [T.dur, 0, 'in']];
+      keys.y = o.arc ? [[0, dy], [tu(.12), dy + 8, 'out'], [T.dur * .5, Math.min(dy, 0) - o.arc, 'out'], [T.dur, 0, 'in']] : [[0, dy], [tu(.12), dy + (dy < 0 ? 10 : -10), 'out'], [T.dur, 0, 'in']];
+      keys.o = o.vanish ? [[0, 1], [tu(.14), 1], [T.dur * .55, 1], [T.dur, 0, 'in']] : [[0, 1], [tu(.14), 1], [T.dur, .2]];   // vanish: gone completely, no ghost
+      if (o.spin) keys.r = [[0, 0], [tu(.12), -o.spin * .3, 'out'], [T.dur, o.spin, 'in']];
       return { fin, T, keys, t0 }; }
     else if (R) { keys.y = [[0, R.dy]]; t0 = 0; }
     else return { fin, T, keys: null, t0: 0 };
-    if (R) { const tr = R.t - t0; keys.y.push([tr, R.dy], [tr + (R.dur || .45), 0, 'io']); }
+    if (R) { const tr = R.t - t0; keys.y.push([tr, R.dy], [tr + (R.dur || tu(.45)), 0, 'io']); }
     return { fin, T, keys, t0 };
   }
   const scaleKeys = (keys, s) => { const o = {}; for (const k in keys) o[k] = k === 'o' ? keys[k] : keys[k].map(([t, v, e]) => [t, v * s, e]); return o; };
@@ -60,22 +73,22 @@
     const fn = G.icons[d.item.icon] || G.icons[d.item.icon + '-pro'];
     if (!fn) { console.warn('B02: no icon', d.item.icon); return null; }
     const tv = travel(d, i, x, y, c, o), at0 = c.at || 0, [fx, fy] = tv.fin, up = d.dir === 'up';
-    const a = G.art(fn, { x: c.x + fx * c.s, y: c.y + fy * c.s, w: w * c.s, at: at0 + (up ? Math.max(0, tv.t0 - .05) : .06 + i * .05) });
-    if (tv.keys) G.kf(a.wrap, at0 + tv.t0, Object.assign(scaleKeys(tv.keys, c.s), tv.keys.r ? { r: tv.keys.r, ox: c.x + fx * c.s, oy: c.y + fy * c.s } : {}));
+    const a = G.art(fn, { x: c.x + fx * c.s, y: c.y + fy * c.s, w: w * c.s, at: at0 + (up ? Math.max(0, tv.t0 - tu(.05)) : tu(.06 + i * .05)), speed: Z.sp });
+    if (tv.keys) kf(a.wrap, at0 + tv.t0, Object.assign(scaleKeys(tv.keys, c.s), tv.keys.r ? { r: tv.keys.r, ox: c.x + fx * c.s, oy: c.y + fy * c.s } : {}));
     const bx = c.x + fx * c.s, by = c.y + (fy + w * .42) * c.s;               // landing squash / kept copies react on the keyword
-    if (up) G.kf(a.g, at0 + tv.T.end, { ox: bx, oy: by, sy: [[0, 1], [.06, .86, 'out'], [.18, 1.05], [.32, 1, 'soft']], sx: [[0, 1], [.06, 1.08, 'out'], [.18, .97], [.32, 1, 'soft']] });
-    else if (!gone(d, i)) G.kf(a.g, at0 + hitOf(c) + .04, { ox: bx, oy: by, sy: [[0, 1], [.08, .92, 'out'], [.3, 1, 'soft']] });
+    if (up) kf(a.g, at0 + tv.T.end, { ox: bx, oy: by, sy: [[0, 1], [tu(.06), .86, 'out'], [tu(.18), 1.05], [tu(.32), 1, 'soft']], sx: [[0, 1], [tu(.06), 1.08, 'out'], [tu(.18), .97], [tu(.32), 1, 'soft']] });
+    else if (!gone(d, i)) kf(a.g, at0 + aH(.04), { ox: bx, oy: by, sy: [[0, 1], [tu(.08), .92, 'out'], [tu(.3), 1, 'soft']] });
     return { a, tv };
   }
   /* something drawn in the design (bead, bubble ring…) that travels with copy i */
   function follow(q, p, d, i, x, y, c, o = {}) { const tv = travel(d, i, x, y, c, o); if (tv.keys) on(q, p, tv.t0, tv.keys); return tv; }
-  function icon(name, cx, cy, wd, c, delay = .05) {
+  function icon(name, cx, cy, wd, c, delay = tu(.05)) {
     if (!name) return null;
     const fn = G.icons[name] || G.icons[name + '-pro'];
     if (!fn) { console.warn('B02: no icon', name); return null; }
-    return G.art(fn, { x: c.x + cx * c.s, y: c.y + cy * c.s, w: wd * c.s, at: (c.at || 0) + delay });
+    return G.art(fn, { x: c.x + cx * c.s, y: c.y + cy * c.s, w: wd * c.s, at: (c.at || 0) + delay, speed: Z.sp });
   }
-  const center = (d, x, y, w, c) => d.center && w > 0 && icon(d.center.icon, x, y, w, c, .05);
+  const center = (d, x, y, w, c) => d.center && w > 0 && icon(d.center.icon, x, y, w, c, tu(.05));
 
   function txt(p, str, x, y, { size = 44, maxW = 1e9, weight = 600, anchor = 'middle', color = C.soft } = {}) {
     const e = p.text(String(str), x, y, { size, weight, anchor, color, dur: .01 });
@@ -88,26 +101,26 @@
   }
   /* the direction arrow: slides in along its own direction while the copies move */
   function arrow(p, x1, y1, x2, y2, w = 4.5) { const g = sub(p); arrowLine(g, x1, y1, x2, y2, w); const l = Math.hypot(x2 - x1, y2 - y1);
-    on(g, p, .3, { o: [[0, 0], [.2, 1]], x: [[0, -(x2 - x1) / l * 40], [.45, 0, 'out']], y: [[0, -(y2 - y1) / l * 40], [.45, 0, 'out']] }); return g; }
+    on(g, p, tu(.3), { o: [[0, 0], [tu(.2), 1]], x: [[0, -(x2 - x1) / l * 40], [tu(.45), 0, 'out']], y: [[0, -(y2 - y1) / l * 40], [tu(.45), 0, 'out']] }); return g; }
   function chev(p, x, y, dir, s = 14) { const k = dir === 'right' ? 1 : -1; p.poly([[x - k * s * .5, y - s], [x + k * s * .5, y], [x - k * s * .5, y + s]], W(3)); }
   function dirBadge(p, dir, x, y, r = 34) {
     const w = sub(p), q = sub(w, { transform: `translate(${f1(x)} ${f1(y)})` }), s = dir === 'up' ? -1 : 1;
     q.circle(0, 0, r, F(3)); q.line(0, -s * r * .5, 0, s * r * .5, W(4.4)); q.poly([[-r * .32, s * r * .18], [0, s * r * .52], [r * .32, s * r * .18]], W(4.4));
-    pop(w, p, .2, x, y, .3); return w;
+    pop(w, p, tu(.2), x, y, .3); return w;
   }
   /* end symbol: a round plate with ✕ / ✓ (or an icon) — pops right after the keyword */
   function endSym(p, d, x, y, c, r = 46) {
-    if (!d.end) return; const g = sub(p); pop(g, p, p.H + .12, x, y, .2); g.circle(x, y, r, F(3));
+    if (!d.end) return; const g = sub(p); pop(g, p, aH(.12), x, y, .2); g.circle(x, y, r, F(3));
     const k = r * .42;
     if (d.end === 'x') { g.line(x - k, y - k, x + k, y + k, W(5)); g.line(x + k, y - k, x - k, y + k, W(5)); }
     else if (/check/.test(d.end)) g.poly([[x - k, y + 2], [x - k * .2, y + k * .8], [x + k * 1.05, y - k * .75]], W(5));
-    else icon(d.end, x, y, r * 1.6, c, p.H + .14);
+    else icon(d.end, x, y, r * 1.6, c, aH(.14));
   }
-  const labels = (p, d, ix, iy, cx, cy, o = {}) => { const g = sub(p); appear(g, p, .3, 0, 10);
+  const labels = (p, d, ix, iy, cx, cy, o = {}) => { const g = sub(p); appear(g, p, tu(.3), 0, 10);
     if (d.item.label) txt(g, d.item.label, ix, iy, o); if (d.center && d.center.label && cx != null) txt(g, d.center.label, cx, cy, { maxW: 240 }); };
   /* keys for a part that reacts each time a copy lands / leaves: value v0 normally, a quick kick to v1 at every event */
   function reactKeys(d, c, v0, v1, end) { const T = plan(d, end ?? hitOf(c)), ts = Object.values(T).map(t => t.end).sort((a, b) => a - b), k = [[0, v0]];
-    ts.forEach(t => k.push([t, v0], [t + .06, v1, 'out'], [t + .24, v0, 'soft'])); return k; }
+    ts.forEach(t => k.push([t, v0], [t + tu(.06), v1, 'out'], [t + tu(.24), v0, 'soft'])); return k; }
   let clipN = 0;
   const clipRect = (p, x, y, w, h) => { const NS = 'http://www.w3.org/2000/svg', id = 'b02c' + (++clipN), cp = document.createElementNS(NS, 'clipPath'), r = document.createElementNS(NS, 'rect');
     [['x', x], ['y', y], ['width', w], ['height', h]].forEach(([k, v]) => r.setAttribute(k, v)); cp.setAttribute('id', id); cp.appendChild(r); p.g.appendChild(cp); return sub(p, { 'clip-path': `url(#${id})` }); };
@@ -184,8 +197,8 @@
       [-445, 225].forEach(x => B.circle(x, 165, 15, W(2.2)));
       const cl = clipRect(B, -425, 145, 630, 40), ch = sub(cl);
       for (let x = -395 - 280; x < 480; x += 70) chev(ch, x, 165, up ? 'right' : 'left', 11);
-      on(ch, p, .35, { x: [[0, 0], [H - .35, (up ? 1 : -1) * 280, 'io']] });
-      if (!d.center) { const bin = sub(p); pop(bin, p, .05, 375, 230); bin.rect(290, 30, 170, 200, Object.assign({ rx: 10 }, F(3.2))); bin.line(290, 80, 460, 80, W(2)); }
+      on(ch, p, tu(.35), { x: [[0, 0], [bH(.35), (up ? 1 : -1) * 280, 'io']] });
+      if (!d.center) { const bin = sub(p); pop(bin, p, tu(.05), 375, 230); bin.rect(290, 30, 170, 200, Object.assign({ rx: 10 }, F(3.2))); bin.line(290, 80, 460, 80, W(2)); }
       labels(p, d, -110, 270, 375, 300);
       endSym(p, d, 375, -150, c);
     });
@@ -198,7 +211,7 @@
     const n = N(d), up = d.dir === 'up', sw = 190, rise = 95, x0 = -420;
     const top = i => up ? 290 - (i + 1) * rise : 290 - (n - i) * rise, X = i => x0 + i * sw + sw / 2;
     art(c, p => {
-      const S = sub(p); on(S, p, 0, { ox: x0, oy: 290, sy: [[0, 0], [.32, 1.04, 'out'], [.45, 1, 'soft']], o: [[0, 0], [.05, 1]] });
+      const S = sub(p); on(S, p, 0, { ox: x0, oy: 290, sy: [[0, 0], [tu(.32), 1.04, 'out'], [tu(.45), 1, 'soft']], o: [[0, 0], [tu(.05), 1]] });
       const pts = [[x0, 290]]; for (let i = 0; i < n; i++) { pts.push([x0 + i * sw, top(i)], [x0 + (i + 1) * sw, top(i)]); } pts.push([x0 + n * sw, 290]);
       S.shape(pts, F(3.2));
       labels(p, d, 300, 335, 400, -110);
@@ -211,14 +224,14 @@
   /* 07 ── LIFT: copies are loaded onto the low platform one by one, then on the keyword the scissor lift raises them (or the leavers go, then it lowers) */
   variant('lift', 'ลิฟต์ยก', (d, c) => {
     const n = N(d), up = d.dir === 'up', py = up ? -20 : 150, gy = up ? 150 : -20, xs = [...Array(n)].map((_, i) => -165 + i * 330 / (n - 1)), H = hitOf(c);
-    const ride = { t: H - .45, dy: gy - py, dur: .45 }, end = H - .5;
+    const ride = { t: bH(.45), dy: gy - py, dur: tu(.45) }, end = bH(.5);
     art(c, p => {
-      const gh = sub(p); gh.rect(-240, gy, 480, 26, { rx: 6, sw: 2, stroke: C.rule }); on(gh, p, ride.t, { o: [[0, 0], [.3, 1]] });
+      const gh = sub(p); gh.rect(-240, gy, 480, 26, { rx: 6, sw: 2, stroke: C.rule }); on(gh, p, ride.t, { o: [[0, 0], [tu(.3), 1]] });
       const base = sub(p); pop(base, p, 0, 0, 293); base.rect(-210, 280, 420, 26, Object.assign({ rx: 6 }, F(3)));
       const k = (280 - (gy + 26)) / (280 - (py + 26)), sc = sub(p);
-      on(sc, p, 0, { ox: 0, oy: 280, sy: [[0, .2], [.3, k, 'out'], [ride.t, k], [ride.t + .45, 1, 'io']], o: [[0, 0], [.05, 1]] });
+      on(sc, p, 0, { ox: 0, oy: 280, sy: [[0, .2], [tu(.3), k, 'out'], [ride.t, k], [ride.t + tu(.45), 1, 'io']], o: [[0, 0], [tu(.05), 1]] });
       sc.line(-170, 280, 170, py + 26, W(3)); sc.line(170, 280, -170, py + 26, W(3)); sc.circle(0, (280 + py + 26) / 2, 8, F(2));
-      const pl = sub(p); on(pl, p, 0, { y: [[0, gy - py], [ride.t, gy - py], [ride.t + .45, 0, 'io']], o: [[0, 0], [.2, 1]] });
+      const pl = sub(p); on(pl, p, 0, { y: [[0, gy - py], [ride.t, gy - py], [ride.t + tu(.45), 0, 'io']], o: [[0, 0], [tu(.2), 1]] });
       pl.rect(-240, py, 480, 26, Object.assign({ rx: 6 }, F(3.2)));
       labels(p, d, 360, 300, -390, 120, { maxW: 220 });
       endSym(p, d, 390, -250, c);
@@ -236,7 +249,7 @@
       S.circle(0, 222, 64, F(2.8)); S.path('M -48 222 A 48 48 0 0 1 48 222', W(1.8));
       const nd = sub(S); nd.line(0, 222, f1(48 * Math.cos(rad(aEnd))), f1(222 + 48 * Math.sin(rad(aEnd))), { sw: 5 });
       const T = plan(d, hitOf(c)), ev = Object.values(T).map(t => t.end).sort((a, b) => a - b), m = ev.length, r = [[0, aStart - aEnd]];
-      ev.forEach((t, j) => { const a = (aEnd - aStart) * (j + 1) / m + aStart - aEnd, prev = r[r.length - 1][1]; r.push([t, prev], [t + .12, a + (a - prev) * .25, 'out'], [t + .3, a, 'soft']); });
+      ev.forEach((t, j) => { const a = (aEnd - aStart) * (j + 1) / m + aStart - aEnd, prev = r[r.length - 1][1]; r.push([t, prev], [t + tu(.12), a + (a - prev) * .25, 'out'], [t + tu(.3), a, 'soft']); });
       on(nd, p, 0, { ox: 0, oy: 222, r });
       const pan = sub(S); on(pan, p, 0, { y: reactKeys(d, c, 0, 10) });
       pan.rect(-30, 110, 60, 30, F(2.6)); pan.path('M -270 92 Q 0 128 270 92 L 250 110 Q 0 140 -250 110 Z', F(3));
@@ -251,7 +264,7 @@
   variant('magnet', 'แม่เหล็ก', (d, c) => {
     const n = N(d), up = d.dir === 'up', P = [[30, -170], [30, 170], [190, -90], [190, 90]];
     art(c, p => {
-      const M = sub(p); on(M, p, 0, { x: [[0, -140], [.35, 0, 'out']], o: [[0, 0], [.12, 1]] }); const Mj = sub(M);
+      const M = sub(p); on(M, p, 0, { x: [[0, -140], [tu(.35), 0, 'out']], o: [[0, 0], [tu(.12), 1]] }); const Mj = sub(M);
       on(Mj, p, 0, { x: reactKeys(d, c, 0, 12) });
       const U = 'M -110 -170 L -260 -170 A 170 170 0 0 0 -260 170 L -110 170';
       Mj.path(U, { sw: 84 }); Mj.path(U, { sw: 76, stroke: C.fill });
@@ -271,7 +284,7 @@
     art(c, p => {
       drawIn(p.line(-470, 262, 470, 262, { sw: 2, stroke: C.soft }), p, 0, .35);
       const fr = sub(p); pop(fr, p, 0, -300, 262, .7); fr.rect(-430, -260, 260, 522, Object.assign({ rx: 6 }, F(3.4)));
-      const lf = sub(p); on(lf, p, .15, { ox: -430, oy: 0, sx: [[0, 2.85], [.4, .9, 'out'], [.55, 1, 'soft']], o: [[0, 0], [.04, 1]] });
+      const lf = sub(p); on(lf, p, tu(.15), { ox: -430, oy: 0, sx: [[0, 2.85], [tu(.4), .9, 'out'], [tu(.55), 1, 'soft']], o: [[0, 0], [tu(.04), 1]] });
       lf.path('M -430 -260 L -340 -222 L -340 226 L -430 262 Z', F(3)); lf.circle(-356, 10, 8, W(2.2));
       if (up) arrow(p, 300, -90, -120, -90, 5); else arrow(p, -120, -90, 300, -90, 5);
       labels(p, d, 160, 330, -300, -290);
@@ -308,15 +321,15 @@
     const n = N(d), up = d.dir === 'up', fy = y => up ? y : -y + 10, H = hitOf(c);
     const K3 = cub([[-380, fy(230)], [-120, fy(220)], [80, fy(-20)], [400, fy(-200)]]), ts = [...Array(n)].map((_, i) => .2 + .62 * i / (n - 1)), T = plan(d, H);
     art(c, p => {
-      on(p.poly([[-440, -290], [-440, 290], [460, 290]], { sw: 2.2, stroke: C.soft }), p, 0, { draw: [[0, 0], [.35, 1, 'out']] });
+      on(p.poly([[-440, -290], [-440, 290], [460, 290]], { sw: 2.2, stroke: C.soft }), p, 0, { draw: [[0, 0], [tu(.35), 1, 'out']] });
       const ln = p.path(K3.d, { sw: 7 }), dk = [[0, 0]];
-      if (up) { ts.forEach((t, i) => dk.push([T[i].end - .25, t * .97, 'io'])); dk.push([H + .05, 1, 'out']); } else dk.push([.5, 1, 'out']);
-      on(ln, p, .1, { draw: dk.map(([t, v, e]) => [Math.max(0, t - .1), v, e]) });
+      if (up) { ts.forEach((t, i) => dk.push([T[i].end - tu(.25), t * .97, 'io'])); dk.push([aH(.05), 1, 'out']); } else dk.push([tu(.5), 1, 'out']);
+      on(ln, p, tu(.1), { draw: dk.map(([t, v, e]) => [Math.max(0, t - tu(.1)), v, e]) });
       ts.forEach((t, i) => { const [x, y] = K3.B(t), g = sub(p), dot = sub(g); dot.circle(f1(x), f1(y), 15, F(3.4));
-        if (up) pop(g, p, T[i].end - .05, x, y, .2);
-        else { pop(g, p, .2 + t * .4, x, y, .2);
-          if (gone(d, i)) { const gh = sub(p); gh.circle(f1(x), f1(y), 15, { fill: C.fill, sw: 2.4, stroke: C.rule }); on(gh, p, T[i].end - .1, { o: [[0, 0], [.12, 1]] }); on(dot, p, T[i].end - .1, { o: [[0, 1], [.12, 0]] }); } } });
-      const [ex, ey] = K3.B(1), eg = sub(p); eg.circle(ex, ey, 26, F(3.6)); eg.circle(ex, ey, 9, { fill: C.ink, sw: 1 }); pop(eg, p, up ? H + .05 : .55, ex, ey, .2);
+        if (up) pop(g, p, T[i].end - tu(.05), x, y, .2);
+        else { pop(g, p, tu(.2 + t * .4), x, y, .2);
+          if (gone(d, i)) { const gh = sub(p); gh.circle(f1(x), f1(y), 15, { fill: C.fill, sw: 2.4, stroke: C.rule }); on(gh, p, T[i].end - tu(.1), { o: [[0, 0], [tu(.12), 1]] }); on(dot, p, T[i].end - tu(.1), { o: [[0, 1], [tu(.12), 0]] }); } } });
+      const [ex, ey] = K3.B(1), eg = sub(p); eg.circle(ex, ey, 26, F(3.6)); eg.circle(ex, ey, 9, { fill: C.ink, sw: 1 }); pop(eg, p, up ? aH(.05) : tu(.55), ex, ey, .2);
       labels(p, d, up ? 260 : -260, 335, up ? -330 : 330, up ? -290 : 330);
       endSym(p, d, 410, up ? 60 : -40, c);
     });
@@ -344,12 +357,12 @@
     art(c, p => {
       [-460, 460].forEach(x => drawIn(p.line(x, -280, x, 300, W(3)), p, 0, .3));
       drawIn(p.path('M -460 -230 Q 0 -10 460 -230', W(2.6)), p, .15, .35);
-      const pg = sub(p); xs.forEach(x => pg.rect(f1(x - 8), f1(ry(x) - 16), 16, 40, Object.assign({ rx: 4 }, F(2.4)))); appear(pg, p, .35, 0, -10);
+      const pg = sub(p); xs.forEach(x => pg.rect(f1(x - 8), f1(ry(x) - 16), 16, 40, Object.assign({ rx: 4 }, F(2.4)))); appear(pg, p, tu(.35), 0, -10);
       labels(p, d, 0, 330, -380, 330);
       endSym(p, d, 380, 220, c);
     });
     xs.forEach((x, i) => { const r = item(d, i, x, ry(x) + 105, 140, c, { from: [x, ry(x) + 330], to: [x + 30, ry(x) + 430], vanish: true, spin: i % 2 ? -14 : 14 });
-      if (r && d.dir === 'up') G.kf(r.a.g, (c.at || 0) + r.tv.T.end + .3, { ox: c.x + x * c.s, oy: c.y + (ry(x) + 4) * c.s, r: [[0, 0], [.1, 9, 'out'], [.3, -6], [.5, 3], [.7, 0, 'soft']] }); });
+      if (r && d.dir === 'up') kf(r.a.g, (c.at || 0) + r.tv.T.end + tu(.3), { ox: c.x + x * c.s, oy: c.y + (ry(x) + 4) * c.s, r: [[0, 0], [tu(.1), 9, 'out'], [tu(.3), -6], [tu(.5), 3], [tu(.7), 0, 'soft']] }); });
     center(d, -380, 235, 110, c);
   });
 
@@ -360,10 +373,10 @@
       const Pp = sub(p); appear(Pp, p, 0, -40, 0);
       const D = 'M -440 -20 L 200 -20'; [Pp.path(D, { sw: 96 }), Pp.path(D, { sw: 86, stroke: C.fill })].forEach(e => e.setAttribute('stroke-linecap', 'butt'));
       Pp.rect(-470, -76, 30, 112, Object.assign({ rx: 6 }, F(2.6))); Pp.rect(190, -76, 30, 112, Object.assign({ rx: 6 }, F(2.6)));
-      if (!d.center) { const tk = sub(p); pop(tk, p, .05, 355, 150); tk.rect(250, -150, 210, 300, Object.assign({ rx: 24 }, F(3.4))); tk.line(270, 40, 440, 40, W(2)); }
+      if (!d.center) { const tk = sub(p); pop(tk, p, tu(.05), 355, 150); tk.rect(250, -150, 210, 300, Object.assign({ rx: 24 }, F(3.4))); tk.line(270, 40, 440, 40, W(2)); }
       const cl = clipRect(p, -436, -60, 620, 80), ch = sub(cl);
       for (let x = -440 - 290; x < 300; x += 145) chev(ch, x, -20, up ? 'right' : 'left', 12);
-      on(ch, p, .35, { x: [[0, 0], [H - .35, (up ? 1 : -1) * 290, 'io']], o: [[0, 0], [.1, .6]] });
+      on(ch, p, tu(.35), { x: [[0, 0], [bH(.35), (up ? 1 : -1) * 290, 'io']], o: [[0, 0], [tu(.1), .6]] });
       labels(p, d, -150, 150, 355, 220);
       endSym(p, d, 355, -250, c);
     });
@@ -381,7 +394,7 @@
       labels(p, d, 0, 335, -400, -80);
       endSym(p, d, 420, -250, c);
     });
-    xs.forEach((cx, i) => item(dd, i, cx + off, 230 - ws[i] / 2, ws[i], c, { from: [cx + off, 230 - ws[i] / 2 - 120], dim: i < n - 1 ? T[i + 1].end - .1 : null }));
+    xs.forEach((cx, i) => item(dd, i, cx + off, 230 - ws[i] / 2, ws[i], c, { from: [cx + off, 230 - ws[i] / 2 - 120], dim: i < n - 1 ? T[i + 1].end - tu(.1) : null }));
     if (d.center) center(d, -400, -170, 120, c);
   });
 
@@ -392,14 +405,14 @@
       P.forEach(([x, y], i) => {
         const b = sub(p), bw = sub(b); bw.circle(x, y, 82, { sw: 2.6, stroke: C.soft }); bw.path(`M ${x - 52} ${y - 30} A 60 60 0 0 1 ${x - 20} ${y - 58}`, { sw: 2.2, stroke: C.soft });
         const tv = follow(b, p, d, i, x, y, c, { from: [x, y + 420], start: [x, y], to: [x, y - 30] });
-        if (d.dir === 'up') on(bw, p, tv.T.end, { ox: x, oy: y, sx: [[0, 1], [.1, 1.08, 'out'], [.25, .95], [.4, 1, 'soft']], sy: [[0, 1], [.1, .92, 'out'], [.25, 1.05], [.4, 1, 'soft']] });
-        else if (gone(d, i)) { on(bw, p, 0, { o: [[0, 0], [.06 + i * .05, 0], [.2 + i * .05, 1], [tv.T.t0 + .1, 1], [tv.T.t0 + .13, 0]] });
+        if (d.dir === 'up') on(bw, p, tv.T.end, { ox: x, oy: y, sx: [[0, 1], [tu(.1), 1.08, 'out'], [tu(.25), .95], [tu(.4), 1, 'soft']], sy: [[0, 1], [tu(.1), .92, 'out'], [tu(.25), 1.05], [tu(.4), 1, 'soft']] });
+        else if (gone(d, i)) { on(bw, p, 0, { o: [[0, 0], [tu(.06 + i * .05), 0], [tu(.2 + i * .05), 1], [tv.T.t0 + tu(.1), 1], [tv.T.t0 + tu(.13), 0]] });
           const br = sub(p); [[-160, -120], [-60, -10], [40, 110], [150, 200]].forEach(([a0, a1]) => br.path(`M ${f1(x + 92 * Math.cos(rad(a0)))} ${f1(y + 92 * Math.sin(rad(a0)))} A 92 92 0 0 1 ${f1(x + 92 * Math.cos(rad(a1)))} ${f1(y + 92 * Math.sin(rad(a1)))}`, { sw: 2.4, stroke: C.rule }));
-          on(br, p, tv.T.t0 + .1, { ox: x, oy: y, s: [[0, .8], [.2, 1.15, 'out']], o: [[0, 0], [.04, 1], [.5, .7]] }); }
-        else on(bw, p, .06 + i * .05, { ox: x, oy: y, s: [[0, .5], [.25, 1.05, 'out'], [.4, 1, 'soft']], o: [[0, 0], [.1, 1]] });
+          on(br, p, tv.T.t0 + tu(.1), { ox: x, oy: y, s: [[0, .8], [tu(.2), 1.15, 'out']], o: [[0, 0], [tu(.04), 1], [tu(.5), .7]] }); }
+        else on(bw, p, tu(.06 + i * .05), { ox: x, oy: y, s: [[0, .5], [tu(.25), 1.05, 'out'], [tu(.4), 1, 'soft']], o: [[0, 0], [tu(.1), 1]] });
       });
       if (!d.center) { const mb = sub(p); [[-330, 300, 14], [-290, 270, 9], [-360, 250, 7]].forEach(([x, y, r]) => mb.circle(x, y, r, { sw: 2, stroke: C.soft }));
-        on(mb, p, .1, { y: [[0, 40], [1.5, -10, 'out']], o: [[0, 0], [.2, 1]] }); }
+        on(mb, p, tu(.1), { y: [[0, 40], [tu(1.5), -10, 'out']], o: [[0, 0], [tu(.2), 1]] }); }
       labels(p, d, 200, 300, -400, 300);
       endSym(p, d, -380, -230, c);
     });
@@ -413,16 +426,16 @@
     art(c, p => {
       drawIn(p.line(-470, -320, 470, -320, W(2.4)), p, 0, .3); drawIn(p.line(-470, 262, 470, 262, { sw: 2, stroke: C.soft }), p, 0, .3);
       xs.forEach((x, i) => {
-        const L = sub(p); on(L, p, .05 + i * .05, { y: [[0, -60], [.3, 0, 'out']], o: [[0, 0], [.1, 1]] });
+        const L = sub(p); on(L, p, tu(.05 + i * .05), { y: [[0, -60], [tu(.3), 0, 'out']], o: [[0, 0], [tu(.1), 1]] });
         L.line(x, -320, x, -250, W(2)); L.path(`M ${x - 30} -250 L ${x + 30} -250 L ${x + 48} -200 L ${x - 48} -200 Z`, { fill: C.fill, sw: 2, stroke: C.rule });
         const lit = sub(L); lit.path(`M ${x - 30} -250 L ${x + 30} -250 L ${x + 48} -200 L ${x - 48} -200 Z`, F(3));
         const bm = sub(p); bm.shape([[x - 40, -200], [x + 40, -200], [x + 105, 255], [x - 105, 255]], { fill: 'rgba(255,255,255,.05)', stroke: 'none', sw: 0 });
         bm.line(x - 40, -200, x - 105, 255, { sw: 1.6, stroke: C.soft }); bm.line(x + 40, -200, x + 105, 255, { sw: 1.6, stroke: C.soft });
-        const flick = [[0, 0], [.05, .9, 'lin'], [.09, .1, 'lin'], [.14, 1, 'lin'], [.19, .3, 'lin'], [.26, 1, 'lin']];
+        const flick = [[0, 0], [tu(.05), .9, 'lin'], [tu(.09), .1, 'lin'], [tu(.14), 1, 'lin'], [tu(.19), .3, 'lin'], [tu(.26), 1, 'lin']];
         if (up) { on(bm, p, T[i].t0, { o: flick }); on(lit, p, T[i].t0, { o: flick }); }
-        else if (gone(d, i)) { const st = .3 + i * .05, ko = [[0, 0], [st, 0], [st + .1, 1], [T[i].t0, 1], [T[i].t0 + .05, .2, 'lin'], [T[i].t0 + .1, .9, 'lin'], [T[i].t0 + .16, .1, 'lin'], [T[i].t0 + .24, 0, 'lin']];
+        else if (gone(d, i)) { const st = tu(.3 + i * .05), ko = [[0, 0], [st, 0], [st + tu(.1), 1], [T[i].t0, 1], [T[i].t0 + tu(.05), .2, 'lin'], [T[i].t0 + tu(.1), .9, 'lin'], [T[i].t0 + tu(.16), .1, 'lin'], [T[i].t0 + tu(.24), 0, 'lin']];
           on(bm, p, 0, { o: ko }); on(lit, p, 0, { o: ko }); }
-        else { on(bm, p, .3 + i * .05, { o: [[0, 0], [.1, 1]] }); on(lit, p, .3 + i * .05, { o: [[0, 0], [.1, 1]] }); }
+        else { on(bm, p, tu(.3 + i * .05), { o: [[0, 0], [tu(.1), 1]] }); on(lit, p, tu(.3 + i * .05), { o: [[0, 0], [tu(.1), 1]] }); }
       });
       labels(p, d, 0, 330, -400, 120);
       endSym(p, d, 410, -160, c);
@@ -449,11 +462,11 @@
     const n = N(d), up = d.dir === 'up', ok = K(d), right = i => 360 - i * 150, left = j => -380 + j * 150;
     art(c, p => {
       drawIn(p.line(-460, 0, 460, 0, W(3)), p, 0, .35);
-      [-460, 460].forEach(x => { const g = sub(p); g.rect(x - 9, -110, 18, 220, Object.assign({ rx: 6 }, F(2.6))); pop(g, p, .05, x, 0, .2); });
+      [-460, 460].forEach(x => { const g = sub(p); g.rect(x - 9, -110, 18, 220, Object.assign({ rx: 6 }, F(2.6))); pop(g, p, tu(.05), x, 0, .2); });
       for (let i = 0; i < n; i++) { const b = sub(p), bi = sub(b); bi.circle(right(i), 0, 66, F(3));
         follow(b, p, d, i, right(i), 0, c, { from: [left(n - 1 - i) - 120, 0], to: [left(i - ok), 0] });
-        if (d.dir === 'down' && !gone(d, i)) on(bi, p, .06 + i * .05, { ox: right(i), oy: 0, s: [[0, .5], [.25, 1.06, 'out'], [.4, 1, 'soft']], o: [[0, 0], [.1, 1]] });
-        if (gone(d, i)) on(bi, p, .06 + i * .05, { ox: right(i), oy: 0, s: [[0, .5], [.25, 1.06, 'out'], [.4, 1, 'soft']], o: [[0, 0], [.1, 1]] }); }
+        if (d.dir === 'down' && !gone(d, i)) on(bi, p, tu(.06 + i * .05), { ox: right(i), oy: 0, s: [[0, .5], [tu(.25), 1.06, 'out'], [tu(.4), 1, 'soft']], o: [[0, 0], [tu(.1), 1]] });
+        if (gone(d, i)) on(bi, p, tu(.06 + i * .05), { ox: right(i), oy: 0, s: [[0, .5], [tu(.25), 1.06, 'out'], [tu(.4), 1, 'soft']], o: [[0, 0], [tu(.1), 1]] }); }
       labels(p, d, 0, 200, -390, -280);
       endSym(p, d, 400, -250, c);
     });
@@ -508,5 +521,5 @@
   ];
 
   G.cats = G.cats || {};
-  G.cats.B02 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
+  G.cats.B02 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
 })();
