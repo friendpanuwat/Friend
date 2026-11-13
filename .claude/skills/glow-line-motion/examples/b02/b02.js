@@ -223,21 +223,27 @@
     center(d, -390, 25, 130, c);
   });
 
-  /* 12 ── TREND: a big curved arrow climbs (or falls); the copies ride along it */
+  /* 12 ── TREND: a big tapered arrow sweeps up (or down) in a soft S — thin at its tail, wide at its head; the copies ride along it */
   variant('trend', 'ลูกศรเทรนด์', (d, c) => {
-    const n = N(d), up = d.dir === 'up';
-    const P0 = up ? [-440, 260] : [-440, -240], P1 = [-60, up ? 200 : -180], P2 = up ? [380, -230] : [380, 240];
-    const B = t => [(1 - t) ** 2 * P0[0] + 2 * (1 - t) * t * P1[0] + t * t * P2[0], (1 - t) ** 2 * P0[1] + 2 * (1 - t) * t * P1[1] + t * t * P2[1]];
+    const n = N(d), up = d.dir === 'up', fy = y => up ? y : -y + 20;
+    const P = [[-450, fy(250)], [-140, fy(250)], [60, fy(20)], [390, fy(-215)]];
+    const B = t => { const u = 1 - t; return [0, 1].map(k => u * u * u * P[0][k] + 3 * u * u * t * P[1][k] + 3 * u * t * t * P[2][k] + t * t * t * P[3][k]); };
+    const D = t => { const u = 1 - t; return [0, 1].map(k => 3 * u * u * (P[1][k] - P[0][k]) + 6 * u * t * (P[2][k] - P[1][k]) + 3 * t * t * (P[3][k] - P[2][k])); };
     art(c, p => {
-      const D = `M ${P0[0]} ${P0[1]} Q ${P1[0]} ${P1[1]} ${P2[0]} ${P2[1]}`;
-      p.path(D, { sw: 34 }); p.path(D, { sw: 26, stroke: C.fill });
-      const a = Math.atan2(P2[1] - P1[1], P2[0] - P1[0]), hx = P2[0] + 40 * Math.cos(a), hy = P2[1] + 40 * Math.sin(a);
-      p.shape([[f1(hx), f1(hy)], [f1(P2[0] + 46 * Math.cos(a + 2.1)), f1(P2[1] + 46 * Math.sin(a + 2.1))], [f1(P2[0] + 46 * Math.cos(a - 2.1)), f1(P2[1] + 46 * Math.sin(a - 2.1))]], F(3.2));
-      labels(p, d, up ? 260 : -260, up ? 300 : 300, up ? -380 : 380, -300);
-      endSym(p, d, up ? 420 : 420, up ? 80 : -120, c);
+      const tH = .86, L = [], R = [], M = [];
+      for (let k = 0; k <= 40; k++) { const t = tH * k / 40, [x, y] = B(t), [dx, dy] = D(t), l = Math.hypot(dx, dy), nx = -dy / l, ny = dx / l, w = 7 + 25 * (t / tH);
+        L.push([f1(x + nx * w), f1(y + ny * w)]); R.push([f1(x - nx * w), f1(y - ny * w)]); if (k > 2 && k < 38) M.push([f1(x), f1(y)]); }
+      const [hx, hy] = B(tH), [tx, ty] = D(tH), tl = Math.hypot(tx, ty), ux = tx / tl, uy = ty / tl, nx = -uy, ny = ux, hw = 62, hl = 120;
+      const tip = [f1(hx + ux * hl), f1(hy + uy * hl)];
+      p.shape([...L, [f1(hx + nx * hw), f1(hy + ny * hw)], tip, [f1(hx - nx * hw), f1(hy - ny * hw)], ...R.reverse()], F(3.2));
+      p.poly(M, { sw: 1.6, stroke: C.soft });
+      labels(p, d, up ? 250 : -250, 300, up ? -380 : 380, up ? -300 : 330);
+      endSym(p, d, up ? 420 : 420, up ? 60 : -60, c);
     });
-    for (let i = 0; i < n; i++) { const [x, y] = B((i + 1) / (n + 1)); item(d, i, x, y - 95, 105 + (up ? i * 12 : (n - 1 - i) * 12), c); }
-    center(d, up ? -380 : 380, up ? -210 : -210, 120, c);
+    for (let i = 0; i < n; i++) { const t = .18 + .58 * i / (n - 1), [x, y] = B(t), [dx, dy] = D(t), l = Math.hypot(dx, dy);
+      let nx = -dy / l, ny = dx / l; if (ny > 0) { nx = -nx; ny = -ny; }              // always ride on the upper side of the arrow
+      item(d, i, x + nx * 100, y + ny * 100, 100 + (up ? i * 14 : (n - 1 - i) * 14), c); }
+    center(d, up ? -380 : 380, up ? -220 : 250, 120, c);
   });
 
   /* 13 ── SHELF: copies stand on a wall shelf — a new one is set down (or the gaps show the ones taken) */
