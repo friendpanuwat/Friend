@@ -1,4 +1,4 @@
-/* b11.js — category B11 "คำพูด / แชต / คอมเมนต์ / รีวิว": 20 neutral designs — STILL DRAFTS (round 2b: the 10 that had nothing to do with talking replaced, waiting for the user's pick).
+/* b11.js — category B11 "คำพูด / แชต / คอมเมนต์ / รีวิว": 20 neutral designs (round 2b stills approved, motion added).
    Kind of design: everyday things with a real mechanism that carry / show a message, all objects new (none used in an earlier category —
    user: "ไม่ต้อง copy reference นะ ห้ามเลย"; checked against every category's list in HANDOFF, cut rounds included).
    Slots (CutPack CATEGORIES.md B11 — references/cutpack-CATEGORIES.md, cat_ai.py): kind chat | comment | review | message · quote (≤ 12 letters,
@@ -98,10 +98,25 @@
      chat = a bubble with a tail · comment = a card with a plain avatar and a name line · review = a card with five stars (good 5 · bad 1 ·
      no mood: outlines) · message = a letter in an envelope. The quote is written on it (no quote → two plain lines).
      The reaction (react icon or the mood's face) sits on its corner; gone → no reaction: "seen" ticks and an empty reply box under it. */
+  /* ---------- motion (CutPack B11: the message box pops in (or travels in with the thing's mechanism) → its words type in, or a reply is
+     waited for → on the keyword the reaction pops, or the silence shows (the typing dots in the reply box go out) → hold) ---------- */
+  const SMG = .8, sm = u => .5 - .5 * Math.cos(Math.PI * Math.pow(Math.min(1, Math.max(0, u)), SMG));
+  const T0f = () => Math.max(tu(.55), Z.H - tu(1.2));
+  /* a smooth trip through the values P between t0 and t1 (holding P[0] before) — keys relative to fin (B09 lesson: one continuous trip) */
+  function sweep(t0, t1, P, fin, n = 20) { const lp = (a, b, k) => a + (b - a) * k, K = [[0, f1(P[0] - fin)], [t0, f1(P[0] - fin)]], m = P.length - 1;
+    for (let j = 1; j <= n; j++) { const u = j / n, s2 = m * sm(u), g = Math.min(m - 1, Math.floor(s2)); K.push([t0 + (t1 - t0) * u, f1(lp(P[g], P[g + 1], s2 - g) - fin)]); } return K; }
+  const atG = (q, t) => { const g = sub(q); atT(g, q, t); return g; };
+  const drawAt = (el, q, t, dur) => on(el, q, t, { draw: [[0, 0], [dur ?? tu(.3), 1, 'out']] });
   function msgH(kind, w) { return w * (kind === 'chat' ? .4 : kind === 'comment' ? .44 : kind === 'review' ? .5 : .56); }
+  /* o.t = when the box comes in (default tu .3) · o.mv = keys of the part it travels with (px / py = pivot, default its centre) */
   function msg(q, c, S0, x, y, w, o = {}) { const k = S0.kind, h = msgH(k, w), x0 = x - w / 2, x1 = x + w / 2, y0 = y - h / 2, y1 = y + h / 2, sz = o.size || w * .11;
-    const words = (cx, cy, mw, anchor = 'middle') => { if (S0.quote) txt(q, S0.quote, cx, cy + sz * .35, { size: sz, maxW: mw, weight: 700, color: C.ink, anchor, wrap: 'mid' });
-      else { const a = anchor === 'start' ? cx : cx - mw * .4; q.line(a, cy - sz * .3, a + mw * .8, cy - sz * .3, S(5)); q.line(a, cy + sz * .4, a + mw * .5, cy + sz * .4, S(5)); } };
+    const t0 = o.t ?? tu(.3), tA = Math.max(t0 + tu(.3), T0f() - tu(.1)), tB = Math.max(tA + tu(.2), Z.H - tu(.14));
+    q = o.mv ? mvG(q, Object.assign({ px: x, py: y, o: [[0, 0], [t0, 0], [t0 + tu(.05), 1]] }, o.mv)) : inG(q, 'pop', x, y, t0);
+    const words = (cx, cy, mw, anchor = 'middle') => { const wg = sub(q);
+      if (S0.quote) { txt(wg, S0.quote, cx, cy + sz * .35, { size: sz, maxW: mw, weight: 700, color: C.ink, anchor, wrap: 'mid' });
+        const bb = wg.g.getBBox(), cv = sub(q); on(cv, q, 0, { ox: bb.x + bb.width + 6, oy: cy, sx: [[0, 1], [tA, 1], [tB, .001, 'lin']], o: [[0, 1], [tB, 1], [tB + tu(.01), 0]] });
+        cv.rect(f1(bb.x - 6), f1(bb.y - 6), f1(bb.width + 12), f1(bb.height + 12), { fill: C.fill, sw: 0, stroke: 'none' }); }        // the words type in (a cover slides off)
+      else { const a = anchor === 'start' ? cx : cx - mw * .4; drawAt(wg.line(a, cy - sz * .3, a + mw * .8, cy - sz * .3, S(5)), q, tA, (tB - tA) * .6); drawAt(wg.line(a, cy + sz * .4, a + mw * .5, cy + sz * .4, S(5)), q, tA + (tB - tA) * .5, (tB - tA) * .5); } };
     if (k === 'chat') { const r = h * .32, t0 = x0 + w * .14, t1 = x0 + w * .3, tx = x0 + w * .07, ty = y1 + h * .3;
       q.path(`M ${f1(x0 + r)} ${f1(y0)} L ${f1(x1 - r)} ${f1(y0)} Q ${f1(x1)} ${f1(y0)} ${f1(x1)} ${f1(y0 + r)} L ${f1(x1)} ${f1(y1 - r)} Q ${f1(x1)} ${f1(y1)} ${f1(x1 - r)} ${f1(y1)} L ${f1(t1)} ${f1(y1)} L ${f1(tx)} ${f1(ty)} L ${f1(t0)} ${f1(y1)} L ${f1(x0 + r)} ${f1(y1)} Q ${f1(x0)} ${f1(y1)} ${f1(x0)} ${f1(y1 - r)} L ${f1(x0)} ${f1(y0 + r)} Q ${f1(x0)} ${f1(y0)} ${f1(x0 + r)} ${f1(y0)} Z`, F(3.4));
       words(x, y, w * .82); }
@@ -117,35 +132,38 @@
       q.line(x0 + 10, y1 - 10, x - 30, y0 + h * .78, S(1.6)); q.line(x1 - 10, y1 - 10, x + 30, y0 + h * .78, S(1.6));
       R(q, x1 - w * .17, y1 - h * .3, w * .11, h * .22, 4, F(2)); R(q, x1 - w * .155, y1 - h * .275, w * .08, h * .17, 3, S(1.4)); }
     const bx = x1 - w * .04, by = (k === 'message' ? y0 - h * .36 : y0) + 4, br = w * .1;
-    if (S0.react) { halo(q, bx, by, br * 1.5); q.circle(bx, by, br, F(3)); const a = c.at || 0; G.art(picOf({ icon: S0.react }), { x: c.x + bx * c.s, y: c.y + by * c.s, w: br * 1.35 * c.s, at: a + tu(.12), speed: Z.sp }); }
-    if (S0.gone) { const sy = (k === 'chat' ? y1 + h * .3 : y1) + 34;
-      [0, 18].forEach(dx => q.poly([[x1 - 70 + dx, sy], [x1 - 60 + dx, sy + 10], [x1 - 42 + dx, sy - 10]], S(3)));
-      R(q, x1 - w * .45 - 90, sy - 24, w * .34, 48, 24, S(1.8)); }
+    if (S0.react) { const bg = sub(q); on(bg, q, 0, { ox: bx, oy: by, s: [[0, .3], [Z.H - tu(.04), .3], [aH(.12), 1.15, 'out'], [aH(.26), 1, 'soft']], o: [[0, 0], [Z.H - tu(.04), 0], [Z.H, 1]] });
+      halo(bg, bx, by, br * 1.5); bg.circle(bx, by, br, F(3)); const a = c.at || 0, ic = G.art(picOf({ icon: S0.react }), { x: c.x + bx * c.s, y: c.y + by * c.s, w: br * 1.35 * c.s, at: a + Z.H - tu(.02), speed: Z.sp }); }
+    if (S0.gone) { const sy = (k === 'chat' ? y1 + h * .3 : y1) + 34, tk = atG(q, Math.min(tB, Z.H - tu(.5))), rb = atG(q, Math.min(tB, Z.H - tu(.5)) + tu(.1)), bx0 = x1 - w * .45 - 90 + w * .17;
+      [0, 18].forEach(dx => tk.poly([[x1 - 70 + dx, sy], [x1 - 60 + dx, sy + 10], [x1 - 42 + dx, sy - 10]], S(3)));
+      R(rb, x1 - w * .45 - 90, sy - 24, w * .34, 48, 24, S(1.8));
+      const dots = sub(rb); on(dots, q, 0, { o: [[0, 1], [Z.H - tu(.06), 1], [Z.H, 0]] });                                         // someone is typing … then nothing
+      [-1, 0, 1].forEach(i => { const dg = sub(dots); on(dg, q, Math.min(tB, Z.H - tu(.5)) + tu(.1) + i * .1, { loop: .6, y: [[0, 0], [.15, -6, 'out'], [.3, 0, 'in'], [.6, 0]] }); dg.circle(bx0 + i * 20, sy, 5, SOLID()); }); }
     return { h, top: k === 'message' ? y0 - h * .36 : y0, bot: k === 'chat' ? y1 + h * .3 : y1 }; }
 
   /* round 2 (user 2026-11-13: "ลองรีดีไซน์ใหม่ได้ไหมมันดูธรรมดาไปนิดนึง" — round 1 was almost all "a thing on the left, the card on the right";
      round 1 kept in scratch only): the message comes out of the thing's own mechanism, and the layouts change from design to design. */
   const botOff = (k, w) => { const h = msgH(k, w); return k === 'chat' ? h / 2 + h * .3 : h / 2; };
   const topOff = (k, w) => { const h = msgH(k, w); return k === 'message' ? h / 2 + h * .36 : h / 2; };
-  const puffs = (q, pts, r0 = 10, r1 = 18) => pts.forEach(([x, y], i) => q.circle(x, y, f1(lerp(r0, r1, i / Math.max(1, pts.length - 1))), S(1.8)));
+  const puffs = (q, pts, r0 = 10, r1 = 18, o = {}) => pts.forEach(([x, y], i) => (o.t != null ? atG(q, o.t + i * (o.dt ?? tu(.05))) : q).circle(x, y, f1(lerp(r0, r1, i / Math.max(1, pts.length - 1))), S(1.8)));
   const lerp = (a, b, k) => a + (b - a) * k;
   const bez2 = (a, b, c2, t) => [(1 - t) * (1 - t) * a[0] + 2 * (1 - t) * t * b[0] + t * t * c2[0], (1 - t) * (1 - t) * a[1] + 2 * (1 - t) * t * b[1] + t * t * c2[1]];
 
   /* 01 ── SKYWRITING: a small plane loops across the sky and its smoke trail becomes the message */
   variant('skywriting', 'เครื่องบินพ่นควันเขียนฟ้า', (d, c) => { const S0 = st(d), mx = -60, my = 20, w = 460;
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       const P = [[mx + w / 2 + 10, my - 90], [430, -330], [330, -250]];
-      puffs(p, [...Array(9)].map((_, i) => bez2(P[0], P[1], P[2], i / 8)), 9, 15);
-      const pl = rot(p, -18, 360, -258);
+      puffs(p, [...Array(9)].map((_, i) => bez2(P[0], P[1], P[2], i / 8)), 9, 15, { t: tu(.4), dt: tu(.04) });
+      const pf = mvG(clipG(p, -500, -350, 1000, 700), { px: 360, py: -258, x: sweep(tu(.05), tu(.85), [-900, -480, 0], 0), y: sweep(tu(.05), tu(.85), [320, 90, 0], 0) }), pl = rot(pf, -18, 360, -258);
       pl.path('M 300 -258 Q 310 -280 350 -280 L 430 -276 Q 462 -270 466 -258 Q 462 -246 430 -242 L 350 -238 Q 310 -238 300 -258 Z', F(3.2));
       pl.path('M 370 -262 L 340 -310 L 324 -310 L 344 -262 Z', F(2.6)); pl.path('M 312 -262 L 296 -288 L 286 -288 L 296 -258 Z', F(2.4)); pl.ellipse(470, -258, 5, 20, F(2)); R(pl, 410, -270, 26, 12, 4, W(1.6));
-      msg(p, c, S0, mx, my, w);
-      puffs(p, [[mx - w / 2 - 20, my + 40], [mx - w / 2 - 50, my + 70], [mx - w / 2 - 70, my + 110]], 12, 8);
+      msg(p, c, S0, mx, my, w, { t: tu(.55) });
+      puffs(p, [[mx - w / 2 - 20, my + 40], [mx - w / 2 - 50, my + 70], [mx - w / 2 - 70, my + 110]], 12, 8, { t: tu(.2), dt: tu(.05) });
     }); });
 
   /* 02 ── PHONE CHAT: a phone's chat screen — the conversation header, an earlier message, the new one, the typing bar */
   variant('phonechat', 'แชตในมือถือ', (d, c) => { const S0 = st(d);
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       R(p, -175, -335, 350, 670, 48, F(3.6)); R(p, -152, -300, 304, 590, 30, { fill: GLASS, sw: 0, stroke: 'none' }); R(p, -40, -318, 80, 12, 6, F(2)); R(p, 175, -200, 10, 70, 4, F(2.2));
       p.circle(-112, -258, 18, F(2.4)); bust(p, -112, -254, .32, F(1.8)); p.line(-82, -264, 0, -264, S(4)); p.line(-82, -246, -30, -246, S(3)); p.line(-152, -222, 152, -222, S(1.6));
       R(p, -136, -196, 150, 52, 22, F(2.4)); p.line(-116, -170, -6, -170, S(4));
@@ -155,26 +173,26 @@
 
   /* 03 ── POP-UP CARD: a greeting card opened out — the message stands up out of the fold on two paper tabs */
   variant('popup', 'การ์ดป๊อปอัพ', (d, c) => { const S0 = st(d), w = 380, my = 120 - botOff(st(d).kind, 380);
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       shape(p, [[-440, 270], [0, 210], [0, -120], [-440, -40]], F(3.2)); shape(p, [[0, 210], [440, 270], [440, -40], [0, -120]], F(3.2));
       p.line(0, -120, 0, 210, W(2.4));
       const yb = my + botOff(S0.kind, w) - 4; p.line(-120, yb, -170, 205, W(2.6)); p.line(120, yb, 170, 205, W(2.6)); p.line(-120, yb, 0, yb + 40, S(1.6)); p.line(120, yb, 0, yb + 40, S(1.6));
-      msg(p, c, S0, 0, my, w);
+      msg(p, c, S0, 0, my, w, { t: tu(.3), mv: { py: my + botOff(S0.kind, w), sy: [[0, .02], [tu(.3), .02], [tu(.62), 1.06, 'out'], [tu(.76), 1, 'soft']] } });
     }); });
 
   /* 04 ── TWO PHONES: two phones on the table — the message flies from one to the other */
   variant('twophones', 'มือถือส่งหากัน', (d, c) => { const S0 = st(d);
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       R(p, -470, 270, 940, 20, 6, F(3));
       [[-330, -8], [330, 8]].forEach(([x, a]) => { const g = rot(p, a, x, 110); R(g, x - 85, -40, 170, 310, 26, F(3.4)); R(g, x - 70, -18, 140, 262, 14, { fill: GLASS, sw: 0, stroke: 'none' }); R(g, x - 22, -30, 44, 8, 4, F(1.8));
         [0, 1, 2].forEach(k => R(g, x - 56 + (k % 2) * 30, 10 + k * 56, 82, 34, 14, S(1.8))); });
-      puffs(p, [[-280, -60], [-250, -110], [-205, -150], [-160, -180]], 4, 7);
-      msg(p, c, S0, 40, -175, 380);
+      puffs(p, [[-280, -60], [-250, -110], [-205, -150], [-160, -180]], 4, 7, { t: T0f() + tu(.1), dt: tu(.08) });
+      const T0 = T0f(); msg(p, c, S0, 40, -175, 380, { t: T0 - tu(.05), mv: { x: sweep(T0, Z.H - tu(.3), [-370, -200, 0], 0), y: sweep(T0, Z.H - tu(.3), [235, -40, 0], 0), s: [[0, .3], [T0, .3], [Z.H - tu(.3), 1, 'out']] } });
     }); });
 
   /* 05 ── LAPTOP CHAT: a laptop with a chat window open — contacts down the side, the message in the conversation */
   variant('laptop', 'หน้าต่างแชตบนแล็ปท็อป', (d, c) => { const S0 = st(d);
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       shape(p, [[-430, 160], [430, 160], [470, 210], [-470, 210]], F(3.2)); R(p, -90, 166, 180, 14, 6, S(1.6));
       R(p, -360, -310, 720, 470, 24, F(3.6)); R(p, -330, -282, 660, 412, 10, { fill: GLASS, sw: 0, stroke: 'none' }); p.circle(0, -296, 5, F(1.6));
       p.line(-330, -246, 330, -246, S(1.6)); [-310, -288, -266].forEach(x => p.circle(x, -264, 6, S(1.6)));
@@ -185,48 +203,48 @@
 
   /* 06 ── TIN-CAN PHONE (from round 1, the message now rides on the string): two cans on a taut string; gone: the string hangs slack */
   variant('tincan', 'โทรศัพท์กระป๋อง', (d, c) => { const S0 = st(d);
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       const can = (sd) => { const x = sd * 390; R(p, x - 60, -10, 120, 120, 12, F(3.2)); p.line(x - 60, 20, x + 60, 20, S(1.6)); p.line(x - 60, 80, x + 60, 80, S(1.6)); p.ellipse(x - sd * 60, 50, 18, 60, F(3)); };
       can(-1); can(1);
       if (S0.gone) p.path('M -330 50 Q 0 260 330 50', S(2.4)); else p.line(-330, 50, 330, 50, W(2.4));
       [-1, 1].forEach(sd => { p.ellipse(sd * 450, 50, 14, 60, S(1.8)); p.circle(sd * 330, 50, 6, SOLID()); });
-      msg(p, c, S0, 0, 50 - botOff(S0.kind, 380) - 6, 380);
+      const T0 = T0f(); msg(p, c, S0, 0, 50 - botOff(S0.kind, 380) - 6, 380, { t: T0 - tu(.05), mv: { x: sweep(T0, Z.H - tu(.3), [-290, 0], 0), s: [[0, .4], [T0, .4], [Z.H - tu(.3), 1, 'io']] } });
     }); });
 
   /* 07 ── KEYBOARD: a keyboard — the message being typed rises up off the keys */
   variant('keyboard', 'คีย์บอร์ดพิมพ์ข้อความ', (d, c) => { const S0 = st(d);
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       shape(p, [[-440, 296], [440, 296], [380, 110], [-380, 110]], F(3.4));
       for (let r = 0; r < 4; r++) { const y0 = 128 + r * 40, y1 = y0 + 30, t0 = (y0 - 110) / 186, t1 = (y1 - 110) / 186, xa = -380 - 60 * t0 + 18, xb = 380 + 60 * t0 - 18, n = r === 3 ? 3 : 11;
         for (let k = 0; k < n; k++) { const u0 = k / n, u1 = (k + .86) / n, X = (u, t) => lerp(-380 - 60 * t + 18, 380 + 60 * t - 18, r === 3 ? lerp(.22, .78, u) : u);
           shape(p, [[X(u0, t0), y0], [X(u1, t0), y0], [X(u1, t1), y1], [X(u0, t1), y1]], S(1.6)); } }
-      shape(p, [[-100, 248], [100, 248], [104, 278], [-104, 278]], { fill: LIT, sw: 1.8 });
+      shape(p, [[-100, 248], [100, 248], [104, 278], [-104, 278]], S(1.6)); { const sp = sub(p); on(sp, p, 0, { o: [[0, 0], [tu(.3), 0], [tu(.32), 1], [tu(.42), 0], [tu(.6), 0], [tu(.62), 1], [tu(.72), 0], [Z.H - tu(.2), 0], [Z.H - tu(.18), 1]] }); shape(sp, [[-100, 248], [100, 248], [104, 278], [-104, 278]], { fill: LIT, sw: 1.8 }); }
       puffs(p, [[-150, 96], [-118, 62], [-88, 30]], 5, 8);
-      msg(p, c, S0, 0, -130, 420);
+      const T0 = T0f(); msg(p, c, S0, 0, -130, 420, { t: T0 - tu(.05), mv: { y: [[0, 170], [T0, 170], [Z.H - tu(.3), 0, 'out']], s: [[0, .35], [T0, .35], [Z.H - tu(.3), 1, 'out']] } });
     }); });
 
   /* 08 ── SPRAY CAN: a spray can paints the message onto a brick wall, the fresh paint runs a little */
   variant('spray', 'สเปรย์พ่นผนัง', (d, c) => { const S0 = st(d), mx = -70, my = -40, w = 440;
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       for (let r = 0; r < 3; r++) for (let k = 0; k < 6; k++) { const x = -470 + k * 160 + (r % 2) * 80, x2 = Math.min(x + 150, 470); if (x2 - x > 40) R(p, x, 190 + r * 40, x2 - x, 34, 3, S(1.4)); }
-      const yb = my + botOff(S0.kind, w); [[mx - 120, 34], [mx + 30, 54], [mx + 150, 26]].forEach(([x, l]) => { p.line(x, yb - 2, x, yb + l, W(3)); p.circle(x, yb + l + 6, 6, SOLID()); });
-      const cn = rot(p, -28, 370, 120); R(cn, 330, 40, 80, 190, 18, F(3.4)); R(cn, 342, 14, 56, 28, 8, F(2.6)); R(cn, 358, 0, 24, 16, 4, F(2.4)); cn.line(334, 100, 406, 100, S(1.6));
+      const yb = my + botOff(S0.kind, w); [[mx - 120, 34], [mx + 30, 54], [mx + 150, 26]].forEach(([x, l], i) => { const dg = atG(p, Z.H - tu(.3) + i * tu(.06)); drawAt(dg.line(x, yb - 2, x, yb + l, W(3)), p, Z.H - tu(.3) + i * tu(.06), tu(.3)); atG(dg, tu(.3)).circle(x, yb + l + 6, 6, SOLID()); });
+      const T0 = T0f(), csh = mvG(p, { px: 370, py: 120, r: [[0, 0], [T0 - tu(.4), 0], [T0 - tu(.32), 9, 'io'], [T0 - tu(.24), -9, 'io'], [T0 - tu(.16), 6, 'io'], [T0 - tu(.06), 0, 'soft']] }), cn = rot(csh, -28, 370, 120); R(cn, 330, 40, 80, 190, 18, F(3.4)); R(cn, 342, 14, 56, 28, 8, F(2.6)); R(cn, 358, 0, 24, 16, 4, F(2.4)); cn.line(334, 100, 406, 100, S(1.6));
       [[280, 0], [262, -14], [266, 18], [244, 4], [250, -30], [236, 30]].forEach(([x, y]) => p.circle(x, y, 4, S(1.4)));
-      msg(p, c, S0, mx, my, w);
+      msg(p, c, S0, mx, my, w, { t: T0 - tu(.03), mv: { px: mx - w / 2, sx: [[0, .02], [T0, .02], [Z.H - tu(.3), 1, 'io']] } });
     }); });
 
   /* 09 ── WALKIE-TALKIES: two walkie-talkies — one talks, the message goes across to the other */
   variant('walkie', 'วิทยุสื่อสาร', (d, c) => { const S0 = st(d);
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       [-1, 1].forEach(sd => { const x = sd * 340, g = rot(p, sd * 6, x, 260); R(g, x - 70, 0, 140, 260, 22, F(3.4)); R(g, x + sd * 30 - 8, -110, 16, 116, 6, F(2.6));
         R(g, x - 50, 30, 100, 64, 10, { fill: GLASS, sw: 2 }); [0, 1, 2, 3].forEach(k => g.line(x - 40, 128 + k * 20, x + 40, 128 + k * 20, S(1.8))); R(g, x - sd * 84 - 6, 60, 12, 54, 5, F(2.2)); g.circle(x - 30, -10, 10, F(2)); });
       [40, 70, 100].forEach(r => p.path(`M ${-310 + r * .8} ${-110 - r * .6} A ${r} ${r} 0 0 1 ${-310 + r * .95} ${-110 + r * .2}`, S(2.2)));
-      msg(p, c, S0, 0, -170, 380);
+      const T0 = T0f(); msg(p, c, S0, 0, -170, 380, { t: T0 - tu(.05), mv: { x: sweep(T0, Z.H - tu(.3), [-310, -120, 0], 0), y: sweep(T0, Z.H - tu(.3), [60, -40, 0], 0), s: [[0, .3], [T0, .3], [Z.H - tu(.3), 1, 'out']] } });
     }); });
 
   /* 10 ── CAFÉ TABLE: two people at a small table with their cups — the message is what passes between them */
   variant('cafe', 'โต๊ะคุยกัน', (d, c) => { const S0 = st(d);
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       R(p, -250, 150, 500, 18, 8, F(3)); p.line(0, 168, 0, 280, W(4)); p.ellipse(0, 284, 90, 12, F(2.6));
       [-1, 1].forEach(sd => { const x = sd * 90; R(p, x - 26, 106, 52, 44, 8, F(2.6)); p.path(`M ${x + sd * 26} ${116} Q ${x + sd * 46} ${126} ${x + sd * 26} ${138}`, W(2.4)); p.ellipse(x, 150, 40, 6, F(2)); });
       bust(p, -360, 110, 2); bust(p, 360, 110, 2);
@@ -235,7 +253,7 @@
 
   /* 11 ── PIGEON (from round 1): a pigeon flies in with the message on a string from its beak */
   variant('pigeon', 'นกพิราบส่งจดหมาย', (d, c) => { const S0 = st(d);
-    art(c, p => {
+    art(c, p0 => { const p = mvG(clipG(p0, -500, -350, 1000, 700), { x: sweep(tu(.05), Z.H - tu(.3), [-760, -260, 0], 0), y: sweep(tu(.05), Z.H - tu(.3), [-80, 30, 0], 0) });
       p.path('M -390 -196 L -462 -228 Q -470 -196 -462 -164 Z', F(2.8));                                                                  // tail fan
       p.path('M -400 -196 Q -380 -250 -290 -256 Q -210 -260 -186 -222 Q -200 -168 -290 -156 Q -370 -150 -400 -196 Z', F(3.2));          // body
       p.path('M -330 -240 Q -360 -330 -300 -350 Q -290 -318 -262 -320 Q -262 -292 -236 -290 Q -244 -262 -270 -246 Z', F(3));              // raised wing
@@ -249,53 +267,54 @@
 
   /* 12 ── DRONE SHOW: a swarm of lit drones over the city forms the message in the night sky */
   variant('droneshow', 'โดรนแปรอักษร', (d, c) => { const S0 = st(d), mx = 0, my = -120, w = 460;
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       [[-470, 170, 90], [-370, 120, 70], [-290, 200, 110], [-170, 150, 80], [-80, 100, 70], [0, 180, 120], [130, 130, 70], [210, 210, 90], [310, 140, 100], [420, 190, 80]].forEach(([x, top, wd]) => R(p, x, top, wd, 300 - top, 3, F(2.6)));
       p.line(-480, 300, 480, 300, S(2));
       const h = msgH(S0.kind, w), x0 = mx - w / 2 - 22, x1 = mx + w / 2 + 22, y0 = my - topOff(S0.kind, w) - 22, y1 = my + botOff(S0.kind, w) + 22;
-      for (let k = 0; k <= 10; k++) { const x = lerp(x0, x1, k / 10); [y0, y1].forEach(y => { p.circle(x, y, 5, { fill: LIT, sw: 1.6 }); p.line(x - 9, y - 7, x + 9, y - 7, S(1.4)); }); }
-      for (let k = 1; k < 4; k++) { const y = lerp(y0, y1, k / 4); [x0, x1].forEach(x => { p.circle(x, y, 5, { fill: LIT, sw: 1.6 }); p.line(x - 9, y - 7, x + 9, y - 7, S(1.4)); }); }
-      msg(p, c, S0, mx, my, w);
+      const T0 = T0f(), drone = (x, y, i) => { const t = tu(.2) + (i % 7) * tu(.06), g = mvG(p, { x: [[0, f1(-x * .4)], [t, f1(-x * .4)], [t + tu(.5), 0, 'out']], y: [[0, 430], [t, 430], [t + tu(.5), 0, 'out']], o: [[0, 0], [t, 0], [t + tu(.05), 1]] }); g.circle(x, y, 5, { fill: LIT, sw: 1.6 }); g.line(x - 9, y - 7, x + 9, y - 7, S(1.4)); }; let di = 0;
+      for (let k = 0; k <= 10; k++) { const x = lerp(x0, x1, k / 10); [y0, y1].forEach(y => drone(x, y, di++)); }
+      for (let k = 1; k < 4; k++) { const y = lerp(y0, y1, k / 4); [x0, x1].forEach(x => drone(x, y, di++)); }
+      msg(p, c, S0, mx, my, w, { t: Math.max(tu(.9), T0 - tu(.1)) });
     }); });
 
   /* 13 ── LECTERN: someone speaks at a lectern into its microphone — the message rises over the room */
   variant('lectern', 'แท่นพูด', (d, c) => { const S0 = st(d);
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       p.line(-480, 292, 480, 292, S(2)); bust(p, 0, 70, 1.9);
       shape(p, [[-150, 292], [150, 292], [130, 120], [-130, 120]], F(3.4)); shape(p, [[-170, 120], [170, 120], [190, 84], [-190, 84]], F(3)); R(p, -70, 170, 140, 60, 8, S(1.8));
       p.path('M 110 90 Q 120 40 70 14', W(3)); R(p, 50, 0, 34, 22, 10, F(2.4));
-      msg(p, c, S0, 0, -200, 420);
+      const T0 = T0f(); msg(p, c, S0, 0, -200, 420, { t: T0 - tu(.05), mv: { y: [[0, 170], [T0, 170], [Z.H - tu(.3), 0, 'out']], s: [[0, .3], [T0, .3], [Z.H - tu(.3), 1, 'out']] } });
     }); });
 
   /* 14 ── FRIDGE DOOR: the message is held on the fridge door by two magnets */
   variant('fridge', 'ประตูตู้เย็น', (d, c) => { const S0 = st(d), w = 380, my = 20;
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       R(p, -230, -330, 460, 640, 30, F(3.6)); p.line(-230, -170, 230, -170, W(2.4)); R(p, 190, -300, 16, 100, 8, F(2.6)); R(p, 190, -130, 16, 160, 8, F(2.6));
       R(p, -200, 300, 40, 22, 4, F(2.4)); R(p, 160, 300, 40, 22, 4, F(2.4));
-      msg(p, c, S0, -10, my, w);
-      const ty = my - topOff(S0.kind, w); [-1, 1].forEach(sd => { p.circle(-10 + sd * 120, ty + 6, 20, F(3)); p.circle(-10 + sd * 120, ty + 6, 8, W(1.6)); });
+      const T0 = T0f(); msg(p, c, S0, -10, my, w, { t: T0 - tu(.3), mv: { y: [[0, -70], [T0 - tu(.3), -70], [T0, 0, 'in'], [T0 + tu(.08), -8, 'out'], [T0 + tu(.18), 0, 'soft']] } });
+      const ty = my - topOff(S0.kind, w), mg = atG(p, T0); [-1, 1].forEach(sd => { mg.circle(-10 + sd * 120, ty + 6, 20, F(3)); mg.circle(-10 + sd * 120, ty + 6, 8, W(1.6)); });
     }); });
 
   /* 15 ── GROUP CHAT: a group of people, each with a little bubble — one of them says the message */
   variant('groupchat', 'กลุ่มคนคุยกัน', (d, c) => { const S0 = st(d), xs = [-380, -190, 0, 190, 380], me = 1;
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       xs.forEach((x, i) => { bust(p, x, 230, 1.5); if (i !== me) { const g = sub(p); on(g, p, 0, { o: [[0, .45]] }); R(g, x - 56, 60, 112, 50, 22, F(2.2)); g.line(x - 34, 85, x + 30, 85, S(3)); shape(g, [[x - 20, 110], [x - 4, 110], [x - 22, 126]], F(2)); } });
       msg(p, c, S0, xs[me] + 150, -130, 400);
     }); });
 
   /* 16 ── POST BOX: a street post box — the message is going into its slot */
   variant('postbox', 'ตู้ไปรษณีย์', (d, c) => { const S0 = st(d);
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       p.line(-480, 292, 480, 292, S(2)); R(p, -330, 270, 200, 22, 6, F(2.8));
       p.path('M -310 270 L -310 -120 Q -310 -200 -230 -200 Q -150 -200 -150 -120 L -150 270 Z', F(3.6)); p.path('M -322 -126 Q -322 -224 -230 -224 Q -138 -224 -138 -126 Z', F(3));
       R(p, -290, -100, 120, 22, 8, { fill: C.fill, sw: 2.4 }); R(p, -280, -40, 100, 60, 8, S(1.8)); p.line(-310, 120, -150, 120, S(1.6)); p.circle(-170, 190, 8, F(2));
       [[-120, -92], [-96, -74], [-108, -112]].forEach(([x, y]) => p.line(x, y, x + 40, y + (y + 92) * .2, S(2)));
-      msg(p, c, S0, 150, -110, 380);
+      const T0 = T0f(); msg(clipG(p, -500, -350, 1000, 700), c, S0, 150, -110, 380, { t: T0 - tu(.05), mv: { x: sweep(T0, Z.H - tu(.3), [300, 0], 0) } });
     }); });
 
   /* 17 ── COMIC STRIP (from round 1): three panels of a comic — in the last, big panel someone says the message */
   variant('comic', 'การ์ตูนช่อง', (d, c) => { const S0 = st(d);
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       R(p, -470, -300, 280, 285, 8, F(3.2)); R(p, -470, 15, 280, 285, 8, F(3.2)); R(p, -170, -300, 640, 600, 8, F(3.4));
       bust(p, -330, -110, 1.3); bust(p, -330, 210, 1.3); p.line(-380, -250, -280, -250, S(4)); bust(p, -40, 210, 1.9);
       p.line(-460, -54, -200, -54, S(1.6)); p.line(-460, 264, -200, 264, S(1.6)); [[-122, 84, -104, 100], [-100, 62, -92, 84], [-70, 56, -70, 80]].forEach(([a, b, c2, d2]) => p.line(a, b, c2, d2, W(2.4)));
@@ -304,30 +323,30 @@
 
   /* 18 ── HOLOGRAM: a small projector on the table throws up a cone of light — the message floats in it */
   variant('hologram', 'โฮโลแกรม', (d, c) => { const S0 = st(d);
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       R(p, -470, 270, 940, 20, 6, F(3));
       p.path(pathOf([[-90, 214], [90, 214], [270, -330], [-270, -330]]), { fill: GLASS, sw: 0, stroke: 'none' }); p.line(-90, 214, -270, -330, S(1.4)); p.line(90, 214, 270, -330, S(1.4));
       p.ellipse(0, 250, 170, 30, F(3.2)); R(p, -150, 214, 300, 36, 10, F(3)); p.ellipse(0, 214, 110, 16, { fill: LIT, sw: 2.4 });
-      msg(p, c, S0, 0, -70, 400);
+      const T0 = T0f(); msg(p, c, S0, 0, -70, 400, { t: T0 - tu(.05), mv: { y: [[0, 270], [T0, 270], [Z.H - tu(.3), 0, 'out']], s: [[0, .15], [T0, .15], [Z.H - tu(.3), 1, 'out']] } });
     }); });
 
   /* 19 ── QUILL: a quill dipped in the ink pot writes the message on a sheet of paper */
   variant('quill', 'ขนนกจุ่มหมึก', (d, c) => { const S0 = st(d), mx = -40, my = 30, w = 420;
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       shape(p, [[-420, 280], [360, 280], [320, -230], [-380, -230]], F(3));
       R(p, 330, 170, 120, 100, 18, F(3.2)); R(p, 350, 140, 80, 34, 8, F(2.8)); p.ellipse(390, 140, 40, 8, { fill: C.ink, sw: 1.6 });
-      const nib = [mx + w / 2 - 20, my + botOff(S0.kind, w) - 30];
-      p.path(`M ${nib[0]} ${nib[1]} Q ${nib[0] + 60} ${nib[1] - 140} ${nib[0] + 200} ${nib[1] - 320} Q ${nib[0] + 150} ${nib[1] - 180} ${nib[0] + 20} ${nib[1] - 12} Z`, F(2.8));
-      p.line(nib[0] + 6, nib[1] - 6, nib[0] + 180, nib[1] - 300, S(1.6));
+      const nib = [mx + w / 2 - 20, my + botOff(S0.kind, w) - 30], T0 = T0f(), qk = [[0, 0], [T0, 0]]; for (let j = 1; j <= 8; j++) qk.push([T0 + (Z.H - T0) * j / 8, j === 8 ? 0 : (j % 2 ? 14 : -10), 'io']); const qp = mvG(p, { x: qk.map(([t, v, e]) => e ? [t, f1(v * 1.6), e] : [t, v]), y: qk });
+      qp.path(`M ${nib[0]} ${nib[1]} Q ${nib[0] + 60} ${nib[1] - 140} ${nib[0] + 200} ${nib[1] - 320} Q ${nib[0] + 150} ${nib[1] - 180} ${nib[0] + 20} ${nib[1] - 12} Z`, F(2.8));
+      qp.line(nib[0] + 6, nib[1] - 6, nib[0] + 180, nib[1] - 300, S(1.6));
       msg(p, c, S0, mx, my, w);
     }); });
 
   /* 20 ── RING LIGHT: a ring light on its stand, the kind used to go live — the message shows inside the ring */
   variant('ringlight', 'ไฟวงแหวนไลฟ์สด', (d, c) => { const S0 = st(d);
-    art(c, p => {
+    art(c, p0 => { const p = inG(p0, 'pop', 0, 0, 0);
       p.line(-480, 292, 480, 292, S(2)); [-150, 0, 150].forEach(x => p.line(0, 200, x, 292, W(3.4))); R(p, -10, 120, 20, 90, 4, F(2.6));
-      ring(p, 0, -90, 215, 180, { fill: LIT, sw: 3.2 }); R(p, -24, 118, 48, 20, 6, F(2.6));
-      msg(p, c, S0, 0, -90, 300, { size: 32 });
+      ring(p, 0, -90, 215, 180, F(3.2)); { const lt = sub(p); on(lt, p, 0, { o: [[0, 0], [tu(.25), 0], [tu(.28), 1], [tu(.33), .2], [tu(.38), 1]] }); ring(lt, 0, -90, 215, 180, { fill: LIT, sw: 3.2 }); } R(p, -24, 118, 48, 20, 6, F(2.6));
+      msg(p, c, S0, 0, -90, 300, { size: 32, t: tu(.45) });
     }); });
 
   /* samples from unrelated topics (neutrality) + a stress set */
