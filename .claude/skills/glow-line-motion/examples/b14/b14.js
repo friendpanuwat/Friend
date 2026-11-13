@@ -440,12 +440,13 @@
       hero(p, c, X, -40, -100, 160, 60, { maxW: 460, size: 52, bigSize: 66, bigW: 480, t: pE - tu(.02) });
     }); });
 
-  /* 20 ── THE AIRSHIP: the clouds drift; the airship glides in from the left, slows and stops with a nose-down bob, its gondola windows light;
+  /* 20 ── THE AIRSHIP: the clouds drift back; the airship flies in nose first from the right (its nose points left — user: "ต้องบินจากขวาไปซ้าย
+     ตอนนี้มันถอยหลัง"), slows and stops with a nose-down bob, its gondola windows light;
      the idea lands on its side panel; it keeps a gentle float */
   variant('airship', 'เรือเหาะติดป้าย', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, cx = -20, cy = -60, aE = H - tu(.18);
     art(c, p => { const cl = clipG(p, -500, -350, 1000, 700);
-      [[-360, 200, 1, 40], [340, -250, .8, -30]].forEach(([x, y, k2, dx]) => { const g = mvG(cl, { x: [[0, dx], [tu(4), -dx, 'lin']], o: fadeIn(0, .3) }); g.path(`M ${x - 80 * k2} ${y} Q ${x - 80 * k2} ${y - 40 * k2} ${x - 30 * k2} ${y - 40 * k2} Q ${x - 10 * k2} ${y - 80 * k2} ${x + 40 * k2} ${y - 60 * k2} Q ${x + 90 * k2} ${y - 60 * k2} ${x + 90 * k2} ${y} Z`, S(1.8)); });
-      const am = mvG(cl, { px: cx, py: cy, x: [[0, -900], [tu(.1), -900], [aE, 14, 'out'], [aE + tu(.2), 0, 'soft']], r: [[0, 0], [aE - tu(.1), 0], [aE + tu(.06), 2.5, 'out'], [aE + tu(.3), -1, 'io'], [aE + tu(.5), 0, 'soft']] });
+      [[-360, 200, 1, 40], [340, -250, .8, 26]].forEach(([x, y, k2, dx]) => { const g = mvG(cl, { x: [[0, -dx], [tu(4), dx, 'lin']], o: fadeIn(0, .3) }); g.path(`M ${x - 80 * k2} ${y} Q ${x - 80 * k2} ${y - 40 * k2} ${x - 30 * k2} ${y - 40 * k2} Q ${x - 10 * k2} ${y - 80 * k2} ${x + 40 * k2} ${y - 60 * k2} Q ${x + 90 * k2} ${y - 60 * k2} ${x + 90 * k2} ${y} Z`, S(1.8)); });
+      const am = mvG(cl, { px: cx, py: cy, x: [[0, 900], [tu(.1), 900], [aE, -14, 'out'], [aE + tu(.2), 0, 'soft']], r: [[0, 0], [aE - tu(.1), 0], [aE + tu(.06), -2.5, 'out'], [aE + tu(.3), 1, 'io'], [aE + tu(.5), 0, 'soft']] });
       [[1, -1], [1, 1]].forEach(([a, b]) => shape(am, [[cx + 290, cy + b * 40], [cx + 400, cy + b * 130], [cx + 420, cy + b * 130], [cx + 380, cy + b * 20]], F(3)));
       ell(am, cx, cy, 380, 150, F(3.6)); am.path(`M ${cx - 300} ${cy - 92} Q ${cx} ${cy - 160} ${cx + 300} ${cy - 92}`, S(1.4)); am.path(`M ${cx - 300} ${cy + 92} Q ${cx} ${cy + 160} ${cx + 300} ${cy + 92}`, S(1.4));
       R(am, cx - 90, cy + 150, 180, 52, 18, F(3)); [cx - 60, cx, cx + 60].forEach((x, i) => { R(am, x - 16, cy + 162, 32, 22, 4, S(1.4)); const w2 = sub(am); on(w2, p, 0, { o: [[0, 0], [aE + tu(.04 * i), 0], [aE + tu(.04 * i + .03), 1]] }); R(w2, x - 16, cy + 162, 32, 22, 4, { fill: 'rgba(255,255,255,.2)', sw: 0, stroke: 'none' }); });
