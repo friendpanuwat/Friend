@@ -217,176 +217,203 @@
     return { cw, ch: chh, at: Array.from({ length: n }, (_, i) => [f1(x0 + cw * (i % k + .5)), f1(y0 + chh * (Math.floor(i / k) + .5))]) }; }
   const DOT = (q, x, y, r = 8) => q.circle(x, y, r, SOLID(1));
   /* one item: its icon (w) at (x, y) and its label at ly; no icon → the label big in the icon's place */
-  function itemV(q, c, it, x, y, w, ly, o = {}) { if (!it) return;
-    if (picOf(it)) { put(q, c, { icon: it.icon }, x, y, w, null, { t: o.t, r: o.r, punch: o.punch }); if (it.label && ly != null) txt(o.lg || q, it.label, x, ly, { size: o.size || 32, maxW: o.maxW || w * 1.5, weight: 700, color: C.ink, wrap: o.wrap ?? null }); }
-    else if (it.label) txt(o.lg || q, it.label, x, y + (o.bigDy ?? 14), { size: o.big || 40, maxW: o.maxW || w * 1.5, weight: 800, color: C.ink, wrap: 'mid' }); }
+  function itemV(q, c, it, x, y, w, ly, o = {}) { if (!it) return; const t = o.t ?? Z.H;
+    if (picOf(it)) { put(q, c, { icon: it.icon }, x, y, w, null, { t, r: o.r, mv: o.mv, punch: o.mv ? undefined : t + tu(.16) }); if (it.label && ly != null) txt(atG(q, t + tu(.12)), it.label, x, ly, { size: o.size || 32, maxW: o.maxW || w * 1.5, weight: 700, color: C.ink, wrap: o.wrap ?? null }); }
+    else if (it.label) txt(o.noPop ? atG(q, t) : (o.mv ? mvG(q, Object.assign({ o: fadeIn(t, .06) }, o.mv)) : popAt(q, x, y, t)), it.label, x, y + (o.bigDy ?? 14), { size: o.big || 40, maxW: o.maxW || w * 1.5, weight: 800, color: C.ink, wrap: 'mid' }); }
   /* one item as a row: icon (or a dot) + label to the right */
-  function itemH(q, c, it, x, y, w, ic = 56, size = 34, o = {}) { if (!it) return; const pi = !!picOf(it), lx = pi ? x + ic + 18 : x + 32;
-    if (pi) put(q, c, { icon: it.icon }, x + ic / 2, y, ic, null, { t: o.t, punch: o.punch }); else DOT(q, x + 10, y);
-    if (it.label) txt(o.lg || q, it.label, lx, y + size * .36, { size, maxW: x + w - lx, weight: 650, color: C.ink, anchor: 'start' }); }
-  const head = (q, L, x, y, o = {}) => L && txt(q, L, x, y, { size: o.size || 44, maxW: o.maxW || 500, weight: 800, color: C.ink, anchor: o.anchor || 'middle' });
+  function itemH(q, c, it, x, y, w, ic = 56, size = 34, o = {}) { if (!it) return; const pi = !!picOf(it), lx = pi ? x + ic + 18 : x + 32, t = o.t ?? Z.H;
+    if (pi) put(q, c, { icon: it.icon }, x + ic / 2, y, ic, null, { t, punch: t + tu(.16) }); else DOT(popAt(q, x + 10, y, t), x + 10, y);
+    if (it.label) txt(mvG(q, { x: [[0, -26], [t + tu(.04), -26], [t + tu(.26), 0, 'out']], o: fadeIn(t + tu(.04)) }), it.label, lx, y + size * .36, { size, maxW: x + w - lx, weight: 650, color: C.ink, anchor: 'start' }); }
+  const head = (q, L, x, y, o = {}) => L && txt(atG(q, o.t ?? Z.H), L, x, y, { size: o.size || 44, maxW: o.maxW || 500, weight: 800, color: C.ink, anchor: o.anchor || 'middle' });
   /* a round-topped cylinder (plinth / bin) */
   function cyl(q, x, r, yt, yb, w = 3.6) { const ry = f1(r * .16); ell(q, x, yb, r, ry, F(3.2)); R(q, x - r, yt, 2 * r, yb - yt, 0, { fill: C.fill, sw: 0, stroke: 'none' }); [x - r, x + r].forEach(xx => q.line(xx, yt, xx, yb, W(w))); ell(q, x, yt, r, ry, F(w)); }
 
-  /* 01 ── ON PLINTHS: each item stands on its own plinth (all the same height — no ranking), its name on the plinth; the group on a wall plaque */
-  variant('plinths', 'ของเรียงบนแท่น', (d, c) => { const its = IT(d), n = N(its), L = GN(d), xs = spread(n, -420, 420), r = Math.min(100, 840 / n / 2 - 18);
+  /* ---------- motion (user 2026-11-13 "ทำเคลื่อนไหวได้"): the holder comes in part by part → the group's name at T0 → the items come in one
+     by one, the last on the keyword H → hold. Last frame = the approved still. ---------- */
+  const mT = (Q, n) => i => n > 1 ? f3(lerp(Q.T0 + tu(.25), Q.H, i / (n - 1))) : Q.H;
+  /* when item i comes (empty slots stay empty) */
+  const tI = (Q, its) => { const f = mT(Q, its.length); return i => i < its.length ? f(i) : Q.H; };
+
+  /* 01 ── ON PLINTHS: the plinths rise one after another; the group's plaque pops; each item drops onto its plinth, its name lights on the plinth */
+  variant('plinths', 'ของเรียงบนแท่น', (d, c) => { const its = IT(d), n = N(its), L = GN(d), xs = spread(n, -420, 420), r = Math.min(100, 840 / n / 2 - 18), Q = TL(), ti = tI(Q, its);
     art(c, p => { floorD(p);
-      if (L) { R(p, -270, -310, 540, 90, 45, F(4.4)); head(p, L, 0, -250, { maxW: 470 }); }
-      xs.forEach((x, i) => { cyl(p, x, r, 170, 284); const it = its[i]; itemV(p, c, it, x, 60, Math.min(150, r * 1.5), null, { maxW: r * 2 });
-        if (it && it.label && picOf(it)) txt(p, it.label, x, 246, { size: 28, maxW: r * 2 - 20, weight: 700, color: C.ink }); });
+      if (L) { const g = popAt(p, 0, -265, Q.T0 - tu(.1)); R(g, -270, -310, 540, 90, 45, F(4.4)); head(g, L, 0, -250, { maxW: 470, t: Q.T0 }); }
+      xs.forEach((x, i) => { const g = inG(p, 'rise', x, 230, tu(.04 + .07 * i)); cyl(g, x, r, 170, 284); const it = its[i], t = ti(i);
+        itemV(p, c, it, x, 60, Math.min(150, r * 1.5), null, { maxW: r * 2, t, mv: { y: [[0, -120], [t, -120], [t + tu(.2), 0, 'in'], [t + tu(.26), -10, 'out'], [t + tu(.34), 0, 'soft']] } });
+        if (it && it.label && picOf(it)) txt(atG(p, t + tu(.2)), it.label, x, 246, { size: 28, maxW: r * 2 - 20, weight: 700, color: C.ink }); });
     }); });
 
-  /* 02 ── ON THE HOOK RACK: a rack on the wall with a hook per item; a round tag hangs from each hook — icon and name on the tag */
-  variant('hooks', 'ป้ายกลมแขวนราวตะขอ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), xs = spread(n, -420, 420), r = Math.min(122, 840 / n / 2 - 14);
-    art(c, p => { R(p, -450, -300, 900, 70, 24, F(4.6)); [-420, 420].forEach(x => screw(p, x, -265, 5)); head(p, L, 0, -252, { size: 36, maxW: 700 });
-      xs.forEach((x, i) => { p.path(`M ${x} -230 L ${x} -196 Q ${x} -176 ${x + 18} -176`, W(4)); ring(p, x, -168, 14, 6, F(2.4));
-        const cy = -150 + r; disc(p, x, cy, r); const it = its[i]; itemV(p, c, it, x, cy - r * .22, r * .9, cy + r * .5, { size: 28, maxW: r * 1.3 }); });
+  /* 02 ── ON THE HOOK RACK: the rack pops onto the wall, the hooks draw; each tag drops onto its hook and swings, settling; the item on the tag */
+  variant('hooks', 'ป้ายกลมแขวนราวตะขอ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), xs = spread(n, -420, 420), r = Math.min(122, 840 / n / 2 - 14), Q = TL(), ti = tI(Q, its);
+    art(c, p => { const rk = inG(p, 'pop', 0, -265, tu(.04)); R(rk, -450, -300, 900, 70, 24, F(4.6)); [-420, 420].forEach(x => screw(rk, x, -265, 5)); head(p, L, 0, -252, { size: 36, maxW: 700, t: Q.T0 - tu(.1) });
+      xs.forEach((x, i) => { drawAt(p.path(`M ${x} -230 L ${x} -196 Q ${x} -176 ${x + 18} -176`, W(4)), p, tu(.2 + .05 * i), tu(.15)); const t = ti(i), cy = -150 + r;
+        const rK = [[0, 0], [t, 0], [t + tu(.15), 7, 'out'], [t + tu(.35), -4, 'io'], [t + tu(.55), 0, 'soft']], sw = mvG(CL(p), { px: x, py: -176, y: [[0, -40], [t - tu(.14), -40], [t, 8, 'in'], [t + tu(.06), 0, 'out']], r: rK, o: fadeIn(t - tu(.14), .06) });
+        ring(sw, x, -168, 14, 6, F(2.4)); disc(sw, x, cy, r); itemV(sw, c, its[i], x, cy - r * .22, r * .9, cy + r * .5, { size: 28, maxW: r * 1.3, t: t + tu(.1), noPop: true, mv: { px: x, py: -176, r: rK } }); });
     }); });
 
-  /* 03 ── THE LIST IN A FRAME: a framed board — the group's name in its header band, one tile per item inside */
-  variant('framebox', 'รายการในกรอบ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), top = L ? -170 : -260, G = grid(n, -300, top, 300, 270);
-    art(c, p => { R(p, -330, -300, 660, 600, 34, F(4.8));
-      if (L) { R(p, -330, -300, 660, 120, 34, { fill: 'rgba(255,255,255,.1)', sw: 0, stroke: 'none' }); p.line(-330, -180, 330, -180, W(3)); head(p, L, 0, -224, { maxW: 560 }); }
-      G.at.forEach(([x, y], i) => { const w = G.cw - 24, h = G.ch - 24; R(p, x - w / 2, y - h / 2, w, h, 24, F(3.4)); const it = its[i];
-        itemV(p, c, it, x, y - h * .14, Math.min(w, h) * .5, y + h * .32, { size: 28, maxW: w - 24 }); });
+  /* 03 ── THE LIST IN A FRAME: the frame pops, the header band lights with the group's name; the tiles pop in one by one, each with its item */
+  variant('framebox', 'รายการในกรอบ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), top = L ? -170 : -260, G = grid(n, -300, top, 300, 270), Q = TL(), ti = tI(Q, its);
+    art(c, p => { R(inG(p, 'pop', 0, 0, tu(.04)), -330, -300, 660, 600, 34, F(4.8));
+      if (L) { R(litG(p, Q.T0 - tu(.1), .2), -330, -300, 660, 120, 34, { fill: 'rgba(255,255,255,.1)', sw: 0, stroke: 'none' }); drawAt(p.line(-330, -180, 330, -180, W(3)), p, tu(.3), tu(.3)); head(p, L, 0, -224, { maxW: 560, t: Q.T0 }); }
+      G.at.forEach(([x, y], i) => { const w = G.cw - 24, h = G.ch - 24, t = ti(i); R(popAt(p, x, y, t - tu(.1)), x - w / 2, y - h / 2, w, h, 24, F(3.4));
+        itemV(p, c, its[i], x, y - h * .14, Math.min(w, h) * .5, y + h * .32, { size: 28, maxW: w - 24, t }); });
     }); });
 
-  /* 04 ── THE RECEIPT: a till slip runs up out of the little printer — the group's name at its head, then a line per item (a dotted leader, no
-     prices), a zigzag edge on top */
-  variant('receipt', 'ใบรายการจากเครื่องพิมพ์', (d, c) => { const its = IT(d), n = N(its), L = GN(d), y0 = L ? -150 : -210, gap = Math.min(96, (150 - y0) / n);
-    art(c, p => { const zz = []; for (let x = -220; x <= 220; x += 20) zz.push([x, (x / 20) % 2 ? -322 : -306]);
-      shape(p, [[-220, 210], ...zz, [220, 210]], F(4.4));
-      if (L) { head(p, L, 0, -232, { size: 40, maxW: 380 }); } for (let x = -190; x <= 190; x += 16) p.line(x, L ? -200 : -262, x + 8, L ? -200 : -262, S(1.6));
-      its.forEach((it, i) => { const y = y0 + gap * (i + .5); itemH(p, c, it, -190, y, 260, 50, 30); for (let x = 100; x <= 180; x += 14) p.circle(x, y + 4, 2.2, SOLID(1)); });
-      for (let x = -150, k = 0; x <= 150; x += 12, k++) p.line(x, 160, x, k % 3 ? 186 : 192, { sw: k % 4 ? 2 : 4, stroke: C.soft });
-      R(p, -290, 200, 580, 100, 26, F(4.6)); R(p, -240, 196, 480, 16, 8, { fill: C.fill, sw: 2.4 }); p.circle(220, 250, 12, F(2.4)); R(p, -230, 236, 120, 26, 10, S(1.8));
+  /* 04 ── THE RECEIPT: the printer pops; the slip feeds up out of it (the head with the group's name first), then a line per item prints as it passes */
+  variant('receipt', 'ใบรายการจากเครื่องพิมพ์', (d, c) => { const its = IT(d), n = N(its), L = GN(d), y0 = L ? -150 : -210, gap = Math.min(96, (150 - y0) / n), Q = TL(), ti = tI(Q, its), tF = tu(.2);
+    art(c, p => { const sl = mvG(clipG(p, -500, -350, 1000, 550), { y: [[0, 520], [tF, 520], [Q.H + tu(.1), 0, 'lin']] }), zz = []; for (let x = -220; x <= 220; x += 20) zz.push([x, (x / 20) % 2 ? -322 : -306]);
+      shape(sl, [[-220, 210], ...zz, [220, 210]], F(4.4));
+      const pr = (y, t) => { const k = 1 - (210 - y) / 530; return t; };
+      if (L) head(p, L, 0, -232, { size: 40, maxW: 380, t: Q.T0 }); for (let x = -190; x <= 190; x += 16) sl.line(x, L ? -200 : -262, x + 8, L ? -200 : -262, S(1.6));
+      its.forEach((it, i) => { const y = y0 + gap * (i + .5), t = ti(i); itemH(p, c, it, -190, y, 260, 50, 30, { t }); const dg = atG(p, t + tu(.12)); for (let x = 100; x <= 180; x += 14) dg.circle(x, y + 4, 2.2, SOLID(1)); });
+      for (let x = -150, k = 0; x <= 150; x += 12, k++) sl.line(x, 160, x, k % 3 ? 186 : 192, { sw: k % 4 ? 2 : 4, stroke: C.soft });
+      const bx = inG(p, 'pop', 0, 250, tu(.04)); R(bx, -290, 200, 580, 100, 26, F(4.6)); R(bx, -240, 196, 480, 16, 8, { fill: C.fill, sw: 2.4 }); R(bx, -230, 236, 120, 26, 10, S(1.8));
+      const ld = sub(bx); on(ld, p, 0, { o: [[0, .3], [tF, .3], [tF + tu(.04), 1]] }); ld.circle(220, 250, 12, F(2.4));
     }); });
 
-  /* 05 ── THE ORGANISER BOX: a box split into compartments — one item in each; the group's name on a plate on its rim */
-  variant('organizer', 'กล่องหลายช่อง', (d, c) => { const its = IT(d), n = N(its), L = GN(d), G = grid(n, -400, -190, 400, 250);
-    art(c, p => { R(p, -420, -210, 840, 480, 30, F(4.8));
-      if (n === 4) p.line(-400, 30, 400, 30, W(4)); const k = n === 4 ? 2 : n; for (let j = 1; j < k; j++) { const x = -400 + 800 * j / k; p.line(x, -190, x, 250, W(4)); }
-      if (L) { R(p, -180, -296, 360, 74, 24, F(4)); head(p, L, 0, -246, { size: 36, maxW: 320 }); }
-      G.at.forEach(([x, y], i) => itemV(p, c, its[i], x, y - G.ch * .12, Math.min(G.cw, G.ch) * .46, y + G.ch * .3, { size: 28, maxW: G.cw - 30 }));
+  /* 05 ── THE ORGANISER BOX: the box drops in, the dividers slide down into it, the plate pops; the items drop into their compartments one by one */
+  variant('organizer', 'กล่องหลายช่อง', (d, c) => { const its = IT(d), n = N(its), L = GN(d), G = grid(n, -400, -190, 400, 250), Q = TL(), ti = tI(Q, its);
+    art(c, p => { const bx = inG(CL(p), 'drop', 0, 30, tu(.04)); R(bx, -420, -210, 840, 480, 30, F(4.8));
+      if (n === 4) drawAt(p.line(-400, 30, 400, 30, W(4)), p, tu(.4), tu(.25)); const k = n === 4 ? 2 : n; for (let j = 1; j < k; j++) { const x = -400 + 800 * j / k; drawAt(p.line(x, -190, x, 250, W(4)), p, tu(.36 + .05 * j), tu(.25)); }
+      if (L) { const g = popAt(p, 0, -259, Q.T0 - tu(.1)); R(g, -180, -296, 360, 74, 24, F(4)); head(g, L, 0, -246, { size: 36, maxW: 320, t: Q.T0 }); }
+      G.at.forEach(([x, y], i) => { const t = ti(i); itemV(p, c, its[i], x, y - G.ch * .12, Math.min(G.cw, G.ch) * .46, y + G.ch * .3, { size: 28, maxW: G.cw - 30, t, mv: { y: [[0, -80], [t, -80], [t + tu(.2), 0, 'in'], [t + tu(.26), -8, 'out'], [t + tu(.34), 0, 'soft']] } }); });
     }); });
 
-  /* 06 ── SORTED INTO BINS: a row of open bins — each item sticks up out of its own bin, its name on the bin's front plate */
-  variant('bins', 'กล่องแยกหมวด', (d, c) => { const its = IT(d), n = N(its), L = GN(d), xs = spread(n, -430, 430), w = Math.min(210, 860 / n - 26);
-    art(c, p => { floorD(p); if (L) { R(p, -250, -320, 500, 84, 42, F(4.2)); head(p, L, 0, -264, { size: 38, maxW: 440 }); }
-      xs.forEach((x, i) => { const it = its[i]; itemV(p, c, it, x, -40, w * .7, null, { maxW: w }); shape(p, [[x - w / 2, 40], [x + w / 2, 40], [x + w / 2 - 16, 284], [x - w / 2 + 16, 284]], F(4.4)); R(p, x - w / 2 - 8, 30, w + 16, 22, 10, F(3.4));
-        R(p, x - w / 2 + 26, 150, w - 52, 70, 14, F(2.8)); if (it && it.label && picOf(it)) txt(p, it.label, x, 196, { size: 26, maxW: w - 70, weight: 700, color: C.ink }); else DOT(p, x, 185, 6); });
+  /* 06 ── SORTED INTO BINS: the bins rise in a row, their plates pop; the group's sign pops; each item drops into its own bin (the bin bumps) */
+  variant('bins', 'กล่องแยกหมวด', (d, c) => { const its = IT(d), n = N(its), L = GN(d), xs = spread(n, -430, 430), w = Math.min(210, 860 / n - 26), Q = TL(), ti = tI(Q, its);
+    art(c, p => { floorD(p); if (L) { const g = popAt(p, 0, -278, Q.T0 - tu(.1)); R(g, -250, -320, 500, 84, 42, F(4.2)); head(g, L, 0, -264, { size: 38, maxW: 440, t: Q.T0 }); }
+      xs.forEach((x, i) => { const it = its[i], t = ti(i); itemV(p, c, it, x, -40, w * .7, null, { maxW: w, t, mv: { y: [[0, -160], [t, -160], [t + tu(.2), 20, 'in'], [t + tu(.3), 0, 'out']] } });
+        const b = mvG(inG(p, 'rise', x, 160, tu(.04 + .06 * i)), { px: x, py: 284, sy: bumpK(t + tu(.2), .94) });
+        shape(b, [[x - w / 2, 40], [x + w / 2, 40], [x + w / 2 - 16, 284], [x - w / 2 + 16, 284]], F(4.4)); R(b, x - w / 2 - 8, 30, w + 16, 22, 10, F(3.4)); R(b, x - w / 2 + 26, 150, w - 52, 70, 14, F(2.8));
+        if (it && it.label && picOf(it)) txt(atG(p, t + tu(.24)), it.label, x, 196, { size: 26, maxW: w - 70, weight: 700, color: C.ink }); else DOT(popAt(p, x, 185, t), x, 185, 6); });
     }); });
 
-  /* 07 ── THE LIST ON A MUSIC STAND: a lined sheet rests on a music stand — the group's name on top, a line per item */
-  variant('musicstand', 'แผ่นรายการบนขาตั้ง', (d, c) => { const its = IT(d), n = N(its), L = GN(d), y0 = L ? -150 : -230, gap = Math.min(96, (80 - y0) / n);
-    art(c, p => { floorD(p); [[-170, 290], [170, 290], [0, 290]].forEach(([x, y], i) => p.line(0, 190, x, y, i === 2 ? S(3) : W(5))); R(p, -9, 130, 18, 64, 6, F(2.6));
-      R(p, -300, 104, 600, 30, 14, F(4)); R(p, -270, -300, 540, 410, 12, F(4.6));
-      if (L) { head(p, L, 0, -230, { maxW: 460 }); p.line(-220, -196, 220, -196, W(3)); }
-      its.forEach((it, i) => { const y = y0 + gap * (i + .5); itemH(p, c, it, -220, y, 440, 54, 32); p.line(-220, y + gap / 2 - 4, 220, y + gap / 2 - 4, S(1.4)); });
+  /* 07 ── THE LIST ON A MUSIC STAND: the legs draw and the stand rises; the sheet drops onto the ledge; the name is written, then a line per item */
+  variant('musicstand', 'แผ่นรายการบนขาตั้ง', (d, c) => { const its = IT(d), n = N(its), L = GN(d), y0 = L ? -150 : -230, gap = Math.min(96, (80 - y0) / n), Q = TL(), ti = tI(Q, its);
+    art(c, p => { floorD(p); [[-170, 290], [170, 290], [0, 290]].forEach(([x, y], i) => drawAt(p.line(0, 190, x, y, i === 2 ? S(3) : W(5)), p, tu(.04), tu(.25)));
+      const st = mvG(p, growY(0, 194, tu(.15))); R(st, -9, 130, 18, 64, 6, F(2.6)); R(inG(p, 'pop', 0, 119, tu(.3)), -300, 104, 600, 30, 14, F(4));
+      R(inG(CL(p), 'drop', 0, -95, tu(.42)), -270, -300, 540, 410, 12, F(4.6));
+      if (L) { head(p, L, 0, -230, { maxW: 460, t: Q.T0 }); drawAt(p.line(-220, -196, 220, -196, W(3)), p, Q.T0 + tu(.1), tu(.25)); }
+      its.forEach((it, i) => { const y = y0 + gap * (i + .5), t = ti(i); itemH(p, c, it, -220, y, 440, 54, 32, { t }); drawAt(p.line(-220, y + gap / 2 - 4, 220, y + gap / 2 - 4, S(1.4)), p, t + tu(.1), tu(.2)); });
     }); });
 
-  /* 08 ── THE STICKER SHEET: round stickers on a sheet — one per item, its name printed under it; the group's name at the top */
-  variant('stickers', 'สติกเกอร์บนแผ่นกระดาษ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), top = L ? -190 : -280, G = grid(n, -300, top, 300, 290);
-    art(c, p => { R(p, -330, -310, 660, 620, 16, F(4.6)); if (L) { head(p, L, 0, -240, { maxW: 560 }); p.line(-290, -210, 290, -210, S(2)); }
-      G.at.forEach(([x, y], i) => { const r = Math.min(G.cw, G.ch) * .3, cy = y - G.ch * .1, it = its[i]; p.circle(x, cy, r + 10, S(1.6)); p.circle(x, cy, r, F(4));
-        itemV(p, c, it, x, cy, r * 1.15, null, { maxW: r * 1.8, big: 30 }); if (it && it.label && picOf(it)) txt(p, it.label, x, cy + r + 44, { size: 28, maxW: G.cw - 20, weight: 700, color: C.ink }); });
+  /* 08 ── THE STICKER SHEET: the sheet pops, the name is printed at the top; the stickers are pressed on one by one (a squash), each with its item */
+  variant('stickers', 'สติกเกอร์บนแผ่นกระดาษ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), top = L ? -190 : -280, G = grid(n, -300, top, 300, 290), Q = TL(), ti = tI(Q, its);
+    art(c, p => { R(inG(p, 'pop', 0, 0, tu(.04)), -330, -310, 660, 620, 16, F(4.6)); if (L) { head(p, L, 0, -240, { maxW: 560, t: Q.T0 }); drawAt(p.line(-290, -210, 290, -210, S(2)), p, Q.T0 + tu(.1), tu(.25)); }
+      G.at.forEach(([x, y], i) => { const r = Math.min(G.cw, G.ch) * .3, cy = y - G.ch * .1, it = its[i], t = ti(i); drawAt(p.circle(x, cy, r + 10, S(1.6)), p, tu(.3 + .05 * i), tu(.25));
+        const sk = mvG(p, { px: x, py: cy, s: [[0, 1.4], [t - tu(.12), 1.4], [t, .92, 'in'], [t + tu(.14), 1, 'out']], o: fadeIn(t - tu(.12), .06) }); sk.circle(x, cy, r, F(4));
+        itemV(p, c, it, x, cy, r * 1.15, null, { maxW: r * 1.8, big: 30, t }); if (it && it.label && picOf(it)) txt(atG(p, t + tu(.12)), it.label, x, cy + r + 44, { size: 28, maxW: G.cw - 20, weight: 700, color: C.ink }); });
     }); });
 
-  /* 09 ── THE PEGBOARD: a pegboard on the wall — each item hangs on its own peg on a tile, a name tag under it */
-  variant('pegboard', 'ไอคอนบนแผงรูหมุด', (d, c) => { const its = IT(d), n = N(its), L = GN(d), G = grid(n, -400, L ? -170 : -250, 400, 260);
-    art(c, p => { R(p, -440, -300, 880, 590, 26, F(4.8)); for (let y = -260; y <= 260; y += 52) for (let x = -400; x <= 400; x += 52) p.circle(x, y, 3.2, S(1.2));
-      if (L) { R(p, -200, -280, 400, 80, 22, F(4)); head(p, L, 0, -228, { size: 36, maxW: 340 }); }
-      G.at.forEach(([x, y], i) => { const s2 = Math.min(G.cw, G.ch) * .52, it = its[i], ty = y - G.ch * .1; p.path(`M ${x} ${f1(ty - s2 / 2 - 34)} L ${x} ${f1(ty - s2 / 2)}`, W(3)); p.circle(x, f1(ty - s2 / 2 - 34), 7, F(2.2));
-        R(p, x - s2 / 2, ty - s2 / 2, s2, s2, 22, F(4)); itemV(p, c, it, x, ty, s2 * .62, null, { maxW: s2 * .9, big: 30 });
-        if (it && it.label && picOf(it)) { R(p, x - G.cw * .4, ty + s2 / 2 + 12, G.cw * .8, 46, 12, F(2.6)); txt(p, it.label, x, ty + s2 / 2 + 45, { size: 26, maxW: G.cw * .75, weight: 700, color: C.ink }); } });
+  /* 09 ── THE PEGBOARD: the board pops, its holes come up in a sweep, the name sign pops; each item's peg goes in and its tile is hung on it */
+  variant('pegboard', 'ไอคอนบนแผงรูหมุด', (d, c) => { const its = IT(d), n = N(its), L = GN(d), G = grid(n, -400, L ? -170 : -250, 400, 260), Q = TL(), ti = tI(Q, its);
+    art(c, p => { R(inG(p, 'pop', 0, 0, tu(.04)), -440, -300, 880, 590, 26, F(4.8));
+      for (let x = -400; x <= 400; x += 52) { const col = litG(p, tu(.2) + (x + 400) / 800 * tu(.3), .06); for (let y = -260; y <= 260; y += 52) col.circle(x, y, 3.2, S(1.2)); }
+      if (L) { const g = popAt(p, 0, -240, Q.T0 - tu(.1)); R(g, -200, -280, 400, 80, 22, F(4)); head(g, L, 0, -228, { size: 36, maxW: 340, t: Q.T0 }); }
+      G.at.forEach(([x, y], i) => { const s2 = Math.min(G.cw, G.ch) * .52, it = its[i], ty = y - G.ch * .1, t = ti(i), pg = f1(ty - s2 / 2 - 34);
+        const pk = popAt(p, x, pg, t - tu(.16)); pk.path(`M ${x} ${pg} L ${x} ${f1(ty - s2 / 2)}`, W(3)); pk.circle(x, pg, 7, F(2.2));
+        const rK = [[0, 0], [t, 0], [t + tu(.14), 6, 'out'], [t + tu(.34), -3, 'io'], [t + tu(.5), 0, 'soft']], sw = mvG(p, { px: x, py: pg, y: [[0, -40], [t - tu(.1), -40], [t, 0, 'in']], r: rK, o: fadeIn(t - tu(.1), .04) });
+        R(sw, x - s2 / 2, ty - s2 / 2, s2, s2, 22, F(4)); itemV(sw, c, it, x, ty, s2 * .62, null, { maxW: s2 * .9, big: 30, t: t + tu(.06), noPop: true, mv: { px: x, py: pg, r: rK } });
+        if (it && it.label && picOf(it)) { const lg = atG(p, t + tu(.16)); R(lg, x - G.cw * .4, ty + s2 / 2 + 12, G.cw * .8, 46, 12, F(2.6)); txt(lg, it.label, x, ty + s2 / 2 + 45, { size: 26, maxW: G.cw * .75, weight: 700, color: C.ink }); } });
     }); });
 
-  /* 10 ── THE TWO-TIER RISER: a stepped display stand — the items stand on its two steps, their names on the step fronts */
-  variant('riser', 'ไอคอนเรียงสองแถว', (d, c) => { const its = IT(d), n = N(its), L = GN(d), nt = Math.ceil(n / 2), nb = n - nt;
-    art(c, p => { floorD(p); R(p, -340, -70, 680, 220, 14, F(4.6)); R(p, -440, 150, 880, 140, 14, F(4.6)); if (L) { R(p, -230, -330, 460, 80, 40, F(4)); head(p, L, 0, -276, { size: 38, maxW: 400 }); }
-      const row = (xs, list, yt, yl) => xs.forEach((x, i) => { const it = list[i]; itemV(p, c, it, x, yt - 70, 120, null, { maxW: 200 }); if (it && it.label && picOf(it)) txt(p, it.label, x, yl, { size: 28, maxW: 680 / xs.length - 30, weight: 700, color: C.ink }); });
-      row(spread(nt, -320, 320), its.slice(0, nt), -70, -26); row(spread(Math.max(1, nb), -420, 420), its.slice(nt), 150, 240);
+  /* 10 ── THE TWO-TIER RISER: the back step rises, then the front step; the group's sign pops; the items are set down on the steps one by one */
+  variant('riser', 'ไอคอนเรียงสองแถว', (d, c) => { const its = IT(d), n = N(its), L = GN(d), nt = Math.ceil(n / 2), nb = n - nt, Q = TL(), ti = tI(Q, its);
+    art(c, p => { floorD(p); R(inG(p, 'rise', 0, 40, tu(.04)), -340, -70, 680, 220, 14, F(4.6)); R(inG(p, 'rise', 0, 220, tu(.14)), -440, 150, 880, 140, 14, F(4.6));
+      if (L) { const g = popAt(p, 0, -290, Q.T0 - tu(.1)); R(g, -230, -330, 460, 80, 40, F(4)); head(g, L, 0, -276, { size: 38, maxW: 400, t: Q.T0 }); }
+      const row = (xs, list, yt, yl, k0) => xs.forEach((x, i) => { const it = list[i], t = ti(k0 + i); itemV(p, c, it, x, yt - 70, 120, null, { maxW: 200, t, mv: { y: [[0, -70], [t, -70], [t + tu(.18), 0, 'in'], [t + tu(.24), -8, 'out'], [t + tu(.32), 0, 'soft']] } });
+        if (it && it.label && picOf(it)) txt(atG(p, t + tu(.18)), it.label, x, yl, { size: 28, maxW: 680 / xs.length - 30, weight: 700, color: C.ink }); });
+      row(spread(nt, -320, 320), its.slice(0, nt), -70, -26, 0); row(spread(Math.max(1, nb), -420, 420), its.slice(nt), 150, 240, nt);
     }); });
 
-  /* 11 ── THE HAND OF CARDS: the items as cards fanned out from one corner, each card its own item */
-  variant('fan', 'การ์ดรายการหลายใบ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), px = 0, py = 600, span = n <= 2 ? 26 : n === 3 ? 48 : 60, A = n === 1 ? [0] : Array.from({ length: n }, (_, i) => -span / 2 + span * i / (n - 1));
-    art(c, p => { if (L) head(p, L, 0, -300, { maxW: 700 });
-      A.forEach((a, i) => { const g = rot(p, a, px, py), it = its[i]; R(g, -130, -260, 260, 360, 28, F(4.6));
-        const ca = rad(a), rp = (x, y) => [f1(px + (x - px) * Math.cos(ca) - (y - py) * Math.sin(ca)), f1(py + (x - px) * Math.sin(ca) + (y - py) * Math.cos(ca))];
-        if (it && picOf(it)) { const [ix, iy] = rp(0, -140); put(p, c, { icon: it.icon }, ix, iy, 120, null, { r: a }); if (it.label) txt(g, it.label, 0, -30, { size: 30, maxW: 220, weight: 700, color: C.ink }); }
-        else if (it) txt(g, it.label, 0, -110, { size: 38, maxW: 220, weight: 800, color: C.ink, wrap: 'mid' }); });
+  /* 11 ── THE HAND OF CARDS: the name pops above; the cards come up as one stack, then fan out one by one, each showing its item */
+  variant('fan', 'การ์ดรายการหลายใบ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), px = 0, py = 600, span = n <= 2 ? 26 : n === 3 ? 48 : 60, A = Array.from({ length: n }, (_, i) => -span / 2 + span * i / (n - 1)), Q = TL(), ti = tI(Q, its);
+    art(c, p => { head(p, L, 0, -300, { maxW: 700, t: Q.T0 });
+      const st = inG(CL(p), 'rise', 0, 0, tu(.04));
+      A.forEach((a, i) => { const t = ti(i), it = its[i], fa = mvG(st, { px, py, r: [[0, 0], [t - tu(.2), 0], [t, a + (a > 0 ? 2 : a < 0 ? -2 : 0), 'out'], [t + tu(.12), a, 'soft']] }); R(fa, -130, -260, 260, 360, 28, F(4.6));
+        const g = rot(p, a, px, py), ca = rad(a), rp = (x, y) => [f1(px + (x - px) * Math.cos(ca) - (y - py) * Math.sin(ca)), f1(py + (x - px) * Math.sin(ca) + (y - py) * Math.cos(ca))];
+        if (it && picOf(it)) { const [ix, iy] = rp(0, -140); put(p, c, { icon: it.icon }, ix, iy, 120, null, { r: a, t: t + tu(.04), punch: t + tu(.18) }); if (it.label) txt(atG(g, t + tu(.14)), it.label, 0, -30, { size: 30, maxW: 220, weight: 700, color: C.ink }); }
+        else if (it) txt(popAt(g, 0, -120, t + tu(.04)), it.label, 0, -110, { size: 38, maxW: 220, weight: 800, color: C.ink, wrap: 'mid' }); });
     }); });
 
-  /* 12 ── ON THE TABLE: the items stand on a table top; a small tag hangs over the table's edge under each */
-  variant('table', 'วัตถุหลายชิ้นบนโต๊ะ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), xs = spread(n, -400, 400), w = Math.min(170, 800 / n - 40);
-    art(c, p => { R(p, -470, 110, 940, 32, 10, F(4.4)); [[-430, -460], [430, 460]].forEach(([a, b]) => p.line(a, 142, b, 330, W(5)));
-      if (L) { R(p, -240, -310, 480, 84, 42, F(4)); head(p, L, 0, -254, { size: 38, maxW: 420 }); }
-      xs.forEach((x, i) => { const it = its[i]; itemV(p, c, it, x, 110 - w * .5 - 8, w, null, { maxW: w * 1.3 }); ell(p, x, 108, w * .5, 9, S(1.6));
-        if (it && it.label && picOf(it)) { p.line(x, 142, x, 168, W(2)); R(p, x - 800 / n / 2 + 16, 168, 800 / n - 32, 58, 14, F(3.2)); txt(p, it.label, x, 207, { size: 28, maxW: 800 / n - 50, weight: 700, color: C.ink }); } });
+  /* 12 ── ON THE TABLE: the table top pops, its legs draw; the group's sign pops; each item is set down on the table (a little bounce), its tag drops
+     over the edge */
+  variant('table', 'วัตถุหลายชิ้นบนโต๊ะ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), xs = spread(n, -400, 400), w = Math.min(170, 800 / n - 40), Q = TL(), ti = tI(Q, its);
+    art(c, p => { R(inG(p, 'pop', 0, 126, tu(.04)), -470, 110, 940, 32, 10, F(4.4)); [[-430, -460], [430, 460]].forEach(([a, b]) => drawAt(p.line(a, 142, b, 330, W(5)), p, tu(.16), tu(.25)));
+      if (L) { const g = popAt(p, 0, -268, Q.T0 - tu(.1)); R(g, -240, -310, 480, 84, 42, F(4)); head(g, L, 0, -254, { size: 38, maxW: 420, t: Q.T0 }); }
+      xs.forEach((x, i) => { const it = its[i], t = ti(i); itemV(p, c, it, x, 110 - w * .5 - 8, w, null, { maxW: w * 1.3, t, mv: { y: [[0, -100], [t, -100], [t + tu(.2), 0, 'in'], [t + tu(.26), -10, 'out'], [t + tu(.34), 0, 'soft']] } }); drawAt(ell(p, x, 108, w * .5, 9, S(1.6)), p, t + tu(.2), tu(.15));
+        if (it && it.label && picOf(it)) { const tg = mvG(clipG(p, -500, 142, 1000, 200), { y: [[0, -90], [t + tu(.16), -90], [t + tu(.34), 6, 'out'], [t + tu(.44), 0, 'soft']] }); tg.line(x, 142, x, 168, W(2)); R(tg, x - 800 / n / 2 + 16, 168, 800 / n - 32, 58, 14, F(3.2)); txt(tg, it.label, x, 207, { size: 28, maxW: 800 / n - 50, weight: 700, color: C.ink }); } });
     }); });
 
-  /* 13 ── THE BOOKCASE: a small bookcase with two shelves — the items sit on the shelves, a name strip on the shelf edge under each */
-  variant('bookcase', 'สิ่งของบนชั้นวาง', (d, c) => { const its = IT(d), n = N(its), L = GN(d), nt = Math.ceil(n / 2);
-    art(c, p => { floorD(p); R(p, -310, -290, 620, 580, 18, F(4.8)); R(p, -340, -340, 680, 62, 16, F(4.2)); [-30, 230].forEach(y => R(p, -310, y, 620, 26, 6, F(3.6)));
-      if (L) txt(p, L, 0, -296, { size: 34, maxW: 600, weight: 800, color: C.ink });
-      const row = (list, yb) => { const xs = spread(Math.max(1, list.length), -290, 290); xs.forEach((x, i) => { const it = list[i]; itemV(p, c, it, x, yb - 84, 130, null, { maxW: 560 / xs.length - 20 });
-        if (it && it.label && picOf(it)) { const w = 560 / xs.length - 40; R(p, x - w / 2, yb - 10, w, 44, 10, F(2.6)); txt(p, it.label, x, yb + 21, { size: 26, maxW: w - 16, weight: 700, color: C.ink }); } }); };
-      row(its.slice(0, nt), -30); row(its.slice(nt), 230);
+  /* 13 ── THE BOOKCASE: the bookcase rises, the shelves slide in, the crown with the group's name drops on top; the items are set on the shelves one by one */
+  variant('bookcase', 'สิ่งของบนชั้นวาง', (d, c) => { const its = IT(d), n = N(its), L = GN(d), nt = Math.ceil(n / 2), Q = TL(), ti = tI(Q, its);
+    art(c, p => { floorD(p); R(inG(p, 'rise', 0, 0, tu(.04)), -310, -290, 620, 580, 18, F(4.8)); [-30, 230].forEach((y, i) => R(mvG(p, { px: 0, py: y, sx: [[0, .05], [tu(.24 + .06 * i), .05], [tu(.46 + .06 * i), 1, 'out']], o: fadeIn(tu(.24 + .06 * i), .04) }), -310, y, 620, 26, 6, F(3.6)));
+      const cr = inG(CL(p), 'drop', 0, -310, Q.T0 - tu(.3)); R(cr, -340, -340, 680, 62, 16, F(4.2)); if (L) txt(atG(p, Q.T0), L, 0, -296, { size: 34, maxW: 600, weight: 800, color: C.ink });
+      const row = (list, yb, k0) => { const xs = spread(Math.max(1, list.length), -290, 290); xs.forEach((x, i) => { const it = list[i], t = ti(k0 + i); itemV(p, c, it, x, yb - 84, 130, null, { maxW: 560 / xs.length - 20, t, mv: { x: [[0, -60], [t, -60], [t + tu(.24), 4, 'out'], [t + tu(.32), 0, 'soft']] } });
+        if (it && it.label && picOf(it)) { const w = 560 / xs.length - 40, lg = atG(p, t + tu(.2)); R(lg, x - w / 2, yb - 10, w, 44, 10, F(2.6)); txt(lg, it.label, x, yb + 21, { size: 26, maxW: w - 16, weight: 700, color: C.ink }); } }); };
+      row(its.slice(0, nt), -30, 0); row(its.slice(nt), 230, nt);
     }); });
 
-  /* 14 ── THE TABBED CARD: an index card with a tab on top — the group's name on the tab, a row per item on the card */
-  variant('tabcard', 'การ์ดรายการพร้อมหัวข้อ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), gap = Math.min(120, 470 / n);
-    art(c, p => { R(p, -310, -320, 330, 100, 26, F(4.4)); R(p, -340, -250, 680, 540, 30, F(4.8));
-      if (L) txt(p, L, -145, -258, { size: 38, maxW: 280, weight: 800, color: C.ink }); else DOT(p, -145, -270, 10);
-      its.forEach((it, i) => itemH(p, c, it, -270, -210 + gap * (i + .5), 540, 68, 38));
-      for (let i = 1; i < n; i++) p.line(-290, -210 + gap * i, 290, -210 + gap * i, S(1.4));
+  /* 14 ── THE TABBED CARD: the card slides in, its tab pops up with the group's name; a row per item writes in, the rule lines draw between them */
+  variant('tabcard', 'การ์ดรายการพร้อมหัวข้อ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), gap = Math.min(120, 470 / n), Q = TL(), ti = tI(Q, its);
+    art(c, p => { R(mvG(clipG(p, -500, -350, 1000, 120), { y: [[0, 110], [Q.T0 - tu(.24), 110], [Q.T0 - tu(.04), -6, 'out'], [Q.T0 + tu(.06), 0, 'soft']] }), -310, -320, 330, 100, 26, F(4.4));
+      R(mvG(p, { x: slideX(tu(.04), -160), o: fadeIn(tu(.04)) }), -340, -250, 680, 540, 30, F(4.8));
+      if (L) txt(atG(p, Q.T0), L, -145, -258, { size: 38, maxW: 280, weight: 800, color: C.ink }); else DOT(popAt(p, -145, -270, Q.T0), -145, -270, 10);
+      its.forEach((it, i) => itemH(p, c, it, -270, -210 + gap * (i + .5), 540, 68, 38, { t: ti(i) }));
+      for (let i = 1; i < n; i++) drawAt(p.line(-290, -210 + gap * i, 290, -210 + gap * i, S(1.4)), p, ti(i - 1) + tu(.16), tu(.25));
     }); });
 
-  /* 15 ── THE GARLAND OF DISCS: round discs hang along a string between two nails — one item on each */
-  variant('garland', 'วงกลมหลายวงพร้อมป้าย', (d, c) => { const its = IT(d), n = N(its), L = GN(d), xs = spread(n, -420, 420), r = Math.min(116, 840 / n / 2 - 12);
+  /* 15 ── THE GARLAND OF DISCS: the nails pop, the string draws across; the discs slide along the string from the left nail, one by one, and swing
+     into place */
+  variant('garland', 'วงกลมหลายวงพร้อมป้าย', (d, c) => { const its = IT(d), n = N(its), L = GN(d), xs = spread(n, -420, 420), r = Math.min(116, 840 / n / 2 - 12), Q = TL(), ti = tI(Q, its);
     const sy = x => { const u = (x + 460) / 920; return f1((1 - u) * (1 - u) * -240 + 2 * u * (1 - u) * -60 + u * u * -240); };
-    art(c, p => { if (L) head(p, L, 0, -292, { maxW: 600 }); [-460, 460].forEach(x => p.circle(x, -240, 10, F(2.6))); p.path('M -460 -240 Q 0 120 460 -240', W(2.6));
-      xs.forEach((x, i) => { const top = +sy(x) + 8, cy = top + r + 22; p.line(x, sy(x), x, top + 22, W(2.2)); p.circle(x, +sy(x), 6, F(2)); disc(p, x, cy, r);
-        itemV(p, c, its[i], x, cy - r * .2, r * .9, cy + r * .5, { size: 26, maxW: r * 1.5 }); });
+    art(c, p => { head(p, L, 0, -292, { maxW: 600, t: Q.T0 }); [-460, 460].forEach((x, i) => popAt(p, x, -240, tu(.04 + .05 * i)).circle(x, -240, 10, F(2.6))); drawAt(p.path('M -460 -240 Q 0 120 460 -240', W(2.6)), p, tu(.14), tu(.35));
+      xs.forEach((x, i) => { const t = ti(i), top = +sy(x) + 8, cy = top + r + 22, L2 = []; for (let k = 0; k <= 10; k++) { const xx = lerp(-460, x, k / 10); L2.push([xx, +sy(xx)]); }
+        g = mvG(p, { y: [[0, -90], [t - tu(.2), -90], [t, 6, 'in'], [t + tu(.06), 0, 'out']], o: fadeIn(t - tu(.2), .06) }), rK = [[0, 0], [t, 0], [t + tu(.14), -8, 'out'], [t + tu(.34), 4, 'io'], [t + tu(.54), 0, 'soft']], sw = mvG(g, { px: x, py: +sy(x), r: rK });
+        sw.line(x, sy(x), x, top + 22, W(2.2)); sw.circle(x, +sy(x), 6, F(2)); disc(sw, x, cy, r); itemV(sw, c, its[i], x, cy - r * .2, r * .9, cy + r * .5, { size: 26, maxW: r * 1.5, t: t + tu(.04), noPop: true, mv: { px: x, py: +sy(x), r: rK } }); });
     }); });
 
-  /* 16 ── THE POCKET NOTEBOOK: a notebook bound with a spiral down its side, an elastic band and a pen clipped on it; the list on its page */
-  variant('pocketbook', 'รายการในสมุดโน้ต', (d, c) => { const its = IT(d), n = N(its), L = GN(d), y0 = L ? -150 : -230, gap = Math.min(104, (250 - y0) / n);
-    art(c, p => { R(p, -280, -310, 540, 610, 26, F(4.8)); for (let y = -270; y <= 270; y += 54) { p.circle(-280, y, 12, F(2.6)); }
-      if (L) { head(p, L, 0, -232, { maxW: 400 }); p.line(-200, -196, 220, -196, W(3)); }
-      its.forEach((it, i) => itemH(p, c, it, -200, y0 + gap * (i + .5), 400, 56, 34));
-      R(p, 196, -310, 26, 610, 8, F(3)); R(p, 236, -330, 30, 300, 12, F(3.4)); shape(p, [[236, -30], [266, -30], [251, 10]], F(2.6)); R(p, 228, -300, 46, 18, 6, F(2.4));
+  /* 16 ── THE POCKET NOTEBOOK: the notebook slides in, the spiral rings pop down its side, the band and the pen drop on; the name, then a line per item */
+  variant('pocketbook', 'รายการในสมุดโน้ต', (d, c) => { const its = IT(d), n = N(its), L = GN(d), y0 = L ? -150 : -230, gap = Math.min(104, (250 - y0) / n), Q = TL(), ti = tI(Q, its);
+    art(c, p => { R(mvG(p, { x: slideX(tu(.04), -160), o: fadeIn(tu(.04)) }), -280, -310, 540, 610, 26, F(4.8)); for (let y = -270, k = 0; y <= 270; y += 54, k++) popAt(p, -280, y, tu(.3 + .02 * k)).circle(-280, y, 12, F(2.6));
+      if (L) { head(p, L, 0, -232, { maxW: 400, t: Q.T0 }); drawAt(p.line(-200, -196, 220, -196, W(3)), p, Q.T0 + tu(.1), tu(.25)); }
+      its.forEach((it, i) => itemH(p, c, it, -200, y0 + gap * (i + .5), 400, 56, 34, { t: ti(i) }));
+      R(mvG(p, growY(209, 300, tu(.4))), 196, -310, 26, 610, 8, F(3)); const pn = inG(CL(p), 'drop', 251, -150, tu(.5)); R(pn, 236, -330, 30, 300, 12, F(3.4)); shape(pn, [[236, -30], [266, -30], [251, 10]], F(2.6)); R(pn, 228, -300, 46, 18, 6, F(2.4));
     }); });
 
-  /* 17 ── POINTING DOWN THE LIST: a person (front view) points at a tall list board on its stand */
-  variant('pointlist', 'คนชี้รายการบนกระดาน', (d, c) => { const its = IT(d), n = N(its), L = GN(d), px = -330, y0 = L ? -170 : -250, gap = Math.min(110, (200 - y0) / n);
-    art(c, p => { floorD(p); p.line(140, 220, 60, 290, W(5)); p.line(300, 220, 380, 290, W(5));
-      R(p, -80, -320, 460, 550, 28, F(4.8)); if (L) { head(p, L, 150, -250, { maxW: 400, size: 40 }); p.line(-40, -214, 340, -214, W(3)); }
-      its.forEach((it, i) => itemH(p, c, it, -40, y0 + gap * (i + .5), 380, 56, 32));
-      front(p, px, 290, 1, { 1: { s: [36, -82], e: [96, -112], h: [150, -138] } });
+  /* 17 ── POINTING DOWN THE LIST: the board's legs draw, the board drops on; the person rises in and raises the arm; the name, then the items one by one */
+  variant('pointlist', 'คนชี้รายการบนกระดาน', (d, c) => { const its = IT(d), n = N(its), L = GN(d), px = -330, y0 = L ? -170 : -250, gap = Math.min(110, (200 - y0) / n), Q = TL(), ti = tI(Q, its);
+    art(c, p => { floorD(p); drawAt(p.line(140, 220, 60, 290, W(5)), p, tu(.04), tu(.2)); drawAt(p.line(300, 220, 380, 290, W(5)), p, tu(.08), tu(.2));
+      R(inG(CL(p), 'drop', 150, -45, tu(.2)), -80, -320, 460, 550, 28, F(4.8)); if (L) { head(p, L, 150, -250, { maxW: 400, size: 40, t: Q.T0 }); drawAt(p.line(-40, -214, 340, -214, W(3)), p, Q.T0 + tu(.1), tu(.25)); }
+      its.forEach((it, i) => itemH(p, c, it, -40, y0 + gap * (i + .5), 380, 56, 32, { t: ti(i) }));
+      const hm = front(inG(p, 'rise', px, 140, tu(.1)), px, 290, 1, { 1: { s: [36, -82], e: [96, -112], h: [150, -138] } });
+      hm.on('upper1', p, 0, { ox: 36, oy: -82, r: armK(104, Q.T0 - tu(.3), Q.T0) }); hm.on('fore1', p, 0, { ox: 96, oy: -112, r: armK(20, Q.T0 - tu(.3), Q.T0, 0) });
     }); });
 
-  /* 18 ── THE PICTOGRAM SIGN: a sign hung from the ceiling on two rods — a row of icon tiles with names, the group's name above them */
-  variant('pictosign', 'แผงสัญลักษณ์หลายรายการ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), xs = spread(n, -410, 410), w = Math.min(170, 820 / n - 40);
-    art(c, p => { p.line(-480, -340, 480, -340, S(2)); [-300, 300].forEach(x => { R(p, x - 9, -340, 18, 120, 4, F(2.6)); });
-      R(p, -450, -220, 900, 430, 30, F(4.8)); if (L) { head(p, L, -410, -150, { anchor: 'start', maxW: 820, size: 42 }); p.line(-410, -120, 410, -120, S(2)); }
-      xs.forEach((x, i) => { const it = its[i], ty = L ? 0 : -40; R(p, x - w / 2, ty - w / 2, w, w, 26, F(4)); itemV(p, c, it, x, ty, w * .62, null, { maxW: w * .9, big: 30 });
-        if (it && it.label && picOf(it)) txt(p, it.label, x, ty + w / 2 + 50, { size: 28, maxW: 820 / n - 20, weight: 700, color: C.ink }); });
+  /* 18 ── THE PICTOGRAM SIGN: the rods drop from the ceiling and the sign is let down on them; the name, then the tiles light up one by one */
+  variant('pictosign', 'แผงสัญลักษณ์หลายรายการ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), xs = spread(n, -410, 410), w = Math.min(170, 820 / n - 40), Q = TL(), ti = tI(Q, its);
+    art(c, p => { drawAt(p.line(-480, -340, 480, -340, S(2)), p, 0, tu(.3));
+      const sg = mvG(clipG(p, -500, -338, 1000, 690), { y: [[0, -520], [tu(.2), -520], [Q.T0 - tu(.1), 8, 'out'], [Q.T0, -3, 'io'], [Q.T0 + tu(.1), 0, 'soft']] });
+      [-300, 300].forEach(x => R(sg, x - 9, -760, 18, 540, 4, F(2.6))); R(sg, -450, -220, 900, 430, 30, F(4.8));
+      if (L) { head(p, L, -410, -150, { anchor: 'start', maxW: 820, size: 42, t: Q.T0 }); drawAt(p.line(-410, -120, 410, -120, S(2)), p, Q.T0 + tu(.1), tu(.3)); }
+      xs.forEach((x, i) => { const it = its[i], ty = L ? 0 : -40, t = ti(i); R(popAt(p, x, ty, t - tu(.08)), x - w / 2, ty - w / 2, w, w, 26, F(4)); itemV(p, c, it, x, ty, w * .62, null, { maxW: w * .9, big: 30, t });
+        if (it && it.label && picOf(it)) txt(atG(p, t + tu(.12)), it.label, x, ty + w / 2 + 50, { size: 28, maxW: 820 / n - 20, weight: 700, color: C.ink }); });
     }); });
 
-  /* 19 ── THE GALLERY FRAME: one frame with a window cut in its mat for each item; the group's name on a small plaque under it */
-  variant('gallery', 'กลุ่มสัญลักษณ์ในกรอบ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), G = grid(n, -400, -250, 400, 190);
-    art(c, p => { R(p, -440, -290, 880, 520, 14, F(5.4)); R(p, -410, -260, 820, 460, 8, F(2));
-      G.at.forEach(([x, y], i) => { const w = G.cw - 40, h = G.ch - 30; R(p, x - w / 2, y - h / 2, w, h, 6, F(3.6)); itemV(p, c, its[i], x, y - h * .12, Math.min(w, h) * .48, y + h * .33, { size: 26, maxW: w - 20 }); });
-      if (L) { R(p, -200, 254, 400, 66, 14, F(3.8)); head(p, L, 0, 298, { size: 32, maxW: 360 }); }
+  /* 19 ── THE GALLERY FRAME: the frame pops onto the wall, the mat goes in; the windows open one by one, each showing its item; the plaque pops */
+  variant('gallery', 'กลุ่มสัญลักษณ์ในกรอบ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), G = grid(n, -400, -250, 400, 190), Q = TL(), ti = tI(Q, its);
+    art(c, p => { R(inG(p, 'pop', 0, -30, tu(.04)), -440, -290, 880, 520, 14, F(5.4)); R(litG(p, tu(.2), .15), -410, -260, 820, 460, 8, F(2));
+      G.at.forEach(([x, y], i) => { const w = G.cw - 40, h = G.ch - 30, t = ti(i); drawAt(R(p, x - w / 2, y - h / 2, w, h, 6, F(3.6)), p, tu(.34 + .05 * i), tu(.3)); itemV(p, c, its[i], x, y - h * .12, Math.min(w, h) * .48, y + h * .33, { size: 26, maxW: w - 20, t }); });
+      if (L) { const g = popAt(p, 0, 287, Q.T0 - tu(.1)); R(g, -200, 254, 400, 66, 14, F(3.8)); head(g, L, 0, 298, { size: 32, maxW: 360, t: Q.T0 }); }
     }); });
 
-  /* 20 ── THE OVERVIEW POSTER: a poster clipped to a rail by two bulldog clips — the group's name as its title, a tile per item */
-  variant('overview', 'แผ่นภาพรวมของรายการ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), G = grid(n, -350, L ? -130 : -220, 350, 280);
-    art(c, p => { R(p, -470, -330, 940, 20, 10, F(3)); R(p, -380, -280, 760, 590, 12, F(4.6));
-      [-260, 260].forEach(x => { shape(p, [[x - 50, -300], [x + 50, -300], [x + 40, -250], [x - 40, -250]], F(3.6)); p.path(`M ${x - 30} -300 L ${x - 20} -322 L ${x + 20} -322 L ${x + 30} -300`, W(2.6)); });
-      if (L) { head(p, L, 0, -178, { maxW: 680, size: 48 }); p.line(-330, -150, 330, -150, W(3)); }
-      G.at.forEach(([x, y], i) => { const w = G.cw - 30, h = G.ch - 30; R(p, x - w / 2, y - h / 2, w, h, 22, F(3.4)); itemV(p, c, its[i], x, y - h * .14, Math.min(w, h) * .5, y + h * .32, { size: 28, maxW: w - 24 }); });
+  /* 20 ── THE OVERVIEW POSTER: the rail pops, the clips drop onto it; the poster unrolls down from the clips; the title, then the tiles one by one */
+  variant('overview', 'แผ่นภาพรวมของรายการ', (d, c) => { const its = IT(d), n = N(its), L = GN(d), G = grid(n, -350, L ? -130 : -220, 350, 280), Q = TL(), ti = tI(Q, its), uS = tu(.3), uE = Math.max(tu(.7), Q.T0 - tu(.1));
+    art(c, p => { R(inG(p, 'pop', 0, -320, tu(.04)), -470, -330, 940, 20, 10, F(3));
+      R(mvG(p, { px: 0, py: -280, sy: [[0, .02], [uS, .02], [uE, 1.02, 'out'], [uE + tu(.1), 1, 'soft']], o: fadeIn(uS, .02) }), -380, -280, 760, 590, 12, F(4.6));
+      [-260, 260].forEach((x, i) => { const g = inG(p, 'drop', x, -280, tu(.12 + .06 * i)); shape(g, [[x - 50, -300], [x + 50, -300], [x + 40, -250], [x - 40, -250]], F(3.6)); g.path(`M ${x - 30} -300 L ${x - 20} -322 L ${x + 20} -322 L ${x + 30} -300`, W(2.6)); });
+      if (L) { head(p, L, 0, -178, { maxW: 680, size: 48, t: Q.T0 }); drawAt(p.line(-330, -150, 330, -150, W(3)), p, Q.T0 + tu(.1), tu(.3)); }
+      G.at.forEach(([x, y], i) => { const w = G.cw - 30, h = G.ch - 30, t = ti(i); R(popAt(p, x, y, t - tu(.08)), x - w / 2, y - h / 2, w, h, 22, F(3.4)); itemV(p, c, its[i], x, y - h * .14, Math.min(w, h) * .5, y + h * .32, { size: 28, maxW: w - 24, t }); });
     }); });
 
   /* ---------- sample data (A: lists from unrelated topics · B: stress) ---------- */
