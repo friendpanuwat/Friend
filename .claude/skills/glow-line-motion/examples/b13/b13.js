@@ -144,6 +144,10 @@
   const lastH = (q, Q, x, y, r, t) => { if (!Q.E) haloH(q, x, y, r, t); };
   const arcsAt = (q, x, y, dir, n, r0, gap, span, t, o = W(2.4), step = .06) => { for (let k = 0; k < n; k++) { const g = sub(q); on(g, q, 0, { o: [[0, 0], [t + tu(step * k), 0], [t + tu(step * k + .05), 1]] }); arcs(g, x, y, dir, 1, r0 + k * gap, gap, span, o); } };
 
+  /* per-frame hooks (b01): drawing that a keyframe can't do (the turning cube) runs on every setT */
+  const HOOKS = []; { const base = window.setT; window.setT = t => { base(t); for (const h of HOOKS) h(t); }; }
+  const rel = (p, t) => ((p.motion ? p.motion.time(t) : t) - p.t0) / p.ts;
+
   /* ---------- B13 parts ---------- */
   const st = d => has(d && d.secret) ? d.secret : null;
   const star4 = (q, x, y, r, o) => q.path(`M ${x} ${y - r} Q ${f1(x + r * .16)} ${f1(y - r * .16)} ${x + r} ${y} Q ${f1(x + r * .16)} ${f1(y + r * .16)} ${x} ${y + r} Q ${f1(x - r * .16)} ${f1(y + r * .16)} ${x - r} ${y} Q ${f1(x - r * .16)} ${f1(y - r * .16)} ${x} ${y - r} Z`, o || { fill: C.ink, sw: 1.2 });
@@ -269,22 +273,41 @@
       labAt(p, X, -260, -205, { maxW: 250, wrap: 'down' });
     }); });
 
-  /* 06 ── THE "?" CUBE: the cube drops onto its turntable showing a big "?"; it turns (squeezes to its edge and back) and now the "?" is on the
-     side and the face with the secret looks at us */
-  variant('qcube', 'กล่องคำถามหมุนตัว', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, x0 = -150, x1 = 110, y0 = -190, y1 = 70, dx = 90, dy = -70, mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+  /* 06 ── THE "?" CUBE (user: "design ให้มันเป็นงานมืออาชีพมากกว่านี้"): a real cube in 3/4 view on a round display stand. It drops onto the stand
+     showing a big "?"; it turns a quarter round on the stand (true projection, drawn every frame: faces narrow and slide, the top turns, the marks
+     on the stand's rim turn with it) — the "?" goes round to the side and the face with the secret comes to the front */
+  variant('qcube', 'กล่องคำถามหมุนตัว', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, Wc = 250, k = .34, cv = .94, X0 = -30, Y0 = -96, A0 = -20;
+    const yb = Y0 + Wc / 2 * cv, Rp = 214, tA = T0 + tu(.14), tB = T0 + tu(.64), tC = T0 + tu(.8);
+    /* the turn: still → quarter turn with a little overshoot → settle; the last frame is exactly A0 + 90 */
+    const ang = u => { if (u <= tA) return 0; if (u >= tC) return 90; if (u <= tB) { const v = (u - tA) / (tB - tA), e = v < .5 ? 2 * v * v : 1 - Math.pow(-2 * v + 2, 2) / 2; return e * 96; } const v = (u - tB) / (tC - tB); return 96 - 6 * (1 - Math.pow(1 - v, 2)); };
+    const lift = u => { if (u <= tA || u >= tC) return 0; const v = (u - tA) / (tC - tA); return -16 * Math.sin(Math.PI * v); };
     art(c, p => { floorD(p);
-      const tt = inG(p, 'pop', -10, 220, tu(.04)); const disk = (y) => ell(tt, -10, y, 230, 40, F(3));
-      disk(210); R(tt, -230, 210, 440, 30, 0, { fill: C.fill, sw: 0, stroke: 'none' }); disk(240); R(tt, -228, 208, 436, 34, 0, { fill: C.fill, sw: 0, stroke: 'none' });
-      disk(210); tt.line(-240, 210, -240, 240, W(3)); tt.line(220, 210, 220, 240, W(3)); R(tt, -40, 112, 60, 86, 8, F(2.6));
-      const cg = mvG(inG(p, 'drop', mx, my, tu(.16)), { px: mx + dx / 2, py: my, sx: [[0, 1], [T0 + tu(.12), 1], [T0 + tu(.32), .04, 'in'], [T0 + tu(.52), 1.06, 'out'], [T0 + tu(.64), 1, 'soft']] });
-      shape(cg, [[x1, y0], [x1 + dx, y0 + dy], [x1 + dx, y1 + dy], [x1, y1]], F(3.2)); shape(cg, [[x0, y0], [x1, y0], [x1 + dx, y0 + dy], [x0 + dx, y0 + dy]], F(3.2));
-      R(cg, x0, y0, x1 - x0, y1 - y0, 10, F(3.4));
-      const A = outG(cg, T0 + tu(.32), .01); A.text('?', mx, my + 52, { size: 170, weight: 800, anchor: 'middle', color: C.ink, dur: .01 });
-      const B = litG(cg, T0 + tu(.32), .01);
-      { const g = sub(B, { transform: `matrix(1 ${f1(dy / dx)} 0 1 ${x1 + dx / 2} ${f1(my + dy / 2 + 50)})` }); g.text('?', 0, 0, { size: 150, weight: 800, anchor: 'middle', color: C.soft, dur: .01 }); }
-      R(B, x0 + 16, y0 + 16, x1 - x0 - 32, y1 - y0 - 32, 6, { fill: 'rgba(255,255,255,.05)', sw: 1.6, stroke: C.soft });
-      reveal(p, c, X, mx, my, 140, null, { halo: false }); haloH(p, mx, my, 180, H); ripple(p, mx, my, 130, H + tu(.04));
-      labAt(p, X, 360, -40, { maxW: 240, wrap: 'down' });
+      /* the stand: top disc, waist, base */
+      const sd = inG(p, 'rise', X0, 180, tu(.04));
+      ell(sd, X0, 262, 150, 150 * k, F(3)); R(sd, X0 - 150, 236, 300, 26, 0, { fill: C.fill, sw: 0, stroke: 'none' }); ell(sd, X0, 236, 150, 150 * k, F(3)); [-150, 150].forEach(a => sd.line(X0 + a, 236, X0 + a, 262, W(3)));
+      shape(sd, [[X0 - 58, 98], [X0 + 58, 98], [X0 + 84, 236], [X0 - 84, 236]], F(3)); sd.line(X0 - 40, 120, X0 - 58, 220, S(1.4));
+      ell(sd, X0, yb + 26, Rp, Rp * k, F(3.2)); R(sd, X0 - Rp, yb, 2 * Rp, 26, 0, { fill: C.fill, sw: 0, stroke: 'none' }); [-Rp, Rp].forEach(a => sd.line(X0 + a, yb, X0 + a, yb + 26, W(3.2)));
+      ell(sd, X0, yb, Rp, Rp * k, F(3.2)); ell(sd, X0, yb, Rp - 26, (Rp - 26) * k, S(1.4));
+      const ticks = [...Array(12)].map(() => { const g = sub(sd); return { g, e: g.circle(0, 0, 4.5, SOLID(1)) }; });
+      /* the cube: 4 side faces (0 = "?", 1 = blank, 2 = blank, 3 = the secret's face) + the top, placed every frame */
+      const cb = inG(p, 'drop', X0, Y0, tu(.18)), top = cb.path('M 0 0', F(3.2)), topIn = cb.path('M 0 0', S(1.4));
+      const faces = [0, 1, 2, 3].map(j => { const g = sub(cb); R(g, -Wc / 2, -Wc / 2, Wc, Wc, 16, F(3.4)); R(g, -Wc / 2 + 18, -Wc / 2 + 18, Wc - 36, Wc - 36, 10, j === 3 ? { fill: 'rgba(255,255,255,.05)', sw: 1.6, stroke: C.soft } : S(1.6));
+        if (j === 0) g.text('?', 0, 58, { size: 170, weight: 800, anchor: 'middle', color: C.ink, dur: .01 }); if (j === 1 || j === 2) [-40, 0, 40].forEach(y => g.line(-50, y, 50, y, S(1.4))); return g; });
+      const PHI = [0, 90, 180, -90];
+      const place = u => { const a = A0 + ang(u), dy = lift(u), cyy = Y0 + dy;
+        const corner = q => { const r = rad(a + q), x = Wc / Math.SQRT2 * Math.sin(r), z = Wc / Math.SQRT2 * Math.cos(r); return [X0 + x, z * k]; };
+        const tp = [45, 135, 225, 315].map(corner), ty = cyy - Wc / 2 * cv, P = pts => 'M ' + pts.map(([x, y]) => f1(x) + ' ' + f1(ty + y)).join(' L ') + ' Z';
+        top.setAttribute('d', P(tp)); topIn.setAttribute('d', P(tp.map(([x, y]) => [X0 + (x - X0) * .74, y * .74])));
+        faces.forEach((g, j) => { const al = rad(PHI[j] + a), cs = Math.cos(al), sn = Math.sin(al), vis = cs > .015;
+          g.g.style.display = vis ? '' : 'none'; if (!vis) return;
+          g.g.setAttribute('transform', `matrix(${cs.toFixed(4)} ${(-sn * k).toFixed(4)} 0 ${cv} ${f1(X0 + Wc / 2 * sn)} ${f1(cyy + Wc / 2 * cs * k)})`); });
+        ticks.forEach(({ g, e }, m) => { const r = rad(a + m * 30), cs = Math.cos(r); g.g.style.display = cs > .05 ? '' : 'none'; e.setAttribute('cx', f1(X0 + (Rp - 13) * Math.sin(r))); e.setAttribute('cy', f1(yb + (Rp - 13) * cs * k)); }); };
+      place(0); HOOKS.push(t => place(rel(p, t)));
+      /* the secret on the front face after the turn (face 3 at A0: centre and size of that face) */
+      const fx = X0 + Wc / 2 * Math.sin(rad(A0)), fy = Y0 + Wc / 2 * Math.cos(rad(A0)) * k;
+      reveal(p, c, X, f1(fx), f1(fy), 140, null, { halo: false }); haloH(p, fx, fy, 100, H); ripple(p, fx, fy, 84, H + tu(.04));
+      sparkAt(p, X0, yb + 8, Rp + 10, Rp + 30, tB, 6, -180, [0, 1, 2], false);
+      labAt(p, X, 300, -60, { maxW: 230, wrap: 'down' });
     }); });
 
   /* 07 ── THE SEALED ENVELOPE: the envelope rises with its flap down and the seal on it; the seal shakes and cracks, the flap flips up
@@ -325,21 +348,23 @@
       reveal(dg, c, X, 160, -40, 140, 90, { halo: 104, r: 4, maxW: 280 });
     }); });
 
-  /* 09 ── THE DOG-EARED PAGE: the pages drop in flat; the corner of the top page turns over on its crease (the flap scales along the
-     fold's normal from −1 = lying flat in the corner, through edge-on, to +1 = turned back) and the secret is on the page underneath */
-  variant('dogear', 'มุมกระดาษพับ', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, tF = T0 + tu(.24), tE = T0 + tu(.58);
+  /* 09 ── THE DOG-EARED PAGE (user: "เคล็ดลับมันอยู่ตรงมุมและพื้นที่มันนิดเดียว"): a big corner of the top page turns over on its crease (the flap
+     scales along the fold's normal from −1 = lying flat, through edge-on, to +1 = turned back) and the secret has a wide space on the page beneath.
+     Crease: x + y = FK · pivot = the middle of the crease */
+  variant('dogear', 'มุมกระดาษพับ', (d, c) => { const X = st(d), T = TL(), H = T.H, T0 = T.T0, tF = T0 + tu(.24), tE = T0 + tu(.62), FK = 180, ax = -100, ay = 280, bx = 360, by = -180, pvx = 130, pvy = 50, sx = 222, sy = 126;
     art(c, p => { const pg = inG(p, 'drop', 0, 0, tu(.05));
-      R(pg, -364, -272, 724, 556, 10, F(3)); haloH(pg, 272, 190, 80, H);
-      shape(pg, [[-380, -290], [360, -290], [360, 0], [80, 280], [-380, 280]], { fill: C.fill, sw: 0, stroke: 'none' }); pg.path('M 360 0 L 360 -290 L -380 -290 L -380 280 L 80 280', W(3.4));
-      drawAt(pg.line(80, 280, 360, 0, W(3.4)), p, tF, tu(.08));
-      for (let k = 0; k < 9; k++) { const y = -236 + k * 54, xe = Math.min(320, 330 - y); drawAt(pg.line(-330, y, k % 3 === 2 ? Math.min(xe, 0) : xe, y, S(2.2)), p, tu(.2 + .03 * k), tu(.25)); }
+      R(pg, -364, -272, 724, 556, 10, F(3)); haloH(pg, sx, sy + 6, 114, H);
+      shape(pg, [[-380, -290], [360, -290], [bx, by], [ax, ay], [-380, 280]], { fill: C.fill, sw: 0, stroke: 'none' }); pg.path(`M ${bx} ${by} L 360 -290 L -380 -290 L -380 280 L ${ax} ${ay}`, W(3.4));
+      drawAt(pg.line(ax, ay, bx, by, W(3.4)), p, tF, tu(.08));
+      const rowEnd = k => k % 3 === 2 ? 0 : 320, pageEnd = (k, y) => Math.min(rowEnd(k), FK - 30 - y);
+      for (let k = 0; k < 9; k++) { const y = -236 + k * 54, e = pageEnd(k, y); if (e > -330) drawAt(pg.line(-330, y, e, y, S(2.2)), p, tu(.2 + .03 * k), tu(.25)); }
       const cp = sub(pg); on(cp, p, 0, { o: [[0, 1], [tF, 1], [tF + tu(.005), 0]] });
-      shape(cp, [[80, 280], [360, 280], [360, 0]], { fill: C.fill, sw: 0, stroke: 'none' }); cp.path('M 360 0 L 360 280 L 80 280', W(3.4));
-      for (let k = 0; k < 9; k++) { const y = -236 + k * 54, x0 = 330 - y; if (y > 0 && 372 - y < 320 && k % 3 !== 2) drawAt(cp.line(x0, y, 320, y, S(2.2)), p, tu(.2 + .03 * k), tu(.25)); }
-      const a1 = rot(pg, -45, 220, 140), fs = mvG(a1, { px: 220, py: 140, sy: [[0, -1], [tF, -1], [tE, 1.06, 'io'], [tE + tu(.1), 1, 'soft']], o: [[0, 0], [tF, 0], [tF + tu(.005), 1]] }), fl = rot(fs, 45, 220, 140);
-      shape(fl, [[80, 280], [360, 0], [80, 0]], F(3)); const inr = litG(fl, lerp(tF, tE, .5), .01); inr.line(112, 40, 112, 200, S(1.2)); inr.line(112, 40, 290, 40, S(1.2));
-      reveal(p, c, X, 274, 186, 110, null, { halo: false }); ripple(p, 274, 186, 64, H);
-      if (X && X.label && picOf(X)) txt(atG(p, H + tu(.12)), X.label, 262, 266, { maxW: 200, color: C.ink, weight: 700, size: 30 });
+      shape(cp, [[ax, ay], [360, 280], [bx, by]], { fill: C.fill, sw: 0, stroke: 'none' }); cp.path(`M ${bx} ${by} L 360 280 L ${ax} ${ay}`, W(3.4));
+      for (let k = 0; k < 9; k++) { const y = -236 + k * 54, e = pageEnd(k, y), x0 = Math.max(e, -330); if (x0 < rowEnd(k) && FK - y < rowEnd(k)) drawAt(cp.line(x0, y, rowEnd(k), y, S(2.2)), p, tu(.2 + .03 * k), tu(.25)); }
+      const a1 = rot(pg, -45, pvx, pvy), fs = mvG(a1, { px: pvx, py: pvy, sy: [[0, -1], [tF, -1], [tE, 1.05, 'io'], [tE + tu(.1), 1, 'soft']], o: [[0, 0], [tF, 0], [tF + tu(.005), 1]] }), fl = rot(fs, 45, pvx, pvy);
+      shape(fl, [[ax, ay], [bx, by], [ax, by]], F(3)); const inr = litG(fl, lerp(tF, tE, .5), .01); inr.line(ax + 32, by + 40, ax + 32, ay - 80, S(1.2)); inr.line(ax + 32, by + 40, bx - 80, by + 40, S(1.2));
+      reveal(p, c, X, sx, sy, 166, null, { halo: false }); ripple(p, sx, sy, 96, H);
+      if (X && X.label && picOf(X)) txt(atG(p, H + tu(.12)), X.label, sx, sy + 122, { maxW: 240, color: C.ink, weight: 700, size: 34 });
     }); });
 
   /* 10 ── THE TRI-FOLD: the folded sheet pops in closed; the top flap opens out on its crease, then the other — the middle panel carries the secret */
