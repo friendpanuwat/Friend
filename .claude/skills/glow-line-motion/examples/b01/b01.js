@@ -345,19 +345,18 @@
     icon(d, -175, -150, 82, c);
   });
 
-  /* 19 ── TYPEWRITER: the number has been typed on a sheet that sits in the platen roller (user's pick over ORBIT, 2026-11-12) */
-  variant('typewriter', 'พิมพ์ดีด', (d, c) => {
+  /* 19 ── FLIP: one big split-flap tile — a hinge line runs through the middle of the number (user's pick, 2026-11-13;
+     first offered for 14, then chosen for 19 over typewriter) */
+  variant('flip', 'แผ่นพลิก', (d, c) => {
     art(c, p => {
-      p.path('M -420 190 L 420 190 L 460 300 L -460 300 Z', F(3.2));
-      for (let i = 0; i < 9; i++) p.rect(-300 + i * 66, 228, 42, 34, Object.assign({ rx: 8 }, F(2)));
-      p.rect(-300, -270, 600, 420, Object.assign({ rx: 4 }, F(3)));
-      p.rect(-390, 120, 780, 66, Object.assign({ rx: 33 }, F(3.2))); [-1, 1].forEach(sd => p.circle(sd * 418, 153, 34, F(3)));
-      p.line(-360, 140, 360, 140, W(1.6));
-      txt(p, d.value, 0, d.unit ? 10 : 30, { size: 170, maxW: 520 });
-      if (d.unit) txt(p, d.unit, 0, 82, { size: 46, weight: 600, color: C.soft, maxW: 500 });
-      dirBadge(p, d.dir, 300, -270, 32);
+      p.rect(-380, -200, 760, 400, Object.assign({ rx: 26 }, F(3.4)));
+      const t = txt(p, d.value, 0, 86, { size: 240, maxW: 660 }); t.e.setAttribute('y', f1(t.size * .36));
+      p.line(-380, 0, 380, 0, { sw: 9, stroke: C.fill }); p.line(-380, 0, 380, 0, W(2));
+      [-1, 1].forEach(sd => p.rect(sd * 392 - 10, -22, 20, 44, Object.assign({ rx: 6 }, F(2.6))));
+      if (d.unit) txt(p, d.unit, 0, 290, { size: 56, weight: 600, color: C.soft, maxW: 740 });
+      dirBadge(p, d.dir, 380, -200, 32);
     });
-    icon(d, -220, -195, 80, c);
+    icon(d, 0, -278, 110, c);
   });
 
   /* 20 ── STACK: a fan of three cards, the number on the front one */

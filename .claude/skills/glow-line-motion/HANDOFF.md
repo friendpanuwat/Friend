@@ -38,7 +38,8 @@
   รสนิยมที่เห็น: เลือก **ของในชีวิตประจำวันที่มีกลไก** (กระดาษโน้ตปักหมุด, บานม้วน); ไม่เลือก: burst cube orbit ribbon neon marker letterboard iris scroll plinth flip.
   → รอบ 2 เสนอ 19: stamp / typewriter / dots และ 13: labelmaker / sticker / tent → ผู้ใช้ **"19 b 13 a"** →
   แบบ 19 = `typewriter` พิมพ์ดีด · แบบ 13 = `labelmaker` เครื่องพิมพ์ฉลาก (orbit, ribbon ลบแล้ว).
-- **ตอนนี้ 20 แบบ:** hero drum lcd gauge ring bar ruler column frame spotlight hex sign labelmaker shutter block lens card note typewriter stack.
+- ผู้ใช้เปลี่ยนใจ (2026-11-13): **"19 อยากได้เป็นอันนี้"** + ภาพ "C · แผ่นพลิก" (ตัวเลือก C ของรอบแบบ 14) → แบบ 19 = `flip` แผ่นพลิก (typewriter ลบแล้ว).
+- **ตอนนี้ 20 แบบ:** hero drum lcd gauge ring bar ruler column frame spotlight hex sign labelmaker shutter block lens card note flip stack.
   แผ่นทั้ง 4 อัปเดตแล้ว. **รอผู้ใช้ตอบว่าภาพนิ่งทั้ง 20 "ผ่าน"** → แล้วค่อยใส่ท่าขยับ 3–4 จังหวะทีละแบบ + วิดีโอ.
 
 ## ✅ ตัวปรับท่าขยับกลาง — ทำเสร็จแล้ว (2026-11-12) · ผู้ใช้ตอบ **"ผ่าน"**
