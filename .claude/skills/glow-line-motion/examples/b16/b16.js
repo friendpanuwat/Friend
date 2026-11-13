@@ -213,210 +213,238 @@
   const DOT = (q, x, y, r = 8) => q.circle(x, y, r, SOLID(1));
   /* the means as rows (icon or a dot + label), centred on y; none → two faint lines */
   function rows(q, c, M, x, y, w, o = {}) { const n = M.length, ic = (o.ic || 54) * 1.2, size = (o.size || 34) * 1.25, gap = Math.max(o.gap || 76, ic + 12);
-    if (!n) { lines(q, x, y - 15, w * .8, 2, 30, S(2), [1]); return; }
+    if (!n) { lines(atG(q, (o.tm || (() => Z.H))(0)), x, y - 15, w * .8, 2, 30, S(2), [1]); return; }
     const y0 = y - (n - 1) * gap / 2;
-    M.forEach((m, i) => { const yy = y0 + i * gap, pi = !!picOf(m), lx = pi ? x + ic + 18 : x + 32;
-      if (pi) put(q, c, { icon: m.icon }, x + ic / 2, yy, ic, null, {}); else DOT(q, x + 10, yy);
-      if (m.label) txt(q, m.label, lx, yy + size * .36, { size, maxW: x + w - lx, weight: 600, color: C.ink, anchor: 'start', wrap: n === 1 ? 'mid' : null }); }); }
+    const tm = o.tm || (() => Z.H);
+    M.forEach((m, i) => { const yy = y0 + i * gap, pi = !!picOf(m), lx = pi ? x + ic + 18 : x + 32, t = tm(i), lg = mvG(q, { x: [[0, -26], [t + tu(.04), -26], [t + tu(.26), 0, 'out']], o: fadeIn(t + tu(.04)) });
+      if (pi) put(q, c, { icon: m.icon }, x + ic / 2, yy, ic, null, { t, punch: t + tu(.16) }); else DOT(popAt(q, x + 10, yy, t), x + 10, yy);
+      if (m.label) txt(lg, m.label, lx, yy + size * .36, { size, maxW: x + w - lx, weight: 600, color: C.ink, anchor: 'start', wrap: n === 1 ? 'mid' : null }); }); }
   /* the means side by side (icon over label) between x0 and x1, centred on y */
   function cols(q, c, M, x0, x1, y, o = {}) { const n = M.length, ic = (o.ic || 64) * 1.2, size = (o.size || 28) * 1.25;
-    if (!n) { lines(q, x0 + (x1 - x0) * .15, y - 15, (x1 - x0) * .7, 2, 30, S(2), [1]); return; }
-    const w = (x1 - x0) / n;
-    M.forEach((m, i) => { const cx = x0 + w * (i + .5);
-      if (picOf(m)) { put(q, c, { icon: m.icon }, cx, y - (m.label ? ic * .32 : 0), ic, null, {}); if (m.label) txt(q, m.label, cx, y + ic * .5 + size * .5, { size, maxW: w - 24, weight: 600, color: C.ink, wrap: n === 1 ? 'down' : null }); }
-      else txt(q, m.label, cx, y + size * .4, { size: size * 1.1, maxW: w - 24, weight: 700, color: C.ink, wrap: n === 1 ? 'mid' : null }); }); }
+    if (!n) { lines(atG(q, Z.H), x0 + (x1 - x0) * .15, y - 15, (x1 - x0) * .7, 2, 30, S(2), [1]); return; }
+    const w = (x1 - x0) / n, tm = o.tm || (() => Z.H);
+    M.forEach((m, i) => { const cx = x0 + w * (i + .5), t = tm(i);
+      if (picOf(m)) { put(q, c, { icon: m.icon }, cx, y - (m.label ? ic * .32 : 0), ic, null, { t, punch: t + tu(.16) }); if (m.label) txt(atG(q, t + tu(.1)), m.label, cx, y + ic * .5 + size * .5, { size, maxW: w - 24, weight: 600, color: C.ink, wrap: n === 1 ? 'down' : null }); }
+      else txt(popAt(q, cx, y, t), m.label, cx, y + size * .4, { size: size * 1.1, maxW: w - 24, weight: 700, color: C.ink, wrap: n === 1 ? 'mid' : null }); }); }
   /* the term sideways (icon + label) or stacked — thin wrappers so every design reads the same */
   const termH = (q, c, T, ix, iy, w, lx, o = {}) => heroH(q, c, T, ix, iy, w, lx, iy + (o.dy ?? 18), Object.assign({ rip: false, size: 52, maxW: 420, bigSize: 58, bigW: 600 }, o));
   const termV = (q, c, T, x, y, w, ly, o = {}) => hero(q, c, T, x, y, w, ly, Object.assign({ rip: false, size: 46, maxW: 380, bigSize: 56, bigW: 420 }, o));
 
-  /* 01 ── THE BOARD: a chalkboard on the wall — the term on top, underlined; the meaning written below; chalk and the eraser on the ledge */
-  variant('board', 'คำศัพท์บนกระดาน', (d, c) => { const T = TM(d), M = MS(d);
-    art(c, p => { R(p, -430, -300, 860, 520, 32, F(4.6)); R(p, -404, -274, 808, 468, 18, S(1.6));
-      R(p, -330, 222, 660, 26, 13, F(3.4)); R(p, -250, 202, 70, 20, 8, F(2.6)); R(p, 170, 194, 100, 28, 10, F(3));
-      termH(p, c, T, -300, -186, 100, -220, { cx: 0, maxW: 560, bigW: 720 }); p.line(-340, -108, 340, -108, W(3));
-      rows(p, c, M, -330, 50, 660);
+
+  /* ---------- motion (user 2026-11-13 "ทำเคลื่อนไหวได้"): the thing comes in part by part and does its job (drops, swings, opens, rises,
+     slides out) → the term lands at T0 → the meanings come in one by one, the last one on the keyword H → hold. Last frame = the approved still. ---------- */
+  /* a hung thing drops in at t0 and swings, the swing squeezed to settle exactly at `end` (keys never run past it) */
+  const swingFit = (t0, end, a = 6) => { const L = Math.max(tu(.2), end - t0), at = k => f3(t0 + L * k);
+    return { y: [[0, -300], [Math.max(0, t0 - tu(.18)), -300], [t0, 10, 'in'], [f3(t0 + tu(.06)), 0, 'out']],
+      r: [[0, 0], [t0, 0], [at(.3), a, 'out'], [at(.6), -a * .5, 'io'], [at(.85), a * .2, 'io'], [at(1), 0, 'soft']], o: fadeIn(Math.max(0, t0 - tu(.18))) }; };
+  const mT = (T, n) => i => n > 1 ? f3(lerp(T.T0 + tu(.3), T.H, i / (n - 1))) : T.H;
+
+  /* 01 ── THE BOARD: the board pops onto the wall, the ledge slides in, chalk and eraser drop on; the term is written, underlined, then the meanings */
+  variant('board', 'คำศัพท์บนกระดาน', (d, c) => { const T = TM(d), M = MS(d), Q = TL();
+    art(c, p => { const bd = inG(p, 'pop', 0, -40, tu(.04)); R(bd, -430, -300, 860, 520, 32, F(4.6)); R(bd, -404, -274, 808, 468, 18, S(1.6));
+      R(mvG(p, { px: 0, py: 235, sx: [[0, .05], [tu(.2), .05], [tu(.45), 1.02, 'out'], [tu(.55), 1, 'soft']], o: fadeIn(tu(.2), .04) }), -330, 222, 660, 26, 13, F(3.4));
+      R(inG(p, 'drop', -215, 212, tu(.5)), -250, 202, 70, 20, 8, F(2.6)); R(inG(p, 'drop', 220, 208, tu(.58)), 170, 194, 100, 28, 10, F(3));
+      termH(p, c, T, -300, -186, 100, -220, { cx: 0, maxW: 560, bigW: 720, t: Q.T0 }); drawAt(p.line(-340, -108, 340, -108, W(3)), p, Q.T0 + tu(.12), tu(.3));
+      rows(p, c, M, -330, 50, 660, { tm: mT(Q, M.length) });
     }); });
 
-  /* 02 ── HOLDING UP THE WORD CARD: a person (front view) holds a big word card up beside the head — the term on top, the meaning below */
-  variant('wordcard', 'คนถือบัตรคำ', (d, c) => { const T = TM(d), M = MS(d), px = -340;
+  /* 02 ── HOLDING UP THE WORD CARD: the person rises in and lifts the arm — the card comes up with the hand; the term, then the meanings */
+  variant('wordcard', 'คนถือบัตรคำ', (d, c) => { const T = TM(d), M = MS(d), Q = TL(), px = -340, tA = tu(.3), tC = tu(.6);
     art(c, p => { floorD(p);
-      front(p, px, 290, 1, { 1: { s: [36, -82], e: [96, -118], h: [148, -150] } });
-      R(p, -176, -300, 510, 420, 34, F(4.6)); R(p, -200, -58, 44, 70, 18, F(3));
-      termV(p, c, T, 80, -222, 96, -134, { size: 40, maxW: 420, bigW: 440, bigDy: 30 }); p.line(-120, -72, 280, -72, S(2));
-      rows(p, c, M, -130, 34, 440, { gap: 62, size: 28, ic: 44 });
+      const hm = front(inG(p, 'rise', px, 140, tu(.04)), px, 290, 1, { 1: { s: [36, -82], e: [96, -118], h: [148, -150] } });
+      hm.on('upper1', p, 0, { ox: 36, oy: -82, r: armK(98, tA, tC) }); hm.on('fore1', p, 0, { ox: 96, oy: -118, r: armK(40, tA, tC, 0) });
+      const cd = popAt(p, -180, -24, tC - tu(.08)); R(cd, -176, -300, 510, 420, 34, F(4.6)); R(cd, -200, -58, 44, 70, 18, F(3));
+      termV(p, c, T, 80, -222, 96, -134, { size: 40, maxW: 420, bigW: 440, bigDy: 30, t: Q.T0 }); drawAt(p.line(-120, -72, 280, -72, S(2)), p, Q.T0 + tu(.12), tu(.25));
+      rows(p, c, M, -130, 34, 440, { gap: 62, size: 28, ic: 44, tm: mT(Q, M.length) });
     }); });
 
-  /* 03 ── THE FRAMED WORD: a framed picture of the term hangs on the wall; the plaque below it carries the meaning */
-  variant('framed', 'คำศัพท์ในกรอบ', (d, c) => { const T = TM(d), M = MS(d);
-    art(c, p => { p.circle(0, -338, 9, F(2.6)); p.path('M -150 -300 L 0 -334 L 150 -300', W(2.4));
-      R(p, -214, -306, 428, 330, 16, F(5)); R(p, -182, -274, 364, 266, 8, F(2.4));
-      termV(p, c, T, 0, -172, 120, -50, { size: 42, maxW: 330, bigW: 330, bigSize: 50 });
-      R(p, -300, 70, 600, 210, 22, F(4.4)); [-268, 268].forEach(x => screw(p, x, 175, 5));
-      rows(p, c, M, -240, 175, 480, { gap: 58, size: 30, ic: 44 });
+  /* 03 ── THE FRAMED WORD: the nail pops; the frame drops in on its cord and swings on the nail, settling; the plaque pops below; term, meanings */
+  variant('framed', 'คำศัพท์ในกรอบ', (d, c) => { const T = TM(d), M = MS(d), Q = TL();
+    art(c, p => { popAt(p, 0, -338, tu(.04)).circle(0, -338, 9, F(2.6));
+      const sw = mvG(CL(p), Object.assign({ px: 0, py: -334 }, swingFit(tu(.3), Q.T0 - tu(.02), 6))); sw.path('M -150 -300 L 0 -334 L 150 -300', W(2.4));
+      R(sw, -214, -306, 428, 330, 16, F(5)); R(sw, -182, -274, 364, 266, 8, F(2.4));
+      const pl = inG(p, 'pop', 0, 175, tu(.3)); R(pl, -300, 70, 600, 210, 22, F(4.4)); [-268, 268].forEach(x => screw(pl, x, 175, 5));
+      termV(p, c, T, 0, -172, 120, -50, { size: 42, maxW: 330, bigW: 330, bigSize: 50, t: Q.T0 });
+      rows(p, c, M, -240, 175, 480, { gap: 58, size: 30, ic: 44, tm: mT(Q, M.length) });
     }); });
 
-  /* 04 ── THE NOTEPAD: a spiral notepad — the term as the heading, underlined, the meaning as the notes beneath */
-  variant('notepad', 'สมุดหัวข้อและคำอธิบาย', (d, c) => { const T = TM(d), M = MS(d);
-    art(c, p => { const g = rot(p, -3, 0, 0);
+  /* 04 ── THE NOTEPAD: the pad drops onto the desk and settles at its tilt, the rings pop along the top, the margin draws; heading, underline, notes */
+  variant('notepad', 'สมุดหัวข้อและคำอธิบาย', (d, c) => { const T = TM(d), M = MS(d), Q = TL();
+    art(c, p => { const g0 = inG(CL(p), 'drop', 0, 0, tu(.04)), g = rot(g0, -3, 0, 0);
       R(g, -300, -270, 600, 570, 26, F(4.6)); R(g, -300, -300, 600, 80, 26, F(4.6));
-      for (let x = -240; x <= 240; x += 80) { g.circle(x, -300, 11, F(2.6)); g.line(x, -289, x, -268, W(3)); }
-      g.line(-226, -200, -226, 280, S(1.8));
-      termH(g, c, T, -150, -146, 92, -84, { cx: 30, size: 48, maxW: 330, bigW: 430 }); g.line(-196, -82, 260, -82, W(3));
-      rows(g, c, M, -196, 90, 450);
+      for (let x = -240, i = 0; x <= 240; x += 80, i++) { const r = popAt(g, x, -290, tu(.36 + .04 * i)); r.circle(x, -300, 11, F(2.6)); r.line(x, -289, x, -268, W(3)); }
+      drawAt(g.line(-226, -200, -226, 280, S(1.8)), p, tu(.5), tu(.3));
+      termH(g, c, T, -150, -146, 92, -84, { cx: 30, size: 48, maxW: 330, bigW: 430, t: Q.T0 }); drawAt(g.line(-196, -82, 260, -82, W(3)), p, Q.T0 + tu(.12), tu(.3));
+      rows(g, c, M, -196, 90, 450, { tm: mT(Q, M.length) });
     }); });
 
-  /* 05 ── THE BOOK ON ITS STAND: an open book rests on a reading stand — the term on the left page, the meaning on the right */
-  variant('bookstand', 'หนังสือเปิดหน้าคำศัพท์', (d, c) => { const T = TM(d), M = MS(d);
-    art(c, p => { floorD(p); [[-300, -340], [300, 340]].forEach(([a, b]) => p.line(a, 236, b, 290, W(5)));
-      [-1, 1].forEach(sd => p.path(`M 0 -246 Q ${sd * 200} -284 ${sd * 410} -246 L ${sd * 410} 204 Q ${sd * 200} 178 0 204 Z`, F(4.6)));
-      p.line(0, -246, 0, 204, W(3)); R(p, -440, 196, 880, 40, 16, F(4.2));
-      termV(p, c, T, -205, -96, 130, 44, { size: 42, maxW: 320, bigW: 330, bigSize: 50 });
-      rows(p, c, M, 34, -24, 350, { gap: 74, size: 32, ic: 50 });
+  /* 05 ── THE BOOK ON ITS STAND: the legs draw, the ledge pops; the book drops on and falls open from its spine; term on the left, meanings on the right */
+  variant('bookstand', 'หนังสือเปิดหน้าคำศัพท์', (d, c) => { const T = TM(d), M = MS(d), Q = TL(), tO = Math.max(tu(.5), Q.T0 - tu(.3));
+    art(c, p => { floorD(p); [[-300, -340], [300, 340]].forEach(([a, b], i) => drawAt(p.line(a, 236, b, 290, W(5)), p, tu(.04 + .05 * i), tu(.2)));
+      const bk = inG(CL(p), 'drop', 0, 0, tu(.24));
+      [-1, 1].forEach(sd => p && mvG(bk, { px: 0, py: 0, sx: [[0, .05], [tO, .05], [tO + tu(.3), 1.02, 'out'], [tO + tu(.4), 1, 'soft']] }).path(`M 0 -246 Q ${sd * 200} -284 ${sd * 410} -246 L ${sd * 410} 204 Q ${sd * 200} 178 0 204 Z`, F(4.6)));
+      bk.line(0, -246, 0, 204, W(3)); R(inG(p, 'pop', 0, 216, tu(.12)), -440, 196, 880, 40, 16, F(4.2));
+      termV(p, c, T, -205, -96, 130, 44, { size: 42, maxW: 320, bigW: 330, bigSize: 50, t: Q.T0 });
+      rows(p, c, M, 34, -24, 350, { gap: 74, size: 32, ic: 50, tm: mT(Q, M.length) });
     }); });
 
-  /* 06 ── THE WORD IN A CIRCLE: the term sits in a thick ring; a curly brace gathers what it means */
-  variant('circle', 'คำในวงกลม', (d, c) => { const T = TM(d), M = MS(d), cx = -250;
-    art(c, p => { ring(p, cx, 0, 176, 152, F(4.6)); p.circle(cx, 0, 152, F(1));
-      termV(p, c, T, cx, -38, 120, 84, { size: 40, maxW: 250, bigSize: 46, bigW: 260, bigDy: 26 });
-      p.path('M 30 -210 Q -14 -210 -14 -166 L -14 -44 Q -14 0 -58 0 Q -14 0 -14 44 L -14 166 Q -14 210 30 210', { sw: 6 });
-      rows(p, c, M, 50, 0, 420, { gap: 92, size: 38, ic: 62 });
+  /* 06 ── THE WORD IN A CIRCLE: the ring pops in turning; the term lands in it; the brace draws open and the meanings come out of it */
+  variant('circle', 'คำในวงกลม', (d, c) => { const T = TM(d), M = MS(d), Q = TL(), cx = -250;
+    art(c, p => { const rg = mvG(inG(p, 'pop', cx, 0, tu(.04)), { px: cx, py: 0, r: [[0, -40], [tu(.04), -40], [tu(.4), 3, 'out'], [tu(.55), 0, 'soft']] }); ring(rg, cx, 0, 176, 152, F(4.6)); rg.circle(cx, 0, 152, F(1));
+      termV(p, c, T, cx, -38, 120, 84, { size: 40, maxW: 250, bigSize: 46, bigW: 260, bigDy: 26, t: Q.T0 });
+      drawAt(p.path('M 30 -210 Q -14 -210 -14 -166 L -14 -44 Q -14 0 -58 0 Q -14 0 -14 44 L -14 166 Q -14 210 30 210', { sw: 6 }), p, Q.T0 + tu(.1), tu(.3));
+      rows(p, c, M, 50, 0, 420, { gap: 92, size: 38, ic: 62, tm: mT(Q, M.length) });
     }); });
 
-  /* 07 ── THE NAME TAG: the thing itself stands on a plinth with its name; a tag tied to it by a string tells what it is */
-  variant('nametag', 'ป้ายชื่อวัตถุ', (d, c) => { const T = TM(d), M = MS(d), cx = -230;
+  /* 07 ── THE NAME TAG: the plinth rises; the thing drops onto it with a bump and its name lights on the plinth; the string draws out and the tag
+     pops on its end with a little swing; the meanings fill the tag */
+  variant('nametag', 'ป้ายชื่อวัตถุ', (d, c) => { const T = TM(d), M = MS(d), Q = TL(), cx = -230, tL = Q.T0, tS = Q.T0 + tu(.2);
+    art(c, p => { floorD(p); const pl = inG(p, 'rise', cx, 220, tu(.04));
+      ell(pl, cx, 270, 160, 24, F(3.4)); R(pl, cx - 160, 166, 320, 104, 0, { fill: C.fill, sw: 0, stroke: 'none' }); [cx - 160, cx + 160].forEach(x => pl.line(x, 166, x, 270, W(3.4))); ell(pl, cx, 166, 160, 24, F(3.6));
+      if (T && picOf(T)) { put(p, c, T, cx, -40, 230, null, { t: tL - tu(.24), mv: { y: [[0, -90], [tL - tu(.24), -90], [tL, 0, 'in'], [tL + tu(.06), -10, 'out'], [tL + tu(.14), 0, 'soft']] } });
+        if (T.label) txt(atG(p, tL + tu(.06)), T.label, cx, 236, { size: 34, maxW: 280, weight: 800, color: C.ink }); }
+      else if (T) txt(popAt(p, cx, -30, tL), T.label, cx, -10, { size: 60, maxW: 360, weight: 800, color: C.ink, wrap: 'mid' }); else star4(popAt(p, cx, -40, tL), cx, -40, 60);
+      drawAt(p.path(`M ${cx + 110} -120 Q 0 -200 76 -16`, W(2.4)), p, tS - tu(.2), tu(.2));
+      const tg = mvG(popAt(p, 76, -10, tS), { px: 76, py: -10, r: [[0, 0], [tS, 0], [tS + tu(.15), 8, 'out'], [tS + tu(.4), -4, 'io'], [tS + tu(.62), 0, 'soft']] }), g = rot(tg, 6, 60, -10);
+      shape(g, [[40, -10], [104, -190], [450, -190], [450, 180], [104, 180]], F(4.4)); g.circle(76, -10, 13, F(2.6));
+      rows(rot(p, 6, 60, -10), c, M, 126, -5, 300, { gap: 70, size: 30, ic: 46, tm: mT({ T0: tS + tu(.2), H: Q.H }, M.length) });
+    }); });
+
+  /* 08 ── THE FACT SHEET: the hook pops; the sheet drops in on its clip and swings, settling; the header band lights; term, meanings */
+  variant('factsheet', 'แผ่นข้อมูลคำศัพท์', (d, c) => { const T = TM(d), M = MS(d), Q = TL();
+    art(c, p => { popAt(p, 0, -338, tu(.04)).circle(0, -338, 9, F(2.6));
+      const sw = mvG(CL(p), Object.assign({ px: 0, py: -334 }, swingFit(tu(.3), Q.T0 - tu(.02), 5)));
+      R(sw, -280, -262, 560, 590, 18, F(4.6)); R(litG(sw, Q.T0 - tu(.1), .2), -280, -210, 560, 150, 0, { fill: 'rgba(255,255,255,.1)', sw: 0, stroke: 'none' }); sw.line(-280, -60, 280, -60, W(2.6));
+      sw.path('M -54 -276 L -34 -334 L 34 -334 L 54 -276', W(3.2)); shape(sw, [[-96, -284], [96, -284], [76, -226], [-76, -226]], F(3.6));
+      termH(p, c, T, -180, -136, 100, -100, { cx: 0, maxW: 340, bigW: 480, t: Q.T0 });
+      rows(p, c, M, -226, 110, 470, { tm: mT(Q, M.length) });
+    }); });
+
+  /* 09 ── POINTING AT THE WORD: the easel legs draw, the board drops onto it; the person rises in and raises the arm to point at the term */
+  variant('pointboard', 'คนชี้คำบนกระดาน', (d, c) => { const T = TM(d), M = MS(d), Q = TL(), px = -350;
     art(c, p => { floorD(p);
-      ell(p, cx, 270, 160, 24, F(3.4)); R(p, cx - 160, 166, 320, 104, 0, { fill: C.fill, sw: 0, stroke: 'none' }); [cx - 160, cx + 160].forEach(x => p.line(x, 166, x, 270, W(3.4))); ell(p, cx, 166, 160, 24, F(3.6));
-      if (T && picOf(T)) { put(p, c, T, cx, -40, 230, null, {}); if (T.label) txt(p, T.label, cx, 236, { size: 34, maxW: 280, weight: 800, color: C.ink }); }
-      else if (T) txt(p, T.label, cx, -10, { size: 60, maxW: 360, weight: 800, color: C.ink, wrap: 'mid' }); else star4(p, cx, -40, 60);
-      p.path(`M ${cx + 110} -120 Q 0 -200 76 -16`, W(2.4));
-      const g = rot(p, 6, 60, -10); shape(g, [[40, -10], [104, -190], [450, -190], [450, 180], [104, 180]], F(4.4)); g.circle(76, -10, 13, F(2.6));
-      rows(g, c, M, 126, -5, 300, { gap: 70, size: 30, ic: 46 });
+      [[-60, -110], [380, 430]].forEach(([a, b], i) => drawAt(p.line(a, 96, b, 290, W(5)), p, tu(.04 + .05 * i), tu(.25))); drawAt(p.line(160, 96, 160, 290, S(3)), p, tu(.14), tu(.25));
+      const bd = inG(CL(p), 'drop', 165, -100, tu(.3)); R(bd, -130, -300, 590, 384, 26, F(4.6)); R(bd, -100, 82, 530, 20, 9, F(3));
+      const hm = front(inG(p, 'rise', px, 140, tu(.12)), px, 290, 1, { 1: { s: [36, -82], e: [92, -128], h: [148, -172] } });
+      hm.on('upper1', p, 0, { ox: 36, oy: -82, r: armK(124, Q.T0 - tu(.3), Q.T0) }); hm.on('fore1', p, 0, { ox: 92, oy: -128, r: armK(10, Q.T0 - tu(.3), Q.T0, 0) });
+      termH(p, c, T, -40, -212, 90, 30, { cx: 165, size: 46, maxW: 390, bigW: 520, t: Q.T0 }); drawAt(p.line(-90, -152, 420, -152, W(3)), p, Q.T0 + tu(.12), tu(.3));
+      rows(p, c, M, -90, -30, 510, { gap: 64, size: 32, ic: 48, tm: mT(Q, M.length) });
     }); });
 
-  /* 08 ── THE FACT SHEET: a sheet clipped to a hook by a binder clip — the term in its header band, the meaning below */
-  variant('factsheet', 'แผ่นข้อมูลคำศัพท์', (d, c) => { const T = TM(d), M = MS(d);
-    art(c, p => { p.circle(0, -338, 9, F(2.6));
-      R(p, -280, -262, 560, 590, 18, F(4.6)); R(p, -280, -210, 560, 150, 0, { fill: 'rgba(255,255,255,.1)', sw: 0, stroke: 'none' }); p.line(-280, -60, 280, -60, W(2.6));
-      p.path('M -54 -276 L -34 -334 L 34 -334 L 54 -276', W(3.2)); shape(p, [[-96, -284], [96, -284], [76, -226], [-76, -226]], F(3.6));
-      termH(p, c, T, -180, -136, 100, -100, { cx: 0, maxW: 340, bigW: 480 });
-      rows(p, c, M, -226, 110, 470);
+  /* 10 ── THE NAMEPLATE: the desk pops and its legs draw; the nameplate rises onto it; the term on its face, the short meanings along the edge */
+  variant('nameplate', 'ป้ายชื่อพร้อมคำอธิบายสั้น', (d, c) => { const T = TM(d), M = MS(d), Q = TL();
+    art(c, p => { R(inG(p, 'pop', 0, 210, tu(.04)), -480, 196, 960, 26, 6, F(3.4)); [-450, 450].forEach(x => drawAt(p.line(x, 222, x, 340, S(2)), p, tu(.14), tu(.2)));
+      const np = mvG(clipG(p, -500, -350, 1000, 546), { px: 0, py: 196, y: [[0, 330], [tu(.3), 330], [tu(.62), -8, 'out'], [tu(.74), 0, 'soft']] });
+      shape(np, [[-390, -66], [390, -66], [356, -120], [-356, -120]], F(3.6)); R(np, -390, -66, 780, 262, 20, F(4.6));
+      termH(p, c, T, -290, 8, 100, -210, { cx: 0, size: 56, maxW: 560, bigW: 700, dy: 20, t: Q.T0 }); drawAt(p.line(-340, 76, 340, 76, S(2)), p, Q.T0 + tu(.12), tu(.3));
+      cols(p, c, M, -380, 380, 128, { ic: 42, size: 26, tm: mT(Q, M.length) });
     }); });
 
-  /* 09 ── POINTING AT THE WORD: a person (front view) points up at the term on a whiteboard on its easel; the meaning is written under it */
-  variant('pointboard', 'คนชี้คำบนกระดาน', (d, c) => { const T = TM(d), M = MS(d), px = -350;
-    art(c, p => { floorD(p);
-      [[-60, -110], [380, 430]].forEach(([a, b]) => p.line(a, 96, b, 290, W(5))); p.line(160, 96, 160, 290, S(3));
-      R(p, -130, -300, 590, 384, 26, F(4.6)); R(p, -100, 82, 530, 20, 9, F(3));
-      front(p, px, 290, 1, { 1: { s: [36, -82], e: [92, -128], h: [148, -172] } });
-      termH(p, c, T, -40, -212, 90, 30, { cx: 165, size: 46, maxW: 390, bigW: 520 }); p.line(-90, -152, 420, -152, W(3));
-      rows(p, c, M, -90, -30, 510, { gap: 64, size: 32, ic: 48 });
+  /* 11 ── THE FLASH CARDS: the term card pops in; the meaning card slides out from behind it and turns to its tilt; the meanings come up on it */
+  variant('flashcards', 'การ์ดคำศัพท์และความหมาย', (d, c) => { const T = TM(d), M = MS(d), Q = TL(), tS = Q.T0 + tu(.1);
+    art(c, p => { const bm = mvG(p, { x: [[0, -330], [tS, -330], [tS + tu(.4), 10, 'out'], [tS + tu(.52), 0, 'soft']], y: [[0, 200], [tS, 200], [tS + tu(.4), 0, 'out']], o: fadeIn(tS, .05) });
+      R(rot(bm, 6, 200, -150), -40, -300, 470, 330, 30, F(4.4));
+      rows(rot(p, 6, 200, -150), c, M, 0, -196, 390, { gap: 52, size: 28, ic: 40, tm: mT({ T0: tS + tu(.2), H: Q.H }, M.length) });
+      const f = rot(inG(p, 'pop', -200, 70, tu(.04)), -4, -190, 90); R(f, -440, -96, 480, 340, 30, F(4.8));
+      termV(rot(p, -4, -190, 90), c, T, -200, 40, 130, 170, { size: 44, maxW: 400, bigW: 410, bigSize: 52, t: Q.T0 });
     }); });
 
-  /* 10 ── THE NAMEPLATE: a desk nameplate (a block with a bevelled top) — the term on its face, the short meaning along its lower edge */
-  variant('nameplate', 'ป้ายชื่อพร้อมคำอธิบายสั้น', (d, c) => { const T = TM(d), M = MS(d);
-    art(c, p => { R(p, -480, 196, 960, 26, 6, F(3.4)); [-450, 450].forEach(x => p.line(x, 222, x, 340, S(2)));
-      shape(p, [[-390, -66], [390, -66], [356, -120], [-356, -120]], F(3.6)); R(p, -390, -66, 780, 262, 20, F(4.6));
-      termH(p, c, T, -290, 8, 100, -210, { cx: 0, size: 56, maxW: 560, bigW: 700, dy: 20 }); p.line(-340, 76, 340, 76, S(2));
-      cols(p, c, M, -380, 380, 128, { ic: 42, size: 26 });
-    }); });
-
-  /* 11 ── THE FLASH CARDS: the term on the front card; the card behind it, turned, carries the meaning */
-  variant('flashcards', 'การ์ดคำศัพท์และความหมาย', (d, c) => { const T = TM(d), M = MS(d);
-    art(c, p => { const b = rot(p, 6, 200, -150); R(b, -40, -300, 470, 330, 30, F(4.4));
-      rows(b, c, M, 0, -196, 390, { gap: 52, size: 28, ic: 40 });
-      const f = rot(p, -4, -190, 90); R(f, -440, -96, 480, 340, 30, F(4.8));
-      termV(f, c, T, -200, 40, 130, 170, { size: 44, maxW: 400, bigW: 410, bigSize: 52 });
-    }); });
-
-  /* 12 ── THE BOOK WITH TABS: a book stands closed, the term on its cover; page tabs stick out of its side — one per meaning */
-  variant('tabbook', 'หนังสือพร้อมแถบคั่นหน้า', (d, c) => { const T = TM(d), M = MS(d), n = Math.max(1, M.length);
+  /* 12 ── THE BOOK WITH TABS: the book rises; the term lands on the cover; a page tab slides out of its side for each meaning */
+  variant('tabbook', 'หนังสือพร้อมแถบคั่นหน้า', (d, c) => { const T = TM(d), M = MS(d), Q = TL(), n = Math.max(1, M.length), tm = mT(Q, M.length);
     art(c, p => {
-      for (let i = 0; i < n; i++) { const y = (i - (n - 1) / 2) * 156 - 10, m = M[i]; R(p, 140, y - 56, 320, 112, 22, F(4));
-        if (m) { const pi = !!picOf(m), lx = pi ? 280 : 236; if (pi) put(p, c, { icon: m.icon }, 240, y, 62, null, {}); else DOT(p, 214, y);
-          if (m.label) txt(p, m.label, lx + 6, y + 13, { size: 38, maxW: 440 - lx, weight: 600, color: C.ink, anchor: 'start' }); }
-        else lines(p, 220, y - 10, 160, 2, 24, S(2), [1]); }
-      R(p, -270, -300, 460, 590, 22, F(4.8)); p.line(-212, -300, -212, 290, W(3));
-      termV(p, c, T, -20, -96, 140, 50, { size: 44, maxW: 330, bigW: 340, bigSize: 52 });
+      for (let i = 0; i < n; i++) { const y = (i - (n - 1) / 2) * 156 - 10, m = M[i], t = M.length ? tm(i) - tu(.2) : Q.H - tu(.2), K = [[0, -320], [t, -320], [t + tu(.26), 8, 'out'], [t + tu(.36), 0, 'soft']];
+        const tb = mvG(p, { x: K, o: fadeIn(t, .04) }); R(tb, 140, y - 56, 320, 112, 22, F(4));
+        if (m) { const pi = !!picOf(m), lx = pi ? 280 : 236; if (pi) put(p, c, { icon: m.icon }, 240, y, 62, null, { t: t + tu(.1), mv: { x: K } }); else DOT(tb, 214, y);
+          if (m.label) txt(tb, m.label, lx + 6, y + 13, { size: 38, maxW: 434 - lx, weight: 600, color: C.ink, anchor: 'start' }); }
+        else lines(tb, 220, y - 10, 160, 2, 24, S(2), [1]); }
+      const bk = inG(p, 'rise', -40, 0, tu(.04)); R(bk, -270, -300, 460, 590, 22, F(4.8)); bk.line(-212, -300, -212, 290, W(3));
+      termV(p, c, T, -20, -96, 140, 50, { size: 44, maxW: 330, bigW: 340, bigSize: 52, t: Q.T0 });
     }); });
 
-  /* 13 ── WORD = MEANING: two solid blocks with an equals sign between them — the term's block and the meaning's block */
-  variant('equals', 'เครื่องหมายเท่ากับ', (d, c) => { const T = TM(d), M = MS(d);
-    art(c, p => { p.line(-480, 178, 480, 178, S(2));
-      const blk = (x0, x1) => { shape(p, [[x0, -150], [x1, -150], [x1 + 34, -186], [x0 + 34, -186]], F(3.4)); shape(p, [[x1, -150], [x1 + 34, -186], [x1 + 34, 140], [x1, 176]], F(3.4)); R(p, x0, -150, x1 - x0, 326, 18, F(4.6)); };
-      blk(-470, -170); blk(70, 440);
-      [-30, 22].forEach(y => R(p, -104, y, 128, 26, 13, F(3.6)));
-      termV(p, c, T, -320, -46, 120, 92, { size: 40, maxW: 260, bigW: 270, bigSize: 48 });
-      rows(p, c, M, 96, 14, 330, { gap: 84, size: 32, ic: 52 });
+  /* 13 ── WORD = MEANING: the term's block drops, the term lands on it; the equals bars pop; the meaning's block drops and fills, line by line */
+  variant('equals', 'เครื่องหมายเท่ากับ', (d, c) => { const T = TM(d), M = MS(d), Q = TL(), tB = Q.T0 + tu(.2);
+    art(c, p => { drawAt(p.line(-480, 178, 480, 178, S(2)), p, 0, tu(.3));
+      const blk = (g, x0, x1) => { shape(g, [[x0, -150], [x1, -150], [x1 + 34, -186], [x0 + 34, -186]], F(3.4)); shape(g, [[x1, -150], [x1 + 34, -186], [x1 + 34, 140], [x1, 176]], F(3.4)); R(g, x0, -150, x1 - x0, 326, 18, F(4.6)); };
+      blk(inG(CL(p), 'drop', -320, 10, tu(.1)), -470, -170); blk(inG(CL(p), 'drop', 255, 10, tB - tu(.3)), 70, 440);
+      [-30, 22].forEach((y, i) => R(popAt(p, -40, y + 13, Q.T0 + tu(.1 + .08 * i)), -104, y, 128, 26, 13, F(3.6)));
+      termV(p, c, T, -320, -46, 120, 92, { size: 40, maxW: 260, bigW: 270, bigSize: 48, t: Q.T0 - tu(.1) });
+      rows(p, c, M, 96, 14, 330, { gap: 84, size: 32, ic: 52, tm: mT({ T0: tB, H: Q.H }, M.length) });
     }); });
 
-  /* 14 ── THE TWO-PART FRAME: one frame split in two — the term above the divider, the meaning below it (a small down tab joins them) */
-  variant('splitframe', 'กรอบคำและความหมาย', (d, c) => { const T = TM(d), M = MS(d);
-    art(c, p => { R(p, -290, -312, 580, 620, 34, F(4.8)); p.line(-290, -40, 290, -40, W(4));
-      p.circle(0, -40, 30, F(3.6)); p.path('M -12 -48 L 0 -34 L 12 -48', W(3));
-      termV(p, c, T, 0, -196, 120, -84, { size: 46, maxW: 480, bigW: 500 });
-      rows(p, c, M, -232, 136, 470);
+  /* 14 ── THE TWO-PART FRAME: the frame pops; the term lands on top; the divider draws out from the middle and the tab bobs down; the meanings below */
+  variant('splitframe', 'กรอบคำและความหมาย', (d, c) => { const T = TM(d), M = MS(d), Q = TL(), tD = Q.T0 + tu(.12);
+    art(c, p => { R(inG(p, 'pop', 0, 0, tu(.04)), -290, -312, 580, 620, 34, F(4.8));
+      p && R(mvG(p, { px: 0, py: -40, sx: [[0, 0], [tD, 0], [tD + tu(.25), 1, 'out']], o: fadeIn(tD, .04) }), -290, -42, 580, 4, 2, F(3));
+      const tb = mvG(popAt(p, 0, -40, tD + tu(.2)), { y: [[0, 0], [tD + tu(.34), 0], [tD + tu(.44), 8, 'io'], [tD + tu(.56), 0, 'soft']] }); tb.circle(0, -40, 30, F(3.6)); tb.path('M -12 -48 L 0 -34 L 12 -48', W(3));
+      termV(p, c, T, 0, -196, 120, -84, { size: 46, maxW: 480, bigW: 500, t: Q.T0 });
+      rows(p, c, M, -232, 136, 470, { tm: mT({ T0: tD + tu(.2), H: Q.H }, M.length) });
     }); });
 
-  /* 15 ── THE DISPLAY CASE: the term shown under a glass case on a plinth; the plinth's front carries the meaning */
-  variant('vitrine', 'ตู้โชว์คำจำกัดความ', (d, c) => { const T = TM(d), M = MS(d);
+  /* 15 ── THE DISPLAY CASE: the plinth rises, the base slab pops; the glass case is lowered onto it; the term lights inside; the meanings on the front */
+  variant('vitrine', 'ตู้โชว์คำจำกัดความ', (d, c) => { const T = TM(d), M = MS(d), Q = TL(), tG = Math.max(tu(.5), Q.T0 - tu(.3));
     art(c, p => { floorD(p);
-      R(p, -214, -290, 428, 332, 12, { fill: GLASS, sw: 4.4 }); R(p, -232, -306, 464, 22, 10, F(3.4));
-      R(p, -256, 40, 512, 36, 12, F(4)); R(p, -224, 76, 448, 214, 14, F(4.6));
-      termV(p, c, T, 0, -150, 150, -10, { size: 40, maxW: 370, bigW: 380, bigSize: 50 });
-      rows(p, c, M, -192, 184, 390, { gap: 58, size: 28, ic: 42 });
+      const gl = mvG(CL(p), { y: [[0, -400], [tu(.3), -400], [tG, 6, 'out'], [tG + tu(.1), 0, 'soft']] }); R(gl, -214, -290, 428, 332, 12, { fill: GLASS, sw: 4.4 }); R(gl, -232, -306, 464, 22, 10, F(3.4));
+      R(inG(p, 'pop', 0, 58, tu(.16)), -256, 40, 512, 36, 12, F(4)); R(inG(p, 'rise', 0, 180, tu(.04)), -224, 76, 448, 214, 14, F(4.6));
+      haloH(p, 0, -150, 120, Q.T0 + tu(.02)); termV(p, c, T, 0, -150, 150, -10, { size: 40, maxW: 370, bigW: 380, bigSize: 50, t: Q.T0 });
+      rows(p, c, M, -192, 184, 390, { gap: 58, size: 28, ic: 42, tm: mT(Q, M.length) });
     }); });
 
-  /* 16 ── READING THE DEFINITION: a person (front view) holds an open book in front — the term on the left page, the meaning on the right */
-  variant('reader', 'คนอ่านคำจำกัดความ', (d, c) => { const T = TM(d), M = MS(d);
-    art(c, p => { floorD(p); front(p, 0, 290, 1.15);
-      [-1, 1].forEach(sd => p.path(`M 0 4 Q ${sd * 170} -26 ${sd * 360} 4 L ${sd * 360} 272 Q ${sd * 170} 248 0 272 Z`, F(4.6)));
-      p.line(0, 4, 0, 272, W(3)); [-1, 1].forEach(sd => R(p, sd * 360 - 20, 110, 40, 70, 18, F(3)));
-      termV(p, c, T, -176, 96, 110, 212, { size: 38, maxW: 290, bigW: 300, bigSize: 46, bigDy: 26 });
-      rows(p, c, M, 30, 140, 310, { gap: 64, size: 26, ic: 40 });
+  /* 16 ── READING THE DEFINITION: the person rises in holding the closed book; it falls open from its spine; term on the left, meanings on the right */
+  variant('reader', 'คนอ่านคำจำกัดความ', (d, c) => { const T = TM(d), M = MS(d), Q = TL(), tO = Math.max(tu(.45), Q.T0 - tu(.3));
+    art(c, p => { floorD(p); const pg = inG(p, 'rise', 0, 140, tu(.04)); front(pg, 0, 290, 1.15);
+      [-1, 1].forEach(sd => mvG(pg, { px: 0, py: 140, sx: [[0, .06], [tO, .06], [tO + tu(.3), 1.02, 'out'], [tO + tu(.4), 1, 'soft']] }).path(`M 0 4 Q ${sd * 170} -26 ${sd * 360} 4 L ${sd * 360} 272 Q ${sd * 170} 248 0 272 Z`, F(4.6)));
+      pg.line(0, 4, 0, 272, W(3)); [-1, 1].forEach(sd => R(mvG(pg, { x: [[0, -sd * 330], [tO, -sd * 330], [tO + tu(.3), sd * 6, 'out'], [tO + tu(.4), 0, 'soft']] }), sd * 360 - 20, 110, 40, 70, 18, F(3)));
+      termV(p, c, T, -176, 96, 110, 212, { size: 38, maxW: 290, bigW: 300, bigSize: 46, bigDy: 26, t: Q.T0 });
+      rows(p, c, M, 30, 140, 310, { gap: 64, size: 26, ic: 40, tm: mT(Q, M.length) });
     }); });
 
-  /* 17 ── THE ICON SIGN: a blade sign hangs from a bracket on the wall — the term with its big icon; a smaller sign hangs under it with the meaning */
-  variant('bladesign', 'ป้ายคำศัพท์พร้อมไอคอน', (d, c) => { const T = TM(d), M = MS(d);
-    art(c, p => { p.line(-470, -340, -470, 340, S(2)); R(p, -480, -312, 34, 120, 10, F(3.4)); R(p, -446, -270, 580, 18, 9, F(3.4)); p.path('M -446 -206 L -230 -262', W(3.4));
-      [-300, 60].forEach(x => { p.line(x, -252, x, -206, W(2.4)); p.line(x, 50, x, 92, W(2.4)); });
-      R(p, -390, -206, 540, 256, 30, F(4.8));
-      termH(p, c, T, -280, -78, 120, -194, { cx: -120, size: 52, maxW: 320, bigW: 500 });
-      R(p, -380, 92, 520, 200, 24, F(4.2)); cols(p, c, M, -370, 130, 190, { ic: 56, size: 26 });
+  /* 17 ── THE ICON SIGN: the bracket pops onto the wall and its arm slides out; the sign drops onto its chains and swings, settling; the term with
+     its big icon; the small sign drops under it with the meanings */
+  variant('bladesign', 'ป้ายคำศัพท์พร้อมไอคอน', (d, c) => { const T = TM(d), M = MS(d), Q = TL(), tS = Q.T0 + tu(.1);
+    art(c, p => { p.line(-470, -340, -470, 340, S(2)); R(inG(p, 'pop', -463, -252, tu(.04)), -480, -312, 34, 120, 10, F(3.4));
+      const ar = mvG(p, { px: -446, py: -261, sx: [[0, .03], [tu(.12), .03], [tu(.4), 1, 'out']], o: fadeIn(tu(.12), .04) }); R(ar, -446, -270, 580, 18, 9, F(3.4)); drawAt(p.path('M -446 -206 L -230 -262', W(3.4)), p, tu(.4), tu(.15));
+      const sw = mvG(CL(p), Object.assign({ px: -120, py: -252 }, swingFit(tu(.5), Q.T0 - tu(.02), 5))); [-300, 60].forEach(x => sw.line(x, -252, x, -206, W(2.4))); R(sw, -390, -206, 540, 256, 30, F(4.8));
+      termH(p, c, T, -280, -78, 120, -194, { cx: -120, size: 52, maxW: 320, bigW: 500, t: Q.T0 });
+      const sb = mvG(clipG(p, -500, 50, 1000, 300), { y: [[0, -260], [tS, -260], [tS + tu(.26), 8, 'out'], [tS + tu(.36), 0, 'soft']] }); [-300, 60].forEach(x => sb.line(x, 50, x, 92, W(2.4))); R(sb, -380, 92, 520, 200, 24, F(4.2));
+      cols(p, c, M, -370, 130, 190, { ic: 56, size: 26, tm: mT({ T0: tS + tu(.3), H: Q.H }, M.length) });
     }); });
 
-  /* 18 ── THE WORD MAP: on a pin board, the term's pill at the top branches down to a pill for each meaning */
-  variant('wordmap', 'แผนภาพคำและความหมาย', (d, c) => { const T = TM(d), M = MS(d), n = M.length;
-    art(c, p => { R(p, -462, -312, 924, 620, 30, F(4.6)); R(p, -436, -286, 872, 568, 18, S(1.6));
+  /* 18 ── THE WORD MAP: the pin board pops; the term's pill lands at the top; a branch draws down to each meaning and its pill pops on the end */
+  variant('wordmap', 'แผนภาพคำและความหมาย', (d, c) => { const T = TM(d), M = MS(d), n = M.length, Q = TL(), tm = mT(Q, n);
+    art(c, p => { const bd = inG(p, 'pop', 0, 0, tu(.04)); R(bd, -462, -312, 924, 620, 30, F(4.6)); R(bd, -436, -286, 872, 568, 18, S(1.6));
       const w = n ? Math.min(270, 820 / n - 24) : 0, xs = M.map((_, i) => -410 + (820 / n) * (i + .5));
-      xs.forEach(x => p.path(`M 0 -130 C 0 -30 ${x} -40 ${x} 76`, W(2.6)));
-      R(p, -230, -252, 460, 122, 61, F(4.4)); termH(p, c, T, -150, -191, 80, -96, { cx: 0, size: 44, maxW: 300, bigW: 420, bigSize: 48 });
-      M.forEach((m, i) => { const x = xs[i]; R(p, x - w / 2, 76, w, 96, 48, F(4)); p.circle(x, 76, 10, F(2.4));
-        const pi = !!picOf(m); if (pi) put(p, c, { icon: m.icon }, x - w / 2 + 54, 124, 56, null, {});
-        if (m.label) txt(p, m.label, pi ? x - w / 2 + 94 : x, 137, { size: 34, maxW: pi ? w - 112 : w - 40, weight: 600, color: C.ink, anchor: pi ? 'start' : 'middle' }); });
-      if (!n) lines(p, -200, 110, 400, 2, 30, S(2), [1]);
+      xs.forEach((x, i) => drawAt(p.path(`M 0 -130 C 0 -30 ${x} -40 ${x} 76`, W(2.6)), p, tm(i) - tu(.28), tu(.26)));
+      R(popAt(p, 0, -191, Q.T0 - tu(.04)), -230, -252, 460, 122, 61, F(4.4)); termH(p, c, T, -150, -191, 80, -96, { cx: 0, size: 44, maxW: 300, bigW: 420, bigSize: 48, t: Q.T0 });
+      M.forEach((m, i) => { const x = xs[i], t = tm(i), g = popAt(p, x, 124, t - tu(.04)); R(g, x - w / 2, 76, w, 96, 48, F(4)); g.circle(x, 76, 10, F(2.4));
+        const pi = !!picOf(m); if (pi) put(p, c, { icon: m.icon }, x - w / 2 + 54, 124, 56, null, { t });
+        if (m.label) txt(atG(p, t + tu(.06)), m.label, pi ? x - w / 2 + 94 : x, 137, { size: 34, maxW: pi ? w - 112 : w - 40, weight: 600, color: C.ink, anchor: pi ? 'start' : 'middle' }); });
+      if (!n) drawAt(p.line(-200, 110, 200, 110, S(2)), p, Q.H, tu(.3));
     }); });
 
-  /* 19 ── THE DICTIONARY PAGE: a thick dictionary lies open, thumb-index tabs on its edge; on the right page the entry is boxed —
-     the headword (term) and its meaning */
-  variant('dictionary', 'หน้าพจนานุกรม', (d, c) => { const T = TM(d), M = MS(d);
-    art(c, p => {
-      [-1, 1].forEach(sd => { [24, 12].forEach(dy => p.path(`M 0 ${236 + dy} Q ${sd * 230} ${196 + dy} ${sd * 470} ${216 + dy}`, S(2)));
-        p.path(`M 0 -232 Q ${sd * 220} -264 ${sd * 440} -224 L ${sd * 470} 216 Q ${sd * 230} 196 0 236 Z`, F(4.6)); });
-      p.line(0, -232, 0, 236, W(3)); [-150, -60, 30, 120].forEach((y, i) => R(p, 452 + i * 3, y, 26, 54, 8, i === 1 ? SOLID(2) : F(2.6)));
-      for (let k = 0; k < 7; k++) p.line(-410, -170 + k * 54, -50, -170 + k * 54, S(1.8));
-      R(p, 40, -200, 380, 380, 18, S(2.2)); R(p, 40, -200, 380, 380, 18, { fill: 'rgba(255,255,255,.05)', sw: 0, stroke: 'none' });
-      termH(p, c, T, 100, -142, 72, 150, { cx: 230, size: 42, maxW: 260, bigW: 340, bigSize: 46 }); p.line(64, -94, 396, -94, W(2.4));
-      rows(p, c, M, 66, 50, 340, { gap: 70, size: 30, ic: 46 });
+  /* 19 ── THE DICTIONARY PAGE: the dictionary drops and falls open, the thumb tabs pop down its edge, the text lines draw; the entry box draws round
+     the headword and its meanings */
+  variant('dictionary', 'หน้าพจนานุกรม', (d, c) => { const T = TM(d), M = MS(d), Q = TL(), tO = tu(.3);
+    art(c, p => { const bk = inG(CL(p), 'drop', 0, 0, tu(.04));
+      [-1, 1].forEach(sd => { const pg = mvG(bk, { px: 0, py: 0, sx: [[0, .05], [tO, .05], [tO + tu(.3), 1.02, 'out'], [tO + tu(.4), 1, 'soft']] });
+        [24, 12].forEach(dy => pg.path(`M 0 ${236 + dy} Q ${sd * 230} ${196 + dy} ${sd * 470} ${216 + dy}`, S(2))); pg.path(`M 0 -232 Q ${sd * 220} -264 ${sd * 440} -224 L ${sd * 470} 216 Q ${sd * 230} 196 0 236 Z`, F(4.6)); });
+      bk.line(0, -232, 0, 236, W(3)); [-150, -60, 30, 120].forEach((y, i) => R(popAt(p, 465, y + 27, tu(.66 + .05 * i)), 452 + i * 3, y, 26, 54, 8, i === 1 ? SOLID(2) : F(2.6)));
+      for (let k = 0; k < 7; k++) drawAt(p.line(-410, -170 + k * 54, -50, -170 + k * 54, S(1.8)), p, tu(.7 + .03 * k), tu(.2));
+      R(litG(p, Q.T0 - tu(.1), .2), 40, -200, 380, 380, 18, { fill: 'rgba(255,255,255,.05)', sw: 0, stroke: 'none' }); drawAt(R(p, 40, -200, 380, 380, 18, S(2.2)), p, Q.T0 - tu(.2), tu(.35));
+      termH(p, c, T, 100, -142, 72, 150, { cx: 230, size: 42, maxW: 260, bigW: 340, bigSize: 46, t: Q.T0 }); drawAt(p.line(64, -94, 396, -94, W(2.4)), p, Q.T0 + tu(.12), tu(.25));
+      rows(p, c, M, 66, 50, 340, { gap: 70, size: 30, ic: 46, tm: mT(Q, M.length) });
     }); });
 
-  /* 20 ── THE DEFINITION CARD ON THE DESK (seen from above): an index card on the desk — term and meaning — with a pencil and a cup beside it */
-  variant('deskcard', 'การ์ดนิยามบนโต๊ะ', (d, c) => { const T = TM(d), M = MS(d);
-    art(c, p => { R(p, -490, -330, 980, 660, 34, S(2));
-      const pc = rot(p, 28, 380, 120); R(pc, 290, 104, 220, 32, 8, F(3.4)); shape(pc, [[290, 104], [290, 136], [244, 120]], F(3)); R(pc, 490, 104, 30, 32, 6, F(3));
-      p.circle(-400, 230, 64, F(4)); p.circle(-400, 230, 48, S(1.8)); R(p, -350, 214, 44, 32, 14, F(3.2));
-      const g = rot(p, -5, 0, 0); R(g, -300, -250, 560, 440, 16, F(4.6)); g.line(-300, -110, 260, -110, W(2.6));
-      termH(g, c, T, -224, -178, 90, -158, { cx: -20, size: 48, maxW: 380, bigW: 520 });
-      rows(g, c, M, -250, 40, 480);
+  /* 20 ── THE DEFINITION CARD ON THE DESK (from above): the desk outline draws; the cup slides in, the pencil rolls in; the card slides onto the desk,
+     turning to its tilt; the term is written, then the meanings */
+  variant('deskcard', 'การ์ดนิยามบนโต๊ะ', (d, c) => { const T = TM(d), M = MS(d), Q = TL();
+    art(c, p => { drawAt(R(p, -490, -330, 980, 660, 34, S(2)), p, 0, tu(.4));
+      const pc0 = mvG(CL(p), { x: [[0, 260], [tu(.3), 260], [tu(.6), -6, 'out'], [tu(.7), 0, 'soft']], o: fadeIn(tu(.3)) }), pc = rot(pc0, 28, 380, 120);
+      R(pc, 290, 104, 220, 32, 8, F(3.4)); shape(pc, [[290, 104], [290, 136], [244, 120]], F(3)); R(pc, 490, 104, 30, 32, 6, F(3));
+      const cp = mvG(CL(p), { x: slideX(tu(.16), -200), o: fadeIn(tu(.16)) }); cp.circle(-400, 230, 64, F(4)); cp.circle(-400, 230, 48, S(1.8)); R(cp, -350, 214, 44, 32, 14, F(3.2));
+      const g0 = mvG(CL(p), { px: 0, py: 0, y: [[0, -560], [tu(.36), -560], [tu(.72), 8, 'out'], [tu(.84), 0, 'soft']], r: [[0, 14], [tu(.36), 14], [tu(.84), 0, 'out']], o: fadeIn(tu(.36)) }), g = rot(g0, -5, 0, 0);
+      R(g, -300, -250, 560, 440, 16, F(4.6)); drawAt(g.line(-300, -110, 260, -110, W(2.6)), p, Q.T0 + tu(.12), tu(.3));
+      const g2 = rot(p, -5, 0, 0); termH(g2, c, T, -224, -178, 90, -158, { cx: -20, size: 48, maxW: 380, bigW: 520, t: Q.T0 });
+      rows(g2, c, M, -250, 40, 480, { tm: mT(Q, M.length) });
     }); });
 
   /* ---------- sample data (A: definitions from unrelated topics · B: stress) ---------- */
