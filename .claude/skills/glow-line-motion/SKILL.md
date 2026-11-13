@@ -118,6 +118,7 @@ skill นี้ใช้สไตล์นั้นกับ **คลิปไ�
 | `references/api.md` | ทุกฟังก์ชัน: เลย์เอาต์ 9 แบบ, `text` `counter` `connect`, Pen, parts, `art` + `float`, การเคลื่อนที่, ตัวเลือก render |
 | `references/beats.md` + `beats.jpg` + `beats-neutral.jpg` | ฉากสำเร็จรูป 21 หมวด: เลือกหมวดจากประโยค, ข้อมูลแต่ละหมวด, กฎความเป็นกลาง |
 | `references/library.md` + `icons.jpg` + `catalog.jpg` | ภาพเดี่ยว 61 แบบ, ชิ้นส่วนสำหรับประกอบฉาก, คู่ก่อน→หลัง 12 คู่ + ไอเดียคู่ใหม่ |
+| `references/cutpack-docs/` | สำเนา `CATEGORIES.md` (21 หมวด + ช่องข้อมูล) และ `LEGO.md` ของ CutPack ที่ผู้ใช้แนบมา — อ่านก่อนออกแบบหมวดใหม่ |
 | `references/drawing.md` | วิธีวาดภาพใหม่ให้เข้าชุด (กรอบ, ลำดับชั้น, รูปทรง, ทริก "รก", จังหวะ, การตรวจ) |
 | `examples/*.html` | ต้นแบบที่ render ผ่านแล้ว ของทุกเลย์เอาต์และทุกขนาดจอ |
 | `assets/glowline.js` | เอนจิน + parts + icons + pairs (เพิ่มภาพที่ผู้ใช้อนุมัติไว้ที่นี่) |
