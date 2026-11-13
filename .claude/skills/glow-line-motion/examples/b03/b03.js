@@ -350,83 +350,26 @@
     }
   });
 
-  /* 16 ── HOURGLASS: "before" sits in the top bulb — the sand runs down, the pile grows, and the "after" appears in the bottom on the keyword */
-  variant('hourglass', 'นาฬิกาทราย', (d, c) => {
-    const H = hitOf(c);
+  /* 16 ── COMPARE FRAME (user's pick, 2026-11-13, over hourglass / balloons / puzzle / level …): one picture split by a slider handle —
+     "before" left, "after" right. The handle waits in the middle, wiggles, then on the keyword slides to show more of the winner;
+     the loser's part darkens. Takes versus and change. */
+  variant('compare', 'กรอบเลื่อนเทียบ', (d, c) => {
+    const T = st(d), H = hitOf(c), hx = T.win === 'a' ? 140 : T.win === 'b' ? -140 : 0, L = -400, R = 400, top = -250, bot = 200;
+    const slide = from => T.win ? [[0, from], [.55, from + 14, 'soft'], [.8, from - 12, 'soft'], [H - .4, from], [H - .3, from + Math.sign(hx) * 18, 'out'], [H, 0, 'out'], [H + .14, -Math.sign(hx) * 8], [H + .32, 0, 'soft']]
+      : [[0, 0], [.55, 14, 'soft'], [.8, -12, 'soft'], [1.05, 0, 'soft']];
     art(c, p => {
-      const hg = sub(p); pop(hg, p, 0, 0, 0, .6);
-      hg.rect(-210, -310, 420, 30, Object.assign({ rx: 10 }, F(3.2))); hg.rect(-210, 280, 420, 30, Object.assign({ rx: 10 }, F(3.2)));
-      hg.path('M -170 -280 L 170 -280 C 170 -140, 30 -60, 30 0 C 30 60, 170 140, 170 280 L -170 280 C -170 140, -30 60, -30 0 C -30 -60, -170 -140, -170 -280 Z', F(3.4));
-      const bez = t => { const u = 1 - t; return [u * u * u * 170 + 3 * u * u * t * 170 + 3 * u * t * t * 30 + t * t * t * 30, u * u * u * -280 + 3 * u * u * t * -140 + 3 * u * t * t * -60]; };
-      let gx = 0; for (let t = 0; t <= 1; t += .005) { const [x, y] = bez(t); if (y >= -120) { gx = x; break; } }
-      const ex = f1(gx - 14), lv = sub(hg); lv.path(`M ${-ex} -120 Q 0 -78 ${ex} -120`, { sw: 2, stroke: C.soft });
-      const stm = sub(hg); stm.line(0, -10, 0, 190, { sw: 2.4, stroke: C.soft }); on(stm, p, .35, { ox: 0, oy: -10, sy: [[0, 0], [.25, 1, 'out']], o: [[0, 0], [.05, 1], [H - .35, 1], [H - .1, 0]] });
-      const pile = sub(hg); pile.path('M -140 270 Q 0 170 140 270 Z', { fill: C.ink, sw: 2, 'fill-opacity': .18 }); on(pile, p, 0, { ox: 0, oy: 270, sy: [[0, 0], [.5, 0], [H, 1, 'out']] });
-      if (d.a.label) { const g = sub(p); txt(g, d.a.label, -260, -150, { anchor: 'end', maxW: 220 }); on(g, p, 0, { o: inDim(.2, H, .45) }); }
-      if (d.b.label) { const g = sub(p); txt(g, d.b.label, 260, 170, { anchor: 'start', maxW: 220 }); on(g, p, 0, { o: inDim(H, H, 1) }); }
+      const fr = sub(p); pop(fr, p, 0, 0, (top + bot) / 2, .7);
+      fr.rect(L, top, R - L, bot - top, Object.assign({ rx: 22 }, F(3.6)));
+      if (T.lose) { const lx = T.lose === 'a', dk = sub(fr); dk.rect(lx ? L + 6 : hx, top + 6, lx ? hx - L - 6 : R - hx - 6, bot - top - 12, { rx: 18, fill: '#0b0b0b', sw: 0, stroke: 'none' }); on(dk, p, H, { o: [[0, 0], [.3, 1]] }); }
+      const hd = sub(fr); on(hd, p, 0, { x: slide(-hx), o: [[0, 0], [.15, 0], [.3, 1]] });
+      hd.line(hx, top, hx, bot, W(4)); hd.circle(hx, (top + bot) / 2, 40, F(3.4));
+      hd.poly([[hx - 10, -40], [hx - 24, -25], [hx - 10, -10]], W(3)); hd.poly([[hx + 10, -40], [hx + 24, -25], [hx + 10, -10]], W(3));
+      ['a', 'b'].forEach(s => { if (!d[s].label) return; const cx = s === 'a' ? (L + hx) / 2 : (hx + R) / 2, g = sub(p); txt(g, d[s].label, cx, 290, { maxW: 300 });
+        on(g, p, 0, { x: slide(s === 'a' ? (L - L) / 2 - (L + hx) / 2 + L / 2 : R / 2 - (hx + R) / 2), o: inDim(tIn(d, s, H) + .1, H, s === T.lose ? .45 : 1) }); });
+      marks(p, d, { a: [L + 40, top + 40], b: [R - 40, top + 40] });
     });
-    icon(d.a.icon, 0, -190, 120, c, .1, { dimTo: .35, dimAt: H - .4 }); icon(d.b.icon, 0, 140, 140, c, H - .15, { punch: true });
-  }, d => d.mode === 'change');
-
-  /* 16 alternatives, round 2 (user: "16 Redesign มาใหม่อีก", 2026-11-13; turned down tear pad / turntable / compare frame) —
-     all take versus AND change; kept outside V until the user picks one */
-  const ALT16 = [];
-  const alt = (id, th, build) => ALT16.push({ id, th, build });
-
-  /* 16a ── BALLOONS: each side floats in a balloon tied to the ground — the winner (or more) floats high and full, the loser hangs low and limp */
-  alt('balloons', 'ลูกโป่ง', (d, c) => {
-    const T = st(d), X = { a: -220, b: 220 }, Y = s => 150 - T.amt(s) * 300, full = s => s !== T.lose;
-    art(c, p => {
-      p.line(-470, 280, 470, 280, { sw: 2, stroke: C.soft });
-      ['a', 'b'].forEach(s => { const x = X[s], y = Y(s), rx = full(s) ? 125 : 100, ry = full(s) ? 145 : 112, by = y + ry;
-        p.path(`M ${x} ${f1(by + 12)} C ${x + 30} ${f1(by + 70)}, ${x - 30} ${f1((by + 280) / 2 + 30)}, ${x} 262`, { sw: 2.2, stroke: full(s) ? C.soft : C.rule });
-        p.rect(x - 22, 250, 44, 30, Object.assign({ rx: 6 }, F(2.6)));
-        p.path(`M ${x - 13} ${f1(by + 14)} L ${x} ${f1(by - 2)} L ${x + 13} ${f1(by + 14)} Z`, full(s) ? F(2.6) : { fill: C.fill, sw: 2, stroke: C.rule });
-        if (full(s)) p.ellipse(x, y, rx, ry, F(3.4));
-        else p.path(`M ${x} ${f1(by)} C ${x - 120} ${f1(by - 20)}, ${x - 110} ${f1(y - ry)}, ${x - 30} ${f1(y - ry + 6)} Q ${x - 8} ${f1(y - ry + 22)} ${x + 10} ${f1(y - ry + 2)} C ${x + 110} ${f1(y - ry - 4)}, ${x + 115} ${f1(by - 30)}, ${x} ${f1(by)} Z`, { fill: C.fill, sw: 2.6, stroke: C.rule });
-        if (d[s].label) txt(p, d[s].label, x, 330, { maxW: 300, color: full(s) ? C.soft : C.mute }); });
-      if (T.change) arrow(p, -70, -40, 70, -40, 4, 0);
-      marks(p, d, { a: [X.a + 130, Y('a') - 120], b: [X.b + 130, Y('b') - 120] });
-    });
-    ['a', 'b'].forEach(s => icon(d[s].icon, X[s], Y(s) - 4, full(s) ? 140 : 110, c, .1, { dimTo: T.dim(s) }));
-  });
-
-  /* 16b ── PUZZLE: a board with one empty slot — the winner's piece (or the "after") clicks into it; the other piece doesn't fit and lies aside */
-  const piece = (q, x, y, z, inward, st2) => { const h = z / 2, t = z * .2, k = inward ? -1 : 1;
-    q.path(`M ${x - h} ${y - h} L ${x - t} ${y - h} C ${x - t} ${y - h - k * t * 1.6}, ${x + t} ${y - h - k * t * 1.6}, ${x + t} ${y - h} L ${x + h} ${y - h} L ${x + h} ${y - t} C ${x + h + k * t * 1.6} ${y - t}, ${x + h + k * t * 1.6} ${y + t}, ${x + h} ${y + t} L ${x + h} ${y + h} L ${x - h} ${y + h} Z`, st2); };
-  alt('puzzle', 'จิ๊กซอว์ลงล็อก', (d, c) => {
-    const T = st(d), win = T.win, lose = T.lose, bx = -150, Z = 230, rot = 14, LX = 300, LY = 70;
-    art(c, p => {
-      p.rect(bx - 210, -230, 420, 460, Object.assign({ rx: 24 }, F(3.4))); p.rect(bx - 185, -205, 370, 410, { rx: 14, sw: 1.6, stroke: C.rule });
-      piece(p, bx, 0, Z, false, { fill: '#0b0b0b', sw: 2.2, stroke: C.soft, 'stroke-dasharray': '10 9' });
-      if (win) { piece(p, bx, 0, Z - 6, false, F(3.4)); if (d[win].label) txt(p, d[win].label, bx, 290, { maxW: 380 });
-        const g = sub(p, { transform: `rotate(${rot} ${LX} ${LY})` }); piece(g, LX, LY, Z * .8, true, { fill: C.fill, sw: 2.6, stroke: C.rule });
-        if (d[lose].label) txt(p, d[lose].label, LX, 290, { maxW: 260, color: C.mute }); }
-      else ['a', 'b'].forEach((s, k) => { const y = k ? 150 : -140; piece(p, LX, y, Z * .68, false, F(3)); if (d[s].label) txt(p, d[s].label, LX + 130, y + 12, { anchor: 'start', maxW: 110 }); });
-      marks(p, d, win ? { [win]: [bx + 150, -150], [lose]: [LX + 110, LY - 110] } : {});
-    });
-    if (win) { icon(d[win].icon, bx, 0, 150, c, .1, { punch: true }); icon(d[lose].icon, LX, LY, 115, c, .1, { dimTo: .3, keys: { r: [[0, rot]] }, pivot: [LX, LY] }); }
-    else { icon(d.a.icon, LX, -140, 105, c, .1); icon(d.b.icon, LX, 150, 105, c, .1); }
-  });
-
-  /* 16c ── SPIRIT LEVEL: a level with a at one end and b at the other — it tips, and the bubble runs up to the winner's end (centred when undecided) */
-  alt('level', 'ระดับน้ำ', (d, c) => {
-    const T = st(d), tilt = T.win === 'a' ? 7 : T.win === 'b' ? -7 : 0, bx = T.win === 'a' ? -120 : T.win === 'b' ? 120 : 0;
-    const EX = { a: -330, b: 330 }, ey = s => 40 + EX[s] * Math.sin(rad(tilt));
-    art(c, p => {
-      const g = sub(p, { transform: `rotate(${tilt} 0 40)` });
-      g.rect(-470, 92, 940, 22, Object.assign({ rx: 6 }, { fill: C.fill, sw: 2.4, stroke: C.soft }));          // the plank it lies on tips with it
-      g.rect(-420, -10, 840, 100, Object.assign({ rx: 18 }, F(3.6)));
-      g.rect(-200, 12, 400, 56, Object.assign({ rx: 28 }, F(2.6)));
-      [-40, 40].forEach(x => g.line(x, 16, x, 64, { sw: 2, stroke: C.soft }));
-      g.ellipse(bx, 40, 46, 17, { fill: C.ink, sw: 2, 'fill-opacity': .2 });
-      ['a', 'b'].forEach(s => g.circle(EX[s], 40, 34, s === T.lose ? { fill: C.fill, sw: 2.4, stroke: C.rule } : F(3)));
-      p.path('M -40 250 L 40 250 L 0 125 Z', F(3));                                                                   // the pivot under the middle
-      if (T.change) arrow(p, -60, -260, 60, -260, 4, 0);
-      ['a', 'b'].forEach(s => d[s].label && txt(p, d[s].label, EX[s], ey(s) + 200, { maxW: 280, color: s === T.lose ? C.mute : C.soft }));
-      marks(p, d, { a: [-200, -250], b: [460, -250] });
-    });
-    ['a', 'b'].forEach(s => icon(d[s].icon, EX[s], ey(s) - 140, 170, c, .1, { dimTo: T.dim(s), punch: s === T.win }));
+    ['a', 'b'].forEach(s => { const w = s === 'a' ? hx - L : R - hx, cx = s === 'a' ? (L + hx) / 2 : (hx + R) / 2, c0 = s === 'a' ? L / 2 : R / 2;
+      icon(d[s].icon, cx, -25, Math.min(220, w * .62), c, tIn(d, s, H) + .1, { dimTo: T.dim(s), punch: s === T.win, keys: { x: slide(c0 - cx) } }); });
   });
 
   /* 17 ── BALLOT: both rows come in with empty boxes — on the keyword the winner is ticked, the loser crossed (or "before" struck out) */
@@ -545,5 +488,5 @@
   ];
 
   G.cats = G.cats || {};
-  G.cats.B03 = { variants: V, ALT16, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
+  G.cats.B03 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => V[i].build(d, c) };
 })();
