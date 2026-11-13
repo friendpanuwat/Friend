@@ -1,12 +1,13 @@
-/* b08.js — category B08 "เป้าหมาย / ผลลัพธ์ / ความสำเร็จ": 20 SIMPLE, neutral designs — STILL DRAFTS (round 1, waiting for the user's pick).
-   User (2026-11-13): "ไม่ต้องพยายาม creative มาก … simple ไปใช้ได้กับทุกเนื้อหา … ไม่เอา motion graphic ที่ทำให้งง ทำให้เป็นกลางกับทุกเนื้อหา"
-   → plain shapes everyone reads the same way: a finish post, a bar that fills, a ring that closes, stairs, a peak, a target, a tick, a cup,
-   a route to a pin, an arrow, a road, a full gauge, stacked blocks, an open door, a dropped pin, a rising line, three dots, a star, a medal,
-   corner marks. Few parts, house level of detail, no extra decoration.
+/* b08.js — category B08 "เป้าหมาย / ผลลัพธ์ / ความสำเร็จ": 20 neutral designs — STILL DRAFTS (round 2, waiting for the user's pick).
+   Round 1 (plain symbols: finish post, bar, trophy, medal …) → user: "ขอผลงานที่เป็นมืออาชีพมากกว่านี้ · ที่ผมบอกว่า simple หมายถึงความแตกต่าง
+   ตัว design ไม่ใช่คุณภาพงาน · อยากได้ที่เป็นกลาง ไม่ใช่อันที่มีความหมายเฉพาะตัว · ออกแบบใหม่ทั้งหมด ตั้งใจวาด" → round 2 = holders / displays that
+   show the goal as reached (the B05 base-set rule: take the icon away and the object tells no story of its own): a picture light, a stage,
+   a lift, a shelf, a fill tube, a marquee frame, a rail carriage, a crane, a split-flap board, a shutter, a note board, a locker, a tray,
+   a status panel, a hanging sign, a screen, a label printer, an easel, an instant camera, a desk lamp. House level of detail, drawn with care.
    Slots (same as CutPack CATEGORIES.md B08 — references/cutpack-CATEGORIES.md, cat_ai.py): goal THING (what is reached) · who icon (optional,
-   who gets there). No who → only the goal (designs with a traveller use a plain glowing dot). A missing / unknown icon → its label in big type.
+   who gets there; it stands at the left and the display moves right). A missing / unknown icon → its label in big type.
    GL.cats.B08.draw(i, data, { x, y, s, at, hit, speed }) — canvas 1000 × 700 centred at (0,0); hit = seconds after `at` (default 1.8).
-   This round places the parts in their final pose (arrived / full / lit); motion comes after the pick. */
+   This round places the parts in their final pose (reached / lit / open); motion comes after the pick. */
 (function () {
   const G = window.GL, C = G.C, NS = 'http://www.w3.org/2000/svg';
   const W = (w = 2) => ({ sw: w }), F = (w = 3.2) => ({ fill: C.fill, sw: w }), S = (w = 2) => ({ sw: w, stroke: C.soft });
@@ -70,7 +71,7 @@
     let a;
     if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp });
     else { const str = it.label || it.icon; if (!str) return null;
-      const f = q => txt(q, str, 0, wd * .13, { size: wd * .3, maxW: wd * 1.1, weight: 700, color: C.ink }); f.custom = true; f.dur = .3; f.exit = 'pop';
+      const f = q => txt(q, str, 0, wd * .13, { size: wd * .3, maxW: wd * 1.8, weight: 700, color: C.ink }); f.custom = true; f.dur = .3; f.exit = 'pop';
       a = G.art(f, { x: X, y: Y, s: c.s, at: at + t, speed: 1 }); a.speed = Z.sp; }
     if (o.mv) { const m = o.mv, K = { ox: X, oy: Y }; ['x', 'y'].forEach(n => { if (m[n]) K[n] = m[n].map(([u, v, e]) => [u, v * c.s, e]); }); ['s', 'r', 'o'].forEach(n => { if (m[n]) K[n] = m[n]; }); kf(a.wrap, at, K); }
     return a;
@@ -86,172 +87,205 @@
 
   const V = [];
   const variant = (id, th, build) => V.push({ id, th, build });
+  /* layout: with a `who` the display moves right (O) and who stands on the left */
+  const offO = S0 => S0.who ? 90 : 0;
+  const whoLeft = (p, c, S0, x = -380, y = 190, w = 140) => whoAt(p, c, S0, x, y, w);
 
-  /* 01 ── FINISH: the traveller reaches the finish post with its flag, where the goal is */
-  variant('finish', 'เส้นชัย', (d, c) => { const S0 = st(d);
-    art(c, p => { floor(p, 300); const B = sub(p); atT(B, p, 0);
-      R(B, 372, -170, 16, 470, 6, F(3)); B.path('M 372 -170 L 230 -128 L 372 -86 Z', F(3));                                  // post + flag
-      goalAt(p, c, S0, 200, 120, 210, 268);
-      runner(p, c, S0, -40, 170, 190); }); });
-
-  /* 02 ── PROGRESS BAR: the bar fills to the end, where the goal is */
-  variant('progress', 'แถบความคืบหน้า', (d, c) => { const S0 = st(d);
+  /* 01 ── PICTURE LIGHT: the goal hangs framed on the wall with its name plate — the picture light above it switches on */
+  variant('framelight', 'กรอบรูปไฟส่อง', (d, c) => { const S0 = st(d), O = offO(S0);
     art(c, p => { const B = sub(p); atT(B, p, 0);
-      R(B, -420, -10, 620, 76, 38, F(3.2)); R(B, -408, 2, 596, 52, 26, { fill: LIT, sw: 2.6 });                              // track + fill (full)
-      goalAt(p, c, S0, 340, 28, 200, 185);
-      whoAt(p, c, S0, 160, -110, 120); }); });
+      B.shape(P2([[O - 104, -262], [O + 104, -262], [O + 236, 150], [O - 236, 150]]), { fill: 'rgba(255,255,255,.1)', sw: 0, stroke: 'none' });   // the light
+      R(B, O - 34, -340, 68, 16, 6, F(2.6)); B.line(O, -324, O, -294, W(4));                                                  // wall mount + arm
+      B.path(`M ${O - 122} -294 L ${O + 122} -294 L ${O + 104} -262 L ${O - 104} -262 Z`, F(3.2));                           // the lamp
+      R(B, O - 210, -220, 420, 340, 10, F(3.6)); R(B, O - 182, -192, 364, 284, 4, S(1.6));                                    // frame + mat
+      R(B, O - 120, 152, 240, 62, 10, F(3));                                                                                    // name plate
+      goalAt(p, c, S0, O, -50, 200, 194, { lab: { size: 34, maxW: 210 } });
+      whoLeft(p, c, S0); }); });
 
-  /* 03 ── RING: the ring around the goal closes */
-  variant('ring', 'วงความคืบหน้า', (d, c) => { const S0 = st(d);
+  /* 02 ── STAGE: the curtains part and the spotlight finds the goal on the stage */
+  variant('stage', 'เวทีม่านเปิด', (d, c) => { const S0 = st(d);
     art(c, p => { const B = sub(p); atT(B, p, 0);
-      B.circle(0, -30, 230, S(1.6)); B.circle(0, -30, 206, { sw: 16 });                                                    // track + the closed ring
-      goalAt(p, c, S0, 0, -30, 230, 275);
-      whoAt(p, c, S0, 0, -262, 80); }); });
+      B.shape(P2([[-50, -270], [50, -270], [200, 236], [-200, 236]]), { fill: GLASS, sw: 0, stroke: 'none' });             // spotlight
+      R(B, -470, 236, 940, 30, 6, F(3)); B.line(-470, 300, 470, 300, S(2));                                                  // stage edge + floor
+      [-1, 1].forEach(s => { B.path(`M ${s * 460} -276 L ${s * 250} -276 Q ${s * 268} -60 ${s * 330} 236 L ${s * 460} 236 Z`, F(3.2));   // curtains, drawn aside
+        B.path(`M ${s * 380} -276 Q ${s * 384} -40 ${s * 398} 236`, S(1.6)); R(B, s * 330 - 28, -40, 56, 18, 8, F(2.4)); });    // fold + tie-back
+      R(B, -470, -336, 940, 62, 10, F(3.2));                                                                                   // valance
+      goalAt(p, c, S0, 0, 30, 220, 200);
+      whoAt(p, c, S0, -175, 150, 110); }); });
 
-  /* 04 ── STAIRS: the traveller climbs to the top step, where the goal is */
-  variant('stairs', 'บันได', (d, c) => { const S0 = st(d);
-    art(c, p => { floor(p, 300); const B = sub(p); atT(B, p, 0);
-      B.path('M -440 300 L -440 210 L -220 210 L -220 120 L 0 120 L 0 30 L 220 30 L 220 -60 L 440 -60 L 440 300 Z', F(3.2));
-      goalAt(p, c, S0, 345, -180, 190, null);
-      runner(p, c, S0, 160, -125, 130);
-      if (S0.goal) lab(sub(p), S0.goal, 330, 90, { maxW: 190 }); }); });
+  /* 03 ── LIFT: the needle over the doors reaches the top floor, the doors slide open on the goal */
+  variant('lift', 'ลิฟต์ถึงชั้นบน', (d, c) => { const S0 = st(d), O = offO(S0), dc = [O, -130];
+    art(c, p => { const B = sub(p); atT(B, p, 0); B.line(-470, 300, 470, 300, S(2));
+      R(B, O - 200, -60, 400, 360, 10, F(3.4));                                                                                 // door frame
+      R(B, O - 130, -40, 260, 340, 4, { fill: GLASS, sw: 0, stroke: 'none' });                                                  // light inside
+      R(B, O - 180, -40, 50, 340, 4, F(2.8)); R(B, O + 130, -40, 50, 340, 4, F(2.8));                                           // doors, slid open
+      B.path(`M ${dc[0] - 150} ${dc[1] + 40} A 150 150 0 0 1 ${dc[0] + 150} ${dc[1] + 40} Z`, F(3.2));                            // dial
+      [-58, 0, 58].forEach(a => { const u = rad(a - 90); B.line(f1(dc[0] + Math.cos(u) * 118), f1(dc[1] + 40 + Math.sin(u) * 118), f1(dc[0] + Math.cos(u) * 136), f1(dc[1] + 40 + Math.sin(u) * 136), W(a === 58 ? 4 : 2)); });
+      const N = rot(B, 58, dc[0], dc[1] + 40); N.line(dc[0], dc[1] + 40, dc[0], dc[1] - 76, W(5)); B.circle(dc[0], dc[1] + 40, 12, F(2.6));
+      goalAt(p, c, S0, O, 100, 190, 262, { lab: { maxW: 240 } });
+      whoLeft(p, c, S0); }); });
 
-  /* 05 ── SUMMIT: the flag at the peak carries the goal; the traveller stands at the top */
-  variant('summit', 'ยอดเขา', (d, c) => { const S0 = st(d);
-    art(c, p => { floor(p, 300); const B = sub(p); atT(B, p, 0);
-      B.path('M -470 300 L 0 -150 L 470 300 Z', F(3.4));
-      R(B, -6, -340, 12, 190, 4, F(2.6)); B.path('M 6 -340 L 236 -340 L 236 -200 L 6 -200 Z', F(3));                       // pole + flag
-      goalAt(p, c, S0, 121, -270, 110, null);
-      whoAt(p, c, S0, -90, -150, 110);
-      if (S0.goal) lab(sub(p), S0.goal, 0, 200, {}); }); });
-
-  /* 06 ── TARGET: the arrow lands in the middle ring, where the goal is */
-  variant('target', 'เป้ากลางวง', (d, c) => { const S0 = st(d), x = 90, y = -30;
+  /* 04 ── SHELF: the goal is set on the wall shelf, its name tag under it */
+  variant('shelf', 'ชั้นโชว์ติดผนัง', (d, c) => { const S0 = st(d), O = offO(S0);
     art(c, p => { const B = sub(p); atT(B, p, 0);
-      B.circle(x, y, 260, F(3.4)); B.circle(x, y, 190, F(3)); B.circle(x, y, 120, F(3));
-      goalAt(p, c, S0, x, y, 160, null);
-      const a = Math.atan2(y + 60 - -170, 0), A = sub(p); atT(A, p, 0);
-      A.line(-400, -190, x - 112, y - 34, W(5)); A.path(`M ${x - 112} ${y - 34} L ${x - 150} ${y - 28} L ${x - 136} ${y - 58} Z`, F(2.6));   // shaft + head
-      A.path('M -400 -190 L -440 -228 M -400 -190 L -446 -196 M -380 -184 L -420 -222 M -380 -184 L -426 -190', W(3));               // fletching
-      if (S0.goal) lab(sub(p), S0.goal, x, 290, {});
-      whoAt(p, c, S0, -380, 160, 130); }); });
+      R(B, O - 280, 96, 560, 26, 6, F(3.2));                                                                                    // shelf board
+      [-1, 1].forEach(s => B.path(`M ${O + s * 200} 122 L ${O + s * 200} 218 Q ${O + s * 200} 226 ${O + s * 192} 222 L ${O + s * 120} 122 Z`, F(2.8)));   // brackets
+      goalAt(p, c, S0, O, -25, 220, 184, { lab: { maxW: 220 } });
+      whoLeft(p, c, S0, -380, 50); }); });
 
-  /* 07 ── CHECK: the goal on its card is checked off */
-  variant('check', 'ติ๊กสำเร็จ', (d, c) => { const S0 = st(d), x = S0.who ? 90 : 0;
+  /* 05 ── FILL TUBE: the tube fills to the top beside the goal */
+  variant('tube', 'หลอดเติมเต็ม', (d, c) => { const S0 = st(d), O = offO(S0), x = O + 250;
     art(c, p => { const B = sub(p); atT(B, p, 0);
-      R(B, x - 190, -250, 380, 450, 28, F(3.4));
-      goalAt(p, c, S0, x, -70, 210, 120);
-      tickMark(B, x + 180, -240, 60);
-      whoAt(p, c, S0, -340, 90, 150); }); });
+      R(B, x - 112, 270, 224, 30, 10, F(3)); R(B, x - 58, -290, 116, 570, 58, F(3.4));                                         // stand + tube
+      R(B, x - 38, -250, 76, 510, 38, { fill: LIT, sw: 2.4 });                                                                    // full
+      R(B, x - 74, -318, 148, 34, 12, F(3));                                                                                    // cap
+      [-180, -70, 40, 150].forEach(y => B.line(x + 66, y, x + 92, y, W(2.4))); B.line(x + 66, -236, x + 104, -236, W(4));        // marks + the full mark
+      goalAt(p, c, S0, O - 140, -40, 250, 150);
+      whoLeft(p, c, S0); }); });
 
-  /* 08 ── TROPHY: the goal sits in the cup */
-  variant('trophy', 'ถ้วยรางวัล', (d, c) => { const S0 = st(d), x = S0.who ? 90 : 0;
+  /* 06 ── MARQUEE: the bulbs round the frame light up and the goal shines in the middle */
+  variant('marquee', 'กรอบหลอดไฟ', (d, c) => { const S0 = st(d), O = offO(S0), w = 520, h = 480, x0 = O - w / 2, y0 = -270;
     art(c, p => { const B = sub(p); atT(B, p, 0);
-      [-1, 1].forEach(s => B.path(`M ${x + s * 165} -220 C ${x + s * 260} -220, ${x + s * 260} -90, ${x + s * 120} -50`, { sw: 14 }));   // handles
-      B.path(`M ${x - 180} -270 L ${x + 180} -270 Q ${x + 180} 10 ${x} 40 Q ${x - 180} 10 ${x - 180} -270 Z`, F(3.4));               // cup
-      R(B, x - 26, 40, 52, 90, 6, F(3)); R(B, x - 120, 130, 240, 40, 10, F(3)); R(B, x - 150, 170, 300, 34, 10, F(3));        // stem + base
-      goalAt(p, c, S0, x, -130, 170, 262);
-      whoAt(p, c, S0, -360, 150, 140); }); });
+      R(B, x0, y0, w, h, 34, F(3.4)); R(B, x0 + 58, y0 + 58, w - 116, h - 116, 14, S(1.6));
+      const bulbs = []; for (let i = 0; i <= 6; i++) { const x = x0 + 70 + i * (w - 140) / 6; bulbs.push([x, y0 + 29], [x, y0 + h - 29]); }
+      for (let i = 1; i <= 4; i++) { const y = y0 + 29 + i * (h - 58) / 5; bulbs.push([x0 + 29, y], [x0 + w - 29, y]); }
+      bulbs.forEach(([x, y]) => B.circle(f1(x), f1(y), 13, { fill: C.ink, sw: 1.6 }));
+      goalAt(p, c, S0, O, -50, 220, 125);
+      whoLeft(p, c, S0); }); });
 
-  /* 09 ── ROUTE: the route runs to the pin, where the goal is; the traveller arrives */
-  variant('route', 'เส้นทางถึงหมุด', (d, c) => { const S0 = st(d), px = 280, py = -120;
+  /* 07 ── RAIL: the carriage carrying the goal glides along the rail to the end stop */
+  variant('rail', 'รางเลื่อนถึงปลาย', (d, c) => { const S0 = st(d), cx = 260;
+    art(c, p => { const B = sub(p); atT(B, p, 0); B.line(-470, 300, 470, 300, S(2));
+      [-380, 380].forEach(x => { R(B, x - 12, 186, 24, 110, 6, F(2.8)); R(B, x - 40, 286, 80, 14, 5, F(2.4)); });              // supports
+      R(B, -440, 166, 880, 22, 11, F(3)); R(B, -428, 118, 30, 48, 6, F(2.6)); R(B, 398, 118, 30, 48, 6, F(2.6));               // rail + end stops
+      R(B, cx - 120, 104, 240, 56, 16, F(3.2)); [cx - 76, cx + 76].forEach(x => B.circle(x, 166, 15, F(2.6)));                // carriage + wheels
+      R(B, cx - 12, 8, 24, 98, 5, F(2.8)); R(B, cx - 130, -280, 260, 290, 16, F(3.2));                                         // post + card
+      goalAt(p, c, S0, cx, -160, 180, -30, { lab: { maxW: 230, size: 38 } });
+      whoAt(p, c, S0, -300, 60, 150); }); });
+
+  /* 08 ── CRANE: the crane lowers the goal onto its marked spot */
+  variant('crane', 'เครนวางลงที่หมาย', (d, c) => { const S0 = st(d), x = 90;
+    art(c, p => { const B = sub(p); atT(B, p, 0); B.line(-470, 300, 470, 300, S(2));
+      R(B, -470, -338, 940, 30, 8, F(3)); R(B, x - 70, -318, 140, 50, 10, F(3.2)); [x - 40, x + 40].forEach(xx => B.circle(xx, -318, 12, F(2.4)));   // beam + trolley
+      B.line(x, -268, x, -40, W(2.4)); R(B, x - 34, -50, 68, 40, 8, F(3)); B.path(`M ${x} -10 L ${x} 16 Q ${x} 40 ${x + 22} 40 Q ${x + 40} 40 ${x + 40} 22`, { sw: 8 });   // cable, block, hook
+      R(B, x - 170, 290, 340, 18, 6, F(2.6));                                                                                  // the marked spot
+      goalAt(p, c, S0, x, 180, 210, null); if (S0.goal) lab(sub(p), S0.goal, x + 150, 200, { anchor: 'start', maxW: 220 });
+      whoAt(p, c, S0, -330, 200, 140); }); });
+
+  /* 09 ── SPLIT-FLAP: the board's flaps fall and settle on the goal */
+  variant('splitflap', 'แผ่นพลิกแสดงผล', (d, c) => { const S0 = st(d), O = offO(S0);
     art(c, p => { const B = sub(p); atT(B, p, 0);
-      B.path(`M -420 240 C -150 240, -120 40, ${px - 30} 60`, S(3)); B.circle(-420, 240, 16, F(2.8));                       // the route + start
-      B.path(`M ${px} 60 C ${px - 60} -10, ${px - 130} -60, ${px - 130} ${py} A 130 130 0 1 1 ${px + 130} ${py} C ${px + 130} -60, ${px + 60} -10, ${px} 60 Z`, F(3.4));   // pin
-      goalAt(p, c, S0, px, py, 170, null); if (S0.goal) lab(sub(p), S0.goal, px, 140, {});
-      runner(p, c, S0, 100, 20, 120); }); });
+      R(B, O - 220, -270, 440, 470, 26, F(3.4)); R(B, O - 190, -240, 380, 410, 14, F(2.8));
+      B.line(O - 190, -35, O + 190, -35, { sw: 9, stroke: '#040404' }); B.line(O - 190, -35, O + 190, -35, S(1.4)); [-1, 1].forEach(s => R(B, O + s * 200 - 8, -52, 16, 34, 5, F(2.4)));
+      goalAt(p, c, S0, O, -90, 210, 120);
+      whoLeft(p, c, S0); }); });
 
-  /* 10 ── ARROW: the arrow reaches the goal */
-  variant('arrow', 'ลูกศรถึงเป้า', (d, c) => { const S0 = st(d);
+  /* 10 ── SHUTTER: the shutter rolls up and the goal is in the window */
+  variant('shutter', 'บานม้วนเปิด', (d, c) => { const S0 = st(d), O = offO(S0);
     art(c, p => { const B = sub(p); atT(B, p, 0);
-      B.path('M -440 -34 L 130 -34 L 130 -90 L 236 0 L 130 90 L 130 34 L -440 34 Z', F(3.4));
-      B.circle(370, 0, 125, F(3.2));
-      goalAt(p, c, S0, 370, 0, 170, 180);
-      whoAt(p, c, S0, -380, -130, 110); }); });
+      R(B, O - 250, -230, 500, 490, 10, F(3.4)); R(B, O - 226, -206, 452, 442, 4, { fill: GLASS, sw: 0, stroke: 'none' });   // window + light
+      R(B, O - 226, -206, 452, 34, 4, F(2.8)); R(B, O - 226, -176, 452, 14, 5, F(2.6));                                      // shutter rolled up + its bottom rail
+      R(B, O - 276, -292, 552, 70, 18, F(3.2)); R(B, O - 284, 258, 568, 26, 8, F(3));                                        // roller box + sill
+      goalAt(p, c, S0, O, 30, 230, 210);
+      whoLeft(p, c, S0); }); });
 
-  /* 11 ── ROAD: the road runs to the horizon, where the goal is */
-  variant('road', 'ถนนสู่ปลายทาง', (d, c) => { const S0 = st(d);
+  /* 11 ── NOTE BOARD: the note with the goal is pinned to the board */
+  variant('noteboard', 'บอร์ดปักหมุด', (d, c) => { const S0 = st(d), O = offO(S0);
     art(c, p => { const B = sub(p); atT(B, p, 0);
-      B.line(-470, -110, 470, -110, S(1.6));
-      B.path('M -340 300 L -30 -110 L 30 -110 L 340 300 Z', F(3.4)); B.line(0, 280, 0, -96, S(2));
-      goalAt(p, c, S0, 0, -225, 190, null);
-      if (S0.goal) lab(sub(p), S0.goal, 120, -210, { anchor: 'start', maxW: 300 });
-      runner(p, c, S0, 0, 130, 130); }); });
+      R(B, O - 270, -280, 540, 520, 16, F(3.4)); R(B, O - 244, -254, 488, 468, 8, S(1.6));                                    // board + frame
+      const N = rot(B, -3, O, -40); N.path(`M ${O - 150} -200 L ${O + 150} -200 L ${O + 150} 90 L ${O + 100} 140 L ${O - 150} 140 Z`, F(3.2)); N.path(`M ${O + 100} 140 L ${O + 108} 98 L ${O + 150} 90`, S(1.6));
+      N.circle(O, -176, 16, F(3)); N.line(O + 4, -162, O + 9, -146, W(2));                                                     // pin
+      goalAt(p, c, S0, O, -60, 190, 95, { lab: { maxW: 250 } });
+      whoLeft(p, c, S0); }); });
 
-  /* 12 ── GAUGE: the needle sweeps to full */
-  variant('gauge', 'หน้าปัดเต็ม', (d, c) => { const S0 = st(d), cx = 0, cy = 200, Rr = 320;
-    const P = (a, r) => [f1(cx + Math.sin(rad(a)) * r), f1(cy - Math.cos(rad(a)) * r)];
+  /* 12 ── LOCKER: the locker door swings open and the goal is inside */
+  variant('locker', 'ล็อกเกอร์เปิด', (d, c) => { const S0 = st(d), O = offO(S0);
+    art(c, p => { const B = sub(p); atT(B, p, 0); B.line(-470, 300, 470, 300, S(2));
+      R(B, O - 180, -320, 360, 620, 12, F(3.4)); R(B, O - 156, -296, 312, 572, 6, { fill: GLASS, sw: 0, stroke: 'none' });    // cabinet + light
+      B.line(O - 156, 120, O + 156, 120, W(2.6));                                                                               // shelf
+      B.path(`M ${O + 180} -320 L ${O + 300} -280 L ${O + 300} 260 L ${O + 180} 300 Z`, F(3.2));                               // the door, swung open
+      [-230, -205, -180].forEach(y => B.line(O + 214, y + 6, O + 270, y + 20, S(1.6))); R(B, O + 270, -20, 12, 60, 5, F(2.2));  // vents + handle
+      goalAt(p, c, S0, O, -40, 220, 200);
+      whoLeft(p, c, S0, -390); }); });
+
+  /* 13 ── TRAY: the goal's card is dropped into the top tray */
+  variant('tray', 'ถาดเอกสาร', (d, c) => { const S0 = st(d), O = offO(S0);
+    art(c, p => { const B = sub(p); atT(B, p, 0); B.line(-470, 300, 470, 300, S(2));
+      [-1, 1].forEach(s => R(B, O + s * 270 - 14, 100, 28, 200, 6, F(2.8)));                                                    // side posts
+      R(B, O - 190, -230, 380, 400, 14, F(3.2));                                                                                // the card
+      [[130, 90], [230, 64]].forEach(([y, h]) => { B.path(`M ${O - 262} ${y} L ${O + 262} ${y} L ${O + 262} ${y + h - 14} Q ${O + 262} ${y + h} ${O + 248} ${y + h} L ${O - 248} ${y + h} Q ${O - 262} ${y + h} ${O - 262} ${y + h - 14} Z`, F(3.2));
+        B.path(`M ${O - 50} ${y} A 50 26 0 0 0 ${O + 50} ${y}`, S(1.8)); });                                                   // trays + finger notches
+      goalAt(p, c, S0, O, -90, 200, 80);
+      whoLeft(p, c, S0, -390, 120); }); });
+
+  /* 14 ── STATUS PANEL: the panel's lights fill one by one and the screen shows the goal */
+  variant('panel', 'แผงไฟสถานะ', (d, c) => { const S0 = st(d), O = offO(S0);
     art(c, p => { const B = sub(p); atT(B, p, 0);
-      B.path(`M ${cx - Rr} ${cy} A ${Rr} ${Rr} 0 0 1 ${cx + Rr} ${cy} L ${cx + Rr - 50} ${cy} A ${Rr - 50} ${Rr - 50} 0 0 0 ${cx - Rr + 50} ${cy} Z`, F(3.2));   // the band
-      B.path(`M ${cx - Rr + 8} ${cy - 2} A ${Rr - 8} ${Rr - 8} 0 0 1 ${cx + Rr - 8} ${cy - 2} L ${cx + Rr - 42} ${cy - 2} A ${Rr - 42} ${Rr - 42} 0 0 0 ${cx - Rr + 42} ${cy - 2} Z`, { fill: LIT, sw: 0, stroke: 'none' });   // filled to full
-      B.line(...P(88, 40), ...P(88, Rr - 70), W(5)); B.circle(cx, cy, 24, F(3));                                            // needle at full
-      goalAt(p, c, S0, 0, 50, 170, 275);
-      whoAt(p, c, S0, -400, 230, 110); }); });
+      R(B, O - 240, -290, 480, 560, 32, F(3.4)); R(B, O - 204, -254, 408, 300, 16, F(2.8));                                  // body + screen
+      [-2, -1, 0, 1, 2].forEach(i => R(B, O + i * 74 - 30, 98, 60, 30, 12, { fill: LIT, sw: 2.6 }));                         // status lights, all on
+      B.circle(O, 196, 28, F(3)); B.circle(O, 196, 12, W(2));                                                                   // button
+      goalAt(p, c, S0, O, -130, 190, 10);
+      whoLeft(p, c, S0); }); });
 
-  /* 13 ── BLOCKS: the blocks stack up and the goal goes on top */
-  variant('blocks', 'บล็อกต่อขึ้น', (d, c) => { const S0 = st(d), x = S0.who ? 90 : 0;
-    art(c, p => { floor(p, 300); const B = sub(p); atT(B, p, 0);
-      [[300, 280], [190, 240], [80, 200]].forEach(([b, w]) => R(B, x - w / 2, b - 110, w, 110, 14, F(3.2)));
-      goalAt(p, c, S0, x, -110, 200, null); if (S0.goal) lab(sub(p), S0.goal, x + 130, -110, { anchor: 'start', maxW: 240 });
-      whoAt(p, c, S0, -340, 190, 150); }); });
-
-  /* 14 ── DOOR: the door opens and the goal is inside */
-  variant('door', 'ประตูเปิด', (d, c) => { const S0 = st(d), x = S0.who ? 100 : 0;
-    art(c, p => { floor(p, 300); const B = sub(p); atT(B, p, 0);
-      R(B, x - 180, -320, 360, 620, 10, F(3.4)); R(B, x - 160, -300, 320, 600, 4, { fill: LIT, sw: 0, stroke: 'none' });      // frame + light
-      B.path(`M ${x - 160} -300 L ${x - 270} -260 L ${x - 270} 260 L ${x - 160} 300 Z`, F(3)); B.circle(x - 248, 10, 9, W(2.4));   // the door, swung open
-      goalAt(p, c, S0, x, -40, 220, 190);
-      whoAt(p, c, S0, -380, 170, 150); }); });
-
-  /* 15 ── PIN: the pin drops onto the goal */
-  variant('pin', 'หมุดปักลง', (d, c) => { const S0 = st(d), x = S0.who ? 100 : 0;
+  /* 15 ── HANGING SIGN: the sign swings on its wall bracket and settles, showing the goal */
+  variant('hangsign', 'ป้ายแขวนกิ่ง', (d, c) => { const S0 = st(d), x = 60;
     art(c, p => { const B = sub(p); atT(B, p, 0);
-      B.ellipse(x, 290, 150, 26, S(2));
-      B.path(`M ${x} 280 C ${x - 80} 170, ${x - 175} 60, ${x - 175} -80 A 175 175 0 1 1 ${x + 175} -80 C ${x + 175} 60, ${x + 80} 170, ${x} 280 Z`, F(3.4));
-      goalAt(p, c, S0, x, -90, 190, 85);
-      whoAt(p, c, S0, -380, 190, 140); }); });
+      R(B, -330, -330, 36, 140, 8, F(3)); B.line(-294, -300, 300, -300, W(5)); B.line(-294, -220, -150, -300, W(3.6));          // wall plate, arm, brace
+      B.circle(300, -300, 9, F(2.4));
+      [x - 150, x + 150].forEach(xx => { B.line(xx, -300, xx, -246, W(2.4)); B.circle(xx, -300, 8, F(2.2)); });               // hooks
+      R(B, x - 210, -246, 420, 380, 20, F(3.4));
+      goalAt(p, c, S0, x, -80, 210, 90);
+      whoAt(p, c, S0, -380, 230, 120); }); });
 
-  /* 16 ── CHART: the line climbs to the goal */
-  variant('chart', 'กราฟขึ้นถึงเป้า', (d, c) => { const S0 = st(d), gx = 330, gy = -190;
+  /* 16 ── SCREEN: the progress bar on the screen completes and the goal comes up */
+  variant('screen', 'จอโหลดเสร็จ', (d, c) => { const S0 = st(d), O = offO(S0);
     art(c, p => { const B = sub(p); atT(B, p, 0);
-      B.path('M -420 -300 L -420 270 L 440 270', S(2));
-      const pts = [[-380, 200], [-220, 120], [-80, 150], [70, 10], [200, -70]];
-      B.poly(pts.concat([[gx - 100, gy + 40]]), W(5)); pts.forEach(([x, y]) => B.circle(x, y, 13, F(2.6)));
-      B.circle(gx, gy, 110, F(3.2));
-      goalAt(p, c, S0, gx, gy, 150, null); if (S0.goal) lab(sub(p), S0.goal, gx, -20, {});
-      whoAt(p, c, S0, -300, -180, 120); }); });
+      R(B, O - 270, -300, 540, 380, 22, F(3.4)); R(B, O - 246, -276, 492, 332, 10, S(1.6));                                  // monitor + screen
+      R(B, O - 26, 80, 52, 96, 6, F(3)); R(B, O - 140, 176, 280, 26, 10, F(3));                                                // neck + base
+      R(B, O - 190, 0, 380, 34, 17, F(2.8)); R(B, O - 184, 6, 368, 22, 11, { fill: LIT, sw: 0, stroke: 'none' });            // progress bar, full
+      goalAt(p, c, S0, O, -175, 160, -42, { lab: { size: 36, maxW: 300 } });
+      whoLeft(p, c, S0); }); });
 
-  /* 17 ── THREE DOTS: two steps done, the third (the goal) is reached */
-  variant('dots', 'จุดสามขั้น', (d, c) => { const S0 = st(d);
+  /* 17 ── LABEL PRINTER: the printer runs out the goal's label */
+  variant('labelprinter', 'เครื่องพิมพ์ฉลาก', (d, c) => { const S0 = st(d), O = S0.who ? 40 : -30;
     art(c, p => { const B = sub(p); atT(B, p, 0);
-      B.line(-330, 20, 140, 20, W(4));
-      [-330, -120].forEach(x => B.circle(x, 20, 44, { fill: C.ink, sw: 2 }));
-      B.circle(270, 20, 150, F(3.4));
-      goalAt(p, c, S0, 270, 20, 180, 230);
-      whoAt(p, c, S0, -330, -130, 110); }); });
+      { let z = `M ${O - 110} -70 L ${O + 440} -70`; for (let i = 1; i <= 8; i++) z += ` L ${O + (i % 2 ? 460 : 440)} ${-70 + i * 25}`; B.path(z + ` L ${O - 110} 130 Z`, F(3.2)); }   // the label strip (zigzag cut end)
+      R(B, O - 330, -130, 240, 320, 34, F(3.4)); R(B, O - 296, -100, 172, 84, 12, F(2.6));                                    // printer + display
+      for (let r = 0; r < 2; r++) for (let k = 0; k < 3; k++) R(B, O - 292 + k * 58, 10 + r * 56, 46, 42, 9, F(2.2));          // keys
+      R(B, O - 98, -60, 14, 180, 5, F(2.4));                                                                                    // the exit slot
+      goalAt(p, c, S0, O + 50, 30, 150, null); if (S0.goal) lab(sub(p), S0.goal, O + 270, 46, { maxW: 250, size: 44 });
+      whoAt(p, c, S0, -380, 260, 110); }); });
 
-  /* 18 ── STAR: the star around the goal lights */
-  variant('star', 'ดาวสว่าง', (d, c) => { const S0 = st(d), x = S0.who ? 100 : 0, y = -10, Ro = 300, Ri = 140;
-    art(c, p => { const B = sub(p); atT(B, p, 0);
-      const pts = []; for (let i = 0; i < 10; i++) { const a = rad(-90 + i * 36), r = i % 2 ? Ri : Ro; pts.push([x + Math.cos(a) * r, y + Math.sin(a) * r]); }
-      B.path(rpoly(pts, 30), F(3.4));
-      goalAt(p, c, S0, x, y + 10, 170, null); if (S0.goal) lab(sub(p), S0.goal, x, 320, {});
-      whoAt(p, c, S0, -390, 180, 130); }); });
+  /* 18 ── EASEL: the cloth is pulled off the canvas on the easel and the goal is unveiled */
+  variant('easel', 'ขาตั้งเปิดผ้าคลุม', (d, c) => { const S0 = st(d), O = offO(S0);
+    art(c, p => { const B = sub(p); atT(B, p, 0); B.line(-470, 300, 470, 300, S(2));
+      B.line(O, -330, O, 290, W(4)); B.line(O - 70, -300, O - 210, 300, W(5)); B.line(O + 70, -300, O + 210, 300, W(5));         // legs
+      R(B, O - 230, 110, 460, 26, 8, F(3));                                                                                     // ledge
+      R(B, O - 210, -290, 420, 400, 8, F(3.4));                                                                                 // canvas
+      B.path(`M ${O + 214} -280 C ${O + 300} -200, ${O + 250} -20, ${O + 300} 100 C ${O + 330} 180, ${O + 300} 250, ${O + 330} 296 L ${O + 240} 296 C ${O + 250} 200, ${O + 230} 120, ${O + 222} 40 Z`, F(3));   // the cloth, pulled aside
+      goalAt(p, c, S0, O, -100, 220, 75);
+      whoLeft(p, c, S0, -400); }); });
 
-  /* 19 ── MEDAL: the goal is on the medal */
-  variant('medal', 'เหรียญรางวัล', (d, c) => { const S0 = st(d), x = S0.who ? 100 : 0;
+  /* 19 ── INSTANT CAMERA: the camera prints the photo — the goal develops on it */
+  variant('camera', 'กล้องพิมพ์รูป', (d, c) => { const S0 = st(d), O = offO(S0);
     art(c, p => { const B = sub(p); atT(B, p, 0);
-      B.path(`M ${x - 150} -330 L ${x - 60} -330 L ${x + 10} -150 L ${x - 70} -130 Z`, F(3)); B.path(`M ${x + 150} -330 L ${x + 60} -330 L ${x - 10} -150 L ${x + 70} -130 Z`, F(3));   // strap
-      B.circle(x, 40, 190, F(3.4)); B.circle(x, 40, 160, S(1.6));
-      goalAt(p, c, S0, x, 30, 190, null); if (S0.goal) lab(sub(p), S0.goal, x, 285, {});
-      whoAt(p, c, S0, -370, 170, 140); }); });
+      R(B, O - 160, -10, 320, 300, 16, F(3.2)); R(B, O - 130, 20, 260, 200, 6, { fill: GLASS, sw: 2 });                       // the photo
+      R(B, O - 230, -300, 460, 290, 40, F(3.4));                                                                                // camera body
+      B.circle(O, -150, 92, F(3.2)); B.circle(O, -150, 56, S(1.8)); R(B, O + 130, -270, 70, 40, 10, F(2.6));                  // lens, flash
+      R(B, O - 190, -32, 380, 16, 6, F(2.6));                                                                                   // the slot
+      goalAt(p, c, S0, O, 115, 150, 260, { lab: { maxW: 260, size: 36 } });
+      whoLeft(p, c, S0); }); });
 
-  /* 20 ── FRAME: the corner marks close in on the goal */
-  variant('frame', 'กรอบโฟกัส', (d, c) => { const S0 = st(d), x = S0.who ? 100 : 0, y = -40, k = 200, L = 60;
+  /* 20 ── LAMP: the desk lamp turns on and lights the goal on the desk */
+  variant('lamp', 'โคมไฟส่อง', (d, c) => { const S0 = st(d), lx = -260;
     art(c, p => { const B = sub(p); atT(B, p, 0);
-      [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sy]) => B.poly([[x + sx * k, y + sy * (k - L)], [x + sx * k, y + sy * k], [x + sx * (k - L), y + sy * k]], W(6)));
-      goalAt(p, c, S0, x, y, 250, 250);
-      whoAt(p, c, S0, -380, 170, 140); }); });
+      B.line(-470, 270, 470, 270, S(2));                                                                                         // desk
+      B.shape(P2([[lx + 150, -170], [lx + 210, -230], [480, 250], [20, 270]]), { fill: GLASS, sw: 0, stroke: 'none' });         // the light
+      R(B, lx - 90, 246, 180, 24, 8, F(3)); B.line(lx, 246, lx - 60, 30, W(5)); B.line(lx - 60, 30, lx + 90, -200, W(5));          // base, arms
+      [[lx, 246], [lx - 60, 30]].forEach(([x, y]) => B.circle(x, y, 13, F(2.6)));
+      const sh = rot(B, 45, lx + 120, -220); sh.path(`M ${lx + 70} -220 L ${lx + 170} -220 L ${lx + 200} -140 L ${lx + 40} -140 Z`, F(3.2));   // shade
+      goalAt(p, c, S0, 240, 90, 220, 260);
+      whoAt(p, c, S0, -40, 190, 110); }); });
 
   /* samples from unrelated topics (neutrality) + a stress set */
   const I = (icon, label) => label ? { icon, label } : { icon };
