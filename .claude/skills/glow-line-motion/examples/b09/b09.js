@@ -136,10 +136,20 @@
      tl(S0): tI(i) = when item i comes in · T0 = when the pointer sets off (a long sentence: it waits, then goes — B05 lesson) ·
      tP(i) = when the pointer reaches item i (i ≤ now; tP(now) = the keyword H). step = the time between two moments. */
   let TT = null;
-  function tl(S0) { const H = Z.H, k = S0.now, T0 = Math.max(tu(.55), H - (k + 1) * tu(.32)), step = (H - T0) / (k + 1);
-    return TT = { H, k, T0, step, tP: i => i <= k ? T0 + step * (i + 1) : null, tI: i => i === 3 ? tu(.5) : tu(.2 + .1 * i) }; }
+  /* smooth: true (user 2026-11-13 "ทำให้อนิเมชั่นมันสมูทกว่านี้" for 01 02 03 08 10 13 15 16 18) — one continuous trip instead of a stop at every
+     moment: soft start, steady through the moments, gentle arrival (sm); tP(i) = when it really passes moment i. end = when the trip ends (default H) */
+  const SMG = .8, sm = u => .5 - .5 * Math.cos(Math.PI * Math.pow(Math.min(1, Math.max(0, u)), SMG)), smInv = f => Math.pow(Math.acos(1 - 2 * f) / Math.PI, 1 / SMG);
+  function tl(S0, o = {}) { const H = Z.H, k = S0.now, tI = i => i === 3 ? tu(.5) : tu(.2 + .1 * i);
+    if (o.smooth) { const E = o.end ?? H, T0 = Math.max(tu(.5), E - (k + 1) * tu(.4)), D = E - T0;
+      return TT = { H, k, T0, E, D, smooth: true, step: D / (k + 1), tP: i => i <= k ? T0 + D * smInv((i + 1) / (k + 1)) : null, tI }; }
+    const T0 = Math.max(tu(.55), H - (k + 1) * tu(.32)), step = (H - T0) / (k + 1);
+    return TT = { H, k, T0, E: H, step, tP: i => i <= k ? T0 + step * (i + 1) : null, tI }; }
   /* a travelling value: v0 until T0, then v[i] at tP(i) (eased step to step) — absolute; relK / scK turn it into keys */
-  function travA(T, v0, v) { const A = [[0, v0], [T.T0, v0]]; for (let i = 0; i <= T.k; i++) A.push([T.tP(i), v[i], i === T.k ? 'out' : 'io']); return A; }
+  function travA(T, v0, v) { const A = [[0, v0], [T.T0, v0]];
+    if (T.smooth) { const P = [v0].concat(v.slice(0, T.k + 1)), N = 10 * (T.k + 1);
+      for (let j = 1; j <= N; j++) { const u = j / N, s2 = (T.k + 1) * sm(u), g = Math.min(T.k, Math.floor(s2)); A.push([T.T0 + T.D * u, lerp(P[g], P[g + 1], s2 - g)]); }
+      return A; }
+    for (let i = 0; i <= T.k; i++) A.push([T.tP(i), v[i], i === T.k ? 'out' : 'io']); return A; }
   const relK = (A, fin, k = 1) => A.map(([t, v, e]) => e ? [t, f1((v - fin) * k), e] : [t, f1((v - fin) * k)]);
   const scK = (A, a, fin) => A.map(([t, v, e]) => { const s = +Math.max(.001, (v - a) / (fin - a)).toFixed(4); return e ? [t, s, e] : [t, s]; });
   /* lit at t (an overlay that turns on) · a halo that blooms on the keyword · strokes that draw themselves */
@@ -152,7 +162,7 @@
 
   /* 01 ── LINE: the plain timeline — the line draws out, the moments come in, a glowing dot walks from moment to moment (each one lights as
      it passes) and stops on `at`; the result waits at the end */
-  variant('line', 'เส้นเวลา', (d, c) => { const S0 = st(d), T = tl(S0), y0 = 40, X = lay(S0, -360, 360);
+  variant('line', 'เส้นเวลา', (d, c) => { const S0 = st(d), T = tl(S0, { smooth: true }), y0 = 40, X = lay(S0, -360, 360);
     art(c, p => {
       const xEnd = S0.R ? X[3] - 102 : 465, xNow = S0.now === 3 ? xEnd : X[S0.now], A = travA(T, -465, [X[0], X[1], X[2], xEnd]);
       drawAt(p.line(-465, y0, xEnd, y0, S(3)), p, 0, tu(.45));
@@ -167,7 +177,7 @@
 
   /* 02 ── SCRUBBER: play is pressed, the chapters' thumbnails pop up, the playhead runs along the bar (it fills behind it) and stops on `at`;
      the end card is the result */
-  variant('scrubber', 'แถบเล่นวิดีโอ', (d, c) => { const S0 = st(d), T = tl(S0), yb = 175, X = S0.R ? lay(S0, -270, 360) : lay(S0, -250, 330), cw = S0.R ? 170 : 190;
+  variant('scrubber', 'แถบเล่นวิดีโอ', (d, c) => { const S0 = st(d), T = tl(S0, { smooth: true }), yb = 175, X = S0.R ? lay(S0, -270, 360) : lay(S0, -250, 330), cw = S0.R ? 170 : 190;
     art(c, p => {
       const pl = inG(p, 'pop', -445, yb, 0); pl.circle(-445, yb, 40, F(3.2)); const tri = sub(pl); on(tri, p, 0, { ox: -445, oy: yb, s: [[0, 1], [T.T0 - tu(.16), 1], [T.T0 - tu(.08), .8, 'in'], [T.T0, 1, 'out']] });
       shape(tri, [[-457, yb - 19], [-425, yb], [-457, yb + 19]], SOLID(1.6));
@@ -183,7 +193,7 @@
     }); });
 
   /* 03 ── TAPE MEASURE: the tape slides out of its case (lock clicks), its hook passes each moment's mark and stops on `at` (or at the result) */
-  variant('tape', 'ตลับเมตรดึงออก', (d, c) => { const S0 = st(d), T = tl(S0), fy = 222, X = S0.R ? lay(S0, -200, 380) : lay(S0, -180, 400);
+  variant('tape', 'ตลับเมตรดึงออก', (d, c) => { const S0 = st(d), T = tl(S0, { smooth: true }), fy = 222, X = S0.R ? lay(S0, -200, 380) : lay(S0, -180, 400);
     art(c, p => {
       drawAt(p.line(-480, fy, 480, fy, S(2)), p, 0, tu(.4));
       const xe = S0.now === 3 ? X[3] - 92 : X[S0.now] + 6, A = travA(T, -306, [X[0] + 6, X[1] + 6, X[2] + 6, X[3] - 92]);
@@ -278,7 +288,7 @@
 
   /* 08 ── TRACK SPOT: the framed moments drop onto their nails, the spotlight switches on and runs along the ceiling track,
      lighting each frame in turn, and stops on `at` (or on the result) */
-  variant('trackspot', 'ไฟรางส่องกรอบรูป', (d, c) => { const S0 = st(d), T = tl(S0), X = S0.R ? lay(S0, -330, 340) : lay(S0, -320, 320), fw = 170;
+  variant('trackspot', 'ไฟรางส่องกรอบรูป', (d, c) => { const S0 = st(d), T = tl(S0, { smooth: true }), X = S0.R ? lay(S0, -330, 340) : lay(S0, -320, 320), fw = 170;
     art(c, p => {
       const rl = atG(p, 0); [-380, 380].forEach(x => rl.line(x, -345, x, -300, W(2.4))); drawAt(R(rl, -470, -300, 940, 16, 8, F(2.6)), p, 0, tu(.35));
       X.forEach((x, i) => { const w = i === 3 ? 210 : fw, top = -20 - w / 2, g = inD(p, S0, i, 'drop', x, top - 52, T.tI(i));
@@ -313,7 +323,7 @@
 
   /* 10 ── GLASS LIFT: the floors come in, the glass car rides up floor by floor (a short stop at each) and stops on `at`;
      the result waits on the top floor */
-  variant('glasslift', 'ลิฟต์แก้วขึ้นชั้น', (d, c) => { const S0 = st(d), T = tl(S0), L = S0.R ? [255, 112, -31, -174] : [240, 60, -120], ch = 118;
+  variant('glasslift', 'ลิฟต์แก้วขึ้นชั้น', (d, c) => { const S0 = st(d), T = tl(S0, { smooth: true }), L = S0.R ? [255, 112, -31, -174] : [240, 60, -120], ch = 118;
     art(c, p => {
       const sh = atG(p, 0); R(sh, -112, -320, 12, 590, 4, F(2.4)); R(sh, 100, -320, 12, 590, 4, F(2.4)); R(sh, -140, -345, 280, 26, 6, F(3));
       L.forEach((y, i) => { const g = inD(p, S0, i, 'pop', 0, y, i === 3 ? T.tI(3) : T.tI(i)); R(g, 112, y, 330, 14, 4, F(2.4)); R(g, -442, y, 330, 14, 4, F(2.4)); });
@@ -361,7 +371,7 @@
 
   /* 13 ── PIPE: the valve wheel turns, the flow runs down the pipe (each sight glass lights as it arrives) and stops at `at` —
      or runs on and fills the result's tank on the keyword */
-  variant('pipe', 'ท่อไหลผ่านช่องกระจก', (d, c) => { const S0 = st(d), T = tl(S0), py = 60, X = S0.R ? lay(S0, -260, 330) : lay(S0, -250, 330);
+  variant('pipe', 'ท่อไหลผ่านช่องกระจก', (d, c) => { const S0 = st(d), T = tl(S0, { smooth: true }), py = 60, X = S0.R ? lay(S0, -260, 330) : lay(S0, -250, 330);
     art(c, p => {
       const xe = S0.R ? X[3] - 90 : 470, xf = S0.now === 3 ? xe : X[S0.now], A = travA(T, -470, [X[0], X[1], X[2], xe]);
       drawAt(R(p, -480, py - 25, xe + 480, 50, S0.R ? 4 : 25, F(3.2)), p, 0, tu(.4));
@@ -399,7 +409,7 @@
 
   /* 15 ── CANDLE: the candle is lit and burns down mark by mark (each mark vanishes once the flame is below it) and stops on `at`;
      the burnt part stays as a faint outline; the result shows beside it */
-  variant('candle', 'เทียนบอกเวลา', (d, c) => { const S0 = st(d), T = tl(S0), cx = S0.R ? -20 : 90, ys = [-110, 15, 140], top0 = -200, base = 262;
+  variant('candle', 'เทียนบอกเวลา', (d, c) => { const S0 = st(d), T = tl(S0, { smooth: true }), cx = S0.R ? -20 : 90, ys = [-110, 15, 140], top0 = -200, base = 262;
     art(c, p => {
       const yt = ys[Math.min(S0.now, 2)], A = travA(T, top0, [ys[0], ys[1], ys[2], ys[2]]), Kd = relK(A, yt);
       R(atG(p, 0), cx - 60, top0, 120, base - top0, 10, S(1.6));
@@ -420,7 +430,7 @@
 
   /* 16 ── TRAM: the stops come in, the tram rolls in under its wire, stops at each stop for a moment and halts with its nose at `at`;
      the terminal at the end holds the result */
-  variant('tram', 'รถรางผ่านป้าย', (d, c) => { const S0 = st(d), T = tl(S0), ty = 150, X = S0.R ? [-170, 10, 190, 370] : [-140, 100, 340];
+  variant('tram', 'รถรางผ่านป้าย', (d, c) => { const S0 = st(d), T = tl(S0, { smooth: true }), ty = 150, X = S0.R ? [-170, 10, 190, 370] : [-140, 100, 340];
     art(c, p => {
       drawAt(p.line(-480, -262, 480, -262, W(2)), p, 0, tu(.4)); drawAt(p.line(-480, ty + 18, 480, ty + 18, W(3)), p, 0, tu(.4));
       const sl = atG(p, tu(.1)); for (let x = -470; x < 480; x += 62) R(sl, x, ty + 22, 36, 8, 2, S(1.4));
@@ -467,13 +477,13 @@
 
   /* 18 ── CRANE: the gantry carries the result along its beam, stopping over each bay; it hangs over `at` — or, at the end,
      lowers the result onto its pad on the keyword */
-  variant('crane', 'เครนขนตามราง', (d, c) => { const S0 = st(d), T = tl(S0), fy = 290, X = S0.R ? lay(S0, -330, 330) : lay(S0, -300, 300);
+  variant('crane', 'เครนขนตามราง', (d, c) => { const S0 = st(d), T = tl(S0, { smooth: true, end: S0.now === 3 ? Z.H - tu(.4) : undefined }), fy = 290, X = S0.R ? lay(S0, -330, 330) : lay(S0, -300, 300);
     art(c, p => {
       drawAt(p.line(-480, fy, 480, fy, S(2)), p, 0, tu(.4));
       const G0 = inG(p, 'rise', 0, fy, 0); R(G0, -470, -262, 22, fy + 262, 4, F(2.6)); R(G0, 448, -262, 22, fy + 262, 4, F(2.6)); R(G0, -480, -298, 960, 36, 6, F(3.4));
       X.forEach((x, i) => { const w = i === 3 ? 210 : 170; R(inD(p, S0, i, 'pop', x, fy - 11, i === 3 ? T.tI(3) : T.tI(i)), x - w / 2, fy - 22, w, 22, 4, F(2.8)); });
       const xn = X[S0.now], down = S0.now === 3, by = down ? fy - 22 : 40, hy = by - 140 - 60, up = 40 - 140 - 60, dy = up - hy;
-      const A = travA(T, X[0] - 260, X), Hx = T.H - tu(.3); if (down) A.forEach((k, j) => { if (j >= 2) k[0] = T.T0 + (Hx - T.T0) * (j - 1) / 4; });
+      const A = travA(T, X[0] - 260, X), Hx = T.E;
       const Kx = relK(A, xn), lowK = [[0, dy], [Hx, dy], [T.H, 0, 'io']];
       const tg = sub(clipG(p, -446, -350, 892, 700)), tr = sub(tg); on(tr, p, 0, { x: Kx, o: [[0, 0], [tu(.25), 0], [tu(.35), 1]] });
       R(tr, xn - 46, -262, 92, 30, 6, F(3)); [-24, 24].forEach(dx => tr.circle(xn + dx, -264, 9, F(2.4)));
