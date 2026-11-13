@@ -184,13 +184,23 @@
       fn(q); return q;
     }
     _end(t) { if (t > this.span.end) this.span.end = t; bump(t); }
+    /* stroke width on the drawing. A plain line (sw ≤ 3) keeps its line weight at any size (× k). A THICKER stroke is a body:
+       only 3 of it is line weight, the rest is geometry and scales with the icon — so fat dots, bold bars and limbs keep their
+       shape when the icon is made small or big (user: "เวลาย่อและขยายมันต้องไม่เปลี่ยน"). Pairs on the same path (outlined
+       "tube" = thick ink + thinner dark fill; "gap" = dark band cut around a thinner ink line) are settled in fitStrokes().
+       o.abs: sw is already geometry. */
+    _sw(o, a) {
+      const sw = o.sw ?? 3, k = this.k; if (o.abs || k === 1) return sw;
+      return (o.stroke || C.ink) === C.fill || sw <= 3 ? sw * k : 3 * k + sw - 3;
+    }
     _d(tag, a, o = {}) {
       const start = this.t0 + (o.at || 0) * this.ts, dur = Math.max(.01, (o.dur ?? .4) * this.ts);
       const fill = o.fill || 'none';
       const e = mk(tag, Object.assign({
-        fill, stroke: o.stroke || C.ink, 'stroke-width': (o.sw ?? 3) * this.k,
+        fill, stroke: o.stroke || C.ink, 'stroke-width': this._sw(o, a),
         'stroke-linecap': 'round', 'stroke-linejoin': 'round', pathLength: 1, 'stroke-dasharray': '1 1',
       }, a), this.g);
+      if (!o.abs && this.k !== 1) e._gl = { sw: o.sw ?? 3, k: this.k, dark: (o.stroke || C.ink) === C.fill, key: this.k + tag + JSON.stringify(a) };
       items.push({ type: 'draw', e, start, dur, hasFill: fill !== 'none' });
       this._end(start + dur);
       return e;
@@ -238,6 +248,21 @@
   }
 
   /* ---------------- drawing placement ---------------- */
+  /* after a drawing is built: tube = thick ink + thinner dark fill on the same path → the ink edge keeps a line-weight outline
+     (7 = 3.5 each side), the dark fill is the body and scales; gap = dark band around a thinner ink line (the slash of an
+     "-off" icon) → its margin scales too, but never below one line weight, so the slash never touches what it crosses. */
+  function fitStrokes(i0) {
+    const ink = new Map(), dark = [];
+    for (let i = i0; i < items.length; i++) { const e = items[i].e, m = e && e._gl; if (!m) continue;
+      if (m.dark) dark.push(e); else (ink.get(m.key) || ink.set(m.key, []).get(m.key)).push(e); }
+    const W = e => +e.getAttribute('stroke-width');
+    for (const d of dark) { const m = d._gl, all = ink.get(m.key); if (!all) continue;
+      const fat = all.filter(e => e._gl.sw > m.sw).sort((a, b) => a._gl.sw - b._gl.sw)[0], thin = all.filter(e => e._gl.sw < m.sw).sort((a, b) => b._gl.sw - a._gl.sw)[0];
+      if (fat) { const f = fat._gl, k = m.k; if (f.sw > 7) fat.setAttribute('stroke-width', 7 * k + f.sw - 7);
+        else fat.setAttribute('stroke-width', f.sw * k);
+        d.setAttribute('stroke-width', Math.max(0, W(fat) - (f.sw - m.sw) * k)); }
+      else if (thin) { const gap = m.sw - thin._gl.sw; d.setAttribute('stroke-width', W(thin) + Math.max(gap, Math.min(gap, 3) * m.k)); } }
+  }
   function strokeK(s) { return s >= 1 ? 1 / Math.sqrt(s) : Math.max(1, .8 / s); }   // keeps lines ~2.4–4px on screen
   /* art: place a drawing. Motion mode (default): it pops in already complete, then plays its idle motion
      (fn.motion, or `idle`, or `float`). reveal: 'draw' keeps the self-drawing stroke for this one (lines, connectors). */
@@ -291,6 +316,7 @@
     p.motion = { speed: spd, amp: am, still: frozen, pose: hold, freezeAt: null, time: spd === 1 ? t => t : t => at + (t - at) * spd };
     let caps; CAP = [];
     try { fn(p); } finally { caps = CAP; CAP = cap0; }
+    fitStrokes(i0);
     if (spd !== 1 || am !== 1 || frozen) {
       applyMove(i0, caps, p, { at, speed: spd, amp: am, still: frozen, pose: hold });
       lastEnd = le0;                                      // end times changed → measure this drawing again
