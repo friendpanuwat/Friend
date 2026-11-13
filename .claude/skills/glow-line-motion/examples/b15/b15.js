@@ -191,217 +191,182 @@
   const dots = (q, a, b, n, r = 3.4) => { for (let i = 0; i <= n; i++) q.circle(f1(lerp(a[0], b[0], i / n)), f1(lerp(a[1], b[1], i / n)), r, { fill: C.soft, sw: 0, stroke: 'none' }); };
   const waveArcs = (q, x, y, dir = 1) => arcs(q, x, y, dir, 2, 30, 18, 40, W(2.2));
 
-  /* 01 ── POINTING OUT AT YOU: a person (front view) points out toward the viewer — the arm thrust down-forward, a burst at its end;
-     the call sits on a big round plaque on the wall behind */
+  /* round 2 (user: "มันดูแฟนซีเกินไป … ลดลงนิดนึง ดีไซน์ใหม่ทั้งหมด") — one plain main thing per design, no decoration
+     (no curtains / bulbs / stripes / sparkles); same line weight and structure as B01–B14 */
+  const card = (q, x0, y0, w, h, r = 16) => { R(q, x0, y0, w, h, r, F(3.4)); R(q, x0 + 20, y0 + 20, w - 40, h - 40, Math.max(4, r - 8), S(1.4)); };
+  const disc = (q, x, y, r) => { ring(q, x, y, r, r - 20, F(3.4)); q.circle(x, y, r - 20, F(1)); q.circle(x, y, r - 34, S(1.4)); };
+  const post = (q, x, y0, y1 = 290, bw = 80) => { R(q, x - 10, y0, 20, y1 - y0 - 6, 6, F(2.6)); ell(q, x, y1 - 6, bw, 11, F(2.6)); };
+
+  /* 01 ── POINTING OUT AT YOU: a person (front view) points down-forward, out at the viewer; the call is on a plain card on the wall */
   variant('pointout', 'คนชี้มาทางผู้ชม', (d, c) => { const X = st(d);
     art(c, p => { floorD(p);
-      const bx = -190, by = -96; p.line(bx, -350, bx, by - 176, S(1.8)); R(p, bx - 34, by - 196, 68, 26, 8, F(2.4));
-      ring(p, bx, by, 176, 152, F(3.4)); p.circle(bx, by, 152, F(1)); p.circle(bx, by, 138, S(1.4)); [-1, 1].forEach(sd => screw(p, bx + sd * 164, by, 4));
-      hero(p, c, X, bx, by - 34, 140, by + 82, { maxW: 250, size: 40, bigSize: 52, bigW: 250, rip: false });
-      const px = 200, k = 1.06; front(p, px, 290, k, { 1: { s: [36, -82], e: [86, -40], h: [128, -2] } });
-      const [hx, hy] = fAt(px, 290, k, 140, 6); burst(p, hx, hy, 22, 42, 8, 0, [4, 5, 6]);
+      card(p, -440, -250, 400, 300); [[-418, -228], [-62, -228], [-418, 28], [-62, 28]].forEach(([x, y]) => screw(p, x, y, 4));
+      hero(p, c, X, -240, -136, 140, 6, { maxW: 320, size: 42, bigSize: 52, bigW: 330 });
+      const px = 210, k = 1.04; front(p, px, 290, k, { 1: { s: [36, -82], e: [84, -44], h: [124, -8] } });
+      const [hx, hy] = fAt(px, 290, k, 136, 2); burst(p, hx, hy, 20, 36, 8, 0, [3, 4, 5, 6, 7]);
     }); });
 
-  /* 02 ── THE ARROW STANDEE: a big arrow-shaped board on a post points at the call card on the wall */
-  variant('arrowstand', 'ป้ายลูกศรชี้ข้อความ', (d, c) => { const X = st(d);
-    art(c, p => { floorD(p);
-      const ay = -10; R(p, -322, ay + 50, 24, 290 - ay - 50, 6, F(2.6)); shape(p, [[-390, 290], [-250, 290], [-290, 268], [-350, 268]], F(2.4));
-      shape(p, [[-450, ay - 54], [-170, ay - 54], [-170, ay - 112], [-40, ay], [-170, ay + 112], [-170, ay + 54], [-450, ay + 54]], F(3.4));
-      shape(p, [[-430, ay - 34], [-150, ay - 34], [-150, ay - 70], [-70, ay], [-150, ay + 70], [-150, ay + 34], [-430, ay + 34]], S(1.4));
-      screw(p, -310, ay, 5);
-      R(p, 10, -250, 440, 400, 18, F(3.4)); R(p, 32, -228, 396, 356, 10, S(1.4)); [[34, -226], [426, -226], [34, 126], [426, 126]].forEach(([x, y]) => screw(p, x, y, 4));
-      hero(p, c, X, 230, -96, 150, 52, { maxW: 360, size: 44, bigSize: 56, bigW: 370 });
-    }); });
-
-  /* 03 ── WAVING FROM THE WINDOW: a person waves out of an open window (shutters swung out); the call hangs below the sill on two chains */
-  variant('window', 'คนโบกมือจากหน้าต่าง', (d, c) => { const X = st(d), wx0 = -190, wx1 = 190, wy0 = -320, wy1 = -10;
+  /* 02 ── THE CLICK: a big pointer arrow clicks the call button (a plain pill) */
+  variant('click', 'ลูกศรเมาส์กดปุ่ม', (d, c) => { const X = st(d), tx = 160, ty = 50;
     art(c, p => {
-      const cl = clipG(p, wx0 + 16, wy0 + 16, wx1 - wx0 - 32, wy1 - wy0 - 16); R(cl, wx0, wy0, wx1 - wx0, 400, 0, { fill: 'rgba(255,255,255,.05)', sw: 0, stroke: 'none' });
-      const px = -30, k = .96; front(cl, px, 160, k, { 1: { s: [36, -82], e: [96, -132], h: [86, -202] } });
-      const [hx, hy] = fAt(px, 160, k, 86, -210); waveArcs(p, hx + 20, hy, 1); waveArcs(p, hx - 26, hy, -1);
-      R(p, wx0, wy0, wx1 - wx0, wy1 - wy0, 6, { fill: 'none', sw: 3.4 }); R(p, wx0 + 16, wy0 + 16, wx1 - wx0 - 32, wy1 - wy0 - 16, 2, { fill: 'none', sw: 1.6, stroke: C.soft });
-      [-1, 1].forEach(sd => { const x = sd > 0 ? wx1 : wx0; shape(p, [[x, wy0 + 8], [x + sd * 120, wy0 - 14], [x + sd * 120, wy1 + 14], [x, wy1 - 8]], F(3));
-        for (let k2 = 1; k2 < 6; k2++) { const y = lerp(wy0 + 8, wy1 - 8, k2 / 6); p.line(x + sd * 14, y - 2 * sd * 0, x + sd * 106, lerp(wy0 - 14, wy1 + 14, k2 / 6) + (y - lerp(wy0 + 8, wy1 - 8, k2 / 6)), S(1.4)); } });
-      R(p, wx0 - 40, wy1, wx1 - wx0 + 80, 26, 6, F(3));
-      [-150, 150].forEach(x => { for (let y = wy1 + 34; y < 96; y += 18) ell(p, x, y, 6, 9, S(1.6)); });
-      R(p, -260, 100, 520, 170, 14, F(3.4)); R(p, -240, 120, 480, 130, 8, S(1.4));
-      heroH(p, c, X, -150, 185, 100, -84, 200, { cx: 0, cy: 185, size: 42, maxW: 310, bigSize: 50, bigW: 460 });
+      R(p, -380, -150, 640, 220, 110, F(3.6)); R(p, -358, -128, 596, 176, 88, S(1.4));
+      heroH(p, c, X, -230, -40, 110, -150, -26, { cx: -60, cy: -40, size: 50, maxW: 330, bigSize: 54, bigW: 520 });
+      const ar = [[0, 0], [0, 170], [42, 132], [72, 198], [102, 184], [72, 120], [126, 120]].map(([x, y]) => [tx + x, ty + y]); shape(p, ar, F(3.4));
+      [[-120, 8], [-150, 45], [-95, -28]].forEach(([a], i) => tick(p, tx, ty, -150 + i * 40 - 20, 28, 52));
     }); });
 
-  /* 04 ── THE CLAPPERBOARD ("start" — the slate of every take): the striped stick is up, hinged at the left; the call sits on the slate */
-  variant('clapper', 'กระดานสเลตเริ่มถ่าย', (d, c) => { const X = st(d), x0 = -290, x1 = 290, y0 = -110;
+  /* 03 ── WAVING: a person (front view) waves next to a plain sign on a post */
+  variant('wave', 'คนโบกมือ', (d, c) => { const X = st(d), px = -250, k = 1.02;
     art(c, p => { floorD(p);
-      const stripes = (q, y, h, k0) => { R(q, x0, y, x1 - x0, h, 6, F(3)); for (let x = x0 + 40, i = 0; x < x1; x += 70, i++) shape(q, [[x, y + 2], [x + 34, y + 2], [x + 4, y + h - 2], [x - 30, y + h - 2]].map(([a, b]) => [Math.max(x0 + 2, Math.min(x1 - 2, a)), b]), { fill: C.soft, sw: 0, stroke: 'none' }); };
-      R(p, x0, y0, x1 - x0, 290 - y0, 12, F(3.6)); stripes(p, y0, 46);
-      R(p, x0 + 22, y0 + 66, x1 - x0 - 44, 290 - y0 - 88, 6, S(1.4)); p.line(x0 + 22, 210, x1 - 22, 210, S(1.4)); [-96, 96].forEach(x => p.line(x, 210, x, 268, S(1.4)));
-      const stk = rot(p, -16, x0 + 8, y0 - 2); stripes(stk, y0 - 50, 46);
-      p.circle(x0 + 8, y0 - 2, 11, F(2.4)); p.circle(x0 + 8, y0 - 2, 4, SOLID(1));
-      hero(p, c, X, 0, 28, 150, 160, { maxW: 470, size: 46, bigSize: 60, bigW: 480, bigDy: 74 });
+      front(p, px, 290, k, { 1: { s: [36, -82], e: [94, -126], h: [86, -200] } });
+      const [hx, hy] = fAt(px, 290, k, 86, -210); waveArcs(p, hx + 22, hy, 1); waveArcs(p, hx - 24, hy, -1);
+      post(p, 180, 40); card(p, -10, -270, 380, 310);
+      hero(p, c, X, 180, -150, 140, -10, { maxW: 300, size: 42, bigSize: 52, bigW: 310 });
     }); });
 
-  /* 05 ── HOLDING IT UP HIGH: a person (front view) lifts a big round plate over the head with both arms; the call is on the plate */
-  variant('liftup', 'คนยกป้ายกลมเหนือหัว', (d, c) => { const X = st(d), k = .9;
+  /* 04 ── THE SIGN ON A NAIL: a plain sign hangs from one nail on its string */
+  variant('nailsign', 'ป้ายแขวนตะปู', (d, c) => { const X = st(d);
+    art(c, p => { p.circle(0, -322, 9, F(2.6)); p.path('M -190 -214 L 0 -316 L 190 -214', W(2.2));
+      card(p, -280, -220, 560, 420, 18); [-190, 190].forEach(x => { p.circle(x, -196, 9, F(2.2)); });
+      hero(p, c, X, 0, -50, 160, 106, { maxW: 450, size: 48, bigSize: 60, bigW: 460 });
+    }); });
+
+  /* 05 ── AT THE PODIUM: a person (front view) behind a plain podium raises one arm; the call is on the podium's front */
+  variant('podium', 'คนยกแขนหลังโพเดียม', (d, c) => { const X = st(d), k = 1.14;
     art(c, p => { floorD(p);
-      front(p, 0, 290, k, { [-1]: { s: [-36, -82], e: [-78, -150], h: [-60, -222] }, 1: { s: [36, -82], e: [78, -150], h: [60, -222] } });
-      const cy = -196; ring(p, 0, cy, 150, 128, F(3.4)); p.circle(0, cy, 128, F(1)); p.circle(0, cy, 114, S(1.4));
-      [-1, 1].forEach(sd => [[-30, 0], [0, -34], [30, -6]].forEach(([dx, dy], i) => star4(p, sd * (204 + dx), cy - 60 + dy + i * 40, 9 - i * 2)));
-      hero(p, c, X, 0, cy - 34, 110, cy + 58, { maxW: 180, size: 30, bigSize: 40, bigW: 190, rip: false });
+      front(p, 0, 290, k, { 1: { s: [36, -82], e: [70, -152], h: [62, -224] } });
+      R(p, -250, 66, 500, 30, 8, F(3)); shape(p, [[-220, 96], [220, 96], [200, 290], [-200, 290]], F(3.4)); shape(p, [[-196, 116], [196, 116], [182, 270], [-182, 270]], S(1.4));
+      hero(p, c, X, 0, 168, 100, 254, { maxW: 340, size: 36, bigSize: 48, bigW: 350, bigDy: 26 });
     }); });
 
-  /* 06 ── THE INVITATION CARD: a folded card stands open on the table (the call on its right page), its envelope leaning beside it */
-  variant('invite', 'การ์ดคำเชิญตั้งโต๊ะ', (d, c) => { const X = st(d);
-    art(c, p => { R(p, -480, 200, 960, 22, 4, F(3)); p.line(-460, 222, -460, 330, S(2)); p.line(460, 222, 460, 330, S(2));
-      const ev = rot(p, -10, -330, 200); R(ev, -450, 60, 230, 140, 6, F(3)); ev.path('M -450 60 L -335 140 L -220 60', W(2.2)); R(ev, -270, 76, 30, 34, 3, S(1.4));
-      shape(p, [[-220, -190], [10, -250], [10, 200], [-220, 180]], F(3.2)); shape(p, [[-200, -170], [-10, -220], [-10, 180], [-200, 164]], S(1.2));
-      R(p, 10, -250, 320, 450, 4, F(3.4)); R(p, 32, -228, 276, 406, 4, S(1.4));
-      [[44, -216, 0], [296, -216, 90], [296, 166, 180], [44, 166, 270]].forEach(([x, y, a]) => { const g = rot(p, a, x, y); g.path(`M ${x} ${y + 30} L ${x} ${y} L ${x + 30} ${y}`, S(1.8)); });
-      hero(p, c, X, 170, -60, 140, 76, { maxW: 250, size: 40, bigSize: 50, bigW: 250 });
+  /* 06 ── THE TENT CARD: a folded card stands on the table — the call on its front */
+  variant('tentcard', 'ป้ายตั้งโต๊ะ', (d, c) => { const X = st(d);
+    art(c, p => { R(p, -470, 210, 940, 20, 4, F(3)); [-440, 440].forEach(x => p.line(x, 230, x, 340, S(2)));
+      shape(p, [[-226, -190], [226, -190], [254, 210], [-254, 210]], F(3.4)); shape(p, [[-206, -170], [206, -170], [230, 190], [-230, 190]], S(1.4)); p.line(-226, -190, 226, -190, W(4));
+      hero(p, c, X, 0, -40, 150, 112, { maxW: 400, size: 46, bigSize: 58, bigW: 410 });
     }); });
 
-  /* 07 ── THE BIG BUTTON: a giant capsule push button sits on its pedestal console (skirt ring, cap with its rim); the call is on the cap */
+  /* 07 ── THE BIG BUTTON: one big round push button on a plain wall plate */
   variant('bigbutton', 'ปุ่มกดขนาดใหญ่', (d, c) => { const X = st(d);
-    art(c, p => { floorD(p);
-      shape(p, [[-250, 90], [250, 90], [280, 290], [-280, 290]], F(3.4)); shape(p, [[-226, 112], [226, 112], [250, 268], [-250, 268]], S(1.4));
-      [-120, 0, 120].forEach(x => p.circle(x, 200, 10, S(1.6))); R(p, -60, 236, 120, 12, 6, S(1.2));
-      R(p, -310, 30, 620, 70, 35, F(3.2)); R(p, -296, 50, 592, 22, 11, S(1.2));
-      R(p, -280, -210, 560, 250, 125, F(3.6)); R(p, -254, -186, 508, 202, 101, S(1.4));
-      heroH(p, c, X, -150, -85, 120, -70, -68, { cx: 0, cy: -85, size: 48, maxW: 300, bigSize: 54, bigW: 440 });
-    }); });
-
-  /* 08 ── THE CURTAIN CALL: on stage between the drawn curtains, a person spreads both arms; the call hangs from the valance on wires */
-  variant('curtaincall', 'คนยืนหน้าเวที', (d, c) => { const X = st(d), k = .74;
     art(c, p => {
-      ell(p, 0, 252, 470, 40, F(3)); R(p, -470, 252, 940, 50, 0, { fill: C.fill, sw: 0, stroke: 'none' }); p.line(-470, 252, -470, 300, W(3)); p.line(470, 252, 470, 300, W(3));
-      [-1, 1].forEach(sd => { const xo = sd * 480, xi = sd * 330;
-        p.path(`M ${xo} -290 L ${xi} -290 Q ${sd * 360} -120 ${sd * 400} -40 Q ${sd * 370} 100 ${sd * 380} 240 L ${xo} 240 Z`, F(3.2));
-        [.3, .55, .8].forEach(u => p.path(`M ${f1(lerp(xi, xo, u))} -280 Q ${f1(lerp(sd * 380, xo, u))} -100 ${f1(lerp(sd * 410, xo, u))} -40 Q ${f1(lerp(sd * 390, xo, u))} 100 ${f1(lerp(sd * 400, xo, u))} 236`, S(1.4)));
-        R(p, sd * 408 - 26, -54, 52, 24, 10, F(2.2)); });
-      R(p, -490, -340, 980, 60, 4, F(3)); p.path('M -490 -280 ' + Array.from({ length: 10 }, (_, i) => `Q ${-441 + 98 * i} -246 ${-392 + 98 * i} -280`).join(' '), F(2.6));
-      [-180, 180].forEach(x => p.line(x, -262, x, -212, W(2)));
-      R(p, -230, -212, 460, 132, 12, F(3.4)); R(p, -214, -196, 428, 100, 6, S(1.2));
-      front(p, 0, 262, k, { [-1]: { s: [-36, -82], e: [-86, -96], h: [-134, -118] }, 1: { s: [36, -82], e: [86, -96], h: [134, -118] } });
-      heroH(p, c, X, -150, -146, 92, -90, -133, { cx: 0, cy: -146, size: 40, maxW: 290, bigSize: 48, bigW: 400 });
+      R(p, -250, -280, 500, 500, 50, F(3.4)); [[-214, -244], [214, -244], [-214, 184], [214, 184]].forEach(([x, y]) => screw(p, x, y, 5));
+      ring(p, 0, -30, 196, 176, F(3)); p.circle(0, -30, 176, F(1)); p.circle(0, -30, 160, F(3.2)); p.circle(0, -30, 144, S(1.4));
+      hero(p, c, X, 0, -74, 130, 46, { maxW: 200, size: 38, bigSize: 46, bigW: 250 });
     }); });
 
-  /* 09 ── THE PADDLE SIGNS: round paddle signs stand in a holder; one is raised high — the call on it */
-  variant('paddles', 'ป้ายด้ามจับในกระบอก', (d, c) => { const X = st(d);
+  /* 08 ── ON THE STAGE: a person stands on a low stage by the mic stand; the call is on the board behind */
+  variant('stage', 'คนยืนบนเวที', (d, c) => { const X = st(d);
     art(c, p => { floorD(p);
-      [-1, 1].forEach(sd => { const g = rot(p, sd * 30, sd * 40, 200); R(g, sd * 40 - 9, 0, 18, 200, 6, F(2.4)); ring(g, sd * 40, -40, 72, 58, F(3)); g.circle(sd * 40, -40, 58, F(1)); g.circle(sd * 40, -40, 44, S(1.2)); });
-      R(p, -11, -60, 22, 270, 6, F(2.6)); [100, 116].forEach(y => p.line(-11, y, 11, y - 6, S(1.4)));
-      ring(p, 0, -190, 150, 132, F(3.4)); p.circle(0, -190, 132, F(1)); p.circle(0, -190, 118, S(1.4));
-      R(p, -120, 160, 240, 130, 10, F(3.2)); ell(p, 0, 160, 120, 18, F(3)); ell(p, 0, 160, 100, 12, S(1.4)); p.line(-120, 250, 120, 250, S(1.4));
-      hero(p, c, X, 0, -226, 108, -124, { maxW: 196, size: 30, bigSize: 42, bigW: 200, rip: false });
+      [-300, 300].forEach(x => R(p, x - 10, -90, 20, 290, 4, F(2.4)));
+      card(p, -360, -300, 720, 220, 14);
+      R(p, -440, 196, 880, 94, 6, F(3.4)); p.line(-420, 218, 420, 218, S(1.4));
+      p.line(-150, 196, -150, 24, W(3)); ell(p, -150, 194, 40, 7, F(2.2)); p.line(-150, 24, -128, -6, W(3)); R(p, -138, -46, 22, 40, 10, F(2.2));
+      front(p, 70, 196, .78);
+      heroH(p, c, X, -230, -190, 100, -150, -176, { cx: 0, cy: -190, size: 46, maxW: 470, bigSize: 52, bigW: 620 });
     }); });
 
-  /* 10 ── THE ROLL-UP BANNER: a pull-up banner drawn up out of its base cassette, hooked to the top rail; the call heads the banner */
-  variant('rollup', 'ป้ายโรลอัพตั้งพื้น', (d, c) => { const X = st(d), x0 = -170, x1 = 170;
-    art(c, p => { floorD(p);
-      p.line(x1 + 26, -296, x1 + 26, 262, S(2)); R(p, x0, -300, x1 - x0, 560, 0, F(3.4));
-      R(p, x0 + 20, -280, x1 - x0 - 40, 300, 8, S(1.4)); lines(p, -110, 70, 220, 3, 34, S(2), [2]); R(p, x0, 186, x1 - x0, 30, 0, { fill: 'rgba(255,255,255,.12)', sw: 0, stroke: 'none' });
-      R(p, x0 - 14, -314, x1 - x0 + 28, 22, 10, F(2.8));
-      R(p, x0 - 26, 250, x1 - x0 + 52, 34, 16, F(3)); [x0 - 10, x1 + 10].forEach(x => { p.line(x, 284, x + (x < 0 ? -40 : 40), 290, W(3)); });
-      hero(p, c, X, 0, -170, 150, -40, { maxW: 290, size: 40, bigSize: 50, bigW: 290 });
+  /* 09 ── THE ROUND SIGN ON A POST: a round sign stands on its post and base */
+  variant('roundpost', 'ป้ายกลมบนเสา', (d, c) => { const X = st(d);
+    art(c, p => { floorD(p); post(p, 0, 40, 290, 110); disc(p, 0, -110, 200);
+      hero(p, c, X, 0, -146, 140, -24, { maxW: 280, size: 40, bigSize: 50, bigW: 290 });
     }); });
 
-  /* 11 ── THE BOOKMARK BANNERS: three bookmark-shaped banners hang from a rod on rings; the middle, longest one carries the call */
-  variant('bookmarks', 'ป้ายที่คั่นหนังสือแขวน', (d, c) => { const X = st(d), mark = (q, x, w, y1, notch) => shape(q, [[x - w, -270], [x + w, -270], [x + w, y1], [x, y1 - notch], [x - w, y1]], F(3.2));
-    art(c, p => { R(p, -440, -306, 880, 18, 8, F(2.6)); [-440, 440].forEach(x => p.circle(x, -297, 16, F(2.4))); [-400, 400].forEach(x => { p.line(x, -330, x, -306, W(2.4)); R(p, x - 20, -350, 40, 20, 6, F(2.2)); });
-      [[-290, 90, 60, 50], [290, 90, 10, 50], [0, 180, 250, 80]].forEach(([x, w, y1, n]) => { [-1, 1].forEach(sd => ring(p, x + sd * w * .6, -296, 13, 7, F(2))); mark(p, x, w, y1, n);
-        shape(p, [[x - w + 18, -252], [x + w - 18, -252], [x + w - 18, y1 - 22], [x, y1 - n - 18], [x - w + 18, y1 - 22]], S(1.3)); });
-      [-290, 290].forEach(x => { star4(p, x, -150, 16, { fill: C.fill, sw: 2 }); lines(p, x - 40, -90, 80, 3, 30, S(1.8), [2]); });
-      hero(p, c, X, 0, -110, 150, 30, { maxW: 300, size: 42, bigSize: 52, bigW: 300 });
+  /* 10 ── THE CARD ON THE SHELF: a card leans on the wall, standing on a plain shelf */
+  variant('shelf', 'การ์ดวางบนชั้น', (d, c) => { const X = st(d);
+    art(c, p => {
+      R(p, -400, 130, 800, 24, 4, F(3)); [-300, 300].forEach(x => { R(p, x - 9, 154, 18, 70, 4, F(2.4)); screw(p, x, 200, 4); });
+      const g = rot(p, -3, -200, 130); card(g, -220, -250, 440, 380, 12);
+      hero(g, c, X, 0, -90, 150, 56, { maxW: 360, size: 44, bigSize: 56, bigW: 370 });
     }); });
 
-  /* 12 ── THREE BUTTONS IN A ROW: a control pad on a stand with three round buttons; the one for the call is lit and raised, the other two dim */
+  /* 11 ── THE BOOKMARK TAG: a bookmark-shaped tag hangs from a wall hook */
+  variant('bookmark', 'ป้ายรูปที่คั่นหนังสือ', (d, c) => { const X = st(d);
+    art(c, p => { R(p, -30, -340, 60, 22, 6, F(2.4)); p.path('M 0 -318 L 0 -290 Q 0 -270 -18 -270', W(3));
+      ring(p, 0, -248, 20, 10, F(2.4));
+      shape(p, [[-180, -276], [180, -276], [180, 260], [0, 180], [-180, 260]], F(3.4)); shape(p, [[-158, -254], [158, -254], [158, 222], [0, 152], [-158, 222]], S(1.4));
+      hero(p, c, X, 0, -96, 140, 40, { maxW: 290, size: 42, bigSize: 52, bigW: 300 });
+    }); });
+
+  /* 12 ── THREE BUTTONS IN A ROW: three round buttons on a plain plate — the call's own button is bright, the other two dim */
   variant('threebtn', 'ปุ่มสามปุ่มเรียงกัน', (d, c) => { const X = st(d), act = ICON[d && d.action] ? d.action : null, others = ACTS.filter(a => a !== act).slice(0, 2);
-    art(c, p => { floorD(p);
-      R(p, -60, 150, 120, 140, 6, F(2.6)); ell(p, 0, 286, 160, 14, F(2.6));
-      R(p, -440, -90, 880, 250, 48, F(3.6)); R(p, -418, -68, 836, 206, 36, S(1.4));
-      [-280, 280].forEach((x, i) => { ring(p, x, 35, 92, 76, F(2.8)); p.circle(x, 35, 76, F(1.4)); put(p, c, { icon: ICON[others[i]] }, x, 35, 96, null, { o: [[0, .4]] }); });
-      haloH(p, 0, 35, 128); ring(p, 0, 35, 104, 86, F(3.2)); p.circle(0, 35, 86, F(1.6));
-      if (X && picOf(X)) { put(p, c, X, 0, 35, 110, null, { t: Z.H - tu(.06) }); if (X.label) { shape(p, [[-18, -150], [18, -150], [0, -126]], F(2)); txt(p, X.label, 0, -176, { size: 46, maxW: 700, weight: 800, color: C.ink }); } }
-      else if (X) txt(p, X.label, 0, -190, { size: 56, maxW: 760, weight: 800, color: C.ink, wrap: 'mid' }); else star4(p, 0, 35, 40);
+    art(c, p => {
+      R(p, -440, -80, 880, 240, 44, F(3.4)); R(p, -420, -60, 840, 200, 32, S(1.4));
+      [-280, 280].forEach((x, i) => { ring(p, x, 40, 88, 72, F(2.6)); p.circle(x, 40, 72, F(1.4)); put(p, c, { icon: ICON[others[i]] }, x, 40, 92, null, { o: [[0, .4]] }); });
+      ring(p, 0, 40, 104, 84, F(3.4)); p.circle(0, 40, 84, F(1.6));
+      if (X && picOf(X)) { put(p, c, X, 0, 40, 110, null, { t: Z.H - tu(.06) }); if (X.label) { shape(p, [[-16, -120], [16, -120], [0, -98]], F(2)); txt(p, X.label, 0, -146, { size: 46, maxW: 760, weight: 800, color: C.ink }); } }
+      else if (X) txt(p, X.label, 0, -170, { size: 56, maxW: 760, weight: 800, color: C.ink, wrap: 'mid' }); else star4(p, 0, 40, 40);
     }); });
 
-  /* 13 ── THE MOBILE: a hanging mobile — a balanced bar with two small discs and the big call disc below it, like nodes passing it on */
-  variant('mobile', 'โมบายแขวนสามจุด', (d, c) => { const X = st(d);
-    art(c, p => { p.circle(0, -330, 9, F(2.2)); p.line(0, -320, 0, -250, W(2)); const bar = rot(p, -4, 0, -250); R(bar, -330, -256, 660, 12, 6, F(2.4)); bar.circle(0, -250, 8, F(2));
-      [[-320, 1], [320, -1]].forEach(([x, sd]) => { const y0 = -250 - x * Math.tan(rad(-4)) * -1, yy = x < 0 ? -110 : -60; p.line(x, f1(y0), x, yy - 70, W(1.8)); ring(p, x, yy, 70, 56, F(3)); p.circle(x, yy, 56, F(1)); p.circle(x, yy, 30, S(1.4)); });
-      p.line(0, -244, 0, -90, W(1.8)); ring(p, 0, 70, 160, 140, F(3.4)); p.circle(0, 70, 140, F(1)); p.circle(0, 70, 126, S(1.4));
-      hero(p, c, X, 0, 34, 116, 124, { maxW: 190, size: 30, bigSize: 44, bigW: 220, rip: false });
+  /* 13 ── PINNED AND LINKED: three discs pinned on the wall, joined by a string (the "pass it on" shape); the call is on the big one */
+  variant('pinned', 'แผ่นกลมปักหมุดโยงเชือก', (d, c) => { const X = st(d), A0 = [-150, 10], P1 = [270, -200], P2 = [270, 210];
+    art(c, p => {
+      [P1, P2].forEach(([x, y]) => p.line(A0[0], A0[1] - 196, x, y, W(2)));
+      disc(p, ...A0, 196); [P1, P2].forEach(([x, y]) => { disc(p, x, y, 80); p.circle(x, y, 10, F(2.2)); });
+      p.circle(A0[0], A0[1] - 196, 10, F(2.2));
+      hero(p, c, X, A0[0], A0[1] - 34, 140, A0[1] + 78, { maxW: 230, size: 38, bigSize: 50, bigW: 290, rip: false });
     }); });
 
-  /* 14 ── SHOWING IT WITH A SMILE: a person (front view, no face) holds the call sign in front with both arms; a smile badge is pinned on the sign */
-  variant('holdsign', 'คนยิ้มถือป้าย', (d, c) => { const X = st(d), k = 1.28;
+  /* 14 ── HOLDING THE SIGN: a person (front view, no face) holds a plain sign in front; a small smile mark sits in its corner */
+  variant('holdsign', 'คนถือป้าย', (d, c) => { const X = st(d), k = 1.28;
     art(c, p => { floorD(p);
       front(p, 0, 290, k, { [-1]: { s: [-36, -82], e: [-92, -40], h: [-124, -4] }, 1: { s: [36, -82], e: [92, -40], h: [124, -4] } });
-      R(p, -230, -30, 460, 250, 16, F(3.4)); R(p, -210, -10, 420, 210, 8, S(1.4));
-      [-1, 1].forEach(sd => R(p, sd * 206 - 18, 20, 36, 60, 14, F(2.6)));
-      const bx = 196, by = -26; ring(p, bx, by, 44, 34, F(2.6)); p.circle(bx, by, 34, F(1)); put(p, c, { icon: 'smile' }, bx, by, 56, null, { r: 8 });
-      hero(p, c, X, 0, 52, 120, 160, { maxW: 380, size: 40, bigSize: 52, bigW: 390, rip: false });
+      card(p, -230, -30, 460, 250, 14); [-1, 1].forEach(sd => R(p, sd * 206 - 18, 20, 36, 60, 14, F(2.6)));
+      put(p, c, { icon: 'smile' }, 178, 18, 44, null, {});
+      hero(p, c, X, 0, 54, 120, 166, { maxW: 300, size: 40, bigSize: 52, bigW: 380, rip: false });
     }); });
 
-  /* 15 ── POINTING AT THE BUTTON: a person (side view) points straight at a big call button on the wall; a dotted line marks the aim */
-  variant('callbutton', 'คนชี้ไปที่ปุ่ม', (d, c) => { const X = st(d), px = -330, k = .96;
+  /* 15 ── POINTING AT THE BUTTON: a person (side view) points at the call button on the wall; a dotted line marks the aim */
+  variant('pointbtn', 'คนชี้ไปที่ปุ่ม', (d, c) => { const X = st(d), px = -330, k = .96, bx = 230, by = -60;
     art(c, p => { floorD(p);
-      R(p, 40, -280, 380, 480, 34, F(3.4)); R(p, 62, -258, 336, 436, 24, S(1.4)); [[64, -256], [396, -256], [64, 176], [396, 176]].forEach(([x, y]) => screw(p, x, y, 4));
-      const bx = 230, by = -84; ring(p, bx, by, 140, 118, F(3.2)); p.circle(bx, by, 118, F(1.4)); p.circle(bx, by, 104, S(1.4));
+      R(p, 60, -250, 340, 400, 30, F(3.4)); disc(p, bx, by, 130);
       person(p, px, 290, k, { s: [4, -76], e: [56, -96], h: [108, -108] }, { far: { s: [-4, -74], e: [8, -30], h: [16, 16] } });
-      const [hx, hy] = pAt(px, 290, k, 124, -110); dots(p, [hx + 6, hy], [bx - 150, by + 24], 9);
-      hero(p, c, X, bx, by - 22, 130, 128, { maxW: 320, size: 40, bigSize: 46, bigW: 220, rip: false });
+      const [hx, hy] = pAt(px, 290, k, 124, -110); dots(p, [hx + 6, hy], [bx - 140, by + 4], 9);
+      hero(p, c, X, bx, by, 120, 116, { maxW: 300, size: 36, bigSize: 42, bigW: 210, rip: false });
     }); });
 
-  /* 16 ── THE DESK BELL: a service bell on the counter rings (sound arcs) and the call pops up above it */
+  /* 16 ── THE DESK BELL: a plain service bell on the counter rings; the call comes up above it */
   variant('deskbell', 'กระดิ่งตั้งโต๊ะ', (d, c) => { const X = st(d);
-    art(c, p => { R(p, -480, 230, 960, 24, 4, F(3)); p.line(-480, 254, -480, 340, S(2)); p.line(480, 254, 480, 340, S(2));
-      ell(p, 0, 222, 190, 22, F(3)); R(p, -190, 196, 380, 26, 0, { fill: C.fill, sw: 0, stroke: 'none' }); p.line(-190, 196, -190, 222, W(3)); p.line(190, 196, 190, 222, W(3)); ell(p, 0, 196, 190, 22, F(3));
-      p.path('M -150 192 C -150 70 -80 40 0 40 C 80 40 150 70 150 192 Z', F(3.4)); p.path('M -104 120 C -96 84 -60 66 -24 62', S(1.6));
-      R(p, -9, 6, 18, 36, 4, F(2.2)); ell(p, 0, 4, 36, 10, F(2.6));
-      [-1, 1].forEach(sd => arcs(p, sd * 210, 110, sd, 3, 30, 22, 40, W(2.4)));
-      hero(p, c, X, 0, -196, 140, -48, { maxW: 760, size: 48, bigSize: 60, bigW: 600, halo: 104 });
+    art(c, p => { R(p, -480, 230, 960, 22, 4, F(3)); [-450, 450].forEach(x => p.line(x, 252, x, 340, S(2)));
+      R(p, -170, 200, 340, 30, 10, F(3)); p.path('M -140 200 C -140 80 -76 50 0 50 C 76 50 140 80 140 200 Z', F(3.4));
+      R(p, -8, 16, 16, 36, 4, F(2.2)); ell(p, 0, 14, 34, 9, F(2.6));
+      [-1, 1].forEach(sd => arcs(p, sd * 190, 120, sd, 2, 30, 22, 40, W(2.4)));
+      hero(p, c, X, 0, -190, 140, -54, { maxW: 760, size: 48, bigSize: 60, bigW: 700 });
     }); });
 
-  /* 17 ── THE ROPE BARRIER: two stanchion posts with a sagging rope; the call sign hangs from the rope on two hooks */
-  variant('stanchion', 'ป้ายห้อยราวกั้นเชือก', (d, c) => { const X = st(d);
+  /* 17 ── THE COMMENT BOX: a plain box with a slot on top; a card stands up out of the slot — the call on it */
+  variant('slotbox', 'กล่องรับความคิดเห็น', (d, c) => { const X = st(d);
     art(c, p => { floorD(p);
-      [-1, 1].forEach(sd => { const x = sd * 360; ell(p, x, 280, 70, 12, F(2.8)); R(p, x - 12, -150, 24, 424, 8, F(2.6)); p.circle(x, -164, 20, F(2.6)); R(p, x - 18, -138, 36, 14, 4, F(2)); });
-      tube(p, 'M -350 -122 Q 0 40 350 -122', 18);
-      [-120, 120].forEach(x => p.path(`M ${x} ${x < 0 ? -36 : -36} q 0 -18 12 -18 q 12 0 12 14`, W(2.4)));
-      R(p, -250, -20, 500, 250, 14, F(3.4)); R(p, -230, 0, 460, 210, 8, S(1.4));
-      hero(p, c, X, 0, 70, 130, 186, { maxW: 400, size: 42, bigSize: 52, bigW: 410 });
+      card(p, -150, -280, 300, 330, 12);
+      R(p, -280, 30, 560, 30, 8, F(3)); R(p, -170, 38, 340, 12, 6, { fill: C.fill, sw: 2 });
+      R(p, -260, 60, 520, 230, 8, F(3.4)); R(p, -240, 80, 480, 190, 4, S(1.4));
+      hero(p, c, X, 0, -156, 120, -30, { maxW: 230, size: 36, bigSize: 44, bigW: 240 });
     }); });
 
-  /* 18 ── THE MARQUEE (the closing sign): a board ringed with bulbs on two posts, a crest on top; the call in the middle */
-  variant('marquee', 'ป้ายไฟหลอดรอบกรอบ', (d, c) => { const X = st(d), x0 = -410, x1 = 410, y0 = -240, y1 = 120;
-    art(c, p => { floorD(p); [-300, 300].forEach(x => { R(p, x - 14, y1, 28, 290 - y1, 4, F(2.6)); R(p, x - 40, 276, 80, 14, 6, F(2.2)); });
-      p.path(`M -120 ${y0} Q -120 -320 0 -320 Q 120 -320 120 ${y0} Z`, F(3)); star4(p, 0, -278, 18, { fill: C.fill, sw: 2.2 });
-      R(p, x0, y0, x1 - x0, y1 - y0, 26, F(3.6)); R(p, x0 + 50, y0 + 50, x1 - x0 - 100, y1 - y0 - 100, 10, S(1.4));
-      const bulbs = []; for (let x = x0 + 30; x <= x1 - 30; x += 50) bulbs.push([x, y0 + 25], [x, y1 - 25]); for (let y = y0 + 75; y <= y1 - 75; y += 52) bulbs.push([x0 + 25, y], [x1 - 25, y]);
-      bulbs.forEach(([x, y]) => { p.circle(x, y, 13, { fill: 'rgba(255,255,255,.18)', sw: 0, stroke: 'none' }); p.circle(x, y, 8, { fill: C.ink, sw: 1.4 }); });
-      heroH(p, c, X, -190, -60, 130, -100, -42, { cx: 0, cy: -60, size: 52, maxW: 380, bigSize: 62, bigW: 600 });
+  /* 18 ── THE CLOSING SIGN: a wide plain sign hangs from the ceiling on two wires */
+  variant('ceiling', 'ป้ายแขวนเพดาน', (d, c) => { const X = st(d);
+    art(c, p => { p.line(-480, -340, 480, -340, S(2));
+      [-300, 300].forEach(x => { R(p, x - 22, -340, 44, 12, 4, F(2)); p.line(x, -328, x, -200, W(2)); });
+      card(p, -400, -200, 800, 300, 18);
+      heroH(p, c, X, -220, -50, 140, -120, -32, { cx: 0, cy: -50, size: 58, maxW: 460, bigSize: 64, bigW: 700 });
     }); });
 
-  /* 19 ── THE WELCOME: a person (side view) opens an arm toward a red-carpet runner that leads to the call on its easel */
-  variant('welcome', 'คนยืนเชิญชวน', (d, c) => { const X = st(d), px = -360, k = .92;
+  /* 19 ── THE INVITATION: a person (side view) opens an arm toward the call sign standing on two legs */
+  variant('invite', 'คนยืนเชิญชวน', (d, c) => { const X = st(d), px = -340, k = .94;
     art(c, p => { floorD(p);
-      shape(p, [[-300, 290], [480, 290], [400, 214], [-230, 214]], F(3)); shape(p, [[-268, 280], [450, 280], [384, 224], [-212, 224]], S(1.4));
-      [[150, 290, 196, -260], [430, 290, 384, -260]].forEach(([a, b, e, f]) => p.line(a, b, e, f, W(5))); p.line(290, 30, 290, 260, S(3));
-      R(p, 110, -270, 360, 300, 12, F(3.4)); R(p, 130, -250, 320, 260, 6, S(1.4)); R(p, 100, 30, 380, 20, 6, F(2.6));
-      person(p, px, 290, k, { s: [4, -76], e: [50, -64], h: [100, -80] }, { lean: 3, far: { s: [-4, -74], e: [-6, -28], h: [0, 16] } });
-      sparkAt(p, ...pAt(px, 290, k, 132, -86, 3), 14, 30, 0, 5, -60, [], true);
-      hero(p, c, X, 290, -150, 130, -36, { maxW: 290, size: 40, bigSize: 48, bigW: 300 });
+      [-10, 390].forEach(x => { R(p, x - 9, 40, 18, 250, 4, F(2.4)); R(p, x - 34, 278, 68, 12, 5, F(2)); });
+      card(p, -60, -250, 500, 320, 14);
+      person(p, px, 290, k, { s: [4, -76], e: [50, -64], h: [100, -80] }, { far: { s: [-4, -74], e: [-6, -28], h: [0, 16] } });
+      hero(p, c, X, 190, -140, 130, -4, { maxW: 400, size: 44, bigSize: 54, bigW: 410 });
     }); });
 
-  /* 20 ── WAVING GOODBYE: a person walks toward the exit door, turning to wave with one arm raised; the call is on the sign over the door */
-  variant('goodbye', 'คนโบกมือลา', (d, c) => { const X = st(d), px = -150, k = .9;
+  /* 20 ── WAVING GOODBYE: a person walks to the open door, turning to wave; the call is on the plain sign over the door */
+  variant('goodbye', 'คนโบกมือลา', (d, c) => { const X = st(d), px = -160, k = .9;
     art(c, p => { floorD(p);
-      R(p, 160, -60, 270, 350, 4, { fill: 'rgba(255,255,255,.07)', sw: 3.2 }); R(p, 140, -80, 310, 20, 4, F(2.6));
-      shape(p, [[160, -60], [250, -30], [250, 300], [160, 290]], F(3)); p.circle(234, 120, 8, F(2));
-      for (let i = 0; i < 3; i++) p.line(300 + i * 40, 270, 330 + i * 40, 30, { sw: 1.4, stroke: 'rgba(255,255,255,.18)' });
-      R(p, 100, -310, 380, 190, 14, F(3.4)); R(p, 118, -292, 344, 154, 8, S(1.4)); [190, 390].forEach(x => p.line(x, -120, x, -80, W(2)));
+      R(p, 170, -70, 250, 360, 4, { fill: 'rgba(255,255,255,.06)', sw: 3.2 }); shape(p, [[170, -70], [250, -40], [250, 300], [170, 290]], F(3)); p.circle(234, 120, 7, F(2));
+      card(p, 110, -320, 370, 200, 14);
       person(p, px, 290, k, { s: [4, -76], e: [-40, -124], h: [-58, -192] }, { leg: stride, far: { s: [-4, -74], e: [28, -36], h: [40, 10] } });
       const [hx, hy] = pAt(px, 290, k, -62, -204); waveArcs(p, hx - 24, hy, -1); waveArcs(p, hx + 24, hy, 1);
-      heroH(p, c, X, 180, -215, 90, 240, -202, { cx: 290, cy: -215, size: 36, maxW: 210, bigSize: 42, bigW: 330 });
+      heroH(p, c, X, 190, -220, 90, 250, -207, { cx: 295, cy: -220, size: 36, maxW: 200, bigSize: 42, bigW: 320 });
     }); });
 
   /* ---------- sample data (A: calls from unrelated topics · B: stress) ---------- */
