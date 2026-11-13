@@ -448,6 +448,49 @@
       labTags(hg, S0, 0, -200, { size: 36, tsize: 26, dy: 56, lo: -400, hi: 400, t: aH(.02) });
     }); });
 
+  /* ---------- redesign options for 14 (user 2026-11-13: "Design 14 ใหม่ มันเหมือนลูกโป่งมากกว่ากระจก") — temporary: the pick moves into V ---------- */
+  const ALT = [], altV = (id, th, build) => ALT.push({ id, th, build });
+  const sideTags = (p, S0, xs, y) => S0.tags.forEach((t, i) => { const x = xs[i], g = sub(popW(p, x, y, aH(.14 + .06 * i)), { transform: `translate(${x} ${y})` }); chip(g, t, { size: 26, strong: false, maxW: 200 }); });
+  /* A ── CHEVAL MIRROR: a tall rectangular mirror swung between two posts on feet — it tilts on its pivots and settles; the person appears in it */
+  altV('cheval', 'กระจกบานยาวตั้งพื้น', (d, c) => { const S0 = st(d);
+    art(c, p => {
+      drawAt(p.line(-480, 296, 480, 296, S(2)), p, 0, tu(.4));
+      const P = inG(p, 'rise', 0, 296, 0); [-1, 1].forEach(sd => { R(P, sd * 228 - 9, -150, 18, 446, 5, F(2.6)); R(P, sd * 228 - 60, 282, 120, 14, 6, F(2.6)); });
+      const M = mvG(p, { px: 0, py: -20, r: [[0, -14], [tu(.2), -14], [tu(.55), 4, 'out'], [tu(.8), -1.5, 'io'], [tu(1), 0, 'soft']], o: [[0, 0], [tu(.15), 0], [tu(.25), 1]] });
+      R(M, -200, -300, 400, 560, 12, F(3.8)); R(M, -178, -278, 356, 516, 6, { fill: GLASS, sw: 0, stroke: 'none' });
+      [-1, 1].forEach(sd => P.circle(sd * 214, -20, 13, F(2.8)));
+      whoAt(c, p, S0, 0, -70, 230);
+      if (S0.label) chipRow(popW(p, 0, 160, aH(.04)), [[S0.label, { size: 38 }]], 0, 160, { lo: -170, hi: 170 });
+      sideTags(p, S0, [-360, 360], -20);
+    }); });
+  /* B ── VANITY: a dressing table with an arched mirror on it — the person appears in the glass; the kind is on the mirror's foot,
+     the tags stand on the table top */
+  altV('vanity', 'โต๊ะเครื่องแป้ง', (d, c) => { const S0 = st(d);
+    art(c, p => {
+      drawAt(p.line(-480, 300, 480, 300, S(2)), p, 0, tu(.4));
+      const T = inG(p, 'rise', 0, 300, 0); R(T, -330, 168, 660, 24, 6, F(3.2)); R(T, -300, 192, 20, 108, 4, F(2.6)); R(T, 280, 192, 20, 108, 4, F(2.6));
+      R(T, -130, 192, 260, 62, 8, F(2.8)); T.circle(0, 223, 8, F(2.4));
+      const M = inG(p, 'pop', 0, 160, tu(.2)); M.path('M -175 160 L -175 -160 Q -175 -310 0 -310 Q 175 -310 175 -160 L 175 160 Z', F(3.8));
+      M.path('M -153 150 L -153 -158 Q -153 -288 0 -288 Q 153 -288 153 -158 L 153 150 Z', { fill: GLASS, sw: 0, stroke: 'none' }); R(M, -195, 150, 390, 20, 6, F(3));
+      whoAt(c, p, S0, 0, -80, 215);
+      if (S0.label) chipRow(popW(p, 0, 100, aH(.04)), [[S0.label, { size: 36 }]], 0, 100, { lo: -150, hi: 150 });
+      sideTags(p, S0, [-300, 300], 120);
+    }); });
+  /* C ── SNOW GLOBE: a glass globe on a base — it is shaken, the flakes swirl, and when they settle the person is inside;
+     the kind is on the base's plate */
+  altV('globe', 'ลูกแก้วหิมะ', (d, c) => { const S0 = st(d), T0 = T0f();
+    art(c, p => {
+      const G0 = mvG(p, { px: 0, py: 250, r: [[0, 0], [T0, 0], [T0 + tu(.1), -6, 'io'], [T0 + tu(.22), 5, 'io'], [T0 + tu(.34), -3, 'io'], [T0 + tu(.46), 0, 'soft']], o: [[0, 0], [tu(.05), 0], [tu(.15), 1]] });
+      G0.circle(0, -70, 205, F(3.6)); G0.circle(0, -70, 186, { fill: GLASS, sw: 0, stroke: 'none' });
+      const fl = sub(G0); on(fl, p, T0, { loop: 2.4, y: [[0, -30], [2.4, 30]] });
+      [[-120, -170], [90, -200], [-60, -10], [130, -40], [-140, 20], [40, -150], [150, -120], [-90, -110]].forEach(([x, y]) => fl.circle(x, y, 5, { fill: C.ink, sw: 1 }));
+      G0.path('M -170 110 L 170 110 L 210 260 L -210 260 Z', F(3.4)); R(G0, -230, 256, 460, 22, 6, F(3));
+      R(G0, -150, 150, 300, 70, 10, F(2.6));
+      whoAt(c, p, S0, 0, -80, 200);
+      if (S0.label) txt(popW(G0, 0, 185, aH(.04)), S0.label, 0, 197, { size: 36, maxW: 270, weight: 700, color: C.ink });
+      sideTags(p, S0, [-355, 355], -70);
+    }); });
+
   /* samples from unrelated topics (neutrality) + a stress set */
   const I = (icon, label) => label ? { icon, label } : { icon };
   const SAMPLES = [
@@ -496,5 +539,5 @@
   ];
 
   G.cats = G.cats || {};
-  G.cats.B10 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
+  G.cats.B10 = { variants: V, ALT, drawAlt: (k, d, c) => { setZ(c); CUR = ALT[k].id; ALT[k].build(d, c); }, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
 })();
