@@ -139,11 +139,12 @@
   /* the thing in doubt: picture + label (o.t = when it comes in) */
   function aboutAt(p, c, S, x, y, w, ly, o = {}) { if (!S.about) return; const t = o.t ?? tu(.12); pic(S.about, x, y, w, c, { t }); if (ly != null) labT(p, S.about, x, ly, t + tu(.06), { maxW: o.maxW || 240 }); }
   /* option k: picture + label (+ frame); comes in one after the other, nudges when visited, fades when the other one is the answer */
-  function optAt(p, c, S, k, x, y, w, ly, o = {}) { if (!S.has2) return; const H = hitOf(), it = S.opts[k], v = dimOpt(S, k), g = sub(p), t = o.t ?? tu(.2 + .1 * k);
+  function optAt(p, c, S, k, x, y, w, ly, o = {}) { if (!S.has2) return; let g = sub(p); const H = hitOf(), it = S.opts[k], v = dimOpt(S, k), t = o.t ?? tu(.2 + .1 * k);
     on(g, p, 0, { ox: x, oy: y, s: [[0, .8], [t, .8], [t + tu(.22), 1, 'back']], o: [[0, 0], [t, 0], [t + tu(.1), 1]].concat(v < 1 ? [[H, 1], [aH(.25), .5]] : []) });
+    const g0 = g; if (o.mv) g = mvG(g0, o.mv);                                    // o.mv: it rides a moving part (picture, frame and label alike)
     if (o.frame) R(g, x - o.frame / 2, y - o.frame / 2, o.frame, o.frame, 18, F(2.8));
-    pic(it, x, y, w, c, { t: t + tu(.04), to: v, punch: S.ai === k, nudge: nudges(S, k) }); const LY = o.frame ? y + o.frame / 2 + 42 : ly; if (LY != null) lab(g, it, x, LY, { maxW: o.maxW || 220 });
-    return g; }
+    pic(it, x, y, w, c, { t: t + tu(.04), to: v, punch: S.ai === k, nudge: nudges(S, k), mv: o.mv }); const LY = o.frame ? y + o.frame / 2 + 42 : ly; if (LY != null) lab(g, it, x, LY, { maxW: o.maxW || 220 });
+    return g0; }
   /* a chosen-option tick, stamped on the keyword */
   function tick(p, x, y, r = 30) { const g = sub(p), k = r * .42; g.circle(x, y, r, F(3)); g.poly([[x - k, y + 2], [x - k * .2, y + k * .8], [x + k * 1.05, y - k * .75]], W(5));
     on(g, p, aH(.05), { ox: x, oy: y, s: [[0, 1.8], [tu(.14), .9, 'in'], [tu(.26), 1.04], [tu(.38), 1, 'soft']], o: [[0, 0], [tu(.06), 1]] }); }
@@ -199,7 +200,7 @@
   /* 03 ── TORCH: the torch clicks on and its beam swings from one option to the other — on the keyword it rests on the chosen one,
      or lights up the "?" (no options: it sweeps, searching) */
   variant('torch', 'ไฟฉายส่องสลับ', (d, c) => {
-    const S0 = st(d), tx = 0, ty = 170, aim = ([X, Y]) => Math.atan2(Y - ty, X - tx) * 180 / Math.PI + 90;
+    const S0 = st(d), tx = 0, ty = 136, aim = ([X, Y]) => Math.atan2(Y - ty, X - tx) * 180 / Math.PI + 90;
     const tgt = S0.chose ? [S0.ai === 0 ? -330 : 330, -110] : [0, -240], ang = aim(tgt);
     art(c, p => {
       floor(p, 300);
@@ -383,18 +384,19 @@
      or rests balanced in the middle */
   variant('track', 'รางลูกบอลโยก', (d, c) => {
     const S0 = st(d), tilt = S0.chose ? (S0.ai === 0 ? -9 : 9) : 0, bx = S0.chose ? (S0.ai === 0 ? -330 : 330) : 0, by = S0.chose ? 20 : -60, H = hitOf();
-    const Fy = by - 70, k9 = 150 * Math.sin(rad(9));                                                       // ball centre at rest; how far it dips off-centre
+    const Fy = by - 70, k9 = 150 * Math.sin(rad(9)), tK = hes(S0, [-9, 9], 0, tilt, { pon: 4 });                                                       // ball centre at rest; how far it dips off-centre
     const bxK = hes(S0, [-150 - bx, 150 - bx], -bx, 0, { pon: 55, ov: S0.chose ? .02 : 0 }), byK = hes(S0, [-130 + k9 - Fy, -130 + k9 - Fy], -130 - Fy, 0, { ov: S0.chose ? .1 : 0 });
     art(c, p => {
       floor(p, 300);
       const B = inG(sub(p), 'rise', 0, 300); B.path('M -70 300 L 0 40 L 70 300 Z', F(3.2)); B.circle(0, 40, 12, W(2.4));
-      const T = mvG(B, { px: 0, py: 40, r: hes(S0, [-9, 9], 0, tilt, { pon: 4 }) }); R(T, -420, 22, 840, 22, 10, F(3));                  // rail + end cups
-      [-1, 1].forEach(s => { T.path(`M ${s * 420 - 80} 22 L ${s * 420 - 70} 90 L ${s * 420 + 70} 90 L ${s * 420 + 80} 22`, F(3)); });
+      const T = mvG(B, { px: 0, py: 40, r: tK });                                                                                  // end cups (hung under the rail ends) + rail
+      [-1, 1].forEach(s => { const x = s * 342; T.path(`M ${x - 76} 44 L ${x - 64} 104 Q ${x - 62} 110 ${x - 54} 110 L ${x + 54} 110 Q ${x + 62} 110 ${x + 64} 104 L ${x + 76} 44 Z`, F(3)); });
+      R(T, -420, 22, 840, 22, 10, F(3));
       const bl = mvG(sub(p), { x: bxK, y: byK, o: [[0, 0], [tu(.12), 0], [tu(.22), 1]] }); bl.circle(bx, Fy, 90, F(3.4));
       const spin = mvG(bl, { px: bx, py: Fy, r: bxK.map(([t, v, e]) => [t, f1((v + bx) * .3 * 180 / (Math.PI * 90)), e]) });      // it rolls (turned less than a real roll, so the "?" stays readable)
       if (S0.chose) { const q = mvG(spin, { o: [[0, 0], [tu(.26), 0], [tu(.36), 1], [bH(.06), 1], [H, 0]] }); glyph(q, bx, Fy, 120); }
       else qSpot(p, c, S0, bx, Fy, 120, { ly: null, into: spin, lean: false });
-      if (S0.has2) [-1, 1].forEach((s, k) => { optAt(p, c, S0, k, s * 400, -45, 110, -130, { maxW: 200 }); if (S0.ai === k) tick(p, s * 400 + 80, -110, 26); });
+      if (S0.has2) [-1, 1].forEach((s, k) => { optAt(p, c, S0, k, s * 400, -45, 110, -130, { maxW: 200, mv: { px: 0, py: 40, r: tK } }); if (S0.ai === k) tick(sub(p, { transform: `rotate(${tilt} 0 40)` }), s * 400 + 80, -110, 26); });   // the options sit on the rail: they rise and fall with it
       if (S0.ans && !S0.chose && S0.ans.label && picOf(S0.ans)) { const lg = sub(p); on(lg, p, 0, { o: [[0, 0], [H, 0], [aH(.15), 1]] }); lab(lg, S0.ans, 0, -185, { color: C.ink, weight: 700, maxW: 260 }); }
       aboutAt(p, c, S0, -300, 220, 100, null); if (S0.about) labT(p, S0.about, -230, 235, tu(.18), { anchor: 'start', maxW: 200, size: 36 });
     });
