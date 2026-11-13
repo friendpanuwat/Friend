@@ -1,4 +1,4 @@
-/* b10.js — category B10 "คน / กลุ่มเป้าหมาย": 20 neutral designs (stills approved, motion added).
+/* b10.js — category B10 "คน / กลุ่มเป้าหมาย": 21 neutral designs (14 replaced by two picks: escalator + photo booth) (stills approved, motion added).
    User 2026-11-13: "B09 ผ่าน เริ่ม B10" + "ไม่ต้อง copy reference นะ ห้ามเลย" → the B02–B05 videos are only a reference for the KIND of design
    (everyday things with a real mechanism, clean layout, the house level of detail); every object here is new — none of the earlier
    categories' objects (no spotlight, magnifier, magnet, claw, door, frames …) is reused.
@@ -348,19 +348,42 @@
     });
     over(c, p => { const rf = mvG(p, ringK); rf.path(`M ${wx - 118} ${ry} A 118 28 0 0 0 ${wx + 118} ${ry}`, { sw: 11 }); rf.path(`M ${wx - 118} ${ry} A 118 28 0 0 0 ${wx + 118} ${ry}`, { sw: 5, stroke: C.fill }); }); });
 
-  /* 14 ── MIRROR: the mirror swings upright on its stand; on the keyword the person appears in the glass, then the kind is stuck on it
-     and the tags are pinned beside it */
-  variant('mirror', 'กระจกส่องตัว', (d, c) => { const S0 = st(d);
+  /* 14 ── ESCALATOR (round 2 option B, user "B,C"): people ride up an escalator; on the keyword the one we mean steps off at the top landing — the label pops under them */
+  variant('escalator', 'บันไดเลื่อน', (d, c) => { const S0 = st(d), T0 = T0f(), P0 = [-430, 272], P1 = [170, -150], at2 = u => [lerp(P0[0], P1[0], u), lerp(P0[1], P1[1], u)];
     art(c, p => {
-      const St = inG(p, 'rise', 0, 300, 0); St.line(0, 214, -130, 300, W(3)); St.line(0, 214, 130, 300, W(3)); R(St, -9, 180, 18, 48, 4, F(2.4));
-      const M = mvG(p, { px: 0, py: 200, r: [[0, -9], [tu(.15), -9], [tu(.5), 3, 'out'], [tu(.75), -1.2, 'io'], [tu(.95), 0, 'soft']], o: [[0, 0], [tu(.1), 0], [tu(.2), 1]] });
-      M.ellipse(0, -50, 205, 255, F(3.6)); M.ellipse(0, -50, 182, 230, { fill: GLASS, sw: 0, stroke: 'none' }); M.line(-120, -210, -60, -250, W(1.6));
-      whoAt(c, p, S0, 0, -88, 220);
-      if (S0.label) chipRow(popW(p, 0, 112, aH(.04)), [[S0.label, { size: 38 }]], 0, 112, { lo: -175, hi: 175 });
-      S0.tags.forEach((t, i) => { const x = i ? 345 : -345, g = sub(popW(p, x, -50, aH(.14 + .06 * i)), { transform: `translate(${x} -50)` }); chip(g, t, { size: 26, strong: false, maxW: 200 }); });
+      drawAt(p.line(-480, 292, 480, 292, S(2)), p, 0, tu(.4));
+      const E = inG(p, 'rise', 0, 292, 0);
+      E.path(`M -470 292 L -400 292 L 200 -130 L 470 -130 L 470 -100 L 230 -100 L -330 292 Z`, F(3));
+      E.path(`M ${P0[0] - 40} ${P0[1] - 120} L ${P1[0] - 40} ${P1[1] - 120} L ${P1[0] + 30} ${P1[1] - 120}`, { sw: 9 }); E.path(`M ${P0[0] - 40} ${P0[1] - 120} L ${P1[0] - 40} ${P1[1] - 120} L ${P1[0] + 30} ${P1[1] - 120}`, { sw: 3, stroke: C.fill });
+      E.path(`M ${P0[0] - 40} ${P0[1] - 112} L ${P1[0] - 40} ${P1[1] - 112} L ${P1[0] + 20} ${P1[1] - 112} L ${P1[0] + 20} ${P1[1]} L ${P0[0]} ${P0[1]} Z`, { fill: GLASS, sw: 0, stroke: 'none' });
+      let st2 = `M ${P0[0]} ${P0[1]}`; for (let k = 1; k <= 12; k++) { const [x, y] = at2(k / 12), [xp, yp] = at2((k - 1) / 12); st2 += ` L ${f1(xp + (x - xp) * .15)} ${f1(y)} L ${f1(x)} ${f1(y)}`; } E.path(st2, W(2.4));
+      R(E, 200, -150, 280, 20, 4, F(2.8));
+      const cr = crowdG(clipG(p, -500, -350, 1000, 700));
+      [.18, .45, .72].forEach((u, i) => { const [fx, fy] = at2(u), du = .16, [sx0, sy0] = at2(u - du), g = mvG(cr, { x: [[0, f1(sx0 - fx)], [T0, f1(sx0 - fx)], [Z.H, 0, 'io']], y: [[0, f1(sy0 - fy)], [T0, f1(sy0 - fy)], [Z.H, 0, 'io']], o: [[0, 0], [tC(i), 0], [tC(i) + tu(.08), 1]] });
+        stand(g, fx, fy, .62); });
+      haloH(p, 345, -225, 95);
+      whoAt(c, p, S0, 345, -225, 150, { t: Z.H - tu(.34), mv: { x: [[0, -150], [Z.H - tu(.34), -150], [Z.H, 0, 'out']], y: [[0, 20], [Z.H - tu(.34), 20], [Z.H - tu(.17), -14, 'out'], [Z.H, 0, 'in']] } });
+      labTags(p, S0, 335, -40, { size: 32, tsize: 24, dy: 52, lo: 190, hi: 492 });
+    }); });
+  /* 15 ── PHOTO BOOTH (round 2 option C, user "B,C"): two people wait outside a photo booth; the flash goes off behind the curtain, the curtain is pulled open on the
+     keyword — the person is inside — and the photo strip slides out of the side with the label over it */
+  variant('photobooth', 'ตู้ถ่ายรูป', (d, c) => { const S0 = st(d);
+    art(c, p => {
+      drawAt(p.line(-480, 292, 480, 292, S(2)), p, 0, tu(.4));
+      const bk = sub(p), cr = crowdG(p); [[-430, {}], [-320, { arm: RELAX }]].forEach(([x, pose], i) => crowdPerson(inC(bk, i, x, 292, 'rise'), inC(cr, i, x, 292, 'rise'), x, 292, .62, pose));
+      const B = inG(p, 'rise', 0, 292, 0); R(B, -195, -285, 375, 577, 14, F(3.6)); R(B, -195, -285, 375, 62, 14, F(3)); B.circle(-10, -254, 16, F(2.6));
+      R(B, -165, -200, 255, 445, 6, { fill: C.fill, sw: 2.4 }); B.line(-170, -200, 95, -200, W(4));
+      const fl = sub(B); on(fl, p, 0, { o: [[0, 0], [Z.H - tu(.45), 0], [Z.H - tu(.42), 1], [Z.H - tu(.3), 0], [Z.H - tu(.24), 1], [Z.H - tu(.12), 0]] }); R(fl, -165, -200, 255, 445, 6, { fill: LIT, sw: 0, stroke: 'none' });
+      R(B, -80, 150, 110, 16, 6, F(2.6)); B.line(-25, 166, -25, 245, W(4)); R(B, 150, 92, 12, 50, 3, F(2.4));
+      whoAt(c, p, S0, -35, 40, 175);
+      const cu = mvG(B, { px: -165, py: 0, sx: [[0, 1], [Z.H - tu(.08), 1], [aH(.2), .17, 'io']] });
+      R(cu, -165, -196, 255, 440, 4, F(2.8)); [-115, -65, -15, 35].forEach(x => cu.line(x, -186, x, 234, W(1.6)));
+      const sc = clipG(p, 160, -350, 340, 700), sl = mvG(sc, { x: [[0, -320], [aH(.05), -320], [aH(.4), 0, 'out']] });
+      R(sl, 160, 70, 320, 94, 6, F(2.8)); [0, 1, 2].forEach(k => { const x = 178 + k * 100; R(sl, x, 82, 84, 70, 4, k === 0 ? { fill: LIT, sw: 2 } : S(1.8)); bust(sl, x + 42, 125, .38, k === 0 ? { fill: LIT, sw: 2.4 } : S(1.6)); });
+      labTags(p, S0, 330, -40, { size: 32, tsize: 24, dy: 52, lo: 190, hi: 492, t: aH(.3) });
     }); });
 
-  /* 15 ── CAPSULE TOY: the knob turns, the capsules tumble, one capsule rolls out of the chute to the right; on the keyword its lid pops
+  /* 16 ── CAPSULE TOY: the knob turns, the capsules tumble, one capsule rolls out of the chute to the right; on the keyword its lid pops
      open and the person rises out of it */
   variant('gacha', 'ตู้กาชาปอง', (d, c) => { const S0 = st(d), T0 = T0f(), tr0 = Math.max(T0 + tu(.4), Z.H - tu(.55)), tr1 = Z.H - tu(.08);
     art(c, p => {
@@ -380,7 +403,7 @@
       whoAt(c, p, S0, 270, 122, 150, { t: Z.H - tu(.02), mv: { y: [[0, 60], [Z.H - tu(.02), 60], [aH(.2), 0, 'out']] } }); labTags(p, S0, 270, -45, { size: 32, tsize: 24, dy: 52, lo: 30, hi: 490, t: aH(.12) });
     }); });
 
-  /* 16 ── PAPER CHAIN: the paper dolls unfold from both ends toward the middle; on the keyword the person appears in the gap, hand in hand */
+  /* 17 ── PAPER CHAIN: the paper dolls unfold from both ends toward the middle; on the keyword the person appears in the gap, hand in hand */
   variant('paperchain', 'ตุ๊กตากระดาษจูงมือ', (d, c) => { const S0 = st(d), ny = -60, T0 = T0f();
     const doll = (q, x) => { q.path(rpoly([[-22, 0], [-95, 22], [-95, 50], [-32, 42], [-44, 160], [-12, 160], [0, 96], [12, 160], [44, 160], [32, 42], [95, 50], [95, 22], [22, 0]].map(([a, b]) => [x + a, ny + b]), 8), F(3)); q.circle(x, ny - 36, 34, F(3)); };
     art(c, p => {
@@ -390,7 +413,7 @@
       haloH(p, 0, 20, 125); whoAt(c, p, S0, 0, 22, 205); labTags(p, S0, 0, 172, { size: 36, tsize: 26, dy: 56 });
     }); });
 
-  /* 17 ── STICKER SHEET: the stickers pop onto the sheet; on the keyword one is peeled off and lifted to the side, growing — it is the person;
+  /* 18 ── STICKER SHEET: the stickers pop onto the sheet; on the keyword one is peeled off and lifted to the side, growing — it is the person;
      its spot is left empty */
   variant('stickers', 'แผ่นสติกเกอร์ลอก', (d, c) => { const S0 = st(d), cols = [-350, -200, -50], rows = [-130, 0, 130], t0 = Z.H - tu(.5);
     const pk = { x: [[0, -520], [t0, -520], [Z.H, 0, 'io']], y: [[0, 60], [t0, 60], [Z.H, 0, 'io']], s: [[0, .53], [t0, .53], [t0 + tu(.12), .6, 'out'], [Z.H, 1, 'io'], [aH(.1), 1.04, 'out'], [aH(.22), 1, 'soft']] };
@@ -403,7 +426,7 @@
       whoAt(c, p, S0, 320, -60, 150, { t: tu(.32), mv: { x: pk.x, y: pk.y, s: pk.s } }); labTags(p, S0, 320, 102, { size: 32, tsize: 24, dy: 52, lo: 160, hi: 492 });
     }); });
 
-  /* 18 ── CONTACTS: the tablet comes up, the kind is typed into the search bar, the list settles, and on the keyword one row is picked out —
+  /* 19 ── CONTACTS: the tablet comes up, the kind is typed into the search bar, the list settles, and on the keyword one row is picked out —
      the person with the tags */
   variant('contacts', 'รายชื่อค้นหา', (d, c) => { const S0 = st(d), rows = [-105, 0, 105, 205], me = 1, T0 = T0f();
     art(c, p => {
@@ -419,7 +442,7 @@
       else drawAt(p.line(-200, rows[me], 120, rows[me], W(5)), p, aH(.04), tu(.25));
     }); });
 
-  /* 19 ── SPIN THE BOTTLE: the people sit down around; the bottle spins, slows down and stops pointing at one of them on the keyword */
+  /* 20 ── SPIN THE BOTTLE: the people sit down around; the bottle spins, slows down and stops pointing at one of them on the keyword */
   variant('bottle', 'ขวดหมุนชี้', (d, c) => { const S0 = st(d), Rr = 236, A0 = -30, pos = a => [Rr * Math.cos(rad(a)), 10 + Rr * Math.sin(rad(a))], T0 = T0f();
     art(c, p => {
       drawAt(p.circle(0, 10, 170, S(1.6)), p, 0, tu(.5));
@@ -433,7 +456,7 @@
       labTags(p, S0, 300, -298, { size: 32, tsize: 24, dy: 52, lo: 60, hi: 492 });
     }); });
 
-  /* 20 ── SHOP WINDOW: the window comes in, the dress forms are set out one by one; on the keyword the person rises onto the stand in the
+  /* 21 ── SHOP WINDOW: the window comes in, the dress forms are set out one by one; on the keyword the person rises onto the stand in the
      middle and the label drops in above like a hanging sign */
   variant('showcase', 'ตู้โชว์หุ่น', (d, c) => { const S0 = st(d);
     const form = (q, x) => { q.ellipse(x, 252, 40, 8, F(2.4)); q.line(x, 252, x, 120, W(3));
@@ -446,64 +469,6 @@
       whoAt(c, p, S0, 0, 52, 215, { t: Z.H - tu(.36), mv: { y: [[0, 120], [Z.H - tu(.36), 120], [Z.H, 0, 'out']], s: [[0, .4], [Z.H - tu(.36), .4], [Z.H, 1, 'out']] } });
       const hg = mvG(p, { px: 0, py: -200, y: [[0, -90], [aH(.02), -90], [aH(.2), 0, 'out'], [aH(.3), -6, 'io'], [aH(.4), 0, 'soft']], o: [[0, 0], [aH(.02), 0], [aH(.06), 1]] });
       labTags(hg, S0, 0, -200, { size: 36, tsize: 26, dy: 56, lo: -400, hi: 400, t: aH(.02) });
-    }); });
-
-  /* ---------- redesign options for 14 — round 2 (user 2026-11-13: the mirror "เหมือนลูกโป่ง" → round 1 cheval / vanity / globe not taken,
-     "Redesign เลยได้ไหม" → a pop-up box was drawn, "มันมีแบบนี้แล้วนิ" (B08 12 popup, and 15 gacha opens the same way) → dropped →
-     three objects not used in any category so far, "วาดมาให้ผมเลือก"). Temporary: the pick moves into V ---------- */
-  const ALT = [], altV = (id, th, build) => ALT.push({ id, th, build });
-  /* A ── FERRIS WHEEL: people ride in the cabins; the wheel turns, slows and stops with one cabin at the bottom — that one lights up */
-  altV('ferris', 'ชิงช้าสวรรค์', (d, c) => { const S0 = st(d), T0 = T0f(), ox = -80, oy = -125, Rw = 205, A = k => 90 + 45 * k, pos = a => [ox + Rw * Math.cos(rad(a)), oy + Rw * Math.sin(rad(a))];
-    const D = 225, N = 24, tA = j => T0 + (Z.H - T0) * j / N, dl = j => D * Math.pow(1 - j / N, 2.2);       // degrees still to turn
-    const trK = k => { const [fx, fy] = pos(A(k)), KX = [[0, 0], [T0, 0]], KY = [[0, 0], [T0, 0]];
-      for (let j = 0; j <= N; j++) { const [x, y] = pos(A(k) - dl(j)); KX.push([tA(j), f1(x - fx)]); KY.push([tA(j), f1(y - fy)]); } return { x: KX, y: KY }; };
-    art(c, p => {
-      drawAt(p.line(-480, 292, 480, 292, S(2)), p, 0, tu(.4));
-      const L = inG(p, 'rise', ox, 292, 0); L.line(ox, oy, ox - 190, 292, W(5)); L.line(ox, oy, ox + 190, 292, W(5));
-      const wh = mvG(p, { px: ox, py: oy, r: [[0, -D], [T0, -D]].concat([...Array(N + 1)].map((_, j) => [tA(j), f1(-dl(j))])), o: [[0, 0], [tu(.1), 0], [tu(.2), 1]] });
-      wh.circle(ox, oy, Rw, { sw: 3.4 }); wh.circle(ox, oy, Rw - 26, S(1.8)); for (let k = 0; k < 4; k++) { const [x1, y1] = pos(45 * k), [x2, y2] = pos(45 * k + 180); wh.line(x1, y1, x2, y2, W(2)); }
-      wh.circle(ox, oy, 22, F(3));
-      const cr = crowdG(p);
-      for (let k = 0; k < 8; k++) { const [x, y] = pos(A(k)), me = k === 0, g = mvG(me ? p : cr, Object.assign({ o: [[0, 0], [tC(k), 0], [tC(k) + tu(.08), 1]] }, trK(k)));
-        const cw = me ? 136 : 104, chh = me ? 110 : 84; g.line(x, y, x, y + 16, W(2.4)); g.circle(x, y, 6, SOLID()); R(g, x - cw / 2, y + 16, cw, chh, 14, F(3)); g.line(x - cw / 2, y + 16 + chh * .36, x + cw / 2, y + 16 + chh * .36, W(1.6));
-        if (me) R(litG(g, Z.H - tu(.04)), x - cw / 2, y + 16, cw, chh, 14, { fill: LIT, sw: 3.2 }); else bust(g, x, y + 60, .42); }
-      const [cx, cy] = pos(A(0)); haloH(p, cx, cy + 68, 92);
-      whoAt(c, p, S0, cx, cy + 68, 112, { t: tC(0), mv: trK(0) });
-      labTags(p, S0, 330, 150, { size: 32, tsize: 24, dy: 52, lo: 170, hi: 492 });
-    }); });
-  /* B ── ESCALATOR: people ride up an escalator; on the keyword the one we mean steps off at the top landing — the label pops under them */
-  altV('escalator', 'บันไดเลื่อน', (d, c) => { const S0 = st(d), T0 = T0f(), P0 = [-430, 272], P1 = [170, -150], at2 = u => [lerp(P0[0], P1[0], u), lerp(P0[1], P1[1], u)];
-    art(c, p => {
-      drawAt(p.line(-480, 292, 480, 292, S(2)), p, 0, tu(.4));
-      const E = inG(p, 'rise', 0, 292, 0);
-      E.path(`M -470 292 L -400 292 L 200 -130 L 470 -130 L 470 -100 L 230 -100 L -330 292 Z`, F(3));
-      E.path(`M ${P0[0] - 40} ${P0[1] - 120} L ${P1[0] - 40} ${P1[1] - 120} L ${P1[0] + 30} ${P1[1] - 120}`, { sw: 9 }); E.path(`M ${P0[0] - 40} ${P0[1] - 120} L ${P1[0] - 40} ${P1[1] - 120} L ${P1[0] + 30} ${P1[1] - 120}`, { sw: 3, stroke: C.fill });
-      E.path(`M ${P0[0] - 40} ${P0[1] - 112} L ${P1[0] - 40} ${P1[1] - 112} L ${P1[0] + 20} ${P1[1] - 112} L ${P1[0] + 20} ${P1[1]} L ${P0[0]} ${P0[1]} Z`, { fill: GLASS, sw: 0, stroke: 'none' });
-      let st2 = `M ${P0[0]} ${P0[1]}`; for (let k = 1; k <= 12; k++) { const [x, y] = at2(k / 12), [xp, yp] = at2((k - 1) / 12); st2 += ` L ${f1(xp + (x - xp) * .15)} ${f1(y)} L ${f1(x)} ${f1(y)}`; } E.path(st2, W(2.4));
-      R(E, 200, -150, 280, 20, 4, F(2.8));
-      const cr = crowdG(clipG(p, -500, -350, 1000, 700));
-      [.18, .45, .72].forEach((u, i) => { const [fx, fy] = at2(u), du = .16, [sx0, sy0] = at2(u - du), g = mvG(cr, { x: [[0, f1(sx0 - fx)], [T0, f1(sx0 - fx)], [Z.H, 0, 'io']], y: [[0, f1(sy0 - fy)], [T0, f1(sy0 - fy)], [Z.H, 0, 'io']], o: [[0, 0], [tC(i), 0], [tC(i) + tu(.08), 1]] });
-        stand(g, fx, fy, .62); });
-      haloH(p, 345, -225, 95);
-      whoAt(c, p, S0, 345, -225, 150, { t: Z.H - tu(.34), mv: { x: [[0, -150], [Z.H - tu(.34), -150], [Z.H, 0, 'out']], y: [[0, 20], [Z.H - tu(.34), 20], [Z.H - tu(.17), -14, 'out'], [Z.H, 0, 'in']] } });
-      labTags(p, S0, 335, -40, { size: 32, tsize: 24, dy: 52, lo: 190, hi: 492 });
-    }); });
-  /* C ── PHOTO BOOTH: two people wait outside a photo booth; the flash goes off behind the curtain, the curtain is pulled open on the
-     keyword — the person is inside — and the photo strip slides out of the side with the label over it */
-  altV('photobooth', 'ตู้ถ่ายรูป', (d, c) => { const S0 = st(d);
-    art(c, p => {
-      drawAt(p.line(-480, 292, 480, 292, S(2)), p, 0, tu(.4));
-      const bk = sub(p), cr = crowdG(p); [[-430, {}], [-320, { arm: RELAX }]].forEach(([x, pose], i) => crowdPerson(inC(bk, i, x, 292, 'rise'), inC(cr, i, x, 292, 'rise'), x, 292, .62, pose));
-      const B = inG(p, 'rise', 0, 292, 0); R(B, -195, -285, 375, 577, 14, F(3.6)); R(B, -195, -285, 375, 62, 14, F(3)); B.circle(-10, -254, 16, F(2.6));
-      R(B, -165, -200, 255, 445, 6, { fill: C.fill, sw: 2.4 }); B.line(-170, -200, 95, -200, W(4));
-      const fl = sub(B); on(fl, p, 0, { o: [[0, 0], [Z.H - tu(.45), 0], [Z.H - tu(.42), 1], [Z.H - tu(.3), 0], [Z.H - tu(.24), 1], [Z.H - tu(.12), 0]] }); R(fl, -165, -200, 255, 445, 6, { fill: LIT, sw: 0, stroke: 'none' });
-      R(B, -80, 150, 110, 16, 6, F(2.6)); B.line(-25, 166, -25, 245, W(4)); R(B, 150, 92, 12, 50, 3, F(2.4));
-      whoAt(c, p, S0, -35, 40, 175);
-      const cu = mvG(B, { px: -165, py: 0, sx: [[0, 1], [Z.H - tu(.08), 1], [aH(.2), .17, 'io']] });
-      R(cu, -165, -196, 255, 440, 4, F(2.8)); [-115, -65, -15, 35].forEach(x => cu.line(x, -186, x, 234, W(1.6)));
-      const sc = clipG(p, 160, -350, 340, 700), sl = mvG(sc, { x: [[0, -320], [aH(.05), -320], [aH(.4), 0, 'out']] });
-      R(sl, 160, 70, 320, 94, 6, F(2.8)); [0, 1, 2].forEach(k => { const x = 178 + k * 100; R(sl, x, 82, 84, 70, 4, k === 0 ? { fill: LIT, sw: 2 } : S(1.8)); bust(sl, x + 42, 125, .38, k === 0 ? { fill: LIT, sw: 2.4 } : S(1.6)); });
-      labTags(p, S0, 330, -40, { size: 32, tsize: 24, dy: 52, lo: 190, hi: 492, t: aH(.3) });
     }); });
 
   /* samples from unrelated topics (neutrality) + a stress set */
@@ -523,6 +488,7 @@
     { say: 'คนที่เพิ่งย้ายมาเมืองใหม่', who: I('map-pin'), label: 'คนย้ายเมือง' },
     { say: 'คนขับรถส่งของ', who: I('truck'), label: 'คนส่งของ' },
     { say: 'คนรักแมว', who: I('heart'), label: 'ทาสแมว' },
+    { say: 'คนที่ชอบถ่ายรูปตัวเอง', who: I('camera'), label: 'สายเซลฟี่', tags: ['ถ่ายทุกวัน'] },
     { say: 'ผู้ป่วยเบาหวาน', who: I('heart-pulse'), label: 'ผู้ป่วยเบาหวาน' },
     { say: 'คนที่ชอบทำอาหารกินเอง', who: I('chef-hat'), label: 'สายทำอาหาร', tags: ['ทำกินเอง'] },
     { say: 'เด็กที่ติดจอ', who: I('tv'), label: 'เด็กติดจอ', tags: ['ทุกวัน'] },
@@ -545,6 +511,7 @@
     { say: 'ป้ายสั้นมาก', who: I('baby'), label: 'เด็ก' },
     { say: 'ไอคอนสิ่งของ', who: I('car'), label: 'คนใช้รถ', tags: ['ขับทุกวัน'] },
     { say: 'ไอคอนคนนั่งวีลแชร์', who: I('accessibility'), label: 'ผู้ใช้วีลแชร์' },
+    { say: 'ไม่มีป้าย มีแต่ป้ายย่อยยาว', who: I('users'), tags: ['ชอบถ่ายรูปตัวเอง', 'ใช้มือถือทั้งวัน'] },
     { say: 'อังกฤษยาว', who: I('user'), label: 'First-time home buyers' },
     { say: 'ไม่มีอะไรเลยนอกจากป้าย', label: 'ทุกคน' },
     { say: 'ไอคอนรูปคนกลม', who: I('user-round'), label: 'ลูกค้าประจำ', tags: ['ซื้อซ้ำ'] },
@@ -554,5 +521,5 @@
   ];
 
   G.cats = G.cats || {};
-  G.cats.B10 = { variants: V, ALT, drawAlt: (k, d, c) => { setZ(c); CUR = ALT[k].id; ALT[k].build(d, c); }, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
+  G.cats.B10 = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; V[i].build(d, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
 })();
