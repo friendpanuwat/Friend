@@ -676,7 +676,7 @@
           if (t != null) K.y = [[0, 0], [t, 0], [te, -260, 'in']]; }
         const g = mvG(cl, K); R(g, px - cw / 2, cy0, cw, ch, 30, F(4)); R(g, px - cw / 2 + 14, cy0 + 14, cw - 28, ch - 28, 22, S(1.4)); const mv = Object.assign({}, K); delete mv.o;
         if (X && picOf(X)) put(p, c, { icon: X.icon }, px, cy0 + ch / 2, 145, null, { t: E.up ? f3(t - tu(.32)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, px, cy0 + ch / 2 + 10, { size: 46, maxW: cw - 24, weight: 800, color: C.ink, wrap: 'mid' }); });
-      cbox(p, c, Cn, 350, -210, 190, E.ts, { ly: -210 + 150 }); endM(p, c, d, 0, -60);
+      endM(p, c, d, 0, -60);   /* (user 2026-11-14 "10,50 ลบช่องใส่ไอคอนมุมขวาบนออก") — no owner box here */
     }); });
 
   /* 11 ── RING AROUND (วงรอบศูนย์): the center in the middle (or a dashed ring); the boxes around it, each tied by a line — up: they pop on one by one
@@ -706,14 +706,14 @@
      the row and it folds away. The center (if any) sits top-right */
   variant('list', 'แถวรายการ', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), RW = Cn ? 680 : 880, rh = E.n >= 4 ? 168 : 185, gp = 4, y0 = 0 - ((E.n - 1) * (rh + gp)) / 2, bs = rh - 6;
     art(c, p => { base(p, c, d, E, { dx: Cn ? 250 : 432 });
-      for (let k = 0; k < E.n; k++) { const y = f1(y0 + k * (rh + gp)), t = E.at(k), K = { px: 0, py: y };
+      for (let k = 0; k < E.n; k++) { const y = f1(y0 + (E.n - 1 - k) * (rh + gp)), t = E.at(k), K = { px: 0, py: y };   /* bottom row first, stacking up (user: "13 อยากให้เรียงจากล่างขึ้นบน") */
         if (E.up) Object.assign(K, { x: [[0, 560], [f3(t - tu(.3)), 560], [t, -12, 'out'], [f3(t + tu(.1)), 0, 'soft']], o: fadeIn(f3(t - tu(.3)), .04) });
         else { const t0 = tu(.08 + .06 * k); Object.assign(K, { x: [[0, 560], [t0, 560], [f3(t0 + tu(.3)), 0, 'out']], o: fadeIn(t0, .04) }); if (t != null) Object.assign(K, { sy: [[0, 1], [f3(t + tu(.12)), 1], [f3(t + tu(.32)), 0, 'in']], o: fadeIn(t0, .04).concat([[f3(t + tu(.12)), 1], [f3(t + tu(.32)), 0]]) }); }
         const g = mvG(CL(p), K); R(g, -440, y - rh / 2, RW, rh, 34, F(3.6)); R(g, -420, y - bs / 2, bs, bs, bs * .24, F(3.4)); R(g, -420 + bs + 36, y - 30, RW - bs - 160, 24, 12, PH); R(g, -420 + bs + 36, y + 10, (RW - bs - 160) * .62, 24, 12, PH);
         const mv = Object.assign({}, K); delete mv.o; if (X && picOf(X)) put(p, c, { icon: X.icon }, -420 + bs / 2, y, bs * .64, null, { t: E.up ? f3(t - tu(.3)) : tu(.08 + .06 * k), mv, o: K.o }); else if (X) txt(g, X.label, -420 + bs / 2, y + 8, { size: 40, maxW: bs - 12, weight: 800, color: C.ink, wrap: 'mid' });
         if (!E.up && t != null) { const sg = sub(p); on(sg, p, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.02)), 1], [f3(t + tu(.12)), 1], [f3(t + tu(.2)), 0]] }); drawAt(sg.line(-450, y, -430 + RW, y, { sw: 6, stroke: ACC1 }), p, t, tu(.12)); }
         if (E.up) ripple(p, -420 + bs / 2, y, bs * .6, t); }
-      cbox(p, c, Cn, 370, 10, 200, E.ts); endM(p, c, d, -440 + RW, f1(y0 + (E.n - 1) * (rh + gp)) - rh / 2);
+      cbox(p, c, Cn, 370, 10, 200, E.ts); endM(p, c, d, -440 + RW, f1(y0) - rh / 2);
     }); });
 
   /* 14 ── MERGE (รวมเป็นหนึ่ง): one item box in the middle that grows a step with each copy that flies into it (up), or shrinks a step as copies split
@@ -1095,7 +1095,7 @@
         if (E.up) Object.assign(LK, { s: [[0, .7], [f3(t - tu(.2)), .7], [t, 1.04, 'out'], [f3(t + tu(.1)), 1, 'soft']], o: fadeIn(f3(t - tu(.2)), .04) });
         else Object.assign(LK, { s: [[0, .7], [tu(.2 + .06 * k), .7], [tu(.4 + .06 * k), 1, 'out']].concat(t == null ? [] : [[t, 1], [f3(t + tu(.3)), 1.25, 'in']]), o: fadeIn(tu(.2 + .06 * k), .04).concat(t == null ? [] : [[t, 1], [f3(t + tu(.3)), 0]]) });
         R(mvG(p, LK), cx - sz / 2, cy - sz / 2, sz, sz, sz * .24, { sw: 4, stroke: k === E.n - 1 ? ACC1 : TL_(o2) }); if (t != null && E.up) ripple(p, cx, cy, sz / 2, t); }
-      cbox(p, c, Cn, 385, -215, 180, E.ts, { noLabel: true }); endM(p, c, d, cx + (bs + 70 * E.n) / 2, cy - (bs + 70 * E.n) / 2);
+      endM(p, c, d, cx + (bs + 70 * E.n) / 2, cy - (bs + 70 * E.n) / 2);   /* no owner box (user: "10,50 ลบช่องใส่ไอคอนมุมขวาบนออก") */
     }); });
 
   /* ---------- sample data: the same as B02 (A: sentences from unrelated topics · B: stress) ---------- */
