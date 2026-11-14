@@ -735,7 +735,7 @@
     thing: [-180, 0, 260, 'box', 'pop'], word: [20, 20, { anchor: 'start', size: 56, maxW: 300, strike: true }], sign: [330, 0, 90], mark: [-55, -125] })); });
   /* 05 TOAST (แจ้งเตือนเลื่อนลง): a notification card slides down from the top — the sign and the words; the thing below it */
   variant('toast', 'แจ้งเตือนเลื่อนลง', (d, c) => { art(c, p => W7(p, c, d, { motif: (p, T) => { const g = mvG(CL(p), { y: [[0, -320], [T.tS, -320], [f3(T.tS + tu(.4)), 0, 'out']], o: fadeIn(T.tS, .1) }); R(g, -420, -310, 840, 170, 60, F(3.6)); },
-    thing: [0, 140, 250, 'box', 'rise'], sign: [-320, -225, 60, { shape: 'circ' }], word: [-230, -208, { anchor: 'start', size: 54, maxW: 560, any: true, strike: true, wrap: null, t: f3(WT().tS + tu(.3)) }], mark: [125, 15] })); });
+    thing: [0, 140, 250, 'box', 'rise'], sign: [-320, -225, 60, { shape: 'circ', t: f3(WT().tS + tu(.34)) }], word: [-230, -208, { anchor: 'start', size: 54, maxW: 560, any: true, strike: true, wrap: null, t: f3(WT().tS + tu(.3)) }], mark: [125, 15] })); });
   /* 06 DIALOG (กล่องข้อความ): a dialog box opens — the sign on top, the thing in the middle, two grey buttons at the foot */
   variant('dialog', 'กล่องข้อความ', (d, c) => { art(c, p => W7(p, c, d, { motif: (p, T) => { R(mvG(p, { px: 0, py: 20, s: [[0, .85], [tu(.04), .85], [tu(.4), 1, 'out']], o: fadeIn(tu(.04), .12) }), -330, -290, 660, 610, 44, F(3.8)); [-120, 120].forEach((x, k) => R(atG(p, f3(tu(.4 + .06 * k))), x - 100, 230, 200, 56, 28, GREY())); },
     thing: [-110, 20, 220, 'box', 'pop'], word: [30, 36, { anchor: 'start', size: 50, maxW: 260, strike: true }], sign: [0, -200, 64], mark: [0, 20] })); });
@@ -761,7 +761,7 @@
     thing: [-150, 0, 240, 'box', 'none', { ring: false, g: undefined }], word: [120, 20, { anchor: 'start', size: 54, maxW: 330, strike: true }], sign: [330, -210, 64], mark: [40, -190] })); });
   /* 13 LOCK BAR (คานกั้น): cross — a thick bar slides across in front of the thing; flag — a dashed bar */
   variant('lockbar', 'คานกั้น', (d, c) => { art(c, p => W7(p, c, d, { thing: [0, -30, 270, 'box', 'pop'], word: [0, 250, { pill: true, maxW: 420, strike: true }], sign: [330, -200, 66], mark: [160, -170],
-    after: (p, T, F1) => { const g = mvG(CL(p), { x: [[0, -900], [F1.cross ? T.H : T.tS, -900], [f3((F1.cross ? T.H : T.tS) + tu(.4)), 0, 'out']] }); if (F1.cross) { R(g, -420, -60, 840, 60, 30, F(4)); R(g, -400, -48, 800, 36, 18, { fill: TL_(.35), sw: 0, stroke: 'none' }); } else R(g, -420, -60, 840, 60, 30, DASH(.6)); } })); });
+    after: (p, T, F1) => { const g = mvG(CL(p), { x: [[0, -1000], [F1.cross ? T.H : T.tS, -1000], [f3((F1.cross ? T.H : T.tS) + tu(.4)), 0, 'out']] }); if (F1.cross) { R(g, -420, -60, 840, 60, 30, F(4)); R(g, -400, -48, 800, 36, 18, { fill: TL_(.35), sw: 0, stroke: 'none' }); } else R(g, -420, -60, 840, 60, 30, DASH(.6)); } })); });
   /* 14 SPLIT (แบ่งซ้ายขวา): the thing on the left half, the sign big on the right half, a seam between */
   variant('split', 'แบ่งซ้ายขวา', (d, c) => { art(c, p => W7(p, c, d, { motif: (p) => drawAt(p.line(30, -300, 30, 300, { sw: 2.6, stroke: TL_(.4) }), p, tu(.02), tu(.4)), thing: [-230, -30, 260, 'box', 'left'], word: below(-230, -30, 260, { maxW: 400 }), sign: [260, -20, 150], mark: [-105, -155] })); });
   /* 15 ALERT STACK (การ์ดซ้อน): two alert cards stack behind; the front card holds the thing and its words */
