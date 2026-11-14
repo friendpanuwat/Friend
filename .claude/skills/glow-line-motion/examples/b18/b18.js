@@ -216,195 +216,247 @@
   const whatV = (q, c, X, x, y, w, ly, o = {}) => hero(q, c, X, x, y, w, ly, Object.assign({ rip: false, size: 44, maxW: 380, bigSize: 54, bigW: 420 }, o));
   const whatH = (q, c, X, ix, iy, w, lx, o = {}) => heroH(q, c, X, ix, iy, w, lx, iy + (o.dy ?? 18), Object.assign({ rip: false, size: 50, maxW: 420, bigSize: 56, bigW: 600 }, o));
   /* who: a round badge with its icon (its label under it); no icon → the label in the badge */
-  function whoB(q, c, Wd, x, y, r = 56, o = {}) { const W0 = Wd; if (!W0) return; ring(q, x, y, r, r - 12, F(3.4)); q.circle(x, y, r - 12, F(1));
-    if (picOf(W0)) { put(q, c, { icon: W0.icon }, x, y, r * 1.15, null, {}); if (W0.label && o.label !== false) txt(q, W0.label, x, y + r + (o.ly ?? 34), { size: o.size || 26, maxW: o.maxW || 220, weight: 700, color: C.ink }); }
-    else if (W0.label) txt(q, W0.label, x, y + 9, { size: 26, maxW: r * 1.6, weight: 800, color: C.ink }); }
+  function whoB(q, c, Wd, x, y, r = 56, o = {}) { const W0 = Wd; if (!W0) return; const t = o.t ?? Z.H, g = popAt(q, x, y, t); ring(g, x, y, r, r - 12, F(3.4)); g.circle(x, y, r - 12, F(1));
+    if (picOf(W0)) { put(q, c, { icon: W0.icon }, x, y, r * 1.15, null, { t: t + tu(.04), punch: t + tu(.18) }); if (W0.label && o.label !== false) txt(atG(q, t + tu(.14)), W0.label, x, y + r + (o.ly ?? 34), { size: o.size || 26, maxW: o.maxW || 220, weight: 700, color: C.ink }); }
+    else if (W0.label) txt(g, W0.label, x, y + 9, { size: 26, maxW: r * 1.6, weight: 800, color: C.ink }); }
   /* when: a pill tag with the words as said */
-  function whenT(q, s, x, y, w = 280, o = {}) { if (!s) return; R(q, x - w / 2, y - 30, w, 60, 30, F(3.4)); DOT(q, x - w / 2 + 30, y, 7); txt(q, s, x + 12, y + 10, { size: o.size || 28, maxW: w - 76, weight: 700, color: C.ink }); }
+  function whenT(q, s, x, y, w = 280, o = {}) { if (!s) return; const g = popAt(q, x, y, o.t ?? Z.H); R(g, x - w / 2, y - 30, w, 60, 30, F(3.4)); DOT(g, x - w / 2 + 30, y, 7); txt(g, s, x + 12, y + 10, { size: o.size || 28, maxW: w - 76, weight: 700, color: C.ink }); }
   const lamp = (q, x, y, k = 1, a = 0) => { const g = rot(q, a, x, y); shape(g, [[x - 34 * k, y], [x + 34 * k, y], [x + 58 * k, y + 40 * k], [x - 58 * k, y + 40 * k]], F(3.4)); return g; };
 
-  /* 01 ── IN THE SPOTLIGHT: a person stands in the spotlight on a lit floor circle; the event on a round plaque on the wall */
-  variant('spotlight', 'คนยืนอยู่ในเหตุการณ์', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), lx = 190;
-    art(c, p => { floorD(p); p.line(lx, -350, lx, -296, W(3)); shape(p, [[lx - 80, -250], [lx + 80, -250], [lx + 230, 262], [lx - 230, 262]], { fill: 'rgba(255,255,255,.06)', sw: 0, stroke: 'none' });
-      lamp(p, lx, -296, 1.4); ell(p, lx, 262, 230, 30, { fill: 'rgba(255,255,255,.1)', sw: 2, stroke: C.soft });
-      front(p, lx, 262, .86);
-      disc(p, -270, -70, 170); whatV(p, c, X, -270, -106, 120, 12, { size: 34, maxW: 230, bigW: 250, bigSize: 42 });
-      whoB(p, c, Wh, -130, -210, 50, { label: false }); whenT(p, T, -270, 166, 260);
+  /* ---------- motion (user 2026-11-14 "ทำเคลื่อนไหวได้"): the scene comes in part by part (people rise in, things drop or stand up) → the
+     happening starts (a light comes on, a screen boots, a banner unfurls, a ribbon is cut, a jump …) → who and when come in → the event lands
+     on the keyword H → hold. T0 = the happening (a long sentence waits, then goes). Last frame = the approved still. ---------- */
+  const tW = Q => f3(Q.T0 + tu(.2)), tN = Q => f3(Q.T0 + tu(.32));
+  const flick = (q, t) => { const g = sub(q); on(g, q, 0, { o: [[0, 0], [t, 0], [t + tu(.04), .8], [t + tu(.08), .1], [t + tu(.14), 1], [t + tu(.18), .3], [t + tu(.26), 1]] }); return g; };
+  /* an arm raised from rest: r0 = the turn from the raised pose back down to rest (upper), f0 = the same for the forearm */
+  const raise = (hm, p, sd, s, e, r0, f0, t0, t1) => { hm.on('upper' + sd, p, 0, { ox: s[0], oy: s[1], r: armK(r0, t0, t1, sd * -4) }); hm.on('fore' + sd, p, 0, { ox: e[0], oy: e[1], r: armK(f0, t0, t1, 0) }); };
+  const swingFit = (t0, end, a = 6) => { const L = Math.max(tu(.2), end - t0), at = k => f3(t0 + L * k);
+    return { y: [[0, -300], [Math.max(0, t0 - tu(.18)), -300], [t0, 10, 'in'], [f3(t0 + tu(.06)), 0, 'out']],
+      r: [[0, 0], [t0, 0], [at(.3), a, 'out'], [at(.6), -a * .5, 'io'], [at(.85), a * .2, 'io'], [at(1), 0, 'soft']], o: fadeIn(Math.max(0, t0 - tu(.18))) }; };
+
+  /* 01 ── IN THE SPOTLIGHT: the plaque pops onto the wall, the lamp drops in on its rod; the person rises onto the floor mark; the spotlight
+     flickers on and the floor circle lights; who and when come; the event lands on the plaque */
+  variant('spotlight', 'คนยืนอยู่ในเหตุการณ์', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), lx = 190, Q = TL();
+    art(c, p => { floorD(p); const lg = flick(p, Q.T0);
+      shape(lg, [[lx - 80, -250], [lx + 80, -250], [lx + 230, 262], [lx - 230, 262]], { fill: 'rgba(255,255,255,.06)', sw: 0, stroke: 'none' }); ell(lg, lx, 262, 230, 30, { fill: 'rgba(255,255,255,.1)', sw: 0, stroke: 'none' });
+      ell(p, lx, 262, 230, 30, S(2)); const lp = inG(CL(p), 'drop', lx, -280, tu(.14)); lp.line(lx, -350, lx, -296, W(3)); lamp(lp, lx, -296, 1.4);
+      front(inG(p, 'rise', lx, 160, tu(.3)), lx, 262, .86);
+      disc(inG(p, 'pop', -270, -70, tu(.04)), -270, -70, 170); whatV(p, c, X, -270, -106, 120, 12, { size: 34, maxW: 230, bigW: 250, bigSize: 42 });
+      whoB(p, c, Wh, -130, -210, 50, { label: false, t: tW(Q) }); whenT(p, T, -270, 166, 260, { t: tN(Q) });
     }); });
 
-  /* 02 ── ON THE SCREEN: the event on a big screen on its stand — a live dot, the who in a small picture-in-picture, the when on the lower bar */
-  variant('screen', 'ภาพเหตุการณ์บนหน้าจอ', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { floorD(p); R(p, -16, 180, 32, 90, 6, F(3)); ell(p, 0, 274, 170, 16, F(3.4));
-      R(p, -420, -290, 840, 480, 30, F(4.8)); R(p, -390, -260, 780, 420, 12, { fill: 'rgba(255,255,255,.06)', sw: 1.6, stroke: C.soft });
-      p.circle(-350, -222, 11, SOLID(1)); p.circle(-350, -222, 20, S(1.6));
+  /* 02 ── ON THE SCREEN: the stand rises, the screen pops on; it boots (a flicker), the live dot blinks; the picture-in-picture pops, the lower bar
+     slides in with the when; the event comes up on the screen */
+  variant('screen', 'ภาพเหตุการณ์บนหน้าจอ', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL();
+    art(c, p => { floorD(p); const st = inG(p, 'rise', 0, 230, tu(.04)); R(st, -16, 180, 32, 90, 6, F(3)); ell(st, 0, 274, 170, 16, F(3.4));
+      R(inG(p, 'pop', 0, -50, tu(.16)), -420, -290, 840, 480, 30, F(4.8)); R(flick(p, Q.T0), -390, -260, 780, 420, 12, { fill: 'rgba(255,255,255,.06)', sw: 1.6, stroke: C.soft });
+      const lv = sub(p); on(lv, p, 0, { o: [[0, 0], [Q.T0 + tu(.2), 0], [Q.T0 + tu(.22), 1], [Q.T0 + tu(.4), .2], [Q.T0 + tu(.58), 1]] }); lv.circle(-350, -222, 11, SOLID(1)); lv.circle(-350, -222, 20, S(1.6));
       whatV(p, c, X, -20, -96, 150, 40, { size: 46, maxW: 470 });
-      if (Wh) { R(p, 200, -240, 170, 150, 14, F(3.4)); put(p, c, { icon: Wh.icon }, 285, -165, 90, null, {}); }
-      if (T) { R(p, -390, 92, 780, 68, 0, { fill: 'rgba(255,255,255,.12)', sw: 0, stroke: 'none' }); txt(p, T, -360, 138, { size: 34, maxW: 700, weight: 700, color: C.ink, anchor: 'start' }); }
+      if (Wh) { R(popAt(p, 285, -165, tW(Q)), 200, -240, 170, 150, 14, F(3.4)); put(p, c, { icon: Wh.icon }, 285, -165, 90, null, { t: tW(Q) + tu(.04) }); }
+      if (T) { const lb = mvG(p, { px: -390, py: 126, sx: [[0, 0], [tN(Q), 0], [tN(Q) + tu(.25), 1, 'out']], o: fadeIn(tN(Q), .04) }); R(lb, -390, 92, 780, 68, 0, { fill: 'rgba(255,255,255,.12)', sw: 0, stroke: 'none' }); txt(atG(p, tN(Q) + tu(.16)), T, -360, 138, { size: 34, maxW: 700, weight: 700, color: C.ink, anchor: 'start' }); }
     }); });
 
-  /* 03 ── THE GATHERING: people gather under a banner strung between two poles — the event on the banner */
-  variant('gathering', 'กลุ่มคนรวมตัวกัน', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { floorD(p); [-430, 430].forEach(x => { R(p, x - 9, -310, 18, 600, 6, F(2.6)); p.circle(x, -318, 12, F(2.4)); });
-      R(p, -390, -290, 780, 200, 18, F(4.8)); [[-390, -270], [-390, -110], [390, -270], [390, -110]].forEach(([x, y]) => p.line(x, y, x < 0 ? -421 : 421, y, W(2.4)));
-      whatH(p, c, X, -280, -190, 100, -200, { cx: 0, maxW: 470, bigW: 680 }); whoB(p, c, Wh, 320, -190, 46, { label: false });
-      [[-300, .7, 0], [-150, .8, 1], [0, .86, 0], [150, .8, -1], [300, .7, 0]].forEach(([x, k, up]) => front(p, x, 290, k, up ? { [up]: { s: [up * 36, -82], e: [up * 86, -140], h: [up * 70, -212] } } : {}));
-      whenT(p, T, 0, -44, 260);
+  /* 03 ── THE GATHERING: the poles rise; the people rise in one by one; the banner unrolls across from the left pole; two raise an arm; the event
+     lands on the banner */
+  variant('gathering', 'กลุ่มคนรวมตัวกัน', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL(), uE = f3(Q.T0 + tu(.3));
+    art(c, p => { floorD(p); [-430, 430].forEach((x, i) => { const g = inG(p, 'rise', x, 0, tu(.04 + .05 * i)); R(g, x - 9, -310, 18, 600, 6, F(2.6)); g.circle(x, -318, 12, F(2.4)); });
+      const bn = mvG(p, { px: -390, py: -190, sx: [[0, .02], [Q.T0 - tu(.1), .02], [uE, 1.02, 'out'], [uE + tu(.1), 1, 'soft']], o: fadeIn(Q.T0 - tu(.1), .02) });
+      R(bn, -390, -290, 780, 200, 18, F(4.8)); [[-390, -270], [-390, -110], [390, -270], [390, -110]].forEach(([x, y]) => drawAt(p.line(x, y, x < 0 ? -421 : 421, y, W(2.4)), p, x < 0 ? Q.T0 - tu(.1) : uE, tu(.1)));
+      whatH(p, c, X, -280, -190, 100, -200, { cx: 0, maxW: 470, bigW: 680 }); whoB(p, c, Wh, 320, -190, 46, { label: false, t: tW(Q) + tu(.1) });
+      [[-300, .7, 0], [-150, .8, 1], [0, .86, 0], [150, .8, -1], [300, .7, 0]].forEach(([x, k, up], i) => { const hm = front(inG(p, 'rise', x, 150, tu(.2 + .07 * i)), x, 290, k, up ? { [up]: { s: [up * 36, -82], e: [up * 86, -140], h: [up * 70, -212] } } : {});
+        if (up) raise(hm, p, up, [up * 36, -82], [up * 86, -140], up * 123, up * 65, f3(Q.T0 + tu(.3 + .1 * i / 2)), f3(Q.T0 + tu(.6 + .1 * i / 2))); });
+      whenT(p, T, 0, -44, 260, { t: tN(Q) + tu(.1) });
     }); });
 
-  /* 04 ── THE MARCH BANNER: two people (front view) hold a banner up between them on two sticks — the event on the banner */
-  variant('march', 'คนถือป้ายในงาน', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), k = .92;
+  /* 04 ── THE MARCH BANNER: the two people slide in from the sides; the banner comes up between them on its sticks (out of the ground), stops at
+     their hands with a bob; the event lands on it */
+  variant('march', 'คนถือป้ายในงาน', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), k = .92, Q = TL(), tU = Q.T0, tE = f3(Q.T0 + tu(.36));
     art(c, p => { floorD(p);
-      [-1, 1].forEach(sd => { const x = sd * 340; front(p, x, 290, k, { [-sd]: { s: [-sd * 36, -82], e: [-sd * 62, -150], h: [-sd * 42, -214] } }); R(p, sd * 300 - 8, -232, 16, 270, 5, F(2.6)); });
-      R(p, -300, -250, 600, 220, 16, F(4.8)); whatH(p, c, X, -200, -140, 100, -120, { cx: 0, maxW: 360, bigW: 540, size: 46 });
-      whoB(p, c, Wh, 250, -232, 40, { label: false }); whenT(p, T, 0, 30, 260);
+      const bn = mvG(clipG(p, -500, -350, 1000, 640), { y: [[0, 580], [tU, 580], [tE, -10, 'out'], [tE + tu(.12), 0, 'soft']] });
+      [-1, 1].forEach(sd => R(bn, sd * 300 - 8, -232, 16, 270, 5, F(2.6))); R(bn, -300, -250, 600, 220, 16, F(4.8));
+      [-1, 1].forEach(sd => { const x = sd * 340; front(mvG(p, { x: [[0, sd * 180], [tu(.04), sd * 180], [tu(.4), -sd * 6, 'out'], [tu(.5), 0, 'soft']], o: fadeIn(tu(.04)) }), x, 290, k, { [-sd]: { s: [-sd * 36, -82], e: [-sd * 62, -150], h: [-sd * 42, -214] } }); });
+      whatH(p, c, X, -200, -140, 100, -120, { cx: 0, maxW: 360, bigW: 540, size: 46 });
+      whoB(p, c, Wh, 250, -232, 40, { label: false, t: tW(Q) + tu(.2) }); whenT(p, T, 0, 30, 260, { t: tN(Q) + tu(.2) });
     }); });
 
-  /* 05 ── THE MEETING: three people sit behind a long table; the event on the screen on the wall behind them; the when on the table's front */
-  variant('meeting', 'ภาพคนกำลังประชุม', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { R(p, -300, -330, 600, 300, 20, F(4.6)); whatV(p, c, X, 0, -206, 120, -86, { size: 40, maxW: 500 }); whoB(p, c, Wh, 250, -290, 40, { label: false });
-      [-260, 0, 260].forEach(x => front(p, x, 290, .8));
-      R(p, -450, 118, 900, 32, 12, F(4.4)); R(p, -420, 150, 840, 140, 6, F(4)); whenT(p, T, 0, 220, 300);
+  /* 05 ── THE MEETING: the screen pops on the wall; the table slides in; the three sit down behind it one by one; the screen comes on; the event */
+  variant('meeting', 'ภาพคนกำลังประชุม', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL();
+    art(c, p => { R(inG(p, 'pop', 0, -180, tu(.04)), -300, -330, 600, 300, 20, F(4.6)); R(flick(p, Q.T0), -284, -314, 568, 268, 12, { fill: 'rgba(255,255,255,.06)', sw: 0, stroke: 'none' });
+      whatV(p, c, X, 0, -206, 120, -86, { size: 40, maxW: 500 }); whoB(p, c, Wh, 250, -290, 40, { label: false, t: tW(Q) });
+      const cl = clipG(p, -500, -350, 1000, 470); [-260, 0, 260].forEach((x, i) => front(mvG(cl, { y: [[0, 220], [tu(.3 + .08 * i), 220], [tu(.56 + .08 * i), -6, 'out'], [tu(.64 + .08 * i), 0, 'soft']] }), x, 290, .8));
+      const tb = mvG(p, { x: slideX(tu(.14), -200), o: fadeIn(tu(.14)) }); R(tb, -450, 118, 900, 32, 12, F(4.4)); R(tb, -420, 150, 840, 140, 6, F(4)); whenT(p, T, 0, 220, 300, { t: tN(Q) });
     }); });
 
-  /* 06 ── THE AUDIENCE: rows of people seen from behind listen to the screen up front — the event on the screen */
-  variant('audience', 'กลุ่มคนกำลังรับฟัง', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { R(p, -360, -330, 720, 330, 22, F(4.6)); whatV(p, c, X, 0, -200, 130, -70, { size: 42, maxW: 600 }); whoB(p, c, Wh, 300, -290, 40, { label: false });
-      whenT(p, T, 0, 60, 280); const cl = CL(p);
-      [-240, 0, 240].forEach(x => front(cl, x, 330, .62)); [-360, -120, 120, 360].forEach(x => front(cl, x, 430, .8));
+  /* 06 ── THE AUDIENCE: the screen pops up front; the audience fills the rows from the back; the screen comes on; the event */
+  variant('audience', 'กลุ่มคนกำลังรับฟัง', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL();
+    art(c, p => { R(inG(p, 'pop', 0, -165, tu(.04)), -360, -330, 720, 330, 22, F(4.6)); R(flick(p, Q.T0), -344, -314, 688, 298, 14, { fill: 'rgba(255,255,255,.06)', sw: 0, stroke: 'none' });
+      whatV(p, c, X, 0, -200, 130, -70, { size: 42, maxW: 600 }); whoB(p, c, Wh, 300, -290, 40, { label: false, t: tW(Q) });
+      whenT(p, T, 0, 60, 280, { t: tN(Q) }); const cl = CL(p);
+      [-240, 0, 240].forEach((x, i) => front(inG(cl, 'rise', x, 250, tu(.2 + .06 * i)), x, 330, .62)); [-360, -120, 120, 360].forEach((x, i) => front(inG(cl, 'rise', x, 330, tu(.4 + .06 * i)), x, 430, .8));
     }); });
 
-  /* 07 ── AT THE LECTERN: a person (front view) speaks at a lectern with a mic; the event on the backdrop behind; the who on the lectern's front */
-  variant('lectern', 'คนยืนหน้าเวที', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { floorD(p); R(p, -450, -330, 900, 290, 22, F(4.6)); whatH(p, c, X, -330, -196, 100, -250, { cx: -60, maxW: 420, bigW: 560 }); whenT(p, T, 250, -90, 330);
-      front(p, 0, 290, 1.08);
-      p.path('M 70 96 Q 84 40 46 22', W(3)); R(p, 30, -6, 26, 34, 10, F(2.4));
-      R(p, -160, 84, 320, 26, 10, F(3.6)); shape(p, [[-140, 110], [140, 110], [118, 290], [-118, 290]], F(4.6)); whoB(p, c, Wh, 0, 196, 54, { label: false });
+  /* 07 ── AT THE LECTERN: the backdrop pops; the lectern rises; the speaker comes up behind it and the mic bends to them; the who on the lectern;
+     the event on the backdrop */
+  variant('lectern', 'คนยืนหน้าเวที', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL();
+    art(c, p => { floorD(p); R(inG(p, 'pop', 0, -185, tu(.04)), -450, -330, 900, 290, 22, F(4.6)); whatH(p, c, X, -330, -196, 100, -250, { cx: -60, maxW: 420, bigW: 560 }); whenT(p, T, 250, -90, 330, { t: tN(Q) });
+      front(mvG(clipG(p, -500, -350, 1000, 460), { y: [[0, 300], [tu(.34), 300], [Q.T0 - tu(.06), -8, 'out'], [Q.T0 + tu(.06), 0, 'soft']] }), 0, 290, 1.08);
+      drawAt(p.path('M 70 96 Q 84 40 46 22', W(3)), p, Q.T0, tu(.2)); R(popAt(p, 43, 11, Q.T0 + tu(.16)), 30, -6, 26, 34, 10, F(2.4));
+      const lc = inG(p, 'rise', 0, 190, tu(.14)); R(lc, -160, 84, 320, 26, 10, F(3.6)); shape(lc, [[-140, 110], [140, 110], [118, 290], [-118, 290]], F(4.6)); whoB(p, c, Wh, 0, 196, 54, { label: false, t: tW(Q) });
     }); });
 
-  /* 08 ── THE STAGE AND THE CROWD: lights on a truss over the stage, the event on the big screen, the crowd's heads in front */
-  variant('stagecrowd', 'เวทีพร้อมผู้ร่วมงาน', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { R(p, -470, -340, 940, 44, 6, F(3.6)); for (let x = -450; x < 450; x += 44) p.path(`M ${x} -336 L ${x + 22} -300 L ${x + 44} -336`, S(1.6));
-      [-300, 0, 300].forEach(x => { p.line(x, -296, x, -280, W(2.4)); lamp(p, x, -280, .8); });
-      R(p, -360, -230, 720, 320, 20, F(4.6)); whatV(p, c, X, 0, -110, 130, 20, { size: 44, maxW: 600 }); whoB(p, c, Wh, 300, -190, 40, { label: false });
-      R(p, -450, 110, 900, 64, 10, F(4.2)); whenT(p, T, 0, 142, 280);
-      const cl = CL(p); [-380, -230, -80, 70, 220, 370].forEach((x, i) => front(cl, x, 440 + (i % 2) * 20, .58));
+  /* 08 ── THE STAGE AND THE CROWD: the truss drops in, the stage rises, the crowd fills in; the lamps flick on one by one, the screen comes on;
+     the event */
+  variant('stagecrowd', 'เวทีพร้อมผู้ร่วมงาน', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL();
+    art(c, p => { const tr = inG(CL(p), 'drop', 0, -318, tu(.04)); R(tr, -470, -340, 940, 44, 6, F(3.6)); for (let x = -450; x < 450; x += 44) tr.path(`M ${x} -336 L ${x + 22} -300 L ${x + 44} -336`, S(1.6));
+      [-300, 0, 300].forEach((x, i) => { const lg = inG(CL(p), 'drop', x, -270, tu(.16 + .04 * i)); lg.line(x, -296, x, -280, W(2.4)); lamp(lg, x, -280, .8);
+        const bm = flick(p, Q.T0 - tu(.2) + tu(.08 * i)); shape(bm, [[x - 44, -240], [x + 44, -240], [x * .6 + 70, 110], [x * .6 - 70, 110]], { fill: 'rgba(255,255,255,.05)', sw: 0, stroke: 'none' }); });
+      R(inG(p, 'pop', 0, -70, tu(.3)), -360, -230, 720, 320, 20, F(4.6)); R(flick(p, Q.T0 + tu(.1)), -344, -214, 688, 288, 12, { fill: 'rgba(255,255,255,.05)', sw: 0, stroke: 'none' });
+      whatV(p, c, X, 0, -110, 130, 20, { size: 44, maxW: 600 }); whoB(p, c, Wh, 300, -190, 40, { label: false, t: tW(Q) });
+      R(inG(p, 'rise', 0, 142, tu(.1)), -450, 110, 900, 64, 10, F(4.2)); whenT(p, T, 0, 142, 280, { t: tN(Q) });
+      const cl = CL(p); [-380, -230, -80, 70, 220, 370].forEach((x, i) => front(inG(cl, 'rise', x, 300, tu(.36 + .04 * i)), x, 440 + (i % 2) * 20, .58));
     }); });
 
-  /* 09 ── THE WALL CALENDAR: the event is the month's picture; the when heads the grid; one day is circled (no numbers) */
-  variant('calendar', 'ปฏิทินพร้อมภาพเหตุการณ์', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { p.circle(0, -342, 9, F(2.6)); p.path('M -120 -300 L 0 -338 L 120 -300', W(2.2));
-      R(p, -300, -300, 600, 630, 18, F(4.8)); [-120, 120].forEach(x => { p.circle(x, -300, 14, F(2.6)); });
-      R(p, -270, -270, 540, 270, 12, { fill: 'rgba(255,255,255,.08)', sw: 2, stroke: C.soft }); whatV(p, c, X, 0, -160, 130, -36, { size: 38, maxW: 480 }); whoB(p, c, Wh, 220, -220, 38, { label: false });
-      if (T) txt(p, T, 0, 46, { size: 36, maxW: 500, weight: 800, color: C.ink }); else p.line(-120, 34, 120, 34, S(2));
-      for (let r = 0; r < 4; r++) for (let k = 0; k < 7; k++) { const x = -240 + k * 80, y = 90 + r * 56; R(p, x - 26, y - 18, 52, 40, 8, S(1.6)); }
-      p.circle(-240 + 4 * 80, 90 + 2 * 56 + 2, 34, W(3.4));
+  /* 09 ── THE WALL CALENDAR: the nail pops; the calendar drops on its cord and swings, settling; the day is circled; who and when; the month's
+     picture is the event */
+  variant('calendar', 'ปฏิทินพร้อมภาพเหตุการณ์', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL();
+    art(c, p => { popAt(p, 0, -342, tu(.04)).circle(0, -342, 9, F(2.6));
+      const sw = mvG(CL(p), Object.assign({ px: 0, py: -338 }, swingFit(tu(.3), Q.T0, 5))); sw.path('M -120 -300 L 0 -338 L 120 -300', W(2.2));
+      R(sw, -300, -300, 600, 630, 18, F(4.8)); [-120, 120].forEach(x => sw.circle(x, -300, 14, F(2.6)));
+      R(sw, -270, -270, 540, 270, 12, { fill: 'rgba(255,255,255,.08)', sw: 2, stroke: C.soft });
+      for (let r = 0; r < 4; r++) for (let k = 0; k < 7; k++) { const x = -240 + k * 80, y = 90 + r * 56; R(sw, x - 26, y - 18, 52, 40, 8, S(1.6)); }
+      if (!T) sw.line(-120, 34, 120, 34, S(2));
+      whatV(p, c, X, 0, -160, 130, -36, { size: 38, maxW: 480 }); whoB(p, c, Wh, 220, -220, 38, { label: false, t: tW(Q) });
+      if (T) txt(atG(p, tN(Q)), T, 0, 46, { size: 36, maxW: 500, weight: 800, color: C.ink }); drawAt(p.circle(-240 + 4 * 80, 90 + 2 * 56 + 2, 34, W(3.4)), p, Q.T0 + tu(.1), tu(.3));
     }); });
 
-  /* 10 ── THE GROUP PHOTO: an instant photo of a group, taped to the wall — the event as the caption, the when in the corner */
-  variant('groupphoto', 'ภาพถ่ายหมู่', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { const g = rot(p, -4, 0, 0); R(g, -280, -310, 560, 620, 16, F(4.8)); R(g, -250, -280, 500, 420, 6, { fill: 'rgba(255,255,255,.07)', sw: 2.4 });
-      const cl = clipG(g, -250, -280, 500, 420); [[-150, .6, 230], [-50, .66, 260], [50, .66, 260], [150, .6, 230]].forEach(([x, k, fy]) => front(cl, x, fy, k)); [-100, 0, 100].forEach((x, i) => front(cl, x, 330, .62));
-      R(rot(p, 6, -20, -318), -90, -336, 140, 40, 4, { fill: 'rgba(255,255,255,.16)', sw: 1.4 });
-      whatH(g, c, X, -200, 214, 70, -150, { cx: 0, size: 38, maxW: 280, bigSize: 42, bigW: 480, dy: 14 });
-      if (T) txt(g, T, 240, 280, { size: 26, maxW: 200, weight: 700, color: C.ink, anchor: 'end' }); whoB(p, c, Wh, 240, -250, 44, { label: false });
+  /* 10 ── THE GROUP PHOTO: the instant photo drops onto the wall turning to its tilt, the tape goes on; the picture develops (fades up); the caption */
+  variant('groupphoto', 'ภาพถ่ายหมู่', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL();
+    art(c, p => { const g0 = mvG(CL(p), { px: 0, py: 0, y: [[0, -560], [tu(.04), -560], [tu(.4), 8, 'out'], [tu(.5), 0, 'soft']], r: [[0, 12], [tu(.04), 12], [tu(.5), 0, 'out']], o: fadeIn(tu(.04)) }), g = rot(g0, -4, 0, 0);
+      R(g, -280, -310, 560, 620, 16, F(4.8)); R(g, -250, -280, 500, 420, 6, { fill: 'rgba(255,255,255,.07)', sw: 2.4 });
+      const dv = sub(g); on(dv, p, 0, { o: [[0, 0], [Q.T0 - tu(.3), 0], [Q.T0 + tu(.3), 1, 'io']] }); const cl = clipG(dv, -250, -280, 500, 420);
+      [[-150, .6, 230], [-50, .66, 260], [50, .66, 260], [150, .6, 230]].forEach(([x, k, fy]) => front(cl, x, fy, k)); [-100, 0, 100].forEach(x => front(cl, x, 330, .62));
+      R(popAt(p, -20, -318, tu(.56)), -90, -336, 140, 40, 4, { fill: 'rgba(255,255,255,.16)', sw: 1.4 });
+      whatH(rot(p, -4, 0, 0), c, X, -200, 214, 70, -150, { cx: 0, size: 38, maxW: 280, bigSize: 42, bigW: 480, dy: 14 });
+      if (T) txt(atG(rot(p, -4, 0, 0), tN(Q)), T, 240, 280, { size: 26, maxW: 200, weight: 700, color: C.ink, anchor: 'end' }); whoB(p, c, Wh, 240, -250, 44, { label: false, t: tW(Q) });
     }); });
 
-  /* 11 ── THE PHOTO FRAME ON THE SHELF: a standing frame shows the event; a small frame beside it shows who; a tent card holds the when */
-  variant('photoframe', 'ภาพเหตุการณ์ในกรอบ', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { R(p, -480, 220, 960, 30, 8, F(3.8)); [-450, 450].forEach(x => p.line(x, 250, x, 340, S(2)));
-      shape(p, [[180, 200], [230, 220], [210, 220]], F(2.4)); R(p, -250, -260, 500, 480, 14, F(5.4)); R(p, -218, -228, 436, 416, 8, F(2.2));
+  /* 11 ── THE PHOTO FRAME ON THE SHELF: the shelf pops, its legs draw; the frame stands up (from flat), the little frame and the tent card pop
+     beside it; the event shows in the frame */
+  variant('photoframe', 'ภาพเหตุการณ์ในกรอบ', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL();
+    art(c, p => { R(inG(p, 'pop', 0, 235, tu(.04)), -480, 220, 960, 30, 8, F(3.8)); [-450, 450].forEach(x => drawAt(p.line(x, 250, x, 340, S(2)), p, tu(.14), tu(.2)));
+      const fr = mvG(p, { px: 0, py: 220, sy: [[0, .04], [tu(.3), .04], [Q.T0 - tu(.1), 1.04, 'out'], [Q.T0, 1, 'soft']], o: fadeIn(tu(.3), .04) });
+      shape(fr, [[180, 200], [230, 220], [210, 220]], F(2.4)); R(fr, -250, -260, 500, 480, 14, F(5.4)); R(fr, -218, -228, 436, 416, 8, F(2.2));
       whatV(p, c, X, 0, -70, 150, 90, { size: 42, maxW: 380 });
-      if (Wh) { R(p, 300, 20, 160, 200, 10, F(4.4)); R(p, 318, 38, 124, 164, 6, F(1.8)); put(p, c, { icon: Wh.icon }, 380, 120, 80, null, {}); }
-      if (T) { shape(p, [[-460, 220], [-280, 220], [-300, 130], [-440, 130]], F(3.6)); txt(p, T, -370, 188, { size: 26, maxW: 140, weight: 700, color: C.ink }); }
+      if (Wh) { const sf = popAt(p, 380, 120, tW(Q)); R(sf, 300, 20, 160, 200, 10, F(4.4)); R(sf, 318, 38, 124, 164, 6, F(1.8)); put(p, c, { icon: Wh.icon }, 380, 120, 80, null, { t: tW(Q) + tu(.06) }); }
+      if (T) { const tc = popAt(p, -370, 180, tN(Q)); shape(tc, [[-460, 220], [-280, 220], [-300, 130], [-440, 130]], F(3.6)); txt(tc, T, -370, 188, { size: 26, maxW: 140, weight: 700, color: C.ink }); }
     }); });
 
-  /* 12 ── CUTTING THE RIBBON: a ribbon with a bow is stretched between two posts and cut — the scissors at the cut; a person stands behind;
-     the event on the sign above */
-  variant('ribbon', 'คนกำลังตัดริบบิ้น', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { floorD(p); R(p, -340, -320, 680, 160, 18, F(4.6)); whatH(p, c, X, -240, -240, 90, -170, { cx: 0, size: 46, maxW: 420, bigW: 600 }); whenT(p, T, 0, -120, 260);
-      front(p, 210, 290, .86);
-      [-420, 420].forEach(x => { R(p, x - 12, 20, 24, 270, 6, F(3)); p.circle(x, 14, 16, F(3)); ell(p, x, 284, 60, 10, F(2.6)); });
-      p.path('M -408 50 Q -250 76 -40 56', { sw: 26 }); p.path('M -408 50 Q -250 76 -40 56', { sw: 18, stroke: C.fill });
-      p.path('M 408 50 Q 300 70 190 64', { sw: 26 }); p.path('M 408 50 Q 300 70 190 64', { sw: 18, stroke: C.fill });
-      p.path('M -40 56 Q -10 70 0 110 M 190 64 Q 160 80 150 120', W(5));
-      [-1, 1].forEach(sd => p.path(`M -60 56 C ${-60 + sd * 70} -10 ${-60 + sd * 90} 100 -60 56 Z`, F(3.4))); p.circle(-60, 56, 16, F(3));
-      put(p, c, { icon: 'scissors' }, 92, 50, 100, null, { r: -20 }); whoB(p, c, Wh, -60, 180, 44, { label: false });
+  /* 12 ── CUTTING THE RIBBON: the sign pops, the posts rise, the ribbon draws across with its bow; the person rises behind; the scissors come
+     in and snip — the middle piece drops away and the cut ends hang; the event lands */
+  variant('ribbon', 'คนกำลังตัดริบบิ้น', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL(), tC = f3(Q.H - tu(.3));
+    art(c, p => { floorD(p); R(inG(p, 'pop', 0, -240, tu(.04)), -340, -320, 680, 160, 18, F(4.6)); whatH(p, c, X, -240, -240, 90, -170, { cx: 0, size: 46, maxW: 420, bigW: 600 }); whenT(p, T, 0, -120, 260, { t: tN(Q) });
+      front(inG(p, 'rise', 210, 160, tu(.3)), 210, 290, .86);
+      [-420, 420].forEach((x, i) => { const g = inG(p, 'rise', x, 150, tu(.08 + .05 * i)); R(g, x - 12, 20, 24, 270, 6, F(3)); g.circle(x, 14, 16, F(3)); ell(g, x, 284, 60, 10, F(2.6)); });
+      const rb = (q, dd) => { q.path(dd, { sw: 26 }); q.path(dd, { sw: 18, stroke: C.fill }); };
+      const rl = sub(p); drawAt(rl.path('M -408 50 Q -250 76 -40 56', { sw: 26 }), p, tu(.4), tu(.25)); drawAt(rl.path('M -408 50 Q -250 76 -40 56', { sw: 18, stroke: C.fill }), p, tu(.4), tu(.25));
+      drawAt(p.path('M 408 50 Q 300 70 190 64', { sw: 26 }), p, tu(.4), tu(.25)); drawAt(p.path('M 408 50 Q 300 70 190 64', { sw: 18, stroke: C.fill }), p, tu(.4), tu(.25));
+      const mid = mvG(p, { y: [[0, 0], [tC, 0], [tC + tu(.3), 260, 'in']], r: [[0, 0], [tC, 0], [tC + tu(.3), 14]], px: 75, py: 60, o: [[0, 0], [tu(.5), 0], [tu(.62), 1], [tC + tu(.2), 1], [tC + tu(.3), 0]] }); rb(mid, 'M -44 56 Q 80 66 194 64');
+      drawAt(p.path('M -40 56 Q -10 70 0 110', W(5)), p, tC + tu(.04), tu(.2)); drawAt(p.path('M 190 64 Q 160 80 150 120', W(5)), p, tC + tu(.04), tu(.2));
+      const bw = popAt(p, -60, 56, tu(.6)); [-1, 1].forEach(sd => bw.path(`M -60 56 C ${-60 + sd * 70} -10 ${-60 + sd * 90} 100 -60 56 Z`, F(3.4))); bw.circle(-60, 56, 16, F(3));
+      put(p, c, { icon: 'scissors' }, 92, 50, 100, null, { t: tC - tu(.4), mv: { x: [[0, 160], [tC - tu(.4), 160], [tC - tu(.06), 0, 'out']], y: [[0, -120], [tC - tu(.4), -120], [tC - tu(.06), 0, 'out']], r: [[0, -20], [tC - tu(.06), -20], [tC, -4, 'in'], [tC + tu(.12), -20, 'out']], px: 92, py: 50 } });
+      sparkAt(p, 80, 58, 20, 38, tC, 6, 0, [], false); whoB(p, c, Wh, -60, 180, 44, { label: false, t: tW(Q) });
     }); });
 
-  /* 13 ── THE CELEBRATION: bunting across the top, confetti in the air, a person (front view) jumps with both arms up; the event on the board */
-  variant('celebrate', 'คนกำลังเฉลิมฉลอง', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { floorD(p); p.path('M -480 -300 Q 0 -200 480 -300', W(2.4));
-      for (let x = -440; x <= 440; x += 80) { const u = (x + 480) / 960, y = (1 - u) * (1 - u) * -300 + 2 * u * (1 - u) * -200 + u * u * -300; shape(p, [[x - 26, y + 2], [x + 26, y + 2], [x, y + 50]], F(2.6)); }
-      ell(p, -210, 284, 90, 12, S(1.6));
-      front(p, -210, 250, .9, { [-1]: { s: [-36, -82], e: [-90, -150], h: [-110, -224] }, 1: { s: [36, -82], e: [90, -150], h: [110, -224] } }, { leg: sd => ({ h: [sd * 17, 8], k: [sd * 36, 80], f: [sd * 24, 160] }) });
-      [[-380, -150, 20], [-60, -120, -30], [-330, 20, 40], [-90, 30, -10], [-420, -60, 60], [-20, -200, 15]].forEach(([x, y, a]) => R(rot(p, a, x, y), x - 12, y - 6, 24, 12, 3, F(2)));
-      R(p, 60, -200, 400, 330, 24, F(4.6)); R(p, 250, 130, 20, 160, 4, F(2.6)); ell(p, 260, 286, 80, 10, F(2.6));
-      whatV(p, c, X, 260, -86, 120, 40, { size: 38, maxW: 340, bigW: 350 }); whoB(p, c, Wh, 420, -190, 40, { label: false }); whenT(p, T, 260, -250, 260);
+  /* 13 ── THE CELEBRATION: the bunting draws across and its flags drop on; the board pops; the person crouches and jumps with both arms up, the
+     confetti bursts; who and when; the event lands on the board */
+  variant('celebrate', 'คนกำลังเฉลิมฉลอง', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL(), tJ = f3(Q.H - tu(.34));
+    art(c, p => { floorD(p); drawAt(p.path('M -480 -300 Q 0 -200 480 -300', W(2.4)), p, tu(.04), tu(.35));
+      for (let x = -440, i = 0; x <= 440; x += 80, i++) { const u = (x + 480) / 960, y = (1 - u) * (1 - u) * -300 + 2 * u * (1 - u) * -200 + u * u * -300; shape(popAt(p, x, y + 10, tu(.2 + .03 * i)), [[x - 26, y + 2], [x + 26, y + 2], [x, y + 50]], F(2.6)); }
+      const sh = mvG(p, { px: -210, py: 284, s: [[0, 1], [tJ, 1], [tJ + tu(.17), .6, 'out'], [tJ + tu(.34), 1, 'in']] }); ell(sh, -210, 284, 90, 12, S(1.6));
+      const jp = mvG(inG(p, 'rise', -210, 150, tu(.1)), { px: -210, py: 250, y: [[0, 40], [tJ - tu(.12), 40], [tJ, 44, 'in'], [tJ + tu(.17), -60, 'out'], [tJ + tu(.34), 0, 'in']], sy: [[0, 1], [tJ - tu(.12), 1], [tJ, .9, 'in'], [tJ + tu(.08), 1.04, 'out'], [tJ + tu(.34), 1, 'soft']] });
+      front(jp, -210, 250, .9, { [-1]: { s: [-36, -82], e: [-90, -150], h: [-110, -224] }, 1: { s: [36, -82], e: [90, -150], h: [110, -224] } }, { leg: sd => ({ h: [sd * 17, 8], k: [sd * 36, 80], f: [sd * 24, 160] }) });
+      [[-380, -150, 20], [-60, -120, -30], [-330, 20, 40], [-90, 30, -10], [-420, -60, 60], [-20, -200, 15]].forEach(([x, y, a], i) => { const g = mvG(p, { x: [[0, -210 - x], [tJ + tu(.12), -210 - x], [tJ + tu(.4), 0, 'out']], y: [[0, 60 - y], [tJ + tu(.12), 60 - y], [tJ + tu(.4), 0, 'out']], o: fadeIn(tJ + tu(.12), .04) }); R(rot(g, a, x, y), x - 12, y - 6, 24, 12, 3, F(2)); });
+      const bd = inG(p, 'pop', 260, -40, tu(.3)); R(bd, 60, -200, 400, 330, 24, F(4.6)); R(bd, 250, 130, 20, 160, 4, F(2.6)); ell(bd, 260, 286, 80, 10, F(2.6));
+      whatV(p, c, X, 260, -86, 120, 40, { size: 38, maxW: 340, bigW: 350 }); whoB(p, c, Wh, 420, -190, 40, { label: false, t: tW(Q) }); whenT(p, T, 260, -250, 260, { t: tN(Q) });
     }); });
 
-  /* 14 ── THE NOTICE BOARD: a flyer for the event pinned on a cork board, a note with the when, the who on a round pinned card */
-  variant('notice', 'ป้ายประกาศกิจกรรม', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { R(p, -450, -310, 900, 610, 26, F(4.8)); R(p, -424, -284, 848, 558, 14, S(1.6));
-      const f = rot(p, -3, -150, 0); R(f, -380, -250, 420, 500, 10, F(4.2)); p.circle(-170, -240, 12, F(2.6));
-      whatV(f, c, X, -170, -100, 150, 50, { size: 42, maxW: 360 }); lines(f, -320, 120, 300, 3, 34, S(1.8), [2]);
-      if (T) { const n2 = rot(p, 4, 260, -150); R(n2, 100, -240, 320, 170, 8, F(3.8)); p.circle(260, -232, 10, F(2.4)); txt(n2, T, 260, -138, { size: 34, maxW: 280, weight: 800, color: C.ink }); }
-      if (Wh) { whoB(p, c, Wh, 270, 120, 90, { size: 28, ly: 36 }); p.circle(270, 30, 10, F(2.4)); }
+  /* 14 ── THE NOTICE BOARD: the board pops onto the wall; the flyer is pinned up (a drop, the pin goes in); the note with the when and the who's card
+     are pinned on after it; the event lands on the flyer */
+  variant('notice', 'ป้ายประกาศกิจกรรม', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL();
+    art(c, p => { const bd = inG(p, 'pop', 0, 0, tu(.04)); R(bd, -450, -310, 900, 610, 26, F(4.8)); R(bd, -424, -284, 848, 558, 14, S(1.6));
+      const pin = (x, y, t) => popAt(p, x, y, t).circle(x, y, 12, F(2.6));
+      const f0 = mvG(p, { y: [[0, -50], [tu(.3), -50], [tu(.46), 0, 'in']], o: fadeIn(tu(.3), .06) }), f = rot(f0, -3, -150, 0); R(f, -380, -250, 420, 500, 10, F(4.2)); pin(-170, -240, tu(.48));
+      lines(atG(rot(p, -3, -150, 0), tu(.6)), -320, 120, 300, 3, 34, S(1.8), [2]); whatV(rot(p, -3, -150, 0), c, X, -170, -100, 150, 50, { size: 42, maxW: 360 });
+      if (T) { const t = tN(Q), n0 = mvG(p, { y: [[0, -40], [t - tu(.14), -40], [t, 0, 'in']], o: fadeIn(t - tu(.14), .06) }), n2 = rot(n0, 4, 260, -150); R(n2, 100, -240, 320, 170, 8, F(3.8)); pin(260, -232, t + tu(.02)); txt(atG(n2, t + tu(.08)), T, 260, -138, { size: 34, maxW: 280, weight: 800, color: C.ink }); }
+      if (Wh) { whoB(p, c, Wh, 270, 120, 90, { size: 28, ly: 36, t: tW(Q) }); pin(270, 30, tW(Q) + tu(.04)); }
     }); });
 
-  /* 15 ── STANDING ROUND IN A CIRCLE: people stand round a low round platform; the event stands in the middle on a round sign */
-  variant('circle', 'คนยืนล้อมวง', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { floorD(p); [-330, -170, 170, 330].forEach(x => front(p, x, 160, .62));
-      ell(p, 0, 230, 300, 52, F(4)); R(p, -300, 230, 600, 30, 0, { fill: C.fill, sw: 0, stroke: 'none' }); [-300, 300].forEach(x => p.line(x, 230, x, 262, W(4))); ell(p, 0, 262, 300, 52, { fill: 'none', sw: 4 }); ell(p, 0, 230, 300, 52, F(4));
-      R(p, -10, 60, 20, 170, 5, F(2.6)); disc(p, 0, -80, 150); whatV(p, c, X, 0, -112, 110, 4, { size: 32, maxW: 220, bigW: 230, bigSize: 40 });
-      [-440, 440].forEach(x => front(p, x, 300, .8)); whoB(p, c, Wh, 150, 30, 40, { label: false }); whenT(p, T, 0, 230, 260);
+  /* 15 ── STANDING ROUND IN A CIRCLE: the platform rises, the people come up round it one by one; the post grows and the round sign turns to face
+     us; the event lands on it */
+  variant('circle', 'คนยืนล้อมวง', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL();
+    art(c, p => { floorD(p); [-330, -170, 170, 330].forEach((x, i) => front(inG(p, 'rise', x, 60, tu(.2 + .06 * i)), x, 160, .62));
+      const pf = inG(p, 'rise', 0, 246, tu(.04)); ell(pf, 0, 230, 300, 52, F(4)); R(pf, -300, 230, 600, 30, 0, { fill: C.fill, sw: 0, stroke: 'none' }); [-300, 300].forEach(x => pf.line(x, 230, x, 262, W(4))); ell(pf, 0, 262, 300, 52, { fill: 'none', sw: 4 }); ell(pf, 0, 230, 300, 52, F(4));
+      R(mvG(p, growY(0, 230, tu(.5))), -10, 60, 20, 170, 5, F(2.6));
+      disc(mvG(p, { px: 0, py: -80, sx: [[0, .04], [Q.T0, .04], [Q.H - tu(.14), 1.04, 'out'], [Q.H, 1, 'soft']], o: fadeIn(Q.T0, .04) }), 0, -80, 150); whatV(p, c, X, 0, -112, 110, 4, { size: 32, maxW: 220, bigW: 230, bigSize: 40 });
+      [-440, 440].forEach((x, i) => front(inG(p, 'rise', x, 180, tu(.44 + .06 * i)), x, 300, .8)); whoB(p, c, Wh, 150, 30, 40, { label: false, t: tW(Q) }); whenT(p, T, 0, 230, 260, { t: tN(Q) });
     }); });
 
-  /* 16 ── BY THE SCHEDULE: a person (front view) stands by the day's schedule board and points at one slot — the event is that slot */
-  variant('schedule', 'คนยืนข้างกำหนดการ', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), px = -340;
-    art(c, p => { floorD(p); p.line(100, 220, 30, 290, W(5)); p.line(330, 220, 400, 290, W(5));
-      R(p, -80, -320, 500, 540, 28, F(4.8)); if (T) txt(p, T, 170, -252, { size: 38, maxW: 420, weight: 800, color: C.ink }); else p.line(30, -262, 310, -262, S(2)); p.line(-40, -216, 380, -216, W(3));
-      [-160, -60, 140].forEach(y => { DOT(p, -30, y, 7); p.line(0, y, y === 140 ? 220 : 300, y, S(2)); });
-      R(p, -60, -4, 460, 92, 18, { fill: 'rgba(255,255,255,.12)', sw: 2.4 }); whatH(p, c, X, 0, 42, 64, 46, { cx: 170, size: 36, maxW: 330, bigSize: 38, bigW: 420, dy: 12 });
-      front(p, px, 290, 1, { 1: { s: [36, -82], e: [100, -96], h: [156, -110] } }); whoB(p, c, Wh, 360, 170, 36, { label: false });
+  /* 16 ── BY THE SCHEDULE: the board drops onto its legs, its slot lines draw; the person rises in and points; the band sweeps across the slot; the
+     event lands in it */
+  variant('schedule', 'คนยืนข้างกำหนดการ', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), px = -340, Q = TL(), tB = f3(Q.T0 + tu(.24));
+    art(c, p => { floorD(p); drawAt(p.line(100, 220, 30, 290, W(5)), p, tu(.04), tu(.2)); drawAt(p.line(330, 220, 400, 290, W(5)), p, tu(.08), tu(.2));
+      R(inG(CL(p), 'drop', 170, -50, tu(.16)), -80, -320, 500, 540, 28, F(4.8)); drawAt(p.line(-40, -216, 380, -216, W(3)), p, tu(.5), tu(.2));
+      if (T) txt(atG(p, tN(Q)), T, 170, -252, { size: 38, maxW: 420, weight: 800, color: C.ink }); else drawAt(p.line(30, -262, 310, -262, S(2)), p, tu(.5), tu(.2));
+      [-160, -60, 140].forEach((y, i) => { DOT(popAt(p, -30, y, tu(.56 + .06 * i)), -30, y, 7); drawAt(p.line(0, y, y === 140 ? 220 : 300, y, S(2)), p, tu(.58 + .06 * i), tu(.2)); });
+      R(mvG(p, { px: -60, py: 42, sx: [[0, 0], [tB, 0], [tB + tu(.3), 1, 'out']], o: fadeIn(tB, .04) }), -60, -4, 460, 92, 18, { fill: 'rgba(255,255,255,.12)', sw: 2.4 }); whatH(p, c, X, 0, 42, 64, 46, { cx: 170, size: 36, maxW: 330, bigSize: 38, bigW: 420, dy: 12 });
+      const hm = front(inG(p, 'rise', px, 140, tu(.24)), px, 290, 1, { 1: { s: [36, -82], e: [100, -96], h: [156, -110] } }); raise(hm, p, 1, [36, -82], [100, -96], 89, 6, Q.T0 - tu(.1), f3(Q.T0 + tu(.2)));
+      whoB(p, c, Wh, 360, 170, 36, { label: false, t: tW(Q) });
     }); });
 
-  /* 17 ── THE VENUE TENT: an event tent — a peaked roof with a scalloped edge on four poles, a flag on top; the event's sign hangs under the edge */
-  variant('tent', 'สถานที่จัดกิจกรรม', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { floorD(p); p.line(0, -300, 0, -346, W(2.6)); shape(p, [[0, -346], [56, -330], [0, -314]], F(2.4));
-      shape(p, [[-440, -130], [0, -300], [440, -130]], F(4.6)); p.line(0, -300, 0, -130, S(1.6)); [-220, 220].forEach(x => p.line(0, -300, x, -130, S(1.6)));
-      p.path('M -440 -130 ' + Array.from({ length: 8 }, (_, i) => `Q ${-385 + 110 * i} -84 ${-330 + 110 * i} -130`).join(' '), F(3.6));
-      [-420, 420, -250, 250].forEach((x, i) => R(p, x - 9, -120, 18, 410, 5, i < 2 ? F(2.8) : S(2)));
-      [-120, 120].forEach(x => p.line(x, -110, x, -70, W(2.2))); R(p, -220, -70, 440, 220, 20, F(4.6)); whatV(p, c, X, 0, 2, 110, 114, { size: 38, maxW: 380, bigW: 400, bigSize: 44, bigDy: 26 });
-      whoB(p, c, Wh, 180, -40, 34, { label: false }); whenT(p, T, 0, 236, 280);
+  /* 17 ── THE VENUE TENT: the poles rise, the roof drops onto them, the scalloped edge draws, the flag goes up and flutters; the sign is let down on
+     its wires; the event lands on it */
+  variant('tent', 'สถานที่จัดกิจกรรม', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL();
+    art(c, p => { floorD(p); [-420, 420, -250, 250].forEach((x, i) => R(inG(p, 'rise', x, 80, tu(.04 + .04 * i)), x - 9, -120, 18, 410, 5, i < 2 ? F(2.8) : S(2)));
+      const rf = inG(CL(p), 'drop', 0, -200, tu(.3)); shape(rf, [[-440, -130], [0, -300], [440, -130]], F(4.6)); rf.line(0, -300, 0, -130, S(1.6)); [-220, 220].forEach(x => rf.line(0, -300, x, -130, S(1.6))); rf.line(0, -300, 0, -346, W(2.6));
+      const fl = mvG(p, { px: 0, py: -338, sx: [[0, 0], [tu(.6), 0], [tu(.8), 1, 'out'], [tu(1), .85, 'io'], [tu(1.2), 1, 'io']], o: fadeIn(tu(.6), .04) }); shape(fl, [[0, -346], [56, -330], [0, -314]], F(2.4));
+      drawAt(p.path('M -440 -130 ' + Array.from({ length: 8 }, (_, i) => `Q ${-385 + 110 * i} -84 ${-330 + 110 * i} -130`).join(' '), F(3.6)), p, tu(.5), tu(.3));
+      const sg = mvG(clipG(p, -500, -110, 1000, 460), { y: [[0, -260], [Q.T0 - tu(.2), -260], [Q.T0 + tu(.1), 8, 'out'], [Q.T0 + tu(.2), 0, 'soft']] }); [-120, 120].forEach(x => sg.line(x, -300, x, -70, W(2.2))); R(sg, -220, -70, 440, 220, 20, F(4.6));
+      whatV(p, c, X, 0, 2, 110, 114, { size: 38, maxW: 380, bigW: 400, bigSize: 44, bigDy: 26 }); whoB(p, c, Wh, 180, -40, 34, { label: false, t: tW(Q) + tu(.1) }); whenT(p, T, 0, 236, 280, { t: tN(Q) });
     }); });
 
-  /* 18 ── THROUGH THE ARCH: people walk under an event arch (a fat tube on two legs) with the event on its top banner */
-  variant('arch', 'ภาพคนร่วมกิจกรรม', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), A = 'M -380 290 L -380 -130 Q -380 -250 -260 -250 L 260 -250 Q 380 -250 380 -130 L 380 290';
-    art(c, p => { floorD(p); p.path(A, { sw: 76 }); p.path(A, { sw: 64, stroke: C.fill });
-      R(p, -300, -310, 600, 130, 22, F(4.6)); whatH(p, c, X, -210, -245, 80, -150, { cx: 0, size: 44, maxW: 420, bigW: 560 });
-      [[-160, .7], [-10, .74], [140, .7]].forEach(([x, k]) => person(p, x, 290, k, { s: [4, -76], e: [24, -36], h: [40, 4] }, { leg: stride, far: { s: [-4, -74], e: [-24, -36], h: [-36, 6] } }));
-      whoB(p, c, Wh, -380, 40, 44, { label: false }); whenT(p, T, 0, -136, 260);
+  /* 18 ── THROUGH THE ARCH: the arch inflates up from the ground, the banner pops on top; the people walk in from the left and under the arch (nose
+     first, left to right); who and when; the event lands on the banner */
+  variant('arch', 'ภาพคนร่วมกิจกรรม', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL(), A = 'M -380 290 L -380 -130 Q -380 -250 -260 -250 L 260 -250 Q 380 -250 380 -130 L 380 290';
+    art(c, p => { floorD(p); const ar = mvG(p, { px: 0, py: 290, sy: [[0, .05], [tu(.04), .05], [tu(.4), 1.04, 'out'], [tu(.52), 1, 'soft']], o: fadeIn(tu(.04), .04) }); ar.path(A, { sw: 76 }); ar.path(A, { sw: 64, stroke: C.fill });
+      R(inG(p, 'pop', 0, -245, tu(.5)), -300, -310, 600, 130, 22, F(4.6)); whatH(p, c, X, -210, -245, 80, -150, { cx: 0, size: 44, maxW: 420, bigW: 560 });
+      [[-160, .7], [-10, .74], [140, .7]].forEach(([x, k], i) => { const g = mvG(CL(p), { x: [[0, -520], [tu(.2 + .1 * i), -520], [Q.H + tu(.1 * i), 0, 'out']] });
+        const b = mvG(g, { px: x, py: 290, y: Array.from({ length: 10 }, (_, j) => [f3(tu(.2 + .1 * i) + (Q.H - tu(.2)) * j / 9), j % 2 ? -8 : 0]) }); person(b, x, 290, k, { s: [4, -76], e: [24, -36], h: [40, 4] }, { leg: stride, far: { s: [-4, -74], e: [-24, -36], h: [-36, 6] } }); });
+      whoB(p, c, Wh, -380, 40, 44, { label: false, t: tW(Q) }); whenT(p, T, 0, -136, 260, { t: tN(Q) });
     }); });
 
-  /* 19 ── THE EVENT BADGE: a badge on a lanyard — the event's name on top, the who in the photo box, the when beside it */
-  variant('lanyard', 'ป้ายชื่องาน', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { [-1, 1].forEach(sd => { p.path(`M ${sd * 200} -350 L ${sd * 14} -176`, { sw: 22 }); p.path(`M ${sd * 200} -350 L ${sd * 14} -176`, { sw: 14, stroke: C.fill }); });
-      R(p, -30, -184, 60, 40, 10, F(3.4)); R(p, -230, -150, 460, 480, 30, F(4.8)); R(p, -50, -130, 100, 18, 9, { fill: C.fill, sw: 2.4 });
-      whatV(p, c, X, 0, -40, 120, 74, { size: 40, maxW: 380, bigW: 400, bigSize: 46 }); p.line(-190, 112, 190, 112, S(2));
-      R(p, -190, 140, 130, 150, 12, F(3.4)); if (Wh && picOf(Wh)) put(p, c, { icon: Wh.icon }, -125, 215, 80, null, {}); else DOT(p, -125, 215, 8);
-      if (T) txt(p, T, -30, 226, { size: 32, maxW: 210, weight: 800, color: C.ink, anchor: 'start' }); else lines(p, -30, 200, 180, 2, 34, S(2), [1]);
+  /* 19 ── THE EVENT BADGE: the lanyard straps draw down; the badge drops on its clip and swings, settling; the who photo and the when; the event's
+     name on the badge */
+  variant('lanyard', 'ป้ายชื่องาน', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL();
+    art(c, p => { [-1, 1].forEach(sd => { drawAt(p.path(`M ${sd * 200} -350 L ${sd * 14} -176`, { sw: 22 }), p, tu(.04), tu(.25)); drawAt(p.path(`M ${sd * 200} -350 L ${sd * 14} -176`, { sw: 14, stroke: C.fill }), p, tu(.04), tu(.25)); });
+      const sw = mvG(CL(p), Object.assign({ px: 0, py: -164 }, swingFit(tu(.4), Q.T0, 5)));
+      R(sw, -30, -184, 60, 40, 10, F(3.4)); R(sw, -230, -150, 460, 480, 30, F(4.8)); R(sw, -50, -130, 100, 18, 9, { fill: C.fill, sw: 2.4 }); sw.line(-190, 112, 190, 112, S(2)); R(sw, -190, 140, 130, 150, 12, F(3.4));
+      if (!T) lines(sw, -30, 200, 180, 2, 34, S(2), [1]); if (!(Wh && picOf(Wh))) DOT(sw, -125, 215, 8);
+      whatV(p, c, X, 0, -40, 120, 74, { size: 40, maxW: 380, bigW: 400, bigSize: 46 });
+      if (Wh && picOf(Wh)) put(p, c, { icon: Wh.icon }, -125, 215, 80, null, { t: tW(Q), punch: tW(Q) + tu(.16) });
+      if (T) txt(atG(p, tN(Q)), T, -30, 226, { size: 32, maxW: 210, weight: 800, color: C.ink, anchor: 'start' });
     }); });
 
-  /* 20 ── THE NEWSPAPER ON ITS HOLDER: a paper hung on a café rod — the masthead, the when as the dateline, the event as the headline with its photo,
-     the who in a small photo in the column */
-  variant('newspaper', 'แผ่นข่าวเหตุการณ์', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d);
-    art(c, p => { R(p, -300, -300, 600, 620, 6, F(4.8)); R(p, -340, -316, 680, 26, 13, F(3.6)); [-340, 340].forEach(x => p.circle(x, -303, 18, F(3)));
-      R(p, -260, -270, 520, 44, 6, F(3)); p.line(-260, -212, 260, -212, W(2.4));
-      if (T) txt(p, T, 260, -184, { size: 24, maxW: 300, weight: 700, color: C.ink, anchor: 'end' }); p.line(-260, -170, 260, -170, S(1.6));
-      R(p, -260, -150, 520, 230, 8, { fill: 'rgba(255,255,255,.07)', sw: 2.4 }); if (X && picOf(X)) put(p, c, { icon: X.icon }, 0, -36, 150, null, {});
-      if (X && X.label) txt(p, X.label, 0, 140, { size: 46, maxW: 500, weight: 800, color: C.ink }); else if (!X) star4(p, 0, -36, 40);
-      [-260, 10].forEach(x => lines(p, x, 190, 250, 3, 34, S(1.6), [2]));
-      if (Wh) { R(p, 150, 172, 110, 110, 8, F(3)); put(p, c, { icon: Wh.icon }, 205, 227, 64, null, {}); }
+  /* 20 ── THE NEWSPAPER ON ITS HOLDER: the rod pops; the paper unrolls down from it; the masthead and the rules draw, the dateline (when) prints;
+     the photo comes up with the event, the headline under it; the who in the small photo */
+  variant('newspaper', 'แผ่นข่าวเหตุการณ์', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL(), uE = Math.max(tu(.6), Q.T0 - tu(.2));
+    art(c, p => { R(mvG(p, { px: 0, py: -300, sy: [[0, .02], [tu(.2), .02], [uE, 1.02, 'out'], [uE + tu(.1), 1, 'soft']], o: fadeIn(tu(.2), .02) }), -300, -300, 600, 620, 6, F(4.8));
+      const rd = inG(p, 'pop', 0, -303, tu(.04)); R(rd, -340, -316, 680, 26, 13, F(3.6)); [-340, 340].forEach(x => rd.circle(x, -303, 18, F(3)));
+      R(popAt(p, 0, -248, uE), -260, -270, 520, 44, 6, F(3)); drawAt(p.line(-260, -212, 260, -212, W(2.4)), p, uE + tu(.06), tu(.2)); drawAt(p.line(-260, -170, 260, -170, S(1.6)), p, uE + tu(.1), tu(.2));
+      if (T) txt(atG(p, tN(Q)), T, 260, -184, { size: 24, maxW: 300, weight: 700, color: C.ink, anchor: 'end' });
+      R(flick(p, Q.T0), -260, -150, 520, 230, 8, { fill: 'rgba(255,255,255,.07)', sw: 2.4 }); if (X && picOf(X)) put(p, c, { icon: X.icon }, 0, -36, 150, null, { t: Q.H - tu(.06), punch: Q.H + tu(.1) });
+      if (X && X.label) txt(atG(p, Q.H + tu(.06)), X.label, 0, 140, { size: 46, maxW: 500, weight: 800, color: C.ink }); else if (!X) star4(popAt(p, 0, -36, Q.H), 0, -36, 40);
+      [-260, 10].forEach((x, i) => lines(atG(p, uE + tu(.2 + .06 * i)), x, 190, 250, 3, 34, S(1.6), [2]));
+      if (Wh) { R(popAt(p, 205, 227, tW(Q)), 150, 172, 110, 110, 8, F(3)); put(p, c, { icon: Wh.icon }, 205, 227, 64, null, { t: tW(Q) + tu(.04) }); }
     }); });
 
   /* ---------- sample data (A: events from unrelated topics · B: stress) ---------- */
