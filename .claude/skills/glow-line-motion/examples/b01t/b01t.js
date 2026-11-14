@@ -883,14 +883,14 @@
       const n = numRow(p, p, v, u, (bx0 + bx1) / 2, cy + 40, { size: 150, maxW: bx1 - bx0 - 90, t0: tu(.36) }); if (n) ripple(p, n.cx, n.cy, 110, H);
     }); });
 
-  /* 37 ── RADIAL BARS (แท่งรอบวง): 24 short bars round a circle grow out in a clockwise wave; the ones up to the amount light; the number counts in the
-     centre, the unit pill under; the icon box drops top-left */
-  variant('radial', 'แท่งรอบวง', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), cx = 30, cy = -30, r0 = 140, N = 24, t0 = tu(.4), t1 = f3(H - tu(.04));
-    art(c, p => { for (let k = 0; k < N; k++) { const a = -90 + k * 360 / N, len = 40 + 40 * (.5 + .5 * Math.sin(k * 1.3)), x = f1(cx + r0 * Math.cos(rad(a))), y = f1(cy + r0 * Math.sin(rad(a))), t = tu(.06 + .012 * k);
-        const g = mvG(p, { px: x, py: y, s: [[0, 0], [t, 0], [f3(t + tu(.2)), 1.1, 'out'], [f3(t + tu(.3)), 1, 'soft']], o: fadeIn(t, .04) }); tick(g, cx, cy, a, r0, r0 + len, { sw: 9, stroke: TL_(.3) });
-        if (k / N < fr - 1e-6) tick(litOn(p, f3(t0 + (t1 - t0) * (k / N) / Math.max(fr, .01))), cx, cy, a, r0, r0 + len, { sw: 9, stroke: ACC1 }); }
-      num(p, p, v, cx, cy + 40, { size: 110, maxW: 200, t0: tu(.3) }); ripple(p, cx, cy, r0 - 20, H); pill(p, u, cx, 280, { t: f3(H + tu(.06)), size: 30, maxW: 420 });
-      dropBox(p, c, ic, -390, -240, 110, tu(.04), tu(.26)); dirB(p, DIRV(d), 420, -240, f3(H + tu(.1)));
+  /* 37 ── RANKED BARS (แถบเรียงแนวนอน) — redesigned (user 2026-11-14 "Redesign 37" → picked A over callout / area peak; the radial bars are gone): three bars grow from the left one after another; the two soft ones stop short, the lit middle one runs on and
+     carries the number at its tip, locking on H; the icon box drops at the lit bar's start */
+  variant('hbars', 'แถบเรียงแนวนอน', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = Math.max(.25, frac(d)), x0 = ic ? -300 : -440, ys = [-150, 0, 150], t0 = tu(.34), t1 = f3(H - tu(.04));
+    art(c, p => { const rw = rowOf(p, v, u, 130, 420), room = 440 - rw - 30 - x0, L = Math.max(60, room * fr);
+      [[ys[0], .55], [ys[2], .32]].forEach(([y, k], i) => { const t = tu(.1 + .08 * i); R(mvG(p, { px: x0, py: y, sx: [[0, 0], [t, 0], [f3(t + tu(.4)), 1, 'out']], o: fadeIn(t, .04) }), x0, y - 26, Math.max(40, room * k), 52, 26, { fill: TL_(.18), sw: 0, stroke: 'none' }); });
+      R(mvG(p, { px: x0, py: ys[1], sx: fillK(t0, t1), o: fadeIn(t0, .04) }), x0, ys[1] - 34, L, 68, 34, { fill: TA(.85), sw: 0, stroke: 'none' });
+      const g = mvG(p, { x: [[0, f1(-L)], [t0, f1(-L)], [t1, 0, 'io']], o: fadeIn(t0, .04) }); numRow(p, g, v, u, x0 + L + 30, ys[1] + 46, { size: 130, maxW: 420, anchor: 'start', t0, g });
+      ripple(p, x0 + L, ys[1], 60, H); dropBox(p, c, ic, -390, ys[1], 110, tu(.04), tu(.26)); dirB(p, DIRV(d), 420, -260, f3(H + tu(.1)));
     }); });
 
   /* 38 ── EQUALIZER (อีควอไลเซอร์): nine bars bounce like a level meter while the number counts, then settle into a rising (or falling) line on H, the
@@ -1025,41 +1025,6 @@
       [[-90, -110, 1.3, .32], [-60, -72, 1.2, .24], [-30, -36, 1.1, .16]].forEach(([dx, dy, s, a], k) => { const t0 = tu(.12 + .06 * k), eg = mvG(p, { px: n.x0 + n.nw / 2, py: n.cy, x: [[0, dx], [t0, dx], [f3(H - tu(.04)), 0, 'io']], y: [[0, dy], [t0, dy], [f3(H - tu(.04)), 0, 'io']], s: [[0, s], [t0, s], [f3(H - tu(.04)), 1, 'io']], o: [[0, 0], [t0, 0], [f3(t0 + tu(.06)), 1], [f3(H - tu(.1)), 1], [H, 0]] });
         num(p, eg, v, n.x0, 110, { size: n.size, anchor: 'start', t0, still: true, g: eg, color: TL_(a) }); });
       ripple(p, n.cx, n.cy, 150, H); dropBox(p, c, ic, -400, -250, 110, tu(.04), tu(.26)); dirB(p, DIRV(d), 400, -250, f3(H + tu(.1)));
-    }); });
-
-  /* ---------- redesign 37 (user 2026-11-14 "Redesign 37" — the radial bars): three options, shown on sheet-37.html; the one picked replaces 37 ---------- */
-  /* 37A ── RANKED BARS (แถบเรียงแนวนอน): three bars grow from the left one after another; the two soft ones stop short, the lit middle one runs on and
-     carries the number at its tip, locking on H; the icon box drops at the lit bar's start */
-  variant('hbars', 'แถบเรียงแนวนอน', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = Math.max(.25, frac(d)), x0 = ic ? -300 : -440, ys = [-150, 0, 150], t0 = tu(.34), t1 = f3(H - tu(.04));
-    art(c, p => { const rw = rowOf(p, v, u, 130, 420), room = 440 - rw - 30 - x0, L = Math.max(60, room * fr);
-      [[ys[0], .55], [ys[2], .32]].forEach(([y, k], i) => { const t = tu(.1 + .08 * i); R(mvG(p, { px: x0, py: y, sx: [[0, 0], [t, 0], [f3(t + tu(.4)), 1, 'out']], o: fadeIn(t, .04) }), x0, y - 26, Math.max(40, room * k), 52, 26, { fill: TL_(.18), sw: 0, stroke: 'none' }); });
-      R(mvG(p, { px: x0, py: ys[1], sx: fillK(t0, t1), o: fadeIn(t0, .04) }), x0, ys[1] - 34, L, 68, 34, { fill: TA(.85), sw: 0, stroke: 'none' });
-      const g = mvG(p, { x: [[0, f1(-L)], [t0, f1(-L)], [t1, 0, 'io']], o: fadeIn(t0, .04) }); numRow(p, g, v, u, x0 + L + 30, ys[1] + 46, { size: 130, maxW: 420, anchor: 'start', t0, g });
-      ripple(p, x0 + L, ys[1], 60, H); dropBox(p, c, ic, -390, ys[1], 110, tu(.04), tu(.26)); dirB(p, DIRV(d), 420, -260, f3(H + tu(.1)));
-    }); });
-
-  /* 37B ── CALLOUT (เส้นชี้): a point (the icon plate) pulses twice; a leader line draws from it up and across; the number counts sitting on the line's
-     long arm and locks on H, the elbow flashing */
-  variant('callout', 'เส้นชี้', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, px = -270, py = 140, ex = -60, ey = -60;
-    art(c, p => { if (ic) icirc(p, c, ic, px, py, 92, tu(.06), { punch: H }); else { popAt(p, px, py, tu(.06)).circle(px, py, 26, { fill: ACC1, sw: 2, stroke: ACC1 }); p.circle(px, py, 46, S(2)); }
-      [tu(.2), tu(.5)].forEach(t => ripple(p, px, py, ic ? 100 : 50, t)); const sx = f1(px + (ic ? 70 : 36)), sy = f1(py - (ic ? 70 : 36));
-      on(p.path(`M ${sx} ${sy} L ${ex} ${ey} L 450 ${ey}`, { sw: 4, stroke: ACC1 }), p, 0, { draw: [[0, 0], [tu(.3), 0], [tu(.62), 1, 'io']] });
-      const fl = popAt(p, ex, ey, tu(.46)); fl.circle(ex, ey, 12, { fill: ACC1, sw: 2, stroke: ACC1 }); ripple(p, ex, ey, 30, H);
-      const n = numRow(p, p, v, u, ex + 10, ey - 30, { size: 170, maxW: 500, anchor: 'start', t0: tu(.5) }); dirB(p, DIRV(d), 420, 150, f3(H + tu(.1)));
-    }); });
-
-  /* 37C ── AREA PEAK (กราฟพื้นที่): a soft area rises from the baseline while its top edge draws (climbing when up, falling when down, a hill otherwise);
-     a dot runs up to the peak and a pill with the number pops above it, locking on H; the icon box drops top-left */
-  variant('peak', 'กราฟพื้นที่', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, dr = DIRV(d), by = 280, t0 = tu(.2), t1 = f3(H - tu(.2));
-    const fy = x => { const q = (x + 440) / 880; return dr === 'up' ? by - 40 - 300 * Math.pow(q, 1.6) + 18 * Math.sin(q * 9) : dr === 'down' ? by - 340 + 300 * Math.pow(q, .8) + 18 * Math.sin(q * 9) : by - 40 - 300 * Math.exp(-Math.pow((q - .62) / .22, 2)) + 14 * Math.sin(q * 11); };
-    const pts = Array.from({ length: 45 }, (_, k) => { const x = -440 + 20 * k; return [x, f1(fy(x))]; }); let pk = pts[0]; pts.forEach(q => { if (q[1] < pk[1]) pk = q; });
-    art(c, p => { drawAt(p.line(-450, by, 450, by, S(2)), p, tu(.04), tu(.3));
-      p.path(pathOf(pts.concat([[440, by], [-440, by]])), { fill: TA(.09), sw: 0, stroke: 'none' }); on(p.g.lastChild, p, 0, { ox: 0, oy: by, sy: [[0, 0], [t0, 0], [t1, 1, 'out']], o: fadeIn(t0, .04) });
-      on(p.path(pathOf(pts, false), { sw: 4.4, stroke: ACC1 }), p, 0, { draw: [[0, 0], [t0, 0], [t1, 1, 'lin']] });
-      const upTo = pts.slice(0, pts.indexOf(pk) + 1), K = pathK(upTo.length > 1 ? upTo : [pk, pk], t0, f3(H - tu(.06)), pk, 30, x => x); mvG(p, { x: K.x, y: K.y, o: fadeIn(t0, .04) }).circle(pk[0], pk[1], 14, { fill: ACC1, sw: 2, stroke: ACC1 }); ripple(p, pk[0], pk[1], 40, H);
-      const pw = Math.min(560, (v ? tw(p, v, 100) : 100) + (u ? tw(p, u, 34, 600) + 18 : 0) + 70), bx = Math.max(-480 + pw / 2, Math.min(480 - pw / 2, pk[0])), byy = pk[1] - 110, pg = popAt(p, bx, byy, tu(.4));
-      R(pg, bx - pw / 2, byy - 66, pw, 132, 66, F(3.6)); numRow(p, pg, v, u, bx, byy + 34, { size: 100, maxW: pw - 50, t0: tu(.42), g: pg });
-      dropBox(p, c, ic, -400, -250, 110, tu(.04), tu(.26));
     }); });
 
   /* ---------- sample data: the same as B01 (A: sentences from unrelated topics · B: stress) ---------- */
