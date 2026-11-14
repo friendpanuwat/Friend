@@ -968,6 +968,343 @@
       const top = Pt(270), bot = Pt(90); verdict(p, d, { [first]: [top[0] + 70, top[1] - 70], [OTH(first)]: [bot[0] + 70, bot[1] - 70] });
     }); });
 
+  /* ================= round 2 (user: "ทำรอบ 2 ต่อได้") — designs 26–50, each again its own layout ================= */
+  /* phase keys: ph = [[t, side]…] (who is shown / open from t) → keys that are `on` while s is current, `off` otherwise (switching over d) */
+  const phaseK = (ph, s, on1 = 1, off = 0, d = .1) => { const K = [[0, off]]; let cur = null; ph.forEach(([t, w]) => { const was = cur === s, now = w === s; if (was !== now) K.push([f3(t), was ? on1 : off], [f3(t + tu(d)), now ? on1 : off, 'io']); cur = w; }); return K; };
+  const posK = (ph, val, d = .22) => { const K = [[0, val(ph[0][1])]]; ph.forEach(([t, w], i) => { if (!i) return; K.push([f3(t - tu(d)), K[K.length - 1][1]], [f3(t), val(w), 'io']); }); return K; };
+  const starD = (x, y, r) => pathOf(Array.from({ length: 10 }, (_, k) => { const a = rad(-90 + 36 * k), rr = k % 2 ? r * .45 : r; return [f1(x + rr * Math.cos(a)), f1(y + rr * Math.sin(a))]; }));
+  const DOTF = () => ({ fill: ACC1, sw: 0, stroke: 'none' });
+  /* lights n of the slots, the first ne before H (both sides together), the rest on H; change: a when it comes, b landing on H */
+  const litTimes = (T, s, n, ne, t1) => k => T.change ? (s === 'a' ? f3(lerp(t1 + tu(.3), t1 + tu(.7), k / Math.max(1, n - 1))) : f3(lerp(t1 + tu(.06), Z.H, k / Math.max(1, n - 1))))
+    : k < ne ? f3(lerp(Math.max(t1 + tu(.3), tu(.95)), Z.H - tu(.12), ne > 1 ? k / (ne - 1) : 1)) : f3(lerp(Z.H, Z.H + tu(.3), (k - ne + 1) / Math.max(1, n - ne)));
+
+  /* 26 ── DECK (การ์ดซ้อนเหลื่อม): the back card drops in (dust); the front card — the winner (change: the after) — slides in over its corner, the
+     back card jolts. Words: the back one's above it, the front one's beside its foot */
+  variant('deck', 'การ์ดซ้อนเหลื่อม', (d, c) => { const T = ST(d), fr = T.win || 'b', bk = OTH(fr), bs = 300, P = { [bk]: [-140, -55], [fr]: [140, 75] };
+    art(c, p => { const tb = tu(.1), tf = T.change ? tIn(d, 'b') : tu(.48), t1 = f3(tf + tu(.3));
+      { const [x, y] = P[bk], tl = f3(tb + tu(.26)), K = fallK(x, y + bs / 2, tb, tl, y + bs / 2 + 380); sbox(p, c, d, bk, x, y, bs, { g: mvG(mvG(CL(p), K), { px: x, py: y, x: buzzK(t1, 8) }), mv: K, t: tb }); dust(p, x, y + bs / 2, tl, 1.2); }
+      { const [x, y] = P[fr], K = { px: x, py: y, x: [[0, 640], [tf, 640], [t1, -16, 'out'], [f3(t1 + tu(.12)), 0, 'soft']], r: [[0, 9], [tf, 9], [t1, 0, 'out']], o: fadeIn(tf, .04) };
+        sbox(p, c, d, fr, x, y, bs, { g: mvG(CL(p), K), mv: K, t: tf }); ripple(p, x - bs / 2, y - 60, 60, t1); }
+      tag(p, d, bk, P[bk][0], P[bk][1] - bs / 2 - 72, { maxW: 380, t: f3(tb + tu(.3)) }); tag(p, d, fr, -30, 262, { anchor: 'end', maxW: 380, t: f3(t1 + tu(.04)) });
+      verdict(p, d, { [bk]: corner(...P[bk], bs, -1), [fr]: corner(...P[fr], bs) });
+    }); });
+
+  /* 27 ── RADIO (ตัวเลือกวงกลม): two option rows (radio · icon box · word); a lit selection band with the radio dot moves to a, then b, and on
+     H settles on the winner (change: on the after); no winner → the band fades */
+  variant('radio', 'ตัวเลือกวงกลม', (d, c) => { const T = ST(d), Y = { a: -120, b: 140 }, bs = 200, RX = -385, BX = -215;
+    art(c, p => { const H = Z.H, tA = tu(.5), tB = f3(Math.max(tu(.9), H - tu(.6))), fin = T.win;
+      const ph = T.change ? [[tA, 'a'], [H, 'b']] : fin ? [[tA, 'a'], [tB, 'b'], [H, fin]] : [[tA, 'a'], [tB, 'b']], last = Y[ph[ph.length - 1][1]];
+      const hk = { px: 0, py: last, y: offK(posK(ph, w => Y[w]), last), o: fin ? fadeIn(tA, .06) : fadeIn(tA, .06).concat([[H, 1], [f3(H + tu(.2)), 0]]) };
+      const hg = mvG(p, hk); R(hg, -455, last - 118, 910, 236, 50, { fill: TA(.1), sw: 3, stroke: TL_(.5) }); if (fin && !T.off) R(litOn(hg, H), -455, last - 118, 910, 236, 50, { sw: 5, stroke: ACC1 });
+      SIDES.forEach(s => { const y = Y[s], t = tIn(d, s), g0 = popAt(p, RX, y, t), lose = s === T.lose; if (lose) g0.circle(RX, y, 48, BK); (lose ? dimG(g0, H) : g0).circle(RX, y, 48, F(3.6));
+        sbox(p, c, d, s, BX, y, bs, { t: f3(t + tu(.06)) }); word(p, d, s, -90, y + 20, { anchor: 'start', size: 56, maxW: 500, wrap: null, t: f3(t + tu(.14)) }); });
+      mvG(p, Object.assign({}, hk, { px: RX })).circle(RX, last, 24, DOTF());
+      verdict(p, d, { a: [400, Y.a], b: [400, Y.b] });
+    }); });
+
+  /* 28 ── TIMELINE (เส้นเวลา): a vertical line draws down; node a above, node b below, each box slides in from its own side with its word and its
+     line of words (texts) on the other side of the line. The line lights from a to b (change) or toward the winner, landing on H */
+  variant('timeline', 'เส้นเวลา', (d, c) => { const T = ST(d), bs = 210, N = { a: [0, -150], b: [0, 158] }, Bx = { a: [-205, -150], b: [205, 158] };
+    art(c, p => { const H = Z.H; drawAt(p.line(0, -310, 0, 310, { sw: 6, stroke: TL_(.35) }), p, tu(.02), tu(.4));
+      if (T.change || T.win) { const [y0, y1] = T.change ? [N.a[1], N.b[1]] : [4, N[T.win][1]], t0 = T.change ? f3(tIn(d, 'b') - tu(.1)) : f3(H - tu(.3)), ln = p.line(0, y0, 0, y1, { sw: 8, stroke: ACC1 }); on(ln, p, 0, { draw: [[0, 0], [t0, 0], [H, 1, 'io']] }); }
+      SIDES.forEach(s => { const [nx, ny] = N[s], [x, y] = Bx[s], t = tIn(d, s), sd = s === 'a' ? -1 : 1, lit = s === T.win && !T.off;
+        const g = popAt(p, nx, ny, f3(t - tu(.04))); g.circle(nx, ny, 28, F(3.6)); if (lit) litOn(g, H).circle(nx, ny, 14, DOTF());
+        drawAt(p.line(sd * 30, y, sd * 98, y, { sw: 3, stroke: TL_(.5) }), p, f3(t + tu(.16)), tu(.12));
+        const K = { px: x, py: y, x: glide(sd * 320, t, f3(t + tu(.3)), -sd * 10), o: fadeIn(t, .04) }; sbox(p, c, d, s, x, y, bs, { g: mvG(CL(p), K), mv: K, t });
+        const hasW = !!LBL(XS(d, s)), wx = -sd * 50, an = s === 'a' ? 'start' : 'end';
+        if (hasW) word(p, d, s, wx, y - 14, { anchor: an, size: 54, maxW: 400, wrap: null, t: f3(t + tu(.2)) });
+        note(p, d, s, s === 'a' ? 50 : -430, hasW ? y + 40 : y - 10, 380, { t: f3(t + tu(.26)) }); });
+      verdict(p, d, { a: corner(...Bx.a, bs, -1), b: corner(...Bx.b, bs) });
+    }); });
+
+  /* 29 ── ARROW (ลูกศรใหญ่): a fat arrow outline draws between the two boxes, pointing to the winner (change: to b; no winner: both ways); its
+     body fills with light from the tail and is full on H. Words above the boxes */
+  const arrowD = (x0, x1, y, sh, hh, hl, l, r) => { const a = l ? x0 + hl : x0, b = r ? x1 - hl : x1, P = [[a, y - sh / 2], [b, y - sh / 2]];
+    if (r) P.push([b, y - hh / 2], [x1, y], [b, y + hh / 2]); P.push([b, y + sh / 2], [a, y + sh / 2]); if (l) P.push([a, y + hh / 2], [x0, y], [a, y - hh / 2]); return pathOf(P); };
+  variant('arrow', 'ลูกศรใหญ่', (d, c) => { const T = ST(d), bs = 230, Y = 40, X = { a: -312, b: 312 }, L = T.win === 'a', Rr = T.change || T.win === 'b' || !T.win, Lh = L || (!T.win && !T.change);
+    art(c, p => { const H = Z.H, D = arrowD(-180, 180, Y, 104, 214, 104, Lh, Rr), t0 = f3(tIn(d, 'b') + tu(.1)), px = Lh && Rr ? 0 : L ? 180 : -180;
+      SIDES.forEach(s => { sbox(p, c, d, s, X[s], Y, bs); tag(p, d, s, X[s], Y - bs / 2 - 72, { maxW: 340 }); });
+      drawAt(p.path(D, F(4.4)), p, tu(.3), tu(.4));
+      const fg = mvG(p, { px, py: Y, sx: [[0, 0], [t0, 0], [H, 1, 'io']] }); fg.path(D, { fill: TA(.5), sw: 0, stroke: 'none' });
+      if (!T.off) { litOn(p, H).path(D, { sw: 5, stroke: ACC1 }); ripple(p, Lh && Rr ? 0 : L ? -180 : 180, Y, 70, H); }
+      verdict(p, d, { a: corner(X.a, Y, bs, -1), b: corner(X.b, Y, bs) });
+    }); });
+
+  /* 30 ── MATRIX (ตาราง 2×2): four tiles flip in; each box drops into its bottom tile; on H the winner (or the side with more v) hops up into the top
+     tile, which lights. Words under the columns */
+  variant('matrix', 'ตาราง 2×2', (d, c) => { const T = ST(d), ts = 212, CXs = { a: -113, b: 113 }, YT = -92, YB = 134, bs = 178, up = s => s === T.win || (!T.win && T.hasV && T.amt(s) > .5 && T.amt(OTH(s)) <= .5);
+    art(c, p => { const H = Z.H;
+      [[-113, YT], [113, YT], [-113, YB], [113, YB]].forEach(([x, y], k) => { const g = mvG(p, spinK(x, y, f3(tu(.04 + .05 * k)))); R(g, x - ts / 2, y - ts / 2, ts, ts, 34, { fill: TL_(.04), sw: 2.6, stroke: TL_(.4) }); });
+      SIDES.forEach(s => { const x = CXs[s], u = up(s), yF = u ? YT : YB, off = f1(YB - yF), t = tIn(d, s), t1 = f3(t + tu(.26)), K = rideY(fallK(x, yF + bs / 2, t, t1, 360), off, H);
+        if (u && !T.off) { const L = litOn(p, f3(H + tu(.2))); R(L, x - ts / 2, yF - ts / 2, ts, ts, 34, { fill: TA(.12), sw: 4, stroke: ACC1 }); }
+        sbox(p, c, d, s, x, yF, bs, { g: mvG(CL(p), K), mv: K, t }); dust(p, x, YB + bs / 2, t1, .9);
+        tag(p, d, s, s === 'a' ? -12 : 12, 302, { anchor: s === 'a' ? 'end' : 'start', maxW: 380 }); });
+      verdict(p, d, { a: corner(CXs.a, up('a') ? YT : YB, bs, -1), b: corner(CXs.b, up('b') ? YT : YB, bs) });
+    }); });
+
+  /* 31 ── BRACKET (สายแข่ง): a and b on the left, bracket lines run from each and join; on H the winner's copy rides its line into the final slot
+     on the right and lights (its line turns to the accent), the loser fades. No winner → the lines meet in a lit node */
+  variant('bracket', 'สายแข่ง', (d, c) => { const T = ST(d), bs = 190, A = [-300, -140], B = [-300, 160], JX = -60, JY = 10, SX = 252, s2 = 232;
+    art(c, p => { const H = Z.H, lineP = y => `M ${A[0] + bs / 2} ${y} L ${JX} ${y} L ${JX} ${JY}`;
+      SIDES.forEach(s => { const [x, y] = s === 'a' ? A : B; drawAt(p.path(lineP(y), { sw: 4, stroke: TL_(.5) }), p, f3(tIn(d, s) + tu(.2)), tu(.3));
+        sbox(p, c, d, s, x, y, bs); word(p, d, s, -180, s === 'a' ? y - 30 : y + 62, { anchor: 'start', size: 48, maxW: 320, wrap: null }); });
+      if (T.win) { const w = T.win, [x, y] = w === 'a' ? A : B, t0 = f3(H - tu(.5));
+        drawAt(p.path(`M ${JX} ${JY} L ${SX - s2 / 2 - 14} ${JY}`, { sw: 4, stroke: TL_(.5) }), p, tu(.5), tu(.2));
+        drawAt(R(p, SX - s2 / 2 - 12, JY - s2 / 2 - 12, s2 + 24, s2 + 24, s2 * .3, DASH(.45)), p, tu(.55), tu(.3));
+        if (!T.off) { const ln = p.path(lineP(y) + ` L ${SX - s2 / 2 - 14} ${JY}`, { sw: 6, stroke: ACC1 }); on(ln, p, 0, { draw: [[0, 0], [t0, 0], [H, 1, 'io']] }); }
+        const P = pathK([[x, y], [JX, y], [JX, JY], [SX, JY]], t0, H, [SX, JY]), K = { px: SX, py: JY, x: P.x, y: P.y, s: [[0, f3(bs / s2)], [t0, f3(bs / s2)], [H, 1, 'out']], o: [[0, 0], [t0, 0], [f3(t0 + tu(.04)), 1]] };
+        sbox(p, c, d, w, SX, JY, s2, { g: mvG(p, K), mv: K, t: t0 }); }
+      else { const g = popAt(p, JX, JY, f3(H - tu(.04))); g.circle(JX, JY, 30, F(3.6)); g.circle(JX, JY, 14, DOTF()); ripple(p, JX, JY, 60, H); }
+      verdict(p, d, { a: corner(...A, bs, -1), b: corner(...B, bs, -1), ...(T.win && d.how === 'check' ? { [T.win]: corner(SX, JY, s2) } : {}) });
+    }); });
+
+  /* 32 ── LIFT (รางขึ้นลง): two tall dashed rails; each box drops into the middle of its rail; on H the winner rides up to the top and the loser
+     sinks to the bottom (no winner: they stay level). Words ride beside the boxes */
+  variant('lift', 'รางขึ้นลง', (d, c) => { const T = ST(d), bs = 200, X = { a: -292, b: 292 }, yF = s => s === T.win ? -190 : s === T.lose ? 190 : T.hasV ? f1(Math.max(-190, Math.min(190, (.55 - T.amt(s)) * 400))) : 0;
+    art(c, p => { const H = Z.H; SIDES.forEach((s, i) => { const x = X[s], y = yF(s), off = f1(-y), t = tIn(d, s), t1 = f3(t + tu(.26));
+        drawAt(R(p, x - 124, -312, 248, 624, 70, DASH(.45)), p, f3(tu(.02 + .06 * i)), tu(.4));
+        if (s === T.win && !T.off) R(litOn(p, H), x - 124, -312, 248, 624, 70, { sw: 4, stroke: ACC1 });
+        const K = rideY(fallK(x, y + bs / 2, t, t1, 360), off, H); sbox(p, c, d, s, x, y, bs, { g: mvG(CL(p), K), mv: K, t }); dust(p, x, bs / 2, t1, .9);
+        word(p, d, s, s === 'a' ? -160 : 160, s === 'a' ? y - 22 : y + 62, { g: mvG(p, { y: [[0, off], [H, off], [f3(H + tu(.3)), 0, 'out']] }), anchor: s === 'a' ? 'start' : 'end', size: 50, maxW: 300, wrap: null, t: f3(t1 + tu(.04)) }); });
+      verdict(p, d, { a: corner(X.a, yF('a'), bs, -1), b: corner(X.b, yF('b'), bs) });
+    }); });
+
+  /* 33 ── METERS (แถบขั้นตั้ง): two segmented capsules stand in the middle, the boxes outside them; the segments light from the bottom — both to the
+     same level — and on H the winner's run on. Words above the boxes */
+  variant('meters', 'แถบขั้นตั้ง', (d, c) => { const T = ST(d), bs = 210, MX = { a: -82, b: 82 }, BXs = { a: -300, b: 300 }, nOf = s => Math.max(1, Math.min(8, Math.round(T.amt(s) * 8))), ne = Math.min(nOf('a'), nOf('b'));
+    art(c, p => { const H = Z.H; SIDES.forEach((s, i) => { const mx = MX[s], t = tIn(d, s), t1 = f3(t + tu(.2)), n = nOf(s), lose = s === T.lose, lt = litTimes(T, s, n, ne, t1);
+        const g0 = mvG(p, upK(mx, 285, f3(tu(.04 + .08 * i)), .34)); if (lose) R(g0, mx - 62, -285, 124, 570, 50, BK); const g = lose ? dimG(g0, H) : g0; R(g, mx - 62, -285, 124, 570, 50, F(3.6));
+        for (let k = 0; k < 8; k++) { const y = f1(285 - 46 - k * 66); R(g, mx - 44, y - 26, 88, 52, 16, { sw: 2, stroke: TL_(.35) }); if (k < n) R(popAt(lose ? dimG(p, H) : p, mx, y, lt(k)), mx - 44, y - 26, 88, 52, 16, DOTF()); }
+        sbox(p, c, d, s, BXs[s], 30, bs, { t }); tag(p, d, s, BXs[s], 30 - bs / 2 - 72, { maxW: 280 }); });
+      verdict(p, d, { a: corner(BXs.a, 30, bs, -1), b: corner(BXs.b, 30, bs) });
+    }); });
+
+  /* 34 ── TARGET (เป้าวงซ้อน): target rings draw round; the two plates fly in and land on the outer ring; on H the winner hops into the bullseye
+     (big ripple), the loser stays out on the ring and fades. Words along the bottom */
+  variant('target', 'เป้าวงซ้อน', (d, c) => { const T = ST(d), CX = 60, CY = 0, R1 = 112, R2 = 236, s0 = 180, s1 = 220, ST0 = { a: [CX - R2, CY], b: [CX + R2, CY] };
+    art(c, p => { const H = Z.H; [R2, R1].forEach((r, k) => drawAt(p.circle(CX, CY, r, { sw: k ? 4 : 3, stroke: TL_(k ? .6 : .45) }), p, f3(tu(.02 + .08 * k)), tu(.4)));
+      popAt(p, CX, CY, tu(.3)).circle(CX, CY, 16, { fill: TL_(.6), sw: 0, stroke: 'none' });
+      SIDES.forEach(s => { const w = s === T.win, [x0, y0] = ST0[s], [x, y] = w ? [CX, CY] : [x0, y0], sz = w ? s1 : s0, t = tIn(d, s), t1 = f3(t + tu(.32)), sd = s === 'a' ? -1 : 1;
+        const P = pathK([[x0 + sd * 300, y0 - 300], [x0 + sd * 120, y0 - 200], [x0, y0]], t, t1, [x0, y0]), dx = f1(x0 - x), dy = f1(y0 - y);
+        const K = { px: x, py: y, x: P.x.map(([u, v, e]) => e ? [u, f1(v + dx), e] : [u, f1(v + dx)]), y: P.y.map(([u, v, e]) => e ? [u, f1(v + dy), e] : [u, f1(v + dy)]), o: fadeIn(t, .04) };
+        if (w) { K.x.push([H, dx], [f3(H + tu(.32)), 0, 'io']); K.y.push([H, dy], [f3(H + tu(.16)), f1(dy - 90), 'out'], [f3(H + tu(.32)), 0, 'in']); K.s = [[0, f3(s0 / s1)], [H, f3(s0 / s1)], [f3(H + tu(.32)), 1, 'out']]; }
+        sbox(p, c, d, s, x, y, sz, { shape: 'circ', g: mvG(CL(p), K), mv: K, t, rip: false }); ripple(p, x0, y0, 100, t1);
+        tag(p, d, s, s === 'a' ? 30 : 90, 295, { anchor: s === 'a' ? 'end' : 'start', maxW: 380 }); });
+      if (T.win && !T.off) { ripple(p, CX, CY, 150, f3(H + tu(.32))); ripple(p, CX, CY, 220, f3(H + tu(.42))); }
+      const at = s => s === T.win ? [CX + 80, CY - 80] : [ST0[s][0] + 64, ST0[s][1] - 64]; verdict(p, d, { a: at('a'), b: at('b') });
+    }); });
+
+  /* 35 ── PIP (ภาพซ้อนมุม): two equal frames side by side; on H the winner's frame opens up to fill the view and the loser's shrinks into a small inset
+     in its corner, fading (no winner: they stay side by side). Words land where the frames settle */
+  variant('pip', 'ภาพซ้อนมุม', (d, c) => { const T = ST(d), w0 = 390, h0 = 300, I0 = { a: [-210, 20], b: [210, 20] };
+    art(c, p => { const H = Z.H, ta = f3(H + tu(.36)), FIN = T.win ? { [T.win]: [-55, 0, 760, 460, 300], [T.lose]: [332, 205, 270, 210, 170] } : { a: [-210, 20, w0, h0, 210], b: [210, 20, w0, h0, 210] };
+      const order = T.win ? [T.win, T.lose] : SIDES;
+      order.forEach(s => { const [x, y, w, h, bs] = FIN[s], [x0, y0] = I0[s], t = tIn(d, s), lose = s === T.lose, mv = (a, b) => [[0, a], [H, a], [ta, b, 'io']];
+        const FK = { px: x, py: y, x: mv(f1(x0 - x), 0), y: mv(f1(y0 - y), 0), sx: mv(f3(w0 / w), 1), sy: mv(f3(h0 / h), 1), o: fadeIn(t, .05) };
+        const g0 = mvG(popAt(p, x0, y0, t), FK); R(g0, x - w / 2, y - h / 2, w, h, 34, BK); const g = lose ? dimG(g0, ta) : g0; R(g, x - w / 2, y - h / 2, w, h, 34, F(3.8));
+        if (s === T.win && !T.off) R(litOn(g, ta), x - w / 2, y - h / 2, w, h, 34, { sw: 5, stroke: ACC1 });
+        const BK2 = { px: x, py: y, x: FK.x, y: FK.y, s: mv(f3(210 / bs), 1) }; sbox(p, c, d, s, x, y, bs, { g: mvG(p, BK2), mv: BK2, t: f3(t + tu(.08)), dimAt: ta });
+        const wt = T.win ? f3(ta + tu(.04)) : undefined;
+        if (!T.win) tag(p, d, s, x, y - h / 2 - 66, { maxW: 340 }); else if (s === T.win) tag(p, d, s, -435, -290, { anchor: 'start', t: wt, maxW: 380 }); else tag(p, d, s, 186, 288, { anchor: 'end', t: wt, maxW: 340, dimAt: ta }); });
+      verdict(p, d, T.win ? { [T.win]: [-55 + 330, -180], [T.lose]: [332 + 110, 205 - 80] } : { a: corner(-210, 20, 210, -1), b: corner(210, 20, 210) });
+    }); });
+
+  /* 36 ── BUTTERFLY (แถบกางปีก): the two boxes up top, two bars spread out from the middle below them — a's to the left, b's to the right — to the
+     same length, then on H each to its own amount (the winner's end ripples). Words above the boxes */
+  variant('butterfly', 'แถบกางปีก', (d, c) => { const T = ST(d), bs = 210, BY = -112, X = { a: -215, b: 215 }, YB = 168, LW = 430, e = eqOf(T);
+    art(c, p => { const H = Z.H; drawAt(p.line(0, 80, 0, 256, DASH(.5)), p, tu(.2), tu(.2));
+      SIDES.forEach(s => { const sd = s === 'a' ? -1 : 1, t = tIn(d, s), a = T.amt(s), x0 = sd * 16, len = f1(LW * a), lose = s === T.lose;
+        sbox(p, c, d, s, X[s], BY, bs, { t }); tag(p, d, s, X[s], BY - bs / 2 - 70, { maxW: 360 });
+        const TK = { px: x0, py: YB, sx: [[0, 0], [t, 0], [f3(t + tu(.3)), 1, 'out']], o: fadeIn(t, .04) }; if (lose) R(mvG(p, TK), sd < 0 ? x0 - LW : x0, YB - 62, LW, 124, 40, BK);
+        const rg = lose ? dimG(p, H) : p; R(mvG(rg, TK), sd < 0 ? x0 - LW : x0, YB - 62, LW, 124, 40, F(3.2));
+        const tf = f3(t + tu(.3)); R(mvG(rg, { px: x0 + sd * 10, py: YB, sx: fillTo(T, s, tf, a, e) }), sd < 0 ? x0 - 10 - len + 20 : x0 + 10, YB - 46, f1(len - 20), 92, 32, { fill: TA(.6), sw: 0, stroke: 'none' });
+        if (!T.win || s === T.win) ripple(p, x0 + sd * (len - 10), YB, 46, doneAt(T, s, tf)); });
+      verdict(p, d, { a: corner(X.a, BY, bs, -1), b: corner(X.b, BY, bs) });
+    }); });
+
+  /* 37 ── BLOCKS (ก้อนซ้อน): under each box a stack builds block by block — each drops in with a puff — both to the same height, then on H the
+     winner's last blocks thump down. The word sits on the bottom block */
+  variant('blocks', 'ก้อนซ้อน', (d, c) => { const T = ST(d), bs = 200, X = { a: -210, b: 210 }, BW = 236, BH = 58, nOf = s => Math.max(1, Math.min(5, Math.round(T.amt(s) * 5))), ne = Math.min(nOf('a'), nOf('b'));
+    art(c, p => { const H = Z.H; SIDES.forEach(s => { const x = X[s], t = tIn(d, s), n = nOf(s), lose = s === T.lose, lt = litTimes(T, s, n, ne, f3(t + tu(.1)));
+        for (let k = 0; k < n; k++) { const y = f1(300 - BH / 2 - k * (BH + 8)), tl = lt(k), K = fallK(x, y + BH / 2, f3(tl - tu(.2)), tl, 400), g0 = mvG(CL(p), K);
+          if (lose) R(g0, x - BW / 2, y - BH / 2, BW, BH, 18, BK); const g = lose ? dimG(g0, H) : g0; R(g, x - BW / 2, y - BH / 2, BW, BH, 18, k === n - 1 && s === T.win && !T.off ? { fill: TA(.3), sw: 3.6, stroke: ACC1 } : F(3.4));
+          dust(p, x, y + BH / 2, tl, .6); if (!k) word(p, d, s, x, y + 15, { g, size: 40, maxW: BW - 30, wrap: null, noDim: true, t: f3(tl + tu(.04)) }); }
+        sbox(p, c, d, s, x, -172, bs, { t }); });
+      verdict(p, d, { a: corner(X.a, -172, bs, -1), b: corner(X.b, -172, bs) });
+    }); });
+
+  /* 38 ── WIPE (กรอบเลื่อนเทียบ): one frame holds both; a wipe handle sweeps across it while they are weighed, and on H slides onto the loser's half —
+     the shade it drags covers the loser (no winner: it stops in the middle). Words above the frame */
+  variant('wipe', 'กรอบเลื่อนเทียบ', (d, c) => { const T = ST(d), FW = 860, FH = 430, Y = 36, X = { a: -212, b: 212 }, bs = 220;
+    art(c, p => { const H = Z.H, xh = T.lose === 'b' ? 88 : T.lose === 'a' ? -88 : 0, t0 = f3(Math.max(tu(.7), H - tu(.85))), q = k => f3(lerp(t0, H - tu(.1), k));
+      R(mvG(p, { px: 0, py: Y, sy: [[0, 0], [tu(.04), 0], [tu(.32), 1.03, 'out'], [tu(.42), 1, 'soft']], o: fadeIn(tu(.04), .05) }), -FW / 2, Y - FH / 2, FW, FH, 40, F(3.8));
+      SIDES.forEach(s => { sbox(p, c, d, s, X[s], Y, bs); tag(p, d, s, X[s], Y - FH / 2 - 70, { maxW: 360 }); });
+      if (T.lose) { const sh = sub(CL(p)); on(sh, p, 0, { o: [[0, 0], [f3(H + tu(.06)), 0], [f3(H + tu(.3)), .7]] }); const xa = T.lose === 'b' ? xh : -FW / 2 + 6, xb = T.lose === 'b' ? FW / 2 - 6 : xh;
+        R(sh, xa, Y - FH / 2 + 6, xb - xa, FH - 12, 34, { fill: C.fill, sw: 0, stroke: 'none' }); }
+      const hk = { x: [[0, 0], [t0, 0], [q(.3), -170, 'io'], [q(.7), 170, 'io'], [q(1), 0, 'io']].concat(xh ? [[f3(H + tu(.3)), xh, 'out']] : []), o: fadeIn(t0, .06) }, hg = mvG(p, hk);
+      hg.line(0, Y - FH / 2 + 10, 0, Y + FH / 2 - 10, { sw: 6, stroke: ACC1 }); hg.circle(0, Y, 40, F(3.6)); chev(hg, -14, Y, .5, { sw: 5, stroke: ACC1 }); hg.path(`M 7 ${Y - 14} L -7 ${Y} L 7 ${Y + 14}`, { sw: 0, stroke: 'none' });
+      chev(hg, 12, Y, .5, { sw: 5, stroke: ACC1 });
+      verdict(p, d, { a: corner(X.a, Y, bs, -1), b: corner(X.b, Y, bs) });
+    }); });
+
+  /* 39 ── PULSE (คลื่นสัญญาณ): two plates send out rings in step while weighed; on H the winner sends a big burst and lights, the loser goes quiet
+     and fades. Words above the plates */
+  variant('pulse', 'คลื่นสัญญาณ', (d, c) => { const T = ST(d), bs = 214, Y = 50, X = { a: -238, b: 238 };
+    art(c, p => { const H = Z.H; SIDES.forEach(s => { const x = X[s], t = tIn(d, s); sbox(p, c, d, s, x, Y, bs, { shape: 'circ', t, rip: false });
+        word(p, d, s, x, Y - bs / 2 - 46, { size: 52, maxW: 380, wrap: null });
+        for (let u = f3(t + tu(.4)); u < H - tu(.05); u = f3(u + tu(.34))) ripple(p, x, Y, 118, u);
+        if (s === T.win && !T.off) [0, .12, .24].forEach((k, i) => ripple(p, x, Y, 130 + 30 * i, f3(H + tu(k)))); });
+      verdict(p, d, { a: [X.a + 76, Y - 76], b: [X.b + 76, Y - 76] });
+    }); });
+
+  /* 40 ── STARS (ดาวคะแนน): two rows — the word, a row of five stars, the icon box on the right; the stars light one by one, both rows to the same
+     count, then on H the winner's run on */
+  variant('stars', 'ดาวคะแนน', (d, c) => { const T = ST(d), bs = 196, Y = { a: -116, b: 150 }, nOf = s => Math.max(1, Math.min(5, Math.round(T.amt(s) * 5))), ne = Math.min(nOf('a'), nOf('b'));
+    art(c, p => { const H = Z.H; SIDES.forEach(s => { const y = Y[s], t = tIn(d, s), n = nOf(s), lose = s === T.lose, rg = lose ? dimG(p, H) : p, lt = litTimes(T, s, n, ne, f3(t + tu(.2)));
+        const K = { px: 350, py: y, x: glide(260, t, f3(t + tu(.3)), -10), o: fadeIn(t, .04) }; sbox(p, c, d, s, 350, y, bs, { g: mvG(CL(p), K), mv: K, t });
+        word(p, d, s, -450, y - 44, { anchor: 'start', size: 52, maxW: 640, wrap: null, t: f3(t + tu(.1)) });
+        for (let k = 0; k < 5; k++) { const x = -405 + k * 122, sy = y + 46; popAt(rg, x, sy, f3(t + tu(.12 + .04 * k))).path(starD(x, sy, 46), { fill: C.fill, sw: 3, stroke: TL_(.55) }); if (k < n) popAt(rg, x, sy, lt(k)).path(starD(x, sy, 46), { fill: ACC1, sw: 3, stroke: ACC1 }); } });
+      verdict(p, d, { a: corner(350, Y.a, bs), b: corner(350, Y.b, bs) });
+    }); });
+
+  /* 41 ── SEGMENTED (แถบเลือกสองช่อง): one long two-part control; a lit block slides under a, then b, and on H settles under the winner (change: the
+     after); no winner → it fades. Words above the parts */
+  variant('segmented', 'แถบเลือกสองช่อง', (d, c) => { const T = ST(d), Y = 52, X = { a: -225, b: 225 }, bs = 196;
+    art(c, p => { const H = Z.H, tA = tu(.5), tB = f3(Math.max(tu(.9), H - tu(.6))), fin = T.win;
+      const ph = T.change ? [[tA, 'a'], [H, 'b']] : fin ? [[tA, 'a'], [tB, 'b'], [H, fin]] : [[tA, 'a'], [tB, 'b']], last = X[ph[ph.length - 1][1]];
+      R(mvG(p, { px: 0, py: Y, sx: [[0, .2], [tu(.04), .2], [tu(.34), 1.03, 'out'], [tu(.44), 1, 'soft']], o: fadeIn(tu(.04), .06) }), -455, Y - 128, 910, 256, 128, F(3.6));
+      drawAt(p.line(0, Y - 90, 0, Y + 90, { sw: 2.4, stroke: TL_(.35) }), p, tu(.3), tu(.2));
+      const hk = { px: last, py: Y, x: offK(posK(ph, w => X[w]), last), o: fin ? fadeIn(tA, .06) : fadeIn(tA, .06).concat([[H, 1], [f3(H + tu(.2)), 0]]) }, hg = mvG(p, hk);
+      R(hg, last - 214, Y - 112, 428, 224, 112, { fill: TA(.16), sw: 3, stroke: TL_(.5) }); if (fin && !T.off) R(litOn(hg, H), last - 214, Y - 112, 428, 224, 112, { sw: 5, stroke: ACC1 });
+      SIDES.forEach(s => { sbox(p, c, d, s, X[s], Y, bs); tag(p, d, s, X[s], Y - 128 - 72, { maxW: 360 }); });
+      verdict(p, d, { a: [X.a - 150, Y + 96], b: [X.b + 150, Y + 96] });
+    }); });
+
+  /* 42 ── HALVES (ครึ่งวงประกบ): two half-discs slide in from the sides, wait apart, then clack together into one circle (a spark); on H the loser's
+     half drops away and fades, the winner's lights. Words above, each over its half */
+  variant('halves', 'ครึ่งวงประกบ', (d, c) => { const T = ST(d), CY = 30, RD = 214;
+    art(c, p => { const H = Z.H, tC = f3(Math.max(tIn(d, 'b') + tu(.42), H - tu(.55)));
+      SIDES.forEach(s => { const sd = s === 'a' ? -1 : 1, t = tIn(d, s), lose = s === T.lose, win = s === T.win && !T.off, X_ = XS(d, s), hx = sd * 4;
+        const D = `M ${hx} ${CY - RD} A ${RD} ${RD} 0 0 ${sd < 0 ? 0 : 1} ${hx} ${CY + RD} Z`;
+        const K = { px: hx, py: CY + RD, x: [[0, sd * 640], [t, sd * 640], [f3(t + tu(.3)), sd * 110, 'out'], [f3(tC - tu(.14)), sd * 110], [tC, 0, 'in']].concat(lose ? [[H, 0], [f3(H + tu(.3)), sd * 70, 'out']] : []),
+          r: lose ? [[0, 0], [H, 0], [f3(H + tu(.3)), sd * 8, 'out']] : [[0, 0]], o: fadeIn(t, .04) };
+        const g0 = mvG(CL(p), K); if (lose) g0.path(D, BK); const g = lose ? dimG(g0, H) : g0; g.path(D, F(4.4)); if (win) litOn(g, H).path(D, LIT2());
+        const ix = sd * 108; if (X_ && picOf(X_)) put(p, c, { icon: X_.icon }, ix, CY, 168, null, { t: f3(t + tu(.1)), mv: K, o: lose ? dimK(H) : undefined, punch: win ? H : undefined });
+        else if (X_) txt(g, X_.label, ix, CY + 16, { size: 46, maxW: 170, weight: 800, color: C.ink, wrap: 'mid' }); else g.circle(ix, CY, 16, DOTF());
+        tag(p, d, s, sd * 20, CY - RD - 74, { anchor: s === 'a' ? 'end' : 'start', maxW: 380 }); });
+      sparkAt(p, 0, CY - RD + 20, 20, 50, tC, 6, 0); sparkAt(p, 0, CY + RD - 20, 20, 50, tC, 6, 0); ripple(p, 0, CY, 100, tC);
+      verdict(p, d, { a: [-170, CY - 150], b: [170, CY - 150] });
+    }); });
+
+  /* 43 ── PODIUM (แท่นสามขั้น): three steps rise; the boxes drop onto the two low side steps (dust), words on the step fronts; on H the winner hops up
+     onto the high middle step and lights, the loser fades where it stands */
+  variant('podium', 'แท่นสามขั้น', (d, c) => { const T = ST(d), bs = 190, X = { a: -302, b: 302 }, ySide = 120 - 12 - bs / 2, yTop = -40 - 12 - bs / 2;
+    art(c, p => { const H = Z.H; [[-450, 120, 296], [-148, -40, 296], [152, 120, 296]].forEach(([x0, y0, w], k) => { const g = mvG(p, upK(x0 + w / 2, 300, f3(tu(.04 + .06 * k)), .32)); R(g, x0, y0, w, 300 - y0, 26, F(3.4)); });
+      if (T.win && !T.off) R(litOn(p, f3(H + tu(.3))), -148, -40, 296, 340, 26, { fill: TA(.1), sw: 4, stroke: ACC1 });
+      SIDES.forEach(s => { const x = X[s], t = tIn(d, s), t1 = f3(t + tu(.26)), w = s === T.win, fx = w ? 0 : x, fy = w ? yTop : ySide;
+        const K = fallK(fx, fy + bs / 2, t, t1, 400); if (w) { const P = pathK([[x, ySide], [x * .5, yTop - 170], [0, yTop]], H, f3(H + tu(.34)), [0, yTop]);
+          K.x = [[0, f1(x)], [H, f1(x)]].concat(P.x.slice(2)); K.y = K.y.map(([u, v, e]) => e ? [u, f1(v + ySide - yTop), e] : [u, f1(v + ySide - yTop)]).concat(P.y.slice(2)); }
+        sbox(p, c, d, s, fx, fy, bs, { g: mvG(CL(p), K), mv: K, t }); dust(p, x, 120 - 12, t1, .9); if (w) dust(p, 0, -52, f3(H + tu(.34)), 1);
+        word(p, d, s, x, 226, { size: 46, maxW: 260, t: f3(t1 + tu(.04)) }); });
+      verdict(p, d, { a: T.win === 'a' ? corner(0, yTop, bs) : corner(X.a, ySide, bs, -1), b: T.win === 'b' ? corner(0, yTop, bs) : corner(X.b, ySide, bs) });
+    }); });
+
+  /* 44 ── FILTER (กรวยคัด): a funnel draws in the middle, the boxes drop in at the top corners (their words under them); on H the winner (change: a,
+     turning into b) slides down into the funnel and comes out of the spout below, lit — the loser jolts and fades. No winner → nothing passes */
+  variant('filter', 'กรวยคัด', (d, c) => { const T = ST(d), bs = 176, X = { a: -320, b: 320 }, TY = -205, OY = 208, s2 = 178;
+    art(c, p => { const H = Z.H, FD = 'M -196 -96 L 196 -96 L 74 62 L 74 112 L -74 112 L -74 62 Z', go = T.change ? 'a' : T.win, out = T.change ? 'b' : T.win, t0 = f3(H - tu(.5));
+      drawAt(p.path(FD, F(4.4)), p, tu(.04), tu(.4)); drawAt(p.line(-150, -70, 150, -70, { sw: 2, stroke: TL_(.35) }), p, tu(.2), tu(.2));
+      SIDES.forEach(s => { if (T.change && s === 'b') return; const x = X[s], t = tIn(d, s), t1 = f3(t + tu(.26)), K = fallK(x, TY + bs / 2, t, t1, 300);
+        if (s === go) { const P = pathK([[x, TY], [x * .4, TY - 40], [0, -40]], t0, f3(H - tu(.1)), [0, -40]); K.x = [[0, f1(x)], [t0, f1(x)]].concat(P.x.slice(2)); K.y = K.y.map(([u, v, e]) => e ? [u, f1(v + TY + 40), e] : [u, f1(v + TY + 40)]).concat(P.y.slice(2));
+          K.o = fadeIn(t, .04).concat([[f3(H - tu(.16)), 1], [f3(H - tu(.08)), 0]]); sbox(p, c, d, s, 0, -40, bs, { g: mvG(CL(p), K), mv: K, t, noLit: true, io: K.o });
+          drawAt(R(p, x - bs / 2 - 8, TY - bs / 2 - 8, bs + 16, bs + 16, bs * .3, DASH(.4)), p, H, tu(.2)); }
+        else { const g = mvG(mvG(CL(p), K), { px: x, py: TY, x: T.win ? buzzK(H, 10) : [[0, 0]] }); sbox(p, c, d, s, x, TY, bs, { g, mv: K, t }); }
+        dust(p, x, TY + bs / 2, t1, .8); word(p, d, s, s === 'a' ? -470 : 470, TY + bs / 2 + 62, { anchor: s === 'a' ? 'start' : 'end', size: 46, maxW: 260, wrap: null, t: f3(t1 + tu(.04)), noDim: s === go }); });
+      if (out) { const K = { px: 0, py: OY, y: [[0, -110], [f3(H - tu(.06)), -110], [f3(H + tu(.2)), 10, 'out'], [f3(H + tu(.3)), 0, 'soft']], o: [[0, 0], [f3(H - tu(.06)), 0], [f3(H + tu(.02)), 1]] };
+        sbox(p, c, d, out, 0, OY, s2, { g: mvG(CL(p), K), mv: K, t: f3(H - tu(.06)) }); if (T.change) word(p, d, 'b', 130, OY + 18, { anchor: 'start', size: 50, maxW: 330, wrap: null, t: f3(H + tu(.2)) }); }
+      verdict(p, d, out ? { [out]: corner(0, OY, s2), [OTH(out)]: corner(X[OTH(out)], TY, bs, OTH(out) === 'a' ? -1 : 1) } : { a: corner(X.a, TY, bs, -1), b: corner(X.b, TY, bs) });
+    }); });
+
+  /* 45 ── TUG (ชักเย่อ): a line runs between the two boxes with a lit marker in the middle that jerks back and forth; on H it is hauled to the winner's
+     side — the winner leans back, the loser is dragged in, tilts and fades. Words above the boxes */
+  variant('tug', 'ชักเย่อ', (d, c) => { const T = ST(d), bs = 220, Y = 44, X = { a: -312, b: 312 };
+    art(c, p => { const H = Z.H, t0 = f3(Math.max(tu(.7), H - tu(.8))), mk = T.win === 'a' ? -140 : T.win === 'b' ? 140 : 0;
+      drawAt(p.line(-230, Y, 230, Y, { sw: 8, stroke: TL_(.6) }), p, tu(.3), tu(.3));
+      SIDES.forEach(s => { const sd = s === 'a' ? -1 : 1, t = tIn(d, s), lose = s === T.lose, win = s === T.win, dx = lose ? -sd * 70 : win ? sd * 30 : 0;
+        const K = { px: X[s], py: Y + bs / 2, x: [[0, 0], [H, 0], [f3(H + tu(.3)), dx, 'out']].concat(win ? [[f3(H + tu(.5)), sd * 18, 'soft']] : []), r: lose ? [[0, 0], [H, 0], [f3(H + tu(.3)), -sd * 9, 'out']] : [[0, 0]] };
+        sbox(p, c, d, s, X[s], Y, bs, { g: mvG(popAt(p, X[s], Y, t), K), mv: K, t }); tag(p, d, s, X[s], Y - bs / 2 - 100, { maxW: 260 }); });
+      const mg = mvG(p, { x: shakeX(t0, f3(H - tu(.02)), 22, .09).concat([[f3(H + tu(.3)), mk, 'out']]), o: fadeIn(f3(tu(.5)), .05) });
+      mg.path(`M 0 ${Y - 40} L 32 ${Y} L 0 ${Y + 40} L -32 ${Y} Z`, { fill: ACC1, sw: 3, stroke: ACC1 });
+      const ww = T.win ? (T.win === 'a' ? -1 : 1) : 0; verdict(p, d, { a: corner(X.a + (T.lose === 'a' ? 70 : ww < 0 ? -18 : 0), Y, bs, -1), b: corner(X.b + (T.lose === 'b' ? -70 : ww > 0 ? 18 : 0), Y, bs) });
+    }); });
+
+  /* 46 ── PENDULUM (ลูกตุ้ม): a pendulum drops in from the top and swings between the two boxes, slowing; on H it comes to rest leaning toward the winner
+     (no winner: straight down) and the winner lights. Words in the top corners */
+  variant('pendulum', 'ลูกตุ้ม', (d, c) => { const T = ST(d), bs = 200, Y = 168, X = { a: -305, b: 305 }, PV = [0, -300], LN = 400;
+    art(c, p => { const H = Z.H, aF = T.win === 'a' ? 32 : T.win === 'b' ? -32 : 0, t0 = f3(tu(.45)), q = k => f3(lerp(t0, H - tu(.06), k));
+      SIDES.forEach(s => { sbox(p, c, d, s, X[s], Y, bs); tag(p, d, s, s === 'a' ? -470 : 470, -262, { anchor: s === 'a' ? 'start' : 'end', maxW: 320 }); });
+      const pg = mvG(p, { px: PV[0], py: PV[1], r: [[0, 0], [t0, 0], [q(.2), 34, 'io'], [q(.45), -30, 'io'], [q(.68), 24, 'io'], [q(.86), -16, 'io'], [q(1), 0, 'io'], [f3(H + tu(.3)), f1(aF * 1.08), 'out'], [f3(H + tu(.45)), aF, 'soft']], o: fadeIn(f3(t0 - tu(.1)), .06) });
+      pg.line(PV[0], PV[1], PV[0], PV[1] + LN, { sw: 5, stroke: TL_(.7) }); pg.circle(PV[0], PV[1] + LN, 44, DOTF()); p.circle(PV[0], PV[1], 12, F(3));
+      if (T.win && !T.off) { const bx = f1(PV[0] - LN * Math.sin(rad(aF))), by = f1(PV[1] + LN * Math.cos(rad(aF))); ripple(p, bx, by, 60, f3(H + tu(.32))); }
+      verdict(p, d, { a: corner(X.a, Y, bs, -1), b: corner(X.b, Y, bs) });
+    }); });
+
+  /* 47 ── STACK VS (บน-ล่าง VS): a drops in on top, b rises in below, a VS disc spins in between (change: a chevron down); each side's word and line of
+     words (texts) sit to the right. On H the disc leans toward the winner */
+  variant('stackvs', 'บน-ล่าง VS', (d, c) => { const T = ST(d), bs = 200, BX = -300, Y = { a: -160, b: 172 }, DY = 6;
+    art(c, p => { const H = Z.H; SIDES.forEach(s => { const y = Y[s], t = tIn(d, s), t1 = f3(t + tu(.28)), K = s === 'a' ? fallK(BX, y + bs / 2, t, t1, 320) : { px: BX, py: y, y: [[0, 300], [t, 300], [t1, -12, 'out'], [f3(t1 + tu(.1)), 0, 'soft']], o: fadeIn(t, .04) };
+        sbox(p, c, d, s, BX, y, bs, { g: mvG(CL(p), K), mv: K, t }); const hasW = !!LBL(XS(d, s));
+        if (hasW) word(p, d, s, -160, y - 12, { anchor: 'start', size: 56, maxW: 600, wrap: null, t: f3(t1 + tu(.04)) }); note(p, d, s, -160, hasW ? y + 46 : y - 10, 560, { t: f3(t1 + tu(.1)) }); });
+      const K = Object.assign(spinK(BX, DY, tu(.32)), T.win && !T.change ? { y: [[0, 0], [H, 0], [f3(H + tu(.1)), T.win === 'a' ? -20 : 20, 'out'], [f3(H + tu(.32)), 0, 'soft']] } : {}), g = mvG(p, K);
+      g.circle(BX, DY, 54, F(3.6)); if (T.change) { const k = 1.05; g.path(`M ${f1(BX - 26 * k)} ${f1(DY - 12 * k)} L ${BX} ${f1(DY + 14 * k)} L ${f1(BX + 26 * k)} ${f1(DY - 12 * k)}`, { sw: 7, stroke: ACC1 }); } else txt(g, 'VS', BX, DY + 15, { size: 42, weight: 800, color: C.ink });
+      verdict(p, d, { a: corner(BX, Y.a, bs, -1), b: corner(BX, Y.b, bs, -1) });
+    }); });
+
+  /* 48 ── TOPPLE (แผ่นล้ม): two tall tiles drop in and stand (each: its icon box, its word below in the tile); they rock while weighed, and on H the
+     loser topples over outward and fades, the winner stands and lights. No winner → both stand */
+  variant('topple', 'แผ่นล้ม', (d, c) => { const T = ST(d), TW = 236, TH = 450, Y0 = -186, Y1 = 264, X = { a: -205, b: 205 }, bs = 196;
+    art(c, p => { const H = Z.H; SIDES.forEach(s => { const x = X[s], sd = s === 'a' ? -1 : 1, t = tIn(d, s), t1 = f3(t + tu(.28)), lose = s === T.lose, win = s === T.win && !T.off, pv = [x + sd * TW / 2, Y1];
+        const K = fallK(pv[0], pv[1], t, t1, 560); K.r = wob(f3(Math.max(t1 + tu(.3), H - tu(.6))), f3(H - tu(.02)), 2.5, 4).concat(lose ? [[f3(H + tu(.36)), sd * 72, 'in'], [f3(H + tu(.44)), sd * 66, 'out'], [f3(H + tu(.52)), sd * 70, 'soft']] : []);
+        const g0 = mvG(CL(p), K); if (lose) R(g0, x - TW / 2, Y0, TW, TH, 40, BK); const g = lose ? dimG(g0, H) : g0; R(g, x - TW / 2, Y0, TW, TH, 40, F(4)); if (win) R(litOn(g, H), x - TW / 2, Y0, TW, TH, 40, LIT2());
+        dust(p, x, Y1, t1, 1.1); if (lose) dust(p, pv[0] + sd * TH * .9, Y1, f3(H + tu(.36)), 1);
+        sbox(p, c, d, s, x, -64, bs, { g, mv: K, t, noDim: true, noLit: true, io: lose ? dimK(H) : undefined }); if (win) ripple(p, x, -64, 120, f3(H + tu(.06)));
+        word(p, d, s, x, 150, { g, size: 46, maxW: TW - 40, noDim: true, t: f3(t1 + tu(.06)) }); });
+      const at = s => { const x = X[s], sd = s === 'a' ? -1 : 1; if (s !== T.lose) return corner(x, Y0 + 100, 200, sd); const q = rotP(x - sd * (TW / 2 - 30), Y0 + 30, x + sd * TW / 2, Y1, sd * 70); return [Math.max(-440, Math.min(440, q[0])), q[1]]; };
+      verdict(p, d, { a: at('a'), b: at('b') });
+    }); });
+
+  /* 49 ── LINES (เส้นกราฟคู่): two trend lines draw left to right with their round plates riding the tips; they track each other, then near H each
+     breaks to its own height — the winner's line lights. Words at the starts of the lines */
+  variant('lines', 'เส้นกราฟคู่', (d, c) => { const T = ST(d), bs = 172, XS0 = [-430, -310, -190, -70, 50], YS = { a: [60, 30, 70, 20, 50], b: [175, 150, 190, 130, 170] }, XE = { a: 150, b: 350 }, yE = s => f1(236 - 440 * T.amt(s));
+    art(c, p => { const H = Z.H; SIDES.forEach(s => { const pts = XS0.map((x, i) => [x, YS[s][i]]).concat([[XE[s], yE(s)]]), t = tIn(d, s), t0 = f3(t + tu(.08)), lose = s === T.lose, win = s === T.win && !T.off, rg = lose ? dimG(p, H) : p;
+        const ln = rg.path(pathOf(pts, false), { sw: 7, stroke: TL_(.7) }), t1 = T.change && s === 'a' ? f3(t0 + tu(.7)) : H; on(ln, rg, 0, { draw: [[0, 0], [t0, 0], [t1, 1, 'lin']] });
+        if (win) { const l2 = p.path(pathOf(pts, false), { sw: 7, stroke: ACC1 }); on(l2, p, 0, { draw: [[0, 0], [H, 0], [f3(H + tu(.3)), 1, 'out']] }); }
+        pts.slice(0, -1).forEach(([x, y], i) => popAt(rg, x, y, f3(lerp(t0, t1, i / (pts.length - 1)))).circle(x, y, 10, DOTF()));
+        const [fx, fy] = pts[pts.length - 1], P = pathK(pts, t0, t1, [fx, fy], 40, u => u), K = { px: fx, py: fy, x: P.x, y: P.y, o: fadeIn(t0, .04) };
+        sbox(p, c, d, s, fx, fy, bs, { shape: 'circ', g: mvG(p, K), mv: K, t: t0 });
+        word(p, d, s, -440, s === 'a' ? -20 : 256, { anchor: 'start', size: 50, maxW: 420, wrap: null, t: f3(t0 + tu(.1)) }); });
+      verdict(p, d, { a: [XE.a + 64, yE('a') - 64], b: [XE.b + 64, yE('b') - 64] });
+    }); });
+
+  /* 50 ── ACCORDION (แผงพับ): two folding panels (word headers); a opens to show its icon box and its line of words (texts), folds, b opens, and on
+     H the winner's panel opens and stays (change: the after) while the other stays folded and fades */
+  variant('accordion', 'แผงพับ', (d, c) => { const T = ST(d), PW = 880, HH = 100, BH = 250, AY = -233, bs = 196, fin = T.win || 'b';
+    art(c, p => { const H = Z.H, tA = tu(.45), tB = f3(Math.max(tu(.9), H - tu(.6))), ph = T.change ? [[tA, 'a'], [H, 'b']] : fin === 'a' ? [[tA, 'a'], [tB, 'b'], [H, 'a']] : [[tA, 'a'], [tB, 'b'], [H, 'b']];
+      const bHy = AY + HH + 16, bOff = posK(ph, w => w === 'a' ? BH : 0, .24);
+      SIDES.forEach((s, i) => { const hy = s === 'a' ? AY : bHy, lose = s === T.lose, mvY = s === 'b' ? { y: bOff } : {}, t = f3(tu(.04 + .1 * i)), sk = phaseK(ph, s, 1, 0, .24);
+        const body = mvG(p, Object.assign({ px: 0, py: hy + HH, sy: sk }, mvY)), by0 = hy + HH, bc = by0 + BH / 2 - 6;
+        R(body, -PW / 2 + 16, by0 - 6, PW - 32, BH, 30, F(3)); const io = phaseK(ph, s, 1, 0, .16);
+        const pg = mvG(p, Object.assign({ o: io }, mvY)); const X_ = XS(d, s), hasW = !!LBL(X_);
+        if (X_ && picOf(X_)) put(p, c, { icon: X_.icon }, -300, bc, bs * .72, null, { t: tA, mv: Object.assign({ px: -300, py: bc }, s === 'b' ? { y: bOff } : {}), o: lose ? io.concat([[f3(H + tu(.3)), 0]]) : io });
+        R(pg, -300 - bs / 2, bc - bs / 2, bs, bs, bs * .24, F(4)); if (!(X_ && picOf(X_)) && X_) txt(pg, X_.label, -300, bc + 16, { size: 44, maxW: bs * .86, weight: 800, color: C.ink, wrap: 'mid' });
+        note(p, d, s, -150, bc - 20, 540, { g: pg, t: 0, noDim: true, size: 44 });
+        const g0 = mvG(p, Object.assign({ x: glide(-120, t, f3(t + tu(.26))), o: fadeIn(t, .05) }, mvY)); if (lose) R(g0, -PW / 2, hy, PW, HH, 30, BK); const g = lose ? dimG(g0, H) : g0;
+        R(g, -PW / 2, hy, PW, HH, 30, F(3.8)); if (s === fin && !T.off) R(litOn(g, H), -PW / 2, hy, PW, HH, 30, { sw: 5, stroke: ACC1 });
+        if (hasW) txt(g, X_.label, -PW / 2 + 40, hy + HH / 2 + 17, { size: 50, maxW: 640, weight: 800, color: C.ink, anchor: 'start' }); else R(g, -PW / 2 + 40, hy + HH / 2 - 11, 300, 22, 11, GREY());
+        const cg = mvG(g, { px: PW / 2 - 60, py: hy + HH / 2, r: phaseK(ph, s, 90, 0, .24) }); chev(cg, PW / 2 - 64, hy + HH / 2, .7, { sw: 5, stroke: C.ink }); });
+      verdict(p, d, { [fin]: [PW / 2 - 140, (fin === 'a' ? AY : bHy) + HH / 2], [OTH(fin)]: [PW / 2 - 140, (OTH(fin) === 'a' ? AY : bHy + BH) + HH / 2] });
+    }); });
+
   /* ---------- sample data: the same sentences as B03 (A: sentences from unrelated topics · B: stress) + texts on a few ---------- */
   const SAMPLES = [
     { say: 'กาแฟร้อนกับกาแฟเย็น', mode: 'versus', a: { icon: 'coffee', label: 'ร้อน' }, b: { icon: 'glass-water', label: 'เย็น' } },
