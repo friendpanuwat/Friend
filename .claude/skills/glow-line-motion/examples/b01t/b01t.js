@@ -490,19 +490,15 @@
 
   /* ---------- colour theme (user 2026-11-14: "ทำให้มันเปลี่ยนสีได้"): every colour comes from GL.C (line = ink, card fill, soft lines) plus one
      accent for what lights up (the number, filled amounts, lit dots / segments / ticks, the underline). Tints are made from those, never a fixed
-     white. GL.cats.B01T.theme({ bg, line, fill, soft, accent }) once after GL.stage() (bg = one colour or [centre, edge]); theme() = back to the
+     white. GL.theme({ bg, line, fill, soft, accent }) (engine, all categories) or GL.cats.B01T.theme(...) — the same; theme() = back to the
      default white look. Missing keys keep the default. Lines glow, so a dark background reads best. ---------- */
-  const DEF = Object.assign({}, C), BG0 = ['#121212', '#020202'];
   const hexRgb = h => { h = String(h).trim().replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); const n = parseInt(h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
   const rgba = (h, a) => /^#[0-9a-f]{3,6}$/i.test(String(h).trim()) ? `rgba(${hexRgb(h).join(',')},${a})` : h;
   let ACC1 = C.ink, THEME = null;
   const TL_ = a => rgba(C.ink, a), TA = a => rgba(ACC1, a);
-  function tokens() { ACC1 = THEME && THEME.accent || C.ink; LIT = TA(.22); GLASS = TL_(.07); PH = { fill: TL_(.05), sw: 2, stroke: C.soft };
+  function tokens() { THEME = G.themeNow; ACC1 = THEME && THEME.accent || C.ink; LIT = TA(.22); GLASS = TL_(.07); PH = { fill: TL_(.05), sw: 2, stroke: C.soft };
     FILL = { fill: TA(.24), sw: 0, stroke: 'none' }; SOFTT = { sw: 14, stroke: TL_(.16) }; }
-  function theme(t) { THEME = t && Object.keys(t).length ? Object.assign({}, t) : null; const T = THEME || {};
-    Object.assign(C, DEF, T.line ? { ink: T.line, kicker: T.line } : {}, T.fill ? { fill: T.fill } : {}, T.soft ? { soft: T.soft, sub: T.soft, mute: rgba(T.soft, .72) } : {});
-    const bg = T.bg ? [].concat(T.bg) : BG0, st = document.querySelectorAll('#glbg stop'); if (st.length >= 2) { st[0].setAttribute('stop-color', bg[0]); st[1].setAttribute('stop-color', bg[1] || bg[0]); }
-    tokens(); return THEME; }
+  function theme(t) { const r = G.theme(t); tokens(); return r; }
 
   /* 01 ── ICON + NUMBER (ไอคอนข้างตัวเลข): the icon box drops in and kicks dust; the number pops beside it and counts, locks on H; the unit
      slides in after it, a dir badge on its shoulder. No icon → the number in the middle. */
