@@ -1,6 +1,6 @@
 /* b02t.js — TEST (user 2026-11-14: "เริ่มทำหมวด B02 ได้ ทำ 50 อันแบ่งเป็นรอบละ 25 อัน … อยากให้ช่องใส่ไอคอนมันมีขนาดใหญ่ขึ้นกว่านี้หน่อย"):
    category B02 "เพิ่ม / ลด" in the template ชุดฐาน way — graphic elements only (icon boxes, slots, rows, rings, bars, dots, lines, zones), no
-   real-world objects, our white-glow line style, colours from GL.theme. Icons apart from words; icon slots big. Round 1 = designs 1–25.
+   real-world objects, our white-glow line style, colours from GL.theme. Icons apart from words; icon slots big. Round 1 = designs 1–25 · round 2 = 26–50.
    Not a replacement for the approved B02 (references/approved/b02/). Header + helpers copied from b01t.js (b05t → cards.js → b21).
    GL.cats.B02T.draw(i, data, { x, y, s, at, hit }) — canvas 1000 × 700 centred at (0,0). Data = CutPack B02: dir · item · n · center · keep · end. */
 (function () {
@@ -539,7 +539,7 @@
     const t = E.at(k), t0 = o.t0 ?? f3(tu(.08 + .06 * k)), up = E.up, K = { px: x, py: y }, dur = o.dur || .3;
     if (up) { const kind = o.in || 'drop', ts = f3(Math.max(tu(.05), t - tu(dur)));
       if (kind === 'drop') Object.assign(K, fallK(x, y + s / 2, ts, t, o.h ?? Math.max(160, y + s / 2 + 350)));
-      else if (kind === 'fly') { const fr = o.from || [x, -460], mid = o.mid || [(fr[0] + x) / 2, Math.min(fr[1], y) - 120], P = pathK([fr, mid, [x, y]], ts, t, [x, y]);
+      else if (kind === 'fly') { const fr = o.from || [x, -460], mid = o.mid || [(fr[0] + x) / 2, Math.min(fr[1], y) - 120], P = pathK(o.path ? o.path.concat([[x, y]]) : [fr, mid, [x, y]], ts, t, [x, y]);
         Object.assign(K, { x: P.x, y: P.y, s: [[0, .7], [ts, .7], [t, 1, 'out'], [f3(t + tu(.06)), 1.12, 'out'], [f3(t + tu(.2)), 1, 'soft']], o: fadeIn(ts, .04) }); }
       else if (kind === 'slide') { const dx = o.dx ?? 320; Object.assign(K, { x: [[0, dx], [ts, dx], [t, -10 * Math.sign(dx), 'out'], [f3(t + tu(.1)), 0, 'soft']], o: fadeIn(ts, .04) }); }
       else if (kind === 'rise') Object.assign(K, { y: [[0, o.dy ?? 160], [ts, o.dy ?? 160], [t, -10, 'out'], [f3(t + tu(.1)), 0, 'soft']], o: fadeIn(ts, .04) });
@@ -550,7 +550,7 @@
       if (t == null) Object.assign(K, { s: S0, o: O0 });
       else { const kind = o.out || 'lift', te = f3(t + tu(dur)), OH = [[0, 0], [t, 0], [f3(t + tu(.03)), 1], [f3(te - tu(.05)), 1], [te, 0]], Of = o.hidden ? OH : O0.concat([[t, 1], [te, 0]]), Sx = o.hidden ? [[0, 1]] : S0;
         if (kind === 'lift') Object.assign(K, { s: Sx, y: [[0, 0], [t, 0], [te, -170, 'in']], o: Of });
-        else if (kind === 'fly') { const to = o.to || [x, -460], mid = o.mid || [(x + to[0]) / 2, Math.min(y, to[1]) - 120], P = pathK([[x, y], mid, to], t, te, [x, y]);
+        else if (kind === 'fly') { const to = o.to || [x, -460], mid = o.mid || [(x + to[0]) / 2, Math.min(y, to[1]) - 120], P = pathK(o.path ? [[x, y]].concat(o.path) : [[x, y], mid, to], t, te, [x, y]);
           Object.assign(K, { s: (o.hidden ? [[0, .5], [t, .5], [f3(t + tu(.1)), 1, 'out']] : S0.concat([[t, 1]])).concat([[te, .7]]), x: P.x, y: P.y, o: Of }); }
         else if (kind === 'slide') { const dx = o.dx ?? 360; Object.assign(K, { s: Sx, x: [[0, 0], [t, 0], [f3(t + tu(.06)), -12 * Math.sign(dx), 'out'], [te, dx, 'in']], o: Of }); }
         else if (kind === 'flip') Object.assign(K, { s: Sx, sx: [[0, 1], [t, 1], [te, 0, 'in']], o: O0.concat([[te, 1], [f3(te + tu(.01)), 0]]) });
@@ -572,8 +572,9 @@
     if (picOf(X)) { put(p, c, { icon: X.icon }, x, y, s * .58, null, { t: f3(t + tu(.04)), mv: K }); if (X.label && !o.noLabel) pill(p, X.label, o.lx ?? x, o.ly ?? y + s / 2 + 42, { t: tu(.3), size: 30, maxW: o.maxW || 300 }); }
     else txt(g, X.label, x, y + s * .06, { size: s * .17, maxW: s * .84, weight: 800, color: C.ink, wrap: 'mid' }); return g; }
   /* the item's word as a chip (only when it has an icon — otherwise the word is in the boxes) + the direction badge */
-  function base(p, c, d, E, o = {}) { const X = ITM(d); if (X && picOf(X) && X.label && o.chip !== false) chip(p, X.label, o.cx ?? -450, o.cy ?? -292, { t: tu(.2), size: 34, maxW: 340 });
-    if (o.dir !== false) dirB(p, E.up ? 'up' : 'down', o.dx ?? 432, o.dy ?? -292, tu(.25), 40); }
+  /* (user 2026-11-14, with a marked-up picture: "ลบขีดเส้นใต้ด้านล่างออกและลบที่ผมวงไว้ออกด้วยทุกอันเลย … โหมดต่อๆไปก็ห้ามทำด้วย") — no word chip
+     top-left, no up / down arrow badge top-right, no floor line under the things; base() is kept as a no-op so the designs read the same */
+  function base() {}
   /* the end sign after the last change: ✗ / ✓ / an icon */
   function endM(p, c, d, x, y, r = 44) { if (!d.end) return; const t = f3(Z.H + tu(.12)), g = popAt(p, x, y, t); g.circle(x, y, r, F(3.4));
     if (d.end === 'x') XX(g, x, y, r / 30); else if (/check/.test(d.end)) CHK(g, x, y, r / 30); else put(p, c, { icon: d.end }, x, y, r * 1.3, null, { t }); ripple(p, x, y, r + 10, t); }
@@ -589,7 +590,7 @@
   /* 02 ── STACK (กองซ้อน): boxes pile into a column; up — each drops onto the top and squashes; down — the top ones slide off to the side and fade.
      The center (if any) stands beside it, joined by a dashed line */
   variant('stack', 'กองซ้อน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 132 : E.n === 3 ? 165 : 200, by = 300, x = Cn ? -200 : -40, ys = Array.from({ length: E.n }, (_, k) => f1(by - s / 2 - k * (s + 10)));
-    art(c, p => { base(p, c, d, E, { cx: 40, dx: -432 }); drawAt(p.line(x - 140, by + 4, x + 140, by + 4, S(2.4)), p, tu(.04), tu(.3));
+    art(c, p => { base(p, c, d, E, { cx: 40, dx: -432 }); 
       ys.forEach((y, k) => item(p, c, X, x, y, s, E, k, { in: 'drop', out: 'slide', dx: 560 }));
       if (Cn) { drawAt(p.path(`M ${x + s / 2 + 20} 60 L 140 60`, DASH(.5)), p, tu(.2), tu(.2)); cbox(p, c, Cn, 280, 60, 240, E.ts); }
       endM(p, c, d, x + s / 2 + 10, ys[E.n - 1] - s / 2);
@@ -616,7 +617,7 @@
         R(mvG(p, upK(x + w / 2, 250, tu(.08 + .05 * k))), x, y0, w, h, 18, F(3)); const lit = sub(p);
         on(lit, p, 0, { o: E.up ? [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] : t == null ? fadeIn(tu(.3)) : [[0, 0], [tu(.3), 0], [tu(.34), 1], [t, 1], [f3(t + tu(.08)), 0]] });
         R(lit, x + 8, y0 + 8, w - 16, h - 16, 12, { fill: TA(.6), sw: 0, stroke: 'none' }); if (t != null) ripple(p, x + w / 2, y0, 50, t); }
-      drawAt(p.line(x0 - 20, 254, x0 + E.n * (w + gp), 254, S(2)), p, tu(.04), tu(.3)); cbox(p, c, Cn, 400, -230, 130, E.ts, { noLabel: true });
+      cbox(p, c, Cn, 400, -230, 130, E.ts, { noLabel: true });
       endM(p, c, d, bx + bs / 2, by - bs / 2);
     }); });
 
@@ -631,7 +632,7 @@
   /* 06 ── QUEUE LANE (เส้นทางเลื่อน): a lane with moving chevrons; up — the boxes slide in from the left along it and line up against the end (the
      center, if any); down — they slide back out to the left, the last in first */
   variant('lane', 'เส้นทางเลื่อน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 150 : 175, y = 40, xr = Cn ? 350 - 100 - 30 - s / 2 : 440 - s / 2, xs = Array.from({ length: E.n }, (_, k) => f1(xr - k * (s + 18)));
-    art(c, p => { base(p, c, d, E); const ly = y + s / 2 + 34; drawAt(p.line(-470, ly, 470, ly, W(3)), p, tu(.04), tu(.3));
+    art(c, p => { base(p, c, d, E); const ly = y + s / 2 + 34; 
       for (let k = 0; k < 6; k++) { const x = -420 + k * 160, g = mvG(p, { x: [[0, 0], [tu(.1), 0], [f3(Z.H + tu(.6)), 60]], o: fadeIn(tu(.1 + .03 * k), .06) }); g.path(`M ${x} ${ly + 22} L ${x + 18} ${ly + 40} L ${x} ${ly + 58}`, { sw: 3, stroke: TL_(.5) }); }
       xs.forEach((x, k) => item(p, c, X, x, y, s, E, k, { in: 'slide', dx: f1(-540 - x), out: 'slide', dx2: 0, dur: .34, ...(E.up ? {} : { dx: f1(-560 - x) }) }));
       cbox(p, c, Cn, 350, y, 200, E.ts, { ly: y - 150 }); endM(p, c, d, xs[0] + s / 2, y - s / 2);
@@ -692,7 +693,7 @@
   /* 12 ── RISING BARS (แท่งโต): bars stand on a baseline, each with the item box on top — up: each bar grows and its box pops on top; down: bars sink
      back into the baseline one by one, their boxes riding down */
   variant('bars', 'แท่งโต', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 140 : 165, by = 300, xs = rowX(E.n, s, 70, Cn ? 60 : 0);
-    art(c, p => { base(p, c, d, E, { dx: Cn ? 150 : 432 }); drawAt(p.line(-470, by, 470, by, S(2.4)), p, tu(.04), tu(.3));
+    art(c, p => { base(p, c, d, E, { dx: Cn ? 150 : 432 }); 
       xs.forEach((x, k) => { const h = lerp(90, 250, E.n > 1 ? k / (E.n - 1) : 1), t = E.at(k), bw = 90, top = by - h, iy = f1(top - s / 2 - 12);
         const BK2 = E.up ? { px: x, py: by, sy: [[0, 0], [f3(t - tu(.34)), 0], [f3(t - tu(.06)), 1.06, 'out'], [t, 1, 'soft']], o: fadeIn(f3(t - tu(.34)), .04) }
           : { px: x, py: by, sy: t == null ? [[0, 0], [tu(.1 + .05 * k), 0], [tu(.4 + .05 * k), 1, 'out']] : [[0, 0], [tu(.1 + .05 * k), 0], [tu(.4 + .05 * k), 1, 'out'], [t, 1], [f3(t + tu(.3)), 0, 'in']], o: fadeIn(tu(.1 + .05 * k), .04) };
@@ -728,7 +729,7 @@
      away. The center (if any) stands on the left */
   variant('pile', 'กองพูน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 165 : 185, g = 14, px = Cn ? 130 : 0, by = 290 - s / 2;
     const P = E.n >= 4 ? [[-1, 0], [0, 0], [1, 0], [0, 1]] : E.n === 3 ? [[-.5, 0], [.5, 0], [0, 1]] : [[-.5, 0], [.5, 0]];
-    art(c, p => { base(p, c, d, E); drawAt(p.line(-470, 294, 470, 294, S(2.4)), p, tu(.04), tu(.3));
+    art(c, p => { base(p, c, d, E); 
       P.forEach(([i, j], k) => { const x = f1(px + i * (s + g)), y = f1(by - j * (s + g)); item(p, c, X, x, y, s, E, k, { in: 'drop', out: 'fly', to: [x + 200, -470], mid: [x + 120, y - 140] }); });
       cbox(p, c, Cn, -330, 100, 200, E.ts); const tp = P[E.n - 1]; endM(p, c, d, px + tp[0] * (s + g) + s / 2, by - tp[1] * (s + g) - s / 2);
     }); });
@@ -836,7 +837,7 @@
      into its line. The center (if any) stands at the top tier's right end */
   variant('tiers', 'สองชั้น', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 165 : 185, Ly = [20, 300], xs2 = rowX(2, s, 70, Cn ? -120 : 0);
     const P = E.n >= 4 ? [[0, 1], [1, 1], [0, 0], [1, 0]] : E.n === 3 ? [[0, 1], [1, 1], [0, 0]] : [[0, 1], [1, 1]];
-    art(c, p => { base(p, c, d, E); Ly.forEach((y, k) => drawAt(p.line(-470, y, 470, y, W(4)), p, tu(.04 + .08 * k), tu(.3)));
+    art(c, p => { base(p, c, d, E); 
       const cl = [CL(p)]; P.forEach(([i, j], k) => { const x = xs2[i], ly = Ly[j], y = f1(ly - s / 2 - 4), t = E.at(k), t0 = f3(tu(.1 + .06 * k)), K = { px: x, py: ly };
         if (E.up) Object.assign(K, { sy: [[0, 0], [f3(t - tu(.3)), 0], [t, 1.08, 'out'], [f3(t + tu(.12)), 1, 'soft']], o: fadeIn(f3(t - tu(.3)), .03) });
         else Object.assign(K, { sy: [[0, 0], [t0, 0], [f3(t0 + tu(.3)), 1.06, 'out'], [f3(t0 + tu(.4)), 1, 'soft']].concat(t == null ? [] : [[t, 1], [f3(t + tu(.06)), 1.06, 'out'], [f3(t + tu(.32)), 0, 'in']]), o: fadeIn(t0, .03).concat(t == null ? [] : [[f3(t + tu(.3)), 1], [f3(t + tu(.32)), 0]]) });
@@ -844,6 +845,253 @@
         if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * .62, null, { t: E.up ? f3(t - tu(.3)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, x, y + 10, { size: 32, maxW: s - 20, weight: 800, color: C.ink, wrap: 'mid' });
         if (t != null) rippleE(p, x, ly, s * .7, 16, t); });
       cbox(p, c, Cn, 330, -100, 220, E.ts, { ly: -100 + 150 }); const L = P[E.n - 1]; endM(p, c, d, xs2[L[0]] + s / 2, Ly[L[1]] - s - 4, 40);
+    }); });
+
+  /* ================= round 2 — designs 26–50 (user 2026-11-14 "ทำรอบ 2 ต่อได้") — same rules: big icon slots, graphic elements only ================= */
+
+  /* 26 ── COLUMN OF SLOTS (ช่องแนวตั้ง): a column of dashed slots; up — boxes slide in from the right into them, top first; down — they slide back out
+     to the right. The center (if any) stands big on the left */
+  variant('vslots', 'ช่องแนวตั้ง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 138 : E.n === 3 ? 170 : 200, gx = Cn ? 260 : 60, cy = 40, ys = Array.from({ length: E.n }, (_, k) => f1(cy + (k - (E.n - 1) / 2) * (s + 16)));
+    art(c, p => { base(p, c, d, E); slots(p, ys.map(() => gx), ys, s); ys.forEach((y, k) => item(p, c, X, gx, y, s, E, k, { in: 'slide', dx: 420, out: 'slide', ghost: false }));
+      cbox(p, c, Cn, -230, cy, 250, E.ts); endM(p, c, d, gx + s / 2, ys[E.n - 1] - s / 2, 40);
+    }); });
+
+  /* 27 ── MAGNET (ติดข้าง): the center (or the item's own big box) in the middle; up — boxes slide in from both sides and stick to its sides with a spark;
+     down — they come unstuck and slide away */
+  variant('magnet', 'ติดข้าง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cs = 220, s = 145, cx = 0, cy = 40, P = [[1, 0], [-1, 0], [1, 1], [-1, 1]];
+    art(c, p => { base(p, c, d, E); if (Cn) cbox(p, c, Cn, cx, cy, cs, E.ts, { ly: cy + cs / 2 + 40 }); else { const K = { px: cx, py: cy, s: multiBump(E.ts) }; ibox(p, c, X, cx, cy, cs, tu(.08), { g: mvG(popAt(p, cx, cy, tu(.08)), K), mv: K }); }
+      for (let k = 0; k < E.n; k++) { const [sd, j] = P[k], x = f1(cx + sd * (cs / 2 + 10 + s / 2 + j * (s + 12))), r = item(p, c, X, x, cy, s, E, k, { in: 'slide', dx: sd * 520, out: 'slide', dx: sd * 520 });
+        if (r.t != null) sparkAt(p, f1(x - sd * (s / 2 + 5)), cy, 12, 30, E.up ? r.t : f3(r.t + tu(.04)), 6, 0); }
+      endM(p, c, d, cx, cy - cs / 2 - 70);
+    }); });
+
+  /* 28 ── BEACON (คลื่นส่ง): the center (or a dot) on the left sends a wave to the right with each change; up — a box pops where the wave reaches;
+     down — a box fades as the wave passes */
+  variant('beacon', 'คลื่นส่ง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), bx = -330, by = 40, s = E.n >= 4 ? 140 : 165;
+    const P = Array.from({ length: E.n }, (_, k) => { const a = rad(lerp(-50, 50, E.n > 1 ? k / (E.n - 1) : .5)); return [f1(bx + 560 * Math.cos(a) - 40), f1(by + 300 * Math.sin(a))]; });
+    art(c, p => { base(p, c, d, E); if (Cn) cbox(p, c, Cn, bx, by, 190, E.ts, { ly: by + 140 }); else { popAt(p, bx, by, tu(.08)).circle(bx, by, 30, { fill: ACC1, sw: 2, stroke: ACC1 }); p.circle(bx, by, 54, S(2)); }
+      E.ts.forEach(t => arcsAt(p, bx + (Cn ? 100 : 40), by, 1, 3, 40, 40, 44, f3(t - tu(.22)), { sw: 3, stroke: ACC1 }, .05));
+      P.forEach(([x, y], k) => item(p, c, X, x, y, s, E, k, { in: 'pop', out: 'shrink' })); endM(p, c, d, P[E.n - 1][0] + s / 2, P[E.n - 1][1] - s / 2, 40);
+    }); });
+
+  /* 29 ── CASCADE (ไหลลงขั้น): a staircase of short ledges; up — each box hops down the ledges and lands in the row at the bottom; down — each hops
+     back up the ledges and out */
+  variant('cascade', 'ไหลลงขั้น', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 125 : 150, L = [[-430, -200], [-330, -120], [-230, -40], [-130, 40]], xs = rowX(E.n, s, 26, 150), y = 250;
+    art(c, p => { base(p, c, d, E, { dx: 432 }); L.forEach(([x, ly], k) => drawAt(p.line(x - 40, ly, x + 50, ly, W(4)), p, tu(.04 + .04 * k), tu(.16))); 
+      const hop = L.flatMap(([x, ly], k) => [[x - 20, ly - 70], [x + 20, ly - s * .3]]);
+      xs.forEach((x, k) => item(p, c, X, x, y, s, E, k, E.up ? { in: 'fly', path: [[-500, -320]].concat(hop, [[(x - 130) / 2, 120]]), dur: .5, dust: false } : { out: 'fly', path: [[(x - 130) / 2, 120]].concat(hop.slice().reverse(), [[-500, -330]]), dur: .5 }));
+      cbox(p, c, Cn, 330, -150, 170, E.ts); endM(p, c, d, xs[E.n - 1] + s / 2, y - s / 2, 40);
+    }); });
+
+  /* 30 ── COUNTER RING (วงนับรอบไอคอน): one big item box ringed by arc pieces, one per item; up — the pieces light one by one round it; down — they go
+     dark. The center (if any) sits top-right */
+  variant('cring', 'วงนับรอบไอคอน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = -20, cy = 30, r = 225, bs = 240;
+    art(c, p => { base(p, c, d, E, { dx: Cn ? 250 : 432 }); const K = { px: cx, py: cy, s: multiBump(E.ts, 1.05) }; ibox(p, c, X, cx, cy, bs, tu(.06), { g: mvG(popAt(p, cx, cy, tu(.06)), K), mv: K });
+      for (let k = 0; k < E.n; k++) { const a0 = -90 + k * 360 / E.n + 6, a1 = -90 + (k + 1) * 360 / E.n - 6, P = a => f1(cx + r * Math.cos(rad(a))) + ' ' + f1(cy + r * Math.sin(rad(a))), dd = `M ${P(a0)} A ${r} ${r} 0 0 1 ${P(a1)}`, t = E.at(k);
+        drawAt(p.path(dd, { sw: 30, stroke: TL_(.16) }), p, tu(.06 + .04 * k), tu(.14)); const g = sub(p);
+        on(g, p, 0, { o: E.up ? [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] : t == null ? fadeIn(tu(.3)) : [[0, 0], [tu(.3), 0], [tu(.34), 1], [t, 1], [f3(t + tu(.06)), 0]] }); g.path(dd, { sw: 30, stroke: ACC1 });
+        if (t != null) { const am = rad((a0 + a1) / 2); ripple(p, f1(cx + r * Math.cos(am)), f1(cy + r * Math.sin(am)), 30, t); } }
+      cbox(p, c, Cn, 400, -292, 110, E.ts, { noLabel: true }); endM(p, c, d, cx + r * .75, cy - r * .75, 40);
+    }); });
+
+  /* 31 ── CUP (ภาชนะรูปตัว U): an open U-shaped container; up — boxes drop into it side by side; down — they are lifted out one by one. The center (if
+     any) stands above its right rim */
+  variant('cup', 'ภาชนะตัว U', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 150 : 175, w = E.n * (s + 22) + 60, x0 = -w / 2 - (Cn ? 70 : 0), y0 = 20, y1 = 300, xs = rowX(E.n, s, 22, x0 + w / 2), y = y1 - 22 - s / 2;
+    art(c, p => { base(p, c, d, E); drawAt(p.path(`M ${f1(x0)} ${y0} L ${f1(x0)} ${y1 - 50} Q ${f1(x0)} ${y1} ${f1(x0 + 50)} ${y1} L ${f1(x0 + w - 50)} ${y1} Q ${f1(x0 + w)} ${y1} ${f1(x0 + w)} ${y1 - 50} L ${f1(x0 + w)} ${y0}`, W(5)), p, tu(.04), tu(.4));
+      xs.forEach((x, k) => item(p, c, X, x, y, s, E, k, { in: 'drop', out: 'lift' })); cbox(p, c, Cn, f1(x0 + w + 90), -60, 170, E.ts, { ly: 70 });
+      endM(p, c, d, xs[E.n - 1] + s / 2, y - s / 2, 40);
+    }); });
+
+  /* 32 ── CHAIN (ต่อเป็นสาย): boxes joined in a line by links; up — a link reaches out from the last box and the new box pops on its end; down — the
+     last link snaps and its box drops away */
+  variant('chain', 'ต่อเป็นสาย', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 140 : 165, cy = 40, gap = 70, x0 = Cn ? -390 : -440, xs = Array.from({ length: E.n }, (_, k) => f1(x0 + (Cn ? 130 + gap : 30) + s / 2 + k * (s + gap)));
+    art(c, p => { base(p, c, d, E); if (Cn) cbox(p, c, Cn, x0, cy, 170, E.ts, { ly: cy + 130 }); else popAt(p, x0, cy, tu(.08)).circle(x0, cy, 18, { fill: ACC1, sw: 2, stroke: ACC1 });
+      xs.forEach((x, k) => { const t = E.at(k), a = k ? xs[k - 1] + s / 2 : x0 + (Cn ? 85 : 18), b = x - s / 2, ln = p.line(a, cy, b, cy, { sw: 6, stroke: ACC1 });
+        if (E.up) on(ln, p, 0, { draw: [[0, 0], [f3(t - tu(.2)), 0], [f3(t - tu(.04)), 1, 'out']] }); else on(ln, p, 0, { o: t == null ? fadeIn(tu(.3)) : [[0, 0], [tu(.3), 0], [tu(.34), 1], [t, 1], [f3(t + tu(.06)), 0]] });
+        if (!E.up && t != null) sparkAt(p, f1((a + b) / 2), cy, 10, 26, t, 6, 0);
+        item(p, c, X, x, cy, s, E, k, { in: 'pop', out: 'sink', sinkY: 220 }); });
+      endM(p, c, d, xs[E.n - 1] + s / 2, cy - s / 2, 40);
+    }); });
+
+  /* 33 ── BRANCHES (แตกกิ่ง): the center (or a node) at the top with elbow branches down to a row; up — a branch draws and its box pops at the end;
+     down — the box shrinks away and its branch fades */
+  variant('tree', 'แตกกิ่ง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 150 : 175, ty = -170, ry = 170, xs = rowX(E.n, s, 40);
+    art(c, p => { base(p, c, d, E); if (Cn) cbox(p, c, Cn, 0, ty, 170, E.ts, { lx: 220, ly: ty }); else { popAt(p, 0, ty, tu(.08)).circle(0, ty, 26, { fill: ACC1, sw: 2, stroke: ACC1 }); }
+      const yb = Cn ? ty + 85 : ty + 26; drawAt(p.line(0, yb, 0, 10, W(4)), p, tu(.1), tu(.2));
+      xs.forEach((x, k) => { const t = E.at(k), br = p.path(`M 0 10 L ${x} 10 L ${x} ${f1(ry - s / 2)}`, { sw: 4, stroke: ACC1 });
+        if (E.up) on(br, p, 0, { draw: [[0, 0], [f3(t - tu(.22)), 0], [f3(t - tu(.04)), 1, 'out']] }); else on(br, p, 0, { o: t == null ? fadeIn(tu(.3)) : [[0, 0], [tu(.3), 0], [tu(.34), 1], [f3(t + tu(.2)), 1], [f3(t + tu(.3)), 0]] });
+        item(p, c, X, x, ry, s, E, k, { in: 'pop', out: 'shrink' }); });
+      endM(p, c, d, xs[E.n - 1] + s / 2, ry - s / 2, 40);
+    }); });
+
+  /* 34 ── SPIRAL (เกลียว): a dashed spiral from the middle; up — each box travels out along it to its place, the next further out; down — each winds back
+     in to the middle and vanishes */
+  variant('spiral', 'เกลียว', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = 0, cy = 10, s = E.n >= 4 ? 135 : 160, sp = a => { const r = Math.max(40, 160 + .4 * (a - 120)); return [f1(cx + r * Math.cos(rad(a - 90))), f1(cy + r * .82 * Math.sin(rad(a - 90)))]; };
+    const A = Array.from({ length: E.n }, (_, k) => 120 + k * (E.n >= 4 ? 100 : 130)), pts = Array.from({ length: 33 }, (_, j) => sp(15 * j));
+    art(c, p => { base(p, c, d, E); on(p.path(pathOf(pts, false), DASH(.35)), p, 0, { o: fadeIn(tu(.06), .1) }); if (Cn) cbox(p, c, Cn, cx, cy, 120, E.ts, { noLabel: true }); else popAt(p, cx, cy, tu(.08)).circle(cx, cy, 18, { fill: ACC1, sw: 2, stroke: ACC1 });
+      A.forEach((a, k) => { const [x, y] = sp(a), path = pts.filter((_, j) => 15 * j < a && 15 * j > a - 300); item(p, c, X, x, y, s, E, k, E.up ? { in: 'fly', path: [[cx, cy]].concat(path), dur: .45 } : { out: 'fly', path: path.slice().reverse().concat([[cx, cy]]), dur: .45 }); });
+      endM(p, c, d, sp(A[E.n - 1])[0] + s / 2, sp(A[E.n - 1])[1] - s / 2, 40);
+    }); });
+
+  /* 35 ── DECK (สำรับซ้อน): big boxes stacked as a deck, each a little up and to the right; up — each slides in from the right onto the top; down —
+     the top one is dealt off to the left */
+  variant('deck', 'สำรับซ้อน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = 250, dx = 28, x0 = (Cn ? -150 : -40) - (E.n - 1) * dx / 2, y0 = 70 + (E.n - 1) * dx / 2;
+    art(c, p => { base(p, c, d, E); for (let k = 0; k < E.n; k++) item(p, c, X, f1(x0 + k * dx), f1(y0 - k * dx), s, E, k, { in: 'slide', out: 'slide', dx: E.up ? 560 : -620, ghost: false });
+      cbox(p, c, Cn, 320, 40, 220, E.ts); endM(p, c, d, x0 + (E.n - 1) * dx + s / 2, y0 - (E.n - 1) * dx - s / 2);
+    }); });
+
+  /* 36 ── SWEEP (กวาดผ่าน): a hand sweeps round a half circle from a pivot below; up — a box pops as the hand passes its place; down — each box blinks
+     out as the hand passes */
+  variant('sweep', 'กวาดผ่าน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), px = 0, py = 300, R0 = 330, s = E.n >= 4 ? 135 : 155, A = Array.from({ length: E.n }, (_, k) => lerp(200, 340, E.n > 1 ? k / (E.n - 1) : .5));
+    art(c, p => { base(p, c, d, E); drawAt(p.path(`M ${px - R0 - 40} ${py} A ${R0 + 40} ${R0 + 40} 0 0 1 ${px + R0 + 40} ${py}`, DASH(.3)), p, tu(.04), tu(.3)); if (Cn) cbox(p, c, Cn, px, py - 60, 130, E.ts, { noLabel: true }); else popAt(p, px, py, tu(.08)).circle(px, py, 22, SOLID(2));
+      const a0 = E.up ? 180 : 360, a1 = E.up ? 360 : 180, RK = [[0, a0], [f3(E.T0 - tu(.3)), a0]]; ORD(E).forEach(k => RK.push([E.at(k), A[k]])); RK.push([f3(E.H + tu(.3)), a1, 'io']);
+      const hand = mvG(p, { px, py, r: RK.map(([t, v, e]) => [t, f1(v - 360), e]), o: fadeIn(tu(.1), .04) }); hand.line(px, py, px + R0 + 40, py, { sw: 5, stroke: ACC1 });
+      A.forEach((a, k) => { const x = f1(px + R0 * Math.cos(rad(a))), y = f1(py + R0 * Math.sin(rad(a))); item(p, c, X, x, y, s, E, k, { in: 'pop', out: 'shrink', dur: .2 }); });
+      endM(p, c, d, 420, -200, 40);
+    }); });
+
+  /* 37 ── GATHER (รวมกลุ่ม): a dashed area in the middle; up — boxes fly in from scattered spots round the edge into a tight group inside; down — the
+     group breaks up and the boxes fly back out to the edges */
+  variant('gather', 'รวมกลุ่ม', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n === 2 ? 190 : 165, g = 20, cx = Cn ? 100 : 0, cy = 40, o = (s + g) / 2, far = [[-470, -120], [470, -300], [-420, 330], [470, 300]];
+    const P = (E.n === 2 ? [[-o, 0], [o, 0]] : [[-o, -o], [o, -o], [-o, o], [o, o]].slice(0, E.n)).map(([a, b]) => [cx + a, cy + b]);
+    art(c, p => { base(p, c, d, E); on(R(p, cx - o * 2 - 30, cy - (E.n === 2 ? o : o * 2) - 30, o * 4 + 60, (E.n === 2 ? o * 2 : o * 4) + 60, 50, DASH(.45)), p, 0, { o: fadeIn(tu(.06), .1) });
+      P.forEach(([x, y], k) => item(p, c, X, x, y, s, E, k, E.up ? { in: 'fly', from: far[k], dur: .38 } : { out: 'fly', to: far[k], dur: .38 })); cbox(p, c, Cn, -340, 40, 180, E.ts);
+      endM(p, c, d, P[E.n - 1][0] + s / 2, P[E.n - 1][1] - s / 2, 40);
+    }); });
+
+  /* 38 ── STRETCHING ROW (แถวยืดได้): a pill-shaped holder that stretches to the right as each box joins (up) or shrinks as each leaves (down) */
+  variant('growrow', 'แถวยืดได้', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 160 : 185, g = 22, x0 = Cn ? -260 : -400, cy = 40, xs = Array.from({ length: E.n }, (_, k) => f1(x0 + 30 + s / 2 + k * (s + g))), W0 = 60 + E.n * (s + g) - g;
+    art(c, p => { base(p, c, d, E); const wf = j => Math.max(.18, (60 + j * (s + g) - (j ? g : 0)) / W0), SK = [[0, E.up ? wf(0) : 1]];
+      ORD(E).forEach(k => { const t = E.at(k), v = E.up ? wf(k + 1) : wf(k); SK.push([f3(t - tu(.12)), SK[SK.length - 1][1]], [t, v * 1.02, 'out'], [f3(t + tu(.1)), v, 'soft']); });
+      R(mvG(p, { px: x0, py: cy, sx: SK, o: fadeIn(tu(.04), .06) }), x0, cy - s / 2 - 20, W0, s + 40, (s + 40) / 2, F(4.2));
+      xs.forEach((x, k) => item(p, c, X, x, cy, s, E, k, { in: 'slide', dx: 380, out: 'slide', dx: 420, ghost: false })); cbox(p, c, Cn, -400, cy, 180, E.ts, { ly: cy + 135 });
+      endM(p, c, d, xs[E.n - 1] + s / 2, cy - s / 2 - 10, 40);
+    }); });
+
+  /* 39 ── ROUND HOLDER (วงบรรจุ): a big circle holds the boxes as round plates; up — each drops in from above and bounces into place; down — each floats
+     up out of the circle */
+  variant('circlepack', 'วงบรรจุ', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = Cn ? 110 : 0, cy = 30, R0 = 290, s = E.n >= 4 ? 170 : 195, o = s * .58;
+    const P = (E.n >= 4 ? [[-o, o * .6], [o, o * .6], [0, -o * .9], [0, o * 1.9]] : E.n === 3 ? [[-o, o * .4], [o, o * .4], [0, -o * .9]] : [[-o * .9, 0], [o * .9, 0]]).map(([a, b]) => [f1(cx + a), f1(cy + b - (E.n >= 4 ? 40 : 0))]);
+    art(c, p => { base(p, c, d, E); drawAt(p.circle(cx, cy, R0, W(4)), p, tu(.04), tu(.4)); P.forEach(([x, y], k) => item(p, c, X, x, y, s, E, k, { shape: 'circ', in: 'fly', from: [x, -470], mid: [x, y - 180], out: 'lift', dur: .34 }));
+      cbox(p, c, Cn, -380, 30, 170, E.ts, { circ: true }); endM(p, c, d, cx + R0 * .7, cy - R0 * .7, 40);
+    }); });
+
+  /* 40 ── STEP LINE (เส้นขั้นบันได): a stepped line climbs (or, for down, its steps are taken back); each step carries a box — up: the line reaches a new
+     step and its box pops; down: the top box goes and the line drops back a step */
+  variant('stepline', 'เส้นขั้นบันได', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 135 : 160, x0 = -420, w = (800 - (Cn ? 180 : 0)) / E.n, by = 300, hs = Array.from({ length: E.n }, (_, k) => f1(by - 70 - k * (E.n >= 4 ? 90 : 120)));
+    art(c, p => { base(p, c, d, E); const pts = [[x0, by]];
+      hs.forEach((h, k) => { pts.push([f1(x0 + k * w), h], [f1(x0 + (k + 1) * w), h]); }); const ln = p.path(pathOf(pts, false), { sw: 6, stroke: ACC1 }), cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1])); const seg = k => cum[2 * k + 2] / cum[cum.length - 1];
+      const DK = [[0, E.up ? 0 : 1]]; ORD(E).forEach(k => { const t = E.at(k), v = E.up ? seg(k) : (k ? seg(k - 1) : .02); DK.push([f3(t - tu(.2)), DK[DK.length - 1][1]], [t, v, 'out']); }); on(ln, p, 0, { draw: DK });
+      hs.forEach((h, k) => item(p, c, X, f1(x0 + (k + .5) * w), f1(h - s / 2 - 10), s, E, k, { in: 'pop', out: 'shrink' })); cbox(p, c, Cn, 360, -170, 160, E.ts, { ly: -170 + 125 });
+      endM(p, c, d, f1(x0 + (E.n - .5) * w + s / 2), f1(hs[E.n - 1] - s - 10), 40);
+    }); });
+
+  /* 41 ── TWO LANES (สองเลน): a faint upper lane (outside) and a bright lower lane (inside, the center at its end); up — boxes drop from the upper lane
+     into the lower one; down — they rise from the lower lane back up and out */
+  variant('twolanes', 'สองเลน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 135 : 160, xs = rowX(E.n, s, 30, Cn ? -110 : 0), ya = -110, yb = 190;
+    art(c, p => { base(p, c, d, E); 
+      xs.forEach((x, k) => item(p, c, X, x, yb, s, E, k, E.up ? { in: 'fly', from: [x - 60, ya], mid: [x - 20, ya - 60], dur: .36 } : { out: 'fly', to: [x + 80, -460], mid: [x + 40, ya], dur: .4 }));
+      if (E.up) xs.forEach((x, k) => { const t = E.at(k), g = sub(p); on(g, p, 0, { o: [[0, 0], [tu(.2), 0], [tu(.24), 1], [f3(t - tu(.36)), 1], [f3(t - tu(.34)), 0]] }); R(g, x - 60 - s / 2, ya - s / 2, s, s, s * .24, DASH(.45)); });
+      cbox(p, c, Cn, 360, yb - 20, 180, E.ts, { ly: yb - 145 }); endM(p, c, d, xs[E.n - 1] + s / 2, yb - s / 2, 40);
+    }); });
+
+  /* 42 ── PORTAL (ประตูวง): an upright ring on the left; up — the boxes come out of it one by one and slide to their places; down — they slide back into
+     it and are gone */
+  variant('portal', 'ประตูวง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 140 : 165, px = -360, cy = 40, xs = Array.from({ length: E.n }, (_, k) => f1(px + 90 + s / 2 + k * (s + 20)));
+    art(c, p => { base(p, c, d, E); const cl = clipG(p, px, -350, 860, 700); on(ell(p, px, cy, 46, 190, { sw: 6, stroke: ACC1 }), p, 0, { s: [[0, 0], [tu(.06), 0], [tu(.3), 1.05, 'out'], [tu(.4), 1, 'soft']], ox: px, oy: cy, o: fadeIn(tu(.06), .04) });
+      xs.forEach((x, k) => { const t = E.at(k), K = { px: x, py: cy }, t0 = f3(tu(.1 + .06 * k)), dx = f1(px - 40 - x - s / 2);
+        if (E.up) Object.assign(K, { x: [[0, dx], [f3(t - tu(.36)), dx], [t, 8, 'out'], [f3(t + tu(.1)), 0, 'soft']], o: fadeIn(f3(t - tu(.36)), .02) });
+        else Object.assign(K, t == null ? { x: [[0, dx], [t0, dx], [f3(t0 + tu(.3)), 0, 'out']], o: fadeIn(t0, .02) } : { x: [[0, dx], [t0, dx], [f3(t0 + tu(.3)), 0, 'out'], [t, 0], [f3(t + tu(.36)), dx, 'in']], o: fadeIn(t0, .02) });
+        if (!E.up && t != null) ghost(p, x, cy, s, f3(t + tu(.36)));
+        const g = mvG(cl, K); R(g, x - s / 2, cy - s / 2, s, s, s * .24, F(4)); const mv = Object.assign({}, K); delete mv.o;
+        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, cy, s * .62, null, { t: E.up ? f3(t - tu(.2)) : f3(t0 + tu(.16)), mv, o: E.up ? [[0, 0], [f3(t - tu(.2)), 0], [f3(t - tu(.16)), 1]] : (t == null ? [[0, 0], [f3(t0 + tu(.16)), 0], [f3(t0 + tu(.2)), 1]] : [[0, 0], [f3(t0 + tu(.16)), 0], [f3(t0 + tu(.2)), 1], [f3(t + tu(.2)), 1], [f3(t + tu(.24)), 0]]) });
+        else if (X) txt(g, X.label, x, cy + 10, { size: 30, maxW: s - 20, weight: 800, color: C.ink, wrap: 'mid' }); });
+      cbox(p, c, Cn, 390, 250, 140, E.ts, { noLabel: true }); endM(p, c, d, xs[E.n - 1] + s / 2, cy - s / 2, 40);
+    }); });
+
+  /* 43 ── STICKERS (สติกเกอร์แปะ): tilted boxes slapped down overlapping a little — up: each lands from big to its size with a ripple; down: each peels
+     off, turning, and flies away */
+  variant('stickers', 'สติกเกอร์แปะ', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 190 : 215, cx = Cn ? 110 : 0, cy = 50, P = [[-160, -60, -8], [120, -80, 6], [-110, 130, 5], [170, 120, -6]];
+    art(c, p => { base(p, c, d, E); P.slice(0, E.n).forEach(([ox, oy, a], k) => { const x = cx + ox * (E.n === 2 ? 1.1 : 1), y = cy + (E.n === 2 ? 0 : oy), t = E.at(k), t0 = f3(tu(.08 + .06 * k)), K = { px: x, py: y };
+        if (E.up) Object.assign(K, { s: [[0, 1.5], [f3(t - tu(.2)), 1.5], [t, .94, 'in'], [f3(t + tu(.1)), 1, 'soft']], r: [[0, a * 3], [f3(t - tu(.2)), a * 3], [t, a, 'in']], o: fadeIn(f3(t - tu(.2)), .03) });
+        else Object.assign(K, { s: [[0, 1.5], [t0, 1.5], [f3(t0 + tu(.2)), .94, 'in'], [f3(t0 + tu(.3)), 1, 'soft']], r: [[0, a * 3], [t0, a * 3], [f3(t0 + tu(.2)), a, 'in']].concat(t == null ? [] : [[t, a], [f3(t + tu(.34)), a + 40, 'in']]), o: fadeIn(t0, .03).concat(t == null ? [] : [[f3(t + tu(.2)), 1], [f3(t + tu(.34)), 0]]) });
+        if (!E.up && t != null) { K.x = [[0, 0], [t, 0], [f3(t + tu(.34)), 260, 'in']]; K.y = [[0, 0], [t, 0], [f3(t + tu(.34)), -300, 'in']]; ghost(p, x, y, s, f3(t + tu(.34))); }
+        const g = mvG(CL(p), K); R(g, x - s / 2, y - s / 2, s, s, s * .2, F(4)); const mv = Object.assign({}, K); delete mv.o; if (E.up) ripple(p, x, y, s * .6, t);
+        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * .62, null, { t: E.up ? f3(t - tu(.2)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, x, y + 12, { size: 34, maxW: s - 24, weight: 800, color: C.ink, wrap: 'mid' }); });
+      cbox(p, c, Cn, -360, 40, 180, E.ts); const L = P[E.n - 1]; endM(p, c, d, cx + L[0] + s / 2, cy + (E.n === 2 ? 0 : L[1]) - s / 2, 40);
+    }); });
+
+  /* 44 ── RIDER (ไอคอนวิ่งบนแถบ): one big item box rides along a bar of segments; up — it hops to the next segment each time and lights it; down — it
+     hops back and the segment goes dark. The center (if any) waits at the bar's end */
+  variant('rider', 'ไอคอนวิ่งบนแถบ', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), x0 = -430, x1 = Cn ? 220 : 430, by = 220, sw = (x1 - x0) / E.n, bs = 170;
+    art(c, p => { base(p, c, d, E); const cxs = Array.from({ length: E.n }, (_, k) => f1(x0 + (k + .5) * sw));
+      cxs.forEach((x, k) => { const t = E.at(k); R(atG(p, tu(.06 + .04 * k)), x - sw / 2 + 6, by - 30, sw - 12, 60, 30, F(3)); const g = sub(p);
+        on(g, p, 0, { o: E.up ? [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] : t == null ? fadeIn(tu(.3)) : [[0, 0], [tu(.3), 0], [tu(.34), 1], [t, 1], [f3(t + tu(.06)), 0]] }); R(g, x - sw / 2 + 14, by - 22, sw - 28, 44, 22, { fill: ACC1, sw: 0, stroke: 'none' }); });
+      const fin = E.up ? E.n - 1 : Math.max(0, E.keep - 1), ry = by - 30 - bs / 2 - 14, XK = [[0, f1((E.up ? cxs[0] - sw : cxs[E.n - 1]) - cxs[fin])]];
+      ORD(E).forEach(k => { const t = E.at(k), j = E.up ? k : Math.max(-1, k - 1), v = f1((j < 0 ? cxs[0] - sw * .6 : cxs[j]) - cxs[fin]); XK.push([f3(t - tu(.24)), XK[XK.length - 1][1]], [t, v, 'out']); });
+      const YK = [[0, 0]]; ORD(E).forEach(k => { const t = E.at(k); YK.push([f3(t - tu(.24)), 0], [f3(t - tu(.12)), -60, 'out'], [t, 0, 'in']); });
+      const K = { px: cxs[fin], py: ry, x: XK, y: YK, s: multiBump(E.ts, 1.06) }; ibox(p, c, X, cxs[fin], ry, bs, tu(.1), { g: mvG(popAt(p, cxs[fin], ry, tu(.1)), K), mv: K });
+      cbox(p, c, Cn, 360, by - 60, 180, E.ts, { ly: by + 70 }); endM(p, c, d, x1, by - 120, 40);
+    }); });
+
+  /* 45 ── BOUNCE (เด้งเข้า): up — each box bounces in from the left edge along the floor (two bounces) to its place; down — each bounces off to the right
+     and out */
+  variant('bounce', 'เด้งเข้า', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 150 : 175, fy = 290, y = fy - s / 2, xs = rowX(E.n, s, 30, Cn ? 110 : 0);
+    art(c, p => { base(p, c, d, E); 
+      xs.forEach((x, k) => { const L = E.up ? [[-560, y - 220], [lerp(-560, x, .35), y], [lerp(-560, x, .62), y - 130], [lerp(-560, x, .85), y], [lerp(-560, x, .93), y - 40]] : [[lerp(x, 600, .2), y - 140], [lerp(x, 600, .45), y], [lerp(x, 600, .7), y - 90], [600, y - 40]];
+        const r = item(p, c, X, x, y, s, E, k, E.up ? { in: 'fly', path: L, dur: .55, dust: false } : { out: 'fly', path: L, dur: .5 }); if (E.up) dust(p, x, fy, r.t, .6); });
+      cbox(p, c, Cn, -360, 0, 180, E.ts); endM(p, c, d, xs[E.n - 1] + s / 2, y - s / 2, 40);
+    }); });
+
+  /* 46 ── ZOOM OUT (ขยายจากกลาง): up — each box springs out of the middle, growing as it flies to its place in a 2 × 2; down — each shrinks back into the
+     middle and is gone */
+  variant('zoom', 'ขยายจากกลาง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n === 2 ? 220 : 190, g = 26, cx = Cn ? 130 : 0, cy = 40, o = (s + g) / 2;
+    const P = (E.n === 2 ? [[-o, 0], [o, 0]] : [[-o, -o], [o, -o], [-o, o], [o, o]].slice(0, E.n)).map(([a, b]) => [cx + a, cy + b]);
+    art(c, p => { base(p, c, d, E); popAt(p, cx, cy, tu(.1)).circle(cx, cy, 14, { fill: ACC1, sw: 0, stroke: 'none' });
+      P.forEach(([x, y], k) => { const t = E.at(k), K = { px: x, py: y }, t0 = f3(tu(.08 + .06 * k)), dx = f1(cx - x), dy = f1(cy - y);
+        if (E.up) Object.assign(K, { x: [[0, dx], [f3(t - tu(.3)), dx], [t, 0, 'out']], y: [[0, dy], [f3(t - tu(.3)), dy], [t, 0, 'out']], s: [[0, .1], [f3(t - tu(.3)), .1], [t, 1.06, 'out'], [f3(t + tu(.1)), 1, 'soft']], o: fadeIn(f3(t - tu(.3)), .04) });
+        else Object.assign(K, { s: [[0, .3], [t0, .3], [f3(t0 + tu(.22)), 1.06, 'out'], [f3(t0 + tu(.34)), 1, 'soft']].concat(t == null ? [] : [[t, 1], [f3(t + tu(.3)), .1, 'in']]), o: fadeIn(t0, .04).concat(t == null ? [] : [[f3(t + tu(.26)), 1], [f3(t + tu(.3)), 0]]) }, t == null ? {} : { x: [[0, 0], [t, 0], [f3(t + tu(.3)), dx, 'in']], y: [[0, 0], [t, 0], [f3(t + tu(.3)), dy, 'in']] });
+        if (!E.up && t != null) ghost(p, x, y, s, f3(t + tu(.3)));
+        const gg = mvG(p, K); R(gg, x - s / 2, y - s / 2, s, s, s * .24, F(4)); const mv = Object.assign({}, K); delete mv.o;
+        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * .62, null, { t: E.up ? f3(t - tu(.3)) : t0, mv, o: K.o }); else if (X) txt(gg, X.label, x, y + 12, { size: 34, maxW: s - 24, weight: 800, color: C.ink, wrap: 'mid' }); });
+      cbox(p, c, Cn, -340, 40, 180, E.ts); endM(p, c, d, P[E.n - 1][0] + s / 2, P[E.n - 1][1] - s / 2, 40);
+    }); });
+
+  /* 47 ── BEADS (ลูกปัดบนเส้น): round plates on a sagging string with a stop at the left end; up — each slides down the string from the right and settles
+     against the last; down — the right-most slides off the right end and drops away */
+  variant('beads', 'ลูกปัดบนเส้น', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 160 : 185, xa = -440, xb = 470, sag = 150, ya = -40, cur = x => { const u = (x - xa) / (xb - xa); return f1(ya + sag * 4 * u * (1 - u) - 60 * u); };
+    art(c, p => { base(p, c, d, E); const pts = Array.from({ length: 31 }, (_, j) => { const x = lerp(xa, xb, j / 30); return [f1(x), cur(x)]; }); drawAt(p.path(pathOf(pts, false), W(3.4)), p, tu(.04), tu(.4));
+      if (Cn) cbox(p, c, Cn, xa + 40, ya - 110, 150, E.ts, { lx: xa + 200, ly: ya - 110 }); else drawAt(p.line(xa + 10, ya - 60, xa + 10, ya + 60, { sw: 10, stroke: ACC1 }), p, tu(.1), tu(.2));
+      for (let k = 0; k < E.n; k++) { const x = f1(xa + 40 + s / 2 + k * (s + 8)), y = f1(cur(x) - s / 2 + 10), path = pts.filter(q => q[0] > x).reverse().map(q => [q[0], f1(q[1] - s / 2 + 10)]);
+        item(p, c, X, x, y, s, E, k, E.up ? { shape: 'circ', in: 'fly', path: path.length ? path : [[x + 100, y]], dur: .45 } : { shape: 'circ', out: 'fly', path: path.slice().reverse().concat([[560, 200]]), dur: .45 }); }
+      endM(p, c, d, xa + 40 + s / 2 + (E.n - 1) * (s + 8) + s / 2, cur(0) - s, 40);
+    }); });
+
+  /* 48 ── SPLIT COPIES (แยกตัว): one box in the middle; up — copies split off it one by one and slide out to their places beside it; down — the copies
+     slide back into the middle one and are gone */
+  variant('split', 'แยกตัว', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 165 : 190, cy = 50, step = s + 30, cx = Cn ? 100 : 0;
+    const off = E.n >= 4 ? [-.5, .5, -1.5, 1.5] : E.n === 3 ? [0, 1, -1] : [-.5, .5], xs = off.map(v => f1(cx + v * step)), home = xs[0];
+    art(c, p => { base(p, c, d, E); xs.forEach((x, k) => item(p, c, X, x, cy, s, E, k, k === 0 ? { in: 'pop', out: 'shrink' } : E.up ? { in: 'fly', from: [home, cy], mid: [(home + x) / 2, cy - 90], dur: .32 } : { out: 'fly', to: [home, cy], mid: [(home + x) / 2, cy - 90], dur: .32 }));
+      cbox(p, c, Cn, -380, cy, 170, E.ts); endM(p, c, d, Math.max(...xs) + s / 2, cy - s / 2, 40);
+    }); });
+
+  /* 49 ── RAIN (ตกเป็นสาย): up — boxes fall at a slant one after another and land in a heap row on the floor (dust); down — they lift off the floor and
+     drift up and away, leaving dashed places */
+  variant('rain', 'ตกเป็นสาย', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 150 : 175, fy = 290, y = fy - s / 2, xs = rowX(E.n, s, 26, Cn ? 110 : 0);
+    art(c, p => { base(p, c, d, E); for (let j = 0; j < 7; j++) { const x = -420 + j * 140, g = mvG(p, { y: [[0, -60], [tu(.1), -60], [f3(Z.H + tu(.4)), 80]], o: [[0, 0], [tu(.1 + .03 * j), 0], [tu(.16 + .03 * j), 1], [f3(Z.H + tu(.2)), 1], [f3(Z.H + tu(.4)), 0]] }); g.line(x, -260, x - 30, -170, { sw: 2.4, stroke: TL_(.35) }); }
+      xs.forEach((x, k) => item(p, c, X, x, y, s, E, k, E.up ? { in: 'fly', from: [x + 160, -470], mid: [x + 60, y - 220], dur: .32 } : { out: 'fly', to: [x - 140, -470], mid: [x - 40, y - 260], dur: .4 }));
+      if (E.up) xs.forEach((x, k) => dust(p, x, fy, E.at(k), .6)); cbox(p, c, Cn, -360, -60, 180, E.ts); endM(p, c, d, xs[E.n - 1] + s / 2, y - s / 2, 40);
+    }); });
+
+  /* 50 ── LAYERS (ชั้นซ้อนรอบ): the item's box in the middle; up — a new outline layer grows out around it with each arrival; down — the outer layers peel
+     away one by one. The center (if any) sits top-right */
+  variant('layers', 'ชั้นซ้อนรอบ', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = -10, cy = 30, bs = 190;
+    art(c, p => { base(p, c, d, E, { dx: Cn ? 250 : 432 }); const K = { px: cx, py: cy, s: multiBump(E.ts, 1.05) }; ibox(p, c, X, cx, cy, bs, tu(.06), { g: mvG(popAt(p, cx, cy, tu(.06)), K), mv: K });
+      for (let k = 0; k < E.n; k++) { const sz = bs + 70 * (k + 1), t = E.at(k), o2 = .9 - k * .15, LK = { px: cx, py: cy };
+        if (E.up) Object.assign(LK, { s: [[0, .7], [f3(t - tu(.2)), .7], [t, 1.04, 'out'], [f3(t + tu(.1)), 1, 'soft']], o: fadeIn(f3(t - tu(.2)), .04) });
+        else Object.assign(LK, { s: [[0, .7], [tu(.2 + .06 * k), .7], [tu(.4 + .06 * k), 1, 'out']].concat(t == null ? [] : [[t, 1], [f3(t + tu(.3)), 1.25, 'in']]), o: fadeIn(tu(.2 + .06 * k), .04).concat(t == null ? [] : [[t, 1], [f3(t + tu(.3)), 0]]) });
+        R(mvG(p, LK), cx - sz / 2, cy - sz / 2, sz, sz, sz * .24, { sw: 4, stroke: k === E.n - 1 ? ACC1 : TL_(o2) }); if (t != null && E.up) ripple(p, cx, cy, sz / 2, t); }
+      cbox(p, c, Cn, 400, -292, 110, E.ts, { noLabel: true }); endM(p, c, d, cx + (bs + 70 * E.n) / 2, cy - (bs + 70 * E.n) / 2, 40);
     }); });
 
   /* ---------- sample data: the same as B02 (A: sentences from unrelated topics · B: stress) ---------- */
