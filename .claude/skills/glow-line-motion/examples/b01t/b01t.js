@@ -2,7 +2,7 @@
    category B01 "ตัวเลขเด่น" redone in the template ชุดฐาน way — graphic elements only (icon boxes, pills, rings, bars, dots, segments, tiles,
    a slider, a stepper, lines), **no real-world objects**, our white-glow line style. Icons and words sit apart (no word under an icon).
    Not a replacement for the approved B01 (references/approved/b01/). Header + helpers copied from b05t.js (b05t → cards.js → b21).
-   GL.cats.B01T.draw(i, data, { x, y, s, at, hit }) — canvas 1000 × 700 centred at (0,0). Data = CutPack B01: value · unit · icon · dir · max (the whole, optional — fills / pointers show value ÷ max). */
+   GL.cats.B01T.draw(i, data, { x, y, s, at, hit }) — canvas 1000 × 700 centred at (0,0). Data = CutPack B01: value · unit · icon · dir · max (the whole, optional — fills / pointers show value ÷ max) · lines (words in place of grey bars, optional). */
 (function () {
   const G = window.GL, C = G.C, NS = 'http://www.w3.org/2000/svg';
   const W = (w = 2) => ({ sw: w }), F = (w = 3.2) => ({ fill: C.fill, sw: w }), S = (w = 2) => ({ sw: w, stroke: C.soft });
@@ -490,6 +490,10 @@
   const fillK = (t0, t1) => [[0, 0], [t0, 0], [t1, 1, 'io']];
   const ridK = (deg, t0, t1) => [[0, -deg], [t0, -deg], [t1, 0, 'io']];
   const litOn = (q, t) => { const g = sub(q); on(g, q, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] }); return g; };
+  /* words in place of the grey bars (user 2026-11-14 "ถ้าไม่มีข้อความส่งมา ให้แสดงขีดเทาเหมือนเดิม … แก้ทุกอันเลย"): data.lines = [strings], used in order by the
+     designs with grey bars (card · list · icon chip · notice); a missing line keeps its grey bar */
+  const LN = (d, k) => d && Array.isArray(d.lines) && d.lines[k] != null && String(d.lines[k]).trim() ? String(d.lines[k]).trim() : null;
+  const lineIn = (q, s, x, y, w, t, size = 40) => { const g = mvG(q, { x: glide(-30, t, f3(t + tu(.22))), o: fadeIn(t, .05) }); txt(g, s, x, y + size * .34, { size, maxW: w, weight: 700, anchor: 'start', color: C.ink }); };
   let FILL = { fill: LIT, sw: 0, stroke: 'none' }, SOFTT = { sw: 14, stroke: 'rgba(255,255,255,.16)' };
 
   /* ---------- colour theme (user 2026-11-14: "ทำให้มันเปลี่ยนสีได้"): every colour comes from GL.C (line = ink, card fill, soft lines) plus one
@@ -551,7 +555,7 @@
      a rule draws; the number counts at the bottom and locks on H; the dir badge pops on the corner. */
   variant('card', 'การ์ดสถิติ', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H;
     art(c, p => { cardG(p, 860, 580, 0); spinBox(p, c, ic, -320, -160, 130, tu(.3)); const lx = ic ? -220 : -360;
-      [[-185, 340], [-130, 220]].forEach(([y, w], k) => R(mvG(p, { px: lx, py: y, sx: [[0, 0], [tu(.36 + .08 * k), 0], [tu(.56 + .08 * k), 1, 'out']], o: fadeIn(tu(.36 + .08 * k), .04) }), lx, y - 13, w, 26, 13, PH));
+      [[-185, 340], [-120, 220]].forEach(([y, w], k) => { const L = LN(d, k); if (L) lineIn(p, L, lx, y, 360 - lx, tu(.36 + .08 * k), k ? 40 : 44); else R(mvG(p, { px: lx, py: y, sx: [[0, 0], [tu(.36 + .08 * k), 0], [tu(.56 + .08 * k), 1, 'out']], o: fadeIn(tu(.36 + .08 * k), .04) }), lx, y - 13, w, 26, 13, PH); });
       drawAt(p.line(-370, -50, 370, -50, S(2)), p, tu(.3), tu(.3));
       const n = numRow(p, p, v, u, -360, 190, { size: 190, maxW: 720, anchor: 'start', t0: tu(.4) }); if (n) ripple(p, n.x0 + n.nw / 2, n.cy, 120, H);
       dirB(p, DIRV(d), 340, -170, f3(H + tu(.1)));
@@ -675,7 +679,7 @@
      icon box, the number and the unit — it grows and lights on H. */
   variant('list', 'แถวรายการ', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H;
     art(c, p => { [-210, 210].forEach((y, k) => { const g = mvG(p, { x: glide(k ? 160 : -160, tu(.06 + .12 * k), tu(.32 + .12 * k), k ? -6 : 6), o: fadeIn(tu(.06 + .12 * k), .06) });
-        R(g, -400, y - 56, 800, 112, 30, S(2.4)); g.circle(-340, y, 20, S(2)); R(g, -290, y - 13, 360, 26, 13, PH); R(g, 110, y - 13, 160, 26, 13, PH); });
+        R(g, -400, y - 56, 800, 112, 30, S(2.4)); g.circle(-340, y, 20, S(2)); const L = LN(d, k); if (L) txt(g, L, -290, y + 14, { size: 40, maxW: 660, weight: 700, anchor: 'start', color: C.soft }); else { R(g, -290, y - 13, 360, 26, 13, PH); R(g, 110, y - 13, 160, 26, 13, PH); } });
       const gx = glide(-200, tu(.12), tu(.38), 8), g = mvG(p, { x: gx, o: fadeIn(tu(.12), .06) }), gs = mvG(g, { px: 0, py: 0, s: bumpK(H, 1.05) });
       R(gs, -440, -90, 880, 180, 40, F(4.4)); R(litOn(gs, H), -440, -90, 880, 180, 40, { fill: TA(.12), sw: 0, stroke: 'none' });
       if (ic) ibox(p, c, { icon: ic }, -350, 0, 120, tu(.38), { g: popAt(gs, -350, 0, tu(.38)), mv: { px: -350, py: 0, x: gx }, punch: H });
@@ -728,11 +732,11 @@
   /* 21 ── ICON CHIP (ชิปไอคอน): a chip slides in top-left (dot · icon · a grey line); the number counts big underneath, a rule draws under it and two
      grey text lines grow in a wave; dir badge top-right */
   variant('chipnum', 'ชิปไอคอน', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H;
-    art(c, p => { const gx = glide(-90, tu(.06), tu(.3)), g = mvG(p, { x: gx, o: fadeIn(tu(.06)) }), cw = ic ? 270 : 220;
+    art(c, p => { const gx = glide(-90, tu(.06), tu(.3)), g = mvG(p, { x: gx, o: fadeIn(tu(.06)) }), L0 = LN(d, 0), L1 = LN(d, 1), cw = L0 ? Math.min(900, (ic ? 160 : 80) + tw(p, L0, 36, 700) + 40) : ic ? 270 : 220;
       R(g, -430, -250, cw, 92, 46, F(3)); g.circle(-386, -204, 9, { fill: ACC1, sw: 1, stroke: ACC1 }); if (ic) put(p, c, { icon: ic }, -322, -204, 62, null, { t: tu(.1), mv: { px: -322, py: -204, x: gx } });
-      R(g, ic ? -280 : -360, -217, ic ? 100 : 130, 26, 13, PH);
+      if (L0) txt(g, L0, ic ? -276 : -356, -192, { size: 36, maxW: cw - (ic ? 170 : 90), weight: 700, anchor: 'start', color: C.ink }); else R(g, ic ? -280 : -360, -217, ic ? 100 : 130, 26, 13, PH);
       const n = numRow(p, p, v, u, -430, 80, { size: 210, maxW: 860, anchor: 'start', t0: tu(.3) }); drawAt(p.line(-430, 140, 430, 140, S(2)), p, tu(.34), tu(.3));
-      [[-430, 300], [-110, 200]].forEach(([x, w], k) => R(mvG(p, { px: x, py: 200, sx: [[0, 0], [tu(.5 + .08 * k), 0], [tu(.7 + .08 * k), 1, 'out']], o: fadeIn(tu(.5 + .08 * k), .04) }), x, 187, w, 26, 13, PH));
+      if (L1) lineIn(p, L1, -430, 205, 860, tu(.5), 44); else [[-430, 300], [-110, 200]].forEach(([x, w], k) => R(mvG(p, { px: x, py: 200, sx: [[0, 0], [tu(.5 + .08 * k), 0], [tu(.7 + .08 * k), 1, 'out']], o: fadeIn(tu(.5 + .08 * k), .04) }), x, 187, w, 26, 13, PH));
       if (n) ripple(p, n.x0 + n.nw / 2, n.cy, 130, H); dirB(p, DIRV(d), 400, -204, f3(H + tu(.1)));
     }); });
 
@@ -967,7 +971,7 @@
   variant('notice', 'การ์ดแจ้งเตือน', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cy = 60, w = 760, h = 220;
     art(c, p => { const K = fallK(0, cy + h / 2, tu(.04), tu(.26), cy + h / 2 + 350), g = mvG(CL(p), K); R(g, -w / 2, cy - h / 2, w, h, 44, F(4.2));
       if (ic) ibox(p, c, { icon: ic }, -w / 2 + 110, cy, 130, tu(.04), { g, mv: K, punch: tu(.28) }); const lx = ic ? -w / 2 + 210 : -w / 2 + 50;
-      [[cy - 30, 330], [cy + 30, 220]].forEach(([y, ww], k) => R(mvG(p, { px: lx, py: y, sx: [[0, 0], [tu(.3 + .06 * k), 0], [tu(.5 + .06 * k), 1, 'out']], o: fadeIn(tu(.3 + .06 * k), .04) }), lx, y - 14, ww, 28, 14, PH));
+      [[cy - 34, 330], [cy + 36, 220]].forEach(([y, ww], k) => { const L = LN(d, k); if (L) lineIn(p, L, lx, y, w / 2 - 40 - lx, tu(.3 + .06 * k), k ? 40 : 44); else R(mvG(p, { px: lx, py: y, sx: [[0, 0], [tu(.3 + .06 * k), 0], [tu(.5 + .06 * k), 1, 'out']], o: fadeIn(tu(.3 + .06 * k), .04) }), lx, y - 14, ww, 28, 14, PH); });
       const pw = Math.min(600, (v ? tw(p, v, 110) : 100) + (u ? tw(p, u, 36, 600) + 20 : 0) + 90), px = Math.min(460 - pw / 2, w / 2 - 40), py = cy - h / 2 - 20, pg = popAt(p, px, py, tu(.4));
       R(pg, px - pw / 2, py - 80, pw, 160, 80, { fill: C.fill, sw: 4.4, stroke: ACC1 }); numRow(p, pg, v, u, px, py + 38, { size: 110, maxW: pw - 70, t0: tu(.42), g: pg }); ripple(p, px, py, 110, H);
     }); });
@@ -1033,11 +1037,11 @@
 
   /* ---------- sample data: the same as B01 (A: sentences from unrelated topics · B: stress) ---------- */
   const SAMPLES = [
-    { say: 'วิ่งวันละ 5 กิโล', value: '5', unit: 'กิโล', icon: 'person-standing' },
+    { say: 'วิ่งวันละ 5 กิโล', value: '5', unit: 'กิโล', icon: 'person-standing', lines: ['วิ่งตอนเช้า', 'รอบสวนสาธารณะใกล้บ้าน'] },
     { say: 'แต่งงานกันมา 12 ปี', value: '12', unit: 'ปี', icon: 'heart' },
     { say: 'ค่าไฟลดลง 30%', value: '30%', icon: 'zap', dir: 'down' },
-    { say: 'ความชื้นในดิน 65%', value: '65%', icon: 'droplet' },
-    { say: 'นอนให้ได้ 8 ชั่วโมง', value: '8', unit: 'ชั่วโมง', icon: 'bed' },
+    { say: 'ความชื้นในดิน 65%', value: '65%', icon: 'droplet', lines: ['แปลงผักหลังบ้าน', 'วัดเมื่อเช้านี้'] },
+    { say: 'นอนให้ได้ 8 ชั่วโมง', value: '8', unit: 'ชั่วโมง', icon: 'bed', lines: ['เข้านอนสี่ทุ่ม', 'ตื่นหกโมงเช้า'] },
     { say: 'ดื่มน้ำวันละ 2.5 ลิตร', value: '2.5', unit: 'ลิตร', icon: 'glass-water' },
     { say: 'ต้นไม้สูงขึ้น 120 เซนติเมตร', value: '120', unit: 'เซนติเมตร', icon: 'sprout', dir: 'up' },
     { say: 'ยอดขายเพิ่มเป็น 3 เท่า', value: '3', unit: 'เท่า', icon: 'store', dir: 'up' },
@@ -1049,7 +1053,7 @@
     { say: 'ส่งของไปแล้ว 3,000 กล่อง', value: '3,000', unit: 'กล่อง', icon: 'package' },
     { say: '90% ของคนทำงานเหนื่อย', value: '90%', unit: 'ของคนทำงาน', icon: 'briefcase' },
     { say: 'ฝุ่นเล็กแค่ 2.5 ไมครอน', value: '2.5', unit: 'ไมครอน', icon: 'cloud', dir: 'down' },
-    { say: 'สมาชิกใหม่ 4,800 คน', value: '4,800', unit: 'คน', icon: 'user-plus', dir: 'up' },
+    { say: 'สมาชิกใหม่ 4,800 คน', value: '4,800', unit: 'คน', icon: 'user-plus', dir: 'up', lines: ['เดือนก่อนหน้า', 'เดือนหน้า'] },
     { say: 'ราคาลด 50%', value: '50%', icon: 'tag', dir: 'down' },
     { say: 'เที่ยวมาแล้ว 12 ประเทศ', value: '12', unit: 'ประเทศ', icon: 'plane', dir: 'up' },
     { say: 'ปีนี้อ่านหนังสือ 24 เล่ม', value: '24', unit: 'เล่ม', icon: 'book-open' },

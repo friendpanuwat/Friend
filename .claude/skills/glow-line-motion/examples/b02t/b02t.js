@@ -2,7 +2,7 @@
    category B02 "เพิ่ม / ลด" in the template ชุดฐาน way — graphic elements only (icon boxes, slots, rows, rings, bars, dots, lines, zones), no
    real-world objects, our white-glow line style, colours from GL.theme. Icons apart from words; icon slots big. Round 1 = designs 1–25 · round 2 = 26–50.
    Not a replacement for the approved B02 (references/approved/b02/). Header + helpers copied from b01t.js (b05t → cards.js → b21).
-   GL.cats.B02T.draw(i, data, { x, y, s, at, hit }) — canvas 1000 × 700 centred at (0,0). Data = CutPack B02: dir · item · n · center · keep · end. */
+   GL.cats.B02T.draw(i, data, { x, y, s, at, hit }) — canvas 1000 × 700 centred at (0,0). Data = CutPack B02: dir · item · n · center · keep · end · texts (one line of words per item, optional — shown where an item has grey lines). */
 (function () {
   const G = window.GL, C = G.C, NS = 'http://www.w3.org/2000/svg';
   const W = (w = 2) => ({ sw: w }), F = (w = 3.2) => ({ fill: C.fill, sw: w }), S = (w = 2) => ({ sw: w, stroke: C.soft });
@@ -531,6 +531,9 @@
     return { up, n, keep, m, ts, H, T0, at: k => up ? ts[k] : k >= keep ? ts[n - 1 - k] : null }; }
   const ORD = E => Array.from({ length: E.n }, (_, k) => k).filter(k => E.at(k) != null).sort((a, b) => E.at(a) - E.at(b));
   const multiBump = (ts, a = 1.08) => { const K = [[0, 1]]; ts.filter(t => t != null).sort((x, y) => x - y).forEach(t => K.push([t, 1], [f3(t + tu(.05)), a, 'out'], [f3(t + tu(.18)), 1, 'soft'])); return K; };
+  /* the words of item k (user 2026-11-14: "เพิ่มช่องข้อความใหม่: แต่ละแถวใส่ข้อความต่างกันได้ เช่น ชื่อหนังสือแต่ละเล่ม … ถ้าไม่มีข้อความส่งมา ให้แสดงขีดเทาเหมือนเดิม"):
+     data.texts = [one string per item]; where a design shows grey lines in an item (rows, pills) the item's text takes their place; none → the grey lines */
+  const TXK = (d, k) => d && Array.isArray(d.texts) && d.texts[k] != null && String(d.texts[k]).trim() ? String(d.texts[k]).trim() : null;
   const DASH = (a = .4) => ({ sw: 2.4, stroke: TL_(a), 'stroke-dasharray': '8 10' });
   /* one item at (x, y), size s. up → it comes in (o.in: drop · fly · slide · rise · flip · pop) and lands at its time; o.vanish = it is absorbed right after.
      down → it is there from the start (pops in at o.t0) and leaves at its time (o.out: lift · fly · slide · flip · sink · shrink) unless kept;
@@ -709,7 +712,7 @@
       for (let k = 0; k < E.n; k++) { const y = f1(y0 + (E.n - 1 - k) * (rh + gp)), t = E.at(k), K = { px: 0, py: y };   /* bottom row first, stacking up (user: "13 อยากให้เรียงจากล่างขึ้นบน") */
         if (E.up) Object.assign(K, { x: [[0, 560], [f3(t - tu(.3)), 560], [t, -12, 'out'], [f3(t + tu(.1)), 0, 'soft']], o: fadeIn(f3(t - tu(.3)), .04) });
         else { const t0 = tu(.08 + .06 * k); Object.assign(K, { x: [[0, 560], [t0, 560], [f3(t0 + tu(.3)), 0, 'out']], o: fadeIn(t0, .04) }); if (t != null) Object.assign(K, { sy: [[0, 1], [f3(t + tu(.12)), 1], [f3(t + tu(.32)), 0, 'in']], o: fadeIn(t0, .04).concat([[f3(t + tu(.12)), 1], [f3(t + tu(.32)), 0]]) }); }
-        const g = mvG(CL(p), K); R(g, -440, y - rh / 2, RW, rh, 34, F(3.6)); R(g, -420, y - bs / 2, bs, bs, bs * .24, F(3.4)); R(g, -420 + bs + 36, y - 30, RW - bs - 160, 24, 12, PH); R(g, -420 + bs + 36, y + 10, (RW - bs - 160) * .62, 24, 12, PH);
+        const g = mvG(CL(p), K); R(g, -440, y - rh / 2, RW, rh, 34, F(3.6)); R(g, -420, y - bs / 2, bs, bs, bs * .24, F(3.4)); const tx = TXK(d, k); if (tx) txt(g, tx, -420 + bs + 36, y + 16, { size: 46, maxW: RW - bs - 110, weight: 700, color: C.ink, anchor: 'start', wrap: 'mid' }); else { R(g, -420 + bs + 36, y - 30, RW - bs - 160, 24, 12, PH); R(g, -420 + bs + 36, y + 10, (RW - bs - 160) * .62, 24, 12, PH); }
         const mv = Object.assign({}, K); delete mv.o; if (X && picOf(X)) put(p, c, { icon: X.icon }, -420 + bs / 2, y, bs * .64, null, { t: E.up ? f3(t - tu(.3)) : tu(.08 + .06 * k), mv, o: K.o }); else if (X) txt(g, X.label, -420 + bs / 2, y + 8, { size: 40, maxW: bs - 12, weight: 800, color: C.ink, wrap: 'mid' });
         if (!E.up && t != null) { const sg = sub(p); on(sg, p, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.02)), 1], [f3(t + tu(.12)), 1], [f3(t + tu(.2)), 0]] }); drawAt(sg.line(-450, y, -430 + RW, y, { sw: 6, stroke: ACC1 }), p, t, tu(.12)); }
         if (E.up) ripple(p, -420 + bs / 2, y, bs * .6, t); }
@@ -776,7 +779,7 @@
       P.forEach(([x, y], k) => { const t = E.at(k), t0 = f3(tu(.08 + .06 * k)), K = { px: x, py: y };
         if (E.up) Object.assign(K, { s: [[0, .2], [f3(t - tu(.3)), .2], [t, 1.1, 'out'], [f3(t + tu(.14)), 1, 'soft']], o: fadeIn(f3(t - tu(.3)), .04) });
         else Object.assign(K, { s: [[0, .3], [t0, .3], [f3(t0 + tu(.24)), 1.06, 'out'], [f3(t0 + tu(.36)), 1, 'soft']].concat(t == null ? [] : [[t, 1], [f3(t + tu(.06)), 1.08, 'out'], [f3(t + tu(.3)), 0, 'in']]), o: fadeIn(t0, .04).concat(t == null ? [] : [[f3(t + tu(.28)), 1], [f3(t + tu(.3)), 0]]) });
-        if (!E.up && t != null) ghost(p, x, y, ph, f3(t + tu(.3)), 'pill', pw); const g = mvG(p, K); R(g, x - pw / 2, y - ph / 2, pw, ph, ph / 2, F(4)); g.circle(x - pw / 2 + ph / 2, y, ph / 2 - 12, S(1.6)); R(g, x - pw / 2 + ph + 10, y - 12, 200, 24, 12, PH);
+        if (!E.up && t != null) ghost(p, x, y, ph, f3(t + tu(.3)), 'pill', pw); const g = mvG(p, K); R(g, x - pw / 2, y - ph / 2, pw, ph, ph / 2, F(4)); g.circle(x - pw / 2 + ph / 2, y, ph / 2 - 12, S(1.6)); const tx = TXK(d, k); if (tx) txt(g, tx, x - pw / 2 + ph + 14, y + 14, { size: 40, maxW: pw - ph - 44, weight: 700, color: C.ink, anchor: 'start', wrap: 'mid' }); else R(g, x - pw / 2 + ph + 10, y - 12, 200, 24, 12, PH);
         const mv = Object.assign({}, K); delete mv.o; if (X && picOf(X)) put(p, c, { icon: X.icon }, x - pw / 2 + ph / 2, y, 124, null, { t: E.up ? f3(t - tu(.3)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, x + 20, y + 14, { size: 46, maxW: pw - 60, weight: 800, color: C.ink }); });
       cbox(p, c, Cn, 0, -262, 170, E.ts, { noLabel: true }); const L = P[E.n - 1]; endM(p, c, d, L[0] + pw / 2, L[1] - ph / 2);
     }); });
@@ -1112,13 +1115,13 @@
     { say: 'เพื่อนค่อย ๆ หายไป', dir: 'down', n: 4, keep: 1, item: { icon: 'user', label: 'เพื่อน' }, center: { icon: 'house' } },
     { say: 'ไข่ในถาดหมดแล้ว', dir: 'down', n: 4, keep: 0, item: { icon: 'egg', label: 'ไข่' }, end: 'x' },
     { say: 'รายได้พุ่งขึ้น', dir: 'up', n: 3, item: { icon: 'banknote', label: 'รายได้' } },
-    { say: 'หนังสือบนชั้นเพิ่มขึ้น', dir: 'up', n: 4, item: { icon: 'book', label: 'หนังสือ' } },
+    { say: 'หนังสือบนชั้นเพิ่มขึ้น', dir: 'up', n: 4, item: { icon: 'book', label: 'หนังสือ' }, texts: ['นิสัยอะตอม', 'คิดเร็วคิดช้า', 'เซเปียนส์', 'พ่อรวยสอนลูก'] },
     { say: 'ผ้าทยอยเก็บลงจากราว', dir: 'down', n: 4, keep: 2, item: { icon: 'shirt', label: 'ผ้า' } },
     { say: 'น้ำไหลเข้าถังมากขึ้น', dir: 'up', n: 3, item: { icon: 'droplet', label: 'น้ำ' } },
     { say: 'ต้นไม้โตขึ้น', dir: 'up', n: 3, item: { icon: 'sprout', label: 'ต้นไม้' } },
     { say: 'ความเครียดลดลง', dir: 'down', n: 4, keep: 1, item: { icon: 'cloud', label: 'ความเครียด' } },
     { say: 'ไฟในบ้านดับทีละดวง', dir: 'down', n: 4, keep: 1, item: { icon: 'lightbulb' } },
-    { say: 'ใบไม้กองพูนขึ้น', dir: 'up', n: 4, item: { icon: 'leaf', label: 'ใบไม้' } },
+    { say: 'ใบไม้กองพูนขึ้น', dir: 'up', n: 4, item: { icon: 'leaf', label: 'ใบไม้' }, texts: ['ใบสัก', 'ใบบัว', 'ใบตอง', 'ใบเตย'] },
     { say: 'นัดหมายเพิ่มเข้ามา', dir: 'up', n: 3, item: { icon: 'calendar', label: 'นัด' } },
   ];
   const STRESS = [
