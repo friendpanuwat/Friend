@@ -277,7 +277,7 @@
      'cups' two cups clink. cut → untied / unlinked / apart. */
   const ringT = (q, x, y, r, w) => { q.circle(x, y, r, { sw: w + 7 }); q.circle(x, y, r, { sw: w, stroke: C.fill }); };
   const arcT = (q, x, y, r, a0, a1, w) => { const P = a => f1(x + r * Math.cos(rad(a))) + ' ' + f1(y + r * Math.sin(rad(a))), d = `M ${P(a0)} A ${r} ${r} 0 0 1 ${P(a1)}`; q.path(d, { sw: w + 7 }); q.path(d, { sw: w, stroke: C.fill }); };
-  let BS = 'knot';
+  let BS = 'rings';
 
   /* 01 ── THE BOND (คนสองคนจับมือกัน — no hands): knot · rings · cups (d.bs or BS); the link's name lands under it */
   variant('bond', 'ผูกพันกัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), st = d.bs || BS;
@@ -289,7 +289,7 @@
       else if (st === 'rings') { const ox = cut ? 175 : 100, r = 140, y = -30, g = inG(p, 'pop', 0, y, tu(.2));
         [-1, 1].forEach(sd => g.circle(sd * ox, y, r, { fill: C.fill, sw: 0, stroke: 'none' })); ringT(g, -ox, y, r, 24); ringT(g, ox, y, r, 24); if (!cut) arcT(g, -ox, y, r, -48, -8, 24);
         [[A, -1, tA(Q)], [B, 1, tB(Q)]].forEach(([X, sd, t]) => { const x = sd * (ox + 30); if (!X) { DOT(popAt(p, x, y, t), x, y, 8); return; }
-          if (picOf(X)) { put(p, c, { icon: X.icon }, x, y, 110, null, { t, punch: t + tu(.16) }); if (X.label) txt(atG(p, t + tu(.12)), X.label, x, y + r + 50, { size: 32, maxW: 240, weight: 700, color: C.ink }); }
+          if (picOf(X)) { put(p, c, { icon: X.icon }, x, y, 110, null, { t, punch: t + tu(.16) }); if (X.label) txt(atG(p, t + tu(.12)), X.label, x, y + r + 72, { size: 32, maxW: 240, weight: 700, color: C.ink }); }
           else txt(popAt(p, x, y, t), X.label, x, y + 10, { size: 34, maxW: 150, weight: 800, color: C.ink, wrap: 'mid' }); });
         link(p, LB(d), 0, 250, 280); }
       else { const bx = cut ? 230 : 135, tl = cut ? 0 : 16;
