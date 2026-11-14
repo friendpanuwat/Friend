@@ -1,0 +1,13 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>B03T one</title>
+<script src="../../assets/glowline.js"></script><script src="b03t.js"></script></head>
+<body><script>
+/* scratch check: one design big — ?i=index&set=A|B&k=dataIndex */
+GL.run(() => {
+  GL.stage();
+  const q = new URLSearchParams(location.search), I = +(window.ONE_I ?? 2), SETN = window.ONE_SET || 'A', K = window.ONE_K ?? I;
+  const data = SETN === 'A' ? GL.cats.B03T.SAMPLES : GL.cats.B03T.STRESS;
+  GL.cats.B03T.draw(I, data[K % 20], { x: GL.W / 2, y: GL.H / 2, s: 1, at: .3, hit: 1.8 });
+  GL.finish({ hold: 2.4, out: true });
+});
+</script></body></html>
