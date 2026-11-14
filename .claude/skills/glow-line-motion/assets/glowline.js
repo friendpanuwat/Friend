@@ -25,6 +25,7 @@
      the theme, so every category and icon follows without its own code: a C default value (drawn earlier or kept in a constant) → its theme
      value · translucent white fill of alpha .15 or more (lit parts: windows, lit panels, filled amounts) → the accent at that alpha · other
      translucent white (glass, tracks, faint lines) → the line colour at that alpha · near-black (bodies, erasing strokes) → the theme fill.
+     fillAlpha: .4 = bodies 40% solid, the video behind shows through (for laying over a clip with --alpha).
      No theme → nothing changes (the default look is exactly as before). */
   const C0 = Object.assign({}, C), BG0 = ['#121212', '#020202']; let THEME = null;
   const hexRgb = h => { h = String(h).trim().replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); const n = parseInt(h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
@@ -40,7 +41,10 @@
     const fix = (v, isFill) => { if (!v) return null; const s = v.trim().toLowerCase(); if (map[s]) return map[s];
       let m = s.match(/^rgba\(\s*255\s*,\s*255\s*,\s*255\s*,\s*([\d.]+)\s*\)$/); if (m) return rgbaOf(isFill && +m[1] >= .15 ? acc : C.ink, m[1]);
       m = s.match(/^#([0-9a-f]{6}|[0-9a-f]{3})$/); if (m && Math.max(...hexRgb(s)) < 40 && THEME.fill) return C.fill; return null; };
-    root.querySelectorAll('[fill],[stroke]').forEach(e => ['fill', 'stroke'].forEach(a => { const v = fix(e.getAttribute(a), a === 'fill'); if (v) e.setAttribute(a, v); })); }
+    /* fillAlpha (0–1): the bodies' fill lets the clip behind show through (strokes in the fill colour stay solid — they cut hollow tubes) */
+    const fa = THEME.fillAlpha != null ? Math.max(0, Math.min(1, +THEME.fillAlpha)) : null, body = String(C.fill).toLowerCase();
+    root.querySelectorAll('[fill],[stroke]').forEach(e => ['fill', 'stroke'].forEach(a => { const v0 = e.getAttribute(a), v = fix(v0, a === 'fill') || v0;
+      if (a === 'fill' && fa != null && v && v.toLowerCase() === body) e.setAttribute(a, rgbaOf(C.fill, fa)); else if (v !== v0) e.setAttribute(a, v); })); }
 
   const css = document.createElement('style');
   css.textContent = `
