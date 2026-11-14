@@ -711,6 +711,322 @@
       dirB(p, DIRV(d), 420, -150, f3(H + tu(.1)));
     }); });
 
+  /* ================= designs 21–50 (user 2026-11-14 "ออกแบบเพิ่มอีก 30 อัน") — same rules: graphic elements only, icon apart from words,
+     the number locks on H, colours from the theme (ACC1 = what lights up, TL_() = faint line tints) ================= */
+  /* an icon in a round plate that pops at t (o.g = draw into this group; o.mv = the keys it rides) */
+  function icirc(p, c, ic, x, y, r, t, o = {}) { if (!ic) return null; const g = o.g || popAt(p, x, y, t); g.circle(x, y, r, F(3.4)); g.circle(x, y, r - 12, S(1.4));
+    put(p, c, { icon: ic }, x, y, r * 1.15, null, { t: f3(t + tu(.04)), mv: o.mv, punch: o.punch }); return g; }
+  const rowOf = (p, v, u, s0, maxW) => v ? rowW(p, v, u, s0, maxW) : 0;
+  const hexD = (x, y, r) => pathOf([0, 1, 2, 3, 4, 5].map(k => [f1(x + r * Math.cos(rad(-90 + 60 * k))), f1(y + r * Math.sin(rad(-90 + 60 * k)))]));
+  /* repeating turn: r keys that spin from t0 to t1 by deg, easing to a stop */
+  const spinR = (t0, t1, deg) => [[0, 0], [t0, 0], [t1, deg, 'out']];
+
+  /* 21 ── ICON CHIP (ชิปไอคอน): a chip slides in top-left (dot · icon · a grey line); the number counts big underneath, a rule draws under it and two
+     grey text lines grow in a wave; dir badge top-right */
+  variant('chipnum', 'ชิปไอคอน', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H;
+    art(c, p => { const gx = glide(-90, tu(.06), tu(.3)), g = mvG(p, { x: gx, o: fadeIn(tu(.06)) }), cw = ic ? 270 : 220;
+      R(g, -430, -250, cw, 92, 46, F(3)); g.circle(-386, -204, 9, { fill: ACC1, sw: 1, stroke: ACC1 }); if (ic) put(p, c, { icon: ic }, -322, -204, 62, null, { t: tu(.1), mv: { px: -322, py: -204, x: gx } });
+      R(g, ic ? -280 : -360, -217, ic ? 100 : 130, 26, 13, PH);
+      const n = numRow(p, p, v, u, -430, 80, { size: 210, maxW: 860, anchor: 'start', t0: tu(.3) }); drawAt(p.line(-430, 140, 430, 140, S(2)), p, tu(.34), tu(.3));
+      [[-430, 300], [-110, 200]].forEach(([x, w], k) => R(mvG(p, { px: x, py: 200, sx: [[0, 0], [tu(.5 + .08 * k), 0], [tu(.7 + .08 * k), 1, 'out']], o: fadeIn(tu(.5 + .08 * k), .04) }), x, 187, w, 26, 13, PH));
+      if (n) ripple(p, n.x0 + n.nw / 2, n.cy, 130, H); dirB(p, DIRV(d), 400, -204, f3(H + tu(.1)));
+    }); });
+
+  /* 22 ── HALO RINGS (วงซ้อนรอบตัวเลข): three rings draw round one after another (the middle one dashed and turning); the icon box travels round the
+     outer ring and parks at its shoulder; the number counts in the middle, on H the rings pulse outward in a wave */
+  variant('halo', 'วงซ้อน', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cx = 0, cy = -20;
+    art(c, p => { [[150, S(2.4)], [200, { sw: 2.4, stroke: TL_(.45), 'stroke-dasharray': '6 14' }], [250, { sw: 2, stroke: TL_(.28) }]].forEach(([r, o], k) => {
+        const pg = mvG(p, { px: cx, py: cy, s: bumpK(f3(H + tu(.04 * k)), 1.05) }), rg = k === 1 ? mvG(pg, { px: cx, py: cy, r: spinR(tu(.1), f3(H + tu(.3)), 160) }) : pg; drawAt(rg.circle(cx, cy, r, o), p, tu(.06 + .08 * k), tu(.3)); });
+      const n = num(p, p, v, cx, cy + 40, { size: 120, maxW: 250, t0: tu(.3) }); pill(p, u, cx, cy + 105, { t: f3(H + tu(.06)), size: 26, maxW: 240 }); ripple(p, cx, cy, 150, H);
+      if (ic) { const K = { px: cx, py: cy, r: [[0, -200], [tu(.2), -200], [tu(.6), 6, 'out'], [tu(.7), 0, 'soft']] }, g = mvG(p, Object.assign({ o: fadeIn(tu(.2), .04) }, K));
+        const a = rad(-45), x = f1(cx + 250 * Math.cos(a)), y = f1(cy + 250 * Math.sin(a)); ibox(p, c, { icon: ic }, x, y, 100, tu(.2), { g, mv: K, punch: tu(.62) }); }
+    }); });
+
+  /* 23 ── CORNER LOCK (มุมล็อกกรอบ): four corner brackets fly in from far out and lock round the number (a bump, they light on H); the icon box drops
+     onto the frame's top edge */
+  variant('corners', 'มุมล็อกกรอบ', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cy = 50;
+    art(c, p => { const rw = rowOf(p, v, u, 190, 760), hw = Math.max(200, rw / 2 + 70), hh = 140, L = 70;
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sy], k) => { const x = sx * hw, y = cy + sy * hh, dd = `M ${x} ${f1(y - sy * L)} L ${x} ${y} L ${f1(x - sx * L)} ${y}`, t = tu(.2 + .04 * k);
+        const g = mvG(p, { x: [[0, sx * 160], [t, sx * 160], [f3(t + tu(.3)), -sx * 8, 'out'], [f3(t + tu(.4)), 0, 'soft']], y: [[0, sy * 120], [t, sy * 120], [f3(t + tu(.3)), -sy * 6, 'out'], [f3(t + tu(.4)), 0, 'soft']], o: fadeIn(t, .04) });
+        g.path(dd, W(6)); litOn(g, H).path(dd, { sw: 6, stroke: ACC1 }); });
+      const n = numRow(p, p, v, u, 0, cy + 64, { size: 190, maxW: 760, t0: tu(.36) }); if (n) ripple(p, n.cx, n.cy, 140, H);
+      dropBox(p, c, ic, 0, cy - hh - 70, 120, tu(.3), tu(.52));
+    }); });
+
+  /* 24 ── CORNER BADGE (ป้ายมุม): a big rounded square pops; the number counts inside; a round icon badge falls onto its top-right corner and
+     squashes, dust; the dir badge on the bottom-left corner */
+  variant('badge', 'ป้ายมุม', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, x0 = -340, y0 = -150, w = 600, h = 360;
+    art(c, p => { R(inG(p, 'pop', x0 + w / 2, y0 + h / 2, tu(.04)), x0, y0, w, h, 50, F(4.4)); R(atG(p, tu(.2)), x0 + 22, y0 + 22, w - 44, h - 44, 32, S(1.4));
+      const n = numRow(p, p, v, u, x0 + w / 2, y0 + h / 2 + 66, { size: 180, maxW: w - 90, t0: tu(.3) }); if (n) ripple(p, n.cx, n.cy, 130, H);
+      if (ic) { const bx = x0 + w, by = y0, K = fallK(bx, by + 80, tu(.36), tu(.56), by + 80 + 350), g = mvG(CL(p), K); icirc(p, c, ic, bx, by, 80, tu(.36), { g, mv: K, punch: tu(.58) }); dust(p, bx, by + 80, tu(.56), .8); }
+      dirB(p, DIRV(d), x0, y0 + h, f3(H + tu(.1)), 40);
+    }); });
+
+  /* 25 ── VERTICAL BAR (แท่งแนวตั้ง): a tall capsule fills from the bottom to the amount, a level line riding its top, ticks light as it passes; the
+     number counts to its right and locks on H; the icon box drops top-right */
+  variant('vbar', 'แท่งแนวตั้ง', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), x = -330, y0 = -280, y1 = 280, t0 = tu(.3), t1 = f3(H - tu(.04));
+    art(c, p => { R(inG(p, 'rise', x, 0, tu(.04)), x - 60, y0, 120, y1 - y0, 60, F(3.6));
+      for (let k = 0; k <= 8; k++) { const y = y1 - 30 - k * (y1 - y0 - 60) / 8, lit = (k / 8) <= fr + 1e-6 && fr > 0; p.line(x + 80, y, x + (k % 4 ? 100 : 116), y, S(1.8)); if (lit) litOn(p, f3(t0 + (t1 - t0) * (k / 8) / Math.max(fr, .01))).line(x + 80, y, x + (k % 4 ? 100 : 116), y, { sw: 3, stroke: ACC1 }); }
+      if (fr > 0) { const fh = Math.max(40, (y1 - y0 - 16) * fr); R(mvG(p, { px: x, py: y1 - 8, sy: fillK(t0, t1), o: fadeIn(t0, .04) }), x - 50, y1 - 8 - fh, 100, fh, 50, FILL);
+        const ly = y1 - 8 - fh; mvG(p, { y: [[0, f1(fh - 30)], [t0, f1(fh - 30)], [t1, 0, 'io']], o: fadeIn(t0, .04) }).line(x - 74, ly, x + 74, ly, { sw: 5, stroke: ACC1 }); ripple(p, x, ly, 60, H); }
+      numRow(p, p, v, u, -170, 70, { size: 190, maxW: 620, anchor: 'start', t0: tu(.3) }); dropBox(p, c, ic, 380, -240, 130, tu(.04), tu(.26)); dirB(p, DIRV(d), ic ? 380 : 420, ic ? 230 : -240, f3(H + tu(.1)));
+    }); });
+
+  /* 26 ── STEPS (ขั้นบันได): five blocks rise one after another as steps (going up, or down when dir is down); a dot hops from step to step and lands
+     on the last on H with a ripple; the number sits by the last step */
+  variant('steps', 'ขั้นบันได', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, dn = DIRV(d) === 'down', by = 290;
+    const hs = [70, 130, 190, 250, 310].map((h, k, a) => dn ? a[4 - k] : h), tops = hs.map((h, k) => [-420 + k * 112 + 50, by - h]);
+    art(c, p => { drawAt(p.line(-460, by, 460, by, S(2)), p, tu(.04), tu(.3));
+      hs.forEach((h, k) => { const x = -420 + k * 112; R(mvG(p, upK(x + 50, by, tu(.1 + .07 * k))), x, by - h, 100, h, 14, k === 4 ? { fill: LIT, sw: 4, stroke: ACC1 } : F(3.2)); });
+      const L = [[tops[0][0], tops[0][1] - 20]]; for (let k = 1; k < 5; k++) { const a = L[L.length - 1], b = [tops[k][0], tops[k][1] - 20]; L.push([(a[0] + b[0]) / 2, Math.min(a[1], b[1]) - 70], b); }
+      const K = pathK(L, tu(.5), f3(H - tu(.04)), L[L.length - 1], 40), E = L[L.length - 1]; mvG(p, { x: K.x, y: K.y, o: fadeIn(tu(.5), .04) }).circle(E[0], E[1], 16, { fill: ACC1, sw: 2, stroke: ACC1 }); ripple(p, E[0], E[1], 40, H);
+      const ny = dn ? -60 : Math.min(140, tops[4][1] + 90); numRow(p, p, v, u, dn ? 460 : 30, dn ? -150 : -150, { size: 150, maxW: dn ? 560 : 430, anchor: dn ? 'end' : 'start', t0: tu(.4) });
+      dropBox(p, c, ic, dn ? 380 : -380, dn ? 120 : -240, 120, tu(.04), tu(.26));
+    }); });
+
+  /* 27 ── NINE TILES (ตาราง 9 ช่อง): a 3×3 grid of tiles flips in along the diagonal; tiles light one by one up to the amount; the icon sits in the middle
+     tile; the number counts on the right */
+  variant('grid9', 'ตาราง 9 ช่อง', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), lit = Math.round(fr * 9), gx = -270, gy = 0, sz = 118, gp = 14, t0 = tu(.4), t1 = f3(H - tu(.04));
+    art(c, p => { const ord = [0, 1, 3, 2, 4, 6, 5, 7, 8];
+      for (let k = 0; k < 9; k++) { const i = k % 3, j = Math.floor(k / 3), x = gx + (i - 1) * (sz + gp), y = gy + (j - 1) * (sz + gp), t = tu(.06 + .04 * (i + j)), g = mvG(p, spinK(x, y, t)); R(g, x - sz / 2, y - sz / 2, sz, sz, 24, F(3.2));
+        const r = ord.indexOf(k); if (r < lit) { const tl = f3(t0 + (t1 - t0) * (lit > 1 ? r / (lit - 1) : 1)); R(mvG(p, { px: x, py: y, s: bumpK(tl, 1.1), o: fadeIn(tl, .03) }), x - sz / 2 + 8, y - sz / 2 + 8, sz - 16, sz - 16, 18, FILL); } }
+      if (ic) put(p, c, { icon: ic }, gx, gy, 72, null, { t: tu(.3), punch: H });
+      const n = numRow(p, p, v, u, -40, 60, { size: 170, maxW: 500, anchor: 'start', t0: tu(.3) }); if (n) ripple(p, n.x0 + n.nw / 2, n.cy, 120, H); dirB(p, DIRV(d), 420, -230, f3(H + tu(.1)));
+    }); });
+
+  /* 28 ── TOGGLE (สวิตช์): a wide switch pops; its knob (the icon riding in it) slides across, the track lights — "on"; then the number counts big
+     underneath and locks on H */
+  variant('toggle', 'สวิตช์', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, ty = -160, tx = 0, tw2 = 330, th = 160, ta = tu(.34), tb = tu(.6);
+    art(c, p => { R(inG(p, 'pop', tx, ty, tu(.04)), tx - tw2 / 2, ty - th / 2, tw2, th, th / 2, F(4)); R(litOn(p, tb), tx - tw2 / 2 + 8, ty - th / 2 + 8, tw2 - 16, th - 16, th / 2 - 8, FILL);
+      const kx = tx + tw2 / 2 - th / 2, K = { px: kx, py: ty, x: [[0, -(tw2 - th)], [ta, -(tw2 - th)], [tb, 8, 'out'], [f3(tb + tu(.1)), 0, 'soft']] }, g = mvG(p, Object.assign({ o: fadeIn(tu(.12), .04) }, K));
+      g.circle(kx, ty, th / 2 - 14, F(3.6)); if (ic) put(p, c, { icon: ic }, kx, ty, 82, null, { t: tu(.14), mv: K, punch: tb }); ripple(p, kx, ty, 70, tb);
+      const n = numRow(p, p, v, u, 0, 190, { size: 190, maxW: 860, t0: tb }); if (n) ripple(p, n.cx, n.cy, 130, H); dirB(p, DIRV(d), 330, ty, f3(H + tu(.1)));
+    }); });
+
+  /* 29 ── TWO RINGS (วงสองชั้น): an outer arc fills to the amount (dot riding its end), an inner dashed ring turns; the icon sits inside at the top,
+     the number counts below it; the unit pill under the rings */
+  variant('dualring', 'วงสองชั้น', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), cx = 0, cy = -40, r = 220, t0 = tu(.3), t1 = f3(H - tu(.04));
+    art(c, p => { drawAt(p.circle(cx, cy, r, { sw: 10, stroke: TL_(.16) }), p, tu(.04), tu(.3));
+      drawAt(mvG(p, { px: cx, py: cy, r: spinR(tu(.1), f3(H + tu(.4)), -220) }).circle(cx, cy, 168, { sw: 3, stroke: TL_(.5), 'stroke-dasharray': '4 16' }), p, tu(.1), tu(.3));
+      if (fr > 0) { on(p.path(arcD(cx, cy, r, fr), { sw: 10, stroke: ACC1 }), p, 0, { draw: fillK(t0, t1) }); const a = rad(-90 + 360 * fr);
+        mvG(p, { px: cx, py: cy, r: ridK(360 * fr, t0, t1), o: fadeIn(t0, .04) }).circle(f1(cx + r * Math.cos(a)), f1(cy + r * Math.sin(a)), 18, { fill: ACC1, sw: 2, stroke: ACC1 }); }
+      if (ic) put(p, c, { icon: ic }, cx, cy - 70, 80, null, { t: tu(.2), punch: H }); num(p, p, v, cx, ic ? cy + 70 : cy + 40, { size: ic ? 100 : 130, maxW: 270, t0: tu(.3) });
+      ripple(p, cx, cy, 160, H); pill(p, u, cx, 260, { t: f3(H + tu(.06)), size: 32, maxW: 460 });
+    }); });
+
+  /* 30 ── WAFFLE (ตารางสี่เหลี่ยม): a 10×10 grid of small squares; they fill row by row from the bottom up to the amount (all when there is no %);
+     the number counts on the left with the icon box above it */
+  variant('waffle', 'ตารางสี่เหลี่ยม', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), lit = Math.round(fr * 100), t0 = tu(.36), t1 = f3(H - tu(.04)), x0 = 70, y0 = -190, st = 37;
+    art(c, p => { for (let k = 0; k < 100; k++) { const i = k % 10, j = 9 - Math.floor(k / 10), x = x0 + i * st, y = y0 + j * st; on(R(p, x, y, 30, 30, 7, S(1.6)), p, 0, { o: fadeIn(tu(.04 + .004 * (i + (9 - j) * 2)), .06) });
+        if (k < lit) { const tl = f3(t0 + (t1 - t0) * (lit > 1 ? k / (lit - 1) : 1)); R(litOn(p, tl), x + 4, y + 4, 22, 22, 5, { fill: ACC1, sw: 0, stroke: 'none' }); } }
+      numRow(p, p, v, u, -440, 90, { size: 160, maxW: 470, anchor: 'start', t0: tu(.3) }); dropBox(p, c, ic, -380, -170, 130, tu(.04), tu(.26)); if (!ic) dirB(p, DIRV(d), -400, -170, f3(H + tu(.1)));
+    }); });
+
+  /* 31 ── TIMELINE (เส้นเวลา): a long line with ticks draws in; a marker card (the number counting inside) glides along it and stops at the amount on H,
+     the ticks it passes light up; the icon box drops at the top-left */
+  variant('timeline', 'เส้นเวลา', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, ps = posV(d), ly = 200, x0 = -440, x1 = 440, t0 = tu(.34), t1 = f3(H - tu(.04));
+    art(c, p => { drawAt(p.line(x0, ly, x1, ly, W(3.4)), p, tu(.04), tu(.3)); const mx = f1(x0 + 20 + (x1 - x0 - 40) * ps);
+      for (let k = 0; k <= 16; k++) { const x = f1(x0 + 20 + k * (x1 - x0 - 40) / 16), h = k % 4 ? 16 : 30; on(p.line(x, ly - h, x, ly + h, S(2)), p, 0, { o: fadeIn(tu(.06 + .015 * k), .04) });
+        if (x <= mx + 1 && ps > 0) litOn(p, f3(t0 + (t1 - t0) * (x - x0 - 20) / Math.max(1, mx - x0 - 20))).line(x, ly - h, x, ly + h, { sw: 3.4, stroke: ACC1 }); }
+      const bw = Math.min(600, (v ? tw(p, v, 100) : 100) + (u ? tw(p, u, 36, 600) + 20 : 0) + 80), bx = Math.max(-480 + bw / 2, Math.min(480 - bw / 2, mx)), dx = f1(x0 + 20 - mx);
+      const g = mvG(p, { x: [[0, dx], [t0, dx], [t1, 0, 'io']], o: fadeIn(tu(.3), .04) }); R(g, bx - bw / 2, -10, bw, 140, 26, F(3.6)); g.path(`M ${mx - 16} 129 L ${mx} ${ly - 24} L ${mx + 16} 129`, F(3.6)); g.line(mx - 14, 128, mx + 14, 128, { sw: 6, stroke: C.fill });
+      numRow(p, g, v, u, bx, 96, { size: 100, maxW: bw - 60, t0: tu(.34), g }); g.circle(mx, ly, 12, { fill: ACC1, sw: 2, stroke: ACC1 }); ripple(p, mx, ly, 40, H);
+      dropBox(p, c, ic, -400, -230, 120, tu(.04), tu(.26)); dirB(p, DIRV(d), 420, -230, f3(H + tu(.1)));
+    }); });
+
+  /* 32 ── TICK SCALE (สเกลขีด): the number counts big at the top; under it a scale of ticks draws in and lights from the left as a pointer slides to
+     the amount and settles (overshoot); the icon box drops top-left */
+  variant('ticks', 'สเกลขีด', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, ps = posV(d), sy = 210, t0 = tu(.34), t1 = f3(H - tu(.04)), N = 40;
+    art(c, p => { const n = numRow(p, p, v, u, ic ? 60 : 0, 30, { size: 200, maxW: ic ? 740 : 860, t0: tu(.3) }); if (n) ripple(p, n.cx, n.cy, 140, H);
+      for (let k = 0; k <= N; k++) { const x = f1(-420 + 840 * k / N), h = k % 5 ? 22 : 44; on(p.line(x, sy, x, sy + h, S(2)), p, 0, { o: fadeIn(tu(.08 + .006 * k), .04) });
+        if (k / N <= ps + 1e-6 && ps > 0) litOn(p, f3(t0 + (t1 - t0) * (k / N) / ps)).line(x, sy, x, sy + h, { sw: 3.4, stroke: ACC1 }); }
+      const px = f1(-420 + 840 * ps); mvG(p, { x: [[0, f1(-420 - px)], [t0, f1(-420 - px)], [t1, 10, 'out'], [f3(t1 + tu(.1)), 0, 'soft']], o: fadeIn(tu(.3), .04) }).path(`M ${px - 20} ${sy - 40} L ${px + 20} ${sy - 40} L ${px} ${sy - 8} Z`, { fill: ACC1, sw: 3, stroke: ACC1 });
+      dropBox(p, c, ic, -400, -230, 110, tu(.04), tu(.26));
+    }); });
+
+  /* 33 ── REVEAL CIRCLE (วงกลมเปิด): a soft lit disc grows from the centre with two rings rippling out while the number counts inside; it locks on H;
+     the icon box rolls in to sit on the disc's lower right edge; the unit pill under */
+  variant('reveal', 'วงกลมเปิด', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cx = 0, cy = -30, r = 220;
+    art(c, p => { const g = mvG(p, { px: cx, py: cy, s: [[0, 0], [tu(.06), 0], [tu(.4), 1.05, 'out'], [tu(.5), 1, 'soft']], o: fadeIn(tu(.06), .04) }); g.circle(cx, cy, r, F(4)); g.circle(cx, cy, r - 16, { fill: TL_(.05), sw: 0, stroke: 'none' });
+      [tu(.5), tu(.8)].forEach(t => ripple(p, cx, cy, r, t)); num(p, p, v, cx, cy + 50, { size: 140, maxW: 340, t0: tu(.3) }); ripple(p, cx, cy, r - 40, H);
+      if (ic) { const x = f1(cx + r * Math.cos(rad(40))), y = f1(cy + r * Math.sin(rad(40))), K = { px: x, py: y, x: [[0, 300], [tu(.3), 300], [tu(.6), -6, 'out'], [tu(.7), 0, 'soft']], r: [[0, 200], [tu(.3), 200], [tu(.6), -6, 'out'], [tu(.7), 0, 'soft']] };
+        icirc(p, c, ic, x, y, 62, tu(.3), { g: mvG(CL(p), Object.assign({ o: fadeIn(tu(.3), .04) }, K)), mv: K, punch: tu(.62) }); }
+      pill(p, u, cx, 270, { t: f3(H + tu(.06)), size: 32, maxW: 460 });
+    }); });
+
+  /* 34 ── BIG BRACKETS (วงเล็บใหญ่): two tall square brackets slam in from the sides (dust at their feet) and hold the number between them; on H they
+     push out a little as the number punches; the icon box drops above */
+  variant('brackets', 'วงเล็บใหญ่', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cy = 60;
+    art(c, p => { const rw = rowOf(p, v, u, 190, 700), hx = Math.min(470, Math.max(170, rw / 2 + 60)), y0 = cy - 150, y1 = cy + 150;
+      [-1, 1].forEach(sd => { const x = sd * hx, t = tu(.2 + .06 * (sd + 1)), g = mvG(p, { x: [[0, sd * 300], [t, sd * 300], [f3(t + tu(.16)), 0, 'in'], [f3(t + tu(.22)), sd * 10, 'out'], [f3(t + tu(.32)), 0, 'soft'], [H, 0], [f3(H + tu(.06)), sd * 12, 'out'], [f3(H + tu(.24)), 0, 'soft']], o: fadeIn(t, .04) });
+        g.path(`M ${f1(x - sd * 40)} ${y0} L ${x} ${y0} L ${x} ${y1} L ${f1(x - sd * 40)} ${y1}`, W(7)); dust(p, x, y1, f3(t + tu(.16)), .7); });
+      const n = numRow(p, p, v, u, 0, cy + 64, { size: 190, maxW: 2 * hx - 100, t0: tu(.4) }); if (n) ripple(p, n.cx, n.cy, 130, H);
+      dropBox(p, c, ic, 0, y0 - 90, 110, tu(.04), tu(.26)); dirB(p, DIRV(d), hx, y0 - 50, f3(H + tu(.1)));
+    }); });
+
+  /* 35 ── ORBIT (จุดโคจร): the icon plate pops on the left; three dots orbit it on a dashed path and slow to a stop on H; the number counts on the right
+     and locks on H */
+  variant('orbit', 'จุดโคจร', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cx = ic ? -270 : -300, cy = -10;
+    art(c, p => { if (ic) icirc(p, c, ic, cx, cy, 100, tu(.06), { punch: H }); else popAt(p, cx, cy, tu(.06)).circle(cx, cy, 30, { fill: ACC1, sw: 2, stroke: ACC1 });
+      drawAt(p.circle(cx, cy, 160, { sw: 2, stroke: TL_(.4), 'stroke-dasharray': '5 12' }), p, tu(.1), tu(.3));
+      const og = mvG(p, { px: cx, py: cy, r: [[0, 0], [tu(.3), 0], [f3(H - tu(.04)), 540, 'out']], o: fadeIn(tu(.3), .04) }); [0, 120, 240].forEach((a, k) => og.circle(f1(cx + 160 * Math.cos(rad(a - 90))), f1(cy + 160 * Math.sin(rad(a - 90))), k ? 10 : 15, { fill: ACC1, sw: 2, stroke: ACC1 }));
+      const n = numRow(p, p, v, u, -60, 60, { size: 180, maxW: 520, anchor: 'start', t0: tu(.3) }); if (n) ripple(p, n.x0 + n.nw / 2, n.cy, 120, H); dirB(p, DIRV(d), 420, -220, f3(H + tu(.1)));
+    }); });
+
+  /* 36 ── COUNTER BOX (กล่องนับ): a long box slides in from the right; the icon box drops on its left end, joined by a short bar; the number counts
+     inside and a thin strip along the box's bottom fills to the amount, locking on H */
+  variant('counterbox', 'กล่องนับ', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), bx0 = ic ? -200 : -440, bx1 = 440, cy = 0, h = 250, t0 = tu(.36), t1 = f3(H - tu(.04));
+    art(c, p => { const g = mvG(p, { x: glide(260, tu(.06), tu(.34), -8), o: fadeIn(tu(.06), .06) }); R(g, bx0, cy - h / 2, bx1 - bx0, h, 40, F(4.2));
+      R(g, bx0 + 34, cy + h / 2 - 40, bx1 - bx0 - 68, 14, 7, { fill: TL_(.12), sw: 0, stroke: 'none' });
+      if (fr > 0) R(mvG(p, { px: bx0 + 34, py: cy + h / 2 - 33, sx: fillK(t0, t1), o: fadeIn(t0, .04) }), bx0 + 34, cy + h / 2 - 40, Math.max(14, (bx1 - bx0 - 68) * fr), 14, 7, { fill: ACC1, sw: 0, stroke: 'none' });
+      if (ic) { drawAt(p.line(-280, cy, bx0, cy, W(4)), p, tu(.3), tu(.12)); dropBox(p, c, ic, -360, cy, 160, tu(.04), tu(.28)); }
+      const n = numRow(p, p, v, u, (bx0 + bx1) / 2, cy + 40, { size: 150, maxW: bx1 - bx0 - 90, t0: tu(.36) }); if (n) ripple(p, n.cx, n.cy, 110, H);
+    }); });
+
+  /* 37 ── RADIAL BARS (แท่งรอบวง): 24 short bars round a circle grow out in a clockwise wave; the ones up to the amount light; the number counts in the
+     centre, the unit pill under; the icon box drops top-left */
+  variant('radial', 'แท่งรอบวง', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), cx = 30, cy = -30, r0 = 140, N = 24, t0 = tu(.4), t1 = f3(H - tu(.04));
+    art(c, p => { for (let k = 0; k < N; k++) { const a = -90 + k * 360 / N, len = 40 + 40 * (.5 + .5 * Math.sin(k * 1.3)), x = f1(cx + r0 * Math.cos(rad(a))), y = f1(cy + r0 * Math.sin(rad(a))), t = tu(.06 + .012 * k);
+        const g = mvG(p, { px: x, py: y, s: [[0, 0], [t, 0], [f3(t + tu(.2)), 1.1, 'out'], [f3(t + tu(.3)), 1, 'soft']], o: fadeIn(t, .04) }); tick(g, cx, cy, a, r0, r0 + len, { sw: 9, stroke: TL_(.3) });
+        if (k / N < fr - 1e-6) tick(litOn(p, f3(t0 + (t1 - t0) * (k / N) / Math.max(fr, .01))), cx, cy, a, r0, r0 + len, { sw: 9, stroke: ACC1 }); }
+      num(p, p, v, cx, cy + 40, { size: 110, maxW: 200, t0: tu(.3) }); ripple(p, cx, cy, r0 - 20, H); pill(p, u, cx, 280, { t: f3(H + tu(.06)), size: 30, maxW: 420 });
+      dropBox(p, c, ic, -390, -240, 110, tu(.04), tu(.26)); dirB(p, DIRV(d), 420, -240, f3(H + tu(.1)));
+    }); });
+
+  /* 38 ── EQUALIZER (อีควอไลเซอร์): nine bars bounce like a level meter while the number counts, then settle into a rising (or falling) line on H, the
+     last bar lit; the icon box drops top-right */
+  variant('equalizer', 'อีควอไลเซอร์', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, dr = DIRV(d), by = 290, mh = 240;
+    const fin = Array.from({ length: 9 }, (_, k) => dr === 'down' ? 1 - k * .09 : dr === 'up' ? .2 + k * .1 : .35 + .55 * Math.sin(k / 8 * Math.PI) * .9 + (k === 8 ? .3 : 0));
+    art(c, p => { drawAt(p.line(-450, by, 360, by, S(2)), p, tu(.04), tu(.3));
+      fin.forEach((f, k) => { const x = -430 + k * 86, hh = mh * Math.min(1, f), K = [[0, 0], [tu(.1 + .02 * k), 0]]; let t = tu(.24 + .02 * k), z = 0;
+        while (t < H - tu(.16)) { K.push([f3(t), f1(.25 + .75 * Math.abs(Math.sin(k * 2.1 + z * 1.7))), 'io']); t += tu(.12); z++; } K.push([f3(H - tu(.04)), 1.06, 'out'], [f3(H + tu(.08)), 1, 'soft']);
+        R(mvG(p, { px: x + 30, py: by, sy: K, o: fadeIn(tu(.1 + .02 * k), .04) }), x, by - hh, 60, hh, 14, k === 8 ? { fill: LIT, sw: 4, stroke: ACC1 } : F(3)); });
+      numRow(p, p, v, u, -430, -130, { size: 160, maxW: ic ? 640 : 860, anchor: 'start', t0: tu(.3) }); dropBox(p, c, ic, 390, -220, 120, tu(.04), tu(.26));
+    }); });
+
+  /* 39 ── SEGMENT RING (วงแบ่งท่อน): ten arc pieces make a ring; they light one by one round it up to the amount; the icon pops in the middle; the number
+     counts on the right */
+  variant('segring', 'วงแบ่งท่อน', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), lit = Math.round(fr * 10), cx = -240, cy = 0, r = 170, t0 = tu(.36), t1 = f3(H - tu(.04));
+    art(c, p => { for (let k = 0; k < 10; k++) { const a0 = -90 + k * 36 + 3, a1 = a0 + 30, P = a => f1(cx + r * Math.cos(rad(a))) + ' ' + f1(cy + r * Math.sin(rad(a))), dd = `M ${P(a0)} A ${r} ${r} 0 0 1 ${P(a1)}`;
+        drawAt(p.path(dd, { sw: 34, stroke: TL_(.16) }), p, tu(.04 + .02 * k), tu(.1)); if (k < lit) { const tl = f3(t0 + (t1 - t0) * (lit > 1 ? k / (lit - 1) : 1)); on(p.path(dd, { sw: 34, stroke: ACC1 }), p, 0, { o: fadeIn(tl, .04) }); } }
+      if (ic) icirc(p, c, ic, cx, cy, 86, tu(.14), { punch: H }); const n = numRow(p, p, v, u, 0, 50, { size: 160, maxW: 450, anchor: 'start', t0: tu(.3) }); if (n) ripple(p, n.x0 + n.nw / 2, n.cy, 110, H);
+      dirB(p, DIRV(d), 420, -210, f3(H + tu(.1)));
+    }); });
+
+  /* 40 ── LINKED PILLS (เม็ดต่อกัน): an icon pill, the number pill and the unit pill slide in one after another and click together (each bump);
+     the number counts in its pill and locks on H */
+  variant('tagrow', 'เม็ดต่อกัน', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cy = 0, gap = 26;
+    art(c, p => { let nw = Math.min(560, (v ? tw(p, v, 130) : 100) + 90), uw = u ? Math.min(300, tw(p, u, 44, 600) + 70) : 0; const iw = ic ? 170 : 0, tot = iw + nw + uw + gap * ((ic ? 1 : 0) + (u ? 1 : 0)), k0 = Math.min(1, 940 / tot);
+      nw *= k0; uw *= k0; let x = -tot * k0 / 2; const parts = [];
+      if (ic) { parts.push(['i', x, iw * k0]); x += iw * k0 + gap; } parts.push(['n', x, nw]); x += nw + gap; if (u) parts.push(['u', x, uw]);
+      parts.forEach(([kind, x0, w], k) => { const t = tu(.1 + .14 * k), gx = glide(-200, t, f3(t + tu(.2)), 10), g = mvG(p, { x: gx, o: fadeIn(t, .04) }), h = kind === 'n' ? 200 : 150;
+        R(g, x0, cy - h / 2, w, h, h / 2, kind === 'n' ? F(4.4) : F(3.4)); if (k) dust(p, x0, cy, f3(t + tu(.2)), .5);
+        if (kind === 'i') put(p, c, { icon: ic }, x0 + w / 2, cy, 90 * k0, null, { t, mv: { px: x0 + w / 2, py: cy, x: gx }, punch: H });
+        if (kind === 'n') { num(p, g, v, x0 + w / 2, cy + 46 * k0, { size: 130 * k0, maxW: w - 50, t0: t, g }); ripple(p, x0 + w / 2, cy, 120, H); }
+        if (kind === 'u') txt(g, u, x0 + w / 2, cy + 15, { size: 44 * k0, maxW: w - 40, weight: 600, color: C.soft }); });
+      dirB(p, DIRV(d), 400, -200, f3(H + tu(.1)));
+    }); });
+
+  /* 41 ── CHIP STACK (ชิปซ้อนชั้น): flat bars drop one at a time onto a base and stack (each squashes); the top one lights on H; the number counts
+     beside the stack; the icon box drops above it */
+  variant('chipstack', 'ชิปซ้อนชั้น', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = pctV(d), dr = DIRV(d), N = fr != null ? Math.max(1, Math.round(fr * 8)) : dr === 'up' ? 7 : dr === 'down' ? 3 : 6, by = 280, cx = -290;
+    art(c, p => { drawAt(p.line(-450, by, -130, by, S(2)), p, tu(.04), tu(.24)); const span = Math.max(tu(.1), (H - tu(.06)) - tu(.2));
+      for (let k = 0; k < N; k++) { const y = by - 6 - k * 42, t1 = f3(tu(.2) + span * (k + 1) / N), K = fallK(cx, y, f3(t1 - tu(.18)), t1, Math.max(80, y + 350)), top = k === N - 1;
+        R(mvG(CL(p), K), cx - 130, y - 34, 260, 34, 17, top ? { fill: LIT, sw: 4, stroke: ACC1 } : F(3)); if (top) ripple(p, cx, y - 17, 80, t1); }
+      const n = numRow(p, p, v, u, -80, 80, { size: 180, maxW: 540, anchor: 'start', t0: tu(.3) }); dropBox(p, c, ic, ic ? 380 : -290, -230, 120, tu(.04), tu(.26));
+      dirB(p, DIRV(d), ic ? 380 : 400, ic ? 230 : -230, f3(H + tu(.1)));
+    }); });
+
+  /* 42 ── ARROW (ลูกศรพุ่ง): a thick arrow shoots out of the icon box — up when the value goes up, down when it goes down, right otherwise; its head
+     snaps on at the tip with a ripple and the number counts beside it */
+  variant('arrow', 'ลูกศรพุ่ง', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, dr = DIRV(d);
+    const A = dr === 'up' ? [[-380, 230], [-110, -170]] : dr === 'down' ? [[-380, -230], [-110, 170]] : [[-380, 0], [-90, 0]], [a, b] = A, an = Math.atan2(b[1] - a[1], b[0] - a[0]);
+    art(c, p => { if (ic) dropBox(p, c, ic, a[0], a[1], 130, tu(.04), tu(.26)); else popAt(p, a[0], a[1], tu(.06)).circle(a[0], a[1], 22, { fill: ACC1, sw: 2, stroke: ACC1 });
+      const s0 = [f1(a[0] + 80 * Math.cos(an)), f1(a[1] + 80 * Math.sin(an))]; on(p.line(s0[0], s0[1], b[0], b[1], { sw: 12, stroke: ACC1 }), p, 0, { draw: [[0, 0], [tu(.34), 0], [f3(H - tu(.1)), 1, 'in']] });
+      const hg = popAt(p, b[0], b[1], f3(H - tu(.1))), h1 = an + rad(150), h2 = an - rad(150); hg.path(`M ${f1(b[0] + 60 * Math.cos(h1))} ${f1(b[1] + 60 * Math.sin(h1))} L ${b[0]} ${b[1]} L ${f1(b[0] + 60 * Math.cos(h2))} ${f1(b[1] + 60 * Math.sin(h2))}`, { sw: 12, stroke: ACC1 });
+      ripple(p, b[0], b[1], 50, f3(H - tu(.08))); const n = numRow(p, p, v, u, -20, 60, { size: 190, maxW: 480, anchor: 'start', t0: tu(.3) }); if (n) ripple(p, n.x0 + n.nw / 2, n.cy, 120, H);
+    }); });
+
+  /* 43 ── CARD HALVES (การ์ดประกบ): two halves of a card slide in from the sides and lock at the seam (bump + a flash); the icon box pops up on the seam
+     above; the number counts across the joined card and locks on H */
+  variant('splitcard', 'การ์ดประกบ', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cy = 50, w = 400, h = 300, tm = tu(.42);
+    art(c, p => { [-1, 1].forEach(sd => { const g = mvG(p, { x: [[0, sd * 520], [tu(.08), sd * 520], [tm, 0, 'in'], [f3(tm + tu(.06)), sd * 10, 'out'], [f3(tm + tu(.16)), 0, 'soft']], o: fadeIn(tu(.08), .04) });
+        const e = sd * w, e1 = sd * (w - 40);   /* open at the seam: the fill closes along it, the stroke does not (no line through the number) */
+        g.path(`M 0 ${cy - h / 2} L ${e1} ${cy - h / 2} Q ${e} ${cy - h / 2} ${e} ${cy - h / 2 + 40} L ${e} ${cy + h / 2 - 40} Q ${e} ${cy + h / 2} ${e1} ${cy + h / 2} L 0 ${cy + h / 2}`, F(4.2)); });
+      const fl = sub(p); on(fl, p, 0, { o: [[0, 0], [tm, 0], [f3(tm + tu(.03)), 1], [f3(tm + tu(.3)), 0]] }); fl.line(0, cy - h / 2 - 30, 0, cy + h / 2 + 30, { sw: 6, stroke: ACC1 }); dust(p, 0, cy - h / 2, tm, .9);
+      const n = numRow(p, p, v, u, 0, cy + 60, { size: 170, maxW: 2 * w - 90, t0: f3(tm + tu(.02)) }); if (n) ripple(p, n.cx, n.cy, 130, H);
+      if (ic) ibox(p, c, { icon: ic }, 0, cy - h / 2 - 90, 120, f3(tm + tu(.04)), { punch: H }); dirB(p, DIRV(d), w, cy - h / 2, f3(H + tu(.1)));
+    }); });
+
+  /* 44 ── NOTICE CARD (การ์ดแจ้งเตือน): a notice card drops from above and bounces (icon box + two grey lines inside); a count pill pops on its top-right
+     corner with the number counting inside, locking on H */
+  variant('notice', 'การ์ดแจ้งเตือน', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cy = 60, w = 760, h = 220;
+    art(c, p => { const K = fallK(0, cy + h / 2, tu(.04), tu(.26), cy + h / 2 + 350), g = mvG(CL(p), K); R(g, -w / 2, cy - h / 2, w, h, 44, F(4.2));
+      if (ic) ibox(p, c, { icon: ic }, -w / 2 + 110, cy, 130, tu(.04), { g, mv: K, punch: tu(.28) }); const lx = ic ? -w / 2 + 210 : -w / 2 + 50;
+      [[cy - 30, 330], [cy + 30, 220]].forEach(([y, ww], k) => R(mvG(p, { px: lx, py: y, sx: [[0, 0], [tu(.3 + .06 * k), 0], [tu(.5 + .06 * k), 1, 'out']], o: fadeIn(tu(.3 + .06 * k), .04) }), lx, y - 14, ww, 28, 14, PH));
+      const pw = Math.min(600, (v ? tw(p, v, 110) : 100) + (u ? tw(p, u, 36, 600) + 20 : 0) + 90), px = Math.min(460 - pw / 2, w / 2 - 40), py = cy - h / 2 - 20, pg = popAt(p, px, py, tu(.4));
+      R(pg, px - pw / 2, py - 80, pw, 160, 80, { fill: C.fill, sw: 4.4, stroke: ACC1 }); numRow(p, pg, v, u, px, py + 38, { size: 110, maxW: pw - 70, t0: tu(.42), g: pg }); ripple(p, px, py, 110, H);
+    }); });
+
+  /* 45 ── DOT PATH (จุดเชื่อมเส้น): six stops on a line (the first holds the icon); the line fills from the left and each stop it reaches lights, the
+     last reached ripples on H; the number counts above */
+  variant('dotpath', 'จุดเชื่อมเส้น', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, ps = frac(d), ly = 170, xs = [-380, -230, -80, 70, 220, 370], t0 = tu(.4), t1 = f3(H - tu(.04));
+    art(c, p => { drawAt(p.line(xs[0], ly, xs[5], ly, { sw: 8, stroke: TL_(.2) }), p, tu(.04), tu(.3)); const reach = Math.max(1, Math.round(ps * 5)), ex = xs[reach];
+      if (ps > 0) on(p.line(xs[0], ly, ex, ly, { sw: 8, stroke: ACC1 }), p, 0, { draw: [[0, 0], [t0, 0], [t1, 1, 'lin']] });
+      xs.forEach((x, k) => { if (k === 0 && ic) { icirc(p, c, ic, x, ly, 62, tu(.06), { punch: t0 }); return; } popAt(p, x, ly, tu(.08 + .04 * k)).circle(x, ly, 26, F(3.4));
+        if (k > 0 && k <= reach && ps > 0) { const tl = f3(t0 + (t1 - t0) * k / reach); popAt(p, x, ly, tl).circle(x, ly, 16, { fill: ACC1, sw: 2, stroke: ACC1 }); if (k === reach) ripple(p, x, ly, 40, tl); } });
+      const n = numRow(p, p, v, u, 0, -40, { size: 190, maxW: 860, t0: tu(.3) }); if (n) ripple(p, n.cx, n.cy, 130, H); dirB(p, DIRV(d), 420, -230, f3(H + tu(.1)));
+    }); });
+
+  /* 46 ── TARGET LOCK (เป้าล็อก): two dashed rings close in from big to fit round the number while they turn; four cross ticks snap in and light on H;
+     the icon box drops top-left */
+  variant('target', 'เป้าล็อก', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cx = 0, cy = -10;
+    art(c, p => { [[230, '10 12', 1], [180, '3 10', -1]].forEach(([r, da, sd], k) => { const g = mvG(p, { px: cx, py: cy, s: [[0, 1.7], [tu(.06), 1.7], [f3(H - tu(.08)), .97, 'out'], [f3(H + tu(.06)), 1, 'soft']], o: fadeIn(tu(.06 + .06 * k), .06) });
+        mvG(g, { px: cx, py: cy, r: spinR(tu(.06), f3(H + tu(.2)), sd * 140) }).circle(cx, cy, r, { sw: 3, stroke: k ? TL_(.5) : C.ink, 'stroke-dasharray': da }); });
+      [0, 90, 180, 270].forEach(a => { const g = mvG(p, { px: cx, py: cy, s: [[0, 1.5], [f3(H - tu(.2)), 1.5], [f3(H - tu(.02)), 1, 'in']], o: fadeIn(f3(H - tu(.2)), .04) }); tick(g, cx, cy, a, 240, 290, W(5)); tick(litOn(p, H), cx, cy, a, 240, 290, { sw: 5, stroke: ACC1 }); });
+      num(p, p, v, cx, cy + 46, { size: 130, maxW: 300, t0: tu(.3) }); pill(p, u, cx, cy + 110, { t: f3(H + tu(.06)), size: 26, maxW: 260 }); ripple(p, cx, cy, 170, H);
+      dropBox(p, c, ic, -400, -250, 100, tu(.04), tu(.26)); dirB(p, DIRV(d), 400, -250, f3(H + tu(.1)));
+    }); });
+
+  /* 47 ── HEXAGON (หกเหลี่ยม): a big hexagon spins in edge-on and settles; the icon sits in a small hexagon that drops in and docks to it with a short
+     link; the number counts inside the big one; the unit pill under */
+  variant('hexnum', 'หกเหลี่ยม', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cx = ic ? 80 : 0, cy = -20, r = 230;
+    art(c, p => { const g = mvG(p, spinK(cx, cy, tu(.06))); g.path(hexD(cx, cy, r), F(4.4)); g.path(hexD(cx, cy, r - 24), S(1.4));
+      const n = num(p, p, v, cx, cy + 46, { size: 130, maxW: 300, t0: tu(.34) }); ripple(p, cx, cy, r - 50, H); pill(p, u, cx, 270, { t: f3(H + tu(.06)), size: 32, maxW: 440 });
+      if (ic) { const hx = -330, hy = -170, K = fallK(hx, hy + 80, tu(.3), tu(.5), hy + 80 + 350), hg = mvG(CL(p), K); hg.path(hexD(hx, hy, 80), F(3.6)); put(p, c, { icon: ic }, hx, hy, 80, null, { t: tu(.3), mv: K, punch: tu(.52) });
+        drawAt(p.line(hx + 70, hy + 40, f1(cx - r * Math.cos(rad(30))), f1(cy - r * .5 + 30), W(3.4)), p, tu(.54), tu(.14)); dust(p, hx, hy + 80, tu(.5), .6); }
+      dirB(p, DIRV(d), cx + r * .87, cy - r * .5, f3(H + tu(.1)));
+    }); });
+
+  /* 48 ── TICKER STRIP (แถบเลื่อน): a long strip; the number slides in from the right edge with speed lines trailing, counting as it moves, and stops in
+     the middle with an overshoot on H; the icon box drops on the strip's left end */
+  variant('ticker', 'แถบเลื่อน', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, x0 = ic ? -300 : -450, x1 = 450, cy = 40, h = 200;
+    art(c, p => { R(inG(p, 'pop', (x0 + x1) / 2, cy, tu(.04)), x0, cy - h / 2, x1 - x0, h, 36, F(4)); const cl = clipG(p, x0 + 6, cy - h / 2 + 6, x1 - x0 - 12, h - 12);
+      const mx = (x0 + x1) / 2, dx = x1 - x0, K = [[0, dx], [tu(.3), dx], [f3(H - tu(.04)), -14, 'out'], [f3(H + tu(.1)), 0, 'soft']], g = mvG(cl, { x: K, o: fadeIn(tu(.3), .02) });
+      const n = numRow(p, g, v, u, mx, cy + 54, { size: 150, maxW: x1 - x0 - 80, t0: tu(.3), g }), rx = n ? n.x1 : mx;
+      const sl = sub(g); on(sl, p, 0, { o: [[0, 0], [tu(.3), 0], [tu(.34), 1], [f3(H - tu(.2)), 1], [f3(H), 0]] }); [[-30, 120], [10, 180], [50, 90]].forEach(([y, w]) => sl.line(f1(rx + 30), cy + y, f1(rx + 30 + w), cy + y, { sw: 4, stroke: TL_(.45) }));
+      ripple(p, mx, cy, 120, H); if (ic) dropBox(p, c, ic, -390, cy, 150, tu(.04), tu(.28)); dirB(p, DIRV(d), x1 - 20, cy - h / 2, f3(H + tu(.1)));
+    }); });
+
+  /* 49 ── MERGE (วงรวมตัว): small circles float in from around the canvas and run together into the middle; a big circle pops where they meet and the
+     number counts inside it, locking on H; the icon plate rides its edge */
+  variant('merge', 'วงรวมตัว', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cx = 0, cy = -30, r = 200, tm = tu(.56);
+    art(c, p => { [[-430, 230], [-380, -260], [-60, -330], [300, -280], [430, 120], [140, 300]].forEach(([x, y], k) => { const L = [[x, y], [(x + cx) / 2 + (k % 2 ? 80 : -80), (y + cy) / 2], [cx, cy]], t0 = tu(.06 + .04 * k), K = pathK(L, t0, tm, [cx, cy]);
+        mvG(p, { x: K.x, y: K.y, s: [[0, 1], [f3(tm - tu(.06)), 1], [tm, .3]], o: [[0, 0], [t0, 0], [f3(t0 + tu(.04)), 1], [f3(tm - tu(.02)), 1], [tm, 0]] }).circle(cx, cy, 24 - k * 2, k % 2 ? F(3) : { fill: ACC1, sw: 2, stroke: ACC1 }); });
+      const g = mvG(p, { px: cx, py: cy, s: [[0, .2], [tm, .2], [f3(tm + tu(.16)), 1.08, 'out'], [f3(tm + tu(.26)), 1, 'soft']], o: fadeIn(tm, .02) }); g.circle(cx, cy, r, F(4.4)); g.circle(cx, cy, r - 18, S(1.4));
+      ripple(p, cx, cy, r, tm); num(p, p, v, cx, cy + 50, { size: 140, maxW: 300, t0: tm }); ripple(p, cx, cy, r - 40, H); pill(p, u, cx, 260, { t: f3(H + tu(.06)), size: 32, maxW: 440 });
+      if (ic) icirc(p, c, ic, f1(cx + r * Math.cos(rad(-40))), f1(cy + r * Math.sin(rad(-40))), 62, f3(tm + tu(.14)), { punch: H });
+    }); });
+
+  /* 50 ── ECHO (เงาซ้อนตัวเลข): three faint copies of the number start large and offset, and slide in on top of each other until they become one on H —
+     the number punches with a ripple; the unit follows; the icon box drops top-left */
+  variant('echo', 'เงาซ้อนตัวเลข', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H;
+    art(c, p => { const n = numRow(p, p, v, u, 0, 110, { size: 220, maxW: 860, t0: tu(.3) }); if (!n) return;
+      [[-90, -110, 1.3, .32], [-60, -72, 1.2, .24], [-30, -36, 1.1, .16]].forEach(([dx, dy, s, a], k) => { const t0 = tu(.12 + .06 * k), eg = mvG(p, { px: n.x0 + n.nw / 2, py: n.cy, x: [[0, dx], [t0, dx], [f3(H - tu(.04)), 0, 'io']], y: [[0, dy], [t0, dy], [f3(H - tu(.04)), 0, 'io']], s: [[0, s], [t0, s], [f3(H - tu(.04)), 1, 'io']], o: [[0, 0], [t0, 0], [f3(t0 + tu(.06)), 1], [f3(H - tu(.1)), 1], [H, 0]] });
+        num(p, eg, v, n.x0, 110, { size: n.size, anchor: 'start', t0, still: true, g: eg, color: TL_(a) }); });
+      ripple(p, n.cx, n.cy, 150, H); dropBox(p, c, ic, -400, -250, 110, tu(.04), tu(.26)); dirB(p, DIRV(d), 400, -250, f3(H + tu(.1)));
+    }); });
+
   /* ---------- sample data: the same as B01 (A: sentences from unrelated topics · B: stress) ---------- */
   const SAMPLES = [
     { say: 'วิ่งวันละ 5 กิโล', value: '5', unit: 'กิโล', icon: 'person-standing' },
