@@ -804,12 +804,15 @@
     marks5(p, [-228, Y - CH / 2 + 80], [228, Y - CH / 2 + 80], 60); }); });
 
   /* 13 ── CURVED ARROW (ลูกศรโค้งแทนที่): the wrong up top is struck; a fat curved arrow sweeps down from it to the right one, which lands lit */
-  variant('curvearrow', 'ลูกศรโค้งแทนที่', (d, c) => { art(c, p => { const T_ = CT(), W_ = [-300, -142], s1 = 196, R_ = [268, 130], s2 = 250;
-    cbox(p, c, d, 'w', ...W_, s1); const ap = `M ${W_[0] + s1 / 2 + 16} ${W_[1]} C 80 ${W_[1]} ${R_[0] - 40} -40 ${R_[0] - s2 / 2 - 50} ${R_[1] - 20}`;
-    drawAt(p.path(ap, { sw: 22, stroke: TL_(.45) }), p, T_.tN, tu(.3)); const la = p.path(ap, { sw: 22, stroke: ACC1 }); on(la, p, 0, { draw: [[0, 0], [T_.tR, 0], [f3(T_.H - tu(.1)), 1, 'io']] });
-    const hx = R_[0] - s2 / 2 - 50, hy = R_[1] - 20; popAt(p, hx, hy, f3(T_.H - tu(.1))).path(`M ${hx - 30} ${hy - 44} L ${hx + 12} ${hy + 6} L ${hx - 46} ${hy + 22}`, { sw: 16, stroke: ACC1 });
-    const KR = ent('pop', ...R_, s2, T_.tR); cbox(p, c, d, 'r', ...R_, s2, { g: mvG(p, KR), mv: KR });
-    cword(p, d, 'w', W_[0] + s1 / 2 + 26, W_[1] - 64, { anchor: 'start', size: 50, maxW: 380, wrap: null, strike: true }); cword(p, d, 'r', R_[0], R_[1] - s2 / 2 - 60, { pill: true, maxW: 340 });
+  variant('curvearrow', 'ลูกศรโค้งแทนที่', (d, c) => { art(c, p => { const T_ = CT(), W_ = [-300, -142], s1 = 196, R_ = [262, 130], s2 = 250;
+    /* (user: "13 แก้ไขลูกศร") the arrow leaves the wrong box's right side, bends over and comes straight down onto the top of the right box;
+       its head is a solid triangle that follows the line's end direction (straight down), the line stops at the head's base */
+    const x0 = W_[0] + s1 / 2 + 18, y0 = W_[1], tipY = f1(R_[1] - s2 / 2 - 16), baseY = f1(tipY - 50), ap = `M ${x0} ${y0} C ${f1(x0 + 300)} ${y0} ${R_[0]} ${f1(baseY - 170)} ${R_[0]} ${baseY}`;
+    const head = `M ${R_[0]} ${tipY} L ${R_[0] - 34} ${baseY} L ${R_[0] + 34} ${baseY} Z`;
+    drawAt(p.path(ap, { sw: 18, stroke: TL_(.45) }), p, T_.tN, tu(.3)); const hg = popAt(p, R_[0], baseY, f3(T_.tN + tu(.28))); hg.path(head, { fill: TL_(.45), sw: 3, stroke: TL_(.45) });
+    const la = p.path(ap, { sw: 18, stroke: ACC1 }); on(la, p, 0, { draw: [[0, 0], [T_.tR, 0], [f3(T_.H - tu(.1)), 1, 'io']] }); litOn(p, f3(T_.H - tu(.1))).path(head, { fill: ACC1, sw: 3, stroke: ACC1 });
+    cbox(p, c, d, 'w', ...W_, s1); const KR = ent('pop', ...R_, s2, T_.tR); cbox(p, c, d, 'r', ...R_, s2, { g: mvG(p, KR), mv: KR });
+    cword(p, d, 'w', W_[0], W_[1] + s1 / 2 + 62, { pill: true, maxW: 320, strike: true }); cword(p, d, 'r', R_[0] - s2 / 2 - 26, R_[1] + 18, { anchor: 'end', size: 52, maxW: 330 });
     marks5(p, corner(...W_, s1, -1), cornerB(...R_, s2)); }); });
 
   /* 14 ── POP (ฟองแตก): the wrong bubble bursts — a dashed ring and sparks are left with its icon dim — the right bubble swells big and lit */
