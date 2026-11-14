@@ -2,7 +2,7 @@
    category B01 "ตัวเลขเด่น" redone in the template ชุดฐาน way — graphic elements only (icon boxes, pills, rings, bars, dots, segments, tiles,
    a slider, a stepper, lines), **no real-world objects**, our white-glow line style. Icons and words sit apart (no word under an icon).
    Not a replacement for the approved B01 (references/approved/b01/). Header + helpers copied from b05t.js (b05t → cards.js → b21).
-   GL.cats.B01T.draw(i, data, { x, y, s, at, hit }) — canvas 1000 × 700 centred at (0,0). Data = CutPack B01: value · unit · icon · dir. */
+   GL.cats.B01T.draw(i, data, { x, y, s, at, hit }) — canvas 1000 × 700 centred at (0,0). Data = CutPack B01: value · unit · icon · dir · max (the whole, optional — fills / pointers show value ÷ max). */
 (function () {
   const G = window.GL, C = G.C, NS = 'http://www.w3.org/2000/svg';
   const W = (w = 2) => ({ sw: w }), F = (w = 3.2) => ({ fill: C.fill, sw: w }), S = (w = 2) => ({ sw: w, stroke: C.soft });
@@ -445,8 +445,12 @@
   const numOf = d => parseFloat(String(VAL(d) || '').replace(/,/g, ''));
   const pctV = d => /%\s*$/.test(VAL(d) || '') ? clamp01(numOf(d) / 100) : null;
   const zeroV = d => numOf(d) === 0;
-  const frac = d => zeroV(d) ? 0 : pctV(d) ?? (d.dir === 'up' ? .82 : d.dir === 'down' ? .28 : 1);
-  const posV = d => zeroV(d) ? 0 : pctV(d) ?? (d.dir === 'up' ? .78 : d.dir === 'down' ? .26 : .62);
+  /* the real share of the whole: a % value, or value ÷ max when the speaker gives the whole (user 2026-11-14 "เพิ่มช่องค่าเต็มให้ด้วยครับ":
+     data.max = the full amount as spoken, e.g. value '6', max '8' for "นอน 6 จาก 8 ชั่วโมง"); otherwise null → dir decides */
+  const maxOf = d => d && d.max != null && String(d.max).trim() ? parseFloat(String(d.max).replace(/,/g, '')) : NaN;
+  const ratioV = d => { const p = pctV(d); if (p != null) return p; const m = maxOf(d), n = numOf(d); return m > 0 && isFinite(n) ? clamp01(n / m) : null; };
+  const frac = d => zeroV(d) ? 0 : ratioV(d) ?? (d.dir === 'up' ? .82 : d.dir === 'down' ? .28 : 1);
+  const posV = d => zeroV(d) ? 0 : ratioV(d) ?? (d.dir === 'up' ? .78 : d.dir === 'down' ? .26 : .62);
   /* the spoken value at fraction q with the same format (commas, decimals, % kept); q = 1 → exactly the spoken string */
   function fmtVal(str, q) { const m = String(str).match(/^([^\d]*)([\d,]*\.?\d*)(.*)$/); if (!m || q >= 1 || !m[2]) return str;
     const [, pre, nm, post] = m, n = parseFloat(nm.replace(/,/g, '')), dec = (nm.split('.')[1] || '').length; let s = (n * q).toFixed(dec);
@@ -885,7 +889,7 @@
 
   /* 37 ── RANKED BARS (แถบเรียงแนวนอน) — redesigned (user 2026-11-14 "Redesign 37" → picked A over callout / area peak; the radial bars are gone): three bars grow from the left one after another; the two soft ones stop short, the lit middle one runs on and
      carries the number at its tip, locking on H; the icon box drops at the lit bar's start */
-  variant('hbars', 'แถบเรียงแนวนอน', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = Math.max(.25, frac(d)), x0 = ic ? -300 : -440, ys = [-150, 0, 150], t0 = tu(.34), t1 = f3(H - tu(.04));
+  variant('hbars', 'แถบเรียงแนวนอน', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), x0 = ic ? -300 : -440, ys = [-150, 0, 150], t0 = tu(.34), t1 = f3(H - tu(.04));
     art(c, p => { const rw = rowOf(p, v, u, 130, 420), room = 440 - rw - 30 - x0, L = Math.max(60, room * fr);
       [[ys[0], .55], [ys[2], .32]].forEach(([y, k], i) => { const t = tu(.1 + .08 * i); R(mvG(p, { px: x0, py: y, sx: [[0, 0], [t, 0], [f3(t + tu(.4)), 1, 'out']], o: fadeIn(t, .04) }), x0, y - 26, Math.max(40, room * k), 52, 26, { fill: TL_(.18), sw: 0, stroke: 'none' }); });
       R(mvG(p, { px: x0, py: ys[1], sx: fillK(t0, t1), o: fadeIn(t0, .04) }), x0, ys[1] - 34, L, 68, 34, { fill: TA(.85), sw: 0, stroke: 'none' });
@@ -929,7 +933,7 @@
 
   /* 41 ── CHIP STACK (ชิปซ้อนชั้น): flat bars drop one at a time onto a base and stack (each squashes); the top one lights on H; the number counts
      beside the stack; the icon box drops above it */
-  variant('chipstack', 'ชิปซ้อนชั้น', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = pctV(d), dr = DIRV(d), N = fr != null ? Math.max(1, Math.round(fr * 8)) : dr === 'up' ? 7 : dr === 'down' ? 3 : 6, by = 280, cx = -290;
+  variant('chipstack', 'ชิปซ้อนชั้น', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = ratioV(d), dr = DIRV(d), N = fr != null ? Math.max(1, Math.round(fr * 8)) : dr === 'up' ? 7 : dr === 'down' ? 3 : 6, by = 280, cx = -290;
     art(c, p => { drawAt(p.line(-450, by, -130, by, S(2)), p, tu(.04), tu(.24)); const span = Math.max(tu(.1), (H - tu(.06)) - tu(.2));
       for (let k = 0; k < N; k++) { const y = by - 6 - k * 42, t1 = f3(tu(.2) + span * (k + 1) / N), K = fallK(cx, y, f3(t1 - tu(.18)), t1, Math.max(80, y + 350)), top = k === N - 1;
         R(mvG(CL(p), K), cx - 130, y - 34, 260, 34, 17, top ? { fill: LIT, sw: 4, stroke: ACC1 } : F(3)); if (top) ripple(p, cx, y - 17, 80, t1); }
@@ -1073,6 +1077,14 @@
     { say: '7.5 ล้านวิว', value: '7.5', unit: 'ล้านวิว', icon: 'music' },
   ];
 
+  /* the max slot (value ÷ max): sentences that say the whole */
+  const MAXS = [
+    { say: 'นอน 6 จาก 8 ชั่วโมง', value: '6', max: '8', unit: 'ชั่วโมง', icon: 'bed' },
+    { say: 'เก็บได้ 7,500 จากเป้า 10,000 บาท', value: '7,500', max: '10,000', unit: 'บาท', icon: 'wallet' },
+    { say: 'อ่านไป 3 จาก 12 เล่ม', value: '3', max: '12', unit: 'เล่ม', icon: 'book-open' },
+    { say: 'ทำไปแล้ว 45 จาก 50 ข้อ', value: '45', max: '50', unit: 'ข้อ', icon: 'list-checks' },
+    { say: 'วิ่งได้ 2 จาก 10 กิโล', value: '2', max: '10', unit: 'กิโล', icon: 'person-standing' },
+  ];
   G.cats = G.cats || {};
-  G.cats.B01T = { variants: V, SAMPLES, STRESS, theme, draw: (i, d, c) => { setZ(c); CUR = V[i].id; tokens(); EMPTY = false; BLUE = false; V[i].build(d || {}, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
+  G.cats.B01T = { variants: V, SAMPLES, STRESS, MAXS, theme, draw: (i, d, c) => { setZ(c); CUR = V[i].id; tokens(); EMPTY = false; BLUE = false; V[i].build(d || {}, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
 })();
