@@ -378,39 +378,52 @@
   const words = (q, s, x, y, o = {}) => { const t = o.t ?? Z.H; if (!s) { if (EMPTY) phBar(atG(q, t), x, y - (o.size || 40) * .35, o.phW || 300, o.phH || 30, o.anchor); return; }
     txt(atG(q, t), s, x, y, { size: o.size || 40, maxW: o.maxW || 500, weight: o.weight || 800, color: C.ink, anchor: o.anchor || 'middle', wrap: o.wrap === undefined ? 'down' : o.wrap }); };
 
-  /* T1 ── THE HANGING SIGN (ป้ายแขวน): one big slot — the main thing (icon + word, or a word alone) — and a line of text under it */
-  variant('hangsign', 'ป้ายแขวน · ช่องใหญ่ 1 ช่อง + ข้อความ', (d, c) => { const X = MN(d), Q = TL();
+  /* ---------- v2 (user 2026-11-14: "บางทีก็อยากให้ไอคอนกับข้อความไม่ต้องผูกติดกันก็ได้ … คุณชอบเอาข้อความไปไว้ข้างใต้ icon เสมอเลย"):
+     icons and words are separate slots with their own places — an icon slot never carries a word; when one kind is missing the other
+     takes the room. Data: icons [icon names] 0–3 · title (words) · sub (words). ---------- */
+  const ICS = d => (d && Array.isArray(d.icons) ? d.icons.filter(n => G.icons[n] || G.icons[n + '-pro']) : []).slice(0, 3);
+  /* an icon slot: the icon alone (no word) · empty demo → a placeholder circle */
+  const icon = (q, c, n, x, y, w, t) => { t = t ?? f3(Z.H - tu(.06)); if (n) put(q, c, { icon: n }, x, y, w, null, { t, punch: f3(t + tu(.14)) }); else if (EMPTY) phC(atG(q, t), x, y, w * .5); };
+
+  /* T1 ── THE HANGING SIGN (ป้ายแขวน): the words fill the sign; the icon is a round badge clipped onto its corner (no words → the icon takes
+     the middle of the sign; no icon → no badge) */
+  variant('hangsign', 'ป้ายแขวน · ข้อความเต็มป้าย + ไอคอนเป็นเข็มกลัดมุม', (d, c) => { const ic = ICS(d)[0] || null, ti = TX(d), sb = SB(d), Q = TL(), hasT = ti || sb || EMPTY, hasI = ic || EMPTY;
     art(c, p => { R(inG(p, 'pop', 0, -334, tu(.04)), -330, -346, 660, 22, 11, F(3.2)); [-200, 200].forEach((x, i) => { popAt(p, x, -312, tu(.1 + .04 * i)).circle(x, -312, 12, F(2.6)); drawAt(p.line(x, -300, x, -230, W(2.6)), p, tu(.2), tu(.16)); });
       const sg = mvG(CL(p), Object.assign({ px: 0, py: -230 }, swingFit(tu(.24), Q.T0, 4))); R(sg, -300, -230, 600, 470, 30, F(4.8)); R(sg, -272, -202, 544, 414, 20, S(1.4)); [-200, 200].forEach(x => sg.circle(x, -212, 9, F(2.2)));
-      slot(p, c, X, 0, -60, 150, 80, { size: 44, maxW: 460, bigSize: 64, bigW: 480 });
-      words(p, SB(d), 0, 180, { size: 30, maxW: 480, weight: 600, phW: 360 });
+      if (hasT) { words(p, ti, 0, -10, { size: 60, maxW: 480, wrap: 'mid', phW: 380, phH: 44 }); words(p, sb, 0, 120, { size: 32, maxW: 460, weight: 600, wrap: null, phW: 320, t: f3(Q.H + tu(.1)) });
+        if (hasI) { const b = mvG(p, spinK(250, -200, f3(Q.H - tu(.2)))); b.circle(250, -200, 86, F(4)); b.circle(250, -200, 72, S(1.4)); icon(p, c, ic, 250, -200, 100); } }
+      else if (ic) icon(p, c, ic, 0, 0, 220);
     }); });
 
-  /* T2 ── THE RAIL OF TILES (ราวป้ายกลม): 1–3 round tiles hang from one rail — each takes an icon + word (or a word); a title over the rail */
-  variant('tilerail', 'ราวป้ายกลม · 1–3 ช่องเรียงกัน + หัวข้อ', (d, c) => { const Xs = IT(d), n = d && d.empty ? 3 : Math.max(1, Xs.length), Q = TL();
-    art(c, p => { drawAt(p.line(-450, -190, 450, -190, W(5)), p, tu(.04), tu(.3)); [-450, 450].forEach(x => popAt(p, x, -190, tu(.1)).circle(x, -190, 12, F(2.6)));
-      words(p, TX(d), 0, -250, { size: 46, maxW: 820, phW: 420 });
-      const gx = n === 1 ? [0] : n === 2 ? [-180, 180] : [-300, 0, 300];
-      gx.forEach((x, i) => { const sw = mvG(CL(p), Object.assign({ px: x, py: -190 }, swingFit(tu(.3 + .08 * i), f3(Q.T0 + tu(.1 * i)), 6))); sw.line(x, -190, x, -150, W(2.4)); sw.circle(x, -40, 112, F(4.2)); sw.circle(x, -40, 98, S(1.4));
-        slot(p, c, Xs[i] || null, x, -40, 110, 130, { t: f3(Q.H - tu(.06) - tu(.12 * (gx.length - 1 - i))), size: 34, maxW: 260, bigSize: 40, bigW: 180 }); });
+  /* T2 ── THE RAIL OF TILES (ราวป้ายกลม): the round tiles on the rail hold icons only (1–3); the words hang on their own strip under the
+     rail (no icons → the strip moves up and grows; no words → only the tiles) */
+  variant('tilerail', 'ราวป้ายกลม · ไอคอน 1–3 ช่อง + แถบข้อความแยก', (d, c) => { const Is = EMPTY ? [null, null, null] : ICS(d), ti = TX(d), Q = TL(), hasT = ti || EMPTY, n = Is.length;
+    art(c, p => { drawAt(p.line(-450, -230, 450, -230, W(5)), p, tu(.04), tu(.3)); [-450, 450].forEach(x => popAt(p, x, -230, tu(.1)).circle(x, -230, 12, F(2.6)));
+      const gx = n === 1 ? [0] : n === 2 ? [-170, 170] : [-300, 0, 300], ty = n ? -110 : -150;
+      if (n) gx.forEach((x, i) => { const sw = mvG(CL(p), Object.assign({ px: x, py: -230 }, swingFit(tu(.3 + .08 * i), f3(Q.T0 + tu(.1 * i)), 6))); sw.line(x, -230, x, -200, W(2.4)); sw.circle(x, -110, 90, F(4.2)); sw.circle(x, -110, 76, S(1.4));
+        icon(p, c, Is[i], x, -110, 96, f3(Q.H - tu(.06) - tu(.12 * (n - 1 - i)))); });
+      if (hasT) { const sy = n ? 120 : -60, sh = n ? 110 : 170, st = mvG(p, { px: 0, py: sy - sh / 2, sy: [[0, 0], [f3(Q.H - tu(.3)), 0], [f3(Q.H - tu(.08)), 1.04, 'out'], [Q.H, 1, 'soft']], o: fadeIn(f3(Q.H - tu(.3)), .04) });
+        [-380, 380].forEach(x => drawAt(p.line(x, n ? -10 : -230, x, sy - sh / 2, S(2)), p, f3(Q.H - tu(.34)), tu(.12))); R(st, -420, sy - sh / 2, 840, sh, 20, F(4.4));
+        words(p, ti, 0, sy + (n ? 14 : 18), { size: n ? 44 : 60, maxW: 760, wrap: 'mid', phW: 460, phH: 40 }); }
     }); });
 
-  /* T3 ── THE BOARD ON ITS STAND (กระดานตั้ง): an icon slot on the left, a title and a line of text on the right */
-  variant('board', 'กระดานตั้ง · ไอคอน + หัวข้อ + ข้อความ', (d, c) => { const X = MN(d), Q = TL(), noIc = !X && !EMPTY, lx = noIc ? -380 : -100, mw = noIc ? 760 : 470;
+  /* T3 ── THE BOARD ON ITS STAND (กระดานตั้ง): the title and the line of text fill the board from the left; the icon is a big round sticker
+     slapped over its top-right corner, tilted (no icon → no sticker; no words → the icon sits big in the middle of the board) */
+  variant('board', 'กระดานตั้ง · ข้อความเต็มกระดาน + ไอคอนเป็นสติกเกอร์มุม', (d, c) => { const ic = ICS(d)[0] || null, ti = TX(d), sb = SB(d), Q = TL(), hasT = ti || sb || EMPTY, hasI = ic || EMPTY;
     art(c, p => { floorD(p); [[-300, -340], [300, 340]].forEach(([a, b], i) => drawAt(p.line(a, 140, b, 290, W(6)), p, tu(.04 + .04 * i), tu(.2)));
       const bd = mvG(CL(p), fallK(0, 160, tu(.2), tu(.4), 300)); R(bd, -440, -270, 880, 430, 28, F(4.8)); R(bd, -412, -242, 824, 374, 18, S(1.4)); dust(p, -300, 150, tu(.4), .7); dust(p, 300, 150, tu(.4), .7);
-      if (!noIc) { const ic = mvG(p, spinK(-260, -55, f3(Q.T0 - tu(.1)))); ic.circle(-260, -55, 120, F(3.6)); ic.circle(-260, -55, 104, S(1.4)); }
-      if (X && picOf(X)) put(p, c, { icon: X.icon }, -260, -55, 130, null, { t: f3(Q.H - tu(.06)), punch: f3(Q.H + tu(.08)) }); else if (X) txt(popAt(p, -260, -55, f3(Q.H - tu(.06))), X.label, -260, -40, { size: 40, maxW: 190, weight: 800, color: C.ink, wrap: 'mid' }); else if (EMPTY) phC(atG(p, Q.H), -260, -55, 70);
-      words(p, TX(d) || (X && picOf(X) && X.label) || null, lx, -70, { size: 56, maxW: mw, anchor: 'start', wrap: 'mid', phW: 380, phH: 40 });
-      drawAt(p.line(lx, -10, 370, -10, S(1.6)), p, f3(Q.H - tu(.1)), tu(.3)); words(p, SB(d), lx, 60, { size: 32, maxW: mw, weight: 600, anchor: 'start', wrap: null, phW: 300, t: f3(Q.H + tu(.1)) });
+      if (hasT) { words(p, ti, -370, -60, { size: 60, maxW: hasI ? 520 : 740, anchor: 'start', wrap: 'mid', phW: 420, phH: 44 }); drawAt(p.line(-370, 0, hasI ? 200 : 370, 0, S(1.6)), p, f3(Q.H - tu(.1)), tu(.3));
+        words(p, sb, -370, 70, { size: 34, maxW: hasI ? 520 : 740, weight: 600, anchor: 'start', wrap: null, phW: 340, t: f3(Q.H + tu(.1)) });
+        if (hasI) { const st = mvG(mvG(p, { px: 330, py: -230, s: [[0, 1.8], [f3(Q.H - tu(.24)), 1.8], [f3(Q.H - tu(.06)), .9, 'in'], [f3(Q.H + tu(.06)), 1, 'soft']], o: fadeIn(f3(Q.H - tu(.24)), .06) }), { px: 330, py: -230, r: [[0, 10]] });
+          st.circle(330, -230, 104, F(4.4)); st.circle(330, -230, 88, S(1.4)); icon(p, c, ic, 330, -230, 120); } }
+      else if (ic) icon(p, c, ic, 0, -55, 200);
     }); });
 
-  /* ---------- sample data: empty · icon + word · words only ---------- */
-  const I = (icon, label) => label ? (icon ? { icon, label } : { label }) : { icon };
+  /* ---------- sample data: empty · icons and words (apart) · icons only · words only ---------- */
   const SAMPLES = [
-    [{ empty: true }, { main: I('coffee', 'ร้านกาแฟ'), sub: 'เปิดทุกวัน 7 โมงเช้า' }, { main: I(null, 'เริ่มวันนี้'), sub: 'ไม่ต้องรอให้พร้อม' }],
-    [{ empty: true }, { title: 'สามอย่างที่ต้องมี', items: [I('wallet', 'เงินเก็บ'), I('heart', 'สุขภาพ'), I('users', 'คนรอบตัว')] }, { title: 'ทางเลือก', items: [I(null, 'ทำต่อ'), I(null, 'หยุดพัก')] }],
-    [{ empty: true }, { main: I('rocket', 'เปิดตัว'), title: 'เปิดตัวสินค้าใหม่', sub: 'วันเสาร์นี้ที่สยาม' }, { title: 'คำแนะนำ', sub: 'ทำทีละอย่าง อย่ารีบ' }],
+    [{ empty: true }, { icons: ['coffee'], title: 'ร้านกาแฟ', sub: 'เปิดทุกวัน 7 โมงเช้า' }, { icons: ['coffee'] }, { title: 'เริ่มวันนี้', sub: 'ไม่ต้องรอให้พร้อม' }],
+    [{ empty: true }, { icons: ['wallet', 'heart', 'users'], title: 'สามอย่างที่ต้องมี' }, { icons: ['wallet', 'heart'] }, { title: 'ทำทีละอย่าง อย่ารีบ' }],
+    [{ empty: true }, { icons: ['rocket'], title: 'เปิดตัวสินค้าใหม่', sub: 'วันเสาร์นี้ที่สยาม' }, { icons: ['rocket'] }, { title: 'คำแนะนำ', sub: 'ทำทีละอย่าง อย่ารีบ' }],
   ];
 
   G.cats = G.cats || {};

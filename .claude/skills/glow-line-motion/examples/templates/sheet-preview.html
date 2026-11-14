@@ -2,15 +2,15 @@
 <html><head><meta charset="utf-8"><title>Templates preview</title>
 <script src="../../assets/glowline.js"></script><script src="templates.js"></script></head>
 <body><script>
-/* ชุดฐาน (เทมเพลตว่าง) — 3 templates × 3 states: empty (the slots) · icon + word · words only */
+/* ชุดฐาน (เทมเพลตว่าง) v2 — 3 templates × 4 states: empty · icons + words (separate slots) · icons only · words only */
 GL.run(() => {
   GL.stage();
   GL.text('ชุดฐาน · เทมเพลตว่าง 3 แบบ', { y: 70, size: 46, ls: 2, color: GL.C.kicker, glow: false });
-  GL.text('ซ้าย = ว่าง (ช่องที่ใส่ได้) · กลาง = ใส่ไอคอน + คำ · ขวา = คำอย่างเดียว', { y: 118, size: 28, weight: 500, color: GL.C.sub, glow: false });
-  const T = GL.cats.TPL, s = .345, cw = GL.W / 3, top = 170, rh = 560;
+  GL.text('ไอคอนกับข้อความเป็นช่องแยกกัน · ว่าง · ทั้งคู่ · ไอคอนอย่างเดียว · ข้อความอย่างเดียว', { y: 118, size: 28, weight: 500, color: GL.C.sub, glow: false });
+  const T = GL.cats.TPL, s = .262, cw = GL.W / 4, top = 170, rh = 560;
   T.variants.forEach((v, r) => { const y0 = top + r * rh;
     GL.text('T' + (r + 1) + ' · ' + v.th, { x: GL.W / 2, y: y0 + 20, size: 30, weight: 700, color: GL.C.ink, glow: false });
-    ['ว่าง', 'ไอคอน + คำ', 'คำอย่างเดียว'].forEach((lab, k) => { const x = (k + .5) * cw, d = T.SAMPLES[r][k];
+    ['ว่าง', 'ไอคอน + ข้อความ', 'ไอคอนอย่างเดียว', 'ข้อความอย่างเดียว'].forEach((lab, k) => { const x = (k + .5) * cw, d = T.SAMPLES[r][k];
       T.draw(r, d, { x, y: y0 + 60 + 700 * s / 2, s, at: .3 + k * .05, hit: 1.9 });
       GL.text(lab, { x, y: y0 + 60 + 700 * s + 40, size: 24, weight: 600, color: GL.C.mute, glow: false }); }); });
   GL.finish({ hold: 2.4, out: true, stagger: .02 });
