@@ -224,9 +224,11 @@
   const SEATL = () => ({ h: [0, 4], k: [80, 10], f: [88, 98] });
   function side(q, x, fy, k, arm, o = {}) { const oy = o.seat ? 4 : 166, g = q.child({ transform: `translate(${x} ${f1(fy - oy * k)}) rotate(${o.lean || 0} 0 ${oy}) scale(${k})` }, k);
     g.H = q.H; g.motion = q.motion;
-    const far = o.far || { s: [arm.s[0] - 8, arm.s[1] + 2], e: [arm.e[0] - 14, arm.e[1] + 10], h: [arm.h[0] - 18, arm.h[1] + 12] }, fa = sub(g);
-    [[far.s, far.e, 25], [far.e, far.h, 23]].forEach(([a, b, wd]) => fa.line(...a, ...b, { sw: wd + 7 })); [[far.s, far.e, 25], [far.e, far.h, 23]].forEach(([a, b, wd]) => fa.line(...a, ...b, { sw: wd, stroke: C.fill }));
-    return G.parts.human(g, 'line', Object.assign({}, SIDE, o.head ? { head: o.head } : {}, { arm: () => arm, leg: o.seat ? SEATL : (o.leg || stand) })); }
+    const farOf = a => ({ s: [a.s[0] - 8, a.s[1] + 2], e: [a.e[0] - 14, a.e[1] + 10], h: [a.h[0] - 18, a.h[1] + 12] }), far = o.far || farOf(arm);
+    /* the far arm is jointed too (upper → fore) so it can move with the near one (sideArm) */
+    const fu = sub(g), ff = sub(fu); ff.line(...far.e, ...far.h, { sw: 30 }); ff.line(...far.e, ...far.h, { sw: 23, stroke: C.fill }); fu.line(...far.s, ...far.e, { sw: 32 }); fu.line(...far.s, ...far.e, { sw: 25, stroke: C.fill });
+    const hm = G.parts.human(g, 'line', Object.assign({}, SIDE, o.head ? { head: o.head } : {}, { arm: () => arm, leg: o.seat ? SEATL : (o.leg || stand) }));
+    hm.far = { u: fu, f: ff, pose: far, of: farOf }; return hm; }
   const HANG = { s: [4, -78], e: [8, -24], h: [12, 30] };
   const UPV = sd => ({ s: [sd * 36, -82], e: [sd * 74, -150], h: [sd * 100, -222] });
   /* a heart (w = its width), centred on (x, y) */
@@ -279,18 +281,37 @@
   const arcT = (q, x, y, r, a0, a1, w) => { const P = a => f1(x + r * Math.cos(rad(a))) + ' ' + f1(y + r * Math.sin(rad(a))), d = `M ${P(a0)} A ${r} ${r} 0 0 1 ${P(a1)}`; q.path(d, { sw: w + 7 }); q.path(d, { sw: w, stroke: C.fill }); };
   let BS = 'rings';
 
-  /* 01 ── THE BOND (คนสองคนจับมือกัน — no hands): knot · rings · cups (d.bs or BS); the link's name lands under it */
-  variant('bond', 'ผูกพันกัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), st = d.bs || BS;
+  /* ---------- motion (user 2026-11-14 "ทำเคลื่อนไหวได้"): the scene comes in part by part → the two come in (a, then b) → the link forms
+     (rings slide and catch, arms go out, a line draws, a plug goes in, a box is passed …) or, when cut, breaks (unlinks, cracks, drops,
+     turns away) → the link's name lands on the keyword H → hold. T0 = the main move (a long sentence waits, then goes). Last frame = the still. ---------- */
+  const ang = (a, b) => Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI, nrm = v => ((v % 360) + 540) % 360 - 180;
+  /* an arm moves from pose `from` to its drawn pose `fin` between t0 and t1 (front body: joints 'upper'/'fore' + sd) */
+  const turnK = (a, b) => { const u0 = ang(a.s, a.e), u1 = ang(b.s, b.e); return [f1(nrm(u0 - u1)), f1(nrm((ang(a.e, a.h) - u0) - (ang(b.e, b.h) - u1)))]; };
+  function armMove(hm, p, sd, fin, from, t0, t1) { const [r0, q0] = turnK(from, fin);
+    hm.on('upper' + sd, p, 0, { ox: fin.s[0], oy: fin.s[1], r: armK(r0, t0, t1, 0) }); hm.on('fore' + sd, p, 0, { ox: fin.e[0], oy: fin.e[1], r: armK(q0, t0, t1, 0) }); }
+  /* the same for a side-view person (near arm = joints 'upper1'/'fore1', far arm = hm.far) */
+  function sideArm(hm, p, fin, from, t0, t1) { armMove(hm, p, 1, fin, from, t0, t1); const F1 = hm.far.pose, F0 = hm.far.of(from), [r0, q0] = turnK(F0, F1);
+    on(hm.far.u, p, 0, { ox: F1.s[0], oy: F1.s[1], r: armK(r0, t0, t1, 0) }); on(hm.far.f, p, 0, { ox: F1.e[0], oy: F1.e[1], r: armK(q0, t0, t1, 0) }); }
+  /* keys that bring a part in from offset v (x or y) to 0 between t0 and t1, a little past, then settle */
+  const glide = (v, t0, t1, os = 0) => [[0, v], [t0, v], [t1, os, 'out'], [f3(t1 + tu(.1)), 0, 'soft']];
+  const TM = Q => keyAt(Q.T0, .3), TE = Q => f3(Q.H - tu(.12));
+
+  /* 01 ── THE BOND (คนสองคนจับมือกัน — no hands): rings — the two rings come in apart, a's icon then b's ride in them; they slide together and
+     catch, linked (cut → they start linked and pull apart); the link's name lands under them. knot / cups kept as still options. */
+  variant('bond', 'ผูกพันกัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), st = d.bs || BS, tM = TM(Q), tE = TE(Q);
     art(c, p => {
       if (st === 'knot') { const dx = cut ? 90 : 0, U1 = `M -296 -26 L ${-40 - dx} -26 Q ${34 - dx} -26 ${34 - dx} 12 Q ${34 - dx} 50 ${-40 - dx} 50 L ${-120 - dx} 50`,
           U2 = `M 296 26 L ${40 + dx} 26 Q ${-34 + dx} 26 ${-34 + dx} -12 Q ${-34 + dx} -50 ${40 + dx} -50 L ${120 + dx} -50`;
         const kg = inG(p, 'pop', 0, 0, tu(.2)); tube(kg, U2, 34); tube(kg, U1, 34); if (!cut) tube(kg, 'M 86 26 L 40 26 Q 14 26 0 16', 34);
         party(p, c, A, -370, 0, 72, { t: tA(Q) }); party(p, c, B, 370, 0, 72, { t: tB(Q) }); link(p, LB(d), 0, 200, 300); }
-      else if (st === 'rings') { const ox = cut ? 175 : 100, r = 140, y = -30, g = inG(p, 'pop', 0, y, tu(.2));
-        [-1, 1].forEach(sd => g.circle(sd * ox, y, r, { fill: C.fill, sw: 0, stroke: 'none' })); ringT(g, -ox, y, r, 24); ringT(g, ox, y, r, 24); if (!cut) arcT(g, -ox, y, r, -48, -8, 24);
-        [[A, -1, tA(Q)], [B, 1, tB(Q)]].forEach(([X, sd, t]) => { const x = sd * (ox + 30); if (!X) { DOT(popAt(p, x, y, t), x, y, 8); return; }
-          if (picOf(X)) { put(p, c, { icon: X.icon }, x, y, 110, null, { t, punch: t + tu(.16) }); if (X.label) txt(atG(p, t + tu(.12)), X.label, x, y + r + 72, { size: 32, maxW: 240, weight: 700, color: C.ink }); }
-          else txt(popAt(p, x, y, t), X.label, x, y + 10, { size: 34, maxW: 150, weight: 800, color: C.ink, wrap: 'mid' }); });
+      else if (st === 'rings') { const ox = cut ? 175 : 100, o0 = cut ? 100 : 330, r = 140, y = -30, P0 = mvG(p, { o: fadeIn(tu(.1)) });
+        const xK = sd => glide(sd * (o0 - ox), tM, tE, cut ? sd * 8 : -sd * 8), G2 = sd => mvG(P0, { x: xK(sd) });
+        [-1, 1].forEach(sd => G2(sd).circle(sd * ox, y, r, { fill: C.fill, sw: 0, stroke: 'none' })); ringT(G2(-1), -ox, y, r, 24); ringT(G2(1), ox, y, r, 24);
+        arcT(cut ? outG(G2(-1), tM, .03) : litG(G2(-1), f3(tE - tu(.06)), .03), -ox, y, r, -48, -8, 24);
+        if (!cut) ripple(p, 0, y - 98, 34, f3(tE - tu(.04)));
+        [[A, -1, tA(Q)], [B, 1, tB(Q)]].forEach(([X, sd, t]) => { const x = sd * (ox + 30); if (!X) { DOT(mvG(popAt(p, x, y, t), { x: xK(sd) }), x, y, 8); return; }
+          if (picOf(X)) { put(p, c, { icon: X.icon }, x, y, 110, null, { t, mv: { px: x, py: y, x: xK(sd) } }); if (X.label) txt(atG(p, Math.max(t + tu(.12), tE)), X.label, x, y + r + 72, { size: 32, maxW: 240, weight: 700, color: C.ink }); }
+          else txt(mvG(popAt(p, x, y, t), { x: xK(sd) }), X.label, x, y + 10, { size: 34, maxW: 150, weight: 800, color: C.ink, wrap: 'mid' }); });
         link(p, LB(d), 0, 250, 280); }
       else { const bx = cut ? 230 : 135, tl = cut ? 0 : 16;
         [[-1, A, tA(Q)], [1, B, tB(Q)]].forEach(([sd, X, t], i) => { const x = sd * bx, g0 = inG(p, 'rise', x, 60, tu(.14 + .06 * i)), g = rot(g0, sd * -tl, x, 150);
@@ -300,58 +321,69 @@
         if (!cut) sparkAt(p, 0, -128, 22, 44, Q.T0, 7, -90, [3, 4], true); link(p, LB(d), 0, 286, 280); }
     }); });
 
-  /* 02 ── STANDING BETWEEN TWO GROUPS (คนยืนอยู่ระหว่างสองกลุ่ม): the groups on each side, the one in the middle on a step reaching out to both;
-     cut → one arm is down, that side's gap stays open */
-  variant('between', 'คนเชื่อมสองกลุ่ม', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL();
+  /* 02 ── STANDING BETWEEN TWO GROUPS (คนยืนอยู่ระหว่างสองกลุ่ม): the step, the groups come up; the one in the middle steps up and reaches
+     out to one side, then the other (cut → reaches both, then one arm drops) */
+  variant('between', 'คนเชื่อมสองกลุ่ม', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, tM = TM(Q);
     art(c, p => { floorD(p); R(inG(p, 'rise', 0, 240, tu(.04)), -90, 200, 180, 90, 12, F(3.6));
       [-420, -340, -260].forEach((x, i) => body(inG(p, 'rise', x, 160, tu(.1 + .04 * i)), x, 290, .62)); [260, 340, 420].forEach((x, i) => body(inG(p, 'rise', x, 160, tu(.1 + .04 * i)), x, 290, .62));
       const out = sd => ({ s: [sd * 36, -82], e: [sd * 96, -96], h: [sd * 158, -104] });
-      body(inG(p, 'rise', 0, 100, tu(.24)), 0, 200, .8, { arms: { [-1]: out(-1), 1: cut ? FARM(1) : out(1) } });
+      const { hm } = body(inG(p, 'rise', 0, 100, tu(.24)), 0, 200, .8, { arms: { [-1]: out(-1), 1: cut ? FARM(1) : out(1) } });
+      armMove(hm, p, -1, out(-1), FARM(-1), tM, keyAt(T, .56));
+      if (cut) { const [r0, q0] = turnK(out(1), FARM(1)), K = v => [[0, 0], [keyAt(T, .42), 0], [keyAt(T, .68), v, 'out'], [keyAt(T, .76), v], [keyAt(T, .96), 0, 'io']];
+        hm.on('upper1', p, 0, { ox: 36, oy: -82, r: K(r0) }); hm.on('fore1', p, 0, { ox: 54, oy: -18, r: K(q0) }); }
+      else armMove(hm, p, 1, out(1), FARM(1), keyAt(T, .42), keyAt(T, .68));
       party(p, c, A, -340, -150, 60, { t: tA(Q) }); party(p, c, B, 340, -150, 60, { t: tB(Q) });
       link(p, LB(d), 0, -230, 280);
     }); });
 
-  /* 03 ── FACE TO FACE (คนสองคนยืนหันหน้าเข้าหากัน): two people face each other; the link's name between them above;
-     cut → the floor between them splits */
-  variant('facing', 'หันหน้าเข้าหากัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), dx = cut ? 190 : 140;
-    art(c, p => { if (cut) { p.line(-480, 290, -24, 290, S(2)); p.line(24, 290, 480, 290, S(2)); crack(p, 0, 290, 340, 12, W(3)); } else floorD(p);
-      side(inG(p, 'rise', -dx, 160, tu(.1)), -dx, 290, 1, STEP, LEANF); side(mir(inG(p, 'rise', dx, 160, tu(.16)), dx), dx, 290, 1, STEP, LEANF);
+  /* 03 ── FACE TO FACE (คนสองคนยืนหันหน้าเข้าหากัน): the two walk in from the sides (nose first) and stop facing each other;
+     cut → the floor between them cracks open */
+  variant('facing', 'หันหน้าเข้าหากัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, tM = TM(Q), dx = cut ? 190 : 140;
+    art(c, p => { if (cut) { drawAt(outG(p, tM, .02).line(-480, 290, 480, 290, S(2)), p, 0, tu(.4)); const fl = litG(p, tM, .02); fl.line(-480, 290, -24, 290, S(2)); fl.line(24, 290, 480, 290, S(2)); drawAt(crack(p, 0, 290, 340, 12, W(3)), p, tM, tu(.2)); }
+      else floorD(p);
+      [[-1, tu(.1)], [1, tu(.16)]].forEach(([sd, t0]) => { const wg = mvG(p, { x: glide(sd * 240, t0, T), o: fadeIn(t0) }), hm = side(sd < 0 ? wg : mir(wg, sd * dx), sd * dx, 290, 1, STEP, LEANF); walkLegs(hm, p, t0, T); });
       party(p, c, A, -320, -190, 58, { t: tA(Q) }); party(p, c, B, 320, -190, 58, { t: tB(Q) });
       link(p, LB(d), 0, -100, 240);
     }); });
 
-  /* 04 ── BACK TO BACK (คนสองคนหันหลังให้กัน): two people stand back to back (they cover each other); cut → they have stepped apart */
-  variant('backs', 'หันหลังให้กัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), dx = cut ? 210 : 62;
-    art(c, p => { floorD(p); if (cut) for (let y = -60; y < 280; y += 40) p.line(0, y, 0, y + 20, S(2));
-      side(mir(inG(p, 'rise', -dx, 160, tu(.1)), -dx), -dx, 290, 1, STEP, LEANF); side(inG(p, 'rise', dx, 160, tu(.16)), dx, 290, 1, STEP, LEANF);
+  /* 04 ── BACK TO BACK (คนสองคนหันหลังให้กัน): the two come up back to back and lean in to each other; cut → they walk off apart (nose
+     first), a dashed line is left between */
+  variant('backs', 'หันหลังให้กัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, tM = TM(Q), tE = TE(Q), dx = cut ? 210 : 62;
+    art(c, p => { floorD(p); if (cut) { const dl = litG(p, tE, .1); for (let y = -60; y < 280; y += 40) dl.line(0, y, 0, y + 20, S(2)); }
+      [[-1, tu(.1)], [1, tu(.16)]].forEach(([sd, t0]) => { const g0 = inG(p, 'rise', sd * 62, 160, t0), wg = cut ? mvG(g0, { x: glide(-sd * (210 - 62), tM, tE) }) : mvG(g0, { px: sd * dx, py: 290, r: bumpK(tM, -sd * 3, 0) });
+        const hm = side(sd < 0 ? mir(wg, sd * dx) : wg, sd * dx, 290, 1, STEP, LEANF); if (cut) walkLegs(hm, p, tM, tE); });
       party(p, c, A, -330, -170, 58, { t: tA(Q) }); party(p, c, B, 330, -170, 58, { t: tB(Q) });
       link(p, LB(d), 0, -250, 260);
     }); });
 
-  /* 05 ── SIDE BY SIDE (คนสองคนยืนเคียงกัน): two people on one platform, a bracket over both with the link's name;
-     cut → the platform and the bracket are split */
-  variant('sidebyside', 'ยืนเคียงกัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), gx = cut ? 26 : 0;
-    art(c, p => { floorD(p); const pf = inG(p, 'rise', 0, 270, tu(.04));
-      if (cut) { R(pf, -270, 250, 270 - gx, 40, 10, F(3.4)); R(pf, gx, 250, 270 - gx, 40, 10, F(3.4)); } else R(pf, -270, 250, 540, 40, 10, F(3.4));
-      [-110, 110].forEach((x, i) => body(inG(p, 'rise', x + (cut ? Math.sign(x) * 30 : 0), 130, tu(.14 + .06 * i)), x + (cut ? Math.sign(x) * 30 : 0), 250, .92));
-      const br = sub(p); if (cut) { br.path('M -190 -70 L -190 -110 L -40 -110', W(3.4)); br.path('M 40 -110 L 190 -110 L 190 -70', W(3.4)); } else br.path('M -190 -70 L -190 -110 L 190 -110 L 190 -70', W(3.4));
+  /* 05 ── SIDE BY SIDE (คนสองคนยืนเคียงกัน): the platform, the two come up on it; the bracket draws over both; cut → the platform splits
+     and the halves slide apart with them, the bracket draws broken */
+  variant('sidebyside', 'ยืนเคียงกัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, tM = TM(Q), gx = cut ? 26 : 0;
+    art(c, p => { floorD(p);
+      if (cut) [-1, 1].forEach((sd, i) => { const sg = mvG(p, { x: glide(-sd * 30, tM, keyAt(T, .6)) }); R(inG(sg, 'rise', sd * 135, 270, tu(.04)), sd < 0 ? -270 : gx, 250, 270 - gx, 40, 10, F(3.4));
+          body(inG(sg, 'rise', sd * 140, 130, tu(.14 + .06 * i)), sd * 140, 250, .92); });
+      else { R(inG(p, 'rise', 0, 270, tu(.04)), -270, 250, 540, 40, 10, F(3.4)); [-110, 110].forEach((x, i) => body(inG(p, 'rise', x, 130, tu(.14 + .06 * i)), x, 250, .92)); }
+      const tb = cut ? keyAt(T, .62) : tM;
+      if (cut) { drawAt(p.path('M -190 -70 L -190 -110 L -40 -110', W(3.4)), p, tb, tu(.25)); drawAt(p.path('M 190 -70 L 190 -110 L 40 -110', W(3.4)), p, tb, tu(.25)); }
+      else { drawAt(p.path('M 0 -110 L -190 -110 L -190 -70', W(3.4)), p, tb, tu(.3)); drawAt(p.path('M 0 -110 L 190 -110 L 190 -70', W(3.4)), p, tb, tu(.3)); }
       party(p, c, A, -380, -40, 60, { t: tA(Q) }); party(p, c, B, 380, -40, 60, { t: tB(Q) });
       link(p, LB(d), 0, -110, 260);
     }); });
 
-  /* 06 ── ROUND THE TABLE (คนยืนล้อมโต๊ะ): people stand round a table; the two cards stand on it; the link's name on the table sign;
-     cut → a crack across the table between the cards */
-  variant('table', 'ยืนล้อมโต๊ะ', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL();
-    art(c, p => { floorD(p); [-300, -100, 100, 300].forEach((x, i) => body(inG(p, 'rise', x, 60, tu(.06 + .04 * i)), x, 170, .6));
+  /* 06 ── ROUND THE TABLE (คนยืนล้อมโต๊ะ): people come up round the table; a's card, b's card; the people lean in (a bob); cut → a crack runs
+     across the table between them */
+  variant('table', 'ยืนล้อมโต๊ะ', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, tM = TM(Q);
+    art(c, p => { floorD(p); [-300, -100, 100, 300].forEach((x, i) => body(mvG(inG(p, 'rise', x, 60, tu(.06 + .04 * i)), { y: bumpK(keyAt(T, .3 + .05 * i), 6, 0) }), x, 170, .6));
       [-440, 440].forEach((x, i) => body(inG(p, 'rise', x, 160, tu(.22 + .04 * i)), x, 290, .8));
-      const tb = inG(p, 'rise', 0, 160, tu(.2)); R(tb, -24, 140, 48, 140, 8, F(3)); ell(tb, 0, 284, 110, 12, F(3)); R(tb, -330, 120, 660, 30, 12, F(3.4)); ell(tb, 0, 106, 330, 46, F(4));
-      if (cut) crack(p, 0, 64, 150, 12, W(3.4));
+      const tb = mvG(inG(p, 'rise', 0, 160, tu(.2)), cut ? { x: shakeX(keyAt(T, .4), keyAt(T, .7), 4) } : {}); R(tb, -24, 140, 48, 140, 8, F(3)); ell(tb, 0, 284, 110, 12, F(3)); R(tb, -330, 120, 660, 30, 12, F(3.4)); ell(tb, 0, 106, 330, 46, F(4));
+      if (cut) drawAt(crack(p, 0, 64, 150, 12, W(3.4)), p, keyAt(T, .4), tu(.2));
       [[-190, A, tA(Q)], [190, B, tB(Q)]].forEach(([x, X, t]) => { party(p, c, X, x, -150, 54, { t, ly: 0, label: false }); if (X && X.label && picOf(X)) txt(atG(p, t + tu(.12)), X.label, x + Math.sign(x) * 74, -140, { size: 28, maxW: 170, weight: 700, color: C.ink, anchor: x < 0 ? 'end' : 'start' }); });
       link(p, LB(d), 0, -230, 260);
     }); });
 
-  /* 07 ── A RING OF LINKED ARMS (คนยืนเชื่อมมือเป็นวง): people stand in a ring, each arm reaching to the next; cut → one link at the front is open */
-  variant('armring', 'เชื่อมแขนเป็นวง', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), n = 8, cx = 0, cy = 140, rx = 360, ry = 90;
+  /* 07 ── A RING OF LINKED ARMS (คนยืนเชื่อมมือเป็นวง): people come up round the ring, back row first; the arms go out and link round the
+     ring, one pair after another; cut → one link at the front stays open */
+  variant('armring', 'เชื่อมแขนเป็นวง', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, n = 8, cx = 0, cy = 140, rx = 360, ry = 90;
     art(c, p => { floorD(p);
       const P = Array.from({ length: n }, (_, i) => { const a = Math.PI / 2 + i * 2 * Math.PI / n, y = cy + ry * Math.sin(a); return { x: f1(cx + rx * Math.cos(a)), fy: f1(y), k: +(.5 + .2 * (y - (cy - ry)) / (2 * ry)).toFixed(3), a }; });
       const order = P.map((q, i) => i).sort((i, j) => P[i].fy - P[j].fy), gap = cut ? [0, 1] : null;
@@ -360,150 +392,165 @@
           return { s: [sd * 36, -82], e: [f1((sd * 36 + hx) / 2), f1((-82 + hy) / 2 + 10)], h: [f1(hx), f1(hy)] }; };
         const left = L.x < Rn.x ? L : Rn, right = L.x < Rn.x ? Rn : L, li = left === L ? (i + n - 1) % n : (i + 1) % n, ri = right === L ? (i + n - 1) % n : (i + 1) % n;
         const open = j => gap && ((i === gap[0] && j === gap[1]) || (i === gap[1] && j === gap[0]));
-        const al = toB(left, open(li)), ar = toB(right, open(ri));
-        body(inG(p, 'rise', q.x, q.fy - 100, tu(.06 + .04 * m)), q.x, q.fy, q.k, { arms: { [-1]: al || FARM(-1), 1: ar || FARM(1) } }); });
+        const al = toB(left, open(li)), ar = toB(right, open(ri)), { hm } = body(inG(p, 'rise', q.x, q.fy - 100, tu(.06 + .04 * m)), q.x, q.fy, q.k, { arms: { [-1]: al || FARM(-1), 1: ar || FARM(1) } });
+        const t0 = keyAt(T, .04 * m); if (al) armMove(hm, p, -1, al, FARM(-1), t0, f3(t0 + tu(.3))); if (ar) armMove(hm, p, 1, ar, FARM(1), t0, f3(t0 + tu(.3))); });
       party(p, c, A, -410, -250, 54, { t: tA(Q) }); party(p, c, B, 410, -250, 54, { t: tB(Q) });
       link(p, LB(d), 0, -260, 260);
     }); });
 
-  /* 08 ── THE NETWORK (แผนภาพเครือข่ายคน): small people-nodes joined by thin lines; a and b are the big nodes, their line is bold with the
-     link's name on it; cut → the bold line is broken */
-  variant('network', 'เครือข่ายคน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), a = [-250, -60], b = [250, 60];
+  /* 08 ── THE NETWORK (แผนภาพเครือข่ายคน): the nodes pop, the thin lines draw; a's and b's big nodes; the bold line draws from a to b (cut → it
+     draws from both ends and stops short, a gap); the link's name lands on it */
+  variant('network', 'เครือข่ายคน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), tM = TM(Q), a = [-250, -60], b = [250, 60];
     art(c, p => { const N = [[-420, -230], [-380, 170], [-90, -250], [-60, 230], [120, -200], [420, -150], [400, 230], [140, 250]];
       [[0, a], [1, a], [2, a], [3, a], [3, b], [4, b], [5, b], [6, b], [7, b], [2, 4], [1, 3]].forEach(([i, q], k) => { const s = N[i], e = Array.isArray(q) ? q : N[q]; drawAt(p.line(...s, ...e, S(2)), p, tu(.2 + .02 * k), tu(.2)); });
       N.forEach(([x, y], i) => { const g = popAt(p, x, y, tu(.06 + .03 * i)); g.circle(x, y, 40, F(3)); bust(g, x, y + 2, .8, S(2)); });
-      if (cut) { drawAt(p.line(-170, -41, -40, -10, W(5)), p, Q.T0, tu(.2)); drawAt(p.line(40, 10, 170, 41, W(5)), p, Q.T0, tu(.2)); } else drawAt(p.line(-170, -41, 170, 41, W(5)), p, Q.T0, tu(.3));
+      if (cut) { drawAt(p.line(-170, -41, -40, -10, W(5)), p, tM, tu(.2)); drawAt(p.line(170, 41, 40, 10, W(5)), p, tM, tu(.2)); } else drawAt(p.line(-170, -41, 170, 41, W(5)), p, tM, tu(.4));
       party(p, c, A, a[0], a[1], 80, { t: tA(Q) }); party(p, c, B, b[0], b[1], 80, { t: tB(Q) });
       link(p, LB(d), 0, -110, 240);
     }); });
 
-  /* 09 ── THE CORD AND PLUG (เส้นเชื่อมคนสองคน): two plates on stands, a cord from each; a's plug sits in b's socket; the link's name over it;
-     cut → the plug is pulled out, a spark gap */
-  variant('plug', 'สายเชื่อมสองฝ่าย', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), gx = cut ? 40 : 0;
+  /* 09 ── THE CORD AND PLUG (เส้นเชื่อมคนสองคน): the stands rise, the cords draw; the plug slides into the socket (cut → it starts in and is
+     pulled out, a spark); the link's name over it */
+  variant('plug', 'สายเชื่อมสองฝ่าย', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), tM = TM(Q), gx = cut ? 40 : 0;
     art(c, p => { floorD(p); [-330, 330].forEach((x, i) => { const g = inG(p, 'rise', x, 150, tu(.04 + .05 * i)); R(g, x - 10, 40, 20, 240, 6, F(2.8)); ell(g, x, 284, 76, 10, F(3)); });
       drawAt(p.path(`M -330 200 Q -330 250 -230 250 L ${-90 - gx} 250`, W(5)), p, tu(.2), tu(.3)); drawAt(p.path(`M 330 200 Q 330 250 230 250 L ${90 + gx} 250`, W(5)), p, tu(.2), tu(.3));
-      const pl = popAt(p, -60 - gx, 250, tu(.46)); R(pl, -96 - gx, 228, 50, 44, 10, F(3)); [236, 264].forEach(y => pl.line(-46 - gx, y - 6, -20 - gx, y - 6, W(5)));
+      const pl = mvG(popAt(p, -60 - gx, 250, tu(.46)), { x: glide(cut ? 40 : -60, tM, keyAt(Q.T0, .5), cut ? -6 : 4) }); R(pl, -96 - gx, 228, 50, 44, 10, F(3)); [236, 264].forEach(y => pl.line(-46 - gx, y - 6, -20 - gx, y - 6, W(5)));
       const sk = popAt(p, 60 + gx, 250, tu(.5)); R(sk, 20 + gx, 222, 76, 56, 12, F(3.2)); [236, 264].forEach(y => sk.line(26 + gx, y - 6, 40 + gx, y - 6, S(2)));
-      if (cut) sparkAt(p, 0, 244, 14, 30, Q.T0, 6, 0, [], true);
+      if (cut) sparkAt(p, 0, 244, 14, 30, keyAt(Q.T0, .4), 6, 0, [], true); else ripple(p, -10, 244, 34, keyAt(Q.T0, .5));
       party(p, c, A, -330, -60, 100, { t: tA(Q), ly: -236 }); party(p, c, B, 330, -60, 100, { t: tB(Q), ly: -236 });
       link(p, LB(d), 0, 150, 260);
     }); });
 
-  /* 10 ── POINTING (คนหนึ่งชี้ไปยังอีกคน): one person points at the other along a dotted line; cut → the other has turned away */
-  variant('pointing', 'คนชี้ไปอีกคน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL();
-    art(c, p => { floorD(p); side(inG(p, 'rise', -280, 160, tu(.06)), -280, 290, 1, { s: [4, -78], e: [62, -92], h: [124, -104] });
-      if (cut) side(inG(p, 'rise', 260, 160, tu(.12)), 260, 290, 1, HANG); else body(inG(p, 'rise', 260, 160, tu(.12)), 260, 290, 1);
-      dots(litG(p, Q.T0, .2), [-140, 34], [190, 50], 9, 4);
+  /* 10 ── POINTING (คนหนึ่งชี้ไปยังอีกคน): both come up; one lifts an arm and points, the dotted line runs to the other; cut → the other turns
+     away */
+  variant('pointing', 'คนชี้ไปอีกคน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, tM = TM(Q), PT = { s: [4, -78], e: [62, -92], h: [124, -104] };
+    art(c, p => { floorD(p); const hm = side(inG(p, 'rise', -280, 160, tu(.06)), -280, 290, 1, PT); sideArm(hm, p, PT, HANG, tM, keyAt(T, .5));
+      if (cut) { body(inG(outG(p, keyAt(T, .7), .06), 'rise', 260, 160, tu(.12)), 260, 290, 1); side(litG(p, keyAt(T, .7), .06), 260, 290, 1, HANG); }
+      else body(inG(p, 'rise', 260, 160, tu(.12)), 260, 290, 1);
+      const dt = sub(p); dots(dt, [-140, 34], [190, 50], 9, 4); [...dt.g.children].forEach((e, i) => on({ g: e }, p, 0, { o: fadeIn(keyAt(T, .5 + .03 * i), .04) }));
       party(p, c, A, -300, -190, 58, { t: tA(Q) }); party(p, c, B, 260, -190, 58, { t: tB(Q) });
       link(p, LB(d), 0, -40, 240);
     }); });
 
-  /* 11 ── THE FAMILY CHART (ภาพคนในแผนผังครอบครัว): a on top, the bar, the row under it — b is lit, the others dim; their line is bold, the
-     link's name on it; cut → that line is broken */
-  variant('familytree', 'แผนผังครอบครัว', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL();
+  /* 11 ── THE FAMILY CHART (ภาพคนในแผนผังครอบครัว): the bar and its drops draw, the dim nodes pop; a on top, b below; the bold line runs from a
+     down to b (cut → it breaks halfway); the link's name on it */
+  variant('familytree', 'แผนผังครอบครัว', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), tM = TM(Q);
     art(c, p => { drawAt(p.path('M 0 -150 L 0 -100 M -260 -100 L 280 -100 M 40 -100 L 40 -10 M 280 -100 L 280 -10', S(2.4)), p, tu(.2), tu(.3));
       [[40, 50], [280, 50]].forEach(([x, y], i) => { const g = popAt(p, x, y, tu(.36 + .05 * i)); g.circle(x, y, 58, F(3)); bust(g, x, y + 4, 1.1, S(2)); });
-      if (cut) { drawAt(p.path('M -260 -100 L -160 -100', W(5)), p, Q.T0, tu(.2)); drawAt(p.path('M -100 -100 L 0 -100 L 0 -150', W(5)), p, Q.T0, tu(.2)); drawAt(p.path('M -260 -100 L -260 -16', W(5)), p, Q.T0, tu(.2)); }
-      else drawAt(p.path('M 0 -150 L 0 -100 L -260 -100 L -260 -16', W(5)), p, Q.T0, tu(.4));
+      if (cut) { drawAt(p.path('M -260 -100 L -160 -100', W(5)), p, tM, tu(.2)); drawAt(p.path('M -100 -100 L 0 -100 L 0 -150', W(5)), p, tM, tu(.2)); drawAt(p.path('M -260 -100 L -260 -16', W(5)), p, tM, tu(.2)); }
+      else drawAt(p.path('M 0 -150 L 0 -100 L -260 -100 L -260 -16', W(5)), p, tM, tu(.4));
       party(p, c, A, 0, -230, 76, { t: tA(Q), ly: 0, label: false }); if (A && A.label && picOf(A)) txt(atG(p, tA(Q) + tu(.12)), A.label, 100, -220, { size: 30, maxW: 260, weight: 700, color: C.ink, anchor: 'start' });
       party(p, c, B, -260, 70, 82, { t: tB(Q) });
       link(p, LB(d), -130, -100, 230);
     }); });
 
-  /* 12 ── REACHING TO EACH OTHER (คนสองคนยื่นมือเข้าหากัน): two people reach toward each other, a spark in the gap; cut → the arms are down,
-     they stand further apart */
-  variant('reach', 'ยื่นแขนเข้าหากัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), dx = cut ? 260 : 200, ARM = cut ? HANG : { s: [4, -78], e: [62, -76], h: [124, -72] };
-    art(c, p => { floorD(p); side(inG(p, 'rise', -dx, 160, tu(.06)), -dx, 290, 1, ARM); side(mir(inG(p, 'rise', dx, 160, tu(.12)), dx), dx, 290, 1, ARM);
-      if (!cut) sparkAt(p, 0, 52, 16, 34, Q.T0, 8, 22.5, [], true);
+  /* 12 ── REACHING TO EACH OTHER (คนสองคนยื่นมือเข้าหากัน): both come up; the arms reach out toward each other, a spark in the gap;
+     cut → they stand further apart, the arms that were out drop */
+  variant('reach', 'ยื่นแขนเข้าหากัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, tM = TM(Q), dx = cut ? 260 : 200, RE = { s: [4, -78], e: [62, -76], h: [124, -72] }, ARM = cut ? HANG : RE;
+    art(c, p => { floorD(p);
+      [[-1, tu(.06), tM], [1, tu(.12), keyAt(T, .4)]].forEach(([sd, t0, ta]) => { const g = inG(p, 'rise', sd * dx, 160, t0), hm = side(sd < 0 ? g : mir(g, sd * dx), sd * dx, 290, 1, ARM); sideArm(hm, p, ARM, cut ? RE : HANG, ta, f3(ta + tu(.3))); });
+      if (!cut) sparkAt(p, 0, 52, 16, 34, keyAt(T, .76), 8, 22.5, [], true);
       party(p, c, A, -330, -190, 58, { t: tA(Q) }); party(p, c, B, 330, -190, 58, { t: tB(Q) });
       link(p, LB(d), 0, -110, 240);
     }); });
 
-  /* 13 ── THE SEESAW (คนสองกลุ่มอยู่คนละฝั่ง): a group on each end of a seesaw, level; the link's name over the pivot; cut → the plank is
-     broken in two, both ends down */
-  variant('seesaw', 'กระดานหกสองฝั่ง', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL();
+  /* 13 ── THE SEESAW (คนสองกลุ่มอยู่คนละฝั่ง): the pivot, the plank, the groups come up on its ends; it rocks and comes level; cut → it
+     starts level and snaps in the middle, both halves drop */
+  variant('seesaw', 'กระดานหกสองฝั่ง', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, tM = TM(Q), tE = TE(Q);
     art(c, p => { floorD(p); shape(inG(p, 'rise', 0, 260, tu(.04)), [[-60, 290], [60, 290], [0, 196]], F(3.6));
-      if (cut) { const l = rot(p, 9, -40, 200), r = rot(p, -9, 40, 200); R(l, -430, 190, 390, 24, 10, F(3.4)); R(r, 40, 190, 390, 24, 10, F(3.4));
-        [[-400, -1], [-310, -1]].forEach(([x]) => body(l, x, 190, .6)); [[310], [400]].forEach(([x]) => body(r, x, 190, .6)); }
-      else { const pk = inG(p, 'rise', 0, 200, tu(.12)); R(pk, -440, 176, 880, 24, 10, F(3.4)); [-400, -310, 310, 400].forEach((x, i) => body(inG(p, 'rise', x, 120, tu(.2 + .04 * i)), x, 176, .6)); }
+      if (cut) { [[-1, -40], [1, 40]].forEach(([sd, px]) => { const h = mvG(inG(p, 'rise', sd * 240, 200, tu(.12)), { px, py: 200, r: [[0, 0], [tM, 0], [keyAt(T, .5), -sd * 11, 'in'], [keyAt(T, .6), -sd * 8, 'out'], [keyAt(T, .7), -sd * 9, 'soft']] });
+          R(h, sd < 0 ? -430 : 40, 190, 390, 24, 10, F(3.4)); (sd < 0 ? [-400, -310] : [310, 400]).forEach((x, i) => body(inG(h, 'rise', x, 120, tu(.2 + .04 * i)), x, 190, .6)); });
+        sparkAt(p, 0, 196, 12, 30, keyAt(T, .3), 6, 0, [], false); }
+      else { const pk = mvG(inG(p, 'rise', 0, 200, tu(.12)), { px: 0, py: 188, r: wob(tM, tE, 6, 3) }); R(pk, -440, 176, 880, 24, 10, F(3.4)); [-400, -310, 310, 400].forEach((x, i) => body(inG(pk, 'rise', x, 120, tu(.2 + .04 * i)), x, 176, .6)); }
       party(p, c, A, -355, -230, 58, { t: tA(Q) }); party(p, c, B, 355, -230, 58, { t: tB(Q) });
       link(p, LB(d), 0, 90, 240);
     }); });
 
-  /* 14 ── A SMALL GROUP INSIDE A BIG ONE (คนกลุ่มเล็กอยู่ในกลุ่มใหญ่): b's big ring holds a's small ring with its people; cut → the small ring
-     has moved out */
-  variant('nested', 'กลุ่มเล็กในกลุ่มใหญ่', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), bx = cut ? -110 : 40, sx = cut ? 330 : -10, sy = cut ? 150 : 80;
+  /* 14 ── A SMALL GROUP INSIDE A BIG ONE (คนกลุ่มเล็กอยู่ในกลุ่มใหญ่): b's big ring and its people; a's small ring rolls in from outside and
+     settles inside it (cut → it starts inside and moves out); then a and b are named */
+  variant('nested', 'กลุ่มเล็กในกลุ่มใหญ่', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, bx = cut ? -110 : 40, sx = cut ? 330 : -10, sy = cut ? 150 : 80;
     art(c, p => { const bg = inG(p, 'pop', bx, 20, tu(.04)); bg.circle(bx, 20, 250, W(4.6)); bg.circle(bx, 20, 234, S(1.4));
-      [[-150, -60], [170, -40], [100, 170], [-170, 140]].forEach(([x, y], i) => { if (!cut && Math.hypot(x + 50, y - 80) < 130) return; bust(popAt(p, bx + x * .9 - 40 * 0, 20 + y * .9, tu(.16 + .03 * i)), bx + f1(x * .85), f1(20 + y * .85), .9, S(2)); });
-      const sg = inG(p, 'pop', sx, sy, tu(.3)); sg.circle(sx, sy, 112, F(4)); [-40, 0, 40].forEach(x => bust(sg, sx + x, sy + 40, .8, F(2.4)));
+      [[-150, -60], [170, -40], [100, 170], [-170, 140]].forEach(([x, y], i) => { if (!cut && Math.hypot(x + 50, y - 80) < 130) return; bust(popAt(p, bx + x * .9, 20 + y * .9, tu(.16 + .03 * i)), bx + f1(x * .85), f1(20 + y * .85), .9, S(2)); });
+      const o0 = cut ? [-10 - 330, 80 - 150] : [340, 70], sg = mvG(p, { x: glide(o0[0], tu(.36), f3(T - tu(.02))), y: glide(o0[1], tu(.36), f3(T - tu(.02))), o: fadeIn(tu(.3)) });
+      sg.circle(sx, sy, 112, F(4)); [-40, 0, 40].forEach(x => bust(sg, sx + x, sy + 40, .8, F(2.4)));
       party(p, c, B, bx, -230, 56, { t: tB(Q), ly: 0, label: false }); if (B && B.label && picOf(B)) txt(atG(p, tB(Q) + tu(.12)), B.label, bx + 76, -220, { size: 30, maxW: 200, weight: 700, color: C.ink, anchor: 'start' });
       party(p, c, A, sx, sy - 40, 46, { t: tA(Q), ly: 0, label: false, big: 22 }); if (A && A.label && picOf(A)) txt(atG(p, tA(Q) + tu(.12)), A.label, sx, sy + 150, { size: 28, maxW: 220, weight: 700, color: C.ink });
-      link(p, LB(d), cut ? 330 : 330, cut ? -120 : 280, 240);
+      link(p, LB(d), 330, cut ? -120 : 280, 240);
     }); });
 
-  /* 15 ── HANDING OVER (คนส่งของให้อีกคน): one passes a box to the other, both arms on it between them; cut → the box is on the floor */
-  variant('give', 'ส่งของให้อีกคน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), ARM = cut ? HANG : { s: [4, -78], e: [48, -40], h: [104, -52] };
-    art(c, p => { floorD(p); side(inG(p, 'rise', -170, 160, tu(.06)), -170, 290, 1, ARM); side(mir(inG(p, 'rise', 170, 160, tu(.12)), 170), 170, 290, 1, ARM);
-      const bx = cut ? rot(inG(p, 'drop', 0, 250, tu(.3)), -8, 0, 250) : inG(p, 'pop', 0, 50, tu(.3)), by = cut ? 220 : 20;
+  /* 15 ── HANDING OVER (คนส่งของให้อีกคน): both come up; one holds the box out, it slides across and the other's arms come up to take it;
+     cut → they hold it between them, it drops to the floor, the arms fall */
+  variant('give', 'ส่งของให้อีกคน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, tM = TM(Q), HO = { s: [4, -78], e: [48, -40], h: [104, -52] }, ARM = cut ? HANG : HO;
+    art(c, p => { floorD(p);
+      const ha = side(inG(p, 'rise', -170, 160, tu(.06)), -170, 290, 1, ARM), hb = side(mir(inG(p, 'rise', 170, 160, tu(.12)), 170), 170, 290, 1, ARM);
+      if (cut) { sideArm(ha, p, HANG, HO, tM, keyAt(T, .5)); sideArm(hb, p, HANG, HO, tM, keyAt(T, .5)); }
+      else { sideArm(ha, p, HO, HANG, tu(.4), tu(.64)); sideArm(hb, p, HO, HANG, tM, keyAt(T, .56)); }
+      const by = cut ? 220 : 20, bx = cut ? rot(mvG(p, { y: [[0, -200], [tM, -200], [keyAt(T, .52), 0, 'in'], [keyAt(T, .6), -10, 'out'], [keyAt(T, .7), 0, 'in']], o: fadeIn(tu(.3)) }), -8, 0, 250)
+        : mvG(p, { x: glide(-70, tM, keyAt(T, .56)), o: fadeIn(tu(.5)) });
       R(bx, -66, by - 50, 132, 100, 10, F(3.6)); bx.line(-66, by - 18, 66, by - 18, S(1.6)); bx.line(0, by - 50, 0, by - 18, S(1.6));
       party(p, c, A, -330, -190, 58, { t: tA(Q) }); party(p, c, B, 330, -190, 58, { t: tB(Q) });
       link(p, LB(d), 0, -150, 240);
     }); });
 
-  /* 16 ── JOINED BY ONE ROPE (คนหลายคนเชื่อมด้วยเส้น): a row of people hold one rope up between a and b; cut → the rope is cut in the middle,
-     both ends hang */
-  variant('rope', 'คนเชื่อมด้วยเชือก', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), xs = [-280, -140, 0, 140, 280], k = .72;
+  /* 16 ── JOINED BY ONE ROPE (คนหลายคนเชื่อมด้วยเส้น): the row comes up, the arms go up one after another; the rope runs from a's plate over
+     the arms to b's; cut → it runs in from both ends and stops short over the middle one, whose arms stay down */
+  variant('rope', 'คนเชื่อมด้วยเชือก', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, tM = TM(Q), xs = [-280, -140, 0, 140, 280], k = .72;
     art(c, p => { floorD(p); const up = sd => ({ s: [sd * 36, -82], e: [sd * 70, -150], h: [sd * 76, -226] });
-      xs.forEach((x, i) => body(inG(p, 'rise', x, 160, tu(.06 + .04 * i)), x, 290, k, { arms: (cut && i === 2) ? {} : { [-1]: up(-1), 1: up(1) } }));
+      xs.forEach((x, i) => { const mid = cut && i === 2, { hm } = body(inG(p, 'rise', x, 160, tu(.06 + .04 * i)), x, 290, k, { arms: mid ? {} : { [-1]: up(-1), 1: up(1) } });
+        if (!mid) [-1, 1].forEach(sd => armMove(hm, p, sd, up(sd), FARM(sd), keyAt(T, -.3 + .05 * i), keyAt(T, -.06 + .05 * i))); });
       const hy = f1(290 + (-226 - 166) * k), H = []; xs.forEach((x, i) => { if (!(cut && i === 2)) { H.push([x - 76 * k, hy], [x + 76 * k, hy]); } });
       const pts = [[-420, -40]].concat(H.filter(h => h[0] < 0)), pts2 = H.filter(h => h[0] > 0).concat([[420, -40]]);
-      if (cut) { drawAt(p.path(pathOf(pts.concat([[-60, hy + 60]]), false), W(4)), p, tu(.4), tu(.3)); drawAt(p.path(pathOf([[60, hy + 60]].concat(pts2), false), W(4)), p, tu(.4), tu(.3)); }
-      else drawAt(p.path(pathOf(pts.concat(pts2), false), W(4)), p, tu(.4), tu(.4));
+      if (cut) { drawAt(p.path(pathOf(pts.concat([[-60, hy + 60]]), false), W(4)), p, tM, tu(.3)); drawAt(p.path(pathOf([[420, -40]].concat(pts2.slice(0, -1).reverse(), [[60, hy + 60]]), false), W(4)), p, tM, tu(.3)); }
+      else drawAt(p.path(pathOf(pts.concat(pts2), false), W(4)), p, tM, tu(.5));
       party(p, c, A, -420, -110, 56, { t: tA(Q), ly: 0, label: false }); party(p, c, B, 420, -110, 56, { t: tB(Q), ly: 0, label: false });
       [[A, -420], [B, 420]].forEach(([X, x], i) => { if (X && X.label && picOf(X)) txt(atG(p, (i ? tB(Q) : tA(Q)) + tu(.12)), X.label, x, -200, { size: 28, maxW: 180, weight: 700, color: C.ink }); });
       link(p, LB(d), 0, -230, 260);
     }); });
 
-  /* 17 ── TALKING (คนสองคนพูดคุยกัน): two people sit on a low wall turned to each other, sound arcs go both ways between them;
-     cut → they sit turned away, no arcs */
-  variant('talk', 'นั่งคุยกัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL();
+  /* 17 ── TALKING (คนสองคนพูดคุยกัน): the wall rises, the two sit down turned to each other; sound arcs go one way, then back; cut → they
+     sit turned to each other, then turn away */
+  variant('talk', 'นั่งคุยกัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, tM = TM(Q), tS = keyAt(T, .5);
     art(c, p => { floorD(p); const wl = inG(p, 'rise', 0, 240, tu(.04)); R(wl, -340, 200, 680, 90, 12, F(3.6)); wl.line(-340, 230, 340, 230, S(1.6));
-      const sit = (q, x) => side(q, x, 176, 1.2, { s: [0, -76], e: [26, -24], h: [64, -8] }, { seat: true });
-      if (cut) { sit(mir(inG(p, 'rise', -130, 60, tu(.12)), -130), -130); sit(inG(p, 'rise', 130, 60, tu(.18)), 130); }
-      else { sit(inG(p, 'rise', -150, 60, tu(.12)), -150); sit(mir(inG(p, 'rise', 150, 60, tu(.18)), 150), 150); arcsAt(p, -60, 6, 1, 2, 22, 16, 34, Q.T0); arcsAt(p, 60, 6, -1, 2, 22, 16, 34, Q.T0 + tu(.2)); }
+      const sit = (q, x) => side(q, x, 176, 1.2, { s: [0, -76], e: [26, -24], h: [64, -8] }, { seat: true }), dropIn = (q, t) => mvG(q, { y: [[0, -60], [t, -60], [f3(t + tu(.24)), 4, 'in'], [f3(t + tu(.32)), 0, 'soft']], o: fadeIn(t) });
+      const facing = cut ? outG(p, tS, .06) : p; sit(dropIn(facing, tu(.12)), -150); sit(mir(dropIn(facing, tu(.18)), 150), 150);
+      if (cut) { const aw = litG(p, tS, .06); sit(mir(aw, -130), -130); sit(aw, 130); }
+      else { arcsAt(p, -60, 6, 1, 2, 22, 16, 34, tM); arcsAt(p, 60, 6, -1, 2, 22, 16, 34, keyAt(T, .56)); }
       party(p, c, A, -360, -200, 58, { t: tA(Q) }); party(p, c, B, 360, -200, 58, { t: tB(Q) });
       link(p, LB(d), 0, -150, 240);
     }); });
 
-  /* 18 ── THE PAIR AND THE SIGN (ภาพคนคู่กับป้ายความสัมพันธ์): the sign board shows a — the link — b; the two stand under it;
-     cut → the board is cracked and its right half hangs down */
-  variant('pairsign', 'คนคู่กับป้าย', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL();
+  /* 18 ── THE PAIR AND THE SIGN (ภาพคนคู่กับป้ายความสัมพันธ์): the posts rise, the board drops onto them; the two come up under it; a and b on
+     the board, the link's name between them; cut → the board cracks and its right half swings down */
+  variant('pairsign', 'คนคู่กับป้าย', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, tM = TM(Q);
     art(c, p => { floorD(p); [-300, 300].forEach((x, i) => R(inG(p, 'rise', x, 100, tu(.04 + .04 * i)), x - 10, -80, 20, 370, 6, F(2.8)));
-      let Rg = p; if (cut) { const L = inG(p, 'drop', -160, -200, tu(.14)); Rg = rot(inG(p, 'drop', 160, -200, tu(.14)), 9, 300, -300); R(L, -360, -320, 356, 230, 22, F(4.6)); R(Rg, 4, -320, 356, 230, 22, F(4.6)); }
-      else R(inG(p, 'drop', 0, -200, tu(.14)), -360, -320, 720, 230, 22, F(4.6));
+      if (cut) { const L = inG(CL(p), 'drop', -160, -200, tu(.14)), Rg = mvG(inG(CL(p), 'drop', 160, -200, tu(.14)), { px: 300, py: -300, r: [[0, 0], [tM, 0], [keyAt(T, .46), 12, 'in'], [keyAt(T, .58), 7, 'out'], [keyAt(T, .7), 9, 'soft']] });
+        R(L, -360, -320, 356, 230, 22, F(4.6)); R(Rg, 4, -320, 356, 230, 22, F(4.6)); drawAt(crack(p, 0, -320, -90, 10, W(3)), p, f3(tM - tu(.06)), tu(.12)); }
+      else R(inG(CL(p), 'drop', 0, -200, tu(.14)), -360, -320, 720, 230, 22, F(4.6));
       [-110, 110].forEach((x, i) => body(inG(p, 'rise', x, 160, tu(.3 + .06 * i)), x, 290, .8));
-      party(p, c, A, -230, -220, 56, { t: tA(Q) }); party(cut ? Rg : p, c, B, 230, -220, 56, { t: tB(Q) });
+      party(p, c, A, -230, -220, 56, { t: tA(Q) }); party(p, c, B, cut ? 218 : 230, cut ? -232 : -220, 56, { t: tB(Q) });
       link(p, LB(d), 0, -220, 170, { size: 26 });
     }); });
 
-  /* 19 ── TWO CIRCLES OVERLAPPING (วงกลมสองวงซ้อนกัน): a's circle and b's circle overlap, the shared part lit; the link's name under;
-     cut → the circles have moved apart */
-  variant('venn', 'วงกลมซ้อนกัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), ox = cut ? 240 : 125, r = cut ? 200 : 210;
-    art(c, p => { if (!cut) { const ln = sub(p); const h = Math.sqrt(r * r - ox * ox); ln.path(`M 0 ${f1(-30 - h)} A ${r} ${r} 0 0 1 0 ${f1(-30 + h)} A ${r} ${r} 0 0 1 0 ${f1(-30 - h)} Z`, { fill: 'rgba(255,255,255,.16)', sw: 0, stroke: 'none' }); }
-      [-1, 1].forEach((sd, i) => { const g = inG(p, 'pop', sd * ox, -30, tu(.06 + .08 * i)); g.circle(sd * ox, -30, r, { sw: 4.6 }); g.circle(sd * ox, -30, r - 16, S(1.4)); });
+  /* 19 ── TWO CIRCLES OVERLAPPING (วงกลมสองวงซ้อนกัน): the two circles come in from the sides and overlap, the shared part lights; then a
+     and b are named; cut → they start overlapped and slide apart, the light goes out */
+  variant('venn', 'วงกลมซ้อนกัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, ox = cut ? 240 : 125, r = cut ? 200 : 210, o0 = cut ? 125 : 340, t0 = tu(.3), t1 = f3(T - tu(.02));
+    art(c, p => { const lens = (q, R0, X0) => { const h = Math.sqrt(R0 * R0 - X0 * X0); q.path(`M 0 ${f1(-30 - h)} A ${R0} ${R0} 0 0 1 0 ${f1(-30 + h)} A ${R0} ${R0} 0 0 1 0 ${f1(-30 - h)} Z`, { fill: 'rgba(255,255,255,.16)', sw: 0, stroke: 'none' }); };
+      if (cut) lens(outG(mvG(p, { o: fadeIn(tu(.1)) }), keyAt(t0, .1), .06), r, 125); else lens(litG(p, f3(t1 - tu(.04)), .1), r, ox);
+      [-1, 1].forEach((sd, i) => { const g = mvG(p, { x: glide(sd * (o0 - ox), t0, t1, cut ? sd * 6 : -sd * 6), o: fadeIn(tu(.06 + .08 * i)) }); g.circle(sd * ox, -30, r, { sw: 4.6 }); g.circle(sd * ox, -30, r - 16, S(1.4)); });
       party(p, c, A, -ox - (cut ? 0 : 70), -60, 70, { t: tA(Q), ly: 30 }); party(p, c, B, ox + (cut ? 0 : 70), -60, 70, { t: tB(Q), ly: 30 });
       link(p, LB(d), 0, 250, 280);
     }); });
 
-  /* 20 ── UNDER ONE FRAME (คนสองคนยืนใต้กรอบเดียวกัน): a big frame with the link's name on its header; the two stand inside it;
-     cut → the frame is split down the middle and the halves stand apart */
-  variant('frame', 'ใต้กรอบเดียวกัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), gx = cut ? 40 : 0;
+  /* 20 ── UNDER ONE FRAME (คนสองคนยืนใต้กรอบเดียวกัน): the frame rises, its header pops; the two come up inside; a and b; the link's name lands
+     on the header; cut → the frame splits down the middle and the halves slide apart with the two */
+  variant('frame', 'ใต้กรอบเดียวกัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), T = Q.T0, gx = cut ? 40 : 0, t0 = tu(.5), t1 = f3(T - tu(.02));
     art(c, p => { floorD(p);
-      if (cut) { const l = inG(p, 'rise', -170 - gx, 0, tu(.04)), r = inG(p, 'rise', 170 + gx, 0, tu(.08)); l.path(`M ${-gx} -220 L ${-310 - gx} -220 L ${-310 - gx} 290`, { sw: 34 }); l.path(`M ${-gx} -220 L ${-310 - gx} -220 L ${-310 - gx} 290`, { sw: 27, stroke: C.fill });
-        r.path(`M ${gx} -220 L ${310 + gx} -220 L ${310 + gx} 290`, { sw: 34 }); r.path(`M ${gx} -220 L ${310 + gx} -220 L ${310 + gx} 290`, { sw: 27, stroke: C.fill }); }
-      else { const f = inG(p, 'rise', 0, 0, tu(.04)); f.path('M -310 290 L -310 -220 L 310 -220 L 310 290', { sw: 34 }); f.path('M -310 290 L -310 -220 L 310 -220 L 310 290', { sw: 27, stroke: C.fill }); }
+      if (cut) [-1, 1].forEach((sd, i) => { const sg = mvG(p, { x: glide(-sd * gx * 1.5, t0, t1) }), h = inG(sg, 'rise', sd * (170 + gx), 0, tu(.04 + .04 * i)), dd = `M ${sd * gx} -220 L ${sd * (310 + gx)} -220 L ${sd * (310 + gx)} 290`;
+          h.path(dd, { sw: 34 }); h.path(dd, { sw: 27, stroke: C.fill }); body(inG(sg, 'rise', sd * (120 + gx * 1.5), 160, tu(.24 + .06 * i)), sd * (120 + gx * 1.5), 290, .86); });
+      else { const f = inG(p, 'rise', 0, 0, tu(.04)); f.path('M -310 290 L -310 -220 L 310 -220 L 310 290', { sw: 34 }); f.path('M -310 290 L -310 -220 L 310 -220 L 310 290', { sw: 27, stroke: C.fill });
+        [-120, 120].forEach((x, i) => body(inG(p, 'rise', x, 160, tu(.24 + .06 * i)), x, 290, .86)); }
       R(inG(p, 'pop', 0, -270, tu(.2)), -230, -310, 460, 76, 18, F(4));
-      [-120, 120].forEach((x, i) => body(inG(p, 'rise', x + Math.sign(x) * gx * 1.5, 160, tu(.24 + .06 * i)), x + Math.sign(x) * gx * 1.5, 290, .86));
+      if (cut) drawAt(crack(p, 0, -306, -236, 8, W(3)), p, t0, tu(.1));
       party(p, c, A, -150 - gx * 1.5, -110, 52, { t: tA(Q), ly: 0, label: false }); party(p, c, B, 150 + gx * 1.5, -110, 52, { t: tB(Q), ly: 0, label: false });
       [[A, -1], [B, 1]].forEach(([X, sd], i) => { if (X && X.label && picOf(X)) txt(atG(p, (i ? tB(Q) : tA(Q)) + tu(.12)), X.label, sd * (400 + gx), -20, { size: 28, maxW: 150, weight: 700, color: C.ink }); });
       link(p, LB(d), 0, -272, 400, { size: 32 });
