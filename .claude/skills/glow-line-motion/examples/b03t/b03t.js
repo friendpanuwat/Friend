@@ -1261,15 +1261,15 @@
     }); });
 
   /* 48 ── TOPPLE (แผ่นล้ม): two tall tiles drop in and stand (each: its icon box, its word below in the tile); they rock while weighed, and on H the
-     loser topples over outward and fades, the winner stands and lights. No winner → both stand */
+     loser tips back on its outer corner (20°, kept inside the canvas) and fades, the winner stands and lights. No winner → both stand */
   variant('topple', 'แผ่นล้ม', (d, c) => { const T = ST(d), TW = 236, TH = 450, Y0 = -186, Y1 = 264, X = { a: -205, b: 205 }, bs = 196;
     art(c, p => { const H = Z.H; SIDES.forEach(s => { const x = X[s], sd = s === 'a' ? -1 : 1, t = tIn(d, s), t1 = f3(t + tu(.28)), lose = s === T.lose, win = s === T.win && !T.off, pv = [x + sd * TW / 2, Y1];
-        const K = fallK(pv[0], pv[1], t, t1, 560); K.r = wob(f3(Math.max(t1 + tu(.3), H - tu(.6))), f3(H - tu(.02)), 2.5, 4).concat(lose ? [[f3(H + tu(.36)), sd * 72, 'in'], [f3(H + tu(.44)), sd * 66, 'out'], [f3(H + tu(.52)), sd * 70, 'soft']] : []);
+        const K = fallK(pv[0], pv[1], t, t1, 560); K.r = wob(f3(Math.max(t1 + tu(.3), H - tu(.6))), f3(H - tu(.02)), 2.5, 4).concat(lose ? [[f3(H + tu(.26)), sd * 23, 'in'], [f3(H + tu(.36)), sd * 18, 'out'], [f3(H + tu(.46)), sd * 20, 'soft']] : []);
         const g0 = mvG(CL(p), K); if (lose) R(g0, x - TW / 2, Y0, TW, TH, 40, BK); const g = lose ? dimG(g0, H) : g0; R(g, x - TW / 2, Y0, TW, TH, 40, F(4)); if (win) R(litOn(g, H), x - TW / 2, Y0, TW, TH, 40, LIT2());
-        dust(p, x, Y1, t1, 1.1); if (lose) dust(p, pv[0] + sd * TH * .9, Y1, f3(H + tu(.36)), 1);
+        dust(p, x, Y1, t1, 1.1); if (lose) dust(p, pv[0], Y1, f3(H + tu(.26)), .9);
         sbox(p, c, d, s, x, -64, bs, { g, mv: K, t, noDim: true, noLit: true, io: lose ? dimK(H) : undefined }); if (win) ripple(p, x, -64, 120, f3(H + tu(.06)));
         word(p, d, s, x, 150, { g, size: 46, maxW: TW - 40, noDim: true, t: f3(t1 + tu(.06)) }); });
-      const at = s => { const x = X[s], sd = s === 'a' ? -1 : 1; if (s !== T.lose) return corner(x, Y0 + 100, 200, sd); const q = rotP(x - sd * (TW / 2 - 30), Y0 + 30, x + sd * TW / 2, Y1, sd * 70); return [Math.max(-440, Math.min(440, q[0])), q[1]]; };
+      const at = s => { const x = X[s], sd = s === 'a' ? -1 : 1; if (s !== T.lose) return corner(x, Y0 + 100, 200, sd); return rotP(x - sd * (TW / 2 - 40), Y0 + 40, x + sd * TW / 2, Y1, sd * 20); };
       verdict(p, d, { a: at('a'), b: at('b') });
     }); });
 
