@@ -104,7 +104,7 @@
   function haloH(q, x, y, r, t) { t = t ?? Z.H; const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .6], [t, .6], [t + tu(.3), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.1), 1]] }); halo(g, x, y, r); return g; }
   /* a ring that blooms out from (x, y) at t and fades (the "it happened" ripple) */
   function ripple(q, x, y, r, t) { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [t + tu(.45), 1.45, 'out']], o: [[0, 0], [t, 0], [t + tu(.04), .8], [t + tu(.45), 0]] }); g.circle(x, y, r, W(2.6)); }
-  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .3], [t, .3], [t + tu(.2), 1.1, 'out'], [t + tu(.34), 1, 'soft']], o: [[0, 0], [t, 0], [t + tu(.06), 1]] }); return g; };
+  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [t + tu(.24), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.1), 1]] }); return g; };   /* B05T: a calm grow-in, no overshoot */
 
   /* a THING (it) at (x, y) width w (+ its label at (lx, ly)). o.t = when it comes in · o.mv = keys of the part it rides ({ px, py, x, y, r, s }) ·
      o.punch = a bump at that time (the moment it is reached) · o.r = a fixed tilt (with its holder) · o.lt = when the label comes in */
@@ -338,15 +338,14 @@
      squashes and the scene answers (dust, ripples, a wobble, windows lighting in a wave), many small beats instead of one pop, the spots
      arrive one by one, the place arrives last and lands on the keyword H. Last frame = the approved still. ---------- */
   /* a fall onto (px, py) (the bottom / tip of the part): stretched while falling, squashed on landing, one small bounce */
-  const fallK = (px, py, t0, t1, h = 320) => ({ px, py, y: [[0, -h], [t0, -h], [t1, 0, 'in'], [f3(t1 + tu(.09)), f1(-h * .06), 'out'], [f3(t1 + tu(.18)), 0, 'in']],
-    sy: [[0, 1], [t0, 1.1], [f3(t1 - tu(.02)), 1.1], [t1, .8, 'out'], [f3(t1 + tu(.09)), 1.05, 'out'], [f3(t1 + tu(.18)), .97], [f3(t1 + tu(.26)), 1, 'soft']],
-    sx: [[0, 1], [t0, .93], [f3(t1 - tu(.02)), .93], [t1, 1.14, 'out'], [f3(t1 + tu(.09)), .98, 'out'], [f3(t1 + tu(.26)), 1, 'soft']], o: fadeIn(t0, .04) });
+  /* B05T (user: "หมวด 5 อยากให้ลดลูกเล่นของอนิเมชั่นลงหน่อย"): a calmer fall — it slides down and settles, a small dip, no stretch / squash, no bounce */
+  const fallK = (px, py, t0, t1, h = 320) => ({ px, py, y: [[0, -h], [t0, -h], [t1, 0, 'out']], sy: [[0, 1], [t1, 1], [f3(t1 + tu(.06)), .97, 'out'], [f3(t1 + tu(.16)), 1, 'soft']], o: fadeIn(t0, .06) });
   /* grows up from its base (px, py) with an overshoot */
   const upK = (px, py, t, d = .3) => ({ px, py, sy: [[0, 0], [t, 0], [f3(t + tu(d)), 1.08, 'out'], [f3(t + tu(d + .1)), .97, 'io'], [f3(t + tu(d + .18)), 1, 'soft']], o: fadeIn(t, .04) });
   /* spins in edge-on (a coin / a sign turning to face us) */
   const spinK = (px, py, t) => ({ px, py, sx: [[0, 0], [t, 0], [f3(t + tu(.12)), -.6], [f3(t + tu(.24)), 1.08, 'out'], [f3(t + tu(.34)), 1, 'soft']], o: fadeIn(t, .04) });
   /* dust kicked up left and right where something lands */
-  const dust = (q, x, y, t, k = 1) => sparkAt(q, x, y, 16 * k, 36 * k, t, 8, 22.5, [1, 2, 5, 6], false);
+  const dust = () => {};   /* B05T: no dust (fewer flourishes) */
   /* a flat ring that spreads over the ground at t and fades */
   const rippleE = (q, x, y, rx, ry, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .4], [t, .4], [f3(t + tu(.5)), 1.5, 'out']], o: [[0, 0], [t, 0], [f3(t + tu(.04)), .8], [f3(t + tu(.5)), 0]] }); ell(g, x, y, rx, ry, W(2.4)); };
   /* a lit flash that comes and goes (windows in a wave) */
@@ -683,7 +682,7 @@
   /* side s ('w' wrong | 'r' right) as an icon slot (box | circ | hex | o.draw). wrong: dims at tN (o.dimAt) · right: comes in at tR, lights on H */
   function cbox(p, c, d, s, x, y, sz, o = {}) { const T_ = CT(), X = SD(d, s), w = s === 'w', t = o.t ?? (w ? T_.tW : T_.tR), sh = o.shape || 'box', da = o.dimAt ?? T_.tN;
     const draw = o.draw || ((q, st) => shp(q, sh, x, y, sz, st)), g0 = o.g || popAt(p, x, y, t); if (w && o.bk !== false) draw(g0, BK);
-    const g = w ? mvG(g0, { o: dimW(da, o.to ?? .4) }) : mvG(g0, { px: x, py: y, s: bumpK(T_.H, 1.08) });
+    const g = w ? mvG(g0, { o: dimW(da, o.to ?? .4) }) : mvG(g0, { px: x, py: y, s: bumpK(T_.H, 1.04) });
     draw(g, o.style || F(4)); if (sh === 'circ' && !o.draw) g.circle(x, y, sz / 2 - 13, SL(1.4));
     if (!w) { draw(litOn(g, T_.H), o.litStyle || LIT2()); if (o.rip !== false) ripple(p, o.ix ?? x, o.iy ?? y, sz * .58, f3(T_.H + tu(.04))); }
     const iw = o.iw || sz * (sh === 'box' ? .72 : .66);
@@ -694,20 +693,24 @@
   /* side s's words (only when it has an icon): plain (o.pill = in a pill); wrong dims at tN, o.strike = a line through it */
   function cword(p, d, s, x, y, o = {}) { const X = SD(d, s), str = LBL(X); if (!str) return null; const T_ = CT(), w = s === 'w', t = o.t ?? f3((w ? T_.tW : T_.tR) + tu(.14)), sz = o.size || 46;
     if (o.pill) { const mw = o.maxW || 320, wd = Math.min(mw, tw(p, str, sz)) + 60, cx = o.anchor === 'start' ? x + wd / 2 : o.anchor === 'end' ? x - wd / 2 : x;
-      pill(o.g || p, str, cx, y, { t, size: sz, maxW: mw, strike: w && o.strike ? f3(T_.tN + tu(.04)) : undefined }); return null; }
+      pill(o.g || p, str, cx, y, { t, size: sz, maxW: mw, strike: w && o.strike ? f3(Math.max(T_.tN + tu(.04), t + tu(.1))) : undefined }); return null; }
     const g1 = popAt(o.g || p, x, y - sz * .35, t), g = w ? mvG(g1, { o: dimW(T_.tN, .62) }) : g1;
     const e = txt(g, str, x, y, { size: sz, maxW: o.maxW || 320, weight: 800, color: C.ink, anchor: o.anchor || 'middle', wrap: o.wrap === undefined ? 'mid' : o.wrap });
-    if (w && o.strike) { const bb = e.getBBox(); drawAt((o.g || p).line(f1(bb.x - 10), f1(bb.y + bb.height * .55), f1(bb.x + bb.width + 10), f1(bb.y + bb.height * .55), { sw: 5, stroke: C.ink }), p, f3(T_.tN + tu(.04)), tu(.2)); }
+    if (w && o.strike) { const bb = e.getBBox(); drawAt((o.g || p).line(f1(bb.x - 10), f1(bb.y + bb.height * .55), f1(bb.x + bb.width + 10), f1(bb.y + bb.height * .55), { sw: 5, stroke: C.ink }), p, f3(Math.max(T_.tN + tu(.04), t + tu(.1))), tu(.2)); }
     return e; }
   function cnote(p, d, s, x, y, wd, o = {}) { const T_ = CT(), w = s === 'w', t = o.t ?? f3((w ? T_.tW : T_.tR) + tu(.2)), g1 = atG(o.g || p, t), g = w ? mvG(g1, { o: dimW(T_.tN, .45) }) : g1, str = TXS5(d, s), an = o.anchor || 'start', x0 = an === 'middle' ? x - wd / 2 : x;
     if (str) txt(g, str, an === 'middle' ? x : x0, y + 14, { size: o.size || 40, maxW: wd, weight: 600, color: C.soft, anchor: an, wrap: 'down' });
     else { R(g, x0, y - 11, wd, 22, 11, GREY()); if (!o.one) R(g, an === 'middle' ? f1(x - wd * .31) : x0, y + 33, f1(wd * .62), 22, 11, GREY()); } }
   /* ✗ on the wrong (just after tN), ✓ on the right (just after H) */
-  function stampAt(p, kind, x, y, r, t) { const g = sub(p); on(g, p, 0, { ox: x, oy: y, s: [[0, 1.8], [t, 1.8], [f3(t + tu(.14)), .9, 'in'], [f3(t + tu(.26)), 1.04], [f3(t + tu(.38)), 1, 'soft']], o: [[0, 0], [t, 0], [f3(t + tu(.06)), 1]] });
-    g.circle(x, y, r, F(3.6)); const k = r / 32; if (kind === 'x') XX(g, x, y, k); else g.path(`M ${f1(x - 17 * k)} ${f1(y + 1 * k)} L ${f1(x - 5 * k)} ${f1(y + 13 * k)} L ${f1(x + 18 * k)} ${f1(y - 13 * k)}`, { sw: 5.4, stroke: ACC1 }); ripple(p, x, y, r + 8, f3(t + tu(.14))); }
-  const marks5 = (p, atW, atR, r = 56) => { const T_ = CT(); if (atW) stampAt(p, 'x', atW[0], atW[1], r, f3(T_.tN + tu(.04))); if (atR) stampAt(p, 'check', atR[0], atR[1], r, f3(T_.H + tu(.1))); };
+  function stampAt(p, kind, x, y, r, t) { const g = sub(p); on(g, p, 0, { ox: x, oy: y, s: [[0, 1.25], [t, 1.25], [f3(t + tu(.2)), 1, 'out']], o: [[0, 0], [t, 0], [f3(t + tu(.1)), 1]] });   /* B05T: a calm stamp (no slam) */
+    g.circle(x, y, r, F(3.6)); const k = r / 32; if (kind === 'x') XX(g, x, y, k); else g.path(`M ${f1(x - 17 * k)} ${f1(y + 1 * k)} L ${f1(x - 5 * k)} ${f1(y + 13 * k)} L ${f1(x + 18 * k)} ${f1(y - 13 * k)}`, { sw: 5.4, stroke: ACC1 }); }
+  const marks5 = (p, atW, atR, r = 56, tX) => { const T_ = CT(); if (atW) stampAt(p, 'x', atW[0], atW[1], r, tX ?? f3(T_.tN + tu(.04)));   /* tX: when the wrong one has arrived where its ✗ goes */
+  if (atR) stampAt(p, 'check', atR[0], atR[1], r, f3(T_.H + tu(.1))); };
   const strikeLine = (p, x0, y0, x1, y1, t, w = 7) => drawAt(p.line(x0, y0, x1, y1, { sw: w, stroke: C.ink }), p, t, tu(.2));
   const bigX = (p, x, y, r, t, w = 12) => { [[-1, -1, 1, 1], [1, -1, -1, 1]].forEach(([a, b, e, f], k) => drawAt(p.line(f1(x + a * r), f1(y + b * r), f1(x + e * r), f1(y + f * r), { sw: w, stroke: C.ink }), p, f3(t + tu(.1 * k)), tu(.16))); };
+
+  /* motion (user: "ทำอนิเมชั่นของหมวด 5 ได้ หมวด 5 อยากให้ลดลูกเล่นของอนิเมชั่นลงหน่อย"): same story beats (wrong in → turned down → right in → lands lit on H)
+     but calmer — no squash / bounce / dust, smaller bumps, stamps fade in without a slam, one ripple only where the right one lands */
 
   /* 01 ── SWAP (แทนที่ข้างกัน): the wrong drops in, is crossed and dims; a chevron points on and the right drops in beside it, lit */
   variant('swap', 'แทนที่ข้างกัน', (d, c) => { art(c, p => { const T_ = CT(), bs = 236, Y = 50, XW = -252, XR = 252;
@@ -731,7 +734,7 @@
     cbox(p, c, d, 'w', SX, SY, s2, { g: mvG(p, KW), mv: KW, dimAt: ta });
     const KR = { px: BX, py: BY, sx: [[0, 0], [T_.tR, 0], [f3(T_.tR + tu(.24)), 1.06, 'out'], [f3(T_.tR + tu(.34)), 1, 'soft']], o: fadeIn(T_.tR, .03) }; cbox(p, c, d, 'r', BX, BY, bs, { g: mvG(p, KR), mv: KR });
     cword(p, d, 'r', BX, BY - bs / 2 - 70, { pill: true, maxW: 380 }); cword(p, d, 'w', -462, SY - s2 / 2 - 72, { pill: true, anchor: 'start', maxW: 320, strike: true, t: ta });
-    marks5(p, cornerB(SX, SY, s2), corner(BX, BY, bs)); }); });
+    marks5(p, cornerB(SX, SY, s2), corner(BX, BY, bs), 56, ta); }); });
 
   /* 04 ── STAMPS (ตราประทับ): two tall cards (word, icon, its line of words) — a big ✗ stamps the wrong card, a ✓ the right one */
   variant('stamps', 'ตราประทับ', (d, c) => { art(c, p => { const T_ = CT(), CW = 360, CH = 500, Y = 12, bs = 196;
@@ -747,7 +750,7 @@
     cbox(p, c, d, 'w', WX, WY, s2, { g: mvG(CL(p), KW), mv: KW, dimAt: ta }); dust(p, WX, WY + s2 / 2, ta, 1);
     const KR = ent('drop', SX, SY, bs, T_.tR); cbox(p, c, d, 'r', SX, SY, bs, { g: mvG(CL(p), KR), mv: KR }); dust(p, SX, SY + bs / 2, KR.land, 1);
     cword(p, d, 'r', -60, SY + 16, { anchor: 'end', size: 52, maxW: 360 }); cword(p, d, 'w', WX + s2 / 2 + 26, WY + 18, { anchor: 'start', size: 46, maxW: 300, strike: true, t: ta });
-    marks5(p, [f1(WX - s2 / 2 + 10), f1(WY - s2 / 2 - 4)], corner(SX, SY, bs)); }); });
+    marks5(p, [f1(WX - s2 / 2 + 10), f1(WY - s2 / 2 - 4)], corner(SX, SY, bs), 56, ta); }); });
 
   /* 06 ── ERASE (ลบออก): a wide soft swipe rubs the wrong out to a dashed ghost; the right comes in big beside it */
   variant('erase', 'ลบออก', (d, c) => { art(c, p => { const T_ = CT(), WX = -262, WY = -92, s1 = 206, RX = 150, RY = 62, s2 = 282;
@@ -841,14 +844,14 @@
     const P = pathK([R_, [-60, -260], W_], T_.tN, ta, W_), KW = { px: W_[0], py: W_[1], x: P.x, y: P.y, r: [[0, 0], [T_.tN, 0], [ta, -22, 'out']], s: [[0, f3(s2 / s1)], [T_.tN, f3(s2 / s1)], [ta, 1, 'out']], o: fadeIn(T_.tW, .05) };
     cbox(p, c, d, 'w', ...W_, s1, { g: mvG(CL(p), KW), mv: KW, dimAt: ta }); const KR = ent('drop', ...R_, s2, T_.tR); cbox(p, c, d, 'r', ...R_, s2, { g: mvG(CL(p), KR), mv: KR }); dust(p, R_[0], R_[1] + s2 / 2, KR.land, 1.3);
     cword(p, d, 'r', R_[0], R_[1] - s2 / 2 - 62, { pill: true, maxW: 380 }); cword(p, d, 'w', W_[0], W_[1] + s1 / 2 + 70, { pill: true, maxW: 300, strike: true, t: ta });
-    marks5(p, rotP(W_[0] + s1 / 2 - 6, W_[1] - s1 / 2 + 6, ...W_, -22), cornerB(...R_, s2)); }); });
+    marks5(p, rotP(W_[0] + s1 / 2 - 6, W_[1] - s1 / 2 + 6, ...W_, -22), cornerB(...R_, s2), 56, ta); }); });
 
   /* 17 ── CORNER (ย่อเข้ามุม): the wrong shrinks off into the top corner, crossed and dim; the right takes the middle big and lit */
   variant('corner', 'ย่อเข้ามุม', (d, c) => { art(c, p => { const T_ = CT(), R_ = [60, 30], s2 = 330, W_ = [-366, 212], s1 = 168, ta = f3(T_.tN + tu(.36));
     const KW = { px: W_[0], py: W_[1], x: [[0, f1(R_[0] - W_[0])], [T_.tN, f1(R_[0] - W_[0])], [ta, 0, 'io']], y: [[0, f1(R_[1] - W_[1])], [T_.tN, f1(R_[1] - W_[1])], [ta, 0, 'io']], s: [[0, f3(s2 / s1)], [T_.tN, f3(s2 / s1)], [ta, 1, 'io']], o: fadeIn(T_.tW, .05) };
     cbox(p, c, d, 'w', ...W_, s1, { g: mvG(p, KW), mv: KW, dimAt: ta }); const KR = ent('pop', ...R_, s2, T_.tR); cbox(p, c, d, 'r', ...R_, s2, { g: mvG(p, KR), mv: KR });
     cword(p, d, 'w', W_[0] + s1 / 2 + 26, W_[1] + 16, { anchor: 'start', size: 44, maxW: 300, wrap: null, strike: true, t: ta }); cword(p, d, 'r', R_[0] + s2 / 2 + 26, R_[1] + 18, { anchor: 'start', size: 52, maxW: 200 });
-    marks5(p, corner(...W_, s1), corner(...R_, s2, -1)); }); });
+    marks5(p, corner(...W_, s1), corner(...R_, s2, -1), 56, ta); }); });
 
   /* 18 ── SCRATCH (ขีดทับทิ้ง): a scribble scratches the wrong out (it dims); the right sits clean across the diagonal, lit */
   variant('scratch', 'ขีดทับทิ้ง', (d, c) => { art(c, p => { const T_ = CT(), W_ = [-252, -112], s1 = 212, R_ = [252, 120], s2 = 236;
@@ -861,7 +864,7 @@
   variant('spell', 'ตรวจคำ', (d, c) => { art(c, p => { const T_ = CT(), W_ = [-330, -140], s1 = 186, CX0 = -250, CY0 = -6, CWd = 700, CHt = 262, R_ = [-118, 125], s2 = 194;
     cbox(p, c, d, 'w', ...W_, s1); const e = cword(p, d, 'w', W_[0] + s1 / 2 + 30, W_[1] + 22, { anchor: 'start', size: 60, maxW: 520, wrap: null });
     if (e) { const bb = e.getBBox(), n = Math.max(6, Math.round(bb.width / 26)), wy = f1(bb.y + bb.height + 8), wv = Array.from({ length: n + 1 }, (_, k) => [f1(bb.x + k * bb.width / n), f1(wy + (k % 2 ? 9 : -5))]); drawAt(p.path(pathOf(wv, false), { sw: 5, stroke: C.ink }), p, T_.tN, tu(.3)); }
-    const cg = mvG(p, { px: CX0, py: CY0, sy: [[0, 0], [f3(T_.tR - tu(.1)), 0], [f3(T_.tR + tu(.16)), 1.03, 'out'], [f3(T_.tR + tu(.26)), 1, 'soft']], o: fadeIn(f3(T_.tR - tu(.1)), .04) });
+    const cg = mvG(p, { px: CX0, py: CY0, sy: [[0, 0], [f3(T_.tR - tu(.1)), 0], [f3(T_.tR + tu(.16)), 1.03, 'out'], [f3(T_.tR + tu(.26)), 1, 'soft']], o: fadeIn(f3(T_.tR - tu(.02)), .06) });
     cg.path(`M ${CX0} ${CY0 + 14} L ${CX0 + 30} ${CY0 - 14} L ${CX0 + 60} ${CY0 + 14}`, F(3.4)); R(cg, CX0, CY0 + 12, CWd, CHt, 36, F(3.6));
     cbox(p, c, d, 'r', ...R_, s2); cword(p, d, 'r', R_[0] + s2 / 2 + 30, R_[1] + 20, { anchor: 'start', size: 56, maxW: 380, wrap: null });
     marks5(p, null, [CX0 + CWd - 40, CY0 + 40]); }); });
@@ -889,7 +892,7 @@
     cbox(p, c, d, 'w', ...W_, s1, { g: mvG(CL(p), KW), mv: KW, draw: (q, st) => q.path(notchD(...W_, s1, 'tab'), st), iy: W_[1] + 10, dimAt: f3(T_.tN + tu(.2)) });
     const KR = ent('drop', ...S_, ss, T_.tR); cbox(p, c, d, 'r', ...S_, ss, { g: mvG(CL(p), KR), mv: KR, draw: (q, st) => q.path(notchD(...S_, ss, 'round'), st), iy: S_[1] + 14 }); dust(p, S_[0], S_[1] + ss / 2, KR.land, 1.2);
     cword(p, d, 'r', S_[0], S_[1] - ss / 2 - 70, { pill: true, maxW: 380 }); cword(p, d, 'w', W_[0], W_[1] - s1 / 2 - 76, { pill: true, maxW: 300, strike: true });
-    marks5(p, rotP(W_[0] + s1 / 2 - 8, W_[1] + s1 / 2 - 8, ...W_, -12), cornerB(...S_, ss)); }); });
+    marks5(p, rotP(W_[0] + s1 / 2 - 8, W_[1] + s1 / 2 - 8, ...W_, -12), cornerB(...S_, ss), 56, f3(T_.tN + tu(.34))); }); });
 
   /* 23 ── FILTER (กรวยคัด): the wrong tries the funnel and is thrown back out to the side, crossed; the right slips through and comes out lit below */
   variant('filter', 'กรวยคัด', (d, c) => { art(c, p => { const T_ = CT(), FD = 'M -196 -96 L 196 -96 L 74 62 L 74 112 L -74 112 L -74 62 Z', W_ = [-322, -206], s1 = 176, O_ = [0, 210], s2 = 184, RT = [322, -206];
@@ -898,8 +901,8 @@
     cbox(p, c, d, 'w', ...W_, s1, { g: mvG(CL(p), KW), mv: KW, dimAt: f3(T_.tN + tu(.1)) });
     const KR = { px: O_[0], py: O_[1], y: [[0, -110], [f3(T_.H - tu(.08)), -110], [f3(T_.H + tu(.18)), 10, 'out'], [f3(T_.H + tu(.28)), 0, 'soft']], o: [[0, 0], [f3(T_.H - tu(.08)), 0], [T_.H, 1]] };
     cbox(p, c, d, 'r', ...O_, s2, { g: mvG(CL(p), KR), mv: KR, t: f3(T_.H - tu(.08)) });
-    cword(p, d, 'w', -470, W_[1] + s1 / 2 + 58, { anchor: 'start', size: 46, maxW: 300, wrap: null, strike: true }); cword(p, d, 'r', O_[0] + s2 / 2 + 30, O_[1] + 18, { anchor: 'start', size: 52, maxW: 330, wrap: null, t: f3(T_.H + tu(.1)) });
-    marks5(p, rotP(W_[0] + s1 / 2 - 6, W_[1] - s1 / 2 + 6, ...W_, -18), corner(...O_, s2, -1)); }); });
+    cword(p, d, 'w', -470, W_[1] + s1 / 2 + 58, { anchor: 'start', size: 46, maxW: 300, wrap: null, strike: true, t: f3(T_.tN + tu(.3)) }); cword(p, d, 'r', O_[0] + s2 / 2 + 30, O_[1] + 18, { anchor: 'start', size: 52, maxW: 330, wrap: null, t: f3(T_.H + tu(.1)) });
+    marks5(p, rotP(W_[0] + s1 / 2 - 6, W_[1] - s1 / 2 + 6, ...W_, -18), corner(...O_, s2, -1), 56, f3(T_.tN + tu(.3))); }); });
 
   /* 24 ── DEAD END (ทางตัน): two lanes — the wrong runs into a wall half way and stops, crossed; the right runs its lane to the end, lit */
   variant('deadend', 'ทางตัน', (d, c) => { art(c, p => { const T_ = CT(), Y = { w: -122, r: 150 }, bs = 176, FX = { w: 20, r: 352 }, WX = 150;
@@ -939,8 +942,8 @@
     const P1 = pathK(L, f3(T_.tW + tu(.1)), T_.tN, W_), last = L[L.length - 1], P2 = pathK([last, [last[0] - 200, last[1] - 260], W_], T_.tN, f3(T_.tN + tu(.36)), W_);
     const KW = { px: W_[0], py: W_[1], x: P1.x.concat(P2.x.slice(2)), y: P1.y.concat(P2.y.slice(2)), o: fadeIn(T_.tW, .05) }; cbox(p, c, d, 'w', ...W_, s1, { shape: 'circ', g: mvG(CL(p), KW), mv: KW, dimAt: f3(T_.tN + tu(.3)) });
     const KR = ent('pop', ...CC, s2, T_.tR); cbox(p, c, d, 'r', ...CC, s2, { shape: 'circ', g: mvG(p, KR), mv: KR });
-    cword(p, d, 'w', W_[0], W_[1] + s1 / 2 + 58, { pill: true, maxW: 260, strike: true }); cword(p, d, 'r', CC[0], CC[1] + s2 / 2 + 62, { pill: true, maxW: 340 });
-    marks5(p, [f1(W_[0] + s1 * .36), f1(W_[1] + s1 * .36)], [f1(CC[0] + s2 * .36), f1(CC[1] - s2 * .36)]); }); });
+    cword(p, d, 'w', W_[0], W_[1] + s1 / 2 + 58, { pill: true, maxW: 260, strike: true, t: f3(T_.tN + tu(.36)) }); cword(p, d, 'r', CC[0], CC[1] + s2 / 2 + 62, { pill: true, maxW: 340 });
+    marks5(p, [f1(W_[0] + s1 * .36), f1(W_[1] + s1 * .36)], [f1(CC[0] + s2 * .36), f1(CC[1] - s2 * .36)], 56, f3(T_.tN + tu(.36))); }); });
 
   /* 29 ── CRACK (แตกร้าว): the wrong hexagon cracks down the middle and its halves drift apart, dim; the right hexagon stays whole and lights */
   variant('crack', 'แตกร้าว', (d, c) => { art(c, p => { const T_ = CT(), Y = 40, XW = -236, XR = 236, RH = 140;
@@ -982,9 +985,9 @@
     drawAt(R(p, S_[0] - bs / 2 - 16, S_[1] - bs / 2 - 16, bs + 32, bs + 32, bs * .3, DASH(.5)), p, tu(.04), tu(.3));
     const KW = { px: W_[0], py: W_[1], x: [[0, f1(S_[0] - W_[0])], [f3(T_.tR + tu(.18)), f1(S_[0] - W_[0])], [ta, 0, 'out']], y: [[0, f1(S_[1] - W_[1])], [f3(T_.tR + tu(.18)), f1(S_[1] - W_[1])], [ta, 0, 'out']], r: [[0, 0], [f3(T_.tR + tu(.18)), 0], [ta, -12, 'out']], s: [[0, f3(bs / s1)], [f3(T_.tR + tu(.18)), f3(bs / s1)], [ta, 1, 'out']], o: fadeIn(T_.tW, .05) };
     cbox(p, c, d, 'w', ...W_, s1, { g: mvG(CL(p), KW), mv: KW }); const KR = { px: S_[0], py: S_[1], x: [[0, 620], [T_.tR, 620], [f3(T_.tR + tu(.3)), -14, 'out'], [f3(T_.tR + tu(.42)), 0, 'soft']], o: fadeIn(T_.tR, .04) };
-    cbox(p, c, d, 'r', ...S_, bs, { g: mvG(CL(p), KR), mv: KR }); sparkAt(p, S_[0] - bs / 2, S_[1], 20, 50, f3(T_.tR + tu(.2)), 6, 0, [1, 2]);
+    cbox(p, c, d, 'r', ...S_, bs, { g: mvG(CL(p), KR), mv: KR });
     cword(p, d, 'r', S_[0], S_[1] - bs / 2 - 70, { pill: true, maxW: 380 }); cword(p, d, 'w', W_[0], W_[1] + s1 / 2 + 66, { pill: true, maxW: 300, strike: true, t: ta });
-    marks5(p, rotP(W_[0] - s1 / 2 + 8, W_[1] - s1 / 2 + 8, ...W_, -12), cornerB(...S_, bs)); }); });
+    marks5(p, rotP(W_[0] - s1 / 2 + 8, W_[1] - s1 / 2 + 8, ...W_, -12), cornerB(...S_, bs), 56, ta); }); });
 
   /* 34 ── SLIDER (สไลเดอร์): a track with the wrong above one end and the right above the other; the lit knob slides from the wrong end to the right */
   variant('slider', 'สไลเดอร์', (d, c) => { art(c, p => { const T_ = CT(), TY = 168, XW = -300, XR = 300, bs = 214, BY = -64;
@@ -1045,12 +1048,15 @@
   /* 40 ── CRUMPLE (ขยำทิ้ง): the wrong card scrunches into a crumpled ball and rolls to the corner, dim and crossed; the right card lies flat, lit */
   variant('crumple', 'ขยำทิ้ง', (d, c) => { art(c, p => { const T_ = CT(), R_ = [126, -18], s2 = 296, W_ = [-326, 186], rB = 104, ta = f3(T_.tN + tu(.36));
     const ball = pathOf(Array.from({ length: 16 }, (_, k) => { const a = rad(k * 22.5), r = k % 2 ? rB * .8 : rB * (1 + (k % 4 ? .04 : -.06)); return [f1(W_[0] + r * Math.cos(a)), f1(W_[1] + r * Math.sin(a))]; }));
-    const KW = { px: W_[0], py: W_[1], x: [[0, f1(R_[0] - W_[0])], [T_.tN, f1(R_[0] - W_[0])], [ta, 0, 'in']], y: [[0, f1(R_[1] - W_[1])], [T_.tN, f1(R_[1] - W_[1])], [ta, 0, 'in']], r: [[0, 0], [T_.tN, 0], [ta, -200, 'in']], s: [[0, 1.4], [T_.tN, 1.4], [ta, 1]], o: fadeIn(T_.tW, .05) };
-    cbox(p, c, d, 'w', ...W_, rB * 2, { g: mvG(CL(p), KW), mv: { px: W_[0], py: W_[1], x: KW.x, y: KW.y, s: KW.s }, draw: (q, st) => q.path(ball, st), iw: 130, dimAt: ta });
+    const KW = { px: W_[0], py: W_[1], x: [[0, f1(R_[0] - W_[0])], [T_.tN, f1(R_[0] - W_[0])], [ta, 0, 'in']], y: [[0, f1(R_[1] - W_[1])], [T_.tN, f1(R_[1] - W_[1])], [ta, 0, 'in']], r: [[0, 0], [T_.tN, 0], [ta, -200, 'in']], s: [[0, 1.4], [T_.tN, 1.4], [ta, 1]], o: [[0, 0], [T_.tN, 0], [f3(T_.tN + tu(.06)), 1]] };
+    /* until it is turned down the wrong one is a flat card in the middle; at tN it scrunches into the ball (card out, ball in) */
+    { const OC = [[0, 1], [T_.tN, 1], [f3(T_.tN + tu(.08)), 0]], cg = mvG(popAt(p, ...R_, T_.tW), { px: R_[0], py: R_[1], s: [[0, 1], [T_.tN, 1], [f3(T_.tN + tu(.08)), .7]], o: OC });
+      cbox(p, c, d, 'w', ...R_, s2, { g: cg, mv: { px: R_[0], py: R_[1], s: [[0, 1], [T_.tN, 1], [f3(T_.tN + tu(.08)), .7]] }, io: [[0, 0], [f3(T_.tW + tu(.04)), 0], [f3(T_.tW + tu(.14)), 1], [T_.tN, 1], [f3(T_.tN + tu(.08)), 0]], dimAt: 99 }); }
+    cbox(p, c, d, 'w', ...W_, rB * 2, { g: mvG(CL(p), KW), mv: { px: W_[0], py: W_[1], x: KW.x, y: KW.y, s: KW.s }, draw: (q, st) => q.path(ball, st), iw: 130, dimAt: ta, io: [[0, 0], [T_.tN, 0], [f3(T_.tN + tu(.06)), 1], [ta, 1], [f3(ta + tu(.2)), .4]] });
     [[-50, -40, 30, -10], [10, 30, 60, 60], [-60, 40, -20, 70]].forEach(([a, b, e, f]) => drawAt(p.line(W_[0] + a, W_[1] + b, W_[0] + e, W_[1] + f, { sw: 2, stroke: TL_(.35) }), p, ta, tu(.1)));
     const KR = ent('drop', ...R_, s2, T_.tR); cbox(p, c, d, 'r', ...R_, s2, { g: mvG(CL(p), KR), mv: KR }); dust(p, R_[0], R_[1] + s2 / 2, KR.land, 1.2);
     cword(p, d, 'r', R_[0] - s2 / 2 - 26, R_[1] + 18, { anchor: 'end', size: 52, maxW: 300 }); cword(p, d, 'w', W_[0] + rB + 26, W_[1] + 18, { anchor: 'start', size: 46, maxW: 300, wrap: null, strike: true, t: ta });
-    marks5(p, [W_[0] + 80, W_[1] - 80], corner(...R_, s2)); }); });
+    marks5(p, [W_[0] + 80, W_[1] - 80], corner(...R_, s2), 56, ta); }); });
 
   /* 41 ── SEGMENT (แถบเลือกสองช่อง): a two-part control; the lit block sits under the wrong, it is struck, the block slides over to the right */
   variant('segment', 'แถบเลือกสองช่อง', (d, c) => { art(c, p => { const T_ = CT(), Y = 60, X = { w: -225, r: 225 }, bs = 196;
@@ -1084,7 +1090,7 @@
     strikeLine(p, -PW3 / 2 + 20, Y.w, PW3 / 2 - 20, Y.w, f3(T_.tN + tu(.04)), 7); marks5(p, [PW3 / 2 - 70, Y.w - 76], [PW3 / 2 - 70, Y.r - 76]); }); });
 
   /* 45 ── WHEEL (วงหมุนเลือก): the wheel turns with both on it and stops with the right under the pointer at the top (lit), the wrong at the bottom, crossed */
-  variant('wheel', 'วงหมุนเลือก', (d, c) => { art(c, p => { const T_ = CT(), WX = -95, WY = 25, RW = 185, bs = 190, tS0 = f3(T_.tN), D = 810, ease = u => 1 - Math.pow(1 - u, 3), N = 40;
+  variant('wheel', 'วงหมุนเลือก', (d, c) => { art(c, p => { const T_ = CT(), WX = -95, WY = 25, RW = 185, bs = 190, tS0 = f3(T_.tN), D = 450, ease = u => 1 - Math.pow(1 - u, 3), N = 40;
     const ang = (s, u) => (s === 'w' ? 0 : 180) + D * (u <= tS0 ? 0 : u >= T_.H ? 1 : ease((u - tS0) / (T_.H - tS0))), Pt = a => [f1(WX + RW * Math.cos(rad(a))), f1(WY + RW * Math.sin(rad(a)))], ts = Array.from({ length: N + 1 }, (_, k) => f3(lerp(tS0, T_.H, k / N)));
     p.circle(WX, WY, RW, DASH(.4)); const aF = ang('r', T_.H), sp = mvG(p, { px: WX, py: WY, r: [[0, f1(ang('r', 0) - aF)]].concat(ts.map(u => [u, f1(ang('r', u) - aF)])), o: fadeIn(tu(.2), .06) });
     const [ax, ay] = Pt(aF), [bx_, by_] = Pt(aF + 180); sp.line(ax, ay, bx_, by_, { sw: 14 }); sp.line(ax, ay, bx_, by_, { sw: 7, stroke: C.fill }); p.circle(WX, WY, 34, F(3.6)); p.circle(WX, WY, 11, DOTF());
@@ -1093,7 +1099,7 @@
       cbox(p, c, d, s, fx, fy, bs, { shape: 'circ', g: mvG(p, K), mv: K, t, dimAt: T_.H }); cword(p, d, s, 40, fy + 18, { anchor: 'start', size: 50, maxW: 400, wrap: null, strike: s === 'w', t: f3(T_.H + tu(.14)) }); });
     const PY = WY - RW - bs / 2 - 10, KP = fallK(WX, PY, tu(.3), tu(.54), 200); KP.r = [[0, 0], [T_.H, 0], [f3(T_.H + tu(.06)), -16, 'out'], [f3(T_.H + tu(.3)), 0, 'soft']];
     const pg = mvG(CL(p), KP), tri = `M ${WX - 32} ${PY - 56} L ${WX + 32} ${PY - 56} L ${WX} ${PY} Z`; pg.path(tri, F(4)); litOn(pg, T_.H).path(tri, { fill: ACC1, sw: 4, stroke: ACC1 });
-    const top = Pt(270), bot = Pt(90); marks5(p, [f1(bot[0] - bs / 2 - 46), bot[1]], [f1(top[0] - bs / 2 - 46), top[1]]); }); });
+    const top = Pt(270), bot = Pt(90); marks5(p, [f1(bot[0] - bs / 2 - 46), bot[1]], [f1(top[0] - bs / 2 - 46), top[1]], 56, f3(T_.H + tu(.04))); }); });
 
   /* 46 ── STEP UP (ก้าวขึ้นขั้น): two steps — the wrong stays crossed on the low step, the right lands on the high step, lit; the words on the step faces */
   variant('stepup', 'ก้าวขึ้นขั้น', (d, c) => { art(c, p => { const T_ = CT(), s1 = 190, s2 = 214, LT = 168, HT = -36, W_ = [-246, f1(LT - 8 - s1 / 2)], R_ = [246, f1(HT - 8 - s2 / 2)];
