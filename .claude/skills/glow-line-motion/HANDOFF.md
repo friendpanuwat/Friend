@@ -12,9 +12,8 @@
 - **ยังไม่ได้ทำ / รอคำตอบเก่า:** สวิตช์ `text: false` (ข้อ 2b) · ไอคอน CutPack 6 + 9 ตัว (ข้อ 5) — อย่าเสนอซ้ำเอง.
 
 **1. งานอยู่ที่ไหน (เช็กก่อนทำอะไร)**
-- default branch `ccr-045810ba-gj4imq` มี B01–B21 + template ชุดฐานรอบแรก (PR #28 = B19–B21, PR #29 = ชุดฐาน; merge แล้วทั้งคู่).
-- **หลัง PR #29 ยังมี commit ที่ยังไม่ merge** อยู่ใน branch `ccr-819943cf-j02hmo` (push แล้ว ยังไม่เปิด PR): บันทึกทิศทาง template ชุดฐานใน HANDOFF + ทดสอบ B05 (`examples/b05t/`,
-  `motion/glow-line-templates/b05t/`). **แชทใหม่: ถ้า branch ของแชทไม่มี `examples/b05t/` → `git fetch origin ccr-819943cf-j02hmo` แล้ว merge เข้า branch ของแชทก่อนทำอะไร.**
+- **ทุกอย่างอยู่ใน default branch `ccr-045810ba-gj4imq` แล้ว** — B01–B21 (PR #28), template ชุดฐานรอบแรก (PR #29), ทดสอบ B05 + HANDOFF จบแชท (PR #30);
+  merge ครบแล้ว 2026-11-14 — ไม่ต้อง fetch/merge branch อื่น. เช็กแค่ว่ามี `examples/b05t/` และ `references/approved/b21/`.
 - จบงานแต่ละรอบ: commit + push branch ของแชท · เปิด PR เมื่อผู้ใช้สั่งเท่านั้น. ยกเลิกแล้ว: B11 ชุดที่ 2 (swishy.ai) — อย่าเสนอทำต่อเอง.
 
 **กฎใหญ่ที่ได้จากแชทนี้ (ใช้ทุกงาน)**
