@@ -421,7 +421,7 @@
   const mark = (q, kind, x, y, r, t) => { const g = popAt(q, x, y, t); g.circle(x, y, r, F(3)); (kind === 'x' ? XX : CHK)(g, x, y, r / 34); return g; };
   /* an icon box (rounded square) — the thing's icon; no icon → its word fits in the box; nothing → a dot. o.dim = dims at that time */
   function ibox(q, c, X, x, y, s, t, o = {}) { const g0 = o.g || popAt(q, x, y, t); if (o.dim) R(g0, x - s / 2, y - s / 2, s, s, s * .24, BK); const g = o.dim ? dimG(g0, o.dim) : g0; R(g, x - s / 2, y - s / 2, s, s, s * .24, F(4));
-    if (X && picOf(X)) put(q, c, { icon: X.icon }, x, y, s * .56, null, { t: f3(t + tu(.04)), mv: o.mv, o: o.dim ? dimK(o.dim) : undefined, punch: o.punch });
+    if (X && picOf(X)) put(q, c, { icon: X.icon }, x, y, s * .66, null, { t: f3(t + tu(.04)), mv: o.mv, o: o.dim ? dimK(o.dim) : undefined, punch: o.punch });
     else if (X && X.label) txt(g, X.label, x, y + s * .06, { size: s * .17, maxW: s * .84, weight: 800, color: C.ink, wrap: 'mid' }); else DOT(g, x, y, 8); return g; }
   /* a word pill centred at (x, y) sized to its words; o.dim = dims · o.strike = a line through it at that time */
   function pill(q, s, x, y, o = {}) { if (!s) return 0; const t = o.t ?? tu(.3), sz = o.size || 34, g0 = o.g || popAt(q, x, y, t), g = o.dim ? dimG(g0, o.dim) : g0;
@@ -524,7 +524,7 @@
   const UPD = d => !(d && d.dir === 'down');
   const ITM = d => d && has(d.item) ? d.item : null, CEN = d => d && has(d.center) ? d.center : null;
   const NN = d => Math.max(2, Math.min(4, Math.round(+(d && d.n) || 4)));
-  const SZ = n => n >= 4 ? 175 : n === 3 ? 205 : 235;
+  const SZ = n => n >= 4 ? 200 : n === 3 ? 230 : 255;
   const rowX = (n, s, gap, cx = 0) => Array.from({ length: n }, (_, k) => f1(cx + (k - (n - 1) / 2) * (s + gap)));
   function EV(d) { const up = UPD(d), n = NN(d), keep = up ? n : (d.keep == null ? 1 : Math.max(0, Math.min(n - 1, Math.round(+d.keep)))), m = up ? n : n - keep, H = Z.H, T0 = Math.max(tu(.55), H - tu(1.15));
     const ts = Array.from({ length: Math.max(1, m) }, (_, j) => f3(m <= 1 ? H : lerp(T0, H, j / (m - 1))));
@@ -559,7 +559,7 @@
       } }
     const g = mvG(o.clip === false ? p : CL(p), K), sh = o.shape || 'box', mv = Object.assign({}, K); delete mv.o;
     if (sh === 'circ') { g.circle(x, y, s / 2, F(3.6)); g.circle(x, y, s / 2 - 12, S(1.4)); } else R(g, x - s / 2, y - s / 2, s, s, s * .24, F(4));
-    if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * (sh === 'circ' ? .58 : .62), null, { t: up ? f3(Math.max(tu(.05), t - tu(dur))) : (o.hidden ? t : t0), mv, o: K.o });
+    if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * (sh === 'circ' ? .66 : .72), null, { t: up ? f3(Math.max(tu(.05), t - tu(dur))) : (o.hidden ? t : t0), mv, o: K.o });
     else if (X && X.label) txt(g, X.label, x, y + s * .06, { size: s * .18, maxW: s * .84, weight: 800, color: C.ink, wrap: 'mid' }); else g.circle(x, y, s * .12, { fill: ACC1, sw: 0, stroke: 'none' });
     if (up && (o.in || 'drop') === 'drop' && o.dust !== false) dust(p, x, y + s / 2, t, s / 240);
     if (!up && t != null && o.ghost !== false && !o.hidden) ghost(p, x, y, s, f3(t + tu(dur)), sh);   /* where it was stays as a dashed outline */
@@ -569,7 +569,7 @@
   /* the center (owner / where they go): a big box that bumps on every event, its word in a pill (o.ly; o.noLabel) */
   function cbox(p, c, X, x, y, s, ts, o = {}) { if (!X) return null; const t = o.t ?? tu(.1), g0 = popAt(p, x, y, t), K = { px: x, py: y, s: multiBump(ts) }, g = mvG(g0, K);
     if (o.circ) { g.circle(x, y, s / 2, F(4.4)); g.circle(x, y, s / 2 - 16, S(1.4)); } else { R(g, x - s / 2, y - s / 2, s, s, s * .26, F(4.4)); R(g, x - s / 2 + 14, y - s / 2 + 14, s - 28, s - 28, s * .2, S(1.4)); }
-    if (picOf(X)) { put(p, c, { icon: X.icon }, x, y, s * .58, null, { t: f3(t + tu(.04)), mv: K }); if (X.label && !o.noLabel) pill(p, X.label, o.lx ?? x, o.ly ?? y + s / 2 + 42, { t: tu(.3), size: 30, maxW: o.maxW || 300 }); }
+    if (picOf(X)) { put(p, c, { icon: X.icon }, x, y, s * .66, null, { t: f3(t + tu(.04)), mv: K }); if (X.label && !o.noLabel) pill(p, X.label, o.lx ?? x, o.ly ?? y + s / 2 + 42, { t: tu(.3), size: 30, maxW: o.maxW || 300 }); }
     else txt(g, X.label, x, y + s * .06, { size: s * .17, maxW: s * .84, weight: 800, color: C.ink, wrap: 'mid' }); return g; }
   /* the item's word as a chip (only when it has an icon — otherwise the word is in the boxes) + the direction badge */
   /* (user 2026-11-14, with a marked-up picture: "ลบขีดเส้นใต้ด้านล่างออกและลบที่ผมวงไว้ออกด้วยทุกอันเลย … โหมดต่อๆไปก็ห้ามทำด้วย") — no word chip
@@ -582,14 +582,14 @@
 
   /* 01 ── SLOTS (แถวช่อง): a row of dashed slots; up — the boxes drop into them one by one (dust); down — they lift out and fade, the empty slots stay.
      The center (if any) sits above the row and bumps with every change */
-  variant('row', 'แถวช่อง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = Cn ? Math.min(SZ(E.n), 165) : SZ(E.n), y = Cn ? 150 : 40, xs = rowX(E.n, s, 40);
+  variant('row', 'แถวช่อง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = Cn ? Math.min(SZ(E.n), 190) : SZ(E.n), y = Cn ? 165 : 40, xs = rowX(E.n, s, 28);
     art(c, p => { base(p, c, d, E); slots(p, xs, xs.map(() => y), s); xs.forEach((x, k) => item(p, c, X, x, y, s, E, k, { in: 'drop', out: 'lift', ghost: false }));
       cbox(p, c, Cn, 0, -150, 170, E.ts, { ly: -150, lx: 250 }); endM(p, c, d, xs[E.n - 1] + s / 2, y - s / 2);
     }); });
 
   /* 02 ── STACK (กองซ้อน): boxes pile into a column; up — each drops onto the top and squashes; down — the top ones slide off to the side and fade.
      The center (if any) stands beside it, joined by a dashed line */
-  variant('stack', 'กองซ้อน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 132 : E.n === 3 ? 165 : 200, by = 300, x = Cn ? -200 : -40, ys = Array.from({ length: E.n }, (_, k) => f1(by - s / 2 - k * (s + 10)));
+  variant('stack', 'กองซ้อน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 150 : E.n === 3 ? 190 : 220, by = 316, x = Cn ? -200 : -40, ys = Array.from({ length: E.n }, (_, k) => f1(by - s / 2 - k * (s + 10)));
     art(c, p => { base(p, c, d, E, { cx: 40, dx: -432 }); 
       ys.forEach((y, k) => item(p, c, X, x, y, s, E, k, { in: 'drop', out: 'slide', dx: 560 }));
       if (Cn) { drawAt(p.path(`M ${x + s / 2 + 20} 60 L 140 60`, DASH(.5)), p, tu(.2), tu(.2)); cbox(p, c, Cn, 280, 60, 240, E.ts); }
@@ -602,7 +602,7 @@
     art(c, p => { base(p, c, d, E); if (Cn) cbox(p, c, Cn, cx, cy, 250, E.ts, { noLabel: true }); else { drawAt(p.circle(cx, cy, 160, DASH(.5)), p, tu(.06), tu(.3)); const K = { px: cx, py: cy, s: multiBump(E.ts, 1.08) }; ibox(p, c, X, cx, cy, 220, tu(.08), { g: mvG(popAt(p, cx, cy, tu(.08)), K), mv: K }); }
       if (Cn && Cn.label && picOf(Cn)) pill(p, Cn.label, cx, -270, { t: tu(.3), size: 30, maxW: 300 });
       for (let k = 0; k < E.n; k++) { const fr = far[k % 4], mid = [(fr[0] + cx) / 2, (fr[1] + cy) / 2 + (k % 2 ? 60 : -60)];
-        item(p, c, X, cx, cy, 150, E, k, E.up ? { in: 'fly', from: fr, mid, vanish: true, dur: .36 } : { out: 'fly', to: fr, mid, hidden: true, dur: .36 });
+        item(p, c, X, cx, cy, 185, E, k, E.up ? { in: 'fly', from: fr, mid, vanish: true, dur: .36 } : { out: 'fly', to: fr, mid, hidden: true, dur: .36 });
         const dx = f1(cx + (k - (E.n - 1) / 2) * 56), dy = 200, t = E.at(k); p.circle(dx, dy, 16, S(2));
         if (E.up) popAt(p, dx, dy, t).circle(dx, dy, 16, { fill: ACC1, sw: 0, stroke: 'none' });
         else { const g = sub(p); on(g, p, 0, { o: t == null ? fadeIn(tu(.3)) : [[0, 0], [tu(.3), 0], [tu(.34), 1], [t, 1], [f3(t + tu(.06)), 0]] }); g.circle(dx, dy, 16, { fill: ACC1, sw: 0, stroke: 'none' }); } }
@@ -631,7 +631,7 @@
 
   /* 06 ── QUEUE LANE (เส้นทางเลื่อน): a lane with moving chevrons; up — the boxes slide in from the left along it and line up against the end (the
      center, if any); down — they slide back out to the left, the last in first */
-  variant('lane', 'เส้นทางเลื่อน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 150 : 175, y = 40, xr = Cn ? 350 - 100 - 30 - s / 2 : 440 - s / 2, xs = Array.from({ length: E.n }, (_, k) => f1(xr - k * (s + 18)));
+  variant('lane', 'เส้นทางเลื่อน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = Cn ? (E.n >= 4 ? 160 : 185) : (E.n >= 4 ? 195 : 215), y = 40, xr = Cn ? 350 - 100 - 30 - s / 2 : 440 - s / 2, xs = Array.from({ length: E.n }, (_, k) => f1(xr - k * (s + 18)));
     art(c, p => { base(p, c, d, E); const ly = y + s / 2 + 34; 
       for (let k = 0; k < 6; k++) { const x = -420 + k * 160, g = mvG(p, { x: [[0, 0], [tu(.1), 0], [f3(Z.H + tu(.6)), 60]], o: fadeIn(tu(.1 + .03 * k), .06) }); g.path(`M ${x} ${ly + 22} L ${x + 18} ${ly + 40} L ${x} ${ly + 58}`, { sw: 3, stroke: TL_(.5) }); }
       xs.forEach((x, k) => item(p, c, X, x, y, s, E, k, { in: 'slide', dx: f1(-540 - x), out: 'slide', dx2: 0, dur: .34, ...(E.up ? {} : { dx: f1(-560 - x) }) }));
@@ -649,7 +649,7 @@
 
   /* 08 ── BIG ARROW (ลูกศรใหญ่): a thick arrow draws across (rising for up, falling for down); the boxes sit along it — up: they pop on in order toward
      the head; down: they shrink away from the head back. The center (if any) sits at the tail */
-  variant('arrow', 'ลูกศรใหญ่', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 150 : 175, a = E.up ? [-430, 250] : [-430, -230], b = E.up ? [440, -240] : [440, 260], an = Math.atan2(b[1] - a[1], b[0] - a[0]);
+  variant('arrow', 'ลูกศรใหญ่', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 180 : 205, a = E.up ? [-430, 250] : [-430, -230], b = E.up ? [440, -240] : [440, 260], an = Math.atan2(b[1] - a[1], b[0] - a[0]);
     art(c, p => { base(p, c, d, E, E.up ? { dx: 432, dy: 292 } : { cy: 292, dx: 432, dy: -292 }); on(p.line(a[0], a[1], b[0], b[1], { sw: 16, stroke: TA(.5) }), p, 0, { draw: [[0, 0], [tu(.06), 0], [tu(.5), 1, 'out']] });
       const h1 = an + rad(150), h2 = an - rad(150); popAt(p, b[0], b[1], tu(.5)).path(`M ${f1(b[0] + 70 * Math.cos(h1))} ${f1(b[1] + 70 * Math.sin(h1))} L ${b[0]} ${b[1]} L ${f1(b[0] + 70 * Math.cos(h2))} ${f1(b[1] + 70 * Math.sin(h2))}`, { sw: 16, stroke: TA(.5) });
       for (let k = 0; k < E.n; k++) { const f = (k + 1) / (E.n + 1) * .92 + .04, x = f1(lerp(a[0], b[0], f)), y = f1(lerp(a[1], b[1], f)); item(p, c, X, x, y, s, E, k, { in: 'pop', out: 'shrink' }); }
@@ -681,7 +681,7 @@
 
   /* 11 ── RING AROUND (วงรอบศูนย์): the center in the middle (or a dashed ring); the boxes around it, each tied by a line — up: they pop on one by one
      round it and their lines draw; down: they fly outward and their lines vanish */
-  variant('ring', 'วงรอบศูนย์', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = 0, cy = 20, R0 = E.n === 2 ? 290 : 265, s = E.n >= 4 ? 140 : 160;
+  variant('ring', 'วงรอบศูนย์', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = 0, cy = 20, R0 = E.n === 2 ? 285 : 262, s = E.n >= 4 ? 172 : 190;
     const A = E.n >= 4 ? [-135, -45, 45, 135] : E.n === 3 ? [-90, 30, 150] : [180, 0];
     art(c, p => { base(p, c, d, E); if (Cn) cbox(p, c, Cn, cx, cy, 200, E.ts, { noLabel: true }); else { drawAt(p.circle(cx, cy, 90, DASH(.6)), p, tu(.06), tu(.3)); popAt(p, cx, cy, tu(.1)).circle(cx, cy, 20, { fill: ACC1, sw: 2, stroke: ACC1 }); }
       A.forEach((a, k) => { const x = f1(cx + R0 * Math.cos(rad(a))), y = f1(cy + R0 * Math.sin(rad(a))), t = E.at(k), x1 = f1(cx + 120 * Math.cos(rad(a))), y1 = f1(cy + 120 * Math.sin(rad(a))), x2 = f1(cx + (R0 - s * .6) * Math.cos(rad(a))), y2 = f1(cy + (R0 - s * .6) * Math.sin(rad(a)));
@@ -692,7 +692,7 @@
 
   /* 12 ── RISING BARS (แท่งโต): bars stand on a baseline, each with the item box on top — up: each bar grows and its box pops on top; down: bars sink
      back into the baseline one by one, their boxes riding down */
-  variant('bars', 'แท่งโต', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 140 : 165, by = 300, xs = rowX(E.n, s, 70, Cn ? 60 : 0);
+  variant('bars', 'แท่งโต', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 170 : 195, by = 316, xs = rowX(E.n, s, 44, Cn ? 70 : 0);
     art(c, p => { base(p, c, d, E, { dx: Cn ? 150 : 432 }); 
       xs.forEach((x, k) => { const h = lerp(90, 250, E.n > 1 ? k / (E.n - 1) : 1), t = E.at(k), bw = 90, top = by - h, iy = f1(top - s / 2 - 12);
         const BK2 = E.up ? { px: x, py: by, sy: [[0, 0], [f3(t - tu(.34)), 0], [f3(t - tu(.06)), 1.06, 'out'], [t, 1, 'soft']], o: fadeIn(f3(t - tu(.34)), .04) }
@@ -704,7 +704,7 @@
 
   /* 13 ── LIST ROWS (แถวรายการ): rows with a big icon box and grey lines — up: each row slides in from the right under the last; down: a line strikes
      the row and it folds away. The center (if any) sits top-right */
-  variant('list', 'แถวรายการ', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), rh = E.n >= 4 ? 132 : 160, gp = 14, y0 = 30 - ((E.n - 1) * (rh + gp)) / 2 + 20, bs = rh - 18;
+  variant('list', 'แถวรายการ', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), rh = E.n >= 4 ? 154 : 180, gp = 10, y0 = 10 - ((E.n - 1) * (rh + gp)) / 2, bs = rh - 14;
     art(c, p => { base(p, c, d, E, { dx: Cn ? 250 : 432 });
       for (let k = 0; k < E.n; k++) { const y = f1(y0 + k * (rh + gp)), t = E.at(k), K = { px: 0, py: y };
         if (E.up) Object.assign(K, { x: [[0, 560], [f3(t - tu(.3)), 560], [t, -12, 'out'], [f3(t + tu(.1)), 0, 'soft']], o: fadeIn(f3(t - tu(.3)), .04) });
@@ -727,7 +727,7 @@
 
   /* 15 ── PILE (กองพูน): boxes pile into a little pyramid — up: bottom row first, each drops and squashes; down: from the top, each flies off up and
      away. The center (if any) stands on the left */
-  variant('pile', 'กองพูน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 165 : 185, g = 14, px = Cn ? 130 : 0, by = 290 - s / 2;
+  variant('pile', 'กองพูน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 185 : 205, g = 14, px = Cn ? 130 : 0, by = 290 - s / 2;
     const P = E.n >= 4 ? [[-1, 0], [0, 0], [1, 0], [0, 1]] : E.n === 3 ? [[-.5, 0], [.5, 0], [0, 1]] : [[-.5, 0], [.5, 0]];
     art(c, p => { base(p, c, d, E); 
       P.forEach(([i, j], k) => { const x = f1(px + i * (s + g)), y = f1(by - j * (s + g)); item(p, c, X, x, y, s, E, k, { in: 'drop', out: 'fly', to: [x + 200, -470], mid: [x + 120, y - 140] }); });
@@ -736,13 +736,13 @@
 
   /* 16 ── ORBIT (โคจรเข้า): a dashed orbit round the center; up — each box sweeps round the orbit and parks at its place; down — each sweeps on round
      and flies off outward */
-  variant('orbit', 'โคจรเข้า', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = 0, cy = 20, R0 = 255, s = E.n >= 4 ? 135 : 155, A = E.n >= 4 ? [-150, -30, 30, 150] : E.n === 3 ? [-90, 30, 150] : [-160, -20];
+  variant('orbit', 'โคจรเข้า', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = 0, cy = 20, R0 = 255, s = E.n >= 4 ? 168 : 188, A = E.n >= 4 ? [-150, -30, 30, 150] : E.n === 3 ? [-90, 30, 150] : [-160, -20];
     art(c, p => { base(p, c, d, E); drawAt(p.circle(cx, cy, R0, DASH(.45)), p, tu(.06), tu(.4)); if (Cn) cbox(p, c, Cn, cx, cy, 210, E.ts, { noLabel: true }); else popAt(p, cx, cy, tu(.1)).circle(cx, cy, 26, { fill: ACC1, sw: 2, stroke: ACC1 });
       A.forEach((a, k) => { const x = f1(cx + R0 * Math.cos(rad(a))), y = f1(cy + R0 * Math.sin(rad(a))), t = E.at(k), K = { px: cx, py: cy }, t0 = f3(tu(.08 + .06 * k));
         if (E.up) { const ts = f3(t - tu(.45)); Object.assign(K, { r: [[0, -160], [ts, -160], [t, 4, 'out'], [f3(t + tu(.1)), 0, 'soft']], o: fadeIn(ts, .04) }); }
         else Object.assign(K, t == null ? { o: fadeIn(t0, .04) } : { r: [[0, 0], [t, 0], [f3(t + tu(.4)), 120, 'in']], s: [[0, 1], [t, 1], [f3(t + tu(.4)), 1.6, 'in']], o: [[0, 0], [t0, 0], [f3(t0 + tu(.04)), 1], [f3(t + tu(.25)), 1], [f3(t + tu(.4)), 0]] });
         if (!E.up && t != null) ghost(p, x, y, s, f3(t + tu(.4))); const g = mvG(CL(p), K); R(g, x - s / 2, y - s / 2, s, s, s * .24, F(4)); const mv = Object.assign({}, K); delete mv.o;
-        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * .62, null, { t: E.up ? f3(t - tu(.45)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, x, y + 8, { size: 30, maxW: s - 16, weight: 800, color: C.ink, wrap: 'mid' }); });
+        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * .72, null, { t: E.up ? f3(t - tu(.45)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, x, y + 8, { size: 30, maxW: s - 16, weight: 800, color: C.ink, wrap: 'mid' }); });
       if (Cn && Cn.label && picOf(Cn)) pill(p, Cn.label, cx, cy + 150, { t: tu(.3), size: 28, maxW: 260 }); endM(p, c, d, cx + 100, cy - 100, 38);
     }); });
 
@@ -771,13 +771,13 @@
 
   /* 19 ── PILL TAGS (เม็ดไอคอน): wide pills (big icon + grey line) in two columns — up: each pops in with a bounce; down: each shrinks away. The center
      (if any) sits top-right */
-  variant('pills', 'เม็ดไอคอน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), pw = 400, ph = 150, P = [[-215, -60], [215, -60], [-215, 130], [215, 130]].slice(0, E.n).map(q => E.n === 2 ? [q[0], 40] : q);
+  variant('pills', 'เม็ดไอคอน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), pw = 430, ph = 172, P = [[-228, -70], [228, -70], [-228, 130], [228, 130]].slice(0, E.n).map(q => E.n === 2 ? [q[0], 40] : q);
     art(c, p => { base(p, c, d, E, { dx: Cn ? 250 : 432 });
       P.forEach(([x, y], k) => { const t = E.at(k), t0 = f3(tu(.08 + .06 * k)), K = { px: x, py: y };
         if (E.up) Object.assign(K, { s: [[0, .2], [f3(t - tu(.3)), .2], [t, 1.1, 'out'], [f3(t + tu(.14)), 1, 'soft']], o: fadeIn(f3(t - tu(.3)), .04) });
         else Object.assign(K, { s: [[0, .3], [t0, .3], [f3(t0 + tu(.24)), 1.06, 'out'], [f3(t0 + tu(.36)), 1, 'soft']].concat(t == null ? [] : [[t, 1], [f3(t + tu(.06)), 1.08, 'out'], [f3(t + tu(.3)), 0, 'in']]), o: fadeIn(t0, .04).concat(t == null ? [] : [[f3(t + tu(.28)), 1], [f3(t + tu(.3)), 0]]) });
-        if (!E.up && t != null) ghost(p, x, y, ph, f3(t + tu(.3)), 'pill', pw); const g = mvG(p, K); R(g, x - pw / 2, y - ph / 2, pw, ph, ph / 2, F(4)); g.circle(x - pw / 2 + ph / 2, y, ph / 2 - 12, S(1.6)); R(g, x - pw / 2 + ph + 10, y - 12, 190, 24, 12, PH);
-        const mv = Object.assign({}, K); delete mv.o; if (X && picOf(X)) put(p, c, { icon: X.icon }, x - pw / 2 + ph / 2, y, 96, null, { t: E.up ? f3(t - tu(.3)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, x + 20, y + 12, { size: 34, maxW: pw - 60, weight: 800, color: C.ink }); });
+        if (!E.up && t != null) ghost(p, x, y, ph, f3(t + tu(.3)), 'pill', pw); const g = mvG(p, K); R(g, x - pw / 2, y - ph / 2, pw, ph, ph / 2, F(4)); g.circle(x - pw / 2 + ph / 2, y, ph / 2 - 12, S(1.6)); R(g, x - pw / 2 + ph + 10, y - 12, 200, 24, 12, PH);
+        const mv = Object.assign({}, K); delete mv.o; if (X && picOf(X)) put(p, c, { icon: X.icon }, x - pw / 2 + ph / 2, y, 124, null, { t: E.up ? f3(t - tu(.3)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, x + 20, y + 12, { size: 34, maxW: pw - 60, weight: 800, color: C.ink }); });
       cbox(p, c, Cn, 400, -292, 110, E.ts, { noLabel: true }); const L = P[E.n - 1]; endM(p, c, d, L[0] + pw / 2, L[1] - ph / 2, 40);
     }); });
 
@@ -787,16 +787,16 @@
     art(c, p => { base(p, c, d, E); R(inG(p, 'rise', tx, 60, tu(.04)), tx - w / 2, ty0, w, h, 50, F(4.4)); const lv = j => .9 * j / E.n, LK = [[0, E.up ? 0.001 : lv(E.n)]];
       ORD(E).forEach(k => { const t = E.at(k), v = E.up ? lv(k + 1) : lv(k); LK.push([t, LK[LK.length - 1][1]], [f3(t + tu(.2)), v, 'out']); });
       R(mvG(p, { px: tx, py: ty1 - 10, sy: LK, o: fadeIn(tu(.1), .04) }), tx - w / 2 + 12, ty1 - 10 - (h - 20), w - 24, h - 20, 38, { fill: TA(.28), sw: 0, stroke: 'none' });
-      for (let k = 0; k < E.n; k++) item(p, c, X, tx, E.up ? ty1 - 120 : ty0 + 140, 150, E, k, E.up ? { in: 'drop', vanish: true, dust: false, h: 640 } : { out: 'lift', hidden: true, dur: .4 });
-      const TK = { px: tx, py: ty0, s: multiBump(E.ts, 1.06) }; ibox(p, c, X, tx, ty0, 150, tu(.2), { g: mvG(popAt(p, tx, ty0, tu(.2)), TK), mv: TK });
+      for (let k = 0; k < E.n; k++) item(p, c, X, tx, E.up ? ty1 - 130 : ty0 + 150, 185, E, k, E.up ? { in: 'drop', vanish: true, dust: false, h: 640 } : { out: 'lift', hidden: true, dur: .4 });
+      const TK = { px: tx, py: ty0, s: multiBump(E.ts, 1.06) }; ibox(p, c, X, tx, ty0, 170, tu(.2), { g: mvG(popAt(p, tx, ty0, tu(.2)), TK), mv: TK });
       cbox(p, c, Cn, 320, 60, 220, E.ts); endM(p, c, d, tx + w / 2, ty0);
     }); });
 
   /* 21 ── STOPS ON A PATH (จุดแวะ): a winding path with a stop per item, leading to the center (or an end ring) — up: each box travels in from the
      start along the path to its stop; down: each leaves its stop back along the path and out */
-  variant('path', 'จุดแวะ', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 130 : 150, L = [[-500, 260], [-300, 230], [-150, 120], [20, 160], [170, 40], [300, -60]], ex = 360, ey = -150;
+  variant('path', 'จุดแวะ', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 170 : 190, L = [[-520, 270], [-350, 230], [-150, 110], [50, 190], [240, 40], [330, -90]], ex = 380, ey = -200;
     art(c, p => { base(p, c, d, E, { cx: -450, cy: -292, dx: -60, dy: -292 }); on(p.path(pathOf(L.concat([[ex - 80, ey + 40]]), false), { sw: 6, stroke: TL_(.4), 'stroke-dasharray': '2 16', 'stroke-linecap': 'round' }), p, 0, { o: fadeIn(tu(.06), .1) });
-      if (Cn) cbox(p, c, Cn, ex, ey, 200, E.ts, { ly: ey + 140 }); else { drawAt(p.circle(ex, ey, 60, W(4)), p, tu(.1), tu(.2)); popAt(p, ex, ey, tu(.2)).circle(ex, ey, 18, { fill: ACC1, sw: 0, stroke: 'none' }); }
+      if (Cn) cbox(p, c, Cn, ex, ey, 200, E.ts, { lx: ex - 230, ly: ey }); else { drawAt(p.circle(ex, ey, 60, W(4)), p, tu(.1), tu(.2)); popAt(p, ex, ey, tu(.2)).circle(ex, ey, 18, { fill: ACC1, sw: 0, stroke: 'none' }); }
       const stops = [L[1], L[2], L[3], L[4]].slice(4 - E.n).reverse();
       stops.forEach((q, k) => { const P = L.slice(0, L.indexOf(q) + 1); item(p, c, X, q[0], q[1], s, E, k, E.up ? { in: 'fly', from: P[0], mid: P.length > 2 ? P[P.length - 2] : [(P[0][0] + q[0]) / 2, q[1] - 80], dur: .38 } : { out: 'fly', to: [-560, 300], mid: P.length > 2 ? P[P.length - 2] : [-400, 260], dur: .38 }); });
       endM(p, c, d, ex + 90, ey - 90, 40);
@@ -804,7 +804,7 @@
 
   /* 22 ── PLUS / MINUS (บวก / ลบ): the boxes on a staircase (rising for up, falling for down); each change shows its sign — up: a box pops in with a +
      badge; down: a − badge pops on a box and it fades away */
-  variant('plusminus', 'บวก / ลบ', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 150 : 175, xs = rowX(E.n, s, 50, Cn ? 70 : 0);
+  variant('plusminus', 'บวก / ลบ', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 180 : 205, xs = rowX(E.n, s, 34, Cn ? 70 : 0);
     art(c, p => { base(p, c, d, E); xs.forEach((x, k) => { const y = f1(E.up ? 200 - k * (E.n > 1 ? 300 / (E.n - 1) : 0) : -100 + k * (E.n > 1 ? 300 / (E.n - 1) : 0)), t = E.at(k);
         item(p, c, X, x, y, s, E, k, { in: 'pop', out: 'shrink', dur: .34 }); if (t == null) return;
         const bx = x + s / 2 - 6, by = y - s / 2 + 6, g = sub(p); on(g, p, 0, { ox: bx, oy: by, s: [[0, .2], [f3(t - tu(.02)), .2], [f3(t + tu(.12)), 1.1, 'out'], [f3(t + tu(.22)), 1, 'soft']], o: E.up ? fadeIn(f3(t - tu(.02)), .03) : [[0, 0], [f3(t - tu(.02)), 0], [f3(t + tu(.01)), 1], [f3(t + tu(.3)), 1], [f3(t + tu(.36)), 0]] });
@@ -814,18 +814,18 @@
 
   /* 23 ── MOVE ACROSS (ย้ายเข้าโซน): two dashed zones — outside on the left, the center's zone on the right; up — each box moves from the left zone into
      the right one; down — each moves out of the right zone to the left one */
-  variant('across', 'ย้ายเข้าโซน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 130 : 150, zx = 220, zy = 50, zw = 440, zh = 440, o = (s + 26) / 2;
+  variant('across', 'ย้ายเข้าโซน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 175 : 200, zx = 215, zy = 50, zw = 470, zh = 470, o = (s + 26) / 2;
     const IN = (E.n === 2 ? [[-o, 0], [o, 0]] : [[-o, -o], [o, -o], [-o, o], [o, o]].slice(0, E.n)).map(([a, b]) => [zx + a, zy + b]), OUT = IN.map(([x, y]) => [x - 560, y]);
     art(c, p => { base(p, c, d, E); [[-340, 250], [zx, zw]].forEach(([x, w], k) => on(R(p, x - w / 2, zy - zh / 2, w, zh, 40, k ? { sw: 3.4, stroke: ACC1, 'stroke-dasharray': '10 12' } : DASH(.35)), p, 0, { o: fadeIn(tu(.04 + .06 * k), .08) }));
       drawAt(p.path('M -180 50 L -40 50 M -70 22 L -36 50 L -70 78', W(5)), p, tu(.2), tu(.2)); if (!E.up) p.g.lastChild.setAttribute('transform', 'rotate(180 -110 50)');
       IN.forEach(([x, y], k) => { const fr = OUT[k]; item(p, c, X, x, y, s, E, k, E.up ? { in: 'fly', from: fr, mid: [(fr[0] + x) / 2, y - 140], dur: .36 } : { out: 'fly', to: fr, mid: [(fr[0] + x) / 2, y - 140], dur: .36 }); });
-      cbox(p, c, Cn, zx + zw / 2 - 10, zy - zh / 2 + 10, 120, E.ts, { noLabel: true }); if (Cn && Cn.label && picOf(Cn)) pill(p, Cn.label, zx, zy + zh / 2 + 4, { t: tu(.3), size: 28, maxW: 300 });
+      cbox(p, c, Cn, zx, zy - zh / 2 - 62, 110, E.ts, { noLabel: true }); if (Cn && Cn.label && picOf(Cn)) pill(p, Cn.label, zx, zy + zh / 2 + 4, { t: tu(.3), size: 28, maxW: 300 });
       endM(p, c, d, zx - zw / 2 + 10, zy - zh / 2 + 10, 40);
     }); });
 
   /* 24 ── FRAME (กรอบรวม): a big rounded frame; up — the boxes land at scattered spots inside, each with a ripple; down — they break into dots and
      vanish one by one. The center (if any) sits on the frame's top edge */
-  variant('frame', 'กรอบรวม', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 160 : 185, fw = 860, fh = 520, fy = 50, P = [[-250, -30], [40, 110], [250, -40], [-80, -90], [-260, 150]];
+  variant('frame', 'กรอบรวม', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 185 : 210, fw = 900, fh = 560, fy = 50, P = [[-250, -30], [40, 110], [250, -40], [-80, -90], [-260, 150]];
     const Q = E.n >= 4 ? [[-270, -20], [-60, 120], [140, -60], [300, 110]] : E.n === 3 ? [[-230, 40], [0, -40], [230, 60]] : [[-150, 30], [150, 30]];
     art(c, p => { base(p, c, d, E); const fg = mvG(p, { px: 0, py: fy, s: [[0, .9], [tu(.04), .9], [tu(.3), 1.02, 'out'], [tu(.4), 1, 'soft']], o: fadeIn(tu(.04), .06) }); R(fg, -fw / 2, fy - fh / 2, fw, fh, 46, S(2.6)); R(fg, -fw / 2 + 18, fy - fh / 2 + 18, fw - 36, fh - 36, 32, { sw: 1.4, stroke: TL_(.25) });
       Q.forEach(([qx, qy], k) => { const x = qx, y = fy + qy, r = item(p, c, X, x, y, s, E, k, { in: 'pop', out: 'shrink', dur: .3 }); if (r.t == null) return;
@@ -842,7 +842,7 @@
         if (E.up) Object.assign(K, { sy: [[0, 0], [f3(t - tu(.3)), 0], [t, 1.08, 'out'], [f3(t + tu(.12)), 1, 'soft']], o: fadeIn(f3(t - tu(.3)), .03) });
         else Object.assign(K, { sy: [[0, 0], [t0, 0], [f3(t0 + tu(.3)), 1.06, 'out'], [f3(t0 + tu(.4)), 1, 'soft']].concat(t == null ? [] : [[t, 1], [f3(t + tu(.06)), 1.06, 'out'], [f3(t + tu(.32)), 0, 'in']]), o: fadeIn(t0, .03).concat(t == null ? [] : [[f3(t + tu(.3)), 1], [f3(t + tu(.32)), 0]]) });
         if (!E.up && t != null) ghost(p, x, y, s, f3(t + tu(.32))); const g = mvG(cl[0], K); R(g, x - s / 2, y - s / 2, s, s, s * .24, F(4)); const mv = Object.assign({}, K); delete mv.o;
-        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * .62, null, { t: E.up ? f3(t - tu(.3)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, x, y + 10, { size: 32, maxW: s - 20, weight: 800, color: C.ink, wrap: 'mid' });
+        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * .72, null, { t: E.up ? f3(t - tu(.3)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, x, y + 10, { size: 32, maxW: s - 20, weight: 800, color: C.ink, wrap: 'mid' });
         if (t != null) rippleE(p, x, ly, s * .7, 16, t); });
       cbox(p, c, Cn, 330, -100, 220, E.ts, { ly: -100 + 150 }); const L = P[E.n - 1]; endM(p, c, d, xs2[L[0]] + s / 2, Ly[L[1]] - s - 4, 40);
     }); });
@@ -851,14 +851,14 @@
 
   /* 26 ── COLUMN OF SLOTS (ช่องแนวตั้ง): a column of dashed slots; up — boxes slide in from the right into them, top first; down — they slide back out
      to the right. The center (if any) stands big on the left */
-  variant('vslots', 'ช่องแนวตั้ง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 138 : E.n === 3 ? 170 : 200, gx = Cn ? 260 : 60, cy = 40, ys = Array.from({ length: E.n }, (_, k) => f1(cy + (k - (E.n - 1) / 2) * (s + 16)));
+  variant('vslots', 'ช่องแนวตั้ง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 152 : E.n === 3 ? 195 : 230, gx = Cn ? 260 : 60, cy = 40, ys = Array.from({ length: E.n }, (_, k) => f1(cy + (k - (E.n - 1) / 2) * (s + 10)));
     art(c, p => { base(p, c, d, E); slots(p, ys.map(() => gx), ys, s); ys.forEach((y, k) => item(p, c, X, gx, y, s, E, k, { in: 'slide', dx: 420, out: 'slide', ghost: false }));
       cbox(p, c, Cn, -230, cy, 250, E.ts); endM(p, c, d, gx + s / 2, ys[E.n - 1] - s / 2, 40);
     }); });
 
   /* 27 ── MAGNET (ติดข้าง): the center (or the item's own big box) in the middle; up — boxes slide in from both sides and stick to its sides with a spark;
      down — they come unstuck and slide away */
-  variant('magnet', 'ติดข้าง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cs = 220, s = 145, cx = 0, cy = 40, P = [[1, 0], [-1, 0], [1, 1], [-1, 1]];
+  variant('magnet', 'ติดข้าง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cs = 200, s = 172, cx = 0, cy = 40, P = [[1, 0], [-1, 0], [1, 1], [-1, 1]];
     art(c, p => { base(p, c, d, E); if (Cn) cbox(p, c, Cn, cx, cy, cs, E.ts, { ly: cy + cs / 2 + 40 }); else { const K = { px: cx, py: cy, s: multiBump(E.ts) }; ibox(p, c, X, cx, cy, cs, tu(.08), { g: mvG(popAt(p, cx, cy, tu(.08)), K), mv: K }); }
       for (let k = 0; k < E.n; k++) { const [sd, j] = P[k], x = f1(cx + sd * (cs / 2 + 10 + s / 2 + j * (s + 12))), r = item(p, c, X, x, cy, s, E, k, { in: 'slide', dx: sd * 520, out: 'slide', dx: sd * 520 });
         if (r.t != null) sparkAt(p, f1(x - sd * (s / 2 + 5)), cy, 12, 30, E.up ? r.t : f3(r.t + tu(.04)), 6, 0); }
@@ -867,7 +867,7 @@
 
   /* 28 ── BEACON (คลื่นส่ง): the center (or a dot) on the left sends a wave to the right with each change; up — a box pops where the wave reaches;
      down — a box fades as the wave passes */
-  variant('beacon', 'คลื่นส่ง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), bx = -330, by = 40, s = E.n >= 4 ? 140 : 165;
+  variant('beacon', 'คลื่นส่ง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), bx = -330, by = 40, s = E.n >= 4 ? 170 : 195;
     const P = Array.from({ length: E.n }, (_, k) => { const a = rad(lerp(-50, 50, E.n > 1 ? k / (E.n - 1) : .5)); return [f1(bx + 560 * Math.cos(a) - 40), f1(by + 300 * Math.sin(a))]; });
     art(c, p => { base(p, c, d, E); if (Cn) cbox(p, c, Cn, bx, by, 190, E.ts, { ly: by + 140 }); else { popAt(p, bx, by, tu(.08)).circle(bx, by, 30, { fill: ACC1, sw: 2, stroke: ACC1 }); p.circle(bx, by, 54, S(2)); }
       E.ts.forEach(t => arcsAt(p, bx + (Cn ? 100 : 40), by, 1, 3, 40, 40, 44, f3(t - tu(.22)), { sw: 3, stroke: ACC1 }, .05));
@@ -876,7 +876,7 @@
 
   /* 29 ── CASCADE (ไหลลงขั้น): a staircase of short ledges; up — each box hops down the ledges and lands in the row at the bottom; down — each hops
      back up the ledges and out */
-  variant('cascade', 'ไหลลงขั้น', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 125 : 150, L = [[-430, -200], [-330, -120], [-230, -40], [-130, 40]], xs = rowX(E.n, s, 26, 150), y = 250;
+  variant('cascade', 'ไหลลงขั้น', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 165 : 190, L = [[-430, -220], [-330, -150], [-230, -80], [-130, -10]], xs = rowX(E.n, s, 20, 100), y = 250;
     art(c, p => { base(p, c, d, E, { dx: 432 }); L.forEach(([x, ly], k) => drawAt(p.line(x - 40, ly, x + 50, ly, W(4)), p, tu(.04 + .04 * k), tu(.16))); 
       const hop = L.flatMap(([x, ly], k) => [[x - 20, ly - 70], [x + 20, ly - s * .3]]);
       xs.forEach((x, k) => item(p, c, X, x, y, s, E, k, E.up ? { in: 'fly', path: [[-500, -320]].concat(hop, [[(x - 130) / 2, 120]]), dur: .5, dust: false } : { out: 'fly', path: [[(x - 130) / 2, 120]].concat(hop.slice().reverse(), [[-500, -330]]), dur: .5 }));
@@ -896,7 +896,7 @@
 
   /* 31 ── CUP (ภาชนะรูปตัว U): an open U-shaped container; up — boxes drop into it side by side; down — they are lifted out one by one. The center (if
      any) stands above its right rim */
-  variant('cup', 'ภาชนะตัว U', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 150 : 175, w = E.n * (s + 22) + 60, x0 = -w / 2 - (Cn ? 70 : 0), y0 = 20, y1 = 300, xs = rowX(E.n, s, 22, x0 + w / 2), y = y1 - 22 - s / 2;
+  variant('cup', 'ภาชนะตัว U', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = Cn ? (E.n >= 4 ? 160 : 185) : (E.n >= 4 ? 185 : 210), w = E.n * (s + 22) + 60, x0 = -w / 2 - (Cn ? 70 : 0), y0 = 20, y1 = 300, xs = rowX(E.n, s, 22, x0 + w / 2), y = y1 - 22 - s / 2;
     art(c, p => { base(p, c, d, E); drawAt(p.path(`M ${f1(x0)} ${y0} L ${f1(x0)} ${y1 - 50} Q ${f1(x0)} ${y1} ${f1(x0 + 50)} ${y1} L ${f1(x0 + w - 50)} ${y1} Q ${f1(x0 + w)} ${y1} ${f1(x0 + w)} ${y1 - 50} L ${f1(x0 + w)} ${y0}`, W(5)), p, tu(.04), tu(.4));
       xs.forEach((x, k) => item(p, c, X, x, y, s, E, k, { in: 'drop', out: 'lift' })); cbox(p, c, Cn, f1(x0 + w + 90), -60, 170, E.ts, { ly: 70 });
       endM(p, c, d, xs[E.n - 1] + s / 2, y - s / 2, 40);
@@ -904,7 +904,7 @@
 
   /* 32 ── CHAIN (ต่อเป็นสาย): boxes joined in a line by links; up — a link reaches out from the last box and the new box pops on its end; down — the
      last link snaps and its box drops away */
-  variant('chain', 'ต่อเป็นสาย', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 140 : 165, cy = 40, gap = 70, x0 = Cn ? -390 : -440, xs = Array.from({ length: E.n }, (_, k) => f1(x0 + (Cn ? 130 + gap : 30) + s / 2 + k * (s + gap)));
+  variant('chain', 'ต่อเป็นสาย', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), x0 = Cn ? -390 : -440, gap = 40, s = Math.min(E.n >= 4 ? 185 : 210, ((470 - (x0 + (Cn ? 85 : 18) + gap)) - (E.n - 1) * gap) / E.n), cy = 40, xs = Array.from({ length: E.n }, (_, k) => f1(x0 + (Cn ? 85 : 18) + gap + s / 2 + k * (s + gap)));
     art(c, p => { base(p, c, d, E); if (Cn) cbox(p, c, Cn, x0, cy, 170, E.ts, { ly: cy + 130 }); else popAt(p, x0, cy, tu(.08)).circle(x0, cy, 18, { fill: ACC1, sw: 2, stroke: ACC1 });
       xs.forEach((x, k) => { const t = E.at(k), a = k ? xs[k - 1] + s / 2 : x0 + (Cn ? 85 : 18), b = x - s / 2, ln = p.line(a, cy, b, cy, { sw: 6, stroke: ACC1 });
         if (E.up) on(ln, p, 0, { draw: [[0, 0], [f3(t - tu(.2)), 0], [f3(t - tu(.04)), 1, 'out']] }); else on(ln, p, 0, { o: t == null ? fadeIn(tu(.3)) : [[0, 0], [tu(.3), 0], [tu(.34), 1], [t, 1], [f3(t + tu(.06)), 0]] });
@@ -915,7 +915,7 @@
 
   /* 33 ── BRANCHES (แตกกิ่ง): the center (or a node) at the top with elbow branches down to a row; up — a branch draws and its box pops at the end;
      down — the box shrinks away and its branch fades */
-  variant('tree', 'แตกกิ่ง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 150 : 175, ty = -170, ry = 170, xs = rowX(E.n, s, 40);
+  variant('tree', 'แตกกิ่ง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 190 : 210, ty = -190, ry = 185, xs = rowX(E.n, s, 24);
     art(c, p => { base(p, c, d, E); if (Cn) cbox(p, c, Cn, 0, ty, 170, E.ts, { lx: 220, ly: ty }); else { popAt(p, 0, ty, tu(.08)).circle(0, ty, 26, { fill: ACC1, sw: 2, stroke: ACC1 }); }
       const yb = Cn ? ty + 85 : ty + 26; drawAt(p.line(0, yb, 0, 10, W(4)), p, tu(.1), tu(.2));
       xs.forEach((x, k) => { const t = E.at(k), br = p.path(`M 0 10 L ${x} 10 L ${x} ${f1(ry - s / 2)}`, { sw: 4, stroke: ACC1 });
@@ -926,7 +926,7 @@
 
   /* 34 ── SPIRAL (เกลียว): a dashed spiral from the middle; up — each box travels out along it to its place, the next further out; down — each winds back
      in to the middle and vanishes */
-  variant('spiral', 'เกลียว', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = 0, cy = 10, s = E.n >= 4 ? 135 : 160, sp = a => { const r = Math.max(40, 160 + .4 * (a - 120)); return [f1(cx + r * Math.cos(rad(a - 90))), f1(cy + r * .82 * Math.sin(rad(a - 90)))]; };
+  variant('spiral', 'เกลียว', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = 0, cy = 10, s = E.n >= 4 ? 160 : 185, sp = a => { const r = Math.max(40, 160 + .4 * (a - 120)); return [f1(cx + r * Math.cos(rad(a - 90))), f1(cy + r * .82 * Math.sin(rad(a - 90)))]; };
     const A = Array.from({ length: E.n }, (_, k) => 120 + k * (E.n >= 4 ? 100 : 130)), pts = Array.from({ length: 33 }, (_, j) => sp(15 * j));
     art(c, p => { base(p, c, d, E); on(p.path(pathOf(pts, false), DASH(.35)), p, 0, { o: fadeIn(tu(.06), .1) }); if (Cn) cbox(p, c, Cn, cx, cy, 120, E.ts, { noLabel: true }); else popAt(p, cx, cy, tu(.08)).circle(cx, cy, 18, { fill: ACC1, sw: 2, stroke: ACC1 });
       A.forEach((a, k) => { const [x, y] = sp(a), path = pts.filter((_, j) => 15 * j < a && 15 * j > a - 300); item(p, c, X, x, y, s, E, k, E.up ? { in: 'fly', path: [[cx, cy]].concat(path), dur: .45 } : { out: 'fly', path: path.slice().reverse().concat([[cx, cy]]), dur: .45 }); });
@@ -942,7 +942,7 @@
 
   /* 36 ── SWEEP (กวาดผ่าน): a hand sweeps round a half circle from a pivot below; up — a box pops as the hand passes its place; down — each box blinks
      out as the hand passes */
-  variant('sweep', 'กวาดผ่าน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), px = 0, py = 300, R0 = 330, s = E.n >= 4 ? 135 : 155, A = Array.from({ length: E.n }, (_, k) => lerp(200, 340, E.n > 1 ? k / (E.n - 1) : .5));
+  variant('sweep', 'กวาดผ่าน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), px = 0, py = 300, R0 = 330, s = E.n >= 4 ? 168 : 190, A = Array.from({ length: E.n }, (_, k) => lerp(200, 340, E.n > 1 ? k / (E.n - 1) : .5));
     art(c, p => { base(p, c, d, E); drawAt(p.path(`M ${px - R0 - 40} ${py} A ${R0 + 40} ${R0 + 40} 0 0 1 ${px + R0 + 40} ${py}`, DASH(.3)), p, tu(.04), tu(.3)); if (Cn) cbox(p, c, Cn, px, py - 60, 130, E.ts, { noLabel: true }); else popAt(p, px, py, tu(.08)).circle(px, py, 22, SOLID(2));
       const a0 = E.up ? 180 : 360, a1 = E.up ? 360 : 180, RK = [[0, a0], [f3(E.T0 - tu(.3)), a0]]; ORD(E).forEach(k => RK.push([E.at(k), A[k]])); RK.push([f3(E.H + tu(.3)), a1, 'io']);
       const hand = mvG(p, { px, py, r: RK.map(([t, v, e]) => [t, f1(v - 360), e]), o: fadeIn(tu(.1), .04) }); hand.line(px, py, px + R0 + 40, py, { sw: 5, stroke: ACC1 });
@@ -952,7 +952,7 @@
 
   /* 37 ── GATHER (รวมกลุ่ม): a dashed area in the middle; up — boxes fly in from scattered spots round the edge into a tight group inside; down — the
      group breaks up and the boxes fly back out to the edges */
-  variant('gather', 'รวมกลุ่ม', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n === 2 ? 190 : 165, g = 20, cx = Cn ? 100 : 0, cy = 40, o = (s + g) / 2, far = [[-470, -120], [470, -300], [-420, 330], [470, 300]];
+  variant('gather', 'รวมกลุ่ม', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n === 2 ? 215 : 185, g = 20, cx = Cn ? 110 : 0, cy = 40, o = (s + g) / 2, far = [[-470, -120], [470, -300], [-420, 330], [470, 300]];
     const P = (E.n === 2 ? [[-o, 0], [o, 0]] : [[-o, -o], [o, -o], [-o, o], [o, o]].slice(0, E.n)).map(([a, b]) => [cx + a, cy + b]);
     art(c, p => { base(p, c, d, E); on(R(p, cx - o * 2 - 30, cy - (E.n === 2 ? o : o * 2) - 30, o * 4 + 60, (E.n === 2 ? o * 2 : o * 4) + 60, 50, DASH(.45)), p, 0, { o: fadeIn(tu(.06), .1) });
       P.forEach(([x, y], k) => item(p, c, X, x, y, s, E, k, E.up ? { in: 'fly', from: far[k], dur: .38 } : { out: 'fly', to: far[k], dur: .38 })); cbox(p, c, Cn, -340, 40, 180, E.ts);
@@ -960,7 +960,7 @@
     }); });
 
   /* 38 ── STRETCHING ROW (แถวยืดได้): a pill-shaped holder that stretches to the right as each box joins (up) or shrinks as each leaves (down) */
-  variant('growrow', 'แถวยืดได้', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 160 : 185, g = 22, x0 = Cn ? -260 : -400, cy = 40, xs = Array.from({ length: E.n }, (_, k) => f1(x0 + 30 + s / 2 + k * (s + g))), W0 = 60 + E.n * (s + g) - g;
+  variant('growrow', 'แถวยืดได้', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = Cn ? (E.n >= 4 ? 150 : 175) : (E.n >= 4 ? 182 : 205), g = 18, x0 = Cn ? -270 : -420, cy = 40, xs = Array.from({ length: E.n }, (_, k) => f1(x0 + 30 + s / 2 + k * (s + g))), W0 = 60 + E.n * (s + g) - g;
     art(c, p => { base(p, c, d, E); const wf = j => Math.max(.18, (60 + j * (s + g) - (j ? g : 0)) / W0), SK = [[0, E.up ? wf(0) : 1]];
       ORD(E).forEach(k => { const t = E.at(k), v = E.up ? wf(k + 1) : wf(k); SK.push([f3(t - tu(.12)), SK[SK.length - 1][1]], [t, v * 1.02, 'out'], [f3(t + tu(.1)), v, 'soft']); });
       R(mvG(p, { px: x0, py: cy, sx: SK, o: fadeIn(tu(.04), .06) }), x0, cy - s / 2 - 20, W0, s + 40, (s + 40) / 2, F(4.2));
@@ -978,7 +978,7 @@
 
   /* 40 ── STEP LINE (เส้นขั้นบันได): a stepped line climbs (or, for down, its steps are taken back); each step carries a box — up: the line reaches a new
      step and its box pops; down: the top box goes and the line drops back a step */
-  variant('stepline', 'เส้นขั้นบันได', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 135 : 160, x0 = -420, w = (800 - (Cn ? 180 : 0)) / E.n, by = 300, hs = Array.from({ length: E.n }, (_, k) => f1(by - 70 - k * (E.n >= 4 ? 90 : 120)));
+  variant('stepline', 'เส้นขั้นบันได', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), x0 = -440, w = (880 - (Cn ? 200 : 0)) / E.n, s = Math.min(E.n >= 4 ? 190 : 210, w - 16), by = 300, hs = Array.from({ length: E.n }, (_, k) => f1(by - 70 - k * (E.n >= 4 ? 90 : 120)));
     art(c, p => { base(p, c, d, E); const pts = [[x0, by]];
       hs.forEach((h, k) => { pts.push([f1(x0 + k * w), h], [f1(x0 + (k + 1) * w), h]); }); const ln = p.path(pathOf(pts, false), { sw: 6, stroke: ACC1 }), cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1])); const seg = k => cum[2 * k + 2] / cum[cum.length - 1];
       const DK = [[0, E.up ? 0 : 1]]; ORD(E).forEach(k => { const t = E.at(k), v = E.up ? seg(k) : (k ? seg(k - 1) : .02); DK.push([f3(t - tu(.2)), DK[DK.length - 1][1]], [t, v, 'out']); }); on(ln, p, 0, { draw: DK });
@@ -988,7 +988,7 @@
 
   /* 41 ── TWO LANES (สองเลน): a faint upper lane (outside) and a bright lower lane (inside, the center at its end); up — boxes drop from the upper lane
      into the lower one; down — they rise from the lower lane back up and out */
-  variant('twolanes', 'สองเลน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 135 : 160, xs = rowX(E.n, s, 30, Cn ? -110 : 0), ya = -110, yb = 190;
+  variant('twolanes', 'สองเลน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = Cn ? (E.n >= 4 ? 150 : 175) : (E.n >= 4 ? 185 : 205), xs = rowX(E.n, s, 24, Cn ? -110 : 0), ya = -130, yb = 180;
     art(c, p => { base(p, c, d, E); 
       xs.forEach((x, k) => item(p, c, X, x, yb, s, E, k, E.up ? { in: 'fly', from: [x - 60, ya], mid: [x - 20, ya - 60], dur: .36 } : { out: 'fly', to: [x + 80, -460], mid: [x + 40, ya], dur: .4 }));
       if (E.up) xs.forEach((x, k) => { const t = E.at(k), g = sub(p); on(g, p, 0, { o: [[0, 0], [tu(.2), 0], [tu(.24), 1], [f3(t - tu(.36)), 1], [f3(t - tu(.34)), 0]] }); R(g, x - 60 - s / 2, ya - s / 2, s, s, s * .24, DASH(.45)); });
@@ -997,14 +997,14 @@
 
   /* 42 ── PORTAL (ประตูวง): an upright ring on the left; up — the boxes come out of it one by one and slide to their places; down — they slide back into
      it and are gone */
-  variant('portal', 'ประตูวง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 140 : 165, px = -360, cy = 40, xs = Array.from({ length: E.n }, (_, k) => f1(px + 90 + s / 2 + k * (s + 20)));
+  variant('portal', 'ประตูวง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 172 : 200, px = -380, cy = 40, xs = Array.from({ length: E.n }, (_, k) => f1(px + 80 + s / 2 + k * (s + 16)));
     art(c, p => { base(p, c, d, E); const cl = clipG(p, px, -350, 860, 700); on(ell(p, px, cy, 46, 190, { sw: 6, stroke: ACC1 }), p, 0, { s: [[0, 0], [tu(.06), 0], [tu(.3), 1.05, 'out'], [tu(.4), 1, 'soft']], ox: px, oy: cy, o: fadeIn(tu(.06), .04) });
       xs.forEach((x, k) => { const t = E.at(k), K = { px: x, py: cy }, t0 = f3(tu(.1 + .06 * k)), dx = f1(px - 40 - x - s / 2);
         if (E.up) Object.assign(K, { x: [[0, dx], [f3(t - tu(.36)), dx], [t, 8, 'out'], [f3(t + tu(.1)), 0, 'soft']], o: fadeIn(f3(t - tu(.36)), .02) });
         else Object.assign(K, t == null ? { x: [[0, dx], [t0, dx], [f3(t0 + tu(.3)), 0, 'out']], o: fadeIn(t0, .02) } : { x: [[0, dx], [t0, dx], [f3(t0 + tu(.3)), 0, 'out'], [t, 0], [f3(t + tu(.36)), dx, 'in']], o: fadeIn(t0, .02) });
         if (!E.up && t != null) ghost(p, x, cy, s, f3(t + tu(.36)));
         const g = mvG(cl, K); R(g, x - s / 2, cy - s / 2, s, s, s * .24, F(4)); const mv = Object.assign({}, K); delete mv.o;
-        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, cy, s * .62, null, { t: E.up ? f3(t - tu(.2)) : f3(t0 + tu(.16)), mv, o: E.up ? [[0, 0], [f3(t - tu(.2)), 0], [f3(t - tu(.16)), 1]] : (t == null ? [[0, 0], [f3(t0 + tu(.16)), 0], [f3(t0 + tu(.2)), 1]] : [[0, 0], [f3(t0 + tu(.16)), 0], [f3(t0 + tu(.2)), 1], [f3(t + tu(.2)), 1], [f3(t + tu(.24)), 0]]) });
+        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, cy, s * .72, null, { t: E.up ? f3(t - tu(.2)) : f3(t0 + tu(.16)), mv, o: E.up ? [[0, 0], [f3(t - tu(.2)), 0], [f3(t - tu(.16)), 1]] : (t == null ? [[0, 0], [f3(t0 + tu(.16)), 0], [f3(t0 + tu(.2)), 1]] : [[0, 0], [f3(t0 + tu(.16)), 0], [f3(t0 + tu(.2)), 1], [f3(t + tu(.2)), 1], [f3(t + tu(.24)), 0]]) });
         else if (X) txt(g, X.label, x, cy + 10, { size: 30, maxW: s - 20, weight: 800, color: C.ink, wrap: 'mid' }); });
       cbox(p, c, Cn, 390, 250, 140, E.ts, { noLabel: true }); endM(p, c, d, xs[E.n - 1] + s / 2, cy - s / 2, 40);
     }); });
@@ -1017,7 +1017,7 @@
         else Object.assign(K, { s: [[0, 1.5], [t0, 1.5], [f3(t0 + tu(.2)), .94, 'in'], [f3(t0 + tu(.3)), 1, 'soft']], r: [[0, a * 3], [t0, a * 3], [f3(t0 + tu(.2)), a, 'in']].concat(t == null ? [] : [[t, a], [f3(t + tu(.34)), a + 40, 'in']]), o: fadeIn(t0, .03).concat(t == null ? [] : [[f3(t + tu(.2)), 1], [f3(t + tu(.34)), 0]]) });
         if (!E.up && t != null) { K.x = [[0, 0], [t, 0], [f3(t + tu(.34)), 260, 'in']]; K.y = [[0, 0], [t, 0], [f3(t + tu(.34)), -300, 'in']]; ghost(p, x, y, s, f3(t + tu(.34))); }
         const g = mvG(CL(p), K); R(g, x - s / 2, y - s / 2, s, s, s * .2, F(4)); const mv = Object.assign({}, K); delete mv.o; if (E.up) ripple(p, x, y, s * .6, t);
-        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * .62, null, { t: E.up ? f3(t - tu(.2)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, x, y + 12, { size: 34, maxW: s - 24, weight: 800, color: C.ink, wrap: 'mid' }); });
+        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * .72, null, { t: E.up ? f3(t - tu(.2)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, x, y + 12, { size: 34, maxW: s - 24, weight: 800, color: C.ink, wrap: 'mid' }); });
       cbox(p, c, Cn, -360, 40, 180, E.ts); const L = P[E.n - 1]; endM(p, c, d, cx + L[0] + s / 2, cy + (E.n === 2 ? 0 : L[1]) - s / 2, 40);
     }); });
 
@@ -1036,7 +1036,7 @@
 
   /* 45 ── BOUNCE (เด้งเข้า): up — each box bounces in from the left edge along the floor (two bounces) to its place; down — each bounces off to the right
      and out */
-  variant('bounce', 'เด้งเข้า', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 150 : 175, fy = 290, y = fy - s / 2, xs = rowX(E.n, s, 30, Cn ? 110 : 0);
+  variant('bounce', 'เด้งเข้า', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = Cn ? (E.n >= 4 ? 165 : 185) : (E.n >= 4 ? 190 : 210), fy = 300, y = fy - s / 2, xs = rowX(E.n, s, 24, Cn ? 110 : 0);
     art(c, p => { base(p, c, d, E); 
       xs.forEach((x, k) => { const L = E.up ? [[-560, y - 220], [lerp(-560, x, .35), y], [lerp(-560, x, .62), y - 130], [lerp(-560, x, .85), y], [lerp(-560, x, .93), y - 40]] : [[lerp(x, 600, .2), y - 140], [lerp(x, 600, .45), y], [lerp(x, 600, .7), y - 90], [600, y - 40]];
         const r = item(p, c, X, x, y, s, E, k, E.up ? { in: 'fly', path: L, dur: .55, dust: false } : { out: 'fly', path: L, dur: .5 }); if (E.up) dust(p, x, fy, r.t, .6); });
@@ -1053,13 +1053,13 @@
         else Object.assign(K, { s: [[0, .3], [t0, .3], [f3(t0 + tu(.22)), 1.06, 'out'], [f3(t0 + tu(.34)), 1, 'soft']].concat(t == null ? [] : [[t, 1], [f3(t + tu(.3)), .1, 'in']]), o: fadeIn(t0, .04).concat(t == null ? [] : [[f3(t + tu(.26)), 1], [f3(t + tu(.3)), 0]]) }, t == null ? {} : { x: [[0, 0], [t, 0], [f3(t + tu(.3)), dx, 'in']], y: [[0, 0], [t, 0], [f3(t + tu(.3)), dy, 'in']] });
         if (!E.up && t != null) ghost(p, x, y, s, f3(t + tu(.3)));
         const gg = mvG(p, K); R(gg, x - s / 2, y - s / 2, s, s, s * .24, F(4)); const mv = Object.assign({}, K); delete mv.o;
-        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * .62, null, { t: E.up ? f3(t - tu(.3)) : t0, mv, o: K.o }); else if (X) txt(gg, X.label, x, y + 12, { size: 34, maxW: s - 24, weight: 800, color: C.ink, wrap: 'mid' }); });
+        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * .72, null, { t: E.up ? f3(t - tu(.3)) : t0, mv, o: K.o }); else if (X) txt(gg, X.label, x, y + 12, { size: 34, maxW: s - 24, weight: 800, color: C.ink, wrap: 'mid' }); });
       cbox(p, c, Cn, -340, 40, 180, E.ts); endM(p, c, d, P[E.n - 1][0] + s / 2, P[E.n - 1][1] - s / 2, 40);
     }); });
 
   /* 47 ── BEADS (ลูกปัดบนเส้น): round plates on a sagging string with a stop at the left end; up — each slides down the string from the right and settles
      against the last; down — the right-most slides off the right end and drops away */
-  variant('beads', 'ลูกปัดบนเส้น', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 160 : 185, xa = -440, xb = 470, sag = 150, ya = -40, cur = x => { const u = (x - xa) / (xb - xa); return f1(ya + sag * 4 * u * (1 - u) - 60 * u); };
+  variant('beads', 'ลูกปัดบนเส้น', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 180 : 200, xa = -440, xb = 470, sag = 150, ya = -40, cur = x => { const u = (x - xa) / (xb - xa); return f1(ya + sag * 4 * u * (1 - u) - 60 * u); };
     art(c, p => { base(p, c, d, E); const pts = Array.from({ length: 31 }, (_, j) => { const x = lerp(xa, xb, j / 30); return [f1(x), cur(x)]; }); drawAt(p.path(pathOf(pts, false), W(3.4)), p, tu(.04), tu(.4));
       if (Cn) cbox(p, c, Cn, xa + 40, ya - 110, 150, E.ts, { lx: xa + 200, ly: ya - 110 }); else drawAt(p.line(xa + 10, ya - 60, xa + 10, ya + 60, { sw: 10, stroke: ACC1 }), p, tu(.1), tu(.2));
       for (let k = 0; k < E.n; k++) { const x = f1(xa + 40 + s / 2 + k * (s + 8)), y = f1(cur(x) - s / 2 + 10), path = pts.filter(q => q[0] > x).reverse().map(q => [q[0], f1(q[1] - s / 2 + 10)]);
@@ -1069,7 +1069,7 @@
 
   /* 48 ── SPLIT COPIES (แยกตัว): one box in the middle; up — copies split off it one by one and slide out to their places beside it; down — the copies
      slide back into the middle one and are gone */
-  variant('split', 'แยกตัว', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 165 : 190, cy = 50, step = s + 30, cx = Cn ? 100 : 0;
+  variant('split', 'แยกตัว', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 185 : 210, cy = 50, step = s + 24, cx = Cn ? 100 : 0;
     const off = E.n >= 4 ? [-.5, .5, -1.5, 1.5] : E.n === 3 ? [0, 1, -1] : [-.5, .5], xs = off.map(v => f1(cx + v * step)), home = xs[0];
     art(c, p => { base(p, c, d, E); xs.forEach((x, k) => item(p, c, X, x, cy, s, E, k, k === 0 ? { in: 'pop', out: 'shrink' } : E.up ? { in: 'fly', from: [home, cy], mid: [(home + x) / 2, cy - 90], dur: .32 } : { out: 'fly', to: [home, cy], mid: [(home + x) / 2, cy - 90], dur: .32 }));
       cbox(p, c, Cn, -380, cy, 170, E.ts); endM(p, c, d, Math.max(...xs) + s / 2, cy - s / 2, 40);
@@ -1077,7 +1077,7 @@
 
   /* 49 ── RAIN (ตกเป็นสาย): up — boxes fall at a slant one after another and land in a heap row on the floor (dust); down — they lift off the floor and
      drift up and away, leaving dashed places */
-  variant('rain', 'ตกเป็นสาย', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 150 : 175, fy = 290, y = fy - s / 2, xs = rowX(E.n, s, 26, Cn ? 110 : 0);
+  variant('rain', 'ตกเป็นสาย', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = Cn ? (E.n >= 4 ? 165 : 185) : (E.n >= 4 ? 190 : 210), fy = 300, y = fy - s / 2, xs = rowX(E.n, s, 22, Cn ? 110 : 0);
     art(c, p => { base(p, c, d, E); for (let j = 0; j < 7; j++) { const x = -420 + j * 140, g = mvG(p, { y: [[0, -60], [tu(.1), -60], [f3(Z.H + tu(.4)), 80]], o: [[0, 0], [tu(.1 + .03 * j), 0], [tu(.16 + .03 * j), 1], [f3(Z.H + tu(.2)), 1], [f3(Z.H + tu(.4)), 0]] }); g.line(x, -260, x - 30, -170, { sw: 2.4, stroke: TL_(.35) }); }
       xs.forEach((x, k) => item(p, c, X, x, y, s, E, k, E.up ? { in: 'fly', from: [x + 160, -470], mid: [x + 60, y - 220], dur: .32 } : { out: 'fly', to: [x - 140, -470], mid: [x - 40, y - 260], dur: .4 }));
       if (E.up) xs.forEach((x, k) => dust(p, x, fy, E.at(k), .6)); cbox(p, c, Cn, -360, -60, 180, E.ts); endM(p, c, d, xs[E.n - 1] + s / 2, y - s / 2, 40);
