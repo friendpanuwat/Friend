@@ -312,7 +312,17 @@
   const pinD = (x, y, r) => `M ${x} ${f1(y + r * 1.9)} C ${f1(x - r * .45)} ${f1(y + r * 1.3)} ${f1(x - r)} ${f1(y + r * .7)} ${f1(x - r)} ${y} A ${r} ${r} 0 1 1 ${f1(x + r)} ${y} C ${f1(x + r)} ${f1(y + r * .7)} ${f1(x + r * .45)} ${f1(y + r * 1.3)} ${x} ${f1(y + r * 1.9)} Z`;
   const pin = (q, x, y, r) => { q.path(pinD(x, y, r), F(4)); q.circle(x, y, r * .72, F(1.6)); };
   const winGrid = (q, x0, y0, nx, ny, w, h, gx, gy, lit = []) => { for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) R(q, x0 + i * (w + gx), y0 + j * (h + gy), w, h, 4, lit.includes(j * nx + i) ? { fill: LIT, sw: 2, stroke: C.soft } : S(1.6)); };
-  const tree = (q, x, y, k = 1) => { R(q, x - 6 * k, y - 40 * k, 12 * k, 40 * k, 3, F(2.4)); q.circle(x, f1(y - 62 * k), f1(30 * k), F(2.8)); };
+  /* a tree standing at (x, y) (user 2026-11-14 "อยากให้ต้นไม้ดูเป็นต้นไม้มากกว่านี้" — the stick-and-ball looked like a lollipop):
+     kind 'leaf' = a tapered trunk that forks into a lumpy crown (bumps round an ellipse, a few leaf-mass lines inside) · 'pine' = three
+     stacked rounded tiers on a short trunk */
+  function tree(q, x, y, k = 1, kind = 'leaf') { const P = (a, b) => f1(x + a * k) + ' ' + f1(y + b * k);
+    if (kind === 'pine') { q.path(`M ${P(-7, 0)} L ${P(-5, -22)} L ${P(5, -22)} L ${P(7, 0)} Z`, F(2.4));
+      [[-22, 34, 30], [-50, 28, 28], [-76, 20, 26]].forEach(([b, hw, h]) => q.path(`M ${P(-hw, b)} Q ${P(0, b + 6)} ${P(hw, b)} Q ${P(hw * .3, b - h * .5)} ${P(2, b - h)} Q ${P(0, b - h - 4)} ${P(-2, b - h)} Q ${P(-hw * .3, b - h * .5)} ${P(-hw, b)} Z`, F(2.6)));
+      return; }
+    q.path(`M ${P(-10, 0)} Q ${P(-6, -20)} ${P(-5, -40)} L ${P(-18, -58)} L ${P(-12, -62)} L ${P(-2, -48)} L ${P(4, -66)} L ${P(10, -62)} L ${P(5, -40)} Q ${P(6, -20)} ${P(10, 0)} Z`, F(2.4));
+    const cx = 0, cy = -82, rx = 40, ry = 32, n = 8, pts = Array.from({ length: n }, (_, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n + (i % 2 ? .12 : 0); return [cx + rx * Math.cos(a), cy + ry * Math.sin(a)]; });
+    let d = `M ${P(...pts[0])}`; for (let i = 0; i < n; i++) { const a = pts[i], b = pts[(i + 1) % n], m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], o = [(m[0] - cx) * 1.42, (m[1] - cy) * 1.42]; d += ` Q ${P(cx + o[0], cy + o[1])} ${P(...b)}`; }
+    q.path(d + ' Z', F(2.8)); q.path(`M ${P(-20, -70)} Q ${P(-12, -60)} ${P(-2, -64)}`, S(1.4)); q.path(`M ${P(6, -96)} Q ${P(16, -88)} ${P(24, -92)}`, S(1.4)); }
   const arrowR = (q, x, y, a = 0, k = 1) => { const g = rot(q, a, x, y); g.path(`M ${x - 34 * k} ${y} L ${x + 22 * k} ${y} M ${x + 4 * k} ${y - 20 * k} L ${x + 26 * k} ${y} L ${x + 4 * k} ${y + 20 * k}`, W(5)); };
 
   /* 01 ── ONE BUILDING (อาคารหนึ่งหลัง): the building rises, its windows light row by row; the spots tag two floors; the place lands on the
@@ -422,7 +432,7 @@
     art(c, p => { R(mvG(p, { px: 0, py: 45, sx: [[0, .05], [tu(.04), .05], [tu(.4), 1, 'out']], o: fadeIn(tu(.04), .04) }), -470, -120, 940, 330, 16, F(4.6));
       const sc = clipG(p, -458, -108, 916, 306); drawAt(sc.path('M -470 140 Q -300 20 -140 100 Q 0 160 140 60 Q 300 -40 470 90', S(2.4)), p, tu(.3), tu(.4));
       [[-380, 70, 160], [-300, 50, 110], [180, 40, 190], [250, 60, 150], [330, 44, 120]].forEach(([x, w, h], i) => R(atG(sc, tu(.4 + .04 * i)), x, 200 - h, w, h, 4, F(2.6)));
-      [[-180, 170, .8], [-120, 180, .7], [60, 190, .8], [420, 190, .7]].forEach(([x, y, k], i) => tree(atG(sc, tu(.5 + .03 * i)), x, y, k));
+      [[-170, 200, 1, 'leaf'], [-100, 200, .9, 'pine'], [60, 200, 1, 'leaf'], [420, 200, .9, 'pine']].forEach(([x, y, k, kd], i) => tree(atG(sc, tu(.5 + .03 * i)), x, y, k, kd));
       pin(inG(CL(p), 'drop', 0, -220, f3(Q.H - tu(.3))), 0, -240, 64); placeV(p, c, X, 0, -240, 70, 280, { size: 44, maxW: 700, bigSize: 28, bigW: 90, bigDy: 6 });
       spot(p, c, Sp[0], -230, 40, { t: tS(Q, 0), side: 1, r: 34 }); spot(p, c, Sp[1], 150, -30, { t: tS(Q, 1), side: 1, r: 34 });
     }); });
@@ -504,7 +514,7 @@
   variant('landmark', 'ภูมิทัศน์จุดเด่น', (d, c) => { const X = PL(d), Sp = SP(d), Q = TL();
     art(c, p => { drawAt(p.path('M -480 120 Q -320 -40 -150 60 Q -20 130 120 40 Q 300 -60 480 80', S(2)), p, tu(.04), tu(.4));
       inG(p, 'rise', 0, 150, tu(.12)).path('M -480 250 L -480 190 Q -260 60 0 40 Q 260 60 480 190 L 480 250 Z', F(3.6)); p.line(-480, 250, 480, 250, S(2));
-      ell(popAt(p, 300, 205, tu(.3)), 300, 205, 120, 22, { fill: 'rgba(255,255,255,.1)', sw: 2.4 }); [[-330, 210, .8], [-260, 220, .7], [-400, 225, .7]].forEach(([x, y, k], i) => tree(popAt(p, x, y - 40, tu(.34 + .03 * i)), x, y, k));
+      ell(popAt(p, 300, 205, tu(.3)), 300, 205, 120, 22, { fill: 'rgba(255,255,255,.1)', sw: 2.4 }); [[-330, 214, .9, 'leaf'], [-250, 222, .8, 'pine'], [-410, 226, .75, 'pine']].forEach(([x, y, k, kd], i) => tree(popAt(p, x, y - 40, tu(.34 + .03 * i)), x, y, k, kd));
       const tw = inG(clipG(p, -500, -350, 1000, 390), 'rise', 0, -100, tu(.44)); R(tw, -56, -170, 112, 212, 6, F(4)); shape(tw, [[-76, -170], [76, -170], [0, -268]], F(4)); R(tw, -20, -6, 40, 48, 4, F(2.4)); tw.circle(0, -96, 46, F(3));
       placeV(p, c, X, 0, -96, 62, 300, { size: 44, maxW: 600, bigSize: 26, bigW: 80, bigDy: 4 });
       spot(p, c, Sp[0], 300, 120, { t: tS(Q, 0), side: 0, r: 36 }); spot(p, c, Sp[1], -200, 120, { t: tS(Q, 1), side: 1, r: 32 });
