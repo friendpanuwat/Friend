@@ -103,8 +103,8 @@
   const outG = (q, t, d = .08) => { const g = sub(q); on(g, q, 0, { o: [[0, 1], [t, 1], [t + tu(d), 0]] }); return g; };
   function haloH(q, x, y, r, t) { t = t ?? Z.H; const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .6], [t, .6], [t + tu(.3), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.1), 1]] }); halo(g, x, y, r); return g; }
   /* a ring that blooms out from (x, y) at t and fades (the "it happened" ripple) */
-  function ripple(q, x, y, r, t) { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [t + tu(.45), 1.45, 'out']], o: [[0, 0], [t, 0], [t + tu(.04), .8], [t + tu(.45), 0]] }); g.circle(x, y, r, W(2.6)); }
-  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .3], [t, .3], [t + tu(.2), 1.1, 'out'], [t + tu(.34), 1, 'soft']], o: [[0, 0], [t, 0], [t + tu(.06), 1]] }); return g; };
+  function ripple(q, x, y, r, t) { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .85], [t, .85], [t + tu(.7), 1.3, 'out']], o: [[0, 0], [t, 0], [t + tu(.12), .5, 'io'], [t + tu(.7), 0, 'io']] }); g.circle(x, y, r, W(2.4)); }   /* B06T: a soft ring */
+  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .8], [t, .8], [t + tu(.32), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.14), 1]] }); return g; };
 
   /* a THING (it) at (x, y) width w (+ its label at (lx, ly)). o.t = when it comes in · o.mv = keys of the part it rides ({ px, py, x, y, r, s }) ·
      o.punch = a bump at that time (the moment it is reached) · o.r = a fixed tilt (with its holder) · o.lt = when the label comes in */
@@ -122,7 +122,7 @@
     else if (o.r) { K.r = [[0, o.r]]; any = true; }
     if (o.o) { K.o = o.o; any = true; }
     if (any) kf(a.wrap, at, K);
-    if (o.punch != null) kf(a.g, at, { ox: X, oy: Y, s: [[0, 1], [o.punch, 1], [o.punch + tu(.07), 1.14, 'out'], [o.punch + tu(.3), 1, 'soft']] });
+    if (o.punch != null) kf(a.g, at, { ox: X, oy: Y, s: [[0, 1], [o.punch, 1], [o.punch + tu(.18), 1.05, 'io'], [o.punch + tu(.42), 1, 'io']] });   /* B06T: a soft swell */
     return a;
   }
   /* an icon is its own art on the stage — the canvas clip (CL) does not reach it, so a thing falling in from far above showed its icon over the design
@@ -246,7 +246,9 @@
      (a spring bounces, a cord gives, a lid flies open, arms go up, a head bows, a chair rocks, glass fogs …) → who comes in → the feeling
      lands on the keyword H (icon pops, its word follows) → hold. T0 = the main move (a long sentence waits, then goes). Last frame = the still. ---------- */
   /* a shake on x from t0 to t1 */
-  const shakeX = (t0, t1, a = 4, st = .05) => { const K = [[0, 0], [t0, 0]]; let t = t0, sg = 1; while (t + tu(st) < t1) { t += tu(st); K.push([f3(t), sg * a]); sg = -sg; } K.push([f3(t1), 0]); return K; };
+  /* B06T (user: "ลดลูกเล่นของอนิเมชั่นลงอีก แต่ไม่อยากให้แข็งเกินไป และต้องสมูท"): calm, eased moves — no stretch, squash, bounce or overshoot */
+  /* a smooth sway on x between t0 and t1 (each swing eased in-out, amplitude a, one swing every st) */
+  const shakeX = (t0, t1, a = 4, st = .05) => { const K = [[0, 0], [t0, 0]]; let t = t0, sg = 1; const sw = Math.max(tu(.3), tu(st)); while (t + sw < t1) { t += sw; K.push([f3(t), sg * a, 'io']); sg = -sg; } K.push([f3(t1), 0, 'io']); return K; };
   /* a dying wobble (rotation) from t0 to t1 */
   const wob = (t0, t1, a = 6, n = 4) => { const K = [[0, 0], [t0, 0]]; for (let i = 1; i <= n; i++) K.push([f3(t0 + (t1 - t0) * i / (n + 1)), f1(a * (i % 2 ? 1 : -1) * (1 - (i - 1) / n)), 'io']); K.push([f3(t1), 0, 'soft']); return K; };
   /* legs swing while walking (side view, stride pose), from t0 to t1 */
@@ -338,15 +340,13 @@
      squashes and the scene answers (dust, ripples, a wobble, windows lighting in a wave), many small beats instead of one pop, the spots
      arrive one by one, the place arrives last and lands on the keyword H. Last frame = the approved still. ---------- */
   /* a fall onto (px, py) (the bottom / tip of the part): stretched while falling, squashed on landing, one small bounce */
-  const fallK = (px, py, t0, t1, h = 320) => ({ px, py, y: [[0, -h], [t0, -h], [t1, 0, 'in'], [f3(t1 + tu(.09)), f1(-h * .06), 'out'], [f3(t1 + tu(.18)), 0, 'in']],
-    sy: [[0, 1], [t0, 1.1], [f3(t1 - tu(.02)), 1.1], [t1, .8, 'out'], [f3(t1 + tu(.09)), 1.05, 'out'], [f3(t1 + tu(.18)), .97], [f3(t1 + tu(.26)), 1, 'soft']],
-    sx: [[0, 1], [t0, .93], [f3(t1 - tu(.02)), .93], [t1, 1.14, 'out'], [f3(t1 + tu(.09)), .98, 'out'], [f3(t1 + tu(.26)), 1, 'soft']], o: fadeIn(t0, .04) });
+  const fallK = (px, py, t0, t1, h = 320) => ({ px, py, y: [[0, -h], [t0, -h], [f3(t1 + tu(.06)), 0, 'out']], o: fadeIn(t0, .08) });
   /* grows up from its base (px, py) with an overshoot */
-  const upK = (px, py, t, d = .3) => ({ px, py, sy: [[0, 0], [t, 0], [f3(t + tu(d)), 1.08, 'out'], [f3(t + tu(d + .1)), .97, 'io'], [f3(t + tu(d + .18)), 1, 'soft']], o: fadeIn(t, .04) });
+  const upK = (px, py, t, d = .3) => ({ px, py, sy: [[0, 0], [t, 0], [f3(t + tu(d + .06)), 1, 'out']], o: fadeIn(t, .06) });
   /* spins in edge-on (a coin / a sign turning to face us) */
-  const spinK = (px, py, t) => ({ px, py, sx: [[0, 0], [t, 0], [f3(t + tu(.12)), -.6], [f3(t + tu(.24)), 1.08, 'out'], [f3(t + tu(.34)), 1, 'soft']], o: fadeIn(t, .04) });
+  const spinK = (px, py, t) => ({ px, py, s: [[0, .8], [t, .8], [f3(t + tu(.34)), 1, 'out']], o: fadeIn(t, .12) });   /* B06T: no edge-on spin — a soft grow-in */
   /* dust kicked up left and right where something lands */
-  const dust = (q, x, y, t, k = 1) => sparkAt(q, x, y, 16 * k, 36 * k, t, 8, 22.5, [1, 2, 5, 6], false);
+  const dust = () => {};
   /* a flat ring that spreads over the ground at t and fades */
   const rippleE = (q, x, y, rx, ry, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .4], [t, .4], [f3(t + tu(.5)), 1.5, 'out']], o: [[0, 0], [t, 0], [f3(t + tu(.04)), .8], [f3(t + tu(.5)), 0]] }); ell(g, x, y, rx, ry, W(2.4)); };
   /* a lit flash that comes and goes (windows in a wave) */
@@ -659,13 +659,13 @@
     const g = mvG(o.clip ? CL(p) : p, { px: fin[0], py: fin[1], x: X, y: Y, o: [[0, 0], [t0, 0], [f3(t0 + tu(.06)), 1]].concat(o.keep ? [] : [[f3(Q.H + tu(.12)), 1], [f3(Q.H + tu(.32)), 0]]) });
     if (o.draw) o.draw(g, fin[0], fin[1]); else { g.circle(fin[0], fin[1], r, DOTF()); g.circle(fin[0], fin[1], r + 9, { sw: 2.6, stroke: ACC1 }); } return g; }
   /* entrance keys: drop (from just past the top edge) · rise (from below) · left / right (from that side) · spin · flip · pop */
-  function ent(kind, x, y, sz, t) { const t1 = f3(t + tu(.28));
+  function ent(kind, x, y, sz, t) { const t1 = f3(t + tu(.34));   /* B06T: every entrance eases in and stops — no overshoot */
     if (kind === 'drop') return Object.assign(fallK(x, y + sz / 2, t, t1, f1(y + sz / 2 + 360)), { land: t1 });
-    if (kind === 'rise') { const dy = f1(360 - (y - sz / 2)); return { px: x, py: y, y: [[0, dy], [t, dy], [t1, -12, 'out'], [f3(t1 + tu(.1)), 0, 'soft']], o: fadeIn(t, .04), land: t1 }; }
-    if (kind === 'left' || kind === 'right') { const sd = kind === 'left' ? -1 : 1, dx = f1(sd * (510 + sz / 2) - x); return { px: x, py: y, x: [[0, dx], [t, dx], [t1, -sd * 12, 'out'], [f3(t1 + tu(.1)), 0, 'soft']], o: fadeIn(t, .04), land: t1 }; }
-    if (kind === 'spin') return Object.assign(spinK(x, y, t), { land: f3(t + tu(.34)) });
-    if (kind === 'flip') return { px: x, py: y, sy: [[0, 0], [t, 0], [f3(t + tu(.12)), -.5], [f3(t + tu(.24)), 1.08, 'out'], [f3(t + tu(.34)), 1, 'soft']], o: fadeIn(t, .04), land: f3(t + tu(.34)) };
-    return { px: x, py: y, s: [[0, .2], [t, .2], [t1, 1.1, 'out'], [f3(t1 + tu(.12)), 1, 'soft']], o: fadeIn(t, .04), land: t1 }; }
+    if (kind === 'rise') { const dy = f1(360 - (y - sz / 2)); return { px: x, py: y, y: [[0, dy], [t, dy], [t1, 0, 'out']], o: fadeIn(t, .08), land: t1 }; }
+    if (kind === 'left' || kind === 'right') { const sd = kind === 'left' ? -1 : 1, dx = f1(sd * (510 + sz / 2) - x); return { px: x, py: y, x: [[0, dx], [t, dx], [t1, 0, 'out']], o: fadeIn(t, .08), land: t1 }; }
+    if (kind === 'spin') return Object.assign(spinK(x, y, t), { land: t1 });
+    if (kind === 'flip') return { px: x, py: y, sx: [[0, .2], [t, .2], [t1, 1, 'out']], o: fadeIn(t, .1), land: t1 };
+    return { px: x, py: y, s: [[0, .8], [t, .8], [t1, 1, 'out']], o: fadeIn(t, .12), land: t1 }; }
   function entBox(p, c, d, i, x, y, sz, kind, o = {}) { const Q = STP(d), K = ent(kind, x, y, sz, Q.tI(i)); stepBox(p, c, d, i, x, y, sz, Object.assign({ g: mvG(CL(p), K), mv: K, t: Q.tI(i) }, o));
     if (kind === 'drop' && o.dust !== false) dust(p, x, y + sz / 2, K.land, sz / 220); return K; }
   const curveD = pts => { let s = `M ${pts[0][0]} ${pts[0][1]}`; for (let i = 1; i < pts.length; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], mx = f1((x0 + x1) / 2); s += ` C ${mx} ${y0} ${mx} ${y1} ${x1} ${y1}`; } return s; };
@@ -684,19 +684,19 @@
     return { ab, op: op.length === 2 ? op : [], ai, an, hasA: !!ab, hasO: op.length === 2, hasN: !!an, answered: ai >= 0 || !!an0 }; };
   const QT = d => { const F = QD(d), H = Z.H, tA = tu(.1), tO = i => f3((F.hasA ? tu(.34) : tu(.1)) + tu(.16 * i)), tQ = f3(Math.max(tu(.62), H - tu(.95))); return { H, tA, tO, tQ, tD0: f3(tQ + tu(.2)), tD1: f3(H - tu(.12)) }; };
   /* the doubt: the options take turns (soft glow on one, then the other) between tD0 and tD1 */
-  const doubtK = (T_, i) => { const K = [[0, 0]]; let t = T_.tD0, k = 0; while (t + tu(.26) <= T_.tD1) { const on1 = (k % 2) === i; K.push([f3(t), on1 ? 0 : 1], [f3(t + tu(.06)), on1 ? 1 : 0]); t += tu(.26); k++; } K.push([f3(T_.tD1), K[K.length - 1][1]], [f3(T_.tD1 + tu(.06)), 0]); return K; };
+  const doubtK = (T_, i) => { const K = [[0, 0]]; let t = T_.tD0, k = 0; while (t + tu(.36) <= T_.tD1) { const on1 = (k % 2) === i; K.push([f3(t), on1 ? 0 : 1], [f3(t + tu(.16)), on1 ? 1 : 0, 'io']); t += tu(.36); k++; } K.push([f3(T_.tD1), K[K.length - 1][1]], [f3(T_.tD1 + tu(.14)), 0, 'io']); return K; };   /* slow, soft turns */
   /* one thing: role 'a' about · 'o' option i · 'n' answer. Draws its slot (box | circ | hex | o.draw), enters by o.kind at its time (o.t), the
      option glows in turn during the doubt, and on H: chosen option / answer light (+ ripple), the other option dims. Returns { g, K } */
   function qthing(p, c, d, role, i, x, y, sz, o = {}) { const F = QD(d), T_ = QT(d), X = role === 'a' ? F.ab : role === 'o' ? F.op[i] : F.an; if (!X) return null;
     const t = o.t ?? (role === 'a' ? T_.tA : role === 'o' ? T_.tO(i) : f3(T_.H - tu(.08))), sh = o.shape || 'box', draw = o.draw || ((q, st) => shp(q, sh, x, y, sz, st));
     const win = (role === 'o' && F.ai === i) || role === 'n', lose = role === 'o' && F.ai >= 0 && F.ai !== i;
     const K = o.K || (o.kind === 'none' ? null : ent(o.kind || (role === 'n' ? 'pop' : 'pop'), x, y, sz, t)), g0 = o.g || (K ? mvG(o.clip === false ? p : CL(p), K) : popAt(p, x, y, t));
-    if (lose) draw(g0, BK); const g1 = lose ? mvG(g0, { o: [[0, 1], [T_.H, 1], [f3(T_.H + tu(.2)), .4]] }) : g0, g = win ? mvG(g1, { px: x, py: y, s: bumpK(T_.H, 1.08) }) : g1;
+    if (lose) draw(g0, BK); const g1 = lose ? mvG(g0, { o: [[0, 1], [T_.H, 1], [f3(T_.H + tu(.3)), .4, 'io']] }) : g0, g = win ? mvG(g1, { px: x, py: y, s: [[0, 1], [T_.H, 1], [f3(T_.H + tu(.16)), 1.04, 'io'], [f3(T_.H + tu(.4)), 1, 'io']] }) : g1;
     draw(g, o.style || F_(4)); if (sh === 'circ' && !o.draw) g.circle(x, y, sz / 2 - 13, SL(1.4));
     if (role === 'o' && F.hasO) { const lt = sub(g); on(lt, p, 0, { o: doubtK(T_, i) }); draw(lt, { fill: TA(.12), sw: 3, stroke: TL_(.6) }); }
     if (win) { draw(litOn(g, T_.H), o.litStyle || LIT2()); if (o.rip !== false) ripple(p, o.ix ?? x, o.iy ?? y, sz * .58, f3(T_.H + tu(.04))); }
     const iw = o.iw || sz * (sh === 'box' ? .72 : .66);
-    if (picOf(X)) put(p, c, { icon: X.icon }, o.ix ?? x, o.iy ?? y, iw, null, { t: f3(t + tu(.04)), mv: o.mv || K || undefined, o: lose ? [[0, 1], [T_.H, 1], [f3(T_.H + tu(.2)), .4]] : undefined, punch: win ? T_.H : undefined });
+    if (picOf(X)) put(p, c, { icon: X.icon }, o.ix ?? x, o.iy ?? y, iw, null, { t: f3(t + tu(.04)), mv: o.mv || K || undefined, o: lose ? [[0, 1], [T_.H, 1], [f3(T_.H + tu(.3)), .4, 'io']] : undefined, punch: win ? T_.H : undefined });
     else txt(g, X.label, o.ix ?? x, (o.iy ?? y) + 16, { size: Math.max(40, Math.min(56, iw * .3)), maxW: o.lw || iw * 1.15, weight: 800, color: C.ink, wrap: 'mid' });
     return { g, K }; }
   const F_ = F;
@@ -710,9 +710,9 @@
      not answered → it lights in the accent and grows a little (the question is the point). o.r radius · o.plain = the glyph alone, no badge */
   function qmark(p, d, x, y, r, o = {}) { const T_ = QT(d), Fd = QD(d), t = o.t ?? T_.tQ, ans = Fd.answered;
     if (ans && t >= T_.H - .01) return null;   /* answered: no late "?" */
-    const pulse = [[0, 1]]; for (let u = T_.tD0, k = 0; u + tu(.3) <= T_.tD1; u += tu(.3), k++) pulse.push([f3(u), 1], [f3(u + tu(.1)), 1.08, 'out'], [f3(u + tu(.24)), 1, 'soft']);
+    const pulse = [[0, 1]]; for (let u = T_.tD0, k = 0; u + tu(.5) <= T_.tD1; u += tu(.5), k++) pulse.push([f3(u), 1], [f3(u + tu(.25)), 1.04, 'io'], [f3(u + tu(.5)), 1, 'io']);   /* a slow breath */
     const keep = o.keep ?? Fd.ai >= 0, fin = ans ? [[T_.H, 1], [f3(T_.H + tu(.2)), keep ? .3 : 0]] : [];   /* answered by one of the options: the "?" stays, faint */
-    const g0 = mvG(o.g || p, { px: x, py: y, s: [[0, .3], [t, .3], [f3(t + tu(.22)), 1.1, 'out'], [f3(t + tu(.34)), 1, 'soft']].concat(pulse.slice(1)).concat(ans ? [] : [[T_.H, 1], [f3(T_.H + tu(.16)), 1.18, 'out'], [f3(T_.H + tu(.3)), 1.1, 'soft']]), o: [[0, 0], [t, 0], [f3(t + tu(.06)), 1]].concat(fin) });
+    const g0 = mvG(o.g || p, { px: x, py: y, s: [[0, .8], [t, .8], [f3(t + tu(.32)), 1, 'out']].concat(pulse.slice(1)).concat(ans ? [] : [[T_.H, 1], [f3(T_.H + tu(.36)), 1.08, 'io']]), o: [[0, 0], [t, 0], [f3(t + tu(.14)), 1]].concat(fin) });
     if (!o.plain) { g0.circle(x, y, r, F(4)); if (!ans) litOn(g0, T_.H).circle(x, y, r, { fill: TA(.3), sw: 5, stroke: ACC1 }); }
     const gl = txt(g0, '?', x, f1(y + r * .42), { size: f1(r * 1.25), weight: 800, color: C.ink }); if (!ans) { const l2 = txt(litOn(g0, T_.H), '?', x, f1(y + r * .42), { size: f1(r * 1.25), weight: 800, color: ACC1 }); }
     if (!ans) ripple(p, x, y, r + 14, f3(T_.H + tu(.06))); return g0; }
@@ -745,7 +745,7 @@
 
   /* 02 ── BIG "?" (เครื่องหมายคำถามใหญ่): a big "?" badge on the left; the things in doubt stack in a column on the right */
   variant('bigq', 'เครื่องหมายคำถามใหญ่', (d, c) => { art(c, p => { const Fd = QD(d), L = QI(d).filter(([r]) => r !== 'n'), k = L.length, QX = k ? -250 : 0;
-    if (Fd.hasN) qans(p, c, d, QX, 0, 300, { wy: 205 }); else qmark(p, d, QX, 0, k ? 170 : 200, { t: tu(.12) });
+    qmark(p, d, QX, 0, k ? 170 : 200, { t: tu(.12) }); if (Fd.hasN) qans(p, c, d, QX, 0, 300, { wy: 205 });
     const P = arr(k, 'col', 96, -300, 96, 320, 206); L.forEach(([r, i], j) => { const [x, y, sz] = P[j]; qthing(p, c, d, r, i, x, y, sz, { kind: 'right' }); qword(p, d, r, i, f1(x + sz / 2 + 26), f1(y + 16), { anchor: 'start', size: 46, maxW: f1(470 - x - sz / 2 - 26), wrap: null }); }); }); });
   /* standard arrangements for k things inside a box (x0, y0, x1, y1): 'row' | 'col' (4 → 2 × 2) */
   function arr(k, kind, x0, y0, x1, y1, smax = 250) { if (!k) return [];
@@ -794,7 +794,7 @@
     [0, 1].forEach(i => { const x = i ? CX + RG : CX - RG; qthing(p, c, d, 'o', i, x, CY - 20, 180); qword(p, d, 'o', i, x, CY - 20 + 90 + 48, { size: 44, maxW: 260 }); });
     const rf = Fd.ai === 0 ? -62 : Fd.ai === 1 ? 62 : 0, q = k => f3(lerp(T_.tD0, T_.tD1, k)), ng = mvG(p, { px: CX, py: CY, r: [[0, 0], [T_.tD0, 0], [q(.2), -40, 'io'], [q(.45), 38, 'io'], [q(.7), -30, 'io'], [q(.9), 22, 'io'], [q(1), 0, 'io'], [f3(T_.H + tu(.24)), rf, 'out']], o: fadeIn(tu(.4), .06) });
     ng.path(`M ${CX - 13} ${CY} L ${CX} ${CY - 230} L ${CX + 13} ${CY} Z`, { fill: ACC1, sw: 2.4, stroke: ACC1 }); p.circle(CX, CY, 32, F(3.6));
-    if (Fd.hasA) header(p, c, d, -380, -232, 170, { mw: 240 }); if (Fd.hasN) qans(p, c, d, 330, -232, 170, { wx: 230, wy: -216, wo: { pill: false, anchor: 'end', size: 44 } }); else qmark(p, d, Fd.hasA ? 360 : 0, Fd.hasA ? -232 : -200, 62); }); });
+    if (Fd.hasA) header(p, c, d, -380, -232, 170, { mw: 240 }); qmark(p, d, Fd.hasA ? 360 : 0, Fd.hasA ? -232 : -200, 62); if (Fd.hasN) qans(p, c, d, 330, -232, 170, { wx: 230, wy: -216, wo: { pill: false, anchor: 'end', size: 44 } }); }); });
 
   /* 06 ── SLIDER (สไลเดอร์ลังเล): a track between the options; the knob slides back and forth and settles on the answer's end */
   variant('slider', 'สไลเดอร์ลังเล', (d, c) => { art(c, p => { const Fd = QD(d), T_ = QT(d); if (!Fd.hasO) return gen(p, c, d, 40, -220);
@@ -844,12 +844,12 @@
   /* 10 ── COIN (เหรียญเสี่ยง — a flat disc, not a real coin): one big disc turns over and over between the two options (the "?" on its rim side),
      and on H stops on the answer's face (no answer: stops on the "?"). The two options also sit small at the sides */
   variant('coin', 'แผ่นพลิกเสี่ยง', (d, c) => { art(c, p => { const Fd = QD(d), T_ = QT(d); if (!Fd.hasO) return gen(p, c, d);
-    const CX = 0, CY = 30, Rd = 150, n = Math.max(2, Math.floor((T_.tD1 - T_.tD0) / tu(.18)));
-    const flips = Array.from({ length: n }, (_, k) => f3(lerp(T_.tD0, T_.tD1, k / n))), SX = [[0, 1], [T_.tD0, 1]]; flips.forEach(t => SX.push([t, 1], [f3(t + tu(.08)), 0, 'in'], [f3(t + tu(.16)), 1, 'out'])); SX.push([T_.H, 1], [f3(T_.H + tu(.1)), 0, 'in'], [f3(T_.H + tu(.2)), 1, 'out']);
+    const CX = 0, CY = 30, Rd = 150, n = Math.max(2, Math.floor((T_.tD1 - T_.tD0) / tu(.36)));
+    const flips = Array.from({ length: n }, (_, k) => f3(lerp(T_.tD0, T_.tD1, k / n))), SX = [[0, 1], [T_.tD0, 1]]; flips.forEach(t => SX.push([t, 1], [f3(t + tu(.15)), 0, 'io'], [f3(t + tu(.3)), 1, 'io'])); SX.push([T_.H, 1], [f3(T_.H + tu(.15)), 0, 'io'], [f3(T_.H + tu(.3)), 1, 'io']);
     const dg = mvG(popAt(p, CX, CY, tu(.2)), { px: CX, py: CY, sx: SX }); dg.circle(CX, CY, Rd, F(4.4)); dg.circle(CX, CY, Rd - 16, SL(1.6)); if (Fd.ai >= 0) litOn(dg, T_.H).circle(CX, CY, Rd, LIT2());
-    const face = i => { const K = [[0, 0]]; flips.forEach((t, k) => K.push([f3(t + tu(.08)), k % 2 === i ? 1 : 0])); K.push([f3(T_.H + tu(.1)), Fd.ai === i ? 1 : 0]); return K; };
+    const face = i => { const K = [[0, 0]]; flips.forEach((t, k) => K.push([f3(t + tu(.15)), k % 2 === i ? 1 : 0])); K.push([f3(T_.H + tu(.15)), Fd.ai === i ? 1 : 0]); return K; };
     [0, 1].forEach(i => { const X_ = Fd.op[i]; if (picOf(X_)) put(p, c, { icon: X_.icon }, CX, CY, 190, null, { t: T_.tD0, o: face(i), mv: { px: CX, py: CY, sx: SX } }); });
-    const qo = [[0, 0], [tu(.3), 0], [tu(.36), 1], [T_.tD0, 1], [f3(T_.tD0 + tu(.08)), 0]].concat(Fd.ai >= 0 ? [] : [[f3(T_.H + tu(.1)), 0], [f3(T_.H + tu(.12)), 1]]); const qg = sub(p); on(qg, p, 0, { o: qo }); txt(qg, '?', CX, CY + 60, { size: 170, weight: 800, color: Fd.ai >= 0 ? C.ink : ACC1 });
+    const qo = [[0, 0], [tu(.3), 0], [tu(.4), 1], [T_.tD0, 1], [f3(T_.tD0 + tu(.15)), 0]].concat(Fd.ai >= 0 ? [] : [[f3(T_.H + tu(.15)), 0], [f3(T_.H + tu(.17)), 1]]); const qg = sub(p); on(qg, p, 0, { o: qo }); txt(qg, '?', CX, CY + 60, { size: 170, weight: 800, color: Fd.ai >= 0 ? C.ink : ACC1 });
     [0, 1].forEach(i => { const x = i ? 360 : -360; qthing(p, c, d, 'o', i, x, CY, 176); qword(p, d, 'o', i, x, CY + 88 + 56, { pill: true, maxW: 240 }); });
     if (Fd.hasA) header(p, c, d, -120, -258, 150, { mw: 420 }); if (Fd.hasN) qans(p, c, d, 0, CY, 2 * Rd, { kind: 'none', g: undefined, wy: CY + Rd + 56 }); }); });
 
@@ -857,9 +857,9 @@
      lights and the other fades (no answer: the lens lights with the "?") */
   variant('venn', 'สองวงซ้อน', (d, c) => { art(c, p => { const Fd = QD(d), T_ = QT(d); if (!Fd.hasO) return gen(p, c, d);
     const Rr = 200, Y = Fd.hasA ? 80 : 40, X = [-150, 150], IX = [-236, 236];
-    [0, 1].forEach(i => { const x = X[i], lose = Fd.ai >= 0 && Fd.ai !== i, win = Fd.ai === i, X_ = Fd.op[i], g0 = mvG(CL(p), { px: x, py: Y, x: glide(i ? 280 : -280, T_.tO(i), f3(T_.tO(i) + tu(.32)), i ? -12 : 12), o: fadeIn(T_.tO(i), .04) }), g = lose ? mvG(g0, { o: [[0, 1], [T_.H, 1], [f3(T_.H + tu(.2)), .4]] }) : g0;
+    [0, 1].forEach(i => { const x = X[i], lose = Fd.ai >= 0 && Fd.ai !== i, win = Fd.ai === i, X_ = Fd.op[i], g0 = mvG(CL(p), { px: x, py: Y, x: glide(i ? 280 : -280, T_.tO(i), f3(T_.tO(i) + tu(.32)), i ? -12 : 12), o: fadeIn(T_.tO(i), .04) }), g = lose ? mvG(g0, { o: [[0, 1], [T_.H, 1], [f3(T_.H + tu(.3)), .4, 'io']] }) : g0;
       if (win) litOn(g, T_.H).circle(x, Y, Rr - 10, { fill: TA(.14), sw: 0, stroke: 'none' }); g.circle(x, Y, Rr, W(4.4)); const lt = sub(g); on(lt, p, 0, { o: doubtK(T_, i) }); lt.circle(x, Y, Rr, { sw: 5, stroke: TL_(.7) }); if (win) litOn(g, T_.H).circle(x, Y, Rr, { sw: 5, stroke: ACC1 });
-      if (picOf(X_)) put(p, c, { icon: X_.icon }, IX[i], Y, 160, null, { t: f3(T_.tO(i) + tu(.2)), mv: { px: IX[i], py: Y, x: glide(i ? 280 : -280, T_.tO(i), f3(T_.tO(i) + tu(.32)), i ? -12 : 12) }, o: lose ? [[0, 1], [T_.H, 1], [f3(T_.H + tu(.2)), .4]] : undefined, punch: win ? T_.H : undefined });
+      if (picOf(X_)) put(p, c, { icon: X_.icon }, IX[i], Y, 160, null, { t: f3(T_.tO(i) + tu(.2)), mv: { px: IX[i], py: Y, x: glide(i ? 280 : -280, T_.tO(i), f3(T_.tO(i) + tu(.32)), i ? -12 : 12) }, o: lose ? [[0, 1], [T_.H, 1], [f3(T_.H + tu(.3)), .4, 'io']] : undefined, punch: win ? T_.H : undefined });
       else txt(g, X_.label, IX[i], Y + 16, { size: 44, maxW: 180, weight: 800, color: C.ink, wrap: 'mid' });
       qword(p, d, 'o', i, i ? 30 : -30, Y + Rr + 50, { anchor: i ? 'start' : 'end', size: 44, maxW: 300, wrap: null }); });
     qmark(p, d, 0, Y, 58); if (Fd.hasA) header(p, c, d, -120, -260, 150, { mw: 420 }); if (Fd.hasN) qans(p, c, d, 0, Y, 150, { wy: -200 }); }); });
@@ -879,7 +879,7 @@
     L.forEach(([r, i], j) => { const y = ys[j], s = rh - 24; qthing(p, c, d, r, i, -330, y, s, { kind: 'left' }); qword(p, d, r, i, -330 + s / 2 + 24, y + 16, { anchor: 'start', size: 46, maxW: 300, wrap: null }); });
     const RX = 300, RY = 170, dots = sub(p); on(dots, p, 0, { o: [[0, 0], [T_.tD0, 0], [f3(T_.tD0 + tu(.06)), 1], [f3(T_.H - tu(.04)), 1], [T_.H, 0]] }); R(dots, RX - 110, RY - 50, 220, 100, 50, F(3.4));
     [-50, 0, 50].forEach((dx, j) => { const g = mvG(dots, { px: RX + dx, py: RY, y: (() => { const K = [[0, 0]]; for (let t = T_.tD0 + tu(.06 * j); t < T_.H - tu(.2); t += tu(.36)) K.push([f3(t), 0], [f3(t + tu(.1)), -12, 'out'], [f3(t + tu(.2)), 0, 'in']); return K; })() }); g.circle(RX + dx, RY, 13, { fill: TL_(.7), sw: 0, stroke: 'none' }); });
-    if (Fd.hasN) qans(p, c, d, RX, RY - 30, 220, { wx: RX - 130, wy: RY - 14, wo: { pill: false, anchor: 'end', size: 48, maxW: 300 } }); else if (Fd.ai < 0) qmark(p, d, RX, RY - 30, 100, { t: T_.H }); }); });
+    if (Fd.ai < 0) qmark(p, d, RX, RY - 30, 100, { t: T_.H }); if (Fd.hasN) qans(p, c, d, RX, RY - 30, 220, { wx: RX - 130, wy: RY - 14, wo: { pill: false, anchor: 'end', size: 48, maxW: 300 } }); }); });
 
   /* 14 ── SEARCH (ช่องค้นหา): a search bar slides in, its button holds the "?"; the things in doubt come up as results under it */
   variant('search', 'ช่องค้นหา', (d, c) => { art(c, p => { const Fd = QD(d), T_ = QT(d), k = QI(d).length;
@@ -892,7 +892,7 @@
   variant('spinner', 'วงหมุนรอ', (d, c) => { art(c, p => { const Fd = QD(d), T_ = QT(d), k = QI(d).length, CX = k ? -230 : 0, CY = 10, RR = 190;
     p.circle(CX, CY, RR, { sw: 14, stroke: TL_(.12) }); const sp = mvG(p, { px: CX, py: CY, r: [[0, 0], [tu(.3), 0], [f3(T_.H), f1(360 * (T_.H - tu(.3)) / tu(.9))]], o: fadeIn(tu(.3), .06).concat([[T_.H, 1], [f3(T_.H + tu(.1)), 0]]) }); sp.path(arcD(CX, CY, RR, .28), { sw: 14, stroke: TL_(.7) });
     const full = p.path(arcD(CX, CY, RR, 1), { sw: 14, stroke: ACC1 }); on(full, p, 0, { draw: [[0, 0], [T_.H, 0], [f3(T_.H + tu(.3)), 1, 'out']] });
-    if (Fd.hasN) qans(p, c, d, CX, CY, 230, { wy: CY + RR + 52 }); else qmark(p, d, CX, CY, 120, { plain: true });
+    qmark(p, d, CX, CY, 120, { plain: true }); if (Fd.hasN) qans(p, c, d, CX, CY, 230, { wy: CY + RR + 52 });
     const L = QI(d).filter(([r]) => r !== 'n'), P = arr(L.length, 'col', 120, -300, 300, 320, 200); L.forEach(([r, i], j) => { const [x, y, sz] = P[j]; qthing(p, c, d, r, i, x, y, sz, { kind: 'right' }); qword(p, d, r, i, f1(x + sz / 2 + 22), f1(y + 16), { anchor: 'start', size: 44, maxW: f1(470 - x - sz / 2 - 22), wrap: 'mid' }); }); }); });
 
   /* 16 ── WANDER (เส้นทางวกวน): a dotted line wanders from the things in doubt up to the "?" (the answer lands at its end) */
@@ -900,14 +900,14 @@
     L.forEach(([r, i], j) => { const [x, y, sz] = P[j]; qthing(p, c, d, r, i, x, y, sz, { kind: 'drop' }); qword(p, d, r, i, x, f1(y - sz / 2 - 48), { size: 44, maxW: sz + 40 }); });
     const S0 = [P.length ? P[P.length - 1][0] + 40 : -200, 0], pts = [S0, [-120, -60], [-260, -200], [-60, -270], [80, -120], [200, -260], E];
     const n = 26; for (let j = 0; j <= n; j++) { const u = j / n, seg = u * (pts.length - 1), a = Math.floor(Math.min(seg, pts.length - 2)), f = seg - a, x = f1(lerp(pts[a][0], pts[a + 1][0], f)), y = f1(lerp(pts[a][1], pts[a + 1][1], f)); popAt(p, x, y, f3(T_.tQ - tu(.4) + tu(.4 * u))).circle(x, y, 6, { fill: TL_(.55), sw: 0, stroke: 'none' }); }
-    if (Fd.hasN) qans(p, c, d, ...E, 220, { wy: E[1] + 110 + 50 }); else qmark(p, d, ...E, 100); }); });
+    qmark(p, d, ...E, 100); if (Fd.hasN) qans(p, c, d, ...E, 220, { wy: E[1] + 110 + 50 }); }); });
 
   /* 17 ── TILES (ช่องคำถาม): six tiles, all showing a faint "?"; the things in doubt flip up in the first tiles one by one, the last tile keeps the
      big "?" (the answer flips into it on H) */
   variant('tiles', 'ช่องคำถาม', (d, c) => { art(c, p => { const Fd = QD(d), T_ = QT(d), L = QI(d).filter(([r]) => r !== 'n'), s = 210, P = [-1, 0, 1].flatMap(cx => [-1, 1].map(cy => [cx * 250, cy * 140 + 20])).sort((a, b) => a[1] - b[1] || a[0] - b[0]);
     P.forEach(([x, y], j) => { const used = j < L.length || j === 5, g = mvG(p, spinK(x, y, f3(tu(.04 + .04 * j)))); R(g, x - s / 2, y - s / 2, s, s, s * .24, { fill: TL_(.04), sw: 2.6, stroke: TL_(.4) }); if (!used) txt(g, '?', x, y + 34, { size: 100, weight: 800, color: C.mute }); });
     L.forEach(([r, i], j) => { const [x, y] = P[j]; qthing(p, c, d, r, i, x, y, s - 20, { kind: 'flip' }); qword(p, d, r, i, x, f1(y + s / 2 - 4), { size: 40, maxW: s - 10, pill: true }); });
-    if (Fd.hasN) qans(p, c, d, ...P[5], s - 20, { kind: 'flip', wy: P[5][1] + s / 2 - 4 }); else qmark(p, d, ...P[5], 80); }); });
+    qmark(p, d, ...P[5], 80); if (Fd.hasN) qans(p, c, d, ...P[5], s - 20, { kind: 'flip', wy: P[5][1] + s / 2 - 4 }); }); });
 
   /* 18 ── STACK (การ์ดซ้อน): a stack of cards, the top one shows the "?"; on H the top card slides away to show the answer under it (no answer: it
      stays and lights). The things in doubt line up in a column on the left */
@@ -920,7 +920,7 @@
   /* 19 ── BRACKETS (วงเล็บใหญ่): two big round brackets close in round the "?" in the middle; the things in doubt sit in a row under them */
   variant('brackets', 'วงเล็บใหญ่', (d, c) => { art(c, p => { const Fd = QD(d), T_ = QT(d), CY = -120, L = QI(d).filter(([r]) => r !== 'n');
     [-1, 1].forEach(sd => { const g = mvG(p, { x: glide(sd * 200, tu(.1), tu(.4)), o: fadeIn(tu(.1), .05) }); g.path(`M ${sd * 200} ${CY - 170} Q ${sd * 290} ${CY} ${sd * 200} ${CY + 170}`, { sw: 12 }); if (!Fd.answered || Fd.hasN) litOn(g, T_.H).path(`M ${sd * 200} ${CY - 170} Q ${sd * 290} ${CY} ${sd * 200} ${CY + 170}`, { sw: 12, stroke: ACC1 }); });
-    if (Fd.hasN) qans(p, c, d, 0, CY, 230, { wx: 0, wy: CY + 175 + 48, wo: { pill: false, size: 44 } }); else qmark(p, d, 0, CY, 120, { plain: true });
+    qmark(p, d, 0, CY, 120, { plain: true }); if (Fd.hasN) qans(p, c, d, 0, CY, 230, { wx: 0, wy: CY + 175 + 48, wo: { pill: false, size: 44 } });
     const P = arr(L.length, 'row', -470, 150, 470, 330, 180); L.forEach(([r, i], j) => { const [x, y, sz] = P[j]; qthing(p, c, d, r, i, x, y, sz, { kind: 'rise' }); qword(p, d, r, i, f1(x + sz / 2 + 20), f1(y + 16), { anchor: 'start', size: 42, maxW: f1(L.length > 1 ? 170 : 300), wrap: 'mid' }); }); }); });
 
   /* 20 ── QUESTION RING (วงเครื่องหมายคำถาม): small "?" marks circle round what is in doubt in the middle; on H they gather into one */
@@ -935,7 +935,7 @@
   function gdesign(p, c, d, o) { const Fd = QD(d), T_ = QT(d), L = QI(d).filter(([r]) => r !== 'n'); if (o.motif) o.motif(p, T_, Fd, L);
     const P = o.pos(L.length); L.forEach(([r, i], j) => { const [x, y, sz] = P[j]; const ex = typeof o.slot === 'function' ? o.slot(j, x, y, sz) : (o.slot || {}); qthing(p, c, d, r, i, x, y, sz, Object.assign({ kind: o.kind || 'pop' }, ex));
       const w = o.w(j, r, i, x, y, sz, L.length); if (w) qword(p, d, r, i, w[0], w[1], w[2] || {}); });
-    const [qx, qy, qr, qo] = o.q(L.length); if (Fd.hasN) qans(p, c, d, qx, qy, o.ns || Math.max(190, qr * 2), Object.assign({}, o.nw ? o.nw(qx, qy) : {})); else qmark(p, d, qx, qy, qr, qo || {}); return { Fd, T_, L, P }; }
+    const [qx, qy, qr, qo] = o.q(L.length); qmark(p, d, qx, qy, qr, qo || {}); if (Fd.hasN) qans(p, c, d, qx, qy, o.ns || Math.max(190, qr * 2), Object.assign({}, o.nw ? o.nw(qx, qy) : {})); return { Fd, T_, L, P }; }
 
   /* 21 ── QUIZ CARD (การ์ดตอบคำถาม): a card with the question line on top (what is in doubt) and the choices as buttons under it; the "?" sits on the
      card's top edge */
@@ -979,7 +979,7 @@
     P.forEach(([x, y, sz], j) => { const dd = `M ${Q[0]} ${Q[1] + 70} C ${Q[0]} ${Q[1] + 160} ${x} ${y - sz / 2 - 120} ${x} ${y - sz / 2 - 8}`; drawAt(p.path(dd, { sw: 5, stroke: TL_(.4) }), p, f3(T_.tQ + tu(.06 * j)), tu(.3));
       const [r, i] = L[j]; if (r === 'o' && Fd.ai === i) { const a = p.path(dd, { sw: 7, stroke: ACC1 }); on(a, p, 0, { draw: [[0, 0], [f3(T_.H - tu(.3)), 0], [T_.H, 1, 'io']] }); } });
     L.forEach(([r, i], j) => { const [x, y, sz] = P[j]; qthing(p, c, d, r, i, x, y, sz, { kind: 'rise' }); qword(p, d, r, i, x, f1(y + sz / 2 + 4 > 300 ? y - sz / 2 - 150 : y + sz / 2 + 4), { size: 40, maxW: sz + 40, pill: true }); });
-    if (Fd.hasN) qans(p, c, d, ...Q, 170, { wx: 110, wy: Q[1] + 16, wo: { pill: false, anchor: 'start', size: 46 } }); else qmark(p, d, ...Q, 72, { t: tu(.12) }); }); });
+    qmark(p, d, ...Q, 72, { t: tu(.12) }); if (Fd.hasN) qans(p, c, d, ...Q, 170, { wx: 110, wy: Q[1] + 16, wo: { pill: false, anchor: 'start', size: 46 } }); }); });
 
   /* 28 ── LIDS (ฝาปิดคำถาม): each thing in doubt sits under a lid with a "?"; the lids lift one by one; the last lid (the answer's) lifts on H */
   variant('lids', 'ฝาปิดคำถาม', (d, c) => { art(c, p => { const Fd = QD(d), T_ = QT(d), L = QI(d), k = L.length, P = arr(k, 'row', -470, -100, 470, 200, 240);
@@ -1015,7 +1015,7 @@
   variant('qfunnel', 'กรวยคัดคำถาม', (d, c) => { art(c, p => { const Fd = QD(d), T_ = QT(d), L = QI(d).filter(([r]) => r !== 'n'), FD = 'M -200 -30 L 200 -30 L 74 110 L 74 150 L -74 150 L -74 110 Z';
     drawAt(p.path(FD, F(4.4)), p, tu(.04), tu(.4)); const P = arr(L.length, 'row', -470, -330, 470, -130, 190);
     L.forEach(([r, i], j) => { const [x, y, sz] = P[j]; qthing(p, c, d, r, i, x, y, sz, { kind: 'drop' }); qword(p, d, r, i, x, f1(y + sz / 2 + 48), { size: 40, maxW: sz + 20 }); });
-    const O = [0, 262]; if (Fd.hasN) qans(p, c, d, ...O, 170, { wx: 120, wy: O[1] + 16, wo: { pill: false, anchor: 'start', size: 46 } }); else qmark(p, d, ...O, 74, { t: f3(T_.H - tu(.2)) }); }); });
+    const O = [0, 262]; qmark(p, d, ...O, 74, { t: f3(T_.H - tu(.2)) }); if (Fd.hasN) qans(p, c, d, ...O, 170, { wx: 120, wy: O[1] + 16, wo: { pill: false, anchor: 'start', size: 46 } }); }); });
 
   /* 34 ── SPIRAL (เกลียวคำถาม): a spiral winds in toward the "?" in the middle; the things in doubt stand round the outside */
   variant('qspiral', 'เกลียวคำถาม', (d, c) => { art(c, p => { const CX = 0, CY = 20; gdesign(p, c, d, { motif: (p, T_) => { const pts = Array.from({ length: 80 }, (_, q) => { const a = rad(q * 9), rr = 230 - q * 2.1; return [f1(CX + rr * Math.cos(a)), f1(CY + rr * .82 * Math.sin(a))]; }); drawAt(p.path(pathOf(pts, false), { sw: 3, stroke: TL_(.4) }), p, tu(.1), f3(T_.tQ - tu(.1))); },
@@ -1035,13 +1035,13 @@
   variant('twoway', 'ลูกศรสองทาง', (d, c) => { art(c, p => { const Fd = QD(d), T_ = QT(d), L = QI(d).filter(([r]) => r !== 'n'), k = L.length, P = k >= 2 ? [[-320, 0, 220], [320, 0, 220]].concat(k === 3 ? [[0, -230, 170]] : []) : [[-280, 20, 240]];
     L.forEach(([r, i], j) => { const [x, y, sz] = P[j]; qthing(p, c, d, r, i, x, y, sz, { kind: j ? 'right' : 'left' }); qword(p, d, r, i, j === 2 ? x + sz / 2 + 22 : x, j === 2 ? y + 16 : f1(y + sz / 2 + 54), j === 2 ? { anchor: 'start', size: 44, maxW: 200, wrap: null } : { pill: true, maxW: 300 }); });
     const ax0 = k >= 2 ? -190 : -140, ax1 = k >= 2 ? 190 : 380; const ag = sub(p); drawAt(ag.line(ax0, 0, ax1, 0, { sw: 7, stroke: TL_(.55) }), p, f3(T_.tQ - tu(.2)), tu(.2)); [[ax0, 1], [ax1, -1]].forEach(([x, sd]) => popAt(p, x, 0, T_.tQ).path(`M ${x + sd * 30} -24 L ${x} 0 L ${x + sd * 30} 24`, { sw: 7, stroke: TL_(.55) }));
-    const mid = (ax0 + ax1) / 2, qg = mvG(p, { x: shakeX(T_.tD0, T_.tD1, k >= 2 ? 70 : 0, .3) }); if (Fd.hasN) qans(p, c, d, k >= 2 ? 0 : 280, k >= 2 ? 200 : 20, 180, { wy: k >= 2 ? 200 - 90 - 50 : 150 }); else if (Fd.ai < 0) qmark(p, d, mid, 0, 64, { g: qg }); else qmark(p, d, mid, 0, 64); }); });
+    const mid = (ax0 + ax1) / 2, qg = mvG(p, { x: shakeX(T_.tD0, T_.tD1, k >= 2 ? 70 : 0, .3) }); if (Fd.ai < 0) qmark(p, d, mid, 0, 64, { g: qg }); if (Fd.hasN) qans(p, c, d, k >= 2 ? 0 : 280, k >= 2 ? 200 : 20, 180, { wy: k >= 2 ? 200 - 90 - 50 : 150 }); else qmark(p, d, mid, 0, 64); }); });
 
   /* 37 ── ZIGZAG (ทางซิกแซก): the things in doubt sit on a zigzag that climbs to the "?" at the top right */
   variant('zigq', 'ทางซิกแซก', (d, c) => { art(c, p => { const pts = [[-380, 210], [-150, -40], [80, 190], [300, -150]], Fd = QD(d), T_ = QT(d), L = QI(d).filter(([r]) => r !== 'n'), k = L.length;
     drawAt(p.path(pathOf(pts, false), { sw: 5, stroke: TL_(.4) }), p, tu(.04), tu(.5)); const P = pts.slice(0, 3).slice(0, k);
     L.forEach(([r, i], j) => { const [x, y] = P[j]; qthing(p, c, d, r, i, x, y, 190, { kind: 'pop' }); qword(p, d, r, i, x, j % 2 ? f1(y - 95 - 44) : f1(y + 95 + 50), { size: 42, maxW: 240 }); });
-    if (Fd.hasN) qans(p, c, d, ...pts[3], 200, { wy: pts[3][1] + 100 + 50 }); else qmark(p, d, ...pts[3], 84); }); });
+    qmark(p, d, ...pts[3], 84); if (Fd.hasN) qans(p, c, d, ...pts[3], 200, { wy: pts[3][1] + 100 + 50 }); }); });
 
   /* 38 ── METER (เกจความมั่นใจ): a tall meter fills while the doubt plays and tops out at the "?" (or the answer) on H; the things in doubt on the left */
   variant('qmeter', 'เกจความมั่นใจ', (d, c) => { art(c, p => { const MX = 260; gdesign(p, c, d, { motif: (p, T_) => { R(mvG(p, upK(MX, 320, tu(.04), .34)), MX - 56, -150, 112, 470, 50, F(3.6));
@@ -1053,7 +1053,7 @@
   variant('qwave', 'คลื่นคำถาม', (d, c) => { art(c, p => { const Fd = QD(d), T_ = QT(d), L = QI(d).filter(([r]) => r !== 'n'), k = L.length, wy = x => f1(40 + 90 * Math.sin(x / 140)), xs = rowXs(k, 190, 60, -110);
     drawAt(p.path(pathOf(Array.from({ length: 41 }, (_, q) => { const x = -470 + q * 23.5; return [f1(x), wy(x)]; }), false), { sw: 4, stroke: TL_(.4) }), p, tu(.02), tu(.5));
     L.forEach(([r, i], j) => { const x = xs[j], y = wy(x); qthing(p, c, d, r, i, x, y, 190, { kind: 'pop' }); qword(p, d, r, i, x, y > 40 ? f1(y + 95 + 50) : f1(y - 95 - 40), { size: 42, maxW: 230 }); });
-    const E = [380, wy(380)]; if (Fd.hasN) qans(p, c, d, E[0], E[1] - 20, 170, { wy: E[1] + 120 }); else { const pts = Array.from({ length: 13 }, (_, q) => { const x = -420 + q * 800 / 12; return [f1(x), f1(wy(x) - 70)]; }), P = pathK(pts, T_.tQ, T_.H, [380, f1(wy(380) - 70)], 24, u => u); qmark(p, d, 380, f1(wy(380) - 70), 56, { g: mvG(p, { px: 380, py: wy(380) - 70, x: P.x, y: P.y }) }); } }); });
+    const E = [380, wy(380)]; if (Fd.hasN) qans(p, c, d, E[0], E[1] - 20, 170, { wy: E[1] + 120 }); { const pts = Array.from({ length: 13 }, (_, q) => { const x = -420 + q * 800 / 12; return [f1(x), f1(wy(x) - 70)]; }), P = pathK(pts, T_.tQ, T_.H, [380, f1(wy(380) - 70)], 24, u => u); qmark(p, d, 380, f1(wy(380) - 70), 56, { g: mvG(p, { px: 380, py: wy(380) - 70, x: P.x, y: P.y }) }); } }); });
 
   /* 40 ── FLIP CARD (การ์ดพลิกตอบ): one big card shows the "?"; it turns over on H to the answer (no answer: it turns back to the lit "?"); the things in
      doubt line the left side */
@@ -1085,7 +1085,7 @@
     const last = xs[tgt], hg = mvG(p, { px: last, py: Y, x: [[0, f1(xs[0] - last)], [f3(T_.tD0 - tu(.1)), f1(xs[0] - last)]].concat(offK(posK(ph, w => xs[w]), last).slice(1)), o: fadeIn(f3(T_.tD0 - tu(.1)), .06) });
     R(hg, f1(last - cw / 2 + 12), Y - 112, f1(cw - 24), 224, 56, { fill: TA(.14), sw: 3, stroke: TL_(.5) }); R(litOn(hg, T_.H), f1(last - cw / 2 + 12), Y - 112, f1(cw - 24), 224, 56, { sw: 5, stroke: ACC1 });
     L.forEach(([r, i], j) => { qthing(p, c, d, r, i, xs[j], Y, s, { kind: 'pop' }); qword(p, d, r, i, xs[j], Y - 130 - 54, { pill: true, maxW: cw - 20 }); });
-    if (Fd.hasN) qans(p, c, d, xs[n - 1], Y, s, { wy: Y - 130 - 54 }); else qmark(p, d, xs[n - 1], Y, Math.min(84, s / 2 - 10), { keep: true }); }); });
+    qmark(p, d, xs[n - 1], Y, Math.min(84, s / 2 - 10), { keep: true }); if (Fd.hasN) qans(p, c, d, xs[n - 1], Y, s, { wy: Y - 130 - 54 }); }); });
 
   /* 45 ── WATERMARK (เครื่องหมายจาง): a big faint "?" fills a frame behind the things in doubt; on H it lights (or the answer takes the front) */
   variant('watermark', 'เครื่องหมายจางหลัง', (d, c) => { art(c, p => { const Fd = QD(d), T_ = QT(d), L = QI(d).filter(([r]) => r !== 'n');
@@ -1098,7 +1098,7 @@
   variant('cascade', 'บันไดคำถาม', (d, c) => { art(c, p => { const Fd = QD(d), T_ = QT(d), L = QI(d).filter(([r]) => r !== 'n'), n = L.length + 1, P = Array.from({ length: n }, (_, j) => [f1(n > 1 ? lerp(-330, 330, j / (n - 1)) : 0), f1(n > 1 ? lerp(-210, 200, j / (n - 1)) : 0)]);
     P.slice(0, -1).forEach(([x, y], j) => drawAt(p.path(`M ${x + 100} ${y} L ${P[j + 1][0]} ${y} L ${P[j + 1][0]} ${P[j + 1][1] - 100}`, { sw: 4, stroke: TL_(.4) }), p, f3(T_.tQ - tu(.3) + tu(.1 * j)), tu(.2)));
     L.forEach(([r, i], j) => { const [x, y] = P[j]; qthing(p, c, d, r, i, x, y, 180, { kind: 'drop' }); qword(p, d, r, i, x, f1(y - 90 - 30), { size: 42, maxW: 260 }); });
-    const E = P[n - 1]; if (Fd.hasN) qans(p, c, d, ...E, 190, { wx: E[0] - 112, wy: E[1] + 16, wo: { pill: false, anchor: 'end', size: 44 } }); else qmark(p, d, ...E, 86); }); });
+    const E = P[n - 1]; qmark(p, d, ...E, 86); if (Fd.hasN) qans(p, c, d, ...E, 190, { wx: E[0] - 112, wy: E[1] + 16, wo: { pill: false, anchor: 'end', size: 44 } }); }); });
 
   /* 47 ── ORBIT (โคจรรอบคำถาม): the things in doubt circle the "?" in the middle once and settle round it */
   variant('qorbit', 'โคจรรอบคำถาม', (d, c) => { art(c, p => { const Fd = QD(d), T_ = QT(d), L = QI(d).filter(([r]) => r !== 'n'), k = L.length, RO = 270, CY = 20, A0 = k === 1 ? [180] : k === 2 ? [180, 0] : [180, 0, -90];
@@ -1106,7 +1106,7 @@
     L.forEach(([r, i], j) => { const af = A0[j], fin = [f1(RO * Math.cos(rad(af))), f1(CY + RO * .8 * Math.sin(rad(af)))], pts = Array.from({ length: 19 }, (_, q) => { const a = rad(af - 360 + q * 20); return [f1(RO * Math.cos(a)), f1(CY + RO * .8 * Math.sin(a))]; });
       const t = r === 'a' ? T_.tA : T_.tO(i), PK = pathK(pts, t, f3(Math.max(t + tu(.6), T_.tD1)), fin, 30), K = { px: fin[0], py: fin[1], x: PK.x, y: PK.y, o: fadeIn(t, .05) };
       qthing(p, c, d, r, i, ...fin, 180, { shape: 'circ', g: mvG(p, K), K, mv: K, t }); qword(p, d, r, i, fin[0], fin[1] < 0 ? f1(fin[1] - 90 - 18) : f1(fin[1] + 90 + 48), { size: 42, maxW: 260, t: f3(Math.max(t + tu(.6), T_.tD1)) }); });
-    if (Fd.hasN) qans(p, c, d, 0, CY, 200, { wy: CY + 150 }); else qmark(p, d, 0, CY, 96); }); });
+    qmark(p, d, 0, CY, 96); if (Fd.hasN) qans(p, c, d, 0, CY, 200, { wy: CY + 150 }); }); });
 
   /* 48 ── TOP / BOTTOM (บน-ล่าง): what is in doubt across the top half; a seam; the "?" (or the answer) alone in the bottom half */
   variant('updownq', 'บนถาม-ล่างตอบ', (d, c) => { art(c, p => { gdesign(p, c, d, { motif: (p, T_) => drawAt(p.line(-460, 60, 460, 60, { sw: 2.6, stroke: TL_(.4) }), p, tu(.04), tu(.3)),
@@ -1120,7 +1120,7 @@
     const ti = Fd.ai >= 0 ? L.findIndex(([r, i]) => r === 'o' && i === Fd.ai) : -1, aF = ti >= 0 ? f1(-Math.atan2(P[ti][0], LN) * 180 / Math.PI) : 0, q = k => f3(lerp(T_.tD0, T_.tD1, k));
     const pg = mvG(p, { px: PV[0], py: PV[1], r: [[0, 0], [T_.tQ, 0], [q(.15), 32, 'io'], [q(.4), -30, 'io'], [q(.65), 24, 'io'], [q(.9), -14, 'io'], [q(1), 0, 'io'], [f3(T_.H + tu(.3)), aF, 'out']], o: fadeIn(f3(T_.tQ - tu(.1)), .06) });
     pg.line(PV[0], PV[1], PV[0], PV[1] + LN - 60, { sw: 5, stroke: TL_(.7) }); p.circle(...PV, 12, F(3));
-    if (Fd.hasN) qans(p, c, d, 0, -110, 170, { g: undefined, wx: 110, wy: -94, wo: { pill: false, anchor: 'start', size: 44 } }); else qmark(p, d, PV[0], PV[1] + LN, 60, { g: pg }); }); });
+    qmark(p, d, PV[0], PV[1] + LN, 60, { g: pg }); if (Fd.hasN) qans(p, c, d, 0, -110, 170, { g: undefined, wx: 110, wy: -94, wo: { pill: false, anchor: 'start', size: 44 } }); }); });
 
   /* 50 ── CORNERS (สี่มุมรอบคำถาม): the "?" in the middle, the things in doubt in the corners, thin lines join them to it */
   variant('corners', 'สี่มุมรอบคำถาม', (d, c) => { art(c, p => { const CC = [[-330, -190], [330, -190], [-330, 190], [330, 190]]; gdesign(p, c, d, { motif: (p, T_, Fd, L) => L.forEach((_, j) => drawAt(p.line(CC[j][0] * .62, CC[j][1] * .62, CC[j][0] * .3, CC[j][1] * .3, { sw: 4, stroke: TL_(.4) }), p, T_.tQ, tu(.2))),
