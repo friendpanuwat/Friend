@@ -351,11 +351,10 @@
       if (T) { const tc = popAt(p, -370, 180, tN(Q)); shape(tc, [[-460, 220], [-280, 220], [-300, 130], [-440, 130]], F(3.6)); txt(tc, T, -370, 188, { size: 26, maxW: 140, weight: 700, color: C.ink }); }
     }); });
 
-  /* 12 ── CUTTING THE RIBBON: the sign pops, the posts rise, the ribbon draws across with its bow; the person rises behind; the scissors come
+  /* 12 ── CUTTING THE RIBBON (no person — user 2026-11-14 "12 ลบคนออก"): the sign pops, the posts rise, the ribbon draws across with its bow; the scissors come
      in and snip — the middle piece drops away and the cut ends hang; the event lands */
   variant('ribbon', 'คนกำลังตัดริบบิ้น', (d, c) => { const X = WH(d), Wh = WO(d), T = WN(d), Q = TL(), tC = f3(Q.H - tu(.3));
     art(c, p => { floorD(p); R(inG(p, 'pop', 0, -240, tu(.04)), -340, -320, 680, 160, 18, F(4.6)); whatH(p, c, X, -240, -240, 90, -170, { cx: 0, size: 46, maxW: 420, bigW: 600 }); whenT(p, T, 0, -120, 260, { t: tN(Q) });
-      front(inG(p, 'rise', 210, 160, tu(.3)), 210, 290, .86);
       [-420, 420].forEach((x, i) => { const g = inG(p, 'rise', x, 150, tu(.08 + .05 * i)); R(g, x - 12, 20, 24, 270, 6, F(3)); g.circle(x, 14, 16, F(3)); ell(g, x, 284, 60, 10, F(2.6)); });
       const rb = (q, dd) => { q.path(dd, { sw: 26 }); q.path(dd, { sw: 18, stroke: C.fill }); };
       const rl = sub(p); drawAt(rl.path('M -408 50 Q -250 76 -40 56', { sw: 26 }), p, tu(.4), tu(.25)); drawAt(rl.path('M -408 50 Q -250 76 -40 56', { sw: 18, stroke: C.fill }), p, tu(.4), tu(.25));
