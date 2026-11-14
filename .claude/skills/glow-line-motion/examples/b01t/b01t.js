@@ -7,7 +7,7 @@
   const G = window.GL, C = G.C, NS = 'http://www.w3.org/2000/svg';
   const W = (w = 2) => ({ sw: w }), F = (w = 3.2) => ({ fill: C.fill, sw: w }), S = (w = 2) => ({ sw: w, stroke: C.soft });
   const rad = d => d * Math.PI / 180, f1 = v => +v.toFixed(1);
-  const GLASS = 'rgba(255,255,255,.07)', LIT = 'rgba(255,255,255,.2)', SOLID = (w = 2) => ({ fill: C.ink, sw: w });
+  let GLASS = 'rgba(255,255,255,.07)', LIT = 'rgba(255,255,255,.2)'; const SOLID = (w = 2) => ({ fill: C.ink, sw: w });
 
   /* TIMING (same system as b01–b11): the keyword c.hit never moves; M = 1/speed but at most hit / HIT0; tu / bH / aH; kf() keeps keys in order */
   const HIT0 = 1.5; let Z = null; const CLAMPS = {}; let CUR = '';
@@ -360,7 +360,7 @@
 
 
   /* ---------- placeholders (what an empty slot looks like) ---------- */
-  const PH = { fill: 'rgba(255,255,255,.05)', sw: 2, stroke: C.soft };
+  let PH = { fill: 'rgba(255,255,255,.05)', sw: 2, stroke: C.soft };
   const phC = (q, x, y, r) => { q.circle(x, y, r, PH); q.line(x - r * .3, y, x + r * .3, y, S(2.4)); q.line(x, y - r * .3, x, y + r * .3, S(2.4)); };
   const phBar = (q, x, y, w, h = 26, anchor = 'middle') => { const x0 = anchor === 'start' ? x : x - w / 2; R(q, x0, y - h / 2, w, h, h / 2, PH); };
   let EMPTY = false; /* placeholders only when the template is shown empty (d.empty) — a real line with a slot left out just leaves it out */
@@ -457,7 +457,7 @@
     let size = o.size || 160; const w0 = tw(q, v, size); if (o.maxW && w0 > o.maxW) size *= o.maxW / w0; const w = Math.min(w0, o.maxW || 1e9);
     const cx = anchor === 'start' ? x + w / 2 : anchor === 'end' ? x - w / 2 : x, cy = y - size * .36;
     const g = o.still ? o.g || q : popAt(mvG(o.g || q, { px: cx, py: cy, s: bumpK(t1, o.punch ?? 1.12) }), cx, cy, t0);
-    const e = g.text(v, x, y, { size: f1(size), weight: 800, anchor, color: o.color || C.ink, dur: .01 });
+    const e = g.text(v, x, y, { size: f1(size), weight: 800, anchor, color: o.color || ACC1, dur: .01 });
     HOOKS.push(t => { const u = rel(p, t); e.textContent = u >= t1 ? v : fmtVal(v, eOut(clamp01((u - t0) / Math.max(.01, t1 - t0)))); });
     return { w, size, cx, cy, x0: cx - w / 2, x1: cx + w / 2, e }; }
   /* number + unit on one baseline (unit smaller, soft, comes in just after H), shrunk together to maxW */
@@ -486,7 +486,23 @@
   const fillK = (t0, t1) => [[0, 0], [t0, 0], [t1, 1, 'io']];
   const ridK = (deg, t0, t1) => [[0, -deg], [t0, -deg], [t1, 0, 'io']];
   const litOn = (q, t) => { const g = sub(q); on(g, q, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] }); return g; };
-  const FILL = { fill: LIT, sw: 0, stroke: 'none' }, SOFTT = { sw: 14, stroke: 'rgba(255,255,255,.16)' };
+  let FILL = { fill: LIT, sw: 0, stroke: 'none' }, SOFTT = { sw: 14, stroke: 'rgba(255,255,255,.16)' };
+
+  /* ---------- colour theme (user 2026-11-14: "ทำให้มันเปลี่ยนสีได้"): every colour comes from GL.C (line = ink, card fill, soft lines) plus one
+     accent for what lights up (the number, filled amounts, lit dots / segments / ticks, the underline). Tints are made from those, never a fixed
+     white. GL.cats.B01T.theme({ bg, line, fill, soft, accent }) once after GL.stage() (bg = one colour or [centre, edge]); theme() = back to the
+     default white look. Missing keys keep the default. Lines glow, so a dark background reads best. ---------- */
+  const DEF = Object.assign({}, C), BG0 = ['#121212', '#020202'];
+  const hexRgb = h => { h = String(h).trim().replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); const n = parseInt(h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const rgba = (h, a) => /^#[0-9a-f]{3,6}$/i.test(String(h).trim()) ? `rgba(${hexRgb(h).join(',')},${a})` : h;
+  let ACC1 = C.ink, THEME = null;
+  const TL_ = a => rgba(C.ink, a), TA = a => rgba(ACC1, a);
+  function tokens() { ACC1 = THEME && THEME.accent || C.ink; LIT = TA(.22); GLASS = TL_(.07); PH = { fill: TL_(.05), sw: 2, stroke: C.soft };
+    FILL = { fill: TA(.24), sw: 0, stroke: 'none' }; SOFTT = { sw: 14, stroke: TL_(.16) }; }
+  function theme(t) { THEME = t && Object.keys(t).length ? Object.assign({}, t) : null; const T = THEME || {};
+    Object.assign(C, DEF, T.line ? { ink: T.line, kicker: T.line } : {}, T.fill ? { fill: T.fill } : {}, T.soft ? { soft: T.soft, sub: T.soft, mute: rgba(T.soft, .72) } : {});
+    const bg = T.bg ? [].concat(T.bg) : BG0, st = document.querySelectorAll('#glbg stop'); if (st.length >= 2) { st[0].setAttribute('stop-color', bg[0]); st[1].setAttribute('stop-color', bg[1] || bg[0]); }
+    tokens(); return THEME; }
 
   /* 01 ── ICON + NUMBER (ไอคอนข้างตัวเลข): the icon box drops in and kicks dust; the number pops beside it and counts, locks on H; the unit
      slides in after it, a dir badge on its shoulder. No icon → the number in the middle. */
@@ -500,9 +516,9 @@
      end; the number counts in the middle and locks on H; the icon box flies in on an arc to the ring's shoulder; unit pill under. */
   variant('ring', 'วงแหวน', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), cx = 0, cy = -30, r = 200, t0 = tu(.3), t1 = f3(H - tu(.04));
     art(c, p => { drawAt(p.circle(cx, cy, r, SOFTT), p, tu(.04), tu(.3));
-      const N = 36; for (let k = 0; k < N; k++) { const a = -90 + k * 360 / N; tick(atG(p, tu(.1 + .006 * k)), cx, cy, a, r + 26, r + 44, S(1.6)); if (k / N < fr - 1e-6) tick(litOn(p, f3(t0 + (t1 - t0) * k / N / Math.max(fr, .01))), cx, cy, a, r + 24, r + 48, W(3.4)); }
-      if (fr > 0) { const arc = p.path(arcD(cx, cy, r, fr), { sw: 14 }); on(arc, p, 0, { draw: fillK(t0, t1) });
-        const rd = mvG(p, { px: cx, py: cy, r: ridK(360 * fr, t0, t1), o: fadeIn(t0, .04) }), a = rad(-90 + 360 * fr); rd.circle(f1(cx + r * Math.cos(a)), f1(cy + r * Math.sin(a)), 16, SOLID(2)); }
+      const N = 36; for (let k = 0; k < N; k++) { const a = -90 + k * 360 / N; tick(atG(p, tu(.1 + .006 * k)), cx, cy, a, r + 26, r + 44, S(1.6)); if (k / N < fr - 1e-6) tick(litOn(p, f3(t0 + (t1 - t0) * k / N / Math.max(fr, .01))), cx, cy, a, r + 24, r + 48, { sw: 3.4, stroke: ACC1 }); }
+      if (fr > 0) { const arc = p.path(arcD(cx, cy, r, fr), { sw: 14, stroke: ACC1 }); on(arc, p, 0, { draw: fillK(t0, t1) });
+        const rd = mvG(p, { px: cx, py: cy, r: ridK(360 * fr, t0, t1), o: fadeIn(t0, .04) }), a = rad(-90 + 360 * fr); rd.circle(f1(cx + r * Math.cos(a)), f1(cy + r * Math.sin(a)), 16, { fill: ACC1, sw: 2, stroke: ACC1 }); }
       const n = num(p, p, v, cx, cy + 46, { size: 130, maxW: 300, t0: tu(.3) }); if (n) ripple(p, cx, cy, r - 30, H);
       if (ic) { const L = [[-420, -300], [-60, -380], [200, -200]], K = pathK(L, tu(.14), tu(.44), [200, -200]), mv = { px: 200, py: -200, x: K.x, y: K.y }, g = mvG(p, Object.assign({ o: fadeIn(tu(.14), .04) }, mv));
         ibox(p, c, { icon: ic }, 200, -200, 110, tu(.14), { g, mv, punch: tu(.44) }); }
@@ -524,7 +540,7 @@
      H; the number and unit under the pivot; the icon box drops into the corner. */
   variant('gauge', 'หน้าปัด', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, ps = posV(d), cx = 0, cy = 120, r = 290, t0 = tu(.36), t1 = f3(H - tu(.04)), N = 12;
     art(c, p => { for (let k = 0; k < N; k++) { const a0 = 180 + k * 180 / N + 1.6, a1 = 180 + (k + 1) * 180 / N - 1.6, P = a => f1(cx + r * Math.cos(rad(a))) + ' ' + f1(cy + r * Math.sin(rad(a))), dd = `M ${P(a0)} A ${r} ${r} 0 0 1 ${P(a1)}`;
-        drawAt(p.path(dd, { sw: 22, stroke: 'rgba(255,255,255,.16)' }), p, tu(.06 + .02 * k), tu(.1)); if ((k + .5) / N <= ps + 1e-6) on(p.path(dd, { sw: 22 }), p, 0, { o: [[0, 0], [f3(t0 + (t1 - t0) * (k + .5) / N / Math.max(ps, .01)), 0], [f3(t0 + (t1 - t0) * (k + .5) / N / Math.max(ps, .01) + tu(.04)), 1]] }); }
+        drawAt(p.path(dd, { sw: 22, stroke: TL_(.16) }), p, tu(.06 + .02 * k), tu(.1)); if ((k + .5) / N <= ps + 1e-6) on(p.path(dd, { sw: 22, stroke: ACC1 }), p, 0, { o: [[0, 0], [f3(t0 + (t1 - t0) * (k + .5) / N / Math.max(ps, .01)), 0], [f3(t0 + (t1 - t0) * (k + .5) / N / Math.max(ps, .01) + tu(.04)), 1]] }); }
       const an = 180 + 180 * ps, nd = mvG(p, { px: cx, py: cy, r: [[0, -180 * ps], [t0, -180 * ps], [t1, 6, 'out'], [f3(t1 + tu(.1)), -2, 'io'], [f3(t1 + tu(.18)), 0, 'soft']], o: fadeIn(tu(.3), .04) });
       nd.line(cx, cy, f1(cx + (r - 70) * Math.cos(rad(an))), f1(cy + (r - 70) * Math.sin(rad(an))), W(6)); popAt(p, cx, cy, tu(.3)).circle(cx, cy, 22, SOLID(2));
       const n = numRow(p, p, v, u, cx, 310, { size: 140, maxW: 720, t0: tu(.32) }); if (n) ripple(p, cx, cy, 40, H);
@@ -556,7 +572,7 @@
      a spark leaves its top and flies along an arc to the number, which locks on H; the icon box drops into the top-left. */
   variant('columns', 'กราฟแท่ง', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, dr = DIRV(d), hs = dr === 'up' ? [.3, .45, .55, .75, 1] : dr === 'down' ? [1, .78, .6, .45, .28] : [.55, .8, .45, .7, 1], by = 290;
     art(c, p => { drawAt(p.line(-440, by, 140, by, S(2)), p, tu(.04), tu(.3));
-      hs.forEach((h, k) => { const x = -420 + k * 110, hh = 250 * h, t = tu(.12 + .08 * k), last = k === 4; R(mvG(p, upK(x + 38, by, t)), x, by - hh, 76, hh, 16, last ? { fill: LIT, sw: 4 } : F(3.2)); if (last) dust(p, x + 38, by, f3(t + tu(.3)), .7); });
+      hs.forEach((h, k) => { const x = -420 + k * 110, hh = 250 * h, t = tu(.12 + .08 * k), last = k === 4; R(mvG(p, upK(x + 38, by, t)), x, by - hh, 76, hh, 16, last ? { fill: LIT, sw: 4, stroke: ACC1 } : F(3.2)); if (last) dust(p, x + 38, by, f3(t + tu(.3)), .7); });
       const tx = -420 + 4 * 110 + 38, ty = by - 250 * hs[4] - 10, n = numRow(p, p, v, u, 450, -150, { size: 150, maxW: 560, anchor: 'end', t0: tu(.5) });
       if (n) { const L = [[tx, ty], [(tx + n.cx) / 2, Math.min(ty, n.cy) - 140], [n.cx, n.cy]], K = pathK(L, f3(H - tu(.4)), f3(H - tu(.02)), [n.cx, n.cy]);
         mvG(p, { x: K.x, y: K.y, o: [[0, 0], [f3(H - tu(.4)), 0], [f3(H - tu(.36)), 1], [f3(H - tu(.02)), 1], [H, 0]] }).circle(n.cx, n.cy, 12, SOLID(2)); ripple(p, n.cx, n.cy, 110, H); }
@@ -567,7 +583,7 @@
      one lands on H with a ripple; the number counts above; the icon box drops into the right. */
   variant('dots', 'จุดเต็มแถว', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), NX = 12, NY = 3, NT = NX * NY, lit = Math.round(fr * NT), t0 = tu(.36), t1 = f3(H - tu(.04));
     art(c, p => { for (let i = 0; i < NX; i++) for (let j = 0; j < NY; j++) { const k = i * NY + j, x = -341 + i * 62, y = 140 + j * 64; on(p.circle(x, y, 16, S(1.8)), p, 0, { o: fadeIn(tu(.06 + .012 * k), .06) });
-        if (k < lit) { const t = f3(t0 + (t1 - t0) * (lit > 1 ? k / (lit - 1) : 1)); popAt(p, x, y, t).circle(x, y, 16, SOLID(1)); if (k === lit - 1) ripple(p, x, y, 26, t); } }
+        if (k < lit) { const t = f3(t0 + (t1 - t0) * (lit > 1 ? k / (lit - 1) : 1)); popAt(p, x, y, t).circle(x, y, 16, { fill: ACC1, sw: 1, stroke: ACC1 }); if (k === lit - 1) ripple(p, x, y, 26, t); } }
       const n = numRow(p, p, v, u, -380, -10, { size: 170, maxW: ic ? 600 : 780, anchor: 'start', t0: tu(.3) });
       dropBox(p, c, ic, 360, -150, 150, tu(.04), tu(.28)); if (n && !ic) dirB(p, DIRV(d), 400, -150, f3(H + tu(.1)));
     }); });
@@ -590,10 +606,10 @@
       const digits = ch.filter(s => /\d/.test(s)).length, t0 = tu(.3), lk = i => f3(digits > 1 ? lerp(H - tu(.5), H, i / (digits - 1)) : H);
       ch.forEach(s => { const w = wOf(s) * k, cx = x + w / 2;
         if (/\d/.test(s)) { const i = nd++, t = f3(tu(.06 + .05 * i)), K = fallK(cx, y0 + 85 * k, t, f3(t + tu(.18)), 260), g0 = mvG(CL(p), K), g = i === digits - 1 ? mvG(g0, { px: cx, py: y0, s: bumpK(H, 1.12) }) : g0; R(g, x, y0 - 85 * k, w, 170 * k, 22 * k, F(3.6)); g.line(x + 10 * k, y0, x + w - 10 * k, y0, S(1.2));
-          const e = g.text(s, cx, f1(y0 + 46 * k), { size: f1(130 * k), weight: 800, color: C.ink, dur: .01 }), tg = +s, l = lk(i);
+          const e = g.text(s, cx, f1(y0 + 46 * k), { size: f1(130 * k), weight: 800, color: ACC1, dur: .01 }), tg = +s, l = lk(i);
           HOOKS.push(tt => { const uu = rel(p, tt); e.textContent = uu < t0 || uu >= l ? s : String((tg + 1 + Math.floor((uu - t0) / tu(.05))) % 10); });
           if (i === digits - 1) ripple(p, cx, y0, 100 * k, H); }
-        else txt(atG(p, tu(.3)), s, cx, f1(y0 + 50 * k), { size: 120 * k, weight: 800, color: C.ink });
+        else txt(atG(p, tu(.3)), s, cx, f1(y0 + 50 * k), { size: 120 * k, weight: 800, color: ACC1 });
         x += w + 12 * k; });
       spinBox(p, c, ic, 0, -230, 110, tu(.22)); pill(p, u, 0, f1(y0 + 85 * k + 80), { t: f3(H + tu(.06)), size: 34, maxW: 520 });
     }); });
@@ -610,7 +626,7 @@
      corner like a sticker (tilted, squash), the dir badge on the upper right. */
   variant('underline', 'เส้นเน้น', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H;
     art(c, p => { const n = numRow(p, p, v, u, 0, 90, { size: 230, maxW: 860, t0: tu(.2) }); if (!n) return;
-      on(p.path(`M ${f1(n.x0)} 140 L ${f1(n.x1)} 140`, { sw: 12, stroke: C.ink }), p, 0, { draw: [[0, 0], [f3(H - tu(.16)), 0], [H, 1, 'out']] }); ripple(p, n.cx, n.cy, 160, H);
+      on(p.path(`M ${f1(n.x0)} 140 L ${f1(n.x1)} 140`, { sw: 12, stroke: ACC1 }), p, 0, { draw: [[0, 0], [f3(H - tu(.16)), 0], [H, 1, 'out']] }); ripple(p, n.cx, n.cy, 160, H);
       if (ic) { const x = Math.max(-420, n.x0 + 10), y = -170, K = Object.assign(fallK(x, y + 60, tu(.36), tu(.56), y + 60 + 350), { r: [[0, -30], [tu(.36), -30], [tu(.56), -8, 'out']] }), g = mvG(CL(p), K);
         ibox(p, c, { icon: ic }, x, y, 120, tu(.36), { g, mv: K, punch: tu(.58) }); }
       dirB(p, DIRV(d), Math.min(440, n.x1), -170, f3(H + tu(.1)));
@@ -627,12 +643,12 @@
       pill(p, u, bx0 + bw / 2, 180, { t: f3(H + tu(.06)), size: 34, maxW: bw + 40 });
     }); });
 
-  /* 14 ── WORD BUBBLE (ฟองคำ): the icon circle pops and pulses (sound arcs); a bubble inflates out of its tail with the number counting inside,
+  /* 14 ── WORD BUBBLE (ฟองคำ): the icon circle pops and pulses ; a bubble inflates out of its tail with the number counting inside,
      locking on H; the unit inline. No icon → the bubble alone, centred. */
   variant('bubble', 'ฟองคำ', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, x0 = ic ? -300 : -420, x1 = ic ? 450 : 420, cx = (x0 + x1) / 2;
-    art(c, p => { if (ic) { const g = popAt(p, -360, 220, tu(.06)); g.circle(-360, 220, 74, F(3.4)); put(p, c, { icon: ic }, -360, 220, 90, null, { t: tu(.08), punch: tu(.26) }); arcsAt(p, -290, 160, 1, 2, 24, 18, 36, tu(.2), W(2.4), .08); }
+    art(c, p => { if (ic) { const g = popAt(p, -360, 220, tu(.06)); g.circle(-360, 220, 74, F(3.4)); put(p, c, { icon: ic }, -360, 220, 90, null, { t: tu(.08), punch: tu(.26) }); }
       const bt = { px: x0 + 110, py: 110, s: [[0, .1], [tu(.3), .1], [tu(.52), 1.05, 'out'], [tu(.62), 1, 'soft']], o: fadeIn(tu(.3), .04) }, b = mvG(p, bt);
-      b.path(`M ${x0 + 80} 50 L ${x0 + 40} 160 L ${x0 + 170} 50 Z`, F(4)); R(b, x0, -190, x1 - x0, 280, 70, F(4));
+      b.path(`M ${x0 + 70} 40 L ${x0 + 24} 150 L ${x0 + 180} 40 Z`, F(4)); R(b, x0, -190, x1 - x0, 280, 70, F(4));
       const n = numRow(p, b, v, u, cx, -2, { size: 150, maxW: x1 - x0 - 100, t0: tu(.42), g: b }); if (n) ripple(p, n.cx, -50, 120, H);
     }); });
 
@@ -640,10 +656,10 @@
      down; a dot rides the line and reaches the end on H — a ring and a ripple; the number counts top-left; the icon box drops top-right. */
   variant('trend', 'เส้นแนวโน้ม', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, dr = DIRV(d), t0 = tu(.3), t1 = f3(H - tu(.04));
     const ys = dr === 'down' ? [-10, 30, 10, 110, 150, 230] : dr === 'up' ? [240, 190, 210, 110, 60, -20] : [200, 120, 160, 70, 110, 10], L = ys.map((y, k) => [-420 + k * 160, y]), E = L[5];
-    art(c, p => { [-40, 80, 200].forEach((y, k) => drawAt(p.line(-440, y, 440, y, { sw: 1.4, stroke: 'rgba(255,255,255,.18)' }), p, tu(.04 + .04 * k), tu(.3))); drawAt(p.line(-440, 290, 440, 290, S(2)), p, tu(.04), tu(.3));
+    art(c, p => { [-40, 80, 200].forEach((y, k) => drawAt(p.line(-440, y, 440, y, { sw: 1.4, stroke: TL_(.18) }), p, tu(.04 + .04 * k), tu(.3))); drawAt(p.line(-440, 290, 440, 290, S(2)), p, tu(.04), tu(.3));
       const K = pathK(L, t0, t1, E, 40, u2 => u2); on(p.path(pathOf(L, false), W(4.4)), p, 0, { draw: [[0, 0], [t0, 0], [t1, 1, 'lin']] });
       L.slice(0, 5).forEach(pt => { const t = K.when(pt); popAt(p, pt[0], pt[1], t).circle(pt[0], pt[1], 11, F(3)); });
-      mvG(p, { x: K.x, y: K.y, o: fadeIn(t0, .04) }).circle(E[0], E[1], 14, SOLID(2)); const eg = popAt(p, E[0], E[1], H); eg.circle(E[0], E[1], 30, W(4)); ripple(p, E[0], E[1], 44, H);
+      mvG(p, { x: K.x, y: K.y, o: fadeIn(t0, .04) }).circle(E[0], E[1], 14, SOLID(2)); const eg = popAt(p, E[0], E[1], H); eg.circle(E[0], E[1], 30, { sw: 4, stroke: ACC1 }); ripple(p, E[0], E[1], 44, H);
       const n = numRow(p, p, v, u, -420, -170, { size: 150, maxW: ic ? 620 : 860, anchor: 'start', t0: tu(.3) }); dropBox(p, c, ic, 380, -230, 130, tu(.04), tu(.26));
     }); });
 
@@ -651,7 +667,7 @@
      above; the icon box drops into the right. */
   variant('segments', 'แถบแบ่งช่อง', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), lit = Math.round(fr * 10), t0 = tu(.36), t1 = f3(H - tu(.04));
     art(c, p => { for (let k = 0; k < 10; k++) { const x = -380 + k * 77, t = tu(.06 + .03 * k); R(inG(p, 'rise', x + 32, 220, t), x, 160, 64, 120, 16, F(3));
-        if (k < lit) { const tl = f3(t0 + (t1 - t0) * (lit > 1 ? k / (lit - 1) : 1)), g = mvG(p, { px: x + 32, py: 220, s: bumpK(tl, 1.12), o: fadeIn(tl, .03) }); R(g, x + 8, 168, 48, 104, 10, { fill: 'rgba(255,255,255,.5)', sw: 0, stroke: 'none' }); if (k === lit - 1) ripple(p, x + 32, 220, 70, tl); } }
+        if (k < lit) { const tl = f3(t0 + (t1 - t0) * (lit > 1 ? k / (lit - 1) : 1)), g = mvG(p, { px: x + 32, py: 220, s: bumpK(tl, 1.12), o: fadeIn(tl, .03) }); R(g, x + 8, 168, 48, 104, 10, { fill: TA(.5), sw: 0, stroke: 'none' }); if (k === lit - 1) ripple(p, x + 32, 220, 70, tl); } }
       numRow(p, p, v, u, -380, 60, { size: 170, maxW: ic ? 600 : 760, anchor: 'start', t0: tu(.3) }); dropBox(p, c, ic, 340, -120, 160, tu(.04), tu(.28));
     }); });
 
@@ -661,7 +677,7 @@
     art(c, p => { [-210, 210].forEach((y, k) => { const g = mvG(p, { x: glide(k ? 160 : -160, tu(.06 + .12 * k), tu(.32 + .12 * k), k ? -6 : 6), o: fadeIn(tu(.06 + .12 * k), .06) });
         R(g, -400, y - 56, 800, 112, 30, S(2.4)); g.circle(-340, y, 20, S(2)); R(g, -290, y - 13, 360, 26, 13, PH); R(g, 110, y - 13, 160, 26, 13, PH); });
       const gx = glide(-200, tu(.12), tu(.38), 8), g = mvG(p, { x: gx, o: fadeIn(tu(.12), .06) }), gs = mvG(g, { px: 0, py: 0, s: bumpK(H, 1.05) });
-      R(gs, -440, -90, 880, 180, 40, F(4.4)); R(litOn(gs, H), -440, -90, 880, 180, 40, { fill: 'rgba(255,255,255,.1)', sw: 0, stroke: 'none' });
+      R(gs, -440, -90, 880, 180, 40, F(4.4)); R(litOn(gs, H), -440, -90, 880, 180, 40, { fill: TA(.12), sw: 0, stroke: 'none' });
       if (ic) ibox(p, c, { icon: ic }, -350, 0, 120, tu(.38), { g: popAt(gs, -350, 0, tu(.38)), mv: { px: -350, py: 0, x: gx }, punch: H });
       numRow(p, gs, v, u, ic ? -260 : -390, 44, { size: 120, maxW: ic ? 660 : 790, anchor: 'start', t0: tu(.4), g: gs });
     }); });
@@ -691,8 +707,8 @@
   /* 20 ── DONUT (โดนัท): the donut track draws, a wide arc fills to the amount with a bright edge riding its end; the icon sits in the hole (it pops,
      then punches on H); the number counts on the right with the unit and locks on H. */
   variant('donut', 'โดนัท', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), cx = ic ? -230 : -250, cy = 0, r = 170, t0 = tu(.3), t1 = f3(H - tu(.04));
-    art(c, p => { drawAt(p.circle(cx, cy, r, { sw: 64, stroke: 'rgba(255,255,255,.12)' }), p, tu(.04), tu(.3)); p.circle(cx, cy, r + 34, S(1.6)); p.circle(cx, cy, r - 34, S(1.6));
-      if (fr > 0) { on(p.path(arcD(cx, cy, r, fr), { sw: 56, stroke: 'rgba(255,255,255,.5)' }), p, 0, { draw: fillK(t0, t1) });
+    art(c, p => { drawAt(p.circle(cx, cy, r, { sw: 64, stroke: TL_(.12) }), p, tu(.04), tu(.3)); p.circle(cx, cy, r + 34, S(1.6)); p.circle(cx, cy, r - 34, S(1.6));
+      if (fr > 0) { on(p.path(arcD(cx, cy, r, fr), { sw: 56, stroke: TA(.55) }), p, 0, { draw: fillK(t0, t1) });
         const a = rad(-90 + 360 * fr), e = mvG(p, { px: cx, py: cy, r: ridK(360 * fr, t0, t1), o: fadeIn(t0, .04) }); e.line(f1(cx + (r - 32) * Math.cos(a)), f1(cy + (r - 32) * Math.sin(a)), f1(cx + (r + 32) * Math.cos(a)), f1(cy + (r + 32) * Math.sin(a)), W(5)); }
       if (ic) { popAt(p, cx, cy, tu(.14)).circle(cx, cy, 90, F(3)); put(p, c, { icon: ic }, cx, cy, 110, null, { t: tu(.16), punch: H }); }
       const n = numRow(p, p, v, u, 20, 50, { size: 150, maxW: 450, anchor: 'start', t0: tu(.3) }); if (n) ripple(p, n.x0 + n.nw / 2, n.cy, 110, H);
@@ -746,5 +762,5 @@
   ];
 
   G.cats = G.cats || {};
-  G.cats.B01T = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; EMPTY = false; BLUE = false; V[i].build(d || {}, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
+  G.cats.B01T = { variants: V, SAMPLES, STRESS, theme, draw: (i, d, c) => { setZ(c); CUR = V[i].id; tokens(); EMPTY = false; BLUE = false; V[i].build(d || {}, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
 })();
