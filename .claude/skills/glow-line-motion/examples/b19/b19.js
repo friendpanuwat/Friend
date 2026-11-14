@@ -250,203 +250,290 @@
   /* a coil spring standing from y0 up to y1 (flat loops) */
   const coil = (q, x, y0, y1, rx = 46, n = 8) => { for (let i = 0; i < n; i++) ell(q, x, f1(lerp(y0, y1, (i + .5) / n)), rx, 9, W(4)); };
   /* a tangled knot (bad) or a smooth ring (otherwise) round (x, y) */
-  function knot(q, x, y, r, tangled) { if (!tangled) { q.circle(x, y, r, W(4)); q.circle(x, y, r - 16, S(1.6)); return; }
+  function knot(q, x, y, r, tangled) { if (!tangled) return [q.circle(x, y, r, W(4)), q.circle(x, y, r - 16, S(1.6))];
     const pts = []; for (let i = 0; i <= 220; i++) { const a = i / 220 * Math.PI * 2 * 2.6 - .4, rr = r + 16 * Math.sin(a * 5.3) + 11 * Math.sin(a * 8.7 + 1) - 6 * Math.cos(a * 3.1); pts.push([x + rr * Math.cos(a), y + rr * Math.sin(a)]); }
-    q.path(pathOf(pts, false), W(3)); }
+    return [q.path(pathOf(pts, false), W(3))]; }
 
-  /* 01 ── THE SIGN ON A SPRING (ใบหน้ามีสีหน้าดีใจ): the base lands, the round sign springs up on its coil and wobbles; the feeling lands on it */
-  variant('spring', 'ป้ายกลมบนสปริง', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
+  /* ---------- motion (user 2026-11-14 "ทำเคลื่อนไหวได้"): every part comes in on its own → the thing / the person does its move
+     (a spring bounces, a cord gives, a lid flies open, arms go up, a head bows, a chair rocks, glass fogs …) → who comes in → the feeling
+     lands on the keyword H (icon pops, its word follows) → hold. T0 = the main move (a long sentence waits, then goes). Last frame = the still. ---------- */
+  /* a shake on x from t0 to t1 */
+  const shakeX = (t0, t1, a = 4, st = .05) => { const K = [[0, 0], [t0, 0]]; let t = t0, sg = 1; while (t + tu(st) < t1) { t += tu(st); K.push([f3(t), sg * a]); sg = -sg; } K.push([f3(t1), 0]); return K; };
+  /* a dying wobble (rotation) from t0 to t1 */
+  const wob = (t0, t1, a = 6, n = 4) => { const K = [[0, 0], [t0, 0]]; for (let i = 1; i <= n; i++) K.push([f3(t0 + (t1 - t0) * i / (n + 1)), f1(a * (i % 2 ? 1 : -1) * (1 - (i - 1) / n)), 'io']); K.push([f3(t1), 0, 'soft']); return K; };
+  /* legs swing while walking (side view, stride pose), from t0 to t1 */
+  const walkLegs = (hm, p, t0, t1) => { [1, -1].forEach(sd => { const K = [[0, 0], [t0, 0]]; let t = t0, g = sd; while (t + tu(.14) < t1) { t += tu(.14); K.push([f3(t), g * 12, 'io']); g = -g; } K.push([f3(t1), 0, 'soft']); hm.on('thigh' + sd, p, 0, { ox: sd * 6, oy: 8, r: K }); }); };
+  const keyAt = (t, d) => f3(t + tu(d));
+
+  /* 01 ── THE SIGN ON A SPRING (ใบหน้ามีสีหน้าดีใจ): the base lands, the sign rises on its coil; it squats and springs up, wobbles; the feeling lands */
+  variant('spring', 'ป้ายกลมบนสปริง', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0;
     art(c, p => { floorD(p); const st = inG(p, 'rise', 0, 270, tu(.04)); ell(st, 0, 280, 130, 14, F(3.4)); R(st, -64, 254, 128, 26, 12, F(3.2));
-      const sp = inG(p, 'rise', 0, 120, tu(.16)); coil(sp, 0, 254, 128); R(sp, -16, 84, 32, 48, 8, F(2.8)); disc(sp, 0, -106, 196);
+      const sq = mvG(inG(p, 'rise', 0, 120, tu(.16)), { px: 0, py: 254, sy: [[0, 1], [f3(T - tu(.22)), 1], [T, .82, 'in'], [keyAt(T, .14), 1.08, 'out'], [keyAt(T, .28), .97, 'io'], [keyAt(T, .4), 1, 'soft']] });
+      const sp = mvG(sq, { px: 0, py: 254, r: wob(keyAt(T, .1), keyAt(T, .9), 7, 4) }); coil(sp, 0, 254, 128); R(sp, -16, 84, 32, 48, 8, F(2.8)); disc(sp, 0, -106, 196);
       feelV(p, c, X, 0, -146, 150, 4, { size: 40, maxW: 270, bigW: 280 }); whoB(p, c, Wh, 196, -262, 46, { t: tWho(Q) });
     }); });
 
-  /* 02 ── MANY FEELINGS ON A RAIL (ใบหน้าหลายอารมณ์): round tiles of feelings sit on a rail; one is lifted out of its slot and shown big */
-  variant('tiles', 'แผงหลายอารมณ์', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
+  /* 02 ── MANY FEELINGS ON A RAIL (ใบหน้าหลายอารมณ์): the rail, the tiles pop on one by one; they light in turn (choosing); the middle one lifts
+     out of its slot and grows into the big plate; the feeling lands on it */
+  variant('tiles', 'แผงหลายอารมณ์', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0;
     art(c, p => { const rl = inG(p, 'pop', 0, 210, tu(.04)); R(rl, -470, 196, 940, 30, 15, F(3.6)); [-440, 440].forEach(x => screw(rl, x, 211, 6));
-      [['laugh', -370], ['smile', -200], ['meh', 200], ['frown', 370]].forEach(([ic, x], i) => { const g = inG(p, 'pop', x, 128, tu(.14 + .05 * i)); g.circle(x, 128, 62, F(3.2)); g.circle(x, 128, 50, S(1.4));
-        put(p, c, { icon: ic }, x, 128, 70, null, { t: tu(.18 + .05 * i), o: [[0, .5]] }); });
-      p.circle(0, 128, 62, S(2.2)); DOT(p, 0, 182, 6);
-      disc(inG(p, 'pop', 0, -150, tu(.4)), 0, -150, 172); feelV(p, c, X, 0, -192, 120, -80, { size: 36, maxW: 230, bigW: 250 });
+      [['laugh', -370], ['smile', -200], ['meh', 200], ['frown', 370]].forEach(([ic, x], i) => { const tb = f3(T - tu(.5) + tu(.08 * i)), sk = bumpK(tb, 1.14), g = mvG(inG(p, 'pop', x, 128, tu(.14 + .05 * i)), { px: x, py: 128, s: sk });
+        g.circle(x, 128, 62, F(3.2)); g.circle(x, 128, 50, S(1.4)); put(p, c, { icon: ic }, x, 128, 70, null, { t: tu(.18 + .05 * i), o: [[0, .5]], mv: { px: x, py: 128, s: sk } }); });
+      drawAt(p.circle(0, 128, 62, S(2.2)), p, tu(.3), tu(.2)); DOT(popAt(p, 0, 182, tu(.34)), 0, 182, 6);
+      disc(mvG(p, { px: 0, py: -150, y: [[0, 278], [T, 278], [keyAt(T, .4), -8, 'out'], [keyAt(T, .52), 0, 'soft']], s: [[0, .36], [T, .36], [keyAt(T, .4), 1.03, 'out'], [keyAt(T, .52), 1, 'soft']], o: fadeIn(tu(.34)) }), 0, -150, 172);
+      feelV(p, c, X, 0, -192, 120, -80, { size: 36, maxW: 230, bigW: 250 });
       whoB(p, c, Wh, 290, -260, 44, { t: tWho(Q) });
     }); });
 
-  /* 03 ── THE HANGING SIGN (ใบหน้ามีสีหน้าเศร้า): the sign drops on its two cords; mood bad → one cord gives, the sign swings down crooked */
-  variant('hang', 'ป้ายแขวนห้อย', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), bad = MO(d) < 0, A = bad ? 18 : 0, px = -160, py = -120;
-    art(c, p => { R(inG(p, 'pop', 0, -334, tu(.04)), -330, -346, 660, 22, 11, F(3.2)); [-160, 160].forEach(x => { p.circle(x, -312, 12, F(2.6)); });
-      p.line(-160, -300, px, py, W(2.6)); const rx = f1(px + 320 * Math.cos(rad(A))), ry = f1(py + 320 * Math.sin(rad(A)));
-      if (bad) { p.path('M 160 -300 Q 168 -262 152 -236', W(2.6)); } else p.line(160, -300, rx, ry, W(2.6));
-      const sg = rot(inG(p, 'drop', 0, 0, tu(.12)), A, px, py); R(sg, -220, -120, 440, 300, 26, F(4.8)); R(sg, -196, -96, 392, 252, 16, S(1.4));
-      [-160, 160].forEach(x => sg.circle(x, -100, 9, F(2.2))); if (bad) sg.path('M 160 -100 Q 150 -126 166 -146', W(2.6));
-      feelV(rot(p, A, px, py), c, X, 0, -6, 130, 116, { size: 40, maxW: 340, bigW: 360, mv: A ? { px, py, r: [[0, A]] } : undefined });
+  /* 03 ── THE HANGING SIGN (ใบหน้ามีสีหน้าเศร้า): the rail pops, the sign drops on its two cords; mood bad → the right cord gives, the sign swings
+     down on the left one and settles crooked; the feeling lands */
+  variant('hang', 'ป้ายแขวนห้อย', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0, bad = MO(d) < 0, A = bad ? 18 : 0, px = -160, py = -120;
+    const rk = [[0, 0], [T, 0], [keyAt(T, .22), A * 1.28, 'in'], [keyAt(T, .42), A * .78, 'io'], [keyAt(T, .58), A * 1.08, 'io'], [keyAt(T, .72), A, 'soft']];
+    art(c, p => { R(inG(p, 'pop', 0, -334, tu(.04)), -330, -346, 660, 22, 11, F(3.2)); [-160, 160].forEach((x, i) => popAt(p, x, -312, tu(.1 + .04 * i)).circle(x, -312, 12, F(2.6)));
+      drawAt(p.line(-160, -300, px, py, W(2.6)), p, tu(.2), tu(.2));
+      if (bad) { drawAt(outG(p, T, .02).line(160, -300, 160, -120, W(2.6)), p, tu(.2), tu(.2)); litG(p, T, .02).path('M 160 -300 Q 168 -262 152 -236', W(2.6)); }
+      else drawAt(p.line(160, -300, 160, -120, W(2.6)), p, tu(.2), tu(.2));
+      const sg = bad ? mvG(inG(CL(p), 'drop', 0, 0, tu(.24)), { px, py, r: rk }) : inG(CL(p), 'drop', 0, 0, tu(.24));
+      R(sg, -220, -120, 440, 300, 26, F(4.8)); R(sg, -196, -96, 392, 252, 16, S(1.4)); [-160, 160].forEach(x => sg.circle(x, -100, 9, F(2.2)));
+      if (bad) litG(sg, T, .02).path('M 160 -100 Q 150 -126 166 -146', W(2.6));
+      feelV(sg, c, X, 0, -6, 130, 116, { size: 40, maxW: 340, bigW: 360, mv: bad ? { px, py, r: rk } : undefined });
       whoB(p, c, Wh, 340, -230, 44, { t: tWho(Q) });
     }); });
 
-  /* 04 ── LOOKING FAR (คนมองออกไปไกล): on the hilltop a person looks out; the feeling rises over the horizon like the sun */
-  variant('horizon', 'คนมองออกไปไกล', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
-    art(c, p => { floorD(p); p.line(-150, 150, 480, 150, S(2)); [[80, 380, 180], [150, 310, 206]].forEach(([a, b, y]) => p.line(a, y, b, y, S(1.6)));
-      disc(inG(p, 'rise', 230, -20, tu(.3)), 230, -20, 156); feelV(p, c, X, 230, -52, 120, 64, { size: 36, maxW: 220, bigW: 240 });
+  /* 04 ── LOOKING FAR (คนมองออกไปไกล): the hill rises, the person comes up onto it, head down; the plate rises from behind the horizon like the sun,
+     the head lifts to it; the water lines draw; the feeling lands */
+  variant('horizon', 'คนมองออกไปไกล', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0;
+    art(c, p => { floorD(p); drawAt(p.line(-150, 150, 480, 150, S(2)), p, tu(.1), tu(.3));
+      disc(mvG(clipG(p, -500, -350, 1000, 500), { y: [[0, 330], [f3(T - tu(.1)), 330], [keyAt(T, .5), -6, 'out'], [keyAt(T, .62), 0, 'soft']] }), 230, -20, 156);
+      [[80, 380, 180], [150, 310, 206]].forEach(([a, b, y], i) => drawAt(p.line(a, y, b, y, S(1.6)), p, keyAt(T, .3 + .08 * i), tu(.25)));
+      feelV(p, c, X, 230, -52, 120, 64, { size: 36, maxW: 220, bigW: 240 });
       inG(p, 'rise', -320, 220, tu(.04)).path('M -480 290 L -480 170 Q -330 110 -180 170 Q -110 200 -70 290 Z', F(3.6));
-      side(inG(p, 'rise', -330, 60, tu(.16)), -330, 140, .85, HANG, { head: [14, -138, 31] });
+      const hm = side(inG(p, 'rise', -330, 60, tu(.16)), -330, 140, .85, HANG, { head: [14, -138, 31] });
+      hm.on('head', p, 0, { ox: 0, oy: -98, r: [[0, 14], [f3(T + tu(.1)), 14], [keyAt(T, .5), 0, 'io']] });
       whoB(p, c, Wh, -170, -120, 40, { t: tWho(Q) });
     }); });
 
-  /* 05 ── ARMS CROSSED (คนกอดอก): a person stands with arms crossed beside the A-frame board; the feeling lands on the board */
-  variant('crossed', 'คนกอดอก', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
-    art(c, p => { floorD(p); const bd = inG(p, 'rise', 200, 40, tu(.04)); R(bd, 70, -276, 260, 26, 12, F(3.2)); shape(bd, [[84, -250], [316, -250], [356, 290], [44, 290]], F(4.8));
-      shape(bd, [[108, -222], [292, -222], [322, 260], [78, 260]], S(1.4)); feelV(p, c, X, 200, -100, 140, 50, { size: 40, maxW: 230, bigW: 250 });
-      const { g } = body(inG(p, 'rise', -230, 160, tu(.2)), -230, 290, 1, { arms: { [-1]: { s: [-36, -82], e: [-56, -32], h: [26, -50] }, 1: { s: [36, -82], e: [56, -32], h: [-26, -42] } } });
+  /* 05 ── ARMS CROSSED (คนกอดอก): the A-frame board drops in folded and opens its legs; the person comes up, arms crossed, and gives a short huff
+     (a bob, the head dips); the feeling lands on the board */
+  variant('crossed', 'คนกอดอก', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0;
+    art(c, p => { floorD(p); const bd = mvG(inG(CL(p), 'drop', 200, -30, tu(.04)), { px: 200, py: -262, sx: [[0, .55], [f3(T - tu(.3)), .55], [T, 1.05, 'out'], [keyAt(T, .12), 1, 'soft']] });
+      R(bd, 70, -276, 260, 26, 12, F(3.2)); shape(bd, [[84, -250], [316, -250], [356, 290], [44, 290]], F(4.8)); shape(bd, [[108, -222], [292, -222], [322, 260], [78, 260]], S(1.4));
+      feelV(p, c, X, 200, -100, 140, 50, { size: 40, maxW: 230, bigW: 250 });
+      const bb = mvG(inG(p, 'rise', -230, 160, tu(.2)), { y: [[0, 0], [keyAt(T, .1), 0], [keyAt(T, .2), -8, 'out'], [keyAt(T, .36), 0, 'soft']] });
+      const { g, hm } = body(bb, -230, 290, 1, { arms: { [-1]: { s: [-36, -82], e: [-56, -32], h: [26, -50] }, 1: { s: [36, -82], e: [56, -32], h: [-26, -42] } } });
       overArm(g, [-56, -32], [30, -52]); overArm(g, [56, -32], [-30, -40]);
+      hm.on('head', p, 0, { y: [[0, 0], [keyAt(T, .14), 0], [keyAt(T, .24), 7, 'out'], [keyAt(T, .44), 0, 'soft']] });
       whoB(p, c, Wh, -80, -150, 40, { t: tWho(Q) });
     }); });
 
-  /* 06 ── TENSE (คนกำมือแน่น → ตัวเกร็ง): a stiff person shakes; beside, the meter fills to the top; the feeling shows in its bulb */
-  variant('tense', 'คนตัวเกร็ง', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
+  /* 06 ── TENSE (คนกำมือแน่น → ตัวเกร็ง): the meter rises, the person comes up; the head sinks into the shoulders, the body shakes, the shake marks
+     flash; the meter fills to the top; the feeling shows in the bulb */
+  variant('tense', 'คนตัวเกร็ง', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0;
     art(c, p => { drawAt(p.line(-480, 290, 60, 290, S(2)), p, 0, tu(.4));
       const mt = inG(p, 'rise', 200, 0, tu(.04)); R(mt, 160, -326, 80, 400, 40, F(4.4)); for (let y = -280; y <= 40; y += 54) mt.line(256, y, 280, y, S(2));
-      mt.circle(200, 160, 104, F(4.4)); mt.circle(200, 160, 88, S(1.4)); R(mt, 182, -300, 36, 370, 18, { fill: 'rgba(255,255,255,.24)', sw: 0, stroke: 'none' });
+      mt.circle(200, 160, 104, F(4.4)); mt.circle(200, 160, 88, S(1.4));
+      R(mvG(p, { px: 200, py: 70, sy: [[0, 0], [T, 0], [f3(Q.H - tu(.12)), 1, 'out']], o: fadeIn(T, .04) }), 182, -300, 36, 370, 18, { fill: 'rgba(255,255,255,.24)', sw: 0, stroke: 'none' });
       feelV(p, c, X, 200, 146, 110, 318, { size: 34, maxW: 300, bigSize: 40, bigW: 180 });
-      body(inG(p, 'rise', -200, 160, tu(.2)), -200, 290, 1, { head: [0, -126, 31], arms: { [-1]: { s: [-36, -84], e: [-46, -22], h: [-42, 40] }, 1: { s: [36, -84], e: [46, -22], h: [42, 40] } } });
-      arcs(p, -200, 40, -1, 2, 96, 18, 24, W(2.6)); arcs(p, -200, 40, 1, 2, 96, 18, 24, W(2.6));
+      const sh = mvG(inG(p, 'rise', -200, 160, tu(.2)), { x: shakeX(keyAt(T, .1), f3(Q.H - tu(.1)), 4) });
+      const { hm } = body(sh, -200, 290, 1, { head: [0, -126, 31], arms: { [-1]: { s: [-36, -84], e: [-46, -22], h: [-42, 40] }, 1: { s: [36, -84], e: [46, -22], h: [42, 40] } } });
+      hm.on('head', p, 0, { y: [[0, -6], [T, -6], [keyAt(T, .16), 0, 'out']] });
+      const ar = flick(p, keyAt(T, .12)); arcs(ar, -200, 40, -1, 2, 96, 18, 24, W(2.6)); arcs(ar, -200, 40, 1, 2, 96, 18, 24, W(2.6));
       whoB(p, c, Wh, -50, -190, 40, { t: tWho(Q) });
     }); });
 
-  /* 07 ── HOLDING UP THE ROUND SIGN (คนยิ้มกว้าง): a person lifts the round sign high over the head; the feeling lands on it */
-  variant('placard', 'คนชูป้ายกลม', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
-    art(c, p => { floorD(p); body(inG(p, 'rise', 0, 160, tu(.04)), 0, 290, .85, { arms: { [-1]: { s: [-36, -82], e: [-82, -150], h: [-70, -234] }, 1: { s: [36, -82], e: [82, -150], h: [70, -234] } } });
-      disc(inG(p, 'rise', 0, -180, tu(.2)), 0, -184, 164); feelV(p, c, X, 0, -216, 130, -92, { size: 36, maxW: 230, bigW: 250 });
+  /* 07 ── HOLDING UP THE ROUND SIGN (คนยิ้มกว้าง): the person comes up, the sign shows at the chest; both arms lift it high over the head; the
+     feeling lands on it */
+  variant('placard', 'คนชูป้ายกลม', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0, t1 = keyAt(T, .4);
+    art(c, p => { floorD(p);
+      const { hm } = body(inG(p, 'rise', 0, 160, tu(.04)), 0, 290, .85, { arms: { [-1]: { s: [-36, -82], e: [-82, -150], h: [-70, -234] }, 1: { s: [36, -82], e: [82, -150], h: [70, -234] } } });
+      [-1, 1].forEach(sd => raise(hm, p, sd, [sd * 36, -82], [sd * 82, -150], sd * 130, sd * 54, T, t1));
+      disc(mvG(p, { px: 0, py: -184, y: [[0, 284], [T, 284], [t1, -6, 'out'], [keyAt(T, .5), 0, 'soft']], s: [[0, .5], [tu(.36), .5], [tu(.5), .7, 'out'], [T, .7], [t1, 1, 'out']], o: fadeIn(tu(.36)) }), 0, -184, 164);
+      feelV(p, c, X, 0, -216, 130, -92, { size: 36, maxW: 230, bigW: 250 });
       whoB(p, c, Wh, 300, -200, 46, { t: tWho(Q) });
     }); });
 
-  /* 08 ── STANDING STILL (คนยืนสงบนิ่ง): a person stands on a stone in still water, the rings settle; the feeling floats on a little raft */
-  variant('calm', 'คนยืนสงบนิ่ง', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
-    art(c, p => { drawAt(p.line(-480, 200, 480, 200, S(2)), p, 0, tu(.4)); [[190, 34, 1.6], [270, 50, 1.2]].forEach(([rx, ry, w]) => ell(p, -200, 214, rx, ry, S(w))); ell(p, 250, 220, 190, 30, S(1.4));
+  /* 08 ── STANDING STILL (คนยืนสงบนิ่ง): the water line draws, the stone pops, the person comes up onto it; rings spread and settle; the raft drifts
+     in, bobs and comes to rest; the feeling lands on it */
+  variant('calm', 'คนยืนสงบนิ่ง', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0;
+    art(c, p => { drawAt(p.line(-480, 200, 480, 200, S(2)), p, 0, tu(.4));
+      const rg = mvG(p, { px: -200, py: 214, s: [[0, .5], [T, .5], [keyAt(T, .7), 1, 'out']], o: [[0, 0], [T, 0], [keyAt(T, .1), 1]] }); [[190, 34, 1.6], [270, 50, 1.2]].forEach(([rx, ry, w]) => ell(rg, -200, 214, rx, ry, S(w)));
+      ell(mvG(p, { px: 250, py: 220, s: [[0, .5], [keyAt(T, .3), .5], [keyAt(T, .9), 1, 'out']], o: [[0, 0], [keyAt(T, .3), 0], [keyAt(T, .4), 1]] }), 250, 220, 190, 30, S(1.4));
       ell(inG(p, 'pop', -200, 206, tu(.04)), -200, 206, 120, 22, F(3.4)); body(inG(p, 'rise', -200, 80, tu(.16)), -200, 200, .8);
-      const rf = inG(p, 'rise', 250, 100, tu(.3)); R(rf, 242, 120, 16, 90, 5, F(2.4)); ell(rf, 250, 210, 124, 18, F(3.4)); disc(rf, 250, -24, 150);
+      const rf = mvG(mvG(CL(p), { x: [[0, 300], [tu(.3), 300], [keyAt(T, .1), 0, 'out']], o: fadeIn(tu(.3)) }), { y: [[0, 0], [keyAt(T, .1), 0], [keyAt(T, .3), 5, 'io'], [keyAt(T, .5), -3, 'io'], [keyAt(T, .7), 2, 'io'], [keyAt(T, .9), 0, 'soft']] });
+      R(rf, 242, 120, 16, 90, 5, F(2.4)); ell(rf, 250, 210, 124, 18, F(3.4)); disc(rf, 250, -24, 150);
       feelV(p, c, X, 250, -56, 110, 60, { size: 34, maxW: 180, bigSize: 40, bigW: 200 });
       whoB(p, c, Wh, -60, -160, 40, { t: tWho(Q) });
     }); });
 
-  /* 09 ── HEAD BOWED ON THE BENCH (คนก้มหน้า): a person sits on the bench, head bowed; the street lamp beside comes on with the feeling */
-  variant('bench', 'คนนั่งก้มหน้า', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
+  /* 09 ── HEAD BOWED ON THE BENCH (คนก้มหน้า): the bench rises, the person sits down on it; the head slowly bows; the street lamp flickers on; the
+     feeling lands in its globe */
+  variant('bench', 'คนนั่งก้มหน้า', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0;
     art(c, p => { floorD(p); const bn = inG(p, 'rise', -230, 220, tu(.04)); R(bn, -400, 30, 22, 150, 8, F(3)); [-376, -90].forEach(x => bn.line(x, 186, x, 288, W(6)));
-      side(inG(p, 'rise', -270, 60, tu(.18)), -280, 138, 1.6, { s: [0, -76], e: [34, -24], h: [80, -4] }, { seat: true, head: [24, -114, 30] });
+      const hm = side(mvG(p, { y: [[0, -60], [tu(.18), -60], [tu(.42), 4, 'in'], [tu(.5), 0, 'soft']], o: fadeIn(tu(.18)) }), -280, 138, 1.6, { s: [0, -76], e: [34, -24], h: [80, -4] }, { seat: true, head: [24, -114, 30] });
+      hm.on('head', p, 0, { ox: 0, oy: -94, r: [[0, -32], [T, -32], [keyAt(T, .5), 0, 'io']] });
       R(bn, -410, 168, 340, 22, 8, F(3.4));
-      const lp = inG(p, 'rise', 250, 0, tu(.3)); R(lp, 240, -120, 20, 406, 6, F(3)); ell(lp, 250, 284, 70, 10, F(3)); R(lp, 214, -346, 72, 22, 8, F(3));
-      lp.circle(250, -220, 104, F(3.6)); lp.circle(250, -220, 90, { fill: 'rgba(255,255,255,.12)', sw: 1.4, stroke: C.soft });
+      const lp = inG(p, 'rise', 250, 0, tu(.3)); R(lp, 240, -120, 20, 406, 6, F(3)); ell(lp, 250, 284, 70, 10, F(3)); R(lp, 214, -346, 72, 22, 8, F(3)); lp.circle(250, -220, 104, F(3.6));
+      flick(p, keyAt(T, .4)).circle(250, -220, 90, { fill: 'rgba(255,255,255,.12)', sw: 0, stroke: 'none' }); lp.circle(250, -220, 90, S(1.4));
       feelV(p, c, X, 250, -238, 96, -156, { size: 28, maxW: 160, bigSize: 34, bigW: 170 });
       whoB(p, c, Wh, -70, -150, 40, { t: tWho(Q) });
     }); });
 
-  /* 10 ── LAUGHING IN THE ROCKING CHAIR (คนหัวเราะ): a person rocks back in the chair, shaking; the feeling on the round frame on the wall */
-  variant('rocking', 'คนหัวเราะบนเก้าอี้โยก', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
+  /* 10 ── LAUGHING IN THE ROCKING CHAIR (คนหัวเราะ): the round frame pops on the wall; the chair comes in with the person; it rocks back and
+     forth, the person shakes with laughter, the marks flash by the head; the feeling lands in the frame */
+  variant('rocking', 'คนหัวเราะบนเก้าอี้โยก', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0;
     art(c, p => { floorD(p); disc(inG(p, 'pop', 250, -110, tu(.04)), 250, -110, 168); feelV(p, c, X, 250, -150, 120, -26, { size: 36, maxW: 230, bigW: 250 });
-      const ch = rot(inG(p, 'rise', -160, 200, tu(.14)), -6, -160, 286);
+      const rk = [[0, -6], [T, -6], [keyAt(T, .16), -12, 'io'], [keyAt(T, .36), -1, 'io'], [keyAt(T, .56), -10, 'io'], [keyAt(T, .76), -4, 'io'], [keyAt(T, .92), -6, 'soft']];
+      const ch = mvG(inG(p, 'rise', -160, 200, tu(.14)), { px: -160, py: 286, r: rk });
       ch.path('M -360 262 Q -170 312 20 262', W(6)); [[-290, -280], [-60, -54]].forEach(([a, b]) => ch.line(a, 182, b, 274, W(6)));
       ch.path('M -300 170 L -350 -40', { sw: 22 }); ch.path('M -300 170 L -350 -40', { sw: 15, stroke: C.fill });
-      side(ch, -230, 138, 1.3, { s: [0, -76], e: [24, -26], h: [62, -14] }, { seat: true, lean: -16, head: [0, -136, 31] });
+      side(mvG(ch, { y: shakeX(keyAt(T, .1), keyAt(T, .8), 3, .06) }), -230, 138, 1.3, { s: [0, -76], e: [24, -26], h: [62, -14] }, { seat: true, lean: -16, head: [0, -136, 31] });
       R(ch, -320, 160, 290, 22, 8, F(3.4));
-      [-130, -95, -60].forEach(a => tick(p, -244, -40, a, 52, 74, W(3)));
+      const tk = litG(p, keyAt(T, .14), .02); [-130, -95, -60].forEach((a, i) => drawAt(tick(tk, -244, -40, a, 52, 74, W(3)), p, keyAt(T, .14 + .04 * i), tu(.14)));
       whoB(p, c, Wh, 420, 160, 40, { t: tWho(Q) });
     }); });
 
-  /* 11 ── STANDING TALL (คนยืนด้วยท่าทางมั่นใจ): hands on hips, feet apart; the flag goes up its pole and flies the feeling */
-  variant('confident', 'คนท้าวสะเอว', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
+  /* 11 ── STANDING TALL (คนยืนด้วยท่าทางมั่นใจ): the pole rises; the person comes up and puts the hands on the hips, chest up; the flag is hoisted
+     up the pole and flutters; the feeling lands on it */
+  variant('confident', 'คนท้าวสะเอว', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0;
     art(c, p => { floorD(p); const pl = inG(p, 'rise', 120, 0, tu(.04)); R(pl, 112, -322, 16, 610, 6, F(2.8)); pl.circle(120, -330, 13, F(2.6)); ell(pl, 120, 286, 70, 10, F(3));
       pl.line(132, -300, 132, 120, S(1.6)); R(pl, 128, 110, 20, 10, 4, F(2));
-      inG(p, 'pop', 136, -200, tu(.3)).path('M 136 -318 Q 290 -352 446 -312 L 446 -96 Q 290 -136 136 -102 Z', F(4.4));
+      const fg = mvG(mvG(p, { y: [[0, 360], [f3(T - tu(.1)), 360], [keyAt(T, .4), -6, 'out'], [keyAt(T, .5), 0, 'soft']], o: fadeIn(tu(.36)) }),
+        { px: 136, py: -200, sx: [[0, 1], [keyAt(T, .5), 1], [keyAt(T, .6), .9, 'io'], [keyAt(T, .72), 1.03, 'io'], [keyAt(T, .84), 1, 'soft']] });
+      fg.path('M 136 -318 Q 290 -352 446 -312 L 446 -96 Q 290 -136 136 -102 Z', F(4.4));
       feelV(p, c, X, 290, -246, 100, -146, { size: 34, maxW: 250, bigSize: 42, bigW: 270, bigDy: 40 });
-      body(inG(p, 'rise', -230, 160, tu(.16)), -230, 290, 1, { arms: { [-1]: { s: [-36, -82], e: [-84, -38], h: [-40, -2] }, 1: { s: [36, -82], e: [84, -38], h: [40, -2] } },
+      const bb = mvG(inG(p, 'rise', -230, 160, tu(.16)), { y: [[0, 0], [keyAt(T, .3), 0], [keyAt(T, .4), -7, 'out'], [keyAt(T, .56), 0, 'soft']] });
+      const { hm } = body(bb, -230, 290, 1, { arms: { [-1]: { s: [-36, -82], e: [-84, -38], h: [-40, -2] }, 1: { s: [36, -82], e: [84, -38], h: [40, -2] } },
         leg: sd => ({ h: [sd * 17, 8], k: [sd * 32, 88], f: [sd * 44, 166] }) });
+      [-1, 1].forEach(sd => raise(hm, p, sd, [sd * 36, -82], [sd * 84, -38], sd * 32, -sd * 86, f3(T - tu(.1)), keyAt(T, .2)));
       whoB(p, c, Wh, -80, -170, 40, { t: tWho(Q) });
     }); });
 
-  /* 12 ── A SIGH AT THE WINDOW (คนถอนหายใจ): a person stands at the window, shoulders drop, breathes out — the glass fogs and the feeling shows in it */
-  variant('sigh', 'คนถอนหายใจที่หน้าต่าง', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
+  /* 12 ── A SIGH AT THE WINDOW (คนถอนหายใจ): the window pops, the person comes up to it; breathes in (rises), lets it out — the shoulders drop, the
+     head bows, the breath draws to the glass and the fog spreads; the feeling shows in the fog */
+  variant('sigh', 'คนถอนหายใจที่หน้าต่าง', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0;
     art(c, p => { floorD(p); const wn = inG(p, 'pop', 180, -80, tu(.04)); R(wn, -60, -316, 480, 470, 20, F(4.8)); R(wn, -36, -292, 432, 422, 10, { fill: 'rgba(255,255,255,.05)', sw: 1.6, stroke: C.soft });
       wn.line(-36, -200, 396, -200, S(2)); R(wn, -90, 154, 540, 26, 10, F(3.4));
-      p.circle(140, -40, 146, { fill: 'rgba(255,255,255,.12)', sw: 0, stroke: 'none' }); feelV(p, c, X, 140, -70, 120, 58, { size: 38, maxW: 240, bigW: 250 });
-      side(inG(p, 'rise', -300, 160, tu(.16)), -300, 290, 1, HANG, { head: [22, -122, 31] });
-      [[-6, 'M -236 4 Q -186 -22 -146 0 Q -112 18 -80 -4'], [16, 'M -232 22 Q -192 8 -160 24 Q -130 38 -96 22']].forEach(([_, dd]) => p.path(dd, W(2.6)));
+      mvG(p, { px: -6, py: -40, s: [[0, .1], [keyAt(T, .5), .1], [keyAt(T, .85), 1, 'out']], o: fadeIn(keyAt(T, .5), .06) }).circle(140, -40, 146, { fill: 'rgba(255,255,255,.12)', sw: 0, stroke: 'none' });
+      feelV(p, c, X, 140, -70, 120, 58, { size: 38, maxW: 240, bigW: 250 });
+      const bb = mvG(inG(p, 'rise', -300, 160, tu(.16)), { y: [[0, 0], [T, 0], [keyAt(T, .2), -8, 'out'], [keyAt(T, .42), 4, 'io'], [keyAt(T, .56), 0, 'soft']] });
+      const hm = side(bb, -300, 290, 1, HANG, { head: [22, -122, 31] });
+      hm.on('head', p, 0, { ox: 0, oy: -94, r: [[0, -20], [keyAt(T, .22), -20], [keyAt(T, .5), 0, 'io']] });
+      ['M -236 4 Q -186 -22 -146 0 Q -112 18 -80 -4', 'M -232 22 Q -192 8 -160 24 Q -130 38 -96 22'].forEach((dd, i) => drawAt(p.path(dd, W(2.6)), p, keyAt(T, .3 + .06 * i), tu(.24)));
       whoB(p, c, Wh, -410, -120, 40, { t: tWho(Q) });
     }); });
 
-  /* 13 ── THE BOX THAT POPS (คนทำหน้าประหลาดใจ): the lid flies open, the round head springs up with the feeling; the person leans back, arms up */
-  variant('jackbox', 'กล่องเด้งทำให้ตกใจ', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
-    art(c, p => { floorD(p); const bx = inG(p, 'rise', 160, 200, tu(.04)); R(bx, 40, 100, 240, 190, 14, F(4.6)); R(bx, 60, 120, 200, 150, 8, S(1.4));
-      bx.line(280, 190, 316, 190, W(5)); bx.line(316, 190, 316, 150, W(5)); bx.circle(316, 146, 12, F(2.6));
-      R(rot(p, -118, 40, 100), 40, 86, 240, 16, 6, F(3.4));
-      p.path('M 160 100 L 128 86 L 192 68 L 128 50 L 192 32 L 128 14 L 192 -4 L 160 -20', W(5));
-      disc(inG(p, 'pop', 160, -150, tu(.3)), 160, -150, 126); feelV(p, c, X, 160, -152, 120, 210, { size: 34, maxW: 190, bigSize: 40, bigW: 200, bigDy: 16 });
-      body(inG(p, 'rise', -270, 160, tu(.2)), -270, 290, .9, { lean: -8, arms: { [-1]: { s: [-36, -82], e: [-78, -128], h: [-92, -184] }, 1: { s: [36, -82], e: [78, -128], h: [92, -184] } } });
-      [-140, -90, -40].forEach(a => tick(p, -297, 24, a, 66, 88, W(3)));
+  /* 13 ── THE BOX THAT POPS (คนทำหน้าประหลาดใจ): the box rises, its crank turns; the lid flies open and the round head springs out on the coil,
+     wobbling; the person jumps back, arms up, the marks flash; the feeling lands on the head */
+  variant('jackbox', 'กล่องเด้งทำให้ตกใจ', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0;
+    art(c, p => { floorD(p); const hc = clipG(p, -500, -350, 1000, 450);
+      mvG(hc, { px: 160, py: 100, sy: [[0, .05], [T, .05], [keyAt(T, .12), 1.12, 'out'], [keyAt(T, .26), .94, 'io'], [keyAt(T, .38), 1, 'soft']] })
+        .path('M 160 100 L 128 86 L 192 68 L 128 50 L 192 32 L 128 14 L 192 -4 L 160 -20', W(5));
+      const hd = mvG(mvG(hc, { y: [[0, 420], [T, 420], [keyAt(T, .12), -16, 'out'], [keyAt(T, .26), 6, 'io'], [keyAt(T, .38), 0, 'soft']] }), { px: 160, py: -30, r: wob(keyAt(T, .3), keyAt(T, .9), 6, 3) });
+      disc(hd, 160, -150, 126);
+      const bx = inG(p, 'rise', 160, 200, tu(.04)); R(bx, 40, 100, 240, 190, 14, F(4.6)); R(bx, 60, 120, 200, 150, 8, S(1.4));
+      const ck = mvG(bx, { px: 298, py: 190, r: [[0, 0], [tu(.4), 0], [f3(T - tu(.02)), 720, 'io']] }); ck.line(280, 190, 316, 190, W(5)); ck.line(316, 190, 316, 150, W(5)); ck.circle(316, 146, 12, F(2.6));
+      R(mvG(bx, { px: 40, py: 100, r: [[0, 0], [T, 0], [keyAt(T, .1), -128, 'out'], [keyAt(T, .24), -114, 'io'], [keyAt(T, .34), -118, 'soft']] }), 40, 86, 240, 16, 6, F(3.4));
+      feelV(p, c, X, 160, -152, 120, 210, { size: 34, maxW: 190, bigSize: 40, bigW: 200, bigDy: 16 });
+      const lb = mvG(inG(p, 'rise', -270, 160, tu(.2)), { px: -270, py: 290, r: [[0, 8], [keyAt(T, .04), 8], [keyAt(T, .16), -3, 'out'], [keyAt(T, .3), 0, 'soft']] });
+      const { hm } = body(lb, -270, 290, .9, { lean: -8, arms: { [-1]: { s: [-36, -82], e: [-78, -128], h: [-92, -184] }, 1: { s: [36, -82], e: [78, -128], h: [92, -184] } } });
+      [-1, 1].forEach(sd => raise(hm, p, sd, [sd * 36, -82], [sd * 78, -128], sd * 122, sd * 40, keyAt(T, .04), keyAt(T, .2)));
+      const tk = litG(p, keyAt(T, .14), .02); [-140, -90, -40].forEach((a, i) => drawAt(tick(tk, -297, 24, a, 66, 88, W(3)), p, keyAt(T, .14 + .03 * i), tu(.12)));
       whoB(p, c, Wh, -440, -230, 40, { t: tWho(Q) });
     }); });
 
-  /* 14 ── IN THE HAMMOCK (คนยิ้มอย่างผ่อนคลาย): a person lies back in the hammock as it sways; the feeling hangs on the line above */
-  variant('hammock', 'คนนอนเปลผ่อนคลาย', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
+  /* 14 ── IN THE HAMMOCK (คนยิ้มอย่างผ่อนคลาย): the posts rise, the line draws, the sign drops on it and swings to rest; the hammock is strung; the
+     person settles into it (it dips) and it sways gently; the feeling lands on the sign */
+  variant('hammock', 'คนนอนเปลผ่อนคลาย', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0;
     art(c, p => { floorD(p); [-400, 400].forEach((x, i) => { const g = inG(p, 'rise', x, 0, tu(.04 + .04 * i)); R(g, x - 11, -300, 22, 586, 6, F(3)); g.circle(x, -306, 13, F(2.6)); ell(g, x, 286, 50, 9, F(2.6)); });
-      drawAt(p.path('M -390 -290 Q 0 -250 390 -290', S(1.8)), p, tu(.12), tu(.3)); p.line(0, -270, 0, -250, W(2.4));
-      disc(inG(p, 'drop', 0, -150, tu(.2)), 0, -150, 104); feelV(p, c, X, 0, -170, 92, -96, { size: 26, maxW: 150, bigSize: 30, bigW: 160 });
-      [-1, 1].forEach(sd => p.line(sd * 390, -30, sd * 332, 0, W(2.6)));
-      const g = p.child({ transform: 'translate(20 70) rotate(-82) scale(.85)' }, .85); g.H = p.H; g.motion = p.motion;
+      drawAt(p.path('M -390 -290 Q 0 -250 390 -290', S(1.8)), p, tu(.12), tu(.3));
+      const sg = mvG(CL(p), Object.assign({ px: 0, py: -268 }, swingFit(tu(.3), T, 6))); sg.line(0, -270, 0, -250, W(2.4)); disc(sg, 0, -150, 104);
+      feelV(p, c, X, 0, -170, 92, -96, { size: 26, maxW: 150, bigSize: 30, bigW: 160 });
+      const hs = mvG(p, { px: 0, py: -30, r: wob(keyAt(T, .12), keyAt(T, .9), 3.5, 4) });
+      [-1, 1].forEach(sd => drawAt(hs.line(sd * 390, -30, sd * 332, 0, W(2.6)), p, tu(.2), tu(.16)));
+      const pd = mvG(hs, { y: [[0, -40], [tu(.45), -40], [T, 0, 'in']], o: fadeIn(tu(.45)) });
+      const g = pd.child({ transform: 'translate(20 70) rotate(-82) scale(.85)' }, .85); g.H = p.H; g.motion = p.motion;
       G.parts.human(g, 'line', Object.assign({}, SIDE, { arm: () => ({ s: [4, -78], e: [16, -26], h: [26, 24] }), leg: stand }));
-      p.path('M -332 0 Q 0 170 332 0 Q 0 280 -332 0 Z', F(3.8)); p.path('M -280 26 Q 0 196 280 26', S(1.4));
+      const fb = mvG(hs, { px: 0, py: 0, sy: [[0, 1], [T, 1], [keyAt(T, .08), 1.08, 'out'], [keyAt(T, .26), 1, 'soft']], o: fadeIn(tu(.3)) });
+      fb.path('M -332 0 Q 0 170 332 0 Q 0 280 -332 0 Z', F(3.8)); fb.path('M -280 26 Q 0 196 280 26', S(1.4));
       whoB(p, c, Wh, 300, 180, 42, { t: tWho(Q) });
     }); });
 
-  /* 15 ── PACING (คนมีสีหน้ากังวล): a person paces; above, the line gets tangled (mood bad) — or runs smooth — round the feeling */
-  variant('pacing', 'คนเดินวนกังวล', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
-    art(c, p => { floorD(p); for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2; p.line(f1(-230 + 190 * Math.cos(a)), f1(306 + 20 * Math.sin(a)), f1(-230 + 190 * Math.cos(a + .14)), f1(306 + 20 * Math.sin(a + .14)), S(2.4)); }
-      side(inG(p, 'rise', -230, 160, tu(.04)), -230, 290, .95, { s: [4, -76], e: [24, -36], h: [40, 4] }, { leg: stride, far: { s: [-4, -74], e: [-24, -36], h: [-36, 6] }, head: [16, -128, 31] });
-      knot(inG(p, 'pop', 170, -150, tu(.3)), 170, -150, 156, MO(d) < 0); feelV(p, c, X, 170, -150, 120, 90, { size: 42, maxW: 360, bigW: 280, bigDy: 20 });
+  /* 15 ── PACING (คนมีสีหน้ากังวล): the person paces right, turns, walks back, turns again (always walking nose first); above, the line draws
+     itself — tangled (mood bad) or a smooth ring; the feeling lands in it */
+  variant('pacing', 'คนเดินวนกังวล', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0, tA = tu(.5), tB = f3(T - tu(.1)), tE = keyAt(T, .4);
+    art(c, p => { floorD(p); const tr = litG(p, tu(.06), .2); for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2; tr.line(f1(-230 + 190 * Math.cos(a)), f1(306 + 20 * Math.sin(a)), f1(-230 + 190 * Math.cos(a + .14)), f1(306 + 20 * Math.sin(a + .14)), S(2.4)); }
+      const wx = mvG(p, { x: [[0, -150], [tu(.1), -150], [tA, 60, 'io'], [tB, -90, 'io'], [tE, 0, 'io']], o: fadeIn(tu(.1)) });
+      const fl = mvG(wx, { px: -230, py: 290, sx: [[0, 1], [tA, 1], [f3(tA + tu(.06)), -1], [tB, -1], [f3(tB + tu(.06)), 1]] });
+      const bob = mvG(fl, { y: Array.from({ length: 13 }, (_, j) => [f3(tu(.1) + (tE - tu(.1)) * j / 12), j % 2 ? -6 : 0]) });
+      const hm = side(bob, -230, 290, .95, { s: [4, -76], e: [24, -36], h: [40, 4] }, { leg: stride, far: { s: [-4, -74], e: [-24, -36], h: [-36, 6] }, head: [16, -128, 31] });
+      walkLegs(hm, p, tu(.1), tE);
+      knot(p, 170, -150, 156, MO(d) < 0).forEach((e, i) => drawAt(e, p, keyAt(T, .02 + .1 * i), tu(.6)));
+      feelV(p, c, X, 170, -150, 120, 90, { size: 42, maxW: 360, bigW: 280, bigDy: 20 });
       whoB(p, c, Wh, -390, -170, 40, { t: tWho(Q) });
     }); });
 
-  /* 16 ── AT THE DOOR (คนยืนท่าทางลังเล): a person steps up to the door, then leans back half a step; the feeling shows in its round window */
-  variant('door', 'คนลังเลหน้าประตู', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
+  /* 16 ── AT THE DOOR (คนยืนท่าทางลังเล): the door pops; the person walks up to it (nose first), stops, then leans back half a step; the round window
+     lights; the feeling shows in it */
+  variant('door', 'คนลังเลหน้าประตู', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0, tW0 = f3(T - tu(.05));
     art(c, p => { floorD(p); const dr = inG(p, 'pop', 240, 0, tu(.04)); R(dr, 80, -316, 320, 606, 10, F(4.8)); R(dr, 100, -296, 280, 586, 6, F(3));
-      ring(dr, 240, -136, 104, 90, F(3.4)); dr.circle(240, -136, 90, { fill: 'rgba(255,255,255,.12)', sw: 0, stroke: 'none' }); R(dr, 344, 10, 14, 58, 7, F(2.4));
+      ring(dr, 240, -136, 104, 90, F(3.4)); R(dr, 344, 10, 14, 58, 7, F(2.4)); flick(p, keyAt(T, .4)).circle(240, -136, 90, { fill: 'rgba(255,255,255,.12)', sw: 0, stroke: 'none' });
       feelV(p, c, X, 240, -136, 110, 40, { size: 34, maxW: 240, bigSize: 40, bigW: 250, bigDy: 14 });
-      side(inG(p, 'rise', -230, 160, tu(.2)), -230, 290, 1, { s: [4, -78], e: [-4, -26], h: [2, 28] }, { lean: -7, leg: stride, far: { s: [-4, -76], e: [-16, -28], h: [-12, 26] } });
+      const wx = mvG(p, { x: [[0, -200], [tu(.2), -200], [tW0, 40, 'out'], [keyAt(T, .35), 0, 'io']], o: fadeIn(tu(.2)) });
+      const ln = mvG(wx, { px: -230, py: 290, r: [[0, 0], [keyAt(T, .05), 0], [keyAt(T, .3), -9, 'out'], [keyAt(T, .45), -7, 'soft']] });
+      const hm = side(ln, -230, 290, 1, { s: [4, -78], e: [-4, -26], h: [2, 28] }, { leg: stride, far: { s: [-4, -76], e: [-16, -28], h: [-12, 26] } });
+      walkLegs(hm, p, tu(.2), tW0);
       whoB(p, c, Wh, -380, -150, 40, { t: tWho(Q) });
     }); });
 
-  /* 17 ── THE HEART IN THE FRAME (หัวใจในกรอบ): the frame drops on its nail, the heart draws itself inside and beats; the feeling in the heart */
-  variant('heartframe', 'หัวใจในกรอบ', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
+  /* 17 ── THE HEART IN THE FRAME (หัวใจในกรอบ): the nail pops, the frame drops on its cord and swings to rest; the heart draws itself inside and
+     beats twice; the feeling lands in the heart */
+  variant('heartframe', 'หัวใจในกรอบ', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0;
     art(c, p => { popAt(p, 0, -338, tu(.04)).circle(0, -338, 9, F(2.6));
-      const fr = inG(p, 'drop', 0, 0, tu(.1)); fr.path('M -150 -262 L 0 -332 L 150 -262', W(2.2)); R(fr, -250, -262, 500, 560, 16, F(5)); R(fr, -222, -234, 444, 504, 8, S(1.6));
-      inG(p, 'pop', 0, -40, tu(.3)).path(heartD(0, -30, 380), F(4.4)); feelV(p, c, X, 0, -66, 120, 214, { size: 40, maxW: 380, bigW: 300, bigDy: 26 });
+      const fr = mvG(CL(p), Object.assign({ px: 0, py: -332 }, swingFit(tu(.14), f3(T - tu(.1)), 4))); fr.path('M -150 -262 L 0 -332 L 150 -262', W(2.2)); R(fr, -250, -262, 500, 560, 16, F(5)); R(fr, -222, -234, 444, 504, 8, S(1.6));
+      const hb = mvG(p, { px: 0, py: -30, s: [[0, 1], [keyAt(T, .45), 1], [keyAt(T, .52), 1.08, 'out'], [keyAt(T, .62), .98, 'io'], [keyAt(T, .7), 1.06, 'out'], [keyAt(T, .86), 1, 'soft']] });
+      drawAt(hb.path(heartD(0, -30, 380), F(4.4)), p, f3(T - tu(.06)), tu(.45));
+      feelV(p, c, X, 0, -66, 120, 214, { size: 40, maxW: 380, bigW: 300, bigDy: 26 });
       whoB(p, c, Wh, 214, -226, 40, { t: tWho(Q) });
     }); });
 
-  /* 18 ── A SILHOUETTE AND A HEART (ภาพเงาคนกับสัญลักษณ์หัวใจ): a person stands dark against a lit doorway; the heart sign beside lights the feeling */
-  variant('silhouette', 'เงาคนกับหัวใจ', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
-    art(c, p => { floorD(p); const dw = inG(p, 'pop', -310, 0, tu(.04)); R(dw, -440, -300, 260, 590, 14, F(4.6)); R(dw, -418, -278, 216, 566, 8, { fill: 'rgba(255,255,255,.16)', sw: 0, stroke: 'none' });
-      body(inG(p, 'rise', -310, 160, tu(.16)), -310, 290, .86);
-      const hs = inG(p, 'rise', 170, 100, tu(.3)); R(hs, 160, 80, 20, 206, 6, F(2.8)); ell(hs, 170, 286, 80, 10, F(3)); hs.path(heartD(170, -84, 460), F(4.6));
+  /* 18 ── A SILHOUETTE AND A HEART (ภาพเงาคนกับสัญลักษณ์หัวใจ): the doorway pops, its light flickers on; the person comes up dark against it; the
+     post grows, the heart pops on it and beats; the feeling lands in the heart */
+  variant('silhouette', 'เงาคนกับหัวใจ', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0;
+    art(c, p => { floorD(p); R(inG(p, 'pop', -310, 0, tu(.04)), -440, -300, 260, 590, 14, F(4.6)); R(flick(p, tu(.26)), -418, -278, 216, 566, 8, { fill: 'rgba(255,255,255,.16)', sw: 0, stroke: 'none' });
+      body(inG(p, 'rise', -310, 160, tu(.5)), -310, 290, .86);
+      const hs = inG(p, 'pop', 170, 286, f3(T - tu(.3))); R(mvG(hs, growY(170, 286, f3(T - tu(.3)))), 160, 80, 20, 206, 6, F(2.8)); ell(hs, 170, 286, 80, 10, F(3));
+      mvG(popAt(p, 170, -84, keyAt(T, .02)), { px: 170, py: -84, s: [[0, 1], [keyAt(T, .4), 1], [keyAt(T, .47), 1.06, 'out'], [keyAt(T, .57), .98, 'io'], [keyAt(T, .65), 1.04, 'out'], [keyAt(T, .8), 1, 'soft']] }).path(heartD(170, -84, 460), F(4.6));
       feelV(p, c, X, 170, -132, 120, -16, { size: 40, maxW: 300, bigW: 320 });
       whoB(p, c, Wh, 430, 190, 40, { t: tWho(Q) });
     }); });
 
-  /* 19 ── THE BALL THAT OPENS (คนยกมือแสดงความดีใจ): the hanging ball splits, streamers fall, the banner drops with the feeling; arms go up
-     (mood bad → arms stay down, head bowed) */
-  variant('ballopen', 'คนยกมือดีใจ', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), bad = MO(d) < 0;
-    art(c, p => { floorD(p); p.line(60, -350, 60, -318, W(2.6));
-      [[1, 58], [-1, -58]].forEach(([sd, a]) => rot(p, a, 60, -318).path(`M 60 -318 A 58 58 0 0 ${sd > 0 ? 0 : 1} 60 -202 Z`, F(3.4)));
-      ['M 30 -240 Q -40 -150 0 -70 Q 30 0 -20 70', 'M 46 -236 Q -10 -170 -60 -110', 'M 90 -240 Q 160 -150 120 -70 Q 90 0 140 70', 'M 74 -236 Q 130 -170 180 -110'].forEach(dd => p.path(dd, W(2.6)));
-      const bn = inG(p, 'drop', 60, -100, tu(.3)); bn.line(60, -280, 60, -262, W(2.4)); R(bn, -40, -262, 200, 300, 12, F(4.4)); shape(bn, [[-40, 38], [160, 38], [60, 84]], F(3.4));
+  /* 19 ── THE BALL THAT OPENS (คนยกมือแสดงความดีใจ): the ball drops on its string and swings to rest; it splits open, the streamers fall, the banner
+     unrolls down; the person throws both arms up with a hop (mood bad → stays, head bows); the feeling lands on the banner */
+  variant('ballopen', 'คนยกมือดีใจ', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0, bad = MO(d) < 0;
+    art(c, p => { floorD(p); drawAt(p.line(60, -350, 60, -318, W(2.6)), p, tu(.04), tu(.1));
+      const bl = mvG(CL(p), Object.assign({ px: 60, py: -350 }, swingFit(tu(.12), f3(T - tu(.06)), 5)));
+      [[1, 58], [-1, -58]].forEach(([sd, a]) => mvG(bl, { px: 60, py: -318, r: [[0, 0], [T, 0], [keyAt(T, .14), a * 1.15, 'out'], [keyAt(T, .3), a, 'soft']] }).path(`M 60 -318 A 58 58 0 0 ${sd > 0 ? 0 : 1} 60 -202 Z`, F(3.4)));
+      ['M 30 -240 Q -40 -150 0 -70 Q 30 0 -20 70', 'M 46 -236 Q -10 -170 -60 -110', 'M 90 -240 Q 160 -150 120 -70 Q 90 0 140 70', 'M 74 -236 Q 130 -170 180 -110'].forEach((dd, i) => drawAt(p.path(dd, W(2.6)), p, keyAt(T, .1 + .04 * i), tu(.4)));
+      const bn = mvG(p, { px: 60, py: -280, sy: [[0, 0], [keyAt(T, .06), 0], [keyAt(T, .38), 1.04, 'out'], [keyAt(T, .48), 1, 'soft']], o: fadeIn(keyAt(T, .06), .04) });
+      bn.line(60, -280, 60, -262, W(2.4)); R(bn, -40, -262, 200, 300, 12, F(4.4)); shape(bn, [[-40, 38], [160, 38], [60, 84]], F(3.4));
       feelV(p, c, X, 60, -170, 110, -50, { size: 32, maxW: 170, bigSize: 36, bigW: 180 });
-      body(inG(p, 'rise', -290, 160, tu(.16)), -290, 290, .9, bad ? { head: [0, -120, 31] } : { arms: { [-1]: UPV(-1), 1: UPV(1) } });
+      const hp = mvG(inG(p, 'rise', -290, 160, tu(.16)), bad ? {} : { y: [[0, 0], [keyAt(T, .2), 0], [keyAt(T, .3), -26, 'out'], [keyAt(T, .44), 0, 'in'], [keyAt(T, .5), 3], [keyAt(T, .58), 0, 'soft']] });
+      const { hm } = body(hp, -290, 290, .9, bad ? { head: [0, -120, 31] } : { arms: { [-1]: UPV(-1), 1: UPV(1) } });
+      if (bad) hm.on('head', p, 0, { y: [[0, -12], [keyAt(T, .2), -12], [keyAt(T, .55), 0, 'io']] });
+      else [-1, 1].forEach(sd => raise(hm, p, sd, [sd * 36, -82], [sd * 74, -150], sd * 135, sd * 21, keyAt(T, .18), keyAt(T, .36)));
       whoB(p, c, Wh, 340, -60, 46, { t: tWho(Q) });
     }); });
 
-  /* 20 ── THE STICKER (ใบหน้าพร้อมคำกำกับอารมณ์): a round sticker peels off the sheet and sticks onto the card; the feeling word prints under it */
-  variant('sticker', 'สติกเกอร์พร้อมคำ', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL();
+  /* 20 ── THE STICKER (ใบหน้าพร้อมคำกำกับอารมณ์): the sheet and the card pop; one sticker peels up off the sheet, flies over in one arc and sticks
+     on the card (a squash); the feeling lands on it, the word prints under it */
+  variant('sticker', 'สติกเกอร์พร้อมคำ', (d, c) => { const X = FE(d), Wh = WO(d), Q = TL(), T = Q.T0, t0 = f3(T - tu(.2)), t1 = keyAt(T, .3);
     art(c, p => { const sh = inG(p, 'pop', -310, 0, tu(.04)); R(sh, -460, -200, 300, 420, 18, F(4.4));
       [[-385, -110], [-235, -110], [-385, 10], [-235, 10], [-385, 130], [-235, 130]].forEach(([x, y], i) => { if (i === 1) { sh.circle(x, y, 50, S(2)); return; } sh.circle(x, y, 50, F(3)); sh.circle(x, y, 38, S(1.4)); });
-      const cd = inG(p, 'pop', 190, 0, tu(.16)); R(cd, -80, -290, 540, 580, 24, F(4.8));
-      const st = inG(p, 'pop', 190, -80, tu(.36)); st.circle(190, -80, 152, F(4)); st.circle(190, -80, 136, S(1.4));
+      R(inG(p, 'pop', 190, 0, tu(.16)), -80, -290, 540, 580, 24, F(4.8));
+      const K = pathK(Array.from({ length: 21 }, (_, j) => { const u = j / 20; return [(1 - u) * (1 - u) * -235 + 2 * u * (1 - u) * -60 + u * u * 190, (1 - u) * (1 - u) * -110 + 2 * u * (1 - u) * -380 + u * u * -80]; }), t0, t1, [190, -80]); delete K.when;
+      const st = mvG(mvG(mvG(p, Object.assign({ o: fadeIn(tu(.08)) }, K)), { px: 190, py: -80, s: [[0, .33], [t0, .33], [t1, 1.06, 'out'], [keyAt(T, .42), 1, 'soft']] }),
+        { px: 190, py: -80, r: [[0, 0], [f3(T - tu(.4)), 0], [t0, -16, 'out'], [t1, 0, 'io']] });
+      st.circle(190, -80, 152, F(4)); st.circle(190, -80, 136, S(1.4));
       feelV(p, c, X, 190, -86, 150, 176, { size: 50, maxW: 460, bigSize: 56, bigW: 260 });
       whoB(p, c, Wh, -310, 276, 40, { t: tWho(Q) });
     }); });
