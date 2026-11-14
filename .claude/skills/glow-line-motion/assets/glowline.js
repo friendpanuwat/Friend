@@ -19,6 +19,33 @@
   const C = { ink: '#f2f2f2', fill: '#171717', soft: '#bdbdbd', mute: '#8a8a8a', rule: '#4a4a4a', sub: '#a9a9a9', kicker: '#cfcfcf' };
   const FONT = 'GLLatin, GLThai, sans-serif';
 
+  /* colour theme (user 2026-11-14 "ทำให้ทุกหมวดเปลี่ยนสีได้ครบ"): GL.theme({ bg, line, fill, soft, accent }) — before or after GL.stage(), before
+     drawing (bg = one colour or [centre, edge]; any key may be left out; GL.theme() = back to the default white-on-black). It sets the palette C
+     (line → ink, fill, soft → soft / sub / mute / rule) and the background. At finish() every colour still left at a fixed default is moved onto
+     the theme, so every category and icon follows without its own code: a C default value (drawn earlier or kept in a constant) → its theme
+     value · translucent white fill of alpha .15 or more (lit parts: windows, lit panels, filled amounts) → the accent at that alpha · other
+     translucent white (glass, tracks, faint lines) → the line colour at that alpha · near-black (bodies, erasing strokes) → the theme fill.
+     fillAlpha: .4 = bodies 40% solid, the video behind shows through (for laying over a clip with --alpha).
+     No theme → nothing changes (the default look is exactly as before). */
+  const C0 = Object.assign({}, C), BG0 = ['#121212', '#020202']; let THEME = null;
+  const hexRgb = h => { h = String(h).trim().replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); const n = parseInt(h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const rgbaOf = (h, a) => /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(h).trim()) ? `rgba(${hexRgb(h).join(',')},${a})` : h;
+  function themeBg() { if (!svg) return; const bg = THEME && THEME.bg ? [].concat(THEME.bg) : BG0, st = svg.querySelectorAll('#glbg stop');
+    if (st.length > 1) { st[0].setAttribute('stop-color', bg[0]); st[1].setAttribute('stop-color', bg[1] || bg[0]); } }
+  function theme(t) { THEME = t && Object.keys(t).length ? Object.assign({}, t) : null; const T = THEME || {}; Object.assign(C, C0);
+    if (T.line) Object.assign(C, { ink: T.line, kicker: T.line }); if (T.fill) C.fill = T.fill;
+    if (T.soft) Object.assign(C, { soft: T.soft, sub: T.soft, mute: rgbaOf(T.soft, .72), rule: rgbaOf(T.soft, .4) });
+    themeBg(); return THEME; }
+  function themeApply(root) { if (!THEME || !root) return; const map = {}, acc = THEME.accent || C.ink;
+    for (const k in C0) if (C0[k] !== C[k]) map[C0[k].toLowerCase()] = C[k];
+    const fix = (v, isFill) => { if (!v) return null; const s = v.trim().toLowerCase(); if (map[s]) return map[s];
+      let m = s.match(/^rgba\(\s*255\s*,\s*255\s*,\s*255\s*,\s*([\d.]+)\s*\)$/); if (m) return rgbaOf(isFill && +m[1] >= .15 ? acc : C.ink, m[1]);
+      m = s.match(/^#([0-9a-f]{6}|[0-9a-f]{3})$/); if (m && Math.max(...hexRgb(s)) < 40 && THEME.fill) return C.fill; return null; };
+    /* fillAlpha (0–1): the bodies' fill lets the clip behind show through (strokes in the fill colour stay solid — they cut hollow tubes) */
+    const fa = THEME.fillAlpha != null ? Math.max(0, Math.min(1, +THEME.fillAlpha)) : null, body = String(C.fill).toLowerCase();
+    root.querySelectorAll('[fill],[stroke]').forEach(e => ['fill', 'stroke'].forEach(a => { const v0 = e.getAttribute(a), v = fix(v0, a === 'fill') || v0;
+      if (a === 'fill' && fa != null && v && v.toLowerCase() === body) e.setAttribute(a, rgbaOf(C.fill, fa)); else if (v !== v0) e.setAttribute(a, v); })); }
+
   const css = document.createElement('style');
   css.textContent = `
     @font-face { font-family: GLLatin; src: url("${HERE}fonts/InterDisplay-Bold.otf"); font-weight: 100 900; }
@@ -162,6 +189,7 @@
       <linearGradient id="glsilver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#727272"/><stop offset=".45" stop-color="#454545"/><stop offset="1" stop-color="#262626"/></linearGradient>
       <filter id="bloom" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="${16 * glow}"/></filter>
       <filter id="bloomS" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="${8 * glow}"/></filter>`;
+    themeBg();
     C.fill = material === 'silver' ? 'url(#glsilver)' : '#171717';     // 'silver': objects filled with a top-lit grey gradient (glass/metal feel)
     if (!ALPHA) mk('rect', { width: w, height: h, fill: 'url(#glbg)' }, svg);
     root = cur = mk('g', {}, svg);
@@ -585,6 +613,7 @@
   function finish({ hold = 1.6, out = false, tail = .3, stagger = .04 } = {}) {
     if (out) { const t = lastEnd + hold; window.OUT_AT = t; lastEnd = leaveAll(root, t, stagger) + tail; hold = 0; }
     window.DURATION = Math.round((lastEnd + hold) * 100) / 100;
+    themeBg(); themeApply(svg);
     window.setT(window.DURATION);
     window.READY = true;
   }
@@ -1196,7 +1225,7 @@
     'library-pro': 1.15, 'ticket-pro': 1.15, 'trophy-pro': 1.15, 'weight-pro': 1.15, 'package-open-pro': 1.25, 'pin-pro': 1.25,
     'clapperboard-pro': 1.3, 'credit-card-pro': 1.3, 'salad-pro': 1.3, 'id-card-pro': 1.35, 'bell-pro': 1.4, 'folder-open-pro': 1.45,
     'notify-pro': 1.45, 'thermometer-pro': 1.45 };
-  window.GL = { C, stage, run, Pen, art, motion, tune, text, EXIT, leaveAll, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
+  window.GL = { C, theme, get themeNow() { return THEME; }, stage, run, Pen, art, motion, tune, text, EXIT, leaveAll, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
     parts, icons, pairs, pair, single, LOOP, MOTION, POSE, AMPMAX, kf, EASE, easeIO, easeOut, clamp, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
 
   /* beats.js (B01–B21 scene templates) loads next to this file */
