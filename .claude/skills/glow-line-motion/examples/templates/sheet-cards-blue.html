@@ -1,0 +1,19 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Card templates blue</title>
+<script src="../../assets/glowline.js"></script><script src="cards.js"></script></head>
+<body><script>
+/* ชุดฐานแบบการ์ด สีฟ้าอ่อน — 6 cards × 2 states (empty · filled) in the light-blue look */
+GL.run(() => {
+  GL.stage();
+  /* the light-blue look: navy background, navy card fill, blue-grey soft lines (the white look stays the default) */
+  GL.cats.CARD.blue = true; const st = document.querySelectorAll('#glbg stop'); st[0].setAttribute('stop-color', '#1a2533'); st[1].setAttribute('stop-color', '#070b11');
+  Object.assign(GL.C, { fill: '#121b26', soft: '#a9bbcd', mute: '#74879b', sub: '#9fb1c4', kicker: '#d6e6f5' });
+  GL.text('ชุดฐานแบบการ์ด · สีฟ้าอ่อน', { y: 64, size: 44, ls: 2, color: GL.C.kicker, glow: false });
+  GL.text('ซ้าย = ว่าง (ช่องที่ใส่ได้) · ขวา = ใส่ข้อมูล', { y: 108, size: 26, weight: 500, color: GL.C.sub, glow: false });
+  const T = GL.cats.CARD, s = .36, top = 140, rh = 296;
+  T.variants.forEach((v, r) => { const y0 = top + r * rh;
+    [0, 1].forEach(k => T.draw(r, T.SAMPLES[r][k], { x: (k + .5) * GL.W / 2, y: y0 + 700 * s / 2, s, at: .3 + r * .04 + k * .06, hit: 1.9 }));
+    GL.text(String(r + 1).padStart(2, '0') + ' · ' + v.th, { x: GL.W / 2, y: y0 + 700 * s + 30, size: 22, weight: 700, color: GL.C.ink, glow: false }); });
+  GL.finish({ hold: 2.4, out: true, stagger: .02 });
+});
+</script></body></html>

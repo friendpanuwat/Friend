@@ -375,7 +375,7 @@
     put(q, c, { icon: X.icon }, x, y, w, null, { t, punch: f3(t + tu(.14)) });
     if (X.label) txt(atG(q, f3(t + tu(.1))), X.label, x, ly, { size: o.size || 36, maxW: o.maxW || w * 2.2, weight: 700, color: C.ink, wrap: 'down' }); }
   const words = (q, s, x, y, o = {}) => { const t = o.t ?? Z.H; if (!s) { if (EMPTY) phBar(atG(q, t), x, y - (o.size || 40) * .35, o.phW || 300, o.phH || 30, o.anchor); return; }
-    txt(atG(q, t), s, x, y, { size: o.size || 40, maxW: o.maxW || 500, weight: o.weight || 800, color: C.ink, anchor: o.anchor || 'middle', wrap: o.wrap === undefined ? 'down' : o.wrap }); };
+    txt(atG(q, t), s, x, y, { size: o.size || 40, maxW: o.maxW || 500, weight: o.weight || 800, color: o.color || C.ink, anchor: o.anchor || 'middle', wrap: o.wrap === undefined ? 'down' : o.wrap }); };
 
   /* ---------- v2 (user 2026-11-14: "บางทีก็อยากให้ไอคอนกับข้อความไม่ต้องผูกติดกันก็ได้ … คุณชอบเอาข้อความไปไว้ข้างใต้ icon เสมอเลย"):
      icons and words are separate slots with their own places — an icon slot never carries a word; when one kind is missing the other
@@ -388,19 +388,24 @@
   /* ---------- CARD PARTS (user's past template examples, references/templates-ref/, redrawn in our line style): a rounded card, a chip
      title (dot + word), icon boxes apart from words, word pills, list rows, soft bars standing for lines of text, a corner badge,
      emphasis by one big bright word. Icons and words never ride together. ---------- */
-  const CHK = (q, x, y, k = 1) => q.path(`M ${f1(x - 18 * k)} ${y} L ${f1(x - 5 * k)} ${f1(y + 14 * k)} L ${f1(x + 20 * k)} ${f1(y - 14 * k)}`, W(5));
+  /* the light-blue look (user 2026-11-14 "ลองทำเป็นสีฟ้าอ่อนเหมือนใน reference ให้หน่อย"): GL.cats.CARD.blue = true → thin soft blue-grey edges on
+     dark navy cards, and one light-blue accent for what matters (the chip dot, the key word, the lit arc, the tall bar, ticks, the people's
+     rings, the button). The sheet sets the navy background and palette; the white look stays the default. */
+  let BLUE = false; const ACC = () => BLUE ? '#86ccff' : C.ink, EDGE = (w = 4.4) => BLUE ? { fill: C.fill, sw: 2.4, stroke: '#41566c' } : F(w);
+  const DOTA = (q, x, y, r = 7) => q.circle(x, y, r, BLUE ? { fill: ACC(), sw: 0, stroke: 'none' } : SOLID(1));
+  const CHK = (q, x, y, k = 1) => q.path(`M ${f1(x - 18 * k)} ${y} L ${f1(x - 5 * k)} ${f1(y + 14 * k)} L ${f1(x + 20 * k)} ${f1(y - 14 * k)}`, BLUE ? { sw: 5, stroke: ACC() } : W(5));
   const XX = (q, x, y, k = 1) => { q.line(x - 15 * k, y - 15 * k, x + 15 * k, y + 15 * k, W(5)); q.line(x - 15 * k, y + 15 * k, x + 15 * k, y - 15 * k, W(5)); };
   /* the card itself: drops in and settles (squash) */
-  const cardG = (p, w = 880, h = 560, y0 = 0) => { const g = mvG(CL(p), fallK(0, y0 + h / 2, tu(.04), tu(.24), 220)); R(g, -w / 2, y0 - h / 2, w, h, 40, F(4.4)); return g; };
+  const cardG = (p, w = 880, h = 560, y0 = 0) => { const g = mvG(CL(p), fallK(0, y0 + h / 2, tu(.04), tu(.24), 220)); R(g, -w / 2, y0 - h / 2, w, h, 40, EDGE(4.4)); return g; };
   /* a chip: a pill with a dot and a word (left edge at x); empty demo → a placeholder pill */
   function chip(q, s, x, y, o = {}) { const t = o.t ?? tu(.3), g = mvG(q, { x: glide(-60, t, f3(t + tu(.24))), o: fadeIn(t) }), sz = o.size || 36;
-    if (!s) { if (EMPTY) { R(g, x, y - 30, 200, 60, 30, F(3)); DOT(g, x + 30, y, 7); phBar(g, x + 110, y, 100, 18); } return 0; }
+    if (!s) { if (EMPTY) { R(g, x, y - 30, 200, 60, 30, EDGE(3)); DOTA(g, x + 30, y, 7); phBar(g, x + 110, y, 100, 18); } return 0; }
     const tm = txt(g, s, 0, -999, { size: sz, weight: 700, anchor: 'start', maxW: o.maxW || 520 }), w = Math.min(o.maxW || 520, tm.getBBox().width); tm.remove();
-    R(g, x, y - 30, w + 84, 60, 30, F(3)); DOT(g, x + 30, y, 7); txt(g, s, x + 54, y + sz * .34, { size: sz, weight: 700, color: C.ink, anchor: 'start', maxW: o.maxW || 520 }); return w + 84; }
+    R(g, x, y - 30, w + 84, 60, 30, EDGE(3)); DOTA(g, x + 30, y, 7); txt(g, s, x + 54, y + sz * .34, { size: sz, weight: 700, color: C.ink, anchor: 'start', maxW: o.maxW || 520 }); return w + 84; }
   /* words with one emphasised word: the plain part soft, the key word big and bright after it; strike = a line through (crossed out) */
   function says(q, plain, em, x, y, o = {}) { const sz = o.size || 40, tE = o.tE ?? Z.H; let w0 = 0;
     if (plain) { const a = txt(atG(q, o.t ?? tE), plain, x, y, { size: sz, weight: 600, color: o.dim ? C.mute : C.soft, anchor: 'start', maxW: o.maxW || 520 }); w0 = a.getBBox().width + 12; }
-    if (em) { const g = popAt(q, x + w0 + 40, y - sz * .3, tE), b = txt(g, em, x + w0, y + 4, { size: sz * 1.35, weight: 800, color: o.dim ? C.mute : C.ink, anchor: 'start', maxW: (o.maxW || 520) - w0 }); w0 += b.getBBox().width; }
+    if (em) { const g = popAt(q, x + w0 + 40, y - sz * .3, tE), b = txt(g, em, x + w0, y + 4, { size: sz * 1.35, weight: 800, color: o.dim ? C.mute : ACC(), anchor: 'start', maxW: (o.maxW || 520) - w0 }); w0 += b.getBBox().width; }
     if (o.strike) drawAt(q.line(x - 6, y - sz * .3, x + w0 + 6, y - sz * .3, W(4)), q, f3((o.t ?? tE) + tu(.14)), tu(.2));
     return w0; }
   const ROWS = d => (d && Array.isArray(d.rows) ? d.rows : []).slice(0, 3);
@@ -410,7 +415,7 @@
   variant('checklist', 'การ์ดเช็กลิสต์ · ชิป + แถว (กล่อง · ไอคอน · คำเน้น)', (d, c) => { const Q = TL(), T = Q.T0, R0 = EMPTY ? [{}, {}, {}] : ROWS(d), n = R0.length;
     art(c, p => { cardG(p); chip(p, d.chip, -400, -220);
       R0.forEach((r, i) => { const y = -100 + 125 * i, tR = i === n - 1 ? f3(Q.H - tu(.24)) : f3(T + tu(.16 * i)), g = mvG(p, { x: glide(120, tR, f3(tR + tu(.2)), -6), o: fadeIn(tR, .06) });
-        R(g, -400, y - 52, 800, 104, 24, r.mark === 'x' ? S(1.6) : { sw: 2, stroke: C.soft }); R(g, -380, y - 34, 68, 68, 16, F(3));
+        R(g, -400, y - 52, 800, 104, 24, BLUE ? { fill: 'rgba(255,255,255,.03)', sw: 1.6, stroke: '#35475a' } : r.mark === 'x' ? S(1.6) : { sw: 2, stroke: C.soft }); R(g, -380, y - 34, 68, 68, 16, EDGE(3));
         if (r.mark === 'check') CHK(atG(p, f3(tR + tu(.2))), -346, y, 1); else if (r.mark === 'x') XX(atG(p, f3(tR + tu(.2))), -346, y, 1);
         let x0 = -280; if (r.icon) { put(p, c, { icon: r.icon }, -245, y, 58, null, { t: f3(tR + tu(.1)) }); x0 = -200; }
         if (EMPTY) { phC(g, -245, y, 26); phBar(g, -200, y, 360, 26, 'start'); }
@@ -421,24 +426,24 @@
      little dot; the people pop up, the pills pop over them one by one, the last on H */
   variant('heads', 'คนกับคำถาม · คน 1–3 + เม็ดคำเหนือหัว', (d, c) => { const Q = TL(), T = Q.T0, B = EMPTY ? [null, null, null] : (d.bubbles || []).slice(0, 3), n = Math.max(1, B.length), who = d.who || 'user';
     art(c, p => { cardG(p, 900, 520); const xs = n === 1 ? [0] : n === 2 ? [-180, 180] : [-290, 0, 290];
-      xs.forEach((x, i) => { const g = mvG(p, upK(x, 210, tu(.4 + .08 * i), .26)); g.circle(x, 110, 96, F(3.6));
+      xs.forEach((x, i) => { const g = mvG(p, upK(x, 210, tu(.4 + .08 * i), .26)); g.circle(x, 110, 96, BLUE ? { fill: C.fill, sw: 3, stroke: ACC() } : F(3.6));
         if (EMPTY) phC(atG(p, tu(.5)), x, 110, 46); else put(p, c, { icon: who }, x, 110, 120, null, { t: tu(.46 + .08 * i) });
-        const t = i === n - 1 ? f3(Q.H - tu(.06)) : f3(T + tu(.2 * i)); DOT(popAt(p, x, -20, f3(t - tu(.06))), x, -20, 7);
-        const bg = popAt(p, x, -110, t); if (B[i]) { const tm = txt(bg, B[i], x, -96, { size: 38, weight: 800, color: C.ink, maxW: n === 3 ? 240 : 320 }), w = tm.getBBox().width; R(bg, x - w / 2 - 30, -150, w + 60, 80, 40, F(3.4)); bg.g.appendChild(tm); }
-        else if (EMPTY) { R(bg, x - 110, -150, 220, 80, 40, F(3.4)); phBar(bg, x, -110, 130, 22); } });
+        const t = i === n - 1 ? f3(Q.H - tu(.06)) : f3(T + tu(.2 * i)); DOTA(popAt(p, x, -20, f3(t - tu(.06))), x, -20, 7);
+        const bg = popAt(p, x, -110, t); if (B[i]) { const tm = txt(bg, B[i], x, -96, { size: 38, weight: 800, color: C.ink, maxW: n === 3 ? 240 : 320 }), w = tm.getBBox().width; R(bg, x - w / 2 - 30, -150, w + 60, 80, 40, EDGE(3.4)); bg.g.appendChild(tm); }
+        else if (EMPTY) { R(bg, x - 110, -150, 220, 80, 40, EDGE(3.4)); phBar(bg, x, -110, 130, 22); } });
     }); });
 
   /* C3 ── THE INFO CARD (การ์ดข้อมูล): an icon box, a title beside it, soft bars for the lines of text, a badge stamped on the corner, a
      button pill along the bottom — the box spins in, the bars draw, the badge stamps down, the button lights on H */
   variant('infocard', 'การ์ดข้อมูล · กล่องไอคอน + หัวข้อ + แถบบรรทัด + ป้ายมุม + ปุ่ม', (d, c) => { const Q = TL(), T = Q.T0;
-    art(c, p => { cardG(p, 860, 600); const ib = mvG(p, spinK(-280, -150, tu(.36))); R(ib, -390, -260, 220, 220, 44, F(4)); if (d.icon) put(p, c, { icon: d.icon }, -280, -150, 120, null, { t: tu(.46) }); else if (EMPTY) phC(ib, -280, -150, 50);
+    art(c, p => { cardG(p, 860, 600); const ib = mvG(p, spinK(-280, -150, tu(.36))); R(ib, -390, -260, 220, 220, 44, EDGE(4)); if (d.icon) put(p, c, { icon: d.icon }, -280, -150, 120, null, { t: tu(.46) }); else if (EMPTY) phC(ib, -280, -150, 50);
       words(p, d.title, -130, -170, { size: 50, maxW: 480, anchor: 'start', wrap: 'mid', phW: 360, phH: 40, t: f3(T + tu(.06)) });
       [[-130, -90, 440], [-130, -45, 300]].forEach(([x, y, w], i) => R(mvG(p, { px: x, py: y, sx: [[0, 0], [f3(T + tu(.14 + .08 * i)), 0], [f3(T + tu(.4 + .08 * i)), 1, 'out']], o: fadeIn(f3(T + tu(.14 + .08 * i)), .04) }), x, y - 12, w, 24, 12, PH));
       [[40, 'circle-help'], [100, 'circle-help']].slice(0, d.lines || 2).forEach(([y], i) => { const g = popAt(p, -360, y, f3(T + tu(.3 + .1 * i))); g.circle(-360, y, 26, F(2.6)); R(mvG(p, { px: -310, py: y, sx: [[0, 0], [f3(T + tu(.34 + .1 * i)), 0], [f3(T + tu(.6 + .1 * i)), 1, 'out']], o: fadeIn(f3(T + tu(.34 + .1 * i)), .04) }), -310, y - 12, i ? 380 : 520, 24, 12, PH); });
-      if (d.badge || EMPTY) { const bg = mvG(p, { px: 380, py: -270, s: [[0, 1.8], [f3(Q.H - tu(.3)), 1.8], [f3(Q.H - tu(.14)), .88, 'in'], [Q.H, 1, 'soft']], o: fadeIn(f3(Q.H - tu(.3)), .06) }); R(rot(bg, 6, 380, -270), 310, -340, 140, 140, 36, F(4.2));
+      if (d.badge || EMPTY) { const bg = mvG(p, { px: 380, py: -270, s: [[0, 1.8], [f3(Q.H - tu(.3)), 1.8], [f3(Q.H - tu(.14)), .88, 'in'], [Q.H, 1, 'soft']], o: fadeIn(f3(Q.H - tu(.3)), .06) }); R(rot(bg, 6, 380, -270), 310, -340, 140, 140, 36, EDGE(4.2));
         if (d.badge) put(p, c, { icon: d.badge }, 380, -270, 80, null, { t: f3(Q.H - tu(.14)) }); else phC(bg, 380, -270, 34); }
-      const bt = mvG(p, { px: 0, py: 220, sx: [[0, 0], [f3(Q.H - tu(.3)), 0], [f3(Q.H - tu(.06)), 1.03, 'out'], [f3(Q.H + tu(.06)), 1, 'soft']], o: fadeIn(f3(Q.H - tu(.3)), .04) }); R(bt, -390, 175, 780, 90, 45, F(4));
-      R(flick(p, Q.H), -380, 185, 760, 70, 35, { fill: LIT, sw: 0, stroke: 'none' }); words(p, d.button, 0, 234, { size: 40, phW: 220, t: Q.H });
+      const bt = mvG(p, { px: 0, py: 220, sx: [[0, 0], [f3(Q.H - tu(.3)), 0], [f3(Q.H - tu(.06)), 1.03, 'out'], [f3(Q.H + tu(.06)), 1, 'soft']], o: fadeIn(f3(Q.H - tu(.3)), .04) }); R(bt, -390, 175, 780, 90, 45, BLUE ? { fill: ACC(), sw: 0, stroke: 'none' } : F(4));
+      R(flick(p, Q.H), -380, 185, 760, 70, 35, { fill: LIT, sw: 0, stroke: 'none' }); words(p, d.button, 0, 234, { size: 40, phW: 220, t: Q.H, color: BLUE ? '#0d1824' : undefined });
     }); });
 
   /* C4 ── THE DIAL (หน้าปัด): a chip title; a half dial with a word at each end; the needle sweeps from the left end and settles on the
@@ -446,12 +451,12 @@
   variant('dial', 'หน้าปัด · ชิป + คำสองปลาย + เข็ม + เม็ดคำค่า', (d, c) => { const Q = TL(), T = Q.T0, v = EMPTY ? .5 : Math.min(1, Math.max(0, d.v ?? .5)), cx = 0, cy = 130, r = 270, a1 = 180 + 180 * v, t0 = f3(T + tu(.1)), t1 = f3(Q.H - tu(.1));
     art(c, p => { cardG(p); chip(p, d.chip, -400, -220); const P = a => f1(cx + r * Math.cos(rad(a))) + ' ' + f1(cy + r * Math.sin(rad(a)));
       drawAt(p.path(`M ${P(180)} A ${r} ${r} 0 0 1 ${P(360)}`, { sw: 16, stroke: 'rgba(255,255,255,.22)' }), p, tu(.4), tu(.4));
-      const lit = p.path(`M ${P(180)} A ${r} ${r} 0 0 1 ${P(a1)}`, { sw: 16 }); on(lit, p, 0, { draw: [[0, 0], [t0, 0], [t1, 1, 'out']] });
+      const lit = p.path(`M ${P(180)} A ${r} ${r} 0 0 1 ${P(a1)}`, { sw: 16, stroke: ACC() }); on(lit, p, 0, { draw: [[0, 0], [t0, 0], [t1, 1, 'out']] });
       const nd = mvG(p, { px: cx, py: cy, r: [[0, -180 * v], [t0, -180 * v], [t1, 6, 'out'], [f3(t1 + tu(.1)), -3, 'io'], [f3(t1 + tu(.2)), 0, 'soft']] }); nd.line(cx, cy, f1(cx + (r - 60) * Math.cos(rad(a1))), f1(cy + (r - 60) * Math.sin(rad(a1))), W(6));
       popAt(p, cx, cy, tu(.5)).circle(cx, cy, 24, SOLID(2));
       words(p, d.left, cx - r, cy + 70, { size: 32, weight: 700, phW: 120, t: tu(.6) }); words(p, d.right, cx + r, cy + 70, { size: 32, weight: 700, phW: 120, t: tu(.66) });
-      const pl = popAt(p, cx, cy + 120, Q.H); if (d.value) { const tm = txt(pl, d.value, cx, cy + 134, { size: 40, weight: 800, color: C.ink, maxW: 300 }), w = tm.getBBox().width; R(pl, cx - w / 2 - 34, cy + 80, w + 68, 80, 40, F(3.6)); pl.g.appendChild(tm); }
-      else if (EMPTY) { R(pl, cx - 110, cy + 80, 220, 80, 40, F(3.6)); phBar(pl, cx, cy + 120, 120, 22); }
+      const pl = popAt(p, cx, cy + 120, Q.H); if (d.value) { const tm = txt(pl, d.value, cx, cy + 134, { size: 40, weight: 800, color: C.ink, maxW: 300 }), w = tm.getBBox().width; R(pl, cx - w / 2 - 34, cy + 80, w + 68, 80, 40, EDGE(3.6)); pl.g.appendChild(tm); }
+      else if (EMPTY) { R(pl, cx - 110, cy + 80, 220, 80, 40, EDGE(3.6)); phBar(pl, cx, cy + 120, 120, 22); }
     }); });
 
   /* C5 ── BARS SIDE BY SIDE (แท่งเทียบ): 2–3 bars on one base line, each with a word pill under it; they grow up one after another — the
@@ -461,16 +466,16 @@
       const xs = n === 2 ? [-150, 150] : [-220, 0, 220];
       Bs.forEach((b, i) => { const h = Math.max(14, 330 * (b.v || 0) / top), isTop = (b.v || 0) === top, t = isTop ? f3(Q.H - tu(.4)) : f3(T + tu(.1 + .14 * i)), x = xs[i];
         const g = mvG(p, { px: x, py: 170, sy: [[0, 0], [t, 0], [f3(t + tu(.3)), isTop ? 1.08 : 1.25, 'out'], [f3(t + tu(.42)), isTop ? .97 : .9, 'io'], [f3(t + tu(.52)), 1, 'soft']], o: fadeIn(t, .04) });
-        R(g, x - 70, 170 - h, 140, h, 22, isTop ? { fill: LIT, sw: 4.4 } : F(3.6)); if (isTop) ripple(p, x, 170 - h, 50, f3(t + tu(.32)));
-        const pl = popAt(p, x, 230, f3(t + tu(.32))); if (b.label) { const tm = txt(pl, b.label, x, 244, { size: 32, weight: 700, color: C.ink, maxW: 200 }), w = tm.getBBox().width; R(pl, x - w / 2 - 30, 196, w + 60, 72, 36, F(3.2)); pl.g.appendChild(tm); }
-        else if (EMPTY) { R(pl, x - 90, 196, 180, 72, 36, F(3.2)); phBar(pl, x, 232, 100, 20); } });
+        R(g, x - 70, 170 - h, 140, h, 22, isTop ? (BLUE ? { fill: ACC(), sw: 0, stroke: 'none' } : { fill: LIT, sw: 4.4 }) : (BLUE ? { fill: 'rgba(255,255,255,.18)', sw: 0, stroke: 'none' } : F(3.6))); if (isTop) ripple(p, x, 170 - h, 50, f3(t + tu(.32)));
+        const pl = popAt(p, x, 230, f3(t + tu(.32))); if (b.label) { const tm = txt(pl, b.label, x, 244, { size: 32, weight: 700, color: C.ink, maxW: 200 }), w = tm.getBBox().width; R(pl, x - w / 2 - 30, 196, w + 60, 72, 36, EDGE(3.2)); pl.g.appendChild(tm); }
+        else if (EMPTY) { R(pl, x - 90, 196, 180, 72, 36, EDGE(3.2)); phBar(pl, x, 232, 100, 20); } });
     }); });
 
   /* C6 ── FROM ONE TO THE OTHER (จากอันหนึ่งไปอีกอัน): two icon boxes joined by a line, a chip over each; the line draws, a dot runs along
      it and hits the second box on H — it lights up, a ring goes out */
   variant('link', 'สองกล่องเชื่อมเส้น · กล่องไอคอน 2 + ชิปเหนือกล่อง + จุดวิ่ง', (d, c) => { const Q = TL(), T = Q.T0, A = d.a || {}, B = d.b || {};
-    art(c, p => { [[-280, A, tu(.04)], [280, B, tu(.16)]].forEach(([x, X, t], i) => { const g = mvG(p, spinK(x, 40, t)); R(g, x - 120, -80, 240, 240, 52, F(4.4));
-        if (i) R(flick(p, f3(Q.H - tu(.02))), x - 104, -64, 208, 208, 40, { fill: LIT, sw: 0, stroke: 'none' });
+    art(c, p => { [[-280, A, tu(.04)], [280, B, tu(.16)]].forEach(([x, X, t], i) => { const g = mvG(p, spinK(x, 40, t)); R(g, x - 120, -80, 240, 240, 52, EDGE(4.4));
+        if (i) R(flick(p, f3(Q.H - tu(.02))), x - (BLUE ? 120 : 104), BLUE ? -80 : -64, BLUE ? 240 : 208, BLUE ? 240 : 208, BLUE ? 52 : 40, BLUE ? { fill: 'rgba(134,204,255,.32)', sw: 3, stroke: ACC() } : { fill: LIT, sw: 0, stroke: 'none' });
         if (X.icon) put(p, c, { icon: X.icon }, x, 40, 130, null, { t: f3(t + tu(.2)), punch: i ? Q.H : undefined }); else if (EMPTY) phC(g, x, 40, 54);
         if (X.label || EMPTY) chip(p, X.label, x - 120, -170, { t: i ? f3(T + tu(.2)) : T, maxW: 320 }); });
       drawAt(p.line(-150, 40, 150, 40, W(5)), p, tu(.4), tu(.3));
@@ -489,5 +494,5 @@
   ];
 
   G.cats = G.cats || {};
-  G.cats.CARD = { variants: V, SAMPLES, draw: (i, d, c) => { setZ(c); CUR = V[i].id; EMPTY = !!(d && d.empty); V[i].build(d || {}, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
+  G.cats.CARD = { variants: V, SAMPLES, draw: (i, d, c) => { setZ(c); CUR = V[i].id; EMPTY = !!(d && d.empty); BLUE = !!G.cats.CARD.blue; V[i].build(d || {}, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
 })();
