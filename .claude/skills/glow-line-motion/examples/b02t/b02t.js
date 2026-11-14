@@ -559,7 +559,7 @@
       } }
     const g = mvG(o.clip === false ? p : CL(p), K), sh = o.shape || 'box', mv = Object.assign({}, K); delete mv.o;
     if (sh === 'circ') { g.circle(x, y, s / 2, F(3.6)); g.circle(x, y, s / 2 - 12, S(1.4)); } else R(g, x - s / 2, y - s / 2, s, s, s * .24, F(4));
-    if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * (sh === 'circ' ? .66 : .72), null, { t: up ? f3(Math.max(tu(.05), t - tu(dur))) : (o.hidden ? t : t0), mv, o: K.o });
+    if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * (sh === 'circ' ? .66 : .72), null, { t: up ? f3(Math.max(tu(.05), t - tu(dur))) : (o.hidden ? t : t0), mv, o: o.io || K.o });
     else if (X && X.label) txt(g, X.label, x, y + s * .08, { size: s * .24, maxW: s * .88, weight: 800, color: C.ink, wrap: 'mid' }); else g.circle(x, y, s * .12, { fill: ACC1, sw: 0, stroke: 'none' });
     if (up && (o.in || 'drop') === 'drop' && o.dust !== false) dust(p, x, y + s / 2, t, s / 240);
     if (!up && t != null && o.ghost !== false && !o.hidden) ghost(p, x, y, s, f3(t + tu(dur)), sh);   /* where it was stays as a dashed outline */
@@ -698,7 +698,7 @@
         const BK2 = E.up ? { px: x, py: by, sy: [[0, 0], [f3(t - tu(.34)), 0], [f3(t - tu(.06)), 1.06, 'out'], [t, 1, 'soft']], o: fadeIn(f3(t - tu(.34)), .04) }
           : { px: x, py: by, sy: t == null ? [[0, 0], [tu(.1 + .05 * k), 0], [tu(.4 + .05 * k), 1, 'out']] : [[0, 0], [tu(.1 + .05 * k), 0], [tu(.4 + .05 * k), 1, 'out'], [t, 1], [f3(t + tu(.3)), 0, 'in']], o: fadeIn(tu(.1 + .05 * k), .04) };
         R(mvG(p, BK2), x - bw / 2, top, bw, h, 18, { fill: TA(.35), sw: 3.4, stroke: ACC1 });
-        item(p, c, X, x, iy, s, E, k, { in: 'pop', out: 'sink', sinkY: h + s / 2, dur: .3, ghost: false }); });
+        item(p, c, X, x, iy, s, E, k, { in: 'pop', out: 'sink', sinkY: h + s / 2, dur: E.up ? .14 : .3, ghost: false });   /* up: the box pops only once its bar has grown */ });
       cbox(p, c, Cn, -360, -170, 170, E.ts); endM(p, c, d, xs[E.n - 1] + s / 2, -260);
     }); });
 
@@ -936,7 +936,11 @@
   /* 35 ── DECK (สำรับซ้อน): big boxes stacked as a deck, each a little up and to the right; up — each slides in from the right onto the top; down —
      the top one is dealt off to the left */
   variant('deck', 'สำรับซ้อน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = 250, dx = 28, x0 = (Cn ? -150 : -40) - (E.n - 1) * dx / 2, y0 = 70 + (E.n - 1) * dx / 2;
-    art(c, p => { base(p, c, d, E); for (let k = 0; k < E.n; k++) item(p, c, X, f1(x0 + k * dx), f1(y0 - k * dx), s, E, k, { in: 'slide', out: 'slide', dx: E.up ? 560 : -620, ghost: false });
+    art(c, p => { base(p, c, d, E); for (let k = 0; k < E.n; k++) { const t = E.at(k), tn = k < E.n - 1 ? E.at(k + 1) : null, ts = () => f3(Math.max(tu(.05), t - tu(.3)));
+        /* icons sit on a layer above every card, so a covered card's icon hides while the card on top of it is there */
+        const io = E.up ? (k < E.n - 1 ? [[0, 0], [ts(), 0], [f3(ts() + tu(.04)), 1], [f3(tn - tu(.22)), 1], [f3(tn - tu(.16)), 0]] : null)
+          : k === E.n - 1 ? null : tn == null ? [[0, 0]] : [[0, 0], [f3(tn + tu(.12)), 0], [f3(tn + tu(.18)), 1]].concat(t == null ? [] : [[t, 1], [f3(t + tu(.3)), 0]]);
+        item(p, c, X, f1(x0 + k * dx), f1(y0 - k * dx), s, E, k, { in: 'slide', out: 'slide', dx: E.up ? 560 : -620, ghost: false, io: io || undefined }); }
       cbox(p, c, Cn, 320, 40, 220, E.ts); endM(p, c, d, x0 + (E.n - 1) * dx + s / 2, y0 - (E.n - 1) * dx - s / 2);
     }); });
 
@@ -988,11 +992,11 @@
 
   /* 41 ── TWO LANES (สองเลน): a faint upper lane (outside) and a bright lower lane (inside, the center at its end); up — boxes drop from the upper lane
      into the lower one; down — they rise from the lower lane back up and out */
-  variant('twolanes', 'สองเลน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = Cn ? (E.n >= 4 ? 166 : 180) : (E.n >= 4 ? 185 : 205), xs = rowX(E.n, s, 20, Cn ? -110 : 0), ya = -130, yb = 180;
+  variant('twolanes', 'สองเลน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = Cn ? (E.n >= 4 ? 166 : 180) : (E.n >= 4 ? 185 : 205), xs = rowX(E.n, s, 18, Cn ? -135 : 0), ya = -130, yb = 180;
     art(c, p => { base(p, c, d, E); 
       xs.forEach((x, k) => item(p, c, X, x, yb, s, E, k, E.up ? { in: 'fly', from: [x - 60, ya], mid: [x - 20, ya - 60], dur: .36 } : { out: 'fly', to: [x + 80, -460], mid: [x + 40, ya], dur: .4 }));
       if (E.up) xs.forEach((x, k) => { const t = E.at(k), g = sub(p); on(g, p, 0, { o: [[0, 0], [tu(.2), 0], [tu(.24), 1], [f3(t - tu(.36)), 1], [f3(t - tu(.34)), 0]] }); R(g, x - 60 - s / 2, ya - s / 2, s, s, s * .24, DASH(.45)); });
-      cbox(p, c, Cn, 360, yb - 20, 180, E.ts, { ly: yb - 145 }); endM(p, c, d, xs[E.n - 1] + s / 2, yb - s / 2);
+      cbox(p, c, Cn, 390, yb - 20, 170, E.ts, { ly: yb - 150 }); endM(p, c, d, xs[E.n - 1] + s / 2, yb - s / 2);
     }); });
 
   /* 42 ── PORTAL (ประตูวง): an upright ring on the left; up — the boxes come out of it one by one and slide to their places; down — they slide back into
