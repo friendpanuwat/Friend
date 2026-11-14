@@ -584,7 +584,9 @@
     g.circle(x, y, r, F(3.6)); const k = r / 32;
     if (kind === 'x') XX(g, x, y, k); else g.path(`M ${f1(x - 17 * k)} ${f1(y + 1 * k)} L ${f1(x - 5 * k)} ${f1(y + 13 * k)} L ${f1(x + 18 * k)} ${f1(y - 13 * k)}`, { sw: 5.4, stroke: ACC1 });
     ripple(p, x, y, r + 8, f3(t + tu(.14))); }
-  function verdict(p, d, at) { const T = ST(d); if (!d.how || !T.win) return; const s = d.how === 'x' ? T.lose : T.win; if (at[s]) stamp(p, d.how === 'x' ? 'x' : 'check', at[s][0], at[s][1]); }
+  /* CutPack sends the cross as 'cross' (cat_ai.py); 'x' is ours — both mean: cross the loser */
+  const HOWB = d => d && (d.how === 'cross' || d.how === 'x') ? 'x' : d && d.how === 'check' ? 'check' : null;
+  function verdict(p, d, at) { const T = ST(d), hw = HOWB(d); if (!hw || !T.win) return; const s = hw === 'x' ? T.lose : T.win; if (at[s]) stamp(p, hw, at[s][0], at[s][1]); }
   const corner = (x, y, sz, sd = 1) => [f1(x + sd * (sz / 2 - 6)), f1(y - sz / 2 + 6)];
   /* an equal level both sides reach before the keyword (CutPack: equal until the verdict) */
   const eqOf = T => Math.min(T.amt('a'), T.amt('b')) * .82;

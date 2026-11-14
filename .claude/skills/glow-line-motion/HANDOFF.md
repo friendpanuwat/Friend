@@ -221,6 +221,11 @@
   50 แบบ: row · chevrons · diagonal · rail(texts) · cycle · progress · carousel · checklist · wave · ladder · zigzag · tower · fan · bubbles · pipeline · gridz · hops ·
   tabs(texts) · dominoes · timeline · uloop · arrows · pips · bars · honeycomb · toggles · ringlist · flipreveal · cards(texts) · focus · slants · stepper(texts) · pins ·
   ringchain · arc · funnel · dial · bigarrow · constellation · segment · stairs · cardfan · ringbox · pyramid · rowbars · wheel(texts) · pillgrow · deal · pie · spiral.
+  **แก้ความหมาย mark (ผู้ใช้: "ทำไมมันไม่ไปหยุดที่อันสุดท้าย … ถ่าย ตัดต่อ แล้วฉาย ทำไมถึงไปหยุดที่ตัดต่อ" → อธิบายว่าข้อมูลตัวอย่างใส่ mark ไว้ +
+  เสนอทาง ก. → "เอาทางที่คุณคิดว่าดีที่สุด"):** ตัวไล่วิ่งครบทุกขั้น **จบที่ขั้นสุดท้ายตรง H เสมอ** · mark บอกแค่ขั้นที่เน้น / ✓ / ✗ ตรง H (`Q.K` = ขั้นเป้า,
+  `Q.E` = ขั้นสุดท้าย, `reach()`) · แบบที่แสดงทีละขั้น (tabs stepper wheel dial segment focus carousel) ไล่ทุกขั้นแล้ว**กลับมาค้างที่ขั้นที่เน้น** (`phOf`).
+  ข้อมูลตัวอย่างใส่ mark เฉพาะประโยคที่เน้นจริง ("ถ่าย ตัดต่อ แล้วฉาย" ไม่มี mark แล้ว). **CutPack ส่งกากบาทเป็น `cross` (ไม่ใช่ `x`)** — B04T รับทั้งคู่,
+  **B03T แก้ด้วย (`HOWB()`) — เดิม `cross` จะกลายเป็น ✓ ที่ฝั่งชนะ** (ภาพเดิมไม่เปลี่ยน). หมวดถัดไป: ใช้คำตาม `cutpack/engine/uni/cat_ai.py` เสมอ.
   ตรวจธีม = 0 ทุกแผ่น · strips ทุกแบบ + dense (wheel tabs). บทเรียน: ป้าย ✓/✗ มุมขวาบนชนคำที่อยู่เหนือ/ขวากล่อง → เลือกมุมตามที่คำอยู่ (`cornerB` / ซ้าย) ·
   หน้าแสดงขั้นปัจจุบันต้องโชว์ขั้นแรกตั้งแต่ต้น (`phOf` เริ่มที่ tI(0)+.4) ไม่งั้นกล่องว่างนาน.
 

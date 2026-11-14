@@ -605,9 +605,12 @@
      and reaches the marked step (no mark: the last) on the keyword H: it lights (light: the others dim · check: ✓ · x: it dims and gets ✗). */
   const ITS = d => (d && Array.isArray(d.items) ? d.items.filter(has) : []).slice(0, 4);
   function STP(d) { const it = ITS(d), N = Math.max(1, it.length), m = d && d.mark && typeof d.mark === 'object' ? d.mark : null;
-    const K = m && m.at != null && isFinite(+m.at) ? Math.max(0, Math.min(N - 1, Math.round(+m.at))) : N - 1, HOW = m ? (['light', 'check', 'x'].includes(m.how) ? m.how : 'light') : null, H = Z.H;
-    const gp = N >= 4 ? .17 : N === 3 ? .22 : .3, tI = i => f3(tu(.08 + gp * i)), tP0 = f3(Math.max(tI(N - 1) + tu(.34), H - tu(.85))), tP = i => i > K ? null : K === 0 ? H : f3(lerp(tP0, H, i / K));
-    return { it, N, K, HOW, H, tI, tP, tP0 }; }
+    const K = m && m.at != null && isFinite(+m.at) ? Math.max(0, Math.min(N - 1, Math.round(+m.at))) : N - 1, hw = m && m.how === 'cross' ? 'x' : m && m.how, HOW = m ? (['light', 'check', 'x'].includes(hw) ? hw : 'light') : null, H = Z.H, E = N - 1;
+    const gp = N >= 4 ? .17 : N === 3 ? .22 : .3, tI = i => f3(tu(.08 + gp * i)), tP0 = f3(Math.max(tI(N - 1) + tu(.34), H - tu(.85))), tP = i => E === 0 ? H : f3(lerp(tP0, H, i / E));
+    return { it, N, K, E, HOW, H, tI, tP, tP0 }; }
+  /* (user 2026-11-14: "ทำไมมันไม่ไปหยุดที่อันสุดท้าย" → "เอาทางที่คุณคิดว่าดีที่สุด"): the progress always runs every step and ends on the LAST one on H;
+     mark only says which step gets the emphasis / ✓ / ✗ on H (CutPack: "the step that matters, is done or is wrong"). K = that step (no mark: the last),
+     E = the last step. Designs that show ONE current step (tabs, stepper, wheel, dial, segment, focus, carousel) visit every step and settle on K. */
   const TXI = (d, i) => d && Array.isArray(d.texts) && d.texts[i] != null && String(d.texts[i]).trim() ? String(d.texts[i]).trim() : null;
   const LBI = (Q, i) => LBL(Q.it[i]);
   const SZ4 = n => n >= 4 ? 176 : n === 3 ? 210 : 240, GP4 = n => n >= 4 ? 52 : n === 3 ? 80 : 150;
@@ -617,16 +620,17 @@
   const stState = (Q, i) => { const tg = i === Q.K, xx = tg && Q.HOW === 'x', dim = xx || (Q.HOW === 'light' && !tg); return { tg, xx, dim, lit: tg && !xx, to: xx ? .42 : .5 }; };
   const dimKeys = (Q, to) => [[0, 1], [Q.H, 1], [f3(Q.H + tu(.2)), to]];
   const passed = (Q, i) => { const t = Q.tP(i); return t != null && t < Q.H - .005 ? t : null; };
+  const reach = (Q, i) => Q.tP(i);   /* when the progress reaches step i (the last one: on H) */
   /* step i as an icon slot at (x, y) size sz (o.shape box | circ | hex, or o.draw(q, style) for any outline). o.g = it rides that group (o.mv its keys).
      The progress passing bumps it; on H the target lights (or dims with x), with light the others dim. o.ix / o.iy / o.iw = where the icon sits */
   function stepBox(p, c, d, i, x, y, sz, o = {}) { const Q = STP(d), X = Q.it[i], H = Q.H, t = o.t ?? Q.tI(i), sh = o.shape || 'box', S_ = stState(Q, i), tp = passed(Q, i);
     const draw = o.draw || ((q, st) => shp(q, sh, x, y, sz, st));
     const g0 = o.g || popAt(p, x, y, t); if (S_.dim && o.bk !== false) draw(g0, BK);
-    const g1 = S_.dim ? mvG(g0, { o: dimKeys(Q, S_.to) }) : g0, ts = []; if (tp != null) ts.push(tp); if (S_.lit) ts.push(H);
+    const g1 = S_.dim ? mvG(g0, { o: dimKeys(Q, S_.to) }) : g0, ts = [], arr = i === Q.E && !S_.lit; if (tp != null) ts.push(tp); if (S_.lit || arr) ts.push(H);
     const g = ts.length && o.bump !== false ? mvG(g1, { px: x, py: y, s: bumpsK(ts) }) : g1;
     draw(g, o.style || F(4)); if (sh === 'circ' && !o.draw) g.circle(x, y, sz / 2 - 13, SL(1.4));
     if (S_.lit && !T_OFF) { draw(litOn(g, H), o.litStyle || LIT2()); if (o.rip !== false) ripple(p, o.ix ?? x, o.iy ?? y, sz * .58, f3(H + tu(.04))); }
-    if (tp != null && o.passRip !== false) ripple(p, o.ix ?? x, o.iy ?? y, sz * .48, tp);
+    if (o.passRip !== false) { if (tp != null) ripple(p, o.ix ?? x, o.iy ?? y, sz * .48, tp); if (arr) ripple(p, o.ix ?? x, o.iy ?? y, sz * .52, H); }
     const iw = o.iw || sz * (sh === 'box' ? .72 : .66);
     if (X && picOf(X)) put(p, c, { icon: X.icon }, o.ix ?? x, o.iy ?? y, iw, null, { t: o.ti ?? f3(t + tu(.04)), mv: o.mv, o: o.io ?? (S_.dim ? dimKeys(Q, S_.to) : undefined), punch: S_.lit ? H : undefined });
     else if (X && X.label) txt(o.tg || g, X.label, o.ix ?? x, (o.iy ?? y) + 16, { size: Math.max(40, Math.min(56, (o.iw || sz) * .22)), maxW: o.lw || (o.iw || sz) * .84, weight: 800, color: C.ink, wrap: 'mid' });
@@ -648,9 +652,9 @@
   const markT = (p, d, at, r = 58) => { const Q = STP(d); if (Q.HOW === 'check' || Q.HOW === 'x') stamp(p, Q.HOW, at[0], at[1], r); };
   /* the lines between steps: drawn in as the steps come; the accent runs along each one as the progress passes (to the target) */
   function links(p, Q, segs, o = {}) { segs.forEach((dd, i) => { if (!dd) return; drawAt(p.path(dd, o.base || { sw: 4, stroke: TL_(.42) }), p, f3(Q.tI(i + 1) - tu(.04)), tu(.22));
-      if (i < Q.K) { const a = p.path(dd, o.lit || { sw: 7, stroke: ACC1 }); on(a, p, 0, { draw: [[0, 0], [f3(Q.tP(i) + tu(.03)), 0], [Q.tP(i + 1), 1, 'io']] }); } }); }
+      if (i < Q.E) { const a = p.path(dd, o.lit || { sw: 7, stroke: ACC1 }); on(a, p, 0, { draw: [[0, 0], [f3(Q.tP(i) + tu(.03)), 0], [Q.tP(i + 1), 1, 'io']] }); } }); }
   /* a token that travels the steps' anchor points (o.via(i) = points between i and i+1), arriving at each on its pass time, at the target on H */
-  function token(p, Q, pts, o = {}) { const K = Q.K, fin = pts[K], r = o.r || 20, via = o.via || (() => []), t0 = f3(Q.tP(0) - tu(.14));
+  function token(p, Q, pts, o = {}) { const K = Q.E, fin = pts[K], r = o.r || 20, via = o.via || (() => []), t0 = f3(Q.tP(0) - tu(.14));
     const X = [[0, f1(pts[0][0] - fin[0])], [t0, f1(pts[0][0] - fin[0])]], Y = [[0, f1(pts[0][1] - fin[1])], [t0, f1(pts[0][1] - fin[1])]];
     for (let i = 0; i < K; i++) { const P = pathK([pts[i]].concat(via(i), [pts[i + 1]]), f3(Q.tP(i) + tu(.05)), Q.tP(i + 1), fin, 18, o.ease || sm); X.push(...P.x.slice(1)); Y.push(...P.y.slice(1)); }
     const g = mvG(o.clip ? CL(p) : p, { px: fin[0], py: fin[1], x: X, y: Y, o: [[0, 0], [t0, 0], [f3(t0 + tu(.06)), 1]].concat(o.keep ? [] : [[f3(Q.H + tu(.12)), 1], [f3(Q.H + tu(.32)), 0]]) });
@@ -694,7 +698,7 @@
      rail lights down to the target, its node filling */
   variant('rail', 'รางแนวตั้ง', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, rh = RH4(n), s = rh - (n >= 4 ? 8 : 30), ys = rowXs(n, rh, 0, 0), RX = -448, BX = -330;
     links(p, Q, ys.slice(0, -1).map((y, i) => `M ${RX} ${f1(y + 20)} L ${RX} ${f1(ys[i + 1] - 20)}`));
-    ys.forEach((y, i) => { const g = popAt(p, RX, y, Q.tI(i)); g.circle(RX, y, 17, F(3)); const lt = passed(Q, i) ?? (i === Q.K ? Q.H : null); if (lt != null) popAt(p, RX, y, lt).circle(RX, y, 9, DOTF());
+    ys.forEach((y, i) => { const g = popAt(p, RX, y, Q.tI(i)); g.circle(RX, y, 17, F(3)); const lt = reach(Q, i); if (lt != null) popAt(p, RX, y, lt).circle(RX, y, 9, DOTF());
       entBox(p, c, d, i, BX, y, s, 'left'); const hw = !!LBI(Q, i);
       if (hw) stepWord(p, d, i, BX + s / 2 + 30, f1(y - (n >= 4 ? 22 : 28)), { anchor: 'start', size: n >= 4 ? 46 : 50, maxW: 540, wrap: null });
       stepNote(p, d, i, BX + s / 2 + 30, f1(hw ? y + (n >= 4 ? 24 : 32) : y - 10), 540, { one: n >= 4 }); });
@@ -715,7 +719,7 @@
   variant('progress', 'แถบความคืบหน้า', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, BW = 920, BY = 196, BH = 124, sw_ = BW / n, xs = rowXs(n, sw_, 0), s = Math.min(SZ4(n), sw_ - 36), y = -66;
     R(mvG(p, { px: -BW / 2, py: BY, sx: [[0, 0], [tu(.04), 0], [tu(.4), 1, 'out']], o: fadeIn(tu(.04), .05) }), -BW / 2, BY - BH / 2, BW, BH, BH / 2, F(3.6));
     xs.slice(1).forEach(x => drawAt(p.line(f1(x - sw_ / 2), BY - BH / 2 + 14, f1(x - sw_ / 2), BY + BH / 2 - 14, { sw: 2.4, stroke: TL_(.4) }), p, tu(.3), tu(.15)));
-    const fw = f1(sw_ * (Q.K + 1) - 16), keys = [[0, 0], [f3(Q.tP(0) - tu(.2)), 0]]; for (let i = 0; i <= Q.K; i++) keys.push([Q.tP(i), f3((i + 1) / (Q.K + 1)), 'io']);
+    const fw = f1(sw_ * (Q.E + 1) - 16), keys = [[0, 0], [f3(Q.tP(0) - tu(.2)), 0]]; for (let i = 0; i <= Q.E; i++) keys.push([Q.tP(i), f3((i + 1) / (Q.E + 1)), 'io']);
     R(mvG(p, { px: -BW / 2 + 8, py: BY, sx: keys }), -BW / 2 + 8, BY - BH / 2 + 8, fw, BH - 16, (BH - 16) / 2, { fill: TA(.45), sw: 0, stroke: 'none' });
     xs.forEach((x, i) => { entBox(p, c, d, i, x, y, s, 'drop'); stepWord(p, d, i, x, BY + 16, { size: 44, maxW: sw_ - 40 }); });
     markT(p, d, corner(xs[Q.K], y, s)); }); });
@@ -723,8 +727,7 @@
   /* 07 ── CAROUSEL (สไลด์เลื่อน): the steps sit on a strip that slides in; the strip moves step by step, the one in the middle grows; it stops with the
      target in the middle on H. Words ride under the boxes */
   variant('carousel', 'สไลด์เลื่อน', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, SPc = 330, s = 200, K = Q.K, y = -14;
-    const X = [[0, f1(K * SPc + 760)], [tu(.06), f1(K * SPc + 760)], [tu(.5), f1(K * SPc), 'out']]; for (let i = 1; i <= K; i++) X.push([f3(Q.tP(i) - tu(.24)), f1((K - i + 1) * SPc)], [Q.tP(i), f1((K - i) * SPc), 'io']);
-    const ph = [[tu(.5), 0]]; for (let j = 1; j <= K; j++) ph.push([Q.tP(j), j]);
+    const ph = phOf(Q), X = [[0, f1(K * SPc + 760)], [tu(.06), f1(K * SPc + 760)], [tu(.5), f1(K * SPc), 'out']]; ph.forEach(([t, w], j) => { if (j) X.push([f3(t - tu(.22)), f1((K - ph[j - 1][1]) * SPc)], [t, f1((K - w) * SPc), 'io']); });
     for (let i = 0; i < n; i++) { const x = f1((i - K) * SPc), K2 = { px: x, py: y, x: X, s: posK(ph, w => w === i ? 1.25 : 1, .24) };
       stepBox(p, c, d, i, x, y, s, { g: mvG(CL(p), K2), mv: K2, t: tu(.08), passRip: false });
       stepWord(p, d, i, x, y + s / 2 + 80, { g: mvG(CL(p), { x: X }), size: 46, maxW: 270, t: tu(.34) }); }
@@ -734,7 +737,7 @@
      (x: a cross, the row dims) */
   variant('checklist', 'เช็กลิสต์', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, rh = RH4(n), s = rh - (n >= 4 ? 8 : 30), ys = rowXs(n, rh, 0, 0), CX = -408, BX = -262;
     ys.forEach((y, i) => { entBox(p, c, d, i, BX, y, s, 'left', { passRip: false }); const g = popAt(p, CX, y, f3(Q.tI(i) + tu(.1))); g.circle(CX, y, 48, F(3.6));
-      const S_ = stState(Q, i), tt = passed(Q, i) ?? (S_.tg ? Q.H : null);
+      const S_ = stState(Q, i), tt = S_.tg ? Q.H : reach(Q, i);
       if (tt != null) { const m = popAt(p, CX, y, tt); if (S_.xx) XX(m, CX, y, 1.3); else m.path(`M ${CX - 21} ${y + 1} L ${CX - 6} ${y + 16} L ${CX + 22} ${y - 16}`, { sw: 6.4, stroke: ACC1 }); ripple(p, CX, y, 58, tt); }
       stepWord(p, d, i, BX + s / 2 + 30, f1(y + 17), { anchor: 'start', size: n >= 4 ? 48 : 52, maxW: 520, wrap: null }); }); }); });
 
@@ -747,7 +750,7 @@
   /* 10 ── LADDER (ไต่ขึ้น): the steps rise in from the bottom up (first at the bottom); a light climbs the line beside them to the target; words right */
   variant('ladder', 'ไต่ขึ้น', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, rh = RH4(n), s = rh - (n >= 4 ? 8 : 30), ys = rowXs(n, rh, 0, 0).reverse(), BX = -190, LX = BX - s / 2 - 40;
     links(p, Q, ys.slice(0, -1).map((y, i) => `M ${LX} ${y} L ${LX} ${ys[i + 1]}`), { base: { sw: 5, stroke: TL_(.35) }, lit: { sw: 8, stroke: ACC1 } });
-    ys.forEach((y, i) => { const tt = passed(Q, i) ?? (i === Q.K ? Q.H : null); popAt(p, LX, y, Q.tI(i)).circle(LX, y, 12, F(3)); if (tt != null) popAt(p, LX, y, tt).circle(LX, y, 12, DOTF());
+    ys.forEach((y, i) => { const tt = reach(Q, i); popAt(p, LX, y, Q.tI(i)).circle(LX, y, 12, F(3)); if (tt != null) popAt(p, LX, y, tt).circle(LX, y, 12, DOTF());
       entBox(p, c, d, i, BX, y, s, 'rise'); stepWord(p, d, i, BX + s / 2 + 32, f1(y + 18), { anchor: 'start', size: 52, maxW: 500, wrap: null }); });
     markT(p, d, corner(BX, ys[Q.K], s, -1)); }); });
 
@@ -767,7 +770,7 @@
   /* 13 ── FAN (พัดซี่): spokes spread from a hub at the bottom to the steps on an arc; each spoke lights in turn, the hub lights on H; words above */
   variant('fan', 'พัดซี่', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, s = n >= 4 ? 170 : n === 3 ? 192 : 220, HC = [0, 288], Rf = 410, AN = n >= 4 ? [200, 246.7, 293.3, 340] : n === 3 ? [208, 270, 332] : [232, 308];
     const pos = AN.map(a => [f1(HC[0] + Rf * Math.cos(rad(a))), f1(HC[1] + Rf * Math.sin(rad(a)))]);
-    pos.forEach(([x, y], i) => { const dd = `M ${HC[0]} ${HC[1]} L ${x} ${y}`, tt = passed(Q, i) ?? (i === Q.K ? Q.H : null); drawAt(p.path(dd, { sw: 4, stroke: TL_(.4) }), p, Q.tI(i), tu(.25));
+    pos.forEach(([x, y], i) => { const dd = `M ${HC[0]} ${HC[1]} L ${x} ${y}`, tt = reach(Q, i); drawAt(p.path(dd, { sw: 4, stroke: TL_(.4) }), p, Q.tI(i), tu(.25));
       if (tt != null) { const a = p.path(dd, { sw: 7, stroke: ACC1 }); on(a, p, 0, { draw: [[0, 0], [f3(tt - tu(.2)), 0], [tt, 1, 'io']] }); } });
     const hg = popAt(p, ...HC, tu(.06)); hg.circle(...HC, 52, F(4)); litOn(hg, Q.H).circle(...HC, 24, DOTF());
     pos.forEach(([x, y], i) => { entBox(p, c, d, i, x, y, s, 'spin'); stepWord(p, d, i, x, f1(y - s / 2 - 38), { size: 44, maxW: n >= 4 ? 220 : 280 }); });
@@ -783,7 +786,7 @@
   /* 15 ── PIPELINE (ท่อเชื่อม): boxes drop in, hollow pipes join them; light flows down the pipes step to step; words in pills (alternating for 4) */
   variant('pipeline', 'ท่อเชื่อม', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, s = SZ4(n), g = GP4(n) + (n >= 4 ? 6 : 20), xs = rowXs(n, s, g), y = n >= 4 ? 20 : 50;
     xs.slice(0, -1).forEach((x, i) => { const dd = `M ${f1(x + s / 2 - 4)} ${y} L ${f1(xs[i + 1] - s / 2 + 4)} ${y}`, tg = sub(p); on(tg, p, 0, { o: fadeIn(Q.tI(i + 1), .1) }); tube(tg, dd, 30);
-      if (i < Q.K) { const a = p.path(dd, { sw: 12, stroke: ACC1 }); on(a, p, 0, { draw: [[0, 0], [f3(Q.tP(i) + tu(.03)), 0], [Q.tP(i + 1), 1, 'io']] }); } });
+      if (i < Q.E) { const a = p.path(dd, { sw: 12, stroke: ACC1 }); on(a, p, 0, { draw: [[0, 0], [f3(Q.tP(i) + tu(.03)), 0], [Q.tP(i + 1), 1, 'io']] }); } });
     xs.forEach((x, i) => { entBox(p, c, d, i, x, y, s, 'drop'); const dn = n >= 3 && i % 2; stepWord(p, d, i, x, dn ? y + s / 2 + 60 : y - s / 2 - 60, { pill: true, size: 44, maxW: n >= 3 ? 340 : Math.min(340, s + g - 70) }); });
     markT(p, d, Q.K % 2 && n >= 3 ? corner(xs[Q.K], y, s) : cornerB(xs[Q.K], y, s)); }); });
 
@@ -795,13 +798,14 @@
 
   /* 17 ── HOPS (ลูกบอลกระโดด): boxes rise in; a lit ball bounces from top to top (a puff at each landing) and stays on the target; words under */
   variant('hops', 'ลูกบอลกระโดด', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, s = SZ4(n), g = GP4(n), xs = rowXs(n, s, g), y = 118, pts = xs.map(x => [x, f1(y - s / 2 - 32)]);
-    xs.forEach((x, i) => { entBox(p, c, d, i, x, y, s, 'rise'); stepWord(p, d, i, x, f1(y + s / 2 + 58), { size: 44, maxW: s + g - 20 }); const tt = passed(Q, i) ?? (i === Q.K ? Q.H : null); if (tt != null) dust(p, x, f1(y - s / 2), tt, .6); });
+    xs.forEach((x, i) => { entBox(p, c, d, i, x, y, s, 'rise'); stepWord(p, d, i, x, f1(y + s / 2 + 58), { size: 44, maxW: s + g - 20 }); const tt = reach(Q, i); if (tt != null) dust(p, x, f1(y - s / 2), tt, .6); });
     token(p, Q, pts, { r: 30, keep: true, via: i => [.25, .5, .75].map(u => [f1(lerp(pts[i][0], pts[i + 1][0], u)), f1(lerp(pts[i][1], pts[i + 1][1], u) - 4 * 190 * u * (1 - u))]), draw: (g, x, y) => g.circle(x, y, 30, DOTF()) });
     markT(p, d, corner(xs[Q.K], y, s, -1)); }); });
 
   /* phases → keys that show step i only while it is the current one (hidden before the first phase) */
   const showK = (ph, i, d = .12) => [[0, 0], [f3(ph[0][0] - tu(.1)), 0], [ph[0][0], ph[0][1] === i ? 1 : 0]].concat(posK(ph, w => w === i ? 1 : 0, d).slice(1));
-  const phOf = Q => { const ph = [[f3(Math.min(Q.tP(0), Q.tI(0) + tu(.4))), 0]]; for (let j = 1; j <= Q.K; j++) ph.push([Q.tP(j), j]); return ph; };
+  const phOf = Q => { const ph = [[f3(Math.min(Q.tP(0), Q.tI(0) + tu(.4))), 0]], back = Q.K !== Q.E, end = back ? Q.H - tu(.34) : Q.H;
+    for (let j = 1; j <= Q.E; j++) ph.push([f3(Q.E ? lerp(Q.tP0, end, j / Q.E) : end), j]); if (back) ph.push([Q.H, Q.K]); return ph; };
 
   /* 18 ── TABS (แท็บทีละขั้น): a tab per step (its word on the tab) over one page; the lit tab moves step by step and the page shows that step —
      its icon and its line of words (texts); it settles on the target on H */
@@ -832,7 +836,7 @@
   variant('timeline', 'เส้นเวลาสลับข้าง', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, rh = RH4(n), s = rh - (n >= 4 ? 8 : 34), ys = rowXs(n, rh, 0, 0), LX = 0, X = i => (i % 2 ? 1 : -1) * (s / 2 + 60);
     drawAt(p.line(LX, f1(ys[0] - rh / 2 + 10), LX, f1(ys[n - 1] + rh / 2 - 10), { sw: 4, stroke: TL_(.35) }), p, tu(.02), tu(.4));
     links(p, Q, ys.slice(0, -1).map((y, i) => `M ${LX} ${y} L ${LX} ${ys[i + 1]}`), { base: { sw: 0, stroke: 'none' } });
-    ys.forEach((y, i) => { const sd = i % 2 ? 1 : -1, tt = passed(Q, i) ?? (i === Q.K ? Q.H : null), g = popAt(p, LX, y, Q.tI(i)); g.circle(LX, y, 18, F(3.4)); if (tt != null) popAt(p, LX, y, tt).circle(LX, y, 10, DOTF());
+    ys.forEach((y, i) => { const sd = i % 2 ? 1 : -1, tt = reach(Q, i), g = popAt(p, LX, y, Q.tI(i)); g.circle(LX, y, 18, F(3.4)); if (tt != null) popAt(p, LX, y, tt).circle(LX, y, 10, DOTF());
       entBox(p, c, d, i, X(i), y, s, sd < 0 ? 'left' : 'right'); stepWord(p, d, i, -sd * 40, f1(y + 17), { anchor: sd < 0 ? 'start' : 'end', size: 48, maxW: 390, wrap: null }); });
     markT(p, d, corner(X(Q.K), ys[Q.K], s, Q.K % 2 ? 1 : -1)); }); });
 
@@ -846,20 +850,20 @@
   /* 22 ── ARROWS (ลูกศรคั่น): fat arrows sit between the boxes and fill with light as the progress passes; words in pills */
   variant('arrows', 'ลูกศรคั่น', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, s = n >= 4 ? 170 : n === 3 ? 200 : 230, aw = n >= 4 ? 62 : n === 3 ? 96 : 160, xs = rowXs(n, s, aw + 20), y = 30;
     xs.slice(0, -1).forEach((x, i) => { const x0 = f1(x + s / 2 + 10), x1 = f1(xs[i + 1] - s / 2 - 10), D = arrowD(x0, x1, y, 36, 86, Math.min(44, (x1 - x0) * .6), false, true); popAt(p, (x0 + x1) / 2, y, Q.tI(i + 1)).path(D, F(3.4));
-      if (i < Q.K) { const tl = f3(lerp(Q.tP(i), Q.tP(i + 1), .5)), L = sub(p); on(L, p, 0, { o: [[0, 0], [tl, 0], [f3(tl + tu(.08)), 1]] }); L.path(D, { fill: ACC1, sw: 3.4, stroke: ACC1 }); ripple(p, (x0 + x1) / 2, y, 40, tl); } });
+      if (i < Q.E) { const tl = f3(lerp(Q.tP(i), Q.tP(i + 1), .5)), L = sub(p); on(L, p, 0, { o: [[0, 0], [tl, 0], [f3(tl + tu(.08)), 1]] }); L.path(D, { fill: ACC1, sw: 3.4, stroke: ACC1 }); ripple(p, (x0 + x1) / 2, y, 40, tl); } });
     xs.forEach((x, i) => { entBox(p, c, d, i, x, y, s, 'drop'); const dn = n >= 3 && i % 2; stepWord(p, d, i, x, dn ? f1(y + s / 2 + 62) : f1(y - s / 2 - 62), { pill: true, size: 44, maxW: n >= 3 ? 340 : Math.min(340, s + aw - 60) }); });
     markT(p, d, Q.K % 2 && n >= 3 ? corner(xs[Q.K], y, s) : cornerB(xs[Q.K], y, s)); }); });
 
   /* 23 ── PIPS (จุดบอกลำดับ): under each box a row of pips counts its place (one, two, three …) — no numbers; the pips light as the progress passes */
   variant('pips', 'จุดบอกลำดับ', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, s = SZ4(n), g = GP4(n), xs = rowXs(n, s, g), y = -30, PY = f1(y + s / 2 + 52);
-    xs.forEach((x, i) => { entBox(p, c, d, i, x, y, s, 'drop'); stepWord(p, d, i, x, f1(y - s / 2 - 44), { size: 44, maxW: s + g - 20 }); const tt = passed(Q, i) ?? (i === Q.K && Q.HOW !== 'x' ? Q.H : null);
+    xs.forEach((x, i) => { entBox(p, c, d, i, x, y, s, 'drop'); stepWord(p, d, i, x, f1(y - s / 2 - 44), { size: 44, maxW: s + g - 20 }); const tt = reach(Q, i);
       for (let k = 0; k <= i; k++) { const px = f1(x + (k - i / 2) * 40); popAt(p, px, PY, f3(Q.tI(i) + tu(.2 + .04 * k))).circle(px, PY, 14, F(3)); if (tt != null) popAt(p, px, PY, f3(tt + tu(.03 * k))).circle(px, PY, 9, DOTF()); } });
     markT(p, d, cornerB(xs[Q.K], y, s)); }); });
 
   /* 24 ── BARS (แท่งไต่ระดับ): bars rise taller step by step, each box drops onto its bar's top; the bars fill with light as passed; words at the feet */
   variant('bars', 'แท่งไต่ระดับ', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, s = n >= 4 ? 170 : n === 3 ? 196 : 220, bw = s + 8, xs = rowXs(n, bw, n >= 4 ? 40 : n === 3 ? 70 : 140), BY = 330, hs = xs.map((_, i) => f1(n > 1 ? lerp(150, 380, i / (n - 1)) : 260));
     xs.forEach((x, i) => { const h = hs[i], t = Q.tI(i), S_ = stState(Q, i), bg0 = mvG(p, upK(x, BY, t, .3)); if (S_.dim) R(bg0, x - bw / 2, BY - h, bw, h + 40, 24, BK);
-      const bg = S_.dim ? mvG(bg0, { o: dimKeys(Q, S_.to) }) : bg0; R(bg, x - bw / 2, BY - h, bw, h + 40, 24, F(3.4)); const tt = passed(Q, i) ?? (S_.lit ? Q.H : null);
+      const bg = S_.dim ? mvG(bg0, { o: dimKeys(Q, S_.to) }) : bg0; R(bg, x - bw / 2, BY - h, bw, h + 40, 24, F(3.4)); const tt = (S_.xx ? null : reach(Q, i));
       if (tt != null) R(litOn(bg, tt), x - bw / 2 + 10, BY - h + 10, bw - 20, h - 20, 16, { fill: TA(.2), sw: 0, stroke: 'none' });
       stepWord(p, d, i, x, f1(BY - 40), { size: 40, maxW: bw - 24 });
       const yb = f1(BY - h - 12 - s / 2), t0 = f3(t + tu(.24)), t1 = f3(t0 + tu(.26)), K = fallK(x, yb + s / 2, t0, t1, f1(yb + s / 2 + 360)); stepBox(p, c, d, i, x, yb, s, { g: mvG(CL(p), K), mv: K, t: t0 }); dust(p, x, yb + s / 2, t1, .8); });
@@ -874,7 +878,7 @@
   /* 26 ── TOGGLES (สวิตช์ทีละตัว): under each box a switch; as the progress passes each switch flips on (lit); the target's on H (x: stays off) */
   variant('toggles', 'สวิตช์ทีละตัว', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, s = SZ4(n), g = GP4(n), xs = rowXs(n, s, g), y = -56, TY = f1(y + s / 2 + 88), TW = 136, TK = 66;
     xs.forEach((x, i) => { entBox(p, c, d, i, x, y, s, 'drop'); stepWord(p, d, i, x, f1(y - s / 2 - 44), { size: 44, maxW: s + g - 20 });
-      const S_ = stState(Q, i), tt = passed(Q, i) ?? (S_.lit ? Q.H : null), tg0 = popAt(p, x, TY, f3(Q.tI(i) + tu(.2))); R(tg0, x - TW / 2, TY - TK / 2, TW, TK, TK / 2, F(3.4));
+      const S_ = stState(Q, i), tt = (S_.xx ? null : reach(Q, i)), tg0 = popAt(p, x, TY, f3(Q.tI(i) + tu(.2))); R(tg0, x - TW / 2, TY - TK / 2, TW, TK, TK / 2, F(3.4));
       if (tt != null) R(litOn(tg0, tt), x - TW / 2 + 6, TY - TK / 2 + 6, TW - 12, TK - 12, (TK - 12) / 2, { fill: TA(.32), sw: 0, stroke: 'none' });
       const kn = mvG(p, { x: tt != null ? [[0, 0], [tt, 0], [f3(tt + tu(.14)), TW - TK, 'out']] : [[0, 0]], o: fadeIn(f3(Q.tI(i) + tu(.24)), .05) }), kx = f1(x - TW / 2 + TK / 2);
       kn.circle(kx, TY, TK / 2 - 9, F(3)); if (tt != null) litOn(kn, tt).circle(kx, TY, TK / 2 - 9, DOTF()); });
@@ -884,9 +888,9 @@
      current step's icon */
   variant('ringlist', 'วงแบ่งท่อน', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, RC = [-292, 20], RR = 168, rh = RH4(n), s = rh - (n >= 4 ? 8 : 34), ys = rowXs(n, rh, 0, 0), BX = 18, seg = 360 / n, ph = phOf(Q);
     const arc = i => { const a0 = -90 + seg * i + 6, a1 = -90 + seg * (i + 1) - 6, P = a => f1(RC[0] + RR * Math.cos(rad(a))) + ' ' + f1(RC[1] + RR * Math.sin(rad(a))); return `M ${P(a0)} A ${RR} ${RR} 0 ${seg - 12 > 180 ? 1 : 0} 1 ${P(a1)}`; };
-    for (let i = 0; i < n; i++) { drawAt(p.path(arc(i), { sw: 30, stroke: TL_(.2) }), p, Q.tI(i), tu(.25)); const tt = passed(Q, i) ?? (i === Q.K && Q.HOW !== 'x' ? Q.H : null);
+    for (let i = 0; i < n; i++) { drawAt(p.path(arc(i), { sw: 30, stroke: TL_(.2) }), p, Q.tI(i), tu(.25)); const tt = reach(Q, i);
       if (tt != null) { const a = p.path(arc(i), { sw: 22, stroke: ACC1 }); on(a, p, 0, { draw: [[0, 0], [f3(tt - tu(.2)), 0], [tt, 1, 'io']] }); }
-      const X_ = Q.it[i], io = showK(ph, i); if (i <= Q.K) { if (X_ && picOf(X_)) put(p, c, { icon: X_.icon }, RC[0], RC[1], 170, null, { t: f3(ph[0][0] - tu(.1)), o: io }); else if (X_) { const g = sub(p); on(g, p, 0, { o: io }); txt(g, X_.label, RC[0], RC[1] + 18, { size: 50, maxW: 220, weight: 800, color: C.ink, wrap: 'mid' }); } } }
+      const X_ = Q.it[i], io = showK(ph, i); { if (X_ && picOf(X_)) put(p, c, { icon: X_.icon }, RC[0], RC[1], 170, null, { t: f3(ph[0][0] - tu(.1)), o: io }); else if (X_) { const g = sub(p); on(g, p, 0, { o: io }); txt(g, X_.label, RC[0], RC[1] + 18, { size: 50, maxW: 220, weight: 800, color: C.ink, wrap: 'mid' }); } } }
     ys.forEach((y, i) => { entBox(p, c, d, i, BX, y, s, 'right'); stepWord(p, d, i, f1(BX + s / 2 + 24), f1(y + 17), { anchor: 'start', size: 46, maxW: f1(470 - (BX + s / 2 + 24)), wrap: null }); });
     markT(p, d, corner(BX, ys[Q.K], s, -1)); }); });
 
@@ -908,7 +912,7 @@
   /* 30 ── FOCUS (กรอบโฟกัส): four corner marks hop from box to box with the progress and lock tight on the target on H (turning to the accent) */
   variant('focus', 'กรอบโฟกัส', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, s = SZ4(n), g = GP4(n) + 10, xs = rowXs(n, s, g), y = 52, AL = 44;
     xs.forEach((x, i) => { entBox(p, c, d, i, x, y, s, 'pop', { passRip: false }); stepWord(p, d, i, x, f1(y - s / 2 - 60), { size: 46, maxW: s + g - 20 }); });
-    const R_ = (i, k) => [xs[i], y, s / 2 + k, s / 2 + k], fin = R_(Q.K, 14), seq = [[f3(Q.tP(0) - tu(.14)), R_(0, 28)]]; for (let i = 1; i <= Q.K; i++) seq.push([Q.tP(i), R_(i, 28)]); seq.push([f3(Q.H + tu(.12)), fin]);
+    const R_ = (i, k) => [xs[i], y, s / 2 + k, s / 2 + k], fin = R_(Q.K, 14), seq = phOf(Q).map(([t, w]) => [t, R_(w, 28)]); seq.push([f3(Q.H + tu(.12)), fin]);
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sy]) => { const at = r => [r[0] + sx * r[2], r[1] + sy * r[3]], F_ = at(fin), kx = [], ky = [];
       seq.forEach(([t, r], i) => { const [x, yy] = at(r); if (!i) { kx.push([0, x], [t, x]); ky.push([0, yy], [t, yy]); } else { const ta = f3(t - tu(.2)); kx.push([ta, kx[kx.length - 1][1]], [f3(t), x]); ky.push([ta, ky[ky.length - 1][1]], [f3(t), yy]); } });
       const cg = mvG(p, { x: offK(kx, F_[0]), y: offK(ky, F_[1]), o: fadeIn(seq[0][0], .06) }), dd = `M ${F_[0]} ${F_[1] - sy * AL} L ${F_[0]} ${F_[1]} L ${F_[0] - sx * AL} ${F_[1]}`;
@@ -926,9 +930,9 @@
      words (texts); node by node it moves on and stops on the target */
   variant('stepper', 'ตัวบอกขั้น', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, NY = -246, nx = rowXs(n, n > 1 ? 720 / (n - 1) : 0, 0), bs = 256, BX = -250, BY = 70, ph = phOf(Q);
     drawAt(p.line(nx[0], NY, nx[n - 1], NY, { sw: 4, stroke: TL_(.35) }), p, tu(.04), tu(.35)); links(p, Q, nx.slice(0, -1).map((x, i) => `M ${x} ${NY} L ${nx[i + 1]} ${NY}`), { base: { sw: 0, stroke: 'none' } });
-    nx.forEach((x, i) => { const tt = passed(Q, i) ?? (i === Q.K ? Q.H : null), g = popAt(p, x, NY, Q.tI(i)); g.circle(x, NY, 30, F(3.6)); if (tt != null) { popAt(p, x, NY, tt).circle(x, NY, 16, DOTF()); ripple(p, x, NY, 40, tt); } });
+    nx.forEach((x, i) => { const tt = reach(Q, i), g = popAt(p, x, NY, Q.tI(i)); g.circle(x, NY, 30, F(3.6)); if (tt != null) { popAt(p, x, NY, tt).circle(x, NY, 16, DOTF()); ripple(p, x, NY, 40, tt); } });
     const bx = popAt(p, BX, BY, tu(.2)); R(bx, BX - bs / 2, BY - bs / 2, bs, bs, bs * .24, F(4)); const S_ = stState(Q, Q.K); if (S_.lit) { R(litOn(bx, Q.H), BX - bs / 2, BY - bs / 2, bs, bs, bs * .24, LIT2()); ripple(p, BX, BY, bs * .58, f3(Q.H + tu(.04))); }
-    for (let i = 0; i <= Q.K; i++) { const X_ = Q.it[i], io = showK(ph, i), pg = sub(p); on(pg, p, 0, { o: io });
+    for (let i = 0; i < n; i++) { const X_ = Q.it[i], io = showK(ph, i), pg = sub(p); on(pg, p, 0, { o: io });
       if (X_ && picOf(X_)) put(p, c, { icon: X_.icon }, BX, BY, bs * .72, null, { t: f3(ph[0][0] - tu(.1)), o: i === Q.K && S_.dim ? io.concat([[f3(Q.H + tu(.2)), S_.to]]) : io, punch: i === Q.K && S_.lit ? Q.H : undefined });
       else if (X_) txt(pg, X_.label, BX, BY + 18, { size: 56, maxW: bs * .84, weight: 800, color: C.ink, wrap: 'mid' });
       const hw = !!LBI(Q, i); if (hw) txt(pg, LBI(Q, i), -90, BY - 20, { size: 60, maxW: 540, weight: 800, color: C.ink, anchor: 'start' }); stepNote(p, d, i, -90, hw ? BY + 44 : BY - 10, 540, { g: pg, t: 0, noDim: true, size: 44 }); }
@@ -974,9 +978,9 @@
   variant('bigarrow', 'ลูกศรใหญ่แบ่งช่อง', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, X0 = -470, X1 = 300, XH = 468, Y = 52, BHh = 300, HHh = 430, cw = (X1 - X0) / n, xs = Array.from({ length: n }, (_, i) => f1(X0 + cw * (i + .5))), s = Math.min(n >= 4 ? 168 : 206, cw - 24);
     const AD = pathOf([[X0, Y - BHh / 2], [X1, Y - BHh / 2], [X1, Y - HHh / 2], [XH, Y], [X1, Y + HHh / 2], [X1, Y + BHh / 2], [X0, Y + BHh / 2]]); drawAt(p.path(AD, F(4.4)), p, tu(.02), tu(.5));
     xs.slice(1).forEach(x => drawAt(p.line(f1(x - cw / 2), Y - BHh / 2 + 12, f1(x - cw / 2), Y + BHh / 2 - 12, { sw: 2.6, stroke: TL_(.4) }), p, tu(.3), tu(.15)));
-    xs.forEach((x, i) => { const tt = passed(Q, i) ?? (i === Q.K && Q.HOW !== 'x' ? Q.H : null); if (tt != null) R(litOn(p, tt), f1(x - cw / 2 + 8), Y - BHh / 2 + 8, f1(cw - 16), BHh - 16, 20, { fill: TA(.14), sw: 0, stroke: 'none' });
+    xs.forEach((x, i) => { const tt = reach(Q, i); if (tt != null) R(litOn(p, tt), f1(x - cw / 2 + 8), Y - BHh / 2 + 8, f1(cw - 16), BHh - 16, 20, { fill: TA(.14), sw: 0, stroke: 'none' });
       entBox(p, c, d, i, x, Y, s, 'pop'); stepWord(p, d, i, x, f1(Y - HHh / 2 - 6), { size: 44, maxW: cw - 16 }); });
-    if (!Q.HOW || Q.HOW !== 'x') litOn(p, Q.H).path(pathOf([[X1, Y - HHh / 2], [XH, Y], [X1, Y + HHh / 2]]), { fill: TA(.3), sw: 4.4, stroke: ACC1 });
+    litOn(p, Q.H).path(pathOf([[X1, Y - HHh / 2], [XH, Y], [X1, Y + HHh / 2]]), { fill: TA(.3), sw: 4.4, stroke: ACC1 });
     markT(p, d, cornerB(xs[Q.K], Y, s)); }); });
 
   /* 39 ── CONSTELLATION (กลุ่มดาวเชื่อมจุด): boxes spin in scattered like stars; lines join them in order and light star to star */
@@ -1006,7 +1010,7 @@
 
   /* 42 ── CARD FAN (การ์ดพัด): cards rise into a fan, each tilted round one point below; as the progress passes each card lifts; the target lights */
   variant('cardfan', 'การ์ดพัด', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, PV = [0, 960], RF = 900, AN = n >= 4 ? [-22.5, -7.5, 7.5, 22.5] : n === 3 ? [-15, 0, 15] : [-8.5, 8.5], cw = 208, ch = 330, bs = 168;
-    AN.forEach((a, i) => { const cx = f1(PV[0] + RF * Math.sin(rad(a))), cy = f1(PV[1] - RF * Math.cos(rad(a))), t = Q.tI(i), t1 = f3(t + tu(.3)), tt = passed(Q, i) ?? (stState(Q, i).lit ? Q.H : null);
+    AN.forEach((a, i) => { const cx = f1(PV[0] + RF * Math.sin(rad(a))), cy = f1(PV[1] - RF * Math.cos(rad(a))), t = Q.tI(i), t1 = f3(t + tu(.3)), tt = reach(Q, i);
       const K = { px: cx, py: cy, r: [[0, a]], y: [[0, 520], [t, 520], [t1, -12, 'out'], [f3(t1 + tu(.1)), 0, 'soft']].concat(tt != null ? [[tt, 0], [f3(tt + tu(.2)), -30, 'out']] : []), o: fadeIn(t, .04) }, iy = f1(cy - 50);
       const g = stepBox(p, c, d, i, cx, cy, cw, { g: mvG(CL(p), K), mv: K, t, draw: (q, st) => R(q, cx - cw / 2, cy - ch / 2, cw, ch, 28, st), iy, iw: bs * .72, lw: cw - 30, passRip: false });
       R(g, cx - bs / 2, iy - bs / 2, bs, bs, bs * .24, SL(1.8)); stepWord(p, d, i, cx, f1(cy + ch / 2 - 52), { g, size: 42, maxW: cw - 28, noDim: true }); });
@@ -1014,7 +1018,7 @@
 
   /* 43 ── RING BOX (วงรอบวง): round plates pop in, each inside a ring track; as the progress passes, the ring closes round in the accent */
   variant('ringbox', 'วงรอบวง', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, s = n >= 4 ? 166 : n === 3 ? 196 : 226, g = GP4(n), xs = rowXs(n, s + 36, g - 36 > 10 ? g - 36 : 12), y = 22, rr = f1(s / 2 + 19);
-    xs.forEach((x, i) => { popAt(p, x, y, Q.tI(i)).circle(x, y, rr, { sw: 9, stroke: TL_(.2) }); const tt = passed(Q, i) ?? (i === Q.K && Q.HOW !== 'x' ? Q.H : null);
+    xs.forEach((x, i) => { popAt(p, x, y, Q.tI(i)).circle(x, y, rr, { sw: 9, stroke: TL_(.2) }); const tt = reach(Q, i);
       if (tt != null) { const a = p.path(arcD(x, y, rr, 1), { sw: 9, stroke: ACC1 }); on(a, p, 0, { draw: [[0, 0], [f3(tt - tu(.3)), 0], [tt, 1, 'io']] }); }
       stepBox(p, c, d, i, x, y, s, { shape: 'circ', t: Q.tI(i) }); stepWord(p, d, i, x, i % 2 ? f1(y + rr + 58) : f1(y - rr - 40), { size: 44, maxW: n >= 4 ? 380 : s + g + 20 }); });
     markT(p, d, Q.K % 2 ? [f1(xs[Q.K] + rr * .72), f1(y - rr * .72)] : [f1(xs[Q.K] + rr * .72), f1(y + rr * .72)]); }); });
@@ -1030,20 +1034,20 @@
     ys.forEach((y, i) => { entBox(p, c, d, i, BX, y, s, 'left'); const S_ = stState(Q, i), hw = !!LBI(Q, i), by = f1(hw ? y + 30 : y);
       if (hw) stepWord(p, d, i, LX, f1(y - 18), { anchor: 'start', size: 48, maxW: BWd, wrap: null });
       const g0 = atG(p, f3(Q.tI(i) + tu(.2))), g = S_.dim ? mvG(g0, { o: dimKeys(Q, S_.to) }) : g0; R(g, LX, by - 14, BWd, 28, 14, { fill: C.fill, sw: 2.4, stroke: TL_(.5) });
-      const tt = passed(Q, i) ?? (S_.lit ? Q.H : null); if (tt != null) R(mvG(g, { px: LX, py: by, sx: [[0, 0], [f3(tt - tu(.3)), 0], [tt, 1, 'io']] }), LX + 4, by - 10, BWd - 8, 20, 10, DOTF()); });
+      const tt = (S_.xx ? null : reach(Q, i)); if (tt != null) R(mvG(g, { px: LX, py: by, sx: [[0, 0], [f3(tt - tu(.3)), 0], [tt, 1, 'io']] }), LX + 4, by - 10, BWd - 8, 20, 10, DOTF()); });
     markT(p, d, corner(BX, ys[Q.K], s, -1)); }); });
 
   /* 46 ── WHEEL (วงหมุนทีละขั้น): the plates sit round a wheel; it turns one step at a time bringing each step under the pointer, the page beside shows
      that step's word and its line of words (texts); it stops on the target */
   variant('wheel', 'วงหมุนทีละขั้น', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, WC = [-200, 40], RW = n >= 3 ? 180 : 150, s = n >= 4 ? 166 : 180, seg = 360 / n, ph = phOf(Q);
-    const tk = [[0, 0], [f3(ph[0][0] - tu(.1)), 0]]; ph.forEach(([t, w], j) => { if (j) tk.push([f3(t - tu(.26)), (w - 1) * seg], [t, w * seg]); });
+    const tk = [[0, 0], [f3(ph[0][0] - tu(.1)), 0]]; ph.forEach(([t, w], j) => { if (j) tk.push([f3(t - tu(.22)), ph[j - 1][1] * seg], [t, w * seg]); });
     const rotAt = t => { if (t <= tk[1][0]) return 0; for (let j = 2; j < tk.length; j += 2) { const [a0, v0] = tk[j], [a1, v1] = tk[j + 1]; if (t < a0) return v0; if (t <= a1) return v0 + (v1 - v0) * (.5 - .5 * Math.cos(Math.PI * (t - a0) / (a1 - a0))); } return tk[tk.length - 1][1]; };
     const T0 = f3(ph[0][0] - tu(.1)), TS = Array.from({ length: 41 }, (_, k) => f3(lerp(T0, Q.H, k / 40))), fin = Q.K * seg, P = (i, r) => [f1(WC[0] + RW * Math.cos(rad(-90 + i * seg - r))), f1(WC[1] + RW * Math.sin(rad(-90 + i * seg - r)))];
     drawAt(p.circle(...WC, RW, { sw: 3, stroke: TL_(.3) }), p, tu(.04), tu(.4)); popAt(p, ...WC, tu(.1)).circle(...WC, 30, F(3.6));
     const pg = mvG(CL(p), fallK(WC[0], f1(WC[1] - RW - s / 2 - 12), tu(.3), tu(.5), 200)); pg.path(`M ${WC[0] - 28} ${f1(WC[1] - RW - s / 2 - 70)} L ${WC[0] + 28} ${f1(WC[1] - RW - s / 2 - 70)} L ${WC[0]} ${f1(WC[1] - RW - s / 2 - 16)} Z`, { fill: ACC1, sw: 3, stroke: ACC1 });
     for (let i = 0; i < n; i++) { const [fx, fy] = P(i, fin), K = { px: fx, py: fy, x: TS.map(t => [t, f1(P(i, rotAt(t))[0] - fx)]), y: TS.map(t => [t, f1(P(i, rotAt(t))[1] - fy)]) }; K.x.unshift([0, K.x[0][1]]); K.y.unshift([0, K.y[0][1]]);
       stepBox(p, c, d, i, fx, fy, s, { shape: 'circ', g: mvG(popAt(p, ...P(i, 0), Q.tI(i)), K), mv: K, t: Q.tI(i), passRip: false });
-      if (i <= Q.K) { const io = showK(ph, i), wg = sub(p); on(wg, p, 0, { o: io }); const X_ = Q.it[i]; if (X_ && X_.label) txt(wg, X_.label, 110, -40, { size: 58, maxW: 360, weight: 800, color: C.ink, anchor: 'start' }); stepNote(p, d, i, 110, 24, 360, { g: wg, t: 0, noDim: true, size: 44 }); } }
+      { const io = showK(ph, i), wg = sub(p); on(wg, p, 0, { o: io }); const X_ = Q.it[i]; if (X_ && X_.label) txt(wg, X_.label, 110, -40, { size: 58, maxW: 360, weight: 800, color: C.ink, anchor: 'start' }); stepNote(p, d, i, 110, 24, 360, { g: wg, t: 0, noDim: true, size: 44 }); } }
     markT(p, d, [f1(WC[0] + s / 2), f1(WC[1] - RW - s / 2 + 20)]); }); });
 
   /* 47 ── PILLS GROW (แถบเม็ดยาวขึ้น): long pills stack down, each longer than the one before; each grows out from its round icon end; they light in turn */
@@ -1063,7 +1067,7 @@
   variant('pie', 'วงแบ่งชิ้น', (d, c) => { art(c, p => { const Q = STP(d), n = Q.N, CC = [0, 20], RP = n >= 3 ? 250 : 220, seg = 360 / n, a0 = n === 2 ? -180 : -90;
     const PT = (a, r) => [f1(CC[0] + r * Math.cos(rad(a))), f1(CC[1] + r * Math.sin(rad(a)))], wedge = i => { const b0 = a0 + seg * i, b1 = b0 + seg; return `M ${CC[0]} ${CC[1]} L ${PT(b0, RP).join(' ')} A ${RP} ${RP} 0 ${seg > 180 ? 1 : 0} 1 ${PT(b1, RP).join(' ')} Z`; };
     for (let i = 0; i < n; i++) { const m = a0 + seg * (i + .5), [ix, iy] = PT(m, RP * .55), [lx, ly] = PT(m, RP + 30), cs = Math.cos(rad(m)), an = cs > .3 ? 'start' : cs < -.3 ? 'end' : 'middle';
-      const tt = passed(Q, i) ?? null; stepBox(p, c, d, i, ...CC, RP * 2, { t: Q.tI(i), draw: (q, st) => q.path(wedge(i), st), ix, iy, iw: n >= 4 ? 140 : 160, lw: 170, passRip: false });
+      const tt = reach(Q, i); stepBox(p, c, d, i, ...CC, RP * 2, { t: Q.tI(i), draw: (q, st) => q.path(wedge(i), st), ix, iy, iw: n >= 4 ? 140 : 160, lw: 170, passRip: false });
       if (tt != null) litOn(p, tt).path(wedge(i), { fill: TA(.14), sw: 0, stroke: 'none' });
       stepWord(p, d, i, lx, f1(ly + (Math.sin(rad(m)) > .5 ? 40 : Math.sin(rad(m)) < -.5 ? -6 : 16)), { anchor: an, size: 44, maxW: an === 'middle' ? 300 : f1(470 - Math.abs(lx)) }); }
     const m = a0 + seg * (Q.K + .5); markT(p, d, PT(m, RP * .55 + 80)); }); });
@@ -1079,47 +1083,47 @@
   const I = (icon, label) => label ? { icon, label } : { icon };
   const SAMPLES = [
     { say: 'ล้างมือ ใส่ถุงมือ แล้วค่อยหยิบ', items: [I('droplet', 'ล้างมือ'), I('shield-check', 'ใส่ถุงมือ'), I('package', 'หยิบของ')] },
-    { say: 'ตื่น ยืดเส้น แล้วออกไปวิ่ง', items: [I('bed', 'ตื่น'), I('dumbbell', 'ยืดเส้น'), I('person-standing', 'ออกไปวิ่ง')], mark: { at: 2, how: 'light' } },
-    { say: 'เช็กลม เช็กเบรก เช็กไฟ', items: [I('gauge', 'เช็กลม'), I('octagon-alert', 'เช็กเบรก'), I('lightbulb', 'เช็กไฟ')], mark: { at: 1, how: 'check' } },
-    { say: 'สมัคร ยืนยันอีเมล แล้วเริ่มใช้', items: [I('user-plus', 'สมัคร'), I('mail', 'ยืนยันอีเมล'), I('rocket', 'เริ่มใช้')], mark: { at: 1, how: 'light' }, texts: ['กรอกชื่อกับเบอร์', 'กดลิงก์ในกล่องจดหมาย', 'ตั้งค่าแล้วใช้ได้เลย'] },
+    { say: 'ตื่น ยืดเส้น แล้วออกไปวิ่ง ขั้นยืดเส้นห้ามข้าม', items: [I('bed', 'ตื่น'), I('dumbbell', 'ยืดเส้น'), I('person-standing', 'ออกไปวิ่ง')], mark: { at: 1, how: 'light' } },
+    { say: 'เช็กลมแล้ว เช็กเบรกแล้ว เหลือเช็กไฟ', items: [I('gauge', 'เช็กลม'), I('octagon-alert', 'เช็กเบรก'), I('lightbulb', 'เช็กไฟ')], mark: { at: 1, how: 'check' } },
+    { say: 'สมัคร ยืนยันอีเมล แล้วเริ่มใช้ อย่าลืมยืนยันอีเมล', items: [I('user-plus', 'สมัคร'), I('mail', 'ยืนยันอีเมล'), I('rocket', 'เริ่มใช้')], mark: { at: 1, how: 'light' }, texts: ['กรอกชื่อกับเบอร์', 'กดลิงก์ในกล่องจดหมาย', 'ตั้งค่าแล้วใช้ได้เลย'] },
     { say: 'ตวงแป้ง ผสม แล้วอบ', items: [I('wheat', 'ตวงแป้ง'), I('cooking-pot', 'ผสม'), I('cake', 'อบ')], texts: ['แป้งสองถ้วย', 'คนให้เข้ากัน', 'ไฟ 180 องศา 30 นาที'] },
-    { say: 'วางแผน ลงมือ ทบทวน', items: [I('clipboard-list', 'วางแผน'), I('hammer', 'ลงมือ'), I('search', 'ทบทวน')], mark: { at: 2, how: 'light' } },
-    { say: 'ซื้อตั๋ว ขึ้นรถไฟ ถึงปลายทาง', items: [I('ticket', 'ซื้อตั๋ว'), I('train-front', 'ขึ้นรถไฟ'), I('map-pin', 'ถึงปลายทาง')], mark: { at: 0, how: 'check' } },
-    { say: 'หาข้อมูล เขียน แล้วส่ง', items: [I('book-open', 'หาข้อมูล'), I('pen-line', 'เขียน'), I('send', 'ส่ง')], mark: { at: 1, how: 'x' } },
-    { say: 'รดน้ำ ใส่ปุ๋ย รอออกดอก', items: [I('droplet', 'รดน้ำ'), I('sprout', 'ใส่ปุ๋ย'), I('flower', 'รอออกดอก')], mark: { at: 1, how: 'light' }, texts: ['ทุกเช้าก่อนแดดแรง', 'เดือนละครั้ง', 'ราวสองสัปดาห์'] },
-    { say: 'ปิดไฟ ล็อกประตู แล้วเข้านอน', items: [I('lightbulb-off', 'ปิดไฟ'), I('lock', 'ล็อกประตู'), I('moon', 'เข้านอน')], mark: { at: 1, how: 'check' } },
+    { say: 'วางแผน ลงมือ ทบทวน ที่คนมักข้ามคือการทบทวน', items: [I('clipboard-list', 'วางแผน'), I('hammer', 'ลงมือ'), I('search', 'ทบทวน')], mark: { at: 2, how: 'light' } },
+    { say: 'ซื้อตั๋วเรียบร้อย ต่อไปขึ้นรถไฟ แล้วถึงปลายทาง', items: [I('ticket', 'ซื้อตั๋ว'), I('train-front', 'ขึ้นรถไฟ'), I('map-pin', 'ถึงปลายทาง')], mark: { at: 0, how: 'check' } },
+    { say: 'หาข้อมูล เขียน แล้วส่ง ส่วนใหญ่พลาดตอนเขียน', items: [I('book-open', 'หาข้อมูล'), I('pen-line', 'เขียน'), I('send', 'ส่ง')], mark: { at: 1, how: 'cross' } },
+    { say: 'รดน้ำ ใส่ปุ๋ย รอออกดอก หัวใจอยู่ที่ใส่ปุ๋ย', items: [I('droplet', 'รดน้ำ'), I('sprout', 'ใส่ปุ๋ย'), I('flower', 'รอออกดอก')], mark: { at: 1, how: 'light' }, texts: ['ทุกเช้าก่อนแดดแรง', 'เดือนละครั้ง', 'ราวสองสัปดาห์'] },
+    { say: 'ปิดไฟแล้ว ล็อกประตูแล้ว เข้านอนได้', items: [I('lightbulb-off', 'ปิดไฟ'), I('lock', 'ล็อกประตู'), I('moon', 'เข้านอน')], mark: { at: 1, how: 'check' } },
     { say: 'ถ่ายรูป แต่งรูป แล้วโพสต์', items: [I('camera', 'ถ่ายรูป'), I('brush', 'แต่งรูป'), I('send', 'โพสต์')] },
-    { say: 'จดไอเดีย คัดเลือก ลงมือทำ', items: [I('notebook-pen', 'จดไอเดีย'), I('filter', 'คัดเลือก'), I('rocket', 'ลงมือทำ')], mark: { at: 1, how: 'light' }, texts: ['เขียนทุกอย่างที่คิดได้', 'เหลือแค่ข้อที่ทำได้จริง', 'เริ่มวันนี้เลย'] },
-    { say: 'ชาร์จแบต เปิดเครื่อง ต่อไวไฟ', items: [I('battery-charging', 'ชาร์จแบต'), I('power', 'เปิดเครื่อง'), I('wifi', 'ต่อไวไฟ')], mark: { at: 0, how: 'x' } },
-    { say: 'วัดที่ ก่อผนัง มุงหลังคา', items: [I('ruler', 'วัดที่'), I('building', 'ก่อผนัง'), I('house', 'มุงหลังคา')], mark: { at: 0, how: 'light' } },
-    { say: 'ทักทาย ฟัง แล้วค่อยตอบ', items: [I('smile', 'ทักทาย'), I('headphones', 'ฟัง'), I('message-circle', 'ตอบ')], mark: { at: 1, how: 'light' } },
+    { say: 'จดไอเดีย คัดเลือก ลงมือทำ ขั้นคัดเลือกสำคัญที่สุด', items: [I('notebook-pen', 'จดไอเดีย'), I('filter', 'คัดเลือก'), I('rocket', 'ลงมือทำ')], mark: { at: 1, how: 'light' }, texts: ['เขียนทุกอย่างที่คิดได้', 'เหลือแค่ข้อที่ทำได้จริง', 'เริ่มวันนี้เลย'] },
+    { say: 'ชาร์จแบต เปิดเครื่อง ต่อไวไฟ ลืมชาร์จแบตทีไรพังทุกที', items: [I('battery-charging', 'ชาร์จแบต'), I('power', 'เปิดเครื่อง'), I('wifi', 'ต่อไวไฟ')], mark: { at: 0, how: 'cross' } },
+    { say: 'วัดที่ให้ดีก่อน แล้วค่อยก่อผนัง มุงหลังคา', items: [I('ruler', 'วัดที่'), I('building', 'ก่อผนัง'), I('house', 'มุงหลังคา')], mark: { at: 0, how: 'light' } },
+    { say: 'ทักทาย ฟังให้จบ แล้วค่อยตอบ', items: [I('smile', 'ทักทาย'), I('headphones', 'ฟัง'), I('message-circle', 'ตอบ')], mark: { at: 1, how: 'light' } },
     { say: 'ออกจากบ้าน แวะร้าน กลับบ้าน', items: [I('house', 'ออกจากบ้าน'), I('store', 'แวะร้าน'), I('house', 'กลับบ้าน')] },
-    { say: 'ถ่าย ตัดต่อ แล้วฉาย', items: [I('camera', 'ถ่าย'), I('scissors', 'ตัดต่อ'), I('tv', 'ฉาย')], mark: { at: 1, how: 'light' } },
-    { say: 'เปิดเตา ใส่น้ำมัน ตอกไข่', items: [I('cooking-pot', 'เปิดเตา'), I('droplet', 'ใส่น้ำมัน'), I('egg', 'ตอกไข่')], mark: { at: 1, how: 'check' } },
-    { say: 'จัดเอกสาร เซ็นชื่อ แล้วยื่น', items: [I('file-text', 'จัดเอกสาร'), I('signature', 'เซ็นชื่อ'), I('inbox', 'ยื่น')], mark: { at: 1, how: 'light' }, texts: ['สำเนาบัตรกับทะเบียนบ้าน', 'ทุกหน้าที่มีลายเซ็น', 'ที่ช่องบริการเบอร์สาม'] },
-    { say: 'เก็บของ ปิดกล่อง แล้วส่ง', items: [I('package-open', 'เก็บของ'), I('package', 'ปิดกล่อง'), I('truck', 'ส่ง')], mark: { at: 2, how: 'check' } },
+    { say: 'ถ่าย ตัดต่อ แล้วฉาย', items: [I('camera', 'ถ่าย'), I('scissors', 'ตัดต่อ'), I('tv', 'ฉาย')] },
+    { say: 'เปิดเตาแล้ว ใส่น้ำมันแล้ว ต่อไปตอกไข่', items: [I('cooking-pot', 'เปิดเตา'), I('droplet', 'ใส่น้ำมัน'), I('egg', 'ตอกไข่')], mark: { at: 1, how: 'check' } },
+    { say: 'จัดเอกสาร เซ็นชื่อ แล้วยื่น อย่าลืมเซ็นทุกหน้า', items: [I('file-text', 'จัดเอกสาร'), I('signature', 'เซ็นชื่อ'), I('inbox', 'ยื่น')], mark: { at: 1, how: 'light' }, texts: ['สำเนาบัตรกับทะเบียนบ้าน', 'ทุกหน้าที่มีลายเซ็น', 'ที่ช่องบริการเบอร์สาม'] },
+    { say: 'เก็บของ ปิดกล่อง ส่งเรียบร้อย', items: [I('package-open', 'เก็บของ'), I('package', 'ปิดกล่อง'), I('truck', 'ส่ง')], mark: { at: 2, how: 'check' } },
   ];
   const STRESS = [
     { say: 'ไม่มีป้ายเลย', items: [I('coffee'), I('book-open'), I('bed')] },
     { say: 'ป้ายยาว 12 ตัว + ✓ ข้อ 3', items: [I('mail', 'เปิดอีเมลก่อนเลย'), I('pen-line', 'ตอบให้ครบทุกฉบับ'), I('send', 'กดส่งอย่างระวัง')], mark: { at: 2, how: 'check' } },
-    { say: '✕ ข้อแรก', items: [I('key', 'หากุญแจ'), I('lock', 'ไขล็อก'), I('house', 'เข้าบ้าน')], mark: { at: 0, how: 'x' } },
+    { say: '✕ ข้อแรก', items: [I('key', 'หากุญแจ'), I('lock', 'ไขล็อก'), I('house', 'เข้าบ้าน')], mark: { at: 0, how: 'cross' } },
     { say: 'ภาษาอังกฤษ + ติดไฟข้อ 1', items: [I('search', 'Research'), I('pen-line', 'Write'), I('send', 'Publish')], mark: { at: 0, how: 'light' } },
     { say: '4 ขั้น + ติดไฟข้อ 3', items: [I('search', 'หาข้อมูล'), I('notebook-pen', 'สรุป'), I('monitor', 'นำเสนอ'), I('message-circle', 'ตอบคำถาม')], mark: { at: 2, how: 'light' } },
     { say: '✓ ข้อแรก ไม่มีป้าย', items: [I('bell'), I('smile'), I('heart')], mark: { at: 0, how: 'check' } },
     { say: '2 ขั้น ไม่มี mark', items: [I('shirt', 'ซัก'), I('sun', 'ตาก')] },
-    { say: '✕ ข้อสุดท้าย', items: [I('coffee', 'ชง'), I('glass-water', 'เติมน้ำ'), I('cake', 'กินของหวาน')], mark: { at: 2, how: 'x' } },
+    { say: '✕ ข้อสุดท้าย', items: [I('coffee', 'ชง'), I('glass-water', 'เติมน้ำ'), I('cake', 'กินของหวาน')], mark: { at: 2, how: 'cross' } },
     { say: '4 ขั้น ไม่มี mark ป้ายยาว', items: [I('map-pin', 'ปักหมุดที่หมาย'), I('car', 'ขับไปตามทาง'), I('coffee', 'แวะพัก'), I('house', 'ถึงบ้านปลอดภัย')] },
     { say: '✓ ข้อกลาง', items: [I('apple', 'ล้าง'), I('scissors', 'หั่น'), I('salad', 'จัดจาน')], mark: { at: 1, how: 'check' } },
     { say: 'ติดไฟข้อกลาง ไม่มีป้าย', items: [I('cloud'), I('droplet'), I('sprout')], mark: { at: 1, how: 'light' } },
-    { say: 'ไม่มีไอคอน (คำอย่างเดียว) + ✕ ข้อกลาง', items: [{ label: 'โทรหา' }, { label: 'ทักแชต' }, { label: 'ส่งเมล' }], mark: { at: 1, how: 'x' } },
+    { say: 'ไม่มีไอคอน (คำอย่างเดียว) + ✕ ข้อกลาง', items: [{ label: 'โทรหา' }, { label: 'ทักแชต' }, { label: 'ส่งเมล' }], mark: { at: 1, how: 'cross' } },
     { say: 'ติดไฟข้อแรก', items: [I('ruler', 'วัด'), I('scissors', 'ตัด'), I('hammer', 'ประกอบ')], mark: { at: 0, how: 'light' } },
     { say: '✓ ข้อสุดท้าย', items: [I('book', 'อ่าน'), I('notebook-pen', 'จด'), I('brain', 'จำได้')], mark: { at: 2, how: 'check' } },
     { say: '2 ขั้น + ✓ ข้อแรก', items: [I('coffee', 'กาแฟ'), I('laptop', 'เริ่มงาน')], mark: { at: 0, how: 'check' } },
-    { say: '✕ ข้อแรก ป้ายยาว', items: [I('cookie', 'กินขนมก่อนนอน'), I('tv', 'ดูจอจนดึกดื่น'), I('bed', 'นอนไม่หลับทั้งคืน')], mark: { at: 0, how: 'x' } },
+    { say: '✕ ข้อแรก ป้ายยาว', items: [I('cookie', 'กินขนมก่อนนอน'), I('tv', 'ดูจอจนดึกดื่น'), I('bed', 'นอนไม่หลับทั้งคืน')], mark: { at: 0, how: 'cross' } },
     { say: 'ติดไฟข้อ 2 (ภาษาอังกฤษ)', items: [I('camera', 'Shoot'), I('scissors', 'Edit'), I('tv', 'Show')], mark: { at: 1, how: 'light' } },
     { say: '✓ ข้อกลาง ไม่มีป้าย', items: [I('wheat'), I('cooking-pot'), I('cake')], mark: { at: 1, how: 'check' } },
     { say: 'ติดไฟข้อ 3 ป้ายยาว', items: [I('file-text', 'กรอกแบบฟอร์ม'), I('signature', 'เซ็นกำกับทุกหน้า'), I('inbox', 'ยื่นที่เคาน์เตอร์')], mark: { at: 2, how: 'light' } },
-    { say: '4 ขั้น + ✕ ข้อ 2', items: [I('package-open', 'ใส่ของ'), I('package', 'ปิดกล่อง'), I('tag', 'ติดป้าย'), I('truck', 'ส่ง')], mark: { at: 1, how: 'x' } },
+    { say: '4 ขั้น + ✕ ข้อ 2', items: [I('package-open', 'ใส่ของ'), I('package', 'ปิดกล่อง'), I('tag', 'ติดป้าย'), I('truck', 'ส่ง')], mark: { at: 1, how: 'cross' } },
   ];
 
   G.cats = G.cats || {};
