@@ -714,7 +714,9 @@
       const g = sub(p); on(g, p, 0, { o: [[0, 0], [f3(lerp(t0, t1, k / Math.max(1, n))), 0], [f3(lerp(t0, t1, k / Math.max(1, n)) + tu(.1)), 1, 'io']] }); g.circle(x, y, rr, { fill: TL_(.6), sw: 0, stroke: 'none' }); } };
   /* a line that draws itself in at t over dur; o.lit = an accent copy that draws along it between t0 and t1 */
   const way = (p, dd, t, dur, w = 5, a = .45) => drawAt(p.path(dd, { sw: w, stroke: TL_(a) }), p, t, dur);
-  const litWay = (p, dd, t0, t1, w = 7) => { const l = p.path(dd, { sw: w, stroke: ACC1 }); on(l, p, 0, { draw: [[0, 0], [t0, 0], [t1, 1, 'io']] }); return l; };
+  /* keys that follow the same ease as the rider (sm) — so a lit line / a platform stays exactly with the traveller */
+  const smK = (t0, t1, v0, v1, n = 16) => [[0, v0], [t0, v0]].concat(Array.from({ length: n }, (_, k) => [f3(lerp(t0, t1, (k + 1) / n)), f3(lerp(v0, v1, sm((k + 1) / n))), 'lin']));
+  const litWay = (p, dd, t0, t1, w = 7) => { const l = p.path(dd, { sw: w, stroke: ACC1 }); on(l, p, 0, { draw: smK(t0, t1, 0, 1) }); return l; };
   const stripes = (p, x0, y0, x1, y1, t, gap = 60, lit = false) => { const g = clipG(p, x0, y0, x1 - x0, y1 - y0); for (let x = x0 - (y1 - y0), k = 0; x < x1; x += gap, k++) { const l = g.path(`M ${f1(x)} ${y1} L ${f1(x + (y1 - y0))} ${y0} L ${f1(x + (y1 - y0) + gap / 2)} ${y0} L ${f1(x + gap / 2)} ${y1} Z`, { fill: lit ? TA(.35) : TL_(.22), sw: 0, stroke: 'none' }); on(l, p, 0, { o: [[0, 0], [f3(t + tu(.02 * k)), 0], [f3(t + tu(.02 * k + .12)), 1, 'io']] }); } };
   let CPN = 0;
   function clipPathG(p, dd) { const svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), e = document.createElementNS(NS, 'path'); cp.id = 'b08tcp' + (++CPN); e.setAttribute('d', dd); cp.appendChild(e); (svg.querySelector('defs') || svg).appendChild(cp); return sub(p, { 'clip-path': `url(#${cp.id})` }); }
@@ -750,9 +752,9 @@
 
   /* 05 FILL RING (วงเติมเต็ม): a thick ring round the goal fills up all the way — who rides the tip of the fill — and closes on H */
   variant('fillring', 'วงเติมเต็ม', (d, c) => { art(c, p => { const T = GT(), CX = -110, CY = 20, RR = 230;
-    p.circle(CX, CY, RR, { sw: 30, stroke: TL_(.12) }); const a = p.path(arcD(CX, CY, RR, 1), { sw: 30, stroke: ACC1 }); on(a, p, 0, { draw: [[0, 0], [T.tM0, 0], [T.tM1, 1, 'io']] });
+    p.circle(CX, CY, RR, { sw: 30, stroke: TL_(.12) }); const a = p.path(arcD(CX, CY, RR, 1), { sw: 30, stroke: ACC1 }); on(a, p, 0, { draw: [[0, 0], [T.tM0, 0], [T.tM1, 1, 'lin']] });   /* linear, so the rider stays on the tip */
     goal(p, c, d, CX, CY, 230, { shape: 'circ', burst: false }); gword(p, d, 200, 36, { anchor: 'start', maxW: 270 });
-    rider(p, c, d, arcPts(CX, CY, RR, -90, 270, 36), T.tM0, T.tM1, { r: 70, fade: true }); }); });
+    rider(p, c, d, arcPts(CX, CY, RR, -90, 270, 36), T.tM0, T.tM1, { r: 70, fade: true, ease: u => u }); }); });
 
   /* 06 GATE (ประตูวงเปิด): two half-rings close round the goal like a gate; who arrives and on H the halves swing apart, the goal is revealed lit */
   variant('gate', 'ประตูวงเปิด', (d, c) => { art(c, p => { const T = GT(), CX = 150, CY = 20, RR = 170;
@@ -835,15 +837,15 @@
 
   /* 19 MILESTONES (ระยะทาง): a long track with tick marks; who rolls along it to the goal at the far end */
   variant('track', 'ทางยาวถึงปลาย', (d, c) => { art(c, p => { const T = GT(), Y = 200;
-    R(mvG(p, { px: -470, py: Y, sx: [[0, 0], [T.tA, 0], [f3(T.tA + tu(.5)), 1, 'out']], o: fadeIn(T.tA, .1) }), -470, Y - 18, 760, 36, 18, F(3)); R(mvG(p, { px: -460, py: Y, sx: [[0, 0], [T.tM0, 0], [T.tM1, 1, 'io']] }), -460, Y - 8, 740, 16, 8, DOTF());
+    R(mvG(p, { px: -470, py: Y, sx: [[0, 0], [T.tA, 0], [f3(T.tA + tu(.5)), 1, 'out']], o: fadeIn(T.tA, .1) }), -470, Y - 18, 760, 36, 18, F(3)); R(mvG(p, { px: -460, py: Y, sx: [[0, 0], [T.tM0, 0], [T.tM1, 1, 'lin']] }), -460, Y - 8, 740, 16, 8, DOTF());
     for (let k = 1; k < 5; k++) drawAt(p.line(-470 + k * 152, Y + 30, -470 + k * 152, Y + 56, { sw: 4, stroke: TL_(.4) }), p, f3(T.tA + tu(.06 * k)), tu(.1));
-    goal(p, c, d, 380, Y - 70, 200); gword(p, d, -60, -40, { size: 60, maxW: 640, wrap: null }); rider(p, c, d, [[-400, Y - 110], [190, Y - 110]], T.tM0, T.tM1, { r: 80 }); }); });
+    goal(p, c, d, 380, Y - 70, 200); gword(p, d, -60, -40, { size: 60, maxW: 640, wrap: null }); rider(p, c, d, [[-400, Y - 110], [190, Y - 110]], T.tM0, T.tM1, { r: 80, ease: u => u }); }); });
 
   /* 20 PILLARS GATE (ผ่านเสาประตู): two tall pillars stand apart; who walks between them and the goal lights beyond */
   variant('pillars', 'ผ่านเสาคู่', (d, c) => { art(c, p => { const T = GT();
     [-120, 60].forEach((x, k) => R(mvG(p, upK(x + 20, 300, f3(T.tA + tu(.1 * k)), .4)), x, -230, 40, 530, 20, F(4)));
     const bar = litOn(p, T.H); R(bar, -130, -250, 220, 26, 13, { fill: ACC1, sw: 3, stroke: ACC1 });
-    goal(p, c, d, 320, 30, 220); gword(p, d, 320, 220, { maxW: 300 }); rider(p, c, d, [[-460, 120], [-20, 120], [150, 90]], T.tM0, T.tM1, { r: 76, fade: true }); }); });
+    goal(p, c, d, 320, 30, 220); gword(p, d, 320, 220, { maxW: 300 }); rider(p, c, d, [[-460, 120], [-20, 120], [110, 100]], T.tM0, T.tM1, { r: 76, fade: true }); }); });
 
   /* 21 ZIP LINE (ไถลลงเส้น): a long line slopes from the top-left down to the goal; who slides down it */
   variant('zipline', 'ไถลตามเส้น', (d, c) => { art(c, p => { const T = GT(); way(p, 'M -470 -290 L 250 160', T.tA, tu(.4), 5, .5); popAt(p, -470, -290, T.tA).circle(-470, -290, 14, F(3));
@@ -851,7 +853,7 @@
 
   /* 22 STACK UP (ต่อกล่องเอื้อม): the goal hangs high; blocks stack up under it one by one until the top block touches it on H */
   variant('stackup', 'ต่อกล่องให้ถึง', (d, c) => { art(c, p => { const T = GT(), X = -60, bw = 210, bh = 84;
-    for (let k = 0; k < 4; k++) { const y = f1(300 - bh / 2 - k * (bh + 6)), t = f3(lerp(T.tM0, T.tM1 - tu(.3), k / 3)), K = fallK(X, y + bh / 2, t, f3(t + tu(.3)), 520); R(mvG(CL(p), K), X - bw / 2, y - bh / 2, bw, bh, 16, F(3.6)); }
+    for (let k = 0; k < 4; k++) { const y = f1(300 - bh / 2 - k * (bh + 6)), t = f3(lerp(T.tM0, T.tM1 - tu(.3), k / 3)), K = ent(k % 2 ? 'right' : 'left', X, y, bw, t); R(mvG(CL(p), K), X - bw / 2, y - bh / 2, bw, bh, 16, F(3.6)); }   /* blocks slide in from the sides (falling ones crossed the goal) */
     goal(p, c, d, X, -200, 200); gword(p, d, 120, -184, { anchor: 'start', maxW: 340 }); if (GD(d).who) rider(p, c, d, [[-470, 220], [-330, 220]], T.tW, T.tM0, { r: 84 }); }); });
 
   /* 23 PULL IN (แรงดึงเข้า): curved field lines run from the goal; who is drawn in along them toward it */
@@ -874,8 +876,8 @@
 
   /* 26 HEARTBEAT TO GOAL (เส้นชีพจร): a pulse line runs across and ends in one tall beat that lifts the goal */
   variant('pulse', 'เส้นชีพจรถึงเป้า', (d, c) => { art(c, p => { const T = GT(), pts = [[-470, 160], [-260, 160], [-220, 120], [-180, 200], [-140, 160], [40, 160], [90, -20], [140, 260], [180, 160], [210, 160]];
-    way(p, pathOf(pts, false), T.tA, tu(.3), 3, .25); litWay(p, pathOf(pts, false), T.tM0, T.tM1, 6);
-    goal(p, c, d, 340, 40, 220); gword(p, d, -250, -60, { size: 60, maxW: 500 }); rider(p, c, d, pts, T.tM0, T.tM1, { r: 60, tr: 20, fade: true }); }); });
+    way(p, pathOf(pts, false), T.tA, tu(.3), 3, .25); { const l = p.path(pathOf(pts, false), { sw: 6, stroke: ACC1 }); on(l, p, 0, { draw: [[0, 0], [T.tM0, 0], [T.tM1, 1, 'lin']] }); }
+    goal(p, c, d, 340, 40, 220); gword(p, d, -250, -60, { size: 60, maxW: 500 }); rider(p, c, d, pts, T.tM0, T.tM1, { r: 60, tr: 20, fade: true, ease: u => u }); }); });
 
   /* 27 BADGE WALL (ผนังเหรียญตรา): a wall of locked hexagon badges; the goal's badge (big, in the middle) unlocks on H */
   variant('badgewall', 'ปลดล็อกตรา', (d, c) => { art(c, p => { const T = GT();
@@ -891,7 +893,7 @@
   variant('fillup', 'เติมจนเต็ม', (d, c) => { art(c, p => { const T = GT(), X = -120, W2 = 360, H2 = 460;
     const fr = popAt(p, X, 20, T.tA); R(fr, X - W2 / 2, 20 - H2 / 2, W2, H2, 50, F(4)); const cl = clipG(p, X - W2 / 2 + 12, 20 - H2 / 2 + 12, W2 - 24, H2 - 24);
     R(mvG(cl, { px: X, py: 20 + H2 / 2, sy: [[0, 0], [T.tM0, 0], [T.tM1, 1, 'io']] }), X - W2 / 2, 20 - H2 / 2, W2, H2, 40, { fill: TA(.28), sw: 0, stroke: 'none' });
-    goal(p, c, d, X, 20, 230, { wait: true }); gword(p, d, 140, 40, { anchor: 'start', size: 58, maxW: 320 }); if (GD(d).who) rider(p, c, d, [[340, 330], [340, -180]], T.tW, T.tM0, { r: 84 }); }); });
+    goal(p, c, d, X, 20, 230, { wait: true }); gword(p, d, 120, 40, { anchor: 'start', size: 58, maxW: 210 }); if (GD(d).who) rider(p, c, d, [[400, 330], [400, -180]], T.tW, T.tM0, { r: 84 }); }); });
 
   /* 30 FLIGHT (เส้นทางบิน): a dashed flight path arcs over the top; who flies it from the left edge and lands by the goal */
   variant('flight', 'เส้นทางบิน', (d, c) => { art(c, p => { const T = GT(), pts = arcPts(-30, 220, 430, 180, 330, 24, 470);
@@ -924,17 +926,19 @@
   /* 35 LIFT (ลิฟต์ขึ้น): a tall shaft; who rides a platform up the shaft to the goal waiting at the top */
   variant('lift', 'ลิฟต์ขึ้นถึงเป้า', (d, c) => { art(c, p => { const T = GT(), X = -150;
     way(p, `M ${X - 110} 320 L ${X - 110} -300 M ${X + 110} 320 L ${X + 110} -300`, T.tA, tu(.5), 4, .4);
-    const pf = mvG(p, { y: [[0, 0], [T.tM0, 0], [T.tM1, -330, 'io']], o: fadeIn(T.tW, .1) }); R(pf, X - 100, 236, 200, 22, 11, F(3.4));
+    const pf = mvG(p, { y: smK(T.tM0, T.tM1, 0, -330), o: fadeIn(T.tW, .1) }); R(pf, X - 100, 236, 200, 22, 11, F(3.4));
     goal(p, c, d, 240, -170, 220); gword(p, d, 240, 30, { maxW: 360 }); rider(p, c, d, [[X, 150], [X, -180]], T.tM0, T.tM1, { r: 84 }); }); });
 
   /* 36 SWING (แกว่งข้าม): who hangs from a line swung from a pivot; it swings across and lets go onto the ledge where the goal is */
-  variant('swing', 'แกว่งข้ามไปถึง', (d, c) => { art(c, p => { const T = GT(), PV = [-60, -300], LN = 380, q = k => f3(lerp(T.tM0, T.tM1, k));
+  variant('swing', 'แกว่งข้ามไปถึง', (d, c) => { art(c, p => { const T = GT(), PV = [-60, -300], LN = 380, q = k => f3(lerp(T.tM0, T.tM1, k)), F1 = GD(d);
     R(mvG(p, upK(330, 330, T.tA)), 200, 120, 280, 210, 20, F(4)); popAt(p, ...PV, T.tA).circle(...PV, 14, F(3));
-    const ang = [[0, 50], [T.tM0, 50], [q(.4), -40, 'io'], [q(.75), 30, 'io'], [q(1), -55, 'io']];
-    const ln = mvG(p, { px: PV[0], py: PV[1], r: ang.map(a => a.slice()), o: fadeIn(T.tW, .1).concat([[T.tM1, 1], [f3(T.tM1 + tu(.1)), 0]]) }); ln.line(PV[0], PV[1], PV[0], PV[1] + LN, { sw: 4, stroke: TL_(.6) });
-    goal(p, c, d, 340, 0, 210); gword(p, d, -300, 220, { maxW: 340 });
-    const pts = []; for (let k = 0; k <= 30; k++) { const u = k / 30, tt = lerp(T.tM0, T.tM1, u); let a = 50; for (let j = 1; j < ang.length; j++) { if (tt <= ang[j][0]) { const [t0, a0] = ang[j - 1], [t1, a1] = ang[j], f = (tt - t0) / Math.max(1e-6, t1 - t0); a = a0 + (a1 - a0) * (.5 - .5 * Math.cos(Math.PI * f)); break; } a = ang[j][1]; } pts.push(Pc(PV[0], PV[1], LN, 90 - a)); }
-    pts.push([150, 30]); rider(p, c, d, pts, T.tM0, f3(T.H + tu(.06)), { r: 70, ease: u => u }); }); });
+    /* one sampled swing angle drives both the line and the rider, so the rider never leaves the end of the line */
+    const A = [[T.tM0, 50], [q(.4), -40], [q(.75), 30], [q(1), -40]], angAt = tt => { if (tt <= A[0][0]) return A[0][1]; for (let j = 1; j < A.length; j++) if (tt <= A[j][0]) { const f = (tt - A[j - 1][0]) / (A[j][0] - A[j - 1][0]); return A[j - 1][1] + (A[j][1] - A[j - 1][1]) * (.5 - .5 * Math.cos(Math.PI * f)); } return A[A.length - 1][1]; };
+    const ts = Array.from({ length: 41 }, (_, k) => f3(lerp(T.tM0, T.tM1, k / 40))), fin = Pc(PV[0], PV[1], LN, 90 + angAt(T.tM1));
+    const ln = mvG(p, { px: PV[0], py: PV[1], r: [[0, 50]].concat(ts.map(t => [t, f1(angAt(t)), 'lin'])), o: fadeIn(T.tW, .1) }); ln.line(PV[0], PV[1], PV[0], PV[1] + LN, { sw: 4, stroke: TL_(.6) });
+    const K = { px: fin[0], py: fin[1], x: [[0, f1(Pc(PV[0], PV[1], LN, 140)[0] - fin[0])]].concat(ts.map(t => [t, f1(Pc(PV[0], PV[1], LN, 90 + angAt(t))[0] - fin[0]), 'lin'])), y: [[0, f1(Pc(PV[0], PV[1], LN, 140)[1] - fin[1])]].concat(ts.map(t => [t, f1(Pc(PV[0], PV[1], LN, 90 + angAt(t))[1] - fin[1]), 'lin'])), o: fadeIn(T.tW, .1) };
+    const g = mvG(p, K), r = F1.who ? 70 : 26; if (F1.who) { g.circle(...fin, r, F(4)); g.circle(...fin, r - 12, SL(1.4)); put(p, c, { icon: F1.who }, ...fin, 91, null, { t: T.tW, mv: Object.assign({}, K, { o: undefined }), o: K.o }); } else { g.circle(...fin, r, DOTF()); g.circle(...fin, r + 10, { sw: 2.6, stroke: ACC1 }); }
+    goal(p, c, d, 340, 0, 210); gword(p, d, -300, 220, { maxW: 340 }); }); });
 
   /* 37 SPRING PAD (สปริงดีด): who sits on a springy pad that squeezes down, then launches straight up to the goal above */
   variant('spring', 'ดีดขึ้นถึงเป้า', (d, c) => { art(c, p => { const T = GT(), X = -60, ty = f3(T.tM1 - tu(.4));
@@ -987,7 +991,7 @@
 
   /* 45 DOT STEPS (จุดก้าวทีละขั้น): five big dots in a row light one by one; who hops along them; the last dot opens into the goal */
   variant('dotsteps', 'ก้าวทีละจุด', (d, c) => { art(c, p => { const T = GT(), Y = 160, xs = [-420, -300, -180, -60];
-    xs.forEach((x, k) => { const t = f3(lerp(T.tM0, T.tM1, (k + 1) / 5)); popAt(p, x, Y, f3(T.tA + tu(.05 * k))).circle(x, Y, 34, { sw: 4, stroke: TL_(.5) }); popAt(p, x, Y, t).circle(x, Y, 24, DOTF()); });
+    xs.forEach((x, k) => { const t = f3(lerp(T.tM0, T.tM1, smInv(2 * k / 8) + .02));   /* lit when the hopping token lands on it */ popAt(p, x, Y, f3(T.tA + tu(.05 * k))).circle(x, Y, 34, { sw: 4, stroke: TL_(.5) }); popAt(p, x, Y, t).circle(x, Y, 24, DOTF()); });
     goal(p, c, d, 230, 40, 260); gword(p, d, -240, -60, { size: 60, maxW: 420 });
     const pts = []; xs.forEach((x, k) => { pts.push([x, Y - 100]); pts.push([x + 60, Y - 170]); }); pts.push([60, Y - 100]); rider(p, c, d, pts, T.tM0, T.tM1, { r: 64, tr: 20, fade: true }); }); });
 
