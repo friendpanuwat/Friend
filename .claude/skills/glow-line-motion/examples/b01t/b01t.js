@@ -858,7 +858,7 @@
      push out a little as the number punches; the icon box drops above */
   variant('brackets', 'วงเล็บใหญ่', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cy = 60;
     art(c, p => { const rw = rowOf(p, v, u, 190, 700), hx = Math.min(470, Math.max(170, rw / 2 + 60)), y0 = cy - 150, y1 = cy + 150;
-      [-1, 1].forEach(sd => { const x = sd * hx, t = tu(.2 + .06 * (sd + 1)), g = mvG(p, { x: [[0, sd * 300], [t, sd * 300], [f3(t + tu(.16)), 0, 'in'], [f3(t + tu(.22)), sd * 10, 'out'], [f3(t + tu(.32)), 0, 'soft'], [H, 0], [f3(H + tu(.06)), sd * 12, 'out'], [f3(H + tu(.24)), 0, 'soft']], o: fadeIn(t, .04) });
+      [-1, 1].forEach(sd => { const x = sd * hx, t = tu(.2 + .06 * (sd + 1)), g = mvG(CL(p), { x: [[0, sd * 300], [t, sd * 300], [f3(t + tu(.16)), 0, 'in'], [f3(t + tu(.22)), sd * 10, 'out'], [f3(t + tu(.32)), 0, 'soft'], [H, 0], [f3(H + tu(.06)), sd * 12, 'out'], [f3(H + tu(.24)), 0, 'soft']], o: fadeIn(t, .04) });
         g.path(`M ${f1(x - sd * 40)} ${y0} L ${x} ${y0} L ${x} ${y1} L ${f1(x - sd * 40)} ${y1}`, W(7)); dust(p, x, y1, f3(t + tu(.16)), .7); });
       const n = numRow(p, p, v, u, 0, cy + 64, { size: 190, maxW: 2 * hx - 100, t0: tu(.4) }); if (n) ripple(p, n.cx, n.cy, 130, H);
       dropBox(p, c, ic, 0, y0 - 90, 110, tu(.04), tu(.26)); dirB(p, DIRV(d), hx, y0 - 50, f3(H + tu(.1)));
@@ -919,7 +919,7 @@
     art(c, p => { let nw = Math.min(560, (v ? tw(p, v, 130) : 100) + 90), uw = u ? Math.min(300, tw(p, u, 44, 600) + 70) : 0; const iw = ic ? 170 : 0, tot = iw + nw + uw + gap * ((ic ? 1 : 0) + (u ? 1 : 0)), k0 = Math.min(1, 940 / tot);
       nw *= k0; uw *= k0; let x = -tot * k0 / 2; const parts = [];
       if (ic) { parts.push(['i', x, iw * k0]); x += iw * k0 + gap; } parts.push(['n', x, nw]); x += nw + gap; if (u) parts.push(['u', x, uw]);
-      parts.forEach(([kind, x0, w], k) => { const t = tu(.1 + .14 * k), gx = glide(-200, t, f3(t + tu(.2)), 10), g = mvG(p, { x: gx, o: fadeIn(t, .04) }), h = kind === 'n' ? 200 : 150;
+      parts.forEach(([kind, x0, w], k) => { const t = tu(.1 + .14 * k), gx = glide(k ? 220 : -220, t, f3(t + tu(.2)), k ? -10 : 10), g = mvG(CL(p), { x: gx, o: fadeIn(t, .04) }), h = kind === 'n' ? 200 : 150;   /* the first slides in from the left, the others from the right and knock into it */
         R(g, x0, cy - h / 2, w, h, h / 2, kind === 'n' ? F(4.4) : F(3.4)); if (k) dust(p, x0, cy, f3(t + tu(.2)), .5);
         if (kind === 'i') put(p, c, { icon: ic }, x0 + w / 2, cy, 90 * k0, null, { t, mv: { px: x0 + w / 2, py: cy, x: gx }, punch: H });
         if (kind === 'n') { num(p, g, v, x0 + w / 2, cy + 46 * k0, { size: 130 * k0, maxW: w - 50, t0: t, g }); ripple(p, x0 + w / 2, cy, 120, H); }
@@ -950,10 +950,10 @@
   /* 43 ── CARD HALVES (การ์ดประกบ): two halves of a card slide in from the sides and lock at the seam (bump + a flash); the icon box pops up on the seam
      above; the number counts across the joined card and locks on H */
   variant('splitcard', 'การ์ดประกบ', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cy = 50, w = 400, h = 300, tm = tu(.42);
-    art(c, p => { [-1, 1].forEach(sd => { const g = mvG(p, { x: [[0, sd * 520], [tu(.08), sd * 520], [tm, 0, 'in'], [f3(tm + tu(.06)), sd * 10, 'out'], [f3(tm + tu(.16)), 0, 'soft']], o: fadeIn(tu(.08), .04) });
+    art(c, p => { [-1, 1].forEach(sd => { const g = mvG(CL(p), { x: [[0, sd * 520], [tu(.08), sd * 520], [tm, 0, 'in'], [f3(tm + tu(.06)), sd * 10, 'out'], [f3(tm + tu(.16)), 0, 'soft']], o: fadeIn(tu(.08), .04) });
         const e = sd * w, e1 = sd * (w - 40);   /* open at the seam: the fill closes along it, the stroke does not (no line through the number) */
         g.path(`M 0 ${cy - h / 2} L ${e1} ${cy - h / 2} Q ${e} ${cy - h / 2} ${e} ${cy - h / 2 + 40} L ${e} ${cy + h / 2 - 40} Q ${e} ${cy + h / 2} ${e1} ${cy + h / 2} L 0 ${cy + h / 2}`, F(4.2)); });
-      const fl = sub(p); on(fl, p, 0, { o: [[0, 0], [tm, 0], [f3(tm + tu(.03)), 1], [f3(tm + tu(.3)), 0]] }); fl.line(0, cy - h / 2 - 30, 0, cy + h / 2 + 30, { sw: 6, stroke: ACC1 }); dust(p, 0, cy - h / 2, tm, .9);
+      const fl = sub(p); on(fl, p, 0, { o: [[0, 0], [tm, 0], [f3(tm + tu(.03)), 1], [f3(tm + tu(.3)), 0]] }); fl.line(0, cy - h / 2 - 40, 0, cy - h / 2 + 6, { sw: 6, stroke: ACC1 }); fl.line(0, cy + h / 2 - 6, 0, cy + h / 2 + 40, { sw: 6, stroke: ACC1 }); dust(p, 0, cy - h / 2, tm, .9);
       const n = numRow(p, p, v, u, 0, cy + 60, { size: 170, maxW: 2 * w - 90, t0: f3(tm + tu(.02)) }); if (n) ripple(p, n.cx, n.cy, 130, H);
       if (ic) ibox(p, c, { icon: ic }, 0, cy - h / 2 - 90, 120, f3(tm + tu(.04)), { punch: H }); dirB(p, DIRV(d), w, cy - h / 2, f3(H + tu(.1)));
     }); });
@@ -981,9 +981,9 @@
   /* 46 ── TARGET LOCK (เป้าล็อก): two dashed rings close in from big to fit round the number while they turn; four cross ticks snap in and light on H;
      the icon box drops top-left */
   variant('target', 'เป้าล็อก', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, cx = 0, cy = -10;
-    art(c, p => { [[230, '10 12', 1], [180, '3 10', -1]].forEach(([r, da, sd], k) => { const g = mvG(p, { px: cx, py: cy, s: [[0, 1.7], [tu(.06), 1.7], [f3(H - tu(.08)), .97, 'out'], [f3(H + tu(.06)), 1, 'soft']], o: fadeIn(tu(.06 + .06 * k), .06) });
+    art(c, p => { const cg = CL(p); [[230, '10 12', 1], [180, '3 10', -1]].forEach(([r, da, sd], k) => { const g = mvG(cg, { px: cx, py: cy, s: [[0, 1.7], [tu(.06), 1.7], [f3(H - tu(.08)), .97, 'out'], [f3(H + tu(.06)), 1, 'soft']], o: fadeIn(tu(.06 + .06 * k), .06) });
         mvG(g, { px: cx, py: cy, r: spinR(tu(.06), f3(H + tu(.2)), sd * 140) }).circle(cx, cy, r, { sw: 3, stroke: k ? TL_(.5) : C.ink, 'stroke-dasharray': da }); });
-      [0, 90, 180, 270].forEach(a => { const g = mvG(p, { px: cx, py: cy, s: [[0, 1.5], [f3(H - tu(.2)), 1.5], [f3(H - tu(.02)), 1, 'in']], o: fadeIn(f3(H - tu(.2)), .04) }); tick(g, cx, cy, a, 240, 290, W(5)); tick(litOn(p, H), cx, cy, a, 240, 290, { sw: 5, stroke: ACC1 }); });
+      [0, 90, 180, 270].forEach(a => { const g = mvG(cg, { px: cx, py: cy, s: [[0, 1.5], [f3(H - tu(.2)), 1.5], [f3(H - tu(.02)), 1, 'in']], o: fadeIn(f3(H - tu(.2)), .04) }); tick(g, cx, cy, a, 240, 290, W(5)); tick(litOn(p, H), cx, cy, a, 240, 290, { sw: 5, stroke: ACC1 }); });
       num(p, p, v, cx, cy + 46, { size: 130, maxW: 300, t0: tu(.3) }); pill(p, u, cx, cy + 110, { t: f3(H + tu(.06)), size: 26, maxW: 260 }); ripple(p, cx, cy, 170, H);
       dropBox(p, c, ic, -400, -250, 100, tu(.04), tu(.26)); dirB(p, DIRV(d), 400, -250, f3(H + tu(.1)));
     }); });
