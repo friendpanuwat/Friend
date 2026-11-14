@@ -716,6 +716,8 @@
   const way = (p, dd, t, dur, w = 5, a = .45) => drawAt(p.path(dd, { sw: w, stroke: TL_(a) }), p, t, dur);
   const litWay = (p, dd, t0, t1, w = 7) => { const l = p.path(dd, { sw: w, stroke: ACC1 }); on(l, p, 0, { draw: [[0, 0], [t0, 0], [t1, 1, 'io']] }); return l; };
   const stripes = (p, x0, y0, x1, y1, t, gap = 60, lit = false) => { const g = clipG(p, x0, y0, x1 - x0, y1 - y0); for (let x = x0 - (y1 - y0), k = 0; x < x1; x += gap, k++) { const l = g.path(`M ${f1(x)} ${y1} L ${f1(x + (y1 - y0))} ${y0} L ${f1(x + (y1 - y0) + gap / 2)} ${y0} L ${f1(x + gap / 2)} ${y1} Z`, { fill: lit ? TA(.35) : TL_(.22), sw: 0, stroke: 'none' }); on(l, p, 0, { o: [[0, 0], [f3(t + tu(.02 * k)), 0], [f3(t + tu(.02 * k + .12)), 1, 'io']] }); } };
+  let CPN = 0;
+  function clipPathG(p, dd) { const svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), e = document.createElementNS(NS, 'path'); cp.id = 'b08tcp' + (++CPN); e.setAttribute('d', dd); cp.appendChild(e); (svg.querySelector('defs') || svg).appendChild(cp); return sub(p, { 'clip-path': `url(#${cp.id})` }); }
   const Pc = (cx, cy, r, a) => [f1(cx + r * Math.cos(rad(a))), f1(cy + r * Math.sin(rad(a)))];
   const arcPts = (cx, cy, r, a0, a1, n = 24, ry) => Array.from({ length: n + 1 }, (_, k) => { const a = rad(lerp(a0, a1, k / n)); return [f1(cx + r * Math.cos(a)), f1(cy + (ry ?? r) * Math.sin(a))]; });
 
@@ -795,11 +797,12 @@
     trailDots(p, pts, T.tM0, T.tM1, 30, 6); goal(p, c, d, 330, -150, 220); gword(p, d, 330, 30, { maxW: 320 });
     rider(p, c, d, pts.slice(0, 23), T.tM0, T.tM1, { r: 76, fade: true }); }); });
 
-  /* 13 SUNBURST (แสงแผ่รอบ): who rises from below into the goal in the middle; on H long rays burst out all round it */
-  variant('sunburst', 'แสงแผ่รอบเป้า', (d, c) => { art(c, p => { const T = GT(), CX = -100, CY = -20;
-    for (let k = 0; k < 16; k++) { const a = rad(k * 22.5), g = sub(p); on(g, p, 0, { o: [[0, 0], [T.H, 0], [f3(T.H + tu(.3)), 1, 'io']] }); const l = g.line(f1(CX + 170 * Math.cos(a)), f1(CY + 170 * Math.sin(a)), f1(CX + (k % 2 ? 240 : 290) * Math.cos(a)), f1(CY + (k % 2 ? 240 : 290) * Math.sin(a)), { sw: 5, stroke: ACC1 }); on(l, p, 0, { draw: [[0, 0], [T.H, 0], [f3(T.H + tu(.4)), 1, 'out']] }); }
-    goal(p, c, d, CX, CY, 240, { shape: 'circ', burst: false }); gword(p, d, 230, 0, { anchor: 'start', size: 58, maxW: 300 });
-    rider(p, c, d, [[CX, 420], [CX, CY + 40]], T.tM0, T.tM1, { r: 80, fade: true, clip: true }); }); });
+  /* 13 COLUMNS CLIMB (กระโดดตามแท่ง) — redesigned (user: "หลุดกรอบ"): a row of rising columns; who hops from top to top and lands by the goal on the tallest */
+  variant('colclimb', 'กระโดดตามแท่ง', (d, c) => { art(c, p => { const T = GT(), cols = [[-410, 120], [-250, 40], [-90, -40], [70, -120]], W2 = 120;
+    cols.forEach(([x, y], k) => R(mvG(p, upK(x, 320, f3(T.tA + tu(.08 * k)), .4)), x - W2 / 2, y, W2, 320 - y, 18, F(3.6)));
+    cols.forEach(([x, y], k) => { const t = f3(lerp(T.tM0, T.tM1, (k + 1) / 4)); litOn(p, t).line(x - W2 / 2 + 14, y, x + W2 / 2 - 14, y, { sw: 6, stroke: ACC1 }); });
+    goal(p, c, d, 330, -60, 220); gword(p, d, 330, 130, { maxW: 300 });
+    const pts = []; cols.forEach(([x, y], k) => { pts.push([x, y - 84]); if (k < 3) pts.push([f1(x + 80), f1(y - 190)]); }); rider(p, c, d, pts, T.tM0, T.tM1, { r: 76 }); }); });
 
   /* 14 MAZE (เขาวงกต): a small maze of walls; who finds the way through it to the goal at the exit */
   variant('maze', 'ทางวกวนถึงเป้า', (d, c) => { art(c, p => { const T = GT(), walls = ['M -460 -280 L 60 -280 L 60 -120', 'M -460 -280 L -460 280 L 60 280', 'M -320 -140 L -320 140 L -80 140', 'M -180 -280 L -180 0', 'M -60 -140 L -60 20 L 60 20 L 60 280'];
@@ -895,10 +898,11 @@
     way(p, pathOf(pts, false), T.tA, tu(.5), 3, .3); goal(p, c, d, 330, 120, 230); gword(p, d, -300, 230, { maxW: 340 });
     rider(p, c, d, pts.slice(0, 20), T.tM0, T.tM1, { r: 76, fade: true }); }); });
 
-  /* 31 CONFETTI (กระดาษโปรย): who arrives at the goal; on H little bits of paper burst out of it and drift down */
-  variant('confetti', 'โปรยฉลอง', (d, c) => { art(c, p => { const T = GT(), G_ = [120, -40];
-    for (let k = 0; k < 18; k++) { const a = rad(-90 + (k - 8.5) * 16 + (k % 3) * 5), dist = 220 + (k % 4) * 40, x1 = f1(G_[0] + dist * Math.cos(a)), y1 = f1(G_[1] + dist * Math.sin(a) + 120), g = mvG(p, { px: G_[0], py: G_[1], x: [[0, 0], [T.H, 0], [f3(T.H + tu(.6)), f1(x1 - G_[0]), 'out']], y: [[0, 0], [T.H, 0], [f3(T.H + tu(.35)), f1(y1 - G_[1] - 160), 'out'], [f3(T.H + tu(.8)), f1(y1 - G_[1]), 'io']], r: [[0, 0], [T.H, 0], [f3(T.H + tu(.8)), (k % 2 ? 1 : -1) * 160]], o: [[0, 0], [T.H, 0], [f3(T.H + tu(.06)), 1]] }); R(g, G_[0] - 10, G_[1] - 5, 20, 10, 3, { fill: k % 3 ? TL_(.7) : ACC1, sw: 0, stroke: 'none' }); }
-    goal(p, c, d, ...G_, 240, { burst: false }); gword(p, d, G_[0], 170, { maxW: 380 }); rider(p, c, d, [[-470, 230], [-260, 230]], T.tM0, T.tM1, { r: 84 }); }); });
+  /* 31 LADDER (บันไดลิง) — redesigned: two rails with rungs lead straight up; who climbs rung by rung to the goal at the top */
+  variant('ladder', 'ไต่บันไดถึงเป้า', (d, c) => { art(c, p => { const T = GT(), X = -120, RW = 150;
+    way(p, `M ${X - RW / 2} 330 L ${X - RW / 2} -190 M ${X + RW / 2} 330 L ${X + RW / 2} -190`, T.tA, tu(.5), 6, .55);
+    for (let k = 0; k < 7; k++) { const y = 280 - k * 68, t = f3(lerp(T.tM0, T.tM1, k / 6)); drawAt(p.line(X - RW / 2, y, X + RW / 2, y, { sw: 5, stroke: TL_(.45) }), p, f3(T.tA + tu(.04 * k)), tu(.12)); litOn(p, t).line(X - RW / 2, y, X + RW / 2, y, { sw: 6, stroke: ACC1 }); }
+    goal(p, c, d, X, -230, 210); gword(p, d, 60, -214, { anchor: 'start', maxW: 380 }); rider(p, c, d, [[X, 250], [X, -60]], T.tM0, T.tM1, { r: 74 }); }); });
 
   /* 32 CHEVRON RUN (ลูกศรวิ่ง): a row of chevrons lights in a running wave toward the goal, faster and brighter each pass */
   variant('chevrun', 'ลูกศรวิ่งเข้าเป้า', (d, c) => { art(c, p => { const T = GT(), Y = 20;
@@ -976,11 +980,10 @@
     const lk = mvG(p, { px: G_[0], py: G_[1], s: [[0, 1], [T.H, 1], [f3(T.H + tu(.3)), 1.4, 'out']], o: [[0, 0], [tu(.2), 0], [tu(.4), 1], [T.H, 1], [f3(T.H + tu(.3)), 0, 'io']] }); lk.circle(...G_, 150, { sw: 8, stroke: TL_(.6) });
     goal(p, c, d, ...G_, 200); gword(p, d, G_[0], 230, { maxW: 360 }); if (GD(d).who) rider(p, c, d, [[-470, -230], [-330, -230]], T.tW, T.tM0, { r: 80 }); }); });
 
-  /* 44 BIG TICK (ติ๊กใหญ่): the goal waits; a big check mark draws itself across it from corner to corner on H */
-  variant('bigtick', 'ติ๊กสำเร็จ', (d, c) => { art(c, p => { const T = GT(), G_ = [-60, 0];
-    goal(p, c, d, ...G_, 300); gword(p, d, 230, 18, { anchor: 'start', size: 60, maxW: 250 });
-    const ck = p.path(`M ${G_[0] - 190} ${G_[1] - 10} L ${G_[0] - 60} ${G_[1] + 140} L ${G_[0] + 220} ${G_[1] - 200}`, { sw: 22, stroke: ACC1 }); on(ck, p, 0, { draw: [[0, 0], [f3(T.H - tu(.05)), 0], [f3(T.H + tu(.35)), 1, 'out']] });
-    if (GD(d).who) rider(p, c, d, [[-470, 260], [-330, 260]], T.tW, T.tM0, { r: 80 }); }); });
+  /* 44 RISING ARROW (ลูกศรขึ้นเต็ม) — redesigned: a big upward arrow outline; light fills it from the bottom and reaches its head, where the goal sits */
+  variant('uparrow', 'ลูกศรเติมขึ้น', (d, c) => { art(c, p => { const T = GT(), X = -110, D = `M ${X - 70} 320 L ${X - 70} -40 L ${X - 170} -40 L ${X} -230 L ${X + 170} -40 L ${X + 70} -40 L ${X + 70} 320 Z`;
+    drawAt(p.path(D, F(4.4)), p, T.tA, tu(.5)); const cl = clipPathG(p, D); R(mvG(cl, { px: X, py: 320, sy: [[0, 0], [T.tM0, 0], [T.tM1, 1, 'io']] }), X - 170, -230, 340, 550, 0, { fill: TA(.26), sw: 0, stroke: 'none' }); litOn(p, T.H).path(D, { sw: 5, stroke: ACC1 });
+    goal(p, c, d, X, -60, 190); gword(p, d, 120, -44, { anchor: 'start', maxW: 360 }); if (GD(d).who) rider(p, c, d, [[X, 330], [X, 200]], T.tW, T.tM0, { r: 74 }); }); });
 
   /* 45 DOT STEPS (จุดก้าวทีละขั้น): five big dots in a row light one by one; who hops along them; the last dot opens into the goal */
   variant('dotsteps', 'ก้าวทีละจุด', (d, c) => { art(c, p => { const T = GT(), Y = 160, xs = [-420, -300, -180, -60];
@@ -994,11 +997,11 @@
     const cl = p.path(arcD(...G_, RR, 1), { sw: 20, stroke: ACC1 }); on(cl, p, 0, { draw: [[0, 0], [T.H, 0], [f3(T.H + tu(.3)), 1, 'io']] });
     goal(p, c, d, ...G_, 240, { shape: 'circ' }); gword(p, d, 200, 18, { anchor: 'start', size: 58, maxW: 280 }); if (GD(d).who) rider(p, c, d, [[440, 330], [360, 240]], T.tW, T.tM0, { r: 80 }); }); });
 
-  /* 47 SUNRISE (วงแสงขึ้น): a huge half-disc rises from the bottom edge behind the goal and lights it from behind */
-  variant('sunrise', 'วงแสงขึ้นหลังเป้า', (d, c) => { art(c, p => { const T = GT(), G_ = [0, -40];
-    const sg = mvG(CL(p), { y: [[0, 400], [T.tM0, 400], [T.tM1, 0, 'io']] }); sg.circle(0, 350, 360, { fill: TA(.1), sw: 4, stroke: TL_(.4) }); litOn(sg, T.H).circle(0, 350, 360, { sw: 5, stroke: ACC1 });
-    for (let k = 0; k < 7; k++) { const a = rad(200 + k * 23.3), g = sub(p); on(g, p, 0, { o: [[0, 0], [T.H, 0], [f3(T.H + tu(.3)), 1, 'io']] }); g.line(f1(380 * Math.cos(a)), f1(350 + 380 * Math.sin(a)), f1(440 * Math.cos(a)), f1(350 + 440 * Math.sin(a)), { sw: 5, stroke: ACC1 }); }
-    goal(p, c, d, ...G_, 230); gword(p, d, 0, -230, { maxW: 420 }); if (GD(d).who) rider(p, c, d, [[-470, -260], [-350, -260]], T.tW, T.tM0, { r: 70 }); }); });
+  /* 47 FLOATING TILES (แผ่นลอยต่อทาง) — redesigned: tiles appear one by one ahead of who, rising toward the top right; who hops tile to tile to the goal */
+  variant('tiles', 'แผ่นลอยต่อทาง', (d, c) => { art(c, p => { const T = GT(), tl = [[-400, 250], [-250, 170], [-100, 90], [50, 10]];
+    tl.forEach(([x, y], k) => { const t = f3(lerp(T.tM0 - tu(.2), T.tM1 - tu(.3), k / 3)); R(mvG(p, { px: x, py: y, s: [[0, .6], [t, .6], [f3(t + tu(.3)), 1, 'out']], o: [[0, 0], [t, 0], [f3(t + tu(.16)), 1]] }), x - 70, y - 14, 140, 28, 14, F(3.6)); });
+    goal(p, c, d, 330, -170, 220); gword(p, d, -300, -170, { size: 58, maxW: 420 });
+    const pts = []; tl.forEach(([x, y], k) => { pts.push([x, y - 80]); pts.push([f1(x + 75), f1(y - 150)]); }); pts.push([125, -85]); rider(p, c, d, pts, T.tM0, T.tM1, { r: 70 }); }); });
 
   /* 48 TELEPORT (หายแล้วไปโผล่): who stands on the left and fades away in rings, and appears again by the goal on the right */
   variant('teleport', 'วาร์ปไปถึงเป้า', (d, c) => { art(c, p => { const T = GT(), A_ = [-330, 60], B_ = [80, 60];

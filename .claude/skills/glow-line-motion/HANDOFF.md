@@ -248,6 +248,9 @@
   50 แบบ: summit finish stairs bullseye fillring gate lastpiece bridge spiralin levels checkpoints arc sunburst maze portal pillar stars connect track pillars zipline stackup pull
   compass crosshair pulse badgewall road fillup flight confetti chevrun growth segring lift swing spring tunnel rise shooting halostack dart pinlock bigtick dotsteps closering
   sunrise teleport zoomframe dock. ตรวจธีม = 0 · เปิดดูภาพจบทุกแผ่น A + B.
+  **Redesign (ผู้ใช้: "44 31 13 47 รู้สึกว่ามันหลุดกรอบไปหน่อยอยากให้ดีไซน์ใหม่"):** 13 sunburst แสงแผ่ → `colclimb` กระโดดตามแท่ง · 31 confetti โปรยฉลอง → `ladder`
+  ไต่บันได · 44 bigtick ติ๊กใหญ่ → `uparrow` ลูกศรเติมขึ้น · 47 sunrise วงแสงขึ้น → `tiles` แผ่นลอยต่อทาง. **บทเรียน: แบบที่เป็นแค่ "ฉลอง/ประดับรอบเป้า" (แสงแผ่ โปรยกระดาษ
+  ติ๊ก พระอาทิตย์) ผู้ใช้มองว่าหลุดกรอบ — ทุกแบบของหมวดเป้าหมายต้องมี "การไปถึง" (ไต่ เดินทาง เติม) เป็นกลไกหลัก.** `clipPathG()` = ตัดตามรูป path (ลูกศรเติม).
 
 **template ชุดฐาน หมวด B07 "คำเตือน / ปัญหา" (50 แบบ ภาพนิ่ง — วิดีโอรอคำสั่ง)**
   `examples/b07t/b07t.js` → `GL.cats.B07T` (**ส่วนหัวจาก b06t — ท่าขยับนุ่มแบบหมวด 6**), แผ่น `sheet-A1…A5` / `B1…B5`, ภาพ `motion/glow-line-templates/b07t/`.
