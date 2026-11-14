@@ -117,6 +117,7 @@
     else { const str = it.label; if (!str) return null;
       const f = q => txt(q, str, 0, wd * .11, { size: wd * .3, maxW: o.bigW || wd * 1.25, weight: 700, color: C.ink, wrap: 'mid' }); f.custom = true; f.dur = .3; f.exit = 'pop';
       a = G.art(f, { x: X, y: Y, s: c.s, at: at + t, speed: 1 }); a.speed = Z.sp; }
+    iclip(a, c);
     const K = { ox: X, oy: Y }; let any = false;
     if (o.mv) { const m = o.mv; if (m.px != null) { K.ox = c.x + m.px * c.s; K.oy = c.y + m.py * c.s; }
       ['x', 'y'].forEach(n => { if (m[n]) K[n] = m[n].map(([u, v, e]) => e ? [u, f1(v * c.s), e] : [u, f1(v * c.s)]); }); ['r', 's', 'sx', 'sy'].forEach(n => { if (m[n]) K[n] = m[n]; }); any = true; }
@@ -126,6 +127,13 @@
     if (o.punch != null) kf(a.g, at, { ox: X, oy: Y, s: [[0, 1], [o.punch, 1], [o.punch + tu(.07), 1.14, 'out'], [o.punch + tu(.3), 1, 'soft']] });
     return a;
   }
+  /* an icon is its own art on the stage — the canvas clip (CL) does not reach it, so a thing falling in from far above showed its icon over the design
+     above on the sheet. Every icon is clipped to its own canvas (stage coords; one clip per canvas) */
+  const ICLIP = {};
+  function iclip(a, c) { if (!a || !a.wrap || !a.wrap.parentNode) return; const svg = a.wrap.ownerSVGElement, k = [c.x, c.y, c.s].join('_');
+    if (!ICLIP[k] || !svg.contains(ICLIP[k].cp)) { const cp = document.createElementNS(NS, 'clipPath'), r = document.createElementNS(NS, 'rect'); cp.id = 'b03ticlip' + (++CID);
+      Object.entries({ x: c.x - 500 * c.s, y: c.y - 350 * c.s, width: 1000 * c.s, height: 700 * c.s }).forEach(([n, v]) => r.setAttribute(n, v)); cp.appendChild(r); (svg.querySelector('defs') || svg).appendChild(cp); ICLIP[k] = { cp }; }
+    const g = document.createElementNS(NS, 'g'); g.setAttribute('clip-path', `url(#${ICLIP[k].cp.id})`); g.setAttribute('data-wrap', 1); a.wrap.parentNode.insertBefore(g, a.wrap); g.appendChild(a.wrap); }
   function put(q, c, it, x, y, w, ly, o = {}) { if (!it) return; const k = o.k ?? 0, t = o.t ?? tu(.12 + .08 * k);
     pic(it, x, y, w, c, { r: o.r, t, bigW: o.bigW, mv: o.mv, punch: o.punch, o: o.o });
     if (ly != null && it.label && picOf(it)) { const g = o.lg || q; txt(atG(g, o.lt ?? t + tu(.1)), it.label, o.lx ?? x, ly, { maxW: o.maxW || 200, color: C.ink, weight: 700, size: o.size || 32, wrap: o.wrap === undefined ? 'down' : o.wrap, anchor: o.anchor || 'middle' }); } }
@@ -617,7 +625,7 @@
         const cg0 = mvG(p, { px: x, py: BY, sy: SY, o: fadeIn(t, .04) }); if (s === T.lose) R(cg0, x - CW / 2, BY - h, CW, h, 30, BK); const cg = s === T.lose ? dimG(cg0, H) : cg0; R(cg, x - CW / 2, BY - h, CW, h, 30, F(3.6));
         if (s === T.win && !T.off) R(litOn(cg, H), x - CW / 2 + 12, BY - h + 12, CW - 24, h - 24, 20, { fill: TA(.14), sw: 0, stroke: 'none' });
         word(p, d, s, x, BY - 52, { size: 44, maxW: CW - 34, t: tE });
-        const yb = f1(BY - h - 12), K = rideY(fallK(x, yb, f3(tL - tu(.26)), tL, 330), T.change ? 0 : f1(h - h0), H);
+        const yb = f1(BY - h - 12), K = rideY(fallK(x, yb, f3(tL - tu(.26)), tL, f1(yb + (T.change ? 0 : h - h0) + 360)), T.change ? 0 : f1(h - h0), H);
         sbox(p, c, d, s, x, yb - bs / 2, bs, { g: mvG(CL(p), K), mv: K, t: f3(tL - tu(.26)) }); dust(p, x, yb + (T.change ? 0 : h - h0), tL, .9); });
       verdict(p, d, { a: corner(X.a, BY - hOf('a') - 12 - bs / 2, bs, -1), b: corner(X.b, BY - hOf('b') - 12 - bs / 2, bs) });
     }); });
@@ -653,7 +661,7 @@
      (change: the after) — a copy of the first flies out to a small slot on the left and dims there */
   variant('flip', 'พลิกกล่อง', (d, c) => { const T = ST(d), fin = T.win || 'b', fst = OTH(fin), BX = 112, BY = 40, bs = 300, SXp = -322, SYp = 74, s2 = 176;
     art(c, p => { const H = Z.H, t0 = tu(.1), t1 = f3(t0 + tu(.26)), tf = f3(H - tu(.14)), A = XS(d, fst), B = XS(d, fin), win = !!T.win && !T.off;
-      const K0 = fallK(BX, BY + bs / 2, t0, t1, 420), g0 = mvG(CL(p), K0); dust(p, BX, BY + bs / 2, t1, 1.2);
+      const K0 = fallK(BX, BY + bs / 2, t0, t1, BY + bs / 2 + 360), g0 = mvG(CL(p), K0); dust(p, BX, BY + bs / 2, t1, 1.2);
       const FS = [[0, 1], [tf, 1], [H, 0, 'in'], [f3(H + tu(.14)), 1.06, 'out'], [f3(H + tu(.26)), 1, 'soft']], g = mvG(g0, { px: BX, py: BY, sx: FS });
       R(g, BX - bs / 2, BY - bs / 2, bs, bs, bs * .24, F(4.4)); if (win) { R(litOn(g, H), BX - bs / 2, BY - bs / 2, bs, bs, bs * .24, LIT2()); ripple(p, BX, BY, bs * .56, f3(H + tu(.2))); }
       const mvA = { px: BX, py: BY + bs / 2, y: K0.y, sy: K0.sy, sx: K0.sx.concat([[tf, 1], [H, 0, 'in']]) }, mvB = { px: BX, py: BY, sx: [[0, 0], [H, 0], [f3(H + tu(.14)), 1.06, 'out'], [f3(H + tu(.26)), 1, 'soft']] };
@@ -1048,7 +1056,7 @@
     art(c, p => { const H = Z.H, lineP = y => `M ${A[0] + bs / 2} ${y} L ${JX} ${y} L ${JX} ${JY}`;
       SIDES.forEach(s => { const [x, y] = s === 'a' ? A : B; drawAt(p.path(lineP(y), { sw: 4, stroke: TL_(.5) }), p, f3(tIn(d, s) + tu(.2)), tu(.3));
         sbox(p, c, d, s, x, y, bs); word(p, d, s, -180, s === 'a' ? y - 30 : y + 62, { anchor: 'start', size: 48, maxW: 320, wrap: null }); });
-      if (T.win) { const w = T.win, [x, y] = w === 'a' ? A : B, t0 = f3(H - tu(.5));
+      if (T.win) { const w = T.win, [x, y] = w === 'a' ? A : B, t0 = f3(Math.max(H - tu(.5), tIn(d, w) + tu(.24)));
         drawAt(p.path(`M ${JX} ${JY} L ${SX - s2 / 2 - 14} ${JY}`, { sw: 4, stroke: TL_(.5) }), p, tu(.5), tu(.2));
         drawAt(R(p, SX - s2 / 2 - 12, JY - s2 / 2 - 12, s2 + 24, s2 + 24, s2 * .3, DASH(.45)), p, tu(.55), tu(.3));
         if (!T.off) { const ln = p.path(lineP(y) + ` L ${SX - s2 / 2 - 14} ${JY}`, { sw: 6, stroke: ACC1 }); on(ln, p, 0, { draw: [[0, 0], [t0, 0], [H, 1, 'io']] }); }
@@ -1103,7 +1111,7 @@
         const FK = { px: x, py: y, x: mv(f1(x0 - x), 0), y: mv(f1(y0 - y), 0), sx: mv(f3(w0 / w), 1), sy: mv(f3(h0 / h), 1), o: fadeIn(t, .05) };
         const g0 = mvG(popAt(p, x0, y0, t), FK); R(g0, x - w / 2, y - h / 2, w, h, 34, BK); const g = lose ? dimG(g0, ta) : g0; R(g, x - w / 2, y - h / 2, w, h, 34, F(3.8));
         if (s === T.win && !T.off) R(litOn(g, ta), x - w / 2, y - h / 2, w, h, 34, { sw: 5, stroke: ACC1 });
-        const BK2 = { px: x, py: y, x: FK.x, y: FK.y, s: mv(f3(210 / bs), 1) }; sbox(p, c, d, s, x, y, bs, { g: mvG(p, BK2), mv: BK2, t: f3(t + tu(.08)), dimAt: ta });
+        const BK2 = { px: x, py: y, x: FK.x, y: FK.y, s: mv(f3(210 / bs), 1), o: fadeIn(t, .05) }; sbox(p, c, d, s, x, y, bs, { g: mvG(p, BK2), mv: BK2, t: f3(t + tu(.08)), dimAt: ta });
         const wt = T.win ? f3(ta + tu(.04)) : undefined;
         if (!T.win) tag(p, d, s, x, y - h / 2 - 66, { maxW: 340 }); else if (s === T.win) tag(p, d, s, -435, -290, { anchor: 'start', t: wt, maxW: 380 }); else tag(p, d, s, 186, 288, { anchor: 'end', t: wt, maxW: 340, dimAt: ta }); });
       verdict(p, d, T.win ? { [T.win]: [-55 + 330, -180], [T.lose]: [332 + 110, 205 - 80] } : { a: corner(-210, 20, 210, -1), b: corner(210, 20, 210) });
@@ -1280,7 +1288,7 @@
         const ln = rg.path(pathOf(pts, false), { sw: 7, stroke: TL_(.7) }), t1 = T.change && s === 'a' ? f3(t0 + tu(.7)) : H; on(ln, rg, 0, { draw: [[0, 0], [t0, 0], [t1, 1, 'lin']] });
         if (win) { const l2 = p.path(pathOf(pts, false), { sw: 7, stroke: ACC1 }); on(l2, p, 0, { draw: [[0, 0], [H, 0], [f3(H + tu(.3)), 1, 'out']] }); }
         pts.slice(0, -1).forEach(([x, y], i) => popAt(rg, x, y, f3(lerp(t0, t1, i / (pts.length - 1)))).circle(x, y, 10, DOTF()));
-        const [fx, fy] = pts[pts.length - 1], P = pathK(pts, t0, t1, [fx, fy], 40, u => u), K = { px: fx, py: fy, x: P.x, y: P.y, o: fadeIn(t0, .04) };
+        const [fx, fy] = pts[pts.length - 1], P = pathK(pts, t0, t1, [fx, fy], 40, u => u), K = { px: fx, py: fy, x: P.x, y: P.y, s: [[0, .5], [f3(t1 - tu(.04)), .5], [f3(t1 + tu(.22)), 1.06, 'out'], [f3(t1 + tu(.34)), 1, 'soft']], o: fadeIn(t0, .04) };
         sbox(p, c, d, s, fx, fy, bs, { shape: 'circ', g: mvG(p, K), mv: K, t: t0 });
         word(p, d, s, -440, s === 'a' ? -20 : 256, { anchor: 'start', size: 50, maxW: 420, wrap: null, t: f3(t0 + tu(.1)) }); });
       verdict(p, d, { a: [XE.a + 64, yE('a') - 64], b: [XE.b + 64, yE('b') - 64] });
@@ -1291,9 +1299,10 @@
   variant('accordion', 'แผงพับ', (d, c) => { const T = ST(d), PW = 880, HH = 100, BH = 250, AY = -233, bs = 196, fin = T.win || 'b';
     art(c, p => { const H = Z.H, tA = tu(.45), tB = f3(Math.max(tu(.9), H - tu(.6))), ph = T.change ? [[tA, 'a'], [H, 'b']] : fin === 'a' ? [[tA, 'a'], [tB, 'b'], [H, 'a']] : [[tA, 'a'], [tB, 'b'], [H, 'b']];
       const bHy = AY + HH + 16, bOff = posK(ph, w => w === 'a' ? BH : 0, .24);
-      SIDES.forEach((s, i) => { const hy = s === 'a' ? AY : bHy, lose = s === T.lose, mvY = s === 'b' ? { y: bOff } : {}, t = f3(tu(.04 + .1 * i)), sk = phaseK(ph, s, 1, 0, .24);
-        const body = mvG(p, Object.assign({ px: 0, py: hy + HH, sy: sk }, mvY)), by0 = hy + HH, bc = by0 + BH / 2 - 6;
-        R(body, -PW / 2 + 16, by0 - 6, PW - 32, BH, 30, F(3)); const io = phaseK(ph, s, 1, 0, .16);
+      SIDES.forEach((s, i) => { const hy = s === 'a' ? AY : bHy, lose = s === T.lose, mvY = s === 'b' ? { y: bOff } : {}, t = f3(tu(.04 + .1 * i)), sk = posK(ph, w => w === s ? 1 : 0, .24);
+        const body = mvG(p, Object.assign({ px: 0, py: hy + HH, sy: sk, o: fadeIn(t, .06) }, mvY)), by0 = hy + HH, bc = by0 + BH / 2 - 6;
+        R(body, -PW / 2 + 16, by0 - 6, PW - 32, BH, 30, F(3)); const io = [[0, 0], [t, 0], [f3(t + tu(.06)), ph[0][1] === s ? 1 : 0]]; ph.forEach(([u, w], j) => { if (!j) return; const was = ph[j - 1][1] === s, now = w === s; if (was === now) return;
+          if (was) io.push([f3(u - tu(.24)), 1], [f3(u - tu(.17)), 0]); else io.push([f3(u - tu(.07)), 0], [f3(u), 1]); });
         const pg = mvG(p, Object.assign({ o: io }, mvY)); const X_ = XS(d, s), hasW = !!LBL(X_);
         if (X_ && picOf(X_)) put(p, c, { icon: X_.icon }, -300, bc, bs * .72, null, { t: tA, mv: Object.assign({ px: -300, py: bc }, s === 'b' ? { y: bOff } : {}), o: lose ? io.concat([[f3(H + tu(.3)), 0]]) : io });
         R(pg, -300 - bs / 2, bc - bs / 2, bs, bs, bs * .24, F(4)); if (!(X_ && picOf(X_)) && X_) txt(pg, X_.label, -300, bc + 16, { size: 44, maxW: bs * .86, weight: 800, color: C.ink, wrap: 'mid' });
@@ -1301,7 +1310,7 @@
         const g0 = mvG(p, Object.assign({ x: glide(-120, t, f3(t + tu(.26))), o: fadeIn(t, .05) }, mvY)); if (lose) R(g0, -PW / 2, hy, PW, HH, 30, BK); const g = lose ? dimG(g0, H) : g0;
         R(g, -PW / 2, hy, PW, HH, 30, F(3.8)); if (s === fin && !T.off) R(litOn(g, H), -PW / 2, hy, PW, HH, 30, { sw: 5, stroke: ACC1 });
         if (hasW) txt(g, X_.label, -PW / 2 + 40, hy + HH / 2 + 17, { size: 50, maxW: 640, weight: 800, color: C.ink, anchor: 'start' }); else R(g, -PW / 2 + 40, hy + HH / 2 - 11, 300, 22, 11, GREY());
-        const cg = mvG(g, { px: PW / 2 - 60, py: hy + HH / 2, r: phaseK(ph, s, 90, 0, .24) }); chev(cg, PW / 2 - 64, hy + HH / 2, .7, { sw: 5, stroke: C.ink }); });
+        const cg = mvG(g, { px: PW / 2 - 60, py: hy + HH / 2, r: posK(ph, w => w === s ? 90 : 0, .24) }); chev(cg, PW / 2 - 64, hy + HH / 2, .7, { sw: 5, stroke: C.ink }); });
       verdict(p, d, { [fin]: [PW / 2 - 140, (fin === 'a' ? AY : bHy) + HH / 2], [OTH(fin)]: [PW / 2 - 140, (OTH(fin) === 'a' ? AY : bHy + BH) + HH / 2] });
     }); });
 
