@@ -271,24 +271,34 @@
   const STEP = { s: [4, -78], e: [16, -26], h: [32, 24] }, LEANF = { head: [16, -134, 31], lean: 3, leg: sd => sd < 0 ? { h: [-6, 8], k: [-14, 86], f: [-24, 166] } : { h: [6, 8], k: [18, 86], f: [30, 166] } };
   const caps = (q, a, b, wd) => { q.line(...a, ...b, { sw: wd + 7 }); q.line(...a, ...b, { sw: wd, stroke: C.fill }); };
 
-  /* THE HANDSHAKE (user's picture, our line style): two cuffs, the back hand from the left, the front hand from the right with its thumb over;
-     the left hand's long fingers wrap under the right palm, the right hand's short fingers wrap round the left one. Drawn in the picture's
-     own units (about 950 × 500, centre 540 540) and scaled to width w. o.part = 'L' / 'R' draws one side only (for pulling apart). */
-  function handshake(q, x, y, w, o = {}) { const k = w / 950, g = q.child({ transform: `translate(${f1(x)} ${f1(y)}) scale(${+k.toFixed(4)}) translate(-540 -540)` }, k); g.H = q.H; g.motion = q.motion;
-    const L = o.part !== 'R', Rr = o.part !== 'L', Fh = F(3.6 / k > 9 ? 3.6 : 3.6);
-    if (L) { const cf = rot(g, 14, 141, 445); R(cf, 103, 309, 76, 272, 12, F(3.4)); }
-    if (Rr) { const cf = rot(g, -14, 940, 440); R(cf, 902, 304, 76, 272, 12, F(3.4)); }
-    if (L) g.path('M 236 352 Q 390 368 526 318 Q 600 380 640 470 L 610 640 Q 450 668 300 612 L 222 584 Z', F(3.4));
-    if (Rr) g.path('M 844 340 Q 720 336 604 316 Q 520 326 470 394 L 418 494 Q 416 526 452 532 Q 500 534 528 476 L 552 440 L 592 432 L 800 588 Q 852 604 896 574 Z', F(3.4));
-    if (L) [[[612, 556], [786, 626], 46], [[566, 616], [718, 690], 46], [[544, 664], [656, 736], 44], [[556, 724], [580, 764], 34]].forEach(([a, b, wd]) => caps(g, a, b, wd));
-    if (Rr) [[[298, 602], [248, 666]], [[380, 596], [310, 718]], [[444, 652], [388, 748]], [[506, 704], [464, 776]]].forEach(([a, b]) => caps(g, a, b, 46));
+  /* THE HANDSHAKE — our own drawing of the idea "two hands clasp" (user 2026-11-14 sent a handshake picture; "ไม่เหมือน copy reference มากเกินไปใช่ไหม"
+     → the first try traced it, so it was redrawn from scratch, three ways, for the user to pick). Drawn on a 500-wide box centred (0, 0), scaled to w.
+     o.style: 'A' side view, both hands one rounded mass, finger grooves only · 'B' seen from above on a diagonal, two mittens, one thumb over ·
+     'C' no hands: two sleeves whose ends are interlocked rings */
+  const ringT = (q, x, y, r, w) => { q.circle(x, y, r, { sw: w + 7 }); q.circle(x, y, r, { sw: w, stroke: C.fill }); };
+  const sleeve = (q, cx, cy, ang, sd, len = 140) => { const g = rot(q, ang, cx, cy); R(g, cx - len / 2, cy - 46, len, 92, 22, F(3.4)); g.line(f1(cx - sd * (len / 2 - 26)), cy - 46, f1(cx - sd * (len / 2 - 26)), cy + 46, S(1.6)); };
+  function handshake(q, x, y, w, o = {}) { const k = w / 500, st = o.style || HS, g = q.child({ transform: `translate(${f1(x)} ${f1(y)}) scale(${+k.toFixed(4)})` }, k); g.H = q.H; g.motion = q.motion;
+    if (st === 'A') { sleeve(g, -196, 26, -12, -1); sleeve(g, 196, 26, 12, 1);
+      [-112, -62, -12].forEach(x0 => ell(g, x0 + 25, 80, 26, 17, F(3)));
+      g.path('M -146 -18 Q -70 -74 40 -64 Q 124 -56 146 -14 L 146 42 Q 104 80 20 80 Q -70 82 -146 46 Z', F(3.6));
+      g.path('M 124 -40 Q 40 -36 -30 -6 Q -58 6 -46 22 Q -32 32 -8 18 Q 50 -8 128 -14 Z', F(3.2));
+      ['M 56 20 Q 90 32 124 24', 'M 46 46 Q 84 58 122 50'].forEach(dd => g.path(dd, S(1.8))); }
+    else if (st === 'B') { sleeve(g, -206, 74, -28, -1); sleeve(g, 206, -66, -28, 1);
+      g.path('M -150 12 Q -70 -36 34 -50 Q 92 -56 100 -20 Q 104 16 40 28 Q -50 52 -132 84 Z', F(3.4));
+      g.path('M 150 -76 Q 60 -54 -18 -6 Q -72 26 -58 58 Q -42 84 12 64 Q 92 34 162 -8 Z', F(3.6));
+      g.path('M 34 34 Q 74 14 116 -4', S(1.8));
+      tube(g, 'M -70 -4 Q -26 -40 34 -46', 30); }
+    else { [[-1, -210], [1, 210]].forEach(([sd, cx]) => { sleeve(g, cx, 0, 0, sd); tube(g, `M ${sd * 140} 0 L ${sd * 104} 0`, 24); });
+      ringT(g, -48, 0, 62, 24); ringT(g, 48, 0, 62, 24);
+      const a0 = rad(-62), a1 = rad(-18), P = a => f1(-48 + 62 * Math.cos(a)) + ' ' + f1(62 * Math.sin(a)), d = `M ${P(a0)} A 62 62 0 0 1 ${P(a1)}`; g.path(d, { sw: 31 }); g.path(d, { sw: 24, stroke: C.fill }); }
     return g; }
+  let HS = 'A';
 
   /* 01 ── THE HANDSHAKE (คนสองคนจับมือกัน): the two plates pop; the two hands come in and clasp; the link's name lands under them.
      cut → the clasp dims and a crack splits it */
   variant('handshake', 'จับมือกัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL();
-    art(c, p => { party(p, c, A, -330, -170, 74, { t: tA(Q) }); party(p, c, B, 330, -170, 74, { t: tB(Q) });
-      const h0 = inG(p, 'pop', 0, -10, tu(.2)), hs = cut ? mvG(h0, { o: [[0, .4]] }) : h0; handshake(hs, 0, -10, 520);
+    art(c, p => { party(p, c, A, -360, -200, 70, { t: tA(Q) }); party(p, c, B, 360, -200, 70, { t: tB(Q) });
+      const h0 = inG(p, 'pop', 0, -10, tu(.2)), hs = cut ? mvG(h0, { o: [[0, .4]] }) : h0; handshake(hs, 0, 10, 440, { style: d.hs });
       if (cut) crack(p, 0, -170, 150, 18, W(4));
       link(p, LB(d), 0, 230, 320);
     }); });
