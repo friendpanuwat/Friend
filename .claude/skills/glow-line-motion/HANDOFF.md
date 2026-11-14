@@ -6,7 +6,7 @@
 ## ▶ เริ่มแชทใหม่ตรงนี้
 
 **1. งานอยู่ที่ไหน (เช็กก่อนทำอะไร)**
-- **B01–B21 อยู่ใน default branch `ccr-045810ba-gj4imq` แล้ว** (B19–B21 = PR #28 merge แล้ว 2026-11-14) — ไม่ต้อง fetch/merge branch อื่น.
+- **B01–B21 + ชุดฐานรอบทดลอง อยู่ใน default branch `ccr-045810ba-gj4imq` แล้ว** (B19–B21 = PR #28, ชุดฐาน = PR #29 merge แล้ว 2026-11-14) — ไม่ต้อง fetch/merge branch อื่น.
   เช็กแค่ว่ามี `references/approved/b21/`. จบงานแต่ละรอบ: commit + push branch ของแชท · เปิด PR เมื่อผู้ใช้สั่งเท่านั้น.
 - ยกเลิกแล้ว: B11 ชุดที่ 2 (swishy.ai, commit `81e643d`) — **อย่าเสนอทำต่อเอง.**
 
