@@ -1,7 +1,7 @@
 /* b20.js — category B20 "ความสัมพันธ์" (how two are linked: a, b, the link's name, and whether it is over). House style of B01–B19, line
    weight of B16–B19 (bold bright outlines, round corners, few thin inner lines, big clear icons). Designs from the user's ideas in
-   references/cutpack-visual-ideas.md ("ความสัมพันธ์", 20 ideas). People are whole bodies, no faces, no hands; the one exception is the
-   handshake symbol (user 2026-11-14 sent a handshake picture with "เริ่ม" = draw the handshake idea as that symbol, in our line style).
+   references/cutpack-visual-ideas.md ("ความสัมพันธ์", 20 ideas). People are whole bodies, no faces, no hands — also no hand symbols (the
+   handshake idea is a knot / linked rings / clinking cups instead: user 2026-11-14 "คุณวาดอวัยวะคนได้ไม่ดีเลย").
    CutPack (references/cutpack-CATEGORIES.md v2, cat_ai.py): a THING · b THING · label = the link as said (optional) · cut = true when the link
    is over (optional — every design shows the break its own way: a gap, a snapped line, a split floor, things moved apart).
    GL.cats.B20.draw(i, data, { x, y, s, at, hit, speed }) — canvas 1000 × 700 centred at (0,0); hit = seconds after `at` (default 1.9). */
@@ -271,36 +271,33 @@
   const STEP = { s: [4, -78], e: [16, -26], h: [32, 24] }, LEANF = { head: [16, -134, 31], lean: 3, leg: sd => sd < 0 ? { h: [-6, 8], k: [-14, 86], f: [-24, 166] } : { h: [6, 8], k: [18, 86], f: [30, 166] } };
   const caps = (q, a, b, wd) => { q.line(...a, ...b, { sw: wd + 7 }); q.line(...a, ...b, { sw: wd, stroke: C.fill }); };
 
-  /* THE HANDSHAKE — our own drawing of the idea "two hands clasp" (user 2026-11-14 sent a handshake picture; "ไม่เหมือน copy reference มากเกินไปใช่ไหม"
-     → the first try traced it, so it was redrawn from scratch, three ways, for the user to pick). Drawn on a 500-wide box centred (0, 0), scaled to w.
-     o.style: 'A' side view, both hands one rounded mass, finger grooves only · 'B' seen from above on a diagonal, two mittens, one thumb over ·
-     'C' no hands: two sleeves whose ends are interlocked rings */
+  /* THE BOND (idea "คนสองคนจับมือกัน") — no hands at all (user 2026-11-14: "ลองเอาแบบเป็นอย่างอื่นแทนที่ไม่ใช่มือ … คุณวาดอวัยวะคนได้ไม่ดีเลย";
+     two hand drawings were turned down: one traced the user's picture, three redrawn ones did not read as hands). Three takes for the user to pick
+     (o.style / BS): 'knot' a rope from each side tied in a square knot · 'rings' a's and b's plates are two rings linked through each other ·
+     'cups' two cups clink. cut → untied / unlinked / apart. */
   const ringT = (q, x, y, r, w) => { q.circle(x, y, r, { sw: w + 7 }); q.circle(x, y, r, { sw: w, stroke: C.fill }); };
-  const sleeve = (q, cx, cy, ang, sd, len = 140) => { const g = rot(q, ang, cx, cy); R(g, cx - len / 2, cy - 46, len, 92, 22, F(3.4)); g.line(f1(cx - sd * (len / 2 - 26)), cy - 46, f1(cx - sd * (len / 2 - 26)), cy + 46, S(1.6)); };
-  function handshake(q, x, y, w, o = {}) { const k = w / 500, st = o.style || HS, g = q.child({ transform: `translate(${f1(x)} ${f1(y)}) scale(${+k.toFixed(4)})` }, k); g.H = q.H; g.motion = q.motion;
-    if (st === 'A') { sleeve(g, -196, 26, -12, -1); sleeve(g, 196, 26, 12, 1);
-      [-112, -62, -12].forEach(x0 => ell(g, x0 + 25, 80, 26, 17, F(3)));
-      g.path('M -146 -18 Q -70 -74 40 -64 Q 124 -56 146 -14 L 146 42 Q 104 80 20 80 Q -70 82 -146 46 Z', F(3.6));
-      g.path('M 124 -40 Q 40 -36 -30 -6 Q -58 6 -46 22 Q -32 32 -8 18 Q 50 -8 128 -14 Z', F(3.2));
-      ['M 56 20 Q 90 32 124 24', 'M 46 46 Q 84 58 122 50'].forEach(dd => g.path(dd, S(1.8))); }
-    else if (st === 'B') { sleeve(g, -206, 74, -28, -1); sleeve(g, 206, -66, -28, 1);
-      g.path('M -150 12 Q -70 -36 34 -50 Q 92 -56 100 -20 Q 104 16 40 28 Q -50 52 -132 84 Z', F(3.4));
-      g.path('M 150 -76 Q 60 -54 -18 -6 Q -72 26 -58 58 Q -42 84 12 64 Q 92 34 162 -8 Z', F(3.6));
-      g.path('M 34 34 Q 74 14 116 -4', S(1.8));
-      tube(g, 'M -70 -4 Q -26 -40 34 -46', 30); }
-    else { [[-1, -210], [1, 210]].forEach(([sd, cx]) => { sleeve(g, cx, 0, 0, sd); tube(g, `M ${sd * 140} 0 L ${sd * 104} 0`, 24); });
-      ringT(g, -48, 0, 62, 24); ringT(g, 48, 0, 62, 24);
-      const a0 = rad(-62), a1 = rad(-18), P = a => f1(-48 + 62 * Math.cos(a)) + ' ' + f1(62 * Math.sin(a)), d = `M ${P(a0)} A 62 62 0 0 1 ${P(a1)}`; g.path(d, { sw: 31 }); g.path(d, { sw: 24, stroke: C.fill }); }
-    return g; }
-  let HS = 'A';
+  const arcT = (q, x, y, r, a0, a1, w) => { const P = a => f1(x + r * Math.cos(rad(a))) + ' ' + f1(y + r * Math.sin(rad(a))), d = `M ${P(a0)} A ${r} ${r} 0 0 1 ${P(a1)}`; q.path(d, { sw: w + 7 }); q.path(d, { sw: w, stroke: C.fill }); };
+  let BS = 'knot';
 
-  /* 01 ── THE HANDSHAKE (คนสองคนจับมือกัน): the two plates pop; the two hands come in and clasp; the link's name lands under them.
-     cut → the clasp dims and a crack splits it */
-  variant('handshake', 'จับมือกัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL();
-    art(c, p => { party(p, c, A, -360, -200, 70, { t: tA(Q) }); party(p, c, B, 360, -200, 70, { t: tB(Q) });
-      const h0 = inG(p, 'pop', 0, -10, tu(.2)), hs = cut ? mvG(h0, { o: [[0, .4]] }) : h0; handshake(hs, 0, 10, 440, { style: d.hs });
-      if (cut) crack(p, 0, -170, 150, 18, W(4));
-      link(p, LB(d), 0, 230, 320);
+  /* 01 ── THE BOND (คนสองคนจับมือกัน — no hands): knot · rings · cups (d.bs or BS); the link's name lands under it */
+  variant('bond', 'ผูกพันกัน', (d, c) => { const A = PA(d), B = PB(d), cut = CUT(d), Q = TL(), st = d.bs || BS;
+    art(c, p => {
+      if (st === 'knot') { const dx = cut ? 90 : 0, U1 = `M -296 -26 L ${-40 - dx} -26 Q ${34 - dx} -26 ${34 - dx} 12 Q ${34 - dx} 50 ${-40 - dx} 50 L ${-120 - dx} 50`,
+          U2 = `M 296 26 L ${40 + dx} 26 Q ${-34 + dx} 26 ${-34 + dx} -12 Q ${-34 + dx} -50 ${40 + dx} -50 L ${120 + dx} -50`;
+        const kg = inG(p, 'pop', 0, 0, tu(.2)); tube(kg, U2, 34); tube(kg, U1, 34); if (!cut) tube(kg, 'M 86 26 L 40 26 Q 14 26 0 16', 34);
+        party(p, c, A, -370, 0, 72, { t: tA(Q) }); party(p, c, B, 370, 0, 72, { t: tB(Q) }); link(p, LB(d), 0, 200, 300); }
+      else if (st === 'rings') { const ox = cut ? 175 : 100, r = 140, y = -30, g = inG(p, 'pop', 0, y, tu(.2));
+        [-1, 1].forEach(sd => g.circle(sd * ox, y, r, { fill: C.fill, sw: 0, stroke: 'none' })); ringT(g, -ox, y, r, 24); ringT(g, ox, y, r, 24); if (!cut) arcT(g, -ox, y, r, -48, -8, 24);
+        [[A, -1, tA(Q)], [B, 1, tB(Q)]].forEach(([X, sd, t]) => { const x = sd * (ox + 30); if (!X) { DOT(popAt(p, x, y, t), x, y, 8); return; }
+          if (picOf(X)) { put(p, c, { icon: X.icon }, x, y, 110, null, { t, punch: t + tu(.16) }); if (X.label) txt(atG(p, t + tu(.12)), X.label, x, y + r + 50, { size: 32, maxW: 240, weight: 700, color: C.ink }); }
+          else txt(popAt(p, x, y, t), X.label, x, y + 10, { size: 34, maxW: 150, weight: 800, color: C.ink, wrap: 'mid' }); });
+        link(p, LB(d), 0, 250, 280); }
+      else { const bx = cut ? 230 : 135, tl = cut ? 0 : 16;
+        [[-1, A, tA(Q)], [1, B, tB(Q)]].forEach(([sd, X, t], i) => { const x = sd * bx, g0 = inG(p, 'rise', x, 60, tu(.14 + .06 * i)), g = rot(g0, sd * -tl, x, 150);
+          shape(g, [[x - 66, -110], [x + 66, -110], [x + 50, 150], [x - 50, 150]], F(4)); g.line(x - 58, -30, x + 58, -30, S(1.6)); ell(g, x, -110, 66, 12, F(2.8));
+          if (X && picOf(X)) put(p, c, { icon: X.icon }, f1(x + sd * -tl * 1.2), 50, 84, null, { t, r: sd * -tl, punch: t + tu(.16) }); else if (X) txt(popAt(p, x, 60, t), X.label, x, 70, { size: 26, maxW: 90, weight: 800, color: C.ink, wrap: 'mid' });
+          if (X && X.label && picOf(X)) txt(atG(p, t + tu(.12)), X.label, x, 206, { size: 30, maxW: 220, weight: 700, color: C.ink }); });
+        if (!cut) sparkAt(p, 0, -128, 22, 44, Q.T0, 7, -90, [3, 4], true); link(p, LB(d), 0, 286, 280); }
     }); });
 
   /* 02 ── STANDING BETWEEN TWO GROUPS (คนยืนอยู่ระหว่างสองกลุ่ม): the groups on each side, the one in the middle on a step reaching out to both;
