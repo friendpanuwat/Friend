@@ -841,11 +841,14 @@
     for (let k = 1; k < 5; k++) drawAt(p.line(-470 + k * 152, Y + 30, -470 + k * 152, Y + 56, { sw: 4, stroke: TL_(.4) }), p, f3(T.tA + tu(.06 * k)), tu(.1));
     goal(p, c, d, 380, Y - 70, 200); gword(p, d, -60, -40, { size: 60, maxW: 640, wrap: null }); rider(p, c, d, [[-400, Y - 110], [190, Y - 110]], T.tM0, T.tM1, { r: 80, ease: u => u }); }); });
 
-  /* 20 PILLARS GATE (ผ่านเสาประตู): two tall pillars stand apart; who walks between them and the goal lights beyond */
-  variant('pillars', 'ผ่านเสาคู่', (d, c) => { art(c, p => { const T = GT();
-    [-120, 60].forEach((x, k) => R(mvG(p, upK(x + 20, 300, f3(T.tA + tu(.1 * k)), .4)), x, -230, 40, 530, 20, F(4)));
-    const bar = litOn(p, T.H); R(bar, -130, -250, 220, 26, 13, { fill: ACC1, sw: 3, stroke: ACC1 });
-    goal(p, c, d, 320, 30, 220); gword(p, d, 320, 220, { maxW: 300 }); rider(p, c, d, [[-460, 120], [-20, 120], [110, 100]], T.tM0, T.tM1, { r: 76, fade: true }); }); });
+  /* 20 RAMP (ทางลาดโค้งขึ้น) — redesigned (user: "Design 20 ใหม่"): a solid ramp curves up from the bottom-left to a high ledge; who rolls up
+     the curve (the lit edge follows it) and stops by the goal on the ledge */
+  variant('ramp', 'ทางลาดโค้งขึ้น', (d, c) => { art(c, p => { const T = GT(), curve = Array.from({ length: 25 }, (_, k) => { const u = k / 24; return [f1(-470 + 560 * u), f1(300 - 400 * Math.pow(u, 2.2))]; }), top = curve[24];
+    mvG(CL(p), upK(0, 330, T.tA, .45)).path(pathOf(curve.concat([[470, top[1]], [470, 330], [-470, 330]])), F(4));
+    litWay(p, pathOf(curve, false), T.tM0, T.tM1, 7);
+    goal(p, c, d, 360, f1(top[1] - 125), 210); gword(p, d, -300, -150, { size: 58, maxW: 420 });
+    const pts = curve.map(([x, y], k) => { const a = k < 24 ? Math.atan2(curve[k + 1][1] - y, curve[k + 1][0] - x) : Math.atan2(y - curve[k - 1][1], x - curve[k - 1][0]); return [f1(x + 76 * Math.sin(a)), f1(y - 76 * Math.cos(a))]; });
+    rider(p, c, d, pts.concat([[140, f1(top[1] - 76)]]), T.tM0, T.tM1, { r: 72 }); }); });
 
   /* 21 ZIP LINE (ไถลลงเส้น): a long line slopes from the top-left down to the goal; who slides down it */
   variant('zipline', 'ไถลตามเส้น', (d, c) => { art(c, p => { const T = GT(); way(p, 'M -470 -290 L 250 160', T.tA, tu(.4), 5, .5); popAt(p, -470, -290, T.tA).circle(-470, -290, 14, F(3));
