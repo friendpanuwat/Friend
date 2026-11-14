@@ -569,7 +569,7 @@
   /* the center (owner / where they go): a big box that bumps on every event, its word in a pill (o.ly; o.noLabel) */
   function cbox(p, c, X, x, y, s, ts, o = {}) { if (!X) return null; const t = o.t ?? tu(.1), g0 = popAt(p, x, y, t), K = { px: x, py: y, s: multiBump(ts) }, g = mvG(g0, K);
     if (o.circ) { g.circle(x, y, s / 2, F(4.4)); g.circle(x, y, s / 2 - 16, S(1.4)); } else { R(g, x - s / 2, y - s / 2, s, s, s * .26, F(4.4)); R(g, x - s / 2 + 14, y - s / 2 + 14, s - 28, s - 28, s * .2, S(1.4)); }
-    if (picOf(X)) { put(p, c, { icon: X.icon }, x, y, s * .66, null, { t: f3(t + tu(.04)), mv: K }); if (X.label && !o.noLabel) pill(p, X.label, o.lx ?? x, o.ly ?? y + s / 2 + 42, { t: tu(.3), size: 30, maxW: o.maxW || 300 }); }
+    if (picOf(X)) { put(p, c, { icon: X.icon }, x, y, s * .66, null, { t: f3(t + tu(.04)), mv: K }); if (X.label && !o.noLabel) pill(p, X.label, o.lx ?? x, o.ly ?? y + s / 2 + 52, { t: tu(.3), size: 40, maxW: o.maxW || 340 }); }
     else txt(g, X.label, x, y + s * .06, { size: s * .17, maxW: s * .84, weight: 800, color: C.ink, wrap: 'mid' }); return g; }
   /* the item's word as a chip (only when it has an icon — otherwise the word is in the boxes) + the direction badge */
   /* (user 2026-11-14, with a marked-up picture: "ลบขีดเส้นใต้ด้านล่างออกและลบที่ผมวงไว้ออกด้วยทุกอันเลย … โหมดต่อๆไปก็ห้ามทำด้วย") — no word chip
@@ -600,7 +600,7 @@
      lights under it; down — they burst out of it to the corners and fade, the dots go dark. No center → a dashed target ring */
   variant('into', 'ไหลเข้าศูนย์', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = 0, cy = -30, far = [[-470, -330], [470, -330], [-470, 330], [470, 330]];
     art(c, p => { base(p, c, d, E); if (Cn) cbox(p, c, Cn, cx, cy, 250, E.ts, { noLabel: true }); else { drawAt(p.circle(cx, cy, 160, DASH(.5)), p, tu(.06), tu(.3)); const K = { px: cx, py: cy, s: multiBump(E.ts, 1.08) }; ibox(p, c, X, cx, cy, 220, tu(.08), { g: mvG(popAt(p, cx, cy, tu(.08)), K), mv: K }); }
-      if (Cn && Cn.label && picOf(Cn)) pill(p, Cn.label, cx, -270, { t: tu(.3), size: 30, maxW: 300 });
+      if (Cn && Cn.label && picOf(Cn)) pill(p, Cn.label, cx, -280, { t: tu(.3), size: 40, maxW: 340 });
       for (let k = 0; k < E.n; k++) { const fr = far[k % 4], mid = [(fr[0] + cx) / 2, (fr[1] + cy) / 2 + (k % 2 ? 60 : -60)];
         item(p, c, X, cx, cy, 185, E, k, E.up ? { in: 'fly', from: fr, mid, vanish: true, dur: .36 } : { out: 'fly', to: fr, mid, hidden: true, dur: .36 });
         const dx = f1(cx + (k - (E.n - 1) / 2) * 56), dy = 200, t = E.at(k); p.circle(dx, dy, 16, S(2));
@@ -617,7 +617,7 @@
         R(mvG(p, upK(x + w / 2, 250, tu(.08 + .05 * k))), x, y0, w, h, 18, F(3)); const lit = sub(p);
         on(lit, p, 0, { o: E.up ? [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] : t == null ? fadeIn(tu(.3)) : [[0, 0], [tu(.3), 0], [tu(.34), 1], [t, 1], [f3(t + tu(.08)), 0]] });
         R(lit, x + 8, y0 + 8, w - 16, h - 16, 12, { fill: TA(.6), sw: 0, stroke: 'none' }); if (t != null) ripple(p, x + w / 2, y0, 50, t); }
-      cbox(p, c, Cn, 400, -230, 130, E.ts, { noLabel: true });
+      cbox(p, c, Cn, 390, -245, 180, E.ts, { noLabel: true });
       endM(p, c, d, bx + bs / 2, by - bs / 2);
     }); });
 
@@ -653,7 +653,7 @@
     art(c, p => { base(p, c, d, E, E.up ? { dx: 432, dy: 292 } : { cy: 292, dx: 432, dy: -292 }); on(p.line(a[0], a[1], b[0], b[1], { sw: 16, stroke: TA(.5) }), p, 0, { draw: [[0, 0], [tu(.06), 0], [tu(.5), 1, 'out']] });
       const h1 = an + rad(150), h2 = an - rad(150); popAt(p, b[0], b[1], tu(.5)).path(`M ${f1(b[0] + 70 * Math.cos(h1))} ${f1(b[1] + 70 * Math.sin(h1))} L ${b[0]} ${b[1]} L ${f1(b[0] + 70 * Math.cos(h2))} ${f1(b[1] + 70 * Math.sin(h2))}`, { sw: 16, stroke: TA(.5) });
       for (let k = 0; k < E.n; k++) { const f = (k + 1) / (E.n + 1) * .92 + .04, x = f1(lerp(a[0], b[0], f)), y = f1(lerp(a[1], b[1], f)); item(p, c, X, x, y, s, E, k, { in: 'pop', out: 'shrink' }); }
-      cbox(p, c, Cn, a[0] + 20, a[1] + (E.up ? -40 : 40), 150, E.ts, { noLabel: true }); endM(p, c, d, b[0] - 30, b[1] + (E.up ? 90 : -90));
+      cbox(p, c, Cn, a[0] + 30, a[1] + (E.up ? -50 : 50), 185, E.ts, { noLabel: true }); endM(p, c, d, b[0] - 30, b[1] + (E.up ? 90 : -90));
     }); });
 
   /* 09 ── COUNTER DOTS (จุดนับ): one big item box in the middle; a row of round counters under it — up: they fill one by one (the box bumps each
@@ -676,7 +676,7 @@
           if (t != null) K.y = [[0, 0], [t, 0], [te, -260, 'in']]; }
         const g = mvG(cl, K); R(g, px - cw / 2, cy0, cw, ch, 30, F(4)); R(g, px - cw / 2 + 14, cy0 + 14, cw - 28, ch - 28, 22, S(1.4)); const mv = Object.assign({}, K); delete mv.o;
         if (X && picOf(X)) put(p, c, { icon: X.icon }, px, cy0 + ch / 2, 120, null, { t: E.up ? f3(t - tu(.32)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, px, cy0 + ch / 2 + 10, { size: 34, maxW: cw - 30, weight: 800, color: C.ink, wrap: 'mid' }); });
-      cbox(p, c, Cn, 360, -200, 160, E.ts); endM(p, c, d, 0, -60);
+      cbox(p, c, Cn, 350, -210, 190, E.ts, { ly: -210 + 150 }); endM(p, c, d, 0, -60);
     }); });
 
   /* 11 ── RING AROUND (วงรอบศูนย์): the center in the middle (or a dashed ring); the boxes around it, each tied by a line — up: they pop on one by one
@@ -687,7 +687,7 @@
       A.forEach((a, k) => { const x = f1(cx + R0 * Math.cos(rad(a))), y = f1(cy + R0 * Math.sin(rad(a))), t = E.at(k), x1 = f1(cx + 120 * Math.cos(rad(a))), y1 = f1(cy + 120 * Math.sin(rad(a))), x2 = f1(cx + (R0 - s * .6) * Math.cos(rad(a))), y2 = f1(cy + (R0 - s * .6) * Math.sin(rad(a)));
         const ln = p.line(x1, y1, x2, y2, { sw: 3, stroke: ACC1 }); if (E.up) on(ln, p, 0, { draw: [[0, 0], [f3(t - tu(.1)), 0], [t, 1, 'out']] }); else on(ln, p, 0, { o: t == null ? fadeIn(tu(.3)) : [[0, 0], [tu(.3), 0], [tu(.34), 1], [t, 1], [f3(t + tu(.06)), 0]] });
         item(p, c, X, x, y, s, E, k, { in: 'pop', out: 'fly', to: [f1(cx + 700 * Math.cos(rad(a))), f1(cy + 700 * Math.sin(rad(a)))], mid: [f1(cx + 450 * Math.cos(rad(a))), f1(cy + 450 * Math.sin(rad(a)))] }); });
-      if (Cn && Cn.label && picOf(Cn)) pill(p, Cn.label, cx, cy + 140, { t: tu(.3), size: 28, maxW: 260 }); endM(p, c, d, cx + 90, cy - 90, 38);
+      if (Cn && Cn.label && picOf(Cn)) pill(p, Cn.label, cx, cy + 140, { t: tu(.3), size: 38, maxW: 320 }); endM(p, c, d, cx + 90, cy - 90, 38);
     }); });
 
   /* 12 ── RISING BARS (แท่งโต): bars stand on a baseline, each with the item box on top — up: each bar grows and its box pops on top; down: bars sink
@@ -704,25 +704,25 @@
 
   /* 13 ── LIST ROWS (แถวรายการ): rows with a big icon box and grey lines — up: each row slides in from the right under the last; down: a line strikes
      the row and it folds away. The center (if any) sits top-right */
-  variant('list', 'แถวรายการ', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), rh = E.n >= 4 ? 154 : 180, gp = 10, y0 = 10 - ((E.n - 1) * (rh + gp)) / 2, bs = rh - 14;
+  variant('list', 'แถวรายการ', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), RW = Cn ? 680 : 880, rh = E.n >= 4 ? 154 : 180, gp = 10, y0 = 10 - ((E.n - 1) * (rh + gp)) / 2, bs = rh - 14;
     art(c, p => { base(p, c, d, E, { dx: Cn ? 250 : 432 });
       for (let k = 0; k < E.n; k++) { const y = f1(y0 + k * (rh + gp)), t = E.at(k), K = { px: 0, py: y };
         if (E.up) Object.assign(K, { x: [[0, 560], [f3(t - tu(.3)), 560], [t, -12, 'out'], [f3(t + tu(.1)), 0, 'soft']], o: fadeIn(f3(t - tu(.3)), .04) });
         else { const t0 = tu(.08 + .06 * k); Object.assign(K, { x: [[0, 560], [t0, 560], [f3(t0 + tu(.3)), 0, 'out']], o: fadeIn(t0, .04) }); if (t != null) Object.assign(K, { sy: [[0, 1], [f3(t + tu(.12)), 1], [f3(t + tu(.32)), 0, 'in']], o: fadeIn(t0, .04).concat([[f3(t + tu(.12)), 1], [f3(t + tu(.32)), 0]]) }); }
-        const g = mvG(CL(p), K); R(g, -440, y - rh / 2, 880, rh, 34, F(3.6)); R(g, -420, y - bs / 2, bs, bs, bs * .24, F(3.4)); R(g, -420 + bs + 36, y - 30, 380, 24, 12, PH); R(g, -420 + bs + 36, y + 10, 240, 24, 12, PH);
+        const g = mvG(CL(p), K); R(g, -440, y - rh / 2, RW, rh, 34, F(3.6)); R(g, -420, y - bs / 2, bs, bs, bs * .24, F(3.4)); R(g, -420 + bs + 36, y - 30, RW - bs - 160, 24, 12, PH); R(g, -420 + bs + 36, y + 10, (RW - bs - 160) * .62, 24, 12, PH);
         const mv = Object.assign({}, K); delete mv.o; if (X && picOf(X)) put(p, c, { icon: X.icon }, -420 + bs / 2, y, bs * .64, null, { t: E.up ? f3(t - tu(.3)) : tu(.08 + .06 * k), mv, o: K.o }); else if (X) txt(g, X.label, -420 + bs / 2, y + 8, { size: 30, maxW: bs - 16, weight: 800, color: C.ink, wrap: 'mid' });
-        if (!E.up && t != null) { const sg = sub(p); on(sg, p, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.02)), 1], [f3(t + tu(.12)), 1], [f3(t + tu(.2)), 0]] }); drawAt(sg.line(-450, y, 450, y, { sw: 6, stroke: ACC1 }), p, t, tu(.12)); }
+        if (!E.up && t != null) { const sg = sub(p); on(sg, p, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.02)), 1], [f3(t + tu(.12)), 1], [f3(t + tu(.2)), 0]] }); drawAt(sg.line(-450, y, -430 + RW, y, { sw: 6, stroke: ACC1 }), p, t, tu(.12)); }
         if (E.up) ripple(p, -420 + bs / 2, y, bs * .6, t); }
-      cbox(p, c, Cn, 360, -292, 110, E.ts, { noLabel: true }); endM(p, c, d, 440, f1(y0 + (E.n - 1) * (rh + gp)) - rh / 2, 40);
+      cbox(p, c, Cn, 370, 10, 200, E.ts); endM(p, c, d, -440 + RW, f1(y0 + (E.n - 1) * (rh + gp)) - rh / 2, 40);
     }); });
 
   /* 14 ── MERGE (รวมเป็นหนึ่ง): one item box in the middle that grows a step with each copy that flies into it (up), or shrinks a step as copies split
      off and fly away (down) */
-  variant('merge', 'รวมเป็นหนึ่ง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = 0, cy = 20, sF = 320, lo = .42, far = [[-470, -320], [470, -320], [-470, 320], [470, 320]];
+  variant('merge', 'รวมเป็นหนึ่ง', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = Cn ? -120 : 0, cy = 20, sF = 320, lo = .42, far = [[-470, -320], [470, -320], [-470, 320], [470, 320]];
     art(c, p => { base(p, c, d, E, { dx: Cn ? 250 : 432 }); const sc = j => lo + (1 - lo) * j / E.n, Kk = [[0, E.up ? sc(0) : 1]];
       ORD(E).forEach(k => { const t = E.at(k), v = E.up ? sc(k + 1) : sc(k); Kk.push([t, Kk[Kk.length - 1][1]], [f3(t + tu(.08)), v * 1.06, 'out'], [f3(t + tu(.2)), v, 'soft']); }); const K = { px: cx, py: cy, s: Kk }; ibox(p, c, X, cx, cy, sF, tu(.06), { g: mvG(popAt(p, cx, cy, tu(.06)), K), mv: K });
       for (let k = 0; k < E.n; k++) { if (E.at(k) == null) continue; const fr = far[k % 4]; item(p, c, X, cx, cy, 120, E, k, E.up ? { in: 'fly', from: fr, vanish: true, dur: .36 } : { out: 'fly', to: fr, hidden: true, dur: .36 }); }
-      cbox(p, c, Cn, 360, -292, 110, E.ts, { noLabel: true }); endM(p, c, d, cx + 150, cy - 150);
+      cbox(p, c, Cn, 340, 20, 210, E.ts); endM(p, c, d, cx + 150, cy - 150);
     }); });
 
   /* 15 ── PILE (กองพูน): boxes pile into a little pyramid — up: bottom row first, each drops and squashes; down: from the top, each flies off up and
@@ -743,18 +743,18 @@
         else Object.assign(K, t == null ? { o: fadeIn(t0, .04) } : { r: [[0, 0], [t, 0], [f3(t + tu(.4)), 120, 'in']], s: [[0, 1], [t, 1], [f3(t + tu(.4)), 1.6, 'in']], o: [[0, 0], [t0, 0], [f3(t0 + tu(.04)), 1], [f3(t + tu(.25)), 1], [f3(t + tu(.4)), 0]] });
         if (!E.up && t != null) ghost(p, x, y, s, f3(t + tu(.4))); const g = mvG(CL(p), K); R(g, x - s / 2, y - s / 2, s, s, s * .24, F(4)); const mv = Object.assign({}, K); delete mv.o;
         if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, s * .72, null, { t: E.up ? f3(t - tu(.45)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, x, y + 8, { size: 30, maxW: s - 16, weight: 800, color: C.ink, wrap: 'mid' }); });
-      if (Cn && Cn.label && picOf(Cn)) pill(p, Cn.label, cx, cy + 150, { t: tu(.3), size: 28, maxW: 260 }); endM(p, c, d, cx + 100, cy - 100, 38);
+      if (Cn && Cn.label && picOf(Cn)) pill(p, Cn.label, cx, cy + 150, { t: tu(.3), size: 38, maxW: 320 }); endM(p, c, d, cx + 100, cy - 100, 38);
     }); });
 
   /* 17 ── TALLY (ขีดนับ): a big item box; beside it tally strokes — up: one stroke draws for each arrival (the box bumps); down: the strokes are struck
      through and dim one by one */
   variant('tally', 'ขีดนับ', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), bx = -250, by = 20, bs = 290;
     art(c, p => { base(p, c, d, E, { dx: Cn ? 250 : 432 }); const K = { px: bx, py: by, s: multiBump(E.ts, 1.06) }; ibox(p, c, X, bx, by, bs, tu(.06), { g: mvG(popAt(p, bx, by, tu(.06)), K), mv: K });
-      for (let k = 0; k < E.n; k++) { const x = 40 + k * 100, t = E.at(k), ln = p.line(x, by - 130, x - 14, by + 130, { sw: 12, stroke: ACC1 });
+      for (let k = 0; k < E.n; k++) { const x = 40 + k * (Cn ? 76 : 100), t = E.at(k), ln = p.line(x, by - 130, x - 14, by + 130, { sw: 12, stroke: ACC1 });
         if (E.up) { on(ln, p, 0, { draw: [[0, 0], [f3(t - tu(.14)), 0], [t, 1, 'out']] }); dust(p, x - 14, by + 130, t, .6); }
         else { on(ln, p, 0, { draw: [[0, 0], [tu(.2 + .06 * k), 0], [tu(.4 + .06 * k), 1, 'out']], o: t == null ? [[0, 1]] : [[0, 1], [f3(t + tu(.1)), 1], [f3(t + tu(.25)), .25]] });
           if (t != null) drawAt(p.line(x - 50, by + 40, x + 40, by - 40, W(6)), p, t, tu(.12)); } }
-      cbox(p, c, Cn, 400, -292, 110, E.ts, { noLabel: true }); endM(p, c, d, bx + bs / 2, by - bs / 2);
+      cbox(p, c, Cn, 390, -220, 180, E.ts, { noLabel: true }); endM(p, c, d, bx + bs / 2, by - bs / 2);
     }); });
 
   /* 18 ── STEP DIAL (หน้าปัดขั้น): a half dial with one notch per item; the needle steps up a notch with each arrival (down: steps back), the notches
@@ -766,7 +766,7 @@
       const st = E.up ? [0] : [E.n]; const RK = [[0, ang(st[0]) - ang(E.up ? E.n : E.keep)]]; const fin = ang(E.up ? E.n : E.keep);
       ORD(E).forEach(k => { const t = E.at(k), j = E.up ? k + 1 : k, v = ang(j) - fin; RK.push([f3(t - tu(.12)), RK[RK.length - 1][1]], [t, v + (E.up ? 4 : -4), 'out'], [f3(t + tu(.1)), v, 'soft']); }); const nd = mvG(p, { px: cx, py: cy, r: RK, o: fadeIn(tu(.2), .04) }); nd.line(cx, cy, f1(cx + (r - 50) * Math.cos(rad(fin))), f1(cy + (r - 50) * Math.sin(rad(fin))), W(7)); popAt(p, cx, cy, tu(.2)).circle(cx, cy, 24, SOLID(2));
       const K = { px: cx, py: -165, s: multiBump(E.ts, 1.06) }; ibox(p, c, X, cx, -165, 160, tu(.1), { g: mvG(popAt(p, cx, -165, tu(.1)), K), mv: K });
-      cbox(p, c, Cn, 400, -292, 110, E.ts, { noLabel: true }); endM(p, c, d, cx + 110, -250, 40);
+      cbox(p, c, Cn, 390, -200, 180, E.ts, { noLabel: true }); endM(p, c, d, cx + 110, -250, 40);
     }); });
 
   /* 19 ── PILL TAGS (เม็ดไอคอน): wide pills (big icon + grey line) in two columns — up: each pops in with a bounce; down: each shrinks away. The center
@@ -778,7 +778,7 @@
         else Object.assign(K, { s: [[0, .3], [t0, .3], [f3(t0 + tu(.24)), 1.06, 'out'], [f3(t0 + tu(.36)), 1, 'soft']].concat(t == null ? [] : [[t, 1], [f3(t + tu(.06)), 1.08, 'out'], [f3(t + tu(.3)), 0, 'in']]), o: fadeIn(t0, .04).concat(t == null ? [] : [[f3(t + tu(.28)), 1], [f3(t + tu(.3)), 0]]) });
         if (!E.up && t != null) ghost(p, x, y, ph, f3(t + tu(.3)), 'pill', pw); const g = mvG(p, K); R(g, x - pw / 2, y - ph / 2, pw, ph, ph / 2, F(4)); g.circle(x - pw / 2 + ph / 2, y, ph / 2 - 12, S(1.6)); R(g, x - pw / 2 + ph + 10, y - 12, 200, 24, 12, PH);
         const mv = Object.assign({}, K); delete mv.o; if (X && picOf(X)) put(p, c, { icon: X.icon }, x - pw / 2 + ph / 2, y, 124, null, { t: E.up ? f3(t - tu(.3)) : t0, mv, o: K.o }); else if (X) txt(g, X.label, x + 20, y + 12, { size: 34, maxW: pw - 60, weight: 800, color: C.ink }); });
-      cbox(p, c, Cn, 400, -292, 110, E.ts, { noLabel: true }); const L = P[E.n - 1]; endM(p, c, d, L[0] + pw / 2, L[1] - ph / 2, 40);
+      cbox(p, c, Cn, 0, -262, 170, E.ts, { noLabel: true }); const L = P[E.n - 1]; endM(p, c, d, L[0] + pw / 2, L[1] - ph / 2, 40);
     }); });
 
   /* 20 ── FILL TANK (ถังเติม): a tall rounded container; up — each box drops in from above and the level inside rises a step; down — each floats up
@@ -809,17 +809,17 @@
         item(p, c, X, x, y, s, E, k, { in: 'pop', out: 'shrink', dur: .34 }); if (t == null) return;
         const bx = x + s / 2 - 6, by = y - s / 2 + 6, g = sub(p); on(g, p, 0, { ox: bx, oy: by, s: [[0, .2], [f3(t - tu(.02)), .2], [f3(t + tu(.12)), 1.1, 'out'], [f3(t + tu(.22)), 1, 'soft']], o: E.up ? fadeIn(f3(t - tu(.02)), .03) : [[0, 0], [f3(t - tu(.02)), 0], [f3(t + tu(.01)), 1], [f3(t + tu(.3)), 1], [f3(t + tu(.36)), 0]] });
         g.circle(bx, by, 34, { fill: ACC1, sw: 2, stroke: ACC1 }); g.line(bx - 15, by, bx + 15, by, { sw: 6, stroke: C.fill }); if (E.up) g.line(bx, by - 15, bx, by + 15, { sw: 6, stroke: C.fill }); });
-      cbox(p, c, Cn, -380, E.up ? -150 : 150, 150, E.ts, { noLabel: true }); endM(p, c, d, xs[E.n - 1], (E.up ? 200 - 300 : -100 + 300) + (E.up ? -s / 2 - 70 : s / 2 + 70), 40);
+      cbox(p, c, Cn, -380, E.up ? -170 : 170, 185, E.ts, { noLabel: true }); endM(p, c, d, xs[E.n - 1], (E.up ? 200 - 300 : -100 + 300) + (E.up ? -s / 2 - 70 : s / 2 + 70), 40);
     }); });
 
   /* 23 ── MOVE ACROSS (ย้ายเข้าโซน): two dashed zones — outside on the left, the center's zone on the right; up — each box moves from the left zone into
      the right one; down — each moves out of the right zone to the left one */
-  variant('across', 'ย้ายเข้าโซน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 175 : 200, zx = 215, zy = 50, zw = 470, zh = 470, o = (s + 26) / 2;
+  variant('across', 'ย้ายเข้าโซน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 175 : 200, zx = 215, zy = 75, zw = 470, zh = 440, o = (s + 26) / 2;
     const IN = (E.n === 2 ? [[-o, 0], [o, 0]] : [[-o, -o], [o, -o], [-o, o], [o, o]].slice(0, E.n)).map(([a, b]) => [zx + a, zy + b]), OUT = IN.map(([x, y]) => [x - 560, y]);
     art(c, p => { base(p, c, d, E); [[-340, 250], [zx, zw]].forEach(([x, w], k) => on(R(p, x - w / 2, zy - zh / 2, w, zh, 40, k ? { sw: 3.4, stroke: ACC1, 'stroke-dasharray': '10 12' } : DASH(.35)), p, 0, { o: fadeIn(tu(.04 + .06 * k), .08) }));
       drawAt(p.path('M -180 50 L -40 50 M -70 22 L -36 50 L -70 78', W(5)), p, tu(.2), tu(.2)); if (!E.up) p.g.lastChild.setAttribute('transform', 'rotate(180 -110 50)');
       IN.forEach(([x, y], k) => { const fr = OUT[k]; item(p, c, X, x, y, s, E, k, E.up ? { in: 'fly', from: fr, mid: [(fr[0] + x) / 2, y - 140], dur: .36 } : { out: 'fly', to: fr, mid: [(fr[0] + x) / 2, y - 140], dur: .36 }); });
-      cbox(p, c, Cn, zx, zy - zh / 2 - 62, 110, E.ts, { noLabel: true }); if (Cn && Cn.label && picOf(Cn)) pill(p, Cn.label, zx, zy + zh / 2 + 4, { t: tu(.3), size: 28, maxW: 300 });
+      cbox(p, c, Cn, zx, zy - zh / 2 - 100, 170, E.ts, { noLabel: true }); if (Cn && Cn.label && picOf(Cn)) pill(p, Cn.label, zx, zy + zh / 2 + 4, { t: tu(.3), size: 38, maxW: 340 });
       endM(p, c, d, zx - zw / 2 + 10, zy - zh / 2 + 10, 40);
     }); });
 
@@ -830,7 +830,7 @@
     art(c, p => { base(p, c, d, E); const fg = mvG(p, { px: 0, py: fy, s: [[0, .9], [tu(.04), .9], [tu(.3), 1.02, 'out'], [tu(.4), 1, 'soft']], o: fadeIn(tu(.04), .06) }); R(fg, -fw / 2, fy - fh / 2, fw, fh, 46, S(2.6)); R(fg, -fw / 2 + 18, fy - fh / 2 + 18, fw - 36, fh - 36, 32, { sw: 1.4, stroke: TL_(.25) });
       Q.forEach(([qx, qy], k) => { const x = qx, y = fy + qy, r = item(p, c, X, x, y, s, E, k, { in: 'pop', out: 'shrink', dur: .3 }); if (r.t == null) return;
         if (E.up) ripple(p, x, y, s * .65, r.t); else for (let j = 0; j < 6; j++) { const a = rad(j * 60 + 15), g = mvG(p, { x: [[0, 0], [r.t, 0], [f3(r.t + tu(.4)), f1(110 * Math.cos(a)), 'out']], y: [[0, 0], [r.t, 0], [f3(r.t + tu(.4)), f1(110 * Math.sin(a)), 'out']], o: [[0, 0], [f3(r.t + tu(.1)), 0], [f3(r.t + tu(.14)), 1], [f3(r.t + tu(.4)), 0]] }); g.circle(x, y, 9, { fill: ACC1, sw: 0, stroke: 'none' }); } });
-      cbox(p, c, Cn, 0, fy - fh / 2, 120, E.ts, { noLabel: true }); endM(p, c, d, fw / 2 - 20, fy - fh / 2 + 20, 40);
+      cbox(p, c, Cn, 0, fy - fh / 2, 175, E.ts, { noLabel: true }); endM(p, c, d, fw / 2 - 20, fy - fh / 2 + 20, 40);
     }); });
 
   /* 25 ── TWO TIERS (สองชั้น): two long lines like tiers; the boxes stand on them — up: each rises out of its line (overshoot); down: each sinks back
@@ -891,7 +891,7 @@
         drawAt(p.path(dd, { sw: 30, stroke: TL_(.16) }), p, tu(.06 + .04 * k), tu(.14)); const g = sub(p);
         on(g, p, 0, { o: E.up ? [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] : t == null ? fadeIn(tu(.3)) : [[0, 0], [tu(.3), 0], [tu(.34), 1], [t, 1], [f3(t + tu(.06)), 0]] }); g.path(dd, { sw: 30, stroke: ACC1 });
         if (t != null) { const am = rad((a0 + a1) / 2); ripple(p, f1(cx + r * Math.cos(am)), f1(cy + r * Math.sin(am)), 30, t); } }
-      cbox(p, c, Cn, 400, -292, 110, E.ts, { noLabel: true }); endM(p, c, d, cx + r * .75, cy - r * .75, 40);
+      cbox(p, c, Cn, 385, -215, 185, E.ts, { noLabel: true }); endM(p, c, d, cx + r * .75, cy - r * .75, 40);
     }); });
 
   /* 31 ── CUP (ภาชนะรูปตัว U): an open U-shaped container; up — boxes drop into it side by side; down — they are lifted out one by one. The center (if
@@ -926,9 +926,9 @@
 
   /* 34 ── SPIRAL (เกลียว): a dashed spiral from the middle; up — each box travels out along it to its place, the next further out; down — each winds back
      in to the middle and vanishes */
-  variant('spiral', 'เกลียว', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = 0, cy = 10, s = E.n >= 4 ? 160 : 185, sp = a => { const r = Math.max(40, 160 + .4 * (a - 120)); return [f1(cx + r * Math.cos(rad(a - 90))), f1(cy + r * .82 * Math.sin(rad(a - 90)))]; };
+  variant('spiral', 'เกลียว', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), cx = 0, cy = 10, s = E.n >= 4 ? 160 : 185, sp = a => { const r = Math.max(100, 190 + .4 * (a - 120)); return [f1(cx + r * Math.cos(rad(a - 90))), f1(cy + r * .82 * Math.sin(rad(a - 90)))]; };
     const A = Array.from({ length: E.n }, (_, k) => 120 + k * (E.n >= 4 ? 100 : 130)), pts = Array.from({ length: 33 }, (_, j) => sp(15 * j));
-    art(c, p => { base(p, c, d, E); on(p.path(pathOf(pts, false), DASH(.35)), p, 0, { o: fadeIn(tu(.06), .1) }); if (Cn) cbox(p, c, Cn, cx, cy, 120, E.ts, { noLabel: true }); else popAt(p, cx, cy, tu(.08)).circle(cx, cy, 18, { fill: ACC1, sw: 2, stroke: ACC1 });
+    art(c, p => { base(p, c, d, E); on(p.path(pathOf(pts, false), DASH(.35)), p, 0, { o: fadeIn(tu(.06), .1) }); if (Cn) cbox(p, c, Cn, cx, cy, 175, E.ts, { noLabel: true }); else popAt(p, cx, cy, tu(.08)).circle(cx, cy, 18, { fill: ACC1, sw: 2, stroke: ACC1 });
       A.forEach((a, k) => { const [x, y] = sp(a), path = pts.filter((_, j) => 15 * j < a && 15 * j > a - 300); item(p, c, X, x, y, s, E, k, E.up ? { in: 'fly', path: [[cx, cy]].concat(path), dur: .45 } : { out: 'fly', path: path.slice().reverse().concat([[cx, cy]]), dur: .45 }); });
       endM(p, c, d, sp(A[E.n - 1])[0] + s / 2, sp(A[E.n - 1])[1] - s / 2, 40);
     }); });
@@ -943,7 +943,7 @@
   /* 36 ── SWEEP (กวาดผ่าน): a hand sweeps round a half circle from a pivot below; up — a box pops as the hand passes its place; down — each box blinks
      out as the hand passes */
   variant('sweep', 'กวาดผ่าน', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), px = 0, py = 300, R0 = 330, s = E.n >= 4 ? 168 : 190, A = Array.from({ length: E.n }, (_, k) => lerp(200, 340, E.n > 1 ? k / (E.n - 1) : .5));
-    art(c, p => { base(p, c, d, E); drawAt(p.path(`M ${px - R0 - 40} ${py} A ${R0 + 40} ${R0 + 40} 0 0 1 ${px + R0 + 40} ${py}`, DASH(.3)), p, tu(.04), tu(.3)); if (Cn) cbox(p, c, Cn, px, py - 60, 130, E.ts, { noLabel: true }); else popAt(p, px, py, tu(.08)).circle(px, py, 22, SOLID(2));
+    art(c, p => { base(p, c, d, E); drawAt(p.path(`M ${px - R0 - 40} ${py} A ${R0 + 40} ${R0 + 40} 0 0 1 ${px + R0 + 40} ${py}`, DASH(.3)), p, tu(.04), tu(.3)); if (Cn) cbox(p, c, Cn, px, py - 80, 175, E.ts, { noLabel: true }); else popAt(p, px, py, tu(.08)).circle(px, py, 22, SOLID(2));
       const a0 = E.up ? 180 : 360, a1 = E.up ? 360 : 180, RK = [[0, a0], [f3(E.T0 - tu(.3)), a0]]; ORD(E).forEach(k => RK.push([E.at(k), A[k]])); RK.push([f3(E.H + tu(.3)), a1, 'io']);
       const hand = mvG(p, { px, py, r: RK.map(([t, v, e]) => [t, f1(v - 360), e]), o: fadeIn(tu(.1), .04) }); hand.line(px, py, px + R0 + 40, py, { sw: 5, stroke: ACC1 });
       A.forEach((a, k) => { const x = f1(px + R0 * Math.cos(rad(a))), y = f1(py + R0 * Math.sin(rad(a))); item(p, c, X, x, y, s, E, k, { in: 'pop', out: 'shrink', dur: .2 }); });
@@ -982,7 +982,7 @@
     art(c, p => { base(p, c, d, E); const pts = [[x0, by]];
       hs.forEach((h, k) => { pts.push([f1(x0 + k * w), h], [f1(x0 + (k + 1) * w), h]); }); const ln = p.path(pathOf(pts, false), { sw: 6, stroke: ACC1 }), cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1])); const seg = k => cum[2 * k + 2] / cum[cum.length - 1];
       const DK = [[0, E.up ? 0 : 1]]; ORD(E).forEach(k => { const t = E.at(k), v = E.up ? seg(k) : (k ? seg(k - 1) : .02); DK.push([f3(t - tu(.2)), DK[DK.length - 1][1]], [t, v, 'out']); }); on(ln, p, 0, { draw: DK });
-      hs.forEach((h, k) => item(p, c, X, f1(x0 + (k + .5) * w), f1(h - s / 2 - 10), s, E, k, { in: 'pop', out: 'shrink' })); cbox(p, c, Cn, 360, -170, 160, E.ts, { ly: -170 + 125 });
+      hs.forEach((h, k) => item(p, c, X, f1(x0 + (k + .5) * w), f1(h - s / 2 - 10), s, E, k, { in: 'pop', out: 'shrink' })); cbox(p, c, Cn, 365, -200, 185, E.ts, { ly: -200 + 145 });
       endM(p, c, d, f1(x0 + (E.n - .5) * w + s / 2), f1(hs[E.n - 1] - s - 10), 40);
     }); });
 
@@ -1006,7 +1006,7 @@
         const g = mvG(cl, K); R(g, x - s / 2, cy - s / 2, s, s, s * .24, F(4)); const mv = Object.assign({}, K); delete mv.o;
         if (X && picOf(X)) put(p, c, { icon: X.icon }, x, cy, s * .72, null, { t: E.up ? f3(t - tu(.2)) : f3(t0 + tu(.16)), mv, o: E.up ? [[0, 0], [f3(t - tu(.2)), 0], [f3(t - tu(.16)), 1]] : (t == null ? [[0, 0], [f3(t0 + tu(.16)), 0], [f3(t0 + tu(.2)), 1]] : [[0, 0], [f3(t0 + tu(.16)), 0], [f3(t0 + tu(.2)), 1], [f3(t + tu(.2)), 1], [f3(t + tu(.24)), 0]]) });
         else if (X) txt(g, X.label, x, cy + 10, { size: 30, maxW: s - 20, weight: 800, color: C.ink, wrap: 'mid' }); });
-      cbox(p, c, Cn, 390, 250, 140, E.ts, { noLabel: true }); endM(p, c, d, xs[E.n - 1] + s / 2, cy - s / 2, 40);
+      cbox(p, c, Cn, 385, 235, 180, E.ts, { noLabel: true }); endM(p, c, d, xs[E.n - 1] + s / 2, cy - s / 2, 40);
     }); });
 
   /* 43 ── STICKERS (สติกเกอร์แปะ): tilted boxes slapped down overlapping a little — up: each lands from big to its size with a ripple; down: each peels
@@ -1061,7 +1061,7 @@
      against the last; down — the right-most slides off the right end and drops away */
   variant('beads', 'ลูกปัดบนเส้น', (d, c) => { const X = ITM(d), E = EV(d), Cn = CEN(d), s = E.n >= 4 ? 180 : 200, xa = -440, xb = 470, sag = 150, ya = -40, cur = x => { const u = (x - xa) / (xb - xa); return f1(ya + sag * 4 * u * (1 - u) - 60 * u); };
     art(c, p => { base(p, c, d, E); const pts = Array.from({ length: 31 }, (_, j) => { const x = lerp(xa, xb, j / 30); return [f1(x), cur(x)]; }); drawAt(p.path(pathOf(pts, false), W(3.4)), p, tu(.04), tu(.4));
-      if (Cn) cbox(p, c, Cn, xa + 40, ya - 110, 150, E.ts, { lx: xa + 200, ly: ya - 110 }); else drawAt(p.line(xa + 10, ya - 60, xa + 10, ya + 60, { sw: 10, stroke: ACC1 }), p, tu(.1), tu(.2));
+      if (Cn) cbox(p, c, Cn, xa + 60, ya - 140, 180, E.ts, { lx: xa + 270, ly: ya - 140 }); else drawAt(p.line(xa + 10, ya - 60, xa + 10, ya + 60, { sw: 10, stroke: ACC1 }), p, tu(.1), tu(.2));
       for (let k = 0; k < E.n; k++) { const x = f1(xa + 40 + s / 2 + k * (s + 8)), y = f1(cur(x) - s / 2 + 10), path = pts.filter(q => q[0] > x).reverse().map(q => [q[0], f1(q[1] - s / 2 + 10)]);
         item(p, c, X, x, y, s, E, k, E.up ? { shape: 'circ', in: 'fly', path: path.length ? path : [[x + 100, y]], dur: .45 } : { shape: 'circ', out: 'fly', path: path.slice().reverse().concat([[560, 200]]), dur: .45 }); }
       endM(p, c, d, xa + 40 + s / 2 + (E.n - 1) * (s + 8) + s / 2, cur(0) - s, 40);
@@ -1091,7 +1091,7 @@
         if (E.up) Object.assign(LK, { s: [[0, .7], [f3(t - tu(.2)), .7], [t, 1.04, 'out'], [f3(t + tu(.1)), 1, 'soft']], o: fadeIn(f3(t - tu(.2)), .04) });
         else Object.assign(LK, { s: [[0, .7], [tu(.2 + .06 * k), .7], [tu(.4 + .06 * k), 1, 'out']].concat(t == null ? [] : [[t, 1], [f3(t + tu(.3)), 1.25, 'in']]), o: fadeIn(tu(.2 + .06 * k), .04).concat(t == null ? [] : [[t, 1], [f3(t + tu(.3)), 0]]) });
         R(mvG(p, LK), cx - sz / 2, cy - sz / 2, sz, sz, sz * .24, { sw: 4, stroke: k === E.n - 1 ? ACC1 : TL_(o2) }); if (t != null && E.up) ripple(p, cx, cy, sz / 2, t); }
-      cbox(p, c, Cn, 400, -292, 110, E.ts, { noLabel: true }); endM(p, c, d, cx + (bs + 70 * E.n) / 2, cy - (bs + 70 * E.n) / 2, 40);
+      cbox(p, c, Cn, 385, -215, 180, E.ts, { noLabel: true }); endM(p, c, d, cx + (bs + 70 * E.n) / 2, cy - (bs + 70 * E.n) / 2, 40);
     }); });
 
   /* ---------- sample data: the same as B02 (A: sentences from unrelated topics · B: stress) ---------- */
