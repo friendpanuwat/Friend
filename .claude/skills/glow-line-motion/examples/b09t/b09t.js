@@ -803,12 +803,15 @@
       const g = sub(p); on(g, p, 0, { ox: CX, oy: CY, sx, o: ok }); mom(p, c, d, i, CX, CY - 30, 250, { g, io: ok, mv: { px: CX, py: CY, sx } }); mword(p, d, i, CX, CY + 170, { g, size: 52, maxW: 360 }); });
     rowXs(k, 44, 30, 0).forEach((x, j) => { const i = L[j], tp = T.tPass(i); popAt(p, x, 280, T.tI(j)).circle(x, 280, 22, F(3)); if (tp != null) popAt(p, x, 280, tp).circle(x, 280, 12, DOTF()); }); }); });
 
-  /* 10 BUBBLES (การ์ดข้อความตามเวลา): a chat card; one message bubble per moment pops in down the card as time passes; the stop bubble lights */
-  variant('chat', 'การ์ดข้อความตามเวลา', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, rh = k >= 4 ? 128 : k === 3 ? 165 : 200, ys = rowXs(k, rh, 0, 44), s = 178;
-    crd(p, 0, 10, 820, 660, { kind: 'header', hh: 60 });
-    L.forEach((i, j) => { const y = ys[j], left = j % 2 === 0, bx = left ? -205 : 205, tp = T.tPass(i), ta = T.steps.indexOf(i) === 0 ? f3(T.tI(0) + tu(.1)) : tp != null ? f3(tp - tu(.06)) : f3(T.H + tu(.1)), bg = popAt(p, bx, y, ta); R(bg, bx - 200, y - s / 2, 400, s, s / 2, { fill: TL_(.06), sw: 3, stroke: TL_(.5) });
-      if (isG(i)) { [-50, 0, 50].forEach((dx, m) => { bg.circle(bx + dx, y, 16, { fill: TL_(.4), sw: 0, stroke: 'none' }); if (tp != null) { const g = sub(p); const u0 = f3(Math.max(ta + tu(.08), tp - tu(.24)) + m * tu(.06)); on(g, p, 0, { o: [[0, 0], [u0, 0], [f3(u0 + tu(.05)), 1]] }); g.circle(bx + dx, y, 18, DOTF()); } }); return; }
-      mom(p, c, d, i, left ? bx - 200 + s / 2 + 2 : bx + 200 - s / 2 - 2, y, s - 10, { shape: 'circ', t: f3(ta + tu(.02)) }); mword(p, d, i, left ? bx - 200 + s + 16 : bx + 200 - s - 16, y + 15, { anchor: left ? 'start' : 'end', size: 42, maxW: 400 - s - 36, wrap: null, t: f3(ta + tu(.08)) }); }); }); });
+  /* 10 SPREADING RINGS (วงเวลาแผ่ออก): time spreads out from a starting point on the left as rings; each moment sits on its own ring, further out
+     the later it is; a ring lights as time reaches it and a lit dot runs out along the axis */
+  variant('spread', 'วงเวลาแผ่ออก', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, OX = -460, Y = -20, s = k >= 4 ? 176 : 200, xs = rowXs(k, s, k >= 4 ? 44 : 90, 50);
+    const og = popAt(p, OX, Y, T.tA); og.circle(OX, Y, 20, F(3.4)); og.circle(OX, Y, 8, DOTF()); way(p, `M ${OX + 20} ${Y} L ${xs[k - 1]} ${Y}`, T.tA, tu(.4), 4, .4);
+    const arc = r => { const a = Math.min(68, Math.asin(Math.min(1, 300 / r)) * 180 / Math.PI), [x0, y0] = Pc(OX, Y, r, -a), [x1, y1] = Pc(OX, Y, r, a); return `M ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1}`; };
+    L.forEach((i, j) => { const r = f1(xs[j] - s / 2 - 16 - OX), tp = T.tPass(i), dd = arc(r); way(p, dd, T.tI(j), tu(.3), 3, .3);
+      if (tp != null) litPath(p, dd, [[0, 0], [f3(tp - tu(.3)), 0], [tp, 1, 'io']], 6); });
+    runner(p, T, i => [xs[L.indexOf(i)], Y], { r: 16 });
+    L.forEach((i, j) => { mom(p, c, d, i, xs[j], Y, s); mword(p, d, i, xs[j], f1(Y + s / 2 + 56), { size: 44, maxW: s + 40 }); }); }); });
 
   /* ---- more B09 helpers: a value that steps with time (eases with sm between pass times, sampled 'lin' so things that travel together stay
      together) · the window while time is on moment i · a token that rides a curve at(f) (f from fr(i)) with the same timing · a polyline sampled by length */
