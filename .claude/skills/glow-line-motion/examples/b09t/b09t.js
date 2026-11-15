@@ -1115,6 +1115,28 @@
     L.forEach((i, j) => { const x = xs[j], tp = T.tPass(i), g = mvG(popAt(p, x, Y, T.tI(j)), { px: x, py: Y, r: tp == null ? [[0, 45]] : [[0, 45], [f3(tp - tu(.32)), 45], [tp, 0, 'io']] });
       mom(p, c, d, i, x, Y, s, { g, t: T.tI(j) }); mword(p, d, i, x, f1(Y + dw / 2 + 56), { size: 42, maxW: dw - 10 }); }); }); });
 
+  /* ---- ALT for design 10 (user: "ไม่ชอบครับออกแบบใหม่") — two candidates, shown on sheet-alt10.html ---- */
+  /* ALT-A APPROACH (เวลาเข้ามาใกล้): the moments come towards you one behind another; the moment where time is stands big in front; the ones still
+     to come wait small and faint behind it; a moment that has passed moves on past you and fades */
+  variant('approach', 'เวลาเข้ามาใกล้', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, S = T.steps, cur = q => L.indexOf(q), CY = 135, cw = 380, ch = 360;
+    way(p, 'M -480 345 L -70 -300', T.tA, tu(.5), 3, .3); way(p, 'M 480 345 L 70 -300', T.tA, tu(.5), 3, .3);
+    const YY = dl => dl < 0 ? 228 : [CY, -150, -250, -295][Math.min(3, dl)], SC = dl => dl < 0 ? .55 : [1, .5, .3, .2][Math.min(3, dl)], OO = dl => dl < -1 ? 0 : dl < 0 ? .75 : [1, .7, .35, .2][Math.min(3, dl)], IO = dl => dl < -1 ? 0 : dl < 0 ? .75 : dl === 0 ? 1 : dl === 1 ? .7 : 0, XX = (m, dl) => dl === -1 ? -335 : dl < -1 ? -560 : 0;
+    const val = (m, f) => S.length ? frK(T, q => f(m - cur(q))) : [[0, f(m)]];
+    for (let m = k - 1; m >= 0; m--) { const i = L[m], t = T.tI(Math.min(m, 2)), O = val(m, OO), IOk = val(m, IO); O.splice(0, 1, [0, 0], [t, 0], [f3(t + tu(.16)), O[0][1]]); IOk.splice(0, 1, [0, 0], [t, 0], [f3(t + tu(.16)), IOk[0][1]]);
+      const K = { px: 0, py: CY, x: val(m, dl => XX(m, dl)), y: val(m, dl => f1(YY(dl) - CY)), s: val(m, SC), o: O }, g = mvG(CL(p), K);
+      R(g, -cw / 2, CY - ch / 2, cw, ch, 40, F(4)); mom(p, c, d, i, 0, CY - 45, 230, { g, mv: noMv(K), io: IOk, t, rip: false }); mword(p, d, i, 0, CY + 125, { g, size: 52, maxW: cw - 50, t }); } }); });
+
+  /* ALT-B TIME PICKER (วงล้อเลือกเวลา): a card with a fixed lit band across its middle; the list of moments rolls up through it — the moment where time
+     is sits in the band, the one before shows above it, the one coming shows below, faint */
+  variant('picker', 'วงล้อเลือกเวลา', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, S = T.steps, cur = q => L.indexOf(q), RH = 205, CX = 0;
+    crd(p, 0, 0, 860, 660); const band = popAt(p, 0, 0, tu(.2)); R(band, -400, -RH / 2 + 4, 800, RH - 8, 34, { fill: TA(.12), sw: 4, stroke: TA(.8) });
+    [-1, 1].forEach(sd => { const ln = sub(p); on(ln, p, 0, { o: fadeIn(tu(.3), .1) }); ln.line(-380, sd * (RH * 1.5 - 6), 380, sd * (RH * 1.5 - 6), DASH(.3)); });
+    const val = (m, f) => S.length ? frK(T, q => f(m - cur(q))) : [[0, f(m)]], OO = dl => dl === 0 ? 1 : Math.abs(dl) === 1 ? .42 : 0;
+    L.forEach((i, m) => { const t = T.tI(Math.min(m, 2)), O = val(m, OO); O.splice(0, 1, [0, 0], [t, 0], [f3(t + tu(.16)), O[0][1]]);
+      const K = { px: 0, py: 0, y: val(m, dl => f1(dl * RH)), o: O }, g = mvG(CL(p), K);
+      mom(p, c, d, i, -250, 0, 180, { g, mv: noMv(K), io: O, t, rip: false });
+      const X = i === 'r' ? T.R0 : T.P[i]; if (X && X.label && picOf(X)) txt(g, X.label, -130, 20, { size: 60, maxW: 500, weight: 800, color: C.ink, anchor: 'start' }); else if (!X) R(g, -130, -10, 260, 20, 10, { fill: TL_(.3), sw: 0, stroke: 'none' }); }); }); });
+
   /* ---------- sample data: B09's sentences (A) + stress (B) ---------- */
   const I = (icon, label) => label ? { icon, label } : { icon };
   const SAMPLES = [
