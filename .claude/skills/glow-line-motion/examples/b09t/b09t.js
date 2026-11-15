@@ -807,7 +807,7 @@
   variant('chat', 'การ์ดข้อความตามเวลา', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, rh = k >= 4 ? 128 : k === 3 ? 165 : 200, ys = rowXs(k, rh, 0, 44), s = 178;
     crd(p, 0, 10, 820, 660, { kind: 'header', hh: 60 });
     L.forEach((i, j) => { const y = ys[j], left = j % 2 === 0, bx = left ? -205 : 205, tp = T.tPass(i), ta = T.steps.indexOf(i) === 0 ? f3(T.tI(0) + tu(.1)) : tp != null ? f3(tp - tu(.06)) : f3(T.H + tu(.1)), bg = popAt(p, bx, y, ta); R(bg, bx - 200, y - s / 2, 400, s, s / 2, { fill: TL_(.06), sw: 3, stroke: TL_(.5) });
-      if (isG(i)) { [-50, 0, 50].forEach((dx, m) => { bg.circle(bx + dx, y, 16, { fill: TL_(.4), sw: 0, stroke: 'none' }); if (tp != null) { const g = sub(p); on(g, p, 0, { o: [[0, 0], [f3(tp - tu(.24) + m * tu(.08)), 0], [f3(tp - tu(.18) + m * tu(.08)), 1]] }); g.circle(bx + dx, y, 18, DOTF()); } }); return; }
+      if (isG(i)) { [-50, 0, 50].forEach((dx, m) => { bg.circle(bx + dx, y, 16, { fill: TL_(.4), sw: 0, stroke: 'none' }); if (tp != null) { const g = sub(p); const u0 = f3(Math.max(ta + tu(.08), tp - tu(.24)) + m * tu(.06)); on(g, p, 0, { o: [[0, 0], [u0, 0], [f3(u0 + tu(.05)), 1]] }); g.circle(bx + dx, y, 18, DOTF()); } }); return; }
       mom(p, c, d, i, left ? bx - 200 + s / 2 + 2 : bx + 200 - s / 2 - 2, y, s - 10, { shape: 'circ', t: f3(ta + tu(.02)) }); mword(p, d, i, left ? bx - 200 + s + 16 : bx + 200 - s - 16, y + 15, { anchor: left ? 'start' : 'end', size: 42, maxW: 400 - s - 36, wrap: null, t: f3(ta + tu(.08)) }); }); }); });
 
   /* ---- more B09 helpers: a value that steps with time (eases with sm between pass times, sampled 'lin' so things that travel together stay
@@ -891,7 +891,7 @@
   variant('strip', 'แถวช่องเลื่อนผ่านกรอบ', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, PF = 350, FS = 300, Y = -50;
     const K = { px: 0, py: Y, x: [[0, 760], [T.tA, 760], [f3(T.tA + tu(.5)), 0, 'out']].concat(frK(T, q => -L.indexOf(q) * PF).slice(1)) }, g = mvG(CL(p), K);
     if (k > 1) g.line(0, Y, (k - 1) * PF, Y, DASH(.45));
-    L.forEach((i, j) => { const x = j * PF; R(g, x - FS / 2, Y - FS / 2, FS, FS, 22, F(3)); mom(p, c, d, i, x, Y, 236, { g, mv: noMv(K), t: f3(T.tA + tu(.2)) }); });
+    L.forEach((i, j) => { const x = j * PF; R(g, x - FS / 2, Y - FS / 2, FS, FS, 22, F(3)); mom(p, c, d, i, x, Y, 236, { g, mv: noMv(K), t: f3(T.tA + tu(.2)), rip: false }); });
     const w = sub(p); on(w, p, 0, { o: fadeIn(f3(T.tA + tu(.4)), .14) }); [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([a, b]) => w.path(`M ${a * 180} ${f1(Y + b * 130)} L ${a * 180} ${f1(Y + b * 180)} L ${a * 130} ${f1(Y + b * 180)}`, { sw: 9, stroke: ACC1 }));
     L.forEach(i => { const g2 = sub(p); on(g2, p, 0, { o: winO(T, i) }); mword(p, d, i, 0, Y + 255, { g: g2, size: 58, maxW: 700, t: 0 }); }); }); });
 
