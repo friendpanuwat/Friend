@@ -1,13 +1,14 @@
-/* b05t.js — TEST (user 2026-11-14: "ลองออกแบบหมวดที่ 5 มา 20 อัน รอบนี้ไม่ได้จะเอาไปใช้จริงนะครับแค่จะทดสอบเฉยๆ"): category B05 "ถูกกับผิด"
-   redone in the template ชุดฐาน way — graphic elements only (chips, pills, icon boxes, rows, marks, toggles, sliders, dials, bars, lines),
-   **no real-world objects** (no signs, doors, boards …), our white-glow line style. Icons and words sit apart (no word under an icon).
-   CutPack B05: wrong THING · right THING. The wrong side is turned down first (crossed, struck, dimmed) at tN; the right side lands on H.
-   GL.cats.B05T.draw(i, data, { x, y, s, at, hit }) — canvas 1000 × 700 centred at (0,0). */
+/* b05t.js — template ชุดฐาน category B05 "ถูกกับผิด" (user 2026-11-14: "เริ่มทำหมวด B05 ได้ ทำออกมาเป็นภาพก่อนจนกว่าผมจะสั่งให้ทำ animation"): 50 designs,
+   each its own layout; graphic elements only, our white-glow line style, colours from GL.theme; icon slots ≥ 165, words ≥ 40, marks r ≥ 56; no word chip
+   top-left, no arrow badge top-right, no floor line, no numbers. The old trial (20 designs, before the template rules) is in examples/b05t-trial/.
+   Header + helpers copied from b04t.js (icons clipped to their own canvas, words wrap rather than shrink under 40).
+   GL.cats.B05T.draw(i, data, { x, y, s, at, hit }) — canvas 1000 × 700 centred at (0,0). Data = CutPack B05 (cat_ai.py: "not X but Y — one thing is wrong,
+   the other is right"): wrong THING · right THING · texts [wrong, right] (optional — words in place of grey lines). */
 (function () {
   const G = window.GL, C = G.C, NS = 'http://www.w3.org/2000/svg';
   const W = (w = 2) => ({ sw: w }), F = (w = 3.2) => ({ fill: C.fill, sw: w }), S = (w = 2) => ({ sw: w, stroke: C.soft });
   const rad = d => d * Math.PI / 180, f1 = v => +v.toFixed(1);
-  const GLASS = 'rgba(255,255,255,.07)', LIT = 'rgba(255,255,255,.2)', SOLID = (w = 2) => ({ fill: C.ink, sw: w });
+  let GLASS = 'rgba(255,255,255,.07)', LIT = 'rgba(255,255,255,.2)'; const SOLID = (w = 2) => ({ fill: C.ink, sw: w });
 
   /* TIMING (same system as b01–b11): the keyword c.hit never moves; M = 1/speed but at most hit / HIT0; tu / bH / aH; kf() keeps keys in order */
   const HIT0 = 1.9; let Z = null; const CLAMPS = {}; let CUR = '';
@@ -50,7 +51,7 @@
   function txt(p, str, x, y, { size = 42, maxW = 1e9, weight = 600, anchor = 'middle', color = C.soft, wrap = null } = {}) {
     str = String(str); const e = p.text(str, x, y, { size, weight, anchor, color, dur: .01 });
     const w = e.getBBox().width; if (w <= maxW) return e;
-    if (wrap && maxW / w < .8 && typeof Intl !== 'undefined' && Intl.Segmenter) {
+    if (wrap && (maxW / w < .8 || size * maxW / w < 40) && typeof Intl !== 'undefined' && Intl.Segmenter) {
       const seg = [...new Intl.Segmenter('th', { granularity: 'word' }).segment(str)].map(t => t.segment);
       if (seg.length > 1) { let k = 1, best = 1e9, n = 0; const tot = str.length;
         seg.forEach((t, i) => { n += t.length; if (i < seg.length - 1) { const m = Math.max(n, tot - n); if (m < best) { best = m; k = i + 1; } } });
@@ -103,7 +104,7 @@
   function haloH(q, x, y, r, t) { t = t ?? Z.H; const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .6], [t, .6], [t + tu(.3), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.1), 1]] }); halo(g, x, y, r); return g; }
   /* a ring that blooms out from (x, y) at t and fades (the "it happened" ripple) */
   function ripple(q, x, y, r, t) { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [t + tu(.45), 1.45, 'out']], o: [[0, 0], [t, 0], [t + tu(.04), .8], [t + tu(.45), 0]] }); g.circle(x, y, r, W(2.6)); }
-  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .3], [t, .3], [t + tu(.2), 1.1, 'out'], [t + tu(.34), 1, 'soft']], o: [[0, 0], [t, 0], [t + tu(.06), 1]] }); return g; };
+  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [t + tu(.24), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.1), 1]] }); return g; };   /* B05T: a calm grow-in, no overshoot */
 
   /* a THING (it) at (x, y) width w (+ its label at (lx, ly)). o.t = when it comes in · o.mv = keys of the part it rides ({ px, py, x, y, r, s }) ·
      o.punch = a bump at that time (the moment it is reached) · o.r = a fixed tilt (with its holder) · o.lt = when the label comes in */
@@ -114,6 +115,7 @@
     else { const str = it.label; if (!str) return null;
       const f = q => txt(q, str, 0, wd * .11, { size: wd * .3, maxW: o.bigW || wd * 1.25, weight: 700, color: C.ink, wrap: 'mid' }); f.custom = true; f.dur = .3; f.exit = 'pop';
       a = G.art(f, { x: X, y: Y, s: c.s, at: at + t, speed: 1 }); a.speed = Z.sp; }
+    iclip(a, c);
     const K = { ox: X, oy: Y }; let any = false;
     if (o.mv) { const m = o.mv; if (m.px != null) { K.ox = c.x + m.px * c.s; K.oy = c.y + m.py * c.s; }
       ['x', 'y'].forEach(n => { if (m[n]) K[n] = m[n].map(([u, v, e]) => e ? [u, f1(v * c.s), e] : [u, f1(v * c.s)]); }); ['r', 's', 'sx', 'sy'].forEach(n => { if (m[n]) K[n] = m[n]; }); any = true; }
@@ -123,6 +125,13 @@
     if (o.punch != null) kf(a.g, at, { ox: X, oy: Y, s: [[0, 1], [o.punch, 1], [o.punch + tu(.07), 1.14, 'out'], [o.punch + tu(.3), 1, 'soft']] });
     return a;
   }
+  /* an icon is its own art on the stage — the canvas clip (CL) does not reach it, so a thing falling in from far above showed its icon over the design
+     above on the sheet. Every icon is clipped to its own canvas (stage coords; one clip per canvas) */
+  const ICLIP = {};
+  function iclip(a, c) { if (!a || !a.wrap || !a.wrap.parentNode) return; const svg = a.wrap.ownerSVGElement, k = [c.x, c.y, c.s].join('_');
+    if (!ICLIP[k] || !svg.contains(ICLIP[k].cp)) { const cp = document.createElementNS(NS, 'clipPath'), r = document.createElementNS(NS, 'rect'); cp.id = 'b05ticlip' + (++CID);
+      Object.entries({ x: c.x - 500 * c.s, y: c.y - 350 * c.s, width: 1000 * c.s, height: 700 * c.s }).forEach(([n, v]) => r.setAttribute(n, v)); cp.appendChild(r); (svg.querySelector('defs') || svg).appendChild(cp); ICLIP[k] = { cp }; }
+    const g = document.createElementNS(NS, 'g'); g.setAttribute('clip-path', `url(#${ICLIP[k].cp.id})`); g.setAttribute('data-wrap', 1); a.wrap.parentNode.insertBefore(g, a.wrap); g.appendChild(a.wrap); }
   function put(q, c, it, x, y, w, ly, o = {}) { if (!it) return; const k = o.k ?? 0, t = o.t ?? tu(.12 + .08 * k);
     pic(it, x, y, w, c, { r: o.r, t, bigW: o.bigW, mv: o.mv, punch: o.punch, o: o.o });
     if (ly != null && it.label && picOf(it)) { const g = o.lg || q; txt(atG(g, o.lt ?? t + tu(.1)), it.label, o.lx ?? x, ly, { maxW: o.maxW || 200, color: C.ink, weight: 700, size: o.size || 32, wrap: o.wrap === undefined ? 'down' : o.wrap, anchor: o.anchor || 'middle' }); } }
@@ -329,15 +338,14 @@
      squashes and the scene answers (dust, ripples, a wobble, windows lighting in a wave), many small beats instead of one pop, the spots
      arrive one by one, the place arrives last and lands on the keyword H. Last frame = the approved still. ---------- */
   /* a fall onto (px, py) (the bottom / tip of the part): stretched while falling, squashed on landing, one small bounce */
-  const fallK = (px, py, t0, t1, h = 320) => ({ px, py, y: [[0, -h], [t0, -h], [t1, 0, 'in'], [f3(t1 + tu(.09)), f1(-h * .06), 'out'], [f3(t1 + tu(.18)), 0, 'in']],
-    sy: [[0, 1], [t0, 1.1], [f3(t1 - tu(.02)), 1.1], [t1, .8, 'out'], [f3(t1 + tu(.09)), 1.05, 'out'], [f3(t1 + tu(.18)), .97], [f3(t1 + tu(.26)), 1, 'soft']],
-    sx: [[0, 1], [t0, .93], [f3(t1 - tu(.02)), .93], [t1, 1.14, 'out'], [f3(t1 + tu(.09)), .98, 'out'], [f3(t1 + tu(.26)), 1, 'soft']], o: fadeIn(t0, .04) });
+  /* B05T (user: "หมวด 5 อยากให้ลดลูกเล่นของอนิเมชั่นลงหน่อย"): a calmer fall — it slides down and settles, a small dip, no stretch / squash, no bounce */
+  const fallK = (px, py, t0, t1, h = 320) => ({ px, py, y: [[0, -h], [t0, -h], [t1, 0, 'out']], sy: [[0, 1], [t1, 1], [f3(t1 + tu(.06)), .97, 'out'], [f3(t1 + tu(.16)), 1, 'soft']], o: fadeIn(t0, .06) });
   /* grows up from its base (px, py) with an overshoot */
   const upK = (px, py, t, d = .3) => ({ px, py, sy: [[0, 0], [t, 0], [f3(t + tu(d)), 1.08, 'out'], [f3(t + tu(d + .1)), .97, 'io'], [f3(t + tu(d + .18)), 1, 'soft']], o: fadeIn(t, .04) });
   /* spins in edge-on (a coin / a sign turning to face us) */
   const spinK = (px, py, t) => ({ px, py, sx: [[0, 0], [t, 0], [f3(t + tu(.12)), -.6], [f3(t + tu(.24)), 1.08, 'out'], [f3(t + tu(.34)), 1, 'soft']], o: fadeIn(t, .04) });
   /* dust kicked up left and right where something lands */
-  const dust = (q, x, y, t, k = 1) => sparkAt(q, x, y, 16 * k, 36 * k, t, 8, 22.5, [1, 2, 5, 6], false);
+  const dust = () => {};   /* B05T: no dust (fewer flourishes) */
   /* a flat ring that spreads over the ground at t and fades */
   const rippleE = (q, x, y, rx, ry, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .4], [t, .4], [f3(t + tu(.5)), 1.5, 'out']], o: [[0, 0], [t, 0], [f3(t + tu(.04)), .8], [f3(t + tu(.5)), 0]] }); ell(g, x, y, rx, ry, W(2.4)); };
   /* a lit flash that comes and goes (windows in a wave) */
@@ -360,7 +368,7 @@
 
 
   /* ---------- placeholders (what an empty slot looks like) ---------- */
-  const PH = { fill: 'rgba(255,255,255,.05)', sw: 2, stroke: C.soft };
+  let PH = { fill: 'rgba(255,255,255,.05)', sw: 2, stroke: C.soft };
   const phC = (q, x, y, r) => { q.circle(x, y, r, PH); q.line(x - r * .3, y, x + r * .3, y, S(2.4)); q.line(x, y - r * .3, x, y + r * .3, S(2.4)); };
   const phBar = (q, x, y, w, h = 26, anchor = 'middle') => { const x0 = anchor === 'start' ? x : x - w / 2; R(q, x0, y - h / 2, w, h, h / 2, PH); };
   let EMPTY = false; /* placeholders only when the template is shown empty (d.empty) — a real line with a slot left out just leaves it out */
@@ -421,8 +429,8 @@
   const mark = (q, kind, x, y, r, t) => { const g = popAt(q, x, y, t); g.circle(x, y, r, F(3)); (kind === 'x' ? XX : CHK)(g, x, y, r / 34); return g; };
   /* an icon box (rounded square) — the thing's icon; no icon → its word fits in the box; nothing → a dot. o.dim = dims at that time */
   function ibox(q, c, X, x, y, s, t, o = {}) { const g0 = o.g || popAt(q, x, y, t); if (o.dim) R(g0, x - s / 2, y - s / 2, s, s, s * .24, BK); const g = o.dim ? dimG(g0, o.dim) : g0; R(g, x - s / 2, y - s / 2, s, s, s * .24, F(4));
-    if (X && picOf(X)) put(q, c, { icon: X.icon }, x, y, s * .56, null, { t: f3(t + tu(.04)), mv: o.mv, o: o.dim ? dimK(o.dim) : undefined, punch: o.punch });
-    else if (X && X.label) txt(g, X.label, x, y + s * .06, { size: s * .17, maxW: s * .84, weight: 800, color: C.ink, wrap: 'mid' }); else DOT(g, x, y, 8); return g; }
+    if (X && picOf(X)) put(q, c, { icon: X.icon }, x, y, s * .66, null, { t: f3(t + tu(.04)), mv: o.mv, o: o.dim ? dimK(o.dim) : undefined, punch: o.punch });
+    else if (X && X.label) txt(g, X.label, x, y + s * .08, { size: s * .22, maxW: s * .88, weight: 800, color: C.ink, wrap: 'mid' }); else DOT(g, x, y, 8); return g; }
   /* a word pill centred at (x, y) sized to its words; o.dim = dims · o.strike = a line through it at that time */
   function pill(q, s, x, y, o = {}) { if (!s) return 0; const t = o.t ?? tu(.3), sz = o.size || 34, g0 = o.g || popAt(q, x, y, t), g = o.dim ? dimG(g0, o.dim) : g0;
     const tm = txt(g, s, x, y + sz * .34, { size: sz, weight: 800, color: C.ink, maxW: o.maxW || 360 }), w = Math.min(o.maxW || 360, tm.getBBox().width); R(g, x - w / 2 - 30, y - sz * .95, w + 60, sz * 1.9, sz * .95, o.lit ? { fill: LIT, sw: 3.4 } : F(3.2)); g.g.appendChild(tm);
@@ -431,253 +439,756 @@
   const LBL = X => X && X.label && picOf(X) ? X.label : null;   /* a separate word only when the icon is there (no icon → the word is in the box) */
   const slash = (q, x0, y0, x1, y1, t) => drawAt(q.line(x0, y0, x1, y1, W(6)), q, t, tu(.2));
 
-  /* 01 ── TWO ROWS (สองแถว): the wrong row comes in, its box is crossed, its words struck and dimmed; the right row slides in under it, ticked,
-     its word big and bright on H */
-  variant('rows', 'สองแถว', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { [[A, -95, 'x', tu(.2)], [B, 95, 'check', K.tR]].forEach(([X, y, m, t], i) => { const g0 = mvG(p, { x: glide(i ? 140 : -140, t, f3(t + tu(.22)), i ? -6 : 6), o: fadeIn(t, .06) }); if (!i) R(g0, -430, y - 72, 860, 144, 30, BK); const g = i ? g0 : dimG(g0, K.tN);
-        R(g, -430, y - 72, 860, 144, 30, i ? F(4.2) : F(3.2)); R(g, -400, y - 36, 72, 72, 18, F(3)); (m === 'x' ? XX : CHK)(atG(p, i ? f3(K.H - tu(.04)) : K.tN), -364, y, 1.1);
-        if (X && picOf(X)) { put(p, c, { icon: X.icon }, -260, y, 74, null, { t: f3(t + tu(.08)), o: i ? undefined : dimK(K.tN) }); }
-        const w = X ? txt(i ? popAt(p, -100, y, K.H) : g, X.label || '', picOf(X) ? -200 : -300, y + (i ? 20 : 14), { size: i ? 62 : 44, maxW: picOf(X) ? 600 : 700, weight: 800, color: C.ink, anchor: 'start' }).getBBox().width : 0;
-        if (!i && X) drawAt(p.line(picOf(X) ? -212 : -312, y, (picOf(X) ? -200 : -300) + w + 12, y, W(4)), p, f3(K.tN + tu(.04)), tu(.2)); });
-    }); });
+  /* ================= B01T — ตัวเลขเด่น (Key Number) as a template ชุดฐาน =================
+     CutPack B01: value (the spoken string, kept exactly) · unit · icon · dir up/down. Graphic elements only (icon boxes, pills, rings, bars,
+     dots, segments, tiles, sliders, a stepper, lines) — no real-world objects. The icon sits in its own box, never with a word under it.
+     The number counts up and locks on the keyword H (exactly the spoken string), punches, a ripple; the unit follows. A missing slot is
+     simply not drawn (no icon → the number takes the room). Fill amounts are real only for %; otherwise dir picks high / low (never a fake
+     "full" pointer). No other numbers on screen. */
+  const clamp01 = v => Math.max(0, Math.min(1, v)), eOut = q => 1 - Math.pow(1 - q, 3);
+  const VAL = d => d && d.value != null && String(d.value).trim() ? String(d.value).trim() : null;
+  const UN = d => d && d.unit && String(d.unit).trim() ? String(d.unit).trim() : null;
+  const ICN = d => d && d.icon && (G.icons[d.icon] || G.icons[d.icon + '-pro']) ? d.icon : null;
+  const DIRV = d => d && (d.dir === 'up' || d.dir === 'down') ? d.dir : null;
+  const numOf = d => parseFloat(String(VAL(d) || '').replace(/,/g, ''));
+  const pctV = d => /%\s*$/.test(VAL(d) || '') ? clamp01(numOf(d) / 100) : null;
+  const zeroV = d => numOf(d) === 0;
+  /* the real share of the whole: a % value, or value ÷ max when the speaker gives the whole (user 2026-11-14 "เพิ่มช่องค่าเต็มให้ด้วยครับ":
+     data.max = the full amount as spoken, e.g. value '6', max '8' for "นอน 6 จาก 8 ชั่วโมง"); otherwise null → dir decides */
+  const maxOf = d => d && d.max != null && String(d.max).trim() ? parseFloat(String(d.max).replace(/,/g, '')) : NaN;
+  const ratioV = d => { const p = pctV(d); if (p != null) return p; const m = maxOf(d), n = numOf(d); return m > 0 && isFinite(n) ? clamp01(n / m) : null; };
+  const frac = d => zeroV(d) ? 0 : ratioV(d) ?? (d.dir === 'up' ? .82 : d.dir === 'down' ? .28 : 1);
+  const posV = d => zeroV(d) ? 0 : ratioV(d) ?? (d.dir === 'up' ? .78 : d.dir === 'down' ? .26 : .62);
+  /* the spoken value at fraction q with the same format (commas, decimals, % kept); q = 1 → exactly the spoken string */
+  function fmtVal(str, q) { const m = String(str).match(/^([^\d]*)([\d,]*\.?\d*)(.*)$/); if (!m || q >= 1 || !m[2]) return str;
+    const [, pre, nm, post] = m, n = parseFloat(nm.replace(/,/g, '')), dec = (nm.split('.')[1] || '').length; let s = (n * q).toFixed(dec);
+    if (nm.includes(',')) { const [i, f] = s.split('.'); s = i.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (f ? '.' + f : ''); } return pre + s + post; }
+  const tw = (q, s, size, weight = 800) => { const m = q.text(s, 0, -9999, { size, weight, anchor: 'start', dur: .01 }), w = m.getBBox().width; m.remove(); return w; };
+  /* the number: pops in at t0, counts to the spoken string on H (o.t1), punches there. Returns its box. */
+  function num(p, q, v, x, y, o = {}) { if (!v) return null; const t0 = o.t0 ?? tu(.3), t1 = o.t1 ?? Z.H, anchor = o.anchor || 'middle';
+    let size = o.size || 160; const w0 = tw(q, v, size); if (o.maxW && w0 > o.maxW) size *= o.maxW / w0; const w = Math.min(w0, o.maxW || 1e9);
+    const cx = anchor === 'start' ? x + w / 2 : anchor === 'end' ? x - w / 2 : x, cy = y - size * .36;
+    const g = o.still ? o.g || q : popAt(mvG(o.g || q, { px: cx, py: cy, s: bumpK(t1, o.punch ?? 1.12) }), cx, cy, t0);
+    const e = g.text(v, x, y, { size: f1(size), weight: 800, anchor, color: o.color || ACC1, dur: .01 });
+    HOOKS.push(t => { const u = rel(p, t); e.textContent = u >= t1 ? v : fmtVal(v, eOut(clamp01((u - t0) / Math.max(.01, t1 - t0)))); });
+    return { w, size, cx, cy, x0: cx - w / 2, x1: cx + w / 2, e }; }
+  /* number + unit on one baseline (unit smaller, soft, comes in just after H), shrunk together to maxW */
+  function numRow(p, q, v, u, x, y, o = {}) { if (!v) return null; const s0 = o.size || 160, us0 = o.us || Math.max(40, s0 * .3), gap0 = s0 * .1;
+    const nw0 = tw(q, v, s0), uw0 = u ? tw(q, u, us0, 600) : 0, k = Math.min(1, (o.maxW || 800) / (nw0 + (u ? gap0 + uw0 : 0)));
+    const size = s0 * k, us = Math.max(Math.min(us0, 30), us0 * k), uw = uw0 * us / us0, tot = nw0 * k + (u ? gap0 * k + uw : 0), an = o.anchor || 'middle';
+    const x0 = an === 'middle' ? x - tot / 2 : an === 'end' ? x - tot : x, n = num(p, q, v, x0, y, { size, anchor: 'start', t0: o.t0, t1: o.t1, g: o.g, punch: o.punch });
+    if (u) { const ug = o.g ? sub(o.g) : sub(q); on(ug, q, 0, { x: [[0, -24], [f3(Z.H + tu(.04)), -24], [f3(Z.H + tu(.24)), 0, 'out']], o: fadeIn(f3(Z.H + tu(.04))) });
+      ug.text(u, f1(x0 + nw0 * k + gap0 * k), y, { size: f1(us), weight: 600, anchor: 'start', color: C.soft, dur: .01 }); }
+    return { x0, x1: x0 + tot, cx: x0 + tot / 2, cy: n.cy, size, nw: nw0 * k }; }
+  const rowW = (q, v, u, s0, maxW) => { const us0 = Math.max(40, s0 * .3), nw0 = tw(q, v, s0), uw0 = u ? tw(q, u, us0, 600) : 0, k = Math.min(1, maxW / (nw0 + (u ? s0 * .1 + uw0 : 0))), us = Math.max(Math.min(us0, 30), us0 * k);
+    return nw0 * k + (u ? s0 * .1 * k + uw0 * us / us0 : 0); };
+  /* an icon box that drops in from just above the canvas edge, squashes on landing, kicks dust (the icon rides along) */
+  function dropBox(p, c, ic, x, y, s, t0, t1, o = {}) { if (!ic) return null; const by = y + s / 2, K = fallK(x, by, t0, t1, o.h ?? Math.max(120, by + 350));
+    const g = mvG(CL(p), K); ibox(p, c, { icon: ic }, x, y, s, t0, { g, mv: K, punch: o.punch }); if (o.dust !== false) dust(p, x, by, t1, s / 220); return g; }
+  /* an icon box that spins in edge-on */
+  function spinBox(p, c, ic, x, y, s, t) { if (!ic) return null; const K = spinK(x, y, t), g = mvG(p, K); ibox(p, c, { icon: ic }, x, y, s, t, { g, mv: K, punch: f3(t + tu(.3)) }); return g; }
+  /* a round badge with an up / down arrow (dir) */
+  function dirB(q, dr, x, y, t, r = 36) { if (!dr) return; const g = popAt(q, x, y, t), s = dr === 'up' ? 1 : -1; g.circle(x, y, r, F(3));
+    const a = mvG(g, { y: [[0, 0], [f3(t + tu(.3)), 0], [f3(t + tu(.4)), -s * 7, 'out'], [f3(t + tu(.55)), 0, 'soft']] }), k = r / 36;
+    a.path(`M ${x} ${f1(y + s * 17 * k)} L ${x} ${f1(y - s * 17 * k)} M ${f1(x - 13 * k)} ${f1(y - s * 4 * k)} L ${x} ${f1(y - s * 18 * k)} L ${f1(x + 13 * k)} ${f1(y - s * 4 * k)}`, W(4.4)); }
+  /* an arc path from the top of a circle, clockwise, through a fraction fr of the turn */
+  const arcD = (x, y, r, fr) => { if (fr >= .999) return `M ${x} ${y - r} A ${r} ${r} 0 1 1 ${f1(x - .1)} ${y - r}`; const a = rad(-90 + 360 * fr);
+    return `M ${x} ${y - r} A ${r} ${r} 0 ${fr > .5 ? 1 : 0} 1 ${f1(x + r * Math.cos(a))} ${f1(y + r * Math.sin(a))}`; };
+  /* something that fills from t0 to t1: draw keys and the matching turn of a dot riding its end */
+  const fillK = (t0, t1) => [[0, 0], [t0, 0], [t1, 1, 'io']];
+  const ridK = (deg, t0, t1) => [[0, -deg], [t0, -deg], [t1, 0, 'io']];
+  const litOn = (q, t) => { const g = sub(q); on(g, q, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] }); return g; };
+  let FILL = { fill: LIT, sw: 0, stroke: 'none' }, SOFTT = { sw: 14, stroke: 'rgba(255,255,255,.16)' };
 
-  /* 02 ── SWAP THE BOX (กล่องสลับ): the wrong box with its word chip; a slash cuts across it, it dims, a ✗ badge; an arrow runs to the right
-     box, which pops, a ✓ badge stamps its corner on H */
-  variant('swap', 'สองกล่อง', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { ibox(p, c, A, -250, 30, 280, tu(.2), { dim: K.tN }); slash(p, -390, 170, -110, -110, K.tN); mark(p, 'x', -120, -100, 40, f3(K.tN + tu(.06)));
-      drawAt(p.path('M -70 30 L 60 30 M 30 0 L 64 30 L 30 60', W(5)), p, f3(K.tN + tu(.14)), tu(.2));
-      ibox(p, c, B, 250, 30, 280, K.tR, { punch: K.H }); mark(p, 'check', 380, -100, 44, K.H); ripple(p, 250, 30, 160, K.H);
-      pill(p, LBL(A), -250, -200, { t: tu(.3), dim: K.tN, strike: f3(K.tN + tu(.06)) }); pill(p, LBL(B), 250, -200, { t: f3(K.H + tu(.04)), size: 38 });
-    }); });
+  /* ---------- colour theme (user 2026-11-14: "ทำให้มันเปลี่ยนสีได้"): every colour comes from GL.C (line = ink, card fill, soft lines) plus one
+     accent for what lights up (the number, filled amounts, lit dots / segments / ticks, the underline). Tints are made from those, never a fixed
+     white. GL.theme({ bg, line, fill, soft, accent }) (engine, all categories) or GL.cats.B01T.theme(...) — the same; theme() = back to the
+     default white look. Missing keys keep the default. Lines glow, so a dark background reads best. ---------- */
+  const hexRgb = h => { h = String(h).trim().replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); const n = parseInt(h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const rgba = (h, a) => /^#[0-9a-f]{3,6}$/i.test(String(h).trim()) ? `rgba(${hexRgb(h).join(',')},${a})` : h;
+  let ACC1 = C.ink, THEME = null;
+  const TL_ = a => rgba(C.ink, a), TA = a => rgba(ACC1, a);
+  function tokens() { THEME = G.themeNow; ACC1 = THEME && THEME.accent || C.ink; LIT = TA(.22); GLASS = TL_(.07); PH = { fill: TL_(.05), sw: 2, stroke: C.soft };
+    FILL = { fill: TA(.24), sw: 0, stroke: 'none' }; SOFTT = { sw: 14, stroke: TL_(.16) }; }
+  function theme(t) { const r = G.theme(t); tokens(); return r; }
 
-  /* 03 ── THE SWITCH (สวิตช์): a long switch — the wrong thing at one end, the right at the other; the knob ring sits on the wrong end, then
-     slides across and locks on the right on H; their words under the ends */
-  variant('switch', 'สวิตช์', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { R(inG(p, 'pop', 0, -20, tu(.04)), -380, -120, 760, 200, 100, F(4.4));
-      [[A, -260, 0], [B, 260, 1]].forEach(([X, x, i]) => { if (X && picOf(X)) put(p, c, { icon: X.icon }, x, -20, 110, null, { t: tu(.2 + .1 * i), o: i ? undefined : dimK(K.tN) }); else if (X) txt(dimG(atG(p, tu(.2 + .1 * i)), i ? 99 : K.tN), X.label, x, -10, { size: 38, maxW: 200, weight: 800, color: C.ink, wrap: 'mid' }); });
-      const kn = mvG(p, { x: [[0, -520], [tu(.3), -520], [K.tN, -520], [f3(K.H - tu(.04)), 12, 'io'], [f3(K.H + tu(.06)), 0, 'soft']], o: fadeIn(tu(.3)) }); kn.circle(260, -20, 92, { sw: 6 }); kn.circle(260, -20, 104, S(1.6));
-      mark(p, 'x', -260, 160, 30, K.tN); mark(p, 'check', 260, 160, 30, K.H);
-      pill(p, LBL(A), -260, 250, { t: tu(.36), dim: K.tN, strike: f3(K.tN + tu(.04)), size: 30 }); pill(p, LBL(B), 260, 250, { t: f3(K.H + tu(.06)), size: 32, lit: true });
-    }); });
+  /* ================= designs 21–50 (user 2026-11-14 "ออกแบบเพิ่มอีก 30 อัน") — same rules: graphic elements only, icon apart from words,
+     the number locks on H, colours from the theme (ACC1 = what lights up, TL_() = faint line tints) ================= */
+  /* an icon in a round plate that pops at t (o.g = draw into this group; o.mv = the keys it rides) */
+  function icirc(p, c, ic, x, y, r, t, o = {}) { if (!ic) return null; const g = o.g || popAt(p, x, y, t); g.circle(x, y, r, F(3.4)); g.circle(x, y, r - 12, S(1.4));
+    put(p, c, { icon: ic }, x, y, r * 1.15, null, { t: f3(t + tu(.04)), mv: o.mv, punch: o.punch }); return g; }
+  const rowOf = (p, v, u, s0, maxW) => v ? rowW(p, v, u, s0, maxW) : 0;
+  const hexD = (x, y, r) => pathOf([0, 1, 2, 3, 4, 5].map(k => [f1(x + r * Math.cos(rad(-90 + 60 * k))), f1(y + r * Math.sin(rad(-90 + 60 * k)))]));
+  /* repeating turn: r keys that spin from t0 to t1 by deg, easing to a stop */
+  const spinR = (t0, t1, deg) => [[0, 0], [t0, 0], [t1, deg, 'out']];
 
-  /* 04 ── STRIKE AND WRITE (ขีดแล้วเขียนใหม่): the wrong words sit big; a line strikes them, they dim; a caret marks the spot and the right
-     words are written above in bright, underlined on H (icons, if any, in small boxes at the line's start) */
-  variant('rewrite', 'ขีดแล้วเขียนใหม่', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { const la = A ? (A.label || '') : '', lb = B ? (B.label || '') : '', ia = A && picOf(A), ib = B && picOf(B);
-      if (ia) ibox(p, c, { icon: A.icon }, -360, 110, 110, tu(.16), { dim: K.tN }); if (ib) ibox(p, c, { icon: B.icon }, -360, -120, 120, K.tR, { punch: K.H });
-      const x0 = ia || ib ? -270 : -400, g = dimG(atG(p, tu(.24)), K.tN), ta = la ? txt(g, la, x0, 140, { size: 72, maxW: 760 - (x0 + 400), weight: 800, color: C.ink, anchor: 'start' }) : null, wa = ta ? ta.getBBox().width : 120;
-      if (!la) phBar(g, x0, 110, 200, 40, 'start'); drawAt(p.line(x0 - 10, 112, x0 + wa + 10, 112, W(6)), p, K.tN, tu(.22));
-      drawAt(p.path(`M ${x0 + wa / 2 - 26} 50 L ${x0 + wa / 2} 18 L ${x0 + wa / 2 + 26} 50`, W(5)), p, f3(K.tN + tu(.16)), tu(.14));
-      if (lb) { const tb = txt(popAt(p, x0 + 100, -110, K.H), lb, x0, -90, { size: 80, maxW: 760 - (x0 + 400), weight: 800, color: C.ink, anchor: 'start' }); drawAt(p.line(x0, -60, x0 + tb.getBBox().width, -60, { sw: 6, stroke: C.ink }), p, f3(K.H + tu(.06)), tu(.25)); }
-      else if (!ib) star4(popAt(p, x0 + 60, -110, K.H), x0 + 60, -110, 30);
-    }); });
 
-  /* 05 ── TWO TABS (แท็บสองช่อง): a two-tab switch over a panel — the wrong tab is on and the panel shows it; the highlight slides to the
-     right tab (the wrong one dims) and the panel turns to the right thing on H */
-  variant('tabs', 'แท็บสองช่อง', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { R(inG(p, 'pop', 0, -250, tu(.04)), -380, -310, 760, 120, 60, F(4)); const hl = mvG(p, { x: [[0, -380], [K.tN, -380], [f3(K.H - tu(.06)), 6, 'io'], [f3(K.H + tu(.04)), 0, 'soft']], o: fadeIn(tu(.2)) }); R(hl, 10, -298, 358, 96, 48, { fill: LIT, sw: 3 });
-      txt(dimG(atG(p, tu(.24)), K.tN), A ? (A.label || '✗') : '', -190, -240, { size: 36, maxW: 300, weight: 800, color: C.ink }); txt(atG(p, tu(.28)), B ? (B.label || '✓') : '', 190, -240, { size: 36, maxW: 300, weight: 800, color: C.ink });
-      R(inG(p, 'pop', 0, 70, tu(.14)), -380, -150, 760, 440, 40, F(4));
-      const sa = mvG(p, { px: 0, py: 70, sx: [[0, 1], [K.tN, 1], [f3(K.tN + tu(.14)), 0, 'in']], o: [[0, 1], [f3(K.tN + tu(.14)), 1], [f3(K.tN + tu(.15)), 0]] }); ibox(p, c, A, 0, 70, 240, tu(.3), { g: sa, mv: { px: 0, py: 70, sx: [[0, 1], [K.tN, 1], [f3(K.tN + tu(.14)), 0, 'in']] } });
-      const sb = mvG(p, { px: 0, py: 70, sx: [[0, 0], [f3(K.H - tu(.14)), 0], [K.H, 1.06, 'out'], [f3(K.H + tu(.1)), 1, 'soft']], o: fadeIn(f3(K.H - tu(.14)), .02) }); ibox(p, c, B, 0, 70, 240, f3(K.H - tu(.14)), { g: sb, mv: { px: 0, py: 70, sx: [[0, 0], [f3(K.H - tu(.14)), 0], [K.H, 1.06, 'out'], [f3(K.H + tu(.1)), 1, 'soft']] } });
-      mark(p, 'check', 300, -10, 36, f3(K.H + tu(.08)));
-    }); });
 
-  /* 06 ── CHIPS DOWN (ชิปบน-ล่าง): the wrong chip on top (its icon box beside), struck and dimmed with a ✗; a short arrow down; the right
-     chip below, larger, with a ✓, on H */
-  variant('chips', 'ชิปบน-ล่าง', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { ibox(p, c, A, -300, -170, 130, tu(.16), { dim: K.tN }); mark(p, 'x', -230, -240, 26, K.tN);
-      const wa = pill(p, A ? A.label || '' : '', 60, -170, { t: tu(.24), size: 40, dim: K.tN, strike: f3(K.tN + tu(.04)), maxW: 420 });
-      drawAt(p.path('M 0 -70 L 0 40 M -30 10 L 0 44 L 30 10', W(5)), p, f3(K.tN + tu(.14)), tu(.2));
-      ibox(p, c, B, -310, 160, 170, K.tR, { punch: K.H }); mark(p, 'check', -220, 70, 32, K.H);
-      pill(p, B ? B.label || '' : '', 80, 160, { t: f3(K.H - tu(.04)), size: 54, lit: true, maxW: 460 });
-    }); });
+  /* ================= B03T — เปรียบเทียบ / ก่อน → หลัง (Comparison / Before–After) as a template ชุดฐาน =================
+     CutPack B03: mode versus | change · a, b THING (icon + label) · win 'a' | 'b' (change → b) · how 'x' (cross the loser) | 'check' (tick the
+     winner) · v { a, b } 0.1–1 · switch false (the after state is off: it does not light) · texts [a, b] (words in place of a side's grey lines).
+     Timing: a comes in first (tu .1), b next (versus tu .42 · change: just before the keyword — b is what a becomes). Before H both sides look
+     equal (CutPack). On H the verdict lands: the loser dims (.38, solid backing), the winner punches and lights in the accent, ✓ / ✗ stamps in.
+     Each of the 50 designs is its own layout (user: "ไม่ได้หมายความว่าทั้ง 50 อันหน้าตามันจะต้องคล้ายๆกันไปหมด"). No word chip top-left, no arrow
+     badge top-right, no floor line; icon boxes ≥ 165, words ≥ 40 (pills 50), marks r ≥ 56; colours from the theme only. */
+  const SIDES = ['a', 'b'], OTH = s => s === 'a' ? 'b' : 'a';
+  const XS = (d, s) => d && has(d[s]) ? d[s] : null;
+  function ST(d) { const change = d.mode === 'change', win = d.win === 'a' || d.win === 'b' ? d.win : change ? 'b' : null, lose = win ? OTH(win) : null;
+    const hasV = !!(d.v && (d.v.a != null || d.v.b != null)), cl = v => Math.max(.1, Math.min(1, +v || .5)), va = hasV ? cl(d.v.a) : null, vb = hasV ? cl(d.v.b) : null;
+    const amt = s => hasV ? (s === 'a' ? va : vb) : win ? (s === win ? .85 : .35) : .6;
+    return { change, win, lose, hasV, va, vb, amt, off: d.switch === false, big: win || (hasV && va !== vb ? (va > vb ? 'a' : 'b') : null) }; }
+  const tIn = (d, s) => s === 'a' ? tu(.1) : d.mode === 'change' ? f3(Math.max(tu(.6), Z.H - tu(.5))) : tu(.42);
+  const TXS = (d, s) => { const k = s === 'a' ? 0 : 1; return d && Array.isArray(d.texts) && d.texts[k] != null && String(d.texts[k]).trim() ? String(d.texts[k]).trim() : null; };
+  const LIT2 = () => ({ fill: TA(.18), sw: 5, stroke: ACC1 });
+  const NOS = { sw: 0, stroke: 'none' };
+  const GREY = () => ({ fill: TL_(.16), sw: 0, stroke: 'none' });
+  const SL = (w = 2) => ({ sw: w, stroke: C.soft });
+  const DASH = (a = .4) => ({ sw: 2.4, stroke: TL_(a), 'stroke-dasharray': '8 10' });
+  const chev = (q, x, y, k = 1, o = W(7)) => q.path(`M ${f1(x - 14 * k)} ${f1(y - 28 * k)} L ${f1(x + 16 * k)} ${y} L ${f1(x - 14 * k)} ${f1(y + 28 * k)}`, o);
+  /* add a ride (the part it sits on moves at t) to fall keys: before t everything is shifted by off, then it glides to 0 */
+  const rideY = (K, off, t) => { if (!off) return K; K.y = K.y.map(([u, v, e]) => e ? [u, f1(v + off), e] : [u, f1(v + off)]).concat([[t, off], [f3(t + tu(.3)), -6, 'out'], [f3(t + tu(.42)), 0, 'soft']]); return K; };
+  /* absolute positions over time → offset keys from the final position */
+  const offK = (pts, fin, e = 'io') => pts.map(([t, v], i) => i ? [f3(t), f1(v - fin), e] : [f3(t), f1(v - fin)]);
+  const rotP = (x, y, px, py, a) => { const u = rad(a), dx = x - px, dy = y - py; return [f1(px + dx * Math.cos(u) - dy * Math.sin(u)), f1(py + dx * Math.sin(u) + dy * Math.cos(u))]; };
+  function shp(q, sh, x, y, sz, o) { return sh === 'circ' ? q.circle(x, y, sz / 2, o) : sh === 'hex' ? q.path(hexD(x, y, sz / 2), o) : R(q, x - sz / 2, y - sz / 2, sz, sz, sz * .24, o); }
+  /* side s as an icon slot (box | circ | hex) at (x, y) size sz. o.g = draw into this group (it rides it; o.mv = its keys for the icon) else it pops at o.t.
+     The loser dims at H (o.dimAt), the winner bumps + lights on H; no icon → its word in the slot; nothing → an accent dot. o.io = the icon's own opacity keys. */
+  function sbox(p, c, d, s, x, y, sz, o = {}) { const T = ST(d), X = XS(d, s), H = Z.H, t = o.t ?? tIn(d, s), sh = o.shape || 'box', da = o.dimAt ?? H;
+    const lose = s === T.lose && !o.noDim, win = s === T.win && !T.off && !o.noLit;
+    const g0 = o.g || popAt(p, x, y, t); if (lose) shp(g0, sh, x, y, sz, BK);
+    const g = lose ? dimG(g0, da) : win ? mvG(g0, { px: x, py: y, s: bumpK(H, 1.08) }) : g0;
+    shp(g, sh, x, y, sz, F(4)); if (sh === 'circ') g.circle(x, y, sz / 2 - 13, SL(1.4));
+    if (win) { shp(litOn(g, H), sh, x, y, sz, LIT2()); if (o.rip !== false) ripple(p, x, y, sz * .56, f3(H + tu(.04))); }
+    if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, sz * (sh === 'box' ? .72 : .66), null, { t: o.ti ?? f3(t + tu(.04)), mv: o.mv, o: o.io ?? (lose ? dimK(da) : undefined), punch: win ? H : undefined });
+    else if (X && X.label) txt(o.tg || g, X.label, x, y + sz * .08, { size: Math.max(40, sz * .22), maxW: sz * (sh === 'box' ? .86 : .7), weight: 800, color: C.ink, wrap: 'mid' });
+    else g.circle(x, y, sz * .09, { fill: ACC1, sw: 0, stroke: 'none' });
+    return g; }
+  /* side s's word as a pill (only when it has an icon — otherwise the word is in the slot); o.anchor start | end = x is that end */
+  function tag(p, d, s, x, y, o = {}) { const str = LBL(XS(d, s)); if (!str) return null; const T = ST(d), sz = o.size || 50, mw = o.maxW || 340, w = Math.min(mw, tw(p, str, sz)) + 60;
+    const cx = o.anchor === 'start' ? x + w / 2 : o.anchor === 'end' ? x - w / 2 : x;
+    pill(o.g || p, str, cx, y, { t: o.t ?? f3(tIn(d, s) + tu(.16)), size: sz, maxW: mw, dim: s === T.lose && !o.noDim ? (o.dimAt ?? Z.H) : undefined }); return { w, cx }; }
+  /* side s's word as plain big letters */
+  function word(p, d, s, x, y, o = {}) { const str = LBL(XS(d, s)); if (!str) return null; const T = ST(d), t = o.t ?? f3(tIn(d, s) + tu(.16)), sz = o.size || 50;
+    const g1 = popAt(o.g || p, x, y - sz * .35, t), g = s === T.lose && !o.noDim ? dimG(g1, o.dimAt ?? Z.H) : g1;
+    return txt(g, str, x, y, { size: sz, maxW: o.maxW || 340, weight: 800, color: C.ink, anchor: o.anchor || 'middle', wrap: o.wrap === undefined ? 'mid' : o.wrap }); }
+  /* side s's line of words (data.texts) — none → two grey lines in its place */
+  function note(p, d, s, x, y, w, o = {}) { const T = ST(d), t = o.t ?? f3(tIn(d, s) + tu(.22)), g1 = atG(o.g || p, t), g = s === T.lose && !o.noDim ? dimG(g1, Z.H) : g1, str = TXS(d, s), an = o.anchor || 'start', x0 = an === 'middle' ? x - w / 2 : x;
+    if (str) txt(g, str, an === 'middle' ? x : x0, y + 14, { size: o.size || 40, maxW: w, weight: 600, color: C.soft, anchor: an, wrap: 'down' });
+    else { R(g, x0, y - 11, w, 22, 11, GREY()); R(g, an === 'middle' ? x - w * .31 : x0, y + 33, f1(w * .62), 22, 11, GREY()); } }
+  /* the verdict mark: stamps in just after H (big → small), ✓ in the accent, ✗ in the line colour */
+  function stamp(p, kind, x, y, r = 58) { const t = f3(Z.H + tu(.1)), g = sub(p);
+    on(g, p, 0, { ox: x, oy: y, s: [[0, 1.8], [t, 1.8], [f3(t + tu(.14)), .9, 'in'], [f3(t + tu(.26)), 1.04], [f3(t + tu(.38)), 1, 'soft']], o: [[0, 0], [t, 0], [f3(t + tu(.06)), 1]] });
+    g.circle(x, y, r, F(3.6)); const k = r / 32;
+    if (kind === 'x') XX(g, x, y, k); else g.path(`M ${f1(x - 17 * k)} ${f1(y + 1 * k)} L ${f1(x - 5 * k)} ${f1(y + 13 * k)} L ${f1(x + 18 * k)} ${f1(y - 13 * k)}`, { sw: 5.4, stroke: ACC1 });
+    ripple(p, x, y, r + 8, f3(t + tu(.14))); }
+  function verdict(p, d, at) { const T = ST(d); if (!d.how || !T.win) return; const s = d.how === 'x' ? T.lose : T.win; if (at[s]) stamp(p, d.how === 'x' ? 'x' : 'check', at[s][0], at[s][1]); }
+  const corner = (x, y, sz, sd = 1) => [f1(x + sd * (sz / 2 - 6)), f1(y - sz / 2 + 6)];
+  /* an equal level both sides reach before the keyword (CutPack: equal until the verdict) */
+  const eqOf = T => Math.min(T.amt('a'), T.amt('b')) * .82;
+  /* keys for a fill that reaches its share e/a before H and its own amount on H (change: a fills when it comes, b lands on H) */
+  const fillTo = (T, s, t0, a, e) => T.change ? [[0, 0], [t0, 0], [s === 'a' ? f3(t0 + tu(.4)) : Z.H, 1, 'out']]
+    : [[0, 0], [t0, 0], [f3(Math.max(t0 + tu(.3), Z.H - tu(.25))), f3(e / a), 'io'], [Z.H, f3(e / a)], [f3(Z.H + tu(.36)), 1, 'out']];
+  const doneAt = (T, s, t0) => T.change && s === 'a' ? f3(t0 + tu(.4)) : Z.H;
 
-  /* 07 ── THE DIAL (หน้าปัดชี้): a half dial — the wrong thing at its left end, the right at its right; the needle starts on the wrong end,
-     sweeps over and settles on the right on H; their words under the ends */
-  variant('dial', 'หน้าปัด', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q), cx = 0, cy = 170, r = 280;
-    art(c, p => { const P = a => f1(cx + r * Math.cos(rad(a))) + ' ' + f1(cy + r * Math.sin(rad(a)));
-      drawAt(p.path(`M ${P(180)} A ${r} ${r} 0 0 1 ${P(360)}`, { sw: 16, stroke: 'rgba(255,255,255,.22)' }), p, tu(.1), tu(.4));
-      const lit = p.path(`M ${P(300)} A ${r} ${r} 0 0 1 ${P(360)}`, { sw: 16 }); on(lit, p, 0, { draw: [[0, 0], [f3(K.H - tu(.2)), 0], [K.H, 1, 'out']] });
-      const nd = mvG(p, { px: cx, py: cy, r: [[0, -150], [tu(.3), -150], [K.tN, -150], [f3(K.H - tu(.04)), 8, 'out'], [f3(K.H + tu(.08)), -3, 'io'], [f3(K.H + tu(.16)), 0, 'soft']] }); nd.line(cx, cy, f1(cx + (r - 70) * Math.cos(rad(345))), f1(cy + (r - 70) * Math.sin(rad(345))), W(6)); popAt(p, cx, cy, tu(.3)).circle(cx, cy, 24, SOLID(2));
-      [[A, -1, 'x', K.tN], [B, 1, 'check', K.H]].forEach(([X, sd, m, t]) => { const x = sd * (r - 40); ibox(p, c, X, x, cy - 150, 120, tu(.2), sd < 0 ? { dim: K.tN } : { punch: K.H }); mark(p, m, x + sd * 60, cy - 214, 24, t);
-        pill(p, LBL(X), sd * r, cy + 70, sd < 0 ? { t: tu(.3), dim: K.tN, size: 30 } : { t: f3(K.H + tu(.04)), size: 32, lit: true }); });
-    }); });
+  const phaseK = (ph, s, on1 = 1, off = 0, d = .1) => { const K = [[0, off]]; let cur = null; ph.forEach(([t, w]) => { const was = cur === s, now = w === s; if (was !== now) K.push([f3(t), was ? on1 : off], [f3(t + tu(d)), now ? on1 : off, 'io']); cur = w; }); return K; };
+  const posK = (ph, val, d = .22) => { const K = [[0, val(ph[0][1])]]; ph.forEach(([t, w], i) => { if (!i) return; K.push([f3(t - tu(d)), K[K.length - 1][1]], [f3(t), val(w), 'io']); }); return K; };
+  const starD = (x, y, r) => pathOf(Array.from({ length: 10 }, (_, k) => { const a = rad(-90 + 36 * k), rr = k % 2 ? r * .45 : r; return [f1(x + rr * Math.cos(a)), f1(y + rr * Math.sin(a))]; }));
+  const DOTF = () => ({ fill: ACC1, sw: 0, stroke: 'none' });
+  const arrowD = (x0, x1, y, sh, hh, hl, l, r) => { const a = l ? x0 + hl : x0, b = r ? x1 - hl : x1, P = [[a, y - sh / 2], [b, y - sh / 2]];
+    if (r) P.push([b, y - hh / 2], [x1, y], [b, y + hh / 2]); P.push([b, y + sh / 2], [a, y + sh / 2]); if (l) P.push([a, y + hh / 2], [x0, y], [a, y - hh / 2]); return pathOf(P); };
 
-  /* 08 ── TWO BALLOONS OF WORDS (ฟองคำ): the wrong word-bubble (icon box + words) is crossed and sinks away dim; the right bubble pops in
-     bigger, ticked, on H */
-  variant('bubbles', 'ฟองคำ', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { const fa0 = mvG(popAt(p, -150, -160, tu(.2)), { y: [[0, 0], [K.tN, 0], [f3(K.tN + tu(.3)), 40, 'in']] }); R(fa0, -440, -240, 580, 160, 80, BK); const fa = dimG(fa0, K.tN);
-      R(fa, -440, -240, 580, 160, 80, F(3.6)); fa.circle(-380, -50, 16, F(2.4)); fa.circle(-410, -16, 9, F(2));
-      if (A && picOf(A)) put(p, c, { icon: A.icon }, -350, -160, 80, null, { t: tu(.26), o: dimK(K.tN), mv: { px: -350, py: -160, y: [[0, 0], [K.tN, 0], [f3(K.tN + tu(.3)), 40, 'in']] } });
-      if (A) txt(fa, A.label || '', picOf(A) ? -290 : -380, -146, { size: 40, maxW: picOf(A) ? 400 : 480, weight: 800, color: C.ink, anchor: 'start' }); drawAt(p.line(-420, -100, 120, -220, W(6)), p, K.tN, tu(.2));
-      const fb = mvG(p, { px: 120, py: 140, s: [[0, .3], [K.tR, .3], [f3(K.H - tu(.04)), 1.06, 'out'], [f3(K.H + tu(.08)), 1, 'soft']], o: fadeIn(K.tR, .06) }); R(fb, -260, 50, 760, 190, 95, F(4.4)); fb.circle(-150, 270, 18, F(2.6)); fb.circle(-190, 310, 10, F(2.2));
-      if (B && picOf(B)) put(p, c, { icon: B.icon }, -150, 145, 100, null, { t: K.tR, mv: { px: 120, py: 140, s: [[0, .3], [K.tR, .3], [f3(K.H - tu(.04)), 1.06, 'out'], [f3(K.H + tu(.08)), 1, 'soft']] } });
-      if (B) txt(atG(p, f3(K.H + tu(.02))), B.label || '', picOf(B) ? -80 : -200, 164, { size: 52, maxW: picOf(B) ? 520 : 640, weight: 800, color: C.ink, anchor: 'start' }); mark(p, 'check', 470, 60, 34, f3(K.H + tu(.06)));
-    }); });
+  /* ================= B04T — ขั้นตอน / เช็กลิสต์ (Steps / Checklist) as a template ชุดฐาน =================
+     CutPack B04: items THINGs in order (2–4; CutPack sends 3) · mark { at, how 'light' | 'check' | 'x' } (optional) · texts [words per step] (optional).
+     Timing: the steps come in one by one (tI), then the progress — a line lighting, a token, a needle, a highlight… — passes the steps in order (tP)
+     and reaches the marked step (no mark: the last) on the keyword H: it lights (light: the others dim · check: ✓ · x: it dims and gets ✗). */
+  const ITS = d => (d && Array.isArray(d.items) ? d.items.filter(has) : []).slice(0, 4);
+  function STP(d) { const it = ITS(d), N = Math.max(1, it.length), m = d && d.mark && typeof d.mark === 'object' ? d.mark : null;
+    const K = m && m.at != null && isFinite(+m.at) ? Math.max(0, Math.min(N - 1, Math.round(+m.at))) : N - 1, hw = m && m.how === 'cross' ? 'x' : m && m.how, HOW = m ? (['light', 'check', 'x'].includes(hw) ? hw : 'light') : null, H = Z.H, E = N - 1;
+    const gp = N >= 4 ? .17 : N === 3 ? .22 : .3, tI = i => f3(tu(.08 + gp * i)), tP0 = f3(Math.max(tI(N - 1) + tu(.34), H - tu(.85))), tP = i => E === 0 ? H : f3(lerp(tP0, H, i / E));
+    return { it, N, K, E, HOW, H, tI, tP, tP0 }; }
+  /* (user 2026-11-14: "ทำไมมันไม่ไปหยุดที่อันสุดท้าย" → "เอาทางที่คุณคิดว่าดีที่สุด"): the progress always runs every step and ends on the LAST one on H;
+     mark only says which step gets the emphasis / ✓ / ✗ on H (CutPack: "the step that matters, is done or is wrong"). K = that step (no mark: the last),
+     E = the last step. Designs that show ONE current step (tabs, stepper, wheel, dial, segment, focus, carousel) visit every step and settle on K. */
+  const TXI = (d, i) => d && Array.isArray(d.texts) && d.texts[i] != null && String(d.texts[i]).trim() ? String(d.texts[i]).trim() : null;
+  const LBI = (Q, i) => LBL(Q.it[i]);
+  const SZ4 = n => n >= 4 ? 176 : n === 3 ? 210 : 240, GP4 = n => n >= 4 ? 52 : n === 3 ? 80 : 150;
+  const rowXs = (n, s, gap, cx = 0) => Array.from({ length: n }, (_, k) => f1(cx + (k - (n - 1) / 2) * (s + gap)));
+  const RH4 = n => n >= 4 ? 172 : n === 3 ? 214 : 250;
+  const bumpsK = (ts, a = 1.08) => { const K = [[0, 1]]; ts.slice().sort((x, y) => x - y).forEach(t => K.push([t, 1], [f3(t + tu(.05)), a, 'out'], [f3(t + tu(.18)), 1, 'soft'])); return K; };
+  const stState = (Q, i) => { const tg = i === Q.K, xx = tg && Q.HOW === 'x', dim = xx || (Q.HOW === 'light' && !tg); return { tg, xx, dim, lit: tg && !xx, to: xx ? .42 : .5 }; };
+  const dimKeys = (Q, to) => [[0, 1], [Q.H, 1], [f3(Q.H + tu(.2)), to]];
+  const passed = (Q, i) => { const t = Q.tP(i); return t != null && t < Q.H - .005 ? t : null; };
+  const reach = (Q, i) => Q.tP(i);   /* when the progress reaches step i (the last one: on H) */
+  /* step i as an icon slot at (x, y) size sz (o.shape box | circ | hex, or o.draw(q, style) for any outline). o.g = it rides that group (o.mv its keys).
+     The progress passing bumps it; on H the target lights (or dims with x), with light the others dim. o.ix / o.iy / o.iw = where the icon sits */
+  function stepBox(p, c, d, i, x, y, sz, o = {}) { const Q = STP(d), X = Q.it[i], H = Q.H, t = o.t ?? Q.tI(i), sh = o.shape || 'box', S_ = stState(Q, i), tp = passed(Q, i);
+    const draw = o.draw || ((q, st) => shp(q, sh, x, y, sz, st));
+    const g0 = o.g || popAt(p, x, y, t); if (S_.dim && o.bk !== false) draw(g0, BK);
+    const g1 = S_.dim ? mvG(g0, { o: dimKeys(Q, S_.to) }) : g0, ts = [], arr = i === Q.E && !S_.lit; if (tp != null) ts.push(tp); if (S_.lit || arr) ts.push(H);
+    const g = ts.length && o.bump !== false ? mvG(g1, { px: x, py: y, s: bumpsK(ts) }) : g1;
+    draw(g, o.style || F(4)); if (sh === 'circ' && !o.draw) g.circle(x, y, sz / 2 - 13, SL(1.4));
+    if (S_.lit && !T_OFF) { draw(litOn(g, H), o.litStyle || LIT2()); if (o.rip !== false) ripple(p, o.ix ?? x, o.iy ?? y, sz * .58, f3(H + tu(.04))); }
+    if (o.passRip !== false) { if (tp != null) ripple(p, o.ix ?? x, o.iy ?? y, sz * .48, tp); if (arr) ripple(p, o.ix ?? x, o.iy ?? y, sz * .52, H); }
+    const iw = o.iw || sz * (sh === 'box' ? .72 : .66);
+    if (X && picOf(X)) put(p, c, { icon: X.icon }, o.ix ?? x, o.iy ?? y, iw, null, { t: o.ti ?? f3(t + tu(.04)), mv: o.mv, o: o.io ?? (S_.dim ? dimKeys(Q, S_.to) : undefined), punch: S_.lit ? H : undefined });
+    else if (X && X.label) txt(o.tg || g, X.label, o.ix ?? x, (o.iy ?? y) + 16, { size: Math.max(40, Math.min(56, (o.iw || sz) * .22)), maxW: o.lw || (o.iw || sz) * .84, weight: 800, color: C.ink, wrap: 'mid' });
+    else g.circle(o.ix ?? x, o.iy ?? y, 16, DOTF());
+    return g; }
+  let T_OFF = false;
+  const cornerB = (x, y, sz) => [f1(x + sz / 2 - 6), f1(y + sz / 2 - 6)];   /* bottom-right — where a word sits above the box */
+  /* step i's words: plain big letters (o.pill = in a pill) — only when it has an icon (no icon → the words are in the slot) */
+  function stepWord(p, d, i, x, y, o = {}) { const Q = STP(d), str = LBI(Q, i); if (!str) return null; const S_ = stState(Q, i), t = o.t ?? f3(Q.tI(i) + tu(.14)), sz = o.size || 46;
+    if (o.pill) { const mw = o.maxW || 300, w = Math.min(mw, tw(p, str, sz)) + 60, cx = o.anchor === 'start' ? x + w / 2 : o.anchor === 'end' ? x - w / 2 : x;
+      pill(o.g || p, str, cx, y, { t, size: sz, maxW: mw, dim: S_.dim && !o.noDim ? Q.H : undefined }); return null; }
+    const g1 = popAt(o.g || p, x, y - sz * .35, t), g = S_.dim && !o.noDim ? mvG(g1, { o: dimKeys(Q, S_.to) }) : g1;
+    return txt(g, str, x, y, { size: sz, maxW: o.maxW || 300, weight: 800, color: C.ink, anchor: o.anchor || 'middle', wrap: o.wrap === undefined ? 'mid' : o.wrap }); }
+  /* step i's line of words (data.texts) — none → grey lines in its place */
+  function stepNote(p, d, i, x, y, w, o = {}) { const Q = STP(d), S_ = stState(Q, i), t = o.t ?? f3(Q.tI(i) + tu(.2)), g1 = atG(o.g || p, t), g = S_.dim && !o.noDim ? mvG(g1, { o: dimKeys(Q, S_.to) }) : g1, str = TXI(d, i), an = o.anchor || 'start', x0 = an === 'middle' ? x - w / 2 : x;
+    if (str) txt(g, str, an === 'middle' ? x : x0, y + 14, { size: o.size || 40, maxW: w, weight: 600, color: C.soft, anchor: an, wrap: 'down' });
+    else { R(g, x0, y - 11, w, 22, 11, GREY()); if (!o.one) R(g, an === 'middle' ? f1(x - w * .31) : x0, y + 33, f1(w * .62), 22, 11, GREY()); } }
+  /* ✓ / ✗ on the target (mark.how) */
+  const markT = (p, d, at, r = 58) => { const Q = STP(d); if (Q.HOW === 'check' || Q.HOW === 'x') stamp(p, Q.HOW, at[0], at[1], r); };
+  /* the lines between steps: drawn in as the steps come; the accent runs along each one as the progress passes (to the target) */
+  function links(p, Q, segs, o = {}) { segs.forEach((dd, i) => { if (!dd) return; drawAt(p.path(dd, o.base || { sw: 4, stroke: TL_(.42) }), p, f3(Q.tI(i + 1) - tu(.04)), tu(.22));
+      if (i < Q.E) { const a = p.path(dd, o.lit || { sw: 7, stroke: ACC1 }); on(a, p, 0, { draw: [[0, 0], [f3(Q.tP(i) + tu(.03)), 0], [Q.tP(i + 1), 1, 'io']] }); } }); }
+  /* a token that travels the steps' anchor points (o.via(i) = points between i and i+1), arriving at each on its pass time, at the target on H */
+  function token(p, Q, pts, o = {}) { const K = Q.E, fin = pts[K], r = o.r || 20, via = o.via || (() => []), t0 = f3(Q.tP(0) - tu(.14));
+    const X = [[0, f1(pts[0][0] - fin[0])], [t0, f1(pts[0][0] - fin[0])]], Y = [[0, f1(pts[0][1] - fin[1])], [t0, f1(pts[0][1] - fin[1])]];
+    for (let i = 0; i < K; i++) { const P = pathK([pts[i]].concat(via(i), [pts[i + 1]]), f3(Q.tP(i) + tu(.05)), Q.tP(i + 1), fin, 18, o.ease || sm); X.push(...P.x.slice(1)); Y.push(...P.y.slice(1)); }
+    const g = mvG(o.clip ? CL(p) : p, { px: fin[0], py: fin[1], x: X, y: Y, o: [[0, 0], [t0, 0], [f3(t0 + tu(.06)), 1]].concat(o.keep ? [] : [[f3(Q.H + tu(.12)), 1], [f3(Q.H + tu(.32)), 0]]) });
+    if (o.draw) o.draw(g, fin[0], fin[1]); else { g.circle(fin[0], fin[1], r, DOTF()); g.circle(fin[0], fin[1], r + 9, { sw: 2.6, stroke: ACC1 }); } return g; }
+  /* entrance keys: drop (from just past the top edge) · rise (from below) · left / right (from that side) · spin · flip · pop */
+  function ent(kind, x, y, sz, t) { const t1 = f3(t + tu(.28));
+    if (kind === 'drop') return Object.assign(fallK(x, y + sz / 2, t, t1, f1(y + sz / 2 + 360)), { land: t1 });
+    if (kind === 'rise') { const dy = f1(360 - (y - sz / 2)); return { px: x, py: y, y: [[0, dy], [t, dy], [t1, -12, 'out'], [f3(t1 + tu(.1)), 0, 'soft']], o: fadeIn(t, .04), land: t1 }; }
+    if (kind === 'left' || kind === 'right') { const sd = kind === 'left' ? -1 : 1, dx = f1(sd * (510 + sz / 2) - x); return { px: x, py: y, x: [[0, dx], [t, dx], [t1, -sd * 12, 'out'], [f3(t1 + tu(.1)), 0, 'soft']], o: fadeIn(t, .04), land: t1 }; }
+    if (kind === 'spin') return Object.assign(spinK(x, y, t), { land: f3(t + tu(.34)) });
+    if (kind === 'flip') return { px: x, py: y, sy: [[0, 0], [t, 0], [f3(t + tu(.12)), -.5], [f3(t + tu(.24)), 1.08, 'out'], [f3(t + tu(.34)), 1, 'soft']], o: fadeIn(t, .04), land: f3(t + tu(.34)) };
+    return { px: x, py: y, s: [[0, .2], [t, .2], [t1, 1.1, 'out'], [f3(t1 + tu(.12)), 1, 'soft']], o: fadeIn(t, .04), land: t1 }; }
+  function entBox(p, c, d, i, x, y, sz, kind, o = {}) { const Q = STP(d), K = ent(kind, x, y, sz, Q.tI(i)); stepBox(p, c, d, i, x, y, sz, Object.assign({ g: mvG(CL(p), K), mv: K, t: Q.tI(i) }, o));
+    if (kind === 'drop' && o.dust !== false) dust(p, x, y + sz / 2, K.land, sz / 220); return K; }
+  const curveD = pts => { let s = `M ${pts[0][0]} ${pts[0][1]}`; for (let i = 1; i < pts.length; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], mx = f1((x0 + x1) / 2); s += ` C ${mx} ${y0} ${mx} ${y1} ${x1} ${y1}`; } return s; };
+  const bez = (a, b, u) => { const mx = (a[0] + b[0]) / 2, m = 1 - u; return [f1(m * m * m * a[0] + 3 * m * m * u * mx + 3 * m * u * u * mx + u * u * u * b[0]), f1(m * m * m * a[1] + 3 * m * m * u * a[1] + 3 * m * u * u * b[1] + u * u * u * b[1])]; };
+  const viaBez = pts => i => [.2, .4, .6, .8].map(u => bez(pts[i], pts[i + 1], u));
 
-  /* 09 ── CROSS AND TAKE OVER (กากบาทแล้วแทนที่): the wrong box sits big in the middle; a big ✗ draws over it and it shrinks off to the corner,
-     dim; the right box grows into the middle, ringed, on H */
-  variant('takeover', 'กากบาทแล้วแทนที่', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { const mvA = { px: 0, py: 0, x: [[0, 0], [f3(K.tN + tu(.14)), 0], [f3(K.tN + tu(.4)), -340, 'io']], y: [[0, 0], [f3(K.tN + tu(.14)), 0], [f3(K.tN + tu(.4)), -210, 'io']], s: [[0, 1], [f3(K.tN + tu(.14)), 1], [f3(K.tN + tu(.4)), .42, 'io']] };
-      ibox(p, c, A, 0, 0, 300, tu(.2), { g: mvG(popAt(p, 0, 0, tu(.2)), mvA), mv: mvA, dim: K.tN });
-      const gx = mvG(p, mvA); drawAt(gx.line(-120, -120, 120, 120, W(8)), p, K.tN, tu(.12)); drawAt(gx.line(-120, 120, 120, -120, W(8)), p, f3(K.tN + tu(.06)), tu(.12));
-      const mvB = { px: 60, py: 40, s: [[0, .2], [K.tR, .2], [f3(K.H - tu(.04)), 1.06, 'out'], [f3(K.H + tu(.1)), 1, 'soft']], o: fadeIn(K.tR, .06) }; ibox(p, c, B, 60, 40, 320, K.tR, { g: mvG(p, mvB), mv: mvB, punch: f3(K.H + tu(.1)) });
-      drawAt(p.circle(60, 40, 220, W(4)), p, f3(K.H + tu(.02)), tu(.3)); pill(p, LBL(B), 60, 300, { t: f3(K.H + tu(.06)), size: 40, lit: true }); pill(p, LBL(A), -340, -60, { t: f3(K.tN + tu(.4)), size: 26, dim: f3(K.tN + tu(.4)) });
-    }); });
 
-  /* 10 ── THE POLL (โพล): two options, each an icon box with a result bar; the bars race — the wrong one stops short, is crossed and dims;
-     the right one runs to the end and lights, ticked, on H */
-  variant('poll', 'โพล', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { [[A, -110, 0], [B, 110, 1]].forEach(([X, y, i]) => { ibox(p, c, X, -360, y, 140, tu(.16 + .1 * i), i ? { punch: K.H } : { dim: K.tN });
-        R(atG(p, tu(.3)), -260, y - 32, 680, 64, 32, F(3)); const fw = i ? 680 : 220, g = mvG(p, { px: -260, py: y, sx: [[0, 0], [tu(.5), 0], [i ? f3(K.H - tu(.04)) : K.tN, 1, 'out']], o: i ? fadeIn(tu(.5)) : [[0, 0], [tu(.5), 0], [tu(.52), 1], [K.tN, 1], [f3(K.tN + tu(.2)), .38]] });
-        R(g, -260, y - 32, fw, 64, 32, i ? { fill: LIT, sw: 4 } : { fill: 'rgba(255,255,255,.12)', sw: 0, stroke: 'none' }); mark(p, i ? 'check' : 'x', i ? 460 : -260 + fw + 50, y, 30, i ? K.H : K.tN);
-        if (LBL(X)) txt(atG(p, tu(.36)), LBL(X), -240, y - 52, { size: 30, maxW: 600, weight: 700, color: C.soft, anchor: 'start' }); });
-    }); });
+  /* ================= B05T — ถูกกับผิด (Correction / Right vs Wrong) as a template ชุดฐาน =================
+     CutPack B05: wrong THING · right THING (+ texts [wrong, right]). Timing: the wrong one comes in (tW), is turned down at tN (it dims, ✗ stamps,
+     a strike / a crack / a fall …), the right one comes in at tR and lands lit on the keyword H (✓). The last frame: wrong dim with ✗ · right lit with ✓. */
+  const SD = (d, s) => { const X = d && (s === 'w' ? d.wrong : d.right); return has(X) ? X : null; };
+  const CT = () => { const H = Z.H, tN = f3(Math.max(tu(.75), H - tu(1.0))); return { H, tW: tu(.1), tN, tR: f3(tN + tu(.3)) }; };
+  const TXS5 = (d, s) => { const k = s === 'w' ? 0 : 1; return d && Array.isArray(d.texts) && d.texts[k] != null && String(d.texts[k]).trim() ? String(d.texts[k]).trim() : null; };
+  const dimW = (t, to = .4) => [[0, 1], [t, 1], [f3(t + tu(.2)), to]];
+  /* side s ('w' wrong | 'r' right) as an icon slot (box | circ | hex | o.draw). wrong: dims at tN (o.dimAt) · right: comes in at tR, lights on H */
+  function cbox(p, c, d, s, x, y, sz, o = {}) { const T_ = CT(), X = SD(d, s), w = s === 'w', t = o.t ?? (w ? T_.tW : T_.tR), sh = o.shape || 'box', da = o.dimAt ?? T_.tN;
+    const draw = o.draw || ((q, st) => shp(q, sh, x, y, sz, st)), g0 = o.g || popAt(p, x, y, t); if (w && o.bk !== false) draw(g0, BK);
+    const g = w ? mvG(g0, { o: dimW(da, o.to ?? .4) }) : mvG(g0, { px: x, py: y, s: bumpK(T_.H, 1.04) });
+    draw(g, o.style || F(4)); if (sh === 'circ' && !o.draw) g.circle(x, y, sz / 2 - 13, SL(1.4));
+    if (!w) { draw(litOn(g, T_.H), o.litStyle || LIT2()); if (o.rip !== false) ripple(p, o.ix ?? x, o.iy ?? y, sz * .58, f3(T_.H + tu(.04))); }
+    const iw = o.iw || sz * (sh === 'box' ? .72 : .66);
+    if (X && picOf(X)) put(p, c, { icon: X.icon }, o.ix ?? x, o.iy ?? y, iw, null, { t: o.ti ?? f3(t + tu(.04)), mv: o.mv, o: o.io ?? (w ? dimW(da, o.to ?? .4) : undefined), punch: w ? undefined : T_.H });
+    else if (X && X.label) txt(g, X.label, o.ix ?? x, (o.iy ?? y) + 16, { size: Math.max(40, Math.min(56, iw * .3)), maxW: o.lw || iw * 1.15, weight: 800, color: C.ink, wrap: 'mid' });
+    else g.circle(o.ix ?? x, o.iy ?? y, 16, DOTF());
+    return g; }
+  /* side s's words (only when it has an icon): plain (o.pill = in a pill); wrong dims at tN, o.strike = a line through it */
+  function cword(p, d, s, x, y, o = {}) { const X = SD(d, s), str = LBL(X); if (!str) return null; const T_ = CT(), w = s === 'w', t = o.t ?? f3((w ? T_.tW : T_.tR) + tu(.14)), sz = o.size || 46;
+    if (o.pill) { const mw = o.maxW || 320, wd = Math.min(mw, tw(p, str, sz)) + 60, cx = o.anchor === 'start' ? x + wd / 2 : o.anchor === 'end' ? x - wd / 2 : x;
+      pill(o.g || p, str, cx, y, { t, size: sz, maxW: mw, strike: w && o.strike ? f3(Math.max(T_.tN + tu(.04), t + tu(.1))) : undefined }); return null; }
+    const g1 = popAt(o.g || p, x, y - sz * .35, t), g = w ? mvG(g1, { o: dimW(T_.tN, .62) }) : g1;
+    const e = txt(g, str, x, y, { size: sz, maxW: o.maxW || 320, weight: 800, color: C.ink, anchor: o.anchor || 'middle', wrap: o.wrap === undefined ? 'mid' : o.wrap });
+    if (w && o.strike) { const bb = e.getBBox(); drawAt((o.g || p).line(f1(bb.x - 10), f1(bb.y + bb.height * .55), f1(bb.x + bb.width + 10), f1(bb.y + bb.height * .55), { sw: 5, stroke: C.ink }), p, f3(Math.max(T_.tN + tu(.04), t + tu(.1))), tu(.2)); }
+    return e; }
+  function cnote(p, d, s, x, y, wd, o = {}) { const T_ = CT(), w = s === 'w', t = o.t ?? f3((w ? T_.tW : T_.tR) + tu(.2)), g1 = atG(o.g || p, t), g = w ? mvG(g1, { o: dimW(T_.tN, .45) }) : g1, str = TXS5(d, s), an = o.anchor || 'start', x0 = an === 'middle' ? x - wd / 2 : x;
+    if (str) txt(g, str, an === 'middle' ? x : x0, y + 14, { size: o.size || 40, maxW: wd, weight: 600, color: C.soft, anchor: an, wrap: 'down' });
+    else { R(g, x0, y - 11, wd, 22, 11, GREY()); if (!o.one) R(g, an === 'middle' ? f1(x - wd * .31) : x0, y + 33, f1(wd * .62), 22, 11, GREY()); } }
+  /* ✗ on the wrong (just after tN), ✓ on the right (just after H) */
+  function stampAt(p, kind, x, y, r, t) { const g = sub(p); on(g, p, 0, { ox: x, oy: y, s: [[0, 1.25], [t, 1.25], [f3(t + tu(.2)), 1, 'out']], o: [[0, 0], [t, 0], [f3(t + tu(.1)), 1]] });   /* B05T: a calm stamp (no slam) */
+    g.circle(x, y, r, F(3.6)); const k = r / 32; if (kind === 'x') XX(g, x, y, k); else g.path(`M ${f1(x - 17 * k)} ${f1(y + 1 * k)} L ${f1(x - 5 * k)} ${f1(y + 13 * k)} L ${f1(x + 18 * k)} ${f1(y - 13 * k)}`, { sw: 5.4, stroke: ACC1 }); }
+  const marks5 = (p, atW, atR, r = 56, tX) => { const T_ = CT(); if (atW) stampAt(p, 'x', atW[0], atW[1], r, tX ?? f3(T_.tN + tu(.04)));   /* tX: when the wrong one has arrived where its ✗ goes */
+  if (atR) stampAt(p, 'check', atR[0], atR[1], r, f3(T_.H + tu(.1))); };
+  const strikeLine = (p, x0, y0, x1, y1, t, w = 7) => drawAt(p.line(x0, y0, x1, y1, { sw: w, stroke: C.ink }), p, t, tu(.2));
+  const bigX = (p, x, y, r, t, w = 12) => { [[-1, -1, 1, 1], [1, -1, -1, 1]].forEach(([a, b, e, f], k) => drawAt(p.line(f1(x + a * r), f1(y + b * r), f1(x + e * r), f1(y + f * r), { sw: w, stroke: C.ink }), p, f3(t + tu(.1 * k)), tu(.16))); };
 
-  /* 11 ── FLIP THE TILE (พลิกแผ่น): one tile shows the wrong thing with a ✗ badge; it flips edge-on and comes round showing the right thing
-     with a ✓ badge on H; the wrong one is left as a small dim chip above */
-  variant('flip', 'พลิกแผ่น', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q), t1 = f3(K.tN + tu(.18)), t2 = f3(K.H - tu(.04));
-    art(c, p => { const fa = { px: 0, py: 40, sx: [[0, 1], [K.tN, 1], [t1, 0, 'in']] }, ga = mvG(p, Object.assign({ o: [[0, 0], [tu(.16), 0], [tu(.2), 1], [t1, 1], [f3(t1 + tu(.01)), 0]] }, fa)); ibox(p, c, A, 0, 40, 320, tu(.2), { g: ga, mv: fa }); mark(ga, 'x', 150, -110, 36, tu(.36));
-      const fb = { px: 0, py: 40, sx: [[0, 0], [t1, 0], [t2, 1.06, 'out'], [f3(t2 + tu(.1)), 1, 'soft']] }, gb = mvG(p, Object.assign({ o: [[0, 0], [t1, 0], [f3(t1 + tu(.01)), 1]] }, fb)); ibox(p, c, B, 0, 40, 320, t1, { g: gb, mv: fb, punch: f3(K.H + tu(.1)) }); mark(p, 'check', 150, -110, 40, K.H);
-      const gc = dimG(popAt(p, -250, -260, t1), f3(t1 + tu(.02))); if (A) { const w = pill(p, A.label || '', -150, -260, { g: gc, size: 28, maxW: 320 }); XX(gc, -150 - w / 2 - 34, -260, .7); }
-      pill(p, LBL(B), 0, 280, { t: f3(K.H + tu(.06)), size: 40, lit: true });
-    }); });
+  /* motion (user: "ทำอนิเมชั่นของหมวด 5 ได้ หมวด 5 อยากให้ลดลูกเล่นของอนิเมชั่นลงหน่อย"): same story beats (wrong in → turned down → right in → lands lit on H)
+     but calmer — no squash / bounce / dust, smaller bumps, stamps fade in without a slam, one ripple only where the right one lands */
 
-  /* 12 ── THE SLIDER (สไลเดอร์): a track from the wrong end to the right end; the knob sits on the wrong end, then slides all the way and the
-     track lights behind it on H; icon boxes over the ends, words under */
-  variant('slider', 'สไลเดอร์', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { R(inG(p, 'pop', 0, 60, tu(.04)), -380, 40, 760, 40, 20, F(3.4));
-      R(mvG(p, { px: -380, py: 60, sx: [[0, 0], [K.tN, 0], [f3(K.H - tu(.04)), 1, 'io']], o: fadeIn(K.tN, .04) }), -380, 40, 760, 40, 20, { fill: LIT, sw: 3 });
-      const kn = mvG(p, { x: [[0, -760], [tu(.3), -760], [K.tN, -760], [f3(K.H - tu(.04)), 10, 'io'], [f3(K.H + tu(.06)), 0, 'soft']], o: fadeIn(tu(.3)) }); kn.circle(380, 60, 46, F(4.4)); kn.circle(380, 60, 30, S(1.6));
-      [[A, -380, 0], [B, 380, 1]].forEach(([X, x, i]) => { ibox(p, c, X, x, -150, 150, tu(.16 + .1 * i), i ? { punch: K.H } : { dim: K.tN }); mark(p, i ? 'check' : 'x', x + 80, -230, 26, i ? K.H : K.tN);
-        pill(p, LBL(X), x, 180, i ? { t: f3(K.H + tu(.04)), size: 32, lit: true } : { t: tu(.36), size: 30, dim: K.tN }); });
-    }); });
+  /* 01 ── SWAP (แทนที่ข้างกัน): the wrong drops in, is crossed and dims; a chevron points on and the right drops in beside it, lit */
+  variant('swap', 'แทนที่ข้างกัน', (d, c) => { art(c, p => { const T_ = CT(), bs = 236, Y = 50, XW = -252, XR = 252;
+    const KW = ent('drop', XW, Y, bs, T_.tW); cbox(p, c, d, 'w', XW, Y, bs, { g: mvG(CL(p), KW), mv: KW }); dust(p, XW, Y + bs / 2, KW.land, 1);
+    const KR = ent('drop', XR, Y, bs, T_.tR); cbox(p, c, d, 'r', XR, Y, bs, { g: mvG(CL(p), KR), mv: KR }); dust(p, XR, Y + bs / 2, KR.land, 1);
+    const ag = mvG(p, { x: glide(-40, T_.tN, f3(T_.tN + tu(.3))), o: fadeIn(T_.tN, .06) }); chev(ag, -12, Y, 1.3, { sw: 8, stroke: TL_(.6) }); chev(litOn(ag, T_.H), -12, Y, 1.3, { sw: 8, stroke: ACC1 });
+    cword(p, d, 'w', XW, Y - bs / 2 - 64, { pill: true, strike: true }); cword(p, d, 'r', XR, Y - bs / 2 - 64, { pill: true });
+    marks5(p, cornerB(XW, Y, bs), cornerB(XR, Y, bs)); }); });
 
-  /* 13 ── THE RADIO PAIR (ตัวเลือกวงกลม): two option rows with round buttons; the wrong one is selected first, then the dot jumps down to the
-     right one (the wrong row dims) on H */
-  variant('radio', 'ตัวเลือกวงกลม', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { [[A, -110, 0], [B, 110, 1]].forEach(([X, y, i]) => { const g0 = popAt(p, 0, y, i ? tu(.24) : tu(.16)); if (!i) R(g0, -420, y - 76, 840, 152, 76, BK); const g = i ? g0 : dimG(g0, K.tN); R(g, -420, y - 76, 840, 152, 76, F(i ? 4.2 : 3.2)); g.circle(-340, y, 34, F(3));
-        if (X && picOf(X)) put(p, c, { icon: X.icon }, -230, y, 80, null, { t: tu(.3 + .1 * i), o: i ? undefined : dimK(K.tN) }); if (X) txt(i ? atG(p, tu(.34)) : g, X.label || '', picOf(X) ? -160 : -270, y + 16, { size: i ? 50 : 44, maxW: 560, weight: 800, color: C.ink, anchor: 'start' }); });
-      const dt = mvG(p, { y: [[0, 0], [tu(.4), 0], [K.tN, 0], [f3(K.H - tu(.1)), 110, 'in'], [K.H, 220, 'in'], [f3(K.H + tu(.06)), 214, 'out'], [f3(K.H + tu(.12)), 220, 'in']], x: [[0, 0], [K.tN, 0], [K.H, 0]], o: fadeIn(tu(.4), .04) }); dt.circle(-340, -110, 18, SOLID(2));
-      ripple(p, -340, 110, 50, K.H);
-    }); });
+  /* 02 ── STRIKE (ขีดฆ่าแล้วเขียนใหม่): two lines one above the other — the wrong word is struck through and dims, the right one is written under it */
+  variant('strike', 'ขีดฆ่าแล้วเขียนใหม่', (d, c) => { art(c, p => { const T_ = CT(), bs = 200, BX = -330, YW = -128, YR = 146;
+    const KW = ent('left', BX, YW, bs, T_.tW); cbox(p, c, d, 'w', BX, YW, bs, { g: mvG(CL(p), KW), mv: KW }); const KR = ent('left', BX, YR, bs, T_.tR); cbox(p, c, d, 'r', BX, YR, bs, { g: mvG(CL(p), KR), mv: KR });
+    cword(p, d, 'w', BX + bs / 2 + 34, YW + 20, { anchor: 'start', size: 60, maxW: 560, wrap: null, strike: true }); cword(p, d, 'r', BX + bs / 2 + 34, YR + 20, { anchor: 'start', size: 60, maxW: 560, wrap: null });
+    drawAt(p.path(`M ${BX - 30} ${f1((YW + YR) / 2 - 14)} L ${BX} ${f1((YW + YR) / 2 + 14)} L ${BX + 30} ${f1((YW + YR) / 2 - 14)}`, { sw: 7, stroke: TL_(.6) }), p, f3(T_.tN + tu(.1)), tu(.2));
+    marks5(p, corner(BX, YW, bs, -1), corner(BX, YR, bs, -1)); }); });
 
-  /* 14 ── TWO BARS (สองแท่ง): two bars rise together; the wrong one tops out, is crossed and sinks back low, dim; the right one keeps rising
-     and lights on H; word pills under */
-  variant('bars', 'สองแท่ง', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { drawAt(p.line(-380, 200, 380, 200, S(2)), p, tu(.1), tu(.3));
-      const gaB = mvG(p, { px: -180, py: 200, sy: [[0, 0], [tu(.3), 0], [K.tN, 2.4, 'out'], [f3(K.tN + tu(.3)), 1, 'io']], o: fadeIn(tu(.3)) }); R(gaB, -260, 50, 160, 150, 26, BK); const ga = mvG(dimG(p, K.tN), { px: -180, py: 200, sy: [[0, 0], [tu(.3), 0], [K.tN, 2.4, 'out'], [f3(K.tN + tu(.3)), 1, 'io']], o: fadeIn(tu(.3)) }); R(ga, -260, 50, 160, 150, 26, F(3.6));
-      const gb = mvG(p, { px: 180, py: 200, sy: [[0, 0], [tu(.3), 0], [K.tN, .45, 'out'], [f3(K.H - tu(.04)), 1.06, 'out'], [f3(K.H + tu(.1)), 1, 'soft']], o: fadeIn(tu(.3)) }); R(gb, 100, -250, 160, 450, 26, { fill: LIT, sw: 4.4 });
-      ibox(p, c, A, -180, -10, 110, f3(K.tN + tu(.3)), { dim: f3(K.tN + tu(.3)) }); mark(p, 'x', -180, 0 - 120, 26, f3(K.tN + tu(.1)));
-      ibox(p, c, B, 180, -320, 110, f3(K.H - tu(.06)), { punch: K.H }); mark(p, 'check', 290, -320, 28, K.H);
-      pill(p, LBL(A), -180, 260, { t: tu(.4), size: 30, dim: K.tN }); pill(p, LBL(B), 180, 260, { t: f3(K.H + tu(.04)), size: 32, lit: true });
-    }); });
+  /* 03 ── FLIP (พลิกด้าน): the wrong shows big, is crossed and flies off small into the corner slot; the big card flips round to the right one */
+  variant('flipcard', 'พลิกด้าน', (d, c) => { art(c, p => { const T_ = CT(), BX = 112, BY = 40, bs = 300, SX = -322, SY = 76, s2 = 176, ta = f3(T_.tN + tu(.4));
+    drawAt(R(p, SX - s2 / 2 - 12, SY - s2 / 2 - 12, s2 + 24, s2 + 24, s2 * .3, DASH(.4)), p, tu(.3), tu(.3));
+    const P = pathK([[BX, BY], [(BX + SX) / 2, -150], [SX, SY]], T_.tN, ta, [SX, SY]), KW = { px: SX, py: SY, x: P.x, y: P.y, s: [[0, f3(bs / s2)], [T_.tN, f3(bs / s2)], [ta, 1, 'out']], o: fadeIn(T_.tW, .05) };
+    cbox(p, c, d, 'w', SX, SY, s2, { g: mvG(p, KW), mv: KW, dimAt: ta });
+    const KR = { px: BX, py: BY, sx: [[0, 0], [T_.tR, 0], [f3(T_.tR + tu(.24)), 1.06, 'out'], [f3(T_.tR + tu(.34)), 1, 'soft']], o: fadeIn(T_.tR, .03) }; cbox(p, c, d, 'r', BX, BY, bs, { g: mvG(p, KR), mv: KR });
+    cword(p, d, 'r', BX, BY - bs / 2 - 70, { pill: true, maxW: 380 }); cword(p, d, 'w', -462, SY - s2 / 2 - 72, { pill: true, anchor: 'start', maxW: 320, strike: true, t: ta });
+    marks5(p, cornerB(SX, SY, s2), corner(BX, BY, bs), 56, ta); }); });
 
-  /* 15 ── REROUTE (เปลี่ยนเส้นทาง): a line runs from the start dot toward the wrong box and is blocked (✗); it comes back and a new line bends
-     down to the right box; the dot runs along it and reaches it on H */
-  variant('reroute', 'เปลี่ยนเส้นทาง', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q), P1 = 'M -380 0 C -200 0 -100 -170 120 -170', P2 = 'M -380 0 C -200 0 -100 170 120 170';
-    art(c, p => { popAt(p, -380, 0, tu(.1)).circle(-380, 0, 20, SOLID(2)); drawAt(dimG(p, K.tN).path(P1, W(4)), p, tu(.3), f3(K.tN - tu(.3)));
-      ibox(p, c, A, 270, -170, 200, tu(.2), { dim: K.tN }); mark(p, 'x', 120, -170, 30, K.tN); drawAt(p.path(P2, W(4)), p, K.tR, f3(K.H - K.tR - tu(.1)));
-      ibox(p, c, B, 270, 170, 220, K.tR, { punch: K.H }); mark(p, 'check', 400, 50, 30, K.H); ripple(p, 270, 170, 140, K.H);
-      const L = Array.from({ length: 21 }, (_, j) => { const u = j / 20, x = (1 - u) ** 3 * -380 + 3 * (1 - u) ** 2 * u * -200 + 3 * (1 - u) * u * u * -100 + u ** 3 * 120, y = 3 * (1 - u) * u * u * 170 + u ** 3 * 170; return [x, y]; }), pk = pathK(L, K.tR, f3(K.H - tu(.04)), [120, 170]);
-      mvG(p, { x: pk.x, y: pk.y, o: [[0, 0], [K.tR, 0], [f3(K.tR + tu(.04)), 1], [f3(K.H - tu(.04)), 1], [K.H, 0]] }).circle(120, 170, 14, SOLID(2));
-      pill(p, LBL(A), 270, -310, { t: tu(.3), size: 28, dim: K.tN }); pill(p, LBL(B), 270, 320, { t: f3(K.H + tu(.06)), size: 32, lit: true });
-    }); });
+  /* 04 ── STAMPS (ตราประทับ): two tall cards (word, icon, its line of words) — a big ✗ stamps the wrong card, a ✓ the right one */
+  variant('stamps', 'ตราประทับ', (d, c) => { art(c, p => { const T_ = CT(), CW = 360, CH = 500, Y = 12, bs = 196;
+    [['w', -205], ['r', 205]].forEach(([s, x]) => { const K = ent('rise', x, Y, CH, s === 'w' ? T_.tW : T_.tR), gg = mvG(CL(p), K), iy = Y - 34;
+      const g = cbox(p, c, d, s, x, iy, CW, { g: gg, mv: K, draw: (q, st) => R(q, x - CW / 2, Y - CH / 2, CW, CH, 36, st), iw: bs * .72, lw: CW - 60 }); R(g, x - bs / 2, iy - bs / 2, bs, bs, bs * .24, SL(1.8));
+      cword(p, d, s, x, Y - CH / 2 + 66, { g, size: 48, maxW: CW - 50 }); cnote(p, d, s, x, iy + bs / 2 + 50, CW - 70, { g, anchor: 'middle' }); });
+    marks5(p, [-205 + CW / 2 - 30, Y + CH / 2 - 30], [205 + CW / 2 - 30, Y + CH / 2 - 30], 66); }); });
 
-  /* 16 ── TWO RINGS (วงคะแนน): two round meters with the icons inside; the wrong ring fills a little, stops, is crossed and dims; the right
-     ring fills all the way round and lights on H */
-  variant('rings', 'วงคะแนน', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q), r = 160;
-    art(c, p => { [[A, -230, 0], [B, 230, 1]].forEach(([X, x, i]) => { const g = i ? p : dimG(p, K.tN); drawAt(g.circle(x, -20, r, { sw: 14, stroke: 'rgba(255,255,255,.18)' }), p, tu(.1), tu(.3));
-        const arc = g.path(i ? `M ${x} ${-20 - r} A ${r} ${r} 0 1 1 ${x - .1} ${-20 - r}` : `M ${x} ${-20 - r} A ${r} ${r} 0 0 1 ${f1(x + r * Math.sin(rad(80)))} ${f1(-20 - r * Math.cos(rad(80)))}`, { sw: 14 }); on(arc, p, 0, { draw: [[0, 0], [tu(.4), 0], [i ? f3(K.H - tu(.04)) : K.tN, 1, 'out']] });
-        ibox(p, c, X, x, -20, 150, tu(.2 + .08 * i), i ? { punch: K.H } : { dim: K.tN }); mark(p, i ? 'check' : 'x', x + 120, -150, 28, i ? K.H : K.tN);
-        pill(p, LBL(X), x, 220, i ? { t: f3(K.H + tu(.04)), size: 32, lit: true } : { t: tu(.36), size: 30, dim: K.tN }); });
-    }); });
+  /* 05 ── DROP OUT (ตกออกจากช่อง): the wrong sits in the slot, is crossed and falls out tumbling to the floor corner; the right drops into the slot */
+  variant('dropout', 'ตกออกจากช่อง', (d, c) => { art(c, p => { const T_ = CT(), SX = 130, SY = -48, bs = 252, WX = -310, WY = 196, s2 = 176, ta = f3(T_.tN + tu(.42));
+    drawAt(R(p, SX - bs / 2 - 16, SY - bs / 2 - 16, bs + 32, bs + 32, bs * .3, DASH(.5)), p, tu(.04), tu(.3));
+    const P = pathK([[SX, SY], [SX - 160, SY - 120], [WX, WY]], T_.tN, ta, [WX, WY], 24, u => u * u), KW = { px: WX, py: WY, x: P.x, y: P.y, r: [[0, 0], [T_.tN, 0], [ta, -22, 'in'], [f3(ta + tu(.1)), -16, 'out']], s: [[0, f3(bs / s2)], [T_.tN, f3(bs / s2)], [ta, 1]], o: fadeIn(T_.tW, .05) };
+    cbox(p, c, d, 'w', WX, WY, s2, { g: mvG(CL(p), KW), mv: KW, dimAt: ta }); dust(p, WX, WY + s2 / 2, ta, 1);
+    const KR = ent('drop', SX, SY, bs, T_.tR); cbox(p, c, d, 'r', SX, SY, bs, { g: mvG(CL(p), KR), mv: KR }); dust(p, SX, SY + bs / 2, KR.land, 1);
+    cword(p, d, 'r', -60, SY + 16, { anchor: 'end', size: 52, maxW: 360 }); cword(p, d, 'w', WX + s2 / 2 + 26, WY + 18, { anchor: 'start', size: 46, maxW: 300, strike: true, t: ta });
+    marks5(p, [f1(WX - s2 / 2 + 10), f1(WY - s2 / 2 - 4)], corner(SX, SY, bs), 56, ta); }); });
 
-  /* 17 ── LAID OVER (วางทับ): the wrong box sits there, dims and gets a ✗; the right box slides in over it from the side and covers most of
-     it, ✓ on its corner on H */
-  variant('cover', 'วางทับ', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { ibox(p, c, A, -150, -60, 300, tu(.2), { dim: K.tN }); mark(p, 'x', -280, -190, 30, K.tN); pill(p, LBL(A), -150, -260, { t: tu(.3), size: 28, dim: K.tN, strike: f3(K.tN + tu(.04)) });
-      const mvB = { px: 120, py: 70, x: glide(500, K.tR, f3(K.H - tu(.04)), -14), o: fadeIn(K.tR, .04) }; ibox(p, c, B, 120, 70, 340, K.tR, { g: mvG(CL(p), mvB), mv: mvB, punch: f3(K.H + tu(.08)) });
-      mark(p, 'check', 280, -90, 40, K.H); pill(p, LBL(B), 120, 300, { t: f3(K.H + tu(.06)), size: 38, lit: true });
-    }); });
+  /* 06 ── ERASE (ลบออก): a wide soft swipe rubs the wrong out to a dashed ghost; the right comes in big beside it */
+  variant('erase', 'ลบออก', (d, c) => { art(c, p => { const T_ = CT(), WX = -262, WY = -92, s1 = 206, RX = 150, RY = 62, s2 = 282;
+    cbox(p, c, d, 'w', WX, WY, s1, { to: .22 }); drawAt(R(p, WX - s1 / 2 - 10, WY - s1 / 2 - 10, s1 + 20, s1 + 20, s1 * .3, DASH(.45)), p, f3(T_.tN + tu(.2)), tu(.2));
+    const sw = p.path(`M ${WX - 170} ${WY + 120} L ${WX + 170} ${WY - 120}`, { sw: 70, stroke: TL_(.1) }); on(sw, p, 0, { draw: [[0, 0], [T_.tN, 0], [f3(T_.tN + tu(.24)), 1, 'io']] });
+    const KR = ent('pop', RX, RY, s2, T_.tR); cbox(p, c, d, 'r', RX, RY, s2, { g: mvG(p, KR), mv: KR });
+    cword(p, d, 'w', WX, WY - s1 / 2 - 62, { pill: true, strike: true, maxW: 300 }); cword(p, d, 'r', RX, RY - s2 / 2 - 64, { pill: true, maxW: 340 });
+    marks5(p, cornerB(WX, WY, s1), cornerB(RX, RY, s2)); }); });
 
-  /* 18 ── SPELL CHECK (ตรวจคำ): the wrong words with a wavy underline drawing under them, dimmed; the suggestion pill pops below — ✓ the
-     right words (and icon) — on H */
-  variant('spell', 'ตรวจคำ', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { const la = A ? A.label || '' : '', g = dimG(atG(p, tu(.2)), f3(K.tN + tu(.2))); if (A && picOf(A)) ibox(p, c, { icon: A.icon }, -360, -140, 120, tu(.16), { dim: f3(K.tN + tu(.2)) });
-      const x0 = A && picOf(A) ? -270 : -380, ta = la ? txt(g, la, x0, -120, { size: 64, maxW: 760, weight: 800, color: C.ink, anchor: 'start' }) : null, w = ta ? ta.getBBox().width : 200;
-      let dd = `M ${x0} -80`; for (let x = x0; x < x0 + w; x += 24) dd += ` q 6 -14 12 0 q 6 14 12 0`; drawAt(p.path(dd, W(3.4)), p, K.tN, tu(.3));
-      const sg = mvG(p, { px: x0 + 60, py: 40, s: [[0, .3], [K.tR, .3], [f3(K.H - tu(.04)), 1.06, 'out'], [f3(K.H + tu(.08)), 1, 'soft']], o: fadeIn(K.tR, .06) }); drawAt(p.line(x0 + 60, -60, x0 + 60, 0, S(2)), p, f3(K.tR - tu(.1)), tu(.1));
-      R(sg, x0, 10, 760 - (x0 + 380), 170, 40, F(4.4)); CHK(sg, x0 + 70, 95, 1.2); if (B && picOf(B)) put(p, c, { icon: B.icon }, x0 + 170, 95, 90, null, { t: K.tR, mv: { px: x0 + 60, py: 40, s: [[0, .3], [K.tR, .3], [f3(K.H - tu(.04)), 1.06, 'out'], [f3(K.H + tu(.08)), 1, 'soft']] } });
-      if (B) txt(atG(p, f3(K.H + tu(.02))), B.label || '', B && picOf(B) ? x0 + 240 : x0 + 130, 114, { size: 52, maxW: 760 - (x0 + 380) - (picOf(B) ? 270 : 160), weight: 800, color: C.ink, anchor: 'start' });
-    }); });
+  /* 07 ── COVER (แปะทับ): the right card slaps down over the corner of the wrong one, which is crossed and dims behind it */
+  variant('cover', 'แปะทับ', (d, c) => { art(c, p => { const T_ = CT(), bs = 262, W_ = [-142, -46], R_ = [132, 70];
+    const KW = ent('drop', ...W_, bs, T_.tW); cbox(p, c, d, 'w', ...W_, bs, { g: mvG(CL(p), KW), mv: KW });
+    const KR = { px: R_[0], py: R_[1], x: [[0, 600], [T_.tR, 600], [f3(T_.tR + tu(.3)), -16, 'out'], [f3(T_.tR + tu(.4)), 0, 'soft']], r: [[0, 14], [T_.tR, 14], [f3(T_.tR + tu(.3)), 0, 'out']], o: fadeIn(T_.tR, .04) };
+    cbox(p, c, d, 'r', ...R_, bs, { g: mvG(CL(p), KR), mv: KR }); ripple(p, R_[0] - bs / 2, R_[1] - 40, 60, f3(T_.tR + tu(.3)));
+    cword(p, d, 'w', W_[0], W_[1] - bs / 2 - 62, { pill: true, strike: true, maxW: 340 }); cword(p, d, 'r', R_[0], R_[1] + bs / 2 + 62, { pill: true, maxW: 340 });
+    marks5(p, [W_[0] - bs / 2 + 6, W_[1] + bs / 2 - 6], cornerB(...R_, bs)); }); });
 
-  /* 19 ── SPLIT IN TWO (แบ่งครึ่ง): a line splits the space; on the left the wrong side (✗ chip, icon, words), on the right the right side
-     (✓ chip, icon, words); the left dims, the right washes with light on H */
-  variant('split', 'แบ่งครึ่ง', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { drawAt(p.line(0, -300, 0, 300, S(2.4)), p, tu(.04), tu(.3)); R(flick(p, f3(K.H - tu(.04))), 20, -300, 460, 600, 30, { fill: 'rgba(255,255,255,.07)', sw: 0, stroke: 'none' });
-      [[A, -240, 0], [B, 240, 1]].forEach(([X, x, i]) => { mark(p, i ? 'check' : 'x', x, -230, 32, i ? f3(K.H - tu(.02)) : K.tN); ibox(p, c, X, x, -20, 220, tu(.2 + .1 * i), i ? { punch: K.H } : { dim: K.tN });
-        pill(p, LBL(X), x, 190, i ? { t: f3(K.H + tu(.04)), size: 38, lit: true, maxW: 360 } : { t: tu(.36), size: 34, dim: K.tN, strike: f3(K.tN + tu(.04)), maxW: 360 }); });
-    }); });
+  /* 08 ── UPRIGHT SWITCH (สวิตช์ตั้ง): a tall switch — the wrong at the top, the right at the bottom; the lit knob drops from the wrong to the right */
+  variant('vswitch', 'สวิตช์ตั้ง', (d, c) => { art(c, p => { const T_ = CT(), TX = -150, YW = -150, YR = 152, bs = 196, TWd = 270;
+    R(mvG(p, { px: TX, py: 0, sy: [[0, .2], [tu(.04), .2], [tu(.34), 1.03, 'out'], [tu(.44), 1, 'soft']], o: fadeIn(tu(.04), .06) }), TX - TWd / 2, -300, TWd, 600, TWd / 2, F(3.6));
+    cbox(p, c, d, 'w', TX, YW, bs, { shape: 'circ' }); cbox(p, c, d, 'r', TX, YR, bs, { shape: 'circ', rip: false });
+    const kg = mvG(p, { y: [[0, YW - YR], [T_.tN, YW - YR], [T_.H, 0, 'in'], [f3(T_.H + tu(.1)), -12, 'out'], [f3(T_.H + tu(.2)), 0, 'soft']], o: fadeIn(tu(.4), .06) }); kg.circle(TX, YR, 116, { sw: 5, stroke: TL_(.55) }); litOn(kg, T_.H).circle(TX, YR, 116, { sw: 6, stroke: ACC1 }); ripple(p, TX, YR, 130, f3(T_.H + tu(.04)));
+    cword(p, d, 'w', TX + TWd / 2 + 34, YW + 18, { anchor: 'start', size: 54, maxW: 440, wrap: null, strike: true }); cword(p, d, 'r', TX + TWd / 2 + 34, YR + 18, { anchor: 'start', size: 54, maxW: 440, wrap: null });
+    marks5(p, [TX - TWd / 2 - 14, YW - 92], [TX - TWd / 2 - 14, YR + 92]); }); });
 
-  /* 20 ── MARKING (ตรวจให้คะแนน): two icon boxes side by side; a hand-drawn ✗ scrawls over the wrong one (it dims); a hand-drawn loop circles
-     the right one on H — teacher's marks, nothing else */
-  variant('marks', 'ตรวจให้คะแนน', (d, c) => { const A = WR(d), B = RT(d), Q = TL(), K = TT(Q);
-    art(c, p => { ibox(p, c, A, -230, -20, 260, tu(.2), { dim: K.tN }); ibox(p, c, B, 230, -20, 260, tu(.3), { punch: K.H });
-      drawAt(p.path('M -340 -130 Q -230 -20 -110 100', W(7)), p, K.tN, tu(.14)); drawAt(p.path('M -120 -140 Q -240 -10 -350 110', W(7)), p, f3(K.tN + tu(.12)), tu(.14));
-      drawAt(p.path('M 230 -190 C 420 -190 420 160 230 160 C 50 160 40 -170 250 -200', W(6)), p, f3(K.H - tu(.2)), tu(.3));
-      pill(p, LBL(A), -230, 230, { t: tu(.36), size: 32, dim: K.tN }); pill(p, LBL(B), 230, 230, { t: f3(K.H + tu(.04)), size: 36, lit: true });
-    }); });
+  /* 09 ── RADIO (ตัวเลือกวงกลม): two option rows; the choice dot sits on the wrong, it gets a cross, the dot jumps down to the right one */
+  variant('radio', 'ตัวเลือกวงกลม', (d, c) => { art(c, p => { const T_ = CT(), YW = -122, YR = 142, RX = -388, BX = -236, bs = 200;
+    [['w', YW], ['r', YR]].forEach(([s, y]) => { const t = s === 'w' ? T_.tW : f3(T_.tR - tu(.2)); popAt(p, RX, y, t).circle(RX, y, 48, F(3.6)); cbox(p, c, d, s, BX, y, bs, { t: f3(t + tu(.06)) });
+      cword(p, d, s, BX + bs / 2 + 30, y + 20, { anchor: 'start', size: 58, maxW: 500, wrap: null, strike: s === 'w', t: f3(t + tu(.14)) }); });
+    const dg = mvG(p, { y: [[0, YW - YR], [T_.tN, YW - YR], [f3(T_.H - tu(.1)), YW - YR], [T_.H, 0, 'in']], o: [[0, 0], [f3(T_.tW + tu(.3)), 0], [f3(T_.tW + tu(.36)), 1], [T_.tN, 1], [f3(T_.tN + tu(.08)), 0], [f3(T_.H - tu(.1)), 0], [T_.H, 1]] }); dg.circle(RX, YR, 24, DOTF());
+    const xg = popAt(p, RX, YW, f3(T_.tN + tu(.04))); XX(xg, RX, YW, 1.2); ripple(p, RX, YR, 60, T_.H); }); });
 
-  /* ---------- sample data (A: corrections from unrelated topics · B: stress) ---------- */
-  const I = (icon, label) => label ? (icon ? { icon, label } : { label }) : { icon };
-  const D = (say, wrong, right) => ({ say, wrong, right });
+  /* 10 ── NO SIGN (ป้ายห้าม): the wrong sits inside a "no" ring (circle and slash) that draws over it; the right sits in a lit ring beside it */
+  variant('nosign', 'ป้ายห้าม', (d, c) => { art(c, p => { const T_ = CT(), Y = 54, XW = -240, XR = 240, bs = 206, RR = 152;
+    cbox(p, c, d, 'w', XW, Y, bs); const ng = sub(p); drawAt(ng.circle(XW, Y, RR, { sw: 16, stroke: C.ink }), p, T_.tN, tu(.24)); drawAt(ng.line(f1(XW - RR * .7), f1(Y - RR * .7), f1(XW + RR * .7), f1(Y + RR * .7), { sw: 16, stroke: C.ink }), p, f3(T_.tN + tu(.2)), tu(.16));
+    cbox(p, c, d, 'r', XR, Y, bs); drawAt(p.circle(XR, Y, RR, { sw: 10, stroke: TL_(.3) }), p, T_.tR, tu(.3)); const lr = p.circle(XR, Y, RR, { sw: 10, stroke: ACC1 }); on(lr, p, 0, { draw: [[0, 0], [f3(T_.H - tu(.2)), 0], [T_.H, 1, 'io']] });
+    cword(p, d, 'w', XW, Y - RR - 64, { pill: true, maxW: 340, strike: true }); cword(p, d, 'r', XR, Y - RR - 64, { pill: true, maxW: 340 });
+    marks5(p, null, [f1(XR + RR * .72), f1(Y + RR * .72)]); }); });
+
+  /* 11 ── FORK (ทางแยก): a path rises and splits — the left branch to the wrong is cut by a crossed bar, the right branch lights up to the right one */
+  variant('fork', 'ทางแยก', (d, c) => { art(c, p => { const T_ = CT(), bs = 200, W_ = [-262, -126], R_ = [262, -126], B0 = [0, 300], BJ = [0, 120];
+    const lp = `M ${B0[0]} ${B0[1]} L ${BJ[0]} ${BJ[1]} C 0 40 ${W_[0]} 60 ${W_[0]} ${W_[1] + bs / 2 + 10}`, rp = `M ${B0[0]} ${B0[1]} L ${BJ[0]} ${BJ[1]} C 0 40 ${R_[0]} 60 ${R_[0]} ${R_[1] + bs / 2 + 10}`;
+    drawAt(p.path(lp, { sw: 10, stroke: TL_(.3) }), p, tu(.04), tu(.4)); drawAt(p.path(rp, { sw: 10, stroke: TL_(.3) }), p, tu(.04), tu(.4)); const lr = p.path(rp, { sw: 10, stroke: ACC1 }); on(lr, p, 0, { draw: [[0, 0], [T_.tR, 0], [T_.H, 1, 'io']] });
+    const bg = popAt(p, -150, 52, T_.tN); bg.path(`M -205 22 L -95 82`, { sw: 22 }); bg.path(`M -205 22 L -95 82`, { sw: 14, stroke: C.fill });
+    cbox(p, c, d, 'w', ...W_, bs); cbox(p, c, d, 'r', ...R_, bs);
+    cword(p, d, 'w', W_[0], W_[1] - bs / 2 - 60, { pill: true, strike: true, maxW: 340 }); cword(p, d, 'r', R_[0], R_[1] - bs / 2 - 60, { pill: true, maxW: 340 });
+    marks5(p, [-150, 52], cornerB(...R_, bs)); }); });
+
+  /* 12 ── COLUMNS (ตาราง ✗ | ✓): two columns headed by a ✗ and a ✓ — the wrong under the ✗ dims, the right under the ✓ lights */
+  variant('columns', 'ตาราง ✗ | ✓', (d, c) => { art(c, p => { const T_ = CT(), CW = 400, CH = 590, Y = 20, bs = 214;
+    [['w', -228], ['r', 228]].forEach(([s, x]) => { const K = ent('rise', x, Y, CH, s === 'w' ? T_.tW : T_.tR), gg = mvG(CL(p), K), iy = Y + 10;
+      cbox(p, c, d, s, x, iy, CW, { g: gg, mv: K, draw: (q, st) => R(q, x - CW / 2, Y - CH / 2, CW, CH, 40, st), iw: bs * .72, lw: CW - 60, rip: false }); R(gg, x - bs / 2, iy - bs / 2, bs, bs, bs * .24, SL(1.8));
+      cword(p, d, s, x, iy + bs / 2 + 72, { g: gg, size: 50, maxW: CW - 50 }); });
+    marks5(p, [-228, Y - CH / 2 + 80], [228, Y - CH / 2 + 80], 60); }); });
+
+  /* 13 ── CURVED ARROW (ลูกศรโค้งแทนที่): the wrong up top is struck; a fat curved arrow sweeps down from it to the right one, which lands lit */
+  variant('curvearrow', 'ลูกศรโค้งแทนที่', (d, c) => { art(c, p => { const T_ = CT(), W_ = [-300, -142], s1 = 196, R_ = [262, 130], s2 = 250;
+    /* (user: "13 แก้ไขลูกศร") the arrow leaves the wrong box's right side, bends over and comes straight down onto the top of the right box;
+       its head is a solid triangle that follows the line's end direction (straight down), the line stops at the head's base */
+    const x0 = W_[0] + s1 / 2 + 18, y0 = W_[1], tipY = f1(R_[1] - s2 / 2 - 16), baseY = f1(tipY - 50), ap = `M ${x0} ${y0} C ${f1(x0 + 300)} ${y0} ${R_[0]} ${f1(baseY - 170)} ${R_[0]} ${baseY}`;
+    const head = `M ${R_[0]} ${tipY} L ${R_[0] - 34} ${baseY} L ${R_[0] + 34} ${baseY} Z`;
+    drawAt(p.path(ap, { sw: 18, stroke: TL_(.45) }), p, T_.tN, tu(.3)); const hg = popAt(p, R_[0], baseY, f3(T_.tN + tu(.28))); hg.path(head, { fill: TL_(.45), sw: 3, stroke: TL_(.45) });
+    const la = p.path(ap, { sw: 18, stroke: ACC1 }); on(la, p, 0, { draw: [[0, 0], [T_.tR, 0], [f3(T_.H - tu(.1)), 1, 'io']] }); litOn(p, f3(T_.H - tu(.1))).path(head, { fill: ACC1, sw: 3, stroke: ACC1 });
+    cbox(p, c, d, 'w', ...W_, s1); const KR = ent('pop', ...R_, s2, T_.tR); cbox(p, c, d, 'r', ...R_, s2, { g: mvG(p, KR), mv: KR });
+    cword(p, d, 'w', W_[0], W_[1] + s1 / 2 + 62, { pill: true, maxW: 320, strike: true }); cword(p, d, 'r', R_[0] - s2 / 2 - 26, R_[1] + 18, { anchor: 'end', size: 52, maxW: 330 });
+    marks5(p, corner(...W_, s1, -1), cornerB(...R_, s2)); }); });
+
+  /* 14 ── POP (ฟองแตก): the wrong bubble bursts — a dashed ring and sparks are left with its icon dim — the right bubble swells big and lit */
+  variant('pop', 'ฟองแตก', (d, c) => { art(c, p => { const T_ = CT(), W_ = [-250, 40], R_ = [220, 30], r1 = 118, r2 = 156;
+    const wg = mvG(p, { px: W_[0], py: W_[1], s: [[0, 1], [T_.tN, 1], [f3(T_.tN + tu(.05)), 1.12, 'out'], [f3(T_.tN + tu(.1)), .9]], o: fadeIn(T_.tW, .05).concat([[T_.tN, 1], [f3(T_.tN + tu(.1)), 0]]) }); wg.circle(...W_, r1, F(4));
+    drawAt(p.circle(...W_, r1, DASH(.5)), p, f3(T_.tN + tu(.08)), tu(.2)); sparkAt(p, ...W_, r1 + 10, r1 + 50, T_.tN, 10, 0, [], true);
+    const X_ = SD(d, 'w'); if (X_ && picOf(X_)) put(p, c, { icon: X_.icon }, ...W_, r1 * 1.3, null, { t: f3(T_.tW + tu(.04)), o: dimW(T_.tN, .4) }); else if (X_) txt(atG(p, T_.tW), X_.label, W_[0], W_[1] + 16, { size: 46, maxW: r1 * 1.6, weight: 800, color: C.mute, wrap: 'mid' });
+    const KR = { px: R_[0], py: R_[1], s: [[0, .2], [T_.tR, .2], [f3(T_.tR + tu(.4)), 1.08, 'out'], [f3(T_.tR + tu(.52)), 1, 'soft']], o: fadeIn(T_.tR, .04) }; cbox(p, c, d, 'r', ...R_, r2 * 2, { shape: 'circ', g: mvG(p, KR), mv: KR });
+    cword(p, d, 'w', W_[0], W_[1] - r1 - 74, { pill: true, maxW: 320, strike: true }); cword(p, d, 'r', R_[0], R_[1] + r2 + 62, { pill: true, maxW: 340 });
+    marks5(p, [f1(W_[0] + r1 * .72), f1(W_[1] + r1 * .72)], [f1(R_[0] + r2 * .72), f1(R_[1] - r2 * .72)]); }); });
+
+  /* 15 ── TABS (แท็บ): two tabs — the page first shows the wrong (its icon, its words); its tab is struck and dims, the right tab lights and the page turns */
+  variant('tabs', 'แท็บ', (d, c) => { art(c, p => { const T_ = CT(), TY = -250, TH = 96, TWd = 420, TX = { w: -215, r: 215 }, PY = -182, PH = 470, bs = 240, BX = -240, BY = 52;
+    R(mvG(p, upK(0, PY + PH, tu(.06), .3)), -450, PY, 900, PH, 40, F(3.6)); const bx = popAt(p, BX, BY, tu(.2)); R(bx, BX - bs / 2, BY - bs / 2, bs, bs, bs * .24, F(4)); R(litOn(bx, T_.H), BX - bs / 2, BY - bs / 2, bs, bs, bs * .24, LIT2()); ripple(p, BX, BY, bs * .58, f3(T_.H + tu(.04)));
+    const ow = [[0, 0], [f3(T_.tW + tu(.2)), 0], [f3(T_.tW + tu(.3)), 1], [T_.tR, 1], [f3(T_.tR + tu(.1)), 0]], orr = [[0, 0], [T_.tR, 0], [f3(T_.tR + tu(.1)), 1]];
+    ['w', 'r'].forEach(s => { const x = TX[s], w = s === 'w', X_ = SD(d, s), g0 = mvG(p, { x: glide(w ? -100 : 100, w ? T_.tW : f3(T_.tW + tu(.1)), f3((w ? T_.tW : T_.tW + tu(.1)) + tu(.26))), o: fadeIn(w ? T_.tW : f3(T_.tW + tu(.1)), .05) });
+      if (w) R(g0, x - TWd / 2, TY - TH / 2, TWd, TH, TH / 2, BK); const g = w ? mvG(g0, { o: dimW(T_.tN, .45) }) : g0; R(g, x - TWd / 2, TY - TH / 2, TWd, TH, TH / 2, F(3.4));
+      if (!w) { R(litOn(g, T_.tR), x - TWd / 2 + 7, TY - TH / 2 + 7, TWd - 14, TH - 14, (TH - 14) / 2, { fill: TA(.2), sw: 0, stroke: 'none' }); R(litOn(g, T_.H), x - TWd / 2, TY - TH / 2, TWd, TH, TH / 2, { sw: 5, stroke: ACC1 }); }
+      if (X_ && X_.label) { const e = txt(g, X_.label, x, TY + 16, { size: 46, maxW: TWd - 60, weight: 800, color: C.ink }); if (w) { const bb = e.getBBox(); strikeLine(p, f1(bb.x - 10), f1(bb.y + bb.height * .55), f1(bb.x + bb.width + 10), f1(bb.y + bb.height * .55), f3(T_.tN + tu(.04)), 5); } } else R(g, x - 80, TY - 11, 160, 22, 11, GREY());
+      const io = w ? ow : orr, pg = sub(p); on(pg, p, 0, { o: io }); if (X_ && picOf(X_)) put(p, c, { icon: X_.icon }, BX, BY, bs * .72, null, { t: w ? f3(T_.tW + tu(.2)) : T_.tR, o: io, punch: w ? undefined : T_.H });
+      else if (X_) txt(pg, X_.label, BX, BY + 18, { size: 54, maxW: bs * .84, weight: 800, color: C.ink, wrap: 'mid' }); cnote(p, d, s, -84, BY - 18, 500, { g: pg, t: 0 }); });
+    marks5(p, [TX.w - TWd / 2 - 4, TY], corner(BX, BY, bs)); }); });
+
+  /* 16 ── TOSS (โยนทิ้ง): the wrong sits big in the middle; crossed, it is tossed off spinning to the top corner; the right drops into its place */
+  variant('toss', 'โยนทิ้ง', (d, c) => { art(c, p => { const T_ = CT(), R_ = [100, 44], s2 = 286, W_ = [-296, -96], s1 = 182, ta = f3(T_.tN + tu(.4));
+    const P = pathK([R_, [-60, -260], W_], T_.tN, ta, W_), KW = { px: W_[0], py: W_[1], x: P.x, y: P.y, r: [[0, 0], [T_.tN, 0], [ta, -22, 'out']], s: [[0, f3(s2 / s1)], [T_.tN, f3(s2 / s1)], [ta, 1, 'out']], o: fadeIn(T_.tW, .05) };
+    cbox(p, c, d, 'w', ...W_, s1, { g: mvG(CL(p), KW), mv: KW, dimAt: ta }); const KR = ent('drop', ...R_, s2, T_.tR); cbox(p, c, d, 'r', ...R_, s2, { g: mvG(CL(p), KR), mv: KR }); dust(p, R_[0], R_[1] + s2 / 2, KR.land, 1.3);
+    cword(p, d, 'r', R_[0], R_[1] - s2 / 2 - 62, { pill: true, maxW: 380 }); cword(p, d, 'w', W_[0], W_[1] + s1 / 2 + 70, { pill: true, maxW: 300, strike: true, t: ta });
+    marks5(p, rotP(W_[0] + s1 / 2 - 6, W_[1] - s1 / 2 + 6, ...W_, -22), cornerB(...R_, s2), 56, ta); }); });
+
+  /* 17 ── CORNER (ย่อเข้ามุม): the wrong shrinks off into the top corner, crossed and dim; the right takes the middle big and lit */
+  variant('corner', 'ย่อเข้ามุม', (d, c) => { art(c, p => { const T_ = CT(), R_ = [60, 30], s2 = 330, W_ = [-366, 212], s1 = 168, ta = f3(T_.tN + tu(.36));
+    const KW = { px: W_[0], py: W_[1], x: [[0, f1(R_[0] - W_[0])], [T_.tN, f1(R_[0] - W_[0])], [ta, 0, 'io']], y: [[0, f1(R_[1] - W_[1])], [T_.tN, f1(R_[1] - W_[1])], [ta, 0, 'io']], s: [[0, f3(s2 / s1)], [T_.tN, f3(s2 / s1)], [ta, 1, 'io']], o: fadeIn(T_.tW, .05) };
+    cbox(p, c, d, 'w', ...W_, s1, { g: mvG(p, KW), mv: KW, dimAt: ta }); const KR = ent('pop', ...R_, s2, T_.tR); cbox(p, c, d, 'r', ...R_, s2, { g: mvG(p, KR), mv: KR });
+    cword(p, d, 'w', W_[0] + s1 / 2 + 26, W_[1] + 16, { anchor: 'start', size: 44, maxW: 300, wrap: null, strike: true, t: ta }); cword(p, d, 'r', R_[0] + s2 / 2 + 26, R_[1] + 18, { anchor: 'start', size: 52, maxW: 200 });
+    marks5(p, corner(...W_, s1), corner(...R_, s2, -1), 56, ta); }); });
+
+  /* 18 ── SCRATCH (ขีดทับทิ้ง): a scribble scratches the wrong out (it dims); the right sits clean across the diagonal, lit */
+  variant('scratch', 'ขีดทับทิ้ง', (d, c) => { art(c, p => { const T_ = CT(), W_ = [-252, -112], s1 = 212, R_ = [252, 120], s2 = 236;
+    cbox(p, c, d, 'w', ...W_, s1); const zz = Array.from({ length: 9 }, (_, k) => [f1(W_[0] - s1 / 2 + 20 + k * (s1 - 40) / 8), f1(W_[1] + (k % 2 ? 70 : -70))]); drawAt(p.path(pathOf(zz, false), { sw: 4.4, stroke: C.ink }), p, T_.tN, tu(.3));
+    const KR = ent('rise', ...R_, s2, T_.tR); cbox(p, c, d, 'r', ...R_, s2, { g: mvG(CL(p), KR), mv: KR });
+    cword(p, d, 'w', W_[0] + s1 / 2 + 28, W_[1] + 18, { anchor: 'start', size: 50, maxW: 340, strike: true }); cword(p, d, 'r', R_[0] - s2 / 2 - 28, R_[1] + 18, { anchor: 'end', size: 52, maxW: 360 });
+    marks5(p, corner(...W_, s1, -1), cornerB(...R_, s2)); }); });
+
+  /* 19 ── SPELL CHECK (ตรวจคำ): the wrong word gets a wavy underline; a suggestion card pops under it with the right one, lit and ticked */
+  variant('spell', 'ตรวจคำ', (d, c) => { art(c, p => { const T_ = CT(), W_ = [-330, -140], s1 = 186, CX0 = -250, CY0 = -6, CWd = 700, CHt = 262, R_ = [-118, 125], s2 = 194;
+    cbox(p, c, d, 'w', ...W_, s1); const e = cword(p, d, 'w', W_[0] + s1 / 2 + 30, W_[1] + 22, { anchor: 'start', size: 60, maxW: 520, wrap: null });
+    if (e) { const bb = e.getBBox(), n = Math.max(6, Math.round(bb.width / 26)), wy = f1(bb.y + bb.height + 8), wv = Array.from({ length: n + 1 }, (_, k) => [f1(bb.x + k * bb.width / n), f1(wy + (k % 2 ? 9 : -5))]); drawAt(p.path(pathOf(wv, false), { sw: 5, stroke: C.ink }), p, T_.tN, tu(.3)); }
+    const cg = mvG(p, { px: CX0, py: CY0, sy: [[0, 0], [f3(T_.tR - tu(.1)), 0], [f3(T_.tR + tu(.16)), 1.03, 'out'], [f3(T_.tR + tu(.26)), 1, 'soft']], o: fadeIn(f3(T_.tR - tu(.02)), .06) });
+    cg.path(`M ${CX0} ${CY0 + 14} L ${CX0 + 30} ${CY0 - 14} L ${CX0 + 60} ${CY0 + 14}`, F(3.4)); R(cg, CX0, CY0 + 12, CWd, CHt, 36, F(3.6));
+    cbox(p, c, d, 'r', ...R_, s2); cword(p, d, 'r', R_[0] + s2 / 2 + 30, R_[1] + 20, { anchor: 'start', size: 56, maxW: 380, wrap: null });
+    marks5(p, null, [CX0 + CWd - 40, CY0 + 40]); }); });
+
+  /* 20 ── NOTE (แก้ในโน้ต): one note card — the wrong line (icon, word, its line of words) is struck and dims, the right line is written under it */
+  variant('note', 'แก้ในโน้ต', (d, c) => { art(c, p => { const T_ = CT(), bs = 188, BX = -336, YW = -132, YR = 150;
+    R(mvG(p, { px: 0, py: 300, sy: [[0, 0], [tu(.02), 0], [tu(.32), 1.02, 'out'], [tu(.42), 1, 'soft']], o: fadeIn(tu(.02), .05) }), -456, -296, 912, 596, 40, F(3.6));
+    [['w', YW], ['r', YR]].forEach(([s, y]) => { cbox(p, c, d, s, BX, y, bs); const hw = !!LBL(SD(d, s)); if (hw) cword(p, d, s, BX + bs / 2 + 30, y - 18, { anchor: 'start', size: 52, maxW: 600, wrap: null, strike: s === 'w' }); cnote(p, d, s, BX + bs / 2 + 30, hw ? y + 38 : y - 10, 600, { one: true }); });
+    marks5(p, corner(BX, YW, bs, -1), corner(BX, YR, bs, -1)); }); });
+
+  /* 21 ── TARGET (เข้าเป้า): the wrong flies wide of the target, crossed; the right lands in the bullseye, lit */
+  variant('target', 'เข้าเป้า', (d, c) => { art(c, p => { const T_ = CT(), CX = 150, CY = 30, R1 = 128, R2 = 236, s2 = 212, W_ = [-338, -168], s1 = 170;
+    [R2, R1].forEach((r, k) => drawAt(p.circle(CX, CY, r, { sw: k ? 4 : 3, stroke: TL_(k ? .6 : .45) }), p, f3(tu(.02 + .08 * k)), tu(.4)));
+    const Pw = pathK([[-620, 200], [-420, -40], W_], T_.tW, f3(T_.tW + tu(.32)), W_), KW = { px: W_[0], py: W_[1], x: Pw.x, y: Pw.y, o: fadeIn(T_.tW, .04) }; cbox(p, c, d, 'w', ...W_, s1, { shape: 'circ', g: mvG(CL(p), KW), mv: KW });
+    const Pr = pathK([[-620, 300], [-200, -120], [CX, CY]], T_.tR, f3(T_.tR + tu(.4)), [CX, CY]), KR = { px: CX, py: CY, x: Pr.x, y: Pr.y, o: fadeIn(T_.tR, .04) }; cbox(p, c, d, 'r', CX, CY, s2, { shape: 'circ', g: mvG(CL(p), KR), mv: KR }); ripple(p, CX, CY, 200, f3(T_.H + tu(.1)));
+    cword(p, d, 'w', W_[0], W_[1] + s1 / 2 + 62, { pill: true, maxW: 300, strike: true }); cword(p, d, 'r', CX - R2 - 18, CY + 150, { anchor: 'end', size: 50, maxW: 300 });
+    marks5(p, [f1(W_[0] + s1 * .36), f1(W_[1] - s1 * .36)], [f1(CX + 90), f1(CY - 90)]); }); });
+
+  /* 22 ── FIT (ช่องพอดี): a slot with a round notch; the wrong piece (a pointed tab) won't fit — it bounces off, crossed; the right piece drops in */
+  const notchD = (x, y, s, kind) => { const h = s / 2, r = s * .2, n = s * .16, top = kind === 'tab' ? `L ${f1(x - n)} ${f1(y - h)} L ${x} ${f1(y - h - n * 1.1)} L ${f1(x + n)} ${f1(y - h)}` : `L ${f1(x - n)} ${f1(y - h)} A ${f1(n)} ${f1(n)} 0 0 0 ${f1(x + n)} ${f1(y - h)}`;
+    return `M ${f1(x - h + r)} ${f1(y - h)} ${top} L ${f1(x + h - r)} ${f1(y - h)} Q ${f1(x + h)} ${f1(y - h)} ${f1(x + h)} ${f1(y - h + r)} L ${f1(x + h)} ${f1(y + h - r)} Q ${f1(x + h)} ${f1(y + h)} ${f1(x + h - r)} ${f1(y + h)} L ${f1(x - h + r)} ${f1(y + h)} Q ${f1(x - h)} ${f1(y + h)} ${f1(x - h)} ${f1(y + h - r)} L ${f1(x - h)} ${f1(y - h + r)} Q ${f1(x - h)} ${f1(y - h)} ${f1(x - h + r)} ${f1(y - h)} Z`; };
+  variant('fit', 'ช่องพอดี', (d, c) => { art(c, p => { const T_ = CT(), S_ = [170, 48], ss = 282, W_ = [-300, 86], s1 = 220;
+    drawAt(p.path(notchD(...S_, ss + 26, 'round'), DASH(.5)), p, tu(.04), tu(.4));
+    const KW = { px: W_[0], py: W_[1], x: [[0, f1(S_[0] - W_[0])], [T_.tW, f1(S_[0] - W_[0])], [T_.tN, f1(S_[0] - W_[0])], [f3(T_.tN + tu(.34)), 0, 'out']], y: [[0, -500], [T_.tW, -500], [f3(T_.tW + tu(.3)), f1(S_[1] - 30 - W_[1]), 'in'], [T_.tN, f1(S_[1] - 30 - W_[1])], [f3(T_.tN + tu(.34)), 0, 'out']], r: [[0, 0], [T_.tN, 0], [f3(T_.tN + tu(.34)), -12, 'out']], o: fadeIn(T_.tW, .04) };
+    cbox(p, c, d, 'w', ...W_, s1, { g: mvG(CL(p), KW), mv: KW, draw: (q, st) => q.path(notchD(...W_, s1, 'tab'), st), iy: W_[1] + 10, dimAt: f3(T_.tN + tu(.2)) });
+    const KR = ent('drop', ...S_, ss, T_.tR); cbox(p, c, d, 'r', ...S_, ss, { g: mvG(CL(p), KR), mv: KR, draw: (q, st) => q.path(notchD(...S_, ss, 'round'), st), iy: S_[1] + 14 }); dust(p, S_[0], S_[1] + ss / 2, KR.land, 1.2);
+    cword(p, d, 'r', S_[0], S_[1] - ss / 2 - 70, { pill: true, maxW: 380 }); cword(p, d, 'w', W_[0], W_[1] - s1 / 2 - 76, { pill: true, maxW: 300, strike: true });
+    marks5(p, rotP(W_[0] + s1 / 2 - 8, W_[1] + s1 / 2 - 8, ...W_, -12), cornerB(...S_, ss), 56, f3(T_.tN + tu(.34))); }); });
+
+  /* 23 ── FILTER (กรวยคัด): the wrong tries the funnel and is thrown back out to the side, crossed; the right slips through and comes out lit below */
+  variant('filter', 'กรวยคัด', (d, c) => { art(c, p => { const T_ = CT(), FD = 'M -196 -96 L 196 -96 L 74 62 L 74 112 L -74 112 L -74 62 Z', W_ = [-322, -206], s1 = 176, O_ = [0, 210], s2 = 184, RT = [322, -206];
+    drawAt(p.path(FD, F(4.4)), p, tu(.04), tu(.4));
+    const KW = { px: W_[0], py: W_[1], x: [[0, 322], [T_.tW, 322], [f3(T_.tN - tu(.3)), 322], [T_.tN, 140, 'in'], [f3(T_.tN + tu(.3)), 0, 'out']], y: [[0, -400], [T_.tW, -400], [f3(T_.tW + tu(.26)), 120, 'in'], [f3(T_.tN - tu(.3)), 120], [T_.tN, 130], [f3(T_.tN + tu(.3)), 0, 'out']], r: [[0, 0], [T_.tN, 0], [f3(T_.tN + tu(.3)), -18, 'out']], o: fadeIn(T_.tW, .04) };
+    cbox(p, c, d, 'w', ...W_, s1, { g: mvG(CL(p), KW), mv: KW, dimAt: f3(T_.tN + tu(.1)) });
+    const KR = { px: O_[0], py: O_[1], y: [[0, -110], [f3(T_.H - tu(.08)), -110], [f3(T_.H + tu(.18)), 10, 'out'], [f3(T_.H + tu(.28)), 0, 'soft']], o: [[0, 0], [f3(T_.H - tu(.08)), 0], [T_.H, 1]] };
+    cbox(p, c, d, 'r', ...O_, s2, { g: mvG(CL(p), KR), mv: KR, t: f3(T_.H - tu(.08)) });
+    cword(p, d, 'w', -470, W_[1] + s1 / 2 + 58, { anchor: 'start', size: 46, maxW: 300, wrap: null, strike: true, t: f3(T_.tN + tu(.3)) }); cword(p, d, 'r', O_[0] + s2 / 2 + 30, O_[1] + 18, { anchor: 'start', size: 52, maxW: 330, wrap: null, t: f3(T_.H + tu(.1)) });
+    marks5(p, rotP(W_[0] + s1 / 2 - 6, W_[1] - s1 / 2 + 6, ...W_, -18), corner(...O_, s2, -1), 56, f3(T_.tN + tu(.3))); }); });
+
+  /* 24 ── DEAD END (ทางตัน): two lanes — the wrong runs into a wall half way and stops, crossed; the right runs its lane to the end, lit */
+  variant('deadend', 'ทางตัน', (d, c) => { art(c, p => { const T_ = CT(), Y = { w: -122, r: 150 }, bs = 176, FX = { w: 20, r: 352 }, WX = 150;
+    ['w', 'r'].forEach(s => { const y = Y[s], w = s === 'w', t = w ? T_.tW : T_.tR, LK = { px: -470, py: y, sx: [[0, 0], [f3(w ? tu(.04) : tu(.12)), 0], [f3(w ? tu(.36) : tu(.44)), 1, 'out']], o: fadeIn(w ? tu(.04) : tu(.12), .05) };
+      if (w) R(mvG(p, LK), -470, y - 104, 940, 208, 104, BK); R(mvG(w ? mvG(p, { o: dimW(T_.tN, .45) }) : p, LK), -470, y - 104, 940, 208, 104, F(2.8));
+      if (!w) R(litOn(p, T_.H), -470, y - 104, 940, 208, 104, { sw: 5, stroke: ACC1 });
+      const fx = FX[s], end = w ? T_.tN : T_.H, KX = [[0, f1(-640 - fx)], [t, f1(-640 - fx)], [f3(t + tu(.3)), f1(-320 - fx), 'out'], [f3(end - tu(.3)), f1(-320 - fx)], [end, 0, w ? 'in' : 'io']].concat(w ? [[f3(end + tu(.08)), -14, 'out'], [f3(end + tu(.2)), 0, 'soft']] : []);
+      const K = { px: fx, py: y, x: KX, o: fadeIn(t, .04) }; cbox(p, c, d, s, fx, y, bs, { g: mvG(CL(p), K), mv: K });
+      cword(p, d, s, fx - bs / 2 - 18, y + 2, { pill: true, anchor: 'end', size: 44, maxW: Math.min(340, f1(fx - bs / 2 - 18 + 450 - 60)), strike: w, g: mvG(CL(p), { x: KX }) }); });
+    const wg = popAt(p, WX, Y.w, tu(.4)); R(wg, WX - 16, Y.w - 84, 32, 168, 14, F(3.6)); sparkAt(p, WX - 30, Y.w, 20, 54, T_.tN, 6, 90, [0, 3]);
+    marks5(p, [WX + 70, Y.w - 40], cornerB(FX.r, Y.r, bs)); }); });
+
+  /* 25 ── UP / DOWN (ขึ้น-ลง): two rails — the wrong sinks to the bottom of its rail and dims, the right rises to the top of its rail, lit */
+  variant('updown', 'ขึ้น-ลง', (d, c) => { art(c, p => { const T_ = CT(), bs = 200, X = { w: -258, r: 258 }, YF = { w: 180, r: -180 };
+    ['w', 'r'].forEach((s, i) => { const x = X[s], y = YF[s], w = s === 'w', t = w ? T_.tW : f3(T_.tR - tu(.2)); drawAt(R(p, x - 124, -312, 248, 624, 70, DASH(.45)), p, f3(tu(.02 + .06 * i)), tu(.4));
+      if (!w) R(litOn(p, T_.H), x - 124, -312, 248, 624, 70, { sw: 4, stroke: ACC1 }); const mt = w ? T_.tN : f3(T_.H - tu(.3)), K = { px: x, py: y, y: [[0, f1(-y)], [mt, f1(-y)], [f3(mt + tu(.3)), w ? 8 : -8, w ? 'in' : 'io'], [f3(mt + tu(.4)), 0, 'soft']], s: [[0, .2], [t, .2], [f3(t + tu(.24)), 1.06, 'out'], [f3(t + tu(.34)), 1, 'soft']], o: fadeIn(t, .04) };
+      cbox(p, c, d, s, x, y, bs, { g: mvG(p, K), mv: K }); cword(p, d, s, w ? x + 134 : x - 134, y + 18, { anchor: w ? 'start' : 'end', size: 50, maxW: 330, wrap: null, strike: w, g: mvG(p, { y: K.y }), t: f3(t + tu(.2)) }); });
+    marks5(p, corner(X.w, YF.w, bs, -1), cornerB(X.r, YF.r, bs)); }); });
+
+  /* 26 ── BIG X (กากบาททับทั้งแผ่น): two panels — a huge X is drawn right across the wrong panel, which dims; the right panel lights */
+  variant('bigx', 'กากบาททับทั้งแผ่น', (d, c) => { art(c, p => { const T_ = CT(), PW = 400, PH2 = 540, Y = 16, bs = 210;
+    [['w', -226], ['r', 226]].forEach(([s, x]) => { const K = ent('drop', x, Y, PH2, s === 'w' ? T_.tW : T_.tR), gg = mvG(CL(p), K), iy = Y - 40;
+      const g = cbox(p, c, d, s, x, iy, PW, { g: gg, mv: K, draw: (q, st) => R(q, x - PW / 2, Y - PH2 / 2, PW, PH2, 40, st), iw: bs * .72, lw: PW - 60, rip: s === 'r' }); R(g, x - bs / 2, iy - bs / 2, bs, bs, bs * .24, SL(1.8));
+      cword(p, d, s, x, iy + bs / 2 + 70, { g, size: 50, maxW: PW - 50 }); });
+    bigX(p, -226, Y, 190, T_.tN, 14); marks5(p, null, [226 + PW / 2 - 34, Y - PH2 / 2 + 34], 62); }); });
+
+  /* 27 ── DIAGONAL (ทแยงแบ่ง): a seam cuts the frame corner to corner — the wrong in the upper half, crossed and dim; the right in the lower half, lit */
+  variant('diag', 'ทแยงแบ่ง', (d, c) => { art(c, p => { const T_ = CT(), W_ = [-300, -118], R_ = [300, 122], bs = 224;
+    drawAt(p.line(-470, 282, 470, -282, { sw: 3, stroke: TL_(.5) }), p, tu(.02), tu(.36));
+    const KW = ent('left', ...W_, bs, T_.tW); cbox(p, c, d, 'w', ...W_, bs, { g: mvG(CL(p), KW), mv: KW }); const KR = ent('right', ...R_, bs, T_.tR); cbox(p, c, d, 'r', ...R_, bs, { g: mvG(CL(p), KR), mv: KR });
+    cword(p, d, 'w', -168, -172, { pill: true, anchor: 'start', maxW: 260, strike: true }); cword(p, d, 'r', 168, 176, { pill: true, anchor: 'end', maxW: 260 });
+    marks5(p, corner(...W_, bs, -1), cornerB(...R_, bs)); }); });
+
+  /* 28 ── ORBIT OUT (หลุดวง): the wrong circles the middle on a dashed orbit, then is flung off into the corner, crossed; the right takes the centre, lit */
+  variant('orbitout', 'หลุดวง', (d, c) => { art(c, p => { const T_ = CT(), CC = [70, 20], RO = 236, s2 = 236, W_ = [-376, -214], s1 = 172;
+    drawAt(p.circle(...CC, RO, DASH(.45)), p, tu(.04), tu(.5)); const L = Array.from({ length: 13 }, (_, k) => [f1(CC[0] + RO * Math.cos(rad(160 + 25 * k))), f1(CC[1] + RO * Math.sin(rad(160 + 25 * k)))]);
+    const P1 = pathK(L, f3(T_.tW + tu(.1)), T_.tN, W_), last = L[L.length - 1], P2 = pathK([last, [last[0] - 200, last[1] - 260], W_], T_.tN, f3(T_.tN + tu(.36)), W_);
+    const KW = { px: W_[0], py: W_[1], x: P1.x.concat(P2.x.slice(2)), y: P1.y.concat(P2.y.slice(2)), o: fadeIn(T_.tW, .05) }; cbox(p, c, d, 'w', ...W_, s1, { shape: 'circ', g: mvG(CL(p), KW), mv: KW, dimAt: f3(T_.tN + tu(.3)) });
+    const KR = ent('pop', ...CC, s2, T_.tR); cbox(p, c, d, 'r', ...CC, s2, { shape: 'circ', g: mvG(p, KR), mv: KR });
+    cword(p, d, 'w', W_[0], W_[1] + s1 / 2 + 58, { pill: true, maxW: 260, strike: true, t: f3(T_.tN + tu(.36)) }); cword(p, d, 'r', CC[0], CC[1] + s2 / 2 + 62, { pill: true, maxW: 340 });
+    marks5(p, [f1(W_[0] + s1 * .36), f1(W_[1] + s1 * .36)], [f1(CC[0] + s2 * .36), f1(CC[1] - s2 * .36)], 56, f3(T_.tN + tu(.36))); }); });
+
+  /* 29 ── CRACK (แตกร้าว): the wrong hexagon cracks down the middle and its halves drift apart, dim; the right hexagon stays whole and lights */
+  variant('crack', 'แตกร้าว', (d, c) => { art(c, p => { const T_ = CT(), Y = 40, XW = -236, XR = 236, RH = 140;
+    const hv = (x, a) => [f1(x + RH * Math.cos(rad(a))), f1(Y + RH * Math.sin(rad(a)))], zz = x => [[x, Y - RH], [x - 12, Y - 70], [x + 12, Y - 24], [x - 12, Y + 24], [x + 12, Y + 70], [x, Y + RH]];
+    const halfL = [hv(XW, -90), hv(XW, -150), hv(XW, 150), hv(XW, 90)].concat(zz(XW).slice(1, -1).reverse()), halfR = [hv(XW, -90)].concat(zz(XW).slice(1, -1), [hv(XW, 90), hv(XW, 30), hv(XW, -30)]);
+    [[halfL, -1], [halfR, 1]].forEach(([pts, sd]) => { const g0 = popAt(p, XW, Y, T_.tW), g1 = mvG(g0, { px: XW, py: Y + RH, x: [[0, 0], [T_.tN, 0], [f3(T_.tN + tu(.3)), sd * 18, 'out']], r: [[0, 0], [T_.tN, 0], [f3(T_.tN + tu(.3)), sd * 6, 'out']] }); shape(g1, pts, BK); shape(mvG(g1, { o: dimW(T_.tN, .42) }), pts, F(4)); });
+    const X_ = SD(d, 'w'); if (X_ && picOf(X_)) put(p, c, { icon: X_.icon }, XW, Y, 180, null, { t: f3(T_.tW + tu(.04)), o: dimW(T_.tN, .4) }); else if (X_) txt(atG(p, T_.tW), X_.label, XW, Y + 16, { size: 50, maxW: 200, weight: 800, color: C.mute, wrap: 'mid' });
+    sparkAt(p, XW, Y, 30, 80, T_.tN, 6, 0, [1, 2, 4, 5]);
+    cbox(p, c, d, 'r', XR, Y, RH * 2, { shape: 'hex' }); cword(p, d, 'w', XW, Y - RH - 58, { pill: true, maxW: 320, strike: true }); cword(p, d, 'r', XR, Y - RH - 58, { pill: true, maxW: 320 });
+    marks5(p, [XW + 112, Y + 90], [XR + 112, Y + 90]); }); });
+
+  /* 30 ── SHRED (ฉีกเป็นแถบ): the wrong card is cut into strips that slip apart, dim; the right card drops in whole, lit */
+  variant('shred', 'ฉีกเป็นแถบ', (d, c) => { art(c, p => { const T_ = CT(), Y = 30, XW = -236, XR = 236, CWd = 270, CHt = 320, n = 4, sw2 = CWd / n;
+    for (let k = 0; k < n; k++) { const x0 = f1(XW - CWd / 2 + k * sw2), g0 = popAt(p, XW, Y, T_.tW), g1 = mvG(g0, { y: [[0, 0], [T_.tN, 0], [f3(T_.tN + tu(.3)), (k % 2 ? 22 : -14) + k * 6, 'out']], x: [[0, 0], [T_.tN, 0], [f3(T_.tN + tu(.3)), (k - 1.5) * 10, 'out']] });
+      R(g1, x0 + 3, Y - CHt / 2, sw2 - 6, CHt, 10, BK); R(mvG(g1, { o: dimW(T_.tN, .42) }), x0 + 3, Y - CHt / 2, sw2 - 6, CHt, 10, F(3.6)); }
+    const X_ = SD(d, 'w'); if (X_ && picOf(X_)) put(p, c, { icon: X_.icon }, XW, Y, 180, null, { t: f3(T_.tW + tu(.04)), o: dimW(T_.tN, .4) }); else if (X_) txt(atG(p, T_.tW), X_.label, XW, Y + 16, { size: 50, maxW: 220, weight: 800, color: C.mute, wrap: 'mid' });
+    const KR = ent('drop', XR, Y, CHt, T_.tR); cbox(p, c, d, 'r', XR, Y, CWd, { g: mvG(CL(p), KR), mv: KR, draw: (q, st) => R(q, XR - CWd / 2, Y - CHt / 2, CWd, CHt, 30, st), iw: 190 });
+    cword(p, d, 'w', XW, Y - CHt / 2 - 58, { pill: true, maxW: 320, strike: true }); cword(p, d, 'r', XR, Y - CHt / 2 - 58, { pill: true, maxW: 320 });
+    marks5(p, [XW + CWd / 2 - 10, Y + CHt / 2 - 10], [XR + CWd / 2 - 10, Y + CHt / 2 - 10]); }); });
+
+  /* 31 ── BROKEN LINK (เส้นเชื่อมขาด): lines run from a hub to both; the line to the wrong snaps (a gap, sparks, ✗), the line to the right lights */
+  variant('link', 'เส้นเชื่อมขาด', (d, c) => { art(c, p => { const T_ = CT(), HB = [0, -226], W_ = [-264, 104], R_ = [264, 104], bs = 216;
+    const g = popAt(p, ...HB, tu(.06)); g.circle(...HB, 50, F(4)); litOn(g, T_.H).circle(...HB, 22, DOTF());
+    const lw1 = `M ${HB[0] - 30} ${HB[1] + 40} L ${f1(lerp(HB[0], W_[0], .42))} ${f1(lerp(HB[1], W_[1], .42))}`, lw2 = `M ${f1(lerp(HB[0], W_[0], .58))} ${f1(lerp(HB[1], W_[1], .58))} L ${W_[0] + 60} ${W_[1] - bs / 2 - 6}`;
+    drawAt(p.path(lw1, { sw: 8, stroke: TL_(.5) }), p, tu(.2), tu(.25)); drawAt(p.path(lw2, { sw: 8, stroke: TL_(.5) }), p, tu(.2), tu(.25)); sparkAt(p, f1(lerp(HB[0], W_[0], .5)), f1(lerp(HB[1], W_[1], .5)), 18, 48, T_.tN, 6, 0);
+    const rl = `M ${HB[0] + 30} ${HB[1] + 40} L ${R_[0] - 60} ${R_[1] - bs / 2 - 6}`; drawAt(p.path(rl, { sw: 8, stroke: TL_(.5) }), p, T_.tR, tu(.25)); const a = p.path(rl, { sw: 9, stroke: ACC1 }); on(a, p, 0, { draw: [[0, 0], [f3(T_.H - tu(.3)), 0], [T_.H, 1, 'io']] });
+    cbox(p, c, d, 'w', ...W_, bs); cbox(p, c, d, 'r', ...R_, bs); cword(p, d, 'w', W_[0], W_[1] + bs / 2 + 60, { pill: true, maxW: 340, strike: true }); cword(p, d, 'r', R_[0], R_[1] + bs / 2 + 60, { pill: true, maxW: 340 });
+    marks5(p, [f1(lerp(HB[0], W_[0], .5) - 70), f1(lerp(HB[1], W_[1], .5))], corner(...R_, bs)); }); });
+
+  /* 32 ── ARROW BANDS (แถบลูกศรสองชั้น): two arrow bands — the wrong band above dims with its word struck, the right band below lights */
+  variant('bands', 'แถบลูกศรสองชั้น', (d, c) => { art(c, p => { const T_ = CT(), BW2 = 860, BH2 = 210, Y = { w: -122, r: 128 }, bs = 176, IX = -330;
+    ['w', 'r'].forEach(s => { const y = Y[s], D = pathOf([[-450, y - BH2 / 2], [370, y - BH2 / 2], [450, y], [370, y + BH2 / 2], [-450, y + BH2 / 2]]), K = ent('left', 0, y, BW2, s === 'w' ? T_.tW : T_.tR), gg = mvG(CL(p), K);
+      const g = cbox(p, c, d, s, 0, y, BH2, { g: gg, mv: K, draw: (q, st) => q.path(D, st), ix: IX, iw: bs * .72, lw: bs * .9 }); R(g, IX - bs / 2, y - bs / 2, bs, bs, bs * .24, SL(1.8));
+      cword(p, d, s, IX + bs / 2 + 34, y + 20, { g: gg, anchor: 'start', size: 58, maxW: 560, wrap: null, strike: s === 'w' }); });
+    marks5(p, [400, Y.w - 70], [400, Y.r + 70]); }); });
+
+  /* 33 ── PUSH OUT (ดันออก): the wrong sits in the slot; the right slides in from the side and shoves it out — it skids off tilted, crossed */
+  variant('pushout', 'ดันออก', (d, c) => { art(c, p => { const T_ = CT(), S_ = [126, 36], bs = 268, W_ = [-318, 60], s1 = 184, ta = f3(T_.tR + tu(.3));
+    drawAt(R(p, S_[0] - bs / 2 - 16, S_[1] - bs / 2 - 16, bs + 32, bs + 32, bs * .3, DASH(.5)), p, tu(.04), tu(.3));
+    const KW = { px: W_[0], py: W_[1], x: [[0, f1(S_[0] - W_[0])], [f3(T_.tR + tu(.18)), f1(S_[0] - W_[0])], [ta, 0, 'out']], y: [[0, f1(S_[1] - W_[1])], [f3(T_.tR + tu(.18)), f1(S_[1] - W_[1])], [ta, 0, 'out']], r: [[0, 0], [f3(T_.tR + tu(.18)), 0], [ta, -12, 'out']], s: [[0, f3(bs / s1)], [f3(T_.tR + tu(.18)), f3(bs / s1)], [ta, 1, 'out']], o: fadeIn(T_.tW, .05) };
+    cbox(p, c, d, 'w', ...W_, s1, { g: mvG(CL(p), KW), mv: KW }); const KR = { px: S_[0], py: S_[1], x: [[0, 620], [T_.tR, 620], [f3(T_.tR + tu(.3)), -14, 'out'], [f3(T_.tR + tu(.42)), 0, 'soft']], o: fadeIn(T_.tR, .04) };
+    cbox(p, c, d, 'r', ...S_, bs, { g: mvG(CL(p), KR), mv: KR });
+    cword(p, d, 'r', S_[0], S_[1] - bs / 2 - 70, { pill: true, maxW: 380 }); cword(p, d, 'w', W_[0], W_[1] + s1 / 2 + 66, { pill: true, maxW: 300, strike: true, t: ta });
+    marks5(p, rotP(W_[0] - s1 / 2 + 8, W_[1] - s1 / 2 + 8, ...W_, -12), cornerB(...S_, bs), 56, ta); }); });
+
+  /* 34 ── SLIDER (สไลเดอร์): a track with the wrong above one end and the right above the other; the lit knob slides from the wrong end to the right */
+  variant('slider', 'สไลเดอร์', (d, c) => { art(c, p => { const T_ = CT(), TY = 168, XW = -300, XR = 300, bs = 214, BY = -64;
+    R(mvG(p, { px: 0, py: TY, sx: [[0, .1], [tu(.04), .1], [tu(.36), 1.02, 'out'], [tu(.46), 1, 'soft']], o: fadeIn(tu(.04), .05) }), -440, TY - 40, 880, 80, 40, F(3.4));
+    const fl = R(mvG(p, { px: -432, py: TY, sx: [[0, .08], [T_.tN, .08], [T_.H, 1, 'io']] }), -432, TY - 30, 864, 60, 30, { fill: TA(.4), sw: 0, stroke: 'none' });
+    cbox(p, c, d, 'w', XW, BY, bs); cbox(p, c, d, 'r', XR, BY, bs);
+    const kg = mvG(p, { x: [[0, XW - XR], [T_.tN, XW - XR], [T_.H, 0, 'io'], [f3(T_.H + tu(.1)), 10, 'out'], [f3(T_.H + tu(.2)), 0, 'soft']], o: fadeIn(tu(.4), .06) }); kg.circle(XR, TY, 52, F(4)); litOn(kg, T_.H).circle(XR, TY, 30, DOTF());
+    cword(p, d, 'w', XW, BY - bs / 2 - 60, { pill: true, maxW: 320, strike: true }); cword(p, d, 'r', XR, BY - bs / 2 - 60, { pill: true, maxW: 320 });
+    marks5(p, cornerB(XW, BY, bs), cornerB(XR, BY, bs)); }); });
+
+  /* 35 ── ACCORDION (แผงพับ): the wrong panel folds shut (its word struck); the right panel opens below with its icon and its line of words */
+  variant('accordion', 'แผงพับ', (d, c) => { art(c, p => { const T_ = CT(), PW2 = 880, HH = 100, YW = -248, YR = -128, BY0 = YR + HH / 2, BH = 300, bs = 214, BX = -300;
+    [['w', YW], ['r', YR]].forEach(([s, hy]) => { const w = s === 'w', t = w ? T_.tW : T_.tR, X_ = SD(d, s), g0 = mvG(p, { x: glide(-100, t, f3(t + tu(.26))), o: fadeIn(t, .05) }); if (w) R(g0, -PW2 / 2, hy - HH / 2, PW2, HH, 30, BK);
+      const g = w ? mvG(g0, { o: dimW(T_.tN, .5) }) : g0; R(g, -PW2 / 2, hy - HH / 2, PW2, HH, 30, F(3.8)); if (!w) R(litOn(g, T_.H), -PW2 / 2, hy - HH / 2, PW2, HH, 30, { sw: 5, stroke: ACC1 });
+      if (X_ && X_.label) { const e = txt(g, X_.label, -PW2 / 2 + 40, hy + 17, { size: 50, maxW: 640, weight: 800, color: C.ink, anchor: 'start' }); if (w) { const bb = e.getBBox(); strikeLine(p, f1(bb.x - 10), f1(bb.y + bb.height * .55), f1(bb.x + bb.width + 10), f1(bb.y + bb.height * .55), f3(T_.tN + tu(.04)), 5); } }
+      chev(mvG(g, { px: PW2 / 2 - 60, py: hy, r: w ? [[0, 90], [T_.tN, 90], [f3(T_.tN + tu(.2)), 0, 'io']] : [[0, 0], [T_.tR, 0], [f3(T_.tR + tu(.2)), 90, 'io']] }), PW2 / 2 - 64, hy, .7, { sw: 5, stroke: C.ink }); });
+    const body = mvG(p, { px: 0, py: BY0, sy: [[0, 0], [T_.tR, 0], [f3(T_.tR + tu(.3)), 1, 'out']], o: fadeIn(T_.tR, .04) }); R(body, -PW2 / 2 + 16, BY0 - 6, PW2 - 32, BH, 30, F(3));
+    const by = BY0 + BH / 2 - 6; cbox(p, c, d, 'r', BX, by, bs, { t: f3(T_.tR + tu(.2)) }); cnote(p, d, 'r', BX + bs / 2 + 30, by - 20, 520, { size: 44 });
+    marks5(p, [PW2 / 2 - 170, YW], corner(BX, by, bs)); }); });
+
+  /* 36 ── DIAL (หน้าปัดชี้): the needle points at the wrong end of a half dial, then swings over to the right end and settles; that arc lights */
+  variant('dial', 'หน้าปัดชี้', (d, c) => { art(c, p => { const T_ = CT(), CX = 0, CY = 152, RG = 320, bs = 180, NL = 248;
+    const arcP = `M ${CX - RG} ${CY} A ${RG} ${RG} 0 0 1 ${CX + RG} ${CY}`; drawAt(p.path(arcP, { sw: 36 }), p, tu(.04), tu(.4)); drawAt(p.path(arcP, { sw: 28, stroke: C.fill }), p, tu(.04), tu(.4));
+    const la = p.path(`M ${CX} ${CY - RG} A ${RG} ${RG} 0 0 1 ${CX + RG} ${CY}`, { sw: 16, stroke: ACC1 }); on(la, p, 0, { draw: [[0, 0], [f3(T_.H - tu(.1)), 0], [f3(T_.H + tu(.3)), 1, 'out']] });
+    cbox(p, c, d, 'w', CX - RG, CY, bs); cbox(p, c, d, 'r', CX + RG, CY, bs);
+    const ng = mvG(p, { px: CX, py: CY, r: [[0, -60], [T_.tN, -60], [f3(T_.tN + tu(.12)), -72, 'out'], [f3(T_.H - tu(.3)), -60], [T_.H, 64, 'io'], [f3(T_.H + tu(.14)), 54, 'soft']], o: fadeIn(tu(.4), .06) });
+    ng.path(`M ${CX - 13} ${CY} L ${CX} ${CY - NL} L ${CX + 13} ${CY} Z`, { fill: ACC1, sw: 2.4, stroke: ACC1 }); p.circle(CX, CY, 34, F(3.6)); popAt(p, CX, CY, tu(.42)).circle(CX, CY, 12, DOTF());
+    cword(p, d, 'w', CX - 52, CY + 142, { pill: true, anchor: 'end', maxW: 340, strike: true }); cword(p, d, 'r', CX + 52, CY + 142, { pill: true, anchor: 'start', maxW: 340 });
+    marks5(p, [CX - RG - 64, CY - 88], [CX + RG + 64, CY - 88]); }); });
+
+  /* 37 ── BRACKET (สายคัดเลือก): both stand on the left; their lines join and run to the final slot — the right rides its lit line in, the wrong's line is cut */
+  variant('bracket', 'สายคัดเลือก', (d, c) => { art(c, p => { const T_ = CT(), bs = 190, W_ = [-300, -140], R_ = [-300, 160], JX = -60, JY = 10, SX = 252, s2 = 232, t0 = f3(T_.H - tu(.5));
+    const lineP = y => `M ${W_[0] + bs / 2} ${y} L ${JX} ${y} L ${JX} ${JY}`; drawAt(p.path(lineP(W_[1]), { sw: 4, stroke: TL_(.5) }), p, tu(.3), tu(.3)); drawAt(p.path(lineP(R_[1]), { sw: 4, stroke: TL_(.5) }), p, f3(T_.tR + tu(.1)), tu(.3));
+    sparkAt(p, -96, W_[1], 16, 40, T_.tN, 6, 0); const cut = popAt(p, -96, W_[1], T_.tN); cut.line(-106, W_[1] - 24, -86, W_[1] + 24, { sw: 10, stroke: C.fill });
+    drawAt(p.path(`M ${JX} ${JY} L ${SX - s2 / 2 - 14} ${JY}`, { sw: 4, stroke: TL_(.5) }), p, tu(.5), tu(.2)); drawAt(R(p, SX - s2 / 2 - 12, JY - s2 / 2 - 12, s2 + 24, s2 + 24, s2 * .3, DASH(.45)), p, tu(.55), tu(.3));
+    const ln = p.path(lineP(R_[1]) + ` L ${SX - s2 / 2 - 14} ${JY}`, { sw: 6, stroke: ACC1 }); on(ln, p, 0, { draw: [[0, 0], [t0, 0], [T_.H, 1, 'io']] });
+    cbox(p, c, d, 'w', ...W_, bs); const Rg = popAt(p, ...R_, T_.tR); R(Rg, R_[0] - bs / 2, R_[1] - bs / 2, bs, bs, bs * .24, F(4)); const XR = SD(d, 'r'); if (XR && picOf(XR)) put(p, c, { icon: XR.icon }, ...R_, bs * .72, null, { t: f3(T_.tR + tu(.04)) }); else if (XR) txt(Rg, XR.label, R_[0], R_[1] + 16, { size: 44, maxW: bs * .84, weight: 800, color: C.ink, wrap: 'mid' });
+    const P = pathK([R_, [JX, R_[1]], [JX, JY], [SX, JY]], t0, T_.H, [SX, JY]), K = { px: SX, py: JY, x: P.x, y: P.y, s: [[0, f3(bs / s2)], [t0, f3(bs / s2)], [T_.H, 1, 'out']], o: [[0, 0], [t0, 0], [f3(t0 + tu(.04)), 1]] };
+    cbox(p, c, d, 'r', SX, JY, s2, { g: mvG(p, K), mv: K, t: t0 });
+    cword(p, d, 'w', -184, W_[1] - 40, { anchor: 'start', size: 48, maxW: 300, wrap: null, strike: true }); cword(p, d, 'r', -180, R_[1] + 62, { anchor: 'start', size: 48, maxW: 300, wrap: null });
+    marks5(p, corner(...W_, bs, -1), cornerB(SX, JY, s2)); }); });
+
+  /* 38 ── TIP OVER (แผ่นเอนล้ม): two tall tiles stand; the wrong one tips back on its corner and dims; the right stands and lights */
+  variant('tipover', 'แผ่นเอนล้ม', (d, c) => { art(c, p => { const T_ = CT(), TW2 = 236, TH2 = 450, Y0 = -186, Y1 = 264, X = { w: -205, r: 205 }, bs = 196;
+    ['w', 'r'].forEach(s => { const x = X[s], w = s === 'w', sd = w ? -1 : 1, t = w ? T_.tW : T_.tR, t1 = f3(t + tu(.28)), pv = [x + sd * TW2 / 2, Y1], K = fallK(pv[0], pv[1], t, t1, 560);
+      K.r = w ? [[0, 0], [T_.tN, 0], [f3(T_.tN + tu(.26)), -23, 'in'], [f3(T_.tN + tu(.36)), -18, 'out'], [f3(T_.tN + tu(.46)), -20, 'soft']] : [[0, 0]];
+      const g = cbox(p, c, d, s, x, -64, TW2, { g: mvG(CL(p), K), mv: K, t, draw: (q, st) => R(q, x - TW2 / 2, Y0, TW2, TH2, 40, st), iw: bs * .72, lw: TW2 - 40, dimAt: f3(T_.tN + tu(.2)) }); R(g, x - bs / 2, -64 - bs / 2, bs, bs, bs * .24, SL(1.8));
+      dust(p, x, Y1, t1, 1.1); cword(p, d, s, x, 150, { g, size: 46, maxW: TW2 - 40, t: f3(t1 + tu(.06)) }); });
+    marks5(p, rotP(X.w + TW2 / 2 - 40, Y0 + 40, X.w - TW2 / 2, Y1, -20), corner(X.r, Y0 + 100, 200)); }); });
+
+  /* 39 ── HALO (แสงส่อง): rings of light open round the right one in the middle; the wrong is left small in the dark, crossed */
+  variant('halo', 'แสงส่อง', (d, c) => { art(c, p => { const T_ = CT(), R_ = [140, 34], s2 = 250, W_ = [-338, 34], s1 = 178;
+    [1.5, 1.25].forEach((k, i) => { const g = sub(p); on(g, p, 0, { ox: R_[0], oy: R_[1], s: [[0, .6], [f3(T_.H - tu(.1) + tu(.08 * i)), .6], [f3(T_.H + tu(.3) + tu(.08 * i)), 1, 'out']], o: [[0, 0], [f3(T_.H - tu(.1) + tu(.08 * i)), 0], [f3(T_.H + tu(.1 * i)), 1]] }); g.circle(...R_, f1(s2 / 2 * k + 16), { fill: TA(.05 + .03 * i), sw: 2, stroke: TL_(.35) }); });
+    cbox(p, c, d, 'w', ...W_, s1, { shape: 'circ' }); const KR = ent('pop', ...R_, s2, T_.tR); cbox(p, c, d, 'r', ...R_, s2, { shape: 'circ', g: mvG(p, KR), mv: KR });
+    cword(p, d, 'w', W_[0], W_[1] - s1 / 2 - 62, { pill: true, maxW: 280, strike: true }); cword(p, d, 'r', R_[0], R_[1] + s2 / 2 * 1.5 + 50, { pill: true, maxW: 360 });
+    marks5(p, [f1(W_[0] + s1 * .36), f1(W_[1] + s1 * .36)], [f1(R_[0] + s2 * .36), f1(R_[1] - s2 * .36)]); }); });
+
+  /* 40 ── CRUMPLE (ขยำทิ้ง): the wrong card scrunches into a crumpled ball and rolls to the corner, dim and crossed; the right card lies flat, lit */
+  variant('crumple', 'ขยำทิ้ง', (d, c) => { art(c, p => { const T_ = CT(), R_ = [126, -18], s2 = 296, W_ = [-326, 186], rB = 104, ta = f3(T_.tN + tu(.36));
+    const ball = pathOf(Array.from({ length: 16 }, (_, k) => { const a = rad(k * 22.5), r = k % 2 ? rB * .8 : rB * (1 + (k % 4 ? .04 : -.06)); return [f1(W_[0] + r * Math.cos(a)), f1(W_[1] + r * Math.sin(a))]; }));
+    const KW = { px: W_[0], py: W_[1], x: [[0, f1(R_[0] - W_[0])], [T_.tN, f1(R_[0] - W_[0])], [ta, 0, 'in']], y: [[0, f1(R_[1] - W_[1])], [T_.tN, f1(R_[1] - W_[1])], [ta, 0, 'in']], r: [[0, 0], [T_.tN, 0], [ta, -200, 'in']], s: [[0, 1.4], [T_.tN, 1.4], [ta, 1]], o: [[0, 0], [T_.tN, 0], [f3(T_.tN + tu(.06)), 1]] };
+    /* until it is turned down the wrong one is a flat card in the middle; at tN it scrunches into the ball (card out, ball in) */
+    { const OC = [[0, 1], [T_.tN, 1], [f3(T_.tN + tu(.08)), 0]], cg = mvG(popAt(p, ...R_, T_.tW), { px: R_[0], py: R_[1], s: [[0, 1], [T_.tN, 1], [f3(T_.tN + tu(.08)), .7]], o: OC });
+      cbox(p, c, d, 'w', ...R_, s2, { g: cg, mv: { px: R_[0], py: R_[1], s: [[0, 1], [T_.tN, 1], [f3(T_.tN + tu(.08)), .7]] }, io: [[0, 0], [f3(T_.tW + tu(.04)), 0], [f3(T_.tW + tu(.14)), 1], [T_.tN, 1], [f3(T_.tN + tu(.08)), 0]], dimAt: 99 }); }
+    cbox(p, c, d, 'w', ...W_, rB * 2, { g: mvG(CL(p), KW), mv: { px: W_[0], py: W_[1], x: KW.x, y: KW.y, s: KW.s }, draw: (q, st) => q.path(ball, st), iw: 130, dimAt: ta, io: [[0, 0], [T_.tN, 0], [f3(T_.tN + tu(.06)), 1], [ta, 1], [f3(ta + tu(.2)), .4]] });
+    [[-50, -40, 30, -10], [10, 30, 60, 60], [-60, 40, -20, 70]].forEach(([a, b, e, f]) => drawAt(p.line(W_[0] + a, W_[1] + b, W_[0] + e, W_[1] + f, { sw: 2, stroke: TL_(.35) }), p, ta, tu(.1)));
+    const KR = ent('drop', ...R_, s2, T_.tR); cbox(p, c, d, 'r', ...R_, s2, { g: mvG(CL(p), KR), mv: KR }); dust(p, R_[0], R_[1] + s2 / 2, KR.land, 1.2);
+    cword(p, d, 'r', R_[0] - s2 / 2 - 26, R_[1] + 18, { anchor: 'end', size: 52, maxW: 300 }); cword(p, d, 'w', W_[0] + rB + 26, W_[1] + 18, { anchor: 'start', size: 46, maxW: 300, wrap: null, strike: true, t: ta });
+    marks5(p, [W_[0] + 80, W_[1] - 80], corner(...R_, s2), 56, ta); }); });
+
+  /* 41 ── SEGMENT (แถบเลือกสองช่อง): a two-part control; the lit block sits under the wrong, it is struck, the block slides over to the right */
+  variant('segment', 'แถบเลือกสองช่อง', (d, c) => { art(c, p => { const T_ = CT(), Y = 60, X = { w: -225, r: 225 }, bs = 196;
+    R(mvG(p, { px: 0, py: Y, sx: [[0, .2], [tu(.04), .2], [tu(.34), 1.03, 'out'], [tu(.44), 1, 'soft']], o: fadeIn(tu(.04), .06) }), -455, Y - 128, 910, 256, 128, F(3.6)); drawAt(p.line(0, Y - 90, 0, Y + 90, { sw: 2.4, stroke: TL_(.35) }), p, tu(.3), tu(.2));
+    const hg = mvG(p, { px: X.r, py: Y, x: [[0, X.w - X.r], [f3(T_.H - tu(.3)), X.w - X.r], [T_.H, 0, 'io']], o: fadeIn(f3(T_.tW + tu(.3)), .06) }); R(hg, X.r - 214, Y - 112, 428, 224, 112, { fill: TA(.16), sw: 3, stroke: TL_(.5) }); R(litOn(hg, T_.H), X.r - 214, Y - 112, 428, 224, 112, { sw: 5, stroke: ACC1 });
+    cbox(p, c, d, 'w', X.w, Y, bs); cbox(p, c, d, 'r', X.r, Y, bs); cword(p, d, 'w', X.w, Y - 128 - 70, { pill: true, maxW: 340, strike: true }); cword(p, d, 'r', X.r, Y - 128 - 70, { pill: true, maxW: 340 });
+    marks5(p, [X.w - 150, Y + 96], [X.r + 150, Y + 96]); }); });
+
+  /* 42 ── VALVE (วาล์วปิด): two pipes run from one source; the valve on the wrong one's pipe shuts (crossed) — the flow runs down the right one's pipe and lights it */
+  variant('valve', 'วาล์วปิด', (d, c) => { art(c, p => { const T_ = CT(), SRC = [-410, 10], Y = { w: -128, r: 150 }, BX = 292, bs = 210, VX = -122;
+    const pipe = y => `M ${SRC[0] + 40} ${SRC[1]} C ${SRC[0] + 120} ${SRC[1]} ${SRC[0] + 120} ${y} ${SRC[0] + 210} ${y} L ${BX - bs / 2 - 8} ${y}`;
+    const sg = popAt(p, ...SRC, tu(.04)); sg.circle(...SRC, 44, F(4)); sg.circle(...SRC, 18, DOTF());
+    ['w', 'r'].forEach(s => { const y = Y[s], tg = sub(p); on(tg, p, 0, { o: fadeIn(s === 'w' ? tu(.2) : f3(T_.tR - tu(.1)), .1) }); tube(tg, pipe(y), 34); cbox(p, c, d, s, BX, y, bs); });
+    const a = p.path(pipe(Y.r), { sw: 14, stroke: ACC1 }); on(a, p, 0, { draw: [[0, 0], [T_.tR, 0], [T_.H, 1, 'io']] });
+    const vg = popAt(p, VX, Y.w, tu(.3)); vg.circle(VX, Y.w, 46, F(4)); const vb = mvG(vg, { px: VX, py: Y.w, r: [[0, 90], [T_.tN, 90], [f3(T_.tN + tu(.2)), 0, 'out']] }); R(vb, VX - 34, Y.w - 9, 68, 18, 9, { fill: C.ink, sw: 0, stroke: 'none' });
+    cword(p, d, 'w', BX - bs / 2 - 18, Y.w - 104, { pill: true, anchor: 'end', maxW: 280, strike: true }); cword(p, d, 'r', BX - bs / 2 - 18, Y.r - 104, { pill: true, anchor: 'end', maxW: 280 });
+    marks5(p, [VX, Y.w + 80], cornerB(BX, Y.r, bs)); }); });
+
+  /* 43 ── PINS (หมุดเส้นทาง): two map pins pop in; the wrong pin is crossed and fades, the dashed route runs on to the right pin, which lights */
+  variant('pins', 'หมุดเส้นทาง', (d, c) => { art(c, p => { const T_ = CT(), rP = 100, P_ = { w: [-236, -50], r: [236, -50] };
+    const tipR = [P_.r[0], f1(P_.r[1] + rP * 1.9)], route = `M -470 300 C -240 300 -60 ${tipR[1] + 40} ${tipR[0]} ${tipR[1]}`; drawAt(p.path(route, DASH(.5)), p, tu(.1), tu(.5)); const lr = p.path(route, { sw: 6, stroke: ACC1 }); on(lr, p, 0, { draw: [[0, 0], [T_.tR, 0], [T_.H, 1, 'io']] });
+    ['w', 'r'].forEach(s => { const [x, y] = P_[s], K = ent('drop', x, y, rP * 2, s === 'w' ? T_.tW : T_.tR); cbox(p, c, d, s, x, y, rP * 2, { g: mvG(CL(p), K), mv: K, draw: (q, st) => q.path(pinD(x, y, rP), st), iw: rP * 1.32 });
+      cword(p, d, s, x, y - rP - 40, { size: 46, maxW: 320, strike: s === 'w' }); });
+    marks5(p, [f1(P_.w[0] - rP * 1.15), f1(P_.w[1] + rP * .2)], [f1(P_.r[0] + rP * 1.15), f1(P_.r[1] + rP * .2)]); }); });
+
+  /* 44 ── PILLS (เม็ดคำใหญ่): two long pills — icon and word inside each; a line strikes the wrong pill end to end and it dims; the right pill lights */
+  variant('pills', 'เม็ดคำใหญ่', (d, c) => { art(c, p => { const T_ = CT(), Y = { w: -122, r: 150 }, PW3 = 860, PH3 = 204, IX = -322, bs = 172;
+    ['w', 'r'].forEach(s => { const y = Y[s], K = ent('left', 0, y, PW3, s === 'w' ? T_.tW : T_.tR), gg = mvG(CL(p), K);
+      const pic_ = picOf(SD(d, s)), g = cbox(p, c, d, s, 0, y, PH3, { g: gg, mv: K, draw: (q, st) => R(q, -PW3 / 2, y - PH3 / 2, PW3, PH3, PH3 / 2, st), ix: pic_ ? IX : 0, iw: pic_ ? bs * .7 : 200, lw: pic_ ? bs * .9 : PW3 - 160 }); if (pic_) g.circle(IX, y, bs / 2, SL(1.6));
+      cword(p, d, s, IX + bs / 2 + 34, y + 20, { g: gg, anchor: 'start', size: 58, maxW: 520, wrap: null }); });
+    strikeLine(p, -PW3 / 2 + 20, Y.w, PW3 / 2 - 20, Y.w, f3(T_.tN + tu(.04)), 7); marks5(p, [PW3 / 2 - 70, Y.w - 76], [PW3 / 2 - 70, Y.r - 76]); }); });
+
+  /* 45 ── WHEEL (วงหมุนเลือก): the wheel turns with both on it and stops with the right under the pointer at the top (lit), the wrong at the bottom, crossed */
+  variant('wheel', 'วงหมุนเลือก', (d, c) => { art(c, p => { const T_ = CT(), WX = -95, WY = 25, RW = 185, bs = 190, tS0 = f3(T_.tN), D = 450, ease = u => 1 - Math.pow(1 - u, 3), N = 40;
+    const ang = (s, u) => (s === 'w' ? 0 : 180) + D * (u <= tS0 ? 0 : u >= T_.H ? 1 : ease((u - tS0) / (T_.H - tS0))), Pt = a => [f1(WX + RW * Math.cos(rad(a))), f1(WY + RW * Math.sin(rad(a)))], ts = Array.from({ length: N + 1 }, (_, k) => f3(lerp(tS0, T_.H, k / N)));
+    p.circle(WX, WY, RW, DASH(.4)); const aF = ang('r', T_.H), sp = mvG(p, { px: WX, py: WY, r: [[0, f1(ang('r', 0) - aF)]].concat(ts.map(u => [u, f1(ang('r', u) - aF)])), o: fadeIn(tu(.2), .06) });
+    const [ax, ay] = Pt(aF), [bx_, by_] = Pt(aF + 180); sp.line(ax, ay, bx_, by_, { sw: 14 }); sp.line(ax, ay, bx_, by_, { sw: 7, stroke: C.fill }); p.circle(WX, WY, 34, F(3.6)); p.circle(WX, WY, 11, DOTF());
+    ['w', 'r'].forEach(s => { const [fx, fy] = Pt(ang(s, T_.H)), [sx0, sy0] = Pt(ang(s, 0)), t = s === 'w' ? T_.tW : f3(T_.tW + tu(.2));
+      const K = { px: fx, py: fy, x: [[0, f1(sx0 - fx)]].concat(ts.map(u => [u, f1(Pt(ang(s, u))[0] - fx)])), y: [[0, f1(sy0 - fy)]].concat(ts.map(u => [u, f1(Pt(ang(s, u))[1] - fy)])), s: [[0, .3], [t, .3], [f3(t + tu(.22)), 1.08, 'out'], [f3(t + tu(.34)), 1, 'soft']], o: fadeIn(t, .04) };
+      cbox(p, c, d, s, fx, fy, bs, { shape: 'circ', g: mvG(p, K), mv: K, t, dimAt: T_.H }); cword(p, d, s, 40, fy + 18, { anchor: 'start', size: 50, maxW: 400, wrap: null, strike: s === 'w', t: f3(T_.H + tu(.14)) }); });
+    const PY = WY - RW - bs / 2 - 10, KP = fallK(WX, PY, tu(.3), tu(.54), 200); KP.r = [[0, 0], [T_.H, 0], [f3(T_.H + tu(.06)), -16, 'out'], [f3(T_.H + tu(.3)), 0, 'soft']];
+    const pg = mvG(CL(p), KP), tri = `M ${WX - 32} ${PY - 56} L ${WX + 32} ${PY - 56} L ${WX} ${PY} Z`; pg.path(tri, F(4)); litOn(pg, T_.H).path(tri, { fill: ACC1, sw: 4, stroke: ACC1 });
+    const top = Pt(270), bot = Pt(90); marks5(p, [f1(bot[0] - bs / 2 - 46), bot[1]], [f1(top[0] - bs / 2 - 46), top[1]], 56, f3(T_.H + tu(.04))); }); });
+
+  /* 46 ── STEP UP (ก้าวขึ้นขั้น): two steps — the wrong stays crossed on the low step, the right lands on the high step, lit; the words on the step faces */
+  variant('stepup', 'ก้าวขึ้นขั้น', (d, c) => { art(c, p => { const T_ = CT(), s1 = 190, s2 = 214, LT = 168, HT = -36, W_ = [-246, f1(LT - 8 - s1 / 2)], R_ = [246, f1(HT - 8 - s2 / 2)];
+    const sg = mvG(CL(p), upK(0, 340, tu(.02), .36)); sg.path(pathOf([[-470, 340], [-470, LT], [-20, LT], [-20, HT], [470, HT], [470, 340]]), F(4));
+    const KW = ent('drop', ...W_, s1, T_.tW); cbox(p, c, d, 'w', ...W_, s1, { g: mvG(CL(p), KW), mv: KW }); dust(p, W_[0], LT - 8, KW.land, .9);
+    const KR = ent('drop', ...R_, s2, T_.tR); cbox(p, c, d, 'r', ...R_, s2, { g: mvG(CL(p), KR), mv: KR }); dust(p, R_[0], HT - 8, KR.land, 1);
+    cword(p, d, 'w', W_[0], LT + 70, { size: 46, maxW: 380, strike: true }); cword(p, d, 'r', R_[0], HT + 80, { size: 52, maxW: 420 });
+    marks5(p, corner(...W_, s1), corner(...R_, s2)); }); });
+
+  /* 47 ── FOCUS (ซูมโฟกัส): the corner marks first frame the wrong (it is crossed and drops out of focus), then jump to lock on the right one */
+  variant('zoomfocus', 'ซูมโฟกัส', (d, c) => { art(c, p => { const T_ = CT(), R_ = [112, 40], s2 = 296, W_ = [-352, -196], s1 = 172, AL = 52;
+    cbox(p, c, d, 'w', ...W_, s1); const KR = ent('pop', ...R_, s2, T_.tR); cbox(p, c, d, 'r', ...R_, s2, { g: mvG(p, KR), mv: KR });
+    const rw = [W_[0], W_[1], s1 / 2 + 26, s1 / 2 + 26], rr = [R_[0], R_[1], s2 / 2 + 22, s2 / 2 + 22];
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sy]) => { const at = r => [r[0] + sx * r[2], r[1] + sy * r[3]], [x0, y0] = at(rw), [x1, y1] = at(rr);
+      const cg = mvG(p, { x: [[0, x0 - x1], [f3(T_.H - tu(.3)), x0 - x1], [T_.H, 0, 'io']], y: [[0, y0 - y1], [f3(T_.H - tu(.3)), y0 - y1], [T_.H, 0, 'io']], o: fadeIn(f3(T_.tW + tu(.3)), .06) }), dd = `M ${x1} ${y1 - sy * AL} L ${x1} ${y1} L ${x1 - sx * AL} ${y1}`;
+      cg.path(dd, { sw: 7, stroke: TL_(.75) }); litOn(cg, T_.H).path(dd, { sw: 8, stroke: ACC1 }); });
+    cword(p, d, 'w', W_[0] + s1 / 2 + 30, W_[1] + 16, { anchor: 'start', size: 46, maxW: 320, wrap: null, strike: true }); cword(p, d, 'r', R_[0], R_[1] + s2 / 2 + 70, { pill: true, maxW: 380 });
+    marks5(p, cornerB(...W_, s1), cornerB(...R_, s2)); }); });
+
+  /* 48 ── LEVEL BARS (แถบระดับ): two rows — the wrong's bar only creeps a little and dims; the right's bar runs full and lights */
+  variant('levelbars', 'แถบระดับ', (d, c) => { art(c, p => { const T_ = CT(), bs = 188, BX = -350, X0 = -220, X1 = 450, TWd = X1 - X0, Y = { w: -118, r: 150 };
+    ['w', 'r'].forEach(s => { const y = Y[s], w = s === 'w', t = w ? T_.tW : T_.tR, K = ent('left', BX, y, bs, t); cbox(p, c, d, s, BX, y, bs, { g: mvG(CL(p), K), mv: K });
+      const t2 = f3(t + tu(.14)), TK = { px: X0, py: y, sx: [[0, 0], [t2, 0], [f3(t2 + tu(.3)), 1, 'out']], o: fadeIn(t2, .04) }; if (w) R(mvG(p, TK), X0, y - 40, TWd, 80, 40, BK); const rg = w ? mvG(p, { o: dimW(T_.tN, .45) }) : p; R(mvG(rg, TK), X0, y - 40, TWd, 80, 40, F(3.2));
+      const a = w ? .26 : 1, fw = f1((TWd - 20) * a); R(mvG(rg, { px: X0 + 10, py: y, sx: [[0, 0], [f3(t2 + tu(.3)), 0], [w ? T_.tN : T_.H, 1, 'io']] }), X0 + 10, y - 30, fw, 60, 30, { fill: TA(.6), sw: 0, stroke: 'none' });
+      cword(p, d, s, X0 + 10, y - 62, { anchor: 'start', size: 48, maxW: TWd - 20, wrap: null, strike: w, t: f3(t2 + tu(.3)) }); });
+    marks5(p, corner(BX, Y.w, bs, -1), corner(BX, Y.r, bs, -1)); }); });
+
+  /* 49 ── TILTED CARDS (การ์ดเอียง): two cards drop in — word, icon, line of words; the wrong card leans back and fades, the right straightens and lights */
+  variant('cardtilt', 'การ์ดเอียง', (d, c) => { art(c, p => { const T_ = CT(), CWd = 362, CHt = 504, CY = 18, X = { w: -206, r: 206 }, bs = 196;
+    ['w', 'r'].forEach(s => { const x = X[s], w = s === 'w', a0 = w ? -4 : 4, aF = w ? -10 : 0, t = w ? T_.tW : T_.tR, t1 = f3(t + tu(.28)), K = fallK(x, CY + CHt / 2, t, t1, 640);
+      K.r = w ? [[0, a0], [T_.tN, a0], [f3(T_.tN + tu(.28)), -11.5, 'out'], [f3(T_.tN + tu(.42)), aF, 'soft']] : [[0, a0], [T_.H, a0], [f3(T_.H + tu(.28)), 0, 'out']];
+      const iy = f1(CY - 22), g = cbox(p, c, d, s, x, iy, CWd, { g: mvG(CL(p), K), mv: K, t, draw: (q, st) => R(q, x - CWd / 2, CY - CHt / 2, CWd, CHt, 40, st), iw: bs * .72, lw: CWd - 60 }); R(g, x - bs / 2, iy - bs / 2, bs, bs, bs * .24, SL(1.8));
+      dust(p, x, CY + CHt / 2, t1, 1.1); cword(p, d, s, x, CY - CHt / 2 + 72, { g, size: 50, maxW: CWd - 50 }); cnote(p, d, s, x, iy + bs / 2 + 54, CWd - 70, { g, anchor: 'middle' }); });
+    marks5(p, rotP(X.w - CWd / 2 + 30, CY + CHt / 2 - 30, X.w, CY + CHt / 2, -10), [X.r + CWd / 2 - 24, CY + CHt / 2 - 24]); }); });
+
+  /* 50 ── SPLIT FRAME (กรอบแบ่งครึ่ง): one frame, split down the middle — the wrong half gets a big X over its icon and dims, the right half lights */
+  variant('splitframe', 'กรอบแบ่งครึ่ง', (d, c) => { art(c, p => { const T_ = CT(), FW = 900, FH = 540, Y = 16, X = { w: -225, r: 225 }, bs = 224, iy = Y - 34;
+    R(mvG(p, { px: 0, py: Y, sy: [[0, 0], [tu(.02), 0], [tu(.32), 1.02, 'out'], [tu(.42), 1, 'soft']], o: fadeIn(tu(.02), .05) }), -FW / 2, Y - FH / 2, FW, FH, 44, F(3.8));
+    drawAt(p.line(0, Y - FH / 2 + 20, 0, Y + FH / 2 - 20, { sw: 2.6, stroke: TL_(.4) }), p, tu(.3), tu(.3)); const cg = popAt(p, 0, iy, T_.tR); cg.circle(0, iy, 40, F(3.4)); chev(cg, -3, iy, .7, { sw: 6, stroke: ACC1 });
+    ['w', 'r'].forEach(s => { cbox(p, c, d, s, X[s], iy, bs); cword(p, d, s, X[s], iy + bs / 2 + 80, { size: 52, maxW: 380, strike: s === 'w' }); });
+    bigX(p, X.w, iy, 120, T_.tN, 10); marks5(p, null, corner(X.r, iy, bs)); }); });
+
+  /* ---------- sample data: B05's sentences (A) + stress (B: no labels, long labels, English, words only, same icon, a missing icon …) · texts on a few ---------- */
+  const I = (icon, label) => label ? { icon, label } : { icon };
   const SAMPLES = [
-    D('ไม่ใช่รอให้พร้อม แต่เริ่มเลย', I('clock', 'รอให้พร้อม'), I('rocket', 'เริ่มเลย')),
-    D('ไม่ใช่ขายถูก แต่ขายคุณค่า', I('tag', 'ขายถูก'), I('gem', 'ขายคุณค่า')),
-    D('ไม่ใช่ทำคนเดียว แต่ทำเป็นทีม', I('user', 'ทำคนเดียว'), I('users', 'ทำเป็นทีม')),
-    D('อย่าจำ ให้เข้าใจ', I('book-open', 'ท่องจำ'), I('lightbulb', 'เข้าใจ')),
-    D('ไม่ใช่โฆษณา แต่บอกต่อ', I('presentation', 'โฆษณา'), I('users', 'บอกต่อ')),
-    D('ไม่ใช่เร็ว แต่สม่ำเสมอ', I('zap', 'เร็ว'), I('repeat', 'สม่ำเสมอ')),
-    D('ไม่ใช่ดวง แต่วินัย', I('sparkles', 'ดวง'), I('calendar', 'วินัย')),
-    D('ไม่ใช่เงินเดือน แต่ทักษะ', I('wallet', 'เงินเดือน'), I('graduation-cap', 'ทักษะ')),
-    D('ไม่ใช่ยอดไลก์ แต่ยอดขาย', I('heart', 'ยอดไลก์'), I('shopping-bag', 'ยอดขาย')),
-    D('ไม่ใช่นอนดึก แต่นอนเร็ว', I('tv', 'นอนดึก'), I('bed', 'นอนเร็ว')),
-    D('ไม่ใช่กาแฟ แต่น้ำเปล่า', I('coffee', 'กาแฟ'), I('droplets', 'น้ำเปล่า')),
-    D('ไม่ใช่หาลูกค้าใหม่ แต่ดูแลลูกค้าเก่า', I('search', 'หาลูกค้าใหม่'), I('heart', 'ดูแลลูกค้าเก่า')),
-    D('ไม่ใช่ทางลัด แต่ทางที่ถูก', I('zap', 'ทางลัด'), I('map-pin', 'ทางที่ถูก')),
-    D('ไม่ใช่ลดราคา แต่เพิ่มของแถม', I('tag', 'ลดราคา'), I('gift', 'ของแถม')),
-    D('ไม่ใช่สะสมของ แต่สะสมประสบการณ์', I('shopping-bag', 'สะสมของ'), I('plane', 'ประสบการณ์')),
-    D('ไม่ใช่พูดเก่ง แต่ฟังเก่ง', I('mic', 'พูดเก่ง'), I('users', 'ฟังเก่ง')),
-    D('ไม่ใช่ทำทุกอย่าง แต่ทำสิ่งสำคัญ', I('list', 'ทำทุกอย่าง'), I('star', 'สิ่งสำคัญ')),
-    D('สะกดว่า ประสพการณ์ ผิด ต้องเป็น ประสบการณ์', I(null, 'ประสพการณ์'), I(null, 'ประสบการณ์')),
-    D('ไม่ใช่ซื้อเพราะถูก แต่ซื้อเพราะใช่', I('tag', 'ถูก'), I('heart', 'ใช่')),
-    D('ไม่ใช่ความสามารถ แต่ความพยายาม', I('trophy', 'พรสวรรค์'), I('dumbbell', 'ความพยายาม')),
+    { say: 'ไม่ใช่ยาที่ช่วย แต่คือการนอน', wrong: I('pill', 'ยา'), right: I('bed', 'การนอน') },
+    { say: 'ปัญหาไม่ใช่เงิน แต่คือเวลา', wrong: I('banknote', 'เงิน'), right: I('clock', 'เวลา') },
+    { say: 'ลูกไม่ได้อยากได้ของเล่น แต่อยากได้เวลาของพ่อแม่', wrong: I('gift', 'ของเล่น'), right: I('users', 'เวลาของพ่อแม่') },
+    { say: 'ไม่ใช่ถูกที่สุด แต่คุ้มที่สุด', wrong: I('tag', 'ถูกที่สุด'), right: I('gem', 'คุ้มที่สุด'), texts: ['ใช้ไม่นานก็พัง', 'ใช้ได้นาน คุ้มทุกบาท'] },
+    { say: 'อย่ารดน้ำทุกวัน แค่สัปดาห์ละครั้ง', wrong: I('droplets', 'ทุกวัน'), right: I('calendar', 'สัปดาห์ละครั้ง') },
+    { say: 'ไม่ใช่ขับให้เร็ว แต่ขับให้ปลอดภัย', wrong: I('car', 'ขับให้เร็ว'), right: I('shield-check', 'ปลอดภัย') },
+    { say: 'ความสุขไม่ใช่เงินเดือน แต่คือคนรอบตัว', wrong: I('wallet', 'เงินเดือน'), right: I('users', 'คนรอบตัว') },
+    { say: 'ไม่ต้องใช้แรง ใช้เครื่องมือให้ถูก', wrong: I('dumbbell', 'ใช้แรง'), right: I('wrench', 'เครื่องมือ') },
+    { say: 'ไม่ใช่พูดเสียงดัง แต่ฟังให้จบ', wrong: I('megaphone', 'พูดเสียงดัง'), right: I('headphones', 'ฟังให้จบ') },
+    { say: 'ไม่ต้องหักโหม แค่ทำสม่ำเสมอ', wrong: I('zap', 'หักโหม'), right: I('repeat', 'สม่ำเสมอ') },
+    { say: 'ไม่ใช่โทรไปตาม แต่ส่งเมลสรุป', wrong: I('phone', 'โทรไปตาม'), right: I('mail', 'ส่งเมลสรุป'), texts: ['ลืมง่าย ไม่มีหลักฐาน', 'อ่านซ้ำได้ ชัดทุกข้อ'] },
+    { say: 'เด็กไม่ได้ต้องการจอ แต่ต้องการหนังสือ', wrong: I('tv', 'จอ'), right: I('book-open', 'หนังสือ') },
+    { say: 'ไม่ใช่กาแฟที่ปลุก แต่คือแสงแดด', wrong: I('coffee', 'กาแฟ'), right: I('sun', 'แสงแดด') },
+    { say: 'อย่ากินขนมตอนดึก กินผลไม้แทน', wrong: I('cookie', 'ขนม'), right: I('apple', 'ผลไม้') },
+    { say: 'ไม่ใช่ดวง แต่คือการซ้อม', wrong: I('dice-5', 'ดวง'), right: I('target', 'การซ้อม') },
+    { say: 'ไม่ต้องนั่งรถ เดินไปก็ถึง', wrong: I('car', 'นั่งรถ'), right: I('person-standing', 'เดินไป') },
+    { say: 'ต้นไม้ไม่ได้ขาดน้ำ แต่ขาดแดด', wrong: I('droplets', 'ขาดน้ำ'), right: I('sun', 'ขาดแดด') },
+    { say: 'ไม่ใช่ซื้อใหม่ แต่ซ่อมของเดิม', wrong: I('package', 'ซื้อใหม่'), right: I('hammer', 'ซ่อมของเดิม') },
+    { say: 'ไม่ใช่ความฉลาด แต่คือความอดทน', wrong: I('brain', 'ความฉลาด'), right: I('hourglass', 'ความอดทน'), texts: ['เก่งแค่ไหนก็ถอดใจได้', 'ทำต่อจนกว่าจะสำเร็จ'] },
+    { say: 'กุญแจไม่ใช่สอนเยอะ แต่ถามให้ถูก', wrong: I('book', 'สอนเยอะ'), right: I('circle-help', 'ถามให้ถูก') },
   ];
   const STRESS = [
-    D('คำยาว', I('clock', 'รอให้ทุกอย่างพร้อมก่อนแล้วค่อยเริ่ม'), I('rocket', 'เริ่มจากสิ่งเล็ก ๆ ทันที')),
-    D('ไม่มีไอคอน', I(null, 'ขายถูก'), I(null, 'ขายคุณค่า')),
-    D('ไอคอนอย่างเดียว', I('user'), I('users')),
-    D('ภาษาอังกฤษ', I('book-open', 'Memorize'), I('lightbulb', 'Understand')),
-    D('ไม่มีฝั่งผิด', null, I('rocket', 'เริ่มเลย')),
-    D('ไม่มีฝั่งถูก', I('clock', 'รอให้พร้อม'), null),
-    D('ไม่มีอะไรเลย', null, null),
-    D('ชื่อไอคอนที่ไม่มี', I('no-such', 'ดวง'), I('no-such-2', 'วินัย')),
-    D('สั้นมาก', I('zap', 'เร็ว'), I('repeat', 'ช้า')),
-    D('ยาวฝั่งเดียว', I('tv', 'ดู'), I('bed', 'นอนให้พอแปดชั่วโมงทุกคืน')),
-    D('คำยาว', I('coffee', 'ดื่มกาแฟวันละหลายแก้ว'), I('droplets', 'ดื่มน้ำเปล่าให้มาก')),
-    D('ไม่มีไอคอน', I(null, 'หาลูกค้าใหม่'), I(null, 'ดูแลลูกค้าเก่า')),
-    D('อังกฤษ 2', I('zap', 'Shortcut'), I('map-pin', 'The right way')),
-    D('ไอคอนอย่างเดียว', I('tag'), I('gift')),
-    D('คำยาว', I('shopping-bag', 'ซื้อของมาสะสมไว้เต็มบ้าน'), I('plane', 'เก็บเงินไปเที่ยว')),
-    D('ไม่มีฝั่งผิด', null, I('users', 'ฟังเก่ง')),
-    D('ไม่มีไอคอน', I(null, 'ทำทุกอย่าง'), I(null, 'ทำสิ่งสำคัญ')),
-    D('คำยาวมาก', I(null, 'ประสพการณ์การทำงาน'), I(null, 'ประสบการณ์การทำงาน')),
-    D('ไม่มีฝั่งถูก', I('tag', 'ถูก'), null),
-    D('ไม่มีอะไรเลย 2', null, null),
+    { say: 'ไม่มีป้ายเลย', wrong: I('cigarette-off'), right: I('salad') },
+    { say: 'ป้ายยาว 12 ตัว', wrong: I('trending-down', 'ลดราคาทั้งร้าน'), right: I('message-circle-heart', 'ตอบแชตลูกค้าไว') },
+    { say: 'ภาษาอังกฤษ', wrong: I('zap', 'Faster'), right: I('target', 'Smarter') },
+    { say: 'ไม่มีไอคอน (ป้ายแทนภาพ)', wrong: { label: 'ราคา' }, right: { label: 'คุณค่า' } },
+    { say: 'ไอคอนเดียวกัน ต่างแค่ป้าย', wrong: I('clock', 'ตอนเช้า'), right: I('clock', 'ตอนเย็น') },
+    { say: 'ตัวเลขเป็นป้าย', wrong: I('timer', '5 นาที'), right: I('timer', '30 นาที') },
+    { say: 'ฝั่งถูกไม่มีป้าย', wrong: I('cookie', 'ของหวาน'), right: I('apple') },
+    { say: 'ฝั่งผิดไม่มีป้าย', wrong: I('tv'), right: I('book-open', 'อ่านหนังสือ') },
+    { say: 'ชื่อไอคอนที่ไม่มี', wrong: I('no-such-icon', 'ทางลัด'), right: I('map', 'ทางจริง') },
+    { say: 'ของคนละชนิดกันสุด ๆ', wrong: I('pill', 'ยา'), right: I('bed', 'การนอน') },
+    { say: 'ป้ายยาว + อังกฤษปน', wrong: I('megaphone', 'ยิงแอด Ads'), right: I('users', 'ปากต่อปาก') },
+    { say: 'ภาษาอังกฤษยาว', wrong: I('wallet', 'More money'), right: I('heart', 'More time') },
+    { say: 'คน ↔ ของ', wrong: I('user', 'คนเดียว'), right: I('users', 'ทั้งทีม') },
+    { say: 'ไม่มีไอคอนฝั่งเดียว', wrong: { label: 'พรสวรรค์' }, right: I('repeat', 'การฝึก') },
+    { say: 'ป้ายสั้นมาก', wrong: I('moon', 'ดึก'), right: I('sun', 'เช้า') },
+    { say: 'ไอคอนเส้นเยอะ', wrong: I('truck', 'ส่งเอง'), right: I('store', 'มารับที่ร้าน') },
+    { say: 'อังกฤษ + ตัวเลข', wrong: I('calendar', '7 days'), right: I('timer', '1 day') },
+    { say: 'ป้ายยาว 12 ตัวทั้งคู่', wrong: I('cloud', 'ฝนตกทั้งวันเลย'), right: I('umbrella', 'พกร่มติดตัวไว้') },
+    { say: 'คำเดียวทั้งคู่ (อังกฤษ)', wrong: I('lock', 'Hide'), right: I('eye', 'Show') },
+    { say: 'ไม่มีป้ายทั้งคู่ (ไอคอนแรง)', wrong: I('trash-2'), right: I('recycle') },
   ];
 
   G.cats = G.cats || {};
-  G.cats.B05T = { variants: V, SAMPLES, STRESS, draw: (i, d, c) => { setZ(c); CUR = V[i].id; EMPTY = false; BLUE = false; V[i].build(d || {}, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
+  G.cats.B05T = { variants: V, SAMPLES, STRESS, theme, draw: (i, d, c) => { setZ(c); CUR = V[i].id; tokens(); EMPTY = false; BLUE = false; V[i].build(d || {}, c); }, CLAMPS, timing: c => (setZ(c), Object.assign({}, Z)) };
 })();
