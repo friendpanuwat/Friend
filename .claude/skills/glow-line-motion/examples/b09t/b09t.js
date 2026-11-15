@@ -803,15 +803,15 @@
       const g = sub(p); on(g, p, 0, { ox: CX, oy: CY, sx, o: ok }); mom(p, c, d, i, CX, CY - 30, 250, { g, io: ok, mv: { px: CX, py: CY, sx } }); mword(p, d, i, CX, CY + 170, { g, size: 52, maxW: 360 }); });
     rowXs(k, 44, 30, 0).forEach((x, j) => { const i = L[j], tp = T.tPass(i); popAt(p, x, 280, T.tI(j)).circle(x, 280, 22, F(3)); if (tp != null) popAt(p, x, 280, tp).circle(x, 280, 12, DOTF()); }); }); });
 
-  /* 10 SPREADING RINGS (วงเวลาแผ่ออก): time spreads out from a starting point on the left as rings; each moment sits on its own ring, further out
-     the later it is; a ring lights as time reaches it and a lit dot runs out along the axis */
-  variant('spread', 'วงเวลาแผ่ออก', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, OX = -460, Y = -20, s = k >= 4 ? 176 : 200, xs = rowXs(k, s, k >= 4 ? 44 : 90, 50);
-    const og = popAt(p, OX, Y, T.tA); og.circle(OX, Y, 20, F(3.4)); og.circle(OX, Y, 8, DOTF()); way(p, `M ${OX + 20} ${Y} L ${xs[k - 1]} ${Y}`, T.tA, tu(.4), 4, .4);
-    const arc = r => { const a = Math.min(68, Math.asin(Math.min(1, 300 / r)) * 180 / Math.PI), [x0, y0] = Pc(OX, Y, r, -a), [x1, y1] = Pc(OX, Y, r, a); return `M ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1}`; };
-    L.forEach((i, j) => { const r = f1(xs[j] - s / 2 - 16 - OX), tp = T.tPass(i), dd = arc(r); way(p, dd, T.tI(j), tu(.3), 3, .3);
-      if (tp != null) litPath(p, dd, [[0, 0], [f3(tp - tu(.3)), 0], [tp, 1, 'io']], 6); });
-    runner(p, T, i => [xs[L.indexOf(i)], Y], { r: 16 });
-    L.forEach((i, j) => { mom(p, c, d, i, xs[j], Y, s); mword(p, d, i, xs[j], f1(Y + s / 2 + 56), { size: 44, maxW: s + 40 }); }); }); });
+  /* 10 APPROACH (เวลาเข้ามาใกล้): the moments come towards you one behind another; the moment where time is stands big in front; the ones still
+     to come wait small and faint behind it; a moment that has passed moves on past you and fades */
+  variant('approach', 'เวลาเข้ามาใกล้', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, S = T.steps, cur = q => L.indexOf(q), CY = 135, cw = 380, ch = 360;
+    way(p, 'M -480 345 L -70 -300', T.tA, tu(.5), 3, .3); way(p, 'M 480 345 L 70 -300', T.tA, tu(.5), 3, .3);
+    const YY = dl => dl < 0 ? 228 : [CY, -150, -250, -295][Math.min(3, dl)], SC = dl => dl < 0 ? .55 : [1, .5, .3, .2][Math.min(3, dl)], OO = dl => dl < -1 ? 0 : dl < 0 ? .75 : [1, .7, .35, .2][Math.min(3, dl)], IO = dl => dl < -1 ? 0 : dl < 0 ? .75 : dl === 0 ? 1 : dl === 1 ? .7 : 0, XX = (m, dl) => dl === -1 ? -335 : dl < -1 ? -560 : 0;
+    const val = (m, f) => S.length ? frK(T, q => f(m - cur(q))) : [[0, f(m)]];
+    for (let m = k - 1; m >= 0; m--) { const i = L[m], t = T.tI(Math.min(m, 2)), O = val(m, OO), IOk = val(m, IO); O.splice(0, 1, [0, 0], [t, 0], [f3(t + tu(.16)), O[0][1]]); IOk.splice(0, 1, [0, 0], [t, 0], [f3(t + tu(.16)), IOk[0][1]]);
+      const K = { px: 0, py: CY, x: val(m, dl => XX(m, dl)), y: val(m, dl => f1(YY(dl) - CY)), s: val(m, SC), o: O }, g = mvG(CL(p), K);
+      R(g, -cw / 2, CY - ch / 2, cw, ch, 40, F(4)); mom(p, c, d, i, 0, CY - 45, 230, { g, mv: noMv(K), io: IOk, t, rip: false }); mword(p, d, i, 0, CY + 125, { g, size: 52, maxW: cw - 50, t }); } }); });
 
   /* ---- more B09 helpers: a value that steps with time (eases with sm between pass times, sampled 'lin' so things that travel together stay
      together) · the window while time is on moment i · a token that rides a curve at(f) (f from fr(i)) with the same timing · a polyline sampled by length */
@@ -1115,18 +1115,7 @@
     L.forEach((i, j) => { const x = xs[j], tp = T.tPass(i), g = mvG(popAt(p, x, Y, T.tI(j)), { px: x, py: Y, r: tp == null ? [[0, 45]] : [[0, 45], [f3(tp - tu(.32)), 45], [tp, 0, 'io']] });
       mom(p, c, d, i, x, Y, s, { g, t: T.tI(j) }); mword(p, d, i, x, f1(Y + dw / 2 + 56), { size: 42, maxW: dw - 10 }); }); }); });
 
-  /* ---- ALT for design 10 (user: "ไม่ชอบครับออกแบบใหม่") — two candidates, shown on sheet-alt10.html ---- */
-  /* ALT-A APPROACH (เวลาเข้ามาใกล้): the moments come towards you one behind another; the moment where time is stands big in front; the ones still
-     to come wait small and faint behind it; a moment that has passed moves on past you and fades */
-  variant('approach', 'เวลาเข้ามาใกล้', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, S = T.steps, cur = q => L.indexOf(q), CY = 135, cw = 380, ch = 360;
-    way(p, 'M -480 345 L -70 -300', T.tA, tu(.5), 3, .3); way(p, 'M 480 345 L 70 -300', T.tA, tu(.5), 3, .3);
-    const YY = dl => dl < 0 ? 228 : [CY, -150, -250, -295][Math.min(3, dl)], SC = dl => dl < 0 ? .55 : [1, .5, .3, .2][Math.min(3, dl)], OO = dl => dl < -1 ? 0 : dl < 0 ? .75 : [1, .7, .35, .2][Math.min(3, dl)], IO = dl => dl < -1 ? 0 : dl < 0 ? .75 : dl === 0 ? 1 : dl === 1 ? .7 : 0, XX = (m, dl) => dl === -1 ? -335 : dl < -1 ? -560 : 0;
-    const val = (m, f) => S.length ? frK(T, q => f(m - cur(q))) : [[0, f(m)]];
-    for (let m = k - 1; m >= 0; m--) { const i = L[m], t = T.tI(Math.min(m, 2)), O = val(m, OO), IOk = val(m, IO); O.splice(0, 1, [0, 0], [t, 0], [f3(t + tu(.16)), O[0][1]]); IOk.splice(0, 1, [0, 0], [t, 0], [f3(t + tu(.16)), IOk[0][1]]);
-      const K = { px: 0, py: CY, x: val(m, dl => XX(m, dl)), y: val(m, dl => f1(YY(dl) - CY)), s: val(m, SC), o: O }, g = mvG(CL(p), K);
-      R(g, -cw / 2, CY - ch / 2, cw, ch, 40, F(4)); mom(p, c, d, i, 0, CY - 45, 230, { g, mv: noMv(K), io: IOk, t, rip: false }); mword(p, d, i, 0, CY + 125, { g, size: 52, maxW: cw - 50, t }); } }); });
-
-  /* ALT-B TIME PICKER (วงล้อเลือกเวลา): a card with a fixed lit band across its middle; the list of moments rolls up through it — the moment where time
+  /* 51 TIME PICKER (วงล้อเลือกเวลา) — added: user wanted both candidates for 10 ("เอาทั้ง 2"): a card with a fixed lit band across its middle; the list of moments rolls up through it — the moment where time
      is sits in the band, the one before shows above it, the one coming shows below, faint */
   variant('picker', 'วงล้อเลือกเวลา', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, S = T.steps, cur = q => L.indexOf(q), RH = 205, CX = 0;
     crd(p, 0, 0, 860, 660); const band = popAt(p, 0, 0, tu(.2)); R(band, -400, -RH / 2 + 4, 800, RH - 8, 34, { fill: TA(.12), sw: 4, stroke: TA(.8) });
