@@ -689,11 +689,11 @@
   const TD = d => { const P = (d && Array.isArray(d.points) ? d.points.filter(has) : []).slice(0, 3), R0 = d && has(d.result) ? d.result : null, n = P.length;
     const at = n ? Math.max(0, Math.min(n - 1, d.at == null ? n - 1 : Math.round(+d.at))) : -1, reach = !!R0 && (n === 0 || at === n - 1);
     return { P, R0, n, at, reach }; };
-  const TQ = d => { const D = TD(d), H = Z.H, tA = tu(.06), tI = i => f3(tu(.24 + .14 * i)), tP0 = f3(Math.max(tu(.24 + .14 * D.n + .2), H - tu(.95)));
-    const steps = []; for (let i = 0; i <= D.at; i++) steps.push(i); if (D.reach) steps.push('r');
+  const TQ = d => { const D = TD(d), H = Z.H, tA = tu(.06), tI = i => f3(tu(.24 + .14 * i)), tP0 = f3(Math.max(tu(.24 + .14 * Math.max(D.n, D.n === 0 && D.R0 ? 3 : 0) + .2), H - tu(.95)));
+    const GH = D.n === 0 && D.R0 ? ['g0', 'g1', 'g2'] : [], steps = GH.slice(); for (let i = 0; i <= D.at; i++) steps.push(i); if (D.reach) steps.push('r');
     const at = k => steps.length <= 1 ? H : f3(lerp(tP0, H, k / (steps.length - 1)));
     const tPass = i => { const k = steps.indexOf(i); return k < 0 ? null : at(k); };
-    return Object.assign({ H, tA, tI, tP0, steps, tPass, tR: D.reach ? H : null }, D); };
+    return Object.assign({ H, tA, tI, tP0, steps, tPass, tR: D.reach ? H : null, GH }, D); };
   const FAINT = .4;
   /* a card: rounded panel (o.r radius) that comes in by o.in (rise | drop | left | right | pop | flip) at o.t; o.kind: 'plain' | 'header' (a band on
      top) | 'ticket' (side notches) | 'tab' (a folder tab) | 'torn' (zigzag bottom) | 'perf' (dashed tear line at o.perf) — returns its group */
@@ -708,8 +708,8 @@
   const tmDim = (T, s) => [[0, 1], [T.H, 1], [f3(T.H + tu(.3)), FAINT, 'io']];
   /* moment i (or 'r' = the result) in a slot: box | circ | hex | o.draw; passed → lights at its pass time (soft lit edge) · stop moment → lit + ripple on H ·
      after the stop → dims on H · result: reached → lands lit on H, else waits faint. o.g = it rides that group (o.mv its keys) */
-  function mom(p, c, d, i, x, y, sz, o = {}) { const T = TQ(d), X = i === 'r' ? T.R0 : T.P[i]; if (!X) return null; const sh = o.shape || 'box', draw = o.draw || ((q, st) => shp(q, sh, x, y, sz, st));
-    const tp = T.tPass(i), stop = i === 'r' ? T.reach : (i === T.at && !T.reach), fut = tp == null, t = o.t ?? (i === 'r' ? f3(T.tI(T.n) ) : T.tI(i));
+  function mom(p, c, d, i, x, y, sz, o = {}) { const T = TQ(d); if (isG(i)) return ghost(p, T, i, x, y, sz, o); const X = i === 'r' ? T.R0 : T.P[i]; if (!X) return null; const sh = o.shape || 'box', draw = o.draw || ((q, st) => shp(q, sh, x, y, sz, st));
+    const tp = T.tPass(i), stop = i === 'r' ? T.reach : (i === T.at && !T.reach), fut = tp == null, t = o.t ?? T.tI(ixOf(T, i));
     const g0 = o.g || popAt(p, x, y, t); if (fut) draw(g0, BK); const g1 = fut ? mvG(g0, { o: i === 'r' ? [[0, FAINT]] : tmDim(T) }) : g0, g = stop ? mvG(g1, { px: x, py: y, s: [[0, 1], [T.H, 1], [f3(T.H + tu(.2)), 1.05, 'io'], [f3(T.H + tu(.45)), 1, 'io']] }) : g1;
     draw(g, F(4)); if (sh === 'circ' && !o.draw) g.circle(x, y, sz / 2 - 13, SL(1.4));
     if (tp != null) { draw(litOn(g, tp), stop ? LIT2() : { sw: 4, stroke: TA(.7) }); if (o.rip !== false) ripple(p, o.ix ?? x, o.iy ?? y, sz * (stop ? .6 : .5), f3(tp + tu(.04))); }
@@ -717,13 +717,18 @@
     if (picOf(X)) put(p, c, { icon: X.icon }, o.ix ?? x, o.iy ?? y, iw, null, { t: f3(t + tu(.04)), mv: o.mv, o: io, punch: stop ? T.H : undefined });
     else txt(g, X.label, o.ix ?? x, (o.iy ?? y) + 16, { size: Math.max(40, Math.min(54, iw * .3)), maxW: o.lw || iw * 1.2, weight: 800, color: C.ink, wrap: 'mid' });
     return g; }
+  /* an unnamed stretch of time (no points, only a result): an empty dashed slot with a small dot that lights when time passes it */
+  function ghost(p, T, i, x, y, sz, o = {}) { const sh = o.shape || 'box', draw = o.draw || ((q, st) => shp(q, sh, x, y, sz, st)), t = o.t ?? T.tI(ixOf(T, i)), tp = T.tPass(i), g = o.g || popAt(p, x, y, t);
+    draw(g, Object.assign({ fill: C.fill }, DASH(.6))); g.circle(x, y, Math.max(12, sz * .08), { fill: TL_(.35), sw: 0, stroke: 'none' });
+    if (tp != null) { const l = litOn(g, tp); draw(l, { sw: 4, stroke: TA(.7) }); l.circle(x, y, Math.max(14, sz * .09), DOTF()); if (o.rip !== false) ripple(p, x, y, sz * .45, f3(tp + tu(.04))); } return g; }
   /* moment i's words (only when it has an icon) — o.pill */
-  function mword(p, d, i, x, y, o = {}) { const T = TQ(d), X = i === 'r' ? T.R0 : T.P[i], str = LBL(X); if (!str) return null; const fut = T.tPass(i) == null, t = o.t ?? f3((i === 'r' ? T.tI(T.n) : T.tI(i)) + tu(.14)), sz = o.size || 44;
+  function mword(p, d, i, x, y, o = {}) { const T = TQ(d), X = i === 'r' ? T.R0 : T.P[i], str = LBL(X); if (!str) return null; const fut = T.tPass(i) == null, t = o.t ?? f3(T.tI(ixOf(T, i)) + tu(.14)), sz = o.size || 44;
     const g1 = popAt(o.g || p, x, y - sz * .35, t), g = fut ? mvG(g1, { o: i === 'r' ? [[0, FAINT + .1]] : [[0, 1], [T.H, 1], [f3(T.H + tu(.3)), .5, 'io']] }) : g1;
     if (o.pill) { const mw = o.maxW || 300, w = Math.min(mw, tw(p, str, sz)) + 60, cx = o.anchor === 'start' ? x + w / 2 : o.anchor === 'end' ? x - w / 2 : x; pill(g, str, cx, y, { t: 0, size: sz, maxW: mw }); return null; }
     return txt(g, str, x, y, { size: sz, maxW: o.maxW || 300, weight: 800, color: C.ink, anchor: o.anchor || 'middle', wrap: o.wrap === undefined ? 'down' : o.wrap }); }
   /* the list of things shown, in order: moments then the result — [[i, x, y] …] made by a placer f(k, count) */
-  const items = T => T.P.map((_, i) => i).concat(T.R0 ? ['r'] : []);
+  const items = T => T.P.map((_, i) => i).concat(T.GH || [], T.R0 ? ['r'] : []);
+  const isG = i => typeof i === 'string' && i[0] === 'g', ixOf = (T, i) => Math.max(0, items(T).indexOf(i));
   /* a lit pointer/token that runs the pass times through the given positions (pos(i) → [x, y]); stops on the stop position at H */
   function runner(p, T, pos, o = {}) { if (!T.steps.length) return null; const pts = T.steps.map(pos), times = T.steps.map(i => T.tPass(i)), fin = pts[pts.length - 1];
     const X = [[0, f1(pts[0][0] - fin[0])], [f3(times[0] - tu(.2)), f1(pts[0][0] - fin[0])]], Y = [[0, f1(pts[0][1] - fin[1])], [f3(times[0] - tu(.2)), f1(pts[0][1] - fin[1])]];
@@ -752,18 +757,27 @@
     L.forEach((i, j) => { const [x, y] = Pc(CX, CY, RR, AN[j]); mom(p, c, d, i, x, y, k >= 4 ? 166 : 176, { shape: 'circ' }); });
     const seq = T.steps.length ? T.steps : []; seq.forEach((i, j) => { const t0 = T.tPass(i), t1 = j < seq.length - 1 ? T.tPass(seq[j + 1]) : null, g = sub(p); on(g, p, 0, { o: [[0, 0], [f3(t0 - tu(.1)), 0], [t0, 1, 'io']].concat(t1 != null ? [[f3(t1 - tu(.1)), 1], [t1, 0, 'io']] : []) }); mword(p, d, i, CX, CY + 16, { g, size: 50, maxW: 250, t: 0, wrap: 'mid' }); }); }); });
 
-  /* 04 TALL TIMELINE CARD (การ์ดไทม์ไลน์ตั้ง): a tall card; a vertical line on its left with a node per row; each row: slot + words */
-  variant('vertical', 'การ์ดไทม์ไลน์ตั้ง', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, rh = k >= 4 ? 170 : k === 3 ? 200 : 230, s = k >= 4 ? 175 : rh - 20, ys = rowXs(k, rh, 0, 10);
-    crd(p, 0, 10, 760, k >= 4 ? 696 : 660); const LX = -310; way(p, `M ${LX} ${ys[0]} L ${LX} ${ys[k - 1]}`, T.tA, tu(.4), 4, .4);
-    L.forEach((i, j) => { const y = ys[j]; popAt(p, LX, y, T.tI(j)).circle(LX, y, 16, F(3)); const X = i === 'r' ? T.R0 : T.P[i], sz = Math.max(165, s - 10); if (picOf(X)) mom(p, c, d, i, -150, y, sz); else mom(p, c, d, i, 30, y, sz, { lw: 440, draw: (q, st) => R(q, -240, y - sz / 2, 540, sz, sz * .24, st) }); mword(p, d, i, f1(-150 + sz / 2 + 34), y + 16, { anchor: 'start', size: 50, maxW: 360, wrap: null }); });
-    runner(p, T, i => [LX, ys[L.indexOf(i)]], { r: 14 }); }); });
+  /* 04 SUMMARY CARD (การ์ดสรุปเวลา): one wide card in two halves — the moment where time is, big on the left; on the right the whole list of moments,
+     a dot each on a line, with a lit band that moves down the list as time goes */
+  variant('summary', 'การ์ดสรุปเวลา', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, RX = 40, rh = k >= 4 ? 125 : k === 3 ? 150 : 170, ys = rowXs(k, rh, 0, -5);
+    crd(p, 0, 0, 980, 660); const dv = sub(p); on(dv, p, 0, { o: fadeIn(tu(.3), .1) }); dv.line(-10, -280, -10, 280, DASH(.4));
+    if (k > 1) way(p, `M ${RX + 44} ${ys[0]} L ${RX + 44} ${ys[k - 1]}`, T.tA, tu(.4), 4, .4);
+    if (T.steps.length) { const hp = mvG(p, { px: 0, py: 0, y: frK(T, i => ys[L.indexOf(i)]), o: fadeIn(tu(.3), .12) }); R(hp, RX, -rh / 2 + 14, 430, rh - 28, (rh - 28) / 2, { fill: TA(.14), sw: 3, stroke: TA(.75) }); }
+    L.forEach((i, j) => { const y = ys[j], tp = T.tPass(i), t = T.tI(j), g0 = popAt(p, RX + 200, y, t), g = tp == null ? mvG(g0, { o: i === 'r' ? [[0, FAINT + .1]] : [[0, 1], [T.H, 1], [f3(T.H + tu(.3)), .5, 'io']] }) : g0;
+      g.circle(RX + 44, y, 16, F(3.4)); if (tp != null) litOn(p, tp).circle(RX + 44, y, 10, DOTF());
+      const X = i === 'r' ? T.R0 : T.P[i]; if (X && X.label) txt(g, X.label, RX + 84, y + 15, { size: 44, maxW: 340, weight: 800, color: C.ink, anchor: 'start' }); else R(g, RX + 84, y - 8, isG(i) ? 150 : 220, 16, 8, { fill: TL_(.3), sw: 0, stroke: 'none' }); });
+    nowShow(p, c, d, T, -250, -45, 300, { wy: 175, ws: 56, wm: 420 }); }); });
 
-  /* 05 TABBED CARD (การ์ดแท็บ): a card with one tab per moment along its top; the page shows the moment where time is (big), the tabs light in turn */
-  variant('folder', 'การ์ดแท็บเวลา', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, TW = f1(840 / k), txs = rowXs(k, TW, 0);
-    crd(p, 0, 50, 880, 520, { r: 30 }); const fin = T.steps.length ? T.steps[T.steps.length - 1] : L[0];
-    txs.forEach((x, j) => { const i = L[j], g = popAt(p, x, -255, T.tI(j)); R(g, x - TW / 2 + 8, -290, TW - 16, 72, 20, F(3.4)); const tp = T.tPass(i); if (tp != null) R(litOn(g, tp), x - TW / 2 + 16, -282, TW - 32, 56, 14, { fill: TA(.25), sw: 0, stroke: 'none' }); const X = i === 'r' ? T.R0 : T.P[i]; if (X && X.label) txt(g, X.label, x, -242, { size: 40, maxW: TW - 40, weight: 800, color: C.ink }); });
-    L.forEach((i, j) => { const tp = T.tPass(i), next = T.steps[T.steps.indexOf(i) + 1], tn = next != null ? T.tPass(next) : null, ok = nowO(T, i), show = sub(p); on(show, p, 0, { o: ok });
-      mom(p, c, d, i, -200, 60, 280, { g: show, io: ok }); mword(p, d, i, -20, 76, { anchor: 'start', size: 58, maxW: 420, wrap: null, g: show }); }); }); });
+  /* 05 TABBED CARD (การ์ดแท็บ): a card with one tab per moment along its top; the tabs light in turn; the page shows the moment where time is —
+     big slot, big words — and a bar of one part per moment fills as time goes */
+  variant('folder', 'การ์ดแท็บเวลา', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, TW = f1(920 / k), txs = rowXs(k, TW, 0);
+    crd(p, 0, 45, 940, 560, { r: 30 });
+    txs.forEach((x, j) => { const i = L[j], g = popAt(p, x, -270, T.tI(j)), tp = T.tPass(i); R(g, x - TW / 2 + 8, -305, TW - 16, 72, 20, F(3.4)); if (tp != null) R(litOn(g, tp), x - TW / 2 + 16, -297, TW - 32, 56, 14, { fill: TA(.25), sw: 0, stroke: 'none' });
+      const X = i === 'r' ? T.R0 : T.P[i]; if (X && X.label) txt(g, X.label, x, -256, { size: 40, maxW: TW - 40, weight: 800, color: C.ink }); else g.circle(x, -269, 10, { fill: TL_(.4), sw: 0, stroke: 'none' }); });
+    nowShow(p, c, d, T, -235, 30, 300);
+    T.steps.forEach(i => { const X = i === 'r' ? T.R0 : T.P[i], str = X && X.label; if (!str) return; const g = sub(p); on(g, p, 0, { o: nowO(T, i) }); txt(g, str, -40, 0, { size: 64, maxW: 430, weight: 800, color: C.ink, anchor: 'start', wrap: 'mid' }); });
+    const SX = -40, SW = 430, gp = 12, sw = (SW - (k - 1) * gp) / k;
+    L.forEach((i, j) => { const x = f1(SX + j * (sw + gp)), tp = T.tPass(i); R(popAt(p, x + sw / 2, 110, T.tI(j)), x, 90, sw, 40, 20, { sw: 3, stroke: TL_(.45) }); if (tp != null) R(mvG(p, { px: x, py: 110, sx: [[0, 0], [f3(tp - tu(.3)), 0], [tp, 1, 'io']] }), x + 6, 96, sw - 12, 28, 14, DOTF()); }); }); });
 
   /* 06 RISING LINE (เส้นเฉียงขึ้น): the moments climb a slanted line, each a step higher than the last; the line lights up behind a lit dot */
   variant('rise', 'เส้นเฉียงขึ้น', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, s = k >= 4 ? 172 : 196, xs = rowXs(k, s, k >= 4 ? 52 : 96), P = xs.map((x, j) => [x, k === 1 ? 120 : f1(210 - 270 * j / (k - 1))]);
@@ -793,6 +807,7 @@
   variant('chat', 'การ์ดข้อความตามเวลา', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, rh = k >= 4 ? 128 : k === 3 ? 165 : 200, ys = rowXs(k, rh, 0, 44), s = 178;
     crd(p, 0, 10, 820, 660, { kind: 'header', hh: 60 });
     L.forEach((i, j) => { const y = ys[j], left = j % 2 === 0, bx = left ? -205 : 205, tp = T.tPass(i), ta = T.steps.indexOf(i) === 0 ? f3(T.tI(0) + tu(.1)) : tp != null ? f3(tp - tu(.06)) : f3(T.H + tu(.1)), bg = popAt(p, bx, y, ta); R(bg, bx - 200, y - s / 2, 400, s, s / 2, { fill: TL_(.06), sw: 3, stroke: TL_(.5) });
+      if (isG(i)) { [-50, 0, 50].forEach((dx, m) => { bg.circle(bx + dx, y, 16, { fill: TL_(.4), sw: 0, stroke: 'none' }); if (tp != null) { const g = sub(p); on(g, p, 0, { o: [[0, 0], [f3(tp - tu(.24) + m * tu(.08)), 0], [f3(tp - tu(.18) + m * tu(.08)), 1]] }); g.circle(bx + dx, y, 18, DOTF()); } }); return; }
       mom(p, c, d, i, left ? bx - 200 + s / 2 + 2 : bx + 200 - s / 2 - 2, y, s - 10, { shape: 'circ', t: f3(ta + tu(.02)) }); mword(p, d, i, left ? bx - 200 + s + 16 : bx + 200 - s - 16, y + 15, { anchor: left ? 'start' : 'end', size: 42, maxW: 400 - s - 36, wrap: null, t: f3(ta + tu(.08)) }); }); }); });
 
   /* ---- more B09 helpers: a value that steps with time (eases with sm between pass times, sampled 'lin' so things that travel together stay
@@ -839,8 +854,8 @@
     L.forEach((i, j) => { mom(p, c, d, i, ...P[j], s); mword(p, d, i, P[j][0], f1(80 + s / 2 + 60), { size: 44, maxW: s + 40 }); }); }); });
 
   /* 15 BARS (แท่งเวลาโตขึ้น): one bar per moment, each taller than the last (more time); a bar fills with light as time reaches it; the moment rides on top */
-  variant('bars', 'แท่งเวลาโตขึ้น', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, bw = k >= 4 ? 190 : 210, xs = rowXs(k, bw, k >= 4 ? 40 : 80), B = 330, s = 172;
-    L.forEach((i, j) => { const x = xs[j], h = k === 1 ? 300 : f1(150 + (330 - 150) * j / (k - 1)), tp = T.tPass(i), tI = T.tI(j);
+  variant('bars', 'แท่งเวลาโตขึ้น', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, bw = k >= 4 ? 205 : 240, xs = rowXs(k, bw, k >= 4 ? 30 : 70), B = 335, s = 186;
+    L.forEach((i, j) => { const x = xs[j], h = k === 1 ? 300 : f1(150 + (320 - 150) * j / (k - 1)), tp = T.tPass(i), tI = T.tI(j);
       const og = mvG(p, { px: x, py: B, sy: [[0, 0], [tI, 0], [f3(tI + tu(.36)), 1, 'out']] }); R(og, x - bw / 2, B - h, bw, h, 24, { fill: C.fill, sw: 3.4, stroke: TL_(.6) });
       if (tp != null) R(mvG(p, { px: x, py: B, sy: [[0, 0], [f3(tp - tu(.3)), 0], [tp, 1, 'io']] }), x - bw / 2 + 10, B - h + 10, bw - 20, h - 20, 16, { fill: TA(.28), sw: 0, stroke: 'none' });
       mom(p, c, d, i, x, f1(B - h - s / 2 - 16), s, { t: f3(tI + tu(.22)) }); mword(p, d, i, x, B - 44, { wrap: 'up', size: 42, maxW: bw - 24, t: f3(tI + tu(.3)) }); }); }); });
@@ -873,12 +888,12 @@
       R(g, x - cw / 2, Y - ch / 2, cw, ch, 28, F(4)); mom(p, c, d, i, x, Y - 50, 170, { g, mv: noMv(K), t: t0 }); mword(p, d, i, x, Y + 100, { g, size: 40, maxW: cw - 30, t: t0 }); }); }); });
 
   /* 20 SLIDING ROW (แถวช่องเลื่อนผ่านกรอบ): a row of frames slides through a fixed lit frame so the moment where time is sits in it */
-  variant('strip', 'แถวช่องเลื่อนผ่านกรอบ', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, PF = 290, FS = 240, Y = -40;
+  variant('strip', 'แถวช่องเลื่อนผ่านกรอบ', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, PF = 350, FS = 300, Y = -50;
     const K = { px: 0, py: Y, x: [[0, 760], [T.tA, 760], [f3(T.tA + tu(.5)), 0, 'out']].concat(frK(T, q => -L.indexOf(q) * PF).slice(1)) }, g = mvG(CL(p), K);
     if (k > 1) g.line(0, Y, (k - 1) * PF, Y, DASH(.45));
-    L.forEach((i, j) => { const x = j * PF; R(g, x - FS / 2, Y - FS / 2, FS, FS, 22, F(3)); mom(p, c, d, i, x, Y, 186, { g, mv: noMv(K), t: f3(T.tA + tu(.2)) }); });
-    const w = sub(p); on(w, p, 0, { o: fadeIn(f3(T.tA + tu(.4)), .14) }); [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([a, b]) => w.path(`M ${a * 150} ${f1(Y + b * 110)} L ${a * 150} ${f1(Y + b * 150)} L ${a * 110} ${f1(Y + b * 150)}`, { sw: 8, stroke: ACC1 }));
-    L.forEach(i => { const g2 = sub(p); on(g2, p, 0, { o: winO(T, i) }); mword(p, d, i, 0, Y + 270, { g: g2, size: 54, maxW: 640, t: 0 }); }); }); });
+    L.forEach((i, j) => { const x = j * PF; R(g, x - FS / 2, Y - FS / 2, FS, FS, 22, F(3)); mom(p, c, d, i, x, Y, 236, { g, mv: noMv(K), t: f3(T.tA + tu(.2)) }); });
+    const w = sub(p); on(w, p, 0, { o: fadeIn(f3(T.tA + tu(.4)), .14) }); [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([a, b]) => w.path(`M ${a * 180} ${f1(Y + b * 130)} L ${a * 180} ${f1(Y + b * 180)} L ${a * 130} ${f1(Y + b * 180)}`, { sw: 9, stroke: ACC1 }));
+    L.forEach(i => { const g2 = sub(p); on(g2, p, 0, { o: winO(T, i) }); mword(p, d, i, 0, Y + 255, { g: g2, size: 58, maxW: 700, t: 0 }); }); }); });
 
   /* 21 LANES (แถบโหลดทีละแถว): one row per moment — its slot, its words, and a long bar that fills with light over that moment's stretch of time */
   variant('lanes', 'แถบโหลดทีละแถว', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, rh = k >= 4 ? 168 : k === 3 ? 210 : 240, ys = rowXs(k, rh, 0, 0), SX = -370, BX = -255, BW = 715;
@@ -942,15 +957,16 @@
     const ln = mvG(p, { px: 0, py: 20, x: frK(T, nx, CL0), o: fadeIn(T.tA + tu(.3), .1) }); ln.line(0, -250, 0, 290, { sw: 6, stroke: ACC1 }); ln.circle(0, -250, 14, DOTF()); }); });
 
   /* 30 FLOATING CARD (การ์ดลอยตามเวลา): a line of stops along the bottom; a small card with a pointer floats over the stop where time is, showing that moment */
-  variant('floatcard', 'การ์ดลอยตามเวลา', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, S = T.steps, xs = rowXs(k, 200, k >= 4 ? 30 : 90), LY = 225, CY = -80, cw = 300, ch = 300;
+  variant('floatcard', 'การ์ดลอยตามเวลา', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, S = T.steps, xs = rowXs(k, 200, k >= 4 ? 30 : 90), LY = 235, CY = -95, cw = 370, ch = 360;
     if (k > 1) way(p, `M ${xs[0] - 60} ${LY} L ${xs[k - 1] + 60} ${LY}`, T.tA, tu(.4), 4, .45);
     L.forEach((i, j) => { const x = xs[j], tp = T.tPass(i); popAt(p, x, LY, T.tI(j)).circle(x, LY, 18, F(3.4)); if (tp != null) litOn(p, tp).circle(x, LY, 11, DOTF());
       const X = i === 'r' ? T.R0 : T.P[i], str = X && X.label; if (str) { const g = popAt(p, x, LY + 60, f3(T.tI(j) + tu(.1))), w2 = tp == null ? mvG(g, { o: i === 'r' ? [[0, FAINT + .1]] : [[0, 1], [T.H, 1], [f3(T.H + tu(.3)), .5, 'io']] }) : g; txt(w2, str, x, LY + 76, { size: 42, maxW: 220, weight: 800, color: C.ink, wrap: 'mid' }); } });
-    if (!S.length) return; const t0 = T.tPass(S[0]), K = { px: 0, py: CY, x: frK(T, i => xs[L.indexOf(i)]), o: fadeIn(tu(.3), .14) }, g = mvG(p, K);
-    g.path(`M ${-cw / 2 + 30} ${CY - ch / 2} L ${cw / 2 - 30} ${CY - ch / 2} Q ${cw / 2} ${CY - ch / 2} ${cw / 2} ${CY - ch / 2 + 30} L ${cw / 2} ${CY + ch / 2 - 30} Q ${cw / 2} ${CY + ch / 2} ${cw / 2 - 30} ${CY + ch / 2} L 26 ${CY + ch / 2} L 0 ${CY + ch / 2 + 34} L -26 ${CY + ch / 2} L ${-cw / 2 + 30} ${CY + ch / 2} Q ${-cw / 2} ${CY + ch / 2} ${-cw / 2} ${CY + ch / 2 - 30} L ${-cw / 2} ${CY - ch / 2 + 30} Q ${-cw / 2} ${CY - ch / 2} ${-cw / 2 + 30} ${CY - ch / 2} Z`, F(4));
+    if (!S.length) return; const t0 = T.tPass(S[0]), XM = 500 - cw / 2 - 12, cx = i => Math.max(-XM, Math.min(XM, xs[L.indexOf(i)])), K = { px: 0, py: CY, x: frK(T, cx), o: fadeIn(tu(.3), .14) }, g = mvG(p, K);
+    R(g, -cw / 2, CY - ch / 2, cw, ch, 32, F(4)); const cov = mvG(p, { px: 0, py: CY, x: frK(T, i => xs[L.indexOf(i)]), o: fadeIn(tu(.3), .14) }); R(cov, -26, CY + ch / 2 - 8, 52, 10, 0, { fill: C.fill, sw: 0, stroke: 'none' });
+    const tl = mvG(p, { px: 0, py: CY, x: frK(T, i => xs[L.indexOf(i)]), o: fadeIn(tu(.3), .14) }); tl.path(`M -28 ${CY + ch / 2} L 0 ${CY + ch / 2 + 34} L 28 ${CY + ch / 2}`, { sw: 4, 'stroke-linejoin': 'round' });
     const mid = k2 => k2 <= 0 ? tu(.36) : f3((T.tPass(S[k2 - 1]) + tu(.04) + T.tPass(S[k2])) / 2);
     S.forEach((i, k2) => { const a = mid(k2), b = k2 < S.length - 1 ? mid(k2 + 1) : null, io = [[0, 0], [f3(a - tu(.06)), 0], [f3(a + tu(.06)), 1, 'io']].concat(b != null ? [[f3(b - tu(.06)), 1], [f3(b + tu(.06)), 0, 'io']] : []), gi = sub(g); on(gi, p, 0, { o: io });
-      mom(p, c, d, i, 0, CY, 210, { g: gi, mv: noMv(K), io, rip: false, t: tu(.3) }); }); }); });
+      mom(p, c, d, i, 0, CY, 260, { g: gi, mv: noMv(K), io, rip: false, t: tu(.3) }); }); }); });
 
   let CPN = 0;
   function clipPathG(p, dd) { const svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), e = document.createElementNS(NS, 'path'); cp.id = 'b09tcp' + (++CPN); e.setAttribute('d', dd); cp.appendChild(e); (svg.querySelector('defs') || svg).appendChild(cp); return sub(p, { 'clip-path': `url(#${cp.id})` }); }
@@ -1057,11 +1073,15 @@
       popAt(p, x, y, T.tI(j)).circle(x, y, rr, DASH(.45)); if (tp != null) litPath(p, arcD(x, y, rr, 1), [[0, 0], [ts, 0], [tp, 1, 'io']], 7);
       mom(p, c, d, i, x, y, s, { shape: 'circ' }); mword(p, d, i, x, f1(y + rr + 52), { size: 44, maxW: 2 * rr }); }); }); });
 
-  /* 46 ZOOM OUT (ซูมออกทีละช่วง): it starts close on the first moment; as time moves on the view pulls back, moment by moment, until the whole row shows */
-  variant('zoomout', 'ซูมออกทีละช่วง', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, s = 190, P = rowPos(k, 0, -10, s, k >= 4 ? 50 : 90), u = i => k > 1 ? L.indexOf(i) / (k - 1) : 1, z = i => f3(lerp(1.28, 1, u(i))), cx = i => lerp(P[0][0], 0, u(i));
-    const K = { px: 0, py: -10, s: frK(T, z), x: frK(T, i => f1(-z(i) * cx(i))) }; if (!T.steps.length) { K.s = [[0, 1]]; K.x = [[0, 0]]; } const g = mvG(CL(p), K);
-    const lastP = T.steps.length ? L.indexOf(T.steps[T.steps.length - 1]) : k - 1; if (lastP > 0) g.line(P[0][0], -10, P[lastP][0], -10, DASH(.45));
-    L.forEach((i, j) => { if (T.tPass(i) == null && T.steps.length) return; const gi = popAt(g, ...P[j], T.tI(j)); mom(p, c, d, i, ...P[j], s, { g: gi, mv: noMv(K), t: T.tI(j), rip: false }); mword(p, d, i, P[j][0], f1(-10 + s / 2 + 58), { g, size: 44, maxW: s + 40 }); }); }); });
+  /* 46 TURN-BACK PATH (ทางวกกลับ): a wide path runs along the top, turns round on the right and comes back along the bottom; the moments sit on it in order;
+     the path lights behind a lit dot as time goes */
+  variant('uturn', 'ทางวกกลับ', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, TY = -150, BY = 150, XL = -470, XR = 330, RR = (BY - TY) / 2, s = 190;
+    const pts = [[XL, TY], [XR, TY]]; for (let m = 1; m < 24; m++) pts.push(Pc(XR, 0, RR, -90 + 180 * m / 24)); pts.push([XR, BY], [XL, BY]);
+    const cum = [0]; for (let m = 1; m < pts.length; m++) cum.push(cum[m - 1] + Math.hypot(pts[m][0] - pts[m - 1][0], pts[m][1] - pts[m - 1][1])); const LT = cum[cum.length - 1];
+    const nt = Math.ceil(k / 2), nb = k - nt, topX = rowXs(nt, s, nt > 1 ? 120 : 0, -80), botX = rowXs(nb, s, nb > 1 ? 120 : 0, -80).reverse();
+    const P = L.map((_, j) => j < nt ? [topX[j], TY] : [botX[j - nt], BY]), fr = i => { const [x, y] = P[L.indexOf(i)]; return f3(y === TY ? (x - XL) / LT : (cum[cum.length - 2] + (XR - x)) / LT); };
+    const dd = pathOf(pts, false); way(p, dd, T.tA, tu(.5), 6, .4); litPath(p, dd, frK(T, fr, 0), 9); curveRunner(p, T, byLen(pts), fr, { r: 18 });
+    L.forEach((i, j) => { const [x, y] = P[j]; mom(p, c, d, i, x, y, s); mword(p, d, i, x, y === TY ? f1(y - s / 2 - 34) : f1(y + s / 2 + 52), { size: 42, maxW: s + 90, wrap: y === TY ? 'up' : 'down' }); }); }); });
 
   /* 47 DEAL (แจกการ์ดทีละใบ): the moments wait face-down in a pile; when time reaches one it is dealt out, face up, to its place in the row */
   variant('deal', 'แจกการ์ดทีละใบ', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, cw = k >= 4 ? 200 : 230, ch = 280, xs = rowXs(k, cw, k >= 4 ? 30 : 60), RY = -125, DX = 0, DY = 205;
@@ -1087,7 +1107,7 @@
       for (let u = -ph; u < pw; u += 34) sg.line(f1(x - pw / 2 + u), Y + ph / 2, f1(x - pw / 2 + u + ph), Y - ph / 2, { sw: 3, stroke: TL_(.22) }); R(cv, x - pw / 2 + 10, Y - ph / 2 + 10, pw - 20, ph - 20, 22, DASH(.55)); }); }); });
 
   /* 50 DIAMONDS TURN (เพชรหมุนตั้ง): the moments sit in diamonds on a line; when time reaches one, its diamond turns upright into a square and lights */
-  variant('diamonds', 'เพชรหมุนตั้งตามเวลา', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, s = 168, dw = f1(s * 1.414), xs = rowXs(k, dw, k >= 4 ? 4 : 50), Y = -20;
+  variant('diamonds', 'เพชรหมุนตั้งตามเวลา', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, s = k >= 4 ? 168 : 205, dw = f1(s * 1.414), xs = rowXs(k, dw, k >= 4 ? 4 : 40), Y = -20;
     if (k > 1) { way(p, `M ${xs[0]} ${Y} L ${xs[k - 1]} ${Y}`, T.tA, tu(.4), 4, .4); litPath(p, `M ${xs[0]} ${Y} L ${xs[k - 1]} ${Y}`, frK(T, i => L.indexOf(i) / (k - 1), 0), 7); }
     L.forEach((i, j) => { const x = xs[j], tp = T.tPass(i), g = mvG(popAt(p, x, Y, T.tI(j)), { px: x, py: Y, r: tp == null ? [[0, 45]] : [[0, 45], [f3(tp - tu(.32)), 45], [tp, 0, 'io']] });
       mom(p, c, d, i, x, Y, s, { g, t: T.tI(j) }); mword(p, d, i, x, f1(Y + dw / 2 + 56), { size: 42, maxW: dw - 10 }); }); }); });
