@@ -1058,7 +1058,7 @@
       mom(p, c, d, i, x, y, s, { shape: 'circ' }); mword(p, d, i, x, f1(y + rr + 52), { size: 44, maxW: 2 * rr }); }); }); });
 
   /* 46 ZOOM OUT (ซูมออกทีละช่วง): it starts close on the first moment; as time moves on the view pulls back, moment by moment, until the whole row shows */
-  variant('zoomout', 'ซูมออกทีละช่วง', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, s = 190, P = rowPos(k, 0, -10, s, k >= 4 ? 50 : 90), u = i => k > 1 ? L.indexOf(i) / (k - 1) : 1, z = i => f3(lerp(1.45, 1, u(i))), cx = i => lerp(P[0][0], 0, u(i));
+  variant('zoomout', 'ซูมออกทีละช่วง', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, s = 190, P = rowPos(k, 0, -10, s, k >= 4 ? 50 : 90), u = i => k > 1 ? L.indexOf(i) / (k - 1) : 1, z = i => f3(lerp(1.28, 1, u(i))), cx = i => lerp(P[0][0], 0, u(i));
     const K = { px: 0, py: -10, s: frK(T, z), x: frK(T, i => f1(-z(i) * cx(i))) }; if (!T.steps.length) { K.s = [[0, 1]]; K.x = [[0, 0]]; } const g = mvG(CL(p), K);
     const lastP = T.steps.length ? L.indexOf(T.steps[T.steps.length - 1]) : k - 1; if (lastP > 0) g.line(P[0][0], -10, P[lastP][0], -10, DASH(.45));
     L.forEach((i, j) => { if (T.tPass(i) == null && T.steps.length) return; const gi = popAt(g, ...P[j], T.tI(j)); mom(p, c, d, i, ...P[j], s, { g: gi, mv: noMv(K), t: T.tI(j), rip: false }); mword(p, d, i, P[j][0], f1(-10 + s / 2 + 58), { g, size: 44, maxW: s + 40 }); }); }); });

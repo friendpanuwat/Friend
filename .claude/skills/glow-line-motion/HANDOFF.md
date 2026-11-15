@@ -15,7 +15,7 @@
 - **B05T ผ่านแล้ว** (ผู้ใช้: "B05 ผ่าน เริ่มหมวด b06 ได้") → `references/approved/b05t/` + README.
 - **B06T ผ่านแล้ว** (ผู้ใช้: "ผ่านครับ เริ่ม b07") → `references/approved/b06t/` + README.
 - **B07T ผ่านแล้ว** (ผู้ใช้: "ผ่านครับ") → `references/approved/b07t/` + README.
-- **งานปัจจุบัน: template ชุดฐาน หมวด B09T "เวลา / ไทม์ไลน์ / เดดไลน์" — ภาพนิ่ง 50 แบบส่งแล้ว รอผู้ใช้สั่ง "ทำเคลื่อนไหว"** (B08T ผ่านแล้ว → `references/approved/b08t/`).
+- **งานปัจจุบัน: template ชุดฐาน หมวด B09T "เวลา / ไทม์ไลน์ / เดดไลน์" — ภาพนิ่ง + วิดีโอ 50 แบบส่งแล้ว รอ "ผ่าน"** (B08T ผ่านแล้ว → `references/approved/b08t/`).
   ผู้ใช้สั่งแบบ "ส่งทีเดียวตอนเสร็จ" = ทำครบแล้วส่งครั้งเดียว ไม่รายงานระหว่างทาง.
 - **รอผู้ใช้กลับมาบอก (อย่าแก้เอง):** คำยาวในกรอบ — ผู้ใช้ "เดี๋ยวผมลองไปใช้จริงแล้วค่อยกลับมาแก้" (ตอนนี้: เม็ดคำขยายถึง maxW ≈ 380 แล้วย่อตัวหนังสือ ·
   คำในกล่องไม่ขยายกล่อง ตัด 2 บรรทัดแล้วย่อ · ทางแก้ที่เสนอ: กรอบขยายได้มากขึ้น / ขนาดตัวหนังสือขั้นต่ำ + ตัดบรรทัด/… / CutPack จำกัดความยาว).
@@ -253,6 +253,8 @@
   50 แบบ: track ticks dialcard vertical folder(การ์ดแท็บ) rise segbar fan flipcard chat · deck stepper zigzag hops bars pins span spot droprow strip · lanes grid halfring chevron
   spine orbit grow days nowline floatcard · countdown blocks arrow ellipsis elbow sections funnel hexes border settle · lift spokes shift abovebelow ringeach zoomout deal nownext uncover diamonds.
   ตรวจธีม = 0 ทุกแผ่น · เปิดดูภาพจบทุกแผ่น A + B · ภาพกลางเรื่อง (t 1.9) A2 A5.
+  **วิดีโอ** (ผู้ใช้: "ถ้าเสร็จแล้วให้ทำเคลื่อนไหวได้เลย") `b09t-motion-1-10.mp4 … -41-50.mp4` (แผ่น A, hit 1.9) — ตรวจ strips ทุกแบบ. แก้หลังดู strips:
+  folder flipcard chat floatcard ว่างจนถึง H (ขั้นเดียว → tPass = H) → ใช้ `nowO()` (ช่วงแรกโชว์ตั้งแต่ต้น) · deck ไอคอนใบถัดไปขึ้นเร็วขึ้น · zoomout ซูมสูงสุด 1.28 (1.7 ไอคอนข้างโดนขอบตัด) + `rip:false` (วงคลื่นไม่ตามซูม).
 
 **template ชุดฐาน หมวด B08 "เป้าหมาย / ความสำเร็จ" (50 แบบ ภาพนิ่ง — วิดีโอรอคำสั่ง)**
   **คำติของผู้ใช้ตอนเริ่ม (สำคัญ — ใช้ทุกหมวดต่อจากนี้):** "รู้สึกว่าหน้าตามันเริ่มไปคล้ายๆกับหมวดอื่นอีกแล้ว อยากให้กลับมาทำตามมาตรฐานเดิม" — ต้นเหตุ: หมวด 6–7 ใช้
