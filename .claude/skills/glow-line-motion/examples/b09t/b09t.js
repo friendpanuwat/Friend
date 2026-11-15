@@ -762,7 +762,7 @@
   variant('folder', 'การ์ดแท็บเวลา', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, TW = f1(840 / k), txs = rowXs(k, TW, 0);
     crd(p, 0, 50, 880, 520, { r: 30 }); const fin = T.steps.length ? T.steps[T.steps.length - 1] : L[0];
     txs.forEach((x, j) => { const i = L[j], g = popAt(p, x, -255, T.tI(j)); R(g, x - TW / 2 + 8, -290, TW - 16, 72, 20, F(3.4)); const tp = T.tPass(i); if (tp != null) R(litOn(g, tp), x - TW / 2 + 16, -282, TW - 32, 56, 14, { fill: TA(.25), sw: 0, stroke: 'none' }); const X = i === 'r' ? T.R0 : T.P[i]; if (X && X.label) txt(g, X.label, x, -242, { size: 40, maxW: TW - 40, weight: 800, color: C.ink }); });
-    L.forEach((i, j) => { const tp = T.tPass(i), next = T.steps[T.steps.indexOf(i) + 1], tn = next != null ? T.tPass(next) : null, ok = tp == null ? [[0, i === L[0] && !T.steps.length ? 1 : 0]] : [[0, 0], [f3(tp - tu(.1)), 0], [tp, 1, 'io']].concat(tn != null ? [[f3(tn - tu(.1)), 1], [tn, 0, 'io']] : []), show = sub(p); on(show, p, 0, { o: ok });
+    L.forEach((i, j) => { const tp = T.tPass(i), next = T.steps[T.steps.indexOf(i) + 1], tn = next != null ? T.tPass(next) : null, ok = nowO(T, i), show = sub(p); on(show, p, 0, { o: ok });
       mom(p, c, d, i, -200, 60, 280, { g: show, io: ok }); mword(p, d, i, -20, 76, { anchor: 'start', size: 58, maxW: 420, wrap: null, g: show }); }); }); });
 
   /* 06 RISING LINE (เส้นเฉียงขึ้น): the moments climb a slanted line, each a step higher than the last; the line lights up behind a lit dot */
@@ -785,15 +785,15 @@
   /* 09 FLIP CARD (การ์ดพลิกเลข): one big card that flips over moment after moment, stopping on the stop moment; small dots below mark the moments */
   variant('flipcard', 'การ์ดพลิกทีละช่วง', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, CX = 0, CY = -40;
     crd(p, CX, CY, 420, 500, { r: 40 }); const seq = T.steps.length ? T.steps : [L[0]];
-    seq.forEach((i, j) => { const t0 = T.tPass(i) ?? T.tI(0), t1 = j < seq.length - 1 ? T.tPass(seq[j + 1]) : null, ok = [[0, 0], [f3(t0 - tu(.12)), 0], [t0, 1, 'io']].concat(t1 != null ? [[f3(t1 - tu(.12)), 1], [t1, 0, 'io']] : []), sx = [[0, 1], [f3(t0 - tu(.12)), 0], [t0, 1, 'io']].concat(t1 != null ? [[f3(t1 - tu(.12)), 1], [t1, 0, 'io']] : []);
+    seq.forEach((i, j) => { const t0 = T.tPass(i) ?? T.tI(0), t1 = j < seq.length - 1 ? T.tPass(seq[j + 1]) : null, ok = T.steps.length ? nowO(T, i) : fadeIn(tu(.3), .14), sx = ok.map(q => q.slice());
       const g = sub(p); on(g, p, 0, { ox: CX, oy: CY, sx, o: ok }); mom(p, c, d, i, CX, CY - 30, 250, { g, io: ok, mv: { px: CX, py: CY, sx } }); mword(p, d, i, CX, CY + 170, { g, size: 52, maxW: 360 }); });
     rowXs(k, 44, 30, 0).forEach((x, j) => { const i = L[j], tp = T.tPass(i); popAt(p, x, 280, T.tI(j)).circle(x, 280, 22, F(3)); if (tp != null) popAt(p, x, 280, tp).circle(x, 280, 12, DOTF()); }); }); });
 
   /* 10 BUBBLES (การ์ดข้อความตามเวลา): a chat card; one message bubble per moment pops in down the card as time passes; the stop bubble lights */
   variant('chat', 'การ์ดข้อความตามเวลา', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, rh = k >= 4 ? 128 : k === 3 ? 165 : 200, ys = rowXs(k, rh, 0, 44), s = 178;
     crd(p, 0, 10, 820, 660, { kind: 'header', hh: 60 });
-    L.forEach((i, j) => { const y = ys[j], left = j % 2 === 0, bx = left ? -205 : 205, tp = T.tPass(i) ?? T.tI(j), bg = popAt(p, bx, y, f3(Math.min(tp, T.H) - tu(.06))); R(bg, bx - 200, y - s / 2, 400, s, s / 2, { fill: TL_(.06), sw: 3, stroke: TL_(.5) });
-      mom(p, c, d, i, left ? bx - 200 + s / 2 + 2 : bx + 200 - s / 2 - 2, y, s - 10, { shape: 'circ', t: f3(Math.min(tp, T.H) - tu(.04)) }); mword(p, d, i, left ? bx - 200 + s + 16 : bx + 200 - s - 16, y + 15, { anchor: left ? 'start' : 'end', size: 42, maxW: 400 - s - 36, wrap: null, t: f3(Math.min(tp, T.H)) }); }); }); });
+    L.forEach((i, j) => { const y = ys[j], left = j % 2 === 0, bx = left ? -205 : 205, tp = T.tPass(i), ta = T.steps.indexOf(i) === 0 ? f3(T.tI(0) + tu(.1)) : tp != null ? f3(tp - tu(.06)) : f3(T.H + tu(.1)), bg = popAt(p, bx, y, ta); R(bg, bx - 200, y - s / 2, 400, s, s / 2, { fill: TL_(.06), sw: 3, stroke: TL_(.5) });
+      mom(p, c, d, i, left ? bx - 200 + s / 2 + 2 : bx + 200 - s / 2 - 2, y, s - 10, { shape: 'circ', t: f3(ta + tu(.02)) }); mword(p, d, i, left ? bx - 200 + s + 16 : bx + 200 - s - 16, y + 15, { anchor: left ? 'start' : 'end', size: 42, maxW: 400 - s - 36, wrap: null, t: f3(ta + tu(.08)) }); }); }); });
 
   /* ---- more B09 helpers: a value that steps with time (eases with sm between pass times, sampled 'lin' so things that travel together stay
      together) · the window while time is on moment i · a token that rides a curve at(f) (f from fr(i)) with the same timing · a polyline sampled by length */
@@ -816,7 +816,7 @@
     for (let j = k - 1; j >= 0; j--) { const i = L[j], ti = T.tI(k - 1 - j), tl = j < last ? T.tPass(L[j + 1]) : null, dep = frK(T, q => Math.max(0, j - L.indexOf(q)) * OF);
       const cut = A => tl == null ? A : A.filter(q => q[0] < tl - tu(.36)).concat([[f3(tl - tu(.36)), 0]]);
       const K = { px: CX, py: CY, x: cut(dep).concat(tl != null ? [[tl, -900, 'io']] : []), y: cut(dep.map(q => q.length > 2 ? [q[0], -q[1], q[2]] : [q[0], -q[1]])).concat(tl != null ? [[tl, -60, 'io']] : []), o: fadeIn(ti, .12).concat(tl != null ? [[f3(tl - tu(.14)), 1], [tl, 0, 'io']] : []) };
-      const tt = j === 0 ? ti : T.tPass(i), io = j > last ? [[0, 0]] : (j === 0 ? fadeIn(ti, .12) : [[0, 0], [f3(tt - tu(.16)), 0], [tt, 1, 'io']]).concat(tl != null ? [[f3(tl - tu(.3)), 1], [f3(tl - tu(.16)), 0, 'io']] : []);
+      const tt = j === 0 ? ti : T.tPass(i), io = j > last ? [[0, 0]] : (j === 0 ? fadeIn(ti, .12) : [[0, 0], [f3(tt - tu(.3)), 0], [f3(tt - tu(.1)), 1, 'io']]).concat(tl != null ? [[f3(tl - tu(.3)), 1], [f3(tl - tu(.16)), 0, 'io']] : []);
       const g = mvG(CL(p), K); R(g, CX - cw / 2, CY - ch / 2, cw, ch, 40, F(4));
       mom(p, c, d, i, CX, CY - 50, 240, { g, mv: noMv(K), io, t: ti }); mword(p, d, i, CX, CY + 165, { g, size: 52, maxW: cw - 60, t: ti }); } }); });
 
@@ -946,11 +946,11 @@
     if (k > 1) way(p, `M ${xs[0] - 60} ${LY} L ${xs[k - 1] + 60} ${LY}`, T.tA, tu(.4), 4, .45);
     L.forEach((i, j) => { const x = xs[j], tp = T.tPass(i); popAt(p, x, LY, T.tI(j)).circle(x, LY, 18, F(3.4)); if (tp != null) litOn(p, tp).circle(x, LY, 11, DOTF());
       const X = i === 'r' ? T.R0 : T.P[i], str = X && X.label; if (str) { const g = popAt(p, x, LY + 60, f3(T.tI(j) + tu(.1))), w2 = tp == null ? mvG(g, { o: i === 'r' ? [[0, FAINT + .1]] : [[0, 1], [T.H, 1], [f3(T.H + tu(.3)), .5, 'io']] }) : g; txt(w2, str, x, LY + 76, { size: 42, maxW: 220, weight: 800, color: C.ink, wrap: 'mid' }); } });
-    if (!S.length) return; const t0 = T.tPass(S[0]), K = { px: 0, py: CY, x: frK(T, i => xs[L.indexOf(i)]), o: [[0, 0], [f3(t0 - tu(.36)), 0], [f3(t0 - tu(.2)), 1]] }, g = mvG(p, K);
+    if (!S.length) return; const t0 = T.tPass(S[0]), K = { px: 0, py: CY, x: frK(T, i => xs[L.indexOf(i)]), o: fadeIn(tu(.3), .14) }, g = mvG(p, K);
     g.path(`M ${-cw / 2 + 30} ${CY - ch / 2} L ${cw / 2 - 30} ${CY - ch / 2} Q ${cw / 2} ${CY - ch / 2} ${cw / 2} ${CY - ch / 2 + 30} L ${cw / 2} ${CY + ch / 2 - 30} Q ${cw / 2} ${CY + ch / 2} ${cw / 2 - 30} ${CY + ch / 2} L 26 ${CY + ch / 2} L 0 ${CY + ch / 2 + 34} L -26 ${CY + ch / 2} L ${-cw / 2 + 30} ${CY + ch / 2} Q ${-cw / 2} ${CY + ch / 2} ${-cw / 2} ${CY + ch / 2 - 30} L ${-cw / 2} ${CY - ch / 2 + 30} Q ${-cw / 2} ${CY - ch / 2} ${-cw / 2 + 30} ${CY - ch / 2} Z`, F(4));
-    const mid = k2 => k2 <= 0 ? t0 - tu(.3) : f3((T.tPass(S[k2 - 1]) + tu(.04) + T.tPass(S[k2])) / 2);
+    const mid = k2 => k2 <= 0 ? tu(.36) : f3((T.tPass(S[k2 - 1]) + tu(.04) + T.tPass(S[k2])) / 2);
     S.forEach((i, k2) => { const a = mid(k2), b = k2 < S.length - 1 ? mid(k2 + 1) : null, io = [[0, 0], [f3(a - tu(.06)), 0], [f3(a + tu(.06)), 1, 'io']].concat(b != null ? [[f3(b - tu(.06)), 1], [f3(b + tu(.06)), 0, 'io']] : []), gi = sub(g); on(gi, p, 0, { o: io });
-      mom(p, c, d, i, 0, CY, 210, { g: gi, mv: noMv(K), io, rip: false, t: f3(t0 - tu(.3)) }); }); }); });
+      mom(p, c, d, i, 0, CY, 210, { g: gi, mv: noMv(K), io, rip: false, t: tu(.3) }); }); }); });
 
   let CPN = 0;
   function clipPathG(p, dd) { const svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), e = document.createElementNS(NS, 'path'); cp.id = 'b09tcp' + (++CPN); e.setAttribute('d', dd); cp.appendChild(e); (svg.querySelector('defs') || svg).appendChild(cp); return sub(p, { 'clip-path': `url(#${cp.id})` }); }
@@ -1058,10 +1058,10 @@
       mom(p, c, d, i, x, y, s, { shape: 'circ' }); mword(p, d, i, x, f1(y + rr + 52), { size: 44, maxW: 2 * rr }); }); }); });
 
   /* 46 ZOOM OUT (ซูมออกทีละช่วง): it starts close on the first moment; as time moves on the view pulls back, moment by moment, until the whole row shows */
-  variant('zoomout', 'ซูมออกทีละช่วง', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, s = 190, P = rowPos(k, 0, -10, s, k >= 4 ? 50 : 90), u = i => k > 1 ? L.indexOf(i) / (k - 1) : 1, z = i => f3(lerp(1.7, 1, u(i))), cx = i => lerp(P[0][0], 0, u(i));
+  variant('zoomout', 'ซูมออกทีละช่วง', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, s = 190, P = rowPos(k, 0, -10, s, k >= 4 ? 50 : 90), u = i => k > 1 ? L.indexOf(i) / (k - 1) : 1, z = i => f3(lerp(1.45, 1, u(i))), cx = i => lerp(P[0][0], 0, u(i));
     const K = { px: 0, py: -10, s: frK(T, z), x: frK(T, i => f1(-z(i) * cx(i))) }; if (!T.steps.length) { K.s = [[0, 1]]; K.x = [[0, 0]]; } const g = mvG(CL(p), K);
     const lastP = T.steps.length ? L.indexOf(T.steps[T.steps.length - 1]) : k - 1; if (lastP > 0) g.line(P[0][0], -10, P[lastP][0], -10, DASH(.45));
-    L.forEach((i, j) => { if (T.tPass(i) == null && T.steps.length) return; const gi = popAt(g, ...P[j], T.tI(j)); mom(p, c, d, i, ...P[j], s, { g: gi, mv: noMv(K), t: T.tI(j) }); mword(p, d, i, P[j][0], f1(-10 + s / 2 + 58), { g, size: 44, maxW: s + 40 }); }); }); });
+    L.forEach((i, j) => { if (T.tPass(i) == null && T.steps.length) return; const gi = popAt(g, ...P[j], T.tI(j)); mom(p, c, d, i, ...P[j], s, { g: gi, mv: noMv(K), t: T.tI(j), rip: false }); mword(p, d, i, P[j][0], f1(-10 + s / 2 + 58), { g, size: 44, maxW: s + 40 }); }); }); });
 
   /* 47 DEAL (แจกการ์ดทีละใบ): the moments wait face-down in a pile; when time reaches one it is dealt out, face up, to its place in the row */
   variant('deal', 'แจกการ์ดทีละใบ', (d, c) => { art(c, p => { const T = TQ(d), L = items(T), k = L.length, cw = k >= 4 ? 200 : 230, ch = 280, xs = rowXs(k, cw, k >= 4 ? 30 : 60), RY = -125, DX = 0, DY = 205;
