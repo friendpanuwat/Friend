@@ -16,21 +16,26 @@
    ===================================================================== */
 const NEON = {
   face: {x: 540, y: 700},                          // the test clip's face centre (a real clip reads faces.json)
-  /* boxes [x, y, w, h] · words {x, y (centre), align, maxW} — measured on Friend's sheet */
+  /* SAFE ZONE (Friend 2026-11-17: "ที่สำคัญที่สุดอย่าลืมเลี่ยงโซนอันตรายของติ๊กต๊อกและ IG ... อย่าให้ปุ่มพวกนี้มันมาบังเด็ดขาด"): every word, picture
+     and framed face stays inside x 60–920 · y 250–1440 (top: the For You / search bar · bottom 480: name, caption, sound · right 160: like,
+     comment, share, follow). The speaker's own video may run under the buttons, as in every clip. Above Friend's "copy 100%". */
+  safe: [60, 250, 920, 1440],
+  /* boxes [x, y, w, h] · words {x, y (centre), align, maxW}: Friend's sheet (2nd image), each shot moved and squeezed into the safe zone
+     (2026-11-17; the sheet put the words at y 1400–1620 and pictures at the right edge, under TikTok's caption and buttons) */
   layouts: {
-    talk_low:   {speaker: true, lead: {x: 60, y: 1400, align: 'left'}, key: {x: 60, y: 1550, align: 'left', maxW: 960}},                 // shot 01
-    hands:      {speaker: true, stage: [250, 1290, 620, 320], lead: {x: 540, y: 1045}, key: {x: 540, y: 1120}},                           // shot 02
-    chest:      {speaker: true, stage: [210, 980, 660, 270], lead: {x: 540, y: 1440}, key: {x: 540, y: 1560}},                           // shot 03
-    square:     {screen: true, square: [540, 300, 240, 44], stage: [180, 600, 720, 680], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},  // shot 04 (Friend 2026-11-17: the circle → a rounded square, "ขยายใหญ่อีกนิดนึง ย้ำว่าแค่นิดเดียว": 440 → 480)
-    band:       {screen: true, band: [0, 520, 1080, 660], stage: [250, 1215, 580, 460], lead: {x: 540, y: 220}, key: {x: 540, y: 340}},   // shot 05
-    side:       {screen: true, stage: [90, 670, 480, 580], lead: {x: 810, y: 890}, key: {x: 800, y: 1010, maxW: 380}},                  // shot 06
-    talk_split: {speaker: true, lead: {x: 540, y: 230}, key: {x: 540, y: 1080}},                                                        // shot 07
-    window:     {screen: true, win: [140, 90, 800, 760, 40], stage: [240, 940, 600, 440], lead: {x: 540, y: 1470}, key: {x: 540, y: 1580}}, // shot 08
-    diag:       {speaker: true, stage: [600, 1090, 420, 520], lead: {x: 60, y: 140, align: 'left'}, key: {x: 60, y: 265, align: 'left', maxW: 640}},   // shot 09
-    word:       {screen: true, stage: [110, 600, 860, 580], key: {x: 540, y: 280}, lead: {x: 540, y: 1380}},                            // shot 10
-    recap:      {screen: true, stages: [[260, 430, 680, 300], [220, 870, 780, 290], [340, 1270, 520, 410]], nums: [[100, 620], [100, 1060], [100, 1520]],
-                 lead: {x: 540, y: 120}, key: {x: 540, y: 250}},                                                                         // shot 11
-    cta:        {speaker: true, stage: [320, 950, 480, 460], lead: {x: 540, y: 1510}, key: {x: 540, y: 1620}},                           // shot 12
+    talk_low:   {speaker: true, lead: {x: 60, y: 1195, align: 'left'}, key: {x: 60, y: 1325, align: 'left'}},                            // shot 01
+    hands:      {speaker: true, lead: {x: 540, y: 905}, key: {x: 540, y: 1005}, stage: [250, 1120, 580, 300]},                            // shot 02
+    chest:      {speaker: true, stage: [210, 975, 660, 180], lead: {x: 540, y: 1195}, key: {x: 540, y: 1325}},                           // shot 03
+    square:     {screen: true, square: [540, 490, 240, 44], stage: [180, 755, 720, 395], lead: {x: 540, y: 1195}, key: {x: 540, y: 1325}},  // shot 04 (Friend 2026-11-17: the circle → a rounded square, "ขยายใหญ่อีกนิดนึง ย้ำว่าแค่นิดเดียว": 440 → 480)
+    band:       {screen: true, lead: {x: 540, y: 290}, key: {x: 540, y: 405}, band: [0, 520, 1080, 565], stage: [270, 1105, 540, 320]},   // shot 05
+    side:       {screen: true, stage: [70, 670, 470, 580], lead: {x: 735, y: 890, maxW: 330}, key: {x: 735, y: 1010, maxW: 330}},      // shot 06
+    talk_split: {speaker: true, lead: {x: 540, y: 300}, key: {x: 540, y: 1080}},                                                        // shot 07
+    window:     {screen: true, win: [160, 250, 760, 590, 40], stage: [240, 865, 600, 290], lead: {x: 540, y: 1195}, key: {x: 540, y: 1325}}, // shot 08
+    diag:       {speaker: true, lead: {x: 60, y: 300, align: 'left'}, key: {x: 60, y: 425, align: 'left', maxW: 640}, stage: [500, 1000, 410, 420]},   // shot 09
+    word:       {screen: true, key: {x: 540, y: 370}, stage: [110, 500, 800, 660], lead: {x: 540, y: 1250}},                            // shot 10
+    recap:      {screen: true, lead: {x: 540, y: 290}, key: {x: 540, y: 405}, stages: [[260, 520, 620, 230], [220, 790, 690, 250], [300, 1080, 560, 340]],
+                 nums: [[95, 635], [95, 915], [95, 1250]]},                                                                              // shot 11
+    cta:        {speaker: true, lead: {x: 540, y: 300}, stage: [300, 965, 480, 245], key: {x: 540, y: 1325}},                            // shot 12 (the lead moved up over the head: below the chin there was room for a 210-high picture only)
   },
   order: ['hands', 'square', 'chest', 'band', 'diag', 'window', 'side', 'cta', 'word'],   // a real clip's pictures take turns (the recap only when asked)
   talk: ['talk_low', 'talk_low', 'talk_split'],
@@ -60,8 +65,25 @@ function neonLine(parent, txt, cls, P, maxW) {
   const al = P.align ?? 'center';
   Object.assign(row.style, {left: al === 'left' ? `${P.x}px` : al === 'right' ? 'auto' : `${P.x}px`, top: `${P.y}px`,
     translate: al === 'left' ? '0 -50%' : '-50% -50%', transformOrigin: al === 'left' ? '0 50%' : '50% 50%'});
-  FITS.push(() => { const w = sp.offsetWidth, m = maxW ?? P.maxW ?? 960; if (w > m) row.style.scale = String(m / w); });
+  const [x0, , x1] = NEON.safe, room = al === 'left' ? x1 - P.x : 2 * Math.min(P.x - x0, x1 - P.x);   // never wider than the safe zone allows here
+  FITS.push(() => { const w = sp.offsetWidth, m = Math.min(maxW ?? P.maxW ?? 960, room); if (w > m) row.style.scale = String(m / w); });
   return row;
+}
+
+/* what sits outside the safe zone now (tests and stills): words, pictures (what the drawing really shows) and framed faces */
+function neonSafeCheck() {
+  const [x0, y0, x1, y1] = NEON.safe, k = 1080 / document.documentElement.clientWidth || 1, out = [];
+  const test = (what, r) => { if (!r || r.width < 1) return; const b = [r.left * k, r.top * k, r.right * k, r.bottom * k].map(Math.round);
+    if (b[0] < x0 - 1 || b[1] < y0 - 1 || b[2] > x1 + 1 || b[3] > y1 + 1) out.push({what, box: b}); };
+  document.querySelectorAll('.n-row > span').forEach(e => { if (getComputedStyle(e.parentElement.parentElement).opacity > .05) test('words "' + e.textContent + '"', e.getBoundingClientRect()); });
+  document.querySelectorAll('.glow-host svg').forEach(svg => {   // what the picture really shows now (not its hidden parts)
+    const seen = e => { for (let x = e; x && x !== svg; x = x.parentElement) { const cs = getComputedStyle(x); if (cs.display === 'none' || +cs.opacity < .05) return false; } return true; };
+    let u = null; svg.querySelectorAll('path,line,polyline,polygon,rect,circle,ellipse,text,image').forEach(e => { if (e.closest('clipPath,defs') || !seen(e)) return;
+      const r = e.getBoundingClientRect(); if (r.width < .5 && r.height < .5) return;
+      u = u ? {left: Math.min(u.left, r.left), top: Math.min(u.top, r.top), right: Math.max(u.right, r.right), bottom: Math.max(u.bottom, r.bottom)} : {left: r.left, top: r.top, right: r.right, bottom: r.bottom}; });
+    if (u) test('picture', {...u, width: u.right - u.left}); });
+  document.querySelectorAll('.n-frame').forEach(e => test('framed face', e.getBoundingClientRect()));
+  return out;
 }
 
 STYLE('neon', {
@@ -113,9 +135,9 @@ STYLE('neon', {
       div('', root).className = 'n-grid'; div('', root).className = 'n-vig';
       if (L.square) { const [cx, cy, r, rad] = L.square, c = box([cx - r, cy - r, 2 * r, 2 * r]); c.className = 'n-frame'; c.style.borderRadius = rad + 'px'; neonInset(c, .76, r, r + 27, t0);
         A(c, [{opacity: 0, transform: 'scale(.85)'}, {opacity: 1, transform: 'none'}], t0 + .05, .45, {e: EASE.soft}); }
-      if (L.band) { const b = box(L.band); b.className = 'n-band'; neonInset(b, .74, L.band[2] / 2, 300, t0);
+      if (L.band) { const b = box(L.band); b.className = 'n-band'; neonInset(b, .65, L.band[2] / 2, 265, t0);
         A(b, [{opacity: 0, clipPath: 'inset(50% 0 50% 0)'}, {opacity: 1, clipPath: 'inset(0 0 0 0)'}], t0 + .05, .45, {e: EASE.soft}); }
-      if (L.win) { const [x, y, w, h, r] = L.win, b = box([x, y, w, h]); b.className = 'n-frame'; b.style.borderRadius = r + 'px'; neonInset(b, .75, w / 2, 380, t0);
+      if (L.win) { const [x, y, w, h, r] = L.win, b = box([x, y, w, h]); b.className = 'n-frame'; b.style.borderRadius = r + 'px'; neonInset(b, .62, w / 2, 300, t0);
         A(b, [{opacity: 0, transform: 'translateY(-40px)'}, {opacity: 1, transform: 'none'}], t0 + .05, .5, {e: EASE.soft}); }
       (L.nums ?? []).forEach(([x, y], k) => { const n = div(`left:${x}px;top:${y}px`, root, String(k + 1).padStart(2, '0')); n.className = 'n-num';
         A(n, [{opacity: 0}, {opacity: 1}], t0 + .3 + k * .2, .4, {e: EASE.smooth}); });

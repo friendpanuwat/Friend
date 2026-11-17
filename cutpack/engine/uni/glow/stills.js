@@ -30,6 +30,8 @@ fs.mkdirSync(out, {recursive: true});
     await page.screenshot({path: file, type: 'jpeg', quality: 90});
     const low = await page.evaluate(() => glowCheck());                // lines and words under 3:1 against what is behind them
     fs.writeFileSync(file.replace(/\.jpg$/, '.contrast.json'), JSON.stringify(low, null, 1));
+    const unsafe = await page.evaluate(() => typeof neonSafeCheck === 'function' ? neonSafeCheck() : []);   // the TikTok / IG buttons zone (DECISIONS 3)
+    if (unsafe.length) console.log('  OUTSIDE SAFE ZONE:', JSON.stringify(unsafe));
     console.log(path.basename(file), errs.length ? 'ERRORS ' + errs.slice(0, 3).join(' | ') : 'ok', low.length ? `· ${low.length} low contrast (worst ${Math.min(...low.map(x => x.ratio))})` : '· colours ok');
   }
   await b.close();
