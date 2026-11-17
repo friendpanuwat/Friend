@@ -4,9 +4,9 @@
    1080 × 1920 frame. The pictures are the glow-line template set (glow/bridge.js), in this style's colours.
    The 7-item form:
    1 frame    a shot is one of 12 layouts (NEON.layouts, named after Friend's shots): the speaker full screen with the picture at the
-              hands / across the chest / bottom right, or a navy screen with the speaker in a circle / a band / a window, the picture
+              hands / across the chest / bottom right, or a navy screen with the speaker in a rounded square / a band / a window, the picture
               beside the words, the picture alone, a recap of three. Between pictures the speaker talks with the words low or split.
-   2 surface  navy screen with a faint blue grid; the speaker's window, circle and band have a thin glowing blue edge
+   2 surface  navy screen with a faint blue grid; the speaker's window, square and band have a thin glowing blue edge
    3 drawing  the glow-line pictures: navy glass bodies, every line glows blue (the first glass look Friend kept)
    4 colours  navy · white · one light neon blue
    5 words    a small white lead (an English word in it is an italic serif, Friend's "skip", "check") + a huge heavy key word in
@@ -21,7 +21,7 @@ const NEON = {
     talk_low:   {speaker: true, lead: {x: 60, y: 1400, align: 'left'}, key: {x: 60, y: 1550, align: 'left', maxW: 960}},                 // shot 01
     hands:      {speaker: true, stage: [250, 1290, 620, 320], lead: {x: 540, y: 1045}, key: {x: 540, y: 1120}},                           // shot 02
     chest:      {speaker: true, stage: [210, 980, 660, 270], lead: {x: 540, y: 1440}, key: {x: 540, y: 1560}},                           // shot 03
-    circle:     {screen: true, circle: [540, 290, 220], stage: [180, 600, 720, 680], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},  // shot 04
+    square:     {screen: true, square: [540, 300, 240, 44], stage: [180, 600, 720, 680], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},  // shot 04 (Friend 2026-11-17: the circle → a rounded square, "ขยายใหญ่อีกนิดนึง ย้ำว่าแค่นิดเดียว": 440 → 480)
     band:       {screen: true, band: [0, 520, 1080, 660], stage: [250, 1215, 580, 460], lead: {x: 540, y: 220}, key: {x: 540, y: 340}},   // shot 05
     side:       {screen: true, stage: [90, 670, 480, 580], lead: {x: 810, y: 890}, key: {x: 800, y: 1010, maxW: 380}},                  // shot 06
     talk_split: {speaker: true, lead: {x: 540, y: 230}, key: {x: 540, y: 1080}},                                                        // shot 07
@@ -32,7 +32,7 @@ const NEON = {
                  lead: {x: 540, y: 120}, key: {x: 540, y: 250}},                                                                         // shot 11
     cta:        {speaker: true, stage: [320, 950, 480, 460], lead: {x: 540, y: 1510}, key: {x: 540, y: 1620}},                           // shot 12
   },
-  order: ['hands', 'circle', 'chest', 'band', 'diag', 'window', 'side', 'cta', 'word'],   // a real clip's pictures take turns (the recap only when asked)
+  order: ['hands', 'square', 'chest', 'band', 'diag', 'window', 'side', 'cta', 'word'],   // a real clip's pictures take turns (the recap only when asked)
   talk: ['talk_low', 'talk_low', 'talk_split'],
   insets: [],
   talkN: 0,
@@ -111,7 +111,7 @@ STYLE('neon', {
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     if (L.screen) {
       div('', root).className = 'n-grid'; div('', root).className = 'n-vig';
-      if (L.circle) { const [cx, cy, r] = L.circle, c = box([cx - r, cy - r, 2 * r, 2 * r]); c.className = 'n-frame'; c.style.borderRadius = '50%'; neonInset(c, .7, r, r + 25, t0);
+      if (L.square) { const [cx, cy, r, rad] = L.square, c = box([cx - r, cy - r, 2 * r, 2 * r]); c.className = 'n-frame'; c.style.borderRadius = rad + 'px'; neonInset(c, .76, r, r + 27, t0);
         A(c, [{opacity: 0, transform: 'scale(.85)'}, {opacity: 1, transform: 'none'}], t0 + .05, .45, {e: EASE.soft}); }
       if (L.band) { const b = box(L.band); b.className = 'n-band'; neonInset(b, .74, L.band[2] / 2, 300, t0);
         A(b, [{opacity: 0, clipPath: 'inset(50% 0 50% 0)'}, {opacity: 1, clipPath: 'inset(0 0 0 0)'}], t0 + .05, .45, {e: EASE.soft}); }

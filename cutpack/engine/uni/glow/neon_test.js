@@ -2,7 +2,7 @@ const NS = i => GL.cats.B04T.SAMPLES[i];
 GLOWSCENE('n01', null, 0, null, ['ทุกเรื่องมี 1 ขั้นที่คน skip', 'แล้วพังตรงนั้น'], {layout: 'talk_low'});
 GLOWSCENE('n02', 'B04T', 5, NS(5), ['ขั้นที่ทุกคน skip', 'ทบทวน'], {layout: 'hands'});
 GLOWSCENE('n03', 'B04T', 1, NS(1), ['ก่อนวิ่ง อย่า skip', 'ยืดเส้น'], {layout: 'chest'});
-GLOWSCENE('n04', 'B04T', 3, NS(3), ['สมัครแล้วใช้ไม่ได้ เพราะ skip', 'ยืนยันอีเมล'], {layout: 'circle'});
+GLOWSCENE('n04', 'B04T', 3, NS(3), ['สมัครแล้วใช้ไม่ได้ เพราะ skip', 'ยืนยันอีเมล'], {layout: 'square'});
 GLOWSCENE('n05', 'B04T', 2, NS(2), ['ปั่นทางไกล ต้อง check', 'เช็กเบรก'], {layout: 'band'});
 GLOWSCENE('n06', 'B04T', 7, NS(7), ['ข้อมูลครบ แต่ skip', 'เขียน'], {layout: 'side'});
 GLOWSCENE('n07', null, 0, null, ['ไม่ใช่ขั้นยาก แค่คน rush', 'เลยข้าม'], {layout: 'talk_split'});
