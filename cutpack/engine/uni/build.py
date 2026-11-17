@@ -44,6 +44,7 @@ def main():
     styles = [f'styles/{base}.js', f'styles/{base}-overlay.js'] if '-overlay' in a.style else [f'styles/{a.style}.js']
     js = [f'const ICONS = {open(os.path.join(ENGINE, "icons", "lucide.json")).read()};', rd('core.js'), rd('kit.js'), rd('overlay.js')] + [rd(f) for f in styles] \
         + [open(os.path.join(GLOW_ASSETS, 'glowline.js')).read()] + [open(f).read() for f in GLOW_CATS] + [rd('glow/bridge.js')] \
+        + [f"const GLOW_SHAPES = {rd('glow/shapes.json')};"] \
         + [open(f).read() for f in sorted(glob.glob(os.path.join(UNI, 'scenes', '*.js')))] + [open(f).read() for f in a.extra]
     def then(k, m):                                   # --then id,t0,t1[,index[,hit]]: more scenes in the same clip
         f = m.split(','); i = int(f[3]) if len(f) > 3 and f[3] else k + 1

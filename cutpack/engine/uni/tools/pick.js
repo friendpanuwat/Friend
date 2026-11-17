@@ -8,7 +8,9 @@
      1. both glow-line sets take turns inside a category (Friend: "ทั้งสองชุด ... ระบบเลือกสลับกันไป"), the first set at random
      2. never a drawing this clip already showed
      3. not one of the customer's last 10 runs, while the set has others left (else the one shown longest ago)
-     4. among what is left: at random (seed of the run + the picture's id, so the same seed gives the same picks)
+     4. a drawing that fills a screen well (width / height 0.7–2.4, glow/shapes.json) before a very flat or very tall one
+        (Friend 2026-11-17: "ทำไมโมชั่นกราฟฟิกเล็กจังเลยมันดูโล่งๆอ่ะ" — a 4.7 : 1 drawing came out at 6 % of the screen)
+     5. among what is left: at random (seed of the run + the picture's id, so the same seed gives the same picks)
    usage: node tools/pick.js <in.json>   in = {"seed": 12345, "history": [{"picks": ["B04T.rail", …]}, …newest last],
                                                "scenes": [{"id": "s3", "cat": "B04"}, …in clip order]}
           → stdout {"picks": {"s3": "B04T.rail", …}}
@@ -16,6 +18,7 @@
 const fs = require('fs'), vm = require('vm'), path = require('path');
 const {load} = require(path.join(__dirname, '..', 'drafts.js'));
 const LAST = 10;
+const SHAPES = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'glow', 'shapes.json'), 'utf8')), FITS = [.7, 2.4];
 
 /* a small seeded random (mulberry32) */
 function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -39,7 +42,9 @@ function pick({seed, history = [], scenes}) {
     const fresh = pool.filter(id => !age.has(id));                        // 3. not in the last runs
     if (fresh.length) pool = fresh;
     else { const oldest = Math.max(...pool.map(id => age.get(id))); pool = pool.filter(id => age.get(id) === oldest); }
-    const id = pool[Math.floor(r() * pool.length)];                      // 4. at random
+    const good = pool.filter(id => SHAPES[id] >= FITS[0] && SHAPES[id] <= FITS[1]);   // 4. a shape that fills a screen
+    if (good.length) pool = good;
+    const id = pool[Math.floor(r() * pool.length)];                      // 5. at random
     used.add(id); picks[sc.id] = id;
   }
   return {picks};

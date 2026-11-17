@@ -24,29 +24,33 @@ const NEON = {
      there), x 60–920 below it. The TOP is Friend's sheet as it is (Friend 2026-11-17: "ขอบบนเอาเท่าเดิมที่ผมส่งรูปตัวอย่างให้ผมให้ดูแค่ขอบล่าง
      เท่านั้น"): no top limit. */
   safe: [60, 0, 920, 1660], safeTop: {y: 740, x1: 1020},
-  /* boxes [x, y, w, h] · words {x, y (centre), align, maxW}: Friend's sheet (2nd image), each shot moved and squeezed into the safe zone
+  /* PICTURE BOXES made bigger (Friend 2026-11-17 on the first real clip: "ทำไมโมชั่นกราฟฟิกเล็กจังเลยมันดูโล่งๆอ่ะ" — pictures took 2–17 %
+     of the screen): every box as wide as the safe zone lets it (840: x 80–920, the buttons start at x 936) and as tall as the words and the face leave room for.
+     boxes [x, y, w, h] · words {x, y (centre), align, maxW}: Friend's sheet (2nd image), each shot moved and squeezed into the safe zone
      (2026-11-17; the sheet put the words at y 1400–1620 and pictures at the right edge, under TikTok's caption and buttons) */
   layouts: {
     talk_low:   {speaker: true, lead: {x: 60, y: 1405, align: 'left'}, key: {x: 60, y: 1540, align: 'left'}},                            // shot 01
-    hands:      {speaker: true, lead: {x: 540, y: 1045}, key: {x: 540, y: 1120}, stage: [250, 1290, 620, 320]},                           // shot 02
-    chest:      {speaker: true, stage: [210, 980, 660, 270], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},                           // shot 03
-    square:     {screen: true, square: [540, 300, 240, 44], stage: [180, 600, 720, 680], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},  // shot 04 (Friend 2026-11-17: the circle → a rounded square, "ขยายใหญ่อีกนิดนึง ย้ำว่าแค่นิดเดียว": 440 → 480)
-    band:       {screen: true, lead: {x: 540, y: 220}, key: {x: 540, y: 340}, band: [0, 520, 1080, 660], stage: [250, 1215, 580, 440]},   // shot 05
-    side:       {screen: true, stage: [70, 670, 470, 580], lead: {x: 735, y: 890, maxW: 330}, key: {x: 735, y: 1010, maxW: 330}},      // shot 06
+    hands:      {speaker: true, lead: {x: 540, y: 1045}, key: {x: 540, y: 1120}, stage: [180, 1250, 720, 400]},                           // shot 02
+    chest:      {speaker: true, stage: [140, 970, 800, 330], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},                           // shot 03
+    square:     {screen: true, square: [540, 300, 240, 44], stage: [80, 580, 840, 740], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},  // shot 04 (Friend 2026-11-17: the circle → a rounded square, "ขยายใหญ่อีกนิดนึง ย้ำว่าแค่นิดเดียว": 440 → 480)
+    band:       {screen: true, lead: {x: 540, y: 220}, key: {x: 540, y: 340}, band: [0, 520, 1080, 600], stage: [80, 1140, 840, 510]},   // shot 05
+    side:       {screen: true, stage: [60, 520, 520, 880], lead: {x: 735, y: 890, maxW: 330}, key: {x: 735, y: 1010, maxW: 330}},      // shot 06 (tall pictures)
     talk_split: {speaker: true, lead: {x: 540, y: 230}, key: {x: 540, y: 1080}},                                                        // shot 07
-    window:     {screen: true, win: [160, 90, 760, 760, 40], stage: [240, 940, 600, 440], lead: {x: 540, y: 1440}, key: {x: 540, y: 1545}}, // shot 08
-    diag:       {speaker: true, lead: {x: 60, y: 140, align: 'left'}, key: {x: 60, y: 265, align: 'left', maxW: 640}, stage: [500, 1090, 415, 540]},   // shot 09
-    word:       {screen: true, key: {x: 540, y: 280}, stage: [100, 600, 820, 620], lead: {x: 540, y: 1380}},                            // shot 10
+    window:     {screen: true, win: [160, 90, 760, 760, 40], stage: [80, 870, 840, 500], lead: {x: 540, y: 1440}, key: {x: 540, y: 1545}}, // shot 08
+    diag:       {speaker: true, lead: {x: 60, y: 140, align: 'left'}, key: {x: 60, y: 265, align: 'left', maxW: 640}, stage: [480, 1060, 440, 580]},   // shot 09
+    word:       {screen: true, key: {x: 540, y: 280}, stage: [80, 420, 840, 900], lead: {x: 540, y: 1380}},                            // shot 10
     recap:      {screen: true, lead: {x: 540, y: 120}, key: {x: 540, y: 250}, stages: [[260, 430, 680, 300], [220, 870, 700, 290], [340, 1270, 520, 380]],
                  nums: [[100, 620], [100, 1060], [100, 1520]]},                                                                             // shot 11
-    cta:        {speaker: true, stage: [320, 950, 480, 380], lead: {x: 540, y: 1410}, key: {x: 540, y: 1540}},                           // shot 12
+    cta:        {speaker: true, stage: [240, 950, 640, 400], lead: {x: 540, y: 1410}, key: {x: 540, y: 1540}},                           // shot 12
   },
   /* RANDOM (Friend 2026-11-17: "ต่อให้ user อัพคลิปเดิมลงไปแล้วกดรันอีกรอบนึงผมก็ไม่อยากให้มันออกมาเหมือนกัน", DECISIONS 3): the screen of each
      picture is drawn from the run's seed (RUN.seed, written by tools/clip_plan.py), so a new run gives a new order and the same
      plan always gives the same clip. Rules: a call to action (B15) gets the closing screen, a punchline (B14) the big-word screen;
-     every other picture takes one of `pool`, never the one before it, the least used first; a screen with the picture on the
-     speaker (hands, chest, closing, top-left words) only where the speaker's face leaves it room (`neonRoom`). */
-  pool: ['hands', 'square', 'chest', 'band', 'diag', 'window', 'side'],
+     every other picture takes one of `pool`, never the one before it; a screen with the picture on the speaker (hands, chest,
+     closing, top-left words) only where the speaker's face leaves it room (`neonRoom`). Among those, the SHAPE decides (Friend:
+     "ทำไมโมชั่นกราฟฟิกเล็กจังเลย"): each design's width / height is measured once (glow/shapes.json, glow/shapes.js) and only the
+     screens whose box shows this picture at least 75 % as big as the best one stay in; then the least used, then at random. */
+  pool: ['hands', 'square', 'chest', 'band', 'diag', 'window', 'side', 'word'],   // 'word' joined 2026-11-17: its box is the biggest (Friend: "มันดูโล่งๆ")
   byCat: {B15: 'cta', B14: 'word'},
   used: {}, last: null,
   insets: [],
@@ -111,14 +115,15 @@ function neonSafeCheck() {
   const test = (what, r) => { if (!r || r.width < 1) return; const b = [r.left * k, r.top * k, r.right * k, r.bottom * k].map(Math.round);
     const x1 = b[3] <= NEON.safeTop.y ? NEON.safeTop.x1 : xb;   // wider above the button column
     if (b[0] < x0 - 1 || b[1] < y0 - 1 || b[2] > x1 + 1 || b[3] > y1 + 1) out.push({what, box: b}); };
-  document.querySelectorAll('.n-row > span').forEach(e => { if (getComputedStyle(e.parentElement.parentElement).opacity > .05) test('words "' + e.textContent + '"', e.getBoundingClientRect()); });
-  document.querySelectorAll('.glow-host svg').forEach(svg => {   // what the picture really shows now (not its hidden parts)
+  const shown = e => { if (getComputedStyle(e).visibility === 'hidden') return false; for (let x = e; x && x !== document.body; x = x.parentElement) if (+getComputedStyle(x).opacity < .05 || getComputedStyle(x).display === 'none') return false; return true; };
+  document.querySelectorAll('.n-row > span').forEach(e => { if (shown(e)) test('words "' + e.textContent + '"', e.getBoundingClientRect()); });
+  document.querySelectorAll('.glow-host svg').forEach(svg => { if (!shown(svg)) return;   // what the picture really shows now (not its hidden parts)
     const seen = e => { for (let x = e; x && x !== svg; x = x.parentElement) { const cs = getComputedStyle(x); if (cs.display === 'none' || +cs.opacity < .05) return false; } return true; };
     let u = null; svg.querySelectorAll('path,line,polyline,polygon,rect,circle,ellipse,text,image').forEach(e => { if (e.closest('clipPath,defs') || !seen(e)) return;
       const r = e.getBoundingClientRect(); if (r.width < .5 && r.height < .5) return;
       u = u ? {left: Math.min(u.left, r.left), top: Math.min(u.top, r.top), right: Math.max(u.right, r.right), bottom: Math.max(u.bottom, r.bottom)} : {left: r.left, top: r.top, right: r.right, bottom: r.bottom}; });
     if (u) test('picture', {...u, width: u.right - u.left}); });
-  document.querySelectorAll('.n-frame').forEach(e => test('framed face', e.getBoundingClientRect()));
+  document.querySelectorAll('.n-frame').forEach(e => { if (shown(e)) test('framed face', e.getBoundingClientRect()); });
   return out;
 }
 
@@ -172,6 +177,11 @@ STYLE('neon', {
       else {
         let pool = NEON.pool.filter(n => n !== NEON.last && neonRoom(n, face));
         if (!pool.length) pool = ['square', 'window', 'band'].filter(n => n !== NEON.last);
+        const ar = typeof GLOW_SHAPES !== 'undefined' && meta.variant ? GLOW_SHAPES[meta.variant] : null;
+        if (ar) {                                                            // how big the picture comes out in each screen's box
+          const size = n => { const [, , w, h] = NEON.layouts[n].stage; return ar > w / h ? w * w / ar : h * h * ar; };
+          const best = Math.max(...pool.map(size)); pool = pool.filter(n => size(n) >= .75 * best);
+        }
         const least = Math.min(...pool.map(n => NEON.used[n] ?? 0)); pool = pool.filter(n => (NEON.used[n] ?? 0) === least);
         name = pool[Math.floor(neonRand('screen' + index) * pool.length)];
       }

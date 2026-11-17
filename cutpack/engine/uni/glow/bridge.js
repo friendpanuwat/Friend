@@ -38,11 +38,11 @@ function glowVisibleBox(svg) {
 }
 /* DIMS (Friend 2026-11-17: "จำไว้เลยว่า สีมันต้องตัดกันเสมอ"): the templates dim what is not the point (the crowd around the chosen
    person, the wrong answer, the steps not reached) to 25–55 %, which took them under 3:1. Whatever ends dimmed (opacity .1–.62 at the
-   end of the drawing) keeps its motion but is scaled up to end at .8: still dimmer than the point, but readable (.72 left dark lines on a pale tile at 2.8:1) */
+   end of the drawing) keeps its motion but is scaled up to end at .85 (.8 left a white ring on frosted glass at 2.99:1): still dimmer than the point, but readable (.72 left dark lines on a pale tile at 2.8:1) */
 function glowDims(svg) {
   const dims = [...svg.querySelectorAll('[opacity]')].filter(e => !/bloom/.test(e.getAttribute('filter') || '') && !e.closest('[filter*="bloom"]'))   // not the soft light of a pulse
     .map(e => ({e, raw: e.getAttribute('opacity')})).filter(d => +d.raw > .1 && +d.raw < .62)
-    .map(d => Object.assign(d, {k: .8 / +d.raw}));
+    .map(d => Object.assign(d, {k: .85 / +d.raw}));
   for (const d of dims) if (dims.some(o => o !== d && o.e.contains(d.e))) d.k = 1 / +d.raw;   // a dim inside a dim: only the outer one stays dim (.8 × .8 left 2.8:1)
   if (!dims.length) return;
   const base = window.setT;
@@ -92,7 +92,7 @@ function glowPalette(host, base) {
   const ink = glowRgba(cs.getPropertyValue('--ink') || '#fff');
   const acc = glowRgba(L.acc.startsWith('--') ? cs.getPropertyValue(L.acc) : L.acc);
   const surf = glowSurface(host), fill = surf ?? glowRgba(GLOW_FLOAT[base] ?? '#111');
-  const P = {line: glowHex(ink), fill: glowHex(fill), soft: glowMix(ink, fill, .25), accent: glowHex(acc)};   // soft nearer the line (at .38 grey details read 2.3:1 on gold)
+  const P = {line: glowHex(ink), fill: glowHex(fill), soft: glowMix(ink, fill, base === 'neon' ? .12 : .25), accent: glowHex(acc)};   // neon: soft lines sit on frosted glass over a bright video too (.25 read 2.95:1)   // soft nearer the line (at .38 grey details read 2.3:1 on gold)
   if (!surf) P.fillAlpha = L.floatAlpha ?? (base === 'glass' ? .75 : .55);   // floating: the video shows a little through the bodies (glass/neon: darker, the glow sits under them)
   return P;
 }
@@ -142,7 +142,7 @@ function glowFirm(svg, P, base) {
    แบบเก่ามากกว่า"), so it has no material. People (person icons) are one solid shape, as the people in Friend's clip (Friend: "ตัวคนทำไม
    สีมันแปลกๆหล่ะ" — they were the background showing through a see-through body) */
 const GLOW_PEOPLE = new Set(['person-body', 'user', 'users', 'user-round', 'person-standing', 'users-round', 'user-check', 'user-x', 'user-plus', 'baby', 'contact']);
-const GLOW_LIT = 'rgba(70,180,215,.55)', glowFrost = P => `rgba(170,178,185,${P.fillAlpha != null ? .4 : .3})`;
+const GLOW_LIT = 'rgba(25,95,150,.85)', glowFrost = P => `rgba(170,178,185,${P.fillAlpha != null ? .4 : .3})`;
 function glowMaterial(base, P) {
   const surf = glowRgba(P.fill), light = glowLum(surf) > .45 && P.fillAlpha == null;   // floating (fillAlpha) = on the video, a dark ground
   /* card: a navy tile only on a light page; on the dark page or the video a white tile with a navy icon (Friend 2026-11-17 sent a
@@ -270,8 +270,8 @@ function glowDress(svg, P, base) {
       frost.forEach(f => { if (same4(f.r, r)) f.e.setAttribute('fill', 'rgba(170,178,185,0)'); });   // (the frost under it made the wash a solid light blue, Friend's is a deep see-through blue)
       if (!ics.length && r.width > 3 * r.height) { l.setAttribute('fill', 'rgba(30,120,185,.6)'); continue; }   // a lit bar keeps its white edge (shot 02), a deeper blue under its white words (2.8:1 on the light one)
       if ((l.getAttribute('stroke') || 'none') !== 'none') l.setAttribute('stroke', P.accent);
-      ics.forEach(o => o.g.querySelectorAll('[stroke],[fill]').forEach(e => {   // the icon: light blue lines (#9FE0FF, 4.5:1 on the blue; the accent itself read 2.7:1), its own bodies the deep blue
-        const v = e.getAttribute('stroke'), f = e.getAttribute('fill'); if (same(v, P.line) || same(v, P.soft) || isAccV(v)) e.setAttribute('stroke', '#9FE0FF');
+      ics.forEach(o => o.g.querySelectorAll('[stroke],[fill]').forEach(e => {   // the icon: light blue lines (#CFEFFF: #9FE0FF read 2.9:1 where the icon is dimmed), its own bodies the deep blue
+        const v = e.getAttribute('stroke'), f = e.getAttribute('fill'); if (same(v, P.line) || same(v, P.soft) || isAccV(v)) e.setAttribute('stroke', '#CFEFFF');
         if (same(f, '#323C45')) e.setAttribute('fill', '#1A6390'); }));
       shapes.forEach(e => { const f = e.getAttribute('fill'), q = box(e); if (e !== l && isAccV(f) && glowRgba(f)[3] >= .9 && inside(r, (q.left + q.right) / 2, (q.top + q.bottom) / 2)) e.setAttribute('fill', '#CDEFFF'); });   // a solid accent mark on it (shot 05's "!") reads 2.7:1 on the blue: a paler blue
     }
@@ -395,7 +395,7 @@ function glowCheckOne(host) {
 /* one glow scene: <id> draws design i of cat; say = [lead, key] (the sentence's words: placed by the style). o.layout = one of the
    style's layouts by name (tests, a planner's choice); cat null = words only (a talk shot). */
 function GLOWSCENE(id, cat, i, d, say, o = {}) {
-  SCENE(id, {name: id, story: cat, beats: 4, cat, small: true, layout: o.layout,
+  SCENE(id, {name: id, story: cat, beats: 4, cat, small: true, layout: o.layout, variant: cat && GL.cats[cat] ? `${cat}.${GL.cats[cat].variants[i].id}` : null,
     slots: {lead: {type: 'text', max: 60, sample: say[0]}, key: {type: 'text', max: 30, sample: say[1]}}},
     (K, s, T) => { if (cat) glowDraw(K.F, T, cat, i, d); else if (!window.GLOW_PENDING) window.GLOW_READY = true; K.say(s.lead, s.key); });   // words only: nothing to wait for
 }
