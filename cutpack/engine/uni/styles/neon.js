@@ -41,11 +41,41 @@ const NEON = {
                  nums: [[100, 620], [100, 1060], [100, 1520]]},                                                                             // shot 11
     cta:        {speaker: true, stage: [320, 950, 480, 380], lead: {x: 540, y: 1410}, key: {x: 540, y: 1540}},                           // shot 12
   },
-  order: ['hands', 'square', 'chest', 'band', 'diag', 'window', 'side', 'cta', 'word'],   // a real clip's pictures take turns (the recap only when asked)
-  talk: ['talk_low', 'talk_low', 'talk_split'],
+  /* RANDOM (Friend 2026-11-17: "ต่อให้ user อัพคลิปเดิมลงไปแล้วกดรันอีกรอบนึงผมก็ไม่อยากให้มันออกมาเหมือนกัน", DECISIONS 3): the screen of each
+     picture is drawn from the run's seed (RUN.seed, written by tools/clip_plan.py), so a new run gives a new order and the same
+     plan always gives the same clip. Rules: a call to action (B15) gets the closing screen, a punchline (B14) the big-word screen;
+     every other picture takes one of `pool`, never the one before it, the least used first; a screen with the picture on the
+     speaker (hands, chest, closing, top-left words) only where the speaker's face leaves it room (`neonRoom`). */
+  pool: ['hands', 'square', 'chest', 'band', 'diag', 'window', 'side'],
+  byCat: {B15: 'cta', B14: 'word'},
+  used: {}, last: null,
   insets: [],
-  talkN: 0,
 };
+/* a number 0–1 from the run's seed and a key (the same seed and key, the same number) */
+function neonRand(key) {
+  let h = 2166136261; for (const c of String(key)) h = Math.imul(h ^ c.codePointAt(0), 16777619) >>> 0;
+  let a = ((typeof RUN !== 'undefined' && RUN.seed) || 1) ^ h; a = (a + 0x6D2B79F5) >>> 0;
+  let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+/* the speaker's face between t0 and t1 (every face box of the clip in that time, pushed in by the camera's 1.05 zoom); the test
+   clip's face without faces.json. [x0, y0 (forehead), x1, y1 (chin)] */
+function neonFaceBox(t0, t1) {
+  if (typeof FACES === 'undefined' || !FACES.track?.length) return [380, 470, 700, 950];
+  let tr = FACES.track.filter(([t]) => t >= t0 - .25 && t <= t1 + .25).map(x => x[1]);
+  if (!tr.length) tr = [FACES.track.reduce((a, b) => Math.abs(b[0] - t0) < Math.abs(a[0] - t0) ? b : a)[1]];
+  const z = (v, c) => c + (v - c) * 1.06;
+  return [z(Math.min(...tr.map(b => b[0])), 540), z(Math.min(...tr.map(b => b[1])), 864), z(Math.max(...tr.map(b => b[2])), 540), z(Math.max(...tr.map(b => b[3])), 864)];
+}
+/* can this screen go over this face? (the picture and the words never on the face: a picture under the chin needs the chin above
+   its top; the top-left words need the hair below them) */
+function neonRoom(name, f) {
+  const [, top, , chin] = f, L = NEON.layouts[name];
+  if (L.screen) return true;
+  if (name === 'diag') return top - 130 > L.key.y + 110;            // the hair (≈ 130 above the forehead) under the words
+  if (name === 'talk_split') return chin + 20 < L.key.y - 110;
+  if (L.stage) return chin + 30 < Math.min(L.stage[1], L.lead ? L.lead.y - 40 : 1e9);
+  return chin + 20 < L.lead.y - 40;                                 // talk_low
+}
 /* the speaker's face at time t: faces.json of a real clip, else the test clip's */
 function neonFace(t) {
   if (typeof FACES === 'undefined' || !FACES.track?.length) return NEON.face;
@@ -134,7 +164,20 @@ STYLE('neon', {
   },
 
   frame(t0, t1, {index, scene}) {
-    const name = SCENES[scene]?.meta.layout ?? NEON.order[index % NEON.order.length], L = NEON.layouts[name] ?? NEON.layouts.hands;
+    const meta = SCENES[scene]?.meta ?? {}, face = neonFaceBox(t0, t1);
+    let name = meta.layout;
+    if (!name) {
+      const want = NEON.byCat[meta.cat];
+      if (want && neonRoom(want, face)) name = want;
+      else {
+        let pool = NEON.pool.filter(n => n !== NEON.last && neonRoom(n, face));
+        if (!pool.length) pool = ['square', 'window', 'band'].filter(n => n !== NEON.last);
+        const least = Math.min(...pool.map(n => NEON.used[n] ?? 0)); pool = pool.filter(n => (NEON.used[n] ?? 0) === least);
+        name = pool[Math.floor(neonRand('screen' + index) * pool.length)];
+      }
+    }
+    NEON.used[name] = (NEON.used[name] ?? 0) + 1; NEON.last = name;
+    const L = NEON.layouts[name] ?? NEON.layouts.square;
     const root = div('', SC); root.className = 'n-root' + (L.screen ? ' n-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     if (L.screen) {
@@ -155,9 +198,13 @@ STYLE('neon', {
     const stages = L.stages ? L.stages.map(s => box(s)) : null;
     return {root, stage, stages, cam: root, L, name, dark: !!L.screen};
   },
-  /* between pictures (a real clip): the speaker talks, the words low (two times in three) or split top / middle (shot 01, 07) */
+  /* between pictures (a real clip): the speaker talks with the words low (shot 01) or split top / middle (shot 07); one of the two
+     for each stretch between pictures, at random from the run's seed (two in three low), never over the face */
   speakerFrame(a, b) {
-    const name = NEON.talk[NEON.talkN++ % NEON.talk.length], root = div('', SC); root.className = 'n-root';
+    const gap = CLIPWINS.filter(x => x.t1 <= a + .05).length, face = neonFaceBox(a, b);
+    let name = neonRand('talk' + gap) < .67 ? 'talk_low' : 'talk_split';
+    if (!neonRoom(name, face)) name = name === 'talk_low' ? 'talk_split' : 'talk_low';
+    const root = div('', SC); root.className = 'n-root';
     return {root, cam: root, speaker: true, L: NEON.layouts[name], name};
   },
   /* the lead fades in out of a blur; the key word comes in on its word and lights up */

@@ -1,5 +1,8 @@
 """Turn the two AI answers (captions: Haiku · pictures: Sonnet) into a clip plan for the uni engine, by rule only (no choices).
-usage: tools/clip_plan.py <web_dir> <faces.json> [<style> …]   (first try at step 4, 2026-11-11: a real clip with the web's two AI steps)
+usage: tools/clip_plan.py <web_dir> <faces.json> [<style> …] [--seed N] [--history customer_history.json]
+  (first try at step 4, 2026-11-11: a real clip with the web's two AI steps)
+  --seed: the run's random number (default: a new one every run, printed; give it back to make the same plan again)
+  --history: the customer's past runs (tools/pick.js stays away from their last 10; this run is added to the file)
   in  <web_dir>/captions.json (captions.py), <web_dir>/cats/report.json + sentences.js + camera.json (cat_ai.py check), lines.json
   out per style: <web_dir>/plan_<style>.js (FACES, CAPTIONS, ZOOMS, SENTENCE with no words: every word is in CAPTIONS)
       and then_<style>.txt (scenes for build.py); with no style: plan.js + then.txt by the old rule (one picture every 4–6 s)
@@ -16,12 +19,24 @@ line ends (a full-screen cut hides the way back: card and glass reset on the cut
 back before).
 Subtitles: every chunk of every line, the last phrase of a chunk is the big word (captions.py); a chunk that holds one of
 the AI's accent words gets "acc" (talking-head-motion: the accent colour on 1–2 words per sentence, the rest white).
+Random (Friend 2026-11-17: "ต่อให้ user อัพคลิปเดิมลงไปแล้วกดรันอีกรอบนึงผมก็ไม่อยากให้มันออกมาเหมือนกัน"): every run gets a new seed;
+tools/pick.js picks each picture's drawing (both glow-line sets in turn, none twice in a clip, none of the customer's last 10
+runs, then at random) and the plan keeps the picks (then_<style>.txt names the drawing: <sentence>.<set>.<design>); the style
+draws its own random choices (neon: the order of the screens) from RUN.seed in plan_<style>.js.
 Drafts: a picture whose category has no draft yet is left out (2026-11-17 Friend deleted the old drafts for the glow-line
 sets; until those are in, every category is empty and the clip is subtitles + camera only, then_<style>.txt is empty)."""
 import json, math, os, re, subprocess, sys
 
-W, FACES = sys.argv[1], sys.argv[2]
-STYLES = sys.argv[3:]
+args = sys.argv[1:]
+def flag(name):
+    if name not in args: return None
+    i = args.index(name); v = args[i + 1]; del args[i:i + 2]; return v
+SEED = int(flag('--seed') or int.from_bytes(os.urandom(4), 'big') % 1000000)
+HISTORY = flag('--history')
+W, FACES = args[0], args[1]
+STYLES = args[2:]
+UNI = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+PAST = json.load(open(HISTORY)) if HISTORY and os.path.exists(HISTORY) else []
 # every: one picture per this many seconds · scene: shortest / longest picture (s) · cover: most of the clip under
 # full-screen pictures · run: most full-screen pictures one after another · cut: how the camera gets back to 1.0
 RULES = {
@@ -145,14 +160,23 @@ def zooms_for(R, sc, cut):
     return sorted(out, key=lambda z: z['t'])
 
 
+RUN_PICKS = []
+def picks_for(sc):
+    """the drawing of each picture (tools/pick.js): random, kept in the plan"""
+    req = {'seed': SEED, 'history': PAST, 'scenes': [{'id': r['id'], 'cat': r['cat']} for r, *_ in sc]}
+    out = subprocess.run(['node', os.path.join(UNI, 'tools', 'pick.js'), '/dev/stdin'], input=json.dumps(req), capture_output=True, text=True, check=True)
+    return json.loads(out.stdout)['picks']
+
+
 def write(style, R, sc, zooms, suffix):
-    then = []
+    then, picks = [], picks_for(sc)
     for k, (r, t0, t1, n) in enumerate(sc):
         hit = hit_of([r, t0, t1, n])
         if hit is None or not (t0 + .3 < hit < t1 - .3): hit = (t0 + t1) / 2
-        then.append(f"{r['id']},{t0:.2f},{t1:.2f},{k},{hit:.2f}")
+        then.append(f"{r['id']}.{picks[r['id']]},{t0:.2f},{t1:.2f},{k},{hit:.2f}")
+        RUN_PICKS.append(picks[r['id']])
     f = json.load(open(FACES))
-    js = f"const FACES = {json.dumps({'track': f['track'], 'layout': f['layout'], 'keepOut': f['keepOut']})};\nconst CAPTIONS = {json.dumps(CAP, ensure_ascii=False)};\n"
+    js = f"const RUN = {json.dumps({'seed': SEED})};\nconst FACES = {json.dumps({'track': f['track'], 'layout': f['layout'], 'keepOut': f['keepOut']})};\nconst CAPTIONS = {json.dumps(CAP, ensure_ascii=False)};\n"
     if zooms: js += f"const ZOOMS = {json.dumps(zooms)};\n"
     js += re.sub(r'"say": \[[^\]]*\]', '"say": ["", ""]', open(f'{W}/cats/sentences.js').read())
     open(f'{W}/plan{suffix}.js', 'w').write(js)
@@ -168,3 +192,7 @@ if not STYLES:                                   # the old rule (2026-11-11), fo
 for st in STYLES:
     R = RULES[st]; sc = scenes_for(R)
     write(st, R, sc, zooms_for(R, sc, R.get('cut', 'soft')), f'_{st}')
+print(f'seed {SEED} (same plan again: --seed {SEED})')
+if HISTORY:                                       # this run joins the customer's history (a run of the same clip again counts too)
+    PAST.append({'clip': os.path.basename(os.path.abspath(W)), 'seed': SEED, 'picks': sorted(set(RUN_PICKS))})
+    json.dump(PAST, open(HISTORY, 'w'), ensure_ascii=False, indent=0)

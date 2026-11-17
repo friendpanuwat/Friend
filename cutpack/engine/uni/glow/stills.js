@@ -8,9 +8,8 @@
 const {chromium} = require('playwright'), fs = require('fs'), path = require('path'), {execFileSync} = require('child_process');
 const [work, out, frame, scenes, at, list] = process.argv.slice(2);
 const UNI = path.resolve(__dirname, '..'), SKILL = path.resolve(UNI, '../../../.claude/skills/glow-line-motion');
-const ASSETS = path.join(SKILL, 'assets'), EX = path.join(SKILL, 'examples');
-const cats = fs.readdirSync(EX).filter(d => /^b\d\dt?$/.test(d)).map(d => path.join(EX, d, d + '.js')).filter(f => fs.existsSync(f));
-const extra = [path.join(ASSETS, 'glowline.js'), ...cats, path.join(__dirname, 'bridge.js'), path.resolve(scenes)].flatMap(f => ['--extra', f]);
+
+const extra = ['--extra', path.resolve(scenes)];   // build.py loads the glow-line runtime, the skill's category files and bridge.js itself
 fs.mkdirSync(out, {recursive: true});
 (async () => {
   const b = await chromium.launch(), page = await b.newPage({viewport: {width: 1080, height: 1920}});
@@ -18,8 +17,6 @@ fs.mkdirSync(out, {recursive: true});
   for (const job of list.trim().split(/\s+/)) {
     const [style, rest] = job.split(':'), [scene, idx = '0'] = rest.split('@'), P = path.join(work, `${style}_${scene}_${idx}`);
     fs.rmSync(P, {recursive: true, force: true}); fs.mkdirSync(path.join(P, 'fonts'), {recursive: true});
-    for (const f of fs.readdirSync(ASSETS)) if (f.endsWith('.js') && f !== 'glowline.js') fs.symlinkSync(path.join(ASSETS, f), path.join(P, f));   // the runtime loads these next to the page
-    for (const f of fs.readdirSync(path.join(ASSETS, 'fonts'))) fs.copyFileSync(path.join(ASSETS, 'fonts', f), path.join(P, 'fonts', f));
     execFileSync('python3', [path.join(UNI, 'build.py'), P, style, scene, '--index', idx, ...(style.includes('-overlay') ? ['--speaker', '.86'] : []), ...extra]);
     errs.length = 0;
     await page.goto('file://' + path.join(P, 'scene.html'));

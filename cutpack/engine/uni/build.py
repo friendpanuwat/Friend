@@ -5,10 +5,15 @@ usage: build.py <project_dir> <style> <scene> [--index N] [--t0 0.5] [--t1 4.5] 
 The page = base.css + core.js + kit.js + styles/<style>.js + scenes/*.js + one play() call.
 scene "-" = no picture: a real clip whose lines have no draft yet (2026-11-17, old drafts deleted) is subtitles only.
 """
-import argparse, glob, json, os, shutil
+import argparse, glob, json, os, re, shutil
 
 UNI = os.path.dirname(os.path.abspath(__file__))
 ENGINE = os.path.dirname(UNI)
+# the glow-line sets (Friend 2026-11-17, DECISIONS 3): the runtime and every category file of the skill, read only, + the bridge
+SKILL = os.path.normpath(os.path.join(ENGINE, '..', '..', '.claude', 'skills', 'glow-line-motion'))
+GLOW_ASSETS = os.path.join(SKILL, 'assets')
+GLOW_CATS = sorted(f for f in glob.glob(os.path.join(SKILL, 'examples', 'b[0-9][0-9]*', '*.js'))
+                   if re.fullmatch(r'b\d\dt?', os.path.basename(os.path.dirname(f))) and os.path.basename(f) == os.path.basename(os.path.dirname(f)) + '.js')
 
 
 def main():
@@ -26,11 +31,20 @@ def main():
     for f in glob.glob(os.path.join(UNI, 'fonts', '*.ttf')) + glob.glob(os.path.join(UNI, 'fonts', '*.woff')):
         dst = os.path.join(proj, 'fonts', os.path.basename(f))
         if not os.path.exists(dst): shutil.copy(f, dst)
+    # the glow-line runtime loads its helpers (beats.js, pro*.js) and fonts from next to the page
+    for f in glob.glob(os.path.join(GLOW_ASSETS, '*.js')):
+        dst = os.path.join(proj, os.path.basename(f))
+        if os.path.basename(f) != 'glowline.js' and not os.path.lexists(dst): os.symlink(f, dst)
+    for f in glob.glob(os.path.join(GLOW_ASSETS, 'fonts', '*')):
+        dst = os.path.join(proj, 'fonts', os.path.basename(f))
+        if not os.path.exists(dst): shutil.copy(f, dst)
     rd = lambda p: open(os.path.join(UNI, p)).read()
     # an overlay style ("card-overlay", "card-overlay-big") is its full-screen style + its overlay file (overlay.js holds the frame)
     base = a.style.split('-overlay')[0]
     styles = [f'styles/{base}.js', f'styles/{base}-overlay.js'] if '-overlay' in a.style else [f'styles/{a.style}.js']
-    js = [f'const ICONS = {open(os.path.join(ENGINE, "icons", "lucide.json")).read()};', rd('core.js'), rd('kit.js'), rd('overlay.js')] + [rd(f) for f in styles] + [open(f).read() for f in sorted(glob.glob(os.path.join(UNI, 'scenes', '*.js')))] + [open(f).read() for f in a.extra]
+    js = [f'const ICONS = {open(os.path.join(ENGINE, "icons", "lucide.json")).read()};', rd('core.js'), rd('kit.js'), rd('overlay.js')] + [rd(f) for f in styles] \
+        + [open(os.path.join(GLOW_ASSETS, 'glowline.js')).read()] + [open(f).read() for f in GLOW_CATS] + [rd('glow/bridge.js')] \
+        + [open(f).read() for f in sorted(glob.glob(os.path.join(UNI, 'scenes', '*.js')))] + [open(f).read() for f in a.extra]
     def then(k, m):                                   # --then id,t0,t1[,index[,hit]]: more scenes in the same clip
         f = m.split(','); i = int(f[3]) if len(f) > 3 and f[3] else k + 1
         return f"play({json.dumps(f[0])}, {float(f[1])}, {float(f[2])}, {{}}, {{index: {i}{f', hit: {float(f[4])}' if len(f) > 4 else ''}}});\n"
