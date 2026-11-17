@@ -819,8 +819,9 @@
   function msg(p, c, Q, x, y, w, h, o = {}) { const t0 = o.t ?? Q.tIn, g0 = o.g || popAt(p, x, y, t0), g = o.noSwell ? g0 : mvG(g0, { px: x, py: y, s: [[0, 1], [Q.H, 1], [f3(Q.H + tu(.18)), 1.04, 'io'], [f3(Q.H + tu(.42)), 1, 'io']] });
     const l = f1(x - w / 2), t = f1(y - h / 2), k = Q.kind; let A;
     const frame = st => k === 'chat' ? g.path(bubbleD(l, t, w, h, 44, o.tail === undefined ? { side: 'b', x: l + 110 } : o.tail), st) : R(g, l, t, w, h, 34, st);
+    const frameIn = (q, st) => k === 'chat' ? q.path(bubbleD(l, t, w, h, 44, o.tail === undefined ? { side: 'b', x: l + 110 } : o.tail), st) : R(q, l, t, w, h, 34, st);
     if (o.pointer) { const P = o.pointer, ex = P.x < x ? l + 2 : l + w - 2, ey = Math.max(t + 50, Math.min(t + h - 50, P.y + (P.dy ?? -40))); g.path(`M ${ex} ${f1(ey - 34)} L ${P.x} ${P.y} L ${ex} ${f1(ey + 34)} Z`, F(4)); }
-    if (o.frameAt != null) { frame(BK); const e = frame(F(4)); on(e, p, 0, { draw: [[0, 0], [o.frameAt, 0], [f3(o.frameAt + tu(.4)), 1, 'io']] }); } else frame(F(4));
+    if (o.frameAt != null) { const bk = atG(g, f3(o.frameAt + tu(.3))); frameIn(bk, F(4)); const e = frame(W(4));   /* the outline draws itself; the dark body only comes once it is round the words */ on(e, p, 0, { draw: [[0, 0], [o.frameAt, 0], [f3(o.frameAt + tu(.4)), 1, 'io']] }); } else frame(F(4));
     const late = o.frameAt != null ? atG(g, f3(o.frameAt + tu(.3))) : g;
     if (k === 'comment') { const r = Math.min(84, h / 2 - 22); portrait(late, l + 30 + r, y, r); R(late, l + 2 * r + 64, t + 34, 160, 18, 9, GREY()); A = [l + 2 * r + 64, t + 62, l + w - 36, t + h - 26]; }
     else if (k === 'review') { const n = Q.mood === 'good' ? 5 : Q.mood === 'bad' ? 1 : 0, gap = 74, sx = f1(l + 60), sy = t + 60;
@@ -833,7 +834,8 @@
   function words11(g, p, Q, A, o = {}) { const [x0, y0, x1, y1] = A, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, aw = x1 - x0, tw0 = o.tWrite ?? Q.T0;
     const dots = sub(g); on(dots, p, 0, { o: [[0, 0], [f3(Q.tIn + tu(.2)), 0], [f3(Q.tIn + tu(.3)), 1], [f3(tw0 - tu(.02)), 1], [f3(tw0 + tu(.1)), 0]] });
     [-1, 0, 1].forEach(i => dots.circle(cx + i * 40, cy, 12, { fill: TL_(.5), sw: 0, stroke: 'none' }));
-    const rv = revealG(g, p, x0 - 14, y0 - 30, aw + 28, (y1 - y0) + 60, tw0, f3(Q.H - tu(.04)));
+    const wT = Q.quote ? Math.min(aw, tw(g, Q.quote, o.size || 74)) : aw * .86, rx0 = Q.quote ? f1(cx - wT / 2 - 14) : x0 - 14;   /* writes from where the words start (no blank sweep) */
+    const rv = revealG(g, p, rx0, y0 - 30, f1(Q.quote ? wT + 28 : aw + 28), (y1 - y0) + 60, tw0, f3(Q.H - tu(.04)));
     if (Q.quote) txt(rv, Q.quote, cx, cy + (o.size || 74) * .34, { size: o.size || 74, maxW: aw, weight: 800, color: C.ink, wrap: 'mid' });
     else { R(rv, x0, cy - 34, f1(aw * .86), 22, 11, GREY()); R(rv, x0, cy + 12, f1(aw * .55), 22, 11, GREY()); } }
   /* the reaction: a round slot with the react icon (or smile / frown) that pops on its corner just after H */
@@ -844,7 +846,7 @@
     R(g, x - w / 2, y - h / 2, w, h, h / 2, Object.assign({ fill: C.fill }, DASH(.7)));
     [-1, 0, 1].forEach(i => { const dg = sub(g); on(dg, p, 0, { o: [[0, 0], [f3(t + tu(.1 + .08 * (i + 1))), 0], [f3(t + tu(.18 + .08 * (i + 1))), .8], [Q.H, .8], [f3(Q.H + tu(.3)), .12, 'io']] }); dg.circle(x + i * 38, y, 11, { fill: C.soft, sw: 0, stroke: 'none' }); }); }
   /* read ticks (two checks) — the first lights when sent (t1), the second when read (t2) */
-  function ticks(p, x, y, t1, t2, k = 1) { [[0, t1], [30, t2]].forEach(([dx, t]) => { const a = `M ${f1(x + (dx - 24) * k)} ${y} L ${f1(x + (dx - 8) * k)} ${f1(y + 16 * k)} L ${f1(x + (dx + 22) * k)} ${f1(y - 16 * k)}`; p.path(a, { sw: f1(5 * Math.sqrt(k)), stroke: TL_(.35) }); const l = litOn(p, t); l.path(a, { sw: f1(6 * Math.sqrt(k)), stroke: ACC1 }); }); }
+  function ticks(p, x, y, t1, t2, k = 1, tS) { const b = atG(p, tS ?? f3(t1 - tu(.25))); [[0, t1], [30, t2]].forEach(([dx, t]) => { const a = `M ${f1(x + (dx - 24) * k)} ${y} L ${f1(x + (dx - 8) * k)} ${f1(y + 16 * k)} L ${f1(x + (dx + 22) * k)} ${f1(y - 16 * k)}`; b.path(a, { sw: f1(5 * Math.sqrt(k)), stroke: TL_(.35) }); const l = litOn(p, t); l.path(a, { sw: f1(6 * Math.sqrt(k)), stroke: ACC1 }); }); }
   /* a soft earlier message (faint, bars only) */
   function oldMsg(q, x, y, w, h, tail) { const l = x - w / 2, t = y - h / 2; q.path(bubbleD(l, t, w, h, 36, tail || null), F(3)); R(q, l + 34, y - 26, f1(w * .62), 18, 9, GREY()); R(q, l + 34, y + 10, f1(w * .38), 18, 9, GREY()); }
   const cornerR = (m, s = 170) => [f1(m.r - 20), f1(m.t + 12)];
@@ -950,7 +952,7 @@
 
   /* 16 TICKS (ส่งแล้ว อ่านแล้ว): big read ticks light under the message — sent, then read on the keyword (gone: read, and the reply place stays empty) */
   variant('ticks', 'ส่งแล้ว อ่านแล้ว', (d, c) => { art(c, p => { const Q = MQ(d), h = hOf(Q) + 20, m = msg(p, c, Q, 0, -70, 760, h, { tail: { side: 'b', x: 300, dir: 1 } });
-    const ty = f1(m.b + 140); { const g = popAt(p, 230, ty, Q.tIn); R(g, 70, ty - 62, 320, 124, 62, F(3.4)); } ticks(p, 205, ty, Q.T0, Q.H, 2.4);
+    const ty = f1(m.b + 140); { const g = popAt(p, 230, ty, Q.tIn); R(g, 70, ty - 62, 320, 124, 62, F(3.4)); } ticks(p, 205, ty, Q.T0, Q.H, 2.4, f3(Q.tIn + tu(.1)));
     reactC(p, c, Q, ...cornerR(m)); goneS(p, Q, -230, ty, 300, 110); }); });
 
   /* 17 STACK (ซ้อนแจ้งเตือน): two earlier notes stay stacked behind; the new message slides in from the right in front, a lit dot says "new" */
@@ -962,7 +964,7 @@
     reactC(p, c, Q, f1(m.r - 20), f1(m.b - 10)); goneS(p, Q, -200, m.b + 80); }); });
 
   /* 18 CAROUSEL (เลื่อนมาตรงกลาง): a row of messages slides left until the new one stops in the middle */
-  variant('carousel', 'เลื่อนมาตรงกลาง', (d, c) => { art(c, p => { const Q = MQ(d), h = hOf(Q) + 20, w = 620, gapX = 680, cg = mvG(CL(p), { x: [[0, gapX * 2], [Q.T0, gapX * 2], [f3(Q.H - tu(.15)), 0, 'io']], o: fadeIn(Q.tIn, .1) });
+  variant('carousel', 'เลื่อนมาตรงกลาง', (d, c) => { art(c, p => { const Q = MQ(d), h = hOf(Q) + 20, w = 620, gapX = 680, cg = mvG(CL(p), { x: [[0, gapX], [Q.T0, gapX], [f3(Q.H - tu(.15)), 0, 'io']], o: fadeIn(Q.tIn, .1) });   /* starts with a whole earlier message in the middle — never an empty canvas */
     [-1, 1, 2].forEach(i => { const g = mvG(cg, { o: [[0, .4]] }); oldMsg(g, i * gapX, -40, w, h, null); });
     const m = msg(p, c, Q, 0, -40, w, h, { g: cg, tail: null, noSwell: true, tWrite: f3(Q.H - tu(.35)) }); reactC(p, c, Q, ...cornerR(m)); goneS(p, Q, 0, m.b + 100); }); });
 
