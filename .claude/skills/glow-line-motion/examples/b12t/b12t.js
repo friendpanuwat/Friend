@@ -896,7 +896,9 @@
 
   /* 08 SWING (แกว่งชนต่อ): boxes hang side by side; the first swings in and knocks the row — the last one swings out */
   variant('swing', 'แกว่งชนต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = xsRow(n, s + (n >= 5 ? 14 : 22)), yp = -318, Ls = 250, y = f1(yp + Ls + s / 2);
-    xs.forEach((x, i) => { const tf = Q.tF(i), H = Q.H, r = !i ? [[0, 32], [f3(Q.T0 - tu(.36)), 32], [Q.T0, 0, 'in']] : i === Q.L ? [[0, 0], [H, 0], [f3(H + tu(.26)), -26, 'out'], [f3(H + tu(.62)), 0, 'io']] : [[0, 0], [tf, 0], [f3(tf + tu(.1)), -6, 'out'], [f3(tf + tu(.3)), 0, 'io']];
+    xs.forEach((x, i) => { const tf = Q.tF(i), H = Q.H, r = !i ? [[0, 28], [f3(Q.T0 - tu(.55)), 28], [Q.T0, 0, 'in'], [f3(Q.T0 + tu(.22)), 3, 'out'], [f3(Q.T0 + tu(.55)), 0, 'io']]   /* user: "ทำให้ 08 สมูทกว่านี้" — longer, eased swings that settle like a pendulum */
+        : i === Q.L ? [[0, 0], [H, 0], [f3(H + tu(.45)), -22, 'out'], [f3(H + tu(1)), 5, 'io'], [f3(H + tu(1.4)), -1.5, 'io'], [f3(H + tu(1.7)), 0, 'io']]
+        : [[0, 0], [tf, 0], [f3(tf + tu(.2)), -4, 'out'], [f3(tf + tu(.5)), 1.2, 'io'], [f3(tf + tu(.75)), 0, 'io']];
       atG(p, Q.tI(i)).circle(x, yp, 9, { fill: C.soft, sw: 0, stroke: 'none' });
       const K = { px: x, py: yp, r }, g = mvG(CL(p), Object.assign({ o: fadeIn(Q.tI(i), .1) }, K)); g.line(x, yp, x, f1(y - s / 2), { sw: 3, stroke: TL_(.55) });
       node(p, c, Q, i, x, y, s, { g, mv: K, it: f3(Q.tI(i) + tu(.04)), rip: false }); labAt(p, Q, i, x, y, s, 'below', { maxW: Math.min(330, s + 4) }); }); }); });
