@@ -28,7 +28,9 @@ fs.mkdirSync(out, {recursive: true});
     await page.evaluate(([t, s]) => window.seek(t, s), [+at, 'file://' + path.resolve(frame)]);
     const file = path.join(out, `${style}_${scene}_${idx}.jpg`);
     await page.screenshot({path: file, type: 'jpeg', quality: 90});
-    console.log(file, errs.length ? 'ERRORS ' + errs.slice(0, 3).join(' | ') : 'ok');
+    const low = await page.evaluate(() => glowCheck());                // lines and words under 3:1 against what is behind them
+    fs.writeFileSync(file.replace(/\.jpg$/, '.contrast.json'), JSON.stringify(low, null, 1));
+    console.log(path.basename(file), errs.length ? 'ERRORS ' + errs.slice(0, 3).join(' | ') : 'ok', low.length ? `· ${low.length} low contrast (worst ${Math.min(...low.map(x => x.ratio))})` : '· colours ok');
   }
   await b.close();
 })().catch(e => { console.error(e); process.exit(1); });
