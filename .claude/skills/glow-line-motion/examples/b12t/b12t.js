@@ -894,14 +894,20 @@
       const K = { px: x, py: y, x: [[0, -D], [tf, -D], [f3(tf + tu(.16)), 0, 'out']] }, g = mvG(CL(p), Object.assign({ o: fadeIn(Q.tI(i), .1) }, K));
       node(p, c, Q, i, x, y, s, { g, mv: K, it: f3(Q.tI(i) + tu(.04)) }); labAt(p, Q, i, x, y, s, 'below', { maxW: lwRow(xs) }); }); }); });
 
-  /* 08 SWING (แกว่งชนต่อ): boxes hang side by side; the first swings in and knocks the row — the last one swings out */
-  variant('swing', 'แกว่งชนต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = xsRow(n, s + (n >= 5 ? 14 : 22)), yp = -318, Ls = 250, y = f1(yp + Ls + s / 2);
-    xs.forEach((x, i) => { const tf = Q.tF(i), H = Q.H, r = !i ? [[0, 28], [f3(Q.T0 - tu(.55)), 28], [Q.T0, 0, 'in'], [f3(Q.T0 + tu(.22)), 3, 'out'], [f3(Q.T0 + tu(.55)), 0, 'io']]   /* user: "ทำให้ 08 สมูทกว่านี้" — longer, eased swings that settle like a pendulum */
-        : i === Q.L ? [[0, 0], [H, 0], [f3(H + tu(.45)), -22, 'out'], [f3(H + tu(1)), 5, 'io'], [f3(H + tu(1.4)), -1.5, 'io'], [f3(H + tu(1.7)), 0, 'io']]
-        : [[0, 0], [tf, 0], [f3(tf + tu(.2)), -4, 'out'], [f3(tf + tu(.5)), 1.2, 'io'], [f3(tf + tu(.75)), 0, 'io']];
-      atG(p, Q.tI(i)).circle(x, yp, 9, { fill: C.soft, sw: 0, stroke: 'none' });
-      const K = { px: x, py: yp, r }, g = mvG(CL(p), Object.assign({ o: fadeIn(Q.tI(i), .1) }, K)); g.line(x, yp, x, f1(y - s / 2), { sw: 3, stroke: TL_(.55) });
-      node(p, c, Q, i, x, y, s, { g, mv: K, it: f3(Q.tI(i) + tu(.04)), rip: false }); labAt(p, Q, i, x, y, s, 'below', { maxW: Math.min(330, s + 4) }); }); }); });
+  /* 08 SWING (แกว่งชนต่อ): boxes hang touching side by side, like a row of pendulums. The first is held out, let go — it falls in on a real pendulum
+     curve (θ = A·cos) and knocks the row; the knock runs through the still boxes (each lights, a tiny shiver) and the last one flies out, swings back,
+     knocks the row again, the first flies out less … each round smaller until all hang still. User: "ทำให้ 08 สมูทกว่านี้" → "ทำให้ดีๆกว่านี้มันยังไม่สมจริงอะ":
+     angles are sampled from the pendulum curve every frame (no eased in/out keys), the hit moments line up, the swings die down. */
+  const pendK = (a0, segs) => { const K = [[0, a0]]; segs.forEach(([t0, t1, f]) => { const m = Math.max(4, Math.round((t1 - t0) * 40)); for (let j = 1; j <= m; j++) K.push([f3(lerp(t0, t1, j / m)), f1(f(j / m))]); }); return K; };
+  variant('swing', 'แกว่งชนต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = xsRow(n, s + 4), yp = -318, Ls = 250, y = f1(yp + Ls + s / 2), H = Q.H, q = tu(.3), Ti = f3(H - tu(.12)), A = 30;
+    const tl = i => f3(lerp(Ti, H, i / Q.L)), hits = [Ti, f3(H + 2 * q), f3(H + 4 * q), f3(H + 6 * q)], amp = [24, 10, 4];
+    const out = (t0, a) => [t0, f3(t0 + 2 * q), u => a * Math.sin(Math.PI * u)];   /* out and back: half a swing */
+    const rK = i => { if (!i) return pendK(A, [[f3(Ti - q - tu(.02)), f3(Ti - q), () => A], [f3(Ti - q), Ti, u => A * Math.cos(Math.PI / 2 * u)], [Ti, hits[1], () => 0], out(hits[1], amp[1])]);
+      if (i === Q.L) return pendK(0, [[f3(H - tu(.02)), H, () => 0], out(H, -amp[0]), [hits[1], hits[2], () => 0], out(hits[2], -amp[2])]);
+      const K = [[0, 0]]; hits.slice(0, 3).forEach((t, k) => { const tt = k ? t : tl(i), a = [.9, .5, .25][k]; K.push([tt, 0], [f3(tt + tu(.05)), -a, 'out'], [f3(tt + tu(.16)), a * .4, 'io'], [f3(tt + tu(.26)), 0, 'io']); }); return K; };
+    xs.forEach((x, i) => { atG(p, Q.tI(i)).circle(x, yp, 9, { fill: C.soft, sw: 0, stroke: 'none' });
+      const K = { px: x, py: yp, r: rK(i) }, g = mvG(CL(p), Object.assign({ o: fadeIn(Q.tI(i), .1) }, K)); g.line(x, yp, x, f1(y - s / 2), { sw: 3, stroke: TL_(.55) });
+      node(p, c, Q, i, x, y, s, { g, mv: K, tf: i === Q.L ? H : tl(i), it: f3(Q.tI(i) + tu(.04)), rip: false }); labAt(p, Q, i, x, y, s, 'below', { maxW: Math.min(330, s + 4) }); }); }); });
 
   /* 09 GROW (ใหญ่ขึ้นทีละทอด): each box stands in front of the one before and is bigger; reached, it grows out of the last one's size */
   variant('grow', 'ใหญ่ขึ้นทีละทอด', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, mx = [0, 0, 300, 285, 240, 225][n], mn = [0, 0, 220, 190, 165, 165][n], ss = Array.from({ length: n }, (_, i) => lin(mn, mx, n, i)), ov = 30, yb = 150;
