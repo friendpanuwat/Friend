@@ -831,7 +831,7 @@
   variant('merge', 'รวมเป็นคนเดียว', (d, c) => { art(c, p => { const Q = PQ(d, 5), P = [[-420, -95], [-245, -165], [-80, -105], [-430, 175], [-60, 215]], k = .55, X = -170, FY = 345, K = 1.25, tM = f3(Q.H - tu(.12));
     P.forEach(([x, fy], i) => { const g = mvG(CL(p), { px: x, py: fy - 80, x: [[0, 0], [f3(Q.T0 + tu(.04 * i)), 0], [tM, f1(X - x), 'io']], y: [[0, 46], [Q.tC(i), 46], [f3(Q.tC(i) + tu(.34)), 0, 'out'], [f3(Q.T0 + tu(.04 * i)), 0], [tM, f1(FY - 120 - (fy - 80)), 'io']],
       s: [[0, 1], [f3(Q.T0 + tu(.04 * i)), 1], [tM, .7, 'io']], o: [[0, 0], [Q.tC(i), 0], [f3(Q.tC(i) + tu(.1)), 1], [f3(tM - tu(.1)), 1], [tM, 0]] }); fig(p, x, fy, k, { g }); });
-    fig(p, X, FY, K, { g: popAt(p, X, FY - 150, tM), lit: true });
+    fig(p, X, FY, K, { g: mvG(p, { px: X, py: FY, s: [[0, .8], [Q.T0, .8], [tM, 1, 'io']], o: [[0, 0], [f3(Q.T0 + tu(.1)), 0], [tM, 1, 'io']] }), lit: true });   /* grows in while the small ones gather into it — never an empty canvas */
     pickFx(p, X, FY, K); info(p, c, Q, -40, -330, 480, 330, { badge: 'top', align: 'start' }); }); });
 
   /* 08 PART (แหวกฝูง): a tight front row hides someone; it parts to both sides and the one it is about stands there */
@@ -948,7 +948,7 @@
     for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) { const x = f1(-432 + i * 96 + (rnd() - .5) * 26), y = f1(-232 + j * 82 + (rnd() - .5) * 20), t = f3(tu(.05 + .018 * (j * cols + i)));
       if (j === 1 && i === 6) { tgt = [x, y]; continue; } dimG(popAt(p, x, y, t), Q.H).circle(x, y, 24, { fill: TL_(.3), sw: 2.4, stroke: C.soft }); }
     const [tx, ty] = tgt, tM = f3(Q.H - tu(.24)), g = mvG(p, { px: tx, py: ty, x: [[0, 0], [Q.T0, 0], [tM, f1(X - tx), 'io']], y: [[0, 0], [Q.T0, 0], [tM, f1(fy - 160 * k - ty), 'io']], o: [[0, 0], [tu(.2), 0], [tu(.3), 1], [tM, 1], [f3(tM + tu(.06)), 0]] });
-    g.circle(tx, ty, 24, DOTF()); g.circle(tx, ty, 34, { sw: 2.6, stroke: ACC1 });
+    g.circle(tx, ty, 24, { fill: TL_(.3), sw: 2.4, stroke: C.soft }); { const l = litOn(g, f3(Q.T0 - tu(.1))); l.circle(tx, ty, 24, DOTF()); l.circle(tx, ty, 34, { sw: 2.6, stroke: ACC1 }); }   /* a dot like the others until it is picked */
     fig(p, X, fy, k, { g: popAt(p, X, fy - 160 * k, tM), lit: true }); pickFx(p, X, fy, k);
     if (Q.badge) badgeB(p, c, Q, -250, 150, 176); info(p, c, Q, 110, -20, 480, 290, { badge: false, align: 'start', size: 46 }); }); });
 
