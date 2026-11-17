@@ -1,8 +1,9 @@
 /* Test of the draft picker (scenes/cats.js): node test_picker.js
-   2026-11-17 Friend deleted every old draft ("ลบชุดฐานเก่าทิ้งให้หมด เราจะใช้ชุดฐาน glow-line", DECISIONS 3). The picker's
-   rules stay, so they are tested on made-up drafts that live in this test only; the glow-line drafts come in next.
+   2026-11-17 Friend deleted every old draft ("ลบชุดฐานเก่าทิ้งให้หมด เราจะใช้ชุดฐาน glow-line", DECISIONS 3); the drafts are now the
+   glow-line designs (scenes/glow.js). The picker's rules stay, so they are tested on made-up drafts that live in this test only.
    The library (scenes/*.js, loaded as build.py does):
-   · the 21 categories are there · every draft has its small form (the overlay widget)
+   · the 21 categories are there, every one with glow-line drafts, ids "<set>.<design>" (the overlay styles that needed a small
+     form were cancelled with the old styles)
    · the 20 topic-bound drafts Friend deleted on 2026-11-12 ("ลบทั้ง 20 ร่างเลย") never come back
    The picker:
    · several sentences of one category in one clip get a different draft each time before any repeats, never the same twice in a row
@@ -14,7 +15,8 @@ const fs = require('fs'), path = require('path'), vm = require('vm'), assert = r
 // 1. the library
 const lib = drafts.load(), have = drafts.counts(lib), CATS = vm.runInContext('CATS', lib);
 assert.strictEqual(Object.keys(have).length, 21, '21 categories: ' + Object.keys(have));
-for (const c of Object.values(CATS)) for (const v of c.variants) assert(v.small, `no small form: ${c.id}.${v.id}`);
+for (const c of Object.values(CATS)) { assert(c.variants.length >= 20, `${c.id} has ${c.variants.length} drafts`);
+  for (const v of c.variants) assert(/^B\d\dT?\.[\w-]+$/.test(v.id) && v.id.startsWith(c.id) && typeof v.build === 'function', `bad draft ${c.id} ${v.id}`); }
 const GONE = ['B01.receipt', 'B01.tag', 'B01.piggy', 'B01.calc', 'B02.stack', 'B17.basket', 'B17.shelf', 'B17.toolbox', 'B21.shop', 'B21.postcard',
   'B04.belt', 'B05.grade', 'B07.wetfloor', 'B07.hook', 'B09.sun', 'B09.candle', 'B10.invite', 'B11.mic', 'B12.plant', 'B20.cheers'];
 for (const g of GONE) { const [c, id] = g.split('.'); assert(!CATS[c].variants.some(v => v.id === id), 'deleted draft is back: ' + g); }
@@ -59,3 +61,20 @@ console.log('  years ×6 :', y.join(' → '));
 console.log('  money ×4 :', m.join(' → '));
 console.log('  ui B04 ×4:', st.join(' → '));
 console.log('  drafts   :', Object.entries(have).map(([c, k]) => `${c} ${k}`).join(' · '), `(total ${Object.values(have).reduce((a, b) => a + b, 0)})`);
+
+// 3. the random picks of a run (tools/pick.js, Friend 2026-11-17: "ต่อให้ user อัพคลิปเดิมลงไปแล้วกดรันอีกรอบนึงผมก็ไม่อยากให้มันออกมาเหมือนกัน")
+{
+  const {pick} = require('./tools/pick.js');
+  const sc = [1, 2, 3, 4, 5, 6].map(k => ({id: 's' + k, cat: 'B04'})).concat([{id: 's7', cat: 'B13'}]);
+  const a = pick({seed: 11, scenes: sc}).picks, b = pick({seed: 11, scenes: sc}).picks, c = pick({seed: 12, scenes: sc}).picks;
+  assert.deepStrictEqual(a, b, 'the same seed gives the same picks (a kept plan renders the same)');
+  assert.notDeepStrictEqual(a, c, 'a new seed gives new picks');
+  const four = Object.values(a).slice(0, 6);
+  assert.strictEqual(new Set(four).size, 6, 'no drawing twice in one clip: ' + four);
+  const sets = four.map(id => id.split('.')[0]);
+  assert(sets.every((x, k) => k === 0 || x !== sets[k - 1]), 'the two glow-line sets take turns in a category: ' + sets);
+  let hist = [], seen = new Set();
+  for (let k = 0; k < 8; k++) { const p = Object.values(pick({seed: 500 + k, history: hist, scenes: sc.slice(0, 3)}).picks);
+    p.forEach(id => { assert(!seen.has(id), `run ${k + 1} of the same clip shows ${id} again`); seen.add(id); }); hist.push({picks: p}); }
+  console.log('  random   : same seed same picks · 6 of B04 all different, sets in turn · 8 runs of one clip, no drawing twice');
+}
