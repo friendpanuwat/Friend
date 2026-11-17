@@ -15,8 +15,10 @@ Camera (every style but gold, Friend 2026-11-12 "ซูมช้า 4–5 คร
 line ends (a full-screen cut hides the way back: card and glass reset on the cut; split shrinks the speaker, so it eases
 back before).
 Subtitles: every chunk of every line, the last phrase of a chunk is the big word (captions.py); a chunk that holds one of
-the AI's accent words gets "acc" (talking-head-motion: the accent colour on 1–2 words per sentence, the rest white)."""
-import json, math, re, sys
+the AI's accent words gets "acc" (talking-head-motion: the accent colour on 1–2 words per sentence, the rest white).
+Drafts: a picture whose category has no draft yet is left out (2026-11-17 Friend deleted the old drafts for the glow-line
+sets; until those are in, every category is empty and the clip is subtitles + camera only, then_<style>.txt is empty)."""
+import json, math, os, re, subprocess, sys
 
 W, FACES = sys.argv[1], sys.argv[2]
 STYLES = sys.argv[3:]
@@ -38,6 +40,11 @@ cap = json.load(open(f'{W}/captions.json'))
 lines, phrases = cap['captions'], cap['words']
 dur = lines[-1]['t1']
 report = [r for r in json.load(open(f'{W}/cats/report.json')) if r['ok'] and r['cat'] != 'none']
+DRAFTS = json.loads(subprocess.run(['node', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'drafts.js')],
+                                   capture_output=True, text=True, check=True).stdout)   # drafts per category, now
+empty = [r for r in report if not DRAFTS.get(r['cat'])]
+if empty: print(f"{len(empty)} of {len(report)} pictures left out: no draft yet in {' '.join(sorted({r['cat'] for r in empty}))} (subtitles only there)")
+report = [r for r in report if DRAFTS.get(r['cat'])]
 try: camera = json.load(open(f'{W}/cats/camera.json'))
 except FileNotFoundError: camera = {'zoom': [], 'accent': []}
 

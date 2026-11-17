@@ -3,6 +3,7 @@
 
 usage: build.py <project_dir> <style> <scene> [--index N] [--t0 0.5] [--t1 4.5] [--slots '{"key": "…"}']
 The page = base.css + core.js + kit.js + styles/<style>.js + scenes/*.js + one play() call.
+scene "-" = no picture: a real clip whose lines have no draft yet (2026-11-17, old drafts deleted) is subtitles only.
 """
 import argparse, glob, json, os, shutil
 
@@ -34,11 +35,13 @@ def main():
         f = m.split(','); i = int(f[3]) if len(f) > 3 and f[3] else k + 1
         return f"play({json.dumps(f[0])}, {float(f[1])}, {float(f[2])}, {{}}, {{index: {i}{f', hit: {float(f[4])}' if len(f) > 4 else ''}}});\n"
     more = ''.join(then(k, m) for k, m in enumerate(a.then))
+    first = '' if a.scene == '-' else \
+        f"play({json.dumps(a.scene)}, {a.t0}, {a.t1}, {a.slots}, {{index: {a.index}{f', hit: {a.hit}' if a.hit is not None else ''}}});"
     js.append(f"""
 ['Lead', 'CardSans', 'KeySans', 'Hand', 'Anu'].forEach(f => div(`left:-9999px;top:0;font-family:${{f}}`, document.body, 'กขคฅ ึ่้ 0123'));
 if ({a.speaker} !== 1) [V, VB].forEach(e => {{ e.style.scale = {a.speaker}; e.style.translate = `${{540 * (1 - {a.speaker})}}px ${{1920 * (1 - {a.speaker})}}px`; }});
 useStyle({json.dumps(a.style)});
-play({json.dumps(a.scene)}, {a.t0}, {a.t1}, {a.slots}, {{index: {a.index}{f', hit: {a.hit}' if a.hit is not None else ''}}});
+{first}
 {more}
 window.SFX = calmSfx(SFX);""")
     html = ('<!doctype html><html><head><meta charset="utf-8"><style>' + rd('base.css') + '</style></head><body>'

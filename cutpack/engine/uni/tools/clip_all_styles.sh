@@ -10,11 +10,13 @@ E=$(cd "$(dirname "$0")/../.." && pwd)
 styles=("$@"); [ ${#styles[@]} -gt 0 ] || styles=(card glass split gold card-overlay glass-overlay split-overlay gold-overlay)
 for st in "${styles[@]}"; do
   plan=$W/plan_$st.js; tx=$W/then_$st.txt; [ -f "$plan" ] || { plan=$W/plan.js; tx=$W/then.txt; }
-  IFS=',' read -r id t0 t1 i hit < <(head -1 "$tx")
-  then=(); while IFS= read -r l; do [ -n "$l" ] && then+=(--then "$l"); done < <(tail -n +2 "$tx")
+  id=''; IFS=',' read -r id t0 t1 i hit < <(grep -m1 . "$tx") || true
+  # no picture at all (no category has a draft yet, 2026-11-17): build the page with scene "-" = subtitles + camera only
+  if [ -n "$id" ]; then first=("$id" --t0 "$t0" --t1 "$t1" --index "$i" --hit "$hit"); else first=(-); fi
+  then=(); while IFS= read -r l; do [ -n "$l" ] && then+=(--then "$l"); done < <(grep . "$tx" | tail -n +2)
   P=$W/st_$st; s=$(date +%s); mkdir -p "$P"
   ln -sfn "$W/base/src_frames" "$P/src_frames"; ln -sfn "$W/base/voice.wav" "$P/voice.wav"
-  python3 "$E/uni/build.py" "$P" "$st" "$id" --t0 "$t0" --t1 "$t1" --index "$i" --hit "$hit" --extra "$plan" "${then[@]}" > "$P/build.log"
+  python3 "$E/uni/build.py" "$P" "$st" "${first[@]}" --extra "$plan" "${then[@]}" > "$P/build.log"
   for step in render audio encode; do bash "$E/core/pipeline.sh" "$P" "$W/clip.mp4" $step > "$P/$step.log" 2>&1 < /dev/null; done
   echo "$st · $(tail -1 "$P/render.log") · $(grep -E 'I:' "$P/audio.log" | tail -1 | tr -s ' ') · $(stat -c %s "$P/edit.mp4") bytes · $(( $(date +%s) - s )) s"
 done

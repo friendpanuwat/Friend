@@ -10,12 +10,9 @@
    and the lines the AI said no category fits (cat "none" + what they need).
    usage: node cat_stats.js <out_dir>… > stats.json
    ===================================================================== */
-const fs = require('fs'), path = require('path'), vm = require('vm');
-const LIB = ['scenes/cats.js', 'scenes/lego_r2.js', 'scenes/lego_r3.js', 'scenes/lego_r4.js', 'scenes/lego_r5.js', 'scenes/lego_v2.js'];
+const fs = require('fs'), path = require('path'), vm = require('vm'), drafts = require('./drafts');
 const load = sentences => {
-  const ctx = {SCENE() {}, LAYOUTS: {}, console};
-  vm.createContext(ctx);
-  for (const f of LIB) vm.runInContext(fs.readFileSync(path.join(__dirname, f), 'utf8'), ctx);
+  const ctx = drafts.load();                         // every draft in scenes/ (2026-11-17: none until the glow-line sets)
   vm.runInContext('this.LIST = []; SENTENCE = (id, r) => LIST.push([id, r]); for (const k in PICKS) delete PICKS[k];', ctx);
   vm.runInContext(fs.readFileSync(sentences, 'utf8'), ctx);
   vm.runInContext('this.RES = LIST.map(([id, r]) => { const fit = CATS[r.cat].variants.filter(v => v.fits(r)).map(v => v.id);' +
