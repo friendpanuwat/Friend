@@ -21,23 +21,24 @@ const NEON = {
      comment, share, follow). The speaker's own video may run under the buttons, as in every clip. Above Friend's "copy 100%". */
   /* measured on TikTok's own screen (Friend 2026-11-17 sent its overlay: "เห็นไหมว่าขอบล่างมันไม่จำเป็นต้องเว้นเยอะขนาดนั้น"): the tabs end at
      y 195, the name starts at y 1690, the button column is x 936– from y 754 to 1680. So: y 220–1660, x 60–1020 above y 740 (no buttons
-     there), x 60–920 below it. */
-  safe: [60, 220, 920, 1660], safeTop: {y: 740, x1: 1020},
+     there), x 60–920 below it. The TOP is Friend's sheet as it is (Friend 2026-11-17: "ขอบบนเอาเท่าเดิมที่ผมส่งรูปตัวอย่างให้ผมให้ดูแค่ขอบล่าง
+     เท่านั้น"): no top limit. */
+  safe: [60, 0, 920, 1660], safeTop: {y: 740, x1: 1020},
   /* boxes [x, y, w, h] · words {x, y (centre), align, maxW}: Friend's sheet (2nd image), each shot moved and squeezed into the safe zone
      (2026-11-17; the sheet put the words at y 1400–1620 and pictures at the right edge, under TikTok's caption and buttons) */
   layouts: {
     talk_low:   {speaker: true, lead: {x: 60, y: 1405, align: 'left'}, key: {x: 60, y: 1540, align: 'left'}},                            // shot 01
     hands:      {speaker: true, lead: {x: 540, y: 1045}, key: {x: 540, y: 1120}, stage: [250, 1290, 620, 320]},                           // shot 02
     chest:      {speaker: true, stage: [210, 980, 660, 270], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},                           // shot 03
-    square:     {screen: true, square: [540, 460, 240, 44], stage: [180, 730, 720, 560], lead: {x: 540, y: 1400}, key: {x: 540, y: 1530}},  // shot 04 (Friend 2026-11-17: the circle → a rounded square, "ขยายใหญ่อีกนิดนึง ย้ำว่าแค่นิดเดียว": 440 → 480)
-    band:       {screen: true, lead: {x: 540, y: 260}, key: {x: 540, y: 375}, band: [0, 500, 1080, 660], stage: [250, 1195, 580, 440]},   // shot 05
+    square:     {screen: true, square: [540, 300, 240, 44], stage: [180, 600, 720, 680], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},  // shot 04 (Friend 2026-11-17: the circle → a rounded square, "ขยายใหญ่อีกนิดนึง ย้ำว่าแค่นิดเดียว": 440 → 480)
+    band:       {screen: true, lead: {x: 540, y: 220}, key: {x: 540, y: 340}, band: [0, 520, 1080, 660], stage: [250, 1215, 580, 440]},   // shot 05
     side:       {screen: true, stage: [70, 670, 470, 580], lead: {x: 735, y: 890, maxW: 330}, key: {x: 735, y: 1010, maxW: 330}},      // shot 06
-    talk_split: {speaker: true, lead: {x: 540, y: 260}, key: {x: 540, y: 1080}},                                                        // shot 07
-    window:     {screen: true, win: [160, 220, 760, 690, 40], stage: [240, 940, 600, 420], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}}, // shot 08
-    diag:       {speaker: true, lead: {x: 60, y: 265, align: 'left'}, key: {x: 60, y: 390, align: 'left', maxW: 640}, stage: [500, 1090, 415, 540]},   // shot 09
-    word:       {screen: true, key: {x: 540, y: 340}, stage: [100, 520, 820, 760], lead: {x: 540, y: 1380}},                            // shot 10
-    recap:      {screen: true, lead: {x: 540, y: 260}, key: {x: 540, y: 375}, stages: [[260, 500, 660, 300], [220, 850, 700, 300], [330, 1200, 540, 430]],
-                 nums: [[95, 650], [95, 1000], [95, 1415]]},                                                                             // shot 11
+    talk_split: {speaker: true, lead: {x: 540, y: 230}, key: {x: 540, y: 1080}},                                                        // shot 07
+    window:     {screen: true, win: [160, 90, 760, 760, 40], stage: [240, 940, 600, 440], lead: {x: 540, y: 1440}, key: {x: 540, y: 1545}}, // shot 08
+    diag:       {speaker: true, lead: {x: 60, y: 140, align: 'left'}, key: {x: 60, y: 265, align: 'left', maxW: 640}, stage: [500, 1090, 415, 540]},   // shot 09
+    word:       {screen: true, key: {x: 540, y: 280}, stage: [100, 600, 820, 620], lead: {x: 540, y: 1380}},                            // shot 10
+    recap:      {screen: true, lead: {x: 540, y: 120}, key: {x: 540, y: 250}, stages: [[260, 430, 680, 300], [220, 870, 700, 290], [340, 1270, 520, 380]],
+                 nums: [[100, 620], [100, 1060], [100, 1520]]},                                                                             // shot 11
     cta:        {speaker: true, stage: [320, 950, 480, 380], lead: {x: 540, y: 1410}, key: {x: 540, y: 1540}},                           // shot 12
   },
   order: ['hands', 'square', 'chest', 'band', 'diag', 'window', 'side', 'cta', 'word'],   // a real clip's pictures take turns (the recap only when asked)
