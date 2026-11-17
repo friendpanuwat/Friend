@@ -71,7 +71,7 @@ function neonFaceBox(t0, t1) {
 function neonRoom(name, f) {
   const [, top, , chin] = f, L = NEON.layouts[name];
   if (L.screen) return true;
-  if (name === 'diag') return top - 130 > L.key.y + 110;            // the hair (≈ 130 above the forehead) under the words
+  if (name === 'diag') return top - 130 > L.key.y + 110 && chin + 30 < L.stage[1];   // the hair (≈ 130 above the forehead) under the words, the chin above the picture
   if (name === 'talk_split') return chin + 20 < L.key.y - 110;
   if (L.stage) return chin + 30 < Math.min(L.stage[1], L.lead ? L.lead.y - 40 : 1e9);
   return chin + 20 < L.lead.y - 40;                                 // talk_low

@@ -139,7 +139,8 @@ def zooms_for(R, sc, cut):
     # picture this style leaves out (best rank first), then lines with an accent word
     shown = {s[3] + 1 for s in sc}
     cand = list(camera.get('zoom', [])) + [r['line'] for r in sorted(report, key=lambda r: (r.get('rank', 2), r['line'])) if r['line'] not in shown] \
-        + sorted({a['line'] for a in camera.get('accent', [])})
+        + sorted({a['line'] for a in camera.get('accent', [])}) \
+        + list(range(1, len(lines) + 1))   # then any line the speaker is seen on (neon: 11 pictures covered every line the AI named, so 0 pushes)
     for n in dict.fromkeys(cand):
         if len([z for z in out if z['z'] > 1]) >= min(PUSH['most'], max(2, math.ceil(dur / 10))): break
         l = lines[n - 1]; t = l['t0'] + .1
