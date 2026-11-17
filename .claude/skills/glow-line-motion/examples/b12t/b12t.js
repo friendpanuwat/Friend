@@ -785,11 +785,13 @@
 
 
   /* ================= B12T เหตุ → ผล =================
-     Story: the links come in early (the canvas looks full) → on T0 the first one fires; the push travels from link to link along this design's
-     own way (a wire, a knock, an overflow, a fuse, a ripple, a beam, a bolt …) — each link bumps and its edge lights the moment it is reached →
-     on the keyword H the last one (the effect: the end sign, else the last link) lights with a halo + ripple and its word lands lit.
-     Data: items 1–4 (things that have an icon or a word) + end. No links → two unnamed (dashed) links before the end; one link and no end → an
-     unnamed effect place (a lit spark on H). A thing with only a word shows the word inside its slot. */
+     User 2026-11-17 on the first round: "อันนี้มันแฟนซีเกินไปแล้ว อยากได้ simple อ่ะครับ เหมือนหมวดที่ 1-9" + "แต่ไม่ได้หมายความว่าให้ copy มานะครับ" →
+     plain like B01T–B09T (rounded icon boxes, plain words, thin lines, no halos / glow fills / rings / grids) but none of their looks (no row-with-a-line,
+     hops, zig-zag, big arrow, arc, spiral, U-turn, grid, stairs, chevrons, cards fan).
+     Story: the links come in early → on T0 the first one acts on the next — knocks, presses, snaps into, rolls onto, pushes, swings into, switches on,
+     opens … — each link bumps and its edge lights when reached → on the keyword H the last one (the effect: the end sign, else the last link) lights
+     and its word lands. Data: items 1–4 (an icon or a word) + end. No links → two unnamed (dashed) links before the end; one link and no end → an
+     unnamed effect place (a lit spark on H). A thing with only a word shows the word inside its box. */
   function CQ(d) { d = d || {}; const all = Array.isArray(d.items) ? d.items.slice(0, 4) : [], K0 = all.filter(has), E = has(d.end) ? d.end : null;
     const N = K0.length ? K0.slice() : [{}, {}]; if (E) N.push(E); if (N.length < 2) N.push({});
     const n = N.length, L = n - 1, H = Z.H, st = Math.min(.13, .52 / n), tI = i => f3(tu(.08 + st * i)), T0 = f3(Math.max(tI(L) + tu(.4), H - tu(1.05)));
@@ -798,257 +800,246 @@
   const SZn = n => n <= 2 ? 230 : n === 3 ? 205 : n === 4 ? 180 : 165;
   const lin = (a, b, n, i) => n <= 1 ? (a + b) / 2 : f1(a + (b - a) * i / (n - 1));
   const spanX = (n, s, W = 940) => xsRow(n, Math.min(s + 230, (W - s) / Math.max(1, n - 1)));
-  const lwAlt = (xs, s) => xs.length > 1 ? Math.min(360, 2 * Math.abs(xs[1] - xs[0]) - 30) : 360;
-  const lwRow = (xs, s) => xs.length > 1 ? Math.min(360, Math.abs(xs[1] - xs[0]) - 12) : 360;
+  const lwAlt = xs => xs.length > 1 ? Math.min(340, 2 * Math.abs(xs[1] - xs[0]) - 60) : 340;
+  const lwRow = xs => xs.length > 1 ? Math.min(340, Math.abs(xs[1] - xs[0]) - 70) : 340;
   const polyD = pts => pathOf(pts, false);
   const qP = (a, c, b, n = 16) => Array.from({ length: n + 1 }, (_, k) => { const u = k / n, m = 1 - u; return [f1(m * m * a[0] + 2 * m * u * c[0] + u * u * b[0]), f1(m * m * a[1] + 2 * m * u * c[1] + u * u * b[1])]; });
   const cP = (a, c1, c2, b, n = 24) => Array.from({ length: n + 1 }, (_, k) => { const u = k / n, m = 1 - u; return [0, 1].map(j => f1(m * m * m * a[j] + 3 * m * m * u * c1[j] + 3 * m * u * u * c2[j] + u * u * u * b[j])); });
+  const LITS = () => ({ fill: 'none', sw: 5, stroke: ACC1 });
+  const DASHB = () => Object.assign({ fill: C.fill }, DASH(.6), { sw: 3 });
   /* a lit stroke that draws itself t0 → t1 (the push going along) */
-  const litP = (q, dd, t0, t1, w = 6, e = 'io') => { const el = q.path(dd, { sw: w, stroke: ACC1 }); on(el, q, 0, { draw: [[0, 0], [t0, 0], [t1, 1, e]] }); return el; };
-  const glowP = (q, dd, t0, t1, w = 22) => { const el = q.path(dd, { sw: w, stroke: TA(.2) }); on(el, q, 0, { draw: [[0, 0], [t0, 0], [t1, 1, 'io']] }); return el; };
-  /* keys that run a part along a list of legs [{ pts, t0, t1 }] (time even along each leg's samples), relative to fin */
+  const litP = (q, dd, t0, t1, w = 5, e = 'io') => { const el = q.path(dd, { sw: w, stroke: ACC1 }); on(el, q, 0, { draw: [[0, 0], [t0, 0], [t1, 1, e]] }); return el; };
+  /* keys that run a part along legs [{ pts, t0, t1 }] (time even along each leg's samples), relative to fin */
   function trackK(S, fin) { const K = { x: [], y: [] }; S.forEach((sg, j) => sg.pts.forEach((pt, k) => { if (j && !k) return; const t = f3(lerp(sg.t0, sg.t1, k / (sg.pts.length - 1)));
     if (!K.x.length) { K.x.push([0, f1(pt[0] - fin[0])]); K.y.push([0, f1(pt[1] - fin[1])]); } K.x.push([t, f1(pt[0] - fin[0])]); K.y.push([t, f1(pt[1] - fin[1])]); })); return K; }
-  /* a bright bead that runs along pts between t0 and t1, then goes out (o.keep stays) */
-  function orb(p, pts, t0, t1, r = 16, o = {}) { const fin = pts[pts.length - 1], K = o.K || pathK(pts, t0, t1, fin, 24, o.lin ? (u => u) : sm);
-    const g = mvG(o.clip ? CL(p) : p, { px: fin[0], py: fin[1], x: K.x, y: K.y, o: [[0, 0], [f3(o.in ?? t0), 0], [f3((o.in ?? t0) + tu(.04)), 1], [t1, 1], [f3(t1 + tu(.1)), o.keep ? 1 : 0]] });
-    g.circle(fin[0], fin[1], r + 12, { fill: TA(.25), sw: 0, stroke: 'none' }); if (o.star) star4(g, fin[0], fin[1], f1(r * 1.7), DOTF()); else g.circle(fin[0], fin[1], r, DOTF()); return g; }
-  const nslot = (q, sh, x, y, s, st) => sh === 'dia' ? q.path(pathOf([[x, f1(y - s / 2)], [f1(x + s / 2), y], [x, f1(y + s / 2)], [f1(x - s / 2), y]]), st) : shp(q, sh, x, y, s, st);
-  /* a link's slot (circ | box | hex | dia): comes in at o.t (default tI(i)) unless o.g is given; when the push reaches it (tF(i)) it bumps and its
-     edge lights; the effect (i = L) also gets a halo + ripple. Returns the slot's group (it bumps) */
-  function node(p, c, Q, i, x, y, s, o = {}) { const sh = o.shape || 'circ', t = o.t ?? Q.tI(i), tf = o.tf ?? Q.tF(i), eff = i === Q.L, X = Q.N[i], ph = !has(X);
-    const g0 = o.g || popAt(p, x, y, t), g = o.noBump ? g0 : mvG(g0, { px: x, py: y, s: bumpK(tf, eff ? 1.1 : 1.06) });
-    nslot(g, sh, x, y, s, ph ? Object.assign({ fill: C.fill }, DASH(.6), { sw: 3 }) : F(4)); if (!ph && o.inner !== false) nslot(g, sh, x, y, s - (sh === 'dia' ? 44 : 26), S(1.4));
-    nslot(litOn(g, tf), sh, x, y, s, LIT2());
-    if (eff && o.halo !== false) { haloH(p, x, y, f1(s * .64), tf); ripple(p, x, y, f1(s * .56), f3(tf + tu(.04))); }
-    if (ph) { if (eff) star4(litOn(g, tf), x, y, f1(s * .24), DOTF()); else g.circle(x, y, 14, { fill: C.soft, sw: 0, stroke: 'none' }); }
-    else put(p, c, X, x, y, f1(picOf(X) ? s * (sh === 'dia' ? .46 : .6) : s * .9), null, { t: o.it ?? f3(t + tu(.04)), punch: tf, mv: o.mv, o: o.io, bigW: f1(s * (sh === 'dia' ? .58 : .8)) });
+  /* a plain dot that runs along pts t0 → t1 (o.K = ready keys · o.keep = stays) */
+  function orb(p, pts, t0, t1, r = 12, o = {}) { const fin = pts[pts.length - 1], K = o.K || pathK(pts, t0, t1, fin, 24, o.lin ? (u => u) : sm), tin = o.in ?? t0;
+    const g = mvG(o.clip ? CL(p) : p, { px: fin[0], py: fin[1], x: K.x, y: K.y, o: [[0, 0], [tin, 0], [f3(tin + tu(.04)), 1], [t1, 1], [f3(t1 + tu(.1)), o.keep ? 1 : 0]] });
+    g.circle(fin[0], fin[1], r, DOTF()); return g; }
+  const nslot = (q, sh, x, y, s, st) => shp(q, sh, x, y, s, st);
+  /* a link's box (o.shape box | circ, or o.draw(q, style)): comes in at o.t (default tI(i)) unless o.g; bumps and its edge lights when reached (tF(i));
+     the effect gets a soft ring that fades. Returns the box's group (it bumps) */
+  function node(p, c, Q, i, x, y, s, o = {}) { const sh = o.shape || 'box', t = o.t ?? Q.tI(i), tf = o.tf ?? Q.tF(i), eff = i === Q.L, X = Q.N[i], ph = !has(X);
+    const g0 = o.g || popAt(p, x, y, t), g = o.noBump ? g0 : mvG(g0, { px: x, py: y, s: bumpK(tf, eff ? 1.08 : 1.05) }), dr = o.draw || ((q, st) => nslot(q, sh, x, y, s, st));
+    dr(g, ph ? DASHB() : F(4)); if (o.lit !== false) dr(litOn(g, tf), LITS());
+    if (eff && o.rip !== false) ripple(p, x, y, f1(s * .6), f3(tf + tu(.04)));
+    if (ph) { if (eff) star4(litOn(g, tf), x, y, f1(s * .22), DOTF()); else g.circle(x, y, 13, { fill: C.soft, sw: 0, stroke: 'none' }); }
+    else put(p, c, X, x, y, f1(picOf(X) ? s * .6 : s * .9), null, { t: o.it ?? f3(t + tu(.04)), punch: tf, mv: o.mv, o: o.io, bigW: f1(s * .8) });
     return g; }
-  /* the word of link i (only when it has an icon too): comes in after its link; the effect's word lands lit just after H */
-  function nlab(p, Q, i, x, y, o = {}) { const s = Q.LB(i); if (!s) return null; const eff = i === Q.L;
-    return lab(p, s, x, y, { size: o.size || 46, maxW: o.maxW || 330, t: o.t ?? (eff ? f3(Q.H + tu(.06)) : f3(Q.tI(i) + tu(.16))), lit: eff }); }
-  /* the word placed beside a slot of size s: below | above | left | right (g = the gap) */
-  function labAt(p, Q, i, x, y, s, side = 'below', o = {}) { const str = Q.LB(i); if (!str) return; const sz = o.size || 46, mw = o.maxW || 330, L = labSize(p, str, sz, mw), g = o.g ?? 18;
-    let cx = side === 'left' ? x - s / 2 - g - L.w / 2 : side === 'right' ? x + s / 2 + g + L.w / 2 : x, cy = side === 'above' ? y - s / 2 - g - L.h / 2 : side === 'below' ? y + s / 2 + g + L.h / 2 : y + (o.dy || 0);
-    cx = Math.max(-492 + L.w / 2, Math.min(492 - L.w / 2, cx)); nlab(p, Q, i, f1(cx), f1(cy), { size: sz, maxW: mw, t: o.t }); }
-  const arrowHead = (q, x, y, a, k = 1, st) => chev(rot(q, a, x, y), x, y, k, st || { sw: 7, stroke: ACC1 });
+  /* plain words (no pill), like B01T–B09T: size, and two lines when too long */
+  function wsz(p, str, sz, mw) { const w0 = tw(p, str, sz); if (w0 <= mw || sz * mw / w0 >= 40) return { w: Math.min(w0, mw), h: f1(sz * 1.2) }; const s2 = Math.max(40, sz * .9); return { w: Math.min(mw, tw(p, str, s2) * .6), h: f1(s2 * 2.3) }; }
+  function nlab(p, Q, i, x, y, o = {}) { const str = Q.LB(i); if (!str) return null; const eff = i === Q.L, sz = o.size || 46, mw = o.maxW || 300, t = o.t ?? (eff ? f3(Q.H + tu(.06)) : f3(Q.tI(i) + tu(.16)));
+    const g = popAt(o.g || p, x, y, t); return txt(g, str, x, f1(y + sz * .34), { size: sz, maxW: mw, weight: 800, color: eff ? ACC1 : C.ink, wrap: 'mid' }); }
+  /* the word beside a box of size s: below | above | left | right */
+  function labAt(p, Q, i, x, y, s, side = 'below', o = {}) { const str = Q.LB(i); if (!str) return; const sz = o.size || 46, mw = o.maxW || 300, L = wsz(p, str, sz, mw), g = o.g ?? 16;
+    let cx = side === 'left' ? x - s / 2 - g - L.w / 2 : side === 'right' ? x + s / 2 + g + L.w / 2 : x, cy = side === 'above' ? y - s / 2 - g - L.h / 2 : side === 'below' ? y + s / 2 + g + L.h / 2 : y;
+    cx = Math.max(-490 + L.w / 2, Math.min(490 - L.w / 2, cx)); nlab(p, Q, i, f1(cx), f1(cy), { size: sz, maxW: mw, t: o.t, g: o.gg }); }
+  const arrowHead = (q, x, y, a, k = 1, st) => chev(rot(q, a, x, y), x, y, k, st || { sw: 6, stroke: ACC1 });
 
-  /* 01 PULSE (ส่งแรงตามสาย): links on one wire; a bright bead runs the wire from one to the next and each one lights as it is reached */
-  variant('pulse', 'ส่งแรงตามสาย', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = -10;
-    way(p, `M ${xs[0]} ${y} L ${xs[n - 1]} ${y}`, Q.tI(1), tu(.4), 5, .4);
-    for (let i = 0; i < n - 1; i++) { const a = [f1(xs[i] + s / 2 - 4), y], b = [f1(xs[i + 1] - s / 2 + 4), y]; litP(p, polyD([a, b]), Q.tF(i), Q.tF(i + 1), 8); orb(p, [a, b], Q.tF(i), Q.tF(i + 1), 14); }
-    xs.forEach((x, i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, i % 2 ? 'above' : 'below', { maxW: lwAlt(xs, s) }); }); }); });
-
-  /* 02 KNOCK (ชนต่อกัน): the first box slides in and knocks the next, which slides and knocks the next …; a lit mark stays where each one hit */
-  variant('knock', 'ชนต่อกัน', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = f1(SZn(n) * (n <= 3 ? 1.15 : 1)), D = n >= 5 ? 28 : 46, xs = xsRow(n, s + D), y = -50;
+  /* 01 KNOCK (ชนต่อกัน): the first box slides in and knocks the next, which slides on and knocks the next … */
+  variant('knock', 'ชนต่อกัน', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = f1(SZn(n) * (n <= 3 ? 1.1 : 1)), D = n >= 5 ? 26 : 40, xs = xsRow(n, s + D), y = -30;
     xs.forEach((x, i) => { const tA = i ? Q.tF(i - 1) : f3(Q.T0 - tu(.34)), tB = Q.tF(i), d0 = i ? -D : -D - 80;
       const K = { px: x, py: y, x: [[0, d0], [tA, d0], [tB, 0, i ? 'out' : 'in']] }, g = mvG(CL(p), Object.assign({ o: fadeIn(Q.tI(i), .1) }, K));
-      node(p, c, Q, i, x, y, s, { shape: 'box', g, mv: K, it: f3(Q.tI(i) + tu(.04)) });
-      if (i) { const cx = f1(x - s / 2 - D), g2 = atG(p, tA); [-125, -90, -55].forEach(a => tick(g2, cx, f1(y - s / 2 - 8), a, 12, 44, { sw: 5, stroke: ACC1 })); [125, 90, 55].forEach(a => tick(g2, cx, f1(y + s / 2 + 8), a, 12, 44, { sw: 5, stroke: ACC1 })); }
-      labAt(p, Q, i, x, y, s, 'below', { maxW: Math.min(360, s + D - 12), g: 66 }); }); }); });
+      node(p, c, Q, i, x, y, s, { g, mv: K, it: f3(Q.tI(i) + tu(.04)) }); labAt(p, Q, i, x, y, s, 'below', { maxW: Math.min(330, s + D - 12) }); }); }); });
 
-  /* 03 FILL (ล้นไปต่อ): boxes step down; the top one fills up, spills over its edge into the next, which fills and spills on … */
-  variant('fill', 'ล้นไปต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), W = [0, 0, 520, 640, 720, 760][n], y0 = -330 + s / 2 + 8, y1 = 212 - s / 2;
-    const P = Array.from({ length: n }, (_, i) => [lin(-W / 2, W / 2, n, i), lin(y0, y1, n, i)]), dx = n > 1 ? P[1][0] - P[0][0] : 600, mw = Math.min(360, 2 * (dx - s / 2 - 14));
-    for (let i = 0; i < n - 1; i++) { const [x, y] = P[i], [x2, y2] = P[i + 1], a = [f1(x + s / 2 - 2), f1(y - s / 2 + 30)], b = [x2, f1(y2 - s / 2 - 6)], cc = [f1(x2 - 4), a[1]], dd = `M ${a[0]} ${a[1]} Q ${cc[0]} ${cc[1]} ${b[0]} ${b[1]}`;
-      way(p, dd, Q.tI(i + 1), tu(.3), 4, .35); litP(p, dd, Q.tF(i), f3(Q.tF(i) + tu(.2)), 12, 'out'); }
-    P.forEach(([x, y], i) => { const g = node(p, c, Q, i, x, y, s, { shape: 'box' }), ta = i ? f3(Q.tF(i - 1) + tu(.16)) : f3(Q.T0 - tu(.42)), m = 12;
+  /* 02 OVERFLOW (ล้นไปต่อ): boxes step down; the top one fills up and spills into the next, which fills and spills on … */
+  variant('overflow', 'ล้นไปต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), W = [0, 0, 520, 640, 720, 760][n], y0 = -330 + s / 2 + 8, y1 = 222 - s / 2;
+    const P = Array.from({ length: n }, (_, i) => [lin(-W / 2, W / 2, n, i), lin(y0, y1, n, i)]), dx = n > 1 ? P[1][0] - P[0][0] : 600, mw = Math.min(340, 2 * (dx - s / 2 - 14));
+    for (let i = 0; i < n - 1; i++) { const [x, y] = P[i], [x2, y2] = P[i + 1], a = [f1(x + s / 2 - 2), f1(y - s / 2 + 30)], b = [x2, f1(y2 - s / 2 - 8)], dd = `M ${a[0]} ${a[1]} Q ${f1(x2 - 4)} ${a[1]} ${b[0]} ${b[1]}`;
+      way(p, dd, Q.tI(i + 1), tu(.3), 3, .35); litP(p, dd, Q.tF(i), f3(Q.tF(i) + tu(.2)), 6, 'out'); }
+    P.forEach(([x, y], i) => { const g = node(p, c, Q, i, x, y, s), ta = i ? f3(Q.tF(i - 1) + tu(.16)) : f3(Q.T0 - tu(.42)), m = 12;
       const fg = mvG(clipG(g, x - s / 2 + m, y - s / 2 + m, s - 2 * m, s - 2 * m), { px: x, py: y + s / 2 - m, sy: [[0, 0], [ta, 0], [Q.tF(i), 1, 'io']] });
-      R(fg, x - s / 2 + m, y - s / 2 + m, s - 2 * m, s - 2 * m, f1(s * .24 - m), { fill: TA(.3), sw: 0, stroke: 'none' });
-      labAt(p, Q, i, x, y, s, 'below', { maxW: mw }); }); }); });
+      R(fg, x - s / 2 + m, y - s / 2 + m, s - 2 * m, s - 2 * m, f1(s * .24 - m), { fill: TA(.26), sw: 0, stroke: 'none' }); labAt(p, Q, i, x, y, s, 'below', { maxW: mw }); }); }); });
 
-  /* 04 FUSE (ชนวนลาม): a coiled fuse loops from each link to the next; a spark burns along it and lights the next */
-  variant('fuse', 'ชนวนลาม', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = 70, top = f1(y - s / 2 + 4);
-    const tail = [[Math.max(-486, f1(xs[0] - s / 2 - 70)), f1(top - 120)], [f1(xs[0] - s * .2), top]], t00 = f3(Q.T0 - tu(.3));
-    { const dd = `M ${tail[0][0]} ${tail[0][1]} Q ${tail[1][0]} ${f1(top - 110)} ${tail[1][0]} ${tail[1][1]}`; p.path(dd, Object.assign(DASH(.55), { sw: 4 })); litP(p, dd, t00, Q.T0, 7); orb(p, qP(tail[0], [tail[1][0], top - 110], tail[1]), t00, Q.T0, 12, { star: true, lin: true }); }
-    for (let i = 0; i < n - 1; i++) { const a = [f1(xs[i] + s * .2), top], b = [f1(xs[i + 1] - s * .2), top], h = 230, c1 = [f1(b[0] + 170), f1(top - h)], c2 = [f1(a[0] - 170), f1(top - h)];
-      const dd = `M ${a[0]} ${a[1]} C ${c1[0]} ${c1[1]} ${c2[0]} ${c2[1]} ${b[0]} ${b[1]}`; atG(p, Q.tI(i + 1)).path(dd, Object.assign(DASH(.55), { sw: 4 }));
-      litP(p, dd, Q.tF(i), Q.tF(i + 1), 7); orb(p, cP(a, c1, c2, b), Q.tF(i), Q.tF(i + 1), 12, { star: true, lin: true }); }
-    xs.forEach((x, i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, 'below', { maxW: lwRow(xs, s) }); }); }); });
+  /* 03 PRESS (กดต่อกัน): each box stands raised on its base; pressed down, it sends the press along to the next base */
+  variant('press', 'กดต่อกัน', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = -40, lip = 24, dp = 18, yw = f1(y + s / 2 + lip / 2);
+    for (let i = 0; i < n - 1; i++) { const dd = polyD([[f1(xs[i] + s / 2), yw], [f1(xs[i + 1] - s / 2), yw]]); way(p, dd, Q.tI(i + 1), tu(.2), 4, .4); litP(p, dd, f3(Q.tF(i) + tu(.04)), Q.tF(i + 1), 5); }
+    xs.forEach((x, i) => { R(popAt(p, x, y + lip, Q.tI(i)), x - s / 2, y + lip - s / 2, s, s, f1(s * .24), F(3));
+      const K = { px: x, py: y, y: [[0, -dp], [f3(Q.tF(i) - tu(.1)), -dp], [Q.tF(i), 0, 'in']] }, g = mvG(CL(p), Object.assign({ o: fadeIn(Q.tI(i), .1) }, K));
+      node(p, c, Q, i, x, y, s, { g, mv: K, it: f3(Q.tI(i) + tu(.04)) }); labAt(p, Q, i, x, y + lip, s, 'below', { maxW: lwRow(xs) }); }); }); });
 
-  /* 05 RIPPLE (คลื่นกระทบ): each link sends out rings; they spread until they reach the next one, which then rings on */
-  variant('ripple', 'คลื่นกระทบ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s, 900), A = n >= 4 ? 95 : n === 3 ? 80 : 60, P = xs.map((x, i) => [x, f1(-10 + (i % 2 ? A : -A))]), cg = CL(p);
-    for (let i = 0; i < n - 1; i++) { const [x, y] = P[i], [x2, y2] = P[i + 1], R0 = Math.hypot(x2 - x, y2 - y), t0 = Q.tF(i), t1 = Q.tF(i + 1);
-      [0, 1].forEach(k => { const r = f1(R0 * (1 - .2 * k)), s0 = f3(s / 2 / r), td = f3(t0 + (t1 - t0) * .15 * k), te = f3(td + (t1 - t0) * .85);
-        mvG(cg, { px: x, py: y, s: [[0, s0], [td, s0], [te, 1, 'out']], o: [[0, 0], [td, 0], [f3(td + tu(.04)), .9], [te, .7], [f3(t1 + tu(.3)), .3 + .12 * k]] }).circle(x, y, r, { sw: 3, stroke: ACC1 }); }); }
-    P.forEach(([x, y], i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, i % 2 ? 'below' : 'above', { maxW: lwAlt(xs, s) }); }); }); });
+  /* 04 SNAP (เสียบต่อกัน): each box has a knob and a notch; the next one slides in and clicks onto it, and on … */
+  const snapD = (x, y, s, nub, notch) => { const l = f1(x - s / 2), t = f1(y - s / 2), r = f1(s * .2), Rr = f1(x + s / 2), b = f1(y + s / 2), k = f1(s * .15);
+    let dd = `M ${f1(l + r)} ${t} L ${f1(Rr - r)} ${t} Q ${Rr} ${t} ${Rr} ${f1(t + r)}`; if (nub) dd += ` L ${Rr} ${f1(y - k)} A ${k} ${k} 0 0 1 ${Rr} ${f1(y + k)}`;
+    dd += ` L ${Rr} ${f1(b - r)} Q ${Rr} ${b} ${f1(Rr - r)} ${b} L ${f1(l + r)} ${b} Q ${l} ${b} ${l} ${f1(b - r)}`; if (notch) dd += ` L ${l} ${f1(y + k)} A ${k} ${k} 0 0 0 ${l} ${f1(y - k)}`;
+    return dd + ` L ${l} ${f1(t + r)} Q ${l} ${t} ${f1(l + r)} ${t} Z`; };
+  variant('snap', 'เสียบต่อกัน', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = xsRow(n, s), y = -10, D = n >= 4 ? 44 : 60;
+    xs.forEach((x, i) => { const K = i ? { px: x, py: y, x: [[0, D * i], [Q.tF(i - 1), D * i], [Q.tF(i), 0, 'in']] } : null, g = K ? mvG(CL(p), Object.assign({ o: fadeIn(Q.tI(i), .1) }, K)) : null;
+      node(p, c, Q, i, x, y, s, Object.assign({ draw: (q, st) => q.path(snapD(x, y, s, i < n - 1, i > 0), st) }, K ? { g, mv: K, it: f3(Q.tI(i) + tu(.04)) } : {}));
+      labAt(p, Q, i, x, y, s, i % 2 ? 'above' : 'below', { maxW: lwAlt(xs) }); }); }); });
 
-  /* 06 PRESENTER (คนชี้แผนผัง): a person stands by a board and points at it; on the board the arrows light from one link to the next */
+  /* 05 ROLL (กลิ้งต่อ): a ball drops on the first box, rolls across its top and jumps on to the next, lighting each box it rolls over */
+  variant('roll', 'กลิ้งต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = 70, r = 20, top = f1(y - s / 2 - r - 2), e = f1(s * .3);
+    const S = [{ pts: Array.from({ length: 9 }, (_, k) => [f1(xs[0] - e), f1(top - 300 * (1 - (k / 8) * (k / 8)))]), t0: f3(Q.T0 - tu(.3)), t1: Q.T0 }];
+    for (let i = 0; i < n - 1; i++) { const t0 = Q.tF(i), t1 = Q.tF(i + 1), tm = f3(lerp(t0, t1, .45)), a = [f1(xs[i] + e), top], b = [f1(xs[i + 1] - e), top];
+      S.push({ pts: [[f1(xs[i] - e), top], a], t0, t1: tm }, { pts: qP(a, [f1((a[0] + b[0]) / 2), f1(top - 110)], b, 12), t0: tm, t1 }); }
+    S.push({ pts: [[f1(xs[n - 1] - e), top], [xs[n - 1], top]], t0: Q.H, t1: f3(Q.H + tu(.3)) });
+    const fin = [xs[n - 1], top]; orb(p, [fin], S[0].t0, f3(Q.H + tu(.3)), r, { K: trackK(S, fin), clip: true, keep: true, in: S[0].t0 });
+    xs.forEach((x, i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, 'below', { maxW: lwRow(xs) }); }); }); });
+
+  /* 06 PRESENTER (คนชี้แผนผัง): a person stands by a board and points at it; on the board the arrows light from one box to the next */
   variant('presenter', 'คนชี้แผนผัง', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, px = -378, fy = 330, k = .95;
-    const bg = mvG(CL(p), rK(110, 0, tu(.04), 60)); R(bg, -262, -318, 744, 636, 40, F(4)); R(bg, -246, -302, 712, 604, 30, S(1.4));
+    const bg = mvG(CL(p), rK(110, 0, tu(.04), 60)); R(bg, -262, -318, 744, 636, 40, F(4));
     let P, s, sides; if (n <= 3) { s = n === 3 ? 188 : 210; const st = n === 3 ? 236 : 320; P = xsRow(n, st, 110).map(x => [x, -40]); sides = P.map(() => 'below'); }
     else if (n === 4) { s = 175; P = [[-20, -125], [240, -125], [240, 125], [-20, 125]]; sides = ['above', 'above', 'below', 'below']; }
     else { s = 168; P = [[-110, -125], [110, -125], [330, -125], [330, 125], [110, 125]]; sides = ['above', 'above', 'above', 'below', 'below']; }
     for (let i = 0; i < n - 1; i++) { const [x, y] = P[i], [x2, y2] = P[i + 1], hz = y === y2, sg = hz ? Math.sign(x2 - x) : Math.sign(y2 - y), a = hz ? [f1(x + sg * (s / 2 + 10)), y] : [x, f1(y + sg * (s / 2 + 10))], b = hz ? [f1(x2 - sg * (s / 2 + 22)), y] : [x, f1(y2 - sg * (s / 2 + 22))];
-      way(p, polyD([a, b]), Q.tI(i + 1), tu(.25), 5, .4); litP(p, polyD([a, b]), Q.tF(i), f3(Q.tF(i + 1) - tu(.04)), 7); arrowHead(litOn(p, f3(Q.tF(i + 1) - tu(.06))), b[0], b[1], hz ? (sg > 0 ? 0 : 180) : (sg > 0 ? 90 : -90), .62); }
-    P.forEach(([x, y], i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, sides[i], { maxW: n <= 3 ? 300 : 250 }); });
+      way(p, polyD([a, b]), Q.tI(i + 1), tu(.25), 4, .4); litP(p, polyD([a, b]), Q.tF(i), f3(Q.tF(i + 1) - tu(.04)), 5); arrowHead(litOn(p, f3(Q.tF(i + 1) - tu(.06))), b[0], b[1], hz ? (sg > 0 ? 0 : 180) : (sg > 0 ? 90 : -90), .55); }
+    P.forEach(([x, y], i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, sides[i], { maxW: n <= 3 ? 220 : 230 }); });
     const J = fig(p, px, fy, k, { g: inF(p, px, fy, k, tu(.1)), pose: { arms: { 1: UPV(1) } } }); armKeys(J, p, 1, UPV(1), FARM(1), toFin(f3(Q.T0 - tu(.4)), f3(Q.T0 - tu(.05)))); }); });
 
-  /* 07 BIG ARROW (ลูกศรใหญ่): one big arrow holds the links; light fills it from the tail, link by link, and the effect sits lit in the head */
-  variant('bigarrow', 'ลูกศรใหญ่', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, m = n - 1, sb = Math.min(SZn(n), 190), se = 172, bx0 = -472, bx1 = 286, hx = 482, bh = 112, hh = 232, ex = 352;
-    const st = m > 1 ? Math.min(sb + 150, (bx1 - bx0 - 70 - sb) / (m - 1)) : 0, xs = xsRow(m, st, (bx0 + bx1 - 40) / 2), A = [[bx0, -bh], [bx1, -bh], [bx1, -hh], [hx, 0], [bx1, hh], [bx1, bh], [bx0, bh]];
-    const g = mvG(CL(p), { px: bx0, py: 0, x: [[0, -120], [tu(.04), -120], [tu(.4), 0, 'out']], o: fadeIn(tu(.04), .1) }); shape(g, A, F(4.4));
-    const cg = clipG(g, bx0, -hh, hx - bx0, 2 * hh), sh = mvG(cg, { px: bx0, py: 0, sx: [[0, 0], [f3(Q.T0 - tu(.2)), 0]].concat(xs.map((x, i) => [Q.tF(i), f3((x - bx0) / (hx - bx0)), 'io']), [[Q.H, 1, 'io']]) });
-    shape(sh, A, { fill: TA(.24), sw: 0, stroke: 'none' }); shape(litOn(g, Q.H), A, { sw: 5, stroke: ACC1 });
-    xs.forEach((x, i) => { node(p, c, Q, i, x, 0, sb); const str = Q.LB(i); if (str) { const L = labSize(p, str, 46, Math.min(330, (m > 1 ? st : 400) - 12)); nlab(p, Q, i, x, f1(bh + 18 + L.h / 2), { maxW: Math.min(330, (m > 1 ? st : 400) - 12) }); } });
-    node(p, c, Q, m, ex, 0, se); { const str = Q.LB(m); if (str) { const L = labSize(p, str, 46, 300); nlab(p, Q, m, f1(Math.min(ex, 490 - L.w / 2)), f1(hh + 14 + L.h / 2), { maxW: 300 }); } } }); });
+  /* 07 NUDGE (ขยับต่อกัน): each box, when reached, is shoved a step on — the dashed place it left stays behind it */
+  variant('nudge', 'ขยับต่อกัน', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = -20, D = n >= 5 ? 26 : 40;
+    xs.forEach((x, i) => { const tf = Q.tF(i); R(atG(p, f3(tf + tu(.02))), f1(x - D - s / 2), f1(y - s / 2), s, s, f1(s * .24), Object.assign({ fill: 'none' }, DASH(.5), { sw: 3 }));
+      const K = { px: x, py: y, x: [[0, -D], [tf, -D], [f3(tf + tu(.16)), 0, 'out']] }, g = mvG(CL(p), Object.assign({ o: fadeIn(Q.tI(i), .1) }, K));
+      node(p, c, Q, i, x, y, s, { g, mv: K, it: f3(Q.tI(i) + tu(.04)) }); labAt(p, Q, i, x, y, s, 'below', { maxW: lwRow(xs) }); }); }); });
 
-  /* 08 DROP (ตกกระทบ): a bright ball drops on the first link and hops down from link to link, leaving a dotted trail */
-  variant('drop', 'ตกกระทบ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = Math.min(SZn(n), 190), dx = 150, sp = Math.min(660 - s - 12, 150 * (n - 1)), r = 18;
-    const P = Array.from({ length: n }, (_, i) => [i % 2 ? dx : -dx, lin(-sp / 2, sp / 2, n, i)]), land = P.map(([x, y]) => [x, f1(y - s / 2 - r)]);
-    const S0 = { pts: Array.from({ length: 9 }, (_, k) => [land[0][0], f1(land[0][1] - 260 * (1 - (k / 8) * (k / 8)))]), t0: f3(Q.T0 - tu(.3)), t1: Q.T0 }, S = [S0];
-    for (let i = 0; i < n - 1; i++) { const a = land[i], b = land[i + 1], ap = [f1((a[0] + b[0]) / 2), f1(Math.min(a[1], b[1]) - 110)], pts = qP(a, ap, b, 16); S.push({ pts, t0: Q.tF(i), t1: Q.tF(i + 1) });
-      pts.forEach((pt, k) => { if (k % 3 || !k || k === 16) return; popAt(p, pt[0], pt[1], f3(lerp(Q.tF(i), Q.tF(i + 1), k / 16))).circle(pt[0], pt[1], 7, { fill: TA(.6), sw: 0, stroke: 'none' }); }); }
-    const fin = land[n - 1], K = trackK(S, fin); orb(p, [fin], S0.t0, f3(Q.H + tu(.02)), r, { K, clip: true, in: S0.t0 });
-    P.forEach(([x, y], i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, i % 2 ? 'right' : 'left', { maxW: f1(500 - dx - s / 2 - 34) }); }); }); });
+  /* 08 SWING (แกว่งชนต่อ): boxes hang side by side; the first swings in and knocks the row — the last one swings out */
+  variant('swing', 'แกว่งชนต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = xsRow(n, s + (n >= 5 ? 14 : 22)), yp = -318, Ls = 250, y = f1(yp + Ls + s / 2);
+    xs.forEach((x, i) => { const tf = Q.tF(i), H = Q.H, r = !i ? [[0, 32], [f3(Q.T0 - tu(.36)), 32], [Q.T0, 0, 'in']] : i === Q.L ? [[0, 0], [H, 0], [f3(H + tu(.26)), -26, 'out'], [f3(H + tu(.62)), 0, 'io']] : [[0, 0], [tf, 0], [f3(tf + tu(.1)), -6, 'out'], [f3(tf + tu(.3)), 0, 'io']];
+      atG(p, Q.tI(i)).circle(x, yp, 9, { fill: C.soft, sw: 0, stroke: 'none' });
+      const K = { px: x, py: yp, r }, g = mvG(CL(p), Object.assign({ o: fadeIn(Q.tI(i), .1) }, K)); g.line(x, yp, x, f1(y - s / 2), { sw: 3, stroke: TL_(.55) });
+      node(p, c, Q, i, x, y, s, { g, mv: K, it: f3(Q.tI(i) + tu(.04)), rip: false }); labAt(p, Q, i, x, y, s, 'below', { maxW: Math.min(330, s + 4) }); }); }); });
 
-  /* 09 BEAM (ลำแสงสะท้อน): a beam of light comes in, hits the first link and bounces off it to the next, zig-zag, to the effect */
-  variant('beam', 'ลำแสงสะท้อน', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = f1(SZn(n) * 1.2), xs = spanX(n, s * .9), A = Math.min(125, 214 - s / 2), P = xs.map((x, i) => [x, i % 2 ? A : -A]);
-    const src = [-500, f1(P[0][1] + (n > 1 ? 150 : 0))], t00 = f3(Q.T0 - tu(.28)); glowP(p, polyD([src, P[0]]), t00, Q.T0); litP(p, polyD([src, P[0]]), t00, Q.T0, 4);
-    for (let i = 0; i < n - 1; i++) { const dd = polyD([P[i], P[i + 1]]); way(p, dd, Q.tI(i + 1), tu(.3), 3, .3); glowP(p, dd, Q.tF(i), Q.tF(i + 1)); litP(p, dd, Q.tF(i), Q.tF(i + 1), 4); }
-    P.forEach(([x, y], i) => { node(p, c, Q, i, x, y, s, { shape: 'dia' }); if (i < n - 1) sparkAt(p, x, y, f1(s * .56), f1(s * .7), Q.tF(i), 8, 22.5); labAt(p, Q, i, x, y, s, i % 2 ? 'below' : 'above', { maxW: lwAlt(xs, s), g: 6 }); }); }); });
+  /* 09 GROW (ใหญ่ขึ้นทีละทอด): each box stands in front of the one before and is bigger; reached, it grows out of the last one's size */
+  variant('grow', 'ใหญ่ขึ้นทีละทอด', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, mx = [0, 0, 300, 285, 240, 225][n], mn = [0, 0, 220, 190, 165, 165][n], ss = Array.from({ length: n }, (_, i) => lin(mn, mx, n, i)), ov = 30, yb = 150;
+    let x0 = -(ss.reduce((a, v) => a + v, 0) - ov * (n - 1)) / 2; const P = ss.map(s => { const x = f1(x0 + s / 2); x0 += s - ov; return x; });
+    P.forEach((x, i) => { const s = ss[i], y = f1(yb - s / 2), k0 = i ? f3(ss[i - 1] / s) : 1, K = { px: x, py: yb, s: [[0, k0], [f3(Q.tF(i) - tu(.22)), k0], [Q.tF(i), 1, 'out']] };
+      const g = mvG(popAt(p, x, y, Q.tI(i)), K); node(p, c, Q, i, x, y, s, { g, mv: i ? K : undefined }); labAt(p, Q, i, x, y, s, i % 2 ? 'above' : 'below', { maxW: Math.min(330, 2 * s - 60) }); }); }); });
 
-  /* 10 PULL (แรงดึงต่อกัน): field lines reach out from each link and pull the next one in to its place */
-  variant('pull', 'แรงดึงต่อกัน', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = 40, r = s / 2, D = n >= 5 ? 26 : 60, cs = Math.cos(rad(38)), sn = Math.sin(rad(38));
-    xs.forEach((x, i) => { const K = i ? { px: x, py: y, x: [[0, D], [Q.tF(i - 1), D], [Q.tF(i), 0, 'io']] } : null, g = K ? mvG(CL(p), Object.assign({ o: fadeIn(Q.tI(i), .1) }, K)) : null;
-      if (i) { const x0 = xs[i - 1], ln = [-1, 0, 1].map(sd => { const a = [f1(x0 + r * (sd ? cs : 1)), f1(y + sd * r * (sd ? sn : 0))], b = [f1(x - r * (sd ? cs : 1)), a[1]], mid = [f1((a[0] + b[0]) / 2), f1(a[1] + sd * 46)]; return `M ${a[0]} ${a[1]} Q ${mid[0]} ${mid[1]} ${b[0]} ${b[1]}`; });
-        ln.forEach((dd, k) => { way(p, dd, Q.tI(i), tu(.25), 3, .28); litP(p, dd, f3(Q.tF(i - 1) + tu(.03 * k)), f3(Q.tF(i) - tu(.02)), 5); }); }
-      node(p, c, Q, i, x, y, s, K ? { g, mv: K, it: f3(Q.tI(i) + tu(.04)) } : {}); labAt(p, Q, i, x, y, s, 'above', { maxW: lwRow(xs, s) }); }); }); });
+  /* 10 SWITCH (สับสวิตช์ต่อ): under each box a wire runs to the next through a switch; the switch closes, the current reaches the next box */
+  variant('switch', 'สับสวิตช์ต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = -60, yb = f1(y + s / 2), yt = f1(yb + 110);
+    for (let i = 0; i < n - 1; i++) { const a = f1(xs[i] + s * .24), b = f1(xs[i + 1] - s * .24), m = f1((a + b) / 2), l = f1(m - 24), r = f1(m + 24), t0 = Q.tF(i), t1 = Q.tF(i + 1), u = k => f3(lerp(t0, t1, k));
+      const A = polyD([[a, yb], [a, yt], [l, yt]]), B = polyD([[r, yt], [b, yt], [b, yb]]), w = atG(p, Q.tI(i + 1)); w.path(A, { sw: 4, stroke: TL_(.45) }); w.path(B, { sw: 4, stroke: TL_(.45) });
+      [l, r].forEach(x => w.circle(x, yt, 8, { fill: C.fill, sw: 3, stroke: C.soft }));
+      litP(p, A, t0, u(.35), 5, 'lin'); const bl = mvG(p, { px: l, py: yt, r: [[0, -38], [u(.35), -38], [u(.5), 0, 'in']] }); atG(bl, Q.tI(i + 1)).line(l, yt, r, yt, { sw: 5, stroke: C.ink }); litOn(bl, u(.5)).line(l, yt, r, yt, { sw: 5, stroke: ACC1 });
+      litP(p, B, u(.5), t1, 5, 'lin'); }
+    xs.forEach((x, i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, 'above', { maxW: lwRow(xs) }); }); }); });
 
-  /* 11 CIRCUIT (วงจรไฟ): links are chips joined by traces under them; the current runs the trace and switches the next one on */
-  variant('circuit', 'วงจรไฟ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = -45, yb = f1(y + s / 2), yt = f1(yb + 120);
-    for (let i = 0; i < n - 1; i++) { const a = [f1(xs[i] + s * .24), yb], b = [f1(xs[i + 1] - s * .24), yb], pts = [a, [a[0], yt], [b[0], yt], b], dd = polyD(pts);
-      way(p, dd, Q.tI(i + 1), tu(.35), 5, .4); [[a[0], yt], [b[0], yt]].forEach(([u, v]) => popAt(p, u, v, Q.tI(i + 1)).circle(u, v, 11, { fill: C.fill, sw: 3, stroke: C.soft }));
-      litP(p, dd, Q.tF(i), Q.tF(i + 1), 7, 'lin'); orb(p, pts, Q.tF(i), Q.tF(i + 1), 11, { lin: true }); }
-    xs.forEach((x, i) => { const g = popAt(p, x, y, Q.tI(i)); [-1, 1].forEach(sd => g.circle(f1(x + sd * s * .24), yb, 13, F(3)));
-      node(p, c, Q, i, x, y, s, { shape: 'box' }); labAt(p, Q, i, x, y, s, 'above', { maxW: lwRow(xs, s) }); }); }); });
-
-  /* 12 LINKS (ห่วงโซ่): links of a chain hold each one to the next; the light runs ring by ring along the chain */
+  /* 11 LINKS (ห่วงโซ่): chain links hold each box to the next; the light runs ring by ring along the chain */
   variant('links', 'ห่วงโซ่', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = -20;
-    const chain = []; for (let i = 0; i < n - 1; i++) { const a = xs[i] + s / 2 - 28, b = xs[i + 1] - s / 2 + 28, tot = b - a, k = Math.max(1, Math.round((tot - 110) / 74) + 1), stp = k > 1 ? (tot - 110) / (k - 1) : 0;
+    const chain = []; for (let i = 0; i < n - 1; i++) { const a = xs[i] + s / 2 - 26, b = xs[i + 1] - s / 2 + 26, tot = b - a, k = Math.max(1, Math.round((tot - 110) / 74) + 1), stp = k > 1 ? (tot - 110) / (k - 1) : 0;
       for (let j = 0; j < k; j++) chain.push({ i, j, k, x: f1(k > 1 ? a + 55 + j * stp : (a + b) / 2) }); }
     xs.forEach((x, i) => node(p, c, Q, i, x, y, s));
     chain.forEach(({ i, j, k, x }) => { const t = Q.tI(i + 1), tl = f3(lerp(Q.tF(i), Q.tF(i + 1), (j + 1) / (k + 1))), g = popAt(p, x, y, t), flat = j % 2 === 0;
-      const dr = (q, st) => flat ? R(q, x - 55, y - 28, 110, 56, 28, st) : R(q, x - 55, y - 9, 110, 18, 9, st);
-      dr(g, flat ? { fill: 'none', sw: 16, stroke: C.fill } : BK); dr(g, flat ? { fill: 'none', sw: 10, stroke: TL_(.55) } : { fill: TL_(.55), sw: 0, stroke: 'none' }); dr(litOn(g, tl), flat ? { fill: 'none', sw: 10, stroke: ACC1 } : { fill: ACC1, sw: 0, stroke: 'none' }); });
-    xs.forEach((x, i) => labAt(p, Q, i, x, y, s, 'below', { maxW: lwRow(xs, s) })); }); });
+      const dr = (q, st) => flat ? R(q, x - 55, y - 26, 110, 52, 26, st) : R(q, x - 55, y - 8, 110, 16, 8, st);
+      dr(g, flat ? { fill: 'none', sw: 15, stroke: C.fill } : BK); dr(g, flat ? { fill: 'none', sw: 9, stroke: TL_(.55) } : { fill: TL_(.55), sw: 0, stroke: 'none' }); dr(litOn(g, tl), flat ? { fill: 'none', sw: 9, stroke: ACC1 } : { fill: ACC1, sw: 0, stroke: 'none' }); });
+    xs.forEach((x, i) => labAt(p, Q, i, x, y, s, 'below', { maxW: lwRow(xs) })); }); });
 
-  /* 13 TUBE (ส่งผ่านท่อ): the links sit in a tube; a push runs through it from the back, and at the mouth the effect is shot out, lit */
+  /* 12 TUBE (ส่งผ่านท่อ): the boxes sit in a tube; a push runs through it from the back, and at the mouth the effect is shot out */
   variant('tube', 'ส่งผ่านท่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, m = n - 1, s = m <= 2 ? 220 : Math.min(SZn(n), 190), se = m <= 2 ? 205 : 172, gp = m >= 4 ? 14 : 24, th = s + 34, y = -30;
     const tW = m * (s + gp) - gp + 40, gE = n <= 3 ? 150 : 34, tot = tW + gE + se, x0 = f1(-tot / 2), xs = Array.from({ length: m }, (_, i) => f1(x0 + 20 + s / 2 + i * (s + gp))), ex = f1(x0 + tW + gE + se / 2), xe = f1(x0 + tW);
-    const tg = mvG(CL(p), rK(0, y, tu(.04), 50)); R(tg, x0, y - th / 2, tW, th, th / 2, F(4)); R(tg, x0 + 12, y - th / 2 + 12, tW - 24, th - 24, th / 2 - 12, S(1.4));
+    const tg = mvG(CL(p), rK(0, y, tu(.04), 50)); R(tg, x0, y - th / 2, tW, th, th / 2, F(4));
     { const cg = clipG(tg, x0 + 6, y - th / 2 + 6, tW - 12, th - 12), K = [[0, f1(x0 - 40)], [f3(Q.T0 - tu(.2)), f1(x0 - 40)]].concat(xs.map((x, i) => [Q.tF(i), x, i ? 'lin' : 'in']), [[f3(Q.tF(m - 1) + tu(.16)), f1(xe + 30), 'lin']]);
-      R(mvG(cg, { x: K.map(([t, v, e]) => e ? [t, v, e] : [t, v]), o: [[0, 0], [f3(Q.T0 - tu(.2)), 0], [f3(Q.T0 - tu(.1)), 1]] }), -28, y - th / 2 + 8, 56, th - 16, 22, { fill: TA(.4), sw: 0, stroke: 'none' }); }
+      R(mvG(cg, { x: K, o: [[0, 0], [f3(Q.T0 - tu(.2)), 0], [f3(Q.T0 - tu(.1)), 1]] }), -24, y - th / 2 + 8, 48, th - 16, 20, { fill: TA(.35), sw: 0, stroke: 'none' }); }
     xs.forEach((x, i) => { node(p, c, Q, i, x, y, s); const up = i % 2 === 0; labAt(p, Q, i, x, f1(up ? y - th / 2 + s / 2 - 14 : y + th / 2 - s / 2 + 14), s, up ? 'above' : 'below', { maxW: m > 1 ? Math.min(330, 2 * (s + gp) - 30) : 330 }); });
     const tf0 = Q.tF(m - 1), K = { px: ex, py: y, x: [[0, f1(xe - ex)], [tf0, f1(xe - ex)], [Q.H, 0, 'out']], s: [[0, .5], [tf0, .5], [Q.H, 1, 'out']] }, eg = mvG(CL(p), Object.assign({ o: fadeIn(tf0, .06) }, K));
-    node(p, c, Q, m, ex, y, se, { g: eg, mv: K, it: tf0 }); { const g = atG(p, Q.H); [-34, 0, 34].forEach(dy => g.line(f1(ex - se / 2 - 18), f1(y + dy), f1(ex - se / 2 - 18 - (dy ? 30 : 50)), f1(y + dy), { sw: 5, stroke: TA(.7) })); }
+    node(p, c, Q, m, ex, y, se, { g: eg, mv: K, it: tf0 }); { const g = atG(p, Q.H); [-34, 0, 34].forEach(dy => g.line(f1(ex - se / 2 - 18), f1(y + dy), f1(ex - se / 2 - 18 - (dy ? 30 : 50)), f1(y + dy), { sw: 4, stroke: TL_(.6) })); }
     labAt(p, Q, m, ex, y, se, 'below', { maxW: 300 }); }); });
 
-  /* 14 ARCH (โค้งข้าม): the links stand on a big arch; the light climbs the arch from one to the next and comes down at the effect */
-  variant('arch', 'โค้งข้าม', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = Math.min(SZn(n), 180), cx = 0, cy = 225, rx = 400, ry = 425;
-    const AN = n === 2 ? [160, 20] : n === 3 ? [172, 90, 8] : Array.from({ length: n }, (_, i) => lin(180, 0, n, i)), at = a => [f1(cx + rx * Math.cos(rad(a))), f1(cy - ry * Math.sin(rad(a)))], P = AN.map(at);
-    const arc = (a0, a1, k = 24) => Array.from({ length: k + 1 }, (_, j) => at(lerp(a0, a1, j / k)));
-    way(p, polyD(arc(AN[0], AN[n - 1], 48)), Q.tI(1), tu(.5), 5, .35); { const inn = Array.from({ length: 49 }, (_, j) => { const a = lerp(AN[0], AN[n - 1], j / 48); return [f1(cx + (rx - 70) * Math.cos(rad(a))), f1(cy - (ry - 70) * Math.sin(rad(a)))]; }); drawAt(p.path(polyD(inn), Object.assign(DASH(.3), { sw: 3 })), p, Q.tI(1), tu(.5));
-      for (let j = 1; j < 12; j++) { const a = lerp(AN[0], AN[n - 1], j / 12), u = [Math.cos(rad(a)), -Math.sin(rad(a))]; atG(p, f3(Q.tI(1) + tu(.03 * j))).line(f1(cx + (rx - 62) * u[0]), f1(cy + (ry - 62) * u[1]), f1(cx + (rx - 10) * u[0]), f1(cy + (ry - 10) * u[1]), { sw: 3, stroke: TL_(.22) }); } }
-    for (let i = 0; i < n - 1; i++) { const pts = arc(AN[i], AN[i + 1]); glowP(p, polyD(pts), Q.tF(i), Q.tF(i + 1)); litP(p, polyD(pts), Q.tF(i), Q.tF(i + 1), 7); orb(p, pts, Q.tF(i), Q.tF(i + 1), 14); }
-    P.forEach(([x, y], i) => { node(p, c, Q, i, x, y, s); const a = AN[i]; labAt(p, Q, i, x, y, s, a >= 150 ? 'right' : a <= 30 ? 'left' : 'below', { maxW: 280 }); }); }); });
-
-  /* 15 STREAM (สายไหล): a wide stream winds past the links (along, then round and back); the flow runs down it and lights each one it passes */
-  variant('stream', 'สายไหล', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = Math.min(SZn(n), 180), r1 = Math.ceil(n / 2), r2 = n - r1, Y = n <= 2 ? 105 : 132, st = n <= 3 ? 280 : 300;
-    const a1 = xsRow(r1, st, -60), rx = a1[r1 - 1], a2 = xsRow(Math.max(1, r2), st, f1(rx - (r2 > 1 ? st / 2 * (r2 - 1) : 0) - (r1 === r2 ? 0 : st / 2) + (r2 === 1 && r1 === 1 ? st / 2 : 0))).reverse();
-    const P = a1.map(x => [x, -Y]).concat(a2.slice(0, r2).map(x => [x, Y])), ux = f1(Math.max(...P.map(q => q[0])) + 210);
-    const seg = i => { const [x, y] = P[i], [x2, y2] = P[i + 1]; return y === y2 ? [[x, y], [x2, y2]] : cP([x, y], [ux, y], [ux, y2], [x2, y2], 24); };
-    const all = [[-500, -Y]].concat(...Array.from({ length: n - 1 }, (_, i) => seg(i)), [[-500, P[n - 1][1]]]), band = polyD(all);
-    const bg = atG(p, tu(.04)); bg.path(band, { sw: 96, stroke: TL_(.1) }); bg.path(band, { sw: 2, stroke: TL_(.3), 'stroke-dasharray': '2 26' });
-    litP(p, polyD([[-500, -Y], P[0]]), f3(Q.T0 - tu(.3)), Q.T0, 8); for (let i = 0; i < n - 1; i++) litP(p, polyD(seg(i)), Q.tF(i), Q.tF(i + 1), 8, 'lin');
-    P.forEach(([x, y], i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, y < 0 ? 'above' : 'below', { maxW: st - 20 }); }); }); });
-
-  /* 16 CARD ROW (การ์ดดันกันขึ้น): a row of cards waits low and pale; each one, when the one before it rises, is pushed up full and lit */
+  /* 13 CARD ROW (การ์ดดันขึ้น): the cards wait low and pale; each one, when the one before it rises, is pushed up full and lit */
   variant('cardrow', 'การ์ดดันขึ้น', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, gp = 24, w = f1(Math.min(250, (940 - gp * (n - 1)) / n)), h = n >= 4 ? 340 : 380, y = -10, xs = xsRow(n, w + gp), D = 80;
     xs.forEach((x, i) => { const tR = i ? Q.tF(i - 1) : f3(Q.T0 - tu(.3)), tB = Q.tF(i), yk = [[0, D], [tR, D], [tB, 0, 'out']], ok = [[0, 0], [Q.tI(i), 0], [f3(Q.tI(i) + tu(.1)), .42], [tR, .42], [f3(tR + tu(.12)), 1]];
-      if (i === Q.L) { const hg = mvG(p, { px: x, py: y, s: [[0, .9], [Q.H, .9], [f3(Q.H + tu(.3)), 1, 'out']], o: fadeIn(Q.H, .1) }); R(hg, x - w / 2 - 16, y - h / 2 - 16, w + 32, h + 32, 40, { fill: TA(.1), sw: 2, stroke: TA(.5) }); }
-      const K = { px: x, py: y, y: yk }, g0 = mvG(CL(p), Object.assign({ o: ok }, K)), g = mvG(g0, { px: x, py: y, s: bumpK(tB, i === Q.L ? 1.06 : 1.04) }), X = Q.N[i], ph = !has(X), l = x - w / 2, t = y - h / 2;
-      R(g, l, t, w, h, 30, ph ? Object.assign({ fill: C.fill }, DASH(.6), { sw: 3 }) : F(4)); if (!ph) R(g, l + 14, t + 14, w - 28, h - 28, 20, S(1.4)); R(litOn(g, tB), l, t, w, h, 30, LIT2());
-      
+      const K = { px: x, py: y, y: yk }, g0 = mvG(CL(p), Object.assign({ o: ok }, K)), g = mvG(g0, { px: x, py: y, s: bumpK(tB, 1.04) }), X = Q.N[i], ph = !has(X), l = x - w / 2, t = y - h / 2;
+      R(g, l, t, w, h, 30, ph ? DASHB() : F(4)); R(litOn(g, tB), l, t, w, h, 30, LITS());
       const str = Q.LB(i), iy = str ? f1(y - h * .16) : y; if (ph) { if (i === Q.L) star4(litOn(g, tB), x, y, 40, DOTF()); else g.circle(x, y, 14, { fill: C.soft, sw: 0, stroke: 'none' }); }
       else put(p, c, X, x, iy, f1(picOf(X) ? Math.min(150, w * .64) : w * .9), null, { t: f3(Q.tI(i) + tu(.04)), mv: K, o: ok, punch: tB, bigW: f1(w * .8) });
-      if (str) { const tg = i === Q.L ? litOn(g, Q.H) : g; txt(g, str, x, f1(y + h * .28), { size: 44, maxW: w - 34, weight: 800, color: C.ink, wrap: 'mid' }); if (i === Q.L) R(tg, x - w / 2 + 30, f1(y + h * .28 + 22), w - 60, 8, 4, { fill: ACC1, sw: 0, stroke: 'none' }); }
-      if (i < n - 1) arrowHead(litOn(p, Q.tF(i)), f1(x + w / 2 + gp / 2), f1(y + D * 0), 0, .4); }); }); });
+      if (str) txt(g, str, x, f1(y + h * .28), { size: 44, maxW: w - 34, weight: 800, color: i === Q.L ? ACC1 : C.ink, wrap: 'mid' });
+      if (i < n - 1) arrowHead(litOn(p, Q.tF(i)), f1(x + w / 2 + gp / 2), y, 0, .4); }); }); });
 
-  /* 17 BIG EFFECT (ผลใหญ่ข้างล่าง): the causes run along the top; the last one sends it round and down into a big card — the effect, lit */
+  /* 14 BIG EFFECT (ผลใหญ่ข้างล่าง): the causes run along the top; the last one sends it round and down into a big card — the effect */
   variant('bigeffect', 'ผลใหญ่ข้างล่าง', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, m = n - 1, s = m >= 4 ? 165 : m === 3 ? 180 : 190, y = -205, st = m > 1 ? Math.min(s + 170, (800 - s) / (m - 1)) : 0, xs = xsRow(m, st, -70);
-    for (let i = 0; i < m - 1; i++) { const dd = polyD([[f1(xs[i] + s / 2 + 6), y], [f1(xs[i + 1] - s / 2 - 6), y]]); way(p, dd, Q.tI(i + 1), tu(.2), 5, .4); litP(p, dd, Q.tF(i), Q.tF(i + 1), 7); }
+    for (let i = 0; i < m - 1; i++) { const dd = polyD([[f1(xs[i] + s / 2 + 6), y], [f1(xs[i + 1] - s / 2 - 6), y]]); way(p, dd, Q.tI(i + 1), tu(.2), 4, .4); litP(p, dd, Q.tF(i), Q.tF(i + 1), 5); }
     const ex0 = f1(xs[m - 1] + s / 2 + 6), bend = 430, cy0 = 40, ch = 280, eL = [[ex0, y], [bend - 30, y], [bend, y + 30], [bend, cy0 - 26]];
-    way(p, polyD(eL), Q.tI(m), tu(.3), 5, .4); litP(p, polyD(eL), Q.tF(m - 1), f3(Q.H - tu(.04)), 7); arrowHead(litOn(p, f3(Q.H - tu(.06))), bend, cy0 - 26, 90, .7);
+    way(p, polyD(eL), Q.tI(m), tu(.3), 4, .4); litP(p, polyD(eL), Q.tF(m - 1), f3(Q.H - tu(.04)), 5); arrowHead(litOn(p, f3(Q.H - tu(.06))), bend, cy0 - 26, 90, .65);
     xs.forEach((x, i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, 'below', { maxW: m > 1 ? Math.min(330, st - 14) : 330 }); });
-    const cg = mvG(CL(p), rK(0, cy0 + ch / 2, Q.tI(m), 60)); R(cg, -446, cy0, 892, ch, 40, F(4.4)); R(cg, -430, cy0 + 16, 860, ch - 32, 28, S(1.4)); R(litOn(cg, Q.H), -446, cy0, 892, ch, 40, { sw: 5, stroke: ACC1 });
-    const str = Q.LB(m), se = 200, sx = str ? -280 : 0, sy = f1(cy0 + ch / 2); node(p, c, Q, m, sx, sy, se, { shape: 'box', t: Q.tI(m) });
-    if (str) nlab(p, Q, m, f1(sx + se / 2 + 40 + Math.min(560, labSize(p, str, 58, 560).w) / 2), sy, { size: 58, maxW: 560 }); }); });
+    const cg = mvG(CL(p), rK(0, cy0 + ch / 2, Q.tI(m), 60)); R(cg, -446, cy0, 892, ch, 40, F(4)); R(litOn(cg, Q.H), -446, cy0, 892, ch, 40, LITS());
+    const str = Q.LB(m), se = 200, sx = str ? -280 : 0, sy = f1(cy0 + ch / 2); node(p, c, Q, m, sx, sy, se, { t: Q.tI(m), rip: false });
+    if (str) { const L = wsz(p, str, 60, 560); nlab(p, Q, m, f1(sx + se / 2 + 40 + L.w / 2), sy, { size: 60, maxW: 560 }); } }); });
 
-  /* 18 SPIRAL (วนเข้าหาผล): the links lie on a spiral; the light winds round it, link to link, into the middle where the effect lands */
-  variant('spiral', 'วนเข้าหาผล', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, m = n - 1, s = m >= 3 ? 165 : 185, se = 190, cx = 20, cy = 0, rx = 330, ry = 250;
-    const TH = [180, 270, 360, 450].slice(0, m), fr = th => { const k = (th - 180) / 90; return k <= m - 1 ? 1 - .08 * k : (1 - .08 * (m - 1)) * Math.max(0, 1 - (th - TH[m - 1]) / 90); };
-    const at = th => [f1(cx + rx * fr(th) * Math.cos(rad(th))), f1(cy + ry * fr(th) * Math.sin(rad(th)))], P = TH.map(at).concat([[cx, cy]]);
-    const leg = (a, b, k = 24) => Array.from({ length: k + 1 }, (_, j) => at(lerp(a, b, j / k))), legs = TH.map((th, i) => leg(th, i < m - 1 ? TH[i + 1] : th + 90));
-    way(p, polyD([].concat(...legs)), Q.tI(1), tu(.5), 5, .35);
-    legs.forEach((pts, i) => { glowP(p, polyD(pts), Q.tF(i), Q.tF(i + 1)); litP(p, polyD(pts), Q.tF(i), Q.tF(i + 1), 7); orb(p, pts, Q.tF(i), Q.tF(i + 1), 13); });
-    const SD = ['above', 'right', 'below', 'left']; P.forEach(([x, y], i) => { const eff = i === m; node(p, c, Q, i, x, y, eff ? se : s); if (!eff) labAt(p, Q, i, x, y, s, SD[i], { maxW: 300 }); });
-    { const str = Q.LB(m); if (str) { const L = labSize(p, str, 46, 300); nlab(p, Q, m, m >= 4 ? f1(Math.min(490 - L.w / 2, 330)) : cx, m >= 4 ? 285 : f1(cy + se / 2 + 18 + L.h / 2), { maxW: 300 }); } } }); });
-
-  /* 19 POP (แตกตัวส่งต่อ): bubbles in a dip; each one, when it is reached, bursts out the next bubble, which floats to its place */
-  variant('pop', 'แตกตัวส่งต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), P = xs.map((x, i) => { const u = n > 1 ? i / (n - 1) : .5; return [x, n === 2 ? (i ? 50 : -50) : f1(-120 + 240 * (1 - Math.pow(2 * u - 1, 2)))]; });
-    P.forEach(([x, y], i) => { if (i) { atG(p, Q.tI(i)).circle(x, y, s / 2, Object.assign({ fill: 'none' }, DASH(.45), { sw: 3 })); } });
-    P.forEach(([x, y], i) => { let o = {};
-      if (i) { const [x0, y0] = P[i - 1], tA = Q.tF(i - 1), tB = Q.tF(i), K = { px: x, py: y, x: [[0, f1(x0 - x)], [tA, f1(x0 - x)], [tB, 0, 'io']], y: [[0, f1(y0 - y)], [tA, f1(y0 - y)], [f3(lerp(tA, tB, .5)), f1((y0 - y) / 2 - 70), 'out'], [tB, 0, 'in']], s: [[0, .2], [tA, .2], [tB, 1, 'io']] };
-        o = { g: mvG(CL(p), Object.assign({ o: [[0, 0], [tA, 0], [f3(tA + tu(.04)), 1]] }, K)), mv: K, it: tA }; }
-      const g = node(p, c, Q, i, x, y, s, o); g.path(`M ${f1(x - s * .3)} ${f1(y - s * .14)} A ${f1(s * .34)} ${f1(s * .34)} 0 0 1 ${f1(x - s * .1)} ${f1(y - s * .33)}`, { sw: 5, stroke: TL_(.45) });
-      if (i < n - 1) { sparkAt(p, x, y, f1(s * .56), f1(s * .72), Q.tF(i), 10, 0); const [x2, y2] = P[i + 1], mx = (x + x2) / 2, my = Math.min(y, y2) - 60; [.3, .5, .7].forEach((u, k) => { const bx = f1(lerp(x, x2, u)), by = f1(lerp(y, y2, u) - 70 * Math.sin(Math.PI * u) - s * .1); popAt(p, bx, by, f3(lerp(Q.tF(i), Q.tF(i + 1), u))).circle(bx, by, [10, 15, 11][k], { sw: 3, stroke: TL_(.5) }); }); }
-      labAt(p, Q, i, x, y, s, 'below', { maxW: lwRow(xs, s), g: 44, t: i && i < n - 1 ? f3(Q.tF(i) + tu(.06)) : undefined }); }); }); });
-
-  /* 20 GRID PATH (ทางผ่านตาราง): a grid of tiles; the light finds its way tile by tile from the first link to the next … to the effect */
-  variant('snake', 'ทางผ่านตาราง', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = 165, gx = 175, X = cc => -350 + gx * cc, Y = r => -262 + gx * r;
-    const RT = [[0, 1], [1, 1], [1, 2], [2, 2], [3, 2], [3, 1], [4, 1]], idx = Array.from({ length: n }, (_, k) => Math.round(k * (RT.length - 1) / (n - 1)));
-    for (let r = 0; r < 4; r++) for (let cc = 0; cc < 5; cc++) R(popAt(p, X(cc), Y(r), f3(tu(.02 + .02 * (r + cc)))), X(cc) - 70, Y(r) - 70, 140, 140, 26, { fill: TL_(.04), sw: 2, stroke: TL_(.2) });
-    for (let k = 0; k < n - 1; k++) { const cells = RT.slice(idx[k], idx[k + 1] + 1), pts = cells.map(([cc, r]) => [X(cc), Y(r)]), t0 = Q.tF(k), t1 = Q.tF(k + 1);
-      cells.forEach(([cc, r], j) => { if (!j || j === cells.length - 1) return; R(litOn(p, f3(lerp(t0, t1, j / (cells.length - 1)))), X(cc) - 70, Y(r) - 70, 140, 140, 26, { fill: TA(.16), sw: 3, stroke: TA(.7) }); });
-      litP(p, polyD(pts), t0, t1, 9, 'lin'); orb(p, pts, t0, t1, 13, { lin: true }); }
-    idx.forEach((ix, i) => { const [cc, r] = RT[ix], x = X(cc), y = Y(r); node(p, c, Q, i, x, y, s, { shape: 'box' }); labAt(p, Q, i, x, y, s, r === 1 ? 'above' : 'below', { maxW: 320, g: 14 }); }); }); });
-
-  /* 21 CONE (แสงส่องต่อ): each link, when reached, shines a cone of light on the next one, which lights and shines on */
+  /* 15 CONE (แสงส่องต่อ): each box, when reached, shines a beam of light onto the next one, which lights and shines on */
   variant('cone', 'แสงส่องต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = -10, cg = CL(p);
     xs.forEach((x, i) => node(p, c, Q, i, x, y, s));
-    for (let i = 0; i < n - 1; i++) { const a = f1(xs[i] + s * .36), b = f1(xs[i + 1] + s * .62), hw = f1(s * .62), K = { px: a, py: y, sx: [[0, 0], [Q.tF(i), 0], [f3(Q.tF(i + 1) - tu(.04)), 1, 'out']], o: fadeIn(Q.tF(i), .06) };
-      const g = mvG(cg, K); shape(g, [[a, y - 22], [b, y - hw], [b, y + hw], [a, y + 22]], { fill: TA(.16), sw: 0, stroke: 'none' }); g.line(a, y - 22, b, y - hw, { sw: 3, stroke: TA(.75) }); g.line(a, y + 22, b, y + hw, { sw: 3, stroke: TA(.75) }); }
-    xs.forEach((x, i) => labAt(p, Q, i, x, y, s, i % 2 ? 'above' : 'below', { maxW: lwAlt(xs, s), g: 54 })); }); });
+    for (let i = 0; i < n - 1; i++) { const a = f1(xs[i] + s * .36), b = f1(xs[i + 1] + s * .55), hw = f1(s * .6), K = { px: a, py: y, sx: [[0, 0], [Q.tF(i), 0], [f3(Q.tF(i + 1) - tu(.04)), 1, 'out']], o: fadeIn(Q.tF(i), .06) };
+      shape(mvG(cg, K), [[a, y - 20], [b, y - hw], [b, y + hw], [a, y + 20]], { fill: TA(.14), sw: 0, stroke: 'none' }); }
+    xs.forEach((x, i) => labAt(p, Q, i, x, y, s, i % 2 ? 'above' : 'below', { maxW: lwAlt(xs), g: 48 })); }); });
 
-  /* 22 LIFT (คลื่นยกขึ้น): a wave runs under the links, getting bigger; each one is lifted by it a step higher than the one before */
-  variant('lift', 'คลื่นยกขึ้น', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), dy = n >= 4 ? 52 : 70, y0 = f1(30 + dy * (n - 1) / 2), P = xs.map((x, i) => [x, f1(y0 - dy * i)]);
-    const wy = x => { const u = (x + 480) / 960, base = lerp(y0 + s / 2 + 46, y0 - dy * (n - 1) + s / 2 + 46, u); return f1(base + (14 + 26 * u) * Math.sin((x + 480) / 960 * Math.PI * 2 * (n + .5))); };
-    const wpts = Array.from({ length: 97 }, (_, k) => { const x = -480 + k * 10; return [x, wy(x)]; }), dd = polyD(wpts);
-    way(p, dd, tu(.06), tu(.5), 4, .32); glowP(p, dd, f3(Q.T0 - tu(.3)), Q.H); litP(p, dd, f3(Q.T0 - tu(.3)), Q.H, 6, 'lin');
-    P.forEach(([x, y], i) => { const tA = f3(Q.tF(i) - tu(.22)), K = { px: x, py: y, y: [[0, 46], [tA, 46], [Q.tF(i), 0, 'out']] }, g = mvG(CL(p), Object.assign({ o: fadeIn(Q.tI(i), .1) }, K));
-      node(p, c, Q, i, x, y, s, { g, mv: K, it: f3(Q.tI(i) + tu(.04)) }); labAt(p, Q, i, x, y, s, 'above', { maxW: lwRow(xs, s) }); }); }); });
+  /* 16 TURN (หมุนส่งต่อ): wheels touch each other; the first starts to turn and turns the next, which turns the next … */
+  variant('turn', 'หมุนส่งต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), Rr = s / 2 + 18, dy = n >= 4 ? 76 : 62, dx = f1(Math.sqrt(Math.pow(2 * Rr + 6, 2) - 4 * dy * dy)), xs = xsRow(n, dx), P = xs.map((x, i) => [x, i % 2 ? dy : -dy]);
+    P.forEach(([x, y], i) => { const g = popAt(p, x, y, Q.tI(i)), sg = i % 2 ? -1 : 1; g.circle(x, y, Rr, F(3.4));
+      const rg = mvG(g, { px: x, py: y, r: [[0, 0], [Q.tF(i), 0], [f3(Q.tF(i) + 4), sg * 480, 'lin']] }); rg.circle(x, f1(y - Rr + 9), 7, { fill: C.soft, sw: 0, stroke: 'none' }); litOn(rg, Q.tF(i)).circle(x, f1(y - Rr + 9), 8, DOTF());
+      node(p, c, Q, i, x, y, s, { shape: 'circ', t: f3(Q.tI(i) + tu(.04)) }); labAt(p, Q, i, x, y, s + 36, i % 2 ? 'below' : 'above', { maxW: Math.min(330, 2 * dx - 24) }); }); }); });
 
-  /* 23 TURN (หมุนส่งต่อ): wheels touch each other; the first starts to turn and turns the next, which turns the next … */
-  variant('turn', 'หมุนส่งต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), Rr = s / 2 + 20, dy = n >= 4 ? 76 : 62, dx = f1(Math.sqrt(Math.pow(2 * Rr + 6, 2) - 4 * dy * dy)), xs = xsRow(n, dx), P = xs.map((x, i) => [x, i % 2 ? dy : -dy]);
-    P.forEach(([x, y], i) => { const g = popAt(p, x, y, Q.tI(i)), sg = i % 2 ? -1 : 1; g.circle(x, y, Rr, F(3.4)); const rg = mvG(g, { px: x, py: y, r: [[0, 0], [Q.tF(i), 0], [f3(Q.tF(i) + 4), sg * 480, 'lin']] }); for (let k = 0; k < 20; k++) tick(rg, x, y, k * 18, Rr - 15, Rr - 2, { sw: 4, stroke: TL_(.55) }); tick(litOn(rg, Q.tF(i)), x, y, -90, Rr - 16, Rr - 1, { sw: 7, stroke: ACC1 });
-      node(p, c, Q, i, x, y, s, { t: f3(Q.tI(i) + tu(.04)) }); labAt(p, Q, i, x, y, s + 40, i % 2 ? 'below' : 'above', { maxW: Math.min(330, 2 * dx - 24) }); }); }); });
-
-  /* 24 ZAP (ไฟช็อตต่อ): a bolt jumps from each link to the next, up and over, and makes it light */
+  /* 17 ZAP (ไฟช็อตต่อ): a spark jumps from each box to the next, up and over, and makes it light */
   variant('zap', 'ไฟช็อตต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), P = xs.map((x, i) => { const u = n > 1 ? i / (n - 1) : .5; return [x, n === 2 ? (i ? -40 : 40) : f1(110 - 240 * (1 - Math.abs(2 * u - 1)))]; });
     for (let i = 0; i < n - 1; i++) { const [x, y] = P[i], [x2, y2] = P[i + 1], L = Math.hypot(x2 - x, y2 - y), ux = (x2 - x) / L, uy = (y2 - y) / L, a0 = s / 2 + 6, a1 = L - s / 2 - 6, k = 6;
-      const pts = Array.from({ length: k + 1 }, (_, j) => { const u = lerp(a0, a1, j / k), o = j && j < k ? (j % 2 ? 1 : -1) * 22 : 0; return [f1(x + ux * u - uy * o), f1(y + uy * u + ux * o)]; }), dd = polyD(pts);
-      way(p, dd, Q.tI(i + 1), tu(.2), 3, .25); const t0 = Q.tF(i), t1 = f3(Q.tF(i) + tu(.12)), fl = mvG(p, { o: [[0, 0], [t0, 0], [f3(t0 + tu(.03)), 1], [f3(t0 + tu(.07)), .35], [t1, 1]] });
-      glowP(fl, dd, t0, t1, 26); litP(fl, dd, t0, t1, 6, 'lin'); sparkAt(p, pts[k][0], pts[k][1], 14, 36, t1, 6, 0); }
-    P.forEach(([x, y], i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, 'below', { maxW: lwRow(xs, s) }); }); }); });
+      const pts = Array.from({ length: k + 1 }, (_, j) => { const u = lerp(a0, a1, j / k), o = j && j < k ? (j % 2 ? 1 : -1) * 20 : 0; return [f1(x + ux * u - uy * o), f1(y + uy * u + ux * o)]; }), dd = polyD(pts);
+      way(p, dd, Q.tI(i + 1), tu(.2), 3, .25); const t0 = Q.tF(i), t1 = f3(Q.tF(i) + tu(.12)); litP(mvG(p, { o: [[0, 0], [t0, 0], [f3(t0 + tu(.03)), 1], [f3(t0 + tu(.07)), .35], [t1, 1]] }), dd, t0, t1, 5, 'lin'); }
+    P.forEach(([x, y], i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, 'below', { maxW: lwRow(xs) }); }); }); });
 
-  /* 25 BOUNCE (เด้งส่งต่อ): a ball drops in, bounces off the first link high over to the next, and on — each bounce lights the one it lands on */
-  variant('bounce', 'เด้งส่งต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = 105, r = 18, top = f1(y - s / 2 - r), apex = f1(y - s / 2 - 200);
-    const land = xs.map(x => [x, top]), S0 = { pts: Array.from({ length: 9 }, (_, k) => [f1(land[0][0] - 120 * (1 - k / 8)), f1(top - 330 * (1 - (k / 8) * (k / 8)))]), t0: f3(Q.T0 - tu(.32)), t1: Q.T0 }, S = [S0];
-    for (let i = 0; i < n - 1; i++) { const a = land[i], b = land[i + 1], cc = [f1((a[0] + b[0]) / 2), f1(2 * apex - top)], pts = qP(a, cc, b, 18); S.push({ pts, t0: Q.tF(i), t1: Q.tF(i + 1) });
-      way(p, polyD(pts), Q.tI(i + 1), tu(.3), 3, .2); pts.forEach((pt, k) => { if (k % 3 || !k || k === 18) return; popAt(p, pt[0], pt[1], f3(lerp(Q.tF(i), Q.tF(i + 1), k / 18))).circle(pt[0], pt[1], 7, { fill: TA(.6), sw: 0, stroke: 'none' }); }); }
-    const fin = land[n - 1]; orb(p, [fin], S0.t0, f3(Q.H + tu(.02)), r, { K: trackK(S, fin), clip: true, in: S0.t0 });
-    xs.forEach((x, i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, 'below', { maxW: lwRow(xs, s) }); }); }); });
+  /* 18 MORPH (กลายเป็นอันถัดไป): a lit frame moves from box to box; each box it leaves turns into a dashed outline — it became the next one */
+  variant('morph', 'กลายเป็นอันถัดไป', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = -20;
+    xs.forEach((x, i) => { const g0 = popAt(p, x, y, Q.tI(i)); R(g0, x - s / 2, y - s / 2, s, s, f1(s * .24), DASHB());
+      if (i === Q.L) { node(p, c, Q, i, x, y, s, { g: g0 }); labAt(p, Q, i, x, y, s, 'below', { maxW: lwRow(xs) }); return; }
+      const tL = f3(Q.tF(i + 1) - tu(.02)), it = f3(Q.tI(i) + tu(.04)), fade = [[0, 1], [tL, 1], [f3(tL + tu(.2)), .38]];
+      node(p, c, Q, i, x, y, s, { g: mvG(g0, { o: [[0, 1], [tL, 1], [f3(tL + tu(.2)), 0]] }), lit: false, io: [[0, 0], [it, 0], [f3(it + tu(.1)), 1], [tL, 1], [f3(tL + tu(.2)), .38]] });
+      labAt(p, Q, i, x, y, s, 'below', { maxW: lwRow(xs), gg: mvG(p, { o: fade }) }); });
+    const K = [[0, 0], [Q.T0, 0]]; for (let i = 1; i < n; i++) K.push([f3(Q.tF(i - 1) + tu(.06)), f1(xs[i - 1] - xs[0])], [Q.tF(i), f1(xs[i] - xs[0]), 'io']);
+    R(mvG(p, { x: K, o: [[0, 0], [f3(Q.T0 - tu(.06)), 0], [Q.T0, 1]] }), xs[0] - s / 2, y - s / 2, s, s, f1(s * .24), LITS()); }); });
+
+  /* 19 LIFT (ยกขึ้นทีละขั้น): a wave runs under the boxes, getting bigger; each box is lifted by it a step higher than the one before */
+  variant('lift', 'ยกขึ้นทีละขั้น', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), dy = n >= 4 ? 52 : 70, y0 = f1(30 + dy * (n - 1) / 2), P = xs.map((x, i) => [x, f1(y0 - dy * i)]);
+    const wy = x => { const u = (x + 480) / 960, base = lerp(y0 + s / 2 + 46, y0 - dy * (n - 1) + s / 2 + 46, u); return f1(base + (12 + 22 * u) * Math.sin(u * Math.PI * 2 * (n + .5))); };
+    const dd = polyD(Array.from({ length: 97 }, (_, k) => { const x = -480 + k * 10; return [x, wy(x)]; })); way(p, dd, tu(.06), tu(.5), 3, .32); litP(p, dd, f3(Q.T0 - tu(.3)), Q.H, 5, 'lin');
+    P.forEach(([x, y], i) => { const tA = f3(Q.tF(i) - tu(.22)), K = { px: x, py: y, y: [[0, 46], [tA, 46], [Q.tF(i), 0, 'out']] }, g = mvG(CL(p), Object.assign({ o: fadeIn(Q.tI(i), .1) }, K));
+      node(p, c, Q, i, x, y, s, { g, mv: K, it: f3(Q.tI(i) + tu(.04)) }); labAt(p, Q, i, x, y, s, 'above', { maxW: lwRow(xs) }); }); }); });
+
+  /* 20 PAINT (ระบายต่อ): a wide stroke of colour is brushed along behind the boxes, from the first to the last, lighting each as it passes */
+  variant('paint', 'ระบายต่อ', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = -10, bh = f1(s * .56), x0 = f1(xs[0] - s / 2 - 26), x1 = f1(xs[n - 1] + s / 2 + 26), W = x1 - x0;
+    R(atG(p, tu(.06)), x0, y - bh / 2, W, bh, bh / 2, { fill: 'none', sw: 2.5, stroke: TL_(.3) });
+    const cg = clipG(p, x0, y - bh / 2 - 4, W, bh + 8), sk = [[0, 0], [f3(Q.T0 - tu(.2)), 0]].concat(xs.map((x, i) => [Q.tF(i), f3((x - x0) / W), 'io']), [[f3(Q.H + tu(.2)), 1, 'out']]);
+    R(mvG(cg, { px: x0, py: y, sx: sk }), x0, y - bh / 2, W, bh, bh / 2, { fill: TA(.24), sw: 0, stroke: 'none' });
+    xs.forEach((x, i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, i % 2 ? 'above' : 'below', { maxW: lwAlt(xs) }); }); }); });
+
+  /* 21 SHUTTER (เปิดต่อกัน): every box starts shut; the first opens, and its opening opens the next … — the shutters fold away to thin bars */
+  variant('shutter', 'เปิดต่อกัน', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = -20, pw = s - 8;
+    for (let i = 0; i < n - 1; i++) { const dd = polyD([[f1(xs[i] + s / 2 + 4), y], [f1(xs[i + 1] - s / 2 - 4), y]]); litP(p, dd, Q.tF(i), Q.tF(i + 1), 4); }
+    xs.forEach((x, i) => { const tf = Q.tF(i); node(p, c, Q, i, x, y, s, { it: tf });
+      [-1, 1].forEach(sd => { const ey = f1(y + sd * s / 2), g = mvG(popAt(p, x, y, Q.tI(i)), { px: x, py: ey, sy: [[0, 1], [tf, 1], [f3(tf + tu(.26)), .16, 'io']], y: [[0, 0], [tf, 0], [f3(tf + tu(.26)), sd * 24, 'io']] });
+        R(g, f1(x - pw / 2), sd < 0 ? ey : f1(ey - s / 2), pw, f1(s / 2), 18, F(3.4)); });
+      labAt(p, Q, i, x, y, s, 'below', { maxW: lwRow(xs), g: 48 }); }); }); });
+
+  /* 22 COLUMN (เรียงลงมาแล้วออกผล): the causes are stacked in one column; the push runs down it and out across to the effect */
+  variant('column', 'เรียงลงมาแล้วออกผล', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, m = n - 1, s = m >= 3 ? 165 : 200, gy = m >= 4 ? 0 : 18, xc = -120, se = 220, ex = 285;
+    const ys = Array.from({ length: m }, (_, i) => f1((i - (m - 1) / 2) * (s + gy))), yl = ys[m - 1], ey = m > 1 ? f1(Math.min(yl, 0)) : 0;
+    const eL = [[f1(xc + s / 2 + 6), yl], [f1(ex - 30), yl], [ex, f1(yl - 30)], [ex, f1(ey + se / 2 + 22)]], hz = m <= 2;
+    const path = hz ? [[f1(xc + s / 2 + 6), yl], [f1(ex - se / 2 - 24), yl]] : eL; way(p, polyD(path), Q.tI(m), tu(.3), 4, .4); litP(p, polyD(path), Q.tF(m - 1), f3(Q.H - tu(.04)), 5);
+    arrowHead(litOn(p, f3(Q.H - tu(.06))), ...path[path.length - 1], hz ? 0 : -90, .6);
+    ys.forEach((y, i) => { node(p, c, Q, i, xc, y, s); labAt(p, Q, i, xc, y, s, 'left', { maxW: f1(500 + xc - s / 2 - 36) }); });
+    node(p, c, Q, m, ex, hz ? yl : ey, se); labAt(p, Q, m, ex, hz ? yl : ey, se, hz ? 'below' : 'above', { maxW: 330 }); }); });
+
+  /* 23 FUSE (ชนวนลาม): a coiled fuse loops from each box to the next; the spark burns along it and lights the next */
+  variant('fuse', 'ชนวนลาม', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = 70, top = f1(y - s / 2 + 2);
+    for (let i = 0; i < n - 1; i++) { const a = [f1(xs[i] + s * .2), top], b = [f1(xs[i + 1] - s * .2), top], h = 230, c1 = [f1(b[0] + 170), f1(top - h)], c2 = [f1(a[0] - 170), f1(top - h)];
+      const dd = `M ${a[0]} ${a[1]} C ${c1[0]} ${c1[1]} ${c2[0]} ${c2[1]} ${b[0]} ${b[1]}`; drawAt(p.path(dd, { sw: 3, stroke: TL_(.45) }), p, Q.tI(i + 1), tu(.35));
+      litP(p, dd, Q.tF(i), Q.tF(i + 1), 5, 'lin'); orb(p, cP(a, c1, c2, b), Q.tF(i), Q.tF(i + 1), 11, { lin: true }); }
+    xs.forEach((x, i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, 'below', { maxW: lwRow(xs) }); }); }); });
+
+  /* 24 PULL (ดึงตามกันมา): lines reach out from each box and pull the next one in to its place */
+  variant('pull', 'ดึงตามกันมา', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, s = SZn(n), xs = spanX(n, s), y = 40, r = s / 2, D = n >= 5 ? 26 : 60;
+    xs.forEach((x, i) => { const K = i ? { px: x, py: y, x: [[0, D], [Q.tF(i - 1), D], [Q.tF(i), 0, 'io']] } : null, g = K ? mvG(CL(p), Object.assign({ o: fadeIn(Q.tI(i), .1) }, K)) : null;
+      if (i) [-1, 1].forEach(sd => { const a = [f1(xs[i - 1] + r), f1(y + sd * r * .45)], b = [f1(x - r), a[1]], dd = `M ${a[0]} ${a[1]} Q ${f1((a[0] + b[0]) / 2)} ${f1(a[1] + sd * 34)} ${b[0]} ${b[1]}`;
+        drawAt(p.path(dd, { sw: 3, stroke: TL_(.4) }), p, Q.tI(i), tu(.25)); litP(p, dd, Q.tF(i - 1), f3(Q.tF(i) - tu(.02)), 5); });
+      node(p, c, Q, i, x, y, s, K ? { g, mv: K, it: f3(Q.tI(i) + tu(.04)) } : {}); labAt(p, Q, i, x, y, s, 'above', { maxW: lwRow(xs) }); }); }); });
+
+  /* 25 BRACKET (รวบเป็นผล): the causes in a row, one after another; a bracket under them gathers it all and points down to the effect */
+  variant('bracket', 'รวบเป็นผล', (d, c) => { art(c, p => { const Q = CQ(d), n = Q.n, m = n - 1, s = m >= 4 ? 165 : m === 3 ? 185 : 200, st = m > 1 ? Math.min(s + 120, (900 - s) / (m - 1)) : 0, xs = xsRow(m, st), y = -205;
+    const lh = Math.max(0, ...xs.map((x, i) => Q.LB(i) ? wsz(p, Q.LB(i), 46, m > 1 ? Math.min(330, st - 14) : 330).h : 0)), yb = f1(y + s / 2 + (lh ? lh + 30 : 20)), xl = f1(xs[0] - s / 2), xr = f1(xs[m - 1] + s / 2), se = 190, ey = f1(Math.max(yb + 70 + se / 2, 140));
+    const B = [[xl, f1(yb - 22)], [xl, yb], [-28, yb], [0, f1(yb + 26)], [28, yb], [xr, yb], [xr, f1(yb - 22)]], A = [[0, f1(yb + 26)], [0, f1(ey - se / 2 - 18)]];
+    way(p, polyD(B), Q.tI(1), tu(.35), 4, .45); litP(p, polyD(B.slice(0, 4)), Q.tF(m - 1), f3(lerp(Q.tF(m - 1), Q.H, .5)), 5); litP(p, polyD(B.slice(3).reverse()), Q.tF(m - 1), f3(lerp(Q.tF(m - 1), Q.H, .5)), 5);
+    way(p, polyD(A), Q.tI(m), tu(.2), 4, .45); litP(p, polyD(A), f3(lerp(Q.tF(m - 1), Q.H, .5)), f3(Q.H - tu(.04)), 5); arrowHead(litOn(p, f3(Q.H - tu(.06))), ...A[1], 90, .55);
+    xs.forEach((x, i) => { node(p, c, Q, i, x, y, s); labAt(p, Q, i, x, y, s, 'below', { maxW: m > 1 ? Math.min(330, st - 14) : 330 }); });
+    node(p, c, Q, m, 0, ey, se); labAt(p, Q, m, 0, ey, se, 'right', { maxW: 300 }); }); });
 
   /* ---------- sample data (A: sentences from unrelated topics, 1–4 links · B: stress) — the same as B12 ---------- */
   const I = (icon, label) => label ? { icon, label } : { icon };
