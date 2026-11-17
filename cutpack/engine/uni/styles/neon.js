@@ -29,7 +29,7 @@ const NEON = {
      boxes [x, y, w, h] · words {x, y (centre), align, maxW}: Friend's sheet (2nd image), each shot moved and squeezed into the safe zone
      (2026-11-17; the sheet put the words at y 1400–1620 and pictures at the right edge, under TikTok's caption and buttons) */
   layouts: {
-    talk_low:   {speaker: true, lead: {x: 60, y: 1405, align: 'left'}, key: {x: 60, y: 1540, align: 'left'}},                            // shot 01
+    talk_low:   {speaker: true, lead: {x: 540, y: 1405}, key: {x: 540, y: 1540}},                                                       // shot 01 (centred: Friend 2026-11-17 "ทำไม subtitle มันชิดซ้ายมันต้องอยู่กึ่งกลางสิ"; the sheet had it on the left)
     hands:      {speaker: true, lead: {x: 540, y: 1045}, key: {x: 540, y: 1120}, stage: [180, 1250, 720, 400]},                           // shot 02
     chest:      {speaker: true, stage: [140, 970, 800, 330], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},                           // shot 03
     square:     {screen: true, square: [540, 300, 240, 44], stage: [80, 580, 840, 740], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},  // shot 04 (Friend 2026-11-17: the circle → a rounded square, "ขยายใหญ่อีกนิดนึง ย้ำว่าแค่นิดเดียว": 440 → 480)
@@ -37,7 +37,7 @@ const NEON = {
     side:       {screen: true, stage: [60, 520, 520, 880], lead: {x: 735, y: 890, maxW: 330}, key: {x: 735, y: 1010, maxW: 330}},      // shot 06 (tall pictures)
     talk_split: {speaker: true, lead: {x: 540, y: 230}, key: {x: 540, y: 1080}},                                                        // shot 07
     window:     {screen: true, win: [160, 90, 760, 760, 40], stage: [80, 870, 840, 500], lead: {x: 540, y: 1440}, key: {x: 540, y: 1545}}, // shot 08
-    diag:       {speaker: true, lead: {x: 60, y: 140, align: 'left'}, key: {x: 60, y: 265, align: 'left', maxW: 640}, stage: [480, 1060, 440, 580]},   // shot 09
+    diag:       {speaker: true, lead: {x: 540, y: 140}, key: {x: 540, y: 265}, stage: [480, 1060, 440, 580]},   // shot 09 (words centred, Friend 2026-11-17)
     word:       {screen: true, key: {x: 540, y: 280}, stage: [80, 420, 840, 900], lead: {x: 540, y: 1380}},                            // shot 10
     recap:      {screen: true, lead: {x: 540, y: 120}, key: {x: 540, y: 250}, stages: [[260, 430, 680, 300], [220, 870, 700, 290], [340, 1270, 520, 380]],
                  nums: [[100, 620], [100, 1060], [100, 1520]]},                                                                             // shot 11
