@@ -851,6 +851,12 @@
   function oldMsg(q, x, y, w, h, tail) { const l = x - w / 2, t = y - h / 2; q.path(bubbleD(l, t, w, h, 36, tail || null), F(3)); R(q, l + 34, y - 26, f1(w * .62), 18, 9, GREY()); R(q, l + 34, y + 10, f1(w * .38), 18, 9, GREY()); }
   const cornerR = (m, s = 170) => [f1(m.r - 20), f1(m.t + 12)];
 
+  /* stars of a review (good 5 · bad 1 · none 0) — lit one by one T0 → H; starts at (sx, sy), gap apart */
+  function starRow(q, Q, sx, sy, gap = 74, r = 33) { const n = Q.mood === 'good' ? 5 : Q.mood === 'bad' ? 1 : 0;
+    for (let i = 0; i < 5; i++) { star5(q, sx + i * gap, sy, r, { sw: 3, stroke: TL_(.55), fill: C.fill }); if (i < n) star5(litOn(q, f3(lerp(Q.T0, Q.H, (i + 1) / Math.max(n, 1)))), sx + i * gap, sy, r, { fill: ACC1, sw: 3, stroke: ACC1 }); } }
+  /* the kind as an icon box (≥ 170): lit edge on H */
+  function kindBox(p, c, Q, x, y, s, t) { const g = popAt(p, x, y, t); R(g, x - s / 2, y - s / 2, s, s, s * .24, F(4)); R(litOn(g, Q.H), x - s / 2, y - s / 2, s, s, s * .24, LIT2()); put(p, c, { icon: KICON[Q.kind] }, x, y, s * .64, null, { t: f3(t + tu(.04)), punch: Q.H }); }
+
   /* 01 BUBBLE (ฟองคำพูด): one big speech shape; typing dots, then the words write in; the reaction lands on its corner */
   variant('bubble', 'ฟองคำพูด', (d, c) => { art(c, p => { const Q = MQ(d), h = hOf(Q) + 50, m = msg(p, c, Q, -20, -50, 820, h, { size: 86 });
     reactC(p, c, Q, ...cornerR(m)); goneS(p, Q, 260, m.b + 110); }); });
@@ -899,11 +905,14 @@
     const m = msg(p, c, Q, X, Y, 620, h, { g, tWrite: f3(Q.H - tu(.3)), tail: { side: 'b', x: X - 190 } });
     ticks(p, m.r - 110, m.b + 62, f3(Q.H - tu(.1)), Q.gone ? f3(Q.H + tu(.3)) : Q.H, 1.6); reactC(p, c, Q, ...cornerR(m)); goneS(p, Q, X + 20, m.b + 150); }); });
 
-  /* 08 TWO SIDES (คุยกันสองคน): two people; the words come from the one on the left; the one on the right answers with the reaction (gone: they fade) */
-  variant('twoside', 'คุยกันสองคน', (d, c) => { art(c, p => { const Q = MQ(d), h = hOf(Q), fy = 345, k = .9, hx = -370, hy = f1(fy - 300 * k);
-    fig(p, hx, fy, k, { g: inF(p, hx, fy, k, Q.tC(0)) }); fig(p, 370, fy, k, { g: inF(p, 370, fy, k, Q.tC(1)), dim: Q.gone ? Q.H : undefined });
-    const m = msg(p, c, Q, -20, -195, 620, h, { tail: { side: 'b', x: -230, dir: -1 }, pointer: Q.kind === 'chat' ? null : { x: hx + 40, y: hy - 30, dy: 0 }, t: Q.tC(2) });
-    reactC(p, c, Q, 370, -55, 170); goneS(p, Q, 370, -55, 240, 96); }); });
+  /* 08 TALL CARD (การ์ดแนวตั้ง — user: "8,21 design ใหม่ อยากได้เป็น card"): a tall card — the person who says it in a round portrait on top, the words in
+     the middle (stars too for a review), a soft line under; beside it the kind's icon box above and the reaction (or the empty reply place) below */
+  variant('tallcard', 'การ์ดแนวตั้ง', (d, c) => { art(c, p => { const Q = MQ(d), X = -110, w = 500, h = 660, l = X - w / 2, t = -h / 2, rv = Q.kind === 'review';
+    const g = mvG(CL(p), { px: X, py: 0, y: [[0, 120], [Q.tIn, 120], [f3(Q.tIn + tu(.4)), 0, 'out']], o: fadeIn(Q.tIn, .1) }), body = mvG(g, { px: X, py: 0, s: [[0, 1], [Q.H, 1], [f3(Q.H + tu(.18)), 1.03, 'io'], [f3(Q.H + tu(.42)), 1, 'io']] });
+    R(body, l, t, w, h, 40, F(4)); const pr = popAt(body, X, t + 130, Q.tC(2)); portrait(pr, X, t + 130, 96);
+    R(body, X - 90, t + 252, 180, 18, 9, GREY()); if (rv) starRow(body, Q, X - 148, t + 318, 74, 31);
+    words11(body, p, Q, [l + 44, t + (rv ? 360 : 300), l + w - 44, t + h - 110], { size: 68 }); body.line(l + 44, t + h - 74, l + w - 44, t + h - 74, { sw: 2, stroke: TL_(.3) });
+    kindBox(p, c, Q, 300, -150, 176, Q.tC(3)); reactC(p, c, Q, 300, 140, 180); goneS(p, Q, 300, 140, 220, 96); }); });
 
   /* 09 INBOX (รายการข้อความ): a list of messages; the new one slides in on top and pushes the list down */
   variant('inbox', 'รายการข้อความ', (d, c) => { art(c, p => { const Q = MQ(d), h = hOf(Q), w = 760, y = f1(-330 + h / 2 + 6);
@@ -981,9 +990,16 @@
     const band = mvG(p, { px: x0, py: 0, sx: [[0, 0], [Q.T0, 0], [f3(Q.H - tu(.02)), 1, 'io']], o: fadeIn(Q.T0, .05) }); R(band, x0, f1(cy + 46), f1(lw), 16, 8, { fill: ACC1, sw: 0, stroke: 'none' });
     reactC(p, c, Q, ...cornerR(m)); goneS(p, Q, 250, m.b + 100); }); });
 
-  /* 21 WORDS FIRST (คำมาก่อนกรอบ): the words appear first, very big and alone; then the frame draws itself round them on the keyword */
-  variant('wordsfirst', 'คำมาก่อนกรอบ', (d, c) => { art(c, p => { const Q = MQ(d), h = hOf(Q) + 90, tW = f3(Math.max(Q.tIn + tu(.2), Q.T0 - tu(.4)));
-    const m = msg(p, c, Q, 0, -30, 900, h, { g: sub(p), size: 112, tWrite: tW, frameAt: f3(Q.H - tu(.42)), tail: { side: 'b', x: 260, dir: 1 } }); reactC(p, c, Q, f1(m.l + 30), f1(m.t + 10)); goneS(p, Q, -240, m.b + 90); }); });
+  /* 21 SIDE-BAR CARD (การ์ดแถบข้าง — user: "8,21 design ใหม่ อยากได้เป็น card"): a wide card; a lit bar grows down its left edge as the words are said,
+     the kind's icon box sits by it, the words big on the right (stars too for a review); the reaction rests on the card's lower corner */
+  variant('sidecard', 'การ์ดแถบข้าง', (d, c) => { art(c, p => { const Q = MQ(d), w = 900, h = 420, y = -40, l = -w / 2, t = y - h / 2, rv = Q.kind === 'review';
+    const g = mvG(CL(p), { px: 0, py: y, x: [[0, -700], [Q.tIn, -700], [f3(Q.tIn + tu(.45)), 0, 'out']], o: fadeIn(Q.tIn, .06) }), body = mvG(g, { px: 0, py: y, s: [[0, 1], [Q.H, 1], [f3(Q.H + tu(.18)), 1.03, 'io'], [f3(Q.H + tu(.42)), 1, 'io']] });
+    R(body, l, t, w, h, 40, F(4)); R(body, l + 34, t + 36, 24, h - 72, 12, { fill: TL_(.12), sw: 0, stroke: 'none' });
+    const bar = mvG(body, { px: l + 46, py: t + 36, sy: [[0, 0], [Q.T0, 0], [f3(Q.H - tu(.02)), 1, 'io']] }); R(bar, l + 34, t + 36, 24, h - 72, 12, { fill: ACC1, sw: 0, stroke: 'none' });
+    kindBox(p, c, Q, l + 186, t + 130, 176, f3(Q.tIn + tu(.3)));
+    if (rv) starRow(body, Q, l + 330, t + 82, 74, 31);
+    words11(body, p, Q, [l + 310, t + (rv ? 140 : 70), l + w - 50, t + h - 60], { size: 96 });
+    reactC(p, c, Q, f1(l + w - 30), f1(t + h - 20), 180); goneS(p, Q, 200, f1(t + h + 90)); }); });
 
   /* 22 REPLY ARROW (ตอบข้อความก่อนหน้า): a small earlier message at the top left; a curved arrow runs from it to this message */
   variant('replyarrow', 'ตอบข้อความก่อนหน้า', (d, c) => { art(c, p => { const Q = MQ(d), h = hOf(Q);
