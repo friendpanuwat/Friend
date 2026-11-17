@@ -12,7 +12,8 @@
         (Friend 2026-11-17: "ทำไมโมชั่นกราฟฟิกเล็กจังเลยมันดูโล่งๆอ่ะ" — a 4.7 : 1 drawing came out at 6 % of the screen)
      5. among what is left: at random (seed of the run + the picture's id, so the same seed gives the same picks)
    usage: node tools/pick.js <in.json>   in = {"seed": 12345, "history": [{"picks": ["B04T.rail", …]}, …newest last],
-                                               "scenes": [{"id": "s3", "cat": "B04"}, …in clip order]}
+                                               "scenes": [{"id": "s3", "cat": "B04", "only": "T"?}, …in clip order]}
+          only "T" = the template set only (an overlay on the speaker)
           → stdout {"picks": {"s3": "B04T.rail", …}}
    ===================================================================== */
 const fs = require('fs'), vm = require('vm'), path = require('path');
@@ -33,12 +34,15 @@ function pick({seed, history = [], scenes}) {
     const all = CATS[sc.cat]?.variants.map(v => v.id) ?? [];
     if (!all.length) continue;
     const r = rng(seed ^ hash(sc.id));
-    const sets = [...new Set(all.map(id => id.split('.')[0]))].sort();
+    let sets = [...new Set(all.map(id => id.split('.')[0]))].sort();
+    if (sc.only === 'T') sets = sets.filter(x => x.endsWith('T'));      // an overlay: the template set only (Friend 2026-11-17: "ห้ามใส่ชุดฐานปกติ")
+    if (!sets.length) continue;
     if (!(sc.cat in turn)) turn[sc.cat] = Math.floor(r() * sets.length);   // 1. the first set of this category: at random
     const set = sets[turn[sc.cat]++ % sets.length];
-    let pool = all.filter(id => id.startsWith(set + '.') && !used.has(id));   // 2. not shown in this clip
-    if (!pool.length) pool = all.filter(id => !used.has(id));
-    if (!pool.length) pool = all;
+    const mine = all.filter(id => sets.includes(id.split('.')[0]));
+    let pool = mine.filter(id => id.startsWith(set + '.') && !used.has(id));   // 2. not shown in this clip
+    if (!pool.length) pool = mine.filter(id => !used.has(id));
+    if (!pool.length) pool = mine;
     const fresh = pool.filter(id => !age.has(id));                        // 3. not in the last runs
     if (fresh.length) pool = fresh;
     else { const oldest = Math.max(...pool.map(id => age.get(id))); pool = pool.filter(id => age.get(id) === oldest); }

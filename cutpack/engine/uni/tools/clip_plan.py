@@ -42,7 +42,7 @@ PAST = json.load(open(HISTORY)) if HISTORY and os.path.exists(HISTORY) else []
 RULES = {
     # 2026-11-17 Friend cancelled the 8 old styles (card, glass, split, gold and their overlays; their rules are in git history,
     # git show HEAD~1:cutpack/engine/uni/tools/clip_plan.py) for 12 new ones from sheets Friend made with AI. One by one:
-    'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft'),   # นีออนฟ้า: 10 of the sheet's 12 shots carry a picture (first guess, before a real clip)
+    'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft', over=25),   # over: a small picture on the speaker every ~25 s   # นีออนฟ้า: 10 of the sheet's 12 shots carry a picture (first guess, before a real clip)
 }
 PUSH = dict(z=1.05, d=1.4, back=1.0, gap=4.0, most=5)
 flat = lambda s: re.sub(r'\s+', '', s)
@@ -161,28 +161,55 @@ def zooms_for(R, sc, cut):
     return sorted(out, key=lambda z: z['t'])
 
 
+TEMPLATE = {f'B{i:02d}' for i in range(1, 13)}   # the categories the glow-line template set has (B01T–B12T)
+def overlays_for(R, sc):
+    """OVERLAYS (Friend 2026-11-17: "ฉากที่เป็นหน้าผมพูดล้วนๆ อยากให้ใส่โอเวอร์เลย์เข้าไปด้วยแต่อย่าใส่เยอะเกินนะใส่แค่นิดเดียวพอ โอเวอร์เลย์
+    ให้ใช้ template ชุดฐาน เท่านั้น ห้ามใส่ชุดฐานปกติ"): about one small picture on the speaker every R['over'] seconds, of a
+    category the template set has. First a picture of the AI the style left out that falls where the speaker talks; when there is
+    none, the full-screen picture of the lowest rank becomes one (so the speaker gets them, the count of pictures stays). Never two
+    within 8 s. Returns the overlay pictures; sc loses the ones that moved."""
+    if not R.get('over'): return []
+    want = max(1, round(dur / R['over'])); out = []
+    def free(t0, t1): return not any(t0 < s[2] and t1 > s[1] for s in sc + out)
+    def far(t): return all(abs(t - o[1]) >= 8 for o in out)
+    shown = {s[0]['id'] for s in sc}
+    for r in sorted(report, key=lambda r: (-r.get('rank', 2), r['line'])):
+        if len(out) >= want: break
+        if r['id'] in shown or r['cat'] not in TEMPLATE: continue
+        n = r['line'] - 1; t0, t1 = lines[n]['t0'], lines[n]['t1']
+        if t1 - t0 >= 1.5 and free(t0, t1) and far(t0): out.append([r, t0, t1, n])
+    for s in sorted(sc, key=lambda s: (-s[0].get('rank', 2), -s[1])):
+        if len(out) >= want: break
+        if s[0]['cat'] in TEMPLATE and far(s[1]) and len(sc) > 3: sc.remove(s); out.append(s)
+    return sorted(out, key=lambda o: o[1])
+
+
 RUN_PICKS = []
-def picks_for(sc):
-    """the drawing of each picture (tools/pick.js): random, kept in the plan"""
-    req = {'seed': SEED, 'history': PAST, 'scenes': [{'id': r['id'], 'cat': r['cat']} for r, *_ in sc]}
+def picks_for(sc, ov=()):
+    """the drawing of each picture (tools/pick.js): random, kept in the plan; an overlay from the template set only"""
+    ovid = {o[0]['id'] for o in ov}
+    req = {'seed': SEED, 'history': PAST, 'scenes': [dict({'id': r['id'], 'cat': r['cat']}, **({'only': 'T'} if r['id'] in ovid else {})) for r, *_ in sorted(list(sc) + list(ov), key=lambda x: x[1])]}
     out = subprocess.run(['node', os.path.join(UNI, 'tools', 'pick.js'), '/dev/stdin'], input=json.dumps(req), capture_output=True, text=True, check=True)
     return json.loads(out.stdout)['picks']
 
 
-def write(style, R, sc, zooms, suffix):
-    then, picks = [], picks_for(sc)
-    for k, (r, t0, t1, n) in enumerate(sc):
+def write(style, R, sc, zooms, suffix, ov=()):
+    then, picks = [], picks_for(sc, ov)
+    ovid = {o[0]['id'] for o in ov}
+    for k, (r, t0, t1, n) in enumerate(sorted(list(sc) + list(ov), key=lambda x: x[1])):
         hit = hit_of([r, t0, t1, n])
         if hit is None or not (t0 + .3 < hit < t1 - .3): hit = (t0 + t1) / 2
         then.append(f"{r['id']}.{picks[r['id']]},{t0:.2f},{t1:.2f},{k},{hit:.2f}")
         RUN_PICKS.append(picks[r['id']])
     f = json.load(open(FACES))
-    js = f"const RUN = {json.dumps({'seed': SEED})};\nconst FACES = {json.dumps({'track': f['track'], 'layout': f['layout'], 'keepOut': f['keepOut']})};\nconst CAPTIONS = {json.dumps(CAP, ensure_ascii=False)};\n"
+    run = {'seed': SEED, 'overlays': [f"{r['id']}.{picks[r['id']]}" for r, *_ in ov]}
+    js = f"const RUN = {json.dumps(run)};\nconst FACES = {json.dumps({'track': f['track'], 'layout': f['layout'], 'keepOut': f['keepOut']})};\nconst CAPTIONS = {json.dumps(CAP, ensure_ascii=False)};\n"
     if zooms: js += f"const ZOOMS = {json.dumps(zooms)};\n"
     js += re.sub(r'"say": \[[^\]]*\]', '"say": ["", ""]', open(f'{W}/cats/sentences.js').read())
     open(f'{W}/plan{suffix}.js', 'w').write(js)
     open(f'{W}/then{suffix}.txt', 'w').write('\n'.join(then) + '\n')
     cover = sum(t1 - t0 for _, t0, t1, _ in sc)
+    if ov: print(f"{style}: {len(ov)} overlays on the speaker at {[round(o[1], 1) for o in ov]}")
     print(f'{style}: {len(CAP)} subtitle blocks ({sum("acc" in c for c in CAP)} accent) · {len(then)} pictures, {cover / dur:.0%} of the clip · '
           f'{sum(z["z"] > 1 for z in zooms)} zoom pushes at {[z["t"] for z in zooms if z["z"] > 1]}')
 
@@ -191,8 +218,8 @@ if not STYLES:                                   # the old rule (2026-11-11), fo
     R = dict(every=5.0, scene=(2.4, 99), cover=1.0, run=99, zoom=False)
     write('old', R, scenes_for(R), [], '')
 for st in STYLES:
-    R = RULES[st]; sc = scenes_for(R)
-    write(st, R, sc, zooms_for(R, sc, R.get('cut', 'soft')), f'_{st}')
+    R = RULES[st]; sc = scenes_for(R); ov = overlays_for(R, sc)
+    write(st, R, sc, zooms_for(R, sc + ov, R.get('cut', 'soft')), f'_{st}', ov)
 print(f'seed {SEED} (same plan again: --seed {SEED})')
 if HISTORY:                                       # this run joins the customer's history (a run of the same clip again counts too)
     PAST.append({'clip': os.path.basename(os.path.abspath(W)), 'seed': SEED, 'picks': sorted(set(RUN_PICKS))})

@@ -9,13 +9,13 @@
    2 surface  navy screen with a faint blue grid; the speaker's window, square and band have a thin glowing blue edge
    3 drawing  the glow-line pictures: navy glass bodies, every line glows blue (the first glass look Friend kept)
    4 colours  navy · white · one light neon blue
-   5 words    a small white lead (an English word in it is an italic serif, Friend's "skip", "check") + a huge heavy key word in
-              glowing light blue (Kanit ExtraBold)
+   5 words    a small white lead (an English word in it is an italic serif, Friend's "skip", "check") + a huge heavy key word,
+              white at the top to light blue at the bottom (Friend 2026-11-17: "subtitle จะมีการไล่สีด้วย ... ขาวกับฟ้า"), glowing (Kanit ExtraBold)
    6 motion   soft: the navy screen comes in out of a blur, the key word lights up on its word
    7 sound    whoosh on a screen cut, a soft swish on the key word
    ===================================================================== */
 const NEON = {
-  face: {x: 540, y: 700},                          // the test clip's face centre (a real clip reads faces.json)
+  face: {x: 540, y: 700, w: 320},                  // the test clip's face centre and width (a real clip reads faces.json)
   /* SAFE ZONE (Friend 2026-11-17: "ที่สำคัญที่สุดอย่าลืมเลี่ยงโซนอันตรายของติ๊กต๊อกและ IG ... อย่าให้ปุ่มพวกนี้มันมาบังเด็ดขาด"): every word, picture
      and framed face stays inside x 60–920 · y 250–1440 (top: the For You / search bar · bottom 480: name, caption, sound · right 160: like,
      comment, share, follow). The speaker's own video may run under the buttons, as in every clip. Above Friend's "copy 100%". */
@@ -33,7 +33,7 @@ const NEON = {
     hands:      {speaker: true, lead: {x: 540, y: 1045}, key: {x: 540, y: 1120}, stage: [180, 1250, 720, 400]},                           // shot 02
     chest:      {speaker: true, stage: [140, 970, 800, 330], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},                           // shot 03
     square:     {screen: true, square: [540, 300, 240, 44], stage: [80, 580, 840, 740], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},  // shot 04 (Friend 2026-11-17: the circle → a rounded square, "ขยายใหญ่อีกนิดนึง ย้ำว่าแค่นิดเดียว": 440 → 480)
-    band:       {screen: true, lead: {x: 540, y: 220}, key: {x: 540, y: 340}, band: [0, 520, 1080, 600], stage: [80, 1140, 840, 510]},   // shot 05
+    band:       {screen: true, lead: {x: 540, y: 220}, key: {x: 540, y: 340}, band: [160, 520, 760, 600, 40], stage: [80, 1140, 840, 510]},   // shot 05 (Friend 2026-11-17: the full-width band → a rounded rectangle the video fills, a little wider than the video was: 704 → 760)
     side:       {screen: true, stage: [60, 520, 520, 880], lead: {x: 735, y: 890, maxW: 330}, key: {x: 735, y: 1010, maxW: 330}},      // shot 06 (tall pictures)
     talk_split: {speaker: true, lead: {x: 540, y: 230}, key: {x: 540, y: 1080}},                                                        // shot 07
     window:     {screen: true, win: [160, 90, 760, 760, 40], stage: [80, 870, 840, 500], lead: {x: 540, y: 1440}, key: {x: 540, y: 1545}}, // shot 08
@@ -80,16 +80,22 @@ function neonRoom(name, f) {
   if (L.stage) return chin + 30 < Math.min(L.stage[1], L.lead ? L.lead.y - 40 : 1e9);
   return chin + 20 < L.lead.y - 40;                                 // talk_low
 }
-/* the speaker's face at time t: faces.json of a real clip, else the test clip's */
+/* the speaker's face at time t: faces.json of a real clip, else the test clip's (centre x, y and width w) */
 function neonFace(t) {
   if (typeof FACES === 'undefined' || !FACES.track?.length) return NEON.face;
   const tr = FACES.track.reduce((a, b) => Math.abs(b[0] - t) < Math.abs(a[0] - t) ? b : a)[1];
-  return {x: (tr[0] + tr[2]) / 2, y: (tr[1] + tr[3]) / 2};
+  return {x: (tr[0] + tr[2]) / 2, y: (tr[1] + tr[3]) / 2, w: tr[2] - tr[0]};
 }
-/* the speaker inside a shape: a copy of the speaker's frame (it follows the video on every seek), scaled by s with the face at (cx, cy) */
-function neonInset(parent, s, cx, cy, t) {
+/* the speaker inside a shape (w × h): a copy of the speaker's frame (it follows the video on every seek). Friend 2026-11-17:
+   "อยากให้คลิปของผมมันเต็มกรอบสี่เหลี่ยม" — the video always covers the whole shape (no empty edge); "zoom out หน้าผมหน่อย ตอนนี้หน้าผม
+   มันเต็มกรอบสี่เหลี่ยมมากเกินไป" — the face is `faceK` of the shape's width (from the clip's real face size), never smaller than
+   covering allows; the face sits at (w / 2, h × faceY) unless that would leave an edge */
+function neonInset(parent, w, h, t, faceK = .4, faceY = .45) {
   const f = neonFace(t), im = document.createElement('img');
-  Object.assign(im.style, {position: 'absolute', width: `${1080 * s}px`, height: `${1920 * s}px`, left: `${cx - f.x * s}px`, top: `${cy - f.y * s}px`, maxWidth: 'none'});
+  const s = Math.max(w / 1080, h / 1920, faceK * w / (f.w || 320));
+  const clamp = (v, lo) => Math.min(0, Math.max(lo, v));
+  const left = clamp(w / 2 - f.x * s, w - 1080 * s), top = clamp(h * faceY - f.y * s, h - 1920 * s);
+  Object.assign(im.style, {position: 'absolute', width: `${1080 * s}px`, height: `${1920 * s}px`, left: `${left}px`, top: `${top}px`, maxWidth: 'none'});
   parent.appendChild(im); NEON.insets.push(im); return im;
 }
 /* one line of words: Latin words in the italic serif (Friend's "skip"), shrunk (never wrapped) to maxW */
@@ -143,8 +149,9 @@ STYLE('neon', {
 .n-row{position:absolute;white-space:nowrap}
 .n-lead{font-family:"Anu";font-weight:500;font-size:48px;line-height:1.3;color:#EEF3F7;text-shadow:0 0 3px rgba(0,3,10,.95),0 0 8px rgba(0,3,10,.8),0 2px 18px rgba(0,3,10,.6)}
 .n-lead i{font-family:"NeonSerif";font-style:italic;font-weight:400;font-size:1.22em;color:#DCEBFF;margin:0 .08em}
-.n-key{font-family:"NeonKey";font-weight:800;font-size:150px;line-height:1.12;color:#7DDAFF;letter-spacing:-1px;
-  text-shadow:0 0 2px rgba(205,242,255,.9),0 0 10px rgba(60,170,240,.95),0 0 26px rgba(40,150,235,.75),0 0 56px rgba(30,120,220,.45)}
+.n-key{font-family:"NeonKey";font-weight:800;font-size:150px;line-height:1.12;letter-spacing:-1px;
+  color:transparent;background:linear-gradient(180deg,#F7FDFF 0%,#D6F2FF 34%,#86D6FF 68%,#47B4F5 100%);-webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 0 2px rgba(205,242,255,.85)) drop-shadow(0 0 10px rgba(60,170,240,.95)) drop-shadow(0 0 26px rgba(40,150,235,.7))}
 .n-key i{font-family:"NeonSerif";font-weight:400}
 .n-num{position:absolute;font-family:"NeonSerif";font-style:italic;font-size:110px;line-height:1;color:#7CC8FF;translate:0 -50%;
   text-shadow:0 0 10px rgba(80,180,255,.8),0 0 28px rgba(60,160,255,.4)}
@@ -170,7 +177,15 @@ STYLE('neon', {
 
   frame(t0, t1, {index, scene}) {
     const meta = SCENES[scene]?.meta ?? {}, face = neonFaceBox(t0, t1);
-    let name = meta.layout;
+    let name = meta.layout, overL = null;
+    /* an OVERLAY (Friend 2026-11-17: "ฉากที่เป็นหน้าผมพูดล้วนๆ อยากให้ใส่โอเวอร์เลย์เข้าไปด้วย ... ใส่แค่นิดเดียวพอ", tools/clip_plan.py picks
+       which, from the template set only): the speaker talks with the words low, a small picture above the head or under the chin,
+       wherever the face leaves more room (at least 160 high, at most 320), never on the face; no room → a full-screen picture */
+    if (!name && typeof RUN !== 'undefined' && RUN.overlays?.includes(scene)) {
+      const T = NEON.layouts.talk_low, up = [110, face[1] - 150], down = [face[3] + 40, T.lead.y - 75];
+      const [y0, y1] = up[1] - up[0] >= down[1] - down[0] ? up : down, h = Math.min(320, y1 - y0);
+      if (h >= 160) { name = 'over'; overL = {speaker: true, over: true, lead: T.lead, key: T.key, stage: [170, Math.round(y0 + (y1 - y0 - h) / 2), 740, h]}; }
+    }
     if (!name) {
       const want = NEON.byCat[meta.cat];
       if (want && neonRoom(want, face)) name = want;
@@ -186,17 +201,21 @@ STYLE('neon', {
         name = pool[Math.floor(neonRand('screen' + index) * pool.length)];
       }
     }
-    NEON.used[name] = (NEON.used[name] ?? 0) + 1; NEON.last = name;
-    const L = NEON.layouts[name] ?? NEON.layouts.square;
+    if (name !== 'over') { NEON.used[name] = (NEON.used[name] ?? 0) + 1; NEON.last = name; }
+    const L = overL ?? NEON.layouts[name] ?? NEON.layouts.square;
     const root = div('', SC); root.className = 'n-root' + (L.screen ? ' n-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     if (L.screen) {
-      div('', root).className = 'n-grid'; div('', root).className = 'n-vig';
-      if (L.square) { const [cx, cy, r, rad] = L.square, c = box([cx - r, cy - r, 2 * r, 2 * r]); c.className = 'n-frame'; c.style.borderRadius = rad + 'px'; neonInset(c, .76, r, r + 27, t0);
+      const grid = div('', root); grid.className = 'n-grid'; div('', root).className = 'n-vig';
+      /* the grid drifts very slowly (Friend 2026-11-17: "พื้นหลังที่เป็นตารางอยากให้ขยับได้ด้วยแต่ว่าขยับช้าๆมากๆเลยนะ"): 2 px/s right, 3 px/s
+         down, from the clip's own clock, so it carries on from one screen to the next */
+      const at = t => `${(-6 + 2 * t).toFixed(1)}px ${(-10 + 3 * t).toFixed(1)}px`;
+      A(grid, [{backgroundPosition: at(t0 - .2)}, {backgroundPosition: at(t1 + .2)}], t0 - .2, t1 - t0 + .4, {e: 'linear'});
+      if (L.square) { const [cx, cy, r, rad] = L.square, c = box([cx - r, cy - r, 2 * r, 2 * r]); c.className = 'n-frame'; c.style.borderRadius = rad + 'px'; neonInset(c, 2 * r - 6, 2 * r - 6, t0, .42, .48);
         A(c, [{opacity: 0, transform: 'scale(.85)'}, {opacity: 1, transform: 'none'}], t0 + .05, .45, {e: EASE.soft}); }
-      if (L.band) { const b = box(L.band); b.className = 'n-band'; neonInset(b, .65, L.band[2] / 2, 265, t0);
+      if (L.band) { const [bx, by, bw, bh, br] = L.band, b = box([bx, by, bw, bh]); b.className = 'n-frame'; b.style.borderRadius = br + 'px'; neonInset(b, bw - 6, bh - 6, t0, .42, .46);
         A(b, [{opacity: 0, clipPath: 'inset(50% 0 50% 0)'}, {opacity: 1, clipPath: 'inset(0 0 0 0)'}], t0 + .05, .45, {e: EASE.soft}); }
-      if (L.win) { const [x, y, w, h, r] = L.win, b = box([x, y, w, h]); b.className = 'n-frame'; b.style.borderRadius = r + 'px'; neonInset(b, .62, w / 2, 300, t0);
+      if (L.win) { const [x, y, w, h, r] = L.win, b = box([x, y, w, h]); b.className = 'n-frame'; b.style.borderRadius = r + 'px'; neonInset(b, w - 6, h - 6, t0, .42, .46);
         A(b, [{opacity: 0, transform: 'translateY(-40px)'}, {opacity: 1, transform: 'none'}], t0 + .05, .5, {e: EASE.soft}); }
       (L.nums ?? []).forEach(([x, y], k) => { const n = div(`left:${x}px;top:${y}px`, root, String(k + 1).padStart(2, '0')); n.className = 'n-num';
         A(n, [{opacity: 0}, {opacity: 1}], t0 + .3 + k * .2, .4, {e: EASE.smooth}); });
@@ -205,6 +224,7 @@ STYLE('neon', {
     }
     A(root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t1 - .3, .3, {e: EASE.out, f: 'forwards'});
     const stage = L.stage ? box(L.stage) : box([0, 0, 1, 1]);
+    if (L.over) A(stage, [{opacity: 0, transform: 'translateY(24px) scale(.94)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .05, .45, {e: EASE.soft});
     const stages = L.stages ? L.stages.map(s => box(s)) : null;
     return {root, stage, stages, cam: root, L, name, dark: !!L.screen};
   },

@@ -261,6 +261,9 @@ function glowDress(svg, P, base) {
   /* neon: the templates stack two copies of a tile (the tile + its "not reached / reached" state on top); two frosted glasses on one
      another turned the tile pale grey (#8A97A8 where Friend's is #3C454C), so a copy over the same box keeps only its edge */
   if (base === 'neon') {
+    /* every word of a picture gets a thin dark edge under it, so a label that lands on a white ring or a bright video still reads
+       (Friend's clip 2026-11-17: "ไม่ต้องรอ" over the ring of a no-sign); dark, so the glow does not light it */
+    root.querySelectorAll('text').forEach(t => { t.setAttribute('paint-order', 'stroke'); t.setAttribute('stroke', 'rgba(6,12,20,.85)'); t.setAttribute('stroke-width', '7'); t.setAttribute('stroke-linejoin', 'round'); });
     const fr = glowFrost(P), shapes = [...root.querySelectorAll('rect,circle,ellipse,path,polygon')], same4 = (a, b) => ['left', 'top', 'width', 'height'].every(q => Math.abs(a[q] - b[q]) < 3);
     const frost = shapes.filter(e => e.getAttribute('fill') === fr).map(e => ({e, r: box(e)}));
     frost.forEach((f, k) => { if (frost.slice(0, k).some(o => same4(o.r, f.r))) f.e.setAttribute('fill', 'rgba(170,178,185,0)'); });
@@ -281,20 +284,25 @@ function glowDress(svg, P, base) {
 function glowLight(svg, P, base) {
   const G = GLOWLOOK[base]?.glow; if (!G) return;
   const defs = svg.querySelector('defs');
-  defs.insertAdjacentHTML('beforeend', `<filter id="cpGlow" x="-40%" y="-40%" width="180%" height="180%">
-    <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="a"/><feGaussianBlur in="SourceAlpha" stdDeviation="10" result="b"/>
-    <feFlood flood-color="${G.c}" flood-opacity=".9"/><feComposite in2="a" operator="in" result="ga"/>
-    <feFlood flood-color="${G.c}" flood-opacity=".55"/><feComposite in2="b" operator="in" result="gb"/>
-    <feMerge><feMergeNode in="gb"/><feMergeNode in="ga"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
+  /* neon glows harder (Friend 2026-11-17: "ผมรู้สึกว่า motion graphics มันยังไม่เรืองแสงเท่ากับ reference"): a third, wide halo */
+  const hard = base === 'neon';
+  defs.insertAdjacentHTML('beforeend', `<filter id="cpGlow" x="-60%" y="-60%" width="220%" height="220%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="a"/><feGaussianBlur in="SourceAlpha" stdDeviation="10" result="b"/><feGaussianBlur in="SourceAlpha" stdDeviation="22" result="c"/>
+    <feFlood flood-color="${G.c}" flood-opacity="${hard ? 1 : .9}"/><feComposite in2="a" operator="in" result="ga"/>
+    <feFlood flood-color="${G.c}" flood-opacity="${hard ? .85 : .55}"/><feComposite in2="b" operator="in" result="gb"/>
+    <feFlood flood-color="${G.c}" flood-opacity="${hard ? .5 : 0}"/><feComposite in2="c" operator="in" result="gc"/>
+    <feMerge><feMergeNode in="gc"/><feMergeNode in="gb"/><feMergeNode in="ga"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
   const root = svg.querySelector(':scope > g');
   if (G.self) {                                   // neon: every line glows softly in its own colour (white lines a white haze), the accent below glows blue
     /* only the bright parts glow (alpha' = 2 × lightness + alpha − 2): the white and blue lines, not the frosted glass (its blurred copies
        stacked up and turned the tiles pale grey) */
-    defs.insertAdjacentHTML('beforeend', `<filter id="cpGlowSelf" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+    /* stronger (Friend 2026-11-17: "ยังไม่เรืองแสงเท่ากับ reference"): a tight white glow, a wider one, and a wide blue halo as on the sheet */
+    defs.insertAdjacentHTML('beforeend', `<filter id="cpGlowSelf" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
       <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  .6 1 .4 1 -2" result="hi"/>
-      <feGaussianBlur in="hi" stdDeviation="2.4" result="a"/><feGaussianBlur in="hi" stdDeviation="7" result="b"/>
-      <feComponentTransfer in="b" result="b2"><feFuncA type="linear" slope=".55"/></feComponentTransfer>
-      <feMerge><feMergeNode in="b2"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
+      <feGaussianBlur in="hi" stdDeviation="2.6" result="a"/><feGaussianBlur in="hi" stdDeviation="8" result="b"/><feGaussianBlur in="hi" stdDeviation="18" result="c"/>
+      <feComponentTransfer in="b" result="b2"><feFuncA type="linear" slope=".95"/></feComponentTransfer>
+      <feFlood flood-color="#5AB8FF" flood-opacity=".6"/><feComposite in2="c" operator="in" result="c2"/>
+      <feMerge><feMergeNode in="c2"/><feMergeNode in="b2"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
     root.setAttribute('filter', 'url(#cpGlowSelf)');
     root.querySelectorAll('[filter="url(#glow)"]').forEach(e => e.removeAttribute('filter'));   // the engine's own glow merges blurred copies of the frosted glass too (tiles #6C7C8C, not #3C454C)
   }
