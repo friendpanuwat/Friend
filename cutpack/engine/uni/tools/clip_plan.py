@@ -25,14 +25,9 @@ STYLES = sys.argv[3:]
 # every: one picture per this many seconds · scene: shortest / longest picture (s) · cover: most of the clip under
 # full-screen pictures · run: most full-screen pictures one after another · cut: how the camera gets back to 1.0
 RULES = {
-    'card':          dict(every=3.0, scene=(1.5, 3.0), cover=.55, run=3, cut='hard'),   # editorial: a card every 2–4 s, 40–55 %, ≤ 3 in a row (0.6–3 s; ≥ 1.5 s so a scene can play)
-    'glass':         dict(every=6.0, scene=(1.5, 9.9), cover=1.0, run=9, cut='hard'),   # talking-head-motion: 6–10 scenes per ~50 s, each ≥ 1.5 s
-    'split':         dict(every=4.5, scene=(1.5, 9.9), cover=.55, run=3, cut='soft'),   # no skill: between the two full-screen skills
-    'card-overlay':  dict(every=3.0, scene=(1.2, 9.9), overlay=True),                  # editorial-overlay: a widget about every 3 s
-    'glass-overlay': dict(every=3.5, scene=(1.2, 9.9), overlay=True),                  # talking-head-overlay: every 3–4 s
-    'split-overlay': dict(every=3.5, scene=(1.2, 9.9), overlay=True),                  # both overlay skills
-    'gold':          dict(every=5.0, scene=(2.4, 9.9), cover=1.0, run=9, zoom=False),  # unchanged (Friend: "ยกเว้น gold")
-    'gold-overlay':  dict(every=5.0, scene=(2.4, 9.9), overlay=True, zoom=False),
+    # 2026-11-17 Friend cancelled the 8 old styles (card, glass, split, gold and their overlays; their rules are in git history,
+    # git show HEAD~1:cutpack/engine/uni/tools/clip_plan.py) for 12 new ones from sheets Friend made with AI. One by one:
+    'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft'),   # นีออนฟ้า: 10 of the sheet's 12 shots carry a picture (first guess, before a real clip)
 }
 PUSH = dict(z=1.05, d=1.4, back=1.0, gap=4.0, most=5)
 flat = lambda s: re.sub(r'\s+', '', s)

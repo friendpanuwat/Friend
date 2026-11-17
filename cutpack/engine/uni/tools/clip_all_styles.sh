@@ -7,7 +7,7 @@
 set -euo pipefail
 W=$(realpath "$1"); shift
 E=$(cd "$(dirname "$0")/../.." && pwd)
-styles=("$@"); [ ${#styles[@]} -gt 0 ] || styles=(card glass split gold card-overlay glass-overlay split-overlay gold-overlay)
+styles=("$@"); [ ${#styles[@]} -gt 0 ] || styles=(neon)   # 2026-11-17: the old 8 styles are cancelled; the new ones join one by one
 for st in "${styles[@]}"; do
   plan=$W/plan_$st.js; tx=$W/then_$st.txt; [ -f "$plan" ] || { plan=$W/plan.js; tx=$W/then.txt; }
   id=''; IFS=',' read -r id t0 t1 i hit < <(grep -m1 . "$tx") || true

@@ -19,6 +19,8 @@ const GLOWLOOK = {
   glass: {acc: '#8FD3FF',  glow: {c: '#8FD3FF', all: true},     weight: {k: 1.0, min: 2.0}},   // glass: every line glows sky blue, fine lines (the first look)
   split: {acc: '--ac',     glow: null,                          weight: {k: 1.45, min: 2.6}},  // split: flat pastel, medium lines
   gold:  {acc: '--ac',     glow: {c: '#FF9A2E', all: false},    weight: {k: 1.3, min: 2.4}},   // gold: only the orange accent glows
+  /* the new styles (Friend 2026-11-17 cancelled the 4 above and is replacing them with 12 sheets made with AI, copied 100%) */
+  neon:  {acc: '--ac',     glow: {c: '#2FA8F0', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5},    // นีออนฟ้า (Friend's sheet 2): frosted grey glass, white lines with their own soft glow, the lit part blue and glowing hard
 };
 /* what is really visible at the end of the drawing (not the things still hidden or gone: the getBBox of the whole drawing counted
    four hidden coins and made an overlay picture small), in the svg's user units */
@@ -58,10 +60,10 @@ function glowWeight(svg, P, base) {
   /* and no hairline: a detail line still under 1.6 px on screen (glass keeps its fine lines, but not 1 px ones) is set to 1.6 px;
      the body-colour cuts of a tube are left as they are */
   els.forEach(e => { const c = glowRgba(e.getAttribute('stroke')); if (c[0] === fill[0] && c[1] === fill[1] && c[2] === fill[2]) return;
-    const w = px(e); if (w > 0 && w < 1.6) e.setAttribute('stroke-width', (+e.getAttribute('stroke-width') * 1.6 / w).toFixed(3)); });
+    const w = px(e), fl = W.floor ?? 1.6; if (w > 0 && w < fl) e.setAttribute('stroke-width', (+e.getAttribute('stroke-width') * fl / w).toFixed(3)); });
 }
 /* a floating drawing (no solid surface behind it: glass, card-overlay on the video) gets this body colour, see-through */
-const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '#1C1C20'};
+const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '#1C1C20', neon: '#2A2E33'};
 
 const glowCtx = document.createElement('canvas').getContext('2d');
 function glowRgba(c) {                               // any CSS colour → [r, g, b, a]
@@ -91,7 +93,7 @@ function glowPalette(host, base) {
   const acc = glowRgba(L.acc.startsWith('--') ? cs.getPropertyValue(L.acc) : L.acc);
   const surf = glowSurface(host), fill = surf ?? glowRgba(GLOW_FLOAT[base] ?? '#111');
   const P = {line: glowHex(ink), fill: glowHex(fill), soft: glowMix(ink, fill, .25), accent: glowHex(acc)};   // soft nearer the line (at .38 grey details read 2.3:1 on gold)
-  if (!surf) P.fillAlpha = base === 'glass' ? .75 : .55;   // floating: the video shows a little through the bodies (glass: darker, its glow sits under them)
+  if (!surf) P.fillAlpha = L.floatAlpha ?? (base === 'glass' ? .75 : .55);   // floating: the video shows a little through the bodies (glass/neon: darker, the glow sits under them)
   return P;
 }
 /* an accent that cannot be read on its surface (contrast < 2, e.g. card's lime on white or cream) stays only as a fill (a lime
@@ -116,8 +118,10 @@ function glowReadable(svg, P) {
 /* faint lines (the engine draws connectors, rails and secondary rings in the line colour at 35–50 %) that end up under 3:1 on
    their ground are made more solid, up to 90 %, aiming at 3.5:1 on the page so a pale tile under it still leaves 3:1
    (Friend: "ยังมีเรื่องสีที่กลืนกันและมองยากอยู่") */
-function glowFirm(svg, P) {
-  const ground = glowRgba(P.fill), fam = [glowRgba(P.line), glowRgba(P.soft)];
+function glowFirm(svg, P, base) {
+  /* neon: aimed at the frosted glass (#AAB2B9 over the ground), the lighter of its two grounds */
+  const f0 = glowRgba(P.fill), fam = [glowRgba(P.line), glowRgba(P.soft)];
+  const fa = glowRgba(glowFrost(P))[3], ground = base === 'neon' ? [170, 178, 185].map((v, i) => v * fa + f0[i] * (1 - fa)).concat(1) : f0;
   svg.querySelectorAll('[stroke]').forEach(e => {
     const c = glowRgba(e.getAttribute('stroke') || 'none'); if (c[3] >= .9 || c[3] < .2) return;
     if (!fam.some(f => f[0] === c[0] && f[1] === c[1] && f[2] === c[2])) return;
@@ -138,6 +142,7 @@ function glowFirm(svg, P) {
    แบบเก่ามากกว่า"), so it has no material. People (person icons) are one solid shape, as the people in Friend's clip (Friend: "ตัวคนทำไม
    สีมันแปลกๆหล่ะ" — they were the background showing through a see-through body) */
 const GLOW_PEOPLE = new Set(['person-body', 'user', 'users', 'user-round', 'person-standing', 'users-round', 'user-check', 'user-x', 'user-plus', 'baby', 'contact']);
+const GLOW_LIT = 'rgba(70,180,215,.55)', glowFrost = P => `rgba(170,178,185,${P.fillAlpha != null ? .4 : .3})`;
 function glowMaterial(base, P) {
   const surf = glowRgba(P.fill), light = glowLum(surf) > .45 && P.fillAlpha == null;   // floating (fillAlpha) = on the video, a dark ground
   /* card: a navy tile only on a light page; on the dark page or the video a white tile with a navy icon (Friend 2026-11-17 sent a
@@ -150,6 +155,11 @@ function glowMaterial(base, P) {
     : {body: {fill: '#7A6AA4', edge: '#F1ECFB'}, tile: {fill: '#4E3F78', stroke: '#F1ECFB'}, ink: '#F1ECFB', soft: '#E4DCF4', icon: '#F1ECFB', lit: 'solid', fig: {fill: '#B9AAE4', edge: '#F1ECFB'}};   // people 3.4:1 on the dark window, a step darker than the accent (#D9CCF6, 4.8:1), so the chosen one stands out   // a deep tile under a light icon (a mid-purple one read 1.9:1)
   if (base === 'gold') return {body: {fill: 'url(#cpGloss)', edge: 'rgba(255,255,255,.52)'}, tile: {fill: 'url(#cpGloss)', stroke: P.accent},
     ink: P.line, soft: P.soft, icon: P.line, lit: 'tint', fig: {fill: '#C9CACF', edge: '#F2F2F4'}};
+  /* neon (Friend's sheet 2, sampled): every body and tile is frosted grey glass (#3C454C on the navy screen) with a white edge, on the
+     navy screen and on the video alike (on the video it reads lighter, #50555A on the dark sweater: .4, on the navy .3); the lit tile
+     is a blue wash (#2F738C on the navy, #2A7997 on the video) under a blue edge, its icon in blue */
+  if (base === 'neon') return {body: {fill: glowFrost(P), edge: P.line}, tile: {fill: glowFrost(P), stroke: P.line},
+    ink: P.line, soft: P.soft, icon: P.line, lit: 'tint', fig: {fill: '#C9D3DC', edge: P.line}};
   return null;
 }
 /* the name of the icon a GL.art call draws (the icon groups are tagged data-icon, so people can be found) */
@@ -168,7 +178,7 @@ function glowTagIcons() {
 function glowDress(svg, P, base) {
   const M = glowMaterial(base, P); if (!M) return;
   const light = glowLum(glowRgba(P.fill)) > .45 && P.fillAlpha == null;   // a light page (not the video)
-  const solidOf = f => f.startsWith('url') ? (base === 'glass' ? '#2E343D' : '#1A1A1F') : f;   // a cut or an icon's own body on a see-through / glossy surface
+  const solidOf = f => base === 'neon' ? '#323C45' : f.startsWith('url') ? (base === 'glass' ? '#2E343D' : '#1A1A1F') : f;   // a cut or an icon's own body on a see-through / glossy surface
   svg.querySelector('defs').insertAdjacentHTML('beforeend', `
     <linearGradient id="cpGlass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".12"/><stop offset="1" stop-color="#ffffff" stop-opacity=".04"/></linearGradient>
     <linearGradient id="cpGloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34343B"/><stop offset=".5" stop-color="#1F1F24"/><stop offset="1" stop-color="#141417"/></linearGradient>
@@ -202,8 +212,11 @@ function glowDress(svg, P, base) {
       else if (same(v, P.line) || same(v, P.soft) || isAccV(v)) e.setAttribute(a, edge); }));
   }
   /* bodies */
-  for (const {b, r} of plain) {
-    b.setAttribute('fill', M.body.fill); b.removeAttribute('fill-opacity');
+  for (const {b, r, i} of plain) {
+    /* neon: a body on another body (an icon's own shape on a frosted card) is solid, else the frosted glass stacks up and turns pale
+       (the white lines on it read 1.1:1) */
+    const cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2, onBody = base === 'neon' && plain.some(o => o.i < i && area(o.r) > area(r) && inside(o.r, cx, cy));
+    b.setAttribute('fill', onBody ? solidOf(M.body.fill) : M.body.fill); b.removeAttribute('fill-opacity');
     if (area(r) > big || base !== 'card') { if (M.body.edge) b.setAttribute('stroke', M.body.edge); }
     else b.setAttribute('stroke', M.ink);           // a small white card piece keeps a navy edge on any page (a white knob on lime, a white plate on a white card read 1:1)
     if (M.body.shadow) b.setAttribute('filter', 'url(#cpShadow)');
@@ -233,6 +246,7 @@ function glowDress(svg, P, base) {
       if (M.lit === 'solid') { e.setAttribute('fill', P.accent);
         if (base === 'card' && (light || P.fillAlpha != null)) { e.setAttribute('stroke', M.ink); if (!+e.getAttribute('stroke-width')) e.setAttribute('stroke-width', 2.2); } }   // lime on white needs its navy edge (1.1:1 without)
       else if (base === 'glass') e.setAttribute('fill', `rgba(${acc[0]},${acc[1]},${acc[2]},${Math.min(c[3], .1)})`);   // glass: a faint blue wash, the light is on the edge
+      else if (base === 'neon') e.setAttribute('fill', GLOW_LIT);   // neon: Friend's lit tile, a deep blue wash
     }); }
   /* a word on a solid accent shape takes whichever ink reads best on it (split's chosen label: white words on pale lavender 1.3:1) */
   const accSolid = [...root.querySelectorAll('rect,circle,ellipse,path,polygon')].filter(e => { const f = e.getAttribute('fill') || 'none';
@@ -244,6 +258,24 @@ function glowDress(svg, P, base) {
     const best = [M.ink, P.line, P.fill, '#14213D', '#FFFFFF'].filter(c => !String(c).startsWith('url')).sort((a, b) => glowContrast(glowRgba(b), accRgb) - glowContrast(glowRgba(a), accRgb))[0];
     t.setAttribute('fill', best);
   });
+  /* neon: the templates stack two copies of a tile (the tile + its "not reached / reached" state on top); two frosted glasses on one
+     another turned the tile pale grey (#8A97A8 where Friend's is #3C454C), so a copy over the same box keeps only its edge */
+  if (base === 'neon') {
+    const fr = glowFrost(P), shapes = [...root.querySelectorAll('rect,circle,ellipse,path,polygon')], same4 = (a, b) => ['left', 'top', 'width', 'height'].every(q => Math.abs(a[q] - b[q]) < 3);
+    const frost = shapes.filter(e => e.getAttribute('fill') === fr).map(e => ({e, r: box(e)}));
+    frost.forEach((f, k) => { if (frost.slice(0, k).some(o => same4(o.r, f.r))) f.e.setAttribute('fill', 'rgba(170,178,185,0)'); });
+    /* the lit tile (Friend's sheet: shot 02 the magnifier, shot 04 the envelope): a blue edge and a blue icon, the frosted glass under it gone */
+    for (const l of shapes.filter(e => e.getAttribute('fill') === GLOW_LIT)) {
+      const r = box(l), ics = icons.filter(o => inside(r, (o.r.left + o.r.right) / 2, (o.r.top + o.r.bottom) / 2) && area(r) < 7 * area(o.r));
+      frost.forEach(f => { if (same4(f.r, r)) f.e.setAttribute('fill', 'rgba(170,178,185,0)'); });   // (the frost under it made the wash a solid light blue, Friend's is a deep see-through blue)
+      if (!ics.length && r.width > 3 * r.height) { l.setAttribute('fill', 'rgba(30,120,185,.6)'); continue; }   // a lit bar keeps its white edge (shot 02), a deeper blue under its white words (2.8:1 on the light one)
+      if ((l.getAttribute('stroke') || 'none') !== 'none') l.setAttribute('stroke', P.accent);
+      ics.forEach(o => o.g.querySelectorAll('[stroke],[fill]').forEach(e => {   // the icon: light blue lines (#9FE0FF, 4.5:1 on the blue; the accent itself read 2.7:1), its own bodies the deep blue
+        const v = e.getAttribute('stroke'), f = e.getAttribute('fill'); if (same(v, P.line) || same(v, P.soft) || isAccV(v)) e.setAttribute('stroke', '#9FE0FF');
+        if (same(f, '#323C45')) e.setAttribute('fill', '#1A6390'); }));
+      shapes.forEach(e => { const f = e.getAttribute('fill'), q = box(e); if (e !== l && isAccV(f) && glowRgba(f)[3] >= .9 && inside(r, (q.left + q.right) / 2, (q.top + q.bottom) / 2)) e.setAttribute('fill', '#CDEFFF'); });   // a solid accent mark on it (shot 05's "!") reads 2.7:1 on the blue: a paler blue
+    }
+  }
 }
 /* the style's glow: a soft halo of one colour around every line (glass) or around what took the accent (gold) */
 function glowLight(svg, P, base) {
@@ -255,19 +287,32 @@ function glowLight(svg, P, base) {
     <feFlood flood-color="${G.c}" flood-opacity=".55"/><feComposite in2="b" operator="in" result="gb"/>
     <feMerge><feMergeNode in="gb"/><feMergeNode in="ga"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
   const root = svg.querySelector(':scope > g');
+  if (G.self) {                                   // neon: every line glows softly in its own colour (white lines a white haze), the accent below glows blue
+    /* only the bright parts glow (alpha' = 2 × lightness + alpha − 2): the white and blue lines, not the frosted glass (its blurred copies
+       stacked up and turned the tiles pale grey) */
+    defs.insertAdjacentHTML('beforeend', `<filter id="cpGlowSelf" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  .6 1 .4 1 -2" result="hi"/>
+      <feGaussianBlur in="hi" stdDeviation="2.4" result="a"/><feGaussianBlur in="hi" stdDeviation="7" result="b"/>
+      <feComponentTransfer in="b" result="b2"><feFuncA type="linear" slope=".55"/></feComponentTransfer>
+      <feMerge><feMergeNode in="b2"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
+    root.setAttribute('filter', 'url(#cpGlowSelf)');
+    root.querySelectorAll('[filter="url(#glow)"]').forEach(e => e.removeAttribute('filter'));   // the engine's own glow merges blurred copies of the frosted glass too (tiles #6C7C8C, not #3C454C)
+  }
   if (G.all) { root.setAttribute('filter', 'url(#cpGlow)'); return; }   // glass: the whole drawing glows (the first look, which Friend kept)
   const [r, g, b] = glowRgba(P.accent), hex = P.accent.toLowerCase(), rgb = new RegExp(`rgba?\\(\\s*${r}\\s*,\\s*${g}\\s*,\\s*${b}\\b`);
   root.querySelectorAll('[fill],[stroke]').forEach(e => {
     const hit = ['fill', 'stroke'].some(a => { const v = (e.getAttribute(a) || '').toLowerCase(); return v === hex || rgb.test(v); });
-    if (hit && !e.closest('[filter="url(#cpGlow)"]')) e.setAttribute('filter', 'url(#cpGlow)');
+    if (hit && !e.closest('[filter="url(#cpGlow)"]') && !e.closest('[data-fig]')) e.setAttribute('filter', 'url(#cpGlow)');
   });
 }
-/* draw design i of category cat with data d inside the frame F (scene times T) */
-function glowDraw(F, T, cat, i, d) {
-  const small = !!F.small, base = ST.id.split('-overlay')[0];
-  const W = small ? parseFloat(F.stage.style.width) || 720 : 1000, H = small ? parseFloat(F.stage.style.height) || 340 : 700;   // the overlay's small canvas (OV.small)
-  const host = div(`left:0;top:0;width:${W}px;height:${H}px`, F.stage); host.className = 'glow-host';
-  window.GLOW_READY = false;
+/* draw design i of category cat with data d into a box of the frame (F.stage, or another box the style gives, e.g. the recap's three
+   rows). The drawing is fitted to the box by what it really shows (a style decides every box: Friend's sheets place each picture
+   exactly). Several drawings per page work: each one gets its own GL stage, the runtime's clock drives them all. */
+let GLOW_HOOKED = false;
+function glowDraw(F, T, cat, i, d, box = F.stage) {
+  const base = ST.id.split('-overlay')[0], W = parseFloat(box.style.width) || 1000, H = parseFloat(box.style.height) || 700;
+  const host = div(`left:0;top:0;width:${W}px;height:${H}px`, box); host.className = 'glow-host';
+  window.GLOW_PENDING = (window.GLOW_PENDING || 0) + 1; window.GLOW_READY = false;
   GL.run(() => {
     const P = glowPalette(host, base);
     GL.stage({w: 1000, h: 700, glow: 0});           // the style's glow is added below (glowLight); the engine's own white glow is off
@@ -282,28 +327,22 @@ function glowDraw(F, T, cat, i, d) {
     glowDims(svg);
     window.setT(window.DURATION);                   // the end state again, with the dims lifted (the colour steps measure it)
     glowReadable(svg, P);
-    glowFirm(svg, P);
+    glowFirm(svg, P, base);
     glowDress(svg, P, base);
     glowLight(svg, P, base);
-    const b = glowVisibleBox(svg);                  // what is really visible, at its end
-    if (small) {                                    // the widget: fill the overlay's canvas (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย")
-      const p = Math.max(b.width, b.height) * .03;
-      svg.setAttribute('viewBox', `${b.x - p} ${b.y - p} ${b.width + 2 * p} ${b.height + 2 * p}`);
-    } else if (b.width <= 1000 && b.height <= 700) {  // full screen: designed size, but centred (some designs sit to one side of their canvas)
-      const cx = b.x + b.width / 2, cy = b.y + b.height / 2;
-      svg.setAttribute('viewBox', `${cx - 500} ${cy - 350} 1000 700`);
-    }
+    const b = glowVisibleBox(svg);                  // what is really visible, at its end: fills the box (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย")
+    { const p = Math.max(b.width, b.height) * .03; svg.setAttribute('viewBox', `${b.x - p} ${b.y - p} ${b.width + 2 * p} ${b.height + 2 * p}`); }
     glowWeight(svg, P, base);                       // after the fit: the line weight is measured on screen
-    HOOKS.push(t => window.setT(t));
-    window.GLOW_READY = true;
+    if (!GLOW_HOOKED) { GLOW_HOOKED = true; HOOKS.push(t => window.setT(t)); }
+    window.GLOW_PENDING--; window.GLOW_READY = window.GLOW_PENDING === 0;
   });
 }
 /* COLOUR CHECK (Friend 2026-11-17: "ยังมีเรื่องสีที่กลืนกันและมองยากอยู่ แก้ไขด้วย"): every line and word of the drawing against what is
    right behind it (the nearest filled shape drawn before it that covers its middle, else the frame's surface; on the video = dark grey),
    with its real see-through (colour alpha × every parent's opacity at the shot). A line or word under 3:1 is listed (WCAG for graphics);
    a thing faded below 25 % on purpose (a ghost, a "wrong" that dims) is left out. Returns [{what, colour, behind, ratio}]. */
-function glowCheck() {
-  const host = document.querySelector('.glow-host'); if (!host) return [];
+function glowCheck() { return [...document.querySelectorAll('.glow-host')].flatMap(glowCheckOne); }   // every drawing on the page (a recap has three)
+function glowCheckOne(host) {
   const svg = host.querySelector('svg'), root = svg.querySelector(':scope > g'), box = e => e.getBoundingClientRect();
   const ground = glowSurface(host) ?? [30, 30, 32, 1];
   const solid = f => f === 'url(#cpGloss)' ? [31, 31, 36, 1] : f === 'url(#cpGlass)' ? [255, 255, 255, .08] : glowRgba(f);
@@ -324,7 +363,10 @@ function glowCheck() {
     const bg = behind(f.e, (f.r.left + f.r.right) / 2, (f.r.top + f.r.bottom) / 2), col = over(f.c, f.a, bg), k = glowContrast(col, bg);
     const s = f.e.getAttribute('stroke'), sc = s && s !== 'none' && !s.startsWith('url') ? glowRgba(s) : null;
     const edge = sc ? glowContrast(over(sc, sc[3] * seen(f.e), bg), bg) : 1;
-    if (k < 1.4 && edge < 3 && !(rgbEq(f.c, body) && !top)) out.push({what: 'shape ' + f.e.tagName, colour: glowHex(f.c), behind: glowHex(bg), ratio: +k.toFixed(2)});
+    /* a fill inside a shape whose own edge reads (the lit part of neon's white-edged bar) is seen by that edge */
+    const held = fills.some(o => o !== f && o.i < f.i && f.r.left >= o.r.left - 6 && f.r.right <= o.r.right + 6 && f.r.top >= o.r.top - 6 && f.r.bottom <= o.r.bottom + 6 && (() => {
+      const s2 = o.e.getAttribute('stroke'); if (!s2 || s2 === 'none' || s2.startsWith('url')) return false; const c2 = glowRgba(s2); return glowContrast(over(c2, c2[3] * seen(o.e), ground), ground) >= 3; })());
+    if (k < 1.4 && edge < 3 && !held && !(rgbEq(f.c, body) && !top)) out.push({what: 'shape ' + f.e.tagName, colour: glowHex(f.c), behind: glowHex(bg), ratio: +k.toFixed(2)});
   }
   /* people as a whole: their own colour (the most used one) against the ground; their limbs are tubes, so line by line they are skipped */
   for (const g of root.querySelectorAll('[data-fig]')) {
@@ -344,16 +386,22 @@ function glowCheck() {
     const c = glowRgba(v), a = c[3] * seen(e) * +(e.getAttribute(text ? 'fill-opacity' : 'stroke-opacity') ?? 1); if (a < .25) continue;
     const r = box(e); if (r.width < 2 && r.height < 2) continue;
     const bg = behind(e, (r.left + r.right) / 2, (r.top + r.bottom) / 2), fg = over(c, a, bg), k = glowContrast(fg, bg);
-    if (!text && (rgbEq(c, body) || rgbEq(c, top?.c))) continue;    // on purpose: a cut in the body colour, a shape's own edge, a solid person's limbs
+    if (!text && (rgbEq(c, body) || rgbEq(c, top?.c) || rgbEq(c, [50, 60, 69]))) continue;   // (#323C45 = neon's solid cut)    // on purpose: a cut in the body colour, a shape's own edge, a solid person's limbs
     if (k < 3) out.push({what: text ? 'word "' + e.textContent + '"' : e.tagName, colour: v, behind: glowHex(bg), ratio: +k.toFixed(2)});
     else if (!text && px(e) < 1.5 && a >= .5) out.push({what: 'thin ' + e.tagName + ' ' + px(e).toFixed(1) + 'px', colour: v, behind: glowHex(bg), ratio: +k.toFixed(2)});   // a hairline reads grey however its colour
   }
   return out;
 }
-/* one glow scene: <id> draws design i of cat; say = [lead, key] (the sentence's words: under the picture full-screen, the
-   subtitle in an overlay). small: true → an overlay draws the small form (no sentence inside the widget). */
-function GLOWSCENE(id, cat, i, d, say) {
-  SCENE(id, {name: id, story: cat, beats: 4, cat, small: true,
+/* one glow scene: <id> draws design i of cat; say = [lead, key] (the sentence's words: placed by the style). o.layout = one of the
+   style's layouts by name (tests, a planner's choice); cat null = words only (a talk shot). */
+function GLOWSCENE(id, cat, i, d, say, o = {}) {
+  SCENE(id, {name: id, story: cat, beats: 4, cat, small: true, layout: o.layout,
     slots: {lead: {type: 'text', max: 60, sample: say[0]}, key: {type: 'text', max: 30, sample: say[1]}}},
-    (K, s, T) => { glowDraw(K.F, T, cat, i, d); K.say(s.lead, s.key); });
+    (K, s, T) => { if (cat) glowDraw(K.F, T, cat, i, d); else if (!window.GLOW_PENDING) window.GLOW_READY = true; K.say(s.lead, s.key); });   // words only: nothing to wait for
+}
+/* a recap: several designs at once, one per box of the style's recap layout (F.stages) */
+function GLOWRECAP(id, list, say, o = {}) {
+  SCENE(id, {name: id, story: 'recap', beats: 4, small: true, layout: o.layout ?? 'recap',
+    slots: {lead: {type: 'text', max: 60, sample: say[0]}, key: {type: 'text', max: 30, sample: say[1]}}},
+    (K, s, T) => { list.forEach(([cat, i, d], k) => { const box = K.F.stages?.[k]; if (box) glowDraw(K.F, T, cat, i, d, box); }); K.say(s.lead, s.key); });
 }

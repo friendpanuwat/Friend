@@ -23,7 +23,7 @@ def main():
     ap.add_argument('--then', action='append', default=[], help='one more scene after the first: id,t0,t1[,index[,hit]] (several scenes in one clip, e.g. to see a style move between scenes)')
     a = ap.parse_args()
     proj = os.path.abspath(a.proj); os.makedirs(os.path.join(proj, 'fonts'), exist_ok=True)
-    for f in glob.glob(os.path.join(UNI, 'fonts', '*.ttf')):
+    for f in glob.glob(os.path.join(UNI, 'fonts', '*.ttf')) + glob.glob(os.path.join(UNI, 'fonts', '*.woff')):
         dst = os.path.join(proj, 'fonts', os.path.basename(f))
         if not os.path.exists(dst): shutil.copy(f, dst)
     rd = lambda p: open(os.path.join(UNI, p)).read()
@@ -38,7 +38,7 @@ def main():
     first = '' if a.scene == '-' else \
         f"play({json.dumps(a.scene)}, {a.t0}, {a.t1}, {a.slots}, {{index: {a.index}{f', hit: {a.hit}' if a.hit is not None else ''}}});"
     js.append(f"""
-['Lead', 'CardSans', 'KeySans', 'Hand', 'Anu'].forEach(f => div(`left:-9999px;top:0;font-family:${{f}}`, document.body, 'กขคฅ ึ่้ 0123'));
+['Lead', 'CardSans', 'KeySans', 'Hand', 'Anu', 'NeonKey', 'NeonSerif'].forEach(f => div(`left:-9999px;top:0;font-family:${{f}}`, document.body, 'กขคฅ ึ่้ 0123 Ab'));
 if ({a.speaker} !== 1) [V, VB].forEach(e => {{ e.style.scale = {a.speaker}; e.style.translate = `${{540 * (1 - {a.speaker})}}px ${{1920 * (1 - {a.speaker})}}px`; }});
 useStyle({json.dumps(a.style)});
 {first}

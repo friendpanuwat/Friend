@@ -1,0 +1,13 @@
+const NS = i => GL.cats.B04T.SAMPLES[i];
+GLOWSCENE('n01', null, 0, null, ['ทุกเรื่องมี 1 ขั้นที่คน skip', 'แล้วพังตรงนั้น'], {layout: 'talk_low'});
+GLOWSCENE('n02', 'B04T', 5, NS(5), ['ขั้นที่ทุกคน skip', 'ทบทวน'], {layout: 'hands'});
+GLOWSCENE('n03', 'B04T', 1, NS(1), ['ก่อนวิ่ง อย่า skip', 'ยืดเส้น'], {layout: 'chest'});
+GLOWSCENE('n04', 'B04T', 3, NS(3), ['สมัครแล้วใช้ไม่ได้ เพราะ skip', 'ยืนยันอีเมล'], {layout: 'circle'});
+GLOWSCENE('n05', 'B04T', 2, NS(2), ['ปั่นทางไกล ต้อง check', 'เช็กเบรก'], {layout: 'band'});
+GLOWSCENE('n06', 'B04T', 7, NS(7), ['ข้อมูลครบ แต่ skip', 'เขียน'], {layout: 'side'});
+GLOWSCENE('n07', null, 0, null, ['ไม่ใช่ขั้นยาก แค่คน rush', 'เลยข้าม'], {layout: 'talk_split'});
+GLOWSCENE('n08', 'B04T', 8, NS(8), ['ดอกออกช้า เพราะ skip', 'ใส่ปุ๋ย'], {layout: 'window'});
+GLOWSCENE('n09', 'B04T', 9, NS(9), ['ปิดไฟ ล็อกประตู แล้วค่อย sleep', 'เข้านอน'], {layout: 'diag'});
+GLOWSCENE('n10', 'B04T', 4, NS(4), ['ขนมไม่ฟู เพราะ skip', 'อบ'], {layout: 'word'});
+GLOWRECAP('n11', [['B04T', 5, NS(5)], ['B04T', 1, NS(1)], ['B04T', 2, NS(2)]], ['จำไว้ อย่า skip', '3 ขั้นนี้']);
+GLOWSCENE('n12', 'B04T', 3, NS(3), ['ไม่อยาก skip คลิปหน้า', 'กดติดตาม'], {layout: 'cta'});
