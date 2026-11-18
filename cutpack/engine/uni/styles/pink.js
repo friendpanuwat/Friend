@@ -149,6 +149,12 @@ STYLE('pink', {
   sound: {hit: ['softswish', -22], cross: ['swipe', -24], key: ['softswish', -21]},
   setup() { BGL.style.background = '#000'; HOOKS.push(cpInsetHook); },
 
+  /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
+     (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
+  realShapes: true,
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, PNK.pool.filter(n => !PNK.layouts[n].noPic && pnkFit(n, face)), n => pnkFit(n, face)?.pic); },
+  fitSurface() { const r = div('', SC); r.className = 'p-root p-screen'; return r; },
+
   frame(t0, t1, {index, scene}) {
     const meta = SCENES[scene]?.meta ?? {}, face = cpFaceBox(t0, t1), ch = pnkChunks(t0, t1);
     const more = ch ? Math.max(0, ch.length - 1) : (meta.rows?.length ?? 0);
@@ -160,7 +166,7 @@ STYLE('pink', {
       else {
         let pool = PNK.pool.filter(n => n !== PNK.last && ok(n));
         if (!pool.length) pool = ['graphic_card', 'stack_hook'].filter(n => n !== PNK.last);
-        const ar = typeof GLOW_SHAPES !== 'undefined' && meta.variant ? GLOW_SHAPES[meta.variant] : null;
+        const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) {
           const size = n => { const p = pnkFit(n, face)?.pic; if (!p) return 0; const [, , w, h] = p; return ar > w / h ? w * w / ar : h * h * ar; };
           const best = Math.max(0, ...pool.map(size)); pool = pool.filter(n => PNK.layouts[n].noPic || size(n) >= PNK.keep * best);

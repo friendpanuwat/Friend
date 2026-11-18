@@ -126,6 +126,12 @@ STYLE('window', {
     /* no chapter bar and no small label (Friend 2026-11-18: "ลบที่ผมวงกลมสีแดงออกด้วยครับทุกฉากเลย") */
   },
 
+  /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
+     (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
+  realShapes: true,
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, WIN.pool.filter(n => winFit(n, face)), n => { const F = winFit(n, face); return F ? winInner(F.win) : null; }); },
+  fitSurface() { const r = div('', SC); r.className = 'w-root w-screen'; return r; },
+
   frame(t0, t1, {index, scene}) {
     const meta = SCENES[scene]?.meta ?? {}, face = cpFaceBox(t0, t1);
     let name = meta.layout;
@@ -135,7 +141,7 @@ STYLE('window', {
       else {
         let pool = WIN.pool.filter(n => n !== WIN.last && winFit(n, face));
         if (!pool.length) pool = ['dark', 'float', 'cascade'].filter(n => n !== WIN.last);
-        const ar = typeof GLOW_SHAPES !== 'undefined' && meta.variant ? GLOW_SHAPES[meta.variant] : null;
+        const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) {
           const size = n => { const [, , w, h] = winInner(winFit(n, face).win); return ar > w / h ? w * w / ar : h * h * ar; };
           const best = Math.max(...pool.map(size)); pool = pool.filter(n => size(n) >= .75 * best);

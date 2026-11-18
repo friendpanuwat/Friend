@@ -43,15 +43,15 @@ RULES = {
     # 2026-11-17 Friend cancelled the 8 old styles (card, glass, split, gold and their overlays; their rules are in git history,
     # git show HEAD~1:cutpack/engine/uni/tools/clip_plan.py) for 12 new ones from sheets Friend made with AI. One by one:
     'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft', openFace=True, fitPick=True),   # fitPick: the drawing that fills the free space (tools/fit_pick.js, final 2026-11-18: "ทดลองเฉพาะสไตล์นี้ก่อน")   # openFace: the style can open on a picture screen with the face (final 2026-11-18)
-    'lime':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),
-    'violet':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # ม่วงคลื่นเสียง: 12 of 12 shots carry a picture (first guess)
-    'teal':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # การ์ดเขียวน้ำทะเล: 12 of 12 shots carry a picture or a card (first guess)
-    'yellow':        dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # ขั้นตอนเหลือง: 12 of 12 shots carry a picture or step chips; pictures of 3.5 s or more so a screen holds its chips (trial after Friend: "ดูโล่งๆมากกว่าต้นแบบเยอะ", the first clip's 1.5–3 s screens held 1–2 chips and 45 % of it was the speaker alone)
-    'pink':          dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # การ์ดชมพู: as the styles 6–9 that passed (LESSONS 66)
-    'terminal':      dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # เทอร์มินัลแดง: as the styles 6–8 that passed (LESSONS 66)
-    'horizon':       dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # ขอบฟ้าส้ม: as the yellow and HUD styles that passed (LESSONS 66)
-    'hud':           dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # เส้นชี้ HUD: as the yellow style that passed (3.5 s screens so the notes fill: LESSONS 66)
-    'window':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # หน้าต่างแอป: 11 of 12 shots carry a window (first guess)   # เขียวมะนาว: 10 of 12 shots carry a picture, several on the speaker (first guess, before a real clip)   # no overlays: Friend 2026-11-17 "ยกเลิก 5." (over=25 turned them on)   # นีออนฟ้า: 10 of the sheet's 12 shots carry a picture (first guess, before a real clip)
+    'lime':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True),
+    'violet':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True),   # ม่วงคลื่นเสียง: 12 of 12 shots carry a picture (first guess)
+    'teal':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True),   # การ์ดเขียวน้ำทะเล: 12 of 12 shots carry a picture or a card (first guess)
+    'yellow':        dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # ขั้นตอนเหลือง: 12 of 12 shots carry a picture or step chips; pictures of 3.5 s or more so a screen holds its chips (trial after Friend: "ดูโล่งๆมากกว่าต้นแบบเยอะ", the first clip's 1.5–3 s screens held 1–2 chips and 45 % of it was the speaker alone)
+    'pink':          dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # การ์ดชมพู: as the styles 6–9 that passed (LESSONS 66)
+    'terminal':      dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # เทอร์มินัลแดง: as the styles 6–8 that passed (LESSONS 66)
+    'horizon':       dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # ขอบฟ้าส้ม: as the yellow and HUD styles that passed (LESSONS 66)
+    'hud':           dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # เส้นชี้ HUD: as the yellow style that passed (3.5 s screens so the notes fill: LESSONS 66)
+    'window':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True),   # หน้าต่างแอป: 11 of 12 shots carry a window (first guess)   # เขียวมะนาว: 10 of 12 shots carry a picture, several on the speaker (first guess, before a real clip)   # no overlays: Friend 2026-11-17 "ยกเลิก 5." (over=25 turned them on)   # นีออนฟ้า: 10 of the sheet's 12 shots carry a picture (first guess, before a real clip)
 }
 PUSH = dict(z=1.05, d=1.4, back=1.0, gap=4.0, most=5)
 flat = lambda s: re.sub(r'\s+', '', s)

@@ -137,6 +137,12 @@ STYLE('teal', {
   sound: {hit: ['softswish', -22], cross: ['swipe', -24], key: ['softswish', -21]},
   setup() { BGL.style.background = '#000'; HOOKS.push(cpInsetHook); },
 
+  /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
+     (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
+  realShapes: true,
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, TEAL.pool.filter(n => tealFit(n, face) && !TEAL.layouts[n].noPic), n => tealFit(n, face)?.pic); },
+  fitSurface() { const r = div('', SC); r.className = 't-root t-screen'; return r; },
+
   frame(t0, t1, {index, scene}) {
     const meta = SCENES[scene]?.meta ?? {}, face = cpFaceBox(t0, t1);
     let name = meta.layout;
@@ -146,7 +152,7 @@ STYLE('teal', {
       else {
         let pool = TEAL.pool.filter(n => n !== TEAL.last && tealFit(n, face));
         if (!pool.length) pool = ['stack_graphic', 'design_row', 'split_cards'].filter(n => n !== TEAL.last);
-        const ar = typeof GLOW_SHAPES !== 'undefined' && meta.variant ? GLOW_SHAPES[meta.variant] : null;
+        const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) {
           const size = n => { const p = tealFit(n, face).pic; if (!p) return 0; const [, , w, h] = p; return ar > w / h ? w * w / ar : h * h * ar; };
           const big = pool.filter(n => !TEAL.layouts[n].face), best = Math.max(0, ...big.map(size));

@@ -107,6 +107,12 @@ STYLE('violet', {
   sound: {hit: ['softswish', -22], cross: ['swipe', -24], key: ['softswish', -21]},
   setup() { BGL.style.background = '#000'; HOOKS.push(cpInsetHook); },
 
+  /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
+     (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
+  realShapes: true,
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, VIO.pool.filter(n => vioFit(n, face)), n => vioFit(n, face)?.pic); },
+  fitSurface() { const r = div('', SC); r.className = 'v-root v-screen'; return r; },
+
   frame(t0, t1, {index, scene}) {
     const meta = SCENES[scene]?.meta ?? {}, face = cpFaceBox(t0, t1);
     let name = meta.layout;
@@ -116,7 +122,7 @@ STYLE('violet', {
       else {
         let pool = VIO.pool.filter(n => n !== VIO.last && vioFit(n, face));
         if (!pool.length) pool = ['banner_tuck', 'side_card', 'banner_tuck_r'].filter(n => n !== VIO.last);
-        const ar = typeof GLOW_SHAPES !== 'undefined' && meta.variant ? GLOW_SHAPES[meta.variant] : null;
+        const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) {
           const size = n => { const [, , w, h] = vioFit(n, face).pic; return ar > w / h ? w * w / ar : h * h * ar; };
           const best = Math.max(...pool.map(size)); pool = pool.filter(n => size(n) >= VIO.keep * best);
