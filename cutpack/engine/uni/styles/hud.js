@@ -108,7 +108,15 @@ function hudNote(parent, txt, cls, {x, y, align = 'left', maxW = 420}) {
   Object.assign(row.style, {left: `${x}px`, top: `${y}px`, translate: `${tx} -50%`, transformOrigin: align === 'right' ? '100% 50%' : align === 'center' ? '50% 50%' : '0 50%'});
   const x1 = y + 30 < CP.safeTop.y ? CP.safeTop.x1 : CP.safe[2], x0 = CP.safe[0];
   const room = align === 'right' ? x - x0 : align === 'center' ? 2 * Math.min(x - x0, x1 - x) : x1 - x;
-  FITS.push(() => { const w = sp.offsetWidth, m = Math.min(maxW, room); if (w > m) row.style.scale = String(m / w); });
+  FITS.push(() => { const w = sp.offsetWidth, m = Math.min(maxW, room); if (w <= m) return;
+    /* spoken words run longer than the sheet's notes: a note of several phrases that would shrink under 74 % takes two lines,
+       broken at the spaces between phrases only (the first real clip's timeline labels read at about 60 %) */
+    if (w > m / .74 && /\s/.test(txt.trim())) {
+      const ph = txt.trim().split(/\s+/); sp.textContent = '';
+      ph.forEach((q, i) => { if (i) sp.appendChild(document.createTextNode(' ')); const e = document.createElement('span'); e.style.whiteSpace = 'nowrap'; e.textContent = q; sp.appendChild(e); });
+      Object.assign(sp.style, {whiteSpace: 'normal', display: 'inline-block', width: `${m}px`, lineHeight: '1.12', textAlign: align === 'left' ? 'left' : align});
+      const k = Math.min(1, m / sp.scrollWidth); if (k < 1) row.style.scale = String(k); return; }
+    row.style.scale = String(m / w); });
   return row;
 }
 function hudSvg(root) { const s = document.createElementNS(HUD_NS, 'svg'); s.setAttribute('viewBox', '0 0 1080 1920');
