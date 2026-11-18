@@ -95,16 +95,29 @@ for j, c in enumerate(CAP):
     c['t1'] = CAP[j + 1]['t0'] if j + 1 < len(CAP) else lines[-1]['t1']
 
 
+# SENTENCES (Friend 2026-11-18, for every style: "เวลา user พูดประเด็นอะไรอยู่ อย่าเปลี่ยนฉากกลางคัน ให้เขาพูดเรื่องนั้นให้จบก่อน จากดราฟแรก
+# บ่อยครั้งมากที่ผมจะพูดประโยคนั้นๆไม่จบแล้ว แต่ฉากเปลี่ยนไปแล้ว"): a scene starts and ends only where a sentence ends. The caption lines
+# (Haiku, step 4) end at a pause, a sentence's end or a new idea, but "a long sentence becomes several lines", so a line's end alone
+# is not a sentence's end: the speaker's pause is. A line ends a sentence when the next line starts BREAK s or more after it
+# (or it is the last). Scenes start at a sentence's first line and end at a sentence's last line.
+BREAK = 0.25
+ends = [i for i in range(len(lines)) if i == len(lines) - 1 or lines[i + 1]['t0'] - line_ph[i][-1]['t1'] >= BREAK] if all(line_ph) else list(range(len(lines)))
+if not ends or ends[-1] != len(lines) - 1: ends.append(len(lines) - 1)
+SENT = []                                          # [first line, last line] of each sentence
+for e in ends: SENT.append([SENT[-1][1] + 1 if SENT else 0, e])
+sent_of = {n: k for k, (a, b) in enumerate(SENT) for n in range(a, b + 1)}
+
+
 def scenes_for(R):
     """the style's pictures: best rank first until the style's count, as long as they fit its rules"""
     want = max(3, round(dur / R['every']))
     pool = sorted(report, key=lambda r: (r.get('rank', 2), r['line']))
     lo, hi = R['scene']
     chosen = []
-    def window(r):
-        n = r['line'] - 1; t0, e = lines[n]['t0'], n
-        while lines[e]['t1'] - t0 < lo and e + 1 < len(lines): e += 1
-        return [r, t0, lines[e]['t1'], n]
+    def window(r):                                 # from its sentence's start to the end of a sentence, at least `lo` long
+        n = r['line'] - 1; k = sent_of[n]; t0 = lines[SENT[k][0]]['t0']
+        while lines[SENT[k][1]]['t1'] - t0 < lo and k + 1 < len(SENT): k += 1
+        return [r, t0, lines[SENT[k][1]]['t1'], n]
     for r in pool:
         if len(chosen) >= want: break
         s = window(r)
@@ -123,11 +136,15 @@ def scenes_for(R):
 
 def clip_all(sc, hi):
     for a, b in zip(sc, sc[1:]):
-        if b[1] < a[2]: a[2] = b[1]                                                  # never into the next picture
+        if b[1] < a[2]: a[2] = b[1]                                                  # never into the next picture (b starts on a sentence)
     for s in sc:
-        if s[2] - s[1] > hi:                                                         # too long for this style: keep the key word inside
-            h = hit_of(s)
-            s[1] = max(s[1], min(h - 1.2, s[2] - hi)) if h else s[1]; s[2] = s[1] + hi
+        if s[2] - s[1] > hi:                                                         # too long for this style: end on the last sentence end
+            # in reach that keeps the key word inside, else on a line's end (a sentence longer than the longest scene), never mid-line
+            h = hit_of(s) or s[1]
+            cut = [lines[e]['t1'] for e in ends if s[1] < lines[e]['t1'] <= s[1] + hi and lines[e]['t1'] > h + .8] \
+                or [l['t1'] for l in lines if s[1] < l['t1'] <= s[1] + hi and l['t1'] > h + .8] \
+                or [l['t1'] for l in lines if s[1] < l['t1'] <= s[2]]
+            s[2] = max(cut) if cut[-1] <= s[1] + hi else min(cut)
     return sc
 
 
