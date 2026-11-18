@@ -39,9 +39,12 @@ const HUD = {
                 notes: [{path: [[855, 668], [812, 563]], text: {x: 1020, y: 527, align: 'right'}},
                         {path: [[222, 1320], [180, 1470]], text: {x: 180, y: 1507, align: 'left'}},
                         {path: [[535, 1150], [560, 1597]], text: {x: 580, y: 1597, align: 'left'}, y: true}]},
-    hud_card:  {screen: true, noPic: true, card: [190, 300, 700, 820, 26], corners: [160, 270, 740, 880], lead: {x: 540, y: 1398}, key: {x: 540, y: 1540},   // shot 04
-                notes: [{path: [[220, 1080], [100, 1080], [100, 1240]], text: {x: 62, y: 1277, align: 'left'}, y: true},
-                        {path: [[860, 1060], [908, 1060], [908, 1240]], text: {x: 920, y: 1275, align: 'right'}}]},   // (a dot on x 908: its edge at 916)
+    /* shot 04 · final 2026-11-18 (Friend, sending a sheet of two stacked cards: "อยากให้ฉากเนี้ยมันเป็นเหมือนภาพที่ 2 อ่ะคือแบ่งจอกันเป็น 2 จอเลยแล้วมี
+       ซับอยู่ตรงกลาง" → "เห็นด้วยกับคุณทั้ง 2 ข้อ"): a picture card on top, the words in the middle, the speaker's card below, both
+       x 100–980 (the lower card 60 px under TikTok's buttons, as Friend let the neon style: "ไม่ต้องหลบปุ่ม TikTok ขนาดนั้นก็ได้"; it is
+       left out of the safe-zone check: wide: true). Was: the speaker's card alone in HUD corners with two notes */
+    hud_card:  {screen: true, wide: true, picCard: [100, 220, 880, 520, 26], pic: [130, 250, 820, 460], card: [100, 1090, 880, 570, 26],   // (the top card ends at 740: wider than 920 only above it)
+                lead: {x: 540, y: 815}, key: {x: 540, y: 950}},
     hud_time:  {screen: true, lead: {x: 540, y: 290}, key: {x: 540, y: 435}, pic: [100, 610, 820, 540], timeline: {y: 1300, x0: 140, x1: 920},   // final: words 199/344 → 290/435, the picture 520 → 610      // shot 05 (the sheet's line 100–980)
                 notes: [{dot: [200, 1300], text: {x: 200, y: 1363, align: 'center', maxW: 280}, y: true},
                         {dot: [530, 1300], text: {x: 530, y: 1363, align: 'center', maxW: 300}, y: true},
@@ -163,6 +166,7 @@ STYLE('hud', {
 .h-half{position:absolute;overflow:hidden}
 .h-bar{position:absolute;left:0;width:1080px;height:4px;background:#FFC93A;box-shadow:0 0 10px rgba(255,201,58,.6);transform-origin:0 50%}
 .h-card{position:absolute;overflow:hidden;border:2px solid rgba(255,201,58,.55);box-sizing:border-box}
+.h-pcard{background:rgba(10,10,10,.82);box-shadow:0 0 18px rgba(255,190,40,.18)}
 .h-text{position:absolute;inset:0}
 .h-row{position:absolute;white-space:nowrap}
 .h-row i{font-style:normal}
@@ -252,8 +256,10 @@ STYLE('hud', {
     if (L.half) { const [x, y, w, h, k, fy] = L.half, f = box([x, y, w, h]); f.className = 'h-half'; cpInset(f, w, h, t0, k, fy);
       A(f, [{opacity: 0, transform: 'translateY(-60px)'}, {opacity: 1, transform: 'none'}], t0, .45, {e: EASE.soft});
       const b = div(`top:${L.line - 2}px`, root); b.className = 'h-bar'; A(b, [{transform: 'scaleX(0)'}, {transform: 'scaleX(1)'}], t0 + .1, .45, {e: EASE.soft}); }
-    if (L.card) { const [x, y, w, h, r] = L.card, f = box([x, y, w, h]); f.className = 'h-card cp-frame'; f.style.borderRadius = r + 'px';
-      cpInset(f, w - 4, h - 4, t0, .36, .42); A(f, [{opacity: 0, transform: 'translateY(30px)'}, {opacity: 1, transform: 'none'}], t0 + .05, .45, {e: EASE.soft}); }
+    if (L.picCard) { const [x, y, w, h, r] = L.picCard, f = box([x, y, w, h]); f.className = 'h-card h-pcard cp-frame'; f.style.borderRadius = r + 'px';
+      A(f, [{opacity: 0, transform: 'translateY(-30px)'}, {opacity: 1, transform: 'none'}], t0, .45, {e: EASE.soft}); }
+    if (L.card) { const [x, y, w, h, r] = L.card, f = box([x, y, w, h]); f.className = 'h-card' + (L.wide ? '' : ' cp-frame'); f.style.borderRadius = r + 'px';
+      cpInset(f, w - 4, h - 4, t0, L.wide ? .3 : .36, .42); A(f, [{opacity: 0, transform: 'translateY(30px)'}, {opacity: 1, transform: 'none'}], t0 + .05, .45, {e: EASE.soft}); }
     const svg = hudSvg(root);
     /* HUD corners: four L shapes, 60 long, sliding in from a little outside */
     if (L.corners) { const [x, y, w, h] = L.corners, s = 60;
