@@ -233,7 +233,7 @@ STYLE('terminal', {
     if (!L.pic) stage.style.visibility = 'hidden';
     else A(stage, [{opacity: 0, transform: 'translateY(24px) scale(.94)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .08, .45, {e: EASE.soft});
     /* the lines come in with their windows, grey until said (a still: as the sheet, said) */
-    lines.forEach((q, i) => { const host = q.parts[0].parentElement; A(host, [{opacity: 0, transform: 'translateY(10px)'}, {opacity: 1, transform: 'none'}], t0 + .3 + .08 * i, .35, {e: EASE.soft});
+    lines.forEach((q, i) => { [q.parts[0].parentElement, q.box?.parentElement].filter(Boolean).forEach(host => A(host, [{opacity: 0, transform: 'translateY(10px)'}, {opacity: 1, transform: 'none'}], t0 + .3 + .08 * i, .35, {e: EASE.soft}));   // (the "[ ]" too: a speaker screen's root does not fade in, it showed before its picture)
       q.parts.forEach(p => { if (q.box) p.style.color = '#FFFFFF'; });
       if (ch) q.parts.forEach(p => { p.style.color = '#7C7C84'; });
       else if (q.box) { q.box.textContent = '[x]'; q.box.style.color = '#EE4444'; } });
@@ -258,7 +258,7 @@ STYLE('terminal', {
       A(r, [{opacity: 0, transform: 'translateY(12px) scale(.96)'}, {opacity: 1, transform: 'none'}], swap ? t + .06 : T.t0 + .15, .35, {e: EASE.soft});
       if (key && lead) { const sp = r.firstChild, all = sp.textContent, cut = all.lastIndexOf(String(key).trim());
         if (cut > 0) { sp.textContent = all.slice(0, cut); const kk = document.createElement('span'); kk.textContent = all.slice(cut); sp.appendChild(kk);
-          A(kk, [{opacity: 0}, {opacity: 1}], T.hit - .05, .25, {e: EASE.soft}); } }
+          A(kk, [{color: '#B4B4BA'}, {color: '#111113'}], T.hit - .05, .25, {e: EASE.soft}); } }   // (light grey until said: an empty space in the pill read as a gap)
       sfx('softswish', T.hit - .05, -21); };
     if (F.speaker || !F.L) {
       pill(T.t0);
