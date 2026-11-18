@@ -24,7 +24,10 @@ const NEON = {
      there), x 60–920 below it. The TOP is Friend's sheet as it is (Friend 2026-11-17: "ขอบบนเอาเท่าเดิมที่ผมส่งรูปตัวอย่างให้ผมให้ดูแค่ขอบล่าง
      เท่านั้น"): no top limit. */
   safe: [60, 0, 920, 1660], safeTop: {y: 740, x1: 1020},
-  /* PICTURE BOXES made bigger (Friend 2026-11-17 on the first real clip: "ทำไมโมชั่นกราฟฟิกเล็กจังเลยมันดูโล่งๆอ่ะ" — pictures took 2–17 %
+  /* FRAMED FACES (Friend 2026-11-18: "กรอบสี่เหลี่ยมหน้าผมมันแทบจะชิดขอบบนของคลิปอยู่แล้วซึ่งมันจะโดนแถบค้นหาของ TikTok บัง" · "อยากให้
+     motion graphic กับกรอบสี่เหลี่ยมหน้าผมมันห่างกันนิดนึง"): every frame with the speaker starts at y 220 or lower (the search bar
+     ends at y 195), and the picture box starts 40 under it (neonSafeCheck reports both).
+     PICTURE BOXES made bigger (Friend 2026-11-17 on the first real clip: "ทำไมโมชั่นกราฟฟิกเล็กจังเลยมันดูโล่งๆอ่ะ" — pictures took 2–17 %
      of the screen): every box as wide as the safe zone lets it (840: x 80–920, the buttons start at x 936) and as tall as the words and the face leave room for.
      boxes [x, y, w, h] · words {x, y (centre), align, maxW}: Friend's sheet (2nd image), each shot moved and squeezed into the safe zone
      (2026-11-17; the sheet put the words at y 1400–1620 and pictures at the right edge, under TikTok's caption and buttons) */
@@ -32,11 +35,11 @@ const NEON = {
     talk_low:   {speaker: true, lead: {x: 540, y: 1405}, key: {x: 540, y: 1540}},                                                       // shot 01 (centred: Friend 2026-11-17 "ทำไม subtitle มันชิดซ้ายมันต้องอยู่กึ่งกลางสิ"; the sheet had it on the left)
     hands:      {speaker: true, lead: {x: 540, y: 1045}, key: {x: 540, y: 1120}, stage: [180, 1250, 720, 400]},                           // shot 02
     chest:      {speaker: true, stage: [140, 970, 800, 330], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},                           // shot 03
-    square:     {screen: true, square: [540, 300, 240, 44], stage: [80, 580, 840, 740], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},  // shot 04 (Friend 2026-11-17: the circle → a rounded square, "ขยายใหญ่อีกนิดนึง ย้ำว่าแค่นิดเดียว": 440 → 480)
-    band:       {screen: true, lead: {x: 540, y: 220}, key: {x: 540, y: 340}, band: [160, 520, 760, 600, 40], stage: [80, 1140, 840, 510]},   // shot 05 (Friend 2026-11-17: the full-width band → a rounded rectangle the video fills, a little wider than the video was: 704 → 760)
+    square:     {screen: true, square: [540, 460, 240, 44], stage: [80, 740, 840, 580], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},  // shot 04 (Friend 2026-11-17: the circle → a rounded square, "ขยายใหญ่อีกนิดนึง ย้ำว่าแค่นิดเดียว": 440 → 480)
+    band:       {screen: true, lead: {x: 540, y: 220}, key: {x: 540, y: 340}, band: [160, 470, 760, 600, 40], stage: [80, 1110, 840, 530]},   // shot 05 (Friend 2026-11-17: the full-width band → a rounded rectangle the video fills, a little wider than the video was: 704 → 760)
     side:       {screen: true, stage: [60, 520, 520, 880], lead: {x: 735, y: 890, maxW: 330}, key: {x: 735, y: 1010, maxW: 330}},      // shot 06 (tall pictures)
     talk_split: {speaker: true, lead: {x: 540, y: 230}, key: {x: 540, y: 1080}},                                                        // shot 07
-    window:     {screen: true, win: [160, 90, 760, 760, 40], stage: [80, 870, 840, 500], lead: {x: 540, y: 1440}, key: {x: 540, y: 1545}}, // shot 08
+    window:     {screen: true, win: [160, 220, 760, 680, 40], stage: [80, 940, 840, 440], lead: {x: 540, y: 1440}, key: {x: 540, y: 1545}}, // shot 08
     diag:       {speaker: true, lead: {x: 540, y: 140}, key: {x: 540, y: 265}, stage: [480, 1060, 440, 580]},   // shot 09 (words centred, Friend 2026-11-17)
     word:       {screen: true, key: {x: 540, y: 280}, stage: [80, 420, 840, 900], lead: {x: 540, y: 1380}},                            // shot 10
     recap:      {screen: true, lead: {x: 540, y: 120}, key: {x: 540, y: 250}, stages: [[260, 430, 680, 300], [220, 870, 700, 290], [340, 1270, 520, 380]],
@@ -129,7 +132,11 @@ function neonSafeCheck() {
       const r = e.getBoundingClientRect(); if (r.width < .5 && r.height < .5) return;
       u = u ? {left: Math.min(u.left, r.left), top: Math.min(u.top, r.top), right: Math.max(u.right, r.right), bottom: Math.max(u.bottom, r.bottom)} : {left: r.left, top: r.top, right: r.right, bottom: r.bottom}; });
     if (u) test('picture', {...u, width: u.right - u.left}); });
-  document.querySelectorAll('.n-frame').forEach(e => { if (shown(e)) test('framed face', e.getBoundingClientRect()); });
+  document.querySelectorAll('.n-frame').forEach(e => { if (!shown(e)) return; const r = e.getBoundingClientRect(); test('framed face', r);
+    if (r.top * k < 215) out.push({what: 'framed face under the TikTok search bar', box: [r.left, r.top, r.right, r.bottom].map(v => Math.round(v * k))}); });
+  for (const L of Object.values(NEON.layouts)) {                       // the picture box 40 under the face's frame
+    const f = L.square ? L.square[1] + L.square[2] : L.win ? L.win[1] + L.win[3] : L.band ? L.band[1] + L.band[3] : null;
+    if (f != null && L.stage && L.stage[1] < f + 40) out.push({what: 'picture box closer than 40 to the framed face', box: L.stage}); }
   return out;
 }
 
