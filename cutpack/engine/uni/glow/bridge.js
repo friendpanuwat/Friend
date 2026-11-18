@@ -23,7 +23,12 @@ const GLOWLOOK = {
   neon:  {acc: '--ac',     glow: {c: '#2FA8F0', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5},
   window: {acc: '--ac',    glow: {c: '#3E86FF', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},    // หน้าต่างแอป (Friend's 3rd new sheet, 2026-11-18): the glass look in app windows, blue light
   violet: {acc: '--ac',    glow: {c: '#8B5CF6', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},   // ม่วงคลื่นเสียง (Friend's 5th new sheet, 2026-11-18): the glass look in violet cards, violet light
-  teal:  {acc: '--ac',     glow: {c: '#3FCEBA', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},    // การ์ดเขียวน้ำทะเล (Friend's 4th new sheet, 2026-11-18): the glass look in teal cards, teal light
+  teal:  {acc: '--ac',     glow: {c: '#3FCEBA', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},
+  yellow: {acc: '--ac',    glow: {c: '#FFD600', self: true},    weight: {k: 1.6, min: 4.0, floor: 2.6}, floatAlpha: .62},   // the sheet's lines are 5 px where neon's are 3
+  hud:   {acc: '--ac',     glow: {c: '#FFD600', self: true},    weight: {k: 1.6, min: 4.0, floor: 2.6}, floatAlpha: .62},
+  pink:  {acc: '--ac',     glow: {c: '#E8469A', all: false},    weight: {k: 1.4, min: 3.4, floor: 2.2}, floatAlpha: .9},    // การ์ดชมพู (Friend's 10th new sheet, 2026-11-18): the first light style, dark lines on white cards, only the pink lit part glows
+  terminal: {acc: '--ac',  glow: {c: '#EE4444', self: true},    weight: {k: 1.6, min: 4.0, floor: 2.6}, floatAlpha: .62},   // เทอร์มินัลแดง (Friend's 9th new sheet, 2026-11-18): thick white glowing lines, the lit part red
+  horizon: {acc: '--ac',   glow: {c: '#FB7A1A', self: true},    weight: {k: 1.8, min: 5.0, floor: 3.0}, floatAlpha: .6},    // ขอบฟ้าส้ม (Friend's 8th new sheet, 2026-11-18): thick warm-white lines (7 px on the full-size shot 04), the lit part orange   // เส้นชี้ HUD (Friend's 7th new sheet, 2026-11-18): the same glow-line look as the yellow style (the sheet draws them alike)   // ขั้นตอนเหลือง (Friend's 6th new sheet, 2026-11-18): near-black bodies, white lines glowing white, the lit part yellow    // การ์ดเขียวน้ำทะเล (Friend's 4th new sheet, 2026-11-18): the glass look in teal cards, teal light
   lime:  {acc: '--ac',     glow: {c: '#B5EE38', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5},    // เขียวมะนาว (Friend's 2nd new sheet, 2026-11-18): the neon glass, lime light    // นีออนฟ้า (Friend's sheet 2): frosted grey glass, white lines with their own soft glow, the lit part blue and glowing hard
 };
 /* what is really visible at the end of the drawing (not the things still hidden or gone: the getBBox of the whole drawing counted
@@ -93,7 +98,7 @@ function glowWeight(svg, P, base) {
     const w = px(e), fl = W.floor ?? 1.6; if (w > 0 && w < fl) e.setAttribute('stroke-width', (+e.getAttribute('stroke-width') * fl / w).toFixed(3)); });
 }
 /* a floating drawing (no solid surface behind it: glass, card-overlay on the video) gets this body colour, see-through */
-const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '#1C1C20', neon: '#2A2E33', lime: '#26292B', window: '#151B26', teal: '#152A26', violet: '#1A1030'};
+const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '#1C1C20', neon: '#2A2E33', lime: '#26292B', window: '#151B26', teal: '#152A26', violet: '#1A1030', yellow: '#141414', hud: '#141414', horizon: '#1A100B', terminal: '#121214', pink: '#FFFFFF'};
 /* the GLASS styles (neon, lime): frosted glass bodies, white lines glowing in their own colour, the lit part washed in the style's
    colour. Per style: lit = the lit tile's wash · litBar = a lit bar's wash under white words · litIcon = the icon on a lit tile ·
    mark = a white mark on a solid accent shape · halo = the wide halo of every line */
@@ -102,6 +107,26 @@ const GLASSY = {
   window: {lit: 'rgba(40,110,230,.30)', litBar: 'rgba(40,110,230,.38)', litIcon: '#A8CCFF', litBody: '#16325C', mark: '#0B2238', halo: '#7FB0FF', outlineLit: true, glow: 1.3, fig: '#7586A3', washLit: true},   // fig: people 5:1 on the window, white edge 3.7:1 on them
   violet: {lit: 'rgba(120,80,240,.24)', litBar: 'rgba(120,80,240,.30)', litIcon: '#C4AEFF', litBody: '#2A1A55', mark: '#160B30', halo: '#E8E0FF', outlineLit: true, glow: 1.3, fig: '#8A82A8', washLit: true},   // lit parts a violet outline (Friend's sheet)
   teal: {lit: 'rgba(40,190,165,.24)', litBar: 'rgba(40,190,165,.30)', litIcon: '#8FEBD9', litBody: '#123A33', mark: '#0A231F', halo: '#D8F5EE', outlineLit: true, glow: 1.3, fig: '#6E8C86', washLit: true},   // lit parts a teal outline (Friend's sheet), people teal-grey 4.3:1 on the card
+  /* yellow (Friend's 6th sheet, sampled): the bodies are near-black, not frosted grey (#0A0A0A–#181818 on the screen, the hands show
+     through them on the video) → frost [on a screen, on the video]; an icon's own body on them, solid → solid; a solid accent mark
+     on a lit tile → litMark (the blue styles' #CDEFFF) */
+  yellow: {lit: 'rgba(24,20,4,.9)', litBar: 'rgba(64,53,0,.92)', litIcon: '#FFD600', litBody: '#2A2300', mark: '#1A1600', halo: '#FFF6D6', outlineLit: true, glow: 1.2, fig: '#7E7E7A', washLit: true,
+    frost: ['rgba(12,12,12,.86)', 'rgba(10,10,10,.62)'], solid: '#161616', litMark: '#FFF3B0', litWord: true},   // litWord: the lit step's word is yellow too
+  hud: {lit: 'rgba(24,20,4,.9)', litBar: 'rgba(64,53,0,.92)', litIcon: '#FFD600', litBody: '#2A2300', mark: '#1A1600', halo: '#FFF6D6', outlineLit: true, glow: 1.2, fig: '#7E7E7A', washLit: true,
+    frost: ['rgba(12,12,12,.86)', 'rgba(10,10,10,.62)'], solid: '#161616', litMark: '#FFF3B0', litWord: true},   // เส้นชี้ HUD: the yellow style's values (the sheet's pictures are drawn alike)
+  /* ขอบฟ้าส้ม (shot 04 full size, sampled): bodies a warm see-through brown (#2B1E16 on the screen), the lit tile a deep orange wash
+     (#3D210) under an orange edge, its icon and word orange, the white lines warm (#FEF1E3) */
+  /* เทอร์มินัลแดง (the full-size shots, sampled): near-black bodies in the windows, the lit tile a deep red wash under a red edge,
+     its icon and word red (#EE4444, 4.6:1 on #111113) */
+  /* การ์ดชมพู (the full-size shots, sampled): white bodies with dark edges on the white cards, the lit tile a faint pink wash under
+     a pink edge (#E8469A, 3.8:1 on white), its icon and word pink, marks on solid pink white; noEdge: no dark edge under the words
+     (they are dark on white already) */
+  pink: {lit: 'rgba(232,70,154,.07)', litBar: 'rgba(232,70,154,.14)', litIcon: '#E8469A', litBody: '#FFFFFF', mark: '#FFFFFF', halo: '#FFFFFF', outlineLit: true, glow: 1, fig: '#55536A', washLit: true,
+    frost: ['rgba(255,255,255,.98)', 'rgba(255,255,255,.95)'], solid: '#FFFFFF', litMark: '#FFFFFF', litWord: true, noEdge: true},
+  terminal: {lit: 'rgba(70,14,16,.7)', litBar: 'rgba(110,22,26,.7)', litIcon: '#F04848', litBody: '#3A0C0E', mark: '#2A0808', halo: '#FFFFFF', outlineLit: true, glow: 1.3, fig: '#80808A', washLit: true,
+    frost: ['rgba(14,14,16,.86)', 'rgba(12,12,14,.62)'], solid: '#18181B', litMark: '#FFC9C9', litWord: true},
+  horizon: {lit: 'rgba(90,38,8,.45)', litBar: 'rgba(110,48,10,.55)', litIcon: '#FB7A1A', litBody: '#3A1C08', mark: '#2A1204', halo: '#FFE6CC', outlineLit: true, glow: 1.3, fig: '#8A7A70', washLit: true,
+    frost: ['rgba(78,56,42,.5)', 'rgba(30,20,15,.6)'], solid: '#2A1C14', litMark: '#FFD9B0', litWord: true},
   lime: {lit: 'rgba(120,170,25,.32)', litBar: 'rgba(120,170,25,.32)', litIcon: '#D4FA6A', litBody: '#2C3A12', mark: '#18220A', halo: '#EEF4E6', outlineLit: true, glow: 1.7},   // the white lines glow white on the sheet, only the lit part lime
 };
 
@@ -134,6 +159,7 @@ function glowPalette(host, base) {
   const surf = glowSurface(host), fill = surf ?? glowRgba(GLOW_FLOAT[base] ?? '#111');
   const P = {line: glowHex(ink), fill: glowHex(fill), soft: glowMix(ink, fill, GLASSY[base] ? .12 : .25), accent: glowHex(acc)};   // neon: soft lines sit on frosted glass over a bright video too (.25 read 2.95:1)   // soft nearer the line (at .38 grey details read 2.3:1 on gold)
   if (!surf) P.fillAlpha = L.floatAlpha ?? (base === 'glass' ? .75 : .55);   // floating: the video shows a little through the bodies (glass/neon: darker, the glow sits under them)
+  if (GLASSY[base]?.frost) P.frost = GLASSY[base].frost;   // a style's own body colour (yellow: near-black), else the frosted grey
   return P;
 }
 /* an accent that cannot be read on its surface (contrast < 2, e.g. card's lime on white or cream) stays only as a fill (a lime
@@ -161,7 +187,7 @@ function glowReadable(svg, P) {
 function glowFirm(svg, P, base) {
   /* neon: aimed at the frosted glass (#AAB2B9 over the ground), the lighter of its two grounds */
   const f0 = glowRgba(P.fill), fam = [glowRgba(P.line), glowRgba(P.soft)];
-  const fa = glowRgba(glowFrost(P))[3], ground = GLASSY[base] ? [170, 178, 185].map((v, i) => v * fa + f0[i] * (1 - fa)).concat(1) : f0;
+  const fr = glowRgba(glowFrost(P)), fa = fr[3], ground = GLASSY[base] ? fr.slice(0, 3).map((v, i) => v * fa + f0[i] * (1 - fa)).concat(1) : f0;
   svg.querySelectorAll('[stroke]').forEach(e => {
     const c = glowRgba(e.getAttribute('stroke') || 'none'); if (c[3] >= .9 || c[3] < .2) return;
     if (!fam.some(f => f[0] === c[0] && f[1] === c[1] && f[2] === c[2])) return;
@@ -182,7 +208,7 @@ function glowFirm(svg, P, base) {
    แบบเก่ามากกว่า"), so it has no material. People (person icons) are one solid shape, as the people in Friend's clip (Friend: "ตัวคนทำไม
    สีมันแปลกๆหล่ะ" — they were the background showing through a see-through body) */
 const GLOW_PEOPLE = new Set(['person-body', 'user', 'users', 'user-round', 'person-standing', 'users-round', 'user-check', 'user-x', 'user-plus', 'baby', 'contact']);
-const glowFrost = P => `rgba(170,178,185,${P.fillAlpha != null ? .4 : .3})`;
+const glowFrost = P => P.frost ? P.frost[P.fillAlpha != null ? 1 : 0] : `rgba(170,178,185,${P.fillAlpha != null ? .4 : .3})`;
 function glowMaterial(base, P) {
   const surf = glowRgba(P.fill), light = glowLum(surf) > .45 && P.fillAlpha == null;   // floating (fillAlpha) = on the video, a dark ground
   /* card: a navy tile only on a light page; on the dark page or the video a white tile with a navy icon (Friend 2026-11-17 sent a
@@ -218,7 +244,7 @@ function glowTagIcons() {
 function glowDress(svg, P, base) {
   const M = glowMaterial(base, P); if (!M) return;
   const light = glowLum(glowRgba(P.fill)) > .45 && P.fillAlpha == null;   // a light page (not the video)
-  const solidOf = f => GLASSY[base] ? '#323C45' : f.startsWith('url') ? (base === 'glass' ? '#2E343D' : '#1A1A1F') : f;   // a cut or an icon's own body on a see-through / glossy surface
+  const solidOf = f => GLASSY[base] ? (GLASSY[base].solid ?? '#323C45') : f.startsWith('url') ? (base === 'glass' ? '#2E343D' : '#1A1A1F') : f;   // a cut or an icon's own body on a see-through / glossy surface
   svg.querySelector('defs').insertAdjacentHTML('beforeend', `
     <linearGradient id="cpGlass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".12"/><stop offset="1" stop-color="#ffffff" stop-opacity=".04"/></linearGradient>
     <linearGradient id="cpGloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34343B"/><stop offset=".5" stop-color="#1F1F24"/><stop offset="1" stop-color="#141417"/></linearGradient>
@@ -322,7 +348,7 @@ function glowDress(svg, P, base) {
         const under = filled.filter(o => o.e !== e && o.i < i && !o.e.contains(e) && inside(o.r, cx, cy)).pop();   // the shape right behind it
         if (!under?.acc) return;
         for (const k of ['stroke', 'fill']) if (same(e.getAttribute(k), P.line)) e.setAttribute(k, GS.mark); }); }
-    root.querySelectorAll('text').forEach(t => { t.setAttribute('paint-order', 'stroke'); t.setAttribute('stroke', 'rgba(6,12,20,.85)'); t.setAttribute('stroke-width', '7'); t.setAttribute('stroke-linejoin', 'round'); });
+    if (!GS.noEdge) root.querySelectorAll('text').forEach(t => { t.setAttribute('paint-order', 'stroke'); t.setAttribute('stroke', 'rgba(6,12,20,.85)'); t.setAttribute('stroke-width', '7'); t.setAttribute('stroke-linejoin', 'round'); });   // (noEdge: the pink style's dark words on white)
     const fr = glowFrost(P), shapes = [...root.querySelectorAll('rect,circle,ellipse,path,polygon')], same4 = (a, b) => ['left', 'top', 'width', 'height'].every(q => Math.abs(a[q] - b[q]) < 3);
     const frost = shapes.filter(e => e.getAttribute('fill') === fr).map(e => ({e, r: box(e)}));
     frost.forEach((f, k) => { if (frost.slice(0, k).some(o => same4(o.r, f.r))) f.e.setAttribute('fill', 'rgba(170,178,185,0)'); });
@@ -341,9 +367,19 @@ function glowDress(svg, P, base) {
       if ((l.getAttribute('stroke') || 'none') !== 'none') l.setAttribute('stroke', P.accent);
       ics.forEach(o => o.g.querySelectorAll('[stroke],[fill]').forEach(e => {   // the icon: light blue lines (#CFEFFF: #9FE0FF read 2.9:1 where the icon is dimmed), its own bodies the deep blue
         const v = e.getAttribute('stroke'), f = e.getAttribute('fill'); if (same(v, P.line) || same(v, P.soft) || isAccV(v)) e.setAttribute('stroke', GS.litIcon);
-        if (same(f, '#323C45')) e.setAttribute('fill', GS.litBody); }));
-      shapes.forEach(e => { const f = e.getAttribute('fill'), q = box(e); if (e !== l && isAccV(f) && glowRgba(f)[3] >= .9 && inside(r, (q.left + q.right) / 2, (q.top + q.bottom) / 2)) e.setAttribute('fill', '#CDEFFF'); });   // a solid accent mark on it (shot 05's "!") reads 2.7:1 on the blue: a paler blue
-      if (GS.washLit) shapes.forEach(e => { const q = box(e); if (e !== l && isAccV(e.getAttribute('stroke')) && area(q) < area(r) && inside(r, (q.left + q.right) / 2, (q.top + q.bottom) / 2)) e.setAttribute('stroke', GS.litIcon); });   // an accent line drawn on it that is not a tagged icon (B08T pinlock: 2.1:1 on the wash)
+        if (same(f, GS.solid ?? '#323C45')) e.setAttribute('fill', GS.litBody); }));
+      shapes.forEach(e => { const f = e.getAttribute('fill'), q = box(e); if (e !== l && isAccV(f) && glowRgba(f)[3] >= .9 && inside(r, (q.left + q.right) / 2, (q.top + q.bottom) / 2)) e.setAttribute('fill', GS.litMark ?? '#CDEFFF'); });   // a solid accent mark on it (shot 05's "!") reads 2.7:1 on the blue: a paler blue
+      if (GS.washLit) shapes.forEach(e => { const q = box(e); if (e !== l && isAccV(e.getAttribute('stroke')) && area(q) < area(r) && inside(r, (q.left + q.right) / 2, (q.top + q.bottom) / 2)) e.setAttribute('stroke', GS.litIcon); });
+    }
+    /* litWord (the yellow style only, Friend's 6th sheet: the lit step's word is yellow, "ยืดเส้น" over the lit chevron, "เข้านอน" beside
+       the lit tile, "ทบทวน" in the lit bar): a white word whose nearest tile is a lit one takes the accent */
+    if (GS.litWord && lits.length) {
+      const tilesW = shapes.filter(e => area(box(e)) >= 2500 && (lits.includes(e) || (e.getAttribute('fill') === fr && glowRgba(fr)[3] > 0))).map(e => ({e, r: box(e), lit: lits.includes(e)}));
+      const gap = (r, q) => Math.hypot(Math.max(r.left - q.right, 0, q.left - r.right), Math.max(r.top - q.bottom, 0, q.top - r.bottom));   // between the word's box and the tile's
+      const mid = (r, q) => Math.hypot((r.left + r.right - q.left - q.right) / 2, (r.top + r.bottom - q.top - q.bottom) / 2);
+      root.querySelectorAll('text').forEach(t => { if (!same(t.getAttribute('fill'), P.line) && !same(t.getAttribute('fill'), P.soft)) return;   // (the rail's second line too, shot 07)
+        const q = box(t), near = tilesW.map(o => ({o, d: gap(o.r, q) + .01 * mid(o.r, q)})).sort((a, b) => a.d - b.d || b.o.lit - a.o.lit)[0];   // a word over a row of chevrons: the one under its middle
+        if (near?.o.lit && near.d < .6 * Math.min(near.o.r.width, near.o.r.height)) t.setAttribute('fill', P.accent); });   // an accent line drawn on it that is not a tagged icon (B08T pinlock: 2.1:1 on the wash)
     }
   }
 }
@@ -466,7 +502,7 @@ function glowCheckOne(host) {
     const c = glowRgba(v), a = c[3] * seen(e) * +(e.getAttribute(text ? 'fill-opacity' : 'stroke-opacity') ?? 1); if (a < .25) continue;
     const r = box(e); if (r.width < 2 && r.height < 2) continue;
     const bg = behind(e, (r.left + r.right) / 2, (r.top + r.bottom) / 2), fg = over(c, a, bg), k = glowContrast(fg, bg);
-    if (!text && (rgbEq(c, body) || rgbEq(c, top?.c) || rgbEq(c, [50, 60, 69]))) continue;   // (#323C45 = neon's solid cut)    // on purpose: a cut in the body colour, a shape's own edge, a solid person's limbs
+    if (!text && (rgbEq(c, body) || rgbEq(c, top?.c) || rgbEq(c, [50, 60, 69]) || (GLASSY[ST.id.split('-overlay')[0]]?.solid && rgbEq(c, glowRgba(GLASSY[ST.id.split('-overlay')[0]].solid))))) continue;   // (#323C45 = neon's solid cut)    // on purpose: a cut in the body colour, a shape's own edge, a solid person's limbs
     if (k < 3) out.push({what: text ? 'word "' + e.textContent + '"' : e.tagName, colour: v, behind: glowHex(bg), ratio: +k.toFixed(2)});
     else if (!text && px(e) < 1.5 && a >= .5) out.push({what: 'thin ' + e.tagName + ' ' + px(e).toFixed(1) + 'px', colour: v, behind: glowHex(bg), ratio: +k.toFixed(2)});   // a hairline reads grey however its colour
   }

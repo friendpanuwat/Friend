@@ -51,7 +51,7 @@ const TEAL = {
      warning (B07) the mistake shot; every other picture takes one of `pool` (never the one before it) where the face leaves room
      (tealFit), among those the screens that show this picture's shape (glow/shapes.json) at least `keep` (75 %) as big as the best (the
      speaker's cards always stay in), then the least used, then at random from the run's seed */
-  pool: ['full_hook', 'stack_bullets', 'stack_graphic', 'full_top', 'design_row', 'full_lower', 'split_cards', 'stack_bullets2'],
+  pool: ['full_hook', 'stack_bullets', 'stack_graphic', 'full_top', 'design_row', 'full_lower', 'split_cards', 'stack_bullets2', 'full_cta', 'full_mistake'],   // + the call-to-action and the mistake screens as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
   byCat: {B15: 'full_cta', B01: 'stack_stat', B07: 'full_mistake'},
   /* a screen stays in when it shows the picture at least this share as big as the best one (as the other styles). The cards
      with the speaker (shots 02, 06, 08, 10) are left out of this: they hold a small picture beside their bullets by design (the

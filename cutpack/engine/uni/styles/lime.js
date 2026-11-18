@@ -39,7 +39,7 @@ const LIME = {
   /* RANDOM, the same rules as neon: a call to action (B15) gets the closing card, a punchline (B14) the big dark screen; every
      other picture takes one of `pool` (never the one before it) where the face leaves room (limeRoom), among those the screens that
      show this picture's shape (glow/shapes.json) at least 75 % as big as the best, then the least used, then at random */
-  pool: ['hands', 'big', 'top', 'split_top', 'side_l', 'screen', 'side_r', 'split_bottom'],
+  pool: ['hands', 'big', 'top', 'split_top', 'side_l', 'screen', 'side_r', 'split_bottom', 'cta'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
   byCat: {B15: 'cta', B14: 'screen'},
   used: {}, last: null,
 };

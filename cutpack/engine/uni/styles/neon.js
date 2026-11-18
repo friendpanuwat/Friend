@@ -52,7 +52,7 @@ const NEON = {
      closing, top-left words) only where the speaker's face leaves it room (`neonRoom`). Among those, the SHAPE decides (Friend:
      "ทำไมโมชั่นกราฟฟิกเล็กจังเลย"): each design's width / height is measured once (glow/shapes.json, glow/shapes.js) and only the
      screens whose box shows this picture at least 75 % as big as the best one stay in; then the least used, then at random. */
-  pool: ['hands', 'square', 'chest', 'band', 'diag', 'window', 'side', 'word'],   // 'word' joined 2026-11-17: its box is the biggest (Friend: "มันดูโล่งๆ")
+  pool: ['hands', 'square', 'chest', 'band', 'diag', 'window', 'side', 'word', 'cta'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only) ·   // 'word' joined 2026-11-17: its box is the biggest (Friend: "มันดูโล่งๆ")
   byCat: {B15: 'cta', B14: 'word'},
   used: {}, last: null,
 };
