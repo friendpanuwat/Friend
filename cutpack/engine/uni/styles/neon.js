@@ -219,7 +219,10 @@ STYLE('neon', {
     if (lead && L.lead) { const r = neonLine(el, lead, 'n-lead', L.lead); A(r, [{opacity: 0, filter: 'blur(8px)'}, {opacity: 1, filter: 'blur(0)'}], T.t0 + .15, .35, {e: EASE.smooth}); }
     if (key && L.key) {
       const r = neonLine(el, key, 'n-key', L.key);
-      A(r, [{opacity: 0, transform: 'scale(.9)', filter: 'blur(10px) brightness(2)'}, {opacity: 1, transform: 'none', filter: 'blur(0) brightness(1)'}], T.hit - .05, .45, {e: EASE.soft});
+      /* the old editorial style's key word (styles/card.js, deleted 2026-11-17 in d221565: motion.key) · final 2026-11-18, Friend: "เอาแบบสไตล์
+         editorial เก่าที่เราลบไปอะครับ (ให้ดูแค่ทรานซิชั่นนะ) ทุกอย่างยังเหมือนเดิม": from 1.16 times and a 14 px blur to sharp, 0.26 s, on its word
+         (was: from 0.9 times, blurred and twice as bright, 0.45 s) */
+      A(r, [{opacity: 0, transform: 'scale(1.16)', filter: 'blur(14px)'}, {opacity: 1, transform: 'scale(1)', filter: 'blur(0)'}], T.hit, .26, {e: EASE.smooth});
       sfx('softswish', T.hit - .05, -21);
     }
     if (F.speaker && T.clip) {                     // a real clip between pictures: cut in and out on the words (core.js clipCaption)
