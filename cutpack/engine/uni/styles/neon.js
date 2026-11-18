@@ -40,7 +40,7 @@ const NEON = {
     talk_split: {speaker: true, lead: {x: 540, y: 960}, key: {x: 540, y: 1080}},                                                        // shot 07 (the lead right above the key word, Friend 2026-11-18 final: "Subtitles ตัวเล็กและตัวใหญ่ต้องอยู่ด้วยกัน"; the sheet had it at the top, y 230)
     window:     {screen: true, win: [160, 220, 760, 680, 40], stage: [80, 940, 840, 440], lead: {x: 540, y: 1440}, key: {x: 540, y: 1545}}, // shot 08
     diag:       {speaker: true, lead: {x: 540, y: 140}, key: {x: 540, y: 265}, stage: [480, 1060, 440, 580]},   // shot 09 (words centred, Friend 2026-11-17)
-    word:       {screen: true, lead: {x: 540, y: 220}, key: {x: 540, y: 340}, stage: [80, 460, 840, 980]},                              // shot 10 (the lead above the key word at the top, Friend 2026-11-18 final: "ตัวเล็กและตัวใหญ่ต้องอยู่ด้วยกัน"; the sheet had the lead under the picture, y 1380 · the picture runs down into its old place)
+    word:       {screen: true, lead: {x: 540, y: 220}, key: {x: 540, y: 340}, stage: [80, 460, 800, 980]},                              // shot 10 (the lead above the key word at the top, Friend 2026-11-18 final: "ตัวเล็กและตัวใหญ่ต้องอยู่ด้วยกัน"; the sheet had the lead under the picture, y 1380 · the picture runs down into its old place)
     recap:      {screen: true, lead: {x: 540, y: 120}, key: {x: 540, y: 250}, stages: [[260, 430, 680, 300], [220, 870, 700, 290], [340, 1270, 520, 380]],
                  nums: [[100, 620], [100, 1060], [100, 1520]]},                                                                             // shot 11
     cta:        {speaker: true, stage: [240, 950, 640, 400], lead: {x: 540, y: 1410}, key: {x: 540, y: 1540}},                           // shot 12
