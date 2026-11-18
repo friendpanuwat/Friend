@@ -115,7 +115,8 @@ const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '
 const GLASSY = {
   neon: {lit: 'rgba(25,95,150,.85)', litBar: 'rgba(30,120,185,.6)', litIcon: '#CFEFFF', litBody: '#1A6390', mark: '#0B2238', halo: '#5AB8FF',
     noEdge: true, centreBox: true},   // final 2026-11-18 (Friend): "ตัวหนังสือส่วยนี้ไม่ต้องมีกรอบ" · "ถ้ามีกรอบข้อความแบบนี้ อยากให้ icon และข้อความอยู่กึ่งกลาง"
-  window: {lit: 'rgba(40,110,230,.30)', litBar: 'rgba(40,110,230,.38)', litIcon: '#A8CCFF', litBody: '#16325C', mark: '#0B2238', halo: '#7FB0FF', outlineLit: true, glow: 1.3, fig: '#7586A3', washLit: true},   // fig: people 5:1 on the window, white edge 3.7:1 on them
+  window: {lit: 'rgba(40,110,230,.30)', litBar: 'rgba(40,110,230,.38)', litIcon: '#A8CCFF', litBody: '#16325C', mark: '#0B2238', halo: '#7FB0FF', outlineLit: true, glow: 1.3, fig: '#7586A3', washLit: true,
+    noPill: true, noEdge: true},   // final 2026-11-18 (Friend): "ลบกรอบตัวหนังสือที่ motion graphic ออกด้วยครับ": no box round a word alone, no dark edge under the words   // fig: people 5:1 on the window, white edge 3.7:1 on them
   violet: {lit: 'rgba(120,80,240,.24)', litBar: 'rgba(120,80,240,.30)', litIcon: '#C4AEFF', litBody: '#2A1A55', mark: '#160B30', halo: '#E8E0FF', outlineLit: true, glow: 1.3, fig: '#8A82A8', washLit: true},   // lit parts a violet outline (Friend's sheet)
   teal: {lit: 'rgba(40,190,165,.24)', litBar: 'rgba(40,190,165,.30)', litIcon: '#8FEBD9', litBody: '#123A33', mark: '#0A231F', halo: '#D8F5EE', outlineLit: true, glow: 1.3, fig: '#6E8C86', washLit: true},   // lit parts a teal outline (Friend's sheet), people teal-grey 4.3:1 on the card
   /* yellow (Friend's 6th sheet, sampled): the bodies are near-black, not frosted grey (#0A0A0A–#181818 on the screen, the hands show
@@ -402,6 +403,26 @@ function glowDress(svg, P, base) {
    a mic and "พูดสดๆ" at its left, its right half empty): a text box (a rect at least twice as wide as tall, a word in it) whose icon and
    words sit off its middle gets them moved to its middle, as one group, at the drawing's end. Only what lies wholly in the box and is
    drawn after it moves; a box holding a wide shape (a bar's fill, a second box) is not a text box and stays as it is. */
+/* noPill (the window style only, Friend 2026-11-18 on the final: "ลบกรอบตัวหนังสือที่ motion graphic ออกด้วยครับ", B06T's "คุณภาพ" pill):
+   a box (rect at least 1.4 times as wide as high) holding nothing but words loses its own layers (every non-word shape the box's size);
+   a box with an icon or a bar in it stays, and so does a box laid across or inside another drawing (without it the word would sit on the lines or a pale card) */
+function glowNoPill(svg) {
+  const root = svg.querySelector(':scope > g'); if (!root) return;
+  const box = e => e.getBoundingClientRect(), within = (q, r, m = 2) => q.left >= r.left - m && q.right <= r.right + m && q.top >= r.top - m && q.bottom <= r.bottom + m;
+  const same = (q, r) => Math.abs(q.left - r.left) < 8 && Math.abs(q.right - r.right) < 8 && Math.abs(q.top - r.top) < 8 && Math.abs(q.bottom - r.bottom) < 8;
+  const seen = e => { for (let x = e; x && x !== svg; x = x.parentElement) { const cs = getComputedStyle(x); if (cs.display === 'none' || +cs.opacity < .05) return false; } return true; };
+  const leaves = [...root.querySelectorAll('path,line,polyline,polygon,rect,circle,ellipse,text,image')].filter(e => !e.closest('clipPath,defs,mask') && seen(e))
+    .map(e => ({e, q: box(e)})).filter(o => o.q.width > .5 || o.q.height > .5);
+  for (const {e: b, q: r} of leaves.filter(o => o.e.tagName === 'rect' && o.q.width >= 1.4 * o.q.height && o.q.height > 4)) {
+    if (b.style.display === 'none') continue;
+    const inside = leaves.filter(o => o.e !== b && within(o.q, r)), layers = inside.filter(o => o.e.tagName !== 'text' && same(o.q, r));
+    if (!inside.some(o => o.e.tagName === 'text' && o.e.textContent.trim())) continue;
+    if (inside.some(o => o.e.tagName !== 'text' && !layers.includes(o))) continue;   // an icon, a bar or a mark in it: a card, not a word's box
+    const cuts = o => { const w = Math.min(o.q.right, r.right) - Math.max(o.q.left, r.left), h = Math.min(o.q.bottom, r.bottom) - Math.max(o.q.top, r.top); return w > 2 && h > 2 && !within(r, o.q) && !within(o.q, r) && !same(o.q, r); };
+    if (leaves.some(o => o.e !== b && o.e.tagName !== 'text' && (cuts(o) || (within(r, o.q) && !same(o.q, r))))) continue;   // a box laid over or inside another drawing (B01T's price on its pale card under the "?"): its box keeps the word readable
+    [b, ...layers.map(o => o.e), ...leaves.filter(o => o.e !== b && o.e.tagName !== 'text' && same(o.q, r) && !within(o.q, r, 0)).map(o => o.e)].forEach(e => e.style.display = 'none');
+  }
+}
 function glowCentre(svg) {
   const root = svg.querySelector(':scope > g'); if (!root) return;
   const box = e => e.getBoundingClientRect(), within = (q, r, m = 2) => q.left >= r.left - m && q.right <= r.right + m && q.top >= r.top - m && q.bottom <= r.bottom + m;
@@ -496,6 +517,7 @@ function glowDraw(F, T, cat, i, d, box = F.stage) {
     glowReadable(svg, P);
     glowFirm(svg, P, base);
     glowDress(svg, P, base);
+    if (GLASSY[base]?.noPill) glowNoPill(svg);      // window only (final 2026-11-18): a word's own box goes, the word stays
     if (GLASSY[base]?.centreBox) glowCentre(svg);  // neon only (final 2026-11-18): the icon and word of a text box in its middle
     glowLight(svg, P, base);
     if (GLOWLOOK[base]?.motionFit) glowFit(svg, at, T.t1 ?? window.DURATION, W, H, F.room ?? null);   // window: what is really visible fills the box, and its motion stays in it

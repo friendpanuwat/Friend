@@ -26,7 +26,7 @@ const WIN = {
     talk:     {speaker: true, lead: {x: 540, y: 1062}, key: {x: 540, y: 1175}},                                                  // shot 01 without its window
     full:     {speaker: true, lead: {x: 540, y: 1062}, key: {x: 540, y: 1175}, win: [80, 1300, 840, 360]},              // shot 01 (sheet to y 1682)
     full_n:   {speaker: true, lead: {x: 540, y: 1117}, key: {x: 540, y: 1226}, win: [210, 1340, 670, 320]},             // shot 02 (narrow window)
-    dark:     {screen: true, lead: {x: 540, y: 668}, key: {x: 540, y: 777}, win: [80, 932, 840, 630], decor: 0},    // shot 03 · the window 1000 → 932 (final, point 4)
+    dark:     {screen: true, lead: {x: 540, y: 381}, key: {x: 540, y: 490}, win: [80, 645, 840, 630], decor: 0, ringUp: 230},    // shot 03 · final point 4: the window in the middle of the screen, the words 90 over it (the top ring 230 higher, off the words)
     float:    {screen: true, frame: [62, 258, 470, 740, 30], lead: {x: 770, y: 610, maxW: 470}, key: {x: 770, y: 700, maxW: 470, half: 50},
                win: [300, 1070, 620, 560], decor: 0},                                                                    // shot 04
     full_w:   {speaker: true, lead: {x: 540, y: 1040}, key: {x: 540, y: 1183}, win: [170, 1300, 740, 360]},             // shot 05
@@ -35,9 +35,9 @@ const WIN = {
     stats:    {screen: true, frame: [560, 250, 360, 690, 30], lead: {x: 290, y: 653, maxW: 440}, key: {x: 290, y: 756, maxW: 440, half: 50},
                win: [80, 1070, 840, 560], decor: 1},                                                                     // shot 08 (sheet frame to x 1019)
     full_c:   {speaker: true, lead: {x: 540, y: 1073}, key: {x: 540, y: 1172}, win: [80, 1300, 840, 360]},             // shot 09
-    dark_b:   {screen: true, lead: {x: 540, y: 672}, key: {x: 540, y: 777}, win: [80, 932, 840, 630], decor: 1},    // shot 10 · 1000 → 932 (final, point 4)
-    recap:    {screen: true, lead: {x: 540, y: 493}, key: {x: 540, y: 596},
-               wins: [[80, 751, 400, 420], [500, 751, 420, 420], [80, 1211, 400, 420], [500, 1211, 420, 420]], decor: 0},     // shot 11 · 770/1230 → 751/1211 (final, point 4)
+    dark_b:   {screen: true, lead: {x: 540, y: 385}, key: {x: 540, y: 490}, win: [80, 645, 840, 630], decor: 1, ringUp: 230},    // shot 10 · final point 4: as dark
+    recap:    {screen: true, lead: {x: 540, y: 262}, key: {x: 540, y: 365},
+               wins: [[80, 520, 400, 420], [500, 520, 420, 420], [80, 980, 400, 420], [500, 980, 420, 420]], decor: 0, ringUp: 230},     // shot 11 · final point 4: the four windows in the middle of the screen, the words 90 over them
     cta:      {speaker: true, lead: {x: 540, y: 1066}, key: {x: 540, y: 1172}, win: [80, 1300, 840, 360]},             // shot 12
     /* final 2026-11-18 (Friend: "พื้นที่ด้านบนหัวยังว่างสามารถเอาโอเวอร์เลย์ไปไว้ตรงนั้นได้นะครับ เพื่อความหลากหลาย"): the window over
        the head, from under the search bar (220) to 140 over the face box (the hair, as lime's top card); its height from the clip's
@@ -172,6 +172,7 @@ STYLE('window', {
     if (L.screen) {
       const D = WIN.decor[L.decor ?? 0], long = Math.max(1, t1 - t0);
       D.forEach(({cx, cy, r, chips, light, dir}, j) => {
+        if (j === 0) cy -= L.ringUp ?? 0;         // the top ring moves up when the words sit high (final point 4)
         const R = r + 20, sz = [cx - R, cy - R, 2 * R, 2 * R], spin = dir * WIN.spin * long, rad = a => a * Math.PI / 180;
         const turn = (el, deg) => A(el, [{transform: 'rotate(0deg)'}, {transform: `rotate(${deg}deg)`}], t0 - .05, long + .4);
         /* one line (Friend: "อยากให้มันเป็นเส้นเดียว"), its running light and its chips; the shape: WIN.ring */
@@ -217,8 +218,9 @@ STYLE('window', {
     /* final 2026-11-18 point 4 (Friend: "ฉากไหนที่มี background และ motion graphic แต่ไม่มีหน้าผม motion graphic ต้องอยู่กึ่งกลาง" ·
        "ข. แต่ระวังอย่าให้การ์ดกับซับไตเติ้ลติดกันมากเกินไป"): on a screen without the face the picture's end drawing sits in the middle
        of its window (glow/bridge.js glowFit with a room: the view widens evenly round what is drawn, instead of round the motion, which
-       left the drawing at the window's bottom); its motion may use the window's own padding · the windows of these screens sit 90 px
-       under the key word (the key word's row ends 65 px under its centre) */
+       left the drawing at the window's bottom); its motion may use the window's own padding · then (Friend: "ที่ผมต้องการคือให้การ์ดไปอยู่
+       ตรงกลางของจอเลยและเอา subtitle ขึ้นไปอีกเว้นระยะห่างระหว่างการ์ดเท่าเดิม"): the window (recap: its four) in the middle of the
+       screen (centre y 960), the words 90 px over it (the key word's row ends 65 px under its centre); the cascade keeps its two windows */
     const room = L.screen && !L.frame ? {l: 22, t: 8, r: 22, b: 22} : null;
     return {root, stage, stages, cam: root, L, name, cat, dark: !!L.screen, room};
   },
