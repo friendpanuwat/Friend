@@ -156,15 +156,7 @@ NODE_PATH=$(npm root -g) node glow/stills.js <โฟลเดอร์ทำง�
 - `<เฟรมคนพูด.jpg>` = เฟรมจากคลิปจริงใด ๆ ขนาด 1080 × 1920 (เช่น `$W/base/src_frames/s00108.jpg`)
 - ทุกภาพเขียน `.contrast.json` และพิมพ์ `colours ok` หรือจำนวนจุดที่สีกลืน · หลุดโซนพิมพ์ `OUTSIDE SAFE ZONE`
 - ส่ง Friend: วางรูปของ Friend ซ้าย ของเราขวา ทับด้วยหน้าจอ TikTok · เก็บภาพนิ่ง 12 ช็อตที่ผ่านไว้ที่ `library/styles/<ลำดับ>_<สไตล์>_draft1.jpg` (เฉพาะภาพของเรา ไม่ใส่รูปของ Friend)
-- **ภาพที่เก็บใน repo ห้ามใช้เฟรมจากคลิปของ Friend** (LESSONS 30 · 65): ทำภาพนิ่งชุดนั้นใหม่บนเฟรมหุ่นจำลอง เช่น
-  ```
-  python3 -c "from PIL import Image,ImageDraw,ImageFilter as F
-  im=Image.new('RGB',(1080,1920)); d=ImageDraw.Draw(im)
-  [d.line([(0,y),(1080,y)],fill=(32+22*y//1920,36+22*y//1920,48+22*y//1920)) for y in range(1920)]
-  d.rounded_rectangle([170,1010,910,2100],radius=260,fill=(34,34,38)); d.rectangle([470,900,610,1060],fill=(150,122,104))
-  d.ellipse([370,560,710,800],fill=(30,26,24)); d.ellipse([385,640,695,990],fill=(176,146,126))
-  im.filter(F.GaussianBlur(2)).save('mannequin.jpg')"
-  ```
+- **ภาพที่เก็บใน repo ห้ามใช้เฟรมจากคลิปของ Friend** (LESSONS 30 · 65): ทำภาพนิ่งชุดนั้นใหม่ด้วยภาพคนพูดจำลอง `cutpack/library/styles/speaker_standin.jpg` (Friend 2026-11-18: "ใส่ภาพจำลองนี้ก็ได้ครับเก็บไว้ในลิโปก็ได้") แทน `<เฟรมคนพูด.jpg>`
   แผ่นรวม 12 ช็อต: 6 × 2 ช่อง ช่องละ 360 × 640 ห่าง 12 (ขนาดแผ่น 2244 × 1316)
 
 ## 9. ทำสไตล์ใหม่ต้องแตะไฟล์ไหน
