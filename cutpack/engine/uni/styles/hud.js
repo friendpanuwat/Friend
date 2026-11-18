@@ -27,20 +27,22 @@ const HUD = {
      sheet. Moved where the sheet ran under TikTok's buttons (x 1000–1020 below y 740 → 920), name (1680 → 1660) and search bar
      (the corners at y 95 → 220). */
   layouts: {   // measured on Friend's full-size shots (2026-11-18: "รูปทั้ง 12 รูปครับผมส่งให้ใหม่")
-    talk:      {speaker: true, fitFrom: 940, corners: [110, 950, 790, 350], lead: {x: 540, y: 1058}, key: {x: 540, y: 1195}},
+    /* final 2026-11-18 (Friend: "อยากให้กรอบอยู่กึ่งกลางของคลิปและ subtitle อยู่กึ่งกลางของกรอบ"): the corners round the words x 160–920
+       (centre 540; was 110–900) and the words' block (lead top − 33 to key bottom + 100) in the middle of them */
+    talk:      {speaker: true, fitFrom: 940, corners: [160, 950, 760, 350], lead: {x: 540, y: 1023}, key: {x: 540, y: 1160}},
     hud_open:  {speaker: true, noPic: true, fitFrom: 1040, corners: [60, 220, 860, 1440], lead: {x: 540, y: 1405}, key: {x: 540, y: 1545},          // shot 01 (the sheet's corners 58–1022 × 89–1682)
                 notes: [{path: [[790, 1049], [900, 1049], [900, 1170]], text: {x: 900, y: 1213, align: 'right'}}]},
     hud_row:   {speaker: true, fitFrom: 980, lead: {x: 540, y: 1025}, key: {x: 540, y: 1132}, pic: [205, 1255, 670, 310],                            // shot 02
                 links: [{path: [[290, 1200], [908, 1200], [908, 1393], [885, 1393]], y: true, dotAt: 0}],
                 notes: [{path: [[210, 1390], [80, 1390], [80, 1622], [300, 1622]], text: {x: 322, y: 1622, align: 'left'}}]},   // (the sheet's 1662: the words' box ends 1650)
-    hud_diag:  {screen: true, lead: {x: 540, y: 189}, key: {x: 540, y: 334}, pic: [115, 600, 805, 750],                                             // shot 03
+    hud_diag:  {screen: true, lead: {x: 540, y: 290}, key: {x: 540, y: 435}, pic: [115, 600, 805, 750],   // final 2026-11-18 (Friend: "subtitle สูงเกินไปเอาลงมาอีก"): 189/334 → 290/435                                             // shot 03
                 notes: [{path: [[855, 668], [812, 563]], text: {x: 1020, y: 527, align: 'right'}},
                         {path: [[222, 1320], [180, 1470]], text: {x: 180, y: 1507, align: 'left'}},
                         {path: [[535, 1150], [560, 1597]], text: {x: 580, y: 1597, align: 'left'}, y: true}]},
     hud_card:  {screen: true, noPic: true, card: [190, 300, 700, 820, 26], corners: [160, 270, 740, 880], lead: {x: 540, y: 1398}, key: {x: 540, y: 1540},   // shot 04
                 notes: [{path: [[220, 1080], [100, 1080], [100, 1240]], text: {x: 62, y: 1277, align: 'left'}, y: true},
                         {path: [[860, 1060], [908, 1060], [908, 1240]], text: {x: 920, y: 1275, align: 'right'}}]},   // (a dot on x 908: its edge at 916)
-    hud_time:  {screen: true, lead: {x: 540, y: 199}, key: {x: 540, y: 344}, pic: [100, 520, 820, 540], timeline: {y: 1300, x0: 140, x1: 920},      // shot 05 (the sheet's line 100–980)
+    hud_time:  {screen: true, lead: {x: 540, y: 290}, key: {x: 540, y: 435}, pic: [100, 610, 820, 540], timeline: {y: 1300, x0: 140, x1: 920},   // final: words 199/344 → 290/435, the picture 520 → 610      // shot 05 (the sheet's line 100–980)
                 notes: [{dot: [200, 1300], text: {x: 200, y: 1363, align: 'center', maxW: 280}, y: true},
                         {dot: [530, 1300], text: {x: 530, y: 1363, align: 'center', maxW: 300}, y: true},
                         {dot: [820, 1300], text: {x: 820, y: 1363, align: 'center', maxW: 200}, y: true}]},   // (dots 140 / 540 / 940 on the sheet: the last label would run under the buttons)
@@ -54,14 +56,14 @@ const HUD = {
     hud_rail:  {speaker: true, fitFrom: 1150, pic: [95, 1210, 380, 370], lead: {x: 600, y: 1230, align: 'left', maxW: 320}, key: {x: 603, y: 1318, align: 'left', maxW: 317},   // shot 08 (the note is the lead)
                 links: [{path: [[390, 1385], [540, 1385], [540, 1230], [580, 1230]], y: true}]},
     hud_measure: {screen: true, lead: {x: 540, y: 1380}, key: {x: 540, y: 1517}, pic: [100, 840, 820, 340]},   // shot 09 · final 2026-11-18 (Friend "ข2"): no measuring line and no word box over the picture
-    hud_word:  {speaker: true, noPic: true, fitFrom: 940, corners: [110, 950, 790, 350], lead: {x: 540, y: 1058}, key: {x: 540, y: 1195},           // shot 10
+    hud_word:  {speaker: true, noPic: true, fitFrom: 940, corners: [160, 950, 760, 350], lead: {x: 540, y: 1023}, key: {x: 540, y: 1160},           // shot 10
                 notes: [{path: [[860, 1125], [908, 1125], [908, 1480]], text: {x: 920, y: 1517, align: 'right'}}]},
     hud_recap: {screen: true, still: true, lead: {x: 540, y: 154}, key: {x: 540, y: 287}, axis: {x: 110, y0: 390, y1: 1600, at: [[570, 247], [990, 122], [1410, 152]]},
                 three: [[400, 390, 420, 350], [290, 870, 640, 250], [320, 1280, 580, 270]]},                                                     // shot 11 (three pictures: stills only)
     /* final 2026-11-18 (Friend: "เพิ่มฉากโอเวอร์เลย์เข้ามาด้วย พื้นที่ด้านบนหัวยังเหลือ"): the picture over the head inside HUD corners,
        from under the search bar (220) to 140 over the face box; its height from the clip's face (hudFit) · the words at the chest as talk */
     hud_top:   {speaker: true, top: true, fitFrom: 940, corners: [100, 220, 880, 600], pic: [130, 250, 820, 540], lead: {x: 540, y: 1058}, key: {x: 540, y: 1195}},
-    hud_cta:   {speaker: true, noPic: true, fitFrom: 970, corners: [110, 980, 790, 350], lead: {x: 540, y: 1095}, key: {x: 540, y: 1228},           // shot 12
+    hud_cta:   {speaker: true, noPic: true, fitFrom: 970, corners: [160, 980, 760, 350], lead: {x: 540, y: 1053}, key: {x: 540, y: 1190},           // shot 12
                 notes: [{path: [[540, 1330], [540, 1480], [690, 1480]], text: {x: 710, y: 1478, align: 'left'}, y: true, yText: true}]},   // (the sheet's dot at 760: its words ran to 965)
   },
   /* RANDOM, as the other styles: a call to action (B15) gets shot 12; every other picture takes one of `pool` (never the one before
@@ -72,6 +74,7 @@ const HUD = {
   pool: ['hud_open', 'hud_row', 'hud_diag', 'hud_card', 'hud_time', 'hud_split', 'hud_rail', 'hud_measure', 'hud_word', 'hud_cta', 'hud_top'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
   byCat: {B15: 'hud_cta'},
   keep: .75, noPicGap: 4, sinceNoPic: 4,
+  spkMin: 82944,   // final 2026-11-18 (Friend chose "ก" on "motion graphic เล็กเกินไป"): a speaker screen with a picture shows it at least 4 % of the screen (1080 × 1920 × .04), else another screen
   gridUp: 12,
   used: {}, last: null, place: {top: 0, low: 0},   // place: speaker screens with the picture over the head / anywhere else
   /* final 2026-11-18 (Friend, a screen with its three callouts ringed in red: "ลบจุดที่ผมวงกลมสีแดงไว้ลบทั้งคลิปเลยนะไม่ให้ในสไตล์นี้มีเลย"):
@@ -101,7 +104,7 @@ function hudFit(name, f) {
   const L = JSON.parse(JSON.stringify(HUD.layouts[name])); if (!L.speaker) return L;
   if (L.top) { const h = Math.min(L.corners[3], f[1] - 140 - L.corners[1]); if (h < 300) return null;   // over the head: no room under the search bar? not this screen
     L.corners[3] = h; L.pic[3] = h - 60; }
-  const [, , , chin] = f, from = L.fitFrom, top = Math.min(L.lead.y - 40, L.key.y - 90, ...(L.pic && !L.top ? [L.pic[1]] : []));   // (hud_top: its picture stays over the head)
+  const [, , , chin] = f, from = L.fitFrom, top = Math.min(L.lead.y - 40, L.key.y - 90, ...(L.pic && !L.top ? [L.pic[1]] : []), ...(L.corners && L.corners[1] >= from ? [L.corners[1]] : []));   // (corners round the words: under the chin too)   // (hud_top: its picture stays over the head)
   const d = Math.max(0, chin + 30 - top); if (!d) return L;
   hudEachY(L, y => y >= from ? y + d : y);
   let bottom = from + d; hudEachY(L, y => { bottom = Math.max(bottom, y); return y; }); bottom = Math.max(bottom, L.key.y + 80);
@@ -215,6 +218,7 @@ STYLE('hud', {
         if (ar) {
           const size = n => { const p = hudFit(n, face)?.pic; if (!p) return 0; const [, , w, h] = p; return ar > w / h ? w * w / ar : h * h * ar; };
           pool = cpSizeKeep(pool, size, HUD.keep, n => !!HUD.layouts[n].speaker, n => !!HUD.layouts[n].noPic);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
+          const big = pool.filter(n => !HUD.layouts[n].speaker || HUD.layouts[n].noPic || size(n) >= HUD.spkMin); if (big.length) pool = big;   // (hud: 4 %, not the shared 30000 px²)
         }
         pool = cpBalance(pool, n => !!HUD.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
         /* a speaker screen: the picture over the head or not as often (as the window style's final: "เพื่อความหลากหลาย"); the less used, a tie by the run's seed */
@@ -289,7 +293,13 @@ STYLE('hud', {
     [`M ${x} ${y + s} V ${y} H ${x + s}`, `M ${x + w - s} ${y} H ${x + w} V ${y + s}`, `M ${x} ${y + h - s} V ${y + h} H ${x + s}`, `M ${x + w - s} ${y + h} H ${x + w} V ${y + h - s}`]
       .forEach(d => { const p = document.createElementNS(HUD_NS, 'path'); p.setAttribute('d', d); p.setAttribute('class', 'h-corner cp-frame'); svg.appendChild(p);
         A(p, [{opacity: 0}, {opacity: 1}], a - .02, .001, {f: 'both'}); A(p, [{opacity: 1}, {opacity: 0}], b - .021, .001, {f: 'forwards'}); });   // (one block after another: steady corners)
-    return {root, cam: root, speaker: true, L, name: 'talk'};
+    /* final 2026-11-18 (Friend: "อยากให้ขอบมุมทั้ง 4 มุมที่อยู่ครอบ subtitle ... เวลา subtitle มันขยับ ... อยากให้ไอ้ขอบเนี้ยมันขยับตามแบบสมูท"): each block
+       sits under its own chin, so a block right after another can sit a few px to 30 px lower or higher: the corners and the words glide
+       from the last block's place to this one's in .35 s instead of jumping */
+    const P = HUD.prevTalk, dy = P && Math.abs(a - P.b) < .15 ? P.y - L.corners[1] : 0;
+    if (Math.abs(dy) > .5) A(svg, [{translate: `0 ${dy}px`}, {translate: '0 0'}], a - .02, .35, {e: EASE.smooth});
+    HUD.prevTalk = {y: L.corners[1], b};
+    return {root, cam: root, speaker: true, L, name: 'talk', glide: Math.abs(dy) > .5 ? [dy, a - .02] : null};
   },
   /* the words: the picture's first subtitle is the lead + key word; each next one lights its note (grey → white, the dot yellow);
      with all notes used, a next subtitle takes the lead and key word's place */
@@ -304,6 +314,7 @@ STYLE('hud', {
         sfx('softswish', T.hit - .05, -21); } };
     if (F.speaker || !F.L) {
       head(T.t0);
+      if (F.glide) A(el, [{translate: `0 ${F.glide[0]}px`}, {translate: '0 0'}], F.glide[1], .35, {e: EASE.smooth});   // (the words glide with their corners)
       if (F.speaker && T.clip) {
         A(el, [{visibility: 'hidden'}, {visibility: 'visible'}], T.b[0] - .02, .001); A(el, [{visibility: 'visible'}, {visibility: 'hidden'}], T.end - .021, .001, {f: 'forwards'});
         return null;

@@ -124,9 +124,11 @@ const GLASSY = {
      on a lit tile → litMark (the blue styles' #CDEFFF) */
   yellow: {lit: 'rgba(24,20,4,.9)', litBar: 'rgba(64,53,0,.92)', litIcon: '#FFD600', litBody: '#2A2300', mark: '#1A1600', halo: '#FFF6D6', outlineLit: true, glow: 1.2, fig: '#7E7E7A', washLit: true,
     frost: ['rgba(12,12,12,.86)', 'rgba(10,10,10,.62)'], solid: '#161616', litMark: '#FFF3B0', litWord: true},   // litWord: the lit step's word is yellow too
-  hud: {lit: 'rgba(24,20,4,.9)', litBar: 'rgba(64,53,0,.92)', litIcon: '#FFD600', litBody: '#2A2300', mark: '#1A1600', halo: '#FFF6D6', outlineLit: true, glow: 1.2, fig: '#7E7E7A', washLit: true,
+  hud: {lit: 'rgba(24,20,4,.9)', litBar: 'rgba(64,53,0,.92)', litIcon: '#FFD600', litBody: '#2A2300', mark: '#1A1600', halo: '#FFF6D6', outlineLit: true, fig: '#7E7E7A', washLit: true,
     frost: ['rgba(12,12,12,.86)', 'rgba(10,10,10,.62)'], solid: '#161616', litMark: '#FFF3B0', litWord: true,
-    noPill: true, noEdge: true},   // เส้นชี้ HUD: the yellow style's values (the sheet's pictures are drawn alike) · final 2026-11-18 (Friend: "ลบกรอบตัวหนังสือที่โมชั่นกราฟิกออกด้วย"): as the window style's
+    noPill: true, noEdge: true,    // เส้นชี้ HUD: the yellow style's values (the sheet's pictures are drawn alike) · final 2026-11-18 (Friend: "ลบกรอบตัวหนังสือที่โมชั่นกราฟิกออกด้วย"): as the window style's
+    glow: 1.7, glowR: 26,          // final 2026-11-18 (Friend: "อยากให้มันเรืองแสงแบบละมุนกว่านี้แต่ต้องยังดูรู้เรื่อง" · "ผมอยากให้มันเรืองแสงมากกว่าเดิม"): more glow (1.2 → 1.7) and a wider, softer halo (18 → 26)
+    wordK: 1.15},                  // final 2026-11-18 (Friend: "ข้อความที่อยู่ข้างบน motion graphic อยากให้ใหญ่กว่านี้อีกนิดนึงแค่นิดเดียว"): the drawing's words 15 % bigger
   /* ขอบฟ้าส้ม (shot 04 full size, sampled): bodies a warm see-through brown (#2B1E16 on the screen), the lit tile a deep orange wash
      (#3D210) under an orange edge, its icon and word orange, the white lines warm (#FEF1E3) */
   /* เทอร์มินัลแดง (the full-size shots, sampled): near-black bodies in the windows, the lit tile a deep red wash under a red edge,
@@ -474,7 +476,7 @@ function glowLight(svg, P, base) {
     /* stronger (Friend 2026-11-17: "ยังไม่เรืองแสงเท่ากับ reference"): a tight white glow, a wider one, and a wide blue halo as on the sheet */
     defs.insertAdjacentHTML('beforeend', `<filter id="cpGlowSelf" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
       <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  .6 1 .4 1 -2" result="hi"/>
-      <feGaussianBlur in="hi" stdDeviation="2.6" result="a"/><feGaussianBlur in="hi" stdDeviation="8" result="b"/><feGaussianBlur in="hi" stdDeviation="18" result="c"/>
+      <feGaussianBlur in="hi" stdDeviation="2.6" result="a"/><feGaussianBlur in="hi" stdDeviation="8" result="b"/><feGaussianBlur in="hi" stdDeviation="${GLASSY[base]?.glowR ?? 18}" result="c"/>
       <feComponentTransfer in="b" result="b2"><feFuncA type="linear" slope="${(.95 * (GLASSY[base]?.glow ?? 1)).toFixed(2)}"/></feComponentTransfer>
       <feFlood flood-color="${GLASSY[base]?.halo ?? '#5AB8FF'}" flood-opacity="${Math.min(1, .6 * (GLASSY[base]?.glow ?? 1)).toFixed(2)}"/><feComposite in2="c" operator="in" result="c2"/>
       <feMerge><feMergeNode in="c2"/><feMergeNode in="b2"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
@@ -520,6 +522,7 @@ function glowDraw(F, T, cat, i, d, box = F.stage) {
     glowFirm(svg, P, base);
     glowDress(svg, P, base);
     if (GLASSY[base]?.noPill) glowNoPill(svg);      // window + hud only (finals 2026-11-18): a word's own box goes, the word stays
+    if (GLASSY[base]?.wordK) svg.querySelectorAll('text').forEach(t => { const f = parseFloat(getComputedStyle(t).fontSize); if (f) t.style.fontSize = (f * GLASSY[base].wordK).toFixed(2) + 'px'; });   // hud only (final 2026-11-18): the words bigger, from their own anchor
     if (GLASSY[base]?.centreBox) glowCentre(svg);  // neon only (final 2026-11-18): the icon and word of a text box in its middle
     glowLight(svg, P, base);
     if (GLOWLOOK[base]?.motionFit) glowFit(svg, at, T.t1 ?? window.DURATION, W, H, F.room ?? null);   // window: what is really visible fills the box, and its motion stays in it
