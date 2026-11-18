@@ -50,11 +50,11 @@ const TRM = {
     cta:        {screen: true, noPic: true, need: 2, menu: true, pill: {y: 232}, face: [190, 290, 700, 760], wins: [[90, 1150, 900, 410]],
                  slots: [{k: 'title', x: 540, y: 1297, maxW: 780}, {k: 'sub', x: 540, y: 1371, maxW: 780}], btns: [[126, 1443, 402, 88], [552, 1443, 368, 88]]},   // shot 12
   },
-  /* RANDOM, as the other styles: a call to action (B15) gets shot 12, a number (B01) the number card when one is said; every other
+  /* RANDOM, as the other styles: a call to action (B15) gets shot 12 first (it is in the pool for any picture too), a number (B01) the number card when one is said; every other
      picture takes one of `pool` (never the one before it) where the face leaves room (trmFit), a screen without a picture only with
      the subtitles it needs, not first and not twice within 5 pictures, among those with a picture the ones that show its shape at
      least 75 % as big as the best, then the least used, then at random from the run's seed */
-  pool: ['term_plan', 'hero_chev', 'notif_top', 'win_speaker', 'stack3', 'term_log', 'split_top', 'dialog', 'big_win'],
+  pool: ['term_plan', 'hero_chev', 'notif_top', 'win_speaker', 'stack3', 'term_log', 'split_top', 'dialog', 'big_win', 'cta'],   // cta too (Friend 2026-11-18: "ฉากนี้มันจะขึ้นตอนไหนก็ได้ไม่จำเป็นต้องเป็นตอนที่กดติดตาม")
   byCat: {B15: 'cta', B01: 'stat'},
   keep: .75, noPicGap: 4, sinceNoPic: 4,
   used: {}, last: null,
