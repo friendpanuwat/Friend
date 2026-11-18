@@ -7,6 +7,7 @@ pythainlp>=5.0               # Thai word dictionary (Apache-2.0): joins Typhoon'
 # On this kind of machine the install needed, in order (2026-11-04):
 #   pip install --ignore-installed wheel setuptools      (the Debian copies cannot be upgraded in place)
 #   pip install antlr4-python3-runtime==4.9.3             (an old setup.py package NeMo needs; fails with the old setuptools)
+#   pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu   (2026-11-18: first, or typhoon-asr pulls the CUDA build, several GB at ~2 MB/s)
 #   pip install typhoon-asr soundfile
 #   pip install --force-reinstall --no-deps packaging     (if transformers says it cannot compare versions for packaging: needed again 2026-11-11)
 # Then plan/asr.py (Typhoon's times) and plan/align.py (the typed or corrected words on those times).
