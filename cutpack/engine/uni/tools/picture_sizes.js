@@ -12,6 +12,7 @@ const {chromium} = require('playwright'), path = require('path');
       const seen = e => { for (let x = e; x && x !== svg; x = x.parentElement) { const cs = getComputedStyle(x); if (cs.display === 'none' || +cs.opacity < .05) return false; } return true; };
       let u = null; svg.querySelectorAll('path,line,polyline,polygon,rect,circle,ellipse,text').forEach(e => { if (e.closest('clipPath,defs') || !seen(e)) return; const r = e.getBoundingClientRect(); if (r.width < .5 && r.height < .5) return;
         u = u ? [Math.min(u[0], r.left), Math.min(u[1], r.top), Math.max(u[2], r.right), Math.max(u[3], r.bottom)] : [r.left, r.top, r.right, r.bottom]; });
+      if (!u) return {pic: [0, 0], frame: 0, none: true, unsafe: styleSafeCheck().map(x => x.what + ' ' + x.box), low: []};   // a screen without a picture (teal's number card, 2026-11-18)
       return {pic: [Math.round(u[2] - u[0]), Math.round(u[3] - u[1])], frame: Math.round(100 * (u[2] - u[0]) * (u[3] - u[1]) / (1080 * 1920)), unsafe: styleSafeCheck().map(x => x.what + ' ' + x.box), low: glowCheckOne(host).filter(x => x.ratio < 3).map(x => x.what + ' ' + x.ratio)}; }, t0);
-    tot += r.frame; console.log(t0.toFixed(1), name.padEnd(7), 'picture', r.pic.join('x'), String(r.frame).padStart(2) + '% of the screen', r.unsafe.length ? 'OUTSIDE ' + r.unsafe.join(' | ') : '', r.low.length ? 'LOW ' + r.low.join(' | ') : ''); }
+    tot += r.frame; console.log(t0.toFixed(1), name.padEnd(7), r.none ? 'no picture (the screen has none)' : 'picture', r.pic.join('x'), String(r.frame).padStart(2) + '% of the screen', r.unsafe.length ? 'OUTSIDE ' + r.unsafe.join(' | ') : '', r.low.length ? 'LOW ' + r.low.join(' | ') : ''); }
   console.log('average', Math.round(tot / wins.length) + '%'); await b.close(); })();
