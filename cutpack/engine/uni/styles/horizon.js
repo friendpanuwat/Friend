@@ -13,11 +13,12 @@
               the key word and a picture at the hands (or a dark card of words at the chest); a dark screen with the words, a picture
               and a line under it; the speaker's orange-edged card beside a review card, or over a card of numbers; a recap of four
               cards (stills only)
-   2 surface  dark brown screen, a planet's orange rim rising from the bottom with its glow, small four-point stars twinkling
+   2 surface  dark brown screen, a planet's orange rim rising from the bottom with its glow (no stars: Friend 2026-11-18 "ลบดาวที่
+              background ออกด้วยนะครับ")
    3 drawing  the glow-line pictures: thick warm-white lines glowing, the lit part an orange outline and icon, dark warm bodies
    4 colours  dark brown · warm white · one orange (#FB7A1A)
    5 words    a white lead (Kanit 400 60; two phrases go to both sides, small: 38) + the key word orange (Kanit 900 130) glowing; cards: Kanit 400
-   6 motion   screens fade in out of a blur, cards rise, lines light from grey on their words, ticks pop, stars twinkle
+   6 motion   screens fade in out of a blur, cards rise, lines light from grey on their words, ticks pop
    7 sound    whoosh on a screen cut, a soft swish on the key word, a soft tick on a line
    ===================================================================== */
 const HOR = {
@@ -56,8 +57,6 @@ const HOR = {
   pool: ['full_hook', 'full_stack_rail', 'full_float_card', 'dark_graphic', 'full_side_ladder', 'inset_review', 'full_side_diagonal', 'full_side_cycle', 'full_stack_wave'],
   byCat: {B15: 'full_cta', B01: 'float_cards'},
   keep: .75, noPicGap: 4, sinceNoPic: 4,
-  /* the stars: [x, y, size] (the full-size shots' bright ones), each moved a little from the run's seed and twinkling */
-  stars: [[95, 375, 24], [910, 470, 14], [720, 145, 18], [905, 255, 12], [118, 1495, 14], [900, 1510, 18], [512, 1660, 20], [300, 1720, 22], [820, 1818, 18], [230, 1712, 12]],
   planet: {cx: 540, cy: 1950, r: 632},          // the rim: top at y 1318 (shot 04), the frame's edges at about 1590
   used: {}, last: null,
 };
@@ -107,7 +106,6 @@ STYLE('horizon', {
 .o-screen{background:linear-gradient(180deg,#090504 0%,#0d0906 20%,#140c08 45%,#180f0a 60%,#1a0f09 100%);background-color:#150d09;overflow:hidden}
 .o-planet{position:absolute;border-radius:50%;background:radial-gradient(circle at 50% 8%,rgba(170,74,16,.62) 0%,rgba(105,44,10,.55) 22%,rgba(66,28,8,.55) 48%,rgba(52,24,8,.6) 100%);
   border-top:2px solid rgba(255,196,150,.6);box-shadow:0 0 70px 14px rgba(240,110,30,.32),inset 0 26px 60px rgba(255,140,50,.22)}
-.o-star{position:absolute;translate:-50% -50%;background:#FFF4E2;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);filter:drop-shadow(0 0 4px rgba(255,220,170,.9))}
 .o-face{position:absolute;overflow:hidden;border:3px solid #FB7F25;box-sizing:border-box}
 .o-card{position:absolute;border-radius:36px;background:rgba(20,12,9,.92);border:2px solid rgba(110,58,24,.55);box-shadow:0 20px 50px rgba(0,0,0,.45)}
 .o-card.o-float{background:rgba(22,14,10,.82);backdrop-filter:blur(2px)}
@@ -173,12 +171,9 @@ STYLE('horizon', {
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     const rise = (e, k, dy = 40) => A(e, [{opacity: 0, transform: `translateY(${dy}px) scale(.96)`, filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .04 + .12 * k, .45, {e: EASE.soft});
     if (screen) {
-      /* the planet rising from the bottom (its rim and glow), the stars twinkling (places moved a little by the seed) */
+      /* the planet rising from the bottom (its rim and glow); the sheet's stars are left out (Friend: "ลบดาวที่ background ออกด้วยนะครับ") */
       const {cx, cy, r} = HOR.planet, p = box([cx - r, cy - r, 2 * r, 2 * r]); p.className = 'o-planet';
       A(p, [{transform: 'translateY(60px)', opacity: .4}, {transform: 'none', opacity: 1}], t0 - .05, .8, {e: EASE.soft});
-      HOR.stars.forEach(([x, y, s], k) => { const dx = Math.round(40 * (cpRand('sx' + index + k) - .5)), dy = Math.round(40 * (cpRand('sy' + index + k) - .5));
-        const e = div(`left:${x + dx}px;top:${y + dy}px;width:${s}px;height:${s}px`, root); e.className = 'o-star';
-        A(e, [{opacity: .35, transform: 'scale(.7)'}, {opacity: 1, transform: 'scale(1.1)'}, {opacity: .35, transform: 'scale(.7)'}], t0 + .3 * cpRand('st' + k), 1.6 + 1.4 * cpRand('sp' + k), {e: 'ease-in-out', it: 40}); });
       A(root, [{opacity: 0, filter: 'blur(14px)', transform: 'scale(1.03)'}, {opacity: 1, filter: 'blur(0)', transform: 'none'}], t0 - .04, .35, {e: EASE.smooth});
       sfx('whoosh', t0 - .1, -20);
     }
