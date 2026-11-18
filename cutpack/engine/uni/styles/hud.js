@@ -115,7 +115,8 @@ function hudNote(parent, txt, cls, {x, y, align = 'left', maxW = 420}) {
       const ph = txt.trim().split(/\s+/); sp.textContent = '';
       ph.forEach((q, i) => { if (i) sp.appendChild(document.createTextNode(' ')); const e = document.createElement('span'); e.style.whiteSpace = 'nowrap'; e.textContent = q; sp.appendChild(e); });
       Object.assign(sp.style, {whiteSpace: 'normal', display: 'inline-block', width: `${m}px`, lineHeight: '1.12', textAlign: align === 'left' ? 'left' : align});
-      const k = Math.min(1, m / sp.scrollWidth); if (k < 1) row.style.scale = String(k); return; }
+      const widest = Math.max(sp.scrollWidth, ...[...sp.children].map(e => e.offsetWidth));   // a phrase wider than the note runs out of it (scrollWidth of the note stays m): "กังวลอยู่" ran to x 943, 2026-11-18
+      const k = Math.min(1, m / widest); if (k < 1) row.style.scale = String(k); return; }
     row.style.scale = String(m / w); });
   return row;
 }
@@ -179,7 +180,10 @@ STYLE('hud', {
     glow:  {kf: [{opacity: 0, filter: 'blur(16px)'}, {opacity: 1, filter: 'blur(0)'}], d: .7, e: EASE.soft},
   },
   sound: {hit: ['softswish', -22], cross: ['swipe', -24], key: ['softswish', -21]},
-  setup() { BGL.style.background = '#000'; HOOKS.push(cpInsetHook); },
+  setup() { BGL.style.background = '#000'; HOOKS.push(cpInsetHook);
+    /* load this style's fonts at once (2026-11-18): build.py preloads only the older styles' families, so the words were fitted to the safe
+       zone with the fallback font and came out wider in Kanit (the key word "กังวลอยู่" ran to x 943 once the speaker screens joined) */
+    ['HudKey', 'HudLead'].forEach(f => div(`left:-9999px;top:0;font-family:${f};font-weight:${f === 'HudKey' ? 900 : 500}`, document.body, 'กขคฅ ึ่้ 0123 Ab')); },
 
   /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */

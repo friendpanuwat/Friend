@@ -108,7 +108,7 @@ function cpFitSize(ar, names, boxOf, keep = .75, isSpk = () => false) {
    ก็ไม่เห็นเป็นไรเลยเพราะว่าเรามีระบบให้โค้ดเลือก motion graphic ตามขนาดพื้นที่ว่างอยู่แล้ว"): the speaker full screen with a picture at the hands or the
    chest always lost the size race to the graphic screens (its picture is smaller), so it never came. Now only the graphic screens race (within
    `keep` of the best of them); a speaker's screen needs only its picture over CP.speakerFloor (the teal style's floor for its speaker cards). */
-CP.speakerFloor = 60000;
+CP.speakerFloor = 30000;   // (60000, the teal floor, left the violet towers and the pink rows out: the balance then had no ก to give)
 function cpSizeKeep(pool, size, keep, isSpk, noPic = () => false) {
   const big = pool.filter(n => !isSpk(n) && !noPic(n)), best = Math.max(0, ...(big.length ? big : pool).map(size));
   return pool.filter(n => noPic(n) || (isSpk(n) ? size(n) >= CP.speakerFloor : size(n) >= keep * best));
@@ -121,5 +121,6 @@ function cpBalance(pool, isSpk, key) {
   const a = pool.filter(isSpk), b = pool.filter(n => !isSpk(n));
   let pick = a.length && b.length ? (CP.kinds.spk === CP.kinds.scr ? (cpRand('kind' + key) < .5 ? 'spk' : 'scr') : CP.kinds.spk < CP.kinds.scr ? 'spk' : 'scr') : a.length ? 'spk' : 'scr';
   CP.kinds[pick]++;
+  (CP.log ??= []).push({key, spk: a, scr: b, pick});   // (tests: what each picture could take)
   return pick === 'spk' ? a : b;
 }
