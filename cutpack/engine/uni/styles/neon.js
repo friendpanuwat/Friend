@@ -187,20 +187,23 @@ STYLE('neon', {
          down, from the clip's own clock, so it carries on from one screen to the next */
       const at = t => `${(-6 + 2 * t).toFixed(1)}px ${(-10 + 3 * t).toFixed(1)}px`;
       A(grid, [{backgroundPosition: at(t0 - .2)}, {backgroundPosition: at(t1 + .2)}], t0 - .2, t1 - t0 + .4, {e: 'linear'});
-      if (L.square) { const [cx, cy, r, rad] = L.square, c = box([cx - r, cy - r, 2 * r, 2 * r]); c.className = 'n-frame cp-frame'; c.style.borderRadius = rad + 'px'; neonInset(c, 2 * r - 6, 2 * r - 6, t0, .42, .48);
-        A(c, [{opacity: 0, transform: 'scale(.85)'}, {opacity: 1, transform: 'none'}], t0 + .05, .45, {e: EASE.soft}); }
-      if (L.band) { const [bx, by, bw, bh, br] = L.band, b = box([bx, by, bw, bh]); b.className = 'n-frame cp-frame'; b.style.borderRadius = br + 'px'; neonInset(b, bw - 6, bh - 6, t0, .42, .46);
-        A(b, [{opacity: 0, clipPath: 'inset(50% 0 50% 0)'}, {opacity: 1, clipPath: 'inset(0 0 0 0)'}], t0 + .05, .45, {e: EASE.soft}); }
-      if (L.win) { const [x, y, w, h, r] = L.win, b = box([x, y, w, h]); b.className = 'n-frame cp-frame'; b.style.borderRadius = r + 'px'; neonInset(b, w - 6, h - 6, t0, .42, .46);
-        A(b, [{opacity: 0, transform: 'translateY(-40px)'}, {opacity: 1, transform: 'none'}], t0 + .05, .5, {e: EASE.soft}); }
+      /* the framed face comes with the cut (final 2026-11-18, "ทำให้เหมือน editorial ทั้งหมด": the square grew from .85, the band opened
+         from its middle, the window slid down; the editorial card has none of it) */
+      if (L.square) { const [cx, cy, r, rad] = L.square, c = box([cx - r, cy - r, 2 * r, 2 * r]); c.className = 'n-frame cp-frame'; c.style.borderRadius = rad + 'px'; neonInset(c, 2 * r - 6, 2 * r - 6, t0, .42, .48); }
+      if (L.band) { const [bx, by, bw, bh, br] = L.band, b = box([bx, by, bw, bh]); b.className = 'n-frame cp-frame'; b.style.borderRadius = br + 'px'; neonInset(b, bw - 6, bh - 6, t0, .42, .46); }
+      if (L.win) { const [x, y, w, h, r] = L.win, b = box([x, y, w, h]); b.className = 'n-frame cp-frame'; b.style.borderRadius = r + 'px'; neonInset(b, w - 6, h - 6, t0, .42, .46); }
       (L.nums ?? []).forEach(([x, y], k) => { const n = div(`left:${x}px;top:${y}px`, root, String(k + 1).padStart(2, '0')); n.className = 'n-num';
         A(n, [{opacity: 0}, {opacity: 1}], t0 + .3 + k * .2, .4, {e: EASE.smooth}); });
-      A(root, [{opacity: 0, filter: 'blur(14px)', transform: 'scale(1.03)'}, {opacity: 1, filter: 'blur(0)', transform: 'none'}], t0 - .04, .35, {e: EASE.smooth});
+      /* EDITORIAL CUTS (final 2026-11-18, Friend: "เอาแบบสไตล์ editorial เก่าที่เราลบไปอะครับ (ให้ดูแค่ทรานซิชั่นนะ)" → "ทำให้เหมือน editorial ทั้งหมด";
+         the old card style, styles/card.js in d221565: "hard cut in and out", "the card settles after the cut" 1.035 → 1 in 0.45 s): the
+         navy screen cuts in on its first frame and settles (it came in out of a 14 px blur in 0.35 s) */
+      A(root, [{opacity: 0}, {opacity: 1}], t0 - .01, .01);
+      A(root, [{transform: 'scale(1.035)'}, {transform: 'none'}], t0, .45, {e: EASE.smooth});
       sfx('whoosh', t0 - .1, -20);
     }
-    A(root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t1 - .3, .3, {e: EASE.out, f: 'forwards'});
+    A(root, [{opacity: 1}, {opacity: 0}], t1 - .01, .01, {f: 'forwards'});   // cut out on its last frame (it faded and blurred out over 0.3 s)
     const stage = L.stage ? box(L.stage) : box([0, 0, 1, 1]);
-    if (L.over) A(stage, [{opacity: 0, transform: 'translateY(24px) scale(.94)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .05, .45, {e: EASE.soft});
+    if (L.over) A(stage, [{transform: 'scale(1.035)'}, {transform: 'none'}], t0, .45, {e: EASE.smooth});   // (an overlay: cut in and settle, as the editorial card)
     const stages = L.stages ? L.stages.map(s => box(s)) : null;
     return {root, stage, stages, cam: root, L, name, dark: !!L.screen, room: L.stage ? neonFree(L, face) : null};
   },
@@ -216,7 +219,9 @@ STYLE('neon', {
   /* the lead fades in out of a blur; the key word comes in on its word and lights up */
   text(F, T, lead, key) {
     const L = F.L ?? NEON.layouts.talk_low, el = div('', F.root ?? SC); el.className = 'n-text';
-    if (lead && L.lead) { const r = neonLine(el, lead, 'n-lead', L.lead); A(r, [{opacity: 0, filter: 'blur(8px)'}, {opacity: 1, filter: 'blur(0)'}], T.t0 + .15, .35, {e: EASE.smooth}); }
+    /* the lead: the old editorial card's (styles/card.js motion.lead, final 2026-11-18 "ทำให้เหมือน editorial ทั้งหมด"): up 16 px out of a 7 px blur
+       in 0.2 s (was: out of an 8 px blur in 0.35 s) */
+    if (lead && L.lead) { const r = neonLine(el, lead, 'n-lead', L.lead); A(r, [{opacity: 0, transform: 'translateY(16px)', filter: 'blur(7px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], T.t0 + .15, .2, {e: EASE.smooth}); }
     if (key && L.key) {
       const r = neonLine(el, key, 'n-key', L.key);
       /* the old editorial style's key word (styles/card.js, deleted 2026-11-17 in d221565: motion.key) · final 2026-11-18, Friend: "เอาแบบสไตล์
