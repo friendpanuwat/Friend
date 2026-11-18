@@ -141,7 +141,7 @@ const GLASSY = {
   /* lime final (2026-11-18, Friend's picture of three steps: "อยากให้ทำ motion graphic ให้เรืองแสงและมีสีเหมือนรูปที่แนบไป" · "ลบขอบของตัวหนังสือออกด้วย"):
      sampled — the tiles are clear glass (the video shows through), white lines glowing white; the lit tile a deep see-through green
      (#4E5C1F) under a lime edge, its icon and word lime (#D5FF3D) · noEdge: no dark edge under the words */
-  lime: {lit: 'rgba(70,95,10,.55)', litBar: 'rgba(70,95,10,.55)', litIcon: '#D5FF3D', litBody: '#2C3A12', mark: '#18220A', halo: '#F4F8EC', outlineLit: true, glow: 2.2,
+  lime: {lit: 'rgba(70,95,10,.55)', litBar: 'rgba(70,95,10,.55)', litIcon: '#D5FF3D', litBody: '#2C3A12', mark: '#18220A', halo: '#F4F8EC', outlineLit: true, glow: .6,   /* 2.2 → .6 (Friend: "ลดความเรืองแสงของ motion graphic อีกเยอะๆเลย ตอนนี้มันเรืองแสงเกินไปมาก"; the draft had 1.7) */
     frost: ['rgba(255,255,255,.07)', 'rgba(255,255,255,.06)'], litMark: '#EFFFB8', litWord: true, noEdge: true},
 };
 

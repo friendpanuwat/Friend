@@ -84,13 +84,13 @@ STYLE('lime', {
 .l-bloom{position:absolute;width:980px;height:760px;translate:-50% -50%;background:radial-gradient(closest-side,rgba(175,235,60,.34),rgba(175,235,60,.1) 55%,transparent)}
 .l-panel{position:absolute;left:0;right:0;overflow:hidden;background:radial-gradient(ellipse 95% 80% at 50% 45%,#1d201e 0%,#121413 70%,#0b0c0c 100%)}
 .l-video{position:absolute;left:0;right:0;overflow:hidden}
-.l-card{position:absolute;border-radius:38px;background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(20,22,21,.28));border:2px solid rgba(255,255,255,.26);
-  box-shadow:0 22px 50px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.14);-webkit-backdrop-filter:blur(22px) saturate(1.15);backdrop-filter:blur(22px) saturate(1.15)}
+.l-card{position:absolute;border-radius:38px;background:rgba(26,28,27,.8);border:2px solid rgba(255,255,255,.24);
+  box-shadow:0 22px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}   /* back to the solid card (final 2026-11-18, Friend: "กลับไปใช้การ์ดทึบแบบเดิม") */
 .l-card::before{content:"";position:absolute;top:15px;left:50%;width:64px;height:7px;margin-left:-32px;border-radius:4px;background:rgba(255,255,255,.92)}
 .l-text{position:absolute;inset:0}
 .l-row{position:absolute;white-space:nowrap}
-.l-lead{font-family:"Anu";font-weight:500;font-size:46px;line-height:1.3;color:#F2F4F0;text-shadow:0 0 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.75),0 2px 18px rgba(0,0,0,.6)}
-.l-lead .hi{color:#C9F64B;font-weight:600}
+.l-lead{font-family:"Anu";font-weight:500;font-size:52px;line-height:1.3;color:#F2F4F0;text-shadow:0 0 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.75),0 2px 18px rgba(0,0,0,.6)}
+.l-lead .hi{color:#C9F64B;font-weight:600}   /* the lead 46 → 52 px (final 2026-11-18, Friend: "เพิ่มขนาด subtitle ตัวเล็กสีขาวให้ใหญ่ขึ้นอีกนิดนึง") */
 .l-lead i{font-family:"LimeSerif";font-style:italic;font-weight:400;font-size:1.22em;margin:0 .06em}
 .l-key i{font-family:"LimeSerif";font-style:italic;font-weight:400;letter-spacing:0}
 .l-key.l-hand{font-family:"LimeHand";font-weight:400;font-size:150px;line-height:1.25;letter-spacing:0}
