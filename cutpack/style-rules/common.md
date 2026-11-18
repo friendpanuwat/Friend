@@ -40,7 +40,7 @@ python3 plan/faces.py $W/base/src_frames $W/faces.json
 
 ### ขั้น 3 · คำพร้อมเวลา (Typhoon บนเครื่องเรา)
 ```
-python3 plan/asr.py $W/clip.mp4 $W/typhoon_words.json --threads 4
+HF_HUB_DISABLE_XET=1 python3 plan/asr.py $W/clip.mp4 $W/typhoon_words.json --threads 4   # (HF_HUB_DISABLE_XET=1: the first run downloads the model, 462 MB, in seconds instead of an hour)
 python3 plan/align.py $W/typhoon_words.json $W/script.txt $W/words.json     # เฉพาะเมื่อมีบท: เอาคำที่ถูกจากบท เวลาจาก Typhoon
 ```
 ไม่มีบท: ใช้ `$W/typhoon_words.json` แทน `$W/words.json` ในขั้นถัดไป (รูปแบบเดียวกัน `{"words":[{"w","t0","t1"}]}`)

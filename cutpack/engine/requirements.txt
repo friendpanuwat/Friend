@@ -9,6 +9,8 @@ pythainlp>=5.0               # Thai word dictionary (Apache-2.0): joins Typhoon'
 #   pip install antlr4-python3-runtime==4.9.3             (an old setup.py package NeMo needs; fails with the old setuptools)
 #   pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu   (2026-11-18: first, or typhoon-asr pulls the CUDA build, several GB at ~2 MB/s)
 #   pip install typhoon-asr soundfile
+#   first run downloads the model (462 MB): run asr.py with HF_HUB_DISABLE_XET=1 (2026-11-18: Hugging Face's xet transfer crawled at
+#   ~0.1 MB/s through the proxy; plain HTTPS took 15 s)
 #   pip install --force-reinstall --no-deps packaging     (if transformers says it cannot compare versions for packaging: needed again 2026-11-11)
 # Then plan/asr.py (Typhoon's times) and plan/align.py (the typed or corrected words on those times).
 # typhoon-asr and soundfile are left out of this file so `pip install -r requirements.txt` stays quick for the tests, which do not need them.
