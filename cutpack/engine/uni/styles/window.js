@@ -84,8 +84,7 @@ STYLE('window', {
   css: `
 @font-face{font-family:"WinKey";src:url(fonts/Kanit-800-thai.woff);font-weight:800;unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
 @font-face{font-family:"WinKey";src:url(fonts/Kanit-800-latin.woff);font-weight:800;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F}
-@font-face{font-family:"WinLead";src:url(fonts/Kanit-500-thai.woff);font-weight:500;unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
-@font-face{font-family:"WinLead";src:url(fonts/Kanit-500-latin.woff);font-weight:500;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F}
+@font-face{font-family:"WinLead";src:url(fonts/Kanit-800-italic.woff);font-weight:800;font-style:italic}
 .w-root{position:absolute;inset:0;--ink:#F2F6FC;--ac:#5B9BFF;--lw:5;--sd:#F2F6FC;--fl:rgba(14,18,28,.88);--text:#F2F6FC}
 .w-screen{background:linear-gradient(180deg,#000206 0%,#010c1a 7%,#021022 19%,#03152d 31%,#041b3b 44%,#041f45 56%,#04224b 69%,#05244d 81%,#05224a 100%);overflow:hidden}
 .w-arc{position:absolute}
@@ -103,9 +102,13 @@ STYLE('window', {
 .w-frame{position:absolute;overflow:hidden;border:2px solid rgba(130,180,255,.65);box-shadow:0 0 18px rgba(80,140,255,.35)}
 .w-text{position:absolute;inset:0}
 .w-row{position:absolute;white-space:nowrap}
-.w-lead{font-family:"WinLead";font-weight:500;font-size:80px;line-height:1.2;color:#F4F7FC;text-shadow:0 0 3px rgba(0,0,0,.85),0 0 10px rgba(0,0,0,.6),0 3px 18px rgba(0,0,0,.5)}
-.w-key{display:inline-block;font-family:"WinKey";font-weight:800;font-size:96px;line-height:1.16;color:#fff;background:#2F6FEB;border-radius:24px;padding:0 32px 8px;
-  box-shadow:0 0 0 1.5px rgba(150,190,255,.35),0 0 26px rgba(47,111,235,.6),0 8px 22px rgba(0,0,0,.35)}
+/* final 2026-11-18 (Friend: "subtitle ภาษาไทยปัจจุบันเป็นเหมือนรูปที่แนบไปรูปที่ 1 แต่ผมอยากให้มันเป็นเหมือนรูปที่แนบไปรูปที่ 2" · "ข"):
+   the lead heavy white italic (Kanit 800 italic, was 500 upright) · the key word hollow with a blue outline (was white in a blue pill);
+   over the speaker (.w-vid) the hollow letters get a faint dark fill so they read over the room */
+.w-lead{font-family:"WinLead";font-weight:800;font-style:italic;font-size:76px;line-height:1.2;color:#F4F7FC;text-shadow:0 0 3px rgba(0,0,0,.85),0 0 10px rgba(0,0,0,.6),0 3px 18px rgba(0,0,0,.5)}
+.w-key{display:inline-block;font-family:"WinKey";font-weight:800;font-size:112px;line-height:1.16;color:transparent;-webkit-text-stroke:3.5px #6FA6FF;
+  filter:drop-shadow(0 0 10px rgba(80,140,255,.45))}
+.w-vid .w-key{color:rgba(4,12,32,.5);filter:drop-shadow(0 0 3px rgba(0,0,0,.7)) drop-shadow(0 0 12px rgba(60,120,255,.45))}
 `,
   motion: {
     pop:   {kf: [{opacity: 0, transform: 'translateY(30px) scale(.8)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], d: .5, e: EASE.soft},
@@ -123,6 +126,8 @@ STYLE('window', {
   sound: {hit: ['softswish', -22], cross: ['swipe', -24], key: ['softswish', -21]},
   setup() {
     BGL.style.background = '#000'; HOOKS.push(cpInsetHook);
+    /* load this style's fonts at once: the words are fitted to the safe zone on the first frame (hud 2026-11-18: fitted with the fallback font) */
+    [['WinKey', 800, 'normal'], ['WinLead', 800, 'italic']].forEach(([f, w, st]) => div(`left:-9999px;top:0;font-family:${f};font-weight:${w};font-style:${st}`, document.body, 'กขคฅ ึ่้ 0123 Ab'));
     /* no chapter bar and no small label (Friend 2026-11-18: "ลบที่ผมวงกลมสีแดงออกด้วยครับทุกฉากเลย") */
   },
 
@@ -207,9 +212,9 @@ STYLE('window', {
     const root = div('', SC); root.className = 'w-root';
     return {root, cam: root, speaker: true, L: winFit('talk', cpFaceBox(a, b)) ?? WIN.layouts.talk, name: 'talk'};
   },
-  /* the lead fades in out of a blur; the key word pops in its blue pill on its word */
+  /* the lead fades in out of a blur; the hollow key word pops in on its word */
   text(F, T, lead, key) {
-    const L = F.L ?? WIN.layouts.talk, el = div('', F.root ?? SC); el.className = 'w-text';
+    const L = F.L ?? WIN.layouts.talk, el = div('', F.root ?? SC); el.className = 'w-text' + (F.speaker || L.speaker ? ' w-vid' : '');
     if (lead && L.lead) { const r = cpLine(el, lead, 'w-lead', L.lead, undefined, 'w-row'); A(r, [{opacity: 0, filter: 'blur(8px)'}, {opacity: 1, filter: 'blur(0)'}], T.t0 + .15, .35, {e: EASE.smooth}); }
     if (key && L.key) {
       const r = cpLine(el, key, 'w-key', L.key, undefined, 'w-row');
