@@ -104,6 +104,7 @@ STYLE('lime', {
 .l-video{position:absolute;left:0;right:0;overflow:hidden}
 .l-card{position:absolute;border-radius:38px;background:rgba(26,28,27,.8);border:2px solid rgba(255,255,255,.24);
   box-shadow:0 22px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}   /* back to the solid card (final 2026-11-18, Friend: "กลับไปใช้การ์ดทึบแบบเดิม") */
+.l-card.l-on-dark{border:2px solid rgba(201,246,75,.55);box-shadow:0 0 18px rgba(190,245,70,.28),0 22px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1)}   /* final 2026-11-18, Friend: the card blends into the dark screens → "ข" a thin lime glowing edge */
 .l-card::before{content:"";position:absolute;top:15px;left:50%;width:64px;height:7px;margin-left:-32px;border-radius:4px;background:rgba(255,255,255,.92)}
 .l-text{position:absolute;inset:0}
 .l-row{position:absolute;white-space:nowrap}
@@ -199,7 +200,7 @@ STYLE('lime', {
     /* the cards rise in, one after another; each picture lives INSIDE its card (it rises with it, and the bridge reads the card's
        dark glass as the picture's ground: darker tiles, as on the sheet) */
     const inner = ([, , w, h]) => [26, 44, w - 52, h - 70];
-    const cards = (L.cards ?? (L.card ? [L.card] : [])).map((c, k) => { const e = box(c); e.className = 'l-card';
+    const cards = (L.cards ?? (L.card ? [L.card] : [])).map((c, k) => { const e = box(c); e.className = 'l-card' + (L.screen || L.split ? ' l-on-dark' : '');   // on the charcoal screens: a lime edge
       A(e, [{opacity: 0, transform: 'translateY(40px) scale(.94)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .02 + .12 * k, .45, {e: EASE.soft});
       return box(inner(c), e); });
     const stage = L.card ? cards[0] : box([0, 0, 1, 1]);
