@@ -144,7 +144,17 @@ STYLE('lime', {
     const L = (meta.layout ? LIME.layouts[name] : limeFit(name, face)) ?? LIME.layouts.screen;   // (a test's forced layout stays as on the sheet)
     const root = div('', SC); root.className = 'l-root' + (L.screen ? ' l-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
-    const grid = host => { const g = div('', host); g.className = 'l-grid';   // the grid drifts very slowly (as Friend asked for neon), on the clip's clock
+    const grid = host => {
+      /* LIME LIGHT IN MOTION (final 2026-11-18, Friend: "background ผมอยากให้มีเอฟเฟคเคลื่อนไหวอะไรบางอย่างของแสงสีเขียวด้วยครับ"): two soft lime glows
+         drift slowly under the grid on long loops and breathe, on the clip's clock (they carry on from one screen to the next) */
+      [[540, 300, .42, 0, 700, 380, .31, 1, .3], [540, 320, .37, 2.2, 1300, 300, .29, 2.6, .24]].forEach(([cx, ax, fx, px, cy, ay, fy, py, a], k) => {
+        const o = div('left:0;top:0;width:1000px;height:1000px;margin:-500px 0 0 -500px;border-radius:50%;' +
+          `background:radial-gradient(closest-side,rgba(175,235,60,${a}),rgba(175,235,60,${(a * .35).toFixed(3)}) 55%,transparent);pointer-events:none`, host);
+        const kf = []; for (let t = t0 - .2; t <= t1 + .2 + 1e-6; t += .5)
+          kf.push({transform: `translate(${(cx + ax * Math.sin(fx * t + px)).toFixed(1)}px,${(cy + ay * Math.sin(fy * t + py)).toFixed(1)}px) scale(${(1 + .12 * Math.sin(.9 * t + k)).toFixed(3)})`,
+            opacity: (.75 + .25 * Math.sin(.8 * t + 2 * k)).toFixed(3)});
+        A(o, kf, t0 - .2, t1 - t0 + .4, {e: 'linear'}); });
+      const g = div('', host); g.className = 'l-grid';   // the grid drifts very slowly (as Friend asked for neon), on the clip's clock
       const at = t => `${(-6 + 2 * t).toFixed(1)}px ${(-10 + 3 * t).toFixed(1)}px`;
       A(g, [{backgroundPosition: at(t0 - .2)}, {backgroundPosition: at(t1 + .2)}], t0 - .2, t1 - t0 + .4, {e: 'linear'}); };
     if (L.screen) {
@@ -191,8 +201,8 @@ STYLE('lime', {
   text(F, T, lead, key) {
     const L = F.L ?? LIME.layouts.talk, el = div('', F.root ?? SC); el.className = 'l-text';
     if (lead && L.lead) {
-      const parts = String(lead).trim().split(/\s+/), hi = parts.length > 1 ? parts[parts.length - 1] : null;
-      const r = cpLine(el, lead, 'l-lead', L.lead, undefined, 'l-row', hi);
+      /* all white (final 2026-11-18, Friend: "subtitle ตัวเล็กสีขาวไม่ต้องมีสีเขียวปนมาด้วย"; the sheet's leads ended in lime) */
+      const r = cpLine(el, lead, 'l-lead', L.lead, undefined, 'l-row');
       A(r, [{opacity: 0, filter: 'blur(8px)'}, {opacity: 1, filter: 'blur(0)'}], T.t0 + .15, .35, {e: EASE.smooth});
     }
     if (key && L.key) {
