@@ -54,7 +54,7 @@ const HOR = {
      other picture takes one of `pool` (never the one before it) where the face leaves room (horFit), a screen without a picture only
      with at least 2 more subtitles for its lines, not first and not twice within 5 pictures, among those with a picture the ones that
      show its shape at least 75 % as big as the best, then the least used, then at random from the run's seed */
-  pool: ['full_hook', 'full_stack_rail', 'full_float_card', 'dark_graphic', 'full_side_ladder', 'inset_review', 'full_side_diagonal', 'full_side_cycle', 'full_stack_wave'],
+  pool: ['full_hook', 'full_stack_rail', 'full_float_card', 'dark_graphic', 'full_side_ladder', 'inset_review', 'full_side_diagonal', 'full_side_cycle', 'full_stack_wave', 'full_cta'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
   byCat: {B15: 'full_cta', B01: 'float_cards'},
   keep: .75, noPicGap: 4, sinceNoPic: 4,
   planet: {cx: 540, cy: 1950, r: 632},          // the rim: top at y 1318 (shot 04), the frame's edges at about 1590

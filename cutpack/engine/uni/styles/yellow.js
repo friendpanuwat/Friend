@@ -55,7 +55,7 @@ const YEL = {
      with a number may take a tile screen; every other picture takes one of `pool` (never the one before it) where the face leaves
      room (yelFit), the screens without a picture only when at least 2 more subtitles come for the chips (and noPicGap), among those with a picture
      the screens that show this picture's shape at least 75 % as big as the best, then the least used, then at random from the seed */
-  pool: ['full_chips', 'full_steps', 'split_top', 'full_list', 'card_rail', 'split_bottom', 'full_pair', 'recap'],
+  pool: ['full_chips', 'full_steps', 'split_top', 'full_list', 'card_rail', 'split_bottom', 'full_pair', 'recap', 'full_cta'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
   numPool: ['tile_ladder', 'tile_steps'],
   byCat: {B15: 'full_cta', B01: 'giant'},
   keep: .75,

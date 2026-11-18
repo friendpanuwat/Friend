@@ -66,7 +66,7 @@ const HUD = {
      it) where the face leaves room (hudFit), a screen without a picture only when at least 2 more subtitles come for its notes (or
      its words) and not twice within 5 pictures nor first, among those with a picture the ones that show this picture's shape at
      least 75 % as big as the best, then the least used, then at random from the run's seed */
-  pool: ['hud_open', 'hud_row', 'hud_diag', 'hud_card', 'hud_time', 'hud_path', 'hud_split', 'hud_rail', 'hud_measure', 'hud_word'],
+  pool: ['hud_open', 'hud_row', 'hud_diag', 'hud_card', 'hud_time', 'hud_path', 'hud_split', 'hud_rail', 'hud_measure', 'hud_word', 'hud_cta'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
   byCat: {B15: 'hud_cta'},
   keep: .75, noPicGap: 4, sinceNoPic: 4,
   gridUp: 12,

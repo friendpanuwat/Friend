@@ -47,7 +47,7 @@ const VIO = {
   /* RANDOM, as the other styles: a call to action (B15) gets shot 12, a number (B01) the numbers screen; every other picture takes
      one of `pool` (never the one before it) where the face leaves room (vioFit), among those the screens that show this picture's
      shape at least 75 % as big as the best, then the least used, then at random from the run's seed */
-  pool: ['banner_tuck', 'full_tower_r', 'side_card', 'full_tower_l', 'full_tower_r2', 'twin_towers', 'full_tower_l2', 'banner_tuck_r'],
+  pool: ['banner_tuck', 'full_tower_r', 'side_card', 'full_tower_l', 'full_tower_r2', 'twin_towers', 'full_tower_l2', 'banner_tuck_r', 'full_tower_r3'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
   byCat: {B15: 'full_tower_r3', B01: 'twin_towers'},
   keep: .75,
   used: {}, last: null,
