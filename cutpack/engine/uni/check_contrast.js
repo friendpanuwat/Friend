@@ -20,8 +20,8 @@ const build = (id, i, dir) => execFileSync('python3', [path.join(__dirname, 'bui
   const open = async dir => { await page.goto('file://' + path.join(dir, 'scene.html')); await page.evaluate(() => document.fonts.ready); };
   let ids = only;
   if (!ids.length) {                                   // every background the style takes turns with (index 0, 1, 2)
-    const p = path.join(work, '_probe'); build('price-cut', 0, p); await open(p);
-    ids = (await page.evaluate(() => Object.keys(SCENES).filter(k => /^(r[2-9]|c2|ov|ui)\./.test(k)))).flatMap(k => [0, 1, 2].map(i => `${k}@${i}`));
+    const p = path.join(work, '_probe'); build('-', 0, p); await open(p);   // every <sentence>.<draft> scene (the drafts are deleted 2026-11-17 until glow-line)
+    ids = (await page.evaluate(() => Object.keys(SCENES).filter(k => k.includes('.')))).flatMap(k => [0, 1, 2].map(i => `${k}@${i}`));
   }
   const res = {}; let bad = 0;
   for (const sid of ids) {

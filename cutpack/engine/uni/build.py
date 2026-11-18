@@ -3,11 +3,17 @@
 
 usage: build.py <project_dir> <style> <scene> [--index N] [--t0 0.5] [--t1 4.5] [--slots '{"key": "…"}']
 The page = base.css + core.js + kit.js + styles/<style>.js + scenes/*.js + one play() call.
+scene "-" = no picture: a real clip whose lines have no draft yet (2026-11-17, old drafts deleted) is subtitles only.
 """
-import argparse, glob, json, os, shutil
+import argparse, glob, json, os, re, shutil
 
 UNI = os.path.dirname(os.path.abspath(__file__))
 ENGINE = os.path.dirname(UNI)
+# the glow-line sets (Friend 2026-11-17, DECISIONS 3): the runtime and every category file of the skill, read only, + the bridge
+SKILL = os.path.normpath(os.path.join(ENGINE, '..', '..', '.claude', 'skills', 'glow-line-motion'))
+GLOW_ASSETS = os.path.join(SKILL, 'assets')
+GLOW_CATS = sorted(f for f in glob.glob(os.path.join(SKILL, 'examples', 'b[0-9][0-9]*', '*.js'))
+                   if re.fullmatch(r'b\d\dt?', os.path.basename(os.path.dirname(f))) and os.path.basename(f) == os.path.basename(os.path.dirname(f)) + '.js')
 
 
 def main():
@@ -22,23 +28,36 @@ def main():
     ap.add_argument('--then', action='append', default=[], help='one more scene after the first: id,t0,t1[,index[,hit]] (several scenes in one clip, e.g. to see a style move between scenes)')
     a = ap.parse_args()
     proj = os.path.abspath(a.proj); os.makedirs(os.path.join(proj, 'fonts'), exist_ok=True)
-    for f in glob.glob(os.path.join(UNI, 'fonts', '*.ttf')):
+    for f in glob.glob(os.path.join(UNI, 'fonts', '*.ttf')) + glob.glob(os.path.join(UNI, 'fonts', '*.woff')):
+        dst = os.path.join(proj, 'fonts', os.path.basename(f))
+        if not os.path.exists(dst): shutil.copy(f, dst)
+    # the glow-line runtime loads its helpers (beats.js, pro*.js) and fonts from next to the page
+    for f in glob.glob(os.path.join(GLOW_ASSETS, '*.js')):
+        dst = os.path.join(proj, os.path.basename(f))
+        if os.path.basename(f) != 'glowline.js' and not os.path.lexists(dst): os.symlink(f, dst)
+    for f in glob.glob(os.path.join(GLOW_ASSETS, 'fonts', '*')):
         dst = os.path.join(proj, 'fonts', os.path.basename(f))
         if not os.path.exists(dst): shutil.copy(f, dst)
     rd = lambda p: open(os.path.join(UNI, p)).read()
     # an overlay style ("card-overlay", "card-overlay-big") is its full-screen style + its overlay file (overlay.js holds the frame)
     base = a.style.split('-overlay')[0]
     styles = [f'styles/{base}.js', f'styles/{base}-overlay.js'] if '-overlay' in a.style else [f'styles/{a.style}.js']
-    js = [f'const ICONS = {open(os.path.join(ENGINE, "icons", "lucide.json")).read()};', rd('core.js'), rd('kit.js'), rd('overlay.js')] + [rd(f) for f in styles] + [open(f).read() for f in sorted(glob.glob(os.path.join(UNI, 'scenes', '*.js')))] + [open(f).read() for f in a.extra]
+    styles = ['styles/common.js'] + styles   # what every new style shares (2026-11-18)
+    js = [f'const ICONS = {open(os.path.join(ENGINE, "icons", "lucide.json")).read()};', rd('core.js'), rd('kit.js'), rd('overlay.js')] + [rd(f) for f in styles] \
+        + [open(os.path.join(GLOW_ASSETS, 'glowline.js')).read()] + [open(f).read() for f in GLOW_CATS] + [rd('glow/bridge.js')] \
+        + [f"const GLOW_SHAPES = {rd('glow/shapes.json')};"] \
+        + [open(f).read() for f in sorted(glob.glob(os.path.join(UNI, 'scenes', '*.js')))] + [open(f).read() for f in a.extra]
     def then(k, m):                                   # --then id,t0,t1[,index[,hit]]: more scenes in the same clip
         f = m.split(','); i = int(f[3]) if len(f) > 3 and f[3] else k + 1
         return f"play({json.dumps(f[0])}, {float(f[1])}, {float(f[2])}, {{}}, {{index: {i}{f', hit: {float(f[4])}' if len(f) > 4 else ''}}});\n"
     more = ''.join(then(k, m) for k, m in enumerate(a.then))
+    first = '' if a.scene == '-' else \
+        f"play({json.dumps(a.scene)}, {a.t0}, {a.t1}, {a.slots}, {{index: {a.index}{f', hit: {a.hit}' if a.hit is not None else ''}}});"
     js.append(f"""
-['Lead', 'CardSans', 'KeySans', 'Hand', 'Anu'].forEach(f => div(`left:-9999px;top:0;font-family:${{f}}`, document.body, 'กขคฅ ึ่้ 0123'));
+['Lead', 'CardSans', 'KeySans', 'Hand', 'Anu', 'NeonKey', 'NeonSerif'].forEach(f => div(`left:-9999px;top:0;font-family:${{f}}`, document.body, 'กขคฅ ึ่้ 0123 Ab'));
 if ({a.speaker} !== 1) [V, VB].forEach(e => {{ e.style.scale = {a.speaker}; e.style.translate = `${{540 * (1 - {a.speaker})}}px ${{1920 * (1 - {a.speaker})}}px`; }});
 useStyle({json.dumps(a.style)});
-play({json.dumps(a.scene)}, {a.t0}, {a.t1}, {a.slots}, {{index: {a.index}{f', hit: {a.hit}' if a.hit is not None else ''}}});
+{first}
 {more}
 window.SFX = calmSfx(SFX);""")
     html = ('<!doctype html><html><head><meta charset="utf-8"><style>' + rd('base.css') + '</style></head><body>'

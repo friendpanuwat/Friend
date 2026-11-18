@@ -19,6 +19,9 @@ const FPS = 30;
   page.on('pageerror', e => { errors.push(e.message); console.error('PAGE ERROR', e.message); });
   await page.goto('file://' + path.join(D, 'scene.html'));
   await page.evaluate(() => document.fonts.ready);
+  // the glow-line pictures (uni/glow/bridge.js) draw after the runtime has loaded its parts: wait for every one (none on the page = no wait)
+  await page.waitForFunction(() => window.GLOW_READY !== false || window.GL_ERROR, null, { timeout: 120000 });
+  if (await page.evaluate(() => window.GL_ERROR)) { console.error('GLOW ERROR', await page.evaluate(() => String(window.GL_ERROR))); process.exit(2); }
   if (mode === 'sfx') {
     fs.writeFileSync(path.join(D, 'cues.json'), JSON.stringify(await page.evaluate(() => window.SFX), null, 1));
     console.log('cues', (await page.evaluate(() => window.SFX.length)));

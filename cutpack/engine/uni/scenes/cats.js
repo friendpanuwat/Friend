@@ -9,6 +9,10 @@
      · ties broken by the sentence itself, so the same input always gives the same clip
    21 categories: the 15 Friend kept on 2026-11-03 (B01–B15) + B16 นิยาม / อธิบายว่าคืออะไร (2026-11-07)
    + B17–B21 (2026-11-10): ไล่รายการ, เล่าเหตุการณ์, ความรู้สึก, ความสัมพันธ์ของคน, สถานที่.
+   2026-11-17 Friend: "ลบชุดฐานเก่าทิ้งให้หมด เราจะใช้ชุดฐาน glow-line" (DECISIONS 3): every old draft is deleted, the
+   categories, their slots and the picker stay. The glow-line sets (both: the category drafts B01–B21 and the template set
+   B01T–) come in next; until then a category has no draft, so its sentences get no picture (the clip shows only subtitles
+   there: SENTENCE makes no scene, tools/clip_plan.py leaves the line out).
    ===================================================================== */
 const CATS = {};
 function CATEGORY(id, name, {text = false} = {}) { CATS[id] = {id, name, text, variants: []}; }
@@ -59,6 +63,7 @@ function calm(r) {
 }
 /* one sentence of a category = one scene; it also gets one scene per variant that fits (<id>.<variant>) for tests */
 function SENTENCE(id, r) {
+  if (!CATS[r.cat].variants.length) return;                // no draft in this category yet: no picture (subtitles only)
   const meta = v => ({meaning: r.cat, name: r.name + (v ? ' · ' + v.name : ''), story: CATS[r.cat].name, beats: 4, cat: r.cat, variant: v?.id,
     slots: {lead: {type: 'text', max: 22, sample: r.say[0]}, key: {type: 'text', max: 12, sample: r.say[1]}}});
   const c = calm(r), draw = (v, K, T) => ((ST.overlay || ST.useSmall) && v.small ? v.small : v.build)(K, c, T);   // an overlay widget (and a style with useSmall) uses the variant's small form

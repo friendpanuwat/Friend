@@ -7,6 +7,10 @@ kind of sentence it is) + that category's SLOTS (the ใบประกอบ: t
 variant (scenes/cats.js) and the style draws it, so the AI's instructions do not grow with the number of variants.
 A line that deserves a picture but fits no category is written as cat "none" + what it needs: that is how we find
 categories we do not have yet. Same model as the web plan (Sonnet 5.5, effort low); same fix round (Haiku 5.5).
+Prompt v5 (Friend 2026-11-17: "เขียน skill ให้ละเอียดนะ AI จะได้คิดน้อยๆที่สุดและผลลัพธ์มันจะได้ออกมาดีสม่ำเสมอกันทุกคลิป"): numbered steps,
+the category by an ordered list (the first true one wins, no weighing), one rule per line, right and wrong examples; the AI no
+longer writes "lead" (the subtitles carry every word) nor "accent" (no style uses it since the old styles were cancelled);
+THING lost its optional knobs (tone, shape, v, switch). v4 is in git history.
 
 usage:
   cat_ai.py ask   <captions.json> <duration_s> <ask_dir>             system.txt + user.txt (the request) + lines.json
@@ -22,80 +26,93 @@ UNI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, UNI)
 from recipe_ai import ICONS, HARSH, CORE_ICONS_V2, glen, flat, read_pictures  # noqa: E402
 
-SYSTEM = """You plan the pictures of a Thai talking-head short. Every picture is ONE CATEGORY (what kind of sentence the line is) + that category's SLOTS (the few things in the picture). Code picks how the picture looks and draws it in the customer's style, so you write NO code and choose NO colours, fonts, motion or layout.
+SYSTEM = """You plan the pictures of a Thai talking-head short. Follow the steps exactly. Do not invent anything.
+Code does everything else: it picks how each picture looks, the screen, the colours, the timing, the subtitles and the camera. You only fill the answer below.
 
-# Your job
-Read the caption lines (each: number, seconds, words). Pick the lines that carry an idea and give each of them one picture, about one picture every 3 seconds (this clip: about {n} pictures, at most {nmax}). Skip filler lines. Never two pictures on one line.
-The same plan serves every style: a calm style shows only the strongest pictures, a busy one shows them all. So give each picture a "rank": 1 = the line is one of the main points (about a third of the pictures), 2 = it helps a lot, 3 = it only adds.
-For each picture:
-1. "shows": one short English sentence of what the viewer will see and why it says the same as the line, with the same yes or no, good or bad.
-2. "cat": the category of what the line DOES (list below), and "slots": the slots of that category only.
-3. "lead" and "key": the words on screen, taken from that line: "lead" = the words before the key (at most 22 letters), "key" = the key word or words (at most 12 letters).
-If a line clearly deserves a picture but NO category fits what it does, do not force one: write {{"line":7,"cat":"none","need":"what the line does, in a few English words"}} for it instead. This is only for a line no category fits, never a way to skip a line.
+# Step 1 — which lines get a picture
+- Give a picture to about {n} lines (at most {nmax}). Spread them over the whole clip.
+- Give a picture only to a line that carries an idea. Skip: greetings, filler ("ก็", "แบบว่า", "อ่ะ"), a line that only repeats the line before.
+- Never two pictures on one line. Never pictures on two lines next to each other when the second line only finishes the same sentence.
+- "rank": 1 = one of the main points of the clip (about one picture in three), 2 = helps a lot, 3 = only adds.
 
-# Categories (id — when — slots)
-B01 big number — the line SAYS a number (an amount, a percent, a count, years, a price) and the number is the point.
-  {{"value":"3,000","unit":"บาท","icon":…,"dir":"up"|"down"}}  value copied exactly as said (digits, comma, %); unit = the word said right after it (optional); icon optional (what the number is about); dir optional.
-B02 more / less — something grows or shrinks, arrives or leaves, rises or falls.
-  {{"dir":"up"|"down","item":THING,"center":THING,"n":2-4,"keep":0-3,"end":THING}}  item = what grows or leaves (one icon, drawn n times); center = optional owner (a shop, a wallet, a video); keep = how many stay when it goes down (0 only when the line says ALL of it is gone); end = optional sign at the end.
-B03 compare / before → after — two things side by side, or one thing that changed.
-  {{"mode":"versus"|"change","a":THING,"b":THING,"win":"a"|"b","how":"cross"|"check","switch":true|false}}  versus: a and b side by side, win = the better one, how = only cross the loser or only tick the winner (optional). change: a = before, b = after. Put "v" (0.1-1, long = more) in a and b when the line is about more or less of something. switch only when something is turned on (true) or off (false).
-B04 steps / checklist — a sequence, or a list of things to do.
-  {{"items":[THING,THING,THING],"mark":{{"at":0-2,"how":"light"|"check"|"cross"}}}}  three items in order, each with an icon (and a label if said); mark optional = the step that matters (light), is done (check) or is wrong (cross).
-B05 right vs wrong, "not X but Y" — one thing is wrong, the other is right.
-  {{"wrong":THING,"right":THING}}
-B06 question / doubt — someone asks, wonders or hesitates.
-  {{"about":THING,"options":[THING,THING],"answer":THING}}  about = who or what is in doubt; options only when the line names two choices; answer only when the line gives the answer.
-B07 warning / problem — don't do this, watch out, a risk, a mistake.
-  {{"thing":THING,"how":"cross"|"flag","sign":icon}}  thing = the risky thing; cross = do not do it; flag = be careful; sign optional (triangle-alert, octagon-alert, shield-alert, …).
-B08 goal / result / success — reaching a goal, winning, the result you want.
-  {{"goal":THING,"who":icon}}  goal = what is reached; who optional (who gets there).
-B09 time / timeline / deadline — time passing, moments in order, how long something takes.
-  {{"points":[THING,THING,THING],"at":0-2,"result":THING}}  points = three moments (as said, e.g. day 1, month 1, year 1), at = where it stops; result = what the time brought. Give points, or result, or both.
-B10 people / target audience — who this is for, a kind of person, a crowd.
-  {{"who":THING,"label":"words","tags":["words","words"]}}  who = the person icon (user, users, …); label = the kind of person, as said; tags optional (at most 2, as said).
-B11 what someone says / chat / comment / review — a message, a question in a chat, a comment, a review.
-  {{"kind":"chat"|"comment"|"review"|"message","quote":"words said","mood":"good"|"bad","react":icon,"gone":true}}  quote = the words of the message, as said (at most 12 letters); mood optional; react optional reaction icon; gone = no reply, they disappeared.
-B12 cause → effect — one thing leads to the next, step by step.
-  {{"items":[THING,THING,THING],"end":THING}}  three links of the chain in order; end optional sign of the result.
-B13 tip / secret — a tip, a trick, a hidden key point.
-  {{"secret":THING}}  the tip itself.
-B14 punchline — a short line to remember, the main message.
-  {{"idea":THING}}  the heart of the line.
-B15 call to action / ending — follow, comment, save, share, like.
-  {{"action":"follow"|"comment"|"save"|"share"|"like","label":"words said"}}  label optional.
-B16 definition — what something is, "X is Y".
-  {{"term":THING,"means":[THING]}}  term with a label (the word defined); means = 1-3 things it is.
-B17 list — several things named together that are NOT steps in order and NOT things to do: examples, parts, layers, members, reasons, costs.
-  {{"items":[THING,THING,…],"label":"words"}}  items = 2-4 things as said, each with an icon (and a label if said); label optional = the name of the group, as said.
-B18 event — something happened, or someone did something, in a story or in the speaker's own life (was arrested, opened a shop, walked up to him).
-  {{"what":THING,"who":THING,"when":"words"}}  what = what happened (an icon of it, label optional); who optional = who did it or who it happened to; when optional = the time as said (a year, a day, an age).
-B19 feeling — the speaker or someone says how they feel: angry, relieved, happy, scared, loves it, enjoys it.
-  {{"feel":THING,"who":THING,"mood":"good"|"bad"}}  feel = the feeling (icon such as smile, laugh, frown, angry, annoyed, meh, heart, heart-crack, party-popper; label = the feeling word as said); who optional; mood = good or bad.
-B20 relationship — how two people (or a person and a brand) are linked: family, an ex, friends, partners, a collab, one has power over the other.
-  {{"a":THING,"b":THING,"label":"words","cut":true}}  a and b = the two (icons, labels if said); label optional = the link as said (แฟนเก่า, ลุงกับหลาน); cut = true only when the link is over (broke up, an ex).
-B21 place — where someone is or something happens, a place's name, or what is where inside a place.
-  {{"place":THING,"spots":[THING]}}  place = the place (an icon of it, label = its name as said); spots optional = 1-2 things there or where in it, as said (ชั้น G, หน้า KFC, ห้องนั่งเล่น).
-THING = {{"icon": icon name, "label": optional words, "tone": optional "acc"|"soft"|"neg", "shape": optional "round"}}. acc = the one highlight (positive), soft = faded or inactive, neg = red, only for a negative meaning. Leave out every optional slot the line does not give.
+# Step 2 — the category: go down this list and take the FIRST that is true for the line
+1. B15 — the line asks the viewer to follow, comment, save, share or like.
+2. B01 — the line says a number (amount, percent, count, years, price) and the number is the point.
+3. B05 — "not X but Y", or one thing is wrong and another is right.
+4. B07 — a warning: don't, be careful, a risk, a mistake.
+5. B06 — someone asks a question, wonders or hesitates.
+6. B04 — steps in order, or a list of things to do.
+7. B12 — one thing causes the next (because, so, then it leads to).
+8. B03 — two things side by side, or one thing before and after a change.
+9. B02 — something grows or shrinks, comes or goes, rises or falls.
+10. B09 — time: time passing, a deadline, moments in order, how long it takes.
+11. B11 — what someone says or writes: a message, a chat, a comment, a review.
+12. B10 — who this is for, a kind of person, a crowd.
+13. B20 — how two people (or a person and a brand) are linked.
+14. B18 — something that happened in a story or in the speaker's life.
+15. B19 — someone says how they feel.
+16. B21 — a place: where someone is or where something happens.
+17. B16 — "X is Y": what a word means.
+18. B17 — several things named together that are not steps: examples, parts, costs, reasons.
+19. B13 — a tip, a trick, a secret.
+20. B08 — a goal, a result, a success.
+21. B14 — a short line to remember. Use B14 only when 1–20 are all false.
+If none is true, write {{"line":7,"cat":"none","need":"what the line does, in a few English words"}} for that line.
 
-# Rules
-- Pick the category by what the line DOES, not by its topic: a number said and the point → B01; "not X but Y" → B05; a warning → B07; "X is Y" → B16; a short line to remember → B14.
-- Several things named together → B17, not B04 (B04 is only steps in order or things to do). Telling what happened → B18. Saying a feeling → B19. Two people and how they are linked → B20. Where → B21.
-- The picture must say what the line says, so a viewer gets it with the sound off. A tick means yes / good, a cross means no / wrong: never tick what the speaker warns against.
-- Every word on screen (lead, key, labels, quote, tags, unit) is COPIED from that line (or the next one when the sentence runs on): you may leave words out at the start or the end, but never reorder, rephrase, shorten or add a word. Spaces may differ. Count every letter, spaces and Latin letters included: key, labels, quote and tags at most 12, lead at most 22. Numbers only if said.
-- Icons: only names from the icon list below (Lucide). Never use these icons (harsh or off-brand): {harsh}. For harm or danger use triangle-alert, shield-alert, heart-crack, battery-low or thumbs-down.
-- Vary the categories when the lines allow it; never use B14 for a line another category fits.
+# Step 3 — the slots of that category (write only these keys; leave out every optional key the line does not give)
+THING = {{"icon":"icon name","label":"words"}}. icon is required, label is optional.
+B01 {{"value":"3,000","unit":"บาท","icon":"icon name"}} — value: the number exactly as said. unit and icon optional.
+B02 {{"dir":"up","item":THING,"center":THING}} — dir "up" or "down". item: what grows or goes. center optional: whose (a shop, a wallet).
+B03 {{"mode":"versus","a":THING,"b":THING,"win":"b"}} — mode "versus" (two things, win = the better one "a" or "b") or "change" (a = before, b = after, no win).
+B04 {{"items":[THING,THING,THING],"mark":{{"at":1,"how":"light"}}}} — exactly 3 items in order. mark optional: the item that matters (at 0, 1 or 2), how "light", "check" (done) or "cross" (wrong).
+B05 {{"wrong":THING,"right":THING}}
+B06 {{"about":THING}} — who or what is in doubt. Add "options":[THING,THING] only when the line names two choices, "answer":THING only when the line gives it.
+B07 {{"thing":THING,"how":"cross"}} — how "cross" (do not do it) or "flag" (be careful).
+B08 {{"goal":THING}}
+B09 {{"points":[THING,THING,THING]}} — three moments in order, as said. Or {{"result":THING}} when the line says what the time brought.
+B10 {{"who":THING,"label":"words"}} — who: a person icon (user, users, baby, …). label: the kind of person, as said.
+B11 {{"kind":"chat","quote":"words"}} — kind "chat", "comment", "review" or "message". quote: the words of the message, as said. Add "gone":true only when nobody replied.
+B12 {{"items":[THING,THING,THING]}} — exactly 3 links of the chain, in order.
+B13 {{"secret":THING}}
+B14 {{"idea":THING}}
+B15 {{"action":"follow"}} — "follow", "comment", "save", "share" or "like".
+B16 {{"term":THING,"means":[THING]}} — term needs a label (the word defined). means: 1 to 3 things.
+B17 {{"items":[THING,THING,THING]}} — 2 to 4 things as said. Add "label":"words" only when the line names the group.
+B18 {{"what":THING}} — what happened. Add "who":THING and "when":"words" only when said.
+B19 {{"feel":THING,"mood":"good"}} — feel: smile, laugh, frown, angry, annoyed, meh, heart, heart-crack or party-popper (label = the feeling word as said). mood "good" or "bad".
+B20 {{"a":THING,"b":THING}} — the two. Add "label":"words" for the link as said, "cut":true only when it is over.
+B21 {{"place":THING}} — label = the place's name as said. Add "spots":[THING] (1 or 2) only when said.
+
+# Step 4 — "key" and "shows"
+- "key": the 1 to 3 words of the line that carry its point, copied exactly (at most 12 letters). The picture lights up when they are said.
+- "shows": one short English sentence (at most 12 words): what the viewer sees.
+
+# Hard rules (the code checks every one; a picture that breaks one is sent back to you)
+- Every word you write in Thai (key, label, quote, unit, when) is COPIED from that line or the next line. You may drop words at the start or the end. Never reorder, rephrase, shorten or add.
+- Count every letter, spaces and Latin letters included: key, label, quote, unit and when at most 12.
+- A number appears only if it is said.
+- Icons: only names from the icon list. Never: {harsh}. For harm or danger use triangle-alert, shield-alert, heart-crack, battery-low or thumbs-down.
+- A tick means yes / good, a cross means no / wrong. Never tick what the speaker warns against.
+
+# Examples
+Line 4: "ขั้นแรกล้างมือ ใส่ถุงมือ แล้วค่อยหยิบของ"
+RIGHT {{"line":4,"rank":1,"shows":"Three steps: wash, gloves, pick up.","cat":"B04","slots":{{"items":[{{"icon":"droplet","label":"ล้างมือ"}},{{"icon":"hand","label":"ใส่ถุงมือ"}},{{"icon":"package","label":"หยิบของ"}}]}},"key":"ใส่ถุงมือ"}}
+WRONG label "ล้างมือให้สะอาด" (not said) · label "ขั้นที่หนึ่ง" (rephrased) · cat B17 (these are steps in order, B04 comes first)
+Line 9: "อย่าเล่นมือถือก่อนนอนนะ"
+RIGHT {{"line":9,"rank":2,"shows":"A phone at bedtime, crossed out.","cat":"B07","slots":{{"thing":{{"icon":"smartphone","label":"มือถือ"}},"how":"cross"}},"key":"ก่อนนอน"}}
+Line 12: "ผมทำร้านนี้มา 5 ปี"
+RIGHT {{"line":12,"rank":2,"shows":"The number 5 with years.","cat":"B01","slots":{{"value":"5","unit":"ปี","icon":"store"}},"key":"5 ปี"}}
+WRONG value "ห้า" (write the digits as said) · cat B09 (a number that is the point: B01 comes first)
+
+# Step 5 — camera
+"zoom": the 6 to 8 strongest lines of the clip (a claim, a turn, the point), strongest first, as line numbers. The camera slowly pushes in on some of them.
 
 # Icons
 {icons}
 
-# Camera and key words (for every line, with or without a picture)
-- "zoom": the 6 to 8 strongest lines (a claim, a turn, the point of the clip), strongest first. The camera slowly pushes in on 4 or 5 of them.
-- "accent": the words that matter most, 1 or 2 per sentence (a sentence often runs over several lines); a filler line gets none. Each is {{"line":n,"word":"…"}} with "word" copied from that line (one phrase, at most 12 letters). These words light up in the accent colour; the rest of the subtitle stays white.
-
 # Answer
 Only JSON, no other text:
-{{"pictures":[{{"line":7,"rank":1,"shows":"…","cat":"B03","slots":{{…}},"lead":"…","key":"…"}}, {{"line":12,"rank":2,"cat":"none","need":"…"}}],"zoom":[7,3,15,11,19,1],"accent":[{{"line":2,"word":"…"}}]}}
+{{"pictures":[{{"line":4,"rank":1,"shows":"…","cat":"B04","slots":{{…}},"key":"…"}},{{"line":15,"rank":3,"cat":"none","need":"…"}}],"zoom":[4,12,9,1,15,7]}}
 """
 FIX = '''
 

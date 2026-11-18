@@ -59,7 +59,10 @@ function drawnBox(stage, tm) {
    at most 1–2 words of label, one event on the key word, a card or nothing behind it. Drawn 1:1 on a 600 × 340 canvas. */
 const SMALLS = {};
 function SMALL(id, build) { SMALLS[id] = build; }
-OV.small = {x: 240, y: 190, w: 600, h: 340};       // where the small canvas sits (above the head of a clip framed like Friend's)
+/* where the small canvas sits (above the head of a clip framed like Friend's). 2026-11-17 wider (600 → 720) for the glow-line
+   pictures (Friend: "ใน overlay ทุกสไตล์ ถ้า motion graphics อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย"): split's window (+40 each side)
+   still ends at x 940 (the app's buttons start there); the height stays, the head is right under it */
+OV.small = {x: 180, y: 190, w: 720, h: 340};
 OV.subTop = 1230;                                   // the subtitle at chest height
 function OVERLAY(id, base, def) {
   const B = STYLES[base]; if (!B) throw new Error('overlay of unknown style ' + base);

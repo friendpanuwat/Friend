@@ -4,6 +4,8 @@
 The planner reads a clip's caption lines and writes, for the lines that deserve a picture, one lego recipe each
 (story frame + things + what happens, see scenes/lego.js) — or reuses a recipe of the library. Code checks every
 recipe; the good ones become scenes every style can draw.
+2026-11-17: scenes/lego.js and every old draft are deleted (DECISIONS 3, the glow-line sets come next), so ask/check here
+have no recipes to draw any more. The file stays because cat_ai.py imports its helpers (ICONS, HARSH, glen, flat, …).
 
 usage:
   recipe_ai.py ask   <captions.json> <duration_s> <ask_dir> [2]      write system.txt + user.txt (the request); 2 = prompt v2

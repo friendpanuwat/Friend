@@ -14,7 +14,7 @@ const build = (id, dir) => execFileSync('python3', [path.join(__dirname, 'build.
   const b = await chromium.launch(); const page = await b.newPage({viewport: {width: 1080, height: 1920}});
   const open = async dir => { await page.goto('file://' + path.join(dir, 'scene.html')); await page.evaluate(() => document.fonts.ready); };
   let ids = only;
-  if (!ids.length) { const p = path.join(work, '_probe'); build('price-cut', p); await open(p); ids = await page.evaluate(() => Object.keys(SCENES)); }
+  if (!ids.length) { const p = path.join(work, '_probe'); build('-', p); await open(p); ids = await page.evaluate(() => Object.keys(SCENES)); }
   const res = {};
   for (const id of ids) {
     const dir = path.join(work, id); build(id, dir); await open(dir);

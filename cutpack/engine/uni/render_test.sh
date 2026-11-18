@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 # Render the uni test: every base scene × every style as a short silent clip on Friend's sample clip
 # (0.5 s speaker → scene 4 s → 0.5 s speaker).
-# usage: render_test.sh <work_dir> <out_dir> [styles] [scenes]        e.g.  render_test.sh /tmp/w out "card glass split" "not-worth not-worth.stars"
-#   a scene id is <meaning> or <meaning>.<picture>; every picture of one meaning gets the same place in the clip (index),
-#   so a style dresses them alike. env WIDTH = clip width (720), env EXTRA = one more scene file (e.g. recipes from the AI)
+# usage: render_test.sh <work_dir> <out_dir> <styles> <scenes>        e.g.  render_test.sh /tmp/w out "card glass split" "<sentence>.<draft>@0 …"
+#   name the scenes: the old default list (the first six scenes) went with the old drafts (deleted 2026-11-17, DECISIONS 3);
+#   a scene may carry its place in the clip <id>@<index> (no @ = 0). env WIDTH = clip width (720), env EXTRA = one more scene file
 #   env BUILD_ARGS = more build.py options (e.g. "--speaker .86")
 #   PREVIEW=1 → stills only (<work>/<style>_<scene>/prev/) and contact sheets <work>/sheet_<style>.jpg, no MP4
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"; CORE="$HERE/../core"
 W="$(mkdir -p "$1" && cd "$1" && pwd)"; OUT="$(mkdir -p "$2" && cd "$2" && pwd)"
-MEANINGS="price-cut not-worth undecided fewer-customers not-first fix-spot"
-STYLES="${3:-card glass split}"; SCENES="${4:-$MEANINGS}"; WIDTH="${WIDTH:-720}"
+STYLES="${3:-card glass split}"; SCENES="${4:?name the scenes: render_test.sh <work> <out> <styles> <scenes>}"; WIDTH="${WIDTH:-720}"
 export NODE_PATH="${NODE_PATH:-$(npm root -g)}"
 [ -d "$W/base/src_frames" ] || bash "$CORE/pipeline.sh" "$W/base" "$HERE/../../library/sample-clip/character_talking.mp4" frames >/dev/null
 one() {
@@ -25,9 +24,8 @@ one() {
 }
 export -f one; export W OUT HERE CORE WIDTH EXTRA BUILD_ARGS
 jobs=()
-idx() { local i=0 m; for m in $MEANINGS; do [ "$m" = "${1%%.*}" ] && { echo $i; return; }; i=$((i+1)); done; echo 0; }
 # a scene id may carry its place in the clip: <id>@<index>
-for st in $STYLES; do for sc in $SCENES; do case $sc in *@*) jobs+=("$st ${sc%@*} ${sc#*@}");; *) jobs+=("$st $sc $(idx $sc)");; esac; done; done
+for st in $STYLES; do for sc in $SCENES; do case $sc in *@*) jobs+=("$st ${sc%@*} ${sc#*@}");; *) jobs+=("$st $sc 0");; esac; done; done
 printf '%s\n' "${jobs[@]}" | xargs -P 4 -L 1 bash -c 'one $0 $1 $2'
 if [ -n "${PREVIEW:-}" ]; then
   for st in $STYLES; do

@@ -1,5 +1,8 @@
 # ทดสอบชุดฐานเดียวข้าม 3 สไตล์ (2026-11-07)
 
+> **2026-11-17 ไฟล์ภาพของร่างเก่าลบแล้ว** (Friend: "ก่อนอื่นลบชุดฐานเก่าทิ้งให้หมด เราจะใช้ชุดฐาน glow-line" · หน้ารีวิว ภาพนิ่ง คลิป "ลบด้วย" · DECISIONS ข้อ 3) ลบ: `page.html` … `page27.html` · `round*_sketches_*.jpg` `base_review.jpg` · `clips/` `pictures/` `lego/` `lego2/` `ai/` `ai2/` `overlay/` `small/` `small-lego/` `round1/` … `round11n_motion/` · `cats-ai/stills/` `stills.sh` `make_page.py` `variant_names.json` `stats.json` · ย้อนดูได้ใน git ที่ commit `809e097`
+> **ที่เหลือ** (ข้อมูล ไม่ใช่ภาพของร่าง ใช้กับร่างชุดใหม่ได้): `cats-ai/input/` บทพูดมีเวลา 6 เรื่อง · `cats-ai/ask/` คำขอที่ส่ง AI · `cats-ai/out/` คำตอบที่ผ่านตัวตรวจ (`sentences.js` `report.json`) · `gaps/` นับประโยคจากบทพูดคลิปของคนอื่น 26 คลิป · บันทึกด้านล่างเป็นประวัติ ไฟล์และลิงก์ที่อ้างถึงส่วนใหญ่ไม่มีแล้ว
+
 - รอบแรก (6 ฉาก × 3 สไตล์): **https://claude.ai/artifact/3vrjAJsDyCay1pLjFpZw8S** (`page.html`, คลิปใน `clips/`)
 - รอบสอง (6 ความหมาย × 3 ภาพ × 3 สไตล์): **https://claude.ai/artifact/2RCaHCrr1eGzmmfuKVAcRv** (`page2.html`, คลิปใน `pictures/`)
 - รอบสาม เลโก้ (โครงเรื่อง 5 แบบ, 21 สูตร × 3 สไตล์): **https://claude.ai/artifact/HUwgSfJgzg4cg6Fv1F5kQ4** (`page3.html`, คลิปใน `lego/`)
