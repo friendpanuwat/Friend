@@ -5,7 +5,9 @@
    plan files: fixing one word later does not change the rest), stay away from what this customer's last 10 runs showed
    (DECISIONS 2026-11-03: 5–10 clips; a run of the same clip again counts too).
    Rules, in order, for each picture (the AI gave its category, the code picks the drawing):
-     1. both glow-line sets take turns inside a category (Friend: "ทั้งสองชุด ... ระบบเลือกสลับกันไป"), the first set at random
+     1. the template set when the category has one (Friend 2026-11-18: "motion graphic ผมอยากให้ใช้ template ชุดฐานเป็นหลักเลยนะครับ
+        ไม่ว่าจะสไตล์ไหนก็ตาม ส่วนหมวดไหนที่ยังไม่มี template ชุดฐานก็ใช้อันเดิมไปก่อน"), else the category set (it replaced
+        "ทั้งสองชุด ... ระบบเลือกสลับกันไป", 2026-11-12)
      2. never a drawing this clip already showed
      3. not one of the customer's last 10 runs, while the set has others left (else the one shown longest ago)
      4. a drawing that fills a screen well (width / height 0.7–2.4, glow/shapes.json) before a very flat or very tall one
@@ -35,9 +37,10 @@ function pick({seed, history = [], scenes}) {
     if (!all.length) continue;
     const r = rng(seed ^ hash(sc.id));
     let sets = [...new Set(all.map(id => id.split('.')[0]))].sort();
-    if (sc.only === 'T') sets = sets.filter(x => x.endsWith('T'));      // an overlay: the template set only (Friend 2026-11-17: "ห้ามใส่ชุดฐานปกติ")
+    if (sets.some(x => x.endsWith('T'))) sets = sets.filter(x => x.endsWith('T'));   // 1. the template set first, whenever there is one
+    else if (sc.only === 'T') sets = [];                                // an overlay: the template set only (Friend 2026-11-17: "ห้ามใส่ชุดฐานปกติ")
     if (!sets.length) continue;
-    if (!(sc.cat in turn)) turn[sc.cat] = Math.floor(r() * sets.length);   // 1. the first set of this category: at random
+    if (!(sc.cat in turn)) turn[sc.cat] = Math.floor(r() * sets.length);   // (one set now; several would take turns)
     const set = sets[turn[sc.cat]++ % sets.length];
     const mine = all.filter(id => sets.includes(id.split('.')[0]));
     let pool = mine.filter(id => id.startsWith(set + '.') && !used.has(id));   // 2. not shown in this clip

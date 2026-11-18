@@ -263,6 +263,11 @@ function glowDress(svg, P, base) {
   if (base === 'neon') {
     /* every word of a picture gets a thin dark edge under it, so a label that lands on a white ring or a bright video still reads
        (Friend's clip 2026-11-17: "ไม่ต้องรอ" over the ring of a no-sign); dark, so the glow does not light it */
+    /* a white mark on a solid light-blue shape (a lit dot with its white ring: 1.5:1 in B08T) turns deep navy */
+    { const solids = [...root.querySelectorAll('rect,circle,ellipse,path,polygon')].filter(e => isAccV(e.getAttribute('fill')) && glowRgba(e.getAttribute('fill'))[3] >= .9).map(e => ({e, r: box(e), i: pos.get(e) ?? -1}));
+      if (solids.length) root.querySelectorAll('*').forEach(e => { const i = pos.get(e) ?? -1, r = box(e); if (!area(r) && !r.width) return;
+        const cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2; if (!solids.some(o => o.e !== e && o.i < i && inside(o.r, cx, cy))) return;
+        for (const k of ['stroke', 'fill']) if (same(e.getAttribute(k), P.line)) e.setAttribute(k, '#0B2238'); }); }
     root.querySelectorAll('text').forEach(t => { t.setAttribute('paint-order', 'stroke'); t.setAttribute('stroke', 'rgba(6,12,20,.85)'); t.setAttribute('stroke-width', '7'); t.setAttribute('stroke-linejoin', 'round'); });
     const fr = glowFrost(P), shapes = [...root.querySelectorAll('rect,circle,ellipse,path,polygon')], same4 = (a, b) => ['left', 'top', 'width', 'height'].every(q => Math.abs(a[q] - b[q]) < 3);
     const frost = shapes.filter(e => e.getAttribute('fill') === fr).map(e => ({e, r: box(e)}));

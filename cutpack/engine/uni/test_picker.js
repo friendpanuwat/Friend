@@ -72,9 +72,10 @@ console.log('  drafts   :', Object.entries(have).map(([c, k]) => `${c} ${k}`).jo
   const four = Object.values(a).slice(0, 6);
   assert.strictEqual(new Set(four).size, 6, 'no drawing twice in one clip: ' + four);
   const sets = four.map(id => id.split('.')[0]);
-  assert(sets.every((x, k) => k === 0 || x !== sets[k - 1]), 'the two glow-line sets take turns in a category: ' + sets);
+  assert(sets.every(x => x === 'B04T'), 'a category with a template set uses only it (Friend 2026-11-18): ' + sets);
+  assert(a.s7.startsWith('B13.'), 'a category with no template set yet uses the category set: ' + a.s7);
   let hist = [], seen = new Set();
   for (let k = 0; k < 8; k++) { const p = Object.values(pick({seed: 500 + k, history: hist, scenes: sc.slice(0, 3)}).picks);
     p.forEach(id => { assert(!seen.has(id), `run ${k + 1} of the same clip shows ${id} again`); seen.add(id); }); hist.push({picks: p}); }
-  console.log('  random   : same seed same picks · 6 of B04 all different, sets in turn · 8 runs of one clip, no drawing twice');
+  console.log('  random   : same seed same picks · 6 of B04 all different, all from the template set · B13 from its category set · 8 runs of one clip, no drawing twice');
 }
