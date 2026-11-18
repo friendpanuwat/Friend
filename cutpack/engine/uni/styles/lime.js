@@ -52,10 +52,28 @@ for (const L of Object.values(LIME.layouts)) { if (L.card) L.stage = limeInner(L
    forehead) below them. Returns the moved layout, or null when this face leaves no room. Screens and split screens always fit. */
 const LIME_LOW = {talk: ['lead', 'key'], hands: ['lead', 'key', 'card'], cta: ['lead', 'key', 'card'], big: ['card'], top: ['lead', 'key'],
   side_l: ['lead', 'key', 'card'], side_r: ['lead', 'key', 'card'], talk_top: []};
-const LIME_HIGH = {talk_top: ['lead', 'key'], big: ['lead', 'key'], top: ['card']};
+const LIME_HIGH = {talk_top: ['lead', 'key'], big: ['lead', 'key']};
+/* CARDS SIZED TO THE PICTURE (final 2026-11-18, Friend on the card above the head, 760 × 230 with a small square picture in it: "เราแค่ย่อการ์ดให้แคบลงแล้ว
+   ก็ทำให้การ์ด[สูง]ขึ้น motion graphic มันก็จะได้ดูเต็มการ์ด ... อยากให้แก้ระบบด้วยเลย" · "ทำให้ความกว้างน้อยลงแล้วก็ทำให้ความสูงสูงขึ้น คล้ายๆกับการ์ดแรกที่เปิดคลิป
+   ออกมาแต่อาจจะเล็กกว่านั้นนิดนึง" · "ทำกับสไตล์นี้ก่อน"): a layout's card is the ROOM a card may take; the card itself is the biggest box of the
+   picture's real shape (REAL_SHAPES, else the sample's) inside it, plus the card's own padding, placed at the room's anchor (the side next to
+   the words) and centred left-right. The card above the head takes the room between the search bar and the hair (at most 760 × 600). */
+const LIME_ANCHOR = {hands: 'top', cta: 'top', big: 'top', screen: 'top', split_top: 'top', split_bottom: 'top', top: 'bottom', side_l: 'center', side_r: 'center'};
+function limeShape(L, ar, name) {
+  if (!ar || !L.card) return L;
+  const [x, y, w, h] = L.card, iw = w - 52, ih = h - 70;
+  const nw = ar > iw / ih ? iw : ih * ar, nh = ar > iw / ih ? iw / ar : ih, cw = Math.round(nw + 52), ch = Math.round(nh + 70);
+  const a = LIME_ANCHOR[name] ?? 'center', ny = a === 'top' ? y : a === 'bottom' ? y + h - ch : y + (h - ch) / 2;
+  L.card = [Math.round(x + (w - cw) / 2), Math.round(ny), cw, ch]; L.stage = limeInner(L.card);
+  return L;
+}
 function limeFit(name, f) {
   const L0 = LIME.layouts[name]; if (L0.screen || L0.split) return L0;
   const [, top, , chin] = f, L = JSON.parse(JSON.stringify(L0));
+  if (name === 'top') {                                             // the room above the head: under the search bar (220) to 140 over the forehead
+    const h = Math.min(600, top - 140 - 220); if (h < 230) return null;
+    L.card = [160, 220, 760, h]; L.stage = limeInner(L.card);
+  }
   const topOf = k => k === 'lead' ? L[k].y - 40 : k === 'key' ? L[k].y - 75 : L[k][1];
   const bottomOf = k => k === 'lead' ? L[k].y + 40 : k === 'key' ? L[k].y + 95 : L[k][1] + L[k][3];
   for (const k of LIME_HIGH[name] ?? []) if (top - 130 < bottomOf(k) + 10) return null;   // above the head: under the hair? no room
@@ -141,7 +159,8 @@ STYLE('lime', {
       }
     }
     LIME.used[name] = (LIME.used[name] ?? 0) + 1; LIME.last = name;
-    const L = (meta.layout ? LIME.layouts[name] : limeFit(name, face)) ?? LIME.layouts.screen;   // (a test's forced layout stays as on the sheet)
+    const L0 = (meta.layout ? LIME.layouts[name] : limeFit(name, face)) ?? LIME.layouts.screen;   // (a test's forced layout stays as on the sheet)
+    const L = limeShape(JSON.parse(JSON.stringify(L0)), cpShape(meta.variant, t0), name);       // the card sized to its picture (final 2026-11-18)
     const root = div('', SC); root.className = 'l-root' + (L.screen ? ' l-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     const grid = host => {
