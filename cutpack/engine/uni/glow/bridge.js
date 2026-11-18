@@ -138,7 +138,11 @@ const GLASSY = {
     frost: ['rgba(14,14,16,.86)', 'rgba(12,12,14,.62)'], solid: '#18181B', litMark: '#FFC9C9', litWord: true},
   horizon: {lit: 'rgba(90,38,8,.45)', litBar: 'rgba(110,48,10,.55)', litIcon: '#FB7A1A', litBody: '#3A1C08', mark: '#2A1204', halo: '#FFE6CC', outlineLit: true, glow: 1.3, fig: '#8A7A70', washLit: true,
     frost: ['rgba(78,56,42,.5)', 'rgba(30,20,15,.6)'], solid: '#2A1C14', litMark: '#FFD9B0', litWord: true},
-  lime: {lit: 'rgba(120,170,25,.32)', litBar: 'rgba(120,170,25,.32)', litIcon: '#D4FA6A', litBody: '#2C3A12', mark: '#18220A', halo: '#EEF4E6', outlineLit: true, glow: 1.7},   // the white lines glow white on the sheet, only the lit part lime
+  /* lime final (2026-11-18, Friend's picture of three steps: "อยากให้ทำ motion graphic ให้เรืองแสงและมีสีเหมือนรูปที่แนบไป" · "ลบขอบของตัวหนังสือออกด้วย"):
+     sampled — the tiles are clear glass (the video shows through), white lines glowing white; the lit tile a deep see-through green
+     (#4E5C1F) under a lime edge, its icon and word lime (#D5FF3D) · noEdge: no dark edge under the words */
+  lime: {lit: 'rgba(70,95,10,.55)', litBar: 'rgba(70,95,10,.55)', litIcon: '#D5FF3D', litBody: '#2C3A12', mark: '#18220A', halo: '#F4F8EC', outlineLit: true, glow: 2.2,
+    frost: ['rgba(255,255,255,.07)', 'rgba(255,255,255,.06)'], litMark: '#EFFFB8', litWord: true, noEdge: true},
 };
 
 const glowCtx = document.createElement('canvas').getContext('2d');
