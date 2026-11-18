@@ -47,6 +47,7 @@ RULES = {
     'violet':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # ม่วงคลื่นเสียง: 12 of 12 shots carry a picture (first guess)
     'teal':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # การ์ดเขียวน้ำทะเล: 12 of 12 shots carry a picture or a card (first guess)
     'yellow':        dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # ขั้นตอนเหลือง: 12 of 12 shots carry a picture or step chips; pictures of 3.5 s or more so a screen holds its chips (trial after Friend: "ดูโล่งๆมากกว่าต้นแบบเยอะ", the first clip's 1.5–3 s screens held 1–2 chips and 45 % of it was the speaker alone)
+    'pink':          dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # การ์ดชมพู: as the styles 6–9 that passed (LESSONS 66)
     'terminal':      dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # เทอร์มินัลแดง: as the styles 6–8 that passed (LESSONS 66)
     'horizon':       dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # ขอบฟ้าส้ม: as the yellow and HUD styles that passed (LESSONS 66)
     'hud':           dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # เส้นชี้ HUD: as the yellow style that passed (3.5 s screens so the notes fill: LESSONS 66)
