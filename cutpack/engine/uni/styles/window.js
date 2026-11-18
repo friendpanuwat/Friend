@@ -26,18 +26,18 @@ const WIN = {
     talk:     {speaker: true, lead: {x: 540, y: 1062}, key: {x: 540, y: 1175}},                                                  // shot 01 without its window
     full:     {speaker: true, lead: {x: 540, y: 1062}, key: {x: 540, y: 1175}, win: [80, 1300, 840, 360]},              // shot 01 (sheet to y 1682)
     full_n:   {speaker: true, lead: {x: 540, y: 1117}, key: {x: 540, y: 1226}, win: [210, 1340, 670, 320]},             // shot 02 (narrow window)
-    dark:     {screen: true, lead: {x: 540, y: 668}, key: {x: 540, y: 777}, win: [80, 1000, 840, 630], decor: 0},   // shot 03
+    dark:     {screen: true, lead: {x: 540, y: 668}, key: {x: 540, y: 777}, win: [80, 932, 840, 630], decor: 0},    // shot 03 · the window 1000 → 932 (final, point 4)
     float:    {screen: true, frame: [62, 258, 470, 740, 30], lead: {x: 770, y: 610, maxW: 470}, key: {x: 770, y: 700, maxW: 470, half: 50},
                win: [300, 1070, 620, 560], decor: 0},                                                                    // shot 04
     full_w:   {speaker: true, lead: {x: 540, y: 1040}, key: {x: 540, y: 1183}, win: [170, 1300, 740, 360]},             // shot 05
-    cascade:  {screen: true, win2: [300, 270, 690, 460], lead: {x: 330, y: 887}, key: {x: 330, y: 1023}, win: [60, 1170, 720, 470], decor: 1},   // shot 06
+    cascade:  {screen: true, win2: [300, 270, 690, 460], lead: {x: 330, y: 887}, key: {x: 330, y: 1023}, win: [60, 1178, 720, 470], decor: 1},   // shot 06 · 1170 → 1178 (final, point 4: 90 under the key word)
     full_d:   {speaker: true, lead: {x: 540, y: 1051}, key: {x: 540, y: 1161}, win: [80, 1300, 840, 360]},             // shot 07
     stats:    {screen: true, frame: [560, 250, 360, 690, 30], lead: {x: 290, y: 653, maxW: 440}, key: {x: 290, y: 756, maxW: 440, half: 50},
                win: [80, 1070, 840, 560], decor: 1},                                                                     // shot 08 (sheet frame to x 1019)
     full_c:   {speaker: true, lead: {x: 540, y: 1073}, key: {x: 540, y: 1172}, win: [80, 1300, 840, 360]},             // shot 09
-    dark_b:   {screen: true, lead: {x: 540, y: 672}, key: {x: 540, y: 777}, win: [80, 1000, 840, 630], decor: 1},   // shot 10
+    dark_b:   {screen: true, lead: {x: 540, y: 672}, key: {x: 540, y: 777}, win: [80, 932, 840, 630], decor: 1},    // shot 10 · 1000 → 932 (final, point 4)
     recap:    {screen: true, lead: {x: 540, y: 493}, key: {x: 540, y: 596},
-               wins: [[80, 770, 400, 420], [500, 770, 420, 420], [80, 1230, 400, 420], [500, 1230, 420, 420]], decor: 0},     // shot 11
+               wins: [[80, 751, 400, 420], [500, 751, 420, 420], [80, 1211, 400, 420], [500, 1211, 420, 420]], decor: 0},     // shot 11 · 770/1230 → 751/1211 (final, point 4)
     cta:      {speaker: true, lead: {x: 540, y: 1066}, key: {x: 540, y: 1172}, win: [80, 1300, 840, 360]},             // shot 12
     /* final 2026-11-18 (Friend: "พื้นที่ด้านบนหัวยังว่างสามารถเอาโอเวอร์เลย์ไปไว้ตรงนั้นได้นะครับ เพื่อความหลากหลาย"): the window over
        the head, from under the search bar (220) to 140 over the face box (the hair, as lime's top card); its height from the clip's
@@ -214,7 +214,13 @@ STYLE('window', {
       [0, 1, 2].forEach(k => { const r = div(`left:30px;top:${40 + k * 92}px;width:${L.win2[2] - 120 - k * 60}px;height:26px;border-radius:13px;background:rgba(255,255,255,${.16 - k * .04})`, back); }); }
     const stage = L.win ? makeWin(L.win, L.win2 ? 1 : 0) : box([0, 0, 1, 1]);
     const stages = L.wins ? L.wins.map((c, k) => makeWin(c, k, false)) : null;
-    return {root, stage, stages, cam: root, L, name, cat, dark: !!L.screen};
+    /* final 2026-11-18 point 4 (Friend: "ฉากไหนที่มี background และ motion graphic แต่ไม่มีหน้าผม motion graphic ต้องอยู่กึ่งกลาง" ·
+       "ข. แต่ระวังอย่าให้การ์ดกับซับไตเติ้ลติดกันมากเกินไป"): on a screen without the face the picture's end drawing sits in the middle
+       of its window (glow/bridge.js glowFit with a room: the view widens evenly round what is drawn, instead of round the motion, which
+       left the drawing at the window's bottom); its motion may use the window's own padding · the windows of these screens sit 90 px
+       under the key word (the key word's row ends 65 px under its centre) */
+    const room = L.screen && !L.frame ? {l: 22, t: 8, r: 22, b: 22} : null;
+    return {root, stage, stages, cam: root, L, name, cat, dark: !!L.screen, room};
   },
   /* between pictures: the words at the chest, moved below the chin when the face is low */
   speakerFrame(a, b) {
