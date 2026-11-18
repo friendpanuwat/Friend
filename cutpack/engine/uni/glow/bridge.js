@@ -27,6 +27,7 @@ const GLOWLOOK = {
   yellow: {acc: '--ac',    glow: {c: '#FFD600', self: true},    weight: {k: 1.6, min: 4.0, floor: 2.6}, floatAlpha: .62},   // the sheet's lines are 5 px where neon's are 3
   hud:   {acc: '--ac',     glow: {c: '#FFD600', self: true},    weight: {k: 1.6, min: 4.0, floor: 2.6}, floatAlpha: .62},
   pink:  {acc: '--ac',     glow: {c: '#E8469A', all: false},    weight: {k: 1.4, min: 3.4, floor: 2.2}, floatAlpha: .9},    // การ์ดชมพู (Friend's 10th new sheet, 2026-11-18): the first light style, dark lines on white cards, only the pink lit part glows
+  cream: {acc: '--ac',     glow: {c: '#2F6FED', all: false},    weight: {k: 1.4, min: 3.4, floor: 2.2}, floatAlpha: .9},    // ครีมน้ำเงิน (Friend's 11th new sheet, 2026-11-18): the second light style, dark lines on the cream screen, only the blue lit part glows
   terminal: {acc: '--ac',  glow: {c: '#EE4444', self: true},    weight: {k: 1.6, min: 4.0, floor: 2.6}, floatAlpha: .62},   // เทอร์มินัลแดง (Friend's 9th new sheet, 2026-11-18): thick white glowing lines, the lit part red
   horizon: {acc: '--ac',   glow: {c: '#FB7A1A', self: true},    weight: {k: 1.8, min: 5.0, floor: 3.0}, floatAlpha: .6},    // ขอบฟ้าส้ม (Friend's 8th new sheet, 2026-11-18): thick warm-white lines (7 px on the full-size shot 04), the lit part orange   // เส้นชี้ HUD (Friend's 7th new sheet, 2026-11-18): the same glow-line look as the yellow style (the sheet draws them alike)   // ขั้นตอนเหลือง (Friend's 6th new sheet, 2026-11-18): near-black bodies, white lines glowing white, the lit part yellow    // การ์ดเขียวน้ำทะเล (Friend's 4th new sheet, 2026-11-18): the glass look in teal cards, teal light
   lime:  {acc: '--ac',     glow: {c: '#B5EE38', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5},    // เขียวมะนาว (Friend's 2nd new sheet, 2026-11-18): the neon glass, lime light    // นีออนฟ้า (Friend's sheet 2): frosted grey glass, white lines with their own soft glow, the lit part blue and glowing hard
@@ -98,7 +99,7 @@ function glowWeight(svg, P, base) {
     const w = px(e), fl = W.floor ?? 1.6; if (w > 0 && w < fl) e.setAttribute('stroke-width', (+e.getAttribute('stroke-width') * fl / w).toFixed(3)); });
 }
 /* a floating drawing (no solid surface behind it: glass, card-overlay on the video) gets this body colour, see-through */
-const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '#1C1C20', neon: '#2A2E33', lime: '#26292B', window: '#151B26', teal: '#152A26', violet: '#1A1030', yellow: '#141414', hud: '#141414', horizon: '#1A100B', terminal: '#121214', pink: '#FFFFFF'};
+const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '#1C1C20', neon: '#2A2E33', lime: '#26292B', window: '#151B26', teal: '#152A26', violet: '#1A1030', yellow: '#141414', hud: '#141414', horizon: '#1A100B', terminal: '#121214', pink: '#FFFFFF', cream: '#FFFFFF'};
 /* the GLASS styles (neon, lime): frosted glass bodies, white lines glowing in their own colour, the lit part washed in the style's
    colour. Per style: lit = the lit tile's wash · litBar = a lit bar's wash under white words · litIcon = the icon on a lit tile ·
    mark = a white mark on a solid accent shape · halo = the wide halo of every line */
@@ -122,6 +123,10 @@ const GLASSY = {
      a pink edge (#E8469A, 3.8:1 on white), its icon and word pink, marks on solid pink white; noEdge: no dark edge under the words
      (they are dark on white already) */
   pink: {lit: 'rgba(232,70,154,.07)', litBar: 'rgba(232,70,154,.14)', litIcon: '#E8469A', litBody: '#FFFFFF', mark: '#FFFFFF', halo: '#FFFFFF', outlineLit: true, glow: 1, fig: '#55536A', washLit: true,
+    frost: ['rgba(255,255,255,.98)', 'rgba(255,255,255,.95)'], solid: '#FFFFFF', litMark: '#FFFFFF', litWord: true, noEdge: true},
+  /* ครีมน้ำเงิน (the full-size shots, sampled): white tiles with dark edges on the cream screen (#F8F7F3), the lit tile a faint blue
+     wash under a blue edge (#2F6FED, 4.6:1 on white), its icon and word blue; noEdge as pink */
+  cream: {lit: 'rgba(47,111,237,.07)', litBar: 'rgba(47,111,237,.14)', litIcon: '#2F6FED', litBody: '#FFFFFF', mark: '#FFFFFF', halo: '#FFFFFF', outlineLit: true, glow: 1, fig: '#55534F', washLit: true,
     frost: ['rgba(255,255,255,.98)', 'rgba(255,255,255,.95)'], solid: '#FFFFFF', litMark: '#FFFFFF', litWord: true, noEdge: true},
   terminal: {lit: 'rgba(70,14,16,.7)', litBar: 'rgba(110,22,26,.7)', litIcon: '#F04848', litBody: '#3A0C0E', mark: '#2A0808', halo: '#FFFFFF', outlineLit: true, glow: 1.3, fig: '#80808A', washLit: true,
     frost: ['rgba(14,14,16,.86)', 'rgba(12,12,14,.62)'], solid: '#18181B', litMark: '#FFC9C9', litWord: true},
