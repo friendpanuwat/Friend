@@ -114,7 +114,7 @@ const GLASSY = {
     frost: ['rgba(12,12,12,.86)', 'rgba(10,10,10,.62)'], solid: '#161616', litMark: '#FFF3B0', litWord: true},   // เส้นชี้ HUD: the yellow style's values (the sheet's pictures are drawn alike)
   /* ขอบฟ้าส้ม (shot 04 full size, sampled): bodies a warm see-through brown (#2B1E16 on the screen), the lit tile a deep orange wash
      (#3D210) under an orange edge, its icon and word orange, the white lines warm (#FEF1E3) */
-  horizon: {lit: 'rgba(120,52,10,.5)', litBar: 'rgba(140,60,12,.6)', litIcon: '#FB7A1A', litBody: '#3A1C08', mark: '#2A1204', halo: '#FFE6CC', outlineLit: true, glow: 1.3, fig: '#8A7A70', washLit: true,
+  horizon: {lit: 'rgba(90,38,8,.45)', litBar: 'rgba(110,48,10,.55)', litIcon: '#FB7A1A', litBody: '#3A1C08', mark: '#2A1204', halo: '#FFE6CC', outlineLit: true, glow: 1.3, fig: '#8A7A70', washLit: true,
     frost: ['rgba(78,56,42,.5)', 'rgba(30,20,15,.6)'], solid: '#2A1C14', litMark: '#FFD9B0', litWord: true},
   lime: {lit: 'rgba(120,170,25,.32)', litBar: 'rgba(120,170,25,.32)', litIcon: '#D4FA6A', litBody: '#2C3A12', mark: '#18220A', halo: '#EEF4E6', outlineLit: true, glow: 1.7},   // the white lines glow white on the sheet, only the lit part lime
 };
