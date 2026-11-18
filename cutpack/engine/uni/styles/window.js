@@ -53,7 +53,7 @@ const WIN = {
     [{cx: 930, cy: 170, r: 330, chips: [165, 100], light: 132, dir: 1}, {cx: 140, cy: 1760, r: 300, chips: [-80, -10], light: -45, dir: -1}],
     [{cx: 150, cy: 170, r: 330, chips: [15, 80], light: 48, dir: 1}, {cx: 940, cy: 1760, r: 300, chips: [260, 190], light: 225, dir: -1}],
   ],
-  ring: 'square',                              // the ring's shape (winRingPath): 'square' · 'hex' · 'split'
+  ring: 'split',                                // the ring's shape (winRingPath): 'split' (Friend 2026-11-18 chose ค) · 'square' · 'hex'
   spin: 2.25,                                   // degrees a second (Friend: "หมุนให้เร็วกว่านี้อีกนิดนึง ... แค่เร็วกว่าเดิมนิดเดียว": 1.5 → 2.25)
 };
 /* the ring's line, centred at (R, R), from the angle 0 clockwise (as the angles of its chips): a rounded square (as the windows), a
