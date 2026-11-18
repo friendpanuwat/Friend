@@ -107,12 +107,15 @@ WRONG value "ห้า" (write the digits as said) · cat B09 (a number that is 
 # Step 5 — camera
 "zoom": the 6 to 8 strongest lines of the clip (a claim, a turn, the point), strongest first, as line numbers. The camera slowly pushes in on some of them.
 
+# Step 6 — where each point ends
+"ends": every line that ENDS a sentence or a point: after it the speaker has said one whole thing and moves on. A long sentence runs over several lines; only its last line is an end. A picture stays on screen until its point ends, so never mark a line in the middle of a sentence (one that ends on a word like ก็ ว่า เพราะ ถ้า แต่ หรือ ที่, or that the next line goes on from). The last line is always an end. As line numbers, in order.
+
 # Icons
 {icons}
 
 # Answer
 Only JSON, no other text:
-{{"pictures":[{{"line":4,"rank":1,"shows":"…","cat":"B04","slots":{{…}},"key":"…"}},{{"line":15,"rank":3,"cat":"none","need":"…"}}],"zoom":[4,12,9,1,15,7]}}
+{{"pictures":[{{"line":4,"rank":1,"shows":"…","cat":"B04","slots":{{…}},"key":"…"}},{{"line":15,"rank":3,"cat":"none","need":"…"}}],"zoom":[4,12,9,1,15,7],"ends":[2,5,6,9,12,15,18]}}
 """
 FIX = '''
 
@@ -326,8 +329,12 @@ def camera_and_accent(answer, lines, out):
         n, w = a.get('line'), a.get('word', '')
         if isinstance(n, int) and 0 < n <= len(lines) and w and glen(w) <= 12 and flat(w) in flat(lines[n - 1]): acc.append({'line': n, 'word': w})
         else: dropped.append(a)
-    json.dump({'zoom': list(dict.fromkeys(zoom)), 'accent': acc}, open(os.path.join(out, 'camera.json'), 'w'), ensure_ascii=False)
-    print(f'camera: {len(zoom)} zoom lines · {len(acc)} accent words' + (f' ({len(dropped)} dropped: {dropped})' if dropped else ''))
+    # where each point ends (Friend 2026-11-18, every style: "อย่าเปลี่ยนฉากกลางคัน ให้เขาพูดเรื่องนั้นให้จบก่อน"): lines that exist, in order;
+    # tools/clip_plan.py starts and ends scenes only on them (no answer: on the speaker's pauses)
+    ends = sorted({n for n in raw.get('ends', []) if isinstance(n, int) and 0 < n <= len(lines)})
+    if ends and ends[-1] != len(lines): ends.append(len(lines))
+    json.dump({'zoom': list(dict.fromkeys(zoom)), 'accent': acc, 'ends': ends}, open(os.path.join(out, 'camera.json'), 'w'), ensure_ascii=False)
+    print(f'camera: {len(zoom)} zoom lines · {len(acc)} accent words · {len(ends)} points end' + (f' ({len(dropped)} dropped: {dropped})' if dropped else ''))
 
 
 def fix(ask_dir, out):

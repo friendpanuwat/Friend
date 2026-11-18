@@ -96,16 +96,30 @@ for j, c in enumerate(CAP):
 
 
 # SENTENCES (Friend 2026-11-18, for every style: "เวลา user พูดประเด็นอะไรอยู่ อย่าเปลี่ยนฉากกลางคัน ให้เขาพูดเรื่องนั้นให้จบก่อน จากดราฟแรก
-# บ่อยครั้งมากที่ผมจะพูดประโยคนั้นๆไม่จบแล้ว แต่ฉากเปลี่ยนไปแล้ว"): a scene starts and ends only where a sentence ends. The caption lines
-# (Haiku, step 4) end at a pause, a sentence's end or a new idea, but "a long sentence becomes several lines", so a line's end alone
-# is not a sentence's end: the speaker's pause is. A line ends a sentence when the next line starts BREAK s or more after it
-# (or it is the last). Scenes start at a sentence's first line and end at a sentence's last line.
-BREAK = 0.25
-ends = [i for i in range(len(lines)) if i == len(lines) - 1 or lines[i + 1]['t0'] - line_ph[i][-1]['t1'] >= BREAK] if all(line_ph) else list(range(len(lines)))
-if not ends or ends[-1] != len(lines) - 1: ends.append(len(lines) - 1)
+# บ่อยครั้งมากที่ผมจะพูดประโยคนั้นๆไม่จบแล้ว แต่ฉากเปลี่ยนไปแล้ว"): a scene starts and ends only where a sentence or a point ends. The caption
+# lines (Haiku, step 4) split a long sentence over several lines, and Typhoon's word times run on with no gap (the test clip: 0 of 193
+# gaps over 0.05 s), so the AI that plans the pictures (cat_ai.py, step 6) names the lines that end a point (camera.json "ends").
+# No answer: the speaker's pauses in the voice (a dip of 0.12 s or more, 16 dB under the median, within 0.2 s of a line's end).
+def pause_ends():
+    wav = os.path.join(W, 'base', 'voice.wav')
+    if not os.path.exists(wav): return list(range(len(lines)))
+    import numpy as np
+    raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', wav, '-ac', '1', '-ar', '16000', '-f', 's16le', '-'], capture_output=True).stdout
+    x = np.frombuffer(raw, np.int16).astype(float) / 32768; n = len(x) // 160
+    db = 20 * np.log10(np.sqrt((x[:n * 160].reshape(n, 160) ** 2).mean(1)) + 1e-9); low = db < np.median(db) - 16
+    dips, i = [], 0
+    while i < n:
+        j = i
+        while j < n and low[j]: j += 1
+        if j - i >= 12: dips.append((i * .01 + j * .01) / 2)
+        i = max(j, i + 1)
+    return [k for k in range(len(lines) - 1) if any(abs(d - lines[k]['t1']) < .2 for d in dips)]
+ends = sorted({n - 1 for n in camera.get('ends', [])} if camera.get('ends') else set(pause_ends()))
+ends = [e for e in ends if 0 <= e < len(lines) - 1] + [len(lines) - 1]
 SENT = []                                          # [first line, last line] of each sentence
 for e in ends: SENT.append([SENT[-1][1] + 1 if SENT else 0, e])
 sent_of = {n: k for k, (a, b) in enumerate(SENT) for n in range(a, b + 1)}
+print(f"points: {len(SENT)} ({'the AI' if camera.get('ends') else 'pauses'}) · ends at lines {[e + 1 for e in ends]}")
 
 
 def scenes_for(R):
