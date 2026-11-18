@@ -73,10 +73,10 @@ function tealFit(name, f) {
   const [, , , chin] = f, L = JSON.parse(JSON.stringify(L0)), down = d => { for (const k of ['s', 'b', 'k']) L[k].y += d; };
   if (L.pic) {
     const top = Math.max(L.pic[1], chin + 30); let h = Math.min(L.pic[3], L.s.y - 50 - 30 - top);
-    if (h < 200) { const d = Math.min(200 - h, 1590 - L.k.y); down(d); h += d; }
+    if (h < 200) { const d = Math.min(200 - h, Math.max(0, 1576 - L.k.y)); down(d); h += d; }   // 1576: the key word's foot at y 1660 (1590 let "ถูกจุด" end at 1668 once the speaker screens joined, 2026-11-18)
     if (h < 200) return null;
     L.pic = [L.pic[0], top, L.pic[2], h];
-  } else { const d = Math.max(0, chin + 30 - (L.s.y - 50)); if (L.k.y + d > 1590) return null; down(d); }
+  } else { const d = Math.max(0, chin + 30 - (L.s.y - 50)); if (L.k.y + d > 1576) return null; down(d); }
   return L;
 }
 /* the words of a spoken chunk on the speaker: up to two lines over the key word, the longer one bold (Friend's sheet: "ทำกับข้าว /
