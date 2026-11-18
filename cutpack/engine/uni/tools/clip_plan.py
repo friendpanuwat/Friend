@@ -42,7 +42,7 @@ PAST = json.load(open(HISTORY)) if HISTORY and os.path.exists(HISTORY) else []
 RULES = {
     # 2026-11-17 Friend cancelled the 8 old styles (card, glass, split, gold and their overlays; their rules are in git history,
     # git show HEAD~1:cutpack/engine/uni/tools/clip_plan.py) for 12 new ones from sheets Friend made with AI. One by one:
-    'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft', openFace=True),   # openFace: the style can open on a picture screen with the face (final 2026-11-18)
+    'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft', openFace=True, fitPick=True),   # fitPick: the drawing that fills the free space (tools/fit_pick.js, final 2026-11-18: "ทดลองเฉพาะสไตล์นี้ก่อน")   # openFace: the style can open on a picture screen with the face (final 2026-11-18)
     'lime':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),
     'violet':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # ม่วงคลื่นเสียง: 12 of 12 shots carry a picture (first guess)
     'teal':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # การ์ดเขียวน้ำทะเล: 12 of 12 shots carry a picture or a card (first guess)
@@ -245,8 +245,37 @@ def picks_for(sc, ov=()):
     return json.loads(out.stdout)['picks']
 
 
+def fit_picks(style, sc, open_):
+    """FIT PICK (a style with fitPick, Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่"): every drawing
+    the rules allow is drawn from the library with this clip's words and measured; one of those that fill the screen best, at random
+    (tools/fit_pick.js). Falls back to picks_for when it fails."""
+    order = sorted(sc, key=lambda x: x[1])
+    pools = json.loads(subprocess.run(['node', os.path.join(UNI, 'tools', 'pick.js'), '/dev/stdin'], capture_output=True, text=True, check=True,
+                                      input=json.dumps({'seed': SEED, 'history': PAST, 'pools': True, 'scenes': [{'id': r['id'], 'cat': r['cat']} for r, *_ in order]})).stdout)['pools']
+    D = os.path.join(W, f'fit_{style}'); os.makedirs(D, exist_ok=True)
+    f = json.load(open(FACES))
+    open(os.path.join(D, 'plan.js'), 'w').write(f"const RUN = {json.dumps({'seed': SEED, 'open': open_ if order and order[0][1] < .3 else 'speaker'})};\nconst FACES = {json.dumps({'track': f['track'], 'layout': f['layout'], 'keepOut': f['keepOut']})};\n"
+                                                + re.sub(r'"say": \[[^\]]*\]', '"say": ["", ""]', open(f'{W}/cats/sentences.js').read()))
+    scenes = []
+    for r, t0, t1, n in order:
+        hit = hit_of([r, t0, t1, n])
+        if hit is None or not (t0 + .3 < hit < t1 - .3): hit = (t0 + t1) / 2
+        scenes.append({'id': r['id'], 't0': round(t0, 2), 't1': round(t1, 2), 'hit': round(hit, 2), 'pool': pools.get(r['id'], [])})
+    json.dump({'seed': SEED, 'scenes': scenes}, open(os.path.join(D, 'job.json'), 'w'))
+    try:
+        res = subprocess.run(['node', os.path.join(UNI, 'tools', 'fit_pick.js'), D, style], capture_output=True, text=True, check=True, timeout=900,
+                             env={**os.environ, 'NODE_PATH': subprocess.run(['npm', 'root', '-g'], capture_output=True, text=True).stdout.strip()})
+        out = json.loads(res.stdout.strip().splitlines()[-1])
+        print(f"{style}: fit pick (best % of the screen, picked %, kept / measured): " + ' · '.join(f"{k} {v[0]}/{v[1]} {v[2]}/{v[3]}" for k, v in out['sizes'].items()))
+        if len(out['picks']) == len(order): return out['picks']
+        print(f'{style}: fit pick left some out, the rest by pick.js')
+        return {**picks_for(sc), **out['picks']}
+    except Exception as e:
+        print(f'{style}: fit pick failed ({e}), pick.js instead'); return picks_for(sc)
+
+
 def write(style, R, sc, zooms, suffix, ov=(), open_='speaker'):
-    then, picks = [], picks_for(sc, ov)
+    then, picks = [], (fit_picks(style, sc, open_) if R.get('fitPick') and not ov else picks_for(sc, ov))
     ovid = {o[0]['id'] for o in ov}
     for k, (r, t0, t1, n) in enumerate(sorted(list(sc) + list(ov), key=lambda x: x[1])):
         hit = hit_of([r, t0, t1, n])

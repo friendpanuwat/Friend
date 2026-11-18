@@ -409,7 +409,9 @@ function glowCentre(svg) {
   const ctm = svg.getScreenCTM(), k = ctm ? 1 / ctm.a : 1;          // screen px → the drawing's units
   for (const {e: b, r} of rects) {
     const leaves = [...root.querySelectorAll(leafSel)].filter(e => e !== b && !e.closest('clipPath,defs,mask') && seen(e) && (pos.get(e) ?? 0) > (pos.get(b) ?? 0))
-      .map(e => ({e, q: box(e)})).filter(o => (o.q.width > .5 || o.q.height > .5) && within(o.q, r));
+      .map(e => ({e, q: box(e)})).filter(o => (o.q.width > .5 || o.q.height > .5) && within(o.q, r))
+      .filter(o => !(Math.abs(o.q.width - r.width) < 8 && Math.abs(o.q.height - r.height) < 8))   // the box's own second layer (a box + its state, B05T spell) is the box
+      .filter(o => { const g = o.e.parentElement; if (!g || g === root) return true; const q = box(g); return q.width * q.height >= r.width * r.height || within(q, r); });   // a badge on the box's corner (B05T spell's check: its mark inside, its ring across the edge) is not in it
     if (!leaves.some(o => o.e.tagName === 'text' && o.e.textContent.trim())) continue;
     if (leaves.some(o => o.e.tagName !== 'text' && o.q.width >= .5 * r.width)) continue;   // a bar's fill or a box in the box: not a text box
     /* what moves: the highest group around each leaf that still lies wholly in the box (an icon moves as its group) */

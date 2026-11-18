@@ -27,7 +27,11 @@ const SHAPES = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'glow', 'sh
 function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const hash = s => { let h = 2166136261; for (const c of String(s)) h = Math.imul(h ^ c.codePointAt(0), 16777619) >>> 0; return h; };
 
-function pick({seed, history = [], scenes}) {
+function pick({seed, history = [], scenes, pools: wantPools = false}) {
+  /* pools (a style with fitPick, the neon style's final 2026-11-18): every picture's whole pool after rules 1 and 3 (the set, the
+     customer's last runs), so tools/fit_pick.js can measure each drawing with the clip's words and keep the ones that fill the screen
+     (Friend: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่"); it applies rules 2 and 5 itself */
+  const pools = {};
   const CATS = vm.runInContext('CATS', load());
   const past = history.slice(-LAST), age = new Map();                // drawing → how many runs ago it was last shown (1 = the last run)
   past.forEach((run, k) => (run.picks || []).forEach(id => age.set(id, past.length - k)));
@@ -49,12 +53,13 @@ function pick({seed, history = [], scenes}) {
     const fresh = pool.filter(id => !age.has(id));                        // 3. not in the last runs
     if (fresh.length) pool = fresh;
     else { const oldest = Math.max(...pool.map(id => age.get(id))); pool = pool.filter(id => age.get(id) === oldest); }
+    if (wantPools) { const f = mine.filter(id => !age.has(id)); pools[sc.id] = f.length >= 3 ? f : mine; continue; }
     const good = pool.filter(id => SHAPES[id] >= FITS[0] && SHAPES[id] <= FITS[1]);   // 4. a shape that fills a screen
     if (good.length) pool = good;
     const id = pool[Math.floor(r() * pool.length)];                      // 5. at random
     used.add(id); picks[sc.id] = id;
   }
-  return {picks};
+  return wantPools ? {pools} : {picks};
 }
 
 if (require.main === module) process.stdout.write(JSON.stringify(pick(JSON.parse(fs.readFileSync(process.argv[2], 'utf8')))) + '\n');

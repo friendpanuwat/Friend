@@ -71,6 +71,9 @@ function neonFree(L, face) {
   const above = Math.max(0, ...top.filter(v => v <= y + 1)), below = Math.min(1660, ...bot.filter(v => v >= y + h - 1));
   return {l: Math.max(0, x - 60 - 10), r: Math.max(0, (y + h <= 740 ? 1020 : 960) - x - w - 10), t: Math.max(0, y - above - 10), b: Math.max(0, below - y - h - 10)};
 }
+/* how big a picture of shape `ar` (width / height) comes out in a screen's box (px²) · does a screen show the face (full or framed) */
+function neonSize(n, ar) { const [, , w, h] = NEON.layouts[n].stage; return ar > w / h ? w * w / ar : h * h * ar; }
+function neonWithFace(n) { const Q = NEON.layouts[n]; return !!(Q.speaker || Q.square || Q.band || Q.win); }
 /* can this screen go over this face? (the picture and the words never on the face: a picture under the chin needs the chin above
    its top; the top-left words need the hair below them) */
 function neonRoom(name, f) {
@@ -128,7 +131,17 @@ STYLE('neon', {
        the right edge goes 24 into the button column (it starts at x 936, its icons at about x 960); the checks read the same edge */
     CP.safe = [60, 0, 960, 1660];
   },
-  realShapes: true,   // clip_all_styles.sh measures each picture's real shape on a first build (tools/real_shapes.js) and builds again with it
+  realShapes: true,
+  /* fitPick (final 2026-11-18, Friend: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" · "ทดลองเฉพาะสไตล์นี้ก่อน"): the share
+     of the screen a picture of shape `ar` can take in this stretch, in the best screen the face leaves room for (tools/fit_pick.js) */
+  fitSize(ar, t0, t1, opening) {
+    const face = neonFaceBox(t0, t1);
+    let pool = NEON.pool.filter(n => neonRoom(n, face) && (!opening || neonWithFace(n)));
+    if (!pool.length) pool = ['square', 'window', 'band'];
+    const sz = pool.map(n => neonSize(n, ar)).sort((a, b) => b - a);
+    return (sz[1] ?? sz[0]) / (1080 * 1920);      // the second best: frame() never takes the screen it just took, so a drawing must fit two well
+  },
+  fitSurface() { const r = div('', SC); r.className = 'n-root n-screen'; return r; },   // where fit_pick measures colours: the navy screen   // clip_all_styles.sh measures each picture's real shape on a first build (tools/real_shapes.js) and builds again with it
 
   frame(t0, t1, {index, scene}) {
     const meta = SCENES[scene]?.meta ?? {}, face = neonFaceBox(t0, t1);
@@ -144,7 +157,7 @@ STYLE('neon', {
     /* the clip OPENS on the speaker's face (final 2026-11-18, every style, Friend: "คลิปต้องเปิดด้วยฉากที่มีหน้า user เสมอ" · "หน้าในกรอบเล็กนับด้วยครับ
        แต่ต้องไม่ตายตัว ... ใช้สุ่มเหมือนเดิม"): tools/clip_plan.py draws RUN.open from the seed; 'face' = a picture from the first frame, on a
        screen with the face (full or framed) */
-    const opening = typeof RUN !== 'undefined' && RUN.open === 'face' && t0 < .3, withFace = n => { const Q = NEON.layouts[n]; return !!(Q.speaker || Q.square || Q.band || Q.win); };
+    const opening = typeof RUN !== 'undefined' && RUN.open === 'face' && t0 < .3, withFace = neonWithFace;
     if (!name) {
       const want = NEON.byCat[meta.cat];
       if (want && neonRoom(want, face) && (!opening || withFace(want))) name = want;
@@ -157,8 +170,8 @@ STYLE('neon', {
         const real = typeof REAL_SHAPES !== 'undefined' ? REAL_SHAPES[t0.toFixed(2)] : null;
         const ar = real ?? (typeof GLOW_SHAPES !== 'undefined' && meta.variant ? GLOW_SHAPES[meta.variant] : null);
         if (ar) {                                                            // how big the picture comes out in each screen's box
-          const size = n => { const [, , w, h] = NEON.layouts[n].stage; return ar > w / h ? w * w / ar : h * h * ar; };
-          const best = Math.max(...pool.map(size)); pool = pool.filter(n => size(n) >= .75 * best);
+          const size = n => neonSize(n, ar);
+          const best = Math.max(...pool.map(size)); pool = pool.filter(n => size(n) >= .9 * best);   // .9 (final 2026-11-18, was .75: the drawing was picked for its best screen, tools/fit_pick.js)
         }
         const least = Math.min(...pool.map(n => NEON.used[n] ?? 0)); pool = pool.filter(n => (NEON.used[n] ?? 0) === least);
         name = pool[Math.floor(neonRand('screen' + index) * pool.length)];
