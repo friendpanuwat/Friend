@@ -62,7 +62,7 @@ const HUD = {
                 three: [[400, 390, 420, 350], [290, 870, 640, 250], [320, 1280, 580, 270]]},                                                     // shot 11 (three pictures: stills only)
     /* final 2026-11-18 (Friend: "เพิ่มฉากโอเวอร์เลย์เข้ามาด้วย พื้นที่ด้านบนหัวยังเหลือ"): the picture over the head inside HUD corners,
        from under the search bar (220) to 140 over the face box; its height from the clip's face (hudFit) · the words at the chest as talk */
-    hud_top:   {speaker: true, top: true, fitFrom: 940, corners: [100, 220, 880, 600], pic: [130, 250, 820, 540], lead: {x: 540, y: 1058}, key: {x: 540, y: 1195}},
+    hud_top:   {speaker: true, top: true, fitFrom: 940, corners: [100, 220, 880, 600], pic: [124, 244, 832, 552], lead: {x: 540, y: 1023}, key: {x: 540, y: 1160}},
     hud_cta:   {speaker: true, noPic: true, fitFrom: 970, corners: [160, 980, 760, 350], lead: {x: 540, y: 1053}, key: {x: 540, y: 1190},           // shot 12
                 notes: [{path: [[540, 1330], [540, 1480], [690, 1480]], text: {x: 710, y: 1478, align: 'left'}, y: true, yText: true}]},   // (the sheet's dot at 760: its words ran to 965)
   },
@@ -102,8 +102,10 @@ function hudEachY(L, fn) {
    it then runs under y 1660 it is pressed together (positions only, at most to 70 %); null = no room. Screens: always fit. */
 function hudFit(name, f) {
   const L = JSON.parse(JSON.stringify(HUD.layouts[name])); if (!L.speaker) return L;
-  if (L.top) { const h = Math.min(L.corners[3], f[1] - 140 - L.corners[1]); if (h < 300) return null;   // over the head: no room under the search bar? not this screen
-    L.corners[3] = h; L.pic[3] = h - 60; }
+  /* over the head: from under the search bar to 80 over the face box (the picture may cover the top of the hair, never the face:
+     faces.py "Hair may sit under a widget; the face may not"; 140 at first, Friend: "โมชั่นกราฟฟิกมันสามารถใหญ่ได้กว่านี้อีก") */
+  if (L.top) { const h = Math.min(L.corners[3], f[1] - 80 - L.corners[1]); if (h < 300) return null;   // no room under the search bar? not this screen
+    L.corners[3] = h; L.pic[3] = h - 48; }   // (the picture 24 inside the corners, was 30)
   const [, , , chin] = f, from = L.fitFrom, top = Math.min(L.lead.y - 40, L.key.y - 90, ...(L.pic && !L.top ? [L.pic[1]] : []), ...(L.corners && L.corners[1] >= from ? [L.corners[1]] : []));   // (corners round the words: under the chin too)   // (hud_top: its picture stays over the head)
   const d = Math.max(0, chin + 30 - top); if (!d) return L;
   hudEachY(L, y => y >= from ? y + d : y);
@@ -231,6 +233,11 @@ STYLE('hud', {
     if (HUD.layouts[name].speaker) HUD.place[HUD.layouts[name].top ? 'top' : 'low']++;
     HUD.used[name] = (HUD.used[name] ?? 0) + 1; HUD.last = name; HUD.sinceNoPic = HUD.layouts[name].noPic ? 0 : HUD.sinceNoPic + 1;
     const L = (meta.layout ? JSON.parse(JSON.stringify(HUD.layouts[name])) : hudFit(name, face)) ?? JSON.parse(JSON.stringify(HUD.layouts.hud_diag));
+    /* final 2026-11-18 (Friend: "กรอบควรจะพอดีกับ motion graphic ด้วยไม่ใช่กรอบกว้างแต่ motion graphic เล็ก"): over the head, the picture's box
+       takes the picture's own shape (REAL_SHAPES) in the middle of the room and the corners close in to 24 px round it */
+    const arT = L.top ? cpShape(meta.variant, t0) : null;
+    if (arT) { const [px, py, pw, ph] = L.pic, w = arT > pw / ph ? pw : ph * arT, h = arT > pw / ph ? pw / arT : ph, x = px + (pw - w) / 2, y = py + (ph - h) / 2;
+      L.pic = [x, y, w, h].map(v => Math.round(v)); L.corners = [x - 24, y - 24, w + 48, h + 48].map(v => Math.round(v)); }
     const screen = !L.speaker, root = div('', SC); root.className = 'h-root' + (screen ? ' h-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     if (screen) {

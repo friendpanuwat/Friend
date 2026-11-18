@@ -127,7 +127,7 @@ const GLASSY = {
   hud: {lit: 'rgba(24,20,4,.9)', litBar: 'rgba(64,53,0,.92)', litIcon: '#FFD600', litBody: '#2A2300', mark: '#1A1600', halo: '#FFF6D6', outlineLit: true, fig: '#7E7E7A', washLit: true,
     frost: ['rgba(12,12,12,.86)', 'rgba(10,10,10,.62)'], solid: '#161616', litMark: '#FFF3B0', litWord: true,
     noPill: true, noEdge: true,    // เส้นชี้ HUD: the yellow style's values (the sheet's pictures are drawn alike) · final 2026-11-18 (Friend: "ลบกรอบตัวหนังสือที่โมชั่นกราฟิกออกด้วย"): as the window style's
-    glow: 1.7, glowR: 26,          // final 2026-11-18 (Friend: "อยากให้มันเรืองแสงแบบละมุนกว่านี้แต่ต้องยังดูรู้เรื่อง" · "ผมอยากให้มันเรืองแสงมากกว่าเดิม"): more glow (1.2 → 1.7) and a wider, softer halo (18 → 26)
+    glow: 1.2, glowHalo: 1.7, glowR: 30,   // final 2026-11-18 (Friend: "อยากให้มันเรืองแสงแบบละมุนกว่านี้แต่ต้องยังดูรู้เรื่อง" · "ผมอยากให้มันเรืองแสงมากกว่าเดิม"): only the wide halo glows more (opacity .72 → 1, 18 → 30 px); the glow close to the lines stays 1.2 (at 1.7 the white words bloomed shut: "เรืองแสงจนมันอ่านไม่รู้เรื่อง")
     wordK: 1.15},                  // final 2026-11-18 (Friend: "ข้อความที่อยู่ข้างบน motion graphic อยากให้ใหญ่กว่านี้อีกนิดนึงแค่นิดเดียว"): the drawing's words 15 % bigger
   /* ขอบฟ้าส้ม (shot 04 full size, sampled): bodies a warm see-through brown (#2B1E16 on the screen), the lit tile a deep orange wash
      (#3D210) under an orange edge, its icon and word orange, the white lines warm (#FEF1E3) */
@@ -478,7 +478,7 @@ function glowLight(svg, P, base) {
       <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  .6 1 .4 1 -2" result="hi"/>
       <feGaussianBlur in="hi" stdDeviation="2.6" result="a"/><feGaussianBlur in="hi" stdDeviation="8" result="b"/><feGaussianBlur in="hi" stdDeviation="${GLASSY[base]?.glowR ?? 18}" result="c"/>
       <feComponentTransfer in="b" result="b2"><feFuncA type="linear" slope="${(.95 * (GLASSY[base]?.glow ?? 1)).toFixed(2)}"/></feComponentTransfer>
-      <feFlood flood-color="${GLASSY[base]?.halo ?? '#5AB8FF'}" flood-opacity="${Math.min(1, .6 * (GLASSY[base]?.glow ?? 1)).toFixed(2)}"/><feComposite in2="c" operator="in" result="c2"/>
+      <feFlood flood-color="${GLASSY[base]?.halo ?? '#5AB8FF'}" flood-opacity="${Math.min(1, .6 * (GLASSY[base]?.glowHalo ?? GLASSY[base]?.glow ?? 1)).toFixed(2)}"/><feComposite in2="c" operator="in" result="c2"/>
       <feMerge><feMergeNode in="c2"/><feMergeNode in="b2"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
     root.setAttribute('filter', 'url(#cpGlowSelf)');
     root.querySelectorAll('[filter="url(#glow)"]').forEach(e => e.removeAttribute('filter'));   // the engine's own glow merges blurred copies of the frosted glass too (tiles #6C7C8C, not #3C454C)
