@@ -21,7 +21,7 @@ const GLOWLOOK = {
   gold:  {acc: '--ac',     glow: {c: '#FF9A2E', all: false},    weight: {k: 1.3, min: 2.4}},   // gold: only the orange accent glows
   /* the new styles (Friend 2026-11-17 cancelled the 4 above and is replacing them with 12 sheets made with AI, copied 100%) */
   neon:  {acc: '--ac',     glow: {c: '#2FA8F0', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5},
-  lime:  {acc: '--ac',     glow: {c: '#9FD82A', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5},    // เขียวมะนาว (Friend's 2nd new sheet, 2026-11-18): the neon glass, lime light    // นีออนฟ้า (Friend's sheet 2): frosted grey glass, white lines with their own soft glow, the lit part blue and glowing hard
+  lime:  {acc: '--ac',     glow: {c: '#B5EE38', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5},    // เขียวมะนาว (Friend's 2nd new sheet, 2026-11-18): the neon glass, lime light    // นีออนฟ้า (Friend's sheet 2): frosted grey glass, white lines with their own soft glow, the lit part blue and glowing hard
 };
 /* what is really visible at the end of the drawing (not the things still hidden or gone: the getBBox of the whole drawing counted
    four hidden coins and made an overlay picture small), in the svg's user units */
@@ -70,7 +70,7 @@ const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '
    mark = a white mark on a solid accent shape · halo = the wide halo of every line */
 const GLASSY = {
   neon: {lit: 'rgba(25,95,150,.85)', litBar: 'rgba(30,120,185,.6)', litIcon: '#CFEFFF', litBody: '#1A6390', mark: '#0B2238', halo: '#5AB8FF'},
-  lime: {lit: 'rgba(120,170,25,.32)', litBar: 'rgba(120,170,25,.32)', litIcon: '#D4FA6A', litBody: '#2C3A12', mark: '#18220A', halo: '#A6E03A'},
+  lime: {lit: 'rgba(120,170,25,.32)', litBar: 'rgba(120,170,25,.32)', litIcon: '#D4FA6A', litBody: '#2C3A12', mark: '#18220A', halo: '#EEF4E6', outlineLit: true, glow: 1.35},   // the white lines glow white on the sheet, only the lit part lime
 };
 
 const glowCtx = document.createElement('canvas').getContext('2d');
@@ -270,6 +270,11 @@ function glowDress(svg, P, base) {
      another turned the tile pale grey (#8A97A8 where Friend's is #3C454C), so a copy over the same box keeps only its edge */
   if (GLASSY[base]) {
     const GS = GLASSY[base];
+    /* lime (Friend's sheet: every lit tile is a lime outline on dark glass, none is filled): a solid accent tile becomes the lit wash
+       with an accent edge (the lit-tile pass below then colours its icon) */
+    if (GS.outlineLit) root.querySelectorAll('rect,circle,ellipse,path,polygon').forEach(e => { const f = e.getAttribute('fill');
+      if (!isAccV(f) || glowRgba(f)[3] < .9 || area(box(e)) < 2500) return;
+      e.setAttribute('fill', GS.lit); if ((e.getAttribute('stroke') || 'none') === 'none') { e.setAttribute('stroke', P.accent); e.setAttribute('stroke-width', '3'); } });
     /* every word of a picture gets a thin dark edge under it, so a label that lands on a white ring or a bright video still reads
        (Friend's clip 2026-11-17: "ไม่ต้องรอ" over the ring of a no-sign); dark, so the glow does not light it */
     /* a white mark on a solid light-blue shape (a lit dot with its white ring: 1.5:1 in B08T) turns deep navy */
@@ -303,8 +308,12 @@ function glowLight(svg, P, base) {
   const defs = svg.querySelector('defs');
   /* neon glows harder (Friend 2026-11-17: "ผมรู้สึกว่า motion graphics มันยังไม่เรืองแสงเท่ากับ reference"): a third, wide halo */
   const hard = !!GLASSY[base];
-  defs.insertAdjacentHTML('beforeend', `<filter id="cpGlow" x="-60%" y="-60%" width="220%" height="220%">
-    <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="a"/><feGaussianBlur in="SourceAlpha" stdDeviation="10" result="b"/><feGaussianBlur in="SourceAlpha" stdDeviation="22" result="c"/>
+  /* lime: only the bright edge glows, not the tile's dim wash (Friend's sheet: lit tiles are a lime outline; the wash had lit up the
+     whole tile as a solid lime block) — the glow is made from the bright parts (as cpGlowSelf), not from every pixel's alpha */
+  const edge = GLASSY[base]?.outlineLit, src = edge ? 'hi' : 'SourceAlpha';
+  defs.insertAdjacentHTML('beforeend', `<filter id="cpGlow" x="-60%" y="-60%" width="220%" height="220%" color-interpolation-filters="sRGB">
+    ${edge ? '<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  .6 1 .4 1 -2" result="hi"/>' : ''}
+    <feGaussianBlur in="${src}" stdDeviation="3" result="a"/><feGaussianBlur in="${src}" stdDeviation="10" result="b"/><feGaussianBlur in="${src}" stdDeviation="22" result="c"/>
     <feFlood flood-color="${G.c}" flood-opacity="${hard ? 1 : .9}"/><feComposite in2="a" operator="in" result="ga"/>
     <feFlood flood-color="${G.c}" flood-opacity="${hard ? .85 : .55}"/><feComposite in2="b" operator="in" result="gb"/>
     <feFlood flood-color="${G.c}" flood-opacity="${hard ? .5 : 0}"/><feComposite in2="c" operator="in" result="gc"/>
@@ -317,8 +326,8 @@ function glowLight(svg, P, base) {
     defs.insertAdjacentHTML('beforeend', `<filter id="cpGlowSelf" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
       <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  .6 1 .4 1 -2" result="hi"/>
       <feGaussianBlur in="hi" stdDeviation="2.6" result="a"/><feGaussianBlur in="hi" stdDeviation="8" result="b"/><feGaussianBlur in="hi" stdDeviation="18" result="c"/>
-      <feComponentTransfer in="b" result="b2"><feFuncA type="linear" slope=".95"/></feComponentTransfer>
-      <feFlood flood-color="${GLASSY[base]?.halo ?? '#5AB8FF'}" flood-opacity=".6"/><feComposite in2="c" operator="in" result="c2"/>
+      <feComponentTransfer in="b" result="b2"><feFuncA type="linear" slope="${(.95 * (GLASSY[base]?.glow ?? 1)).toFixed(2)}"/></feComponentTransfer>
+      <feFlood flood-color="${GLASSY[base]?.halo ?? '#5AB8FF'}" flood-opacity="${Math.min(1, .6 * (GLASSY[base]?.glow ?? 1)).toFixed(2)}"/><feComposite in2="c" operator="in" result="c2"/>
       <feMerge><feMergeNode in="c2"/><feMergeNode in="b2"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
     root.setAttribute('filter', 'url(#cpGlowSelf)');
     root.querySelectorAll('[filter="url(#glow)"]').forEach(e => e.removeAttribute('filter'));   // the engine's own glow merges blurred copies of the frosted glass too (tiles #6C7C8C, not #3C454C)

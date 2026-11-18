@@ -42,7 +42,8 @@ PAST = json.load(open(HISTORY)) if HISTORY and os.path.exists(HISTORY) else []
 RULES = {
     # 2026-11-17 Friend cancelled the 8 old styles (card, glass, split, gold and their overlays; their rules are in git history,
     # git show HEAD~1:cutpack/engine/uni/tools/clip_plan.py) for 12 new ones from sheets Friend made with AI. One by one:
-    'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft'),   # no overlays: Friend 2026-11-17 "ยกเลิก 5." (over=25 turned them on)   # นีออนฟ้า: 10 of the sheet's 12 shots carry a picture (first guess, before a real clip)
+    'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft'),
+    'lime':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # เขียวมะนาว: 10 of 12 shots carry a picture, several on the speaker (first guess, before a real clip)   # no overlays: Friend 2026-11-17 "ยกเลิก 5." (over=25 turned them on)   # นีออนฟ้า: 10 of the sheet's 12 shots carry a picture (first guess, before a real clip)
 }
 PUSH = dict(z=1.05, d=1.4, back=1.0, gap=4.0, most=5)
 flat = lambda s: re.sub(r'\s+', '', s)
