@@ -76,6 +76,22 @@ const HUD = {
   keep: .75, noPicGap: 4, sinceNoPic: 4,
   spkMin: 82944,   // final 2026-11-18 (Friend chose "ก" on "motion graphic เล็กเกินไป"): a speaker screen with a picture shows it at least 4 % of the screen (1080 × 1920 × .04), else another screen
   gridUp: 12,
+  /* final 2026-11-18 point 12 (Friend sent a dark green background with two half spheres in opposite corners: "อยากได้พื้นหลังประมาณนี้แต่เป็น
+     theme สีของสไตล์นี้ ... ผมไม่อยากให้ก็อป ... ต้องออกแบบให้เป็นของเราเองแต่อยากได้ mood แบบนี้" → "ลองเอาคลิปใส่พื้นหลังใหม่ให้หน่อย"): our own
+     design in place of the grid: three matte gold spheres of three sizes with a thin yellow rim and a cast shadow, a thin yellow orbit
+     round the big one with a running light, all drifting slowly, the light on each sphere sliding; the big one on the side away from the
+     words (words high: big one bottom right · words low: big one top left). Orb {x, y, d (diameter), lx, ly (the light, %), c: colours,
+     dx, dy (drift px), ph (phase)} · ring {x, y, d} round the big one */
+  bg: {
+    high: {orbs: [{x: 340, y: 1140, d: 1120, lx: 32, ly: 18, c: ['#9A7414', '#5A430D', '#221A07', '#0B0905'], dx: -20, dy: -18, ph: 0},
+                  {x: -250, y: 120, d: 460, lx: 64, ly: 32, c: ['#8E6A13', '#4E3A0C', '#1E1706', '#0A0805'], dx: 18, dy: 24, ph: 2},
+                  {x: 800, y: 640, d: 130, lx: 35, ly: 30, c: ['#C29620', '#6E5210', '#261D08', '#0B0905'], dx: 14, dy: -32, ph: 4}],
+           ring: {x: 260, y: 1060, d: 1280}},
+    low:  {orbs: [{x: -420, y: -520, d: 1120, lx: 60, ly: 78, c: ['#9A7414', '#5A430D', '#221A07', '#0B0905'], dx: 20, dy: 18, ph: 0},
+                  {x: 880, y: 760, d: 460, lx: 30, ly: 30, c: ['#8E6A13', '#4E3A0C', '#1E1706', '#0A0805'], dx: -18, dy: 22, ph: 2},
+                  {x: 120, y: 1640, d: 130, lx: 35, ly: 30, c: ['#C29620', '#6E5210', '#261D08', '#0B0905'], dx: 14, dy: -28, ph: 4}],
+           ring: {x: -500, y: -600, d: 1280}},
+  },
   used: {}, last: null, place: {top: 0, low: 0},   // place: speaker screens with the picture over the head / anywhere else
   /* final 2026-11-18 (Friend, a screen with its three callouts ringed in red: "ลบจุดที่ผมวงกลมสีแดงไว้ลบทั้งคลิปเลยนะไม่ให้ในสไตล์นี้มีเลย"):
      no callout line, dot or note anywhere · the timeline keeps its line and dots without words ("ก1") · the HUD corners of the screens
@@ -159,6 +175,11 @@ STYLE('hud', {
 .h-root{position:absolute;inset:0;--ink:#F5F5F2;--ac:#FFD600;--lw:5;--sd:#F5F5F2;--fl:rgba(14,14,14,.85);--text:#F5F5F2}
 .h-screen{background:radial-gradient(ellipse 560px 900px at 540px 1050px,rgba(255,214,0,.115) 0%,rgba(255,214,0,.06) 45%,rgba(255,214,0,0) 100%),
   linear-gradient(180deg,#0e0e10 0%,#131313 12%,#151514 22%,#171716 40%,#171716 60%,#181818 85%,#18181a 100%);background-color:#161615;overflow:hidden}
+.h-orb{position:absolute;border-radius:50%;overflow:hidden;box-shadow:0 40px 130px rgba(0,0,0,.8),inset 0 3px 0 rgba(255,214,0,.24)}
+.h-orb i{position:absolute;inset:-25%;display:block}
+.h-ring{position:absolute;border-radius:50%;border:2px solid rgba(253,196,63,.26);box-sizing:border-box;filter:drop-shadow(0 0 6px rgba(253,196,63,.3))}
+.h-ring b{position:absolute;left:50%;top:-8px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#FDC43F;box-shadow:0 0 12px rgba(253,196,63,.9),0 0 30px rgba(253,196,63,.5)}
+.h-glow{position:absolute;inset:0;background:radial-gradient(ellipse 560px 760px at 520px 960px,rgba(255,196,40,.09),rgba(255,196,40,0) 72%)}
 .h-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:60px 60px}
 .h-half{position:absolute;overflow:hidden}
 .h-bar{position:absolute;left:0;width:1080px;height:4px;background:#FFC93A;box-shadow:0 0 10px rgba(255,201,58,.6);transform-origin:0 50%}
@@ -241,9 +262,19 @@ STYLE('hud', {
     const screen = !L.speaker, root = div('', SC); root.className = 'h-root' + (screen ? ' h-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     if (screen) {
-      const g = div('', root); g.className = 'h-grid';
-      const at = t => `0px ${(-HUD.gridUp * t).toFixed(1)}px`;
-      A(g, [{backgroundPosition: at(t0 - .2)}, {backgroundPosition: at(t1 + .2)}], t0 - .2, t1 - t0 + .4, {e: 'linear'});
+      /* the spheres background (final point 12; the grid before) */
+      const long = t1 - t0 + .4, wave = (ax, ay, ph) => Array.from({length: 13}, (_, i) => { const w = 2 * Math.PI * (i / 12) * long / 8 + ph;
+        return {translate: `${(ax * Math.sin(w)).toFixed(1)}px ${(ay * Math.sin(w + 1)).toFixed(1)}px`}; });
+      const G = HUD.bg[L.key && L.key.y > 960 ? 'low' : 'high'], gl = div('', root); gl.className = 'h-glow';
+      A(gl, Array.from({length: 13}, (_, i) => ({opacity: (.8 + .2 * Math.sin(2 * Math.PI * (i / 12) * long / 4)).toFixed(3)})), t0 - .2, long);
+      const rg = div(`left:${G.ring.x}px;top:${G.ring.y}px;width:${G.ring.d}px;height:${G.ring.d}px`, root); rg.className = 'h-ring';
+      const run = div('', rg); run.style.cssText = 'position:absolute;inset:0'; run.innerHTML = '<b></b>';
+      A(run, [{transform: 'rotate(150deg)'}, {transform: `rotate(${150 + 45 * long}deg)`}], t0 - .2, long);   // one turn in 8 s
+      for (const o of G.orbs) { const e = div(`left:${o.x}px;top:${o.y}px;width:${o.d}px;height:${o.d}px`, root); e.className = 'h-orb';
+        const sh = document.createElement('i'); e.appendChild(sh);
+        sh.style.background = `radial-gradient(circle at ${o.lx}% ${o.ly}%,${o.c[0]} 0%,${o.c[1]} 18%,${o.c[2]} 40%,${o.c[3]} 62%)`;
+        A(e, wave(o.dx, o.dy, o.ph), t0 - .2, long);
+        A(sh, wave(.06 * o.d, .04 * o.d, o.ph + 1), t0 - .2, long); }   // the light slides on the sphere
       A(root, [{opacity: 0, filter: 'blur(14px)', transform: 'scale(1.03)'}, {opacity: 1, filter: 'blur(0)', transform: 'none'}], t0 - .04, .35, {e: EASE.smooth});
       sfx('whoosh', t0 - .1, -20);
     }
