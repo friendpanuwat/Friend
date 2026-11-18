@@ -97,10 +97,10 @@ STYLE('lime', {
 @font-face{font-family:"LimeHand";src:url(fonts/Sriracha-Regular.ttf)}
 @font-face{font-family:"LimeSerif";src:url(fonts/InstrumentSerif-Italic-latin.woff);font-style:italic}
 .l-root{position:absolute;inset:0;--ink:#F4F6F2;--ac:#D5FF3D;--lw:5;--sd:#F4F6F2;--fl:rgba(26,28,27,.8);--text:#F4F6F2}
-.l-screen{background:radial-gradient(ellipse 95% 70% at 50% 42%,#1d201e 0%,#141615 55%,#0b0c0c 100%)}
+.l-screen{background:radial-gradient(ellipse 95% 70% at 50% 42%,#161917 0%,#0f1110 55%,#070808 100%)}   /* a little darker (final 2026-11-18, Friend: "ทำให้สีของ background เข้มขึ้นนิดนึง"; was #1d201e → #141615 → #0b0c0c) */
 .l-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1.5px,transparent 1.5px),linear-gradient(90deg,rgba(255,255,255,.04) 1.5px,transparent 1.5px);background-size:54px 54px;background-position:-6px -10px}
 .l-bloom{position:absolute;width:980px;height:760px;translate:-50% -50%;background:radial-gradient(closest-side,rgba(175,235,60,.34),rgba(175,235,60,.1) 55%,transparent)}
-.l-panel{position:absolute;left:0;right:0;overflow:hidden;background:radial-gradient(ellipse 95% 80% at 50% 45%,#1d201e 0%,#121413 70%,#0b0c0c 100%)}
+.l-panel{position:absolute;left:0;right:0;overflow:hidden;background:radial-gradient(ellipse 95% 80% at 50% 45%,#161917 0%,#0d0f0e 70%,#070808 100%)}
 .l-video{position:absolute;left:0;right:0;overflow:hidden}
 .l-card{position:absolute;border-radius:38px;background:rgba(26,28,27,.8);border:2px solid rgba(255,255,255,.24);
   box-shadow:0 22px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}   /* back to the solid card (final 2026-11-18, Friend: "กลับไปใช้การ์ดทึบแบบเดิม") */
@@ -174,9 +174,7 @@ STYLE('lime', {
           kf.push({transform: `translate(${(cx + ax * Math.sin(fx * t + px)).toFixed(1)}px,${(cy + ay * Math.sin(fy * t + py)).toFixed(1)}px) scale(${(1 + .12 * Math.sin(.9 * t + k)).toFixed(3)})`,
             opacity: (.75 + .25 * Math.sin(.8 * t + 2 * k)).toFixed(3)});
         A(o, kf, t0 - .2, t1 - t0 + .4, {e: 'linear'}); });
-      const g = div('', host); g.className = 'l-grid';   // the grid drifts very slowly (as Friend asked for neon), on the clip's clock
-      const at = t => `${(-6 + 2 * t).toFixed(1)}px ${(-10 + 3 * t).toFixed(1)}px`;
-      A(g, [{backgroundPosition: at(t0 - .2)}, {backgroundPosition: at(t1 + .2)}], t0 - .2, t1 - t0 + .4, {e: 'linear'}); };
+      /* no grid (final 2026-11-18, Friend: "ลบตารางจาก background ออกครับ") */ };
     if (L.screen) {
       grid(root);
       if (L.bloom) { const b = div(`left:${L.bloom[0]}px;top:${L.bloom[1]}px`, root); b.className = 'l-bloom'; }
