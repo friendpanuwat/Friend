@@ -53,12 +53,15 @@ const YEL = {
   },
   /* RANDOM, as the other styles: a call to action (B15) gets shot 12, a number (B01) the giant number when one is said; a headline
      with a number may take a tile screen; every other picture takes one of `pool` (never the one before it) where the face leaves
-     room (yelFit), the screens without a picture only when at least 2 more subtitles come for the chips, among those with a picture
+     room (yelFit), the screens without a picture only when at least 2 more subtitles come for the chips (and noPicGap), among those with a picture
      the screens that show this picture's shape at least 75 % as big as the best, then the least used, then at random from the seed */
   pool: ['full_chips', 'full_steps', 'split_top', 'full_list', 'card_rail', 'split_bottom', 'full_pair', 'recap'],
   numPool: ['tile_ladder', 'tile_steps'],
   byCat: {B15: 'full_cta', B01: 'giant'},
   keep: .75,
+  /* a screen without a picture (01 06 10 12) at most once in every 5 pictures, never the first: the first real clip, with no cap,
+     took 4 of its 10 pictures there and its pictures averaged 5 % of the screen (Friend 2026-11-17 on small pictures: "ดูโล่งๆ") */
+  noPicGap: 4, sinceNoPic: 4,
   gridUp: 12,                                  // px a second the grid moves up (as teal: Friend asked for a grid that moves so it shows)
   used: {}, last: null,
 };
@@ -68,11 +71,11 @@ function yelChunks(t0, t1) {
   return CAPTIONS.filter(c => Math.min(c.t1, t1) - Math.max(c.t0, t0) >= .15).map(c => ({t0: c.t0, t1: c.t1, words: c.parts.map(p => p[0]).join(' ')}));
 }
 const yelNum = s => (String(s ?? '').match(/\d+(?:[.,]\d+)?/) ?? [null])[0];
-/* the chip boxes of a layout for n chips [x, y, w, h] (a row of three: x 60–920, each 276 wide, 16 apart; one or two: centred at 540,
-   276 wide, 343 on shot 09's row of two; a list: one under another) */
+/* the chip boxes of a layout for n chips [x, y, w, h] (a row of three: x 60–920, each 276 wide, 16 apart; two: centred at 540 in
+   160–920, 372 wide (343 on shot 09's row of two); one: 500 wide in the middle, so a spoken chunk has room; a list: one under another) */
 function yelChipBoxes(L, n) {
   const C = L.chips; if (!C || !n) return [];
-  if (C.h) { const [y, h] = C.h, g = 16, w = n === 2 && C.max === 2 ? 343 : (860 - 2 * g) / 3, tot = n * w + (n - 1) * g, x0 = n === 3 ? 60 : 540 - tot / 2;
+  if (C.h) { const [y, h] = C.h, g = 16, w = n === 3 ? (860 - 2 * g) / 3 : C.max === 2 ? 343 : n === 2 ? (760 - g) / 2 : 500, tot = n * w + (n - 1) * g, x0 = n === 3 ? 60 : 540 - tot / 2;
     return [...Array(n)].map((_, k) => [x0 + k * (w + g), y, w, h]); }   // three: x 60–920 as the sheet's left edge (its right edge, 1020, is under the buttons)
   const [x, w, y, h, g] = C.v; return [...Array(n)].map((_, k) => [x, y + k * (h + g), w, h]);
 }
@@ -147,7 +150,7 @@ STYLE('yellow', {
     let name = meta.layout;
     if (!name) {
       const ok = n => { const L = YEL.layouts[n]; if (L.num === 'head' && !num) return false; if (L.num === 'any' && !numAny) return false;
-        if (L.noPic && more < 2) return false; return !!yelFit(n, face, more); };
+        if (L.noPic && (more < 2 || index === 0 || YEL.sinceNoPic < YEL.noPicGap)) return false; return !!yelFit(n, face, more); };
       const want = YEL.byCat[String(meta.cat ?? '').slice(0, 3)];
       if (want && ok(want)) name = want;
       else {
@@ -162,7 +165,7 @@ STYLE('yellow', {
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];
       }
     }
-    YEL.used[name] = (YEL.used[name] ?? 0) + 1; YEL.last = name;
+    YEL.used[name] = (YEL.used[name] ?? 0) + 1; YEL.last = name; YEL.sinceNoPic = YEL.layouts[name].noPic ? 0 : YEL.sinceNoPic + 1;
     const L = yelFit(name, meta.layout ? [0, 0, 0, -1e4] : face, more) ?? yelFit('split_top', face, more);   // a still: the sheet's places as they are
     const screen = !L.speaker, root = div('', SC); root.className = 'y-root' + (screen ? ' y-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
@@ -234,13 +237,21 @@ STYLE('yellow', {
 });
 /* one chip k (its box from yelChipBoxes): yellow, a dark square with the yellow number, dark words. On a step screen (mode 'now')
      the newest chip is the yellow one, the ones before turn dark with a yellow edge, a yellow square and white words (shots 04, 05).
-     Measured: corner .2 h · square .78 h at .11 h in, its corner .18 of it · number .46 h · words .45 h, .19 h after the square */
+     Measured: corner .2 h · square .78 h at .11 h in, its corner .18 of it · number .46 h · words .45 h, .19 h after the square, two lines at .34 h (broken at a space) when a chunk of several phrases would shrink under 74 % */
 function yelChip(F, el, k, num, words, t, state = 'on') {
     const [x, y, w, h] = F.boxes[k], c = div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px;border-radius:${(.2 * h).toFixed(1)}px`, el); c.className = 'y-chip';
     const i = .11 * h, s = .78 * h, sq = div(`left:${i - 3}px;top:${i - 3}px;width:${s}px;height:${s}px;border-radius:${(.18 * s).toFixed(1)}px`, c); sq.className = 'y-sq';
     const dg = div(`font-size:${(.46 * h).toFixed(1)}px`, sq, String(num)); dg.className = 'y-dig';
     const tx = i + s + .19 * h - 3, r = cpLine(c, words, 'y-ct', {x: tx, y: h / 2 - 3, align: 'left', maxW: w - tx - .1 * h}, undefined, 'y-row');
     r.firstChild.style.fontSize = (.45 * h).toFixed(1) + 'px';
+    /* a spoken chunk is longer than the sheet's one word (up to 16 letters): when one line would shrink under 74 %, it breaks into two
+       lines at .34 h (the first real clip: "ถาม รายละเอียด" in a 276 chip read at 48 %) */
+    const room = w - tx - .1 * h;
+    FITS.push(() => { const sp = r.firstChild; if (sp.offsetWidth <= room / .74 || !/\s/.test(String(words).trim())) return;   // one phrase stays on one line (the sheet's "ออกไปวิ่ง")
+      r.style.scale = ''; Object.assign(sp.style, {whiteSpace: 'normal', display: 'inline-block', width: room + 'px', fontSize: (.34 * h).toFixed(1) + 'px', lineHeight: '1.06'});
+      const ph = sp.textContent.trim().split(/\s+/); sp.textContent = '';   // each phrase unbreakable: the lines break at the spaces between phrases only
+      ph.forEach((w, i) => { if (i) sp.appendChild(document.createTextNode(' ')); const e = document.createElement('span'); e.style.whiteSpace = 'nowrap'; e.textContent = w; sp.appendChild(e); });
+      const k = Math.min(1, .9 * h / sp.offsetHeight, room / sp.scrollWidth); if (k < 1) r.style.scale = String(k); });
     const off = () => [[c, 'backgroundColor', '#0F1011'], [sq, 'backgroundColor', '#FFD600'], [dg, 'color', '#121214'], [r.firstChild, 'color', '#FFFFFF']];
     if (state === 'off') off().forEach(([e, p, v]) => { e.style[p] = v; });
     A(c, [{opacity: 0, transform: 'translateY(24px) scale(.96)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t, .4, {e: EASE.soft});
