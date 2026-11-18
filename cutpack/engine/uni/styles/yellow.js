@@ -62,6 +62,7 @@ const YEL = {
   /* a screen without a picture (01 06 10 12) at most once in every 5 pictures, never the first: the first real clip, with no cap,
      took 4 of its 10 pictures there and its pictures averaged 5 % of the screen (Friend 2026-11-17 on small pictures: "ดูโล่งๆ") */
   noPicGap: 4, sinceNoPic: 4,
+  preview: true,                               // the chips are all on screen from the start (yelLight) · false: each comes in on its words
   gridUp: 12,                                  // px a second the grid moves up (as teal: Friend asked for a grid that moves so it shows)
   used: {}, last: null,
 };
@@ -195,6 +196,7 @@ STYLE('yellow', {
     if (!L.pic) stage.style.visibility = 'hidden';                     // shots 01, 06, 10, 12: no picture on the sheet
     else A(stage, [{opacity: 0, transform: 'translateY(24px) scale(.94)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .05, .45, {e: EASE.soft});
     const F = {root, stage, cam: root, L, name, dark: screen, t1, n: 0, meta, chips: [], boxes: yelChipBoxes(L, L.n)};
+    if (YEL.preview && ch) F.pre = F.boxes.map((b, k) => ch[k + 1] ? yelChip(F, root, k, k + 1, ch[k + 1].words, t0 + .25 + .1 * k, 'off', true) : null);
     if ((typeof CAPTIONS === 'undefined' || !CAPTIONS.length) && meta.rows) F.stillRows = meta.rows;
     return F;
   },
@@ -227,7 +229,7 @@ STYLE('yellow', {
     if (!words && !(F.stillRows && T.clip !== true)) return null;      // the scene's own empty sentence takes no place
     const n = F.n++, start = T.b[0] - .02;
     if (n === 0) head(T.t0);
-    else if (n - 1 < F.boxes.length) yelChip(F, el, n - 1, n, words, start);
+    else if (n - 1 < F.boxes.length) { if (F.pre?.[n - 1]) yelLight(F, n - 1, start); else yelChip(F, el, n - 1, n, words, start); }
     else head(start, true);
     if (F.stillRows && n === 0) F.stillRows.forEach((r, k) => { const [num, s, st] = Array.isArray(r) ? r : [k + 1, r, 'on'];
       if (k < F.boxes.length) yelChip(F, el, k, num, s, T.b[0] + .3 + .25 * k, st); });
@@ -238,7 +240,7 @@ STYLE('yellow', {
 /* one chip k (its box from yelChipBoxes): yellow, a dark square with the yellow number, dark words. On a step screen (mode 'now')
      the newest chip is the yellow one, the ones before turn dark with a yellow edge, a yellow square and white words (shots 04, 05).
      Measured: corner .2 h · square .78 h at .11 h in, its corner .18 of it · number .46 h · words .45 h, .19 h after the square, two lines at .34 h (broken at a space) when a chunk of several phrases would shrink under 74 % */
-function yelChip(F, el, k, num, words, t, state = 'on') {
+function yelChip(F, el, k, num, words, t, state = 'on', pre = false) {
     const [x, y, w, h] = F.boxes[k], c = div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px;border-radius:${(.2 * h).toFixed(1)}px`, el); c.className = 'y-chip';
     const i = .11 * h, s = .78 * h, sq = div(`left:${i - 3}px;top:${i - 3}px;width:${s}px;height:${s}px;border-radius:${(.18 * s).toFixed(1)}px`, c); sq.className = 'y-sq';
     const dg = div(`font-size:${(.46 * h).toFixed(1)}px`, sq, String(num)); dg.className = 'y-dig';
@@ -253,11 +255,23 @@ function yelChip(F, el, k, num, words, t, state = 'on') {
       ph.forEach((w, i) => { if (i) sp.appendChild(document.createTextNode(' ')); const e = document.createElement('span'); e.style.whiteSpace = 'nowrap'; e.textContent = w; sp.appendChild(e); });
       const k = Math.min(1, .9 * h / sp.offsetHeight, room / sp.scrollWidth); if (k < 1) r.style.scale = String(k); });
     const off = () => [[c, 'backgroundColor', '#0F1011'], [sq, 'backgroundColor', '#FFD600'], [dg, 'color', '#121214'], [r.firstChild, 'color', '#FFFFFF']];
+    const on = () => [[c, 'backgroundColor', '#FFD600'], [sq, 'backgroundColor', '#121214'], [dg, 'color', '#FFD600'], [r.firstChild, 'color', '#121214']];
     if (state === 'off') off().forEach(([e, p, v]) => { e.style[p] = v; });
     A(c, [{opacity: 0, transform: 'translateY(24px) scale(.96)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t, .4, {e: EASE.soft});
+    if (pre) return {c, on: on(), off: off()};          // a chip shown ahead (YEL.preview): yelLight turns it yellow on its words
     sfx('softswish', t, -26);
     if (F.L.mode === 'now' && !F.stillRows) { const prev = F.chips[F.chips.length - 1];   // a real clip (a still sets each chip from the sheet)
       if (prev) prev.forEach(([e, p, v]) => A(e, [{[p]: getComputedStyle(e)[p]}, {[p]: v}], t, .25, {f: 'forwards'})); }
     F.chips.push(off());
     return c;
+}
+/* PREVIEW (trial 2026-11-18 after Friend: "ดูโล่งๆมากกว่าต้นแบบเยอะ"): every chip of the picture is on screen from the start, dark
+   with a yellow edge (the sheet's "not yet" chip, shots 04 05 06), and turns yellow when its words are said; on a step screen
+   (mode 'now') the one before goes dark again */
+function yelLight(F, k, t) {
+  const P = F.pre[k]; if (!P) return;
+  P.on.forEach(([e, p, v], i) => A(e, [{[p]: P.off[i][2]}, {[p]: v}], t, .25, {f: 'forwards'}));
+  A(P.c, [{transform: 'scale(1)'}, {transform: 'scale(1.05)', offset: .4}, {transform: 'scale(1)'}], t, .35, {e: EASE.soft});
+  sfx('softswish', t, -26);
+  if (F.L.mode === 'now' && k > 0 && F.pre[k - 1]) { const Q = F.pre[k - 1]; Q.off.forEach(([e, p, v], i) => A(e, [{[p]: Q.on[i][2]}, {[p]: v}], t, .25, {f: 'forwards'})); }
 }
