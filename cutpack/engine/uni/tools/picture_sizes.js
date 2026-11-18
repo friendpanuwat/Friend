@@ -6,7 +6,7 @@ const {chromium} = require('playwright'), path = require('path');
 (async () => { const b = await chromium.launch(), p = await b.newPage({viewport: {width: 1080, height: 1920}});
   await p.goto('file://' + path.resolve(process.argv[2], 'scene.html')); await p.waitForFunction(() => window.GLOW_READY !== false, null, {timeout: 120000});
   const wins = await p.evaluate(() => CLIPWINS.map(x => [x.t0, x.t1, x.F.name])); let tot = 0;
-  for (const [t0, t1, name] of wins) { const t = t1 - .35; const f = Math.round(t * 30);
+  for (const [t0, t1, name] of wins) { const N = require('fs').readdirSync(path.resolve(process.argv[2], 'src_frames')).length, t = Math.min(t1 - .35, (N - 2) / 30), f = Math.round(t * 30);
     await p.evaluate(([t, s]) => window.seek(t, s), [t, 'file://' + path.resolve(process.argv[2], 'src_frames/s' + String(f + 1).padStart(5, '0') + '.jpg')]);
     const r = await p.evaluate((t0) => { const w = CLIPWINS.find(x => Math.abs(x.t0 - t0) < .01), host = w.F.stage.querySelector('.glow-host'), svg = host.querySelector('svg');
       const seen = e => { for (let x = e; x && x !== svg; x = x.parentElement) { const cs = getComputedStyle(x); if (cs.display === 'none' || +cs.opacity < .05) return false; } return true; };

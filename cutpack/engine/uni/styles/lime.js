@@ -46,22 +46,29 @@ const LIME = {
 const limeInner = ([x, y, w, h]) => [x + 26, y + 44, w - 52, h - 70];   // the picture inside a card
 for (const L of Object.values(LIME.layouts)) { if (L.card) L.stage = limeInner(L.card); if (L.cards) L.stages = L.cards.map(limeInner); }
 
-/* can this screen go over this face? [x0, top (forehead), x1, chin] — a card or words under the chin need the chin above them,
-   words or a card above the head need the hair (≈ 130 over the forehead) below them */
-function limeRoom(name, f) {
-  const [, top, , chin] = f, L = LIME.layouts[name];
-  if (L.screen || L.split) return true;
-  const under = y => chin + 30 < y, over = y => top - 130 > y;
-  switch (name) {
-    case 'talk': return under(L.lead.y - 40);
-    case 'talk_top': return over(L.key.y + 100);
-    case 'hands': case 'cta': return under(Math.min(L.card[1], L.lead.y - 40));
-    case 'big': return under(L.card[1]) && over(L.key.y + 100);
-    case 'top': return over(L.card[1] + L.card[3] + 10) && under(L.lead.y - 40);
-    case 'side_l': case 'side_r': return under(Math.min(L.card[1], L.lead.y - 40));
+/* fit a screen to this face [x0, top (forehead), x1, chin] (Friend 2026-11-18: "พยายามทำให้เหมือนต้นแบบที่สุดเท่าที่จะเป็นไปได้" — the
+   sheet's face sits higher than most real clips' faces, so the card / words under the face slide down below the chin (a card
+   shortens to keep the bottom at 1660, at least 280 high) and the words or card above the head need the hair (≈ 130 over the
+   forehead) below them. Returns the moved layout, or null when this face leaves no room. Screens and split screens always fit. */
+const LIME_LOW = {talk: ['lead', 'key'], hands: ['lead', 'key', 'card'], cta: ['lead', 'key', 'card'], big: ['card'], top: ['lead', 'key'],
+  side_l: ['lead', 'key', 'card'], side_r: ['lead', 'key', 'card'], talk_top: []};
+const LIME_HIGH = {talk_top: ['lead', 'key'], big: ['lead', 'key'], top: ['card']};
+function limeFit(name, f) {
+  const L0 = LIME.layouts[name]; if (L0.screen || L0.split) return L0;
+  const [, top, , chin] = f, L = JSON.parse(JSON.stringify(L0));
+  const topOf = k => k === 'lead' ? L[k].y - 40 : k === 'key' ? L[k].y - 75 : L[k][1];
+  const bottomOf = k => k === 'lead' ? L[k].y + 40 : k === 'key' ? L[k].y + 95 : L[k][1] + L[k][3];
+  for (const k of LIME_HIGH[name] ?? []) if (top - 130 < bottomOf(k) + 10) return null;   // above the head: under the hair? no room
+  const low = LIME_LOW[name] ?? [];
+  if (low.length) {
+    const d = Math.max(0, chin + 30 - Math.min(...low.map(topOf)));
+    for (const k of low) { if (k === 'card') { L.card[1] += d; L.card[3] = Math.min(L.card[3], 1660 - L.card[1]); if (L.card[3] < 280) return null; } else L[k].y += d; }
+    if (low.some(k => k !== 'card' && bottomOf(k) > 1660)) return null;
+    if (L.card) L.stage = limeInner(L.card);
   }
-  return false;
+  return L;
 }
+const limeRoom = (name, f) => !!limeFit(name, f);
 
 STYLE('lime', {
   name: 'เขียวมะนาว',
@@ -114,7 +121,7 @@ STYLE('lime', {
         if (!pool.length) pool = ['screen', 'split_top', 'split_bottom'].filter(n => n !== LIME.last);
         const ar = typeof GLOW_SHAPES !== 'undefined' && meta.variant ? GLOW_SHAPES[meta.variant] : null;
         if (ar) {
-          const size = n => { const [, , w, h] = LIME.layouts[n].stage; return ar > w / h ? w * w / ar : h * h * ar; };
+          const size = n => { const [, , w, h] = limeFit(n, face).stage; return ar > w / h ? w * w / ar : h * h * ar; };
           const best = Math.max(...pool.map(size)); pool = pool.filter(n => size(n) >= .75 * best);
         }
         const least = Math.min(...pool.map(n => LIME.used[n] ?? 0)); pool = pool.filter(n => (LIME.used[n] ?? 0) === least);
@@ -122,7 +129,7 @@ STYLE('lime', {
       }
     }
     LIME.used[name] = (LIME.used[name] ?? 0) + 1; LIME.last = name;
-    const L = LIME.layouts[name] ?? LIME.layouts.screen;
+    const L = (meta.layout ? LIME.layouts[name] : limeFit(name, face)) ?? LIME.layouts.screen;   // (a test's forced layout stays as on the sheet)
     const root = div('', SC); root.className = 'l-root' + (L.screen ? ' l-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     const grid = host => { const g = div('', host); g.className = 'l-grid';   // the grid drifts very slowly (as Friend asked for neon), on the clip's clock
@@ -142,13 +149,18 @@ STYLE('lime', {
       const line = box([0, y, 1080, 4]); line.className = 'l-line';
       A(line, [{clipPath: 'inset(0 50% 0 50%)'}, {clipPath: 'inset(0 0 0 0)'}], t0, .45, {e: EASE.soft});
       A(panel, [{opacity: 0, transform: `translateY(${top ? -60 : 60}px)`}, {opacity: 1, transform: 'none'}], t0 - .04, .4, {e: EASE.soft});
+      A(root, [{opacity: 0}, {opacity: 1}], t0 - .04, .2, {e: EASE.smooth});   // the whole split (its speaker copy too) only from t0
       sfx('whoosh', t0 - .1, -20);
     }
     A(root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t1 - .3, .3, {e: EASE.out, f: 'forwards'});
-    (L.cards ?? (L.card ? [L.card] : [])).forEach((c, k) => { const e = box(c); e.className = 'l-card';   // the cards rise in, one after another
-      A(e, [{opacity: 0, transform: 'translateY(40px) scale(.94)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .02 + .12 * k, .45, {e: EASE.soft}); });
-    const stage = L.stage ? box(L.stage) : box([0, 0, 1, 1]);
-    const stages = L.stages ? L.stages.map(s => box(s)) : null;
+    /* the cards rise in, one after another; each picture lives INSIDE its card (it rises with it, and the bridge reads the card's
+       dark glass as the picture's ground: darker tiles, as on the sheet) */
+    const inner = ([, , w, h]) => [26, 44, w - 52, h - 70];
+    const cards = (L.cards ?? (L.card ? [L.card] : [])).map((c, k) => { const e = box(c); e.className = 'l-card';
+      A(e, [{opacity: 0, transform: 'translateY(40px) scale(.94)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .02 + .12 * k, .45, {e: EASE.soft});
+      return box(inner(c), e); });
+    const stage = L.card ? cards[0] : box([0, 0, 1, 1]);
+    const stages = L.cards ? cards : null;
     return {root, stage, stages, cam: root, L, name, dark: !!(L.screen || L.split)};
   },
   /* between pictures (a real clip): the words at the chest (shot 01) or above the head (shot 07), one of the two for each stretch
@@ -159,7 +171,7 @@ STYLE('lime', {
     if (!limeRoom(name, face)) name = name === 'talk' ? 'talk_top' : 'talk';
     if (!limeRoom(name, face)) name = 'talk';
     const root = div('', SC); root.className = 'l-root';
-    return {root, cam: root, speaker: true, L: LIME.layouts[name], name};
+    return {root, cam: root, speaker: true, L: limeFit(name, face) ?? LIME.layouts.talk_top, name};
   },
   /* the lead fades in out of a blur, its last phrase lime (every lead on Friend's sheet); the key word comes in on its word */
   text(F, T, lead, key) {

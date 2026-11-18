@@ -70,7 +70,7 @@ const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '
    mark = a white mark on a solid accent shape · halo = the wide halo of every line */
 const GLASSY = {
   neon: {lit: 'rgba(25,95,150,.85)', litBar: 'rgba(30,120,185,.6)', litIcon: '#CFEFFF', litBody: '#1A6390', mark: '#0B2238', halo: '#5AB8FF'},
-  lime: {lit: 'rgba(120,170,25,.32)', litBar: 'rgba(120,170,25,.32)', litIcon: '#D4FA6A', litBody: '#2C3A12', mark: '#18220A', halo: '#EEF4E6', outlineLit: true, glow: 1.35},   // the white lines glow white on the sheet, only the lit part lime
+  lime: {lit: 'rgba(120,170,25,.32)', litBar: 'rgba(120,170,25,.32)', litIcon: '#D4FA6A', litBody: '#2C3A12', mark: '#18220A', halo: '#EEF4E6', outlineLit: true, glow: 1.7},   // the white lines glow white on the sheet, only the lit part lime
 };
 
 const glowCtx = document.createElement('canvas').getContext('2d');
@@ -167,7 +167,7 @@ function glowMaterial(base, P) {
      navy screen and on the video alike (on the video it reads lighter, #50555A on the dark sweater: .4, on the navy .3); the lit tile
      is a blue wash (#2F738C on the navy, #2A7997 on the video) under a blue edge, its icon in blue */
   if (GLASSY[base]) return {body: {fill: glowFrost(P), edge: P.line}, tile: {fill: glowFrost(P), stroke: P.line},
-    ink: P.line, soft: P.soft, icon: P.line, lit: 'tint', fig: {fill: '#C9D3DC', edge: P.line}};
+    ink: P.line, soft: P.soft, icon: P.line, lit: 'tint', fig: GLASSY[base].outlineLit ? {fill: '#3A3E3F', edge: P.line} : {fill: '#C9D3DC', edge: P.line}};   // lime: people white outlines on dark (Friend's sheet)
   return null;
 }
 /* the name of the icon a GL.art call draws (the icon groups are tagged data-icon, so people can be found) */
@@ -272,6 +272,11 @@ function glowDress(svg, P, base) {
     const GS = GLASSY[base];
     /* lime (Friend's sheet: every lit tile is a lime outline on dark glass, none is filled): a solid accent tile becomes the lit wash
        with an accent edge (the lit-tile pass below then colours its icon) */
+    /* lime: a big solid white shape (a category-set drawing's page or screen, B18 calendar: 1.1:1 under its white lines) becomes frosted
+       glass with a white edge, as every body on Friend's sheet */
+    if (GS.outlineLit) root.querySelectorAll('rect,circle,ellipse,path,polygon').forEach(e => { const f = e.getAttribute('fill');
+      if (!same(f, P.line) || glowRgba(f)[3] < .9 || area(box(e)) < 4000) return;
+      e.setAttribute('fill', '#3A3E3F'); if ((e.getAttribute('stroke') || 'none') === 'none') { e.setAttribute('stroke', P.line); e.setAttribute('stroke-width', '2.5'); } });   // solid (frosted ones stacked pale: 1.5:1)
     if (GS.outlineLit) root.querySelectorAll('rect,circle,ellipse,path,polygon').forEach(e => { const f = e.getAttribute('fill');
       if (!isAccV(f) || glowRgba(f)[3] < .9 || area(box(e)) < 2500) return;
       e.setAttribute('fill', GS.lit); if ((e.getAttribute('stroke') || 'none') === 'none') { e.setAttribute('stroke', P.accent); e.setAttribute('stroke-width', '3'); } });
