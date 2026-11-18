@@ -13,8 +13,10 @@
               title bar)
    3 drawing  the glow-line pictures: white lines, the lit part a blue outline (no solid fill), blue light
    4 colours  deep blue · near-black windows · white · one blue (#2F6FEB)
-   5 words    a white lead (Kanit 500) + the key word white in a blue pill (Kanit 800)
-   6 motion   windows rise in out of a blur, screens fade in, the pill pops on its word
+   5 words    a white lead (Sriracha) + the key word hollow with a blue outline (Kanit 800; over the video a faint dark fill) — final
+   6 motion   windows rise in out of a blur, screens fade in, the key word pops on its word
+   final 2026-11-18 (style-rules/window.md section 15): the window over the head (full_top), the screens without the face with their
+   window in the middle of the screen and the picture in the middle of it, no box round a word alone (GLASSY.window.noPill)
    7 sound    whoosh on a screen cut, a soft swish on the key word
    The words the sheet invents (window titles "เป้าหมายปีนี้", tags "STEP 1/3") are skeleton bars instead (Friend 2026-11-18), so the
    AI has nothing more to write.
