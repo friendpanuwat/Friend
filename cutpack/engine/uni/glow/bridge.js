@@ -39,17 +39,29 @@ function glowVisibleBox(svg, fallback = true) {
   return x1 > x0 ? {x: x0, y: y0, width: x1 - x0, height: y1 - y0} : fallback ? root.getBBox() : null;
 }
 /* what the picture shows over its whole motion, not only at its end (2026-11-18, the window style's first real clip: B08T pinlock's
-   ring grows past its end size mid-motion, so it was cut by its window and ran past x 920): the end box widened to every moment's
-   box between t0 and t1, but by at most `cap` of its size on each side (something that flies in from far comes in from the
-   picture's edge instead of making the whole picture small). Leaves the drawing at its end. */
-function glowMotionBox(svg, t0, t1, cap = .35) {
-  const e = glowVisibleBox(svg); let [x0, y0, x1, y1] = [e.x, e.y, e.x + e.width, e.y + e.height];
-  for (let k = 0; k <= 16; k++) { window.setT(t0 + (t1 - t0) * k / 16); const b = glowVisibleBox(svg, false); if (!b) continue;
+   ring grows past its end size mid-motion, so it was cut by its window and ran past x 920): the end box `e` widened to every
+   moment's box between t0 and t1, by at most `cap` of its size on each side (something that flies far comes in from the picture's
+   edge instead of making the whole picture small). t0 starts after the entrance (a part rising in from below at the start made
+   B18 lectern a third smaller). Leaves the drawing at its end. */
+function glowMotionBox(svg, e, t0, t1, cap = .2) {
+  let [x0, y0, x1, y1] = [e.x, e.y, e.x + e.width, e.y + e.height];
+  if (t1 > t0) for (let k = 0; k <= 16; k++) { window.setT(t0 + (t1 - t0) * k / 16); const b = glowVisibleBox(svg, false); if (!b) continue;
     x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + b.width); y1 = Math.max(y1, b.y + b.height); }
   window.setT(window.DURATION);
   const m = cap * Math.max(e.width, e.height);
   x0 = Math.max(x0, e.x - m); y0 = Math.max(y0, e.y - m); x1 = Math.min(x1, e.x + e.width + m); y1 = Math.min(y1, e.y + e.height + m);
   return {x: x0, y: y0, width: x1 - x0, height: y1 - y0};
+}
+/* the viewBox: the end of the drawing fills the box W × H (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย"); only when its motion
+   runs out of the box (12 px of slack: a window's padding) the motion's box fills it instead, so a picture shrinks only when it has to
+   (fitting every picture to its motion took the window clip's pictures from 13 % of the screen to 10 %) */
+function glowFit(svg, at, t1, W, H) {
+  const pad = b => { const p = Math.max(b.width, b.height) * .03; return {x: b.x - p, y: b.y - p, width: b.width + 2 * p, height: b.height + 2 * p}; };
+  const e = glowVisibleBox(svg), u = glowMotionBox(svg, e, at + .4, t1);
+  let v = pad(e); const s = Math.min(W / v.width, H / v.height), sl = 12 / s;
+  const rx = v.x - (W / s - v.width) / 2 - sl, ry = v.y - (H / s - v.height) / 2 - sl;
+  if (u.x < rx || u.y < ry || u.x + u.width > rx + W / s + 2 * sl || u.y + u.height > ry + H / s + 2 * sl) v = pad(u);
+  svg.setAttribute('viewBox', `${v.x} ${v.y} ${v.width} ${v.height}`);
 }
 /* DIMS (Friend 2026-11-17: "จำไว้เลยว่า สีมันต้องตัดกันเสมอ"): the templates dim what is not the point (the crowd around the chosen
    person, the wrong answer, the steps not reached) to 25–55 %, which took them under 3:1. Whatever ends dimmed (opacity .1–.62 at the
@@ -391,8 +403,7 @@ function glowDraw(F, T, cat, i, d, box = F.stage) {
     glowFirm(svg, P, base);
     glowDress(svg, P, base);
     glowLight(svg, P, base);
-    const b = glowMotionBox(svg, at, T.t1 ?? window.DURATION);   // what is really visible, through its motion: fills the box (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย")
-    { const p = Math.max(b.width, b.height) * .03; svg.setAttribute('viewBox', `${b.x - p} ${b.y - p} ${b.width + 2 * p} ${b.height + 2 * p}`); }
+    glowFit(svg, at, T.t1 ?? window.DURATION, W, H);   // what is really visible fills the box, and its motion stays in it
     glowWeight(svg, P, base);                       // after the fit: the line weight is measured on screen
     if (!GLOW_HOOKED) { GLOW_HOOKED = true; HOOKS.push(t => window.setT(t)); }
     window.GLOW_PENDING--; window.GLOW_READY = window.GLOW_PENDING === 0;
