@@ -42,6 +42,7 @@ def main():
     # an overlay style ("card-overlay", "card-overlay-big") is its full-screen style + its overlay file (overlay.js holds the frame)
     base = a.style.split('-overlay')[0]
     styles = [f'styles/{base}.js', f'styles/{base}-overlay.js'] if '-overlay' in a.style else [f'styles/{a.style}.js']
+    styles = ['styles/common.js'] + styles   # what every new style shares (2026-11-18)
     js = [f'const ICONS = {open(os.path.join(ENGINE, "icons", "lucide.json")).read()};', rd('core.js'), rd('kit.js'), rd('overlay.js')] + [rd(f) for f in styles] \
         + [open(os.path.join(GLOW_ASSETS, 'glowline.js')).read()] + [open(f).read() for f in GLOW_CATS] + [rd('glow/bridge.js')] \
         + [f"const GLOW_SHAPES = {rd('glow/shapes.json')};"] \
