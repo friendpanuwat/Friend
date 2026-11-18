@@ -263,7 +263,7 @@ def fit_picks(style, sc, open_):
         scenes.append({'id': r['id'], 't0': round(t0, 2), 't1': round(t1, 2), 'hit': round(hit, 2), 'pool': pools.get(r['id'], [])})
     json.dump({'seed': SEED, 'scenes': scenes}, open(os.path.join(D, 'job.json'), 'w'))
     try:
-        res = subprocess.run(['node', os.path.join(UNI, 'tools', 'fit_pick.js'), D, style], capture_output=True, text=True, check=True, timeout=900,
+        res = subprocess.run(['node', os.path.join(UNI, 'tools', 'fit_pick.js'), D, style], capture_output=True, text=True, check=True, timeout=1200,
                              env={**os.environ, 'NODE_PATH': subprocess.run(['npm', 'root', '-g'], capture_output=True, text=True).stdout.strip()})
         out = json.loads(res.stdout.strip().splitlines()[-1])
         print(f"{style}: fit pick (best % of the screen, picked %, kept / measured): " + ' · '.join(f"{k} {v[0]}/{v[1]} {v[2]}/{v[3]}" for k, v in out['sizes'].items()))
@@ -271,7 +271,8 @@ def fit_picks(style, sc, open_):
         print(f'{style}: fit pick left some out, the rest by pick.js')
         return {**picks_for(sc), **out['picks']}
     except Exception as e:
-        print(f'{style}: fit pick failed ({e}), pick.js instead'); return picks_for(sc)
+        err = (getattr(e, 'stderr', '') or str(e)).strip().splitlines()
+        print(f'{style}: fit pick failed ({type(e).__name__}: {" | ".join(err[-3:])[:400]}), pick.js instead'); return picks_for(sc)
 
 
 def write(style, R, sc, zooms, suffix, ov=(), open_='speaker'):

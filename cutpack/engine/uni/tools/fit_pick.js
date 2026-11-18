@@ -19,7 +19,8 @@ fs.writeFileSync(path.join(D, 'job.js'), `const FIT_JOB = ${JSON.stringify(job)}
 window.FIT_DONE = false;
 setTimeout(() => {
   const out = [], surf = ST.fitSurface ? ST.fitSurface() : document.body;   // the style's surface, so the colour check reads the right background
-  for (const sc of FIT_JOB.scenes) for (const v of sc.pool) {
+  const only = +new URLSearchParams(location.search).get('s');               // one picture per page (?s=k): 400 drawings in one page timed out (setT moves every drawing)
+  for (const sc of FIT_JOB.scenes.filter((x, k) => k === only)) for (const v of sc.pool) {
     const [set, did] = v.split('.'), i = GL.cats[set]?.variants.findIndex(x => x.id === did), r = FIT_R[sc.id];
     if (i == null || i < 0 || !r) continue;
     const box = div('left:0;top:0;width:1000px;height:700px;visibility:hidden', surf);
@@ -38,9 +39,16 @@ execFileSync('python3', [path.join(UNI, 'build.py'), D, style, '-', '--extra', p
 (async () => {
   const b = await chromium.launch(), p = await b.newPage({viewport: {width: 1080, height: 1920}}), errs = [];
   p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file://' + path.join(D, 'scene.html'));
-  await p.waitForFunction(() => window.FIT_DONE === true, null, {timeout: 600000, polling: 500});
-  const fit = await p.evaluate(() => window.FIT); await b.close();
+  const fit = [];
+  for (let k = 0; k < job.scenes.length; k++) {
+    try {   // a page that does not finish in 90 s leaves its picture to pick.js (seen twice in a row from clip_plan.py, not reproduced: never wait 10 minutes again)
+      await p.goto('file://' + path.join(D, 'scene.html') + '?s=' + k, {waitUntil: 'domcontentloaded', timeout: 90000});
+      await p.waitForFunction(() => window.FIT_DONE === true, null, {timeout: 90000, polling: 500});
+      fit.push(...await p.evaluate(() => window.FIT));
+    } catch (e) { console.error('picture', job.scenes[k].id, 'not measured:', e.name); }
+    if (process.env.FIT_LOG) console.error('scene', k, 'measured', fit.length);
+  }
+  await b.close();
   const used = new Set(), picks = {}, sizes = {};
   for (const sc of job.scenes) {
     let c = fit.filter(f => f.id === sc.id && f.size > 0 && !used.has(f.v) && !f.low);   // (and its lines read: none under 3:1, Friend: "สีมันต้องตัดกันเสมอ")

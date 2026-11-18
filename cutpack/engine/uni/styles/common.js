@@ -92,10 +92,10 @@ function cpSafeCheck(layouts = {}) {
 function styleSafeCheck() { return cpSafeCheck(typeof ST !== 'undefined' && ST ? ST.layouts : {}); }
 /* FIT PICK for every style (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่", tried on neon, then for all 9 others: "ข"):
    cpShape = a picture's shape in this clip (REAL_SHAPES of tools/real_shapes.js, else the sample's, glow/shapes.json) · cpFitSize = the share of
-   the screen a picture of shape `ar` takes in the second best of the boxes (tools/fit_pick.js asks the style's fitSize; frame() never takes the
-   screen it just took, so a drawing must fit two screens well) */
+   the screen a picture of shape `ar` takes on average over the boxes it may get (tools/fit_pick.js asks the style's fitSize: frame() takes one
+   of them at random) */
 function cpShape(variant, t0) { const r = typeof REAL_SHAPES !== 'undefined' ? REAL_SHAPES[t0.toFixed(2)] : null; return r ?? (typeof GLOW_SHAPES !== 'undefined' && variant ? GLOW_SHAPES[variant] : null); }
 function cpFitSize(ar, names, boxOf) {
-  const sz = names.map(n => { const b = boxOf(n); if (!b) return 0; const [, , w, h] = b; return ar > w / h ? w * w / ar : h * h * ar; }).filter(v => v > 0).sort((a, b) => b - a);
-  return (sz[1] ?? sz[0] ?? 0) / (1080 * 1920);
+  const sz = names.map(n => { const b = boxOf(n); if (!b) return 0; const [, , w, h] = b; return ar > w / h ? w * w / ar : h * h * ar; }).filter(v => v > 0);
+  return sz.length ? sz.reduce((a, b) => a + b, 0) / sz.length / (1080 * 1920) : 0;   // the mean over the screens it may get (the second best, as neon, took pink's pictures from 10 % to 8 %: wide drawings for the wide boxes, small in the square card)
 }
