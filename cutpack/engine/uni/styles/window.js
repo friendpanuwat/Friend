@@ -7,8 +7,8 @@
    1 frame    one of 12 layouts (WIN.layouts, named after Friend's shots): the speaker full screen with an app window at the hands,
               or a deep-blue screen with a big window, the speaker in a rounded frame beside a window, two windows in cascade, a recap
               of four. Between pictures the speaker talks with the words at the chest. A chapter bar sits top left on every shot.
-   2 surface  screens: near-black to navy, two blue arcs each carrying two big glowing white diamonds (Friend's background picture,
-              2026-11-18); the pictures sit in dark app windows (three dots, a title, a blue tag)
+   2 surface  screens: near-black to navy (Friend's background picture, 2026-11-18) with our own turning rings in two corners (a
+              glowing ring with white app-chips and a running light); the pictures sit in dark app windows (three dots, a title, a tag)
    3 drawing  the glow-line pictures: white lines, the lit part a blue outline (no solid fill), blue light
    4 colours  deep blue · near-black windows · white · one blue (#2F6FEB)
    5 words    a white lead (Kanit 500) + the key word white in a blue pill (Kanit 800); on screens a small spaced label above
@@ -50,15 +50,17 @@ const WIN = {
   en: {B01: 'NUMBER', B02: 'CHANGE', B03: 'COMPARE', B04: 'STEPS', B05: 'RIGHT WAY', B06: 'QUESTION', B07: 'WARNING', B08: 'GOAL',
     B09: 'TIMELINE', B10: 'PEOPLE', B11: 'MESSAGE', B12: 'CAUSE', B13: 'TIP', B14: 'REMEMBER', B15: 'YOUR TURN', B16: 'MEANING',
     B17: 'LIST', B18: 'STORY', B19: 'FEELING', B20: 'TOGETHER', B21: 'PLACE'},
-  /* the screens' background (Friend 2026-11-18, a picture of it: "ผมอยากได้ background แบบนี้"), measured on that picture (1080 × 1920):
-     near-black at the top to deep navy at the bottom, two thin blue arcs, each with two big white glowing diamonds sitting ON it.
-     Each arc [cx, cy, r, [angles of its diamonds, degrees]]; 0 = the picture as sent, 1 = the same mirrored (for screens whose frame
-     or back window covers the top right; its lower diamonds sit further along their arc, out of TikTok's buttons column). The arcs
-     turn very slowly, so the diamonds slide along them (the lower arc turns back, away from the buttons). */
+  /* the screens' background. The gradient was measured on a picture Friend sent (2026-11-18: "ผมอยากได้ background แบบนี้"): near-black
+     at the top to deep navy at the bottom. The rings are our own (Friend: "รูปนี้ผมไปก๊อปเขามาผมก็เลยอยากให้คุณดีไซน์วงแหวนใหม่หน่อย"):
+     per corner one glowing blue ring (one line, as before: "อยากให้มันเป็นเส้นเดียวมันอันเก่า") carrying two white app-chips (rounded
+     squares, as the windows) and a short running light. Each ring {cx, cy, r, chips: [angles], light: angle, dir}; 0 = top
+     right + bottom left, 1 = mirrored (screens whose frame or back window covers the top right; its lower chips sit left of TikTok's
+     buttons, x 920, and turn away from them). */
   decor: [
-    [[966, 129, 368, [176.2, 89.5]], [82, 1736, 349, [-93.8, 5.8]]],
-    [[114, 129, 368, [3.8, 90.5]], [998, 1736, 349, [238, 184]]],      // (its lower diamonds moved along the arc, left of the buttons: x 920)
+    [{cx: 930, cy: 170, r: 330, chips: [165, 100], light: 132, dir: 1}, {cx: 140, cy: 1760, r: 300, chips: [-80, -10], light: -45, dir: -1}],
+    [{cx: 150, cy: 170, r: 330, chips: [15, 80], light: 48, dir: 1}, {cx: 940, cy: 1760, r: 300, chips: [260, 190], light: 225, dir: -1}],
   ],
+  spin: 2.25,                                   // degrees a second (Friend: "หมุนให้เร็วกว่านี้อีกนิดนึง ... แค่เร็วกว่าเดิมนิดเดียว": 1.5 → 2.25)
 };
 const winInner = ([, , w, h]) => [22, 76, w - 44, h - 98];        // the picture inside a window (under its 64-high title bar)
 
@@ -94,8 +96,11 @@ STYLE('window', {
 .w-root{position:absolute;inset:0;--ink:#F2F6FC;--ac:#5B9BFF;--lw:5;--sd:#F2F6FC;--fl:rgba(14,18,28,.88);--text:#F2F6FC}
 .w-screen{background:linear-gradient(180deg,#000206 0%,#010c1a 7%,#021022 19%,#03152d 31%,#041b3b 44%,#041f45 56%,#04224b 69%,#05244d 81%,#05224a 100%);overflow:hidden}
 .w-arc{position:absolute}
-.w-ring{position:absolute;inset:0;border-radius:50%;border:4px solid #4F86C4;box-shadow:0 0 6px rgba(79,134,196,.55),inset 0 0 6px rgba(79,134,196,.45)}
-.w-dia{position:absolute;width:68px;height:68px;rotate:45deg;background:#fff;border-radius:4px;box-shadow:0 0 8px rgba(255,255,255,.95),0 0 24px rgba(215,232,255,.55)}
+.w-arc svg{position:absolute;inset:0;overflow:visible}
+.w-main{filter:drop-shadow(0 0 5px rgba(79,134,196,.75))}
+.w-light{filter:drop-shadow(0 0 6px rgba(225,238,255,.95))}
+.w-chip{position:absolute;width:42px;height:42px;background:#fff;border-radius:12px;box-shadow:0 0 8px rgba(255,255,255,.9),0 0 26px rgba(150,195,255,.6)}
+.w-chip::after{content:"";position:absolute;left:15px;top:15px;width:12px;height:12px;border-radius:4px;background:#2F6FEB}
 .w-win{position:absolute;border-radius:26px;background:rgba(13,17,27,.9);border:1.5px solid rgba(255,255,255,.14);
   box-shadow:0 22px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);overflow:hidden}
 .w-bar{position:absolute;left:0;right:0;top:0;height:64px;border-bottom:1px solid rgba(255,255,255,.06)}
@@ -169,14 +174,18 @@ STYLE('window', {
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     if (L.screen) {
       const D = WIN.decor[L.decor ?? 0], long = Math.max(1, t1 - t0);
-      D.forEach(([cx, cy, r, angs], j) => {
-        const g = box([cx - r, cy - r, 2 * r, 2 * r]); g.className = 'w-arc'; div('', g).className = 'w-ring';
-        const spin = (j ? -1 : 1) * 1.5 * long;              // 1.5 degrees a second: the diamonds slide ~10 px a second along the arc
-        A(g, [{transform: 'rotate(0deg)'}, {transform: `rotate(${spin}deg)`}], t0 - .05, long + .4);
-        angs.forEach((ang, k) => { const q = ang * Math.PI / 180, d = div(`left:${r + (r - 2) * Math.cos(q) - 34}px;top:${r + (r - 2) * Math.sin(q) - 34}px`, g);
-          d.className = 'w-dia';
-          A(d, [{transform: 'rotate(0deg)'}, {transform: `rotate(${-spin}deg)`}], t0 - .05, long + .4);    // stays a diamond while its arc turns
-          A(d, [{opacity: 1}, {opacity: .62}, {opacity: 1}], t0 + (2 * j + k) * .55, 2.6, {e: 'ease-in-out', it: 4}); });   // the picture: two lit, two dimmer
+      D.forEach(({cx, cy, r, chips, light, dir}, j) => {
+        const R = r + 20, sz = [cx - R, cy - R, 2 * R, 2 * R], spin = dir * WIN.spin * long, rad = a => a * Math.PI / 180;
+        const turn = (el, deg) => A(el, [{transform: 'rotate(0deg)'}, {transform: `rotate(${deg}deg)`}], t0 - .05, long + .4);
+        /* one ring (Friend: "อยากให้มันเป็นเส้นเดียวมันอันเก่า"), its running light and its chips */
+        const g = box(sz), len = 2 * Math.PI * r, arc = 64; g.className = 'w-arc';
+        g.innerHTML = `<svg width="${2 * R}" height="${2 * R}"><circle class="w-main" cx="${R}" cy="${R}" r="${r}" fill="none" stroke="#4F86C4" stroke-width="3.5"/>`
+          + `<circle class="w-light" cx="${R}" cy="${R}" r="${r}" fill="none" stroke="#EAF2FF" stroke-width="4" stroke-linecap="round" stroke-dasharray="${arc} ${len}"`
+          + ` transform="rotate(${light - arc / len * 180} ${R} ${R})"/></svg>`;
+        turn(g, spin);
+        chips.forEach((ang, k) => { const c = div(`left:${R + r * Math.cos(rad(ang)) - 21}px;top:${R + r * Math.sin(rad(ang)) - 21}px`, g); c.className = 'w-chip';
+          turn(c, -spin);                                                     // stays upright while its ring turns
+          A(c, [{opacity: 1}, {opacity: .6}, {opacity: 1}], t0 + (2 * j + k) * .55, 2.6, {e: 'ease-in-out', it: 4}); });
       });
       A(root, [{opacity: 0, filter: 'blur(14px)', transform: 'scale(1.03)'}, {opacity: 1, filter: 'blur(0)', transform: 'none'}], t0 - .04, .35, {e: EASE.smooth});
       sfx('whoosh', t0 - .1, -20);
