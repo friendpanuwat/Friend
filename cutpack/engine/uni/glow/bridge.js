@@ -25,7 +25,8 @@ const GLOWLOOK = {
   violet: {acc: '--ac',    glow: {c: '#8B5CF6', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},   // ม่วงคลื่นเสียง (Friend's 5th new sheet, 2026-11-18): the glass look in violet cards, violet light
   teal:  {acc: '--ac',     glow: {c: '#3FCEBA', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},
   yellow: {acc: '--ac',    glow: {c: '#FFD600', self: true},    weight: {k: 1.6, min: 4.0, floor: 2.6}, floatAlpha: .62},   // the sheet's lines are 5 px where neon's are 3
-  hud:   {acc: '--ac',     glow: {c: '#FFD600', self: true},    weight: {k: 1.6, min: 4.0, floor: 2.6}, floatAlpha: .62},   // เส้นชี้ HUD (Friend's 7th new sheet, 2026-11-18): the same glow-line look as the yellow style (the sheet draws them alike)   // ขั้นตอนเหลือง (Friend's 6th new sheet, 2026-11-18): near-black bodies, white lines glowing white, the lit part yellow    // การ์ดเขียวน้ำทะเล (Friend's 4th new sheet, 2026-11-18): the glass look in teal cards, teal light
+  hud:   {acc: '--ac',     glow: {c: '#FFD600', self: true},    weight: {k: 1.6, min: 4.0, floor: 2.6}, floatAlpha: .62},
+  horizon: {acc: '--ac',   glow: {c: '#FB7A1A', self: true},    weight: {k: 1.8, min: 5.0, floor: 3.0}, floatAlpha: .6},    // ขอบฟ้าส้ม (Friend's 8th new sheet, 2026-11-18): thick warm-white lines (7 px on the full-size shot 04), the lit part orange   // เส้นชี้ HUD (Friend's 7th new sheet, 2026-11-18): the same glow-line look as the yellow style (the sheet draws them alike)   // ขั้นตอนเหลือง (Friend's 6th new sheet, 2026-11-18): near-black bodies, white lines glowing white, the lit part yellow    // การ์ดเขียวน้ำทะเล (Friend's 4th new sheet, 2026-11-18): the glass look in teal cards, teal light
   lime:  {acc: '--ac',     glow: {c: '#B5EE38', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5},    // เขียวมะนาว (Friend's 2nd new sheet, 2026-11-18): the neon glass, lime light    // นีออนฟ้า (Friend's sheet 2): frosted grey glass, white lines with their own soft glow, the lit part blue and glowing hard
 };
 /* what is really visible at the end of the drawing (not the things still hidden or gone: the getBBox of the whole drawing counted
@@ -95,7 +96,7 @@ function glowWeight(svg, P, base) {
     const w = px(e), fl = W.floor ?? 1.6; if (w > 0 && w < fl) e.setAttribute('stroke-width', (+e.getAttribute('stroke-width') * fl / w).toFixed(3)); });
 }
 /* a floating drawing (no solid surface behind it: glass, card-overlay on the video) gets this body colour, see-through */
-const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '#1C1C20', neon: '#2A2E33', lime: '#26292B', window: '#151B26', teal: '#152A26', violet: '#1A1030', yellow: '#141414', hud: '#141414'};
+const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '#1C1C20', neon: '#2A2E33', lime: '#26292B', window: '#151B26', teal: '#152A26', violet: '#1A1030', yellow: '#141414', hud: '#141414', horizon: '#1A100B'};
 /* the GLASS styles (neon, lime): frosted glass bodies, white lines glowing in their own colour, the lit part washed in the style's
    colour. Per style: lit = the lit tile's wash · litBar = a lit bar's wash under white words · litIcon = the icon on a lit tile ·
    mark = a white mark on a solid accent shape · halo = the wide halo of every line */
@@ -111,6 +112,10 @@ const GLASSY = {
     frost: ['rgba(12,12,12,.86)', 'rgba(10,10,10,.62)'], solid: '#161616', litMark: '#FFF3B0', litWord: true},   // litWord: the lit step's word is yellow too
   hud: {lit: 'rgba(24,20,4,.9)', litBar: 'rgba(64,53,0,.92)', litIcon: '#FFD600', litBody: '#2A2300', mark: '#1A1600', halo: '#FFF6D6', outlineLit: true, glow: 1.2, fig: '#7E7E7A', washLit: true,
     frost: ['rgba(12,12,12,.86)', 'rgba(10,10,10,.62)'], solid: '#161616', litMark: '#FFF3B0', litWord: true},   // เส้นชี้ HUD: the yellow style's values (the sheet's pictures are drawn alike)
+  /* ขอบฟ้าส้ม (shot 04 full size, sampled): bodies a warm see-through brown (#2B1E16 on the screen), the lit tile a deep orange wash
+     (#3D210) under an orange edge, its icon and word orange, the white lines warm (#FEF1E3) */
+  horizon: {lit: 'rgba(120,52,10,.5)', litBar: 'rgba(140,60,12,.6)', litIcon: '#FB7A1A', litBody: '#3A1C08', mark: '#2A1204', halo: '#FFE6CC', outlineLit: true, glow: 1.3, fig: '#8A7A70', washLit: true,
+    frost: ['rgba(78,56,42,.5)', 'rgba(30,20,15,.6)'], solid: '#2A1C14', litMark: '#FFD9B0', litWord: true},
   lime: {lit: 'rgba(120,170,25,.32)', litBar: 'rgba(120,170,25,.32)', litIcon: '#D4FA6A', litBody: '#2C3A12', mark: '#18220A', halo: '#EEF4E6', outlineLit: true, glow: 1.7},   // the white lines glow white on the sheet, only the lit part lime
 };
 
