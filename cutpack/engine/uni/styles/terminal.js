@@ -174,6 +174,7 @@ STYLE('terminal', {
           const size = n => { const p = trmFit(n, face)?.pic; if (!p) return 0; const [, , w, h] = p; return ar > w / h ? w * w / ar : h * h * ar; };
           pool = cpSizeKeep(pool, size, TRM.keep, n => !!TRM.layouts[n].speaker, n => !!TRM.layouts[n].noPic);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
+        pool = cpBalance(pool, n => !!TRM.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
         const least = Math.min(...pool.map(n => TRM.used[n] ?? 0)); pool = pool.filter(n => (TRM.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];
       }

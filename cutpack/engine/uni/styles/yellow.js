@@ -168,6 +168,7 @@ STYLE('yellow', {
           const size = n => { const p = yelFit(n, face, more)?.pic; if (!p) return 0; const [, , w, h] = p; return ar > w / h ? w * w / ar : h * h * ar; };
           pool = cpSizeKeep(pool, size, YEL.keep, n => !!YEL.layouts[n].speaker, n => !!YEL.layouts[n].noPic);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
+        pool = cpBalance(pool, n => !!YEL.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
         const least = Math.min(...pool.map(n => YEL.used[n] ?? 0)); pool = pool.filter(n => (YEL.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];
       }

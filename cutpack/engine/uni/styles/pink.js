@@ -171,6 +171,7 @@ STYLE('pink', {
           const size = n => { const p = pnkFit(n, face)?.pic; if (!p) return 0; const [, , w, h] = p; return ar > w / h ? w * w / ar : h * h * ar; };
           pool = cpSizeKeep(pool, size, PNK.keep, n => !!PNK.layouts[n].speaker, n => !!PNK.layouts[n].noPic);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
+        pool = cpBalance(pool, n => !!PNK.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
         const least = Math.min(...pool.map(n => PNK.used[n] ?? 0)); pool = pool.filter(n => (PNK.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];
       }

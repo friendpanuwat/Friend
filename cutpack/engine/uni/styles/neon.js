@@ -172,6 +172,7 @@ STYLE('neon', {
           const size = n => neonSize(n, ar);
           pool = cpSizeKeep(pool, size, .9, n => !!NEON.layouts[n].speaker);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
+        pool = cpBalance(pool, n => !!NEON.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
         const least = Math.min(...pool.map(n => NEON.used[n] ?? 0)); pool = pool.filter(n => (NEON.used[n] ?? 0) === least);
         name = pool[Math.floor(neonRand('screen' + index) * pool.length)];
       }

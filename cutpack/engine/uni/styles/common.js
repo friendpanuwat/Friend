@@ -113,3 +113,13 @@ function cpSizeKeep(pool, size, keep, isSpk, noPic = () => false) {
   const big = pool.filter(n => !isSpk(n) && !noPic(n)), best = Math.max(0, ...(big.length ? big : pool).map(size));
   return pool.filter(n => noPic(n) || (isSpk(n) ? size(n) >= CP.speakerFloor : size(n) >= keep * best));
 }
+/* A AND B AS OFTEN (Friend 2026-11-18, every style: "ก. กับ ข. ควรมีโอกาสขึ้นเท่าๆกันนะครับไม่ควรมีแบบไหนมากกว่าแบบไหน"): when a picture may go on
+   the speaker full screen (ก, layout.speaker) or on a graphic screen (ข), the kind this clip has used less, a tie at random from the run's seed;
+   only one kind left (the face leaves no room): that one. Counts what was taken (CP.kinds). */
+CP.kinds = {spk: 0, scr: 0};
+function cpBalance(pool, isSpk, key) {
+  const a = pool.filter(isSpk), b = pool.filter(n => !isSpk(n));
+  let pick = a.length && b.length ? (CP.kinds.spk === CP.kinds.scr ? (cpRand('kind' + key) < .5 ? 'spk' : 'scr') : CP.kinds.spk < CP.kinds.scr ? 'spk' : 'scr') : a.length ? 'spk' : 'scr';
+  CP.kinds[pick]++;
+  return pick === 'spk' ? a : b;
+}
