@@ -110,7 +110,7 @@ STYLE('violet', {
   /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
   realShapes: true,
-  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, VIO.pool.filter(n => vioFit(n, face)), n => vioFit(n, face)?.pic); },
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, VIO.pool.filter(n => vioFit(n, face)), n => vioFit(n, face)?.pic, VIO.keep, n => !!VIO.layouts[n].speaker); },
   fitSurface() { const r = div('', SC); r.className = 'v-root v-screen'; return r; },
 
   frame(t0, t1, {index, scene}) {
@@ -125,7 +125,7 @@ STYLE('violet', {
         const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) {
           const size = n => { const [, , w, h] = vioFit(n, face).pic; return ar > w / h ? w * w / ar : h * h * ar; };
-          const best = Math.max(...pool.map(size)); pool = pool.filter(n => size(n) >= VIO.keep * best);
+          pool = cpSizeKeep(pool, size, VIO.keep, n => !!VIO.layouts[n].speaker);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
         const least = Math.min(...pool.map(n => VIO.used[n] ?? 0)); pool = pool.filter(n => (VIO.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];

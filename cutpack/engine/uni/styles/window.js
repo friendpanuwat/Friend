@@ -129,7 +129,7 @@ STYLE('window', {
   /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
   realShapes: true,
-  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, WIN.pool.filter(n => winFit(n, face)), n => { const F = winFit(n, face); return F ? winInner(F.win) : null; }); },
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, WIN.pool.filter(n => winFit(n, face)), n => { const F = winFit(n, face); return F ? winInner(F.win) : null; }, .75, n => !!WIN.layouts[n].speaker); },
   fitSurface() { const r = div('', SC); r.className = 'w-root w-screen'; return r; },
 
   frame(t0, t1, {index, scene}) {
@@ -144,7 +144,7 @@ STYLE('window', {
         const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) {
           const size = n => { const [, , w, h] = winInner(winFit(n, face).win); return ar > w / h ? w * w / ar : h * h * ar; };
-          const best = Math.max(...pool.map(size)); pool = pool.filter(n => size(n) >= .75 * best);
+          pool = cpSizeKeep(pool, size, .75, n => !!WIN.layouts[n].speaker);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
         const least = Math.min(...pool.map(n => WIN.used[n] ?? 0)); pool = pool.filter(n => (WIN.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];

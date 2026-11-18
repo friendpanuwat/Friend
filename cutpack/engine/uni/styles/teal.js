@@ -140,7 +140,7 @@ STYLE('teal', {
   /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
   realShapes: true,
-  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, TEAL.pool.filter(n => tealFit(n, face) && !TEAL.layouts[n].noPic), n => tealFit(n, face)?.pic); },
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, TEAL.pool.filter(n => tealFit(n, face) && !TEAL.layouts[n].noPic), n => tealFit(n, face)?.pic, TEAL.keep, n => !!(TEAL.layouts[n].face || TEAL.layouts[n].speaker)); },
   fitSurface() { const r = div('', SC); r.className = 't-root t-screen'; return r; },
 
   frame(t0, t1, {index, scene}) {
@@ -155,8 +155,7 @@ STYLE('teal', {
         const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) {
           const size = n => { const p = tealFit(n, face).pic; if (!p) return 0; const [, , w, h] = p; return ar > w / h ? w * w / ar : h * h * ar; };
-          const big = pool.filter(n => !TEAL.layouts[n].face), best = Math.max(0, ...big.map(size));
-          pool = pool.filter(n => TEAL.layouts[n].noPic || (TEAL.layouts[n].face ? size(n) >= TEAL.minFace : size(n) >= TEAL.keep * best));   // the speaker's cards: only a floor, no race on size; no picture: always in
+          pool = cpSizeKeep(pool, size, TEAL.keep, n => !!(TEAL.layouts[n].face || TEAL.layouts[n].speaker), n => !!TEAL.layouts[n].noPic);   // the speaker's cards and full screens: a floor (CP.speakerFloor = TEAL.minFace), no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")   // the speaker's cards: only a floor, no race on size; no picture: always in
         }
         const least = Math.min(...pool.map(n => TEAL.used[n] ?? 0)); pool = pool.filter(n => (TEAL.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];

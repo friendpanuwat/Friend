@@ -113,7 +113,7 @@ STYLE('lime', {
   /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
   realShapes: true,
-  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, LIME.pool.filter(n => limeRoom(n, face)), n => limeFit(n, face)?.stage); },
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, LIME.pool.filter(n => limeRoom(n, face)), n => limeFit(n, face)?.stage, .75, n => !!LIME.layouts[n].speaker); },
   fitSurface() { const r = div('', SC); r.className = 'l-root l-screen'; return r; },
 
   frame(t0, t1, {index, scene}) {
@@ -128,7 +128,7 @@ STYLE('lime', {
         const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) {
           const size = n => { const [, , w, h] = limeFit(n, face).stage; return ar > w / h ? w * w / ar : h * h * ar; };
-          const best = Math.max(...pool.map(size)); pool = pool.filter(n => size(n) >= .75 * best);
+          pool = cpSizeKeep(pool, size, .75, n => !!LIME.layouts[n].speaker);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
         const least = Math.min(...pool.map(n => LIME.used[n] ?? 0)); pool = pool.filter(n => (LIME.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];

@@ -94,11 +94,22 @@ function styleSafeCheck() { return cpSafeCheck(typeof ST !== 'undefined' && ST ?
    cpShape = a picture's shape in this clip (REAL_SHAPES of tools/real_shapes.js, else the sample's, glow/shapes.json) · cpFitSize = the share of
    the screen a picture of shape `ar` takes on average over the boxes frame() would pick from (tools/fit_pick.js asks the style's fitSize) */
 function cpShape(variant, t0) { const r = typeof REAL_SHAPES !== 'undefined' ? REAL_SHAPES[t0.toFixed(2)] : null; return r ?? (typeof GLOW_SHAPES !== 'undefined' && variant ? GLOW_SHAPES[variant] : null); }
-function cpFitSize(ar, names, boxOf, keep = .75) {
-  /* as frame() picks: the screens within `keep` of the best one for this shape, then one of them at random → the mean of those (the second
-     best, as neon, took pink's pictures from 10 % to 8 %; the mean of every screen told the drawings apart too little: hud 13 % → 11 %) */
-  const sz = names.map(n => { const b = boxOf(n); if (!b) return 0; const [, , w, h] = b; return ar > w / h ? w * w / ar : h * h * ar; }).filter(v => v > 0);
+function cpFitSize(ar, names, boxOf, keep = .75, isSpk = () => false) {
+  /* as frame() picks (cpSizeKeep): the screens within `keep` of the best one for this shape and the speaker's screens over the floor, then one
+     of them at random → the mean of those (the second best, as neon, took pink's pictures from 10 % to 8 %; the mean of every screen told the
+     drawings apart too little: hud 13 % → 11 %) */
+  const sz = names.map(n => { const b = boxOf(n); if (!b) return null; const [, , w, h] = b; return {n, v: ar > w / h ? w * w / ar : h * h * ar}; }).filter(x => x && x.v > 0);
   if (!sz.length) return 0;
-  const best = Math.max(...sz), kept = sz.filter(v => v >= keep * best);
-  return kept.reduce((a, b) => a + b, 0) / kept.length / (1080 * 1920);
+  const big = sz.filter(x => !isSpk(x.n)), best = Math.max(...(big.length ? big : sz).map(x => x.v));
+  const kept = sz.filter(x => isSpk(x.n) ? x.v >= CP.speakerFloor : x.v >= keep * best);
+  return kept.length ? kept.reduce((a, x) => a + x.v, 0) / kept.length / (1080 * 1920) : 0;
+}
+/* THE SPEAKER'S SCREENS WITH A PICTURE take part (Friend 2026-11-18, every style: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ) ส่วนเรื่อง motion graphic มีขนาดเล็ก
+   ก็ไม่เห็นเป็นไรเลยเพราะว่าเรามีระบบให้โค้ดเลือก motion graphic ตามขนาดพื้นที่ว่างอยู่แล้ว"): the speaker full screen with a picture at the hands or the
+   chest always lost the size race to the graphic screens (its picture is smaller), so it never came. Now only the graphic screens race (within
+   `keep` of the best of them); a speaker's screen needs only its picture over CP.speakerFloor (the teal style's floor for its speaker cards). */
+CP.speakerFloor = 60000;
+function cpSizeKeep(pool, size, keep, isSpk, noPic = () => false) {
+  const big = pool.filter(n => !isSpk(n) && !noPic(n)), best = Math.max(0, ...(big.length ? big : pool).map(size));
+  return pool.filter(n => noPic(n) || (isSpk(n) ? size(n) >= CP.speakerFloor : size(n) >= keep * best));
 }

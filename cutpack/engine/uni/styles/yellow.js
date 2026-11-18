@@ -147,7 +147,7 @@ STYLE('yellow', {
   /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
   realShapes: true,
-  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); const ch = yelChunks(t0, t1), more = ch ? Math.max(0, ch.length - 1) : 2; return cpFitSize(ar, YEL.pool.filter(n => !YEL.layouts[n].noPic && yelFit(n, face, more)), n => yelFit(n, face, more)?.pic); },
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); const ch = yelChunks(t0, t1), more = ch ? Math.max(0, ch.length - 1) : 2; return cpFitSize(ar, YEL.pool.filter(n => !YEL.layouts[n].noPic && yelFit(n, face, more)), n => yelFit(n, face, more)?.pic, YEL.keep, n => !!YEL.layouts[n].speaker); },
   fitSurface() { const r = div('', SC); r.className = 'y-root y-screen'; return r; },
 
   frame(t0, t1, {index, scene}) {
@@ -166,7 +166,7 @@ STYLE('yellow', {
         const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) {
           const size = n => { const p = yelFit(n, face, more)?.pic; if (!p) return 0; const [, , w, h] = p; return ar > w / h ? w * w / ar : h * h * ar; };
-          const best = Math.max(0, ...pool.map(size)); pool = pool.filter(n => YEL.layouts[n].noPic || size(n) >= YEL.keep * best);   // no picture: the chips are the picture
+          pool = cpSizeKeep(pool, size, YEL.keep, n => !!YEL.layouts[n].speaker, n => !!YEL.layouts[n].noPic);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
         const least = Math.min(...pool.map(n => YEL.used[n] ?? 0)); pool = pool.filter(n => (YEL.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];

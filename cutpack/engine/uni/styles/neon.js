@@ -138,8 +138,7 @@ STYLE('neon', {
     const face = neonFaceBox(t0, t1);
     let pool = NEON.pool.filter(n => neonRoom(n, face) && (!opening || neonWithFace(n)));
     if (!pool.length) pool = ['square', 'window', 'band'];
-    const sz = pool.map(n => neonSize(n, ar)).sort((a, b) => b - a);
-    return (sz[1] ?? sz[0]) / (1080 * 1920);      // the second best: frame() never takes the screen it just took, so a drawing must fit two well
+    return cpFitSize(ar, pool, n => NEON.layouts[n].stage, .9, n => !!NEON.layouts[n].speaker);   // as frame() picks (was: the second best screen; the speaker's screens joined, 2026-11-18)
   },
   fitSurface() { const r = div('', SC); r.className = 'n-root n-screen'; return r; },   // where fit_pick measures colours: the navy screen   // clip_all_styles.sh measures each picture's real shape on a first build (tools/real_shapes.js) and builds again with it
 
@@ -171,7 +170,7 @@ STYLE('neon', {
         const ar = real ?? (typeof GLOW_SHAPES !== 'undefined' && meta.variant ? GLOW_SHAPES[meta.variant] : null);
         if (ar) {                                                            // how big the picture comes out in each screen's box
           const size = n => neonSize(n, ar);
-          const best = Math.max(...pool.map(size)); pool = pool.filter(n => size(n) >= .9 * best);   // .9 (final 2026-11-18, was .75: the drawing was picked for its best screen, tools/fit_pick.js)
+          pool = cpSizeKeep(pool, size, .9, n => !!NEON.layouts[n].speaker);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
         const least = Math.min(...pool.map(n => NEON.used[n] ?? 0)); pool = pool.filter(n => (NEON.used[n] ?? 0) === least);
         name = pool[Math.floor(neonRand('screen' + index) * pool.length)];
