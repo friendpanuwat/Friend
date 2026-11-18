@@ -103,7 +103,8 @@ const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '
    colour. Per style: lit = the lit tile's wash · litBar = a lit bar's wash under white words · litIcon = the icon on a lit tile ·
    mark = a white mark on a solid accent shape · halo = the wide halo of every line */
 const GLASSY = {
-  neon: {lit: 'rgba(25,95,150,.85)', litBar: 'rgba(30,120,185,.6)', litIcon: '#CFEFFF', litBody: '#1A6390', mark: '#0B2238', halo: '#5AB8FF'},
+  neon: {lit: 'rgba(25,95,150,.85)', litBar: 'rgba(30,120,185,.6)', litIcon: '#CFEFFF', litBody: '#1A6390', mark: '#0B2238', halo: '#5AB8FF',
+    noEdge: true, centreBox: true},   // final 2026-11-18 (Friend): "ตัวหนังสือส่วยนี้ไม่ต้องมีกรอบ" · "ถ้ามีกรอบข้อความแบบนี้ อยากให้ icon และข้อความอยู่กึ่งกลาง"
   window: {lit: 'rgba(40,110,230,.30)', litBar: 'rgba(40,110,230,.38)', litIcon: '#A8CCFF', litBody: '#16325C', mark: '#0B2238', halo: '#7FB0FF', outlineLit: true, glow: 1.3, fig: '#7586A3', washLit: true},   // fig: people 5:1 on the window, white edge 3.7:1 on them
   violet: {lit: 'rgba(120,80,240,.24)', litBar: 'rgba(120,80,240,.30)', litIcon: '#C4AEFF', litBody: '#2A1A55', mark: '#160B30', halo: '#E8E0FF', outlineLit: true, glow: 1.3, fig: '#8A82A8', washLit: true},   // lit parts a violet outline (Friend's sheet)
   teal: {lit: 'rgba(40,190,165,.24)', litBar: 'rgba(40,190,165,.30)', litIcon: '#8FEBD9', litBody: '#123A33', mark: '#0A231F', halo: '#D8F5EE', outlineLit: true, glow: 1.3, fig: '#6E8C86', washLit: true},   // lit parts a teal outline (Friend's sheet), people teal-grey 4.3:1 on the card
@@ -383,6 +384,34 @@ function glowDress(svg, P, base) {
     }
   }
 }
+/* centreBox (the neon style only, Friend 2026-11-18 on the final: "ถ้ามีกรอบข้อความแบบนี้ อยากให้ icon และข้อความอยู่กึ่งกลาง", B18 ribbon's sign:
+   a mic and "พูดสดๆ" at its left, its right half empty): a text box (a rect at least twice as wide as tall, a word in it) whose icon and
+   words sit off its middle gets them moved to its middle, as one group, at the drawing's end. Only what lies wholly in the box and is
+   drawn after it moves; a box holding a wide shape (a bar's fill, a second box) is not a text box and stays as it is. */
+function glowCentre(svg) {
+  const root = svg.querySelector(':scope > g'); if (!root) return;
+  const box = e => e.getBoundingClientRect(), within = (q, r, m = 2) => q.left >= r.left - m && q.right <= r.right + m && q.top >= r.top - m && q.bottom <= r.bottom + m;
+  const leafSel = 'path,line,polyline,polygon,rect,circle,ellipse,text,image';
+  const seen = e => { for (let x = e; x && x !== svg; x = x.parentElement) { const cs = getComputedStyle(x); if (cs.display === 'none' || +cs.opacity < .05) return false; } return true; };
+  const pos = new Map([...root.querySelectorAll('*')].map((e, k) => [e, k]));
+  const rects = [...root.querySelectorAll('rect')].filter(e => !e.closest('clipPath,defs,mask') && seen(e)).map(e => ({e, r: box(e)}))
+    .filter(o => o.r.width >= 2 * o.r.height && o.r.width > 60);
+  const ctm = svg.getScreenCTM(), k = ctm ? 1 / ctm.a : 1;          // screen px → the drawing's units
+  for (const {e: b, r} of rects) {
+    const leaves = [...root.querySelectorAll(leafSel)].filter(e => e !== b && !e.closest('clipPath,defs,mask') && seen(e) && (pos.get(e) ?? 0) > (pos.get(b) ?? 0))
+      .map(e => ({e, q: box(e)})).filter(o => (o.q.width > .5 || o.q.height > .5) && within(o.q, r));
+    if (!leaves.some(o => o.e.tagName === 'text' && o.e.textContent.trim())) continue;
+    if (leaves.some(o => o.e.tagName !== 'text' && o.q.width >= .5 * r.width)) continue;   // a bar's fill or a box in the box: not a text box
+    /* what moves: the highest group around each leaf that still lies wholly in the box (an icon moves as its group) */
+    const tops = new Set(leaves.map(({e}) => { let x = e; while (x.parentElement && x.parentElement !== root && !x.parentElement.contains(b) && within(box(x.parentElement), r)) x = x.parentElement; return x; }));
+    const u = [...tops].map(box).reduce((a, q) => ({left: Math.min(a.left, q.left), right: Math.max(a.right, q.right), top: Math.min(a.top, q.top), bottom: Math.max(a.bottom, q.bottom)}));
+    const dx = ((r.left + r.right) - (u.left + u.right)) / 2, dy = ((r.top + r.bottom) - (u.top + u.bottom)) / 2;
+    if (Math.abs(dx) < .04 * r.width && Math.abs(dy) < .08 * r.height) continue;   // already in the middle
+    for (const x of tops) { const m = x.parentNode.getScreenCTM?.(), kx = m ? 1 / Math.hypot(m.a, m.b) : k;   // in the units of its own parent (a scaled group)
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.setAttribute('transform', `translate(${(dx * kx).toFixed(1)} ${(dy * kx).toFixed(1)})`); g.setAttribute('data-centred', '');
+      x.parentNode.insertBefore(g, x); g.appendChild(x); }
+  }
+}
 /* the style's glow: a soft halo of one colour around every line (glass) or around what took the accent (gold) */
 function glowLight(svg, P, base) {
   const G = GLOWLOOK[base]?.glow; if (!G) return;
@@ -444,6 +473,7 @@ function glowDraw(F, T, cat, i, d, box = F.stage) {
     glowReadable(svg, P);
     glowFirm(svg, P, base);
     glowDress(svg, P, base);
+    if (GLASSY[base]?.centreBox) glowCentre(svg);  // neon only (final 2026-11-18): the icon and word of a text box in its middle
     glowLight(svg, P, base);
     if (GLOWLOOK[base]?.motionFit) glowFit(svg, at, T.t1 ?? window.DURATION, W, H);   // window: what is really visible fills the box, and its motion stays in it
     else { const b = glowVisibleBox(svg), p = Math.max(b.width, b.height) * .03;      // the other styles: what is really visible at its end fills the box (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย")

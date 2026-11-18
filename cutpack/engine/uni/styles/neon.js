@@ -37,10 +37,10 @@ const NEON = {
     square:     {screen: true, square: [540, 460, 240, 44], stage: [80, 740, 840, 580], lead: {x: 540, y: 1420}, key: {x: 540, y: 1540}},  // shot 04 (Friend 2026-11-17: the circle → a rounded square, "ขยายใหญ่อีกนิดนึง ย้ำว่าแค่นิดเดียว": 440 → 480)
     band:       {screen: true, lead: {x: 540, y: 220}, key: {x: 540, y: 340}, band: [160, 470, 760, 600, 40], stage: [80, 1110, 840, 530]},   // shot 05 (Friend 2026-11-17: the full-width band → a rounded rectangle the video fills, a little wider than the video was: 704 → 760)
     side:       {screen: true, stage: [60, 520, 520, 880], lead: {x: 735, y: 890, maxW: 330}, key: {x: 735, y: 1010, maxW: 330}},      // shot 06 (tall pictures)
-    talk_split: {speaker: true, lead: {x: 540, y: 230}, key: {x: 540, y: 1080}},                                                        // shot 07
+    talk_split: {speaker: true, lead: {x: 540, y: 960}, key: {x: 540, y: 1080}},                                                        // shot 07 (the lead right above the key word, Friend 2026-11-18 final: "Subtitles ตัวเล็กและตัวใหญ่ต้องอยู่ด้วยกัน"; the sheet had it at the top, y 230)
     window:     {screen: true, win: [160, 220, 760, 680, 40], stage: [80, 940, 840, 440], lead: {x: 540, y: 1440}, key: {x: 540, y: 1545}}, // shot 08
     diag:       {speaker: true, lead: {x: 540, y: 140}, key: {x: 540, y: 265}, stage: [480, 1060, 440, 580]},   // shot 09 (words centred, Friend 2026-11-17)
-    word:       {screen: true, key: {x: 540, y: 280}, stage: [80, 420, 840, 900], lead: {x: 540, y: 1380}},                            // shot 10
+    word:       {screen: true, lead: {x: 540, y: 220}, key: {x: 540, y: 340}, stage: [80, 460, 840, 980]},                              // shot 10 (the lead above the key word at the top, Friend 2026-11-18 final: "ตัวเล็กและตัวใหญ่ต้องอยู่ด้วยกัน"; the sheet had the lead under the picture, y 1380 · the picture runs down into its old place)
     recap:      {screen: true, lead: {x: 540, y: 120}, key: {x: 540, y: 250}, stages: [[260, 430, 680, 300], [220, 870, 700, 290], [340, 1270, 520, 380]],
                  nums: [[100, 620], [100, 1060], [100, 1520]]},                                                                             // shot 11
     cta:        {speaker: true, stage: [240, 950, 640, 400], lead: {x: 540, y: 1410}, key: {x: 540, y: 1540}},                           // shot 12
@@ -66,7 +66,7 @@ function neonRoom(name, f) {
   const [, top, , chin] = f, L = NEON.layouts[name];
   if (L.screen) return true;
   if (name === 'diag') return top - 130 > L.key.y + 110 && chin + 30 < L.stage[1];   // the hair (≈ 130 above the forehead) under the words, the chin above the picture
-  if (name === 'talk_split') return chin + 20 < L.key.y - 110;
+  if (name === 'talk_split') return chin + 20 < L.lead.y - 40;      // the lead sits on the key word now (final 2026-11-18)
   if (L.stage) return chin + 30 < Math.min(L.stage[1], L.lead ? L.lead.y - 40 : 1e9);
   return chin + 20 < L.lead.y - 40;                                 // talk_low
 }
