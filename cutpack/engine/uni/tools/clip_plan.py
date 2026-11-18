@@ -42,7 +42,7 @@ PAST = json.load(open(HISTORY)) if HISTORY and os.path.exists(HISTORY) else []
 RULES = {
     # 2026-11-17 Friend cancelled the 8 old styles (card, glass, split, gold and their overlays; their rules are in git history,
     # git show HEAD~1:cutpack/engine/uni/tools/clip_plan.py) for 12 new ones from sheets Friend made with AI. One by one:
-    'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft'),
+    'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft', openFace=True),   # openFace: the style can open on a picture screen with the face (final 2026-11-18)
     'lime':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),
     'violet':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # ม่วงคลื่นเสียง: 12 of 12 shots carry a picture (first guess)
     'teal':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # การ์ดเขียวน้ำทะเล: 12 of 12 shots carry a picture or a card (first guess)
@@ -122,9 +122,20 @@ sent_of = {n: k for k, (a, b) in enumerate(SENT) for n in range(a, b + 1)}
 print(f"points: {len(SENT)} ({'the AI' if camera.get('ends') else 'pauses'}) · ends at lines {[e + 1 for e in ends]}")
 
 
-def scenes_for(R):
+# OPENING (Friend 2026-11-18, every style: "คลิปต้องเปิดด้วยฉากที่มีหน้า user เสมอ" · "เปิดคลิปด้วยหน้าในกรอบเล็กนับด้วยครับ แต่ต้องไม่ตายตัว
+# เช่นต้องไม่เปิดที่หน้าจอเล็กเสมอไปหรือต้องไม่เปิดที่หน้าจอใหญ่เสมอไปใช้สุ่มเหมือนเดิม"): from the run's seed, half the runs open with the
+# speaker talking (no picture over the first point: 'speaker'), half with a picture from the first frame on a screen that shows the face,
+# full or framed ('face': RUN.open, the style keeps the first screen to those). A style that cannot do 'face' yet (no openFace) always
+# opens with the speaker.
+def opening(st, R):
+    import random
+    return 'face' if R.get('openFace') and random.Random(f'{SEED}:open:{st}').random() < .5 else 'speaker'
+
+
+def scenes_for(R, open_='speaker'):
     """the style's pictures: best rank first until the style's count, as long as they fit its rules"""
     want = max(3, round(dur / R['every']))
+    first_end = lines[SENT[0][1]]['t1']
     pool = sorted(report, key=lambda r: (r.get('rank', 2), r['line']))
     lo, hi = R['scene']
     chosen = []
@@ -135,6 +146,7 @@ def scenes_for(R):
     for r in pool:
         if len(chosen) >= want: break
         s = window(r)
+        if open_ == 'speaker' and s[1] < first_end - .01: continue                    # the first point: the speaker
         trial = sorted(chosen + [s], key=lambda x: x[1])
         trial = clip_all([list(x) for x in trial], hi)
         if any(x[2] - x[1] < lo - 1e-6 for x in trial): continue                      # it would squeeze a neighbour too short
@@ -233,7 +245,7 @@ def picks_for(sc, ov=()):
     return json.loads(out.stdout)['picks']
 
 
-def write(style, R, sc, zooms, suffix, ov=()):
+def write(style, R, sc, zooms, suffix, ov=(), open_='speaker'):
     then, picks = [], picks_for(sc, ov)
     ovid = {o[0]['id'] for o in ov}
     for k, (r, t0, t1, n) in enumerate(sorted(list(sc) + list(ov), key=lambda x: x[1])):
@@ -242,7 +254,7 @@ def write(style, R, sc, zooms, suffix, ov=()):
         then.append(f"{r['id']}.{picks[r['id']]},{t0:.2f},{t1:.2f},{k},{hit:.2f}")
         RUN_PICKS.append(picks[r['id']])
     f = json.load(open(FACES))
-    run = {'seed': SEED, 'overlays': [f"{r['id']}.{picks[r['id']]}" for r, *_ in ov]}
+    run = {'seed': SEED, 'overlays': [f"{r['id']}.{picks[r['id']]}" for r, *_ in ov], 'open': open_ if sc and sc[0][1] < .3 else 'speaker'}
     js = f"const RUN = {json.dumps(run)};\nconst FACES = {json.dumps({'track': f['track'], 'layout': f['layout'], 'keepOut': f['keepOut']})};\nconst CAPTIONS = {json.dumps(CAP, ensure_ascii=False)};\n"
     if zooms: js += f"const ZOOMS = {json.dumps(zooms)};\n"
     js += re.sub(r'"say": \[[^\]]*\]', '"say": ["", ""]', open(f'{W}/cats/sentences.js').read())
@@ -250,6 +262,7 @@ def write(style, R, sc, zooms, suffix, ov=()):
     open(f'{W}/then{suffix}.txt', 'w').write('\n'.join(then) + '\n')
     cover = sum(t1 - t0 for _, t0, t1, _ in sc)
     if ov: print(f"{style}: {len(ov)} overlays on the speaker at {[round(o[1], 1) for o in ov]}")
+    print(f"{style}: opens with {run['open']}")
     print(f'{style}: {len(CAP)} subtitle blocks ({sum("acc" in c for c in CAP)} accent) · {len(then)} pictures, {cover / dur:.0%} of the clip · '
           f'{sum(z["z"] > 1 for z in zooms)} zoom pushes at {[z["t"] for z in zooms if z["z"] > 1]}')
 
@@ -258,8 +271,8 @@ if not STYLES:                                   # the old rule (2026-11-11), fo
     R = dict(every=5.0, scene=(2.4, 99), cover=1.0, run=99, zoom=False)
     write('old', R, scenes_for(R), [], '')
 for st in STYLES:
-    R = RULES[st]; sc = scenes_for(R); ov = overlays_for(R, sc)
-    write(st, R, sc, zooms_for(R, sc + ov, R.get('cut', 'soft')), f'_{st}', ov)
+    R = RULES[st]; op = opening(st, R); sc = scenes_for(R, op); ov = overlays_for(R, sc)
+    write(st, R, sc, zooms_for(R, sc + ov, R.get('cut', 'soft')), f'_{st}', ov, op)
 print(f'seed {SEED} (same plan again: --seed {SEED})')
 if HISTORY:                                       # this run joins the customer's history (a run of the same clip again counts too)
     PAST.append({'clip': os.path.basename(os.path.abspath(W)), 'seed': SEED, 'picks': sorted(set(RUN_PICKS))})
