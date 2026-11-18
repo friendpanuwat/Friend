@@ -39,10 +39,14 @@ const WIN = {
     recap:    {screen: true, lead: {x: 540, y: 493}, key: {x: 540, y: 596},
                wins: [[80, 770, 400, 420], [500, 770, 420, 420], [80, 1230, 400, 420], [500, 1230, 420, 420]], decor: 0},     // shot 11
     cta:      {speaker: true, lead: {x: 540, y: 1066}, key: {x: 540, y: 1172}, win: [80, 1300, 840, 360]},             // shot 12
+    /* final 2026-11-18 (Friend: "พื้นที่ด้านบนหัวยังว่างสามารถเอาโอเวอร์เลย์ไปไว้ตรงนั้นได้นะครับ เพื่อความหลากหลาย"): the window over
+       the head, from under the search bar (220) to 140 over the face box (the hair, as lime's top card); its height from the clip's
+       face (winFit) · the words at the chest as shot 01 */
+    full_top: {speaker: true, top: true, lead: {x: 540, y: 1062}, key: {x: 540, y: 1175}, win: [120, 220, 840, 560]},
   },
-  pool: ['full', 'full_n', 'dark', 'float', 'full_w', 'cascade', 'full_d', 'stats', 'full_c', 'dark_b', 'cta'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
+  pool: ['full', 'full_n', 'dark', 'float', 'full_w', 'cascade', 'full_d', 'stats', 'full_c', 'dark_b', 'cta', 'full_top'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
   byCat: {B15: 'cta', B14: 'dark'},
-  used: {}, last: null,
+  used: {}, last: null, place: {top: 0, low: 0},   // place: how many speaker screens had the window over the head / under it
   /* the screens' background. The gradient was measured on a picture Friend sent (2026-11-18: "ผมอยากได้ background แบบนี้"): near-black
      at the top to deep navy at the bottom. The rings are our own (Friend: "รูปนี้ผมไปก๊อปเขามาผมก็เลยอยากให้คุณดีไซน์วงแหวนใหม่หน่อย"):
      per corner one glowing blue ring (one line, as before: "อยากให้มันเป็นเส้นเดียวมันอันเก่า") carrying two white app-chips (rounded
@@ -71,10 +75,11 @@ const winInner = ([, , w, h]) => [22, 76, w - 44, h - 98];        // the picture
    (the window shortens to keep its bottom at 1660, at least 260 high); null = no room. Screens always fit. */
 function winFit(name, f) {
   const L0 = WIN.layouts[name]; if (L0.screen) return L0;
-  const [, , , chin] = f, L = JSON.parse(JSON.stringify(L0));
-  const tops = [L.lead.y - 45, L.key.y - 55].concat(L.win ? [L.win[1]] : []), d = Math.max(0, chin + 30 - Math.min(...tops));
+  const [, top, , chin] = f, L = JSON.parse(JSON.stringify(L0));
+  if (L.top) { L.win[3] = Math.min(L0.win[3], top - 140 - L.win[1]); if (L.win[3] < 260) return null; }   // over the head: no room under the search bar? not this screen
+  const tops = [L.lead.y - 45, L.key.y - 55].concat(L.win && !L.top ? [L.win[1]] : []), d = Math.max(0, chin + 30 - Math.min(...tops));
   L.lead.y += d; L.key.y += d;
-  if (L.win) { L.win[1] += d; L.win[3] = Math.min(L.win[3], 1660 - L.win[1]); if (L.win[3] < 260) return null; }
+  if (L.win && !L.top) { L.win[1] += d; L.win[3] = Math.min(L.win[3], 1660 - L.win[1]); if (L.win[3] < 260) return null; }
   if (L.key.y + 55 > 1660) return null;
   return L;
 }
@@ -84,7 +89,7 @@ STYLE('window', {
   css: `
 @font-face{font-family:"WinKey";src:url(fonts/Kanit-800-thai.woff);font-weight:800;unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
 @font-face{font-family:"WinKey";src:url(fonts/Kanit-800-latin.woff);font-weight:800;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F}
-@font-face{font-family:"WinLead";src:url(fonts/Kanit-800-italic.woff);font-weight:800;font-style:italic}
+@font-face{font-family:"WinLead";src:url(fonts/Sriracha-Regular.ttf)}
 .w-root{position:absolute;inset:0;--ink:#F2F6FC;--ac:#5B9BFF;--lw:5;--sd:#F2F6FC;--fl:rgba(14,18,28,.88);--text:#F2F6FC}
 .w-screen{background:linear-gradient(180deg,#000206 0%,#010c1a 7%,#021022 19%,#03152d 31%,#041b3b 44%,#041f45 56%,#04224b 69%,#05244d 81%,#05224a 100%);overflow:hidden}
 .w-arc{position:absolute}
@@ -103,9 +108,9 @@ STYLE('window', {
 .w-text{position:absolute;inset:0}
 .w-row{position:absolute;white-space:nowrap}
 /* final 2026-11-18 (Friend: "subtitle ภาษาไทยปัจจุบันเป็นเหมือนรูปที่แนบไปรูปที่ 1 แต่ผมอยากให้มันเป็นเหมือนรูปที่แนบไปรูปที่ 2" · "ข"):
-   the lead heavy white italic (Kanit 800 italic, was 500 upright) · the key word hollow with a blue outline (was white in a blue pill);
-   over the speaker (.w-vid) the hollow letters get a faint dark fill so they read over the room */
-.w-lead{font-family:"WinLead";font-weight:800;font-style:italic;font-size:76px;line-height:1.2;color:#F4F7FC;text-shadow:0 0 3px rgba(0,0,0,.85),0 0 10px rgba(0,0,0,.6),0 3px 18px rgba(0,0,0,.5)}
+   the key word hollow with a blue outline (was white in a blue pill); over the speaker (.w-vid) the hollow letters get a faint dark
+   fill so they read over the room · the lead white in Sriracha (Friend: "ส่วนตัวอักษรสีขาวอยากให้ใช้ฟอนต์นี้ครับ", was Kanit 500) */
+.w-lead{font-family:"WinLead";font-weight:400;font-size:74px;line-height:1.2;color:#F4F7FC;text-shadow:0 0 3px rgba(0,0,0,.85),0 0 10px rgba(0,0,0,.6),0 3px 18px rgba(0,0,0,.5)}
 .w-key{display:inline-block;font-family:"WinKey";font-weight:800;font-size:112px;line-height:1.16;color:transparent;-webkit-text-stroke:3.5px #6FA6FF;
   filter:drop-shadow(0 0 10px rgba(80,140,255,.45))}
 .w-vid .w-key{color:rgba(4,12,32,.5);filter:drop-shadow(0 0 3px rgba(0,0,0,.7)) drop-shadow(0 0 12px rgba(60,120,255,.45))}
@@ -127,7 +132,7 @@ STYLE('window', {
   setup() {
     BGL.style.background = '#000'; HOOKS.push(cpInsetHook);
     /* load this style's fonts at once: the words are fitted to the safe zone on the first frame (hud 2026-11-18: fitted with the fallback font) */
-    [['WinKey', 800, 'normal'], ['WinLead', 800, 'italic']].forEach(([f, w, st]) => div(`left:-9999px;top:0;font-family:${f};font-weight:${w};font-style:${st}`, document.body, 'กขคฅ ึ่้ 0123 Ab'));
+    [['WinKey', 800, 'normal'], ['WinLead', 400, 'normal']].forEach(([f, w, st]) => div(`left:-9999px;top:0;font-family:${f};font-weight:${w};font-style:${st}`, document.body, 'กขคฅ ึ่้ 0123 Ab'));
     /* no chapter bar and no small label (Friend 2026-11-18: "ลบที่ผมวงกลมสีแดงออกด้วยครับทุกฉากเลย") */
   },
 
@@ -152,11 +157,15 @@ STYLE('window', {
           pool = cpSizeKeep(pool, size, .75, n => !!WIN.layouts[n].speaker);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
         pool = cpBalance(pool, n => !!WIN.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
+        /* a speaker screen: the window over the head or under it as often ("เพื่อความหลากหลาย"); the less used place, a tie by the run's seed */
+        const tp = pool.filter(n => WIN.layouts[n].top), lw = pool.filter(n => WIN.layouts[n].speaker && !WIN.layouts[n].top);
+        if (tp.length && lw.length) { const P = WIN.place, up = P.top !== P.low ? P.top < P.low : cpRand('place' + index) < .5; pool = up ? tp : lw; }
         const least = Math.min(...pool.map(n => WIN.used[n] ?? 0)); pool = pool.filter(n => (WIN.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];
       }
     }
     WIN.used[name] = (WIN.used[name] ?? 0) + 1; WIN.last = name;
+    if (WIN.layouts[name].speaker) WIN.place[WIN.layouts[name].top ? 'top' : 'low']++;
     const L = (meta.layout ? WIN.layouts[name] : winFit(name, face)) ?? WIN.layouts.dark;
     const root = div('', SC); root.className = 'w-root' + (L.screen ? ' w-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
