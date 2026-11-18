@@ -1,11 +1,6 @@
 # CutPack: ส่งต่องานให้ session ถัดไป
 
-**สาขาหลักของ repo คือ `ccr-045810ba-gj4imq`** · **งานล่าสุดของ CutPack อยู่ในสาขา `claude/cutpack-style-6-yx4gju`** (ต่อจากสาขาหลักหลัง PR #33 · PR #34 เข้าสาขาหลัก ดูหัวข้อบนสุด) ถ้า Friend ยังไม่ได้ merge สาขานี้ session ใหม่ต้องดึงสาขานี้ก่อนอย่างอื่น (เช็ก: `git fetch origin claude/cutpack-style-6-yx4gju && git merge-base --is-ancestor origin/claude/cutpack-style-6-yx4gju HEAD && echo มีแล้ว`):
-```
-git fetch origin claude/cutpack-style-6-yx4gju
-git checkout -B <สาขาที่ session ใหม่ได้รับ> origin/claude/cutpack-style-6-yx4gju
-```
-ถ้า merge แล้ว เริ่มจากสาขาหลักได้เลย
+**สาขาหลักของ repo คือ `ccr-045810ba-gj4imq`** · งานของสาขา `claude/cutpack-style-6-yx4gju` (สไตล์ 6–10) **merge เข้าสาขาหลักแล้วทาง PR #34** (Friend 2026-11-18: "PR #34 merge เข้าสาขาหลักแล้ว ไม่ต้องดึงสาขาเก่า") · session ใหม่เริ่มจากสาขาหลักได้เลย ไม่ต้องดึงสาขาเก่า
 เครื่องใหม่: `pip install -r cutpack/engine/requirements.txt` (2–3 นาที) · Typhoon ลงตามหมายเหตุในไฟล์นั้น (torch แบบ CPU ก่อน · `HF_HUB_DISABLE_XET=1` ตอนรัน `asr.py` ครั้งแรก)
 แล้วทำงานและ push ไปที่สาขาของ session ใหม่
 
@@ -36,7 +31,7 @@ git checkout -B <สาขาที่ session ใหม่ได้รับ> o
 | 9 | เทอร์มินัลแดง (Red Terminal) | `terminal` | ดราฟแรกผ่าน (แชทนี้) | `style-rules/terminal.md` |
 | 10 | การ์ดชมพู (Pink Cards) | `pink` | ดราฟแรกผ่าน (แชทนี้) · สไตล์พื้นสว่างแบบแรก | `style-rules/pink.md` |
 
-- **PR ของแชทนี้: #34** (https://github.com/friendpanuwat/Friend/pull/34) สาขา `claude/cutpack-style-6-yx4gju` → สาขาหลัก `ccr-045810ba-gj4imq` เปิดตามที่ Friend สั่ง 2026-11-18 ("ดราฟแรกผ่านครับ เปิด PR แล้วทำ Handoff สำหรับส่งงานต่อไปที่แชทใหม่") · รอ Friend merge
+- **PR ของแชทนี้: #34** (https://github.com/friendpanuwat/Friend/pull/34) สาขา `claude/cutpack-style-6-yx4gju` → สาขาหลัก `ccr-045810ba-gj4imq` เปิดตามที่ Friend สั่ง 2026-11-18 ("ดราฟแรกผ่านครับ เปิด PR แล้วทำ Handoff สำหรับส่งงานต่อไปที่แชทใหม่") · **merge แล้ว** (Friend 2026-11-18 แชท `ccr-103ebebc-89alfv`)
 - แผ่นส้ม "KITCHEN LOOP" ที่ Friend ส่งก่อนสไตล์ 7: "ยังไม่ทำครับ" (ไม่อยู่ใน repo)
 
 **กฎใหม่จากแชทนี้ (ใช้กับสไตล์ 11–12)**
