@@ -21,11 +21,12 @@ const GLOWLOOK = {
   gold:  {acc: '--ac',     glow: {c: '#FF9A2E', all: false},    weight: {k: 1.3, min: 2.4}},   // gold: only the orange accent glows
   /* the new styles (Friend 2026-11-17 cancelled the 4 above and is replacing them with 12 sheets made with AI, copied 100%) */
   neon:  {acc: '--ac',     glow: {c: '#2FA8F0', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5},
+  window: {acc: '--ac',    glow: {c: '#3E86FF', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5},    // หน้าต่างแอป (Friend's 3rd new sheet, 2026-11-18): the glass look in app windows, blue light
   lime:  {acc: '--ac',     glow: {c: '#B5EE38', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5},    // เขียวมะนาว (Friend's 2nd new sheet, 2026-11-18): the neon glass, lime light    // นีออนฟ้า (Friend's sheet 2): frosted grey glass, white lines with their own soft glow, the lit part blue and glowing hard
 };
 /* what is really visible at the end of the drawing (not the things still hidden or gone: the getBBox of the whole drawing counted
    four hidden coins and made an overlay picture small), in the svg's user units */
-function glowVisibleBox(svg) {
+function glowVisibleBox(svg, fallback = true) {
   const root = svg.querySelector(':scope > g'), inv = svg.getScreenCTM().inverse(), pt = svg.createSVGPoint();
   const seen = e => { for (let x = e; x && x !== svg; x = x.parentElement) { const cs = getComputedStyle(x); if (cs.display === 'none' || +cs.opacity < .05) return false; } return true; };
   let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
@@ -35,7 +36,20 @@ function glowVisibleBox(svg) {
     for (const [sx, sy] of [[r.left, r.top], [r.right, r.bottom]]) { pt.x = sx; pt.y = sy; const p = pt.matrixTransform(inv);
       x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); }
   });
-  return x1 > x0 ? {x: x0, y: y0, width: x1 - x0, height: y1 - y0} : root.getBBox();
+  return x1 > x0 ? {x: x0, y: y0, width: x1 - x0, height: y1 - y0} : fallback ? root.getBBox() : null;
+}
+/* what the picture shows over its whole motion, not only at its end (2026-11-18, the window style's first real clip: B08T pinlock's
+   ring grows past its end size mid-motion, so it was cut by its window and ran past x 920): the end box widened to every moment's
+   box between t0 and t1, but by at most `cap` of its size on each side (something that flies in from far comes in from the
+   picture's edge instead of making the whole picture small). Leaves the drawing at its end. */
+function glowMotionBox(svg, t0, t1, cap = .35) {
+  const e = glowVisibleBox(svg); let [x0, y0, x1, y1] = [e.x, e.y, e.x + e.width, e.y + e.height];
+  for (let k = 0; k <= 16; k++) { window.setT(t0 + (t1 - t0) * k / 16); const b = glowVisibleBox(svg, false); if (!b) continue;
+    x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + b.width); y1 = Math.max(y1, b.y + b.height); }
+  window.setT(window.DURATION);
+  const m = cap * Math.max(e.width, e.height);
+  x0 = Math.max(x0, e.x - m); y0 = Math.max(y0, e.y - m); x1 = Math.min(x1, e.x + e.width + m); y1 = Math.min(y1, e.y + e.height + m);
+  return {x: x0, y: y0, width: x1 - x0, height: y1 - y0};
 }
 /* DIMS (Friend 2026-11-17: "จำไว้เลยว่า สีมันต้องตัดกันเสมอ"): the templates dim what is not the point (the crowd around the chosen
    person, the wrong answer, the steps not reached) to 25–55 %, which took them under 3:1. Whatever ends dimmed (opacity .1–.62 at the
@@ -64,12 +78,13 @@ function glowWeight(svg, P, base) {
     const w = px(e), fl = W.floor ?? 1.6; if (w > 0 && w < fl) e.setAttribute('stroke-width', (+e.getAttribute('stroke-width') * fl / w).toFixed(3)); });
 }
 /* a floating drawing (no solid surface behind it: glass, card-overlay on the video) gets this body colour, see-through */
-const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '#1C1C20', neon: '#2A2E33', lime: '#26292B'};
+const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '#1C1C20', neon: '#2A2E33', lime: '#26292B', window: '#151B26'};
 /* the GLASS styles (neon, lime): frosted glass bodies, white lines glowing in their own colour, the lit part washed in the style's
    colour. Per style: lit = the lit tile's wash · litBar = a lit bar's wash under white words · litIcon = the icon on a lit tile ·
    mark = a white mark on a solid accent shape · halo = the wide halo of every line */
 const GLASSY = {
   neon: {lit: 'rgba(25,95,150,.85)', litBar: 'rgba(30,120,185,.6)', litIcon: '#CFEFFF', litBody: '#1A6390', mark: '#0B2238', halo: '#5AB8FF'},
+  window: {lit: 'rgba(40,110,230,.30)', litBar: 'rgba(40,110,230,.38)', litIcon: '#A8CCFF', litBody: '#16325C', mark: '#0B2238', halo: '#7FB0FF', outlineLit: true, glow: 1.3, fig: '#7586A3'},   // fig: people 5:1 on the window, white edge 3.7:1 on them
   lime: {lit: 'rgba(120,170,25,.32)', litBar: 'rgba(120,170,25,.32)', litIcon: '#D4FA6A', litBody: '#2C3A12', mark: '#18220A', halo: '#EEF4E6', outlineLit: true, glow: 1.7},   // the white lines glow white on the sheet, only the lit part lime
 };
 
@@ -167,7 +182,7 @@ function glowMaterial(base, P) {
      navy screen and on the video alike (on the video it reads lighter, #50555A on the dark sweater: .4, on the navy .3); the lit tile
      is a blue wash (#2F738C on the navy, #2A7997 on the video) under a blue edge, its icon in blue */
   if (GLASSY[base]) return {body: {fill: glowFrost(P), edge: P.line}, tile: {fill: glowFrost(P), stroke: P.line},
-    ink: P.line, soft: P.soft, icon: P.line, lit: 'tint', fig: GLASSY[base].outlineLit ? {fill: '#3A3E3F', edge: P.line} : {fill: '#C9D3DC', edge: P.line}};   // lime: people white outlines on dark (Friend's sheet)
+    ink: P.line, soft: P.soft, icon: P.line, lit: 'tint', fig: GLASSY[base].outlineLit ? {fill: GLASSY[base].fig ?? '#3A3E3F', edge: P.line} : {fill: '#C9D3DC', edge: P.line}};   // lime: people white outlines on dark (Friend's sheet) · window: a blue-grey body (#3A3E3F read 1.7:1 in its near-black window)
   return null;
 }
 /* the name of the icon a GL.art call draws (the icon groups are tagged data-icon, so people can be found) */
@@ -295,8 +310,14 @@ function glowDress(svg, P, base) {
     const frost = shapes.filter(e => e.getAttribute('fill') === fr).map(e => ({e, r: box(e)}));
     frost.forEach((f, k) => { if (frost.slice(0, k).some(o => same4(o.r, f.r))) f.e.setAttribute('fill', 'rgba(170,178,185,0)'); });
     /* the lit tile (Friend's sheet: shot 02 the magnifier, shot 04 the envelope): a blue edge and a blue icon, the frosted glass under it gone */
-    for (const l of shapes.filter(e => e.getAttribute('fill') === GS.lit)) {
-      const r = box(l), ics = icons.filter(o => inside(r, (o.r.left + o.r.right) / 2, (o.r.top + o.r.bottom) / 2) && area(r) < 7 * area(o.r));
+    /* outline styles: a see-through accent tile (a goal's lit box, LIT2) is a lit tile too (B08T pinlock's star stayed accent on it: 2.1:1) */
+    const washed = e => { const f = e.getAttribute('fill'); return GS.outlineLit && isAccV(f) && glowRgba(f)[3] >= .12 && glowRgba(f)[3] < .9 && area(box(e)) >= 2500; };
+    const lits = shapes.filter(e => e.getAttribute('fill') === GS.lit || washed(e));
+    for (const l of lits) {
+      const r = box(l);
+      if (GS.outlineLit && lits.some(m => m !== l && area(box(m)) > area(r) && inside(box(m), (r.left + r.right) / 2, (r.top + r.bottom) / 2))) {   // a lit shape on a lit tile (pinlock's star on its goal box) is the tile's icon
+        if ((l.getAttribute('stroke') || 'none') !== 'none') { l.setAttribute('stroke', GS.litIcon); l.setAttribute('stroke-width', ((+l.getAttribute('stroke-width') || 2) * 1.6).toFixed(2)); } continue; }   // (its thin line read 2.75:1)
+      const ics = icons.filter(o => inside(r, (o.r.left + o.r.right) / 2, (o.r.top + o.r.bottom) / 2) && area(r) < 7 * area(o.r));
       frost.forEach(f => { if (same4(f.r, r)) f.e.setAttribute('fill', 'rgba(170,178,185,0)'); });   // (the frost under it made the wash a solid light blue, Friend's is a deep see-through blue)
       if (!ics.length && r.width > 3 * r.height) { l.setAttribute('fill', GS.litBar); continue; }   // a lit bar keeps its white edge (shot 02), a deeper blue under its white words (2.8:1 on the light one)
       if ((l.getAttribute('stroke') || 'none') !== 'none') l.setAttribute('stroke', P.accent);
@@ -304,6 +325,7 @@ function glowDress(svg, P, base) {
         const v = e.getAttribute('stroke'), f = e.getAttribute('fill'); if (same(v, P.line) || same(v, P.soft) || isAccV(v)) e.setAttribute('stroke', GS.litIcon);
         if (same(f, '#323C45')) e.setAttribute('fill', GS.litBody); }));
       shapes.forEach(e => { const f = e.getAttribute('fill'), q = box(e); if (e !== l && isAccV(f) && glowRgba(f)[3] >= .9 && inside(r, (q.left + q.right) / 2, (q.top + q.bottom) / 2)) e.setAttribute('fill', '#CDEFFF'); });   // a solid accent mark on it (shot 05's "!") reads 2.7:1 on the blue: a paler blue
+      shapes.forEach(e => { const q = box(e); if (e !== l && isAccV(e.getAttribute('stroke')) && area(q) < area(r) && inside(r, (q.left + q.right) / 2, (q.top + q.bottom) / 2)) e.setAttribute('stroke', GS.litIcon); });   // an accent line drawn on it that is not a tagged icon (B08T pinlock: 2.1:1 on the wash)
     }
   }
 }
@@ -369,7 +391,7 @@ function glowDraw(F, T, cat, i, d, box = F.stage) {
     glowFirm(svg, P, base);
     glowDress(svg, P, base);
     glowLight(svg, P, base);
-    const b = glowVisibleBox(svg);                  // what is really visible, at its end: fills the box (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย")
+    const b = glowMotionBox(svg, at, T.t1 ?? window.DURATION);   // what is really visible, through its motion: fills the box (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย")
     { const p = Math.max(b.width, b.height) * .03; svg.setAttribute('viewBox', `${b.x - p} ${b.y - p} ${b.width + 2 * p} ${b.height + 2 * p}`); }
     glowWeight(svg, P, base);                       // after the fit: the line weight is measured on screen
     if (!GLOW_HOOKED) { GLOW_HOOKED = true; HOOKS.push(t => window.setT(t)); }

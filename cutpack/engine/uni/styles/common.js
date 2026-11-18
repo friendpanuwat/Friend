@@ -61,7 +61,7 @@ function cpLine(parent, txt, cls, P, maxW, rowCls = 'cp-row', hi = null) {
   } else put(sp, txt);
   const al = P.align ?? 'center';
   Object.assign(row.style, {left: `${P.x}px`, top: `${P.y}px`, translate: al === 'left' ? '0 -50%' : '-50% -50%', transformOrigin: al === 'left' ? '0 50%' : '50% 50%'});
-  const x0 = CP.safe[0], x1 = P.y + 120 < CP.safeTop.y ? CP.safeTop.x1 : CP.safe[2];   // the right edge at this height (the buttons start at y 754)
+  const x0 = CP.safe[0], x1 = P.y + (P.half ?? 120) < CP.safeTop.y ? CP.safeTop.x1 : CP.safe[2];   // the right edge at this height (the buttons start at y 754; half = the row's half height)
   const room = al === 'left' ? x1 - P.x : 2 * Math.min(P.x - x0, x1 - P.x);
   FITS.push(() => { const w = sp.offsetWidth, m = Math.min(maxW ?? P.maxW ?? 960, room); if (w > m) row.style.scale = String(m / w); });
   return row;
