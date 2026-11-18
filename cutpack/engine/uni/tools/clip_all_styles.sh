@@ -7,7 +7,7 @@
 set -euo pipefail
 W=$(realpath "$1"); shift
 E=$(cd "$(dirname "$0")/../.." && pwd)
-styles=("$@"); [ ${#styles[@]} -gt 0 ] || styles=(neon lime window teal violet yellow hud horizon)   # 2026-11-17: the old 8 styles are cancelled; the new ones join one by one
+styles=("$@"); [ ${#styles[@]} -gt 0 ] || styles=(neon lime window teal violet yellow hud horizon terminal)   # 2026-11-17: the old 8 styles are cancelled; the new ones join one by one
 for st in "${styles[@]}"; do
   plan=$W/plan_$st.js; tx=$W/then_$st.txt; [ -f "$plan" ] || { plan=$W/plan.js; tx=$W/then.txt; }
   id=''; IFS=',' read -r id t0 t1 i hit < <(grep -m1 . "$tx") || true
