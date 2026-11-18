@@ -60,6 +60,7 @@ const TEAL = {
   /* ...but a speaker's card needs the picture at least this big (px², 3 % of the screen): a flat picture in its narrow box came out
      at 1 % (279 × 64) in the first real clip */
   minFace: 60000,
+  gridUp: 12,                                   // px a second the grid moves up (neon and lime drift 2 right, 3 down)
   used: {}, last: null,
 };
 const tealIn = (c, p) => [p[0] - c[0], p[1] - c[1], p[2], p[3]];          // a box inside a card, in the card's own place
@@ -160,8 +161,8 @@ STYLE('teal', {
     const screen = !L.speaker, root = div('', SC); root.className = 't-root' + (screen ? ' t-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     if (screen) {
-      const g = div('', root); g.className = 't-grid';           // the grid drifts very slowly (as Friend asked for neon), on the clip's clock
-      const at = t => `${(-6 + 2 * t).toFixed(1)}px ${(-10 + 3 * t).toFixed(1)}px`;
+      const g = div('', root); g.className = 't-grid';           // the grid moves UP, slowly but so it shows (Friend 2026-11-18: "background ที่เป็นตารางผมอยากให้มันเลื่อนขึ้นช้าๆนะครับแต่ไม่ต้องช้ามากจนไม่รู้สึกว่ามันเลื่อน"):
+      const at = t => `-6px ${(-10 - TEAL.gridUp * t).toFixed(1)}px`;   // TEAL.gridUp px a second, a 54 px cell every 4.5 s, on the clip's clock (it carries on from screen to screen)
       A(g, [{backgroundPosition: at(t0 - .2)}, {backgroundPosition: at(t1 + .2)}], t0 - .2, t1 - t0 + .4, {e: 'linear'});
       A(root, [{opacity: 0, filter: 'blur(14px)', transform: 'scale(1.03)'}, {opacity: 1, filter: 'blur(0)', transform: 'none'}], t0 - .04, .35, {e: EASE.smooth});
       sfx('whoosh', t0 - .1, -20);
