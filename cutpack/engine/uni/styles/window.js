@@ -6,50 +6,43 @@
    The 7-item form:
    1 frame    one of 12 layouts (WIN.layouts, named after Friend's shots): the speaker full screen with an app window at the hands,
               or a deep-blue screen with a big window, the speaker in a rounded frame beside a window, two windows in cascade, a recap
-              of four. Between pictures the speaker talks with the words at the chest. A chapter bar sits top left on every shot.
-   2 surface  screens: near-black to navy (Friend's background picture, 2026-11-18) with our own turning rings in two corners (a
-              glowing ring with white app-chips and a running light); the pictures sit in dark app windows (three dots, a title, a tag)
+              of four. Between pictures the speaker talks with the words at the chest. (The sheet's chapter bar top left and the small
+              spaced label over the words are left out: Friend 2026-11-18, "ลบที่ผมวงกลมสีแดงออกด้วยครับทุกฉากเลย".)
+   2 surface  screens: near-black to navy (Friend's background picture, 2026-11-18) with our own turning rings top right and bottom
+              left (one glowing line, white app-chips, a running light); the pictures sit in dark app windows (three dots, a skeleton
+              title bar)
    3 drawing  the glow-line pictures: white lines, the lit part a blue outline (no solid fill), blue light
    4 colours  deep blue · near-black windows · white · one blue (#2F6FEB)
-   5 words    a white lead (Kanit 500) + the key word white in a blue pill (Kanit 800); on screens a small spaced label above
-              (STEP 3 · STEPS)
+   5 words    a white lead (Kanit 500) + the key word white in a blue pill (Kanit 800)
    6 motion   windows rise in out of a blur, screens fade in, the pill pops on its word
    7 sound    whoosh on a screen cut, a soft swish on the key word
-   The words the sheet invents (window titles "เป้าหมายปีนี้", tags "STEP 1/3", chapter names "ตั้งเป้า · อ่าน · สรุป") come from the
-   code, so the AI's job does not grow: a window's title = its category's short name, its tag = the picture's number, the chapter bar
-   = the categories of the first picture in each third of the clip (Friend 2026-11-18: "AI จะได้คิดน้อยๆที่สุด").
+   The words the sheet invents (window titles "เป้าหมายปีนี้", tags "STEP 1/3") are skeleton bars instead (Friend 2026-11-18), so the
+   AI has nothing more to write.
    ===================================================================== */
 const WIN = {
-  /* boxes [x, y, w, h] · words {x, y (centre), maxW, half (half the row's height, for the right edge)}. nav = which chapter the
-     sheet underlines (stills); a real clip underlines by time. Moved where the sheet ran under TikTok's name / buttons / tabs. */
+  /* boxes [x, y, w, h] · words {x, y (centre), maxW, half (half the row's height, for the right edge)}. Moved where the sheet ran
+     under TikTok's name / buttons / tabs. */
   layouts: {
     talk:     {speaker: true, lead: {x: 540, y: 1062}, key: {x: 540, y: 1175}},                                                  // shot 01 without its window
-    full:     {speaker: true, lead: {x: 540, y: 1062}, key: {x: 540, y: 1175}, win: [80, 1300, 840, 360], nav: 0},              // shot 01 (sheet to y 1682)
-    full_n:   {speaker: true, lead: {x: 540, y: 1117}, key: {x: 540, y: 1226}, win: [210, 1340, 670, 320], nav: 0},             // shot 02 (narrow window)
-    dark:     {screen: true, label: {x: 540, y: 460}, lead: {x: 540, y: 668}, key: {x: 540, y: 777}, win: [80, 1000, 840, 630], nav: 1, decor: 0},   // shot 03
+    full:     {speaker: true, lead: {x: 540, y: 1062}, key: {x: 540, y: 1175}, win: [80, 1300, 840, 360]},              // shot 01 (sheet to y 1682)
+    full_n:   {speaker: true, lead: {x: 540, y: 1117}, key: {x: 540, y: 1226}, win: [210, 1340, 670, 320]},             // shot 02 (narrow window)
+    dark:     {screen: true, lead: {x: 540, y: 668}, key: {x: 540, y: 777}, win: [80, 1000, 840, 630], decor: 0},   // shot 03
     float:    {screen: true, frame: [62, 258, 470, 740, 30], lead: {x: 770, y: 610, maxW: 470}, key: {x: 770, y: 700, maxW: 470, half: 50},
-               win: [300, 1070, 620, 560], nav: 1, decor: 0},                                                                    // shot 04
-    full_w:   {speaker: true, lead: {x: 540, y: 1040}, key: {x: 540, y: 1183}, win: [170, 1300, 740, 360], nav: 1},             // shot 05
-    cascade:  {screen: true, win2: [300, 270, 690, 460], lead: {x: 330, y: 887}, key: {x: 330, y: 1023}, win: [60, 1170, 720, 470], nav: 1, decor: 1},   // shot 06
-    full_d:   {speaker: true, lead: {x: 540, y: 1051}, key: {x: 540, y: 1161}, win: [80, 1300, 840, 360], nav: 1},             // shot 07
+               win: [300, 1070, 620, 560], decor: 0},                                                                    // shot 04
+    full_w:   {speaker: true, lead: {x: 540, y: 1040}, key: {x: 540, y: 1183}, win: [170, 1300, 740, 360]},             // shot 05
+    cascade:  {screen: true, win2: [300, 270, 690, 460], lead: {x: 330, y: 887}, key: {x: 330, y: 1023}, win: [60, 1170, 720, 470], decor: 1},   // shot 06
+    full_d:   {speaker: true, lead: {x: 540, y: 1051}, key: {x: 540, y: 1161}, win: [80, 1300, 840, 360]},             // shot 07
     stats:    {screen: true, frame: [560, 250, 360, 690, 30], lead: {x: 290, y: 653, maxW: 440}, key: {x: 290, y: 756, maxW: 440, half: 50},
-               win: [80, 1070, 840, 560], nav: 2, decor: 1},                                                                     // shot 08 (sheet frame to x 1019)
-    full_c:   {speaker: true, lead: {x: 540, y: 1073}, key: {x: 540, y: 1172}, win: [80, 1300, 840, 360], nav: 2},             // shot 09
-    dark_b:   {screen: true, label: {x: 540, y: 460}, lead: {x: 540, y: 672}, key: {x: 540, y: 777}, win: [80, 1000, 840, 630], nav: 2, decor: 1},   // shot 10
-    recap:    {screen: true, label: {x: 540, y: 289}, lead: {x: 540, y: 493}, key: {x: 540, y: 596},
+               win: [80, 1070, 840, 560], decor: 1},                                                                     // shot 08 (sheet frame to x 1019)
+    full_c:   {speaker: true, lead: {x: 540, y: 1073}, key: {x: 540, y: 1172}, win: [80, 1300, 840, 360]},             // shot 09
+    dark_b:   {screen: true, lead: {x: 540, y: 672}, key: {x: 540, y: 777}, win: [80, 1000, 840, 630], decor: 1},   // shot 10
+    recap:    {screen: true, lead: {x: 540, y: 493}, key: {x: 540, y: 596},
                wins: [[80, 770, 400, 420], [500, 770, 420, 420], [80, 1230, 400, 420], [500, 1230, 420, 420]], decor: 0},     // shot 11
-    cta:      {speaker: true, lead: {x: 540, y: 1066}, key: {x: 540, y: 1172}, win: [80, 1300, 840, 360], nav: 2},             // shot 12
+    cta:      {speaker: true, lead: {x: 540, y: 1066}, key: {x: 540, y: 1172}, win: [80, 1300, 840, 360]},             // shot 12
   },
   pool: ['full', 'full_n', 'dark', 'float', 'full_w', 'cascade', 'full_d', 'stats', 'full_c', 'dark_b'],
   byCat: {B15: 'cta', B14: 'dark'},
   used: {}, last: null,
-  /* the code's own words (no AI): a window's title per category, the small spaced label of a screen */
-  title: {B01: 'ตัวเลข', B02: 'เพิ่ม / ลด', B03: 'เปรียบเทียบ', B04: 'ขั้นตอน', B05: 'ถูก / ผิด', B06: 'คำถาม', B07: 'ข้อควรระวัง', B08: 'เป้าหมาย',
-    B09: 'ไทม์ไลน์', B10: 'กลุ่มคน', B11: 'ข้อความ', B12: 'เหตุและผล', B13: 'เคล็ดลับ', B14: 'จำไว้', B15: 'ชวนทำต่อ', B16: 'ความหมาย',
-    B17: 'รายการ', B18: 'เรื่องเล่า', B19: 'ความรู้สึก', B20: 'ความสัมพันธ์', B21: 'สถานที่'},
-  en: {B01: 'NUMBER', B02: 'CHANGE', B03: 'COMPARE', B04: 'STEPS', B05: 'RIGHT WAY', B06: 'QUESTION', B07: 'WARNING', B08: 'GOAL',
-    B09: 'TIMELINE', B10: 'PEOPLE', B11: 'MESSAGE', B12: 'CAUSE', B13: 'TIP', B14: 'REMEMBER', B15: 'YOUR TURN', B16: 'MEANING',
-    B17: 'LIST', B18: 'STORY', B19: 'FEELING', B20: 'TOGETHER', B21: 'PLACE'},
   /* the screens' background. The gradient was measured on a picture Friend sent (2026-11-18: "ผมอยากได้ background แบบนี้"): near-black
      at the top to deep navy at the bottom. The rings are our own (Friend: "รูปนี้ผมไปก๊อปเขามาผมก็เลยอยากให้คุณดีไซน์วงแหวนใหม่หน่อย"):
      per corner one glowing blue ring (one line, as before: "อยากให้มันเป็นเส้นเดียวมันอันเก่า") carrying two white app-chips (rounded
@@ -60,8 +53,18 @@ const WIN = {
     [{cx: 930, cy: 170, r: 330, chips: [165, 100], light: 132, dir: 1}, {cx: 140, cy: 1760, r: 300, chips: [-80, -10], light: -45, dir: -1}],
     [{cx: 150, cy: 170, r: 330, chips: [15, 80], light: 48, dir: 1}, {cx: 940, cy: 1760, r: 300, chips: [260, 190], light: 225, dir: -1}],
   ],
+  ring: 'square',                              // the ring's shape (winRingPath): 'square' · 'hex' · 'split'
   spin: 2.25,                                   // degrees a second (Friend: "หมุนให้เร็วกว่านี้อีกนิดนึง ... แค่เร็วกว่าเดิมนิดเดียว": 1.5 → 2.25)
 };
+/* the ring's line, centred at (R, R), from the angle 0 clockwise (as the angles of its chips): a rounded square (as the windows), a
+   hexagon, or a circle ("split": the chips sit in gaps of it) */
+function winRingPath(shape, R, r) {
+  const f = v => v.toFixed(1);
+  if (shape === 'square') { const k = r * .45, a = R - r, b = R + r;
+    return `M ${f(b)} ${f(R)} L ${f(b)} ${f(b - k)} Q ${f(b)} ${f(b)} ${f(b - k)} ${f(b)} L ${f(a + k)} ${f(b)} Q ${f(a)} ${f(b)} ${f(a)} ${f(b - k)} L ${f(a)} ${f(a + k)} Q ${f(a)} ${f(a)} ${f(a + k)} ${f(a)} L ${f(b - k)} ${f(a)} Q ${f(b)} ${f(a)} ${f(b)} ${f(a + k)} Z`; }
+  if (shape === 'hex') return 'M ' + [0, 1, 2, 3, 4, 5].map(i => `${f(R + r * Math.cos(i * Math.PI / 3))} ${f(R + r * Math.sin(i * Math.PI / 3))}`).join(' L ') + ' Z';
+  return `M ${f(R + r)} ${f(R)} A ${r} ${r} 0 1 1 ${f(R - r)} ${f(R)} A ${r} ${r} 0 1 1 ${f(R + r)} ${f(R)} Z`;
+}
 const winInner = ([, , w, h]) => [22, 76, w - 44, h - 98];        // the picture inside a window (under its 64-high title bar)
 
 /* fit a speaker screen to this face [x0, top, x1, chin] (as lime): the words and the window under the face slide below the chin
@@ -75,16 +78,6 @@ function winFit(name, f) {
   if (L.key.y + 55 > 1660) return null;
   return L;
 }
-/* the chapter bar (top left, every shot): three names, the current one underlined. Below TikTok's tabs (the sheet had it at y 153,
-   under "Following | For You"). Real clip: the names are the categories of the first picture in each third, underlined by time;
-   a still: Friend's sheet's words and the layout's nav. */
-function winNav(names, at) {
-  const bar = div('left:80px;top:236px', TX); bar.className = 'w-nav cp-row';
-  const els = names.map((n, k) => { if (k) { const s = div('', bar, '·'); s.className = 'w-sep'; s.style.position = 'relative'; }
-    const e = div('', bar, n); e.className = 'w-ch'; e.style.position = 'relative'; return e; });
-  return {bar, els};
-}
-
 STYLE('window', {
   name: 'หน้าต่างแอป',
   layouts: WIN.layouts,
@@ -99,26 +92,20 @@ STYLE('window', {
 .w-arc svg{position:absolute;inset:0;overflow:visible}
 .w-main{filter:drop-shadow(0 0 5px rgba(79,134,196,.75))}
 .w-light{filter:drop-shadow(0 0 6px rgba(225,238,255,.95))}
-.w-chip{position:absolute;width:42px;height:42px;background:#fff;border-radius:12px;box-shadow:0 0 8px rgba(255,255,255,.9),0 0 26px rgba(150,195,255,.6)}
-.w-chip::after{content:"";position:absolute;left:15px;top:15px;width:12px;height:12px;border-radius:4px;background:#2F6FEB}
+.w-chip{position:absolute;width:54px;height:54px;background:#fff;border-radius:15px;box-shadow:0 0 8px rgba(255,255,255,.9),0 0 26px rgba(150,195,255,.6)}
+.w-chip::after{content:"";position:absolute;left:19px;top:19px;width:16px;height:16px;border-radius:5px;background:#2F6FEB}   /* 54 px: Friend "ลูกปัด ... ใหญ่ๆกว่านี้อีกนิดนึง" (was 42) */
 .w-win{position:absolute;border-radius:26px;background:rgba(13,17,27,.9);border:1.5px solid rgba(255,255,255,.14);
   box-shadow:0 22px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);overflow:hidden}
 .w-bar{position:absolute;left:0;right:0;top:0;height:64px;border-bottom:1px solid rgba(255,255,255,.06)}
 .w-dot{position:absolute;top:25px;width:14px;height:14px;border-radius:50%}
-.w-title{position:absolute;left:104px;top:13px;font-family:"Anu";font-weight:600;font-size:28px;line-height:38px;color:#E6EDF8;white-space:nowrap}
-.w-tag{position:absolute;right:22px;top:17px;font-family:"WinLead";font-weight:500;font-size:20px;line-height:30px;letter-spacing:1px;color:#7FB0FF;background:rgba(60,120,255,.18);border-radius:9px;padding:0 12px}
+.w-skel{position:absolute;left:104px;top:24px;height:16px;border-radius:8px;background:rgba(230,237,248,.22)}
+.w-skel.tag{left:auto;right:22px;top:20px;width:64px;height:24px;border-radius:9px;background:rgba(60,120,255,.28)}
 .w-frame{position:absolute;overflow:hidden;border:2px solid rgba(130,180,255,.65);box-shadow:0 0 18px rgba(80,140,255,.35)}
 .w-text{position:absolute;inset:0}
 .w-row{position:absolute;white-space:nowrap}
 .w-lead{font-family:"WinLead";font-weight:500;font-size:80px;line-height:1.2;color:#F4F7FC;text-shadow:0 0 3px rgba(0,0,0,.85),0 0 10px rgba(0,0,0,.6),0 3px 18px rgba(0,0,0,.5)}
 .w-key{display:inline-block;font-family:"WinKey";font-weight:800;font-size:96px;line-height:1.16;color:#fff;background:#2F6FEB;border-radius:24px;padding:0 32px 8px;
   box-shadow:0 0 0 1.5px rgba(150,190,255,.35),0 0 26px rgba(47,111,235,.6),0 8px 22px rgba(0,0,0,.35)}
-.w-label{font-family:"WinLead";font-weight:500;font-size:22px;letter-spacing:5px;color:#6FA8FF}
-.w-nav{position:absolute;display:flex;gap:16px;align-items:center;font-family:"Anu";font-weight:500;font-size:32px;color:rgba(235,242,252,.82);text-shadow:0 0 6px rgba(0,0,0,.7)}
-.w-ch{position:relative;padding-bottom:10px}
-.w-ch.on{color:#fff}
-.w-ch.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:2px;background:#5B9BFF;box-shadow:0 0 8px rgba(91,155,255,.8)}
-.w-sep{opacity:.6}
 `,
   motion: {
     pop:   {kf: [{opacity: 0, transform: 'translateY(30px) scale(.8)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], d: .5, e: EASE.soft},
@@ -136,18 +123,7 @@ STYLE('window', {
   sound: {hit: ['softswish', -22], cross: ['swipe', -24], key: ['softswish', -21]},
   setup() {
     BGL.style.background = '#000'; HOOKS.push(cpInsetHook);
-    /* the chapter bar, once the clip is built: a real clip (CAPTIONS) by thirds; a still: the sheet's names, the layout's nav */
-    FITS.push(() => {
-      const wins = CLIPWINS.filter(x => x.F?.L && !x.F.speaker), real = typeof CAPTIONS !== 'undefined' && CAPTIONS.length;
-      if (!real) { const L = wins[0]?.F.L; if (!L || L.nav == null) return; const {els} = winNav(['ตั้งเป้า', 'อ่าน', 'สรุป']); els[L.nav].classList.add('on'); return; }
-      const end = CAPTIONS[CAPTIONS.length - 1].t1, third = k => wins.find(x => x.t0 >= end * k / 3 && x.t0 < end * (k + 1) / 3);
-      const names = [0, 1, 2].map(k => WIN.title[third(k)?.F.cat] ?? null);
-      if (names.some(n => !n) || new Set(names).size < 3) return;   // fewer than three different chapters: no bar
-      const {bar, els} = winNav(names);
-      els.forEach((e, k) => { const u = div('', e); u.className = 'w-ch on'; Object.assign(u.style, {position: 'absolute', inset: '0', color: 'transparent'}); u.textContent = names[k];
-        A(u, [{opacity: 0}, {opacity: 1}], end * k / 3, .2); if (k < 2) A(u, [{opacity: 1}, {opacity: 0}], end * (k + 1) / 3, .2, {f: 'forwards'}); });
-      A(bar, [{opacity: 0}, {opacity: 1}], .1, .4, {e: EASE.smooth});
-    });
+    /* no chapter bar and no small label (Friend 2026-11-18: "ลบที่ผมวงกลมสีแดงออกด้วยครับทุกฉากเลย") */
   },
 
   frame(t0, t1, {index, scene}) {
@@ -177,13 +153,21 @@ STYLE('window', {
       D.forEach(({cx, cy, r, chips, light, dir}, j) => {
         const R = r + 20, sz = [cx - R, cy - R, 2 * R, 2 * R], spin = dir * WIN.spin * long, rad = a => a * Math.PI / 180;
         const turn = (el, deg) => A(el, [{transform: 'rotate(0deg)'}, {transform: `rotate(${deg}deg)`}], t0 - .05, long + .4);
-        /* one ring (Friend: "อยากให้มันเป็นเส้นเดียวมันอันเก่า"), its running light and its chips */
-        const g = box(sz), len = 2 * Math.PI * r, arc = 64; g.className = 'w-arc';
-        g.innerHTML = `<svg width="${2 * R}" height="${2 * R}"><circle class="w-main" cx="${R}" cy="${R}" r="${r}" fill="none" stroke="#4F86C4" stroke-width="3.5"/>`
-          + `<circle class="w-light" cx="${R}" cy="${R}" r="${r}" fill="none" stroke="#EAF2FF" stroke-width="4" stroke-linecap="round" stroke-dasharray="${arc} ${len}"`
-          + ` transform="rotate(${light - arc / len * 180} ${R} ${R})"/></svg>`;
+        /* one line (Friend: "อยากให้มันเป็นเส้นเดียว"), its running light and its chips; the shape: WIN.ring */
+        const g = box(sz); g.className = 'w-arc';
+        g.innerHTML = `<svg width="${2 * R}" height="${2 * R}"><path class="w-main" d="${winRingPath(WIN.ring, R, r)}" fill="none" stroke="#4F86C4" stroke-width="3.5" stroke-linejoin="round"/>`
+          + `<path class="w-light" d="${winRingPath(WIN.ring, R, r)}" fill="none" stroke="#EAF2FF" stroke-width="4" stroke-linecap="round"/></svg>`;
+        const line = g.querySelector('.w-main'), lit = g.querySelector('.w-light'), len = line.getTotalLength(), arc = 64;
+        const at = ang => { let best = 0, d = 1e9; for (let k = 0; k < 360; k++) { const p = line.getPointAtLength(len * k / 360);   // where the ray at this angle meets the line
+          const e = Math.abs(((Math.atan2(p.y - R, p.x - R) * 180 / Math.PI - ang) % 360 + 540) % 360 - 180); if (e < d) { d = e; best = len * k / 360; } } return best; };
+        lit.setAttribute('stroke-dasharray', `${arc} ${len}`); lit.setAttribute('stroke-dashoffset', `${-(at(light) - arc / 2)}`);
+        if (WIN.ring === 'split') {               /* the circle broken where its chips sit: the chips join the arcs */
+          const gap = 64, cut = chips.map(at).sort((a, b) => a - b);
+          const runs = cut.map((c, k) => [c + gap, (k + 1 < cut.length ? cut[k + 1] : cut[0] + len) - gap]);
+          line.setAttribute('stroke-dasharray', runs.map(([s0, s1], k) => `${s1 - s0} ${(k + 1 < runs.length ? runs[k + 1][0] : runs[0][0] + len) - s1}`).join(' '));
+          line.setAttribute('stroke-dashoffset', `${-runs[0][0]}`); }
         turn(g, spin);
-        chips.forEach((ang, k) => { const c = div(`left:${R + r * Math.cos(rad(ang)) - 21}px;top:${R + r * Math.sin(rad(ang)) - 21}px`, g); c.className = 'w-chip';
+        chips.forEach((ang, k) => { const p = line.getPointAtLength(at(ang)), c = div(`left:${p.x - 27}px;top:${p.y - 27}px`, g); c.className = 'w-chip';
           turn(c, -spin);                                                     // stays upright while its ring turns
           A(c, [{opacity: 1}, {opacity: .6}, {opacity: 1}], t0 + (2 * j + k) * .55, 2.6, {e: 'ease-in-out', it: 4}); });
       });
@@ -194,21 +178,21 @@ STYLE('window', {
       cpInset(f, w - 4, h - 4, t0, .42, .4);
       A(f, [{opacity: 0, transform: 'translateY(-30px)'}, {opacity: 1, transform: 'none'}], t0 + .05, .45, {e: EASE.soft}); }
     A(root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t1 - .3, .3, {e: EASE.out, f: 'forwards'});
-    /* the windows: three dots, the category's title, the picture's number as the tag; each picture lives inside its window */
-    const num = String((index ?? 0) + 1).padStart(2, '0');
-    const makeWin = (c, k, title, tag) => { const w = box(c); w.className = 'w-win';
+    /* the windows: three dots, then a skeleton title bar (Friend 2026-11-18: "แบบ skeleton ... ไม่มีข้อความแต่มีเหมือนเป็นแบบช่องๆเหลี่ยมๆมนๆ"):
+       a faint rounded bar where the title was (its length from the run's seed) and an empty blue pill where the tag was; each picture
+       lives inside its window */
+    const makeWin = (c, k, tag = true) => { const w = box(c); w.className = 'w-win';
       const bar = div('', w); bar.className = 'w-bar';
       ['#FF5F57', '#FEBC2E', '#28C840'].forEach((col, i) => { const d = div(`left:${26 + i * 24}px;background:${col}`, bar); d.className = 'w-dot'; });
-      div('', bar, title).className = 'w-title'; if (tag) div('', bar, tag).className = 'w-tag';
+      div(`width:${Math.round(Math.min(c[2] * .34, 110 + 90 * cpRand('bar' + index + k)))}px`, bar).className = 'w-skel';
+      if (tag) div('', bar).className = 'w-skel tag';
       A(w, [{opacity: 0, transform: 'translateY(40px) scale(.95)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .04 + .12 * k, .45, {e: EASE.soft});
       return box(winInner(c), w); };
-    const cat = String(meta.cat ?? '').slice(0, 3), title = WIN.title[cat] ?? 'โน้ต';
-    if (L.win2) { const back = makeWin(L.win2, 0, 'ถัดไป', 'NEXT');      // the cascade's back window: a list of three faint rows (one picture per shot)
+    const cat = String(meta.cat ?? '').slice(0, 3);
+    if (L.win2) { const back = makeWin(L.win2, 0);      // the cascade's back window: a list of three faint rows (one picture per shot)
       [0, 1, 2].forEach(k => { const r = div(`left:30px;top:${40 + k * 92}px;width:${L.win2[2] - 120 - k * 60}px;height:26px;border-radius:13px;background:rgba(255,255,255,${.16 - k * .04})`, back); }); }
-    const stage = L.win ? makeWin(L.win, L.win2 ? 1 : 0, title, `STEP ${num}`) : box([0, 0, 1, 1]);
-    const stages = L.wins ? L.wins.map((c, k) => makeWin(c, k, ['ตั้งเป้า', 'วันละ 10 หน้า', 'ก่อนนอน', 'จดสั้น ๆ'][k] ?? '', null)) : null;
-    if (L.label) { const lab = cpLine(div('', root), L.wins ? 'RECAP' : `STEP ${num} · ${WIN.en[cat] ?? 'NOTE'}`, 'w-label', L.label, undefined, 'w-row');
-      A(lab, [{opacity: 0}, {opacity: 1}], t0 + .1, .4, {e: EASE.smooth}); }
+    const stage = L.win ? makeWin(L.win, L.win2 ? 1 : 0) : box([0, 0, 1, 1]);
+    const stages = L.wins ? L.wins.map((c, k) => makeWin(c, k, false)) : null;
     return {root, stage, stages, cam: root, L, name, cat, dark: !!L.screen};
   },
   /* between pictures: the words at the chest, moved below the chin when the face is low */
