@@ -37,7 +37,7 @@ git checkout -B <สาขาที่ session ใหม่ได้รับ> o
 | 10 | การ์ดชมพู (Pink Cards) | `pink` | ดราฟแรกผ่าน (แชทนี้) · สไตล์พื้นสว่างแบบแรก | `style-rules/pink.md` |
 | 11 | ครีมน้ำเงิน (Cream Blue) | `cream` | ดราฟแรกผ่าน (แชทนี้ หลัง PR #34 merge) · พื้นสว่างแบบที่ 2 | `style-rules/cream.md` |
 
-- **PR ของแชทนี้: #34** (https://github.com/friendpanuwat/Friend/pull/34) สาขา `claude/cutpack-style-6-yx4gju` → สาขาหลัก `ccr-045810ba-gj4imq` เปิดตามที่ Friend สั่ง 2026-11-18 ("ดราฟแรกผ่านครับ เปิด PR แล้วทำ Handoff สำหรับส่งงานต่อไปที่แชทใหม่") · merge แล้ว (Friend: "เมิชแล้ว") · งานสไตล์ 11 ต่อในสาขาเดิมที่เริ่มใหม่จากสาขาหลัก · เปิด PR ใหม่ตามที่ Friend สั่ง ("ดาบแรกผ่านครับเปิด PR ด้วย")
+- **PR ของแชทนี้: #34** (https://github.com/friendpanuwat/Friend/pull/34) สาขา `claude/cutpack-style-6-yx4gju` → สาขาหลัก `ccr-045810ba-gj4imq` เปิดตามที่ Friend สั่ง 2026-11-18 ("ดราฟแรกผ่านครับ เปิด PR แล้วทำ Handoff สำหรับส่งงานต่อไปที่แชทใหม่") · merge แล้ว (Friend: "เมิชแล้ว") · งานสไตล์ 11 ต่อในสาขาเดิมที่เริ่มใหม่จากสาขาหลัก · เปิด **PR #35** (https://github.com/friendpanuwat/Friend/pull/35) ตามที่ Friend สั่ง ("ดาบแรกผ่านครับเปิด PR ด้วย") รอ merge
 - แผ่นส้ม "KITCHEN LOOP" ที่ Friend ส่งก่อนสไตล์ 7: "ยังไม่ทำครับ" (ไม่อยู่ใน repo)
 
 **กฎใหม่จากแชทนี้ (ใช้กับสไตล์ 11–12)**
