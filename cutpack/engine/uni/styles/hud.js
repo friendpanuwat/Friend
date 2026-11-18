@@ -53,12 +53,14 @@ const HUD = {
                 pic: [280, 1030, 560, 300], links: [{path: [[860, 780], [860, 1060]], y: true}]},
     hud_rail:  {speaker: true, fitFrom: 1150, pic: [95, 1210, 380, 370], lead: {x: 600, y: 1230, align: 'left', maxW: 320}, key: {x: 603, y: 1318, align: 'left', maxW: 317},   // shot 08 (the note is the lead)
                 links: [{path: [[390, 1385], [540, 1385], [540, 1230], [580, 1230]], y: true}]},
-    hud_measure: {screen: true, lead: {x: 540, y: 1380}, key: {x: 540, y: 1517}, pic: [100, 840, 820, 340], measure: {y: 660, x0: 80, x1: 1000},   // shot 09
-                notes: [{text: {x: 540, y: 660, align: 'center', maxW: 420}, y: true, box: true, yText: true}]},
+    hud_measure: {screen: true, lead: {x: 540, y: 1380}, key: {x: 540, y: 1517}, pic: [100, 840, 820, 340]},   // shot 09 · final 2026-11-18 (Friend "ข2"): no measuring line and no word box over the picture
     hud_word:  {speaker: true, noPic: true, fitFrom: 940, corners: [110, 950, 790, 350], lead: {x: 540, y: 1058}, key: {x: 540, y: 1195},           // shot 10
                 notes: [{path: [[860, 1125], [908, 1125], [908, 1480]], text: {x: 920, y: 1517, align: 'right'}}]},
     hud_recap: {screen: true, still: true, lead: {x: 540, y: 154}, key: {x: 540, y: 287}, axis: {x: 110, y0: 390, y1: 1600, at: [[570, 247], [990, 122], [1410, 152]]},
                 three: [[400, 390, 420, 350], [290, 870, 640, 250], [320, 1280, 580, 270]]},                                                     // shot 11 (three pictures: stills only)
+    /* final 2026-11-18 (Friend: "เพิ่มฉากโอเวอร์เลย์เข้ามาด้วย พื้นที่ด้านบนหัวยังเหลือ"): the picture over the head inside HUD corners,
+       from under the search bar (220) to 140 over the face box; its height from the clip's face (hudFit) · the words at the chest as talk */
+    hud_top:   {speaker: true, top: true, fitFrom: 940, corners: [100, 220, 880, 600], pic: [130, 250, 820, 540], lead: {x: 540, y: 1058}, key: {x: 540, y: 1195}},
     hud_cta:   {speaker: true, noPic: true, fitFrom: 970, corners: [110, 980, 790, 350], lead: {x: 540, y: 1095}, key: {x: 540, y: 1228},           // shot 12
                 notes: [{path: [[540, 1330], [540, 1480], [690, 1480]], text: {x: 710, y: 1478, align: 'left'}, y: true, yText: true}]},   // (the sheet's dot at 760: its words ran to 965)
   },
@@ -66,11 +68,16 @@ const HUD = {
      it) where the face leaves room (hudFit), a screen without a picture only when at least 2 more subtitles come for its notes (or
      its words) and not twice within 5 pictures nor first, among those with a picture the ones that show this picture's shape at
      least 75 % as big as the best, then the least used, then at random from the run's seed */
-  pool: ['hud_open', 'hud_row', 'hud_diag', 'hud_card', 'hud_time', 'hud_path', 'hud_split', 'hud_rail', 'hud_measure', 'hud_word', 'hud_cta'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
+  /* final 2026-11-18: hud_path out (its notes were all it had: with no notes it is the talk screen) · hud_top in */
+  pool: ['hud_open', 'hud_row', 'hud_diag', 'hud_card', 'hud_time', 'hud_split', 'hud_rail', 'hud_measure', 'hud_word', 'hud_cta', 'hud_top'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
   byCat: {B15: 'hud_cta'},
   keep: .75, noPicGap: 4, sinceNoPic: 4,
   gridUp: 12,
-  used: {}, last: null,
+  used: {}, last: null, place: {top: 0, low: 0},   // place: speaker screens with the picture over the head / anywhere else
+  /* final 2026-11-18 (Friend, a screen with its three callouts ringed in red: "ลบจุดที่ผมวงกลมสีแดงไว้ลบทั้งคลิปเลยนะไม่ให้ในสไตล์นี้มีเลย"):
+     no callout line, dot or note anywhere · the timeline keeps its line and dots without words ("ก1") · the HUD corners of the screens
+     that only had notes stay ("ค1") · the connectors (links: lines with no words) stay */
+  noNotes: true,
 };
 /* the subtitles said inside [t0, t1] (a real clip) */
 function hudChunks(t0, t1) {
@@ -92,7 +99,9 @@ function hudEachY(L, fn) {
    it then runs under y 1660 it is pressed together (positions only, at most to 70 %); null = no room. Screens: always fit. */
 function hudFit(name, f) {
   const L = JSON.parse(JSON.stringify(HUD.layouts[name])); if (!L.speaker) return L;
-  const [, , , chin] = f, from = L.fitFrom, top = Math.min(L.lead.y - 40, L.key.y - 90, ...(L.pic ? [L.pic[1]] : []));
+  if (L.top) { const h = Math.min(L.corners[3], f[1] - 140 - L.corners[1]); if (h < 300) return null;   // over the head: no room under the search bar? not this screen
+    L.corners[3] = h; L.pic[3] = h - 60; }
+  const [, , , chin] = f, from = L.fitFrom, top = Math.min(L.lead.y - 40, L.key.y - 90, ...(L.pic && !L.top ? [L.pic[1]] : []));   // (hud_top: its picture stays over the head)
   const d = Math.max(0, chin + 30 - top); if (!d) return L;
   hudEachY(L, y => y >= from ? y + d : y);
   let bottom = from + d; hudEachY(L, y => { bottom = Math.max(bottom, y); return y; }); bottom = Math.max(bottom, L.key.y + 80);
@@ -208,10 +217,14 @@ STYLE('hud', {
           pool = cpSizeKeep(pool, size, HUD.keep, n => !!HUD.layouts[n].speaker, n => !!HUD.layouts[n].noPic);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
         pool = cpBalance(pool, n => !!HUD.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
+        /* a speaker screen: the picture over the head or not as often (as the window style's final: "เพื่อความหลากหลาย"); the less used, a tie by the run's seed */
+        const tp = pool.filter(n => HUD.layouts[n].top), lw = pool.filter(n => HUD.layouts[n].speaker && !HUD.layouts[n].top);
+        if (tp.length && lw.length) { const P = HUD.place, up = P.top !== P.low ? P.top < P.low : cpRand('place' + index) < .5; pool = up ? tp : lw; }
         const least = Math.min(...pool.map(n => HUD.used[n] ?? 0)); pool = pool.filter(n => (HUD.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];
       }
     }
+    if (HUD.layouts[name].speaker) HUD.place[HUD.layouts[name].top ? 'top' : 'low']++;
     HUD.used[name] = (HUD.used[name] ?? 0) + 1; HUD.last = name; HUD.sinceNoPic = HUD.layouts[name].noPic ? 0 : HUD.sinceNoPic + 1;
     const L = (meta.layout ? JSON.parse(JSON.stringify(HUD.layouts[name])) : hudFit(name, face)) ?? JSON.parse(JSON.stringify(HUD.layouts.hud_diag));
     const screen = !L.speaker, root = div('', SC); root.className = 'h-root' + (screen ? ' h-screen' : '');
@@ -253,7 +266,8 @@ STYLE('hud', {
     const F = {root, stage, stages, cam: root, L, name, dark: screen, t1, n: 0, meta, svg, notes: []};
     /* the notes: every line and dot from the start; the words of the picture's next subtitles in grey from the start, white (or
        yellow) when said (a still: as the sheet, all said) */
-    (L.notes ?? []).forEach((n, k) => {
+    if (HUD.noNotes) { if (L.timeline) (L.notes ?? []).forEach((n, k) => n.dot && hudDot(svg, n.dot, n.y, t0 + .65 + .12 * k)); }   // ("ก1": the timeline's dots, lit, no words)
+    else (L.notes ?? []).forEach((n, k) => {
       const words = ch ? ch[k + 1]?.words : meta.rows?.[k]; if (!words) return;
       const t = t0 + .25 + .12 * k, P = n.text;
       if (n.path) hudLine(svg, n.path, n.y, t);

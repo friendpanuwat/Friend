@@ -125,7 +125,8 @@ const GLASSY = {
   yellow: {lit: 'rgba(24,20,4,.9)', litBar: 'rgba(64,53,0,.92)', litIcon: '#FFD600', litBody: '#2A2300', mark: '#1A1600', halo: '#FFF6D6', outlineLit: true, glow: 1.2, fig: '#7E7E7A', washLit: true,
     frost: ['rgba(12,12,12,.86)', 'rgba(10,10,10,.62)'], solid: '#161616', litMark: '#FFF3B0', litWord: true},   // litWord: the lit step's word is yellow too
   hud: {lit: 'rgba(24,20,4,.9)', litBar: 'rgba(64,53,0,.92)', litIcon: '#FFD600', litBody: '#2A2300', mark: '#1A1600', halo: '#FFF6D6', outlineLit: true, glow: 1.2, fig: '#7E7E7A', washLit: true,
-    frost: ['rgba(12,12,12,.86)', 'rgba(10,10,10,.62)'], solid: '#161616', litMark: '#FFF3B0', litWord: true},   // เส้นชี้ HUD: the yellow style's values (the sheet's pictures are drawn alike)
+    frost: ['rgba(12,12,12,.86)', 'rgba(10,10,10,.62)'], solid: '#161616', litMark: '#FFF3B0', litWord: true,
+    noPill: true, noEdge: true},   // เส้นชี้ HUD: the yellow style's values (the sheet's pictures are drawn alike) · final 2026-11-18 (Friend: "ลบกรอบตัวหนังสือที่โมชั่นกราฟิกออกด้วย"): as the window style's
   /* ขอบฟ้าส้ม (shot 04 full size, sampled): bodies a warm see-through brown (#2B1E16 on the screen), the lit tile a deep orange wash
      (#3D210) under an orange edge, its icon and word orange, the white lines warm (#FEF1E3) */
   /* เทอร์มินัลแดง (the full-size shots, sampled): near-black bodies in the windows, the lit tile a deep red wash under a red edge,
@@ -403,7 +404,7 @@ function glowDress(svg, P, base) {
    a mic and "พูดสดๆ" at its left, its right half empty): a text box (a rect at least twice as wide as tall, a word in it) whose icon and
    words sit off its middle gets them moved to its middle, as one group, at the drawing's end. Only what lies wholly in the box and is
    drawn after it moves; a box holding a wide shape (a bar's fill, a second box) is not a text box and stays as it is. */
-/* noPill (the window style only, Friend 2026-11-18 on the final: "ลบกรอบตัวหนังสือที่ motion graphic ออกด้วยครับ", B06T's "คุณภาพ" pill):
+/* noPill (the window and hud styles only, Friend 2026-11-18 on the finals: "ลบกรอบตัวหนังสือที่ motion graphic ออกด้วยครับ", B06T's "คุณภาพ" pill):
    a box (rect at least 1.4 times as wide as high) holding nothing but words loses its own layers (every non-word shape the box's size);
    a box with an icon or a bar in it stays, and so does a box laid across or inside another drawing (without it the word would sit on the lines or a pale card) */
 function glowNoPill(svg) {
@@ -417,7 +418,8 @@ function glowNoPill(svg) {
     if (b.style.display === 'none') continue;
     const inside = leaves.filter(o => o.e !== b && within(o.q, r)), layers = inside.filter(o => o.e.tagName !== 'text' && same(o.q, r));
     if (!inside.some(o => o.e.tagName === 'text' && o.e.textContent.trim())) continue;
-    if (inside.some(o => o.e.tagName !== 'text' && !layers.includes(o))) continue;   // an icon, a bar or a mark in it: a card, not a word's box
+    const strike = o => o.q.height < 8 && o.q.width > 12;                             // a line through the word ("ส่วนลด" struck out): part of the word
+    if (inside.some(o => o.e.tagName !== 'text' && !layers.includes(o) && !strike(o))) continue;   // an icon, a bar or a mark in it: a card, not a word's box
     const cuts = o => { const w = Math.min(o.q.right, r.right) - Math.max(o.q.left, r.left), h = Math.min(o.q.bottom, r.bottom) - Math.max(o.q.top, r.top); return w > 2 && h > 2 && !within(r, o.q) && !within(o.q, r) && !same(o.q, r); };
     if (leaves.some(o => o.e !== b && o.e.tagName !== 'text' && (cuts(o) || (within(r, o.q) && !same(o.q, r))))) continue;   // a box laid over or inside another drawing (B01T's price on its pale card under the "?"): its box keeps the word readable
     [b, ...layers.map(o => o.e), ...leaves.filter(o => o.e !== b && o.e.tagName !== 'text' && same(o.q, r) && !within(o.q, r, 0)).map(o => o.e)].forEach(e => e.style.display = 'none');
@@ -517,7 +519,7 @@ function glowDraw(F, T, cat, i, d, box = F.stage) {
     glowReadable(svg, P);
     glowFirm(svg, P, base);
     glowDress(svg, P, base);
-    if (GLASSY[base]?.noPill) glowNoPill(svg);      // window only (final 2026-11-18): a word's own box goes, the word stays
+    if (GLASSY[base]?.noPill) glowNoPill(svg);      // window + hud only (finals 2026-11-18): a word's own box goes, the word stays
     if (GLASSY[base]?.centreBox) glowCentre(svg);  // neon only (final 2026-11-18): the icon and word of a text box in its middle
     glowLight(svg, P, base);
     if (GLOWLOOK[base]?.motionFit) glowFit(svg, at, T.t1 ?? window.DURATION, W, H, F.room ?? null);   // window: what is really visible fills the box, and its motion stays in it
