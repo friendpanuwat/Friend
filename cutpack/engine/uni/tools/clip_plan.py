@@ -44,6 +44,7 @@ RULES = {
     # git show HEAD~1:cutpack/engine/uni/tools/clip_plan.py) for 12 new ones from sheets Friend made with AI. One by one:
     'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft'),
     'lime':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),
+    'violet':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # ม่วงคลื่นเสียง: 12 of 12 shots carry a picture (first guess)
     'teal':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # การ์ดเขียวน้ำทะเล: 12 of 12 shots carry a picture or a card (first guess)
     'window':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # หน้าต่างแอป: 11 of 12 shots carry a window (first guess)   # เขียวมะนาว: 10 of 12 shots carry a picture, several on the speaker (first guess, before a real clip)   # no overlays: Friend 2026-11-17 "ยกเลิก 5." (over=25 turned them on)   # นีออนฟ้า: 10 of the sheet's 12 shots carry a picture (first guess, before a real clip)
 }

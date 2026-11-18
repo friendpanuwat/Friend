@@ -22,6 +22,7 @@ const GLOWLOOK = {
   /* the new styles (Friend 2026-11-17 cancelled the 4 above and is replacing them with 12 sheets made with AI, copied 100%) */
   neon:  {acc: '--ac',     glow: {c: '#2FA8F0', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5},
   window: {acc: '--ac',    glow: {c: '#3E86FF', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},    // หน้าต่างแอป (Friend's 3rd new sheet, 2026-11-18): the glass look in app windows, blue light
+  violet: {acc: '--ac',    glow: {c: '#8B5CF6', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},   // ม่วงคลื่นเสียง (Friend's 5th new sheet, 2026-11-18): the glass look in violet cards, violet light
   teal:  {acc: '--ac',     glow: {c: '#3FCEBA', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},    // การ์ดเขียวน้ำทะเล (Friend's 4th new sheet, 2026-11-18): the glass look in teal cards, teal light
   lime:  {acc: '--ac',     glow: {c: '#B5EE38', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5},    // เขียวมะนาว (Friend's 2nd new sheet, 2026-11-18): the neon glass, lime light    // นีออนฟ้า (Friend's sheet 2): frosted grey glass, white lines with their own soft glow, the lit part blue and glowing hard
 };
@@ -92,13 +93,14 @@ function glowWeight(svg, P, base) {
     const w = px(e), fl = W.floor ?? 1.6; if (w > 0 && w < fl) e.setAttribute('stroke-width', (+e.getAttribute('stroke-width') * fl / w).toFixed(3)); });
 }
 /* a floating drawing (no solid surface behind it: glass, card-overlay on the video) gets this body colour, see-through */
-const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '#1C1C20', neon: '#2A2E33', lime: '#26292B', window: '#151B26', teal: '#152A26'};
+const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '#1C1C20', neon: '#2A2E33', lime: '#26292B', window: '#151B26', teal: '#152A26', violet: '#1A1030'};
 /* the GLASS styles (neon, lime): frosted glass bodies, white lines glowing in their own colour, the lit part washed in the style's
    colour. Per style: lit = the lit tile's wash · litBar = a lit bar's wash under white words · litIcon = the icon on a lit tile ·
    mark = a white mark on a solid accent shape · halo = the wide halo of every line */
 const GLASSY = {
   neon: {lit: 'rgba(25,95,150,.85)', litBar: 'rgba(30,120,185,.6)', litIcon: '#CFEFFF', litBody: '#1A6390', mark: '#0B2238', halo: '#5AB8FF'},
   window: {lit: 'rgba(40,110,230,.30)', litBar: 'rgba(40,110,230,.38)', litIcon: '#A8CCFF', litBody: '#16325C', mark: '#0B2238', halo: '#7FB0FF', outlineLit: true, glow: 1.3, fig: '#7586A3', washLit: true},   // fig: people 5:1 on the window, white edge 3.7:1 on them
+  violet: {lit: 'rgba(120,80,240,.24)', litBar: 'rgba(120,80,240,.30)', litIcon: '#C4AEFF', litBody: '#2A1A55', mark: '#160B30', halo: '#E8E0FF', outlineLit: true, glow: 1.3, fig: '#8A82A8', washLit: true},   // lit parts a violet outline (Friend's sheet)
   teal: {lit: 'rgba(40,190,165,.24)', litBar: 'rgba(40,190,165,.30)', litIcon: '#8FEBD9', litBody: '#123A33', mark: '#0A231F', halo: '#D8F5EE', outlineLit: true, glow: 1.3, fig: '#6E8C86', washLit: true},   // lit parts a teal outline (Friend's sheet), people teal-grey 4.3:1 on the card
   lime: {lit: 'rgba(120,170,25,.32)', litBar: 'rgba(120,170,25,.32)', litIcon: '#D4FA6A', litBody: '#2C3A12', mark: '#18220A', halo: '#EEF4E6', outlineLit: true, glow: 1.7},   // the white lines glow white on the sheet, only the lit part lime
 };
