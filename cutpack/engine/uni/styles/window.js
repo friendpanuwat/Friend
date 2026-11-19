@@ -197,7 +197,10 @@ STYLE('window', {
         const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) {
           const size = n => { const [, , w, h] = winInner(winFit(n, face).win); return ar > w / h ? w * w / ar : h * h * ar; };
-          pool = cpSizeKeep(pool, size, .75, n => !!WIN.layouts[n].speaker);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
+          const kept = cpSizeKeep(pool, size, .75, n => !!WIN.layouts[n].speaker);
+          /* the hook keeps only speaker screens: when the floor leaves none, the one with the biggest picture (2026-11-19, a clip whose
+             face left every speaker window under the floor had no screen at all) */
+          pool = kept.length ? kept : [pool.reduce((a, b) => size(b) > size(a) ? b : a)];   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
         pool = cpBalance(pool, n => !!WIN.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
         /* a speaker screen: the window over the head or under it as often ("เพื่อความหลากหลาย"); the less used place, a tie by the run's seed */
