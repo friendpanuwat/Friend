@@ -5,8 +5,8 @@
    the face). The pictures: the glow-line template set first, in the glass look with blue light (glow/bridge.js GLASSY.window).
    The 7-item form:
    1 frame    one of 12 layouts (WIN.layouts, named after Friend's shots): the speaker full screen with an app window at the hands,
-              or a deep-blue screen with a big window, the speaker in a rounded frame beside a window, two windows in cascade, a recap
-              of four. Between pictures the speaker talks with the words at the chest. (The sheet's chapter bar top left and the small
+              or a deep-blue screen with a big window, the speaker in a rounded frame beside a window, two windows in cascade (the four-window recap
+              was taken out 2026-11-19). Between pictures the speaker talks with the words at the chest. (The sheet's chapter bar top left and the small
               spaced label over the words are left out: Friend 2026-11-18, "ลบที่ผมวงกลมสีแดงออกด้วยครับทุกฉากเลย".)
    2 surface  screens: near-black to navy (Friend's background picture, 2026-11-18) with our own turning rings top right and bottom
               left (one glowing line, white app-chips, a running light); the pictures sit in dark app windows (three dots, a skeleton
@@ -38,8 +38,7 @@ const WIN = {
                win: [80, 1070, 840, 560], decor: 1},                                                                     // shot 08 (sheet frame to x 1019)
     full_c:   {speaker: true, lead: {x: 540, y: 1073}, key: {x: 540, y: 1172}, win: [80, 1300, 840, 360]},             // shot 09
     dark_b:   {screen: true, lead: {x: 540, y: 385}, key: {x: 540, y: 490}, win: [80, 645, 840, 630], decor: 1, ringUp: 230},    // shot 10 · final point 4: as dark
-    recap:    {screen: true, lead: {x: 540, y: 262}, key: {x: 540, y: 365},
-               wins: [[80, 520, 400, 420], [500, 520, 420, 420], [80, 980, 400, 420], [500, 980, 420, 420]], decor: 0, ringUp: 230},     // shot 11 · final point 4: the four windows in the middle of the screen, the words 90 over them
+    // recap (four windows) taken out (Friend 2026-11-19: "เอาฉากนี้ออก")
     cta:      {speaker: true, lead: {x: 540, y: 1066}, key: {x: 540, y: 1172}, win: [80, 1300, 840, 360]},             // shot 12
     /* final 2026-11-18 (Friend: "พื้นที่ด้านบนหัวยังว่างสามารถเอาโอเวอร์เลย์ไปไว้ตรงนั้นได้นะครับ เพื่อความหลากหลาย"): the window over
        the head, from under the search bar (220) to 140 over the face box (the hair, as lime's top card); its height from the clip's
@@ -76,14 +75,49 @@ const winInner = ([, , w, h]) => [22, 76, w - 44, h - 98];        // the picture
 /* fit a speaker screen to this face [x0, top, x1, chin] (as lime): the words and the window under the face slide below the chin
    (the window shortens to keep its bottom at 1660, at least 260 high); null = no room. Screens always fit. */
 function winFit(name, f) {
-  const L0 = WIN.layouts[name]; if (L0.screen) return L0;
+  const L0 = WIN.layouts[name]; if (L0.screen) return winShape(JSON.parse(JSON.stringify(L0)), name) ?? L0;   // (no key: dark = size 5, for the size estimates)
   const [, top, , chin] = f, L = JSON.parse(JSON.stringify(L0));
-  if (L.top) { L.win[3] = Math.min(L0.win[3], top - 140 - L.win[1]); if (L.win[3] < 260) return null; }   // over the head: no room under the search bar? not this screen
+  if (L.top) { L.win[3] = top - 140 - L.win[1]; return winShape(L, name); }   // over the head: the room from the search bar to 140 over the face (winShape)
   const tops = [L.lead.y - 45, L.key.y - 55].concat(L.win && !L.top ? [L.win[1]] : []), d = Math.max(0, chin + 30 - Math.min(...tops));
   L.lead.y += d; L.key.y += d;
-  if (L.win && !L.top) { L.win[1] += d; L.win[3] = Math.min(L.win[3], 1660 - L.win[1]); if (L.win[3] < 260) return null; }
   if (L.key.y + 55 > 1660) return null;
-  return L;
+  if (L.win && !L.top) { L.win[1] += d; L.win[3] = 1660 - L.win[1]; }   // the room under the words, to the bottom line (winShape)
+  return L.win ? winShape(L, name) : L;
+}
+/* THE SEVEN SIZES (style-rules/common.md 4.1 · Friend 2026-11-19: "ใส่ระบบ ขนาด 7 ขนาดด้วย"): the WINDOW (its title bar included) is the
+   standard size scaled from the corner, its shape exact, 65–100 %; the picture inside it as before (winInner). Each screen: its room and
+   its order of sizes (WIN_ORDER, style-rules/window.md 4.1); the first size that reaches 65 % in the room; none = null (a speaker screen:
+   not this screen · a blue screen keeps its sheet window). dark / dark_b: 5 or 6 at random 60 : 40 (as lime), in the middle of the screen,
+   the words 90 over it, moved up with it but not into the search bar. No sizes 4 and 7 (no screen beside the body). */
+const WIN_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
+const WIN_ORDER = {full: [2, 1], full_d: [2, 1], full_c: [2, 1], cta: [2, 1], full_n: [3, 2], full_w: [1, 2], full_top: [2, 3, 1],
+  float: [3, 5], stats: [5, 2], cascade: [2, 3]};
+const WIN_MIN = .65;
+function winShape(L, name, key) {
+  if (!L.win) return L;
+  const size = (k, s) => WIN_STD[k].map(v => Math.round(v * s));
+  if (name === 'dark' || name === 'dark_b') {
+    const gap = L.win[1] - (L.key.y + 65), lk = L.key.y - L.lead.y, maxH = 2 * (960 - (220 + 45 + lk + 65 + gap));   // the lead's row stays under the search bar (220)
+    const sOf = k => Math.min(1, 860 / WIN_STD[k][0], maxH / WIN_STD[k][1]);
+    const first = key != null && cpRand(key) >= .6 ? 6 : 5, k = sOf(first) >= WIN_MIN ? first : 11 - first, s = sOf(k);
+    if (s < WIN_MIN) return null;
+    const [w, h] = size(k, s), y = Math.round(960 - h / 2);
+    L.win = [Math.round(540 - w / 2), y, w, h]; L.key.y = y - gap - 65; L.lead.y = L.key.y - lk;
+    L.ringUp = Math.max(L.ringUp ?? 0, 230 + Math.max(0, 645 - y));   // the top ring keeps off the words when they move up
+    L.std = [k, s]; return L;
+  }
+  const [x, y, w, h] = L.win;
+  let X0 = 60, X1 = 920, Y0 = y, Y1 = y + h;                      // speaker screens: winFit gave the room (under the words to 1660, or over the head)
+  if (name === 'float') { X0 = x; Y1 = 1660; }                    // right of the face frame's column, as on the sheet
+  if (name === 'stats') Y1 = 1660;
+  if (name === 'cascade') { X1 = x + w; Y1 = 1660; }              // the front window keeps its step from the back one
+  for (const k of WIN_ORDER[name] ?? [2]) {
+    const [W, H] = WIN_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H); if (s < WIN_MIN) continue;
+    const [cw, ch] = size(k, s), cx = name === 'cascade' ? X0 + cw / 2 : x + w / 2;
+    L.win = [Math.round(Math.min(Math.max(cx - cw / 2, X0), X1 - cw)), L.top ? Y1 - ch : Y0, cw, ch];   // over the head: down to the hair (as lime's top card) · else under the words
+    L.std = [k, s]; return L;
+  }
+  return null;
 }
 STYLE('window', {
   name: 'หน้าต่างแอป',
@@ -149,9 +183,13 @@ STYLE('window', {
     let name = meta.layout;
     if (!name) {
       const want = WIN.byCat[String(meta.cat ?? '').slice(0, 3)];
-      if (want && winFit(want, face)) name = want;
+      /* THE HOOK (Friend 2026-11-19: "ใส่ระบบ hook ให้สไตล์นี้" · as lime: "ต้องไม่ใช่ฉากเต็มจอ ต้องเป็นฉากหน้าคนพูด"): the plan's first picture at
+         1.8–3.2 s (RUN.hook, tools/clip_plan.py) takes only a speaker screen (ก); no speaker screen fits this face → the usual pool */
+      const hook = index === 0 && typeof RUN !== 'undefined' && RUN.hook, spk = n => !!WIN.layouts[n].speaker;
+      if (want && (!hook || spk(want)) && winFit(want, face)) name = want;
       else {
         let pool = WIN.pool.filter(n => n !== WIN.last && winFit(n, face));
+        if (hook && pool.some(spk)) pool = pool.filter(spk);
         if (!pool.length) pool = ['dark', 'float', 'cascade'].filter(n => n !== WIN.last);
         const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) {
@@ -168,7 +206,12 @@ STYLE('window', {
     }
     WIN.used[name] = (WIN.used[name] ?? 0) + 1; WIN.last = name;
     if (WIN.layouts[name].speaker) WIN.place[WIN.layouts[name].top ? 'top' : 'low']++;
-    const L = (meta.layout ? WIN.layouts[name] : winFit(name, face)) ?? WIN.layouts.dark;
+    /* the standard size: a blue screen from its sheet room (dark: 5 or 6 by the run's seed) · a speaker screen from this face (winFit) · a
+       test's forced speaker screen from its sheet room · no size reaches 65 % → the sheet's window */
+    const raw = WIN.layouts[name], copy = o => JSON.parse(JSON.stringify(o));
+    const L = raw.screen ? winShape(copy(raw), name, 'size' + index) ?? copy(raw)
+      : meta.layout ? winShape(copy(raw), name) ?? copy(raw)
+      : winFit(name, face) ?? winShape(copy(WIN.layouts.dark), 'dark', 'size' + index);
     const root = div('', SC); root.className = 'w-root' + (L.screen ? ' w-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     if (L.screen) {
@@ -205,7 +248,7 @@ STYLE('window', {
     /* the windows: three dots, then a skeleton title bar (Friend 2026-11-18: "แบบ skeleton ... ไม่มีข้อความแต่มีเหมือนเป็นแบบช่องๆเหลี่ยมๆมนๆ"):
        a faint rounded bar where the title was (its length from the run's seed) and an empty blue pill where the tag was; each picture
        lives inside its window */
-    const makeWin = (c, k, tag = true) => { const w = box(c); w.className = 'w-win';
+    const makeWin = (c, k, tag = true) => { const w = box(c); w.className = 'w-win'; if (L.std && c === L.win) w.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3);   // tools/card_sizes.js
       const bar = div('', w); bar.className = 'w-bar';
       ['#FF5F57', '#FEBC2E', '#28C840'].forEach((col, i) => { const d = div(`left:${26 + i * 24}px;background:${col}`, bar); d.className = 'w-dot'; });
       div(`width:${Math.round(Math.min(c[2] * .34, 110 + 90 * cpRand('bar' + index + k)))}px`, bar).className = 'w-skel';

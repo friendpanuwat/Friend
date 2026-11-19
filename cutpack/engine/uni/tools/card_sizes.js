@@ -10,7 +10,7 @@ const STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860
   const wins = await p.evaluate(() => CLIPWINS.map(x => [x.t0, x.t1, x.F.name])), N = fs.readdirSync(path.join(D, 'src_frames')).length;
   for (const [t0, t1, name] of wins) { const t = Math.min(t1 - .35, (N - 2) / 30), f = Math.round(t * 30);
     await p.evaluate(([t, s]) => window.seek(t, s), [t, 'file://' + path.join(D, 'src_frames/s' + String(f + 1).padStart(5, '0') + '.jpg')]);
-    const r = await p.evaluate(t0 => { const w = CLIPWINS.find(x => Math.abs(x.t0 - t0) < .01), st = w.F.stage, c = st.closest('.l-card') ?? document.querySelector('[data-std]');
+    const r = await p.evaluate(t0 => { const w = CLIPWINS.find(x => Math.abs(x.t0 - t0) < .01), st = w.F.stage, c = st.closest('[data-std]') ?? document.querySelector('[data-std]');
       const R = e => { const q = e.getBoundingClientRect(); return [Math.round(q.width), Math.round(q.height)]; };
       const q = c?.getBoundingClientRect(); return {std: c?.dataset.std ?? null, card: c ? R(c) : null, stage: R(st), xy: q ? [q.left, q.top] : null}; }, t0);
     const [k, s] = (r.std ?? '').split(':'), box = k ? STD[k].map(v => Math.round(v * s)) : null;
