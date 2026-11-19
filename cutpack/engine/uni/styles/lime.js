@@ -92,7 +92,7 @@ function limeShape(L, ar, name, key) {
   if (name === 'side_l') X1 = Math.min(920, L.lead.x - L.lead.maxW / 2 - 20);   // not into the words beside the card
   if (name === 'side_r') X0 = Math.max(60, L.lead.x + L.lead.maxW / 2 + 20);
   const fits = k => { const [W, H] = LIME_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H); return s >= LIME_MIN ? s : 0; };
-  const yOf = ch => Math.round(a === 'bottom' ? Y1 - ch : a === 'center' ? (Y0 + Y1 - ch) / 2 : Y0);   // centre = the middle of the room (lime.md 4.3)
+  const yOf = ch => Math.round(a === 'bottom' ? Y1 - ch : a === 'center' ? (Y0 + Y1 - ch) / 2 : Y0);   // centre = the middle of the room (lime.md 4.2 rule 6)
   let order = LIME_ORDER[name] ?? [2];
   if (name === 'side_l' || name === 'side_r') {
     /* 4 AND 7 ARE PEERS (Friend 2026-11-19: "2 อันนี้ไม่มีอันไหนเป็นตัวสำรองของอันไหน แต่สำคัญคือ ถ้าฉากนั้นๆใส่การ์ดที่ 4 แล้วการ์ดมันดูสูงเกิน ก็จะมา
