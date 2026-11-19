@@ -282,6 +282,7 @@ STYLE('lime', {
       A(r, [{opacity: 0, transform: 'scale(.9)', filter: 'blur(10px) brightness(1.8)'}, {opacity: 1, transform: 'none', filter: 'blur(0) brightness(1)'}], T.hit - .05, .45, {e: EASE.soft});
       sfx('softswish', T.hit - .05, -21);
     }
+    if (L.split && L.slideFn) L.slideFn(el);   // the words ride with the graphics' half (Friend 2026-11-19: "subtitle มันยังค้างอยู่ที่เดิม ... subtitles มันประทับหน้าคน")
     if (F.speaker && T.clip) {
       A(el, [{visibility: 'hidden'}, {visibility: 'visible'}], T.b[0] - .02, .001); A(el, [{visibility: 'visible'}, {visibility: 'hidden'}], T.end - .021, .001, {f: 'forwards'});
       return null;
