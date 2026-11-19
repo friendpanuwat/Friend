@@ -85,7 +85,7 @@ const HUD = {
      out: the pictures at the hands (hud_row, hud_rail: small and over the hands) and the screens of corners and words only (hud_open,
      hud_word, hud_cta: with no corners round the words they are the talk screen) · in: the two list-card screens */
   pool: ['hud_diag', 'hud_card', 'hud_time', 'hud_split', 'hud_measure', 'hud_top', 'hud_page', 'hud_listB', 'hud_listT'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
-  byCat: {B15: 'hud_cta'},
+  byCat: {},   // draft 2 (2026-11-18): no screen kept for a call to action (hud_cta was corners and a note only: out with the corners round the words)
   keep: .75, noPicGap: 4, sinceNoPic: 4,
   spkMin: 82944, scrMin: 248832,   // scrMin: final ("จ"): a graphic screen's picture at least 12 % of the screen (1080 × 1920 × .12), else another screen   // final 2026-11-18 (Friend chose "ก" on "motion graphic เล็กเกินไป"): a speaker screen with a picture shows it at least 4 % of the screen (1080 × 1920 × .04), else another screen
   gridUp: 12,
