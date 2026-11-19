@@ -1,0 +1,8 @@
+{
+  "_comment": "theme = lime | glow | cobalt | ember | crimson | mono (assets/themes/). handle/name = small text top-left of every slide (\"\" = none); logo = 1–2 letters in a small accent square before it. Any theme key can be overridden here, e.g. \"accent\": \"#FF7A00\" (then also set accent_ink / accent_on_light).",
+  "theme": "lime",
+  "handle": "",
+  "name": "",
+  "logo": "",
+  "sfx_db": -11
+}

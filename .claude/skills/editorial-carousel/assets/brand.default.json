@@ -1,0 +1,16 @@
+{
+  "_comment": "Brand settings. accent = the ONE highlight colour of the deck (key words on dark slides, highlight boxes, number badges, swipe chip). handle = small text bottom-left of every slide (\"\" = none). Photos are never colour-graded.",
+  "accent": "#DDFF45",
+  "navy": "#14213D",
+  "cream": "#F2EDE2",
+  "ink": "#000000",
+  "pill": "#1B2A52",
+  "handle": "",
+  "fonts": {
+    "key_sans":  "fonts/Mitr-Bold.ttf",
+    "key_serif": "fonts/Sriracha-Regular.ttf",
+    "lead":      "fonts/Mitr-Regular.ttf",
+    "card_sans": "fonts/Mitr-SemiBold.ttf"
+  },
+  "sfx_db": -11
+}

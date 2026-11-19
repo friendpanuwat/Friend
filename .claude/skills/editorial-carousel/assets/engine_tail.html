@@ -1,0 +1,32 @@
+</script>
+<script>
+/* ===================== ENGINE ===================== */
+window.seek = async (t, still = false) => {
+  if (!window.__fitted) {
+    window.__fitted = true;
+    // faces load lazily on first use — load all four before measuring lines (fit) or drawing the chrome
+    await Promise.all(['KeySans', 'KeySerif', 'Lead', 'CardSans'].map(f => document.fonts.load(`40px "${f}"`, 'กข 1/2 Aa')));
+    FINAL.forEach(f => f()); FITS.forEach(f => f());
+    await document.fonts.ready;
+  }
+  ANIMS.forEach(a => { a.pause(); a.currentTime = still && a.idle ? a.effect.getTiming().delay : ms(t); });
+  await Promise.all(HOOKS.map(h => h(t)));
+};
+/* layout QC for the slide on screen: text / pills / rows that leave the safe area or run into the chrome band */
+window.qc = n => {
+  const root = G.children[n - 1], out = [], safe = {l: 40, r: W - 40, t: 30, b: H - (root.querySelector('.chrome') ? 100 : 30)};
+  for (const e of root.querySelectorAll('.ln,.para p,.pill,.row,.num')) {
+    const r = e.getBoundingClientRect(); if (!r.width || getComputedStyle(e).visibility === 'hidden') continue;
+    const bad = [r.left < safe.l && 'left', r.right > safe.r && 'right', r.top < safe.t && 'top', r.bottom > safe.b && 'bottom'].filter(Boolean);
+    if (bad.length) out.push(`${(e.textContent || '').trim().slice(0, 24)} → ${bad.join('+')} (${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}×${Math.round(r.height)})`);
+  }
+  // vertical balance: free space above vs below the content (full-bleed photos count as filling the slide)
+  let top = 1e9, bot = -1e9;
+  for (const e of root.querySelectorAll('.ln,.para p,.row,.pill,.num,.mg')) { const r = e.getBoundingClientRect(); if (r.width < 40 || r.height < 20) continue; top = Math.min(top, Math.max(0, r.top)); bot = Math.max(bot, Math.min(safe.b, r.bottom)); }
+  if (bot > top) { const above = top, below = safe.b - bot; if (Math.abs(above - below) > 140) out.push(`unbalanced: ${Math.round(above)} px free above, ${Math.round(below)} px below → move the content ${above > below ? 'up' : 'down'} ~${Math.round(Math.abs(above - below) / 2)} px or fill the gap`); }
+  for (const L of root.querySelectorAll('.ln')) { const m = (L.style.transform.match(/scale\(([\d.]+)\)/) || [])[1]; if (m && +m < .7) out.push(`${L.textContent.trim().slice(0, 24)} → squeezed to ${Math.round(m * 100)}% (split the line or set size)`); }
+  return out;
+};
+window.SLIDES = SLIDES; window.SFX = SFX;
+</script>
+</body></html>

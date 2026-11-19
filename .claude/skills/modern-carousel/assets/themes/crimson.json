@@ -1,0 +1,30 @@
+{
+ "_ref": "แดงสด + ดำ + ขาว กระดาษกริด กล่องไฮไลต์ (แนว agency / LinkedIn tips)",
+ "accent": "#E0261C",
+ "accent_ink": "#FFFFFF",
+ "accent_on_light": "#D7231A",
+ "neg": "#E0261C",
+ "dark": {
+  "bg": "#0D0D0D",
+  "bg2": "#1A1A1A",
+  "fg": "#FFFFFF",
+  "muted": "rgba(255,255,255,.66)",
+  "surface": "#1A1A1A",
+  "line": "rgba(255,255,255,.2)"
+ },
+ "light": {
+  "bg": "#FFFFFF",
+  "bg2": "#F4F2F0",
+  "fg": "#121212",
+  "muted": "#5E5A57",
+  "surface": "#FFFFFF",
+  "line": "rgba(18,18,18,.16)"
+ },
+ "texture": "paper",
+ "glow": false,
+ "card": "solid",
+ "radius": 18,
+ "title_weight": 700,
+ "num_weight": 700,
+ "ornament": "cross"
+}

@@ -1,0 +1,30 @@
+{
+ "_ref": "ดำถ่าน/ขาวนวล + ส้ม เส้นประ ลูกศรวงกลม สวิตช์ (แนว tech solutions / startup)",
+ "accent": "#FF5A1F",
+ "accent_ink": "#FFFFFF",
+ "accent_on_light": "#E8480F",
+ "neg": "#E8480F",
+ "dark": {
+  "bg": "#141414",
+  "bg2": "#1E1E1E",
+  "fg": "#F6F4F1",
+  "muted": "rgba(246,244,241,.6)",
+  "surface": "#1F1F1F",
+  "line": "rgba(255,255,255,.16)"
+ },
+ "light": {
+  "bg": "#F3F1EE",
+  "bg2": "#FFFFFF",
+  "fg": "#151515",
+  "muted": "#66625D",
+  "surface": "#FFFFFF",
+  "line": "rgba(21,21,21,.18)"
+ },
+ "texture": "none",
+ "glow": false,
+ "card": "solid",
+ "radius": 28,
+ "title_weight": 600,
+ "num_weight": 600,
+ "ornament": "asterisk"
+}

@@ -1,0 +1,48 @@
+</script>
+<script>
+/* ===================== ENGINE ===================== */
+window.seek = async (t, still = false) => {
+  if (!window.__fitted) {
+    window.__fitted = true;
+    await Promise.all([300, 400, 500, 600, 700].map(w => document.fonts.load(`${w} 40px "Display"`, 'กข 1/2 Aa')).concat([300, 400, 500, 600].map(w => document.fonts.load(`${w} 40px "Body"`, 'กข 1/2 Aa'))));
+    FINAL.forEach(f => f()); FITS.forEach(f => f());
+    await document.fonts.ready;
+  }
+  ANIMS.forEach(a => { a.pause(); a.currentTime = still && a.idle ? a.effect.getTiming().delay : ms(t); });
+  await Promise.all(HOOKS.map(h => h(t)));
+};
+/* layout QC for the slide on screen: text leaving the safe area / running into the chrome, lines too long, unbalanced layout */
+/* extent of the glyphs themselves (block lines / flex rows are full-width boxes) */
+const inkRect = e => { const r = document.createRange(); r.selectNodeContents(e); const q = r.getBoundingClientRect(); return q.width ? q : e.getBoundingClientRect(); };
+window.qc = n => {
+  const root = G.children[n - 1], out = [], hasArrow = !!root.querySelector('.chrome-arrow'), safe = {l: 40, r: W - 40, t: root.querySelector('.chrome') ? 100 : 30, b: H - 30};
+  const arrow = {l: W - 150, t: H - 150};
+  for (const e of root.querySelectorAll('.ttl .tl,.bdy p,.num,.tag,.cta,.lst .it,.chip,.ntf')) {
+    const r = e.matches('.ttl .tl,.bdy p,.lst .it') ? inkRect(e) : e.getBoundingClientRect(); if (!r.width) continue;
+    const bad = [r.left < safe.l && 'left', r.right > safe.r && 'right', r.top < safe.t && 'top (chrome)', r.bottom > safe.b && 'bottom'].filter(Boolean);
+    if (hasArrow && r.right > arrow.l && r.bottom > arrow.t && (e.matches('.ttl .tl,.bdy p,.lst .it,.cta'))) bad.push('swipe arrow');
+    if (bad.length) out.push(`${(e.textContent || '').trim().slice(0, 26)} → ${bad.join('+')} (${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}×${Math.round(r.height)})`);
+  }
+  // small components must not be cut by the canvas edge (big cards / blobs / phones may bleed on purpose)
+  for (const e of root.querySelectorAll('.ico,.av,.ntf,.chip,.tag,.cta')) {
+    const r = e.getBoundingClientRect(); if (!r.width) continue;
+    if (r.left < 0 || r.top < 0 || r.right > W || r.bottom > H) out.push(`${e.classList.contains('av') ? 'avatars' : e.classList.contains('ico') ? 'icon' : e.classList[0]} "${(e.textContent || '').trim().slice(0, 20)}" is cut by the slide edge (${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}×${Math.round(r.height)})`);
+  }
+  // text sitting on top of a graphic it does not belong to (graphics = .mg; thin ones like paths/rings are see-through)
+  const gfx = [...root.querySelectorAll('.mg:not(.thin)')].map(e => [e, e.getBoundingClientRect()]);
+  for (const e of root.querySelectorAll('.ttl .tl,.bdy p,.num,.lst .it')) {
+    const r = inkRect(e); if (!r.width) continue;
+    for (const [g, q] of gfx) {
+      if (g.contains(e) || e.closest('.mg') && (e.closest('.mg').contains(g) || g.contains(e.closest('.mg')))) continue;
+      const m = 16, ix = Math.max(0, Math.min(r.right, q.right + m) - Math.max(r.left, q.left - m)), iy = Math.max(0, Math.min(r.bottom, q.bottom + m) - Math.max(r.top, q.top - m));   // 16 px breathing room
+      if (ix > 0 && iy > 16) { out.push(`${(e.textContent || '').trim().slice(0, 26)} → overlaps a graphic (${Math.round(q.left)},${Math.round(q.top)} ${Math.round(q.width)}×${Math.round(q.height)}) — move one of them (keep ≥ 16 px apart)`); break; }
+    }
+  }
+  let top = 1e9, bot = -1e9;
+  for (const e of root.querySelectorAll('.ttl .tl,.bdy p,.num,.tag,.cta,.lst .it,.mg')) { const r = e.getBoundingClientRect(); if (r.width < 40 || r.height < 20) continue; top = Math.min(top, Math.max(safe.t - 40, r.top)); bot = Math.max(bot, Math.min(H - 40, r.bottom)); }
+  if (bot > top) { const above = top - (safe.t - 40), below = H - 40 - bot; if (Math.abs(above - below) > 150) out.push(`unbalanced: ${Math.round(above)} px free above, ${Math.round(below)} px below → move the content ${above > below ? 'up' : 'down'} ~${Math.round(Math.abs(above - below) / 2)} px or fill the gap`); }
+  return out;
+};
+window.SLIDES = SLIDES; window.SFX = SFX;
+</script>
+</body></html>

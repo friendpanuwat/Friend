@@ -1,0 +1,30 @@
+{
+ "_ref": "ขาว/ดำ + ก้อนน้ำเงินโคบอลต์มีเกรน เส้นบาง มุมเหลี่ยม (แนว editorial agency)",
+ "accent": "#1E3BFF",
+ "accent_ink": "#FFFFFF",
+ "accent_on_light": "#1E3BFF",
+ "neg": "#FF4D3D",
+ "dark": {
+  "bg": "#030306",
+  "bg2": "#0A0B16",
+  "fg": "#F4F5FF",
+  "muted": "rgba(244,245,255,.62)",
+  "surface": "rgba(255,255,255,.05)",
+  "line": "rgba(255,255,255,.28)"
+ },
+ "light": {
+  "bg": "#F1F1EE",
+  "bg2": "#FFFFFF",
+  "fg": "#070816",
+  "muted": "#5B5D6E",
+  "surface": "#FFFFFF",
+  "line": "rgba(7,8,22,.3)"
+ },
+ "texture": "grain",
+ "glow": "blob",
+ "card": "outline",
+ "radius": 0,
+ "title_weight": 400,
+ "num_weight": 200,
+ "ornament": "plus"
+}

@@ -1,0 +1,30 @@
+{
+ "_ref": "ดำเขียวมะนาว + glow + การ์ดกระจก (แนว CPACASH / app showcase)",
+ "accent": "#C8F43C",
+ "accent_ink": "#0E1006",
+ "accent_on_light": "#4F6B00",
+ "neg": "#FF5A4E",
+ "dark": {
+  "bg": "#0B0C09",
+  "bg2": "#171A12",
+  "fg": "#F3F6EC",
+  "muted": "rgba(243,246,236,.62)",
+  "surface": "rgba(255,255,255,.06)",
+  "line": "rgba(255,255,255,.12)"
+ },
+ "light": {
+  "bg": "#ECEEE8",
+  "bg2": "#FFFFFF",
+  "fg": "#14160F",
+  "muted": "#62665A",
+  "surface": "#FFFFFF",
+  "line": "rgba(20,22,15,.12)"
+ },
+ "texture": "grain",
+ "glow": true,
+ "card": "glass",
+ "radius": 36,
+ "title_weight": 600,
+ "num_weight": 300,
+ "ornament": "sparkles"
+}
