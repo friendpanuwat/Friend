@@ -15,7 +15,7 @@ const STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860
       const q = c?.getBoundingClientRect(); return {std: c?.dataset.std ?? null, card: c ? R(c) : null, stage: R(st), xy: q ? [q.left, q.top] : null}; }, t0);
     const [k, s] = (r.std ?? '').split(':'), box = k ? STD[k].map(v => Math.round(v * s)) : null;
     if (process.argv[3] && k) {
-      const [cw, ch] = r.card, [bw, bh] = [box[0] + 52, box[1] + 70], [x, y] = r.xy, a = name === 'top' ? 'bottom' : /side|screen/.test(name) ? 'center' : 'top';
+      const [cw, ch] = r.card, [bw, bh] = box, [x, y] = r.xy, a = name === 'top' ? 'bottom' : /side|screen/.test(name) ? 'center' : 'top';
       const bx = x + cw / 2 - bw / 2, by = a === 'bottom' ? y + ch - bh : a === 'center' ? y + ch / 2 - bh / 2 : y;
       await p.evaluate(([bx, by, bw, bh, x, y, cw, ch, lab]) => { document.querySelectorAll('.cs-mark').forEach(e => e.remove());
         const d = (css, t = '') => { const e = document.createElement('div'); e.className = 'cs-mark'; e.style.cssText = 'position:fixed;z-index:999;box-sizing:border-box;' + css; e.textContent = t; document.body.appendChild(e); };

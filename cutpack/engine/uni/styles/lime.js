@@ -60,7 +60,7 @@ const LIME_HIGH = {talk_top: ['lead', 'key'], big: ['lead', 'key']};
 const LIME_ANCHOR = {hands: 'top', cta: 'top', big: 'top', screen: 'top', split_top: 'top', split_bottom: 'top', top: 'bottom', side_l: 'center', side_r: 'center'};
 /* THE 6 STANDARD MOTION-GRAPHIC SIZES (Friend 2026-11-19, common.md 4.1 · lime.md 16: "ผมเลยอยากกำหนดมาตรฐานขนาดของ motion graphic" ·
    "เราจะฟิกขนาดของ motion graphic เฉยๆเราไม่ได้จะมาดีไซน์สไตล์ใหม่"): the picture is one of the standard sizes, scaled from the corner between
-   65% and 100% to the room this face leaves (the first size of the screen's order that fits); the card is the picture + its padding, at the
+   65% and 100% to the room this face leaves (the first size of the screen's order that fits); the card IS that size (padding inside), at the
    screen's old anchor; under 65% for every size of the order = the screen does not come up in this clip (limeRoom). The dark screen's card sits
    in the middle of the screen with its words moved up, the key word still 150 over the card (Friend: "ฉากนี้ต้องอยู่กึ่งกลางจอ ตรงกลางเลยนะ ...
    เว้นระยะห่างกับซับไตเติ้ลเหมือนเดิม" → "แบบนี้โอเคครับ"). */
@@ -68,17 +68,16 @@ const LIME_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5:
 const LIME_ORDER = {hands: [3, 2, 1], cta: [3, 2, 1], big: [2, 1], top: [2, 3, 1], split_top: [2, 3], side_l: [4], side_r: [4], split_bottom: [2, 1]};
 const LIME_MIN = .65;
 function limeShape(L, ar, name) {
+  /* the CARD is the standard size scaled from the corner (its shape exact), the card's padding inside it, the picture in the padding at its own
+     shape (Friend 2026-11-19: "แบบนี้มันไม่ได้ย่อตรงมุมนี่" · "ขนาดของการ์ดอ่ะมันก็คือ motion graphic ในสไตล์ที่ไม่มีการ์ด" · "การ์ดดูโล่งได้
+     เพราะเดี๋ยวจะทำภาพชุดใหม่" · "แก้ได้ครับ"); returns null when no size of the screen's order reaches 65% here */
   if (!L.card) return L;
-  /* the picture inside the standard box at its own shape, the card around the picture (lime.md 4.3, final 2026-11-18: the card follows the picture) */
-  const card = (k, s) => { const [W, H] = LIME_STD[k], bw = W * s, bh = H * s, r = ar || bw / bh, pw = r > bw / bh ? bw : bh * r, ph = r > bw / bh ? bw / r : bh;
-    return [Math.round(pw + 52), Math.round(ph + 70), Math.round(bw + 52), Math.round(bh + 70), Math.sqrt(pw * ph / (W * H))]; };   // the last: how big the PICTURE is against the full size
+  const size = (k, s) => LIME_STD[k].map(v => Math.round(v * s));
   if (name === 'screen') {                                        // 5 (wide) or 6 (tall) by the picture's shape, in the middle of the screen
-    const near = Math.abs(Math.log((ar || 1.21) / 1.21)) <= Math.abs(Math.log((ar || 1.21) / .89)) ? 5 : 6;
-    const gap = L.card[1] - (L.key.y + 95), lk = L.key.y - L.lead.y, maxH = 2 * (960 - (220 + 40 + lk + 95 + gap));   // the words never under the search bar
-    const k = [near, 11 - near].find(k => { const [W, H] = LIME_STD[k], s = Math.min(1, (860 - 52) / W, (maxH - 70) / H); return s >= LIME_MIN && card(k, s)[4] >= LIME_MIN; });
-    if (!k) return null;
-    const [W, H] = LIME_STD[k], s = Math.min(1, (860 - 52) / W, (maxH - 70) / H);
-    const [cw, ch] = card(k, s), ny = Math.round(960 - ch / 2);   // the card's own middle on the screen's middle
+    const k = Math.abs(Math.log((ar || 1.21) / 1.21)) <= Math.abs(Math.log((ar || 1.21) / .89)) ? 5 : 6, [W, H] = LIME_STD[k];
+    const gap = L.card[1] - (L.key.y + 95), lk = L.key.y - L.lead.y, maxH = 2 * (960 - (220 + 40 + lk + 95 + gap));   // 100%, smaller only when the words would reach the search bar
+    const s = Math.min(1, 860 / W, maxH / H); if (s < LIME_MIN) return null;
+    const [cw, ch] = size(k, s), ny = Math.round(960 - ch / 2);
     L.card = [Math.round(Math.min(Math.max(540 - cw / 2, 60), 920 - cw)), ny, cw, ch]; L.stage = limeInner(L.card);
     L.key.y = ny - gap - 95; L.lead.y = L.key.y - lk; if (L.bloom) L.bloom = [540, 960]; L.std = [k, s];
     return L;
@@ -90,12 +89,10 @@ function limeShape(L, ar, name) {
   if (name === 'side_l') X1 = Math.min(920, L.lead.x - L.lead.maxW / 2 - 20);   // not into the words beside the card
   if (name === 'side_r') X0 = Math.max(60, L.lead.x + L.lead.maxW / 2 + 20);
   for (const k of LIME_ORDER[name] ?? [2]) {
-    const [W, H] = LIME_STD[k], s = Math.min(1, (X1 - X0 - 52) / W, (Y1 - Y0 - 70) / H);
+    const [W, H] = LIME_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H);
     if (s < LIME_MIN) continue;
-    const [cw, ch, bw, bh, big] = card(k, s), cx = x + w / 2;
-    if (big < LIME_MIN) continue;                                   // a picture of another shape would come out under 65% of this size
-    const by = a === 'bottom' ? Y1 - bh : Y0, ny = a === 'bottom' ? by + bh - ch : a === 'center' ? by + (bh - ch) / 2 : by;   // at the screen's anchor inside the box
-    L.card = [Math.round(Math.min(Math.max(cx - cw / 2, X0), X1 - cw)), Math.round(ny), cw, ch]; L.stage = limeInner(L.card);
+    const [cw, ch] = size(k, s), cx = x + w / 2;
+    L.card = [Math.round(Math.min(Math.max(cx - cw / 2, X0), X1 - cw)), Math.round(a === 'bottom' ? Y1 - ch : Y0), cw, ch]; L.stage = limeInner(L.card);
     L.std = [k, s];
     return L;
   }
