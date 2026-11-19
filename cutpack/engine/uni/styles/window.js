@@ -109,12 +109,15 @@ function winShape(L, name, key) {
   const [x, y, w, h] = L.win;
   let X0 = 60, X1 = 920, Y0 = y, Y1 = y + h;                      // speaker screens: winFit gave the room (under the words to 1660, or over the head)
   if (name === 'float') { X0 = x; Y1 = 1660; }                    // right of the face frame's column, as on the sheet
-  if (name === 'stats') Y1 = 1660;
+  if (name === 'stats') {                                         /* the window's right edge on the face frame's, in the middle of the screen (Friend
+     2026-11-19: "อยากให้เส้นสีแดงกับเส้นสีเหลืองที่ผมขีดไว้ตรงกัน แต่การ์ดต้องอยู่กึ่งกลางจอนะ" · "ทำแค่ฉากนี้ฉากเดียว"): as wide as
+     2 × (frame right − 540), its bottom on 1660, its top up to 90 under the frame */
+    const fr = L.frame[0] + L.frame[2], fb = L.frame[1] + L.frame[3]; X0 = 1080 - fr; X1 = fr; Y0 = fb + 90; Y1 = 1660; }
   if (name === 'cascade') { X1 = x + w; Y1 = 1660; }              // the front window keeps its step from the back one
   for (const k of WIN_ORDER[name] ?? [2]) {
     const [W, H] = WIN_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H); if (s < WIN_MIN) continue;
-    const [cw, ch] = size(k, s), cx = name === 'cascade' ? X0 + cw / 2 : x + w / 2;
-    L.win = [Math.round(Math.min(Math.max(cx - cw / 2, X0), X1 - cw)), L.top ? Y1 - ch : Y0, cw, ch];   // over the head: down to the hair (as lime's top card) · else under the words
+    const [cw, ch] = size(k, s), cx = name === 'cascade' ? X0 + cw / 2 : name === 'stats' ? 540 : x + w / 2;
+    L.win = [Math.round(Math.min(Math.max(cx - cw / 2, X0), X1 - cw)), L.top || name === 'stats' ? Y1 - ch : Y0, cw, ch];   // over the head and stats: down to the room's bottom   // over the head: down to the hair (as lime's top card) · else under the words
     L.std = [k, s]; return L;
   }
   return null;
