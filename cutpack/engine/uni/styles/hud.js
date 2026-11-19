@@ -67,6 +67,11 @@ const HUD = {
        from under the search bar (220) to 140 over the face box; its height from the clip's face (hudFit) · the words at the chest as talk */
     /* final point 14 (Friend's shots 06 · 08): the picture above, the words under it, the pair in the middle of the screen */
     hud_page:  {screen: true, pic: [160, 300, 760, 760], lead: {x: 540, y: 1160}, key: {x: 540, y: 1295}},
+    /* final 2026-11-18 (Friend's version, shots 06 · 02 · 12: "ผมชอบพวกนี้มาก"): a list card of the picture's next subtitles (numbered, or
+       a checklist), the words in the middle, the picture on the other side · the card's header a skeleton bar (no small spaced label) ·
+       x 100–980 (60 px under TikTok's buttons, as hud_card) */
+    hud_listB: {screen: true, wide: true, rows: 3, pic: [160, 230, 760, 520], lead: {x: 540, y: 850}, key: {x: 540, y: 985}, list: [100, 1120, 880, 540]},
+    hud_listT: {screen: true, wide: true, rows: 3, list: [100, 220, 880, 540], lead: {x: 540, y: 855}, key: {x: 540, y: 990}, pic: [160, 1120, 760, 540]},
     hud_top:   {speaker: true, top: true, fitFrom: 940, corners: [100, 220, 880, 600], pic: [124, 244, 832, 552], lead: {x: 540, y: 1023}, key: {x: 540, y: 1160}},
     hud_cta:   {speaker: true, noPic: true, fitFrom: 970, corners: [160, 980, 760, 350], lead: {x: 540, y: 1053}, key: {x: 540, y: 1190},           // shot 12
                 notes: [{path: [[540, 1330], [540, 1480], [690, 1480]], text: {x: 710, y: 1478, align: 'left'}, y: true, yText: true}]},   // (the sheet's dot at 760: its words ran to 965)
@@ -76,10 +81,13 @@ const HUD = {
      its words) and not twice within 5 pictures nor first, among those with a picture the ones that show this picture's shape at
      least 75 % as big as the best, then the least used, then at random from the run's seed */
   /* final 2026-11-18: hud_path out (its notes were all it had: with no notes it is the talk screen) · hud_top in */
-  pool: ['hud_open', 'hud_row', 'hud_diag', 'hud_card', 'hud_time', 'hud_split', 'hud_rail', 'hud_measure', 'hud_word', 'hud_cta', 'hud_top', 'hud_page'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
+  /* final 2026-11-18 ("สไตล์นี้ ... ยังดูกากๆที่สุด ... ผมอยากได้แบบ professional" → "เริ่ม", Claude's ก–จ + the list cards of Friend's version):
+     out: the pictures at the hands (hud_row, hud_rail: small and over the hands) and the screens of corners and words only (hud_open,
+     hud_word, hud_cta: with no corners round the words they are the talk screen) · in: the two list-card screens */
+  pool: ['hud_diag', 'hud_card', 'hud_time', 'hud_split', 'hud_measure', 'hud_top', 'hud_page', 'hud_listB', 'hud_listT'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
   byCat: {B15: 'hud_cta'},
   keep: .75, noPicGap: 4, sinceNoPic: 4,
-  spkMin: 82944,   // final 2026-11-18 (Friend chose "ก" on "motion graphic เล็กเกินไป"): a speaker screen with a picture shows it at least 4 % of the screen (1080 × 1920 × .04), else another screen
+  spkMin: 82944, scrMin: 248832,   // scrMin: final ("จ"): a graphic screen's picture at least 12 % of the screen (1080 × 1920 × .12), else another screen   // final 2026-11-18 (Friend chose "ก" on "motion graphic เล็กเกินไป"): a speaker screen with a picture shows it at least 4 % of the screen (1080 × 1920 × .04), else another screen
   gridUp: 12,
   used: {}, last: null, place: {top: 0, low: 0},   // place: speaker screens with the picture over the head / anywhere else
   /* final 2026-11-18 (Friend, a screen with its three callouts ringed in red: "ลบจุดที่ผมวงกลมสีแดงไว้ลบทั้งคลิปเลยนะไม่ให้ในสไตล์นี้มีเลย"):
@@ -180,6 +188,7 @@ STYLE('hud', {
   css: `
 @font-face{font-family:"HudLead";src:url(fonts/Kanit-500-thai.woff);font-weight:500;unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
 @font-face{font-family:"HudLead";src:url(fonts/Kanit-500-latin.woff);font-weight:500;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F}
+@font-face{font-family:"HudThin";src:url(fonts/Kanit-300.woff);font-weight:300}
 @font-face{font-family:"HudKey";src:url(fonts/Kanit-900-thai.woff);font-weight:900;unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
 @font-face{font-family:"HudKey";src:url(fonts/Kanit-900-latin.woff);font-weight:900;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F}
 .h-root{position:absolute;inset:0;--ink:#F5F5F2;--ac:#FFD600;--lw:5;--sd:#F5F5F2;--fl:rgba(14,14,14,.85);--text:#F5F5F2}
@@ -195,10 +204,20 @@ STYLE('hud', {
 .h-text{position:absolute;inset:0}
 .h-row{position:absolute;white-space:nowrap}
 .h-row i{font-style:normal}
-.h-lead{font-family:"HudLead","Anu",sans-serif;font-weight:500;font-size:51px;line-height:1.3;color:#FFFFFF;text-shadow:0 0 3px rgba(0,0,0,.85),0 2px 12px rgba(0,0,0,.6)}
-.h-key{display:inline-block;font-family:"HudKey";font-weight:900;font-size:155px;line-height:1.1;padding:.1em .04em;color:transparent;
-  background:linear-gradient(180deg,#FFFBE6 0%,#FFF0A8 30%,#FFD84A 62%,#FFC21A 100%);-webkit-background-clip:text;background-clip:text;
-  filter:drop-shadow(0 0 2px rgba(255,236,160,.9)) drop-shadow(0 0 12px rgba(255,190,30,.85)) drop-shadow(0 0 28px rgba(255,170,0,.55))}
+/* final 2026-11-18 ("แบบ professional", Friend's version): the lead thin (Kanit 300, was 500) · the key word solid yellow with crisp edges
+   and only a faint glow round it (was a white-to-yellow gradient with three glows: soft edges on the video) */
+.h-lead{font-family:"HudThin","Anu",sans-serif;font-weight:300;font-size:54px;line-height:1.3;color:#FFFFFF;text-shadow:0 0 3px rgba(0,0,0,.7),0 2px 14px rgba(0,0,0,.55)}
+.h-key{display:inline-block;font-family:"HudKey";font-weight:900;font-size:150px;line-height:1.1;padding:.1em .04em;color:#FFC93A;
+  text-shadow:0 2px 14px rgba(0,0,0,.45),0 0 26px rgba(255,180,30,.28)}
+.h-list{position:absolute;border-radius:30px;background:rgba(24,19,14,.94);border:1.5px solid rgba(255,255,255,.08);box-shadow:0 30px 60px rgba(0,0,0,.45);box-sizing:border-box}
+.h-list .sk{position:absolute;height:14px;border-radius:7px;background:rgba(255,255,255,.12)}
+.h-list .sk.y{background:rgba(255,201,58,.32)}
+.h-list .ln{position:absolute;height:1px;background:rgba(255,255,255,.08)}
+.h-crow{font-family:"HudLead","Anu",sans-serif;font-weight:500;font-size:54px;line-height:1.3;color:#8E8780}
+.h-num{position:absolute;font-family:"HudKey";font-weight:800;font-size:64px;line-height:1;color:#6E655A;translate:0 -50%}
+.h-chk{position:absolute;width:52px;height:52px;margin:-26px 0 0;border-radius:50%;border:3px solid #6E655A;box-sizing:border-box}
+.h-chk.on{background:#FFC93A;border-color:#FFC93A}
+.h-chk.on::after{content:"";position:absolute;left:14px;top:8px;width:13px;height:22px;border:solid #1A140C;border-width:0 5px 5px 0;transform:rotate(45deg)}
 .h-note{font-family:"HudLead","Anu",sans-serif;font-weight:500;font-size:38px;line-height:1.3;color:#FFFFFF;text-shadow:0 0 3px rgba(0,0,0,.9),0 1px 8px rgba(0,0,0,.7)}
 .h-note.h-ny{color:#FFD84A}
 .h-nbox{position:absolute;background:#121212;border-radius:6px}
@@ -226,7 +245,7 @@ STYLE('hud', {
   setup() { BGL.style.background = '#000'; HOOKS.push(cpInsetHook);
     /* load this style's fonts at once (2026-11-18): build.py preloads only the older styles' families, so the words were fitted to the safe
        zone with the fallback font and came out wider in Kanit (the key word "กังวลอยู่" ran to x 943 once the speaker screens joined) */
-    ['HudKey', 'HudLead'].forEach(f => div(`left:-9999px;top:0;font-family:${f};font-weight:${f === 'HudKey' ? 900 : 500}`, document.body, 'กขคฅ ึ่้ 0123 Ab')); },
+    [['HudKey', 900], ['HudLead', 500], ['HudThin', 300]].forEach(([f, w]) => div(`left:-9999px;top:0;font-family:${f};font-weight:${w}`, document.body, 'กขคฅ ึ่้ 0123 Ab')); },
 
   /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
@@ -239,7 +258,9 @@ STYLE('hud', {
     const more = ch ? Math.max(0, ch.length - 1) : (meta.rows?.length ?? 0);
     let name = meta.layout;
     if (!name) {
-      const ok = n => { const L = HUD.layouts[n]; if (L.noPic && (more < 2 || index === 0 || HUD.sinceNoPic < HUD.noPicGap)) return false; return !!hudFit(n, face); };
+      const ok = n => { const L = HUD.layouts[n]; if (L.noPic && (more < 2 || index === 0 || HUD.sinceNoPic < HUD.noPicGap)) return false;
+        if (L.rows && more < 2) return false;   // a list card needs at least two more subtitles for its rows
+        return !!hudFit(n, face); };
       const want = HUD.byCat[String(meta.cat ?? '').slice(0, 3)];
       if (want && ok(want)) name = want;
       else {
@@ -250,6 +271,7 @@ STYLE('hud', {
           const size = n => { const p = hudFit(n, face)?.pic; if (!p) return 0; const [, , w, h] = p; return ar > w / h ? w * w / ar : h * h * ar; };
           pool = cpSizeKeep(pool, size, HUD.keep, n => !!HUD.layouts[n].speaker, n => !!HUD.layouts[n].noPic);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
           const big = pool.filter(n => !HUD.layouts[n].speaker || HUD.layouts[n].noPic || size(n) >= HUD.spkMin); if (big.length) pool = big;   // (hud: 4 %, not the shared 30000 px²)
+          const full = pool.filter(n => HUD.layouts[n].speaker || size(n) >= HUD.scrMin); if (full.length) pool = full;   // a graphic screen: the picture at least 12 % of the screen ("จ")
         }
         pool = cpBalance(pool, n => !!HUD.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
         /* a speaker screen: the picture over the head or not as often (as the window style's final: "เพื่อความหลากหลาย"); the less used, a tie by the run's seed */
@@ -309,6 +331,26 @@ STYLE('hud', {
     if (!L.pic) stage.style.visibility = 'hidden';
     else A(stage, [{opacity: 0, transform: 'translateY(24px) scale(.94)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .05, .45, {e: EASE.soft});
     const F = {root, stage, stages, cam: root, L, name, dark: screen, t1, n: 0, meta, svg, notes: []};
+    /* the list card (final: Friend's version shots 06 · 12): up to three of the picture's next subtitles, grey until said, then white
+       with its number or check lit yellow; numbered or a checklist at random from the run's seed; the header a skeleton bar */
+    if (L.list) { const rows = [];
+      for (let k = 0; k < L.rows; k++) { const words = ch ? ch[k + 1]?.words : meta.rows?.[k]; if (words) rows.push(words); }
+      const top = 100, rh = 150, [x, y, w] = L.list, h = Math.min(L.list[3], top + rh * rows.length + 30);   // the card as tall as its rows
+      const card = box([x, y, w, h]); card.className = 'h-list';   // (wide: left out of the safe-zone check, as hud_card)
+      A(card, [{opacity: 0, transform: 'translateY(30px)'}, {opacity: 1, transform: 'none'}], t0 + .05, .45, {e: EASE.soft});
+      div('left:44px;top:46px;width:190px', card).className = 'sk'; div('right:44px;top:46px;width:120px', card).className = 'sk y';
+      const num = cpRand('list' + index) < .5;
+      rows.forEach((words, k) => { const cy = y + top + rh * (k + .5), t = t0 + .3 + .12 * k;
+        if (k) div(`left:44px;right:44px;top:${top + rh * k}px`, card).className = 'ln';
+        const mk = div(`left:${x + 50}px;top:${cy}px`, root); mk.className = num ? 'h-num' : 'h-chk'; if (num) mk.textContent = String(k + 1).padStart(2, '0');
+        const r = hudNote(root, words, 'h-crow', {x: x + (num ? 160 : 130), y: cy, align: 'left', maxW: w - (num ? 210 : 180)});
+        [mk, r].forEach(e => A(e, [{opacity: 0, transform: 'translateY(10px)'}, {opacity: 1, transform: 'none'}], t, .35, {e: EASE.soft, f: 'both'}));
+        const light = at => { A(r.firstChild, [{color: '#8E8780'}, {color: '#FFFFFF'}], at, .25, {f: 'forwards'});
+          if (num) A(mk, [{color: '#6E655A'}, {color: '#FFC93A'}], at, .25, {f: 'forwards'});
+          else { const on = div(`left:${x + 50}px;top:${cy}px`, root); on.className = 'h-chk on'; A(on, [{opacity: 0, transform: 'scale(.4)'}, {opacity: 1, transform: 'scale(1)'}], at, .3, {e: EASE.soft, f: 'both'}); } };
+        F.notes.push({r, dot: null, light});
+        if (!ch) light(t0 + .6); });
+    }
     /* the notes: every line and dot from the start; the words of the picture's next subtitles in grey from the start, white (or
        yellow) when said (a still: as the sheet, all said) */
     if (HUD.noNotes) { if (L.timeline) (L.notes ?? []).forEach((n, k) => n.dot && hudDot(svg, n.dot, n.y, t0 + .65 + .12 * k)); }   // ("ก1": the timeline's dots, lit, no words)
@@ -330,10 +372,8 @@ STYLE('hud', {
   /* between pictures: the words at the chest inside HUD corners, moved below the chin when the face is low */
   speakerFrame(a, b) {
     const L = hudFit('talk', cpFaceBox(a, b)) ?? JSON.parse(JSON.stringify(HUD.layouts.talk)), root = div('', SC); root.className = 'h-root';
-    const svg = hudSvg(root), [x, y, w, h] = L.corners, s = 60;
-    [`M ${x} ${y + s} V ${y} H ${x + s}`, `M ${x + w - s} ${y} H ${x + w} V ${y + s}`, `M ${x} ${y + h - s} V ${y + h} H ${x + s}`, `M ${x + w - s} ${y + h} H ${x + w} V ${y + h - s}`]
-      .forEach(d => { const p = document.createElementNS(HUD_NS, 'path'); p.setAttribute('d', d); p.setAttribute('class', 'h-corner cp-frame'); svg.appendChild(p);
-        A(p, [{opacity: 0}, {opacity: 1}], a - .02, .001, {f: 'both'}); A(p, [{opacity: 1}, {opacity: 0}], b - .021, .001, {f: 'forwards'}); });   // (one block after another: steady corners)
+    /* final 2026-11-18 ("ง"): no HUD corners round the words any more (they crossed the hands and added nothing); L.corners still places the words */
+    const svg = hudSvg(root);
     /* final 2026-11-18 (Friend: "อยากให้ขอบมุมทั้ง 4 มุมที่อยู่ครอบ subtitle ... เวลา subtitle มันขยับ ... อยากให้ไอ้ขอบเนี้ยมันขยับตามแบบสมูท"): each block
        sits under its own chin, so a block right after another can sit a few px to 30 px lower or higher: the corners and the words glide
        from the last block's place to this one's in .35 s instead of jumping */
@@ -366,6 +406,7 @@ STYLE('hud', {
     if (!words && !(F.stillRows && T.clip !== true)) return null;
     const n = F.n++, start = T.b[0] - .02, N = F.notes[n - 1];
     if (n === 0) head(T.t0);
+    else if (N && N.light) { N.light(start); sfx('softswish', start, -26); }
     else if (N) { A(N.r.firstChild, [{color: '#9C9C9C'}, {color: N.r.firstChild.classList.contains('h-ny') ? '#FFD84A' : '#FFFFFF'}], start, .25, {f: 'forwards'});
       if (N.dot) { A(N.dot, [{fill: '#8A8A8A'}, {fill: N.dot.classList.contains('h-y') ? '#FFC93A' : '#F2F2F2'}], start, .25, {f: 'forwards'});
         A(N.dot, [{transform: 'scale(1)'}, {transform: 'scale(1.8)', offset: .4}, {transform: 'scale(1)'}], start, .4, {e: EASE.soft}); }
