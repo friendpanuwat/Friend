@@ -102,7 +102,7 @@ function winShape(L, name, key) {
     const first = key != null && cpRand(key) >= .6 ? 6 : 5, k = sOf(first) >= WIN_MIN ? first : 11 - first, s = sOf(k);
     if (s < WIN_MIN) return null;
     const [w, h] = size(k, s), y = Math.round(960 - h / 2);
-    L.win = [Math.round(540 - w / 2), y, w, h]; L.key.y = y - gap - 65; L.lead.y = L.key.y - lk;
+    L.win = [Math.round(Math.min(Math.max(540 - w / 2, 60), 920 - w)), y, w, h]; L.key.y = y - gap - 65; L.lead.y = L.key.y - lk;   // in the middle, kept in 60–920 (TikTok's buttons, as lime: 860 wide = 60–920)
     L.ringUp = Math.max(L.ringUp ?? 0, 230 + Math.max(0, 645 - y));   // the top ring keeps off the words when they move up
     L.std = [k, s]; return L;
   }
