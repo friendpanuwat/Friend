@@ -80,7 +80,7 @@ function limeShape(L, ar, name) {
     const [W, H] = LIME_STD[k], s = Math.min(1, (860 - 52) / W, (maxH - 70) / H);
     const [cw, ch] = card(k, s), ny = Math.round(960 - ch / 2);   // the card's own middle on the screen's middle
     L.card = [Math.round(Math.min(Math.max(540 - cw / 2, 60), 920 - cw)), ny, cw, ch]; L.stage = limeInner(L.card);
-    L.key.y = ny - gap - 95; L.lead.y = L.key.y - lk; if (L.bloom) L.bloom = [540, 960];
+    L.key.y = ny - gap - 95; L.lead.y = L.key.y - lk; if (L.bloom) L.bloom = [540, 960]; L.std = [k, s];
     return L;
   }
   const [x, y, w, h] = L.card, a = LIME_ANCHOR[name] ?? 'center';
@@ -235,7 +235,7 @@ STYLE('lime', {
     /* the cards rise in, one after another; each picture lives INSIDE its card (it rises with it, and the bridge reads the card's
        dark glass as the picture's ground: darker tiles, as on the sheet) */
     const inner = ([, , w, h]) => [26, 44, w - 52, h - 70];
-    const cards = (L.cards ?? (L.card ? [L.card] : [])).map((c, k) => { const e = box(c); e.className = 'l-card' + (L.screen || L.split ? ' l-on-dark' : '');   // on the charcoal screens: a lime edge
+    const cards = (L.cards ?? (L.card ? [L.card] : [])).map((c, k) => { const e = box(c); e.className = 'l-card' + (L.screen || L.split ? ' l-on-dark' : ''); if (L.std) e.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3);   // for tools/card_sizes.js   // on the charcoal screens: a lime edge
       A(e, [{opacity: 0, transform: 'translateY(40px) scale(.94)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .02 + .12 * k, .45, {e: EASE.soft});
       return box(inner(c), e); });
     const stage = L.card ? cards[0] : box([0, 0, 1, 1]);
