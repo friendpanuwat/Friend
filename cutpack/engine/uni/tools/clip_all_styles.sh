@@ -17,6 +17,9 @@ for st in "${styles[@]}"; do
   P=$W/st_$st; s=$(date +%s); mkdir -p "$P"
   ln -sfn "$W/base/src_frames" "$P/src_frames"; ln -sfn "$W/base/voice.wav" "$P/voice.wav"
   python3 "$E/uni/build.py" "$P" "$st" "${first[@]}" --extra "$plan" "${then[@]}" > "$P/build.log"
+  if grep -q 'realShapes: true' "$E/uni/styles/$st.js" && [ -n "$id" ]; then   # the pictures' real shapes, then build again (tools/real_shapes.js, 2026-11-18 neon)
+    node "$E/uni/tools/real_shapes.js" "$P" "$P/real_shapes.js" > "$P/shapes.log"
+    python3 "$E/uni/build.py" "$P" "$st" "${first[@]}" --extra "$plan" --extra "$P/real_shapes.js" "${then[@]}" > "$P/build.log"; fi
   for step in render audio encode; do bash "$E/core/pipeline.sh" "$P" "$W/clip.mp4" $step > "$P/$step.log" 2>&1 < /dev/null; done
   echo "$st · $(tail -1 "$P/render.log") · $(grep -E 'I:' "$P/audio.log" | tail -1 | tr -s ' ') · $(stat -c %s "$P/edit.mp4") bytes · $(( $(date +%s) - s )) s"
 done

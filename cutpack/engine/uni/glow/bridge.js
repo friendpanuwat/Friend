@@ -20,7 +20,7 @@ const GLOWLOOK = {
   split: {acc: '--ac',     glow: null,                          weight: {k: 1.45, min: 2.6}},  // split: flat pastel, medium lines
   gold:  {acc: '--ac',     glow: {c: '#FF9A2E', all: false},    weight: {k: 1.3, min: 2.4}},   // gold: only the orange accent glows
   /* the new styles (Friend 2026-11-17 cancelled the 4 above and is replacing them with 12 sheets made with AI, copied 100%) */
-  neon:  {acc: '--ac',     glow: {c: '#2FA8F0', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5},
+  neon:  {acc: '--ac',     glow: {c: '#2FA8F0', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, clipRoom: true},   // clipRoom: final 2026-11-18 (B06T radar's waves grew past its box onto the key word, test clip 24 s; shrinking the pictures to their motion took the first one from 17 % of the screen to 10 %)
   window: {acc: '--ac',    glow: {c: '#3E86FF', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},    // หน้าต่างแอป (Friend's 3rd new sheet, 2026-11-18): the glass look in app windows, blue light
   violet: {acc: '--ac',    glow: {c: '#8B5CF6', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},   // ม่วงคลื่นเสียง (Friend's 5th new sheet, 2026-11-18): the glass look in violet cards, violet light
   teal:  {acc: '--ac',     glow: {c: '#3FCEBA', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},
@@ -64,12 +64,22 @@ function glowMotionBox(svg, e, t0, t1, cap = .2) {
    drawing fills the box W × H (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย"); only when its motion
    runs out of the box (12 px of slack: a window's padding) the motion's box fills it instead, so a picture shrinks only when it has to
    (fitting every picture to its motion took the window clip's pictures from 13 % of the screen to 10 %) */
-function glowFit(svg, at, t1, W, H) {
+function glowFit(svg, at, t1, W, H, room = null) {
+  /* room (the neon style only, final 2026-11-18): the free space around the box on each side in px {l, t, r, b} (to the words, the face's
+     frame, the safe zone), which the motion may use before the picture shrinks; else 12 px on every side (the window style's padding) */
   const pad = b => { const p = Math.max(b.width, b.height) * .03; return {x: b.x - p, y: b.y - p, width: b.width + 2 * p, height: b.height + 2 * p}; };
   const e = glowVisibleBox(svg), u = glowMotionBox(svg, e, at + .4, t1);
-  let v = pad(e); const s = Math.min(W / v.width, H / v.height), sl = 12 / s;
-  const rx = v.x - (W / s - v.width) / 2 - sl, ry = v.y - (H / s - v.height) / 2 - sl;
-  if (u.x < rx || u.y < ry || u.x + u.width > rx + W / s + 2 * sl || u.y + u.height > ry + H / s + 2 * sl) v = pad(u);
+  let v = pad(e); const s = Math.min(W / v.width, H / v.height), R = room ?? {l: 12, t: 12, r: 12, b: 12};
+  const rx = v.x - (W / s - v.width) / 2, ry = v.y - (H / s - v.height) / 2;
+  if (u.x < rx - R.l / s || u.y < ry - R.t / s || u.x + u.width > rx + W / s + R.r / s || u.y + u.height > ry + H / s + R.b / s) {
+    if (!room) v = pad(u);
+    else {                                         // the smallest shrink that keeps the motion in the box and its room (k: how much wider the view gets)
+      const cx = v.x + v.width / 2, cy = v.y + v.height / 2;
+      const k = Math.min(1.6, Math.max(1, (cx - u.x) * s / (W / 2 + R.l), (u.x + u.width - cx) * s / (W / 2 + R.r), (cy - u.y) * s / (H / 2 + R.t), (u.y + u.height - cy) * s / (H / 2 + R.b)));
+      v = {x: cx - v.width * k / 2, y: cy - v.height * k / 2, width: v.width * k, height: v.height * k};
+    }
+  }
+  svg.dataset.motion = (u.width / u.height).toFixed(3);   // the shape of the whole motion (tools/real_shapes.js: a style picks the box the motion fits best)
   svg.setAttribute('viewBox', `${v.x} ${v.y} ${v.width} ${v.height}`);
 }
 /* DIMS (Friend 2026-11-17: "จำไว้เลยว่า สีมันต้องตัดกันเสมอ"): the templates dim what is not the point (the crowd around the chosen
@@ -104,8 +114,10 @@ const GLOW_FLOAT = {card: '#14213D', glass: '#0F1B2A', split: '#4B3D6E', gold: '
    colour. Per style: lit = the lit tile's wash · litBar = a lit bar's wash under white words · litIcon = the icon on a lit tile ·
    mark = a white mark on a solid accent shape · halo = the wide halo of every line */
 const GLASSY = {
-  neon: {lit: 'rgba(25,95,150,.85)', litBar: 'rgba(30,120,185,.6)', litIcon: '#CFEFFF', litBody: '#1A6390', mark: '#0B2238', halo: '#5AB8FF'},
-  window: {lit: 'rgba(40,110,230,.30)', litBar: 'rgba(40,110,230,.38)', litIcon: '#A8CCFF', litBody: '#16325C', mark: '#0B2238', halo: '#7FB0FF', outlineLit: true, glow: 1.3, fig: '#7586A3', washLit: true},   // fig: people 5:1 on the window, white edge 3.7:1 on them
+  neon: {lit: 'rgba(25,95,150,.85)', litBar: 'rgba(30,120,185,.6)', litIcon: '#CFEFFF', litBody: '#1A6390', mark: '#0B2238', halo: '#5AB8FF',
+    noEdge: true, centreBox: true},   // final 2026-11-18 (Friend): "ตัวหนังสือส่วยนี้ไม่ต้องมีกรอบ" · "ถ้ามีกรอบข้อความแบบนี้ อยากให้ icon และข้อความอยู่กึ่งกลาง"
+  window: {lit: 'rgba(40,110,230,.30)', litBar: 'rgba(40,110,230,.38)', litIcon: '#A8CCFF', litBody: '#16325C', mark: '#0B2238', halo: '#7FB0FF', outlineLit: true, glow: 1.3, fig: '#7586A3', washLit: true,
+    noPill: true, noEdge: true},   // final 2026-11-18 (Friend): "ลบกรอบตัวหนังสือที่ motion graphic ออกด้วยครับ": no box round a word alone, no dark edge under the words   // fig: people 5:1 on the window, white edge 3.7:1 on them
   violet: {lit: 'rgba(120,80,240,.24)', litBar: 'rgba(120,80,240,.30)', litIcon: '#C4AEFF', litBody: '#2A1A55', mark: '#160B30', halo: '#E8E0FF', outlineLit: true, glow: 1.3, fig: '#8A82A8', washLit: true},   // lit parts a violet outline (Friend's sheet)
   teal: {lit: 'rgba(40,190,165,.24)', litBar: 'rgba(40,190,165,.30)', litIcon: '#8FEBD9', litBody: '#123A33', mark: '#0A231F', halo: '#D8F5EE', outlineLit: true, glow: 1.3, fig: '#6E8C86', washLit: true},   // lit parts a teal outline (Friend's sheet), people teal-grey 4.3:1 on the card
   /* yellow (Friend's 6th sheet, sampled): the bodies are near-black, not frosted grey (#0A0A0A–#181818 on the screen, the hands show
@@ -113,8 +125,11 @@ const GLASSY = {
      on a lit tile → litMark (the blue styles' #CDEFFF) */
   yellow: {lit: 'rgba(24,20,4,.9)', litBar: 'rgba(64,53,0,.92)', litIcon: '#FFD600', litBody: '#2A2300', mark: '#1A1600', halo: '#FFF6D6', outlineLit: true, glow: 1.2, fig: '#7E7E7A', washLit: true,
     frost: ['rgba(12,12,12,.86)', 'rgba(10,10,10,.62)'], solid: '#161616', litMark: '#FFF3B0', litWord: true},   // litWord: the lit step's word is yellow too
-  hud: {lit: 'rgba(24,20,4,.9)', litBar: 'rgba(64,53,0,.92)', litIcon: '#FFD600', litBody: '#2A2300', mark: '#1A1600', halo: '#FFF6D6', outlineLit: true, glow: 1.2, fig: '#7E7E7A', washLit: true,
-    frost: ['rgba(12,12,12,.86)', 'rgba(10,10,10,.62)'], solid: '#161616', litMark: '#FFF3B0', litWord: true},   // เส้นชี้ HUD: the yellow style's values (the sheet's pictures are drawn alike)
+  hud: {lit: 'rgba(24,20,4,.9)', litBar: 'rgba(64,53,0,.92)', litIcon: '#FFD600', litBody: '#2A2300', mark: '#1A1600', halo: '#FFF6D6', outlineLit: true, fig: '#7E7E7A', washLit: true,
+    frost: ['rgba(12,12,12,.86)', 'rgba(10,10,10,.62)'], solid: '#161616', litMark: '#FFF3B0', litWord: true,
+    noPill: true, noEdge: true,    // เส้นชี้ HUD: the yellow style's values (the sheet's pictures are drawn alike) · final 2026-11-18 (Friend: "ลบกรอบตัวหนังสือที่โมชั่นกราฟิกออกด้วย"): as the window style's
+    glow: 1.2, glowHalo: 1.7, glowR: 30,   // final 2026-11-18 (Friend: "อยากให้มันเรืองแสงแบบละมุนกว่านี้แต่ต้องยังดูรู้เรื่อง" · "ผมอยากให้มันเรืองแสงมากกว่าเดิม"): only the wide halo glows more (opacity .72 → 1, 18 → 30 px); the glow close to the lines stays 1.2 (at 1.7 the white words bloomed shut: "เรืองแสงจนมันอ่านไม่รู้เรื่อง")
+    wordK: 1.15},                  // final 2026-11-18 (Friend: "ข้อความที่อยู่ข้างบน motion graphic อยากให้ใหญ่กว่านี้อีกนิดนึงแค่นิดเดียว"): the drawing's words 15 % bigger
   /* ขอบฟ้าส้ม (shot 04 full size, sampled): bodies a warm see-through brown (#2B1E16 on the screen), the lit tile a deep orange wash
      (#3D210) under an orange edge, its icon and word orange, the white lines warm (#FEF1E3) */
   /* เทอร์มินัลแดง (the full-size shots, sampled): near-black bodies in the windows, the lit tile a deep red wash under a red edge,
@@ -132,7 +147,11 @@ const GLASSY = {
     frost: ['rgba(14,14,16,.86)', 'rgba(12,12,14,.62)'], solid: '#18181B', litMark: '#FFC9C9', litWord: true},
   horizon: {lit: 'rgba(90,38,8,.45)', litBar: 'rgba(110,48,10,.55)', litIcon: '#FB7A1A', litBody: '#3A1C08', mark: '#2A1204', halo: '#FFE6CC', outlineLit: true, glow: 1.3, fig: '#8A7A70', washLit: true,
     frost: ['rgba(78,56,42,.5)', 'rgba(30,20,15,.6)'], solid: '#2A1C14', litMark: '#FFD9B0', litWord: true},
-  lime: {lit: 'rgba(120,170,25,.32)', litBar: 'rgba(120,170,25,.32)', litIcon: '#D4FA6A', litBody: '#2C3A12', mark: '#18220A', halo: '#EEF4E6', outlineLit: true, glow: 1.7},   // the white lines glow white on the sheet, only the lit part lime
+  /* lime final (2026-11-18, Friend's picture of three steps: "อยากให้ทำ motion graphic ให้เรืองแสงและมีสีเหมือนรูปที่แนบไป" · "ลบขอบของตัวหนังสือออกด้วย"):
+     sampled — the tiles are clear glass (the video shows through), white lines glowing white; the lit tile a deep see-through green
+     (#4E5C1F) under a lime edge, its icon and word lime (#D5FF3D) · noEdge: no dark edge under the words */
+  lime: {lit: 'rgba(70,95,10,.55)', litBar: 'rgba(70,95,10,.55)', litIcon: '#D5FF3D', litBody: '#2C3A12', mark: '#18220A', halo: '#F4F8EC', outlineLit: true, glow: .6,   /* 2.2 → .6 (Friend: "ลดความเรืองแสงของ motion graphic อีกเยอะๆเลย ตอนนี้มันเรืองแสงเกินไปมาก"; the draft had 1.7) */
+    frost: ['rgba(255,255,255,.07)', 'rgba(255,255,255,.06)'], litMark: '#EFFFB8', litWord: true, noEdge: true},
 };
 
 const glowCtx = document.createElement('canvas').getContext('2d');
@@ -388,6 +407,57 @@ function glowDress(svg, P, base) {
     }
   }
 }
+/* centreBox (the neon style only, Friend 2026-11-18 on the final: "ถ้ามีกรอบข้อความแบบนี้ อยากให้ icon และข้อความอยู่กึ่งกลาง", B18 ribbon's sign:
+   a mic and "พูดสดๆ" at its left, its right half empty): a text box (a rect at least twice as wide as tall, a word in it) whose icon and
+   words sit off its middle gets them moved to its middle, as one group, at the drawing's end. Only what lies wholly in the box and is
+   drawn after it moves; a box holding a wide shape (a bar's fill, a second box) is not a text box and stays as it is. */
+/* noPill (the window and hud styles only, Friend 2026-11-18 on the finals: "ลบกรอบตัวหนังสือที่ motion graphic ออกด้วยครับ", B06T's "คุณภาพ" pill):
+   a box (rect at least 1.4 times as wide as high) holding nothing but words loses its own layers (every non-word shape the box's size);
+   a box with an icon or a bar in it stays, and so does a box laid across or inside another drawing (without it the word would sit on the lines or a pale card) */
+function glowNoPill(svg) {
+  const root = svg.querySelector(':scope > g'); if (!root) return;
+  const box = e => e.getBoundingClientRect(), within = (q, r, m = 2) => q.left >= r.left - m && q.right <= r.right + m && q.top >= r.top - m && q.bottom <= r.bottom + m;
+  const same = (q, r) => Math.abs(q.left - r.left) < 8 && Math.abs(q.right - r.right) < 8 && Math.abs(q.top - r.top) < 8 && Math.abs(q.bottom - r.bottom) < 8;
+  const seen = e => { for (let x = e; x && x !== svg; x = x.parentElement) { const cs = getComputedStyle(x); if (cs.display === 'none' || +cs.opacity < .05) return false; } return true; };
+  const leaves = [...root.querySelectorAll('path,line,polyline,polygon,rect,circle,ellipse,text,image')].filter(e => !e.closest('clipPath,defs,mask') && seen(e))
+    .map(e => ({e, q: box(e)})).filter(o => o.q.width > .5 || o.q.height > .5);
+  for (const {e: b, q: r} of leaves.filter(o => o.e.tagName === 'rect' && o.q.width >= 1.4 * o.q.height && o.q.height > 4)) {
+    if (b.style.display === 'none') continue;
+    const inside = leaves.filter(o => o.e !== b && within(o.q, r)), layers = inside.filter(o => o.e.tagName !== 'text' && same(o.q, r));
+    if (!inside.some(o => o.e.tagName === 'text' && o.e.textContent.trim())) continue;
+    const strike = o => o.q.height < 8 && o.q.width > 12;                             // a line through the word ("ส่วนลด" struck out): part of the word
+    if (inside.some(o => o.e.tagName !== 'text' && !layers.includes(o) && !strike(o))) continue;   // an icon, a bar or a mark in it: a card, not a word's box
+    const cuts = o => { const w = Math.min(o.q.right, r.right) - Math.max(o.q.left, r.left), h = Math.min(o.q.bottom, r.bottom) - Math.max(o.q.top, r.top); return w > 2 && h > 2 && !within(r, o.q) && !within(o.q, r) && !same(o.q, r); };
+    if (leaves.some(o => o.e !== b && o.e.tagName !== 'text' && (cuts(o) || (within(r, o.q) && !same(o.q, r))))) continue;   // a box laid over or inside another drawing (B01T's price on its pale card under the "?"): its box keeps the word readable
+    [b, ...layers.map(o => o.e), ...leaves.filter(o => o.e !== b && o.e.tagName !== 'text' && same(o.q, r) && !within(o.q, r, 0)).map(o => o.e)].forEach(e => e.style.display = 'none');
+  }
+}
+function glowCentre(svg) {
+  const root = svg.querySelector(':scope > g'); if (!root) return;
+  const box = e => e.getBoundingClientRect(), within = (q, r, m = 2) => q.left >= r.left - m && q.right <= r.right + m && q.top >= r.top - m && q.bottom <= r.bottom + m;
+  const leafSel = 'path,line,polyline,polygon,rect,circle,ellipse,text,image';
+  const seen = e => { for (let x = e; x && x !== svg; x = x.parentElement) { const cs = getComputedStyle(x); if (cs.display === 'none' || +cs.opacity < .05) return false; } return true; };
+  const pos = new Map([...root.querySelectorAll('*')].map((e, k) => [e, k]));
+  const rects = [...root.querySelectorAll('rect')].filter(e => !e.closest('clipPath,defs,mask') && seen(e)).map(e => ({e, r: box(e)}))
+    .filter(o => o.r.width >= 2 * o.r.height && o.r.width > 60);
+  const ctm = svg.getScreenCTM(), k = ctm ? 1 / ctm.a : 1;          // screen px → the drawing's units
+  for (const {e: b, r} of rects) {
+    const leaves = [...root.querySelectorAll(leafSel)].filter(e => e !== b && !e.closest('clipPath,defs,mask') && seen(e) && (pos.get(e) ?? 0) > (pos.get(b) ?? 0))
+      .map(e => ({e, q: box(e)})).filter(o => (o.q.width > .5 || o.q.height > .5) && within(o.q, r))
+      .filter(o => !(Math.abs(o.q.width - r.width) < 8 && Math.abs(o.q.height - r.height) < 8))   // the box's own second layer (a box + its state, B05T spell) is the box
+      .filter(o => { const g = o.e.parentElement; if (!g || g === root) return true; const q = box(g); return q.width * q.height >= r.width * r.height || within(q, r); });   // a badge on the box's corner (B05T spell's check: its mark inside, its ring across the edge) is not in it
+    if (!leaves.some(o => o.e.tagName === 'text' && o.e.textContent.trim())) continue;
+    if (leaves.some(o => o.e.tagName !== 'text' && o.q.width >= .5 * r.width)) continue;   // a bar's fill or a box in the box: not a text box
+    /* what moves: the highest group around each leaf that still lies wholly in the box (an icon moves as its group) */
+    const tops = new Set(leaves.map(({e}) => { let x = e; while (x.parentElement && x.parentElement !== root && !x.parentElement.contains(b) && within(box(x.parentElement), r)) x = x.parentElement; return x; }));
+    const u = [...tops].map(box).reduce((a, q) => ({left: Math.min(a.left, q.left), right: Math.max(a.right, q.right), top: Math.min(a.top, q.top), bottom: Math.max(a.bottom, q.bottom)}));
+    const dx = ((r.left + r.right) - (u.left + u.right)) / 2, dy = ((r.top + r.bottom) - (u.top + u.bottom)) / 2;
+    if (Math.abs(dx) < .04 * r.width && Math.abs(dy) < .08 * r.height) continue;   // already in the middle
+    for (const x of tops) { const m = x.parentNode.getScreenCTM?.(), kx = m ? 1 / Math.hypot(m.a, m.b) : k;   // in the units of its own parent (a scaled group)
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.setAttribute('transform', `translate(${(dx * kx).toFixed(1)} ${(dy * kx).toFixed(1)})`); g.setAttribute('data-centred', '');
+      x.parentNode.insertBefore(g, x); g.appendChild(x); }
+  }
+}
 /* the style's glow: a soft halo of one colour around every line (glass) or around what took the accent (gold) */
 function glowLight(svg, P, base) {
   const G = GLOWLOOK[base]?.glow; if (!G) return;
@@ -411,9 +481,9 @@ function glowLight(svg, P, base) {
     /* stronger (Friend 2026-11-17: "ยังไม่เรืองแสงเท่ากับ reference"): a tight white glow, a wider one, and a wide blue halo as on the sheet */
     defs.insertAdjacentHTML('beforeend', `<filter id="cpGlowSelf" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
       <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  .6 1 .4 1 -2" result="hi"/>
-      <feGaussianBlur in="hi" stdDeviation="2.6" result="a"/><feGaussianBlur in="hi" stdDeviation="8" result="b"/><feGaussianBlur in="hi" stdDeviation="18" result="c"/>
+      <feGaussianBlur in="hi" stdDeviation="2.6" result="a"/><feGaussianBlur in="hi" stdDeviation="8" result="b"/><feGaussianBlur in="hi" stdDeviation="${GLASSY[base]?.glowR ?? 18}" result="c"/>
       <feComponentTransfer in="b" result="b2"><feFuncA type="linear" slope="${(.95 * (GLASSY[base]?.glow ?? 1)).toFixed(2)}"/></feComponentTransfer>
-      <feFlood flood-color="${GLASSY[base]?.halo ?? '#5AB8FF'}" flood-opacity="${Math.min(1, .6 * (GLASSY[base]?.glow ?? 1)).toFixed(2)}"/><feComposite in2="c" operator="in" result="c2"/>
+      <feFlood flood-color="${GLASSY[base]?.halo ?? '#5AB8FF'}" flood-opacity="${Math.min(1, .6 * (GLASSY[base]?.glowHalo ?? GLASSY[base]?.glow ?? 1)).toFixed(2)}"/><feComposite in2="c" operator="in" result="c2"/>
       <feMerge><feMergeNode in="c2"/><feMergeNode in="b2"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
     root.setAttribute('filter', 'url(#cpGlowSelf)');
     root.querySelectorAll('[filter="url(#glow)"]').forEach(e => e.removeAttribute('filter'));   // the engine's own glow merges blurred copies of the frosted glass too (tiles #6C7C8C, not #3C454C)
@@ -431,7 +501,14 @@ function glowLight(svg, P, base) {
 let GLOW_HOOKED = false;
 function glowDraw(F, T, cat, i, d, box = F.stage) {
   const base = ST.id.split('-overlay')[0], W = parseFloat(box.style.width) || 1000, H = parseFloat(box.style.height) || 700;
-  const host = div(`left:0;top:0;width:${W}px;height:${H}px`, box); host.className = 'glow-host';
+  /* clipRoom (the neon style only, final 2026-11-18): the picture keeps its size and whatever of its motion runs past its box and the room
+     around it (F.room: up to the words, the framed face, the safe zone) fades out over up to 28 px at that edge, so it never crosses them */
+  const R = GLOWLOOK[base]?.clipRoom && F.room && box === F.stage ? F.room : null;
+  let into = box;
+  if (R) { into = div(`left:${-R.l}px;top:${-R.t}px;width:${W + R.l + R.r}px;height:${H + R.t + R.b}px;overflow:hidden;` +
+    `-webkit-mask-image:linear-gradient(90deg,transparent,#000 ${Math.min(28, R.l)}px,#000 calc(100% - ${Math.min(28, R.r)}px),transparent),linear-gradient(180deg,transparent,#000 ${Math.min(28, R.t)}px,#000 calc(100% - ${Math.min(28, R.b)}px),transparent);` +   // (a side with less room fades over less: the picture's own end never fades)
+    '-webkit-mask-composite:source-in;mask-composite:intersect', box); into.className = 'glow-room'; }
+  const host = div(`left:${R ? R.l : 0}px;top:${R ? R.t : 0}px;width:${W}px;height:${H}px`, into); host.className = 'glow-host';
   window.GLOW_PENDING = (window.GLOW_PENDING || 0) + 1; window.GLOW_READY = false;
   GL.run(() => {
     const P = glowPalette(host, base);
@@ -449,8 +526,11 @@ function glowDraw(F, T, cat, i, d, box = F.stage) {
     glowReadable(svg, P);
     glowFirm(svg, P, base);
     glowDress(svg, P, base);
+    if (GLASSY[base]?.noPill) glowNoPill(svg);      // window + hud only (finals 2026-11-18): a word's own box goes, the word stays
+    if (GLASSY[base]?.wordK) svg.querySelectorAll('text').forEach(t => { const f = parseFloat(getComputedStyle(t).fontSize); if (f) t.style.fontSize = (f * GLASSY[base].wordK).toFixed(2) + 'px'; });   // hud only (final 2026-11-18): the words bigger, from their own anchor
+    if (GLASSY[base]?.centreBox) glowCentre(svg);  // neon only (final 2026-11-18): the icon and word of a text box in its middle
     glowLight(svg, P, base);
-    if (GLOWLOOK[base]?.motionFit) glowFit(svg, at, T.t1 ?? window.DURATION, W, H);   // window: what is really visible fills the box, and its motion stays in it
+    if (GLOWLOOK[base]?.motionFit) glowFit(svg, at, T.t1 ?? window.DURATION, W, H, F.room ?? null);   // window: what is really visible fills the box, and its motion stays in it
     else { const b = glowVisibleBox(svg), p = Math.max(b.width, b.height) * .03;      // the other styles: what is really visible at its end fills the box (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย")
       svg.setAttribute('viewBox', `${b.x - p} ${b.y - p} ${b.width + 2 * p} ${b.height + 2 * p}`); }
     glowWeight(svg, P, base);                       // after the fit: the line weight is measured on screen

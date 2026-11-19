@@ -23,16 +23,16 @@ const LIME = {
   layouts: {
     talk:         {speaker: true, lead: {x: 540, y: 1003}, key: {x: 540, y: 1139}},                                              // shot 01
     hands:        {speaker: true, card: [320, 1180, 440, 480], lead: {x: 540, y: 985}, key: {x: 540, y: 1095}},                // shot 02 (sheet to y 1686)
-    big:          {speaker: true, card: [80, 960, 840, 690], lead: {x: 540, y: 153}, key: {x: 540, y: 252}},                   // shot 03 (sheet x 62–1019, to y 1697)
+    big:          {speaker: true, card: [80, 960, 840, 690], lead: {x: 540, y: 280}, key: {x: 540, y: 400}},                   // shot 03 (sheet x 62–1019, to y 1697) · words 153/252 → 280/400 (final 2026-11-18, Friend: "ฉากคนพูดเต็มจอ ให้เอา subtitles ลงมาอีก ตอนนี้มันอยู่สูงจนเกือบติดขอบจอด้านบนแล้ว")
     top:          {speaker: true, card: [160, 220, 760, 230], lead: {x: 540, y: 1023}, key: {x: 540, y: 1117}},                // shot 04 (sheet y 66: under the search bar)
-    split_top:    {split: 'top', card: [100, 310, 820, 610], lead: {x: 540, y: 120}, key: {x: 540, y: 241}},                   // shot 05
+    split_top:    {split: 'top', card: [100, 390, 820, 560], lead: {x: 540, y: 200}, key: {x: 540, y: 310}},                   // shot 05 · words 120/241 → 200/310, the card 310 → 390 (final 2026-11-18: the top words under the search bar, as the speaker screens')
     side_l:       {speaker: true, card: [60, 980, 450, 680], lead: {x: 735, y: 1183, maxW: 330}, key: {x: 735, y: 1281, maxW: 330}},   // shot 06 (sheet words to x 970: under the buttons)
-    talk_top:     {speaker: true, lead: {x: 540, y: 114}, key: {x: 540, y: 241}},                                              // shot 07
+    talk_top:     {speaker: true, lead: {x: 540, y: 280}, key: {x: 540, y: 400}},                                              // shot 07 · 114/241 → 280/400 (final 2026-11-18, Friend: "ให้เอา subtitles ลงมาอีก")
     screen:       {screen: true, card: [80, 790, 840, 580], lead: {x: 540, y: 440}, key: {x: 540, y: 545}, bloom: [540, 760]}, // shot 08
     side_r:       {speaker: true, card: [490, 980, 430, 680], lead: {x: 280, y: 1176, maxW: 400}, key: {x: 280, y: 1270, maxW: 400}},  // shot 09 (sheet card to x 1036)
     split_bottom: {split: 'bottom', card: [100, 1215, 820, 445], lead: {x: 540, y: 1040}, key: {x: 540, y: 1154}},             // shot 10
     recap:        {screen: true, cards: [[60, 380, 420, 620], [500, 380, 420, 620], [60, 1040, 420, 620], [500, 1040, 420, 620]],
-                   lead: {x: 540, y: 120}, key: {x: 540, y: 258}},                                                              // shot 11
+                   lead: {x: 540, y: 180}, key: {x: 540, y: 300}},                                                              // shot 11 (final: 120/258 → 180/300)
     cta:          {speaker: true, card: [320, 1180, 440, 480], lead: {x: 540, y: 979}, key: {x: 540, y: 1084}},                // shot 12
   },
   split: 962,                                                       // the lime line of the split screens
@@ -52,10 +52,28 @@ for (const L of Object.values(LIME.layouts)) { if (L.card) L.stage = limeInner(L
    forehead) below them. Returns the moved layout, or null when this face leaves no room. Screens and split screens always fit. */
 const LIME_LOW = {talk: ['lead', 'key'], hands: ['lead', 'key', 'card'], cta: ['lead', 'key', 'card'], big: ['card'], top: ['lead', 'key'],
   side_l: ['lead', 'key', 'card'], side_r: ['lead', 'key', 'card'], talk_top: []};
-const LIME_HIGH = {talk_top: ['lead', 'key'], big: ['lead', 'key'], top: ['card']};
+const LIME_HIGH = {talk_top: ['lead', 'key'], big: ['lead', 'key']};
+/* CARDS SIZED TO THE PICTURE (final 2026-11-18, Friend on the card above the head, 760 × 230 with a small square picture in it: "เราแค่ย่อการ์ดให้แคบลงแล้ว
+   ก็ทำให้การ์ด[สูง]ขึ้น motion graphic มันก็จะได้ดูเต็มการ์ด ... อยากให้แก้ระบบด้วยเลย" · "ทำให้ความกว้างน้อยลงแล้วก็ทำให้ความสูงสูงขึ้น คล้ายๆกับการ์ดแรกที่เปิดคลิป
+   ออกมาแต่อาจจะเล็กกว่านั้นนิดนึง" · "ทำกับสไตล์นี้ก่อน"): a layout's card is the ROOM a card may take; the card itself is the biggest box of the
+   picture's real shape (REAL_SHAPES, else the sample's) inside it, plus the card's own padding, placed at the room's anchor (the side next to
+   the words) and centred left-right. The card above the head takes the room between the search bar and the hair (at most 760 × 600). */
+const LIME_ANCHOR = {hands: 'top', cta: 'top', big: 'top', screen: 'top', split_top: 'top', split_bottom: 'top', top: 'bottom', side_l: 'center', side_r: 'center'};
+function limeShape(L, ar, name) {
+  if (!ar || !L.card) return L;
+  const [x, y, w, h] = L.card, iw = w - 52, ih = h - 70;
+  const nw = ar > iw / ih ? iw : ih * ar, nh = ar > iw / ih ? iw / ar : ih, cw = Math.round(nw + 52), ch = Math.round(nh + 70);
+  const a = LIME_ANCHOR[name] ?? 'center', ny = a === 'top' ? y : a === 'bottom' ? y + h - ch : y + (h - ch) / 2;
+  L.card = [Math.round(x + (w - cw) / 2), Math.round(ny), cw, ch]; L.stage = limeInner(L.card);
+  return L;
+}
 function limeFit(name, f) {
   const L0 = LIME.layouts[name]; if (L0.screen || L0.split) return L0;
   const [, top, , chin] = f, L = JSON.parse(JSON.stringify(L0));
+  if (name === 'top') {                                             // the room above the head: under the search bar (220) to 140 over the forehead
+    const h = Math.min(600, top - 140 - 220); if (h < 230) return null;
+    L.card = [160, 220, 760, h]; L.stage = limeInner(L.card);
+  }
   const topOf = k => k === 'lead' ? L[k].y - 40 : k === 'key' ? L[k].y - 75 : L[k][1];
   const bottomOf = k => k === 'lead' ? L[k].y + 40 : k === 'key' ? L[k].y + 95 : L[k][1] + L[k][3];
   for (const k of LIME_HIGH[name] ?? []) if (top - 130 < bottomOf(k) + 10) return null;   // above the head: under the hair? no room
@@ -76,21 +94,25 @@ STYLE('lime', {
   css: `
 @font-face{font-family:"LimeKey";src:url(fonts/Kanit-800-thai.woff);font-weight:800;unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
 @font-face{font-family:"LimeKey";src:url(fonts/Kanit-800-latin.woff);font-weight:800;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F}
-.l-root{position:absolute;inset:0;--ink:#F4F6F2;--ac:#C9F64B;--lw:5;--sd:#F4F6F2;--fl:rgba(26,28,27,.8);--text:#F4F6F2}
-.l-screen{background:radial-gradient(ellipse 95% 70% at 50% 42%,#1d201e 0%,#141615 55%,#0b0c0c 100%)}
+@font-face{font-family:"LimeHand";src:url(fonts/Sriracha-Regular.ttf)}
+@font-face{font-family:"LimeSerif";src:url(fonts/InstrumentSerif-Italic-latin.woff);font-style:italic}
+.l-root{position:absolute;inset:0;--ink:#F4F6F2;--ac:#D5FF3D;--lw:5;--sd:#F4F6F2;--fl:rgba(26,28,27,.8);--text:#F4F6F2}
+.l-screen{background:radial-gradient(ellipse 95% 70% at 50% 42%,#161917 0%,#0f1110 55%,#070808 100%)}   /* a little darker (final 2026-11-18, Friend: "ทำให้สีของ background เข้มขึ้นนิดนึง"; was #1d201e → #141615 → #0b0c0c) */
 .l-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1.5px,transparent 1.5px),linear-gradient(90deg,rgba(255,255,255,.04) 1.5px,transparent 1.5px);background-size:54px 54px;background-position:-6px -10px}
 .l-bloom{position:absolute;width:980px;height:760px;translate:-50% -50%;background:radial-gradient(closest-side,rgba(175,235,60,.34),rgba(175,235,60,.1) 55%,transparent)}
-.l-panel{position:absolute;left:0;right:0;overflow:hidden;background:radial-gradient(ellipse 95% 80% at 50% 45%,#1d201e 0%,#121413 70%,#0b0c0c 100%)}
-.l-line{position:absolute;left:0;right:0;height:4px;background:#C9F64B;box-shadow:0 0 10px rgba(190,245,70,.85),0 0 26px rgba(170,235,50,.4)}
+.l-panel{position:absolute;left:0;right:0;overflow:hidden;background:radial-gradient(ellipse 95% 80% at 50% 45%,#161917 0%,#0d0f0e 70%,#070808 100%)}
 .l-video{position:absolute;left:0;right:0;overflow:hidden}
 .l-card{position:absolute;border-radius:38px;background:rgba(26,28,27,.8);border:2px solid rgba(255,255,255,.24);
-  box-shadow:0 22px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+  box-shadow:0 22px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}   /* back to the solid card (final 2026-11-18, Friend: "กลับไปใช้การ์ดทึบแบบเดิม") */
+.l-card.l-on-dark{border:2px solid rgba(201,246,75,.55);box-shadow:0 0 18px rgba(190,245,70,.28),0 22px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1)}   /* final 2026-11-18, Friend: the card blends into the dark screens → "ข" a thin lime glowing edge */
 .l-card::before{content:"";position:absolute;top:15px;left:50%;width:64px;height:7px;margin-left:-32px;border-radius:4px;background:rgba(255,255,255,.92)}
 .l-text{position:absolute;inset:0}
 .l-row{position:absolute;white-space:nowrap}
-.l-lead{font-family:"Anu";font-weight:500;font-size:46px;line-height:1.3;color:#F2F4F0;text-shadow:0 0 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.75),0 2px 18px rgba(0,0,0,.6)}
-.l-lead .hi{color:#C9F64B;font-weight:600}
-.l-lead i{font-style:italic}
+.l-lead{font-family:"Anu";font-weight:500;font-size:52px;line-height:1.3;color:#F2F4F0;text-shadow:0 0 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.75),0 2px 18px rgba(0,0,0,.6)}
+.l-lead .hi{color:#C9F64B;font-weight:600}   /* the lead 46 → 52 px (final 2026-11-18, Friend: "เพิ่มขนาด subtitle ตัวเล็กสีขาวให้ใหญ่ขึ้นอีกนิดนึง") */
+.l-lead i{font-family:"LimeSerif";font-style:italic;font-weight:400;font-size:1.22em;margin:0 .06em}
+.l-key i{font-family:"LimeSerif";font-style:italic;font-weight:400;letter-spacing:0}
+.l-key.l-hand{font-family:"LimeHand";font-weight:400;font-size:150px;line-height:1.25;letter-spacing:0}
 .l-key{font-family:"LimeKey";font-weight:800;font-size:136px;line-height:1.12;letter-spacing:-1px;color:#C9F64B;
   filter:drop-shadow(0 0 2px rgba(225,255,150,.6)) drop-shadow(0 0 12px rgba(170,235,50,.55)) drop-shadow(0 3px 10px rgba(0,0,0,.55))}
 `,
@@ -108,7 +130,15 @@ STYLE('lime', {
     glow:  {kf: [{opacity: 0, filter: 'blur(16px)'}, {opacity: 1, filter: 'blur(0)'}], d: .7, e: EASE.soft},
   },
   sound: {hit: ['softswish', -22], cross: ['swipe', -24], key: ['softswish', -21]},
-  setup() { BGL.style.background = '#000'; HOOKS.push(cpInsetHook); },
+  setup() { BGL.style.background = '#000'; HOOKS.push(cpInsetHook);
+    /* load this style's fonts at once: the words are fitted to the safe zone on the first frame (hud 2026-11-18: fitted with the fallback font) */
+    [['LimeKey', 800, 'normal'], ['LimeHand', 400, 'normal'], ['LimeSerif', 400, 'italic']].forEach(([f, w, st]) => div(`left:-9999px;top:0;font-family:${f};font-weight:${w};font-style:${st}`, document.body, 'กขคฅ ึ่้ 0123 Ab')); },
+
+  /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
+     (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
+  realShapes: true,
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, LIME.pool.filter(n => limeRoom(n, face)), n => limeFit(n, face)?.stage, .75, n => !!LIME.layouts[n].speaker); },
+  fitSurface() { const r = div('', SC); r.className = 'l-root l-screen'; return r; },
 
   frame(t0, t1, {index, scene}) {
     const meta = SCENES[scene]?.meta ?? {}, face = cpFaceBox(t0, t1);
@@ -119,35 +149,47 @@ STYLE('lime', {
       else {
         let pool = LIME.pool.filter(n => n !== LIME.last && limeRoom(n, face));
         if (!pool.length) pool = ['screen', 'split_top', 'split_bottom'].filter(n => n !== LIME.last);
-        const ar = typeof GLOW_SHAPES !== 'undefined' && meta.variant ? GLOW_SHAPES[meta.variant] : null;
+        const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) {
           const size = n => { const [, , w, h] = limeFit(n, face).stage; return ar > w / h ? w * w / ar : h * h * ar; };
-          const best = Math.max(...pool.map(size)); pool = pool.filter(n => size(n) >= .75 * best);
+          pool = cpSizeKeep(pool, size, .75, n => !!LIME.layouts[n].speaker);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
+        pool = cpBalance(pool, n => !!LIME.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
         const least = Math.min(...pool.map(n => LIME.used[n] ?? 0)); pool = pool.filter(n => (LIME.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];
       }
     }
     LIME.used[name] = (LIME.used[name] ?? 0) + 1; LIME.last = name;
-    const L = (meta.layout ? LIME.layouts[name] : limeFit(name, face)) ?? LIME.layouts.screen;   // (a test's forced layout stays as on the sheet)
+    const L0 = (meta.layout ? LIME.layouts[name] : limeFit(name, face)) ?? LIME.layouts.screen;   // (a test's forced layout stays as on the sheet)
+    const L = limeShape(JSON.parse(JSON.stringify(L0)), cpShape(meta.variant, t0), name);       // the card sized to its picture (final 2026-11-18)
     const root = div('', SC); root.className = 'l-root' + (L.screen ? ' l-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
-    const grid = host => { const g = div('', host); g.className = 'l-grid';   // the grid drifts very slowly (as Friend asked for neon), on the clip's clock
-      const at = t => `${(-6 + 2 * t).toFixed(1)}px ${(-10 + 3 * t).toFixed(1)}px`;
-      A(g, [{backgroundPosition: at(t0 - .2)}, {backgroundPosition: at(t1 + .2)}], t0 - .2, t1 - t0 + .4, {e: 'linear'}); };
+    const grid = host => {
+      /* LIME LIGHT IN MOTION (final 2026-11-18, Friend: "background ผมอยากให้มีเอฟเฟคเคลื่อนไหวอะไรบางอย่างของแสงสีเขียวด้วยครับ"): two soft lime glows
+         drift slowly under the grid on long loops and breathe, on the clip's clock (they carry on from one screen to the next) */
+      [[540, 300, .42, 0, 700, 380, .31, 1, .3], [540, 320, .37, 2.2, 1300, 300, .29, 2.6, .24]].forEach(([cx, ax, fx, px, cy, ay, fy, py, a], k) => {
+        const o = div('left:0;top:0;width:1000px;height:1000px;margin:-500px 0 0 -500px;border-radius:50%;' +
+          `background:radial-gradient(closest-side,rgba(175,235,60,${a}),rgba(175,235,60,${(a * .35).toFixed(3)}) 55%,transparent);pointer-events:none`, host);
+        const kf = []; for (let t = t0 - .2; t <= t1 + .2 + 1e-6; t += .5)
+          kf.push({transform: `translate(${(cx + ax * Math.sin(fx * t + px)).toFixed(1)}px,${(cy + ay * Math.sin(fy * t + py)).toFixed(1)}px) scale(${(1 + .12 * Math.sin(.9 * t + k)).toFixed(3)})`,
+            opacity: (.75 + .25 * Math.sin(.8 * t + 2 * k)).toFixed(3)});
+        A(o, kf, t0 - .2, t1 - t0 + .4, {e: 'linear'}); });
+      /* no grid (final 2026-11-18, Friend: "ลบตารางจาก background ออกครับ") */ };
     if (L.screen) {
       grid(root);
       if (L.bloom) { const b = div(`left:${L.bloom[0]}px;top:${L.bloom[1]}px`, root); b.className = 'l-bloom'; }
       A(root, [{opacity: 0, filter: 'blur(14px)', transform: 'scale(1.03)'}, {opacity: 1, filter: 'blur(0)', transform: 'none'}], t0 - .04, .35, {e: EASE.smooth});
       sfx('whoosh', t0 - .1, -20);
     }
-    if (L.split) {                                                  // graphics on one half, the speaker on the other, a lime line between
-      const y = LIME.split, top = L.split === 'top';
-      const panel = top ? box([0, 0, 1080, y]) : box([0, y + 4, 1080, 1916 - y]); panel.className = 'l-panel'; grid(panel);
-      const vid = top ? box([0, y + 4, 1080, 1916 - y]) : box([0, 0, 1080, y]); vid.className = 'l-video';
-      cpInset(vid, 1080, top ? 1916 - y : y, t0, .3, top ? .42 : .52);
-      const line = box([0, y, 1080, 4]); line.className = 'l-line';
-      A(line, [{clipPath: 'inset(0 50% 0 50%)'}, {clipPath: 'inset(0 0 0 0)'}], t0, .45, {e: EASE.soft});
+    if (L.split) {                                                  // graphics on one half, the speaker on the other, FADING into each other
+      /* no lime line between them (final 2026-11-18, Friend: "อยากให้เปลี่ยนจากการแบ่งจอบนล่างโดยมีเส้นแบ่งชัดเจนเป็นการ fade แทน"): the speaker's
+         half reaches FADE px into the graphics' half and fades out over them (was: a 4 px glowing lime line at y 962) */
+      const y = LIME.split, top = L.split === 'top', FADE = 220;
+      const panel = top ? box([0, 0, 1080, y]) : box([0, y, 1080, 1920 - y]); panel.className = 'l-panel'; grid(panel);
+      const vid = top ? box([0, y - FADE, 1080, 1920 - y + FADE]) : box([0, 0, 1080, y + FADE]); vid.className = 'l-video';
+      const m = top ? `linear-gradient(180deg,transparent,#000 ${FADE}px)` : `linear-gradient(0deg,transparent,#000 ${FADE}px)`;
+      Object.assign(vid.style, {webkitMaskImage: m, maskImage: m});
+      cpInset(vid, 1080, top ? 1920 - y + FADE : y + FADE, t0, .3, top ? .5 : .46);
       A(panel, [{opacity: 0, transform: `translateY(${top ? -60 : 60}px)`}, {opacity: 1, transform: 'none'}], t0 - .04, .4, {e: EASE.soft});
       A(root, [{opacity: 0}, {opacity: 1}], t0 - .04, .2, {e: EASE.smooth});   // the whole split (its speaker copy too) only from t0
       sfx('whoosh', t0 - .1, -20);
@@ -156,7 +198,7 @@ STYLE('lime', {
     /* the cards rise in, one after another; each picture lives INSIDE its card (it rises with it, and the bridge reads the card's
        dark glass as the picture's ground: darker tiles, as on the sheet) */
     const inner = ([, , w, h]) => [26, 44, w - 52, h - 70];
-    const cards = (L.cards ?? (L.card ? [L.card] : [])).map((c, k) => { const e = box(c); e.className = 'l-card';
+    const cards = (L.cards ?? (L.card ? [L.card] : [])).map((c, k) => { const e = box(c); e.className = 'l-card' + (L.screen || L.split ? ' l-on-dark' : '');   // on the charcoal screens: a lime edge
       A(e, [{opacity: 0, transform: 'translateY(40px) scale(.94)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .02 + .12 * k, .45, {e: EASE.soft});
       return box(inner(c), e); });
     const stage = L.card ? cards[0] : box([0, 0, 1, 1]);
@@ -177,12 +219,14 @@ STYLE('lime', {
   text(F, T, lead, key) {
     const L = F.L ?? LIME.layouts.talk, el = div('', F.root ?? SC); el.className = 'l-text';
     if (lead && L.lead) {
-      const parts = String(lead).trim().split(/\s+/), hi = parts.length > 1 ? parts[parts.length - 1] : null;
-      const r = cpLine(el, lead, 'l-lead', L.lead, undefined, 'l-row', hi);
+      /* all white (final 2026-11-18, Friend: "subtitle ตัวเล็กสีขาวไม่ต้องมีสีเขียวปนมาด้วย"; the sheet's leads ended in lime) */
+      const r = cpLine(el, lead, 'l-lead', L.lead, undefined, 'l-row');
       A(r, [{opacity: 0, filter: 'blur(8px)'}, {opacity: 1, filter: 'blur(0)'}], T.t0 + .15, .35, {e: EASE.smooth});
     }
     if (key && L.key) {
-      const r = cpLine(el, key, 'l-key', L.key, undefined, 'l-row');
+      /* two faces in turns (final 2026-11-18, Friend: "Subtitles ตัวใหญ่สีเขียว ให้เพิ่มฟอนต์นี้เข้าไปด้วย" Sriracha, "สลับกันทีละก้อนแบบ editorial เก่า" ·
+         "เข้าใจถูกแล้วครับ"): core.js gives every block of a real clip a look in turns, k = Kanit, i = the hand (Sriracha) */
+      const r = cpLine(el, key, 'l-key' + (T.look === 'i' ? ' l-hand' : ''), L.key, undefined, 'l-row');
       A(r, [{opacity: 0, transform: 'scale(.9)', filter: 'blur(10px) brightness(1.8)'}, {opacity: 1, transform: 'none', filter: 'blur(0) brightness(1)'}], T.hit - .05, .45, {e: EASE.soft});
       sfx('softswish', T.hit - .05, -21);
     }

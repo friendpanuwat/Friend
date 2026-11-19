@@ -73,10 +73,10 @@ function tealFit(name, f) {
   const [, , , chin] = f, L = JSON.parse(JSON.stringify(L0)), down = d => { for (const k of ['s', 'b', 'k']) L[k].y += d; };
   if (L.pic) {
     const top = Math.max(L.pic[1], chin + 30); let h = Math.min(L.pic[3], L.s.y - 50 - 30 - top);
-    if (h < 200) { const d = Math.min(200 - h, 1590 - L.k.y); down(d); h += d; }
+    if (h < 200) { const d = Math.min(200 - h, Math.max(0, 1576 - L.k.y)); down(d); h += d; }   // 1576: the key word's foot at y 1660 (1590 let "ถูกจุด" end at 1668 once the speaker screens joined, 2026-11-18)
     if (h < 200) return null;
     L.pic = [L.pic[0], top, L.pic[2], h];
-  } else { const d = Math.max(0, chin + 30 - (L.s.y - 50)); if (L.k.y + d > 1590) return null; down(d); }
+  } else { const d = Math.max(0, chin + 30 - (L.s.y - 50)); if (L.k.y + d > 1576) return null; down(d); }
   return L;
 }
 /* the words of a spoken chunk on the speaker: up to two lines over the key word, the longer one bold (Friend's sheet: "ทำกับข้าว /
@@ -137,6 +137,12 @@ STYLE('teal', {
   sound: {hit: ['softswish', -22], cross: ['swipe', -24], key: ['softswish', -21]},
   setup() { BGL.style.background = '#000'; HOOKS.push(cpInsetHook); },
 
+  /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
+     (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
+  realShapes: true,
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, TEAL.pool.filter(n => tealFit(n, face) && !TEAL.layouts[n].noPic), n => tealFit(n, face)?.pic, TEAL.keep, n => !!(TEAL.layouts[n].face || TEAL.layouts[n].speaker)); },
+  fitSurface() { const r = div('', SC); r.className = 't-root t-screen'; return r; },
+
   frame(t0, t1, {index, scene}) {
     const meta = SCENES[scene]?.meta ?? {}, face = cpFaceBox(t0, t1);
     let name = meta.layout;
@@ -146,12 +152,12 @@ STYLE('teal', {
       else {
         let pool = TEAL.pool.filter(n => n !== TEAL.last && tealFit(n, face));
         if (!pool.length) pool = ['stack_graphic', 'design_row', 'split_cards'].filter(n => n !== TEAL.last);
-        const ar = typeof GLOW_SHAPES !== 'undefined' && meta.variant ? GLOW_SHAPES[meta.variant] : null;
+        const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) {
           const size = n => { const p = tealFit(n, face).pic; if (!p) return 0; const [, , w, h] = p; return ar > w / h ? w * w / ar : h * h * ar; };
-          const big = pool.filter(n => !TEAL.layouts[n].face), best = Math.max(0, ...big.map(size));
-          pool = pool.filter(n => TEAL.layouts[n].noPic || (TEAL.layouts[n].face ? size(n) >= TEAL.minFace : size(n) >= TEAL.keep * best));   // the speaker's cards: only a floor, no race on size; no picture: always in
+          pool = cpSizeKeep(pool, size, TEAL.keep, n => !!(TEAL.layouts[n].face || TEAL.layouts[n].speaker), n => !!TEAL.layouts[n].noPic);   // the speaker's cards and full screens: a floor (CP.speakerFloor = TEAL.minFace), no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")   // the speaker's cards: only a floor, no race on size; no picture: always in
         }
+        pool = cpBalance(pool, n => !!TEAL.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
         const least = Math.min(...pool.map(n => TEAL.used[n] ?? 0)); pool = pool.filter(n => (TEAL.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];
       }

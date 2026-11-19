@@ -42,17 +42,17 @@ PAST = json.load(open(HISTORY)) if HISTORY and os.path.exists(HISTORY) else []
 RULES = {
     # 2026-11-17 Friend cancelled the 8 old styles (card, glass, split, gold and their overlays; their rules are in git history,
     # git show HEAD~1:cutpack/engine/uni/tools/clip_plan.py) for 12 new ones from sheets Friend made with AI. One by one:
-    'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft'),
-    'lime':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),
-    'violet':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # ม่วงคลื่นเสียง: 12 of 12 shots carry a picture (first guess)
-    'teal':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # การ์ดเขียวน้ำทะเล: 12 of 12 shots carry a picture or a card (first guess)
-    'yellow':        dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # ขั้นตอนเหลือง: 12 of 12 shots carry a picture or step chips; pictures of 3.5 s or more so a screen holds its chips (trial after Friend: "ดูโล่งๆมากกว่าต้นแบบเยอะ", the first clip's 1.5–3 s screens held 1–2 chips and 45 % of it was the speaker alone)
-    'pink':          dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # การ์ดชมพู: as the styles 6–9 that passed (LESSONS 66)
-    'cream':         dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # ครีมน้ำเงิน: as the styles 6–10 that passed (LESSONS 66)
-    'terminal':      dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # เทอร์มินัลแดง: as the styles 6–8 that passed (LESSONS 66)
-    'horizon':       dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # ขอบฟ้าส้ม: as the yellow and HUD styles that passed (LESSONS 66)
-    'hud':           dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # เส้นชี้ HUD: as the yellow style that passed (3.5 s screens so the notes fill: LESSONS 66)
-    'window':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft'),   # หน้าต่างแอป: 11 of 12 shots carry a window (first guess)   # เขียวมะนาว: 10 of 12 shots carry a picture, several on the speaker (first guess, before a real clip)   # no overlays: Friend 2026-11-17 "ยกเลิก 5." (over=25 turned them on)   # นีออนฟ้า: 10 of the sheet's 12 shots carry a picture (first guess, before a real clip)
+    'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft', openFace=True, fitPick=True),   # fitPick: the drawing that fills the free space (tools/fit_pick.js, final 2026-11-18: "ทดลองเฉพาะสไตล์นี้ก่อน")   # openFace: the style can open on a picture screen with the face (final 2026-11-18)
+    'lime':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True),
+    'violet':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True),   # ม่วงคลื่นเสียง: 12 of 12 shots carry a picture (first guess)
+    'teal':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True),   # การ์ดเขียวน้ำทะเล: 12 of 12 shots carry a picture or a card (first guess)
+    'yellow':        dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # ขั้นตอนเหลือง: 12 of 12 shots carry a picture or step chips; pictures of 3.5 s or more so a screen holds its chips (trial after Friend: "ดูโล่งๆมากกว่าต้นแบบเยอะ", the first clip's 1.5–3 s screens held 1–2 chips and 45 % of it was the speaker alone)
+    'pink':          dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # การ์ดชมพู: as the styles 6–9 that passed (LESSONS 66)
+    'cream':         dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # ครีมน้ำเงิน: as the styles 6–10 that passed (LESSONS 66)   # (merged from PR #35: no fitPick yet — cream.js has no fitSize; the all-style rules of chat ccr-103ebebc-89alfv still to add)
+    'terminal':      dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # เทอร์มินัลแดง: as the styles 6–8 that passed (LESSONS 66)
+    'horizon':       dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # ขอบฟ้าส้ม: as the yellow and HUD styles that passed (LESSONS 66)
+    'hud':           dict(every=4.0, scene=(1.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # เส้นชี้ HUD: as the yellow style that passed · final 2026-11-18: scenes from 1.5 s (was 3.5 so the notes filled, LESSONS 66; no notes now) (Friend: "อยากให้มีฉากโอเวอร์เลย์เยอะกว่านี้หน่อยแต่ไม่ต้องเยอะมากจนดูจุกจิก")
+    'window':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True),   # หน้าต่างแอป: 11 of 12 shots carry a window (first guess)   # เขียวมะนาว: 10 of 12 shots carry a picture, several on the speaker (first guess, before a real clip)   # no overlays: Friend 2026-11-17 "ยกเลิก 5." (over=25 turned them on)   # นีออนฟ้า: 10 of the sheet's 12 shots carry a picture (first guess, before a real clip)
 }
 PUSH = dict(z=1.05, d=1.4, back=1.0, gap=4.0, most=5)
 flat = lambda s: re.sub(r'\s+', '', s)
@@ -96,19 +96,58 @@ for j, c in enumerate(CAP):
     c['t1'] = CAP[j + 1]['t0'] if j + 1 < len(CAP) else lines[-1]['t1']
 
 
-def scenes_for(R):
+# SENTENCES (Friend 2026-11-18, for every style: "เวลา user พูดประเด็นอะไรอยู่ อย่าเปลี่ยนฉากกลางคัน ให้เขาพูดเรื่องนั้นให้จบก่อน จากดราฟแรก
+# บ่อยครั้งมากที่ผมจะพูดประโยคนั้นๆไม่จบแล้ว แต่ฉากเปลี่ยนไปแล้ว"): a scene starts and ends only where a sentence or a point ends. The caption
+# lines (Haiku, step 4) split a long sentence over several lines, and Typhoon's word times run on with no gap (the test clip: 0 of 193
+# gaps over 0.05 s), so the AI that plans the pictures (cat_ai.py, step 6) names the lines that end a point (camera.json "ends").
+# No answer: the speaker's pauses in the voice (a dip of 0.12 s or more, 16 dB under the median, within 0.2 s of a line's end).
+def pause_ends():
+    wav = os.path.join(W, 'base', 'voice.wav')
+    if not os.path.exists(wav): return list(range(len(lines)))
+    import numpy as np
+    raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', wav, '-ac', '1', '-ar', '16000', '-f', 's16le', '-'], capture_output=True).stdout
+    x = np.frombuffer(raw, np.int16).astype(float) / 32768; n = len(x) // 160
+    db = 20 * np.log10(np.sqrt((x[:n * 160].reshape(n, 160) ** 2).mean(1)) + 1e-9); low = db < np.median(db) - 16
+    dips, i = [], 0
+    while i < n:
+        j = i
+        while j < n and low[j]: j += 1
+        if j - i >= 12: dips.append((i * .01 + j * .01) / 2)
+        i = max(j, i + 1)
+    return [k for k in range(len(lines) - 1) if any(abs(d - lines[k]['t1']) < .2 for d in dips)]
+ends = sorted({n - 1 for n in camera.get('ends', [])} if camera.get('ends') else set(pause_ends()))
+ends = [e for e in ends if 0 <= e < len(lines) - 1] + [len(lines) - 1]
+SENT = []                                          # [first line, last line] of each sentence
+for e in ends: SENT.append([SENT[-1][1] + 1 if SENT else 0, e])
+sent_of = {n: k for k, (a, b) in enumerate(SENT) for n in range(a, b + 1)}
+print(f"points: {len(SENT)} ({'the AI' if camera.get('ends') else 'pauses'}) · ends at lines {[e + 1 for e in ends]}")
+
+
+# OPENING (Friend 2026-11-18, every style: "คลิปต้องเปิดด้วยฉากที่มีหน้า user เสมอ" · "เปิดคลิปด้วยหน้าในกรอบเล็กนับด้วยครับ แต่ต้องไม่ตายตัว
+# เช่นต้องไม่เปิดที่หน้าจอเล็กเสมอไปหรือต้องไม่เปิดที่หน้าจอใหญ่เสมอไปใช้สุ่มเหมือนเดิม"): from the run's seed, half the runs open with the
+# speaker talking (no picture over the first point: 'speaker'), half with a picture from the first frame on a screen that shows the face,
+# full or framed ('face': RUN.open, the style keeps the first screen to those). A style that cannot do 'face' yet (no openFace) always
+# opens with the speaker.
+def opening(st, R):
+    import random
+    return 'face' if R.get('openFace') and random.Random(f'{SEED}:open:{st}').random() < .5 else 'speaker'
+
+
+def scenes_for(R, open_='speaker'):
     """the style's pictures: best rank first until the style's count, as long as they fit its rules"""
     want = max(3, round(dur / R['every']))
+    first_end = lines[SENT[0][1]]['t1']
     pool = sorted(report, key=lambda r: (r.get('rank', 2), r['line']))
     lo, hi = R['scene']
     chosen = []
-    def window(r):
-        n = r['line'] - 1; t0, e = lines[n]['t0'], n
-        while lines[e]['t1'] - t0 < lo and e + 1 < len(lines): e += 1
-        return [r, t0, lines[e]['t1'], n]
+    def window(r):                                 # from its sentence's start to the end of a sentence, at least `lo` long
+        n = r['line'] - 1; k = sent_of[n]; t0 = lines[SENT[k][0]]['t0']
+        while lines[SENT[k][1]]['t1'] - t0 < lo and k + 1 < len(SENT): k += 1
+        return [r, t0, lines[SENT[k][1]]['t1'], n]
     for r in pool:
         if len(chosen) >= want: break
         s = window(r)
+        if open_ == 'speaker' and s[1] < first_end - .01: continue                    # the first point: the speaker
         trial = sorted(chosen + [s], key=lambda x: x[1])
         trial = clip_all([list(x) for x in trial], hi)
         if any(x[2] - x[1] < lo - 1e-6 for x in trial): continue                      # it would squeeze a neighbour too short
@@ -124,11 +163,15 @@ def scenes_for(R):
 
 def clip_all(sc, hi):
     for a, b in zip(sc, sc[1:]):
-        if b[1] < a[2]: a[2] = b[1]                                                  # never into the next picture
+        if b[1] < a[2]: a[2] = b[1]                                                  # never into the next picture (b starts on a sentence)
     for s in sc:
-        if s[2] - s[1] > hi:                                                         # too long for this style: keep the key word inside
-            h = hit_of(s)
-            s[1] = max(s[1], min(h - 1.2, s[2] - hi)) if h else s[1]; s[2] = s[1] + hi
+        if s[2] - s[1] > hi:                                                         # too long for this style: end on the last sentence end
+            # in reach that keeps the key word inside, else on a line's end (a sentence longer than the longest scene), never mid-line
+            h = hit_of(s) or s[1]
+            cut = [lines[e]['t1'] for e in ends if s[1] < lines[e]['t1'] <= s[1] + hi and lines[e]['t1'] > h + .8] \
+                or [l['t1'] for l in lines if s[1] < l['t1'] <= s[1] + hi and l['t1'] > h + .8] \
+                or [l['t1'] for l in lines if s[1] < l['t1'] <= s[2]]
+            s[2] = max(cut) if cut[-1] <= s[1] + hi else min(cut)
     return sc
 
 
@@ -203,8 +246,38 @@ def picks_for(sc, ov=()):
     return json.loads(out.stdout)['picks']
 
 
-def write(style, R, sc, zooms, suffix, ov=()):
-    then, picks = [], picks_for(sc, ov)
+def fit_picks(style, sc, open_):
+    """FIT PICK (a style with fitPick, Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่"): every drawing
+    the rules allow is drawn from the library with this clip's words and measured; one of those that fill the screen best, at random
+    (tools/fit_pick.js). Falls back to picks_for when it fails."""
+    order = sorted(sc, key=lambda x: x[1])
+    pools = json.loads(subprocess.run(['node', os.path.join(UNI, 'tools', 'pick.js'), '/dev/stdin'], capture_output=True, text=True, check=True,
+                                      input=json.dumps({'seed': SEED, 'history': PAST, 'pools': True, 'scenes': [{'id': r['id'], 'cat': r['cat']} for r, *_ in order]})).stdout)['pools']
+    D = os.path.join(W, f'fit_{style}'); os.makedirs(D, exist_ok=True)
+    f = json.load(open(FACES))
+    open(os.path.join(D, 'plan.js'), 'w').write(f"const RUN = {json.dumps({'seed': SEED, 'open': open_ if order and order[0][1] < .3 else 'speaker'})};\nconst FACES = {json.dumps({'track': f['track'], 'layout': f['layout'], 'keepOut': f['keepOut']})};\n"
+                                                + re.sub(r'"say": \[[^\]]*\]', '"say": ["", ""]', open(f'{W}/cats/sentences.js').read()))
+    scenes = []
+    for r, t0, t1, n in order:
+        hit = hit_of([r, t0, t1, n])
+        if hit is None or not (t0 + .3 < hit < t1 - .3): hit = (t0 + t1) / 2
+        scenes.append({'id': r['id'], 't0': round(t0, 2), 't1': round(t1, 2), 'hit': round(hit, 2), 'pool': pools.get(r['id'], [])})
+    json.dump({'seed': SEED, 'scenes': scenes}, open(os.path.join(D, 'job.json'), 'w'))
+    try:
+        res = subprocess.run(['node', os.path.join(UNI, 'tools', 'fit_pick.js'), D, style], capture_output=True, text=True, check=True, timeout=1200,
+                             env={**os.environ, 'NODE_PATH': subprocess.run(['npm', 'root', '-g'], capture_output=True, text=True).stdout.strip()})
+        out = json.loads(res.stdout.strip().splitlines()[-1])
+        print(f"{style}: fit pick (best % of the screen, picked %, kept / measured): " + ' · '.join(f"{k} {v[0]}/{v[1]} {v[2]}/{v[3]}" for k, v in out['sizes'].items()))
+        if len(out['picks']) == len(order): return out['picks']
+        print(f'{style}: fit pick left some out, the rest by pick.js')
+        return {**picks_for(sc), **out['picks']}
+    except Exception as e:
+        err = (getattr(e, 'stderr', '') or str(e)).strip().splitlines()
+        print(f'{style}: fit pick failed ({type(e).__name__}: {" | ".join(err[-3:])[:400]}), pick.js instead'); return picks_for(sc)
+
+
+def write(style, R, sc, zooms, suffix, ov=(), open_='speaker'):
+    then, picks = [], (fit_picks(style, sc, open_) if R.get('fitPick') and not ov else picks_for(sc, ov))
     ovid = {o[0]['id'] for o in ov}
     for k, (r, t0, t1, n) in enumerate(sorted(list(sc) + list(ov), key=lambda x: x[1])):
         hit = hit_of([r, t0, t1, n])
@@ -212,7 +285,7 @@ def write(style, R, sc, zooms, suffix, ov=()):
         then.append(f"{r['id']}.{picks[r['id']]},{t0:.2f},{t1:.2f},{k},{hit:.2f}")
         RUN_PICKS.append(picks[r['id']])
     f = json.load(open(FACES))
-    run = {'seed': SEED, 'overlays': [f"{r['id']}.{picks[r['id']]}" for r, *_ in ov]}
+    run = {'seed': SEED, 'overlays': [f"{r['id']}.{picks[r['id']]}" for r, *_ in ov], 'open': open_ if sc and sc[0][1] < .3 else 'speaker'}
     js = f"const RUN = {json.dumps(run)};\nconst FACES = {json.dumps({'track': f['track'], 'layout': f['layout'], 'keepOut': f['keepOut']})};\nconst CAPTIONS = {json.dumps(CAP, ensure_ascii=False)};\n"
     if zooms: js += f"const ZOOMS = {json.dumps(zooms)};\n"
     js += re.sub(r'"say": \[[^\]]*\]', '"say": ["", ""]', open(f'{W}/cats/sentences.js').read())
@@ -220,6 +293,7 @@ def write(style, R, sc, zooms, suffix, ov=()):
     open(f'{W}/then{suffix}.txt', 'w').write('\n'.join(then) + '\n')
     cover = sum(t1 - t0 for _, t0, t1, _ in sc)
     if ov: print(f"{style}: {len(ov)} overlays on the speaker at {[round(o[1], 1) for o in ov]}")
+    print(f"{style}: opens with {run['open']}")
     print(f'{style}: {len(CAP)} subtitle blocks ({sum("acc" in c for c in CAP)} accent) · {len(then)} pictures, {cover / dur:.0%} of the clip · '
           f'{sum(z["z"] > 1 for z in zooms)} zoom pushes at {[z["t"] for z in zooms if z["z"] > 1]}')
 
@@ -228,8 +302,8 @@ if not STYLES:                                   # the old rule (2026-11-11), fo
     R = dict(every=5.0, scene=(2.4, 99), cover=1.0, run=99, zoom=False)
     write('old', R, scenes_for(R), [], '')
 for st in STYLES:
-    R = RULES[st]; sc = scenes_for(R); ov = overlays_for(R, sc)
-    write(st, R, sc, zooms_for(R, sc + ov, R.get('cut', 'soft')), f'_{st}', ov)
+    R = RULES[st]; op = opening(st, R); sc = scenes_for(R, op); ov = overlays_for(R, sc)
+    write(st, R, sc, zooms_for(R, sc + ov, R.get('cut', 'soft')), f'_{st}', ov, op)
 print(f'seed {SEED} (same plan again: --seed {SEED})')
 if HISTORY:                                       # this run joins the customer's history (a run of the same clip again counts too)
     PAST.append({'clip': os.path.basename(os.path.abspath(W)), 'seed': SEED, 'picks': sorted(set(RUN_PICKS))})

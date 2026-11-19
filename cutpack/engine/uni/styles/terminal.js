@@ -151,6 +151,12 @@ STYLE('terminal', {
   sound: {hit: ['softswish', -22], cross: ['swipe', -24], key: ['softswish', -21]},
   setup() { BGL.style.background = '#000'; HOOKS.push(cpInsetHook); },
 
+  /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
+     (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
+  realShapes: true,
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, TRM.pool.filter(n => !TRM.layouts[n].noPic && !TRM.layouts[n].num && trmFit(n, face)), n => trmFit(n, face)?.pic, TRM.keep, n => !!TRM.layouts[n].speaker); },
+  fitSurface() { const r = div('', SC); r.className = 'm-root m-screen'; return r; },
+
   frame(t0, t1, {index, scene}) {
     const meta = SCENES[scene]?.meta ?? {}, face = cpFaceBox(t0, t1), ch = trmChunks(t0, t1);
     const more = ch ? Math.max(0, ch.length - 1) : (meta.rows?.length ?? 0), num = meta.num ?? (ch ? ch.slice(1).some(c => /\d/.test(c.words)) : false);
@@ -163,11 +169,12 @@ STYLE('terminal', {
       else {
         let pool = TRM.pool.filter(n => n !== TRM.last && ok(n));
         if (!pool.length) pool = ['big_win', 'stack3', 'split_top'].filter(n => n !== TRM.last);
-        const ar = typeof GLOW_SHAPES !== 'undefined' && meta.variant ? GLOW_SHAPES[meta.variant] : null;
+        const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) {
           const size = n => { const p = trmFit(n, face)?.pic; if (!p) return 0; const [, , w, h] = p; return ar > w / h ? w * w / ar : h * h * ar; };
-          const best = Math.max(0, ...pool.map(size)); pool = pool.filter(n => TRM.layouts[n].noPic || size(n) >= TRM.keep * best);
+          pool = cpSizeKeep(pool, size, TRM.keep, n => !!TRM.layouts[n].speaker, n => !!TRM.layouts[n].noPic);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
+        pool = cpBalance(pool, n => !!TRM.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
         const least = Math.min(...pool.map(n => TRM.used[n] ?? 0)); pool = pool.filter(n => (TRM.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];
       }

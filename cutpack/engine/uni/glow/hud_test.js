@@ -1,6 +1,6 @@
 /* the 12 shots of Friend's 7th sheet for the HUD style (2026-11-18, measured on the 12-shot sheet), with the sheet's words:
    NODE_PATH=$(npm root -g) node glow/stills.js <work> <out> <frame.jpg> glow/hud_test.js 3.8 "hud:h01@0 … hud:h12@11"
-   The callout notes are meta.rows (a real clip takes them from the picture's next subtitles). Shots 01 04 06 10 12 have no picture
+   The callout notes are meta.rows (a real clip takes them from the picture's next subtitles). Shots 01 06 10 12 have no picture (04 since the final: the two-card screen, B04T 4)
    on the sheet (cat null). Pictures: B04T row 0 (02), diagonal 2 (03), carousel 6 (05), progress 5 (07), rail 3 (08), chevrons 1 (09),
    shot 11 three at once (diagonal, chevrons, row: stills only). */
 const HS = i => GL.cats.B04T.SAMPLES[i];
@@ -11,7 +11,7 @@ GLOWSCENE('h02', 'B04T', 0, HS(0), ['3 ขั้นก่อน', 'หยิบ�
 hudRows('h02', ['ล้างมือ → ใส่ถุงมือ → หยิบ']);
 GLOWSCENE('h03', 'B04T', 2, HS(2), ['ก่อนออกจากบ้าน', 'เช็ก 3 จุด'], {layout: 'hud_diag'});
 hudRows('h03', ['ไฟหน้า-ท้าย ชาร์จเต็ม', 'ลมยาง ดูตัวเลขข้างยาง', 'บีบแล้วต้องหน่วงทันที']);
-GLOWSCENE('h04', null, 0, null, ['แต่งตัวให้ปั่นสบาย', 'ใส่ถุงมือ'], {layout: 'hud_card'});
+GLOWSCENE('h04', 'B04T', 4, HS(4), ['แต่งตัวให้ปั่นสบาย', 'ใส่ถุงมือ'], {layout: 'hud_card'});   // (final 2026-11-18: the two-card screen has a picture)
 hudRows('h04', ['ถุงมือ กันมือลื่น', 'เสื้อแขนยาว กันแดด']);
 GLOWSCENE('h05', 'B04T', 6, HS(6), ['พาจักรยานขึ้นรถไฟ', 'ซื้อตั๋วไว้ก่อน'], {layout: 'hud_time'});
 hudRows('h05', ['ออกบ้าน', 'ขึ้นรถไฟ', 'ถึงจุดปั่น']);
