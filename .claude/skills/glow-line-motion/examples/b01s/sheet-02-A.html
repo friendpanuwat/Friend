@@ -7,7 +7,7 @@
 GL.run(() => {
   GL.stage({ w: 1840, h: 2460 });
   const I = 1, B = GL.cats.B01S, d = B.SAMPLES[14];
-  GL.text('B01 ชุด 7 ขนาด · 02 WAFFLE · ตาราง 100 ช่อง (แทนวงแหวน)', { x: 920, y: 74, size: 52, color: GL.C.ink, glow: false });
+  GL.text('B01 ชุด 7 ขนาด รอบ 3 · 02 WAFFLE · ตาราง 100 ช่อง (แทนวงแหวน)', { x: 920, y: 74, size: 52, color: GL.C.ink, glow: false });
   GL.text('ข้อมูลตัวอย่าง · “' + d.say + '” · ทุกขนาดที่ 100% (กรอบเส้นประ = ขนาดนั้น)', { x: 920, y: 126, size: 30, weight: 500, color: GL.C.sub, glow: false });
   const POS = { 1: [40, 210], 2: [40, 540], 5: [40, 1110], 3: [40, 1920], 6: [940, 210], 4: [940, 1275], 7: [1400, 1275] };
   for (const n of [1, 2, 3, 4, 5, 6, 7]) { const S = B.SIZES[n], [x0, y0] = POS[n], cx = x0 + S.w / 2, cy = y0 + S.h / 2;
