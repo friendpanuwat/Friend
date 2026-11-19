@@ -178,10 +178,13 @@ STYLE('lime', {
     if (!name) {
       const want = LIME.byCat[meta.cat];
       const ar0 = cpShape(meta.variant, t0);
-      if (want && limeRoom(want, face) && (!ar0 || limeStage(want, face, ar0))) name = want;
+      /* THE HOOK (Friend 2026-11-19: "ต้องไม่ใช่ฉากเต็มจอ ต้องเป็นฉากหน้าคนพูด" · the split screens count: "นับครับ"): the clip's first picture
+         (RUN.hook, tools/clip_plan.py) takes only a screen with the speaker: the speaker's own screens with a card, or a split screen (always fits) */
+      const hook = index === 0 && typeof RUN !== 'undefined' && RUN.hook, spk = n => !!LIME.layouts[n].speaker || !!LIME.layouts[n].split;
+      if (want && (!hook || spk(want)) && limeRoom(want, face) && (!ar0 || limeStage(want, face, ar0))) name = want;
       else {
-        let pool = LIME.pool.filter(n => n !== LIME.last && limeRoom(n, face));
-        if (!pool.length) pool = ['screen', 'split_top', 'split_bottom'].filter(n => n !== LIME.last);
+        let pool = LIME.pool.filter(n => n !== LIME.last && limeRoom(n, face) && (!hook || spk(n)));
+        if (!pool.length) pool = (hook ? ['split_top', 'split_bottom'] : ['screen', 'split_top', 'split_bottom']).filter(n => n !== LIME.last);
         const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
         if (ar) { const ok = pool.filter(n => limeStage(n, face, ar)); if (ok.length) pool = ok; }   // the picture at 65% of a standard size or more (2026-11-19)
         if (ar) {
