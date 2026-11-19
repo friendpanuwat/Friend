@@ -226,20 +226,31 @@ STYLE('lime', {
       const vid = top ? box([0, y - FADE, 1080, 1920 - y + FADE]) : box([0, 0, 1080, y + FADE]); vid.className = 'l-video';
       const m = top ? `linear-gradient(180deg,transparent,#000 ${FADE}px)` : `linear-gradient(0deg,transparent,#000 ${FADE}px)`;
       Object.assign(vid.style, {webkitMaskImage: m, maskImage: m});
-      cpInset(vid, 1080, top ? 1920 - y + FADE : y + FADE, t0, .3, top ? .5 : .46);
-      A(panel, [{opacity: 0, transform: `translateY(${top ? -60 : 60}px)`}, {opacity: 1, transform: 'none'}], t0 - .04, .4, {e: EASE.soft});
-      A(root, [{opacity: 0}, {opacity: 1}], t0 - .04, .2, {e: EASE.smooth});   // the whole split (its speaker copy too) only from t0
+      const im = cpInset(vid, 1080, top ? 1920 - y + FADE : y + FADE, t0, .3, top ? .5 : .46);
+      /* SMOOTH IN AND OUT (Friend 2026-11-19: "ผมชอบครับ แต่อยากให้มัน smooth กว่านี้หน่อยได้ไหมตอนนี้มันเหมือนตัดไปทื่อๆเลยอ่ะ"): the speaker's
+         copy starts exactly over the full-screen speaker and glides (moves and shrinks) to its half in 0.6 s, the graphics' half comes in with
+         it; at the end it glides back to the full screen and the split only then lets go (was: a 0.2 s cross-fade between two framings) */
+      const sc = 1080 / parseFloat(im.style.width), vy = top ? y - FADE : 0;
+      const full = `translate(${-sc * parseFloat(im.style.left)}px, ${-vy - sc * parseFloat(im.style.top)}px) scale(${sc})`;
+      vid.style.transformOrigin = '0 0';
+      A(vid, [{transform: full}, {transform: 'none'}], t0, .6, {e: EASE.inout});
+      A(vid, [{transform: 'none'}, {transform: full}], t1 - .6, .55, {e: EASE.inout, f: 'forwards'});
+      A(panel, [{opacity: 0, transform: `translateY(${top ? -60 : 60}px)`}, {opacity: 1, transform: 'none'}], t0 + .05, .55, {e: EASE.soft});
+      A(panel, [{opacity: 1}, {opacity: 0}], t1 - .6, .45, {e: EASE.out, f: 'forwards'});
+      A(root, [{opacity: 0}, {opacity: 1}], t0 - .04, .1, {e: EASE.smooth});   // the copy matches the speaker underneath: no visible fade
       sfx('whoosh', t0 - .1, -20);
     }
-    A(root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t1 - .3, .3, {e: EASE.out, f: 'forwards'});
+    if (L.split) A(root, [{opacity: 1}, {opacity: 0}], t1 - .08, .08, {e: EASE.out, f: 'forwards'});   // the copy is back over the speaker
+    else A(root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t1 - .3, .3, {e: EASE.out, f: 'forwards'});
     /* the cards rise in, one after another; each picture lives INSIDE its card (it rises with it, and the bridge reads the card's
        dark glass as the picture's ground: darker tiles, as on the sheet) */
     const inner = ([, , w, h]) => [26, 44, w - 52, h - 70];
-    const cards = (L.cards ?? (L.card ? [L.card] : [])).map((c, k) => { const e = box(c); e.className = 'l-card' + (L.screen || L.split ? ' l-on-dark' : ''); if (L.std) e.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3);   // for tools/card_sizes.js   // on the charcoal screens: a lime edge
+    const shells = [], cards = (L.cards ?? (L.card ? [L.card] : [])).map((c, k) => { const e = box(c); shells.push(e); e.className = 'l-card' + (L.screen || L.split ? ' l-on-dark' : ''); if (L.std) e.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3);   // for tools/card_sizes.js   // on the charcoal screens: a lime edge
       A(e, [{opacity: 0, transform: 'translateY(40px) scale(.94)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .02 + .12 * k, .45, {e: EASE.soft});
       return box(inner(c), e); });
     const stage = L.card ? cards[0] : box([0, 0, 1, 1]);
     const stages = L.cards ? cards : null;
+    if (L.split) shells.forEach(c => A(c, [{opacity: 1}, {opacity: 0}], t1 - .6, .4, {e: EASE.out, f: 'forwards'}));   // the card leaves with the graphics' half (2026-11-19; `cards` are the inner picture boxes)
     return {root, stage, stages, cam: root, L, name, dark: !!(L.screen || L.split)};
   },
   /* between pictures (a real clip): the words at the chest (shot 01) or above the head (shot 07), one of the two for each stretch
