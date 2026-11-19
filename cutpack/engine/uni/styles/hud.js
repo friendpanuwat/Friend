@@ -65,6 +65,8 @@ const HUD = {
                 three: [[400, 390, 420, 350], [290, 870, 640, 250], [320, 1280, 580, 270]]},                                                     // shot 11 (three pictures: stills only)
     /* final 2026-11-18 (Friend: "เพิ่มฉากโอเวอร์เลย์เข้ามาด้วย พื้นที่ด้านบนหัวยังเหลือ"): the picture over the head inside HUD corners,
        from under the search bar (220) to 140 over the face box; its height from the clip's face (hudFit) · the words at the chest as talk */
+    /* final point 14 (Friend's shots 06 · 08): the picture above, the words under it, the pair in the middle of the screen */
+    hud_page:  {screen: true, pic: [160, 300, 760, 760], lead: {x: 540, y: 1160}, key: {x: 540, y: 1295}},
     hud_top:   {speaker: true, top: true, fitFrom: 940, corners: [100, 220, 880, 600], pic: [124, 244, 832, 552], lead: {x: 540, y: 1023}, key: {x: 540, y: 1160}},
     hud_cta:   {speaker: true, noPic: true, fitFrom: 970, corners: [160, 980, 760, 350], lead: {x: 540, y: 1053}, key: {x: 540, y: 1190},           // shot 12
                 notes: [{path: [[540, 1330], [540, 1480], [690, 1480]], text: {x: 710, y: 1478, align: 'left'}, y: true, yText: true}]},   // (the sheet's dot at 760: its words ran to 965)
@@ -74,7 +76,7 @@ const HUD = {
      its words) and not twice within 5 pictures nor first, among those with a picture the ones that show this picture's shape at
      least 75 % as big as the best, then the least used, then at random from the run's seed */
   /* final 2026-11-18: hud_path out (its notes were all it had: with no notes it is the talk screen) · hud_top in */
-  pool: ['hud_open', 'hud_row', 'hud_diag', 'hud_card', 'hud_time', 'hud_split', 'hud_rail', 'hud_measure', 'hud_word', 'hud_cta', 'hud_top'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
+  pool: ['hud_open', 'hud_row', 'hud_diag', 'hud_card', 'hud_time', 'hud_split', 'hud_rail', 'hud_measure', 'hud_word', 'hud_cta', 'hud_top', 'hud_page'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
   byCat: {B15: 'hud_cta'},
   keep: .75, noPicGap: 4, sinceNoPic: 4,
   spkMin: 82944,   // final 2026-11-18 (Friend chose "ก" on "motion graphic เล็กเกินไป"): a speaker screen with a picture shows it at least 4 % of the screen (1080 × 1920 × .04), else another screen
@@ -117,6 +119,27 @@ function hudFit(name, f) {
   return L;
 }
 const HUD_NS = 'http://www.w3.org/2000/svg';
+/* final 2026-11-18 point 14 (Friend sent a version of this style he made: "ส่วนตัวผมชอบ background ของเวอร์ชั่นนี้มาก และก็ชอบการวาง layout ด้วย"
+   → "1 ก": its background and layouts, the HUD look kept): the graphic screens' background is faint contour lines (a map's terrain
+   lines) on a warm near-black, drifting slowly, in place of the grid. Our own field (a few soft hills and dips + slow waves) cut into
+   levels by marching squares, once per page, 1320 × 2240 so the drift never shows an edge */
+let HUD_TOPO = null;
+function hudTopo() {
+  if (HUD_TOPO) return HUD_TOPO;
+  const W = 1320, H = 2240, N = 10, cols = W / N + 1, rows = H / N + 1;
+  const hills = [[300, 500, 260, 1], [900, 380, 320, -.8], [760, 1150, 380, 1.1], [240, 1500, 300, -.9], [980, 1850, 280, .9], [520, 2050, 240, -.6], [620, 800, 200, .5]];
+  const f = (x, y) => { let v = .25 * Math.sin(x / 210 + y / 330) + .2 * Math.cos(x / 170 - y / 260);
+    for (const [cx, cy, r, a] of hills) v += a * Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / (2 * r * r)); return v; };
+  const F = []; for (let j = 0; j < rows; j++) { F[j] = []; for (let i = 0; i < cols; i++) F[j][i] = f(i * N, j * N); }
+  let d = '';
+  for (let L = -1.2; L <= 1.4; L += .1) for (let j = 0; j < rows - 1; j++) for (let i = 0; i < cols - 1; i++) {
+    const a = F[j][i], b = F[j][i + 1], c = F[j + 1][i + 1], e = F[j + 1][i], x = i * N, y = j * N, p = [];
+    const cut = (u, v, x1, y1, x2, y2) => { if ((u > L) !== (v > L)) { const t = (L - u) / (v - u); p.push(`${(x1 + (x2 - x1) * t).toFixed(0)} ${(y1 + (y2 - y1) * t).toFixed(0)}`); } };
+    cut(a, b, x, y, x + N, y); cut(b, c, x + N, y, x + N, y + N); cut(c, e, x + N, y + N, x, y + N); cut(e, a, x, y + N, x, y);
+    for (let k = 0; k + 1 < p.length; k += 2) d += `M${p[k]}L${p[k + 1]}`;
+  }
+  return HUD_TOPO = d;
+}
 /* a note's words at (x, y): left / right / center of x, shrunk (never wrapped) to maxW and to the safe zone (a .cp-row, so the
    safe-zone check measures it) */
 function hudNote(parent, txt, cls, {x, y, align = 'left', maxW = 420}) {
@@ -160,8 +183,10 @@ STYLE('hud', {
 @font-face{font-family:"HudKey";src:url(fonts/Kanit-900-thai.woff);font-weight:900;unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
 @font-face{font-family:"HudKey";src:url(fonts/Kanit-900-latin.woff);font-weight:900;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F}
 .h-root{position:absolute;inset:0;--ink:#F5F5F2;--ac:#FFD600;--lw:5;--sd:#F5F5F2;--fl:rgba(14,14,14,.85);--text:#F5F5F2}
-.h-screen{background:radial-gradient(ellipse 560px 900px at 540px 1050px,rgba(255,214,0,.115) 0%,rgba(255,214,0,.06) 45%,rgba(255,214,0,0) 100%),
-  linear-gradient(180deg,#0e0e10 0%,#131313 12%,#151514 22%,#171716 40%,#171716 60%,#181818 85%,#18181a 100%);background-color:#161615;overflow:hidden}
+.h-screen{background:radial-gradient(ellipse 560px 900px at 540px 1050px,rgba(255,214,0,.10) 0%,rgba(255,214,0,.05) 45%,rgba(255,214,0,0) 100%),
+  radial-gradient(ellipse 760px 1100px at 540px 980px,#1c160f 0%,#140f0a 55%,#0b0907 100%);background-color:#120e0a;overflow:hidden}   /* final point 14: warm near-black (Friend's version) */
+.h-topo{position:absolute;left:-120px;top:-160px;width:1320px;height:2240px;overflow:visible}
+.h-topo path{fill:none;stroke:#F0B648;stroke-width:1.6;opacity:.15}
 .h-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:60px 60px}
 .h-half{position:absolute;overflow:hidden}
 .h-bar{position:absolute;left:0;width:1080px;height:4px;background:#FFC93A;box-shadow:0 0 10px rgba(255,201,58,.6);transform-origin:0 50%}
@@ -245,9 +270,12 @@ STYLE('hud', {
     const screen = !L.speaker, root = div('', SC); root.className = 'h-root' + (screen ? ' h-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     if (screen) {
-      const g = div('', root); g.className = 'h-grid';
-      const at = t => `0px ${(-HUD.gridUp * t).toFixed(1)}px`;
-      A(g, [{backgroundPosition: at(t0 - .2)}, {backgroundPosition: at(t1 + .2)}], t0 - .2, t1 - t0 + .4, {e: 'linear'});
+      /* the contour lines (final point 14; the grid before), drifting up and sideways, turning a little */
+      const tp = document.createElementNS(HUD_NS, 'svg'); tp.setAttribute('class', 'h-topo'); tp.setAttribute('viewBox', '0 0 1320 2240');
+      tp.innerHTML = `<path d="${hudTopo()}"/>`; root.appendChild(tp);
+      const long = t1 - t0 + .4, ph = cpRand('topo' + index) * 6.28, at = k => { const w = ph + 2 * Math.PI * k * long / 16;
+        return {transform: `translate(${(40 * Math.sin(w)).toFixed(1)}px,${(-9 * k * long).toFixed(1)}px) rotate(${(.6 * Math.sin(w)).toFixed(2)}deg)`}; };
+      A(tp, Array.from({length: 9}, (_, i) => at(i / 8)), t0 - .2, long);
       A(root, [{opacity: 0, filter: 'blur(14px)', transform: 'scale(1.03)'}, {opacity: 1, filter: 'blur(0)', transform: 'none'}], t0 - .04, .35, {e: EASE.smooth});
       sfx('whoosh', t0 - .1, -20);
     }
