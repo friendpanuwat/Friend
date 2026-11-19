@@ -65,18 +65,21 @@ const LIME_ANCHOR = {hands: 'top', cta: 'top', big: 'top', screen: 'top', split_
    in the middle of the screen with its words moved up, the key word still 150 over the card (Friend: "ฉากนี้ต้องอยู่กึ่งกลางจอ ตรงกลางเลยนะ ...
    เว้นระยะห่างกับซับไตเติ้ลเหมือนเดิม" → "แบบนี้โอเคครับ"). */
 const LIME_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};   // 7: a shorter 4 (Friend 2026-11-19: "ขนาด 7 โอเคครับ")
-const LIME_ORDER = {hands: [3, 2, 1], cta: [3, 2, 1], big: [2, 1], top: [2, 3, 1], split_top: [2, 3], side_l: [4, 7], side_r: [4, 7], split_bottom: [2, 1]};
+const LIME_ORDER = {hands: [3, 2, 1], cta: [3, 2, 1], big: [2, 1], top: [2, 3, 1], split_top: [2, 3], side_l: [4, 7], side_r: [4, 7], split_bottom: [2, 1]};   // side: 4 and 7 are peers, picked in limeShape
 const LIME_MIN = .65;
-function limeShape(L, ar, name) {
+function limeShape(L, ar, name, key) {
   /* the CARD is the standard size scaled from the corner (its shape exact), the card's padding inside it, the picture in the padding at its own
      shape (Friend 2026-11-19: "แบบนี้มันไม่ได้ย่อตรงมุมนี่" · "ขนาดของการ์ดอ่ะมันก็คือ motion graphic ในสไตล์ที่ไม่มีการ์ด" · "การ์ดดูโล่งได้
      เพราะเดี๋ยวจะทำภาพชุดใหม่" · "แก้ได้ครับ"); returns null when no size of the screen's order reaches 65% here */
   if (!L.card) return L;
   const size = (k, s) => LIME_STD[k].map(v => Math.round(v * s));
   if (name === 'screen') {                                        // 5 (wide) or 6 (tall) by the picture's shape, in the middle of the screen
-    const k = Math.abs(Math.log((ar || 1.21) / 1.21)) <= Math.abs(Math.log((ar || 1.21) / .89)) ? 5 : 6, [W, H] = LIME_STD[k];
+    /* 5 or 6 at random, 60 : 40, never by the drawing's shape (Friend 2026-11-19: "ให้สุ่มเท่ากัน แต่อยากให้ขนาด 5 มีอัตราการออกที่เยอะกว่า 60:40" ·
+       "จะดูทรงของ motion graphic ทำไมครับ"); no key (a size estimate) = 5 */
     const gap = L.card[1] - (L.key.y + 95), lk = L.key.y - L.lead.y, maxH = 2 * (960 - (220 + 40 + lk + 95 + gap));   // 100%, smaller only when the words would reach the search bar
-    const s = Math.min(1, 860 / W, maxH / H); if (s < LIME_MIN) return null;
+    const sOf = k => Math.min(1, 860 / LIME_STD[k][0], maxH / LIME_STD[k][1]);
+    const first = key != null && cpRand(key) >= .6 ? 6 : 5, k = sOf(first) >= LIME_MIN ? first : 11 - first, s = sOf(k);
+    if (s < LIME_MIN) return null;
     const [cw, ch] = size(k, s), ny = Math.round(960 - ch / 2);
     L.card = [Math.round(Math.min(Math.max(540 - cw / 2, 60), 920 - cw)), ny, cw, ch]; L.stage = limeInner(L.card);
     L.key.y = ny - gap - 95; L.lead.y = L.key.y - lk; if (L.bloom) L.bloom = [540, 960]; L.std = [k, s];
@@ -88,11 +91,20 @@ function limeShape(L, ar, name) {
   if (name === 'top') { Y0 = 220; Y1 = y + h; }                    // between the search bar and the hair (limeFit)
   if (name === 'side_l') X1 = Math.min(920, L.lead.x - L.lead.maxW / 2 - 20);   // not into the words beside the card
   if (name === 'side_r') X0 = Math.max(60, L.lead.x + L.lead.maxW / 2 + 20);
-  for (const k of LIME_ORDER[name] ?? [2]) {
-    const [W, H] = LIME_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H);
-    if (s < LIME_MIN) continue;
+  const fits = k => { const [W, H] = LIME_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H); return s >= LIME_MIN ? s : 0; };
+  const yOf = ch => Math.round(a === 'bottom' ? Y1 - ch : a === 'center' ? (Y0 + Y1 - ch) / 2 : Y0);   // centre = the middle of the room (lime.md 4.3)
+  let order = LIME_ORDER[name] ?? [2];
+  if (name === 'side_l' || name === 'side_r') {
+    /* 4 AND 7 ARE PEERS (Friend 2026-11-19: "2 อันนี้ไม่มีอันไหนเป็นตัวสำรองของอันไหน แต่สำคัญคือ ถ้าฉากนั้นๆใส่การ์ดที่ 4 แล้วการ์ดมันดูสูงเกิน ก็จะมา
+       ใช้การ์ดที่ 7แทน" · too tall = "ขอบบนของขนาด 4 เกือบจะถึงคาง" = under 100 px from the chin): 4 near the chin → 7 · else 4 or 7 at random ·
+       only one fits → that one · no key (a size estimate) → 4 */
+    const s4 = fits(4), near = s4 && L.chin != null && yOf(Math.round(LIME_STD[4][1] * s4)) - L.chin < 100;
+    order = near ? [7] : !s4 ? [7] : !fits(7) || key == null ? [4] : [cpRand(key) < .5 ? 4 : 7];
+  }
+  for (const k of order) {
+    const s = fits(k); if (!s) continue;
     const [cw, ch] = size(k, s), cx = x + w / 2;
-    L.card = [Math.round(Math.min(Math.max(cx - cw / 2, X0), X1 - cw)), Math.round(a === 'bottom' ? Y1 - ch : Y0), cw, ch]; L.stage = limeInner(L.card);
+    L.card = [Math.round(Math.min(Math.max(cx - cw / 2, X0), X1 - cw)), yOf(ch), cw, ch]; L.stage = limeInner(L.card);
     L.std = [k, s];
     return L;
   }
@@ -100,7 +112,7 @@ function limeShape(L, ar, name) {
 }
 function limeFit(name, f) {
   const L0 = LIME.layouts[name]; if (L0.screen || L0.split) return L0;
-  const [, top, , chin] = f, L = JSON.parse(JSON.stringify(L0));
+  const [, top, , chin] = f, L = JSON.parse(JSON.stringify(L0)); L.chin = chin;   // (limeShape: is a side card's top near the chin)
   if (name === 'top') {                                             // the room above the head: under the search bar (220) to 140 over the forehead
     const h = Math.min(600, top - 140 - 220); if (h < 230) return null;
     L.card = [160, 220, 760, h]; L.stage = limeInner(L.card);
@@ -198,7 +210,7 @@ STYLE('lime', {
     }
     LIME.used[name] = (LIME.used[name] ?? 0) + 1; LIME.last = name;
     const L0 = (meta.layout ? LIME.layouts[name] : limeFit(name, face)) ?? LIME.layouts.screen;   // (a test's forced layout stays as on the sheet)
-    const L = limeShape(JSON.parse(JSON.stringify(L0)), cpShape(meta.variant, t0), name) ?? JSON.parse(JSON.stringify(L0));   // the standard size (2026-11-19; a test's forced layout keeps its room when none fits)
+    const L = limeShape(JSON.parse(JSON.stringify(L0)), cpShape(meta.variant, t0), name, 'size' + index) ?? JSON.parse(JSON.stringify(L0));   // the standard size (2026-11-19; a test's forced layout keeps its room when none fits)
     const root = div('', SC); root.className = 'l-root' + (L.screen ? ' l-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     const grid = host => {
