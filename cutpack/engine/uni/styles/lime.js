@@ -6,7 +6,7 @@
    The 7-item form:
    1 frame    one of 12 layouts (LIME.layouts, named after Friend's shots): the speaker full screen with a glass card at the hands /
               over the chest / above the head / on the left / on the right, a split screen (graphics on top and the speaker below, or
-              the other way), a dark screen with a big card, a recap of four cards. Between pictures the speaker talks with the words
+              the other way), a dark screen with a big card (the four-card recap was taken out 2026-11-19). Between pictures the speaker talks with the words
               at the chest or above the head.
    2 surface  near-black charcoal screens with a faint grid (drifting very slowly, as Friend asked for neon) and a soft lime bloom;
               the pictures sit on dark frosted-glass cards with a light edge and a white grip bar on top (the sheet's "phone sheet")
@@ -31,8 +31,7 @@ const LIME = {
     screen:       {screen: true, card: [80, 790, 840, 580], lead: {x: 540, y: 440}, key: {x: 540, y: 545}, bloom: [540, 760]}, // shot 08
     side_r:       {speaker: true, card: [490, 980, 430, 680], lead: {x: 280, y: 1176, maxW: 400}, key: {x: 280, y: 1270, maxW: 400}},  // shot 09 (sheet card to x 1036)
     split_bottom: {split: 'bottom', card: [100, 1215, 820, 445], lead: {x: 540, y: 1040}, key: {x: 540, y: 1154}},             // shot 10
-    recap:        {screen: true, cards: [[60, 380, 420, 620], [500, 380, 420, 620], [60, 1040, 420, 620], [500, 1040, 420, 620]],
-                   lead: {x: 540, y: 180}, key: {x: 540, y: 300}},                                                              // shot 11 (final: 120/258 → 180/300)
+    // recap (four cards) taken out (Friend 2026-11-19: "ผมว่าตัดฉากที่มีการ์ด 4 ใบออกไปเลยดีกว่า")
     cta:          {speaker: true, card: [320, 1180, 440, 480], lead: {x: 540, y: 979}, key: {x: 540, y: 1084}},                // shot 12
   },
   split: 962,                                                       // the lime line of the split screens
@@ -59,17 +58,61 @@ const LIME_HIGH = {talk_top: ['lead', 'key'], big: ['lead', 'key']};
    picture's real shape (REAL_SHAPES, else the sample's) inside it, plus the card's own padding, placed at the room's anchor (the side next to
    the words) and centred left-right. The card above the head takes the room between the search bar and the hair (at most 760 × 600). */
 const LIME_ANCHOR = {hands: 'top', cta: 'top', big: 'top', screen: 'top', split_top: 'top', split_bottom: 'top', top: 'bottom', side_l: 'center', side_r: 'center'};
-function limeShape(L, ar, name) {
-  if (!ar || !L.card) return L;
-  const [x, y, w, h] = L.card, iw = w - 52, ih = h - 70;
-  const nw = ar > iw / ih ? iw : ih * ar, nh = ar > iw / ih ? iw / ar : ih, cw = Math.round(nw + 52), ch = Math.round(nh + 70);
-  const a = LIME_ANCHOR[name] ?? 'center', ny = a === 'top' ? y : a === 'bottom' ? y + h - ch : y + (h - ch) / 2;
-  L.card = [Math.round(x + (w - cw) / 2), Math.round(ny), cw, ch]; L.stage = limeInner(L.card);
-  return L;
+/* THE 6 STANDARD MOTION-GRAPHIC SIZES (Friend 2026-11-19, common.md 4.1 · lime.md 16: "ผมเลยอยากกำหนดมาตรฐานขนาดของ motion graphic" ·
+   "เราจะฟิกขนาดของ motion graphic เฉยๆเราไม่ได้จะมาดีไซน์สไตล์ใหม่"): the picture is one of the standard sizes, scaled from the corner between
+   65% and 100% to the room this face leaves (the first size of the screen's order that fits); the card IS that size (padding inside), at the
+   screen's old anchor; under 65% for every size of the order = the screen does not come up in this clip (limeRoom). The dark screen's card sits
+   in the middle of the screen with its words moved up, the key word still 150 over the card (Friend: "ฉากนี้ต้องอยู่กึ่งกลางจอ ตรงกลางเลยนะ ...
+   เว้นระยะห่างกับซับไตเติ้ลเหมือนเดิม" → "แบบนี้โอเคครับ"). */
+const LIME_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};   // 7: a shorter 4 (Friend 2026-11-19: "ขนาด 7 โอเคครับ")
+const LIME_ORDER = {hands: [3, 2, 1], cta: [3, 2, 1], big: [2, 1], top: [2, 3, 1], split_top: [2, 3], side_l: [4, 7], side_r: [4, 7], split_bottom: [2, 1]};   // side: 4 and 7 are peers, picked in limeShape
+const LIME_MIN = .65;
+function limeShape(L, ar, name, key) {
+  /* the CARD is the standard size scaled from the corner (its shape exact), the card's padding inside it, the picture in the padding at its own
+     shape (Friend 2026-11-19: "แบบนี้มันไม่ได้ย่อตรงมุมนี่" · "ขนาดของการ์ดอ่ะมันก็คือ motion graphic ในสไตล์ที่ไม่มีการ์ด" · "การ์ดดูโล่งได้
+     เพราะเดี๋ยวจะทำภาพชุดใหม่" · "แก้ได้ครับ"); returns null when no size of the screen's order reaches 65% here */
+  if (!L.card) return L;
+  const size = (k, s) => LIME_STD[k].map(v => Math.round(v * s));
+  if (name === 'screen') {                                        // 5 (wide) or 6 (tall) by the picture's shape, in the middle of the screen
+    /* 5 or 6 at random, 60 : 40, never by the drawing's shape (Friend 2026-11-19: "ให้สุ่มเท่ากัน แต่อยากให้ขนาด 5 มีอัตราการออกที่เยอะกว่า 60:40" ·
+       "จะดูทรงของ motion graphic ทำไมครับ"); no key (a size estimate) = 5 */
+    const gap = L.card[1] - (L.key.y + 95), lk = L.key.y - L.lead.y, maxH = 2 * (960 - (220 + 40 + lk + 95 + gap));   // 100%, smaller only when the words would reach the search bar
+    const sOf = k => Math.min(1, 860 / LIME_STD[k][0], maxH / LIME_STD[k][1]);
+    const first = key != null && cpRand(key) >= .6 ? 6 : 5, k = sOf(first) >= LIME_MIN ? first : 11 - first, s = sOf(k);
+    if (s < LIME_MIN) return null;
+    const [cw, ch] = size(k, s), ny = Math.round(960 - ch / 2);
+    L.card = [Math.round(Math.min(Math.max(540 - cw / 2, 60), 920 - cw)), ny, cw, ch]; L.stage = limeInner(L.card);
+    L.key.y = ny - gap - 95; L.lead.y = L.key.y - lk; if (L.bloom) L.bloom = [540, 960]; L.std = [k, s];
+    return L;
+  }
+  const [x, y, w, h] = L.card, a = LIME_ANCHOR[name] ?? 'center';
+  let X0 = 60, X1 = 920, Y0 = y, Y1 = 1660;                       // the room: the safe zone, from the screen's anchor to the bottom line
+  if (name === 'split_top') Y1 = LIME.split - 12;
+  if (name === 'top') { Y0 = 220; Y1 = y + h; }                    // between the search bar and the hair (limeFit)
+  if (name === 'side_l') X1 = Math.min(920, L.lead.x - L.lead.maxW / 2 - 20);   // not into the words beside the card
+  if (name === 'side_r') X0 = Math.max(60, L.lead.x + L.lead.maxW / 2 + 20);
+  const fits = k => { const [W, H] = LIME_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H); return s >= LIME_MIN ? s : 0; };
+  const yOf = ch => Math.round(a === 'bottom' ? Y1 - ch : a === 'center' ? (Y0 + Y1 - ch) / 2 : Y0);   // centre = the middle of the room (lime.md 4.2 rule 6)
+  let order = LIME_ORDER[name] ?? [2];
+  if (name === 'side_l' || name === 'side_r') {
+    /* 4 AND 7 ARE PEERS (Friend 2026-11-19: "2 อันนี้ไม่มีอันไหนเป็นตัวสำรองของอันไหน แต่สำคัญคือ ถ้าฉากนั้นๆใส่การ์ดที่ 4 แล้วการ์ดมันดูสูงเกิน ก็จะมา
+       ใช้การ์ดที่ 7แทน" · too tall = "ขอบบนของขนาด 4 เกือบจะถึงคาง" = under 100 px from the chin): 4 near the chin → 7 · else 4 or 7 at random ·
+       only one fits → that one · no key (a size estimate) → 4 */
+    const s4 = fits(4), near = s4 && L.chin != null && yOf(Math.round(LIME_STD[4][1] * s4)) - L.chin < 100;
+    order = near ? [7] : !s4 ? [7] : !fits(7) || key == null ? [4] : [cpRand(key) < .5 ? 4 : 7];
+  }
+  for (const k of order) {
+    const s = fits(k); if (!s) continue;
+    const [cw, ch] = size(k, s), cx = x + w / 2;
+    L.card = [Math.round(Math.min(Math.max(cx - cw / 2, X0), X1 - cw)), yOf(ch), cw, ch]; L.stage = limeInner(L.card);
+    L.std = [k, s];
+    return L;
+  }
+  return null;
 }
 function limeFit(name, f) {
   const L0 = LIME.layouts[name]; if (L0.screen || L0.split) return L0;
-  const [, top, , chin] = f, L = JSON.parse(JSON.stringify(L0));
+  const [, top, , chin] = f, L = JSON.parse(JSON.stringify(L0)); L.chin = chin;   // (limeShape: is a side card's top near the chin)
   if (name === 'top') {                                             // the room above the head: under the search bar (220) to 140 over the forehead
     const h = Math.min(600, top - 140 - 220); if (h < 230) return null;
     L.card = [160, 220, 760, h]; L.stage = limeInner(L.card);
@@ -86,7 +129,8 @@ function limeFit(name, f) {
   }
   return L;
 }
-const limeRoom = (name, f) => !!limeFit(name, f);
+const limeRoom = (name, f) => { const L = limeFit(name, f); return !!L && !!limeShape(JSON.parse(JSON.stringify(L)), null, name); };   // a standard size fits here (2026-11-19)
+const limeStage = (name, f, ar) => { const L = limeFit(name, f); return L && limeShape(JSON.parse(JSON.stringify(L)), ar, name)?.stage; };   // null: this picture fits no standard size here
 
 STYLE('lime', {
   name: 'เขียวมะนาว',
@@ -137,7 +181,7 @@ STYLE('lime', {
   /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
   realShapes: true,
-  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, LIME.pool.filter(n => limeRoom(n, face)), n => limeFit(n, face)?.stage, .75, n => !!LIME.layouts[n].speaker); },
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, LIME.pool.filter(n => limeRoom(n, face)), n => limeStage(n, face, ar), .75, n => !!LIME.layouts[n].speaker); },
   fitSurface() { const r = div('', SC); r.className = 'l-root l-screen'; return r; },
 
   frame(t0, t1, {index, scene}) {
@@ -145,13 +189,18 @@ STYLE('lime', {
     let name = meta.layout;
     if (!name) {
       const want = LIME.byCat[meta.cat];
-      if (want && limeRoom(want, face)) name = want;
+      const ar0 = cpShape(meta.variant, t0);
+      /* THE HOOK (Friend 2026-11-19: "ต้องไม่ใช่ฉากเต็มจอ ต้องเป็นฉากหน้าคนพูด" · the split screens count: "นับครับ"): the clip's first picture
+         (RUN.hook, tools/clip_plan.py) takes only a screen with the speaker: the speaker's own screens with a card, or a split screen (always fits) */
+      const hook = index === 0 && typeof RUN !== 'undefined' && RUN.hook, spk = n => !!LIME.layouts[n].speaker || !!LIME.layouts[n].split;
+      if (want && (!hook || spk(want)) && limeRoom(want, face) && (!ar0 || limeStage(want, face, ar0))) name = want;
       else {
-        let pool = LIME.pool.filter(n => n !== LIME.last && limeRoom(n, face));
-        if (!pool.length) pool = ['screen', 'split_top', 'split_bottom'].filter(n => n !== LIME.last);
+        let pool = LIME.pool.filter(n => n !== LIME.last && limeRoom(n, face) && (!hook || spk(n)));
+        if (!pool.length) pool = (hook ? ['split_top', 'split_bottom'] : ['screen', 'split_top', 'split_bottom']).filter(n => n !== LIME.last);
         const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
+        if (ar) { const ok = pool.filter(n => limeStage(n, face, ar)); if (ok.length) pool = ok; }   // the picture at 65% of a standard size or more (2026-11-19)
         if (ar) {
-          const size = n => { const [, , w, h] = limeFit(n, face).stage; return ar > w / h ? w * w / ar : h * h * ar; };
+          const size = n => { const [, , w, h] = limeStage(n, face, ar); return ar > w / h ? w * w / ar : h * h * ar; };
           pool = cpSizeKeep(pool, size, .75, n => !!LIME.layouts[n].speaker);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
         pool = cpBalance(pool, n => !!LIME.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
@@ -161,7 +210,7 @@ STYLE('lime', {
     }
     LIME.used[name] = (LIME.used[name] ?? 0) + 1; LIME.last = name;
     const L0 = (meta.layout ? LIME.layouts[name] : limeFit(name, face)) ?? LIME.layouts.screen;   // (a test's forced layout stays as on the sheet)
-    const L = limeShape(JSON.parse(JSON.stringify(L0)), cpShape(meta.variant, t0), name);       // the card sized to its picture (final 2026-11-18)
+    const L = limeShape(JSON.parse(JSON.stringify(L0)), cpShape(meta.variant, t0), name, 'size' + index) ?? JSON.parse(JSON.stringify(L0));   // the standard size (2026-11-19; a test's forced layout keeps its room when none fits)
     const root = div('', SC); root.className = 'l-root' + (L.screen ? ' l-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     const grid = host => {
@@ -185,24 +234,39 @@ STYLE('lime', {
       /* no lime line between them (final 2026-11-18, Friend: "อยากให้เปลี่ยนจากการแบ่งจอบนล่างโดยมีเส้นแบ่งชัดเจนเป็นการ fade แทน"): the speaker's
          half reaches FADE px into the graphics' half and fades out over them (was: a 4 px glowing lime line at y 962) */
       const y = LIME.split, top = L.split === 'top', FADE = 220;
-      const panel = top ? box([0, 0, 1080, y]) : box([0, y, 1080, 1920 - y]); panel.className = 'l-panel'; grid(panel);
-      const vid = top ? box([0, y - FADE, 1080, 1920 - y + FADE]) : box([0, 0, 1080, y + FADE]); vid.className = 'l-video';
-      const m = top ? `linear-gradient(180deg,transparent,#000 ${FADE}px)` : `linear-gradient(0deg,transparent,#000 ${FADE}px)`;
-      Object.assign(vid.style, {webkitMaskImage: m, maskImage: m});
-      cpInset(vid, 1080, top ? 1920 - y + FADE : y + FADE, t0, .3, top ? .5 : .46);
-      A(panel, [{opacity: 0, transform: `translateY(${top ? -60 : 60}px)`}, {opacity: 1, transform: 'none'}], t0 - .04, .4, {e: EASE.soft});
-      A(root, [{opacity: 0}, {opacity: 1}], t0 - .04, .2, {e: EASE.smooth});   // the whole split (its speaker copy too) only from t0
+      /* THE REAL VIDEO MOVES, NO COPY (Friend 2026-11-19: "ทำไมต้องมีสำเนาวีดีโอ" → "ทำเลยครับ สไตล์นี้ไม่ต้องมีสำเนาครับ"): the speaker's own video
+         (V, under every screen) glides to its half and back, on its own `transform` (the camera keeps to `translate` and `scale`, core.js), so
+         there is one speaker only, always; the framing in the half is the old one (face 30% of the width, cpInset's rule); the fade between
+         the halves is the graphics' half's own edge, FADE px over the speaker */
+      const hv = top ? 1920 - y + FADE : y + FADE, f = cpFace(t0), faceY = top ? .5 : .46;
+      const s0 = Math.max(1080 / 1080, hv / 1920, .3 * 1080 / (f.w || 320)), cl = (v, lo) => Math.min(0, Math.max(lo, v));
+      const ix = cl(540 - f.x * s0, 1080 - 1080 * s0), iy = (top ? y - FADE : 0) + cl(hv * faceY - f.y * s0, hv - 1920 * s0);
+      const there = `translate(${ix}px, ${iy}px) scale(${s0})`;
+      A(V, [{transform: 'none'}, {transform: there}], t0, .6, {e: EASE.inout, f: 'forwards'});      // forwards only: the splits after it keep their turn
+      A(V, [{transform: there}, {transform: 'none'}], t1 - .6, .55, {e: EASE.inout, f: 'forwards'});
+      const panel = top ? box([0, 0, 1080, y + FADE]) : box([0, y - FADE, 1080, 1920 - y + FADE]); panel.className = 'l-panel'; grid(panel);
+      const m = top ? `linear-gradient(180deg,#000 calc(100% - ${2 * FADE}px),transparent calc(100% - ${FADE}px))` : `linear-gradient(0deg,#000 calc(100% - ${2 * FADE}px),transparent calc(100% - ${FADE}px))`;
+      Object.assign(panel.style, {webkitMaskImage: m, maskImage: m});
+      /* SMOOTH IN AND OUT (Friend: "ตอนที่คลิปคนเลื่อนลงแล้วฉากทึบเลื่อนลงมาด้วย แล้วตอนที่จะเอาคลิปคนเลื่อนขึ้นกลับไปเหมือนเดิมฉากทึบก็เลื่อนขึ้นไปใน
+         ความเร็วที่เท่ากัน"): the solid half (and its card) slides in from its edge of the screen with the video, same time, same curve */
+      L.slide = top ? -(y - FADE) : 1920 - (y + FADE);               // the solid half's start: just off its edge of the screen
+      const slide = e => { A(e, [{translate: `0 ${L.slide}px`}, {translate: '0 0'}], t0, .6, {e: EASE.inout});
+        A(e, [{translate: '0 0'}, {translate: `0 ${L.slide}px`}], t1 - .6, .55, {e: EASE.inout, f: 'forwards'}); };
+      slide(panel); L.slideFn = slide;
+      A(root, [{opacity: 0}, {opacity: 1}], t0 - .04, .1, {e: EASE.smooth});   // the half comes from off the screen: nothing to fade
       sfx('whoosh', t0 - .1, -20);
     }
-    A(root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t1 - .3, .3, {e: EASE.out, f: 'forwards'});
+    if (L.split) A(root, [{opacity: 1}, {opacity: 0}], t1 - .08, .08, {e: EASE.out, f: 'forwards'});   // the half is off the screen again
+    else A(root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t1 - .3, .3, {e: EASE.out, f: 'forwards'});
     /* the cards rise in, one after another; each picture lives INSIDE its card (it rises with it, and the bridge reads the card's
        dark glass as the picture's ground: darker tiles, as on the sheet) */
     const inner = ([, , w, h]) => [26, 44, w - 52, h - 70];
-    const cards = (L.cards ?? (L.card ? [L.card] : [])).map((c, k) => { const e = box(c); e.className = 'l-card' + (L.screen || L.split ? ' l-on-dark' : '');   // on the charcoal screens: a lime edge
+    const shells = [], cards = (L.cards ?? (L.card ? [L.card] : [])).map((c, k) => { const e = box(c); shells.push(e); e.className = 'l-card' + (L.screen || L.split ? ' l-on-dark' : ''); if (L.std) e.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3);   // for tools/card_sizes.js   // on the charcoal screens: a lime edge
       A(e, [{opacity: 0, transform: 'translateY(40px) scale(.94)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .02 + .12 * k, .45, {e: EASE.soft});
       return box(inner(c), e); });
     const stage = L.card ? cards[0] : box([0, 0, 1, 1]);
     const stages = L.cards ? cards : null;
+    if (L.split) shells.forEach(c => L.slideFn(c));   // the card slides with the graphics' half (2026-11-19; `cards` are the inner picture boxes)
     return {root, stage, stages, cam: root, L, name, dark: !!(L.screen || L.split)};
   },
   /* between pictures (a real clip): the words at the chest (shot 01) or above the head (shot 07), one of the two for each stretch
@@ -230,6 +294,7 @@ STYLE('lime', {
       A(r, [{opacity: 0, transform: 'scale(.9)', filter: 'blur(10px) brightness(1.8)'}, {opacity: 1, transform: 'none', filter: 'blur(0) brightness(1)'}], T.hit - .05, .45, {e: EASE.soft});
       sfx('softswish', T.hit - .05, -21);
     }
+    if (L.split && L.slideFn) L.slideFn(el);   // the words ride with the graphics' half (Friend 2026-11-19: "subtitle มันยังค้างอยู่ที่เดิม ... subtitles มันประทับหน้าคน")
     if (F.speaker && T.clip) {
       A(el, [{visibility: 'hidden'}, {visibility: 'visible'}], T.b[0] - .02, .001); A(el, [{visibility: 'visible'}, {visibility: 'hidden'}], T.end - .021, .001, {f: 'forwards'});
       return null;

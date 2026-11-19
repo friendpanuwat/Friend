@@ -11,5 +11,4 @@ GLOWSCENE('l07', null, 0, null, ['แอปจำให้', 'ทุกขั้
 GLOWSCENE('l08', 'B04T', 5, LS(5), ['อย่าลืม', 'ทบทวน'], {layout: 'screen'});
 GLOWSCENE('l09', 'B04T', 9, LS(9), ['ก่อนนอน', 'เข้านอน'], {layout: 'side_r'});
 GLOWSCENE('l10', 'B04T', 2, LS(2), ['ก่อนปั่น', 'เช็กเบรก'], {layout: 'split_bottom'});
-GLOWRECAP('l11', [['B04T', 1, LS(1)], ['B04T', 6, LS(6)], ['B04T', 7, LS(7)], ['B04T', 9, LS(9)]], ['ทั้งวัน', 'ครบทุกขั้น']);
 GLOWSCENE('l12', 'B04T', 3, LS(3), ['สมัครฟรี', 'เริ่มเลย'], {layout: 'cta'});
