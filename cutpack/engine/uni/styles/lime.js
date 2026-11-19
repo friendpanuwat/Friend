@@ -64,8 +64,8 @@ const LIME_ANCHOR = {hands: 'top', cta: 'top', big: 'top', screen: 'top', split_
    screen's old anchor; under 65% for every size of the order = the screen does not come up in this clip (limeRoom). The dark screen's card sits
    in the middle of the screen with its words moved up, the key word still 150 over the card (Friend: "ฉากนี้ต้องอยู่กึ่งกลางจอ ตรงกลางเลยนะ ...
    เว้นระยะห่างกับซับไตเติ้ลเหมือนเดิม" → "แบบนี้โอเคครับ"). */
-const LIME_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965]};
-const LIME_ORDER = {hands: [3, 2, 1], cta: [3, 2, 1], big: [2, 1], top: [2, 3, 1], split_top: [2, 3], side_l: [4], side_r: [4], split_bottom: [2, 1]};
+const LIME_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};   // 7: a shorter 4 (Friend 2026-11-19: "ขนาด 7 โอเคครับ")
+const LIME_ORDER = {hands: [3, 2, 1], cta: [3, 2, 1], big: [2, 1], top: [2, 3, 1], split_top: [2, 3], side_l: [4, 7], side_r: [4, 7], split_bottom: [2, 1]};
 const LIME_MIN = .65;
 function limeShape(L, ar, name) {
   /* the CARD is the standard size scaled from the corner (its shape exact), the card's padding inside it, the picture in the padding at its own

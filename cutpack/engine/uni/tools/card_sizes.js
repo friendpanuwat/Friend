@@ -4,7 +4,7 @@
    usage: NODE_PATH=$(npm root -g) node tools/card_sizes.js <built page dir (build_only.sh / st_<style>)> [<shots dir>]
    with a shots dir: one still per picture with the standard box (dashed magenta) and the card (cyan) drawn over it */
 const {chromium} = require('playwright'), path = require('path'), fs = require('fs');
-const STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965]};
+const STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
 (async () => { const b = await chromium.launch(), p = await b.newPage({viewport: {width: 1080, height: 1920}}), D = path.resolve(process.argv[2]);
   await p.goto('file://' + path.join(D, 'scene.html')); await p.waitForFunction(() => window.GLOW_READY !== false, null, {timeout: 120000});
   const wins = await p.evaluate(() => CLIPWINS.map(x => [x.t0, x.t1, x.F.name])), N = fs.readdirSync(path.join(D, 'src_frames')).length;
