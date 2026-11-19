@@ -222,21 +222,31 @@ STYLE('lime', {
       /* no lime line between them (final 2026-11-18, Friend: "อยากให้เปลี่ยนจากการแบ่งจอบนล่างโดยมีเส้นแบ่งชัดเจนเป็นการ fade แทน"): the speaker's
          half reaches FADE px into the graphics' half and fades out over them (was: a 4 px glowing lime line at y 962) */
       const y = LIME.split, top = L.split === 'top', FADE = 220;
-      const panel = top ? box([0, 0, 1080, y]) : box([0, y, 1080, 1920 - y]); panel.className = 'l-panel'; grid(panel);
-      const vid = top ? box([0, y - FADE, 1080, 1920 - y + FADE]) : box([0, 0, 1080, y + FADE]); vid.className = 'l-video';
-      const m = top ? `linear-gradient(180deg,transparent,#000 ${FADE}px)` : `linear-gradient(0deg,transparent,#000 ${FADE}px)`;
-      Object.assign(vid.style, {webkitMaskImage: m, maskImage: m});
+      /* ONE SOLID COPY OF THE SPEAKER (Friend 2026-11-19: "เหมือนว่าตัวคนอยู่ที่เดิมแต่ไหล่ขึ้นไปถึงคอยืดแล้วหดได้"): the copy covers the whole
+         screen under the graphics' half (no fading edge on the video, so the full-screen speaker underneath never shows through while it glides);
+         the fade between them is the graphics' half's own edge now, FADE px over the speaker (same look when still) */
+      const vid = box([0, 0, 1080, 1920]); vid.className = 'l-video';
+      root.style.background = '#070808';   // the full-screen speaker underneath never shows during the split (it would be a second body)
       const im = cpInset(vid, 1080, top ? 1920 - y + FADE : y + FADE, t0, .3, top ? .5 : .46);
-      /* SMOOTH IN AND OUT (Friend 2026-11-19: "ผมชอบครับ แต่อยากให้มัน smooth กว่านี้หน่อยได้ไหมตอนนี้มันเหมือนตัดไปทื่อๆเลยอ่ะ"): the speaker's
-         copy starts exactly over the full-screen speaker and glides (moves and shrinks) to its half in 0.6 s, the graphics' half comes in with
-         it; at the end it glides back to the full screen and the split only then lets go (was: a 0.2 s cross-fade between two framings) */
-      const sc = 1080 / parseFloat(im.style.width), vy = top ? y - FADE : 0;
-      const full = `translate(${-sc * parseFloat(im.style.left)}px, ${-vy - sc * parseFloat(im.style.top)}px) scale(${sc})`;
-      vid.style.transformOrigin = '0 0';
-      A(vid, [{transform: full}, {transform: 'none'}], t0, .6, {e: EASE.inout});
-      A(vid, [{transform: 'none'}, {transform: full}], t1 - .6, .55, {e: EASE.inout, f: 'forwards'});
-      A(panel, [{opacity: 0, transform: `translateY(${top ? -60 : 60}px)`}, {opacity: 1, transform: 'none'}], t0 + .05, .55, {e: EASE.soft});
-      A(panel, [{opacity: 1}, {opacity: 0}], t1 - .6, .45, {e: EASE.out, f: 'forwards'});
+      if (top) im.style.top = `${parseFloat(im.style.top) + y - FADE}px`;   // the same framing as the old half-box, in a full-screen box
+      const panel = top ? box([0, 0, 1080, y + FADE]) : box([0, y - FADE, 1080, 1920 - y + FADE]); panel.className = 'l-panel'; grid(panel);
+      const m = top ? `linear-gradient(180deg,#000 calc(100% - ${2 * FADE}px),transparent calc(100% - ${FADE}px))` : `linear-gradient(0deg,#000 calc(100% - ${2 * FADE}px),transparent calc(100% - ${FADE}px))`;
+      Object.assign(panel.style, {webkitMaskImage: m, maskImage: m});
+      /* SMOOTH IN AND OUT (Friend 2026-11-19: "อยากให้มัน smooth กว่านี้หน่อย" → "ตอนที่คลิปคนเลื่อนลงแล้วฉากทึบเลื่อนลงมาด้วย แล้วตอนที่จะเอาคลิปคน
+         เลื่อนขึ้นกลับไปเหมือนเดิมฉากทึบก็เลื่อนขึ้นไปในความเร็วที่เท่ากัน"): the speaker's copy starts exactly over the full-screen speaker (the
+         camera's zoom of that moment included) and glides to its half in 0.6 s; the solid graphics' half (and its card) slides in from its edge
+         of the screen with it, same time, same curve, so nothing else ever shows between them; at the end both glide back the same way */
+      const sc = 1080 / parseFloat(im.style.width), ix = parseFloat(im.style.left), iy = parseFloat(im.style.top);
+      const fullAt = t => { const z = typeof CAM !== 'undefined' && CAM ? camAt(t) : 1, k = sc * z; return `translate(${540 * (1 - z) - k * ix}px, ${864 * (1 - z) - k * iy}px) scale(${k})`; };
+      vid.style.transformOrigin = '0 0'; vid.style.overflow = 'visible';   // (.l-video clips: a moving box would cut the top or bottom off)
+      FITS.push(() => {                                              // after camPlan (the first seek): the camera's zoom is known
+        A(vid, [{transform: fullAt(t0)}, {transform: 'none'}], t0, .6, {e: EASE.inout});
+        A(vid, [{transform: 'none'}, {transform: fullAt(t1 - .05)}], t1 - .6, .55, {e: EASE.inout, f: 'forwards'});
+      });
+      L.slide = top ? -(y - FADE) : 1920 - (y + FADE);               // the solid half's start: just off its edge of the screen
+      const slide = e => { A(e, [{translate: `0 ${L.slide}px`}, {translate: '0 0'}], t0, .6, {e: EASE.inout});
+        A(e, [{translate: '0 0'}, {translate: `0 ${L.slide}px`}], t1 - .6, .55, {e: EASE.inout, f: 'forwards'}); };
+      slide(panel); L.slideFn = slide;
       A(root, [{opacity: 0}, {opacity: 1}], t0 - .04, .1, {e: EASE.smooth});   // the copy matches the speaker underneath: no visible fade
       sfx('whoosh', t0 - .1, -20);
     }
@@ -250,7 +260,7 @@ STYLE('lime', {
       return box(inner(c), e); });
     const stage = L.card ? cards[0] : box([0, 0, 1, 1]);
     const stages = L.cards ? cards : null;
-    if (L.split) shells.forEach(c => A(c, [{opacity: 1}, {opacity: 0}], t1 - .6, .4, {e: EASE.out, f: 'forwards'}));   // the card leaves with the graphics' half (2026-11-19; `cards` are the inner picture boxes)
+    if (L.split) shells.forEach(c => L.slideFn(c));   // the card slides with the graphics' half (2026-11-19; `cards` are the inner picture boxes)
     return {root, stage, stages, cam: root, L, name, dark: !!(L.screen || L.split)};
   },
   /* between pictures (a real clip): the words at the chest (shot 01) or above the head (shot 07), one of the two for each stretch
