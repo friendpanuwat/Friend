@@ -33,6 +33,8 @@ def flag(name):
     i = args.index(name); v = args[i + 1]; del args[i:i + 2]; return v
 SEED = int(flag('--seed') or int.from_bytes(os.urandom(4), 'big') % 1000000)
 HISTORY = flag('--history')
+OPEN_CAP = flag('--open-cap')   # TRIAL ONLY, off unless given (Friend 2026-11-19: "ลองทำ ก ดูก่อน แค่กลับคลิปนี้คลิปเดียวยังไม่ต้องบันทึกเป็นกฎ"):
+                                #   the speaker-only opening ends on the last line end within this many seconds, not on the first point's end
 W, FACES = args[0], args[1]
 STYLES = args[2:]
 UNI = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
@@ -119,6 +121,12 @@ ends = sorted({n - 1 for n in camera.get('ends', [])} if camera.get('ends') else
 ends = [e for e in ends if 0 <= e < len(lines) - 1] + [len(lines) - 1]
 SENT = []                                          # [first line, last line] of each sentence
 for e in ends: SENT.append([SENT[-1][1] + 1 if SENT else 0, e])
+if OPEN_CAP:                                       # trial (see OPEN_CAP): split the first point after the opening lines
+    a0, b0 = SENT[0]
+    k0 = max([n for n in range(a0, b0) if lines[n]['t1'] <= float(OPEN_CAP) + 1e-6] or [a0])
+    if k0 < b0:
+        SENT[0:1] = [[a0, k0]] + [[n, n] for n in range(k0 + 1, b0 + 1)]; ends = sorted(set(ends) | set(range(k0, b0)))   # the rest of the first point: a picture may start on any of its lines
+        print(f"open cap (trial): the speaker opening ends at line {k0 + 1} ({lines[k0]['t1']:.2f} s), not line {b0 + 1}; lines {k0 + 2}–{b0 + 1} each start a scene")
 sent_of = {n: k for k, (a, b) in enumerate(SENT) for n in range(a, b + 1)}
 print(f"points: {len(SENT)} ({'the AI' if camera.get('ends') else 'pauses'}) · ends at lines {[e + 1 for e in ends]}")
 
