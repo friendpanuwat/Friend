@@ -509,158 +509,136 @@
     FILL = { fill: TA(.24), sw: 0, stroke: 'none' }; SOFTT = { sw: 14, stroke: TL_(.16) }; }
   function theme(t) { const r = G.theme(t); tokens(); return r; }
 
-  /* ================= B01S — ตัวเลขเด่น ชุด 7 ขนาด =================
-     The 7 sizes (cutpack/style-rules/common.md 4.1, px at 100%). Each idea has its own arrangement per size: the same parts (icon box,
-     number, unit, ring, bar, dial, card, lines, dir badge) and the same moves as B01T, placed again to fill that shape. Part sizes start
-     from the B01T picture sitting in size 5 (≈ .86 of the 1000-unit canvas); a short / narrow size uses smaller parts, never below the
-     skill's minimum (words ≥ 34 · icon boxes ≥ 90 · the number stays the biggest thing). Coordinates: canvas centred at (0, 0). */
+  /* ================= B01S — ตัวเลขเด่น ชุด 7 ขนาด · รอบ 2 =================
+     Friend 2026-11-19 (round 1 turned down): "Redesign ใหม่ทั้งหมดให้ใช้พื้นที่ให้คุ้มทั้ง 7 ขนาด (เอาของเดิมมา redesign ได้)" · "อยากได้แบบ modern
+     เรียบๆ ไม่เอาแบบ 02". One plain grid for every size: small parts (icon box, dir badge) sit in the corners, the big parts (the number, the
+     grid / bar / dial) take all the room that is left. The number is sized to fill its own box (numFit), not a fixed size; the unit goes after
+     it, or on its own line under it when that makes the number bigger. No decoration (no ticks round things, no halos, no underlines on the
+     flat sizes). 5 ideas: 01 stat · 02 waffle (in place of the ring) · 03 bar · 04 dial · 05 card. Canvas: the size at 100% px, centred (0,0). */
   const SIZES = { 1: { w: 860, h: 230, th: 'แถบแบนยาว' }, 2: { w: 860, h: 470, th: 'กว้าง' }, 3: { w: 560, h: 490, th: 'เกือบจัตุรัส' }, 4: { w: 400, h: 635, th: 'ตั้งแคบ' },
     5: { w: 860, h: 710, th: 'เต็มจอ ทรงนอน' }, 6: { w: 860, h: 965, th: 'เต็มจอ ทรงตั้ง' }, 7: { w: 400, h: 500, th: 'ตั้งแคบ สั้น' } };
-  const PAD = 24;
-  /* the unit on its own line under the number (narrow / tall sizes): comes in just after H, like numRow's unit */
+  const PAD = 28;
+  /* the corner parts' size for each canvas size: icon box side · dir badge radius */
+  const BOX = { 1: 170, 2: 120, 3: 110, 4: 104, 5: 140, 6: 170, 7: 96 }, BADGE = n => BOX[n] < 120 ? 30 : 36;
+  /* the unit on its own line (comes in just after H, like numRow's unit) */
   function unitL(q, u, x, y, size, o = {}) { if (!u) return; const g = sub(q); on(g, q, 0, { y: [[0, 22], [f3(Z.H + tu(.04)), 22], [f3(Z.H + tu(.24)), 0, 'out']], o: fadeIn(f3(Z.H + tu(.04))) });
-    txt(g, u, x, y, { size, weight: 600, color: C.soft, anchor: o.anchor || 'middle', maxW: o.maxW || SZ.w - 2 * PAD }); }
-  /* the number + its unit: inline (numRow) or stacked (number, then the unit line under it). base = the number's baseline. */
-  function numB(p, v, u, x, base, ns, o = {}) { if (!v) return null;
-    if (!o.stack || !u) return numRow(p, p, v, u, x, base, { size: ns, maxW: o.maxW, anchor: o.anchor || 'middle', t0: o.t0 ?? tu(.32) });
-    const n = num(p, p, v, x, base, { size: ns, maxW: o.maxW, anchor: o.anchor || 'middle', t0: o.t0 ?? tu(.32) }), us = o.us || Math.max(36, ns * .3);
-    unitL(p, u, o.anchor === 'start' ? n.x0 : n.cx, f1(base + ugOf(ns, us, o.tight)), us, { anchor: o.anchor, maxW: o.maxW });
-    return Object.assign({ nw: n.w }, n); }
-  /* the height a number block takes from its top to its lowest line (for centring): digits ≈ .74 of the size */
-  const ugOf = (ns, us, tight) => f1(tight ? ns * .06 + us * 1.15 : ns * .2 + us * 1.15);   /* number baseline → unit baseline (room for the underline between) */
-  const numH = (ns, u, stack, us, tight) => .78 * ns + (stack && u ? ugOf(ns, us, tight) + us * .25 : 0);
-  const usOf = ns => Math.max(36, ns * .3);
+    txt(g, u, x, y, { size: f1(size), weight: 600, color: C.soft, anchor: o.anchor || 'middle', maxW: o.maxW || SZ.w - 2 * PAD }); }
+  /* the number (+ unit) made as big as the box (x0, y0, w, h) allows: inline (numRow) or the unit on its own line under it — whichever gives
+     the bigger number. o.anchor start | middle | end · o.valign mid | top | bottom · o.cap = the largest size. Returns the number's box + base. */
+  function numFit(p, v, u, x0, y0, w, h, o = {}) { if (!v) return null; const an = o.anchor || 'start', cap = o.cap || 1e9, t0 = o.t0 ?? tu(.32);
+    const wN = tw(p, v, 100) / 100, wU = u ? tw(p, u, 30, 600) / 100 : 0;
+    const sIn = Math.min(cap, h / .8, w / (wN + (u ? .1 + wU : 0)));
+    let sSt = Math.min(cap, w / wN, h / .8), us = 36, ub = 0;
+    for (let k = 0; k < 4 && u; k++) { us = Math.max(36, Math.min(96, sSt * .28)); if (wU * us / .3 > w) us = Math.max(30, w * .3 / wU); ub = us * 1.5; sSt = Math.min(cap, w / wN, (h - ub) / .8); }
+    const stack = !!u && sSt > sIn * 1.18, s = f1(stack ? sSt : sIn), tot = .8 * s + (stack ? ub : 0);
+    const top = o.valign === 'top' ? y0 : o.valign === 'bottom' ? y0 + h - tot : y0 + (h - tot) / 2, base = f1(top + .78 * s);
+    const x = an === 'start' ? x0 : an === 'end' ? x0 + w : x0 + w / 2;
+    let n; if (stack) { n = num(p, p, v, x, base, { size: s, maxW: w, anchor: an, t0 }); n.nw = n.w; unitL(p, u, an === 'start' ? n.x0 : an === 'end' ? n.x1 : n.cx, f1(base + us * 1.3), us, { anchor: an, maxW: w }); }
+    else n = numRow(p, p, v, u, x, base, { size: s, maxW: w, anchor: an, t0 });
+    return Object.assign(n, { base, top, s, stack, bottom: top + tot }); }
+  /* the corner parts: the icon box drops into the top-left corner · the dir badge pops in the top-right corner */
+  const cornerBox = (p, c, ic, bs, t0 = tu(.04)) => dropBox(p, c, ic, f1(-SZ.w / 2 + PAD + bs / 2), f1(-SZ.h / 2 + PAD + bs / 2), bs, t0, f3(t0 + tu(.24)));
+  const cornerBadge = (p, d, bs, x) => dirB(p, DIRV(d), f1(x ?? SZ.w / 2 - PAD - BADGE(SZ.n)), f1(-SZ.h / 2 + PAD + bs / 2), f3(Z.H + tu(.1)), BADGE(SZ.n));
+  const flat = () => SZ.w / SZ.h > 1.6;   /* sizes 1 and 2 */
 
-  /* 01 ── ICON + NUMBER (ไอคอนข้างตัวเลข) — row (box left, number right) in the flat sizes; column (box on top, number under) in the others */
-  variant('stat', 'ไอคอนข้างตัวเลข', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, W2 = SZ.w / 2, H2 = SZ.h / 2;
-    const T = { 1: { m: 'row', bs: 168, ns: 150 }, 2: { m: 'row', bs: 240, ns: 220 }, 3: { m: 'col', bs: 160, ns: 150, st: true }, 4: { m: 'col', bs: 180, ns: 170, st: true },
-      5: { m: 'col', bs: 250, ns: 230 }, 6: { m: 'col', bs: 300, ns: 300, st: true }, 7: { m: 'col', bs: 150, ns: 140, st: true } }[SZ.n];
-    art(c, p => { let n;
-      if (T.m === 'row') { const gap = T.bs * .2, mw = SZ.w - 2 * PAD - (ic ? T.bs + gap : 0), rw = ic && v ? rowW(p, v, u, T.ns, mw) : 0, L = -(T.bs + gap + rw) / 2;
-        dropBox(p, c, ic, L + T.bs / 2, 0, T.bs, tu(.04), tu(.28));
-        n = numRow(p, p, v, u, ic ? L + T.bs + gap : 0, f1(T.ns * .35), { size: T.ns, maxW: mw, anchor: ic ? 'start' : 'middle', t0: tu(.32) });
-        if (n) { const uy = Math.min(H2 - 8, T.ns * .35 + T.ns * .26); drawAt(p.line(n.x0, uy, n.x1, uy, S(2.4)), p, tu(.34), tu(.3)); ripple(p, n.x0 + n.nw / 2, n.cy, T.ns * .65, H);
-          dirB(p, DIRV(d), Math.min(W2 - 40, n.x1 + 24), Math.max(-H2 + 36, -T.bs / 2 - 10), f3(H + tu(.1)), T.bs < 200 ? 30 : 36); }
-      } else { const ns = ic ? T.ns : T.ns * 1.25, us = usOf(ns), g1 = T.bs * .2, nh = numH(ns, u, T.st, us) + ns * .26, tot = (ic ? T.bs + g1 : 0) + nh, top = -tot / 2;
-        const by = top + T.bs / 2, base = f1((ic ? top + T.bs + g1 : top) + .78 * ns);
-        dropBox(p, c, ic, 0, by, T.bs, tu(.04), tu(.28));
-        n = numB(p, v, u, 0, base, ns, { stack: T.st, maxW: SZ.w - 2 * PAD, us });
-        if (n) { const uy = f1(base + ns * .2); if (!(T.st && u)) drawAt(p.line(n.x0, uy, n.x1, uy, S(2.4)), p, tu(.34), tu(.3)); else drawAt(p.line(n.cx - 70, uy, n.cx + 70, uy, S(2.4)), p, tu(.34), tu(.3));
-          ripple(p, n.cx, n.cy, ns * .62, H);
-          if (ic) dirB(p, DIRV(d), Math.min(W2 - 36, T.bs / 2 + 46), by - T.bs / 2 + 30, f3(H + tu(.1)), T.bs < 200 ? 30 : 36);
-          else dirB(p, DIRV(d), Math.min(W2 - 36, n.x1 + 30), base - .74 * ns, f3(H + tu(.1)), 32); }
-      }
+  /* 01 ── STAT (ไอคอนกับตัวเลขใหญ่) — flat / wide sizes: the icon box on the left as tall as the room, the number filling the rest beside it ·
+     the others: the icon box in the top-left corner, the number filling everything under it. The dir badge in the top-right corner. */
+  variant('stat', 'ไอคอนกับตัวเลขใหญ่', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, W2 = SZ.w / 2, H2 = SZ.h / 2;
+    art(c, p => { const side = SZ.w / SZ.h > 1.15, rB = DIRV(d) ? 2 * BADGE(SZ.n) + 24 : 0; let n;
+      if (side) { const bs = ic ? Math.min(SZ.h - 2 * PAD, SZ.n === 1 ? 174 : SZ.w * .32) : 0, gap = ic ? Math.max(36, bs * .16) : 0, x0 = -W2 + PAD + bs + gap;
+        dropBox(p, c, ic, f1(-W2 + PAD + bs / 2), 0, bs, tu(.04), tu(.28));
+        n = numFit(p, v, u, x0, -H2 + PAD + (rB && SZ.n !== 1 ? rB * .5 : 0), W2 - PAD - x0 - (SZ.n === 1 ? rB : 0), SZ.h - 2 * PAD - (rB && SZ.n !== 1 ? rB * .5 : 0), { anchor: ic ? 'start' : 'middle' });
+        dirB(p, DIRV(d), f1(W2 - PAD - BADGE(SZ.n)), f1(SZ.n === 1 ? 0 : -H2 + PAD + BADGE(SZ.n)), f3(H + tu(.1)), BADGE(SZ.n));
+      } else { const bs = BOX[SZ.n], top = ic || rB ? -H2 + PAD + bs + bs * .3 : -H2 + PAD;
+        cornerBox(p, c, ic, bs); cornerBadge(p, d, bs);
+        n = numFit(p, v, u, -W2 + PAD, top, SZ.w - 2 * PAD, H2 - PAD - top, { anchor: 'start' }); }
+      if (n) ripple(p, n.x0 + n.nw / 2, n.cy, Math.min(160, n.s * .5), H);
     }); });
 
-  /* 02 ── RING (วงแหวน) — 'side': the ring on the left, the icon box and unit pill on the right (flat sizes; size 1: the ring is too short to hold
-     the number, so the icon sits in the ring and the number stands beside it) · 'shoulder': the B01T arrangement (box on the ring's shoulder,
-     unit pill under) */
-  variant('ring', 'วงแหวน', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), W2 = SZ.w / 2, H2 = SZ.h / 2, t0 = tu(.3), t1 = f3(H - tu(.04));
-    const T = { 1: { m: 'tiny', r: 64 }, 2: { m: 'side', r: 172, ns: 120, bs: 150 }, 3: { m: 'sh', r: 150, ns: 116, bs: 100 }, 4: { m: 'sh', r: 140, ns: 110, bs: 96 },
-      5: { m: 'side', r: 242, ns: 160, bs: 170 }, 6: { m: 'sh', r: 300, ns: 200, bs: 150 }, 7: { m: 'sh', r: 126, ns: 100, bs: 90 } }[SZ.n];
-    art(c, p => { const r = T.r, k = r / 200, tk1 = 26 * k + 2, tk2 = 44 * k + 2, R2 = r + tk2;
-      let cx = 0, cy = 0, side = null;
-      if (T.m === 'tiny') { cx = -W2 + PAD + R2; }
-      else if (T.m === 'side' && (ic || u)) { cx = -W2 + PAD + R2; side = { x: f1((cx + R2 + W2) / 2) }; }
-      else if (T.m === 'side') { T.m = 'alone'; }   /* nothing for the right column → the ring alone in the middle */
-      else { const pillY = r + 52 + 30 * k, top = -R2, bot = pillY + 32; cy = f1(-(top + bot) / 2); }
-      drawAt(p.circle(cx, cy, r, { sw: Math.max(9, 14 * k), stroke: SOFTT.stroke }), p, tu(.04), tu(.3));
-      const N = r < 100 ? 24 : 36; for (let q = 0; q < N; q++) { const a = -90 + q * 360 / N; tick(atG(p, tu(.1 + .006 * q)), cx, cy, a, r + tk1, r + tk2, S(1.6));
-        if (q / N < fr - 1e-6) tick(litOn(p, f3(t0 + (t1 - t0) * q / N / Math.max(fr, .01))), cx, cy, a, r + tk1 - 2, r + tk2 + 4, { sw: 3.4, stroke: ACC1 }); }
-      if (fr > 0) { const arc = p.path(arcD(cx, cy, r, fr), { sw: Math.max(9, 14 * k), stroke: ACC1 }); on(arc, p, 0, { draw: fillK(t0, t1) });
-        const rd = mvG(p, { px: cx, py: cy, r: ridK(360 * fr, t0, t1), o: fadeIn(t0, .04) }), a = rad(-90 + 360 * fr); rd.circle(f1(cx + r * Math.cos(a)), f1(cy + r * Math.sin(a)), Math.max(11, 16 * k), { fill: ACC1, sw: 2, stroke: ACC1 }); }
-      if (T.m === 'tiny') {   /* size 1: icon in the ring (flies in on an arc), the number + unit beside it, big */
-        if (ic) { const L = [[cx - 200, cy - 220], [cx + 120, cy - 200], [cx, cy]], K = pathK(L, tu(.14), tu(.44), [cx, cy]); put(p, c, { icon: ic }, cx, cy, r * 1.05, null, { t: tu(.14), mv: { px: cx, py: cy, x: K.x, y: K.y }, punch: tu(.44) }); }
-        const x0 = cx + R2 + 36, n = numRow(p, p, v, u, ic ? x0 : (x0 + W2 - PAD) / 2 + (ic ? 0 : 0), 52, { size: 150, maxW: W2 - PAD - x0, anchor: ic ? 'start' : 'middle', t0: tu(.3) });
-        if (!ic && v) { /* no icon: the number in the ring after all would be tiny — keep it beside; the ring holds a lit dot */ popAt(p, cx, cy, tu(.3)).circle(cx, cy, 12, { fill: ACC1, sw: 1, stroke: ACC1 }); }
-        if (n) ripple(p, n.x0 + n.nw / 2, n.cy, 90, H);
-        return; }
-      const n = num(p, p, v, cx, f1(cy + T.ns * .35), { size: T.ns, maxW: f1(r * 1.5), t0: tu(.3) }); if (n) ripple(p, cx, cy, r - 30 * k, H);
-      if (T.m === 'side') { const bx = side.x, room = W2 - PAD - (cx + R2) - 20, gy = (ic ? T.bs : 0) + (u ? 70 : 0) + (ic && u ? 50 : 0), by = -gy / 2 + T.bs / 2;
-        if (ic) { const L = [[bx - 300, -H2 - 160], [bx - 120, -H2 - 60], [bx, by]], K = pathK(L, tu(.14), tu(.44), [bx, by]), mv = { px: bx, py: by, x: K.x, y: K.y }, g = mvG(CL(p), Object.assign({ o: fadeIn(tu(.14), .04) }, mv));
-          ibox(p, c, { icon: ic }, bx, by, T.bs, tu(.14), { g, mv, punch: tu(.44) }); }
-        pill(p, u, bx, f1(ic ? by + T.bs / 2 + 50 + 35 : 0), { t: f3(H + tu(.06)), size: T.bs > 160 ? 40 : 34, maxW: room - 60 });
-      } else { const bs = T.bs, bx = f1(Math.min(W2 - PAD - bs / 2, cx + r * 1.0)), by = f1(Math.max(-H2 + PAD + bs / 2, cy - r * .9));
-        if (ic) { const L = [[-W2 - 120, -H2 - 120], [0, -H2 - 160], [bx, by]], K = pathK(L, tu(.14), tu(.44), [bx, by]), mv = { px: bx, py: by, x: K.x, y: K.y }, g = mvG(CL(p), Object.assign({ o: fadeIn(tu(.14), .04) }, mv));
-          ibox(p, c, { icon: ic }, bx, by, bs, tu(.14), { g, mv, punch: tu(.44) }); }
-        pill(p, u, cx, f1(cy + r + 52 + 30 * k), { t: f3(H + tu(.06)), size: r > 200 ? 42 : 34, maxW: SZ.w - 2 * PAD - 60 }); }
+  /* 02 ── WAFFLE (ตาราง 100 ช่อง · แทนวงแหวน) — 100 small squares light one by one up to the amount (% or value ÷ max; else dir), the number
+     counts and locks on H. The grid takes its own block and picks the columns (4 · 5 · 10 · 20 · 25) that give the biggest squares there;
+     the number + icon take the other block (beside the grid on the flat / wide sizes, above it on the tall ones). */
+  variant('waffle', 'ตาราง 100 ช่อง', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), lit = Math.round(fr * 100), W2 = SZ.w / 2, H2 = SZ.h / 2, t0 = tu(.36), t1 = f3(H - tu(.04));
+    const L = { 1: { m: 'side', k: .5 }, 2: { m: 'side', k: .5 }, 5: { m: 'side', k: .4 }, 3: { m: 'side', k: .44 }, 4: { m: 'top', k: .46 }, 6: { m: 'top', k: .3 }, 7: { m: 'top', k: .44 } }[SZ.n];
+    art(c, p => { const X0 = -W2 + PAD, Y0 = -H2 + PAD, IW = SZ.w - 2 * PAD, IH = SZ.h - 2 * PAD, gp = SZ.n === 1 ? 30 : 40; let gx, gy, gw, gh, n;
+      const bs = BOX[SZ.n] * (SZ.n === 1 ? .62 : 1);
+      if (L.m === 'side') { const nw = f1(IW * L.k); gx = X0 + nw + gp; gy = Y0; gw = IW - nw - gp; gh = IH;
+        if (SZ.n === 1) { dropBox(p, c, ic, f1(X0 + bs / 2), 0, bs, tu(.04), tu(.28)); const x0 = X0 + (ic ? bs + 26 : 0); n = numFit(p, v, u, x0, Y0, X0 + nw - x0, IH, { anchor: 'start' }); }
+        else { cornerBox(p, c, ic, bs); dirB(p, DIRV(d), f1(X0 + nw - BADGE(SZ.n)), f1(Y0 + bs / 2), f3(H + tu(.1)), BADGE(SZ.n)); const top = ic || DIRV(d) ? Y0 + bs * 1.3 : Y0; n = numFit(p, v, u, X0, top, nw, Y0 + IH - top, { anchor: 'start' }); }
+      } else { const nh = f1(IH * L.k); gx = X0; gy = Y0 + nh + gp; gw = IW; gh = IH - nh - gp;
+        if (SZ.w < 500) { /* narrow: icon box + badge in the corners, the number under them */ cornerBox(p, c, ic, bs); cornerBadge(p, d, bs); const top = ic || DIRV(d) ? Y0 + bs * 1.2 : Y0;
+          n = numFit(p, v, u, X0, top, IW, Y0 + nh - top, { anchor: 'start', valign: 'bottom' }); }
+        else { /* the top band: icon box at its left, the number beside it (the dir badge at the band's right end) */ const b2 = Math.min(bs, nh), rB = DIRV(d) ? 2 * BADGE(SZ.n) + 20 : 0, x0 = ic ? X0 + b2 + 26 : X0;
+        dropBox(p, c, ic, f1(X0 + b2 / 2), f1(Y0 + b2 / 2), b2, tu(.04), tu(.28)); dirB(p, DIRV(d), f1(X0 + IW - BADGE(SZ.n)), f1(Y0 + BADGE(SZ.n)), f3(H + tu(.1)), BADGE(SZ.n));
+        n = numFit(p, v, u, x0, Y0, X0 + IW - x0 - rB, nh, { anchor: 'start', valign: 'bottom' }); } }
+      let best = null; for (const cols of [4, 5, 10, 20, 25]) { const rows = 100 / cols, st = Math.min(gw / cols, gh / rows); if (!best || st > best.st) best = { cols, rows, st }; }
+      const { cols, rows, st } = best, cs = f1(st * .8), ox = f1(gx + (gw - st * cols) / 2 + (st - cs) / 2), oy = f1(gy + (gh - st * rows) / 2 + (st - cs) / 2), rr = f1(Math.max(3, cs * .22));
+      for (let k = 0; k < 100; k++) { const i = k % cols, j = rows - 1 - Math.floor(k / cols), x = f1(ox + i * st), y = f1(oy + j * st);
+        on(R(p, x, y, cs, cs, rr, S(1.6)), p, 0, { o: fadeIn(tu(.04 + .003 * (i + (rows - 1 - j) * 2)), .06) });
+        if (k < lit) { const tl = f3(t0 + (t1 - t0) * (lit > 1 ? k / (lit - 1) : 1)), q = f1(cs * .14); R(litOn(p, tl), f1(x + q), f1(y + q), f1(cs - 2 * q), f1(cs - 2 * q), f1(Math.max(2, rr * .7)), { fill: ACC1, sw: 0, stroke: 'none' }); } }
+      if (n) ripple(p, n.x0 + n.nw / 2, n.cy, Math.min(150, n.s * .5), H);
     }); });
 
-  /* 03 ── PROGRESS BAR (แถบความคืบหน้า) — 'row' (flat sizes: box at the bar's start, number above the bar, unit at the far end) ·
-     'col' (box on top, number, the bar full width at the bottom) */
+  /* 03 ── BAR (แถบความคืบหน้า) — the bar runs the full width along the bottom (thick, round, its knob riding the end); the number fills the room
+     above it; icon box + dir badge in the top corners (size 1: the icon box on the left, the number and the bar beside it) */
   variant('bar', 'แถบความคืบหน้า', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), W2 = SZ.w / 2, H2 = SZ.h / 2, t0 = tu(.34), t1 = f3(H - tu(.04));
-    const T = { 1: { m: 'row', bs: 150, bh: 46, ns: 100 }, 2: { m: 'row', bs: 210, bh: 60, ns: 230 }, 3: { m: 'col', bs: 130, bh: 54, ns: 170 }, 4: { m: 'col', bs: 160, bh: 56, ns: 170, st: true },
-      5: { m: 'row', bs: 250, bh: 80, ns: 330 }, 6: { m: 'col', bs: 260, bh: 90, ns: 320, st: true }, 7: { m: 'col', bs: 140, bh: 52, ns: 150, st: true } }[SZ.n];
-    art(c, p => { const bh = T.bh, kr = f1(bh * .58); let bx0, bx1, by, nx, base, ns = T.ns, n;
-      const bar = () => { R(inG(p, 'pop', (bx0 + bx1) / 2, by, tu(.1)), bx0, by - bh / 2, bx1 - bx0, bh, bh / 2, F(3.4)); const bw = bx1 - bx0;
-        if (fr > 0) { const fw = Math.max(bh * .8, (bw - 12) * fr); R(mvG(p, { px: bx0, py: by, sx: fillK(t0, t1), o: fadeIn(t0, .04) }), bx0 + 6, by - bh / 2 + 6, fw, bh - 12, (bh - 12) / 2, FILL);
-          const kx = f1(bx0 + 6 + fw - (bh - 12) / 2), kn = mvG(p, { x: [[0, f1(bx0 + 30 - kx)], [t0, f1(bx0 + 30 - kx)], [t1, 0, 'io']], o: fadeIn(t0, .04) }); kn.circle(kx, by, kr, F(4)); ripple(p, kx, by, kr * 1.5, H); } };
-      if (T.m === 'row') { const L = -W2 + PAD;
-        bx0 = ic ? L + T.bs + 26 : L; bx1 = W2 - PAD;
-        const top = -(bh / 2 + ns * .16 + .78 * ns), bot = ic ? T.bs / 2 : bh / 2; by = f1(-(top + bot) / 2);
-        dropBox(p, c, ic, L + T.bs / 2, by, T.bs, tu(.04), tu(.28)); bar();
-        base = f1(by - bh / 2 - ns * .16);
-        const uw = u ? tw(p, u, Math.max(40, ns * .22), 600) + 30 : 0, mw = bx1 - bx0 - 20 - (u && uw < (bx1 - bx0) * .4 ? uw : 0);
-        n = numRow(p, p, v, null, bx0, base, { size: ns, maxW: mw, anchor: 'start', t0: tu(.3) });
-        if (u && n) { const room = bx1 - n.x1 - 24; if (room > 120) words(p, u, bx1, base, { t: f3(H + tu(.06)), size: Math.max(40, Math.min(ns * .22, 72)), weight: 600, color: C.soft, anchor: 'end', maxW: room, wrap: null });
-          else pill(p, u, (bx0 + bx1) / 2, f1(by + bh / 2 + 50), { t: f3(H + tu(.06)), size: 32, maxW: 500 }); }
-      } else { const us = usOf(ns), g1 = T.bs * .22, nh = numH(ns, u, T.st, us), g2 = ns * .22, tot = (ic ? T.bs + g1 : 0) + nh + g2 + bh, top = -tot / 2;
-        const boxY = top + T.bs / 2; base = f1((ic ? top + T.bs + g1 : top) + .78 * ns); by = f1(top + tot - bh / 2); bx0 = -W2 + PAD; bx1 = W2 - PAD;
-        dropBox(p, c, ic, 0, boxY, T.bs, tu(.04), tu(.28)); bar();
-        n = numB(p, v, u, 0, base, ns, { stack: T.st, maxW: SZ.w - 2 * PAD, us, t0: tu(.3) }); }
+    art(c, p => { const X0 = -W2 + PAD, Y0 = -H2 + PAD, IW = SZ.w - 2 * PAD, IH = SZ.h - 2 * PAD, bh = f1(SZ.n === 1 ? 44 : Math.max(48, Math.min(96, SZ.h * .1))), bs = BOX[SZ.n];
+      let bx0 = X0, bx1 = X0 + IW, by = f1(Y0 + IH - bh / 2), n;
+      if (SZ.n === 1) { dropBox(p, c, ic, f1(X0 + bs / 2), 0, bs, tu(.04), tu(.28)); bx0 = ic ? X0 + bs + 30 : X0; const rB = DIRV(d) ? 2 * BADGE(1) + 20 : 0;
+        dirB(p, DIRV(d), f1(bx1 - BADGE(1)), f1(Y0 + BADGE(1)), f3(H + tu(.1)), BADGE(1));
+        n = numFit(p, v, u, bx0, Y0, bx1 - bx0 - rB, IH - bh - 22, { anchor: 'start', valign: 'bottom' }); }
+      else { cornerBox(p, c, ic, bs); cornerBadge(p, d, bs); const top = ic || DIRV(d) ? Y0 + bs * 1.25 : Y0;
+        n = numFit(p, v, u, X0, top, IW, by - bh / 2 - bh * .5 - top, { anchor: 'start', valign: 'bottom' }); }
+      const bw = bx1 - bx0, kr = f1(bh * .58);
+      R(inG(p, 'pop', (bx0 + bx1) / 2, by, tu(.1)), bx0, f1(by - bh / 2), bw, bh, bh / 2, F(3.4));
+      if (fr > 0) { const fw = f1(Math.max(bh * .8, (bw - 12) * fr)); R(mvG(p, { px: bx0, py: by, sx: fillK(t0, t1), o: fadeIn(t0, .04) }), f1(bx0 + 6), f1(by - bh / 2 + 6), fw, bh - 12, (bh - 12) / 2, FILL);
+        const kx = f1(Math.min(bx1 - kr, bx0 + 6 + fw - (bh - 12) / 2)), kn = mvG(p, { x: [[0, f1(bx0 + kr - kx)], [t0, f1(bx0 + kr - kx)], [t1, 0, 'io']], o: fadeIn(t0, .04) }); kn.circle(kx, by, kr, F(4)); ripple(p, kx, by, kr * 1.5, H); }
+      if (n) ripple(p, n.x0 + n.nw / 2, n.cy, Math.min(150, n.s * .5), H);
     }); });
 
-  /* 04 ── DIAL (หน้าปัด) — 'stack' = the B01T arrangement (icon box and dir badge in the top corners, the half dial, number under the pivot) ·
-     'side' (size 1 only: the dial on the left, number + box + badge on the right) */
+  /* 04 ── DIAL (หน้าปัด) — the half dial as wide as the room lets it (its top may rise between the corner box and the badge); segments light in a
+     wave, the needle sweeps and settles on H; the number fills the room under the pivot. Size 1: the dial on the left, the icon in its bowl,
+     the number beside it. */
   variant('gauge', 'หน้าปัด', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, ps = posV(d), W2 = SZ.w / 2, H2 = SZ.h / 2, t0 = tu(.36), t1 = f3(H - tu(.04)), N = 12;
-    const T = { 1: { m: 'side', r: 160, ns: 130, bs: 110 }, 2: { m: 'stack', r: 250, ns: 130, bs: 120, g: 34 }, 3: { m: 'stack', r: 220, ns: 120, bs: 100, g: 34 },
-      4: { m: 'stack', r: 175, ns: 140, bs: 110, g: 40, st: true }, 5: { m: 'stack', r: 320, ns: 170, bs: 140, g: 50 }, 6: { m: 'stack', r: 390, ns: 220, bs: 150, g: 60, st: true },
-      7: { m: 'stack', r: 155, ns: 120, bs: 96, g: 30, st: true } }[SZ.n];
-    art(c, p => { const r = T.r, k = r / 290, sw = f1(Math.max(15, 22 * k)), pr = f1(Math.max(15, 22 * k)), R1 = r + sw / 2;
-      let cx = 0, cy = 0, ns = T.ns;
-      if (T.m === 'side') { cy = f1((R1 - pr) / 2); cx = f1(-W2 + PAD + R1); }
-      else { /* centred in the room under the corner row (the arc may rise between the corner box and the badge) */ const us = usOf(ns), tot = R1 + pr + T.g + numH(ns, u, T.st, us), a = -H2 + PAD + T.bs * .55, b = H2 - PAD, top = b - a > tot ? a + (b - a - tot) / 2 : -tot / 2; cy = f1(top + R1); }
+    art(c, p => { const X0 = -W2 + PAD, Y0 = -H2 + PAD, IW = SZ.w - 2 * PAD, IH = SZ.h - 2 * PAD, bs = BOX[SZ.n];
+      let r, cx = 0, cy, n;
+      if (SZ.n === 1) { r = 168; cx = f1(X0 + r + 12); cy = f1(Y0 + IH - 18); }
+      else { /* the biggest r whose arc stays clear of the corner box (when there is one) and leaves the number at least ~a third of the height */
+        const minNum = IH * (SZ.h > SZ.w ? .3 : SZ.w / SZ.h > 1.5 ? .36 : .32), sw0 = r0 => Math.max(15, 22 * r0 / 290);
+        for (r = IW / 2 - 12; r > 80; r -= 4) { const R1 = r + sw0(r) / 2;
+          /* lowest pivot so the arc clears the corner boxes: dist(box inner corner, pivot) > R1 + 12 */
+          const bx = X0 + bs, byB = Y0 + bs, need = R1 + 12; let py = Y0 + R1; if (ic || DIRV(d)) { const dx = Math.max(0, -bx); if (dx < need) py = Math.max(py, byB + Math.sqrt(need * need - dx * dx)); }
+          cy = py; if (Y0 + IH - (cy + 22) >= minNum) break; } }
+      const k = r / 290, sw = f1(Math.max(15, 22 * k)), pr = f1(Math.max(14, 22 * k));
       for (let q = 0; q < N; q++) { const a0 = 180 + q * 180 / N + 1.6, a1 = 180 + (q + 1) * 180 / N - 1.6, P = a => f1(cx + r * Math.cos(rad(a))) + ' ' + f1(cy + r * Math.sin(rad(a))), dd = `M ${P(a0)} A ${r} ${r} 0 0 1 ${P(a1)}`;
         drawAt(p.path(dd, { sw, stroke: TL_(.16) }), p, tu(.06 + .02 * q), tu(.1)); if ((q + .5) / N <= ps + 1e-6) on(p.path(dd, { sw, stroke: ACC1 }), p, 0, { o: [[0, 0], [f3(t0 + (t1 - t0) * (q + .5) / N / Math.max(ps, .01)), 0], [f3(t0 + (t1 - t0) * (q + .5) / N / Math.max(ps, .01) + tu(.04)), 1]] }); }
-      const an = 180 + 180 * ps, nd = mvG(p, { px: cx, py: cy, r: [[0, -180 * ps], [t0, -180 * ps], [t1, 6, 'out'], [f3(t1 + tu(.1)), -2, 'io'], [f3(t1 + tu(.18)), 0, 'soft']], o: fadeIn(tu(.3), .04) });
-      nd.line(cx, cy, f1(cx + (r - 70 * k) * Math.cos(rad(an))), f1(cy + (r - 70 * k) * Math.sin(rad(an))), W(f1(Math.max(4.4, 6 * k)))); popAt(p, cx, cy, tu(.3)).circle(cx, cy, pr, SOLID(2));
-      let n;
-      if (T.m === 'side') { const x0 = cx + R1 + 34, x1 = W2 - PAD, colX = x1 - T.bs / 2;
-        n = numRow(p, p, v, u, x0, f1(ns * .35 + 6), { size: ns, maxW: (ic || DIRV(d) ? colX - T.bs / 2 - 20 : x1) - x0, anchor: 'start', t0: tu(.32) });
-        dropBox(p, c, ic, colX, f1(-H2 + PAD + T.bs / 2 - 4), T.bs, tu(.04), tu(.26)); dirB(p, DIRV(d), colX, f1(ic ? H2 - PAD - 32 : 0), f3(H + tu(.1)), 30);
-      } else { const us = usOf(ns), base = f1(cy + pr + T.g + .78 * ns);
-        n = numB(p, v, u, cx, base, ns, { stack: T.st, maxW: SZ.w - 2 * PAD, us });
-        const cxB = f1(-W2 + PAD + T.bs / 2), cyB = f1(-H2 + PAD + T.bs / 2);
-        dropBox(p, c, ic, cxB, cyB, T.bs, tu(.04), tu(.26)); dirB(p, DIRV(d), f1(W2 - PAD - 36), cyB, f3(H + tu(.1)), T.bs < 120 ? 30 : 36); }
+      const an = 180 + 180 * ps, nl = SZ.n === 1 ? r * .5 : r - 70 * k, nd = mvG(p, { px: cx, py: cy, r: [[0, -180 * ps], [t0, -180 * ps], [t1, 6, 'out'], [f3(t1 + tu(.1)), -2, 'io'], [f3(t1 + tu(.18)), 0, 'soft']], o: fadeIn(tu(.3), .04) });
+      nd.line(cx, cy, f1(cx + nl * Math.cos(rad(an))), f1(cy + nl * Math.sin(rad(an))), W(f1(Math.max(4.4, 6 * k)))); popAt(p, cx, cy, tu(.3)).circle(cx, cy, pr, SOLID(2));
+      if (SZ.n === 1) { if (ic) { const K = fallK(cx - 92, cy - 40, tu(.04), tu(.28), 300); put(p, c, { icon: ic }, f1(cx - 92), f1(cy - 70), 74, null, { t: tu(.04), mv: Object.assign({ px: cx - 92, py: cy - 40 }, K), punch: tu(.3) }); }
+        const x0 = cx + r + sw / 2 + 36, rB = DIRV(d) ? 2 * BADGE(1) + 20 : 0; dirB(p, DIRV(d), f1(X0 + IW - BADGE(1)), 0, f3(H + tu(.1)), BADGE(1));
+        n = numFit(p, v, u, x0, Y0, X0 + IW - x0 - rB, IH, { anchor: 'start' }); }
+      else { cornerBox(p, c, ic, bs); cornerBadge(p, d, bs); const top = f1(cy + pr + 22); n = numFit(p, v, u, X0, top, IW, Y0 + IH - top, { anchor: 'middle' }); }
       if (n) ripple(p, cx, cy, 40 * Math.max(.7, k), H);
     }); });
 
-  /* 05 ── STAT CARD (การ์ดสถิติ) — the card = the whole size. 'row' (size 1: icon | number | rule | two lines) · 'top' (icon + lines on top,
-     a rule, the number under — the B01T arrangement) · 'narrow' (sizes 4 / 7: icon and badge on top, lines full width, rule, number, unit line) */
+  /* 05 ── CARD (การ์ดสถิติ) — the card is the whole size; inside: icon box + two lines of words (or soft bars) on top, a thin rule, and the
+     number filling everything under the rule. Size 1: icon | number | a rule | the two lines. Sizes 4 / 7: the lines go full width under the icon. */
   variant('card', 'การ์ดสถิติ', (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, W2 = SZ.w / 2, H2 = SZ.h / 2;
-    const T = { 1: { m: 'row', bs: 120, ns: 130, ls: 34 }, 2: { m: 'top', bs: 120, ns: 200, ls: 42 }, 3: { m: 'top', bs: 110, ns: 180, ls: 38 }, 4: { m: 'narrow', bs: 110, ns: 150, ls: 38 },
-      5: { m: 'top', bs: 150, ns: 280, ls: 48 }, 6: { m: 'top', bs: 170, ns: 360, ls: 52, st: true }, 7: { m: 'narrow', bs: 100, ns: 120, ls: 36 } }[SZ.n];
-    art(c, p => { const cw = SZ.w - 16, ch = SZ.h - 16, ip = SZ.n === 1 ? 34 : 44; cardG(p, cw, ch, 0);
-      const X0 = -cw / 2 + ip, X1 = cw / 2 - ip, Y0 = -ch / 2 + ip * .9, Y1 = ch / 2 - ip * .9, bs = T.bs, ls = T.ls;
+    const LS = { 1: 34, 2: 42, 3: 38, 4: 36, 5: 48, 6: 54, 7: 34 }[SZ.n], BS = { 1: 120, 2: 116, 3: 104, 4: 100, 5: 140, 6: 160, 7: 92 }[SZ.n];
+    art(c, p => { const cw = SZ.w - 16, ch = SZ.h - 16, ip = SZ.n === 1 ? 34 : SZ.w < 500 ? 34 : 44; cardG(p, cw, ch, 0);
+      const X0 = -cw / 2 + ip, X1 = cw / 2 - ip, Y0 = -ch / 2 + ip, Y1 = ch / 2 - ip, bs = BS, ls = LS;
       const lines2 = (lx, ys, w, sz) => ys.forEach((y, q) => { const L = LN(d, q), t = tu(.36 + .08 * q); if (L) lineIn(p, L, lx, y, w, t, q ? sz * .92 : sz);
         else { const bw = f1(w * (q ? .62 : .94)); R(mvG(p, { px: lx, py: y, sx: [[0, 0], [t, 0], [f3(t + tu(.2)), 1, 'out']], o: fadeIn(t, .04) }), lx, f1(y - 13), bw, 26, 13, PH); } });
       let n;
-      if (T.m === 'row') { const ix = X0 + bs / 2; spinBox(p, c, ic, ix, 0, bs, tu(.3)); const nx = ic ? X0 + bs + 34 : X0, rx = 96;
-        n = numRow(p, p, v, u, nx, f1(T.ns * .35), { size: T.ns, maxW: rx - 60 - nx, anchor: 'start', t0: tu(.4) });
-        drawAt(p.line(rx, -ch / 2 + 40, rx, ch / 2 - 40, S(2)), p, tu(.3), tu(.3)); lines2(rx + 30, [-26, 38], X1 - rx - 30, ls);
-        dirB(p, DIRV(d), rx - 40, f1(-ch / 2 + 44), f3(H + tu(.1)), 28);
-      } else if (T.m === 'top') { const ix = X0 + bs / 2, iy = Y0 + bs / 2; spinBox(p, c, ic, ix, iy, bs, tu(.3)); const lx = ic ? X0 + bs + 34 : X0, rB = DIRV(d) ? 100 : 0;
-        lines2(lx, [f1(iy - bs * .24), f1(iy + bs * .3)], X1 - lx - rB, ls);
-        const ry = f1(Y0 + bs + ip * .7); drawAt(p.line(X0, ry, X1, ry, S(2)), p, tu(.3), tu(.3));
-        const us = usOf(T.ns), nh = numH(T.ns, u, T.st, us, true), rT = ry + 30, rBm = Y1, base = f1((rT + rBm) / 2 - nh / 2 + .78 * T.ns);
-        n = numB(p, v, u, X0, base, T.ns, { stack: T.st, maxW: X1 - X0, anchor: 'start', t0: tu(.4), us, tight: true });
-        dirB(p, DIRV(d), f1(X1 - 36), f1(iy), f3(H + tu(.1)), bs < 130 ? 30 : 36);
-      } else { const ix = X0 + bs / 2, iy = Y0 + bs / 2; spinBox(p, c, ic, ix, iy, bs, tu(.3)); dirB(p, DIRV(d), f1(X1 - 32), f1(iy), f3(H + tu(.1)), 30);
-        const ly0 = ic || DIRV(d) ? Y0 + bs + ip * .9 : Y0 + 30; lines2(X0, [f1(ly0), f1(ly0 + ls * 1.45)], X1 - X0, ls);
-        const ry = f1(ly0 + ls * 1.45 + ls * 1.2); drawAt(p.line(X0, ry, X1, ry, S(2)), p, tu(.3), tu(.3));
-        const us = usOf(T.ns), nh = numH(T.ns, u, true, us, true), base = f1((ry + 30 + Y1) / 2 - nh / 2 + .78 * T.ns);
-        n = numB(p, v, u, X0, base, T.ns, { stack: true, maxW: X1 - X0, anchor: 'start', t0: tu(.4), us, tight: true }); }
-      if (n) ripple(p, n.x0 + n.nw / 2, n.cy, Math.min(120, T.ns * .6), H);
+      if (SZ.n === 1) { spinBox(p, c, ic, f1(X0 + bs / 2), 0, bs, tu(.3)); const nx = ic ? X0 + bs + 30 : X0, rx = 110;
+        n = numFit(p, v, u, nx, Y0, rx - 30 - nx - (DIRV(d) ? 70 : 0), Y1 - Y0, { anchor: 'start', t0: tu(.4) }); dirB(p, DIRV(d), rx - 60, 0, f3(H + tu(.1)), 28);
+        drawAt(p.line(rx, Y0, rx, Y1, S(2)), p, tu(.3), tu(.3)); lines2(rx + 30, [-26, 38], X1 - rx - 30, ls);
+      } else { const nar = SZ.w < 500, ix = X0 + bs / 2, iy = Y0 + bs / 2; spinBox(p, c, ic, ix, iy, bs, tu(.3)); dirB(p, DIRV(d), f1(X1 - 32), f1(iy), f3(H + tu(.1)), bs < 130 ? 30 : 36);
+        let ry; if (nar) { const ly0 = ic || DIRV(d) ? Y0 + bs + ls * 1.1 : Y0 + ls * .6; lines2(X0, [f1(ly0), f1(ly0 + ls * 1.45)], X1 - X0, ls); ry = f1(ly0 + ls * 1.45 + ls * 1.1); }
+        else { const lx = ic ? X0 + bs + 34 : X0; lines2(lx, [f1(iy - bs * .24), f1(iy + bs * .3)], X1 - lx - (DIRV(d) ? 100 : 0), ls); ry = f1(Y0 + bs + ip * .7); }
+        drawAt(p.line(X0, ry, X1, ry, S(2)), p, tu(.3), tu(.3));
+        n = numFit(p, v, u, X0, ry + ip * .7, X1 - X0, Y1 - ry - ip * .7, { anchor: 'start', t0: tu(.4) }); }
+      if (n) ripple(p, n.x0 + n.nw / 2, n.cy, Math.min(140, n.s * .5), H);
     }); });
 
   /* ---------- sheet helpers: the size's frame (dashed, review only — not part of the picture) ---------- */

@@ -2,13 +2,13 @@
 <html><head><meta charset="utf-8"><title>B01S 05 card A</title>
 <script src="../../assets/glowline.js"></script><script src="../b01t/b01t.js"></script><script src="b01s.js"></script></head>
 <body><script>
-/* B01S ชุด 7 ขนาด — idea 05 card (การ์ดสถิติ), data set A (A = the B01T sheet-A sentence, B = the B01T sheet-B stress data).
-   Every size at 100% (px) in its dashed frame; the old B01T design (untouched, b01t.js) bottom right for reference. */
+/* B01S ชุด 7 ขนาด รอบ 2 — idea 05 card (การ์ดสถิติ), data set A (A = a B01T sample sentence, B = B01T stress data).
+   Every size at 100% (px) in its dashed frame; the old B01T design 05 (untouched, b01t.js) bottom right for reference. */
 GL.run(() => {
   GL.stage({ w: 1840, h: 2460 });
-  const I = 4, SET = 'A', B = GL.cats.B01S, d = (SET === 'A' ? B.SAMPLES : B.STRESS)[I];
+  const I = 4, B = GL.cats.B01S, d = B.SAMPLES[4];
   GL.text('B01 ชุด 7 ขนาด · 05 CARD · การ์ดสถิติ', { x: 920, y: 74, size: 52, color: GL.C.ink, glow: false });
-  GL.text((SET === 'A' ? 'ข้อมูลตัวอย่าง' : 'ข้อมูลโหด') + ' · “' + d.say + '” · ทุกขนาดที่ 100% (กรอบเส้นประ = ขนาดนั้น)', { x: 920, y: 126, size: 30, weight: 500, color: GL.C.sub, glow: false });
+  GL.text('ข้อมูลตัวอย่าง · “' + d.say + '” · ทุกขนาดที่ 100% (กรอบเส้นประ = ขนาดนั้น)', { x: 920, y: 126, size: 30, weight: 500, color: GL.C.sub, glow: false });
   const POS = { 1: [40, 210], 2: [40, 540], 5: [40, 1110], 3: [40, 1920], 6: [940, 210], 4: [940, 1275], 7: [1400, 1275] };
   for (const n of [1, 2, 3, 4, 5, 6, 7]) { const S = B.SIZES[n], [x0, y0] = POS[n], cx = x0 + S.w / 2, cy = y0 + S.h / 2;
     GL.text('ขนาด ' + n + ' · ' + S.th + ' · ' + S.w + ' × ' + S.h, { x: x0, y: y0 - 18, size: 28, weight: 700, color: GL.C.soft, anchor: 'start', glow: false });
@@ -16,7 +16,7 @@ GL.run(() => {
     B.draw(I, d, { x: cx, y: cy, s: 1, at: .3, hit: 1.5, size: n });
   }
   GL.text('ของเดิม B01T แบบ 05 (ไม่ได้แก้)', { x: 1370, y: 1975, size: 28, weight: 700, color: GL.C.soft, glow: false });
-  GL.cats.B01T.draw(I, d, { x: 1370, y: 2210, s: .58, at: .3, hit: 1.5 });
+  GL.cats.B01T.draw(4, d, { x: 1370, y: 2210, s: .58, at: .3, hit: 1.5 });
   GL.finish({ hold: 2.4, out: true, stagger: .02 });
 });
 </script></body></html>
