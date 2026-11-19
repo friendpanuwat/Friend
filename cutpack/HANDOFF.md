@@ -16,6 +16,8 @@
 - เริ่มจากสาขาหลัก `ccr-045810ba-gj4imq` หลัง PR #36 merge (`77a7e94`) · push ที่สาขา `ccr-a46be783-75kxc8` · ห้ามเปิด PR จนกว่า Friend บอก
 - กฎที่ Friend ย้ำตอนเริ่มแชท: DECISIONS ข้อ 3 รายการ "แชทใหม่ `ccr-a46be783-75kxc8`" (เหมือนแชทก่อน + "ภาพที่เก็บใน repo ใช้ภาพคนจำลอง library/styles/speaker_standin.jpg เท่านั้น")
 - งานแรก: ถาม Friend ว่าจะทำ HUD ต่อ หรือไป final สไตล์ไหน (ยังไม่ได้คำตอบ) · สถานะทุกสไตล์ตามหัวข้อด้านล่าง
+- Friend บอก "มีขนาดของ motion graphic อยู่ 5 ขนาด" (นอกเรื่อง final) · จดแล้ว รอ Friend บอกรายละเอียด
+- ตัดคลิปที่ 2 ของ Friend ด้วยเขียวมะนาว (ลิงก์ Drive `1EmgGYG8v_9GILyt8vxDqmLTDX1r-81GV` · 93.7 วินาที · seed 239287) ส่งไฟล์ HQ แล้ว · ผลใน `lime.md` หัวข้อ 11 · LESSONS 73 (ตรวจซับ Haiku เทียบบท)
 
 ## สรุปตอนปิดแชท `ccr-103ebebc-89alfv` (2026-11-18–19) · อ่านส่วนนี้ก่อน
 - **PR ของแชทนี้: PR #36 (https://github.com/friendpanuwat/Friend/pull/36)** สาขา `ccr-103ebebc-89alfv` → สาขาหลัก `ccr-045810ba-gj4imq` เปิดตามที่ Friend สั่ง ("เปิด pr จากนั้นทำ handoff และเขียนข้อความสำหรับเริ่มแชทใหม่ให้ผมด้วย") · **merge เข้าสาขาหลักแล้ว** (merge commit `77a7e94` · Friend 2026-11-19 ตอนเริ่มแชท `ccr-a46be783-75kxc8`: "merge เข้าสาขาหลัก ccr-045810ba-gj4imq แล้ว เริ่มจากสาขาหลักได้เลย ไม่ต้องดึงสาขาเก่า") · session ใหม่เริ่มจากสาขาหลัก ไม่ต้องดึงสาขา `ccr-103ebebc-89alfv`
