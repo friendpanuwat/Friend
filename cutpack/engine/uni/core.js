@@ -29,6 +29,8 @@ const EASE = Object.freeze({
   linear: 'linear', smooth: 'cubic-bezier(.2,.8,.2,1)', inout: 'cubic-bezier(.65,0,.35,1)', spring: 'cubic-bezier(.22,1.3,.36,1)',
   bounce: 'cubic-bezier(.34,1.56,.64,1)', soft: 'cubic-bezier(.25,1.12,.4,1)', calm: 'cubic-bezier(.45,.05,.25,1)',
   gentle: 'cubic-bezier(.3,.7,.3,1)', out: 'cubic-bezier(.45,0,.8,.6)',
+  cubicOut: 'cubic-bezier(.33,1,.68,1)',
+  glide: 'cubic-bezier(.5,0,.5,1)',   // even in-out: no crawl at the end (lime's slide out · Friend 2026-11-20: "พอมันเลื่อนไปถึงข้างบนสุดหรือข้างล่างสุดมันจะมีจังหวะที่ค้างอยู่นิดนึง ... อยากให้มันเลื่อนลงไปแบบสมูทเลย")   // ease-out cubic: off fast, settles slowly (Friend 2026-11-20 sent the curve: "อยากให้กราฟมันเป็นประมาณ[นี้] มันจะได้ดูมี dynamic หน่อย")
 });
 const ease3 = p => 1 - Math.pow(1 - p, 3);
 const easeIO = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;

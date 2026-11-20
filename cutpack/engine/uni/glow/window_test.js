@@ -6,10 +6,9 @@ GLOWSCENE('w02', 'B04T', 3, WS(3), ['ผมเลยตั้งกติกา'
 GLOWSCENE('w03', 'B04T', 1, WS(1), ['อ่านตอนไหน', 'ก่อนนอน'], {layout: 'dark'});
 GLOWSCENE('w04', 'B04T', 7, WS(7), ['มือถือ', 'ไว้นอกห้อง'], {layout: 'float'});
 GLOWSCENE('w05', 'B04T', 9, WS(9), ['อ่านไม่รู้เรื่อง?', 'อ่านซ้ำ'], {layout: 'full_w'});
-GLOWSCENE('w06', 'B04T', 7, WS(7), ['ไม่สนุก', 'เปลี่ยนเล่ม'], {layout: 'cascade'});
+GLOWSCENE('w06', 'B04T', 7, WS(7), ['ไม่สนุก', 'เปลี่ยนเล่ม'], {layout: 'stack'});
 GLOWSCENE('w07', 'B04T', 2, WS(2), ['จดไว้', 'ประโยคเดียว'], {layout: 'full_d'});
 GLOWSCENE('w08', 'B04T', 5, WS(5), ['เดือนแรก', 'จบ 1 เล่ม'], {layout: 'stats'});
 GLOWSCENE('w09', 'B04T', 4, WS(4), ['ทำซ้ำเป็น', 'วงจร'], {layout: 'full_c'});
 GLOWSCENE('w10', 'B04T', 8, WS(8), ['สามเดือนต่อมา', 'จบ 3 เล่ม'], {layout: 'dark_b'});
-GLOWRECAP('w11', [['B04T', 5, WS(5)], ['B04T', 3, WS(3)], ['B04T', 1, WS(1)], ['B04T', 2, WS(2)]], ['อ่านให้จบ', '4 ข้อ']);
 GLOWSCENE('w12', 'B04T', 0, WS(0), ['เดือนนี้', 'อ่านเล่มไหน?'], {layout: 'cta'});

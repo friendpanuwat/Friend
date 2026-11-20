@@ -33,7 +33,6 @@ def flag(name):
     i = args.index(name); v = args[i + 1]; del args[i:i + 2]; return v
 SEED = int(flag('--seed') or int.from_bytes(os.urandom(4), 'big') % 1000000)
 HISTORY = flag('--history')
-OPEN_CAP = flag('--open-cap')   # TRIAL ONLY, off unless given (Friend 2026-11-19: "ลองทำ ก ดูก่อน แค่กลับคลิปนี้คลิปเดียวยังไม่ต้องบันทึกเป็นกฎ"):
                                 #   the speaker-only opening ends on the last line end within this many seconds, not on the first point's end
 W, FACES = args[0], args[1]
 STYLES = args[2:]
@@ -54,7 +53,7 @@ RULES = {
     'terminal':      dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # เทอร์มินัลแดง: as the styles 6–8 that passed (LESSONS 66)
     'horizon':       dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # ขอบฟ้าส้ม: as the yellow and HUD styles that passed (LESSONS 66)
     'hud':           dict(every=4.0, scene=(1.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # เส้นชี้ HUD: as the yellow style that passed · final 2026-11-18: scenes from 1.5 s (was 3.5 so the notes filled, LESSONS 66; no notes now) (Friend: "อยากให้มีฉากโอเวอร์เลย์เยอะกว่านี้หน่อยแต่ไม่ต้องเยอะมากจนดูจุกจิก")
-    'window':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True),   # หน้าต่างแอป: 11 of 12 shots carry a window (first guess)   # เขียวมะนาว: 10 of 12 shots carry a picture, several on the speaker (first guess, before a real clip)   # no overlays: Friend 2026-11-17 "ยกเลิก 5." (over=25 turned them on)   # นีออนฟ้า: 10 of the sheet's 12 shots carry a picture (first guess, before a real clip)
+    'window':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True, hook=(1.8, 3.2)),   # hook (Friend 2026-11-19: "ใส่ระบบ hook ให้สไตล์นี้")   # หน้าต่างแอป: 11 of 12 shots carry a window (first guess)   # เขียวมะนาว: 10 of 12 shots carry a picture, several on the speaker (first guess, before a real clip)   # no overlays: Friend 2026-11-17 "ยกเลิก 5." (over=25 turned them on)   # นีออนฟ้า: 10 of the sheet's 12 shots carry a picture (first guess, before a real clip)
 }
 PUSH = dict(z=1.05, d=1.4, back=1.0, gap=4.0, most=5)
 flat = lambda s: re.sub(r'\s+', '', s)
@@ -121,12 +120,6 @@ ends = sorted({n - 1 for n in camera.get('ends', [])} if camera.get('ends') else
 ends = [e for e in ends if 0 <= e < len(lines) - 1] + [len(lines) - 1]
 SENT = []                                          # [first line, last line] of each sentence
 for e in ends: SENT.append([SENT[-1][1] + 1 if SENT else 0, e])
-if OPEN_CAP:                                       # trial (see OPEN_CAP): split the first point after the opening lines
-    a0, b0 = SENT[0]
-    k0 = max([n for n in range(a0, b0) if lines[n]['t1'] <= float(OPEN_CAP) + 1e-6] or [a0])
-    if k0 < b0:
-        SENT[0:1] = [[a0, k0]] + [[n, n] for n in range(k0 + 1, b0 + 1)]; ends = sorted(set(ends) | set(range(k0, b0)))   # the rest of the first point: a picture may start on any of its lines
-        print(f"open cap (trial): the speaker opening ends at line {k0 + 1} ({lines[k0]['t1']:.2f} s), not line {b0 + 1}; lines {k0 + 2}–{b0 + 1} each start a scene")
 sent_of = {n: k for k, (a, b) in enumerate(SENT) for n in range(a, b + 1)}
 print(f"points: {len(SENT)} ({'the AI' if camera.get('ends') else 'pauses'}) · ends at lines {[e + 1 for e in ends]}")
 
@@ -283,7 +276,8 @@ def picks_for(sc, ov=()):
     return json.loads(out.stdout)['picks']
 
 
-def fit_picks(style, sc, open_):
+HOOK_FAIL = False                                # fit_pick.js: the style has no speaker screen for the hook's picture (top of write)
+def fit_picks(style, sc, open_, hook=False):
     """FIT PICK (a style with fitPick, Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่"): every drawing
     the rules allow is drawn from the library with this clip's words and measured; one of those that fill the screen best, at random
     (tools/fit_pick.js). Falls back to picks_for when it fails."""
@@ -299,14 +293,19 @@ def fit_picks(style, sc, open_):
         hit = hit_of([r, t0, t1, n])
         if hit is None or not (t0 + .3 < hit < t1 - .3): hit = (t0 + t1) / 2
         scenes.append({'id': r['id'], 't0': round(t0, 2), 't1': round(t1, 2), 'hit': round(hit, 2), 'pool': pools.get(r['id'], [])})
-    json.dump({'seed': SEED, 'scenes': scenes}, open(os.path.join(D, 'job.json'), 'w'))
+    json.dump({'seed': SEED, 'scenes': scenes, **({'hook': True} if hook else {})}, open(os.path.join(D, 'job.json'), 'w'))
     try:
         res = subprocess.run(['node', os.path.join(UNI, 'tools', 'fit_pick.js'), D, style], capture_output=True, text=True, check=True, timeout=1200,
                              env={**os.environ, 'NODE_PATH': subprocess.run(['npm', 'root', '-g'], capture_output=True, text=True).stdout.strip()})
+        for w in (res.stderr or '').splitlines():
+            if 'not measured' in w: print(f'{style}: {w.strip()}')   # never silent (2026-11-20): a scene fit_pick could not measure takes its drawing from pick.js
         out = json.loads(res.stdout.strip().splitlines()[-1])
+        if hook and out.get('hookFail'):
+            global HOOK_FAIL; HOOK_FAIL = True; return {}
         print(f"{style}: fit pick (best % of the screen, picked %, kept / measured): " + ' · '.join(f"{k} {v[0]}/{v[1]} {v[2]}/{v[3]}" for k, v in out['sizes'].items()))
         if len(out['picks']) == len(order): return out['picks']
-        print(f'{style}: fit pick left some out, the rest by pick.js')
+        missing = [r['id'] for r, *_ in order if r['id'] not in out['picks']]
+        print(f"{style}: fit pick left some out ({', '.join(missing)}: every drawing of the pool was already used in this clip, or the page could not be measured), the rest by pick.js")
         return {**picks_for(sc), **out['picks']}
     except Exception as e:
         err = (getattr(e, 'stderr', '') or str(e)).strip().splitlines()
@@ -314,7 +313,13 @@ def fit_picks(style, sc, open_):
 
 
 def write(style, R, sc, zooms, suffix, ov=(), open_='speaker', hook=False):
-    then, picks = [], (fit_picks(style, sc, open_) if R.get('fitPick') and not ov else picks_for(sc, ov))
+    """hook: the first picture is the hook (with_hook). Returns False, writing nothing, when the style says the hook's picture has no
+    speaker screen (HOOK_FAIL, fit_pick.js · 2026-11-20 Friend: "1. ก"): the caller plans the clip again without the hook."""
+    global HOOK_FAIL
+    is_hook = bool(hook and sc and HOOK_AT is not None and abs(min(x[1] for x in sc) - HOOK_AT) < .01)
+    HOOK_FAIL = False
+    then, picks = [], (fit_picks(style, sc, open_, is_hook) if R.get('fitPick') and not ov else picks_for(sc, ov))
+    if HOOK_FAIL: return False
     ovid = {o[0]['id'] for o in ov}
     for k, (r, t0, t1, n) in enumerate(sorted(list(sc) + list(ov), key=lambda x: x[1])):
         hit = hit_of([r, t0, t1, n])
@@ -323,7 +328,9 @@ def write(style, R, sc, zooms, suffix, ov=(), open_='speaker', hook=False):
         RUN_PICKS.append(picks[r['id']])
     f = json.load(open(FACES))
     run = {'seed': SEED, 'overlays': [f"{r['id']}.{picks[r['id']]}" for r, *_ in ov], 'open': open_ if sc and sc[0][1] < .3 else 'speaker'}
-    if hook and sc and HOOK_AT is not None and abs(min(x[1] for x in sc) - HOOK_AT) < .01: run['hook'] = True   # the first picture is the hook: a speaker's screen
+    # TRIAL 2026-11-20 (lime, close-up clips): every picture's window, so a style can see the pictures that come next
+    run['scenes'] = [[round(t0, 2), round(t1, 2)] for _, t0, t1, _ in sorted(list(sc) + list(ov), key=lambda x: x[1])]
+    if is_hook: run['hook'] = True                 # the first picture is the hook: a speaker's screen
     js = f"const RUN = {json.dumps(run)};\nconst FACES = {json.dumps({'track': f['track'], 'layout': f['layout'], 'keepOut': f['keepOut']})};\nconst CAPTIONS = {json.dumps(CAP, ensure_ascii=False)};\n"
     if zooms: js += f"const ZOOMS = {json.dumps(zooms)};\n"
     js += re.sub(r'"say": \[[^\]]*\]', '"say": ["", ""]', open(f'{W}/cats/sentences.js').read())
@@ -334,6 +341,7 @@ def write(style, R, sc, zooms, suffix, ov=(), open_='speaker', hook=False):
     print(f"{style}: opens with {run['open']}")
     print(f'{style}: {len(CAP)} subtitle blocks ({sum("acc" in c for c in CAP)} accent) · {len(then)} pictures, {cover / dur:.0%} of the clip · '
           f'{sum(z["z"] > 1 for z in zooms)} zoom pushes at {[z["t"] for z in zooms if z["z"] > 1]}')
+    return True
 
 
 if not STYLES:                                   # the old rule (2026-11-11), for comparing
@@ -343,8 +351,12 @@ for st in STYLES:
     R = RULES[st]; op = opening(st, R)
     saved = with_hook(R) if R.get('hook') and op == 'speaker' else None
     sc = scenes_for(R, op); ov = overlays_for(R, sc)
-    write(st, R, sc, zooms_for(R, sc + ov, R.get('cut', 'soft')), f'_{st}', ov, op, hook=saved is not None)
+    done = write(st, R, sc, zooms_for(R, sc + ov, R.get('cut', 'soft')), f'_{st}', ov, op, hook=saved is not None)
     if saved: SENT, sent_of, ends, report = saved; HOOK_AT = None
+    if not done:                                  # no speaker screen for the hook's picture (Friend 2026-11-20: "1. ก"): the old opening
+        print(f"{st}: hook: no speaker screen has room for the first picture, planned again without the hook")
+        sc = scenes_for(R, op); ov = overlays_for(R, sc)
+        write(st, R, sc, zooms_for(R, sc + ov, R.get('cut', 'soft')), f'_{st}', ov, op)
 print(f'seed {SEED} (same plan again: --seed {SEED})')
 if HISTORY:                                       # this run joins the customer's history (a run of the same clip again counts too)
     PAST.append({'clip': os.path.basename(os.path.abspath(W)), 'seed': SEED, 'picks': sorted(set(RUN_PICKS))})
