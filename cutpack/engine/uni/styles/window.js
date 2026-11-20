@@ -112,7 +112,7 @@ function winFit(name, f) {
    the words 90 over it, moved up with it but not into the search bar. No sizes 4 and 7 (no screen beside the body). */
 const WIN_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
 const WIN_ORDER = {full: [2, 1], full_d: [2, 1], full_c: [2, 1], cta: [2, 1], full_n: [3, 2], full_w: [1, 2], full_top: [2, 3, 1],
-  float: [3, 5], stats: [5, 2], stack: [2, 3, 1]};
+  float: [3, 5], stats: [5, 2], stack: [5, 2, 3]};   // stack: the tallest size the screen allows, as the sheet Friend sent
 const WIN_MIN = .65;
 function winShape(L, name, key) {
   if (!L.win) return L;
@@ -127,6 +127,20 @@ function winShape(L, name, key) {
     L.ringUp = Math.max(L.ringUp ?? 0, 230 + Math.max(0, 645 - y));   // the top ring keeps off the words when they move up
     L.std = [k, s]; return L;
   }
+  if (name === 'stack') {
+    /* STACK (Friend 2026-11-20: "ใช้การ์ดใหญ่แล้วทำให้มันเหมือน ref ไม่ได้หรอ"): the window and the speaker's frame are the SAME standard
+       size, as big as the screen allows — the window hangs from 220, the frame sits on 1660, and the words fill the gap between them
+       (60 px clear of each). 220 → 1660 is 1440 px, so each box may be (1440 − gap) / 2 high. */
+    const lk = L.key.y - L.lead.y, gap = lk + 100 + 120, maxH = (1440 - gap) / 2;
+    for (const k of WIN_ORDER.stack) {
+      const [W, H] = WIN_STD[k], s = Math.min(1, 860 / W, maxH / H); if (s < WIN_MIN) continue;
+      const cw = Math.round(W * s), ch = Math.round(H * s), x0 = Math.round(540 - cw / 2);
+      L.win = [x0, 220, cw, ch]; L.frame = [x0, 1660 - ch, cw, ch, 30];
+      L.lead.y = Math.round(940 - (lk + 100) / 2 + 45); L.key.y = Math.round(L.lead.y + lk);
+      L.std = [k, s]; return L;
+    }
+    return null;
+  }
   const [x, y, w, h] = L.win;
   let X0 = 60, X1 = 920, Y0 = y, Y1 = y + h;                      // speaker screens: winFit gave the room (under the words to 1660, or over the head)
   if (name === 'float') { X0 = x; Y1 = 1660; }                    // right of the face frame's column, as on the sheet
@@ -134,15 +148,10 @@ function winShape(L, name, key) {
      2026-11-19: "อยากให้เส้นสีแดงกับเส้นสีเหลืองที่ผมขีดไว้ตรงกัน แต่การ์ดต้องอยู่กึ่งกลางจอนะ" · "ทำแค่ฉากนี้ฉากเดียว"): as wide as
      2 × (frame right − 540), its bottom on 1660, its top up to 90 under the frame */
     const fr = L.frame[0] + L.frame[2], fb = L.frame[1] + L.frame[3]; X0 = 1080 - fr; X1 = fr; Y0 = fb + 90; Y1 = 1660; }
-  if (name === 'stack') { Y1 = y + h; }                           // the room over the words (220 → 690), the window hangs from the top
   for (const k of WIN_ORDER[name] ?? [2]) {
     const [W, H] = WIN_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H); if (s < WIN_MIN) continue;
-    const [cw, ch] = size(k, s), cx = name === 'stats' || name === 'stack' || L.speaker ? 540 : x + w / 2;   // speaker screens in the middle (Friend 2026-11-20: "3. ย้ายไปกลางจอ")
+    const [cw, ch] = size(k, s), cx = name === 'stats' || L.speaker ? 540 : x + w / 2;   // speaker screens in the middle (Friend 2026-11-20: "3. ย้ายไปกลางจอ")
     L.win = [Math.round(Math.min(Math.max(cx - cw / 2, X0), X1 - cw)), L.top || name === 'stats' ? Y1 - ch : Y0, cw, ch];   // over the head and stats: down to the room's bottom   // over the head: down to the hair (as lime's top card) · else under the words
-    /* stack: the speaker's frame is the SAME box as the window, hanging from the bottom line (Friend 2026-11-20: "ให้ขนาดของการ์ดกับขนาด
-       ของช่องที่คนอยู่มันเท่ากันเหมือน reference"); the words sit in the middle of the gap, whose centre is 940 whatever the size */
-    if (name === 'stack') { L.frame = [L.win[0], 1660 - ch, cw, ch, 30];
-      const lk = L.key.y - L.lead.y; L.lead.y = Math.round(940 - (lk + 100) / 2 + 45); L.key.y = Math.round(L.lead.y + lk); }
     L.std = [k, s]; return L;
   }
   return null;
