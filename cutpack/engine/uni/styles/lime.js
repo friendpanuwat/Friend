@@ -2,7 +2,7 @@
    STYLE · lime — "เขียวมะนาว" (Friend 2026-11-18, the 2nd of the 12 new sheets: "เริ่มทำสไตล์นี้ได้แต่ไม่ต้องทดสอบกับคลิปเดิมของผมนะ").
    Every place and size is measured on Friend's sheet (12 shots, 1080 × 1920), then held to Friend's rules for every style
    (styles/common.js: safe zone, frames below the search bar, centred words, the video filling its frame, seeded random, never over
-   the face). The video slides in over .6 s and out over .7 s; on a close-up clip the pictures next to each other share one split
+   the face). The video slides in over .6 s and out over .55 s; on a close-up clip the pictures next to each other share one split
    screen and the graphic in the card changes inside it (limeClosePlan). The pictures are the glow-line template set first (Friend 2026-11-18: "ใช้ template ชุดฐานเป็นหลักเลยนะครับ").
    The 7-item form:
    1 frame    one of 12 layouts (LIME.layouts, named after Friend's shots): the speaker full screen with a glass card at the hands /
@@ -70,9 +70,8 @@ const LIME_ORDER = {hands: [3, 2, 1], cta: [3, 2, 1], big: [2, 1], top: [2, 3, 1
 const LIME_MIN = .65;
 /* A SPLIT SCREEN NEEDS A LONG ENOUGH SCENE (Friend 2026-11-20: "ฉากที่คลิปมันต้องเลื่อนขึ้นเลื่อนลงมันแป๊บเดียวเอง ... มันเลื่อนลงมายังไม่ถึงวิเลย
    มันเลื่อนกลับขึ้นไปละ" → ทาง ก): the video slides in over .6 s and out over .55 s, so a 1.5 s scene holds still for only .35 s. A scene shorter
-   than this takes one of the other screens (the cards appear in place); only the hook may still fall back to a split. (The way out is .7 s
-   from 2026-11-20: the whole half leaves the screen, so a 1.5 s scene would hold still for only .2 s.) */
-const LIME_SPLIT_MIN = 2.7;   // holds still for at least 1.4 s (in .6 + out .7)
+   than this takes one of the other screens (the cards appear in place); only the hook may still fall back to a split. */
+const LIME_SPLIT_MIN = 2.7;   // holds still for at least 1.55 s (in .6 + out .55)
 function limeShape(L, name, key) {   // (no picture shape: the card is a standard size · 2026-11-20)
   /* the CARD is the standard size scaled from the corner (its shape exact), the card's padding inside it, the picture in the padding at its own
      shape (Friend 2026-11-19: "แบบนี้มันไม่ได้ย่อตรงมุมนี่" · "ขนาดของการ์ดอ่ะมันก็คือ motion graphic ในสไตล์ที่ไม่มีการ์ด" · "การ์ดดูโล่งได้
@@ -225,9 +224,9 @@ STYLE('lime', {
 
   /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
-  /* the split screens slide out over the last .7 s (the card down past the buttons, the words up off the top): the safe-zone check reads
-     the frame .75 s before the end instead, so a real breach is never hidden behind that move (tools/picture_sizes.js · 2026-11-20) */
-  exitLead: .75,
+  /* the split screens slide out over the last .6 s (the card down past the buttons, the words up off the top): the safe-zone check reads
+     the frame .65 s before the end instead, so a real breach is never hidden behind that move (tools/picture_sizes.js · 2026-11-20) */
+  exitLead: .65,
   realShapes: true,
   /* how much of the screen a drawing of shape `ar` takes here, to CHOOSE THE DRAWING (tools/fit_pick.js) — never to choose a screen:
      the mean over every screen this face leaves room for (keep 0 · no floor, 2026-11-20) */
@@ -299,17 +298,16 @@ STYLE('lime', {
       /* no lime line between them (final 2026-11-18, Friend: "อยากให้เปลี่ยนจากการแบ่งจอบนล่างโดยมีเส้นแบ่งชัดเจนเป็นการ fade แทน"): the speaker's
          half reaches FADE px into the graphics' half and fades out over them (was: a 4 px glowing lime line at y 962) */
       const y = LIME.split, top = L.split === 'top', FADE = 220;
-      L.slide = top ? -(y - FADE) : 1920 - (y + FADE);               // in: the solid half starts just off its edge of the screen
-      /* OUT: THE WHOLE HALF LEAVES THE SCREEN (Friend 2026-11-20: "อยากให้มันเลื่อนเข้าไปที่ขอบจอเลยอ่ะ ตอนนี้มันเลื่อนลงมาแล้วเหมือนว่าก่อนที่
-         มันจะเข้าไปในขอบจอมันจางลงแล้วมันหายไปตรงนั้น" · "ผมเลือก ค" = .70 s): the way in only has to take the solid edge off (738 / 742 px),
-         but the card and the words sit elsewhere in the half, so at that distance the card's last 118 px (graphics on top) or the big
-         word's last 130 px (graphics below) were still on the screen and the .08 s fade at the end made them vanish where they stood.
-         The way out now travels the half's whole height, so every piece is past the edge before anything fades. */
-      L.slideOut = top ? -(y + FADE) : 1920 - (y - FADE);            // 1182 / 1178 px
+      L.slide = top ? -(y - FADE) : 1920 - (y + FADE);               // the solid half's start: just off its edge of the screen
+      /* THE WAY OUT STAYS AS IT WAS IN V2 (Friend 2026-11-20, after seeing every other try: "กลับไปใช้แบบ v2 ดีกว่าคับ😂" · "สไตล์นี้ผ่านแล้ว"):
+         same distance as the way in (738 / 742 px) over .55 s on EASE.glide. Tried and dropped the same day, all rendered and shown:
+         (a) the half's whole height (1178 / 1182 px) in .70 s so the card and the words leave the screen instead of fading where they
+         stand; (b) that with an anticipation dip of 28 px; (c) that with the curve measured off a clip Friend made, cubic-bezier(.2,.55,.6,1)
+         in .55 s, with the video driven along the half's travel pixel for pixel so no black band opens between them. Friend kept V2. */
       if (G && G.role === 'swap') {
         /* ONE SPLIT, SEVERAL GRAPHICS (trial 2026-11-20): the half, the card and the video are already where they belong (the
            group's first picture put them there); this picture draws its graphic in the same card and rides the way out */
-        L.slideFn = e => A(e, [{translate: '0 0'}, {translate: `0 ${L.slideOut}px`}], gEnd - .7, .65, {e: EASE.glide, f: 'forwards'});
+        L.slideFn = e => A(e, [{translate: '0 0'}, {translate: `0 ${L.slide}px`}], gEnd - .6, .55, {e: EASE.glide, f: 'forwards'});
       } else {
       /* THE REAL VIDEO MOVES, NO COPY (Friend 2026-11-19: "ทำไมต้องมีสำเนาวีดีโอ" → "ทำเลยครับ สไตล์นี้ไม่ต้องมีสำเนาครับ"): the speaker's own video
          (V, under every screen) glides to its half and back, on its own `transform` (the camera keeps to `translate` and `scale`, core.js), so
@@ -320,14 +318,14 @@ STYLE('lime', {
       const ix = cl(540 - f.x * s0, 1080 - 1080 * s0), iy = (top ? y - FADE : 0) + cl(hv * faceY - f.y * s0, hv - 1920 * s0);
       const there = `translate(${ix}px, ${iy}px) scale(${s0})`;
       A(V, [{transform: 'none'}, {transform: there}], t0, .6, {e: EASE.cubicOut, f: 'forwards'});   // forwards only: the splits after it keep their turn
-      A(V, [{transform: there}, {transform: 'none'}], gEnd - .7, .65, {e: EASE.glide, f: 'forwards'});   // out: with the half, same clock (EASE.glide, no crawl at the end)
+      A(V, [{transform: there}, {transform: 'none'}], gEnd - .6, .55, {e: EASE.glide, f: 'forwards'});   // out: with the half, same clock (EASE.glide, no crawl at the end)
       const panel = top ? box([0, 0, 1080, y + FADE]) : box([0, y - FADE, 1080, 1920 - y + FADE]); panel.className = 'l-panel'; grid(panel);
       const m = top ? `linear-gradient(180deg,#000 calc(100% - ${2 * FADE}px),transparent calc(100% - ${FADE}px))` : `linear-gradient(0deg,#000 calc(100% - ${2 * FADE}px),transparent calc(100% - ${FADE}px))`;
       Object.assign(panel.style, {webkitMaskImage: m, maskImage: m});
       /* SMOOTH IN AND OUT (Friend: "ตอนที่คลิปคนเลื่อนลงแล้วฉากทึบเลื่อนลงมาด้วย แล้วตอนที่จะเอาคลิปคนเลื่อนขึ้นกลับไปเหมือนเดิมฉากทึบก็เลื่อนขึ้นไปใน
          ความเร็วที่เท่ากัน"): the solid half (and its card) slides in from its edge of the screen with the video, same time, same curve */
       const slide = e => { A(e, [{translate: `0 ${L.slide}px`}, {translate: '0 0'}], t0, .6, {e: EASE.cubicOut});
-        A(e, [{translate: '0 0'}, {translate: `0 ${L.slideOut}px`}], gEnd - .7, .65, {e: EASE.glide, f: 'forwards'}); };
+        A(e, [{translate: '0 0'}, {translate: `0 ${L.slide}px`}], gEnd - .6, .55, {e: EASE.glide, f: 'forwards'}); };
       slide(panel); L.slideFn = slide;
       A(root, [{opacity: 0}, {opacity: 1}], t0 - .04, .1, {e: EASE.smooth});   // the half comes from off the screen: nothing to fade
       sfx('whoosh', t0 - .1, -20);
