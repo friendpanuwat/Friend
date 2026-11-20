@@ -76,13 +76,29 @@ const winInner = ([, , w, h]) => [22, 76, w - 44, h - 98];        // the picture
    (the window shortens to keep its bottom at 1660, at least 260 high); null = no room. Screens always fit. */
 function winFit(name, f) {
   const L0 = WIN.layouts[name]; if (L0.screen) return winShape(JSON.parse(JSON.stringify(L0)), name) ?? L0;   // (no key: dark = size 5, for the size estimates)
-  const [, top, , chin] = f, L = JSON.parse(JSON.stringify(L0));
-  if (L.top) { L.win[3] = top - 140 - L.win[1]; return winShape(L, name); }   // over the head: the room from the search bar to 140 over the face (winShape)
-  const tops = [L.lead.y - 45, L.key.y - 55].concat(L.win && !L.top ? [L.win[1]] : []), d = Math.max(0, chin + 30 - Math.min(...tops));
-  L.lead.y += d; L.key.y += d;
-  if (L.key.y + 55 > 1660) return null;
-  if (L.win && !L.top) { L.win[1] += d; L.win[3] = 1660 - L.win[1]; }   // the room under the words, to the bottom line (winShape)
-  return L.win ? winShape(L, name) : L;
+  const [, top, , chin] = f, L = JSON.parse(JSON.stringify(L0)), lk = L.key.y - L.lead.y, low = !!L.win && !L.top;
+  /* 1. the words at the chest, slid below the chin when the face is low (rows: the lead's top = y − 45, the key word's bottom = y + 55) */
+  const tops = [L.lead.y - 45, L.key.y - 55].concat(low ? [L.win[1]] : []), d = Math.max(0, chin + 30 - Math.min(...tops));
+  if (L.key.y + d + 55 <= 1660) {
+    L.lead.y += d; L.key.y += d;
+    if (low) { L.win[1] += d; L.win[3] = 1660 - L.win[1]; return winShape(L, name); }   // the room under the words, to the bottom line
+    if (L.top) { L.win[3] = top - 140 - L.win[1]; return winShape(L, name); }   // over the head: the search bar (220) to 140 over the face
+    return L;
+  }
+  /* 2. WORDS OVER THE HEAD, only when the chin leaves no room under it (Friend 2026-11-20: "2. เอาตามที่คุณแนะนำครับ" · "subtitle จะไปอยู่ตรงนั้น
+     เป็นตำแหน่งใหม่ถาวรเลยหรือว่าใช้เฉพาะคลิปที่มันมีปัญหาแบบนี้" → only then): the key word's bottom 140 over the face box (the hair, as
+     the window over the head), the lead's top under the search bar (220) · the window over the head (full_top) from 220, the words 90
+     under it · a window under the face: no room (null) · no room over the head either: null */
+  if (low) return null;
+  const keyBottom = top - 140;
+  if (L.top) {
+    L.win[3] = keyBottom - (lk + 45 + 55) - 90 - L.win[1];
+    const S = winShape(L, name); if (!S) return null;
+    S.lead.y = S.win[1] + S.win[3] + 90 + 45; S.key.y = S.lead.y + lk; S.above = true; return S;
+  }
+  L.key.y = keyBottom - 55; L.lead.y = L.key.y - lk;
+  if (L.lead.y - 45 < 220) return null;
+  L.above = true; return L;
 }
 /* THE SEVEN SIZES (style-rules/common.md 4.1 · Friend 2026-11-19: "ใส่ระบบ ขนาด 7 ขนาดด้วย"): the WINDOW (its title bar included) is the
    standard size scaled from the corner, its shape exact, 65–100 %; the picture inside it as before (winInner). Each screen: its room and
@@ -98,7 +114,7 @@ function winShape(L, name, key) {
   const size = (k, s) => WIN_STD[k].map(v => Math.round(v * s));
   if (name === 'dark' || name === 'dark_b') {
     const gap = L.win[1] - (L.key.y + 65), lk = L.key.y - L.lead.y, maxH = 2 * (960 - (220 + 45 + lk + 65 + gap));   // the lead's row stays under the search bar (220)
-    const sOf = k => Math.min(1, 860 / WIN_STD[k][0], maxH / WIN_STD[k][1]);
+    const sOf = k => Math.min(1, 760 / WIN_STD[k][0], maxH / WIN_STD[k][1]);   // at most 760 wide: in the very middle (540) inside 60–920 (Friend 2026-11-20: "4. ข")
     const first = key != null && cpRand(key) >= .6 ? 6 : 5, k = sOf(first) >= WIN_MIN ? first : 11 - first, s = sOf(k);
     if (s < WIN_MIN) return null;
     const [w, h] = size(k, s), y = Math.round(960 - h / 2);
@@ -116,7 +132,7 @@ function winShape(L, name, key) {
   if (name === 'cascade') { X1 = x + w; Y1 = 1660; }              // the front window keeps its step from the back one
   for (const k of WIN_ORDER[name] ?? [2]) {
     const [W, H] = WIN_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H); if (s < WIN_MIN) continue;
-    const [cw, ch] = size(k, s), cx = name === 'cascade' ? X0 + cw / 2 : name === 'stats' ? 540 : x + w / 2;
+    const [cw, ch] = size(k, s), cx = name === 'cascade' ? X0 + cw / 2 : name === 'stats' || L.speaker ? 540 : x + w / 2;   // speaker screens in the middle (Friend 2026-11-20: "3. ย้ายไปกลางจอ")
     L.win = [Math.round(Math.min(Math.max(cx - cw / 2, X0), X1 - cw)), L.top || name === 'stats' ? Y1 - ch : Y0, cw, ch];   // over the head and stats: down to the room's bottom   // over the head: down to the hair (as lime's top card) · else under the words
     L.std = [k, s]; return L;
   }
@@ -179,6 +195,11 @@ STYLE('window', {
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
   realShapes: true,
   fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, WIN.pool.filter(n => winFit(n, face)), n => { const F = winFit(n, face); return F ? winInner(F.win) : null; }, .75, n => !!WIN.layouts[n].speaker); },
+  /* THE HOOK CHECK (tools/fit_pick.js · Friend 2026-11-20: "1. ก"): a speaker screen here whose picture of shape ar reaches the floor
+     (CP.speakerFloor, as frame()'s cpSizeKeep); false → the plan has no hook (clip_plan.py) */
+  hookOK(ar, t0, t1) { const face = cpFaceBox(t0, t1);
+    return WIN.pool.some(n => { if (!WIN.layouts[n].speaker) return false; const F = winFit(n, face); if (!F) return false;
+      const [, , w, h] = winInner(F.win); return (ar > w / h ? w * w / ar : h * h * ar) >= CP.speakerFloor; }); },
   fitSurface() { const r = div('', SC); r.className = 'w-root w-screen'; return r; },
 
   frame(t0, t1, {index, scene}) {
