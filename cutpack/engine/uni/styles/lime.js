@@ -67,6 +67,10 @@ const LIME_ANCHOR = {hands: 'top', cta: 'top', big: 'top', screen: 'top', split_
 const LIME_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};   // 7: a shorter 4 (Friend 2026-11-19: "ขนาด 7 โอเคครับ")
 const LIME_ORDER = {hands: [3, 2, 1], cta: [3, 2, 1], big: [2, 1], top: [2, 3, 1], split_top: [2, 3], side_l: [4, 7], side_r: [4, 7], split_bottom: [2, 1]};   // side: 4 and 7 are peers, picked in limeShape
 const LIME_MIN = .65;
+/* A SPLIT SCREEN NEEDS A LONG ENOUGH SCENE (Friend 2026-11-20: "ฉากที่คลิปมันต้องเลื่อนขึ้นเลื่อนลงมันแป๊บเดียวเอง ... มันเลื่อนลงมายังไม่ถึงวิเลย
+   มันเลื่อนกลับขึ้นไปละ" → ทาง ก): the video slides in over .6 s and out over .55 s, so a 1.5 s scene holds still for only .35 s. A scene shorter
+   than this takes one of the other screens (the cards appear in place); only the hook may still fall back to a split. */
+const LIME_SPLIT_MIN = 2.7;   // holds still for at least 1.55 s
 function limeShape(L, name, key) {   // (no picture shape: the card is a standard size · 2026-11-20)
   /* the CARD is the standard size scaled from the corner (its shape exact), the card's padding inside it, the picture in the padding at its own
      shape (Friend 2026-11-19: "แบบนี้มันไม่ได้ย่อตรงมุมนี่" · "ขนาดของการ์ดอ่ะมันก็คือ motion graphic ในสไตล์ที่ไม่มีการ์ด" · "การ์ดดูโล่งได้
@@ -200,8 +204,10 @@ STYLE('lime', {
       const hook = index === 0 && typeof RUN !== 'undefined' && RUN.hook, spk = n => !!LIME.layouts[n].speaker || !!LIME.layouts[n].split;
       if (want && (!hook || spk(want)) && limeRoom(want, face)) name = want;
       else {
-        let pool = LIME.pool.filter(n => n !== LIME.last && limeRoom(n, face) && (!hook || spk(n)));
-        if (!pool.length) pool = (hook ? ['split_top', 'split_bottom'] : ['screen', 'split_top', 'split_bottom']).filter(n => n !== LIME.last);
+        const longEnough = t1 - t0 >= LIME_SPLIT_MIN, fits = n => limeRoom(n, face) && (!hook || spk(n)) && (longEnough || !LIME.layouts[n].split);
+        let pool = LIME.pool.filter(n => n !== LIME.last && fits(n));
+        if (!pool.length) pool = LIME.pool.filter(fits);   // the same screen twice rather than a split too short to hold still (2026-11-20)
+        if (!pool.length) pool = (hook ? ['split_top', 'split_bottom'] : ['screen', 'split_top', 'split_bottom']).filter(n => n !== LIME.last);   // the hook may still take a short split
         /* NO SCREEN IS CHOSEN BY THE SIZE OF THE DRAWING INSIDE IT (Friend 2026-11-20: "เรายังคัดจากขนาดภาพข้างในอยู่อีกหรอ" · "ต่อไปนี้
            จะเลิกวัดขนาดภาพ ... จะดูขนาดมาตรฐานทั้ง 7 แบบที่เรากำหนดไว้แทน" · LESSONS 76): a screen is kept when its CARD reaches 65 % of a
            standard size here (limeRoom, above) — nothing else. Until 2026-11-20 the pool was also narrowed by how big the old drawing came
@@ -245,16 +251,16 @@ STYLE('lime', {
       const s0 = Math.max(1080 / 1080, hv / 1920, .3 * 1080 / (f.w || 320)), cl = (v, lo) => Math.min(0, Math.max(lo, v));
       const ix = cl(540 - f.x * s0, 1080 - 1080 * s0), iy = (top ? y - FADE : 0) + cl(hv * faceY - f.y * s0, hv - 1920 * s0);
       const there = `translate(${ix}px, ${iy}px) scale(${s0})`;
-      A(V, [{transform: 'none'}, {transform: there}], t0, .6, {e: EASE.inout, f: 'forwards'});      // forwards only: the splits after it keep their turn
-      A(V, [{transform: there}, {transform: 'none'}], t1 - .6, .55, {e: EASE.inout, f: 'forwards'});
+      A(V, [{transform: 'none'}, {transform: there}], t0, .6, {e: EASE.cubicOut, f: 'forwards'});   // forwards only: the splits after it keep their turn
+      A(V, [{transform: there}, {transform: 'none'}], t1 - .6, .55, {e: EASE.cubicOut, f: 'forwards'});
       const panel = top ? box([0, 0, 1080, y + FADE]) : box([0, y - FADE, 1080, 1920 - y + FADE]); panel.className = 'l-panel'; grid(panel);
       const m = top ? `linear-gradient(180deg,#000 calc(100% - ${2 * FADE}px),transparent calc(100% - ${FADE}px))` : `linear-gradient(0deg,#000 calc(100% - ${2 * FADE}px),transparent calc(100% - ${FADE}px))`;
       Object.assign(panel.style, {webkitMaskImage: m, maskImage: m});
       /* SMOOTH IN AND OUT (Friend: "ตอนที่คลิปคนเลื่อนลงแล้วฉากทึบเลื่อนลงมาด้วย แล้วตอนที่จะเอาคลิปคนเลื่อนขึ้นกลับไปเหมือนเดิมฉากทึบก็เลื่อนขึ้นไปใน
          ความเร็วที่เท่ากัน"): the solid half (and its card) slides in from its edge of the screen with the video, same time, same curve */
       L.slide = top ? -(y - FADE) : 1920 - (y + FADE);               // the solid half's start: just off its edge of the screen
-      const slide = e => { A(e, [{translate: `0 ${L.slide}px`}, {translate: '0 0'}], t0, .6, {e: EASE.inout});
-        A(e, [{translate: '0 0'}, {translate: `0 ${L.slide}px`}], t1 - .6, .55, {e: EASE.inout, f: 'forwards'}); };
+      const slide = e => { A(e, [{translate: `0 ${L.slide}px`}, {translate: '0 0'}], t0, .6, {e: EASE.cubicOut});
+        A(e, [{translate: '0 0'}, {translate: `0 ${L.slide}px`}], t1 - .6, .55, {e: EASE.cubicOut, f: 'forwards'}); };
       slide(panel); L.slideFn = slide;
       A(root, [{opacity: 0}, {opacity: 1}], t0 - .04, .1, {e: EASE.smooth});   // the half comes from off the screen: nothing to fade
       sfx('whoosh', t0 - .1, -20);
