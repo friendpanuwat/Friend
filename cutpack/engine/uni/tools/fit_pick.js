@@ -46,11 +46,17 @@ execFileSync('python3', [path.join(UNI, 'build.py'), D, style, '-', '--extra', p
   p.on('pageerror', e => errs.push(e.message));
   const fit = [];
   for (let k = 0; k < job.scenes.length; k++) {
-    try {   // a page that does not finish in 90 s leaves its picture to pick.js (seen twice in a row from clip_plan.py, not reproduced: never wait 10 minutes again)
-      await p.goto('file://' + path.join(D, 'scene.html') + '?s=' + k, {waitUntil: 'domcontentloaded', timeout: 90000});
-      await p.waitForFunction(() => window.FIT_DONE === true, null, {timeout: 90000, polling: 500});
-      fit.push(...await p.evaluate(() => window.FIT));
-    } catch (e) { console.error('picture', job.scenes[k].id, 'not measured:', e.name); }
+    /* a page that does not finish in 90 s is tried once more before its picture is left to pick.js: a machine busy with another
+       render made one scene time out, and the same seed then gave that picture another drawing (2026-11-20, Friend: "จะให้หาต้นเหตุ
+       และแก้เลยครับ") · a scene that still fails is named on stderr, and clip_plan.py prints it (it used to be silent) */
+    for (let a = 0; a < 2; a++) {
+      try {
+        await p.goto('file://' + path.join(D, 'scene.html') + '?s=' + k, {waitUntil: 'domcontentloaded', timeout: 90000});
+        await p.waitForFunction(() => window.FIT_DONE === true, null, {timeout: 90000, polling: 500});
+        fit.push(...await p.evaluate(() => window.FIT));
+        break;
+      } catch (e) { console.error('picture', job.scenes[k].id, a ? 'not measured:' : 'not measured, trying once more:', e.name); }
+    }
     if (process.env.FIT_LOG) console.error('scene', k, 'measured', fit.length);
   }
   await b.close();
