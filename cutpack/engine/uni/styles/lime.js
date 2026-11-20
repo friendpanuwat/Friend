@@ -71,6 +71,10 @@ const LIME_MIN = .65;
    มันเลื่อนกลับขึ้นไปละ" → ทาง ก): the video slides in over .6 s and out over .55 s, so a 1.5 s scene holds still for only .35 s. A scene shorter
    than this takes one of the other screens (the cards appear in place); only the hook may still fall back to a split. */
 const LIME_SPLIT_MIN = 2.7;   // holds still for at least 1.55 s
+/* THE SPLIT SCREENS ARE THIS STYLE'S SIGNATURE (Friend 2026-11-20: "ผมอยากให้ฉากแบบนี้ค้างนานๆกว่านี้หน่อย ... ผมรู้สึกว่าฉากแบบนี้มันคือ
+   signature ของสไตล์นี้เลยผมชอบมาก"): a scene this long takes a split whatever else fits, so the splits get the long scenes and hold still
+   for 2.85 s or more. Of the two, the one that slides the video UP (the card below it) comes 7 times in 10 ("ผมชอบฉากที่มันเลื่อนขึ้นมากกว่าเลื่อนลง"). */
+const LIME_SPLIT_LONG = 4.0, LIME_SPLIT_UP = .7;
 function limeShape(L, name, key) {   // (no picture shape: the card is a standard size · 2026-11-20)
   /* the CARD is the standard size scaled from the corner (its shape exact), the card's padding inside it, the picture in the padding at its own
      shape (Friend 2026-11-19: "แบบนี้มันไม่ได้ย่อตรงมุมนี่" · "ขนาดของการ์ดอ่ะมันก็คือ motion graphic ในสไตล์ที่ไม่มีการ์ด" · "การ์ดดูโล่งได้
@@ -212,7 +216,13 @@ STYLE('lime', {
            จะเลิกวัดขนาดภาพ ... จะดูขนาดมาตรฐานทั้ง 7 แบบที่เรากำหนดไว้แทน" · LESSONS 76): a screen is kept when its CARD reaches 65 % of a
            standard size here (limeRoom, above) — nothing else. Until 2026-11-20 the pool was also narrowed by how big the old drawing came
            out in each card (cpSizeKeep .75 + CP.speakerFloor), which held the speaker's screens back on close-up clips. */
-        pool = cpBalance(pool, n => !!LIME.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
+        /* a long scene goes to the signature split (above), and the slide-up may follow a slide-up: the "not the last screen" rule is
+           lifted for it, else the two splits could only take turns and the one Friend likes would come half the time */
+        const sp = LIME.pool.filter(n => LIME.layouts[n].split && (!hook || spk(n)));
+        if (sp.length && t1 - t0 >= LIME_SPLIT_LONG) pool = sp;
+        else pool = cpBalance(pool, n => !!LIME.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
+        if (pool.includes('split_bottom') && pool.includes('split_top'))      // the video slides up 7 times in 10
+          pool = [cpRand('up' + index) < LIME_SPLIT_UP ? 'split_bottom' : 'split_top'];
         const least = Math.min(...pool.map(n => LIME.used[n] ?? 0)); pool = pool.filter(n => (LIME.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];
       }
