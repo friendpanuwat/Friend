@@ -70,13 +70,7 @@ const LIME_MIN = .65;
 /* A SPLIT SCREEN NEEDS A LONG ENOUGH SCENE (Friend 2026-11-20: "ฉากที่คลิปมันต้องเลื่อนขึ้นเลื่อนลงมันแป๊บเดียวเอง ... มันเลื่อนลงมายังไม่ถึงวิเลย
    มันเลื่อนกลับขึ้นไปละ" → ทาง ก): the video slides in over .6 s and out over .55 s, so a 1.5 s scene holds still for only .35 s. A scene shorter
    than this takes one of the other screens (the cards appear in place); only the hook may still fall back to a split. */
-const LIME_SPLIT_MIN = 2.7;   // holds still for at least 1.8 s (2026-11-20: back to 2.7 · Friend: "เอาขึ้นเท่าเดิม … แต่ขอให้ขึ้นมาแล้วมันอยู่ค้างนานๆหน่อย" → the slide itself is shorter instead)
-/* THE SPLIT SCREENS ARE THIS STYLE'S SIGNATURE (Friend 2026-11-20: "ผมอยากให้ฉากแบบนี้ค้างนานๆกว่านี้หน่อย ... ผมรู้สึกว่าฉากแบบนี้มันคือ
-   signature ของสไตล์นี้เลยผมชอบมาก" · then "ผมไม่ได้หมายความว่าให้ขึ้นถี่ๆ แต่ผมหมายความว่าขึ้นมาแล้วอยู่ค้างนานๆหน่อย"): a split needs a
-   scene of 2.7 s or more (LIME_SPLIT_MIN) and takes its turn in the pool like any other screen, no more often than before; the slide in
-   and out was cut from .6 + .55 to .5 + .45 s, so every split holds still .2 s longer than it did. Of the two, the one that slides the video UP (the card below it) comes 7 times in 10
-   ("ผมชอบฉากที่มันเลื่อนขึ้นมากกว่าเลื่อนลง"). */
-const LIME_SPLIT_UP = .7;
+const LIME_SPLIT_MIN = 2.7;   // holds still for at least 1.55 s
 function limeShape(L, name, key) {   // (no picture shape: the card is a standard size · 2026-11-20)
   /* the CARD is the standard size scaled from the corner (its shape exact), the card's padding inside it, the picture in the padding at its own
      shape (Friend 2026-11-19: "แบบนี้มันไม่ได้ย่อตรงมุมนี่" · "ขนาดของการ์ดอ่ะมันก็คือ motion graphic ในสไตล์ที่ไม่มีการ์ด" · "การ์ดดูโล่งได้
@@ -193,7 +187,7 @@ STYLE('lime', {
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
   /* the split screens slide out over the last .6 s (the card down past the buttons, the words up off the top): the safe-zone check reads
      the frame .65 s before the end instead, so a real breach is never hidden behind that move (tools/picture_sizes.js · 2026-11-20) */
-  exitLead: .55,
+  exitLead: .65,
   realShapes: true,
   /* how much of the screen a drawing of shape `ar` takes here, to CHOOSE THE DRAWING (tools/fit_pick.js) — never to choose a screen:
      the mean over every screen this face leaves room for (keep 0 · no floor, 2026-11-20) */
@@ -221,11 +215,6 @@ STYLE('lime', {
         pool = cpBalance(pool, n => !!LIME.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
         const least = Math.min(...pool.map(n => LIME.used[n] ?? 0)); pool = pool.filter(n => (LIME.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];
-        /* WHICH split, not HOW OFTEN (Friend 2026-11-20: "ผมชอบฉากที่มันเลื่อนขึ้นมากกว่าเลื่อนลง" · "เท่าเดิมนี่ … หมายถึงอันก่อนหน้านั้น"):
-           the pool and the counts stay exactly as they were, and only a screen that is already a split is swapped — 7 times in 10 to the
-           one that slides the video up (the card below it) */
-        if (LIME.layouts[name].split) { const up = cpRand('up' + index) < LIME_SPLIT_UP ? 'split_bottom' : 'split_top';
-          if (up !== LIME.last) name = up; }
       }
     }
     LIME.used[name] = (LIME.used[name] ?? 0) + 1; LIME.last = name;
@@ -262,16 +251,16 @@ STYLE('lime', {
       const s0 = Math.max(1080 / 1080, hv / 1920, .3 * 1080 / (f.w || 320)), cl = (v, lo) => Math.min(0, Math.max(lo, v));
       const ix = cl(540 - f.x * s0, 1080 - 1080 * s0), iy = (top ? y - FADE : 0) + cl(hv * faceY - f.y * s0, hv - 1920 * s0);
       const there = `translate(${ix}px, ${iy}px) scale(${s0})`;
-      A(V, [{transform: 'none'}, {transform: there}], t0, .5, {e: EASE.cubicOut, f: 'forwards'});   // forwards only: the splits after it keep their turn
-      A(V, [{transform: there}, {transform: 'none'}], t1 - .5, .45, {e: EASE.cubicOut, f: 'forwards'});
+      A(V, [{transform: 'none'}, {transform: there}], t0, .6, {e: EASE.cubicOut, f: 'forwards'});   // forwards only: the splits after it keep their turn
+      A(V, [{transform: there}, {transform: 'none'}], t1 - .6, .55, {e: EASE.cubicOut, f: 'forwards'});
       const panel = top ? box([0, 0, 1080, y + FADE]) : box([0, y - FADE, 1080, 1920 - y + FADE]); panel.className = 'l-panel'; grid(panel);
       const m = top ? `linear-gradient(180deg,#000 calc(100% - ${2 * FADE}px),transparent calc(100% - ${FADE}px))` : `linear-gradient(0deg,#000 calc(100% - ${2 * FADE}px),transparent calc(100% - ${FADE}px))`;
       Object.assign(panel.style, {webkitMaskImage: m, maskImage: m});
       /* SMOOTH IN AND OUT (Friend: "ตอนที่คลิปคนเลื่อนลงแล้วฉากทึบเลื่อนลงมาด้วย แล้วตอนที่จะเอาคลิปคนเลื่อนขึ้นกลับไปเหมือนเดิมฉากทึบก็เลื่อนขึ้นไปใน
          ความเร็วที่เท่ากัน"): the solid half (and its card) slides in from its edge of the screen with the video, same time, same curve */
       L.slide = top ? -(y - FADE) : 1920 - (y + FADE);               // the solid half's start: just off its edge of the screen
-      const slide = e => { A(e, [{translate: `0 ${L.slide}px`}, {translate: '0 0'}], t0, .5, {e: EASE.cubicOut});
-        A(e, [{translate: '0 0'}, {translate: `0 ${L.slide}px`}], t1 - .5, .45, {e: EASE.cubicOut, f: 'forwards'}); };
+      const slide = e => { A(e, [{translate: `0 ${L.slide}px`}, {translate: '0 0'}], t0, .6, {e: EASE.cubicOut});
+        A(e, [{translate: '0 0'}, {translate: `0 ${L.slide}px`}], t1 - .6, .55, {e: EASE.cubicOut, f: 'forwards'}); };
       slide(panel); L.slideFn = slide;
       A(root, [{opacity: 0}, {opacity: 1}], t0 - .04, .1, {e: EASE.smooth});   // the half comes from off the screen: nothing to fade
       sfx('whoosh', t0 - .1, -20);
