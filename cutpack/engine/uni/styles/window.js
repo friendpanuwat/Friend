@@ -61,7 +61,9 @@ const WIN = {
   /* ONE PAIR OF RINGS, ALWAYS IN THE SAME PLACE, TURNING ON THE CLIP'S OWN CLOCK (Friend 2026-11-20: "เวลามันมีฉากแบบนี้ต่อกัน การหมุนและ
      ตำแหน่งของวงแหวน มันไม่ต่อเนื่องอะครับ ผมอยากให้มันอยู่ตำแหน่งเดิมตลอด และหมุนต่อเนื่อง"): top right + bottom left, the top one high
      enough to stay off the words of every screen (it used to be mirrored per screen and raised only where the words sit high) */
-  decor: [{cx: 930, cy: 120, r: 330, chips: [195, 165, 130, 100], light: 147, dir: 1}, {cx: 140, cy: 1760, r: 300, chips: [-95, -65, -35, -5], light: -50, dir: -1}],   // 4 chips a ring (Friend 2026-11-20: "อยากให้เพิ่มลูกปัดที่วงแหวนหน่อย" · was 2)
+  /* 6 chips a ring, 60° apart all the way round (Friend 2026-11-20: "ให้เพิ่มแบบให้มันเท่าๆกันทั้งวงอ่ะ ไม่ใช่ว่ามีอยู่ตรงส่วนเดียวแล้วที่อื่นไม่มี
+     อาจจะใส่มา 6 ลูกก็ได้ แต่ต้องอยู่ในระยะห่างที่มันเท่าๆกันทั้งวง · ตอนหมุนมันจะได้เห็นลูกปัดโผล่มาอยู่ตลอด" · was 2, then 4 bunched on one arc) */
+  decor: [{cx: 930, cy: 120, r: 330, chips: [30, 90, 150, 210, 270, 330], light: 120, dir: 1}, {cx: 140, cy: 1760, r: 300, chips: [0, 60, 120, 180, 240, 300], light: -60, dir: -1}],
   ring: 'split',                                // the ring's shape (winRingPath): 'split' (Friend 2026-11-18 chose ค) · 'square' · 'hex'
   speakerShare: .6,                             // ก's share where both kinds fit (winBalance · Friend 2026-11-20: "E ครับ")
   spin: 4.5,                                    // degrees a second (Friend: "หมุนให้เร็วกว่านี้อีกนิดนึง" 1.5 → 2.25, then "วงแหวนต้องหมุนเร็วกว่านี้อีก" → 4.5)
