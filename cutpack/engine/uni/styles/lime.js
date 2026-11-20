@@ -67,7 +67,7 @@ const LIME_ANCHOR = {hands: 'top', cta: 'top', big: 'top', screen: 'top', split_
 const LIME_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};   // 7: a shorter 4 (Friend 2026-11-19: "ขนาด 7 โอเคครับ")
 const LIME_ORDER = {hands: [3, 2, 1], cta: [3, 2, 1], big: [2, 1], top: [2, 3, 1], split_top: [2, 3], side_l: [4, 7], side_r: [4, 7], split_bottom: [2, 1]};   // side: 4 and 7 are peers, picked in limeShape
 const LIME_MIN = .65;
-function limeShape(L, ar, name, key) {
+function limeShape(L, name, key) {   // (no picture shape: the card is a standard size · 2026-11-20)
   /* the CARD is the standard size scaled from the corner (its shape exact), the card's padding inside it, the picture in the padding at its own
      shape (Friend 2026-11-19: "แบบนี้มันไม่ได้ย่อตรงมุมนี่" · "ขนาดของการ์ดอ่ะมันก็คือ motion graphic ในสไตล์ที่ไม่มีการ์ด" · "การ์ดดูโล่งได้
      เพราะเดี๋ยวจะทำภาพชุดใหม่" · "แก้ได้ครับ"); returns null when no size of the screen's order reaches 65% here */
@@ -129,8 +129,8 @@ function limeFit(name, f) {
   }
   return L;
 }
-const limeRoom = (name, f) => { const L = limeFit(name, f); return !!L && !!limeShape(JSON.parse(JSON.stringify(L)), null, name); };   // a standard size fits here (2026-11-19)
-const limeStage = (name, f, ar) => { const L = limeFit(name, f); return L && limeShape(JSON.parse(JSON.stringify(L)), ar, name)?.stage; };   // null: this picture fits no standard size here
+const limeRoom = (name, f) => { const L = limeFit(name, f); return !!L && !!limeShape(JSON.parse(JSON.stringify(L)), name); };   // a standard size fits here (2026-11-19)
+const limeStage = (name, f) => { const L = limeFit(name, f); return L && limeShape(JSON.parse(JSON.stringify(L)), name)?.stage; };   // null: no standard size fits this room
 
 STYLE('lime', {
   name: 'เขียวมะนาว',
@@ -174,14 +174,17 @@ STYLE('lime', {
     glow:  {kf: [{opacity: 0, filter: 'blur(16px)'}, {opacity: 1, filter: 'blur(0)'}], d: .7, e: EASE.soft},
   },
   sound: {hit: ['softswish', -22], cross: ['swipe', -24], key: ['softswish', -21]},
-  setup() { BGL.style.background = '#000'; HOOKS.push(cpInsetHook);
+  setup() { CP.speakerFloor = 0;   // no floor on the drawing inside the card (2026-11-20, as frame(): the card's standard size decides)
+    BGL.style.background = '#000'; HOOKS.push(cpInsetHook);
     /* load this style's fonts at once: the words are fitted to the safe zone on the first frame (hud 2026-11-18: fitted with the fallback font) */
     [['LimeKey', 800, 'normal'], ['LimeHand', 400, 'normal'], ['LimeSerif', 400, 'italic']].forEach(([f, w, st]) => div(`left:-9999px;top:0;font-family:${f};font-weight:${w};font-style:${st}`, document.body, 'กขคฅ ึ่้ 0123 Ab')); },
 
   /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
   realShapes: true,
-  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, LIME.pool.filter(n => limeRoom(n, face)), n => limeStage(n, face, ar), .75, n => !!LIME.layouts[n].speaker); },
+  /* how much of the screen a drawing of shape `ar` takes here, to CHOOSE THE DRAWING (tools/fit_pick.js) — never to choose a screen:
+     the mean over every screen this face leaves room for (keep 0 · no floor, 2026-11-20) */
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, LIME.pool.filter(n => limeRoom(n, face)), n => limeStage(n, face), 0, n => !!LIME.layouts[n].speaker); },
   fitSurface() { const r = div('', SC); r.className = 'l-root l-screen'; return r; },
 
   frame(t0, t1, {index, scene}) {
@@ -189,20 +192,17 @@ STYLE('lime', {
     let name = meta.layout;
     if (!name) {
       const want = LIME.byCat[meta.cat];
-      const ar0 = cpShape(meta.variant, t0);
       /* THE HOOK (Friend 2026-11-19: "ต้องไม่ใช่ฉากเต็มจอ ต้องเป็นฉากหน้าคนพูด" · the split screens count: "นับครับ"): the clip's first picture
          (RUN.hook, tools/clip_plan.py) takes only a screen with the speaker: the speaker's own screens with a card, or a split screen (always fits) */
       const hook = index === 0 && typeof RUN !== 'undefined' && RUN.hook, spk = n => !!LIME.layouts[n].speaker || !!LIME.layouts[n].split;
-      if (want && (!hook || spk(want)) && limeRoom(want, face) && (!ar0 || limeStage(want, face, ar0))) name = want;
+      if (want && (!hook || spk(want)) && limeRoom(want, face)) name = want;
       else {
         let pool = LIME.pool.filter(n => n !== LIME.last && limeRoom(n, face) && (!hook || spk(n)));
         if (!pool.length) pool = (hook ? ['split_top', 'split_bottom'] : ['screen', 'split_top', 'split_bottom']).filter(n => n !== LIME.last);
-        const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
-        if (ar) { const ok = pool.filter(n => limeStage(n, face, ar)); if (ok.length) pool = ok; }   // the picture at 65% of a standard size or more (2026-11-19)
-        if (ar) {
-          const size = n => { const [, , w, h] = limeStage(n, face, ar); return ar > w / h ? w * w / ar : h * h * ar; };
-          pool = cpSizeKeep(pool, size, .75, n => !!LIME.layouts[n].speaker);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
-        }
+        /* NO SCREEN IS CHOSEN BY THE SIZE OF THE DRAWING INSIDE IT (Friend 2026-11-20: "เรายังคัดจากขนาดภาพข้างในอยู่อีกหรอ" · "ต่อไปนี้
+           จะเลิกวัดขนาดภาพ ... จะดูขนาดมาตรฐานทั้ง 7 แบบที่เรากำหนดไว้แทน" · LESSONS 76): a screen is kept when its CARD reaches 65 % of a
+           standard size here (limeRoom, above) — nothing else. Until 2026-11-20 the pool was also narrowed by how big the old drawing came
+           out in each card (cpSizeKeep .75 + CP.speakerFloor), which held the speaker's screens back on close-up clips. */
         pool = cpBalance(pool, n => !!LIME.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
         const least = Math.min(...pool.map(n => LIME.used[n] ?? 0)); pool = pool.filter(n => (LIME.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];
@@ -210,7 +210,7 @@ STYLE('lime', {
     }
     LIME.used[name] = (LIME.used[name] ?? 0) + 1; LIME.last = name;
     const L0 = (meta.layout ? LIME.layouts[name] : limeFit(name, face)) ?? LIME.layouts.screen;   // (a test's forced layout stays as on the sheet)
-    const L = limeShape(JSON.parse(JSON.stringify(L0)), cpShape(meta.variant, t0), name, 'size' + index) ?? JSON.parse(JSON.stringify(L0));   // the standard size (2026-11-19; a test's forced layout keeps its room when none fits)
+    const L = limeShape(JSON.parse(JSON.stringify(L0)), name, 'size' + index) ?? JSON.parse(JSON.stringify(L0));   // the standard size (2026-11-19; a test's forced layout keeps its room when none fits)
     const root = div('', SC); root.className = 'l-root' + (L.screen ? ' l-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     const grid = host => {
