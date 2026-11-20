@@ -204,10 +204,13 @@ STYLE('lime', {
       const hook = index === 0 && typeof RUN !== 'undefined' && RUN.hook, spk = n => !!LIME.layouts[n].speaker || !!LIME.layouts[n].split;
       if (want && (!hook || spk(want)) && limeRoom(want, face)) name = want;
       else {
-        const longEnough = t1 - t0 >= LIME_SPLIT_MIN, fits = n => limeRoom(n, face) && (!hook || spk(n)) && (longEnough || !LIME.layouts[n].split);
+        /* NO SPLIT RIGHT AFTER A SPLIT (Friend 2026-11-20: "ผมไม่อยากให้ฉากเลื่อนขึ้นกับเลื่อนลงอยู่ต่อจากกัน"): the screen before
+           this one was a split (either way up) → this one is not a split at all, not just not the same one */
+        const afterSplit = !!LIME.last && !!LIME.layouts[LIME.last].split;
+        const longEnough = t1 - t0 >= LIME_SPLIT_MIN, fits = n => limeRoom(n, face) && (!hook || spk(n)) && (longEnough || !LIME.layouts[n].split) && !(afterSplit && LIME.layouts[n].split);
         let pool = LIME.pool.filter(n => n !== LIME.last && fits(n));
         if (!pool.length) pool = LIME.pool.filter(fits);   // the same screen twice rather than a split too short to hold still (2026-11-20)
-        if (!pool.length) pool = (hook ? ['split_top', 'split_bottom'] : ['screen', 'split_top', 'split_bottom']).filter(n => n !== LIME.last);   // the hook may still take a short split
+        if (!pool.length) pool = (hook ? ['split_top', 'split_bottom'] : afterSplit ? ['screen'] : ['screen', 'split_top', 'split_bottom']).filter(n => n !== LIME.last);   // the hook may still take a short split
         /* NO SCREEN IS CHOSEN BY THE SIZE OF THE DRAWING INSIDE IT (Friend 2026-11-20: "เรายังคัดจากขนาดภาพข้างในอยู่อีกหรอ" · "ต่อไปนี้
            จะเลิกวัดขนาดภาพ ... จะดูขนาดมาตรฐานทั้ง 7 แบบที่เรากำหนดไว้แทน" · LESSONS 76): a screen is kept when its CARD reaches 65 % of a
            standard size here (limeRoom, above) — nothing else. Until 2026-11-20 the pool was also narrowed by how big the old drawing came
@@ -252,7 +255,7 @@ STYLE('lime', {
       const ix = cl(540 - f.x * s0, 1080 - 1080 * s0), iy = (top ? y - FADE : 0) + cl(hv * faceY - f.y * s0, hv - 1920 * s0);
       const there = `translate(${ix}px, ${iy}px) scale(${s0})`;
       A(V, [{transform: 'none'}, {transform: there}], t0, .6, {e: EASE.cubicOut, f: 'forwards'});   // forwards only: the splits after it keep their turn
-      A(V, [{transform: there}, {transform: 'none'}], t1 - .6, .55, {e: EASE.cubicOut, f: 'forwards'});
+      A(V, [{transform: there}, {transform: 'none'}], t1 - .6, .55, {e: EASE.glide, f: 'forwards'});   // out: EASE.glide, no crawl at the end
       const panel = top ? box([0, 0, 1080, y + FADE]) : box([0, y - FADE, 1080, 1920 - y + FADE]); panel.className = 'l-panel'; grid(panel);
       const m = top ? `linear-gradient(180deg,#000 calc(100% - ${2 * FADE}px),transparent calc(100% - ${FADE}px))` : `linear-gradient(0deg,#000 calc(100% - ${2 * FADE}px),transparent calc(100% - ${FADE}px))`;
       Object.assign(panel.style, {webkitMaskImage: m, maskImage: m});
@@ -260,7 +263,7 @@ STYLE('lime', {
          ความเร็วที่เท่ากัน"): the solid half (and its card) slides in from its edge of the screen with the video, same time, same curve */
       L.slide = top ? -(y - FADE) : 1920 - (y + FADE);               // the solid half's start: just off its edge of the screen
       const slide = e => { A(e, [{translate: `0 ${L.slide}px`}, {translate: '0 0'}], t0, .6, {e: EASE.cubicOut});
-        A(e, [{translate: '0 0'}, {translate: `0 ${L.slide}px`}], t1 - .6, .55, {e: EASE.cubicOut, f: 'forwards'}); };
+        A(e, [{translate: '0 0'}, {translate: `0 ${L.slide}px`}], t1 - .6, .55, {e: EASE.glide, f: 'forwards'}); };
       slide(panel); L.slideFn = slide;
       A(root, [{opacity: 0}, {opacity: 1}], t0 - .04, .1, {e: EASE.smooth});   // the half comes from off the screen: nothing to fade
       sfx('whoosh', t0 - .1, -20);
