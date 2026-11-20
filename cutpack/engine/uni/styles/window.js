@@ -196,9 +196,9 @@ STYLE('window', {
   },
   sound: {hit: ['softswish', -22], cross: ['swipe', -24], key: ['softswish', -21]},
   setup() {
-    /* NO FLOOR ON THE PICTURE (Friend 2026-11-20: "E ครับ" · "คุณลืมไปแล้วหรอว่าผมจะทำ motion graphic ใหม่ตามขนาดทั้ง 7" · LESSONS 76): a speaker
-       screen fits when its window reaches 65 % of its standard size (winShape), whatever the old drawing inside fills; the floor that
-       measured the drawing (CP.speakerFloor, by its shape) is off on this style's pages, for frame()'s cpSizeKeep, fitSize and hookOK */
+    /* NO FLOOR ON THE DRAWING (Friend 2026-11-20: "E ครับ" · "คุณลืมไปแล้วหรอว่าผมจะทำ motion graphic ใหม่ตามขนาดทั้ง 7" · LESSONS 76 ·
+       common.md 4.1 rule 8): a screen fits when its window reaches 65 % of a standard size (winShape), whatever the old drawing inside
+       fills. The floor that measured the drawing is off on this style's pages (cpFitSize still reads it) */
     CP.speakerFloor = 0;
     BGL.style.background = '#000'; HOOKS.push(cpInsetHook);
     /* load this style's fonts at once: the words are fitted to the safe zone on the first frame (hud 2026-11-18: fitted with the fallback font) */
@@ -209,12 +209,13 @@ STYLE('window', {
   /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
   realShapes: true,
-  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, WIN.pool.filter(n => winFit(n, face)), n => { const F = winFit(n, face); return F ? winInner(F.win) : null; }, .75, n => !!WIN.layouts[n].speaker); },
-  /* THE HOOK CHECK (tools/fit_pick.js · Friend 2026-11-20: "1. ก"): a speaker screen here whose picture of shape ar reaches the floor
-     (CP.speakerFloor, as frame()'s cpSizeKeep); false → the plan has no hook (clip_plan.py) */
+  /* how much of the screen a drawing of shape `ar` takes here, to CHOOSE THE DRAWING (tools/fit_pick.js) — never to choose a screen:
+     the mean over every screen this face leaves room for (keep 0 · no floor, 2026-11-20) */
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, WIN.pool.filter(n => winFit(n, face)), n => { const F = winFit(n, face); return F ? winInner(F.win) : null; }, 0, n => !!WIN.layouts[n].speaker); },
+  /* THE HOOK CHECK (tools/fit_pick.js · Friend 2026-11-20: "1. ก"): is there a speaker screen (ก) whose window reaches a standard size
+     for this face? The drawing inside is not measured (rule 8). false → the plan is made again without the hook (clip_plan.py) */
   hookOK(ar, t0, t1) { const face = cpFaceBox(t0, t1);
-    return WIN.pool.some(n => { if (!WIN.layouts[n].speaker) return false; const F = winFit(n, face); if (!F) return false;
-      const [, , w, h] = winInner(F.win); return (ar > w / h ? w * w / ar : h * h * ar) >= CP.speakerFloor; }); },
+    return WIN.pool.some(n => !!WIN.layouts[n].speaker && !!winFit(n, face)); },
   fitSurface() { const r = div('', SC); r.className = 'w-root w-screen'; return r; },
 
   frame(t0, t1, {index, scene}) {
@@ -230,14 +231,10 @@ STYLE('window', {
         let pool = WIN.pool.filter(n => n !== WIN.last && winFit(n, face));
         if (hook && pool.some(spk)) pool = pool.filter(spk);
         if (!pool.length) pool = ['dark', 'float', 'cascade'].filter(n => n !== WIN.last);
-        const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
-        if (ar) {
-          const size = n => { const [, , w, h] = winInner(winFit(n, face).win); return ar > w / h ? w * w / ar : h * h * ar; };
-          const kept = cpSizeKeep(pool, size, .75, n => !!WIN.layouts[n].speaker);
-          /* the hook keeps only speaker screens: when the floor leaves none, the one with the biggest picture (2026-11-19, a clip whose
-             face left every speaker window under the floor had no screen at all) */
-          pool = kept.length ? kept : [pool.reduce((a, b) => size(b) > size(a) ? b : a)];   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
-        }
+        /* NO SCREEN IS CHOSEN BY THE SIZE OF THE DRAWING INSIDE IT (common.md 4.1 rule 8 · Friend 2026-11-20: "เรายังคัดจากขนาดภาพข้างในอยู่
+           อีกหรอ" · "ต่อไปนี้จะเลิกวัดขนาดภาพ ... จะดูขนาดมาตรฐานทั้ง 7 แบบที่เรากำหนดไว้แทน" · LESSONS 76): a screen is kept when its WINDOW
+           reaches 65 % of a standard size here (winFit → winShape, above) — nothing else. Until 2026-11-20 the pool was also narrowed by how
+           big the old drawing came out in each window (cpSizeKeep .75), which kept the screens with the face in a frame (float, stats) off. */
         pool = winBalance(pool, n => !!WIN.layouts[n].speaker, index, WIN.speakerShare);   // ก (the speaker) 60 : ข (a graphic screen) 40 (Friend 2026-11-20: "E ครับ")
         /* a speaker screen: the window over the head or under it as often ("เพื่อความหลากหลาย"); the less used place, a tie by the run's seed */
         const tp = pool.filter(n => WIN.layouts[n].top), lw = pool.filter(n => WIN.layouts[n].speaker && !WIN.layouts[n].top);
