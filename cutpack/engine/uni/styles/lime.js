@@ -158,11 +158,15 @@ function limeClosePlan() {
       const groups = [];
       sc.forEach(([t0, t1], i) => { const g = groups[groups.length - 1];
         if (g && t0 - g.t1 <= LIME_CLOSE.gap && t1 - g.t0 <= LIME_CLOSE.cap) { g.t1 = t1; g.times.push([t0, t1]); g.idx.push(i); }
-        else groups.push({t0, t1, times: [[t0, t1]], idx: [i]}); });
+        /* `adj`: this group begins where the one before it ends — only when the 14 s cap cut a run of pictures in two. Such a group
+           never becomes a split screen (below), so NO SPLIT EVER FOLLOWS A SPLIT (Friend 2026-11-20: "ผมไม่อยากให้ฉากเลื่อนขึ้นกับ
+           เลื่อนลงอยู่ต่อจากกัน"): a group's lead takes its screen from this plan, not from the pool, so it would not see the
+           no-split-after-split rule that the pool keeps. */
+        else groups.push({t0, t1, times: [[t0, t1]], idx: [i], adj: !!g && t0 - g.t1 <= LIME_CLOSE.gap}); });
       const plan = {}, used = {split_top: 0, split_bottom: 0}; let prev = false;
       for (const g of groups) {
         const hook = g.idx[0] === 0 && typeof RUN !== 'undefined' && RUN.hook;   // the hook keeps its own screen (1.8–3.2 s)
-        if (prev || !(g.t1 - g.t0 >= LIME_CLOSE.min || hook)) { prev = false; continue; }   // not a split group: its pictures keep the old rule, untouched
+        if (prev || g.adj || !(g.t1 - g.t0 >= LIME_CLOSE.min || hook)) { prev = false; continue; }   // not a split group: its pictures keep the old rule, untouched
         g.name = used.split_bottom === used.split_top ? (cpRand('split' + g.idx[0]) < .5 ? 'split_bottom' : 'split_top')
           : used.split_bottom < used.split_top ? 'split_bottom' : 'split_top';   // the two in turn, the first at random from the seed
         used[g.name]++;
