@@ -28,20 +28,20 @@ const WIN = {
     talk:     {speaker: true, lead: {x: 540, y: 1062}, key: {x: 540, y: 1175}},                                                  // shot 01 without its window
     full:     {speaker: true, lead: {x: 540, y: 1062}, key: {x: 540, y: 1175}, win: [80, 1300, 840, 360]},              // shot 01 (sheet to y 1682)
     full_n:   {speaker: true, lead: {x: 540, y: 1117}, key: {x: 540, y: 1226}, win: [210, 1340, 670, 320]},             // shot 02 (narrow window)
-    dark:     {screen: true, lead: {x: 540, y: 381}, key: {x: 540, y: 490}, win: [80, 645, 840, 630], decor: 0, ringUp: 230},    // shot 03 · final point 4: the window in the middle of the screen, the words 90 over it (the top ring 230 higher, off the words)
+    dark:     {screen: true, lead: {x: 540, y: 381}, key: {x: 540, y: 490}, win: [80, 645, 840, 630]},    // shot 03 · final point 4: the window in the middle of the screen, the words 90 over it (the top ring 230 higher, off the words)
     float:    {screen: true, frame: [62, 258, 470, 740, 30], lead: {x: 770, y: 610, maxW: 470}, key: {x: 770, y: 700, maxW: 470, half: 50},
-               win: [300, 1070, 620, 560], decor: 0},                                                                    // shot 04
+               win: [300, 1070, 620, 560]},                                                                    // shot 04
     full_w:   {speaker: true, lead: {x: 540, y: 1040}, key: {x: 540, y: 1183}, win: [170, 1300, 740, 360]},             // shot 05
     /* STACK (Friend 2026-11-20, in place of the cascade: "ลบฉากนี้ออกจากสไตล์ได้เลยครับเพราะว่ามันดูแปลกๆคือมันมี 2 การ์ดแต่มันมี motion graphic
        อยู่แค่การ์ดเดียว" · "ผมอยากให้ลองทำเป็นฉากนี้แทน[รูปการ์ดบน คำกลาง หน้าในกรอบล่าง] แต่ยังคงสไตล์หน้าต่างแอปเหมือนเดิม"): one window at
        the top (its room 220–690), the words under it, the speaker in a rounded frame at the bottom (its own video, as float / stats) */
     stack:    {screen: true, lead: {x: 540, y: 885}, key: {x: 540, y: 995}, win: [60, 220, 860, 470],
-               frame: [60, 1190, 860, 470, 30], inset: [.3, .5], decor: 1},   // the frame is the same box as the window (winShape) · inset: the face takes 30 % of this wide frame, in its middle
+               frame: [60, 1190, 860, 470, 30], inset: [.3, .5]},   // the frame is the same box as the window (winShape) · inset: the face takes 30 % of this wide frame, in its middle
     full_d:   {speaker: true, lead: {x: 540, y: 1051}, key: {x: 540, y: 1161}, win: [80, 1300, 840, 360]},             // shot 07
     stats:    {screen: true, frame: [560, 250, 360, 690, 30], lead: {x: 290, y: 653, maxW: 440}, key: {x: 290, y: 756, maxW: 440, half: 50},
-               win: [80, 1070, 840, 560], decor: 1},                                                                     // shot 08 (sheet frame to x 1019)
+               win: [80, 1070, 840, 560]},                                                                     // shot 08 (sheet frame to x 1019)
     full_c:   {speaker: true, lead: {x: 540, y: 1073}, key: {x: 540, y: 1172}, win: [80, 1300, 840, 360]},             // shot 09
-    dark_b:   {screen: true, lead: {x: 540, y: 385}, key: {x: 540, y: 490}, win: [80, 645, 840, 630], decor: 1, ringUp: 230},    // shot 10 · final point 4: as dark
+    dark_b:   {screen: true, lead: {x: 540, y: 385}, key: {x: 540, y: 490}, win: [80, 645, 840, 630]},    // shot 10 · final point 4: as dark
     // recap (four windows) taken out (Friend 2026-11-19: "เอาฉากนี้ออก")
     cta:      {speaker: true, lead: {x: 540, y: 1066}, key: {x: 540, y: 1172}, win: [80, 1300, 840, 360]},             // shot 12
     /* final 2026-11-18 (Friend: "พื้นที่ด้านบนหัวยังว่างสามารถเอาโอเวอร์เลย์ไปไว้ตรงนั้นได้นะครับ เพื่อความหลากหลาย"): the window over
@@ -58,10 +58,10 @@ const WIN = {
      squares, as the windows) and a short running light. Each ring {cx, cy, r, chips: [angles], light: angle, dir}; 0 = top
      right + bottom left, 1 = mirrored (screens whose frame or back window covers the top right; its lower chips sit left of TikTok's
      buttons, x 920, and turn away from them). */
-  decor: [
-    [{cx: 930, cy: 170, r: 330, chips: [165, 100], light: 132, dir: 1}, {cx: 140, cy: 1760, r: 300, chips: [-80, -10], light: -45, dir: -1}],
-    [{cx: 150, cy: 170, r: 330, chips: [15, 80], light: 48, dir: 1}, {cx: 940, cy: 1760, r: 300, chips: [260, 190], light: 225, dir: -1}],
-  ],
+  /* ONE PAIR OF RINGS, ALWAYS IN THE SAME PLACE, TURNING ON THE CLIP'S OWN CLOCK (Friend 2026-11-20: "เวลามันมีฉากแบบนี้ต่อกัน การหมุนและ
+     ตำแหน่งของวงแหวน มันไม่ต่อเนื่องอะครับ ผมอยากให้มันอยู่ตำแหน่งเดิมตลอด และหมุนต่อเนื่อง"): top right + bottom left, the top one high
+     enough to stay off the words of every screen (it used to be mirrored per screen and raised only where the words sit high) */
+  decor: [{cx: 930, cy: 120, r: 330, chips: [165, 100], light: 132, dir: 1}, {cx: 140, cy: 1760, r: 300, chips: [-80, -10], light: -45, dir: -1}],
   ring: 'split',                                // the ring's shape (winRingPath): 'split' (Friend 2026-11-18 chose ค) · 'square' · 'hex'
   speakerShare: .6,                             // ก's share where both kinds fit (winBalance · Friend 2026-11-20: "E ครับ")
   spin: 4.5,                                    // degrees a second (Friend: "หมุนให้เร็วกว่านี้อีกนิดนึง" 1.5 → 2.25, then "วงแหวนต้องหมุนเร็วกว่านี้อีก" → 4.5)
@@ -124,7 +124,6 @@ function winShape(L, name, key) {
     if (s < WIN_MIN) return null;
     const [w, h] = size(k, s), y = Math.round(960 - h / 2);
     L.win = [Math.round(Math.min(Math.max(540 - w / 2, 60), 920 - w)), y, w, h]; L.key.y = y - gap - 65; L.lead.y = L.key.y - lk;   // in the middle, kept in 60–920 (TikTok's buttons, as lime: 860 wide = 60–920)
-    L.ringUp = Math.max(L.ringUp ?? 0, 230 + Math.max(0, 645 - y));   // the top ring keeps off the words when they move up
     L.std = [k, s]; return L;
   }
   if (name === 'stack') {
@@ -271,11 +270,12 @@ STYLE('window', {
     const root = div('', SC); root.className = 'w-root' + (L.screen ? ' w-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     if (L.screen) {
-      const D = WIN.decor[L.decor ?? 0], long = Math.max(1, t1 - t0);
+      const D = WIN.decor, long = Math.max(1, t1 - t0);
       D.forEach(({cx, cy, r, chips, light, dir}, j) => {
-        if (j === 0) cy -= L.ringUp ?? 0;         // the top ring moves up when the words sit high (final point 4)
-        const R = r + 20, sz = [cx - R, cy - R, 2 * R, 2 * R], spin = dir * WIN.spin * long, rad = a => a * Math.PI / 180;
-        const turn = (el, deg) => A(el, [{transform: 'rotate(0deg)'}, {transform: `rotate(${deg}deg)`}], t0 - .05, long + .4);
+        const R = r + 20, sz = [cx - R, cy - R, 2 * R, 2 * R], spin = dir * WIN.spin * (long + .4), rad = a => a * Math.PI / 180;   // over the whole animation, so the rate is exactly WIN.spin a second
+        /* the angle is read off the clip's clock (dir × spin × t), so two screens in a row carry one unbroken turn */
+        const a0 = dir * WIN.spin * (t0 - .05);
+        const turn = (el, deg, from = a0) => A(el, [{transform: `rotate(${from}deg)`}, {transform: `rotate(${from + deg}deg)`}], t0 - .05, long + .4);
         /* one line (Friend: "อยากให้มันเป็นเส้นเดียว"), its running light and its chips; the shape: WIN.ring */
         const g = box(sz); g.className = 'w-arc';
         g.innerHTML = `<svg width="${2 * R}" height="${2 * R}"><path class="w-main" d="${winRingPath(WIN.ring, R, r)}" fill="none" stroke="#4F86C4" stroke-width="3.5" stroke-linejoin="round"/>`
@@ -291,7 +291,7 @@ STYLE('window', {
           line.setAttribute('stroke-dashoffset', `${-runs[0][0]}`); }
         turn(g, spin);
         chips.forEach((ang, k) => { const p = line.getPointAtLength(at(ang)), c = div(`left:${p.x - 27}px;top:${p.y - 27}px`, g); c.className = 'w-chip';
-          turn(c, -spin);                                                     // stays upright while its ring turns
+          turn(c, -spin, -a0);                                                // stays upright while its ring turns
           A(c, [{opacity: 1}, {opacity: .6}, {opacity: 1}], t0 + (2 * j + k) * .55, 2.6, {e: 'ease-in-out', it: 4}); });
       });
       A(root, [{opacity: 0, filter: 'blur(14px)', transform: 'scale(1.03)'}, {opacity: 1, filter: 'blur(0)', transform: 'none'}], t0 - .04, .35, {e: EASE.smooth});
