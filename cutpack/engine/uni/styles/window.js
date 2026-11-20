@@ -266,6 +266,12 @@ STYLE('window', {
           A(c, [{opacity: 1}, {opacity: .6}, {opacity: 1}], t0 + (2 * j + k) * .55, 2.6, {e: 'ease-in-out', it: 4}); });
       });
       A(root, [{opacity: 0, filter: 'blur(14px)', transform: 'scale(1.03)'}, {opacity: 1, filter: 'blur(0)', transform: 'none'}], t0 - .04, .35, {e: EASE.smooth});
+      /* SCREEN TO SCREEN (Friend 2026-11-20, clip 2 at 56–57 s: "จังหวะเปลี่ยนฉากมันสลับมาเป็นหน้าผมประมาณเสี้ยววินาทีนึงอะ"): when the
+         picture before was a blue screen ending right here, it stays fully on under this one until this one is in (its own fade-out
+         ran from its end − .3 s and let the speaker's video show between the two); after that its fade-out's end state (hidden) holds */
+      const prev = CLIPWINS[CLIPWINS.length - 1];
+      if (prev && prev.F.L?.screen && prev.F.root && Math.abs(prev.t1 - t0) < .05)
+        A(prev.F.root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 1, filter: 'blur(0)'}], prev.t1 - .3, t0 + .4 - (prev.t1 - .3), {f: 'none'});
       sfx('whoosh', t0 - .1, -20);
     }
     if (L.frame) { const [x, y, w, h, r] = L.frame, f = box([x, y, w, h]); f.className = 'w-frame cp-frame'; f.style.borderRadius = r + 'px';
