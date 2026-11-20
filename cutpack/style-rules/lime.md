@@ -154,8 +154,8 @@ bash ../core/pipeline.sh $W/st_lime $W/clip.mp4 hq                              
 1. ภาพแรกที่มี hook → กองฉากเหลือเฉพาะฉากหน้าคนพูด (หัวข้อ 5 ข้อ 5)
 2. หมวด B15 (ชวนติดตาม) → `cta` · หมวด B14 (ประโยคเด็ด) → `screen` · ใช้ถ้าฉากนั้นใส่ได้ (หัวข้อ 3.1 + 4)
 3. ไม่ใช่ข้อ 2: กองสุ่ม 9 ฉาก `hands` `big` `top` `split_top` `side_l` `screen` `side_r` `split_bottom` `cta` → ตัดฉากเดียวกับภาพก่อนหน้า → ตัดฉากที่ใส่ไม่ได้ · ไม่เหลือเลย → `screen` `split_top` `split_bottom`
-4. ตัดฉากที่ไม่มีขนาดการ์ดใส่ได้ (`limeStage` = null)
-5. ขนาด (`cpSizeKeep`): จอ ข เก็บเฉพาะฉากที่ภาพได้ ≥ 75% ของจอ ข ที่ดีที่สุด · จอ ก ขอแค่ภาพ ≥ 30000 px²
+4. ตัดฉากที่การ์ดไม่ได้ขนาดมาตรฐาน 65% (`limeRoom` / `limeStage` = null) — **เงื่อนไขขนาดมีแค่ข้อนี้ข้อเดียว**
+5. ~~คัดด้วยขนาดภาพข้างในการ์ด~~ **เลิกใช้แล้ว 2026-11-20** (`cpSizeKeep` และขั้นต่ำ 30000 px² ออก · `setup` ตั้ง `CP.speakerFloor = 0`) · Friend: "เรายังคัดจากขนาดภาพข้างในอยู่อีกหรอ" · "ต่อไปนี้จะเลิกวัดขนาดภาพ … จะดูขนาดมาตรฐานทั้ง 7 แบบที่เรากำหนดไว้แทน" (`common.md` 4.1 กฎ 8 · LESSONS 76) · ผล (seed เดิม): คลิป 3 ฉากเต็มจอ `screen` 4 → 2 ภาพ จอแบ่งขึ้นแทน 2 → 4 · คลิป 2 `screen` 9 → 7 · จอ ก : จอ ข เท่าเดิม
 6. จอ ก กับ จอ ข ให้ขึ้นเท่ากัน (`cpBalance`): ใส่ได้ทั้งสองแบบ → เลือกแบบที่คลิปใช้น้อยกว่า · เท่ากัน = สุ่ม
 7. ฉากที่ใช้น้อยที่สุดในคลิปก่อน → สุ่มจากเลขของรอบ (`cpRand`)
 - **ระหว่างภาพ** (`speakerFrame`): สุ่มต่อช่วง `talk` 2 ใน 3 · `talk_top` 1 ใน 3 · ฉากที่สุ่มได้ใส่ไม่ได้ → อีกแบบ · ไม่ได้ทั้งคู่ → `talk`
@@ -239,7 +239,7 @@ bash ../core/pipeline.sh $W/st_lime $W/clip.mp4 hq                              
 |---|---|
 | `engine/uni/styles/lime.js` | ฉาก (`LIME.layouts`) · `limeFit` · ขนาดมาตรฐาน `LIME_STD` `LIME_ORDER` `LIME_MIN` `limeShape` `limeRoom` `limeStage` · `frame` (เลือกฉาก hook จอแบ่ง) · `speakerFrame` · `text` · css |
 | `engine/uni/tools/clip_plan.py` | `RULES['lime']` · `with_hook` · `RUN.hook` |
-| `engine/uni/styles/common.js` | `cpShape` `cpFitSize` `cpSizeKeep` `cpBalance` `cpFace` `cpFaceBox` |
+| `engine/uni/styles/common.js` | `cpFitSize` (เลือกแบบภาพ) `cpBalance` `cpFace` `cpFaceBox` · (`cpShape` `cpSizeKeep` เขียวมะนาวไม่ใช้แล้ว 2026-11-20) |
 | `engine/uni/core.js` | V (วิดีโอคนพูด) · กล้อง `camAt` · `A` (อนิเมชัน) · `EASE` |
 | `engine/uni/glow/bridge.js` | `GLOWLOOK.lime` `GLASSY.lime` |
 | `engine/uni/glow/lime_test.js` | ภาพนิ่ง 11 ช็อต |
