@@ -219,10 +219,13 @@ STYLE('lime', {
            standard size here (limeRoom, above) — nothing else. Until 2026-11-20 the pool was also narrowed by how big the old drawing came
            out in each card (cpSizeKeep .75 + CP.speakerFloor), which held the speaker's screens back on close-up clips. */
         pool = cpBalance(pool, n => !!LIME.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
-        if (pool.includes('split_bottom') && pool.includes('split_top'))      // the video slides up 7 times in 10
-          pool = [cpRand('up' + index) < LIME_SPLIT_UP ? 'split_bottom' : 'split_top'];
         const least = Math.min(...pool.map(n => LIME.used[n] ?? 0)); pool = pool.filter(n => (LIME.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];
+        /* WHICH split, not HOW OFTEN (Friend 2026-11-20: "ผมชอบฉากที่มันเลื่อนขึ้นมากกว่าเลื่อนลง" · "เท่าเดิมนี่ … หมายถึงอันก่อนหน้านั้น"):
+           the pool and the counts stay exactly as they were, and only a screen that is already a split is swapped — 7 times in 10 to the
+           one that slides the video up (the card below it) */
+        if (LIME.layouts[name].split) { const up = cpRand('up' + index) < LIME_SPLIT_UP ? 'split_bottom' : 'split_top';
+          if (up !== LIME.last) name = up; }
       }
     }
     LIME.used[name] = (LIME.used[name] ?? 0) + 1; LIME.last = name;
