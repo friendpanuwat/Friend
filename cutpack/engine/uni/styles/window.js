@@ -59,6 +59,7 @@ const WIN = {
     [{cx: 150, cy: 170, r: 330, chips: [15, 80], light: 48, dir: 1}, {cx: 940, cy: 1760, r: 300, chips: [260, 190], light: 225, dir: -1}],
   ],
   ring: 'split',                                // the ring's shape (winRingPath): 'split' (Friend 2026-11-18 chose ค) · 'square' · 'hex'
+  speakerShare: .6,                             // ก's share where both kinds fit (winBalance · Friend 2026-11-20: "E ครับ")
   spin: 4.5,                                    // degrees a second (Friend: "หมุนให้เร็วกว่านี้อีกนิดนึง" 1.5 → 2.25, then "วงแหวนต้องหมุนเร็วกว่านี้อีก" → 4.5)
 };
 /* the ring's line, centred at (R, R), from the angle 0 clockwise (as the angles of its chips): a rounded square (as the windows), a
@@ -138,6 +139,16 @@ function winShape(L, name, key) {
   }
   return null;
 }
+/* ก : ข = 60 : 40 (Friend 2026-11-20: "สไตล์นี้ผมอยากให้ลดฉากสีน้ำเงินลงนิดนึงแล้วก็เพิ่มฉากโอเวอร์เลย์มากขึ้นหน่อย" → "E ครับ"): as cpBalance
+   (common.js), where both kinds fit the kind this clip is furthest behind its share on (taken / share), a tie at random from the run's seed
+   weighted by the share; only one kind fits: that one */
+function winBalance(pool, isSpk, key, share) {
+  const a = pool.filter(isSpk), b = pool.filter(n => !isSpk(n)), k = CP.kinds, ua = k.spk / share, ub = k.scr / (1 - share);
+  const pick = a.length && b.length ? (ua === ub ? (cpRand('kind' + key) < share ? 'spk' : 'scr') : ua < ub ? 'spk' : 'scr') : a.length ? 'spk' : 'scr';
+  k[pick]++;
+  (CP.log ??= []).push({key, spk: a, scr: b, pick});   // (tests: what each picture could take)
+  return pick === 'spk' ? a : b;
+}
 STYLE('window', {
   name: 'หน้าต่างแอป',
   layouts: WIN.layouts,
@@ -185,6 +196,10 @@ STYLE('window', {
   },
   sound: {hit: ['softswish', -22], cross: ['swipe', -24], key: ['softswish', -21]},
   setup() {
+    /* NO FLOOR ON THE PICTURE (Friend 2026-11-20: "E ครับ" · "คุณลืมไปแล้วหรอว่าผมจะทำ motion graphic ใหม่ตามขนาดทั้ง 7" · LESSONS 76): a speaker
+       screen fits when its window reaches 65 % of its standard size (winShape), whatever the old drawing inside fills; the floor that
+       measured the drawing (CP.speakerFloor, by its shape) is off on this style's pages, for frame()'s cpSizeKeep, fitSize and hookOK */
+    CP.speakerFloor = 0;
     BGL.style.background = '#000'; HOOKS.push(cpInsetHook);
     /* load this style's fonts at once: the words are fitted to the safe zone on the first frame (hud 2026-11-18: fitted with the fallback font) */
     [['WinKey', 800, 'normal'], ['WinLead', 400, 'normal']].forEach(([f, w, st]) => div(`left:-9999px;top:0;font-family:${f};font-weight:${w};font-style:${st}`, document.body, 'กขคฅ ึ่้ 0123 Ab'));
@@ -223,7 +238,7 @@ STYLE('window', {
              face left every speaker window under the floor had no screen at all) */
           pool = kept.length ? kept : [pool.reduce((a, b) => size(b) > size(a) ? b : a)];   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
         }
-        pool = cpBalance(pool, n => !!WIN.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
+        pool = winBalance(pool, n => !!WIN.layouts[n].speaker, index, WIN.speakerShare);   // ก (the speaker) 60 : ข (a graphic screen) 40 (Friend 2026-11-20: "E ครับ")
         /* a speaker screen: the window over the head or under it as often ("เพื่อความหลากหลาย"); the less used place, a tie by the run's seed */
         const tp = pool.filter(n => WIN.layouts[n].top), lw = pool.filter(n => WIN.layouts[n].speaker && !WIN.layouts[n].top);
         if (tp.length && lw.length) { const P = WIN.place, up = P.top !== P.low ? P.top < P.low : cpRand('place' + index) < .5; pool = up ? tp : lw; }
