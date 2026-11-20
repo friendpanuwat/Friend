@@ -328,6 +328,8 @@ def write(style, R, sc, zooms, suffix, ov=(), open_='speaker', hook=False):
         RUN_PICKS.append(picks[r['id']])
     f = json.load(open(FACES))
     run = {'seed': SEED, 'overlays': [f"{r['id']}.{picks[r['id']]}" for r, *_ in ov], 'open': open_ if sc and sc[0][1] < .3 else 'speaker'}
+    # TRIAL 2026-11-20 (lime, close-up clips): every picture's window, so a style can see the pictures that come next
+    run['scenes'] = [[round(t0, 2), round(t1, 2)] for _, t0, t1, _ in sorted(list(sc) + list(ov), key=lambda x: x[1])]
     if is_hook: run['hook'] = True                 # the first picture is the hook: a speaker's screen
     js = f"const RUN = {json.dumps(run)};\nconst FACES = {json.dumps({'track': f['track'], 'layout': f['layout'], 'keepOut': f['keepOut']})};\nconst CAPTIONS = {json.dumps(CAP, ensure_ascii=False)};\n"
     if zooms: js += f"const ZOOMS = {json.dumps(zooms)};\n"
