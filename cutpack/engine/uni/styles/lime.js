@@ -181,6 +181,9 @@ STYLE('lime', {
 
   /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
+  /* the split screens slide out over the last .6 s (the card down past the buttons, the words up off the top): the safe-zone check reads
+     the frame .65 s before the end instead, so a real breach is never hidden behind that move (tools/picture_sizes.js · 2026-11-20) */
+  exitLead: .65,
   realShapes: true,
   /* how much of the screen a drawing of shape `ar` takes here, to CHOOSE THE DRAWING (tools/fit_pick.js) — never to choose a screen:
      the mean over every screen this face leaves room for (keep 0 · no floor, 2026-11-20) */
