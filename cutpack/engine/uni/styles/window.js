@@ -35,8 +35,8 @@ const WIN = {
     /* STACK (Friend 2026-11-20, in place of the cascade: "ลบฉากนี้ออกจากสไตล์ได้เลยครับเพราะว่ามันดูแปลกๆคือมันมี 2 การ์ดแต่มันมี motion graphic
        อยู่แค่การ์ดเดียว" · "ผมอยากให้ลองทำเป็นฉากนี้แทน[รูปการ์ดบน คำกลาง หน้าในกรอบล่าง] แต่ยังคงสไตล์หน้าต่างแอปเหมือนเดิม"): one window at
        the top (its room 220–690), the words under it, the speaker in a rounded frame at the bottom (its own video, as float / stats) */
-    stack:    {screen: true, lead: {x: 540, y: 855}, key: {x: 540, y: 965}, win: [60, 220, 860, 470],
-               frame: [200, 1100, 680, 560, 30], decor: 1},
+    stack:    {screen: true, lead: {x: 540, y: 885}, key: {x: 540, y: 995}, win: [60, 220, 860, 470],
+               frame: [60, 1190, 860, 470, 30], inset: [.3, .5], decor: 1},   // the frame is the same box as the window (winShape) · inset: the face takes 30 % of this wide frame, in its middle
     full_d:   {speaker: true, lead: {x: 540, y: 1051}, key: {x: 540, y: 1161}, win: [80, 1300, 840, 360]},             // shot 07
     stats:    {screen: true, frame: [560, 250, 360, 690, 30], lead: {x: 290, y: 653, maxW: 440}, key: {x: 290, y: 756, maxW: 440, half: 50},
                win: [80, 1070, 840, 560], decor: 1},                                                                     // shot 08 (sheet frame to x 1019)
@@ -139,6 +139,10 @@ function winShape(L, name, key) {
     const [W, H] = WIN_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H); if (s < WIN_MIN) continue;
     const [cw, ch] = size(k, s), cx = name === 'stats' || name === 'stack' || L.speaker ? 540 : x + w / 2;   // speaker screens in the middle (Friend 2026-11-20: "3. ย้ายไปกลางจอ")
     L.win = [Math.round(Math.min(Math.max(cx - cw / 2, X0), X1 - cw)), L.top || name === 'stats' ? Y1 - ch : Y0, cw, ch];   // over the head and stats: down to the room's bottom   // over the head: down to the hair (as lime's top card) · else under the words
+    /* stack: the speaker's frame is the SAME box as the window, hanging from the bottom line (Friend 2026-11-20: "ให้ขนาดของการ์ดกับขนาด
+       ของช่องที่คนอยู่มันเท่ากันเหมือน reference"); the words sit in the middle of the gap, whose centre is 940 whatever the size */
+    if (name === 'stack') { L.frame = [L.win[0], 1660 - ch, cw, ch, 30];
+      const lk = L.key.y - L.lead.y; L.lead.y = Math.round(940 - (lk + 100) / 2 + 45); L.key.y = Math.round(L.lead.y + lk); }
     L.std = [k, s]; return L;
   }
   return null;
@@ -291,7 +295,7 @@ STYLE('window', {
       sfx('whoosh', t0 - .1, -20);
     }
     if (L.frame) { const [x, y, w, h, r] = L.frame, f = box([x, y, w, h]); f.className = 'w-frame cp-frame'; f.style.borderRadius = r + 'px';
-      cpInset(f, w - 4, h - 4, t0, .42, .4);
+      cpInset(f, w - 4, h - 4, t0, ...(L.inset ?? [.42, .4]));   // stack: its own face size in a wide frame
       A(f, [{opacity: 0, transform: 'translateY(-30px)'}, {opacity: 1, transform: 'none'}], t0 + .05, .45, {e: EASE.soft}); }
     A(root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t1 - .3, .3, {e: EASE.out, f: 'forwards'});
     /* the windows: three dots, then a skeleton title bar (Friend 2026-11-18: "แบบ skeleton ... ไม่มีข้อความแต่มีเหมือนเป็นแบบช่องๆเหลี่ยมๆมนๆ"):
