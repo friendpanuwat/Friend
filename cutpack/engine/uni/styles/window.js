@@ -5,8 +5,8 @@
    the face). The pictures: the glow-line template set first, in the glass look with blue light (glow/bridge.js GLASSY.window).
    The 7-item form:
    1 frame    one of 12 layouts (WIN.layouts, named after Friend's shots): the speaker full screen with an app window at the hands,
-              or a deep-blue screen with a big window, the speaker in a rounded frame beside a window, two windows in cascade (the four-window recap
-              was taken out 2026-11-19). Between pictures the speaker talks with the words at the chest. (The sheet's chapter bar top left and the small
+              or a deep-blue screen with a big window, the speaker in a rounded frame beside a window or under one (stack). (The four-window
+              recap went out 2026-11-19, the two windows in cascade 2026-11-20.) Between pictures the speaker talks with the words at the chest. (The sheet's chapter bar top left and the small
               spaced label over the words are left out: Friend 2026-11-18, "ลบที่ผมวงกลมสีแดงออกด้วยครับทุกฉากเลย".)
    2 surface  screens: near-black to navy (Friend's background picture, 2026-11-18) with our own turning rings top right and bottom
               left (one glowing line, white app-chips, a running light); the pictures sit in dark app windows (three dots, a skeleton
@@ -32,7 +32,11 @@ const WIN = {
     float:    {screen: true, frame: [62, 258, 470, 740, 30], lead: {x: 770, y: 610, maxW: 470}, key: {x: 770, y: 700, maxW: 470, half: 50},
                win: [300, 1070, 620, 560], decor: 0},                                                                    // shot 04
     full_w:   {speaker: true, lead: {x: 540, y: 1040}, key: {x: 540, y: 1183}, win: [170, 1300, 740, 360]},             // shot 05
-    cascade:  {screen: true, win2: [300, 270, 690, 460], lead: {x: 330, y: 887}, key: {x: 330, y: 1023}, win: [60, 1178, 720, 470], decor: 1},   // shot 06 · 1170 → 1178 (final, point 4: 90 under the key word)
+    /* STACK (Friend 2026-11-20, in place of the cascade: "ลบฉากนี้ออกจากสไตล์ได้เลยครับเพราะว่ามันดูแปลกๆคือมันมี 2 การ์ดแต่มันมี motion graphic
+       อยู่แค่การ์ดเดียว" · "ผมอยากให้ลองทำเป็นฉากนี้แทน[รูปการ์ดบน คำกลาง หน้าในกรอบล่าง] แต่ยังคงสไตล์หน้าต่างแอปเหมือนเดิม"): one window at
+       the top (its room 220–690), the words under it, the speaker in a rounded frame at the bottom (its own video, as float / stats) */
+    stack:    {screen: true, lead: {x: 540, y: 855}, key: {x: 540, y: 965}, win: [60, 220, 860, 470],
+               frame: [200, 1100, 680, 560, 30], decor: 1},
     full_d:   {speaker: true, lead: {x: 540, y: 1051}, key: {x: 540, y: 1161}, win: [80, 1300, 840, 360]},             // shot 07
     stats:    {screen: true, frame: [560, 250, 360, 690, 30], lead: {x: 290, y: 653, maxW: 440}, key: {x: 290, y: 756, maxW: 440, half: 50},
                win: [80, 1070, 840, 560], decor: 1},                                                                     // shot 08 (sheet frame to x 1019)
@@ -45,7 +49,7 @@ const WIN = {
        face (winFit) · the words at the chest as shot 01 */
     full_top: {speaker: true, top: true, lead: {x: 540, y: 1062}, key: {x: 540, y: 1175}, win: [120, 220, 840, 560]},
   },
-  pool: ['full', 'full_n', 'dark', 'float', 'full_w', 'cascade', 'full_d', 'stats', 'full_c', 'dark_b', 'cta', 'full_top'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
+  pool: ['full', 'full_n', 'dark', 'float', 'full_w', 'stack', 'full_d', 'stats', 'full_c', 'dark_b', 'cta', 'full_top'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
   byCat: {B15: 'cta', B14: 'dark'},
   used: {}, last: null, place: {top: 0, low: 0},   // place: how many speaker screens had the window over the head / under it
   /* the screens' background. The gradient was measured on a picture Friend sent (2026-11-18: "ผมอยากได้ background แบบนี้"): near-black
@@ -108,7 +112,7 @@ function winFit(name, f) {
    the words 90 over it, moved up with it but not into the search bar. No sizes 4 and 7 (no screen beside the body). */
 const WIN_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
 const WIN_ORDER = {full: [2, 1], full_d: [2, 1], full_c: [2, 1], cta: [2, 1], full_n: [3, 2], full_w: [1, 2], full_top: [2, 3, 1],
-  float: [3, 5], stats: [5, 2], cascade: [2, 3]};
+  float: [3, 5], stats: [5, 2], stack: [2, 3, 1]};
 const WIN_MIN = .65;
 function winShape(L, name, key) {
   if (!L.win) return L;
@@ -130,10 +134,10 @@ function winShape(L, name, key) {
      2026-11-19: "อยากให้เส้นสีแดงกับเส้นสีเหลืองที่ผมขีดไว้ตรงกัน แต่การ์ดต้องอยู่กึ่งกลางจอนะ" · "ทำแค่ฉากนี้ฉากเดียว"): as wide as
      2 × (frame right − 540), its bottom on 1660, its top up to 90 under the frame */
     const fr = L.frame[0] + L.frame[2], fb = L.frame[1] + L.frame[3]; X0 = 1080 - fr; X1 = fr; Y0 = fb + 90; Y1 = 1660; }
-  if (name === 'cascade') { X1 = x + w; Y1 = 1660; }              // the front window keeps its step from the back one
+  if (name === 'stack') { Y1 = y + h; }                           // the room over the words (220 → 690), the window hangs from the top
   for (const k of WIN_ORDER[name] ?? [2]) {
     const [W, H] = WIN_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H); if (s < WIN_MIN) continue;
-    const [cw, ch] = size(k, s), cx = name === 'cascade' ? X0 + cw / 2 : name === 'stats' || L.speaker ? 540 : x + w / 2;   // speaker screens in the middle (Friend 2026-11-20: "3. ย้ายไปกลางจอ")
+    const [cw, ch] = size(k, s), cx = name === 'stats' || name === 'stack' || L.speaker ? 540 : x + w / 2;   // speaker screens in the middle (Friend 2026-11-20: "3. ย้ายไปกลางจอ")
     L.win = [Math.round(Math.min(Math.max(cx - cw / 2, X0), X1 - cw)), L.top || name === 'stats' ? Y1 - ch : Y0, cw, ch];   // over the head and stats: down to the room's bottom   // over the head: down to the hair (as lime's top card) · else under the words
     L.std = [k, s]; return L;
   }
@@ -230,7 +234,7 @@ STYLE('window', {
       else {
         let pool = WIN.pool.filter(n => n !== WIN.last && winFit(n, face));
         if (hook && pool.some(spk)) pool = pool.filter(spk);
-        if (!pool.length) pool = ['dark', 'float', 'cascade'].filter(n => n !== WIN.last);
+        if (!pool.length) pool = ['dark', 'float', 'stack'].filter(n => n !== WIN.last);
         /* NO SCREEN IS CHOSEN BY THE SIZE OF THE DRAWING INSIDE IT (common.md 4.1 rule 8 · Friend 2026-11-20: "เรายังคัดจากขนาดภาพข้างในอยู่
            อีกหรอ" · "ต่อไปนี้จะเลิกวัดขนาดภาพ ... จะดูขนาดมาตรฐานทั้ง 7 แบบที่เรากำหนดไว้แทน" · LESSONS 76): a screen is kept when its WINDOW
            reaches 65 % of a standard size here (winFit → winShape, above) — nothing else. Until 2026-11-20 the pool was also narrowed by how
@@ -301,16 +305,14 @@ STYLE('window', {
       A(w, [{opacity: 0, transform: 'translateY(40px) scale(.95)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .04 + .12 * k, .45, {e: EASE.soft});
       return box(winInner(c), w); };
     const cat = String(meta.cat ?? '').slice(0, 3);
-    if (L.win2) { const back = makeWin(L.win2, 0);      // the cascade's back window: a list of three faint rows (one picture per shot)
-      [0, 1, 2].forEach(k => { const r = div(`left:30px;top:${40 + k * 92}px;width:${L.win2[2] - 120 - k * 60}px;height:26px;border-radius:13px;background:rgba(255,255,255,${.16 - k * .04})`, back); }); }
-    const stage = L.win ? makeWin(L.win, L.win2 ? 1 : 0) : box([0, 0, 1, 1]);
+    const stage = L.win ? makeWin(L.win, 0) : box([0, 0, 1, 1]);
     const stages = L.wins ? L.wins.map((c, k) => makeWin(c, k, false)) : null;
     /* final 2026-11-18 point 4 (Friend: "ฉากไหนที่มี background และ motion graphic แต่ไม่มีหน้าผม motion graphic ต้องอยู่กึ่งกลาง" ·
        "ข. แต่ระวังอย่าให้การ์ดกับซับไตเติ้ลติดกันมากเกินไป"): on a screen without the face the picture's end drawing sits in the middle
        of its window (glow/bridge.js glowFit with a room: the view widens evenly round what is drawn, instead of round the motion, which
        left the drawing at the window's bottom); its motion may use the window's own padding · then (Friend: "ที่ผมต้องการคือให้การ์ดไปอยู่
        ตรงกลางของจอเลยและเอา subtitle ขึ้นไปอีกเว้นระยะห่างระหว่างการ์ดเท่าเดิม"): the window (recap: its four) in the middle of the
-       screen (centre y 960), the words 90 px over it (the key word's row ends 65 px under its centre); the cascade keeps its two windows */
+       screen (centre y 960), the words 90 px over it (the key word's row ends 65 px under its centre) */
     const room = L.screen && !L.frame ? {l: 22, t: 8, r: 22, b: 22} : null;
     return {root, stage, stages, cam: root, L, name, cat, dark: !!L.screen, room};
   },
