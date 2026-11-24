@@ -252,9 +252,12 @@ STYLE('lime', {
       const hook = index === 0 && typeof RUN !== 'undefined' && RUN.hook, spk = n => !!LIME.layouts[n].speaker || !!LIME.layouts[n].split;
       if (want && (!hook || spk(want)) && limeRoom(want, face)) name = want;
       else {
-        /* NO SPLIT RIGHT AFTER A SPLIT (Friend 2026-11-20: "ผมไม่อยากให้ฉากเลื่อนขึ้นกับเลื่อนลงอยู่ต่อจากกัน"): the screen before
-           this one was a split (either way up) → this one is not a split at all, not just not the same one */
-        const afterSplit = !!LIME.last && !!LIME.layouts[LIME.last].split;
+        /* NO SPLIT NEXT TO A SPLIT (Friend 2026-11-20: "ผมไม่อยากให้ฉากเลื่อนขึ้นกับเลื่อนลงอยู่ต่อจากกัน"): the screen before this one
+           was a split (either way up) → this one is not a split at all, not just not the same one. The same when the NEXT picture
+           brings in a close-up clip's split group (limeClosePlan): that group's first picture takes its split from the plan, not from
+           this pool, so it cannot see this rule — the picture before it keeps it instead (hole found 2026-11-24, 211 times in 300
+           simulated close-up clips; Friend: "ทำงาน 4 ข้อตามที่ผมสั่งไว้ เริ่มได้"). A clip that is not a close-up has no plan: unchanged. */
+        const afterSplit = (!!LIME.last && !!LIME.layouts[LIME.last].split) || limeClosePlan()?.[index + 1]?.role === 'lead';
         const longEnough = t1 - t0 >= LIME_SPLIT_MIN, fits = n => limeRoom(n, face) && (!hook || spk(n)) && (longEnough || !LIME.layouts[n].split) && !(afterSplit && LIME.layouts[n].split);
         let pool = LIME.pool.filter(n => n !== LIME.last && fits(n));
         if (!pool.length) pool = LIME.pool.filter(fits);   // the same screen twice rather than a split too short to hold still (2026-11-20)
@@ -270,7 +273,12 @@ STYLE('lime', {
     }
     if (!G || G.role === 'lead') { LIME.used[name] = (LIME.used[name] ?? 0) + 1; LIME.last = name; }   // one group counts as one screen
     const L0 = (meta.layout ? LIME.layouts[name] : limeFit(name, face)) ?? LIME.layouts.screen;   // (a test's forced layout stays as on the sheet)
-    const L = limeShape(JSON.parse(JSON.stringify(L0)), name, 'size' + index) ?? JSON.parse(JSON.stringify(L0));   // the standard size (2026-11-19; a test's forced layout keeps its room when none fits)
+    /* the standard size (2026-11-19; a test's forced layout keeps its room when none fits) · a close-up group's later pictures reuse the
+       group's first card exactly (it is one card that stays; HANDOFF 2026-11-20 "จุดเปราะ 2": they used to size it again from their
+       own face, which gave the same card only because a split's room does not depend on the face) */
+    const copy = o => JSON.parse(JSON.stringify(o));
+    const L = G && G.role === 'swap' && G.g.L ? copy(G.g.L) : limeShape(copy(L0), name, 'size' + index) ?? copy(L0);
+    if (G && G.role === 'lead') G.g.L = copy(L);
     const root = div('', SC); root.className = 'l-root' + (L.screen ? ' l-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     const grid = host => {
