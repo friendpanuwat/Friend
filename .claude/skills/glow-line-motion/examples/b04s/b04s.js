@@ -684,7 +684,11 @@
      6 column · 7 snake (2 × 2). Slots: floating icon (1, 4, 7) · round plate (3, 6) · icon box (2, 5). Words under the icon (row / zigzag: above for
      the high ones) or beside it (column / snake). ---------- */
   const R1 = { th: 'แถวเชื่อมเส้น (จาก B04T 01)' };
-  function r1(d, c, k, st) { art(c, p => { const Q = STP(d), n = Q.N, Wb = SIZES[k].w, Hb = SIZES[k].h, m = 14, wS = st.wS ?? 46, hasW = Q.it.some(x => LBL(x)), mode = n === 2 && st.mode === 'snake' ? 'col' : st.mode;
+  /* the ✓ / ✗ is drawn in its own art AFTER the design, so it sits above every icon (icons are separate arts on top of the design —
+     user 2026-11-24: "มันต้องอยู่เลเยอร์บนสุดสิ") */
+  let MK = null;
+  function r1(d, c, k, st) { MK = null; r1in(d, c, k, st); if (MK) { const M = MK; over(c, q => markT(q, d, M.at, M.r)); } }
+  function r1in(d, c, k, st) { art(c, p => { const Q = STP(d), n = Q.N, Wb = SIZES[k].w, Hb = SIZES[k].h, m = 14, wS = st.wS ?? 46, hasW = Q.it.some(x => LBL(x)), mode = n === 2 && st.mode === 'snake' ? 'col' : st.mode;
     /* words under a slot get the room of TWO lines when any label is wider than its cell (measured), so nothing runs off the box */
     const cellW = mode === 'snake' ? (Wb - 2 * m) / 2 - 12 : (Wb - 2 * m) / n - 16, two = hasW && Q.it.some(x => LBL(x) && tw(p, LBL(x), wS) > cellW * (mode === 'zig' ? 1.2 : 1)), wH = hasW ? wS * (two ? 2.45 : 1.55) : 0;
     let pts = [], ic, wPos = [];
@@ -708,7 +712,7 @@
         const [wx, wy, an, mw, wr] = wPos[i]; stepWord(p, d, i, wx, wy, { size: wS, maxW: mw, anchor: an, wrap: wr || (an === 'start' ? 'mid' : 'down') }); });
       const [kx, ky] = pts[Q.K], above = mode === 'zig' && Q.K % 2 === 0 && LBL(Q.it[Q.K]), mr = f1(Math.max(30, Math.min(40, ic * .17))), off = sh === 'float' ? ic * .4 : ic / 2 - 4;
       /* a small mark on the slot's corner (user 2026-11-24: "เครื่องหมายติ๊กถูกมันบัคหรือเปล่า ถ้าย่อให้เล็กลงได้กว่านี้ก็ดี" — it was a big disc over the icon) */
-      markT(p, d, [f1(Math.min(Wb / 2 - mr - 6, kx + off)), above ? f1(Math.min(Hb / 2 - mr - 6, ky + off)) : f1(Math.max(-Hb / 2 + mr + 6, ky - off))], mr);
+      MK = { at: [f1(Math.min(Wb / 2 - mr - 6, kx + off)), above ? f1(Math.min(Hb / 2 - mr - 6, ky + off)) : f1(Math.max(-Hb / 2 + mr + 6, ky - off))], r: mr };
     } }); }
   R1[1] = (d, c) => r1(d, c, 1, { mode: 'row', shape: 'float', wS: 42 });
   R1[2] = (d, c) => r1(d, c, 2, { mode: 'row', shape: 'box', wS: 50 });

@@ -604,7 +604,8 @@
      On H the verdict: the loser's half dims, the winner's panel lights in the accent and its icon punches, the disc leans to the winner,
      ✓ / ✗ stamp on the panel corner. Halves fill the box, so every size is full. ---------- */
   const R1 = { th: 'แบ่งครึ่ง (จาก B03T 01)' };
-  function r1(d, c, k, st) { const T = ST(d), Wb = SIZES[k].w, Hb = SIZES[k].h, H = Z.H, vert = st.dir === 'v', gap = st.gap ?? 26, m = 6;
+  let VD = null;
+  function r1(d, c, k, st) { VD = null; const T = ST(d), Wb = SIZES[k].w, Hb = SIZES[k].h, H = Z.H, vert = st.dir === 'v', gap = st.gap ?? 26, m = 6;
     const hw = vert ? Wb - 2 * m : (Wb - 2 * m - gap) / 2, hh = vert ? (Hb - 2 * m - gap) / 2 : Hb - 2 * m, dr = st.disc ?? 56, rr = Math.min(36, Math.min(hw, hh) * .12);
     const P = { a: vert ? [0, f1(-Hb / 2 + m + hh / 2)] : [f1(-Wb / 2 + m + hw / 2), 0], b: vert ? [0, f1(Hb / 2 - m - hh / 2)] : [f1(Wb / 2 - m - hw / 2), 0] };
     art(c, p => {
@@ -633,8 +634,8 @@
       if (T.change) { const gc = vert ? rot(g, 90, sx, sy) : g; chev(gc, sx, sy, dr / 54, { sw: 7, stroke: ACC1 }); }
       else txt(g, 'VS', sx, sy + dr * .3, { size: f1(dr * .8), weight: 800, color: C.ink });
       const cr = (s, sd) => { const [px, py] = P[s], r0 = Math.max(48, Math.min(62, Math.min(hw, hh) * .18)); return [f1(px + hw / 2 - r0 - 10), f1(py - hh / 2 + r0 + 10)]; };
-      verdict(p, d, { a: cr('a'), b: cr('b') });
-    }); }
+      VD = { a: cr('a'), b: cr('b') };
+    }); if (VD) { const V2 = VD; over(c, q => verdict(q, d, V2)); } }   /* ✓ / ✗ on the top layer, above the icons */
   R1[1] = (d, c) => r1(d, c, 1, { dir: 'h', inner: 'side', disc: 48, wordSize: 50, pad: 22 });
   R1[2] = (d, c) => r1(d, c, 2, { dir: 'h', inner: 'below', disc: 60, wordSize: 56 });
   R1[3] = (d, c) => r1(d, c, 3, { dir: 'h', inner: 'below', disc: 50, wordSize: 48, box: true, pad: 24 });
