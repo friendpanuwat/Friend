@@ -886,6 +886,7 @@
   ];
   const STRESS = [
     { say: 'ไม่มีป้ายเลย', wrong: I('cigarette-off'), right: I('salad') },
+    { say: 'ป้ายยาวมาก (เกิน 16 ตัว → ไม่แสดงคำ)', wrong: I('trending-down', 'ลดราคาสินค้าทั้งร้านทุกชิ้น'), right: I('message-circle-heart', 'ตอบแชตลูกค้าให้ไวภายในห้านาที') },
     { say: 'ป้ายยาว 12 ตัว', wrong: I('trending-down', 'ลดราคาทั้งร้าน'), right: I('message-circle-heart', 'ตอบแชตลูกค้าไว') },
     { say: 'ภาษาอังกฤษ', wrong: I('zap', 'Faster'), right: I('target', 'Smarter') },
     { say: 'ไม่มีไอคอน (ป้ายแทนภาพ)', wrong: { label: 'ราคา' }, right: { label: 'คุณค่า' } },
@@ -983,8 +984,20 @@
       ICON(p, c, d, 'r', 270, -70, 250, { room: 320 }); WORD(p, d, 'r', 270, 135, { size: 62, maxW: 320 }); });
     MK(c, [-160, -185], [380, -185], 32); });
 
+
+  /* LONG WORDS (user 2026-11-24: "ถ้าคำยาวมากก็ไม่ต้องมีตัวอักษรเลย เพราะยังไงเสียในคลิปก็พูดถึงสิ่งนั้นอยู่แล้ว"): a label longer than LONGW
+     letters (Thai marks and spaces not counted) is dropped when its thing has an icon — the icon alone shows it (and moves into the word's room
+     where a design does that). No icon → the label stays (it IS the picture). B01's unit is dropped the same way. */
+  const LONGW = 16;
+  const glen = s => { s = String(s || '').replace(/\s+/g, ''); try { return [...new Intl.Segmenter('th', { granularity: 'grapheme' }).segment(s)].length; } catch (e) { return s.length; } };
+  const iconOK = X => X && X.icon && (G.icons[X.icon] || G.icons[X.icon + '-pro']);
+  const thinT = X => X && typeof X === 'object' && !Array.isArray(X) && iconOK(X) && X.label && glen(X.label) > LONGW ? Object.assign({}, X, { label: undefined }) : X;
+  function trimLong(d) { if (!d || typeof d !== 'object') return d; const o = Object.assign({}, d);
+    ['a', 'b', 'wrong', 'right', 'item', 'center', 'main', 'place'].forEach(k => { if (o[k]) o[k] = thinT(o[k]); });
+    if (Array.isArray(o.items)) o.items = o.items.map(thinT);
+    if (typeof o.unit === 'string' && glen(o.unit) > LONGW) delete o.unit; return o; }
   G.cats = G.cats || {};
   G.cats.B05S = { ROUNDS, S: SZD, SIZES, SAMPLES, STRESS, theme, frame,
-    drawS: (k, i, d, c) => { setZ(c); CUR = 's' + k + '-' + SZD[k][i].id; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; SZD[k][i].fn(d || {}, c); },
-    draw: (r, k, d, c) => { setZ(c); CUR = 'r' + r + 's' + k; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; ROUNDS[r][k](d || {}, c); }, CLAMPS };
+    drawS: (k, i, d, c) => { d = trimLong(d); setZ(c); CUR = 's' + k + '-' + SZD[k][i].id; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; SZD[k][i].fn(d || {}, c); },
+    draw: (r, k, d, c) => { d = trimLong(d); setZ(c); CUR = 'r' + r + 's' + k; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; ROUNDS[r][k](d || {}, c); }, CLAMPS };
 })();

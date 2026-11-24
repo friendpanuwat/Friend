@@ -587,7 +587,19 @@
     { say: '90% ของคนทำงานเหนื่อย (หน่วยยาว)', value: '90%', unit: 'ของคนทำงาน', icon: 'briefcase' },
     { say: 'สมาชิกใหม่ 4,800 คน (หน่วยสั้นมาก)', value: '4,800', unit: 'คน', icon: 'user-plus', dir: 'up' },
   ];
+
+  /* LONG WORDS (user 2026-11-24: "ถ้าคำยาวมากก็ไม่ต้องมีตัวอักษรเลย เพราะยังไงเสียในคลิปก็พูดถึงสิ่งนั้นอยู่แล้ว"): a label longer than LONGW
+     letters (Thai marks and spaces not counted) is dropped when its thing has an icon — the icon alone shows it (and moves into the word's room
+     where a design does that). No icon → the label stays (it IS the picture). B01's unit is dropped the same way. */
+  const LONGW = 16;
+  const glen = s => { s = String(s || '').replace(/\s+/g, ''); try { return [...new Intl.Segmenter('th', { granularity: 'grapheme' }).segment(s)].length; } catch (e) { return s.length; } };
+  const iconOK = X => X && X.icon && (G.icons[X.icon] || G.icons[X.icon + '-pro']);
+  const thinT = X => X && typeof X === 'object' && !Array.isArray(X) && iconOK(X) && X.label && glen(X.label) > LONGW ? Object.assign({}, X, { label: undefined }) : X;
+  function trimLong(d) { if (!d || typeof d !== 'object') return d; const o = Object.assign({}, d);
+    ['a', 'b', 'wrong', 'right', 'item', 'center', 'main', 'place'].forEach(k => { if (o[k]) o[k] = thinT(o[k]); });
+    if (Array.isArray(o.items)) o.items = o.items.map(thinT);
+    if (typeof o.unit === 'string' && glen(o.unit) > LONGW) delete o.unit; return o; }
   G.cats = G.cats || {};
   G.cats.B01S = { ROUNDS, SIZES, SAMPLES, STRESS, theme, frame,
-    draw: (r, k, d, c) => { setZ(c); CUR = 'r' + r + 's' + k; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; ROUNDS[r][k](d || {}, c); }, CLAMPS };
+    draw: (r, k, d, c) => { d = trimLong(d); setZ(c); CUR = 'r' + r + 's' + k; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; ROUNDS[r][k](d || {}, c); }, CLAMPS };
 })();
