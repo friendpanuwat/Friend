@@ -24,8 +24,18 @@
   const TR = ['x', 'y', 'r', 's', 'sx', 'sy', 'ky'];
   const sub = (p, a) => { const q = p.child(a || {}); q.H = p.H; q.motion = p.motion; return q; };
   const on = (q, p, t, spec) => { const t0 = p.t0 + t * p.ts, fade = q.og && !TR.some(n => spec[n]); kf(fade ? q.og : (q.g || q), t0, spec); };
+  /* EVEN GLOW (user 2026-11-24: "และการเรืองแสงก็ต้องเท่ากันด้วย"): the engine's glow blurs the whole shape, so a big solid number (or a lit knob)
+     glows far stronger than a line or a small word. This filter glows from a thin rim of each shape only (shape − shape eroded by 1.6 px), with
+     the engine's own blur radii, so a 300-px number, a 40-px unit and a 3-px line all get the same halo. Made once per stage. */
+  function GF() { const svg = document.querySelector('svg'); if (!svg) return 'glow'; if (svg.querySelector('#b01sglow')) return 'b01sglow';
+    const bl = [...svg.querySelectorAll('#glow feGaussianBlur')].map(e => e.getAttribute('stdDeviation')), f = document.createElementNS(NS, 'filter');
+    Object.entries({ id: 'b01sglow', x: '-30%', y: '-30%', width: '160%', height: '160%' }).forEach(([k, v]) => f.setAttribute(k, v));
+    f.innerHTML = `<feMorphology in="SourceGraphic" operator="erode" radius="1.6" result="in"/><feComposite in="SourceGraphic" in2="in" operator="out" result="rim"/>
+      <feGaussianBlur in="rim" stdDeviation="${bl[0] || 3}" result="a"/><feGaussianBlur in="rim" stdDeviation="${bl[1] || 11}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge>`;
+    svg.querySelector('defs').appendChild(f); return 'b01sglow'; }
   const art = (c, fn) => { const f = p => { p.H = Z.H; fn(p); }; f.custom = true; f.dur = .35; f.exit = 'pop';
-    const a = G.art(f, { x: c.x, y: c.y, s: c.s, at: c.at || 0, speed: 1 }); a.speed = Z.sp; return a; };
+    const a = G.art(f, { x: c.x, y: c.y, s: c.s, at: c.at || 0, speed: 1 , filter: GF() }); a.speed = Z.sp; return a; };
   const over = (c, fn) => art(Object.assign({}, c), fn);
   const atT = (g, p, t) => on(g, p, t, { o: [[0, 0], [tu(.12), 1]] });
   const atG = (q, t) => { const g = sub(q); atT(g, q, t); return g; };
@@ -112,10 +122,10 @@
   function pic(it, cx, cy, wd, c, o = {}) {
     if (!it) return null; const at = c.at || 0, X = c.x + cx * c.s, Y = c.y + cy * c.s, fn = picOf(it), t = o.t ?? tu(.12);
     let a;
-    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp });
+    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp , filter: GF() });
     else { const str = it.label; if (!str) return null;
       const f = q => txt(q, str, 0, wd * .11, { size: wd * .3, maxW: o.bigW || wd * 1.25, weight: 700, color: C.ink, wrap: 'mid' }); f.custom = true; f.dur = .3; f.exit = 'pop';
-      a = G.art(f, { x: X, y: Y, s: c.s, at: at + t, speed: 1 }); a.speed = Z.sp; }
+      a = G.art(f, { x: X, y: Y, s: c.s, at: at + t, speed: 1 , filter: GF() }); a.speed = Z.sp; }
     const K = { ox: X, oy: Y }; let any = false;
     if (o.mv) { const m = o.mv; if (m.px != null) { K.ox = c.x + m.px * c.s; K.oy = c.y + m.py * c.s; }
       ['x', 'y'].forEach(n => { if (m[n]) K[n] = m[n].map(([u, v, e]) => e ? [u, f1(v * c.s), e] : [u, f1(v * c.s)]); }); ['r', 's', 'sx', 'sy'].forEach(n => { if (m[n]) K[n] = m[n]; }); any = true; }
@@ -536,7 +546,7 @@
 
   /* the size's box drawn as a yellow outline (the sheets only — user 2026-11-24: "ทำกรอบของขนาดนั้นๆ มาให้ผมดูด้วย ใส่เส้นสีเหลือง") */
   function frame(c, W0, H0) { const f = p => { p.rect(-W0 / 2, -H0 / 2, W0, H0, { sw: 3, stroke: '#ffd400' }); };
-    f.custom = true; f.dur = .01; f.exit = 'pop'; G.art(f, { x: c.x, y: c.y, s: c.s, at: 0, speed: 1 }); }
+    f.custom = true; f.dur = .01; f.exit = 'pop'; G.art(f, { x: c.x, y: c.y, s: c.s, at: 0, speed: 1 , filter: GF() }); }
 
   const SIZES = [null, { w: 860, h: 230, th: 'แถบแบนยาว' }, { w: 860, h: 470, th: 'กว้าง' }, { w: 560, h: 490, th: 'เกือบจัตุรัส' }, { w: 400, h: 635, th: 'ตั้งแคบ' },
     { w: 860, h: 710, th: 'เต็มจอ ทรงนอน' }, { w: 860, h: 965, th: 'เต็มจอ ทรงตั้ง' }, { w: 400, h: 500, th: 'ตั้งแคบ สั้น' }];
