@@ -1108,39 +1108,37 @@
   /* B01 · idea 01 STAT (ไอคอนข้างตัวเลข): the icon drops in and kicks dust, the number pops and counts, locks on the keyword; the unit after it;
      a dir badge on the number's shoulder. Per size (user 2026-11-24: "แต่ละขนาดทั้ง 7 ขนาด ต้องใช้พื้นที่ให้คุ้ม"): side by side in the wide boxes,
      stacked in the tall ones, each part as big as its box allows. */
-  function stat7(k, d, c) { const [w, h] = CANV(k); CAN = { w, h }; const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, dr = DIRV(d);
-    art(c, p => { const q = CL(p), PADX = 50, PADY = 30;
-      const L = Object.assign({ is: 0, ns: 0 }, { 1: { row: true, is: 210, ns: 260 }, 2: { row: true, is: 400, ns: 420, uBelow: true }, 5: { row: true, is: 500, ns: 500, uBelow: true },
-        3: { is: 280, ns: 280, uBelow: true }, 4: { is: 320, ns: 260, uBelow: true }, 6: { is: 540, ns: 460, uBelow: true }, 7: { is: 260, ns: 220, uBelow: true } }[k]);
-      if (!ic) L.is = 0;
-      const ub = !!(L.uBelow && u), IK = .86;   // the icon is drawn at IK of its slot (some icons reach past their nominal size)
-      /* shrink everything together until it fits the box (the box stays full: user 2026-11-24 "ต้องใช้พื้นที่ให้คุ้ม") */
-      let sc = 1, n = null;
-      /* a wide number takes room from the icon (never under half its size) before it shrinks itself */
-      const IS0 = L.is; if (L.row && ic && v) { const nat = rowW(q, v, ub ? null : u, L.ns, 1e9), free = w - 2 * PADX - nat - L.is * .1; if (free < L.is) L.is = Math.max(L.is * .5, free); }
-      const dims = sc => { const is = L.is * sc, ns0 = L.ns * sc, us = Math.max(44, ns0 * .26), gap = ic && v ? is * .1 : 0;
-        if (L.row) { const avail = w - 2 * PADX - is - gap, nw = v ? rowW(q, v, ub ? null : u, ns0, avail) : 0, ns = v ? ns0 * Math.min(1, nw / Math.max(1, rowW(q, v, ub ? null : u, ns0, 1e9))) : 0;
-          const nh = ns * .74, colH = nh + (ub ? us * 1.35 : 0); return { is, ns, us, gap, nw, nh, W: is + gap + nw, H: Math.max(is, colH), avail }; }
-        const nw = v ? rowW(q, v, ub ? null : u, ns0, w - 2 * PADX) : 0, ns = v ? ns0 * Math.min(1, nw / Math.max(1, rowW(q, v, ub ? null : u, ns0, 1e9))) : 0, nh = ns * .74;
-        return { is, ns, us, gap, nw, nh, W: Math.max(is, nw), H: is + gap + (v ? nh : 0) + (ub ? us * 1.35 : 0), avail: w - 2 * PADX }; };
-      const fit = () => { let sc = 1, D = dims(1); while ((D.H > h - 2 * PADY || D.W > w - 2 * PADX) && sc > .3) { sc -= .03; D = dims(sc); } return D; };
-      let D = fit();
-      /* a box that fits both ways (sizes 2 and 5): stacked when side by side would leave the icon small (user: "ไอคอนต้องไม่เล็กเกินไป") */
-      if (L.row && ic && v && k !== 1 && D.is < IS0 * .75) { const keep = { row: L.row, is: L.is, ns: L.ns }; L.row = false; L.is = IS0 * .7; L.ns *= .85; const D2 = fit();
-        if (D2.is > D.is * 1.2) D = D2; else { Object.assign(L, keep); D = fit(); } }
-      if (L.row) {   /* icon | number, the unit under the number (or on its baseline in the flat box) */
-        const x0 = -D.W / 2, colH = D.nh + (ub ? D.us * 1.35 : 0), ny = -colH / 2 + D.nh;
-        if (ic) dropIcon(q, c, ic, f1(x0 + D.is / 2), 0, f1(D.is * IK), tu(.04), tu(.28), h / 2 + D.is);
-        n = numRow(p, q, v, ub ? null : u, ic ? x0 + D.is + D.gap : 0, f1(ny), { size: D.ns, maxW: D.avail, anchor: ic ? 'start' : 'middle', t0: tu(.32) });
-        if (n && ub) words(q, u, ic ? n.x0 : n.cx, f1(ny + D.us * 1.3), { t: f3(H + tu(.06)), size: D.us, weight: 600, color: C.soft, anchor: ic ? 'start' : 'middle', maxW: D.avail, wrap: null });
-      } else {       /* icon on top, the number under it, the unit under the number */
-        const y0 = -D.H / 2, ny = y0 + D.is + D.gap + D.nh;
-        if (ic) dropIcon(q, c, ic, 0, f1(y0 + D.is / 2), f1(D.is * IK), tu(.04), tu(.28), h / 2 + D.is);
-        n = numRow(p, q, v, ub ? null : u, 0, f1(ny), { size: D.ns, maxW: D.avail, anchor: 'middle', t0: tu(.32) });
-        if (n && ub) words(q, u, 0, f1(ny + D.us * 1.3), { t: f3(H + tu(.06)), size: D.us, weight: 600, color: C.soft, anchor: 'middle', maxW: w - 2 * PADX, wrap: null });
+  /* THE BEST LAYOUT FOR THIS BOX (user 2026-11-24: "ต้องใช้พื้นที่ให้คุ้ม" · "สามารถปรับเปลี่ยนขนาดของชิ้นส่วนต่างๆได้ตามความเหมาะสมของการ์ด ในที่นี้รวมถึงขนาด
+     ของฟอนต์ด้วย"): every arrangement — icon beside or above · unit on the number's baseline or under it — and every mix of sizes (the number as big as
+     it can be, the unit 26–60 % of it, the icon as big as what is left allows) is tried; the one that fills the box most wins, the number counting
+     double (it is the point). Text is measured once at 100 px and scaled. */
+  function statFit(q, w, h, v, u, ic, PADX, PADY) {
+    const AW = w - 2 * PADX, AH = h - 2 * PADY, nw1 = v ? tw(q, v, 100) / 100 : 0, uw1 = u ? tw(q, u, 100, 600) / 100 : 0, best = { score: -1 };
+    for (const row of ic ? [true, false] : [false]) for (const below of u ? [false, true] : [false]) for (const ur of u ? [.6, .5, .42, .34, .26] : [0]) {
+      for (let ns = 640; ns >= 60; ns -= 8) {
+        const nw = nw1 * ns, nh = v ? ns * .74 : 0, us = u ? Math.max(44, ns * ur) : 0, uw = uw1 * us, ug = u && !below ? ns * .1 : 0;
+        const bw = below ? Math.max(nw, uw) : nw + ug + uw, bh = nh + (u && below ? us * 1.3 : 0);
+        if (bw > AW || bh > AH) continue;
+        const gap = ic ? Math.min(AW, AH) * .07 : 0, is = ic ? Math.min(row ? AH : AW, (row ? AW - bw : AH - bh) - gap, Math.max(nh, 160) * 1.6) : 0;
+        if (ic && is < Math.max(170, Math.min(AW, AH) * .52)) continue;   // the icon must not be small ("ไอคอนต้องไม่เล็กเกินไป")
+        const W = ic ? (row ? is + gap + bw : Math.max(is, bw)) : bw, H = ic ? (row ? Math.max(is, bh) : is + gap + bh) : bh;
+        const score = W * H / (AW * AH) + .6 * nw * nh / (AW * AH) + .3 * is * is / (AW * AH);
+        if (score > best.score) Object.assign(best, { score, row, below, ns, nw, nh, us, uw, ug, bw, bh, gap, is, W, H });
+        break;   // the biggest number that fits this arrangement
       }
+    }
+    return best.score < 0 ? null : best; }
+  function stat7(k, d, c) { const [w, h] = CANV(k); CAN = { w, h }; const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, dr = DIRV(d);
+    art(c, p => { const q = CL(p), PADX = 46, PADY = 26, IK = .86, B = statFit(q, w, h, v, u, ic, PADX, PADY); if (!B) return;
+      /* the block: the number (+ unit on its baseline, or under it) */
+      const bx = ic && B.row ? -B.W / 2 + B.is + B.gap + B.bw / 2 : 0, by = ic && !B.row ? -B.H / 2 + B.is + B.gap + B.bh / 2 : 0;
+      if (ic) { const ix = B.row ? -B.W / 2 + B.is / 2 : 0, iy = B.row ? 0 : -B.H / 2 + B.is / 2; dropIcon(q, c, ic, f1(ix), f1(iy), f1(B.is * IK), tu(.04), tu(.28), h / 2 + B.is); }
+      const ny = by - B.bh / 2 + B.nh, nx0 = B.below ? bx - B.nw / 2 : bx - B.bw / 2;
+      const n = num(p, q, v, nx0, f1(ny), { size: B.ns, anchor: 'start', t0: tu(.32) });
+      if (u) { const ug = sub(q); on(ug, q, 0, { x: [[0, -24], [f3(H + tu(.04)), -24], [f3(H + tu(.24)), 0, 'out']], o: fadeIn(f3(H + tu(.04))) });
+        if (B.below) ug.text(u, f1(bx), f1(ny + B.us * 1.22), { size: f1(B.us), weight: 600, anchor: 'middle', color: C.soft, dur: .01 });
+        else ug.text(u, f1(nx0 + B.nw + B.ug), f1(ny), { size: f1(B.us), weight: 600, anchor: 'start', color: C.soft, dur: .01 }); }
       if (n) { ripple(q, n.cx, n.cy, n.size * .5, H);
-        /* the dir badge: at the number's top right corner, kept inside the box */
         const r = Math.max(40, n.size * .13); dirB(q, dr, f1(Math.min(w / 2 - r - 10, n.x1 + r * .6)), f1(Math.max(-h / 2 + r + 10, n.cy - n.size * .42 - r * .4)), f3(H + tu(.1)), r); }
     }); }
   const IDEAS = { stat: stat7 };
