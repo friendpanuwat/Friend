@@ -931,7 +931,7 @@
       for (let k = 0; k <= 12; k++) tick(atG(p, f3(T_.tA + tu(.02 * k))), cx, cy, 180 + k * 15, r - 24, r - 8, { sw: 2.4, stroke: TL_(.45) });
       const fin = F.ai === 0 ? -52 : F.ai === 1 ? 52 : 0, Kr = [[0, 0], [T_.tD0, 0]]; let t = T_.tD0, k2 = 0; while (t + tu(.36) <= T_.tD1) { Kr.push([f3(t + tu(.36)), k2 % 2 ? 40 : -40, 'io']); t += tu(.36); k2++; } Kr.push([T_.H, fin, 'io']);
       const nd = mvG(p, { px: cx, py: cy, r: Kr, o: fadeIn(T_.tA, .06) }); nd.line(cx, cy, cx, cy - 170, { sw: 8, stroke: C.ink }); popAt(p, cx, cy, T_.tA).circle(cx, cy, 22, { fill: C.ink, sw: 0, stroke: 'none' });
-      cell(p, c, d, 'o', 0, -178, 30, 220, 220, { wideMin: 999, solid: true }); cell(p, c, d, 'o', 1, 178, 30, 220, 220, { wideMin: 999, solid: true });
+      cell(p, c, d, 'o', 0, -172, 30, 208, 220, { wideMin: 999, solid: true }); cell(p, c, d, 'o', 1, 172, 30, 208, 220, { wideMin: 999, solid: true });   /* tiles inside the box (were 8 px past its edge → clipped) */
       if (F.hasA) cell(p, c, d, 'a', 0, 0, -176, 300, 136, { shape: 'float', wideMin: 260, solid: true }); else qmark(p, d, 0, -170, 54);
       if (F.hasN) cell(p, c, d, 'n', 0, 0, F.hasA ? -176 : -170, F.hasA ? 300 : 260, F.hasA ? 136 : 150, { wideMin: 260, solid: true }); }); });   /* an answer apart lands at the top (where the "?" was), not over the options */
   /* 10 (user: "6 กับ 10 ออกแบบใหม่") a vertical slider: the two answers as rows, a knob runs along the track beside them while in doubt and stops
