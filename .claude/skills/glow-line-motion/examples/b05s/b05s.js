@@ -1263,6 +1263,74 @@
       ICON(p, c, d, 'r', 0, 155, 300, { room: 760, cy: 214, hmax: 460 }); WORD(p, d, 'r', 0, 395, { size: 78, maxW: 760 }); });
     MK(c, [389, -441], [389, -14], 32); });
 
+  /* ---------- SIZE 7 · 400 × 500 (ตั้งแคบ สั้น) ---------- */
+  sd(7, 'stack', 'การ์ดบน-ล่าง', (d, c) => { const T_ = CT();
+    art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gW, -195, -245, 390, 228, 32, OUT()), T_.tW); outlineIn(p, R(p, -195, 17, 390, 228, 32, OUT()), T_.tR); R(litOn(p, T_.H), -195, 17, 390, 228, 32, LITC());
+      ICON(p, c, d, 'w', -110, -131, 140, { cx: 0, room: 340, hmax: 190 }); WORD(p, d, 'w', -30, -112, { anchor: 'start', size: 44, maxW: 200 });
+      ICON(p, c, d, 'r', -110, 131, 140, { cx: 0, room: 340, hmax: 190 }); WORD(p, d, 'r', -30, 150, { anchor: 'start', size: 48, maxW: 200 }); turn(p, -110, 0, 'down', .5); });
+    MK(c, [167, -217], [167, 45], 22); });
+  sd(7, 'flip', 'พลิกการ์ด + ช่องบน', (d, c) => { const T_ = CT(), tf = f3(T_.tN + tu(.16)), out = [[0, 0], [T_.tW, 0], [f3(T_.tW + tu(.1)), 1], [T_.tN, 1], [tf, 0]];
+    art(c, p => { drawAt(R(p, -195, -245, 120, 120, 26, DASH(.4)), p, T_.tW, tu(.3));
+      const gC = mvG(p, { px: 0, py: 60, sx: [[0, 1], [T_.tN, 1], [tf, 0, 'in'], [T_.tR, 1, 'out']] }); outlineIn(p, R(gC, -195, -105, 390, 350, 32, OUT()), T_.tW); R(litOn(p, T_.H), -195, -105, 390, 350, 32, LITC());
+      const gWm = mvG(p, { o: out }); ICON(p, c, d, 'w', 0, 30, 190, { g: gWm, io: out, dimAt: T_.tN, room: 340, cy: 70, hmax: 280 }); WORD(p, d, 'w', 0, 195, { size: 48, maxW: 340, g: gWm });
+      ICON(p, c, d, 'w', -135, -185, 92, { t: tf, dimAt: tf, room: 110 }); WORD(p, d, 'w', -60, -170, { anchor: 'start', size: 38, maxW: 240, t: tf, dimAt: tf });
+      ICON(p, c, d, 'r', 0, 30, 190, { room: 340, cy: 70, hmax: 280 }); WORD(p, d, 'r', 0, 197, { size: 52, maxW: 340 }); });
+    MK(c, [-95, -225], [167, -77], 20); });
+  sd(7, 'side', 'การ์ดคู่ข้างกัน', (d, c) => { const T_ = CT();
+    art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gW, -195, -245, 185, 490, 30, OUT()), T_.tW); outlineIn(p, R(p, 10, -245, 185, 490, 30, OUT()), T_.tR); R(litOn(p, T_.H), 10, -245, 185, 490, 30, LITC());
+      ICON(p, c, d, 'w', -102, -50, 150, { room: 160, cy: 0, hmax: 240 }); WORD(p, d, 'w', -102, 120, { size: 40, maxW: 160, wrap: 'down' });
+      ICON(p, c, d, 'r', 102, -50, 150, { room: 160, cy: 0, hmax: 240 }); WORD(p, d, 'r', 102, 120, { size: 42, maxW: 160, wrap: 'down' }); });
+    MK(c, [-35, -217], [170, -217], 20); });
+  sd(7, 'vslider', 'สไลเดอร์ซ้าย', (d, c) => { const T_ = CT(), tx = -165, y0 = -205, y1 = 205;
+    art(c, p => { drawAt(p.line(tx, y0, tx, y1, { sw: 5, stroke: TL_(.4) }), p, T_.tW, tu(.4));
+      for (let i = 0; i <= 6; i++) { const y = f1(lerp(y0, y1, i / 6)); drawAt(p.line(tx + 14, y, tx + 26, y, { sw: 2.4, stroke: TL_(.4) }), p, f3(T_.tW + tu(.02 * i)), tu(.12)); }
+      on(p.line(tx, y0, tx, y1, { sw: 7, stroke: ACC1 }), p, 0, { draw: [[0, 0], [T_.tN, 0], [T_.H, 1, 'io']] });
+      const g = mvG(p, { y: [[0, y0 - y1], [T_.tN, y0 - y1], [T_.H, 0, 'io']], o: fadeIn(T_.tN, .04) }); g.circle(tx, y1, 18, { fill: ACC1, sw: 0, stroke: 'none' }); g.circle(tx, y1, 27, { sw: 2.6, stroke: ACC1 });
+      ICON(p, c, d, 'w', 45, -150, 150, { room: 290, cy: -125, hmax: 200 }); WORD(p, d, 'w', 45, -30, { size: 40, maxW: 290 });
+      ICON(p, c, d, 'r', 45, 105, 150, { room: 290, cy: 130, hmax: 200 }); WORD(p, d, 'r', 45, 225, { size: 44, maxW: 290 }); });
+    MK(c, [145, -215], [145, 40], 22); });
+  sd(7, 'tabs', 'แท็บคู่', (d, c) => { const T_ = CT(), sw0 = f3(T_.tN + tu(.2));
+    art(c, p => { outlineIn(p, R(p, -195, -170, 390, 415, 30, OUT(.5)), T_.tW);
+      const gT = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gT, -195, -245, 190, 64, 20, OUT()), T_.tW); outlineIn(p, R(p, 5, -245, 190, 64, 20, OUT()), T_.tR); R(litOn(p, T_.H), 5, -245, 190, 64, 20, LITC());
+      WORD(p, d, 'w', -112, -200, { size: 34, maxW: 135 }); WORD(p, d, 'r', 88, -200, { size: 36, maxW: 135 });
+      const ow = [[0, 0], [T_.tW, 0], [f3(T_.tW + tu(.1)), 1], [T_.tN, 1], [sw0, 0]], gWm = mvG(p, { o: ow }), nW = TXS5(d, 'w'), nR = TXS5(d, 'r');
+      ICON(p, c, d, 'w', 0, nW ? -50 : 38, nW ? 190 : 250, { g: gWm, io: ow, dimAt: T_.tN, room: 340 }); if (nW) cnote(p, d, 'w', 0, 110, 320, { g: gWm, size: 40, anchor: 'middle', t: f3(T_.tW + tu(.2)) });
+      ICON(p, c, d, 'r', 0, nR ? -50 : 38, nR ? 190 : 250, { room: 340 }); if (nR) cnote(p, d, 'r', 0, 110, 320, { size: 40, anchor: 'middle' }); });
+    MK(c, [-28, -224], [172, -224], 18); });
+  sd(7, 'radio', 'ตัวเลือกวงกลม', (d, c) => { const T_ = CT(), rx = -152, ry = [-205, 57];
+    art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gW, -195, -245, 390, 228, 50, OUT()), T_.tW); outlineIn(p, R(p, -195, 17, 390, 228, 50, OUT()), T_.tR); R(litOn(p, T_.H), -195, 17, 390, 228, 50, LITC());
+      drawAt(gW.circle(rx, ry[0], 24, { sw: 4, stroke: C.ink }), p, T_.tW, tu(.3)); drawAt(p.circle(rx, ry[1], 24, { sw: 4, stroke: C.ink }), p, T_.tR, tu(.3));
+      const K = pathK([[rx, ry[0]], [rx - 22, (ry[0] + ry[1]) / 2], [rx, ry[1]]], T_.tN, T_.H, [rx, ry[1]], 24), g = mvG(p, { px: rx, py: ry[1], x: K.x, y: K.y, o: fadeIn(f3(T_.tW + tu(.2)), .05) }); g.circle(rx, ry[1], 14, { fill: ACC1, sw: 0, stroke: 'none' });
+      ICON(p, c, d, 'w', 30, -150, 130, { room: 300, cx: 10, cy: -131, hmax: 190 }); WORD(p, d, 'w', 10, -45, { size: 40, maxW: 330 });
+      ICON(p, c, d, 'r', 30, 112, 130, { room: 300, cx: 10, cy: 131, hmax: 190 }); WORD(p, d, 'r', 10, 217, { size: 44, maxW: 330 }); });
+    MK(c, [165, -215], [165, 47], 20); });
+  sd(7, 'overlap', 'การ์ดซ้อนเลื่อนขึ้น', (d, c) => { const T_ = CT();
+    art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gW, -195, -245, 350, 220, 30, OUT()), T_.tW);
+      ICON(p, c, d, 'w', -125, -185, 96, { room: 110 }); WORD(p, d, 'w', -62, -170, { anchor: 'start', size: 38, maxW: 200 });
+      const KR = { y: [[0, 300], [T_.tR, 300], [f3(T_.tR + tu(.4)), 0, 'out']], o: fadeIn(T_.tR, .05) }, gR = mvG(CL(p), KR); R(gR, -155, -115, 350, 360, 30, { fill: C.fill, sw: 2.8, stroke: TL_(.55) }); R(litOn(gR, T_.H), -155, -115, 350, 360, 30, LITC());
+      const KRi = { px: 20, py: 30, y: KR.y, o: KR.o }; ICON(p, c, d, 'r', 20, 30, 180, { g: mvG(p, KRi), mv: KRi, t: T_.tR, room: 320, cy: 65, hmax: 270 }); WORD(p, d, 'r', 20, 190, { size: 48, maxW: 320, g: mvG(CL(p), { y: KR.y }) }); });
+    MK(c, [130, -220], [170, -90], 20); });
+  sd(7, 'diag', 'สามเหลี่ยมทแยง', (d, c) => { const T_ = CT(), A = [[-195, -245], [165, -245], [-195, 175]], B = [[195, -175], [195, 245], [-165, 245]];
+    art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, poly(gW, A, OUT()), T_.tW); outlineIn(p, poly(p, B, OUT()), T_.tR); poly(litOn(p, T_.H), B, LITC());
+      ICON(p, c, d, 'w', -95, -140, 130, { room: 170, cx: -85, cy: -120, hmax: 170 }); WORD(p, d, 'w', -95, -20, { size: 36, maxW: 160 });
+      ICON(p, c, d, 'r', 95, 145, 130, { room: 170, cx: 90, cy: 125, hmax: 170 }); WORD(p, d, 'r', 100, 40, { size: 38, maxW: 160 }); });
+    MK(c, [-170, -220], [170, 220], 18); });
+  sd(7, 'promote', 'ย้ายขึ้นบน', (d, c) => { const T_ = CT(), t1 = f3(T_.tN + tu(.36));
+    art(c, p => { const gWr = mvG(p, { o: [[0, 0], [f3(T_.tN + tu(.2)), 0], [t1, .4]] }); R(gWr, -195, -245, 390, 116, 26, OUT());
+      outlineIn(p, R(p, -195, -105, 390, 350, 32, OUT()), T_.tW); R(litOn(p, T_.H), -195, -105, 390, 350, 32, LITC());
+      const K = { px: -130, py: -187, x: [[0, 130], [T_.tN, 130], [t1, 0, 'io']], y: [[0, 230], [T_.tN, 230], [t1, 0, 'io']], s: [[0, 2.1], [T_.tN, 2.1], [t1, 1, 'io']] };
+      ICON(p, c, d, 'w', -130, -187, 90, { g: mvG(p, K), mv: K, room: 110 });
+      const gWd = mvG(p, { o: [[0, 1], [f3(T_.tN - tu(.02)), 1], [f3(T_.tN + tu(.1)), 0]] }); WORD(p, d, 'w', 0, 195, { size: 48, maxW: 340, g: gWd });
+      WORD(p, d, 'w', -65, -170, { anchor: 'start', size: 38, maxW: 240, t: f3(t1 - tu(.06)), dimAt: f3(t1 - tu(.06)) });
+      ICON(p, c, d, 'r', 0, 30, 190, { room: 340, cy: 70, hmax: 280 }); WORD(p, d, 'r', 0, 197, { size: 52, maxW: 340 }); });
+    MK(c, [167, -217], [167, -77], 20); });
+  sd(7, 'arrowdown', 'แถวบน → การ์ดล่าง', (d, c) => { const T_ = CT();
+    art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gW, -195, -245, 390, 130, 28, OUT()), T_.tW); outlineIn(p, R(p, -195, -45, 390, 290, 32, OUT()), T_.tR); R(litOn(p, T_.H), -195, -45, 390, 290, 32, LITC());
+      drawAt(p.path('M 0 -108 L 0 -54 M -26 -76 L 0 -50 L 26 -76', { sw: 7, stroke: TL_(.6) }), p, f3(T_.tN + tu(.1)), tu(.25));
+      ICON(p, c, d, 'w', -130, -180, 100, { cx: 0, room: 340, hmax: 120 }); WORD(p, d, 'w', -68, -165, { anchor: 'start', size: 40, maxW: 240 });
+      ICON(p, c, d, 'r', 0, 65, 180, { room: 340, cy: 100, hmax: 260 }); WORD(p, d, 'r', 0, 205, { size: 50, maxW: 340 }); });
+    MK(c, [167, -220], [167, -17], 20); });
+
   /* words that slide in from outside must ride a clipped group (CL) — user saw a word outside the yellow box mid-slide */
   /* LONG WORDS (user 2026-11-24: "ถ้าคำยาวมากก็ไม่ต้องมีตัวอักษรเลย เพราะยังไงเสียในคลิปก็พูดถึงสิ่งนั้นอยู่แล้ว"): a label longer than LONGW
      letters (Thai marks and spaces not counted) is dropped when its thing has an icon — the icon alone shows it (and moves into the word's room
