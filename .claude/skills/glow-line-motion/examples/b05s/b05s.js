@@ -800,7 +800,7 @@
       const K = { px: -335, py: 0, x: [[0, 255], [T_.tN, 255], [t1, 0, 'io']], s: [[0, 1.55], [T_.tN, 1.55], [t1, 1, 'io']] }; ICON(p, c, d, 'w', -335, 0, 110, { g: mvG(p, K), mv: K });
       const gWd = mvG(p, { o: [[0, 1], [f3(T_.tN + tu(.24)), 1], [f3(T_.tN + tu(.36)), 0]] }); WORD(p, d, 'w', 20, 20, { anchor: 'start', size: 64, maxW: 380, g: gWd });
       const KR = { px: -150, py: 0, x: [[0, 520], [T_.tR, 520], [f3(T_.tR + tu(.36)), 0, 'out']], o: fadeIn(T_.tR, .05) }; ICON(p, c, d, 'r', -150, 0, 170, { g: mvG(p, KR), mv: KR, t: T_.tR, cx: 135, room: 520 });
-      const gR = mvG(p, { x: [[0, 520], [T_.tR, 520], [f3(T_.tR + tu(.36)), 0, 'out']] }); WORD(p, d, 'r', -40, 22, { anchor: 'start', size: 68, maxW: 440, g: gR }); });
+      const gR = mvG(CL(p), { x: [[0, 520], [T_.tR, 520], [f3(T_.tR + tu(.36)), 0, 'out']] }); WORD(p, d, 'r', -40, 22, { anchor: 'start', size: 68, maxW: 440, g: gR }); });
     MK(c, [-280, -58], [380, -70]); });
   /* 03 a toggle: icons at both ends of a long track; the accent ring sits on the wrong, then slides along to the right on H */
   sd(1, 'toggle', 'สวิตช์เลื่อน', (d, c) => { const T_ = CT();
@@ -817,9 +817,9 @@
       const gW = mvG(p, { o: [[0, 0], [f3(T_.tR + tu(.1)), 0], [tp, .4]] }); R(gW, -425, -105, nw, 210, 36, OUT());
       const KI = { px: -300, py: 0, x: [[0, 300], [T_.tR, 300], [tp, 0, 'io']] }; ICON(p, c, d, 'w', -300, 0, 150, { g: mvG(p, KI), mv: KI, dimAt: T_.tR, room: 220 });
       const gWd = mvG(p, { o: [[0, 1], [T_.tR, 1], [f3(T_.tR + tu(.16)), 0]] }); WORD(p, d, 'w', 20, 22, { anchor: 'start', size: 66, maxW: 380, g: gWd });
-      const KR = { px: 140, py: 0, x: [[0, 640], [T_.tR, 640], [tp, 0, 'io']], o: fadeIn(T_.tR, .05) }, gR = mvG(p, KR);
+      const KR = { px: 140, py: 0, x: [[0, 640], [T_.tR, 640], [tp, 0, 'io']], o: fadeIn(T_.tR, .05) }, gR = mvG(CL(p), KR);
       R(gR, -150, -105, 575, 210, 36, OUT()); R(litOn(p, T_.H), -150, -105, 575, 210, 36, LITC());
-      ICON(p, c, d, 'r', -60, 0, 160, { g: mvG(p, KR), mv: KR, t: T_.tR, cx: 137, room: 520 }); WORD(p, d, 'r', 35, 22, { anchor: 'start', size: 66, maxW: 370, g: mvG(p, { x: KR.x }) }); });
+      ICON(p, c, d, 'r', -60, 0, 160, { g: mvG(p, KR), mv: KR, t: T_.tR, cx: 137, room: 520 }); WORD(p, d, 'r', 35, 22, { anchor: 'start', size: 66, maxW: 370, g: mvG(CL(p), { x: KR.x }) }); });
     MK(c, [-205, -75], [395, -75]); });
   /* 05 a segmented control: the highlight sits on the wrong segment, then glides to the right one */
   sd(1, 'segment', 'แถบเลือกสองช่อง', (d, c) => { const T_ = CT();
@@ -957,7 +957,7 @@
       outlineIn(p, R(gW, -425, -h / 2 - dy, 395, h, 40, OUT()), T_.tW);
       const KR = { y: [[0, 2 * dy], [T_.tR, 2 * dy], [T_.H, 0, 'io']], o: fadeIn(T_.tR, .05) }, gR = mvG(p, KR); R(gR, 30, -h / 2 - dy, 395, h, 40, OUT()); R(litOn(gR, T_.H), 30, -h / 2 - dy, 395, h, 40, LITC());
       const KWi = { px: -228, py: -95, y: KW.y }; ICON(p, c, d, 'w', -228, -95, 190, { g: mvG(p, KWi), mv: KWi, room: 330, cy: -55, hmax: 300 }); WORD(p, d, 'w', -228, 95, { size: 58, maxW: 340, g: mvG(p, KW) });
-      const KRi = { px: 228, py: -95, y: KR.y, o: KR.o }; ICON(p, c, d, 'r', 228, -95, 190, { g: mvG(p, KRi), mv: KRi, t: T_.tR, room: 330, cy: -55, hmax: 300 }); WORD(p, d, 'r', 228, 95, { size: 62, maxW: 340, g: mvG(p, { y: KR.y }) });
+      const KRi = { px: 228, py: -95, y: KR.y, o: KR.o }; ICON(p, c, d, 'r', 228, -95, 190, { g: mvG(p, KRi), mv: KRi, t: T_.tR, room: 330, cy: -55, hmax: 300 }); WORD(p, d, 'r', 228, 95, { size: 62, maxW: 340, g: mvG(CL(p), { y: KR.y }) });
       drawAt(p.path('M -20 150 L 20 -150', { sw: 4, stroke: TL_(.5) }), p, f3(T_.tN + tu(.1)), tu(.3)); drawAt(p.path('M 2 -122 L 22 -152 L 34 -116', { sw: 4, stroke: TL_(.5) }), p, f3(T_.tN + tu(.35)), tu(.12)); });
     MK(c, [-65, -235 + dy + 2 * 0 + 36 + dy - dy], [389, -199], 30); });
   /* 07 a diagonal cut: the box splits on a slant — wrong upper-left dims, right lower-right lights */
@@ -979,7 +979,7 @@
     art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gW, -425, -230, 640, 330, 40, OUT()), T_.tW);
       ICON(p, c, d, 'w', -320, -110, 170, { room: 190 }); WORD(p, d, 'w', -210, -150, { anchor: 'start', size: 54, maxW: 400 });
       const KR = { y: [[0, 300], [T_.tR, 300], [f3(T_.tR + tu(.4)), 0, 'out']], o: fadeIn(T_.tR, .05) }, gR = mvG(CL(p), KR); R(gR, -225, -95, 650, 325, 40, { fill: C.fill, sw: 2.8, stroke: TL_(.55) }); R(litOn(gR, T_.H), -225, -95, 650, 325, 40, LITC());
-      const KRi = { px: -90, py: 68, y: KR.y, o: KR.o }; ICON(p, c, d, 'r', -90, 68, 200, { g: mvG(p, KRi), mv: KRi, t: T_.tR, cx: 100, room: 560 }); WORD(p, d, 'r', 30, 94, { anchor: 'start', size: 72, maxW: 370, g: mvG(p, { y: KR.y }) }); });
+      const KRi = { px: -90, py: 68, y: KR.y, o: KR.o }; ICON(p, c, d, 'r', -90, 68, 200, { g: mvG(p, KRi), mv: KRi, t: T_.tR, cx: 100, room: 560 }); WORD(p, d, 'r', 30, 94, { anchor: 'start', size: 72, maxW: 370, g: mvG(CL(p), { y: KR.y }) }); });
     MK(c, [180, -195], [389, -60], 32); });
   /* 10 a big curved arrow under the two: from the wrong to the right */
   sd(2, 'curve', 'ลูกศรโค้งใต้', (d, c) => { const T_ = CT(), D = 'M -250 150 Q 0 300 250 150';
@@ -1022,7 +1022,7 @@
     art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gW, -275, -240, 390, 260, 34, OUT()), T_.tW);
       ICON(p, c, d, 'w', -200, -150, 130, { room: 150 }); WORD(p, d, 'w', -120, -128, { anchor: 'start', size: 44, maxW: 225 });
       const KR = { y: [[0, 320], [T_.tR, 320], [f3(T_.tR + tu(.4)), 0, 'out']], o: fadeIn(T_.tR, .05) }, gR = mvG(CL(p), KR); R(gR, -115, -60, 390, 300, 34, { fill: C.fill, sw: 2.8, stroke: TL_(.55) }); R(litOn(gR, T_.H), -115, -60, 390, 300, 34, LITC());
-      const KRi = { px: 80, py: 45, y: KR.y, o: KR.o }; ICON(p, c, d, 'r', 80, 45, 175, { g: mvG(p, KRi), mv: KRi, t: T_.tR, room: 350, cy: 90, hmax: 260 }); WORD(p, d, 'r', 80, 195, { size: 52, maxW: 350, g: mvG(p, { y: KR.y }) }); });
+      const KRi = { px: 80, py: 45, y: KR.y, o: KR.o }; ICON(p, c, d, 'r', 80, 45, 175, { g: mvG(p, KRi), mv: KRi, t: T_.tR, room: 350, cy: 90, hmax: 260 }); WORD(p, d, 'r', 80, 195, { size: 52, maxW: 350, g: mvG(CL(p), { y: KR.y }) }); });
     MK(c, [83, -208], [243, -28], 26); });
   sd(3, 'vslider', 'สไลเดอร์ตั้ง', (d, c) => { const T_ = CT(), tx = 235, y0 = -175, y1 = 175;
     art(c, p => { drawAt(p.line(tx, y0, tx, y1, { sw: 5, stroke: TL_(.4) }), p, T_.tW, tu(.4));
@@ -1090,7 +1090,7 @@
     art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gW, -195, -312, 350, 290, 32, OUT()), T_.tW);
       ICON(p, c, d, 'w', -120, -243, 110, { room: 130 }); WORD(p, d, 'w', -50, -226, { anchor: 'start', size: 40, maxW: 180 });
       const KR = { y: [[0, 360], [T_.tR, 360], [f3(T_.tR + tu(.4)), 0, 'out']], o: fadeIn(T_.tR, .05) }, gR = mvG(CL(p), KR); R(gR, -155, -170, 350, 482, 32, { fill: C.fill, sw: 2.8, stroke: TL_(.55) }); R(litOn(gR, T_.H), -155, -170, 350, 482, 32, LITC());
-      const KRi = { px: 20, py: 30, y: KR.y, o: KR.o }; ICON(p, c, d, 'r', 20, 30, 210, { g: mvG(p, KRi), mv: KRi, t: T_.tR, room: 320, cy: 70, hmax: 330 }); WORD(p, d, 'r', 20, 220, { size: 50, maxW: 320, g: mvG(p, { y: KR.y }) }); });
+      const KRi = { px: 20, py: 30, y: KR.y, o: KR.o }; ICON(p, c, d, 'r', 20, 30, 210, { g: mvG(p, KRi), mv: KRi, t: T_.tR, room: 320, cy: 70, hmax: 330 }); WORD(p, d, 'r', 20, 220, { size: 50, maxW: 320, g: mvG(CL(p), { y: KR.y }) }); });
     MK(c, [127, -284], [167, -142], 22); });
   sd(4, 'tabs', 'แท็บคู่', (d, c) => { const T_ = CT(), sw0 = f3(T_.tN + tu(.2));
     art(c, p => { outlineIn(p, R(p, -195, -225, 390, 537, 32, OUT(.5)), T_.tW);
@@ -1148,10 +1148,10 @@
       /* (user: "ทำให้อนิเมชั่น 3 กับ 4 ไม่เหมือนกัน") no flight: the right slides in from the right edge and PUSHES the wrong out of the slot, both moving together */
       const tp0 = T_.tR, tp1 = f3(T_.tR + tu(.45)), K = { px: -290, py: -40, x: [[0, 440], [tp0, 440], [tp1, 0, 'io']], y: [[0, -20], [tp0, -20], [tp1, 0, 'io']], s: [[0, 1.65], [tp0, 1.65], [tp1, 1, 'io']] };
       ICON(p, c, d, 'w', -290, -40, 170, { g: mvG(p, K), mv: K, room: 230 });
-      const gWd = mvG(p, { x: K.x, o: [[0, 1], [tp0, 1], [f3(tp0 + tu(.2)), 0]] }); WORD(p, d, 'w', 150, 200, { size: 64, maxW: 500, g: gWd });
+      const gWd = mvG(CL(p), { x: [[0, 0], [tp0, 0], [tp1, -440, 'io']], o: [[0, 1], [tp0, 1], [f3(tp0 + tu(.2)), 0]] });   /* pushed left with the icon (was K.x = the icon's offset from its END → the word sat 440 to the right, outside the box) */ WORD(p, d, 'w', 150, 200, { size: 64, maxW: 500, g: gWd });
       WORD(p, d, 'w', -290, 110, { size: 48, maxW: 250, t: f3(tp1 - tu(.06)), dimAt: f3(tp1 - tu(.06)) });
       const KR = { x: [[0, 560], [tp0, 560], [tp1, 0, 'io']], o: fadeIn(tp0, .05) }, KRi = Object.assign({ px: 150, py: -60 }, KR);
-      ICON(p, c, d, 'r', 150, -60, 290, { g: mvG(p, KRi), mv: KRi, t: T_.tR, room: 500, cy: -10, hmax: 420 }); WORD(p, d, 'r', 150, 202, { size: 68, maxW: 500, g: mvG(p, { x: KR.x }) }); });
+      ICON(p, c, d, 'r', 150, -60, 290, { g: mvG(p, KRi), mv: KRi, t: T_.tR, room: 500, cy: -10, hmax: 420 }); WORD(p, d, 'r', 150, 202, { size: 68, maxW: 500, g: mvG(CL(p), { x: KR.x }) }); });
     MK(c, [-205, -125], [395, -300], 32); });
   /* 05 (user: "อันที่ 5 ก็ดีไซน์ใหม่ด้วยเอาแบบเรียบๆ") two cards side by side, the right one taller: the wrong card is short (it comes first and
      dims), the right card stands full height and lights on H */
@@ -1192,6 +1192,7 @@
       ICON(p, c, d, 'r', 275, 135, 260, { room: 300, cy: 70, hmax: 380 }); WORD(p, d, 'r', 275, -75, { size: 60, maxW: 300 }); });
     MK(c, [-150, -295], [395, 10], 32); });
 
+  /* words that slide in from outside must ride a clipped group (CL) — user saw a word outside the yellow box mid-slide */
   /* LONG WORDS (user 2026-11-24: "ถ้าคำยาวมากก็ไม่ต้องมีตัวอักษรเลย เพราะยังไงเสียในคลิปก็พูดถึงสิ่งนั้นอยู่แล้ว"): a label longer than LONGW
      letters (Thai marks and spaces not counted) is dropped when its thing has an icon — the icon alone shows it (and moves into the word's room
      where a design does that). No icon → the label stays (it IS the picture). B01's unit is dropped the same way. */
