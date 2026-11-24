@@ -887,12 +887,16 @@
       const Kx = [[0, X(0)], [FS.t0, X(0)]]; let cur = X(0); FS.times.forEach((ts, n) => { const v = X(FS.shown[n + 1]); Kx.push([ts, cur], [f3(ts + tu(.3)), v, 'io']); cur = v; });
       const lx = cur; put(p, c, { icon: 'search' }, lx, 168, 150, null, { t: FS.t0, mv: { px: lx, py: 168, x: Kx.map(([u, v, e]) => e ? [u, f1(v - lx), e] : [u, f1(v - lx)]) } });
       if (F.hasN) cell(p, c, d, 'n', 0, 0, ty, 300, f1(th * .6), { wideMin: 999, solid: true }); else qmark(p, d, 0, ty, 34, { keep: true }); }); });
-  /* 06 a thought bubble: what is asked + its answers inside, trailing dots out of its corner; the "?" on top */
-  sd(3, 'thought', 'ฟองความคิด', (d, c) => { const F = QD(d), T_ = QT(d);
-    art(c, p => { outlineIn(p, R(p, -280, -245, 560, 400, 56, OUT(.55)), T_.tA); [[-210, 188, 22], [-246, 228, 13]].forEach(([x, y, r], k) => drawAt(p.circle(x, y, r, OUT(.55)), p, f3(T_.tA + tu(.1 + .06 * k)), tu(.2)));
-      if (F.hasA) cell(p, c, d, 'a', 0, 0, -178, 520, 110, { shape: 'float', wideMin: 300 });
-      pairArea(p, c, d, 0, F.hasA ? 15 : -45, 510, F.hasA ? 232 : 360, { gap: 40, qr: 32, cell: { shape: 'float' }, bigR: 100 });
-      if (!F.hasO && F.hasA) qmark(p, d, 232, -200, 30, { plain: true }); }); });
+  /* 06 (user: "6 กับ 10 ออกแบบใหม่ … ผมไม่ชอบฟองความคิดหรือรูปแบบของแชท") a segmented control: one panel split in two, a highlight frame slides
+     between the halves while in doubt and settles on the answer; the "?" on the seam (no answer: the highlight leaves, the "?" lights) */
+  sd(3, 'segment', 'แถบเลือกสองช่อง', (d, c) => { const F = QD(d), T_ = QT(d);
+    art(c, p => { if (!F.hasO) { fb(p, c, d); return; } aboutHead(p, c, d, -197, 96); const y0 = F.hasA ? -140 : -245, h = 245 - y0, cy = f1(y0 + h / 2), FS = faces(d), X = f => f === 0 ? -140 : 140;
+      outlineIn(p, R(p, -280, y0, 560, h, 36, OUT(.5)), FS.t0); drawAt(p.line(0, y0 + 24, 0, 245 - 24, { sw: 2.4, stroke: TL_(.4) }), p, FS.t0, tu(.3));
+      cell(p, c, d, 'o', 0, -140, cy, 262, h - 24, { shape: 'float', wideMin: 999 }); cell(p, c, d, 'o', 1, 140, cy, 262, h - 24, { shape: 'float', wideMin: 999 });
+      const Kx = [[0, X(0)], [FS.t0, X(0)]]; let cur = X(0); FS.times.forEach((ts, n) => { const f = FS.shown[n + 1]; if (f === 0 || f === 1) { Kx.push([ts, cur], [f3(ts + tu(.24)), X(f), 'io']); cur = X(f); } });
+      const hl = mvG(p, { x: Kx.map(([u, v, e]) => e ? [u, f1(v - cur), e] : [u, f1(v - cur)]), o: [[0, 0], [f3(FS.t0 + tu(.2)), 0], [f3(FS.t0 + tu(.34)), 1]].concat(F.ai >= 0 ? [] : [[T_.H, 1], [f3(T_.H + tu(.2)), 0]]) });
+      R(hl, cur - 131, y0 + 10, 262, h - 20, 30, { fill: TA(.08), sw: 4, stroke: ACC1 });
+      qmark(p, d, 0, cy, 36, { keep: true }); if (F.hasN) cell(p, c, d, 'n', 0, 0, cy, 300, f1(h * .6), { wideMin: 999, solid: true }); }); });
   /* 07 tabs: the two answers are tabs; the highlight and the panel switch between them while in doubt, and settle on the answer */
   sd(3, 'tabs', 'แท็บลังเล', (d, c) => { const F = QD(d), T_ = QT(d);
     art(c, p => { if (!F.hasO) { fb(p, c, d); return; }
@@ -930,18 +934,15 @@
       cell(p, c, d, 'o', 0, -178, 30, 220, 220, { wideMin: 999, solid: true }); cell(p, c, d, 'o', 1, 178, 30, 220, 220, { wideMin: 999, solid: true });
       if (F.hasA) cell(p, c, d, 'a', 0, 0, -176, 300, 136, { shape: 'float', wideMin: 260, solid: true }); else qmark(p, d, 0, -170, 54);
       if (F.hasN) cell(p, c, d, 'n', 0, 0, F.hasA ? -176 : -170, F.hasA ? 300 : 260, F.hasA ? 136 : 150, { wideMin: 260, solid: true }); }); });   /* an answer apart lands at the top (where the "?" was), not over the options */
-  /* 10 (user: "ออกแบบ 10 ใหม่") a covered tile: a cover with a big "?" (and the two answers small on it, lighting in turn while in doubt) hides
-     the answer; on H the cover slides up out of the tile and the answer is revealed under it. No answer → the cover stays and its "?" lights */
-  sd(3, 'reveal', 'ฝาปิดเปิดเผยคำตอบ', (d, c) => { const F = QD(d), T_ = QT(d), X = F.ai >= 0 ? F.op[F.ai] : F.an;
-    art(c, p => { aboutHead(p, c, d, -197, 96); const y0 = F.hasA ? -140 : -245, h = 245 - y0, cy = f1(y0 + h / 2), w = 560, t0 = F.hasA ? T_.tO(0) : T_.tA;
-      outlineIn(p, R(p, -280, y0, w, h, 36, OUT(.6)), t0); if (X) R(litOn(p, T_.H), -280, y0, w, h, 36, LIT2());
-      if (X) face(p, c, X, p, 0, cy, w, h, [[0, 0], [f3(T_.H + tu(.1)), 0], [f3(T_.H + tu(.3)), 1]], null, T_.H);
-      const tUp = f3(T_.H + tu(.45)), cv = mvG(clipG(p, -280, y0, w, h), { y: X ? [[0, 0], [T_.H, 0], [tUp, -h - 10, 'io']] : [[0, 0]], o: [[0, 0], [t0, 0], [f3(t0 + tu(.14)), 1]] });
-      R(cv, -272, y0 + 8, w - 16, h - 16, 30, { fill: C.fill, sw: 2.4, stroke: TL_(.5) }); const qy = f1(cy + (F.hasO ? -20 : 40) + h * .12);
-      txt(cv, '?', 0, qy, { size: f1(h * (F.hasO ? .42 : .55)), weight: 800, color: C.ink }); if (!X) txt(litOn(cv, T_.H), '?', 0, qy, { size: f1(h * (F.hasO ? .42 : .55)), weight: 800, color: ACC1 });
-      if (F.hasO) { const FS = faces(d); [0, 1].forEach(k => { const O = F.op[k], ox = k ? 150 : -150, oy = f1(y0 + h - 72), K = [[0, 0], [FS.t0, 0], [f3(FS.t0 + tu(.12)), .45]]; let cur = .45;
-          FS.times.forEach((ts, n) => { const f = FS.shown[n + 1], v = f === k ? 1 : .45; if (v !== cur) { K.push([ts, cur], [f3(ts + tu(.14)), v, 'io']); cur = v; } }); if (X) K.push([T_.H, cur], [f3(T_.H + tu(.2)), 0]);
-          if (picOf(O)) put(p, c, { icon: O.icon }, ox, oy, 96, null, { t: FS.t0, o: K }); else if (O.label) txt(mvG(cv, { o: K }), O.label, ox, oy + 14, { size: 40, maxW: 220, weight: 800, color: C.ink }); }); } }); });
+  /* 10 (user: "6 กับ 10 ออกแบบใหม่") a vertical slider: the two answers as rows, a knob runs along the track beside them while in doubt and stops
+     at the answer (no answer → it stops half way, at the "?" between the rows) */
+  sd(3, 'vslider', 'สไลเดอร์ตั้งเลือก', (d, c) => { const F = QD(d), T_ = QT(d);
+    art(c, p => { if (!F.hasO) { fb(p, c, d); return; } aboutHead(p, c, d, -197, 96); const y0 = F.hasA ? -140 : -245, g = 56, rh = (245 - y0 - g) / 2, Y = [f1(y0 + rh / 2), f1(245 - rh / 2)], mid = f1((Y[0] + Y[1]) / 2), FS = faces(d), tx = -238;
+      cell(p, c, d, 'o', 0, 42, Y[0], 476, rh, { shape: 'pill', wideMin: 300, solid: true }); cell(p, c, d, 'o', 1, 42, Y[1], 476, rh, { shape: 'pill', wideMin: 300, solid: true });
+      drawAt(p.line(tx, Y[0], tx, Y[1], { sw: 5, stroke: TL_(.4) }), p, FS.t0, tu(.4)); [Y[0], mid, Y[1]].forEach((y, k) => drawAt(p.line(tx - 14, y, tx + 14, y, { sw: 2.4, stroke: TL_(.4) }), p, f3(FS.t0 + tu(.05 * k)), tu(.14)));
+      const Yf = f => f === 0 ? Y[0] : f === 1 ? Y[1] : mid, Ky = [[0, Y[0]], [FS.t0, Y[0]]]; let cur = Y[0]; FS.times.forEach((ts, n) => { const v = Yf(FS.shown[n + 1]); Ky.push([ts, cur], [f3(ts + tu(.3)), v, 'io']); cur = v; });
+      const kn = mvG(p, { y: Ky.map(([u, v, e]) => e ? [u, f1(v - cur), e] : [u, f1(v - cur)]), o: fadeIn(FS.t0, .05) }); kn.circle(tx, cur, 24, { fill: ACC1, sw: 0, stroke: 'none' }); kn.circle(tx, cur, 34, { sw: 2.6, stroke: ACC1 });
+      qmark(p, d, 42, mid, 30, { keep: true }); if (F.hasN) cell(p, c, d, 'n', 0, 42, mid, 300, f1(rh * 1.2), { wideMin: 999, solid: true }); }); });
 
   const outlineIn = (p, el, t) => drawAt(el, p, f3(Math.max(0, t - tu(.04))), tu(.34));
 
