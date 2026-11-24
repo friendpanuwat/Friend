@@ -946,8 +946,10 @@
       const gT = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gT, -425, ty0, tw0, th, 26, OUT()), T_.tW); outlineIn(p, R(p, -425 + tw0 + 20, ty0, tw0, th, 26, OUT()), T_.tR); R(litOn(p, T_.H), -425 + tw0 + 20, ty0, tw0, th, 26, LITC());
       WORD(p, d, 'w', -425 + tw0 / 2, ty0 + th / 2 + 18, { size: 48, maxW: tw0 - 40 }); WORD(p, d, 'r', -425 + tw0 * 1.5 + 20, ty0 + th / 2 + 18, { size: 50, maxW: tw0 - 40 });
       const ow = [[0, 0], [T_.tW, 0], [f3(T_.tW + tu(.1)), 1], [T_.tN, 1], [sw0, 0]], gWm = mvG(p, { o: ow });
-      ICON(p, c, d, 'w', -225, 40, 250, { g: gWm, io: ow, dimAt: T_.tN, room: 400 }); cnote(p, d, 'w', 0, 30, 380, { g: gWm, size: 44, t: f3(T_.tW + tu(.2)), one: false });
-      ICON(p, c, d, 'r', -225, 40, 250, { room: 400 }); cnote(p, d, 'r', 0, 30, 380, { size: 44 }); });
+      /* (user: "ไม่มีข้อความก็ไม่แสดงอะไร แล้วขยายไอคอนให้ใหญ่ขึ้นเต็มแผง") no line of words → no grey bars; the icon takes the panel's middle, bigger */
+      const nW = TXS5(d, 'w'), nR = TXS5(d, 'r');
+      ICON(p, c, d, 'w', nW ? -225 : 0, 40, nW ? 250 : 320, { g: gWm, io: ow, dimAt: T_.tN, room: nW ? 400 : 800 }); if (nW) cnote(p, d, 'w', 0, 30, 380, { g: gWm, size: 44, t: f3(T_.tW + tu(.2)) });
+      ICON(p, c, d, 'r', nR ? -225 : 0, 40, nR ? 250 : 320, { room: nR ? 400 : 800 }); if (nR) cnote(p, d, 'r', 0, 30, 380, { size: 44 }); });
     MK(c, [-75, -230 + 30], [355, -230 + 30], 26); });
   /* 06 up and down: the wrong card sinks low and dims, the right card rises high and lights */
   sd(2, 'updown', 'ขึ้น-ลง', (d, c) => { const T_ = CT(), h = 360, dy = 55;
@@ -1035,8 +1037,9 @@
       const gT = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gT, -275, -240, tw0, 74, 24, OUT()), T_.tW); outlineIn(p, R(p, 10, -240, tw0, 74, 24, OUT()), T_.tR); R(litOn(p, T_.H), 10, -240, tw0, 74, 24, LITC());
       WORD(p, d, 'w', -275 + tw0 / 2, -190, { size: 40, maxW: tw0 - 30 }); WORD(p, d, 'r', 10 + tw0 / 2, -190, { size: 42, maxW: tw0 - 30 });
       const ow = [[0, 0], [T_.tW, 0], [f3(T_.tW + tu(.1)), 1], [T_.tN, 1], [sw0, 0]], gWm = mvG(p, { o: ow });
-      ICON(p, c, d, 'w', -125, 45, 220, { g: gWm, io: ow, dimAt: T_.tN, room: 260 }); cnote(p, d, 'w', 10, 30, 240, { g: gWm, size: 40, t: f3(T_.tW + tu(.2)) });
-      ICON(p, c, d, 'r', -125, 45, 220, { room: 260 }); cnote(p, d, 'r', 10, 30, 240, { size: 40 }); });
+      const nW = TXS5(d, 'w'), nR = TXS5(d, 'r');   /* no line of words → no grey bars, a bigger icon in the panel's middle */
+      ICON(p, c, d, 'w', nW ? -125 : 0, 45, nW ? 220 : 300, { g: gWm, io: ow, dimAt: T_.tN, room: nW ? 260 : 520 }); if (nW) cnote(p, d, 'w', 10, 30, 240, { g: gWm, size: 40, t: f3(T_.tW + tu(.2)) });
+      ICON(p, c, d, 'r', nR ? -125 : 0, 45, nR ? 220 : 300, { room: nR ? 260 : 520 }); if (nR) cnote(p, d, 'r', 10, 30, 240, { size: 40 }); });
     MK(c, [-38, -210], [247, -210], 24); });
   sd(3, 'radio', 'ตัวเลือกวงกลม', (d, c) => { const T_ = CT(), Y = [-125, 125], rx = -225;
     art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gW, -275, -238, 550, 226, 113, OUT()), T_.tW); outlineIn(p, R(p, -275, 12, 550, 226, 113, OUT()), T_.tR); R(litOn(p, T_.H), -275, 12, 550, 226, 113, LITC());
