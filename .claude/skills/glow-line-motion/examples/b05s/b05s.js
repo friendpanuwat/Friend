@@ -906,6 +906,83 @@
     { say: 'คำเดียวทั้งคู่ (อังกฤษ)', wrong: I('lock', 'Hide'), right: I('eye', 'Show') },
     { say: 'ไม่มีป้ายทั้งคู่ (ไอคอนแรง)', wrong: I('trash-2'), right: I('recycle') },
   ];
+  /* ---------- SIZE 2 · 860 × 470 (กว้าง) ---------- */
+  /* 01 two tall cards: icon over its word; the wrong card dims, the right card lights */
+  sd(2, 'cards', 'การ์ดคู่แนวตั้ง', (d, c) => { const T_ = CT();
+    art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gW, -425, -230, 390, 460, 40, OUT()), T_.tW); outlineIn(p, R(p, 35, -230, 390, 460, 40, OUT()), T_.tR); R(litOn(p, T_.H), 35, -230, 390, 460, 40, LITC());
+      ICON(p, c, d, 'w', -230, -45, 220, { room: 340 }); WORD(p, d, 'w', -230, 150, { size: 62, maxW: 340 });
+      ICON(p, c, d, 'r', 230, -45, 220, { room: 340 }); WORD(p, d, 'r', 230, 150, { size: 66, maxW: 340 }); turn(p, 0, 0, 'right', 1.2); });
+    MK(c, [-71, -194], [389, -194], 32); });
+  /* 02 two full-width rows: the wrong row on top dims, a chevron turns down, the right row below lights */
+  sd(2, 'rows', 'สองแถวบนล่าง', (d, c) => { const T_ = CT();
+    art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gW, -425, -230, 850, 205, 36, OUT()), T_.tW); outlineIn(p, R(p, -425, 25, 850, 205, 36, OUT()), T_.tR); R(litOn(p, T_.H), -425, 25, 850, 205, 36, LITC());
+      ICON(p, c, d, 'w', -320, -128, 170, { cx: 0, room: 700 }); WORD(p, d, 'w', -200, -102, { anchor: 'start', size: 72, maxW: 590 });
+      ICON(p, c, d, 'r', -320, 128, 170, { cx: 0, room: 700 }); WORD(p, d, 'r', -200, 154, { anchor: 'start', size: 76, maxW: 590 }); turn(p, -320, 0, 'down', .7); });
+    MK(c, [391, -196], [391, 59], 30); });
+  /* 03 flip: the big card shows the wrong, flips over to the right; the wrong drops into the slot on the left, small and dim */
+  sd(2, 'flip', 'พลิกการ์ดใหญ่', (d, c) => { const T_ = CT(), tf = f3(T_.tN + tu(.16)), out = [[0, 0], [T_.tW, 0], [f3(T_.tW + tu(.1)), 1], [T_.tN, 1], [tf, 0]];
+    art(c, p => { drawAt(R(p, -425, -110, 220, 220, 40, DASH(.4)), p, T_.tW, tu(.3));
+      const gC = mvG(p, { px: 120, py: 0, sx: [[0, 1], [T_.tN, 1], [tf, 0, 'in'], [T_.tR, 1, 'out']] }); outlineIn(p, R(gC, -175, -230, 600, 460, 40, OUT()), T_.tW); R(litOn(p, T_.H), -175, -230, 600, 460, 40, LITC());
+      const gWm = mvG(p, { o: out }); ICON(p, c, d, 'w', 125, -55, 230, { g: gWm, io: out, dimAt: 99, room: 520 }); WORD(p, d, 'w', 125, 150, { size: 70, maxW: 540, g: gWm });
+      ICON(p, c, d, 'w', -315, 0, 160, { t: tf, dimAt: tf, room: 200 });
+      ICON(p, c, d, 'r', 125, -55, 230, { room: 520 }); WORD(p, d, 'r', 125, 152, { size: 74, maxW: 540 }); });
+    MK(c, [-239, -76], [389, -194], 32); });
+  /* 04 a half dial: wrong at the left end, right at the right end; the needle swings from the wrong over to the right on H */
+  sd(2, 'dial', 'หน้าปัดเข็มชี้', (d, c) => { const T_ = CT(), cx = 0, cy = 175, r = 330, P = a => [f1(cx + r * Math.cos(rad(a))), f1(cy + r * Math.sin(rad(a)))];
+    art(c, p => { const [ax, ay] = P(180), [bx, by] = P(0); drawAt(p.path(`M ${ax} ${ay} A ${r} ${r} 0 0 1 ${bx} ${by}`, { sw: 5, stroke: TL_(.45) }), p, T_.tW, tu(.45));
+      for (let k = 0; k <= 12; k++) { const a = 180 + k * 15; tick(atG(p, f3(T_.tW + tu(.02 * k))), cx, cy, a, r - 28, r - 8, { sw: 2.4, stroke: TL_(.45) }); }
+      const [mx, my] = P(270), [ex, ey] = P(360); on(p.path(`M ${mx} ${my} A ${r} ${r} 0 0 1 ${ex} ${ey}`, { sw: 9, stroke: ACC1 }), p, 0, { draw: [[0, 0], [f3(T_.H - tu(.3)), 0], [T_.H, 1, 'io']] });
+      const nd = mvG(p, { px: cx, py: cy, r: [[0, -110], [T_.tN, -110], [T_.H, 0, 'io']], o: fadeIn(T_.tW, .06) }); nd.line(cx, cy, f1(cx + 175 * Math.cos(rad(-35))), f1(cy + 175 * Math.sin(rad(-35))), { sw: 7, stroke: C.ink }); popAt(p, cx, cy, T_.tW).circle(cx, cy, 24, { fill: C.ink, sw: 0, stroke: 'none' });
+      ICON(p, c, d, 'w', -185, 20, 150, { room: 190 }); WORD(p, d, 'w', -285, 222, { size: 48, maxW: 270 });   /* icons inside the dial (the needle points at them), words under the dial's ends */
+      ICON(p, c, d, 'r', 185, 20, 150, { room: 190 }); WORD(p, d, 'r', 285, 222, { size: 52, maxW: 270 }); });
+    MK(c, [-118, -45], [252, -45], 28); });
+  /* 05 tabs: the wrong tab is open, then the right tab is clicked — the panel switches to the right one (big icon + its line of words) */
+  sd(2, 'tabs', 'แท็บสลับ', (d, c) => { const T_ = CT(), tw0 = 380, ty0 = -230, th = 84, sw0 = f3(T_.tN + tu(.2));
+    art(c, p => { outlineIn(p, R(p, -425, -150, 850, 380, 36, OUT(.5)), T_.tW);
+      const gT = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gT, -425, ty0, tw0, th, 26, OUT()), T_.tW); outlineIn(p, R(p, -425 + tw0 + 20, ty0, tw0, th, 26, OUT()), T_.tR); R(litOn(p, T_.H), -425 + tw0 + 20, ty0, tw0, th, 26, LITC());
+      WORD(p, d, 'w', -425 + tw0 / 2, ty0 + th / 2 + 18, { size: 48, maxW: tw0 - 40 }); WORD(p, d, 'r', -425 + tw0 * 1.5 + 20, ty0 + th / 2 + 18, { size: 50, maxW: tw0 - 40 });
+      const ow = [[0, 0], [T_.tW, 0], [f3(T_.tW + tu(.1)), 1], [T_.tN, 1], [sw0, 0]], gWm = mvG(p, { o: ow });
+      ICON(p, c, d, 'w', -225, 40, 250, { g: gWm, io: ow, dimAt: 99, room: 400 }); cnote(p, d, 'w', 0, 30, 380, { g: gWm, size: 44, t: f3(T_.tW + tu(.2)), one: false });
+      ICON(p, c, d, 'r', -225, 40, 250, { room: 400 }); cnote(p, d, 'r', 0, 30, 380, { size: 44 }); });
+    MK(c, [-75, -230 + 30], [355, -230 + 30], 26); });
+  /* 06 up and down: the wrong card sinks low and dims, the right card rises high and lights */
+  sd(2, 'updown', 'ขึ้น-ลง', (d, c) => { const T_ = CT(), h = 360, dy = 55;
+    art(c, p => { const KW = { y: [[0, 0], [T_.tN, 0], [f3(T_.tN + tu(.4)), dy, 'io']] }, gW0 = mvG(p, KW), gW = mvG(gW0, { o: dimW(T_.tN, .4) });
+      outlineIn(p, R(gW, -425, -h / 2 - dy, 395, h, 40, OUT()), T_.tW);
+      const KR = { y: [[0, 2 * dy], [T_.tR, 2 * dy], [T_.H, 0, 'io']], o: fadeIn(T_.tR, .05) }, gR = mvG(p, KR); R(gR, 30, -h / 2 - dy, 395, h, 40, OUT()); R(litOn(gR, T_.H), 30, -h / 2 - dy, 395, h, 40, LITC());
+      const KWi = { px: -228, py: -95, y: KW.y }; ICON(p, c, d, 'w', -228, -95, 190, { g: mvG(p, KWi), mv: KWi, room: 330 }); WORD(p, d, 'w', -228, 95, { size: 58, maxW: 340, g: mvG(p, KW) });
+      const KRi = { px: 228, py: -95, y: KR.y, o: KR.o }; ICON(p, c, d, 'r', 228, -95, 190, { g: mvG(p, KRi), mv: KRi, t: T_.tR, room: 330 }); WORD(p, d, 'r', 228, 95, { size: 62, maxW: 340, g: mvG(p, { y: KR.y }) });
+      drawAt(p.path('M -20 150 L 20 -150', { sw: 4, stroke: TL_(.5) }), p, f3(T_.tN + tu(.1)), tu(.3)); drawAt(p.path('M 2 -122 L 22 -152 L 34 -116', { sw: 4, stroke: TL_(.5) }), p, f3(T_.tN + tu(.35)), tu(.12)); });
+    MK(c, [-65, -235 + dy + 2 * 0 + 36 + dy - dy], [389, -199], 30); });
+  /* 07 a diagonal cut: the box splits on a slant — wrong upper-left dims, right lower-right lights */
+  sd(2, 'slant', 'แบ่งทแยงใหญ่', (d, c) => { const T_ = CT(), A = [[-425, -230], [120, -230], [-120, 230], [-425, 230]], B = [[150, -230], [425, -230], [425, 230], [-90, 230]];
+    art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, poly(gW, A, OUT()), T_.tW); outlineIn(p, poly(p, B, OUT()), T_.tR); poly(litOn(p, T_.H), B, LITC());
+      ICON(p, c, d, 'w', -275, -60, 210, { room: 300 }); WORD(p, d, 'w', -275, 130, { size: 58, maxW: 270 });
+      ICON(p, c, d, 'r', 255, -30, 210, { room: 300 }); WORD(p, d, 'r', 200, 160, { size: 62, maxW: 300 }); });
+    MK(c, [60, -194], [389, -194], 32); });
+  /* 08 radio options: two option rows with radio circles; the selection dot leaves the wrong one and lands in the right one on H */
+  sd(2, 'radio', 'ตัวเลือกวงกลม', (d, c) => { const T_ = CT(), Y = [-115, 115], rx = -355;
+    art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gW, -425, -220, 850, 210, 105, OUT()), T_.tW); outlineIn(p, R(p, -425, 10, 850, 210, 105, OUT()), T_.tR); R(litOn(p, T_.H), -425, 10, 850, 210, 105, LITC());
+      drawAt(gW.circle(rx, Y[0], 42, { sw: 4, stroke: C.ink }), p, T_.tW, tu(.3)); drawAt(p.circle(rx, Y[1], 42, { sw: 4, stroke: C.ink }), p, T_.tR, tu(.3));
+      const K = pathK([[rx, Y[0]], [rx - 46, 0], [rx, Y[1]]], T_.tN, T_.H, [rx, Y[1]], 24), g = mvG(p, { px: rx, py: Y[1], x: K.x, y: K.y, o: fadeIn(f3(T_.tW + tu(.2)), .05) }); g.circle(rx, Y[1], 24, { fill: ACC1, sw: 0, stroke: 'none' });
+      ICON(p, c, d, 'w', -200, Y[0], 170, { cx: 40, room: 600 }); WORD(p, d, 'w', -90, Y[0] + 24, { anchor: 'start', size: 68, maxW: 480 });
+      ICON(p, c, d, 'r', -200, Y[1], 170, { cx: 40, room: 600 }); WORD(p, d, 'r', -90, Y[1] + 24, { anchor: 'start', size: 72, maxW: 480 }); });
+    MK(c, [370, -175], [370, 55], 30); });
+  /* 09 overlap: the right card slides up over the wrong card, which stays behind (upper left), dim */
+  sd(2, 'overlap', 'การ์ดซ้อนทับ', (d, c) => { const T_ = CT();
+    art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gW, -425, -230, 640, 330, 40, OUT()), T_.tW);
+      ICON(p, c, d, 'w', -320, -110, 170, { room: 190 }); WORD(p, d, 'w', -210, -150, { anchor: 'start', size: 54, maxW: 400 });
+      const KR = { y: [[0, 300], [T_.tR, 300], [f3(T_.tR + tu(.4)), 0, 'out']], o: fadeIn(T_.tR, .05) }, gR = mvG(CL(p), KR); R(gR, -225, -95, 650, 325, 40, { fill: C.fill, sw: 2.8, stroke: TL_(.55) }); R(litOn(gR, T_.H), -225, -95, 650, 325, 40, LITC());
+      const KRi = { px: -90, py: 68, y: KR.y, o: KR.o }; ICON(p, c, d, 'r', -90, 68, 200, { g: mvG(p, KRi), mv: KRi, t: T_.tR, cx: 100, room: 560 }); WORD(p, d, 'r', 30, 94, { anchor: 'start', size: 72, maxW: 370, g: mvG(p, { y: KR.y }) }); });
+    MK(c, [180, -195], [389, -60], 32); });
+  /* 10 a big curved arrow under the two: from the wrong to the right */
+  sd(2, 'curve', 'ลูกศรโค้งใต้', (d, c) => { const T_ = CT(), D = 'M -250 150 Q 0 300 250 150';
+    art(c, p => { on(p.path(D, { sw: 6, stroke: TL_(.55) }), p, 0, { draw: [[0, 0], [f3(T_.tN + tu(.06)), 0], [T_.tR, 1, 'io']] });
+      atG(p, T_.tR).path('M 214 182 L 252 148 L 208 138', { sw: 6, stroke: TL_(.55) });
+      ICON(p, c, d, 'w', -270, -70, 250, { room: 320 }); WORD(p, d, 'w', -270, 135, { size: 58, maxW: 320 });
+      ICON(p, c, d, 'r', 270, -70, 250, { room: 320 }); WORD(p, d, 'r', 270, 135, { size: 62, maxW: 320 }); });
+    MK(c, [-160, -185], [380, -185], 32); });
+
   G.cats = G.cats || {};
   G.cats.B05S = { ROUNDS, S: SZD, SIZES, SAMPLES, STRESS, theme, frame,
     drawS: (k, i, d, c) => { setZ(c); CUR = 's' + k + '-' + SZD[k][i].id; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; SZD[k][i].fn(d || {}, c); },
