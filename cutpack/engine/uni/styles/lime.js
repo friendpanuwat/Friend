@@ -131,7 +131,7 @@ function limeFit(name, f) {
 const limeRoom = (name, f) => { const L = limeFit(name, f); return !!L && !!limeShape(JSON.parse(JSON.stringify(L)), name); };   // a standard size fits here (2026-11-19)
 const limeStage = (name, f) => { const L = limeFit(name, f); return L && limeShape(JSON.parse(JSON.stringify(L)), name)?.stage; };   // null: no standard size fits this room
 
-/* ===== TRIAL 2026-11-20 · A CLOSE-UP CLIP: THE SPLIT SCREENS COME LESS OFTEN AND STAY LONG =====
+/* ===== A CLOSE-UP CLIP: THE SPLIT SCREENS COME LESS OFTEN AND STAY LONG (2026-11-20, in final v3: Friend "โอเคครับผ่าน" · lime.md 7.2) =====
    Friend: "ในกรณีที่คลิป user ถ่ายใกล้กล้อง ... จากที่ฉากเลื่อนขึ้นเลื่อนลงมันจะขึ้นบ่อย ก็ให้ขึ้นน้อยลงหน่อยแต่ขึ้นมาครั้งนึงอ่ะก็อยู่นาน
    แต่ก็เปลี่ยน motion graphic เอา ... ส่วนในกรณีที่คลิปไม่ได้ถ่ายใกล้กล้องระบบการทำงานก็เหมือนเดิม"
    A CLOSE-UP CLIP = not one picture of the clip leaves room for a card on the speaker (the chin sits so low that a card under it
@@ -306,7 +306,7 @@ STYLE('lime', {
          stand; (b) that with an anticipation dip of 28 px; (c) that with the curve measured off a clip Friend made, cubic-bezier(.2,.55,.6,1)
          in .55 s, with the video driven along the half's travel pixel for pixel so no black band opens between them. Friend kept V2. */
       if (G && G.role === 'swap') {
-        /* ONE SPLIT, SEVERAL GRAPHICS (trial 2026-11-20): the half, the card and the video are already where they belong (the
+        /* ONE SPLIT, SEVERAL GRAPHICS (2026-11-20, lime.md 7.2): the half, the card and the video are already where they belong (the
            group's first picture put them there); this picture draws its graphic in the same card and rides the way out */
         L.slideFn = e => A(e, [{translate: '0 0'}, {translate: `0 ${L.slide}px`}], gEnd - .6, .55, {e: EASE.glide, f: 'forwards'});
       } else {
@@ -338,7 +338,7 @@ STYLE('lime', {
        dark glass as the picture's ground: darker tiles, as on the sheet) */
     let stage;
     if (G && G.role === 'swap') {
-      /* THE GRAPHIC CHANGES, THE CARD STAYS (trial 2026-11-20): the new graphic rises in out of a blur in the same card while the
+      /* THE GRAPHIC CHANGES, THE CARD STAYS (2026-11-20, lime.md 7.2): the new graphic rises in out of a blur in the same card while the
          one before it fades away (ST.motion.swap), and the last one of the group slides out with the card */
       /* the graphic in a clear box the card's size and shape over the group's card, so it is cut at the card's edge as in the card
          itself (.l-clip); tools/card_sizes.js measures the group's card (F.card below) */

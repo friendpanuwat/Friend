@@ -33,13 +33,14 @@ def flag(name):
     i = args.index(name); v = args[i + 1]; del args[i:i + 2]; return v
 SEED = int(flag('--seed') or int.from_bytes(os.urandom(4), 'big') % 1000000)
 HISTORY = flag('--history')
-                                #   the speaker-only opening ends on the last line end within this many seconds, not on the first point's end
 W, FACES = args[0], args[1]
 STYLES = args[2:]
 UNI = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 PAST = json.load(open(HISTORY)) if HISTORY and os.path.exists(HISTORY) else []
 # every: one picture per this many seconds · scene: shortest / longest picture (s) · cover: most of the clip under
-# full-screen pictures · run: most full-screen pictures one after another · cut: how the camera gets back to 1.0
+# full-screen pictures · run: most full-screen pictures one after another · cut: how the camera gets back to 1.0 · hook: the first
+# picture's window in s (with_hook) · fitPick: the drawing that fills the free space (tools/fit_pick.js) · openFace: the style can open on a
+# picture screen with the face · over: one small picture on the speaker every this many s (none now: Friend 2026-11-17 "ยกเลิก 5.")
 RULES = {
     # 2026-11-17 Friend cancelled the 8 old styles (card, glass, split, gold and their overlays; their rules are in git history,
     # git show HEAD~1:cutpack/engine/uni/tools/clip_plan.py) for 12 new ones from sheets Friend made with AI. One by one:
@@ -53,7 +54,7 @@ RULES = {
     'terminal':      dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # เทอร์มินัลแดง: as the styles 6–8 that passed (LESSONS 66)
     'horizon':       dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # ขอบฟ้าส้ม: as the yellow and HUD styles that passed (LESSONS 66)
     'hud':           dict(every=4.0, scene=(1.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # เส้นชี้ HUD: as the yellow style that passed · final 2026-11-18: scenes from 1.5 s (was 3.5 so the notes filled, LESSONS 66; no notes now) (Friend: "อยากให้มีฉากโอเวอร์เลย์เยอะกว่านี้หน่อยแต่ไม่ต้องเยอะมากจนดูจุกจิก")
-    'window':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True, hook=(1.8, 3.2)),   # hook (Friend 2026-11-19: "ใส่ระบบ hook ให้สไตล์นี้")   # หน้าต่างแอป: 11 of 12 shots carry a window (first guess)   # เขียวมะนาว: 10 of 12 shots carry a picture, several on the speaker (first guess, before a real clip)   # no overlays: Friend 2026-11-17 "ยกเลิก 5." (over=25 turned them on)   # นีออนฟ้า: 10 of the sheet's 12 shots carry a picture (first guess, before a real clip)
+    'window':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True, hook=(1.8, 3.2)),   # หน้าต่างแอป · hook (Friend 2026-11-19: "ใส่ระบบ hook ให้สไตล์นี้")
 }
 PUSH = dict(z=1.05, d=1.4, back=1.0, gap=4.0, most=5)
 flat = lambda s: re.sub(r'\s+', '', s)
@@ -328,7 +329,7 @@ def write(style, R, sc, zooms, suffix, ov=(), open_='speaker', hook=False):
         RUN_PICKS.append(picks[r['id']])
     f = json.load(open(FACES))
     run = {'seed': SEED, 'overlays': [f"{r['id']}.{picks[r['id']]}" for r, *_ in ov], 'open': open_ if sc and sc[0][1] < .3 else 'speaker'}
-    # TRIAL 2026-11-20 (lime, close-up clips): every picture's window, so a style can see the pictures that come next
+    # every picture's window, so a style can see the pictures that come next (lime's close-up clips, lime.md 7.2 · 2026-11-20)
     run['scenes'] = [[round(t0, 2), round(t1, 2)] for _, t0, t1, _ in sorted(list(sc) + list(ov), key=lambda x: x[1])]
     if is_hook: run['hook'] = True                 # the first picture is the hook: a speaker's screen
     js = f"const RUN = {json.dumps(run)};\nconst FACES = {json.dumps({'track': f['track'], 'layout': f['layout'], 'keepOut': f['keepOut']})};\nconst CAPTIONS = {json.dumps(CAP, ensure_ascii=False)};\n"
