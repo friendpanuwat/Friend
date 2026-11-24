@@ -1136,9 +1136,11 @@
       ICON(p, c, d, 'w', -240, 0, 230, { room: 360, cy: 40, hmax: 380 }); WORD(p, d, 'w', -240, 190, { size: 58, maxW: 360 });
       ICON(p, c, d, 'r', 265, 40, 260, { room: 300, cy: 70, hmax: 380 }); WORD(p, d, 'r', 250, 300, { size: 64, maxW: 340 }); });
     MK(c, [-110, -130], [395, -60], 32); });
-  sd(5, 'orbit', 'หลุดวงโคจร', (d, c) => { const T_ = CT(), t1 = f3(T_.tN + tu(.42)), cx = 115, cy = -10;
+  sd(5, 'orbit', 'หลุดวงโคจร', (d, c) => { const T_ = CT(), t1 = f3(T_.tN + tu(.3)), cx = 115, cy = -10;
     art(c, p => { outlineIn(p, p.circle(cx, cy, 300, OUT()), T_.tW); litOn(p, T_.H).circle(cx, cy, 300, { sw: 4.4, stroke: ACC1, fill: TA(.05) });
-      const K = { px: -320, py: -235, x: [[0, cx + 320], [T_.tN, cx + 320], [t1, 0, 'io']], y: [[0, cy + 235], [T_.tN, cy + 235], [t1, 0, 'io']], s: [[0, 1.75], [T_.tN, 1.75], [t1, 1, 'io']] };
+      /* (user: "ทำให้อนิเมชั่น 3 กับ 4 ไม่เหมือนกัน") the wrong first rides round the ring (a full turn of the orbit), then is flung off along the tangent */
+      const ring = Array.from({ length: 13 }, (_, k) => { const a = rad(90 + k * 25); return [f1(cx + 300 * Math.cos(a)), f1(cy + 300 * Math.sin(a))]; }), Pth = [[cx, cy], [cx, cy + 300]].concat(ring.slice(1), [[-320, -235]]),
+        PK = pathK(Pth, f3(T_.tN - tu(.55)), t1, [-320, -235], 40), K = { px: -320, py: -235, x: PK.x, y: PK.y, s: [[0, 1.75], [f3(T_.tN - tu(.55)), 1.75], [f3(T_.tN - tu(.3)), 1.1, 'io'], [t1, 1, 'io']] };
       ICON(p, c, d, 'w', -320, -235, 150, { g: mvG(p, K), mv: K, room: 200 });
       const gWd = mvG(p, { o: [[0, 1], [f3(T_.tN - tu(.02)), 1], [f3(T_.tN + tu(.1)), 0]] }); WORD(p, d, 'w', cx, 210, { size: 58, maxW: 420, g: gWd });
       WORD(p, d, 'w', -320, -95, { size: 46, maxW: 200, t: f3(t1 - tu(.06)), dimAt: f3(t1 - tu(.06)) });
@@ -1146,19 +1148,25 @@
     MK(c, [-232, -310], [330, -250], 30); });
   sd(5, 'slot', 'ช่องแทนที่', (d, c) => { const T_ = CT(), t1 = f3(T_.tN + tu(.4));
     art(c, p => { drawAt(R(p, -125, -330, 550, 660, 40, DASH(.45)), p, T_.tW, tu(.4)); R(litOn(p, T_.H), -125, -330, 550, 660, 40, LITC());
-      const K = { px: -290, py: -40, x: [[0, 440], [T_.tN, 440], [t1, 0, 'io']], y: [[0, -20], [T_.tN, -20], [t1, 0, 'io']], s: [[0, 1.65], [T_.tN, 1.65], [t1, 1, 'io']] };
+      /* (user: "ทำให้อนิเมชั่น 3 กับ 4 ไม่เหมือนกัน") no flight: the right slides in from the right edge and PUSHES the wrong out of the slot, both moving together */
+      const tp0 = T_.tR, tp1 = f3(T_.tR + tu(.45)), K = { px: -290, py: -40, x: [[0, 440], [tp0, 440], [tp1, 0, 'io']], y: [[0, -20], [tp0, -20], [tp1, 0, 'io']], s: [[0, 1.65], [tp0, 1.65], [tp1, 1, 'io']] };
       ICON(p, c, d, 'w', -290, -40, 170, { g: mvG(p, K), mv: K, room: 230 });
-      const gWd = mvG(p, { o: [[0, 1], [f3(T_.tN - tu(.02)), 1], [f3(T_.tN + tu(.1)), 0]] }); WORD(p, d, 'w', 150, 200, { size: 64, maxW: 500, g: gWd });
-      WORD(p, d, 'w', -290, 110, { size: 48, maxW: 250, t: f3(t1 - tu(.06)), dimAt: f3(t1 - tu(.06)) });
-      const KR = { x: [[0, 560], [T_.tR, 560], [f3(T_.tR + tu(.4)), 0, 'out']], o: fadeIn(T_.tR, .05) }, KRi = Object.assign({ px: 150, py: -60 }, KR);
+      const gWd = mvG(p, { x: K.x, o: [[0, 1], [tp0, 1], [f3(tp0 + tu(.2)), 0]] }); WORD(p, d, 'w', 150, 200, { size: 64, maxW: 500, g: gWd });
+      WORD(p, d, 'w', -290, 110, { size: 48, maxW: 250, t: f3(tp1 - tu(.06)), dimAt: f3(tp1 - tu(.06)) });
+      const KR = { x: [[0, 560], [tp0, 560], [tp1, 0, 'io']], o: fadeIn(tp0, .05) }, KRi = Object.assign({ px: 150, py: -60 }, KR);
       ICON(p, c, d, 'r', 150, -60, 290, { g: mvG(p, KRi), mv: KRi, t: T_.tR, room: 500, cy: -10, hmax: 420 }); WORD(p, d, 'r', 150, 202, { size: 68, maxW: 500, g: mvG(p, { x: KR.x }) }); });
     MK(c, [-205, -125], [395, -300], 32); });
-  sd(5, 'fork', 'ทางแยก', (d, c) => { const T_ = CT(), Rr = 'M 0 200 Q 0 70 280 70';
-    art(c, p => { drawAt(p.line(0, 345, 0, 200, { sw: 6, stroke: TL_(.45) }), p, T_.tW, tu(.3)); const gL = mvG(p, { o: dimW(T_.tN, .4) }); drawAt(gL.path('M 0 200 Q 0 70 -280 70', { sw: 6, stroke: TL_(.45) }), p, f3(T_.tW + tu(.2)), tu(.3));
-      drawAt(p.path(Rr, { sw: 6, stroke: TL_(.45) }), p, f3(T_.tW + tu(.2)), tu(.3)); on(p.path(Rr, { sw: 8, stroke: ACC1 }), p, 0, { draw: [[0, 0], [T_.tN, 0], [T_.H, 1, 'io']] });
-      ICON(p, c, d, 'w', -280, -95, 270, { room: 290, cy: -60, hmax: 330 }); WORD(p, d, 'w', -280, -290, { size: 56, maxW: 290 });   /* bigger icons on the branch ends (fill the room) */
-      ICON(p, c, d, 'r', 280, -95, 270, { room: 290, cy: -60, hmax: 330 }); WORD(p, d, 'r', 280, -290, { size: 60, maxW: 290 }); });
-    MK(c, [-135, -215], [395, -215], 30); });
+  /* 05 carousel (user: "Design 5 ใหม่" — the fork was replaced): two cards on an oval track; the wrong card is in front, then the track turns —
+     the wrong card swings to the back (small, dim), the right card swings round to the front and lights on H */
+  sd(5, 'carousel', 'หมุนสลับหน้า-หลัง', (d, c) => { const T_ = CT(), F = [110, 35], Bk = [-255, -165], k = .5, t1 = f3(T_.tN + tu(.5));
+    art(c, p => { drawAt(p.path(`M -360 -10 A 330 165 0 1 1 300 -10 A 330 165 0 1 1 -360 -10 Z`, { sw: 2.4, stroke: TL_(.35), 'stroke-dasharray': '8 12' }), p, T_.tW, tu(.5));
+      const KW = { px: F[0], py: F[1], x: [[0, 0], [T_.tN, 0], [t1, Bk[0] - F[0], 'io']], y: [[0, 0], [T_.tN, 0], [t1, Bk[1] - F[1], 'io']], s: [[0, 1], [T_.tN, 1], [t1, k, 'io']] };
+      const KR = { px: F[0], py: F[1], x: [[0, Bk[0] - F[0]], [T_.tN, Bk[0] - F[0]], [T_.H, 0, 'io']], y: [[0, Bk[1] - F[1]], [T_.tN, Bk[1] - F[1]], [T_.H, 0, 'io']], s: [[0, k], [T_.tN, k], [T_.H, 1, 'io']], o: fadeIn(T_.tN, .08) };
+      const gW = mvG(mvG(p, KW), { o: [[0, 0], [T_.tW, 0], [f3(T_.tW + tu(.1)), 1], [T_.tN, 1], [t1, .4]] }); R(gW, F[0] - 230, F[1] - 225, 460, 450, 40, { fill: C.fill, sw: 2.8, stroke: TL_(.55) });
+      ICON(p, c, d, 'w', F[0], F[1] - 55, 230, { g: mvG(p, Object.assign({}, KW, { o: [[0, 0], [T_.tW, 0], [f3(T_.tW + tu(.1)), 1]] })), mv: KW, room: 400, cy: F[1], hmax: 360 }); WORD(p, d, 'w', F[0], F[1] + 150, { size: 58, maxW: 400, g: mvG(p, KW), dimAt: T_.tN });
+      const gR = mvG(p, KR); R(gR, F[0] - 230, F[1] - 225, 460, 450, 40, { fill: C.fill, sw: 2.8, stroke: TL_(.55) }); R(litOn(gR, T_.H), F[0] - 230, F[1] - 225, 460, 450, 40, LITC());
+      ICON(p, c, d, 'r', F[0], F[1] - 55, 230, { g: mvG(p, KR), mv: KR, t: T_.tN, room: 400, cy: F[1], hmax: 360 }); WORD(p, d, 'r', F[0], F[1] + 152, { size: 62, maxW: 400, g: mvG(p, KR), t: T_.tN }); });
+    MK(c, [Bk[0] + 230 * k - 8, Bk[1] - 225 * k + 8], [F[0] + 230 - 34, F[1] - 225 + 34], 30); });
   sd(5, 'bigarrow', 'ลูกศรใหญ่', (d, c) => { const T_ = CT(), A = [[-425, -200], [140, -200], [140, -340], [425, 0], [140, 340], [140, 200], [-425, 200]];
     art(c, p => { outlineIn(p, poly(p, A, OUT()), T_.tW); poly(litOn(p, T_.H), A, LITC()); drawAt(p.line(-45, -180, -45, 180, { sw: 2.4, stroke: TL_(.4), 'stroke-dasharray': '8 10' }), p, T_.tW, tu(.3));
       ICON(p, c, d, 'w', -320, -20, 180, { room: 260, cx: -235, hmax: 320 }); WORD(p, d, 'w', -215, 18, { anchor: 'start', size: 50, maxW: 155 });
