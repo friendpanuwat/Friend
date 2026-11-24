@@ -607,7 +607,9 @@
   const twd = (q, s, size) => { const m = q.text(s, 0, -9999, { size, weight: 800, anchor: 'start', dur: .01 }), w = m.getBBox().width; m.remove(); return w; };
   function centre(p, c, Cn, L, E) { if (!Cn) return; cbox(p, c, Cn, L.cx, L.cy, L.cs, E.ts, { noLabel: true });
     if (Cn.label && picOf(Cn) && L.lab) { const sz = Math.max(44, Math.min(60, L.cs * .26));
-      if (L.labLeft) { const mw = BOX[0] / 2 - L.lab[0] - 70, w = Math.min(mw, twd(p, Cn.label, sz)); pill(p, Cn.label, f1(L.lab[0] + 30 + w / 2), L.lab[1], { t: tu(.3), size: sz, maxW: mw }); }
+      if (L.labLeft) { const mw = L.labMax != null ? L.labMax - L.lab[0] - 30 : BOX[0] / 2 - L.lab[0] - 70, w = Math.min(mw, twd(p, Cn.label, sz));
+        if (twd(p, Cn.label, sz) * 40 / sz > mw) txt(atG(p, tu(.3)), Cn.label, f1(L.lab[0] + 30), f1(L.lab[1] + 14), { size: 50, maxW: mw, weight: 800, color: C.ink, wrap: 'mid', anchor: 'start' });   /* too long for a pill at ≥ 40 → two plain lines */
+        else pill(p, Cn.label, f1(L.lab[0] + 30 + w / 2), L.lab[1], { t: tu(.3), size: sz, maxW: mw }); }
       else { const mw = Math.max(160, L.cs + 40);   /* too long for a pill at ≥ 40 → plain words in two lines (never smaller than 40) */
         if (twd(p, Cn.label, sz) * 40 / sz > mw) txt(atG(p, tu(.3)), Cn.label, L.lab[0], f1(L.lab[1] + 14), { size: 50, maxW: mw, weight: 800, color: C.ink, wrap: 'mid' });
         else pill(p, Cn.label, L.lab[0], L.lab[1], { t: tu(.3), size: sz, maxW: mw }); } } }
@@ -627,25 +629,34 @@
      chart is full, the bars shrink away from the tallest (a dashed outline stays where each was). Owner (center) in its own strip. */
   const R1 = { th: 'แท่งโต (จาก B02T 12)' };
   const regionOf = (Wb, Hb, L) => L ? L.rest : [-Wb / 2, -Hb / 2, Wb, Hb];
-  function r1(d, c, k, st) { const X = ITM(d), E = EV(d), Cn = CEN(d), Wb = SIZES[k].w, Hb = SIZES[k].h, L = Cn ? split(Wb, Hb, st.cwhere, st.cfrac) : null,
-      RG = regionOf(Wb, Hb, L), m = 12, x0 = RG[0] + m, y0 = RG[1] + m, w = RG[2] - 2 * m, h = RG[3] - 2 * m, side = w > h * 1.25, gI = st.gI ?? 30;
-    const ic = f1(side ? Math.min(h * .92, w * .4, 320) : Math.min(w * .78, h * .4, 320)), ix = side ? x0 + ic / 2 : x0 + w / 2, iy = side ? y0 + h / 2 : y0 + ic / 2,
-      cx0 = side ? x0 + ic + gI : x0, cy1 = y0 + h, cw = side ? w - ic - gI : w, ch = side ? h : h - ic - gI, g = st.gap ?? Math.max(14, cw * .05), bw = (cw - (E.n - 1) * g) / E.n, rr = Math.min(22, bw * .22);
-    art(c, p => { const KI = { px: ix, py: iy, s: multiBump(E.ts, 1.1) };
+  /* st.band (sizes 5, 6 — user: "ขนาด 5 กับขนาด 6 ยังใช้พื้นที่ได้ไม่คุ้มพอ"): with an owner, the owner (left) and the big icon (right) share ONE top band
+     and the chart takes the full width under it (no owner strip eating a side); without an owner, st.alone picks 'side' (icon left of a full-height
+     chart) or 'top' (a bigger icon, up to 420, above a full-width chart). */
+  function r1(d, c, k, st) { const X = ITM(d), E = EV(d), Cn = CEN(d), Wb = SIZES[k].w, Hb = SIZES[k].h, band = st.band && Cn, m = 12, gI = st.gI ?? 30;
+    let L = null, RG, ic, ix, iy, side, x0, y0, w, h, cx0, cy1, cw, ch;
+    if (band) { const bh = f1(Hb * st.band), cs = f1(bh - 2 * m); ic = f1(Math.min(bh - 2 * m, 340)); ix = f1(Wb / 2 - m - ic / 2); iy = f1(-Hb / 2 + m + ic / 2);
+      L = { cx: f1(-Wb / 2 + m + cs / 2), cy: f1(-Hb / 2 + m + cs / 2), cs, lab: [f1(-Wb / 2 + m + cs), f1(-Hb / 2 + m + cs / 2)], labLeft: true, labMax: ix - ic / 2 - 30 };
+      x0 = -Wb / 2 + m; w = Wb - 2 * m; cx0 = x0; cw = w; cy1 = Hb / 2 - m; ch = Hb - 2 * m - bh - gI + m; }
+    else { L = Cn ? split(Wb, Hb, st.cwhere, st.cfrac) : null; RG = regionOf(Wb, Hb, L); x0 = RG[0] + m; y0 = RG[1] + m; w = RG[2] - 2 * m; h = RG[3] - 2 * m;
+      side = st.alone && !Cn ? st.alone === 'side' : w > h * 1.25; const capI = !Cn && st.alone === 'top' ? 420 : 320;
+      ic = f1(side ? Math.min(h * .92, w * .4, capI) : Math.min(w * .78, h * .42, capI)); ix = side ? x0 + ic / 2 : x0 + w / 2; iy = side ? y0 + h / 2 : y0 + ic / 2;
+      cx0 = side ? x0 + ic + gI : x0; cy1 = y0 + h; cw = side ? w - ic - gI : w; ch = side ? h : h - ic - gI; }
+    const g = st.gap ?? Math.max(14, cw * .05), bw = (cw - (E.n - 1) * g) / E.n, rr = Math.min(22, bw * .22);
+    art(c, p => { const KI = { px: ix, py: iy, s: multiBump(E.ts, 1.05) };   /* the icon only breathes a little with each change */
       if (X && picOf(X)) put(p, c, { icon: X.icon }, ix, iy, ic, null, { t: tu(.06), mv: KI, o: fadeIn(tu(.06), .06) });
       else if (X && X.label) txt(mvG(p, Object.assign({ o: fadeIn(tu(.06), .06) }, KI)), X.label, ix, iy + ic * .1, { size: Math.max(44, ic * .26), maxW: ic, weight: 800, color: C.ink, wrap: 'mid' });
       for (let j = 0; j < E.n; j++) { const x = f1(cx0 + j * (bw + g)), bh = f1(ch * (E.n > 1 ? .3 + .7 * j / (E.n - 1) : 1)), top = f1(cy1 - bh), t = E.at(j), lit = { fill: TA(.3), sw: 4, stroke: ACC1 };
-        if (E.up) R(mvG(p, upK(x + bw / 2, cy1, f3(t - tu(.3)), .3)), x, top, bw, bh, rr, lit);
-        else { const t0 = tu(.1 + .05 * j), K = { px: x + bw / 2, py: cy1, sy: [[0, 0], [t0, 0], [f3(t0 + tu(.3)), 1, 'out']].concat(t == null ? [] : [[t, 1], [f3(t + tu(.3)), 0, 'in']]), o: fadeIn(t0, .04) };
-          R(mvG(p, K), x, top, bw, bh, rr, lit); if (t != null) { const g2 = sub(p); on(g2, p, 0, { o: [[0, 0], [f3(t + tu(.2)), 0], [f3(t + tu(.3)), 1]] }); R(g2, x, top, bw, bh, rr, DASH(.4)); } }
-        if (E.up && t != null) dust(p, x + bw / 2, top, t, Math.min(1, bw / 160)); }
+        /* smooth, no bounce (user 2026-11-24: "อยากได้การขึ้นลงของกราฟที่มันสมูทไม่ใช่เด้งๆแบบนี้"): one 'io' ease up / down, no overshoot */
+        if (E.up) R(mvG(p, { px: x + bw / 2, py: cy1, sy: [[0, 0], [f3(t - tu(.45)), 0], [t, 1, 'io']], o: fadeIn(f3(t - tu(.45)), .03) }), x, top, bw, bh, rr, lit);
+        else { const t0 = tu(.1 + .05 * j), K = { px: x + bw / 2, py: cy1, sy: [[0, 0], [t0, 0], [f3(t0 + tu(.4)), 1, 'io']].concat(t == null ? [] : [[t, 1], [f3(t + tu(.45)), 0, 'io']]), o: fadeIn(t0, .03) };
+          R(mvG(p, K), x, top, bw, bh, rr, lit); if (t != null) { const g2 = sub(p); on(g2, p, 0, { o: [[0, 0], [f3(t + tu(.25)), 0], [f3(t + tu(.45)), 1]] }); R(g2, x, top, bw, bh, rr, DASH(.4)); } } }
       centre(p, c, Cn, L || {}, E); const er = Math.max(48, Math.min(64, bw * .4)); endM(p, c, d, f1(Math.min(Wb / 2 - er - 6, cx0 + cw - er)), f1(Math.max(-Hb / 2 + er + 6, cy1 - ch + er)), er); }); }
   R1[1] = (d, c) => r1(d, c, 1, { cwhere: 'left', cfrac: .22, gI: 26 });
   R1[2] = (d, c) => r1(d, c, 2, { cwhere: 'left', cfrac: .24, gI: 34 });
   R1[3] = (d, c) => r1(d, c, 3, { cwhere: 'left', cfrac: .3, gI: 26 });
   R1[4] = (d, c) => r1(d, c, 4, { cwhere: 'top', cfrac: .24, gI: 26 });
-  R1[5] = (d, c) => r1(d, c, 5, { cwhere: 'left', cfrac: .25, gI: 40 });
-  R1[6] = (d, c) => r1(d, c, 6, { cwhere: 'top', cfrac: .22, gI: 40 });
+  R1[5] = (d, c) => r1(d, c, 5, { band: .34, alone: 'side', gI: 36 });
+  R1[6] = (d, c) => r1(d, c, 6, { band: .3, alone: 'top', gI: 40 });
   R1[7] = (d, c) => r1(d, c, 7, { cwhere: 'top', cfrac: .25, gI: 22 });
   const ROUNDS = [null, R1];
   const SAMPLES = [
