@@ -326,13 +326,23 @@ STYLE('window', {
        left the drawing at the window's bottom); its motion may use the window's own padding · then (Friend: "ที่ผมต้องการคือให้การ์ดไปอยู่
        ตรงกลางของจอเลยและเอา subtitle ขึ้นไปอีกเว้นระยะห่างระหว่างการ์ดเท่าเดิม"): the window in the middle of the
        screen (centre y 960), the words 90 px over it (the key word's row ends 65 px under its centre) */
-    const room = L.screen && !L.frame ? {l: 22, t: 8, r: 22, b: 22} : null;
-    return {root, stage, cam: root, L, name, dark: !!L.screen, room};
+    /* room: the window's own padding round the picture box that the motion may use before motionFit ('whole') shrinks the drawing — 22 at
+       the sides and the bottom, 8 under the title bar (2026-11-24, Friend: "ทั้ง 2 ข้อทำเหมือนกันครับ": a motion graphic stays inside its
+       window, as lime's card; was: the blue screens without a face only, the others 12 px) */
+    const room = L.win ? {l: 22, t: 8, r: 22, b: 22} : null;
+    /* centre: how motionFit 'whole' places a drawing whose motion leaves the window: the blue screens without a face keep the END drawing
+       in the middle of the window (final 2026-11-18 point 4: "motion graphic ต้องอยู่กึ่งกลาง"), the others centre the whole motion (as lime) */
+    return {root, stage, cam: root, L, name, dark: !!L.screen, room, centre: L.screen && !L.frame ? 'end' : 'motion'};
   },
-  /* between pictures: the words at the chest, moved below the chin when the face is low */
+  /* between pictures: the words at the chest, moved below the chin when the face is low, over the head when the chin leaves no room
+     (winFit) · NO ROOM UNDER THE CHIN NOR OVER THE HEAD (a very close clip · Friend 2026-11-24: "ทั้ง 2 ข้อทำเหมือนกันครับ", as lime): the
+     words right under the search bar (the lead's row from y 220), over the hair rather than the mouth (it used to fall back to the
+     sheet's place at the chest, over the mouth) */
   speakerFrame(a, b) {
     const root = div('', SC); root.className = 'w-root';
-    return {root, cam: root, speaker: true, L: winFit('talk', cpFaceBox(a, b)) ?? WIN.layouts.talk, name: 'talk'};
+    let L = winFit('talk', cpFaceBox(a, b));
+    if (!L) { L = JSON.parse(JSON.stringify(WIN.layouts.talk)); const lk = L.key.y - L.lead.y; L.lead.y = 220 + 45; L.key.y = L.lead.y + lk; L.above = true; }
+    return {root, cam: root, speaker: true, L, name: 'talk'};
   },
   /* the lead fades in out of a blur; the hollow key word pops in on its word */
   text(F, T, lead, key) {

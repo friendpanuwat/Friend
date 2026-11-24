@@ -21,7 +21,7 @@ const GLOWLOOK = {
   gold:  {acc: '--ac',     glow: {c: '#FF9A2E', all: false},    weight: {k: 1.3, min: 2.4}},   // gold: only the orange accent glows
   /* the new styles (Friend 2026-11-17 cancelled the 4 above and is replacing them with 12 sheets made with AI, copied 100%) */
   neon:  {acc: '--ac',     glow: {c: '#2FA8F0', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, clipRoom: true},   // clipRoom: final 2026-11-18 (B06T radar's waves grew past its box onto the key word, test clip 24 s; shrinking the pictures to their motion took the first one from 17 % of the screen to 10 %)
-  window: {acc: '--ac',    glow: {c: '#3E86FF', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},    // หน้าต่างแอป (Friend's 3rd new sheet, 2026-11-18): the glass look in app windows, blue light
+  window: {acc: '--ac',    glow: {c: '#3E86FF', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: 'whole'},    // หน้าต่างแอป (Friend's 3rd new sheet, 2026-11-18): the glass look in app windows, blue light · 'whole' 2026-11-24 (Friend: "ทั้ง 2 ข้อทำเหมือนกันครับ" as lime: a drawing whose motion leaves its window shrinks until all of it fits, centred; the window clips the rest)
   violet: {acc: '--ac',    glow: {c: '#8B5CF6', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},   // ม่วงคลื่นเสียง (Friend's 5th new sheet, 2026-11-18): the glass look in violet cards, violet light
   teal:  {acc: '--ac',     glow: {c: '#3FCEBA', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},
   yellow: {acc: '--ac',    glow: {c: '#FFD600', self: true},    weight: {k: 1.6, min: 4.0, floor: 2.6}, floatAlpha: .62},   // the sheet's lines are 5 px where neon's are 3
@@ -64,9 +64,11 @@ function glowMotionBox(svg, e, t0, t1, cap = .2) {
    drawing fills the box W × H (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย"); only when its motion
    runs out of the box (12 px of slack: a window's padding) the motion's box fills it instead, so a picture shrinks only when it has to
    (fitting every picture to its motion took the window clip's pictures from 13 % of the screen to 10 %) */
-/* whole (lime only, 2026-11-24, Friend: "อันที่มันล้นขอบออกมาทำไมไม่ย่อแล้วจัดองค์ประกอบให้มันอยู่ตรงกลางอ่ะ" → "ok ครับแก้เลย"): a drawing whose motion
+/* whole (lime, then window, 2026-11-24, Friend: "อันที่มันล้นขอบออกมาทำไมไม่ย่อแล้วจัดองค์ประกอบให้มันอยู่ตรงกลางอ่ะ" → "ok ครับแก้เลย"): a drawing whose motion
    runs out of the box and its room is shrunk until ALL of its motion (no 20 % cap, no 1.6 cap) fits the box + room, and that motion is
-   centred in it (the card's middle); a drawing whose motion stays in is left exactly as it was (the same viewBox as without motionFit) */
+   centred in it (the card's middle); a drawing whose motion stays in is left exactly as it was (the same viewBox as without motionFit).
+   whole = 'end' (window's blue screens without a face, where the END drawing stays in the middle of the window: final 2026-11-18 point 4):
+   the same, but the end drawing keeps the middle of the box and the view widens evenly round it until all of the motion fits */
 function glowFit(svg, at, t1, W, H, room = null, whole = false) {
   /* room (the neon style only, final 2026-11-18): the free space around the box on each side in px {l, t, r, b} (to the words, the face's
      frame, the safe zone), which the motion may use before the picture shrinks; else 12 px on every side (the window style's padding) */
@@ -75,14 +77,14 @@ function glowFit(svg, at, t1, W, H, room = null, whole = false) {
   let v = pad(e); const s = Math.min(W / v.width, H / v.height), R = room ?? {l: 12, t: 12, r: 12, b: 12};
   const rx = v.x - (W / s - v.width) / 2, ry = v.y - (H / s - v.height) / 2;
   if (u.x < rx - R.l / s || u.y < ry - R.t / s || u.x + u.width > rx + W / s + R.r / s || u.y + u.height > ry + H / s + R.b / s) {
-    if (whole) {                                   // the whole motion (3 % padded) in the box + room, centred on the room's middle
+    if (whole && whole !== 'end') {              // the whole motion (3 % padded) in the box + room, centred on the room's middle
       const R2 = room ?? R, m = pad(u), s2 = Math.min(s, (W + R2.l + R2.r) / m.width, (H + R2.t + R2.b) / m.height);
       const cx = (W - R2.l + R2.r) / 2, cy = (H - R2.t + R2.b) / 2;   // the middle of box + room in px (the card's middle)
       v = {x: m.x + m.width / 2 - cx / s2, y: m.y + m.height / 2 - cy / s2, width: W / s2, height: H / s2};
     } else if (!room) v = pad(u);
     else {                                         // the smallest shrink that keeps the motion in the box and its room (k: how much wider the view gets)
       const cx = v.x + v.width / 2, cy = v.y + v.height / 2;
-      const k = Math.min(1.6, Math.max(1, (cx - u.x) * s / (W / 2 + R.l), (u.x + u.width - cx) * s / (W / 2 + R.r), (cy - u.y) * s / (H / 2 + R.t), (u.y + u.height - cy) * s / (H / 2 + R.b)));
+      const k = Math.min(whole ? Infinity : 1.6, Math.max(1, (cx - u.x) * s / (W / 2 + R.l), (u.x + u.width - cx) * s / (W / 2 + R.r), (cy - u.y) * s / (H / 2 + R.t), (u.y + u.height - cy) * s / (H / 2 + R.b)));
       v = {x: cx - v.width * k / 2, y: cy - v.height * k / 2, width: v.width * k, height: v.height * k};
     }
   }
@@ -537,7 +539,7 @@ function glowDraw(F, T, cat, i, d, box = F.stage) {
     if (GLASSY[base]?.wordK) svg.querySelectorAll('text').forEach(t => { const f = parseFloat(getComputedStyle(t).fontSize); if (f) t.style.fontSize = (f * GLASSY[base].wordK).toFixed(2) + 'px'; });   // hud only (final 2026-11-18): the words bigger, from their own anchor
     if (GLASSY[base]?.centreBox) glowCentre(svg);  // neon only (final 2026-11-18): the icon and word of a text box in its middle
     glowLight(svg, P, base);
-    if (GLOWLOOK[base]?.motionFit) glowFit(svg, at, T.t1 ?? window.DURATION, W, H, F.room ?? null, GLOWLOOK[base].motionFit === 'whole');   // window: what is really visible fills the box, and its motion stays in it
+    if (GLOWLOOK[base]?.motionFit) glowFit(svg, at, T.t1 ?? window.DURATION, W, H, F.room ?? null, GLOWLOOK[base].motionFit === 'whole' && (F.centre ?? 'motion'));   // window: what is really visible fills the box, and its motion stays in it
     else { const b = glowVisibleBox(svg), p = Math.max(b.width, b.height) * .03;      // the other styles: what is really visible at its end fills the box (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย")
       svg.setAttribute('viewBox', `${b.x - p} ${b.y - p} ${b.width + 2 * p} ${b.height + 2 * p}`); }
     glowWeight(svg, P, base);                       // after the fit: the line weight is measured on screen
