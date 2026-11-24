@@ -463,8 +463,36 @@
     if (u) unitIn(q, u, f1(x0 + nw0 * k + gap0 * k), y, us, 'start', 1e9);
     return { x0, x1: x0 + tot, cx: x0 + tot / 2, cy: n.cy, size, nw: nw0 * k }; }
   /* the unit: slides in just after the keyword H */
-  function unitIn(q, u, x, y, size, anchor = 'middle', maxW = 400) { if (!u) return; const g = sub(q); const tE = f3(Z.H + tu(.04));
-    on(g, q, 0, { x: [[0, -24], [tE, -24], [f3(Z.H + tu(.24)), 0, 'out']], o: fadeIn(tE) }); txt(g, u, x, y, { size, weight: 600, anchor, color: C.soft, maxW }); }
+  function unitIn(q, u, x, y, size, anchor = 'middle', maxW = 400, weight = 600, wrap = null) { if (!u) return; const g = sub(q); const tE = f3(Z.H + tu(.04));
+    on(g, q, 0, { x: [[0, -24], [tE, -24], [f3(Z.H + tu(.24)), 0, 'out']], o: fadeIn(tE) }); txt(g, u, x, y, { size, weight, anchor, color: C.soft, maxW, wrap }); }
+  /* number + unit on one baseline across the room x0..x1 (user 2026-11-24: "ใช้คำว่าเล่มให้คุ้มกับพื้นที่หน่อย แต่ต้องรองรับข้อมูลทุกชนิดนะ"):
+     the unit grows to fill what the number leaves (up to o.uMax), never under o.uMin (40); a long unit / long number shrinks the number first,
+     then the unit (to uMin, then narrower). No unit → the number alone takes the room. anchor 'start' (from x0) or 'middle' (centred in x0..x1). */
+  function pairRow(p, v, u, x0, x1, y, o = {}) { if (!v) return null; const room = x1 - x0, uMax = o.uMax || 120, uMin = Math.min(uMax, Math.max(40, o.uMin || (o.size || 160) * .34));
+    let nS = o.size || 160; const nw0 = tw(p, v, nS);
+    if (!u) { const k = Math.min(1, room / nw0), w = nw0 * k; return num(p, p, v, o.anchor === 'middle' ? (x0 + x1) / 2 : x0, y, { size: nS * k, anchor: o.anchor === 'middle' ? 'middle' : 'start', t0: o.t0 }); }
+    const gap = nS * .09, u1 = tw(p, u, 100, 700) / 100;   /* unit width per px of size */
+    let nw = nw0, us = Math.min(uMax, (room - nw - gap) / u1);
+    if (us < uMin && o.under != null) {   /* room below (o.under = { ny, uy, uMax }: baselines of the number and the unit) → the number takes the whole width, the unit sits under it, big */
+      const k = Math.min(1, room / nw0), cx = o.anchor === 'middle' ? (x0 + x1) / 2 : x0;
+      const U = o.under, n = num(p, p, v, cx, U.ny, { size: nS * k, anchor: o.anchor === 'middle' ? 'middle' : 'start', t0: o.t0 }); unitIn(p, u, cx, U.uy, Math.max(40, Math.min(U.uMax, room / u1)), o.anchor === 'middle' ? 'middle' : 'start', room, 700);
+      return { x0, x1, n }; }
+    if (us < uMin) {
+      const words = typeof Intl !== 'undefined' && Intl.Segmenter ? [...new Intl.Segmenter('th', { granularity: 'word' }).segment(u)].filter(t => t.segment.trim()).length : 1;
+      const k2 = Math.max(.6, Math.min(1, (room - gap - u1 * uMin * .55) / nw0)), W2 = room - nw0 * k2 - gap * k2;
+      if (words > 1 && W2 >= u1 * 40 * .55) {   /* a long unit of several words → keep the number ≥ 60 % and break the unit into two lines beside it */
+        const n2 = nS * k2, nwk = nw0 * k2, g = gap * k2, us2 = Math.max(40, Math.min(uMax, W2 / (u1 * .55))), xs = o.anchor === 'middle' ? (x0 + x1 - nwk - g - Math.min(W2, u1 * us2 * .55)) / 2 : x0;
+        const n = num(p, p, v, xs, y, { size: n2, anchor: 'start', t0: o.t0 }); unitIn(p, u, f1(xs + nwk + g), y, f1(us2), 'start', W2, 700, 'up');
+        return { x0: xs, x1: x1, n, us: us2 }; }
+      /* one word (or no room to break) → share the room: the number down to 60 %, the unit down to 40; still too wide → the number goes smaller */
+      let k = Math.max(.6, Math.min(1, (room - gap - u1 * uMin) / nw0)); us = Math.max(40, Math.min(uMin, (room - nw0 * k - gap * k) / u1));
+      if (nw0 * k + gap * k + u1 * us > room) k = Math.max(.3, (room - gap - u1 * us) / nw0);
+      nS *= k; nw = nw0 * k; }
+    const uw = Math.min(u1 * us, room - nw - gap * nS / (o.size || 160)), g2 = gap * nS / (o.size || 160), tot = nw + g2 + uw, xs = o.anchor === 'middle' ? (x0 + x1 - tot) / 2 : x0;
+    const n = num(p, p, v, xs, y, { size: nS, anchor: 'start', t0: o.t0 }); unitIn(p, u, f1(xs + nw + g2), y, f1(us), 'start', uw, 700);
+    return { x0: xs, x1: xs + tot, n, us }; }
+  /* the unit under the number, as big as its width allows (uMax → down to 40, then narrower) */
+  const unitUnder = (p, u, x, y, uMax, maxW) => { if (!u) return; const us = Math.max(40, Math.min(uMax, maxW / (tw(p, u, 100, 700) / 100))); unitIn(p, u, x, y, f1(us), 'middle', maxW, 700); };
   let FILL = { fill: LIT, sw: 0, stroke: 'none' };
   const hexRgb = h => { h = String(h).trim().replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); const n = parseInt(h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
   const rgba = (h, a) => /^#[0-9a-f]{3,6}$/i.test(String(h).trim()) ? `rgba(${hexRgb(h).join(',')},${a})` : h;
@@ -517,34 +545,34 @@
   const R1 = { th: 'แถบเติม' };
   /* 1 · 860×230 flat strip: floating icon at the left, number over a slim bar on the right */
   R1[1] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04)), x0 = ic ? -235 : -410;
-    art(c, p => { flo(p, c, ic, -345, -4, 170, tu(.04), tu(.28)); const uw = u ? Math.min(260, tw(p, u, 46, 600) + 30) : 0; num(p, p, v, x0, 4, { size: 132, maxW: 410 - x0 - uw, anchor: 'start', t0: tu(.3) }); unitIn(p, u, 410, 4, 46, 'end', 240);
+    art(c, p => { flo(p, c, ic, -345, -4, 170, tu(.04), tu(.28)); pairRow(p, v, u, x0, 410, 8, { size: 136, uMax: 96, t0: tu(.3) });
       hbar(p, x0, 410, 66, 54, fr, t0, t1, { kr: 34 }); }); };
   /* 2 · 860×470 wide: big number top-left, floating icon top-right, a thick bar, ticks under it */
   R1[2] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04));
-    art(c, p => { flo(p, c, ic, 318, -116, 196, tu(.04), tu(.28)); numRow(p, p, v, u, -410, -36, { size: 210, maxW: ic ? 580 : 820, anchor: 'start', t0: tu(.3) });
+    art(c, p => { flo(p, c, ic, 318, -116, 196, tu(.04), tu(.28)); pairRow(p, v, u, -410, ic ? 200 : 410, -36, { size: 210, uMax: 150, t0: tu(.3) });
       const b = hbar(p, -410, 410, 100, 96, fr, t0, t1, { kr: 60 }); ticksH(p, -360, 360, 182, 17, 40, fr, t0, t1); }); };
   /* 3 · 560×490 near-square: icon box dropped top-left, number + unit on its right, a fat bar, a dot row */
   R1[3] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04));
     art(c, p => { dropBox(p, c, ic, -168, -140, 196, tu(.04), tu(.28));
-      const nx = ic ? 104 : 0; num(p, p, v, nx, -82, { size: 170, maxW: ic ? 320 : 520, t0: tu(.3) });
-      unitIn(p, u, nx, -18, 46, 'middle', ic ? 320 : 520);
+      const nx = ic ? 104 : 0; num(p, p, v, nx, u ? -104 : -70, { size: u ? 160 : 190, maxW: ic ? 320 : 520, t0: tu(.3) });
+      unitUnder(p, u, nx, -16, 74, ic ? 320 : 520);
       hbar(p, -262, 262, 104, 100, fr, t0, t1, { kr: 62 }); dotsH(p, -230, 230, 212, 8, 14, fr, t0, t1); }); };
   /* 4 · 400×635 tall narrow: a tall bar on the right fills up; number + unit at the top-left, the icon floats at the bottom-left */
   R1[4] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04)), cx = -56;
-    art(c, p => { vbar(p, 140, -300, 300, 96, fr, t0, t1, { kr: 56 }); num(p, p, v, cx, -150, { size: 176, maxW: 270, t0: tu(.3) });
-      unitIn(p, u, cx, -78, 48, 'middle', 270); if (ic) flo(p, c, ic, cx, 140, 262, tu(.04), tu(.28)); else dotsV(p, cx, 270, -10, 6, 17, frac(d), t0, t1); }); };
+    art(c, p => { vbar(p, 140, -300, 300, 96, fr, t0, t1, { kr: 56 }); num(p, p, v, cx, u ? -166 : -130, { size: 176, maxW: 270, t0: tu(.3) });
+      unitUnder(p, u, cx, -66, 84, 270); if (ic) flo(p, c, ic, cx, 140, 262, tu(.04), tu(.28)); else dotsV(p, cx, 270, -10, 6, 17, frac(d), t0, t1); }); };
   /* 5 · 860×710 full, landscape: icon box + huge number on top, a very thick bar, a long tick scale */
   R1[5] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04));
-    art(c, p => { dropBox(p, c, ic, -310, -212, 220, tu(.04), tu(.28)); numRow(p, p, v, u, ic ? -168 : 0, -100, { size: 250, maxW: ic ? 590 : 820, anchor: ic ? 'start' : 'middle', t0: tu(.3) });
+    art(c, p => { dropBox(p, c, ic, -310, -212, 220, tu(.04), tu(.28)); pairRow(p, v, u, ic ? -170 : -410, 410, -100, { size: 250, uMax: 170, anchor: ic ? 'start' : 'middle', t0: tu(.3) });
       hbar(p, -410, 410, 116, 150, fr, t0, t1, { kr: 90 }); ticksH(p, -350, 350, 248, 21, 54, fr, t0, t1); }); };
   /* 6 · 860×965 full, portrait: a big floating icon on top, the number very large in the middle, the thickest bar, a tick scale */
   R1[6] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04));
-    art(c, p => { flo(p, c, ic, 0, -330, 260, tu(.04), tu(.28)); numRow(p, p, v, u, 0, ic ? 46 : -70, { size: ic ? 290 : 380, maxW: 820, t0: tu(.3) });
+    art(c, p => { flo(p, c, ic, 0, -330, 260, tu(.04), tu(.28)); pairRow(p, v, u, -410, 410, ic ? 46 : -70, { size: ic ? 290 : 380, uMax: ic ? 190 : 240, anchor: 'middle', t0: tu(.3), under: ic ? null : { ny: -150, uy: 40, uMax: 130 } });
       hbar(p, -410, 410, 250, 170, fr, t0, t1, { kr: 100 }); ticksH(p, -340, 340, 396, 21, 58, fr, t0, t1); }); };
   /* 7 · 400×500 short narrow: a tall bar on the LEFT; the icon floats top-right, number + unit under it */
   R1[7] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04)), cx = 62;
     art(c, p => { vbar(p, -142, -236, 236, 88, fr, t0, t1, { kr: 52 }); flo(p, c, ic, cx, -118, 210, tu(.04), tu(.28));
-      num(p, p, v, cx, ic ? 118 : -110, { size: 150, maxW: 260, t0: tu(.3) }); unitIn(p, u, cx, ic ? 186 : -42, 44, 'middle', 260);
+      num(p, p, v, cx, ic ? (u ? 106 : 140) : -110, { size: 150, maxW: 260, t0: tu(.3) }); unitUnder(p, u, cx, ic ? 196 : -20, 70, 260);
       if (!ic) dotsV(p, cx, 214, 30, 4, 17, frac(d), t0, t1); }); };
 
   const ROUNDS = [null, R1];
@@ -555,6 +583,8 @@
   const STRESS = [
     { say: 'เก็บเงินได้ 1,250,000 บาท (9 หลัก ไม่มีไอคอน)', value: '1,250,000', unit: 'บาท' },
     { say: 'ran 42 kilometers (English · ไม่มีค่าเต็ม)', value: '42', unit: 'kilometers', icon: 'bike' },
+    { say: '90% ของคนทำงานเหนื่อย (หน่วยยาว)', value: '90%', unit: 'ของคนทำงาน', icon: 'briefcase' },
+    { say: 'สมาชิกใหม่ 4,800 คน (หน่วยสั้นมาก)', value: '4,800', unit: 'คน', icon: 'user-plus', dir: 'up' },
   ];
   G.cats = G.cats || {};
   G.cats.B01S = { ROUNDS, SIZES, SAMPLES, STRESS, theme, frame,
