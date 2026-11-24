@@ -930,12 +930,18 @@
       cell(p, c, d, 'o', 0, -178, 30, 220, 220, { wideMin: 999, solid: true }); cell(p, c, d, 'o', 1, 178, 30, 220, 220, { wideMin: 999, solid: true });
       if (F.hasA) cell(p, c, d, 'a', 0, 0, -176, 300, 136, { shape: 'float', wideMin: 260, solid: true }); else qmark(p, d, 0, -170, 54);
       if (F.hasN) cell(p, c, d, 'n', 0, 0, F.hasA ? -176 : -170, F.hasA ? 300 : 260, F.hasA ? 136 : 150, { wideMin: 260, solid: true }); }); });   /* an answer apart lands at the top (where the "?" was), not over the options */
-  /* 10 a chat: the question bubble (top-left, what is asked + "?"), the reply bubble (bottom-right, the answers — or a waiting "?") */
-  sd(3, 'chat', 'แชตถาม-ตอบ', (d, c) => { const F = QD(d), T_ = QT(d), B1 = 'M -250 -245 L 140 -245 Q 170 -245 170 -215 L 170 -50 Q 170 -20 140 -20 L -215 -20 L -262 22 L -255 -20 Q -280 -20 -280 -50 L -280 -215 Q -280 -245 -250 -245 Z',
-      B2 = 'M -140 10 L 250 10 Q 280 10 280 40 L 280 215 Q 280 245 250 245 L -140 245 Q -170 245 -170 215 L -170 40 Q -170 10 -140 10 Z';
-    art(c, p => { outlineIn(p, p.path(B1, OUT(.55)), T_.tA); const tB = f3(T_.tQ - tu(.1)); drawAt(p.path(B2, OUT(.55)), p, tB, tu(.3));
-      if (F.hasA) cell(p, c, d, 'a', 0, -70, -132, 380, 210, { shape: 'float', wideMin: 300 }); qmark(p, d, F.hasA ? 132 : -55, -132, F.hasA ? 34 : 82, { plain: true });
-      const bot = (F.hasO ? [['o', 0], ['o', 1]] : []).concat(F.hasN ? [['n', 0]] : []); if (bot.length) rowCells(p, c, d, -160, 270, 128, 220, 12, { shape: 'float', wideMin: 999 }, bot); else qmark(p, d, 55, 128, 72, { t: tB }); }); });
+  /* 10 (user: "ออกแบบ 10 ใหม่") a covered tile: a cover with a big "?" (and the two answers small on it, lighting in turn while in doubt) hides
+     the answer; on H the cover slides up out of the tile and the answer is revealed under it. No answer → the cover stays and its "?" lights */
+  sd(3, 'reveal', 'ฝาปิดเปิดเผยคำตอบ', (d, c) => { const F = QD(d), T_ = QT(d), X = F.ai >= 0 ? F.op[F.ai] : F.an;
+    art(c, p => { aboutHead(p, c, d, -197, 96); const y0 = F.hasA ? -140 : -245, h = 245 - y0, cy = f1(y0 + h / 2), w = 560, t0 = F.hasA ? T_.tO(0) : T_.tA;
+      outlineIn(p, R(p, -280, y0, w, h, 36, OUT(.6)), t0); if (X) R(litOn(p, T_.H), -280, y0, w, h, 36, LIT2());
+      if (X) face(p, c, X, p, 0, cy, w, h, [[0, 0], [f3(T_.H + tu(.1)), 0], [f3(T_.H + tu(.3)), 1]], null, T_.H);
+      const tUp = f3(T_.H + tu(.45)), cv = mvG(clipG(p, -280, y0, w, h), { y: X ? [[0, 0], [T_.H, 0], [tUp, -h - 10, 'io']] : [[0, 0]], o: [[0, 0], [t0, 0], [f3(t0 + tu(.14)), 1]] });
+      R(cv, -272, y0 + 8, w - 16, h - 16, 30, { fill: C.fill, sw: 2.4, stroke: TL_(.5) }); const qy = f1(cy + (F.hasO ? -20 : 40) + h * .12);
+      txt(cv, '?', 0, qy, { size: f1(h * (F.hasO ? .42 : .55)), weight: 800, color: C.ink }); if (!X) txt(litOn(cv, T_.H), '?', 0, qy, { size: f1(h * (F.hasO ? .42 : .55)), weight: 800, color: ACC1 });
+      if (F.hasO) { const FS = faces(d); [0, 1].forEach(k => { const O = F.op[k], ox = k ? 150 : -150, oy = f1(y0 + h - 72), K = [[0, 0], [FS.t0, 0], [f3(FS.t0 + tu(.12)), .45]]; let cur = .45;
+          FS.times.forEach((ts, n) => { const f = FS.shown[n + 1], v = f === k ? 1 : .45; if (v !== cur) { K.push([ts, cur], [f3(ts + tu(.14)), v, 'io']); cur = v; } }); if (X) K.push([T_.H, cur], [f3(T_.H + tu(.2)), 0]);
+          if (picOf(O)) put(p, c, { icon: O.icon }, ox, oy, 96, null, { t: FS.t0, o: K }); else if (O.label) txt(mvG(cv, { o: K }), O.label, ox, oy + 14, { size: 40, maxW: 220, weight: 800, color: C.ink }); }); } }); });
 
   const outlineIn = (p, el, t) => drawAt(el, p, f3(Math.max(0, t - tu(.04))), tu(.34));
 
