@@ -1123,6 +1123,74 @@
       ICON(p, c, d, 'r', 75, 160, 190, { room: 240, cy: 190, hmax: 240 }); WORD(p, d, 'r', 60, 295, { size: 46, maxW: 270 }); });
     MK(c, [-5, -292], [168, 75], 22); });
 
+  /* ---------- SIZE 5 · 860 × 710 (เต็มจอ ทรงนอน) ---------- */
+  sd(5, 'table', 'ตารางสองคอลัมน์', (d, c) => { const T_ = CT();
+    art(c, p => { outlineIn(p, R(p, -425, -350, 850, 700, 36, OUT(.5)), T_.tW); drawAt(p.line(0, -330, 0, 330, { sw: 2.4, stroke: TL_(.4) }), p, T_.tW, tu(.4)); drawAt(p.line(-405, -225, 405, -225, { sw: 2.4, stroke: TL_(.4) }), p, T_.tW, tu(.4));
+      R(litOn(p, T_.H), 12, -338, 401, 676, 28, LITC());
+      ICON(p, c, d, 'w', -212, -30, 250, { room: 380, cy: 30, hmax: 380 }); WORD(p, d, 'w', -212, 185, { size: 60, maxW: 370 });
+      ICON(p, c, d, 'r', 212, -30, 250, { room: 380, cy: 30, hmax: 380 }); WORD(p, d, 'r', 212, 187, { size: 64, maxW: 370 }); });
+    MK(c, [-212, -288], [212, -288], 40); });
+  sd(5, 'spot', 'ไฟส่องฝั่งถูก', (d, c) => { const T_ = CT(), Bm = [[195, -350], [335, -350], [425, 230], [105, 230]];
+    art(c, p => { const gB = mvG(p, { o: [[0, 0], [T_.tR, 0], [T_.H, 1, 'io']] }); poly(gB, Bm, { fill: TA(.08), sw: 0, stroke: 'none' }); gB.path('M 195 -350 L 105 230 M 335 -350 L 425 230', { sw: 2.4, stroke: TA(.5) });
+      /* no floor line (template rule) */
+      ICON(p, c, d, 'w', -240, 0, 230, { room: 360, cy: 40, hmax: 380 }); WORD(p, d, 'w', -240, 190, { size: 58, maxW: 360 });
+      ICON(p, c, d, 'r', 265, 40, 260, { room: 300, cy: 70, hmax: 380 }); WORD(p, d, 'r', 250, 300, { size: 64, maxW: 340 }); });
+    MK(c, [-110, -130], [395, -60], 32); });
+  sd(5, 'orbit', 'หลุดวงโคจร', (d, c) => { const T_ = CT(), t1 = f3(T_.tN + tu(.42)), cx = 115, cy = -10;
+    art(c, p => { outlineIn(p, p.circle(cx, cy, 300, OUT()), T_.tW); litOn(p, T_.H).circle(cx, cy, 300, { sw: 4.4, stroke: ACC1, fill: TA(.05) });
+      const K = { px: -320, py: -235, x: [[0, cx + 320], [T_.tN, cx + 320], [t1, 0, 'io']], y: [[0, cy + 235], [T_.tN, cy + 235], [t1, 0, 'io']], s: [[0, 1.75], [T_.tN, 1.75], [t1, 1, 'io']] };
+      ICON(p, c, d, 'w', -320, -235, 150, { g: mvG(p, K), mv: K, room: 200 });
+      const gWd = mvG(p, { o: [[0, 1], [f3(T_.tN - tu(.02)), 1], [f3(T_.tN + tu(.1)), 0]] }); WORD(p, d, 'w', cx, 210, { size: 58, maxW: 420, g: gWd });
+      WORD(p, d, 'w', -320, -95, { size: 46, maxW: 200, t: f3(t1 - tu(.06)), dimAt: f3(t1 - tu(.06)) });
+      ICON(p, c, d, 'r', cx, -40, 260, { room: 420, cy: cy, hmax: 400 }); WORD(p, d, 'r', cx, 210, { size: 62, maxW: 420 }); });
+    MK(c, [-232, -310], [330, -250], 30); });
+  sd(5, 'slot', 'ช่องแทนที่', (d, c) => { const T_ = CT(), t1 = f3(T_.tN + tu(.4));
+    art(c, p => { drawAt(R(p, -125, -330, 550, 660, 40, DASH(.45)), p, T_.tW, tu(.4)); R(litOn(p, T_.H), -125, -330, 550, 660, 40, LITC());
+      const K = { px: -290, py: -40, x: [[0, 440], [T_.tN, 440], [t1, 0, 'io']], y: [[0, -20], [T_.tN, -20], [t1, 0, 'io']], s: [[0, 1.65], [T_.tN, 1.65], [t1, 1, 'io']] };
+      ICON(p, c, d, 'w', -290, -40, 170, { g: mvG(p, K), mv: K, room: 230 });
+      const gWd = mvG(p, { o: [[0, 1], [f3(T_.tN - tu(.02)), 1], [f3(T_.tN + tu(.1)), 0]] }); WORD(p, d, 'w', 150, 200, { size: 64, maxW: 500, g: gWd });
+      WORD(p, d, 'w', -290, 110, { size: 48, maxW: 250, t: f3(t1 - tu(.06)), dimAt: f3(t1 - tu(.06)) });
+      const KR = { x: [[0, 560], [T_.tR, 560], [f3(T_.tR + tu(.4)), 0, 'out']], o: fadeIn(T_.tR, .05) }, KRi = Object.assign({ px: 150, py: -60 }, KR);
+      ICON(p, c, d, 'r', 150, -60, 290, { g: mvG(p, KRi), mv: KRi, t: T_.tR, room: 500, cy: -10, hmax: 420 }); WORD(p, d, 'r', 150, 202, { size: 68, maxW: 500, g: mvG(p, { x: KR.x }) }); });
+    MK(c, [-205, -125], [395, -300], 32); });
+  sd(5, 'fork', 'ทางแยก', (d, c) => { const T_ = CT(), Rr = 'M 0 200 Q 0 70 280 70';
+    art(c, p => { drawAt(p.line(0, 345, 0, 200, { sw: 6, stroke: TL_(.45) }), p, T_.tW, tu(.3)); const gL = mvG(p, { o: dimW(T_.tN, .4) }); drawAt(gL.path('M 0 200 Q 0 70 -280 70', { sw: 6, stroke: TL_(.45) }), p, f3(T_.tW + tu(.2)), tu(.3));
+      drawAt(p.path(Rr, { sw: 6, stroke: TL_(.45) }), p, f3(T_.tW + tu(.2)), tu(.3)); on(p.path(Rr, { sw: 8, stroke: ACC1 }), p, 0, { draw: [[0, 0], [T_.tN, 0], [T_.H, 1, 'io']] });
+      ICON(p, c, d, 'w', -280, -95, 270, { room: 290, cy: -60, hmax: 330 }); WORD(p, d, 'w', -280, -290, { size: 56, maxW: 290 });   /* bigger icons on the branch ends (fill the room) */
+      ICON(p, c, d, 'r', 280, -95, 270, { room: 290, cy: -60, hmax: 330 }); WORD(p, d, 'r', 280, -290, { size: 60, maxW: 290 }); });
+    MK(c, [-135, -215], [395, -215], 30); });
+  sd(5, 'bigarrow', 'ลูกศรใหญ่', (d, c) => { const T_ = CT(), A = [[-425, -200], [140, -200], [140, -340], [425, 0], [140, 340], [140, 200], [-425, 200]];
+    art(c, p => { outlineIn(p, poly(p, A, OUT()), T_.tW); poly(litOn(p, T_.H), A, LITC()); drawAt(p.line(-45, -180, -45, 180, { sw: 2.4, stroke: TL_(.4), 'stroke-dasharray': '8 10' }), p, T_.tW, tu(.3));
+      ICON(p, c, d, 'w', -320, -20, 180, { room: 260, cx: -235, hmax: 320 }); WORD(p, d, 'w', -215, 18, { anchor: 'start', size: 50, maxW: 155 });
+      ICON(p, c, d, 'r', 115, -40, 230, { room: 300, cy: 0, hmax: 340 }); WORD(p, d, 'r', 115, 150, { size: 58, maxW: 300 }); });
+    MK(c, [-75, -170], [215, -168], 30); });
+  sd(5, 'scale', 'เล็กลง-ใหญ่ขึ้น', (d, c) => { const T_ = CT(), W0 = [-290, -40], R0 = [175, -45];
+    art(c, p => { const KW = { px: W0[0], py: W0[1], s: [[0, 1.35], [T_.tN, 1.35], [f3(T_.tN + tu(.35)), 1, 'io']] }, gW = mvG(mvG(p, KW), { o: dimW(T_.tN, .4) }); outlineIn(p, gW.circle(...W0, 125, OUT()), T_.tW);
+      const KR = { px: R0[0], py: R0[1], s: [[0, .6], [T_.tR, .6], [T_.H, 1, 'io']], o: fadeIn(T_.tR, .05) }, gR = mvG(p, KR); gR.circle(...R0, 245, OUT()); litOn(gR, T_.H).circle(...R0, 245, LITC());
+      ICON(p, c, d, 'w', ...W0, 155, { g: mvG(p, KW), mv: KW, room: 200 }); WORD(p, d, 'w', W0[0], 150, { size: 48, maxW: 250 });
+      ICON(p, c, d, 'r', ...R0, 310, { g: mvG(p, KR), mv: KR, t: T_.tR, room: 400 }); WORD(p, d, 'r', R0[0], 290, { size: 66, maxW: 480 }); });
+    MK(c, [-200, -130], [350, -215], 32); });
+  sd(5, 'rows', 'สองแถวใหญ่', (d, c) => { const T_ = CT(), Y = [-182, 182];
+    art(c, p => { const gW = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gW, -425, -350, 850, 335, 40, OUT()), T_.tW); outlineIn(p, R(p, -425, 15, 850, 335, 40, OUT()), T_.tR); R(litOn(p, T_.H), -425, 15, 850, 335, 40, LITC());
+      ['w', 'r'].forEach((sd2, i) => { const y = Y[i], nt = TXS5(d, sd2); ICON(p, c, d, sd2, -295, y, 240, { cx: 0, room: 760, hmax: 300 });
+        WORD(p, d, sd2, -145, nt ? y - 18 : y + 26, { anchor: 'start', size: i ? 80 : 74, maxW: 540, wrap: null }); if (nt) cnote(p, d, sd2, -145, y + 52, 540, { size: 42 }); });
+      turn(p, -295, 0, 'down', .7); });
+    MK(c, [391, -316], [391, 49], 30); });
+  sd(5, 'sidetabs', 'แท็บด้านข้าง', (d, c) => { const T_ = CT(), sw0 = f3(T_.tN + tu(.2));
+    art(c, p => { outlineIn(p, R(p, -195, -350, 620, 700, 36, OUT(.5)), T_.tW);
+      const gT = mvG(p, { o: dimW(T_.tN, .4) }); outlineIn(p, R(gT, -425, -350, 210, 330, 30, OUT()), T_.tW); outlineIn(p, R(p, -425, 20, 210, 330, 30, OUT()), T_.tR); R(litOn(p, T_.H), -425, 20, 210, 330, 30, LITC());
+      WORD(p, d, 'w', -320, -170, { size: 46, maxW: 180 }); WORD(p, d, 'r', -320, 200, { size: 48, maxW: 180 });
+      const ow = [[0, 0], [T_.tW, 0], [f3(T_.tW + tu(.1)), 1], [T_.tN, 1], [sw0, 0]], gWm = mvG(p, { o: ow }), nW = TXS5(d, 'w'), nR = TXS5(d, 'r');
+      ICON(p, c, d, 'w', 115, nW ? -70 : 0, nW ? 300 : 380, { g: gWm, io: ow, dimAt: T_.tN, room: 560 }); if (nW) cnote(p, d, 'w', 115, 170, 520, { g: gWm, size: 46, anchor: 'middle', t: f3(T_.tW + tu(.2)) });
+      ICON(p, c, d, 'r', 115, nR ? -70 : 0, nR ? 300 : 380, { room: 560 }); if (nR) cnote(p, d, 'r', 115, 170, 520, { size: 46, anchor: 'middle' }); });
+    MK(c, [-245, -320], [-245, 50], 26); });
+  sd(5, 'curve', 'ลูกศรตัว S', (d, c) => { const T_ = CT(), D = 'M -110 -170 C 70 -170 -70 135 105 135';
+    art(c, p => { on(p.path(D, { sw: 7, stroke: TL_(.55) }), p, 0, { draw: [[0, 0], [f3(T_.tN + tu(.06)), 0], [T_.tR, 1, 'io']] });
+      atG(p, T_.tR).path('M 72 100 L 108 135 L 72 170', { sw: 7, stroke: TL_(.55) });
+      ICON(p, c, d, 'w', -275, -170, 260, { room: 300, cy: -100, hmax: 380 }); WORD(p, d, 'w', -275, 40, { size: 56, maxW: 300 });
+      ICON(p, c, d, 'r', 275, 135, 260, { room: 300, cy: 70, hmax: 380 }); WORD(p, d, 'r', 275, -75, { size: 60, maxW: 300 }); });
+    MK(c, [-150, -295], [395, 10], 32); });
+
   /* LONG WORDS (user 2026-11-24: "ถ้าคำยาวมากก็ไม่ต้องมีตัวอักษรเลย เพราะยังไงเสียในคลิปก็พูดถึงสิ่งนั้นอยู่แล้ว"): a label longer than LONGW
      letters (Thai marks and spaces not counted) is dropped when its thing has an icon — the icon alone shows it (and moves into the word's room
      where a design does that). No icon → the label stays (it IS the picture). B01's unit is dropped the same way. */
