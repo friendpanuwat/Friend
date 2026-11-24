@@ -799,7 +799,8 @@
   /* 05 radio options: one row each; the selection dot hops between them in the doubt and settles on the answer */
   sd(2, 'radio', 'ตัวเลือกวงกลม', (d, c) => { const F = QD(d), T_ = QT(d), L = ITEMS(d);
     art(c, p => { const n = L.length, h = (460 - (n - 1) * 14) / n; L.forEach(([r, i], k) => { const y = f1(-230 + h / 2 + k * (h + 14));
-        cell(p, c, d, r, i, 60, y, 730, h, { shape: 'pill', wideMin: 300 }); drawAt(p.circle(-370, y, Math.min(34, h * .3), { sw: 4, stroke: C.ink }), p, f3(T_.tA + tu(.06 * k)), tu(.25)); });
+        cell(p, c, d, r, i, 60, y, 730, h, { shape: 'pill', wideMin: 300 }); const rr = Math.min(34, h * .3); drawAt(p.circle(-370, y, rr, { sw: 4, stroke: C.ink }), p, f3(T_.tA + tu(.06 * k)), tu(.25));
+        if ((r === 'o' && F.ai === i) || r === 'n') popAt(p, -370, y, T_.H).circle(-370, y, rr * .55, { fill: ACC1, sw: 0, stroke: 'none' }); });   /* the chosen one gets the radio dot on H */
       if (!F.answered) qmark(p, d, 360, 0, Math.min(70, 460 / n * .4)); }); });
   /* 06 a big "?" on the left half, the things stacked on the right */
   sd(2, 'bigq', '? ใหญ่ + คอลัมน์', (d, c) => { art(c, p => { qmark(p, d, -250, 0, 175); colCells(p, c, d, 205, -230, 230, 430, 16, {}); }); });
