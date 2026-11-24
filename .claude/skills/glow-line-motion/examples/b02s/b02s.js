@@ -620,42 +620,33 @@
      Each size: the units (box on bar) are laid out in the grid that gives the biggest boxes (one row on wide sizes, 2 × 2 on narrow ones),
      the bars take all the height that is left; the owner (center) in its own strip. Sizes differ in the box (rounded box / round plate /
      floating icon), bar width and spacing. ---------- */
-  /* (user 2026-11-24, after the first try kept B02T's small boxes on thin bars: "ต้องใช้พื้นที่ให้คุ้ม … icon สามารถอยู่ลอยๆโดยไม่ต้องมีช่องได้ · Icon
-     ห้ามเล็กเกินไป · สามารถดีไซน์ใหม่ให้หน้าตาไม่เหมือนต้นฉบับ 100% ก็ได้") → the bars are now WIDE pillars that fill their cell; the icon floats
-     inside the top of its pillar (no box); a dashed track the full height of the cell stands behind each pillar, so the room above the short
-     ones is used (it reads as "room to grow"). */
+  /* (user 2026-11-24) try 1 kept B02T's small boxes on thin bars → "ใช้พื้นที่ให้คุ้ม · icon ลอยได้ · Icon ห้ามเล็กเกินไป · ดีไซน์ใหม่ให้ไม่เหมือนต้นฉบับ 100% ก็ได้";
+     try 2 = wide pillars in a grid with icons inside + full-height dashed tracks → "มันดูไม่ออกเลยอ่ะว่ากราฟมันสูงขึ้น". Now: ONE big floating icon (the thing)
+     + a bar chart in ONE row that clearly rises like stairs (shortest ≈ 30 %, last = full height). The icon sits beside the chart on wide rooms,
+     above it on narrow ones; both fill the room. up — the bars grow one by one (overshoot), the icon bumps each time, the last on H; down — the
+     chart is full, the bars shrink away from the tallest (a dashed outline stays where each was). Owner (center) in its own strip. */
   const R1 = { th: 'แท่งโต (จาก B02T 12)' };
   const regionOf = (Wb, Hb, L) => L ? L.rest : [-Wb / 2, -Hb / 2, Wb, Hb];
-  /* the grid of n cells (rows × cols) whose pillar icon is biggest: icon = min(cell w × .74, shortest pillar room) */
-  function cellFit(n, w, h, g) { let best = null;
-    for (let r = 1; r <= n; r++) { const cols = Math.ceil(n / r), cw = (w - (cols - 1) * g) / cols, ch = (h - (r - 1) * g) / r, ic = Math.min(cw * .74, ch * .62, 300); if (!best || ic > best.ic + .5) best = { ic, r, cols, cw, ch }; }
-    return best; }
   function r1(d, c, k, st) { const X = ITM(d), E = EV(d), Cn = CEN(d), Wb = SIZES[k].w, Hb = SIZES[k].h, L = Cn ? split(Wb, Hb, st.cwhere, st.cfrac) : null,
-      RG = regionOf(Wb, Hb, L), m = 10, w = RG[2] - 2 * m, h = RG[3] - 2 * m, g = st.gap ?? 22, U = cellFit(E.n, w, h, g), ic = f1(U.ic), rr = Math.min(36, U.cw * .2);
-    const hMin = Math.min(U.ch, Math.max(ic * 1.12, U.ch * .52)), hMax = U.ch;   /* a clear staircase, the shortest still holds its icon */
-    art(c, p => { for (let j = 0; j < E.n; j++) { const row = Math.floor(j / U.cols), inRow = Math.min(U.cols, E.n - row * U.cols), col = j - row * U.cols,
-        x = f1(RG[0] + RG[2] / 2 + (col - (inRow - 1) / 2) * (U.cw + g)), by = f1(RG[1] + m + (row + 1) * U.ch + row * g), x0 = f1(x - U.cw / 2),
-        bh = f1(E.n > 1 ? lerp(hMin, hMax, j / (E.n - 1)) : hMax), top = f1(by - bh), iy = f1(top + Math.max(ic * .62, Math.min(bh / 2, ic * .7))), t = E.at(j);
-        on(R(p, x0, by - U.ch, U.cw, U.ch, rr, DASH(.3)), p, 0, { o: fadeIn(tu(.04 + .04 * j), .06) });   /* the track: room to grow */
-        const K = E.up ? { px: x, py: by, sy: [[0, 0], [f3(t - tu(.36)), 0], [f3(t - tu(.06)), 1.05, 'out'], [t, 1, 'soft']], o: fadeIn(f3(t - tu(.36)), .04) }
-          : { px: x, py: by, sy: t == null ? [[0, 0], [tu(.1 + .05 * j), 0], [tu(.4 + .05 * j), 1, 'out']] : [[0, 0], [tu(.1 + .05 * j), 0], [tu(.4 + .05 * j), 1, 'out'], [t, 1], [f3(t + tu(.3)), 0, 'in']], o: fadeIn(tu(.1 + .05 * j), .04) };
-        R(mvG(p, K), x0, top, U.cw, bh, rr, { fill: C.fill, sw: 4, stroke: ACC1 });
-        /* the icon floats in the pillar's top: up — pops in as the pillar lands; down — sinks with the pillar */
-        const IK = E.up ? { px: x, py: iy, s: [[0, .3], [f3(t - tu(.06)), .3], [f3(t + tu(.1)), 1.1, 'out'], [f3(t + tu(.22)), 1, 'soft']], o: fadeIn(f3(t - tu(.06)), .04) }
-          : { px: x, py: iy, s: [[0, .3], [tu(.3 + .05 * j), .3], [tu(.5 + .05 * j), 1, 'out']], o: t == null ? fadeIn(tu(.3 + .05 * j), .04) : fadeIn(tu(.3 + .05 * j), .04).concat([[t, 1], [f3(t + tu(.12)), 0]]) };
-        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, iy, ic, null, { t: IK.o[1][0], mv: { px: IK.px, py: IK.py, s: IK.s }, o: IK.o });
-        else if (X && X.label) txt(mvG(p, IK), X.label, x, iy + ic * .1, { size: Math.max(40, ic * .28), maxW: U.cw * .86, weight: 800, color: C.ink, wrap: 'mid' });
-        else mvG(p, IK).circle(x, iy, Math.max(14, ic * .1), { fill: ACC1, sw: 0, stroke: 'none' }); }
-      centre(p, c, Cn, L || {}, E);
-      const lr = Math.floor((E.n - 1) / U.cols), lin = Math.min(U.cols, E.n - lr * U.cols), lx = f1(RG[0] + RG[2] / 2 + ((E.n - 1 - lr * U.cols) - (lin - 1) / 2) * (U.cw + g)), er = Math.max(48, Math.min(64, U.cw * .26));
-      endM(p, c, d, f1(Math.min(Wb / 2 - er - 6, lx + U.cw / 2 - er * .5)), f1(Math.max(-Hb / 2 + er + 6, RG[1] + m + lr * (U.ch + g) + er * .5)), er); }); }
-  R1[1] = (d, c) => r1(d, c, 1, { cwhere: 'left', cfrac: .22, gap: 18 });
-  R1[2] = (d, c) => r1(d, c, 2, { cwhere: 'left', cfrac: .26, gap: 24 });
-  R1[3] = (d, c) => r1(d, c, 3, { cwhere: 'left', cfrac: .3, gap: 20 });
-  R1[4] = (d, c) => r1(d, c, 4, { cwhere: 'top', cfrac: .26, gap: 18 });
-  R1[5] = (d, c) => r1(d, c, 5, { cwhere: 'left', cfrac: .26, gap: 28 });
-  R1[6] = (d, c) => r1(d, c, 6, { cwhere: 'top', cfrac: .23, gap: 28 });
-  R1[7] = (d, c) => r1(d, c, 7, { cwhere: 'top', cfrac: .27, gap: 16 });
+      RG = regionOf(Wb, Hb, L), m = 12, x0 = RG[0] + m, y0 = RG[1] + m, w = RG[2] - 2 * m, h = RG[3] - 2 * m, side = w > h * 1.25, gI = st.gI ?? 30;
+    const ic = f1(side ? Math.min(h * .92, w * .4, 320) : Math.min(w * .78, h * .4, 320)), ix = side ? x0 + ic / 2 : x0 + w / 2, iy = side ? y0 + h / 2 : y0 + ic / 2,
+      cx0 = side ? x0 + ic + gI : x0, cy1 = y0 + h, cw = side ? w - ic - gI : w, ch = side ? h : h - ic - gI, g = st.gap ?? Math.max(14, cw * .05), bw = (cw - (E.n - 1) * g) / E.n, rr = Math.min(22, bw * .22);
+    art(c, p => { const KI = { px: ix, py: iy, s: multiBump(E.ts, 1.1) };
+      if (X && picOf(X)) put(p, c, { icon: X.icon }, ix, iy, ic, null, { t: tu(.06), mv: KI, o: fadeIn(tu(.06), .06) });
+      else if (X && X.label) txt(mvG(p, Object.assign({ o: fadeIn(tu(.06), .06) }, KI)), X.label, ix, iy + ic * .1, { size: Math.max(44, ic * .26), maxW: ic, weight: 800, color: C.ink, wrap: 'mid' });
+      for (let j = 0; j < E.n; j++) { const x = f1(cx0 + j * (bw + g)), bh = f1(ch * (E.n > 1 ? .3 + .7 * j / (E.n - 1) : 1)), top = f1(cy1 - bh), t = E.at(j), lit = { fill: TA(.3), sw: 4, stroke: ACC1 };
+        if (E.up) R(mvG(p, upK(x + bw / 2, cy1, f3(t - tu(.3)), .3)), x, top, bw, bh, rr, lit);
+        else { const t0 = tu(.1 + .05 * j), K = { px: x + bw / 2, py: cy1, sy: [[0, 0], [t0, 0], [f3(t0 + tu(.3)), 1, 'out']].concat(t == null ? [] : [[t, 1], [f3(t + tu(.3)), 0, 'in']]), o: fadeIn(t0, .04) };
+          R(mvG(p, K), x, top, bw, bh, rr, lit); if (t != null) { const g2 = sub(p); on(g2, p, 0, { o: [[0, 0], [f3(t + tu(.2)), 0], [f3(t + tu(.3)), 1]] }); R(g2, x, top, bw, bh, rr, DASH(.4)); } }
+        if (E.up && t != null) dust(p, x + bw / 2, top, t, Math.min(1, bw / 160)); }
+      centre(p, c, Cn, L || {}, E); const er = Math.max(48, Math.min(64, bw * .4)); endM(p, c, d, f1(Math.min(Wb / 2 - er - 6, cx0 + cw - er)), f1(Math.max(-Hb / 2 + er + 6, cy1 - ch + er)), er); }); }
+  R1[1] = (d, c) => r1(d, c, 1, { cwhere: 'left', cfrac: .22, gI: 26 });
+  R1[2] = (d, c) => r1(d, c, 2, { cwhere: 'left', cfrac: .24, gI: 34 });
+  R1[3] = (d, c) => r1(d, c, 3, { cwhere: 'left', cfrac: .3, gI: 26 });
+  R1[4] = (d, c) => r1(d, c, 4, { cwhere: 'top', cfrac: .24, gI: 26 });
+  R1[5] = (d, c) => r1(d, c, 5, { cwhere: 'left', cfrac: .25, gI: 40 });
+  R1[6] = (d, c) => r1(d, c, 6, { cwhere: 'top', cfrac: .22, gI: 40 });
+  R1[7] = (d, c) => r1(d, c, 7, { cwhere: 'top', cfrac: .25, gI: 22 });
   const ROUNDS = [null, R1];
   const SAMPLES = [
     { say: 'ลูกค้าเข้าร้านมากขึ้น', dir: 'up', n: 4, item: { icon: 'user' }, center: { icon: 'store', label: 'ร้าน' } },
