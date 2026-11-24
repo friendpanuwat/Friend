@@ -1,7 +1,7 @@
 """pixel_check.py <before dir> <after dir> — every still in <after> against the same file in <before>, pixel by pixel (LESSONS 63:
 after a change to shared code, the finished styles must come out the same). Prints how many were compared and which differ, with
-the box of the difference. Known: window_w12_11 differs by a small spot run to run (the "+" label), even with no change; render
-it twice before blaming a change."""
+the box of the difference. Known: window_w12_10 (w12_11 before the recap shot went) differs by a small spot run to run (the "+" label), even with no
+change; render it twice before blaming a change."""
 import glob, os, sys
 from PIL import Image, ImageChops
 before, after = sys.argv[1], sys.argv[2]

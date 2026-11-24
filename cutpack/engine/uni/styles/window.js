@@ -1,5 +1,6 @@
 /* =====================================================================
-   STYLE · window — "หน้าต่างแอป" (App Window) (Friend 2026-11-18, the 3rd of the new sheets: "สไตล์ต่อไปครับ")
+   STYLE · window — "หน้าต่างแอป" (App Window) · final v2 (2026-11-20) · the rules in words: style-rules/window.md (read it first)
+   (Friend 2026-11-18, the 3rd of the new sheets: "สไตล์ต่อไปครับ")
    Every place and size is measured on Friend's sheet (12 shots, 1080 × 1920), then held to the rules every style shares
    (styles/common.js: safe zone, frames below the search bar, centred words, the video filling its frame, seeded random, never over
    the face). The pictures: the glow-line template set first, in the glass look with blue light (glow/bridge.js GLASSY.window).
@@ -54,10 +55,8 @@ const WIN = {
   used: {}, last: null, place: {top: 0, low: 0},   // place: how many speaker screens had the window over the head / under it
   /* the screens' background. The gradient was measured on a picture Friend sent (2026-11-18: "ผมอยากได้ background แบบนี้"): near-black
      at the top to deep navy at the bottom. The rings are our own (Friend: "รูปนี้ผมไปก๊อปเขามาผมก็เลยอยากให้คุณดีไซน์วงแหวนใหม่หน่อย"):
-     per corner one glowing blue ring (one line, as before: "อยากให้มันเป็นเส้นเดียวมันอันเก่า") carrying two white app-chips (rounded
-     squares, as the windows) and a short running light. Each ring {cx, cy, r, chips: [angles], light: angle, dir}; 0 = top
-     right + bottom left, 1 = mirrored (screens whose frame or back window covers the top right; its lower chips sit left of TikTok's
-     buttons, x 920, and turn away from them). */
+     one glowing blue ring per corner (one line, as before: "อยากให้มันเป็นเส้นเดียวมันอันเก่า") carrying white app-chips (rounded
+     squares, as the windows) and a short running light. Each ring {cx, cy, r, chips: [angles], light: angle, dir}. */
   /* ONE PAIR OF RINGS, ALWAYS IN THE SAME PLACE, TURNING ON THE CLIP'S OWN CLOCK (Friend 2026-11-20: "เวลามันมีฉากแบบนี้ต่อกัน การหมุนและ
      ตำแหน่งของวงแหวน มันไม่ต่อเนื่องอะครับ ผมอยากให้มันอยู่ตำแหน่งเดิมตลอด และหมุนต่อเนื่อง"): top right + bottom left, the top one high
      enough to stay off the words of every screen (it used to be mirrored per screen and raised only where the words sit high) */
@@ -156,7 +155,7 @@ function winShape(L, name, key) {
   for (const k of WIN_ORDER[name] ?? [2]) {
     const [W, H] = WIN_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H); if (s < WIN_MIN) continue;
     const [cw, ch] = size(k, s), cx = name === 'stats' || L.speaker ? 540 : x + w / 2;   // speaker screens in the middle (Friend 2026-11-20: "3. ย้ายไปกลางจอ")
-    L.win = [Math.round(Math.min(Math.max(cx - cw / 2, X0), X1 - cw)), L.top || name === 'stats' ? Y1 - ch : Y0, cw, ch];   // over the head and stats: down to the room's bottom   // over the head: down to the hair (as lime's top card) · else under the words
+    L.win = [Math.round(Math.min(Math.max(cx - cw / 2, X0), X1 - cw)), L.top || name === 'stats' ? Y1 - ch : Y0, cw, ch];   // over the head: down to the hair (as lime's top card) · stats: down to 1660 · else under the words
     L.std = [k, s]; return L;
   }
   return null;
@@ -228,9 +227,9 @@ STYLE('window', {
     /* no chapter bar and no small label (Friend 2026-11-18: "ลบที่ผมวงกลมสีแดงออกด้วยครับทุกฉากเลย") */
   },
 
-  /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
-     (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
-  realShapes: true,
+  /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): tools/fit_pick.js asks
+     fitSize below how much of the screen each drawing would take here. No realShapes: since 2026-11-20 nothing here reads a picture's
+     shape (REAL_SHAPES), so the second build that measured them is not made (2026-11-24, Friend: "ไม่อยากให้ code มันยุ่งเหยิง") */
   /* how much of the screen a drawing of shape `ar` takes here, to CHOOSE THE DRAWING (tools/fit_pick.js) — never to choose a screen:
      the mean over every screen this face leaves room for (keep 0 · no floor, 2026-11-20) */
   fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, WIN.pool.filter(n => winFit(n, face)), n => { const F = winFit(n, face); return F ? winInner(F.win) : null; }, 0, n => !!WIN.layouts[n].speaker); },
@@ -303,12 +302,7 @@ STYLE('window', {
           A(c, [{opacity: 1}, {opacity: .6}, {opacity: 1}], t0 + (2 * j + k) * .55, 2.6, {e: 'ease-in-out', it: 4}); });
       });
       A(root, [{opacity: 0, filter: 'blur(14px)', transform: 'scale(1.03)'}, {opacity: 1, filter: 'blur(0)', transform: 'none'}], t0 - .04, .35, {e: EASE.smooth});
-      /* SCREEN TO SCREEN (Friend 2026-11-20, clip 2 at 56–57 s: "จังหวะเปลี่ยนฉากมันสลับมาเป็นหน้าผมประมาณเสี้ยววินาทีนึงอะ"): when the
-         picture before was a blue screen ending right here, it stays fully on under this one until this one is in (its own fade-out
-         ran from its end − .3 s and let the speaker's video show between the two); after that its fade-out's end state (hidden) holds */
-      const prev = CLIPWINS[CLIPWINS.length - 1];
-      if (prev && prev.F.L?.screen && prev.F.root && Math.abs(prev.t1 - t0) < .05)
-        A(prev.F.root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 1, filter: 'blur(0)'}], prev.t1 - .3, t0 + .4 - (prev.t1 - .3), {f: 'none'});
+      cpHoldPrevScreen(t0);   // a blue screen straight after a blue screen: no face between them (Friend 2026-11-20, clip 2 at 56–57 s · common.js)
       sfx('whoosh', t0 - .1, -20);
     }
     if (L.frame) { const [x, y, w, h, r] = L.frame, f = box([x, y, w, h]); f.className = 'w-frame cp-frame'; f.style.borderRadius = r + 'px';
@@ -318,24 +312,22 @@ STYLE('window', {
     /* the windows: three dots, then a skeleton title bar (Friend 2026-11-18: "แบบ skeleton ... ไม่มีข้อความแต่มีเหมือนเป็นแบบช่องๆเหลี่ยมๆมนๆ"):
        a faint rounded bar where the title was (its length from the run's seed) and an empty blue pill where the tag was; each picture
        lives inside its window */
-    const makeWin = (c, k, tag = true) => { const w = box(c); w.className = 'w-win'; if (L.std && c === L.win) w.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3);   // tools/card_sizes.js
+    const makeWin = c => { const w = box(c); w.className = 'w-win'; if (L.std) w.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3);   // tools/card_sizes.js
       const bar = div('', w); bar.className = 'w-bar';
       ['#FF5F57', '#FEBC2E', '#28C840'].forEach((col, i) => { const d = div(`left:${26 + i * 24}px;background:${col}`, bar); d.className = 'w-dot'; });
-      div(`width:${Math.round(Math.min(c[2] * .34, 110 + 90 * cpRand('bar' + index + k)))}px`, bar).className = 'w-skel';
-      if (tag) div('', bar).className = 'w-skel tag';
-      A(w, [{opacity: 0, transform: 'translateY(40px) scale(.95)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .04 + .12 * k, .45, {e: EASE.soft});
+      div(`width:${Math.round(Math.min(c[2] * .34, 110 + 90 * cpRand('bar' + index + '0')))}px`, bar).className = 'w-skel';   // (the key keeps its old '0': the same seed, the same bar)
+      div('', bar).className = 'w-skel tag';
+      A(w, [{opacity: 0, transform: 'translateY(40px) scale(.95)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .04, .45, {e: EASE.soft});
       return box(winInner(c), w); };
-    const cat = String(meta.cat ?? '').slice(0, 3);
-    const stage = L.win ? makeWin(L.win, 0) : box([0, 0, 1, 1]);
-    const stages = L.wins ? L.wins.map((c, k) => makeWin(c, k, false)) : null;
+    const stage = L.win ? makeWin(L.win) : box([0, 0, 1, 1]);
     /* final 2026-11-18 point 4 (Friend: "ฉากไหนที่มี background และ motion graphic แต่ไม่มีหน้าผม motion graphic ต้องอยู่กึ่งกลาง" ·
        "ข. แต่ระวังอย่าให้การ์ดกับซับไตเติ้ลติดกันมากเกินไป"): on a screen without the face the picture's end drawing sits in the middle
        of its window (glow/bridge.js glowFit with a room: the view widens evenly round what is drawn, instead of round the motion, which
        left the drawing at the window's bottom); its motion may use the window's own padding · then (Friend: "ที่ผมต้องการคือให้การ์ดไปอยู่
-       ตรงกลางของจอเลยและเอา subtitle ขึ้นไปอีกเว้นระยะห่างระหว่างการ์ดเท่าเดิม"): the window (recap: its four) in the middle of the
+       ตรงกลางของจอเลยและเอา subtitle ขึ้นไปอีกเว้นระยะห่างระหว่างการ์ดเท่าเดิม"): the window in the middle of the
        screen (centre y 960), the words 90 px over it (the key word's row ends 65 px under its centre) */
     const room = L.screen && !L.frame ? {l: 22, t: 8, r: 22, b: 22} : null;
-    return {root, stage, stages, cam: root, L, name, cat, dark: !!L.screen, room};
+    return {root, stage, cam: root, L, name, dark: !!L.screen, room};
   },
   /* between pictures: the words at the chest, moved below the chin when the face is low */
   speakerFrame(a, b) {
