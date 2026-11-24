@@ -777,6 +777,53 @@
     art(c, p => { rowCells(p, c, d, -425, f1(425 - w - 24), 0, 210, 18, {}, L.length ? L : [['n', 0]]); outlineIn(p, R(p, 425 - w, -105, w, 210, 34, DASH(.5)), T_.tA);
       if (F.hasN && L.length) cell(p, c, d, 'n', 0, 425 - w / 2, 0, w, 210, { wideMin: 999 }); qmark(p, d, 425 - w / 2, 0, 70, { plain: true }); }); });
 
+  function colCells(p, c, d, x, y0, y1, w, g, st, L = ITEMS(d)) { const n = Math.max(1, L.length), h = (y1 - y0 - (n - 1) * g) / n, out = [];
+    L.forEach(([r, i], k) => { const y = f1(y0 + h / 2 + k * (h + g)); cell(p, c, d, r, i, x, y, w, h, st); out.push([y, h]); }); return out; }
+
+  /* ---------- SIZE 2 · 860 × 470 ---------- */
+  sd(2, 'qcard', 'การ์ด ? ซ้าย + การ์ดขวา', (d, c) => { const T_ = QT(d); art(c, p => { outlineIn(p, R(p, -425, -230, 250, 460, 40, OUT(.5)), T_.tA); qmark(p, d, -300, 0, 92, { plain: true });
+      const L = ITEMS(d); if (L.length > 2) colCells(p, c, d, 125, -230, 230, 600, 16, {}, L); else rowCells(p, c, d, -155, 425, 0, 460, 20, { wideMin: 999 }, L); }); });
+  /* 02 a quiz card: what is asked on top, the two options as answer buttons below; the chosen button lights */
+  sd(2, 'quiz', 'การ์ดคำถาม + ปุ่มตอบ', (d, c) => { const F = QD(d), T_ = QT(d);
+    art(c, p => { const top = F.hasA ? [['a', 0]] : [], bot = F.hasO ? [['o', 0], ['o', 1]] : F.hasN ? [['n', 0]] : [];
+      if (top.length) { rowCells(p, c, d, -425, 290, -118, 225, 0, {}, top); qmark(p, d, 360, -118, 64); } else qmark(p, d, 0, -118, 100, { plain: true });
+      if (bot.length) rowCells(p, c, d, -425, 425, 118, 225, 24, { shape: 'pill' }, bot); else { outlineIn(p, R(p, -425, 6, 850, 225, 112, DASH(.45)), T_.tA); if (top.length) qmark(p, d, 0, 118, 80, { plain: true, t: f3(T_.tQ + tu(.1)) }); } }); });   /* nothing to answer with → the answer slot waits with a "?" */
+  sd(2, 'between', 'การ์ดคั่น ?', (d, c) => { const L = ITEMS(d); art(c, p => { const pts = rowCells(p, c, d, -425, L.length > 1 ? 425 : 230, 0, 460, 96, { wideMin: 999 }, L);
+      if (L.length > 1) pts.slice(0, -1).forEach(([x, w]) => qmark(p, d, f1(x + w / 2 + 48), 0, 52, { plain: true, keep: true })); else qmark(p, d, 330, 0, 92); }); });
+  /* 04 a search field on top (what is asked), the results below (options / answer) */
+  sd(2, 'search', 'ช่องค้นหา + ผลลัพธ์', (d, c) => { const F = QD(d), T_ = QT(d);
+    art(c, p => { outlineIn(p, R(p, -425, -230, 850, 150, 75, OUT(.55)), T_.tA); put(p, c, { icon: 'search' }, -350, -155, 100, null, { t: T_.tA });
+      const top = F.hasA ? [['a', 0]] : [], bot = (F.hasO ? [['o', 0], ['o', 1]] : []).concat(F.hasN ? [['n', 0]] : []);
+      if (top.length) rowCells(p, c, d, -280, 300, -155, 140, 0, { shape: 'float', wideMin: 200, ws: 52 }, top); qmark(p, d, 365, -155, 50, { plain: true });
+      if (bot.length) rowCells(p, c, d, -425, 425, 82, 296, 20, { wideMin: 999 }, bot); else { outlineIn(p, R(p, -425, -66, 850, 296, 36, DASH(.4)), T_.tA); qmark(p, d, 0, 82, 96, { plain: true, t: f3(T_.tQ + tu(.1)) }); } }); });   /* no results yet → a big "?" waits */
+  /* 05 radio options: one row each; the selection dot hops between them in the doubt and settles on the answer */
+  sd(2, 'radio', 'ตัวเลือกวงกลม', (d, c) => { const F = QD(d), T_ = QT(d), L = ITEMS(d);
+    art(c, p => { const n = L.length, h = (460 - (n - 1) * 14) / n; L.forEach(([r, i], k) => { const y = f1(-230 + h / 2 + k * (h + 14));
+        cell(p, c, d, r, i, 60, y, 730, h, { shape: 'pill', wideMin: 300 }); drawAt(p.circle(-370, y, Math.min(34, h * .3), { sw: 4, stroke: C.ink }), p, f3(T_.tA + tu(.06 * k)), tu(.25)); });
+      if (!F.answered) qmark(p, d, 360, 0, Math.min(70, 460 / n * .4)); }); });
+  /* 06 a big "?" on the left half, the things stacked on the right */
+  sd(2, 'bigq', '? ใหญ่ + คอลัมน์', (d, c) => { art(c, p => { qmark(p, d, -250, 0, 175); colCells(p, c, d, 205, -230, 230, 430, 16, {}); }); });
+  /* 07 a chat: the question bubble (left, with "?") and the reply bubble (right, the options / answer — or a waiting "?") */
+  sd(2, 'chat', 'แชตถาม-ตอบ', (d, c) => { const F = QD(d), T_ = QT(d), B1 = 'M -400 -230 L 90 -230 Q 115 -230 115 -205 L 115 -40 Q 115 -15 90 -15 L -330 -15 L -385 25 L -380 -15 Q -425 -15 -425 -40 L -425 -205 Q -425 -230 -400 -230 Z',
+      B2 = 'M -90 15 L 400 15 Q 425 15 425 40 L 425 205 Q 425 230 400 230 L -65 230 Q -115 230 -115 205 L -115 40 Q -115 15 -90 15 Z';
+    art(c, p => { outlineIn(p, p.path(B1, OUT(.55)), T_.tA); const tB = f3(T_.tQ - tu(.1)); drawAt(p.path(B2, OUT(.55)), p, tB, tu(.3));
+      if (F.hasA) rowCells(p, c, d, -405, 0, -122, 190, 0, { shape: 'float', wideMin: 250 }, [['a', 0]]); qmark(p, d, F.hasA ? 58 : -155, -122, F.hasA ? 46 : 76, { plain: true });
+      const bot = (F.hasO ? [['o', 0], ['o', 1]] : []).concat(F.hasN ? [['n', 0]] : []); if (bot.length) rowCells(p, c, d, -100, 410, 122, 190, 12, { shape: 'float', wideMin: 260 }, bot); else qmark(p, d, 155, 122, 60, { t: tB }); }); });
+  /* 08 a half dial: the options at its two ends, the needle sways between them in the doubt and settles on the answer (none → points up at the "?") */
+  sd(2, 'dial', 'หน้าปัดลังเล', (d, c) => { const F = QD(d), T_ = QT(d), cx = 0, cy = 200, r = 330, P = a => [f1(cx + r * Math.cos(rad(a))), f1(cy + r * Math.sin(rad(a)))];
+    art(c, p => { if (!F.hasO) { rowCells(p, c, d, -425, 270, 0, 460, 20, { wideMin: 999 }); qmark(p, d, 350, 0, 80); return; }
+      const [ax, ay] = P(180), [bx, by] = P(0); drawAt(p.path(`M ${ax} ${ay} A ${r} ${r} 0 0 1 ${bx} ${by}`, { sw: 5, stroke: TL_(.45) }), p, T_.tA, tu(.45));
+      for (let k = 0; k <= 12; k++) tick(atG(p, f3(T_.tA + tu(.02 * k))), cx, cy, 180 + k * 15, r - 26, r - 8, { sw: 2.4, stroke: TL_(.45) });
+      const fin = F.ai === 0 ? -55 : F.ai === 1 ? 55 : 0, Kr = [[0, 0], [T_.tD0, 0]]; let t = T_.tD0, k2 = 0; while (t + tu(.36) <= T_.tD1) { Kr.push([f3(t + tu(.36)), k2 % 2 ? 40 : -40, 'io']); t += tu(.36); k2++; } Kr.push([T_.H, fin, 'io']);
+      const nd = mvG(p, { px: cx, py: cy, r: Kr, o: fadeIn(T_.tA, .06) }); nd.line(cx, cy, cx, cy - 200, { sw: 7, stroke: C.ink }); popAt(p, cx, cy, T_.tA).circle(cx, cy, 22, { fill: C.ink, sw: 0, stroke: 'none' });
+      cell(p, c, d, 'o', 0, -285, 40, 240, 230, { shape: 'float', wideMin: 999 }); cell(p, c, d, 'o', 1, 285, 40, 240, 230, { shape: 'float', wideMin: 999 });
+      if (F.hasA) cell(p, c, d, 'a', 0, 0, -150, 300, 150, { shape: 'float', wideMin: 250 }); else qmark(p, d, 0, -150, 56); }); });
+  sd(2, 'brackets', 'วงเล็บใหญ่', (d, c) => { const T_ = QT(d); art(c, p => { [['M -380 -215 Q -430 0 -380 215'], ['M 255 -215 Q 305 0 255 215']].forEach(([D], k) => drawAt(p.path(D, { sw: 7, stroke: TL_(.55) }), p, f3(T_.tA + tu(.1 * k)), tu(.3)));
+      rowCells(p, c, d, -355, 235, 0, 420, 16, { shape: 'float', wideMin: 999 }); qmark(p, d, 360, 0, 92, { plain: true }); }); });
+  sd(2, 'qtile', 'ช่อง ? รอคำตอบ', (d, c) => { const F = QD(d), T_ = QT(d), L = ITEMS(d).filter(([r]) => r !== 'n'), w = 300;
+    art(c, p => { rowCells(p, c, d, -425, f1(425 - w - 24), 0, 460, 20, { wideMin: 999 }, L.length ? L : [['n', 0]]); outlineIn(p, R(p, 425 - w, -230, w, 460, 40, DASH(.5)), T_.tA);
+      if (F.hasN && L.length) cell(p, c, d, 'n', 0, 425 - w / 2, 0, w, 460, { wideMin: 999 }); qmark(p, d, 425 - w / 2, 0, 100, { plain: true }); }); });
+
   const outlineIn = (p, el, t) => drawAt(el, p, f3(Math.max(0, t - tu(.04))), tu(.34));
 
   const I = (icon, label) => label ? { icon, label } : { icon };
