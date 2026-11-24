@@ -352,8 +352,7 @@ STYLE('lime', {
     if (G && G.role === 'swap') {
       /* THE GRAPHIC CHANGES, THE CARD STAYS (trial 2026-11-20): the new graphic rises in out of a blur in the same card while the
          one before it fades away (ST.motion.swap), and the last one of the group slides out with the card */
-      const [sx, sy, sw, sh] = limeInner(L.card), wrap = box([sx, sy, sw, sh]);
-      if (L.std) wrap.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3);   // for tools/card_sizes.js (the card is the group's own)
+      const [sx, sy, sw, sh] = limeInner(L.card), wrap = box([sx, sy, sw, sh]);   // (tools/card_sizes.js measures the group's card: F.card below)
       A(wrap, [{opacity: 0, transform: 'translateY(26px)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0, .45, {e: EASE.soft});
       if (swapAt) A(wrap, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], swapAt - .05, .35, {e: EASE.out, f: 'forwards'});
       else L.slideFn(wrap);
@@ -367,8 +366,11 @@ STYLE('lime', {
     stage = L.card ? cards[0] : box([0, 0, 1, 1]);
     stages = L.cards ? cards : null;
     if (L.split) shells.forEach(c => L.slideFn(c));   // the card slides with the graphics' half (2026-11-19; `cards` are the inner picture boxes)
+    if (G) G.g.shell = shells[0];   // the group's one card, for its later pictures' F.card
     }
-    return {root, stage, stages, cam: root, L, name, dark: !!(L.screen || L.split)};
+    /* card: the card this picture sits in, for tools/card_sizes.js — a group's later picture has no card of its own (2026-11-24: the
+       tool measured the picture box inside it, 808 × 400, against the standard 860 × 470, and reported a wrong card) */
+    return {root, stage, stages, cam: root, L, name, dark: !!(L.screen || L.split), ...(G && G.role === 'swap' && G.g.shell ? {card: G.g.shell} : {})};
   },
   /* between pictures (a real clip): the words at the chest (shot 01) or above the head (shot 07), one of the two for each stretch
      between pictures, at random from the run's seed (two in three at the chest), never over the face */

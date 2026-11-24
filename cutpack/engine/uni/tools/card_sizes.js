@@ -1,5 +1,5 @@
-/* CutPack · uni · the card and picture box of every picture of a built clip against the 6 standard sizes (2026-11-19, Friend: "ผมแค่อยากจะดูขนาดของการ์ดว่ามันตรงตามที่เราวางแผนไว้ไหม")
-   The style marks each card with data-std="<size>:<scale>" (lime). Prints per picture: time · screen · size · scale % · the standard box at that scale ·
+/* CutPack · uni · the card and picture box of every picture of a built clip against the 7 standard sizes (2026-11-19, Friend: "ผมแค่อยากจะดูขนาดของการ์ดว่ามันตรงตามที่เราวางแผนไว้ไหม")
+   The style marks each card with data-std="<size>:<scale>" (lime · window). Prints per picture: time · screen · size · scale % · the standard box at that scale ·
    the card and the picture box on the page (the picture box follows the drawing's shape inside the standard box, common.md 4.1).
    usage: NODE_PATH=$(npm root -g) node tools/card_sizes.js <built page dir (build_only.sh / st_<style>)> [<shots dir>]
    with a shots dir: one still per picture with the standard box (dashed magenta) and the card (cyan) drawn over it */
@@ -10,7 +10,7 @@ const STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860
   const wins = await p.evaluate(() => CLIPWINS.map(x => [x.t0, x.t1, x.F.name])), N = fs.readdirSync(path.join(D, 'src_frames')).length;
   for (const [t0, t1, name] of wins) { const t = Math.min(t1 - .35, (N - 2) / 30), f = Math.round(t * 30);
     await p.evaluate(([t, s]) => window.seek(t, s), [t, 'file://' + path.join(D, 'src_frames/s' + String(f + 1).padStart(5, '0') + '.jpg')]);
-    const r = await p.evaluate(t0 => { const w = CLIPWINS.find(x => Math.abs(x.t0 - t0) < .01), st = w.F.stage, c = st.closest('[data-std]') ?? document.querySelector('[data-std]');
+    const r = await p.evaluate(t0 => { const w = CLIPWINS.find(x => Math.abs(x.t0 - t0) < .01), st = w.F.stage, c = w.F.card ?? st.closest('[data-std]');   // F.card: the style names the card (lime's close-up group, 2026-11-24) · no card = no standard size (was: the page's first card, a wrong one)
       const R = e => { const q = e.getBoundingClientRect(); return [Math.round(q.width), Math.round(q.height)]; };
       const q = c?.getBoundingClientRect(); return {std: c?.dataset.std ?? null, card: c ? R(c) : null, stage: R(st), xy: q ? [q.left, q.top] : null}; }, t0);
     const [k, s] = (r.std ?? '').split(':'), box = k ? STD[k].map(v => Math.round(v * s)) : null;
