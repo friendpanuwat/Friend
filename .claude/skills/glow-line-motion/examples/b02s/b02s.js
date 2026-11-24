@@ -612,41 +612,51 @@
         if (twd(p, Cn.label, sz) * 40 / sz > mw) txt(atG(p, tu(.3)), Cn.label, L.lab[0], f1(L.lab[1] + 14), { size: 50, maxW: mw, weight: 800, color: C.ink, wrap: 'mid' });
         else pill(p, Cn.label, L.lab[0], L.lab[1], { t: tu(.3), size: sz, maxW: mw }); } } }
 
-  /* ROUND 1 history (user 2026-11-24): "ช่องรอ" (icons in a grid of slots) — "เหมือนแค่เอาไอคอนมาต่อกัน"; "ดูดเข้า-ขยายชั้น" (a core swallowing
-     icons, layers swelling to the box) — "แฟนซีเกินไปผมอยากได้แบบเรียบๆ". Now two plain options (B01T–B09T look: rounded boxes, thin lines,
-     a lit edge when reached, no halos / rings / glow tricks) for the user to pick: A = R1 "แถบระดับ", B = R2 "สำรับซ้อน". */
+  /* ROUND 1 history (user 2026-11-24): "ช่องรอ" — "เหมือนแค่เอาไอคอนมาต่อกัน"; "ดูดเข้า-ขยายชั้น" — "แฟนซีเกินไปผมอยากได้แบบเรียบๆ"; two plain options
+     (A แถบระดับ · B สำรับซ้อน) — then the user set the method: "เอา 50 อันเดิม มาทำใหม่ให้มันเข้ากับขนาดทั้ง 7 … ใช้พื้นที่ให้คุ้มด้วย · หมวด 2 เลือกอันเดิมมา
+     ซักอันนึงแล้วปรับให้เข้ากับขนาดทั้ง 7". So each round = one APPROVED B0xT design, laid out anew to fill each size (not the original scaled).
+     ---------- ROUND 1 · แท่งโต (B02T 12 'bars'): a bar grows up for each thing and its icon box pops on the top; the bars rise like stairs.
+     up — bar by bar, the box landing on H for the last; down — the box sinks into its bar and the bar shrinks away (a dashed box stays).
+     Each size: the units (box on bar) are laid out in the grid that gives the biggest boxes (one row on wide sizes, 2 × 2 on narrow ones),
+     the bars take all the height that is left; the owner (center) in its own strip. Sizes differ in the box (rounded box / round plate /
+     floating icon), bar width and spacing. ---------- */
+  /* (user 2026-11-24, after the first try kept B02T's small boxes on thin bars: "ต้องใช้พื้นที่ให้คุ้ม … icon สามารถอยู่ลอยๆโดยไม่ต้องมีช่องได้ · Icon
+     ห้ามเล็กเกินไป · สามารถดีไซน์ใหม่ให้หน้าตาไม่เหมือนต้นฉบับ 100% ก็ได้") → the bars are now WIDE pillars that fill their cell; the icon floats
+     inside the top of its pillar (no box); a dashed track the full height of the cell stands behind each pillar, so the room above the short
+     ones is used (it reads as "room to grow"). */
+  const R1 = { th: 'แท่งโต (จาก B02T 12)' };
   const regionOf = (Wb, Hb, L) => L ? L.rest : [-Wb / 2, -Hb / 2, Wb, Hb];
-  /* ---------- A · แถบระดับ (from B02T 04 meter): one big icon box + a staircase of bars beside / under it. up — the bars grow and light one by one
-     (the box bumps each time); down — all lit, they go dark from the tallest (a dashed outline stays). ---------- */
-  const R1 = { th: 'A · แถบระดับ' };
-  function rA(d, c, k, st = {}) { const X = ITM(d), E = EV(d), Cn = CEN(d), Wb = SIZES[k].w, Hb = SIZES[k].h, L = Cn ? split(Wb, Hb, st.cwhere || (Wb >= Hb * 1.2 ? 'left' : 'top'), st.cfrac || .3) : null,
-      RG = regionOf(Wb, Hb, L), m = 14, x0 = RG[0] + m, y0 = RG[1] + m, w = RG[2] - 2 * m, h = RG[3] - 2 * m, wide = w >= h * 1.15, g = 22;
-    const bs = f1(wide ? Math.min(h, w * .42, 300) : Math.min(w, h * .46, 300)), bx = wide ? x0 + bs / 2 : x0 + w / 2, by = wide ? y0 + h / 2 : y0 + bs / 2,
-      mx0 = wide ? x0 + bs + 34 : x0, my0 = wide ? y0 : y0 + bs + 30, mw = wide ? x0 + w - mx0 : w, mh = wide ? h : y0 + h - my0, bw = (mw - (E.n - 1) * g) / E.n;
-    art(c, p => { const K = { px: bx, py: by, s: multiBump(E.ts, 1.06) }; ibox(p, c, X, bx, by, bs, tu(.06), { g: mvG(popAt(p, bx, by, tu(.06)), K), mv: K });
-      for (let j = 0; j < E.n; j++) { const hh = f1(mh * (.42 + .58 * (j + 1) / E.n)), x = f1(mx0 + j * (bw + g)), yb = my0 + mh, t = E.at(j), lit = { fill: LIT, sw: 3.6, stroke: ACC1 };
-        on(R(p, x, yb - hh, bw, hh, Math.min(18, bw * .2), DASH(.35)), p, 0, { o: fadeIn(tu(.08 + .04 * j), .06) });
-        if (E.up) R(mvG(p, upK(x + bw / 2, yb, t)), x, yb - hh, bw, hh, Math.min(18, bw * .2), lit);
-        else { const g2 = mvG(p, { px: x + bw / 2, py: yb, sy: [[0, 0], [tu(.12 + .05 * j), 0], [f3(tu(.4 + .05 * j)), 1, 'out']], o: t == null ? fadeIn(tu(.12 + .05 * j), .04) : fadeIn(tu(.12 + .05 * j), .04).concat([[t, 1], [f3(t + tu(.16)), 0]]) }); R(g2, x, yb - hh, bw, hh, Math.min(18, bw * .2), lit); } }
-      centre(p, c, Cn, L || {}, E); const er = 52; endM(p, c, d, f1(Math.min(Wb / 2 - er - 6, mx0 + mw - er)), f1(Math.max(-Hb / 2 + er + 6, my0 + er)), er); }); }
-  for (let k = 1; k <= 7; k++) R1[k] = (d, c) => rA(d, c, k);
-  /* ---------- B · สำรับซ้อน (from B02T 'deck'): icon cards stacked with a step; up — each new card slides out from behind the front one to its
-     place in the stack (the stack grows); down — the back cards slide back behind the front one and fade (a dashed outline stays). The step
-     follows the room, so the stack fills the box. ---------- */
-  const R2 = { th: 'B · สำรับซ้อน' };
-  function rB(d, c, k, st = {}) { const X = ITM(d), E = EV(d), Cn = CEN(d), Wb = SIZES[k].w, Hb = SIZES[k].h, L = Cn ? split(Wb, Hb, st.cwhere || (Wb >= Hb * 1.2 ? 'left' : 'top'), st.cfrac || .3) : null,
-      RG = regionOf(Wb, Hb, L), m = 14, w = RG[2] - 2 * m, h = RG[3] - 2 * m, n = E.n, cs = f1(Math.min(w, h) * (n >= 4 ? .66 : .72)), dx = n > 1 ? Math.min(cs * .45, (w - cs) / (n - 1)) : 0, dy = n > 1 ? Math.min(cs * .3, (h - cs) / (n - 1)) : 0,
-      tw2 = cs + (n - 1) * dx, th2 = cs + (n - 1) * dy, fx = f1(RG[0] + RG[2] / 2 - tw2 / 2 + cs / 2), fy = f1(RG[1] + RG[3] / 2 + th2 / 2 - cs / 2);
-    art(c, p => { for (let j = n - 1; j >= 0; j--) { const x = f1(fx + j * dx), y = f1(fy - j * dy), t = E.at(j), ox = f1(fx - x), oy = f1(fy - y), K = { px: x, py: y };
-        if (j === 0 && E.up) Object.assign(K, { s: [[0, .3], [f3(t - tu(.2)), .3], [t, 1.06, 'out'], [f3(t + tu(.12)), 1, 'soft']], o: fadeIn(f3(t - tu(.2)), .04) });
-        else if (E.up) Object.assign(K, { x: [[0, ox], [f3(t - tu(.24)), ox], [t, 6, 'out'], [f3(t + tu(.1)), 0, 'soft']], y: [[0, oy], [f3(t - tu(.24)), oy], [t, -4, 'out'], [f3(t + tu(.1)), 0, 'soft']], o: fadeIn(f3(t - tu(.24)), .04) });
-        else { const t0 = tu(.1 + .05 * (n - 1 - j)); Object.assign(K, { s: [[0, .3], [t0, .3], [f3(t0 + tu(.22)), 1.05, 'out'], [f3(t0 + tu(.32)), 1, 'soft']], o: t == null ? fadeIn(t0, .04) : fadeIn(t0, .04).concat([[f3(t + tu(.2)), 1], [f3(t + tu(.28)), 0]]) });
-          if (t != null) { K.x = [[0, 0], [t, 0], [f3(t + tu(.26)), ox, 'in']]; K.y = [[0, 0], [t, 0], [f3(t + tu(.26)), oy, 'in']]; const g = sub(p); on(g, p, 0, { o: [[0, 0], [f3(t + tu(.16)), 0], [f3(t + tu(.26)), 1]] }); R(g, x - cs / 2, y - cs / 2, cs, cs, cs * .22, DASH(.4)); } }
-        const g = mvG(p, K), mv = Object.assign({}, K); delete mv.o; R(g, x - cs / 2, y - cs / 2, cs, cs, cs * .22, j === 0 ? F(4.4) : { fill: C.fill, sw: 3.4, stroke: TL_(.75 - .1 * j) });
-        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, cs * .62, null, { t: K.o[1] ? K.o[1][0] : 0, mv, o: K.o }); else if (X && X.label) txt(g, X.label, x, y + cs * .08, { size: Math.max(40, cs * .2), maxW: cs * .86, weight: 800, color: C.ink, wrap: 'mid' }); }
-      centre(p, c, Cn, L || {}, E); const er = 52; endM(p, c, d, f1(Math.min(Wb / 2 - er - 6, fx + (n - 1) * dx + cs / 2 - er * .4)), f1(Math.max(-Hb / 2 + er + 6, fy - (n - 1) * dy - cs / 2 + er * .4)), er); }); }
-  for (let k = 1; k <= 7; k++) R2[k] = (d, c) => rB(d, c, k);
-  const ROUNDS = [null, R1, R2];
+  /* the grid of n cells (rows × cols) whose pillar icon is biggest: icon = min(cell w × .74, shortest pillar room) */
+  function cellFit(n, w, h, g) { let best = null;
+    for (let r = 1; r <= n; r++) { const cols = Math.ceil(n / r), cw = (w - (cols - 1) * g) / cols, ch = (h - (r - 1) * g) / r, ic = Math.min(cw * .74, ch * .62, 300); if (!best || ic > best.ic + .5) best = { ic, r, cols, cw, ch }; }
+    return best; }
+  function r1(d, c, k, st) { const X = ITM(d), E = EV(d), Cn = CEN(d), Wb = SIZES[k].w, Hb = SIZES[k].h, L = Cn ? split(Wb, Hb, st.cwhere, st.cfrac) : null,
+      RG = regionOf(Wb, Hb, L), m = 10, w = RG[2] - 2 * m, h = RG[3] - 2 * m, g = st.gap ?? 22, U = cellFit(E.n, w, h, g), ic = f1(U.ic), rr = Math.min(36, U.cw * .2);
+    const hMin = Math.min(U.ch, Math.max(ic * 1.12, U.ch * .52)), hMax = U.ch;   /* a clear staircase, the shortest still holds its icon */
+    art(c, p => { for (let j = 0; j < E.n; j++) { const row = Math.floor(j / U.cols), inRow = Math.min(U.cols, E.n - row * U.cols), col = j - row * U.cols,
+        x = f1(RG[0] + RG[2] / 2 + (col - (inRow - 1) / 2) * (U.cw + g)), by = f1(RG[1] + m + (row + 1) * U.ch + row * g), x0 = f1(x - U.cw / 2),
+        bh = f1(E.n > 1 ? lerp(hMin, hMax, j / (E.n - 1)) : hMax), top = f1(by - bh), iy = f1(top + Math.max(ic * .62, Math.min(bh / 2, ic * .7))), t = E.at(j);
+        on(R(p, x0, by - U.ch, U.cw, U.ch, rr, DASH(.3)), p, 0, { o: fadeIn(tu(.04 + .04 * j), .06) });   /* the track: room to grow */
+        const K = E.up ? { px: x, py: by, sy: [[0, 0], [f3(t - tu(.36)), 0], [f3(t - tu(.06)), 1.05, 'out'], [t, 1, 'soft']], o: fadeIn(f3(t - tu(.36)), .04) }
+          : { px: x, py: by, sy: t == null ? [[0, 0], [tu(.1 + .05 * j), 0], [tu(.4 + .05 * j), 1, 'out']] : [[0, 0], [tu(.1 + .05 * j), 0], [tu(.4 + .05 * j), 1, 'out'], [t, 1], [f3(t + tu(.3)), 0, 'in']], o: fadeIn(tu(.1 + .05 * j), .04) };
+        R(mvG(p, K), x0, top, U.cw, bh, rr, { fill: C.fill, sw: 4, stroke: ACC1 });
+        /* the icon floats in the pillar's top: up — pops in as the pillar lands; down — sinks with the pillar */
+        const IK = E.up ? { px: x, py: iy, s: [[0, .3], [f3(t - tu(.06)), .3], [f3(t + tu(.1)), 1.1, 'out'], [f3(t + tu(.22)), 1, 'soft']], o: fadeIn(f3(t - tu(.06)), .04) }
+          : { px: x, py: iy, s: [[0, .3], [tu(.3 + .05 * j), .3], [tu(.5 + .05 * j), 1, 'out']], o: t == null ? fadeIn(tu(.3 + .05 * j), .04) : fadeIn(tu(.3 + .05 * j), .04).concat([[t, 1], [f3(t + tu(.12)), 0]]) };
+        if (X && picOf(X)) put(p, c, { icon: X.icon }, x, iy, ic, null, { t: IK.o[1][0], mv: { px: IK.px, py: IK.py, s: IK.s }, o: IK.o });
+        else if (X && X.label) txt(mvG(p, IK), X.label, x, iy + ic * .1, { size: Math.max(40, ic * .28), maxW: U.cw * .86, weight: 800, color: C.ink, wrap: 'mid' });
+        else mvG(p, IK).circle(x, iy, Math.max(14, ic * .1), { fill: ACC1, sw: 0, stroke: 'none' }); }
+      centre(p, c, Cn, L || {}, E);
+      const lr = Math.floor((E.n - 1) / U.cols), lin = Math.min(U.cols, E.n - lr * U.cols), lx = f1(RG[0] + RG[2] / 2 + ((E.n - 1 - lr * U.cols) - (lin - 1) / 2) * (U.cw + g)), er = Math.max(48, Math.min(64, U.cw * .26));
+      endM(p, c, d, f1(Math.min(Wb / 2 - er - 6, lx + U.cw / 2 - er * .5)), f1(Math.max(-Hb / 2 + er + 6, RG[1] + m + lr * (U.ch + g) + er * .5)), er); }); }
+  R1[1] = (d, c) => r1(d, c, 1, { cwhere: 'left', cfrac: .22, gap: 18 });
+  R1[2] = (d, c) => r1(d, c, 2, { cwhere: 'left', cfrac: .26, gap: 24 });
+  R1[3] = (d, c) => r1(d, c, 3, { cwhere: 'left', cfrac: .3, gap: 20 });
+  R1[4] = (d, c) => r1(d, c, 4, { cwhere: 'top', cfrac: .26, gap: 18 });
+  R1[5] = (d, c) => r1(d, c, 5, { cwhere: 'left', cfrac: .26, gap: 28 });
+  R1[6] = (d, c) => r1(d, c, 6, { cwhere: 'top', cfrac: .23, gap: 28 });
+  R1[7] = (d, c) => r1(d, c, 7, { cwhere: 'top', cfrac: .27, gap: 16 });
+  const ROUNDS = [null, R1];
   const SAMPLES = [
     { say: 'ลูกค้าเข้าร้านมากขึ้น', dir: 'up', n: 4, item: { icon: 'user' }, center: { icon: 'store', label: 'ร้าน' } },
     { say: 'กินขนมน้อยลง (ไม่มีเจ้าของ)', dir: 'down', n: 4, keep: 1, item: { icon: 'cookie', label: 'ขนม' } },

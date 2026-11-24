@@ -6,7 +6,7 @@
 GL.run(() => {
   GL.stage();
   const ROUND = 1, SET = 'A', DI = 0, B = GL.cats.B02S, d = (SET === 'A' ? B.SAMPLES : B.STRESS)[DI], s = .58;
-  GL.text('B02 ชุด 7 ขนาด · รอบ 1 ตัวเลือก ' + B.ROUNDS[ROUND].th, { y: 66, size: 44, ls: 3, color: GL.C.kicker, glow: false });
+  GL.text('B02 ชุด 7 ขนาด · รอบ ' + ROUND + ' · ' + B.ROUNDS[ROUND].th, { y: 66, size: 44, ls: 3, color: GL.C.kicker, glow: false });
   GL.text('“' + d.say + '”', { y: 116, size: 30, weight: 500, color: GL.C.sub, glow: false, maxW: 1000 });
   const cols = [[1, 2, 5, 4], [6, 3, 7]], X = [275, 810];
   cols.forEach((list, ci) => { let y = 170;
