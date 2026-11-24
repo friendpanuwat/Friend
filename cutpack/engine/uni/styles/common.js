@@ -66,6 +66,17 @@ function cpLine(parent, txt, cls, P, maxW, rowCls = 'cp-row', hi = null) {
   FITS.push(() => { const w = sp.offsetWidth, m = Math.min(maxW ?? P.maxW ?? 960, room); if (w > m) row.style.scale = String(m / w); });
   return row;
 }
+/* the part of box {left, top, right, bottom} (screen px) that the HTML boxes around `el` let show: a card or a window with overflow hidden
+   cuts what runs past it (2026-11-24, Friend: "แก้ด้วย": the check called a picture outside the zone when only the part its window
+   had already cut was there). Only the HTML boxes from el's parent up are read, not the drawing's own svg parts. null = nothing shows */
+function cpClipBox(el, b) {
+  let {left: l, top: t, right: r, bottom: d} = b;
+  for (let x = el.parentElement; x && x !== document.body; x = x.parentElement) {
+    const cs = getComputedStyle(x); if (cs.overflowX === 'visible' && cs.overflowY === 'visible') continue;
+    const q = x.getBoundingClientRect(); l = Math.max(l, q.left); t = Math.max(t, q.top); r = Math.min(r, q.right); d = Math.min(d, q.bottom);
+  }
+  return r > l && d > t ? {left: l, top: t, right: r, bottom: d, width: r - l} : null;
+}
 /* what sits outside the safe zone now (tests and stills): words (.cp-row), pictures (what the drawing really shows), frames and
    cards with the speaker (.cp-frame: also under the search bar) · and in the style's layouts, a picture box closer than 40 to a
    framed face. styleSafeCheck() = the active style's (glow/stills.js, tools/picture_sizes.js) */
@@ -81,7 +92,7 @@ function cpSafeCheck(layouts = {}) {
     let u = null; svg.querySelectorAll('path,line,polyline,polygon,rect,circle,ellipse,text,image').forEach(e => { if (e.closest('clipPath,defs') || !seen(e)) return;
       const r = e.getBoundingClientRect(); if (r.width < .5 && r.height < .5) return;
       u = u ? {left: Math.min(u.left, r.left), top: Math.min(u.top, r.top), right: Math.max(u.right, r.right), bottom: Math.max(u.bottom, r.bottom)} : {left: r.left, top: r.top, right: r.right, bottom: r.bottom}; });
-    if (u) test('picture', {...u, width: u.right - u.left}); });
+    if (u) test('picture', cpClipBox(svg, u)); });   // what really shows: cut by the card / window round it (cpClipBox)
   document.querySelectorAll('.cp-frame').forEach(e => { if (!shown(e)) return; const r = e.getBoundingClientRect(); test('frame', r);
     if (r.top * k < 215) out.push({what: 'frame under the TikTok search bar', box: [r.left, r.top, r.right, r.bottom].map(v => Math.round(v * k))}); });
   for (const L of Object.values(layouts)) {
