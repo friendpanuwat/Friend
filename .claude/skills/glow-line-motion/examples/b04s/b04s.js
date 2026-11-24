@@ -710,7 +710,7 @@
           const S_ = stState(Q, i); if (!S_.lit) { } }
         else stepBox(p, c, d, i, x, y, ic, { g: mvG(p, K), mv: K, t, shape: sh });
         const [wx, wy, an, mw, wr] = wPos[i]; stepWord(p, d, i, wx, wy, { size: wS, maxW: mw, anchor: an, wrap: wr || (an === 'start' ? 'mid' : 'down') }); });
-      const [kx, ky] = pts[Q.K], above = mode === 'zig' && Q.K % 2 === 0 && LBL(Q.it[Q.K]), mr = f1(Math.max(30, Math.min(40, ic * .17))), off = sh === 'float' ? ic * .4 : ic / 2 - 4;
+      const [kx, ky] = pts[Q.K], above = mode === 'zig' && Q.K % 2 === 0 && LBL(Q.it[Q.K]), mr = f1(Math.max(20, Math.min(40, ic * .17)))   /* follows the icon: size 1 (small icons) gets a small mark (user: "✅ ขนาดที่ 1 มันใหญ่เกิน") */, off = sh === 'float' ? ic * .4 : ic / 2 - 4;
       /* a small mark on the slot's corner (user 2026-11-24: "เครื่องหมายติ๊กถูกมันบัคหรือเปล่า ถ้าย่อให้เล็กลงได้กว่านี้ก็ดี" — it was a big disc over the icon) */
       MK = { at: [f1(Math.min(Wb / 2 - mr - 6, kx + off)), above ? f1(Math.min(Hb / 2 - mr - 6, ky + off)) : f1(Math.max(-Hb / 2 + mr + 6, ky - off))], r: mr };
     } }); }
