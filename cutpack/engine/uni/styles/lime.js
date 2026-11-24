@@ -1,22 +1,21 @@
 /* =====================================================================
-   STYLE · lime — "เขียวมะนาว" (Friend 2026-11-18, the 2nd of the 12 new sheets: "เริ่มทำสไตล์นี้ได้แต่ไม่ต้องทดสอบกับคลิปเดิมของผมนะ").
-   Every place and size is measured on Friend's sheet (12 shots, 1080 × 1920), then held to Friend's rules for every style
-   (styles/common.js: safe zone, frames below the search bar, centred words, the video filling its frame, seeded random, never over
-   the face). The video slides in over .6 s and out over .55 s; on a close-up clip the pictures next to each other share one split
-   screen and the graphic in the card changes inside it (limeClosePlan). The pictures are the glow-line template set first (Friend 2026-11-18: "ใช้ template ชุดฐานเป็นหลักเลยนะครับ").
+   STYLE · lime — "เขียวมะนาว" (Lime Glass) · final v3 (2026-11-20) · the rules in words: style-rules/lime.md (read it first)
+   Every place is measured on Friend's sheet (12 shots, 1080 × 1920), then held to the rules every style shares (styles/common.js:
+   safe zone, frames below the search bar, centred words, seeded random, never over the face). The pictures: the glow-line
+   template set first (Friend 2026-11-18: "ใช้ template ชุดฐานเป็นหลักเลยนะครับ").
    The 7-item form:
-   1 frame    one of 12 layouts (LIME.layouts, named after Friend's shots): the speaker full screen with a glass card at the hands /
-              over the chest / above the head / on the left / on the right, a split screen (graphics on top and the speaker below, or
-              the other way), a dark screen with a big card (the four-card recap was taken out 2026-11-19). Between pictures the speaker talks with the words
-              at the chest or above the head.
-   2 surface  near-black charcoal screens with a faint grid (drifting very slowly, as Friend asked for neon) and a soft lime bloom;
-              the pictures sit on dark frosted-glass cards with a light edge and a white grip bar on top (the sheet's "phone sheet")
-   3 drawing  the glow-line pictures in the neon glass look (glow/bridge.js GLASSY.lime): grey glass tiles, white lines glowing white,
-              the lit part lime
+   1 frame    11 layouts (LIME.layouts, named after Friend's shots): the speaker full screen with a card at the hands / under the
+              chin / above the head / on the left / on the right (ก), a split screen (graphics on top, the speaker below, or the
+              other way) and a dark screen with one big card (ข); between pictures the words at the chest or above the head.
+              Every card is one of the 7 standard sizes (LIME_STD, common.md 4.1) · a close-up clip's pictures next to each other
+              share one split screen (limeClosePlan)
+   2 surface  near-black charcoal screens with two slow lime glows (no grid); solid charcoal cards with a white grip bar
+   3 drawing  the glow-line pictures in the glass look (glow/bridge.js GLASSY.lime): clear glass tiles, white lines, the lit part lime
    4 colours  charcoal · white · one lime (#C9F64B)
-   5 words    a small white lead whose last phrase is lime (every lead on the sheet) + a big heavy lime key word with a lime glow
-   6 motion   cards rise in out of a blur, screens fade in out of a blur, the split line draws across, the key word lights on its word
-   7 sound    whoosh on a screen cut, a soft swish on the key word
+   5 words    a small white lead + a big lime key word, Kanit 800 and Sriracha in turns
+   6 motion   cards rise in out of a blur, dark screens fade in, the split screen slides the speaker's own video, the key word
+              lights on its word
+   7 sound    whoosh on a dark screen or a split, a soft swish on the key word
    ===================================================================== */
 const LIME = {
   /* boxes [x, y, w, h]: a card holds its picture 26 in from the sides, 44 from the top (under the grip bar), 26 from the bottom ·
@@ -36,15 +35,14 @@ const LIME = {
     cta:          {speaker: true, card: [320, 1180, 440, 480], lead: {x: 540, y: 979}, key: {x: 540, y: 1084}},                // shot 12
   },
   split: 962,                                                       // the lime line of the split screens
-  /* RANDOM, the same rules as neon: a call to action (B15) gets the closing card, a punchline (B14) the big dark screen; every
-     other picture takes one of `pool` (never the one before it) where the face leaves room (limeRoom), among those the screens that
-     show this picture's shape (glow/shapes.json) at least 75 % as big as the best, then the least used, then at random */
+  /* a call to action (B15) gets the closing card, a punchline (B14) the big dark screen; every other picture takes one of `pool`
+     (frame(), lime.md 6: where a standard size fits, the split rules, ก and ข as often, the least used, then at random) */
   pool: ['hands', 'big', 'top', 'split_top', 'side_l', 'screen', 'side_r', 'split_bottom', 'cta'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only)
   byCat: {B15: 'cta', B14: 'screen'},
   used: {}, last: null,
 };
 const limeInner = ([x, y, w, h]) => [x + 26, y + 44, w - 52, h - 70];   // the picture inside a card
-for (const L of Object.values(LIME.layouts)) { if (L.card) L.stage = limeInner(L.card); if (L.cards) L.stages = L.cards.map(limeInner); }
+for (const L of Object.values(LIME.layouts)) if (L.card) L.stage = limeInner(L.card);
 
 /* fit a screen to this face [x0, top (forehead), x1, chin] (Friend 2026-11-18: "พยายามทำให้เหมือนต้นแบบที่สุดเท่าที่จะเป็นไปได้" — the
    sheet's face sits higher than most real clips' faces, so the card / words under the face slide down below the chin (a card
@@ -53,13 +51,9 @@ for (const L of Object.values(LIME.layouts)) { if (L.card) L.stage = limeInner(L
 const LIME_LOW = {talk: ['lead', 'key'], hands: ['lead', 'key', 'card'], cta: ['lead', 'key', 'card'], big: ['card'], top: ['lead', 'key'],
   side_l: ['lead', 'key', 'card'], side_r: ['lead', 'key', 'card'], talk_top: []};
 const LIME_HIGH = {talk_top: ['lead', 'key'], big: ['lead', 'key']};
-/* CARDS SIZED TO THE PICTURE (final 2026-11-18, Friend on the card above the head, 760 × 230 with a small square picture in it: "เราแค่ย่อการ์ดให้แคบลงแล้ว
-   ก็ทำให้การ์ด[สูง]ขึ้น motion graphic มันก็จะได้ดูเต็มการ์ด ... อยากให้แก้ระบบด้วยเลย" · "ทำให้ความกว้างน้อยลงแล้วก็ทำให้ความสูงสูงขึ้น คล้ายๆกับการ์ดแรกที่เปิดคลิป
-   ออกมาแต่อาจจะเล็กกว่านั้นนิดนึง" · "ทำกับสไตล์นี้ก่อน"): a layout's card is the ROOM a card may take; the card itself is the biggest box of the
-   picture's real shape (REAL_SHAPES, else the sample's) inside it, plus the card's own padding, placed at the room's anchor (the side next to
-   the words) and centred left-right. The card above the head takes the room between the search bar and the hair (at most 760 × 600). */
-const LIME_ANCHOR = {hands: 'top', cta: 'top', big: 'top', screen: 'top', split_top: 'top', split_bottom: 'top', top: 'bottom', side_l: 'center', side_r: 'center'};
-/* THE 6 STANDARD MOTION-GRAPHIC SIZES (Friend 2026-11-19, common.md 4.1 · lime.md 16: "ผมเลยอยากกำหนดมาตรฐานขนาดของ motion graphic" ·
+/* where a card sits in its room (lime.md 4.2 rule 6): the top of the room, its bottom (above the head), or its middle (beside the body) */
+const LIME_ANCHOR = {hands: 'top', cta: 'top', big: 'top', split_top: 'top', split_bottom: 'top', top: 'bottom', side_l: 'center', side_r: 'center'};
+/* THE 7 STANDARD MOTION-GRAPHIC SIZES (Friend 2026-11-19, common.md 4.1 · lime.md 4: "ผมเลยอยากกำหนดมาตรฐานขนาดของ motion graphic" ·
    "เราจะฟิกขนาดของ motion graphic เฉยๆเราไม่ได้จะมาดีไซน์สไตล์ใหม่"): the picture is one of the standard sizes, scaled from the corner between
    65% and 100% to the room this face leaves (the first size of the screen's order that fits); the card IS that size (padding inside), at the
    screen's old anchor; under 65% for every size of the order = the screen does not come up in this clip (limeRoom). The dark screen's card sits
@@ -78,7 +72,7 @@ function limeShape(L, name, key) {   // (no picture shape: the card is a standar
      เพราะเดี๋ยวจะทำภาพชุดใหม่" · "แก้ได้ครับ"); returns null when no size of the screen's order reaches 65% here */
   if (!L.card) return L;
   const size = (k, s) => LIME_STD[k].map(v => Math.round(v * s));
-  if (name === 'screen') {                                        // 5 (wide) or 6 (tall) by the picture's shape, in the middle of the screen
+  if (name === 'screen') {                                        // 5 or 6, in the middle of the screen
     /* 5 or 6 at random, 60 : 40, never by the drawing's shape (Friend 2026-11-19: "ให้สุ่มเท่ากัน แต่อยากให้ขนาด 5 มีอัตราการออกที่เยอะกว่า 60:40" ·
        "จะดูทรงของ motion graphic ทำไมครับ"); no key (a size estimate) = 5 */
     const gap = L.card[1] - (L.key.y + 95), lk = L.key.y - L.lead.y, maxH = 2 * (960 - (220 + 40 + lk + 95 + gap));   // 100%, smaller only when the words would reach the search bar
@@ -189,18 +183,15 @@ STYLE('lime', {
 @font-face{font-family:"LimeSerif";src:url(fonts/InstrumentSerif-Italic-latin.woff);font-style:italic}
 .l-root{position:absolute;inset:0;--ink:#F4F6F2;--ac:#D5FF3D;--lw:5;--sd:#F4F6F2;--fl:rgba(26,28,27,.8);--text:#F4F6F2}
 .l-screen{background:radial-gradient(ellipse 95% 70% at 50% 42%,#161917 0%,#0f1110 55%,#070808 100%)}   /* a little darker (final 2026-11-18, Friend: "ทำให้สีของ background เข้มขึ้นนิดนึง"; was #1d201e → #141615 → #0b0c0c) */
-.l-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1.5px,transparent 1.5px),linear-gradient(90deg,rgba(255,255,255,.04) 1.5px,transparent 1.5px);background-size:54px 54px;background-position:-6px -10px}
 .l-bloom{position:absolute;width:980px;height:760px;translate:-50% -50%;background:radial-gradient(closest-side,rgba(175,235,60,.34),rgba(175,235,60,.1) 55%,transparent)}
 .l-panel{position:absolute;left:0;right:0;overflow:hidden;background:radial-gradient(ellipse 95% 80% at 50% 45%,#161917 0%,#0d0f0e 70%,#070808 100%)}
-.l-video{position:absolute;left:0;right:0;overflow:hidden}
 .l-card{position:absolute;border-radius:38px;background:rgba(26,28,27,.8);border:2px solid rgba(255,255,255,.24);
   box-shadow:0 22px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}   /* back to the solid card (final 2026-11-18, Friend: "กลับไปใช้การ์ดทึบแบบเดิม") */
 .l-card.l-on-dark{border:2px solid rgba(201,246,75,.55);box-shadow:0 0 18px rgba(190,245,70,.28),0 22px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1)}   /* final 2026-11-18, Friend: the card blends into the dark screens → "ข" a thin lime glowing edge */
 .l-card::before{content:"";position:absolute;top:15px;left:50%;width:64px;height:7px;margin-left:-32px;border-radius:4px;background:rgba(255,255,255,.92)}
 .l-text{position:absolute;inset:0}
 .l-row{position:absolute;white-space:nowrap}
-.l-lead{font-family:"Anu";font-weight:500;font-size:52px;line-height:1.3;color:#F2F4F0;text-shadow:0 0 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.75),0 2px 18px rgba(0,0,0,.6)}
-.l-lead .hi{color:#C9F64B;font-weight:600}   /* the lead 46 → 52 px (final 2026-11-18, Friend: "เพิ่มขนาด subtitle ตัวเล็กสีขาวให้ใหญ่ขึ้นอีกนิดนึง") */
+.l-lead{font-family:"Anu";font-weight:500;font-size:52px;line-height:1.3;color:#F2F4F0;text-shadow:0 0 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.75),0 2px 18px rgba(0,0,0,.6)}   /* 46 → 52 px, all white (final 2026-11-18, Friend: "เพิ่มขนาด subtitle ตัวเล็กสีขาวให้ใหญ่ขึ้นอีกนิดนึง" · "ไม่ต้องมีสีเขียวปนมาด้วย") */
 .l-lead i{font-family:"LimeSerif";font-style:italic;font-weight:400;font-size:1.22em;margin:0 .06em}
 .l-key i{font-family:"LimeSerif";font-style:italic;font-weight:400;letter-spacing:0}
 .l-key.l-hand{font-family:"LimeHand";font-weight:400;font-size:150px;line-height:1.25;letter-spacing:0}
@@ -226,12 +217,12 @@ STYLE('lime', {
     /* load this style's fonts at once: the words are fitted to the safe zone on the first frame (hud 2026-11-18: fitted with the fallback font) */
     [['LimeKey', 800, 'normal'], ['LimeHand', 400, 'normal'], ['LimeSerif', 400, 'italic']].forEach(([f, w, st]) => div(`left:-9999px;top:0;font-family:${f};font-weight:${w};font-style:${st}`, document.body, 'กขคฅ ึ่้ 0123 Ab')); },
 
-  /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
-     (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
+  /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): tools/fit_pick.js asks
+     fitSize below how much of the screen each drawing would take here. No realShapes: since 2026-11-20 nothing here reads a picture's
+     shape (REAL_SHAPES), so the second build that measured them is not made (2026-11-24, Friend: "ไม่อยากให้ code มันยุ่งเหยิง") */
   /* the split screens slide out over the last .6 s (the card down past the buttons, the words up off the top): the safe-zone check reads
      the frame .65 s before the end instead, so a real breach is never hidden behind that move (tools/picture_sizes.js · 2026-11-20) */
   exitLead: .65,
-  realShapes: true,
   /* how much of the screen a drawing of shape `ar` takes here, to CHOOSE THE DRAWING (tools/fit_pick.js) — never to choose a screen:
      the mean over every screen this face leaves room for (keep 0 · no floor, 2026-11-20) */
   fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, LIME.pool.filter(n => limeRoom(n, face)), n => limeStage(n, face), 0, n => !!LIME.layouts[n].speaker); },
@@ -281,29 +272,22 @@ STYLE('lime', {
     if (G && G.role === 'lead') G.g.L = copy(L);
     const root = div('', SC); root.className = 'l-root' + (L.screen ? ' l-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
-    const grid = host => {
+    const glows = host => {
       /* LIME LIGHT IN MOTION (final 2026-11-18, Friend: "background ผมอยากให้มีเอฟเฟคเคลื่อนไหวอะไรบางอย่างของแสงสีเขียวด้วยครับ"): two soft lime glows
-         drift slowly under the grid on long loops and breathe, on the clip's clock (they carry on from one screen to the next) */
+         drift slowly on long loops and breathe, on the clip's clock (they carry on from one screen to the next) · no grid (final 2026-11-18,
+         Friend: "ลบตารางจาก background ออกครับ") */
       [[540, 300, .42, 0, 700, 380, .31, 1, .3], [540, 320, .37, 2.2, 1300, 300, .29, 2.6, .24]].forEach(([cx, ax, fx, px, cy, ay, fy, py, a], k) => {
         const o = div('left:0;top:0;width:1000px;height:1000px;margin:-500px 0 0 -500px;border-radius:50%;' +
           `background:radial-gradient(closest-side,rgba(175,235,60,${a}),rgba(175,235,60,${(a * .35).toFixed(3)}) 55%,transparent);pointer-events:none`, host);
         const kf = []; for (let t = t0 - .2; t <= t1 + .2 + 1e-6; t += .5)
           kf.push({transform: `translate(${(cx + ax * Math.sin(fx * t + px)).toFixed(1)}px,${(cy + ay * Math.sin(fy * t + py)).toFixed(1)}px) scale(${(1 + .12 * Math.sin(.9 * t + k)).toFixed(3)})`,
             opacity: (.75 + .25 * Math.sin(.8 * t + 2 * k)).toFixed(3)});
-        A(o, kf, t0 - .2, t1 - t0 + .4, {e: 'linear'}); });
-      /* no grid (final 2026-11-18, Friend: "ลบตารางจาก background ออกครับ") */ };
+        A(o, kf, t0 - .2, t1 - t0 + .4, {e: 'linear'}); }); };
     if (L.screen) {
-      grid(root);
+      glows(root);
       if (L.bloom) { const b = div(`left:${L.bloom[0]}px;top:${L.bloom[1]}px`, root); b.className = 'l-bloom'; }
       A(root, [{opacity: 0, filter: 'blur(14px)', transform: 'scale(1.03)'}, {opacity: 1, filter: 'blur(0)', transform: 'none'}], t0 - .04, .35, {e: EASE.smooth});
-      /* ONE DARK SCREEN STRAIGHT INTO THE NEXT (Friend 2026-11-20: "ถ้าจะมีฉากเต็มจอต่อกัน ไม่ต้องสลับมาเป็นหน้าผมเสี้ยววิแล้วสลับกลับไปใหม่",
-         the same rule the window style keeps): the dark screen before this one, ending right here, held the speaker's video out of
-         sight until its own fade-out began .3 s before its end, so the face showed through between the two (measured: up to 55 % of
-         the screen for about .3 s). It now stays fully on under this one until this one has faded in; after that its own fade-out's
-         end state (hidden) holds again. */
-      const prev = CLIPWINS[CLIPWINS.length - 1];
-      if (prev && prev.F.L?.screen && prev.F.root && Math.abs(prev.t1 - t0) < .05)
-        A(prev.F.root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 1, filter: 'blur(0)'}], prev.t1 - .3, t0 + .4 - (prev.t1 - .3), {f: 'none'});
+      cpHoldPrevScreen(t0);   // a dark screen straight after a dark screen: no face between them (Friend 2026-11-20 · common.js)
       sfx('whoosh', t0 - .1, -20);
     }
     if (L.split) {                                                  // graphics on one half, the speaker on the other, FADING into each other
@@ -331,7 +315,7 @@ STYLE('lime', {
       const there = `translate(${ix}px, ${iy}px) scale(${s0})`;
       A(V, [{transform: 'none'}, {transform: there}], t0, .6, {e: EASE.cubicOut, f: 'forwards'});   // forwards only: the splits after it keep their turn
       A(V, [{transform: there}, {transform: 'none'}], gEnd - .6, .55, {e: EASE.glide, f: 'forwards'});   // out: with the half, same clock (EASE.glide, no crawl at the end)
-      const panel = top ? box([0, 0, 1080, y + FADE]) : box([0, y - FADE, 1080, 1920 - y + FADE]); panel.className = 'l-panel'; grid(panel);
+      const panel = top ? box([0, 0, 1080, y + FADE]) : box([0, y - FADE, 1080, 1920 - y + FADE]); panel.className = 'l-panel'; glows(panel);
       const m = top ? `linear-gradient(180deg,#000 calc(100% - ${2 * FADE}px),transparent calc(100% - ${FADE}px))` : `linear-gradient(0deg,#000 calc(100% - ${2 * FADE}px),transparent calc(100% - ${FADE}px))`;
       Object.assign(panel.style, {webkitMaskImage: m, maskImage: m});
       /* SMOOTH IN AND OUT (Friend: "ตอนที่คลิปคนเลื่อนลงแล้วฉากทึบเลื่อนลงมาด้วย แล้วตอนที่จะเอาคลิปคนเลื่อนขึ้นกลับไปเหมือนเดิมฉากทึบก็เลื่อนขึ้นไปใน
@@ -347,8 +331,7 @@ STYLE('lime', {
     else A(root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t1 - .3, .3, {e: EASE.out, f: 'forwards'});
     /* the cards rise in, one after another; each picture lives INSIDE its card (it rises with it, and the bridge reads the card's
        dark glass as the picture's ground: darker tiles, as on the sheet) */
-    const inner = ([, , w, h]) => [26, 44, w - 52, h - 70];
-    let stage, stages = null;
+    let stage;
     if (G && G.role === 'swap') {
       /* THE GRAPHIC CHANGES, THE CARD STAYS (trial 2026-11-20): the new graphic rises in out of a blur in the same card while the
          one before it fades away (ST.motion.swap), and the last one of the group slides out with the card */
@@ -357,20 +340,19 @@ STYLE('lime', {
       if (swapAt) A(wrap, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], swapAt - .05, .35, {e: EASE.out, f: 'forwards'});
       else L.slideFn(wrap);
       stage = box([0, 0, sw, sh], wrap);
-    } else {
-    const shells = [], cards = (L.cards ?? (L.card ? [L.card] : [])).map((c, k) => { const e = box(c); shells.push(e); e.className = 'l-card' + (L.screen || L.split ? ' l-on-dark' : ''); if (L.std) e.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3);   // for tools/card_sizes.js   // on the charcoal screens: a lime edge
-      A(e, [{opacity: 0, transform: 'translateY(40px) scale(.94)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .02 + .12 * k, .45, {e: EASE.soft});
-      const [ix, iy, iw, ih] = inner(c), wrap = div(`left:${ix}px;top:${iy}px;width:${iw}px;height:${ih}px`, e);
-      if (swapAt && k === 0) A(wrap, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], swapAt - .05, .35, {e: EASE.out, f: 'forwards'});   // the group's next graphic takes over
-      return div(`left:0;top:0;width:${iw}px;height:${ih}px`, wrap); });
-    stage = L.card ? cards[0] : box([0, 0, 1, 1]);
-    stages = L.cards ? cards : null;
-    if (L.split) shells.forEach(c => L.slideFn(c));   // the card slides with the graphics' half (2026-11-19; `cards` are the inner picture boxes)
-    if (G) G.g.shell = shells[0];   // the group's one card, for its later pictures' F.card
-    }
+    } else if (L.card) {
+      const card = box(L.card); card.className = 'l-card' + (L.screen || L.split ? ' l-on-dark' : '');   // on the charcoal screens: a lime edge
+      if (L.std) card.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3);   // for tools/card_sizes.js
+      A(card, [{opacity: 0, transform: 'translateY(40px) scale(.94)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .02, .45, {e: EASE.soft});
+      const [, , iw, ih] = limeInner(L.card), wrap = div(`left:26px;top:44px;width:${iw}px;height:${ih}px`, card);
+      if (swapAt) A(wrap, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], swapAt - .05, .35, {e: EASE.out, f: 'forwards'});   // the group's next graphic takes over
+      stage = div(`left:0;top:0;width:${iw}px;height:${ih}px`, wrap);
+      if (L.split) L.slideFn(card);   // the card slides with the graphics' half (2026-11-19)
+      if (G) G.g.shell = card;        // the group's one card, for its later pictures' F.card
+    } else stage = box([0, 0, 1, 1]);
     /* card: the card this picture sits in, for tools/card_sizes.js — a group's later picture has no card of its own (2026-11-24: the
        tool measured the picture box inside it, 808 × 400, against the standard 860 × 470, and reported a wrong card) */
-    return {root, stage, stages, cam: root, L, name, dark: !!(L.screen || L.split), ...(G && G.role === 'swap' && G.g.shell ? {card: G.g.shell} : {})};
+    return {root, stage, cam: root, L, name, dark: !!(L.screen || L.split), ...(G && G.role === 'swap' && G.g.shell ? {card: G.g.shell} : {})};
   },
   /* between pictures (a real clip): the words at the chest (shot 01) or above the head (shot 07), one of the two for each stretch
      between pictures, at random from the run's seed (two in three at the chest), never over the face */

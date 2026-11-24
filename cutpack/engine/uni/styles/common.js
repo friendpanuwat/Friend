@@ -113,6 +113,16 @@ function cpSizeKeep(pool, size, keep, isSpk, noPic = () => false) {
   const big = pool.filter(n => !isSpk(n) && !noPic(n)), best = Math.max(0, ...(big.length ? big : pool).map(size));
   return pool.filter(n => noPic(n) || (isSpk(n) ? size(n) >= CP.speakerFloor : size(n) >= keep * best));
 }
+/* ONE FULL SCREEN STRAIGHT INTO THE NEXT (Friend 2026-11-20, window then lime: "จังหวะเปลี่ยนฉากมันสลับมาเป็นหน้าผมประมาณเสี้ยววินาทีนึงอะ" ·
+   "ถ้าจะมีฉากเต็มจอต่อกัน ไม่ต้องสลับมาเป็นหน้าผมเสี้ยววิแล้วสลับกลับไปใหม่"): a style calls this in frame() of a full screen (no speaker) that
+   starts at t0. The full screen before it (F.L.screen), ending right here, used to fade out over its last .3 s while this one faded in,
+   so the speaker's video showed between the two (up to 55 % for .3 s). It now stays fully on until this one is in (t0 + .4); after
+   that its own fade-out's end state (hidden) holds again. Used by lime and window only. */
+function cpHoldPrevScreen(t0) {
+  const prev = CLIPWINS[CLIPWINS.length - 1];
+  if (prev && prev.F.L?.screen && prev.F.root && Math.abs(prev.t1 - t0) < .05)
+    A(prev.F.root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 1, filter: 'blur(0)'}], prev.t1 - .3, t0 + .4 - (prev.t1 - .3), {f: 'none'});
+}
 /* A AND B AS OFTEN (Friend 2026-11-18, every style: "ก. กับ ข. ควรมีโอกาสขึ้นเท่าๆกันนะครับไม่ควรมีแบบไหนมากกว่าแบบไหน"): when a picture may go on
    the speaker full screen (ก, layout.speaker) or on a graphic screen (ข), the kind this clip has used less, a tie at random from the run's seed;
    only one kind left (the face leaves no room): that one. Counts what was taken (CP.kinds). */
