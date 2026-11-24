@@ -127,9 +127,9 @@
   /* an icon is its own art on the stage — the canvas clip (CL) does not reach it, so a thing falling in from far above showed its icon over the design
      above on the sheet. Every icon is clipped to its own canvas (stage coords; one clip per canvas) */
   const ICLIP = {};
-  function iclip(a, c) { if (!a || !a.wrap || !a.wrap.parentNode) return; const svg = a.wrap.ownerSVGElement, k = [c.x, c.y, c.s].join('_');
+  function iclip(a, c) { if (!a || !a.wrap || !a.wrap.parentNode) return; const svg = a.wrap.ownerSVGElement, k = [c.x, c.y, c.s, BOX[0], BOX[1]].join('_');   /* clip icons to the size's box (was the 1000 × 700 canvas → size 6 icons were cut) */
     if (!ICLIP[k] || !svg.contains(ICLIP[k].cp)) { const cp = document.createElementNS(NS, 'clipPath'), r = document.createElementNS(NS, 'rect'); cp.id = 'b04ticlip' + (++CID);
-      Object.entries({ x: c.x - 500 * c.s, y: c.y - 350 * c.s, width: 1000 * c.s, height: 700 * c.s }).forEach(([n, v]) => r.setAttribute(n, v)); cp.appendChild(r); (svg.querySelector('defs') || svg).appendChild(cp); ICLIP[k] = { cp }; }
+      Object.entries({ x: c.x - BOX[0] / 2 * c.s, y: c.y - BOX[1] / 2 * c.s, width: BOX[0] * c.s, height: BOX[1] * c.s }).forEach(([n, v]) => r.setAttribute(n, v)); cp.appendChild(r); (svg.querySelector('defs') || svg).appendChild(cp); ICLIP[k] = { cp }; }
     const g = document.createElementNS(NS, 'g'); g.setAttribute('clip-path', `url(#${ICLIP[k].cp.id})`); g.setAttribute('data-wrap', 1); a.wrap.parentNode.insertBefore(g, a.wrap); g.appendChild(a.wrap); }
   function put(q, c, it, x, y, w, ly, o = {}) { if (!it) return; const k = o.k ?? 0, t = o.t ?? tu(.12 + .08 * k);
     pic(it, x, y, w, c, { r: o.r, t, bigW: o.bigW, mv: o.mv, punch: o.punch, o: o.o });
@@ -702,12 +702,13 @@
     {
       links(p, Q, pts.slice(0, -1).map((a, i) => trimD(a, pts[i + 1], r)), { base: { sw: 4, stroke: TL_(.42) }, lit: { sw: 7, stroke: ACC1 } });
       pts.forEach(([x, y], i) => { const t = Q.tI(i), K = { px: x, py: y, s: [[0, .4], [t, .4], [f3(t + tu(.3)), 1, 'out']], o: fadeIn(t, .05) };   /* smooth pop, no drop / bounce */
-        if (sh === 'float') { const LS = LIT2(); stepBox(p, c, d, i, x, y, ic, { g: mvG(p, K), mv: K, t, draw: (q, stl) => stl === LS ? q.circle(x, y, ic * .56, { fill: TA(.1), sw: 4, stroke: ACC1 }) : null, litStyle: LS, bk: false, iw: ic * .92, rip: false });
+        if (sh === 'float') { const LS = LIT2(); stepBox(p, c, d, i, x, y, ic, { g: mvG(p, K), mv: K, t, draw: (q, stl) => stl === LS ? q.circle(x, y, ic * .5, { fill: TA(.1), sw: 4, stroke: ACC1 }) : null, litStyle: LS, bk: false, iw: ic * .92, rip: false });
           const S_ = stState(Q, i); if (!S_.lit) { } }
         else stepBox(p, c, d, i, x, y, ic, { g: mvG(p, K), mv: K, t, shape: sh });
         const [wx, wy, an, mw, wr] = wPos[i]; stepWord(p, d, i, wx, wy, { size: wS, maxW: mw, anchor: an, wrap: wr || (an === 'start' ? 'mid' : 'down') }); });
-      const [kx, ky] = pts[Q.K], above = mode === 'zig' && Q.K % 2 === 0 && LBL(Q.it[Q.K]), mr = Math.max(48, Math.min(60, ic * .26));   /* words above the slot → the mark goes to the lower corner */
-      markT(p, d, [f1(Math.min(Wb / 2 - mr - 6, kx + ic / 2 - 8)), above ? f1(Math.min(Hb / 2 - mr - 6, ky + ic / 2 - 8)) : f1(Math.max(-Hb / 2 + mr + 6, ky - ic / 2 + 8))], mr);
+      const [kx, ky] = pts[Q.K], above = mode === 'zig' && Q.K % 2 === 0 && LBL(Q.it[Q.K]), mr = f1(Math.max(30, Math.min(40, ic * .17))), off = sh === 'float' ? ic * .4 : ic / 2 - 4;
+      /* a small mark on the slot's corner (user 2026-11-24: "เครื่องหมายติ๊กถูกมันบัคหรือเปล่า ถ้าย่อให้เล็กลงได้กว่านี้ก็ดี" — it was a big disc over the icon) */
+      markT(p, d, [f1(Math.min(Wb / 2 - mr - 6, kx + off)), above ? f1(Math.min(Hb / 2 - mr - 6, ky + off)) : f1(Math.max(-Hb / 2 + mr + 6, ky - off))], mr);
     } }); }
   R1[1] = (d, c) => r1(d, c, 1, { mode: 'row', shape: 'float', wS: 42 });
   R1[2] = (d, c) => r1(d, c, 2, { mode: 'row', shape: 'box', wS: 50 });
