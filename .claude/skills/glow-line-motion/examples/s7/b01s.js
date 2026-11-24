@@ -1105,6 +1105,12 @@
      from just above the canvas, lands on t1 and kicks dust; s = the icon's size */
   function dropIcon(q, c, ic, x, y, s, t0, t1, h) { if (!ic) return; const by = y + s / 2, K = fallK(x, by, t0, t1, h);
     put(q, c, { icon: ic }, x, y, s, null, { t: t0, mv: K, punch: t1 }); dust(q, x, by, t1, s / 220); }
+  /* the ink of an icon in its ±200 box (measured once: a standing person is half as wide as tall) → { rw, rh, cx, cy } as shares of the box */
+  const INK = {};
+  function iconInk(ic) { if (INK[ic]) return INK[ic]; let r = { rw: 1, rh: 1, cx: 0, cy: 0 };
+    try { const a = G.art(picOf({ icon: ic }), { x: -9000, y: -9000, w: 400, at: 0 }), b = a.g.getBBox(); a.wrap.remove();
+      if (b.width > 0 && b.height > 0) r = { rw: b.width / 400, rh: b.height / 400, cx: (b.x + b.width / 2 + 9000) / 400, cy: (b.y + b.height / 2 + 9000) / 400 }; } catch (e) {}
+    (G.cats.B01S_INK = G.cats.B01S_INK || {})[ic] = r; return (INK[ic] = r); }
   /* B01 · idea 01 STAT (ไอคอนข้างตัวเลข): the icon drops in and kicks dust, the number pops and counts, locks on the keyword; the unit after it;
      a dir badge on the number's shoulder. Per size (user 2026-11-24: "แต่ละขนาดทั้ง 7 ขนาด ต้องใช้พื้นที่ให้คุ้ม"): side by side in the wide boxes,
      stacked in the tall ones, each part as big as its box allows. */
@@ -1112,36 +1118,65 @@
      ของฟอนต์ด้วย"): every arrangement — icon beside or above · unit on the number's baseline or under it — and every mix of sizes (the number as big as
      it can be, the unit 26–60 % of it, the icon as big as what is left allows) is tried; the one that fills the box most wins, the number counting
      double (it is the point). Text is measured once at 100 px and scaled. */
-  function statFit(q, w, h, v, u, ic, PADX, PADY) {
-    const AW = w - 2 * PADX, AH = h - 2 * PADY, nw1 = v ? tw(q, v, 100) / 100 : 0, uw1 = u ? tw(q, u, 100, 600) / 100 : 0, best = { score: -1 };
+  function statFit(q, AW, AH, v, u, ic) {
+    const ink = ic ? iconInk(ic) : null, asp = 1;   // the icon's slot is square (ink.rw / ink.rh is used only to judge how full the box looks)
+    const nw1 = v ? tw(q, v, 100) / 100 : 0, uw1 = u ? tw(q, u, 100, 600) / 100 : 0, best = { score: -1 };
     for (const row of ic ? [true, false] : [false]) for (const below of u ? [false, true] : [false]) for (const ur of u ? [.6, .5, .42, .34, .26] : [0]) {
       for (let ns = 640; ns >= 60; ns -= 8) {
         const nw = nw1 * ns, nh = v ? ns * .74 : 0, us = u ? Math.max(44, ns * ur) : 0, uw = uw1 * us, ug = u && !below ? ns * .1 : 0;
         const bw = below ? Math.max(nw, uw) : nw + ug + uw, bh = nh + (u && below ? us * 1.3 : 0);
         if (bw > AW || bh > AH) continue;
-        const gap = ic ? Math.min(AW, AH) * .07 : 0, is = ic ? Math.min(row ? AH : AW, (row ? AW - bw : AH - bh) - gap, Math.max(nh, 160) * 1.6) : 0;
+        const gap = ic ? Math.min(AW, AH) * .07 : 0, is = ic ? Math.min(row ? AH : AW / asp, row ? (AW - bw - gap) / asp : AH - bh - gap, Math.max(nh, 160) * 1.6) : 0, iw = is * asp;
         if (ic && is < Math.max(170, Math.min(AW, AH) * .52)) continue;   // the icon must not be small ("ไอคอนต้องไม่เล็กเกินไป")
-        const W = ic ? (row ? is + gap + bw : Math.max(is, bw)) : bw, H = ic ? (row ? Math.max(is, bh) : is + gap + bh) : bh;
-        const score = W * H / (AW * AH) + .6 * nw * nh / (AW * AH) + .3 * is * is / (AW * AH);
-        if (score > best.score) Object.assign(best, { score, row, below, ns, nw, nh, us, uw, ug, bw, bh, gap, is, W, H });
+        const W = ic ? (row ? iw + gap + bw : Math.max(iw, bw)) : bw, H = ic ? (row ? Math.max(is, bh) : is + gap + bh) : bh;
+        const score = W * H / (AW * AH) + .6 * nw * nh / (AW * AH) + .3 * is * iw / (AW * AH);
+        if (score > best.score) Object.assign(best, { score, row, below, ns, nw, nh, us, uw, ug, bw, bh, gap, is, iw, W, H, ink });
         break;   // the biggest number that fits this arrangement
       }
     }
     return best.score < 0 ? null : best; }
+  /* FILL (user 2026-11-24: "ผมตั้งกฎไว้ว่าห้ามมีที่ว่างเกิน 30%" · "บางขนาดที่มีพื้นที่ว่างเยอะเกินก็สามารถวาดอะไรเข้าไปใหม่ได้แต่ต้องยังคงตามธีมและสไตล์"): the share of the
+     box the drawing's outer frame covers, kept per size for the sheets (FILLS[k]); under .7 → a part of the same look is added in the empty side */
+  const FILLS = {}, FILL_MIN = .75;   // judged on the layout (the icon counted by its ink) · measure.py checks the real .7 on the still
+  /* a row / grid of ten rounded cells that light up to the amount (as B01T's dots and segments): the added part of B01 */
+  function cellsFit(gw, gh, gap) { let best = null;
+    for (const [cols, rows] of [[10, 1], [5, 2], [2, 5], [1, 10]]) { const cs = Math.min(130, (gw - (cols - 1) * gap) / cols, (gh - (rows - 1) * gap) / rows);
+      if (!best || cs > best.cs) best = { cols, rows, cs }; } return best && best.cs >= 34 ? best : null; }
+  function cells(q, d, cx, cy, G2) { const n = G2.cols * G2.rows, lit = Math.round(frac(d) * n), gap = G2.cs * .28, W = G2.cols * G2.cs + (G2.cols - 1) * gap, Hh = G2.rows * G2.cs + (G2.rows - 1) * gap, H = Z.H;
+    for (let i = 0; i < n; i++) { const cx0 = cx - W / 2 + (i % G2.cols) * (G2.cs + gap) + G2.cs / 2, cy0 = cy - Hh / 2 + Math.floor(i / G2.cols) * (G2.cs + gap) + G2.cs / 2, t = tu(.1 + .025 * i);
+      R(popAt(q, cx0, cy0, t), f1(cx0 - G2.cs / 2), f1(cy0 - G2.cs / 2), f1(G2.cs), f1(G2.cs), f1(G2.cs * .26), F(3));
+      if (i < lit) R(litOn(q, f3(lerp(tu(.4), H - tu(.04), (i + 1) / lit))), f1(cx0 - G2.cs / 2), f1(cy0 - G2.cs / 2), f1(G2.cs), f1(G2.cs), f1(G2.cs * .26), { fill: TA(.16), sw: 3.4, stroke: ACC1 }); } }
   function stat7(k, d, c) { const [w, h] = CANV(k); CAN = { w, h }; const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, dr = DIRV(d);
-    art(c, p => { const q = CL(p), PADX = 46, PADY = 26, IK = .86, B = statFit(q, w, h, v, u, ic, PADX, PADY); if (!B) return;
-      /* the block: the number (+ unit on its baseline, or under it) */
-      const bx = ic && B.row ? -B.W / 2 + B.is + B.gap + B.bw / 2 : 0, by = ic && !B.row ? -B.H / 2 + B.is + B.gap + B.bh / 2 : 0;
-      if (ic) { const ix = B.row ? -B.W / 2 + B.is / 2 : 0, iy = B.row ? 0 : -B.H / 2 + B.is / 2; dropIcon(q, c, ic, f1(ix), f1(iy), f1(B.is * IK), tu(.04), tu(.28), h / 2 + B.is); }
+    art(c, p => { const q = CL(p), PADX = 46, PADY = 26, AW = w - 2 * PADX, AH = h - 2 * PADY, GAP = Math.min(AW, AH) * .07;
+      /* the main block alone, or the main block in part of the box and the cells in the rest (side or below) — whichever LOOKS fullest
+         (user 2026-11-24: "ห้ามมีที่ว่างเกิน 30%"); a narrow icon (a standing person) counts by its ink, not its square slot */
+      const look = B => { const ia = ic ? Math.min(1, B.ink.rw / B.ink.rh) : 1; return { w: ic && B.row ? B.W - B.is * (1 - ia) : Math.max(ic ? B.is * ia : 0, B.bw), h: B.H }; };
+      let best = null;
+      for (const [mode, f] of [['none', 0], ['side', .22], ['side', .32], ['side', .42], ['below', .22], ['below', .32], ['below', .42]]) {
+        const mw = mode === 'side' ? AW * (1 - f) - GAP : AW, mh = mode === 'below' ? AH * (1 - f) - GAP : AH, B = statFit(q, mw, mh, v, u, ic); if (!B) continue;
+        const L0 = look(B); let G2 = null, uw = L0.w, uh = L0.h;
+        if (mode === 'side') { G2 = cellsFit(AW - B.W - GAP, AH, 18); if (!G2) continue; uw = L0.w + GAP + G2.cols * G2.cs * 1.28; uh = Math.max(L0.h, G2.rows * G2.cs * 1.28); }
+        if (mode === 'below') { G2 = cellsFit(AW, AH - B.H - GAP, 18); if (!G2) continue; uh = L0.h + GAP + G2.rows * G2.cs * 1.28; uw = Math.max(L0.w, G2.cols * G2.cs * 1.28); }
+        const fill = uw * uh / (w * h), score = fill + (mode === 'none' ? .08 : 0) + .3 * B.nw * B.nh / (AW * AH);   // the main block alone wins a near tie
+        if (!best || score > best.score) best = { mode, B, G2, fill, score }; }
+      if (!best) return;
+      const B = best.B; FILLS[k] = best.fill;
+      let mx = 0, my = 0, cellsAt = null;
+      if (best.mode === 'side') { const gw = AW - B.W - GAP; mx = -AW / 2 + B.W / 2; cellsAt = [AW / 2 - gw / 2, 0, best.G2]; }
+      if (best.mode === 'below') { const gh = AH - B.H - GAP; my = -AH / 2 + B.H / 2; cellsAt = [0, AH / 2 - gh / 2, best.G2]; }
+      const bx = mx + (ic && B.row ? -B.W / 2 + B.iw + B.gap + B.bw / 2 : 0), by = my + (ic && !B.row ? -B.H / 2 + B.is + B.gap + B.bh / 2 : 0);
+      if (ic) { const ix = mx + (B.row ? -B.W / 2 + B.iw / 2 : 0), iy = my + (B.row ? 0 : -B.H / 2 + B.is / 2);
+        dropIcon(q, c, ic, f1(ix), f1(iy), f1(B.is * .86), tu(.04), tu(.28), h / 2 + B.is); }
       const ny = by - B.bh / 2 + B.nh, nx0 = B.below ? bx - B.nw / 2 : bx - B.bw / 2;
       const n = num(p, q, v, nx0, f1(ny), { size: B.ns, anchor: 'start', t0: tu(.32) });
       if (u) { const ug = sub(q); on(ug, q, 0, { x: [[0, -24], [f3(H + tu(.04)), -24], [f3(H + tu(.24)), 0, 'out']], o: fadeIn(f3(H + tu(.04))) });
         if (B.below) ug.text(u, f1(bx), f1(ny + B.us * 1.22), { size: f1(B.us), weight: 600, anchor: 'middle', color: C.soft, dur: .01 });
         else ug.text(u, f1(nx0 + B.nw + B.ug), f1(ny), { size: f1(B.us), weight: 600, anchor: 'start', color: C.soft, dur: .01 }); }
+      if (cellsAt) cells(q, d, cellsAt[0], cellsAt[1], cellsAt[2]);
       if (n) { ripple(q, n.cx, n.cy, n.size * .5, H);
         const r = Math.max(40, n.size * .13); dirB(q, dr, f1(Math.min(w / 2 - r - 10, n.x1 + r * .6)), f1(Math.max(-h / 2 + r + 10, n.cy - n.size * .42 - r * .4)), f3(H + tu(.1)), r); }
     }); }
   const IDEAS = { stat: stat7 };
-  G.cats.B01S = { SZ, CANV, SAMPLES, STRESS, MAXS, theme, ideas: Object.keys(IDEAS),
+  G.cats.B01S = { SZ, CANV, SAMPLES, STRESS, MAXS, theme, ideas: Object.keys(IDEAS), FILLS,
     draw: (idea, k, d, c) => { setZ(c); CUR = idea + k; tokens(); EMPTY = false; BLUE = false; IDEAS[idea](k, d || {}, c); }, CLAMPS };
 })();
