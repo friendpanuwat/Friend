@@ -708,8 +708,10 @@
      not answered → it lights in the accent and grows a little (the question is the point). o.r radius · o.plain = the glyph alone, no badge */
   function qmark(p, d, x, y, r, o = {}) { const T_ = QT(d), Fd = QD(d), t = o.t ?? T_.tQ, ans = Fd.answered;
     if (ans && t >= T_.H - .01) return null;   /* answered: no late "?" */
+    const keep = o.keep ?? Fd.ai >= 0;
     const pulse = [[0, 1]]; for (let u = T_.tD0, k = 0; u + tu(.5) <= T_.tD1; u += tu(.5), k++) pulse.push([f3(u), 1], [f3(u + tu(.25)), 1.04, 'io'], [f3(u + tu(.5)), 1, 'io']);   /* a slow breath */
-    const keep = o.keep ?? Fd.ai >= 0, fin = ans ? [[T_.H, 1], [f3(T_.H + tu(.2)), keep ? .3 : 0]] : [];   /* answered by one of the options: the "?" stays, faint */
+    const fin = ans ? [[T_.H, 1], [f3(T_.H + tu(.2)), keep ? .3 : 0]] : [];   /* answered by one of the options: the "?" stays, faint */
+    if (!o.plain) { const gb = mvG(o.g || p, { o: [[0, 0], [t, 0], [f3(t + tu(.14)), 1]].concat(ans && !keep ? [[T_.H, 1], [f3(T_.H + tu(.2)), 0]] : []) }); gb.circle(x, y, r, { fill: C.fill, sw: 0, stroke: 'none' }); }   /* solid under the "?" (user: "รวมถึงเครื่องหมาย question mark ด้วย") */
     const g0 = mvG(o.g || p, { px: x, py: y, s: [[0, .8], [t, .8], [f3(t + tu(.32)), 1, 'out']].concat(pulse.slice(1)).concat(ans ? [] : [[T_.H, 1], [f3(T_.H + tu(.36)), 1.08, 'io']]), o: [[0, 0], [t, 0], [f3(t + tu(.14)), 1]].concat(fin) });
     if (!o.plain) { g0.circle(x, y, r, F(4)); if (!ans) litOn(g0, T_.H).circle(x, y, r, { fill: TA(.3), sw: 5, stroke: ACC1 }); }
     const gl = txt(g0, '?', x, f1(y + r * .42), { size: f1(r * 1.25), weight: 800, color: C.ink }); if (!ans) { const l2 = txt(litOn(g0, T_.H), '?', x, f1(y + r * .42), { size: f1(r * 1.25), weight: 800, color: ACC1 }); }
@@ -742,6 +744,8 @@
     if (!lab || !hasI || st.noWord) { iw = f1(Math.min(h * .78, w * .8, st.cap ?? 300)); }
     else if (wide) { iw = f1(Math.min(h * .66, w * .36, st.cap ?? 220)); ix = f1(x - w / 2 + (st.pad ?? 22) + iw / 2); wx = f1(ix + iw / 2 + 20); wy = f1(y + (st.ws ?? 50) * .36); an = 'start'; mw = f1(x + w / 2 - 18 - wx); }
     else { iw = f1(Math.min(h * .5, w * .7, st.cap ?? 200)); iy = f1(y - h * .14); wy = f1(y + h * .34); mw = w - 24; }
+    if (st.solid) { const T_ = QT(d), tb = f3((r === 'a' ? T_.tA : r === 'o' ? T_.tO(i) : T_.H - tu(.08)) - tu(.02)), gb = atG(p, tb), BKs = { fill: C.fill, sw: 0, stroke: 'none' };   /* solid backing (user: no see-through icons) */
+      if (sh === 'circ') gb.circle(x, y, Math.min(w, h) / 2, BKs); else R(gb, x - w / 2, y - h / 2, w, h, sh === 'pill' ? h / 2 : Math.min(34, h * .18), BKs); }
     qthing(p, c, d, r, i, x, y, Math.min(w, h), { kind: st.kind || 'pop', draw, style, litStyle: LS, ix, iy, iw, lw: w * .86, rip: false });
     if (lab && hasI && !st.noWord) qword(p, d, r, i, wx, wy, { size: st.ws ?? (wide ? 50 : 40), maxW: mw, anchor: an, wrap: an === 'start' ? 'mid' : null }); }
   /* lay the things across (x0..x1) at y, height h, gap g; returns their centres */
@@ -817,6 +821,8 @@
       for (let k = 0; k <= 12; k++) tick(atG(p, f3(T_.tA + tu(.02 * k))), cx, cy, 180 + k * 15, r - 26, r - 8, { sw: 2.4, stroke: TL_(.45) });
       const fin = F.ai === 0 ? -55 : F.ai === 1 ? 55 : 0, Kr = [[0, 0], [T_.tD0, 0]]; let t = T_.tD0, k2 = 0; while (t + tu(.36) <= T_.tD1) { Kr.push([f3(t + tu(.36)), k2 % 2 ? 40 : -40, 'io']); t += tu(.36); k2++; } Kr.push([T_.H, fin, 'io']);
       const nd = mvG(p, { px: cx, py: cy, r: Kr, o: fadeIn(T_.tA, .06) }); nd.line(cx, cy, cx, cy - 200, { sw: 7, stroke: C.ink }); popAt(p, cx, cy, T_.tA).circle(cx, cy, 22, { fill: C.ink, sw: 0, stroke: 'none' });
+      /* solid backing under the options so the dial's arc and ticks never show through the icons (user: "อย่าทำให้ไอคอนมันโปร่งแสงจนเห็นเส้นที่อยู่ด้านหลัง") */
+      [[-285, 0], [285, 1]].forEach(([x, i]) => R(atG(p, f3(T_.tO(i) - tu(.02))), x - 120, -75, 240, 230, 30, { fill: C.fill, sw: 0, stroke: 'none' }));
       cell(p, c, d, 'o', 0, -285, 40, 240, 230, { shape: 'float', wideMin: 999 }); cell(p, c, d, 'o', 1, 285, 40, 240, 230, { shape: 'float', wideMin: 999 });
       if (F.hasA) cell(p, c, d, 'a', 0, 0, -150, 300, 150, { shape: 'float', wideMin: 250 }); else qmark(p, d, 0, -150, 56); }); });
   sd(2, 'brackets', 'วงเล็บใหญ่', (d, c) => { const T_ = QT(d); art(c, p => { [['M -380 -215 Q -430 0 -380 215'], ['M 255 -215 Q 305 0 255 215']].forEach(([D], k) => drawAt(p.path(D, { sw: 7, stroke: TL_(.55) }), p, f3(T_.tA + tu(.1 * k)), tu(.3)));
