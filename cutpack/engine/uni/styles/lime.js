@@ -185,7 +185,12 @@ STYLE('lime', {
 .l-screen{background:radial-gradient(ellipse 95% 70% at 50% 42%,#161917 0%,#0f1110 55%,#070808 100%)}   /* a little darker (final 2026-11-18, Friend: "ทำให้สีของ background เข้มขึ้นนิดนึง"; was #1d201e → #141615 → #0b0c0c) */
 .l-bloom{position:absolute;width:980px;height:760px;translate:-50% -50%;background:radial-gradient(closest-side,rgba(175,235,60,.34),rgba(175,235,60,.1) 55%,transparent)}
 .l-panel{position:absolute;left:0;right:0;overflow:hidden;background:radial-gradient(ellipse 95% 80% at 50% 45%,#161917 0%,#0d0f0e 70%,#070808 100%)}
-.l-card{position:absolute;border-radius:38px;background:rgba(26,28,27,.8);border:2px solid rgba(255,255,255,.24);
+/* overflow hidden: a motion graphic stays INSIDE its card the whole time, at its end and while it moves (Friend 2026-11-24: "สไตล์ที่มีการ์ด
+   motion graphics ก็ไม่ควรที่จะออกนอกการ์ด" · "แก้ที่มันออกนอกการ์ดมาด้วย"): GLOWLOOK.lime.motionFit shrinks a drawing whose motion runs
+   past its box, and the card cuts what still does (a part flying further than motionFit's 20 % margin) */
+.l-card,.l-clip{position:absolute;overflow:hidden;border-radius:38px}
+.l-clip{border:2px solid transparent}   /* the card's 2 px edge, unseen: the graphic sits and is cut exactly where the card's own one is (it was 2 px off) */
+.l-card{border-radius:38px;background:rgba(26,28,27,.8);border:2px solid rgba(255,255,255,.24);
   box-shadow:0 22px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}   /* back to the solid card (final 2026-11-18, Friend: "กลับไปใช้การ์ดทึบแบบเดิม") */
 .l-card.l-on-dark{border:2px solid rgba(201,246,75,.55);box-shadow:0 0 18px rgba(190,245,70,.28),0 22px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1)}   /* final 2026-11-18, Friend: the card blends into the dark screens → "ข" a thin lime glowing edge */
 .l-card::before{content:"";position:absolute;top:15px;left:50%;width:64px;height:7px;margin-left:-32px;border-radius:4px;background:rgba(255,255,255,.92)}
@@ -335,11 +340,14 @@ STYLE('lime', {
     if (G && G.role === 'swap') {
       /* THE GRAPHIC CHANGES, THE CARD STAYS (trial 2026-11-20): the new graphic rises in out of a blur in the same card while the
          one before it fades away (ST.motion.swap), and the last one of the group slides out with the card */
-      const [sx, sy, sw, sh] = limeInner(L.card), wrap = box([sx, sy, sw, sh]);   // (tools/card_sizes.js measures the group's card: F.card below)
+      /* the graphic in a clear box the card's size and shape over the group's card, so it is cut at the card's edge as in the card
+         itself (.l-clip); tools/card_sizes.js measures the group's card (F.card below) */
+      const clip = box(L.card); clip.className = 'l-clip';
+      const [, , sw, sh] = limeInner(L.card), wrap = div(`left:26px;top:44px;width:${sw}px;height:${sh}px`, clip);
       A(wrap, [{opacity: 0, transform: 'translateY(26px)', filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0, .45, {e: EASE.soft});
       if (swapAt) A(wrap, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], swapAt - .05, .35, {e: EASE.out, f: 'forwards'});
-      else L.slideFn(wrap);
-      stage = box([0, 0, sw, sh], wrap);
+      else L.slideFn(clip);
+      stage = div(`left:0;top:0;width:${sw}px;height:${sh}px`, wrap);
     } else if (L.card) {
       const card = box(L.card); card.className = 'l-card' + (L.screen || L.split ? ' l-on-dark' : '');   // on the charcoal screens: a lime edge
       if (L.std) card.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3);   // for tools/card_sizes.js
@@ -352,7 +360,11 @@ STYLE('lime', {
     } else stage = box([0, 0, 1, 1]);
     /* card: the card this picture sits in, for tools/card_sizes.js — a group's later picture has no card of its own (2026-11-24: the
        tool measured the picture box inside it, 808 × 400, against the standard 860 × 470, and reported a wrong card) */
-    return {root, stage, cam: root, L, name, dark: !!(L.screen || L.split), ...(G && G.role === 'swap' && G.g.shell ? {card: G.g.shell} : {})};
+    /* room: the card's own padding round the picture box (26 at the sides and the bottom, 44 at the top under the grip bar), which the
+       motion may use before motionFit shrinks the drawing (glow/bridge.js glowFit) — the rule is "inside the card", not "inside the box"
+       (with motionFit's own 12 px, 6 of the 11 stills shrank though their motion never left the card) */
+    return {root, stage, cam: root, L, name, dark: !!(L.screen || L.split), ...(L.card ? {room: {l: 26, t: 44, r: 26, b: 26}} : {}),
+      ...(G && G.role === 'swap' && G.g.shell ? {card: G.g.shell} : {})};
   },
   /* between pictures (a real clip): the words at the chest (shot 01) or above the head (shot 07), one of the two for each stretch
      between pictures, at random from the run's seed (two in three at the chest), never over the face */
@@ -360,9 +372,16 @@ STYLE('lime', {
     const gap = CLIPWINS.filter(x => x.t1 <= a + .05).length, face = cpFaceBox(a, b);
     let name = cpRand('talk' + gap) < .67 ? 'talk' : 'talk_top';
     if (!limeRoom(name, face)) name = name === 'talk' ? 'talk_top' : 'talk';
-    if (!limeRoom(name, face)) name = 'talk';
+    let L = limeFit(name, face);
+    if (!L) {
+      /* NO ROOM UNDER THE CHIN NOR OVER THE HEAD (a very close clip: the chin under about y 1360 and the hair near the top · Friend
+         2026-11-24: "ก"): the words right under the search bar (the lead's row from y 220), over the hair and the forehead rather than
+         the mouth (it used to fall back to the sheet's place, y 280 / 400, by chance) */
+      name = 'talk_top'; L = JSON.parse(JSON.stringify(LIME.layouts.talk_top));
+      const lk = L.key.y - L.lead.y; L.lead.y = 220 + 40; L.key.y = L.lead.y + lk;
+    }
     const root = div('', SC); root.className = 'l-root';
-    return {root, cam: root, speaker: true, L: limeFit(name, face) ?? LIME.layouts.talk_top, name};
+    return {root, cam: root, speaker: true, L, name};
   },
   /* the lead fades in out of a blur, its last phrase lime (every lead on Friend's sheet); the key word comes in on its word */
   text(F, T, lead, key) {
