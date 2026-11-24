@@ -24,18 +24,8 @@
   const TR = ['x', 'y', 'r', 's', 'sx', 'sy', 'ky'];
   const sub = (p, a) => { const q = p.child(a || {}); q.H = p.H; q.motion = p.motion; return q; };
   const on = (q, p, t, spec) => { const t0 = p.t0 + t * p.ts, fade = q.og && !TR.some(n => spec[n]); kf(fade ? q.og : (q.g || q), t0, spec); };
-  /* EVEN GLOW (user 2026-11-24: "และการเรืองแสงก็ต้องเท่ากันด้วย"): the engine's glow blurs the whole shape, so a big solid number (or a lit knob)
-     glows far stronger than a line or a small word. This filter glows from a thin rim of each shape only (shape − shape eroded by 1.6 px), with
-     the engine's own blur radii, so a 300-px number, a 40-px unit and a 3-px line all get the same halo. Made once per stage. */
-  function GF() { const svg = document.querySelector('svg'); if (!svg) return 'glow'; if (svg.querySelector('#b01sglow')) return 'b01sglow';
-    const bl = [...svg.querySelectorAll('#glow feGaussianBlur')].map(e => e.getAttribute('stdDeviation')), f = document.createElementNS(NS, 'filter');
-    Object.entries({ id: 'b01sglow', x: '-30%', y: '-30%', width: '160%', height: '160%' }).forEach(([k, v]) => f.setAttribute(k, v));
-    f.innerHTML = `<feMorphology in="SourceGraphic" operator="erode" radius="1.6" result="in"/><feComposite in="SourceGraphic" in2="in" operator="out" result="rim"/>
-      <feGaussianBlur in="rim" stdDeviation="${bl[0] || 3}" result="a"/><feGaussianBlur in="rim" stdDeviation="${bl[1] || 11}" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge>`;
-    svg.querySelector('defs').appendChild(f); return 'b01sglow'; }
   const art = (c, fn) => { const f = p => { p.H = Z.H; fn(p); }; f.custom = true; f.dur = .35; f.exit = 'pop';
-    const a = G.art(f, { x: c.x, y: c.y, s: c.s, at: c.at || 0, speed: 1 , filter: GF() }); a.speed = Z.sp; return a; };
+    const a = G.art(f, { x: c.x, y: c.y, s: c.s, at: c.at || 0, speed: 1  }); a.speed = Z.sp; return a; };
   const over = (c, fn) => art(Object.assign({}, c), fn);
   const atT = (g, p, t) => on(g, p, t, { o: [[0, 0], [tu(.12), 1]] });
   const atG = (q, t) => { const g = sub(q); atT(g, q, t); return g; };
@@ -122,10 +112,10 @@
   function pic(it, cx, cy, wd, c, o = {}) {
     if (!it) return null; const at = c.at || 0, X = c.x + cx * c.s, Y = c.y + cy * c.s, fn = picOf(it), t = o.t ?? tu(.12);
     let a;
-    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp , filter: GF() });
+    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp  });
     else { const str = it.label; if (!str) return null;
       const f = q => txt(q, str, 0, wd * .11, { size: wd * .3, maxW: o.bigW || wd * 1.25, weight: 700, color: C.ink, wrap: 'mid' }); f.custom = true; f.dur = .3; f.exit = 'pop';
-      a = G.art(f, { x: X, y: Y, s: c.s, at: at + t, speed: 1 , filter: GF() }); a.speed = Z.sp; }
+      a = G.art(f, { x: X, y: Y, s: c.s, at: at + t, speed: 1  }); a.speed = Z.sp; }
     const K = { ox: X, oy: Y }; let any = false;
     if (o.mv) { const m = o.mv; if (m.px != null) { K.ox = c.x + m.px * c.s; K.oy = c.y + m.py * c.s; }
       ['x', 'y'].forEach(n => { if (m[n]) K[n] = m[n].map(([u, v, e]) => e ? [u, f1(v * c.s), e] : [u, f1(v * c.s)]); }); ['r', 's', 'sx', 'sy'].forEach(n => { if (m[n]) K[n] = m[n]; }); any = true; }
@@ -486,24 +476,24 @@
     let nw = nw0, us = Math.min(uMax, (room - nw - gap) / u1);
     if (us < uMin && o.under != null) {   /* room below (o.under = { ny, uy, uMax }: baselines of the number and the unit) → the number takes the whole width, the unit sits under it, big */
       const k = Math.min(1, room / nw0), cx = o.anchor === 'middle' ? (x0 + x1) / 2 : x0;
-      const U = o.under, n = num(p, p, v, cx, U.ny, { size: nS * k, anchor: o.anchor === 'middle' ? 'middle' : 'start', t0: o.t0 }); unitIn(p, u, cx, U.uy, Math.max(40, Math.min(U.uMax, room / u1)), o.anchor === 'middle' ? 'middle' : 'start', room, 700);
+      const U = o.under, n = num(p, p, v, cx, U.ny, { size: nS * k, anchor: o.anchor === 'middle' ? 'middle' : 'start', t0: o.t0 }); unitIn(p, u, cx, U.uy, Math.max(40, Math.min(U.uMax, room / u1)), o.anchor === 'middle' ? 'middle' : 'start', room, 600);
       return { x0, x1, n }; }
     if (us < uMin) {
       const words = typeof Intl !== 'undefined' && Intl.Segmenter ? [...new Intl.Segmenter('th', { granularity: 'word' }).segment(u)].filter(t => t.segment.trim()).length : 1;
       const k2 = Math.max(.6, Math.min(1, (room - gap - u1 * uMin * .55) / nw0)), W2 = room - nw0 * k2 - gap * k2;
       if (words > 1 && W2 >= u1 * 40 * .55) {   /* a long unit of several words → keep the number ≥ 60 % and break the unit into two lines beside it */
         const n2 = nS * k2, nwk = nw0 * k2, g = gap * k2, us2 = Math.max(40, Math.min(uMax, W2 / (u1 * .55))), xs = o.anchor === 'middle' ? (x0 + x1 - nwk - g - Math.min(W2, u1 * us2 * .55)) / 2 : x0;
-        const n = num(p, p, v, xs, y, { size: n2, anchor: 'start', t0: o.t0 }); unitIn(p, u, f1(xs + nwk + g), y, f1(us2), 'start', W2, 700, 'up');
+        const n = num(p, p, v, xs, y, { size: n2, anchor: 'start', t0: o.t0 }); unitIn(p, u, f1(xs + nwk + g), y, f1(us2), 'start', W2, 600, 'up');
         return { x0: xs, x1: x1, n, us: us2 }; }
       /* one word (or no room to break) → share the room: the number down to 60 %, the unit down to 40; still too wide → the number goes smaller */
       let k = Math.max(.6, Math.min(1, (room - gap - u1 * uMin) / nw0)); us = Math.max(40, Math.min(uMin, (room - nw0 * k - gap * k) / u1));
       if (nw0 * k + gap * k + u1 * us > room) k = Math.max(.3, (room - gap - u1 * us) / nw0);
       nS *= k; nw = nw0 * k; }
     const uw = Math.min(u1 * us, room - nw - gap * nS / (o.size || 160)), g2 = gap * nS / (o.size || 160), tot = nw + g2 + uw, xs = o.anchor === 'middle' ? (x0 + x1 - tot) / 2 : x0;
-    const n = num(p, p, v, xs, y, { size: nS, anchor: 'start', t0: o.t0 }); unitIn(p, u, f1(xs + nw + g2), y, f1(us), 'start', uw, 700);
+    const n = num(p, p, v, xs, y, { size: nS, anchor: 'start', t0: o.t0 }); unitIn(p, u, f1(xs + nw + g2), y, f1(us), 'start', uw, 600);
     return { x0: xs, x1: xs + tot, n, us }; }
   /* the unit under the number, as big as its width allows (uMax → down to 40, then narrower) */
-  const unitUnder = (p, u, x, y, uMax, maxW) => { if (!u) return; const us = Math.max(40, Math.min(uMax, maxW / (tw(p, u, 100, 700) / 100))); unitIn(p, u, x, y, f1(us), 'middle', maxW, 700); };
+  const unitUnder = (p, u, x, y, uMax, maxW) => { if (!u) return; const us = Math.max(40, Math.min(uMax, maxW / (tw(p, u, 100, 700) / 100))); unitIn(p, u, x, y, f1(us), 'middle', maxW, 600); };
   let FILL = { fill: LIT, sw: 0, stroke: 'none' };
   const hexRgb = h => { h = String(h).trim().replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); const n = parseInt(h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
   const rgba = (h, a) => /^#[0-9a-f]{3,6}$/i.test(String(h).trim()) ? `rgba(${hexRgb(h).join(',')},${a})` : h;
@@ -546,7 +536,7 @@
 
   /* the size's box drawn as a yellow outline (the sheets only — user 2026-11-24: "ทำกรอบของขนาดนั้นๆ มาให้ผมดูด้วย ใส่เส้นสีเหลือง") */
   function frame(c, W0, H0) { const f = p => { p.rect(-W0 / 2, -H0 / 2, W0, H0, { sw: 3, stroke: '#ffd400' }); };
-    f.custom = true; f.dur = .01; f.exit = 'pop'; G.art(f, { x: c.x, y: c.y, s: c.s, at: 0, speed: 1 , filter: GF() }); }
+    f.custom = true; f.dur = .01; f.exit = 'pop'; G.art(f, { x: c.x, y: c.y, s: c.s, at: 0, speed: 1  }); }
 
   const SIZES = [null, { w: 860, h: 230, th: 'แถบแบนยาว' }, { w: 860, h: 470, th: 'กว้าง' }, { w: 560, h: 490, th: 'เกือบจัตุรัส' }, { w: 400, h: 635, th: 'ตั้งแคบ' },
     { w: 860, h: 710, th: 'เต็มจอ ทรงนอน' }, { w: 860, h: 965, th: 'เต็มจอ ทรงตั้ง' }, { w: 400, h: 500, th: 'ตั้งแคบ สั้น' }];
