@@ -831,6 +831,48 @@
     art(c, p => { rowCells(p, c, d, -425, f1(425 - w - 24), 0, 460, 20, { wideMin: 999 }, L.length ? L : [['n', 0]]); outlineIn(p, R(p, 425 - w, -230, w, 460, 40, DASH(.5)), T_.tA);
       if (F.hasN && L.length) cell(p, c, d, 'n', 0, 425 - w / 2, 0, w, 460, { wideMin: 999 }); qmark(p, d, 425 - w / 2, 0, 100, { plain: true }); }); });
 
+  /* ---------- SIZE 3 · 560 × 490 ---------- */
+  sd(3, 'qcard', 'การ์ด ? ซ้าย + คอลัมน์ขวา', (d, c) => { const T_ = QT(d); art(c, p => { outlineIn(p, R(p, -280, -245, 175, 490, 36, OUT(.5)), T_.tA); qmark(p, d, -192, 0, 66, { plain: true }); colCells(p, c, d, 92, -245, 245, 376, 14, { wideMin: 330 }); }); });
+  sd(3, 'quiz', 'การ์ดคำถาม + ปุ่มตอบ', (d, c) => { const F = QD(d), T_ = QT(d);
+    art(c, p => { const top = F.hasA ? [['a', 0]] : [], bot = F.hasO ? [['o', 0], ['o', 1]] : F.hasN ? [['n', 0]] : [];
+      if (top.length) { rowCells(p, c, d, -280, 190, -125, 225, 0, { wideMin: 300 }, top); qmark(p, d, 240, -125, 40); } else qmark(p, d, 0, -125, 90, { plain: true });
+      if (bot.length) rowCells(p, c, d, -280, 280, 125, 225, 20, { shape: 'pill', wideMin: 999 }, bot); else { outlineIn(p, R(p, -280, 12, 560, 233, 116, DASH(.45)), T_.tA); if (top.length) qmark(p, d, 0, 125, 74, { plain: true, t: f3(T_.tQ + tu(.1)) }); } }); });
+  sd(3, 'between', 'การ์ดคั่น ?', (d, c) => { const L = ITEMS(d); art(c, p => { const pts = colCells(p, c, d, 0, -245, 245, 500, 70, { wideMin: 420 }, L);
+      if (L.length > 1) pts.slice(0, -1).forEach(([y, h]) => qmark(p, d, 0, f1(y + h / 2 + 35), 32, { plain: true, keep: true })); else qmark(p, d, 215, -170, 50); }); });
+  sd(3, 'search', 'ช่องค้นหา + ผลลัพธ์', (d, c) => { const F = QD(d), T_ = QT(d);
+    art(c, p => { outlineIn(p, R(p, -280, -245, 560, 130, 65, OUT(.55)), T_.tA); put(p, c, { icon: 'search' }, -225, -180, 78, null, { t: T_.tA });
+      const top = F.hasA ? [['a', 0]] : [], bot = (F.hasO ? [['o', 0], ['o', 1]] : []).concat(F.hasN ? [['n', 0]] : []);
+      if (top.length) rowCells(p, c, d, -170, 195, -180, 112, 0, { shape: 'float', wideMin: 200, ws: 44 }, top); qmark(p, d, 235, -180, 40, { plain: true });
+      if (bot.length) rowCells(p, c, d, -280, 280, 70, 350, 18, { wideMin: 999 }, bot); else { outlineIn(p, R(p, -280, -105, 560, 350, 36, DASH(.4)), T_.tA); qmark(p, d, 0, 70, 90, { plain: true, t: f3(T_.tQ + tu(.1)) }); } }); });
+  sd(3, 'radio', 'ตัวเลือกวงกลม', (d, c) => { const F = QD(d), T_ = QT(d), L = ITEMS(d);
+    art(c, p => { const n = L.length, h = (490 - (n - 1) * 14) / n; L.forEach(([r, i], k) => { const y = f1(-245 + h / 2 + k * (h + 14));
+        cell(p, c, d, r, i, 40, y, 460, h, { shape: 'pill', wideMin: 300, solid: true }); const rr = Math.min(28, h * .26); drawAt(p.circle(-240, y, rr, { sw: 4, stroke: C.ink }), p, f3(T_.tA + tu(.06 * k)), tu(.25));
+        if ((r === 'o' && F.ai === i) || r === 'n') popAt(p, -240, y, T_.H).circle(-240, y, rr * .55, { fill: ACC1, sw: 0, stroke: 'none' }); });   /* the dot sits outside the pill, left of it */
+      if (!F.answered) qmark(p, d, 262, 0, Math.min(40, 490 / n * .28), { plain: true }); }); });
+  sd(3, 'bigq', '? ใหญ่ + คอลัมน์', (d, c) => { art(c, p => { qmark(p, d, -145, 0, 128); colCells(p, c, d, 125, -245, 245, 300, 14, { wideMin: 999 }); }); });
+  sd(3, 'chat', 'แชตถาม-ตอบ', (d, c) => { const F = QD(d), T_ = QT(d), B1 = 'M -255 -245 L 130 -245 Q 155 -245 155 -220 L 155 -55 Q 155 -30 130 -30 L -230 -30 L -265 5 L -262 -30 Q -280 -30 -280 -55 L -280 -220 Q -280 -245 -255 -245 Z',
+      B2 = 'M -130 0 L 255 0 Q 280 0 280 25 L 280 220 Q 280 245 255 245 L -130 245 Q -155 245 -155 220 L -155 25 Q -155 0 -130 0 Z';
+    art(c, p => { outlineIn(p, p.path(B1, OUT(.55)), T_.tA); const tB = f3(T_.tQ - tu(.1)); drawAt(p.path(B2, OUT(.55)), p, tB, tu(.3));
+      if (F.hasA) rowCells(p, c, d, -268, 90, -137, 185, 0, { shape: 'float', wideMin: 230 }, [['a', 0]]); qmark(p, d, F.hasA ? 120 : -62, -137, F.hasA ? 30 : 64, { plain: true });
+      const bot = (F.hasO ? [['o', 0], ['o', 1]] : []).concat(F.hasN ? [['n', 0]] : []); if (bot.length) rowCells(p, c, d, -140, 270, 122, 185, 12, { shape: 'float', wideMin: 260 }, bot); else qmark(p, d, 62, 122, 60, { t: tB }); }); });
+  sd(3, 'dial', 'หน้าปัดลังเล', (d, c) => { const F = QD(d), T_ = QT(d), cx = 0, cy = 175, r = 262, P = a => [f1(cx + r * Math.cos(rad(a))), f1(cy + r * Math.sin(rad(a)))];
+    art(c, p => { if (!F.hasO) { colCells(p, c, d, 0, -245, 245, 400, 14, { wideMin: 330 }); qmark(p, d, 215, -170, 50); return; }
+      const [ax, ay] = P(180), [bx, by] = P(0); drawAt(p.path(`M ${ax} ${ay} A ${r} ${r} 0 0 1 ${bx} ${by}`, { sw: 5, stroke: TL_(.45) }), p, T_.tA, tu(.45));
+      for (let k = 0; k <= 12; k++) tick(atG(p, f3(T_.tA + tu(.02 * k))), cx, cy, 180 + k * 15, r - 24, r - 8, { sw: 2.4, stroke: TL_(.45) });
+      const fin = F.ai === 0 ? -50 : F.ai === 1 ? 50 : 0, Kr = [[0, 0], [T_.tD0, 0]]; let t = T_.tD0, k2 = 0; while (t + tu(.36) <= T_.tD1) { Kr.push([f3(t + tu(.36)), k2 % 2 ? 38 : -38, 'io']); t += tu(.36); k2++; } Kr.push([T_.H, fin, 'io']);
+      const nd = mvG(p, { px: cx, py: cy, r: Kr, o: fadeIn(T_.tA, .06) }); nd.line(cx, cy, cx, cy - 165, { sw: 7, stroke: C.ink }); popAt(p, cx, cy, T_.tA).circle(cx, cy, 20, { fill: C.ink, sw: 0, stroke: 'none' });
+      cell(p, c, d, 'o', 0, -180, 40, 200, 200, { shape: 'float', wideMin: 999, solid: true }); cell(p, c, d, 'o', 1, 180, 40, 200, 200, { shape: 'float', wideMin: 999, solid: true });
+      if (F.hasA) cell(p, c, d, 'a', 0, 0, -145, 260, 130, { shape: 'float', wideMin: 230, solid: true }); else qmark(p, d, 0, -145, 48); }); });
+  /* 09 a 2 × 2 board: the things in tiles, the last tile (or a badge in the middle) holds the "?" */
+  sd(3, 'grid', 'ตาราง 2×2', (d, c) => { const F = QD(d), T_ = QT(d), L = ITEMS(d), SL = [[-142, -125], [142, -125], [-142, 125], [142, 125]];
+    art(c, p => { if (L.length <= 2) { const xs = [-142, 142]; L.forEach(([r, i], k) => cell(p, c, d, r, i, xs[k], 0, 270, 490, { wideMin: 999 }));
+        if (L.length === 1) { outlineIn(p, R(p, 7, -245, 273, 490, 36, DASH(.45)), T_.tA); qmark(p, d, 142, 0, 80, { plain: true }); } else qmark(p, d, 0, 0, 36, { keep: true }); return; }
+      L.forEach(([r, i], k) => cell(p, c, d, r, i, SL[k][0], SL[k][1], 270, 235, { wideMin: 999 }));
+      if (L.length < 4) { outlineIn(p, R(p, 7, 7, 273, 238, 36, DASH(.45)), T_.tA); qmark(p, d, 142, 125, 70, { plain: true }); } else qmark(p, d, 0, 0, 36, { keep: true }); }); });
+  sd(3, 'qtile', 'ช่อง ? รอคำตอบ', (d, c) => { const F = QD(d), T_ = QT(d), L = ITEMS(d).filter(([r]) => r !== 'n');
+    art(c, p => { colCells(p, c, d, -100, -245, 245, 360, 14, { wideMin: 300 }, L.length ? L : [['n', 0]]); outlineIn(p, R(p, 100, -245, 180, 490, 36, DASH(.5)), T_.tA);
+      if (F.hasN && L.length) cell(p, c, d, 'n', 0, 190, 0, 180, 490, { wideMin: 999 }); qmark(p, d, 190, 0, 66, { plain: true }); }); });
+
   const outlineIn = (p, el, t) => drawAt(el, p, f3(Math.max(0, t - tu(.04))), tu(.34));
 
   const I = (icon, label) => label ? { icon, label } : { icon };
