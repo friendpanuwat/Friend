@@ -465,7 +465,7 @@
   /* the unit: slides in just after the keyword H */
   /* the unit: comes in right with the number (user 2026-11-24: "หน่วย เล่ม ไม่ควรออกมาหลังสุด") — it slides in as the number pops, before the count ends */
   function unitIn(q, u, x, y, size, anchor = 'middle', maxW = 400, weight = 600, wrap = null) { if (!u) return; const g = sub(q); const tE = f3(tu(.38));
-    on(g, q, 0, { x: [[0, -24], [tE, -24], [f3(tE + tu(.2)), 0, 'out']], o: fadeIn(tE) }); txt(g, u, x, y, { size, weight, anchor, color: C.soft, maxW, wrap }); }
+    on(g, q, 0, { x: [[0, -24], [tE, -24], [f3(tE + tu(.2)), 0, 'out']], o: fadeIn(tE) }); txt(g, u, x, y, { size, weight: 800, anchor, color: ACC1, maxW, wrap }); }   /* same colour + weight as the number (user 2026-11-24: "เอาข้อ 1") */
   /* number + unit on one baseline across the room x0..x1 (user 2026-11-24: "ใช้คำว่าเล่มให้คุ้มกับพื้นที่หน่อย แต่ต้องรองรับข้อมูลทุกชนิดนะ"):
      the unit grows to fill what the number leaves (up to o.uMax), never under o.uMin (40); a long unit / long number shrinks the number first,
      then the unit (to uMin, then narrower). No unit → the number alone takes the room. anchor 'start' (from x0) or 'middle' (centred in x0..x1). */
