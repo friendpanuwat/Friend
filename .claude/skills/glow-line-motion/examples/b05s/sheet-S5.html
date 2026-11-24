@@ -5,7 +5,7 @@
 /* B05S — size K's own designs (user: "ออกแบบทีละขนาด … 10 อัน"). Data: SET A = SAMPLES, B = STRESS, design i takes data[(i + OFF) % n]. Yellow = the size's box at 100 % (scaled s). */
 GL.run(() => {
   GL.stage();
-  const FRAME = true, K = 5, SET = 'A', OFF = 0, B = GL.cats.B05S, data = SET === 'A' ? B.SAMPLES : B.STRESS, S = B.SIZES[K], list = B.S[K], s = .46;
+  const FRAME = true, K = 5, SET = 'A', OFF = 0, B = GL.cats.B05S, data = SET === 'A' ? B.SAMPLES : B.STRESS, S = B.SIZES[K], list = B.S[K], s = .4;
   GL.text('B05 ขนาด ' + K + ' · ' + S.th + ' ' + S.w + '×' + S.h + ' · ' + list.length + ' แบบ', { y: 66, size: 42, ls: 3, color: GL.C.kicker, glow: false });
   GL.text(SET === 'A' ? 'ข้อมูลตัวอย่างจากหลายเรื่อง' : 'ข้อมูลโหด (ไม่มีป้าย / ป้ายยาว / อังกฤษ / ไม่มีไอคอน …)', { y: 112, size: 28, weight: 500, color: GL.C.sub, glow: false });
   const h = S.h * s, rowH = h + 64, X = [275, 805];
