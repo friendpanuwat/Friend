@@ -116,6 +116,10 @@ const WIN_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: 
 const WIN_ORDER = {full: [2, 1], full_d: [2, 1], full_c: [2, 1], cta: [2, 1], full_n: [3, 2], full_w: [1, 2], full_top: [2, 3, 1],
   float: [3, 5], stats: [5, 2], stack: [5, 2, 3]};   // stack: the tallest size the screen allows, as the sheet Friend sent
 const WIN_MIN = .65;
+/* a screen that shows the speaker: the speaker's own screens (ก) and the blue screens with the face in a frame (float, stats, stack) —
+   for the hook (Friend 2026-11-18 on the opening: "เปิดคลิปด้วยหน้าในกรอบเล็กนับด้วยครับ" · bug found 2026-11-20, fixed 2026-11-24: a close-up
+   clip had no ก that fits, so the hook was dropped and the first picture came at 20 s) */
+const winShows = n => !!WIN.layouts[n].speaker || !!WIN.layouts[n].frame;
 function winShape(L, name, key) {
   if (!L.win) return L;
   const size = (k, s) => WIN_STD[k].map(v => Math.round(v * s));
@@ -230,10 +234,11 @@ STYLE('window', {
   /* how much of the screen a drawing of shape `ar` takes here, to CHOOSE THE DRAWING (tools/fit_pick.js) — never to choose a screen:
      the mean over every screen this face leaves room for (keep 0 · no floor, 2026-11-20) */
   fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, WIN.pool.filter(n => winFit(n, face)), n => { const F = winFit(n, face); return F ? winInner(F.win) : null; }, 0, n => !!WIN.layouts[n].speaker); },
-  /* THE HOOK CHECK (tools/fit_pick.js · Friend 2026-11-20: "1. ก"): is there a speaker screen (ก) whose window reaches a standard size
-     for this face? The drawing inside is not measured (rule 8). false → the plan is made again without the hook (clip_plan.py) */
+  /* THE HOOK CHECK (tools/fit_pick.js · Friend 2026-11-20: "1. ก"): is there a screen that shows the speaker (winShows: ก, or a blue screen
+     with the face in a frame) whose window reaches a standard size for this face? The drawing inside is not measured (rule 8), nor its
+     shape `ar`. false → the plan is made again without the hook (clip_plan.py) */
   hookOK(ar, t0, t1) { const face = cpFaceBox(t0, t1);
-    return WIN.pool.some(n => !!WIN.layouts[n].speaker && !!winFit(n, face)); },
+    return WIN.pool.some(n => winShows(n) && !!winFit(n, face)); },
   fitSurface() { const r = div('', SC); r.className = 'w-root w-screen'; return r; },
 
   frame(t0, t1, {index, scene}) {
@@ -242,12 +247,13 @@ STYLE('window', {
     if (!name) {
       const want = WIN.byCat[String(meta.cat ?? '').slice(0, 3)];
       /* THE HOOK (Friend 2026-11-19: "ใส่ระบบ hook ให้สไตล์นี้" · as lime: "ต้องไม่ใช่ฉากเต็มจอ ต้องเป็นฉากหน้าคนพูด"): the plan's first picture at
-         1.8–3.2 s (RUN.hook, tools/clip_plan.py) takes only a speaker screen (ก); no speaker screen fits this face → the usual pool */
+         1.8–3.2 s (RUN.hook, tools/clip_plan.py) takes a speaker screen (ก); no ก fits this face (a close-up clip) → a blue screen with the
+         face in a frame (winShows); neither → the usual pool. A clip where a ก fits keeps exactly the old choice. */
       const hook = index === 0 && typeof RUN !== 'undefined' && RUN.hook, spk = n => !!WIN.layouts[n].speaker;
       if (want && (!hook || spk(want)) && winFit(want, face)) name = want;
       else {
         let pool = WIN.pool.filter(n => n !== WIN.last && winFit(n, face));
-        if (hook && pool.some(spk)) pool = pool.filter(spk);
+        if (hook) { const a = pool.filter(spk), b = pool.filter(winShows); if (a.length) pool = a; else if (b.length) pool = b; }
         if (!pool.length) pool = ['dark', 'float', 'stack'].filter(n => n !== WIN.last);
         /* NO SCREEN IS CHOSEN BY THE SIZE OF THE DRAWING INSIDE IT (common.md 4.1 rule 8 · Friend 2026-11-20: "เรายังคัดจากขนาดภาพข้างในอยู่
            อีกหรอ" · "ต่อไปนี้จะเลิกวัดขนาดภาพ ... จะดูขนาดมาตรฐานทั้ง 7 แบบที่เรากำหนดไว้แทน" · LESSONS 76): a screen is kept when its WINDOW
