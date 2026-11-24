@@ -30,7 +30,7 @@ const GLOWLOOK = {
   cream: {acc: '--ac',     glow: {c: '#2F6FED', all: false},    weight: {k: 1.4, min: 3.4, floor: 2.2}, floatAlpha: .9},    // ครีมน้ำเงิน (Friend's 11th new sheet, 2026-11-18): the second light style, dark lines on the cream screen, only the blue lit part glows
   terminal: {acc: '--ac',  glow: {c: '#EE4444', self: true},    weight: {k: 1.6, min: 4.0, floor: 2.6}, floatAlpha: .62},   // เทอร์มินัลแดง (Friend's 9th new sheet, 2026-11-18): thick white glowing lines, the lit part red
   horizon: {acc: '--ac',   glow: {c: '#FB7A1A', self: true},    weight: {k: 1.8, min: 5.0, floor: 3.0}, floatAlpha: .6},    // ขอบฟ้าส้ม (Friend's 8th new sheet, 2026-11-18): thick warm-white lines (7 px on the full-size shot 04), the lit part orange   // เส้นชี้ HUD (Friend's 7th new sheet, 2026-11-18): the same glow-line look as the yellow style (the sheet draws them alike)   // ขั้นตอนเหลือง (Friend's 6th new sheet, 2026-11-18): near-black bodies, white lines glowing white, the lit part yellow    // การ์ดเขียวน้ำทะเล (Friend's 4th new sheet, 2026-11-18): the glass look in teal cards, teal light
-  lime:  {acc: '--ac',     glow: {c: '#B5EE38', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},   // motionFit 2026-11-24 (Friend: "แก้ที่มันออกนอกการ์ดมาด้วย": the whole motion stays in the card, styles/lime.js clips the rest)    // เขียวมะนาว (Friend's 2nd new sheet, 2026-11-18): the neon glass, lime light    // นีออนฟ้า (Friend's sheet 2): frosted grey glass, white lines with their own soft glow, the lit part blue and glowing hard
+  lime:  {acc: '--ac',     glow: {c: '#B5EE38', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: 'whole'},   // 2026-11-24 (Friend: "แก้ที่มันออกนอกการ์ดมาด้วย" · "ย่อแล้วจัดองค์ประกอบให้มันอยู่ตรงกลาง"): a drawing whose motion leaves the card shrinks until all of it fits, centred (glowFit whole); styles/lime.js clips at the card as a safety net    // เขียวมะนาว (Friend's 2nd new sheet, 2026-11-18): the neon glass, lime light    // นีออนฟ้า (Friend's sheet 2): frosted grey glass, white lines with their own soft glow, the lit part blue and glowing hard
 };
 /* what is really visible at the end of the drawing (not the things still hidden or gone: the getBBox of the whole drawing counted
    four hidden coins and made an overlay picture small), in the svg's user units */
@@ -64,15 +64,22 @@ function glowMotionBox(svg, e, t0, t1, cap = .2) {
    drawing fills the box W × H (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย"); only when its motion
    runs out of the box (12 px of slack: a window's padding) the motion's box fills it instead, so a picture shrinks only when it has to
    (fitting every picture to its motion took the window clip's pictures from 13 % of the screen to 10 %) */
-function glowFit(svg, at, t1, W, H, room = null) {
+/* whole (lime only, 2026-11-24, Friend: "อันที่มันล้นขอบออกมาทำไมไม่ย่อแล้วจัดองค์ประกอบให้มันอยู่ตรงกลางอ่ะ" → "ok ครับแก้เลย"): a drawing whose motion
+   runs out of the box and its room is shrunk until ALL of its motion (no 20 % cap, no 1.6 cap) fits the box + room, and that motion is
+   centred in it (the card's middle); a drawing whose motion stays in is left exactly as it was (the same viewBox as without motionFit) */
+function glowFit(svg, at, t1, W, H, room = null, whole = false) {
   /* room (the neon style only, final 2026-11-18): the free space around the box on each side in px {l, t, r, b} (to the words, the face's
      frame, the safe zone), which the motion may use before the picture shrinks; else 12 px on every side (the window style's padding) */
   const pad = b => { const p = Math.max(b.width, b.height) * .03; return {x: b.x - p, y: b.y - p, width: b.width + 2 * p, height: b.height + 2 * p}; };
-  const e = glowVisibleBox(svg), u = glowMotionBox(svg, e, at + .4, t1);
+  const e = glowVisibleBox(svg), u = glowMotionBox(svg, e, at + .4, t1, whole ? Infinity : .2);
   let v = pad(e); const s = Math.min(W / v.width, H / v.height), R = room ?? {l: 12, t: 12, r: 12, b: 12};
   const rx = v.x - (W / s - v.width) / 2, ry = v.y - (H / s - v.height) / 2;
   if (u.x < rx - R.l / s || u.y < ry - R.t / s || u.x + u.width > rx + W / s + R.r / s || u.y + u.height > ry + H / s + R.b / s) {
-    if (!room) v = pad(u);
+    if (whole) {                                   // the whole motion (3 % padded) in the box + room, centred on the room's middle
+      const R2 = room ?? R, m = pad(u), s2 = Math.min(s, (W + R2.l + R2.r) / m.width, (H + R2.t + R2.b) / m.height);
+      const cx = (W - R2.l + R2.r) / 2, cy = (H - R2.t + R2.b) / 2;   // the middle of box + room in px (the card's middle)
+      v = {x: m.x + m.width / 2 - cx / s2, y: m.y + m.height / 2 - cy / s2, width: W / s2, height: H / s2};
+    } else if (!room) v = pad(u);
     else {                                         // the smallest shrink that keeps the motion in the box and its room (k: how much wider the view gets)
       const cx = v.x + v.width / 2, cy = v.y + v.height / 2;
       const k = Math.min(1.6, Math.max(1, (cx - u.x) * s / (W / 2 + R.l), (u.x + u.width - cx) * s / (W / 2 + R.r), (cy - u.y) * s / (H / 2 + R.t), (u.y + u.height - cy) * s / (H / 2 + R.b)));
@@ -530,7 +537,7 @@ function glowDraw(F, T, cat, i, d, box = F.stage) {
     if (GLASSY[base]?.wordK) svg.querySelectorAll('text').forEach(t => { const f = parseFloat(getComputedStyle(t).fontSize); if (f) t.style.fontSize = (f * GLASSY[base].wordK).toFixed(2) + 'px'; });   // hud only (final 2026-11-18): the words bigger, from their own anchor
     if (GLASSY[base]?.centreBox) glowCentre(svg);  // neon only (final 2026-11-18): the icon and word of a text box in its middle
     glowLight(svg, P, base);
-    if (GLOWLOOK[base]?.motionFit) glowFit(svg, at, T.t1 ?? window.DURATION, W, H, F.room ?? null);   // window: what is really visible fills the box, and its motion stays in it
+    if (GLOWLOOK[base]?.motionFit) glowFit(svg, at, T.t1 ?? window.DURATION, W, H, F.room ?? null, GLOWLOOK[base].motionFit === 'whole');   // window: what is really visible fills the box, and its motion stays in it
     else { const b = glowVisibleBox(svg), p = Math.max(b.width, b.height) * .03;      // the other styles: what is really visible at its end fills the box (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย")
       svg.setAttribute('viewBox', `${b.x - p} ${b.y - p} ${b.width + 2 * p} ${b.height + 2 * p}`); }
     glowWeight(svg, P, base);                       // after the fit: the line weight is measured on screen
