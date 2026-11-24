@@ -505,8 +505,8 @@
   function flo(p, c, ic, x, y, w, t0, t1, o = {}) { if (!ic) return; const by = y + w / 2, K = fallK(x, by, t0, t1, o.h ?? Math.min(260, by + BOX[1] / 2));
     put(p, c, { icon: ic }, x, y, w, null, { t: t0, mv: { px: K.px, py: K.py, y: K.y, sx: K.sx, sy: K.sy }, o: K.o, punch: o.punch }); dust(p, x, by, t1, w / 220); }
 
-  /* corner marks of the size's box (the sheets only — shows the room each design must fill) */
-  function frame(c, W0, H0) { const f = p => { const a = 26, x = W0 / 2, y = H0 / 2; [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sy]) => p.path(`M ${sx * x} ${f1(sy * (y - a))} L ${sx * x} ${sy * y} L ${f1(sx * (x - a))} ${sy * y}`, { sw: 2, stroke: C.mute })); };
+  /* the size's box drawn as a yellow outline (the sheets only — user 2026-11-24: "ทำกรอบของขนาดนั้นๆ มาให้ผมดูด้วย ใส่เส้นสีเหลือง") */
+  function frame(c, W0, H0) { const f = p => { p.rect(-W0 / 2, -H0 / 2, W0, H0, { sw: 3, stroke: '#ffd400' }); };
     f.custom = true; f.dur = .01; f.exit = 'pop'; G.art(f, { x: c.x, y: c.y, s: c.s, at: 0, speed: 1 }); }
 
   const SIZES = [null, { w: 860, h: 230, th: 'แถบแบนยาว' }, { w: 860, h: 470, th: 'กว้าง' }, { w: 560, h: 490, th: 'เกือบจัตุรัส' }, { w: 400, h: 635, th: 'ตั้งแคบ' },
