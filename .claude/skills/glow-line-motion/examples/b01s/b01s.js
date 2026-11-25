@@ -576,16 +576,131 @@
       num(p, p, v, cx, ic ? (u ? 106 : 140) : -110, { size: 150, maxW: 260, t0: tu(.3) }); unitUnder(p, u, cx, ic ? 196 : -20, 70, 260);
       if (!ic) dotsV(p, cx, 214, 30, 4, 17, frac(d), t0, t1); }); };
 
+  /* ================= ROUNDS 2–5 (user 2026-11-25 after B12: "กลับไปทำหมวด 1" → "ใช้แบบเดิม + ใหม่ 4") — seven sizes × five designs:
+     01 = round 1 (the fill bar, passed) + four new ones in the template look of B01T (rounded tiles, thick bands that fill, a knob or a needle riding
+     the amount, plain big number counting up and locking on the keyword): RING (a ring fills round to the amount, the icon inside) · GAUGE (a half
+     dial, a needle sweeps to the amount) · CARD (one card: icon tile + the big number) · GRID (a grid of squares lights up as the number counts).
+     Everything balanced in the middle of the box (B12 lesson D14); no ripples (lesson 32). ================= */
+  const arcF = (x, y, r) => `M ${x} ${f1(y - r)} A ${r} ${r} 0 1 1 ${f1(x - .1)} ${f1(y - r)}`;
+  const ioK = (t0, t1, a, b) => [[0, a], [t0, a], [t1, b, 'io']];
+  const litAt = (q, t) => { const g = sub(q); on(g, q, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.06)), 1]] }); return g; };
+  const TQ = () => ({ t0: f3(tu(.34)), t1: f3(Z.H - tu(.04)), tN: f3(tu(.3)), tV: f3(tu(.06)), tI: f3(tu(.14)) });
+  /* lay items out in a row / a column centred on (cx, cy): item = { w, h, at(x, y) } (x, y = its centre) */
+  const hrow = (items, gap, cx = 0, cy = 0) => { const L = items.filter(Boolean), tot = L.reduce((a, it) => a + it.w, 0) + gap * Math.max(0, L.length - 1); let x = cx - tot / 2; L.forEach(it => { it.at(f1(x + it.w / 2), cy); x += it.w + gap; }); return tot; };
+  const vcol = (items, gap, cx = 0, cy = 0) => { const L = items.filter(Boolean), tot = L.reduce((a, it) => a + it.h, 0) + gap * Math.max(0, L.length - 1); let y = cy - tot / 2; L.forEach(it => { it.at(cx, f1(y + it.h / 2)); y += it.h + gap; }); return tot; };
+  const asRow = (items, gap) => { const L = items.filter(Boolean); return L.length ? { w: L.reduce((a, it) => a + it.w, 0) + gap * (L.length - 1), h: Math.max(...L.map(it => it.h)), at: (x, y) => hrow(L, gap, x, y) } : null; };
+  const asCol = (items, gap) => { const L = items.filter(Boolean); return L.length ? { h: L.reduce((a, it) => a + it.h, 0) + gap * (L.length - 1), w: Math.max(...L.map(it => it.w)), at: (x, y) => vcol(L, gap, x, y) } : null; };
+  /* the number (+ unit) as an item: 'row' = on one baseline (pairRow) · 'stack' = the unit under the number */
+  function NUM(p, d, size, uMax, room, mode = 'row') { const v = VAL(d), u = UN(d); if (!v) return null; const T = TQ();
+    if (mode === 'row') { const w = Math.min(room, tw(p, v, size) + (u ? size * .09 + tw(p, u, uMax, 800) : 0));
+      return { w, h: f1(size * .74), at: (x, y) => pairRow(p, v, u, f1(x - w / 2 - 2), f1(x + w / 2 + 2), f1(y + size * .37), { size, uMax, anchor: 'middle', t0: T.tN }) }; }
+    const nw = Math.min(room, tw(p, v, size)), ns = size * nw / tw(p, v, size), us = u ? Math.max(40, Math.min(uMax, room / (tw(p, u, 100, 700) / 100))) : 0, uw = u ? Math.min(room, tw(p, u, us, 800)) : 0;
+    const hh = ns * .74 + (u ? 16 + us * 1.12 : 0);
+    return { w: Math.max(nw, uw), h: f1(hh), at: (x, y) => { const top = y - hh / 2;
+      num(p, p, v, x, f1(top + ns * .74), { size: ns, maxW: room, t0: T.tN }); if (u) unitIn(p, u, x, f1(top + ns * .74 + 16 + us * .98), f1(us), 'middle', room, 600); } }; }
+  /* the icon as a rounded tile */
+  const ICB = (p, c, d, s) => { const ic = ICN(d); return ic ? { w: s, h: s, at: (x, y) => ibox(p, c, { icon: ic }, x, y, s, TQ().tI, { punch: Z.H }) } : null; };
+
+  /* RING — a thick ring fills round (clockwise from the top) to the amount, a knob rides its end; its outer edge lights on the keyword */
+  function ringV(p, x, y, R0, bw, fr) { const T = TQ(), g = inG(p, 'pop', x, y, T.tV); ring(g, x, y, R0, R0 - bw, F(3.6)); const rm = f1(R0 - bw / 2);
+    if (fr > 0) { const a = p.path(arcF(x, y, rm), { sw: f1(bw - 14), stroke: TA(.24) }); on(a, p, 0, { draw: ioK(T.t0, T.t1, 0, f3(Math.min(.999, fr))) });
+      const ka = rad(-90 + 360 * fr), kx = f1(x + rm * Math.cos(ka)), ky = f1(y + rm * Math.sin(ka)), kr = f1(bw * .62), kg = sub(p);
+      on(kg, p, 0, { ox: x, oy: y, r: ioK(T.t0, T.t1, f1(-360 * fr), 0), o: fadeIn(T.t0, .04) }); kg.circle(kx, ky, kr, F(4.2)); kg.circle(kx, ky, f1(kr * .5), KN()); }
+    litAt(p, Z.H).circle(x, y, R0, { fill: 'none', sw: 5, stroke: ACC1 }); }
+  /* the unit alone as an item (big, accent) */
+  const UNI = (p, d, size, room) => { const u = UN(d); if (!u) return null; const us = Math.max(40, Math.min(size, room / (tw(p, u, 100, 800) / 100))), w = Math.min(room, tw(p, u, us, 800));
+    return { w, h: f1(us * 1.1), at: (x, y) => unitIn(p, u, x, f1(y + us * .36), f1(us), 'middle', room, 600) }; };
+  /* a ring with no icon: the value counts up inside it (the unit goes beside or under it — UNI) */
+  const RINGV = (p, d, R0, bw) => ({ w: 2 * R0, h: 2 * R0, at: (x, y) => { ringV(p, x, y, R0, bw, frac(d)); const v = VAL(d); if (!v) return; const mw = f1(2 * (R0 - bw - 12)), sz = f1(Math.min((R0 - bw) * 1.05, 260));
+    const k = Math.min(1, mw / tw(p, v, sz)); num(p, p, v, x, f1(y + sz * k * .36), { size: f1(sz * k), t0: TQ().tN }); } });
+  /* a ring item; inside: the icon (or nothing) */
+  const RING = (p, c, d, R0, bw, iw) => ({ w: 2 * R0, h: 2 * R0, at: (x, y) => { ringV(p, x, y, R0, bw, frac(d)); const ic = ICN(d); if (ic && iw) put(p, c, { icon: ic }, x, y, iw, null, { t: TQ().tI, punch: Z.H }); } });
+  /* GAUGE — a half dial (band with round ends, ticks inside): the band fills left → right to the amount and a needle sweeps with it */
+  function gaugeV(p, x, y, R0, bw, fr) { const T = TQ(), Ri = R0 - bw, e = f1(bw / 2), g = inG(p, 'pop', x, f1(y - R0 / 2), T.tV);
+    g.path(`M ${x - R0} ${y} A ${R0} ${R0} 0 0 1 ${x + R0} ${y} A ${e} ${e} 0 0 1 ${x + Ri} ${y} A ${Ri} ${Ri} 0 0 0 ${x - Ri} ${y} A ${e} ${e} 0 0 1 ${x - R0} ${y} Z`, F(3.6));
+    const rm = f1(R0 - bw / 2); if (fr > 0) { const a = p.path(`M ${x - rm} ${y} A ${rm} ${rm} 0 0 1 ${x + rm} ${y}`, { sw: f1(bw - 14), stroke: TA(.24) }); on(a, p, 0, { draw: ioK(T.t0, T.t1, 0, f3(fr)) }); }
+    for (let k = 0; k <= 10; k++) { const an = rad(180 + 18 * k), r1 = Ri - 16, r2 = Ri - (k % 5 ? 30 : 44);
+      drawAt(p.line(f1(x + r1 * Math.cos(an)), f1(y + r1 * Math.sin(an)), f1(x + r2 * Math.cos(an)), f1(y + r2 * Math.sin(an)), S(2.4)), p, f3(T.tV + tu(.1 + .015 * k)), tu(.12)); }
+    const L = Ri - 58, an = rad(180 + 180 * fr), ng = sub(p), hw = Math.max(9, R0 * .045), tip = [f1(x + L * Math.cos(an)), f1(y + L * Math.sin(an))], b1 = [f1(x - hw * Math.sin(an)), f1(y + hw * Math.cos(an))], b2 = [f1(x + hw * Math.sin(an)), f1(y - hw * Math.cos(an))];
+    on(ng, p, 0, { ox: x, oy: y, r: ioK(T.t0, T.t1, f1(-180 * fr), 0), o: fadeIn(f3(T.tV + tu(.14)), .06) }); shape(ng, [b1, tip, b2], F(3.2));
+    const hb = popAt(p, x, y, f3(T.tV + tu(.14))), hr = Math.max(18, R0 * .085); hb.circle(x, y, f1(hr), F(4)); hb.circle(x, y, f1(hr * .42), KN());
+    litAt(p, Z.H).path(`M ${x - R0} ${y} A ${R0} ${R0} 0 0 1 ${x + R0} ${y}`, { fill: 'none', sw: 5, stroke: ACC1 }); }
+  const hubR = R0 => Math.max(18, R0 * .085);
+  const GAUGE = (p, d, R0, bw) => { const hr = hubR(R0); return { w: 2 * R0, h: f1(R0 + hr), at: (x, y) => gaugeV(p, x, f1(y - (R0 + hr) / 2 + R0), R0, bw, frac(d)) }; };
+  /* GRID — squares light one by one (from the bottom row up) to the amount, in step with the count; lit = soft fill + accent edge */
+  function gridV(p, x0, y0, cols, rows, cell, gap, fr) { const T = TQ(), n = cols * rows, lit = Math.round(n * fr), rx = f1(cell * .24);
+    for (let k = 0; k < n; k++) { const i = k % cols, j = rows - 1 - Math.floor(k / cols), x = f1(x0 + i * (cell + gap)), y = f1(y0 + j * (cell + gap));
+      const g = sub(p); on(g, p, 0, { o: fadeIn(f3(T.tV + tu(.006 * (i + 2 * (rows - 1 - j)))), .08) }); R(g, x, y, cell, cell, rx, { fill: C.fill, sw: 2.4, stroke: TL_(.4) });
+      if (k < lit) { const t = ioAt((k + 1) / lit, T.t0, T.t1), q = sub(p); on(q, p, 0, { ox: f1(x + cell / 2), oy: f1(y + cell / 2), s: [[0, .6], [t, .6], [f3(t + tu(.12)), 1, 'out']], o: fadeIn(t, .05) });
+        R(q, x, y, cell, cell, rx, { fill: TA(.3), sw: 3, stroke: ACC1 }); } } }
+  const GRID = (p, d, cols, rows, cell, gap) => { const w = cols * (cell + gap) - gap, h = rows * (cell + gap) - gap; return { w, h, at: (x, y) => gridV(p, f1(x - w / 2), f1(y - h / 2), cols, rows, cell, gap, frac(d)) }; };
+  /* CARD — one card fills the box (rises in), its edge lights on the keyword; the caller lays the icon tile and the number inside */
+  function cardBox(p, rr = 40) { const [W0, H0] = BOX, w = W0 - 16, h = H0 - 16, g = mvG(CL(p), { px: 0, py: 0, y: [[0, 40], [tu(.02), 40], [f3(tu(.36)), 0, 'out']], o: fadeIn(tu(.02), .1) }); R(g, -w / 2, -h / 2, w, h, f1(Math.min(rr, h * .2)), F(3.6));
+    const L = litAt(p, Z.H); R(L, -w / 2, -h / 2, w, h, f1(Math.min(rr, h * .2)), { fill: TA(.05), sw: 5, stroke: ACC1 }); return { w, h }; }
+
+  /* the four new designs for one size: R.ring / R.gauge / R.card / R.grid = (d, c) → draws */
+  const NEW = {};
+  /* 1 · 860 × 230 — everything in one line */
+  NEW[1] = {
+    ring: (d, c) => art(c, p => { const ic = ICN(d); hrow(ic ? [RING(p, c, d, 100, 28, 104), NUM(p, d, 140, 96, 540)] : [RINGV(p, d, 100, 28), UNI(p, d, 110, 520)], 44); }),
+    gauge: (d, c) => art(c, p => { hrow([GAUGE(p, d, 176, 30), ICB(p, c, d, 116), NUM(p, d, 136, 92, ICN(d) ? 280 : 430)], 34); }),
+    card: (d, c) => art(c, p => { cardBox(p); hrow([ICB(p, c, d, 150), NUM(p, d, ICN(d) ? 150 : 168, 104, ICN(d) ? 560 : 760)], 40); }),
+    grid: (d, c) => art(c, p => { hrow([GRID(p, d, 9, 4, 36, 9), ICB(p, c, d, 110), NUM(p, d, 132, 90, ICN(d) ? 250 : 390)], 30); }) };
+  /* 2 · 860 × 470 — wide: the visual on the left, the number on the right */
+  NEW[2] = {
+    ring: (d, c) => art(c, p => { hrow(ICN(d) ? [RING(p, c, d, 200, 44, 200), NUM(p, d, 210, 140, 360, 'stack')] : [RINGV(p, d, 210, 44), UNI(p, d, 150, 360)], 50); }),
+    gauge: (d, c) => art(c, p => { hrow([GAUGE(p, d, 225, 44), asCol([ICB(p, c, d, 110), NUM(p, d, 160, 110, 300, 'stack')], 22)], 40); }),
+    card: (d, c) => art(c, p => { cardBox(p); hrow([ICB(p, c, d, 250), NUM(p, d, 220, 150, ICN(d) ? 460 : 760, 'stack')], 50); }),
+    grid: (d, c) => art(c, p => { hrow([GRID(p, d, 9, 7, 40, 10), asCol([ICB(p, c, d, 104), NUM(p, d, 150, 100, 290, 'stack')], 20)], 40); }) };
+  /* 3 · 560 × 490 — nearly square: the number inside the ring · the dial over the number · tile over number · number over the grid */
+  NEW[3] = {
+    ring: (d, c) => art(c, p => { const R0 = 228, bw = 38, Ri = R0 - bw, ic = ICN(d); ringV(p, 0, 0, R0, bw, frac(d));
+      vcol([ICB(p, c, d, 96) && { w: 96, h: 96, at: (x, y) => put(p, c, { icon: ic }, x, y, 96, null, { t: TQ().tI, punch: Z.H }) }, NUM(p, d, ic ? 120 : 150, 70, f1(1.22 * Ri), 'stack')], 18); }),
+    gauge: (d, c) => art(c, p => { vcol([GAUGE(p, d, 246, 44), asRow([ICB(p, c, d, 104), NUM(p, d, 132, 90, ICN(d) ? 380 : 500)], 24)], 34); }),
+    card: (d, c) => art(c, p => { cardBox(p); vcol([ICB(p, c, d, 180), NUM(p, d, ICN(d) ? 150 : 180, 100, 480)], 30); }),
+    grid: (d, c) => art(c, p => { vcol([asRow([ICB(p, c, d, 104), NUM(p, d, 132, 90, ICN(d) ? 380 : 500)], 24), GRID(p, d, 10, 5, 40, 9)], 34); }) };
+  /* 4 · 400 × 635 — tall and narrow: top → bottom */
+  NEW[4] = {
+    ring: (d, c) => art(c, p => { vcol(ICN(d) ? [RING(p, c, d, 176, 36, 170), NUM(p, d, 140, 80, 360)] : [RINGV(p, d, 186, 38), UNI(p, d, 96, 360)], 44); }),
+    gauge: (d, c) => art(c, p => { vcol([ICB(p, c, d, 130), GAUGE(p, d, 180, 36), NUM(p, d, 130, 76, 360)], 40); }),
+    card: (d, c) => art(c, p => { cardBox(p); vcol([ICB(p, c, d, 200), NUM(p, d, 150, 84, 340, 'stack')], 40); }),
+    grid: (d, c) => art(c, p => { vcol([asRow([ICB(p, c, d, 84), NUM(p, d, 116, 70, ICN(d) ? 260 : 360)], 16), GRID(p, d, 6, 7, 46, 10)], 40); }) };
+  /* 5 · 860 × 710 — full screen, landscape */
+  NEW[5] = {
+    ring: (d, c) => art(c, p => { hrow(ICN(d) ? [RING(p, c, d, 250, 52, 240), NUM(p, d, 210, 140, 260, 'stack')] : [RINGV(p, d, 260, 54), UNI(p, d, 150, 260)], 44); }),
+    gauge: (d, c) => art(c, p => { vcol([GAUGE(p, d, 340, 58), asRow([ICB(p, c, d, 150), NUM(p, d, 200, 140, ICN(d) ? 600 : 780)], 30)], 44); }),
+    card: (d, c) => art(c, p => { cardBox(p); hrow([ICB(p, c, d, 320), NUM(p, d, 250, 160, ICN(d) ? 400 : 760, 'stack')], 56); }),
+    grid: (d, c) => art(c, p => { hrow([GRID(p, d, 10, 10, 42, 9), asCol([ICB(p, c, d, 130), NUM(p, d, 170, 110, 250, 'stack')], 26)], 40); }) };
+  /* 6 · 860 × 965 — full screen, portrait */
+  NEW[6] = {
+    ring: (d, c) => art(c, p => { vcol(ICN(d) ? [RING(p, c, d, 300, 60, 290), NUM(p, d, 250, 170, 800)] : [RINGV(p, d, 320, 62), UNI(p, d, 170, 760)], 56); }),
+    gauge: (d, c) => art(c, p => { vcol([ICB(p, c, d, 200), GAUGE(p, d, 380, 64), NUM(p, d, 240, 160, 800)], 44); }),
+    card: (d, c) => art(c, p => { cardBox(p); vcol([ICB(p, c, d, 330), NUM(p, d, 240, 170, 760, 'stack')], 60); }),
+    grid: (d, c) => art(c, p => { vcol([asRow([ICB(p, c, d, 170), NUM(p, d, 220, 150, ICN(d) ? 590 : 800)], 34), GRID(p, d, 10, 10, 56, 13)], 50); }) };
+  /* 7 · 400 × 500 — small portrait */
+  NEW[7] = {
+    ring: (d, c) => art(c, p => { const R0 = 186, bw = 32, Ri = R0 - bw, ic = ICN(d); ringV(p, 0, 0, R0, bw, frac(d));
+      vcol([ic && { w: 74, h: 74, at: (x, y) => put(p, c, { icon: ic }, x, y, 74, null, { t: TQ().tI, punch: Z.H }) }, NUM(p, d, ic ? 100 : 124, 60, f1(1.22 * Ri), 'stack')], 12); }),
+    gauge: (d, c) => art(c, p => { vcol([GAUGE(p, d, 178, 34), asRow([ICB(p, c, d, 86), NUM(p, d, 120, 70, ICN(d) ? 266 : 370)], 16)], 34); }),
+    card: (d, c) => art(c, p => { cardBox(p); vcol([ICB(p, c, d, 156), NUM(p, d, 130, 76, 340, 'stack')], 30); }),
+    grid: (d, c) => art(c, p => { vcol([asRow([ICB(p, c, d, 86), NUM(p, d, 120, 70, ICN(d) ? 266 : 370)], 16), GRID(p, d, 8, 5, 36, 9)], 30); }) };
+  /* the five designs of each size (01 = round 1) */
+  const SZD = {}; for (let k = 1; k <= 7; k++) SZD[k] = [{ id: 'bar', th: 'แถบเติม', fn: (d, c) => R1[k](d, c) }, { id: 'ring', th: 'วงแหวนเติม', fn: NEW[k].ring },
+    { id: 'gauge', th: 'หน้าปัดเข็ม', fn: NEW[k].gauge }, { id: 'card', th: 'การ์ดตัวเลข', fn: NEW[k].card }, { id: 'grid', th: 'ตารางช่องติดไฟ', fn: NEW[k].grid }];
+
   const ROUNDS = [null, R1];
   const SAMPLES = [
     { say: 'อ่านไป 9 จาก 12 เล่ม', value: '9', max: '12', unit: 'เล่ม', icon: 'book-open' },
     { say: 'ลูกค้ากลับมาซื้อซ้ำ 68%', value: '68%', icon: 'users' },
+    { say: 'นอนวันละ 8 ชั่วโมง (ไม่มีค่าเต็ม ไม่มีไอคอน)', value: '8', unit: 'ชั่วโมง' },
   ];
   const STRESS = [
     { say: 'เก็บเงินได้ 1,250,000 บาท (9 หลัก ไม่มีไอคอน)', value: '1,250,000', unit: 'บาท' },
     { say: 'ran 42 kilometers (English · ไม่มีค่าเต็ม)', value: '42', unit: 'kilometers', icon: 'bike' },
     { say: '90% ของคนทำงานเหนื่อย (หน่วยยาว)', value: '90%', unit: 'ของคนทำงาน', icon: 'briefcase' },
     { say: 'สมาชิกใหม่ 4,800 คน (หน่วยสั้นมาก)', value: '4,800', unit: 'คน', icon: 'user-plus', dir: 'up' },
+    { say: 'เงินเหลือ 0 บาท (ศูนย์)', value: '0', unit: 'บาท', icon: 'wallet' },
+    { say: 'เวลาว่างลดเหลือ 3.5 ชั่วโมง (ลดลง)', value: '3.5', unit: 'ชั่วโมง', icon: 'clock', dir: 'down' },
   ];
 
   /* LONG WORDS (user 2026-11-24: "ถ้าคำยาวมากก็ไม่ต้องมีตัวอักษรเลย เพราะยังไงเสียในคลิปก็พูดถึงสิ่งนั้นอยู่แล้ว"): a label longer than LONGW
@@ -600,6 +715,7 @@
     if (Array.isArray(o.items)) o.items = o.items.map(thinT);
     if (typeof o.unit === 'string' && glen(o.unit) > LONGW) delete o.unit; return o; }
   G.cats = G.cats || {};
-  G.cats.B01S = { ROUNDS, SIZES, SAMPLES, STRESS, theme, frame,
+  G.cats.B01S = { ROUNDS, SIZES, SAMPLES, STRESS, theme, frame, S: SZD,
+    drawS: (k, i, d, c) => { d = trimLong(d); setZ(c); CUR = 's' + k + '-' + SZD[k][i].id; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; SZD[k][i].fn(d || {}, c); },
     draw: (r, k, d, c) => { d = trimLong(d); setZ(c); CUR = 'r' + r + 's' + k; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; ROUNDS[r][k](d || {}, c); }, CLAMPS };
 })();
