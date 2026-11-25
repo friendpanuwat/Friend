@@ -609,7 +609,7 @@
     const hw = vert ? Wb - 2 * m : (Wb - 2 * m - gap) / 2, hh = vert ? (Hb - 2 * m - gap) / 2 : Hb - 2 * m, dr = st.disc ?? 56, rr = Math.min(36, Math.min(hw, hh) * .12);
     const P = { a: vert ? [0, f1(-Hb / 2 + m + hh / 2)] : [f1(-Wb / 2 + m + hw / 2), 0], b: vert ? [0, f1(Hb / 2 - m - hh / 2)] : [f1(Wb / 2 - m - hw / 2), 0] };
     art(c, p => {
-      SIDES.forEach(s => { const [px, py] = P[s], t = tIn(d, s), lose = s === T.lose, win = s === T.win && !T.off, X = XS(d, s), lab = X && X.label ? String(X.label) : null, hasI = !!(X && picOf(X));
+      SIDES.forEach(s => { const [px, py] = P[s], t = tIn(d, s), lose = s === T.lose, win = s === T.win && !T.off, X = XS(d, s), hasI = !!(X && picOf(X)), lab = X && X.label && (!hasI || needW(d)) ? String(X.label) : null;   /* fewer words (D15): only when the icons can't tell the sides apart */
         /* the panel: draws itself as the side comes in; loser dims, winner lights */
         const g0 = atG(p, f3(t - tu(.04))), gP = lose ? dimG(g0, H) : g0;   /* outline only — a filled panel left dark bands when it dimmed */
         drawAt(R(gP, px - hw / 2, py - hh / 2, hw, hh, rr, { sw: 2.6, stroke: TL_(.5) }), p, f3(t - tu(.04)), tu(.3));
@@ -617,10 +617,11 @@
         /* the inside: icon + word, laid out for this half */
         const pad = st.pad ?? 30, wS = st.wordSize ?? 56, inner = st.inner || 'below';
         let ic, ix, iy, wx, wy, wMax, wAn = 'middle';
-        if (inner === 'side') { ic = f1(Math.min(hh - 2 * pad, hw * .46, st.icMax ?? 340)); ix = f1(px - hw / 2 + pad + ic / 2 + (vert ? 0 : 0)); iy = py; wx = f1(ix + ic / 2 + pad); wy = f1(py + wS * .36); wMax = f1(px + hw / 2 - pad - wx - (vert ? 0 : 0)); wAn = 'start'; }
+        if (inner === 'side' && hasI && !lab) { ic = f1(Math.min(hh - 2 * pad, hw - 2 * pad, st.icMax ?? 340)); ix = px; iy = py; wx = px; wy = py; wMax = 0; }
+        else if (inner === 'side') { ic = f1(Math.min(hh - 2 * pad, hw * .46, st.icMax ?? 340)); ix = f1(px - hw / 2 + pad + ic / 2 + (vert ? 0 : 0)); iy = py; wx = f1(ix + ic / 2 + pad); wy = f1(py + wS * .36); wMax = f1(px + hw / 2 - pad - wx - (vert ? 0 : 0)); wAn = 'start'; }
         else { const wh = lab && hasI ? wS * 1.8 : 0; ic = f1(Math.min(hw - 2 * pad, hh - 2 * pad - wh, st.icMax ?? 340)); ix = px; iy = f1(py - wh / 2); wx = px; wy = f1(iy + ic / 2 + wS * 1.2); wMax = hw - 2 * pad; }
         /* keep clear of the disc on the seam (side-by-side halves: the inner edge) */
-        if (!vert && inner !== 'side') { const sh = s === 'a' ? -dr * .35 : dr * .35; ix = f1(ix + sh); wx = f1(wx + sh); }
+        if (!vert && (inner !== 'side' || !lab)) { const sh = s === 'a' ? -dr * .35 : dr * .35; ix = f1(ix + sh); wx = f1(wx + sh); }
         if (hasI) { if (st.box) sbox(p, c, d, s, ix, iy, ic, { t });
           else put(p, c, { icon: X.icon }, ix, iy, ic * .9, null, { t, punch: win ? H : undefined, o: lose ? [[0, 0], [t, 0], [f3(t + tu(.1)), 1], [H, 1], [f3(H + tu(.2)), .38]] : undefined });
           if (lab) word(p, d, s, wx, wy, { size: wS, maxW: wMax, anchor: wAn, t: f3(t + tu(.14)), wrap: inner === 'side' ? 'mid' : 'down' }); }   /* under the icon: a second line goes down, never into the icon */
@@ -726,7 +727,7 @@
       const plt = mvG(p, { px: ex, py: f1(by + fy), x: XK, y: YK, o: fadeIn(tu(.14), .14) }); R(plt, f1(ex - ic * .62), f1(by + fy - 18), f1(ic * 1.24), 16, 8, F(3.4));   /* a plate under each side */
       if (win) R(litOn(plt, Z.H), f1(ex - ic * .62), f1(by + fy - 18), f1(ic * 1.24), 16, 8, { fill: TA(.3), sw: 4.4, stroke: ACC1 });
       side(p, c, d, s, ex, f1(iy - 10), ic, { x: XK, y: YK }, {});
-      const X = XS(d, s); if (X && picOf(X) && X.label) { const wx = f1(ex - sd * (ic / 2 + 18)), mw = f1(arm - ic / 2 - 60);   /* the word on the inner side, filling the middle of the strip (user: ดูโล่ง) */
+      const X = XS(d, s); if (wl && X && picOf(X) && X.label) { const wx = f1(ex - sd * (ic / 2 + 18)), mw = f1(arm - ic / 2 - 60);   /* the word on the inner side, filling the middle of the strip (user: ดูโล่ง) */
         txt(mvG(CL(p), { px: wx, py: iy, x: XK, y: YK, o: fadeIn(f3(tIn(d, s) + tu(.1)), .16).concat(s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.3)), .38, 'io']] : []) }), X.label, wx, f1(iy - 10 + Math.min(56, ic * .4) * .36), { size: f1(Math.min(56, ic * .4)), maxW: mw, weight: 800, color: C.ink, anchor: sd < 0 ? 'start' : 'end', wrap: 'mid' }); }
       at[s] = [f1(ex - sd * (ic * .5 + 46)), f1(-H0 / 2 + 40), 34]; });   /* small, on the inner top — clear of the side and its word */
     return at; }
@@ -773,13 +774,14 @@
   /* GROW on a flat strip (user: size 1 ใช้พื้นที่ไม่คุ้ม): two wide cards — icon + its word side by side — the winner's card grows to the full
      height, the loser's shrinks and dims; change: a's card shrinks aside as b's grows in, a chevron between. Cards fill the strip's width. */
   function GROWF(p, c, d, W0, H0) { const T = ST(d), t0 = T0C(d), t1 = T1C(), at = {}, gap = f1(H0 * .1), chv = T.change ? f1(H0 * .3) : 0, dec = T.change || (T.win && !T.off);
-    const hOf = s => !dec ? f1(H0 * .9) : (T.change ? s === 'b' : s === T.win) ? f1(H0) : f1(H0 * .66), hA = hOf('a'), hB = hOf('b'), asp = Math.min(2.8, (W0 - 2 * gap - chv) / (hA + hB));
+    const anyW = SIDES.some(s => { const X = XS(d, s); return X && X.label && (!picOf(X) || needW(d)); });
+    const hOf = s => !dec ? f1(H0 * .9) : (T.change ? s === 'b' : s === T.win) ? f1(H0) : f1(H0 * .66), hA = hOf('a'), hB = hOf('b'), asp = Math.min(anyW ? 2.8 : 1.5, (W0 - 2 * gap - chv) / (hA + hB));
     const wOf = s => f1(hOf(s) * asp), tot = wOf('a') + wOf('b') + 2 * gap + chv, C0 = { a: f1(-tot / 2 + wOf('a') / 2) }; C0.b = f1(C0.a + wOf('a') / 2 + gap + chv + gap + wOf('b') / 2);
     SIDES.forEach(s => { const h = hOf(s), w = wOf(s), x = C0[s], y = 0, rr = f1(h * .26), win = s === T.win && !T.off, lose = s === T.lose && !T.off, X = XS(d, s);
       const s0 = !dec ? 1 : T.change ? (s === 'a' ? f3(H0 / h) : .5) : f3(H0 * .9 / h), tA = T.change && s === 'b' ? f3(t0 + (t1 - t0) * .35) : tIn(d, s);
       const dimO = lose ? [[Z.H, 1], [f3(Z.H + tu(.3)), .45, 'io']] : [], K = { px: x, py: y, s: [[0, s0], [t0, s0], [t1, 1, 'io']], o: (T.change && s === 'b' ? fadeIn(tA, .3) : fadeIn(tA, .14)).concat(dimO) };
       const g = mvG(CL(p), K); R(g, f1(x - w / 2), f1(y - h / 2), w, h, rr, F(4.2)); if (win) R(litOn(g, Z.H), f1(x - w / 2), f1(y - h / 2), w, h, rr, { fill: TA(.1), sw: 4.8, stroke: ACC1 });
-      const hasI = X && picOf(X), lab = X && X.label, isz = f1(h * .66), ix = lab && hasI ? f1(x - w / 2 + h * .55) : x;
+      const hasI = X && picOf(X), lab = X && X.label && (!hasI || needW(d)), isz = f1(h * .66), ix = lab && hasI ? f1(x - w / 2 + h * .55) : x;
       if (hasI) put(p, c, { icon: X.icon }, ix, y, isz, null, { t: tA, mv: { px: x, py: y, s: K.s }, o: K.o });
       if (lab) { const wx = hasI ? f1(ix + isz / 2 + h * .12) : x, mw = hasI ? f1(x + w / 2 - wx - h * .2) : f1(w * .84); txt(g, X.label, wx, f1(y + h * .1), { size: f1(Math.max(40, h * .26)), maxW: mw, weight: 800, color: C.ink, anchor: hasI ? 'start' : 'middle', wrap: 'mid' }); }
       at[s] = [f1(x + w / 2 - 28), f1(y - h / 2 + 28)]; });
