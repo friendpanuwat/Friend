@@ -1017,7 +1017,7 @@
     const fr = f1(fh > 240 ? 52 : fh / 2), g = popAt(p, f1(l + w / 2), cy, Q.tIn); R(g, l, ft, w, fh, fr, F(3.4)); R(litOn(g, Q.H), l, ft, w, fh, fr, { sw: 4, stroke: ACC1 });
     const bw = f1(Math.min(fh, 150, w * .22)), br2 = f1(Math.min(br, bw * .34)), by = f1(ft + fh - bw / 2);   /* a tall field: the buttons sit on its bottom row */
     plusA(p, f1(l + bw / 2 + 6), by, br2, Q); sendA(p, f1(l + w - bw / 2 - 6), by, br2, Q);
-    let A = [f1(l + bw + 6), f1(ft + fh * .18), f1(l + w - bw - 6), f1(ft + fh * .82)]; if (fh > 240) A = [f1(l + 36), f1(ft + 24), f1(l + w - 36), f1(ft + fh - bw - 4)]; if (Q.kind === 'review') { const sr = f1(Math.min(16, fh * .08)); starsA(g, Q, f1(A[0] + sr), f1(A[1] + sr), sr, f1(sr * 2.5)); A = [A[0], f1(A[1] + sr * 2 + 8), A[2], A[3]]; }
+    let A = [f1(l + bw + 6), f1(ft + fh * .18), f1(l + w - bw - 6), f1(ft + fh * .82)]; if (fh > 240) A = [f1(l + 36), f1(ft + 24), f1(l + w - 36), f1(ft + fh - bw - 4)]; if (Q.kind === 'review') { const sr = f1(Math.min(fh > 240 ? 30 : 16, fh * .08)); starsA(g, Q, f1(A[0] + sr), f1(A[1] + sr), sr, f1(sr * 2.5)); A = [A[0], f1(A[1] + sr * 2 + 8), A[2], A[3]]; }
     words11(g, p, Q, A, { size: o.size || f1(Math.min(82, fh * .4)) });
     const rh = o.rh ?? f1(Math.min(h - fh - 30, 120)), rw = f1(Math.min(w * .5, rh * 2)); if (rh > 50) typeA(p, c, Q, l, f1(ft - 26 - rh), rw, rh); }
   /* LIST [l, t, w, h] — an inbox: the new row on top (tile, words, tapback / ticks) lit, earlier rows faint below, hairlines between */
@@ -1084,7 +1084,10 @@
   sd(5, 'thread', 'บทสนทนา', (d, c) => { const Q = MQ(d); art(c, p => threadA(p, c, Q, -426, -350, 852, 700, { n: 1, mh: 300, size: 104, av: 70 })); });
   sd(5, 'list', 'รายการกล่องข้อความ', (d, c) => { const Q = MQ(d); art(c, p => listA(p, c, Q, -426, -352, 852, 704, 3, { size: 104 })); });
   sd(5, 'profile', 'คนเขียน + ข้อความ', (d, c) => { const Q = MQ(d); art(c, p => profileA(p, c, Q, -270, -170, 150, [-426, 30, 852, 300], { size: 108, tr: 60, reply: [-60, -300, 240, 110] })); });
-  sd(5, 'compose', 'ช่องพิมพ์ + ปุ่มส่ง', (d, c) => { const Q = MQ(d); art(c, p => { oldA(p, Q, -426, -352, 520, 170, 'l', 0); composeA(p, c, Q, -426, -140, 852, 490, { fh: 250, rh: 0, size: 104 }); typeA(p, c, Q, 150, -330, 240, 120); }); });
+  /* 05 (user: "ขนาด 5 อันที่ 5 มันโล่งไป") the field is the hero: a tall rounded field across the box with the words big inside (stars on its top line),
+     plus / send on its bottom row; above it the earlier message (left) and the answer bubble or the typing that stops (right) fill the top band */
+  sd(5, 'compose', 'ช่องพิมพ์ + ปุ่มส่ง', (d, c) => { const Q = MQ(d); art(c, p => { oldA(p, Q, -426, -352, 470, 160, 'l', 0);
+    composeA(p, c, Q, -426, -170, 852, 520, { fh: 520, rh: 0, size: 132 }); typeA(p, c, Q, 166, -346, 250, 140); }); });
 
   sd(6, 'stack', 'กองแจ้งเตือน', (d, c) => { const Q = MQ(d); art(c, p => stackA(p, c, Q, -426, -480, 852, 960, { size: 120 })); });
   sd(6, 'list', 'รายการกล่องข้อความ', (d, c) => { const Q = MQ(d); art(c, p => listA(p, c, Q, -426, -480, 852, 960, 4, { size: 104 })); });
