@@ -716,12 +716,17 @@
     return txt(g, A.lab, x, y, { size: o.size || 56, maxW: o.maxW || 360, weight: 800, color: C.ink, anchor: o.anchor || 'middle', wrap: o.wrap === undefined ? 'mid' : o.wrap }); }
   /* THE TRAVELLER — who (its icon on a round plate, radius o.r) or, with no who, a lit token — rides pts from tM0 to H (one smooth trip, sm),
      arriving on H with a small bump. Returns the path keys (P.when(pt) = when it passes a point, P.K = its keys) */
-  function traveler(p, c, d, pts, o = {}) { const A = GD(d), T = GT(), H = T.H, t0 = o.t0 ?? T.tM0, t1 = o.t1 ?? H, fin = pts[pts.length - 1], P = pathK(pts, t0, t1, fin, o.n || 36, o.ease || sm);
+  function traveler(p, c, d, pts, o = {}) { const A = GD(d), T = GT(), H = T.H, t0 = o.t0 ?? T.tM0, t1 = o.t1 ?? H, fin = pts[pts.length - 1], P = o.hops ? hopK(pts, t0, t1, fin) : pathK(pts, t0, t1, fin, o.n || 36, o.ease || sm);
     const tin = o.tin ?? T.tW, op = [[0, 0], [tin, 0], [f3(tin + tu(.16)), 1]], K = { px: fin[0], py: fin[1], x: P.x, y: P.y, o: op };
     const g0 = mvG(o.clip ? CL(p) : p, K), g = mvG(g0, { px: fin[0], py: fin[1], s: [[0, 1], [t1, 1], [f3(t1 + tu(.14)), 1.08, 'out'], [f3(t1 + tu(.36)), 1, 'io']] }), r = o.r || 60;
     if (A.who) { g.circle(...fin, r, F(4)); g.circle(...fin, r - 11, S(1.4)); put(p, c, { icon: A.who }, ...fin, f1(r * 1.32), null, { t: f3(tin + tu(.04)), mv: { px: fin[0], py: fin[1], x: P.x, y: P.y }, o: op, punch: t1 }); }
     else { const tr = f1(Math.max(16, r * .36)); g.circle(...fin, tr, DOTF()); g.circle(...fin, f1(tr + 10), { sw: 2.6, stroke: ACC1 }); }
     P.K = K; P.fin = fin; return P; }
+  /* level-by-level keys (B08S stack — user: "ตัวต่อมันขึ้นไปไวกว่าไอคอนได้ไง"): each slot holds, then hops up to the next level (eased); the
+     block that holds it slides in only after it has landed */
+  function hopK(pts, t0, t1, fin) { const n = pts.length - 1, dt = (t1 - t0) / n, X = [[0, f1(pts[0][0] - fin[0])]], Y = [[0, f1(pts[0][1] - fin[1])], [t0, f1(pts[0][1] - fin[1])]];
+    for (let j = 0; j < n; j++) { const a = f3(t0 + j * dt + dt * .45), e = f3(t0 + (j + 1) * dt); Y.push([a, f1(pts[j][1] - fin[1])], [e, f1(pts[j + 1][1] - fin[1]), 'io']); }
+    return { x: X, y: Y, hopEnd: j => f3(t0 + (j + 1) * dt), dt, when: () => t1 }; }
   /* a track along pts: a quiet line that draws in, and a lit line that follows the traveller exactly (same ease) */
   function track(p, pts, o = {}) { const T = GT(), D = pathOf(pts, false); drawAt(p.path(D, { sw: o.w || 5, stroke: TL_(.4) }), p, T.tA, tu(.5));
     const l = p.path(D, { sw: (o.w || 5) + 1.5, stroke: ACC1 }); on(l, p, 0, { draw: smK(o.t0 ?? T.tM0, T.H, 0, 1, 24) }); }
@@ -741,8 +746,8 @@
   const tiles = (p, list, P, near) => list.forEach(([x, y, w, h], k) => { const tt = P.when(near(k)), t0 = f3(Math.max(GT().tA, tt - tu(.34))), g = popAt(p, x, y, t0);
     R(g, f1(x - w / 2), f1(y - h / 2), w, h, f1(Math.min(14, h * .3)), F(3.6)); R(litOn(g, f3(tt + tu(.02))), f1(x - w / 2), f1(y - h / 2), w, h, f1(Math.min(14, h * .3)), { fill: TA(.3), sw: 4, stroke: ACC1 }); });
   /* STACK: blocks [x0, y0, w, h] (bottom → top) that slide in under the traveller as it rises (P.when(level k)) */
-  const stack = (p, list, P, lv) => list.forEach(([x0, y0, w, h], k) => { const tt = k ? P.when(lv(k)) : GT().tA, t0 = f3(Math.max(GT().tA, tt - tu(.3))), g = mvG(CL(p), { x: [[0, -90], [t0, -90], [f3(t0 + tu(.3)), 0, 'out']], o: fadeIn(t0, .1) });
-    R(g, x0, y0, w, h, 14, F(4)); R(litOn(g, f3(tt + tu(.06))), x0, y0, w, h, 14, { fill: TA(.07), sw: 4.4, stroke: ACC1 }); });
+  const stack = (p, list, P) => list.forEach(([x0, y0, w, h], k) => { const t0 = k ? P.hopEnd(k - 1) : GT().tA, d1 = k ? Math.min(tu(.3), P.dt * .4) : tu(.3), g = mvG(CL(p), { x: [[0, -90], [t0, -90], [f3(t0 + d1), 0, 'out']], o: fadeIn(t0, .08) });
+    R(g, x0, y0, w, h, 14, F(4)); R(litOn(g, f3(t0 + d1)), x0, y0, w, h, 14, { fill: TA(.07), sw: 4.4, stroke: ACC1 }); });
   /* LIFT: a rail (x, y0 → y1) and a platform under the traveller that rides with it (the same keys) */
   function lift(p, x, y0, y1, pw, P, r) { const T = GT(), xl = f1(x - pw / 2 - 12), xr = f1(x + pw / 2 + 12), top = f1(y1 - r - 30);
     [xl, xr].forEach(xx => drawAt(p.line(xx, y0, xx, top, { sw: 5, stroke: TL_(.45) }), p, T.tA, tu(.5)));
@@ -807,7 +812,7 @@
   /* 03 building up: blocks slide in under who one by one, lifting it to the goal's height */
   sd(2, 'stack', 'ต่อขึ้นไปถึง', (d, c) => { const A = GD(d);
     art(c, p => { const x = -130, bw = 230, bh = 78, L = Array.from({ length: 4 }, (_, k) => [f1(x - bw / 2), f1(235 - bh * (k + 1)), bw, bh - 10]), lv = k => [x, f1(235 - bh * k - 10 - 60)];
-      const pts = [lv(1), lv(2), lv(3), lv(4)], P = traveler(p, c, d, pts, { r: 56 }); stack(p, L, P, k => lv(k));
+      const pts = [lv(1), lv(2), lv(3), lv(4)], P = traveler(p, c, d, pts, { r: 56, hops: true }); stack(p, L, P);
       goalAt(p, c, d, 156, lv(4)[1], { r: 98, big: 42, bigW: 170 }); gwordAt(p, d, 330, 110, { size: 62, maxW: 180 }); }); });
   /* 04 checkpoints on a rising arc: who passes three rings (each lights) and arrives at the goal */
   sd(2, 'checks', 'ด่านระหว่างทาง', (d, c) => { const A = GD(d);
@@ -845,16 +850,13 @@
     art(c, p => { const x = -100, pts = [[x, 220], [x, -150]], P = traveler(p, c, d, pts, { r: 64 }); lift(p, x, 300, -150, 150, P, 64);
       goalAt(p, c, d, 92, -150, { r: 92, big: 40, bigW: 160 }); gwordAt(p, d, 90, 60, { size: 48, maxW: 190 }); }); });
   /* 02 (user: "02 มันดูโล่งเกินไปอยากให้ทำเป็นแคปซูลใหญ่ให้เต็มขนาดเลย ดีไซน์ใหม่ให้ดีนะไม่ใช่แค่ขยาย") one big capsule fills the whole box:
-     the goal waits in its top dome, the goal's words sit at its foot; the level rises from the bottom with who floating on it, the ticks on the
-     right light one by one as the level passes them, and on H the level reaches the mark right under the goal — the mark and the goal light */
+     the goal waits in its top dome, the goal's words sit at its foot; the level rises from the bottom with who floating on it, and on H the level reaches the mark right under the goal — the mark and the goal light */
   sd(4, 'tube', 'แคปซูลเติมจนถึงเป้า', (d, c) => { const A = GD(d), T = GT(), H = T.H;
     art(c, p => { const W = 380, Ht = 616, x0 = -190, y0 = -308, rr = 190, D = rrD(x0, y0, W, Ht, rr), r = 58, gy = -196, gr = 96, mark = f1(gy + gr + 12 + r * 2 + 6), L0 = 200;
       const b = atG(p, T.tA); b.path(D, NOFILL); b.path(rrD(x0 + 16, y0 + 16, W - 32, Ht - 32, rr - 16), S(1.4));
       const cl = clipP(p, D), lv = mvG(cl, { y: smK(T.tM0, H, f1(L0 - mark), 0, 24) });
       R(lv, x0, mark, W, Ht, 0, { fill: TL_(.13), sw: 0, stroke: 'none' }); R(litOn(lv, H), x0, mark, W, Ht, 0, { fill: TA(.2), sw: 0, stroke: 'none' }); lv.line(x0, mark, x0 + W, mark, { sw: 4, stroke: TL_(.75) });
       const mk = drawAt(p.line(-140, mark, 140, mark, { sw: 3, stroke: TL_(.4) }), p, T.tA, tu(.4)); litOn(p, H).line(-140, mark, 140, mark, { sw: 5, stroke: ACC1 });
-      for (let k = 0; k < 5; k++) { const y = f1(L0 + 70 - (L0 + 70 - mark) * k / 4), fr = Math.min(1, Math.max(0, (L0 - y) / (L0 - mark))), tl = y >= L0 ? T.tA : f3(T.tM0 + (H - T.tM0) * smInv(fr));
-        const g = atG(p, f3(T.tA + tu(.05 * k))); g.line(130, y, 162, y, { sw: 4, stroke: TL_(.5) }); const l = litOn(g, f3(Math.max(tl, T.tA + tu(.1)))); l.line(130, y, 162, y, { sw: 5, stroke: k === 4 ? ACC1 : C.ink }); }
       drawAt(p.path(D, { sw: 4.6 }), p, T.tA, tu(.6));
       goalAt(p, c, d, 0, gy, { r: gr, big: 40, bigW: 160 }); gwordAt(p, d, 0, 262, { size: 54, maxW: 230 });
       traveler(p, c, d, [[0, f1(L0 - r - 6)], [0, f1(mark - r - 6)]], { r }); }); });
@@ -862,7 +864,7 @@
   /* 03 building up: blocks slide in under who, lifting it up to the goal at the top */
   sd(4, 'stack', 'ต่อขึ้นไปถึง', (d, c) => { const A = GD(d);
     art(c, p => { const x = -90, bw = 200, bh = 100, L = Array.from({ length: 4 }, (_, k) => [f1(x - bw / 2), f1(317 - bh * (k + 1)), bw, bh - 10]), lv = k => [x, f1(317 - bh * k - 10 - 60)];
-      const P = traveler(p, c, d, [lv(1), lv(2), lv(3), lv(4)], { r: 56 }); stack(p, L, P, k => lv(k));
+      const P = traveler(p, c, d, [lv(1), lv(2), lv(3), lv(4)], { r: 56, hops: true }); stack(p, L, P);
       goalAt(p, c, d, 106, lv(4)[1], { r: 86, big: 36, bigW: 150 }); gwordAt(p, d, 106, 70, { size: 46, maxW: 170 }); }); });
   /* 04 a climb: who zigzags up a switchback path (lit behind) to the goal at the top */
   sd(4, 'climb', 'ไต่ทางซิกแซก', (d, c) => { const A = GD(d);
@@ -886,7 +888,7 @@
       goalAt(p, c, d, 290, -40, { shape: 'card', w: 260, h: 560, iy: A.lab ? -100 : 0, iw: 220, big: 66, bigW: 220 }); gwordAt(p, d, 290, 150, { size: 58, maxW: 220 }); }); });
   sd(5, 'stack', 'ต่อขึ้นไปถึง', (d, c) => { const A = GD(d);
     art(c, p => { const x = -150, bw = 300, bh = 104, L = Array.from({ length: 5 }, (_, k) => [f1(x - bw / 2), f1(355 - bh * (k + 1)), bw, bh - 12]), lv = k => [x, f1(355 - bh * k - 12 - 66)];
-      const P = traveler(p, c, d, [lv(1), lv(2), lv(3), lv(4), lv(5)], { r: 62 }); stack(p, L, P, k => lv(k));
+      const P = traveler(p, c, d, [lv(1), lv(2), lv(3), lv(4), lv(5)], { r: 62, hops: true }); stack(p, L, P);
       goalAt(p, c, d, 190, lv(5)[1], { r: 104, big: 46, bigW: 190 }); gwordAt(p, d, 220, 140, { size: 64, maxW: 300 }); }); });
   sd(5, 'arrow', 'ลูกศรถึงเป้า', (d, c) => { const A = GD(d);
     art(c, p => { const s = sender(p, c, d, -340, -40, 82), x0 = s ? -240 : -420; arrowFill(p, d, { x0, x1: 170, y: -40, sh: 170, hh: 300, hl: 130 });
