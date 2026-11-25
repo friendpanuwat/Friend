@@ -583,7 +583,7 @@
     ripple(p, x, y, r + 8, f3(t + tu(.14))); }
   /* CutPack sends the cross as 'cross' (cat_ai.py); 'x' is ours — both mean: cross the loser */
   const HOWB = d => d && (d.how === 'cross' || d.how === 'x') ? 'x' : d && d.how === 'check' ? 'check' : null;
-  function verdict(p, d, at) { const T = ST(d), hw = HOWB(d); if (!hw || !T.win) return; const s = hw === 'x' ? T.lose : T.win; if (at[s]) stamp(p, hw, at[s][0], at[s][1]); }
+  function verdict(p, d, at) { const T = ST(d), hw = HOWB(d); if (!hw || !T.win) return; const s = hw === 'x' ? T.lose : T.win; if (at[s]) stamp(p, hw, at[s][0], at[s][1], at[s][2] || 58); }
   const corner = (x, y, sz, sd = 1) => [f1(x + sd * (sz / 2 - 6)), f1(y - sz / 2 + 6)];
   /* an equal level both sides reach before the keyword (CutPack: equal until the verdict) */
   const eqOf = T => Math.min(T.amt('a'), T.amt('b')) * .82;
@@ -715,24 +715,27 @@
     return at; }
   /* SEESAW (the balance on a flat strip): a beam on a low pivot, each side sitting on its end; the heavier / winning end goes down */
   function SEESAW(p, c, d, W0, H0) { const T = ST(d), t0 = T0C(d), t1 = T1C(), at = {}, wl = needW(d);
-    const heavy = T.hasV && T.va !== T.vb ? (T.va > T.vb ? 'a' : 'b') : T.win, sgn = heavy === 'a' ? -1 : heavy === 'b' ? 1 : 0, ang = sgn * 4.5, a0 = T.change ? -ang : 0;
-    const arm = f1(W0 * .34), dy = arm * Math.sin(rad(5)), pv = f1(Math.min(34, H0 * .15)), ic = f1(Math.min(H0 - pv - 14 - 2 * dy - 10, W0 * .22)), by = f1(H0 / 2 - pv - 7);
+    const heavy = T.hasV && T.va !== T.vb ? (T.va > T.vb ? 'a' : 'b') : T.win, sgn = heavy === 'a' ? -1 : heavy === 'b' ? 1 : 0, ang = sgn * 2.6, a0 = T.change ? -ang : 0;
+    const pv = f1(Math.min(24, H0 * .11)); let ic = f1(H0 * .6), arm, dy; for (let i = 0; i < 20; i++) { arm = f1(W0 / 2 - ic * .62 - 6); dy = arm * Math.sin(rad(Math.abs(ang) + .5)); if (ic <= H0 - pv - 26 - 2 * dy) break; ic = f1(ic * .95); }
+    const by = f1(H0 / 2 - pv - 7);   /* the beam spans the strip, the sides as big as the height allows (user: size 1 ดูโล่ง) */
     const gB = sIn(p, 0, by, tu(.04), .3); gB.path(`M 0 ${by} L ${f1(pv * .8)} ${f1(H0 / 2)} L ${f1(-pv * .8)} ${f1(H0 / 2)} Z`, F(3.6));
     const angK = [[0, a0], [t0, a0]]; for (let i = 1; i <= 24; i++) { const u = i / 24; angK.push([f3(t0 + (t1 - t0) * u), f3(a0 + (ang - a0) * ioE2(u))]); }
     const bg = mvG(p, { px: 0, py: by, r: angK, o: fadeIn(tu(.1), .14) }); R(bg, f1(-arm - ic * .6), f1(by - 7), f1(2 * arm + ic * 1.2), 14, 7, F(3.4)); bg.circle(0, by, 10, KN2());
     SIDES.forEach(s => { const sd = s === 'a' ? -1 : 1, xe = sd * arm, end = a => [xe * Math.cos(rad(a)), xe * Math.sin(rad(a))], [fx, fy] = end(ang), win = s === T.win && !T.off;
       const XK = angK.map(([t, a]) => [t, f1(end(a)[0] - fx)]), YK = angK.map(([t, a]) => [t, f1(end(a)[1] - fy)]), ex = f1(fx), iy = f1(by + fy - 7 - ic / 2 - 4);
-      if (win) R(litOn(mvG(p, { px: ex, py: f1(by + fy), x: XK, y: YK }), Z.H), f1(ex - ic * .6), f1(by + fy - 8), f1(ic * 1.2), 16, 8, KN2());
-      side(p, c, d, s, ex, iy, ic, { x: XK, y: YK }, {});
-      const X = XS(d, s); if (wl && X && picOf(X) && X.label) { const wx = f1(ex - sd * (ic / 2 + 16)); txt(mvG(CL(p), { px: wx, py: iy, x: XK, y: YK, o: fadeIn(f3(tIn(d, s) + tu(.1)), .16).concat(s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.3)), .38, 'io']] : []) }), X.label, wx, f1(iy + 16), { size: 42, maxW: f1(ic * 1.1), weight: 800, color: C.ink, anchor: sd < 0 ? 'end' : 'start', wrap: 'mid' }); }
-      at[s] = [f1(ex + sd * ic * .45), f1(iy - ic * .3)]; });
+      const plt = mvG(p, { px: ex, py: f1(by + fy), x: XK, y: YK, o: fadeIn(tu(.14), .14) }); R(plt, f1(ex - ic * .62), f1(by + fy - 18), f1(ic * 1.24), 16, 8, F(3.4));   /* a plate under each side */
+      if (win) R(litOn(plt, Z.H), f1(ex - ic * .62), f1(by + fy - 18), f1(ic * 1.24), 16, 8, { fill: TA(.3), sw: 4.4, stroke: ACC1 });
+      side(p, c, d, s, ex, f1(iy - 10), ic, { x: XK, y: YK }, {});
+      const X = XS(d, s); if (X && picOf(X) && X.label) { const wx = f1(ex - sd * (ic / 2 + 18)), mw = f1(arm - ic / 2 - 60);   /* the word on the inner side, filling the middle of the strip (user: ดูโล่ง) */
+        txt(mvG(CL(p), { px: wx, py: iy, x: XK, y: YK, o: fadeIn(f3(tIn(d, s) + tu(.1)), .16).concat(s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.3)), .38, 'io']] : []) }), X.label, wx, f1(iy - 10 + Math.min(56, ic * .4) * .36), { size: f1(Math.min(56, ic * .4)), maxW: mw, weight: 800, color: C.ink, anchor: sd < 0 ? 'start' : 'end', wrap: 'mid' }); }
+      at[s] = [f1(ex - sd * (ic * .5 + 46)), f1(-H0 / 2 + 40), 34]; });   /* small, on the inner top — clear of the side and its word */
     return at; }
   const KN2 = () => ({ fill: ACC1, sw: 0, stroke: 'none' });
 
   /* BARS — two long bars, one per side, its thing at the start: both fill on one smooth trip to their amount (v, or the winner fuller, or the same).
      The fuller / winning bar's edge glows on H. Wide boxes: rows; tall ones: columns rising from the bottom. change: a fills first, b after. */
   function BARS(p, c, d, W0, H0) { const T = ST(d), vert = H0 > W0 * .95, t0 = T0C(d), t1 = T1C(), at = {};
-    const n2 = 2, gap = f1(Math.min(W0, H0) * (vert ? .1 : .12)), along = vert ? H0 : W0, across = vert ? W0 : H0, thick = f1((across - gap) / 2), ic = f1(Math.min(thick * .9, along * .3, 260)), bt = f1(Math.min(thick * .62, 130));
+    const n2 = 2, gap = f1(Math.min(W0, H0) * (vert ? .1 : .12)), along = vert ? H0 : W0, across = vert ? W0 : H0, thick = f1((across - gap) / 2), ic = f1(Math.min(thick * .9, along * .3, 300)), bt = f1(Math.min(thick * (vert && W0 > 600 ? .78 : .62), vert && W0 > 600 ? 300 : 130));   /* big tall rooms: two thick pillars (user: size 6 ใช้พื้นที่ไม่คุ้ม) */
     SIDES.forEach((s, i) => { const off = f1(-across / 2 + thick / 2 + i * (thick + gap)), win = (s === T.big || s === T.win) && !T.off, amt = T.amt(s), x1 = f1(along / 2); let x0 = f1(-along / 2 + ic + 24), lenF = f1(x1 - x0);
       const ta = T.change ? (s === 'a' ? t0 : f3(t0 + (t1 - t0) * .45)) : t0, tb = T.change ? (s === 'a' ? f3(t0 + (t1 - t0) * .55) : t1) : t1;
       const P = (u, v) => vert ? [v, f1(-u)] : [u, v], wl = needW(d) && XS(d, s) && picOf(XS(d, s)) && XS(d, s).label, wsz = f1(Math.max(40, Math.min(52, thick * .22))), icx = wl && vert ? f1(Math.min(ic, thick - wsz * 1.4)) : ic;
@@ -750,7 +753,7 @@
 
   /* GROW — two tiles: on the trip the winner grows and lights, the loser shrinks and dims; no winner → both stay the same. change: a sits big
      alone, then it shrinks aside as b grows in beside it, a chevron between them. Each tile = one frame with its thing (nothing nested). */
-  function GROW(p, c, d, W0, H0) { const T = ST(d), vert = H0 > W0 * 1.05, t0 = T0C(d), t1 = T1C(), at = {}, gap = f1(Math.min(W0, H0) * .08), chv = T.change ? f1(Math.min(W0, H0) * .14) : 0;
+  function GROW(p, c, d, W0, H0) { if (W0 / H0 > 2.5) return GROWF(p, c, d, W0, H0); const T = ST(d), vert = H0 > W0 * 1.05, t0 = T0C(d), t1 = T1C(), at = {}, gap = f1(Math.min(W0, H0) * .08), chv = T.change ? f1(Math.min(W0, H0) * .14) : 0;
     const along = vert ? H0 : W0, across = vert ? W0 : H0, room = (along - gap * 2 - chv) / 2, big = f1(Math.min(across, room * 1.25, 560)), small = f1(big * .6);
     const fin = s => T.change ? (s === 'b' ? big : small) : T.win && !T.off ? (s === T.win ? big : small) : f1(Math.min(across, room, 460));
     const tot = fin('a') + fin('b') + gap * 2 + chv; let u = -tot / 2; const C0 = {};
@@ -765,6 +768,22 @@
       at[s] = [f1(x + sz / 2 - 30), f1(y - sz / 2 + 30)]; });
     if (T.change) { const cx = vert ? 0 : f1((C0.a + fin('a') / 2 + C0.b - fin('b') / 2) / 2), cy = vert ? f1((C0.a + fin('a') / 2 + C0.b - fin('b') / 2) / 2) : 0, g = sIn(p, cx, cy, f3(t0 + (t1 - t0) * .3));
       chev(vert ? rot(g, 90, cx, cy) : g, cx, cy, chv / 70, { sw: 7, stroke: ACC1 }); }
+    return at; }
+
+  /* GROW on a flat strip (user: size 1 ใช้พื้นที่ไม่คุ้ม): two wide cards — icon + its word side by side — the winner's card grows to the full
+     height, the loser's shrinks and dims; change: a's card shrinks aside as b's grows in, a chevron between. Cards fill the strip's width. */
+  function GROWF(p, c, d, W0, H0) { const T = ST(d), t0 = T0C(d), t1 = T1C(), at = {}, gap = f1(H0 * .1), chv = T.change ? f1(H0 * .3) : 0, dec = T.change || (T.win && !T.off);
+    const hOf = s => !dec ? f1(H0 * .9) : (T.change ? s === 'b' : s === T.win) ? f1(H0) : f1(H0 * .66), hA = hOf('a'), hB = hOf('b'), asp = Math.min(2.8, (W0 - 2 * gap - chv) / (hA + hB));
+    const wOf = s => f1(hOf(s) * asp), tot = wOf('a') + wOf('b') + 2 * gap + chv, C0 = { a: f1(-tot / 2 + wOf('a') / 2) }; C0.b = f1(C0.a + wOf('a') / 2 + gap + chv + gap + wOf('b') / 2);
+    SIDES.forEach(s => { const h = hOf(s), w = wOf(s), x = C0[s], y = 0, rr = f1(h * .26), win = s === T.win && !T.off, lose = s === T.lose && !T.off, X = XS(d, s);
+      const s0 = !dec ? 1 : T.change ? (s === 'a' ? f3(H0 / h) : .5) : f3(H0 * .9 / h), tA = T.change && s === 'b' ? f3(t0 + (t1 - t0) * .35) : tIn(d, s);
+      const dimO = lose ? [[Z.H, 1], [f3(Z.H + tu(.3)), .45, 'io']] : [], K = { px: x, py: y, s: [[0, s0], [t0, s0], [t1, 1, 'io']], o: (T.change && s === 'b' ? fadeIn(tA, .3) : fadeIn(tA, .14)).concat(dimO) };
+      const g = mvG(CL(p), K); R(g, f1(x - w / 2), f1(y - h / 2), w, h, rr, F(4.2)); if (win) R(litOn(g, Z.H), f1(x - w / 2), f1(y - h / 2), w, h, rr, { fill: TA(.1), sw: 4.8, stroke: ACC1 });
+      const hasI = X && picOf(X), lab = X && X.label, isz = f1(h * .66), ix = lab && hasI ? f1(x - w / 2 + h * .55) : x;
+      if (hasI) put(p, c, { icon: X.icon }, ix, y, isz, null, { t: tA, mv: { px: x, py: y, s: K.s }, o: K.o });
+      if (lab) { const wx = hasI ? f1(ix + isz / 2 + h * .12) : x, mw = hasI ? f1(x + w / 2 - wx - h * .2) : f1(w * .84); txt(g, X.label, wx, f1(y + h * .1), { size: f1(Math.max(40, h * .26)), maxW: mw, weight: 800, color: C.ink, anchor: hasI ? 'start' : 'middle', wrap: 'mid' }); }
+      at[s] = [f1(x + w / 2 - 28), f1(y - h / 2 + 28)]; });
+    if (T.change) { const cx = f1((C0.a + wOf('a') / 2 + C0.b - wOf('b') / 2) / 2), g = sIn(p, cx, 0, f3(t0 + (t1 - t0) * .3)); chev(g, cx, 0, chv / 70, { sw: 7, stroke: ACC1 }); }
     return at; }
 
   /* one size's frame for a design: centred in the box, fills it (margin m) */
