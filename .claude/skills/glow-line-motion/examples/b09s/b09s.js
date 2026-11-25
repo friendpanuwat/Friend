@@ -718,9 +718,9 @@
     const g = mvG(p, { o: [[0, 0], [tIn, 0], [f3(tIn + tu(.14)), 1]] });
     if (sh !== 'float') { dr(g, NOFILL); dr(g, { sw: 3, stroke: TL_(.45) }); if (on != null) dr(litOn(g, on), { sw: 3.6, stroke: C.ink }); if (it.last) dr(litOn(g, H), { fill: TA(.12), sw: 5, stroke: ACC1 }); }
     const ix = o.ix ?? x, iy = o.iy ?? y, iw = o.iw ?? f1(sh === 'circ' ? o.r * 1.25 : Math.min(o.w, o.h) * .62);
-    if (it.ghost) { const gg = sub(g); gg.circle(ix, iy, f1(Math.max(10, iw * .14)), { fill: TL_(.4), sw: 0, stroke: 'none' }); if (on != null) litOn(gg, on).circle(ix, iy, f1(Math.max(10, iw * .14)), it.last ? DOTF() : { fill: C.ink, sw: 0, stroke: 'none' }); return; }
+    if (it.ghost) { clockG(p, sub(g), ix, iy, f1(Math.max(18, Math.min(iw * .36, 70))), on, it.last, T); return; }
     const X = it.X; if (!X) return;
-    if (picOf(X)) put(p, c, { icon: X.icon }, ix, iy, iw, null, { t: f3(tIn + tu(.04)), o: fadeTo(tIn, on), punch: it.last ? H : undefined, mv: o.mv });
+    if (picOf(X)) put(p, c, { icon: X.icon }, ix, iy, iw, null, { t: f3(tIn + tu(.04)), o: o.mv && o.mv.vis ? o.mv.vis : fadeTo(tIn, on), punch: it.last ? H : undefined, mv: o.mv });
     else { const sz = o.big || f1(Math.max(40, iw * .34)), tg = mvG(p, { o: fadeTo(tIn, on, .4) }); txt(tg, X.label, ix, f1(iy + sz * .36), { size: sz, maxW: o.bigW || iw * 1.3, weight: 800, color: C.ink, wrap: 'mid' }); }
     const lab = LBLT(X); if (lab && o.wy != null && !o.noWord) { const wg = mvG(p, { o: fadeTo(f3(tIn + tu(.06)), on, .45) }); txt(wg, lab, o.wx ?? x, o.wy, { size: o.ws || 40, maxW: o.wm || 220, weight: 800, color: C.ink, anchor: o.wa || 'middle', wrap: o.wrap === undefined ? 'mid' : o.wrap }); } }
   /* keys that step along values v[k] (k = the stop index) — one eased move into each stop, arriving at its time */
@@ -756,7 +756,7 @@
       drawAt(p.path(D, { sw: tb, stroke: TL_(.16) }), p, f3(T.tA + tu(.06 * i)), tu(.3));
       if (it.on != null) { const k = T.stops.indexOf(i), t0 = k ? f3(Math.max(T.pass(k - 1) + tu(.02), it.on - tu(.4))) : f3(it.on - tu(.3)), l = p.path(D, { sw: tb, stroke: it.last ? ACC1 : TL_(.75) }); on(l, p, 0, { draw: [[0, 0], [t0, 0], [it.on, 1, 'io']] }); } }); }
   /* TRACK: one long capsule split into sections (x0..x1 or y0..y1), the fill runs through them section by section, stopping at the end of the stop */
-  function fillTrack(p, T, box, vert) { const [x0, y0, w, h] = box, N = T.N, D = rrD(x0, y0, w, h, Math.min(w, h) / 2), b = atG(p, T.tA); b.path(D, NOFILL);
+  function fillTrack(p, T, box, vert) { const [x0, y0, w, h] = box, N = T.N, D = rrD(x0, y0, w, h, Math.min(40, Math.min(w, h) * .18)), b = atG(p, T.tA); b.path(D, NOFILL);
     const cl = clipP(p, D), L = vert ? h : w, ends = T.items.map((_, i) => (i + 1) / N), fr = [0].concat(T.stops.map(i => ends[i]));
     const { g, r } = clipR(cl, x0, y0, w, h); const K = [[0, 0], [f3(T.pass(0) - tu(.34)), 0], [T.pass(0), f3(fr[1]), 'io']].concat(stepK(T, fr.slice(1), .4).slice(1));
     if (vert) on(r, p, 0, { ox: 0, oy: y0 + h, sy: K }); else on(r, p, 0, { ox: x0, oy: 0, sx: K });
@@ -771,8 +771,57 @@
   /* CAROUSEL (replaces the playhead — its bar ran across the icons and words, checklist D6): time scrolls by — the moments in a row slide left
      through a fixed window (centre wx, ww × wh) one step per moment and stop with the moment where time stops inside it */
   function carousel(p, T, wx, y, gap, ww, wh, item) { const K = stepK(T, T.stops.map(i => f1(-i * gap)), .42), g = mvG(CL(p), { x: K }), mv = { px: wx, py: y, x: K };
-    T.items.forEach((it, i) => item(g, it, f1(wx + i * gap), mv));
+    /* the one in the window full, its neighbours faint (whole, inside the box), the rest hidden — eased with the slide (user: bug — moments cut at the box edge) */
+    const ST = T.stops, vAt = (i, cur) => i === cur ? 1 : Math.abs(i - cur) === 1 ? .34 : 0;
+    T.items.forEach((it, i) => { const vis = [[0, vAt(i, ST[0])]]; ST.forEach((cur, k) => { if (!k) return; const t1 = T.pass(k), t0 = f3(Math.max(T.pass(k - 1) + tu(.02), t1 - tu(.42))); vis.push([t0, vAt(i, ST[k - 1])], [t1, vAt(i, cur), 'io']); });
+      if (vis.every(v => v[1] === 0)) return; item(mvG(g, { o: vis }), it, f1(wx + i * gap), Object.assign({ vis }, mv)); });
     const w0 = popAt(p, wx, y, T.tA); R(w0, f1(wx - ww / 2), f1(y - wh / 2), ww, wh, 34, { sw: 5, stroke: C.ink }); R(litOn(w0, T.H), f1(wx - ww / 2), f1(y - wh / 2), ww, wh, 34, { fill: TA(.06), sw: 5.5, stroke: ACC1 }); }
+  /* an unnamed moment (result only) is a small clock face: its hand turns once as time reaches it, then it lights
+     (user: the dots "ดูไม่รู้เรื่องว่าสื่อถึงอะไร") */
+  function clockG(p, q, x, y, r, on, last, T) { q.circle(x, y, r, NOFILL); q.circle(x, y, r, { sw: 3, stroke: TL_(.5) }); q.line(x, y, x, f1(y - r * .5), { sw: 3.4, stroke: TL_(.6) });
+    const hd = mvG(q, { px: x, py: y, r: on == null ? [[0, 0]] : [[0, 0], [f3(on - tu(.34)), 0], [on, 360, 'io']] }); hd.line(x, y, f1(x + r * .62), y, { sw: 3.4, stroke: TL_(.6) });
+    if (on != null) { const l = litOn(q, on); l.circle(x, y, r, last ? { fill: TA(.2), sw: 4, stroke: ACC1 } : { sw: 3.6, stroke: C.ink }); l.line(x, y, x, f1(y - r * .5), { sw: 3.6, stroke: last ? ACC1 : C.ink }); l.line(x, y, f1(x + r * .62), y, { sw: 3.6, stroke: last ? ACC1 : C.ink }); } }
+
+  /* THE TIME DIAL (replaces the "now" card — user: "ดูไม่รู้เรื่องว่าสื่อถึงอะไร"): a round dial cut into a sector per moment (its icon in it); the hand in
+     the hub sweeps from sector to sector as time runs, each reached sector fills, and it stops where time stops (that sector in the accent).
+     o.word = [x, y, size, maxW]: the stop's words under the dial, swapping as the hand moves */
+  function dial(p, c, T, x, y, R0, o = {}) { const N = T.N, r0 = f1(R0 * .36), A = i => -90 + (i + .5) * 360 / N, P = (a, r) => [f1(x + r * Math.cos(rad(a))), f1(y + r * Math.sin(rad(a)))];
+    const b = atG(p, T.tA); b.circle(x, y, R0, NOFILL);
+    T.items.forEach((it, i) => { const a0 = -90 + i * 360 / N + 1.2, a1 = -90 + (i + 1) * 360 / N - 1.2, [ox0, oy0] = P(a0, R0 - 8), [ox1, oy1] = P(a1, R0 - 8), [ix1, iy1] = P(a1, r0 + 8), [ix0, iy0] = P(a0, r0 + 8), lg = a1 - a0 > 180 ? 1 : 0;
+      const D = `M ${ix0} ${iy0} L ${ox0} ${oy0} A ${R0 - 8} ${R0 - 8} 0 ${lg} 1 ${ox1} ${oy1} L ${ix1} ${iy1} A ${r0 + 8} ${r0 + 8} 0 ${lg} 0 ${ix0} ${iy0} Z`;
+      if (it.on != null) { const w = sub(p); on(w, p, 0, { o: [[0, 0], [f3(it.on - tu(.06)), 0], [f3(it.on + tu(.16)), 1, 'io']] }); w.path(D, { fill: it.last ? TA(.22) : TL_(.1), sw: 0, stroke: 'none' }); }
+      const [cx, cy] = P(A(i), (R0 + r0) / 2), cw = f1(Math.min((R0 - r0) * .62, 2 * ((R0 + r0) / 2) * Math.sin(Math.PI / N) * .62));
+      if (it.ghost) { const g = popAt(p, cx, cy, T.tI(i)); clockG(p, g, cx, cy, f1(cw * .34), it.on, it.last, T); }
+      else if (picOf(it.X)) put(p, c, { icon: it.X.icon }, cx, cy, cw, null, { t: f3(T.tI(i) + tu(.04)), o: fadeTo(T.tI(i), it.on), punch: it.last ? T.H : undefined });
+      else txt(mvG(p, { o: fadeTo(T.tI(i), it.on, .4) }), it.X.label, cx, f1(cy + 14), { size: f1(Math.max(34, cw * .3)), maxW: cw * 1.2, weight: 800, color: C.ink, wrap: 'mid' }); });
+    for (let i = 0; i < N; i++) { const [a1x, a1y] = P(-90 + i * 360 / N, r0), [b1x, b1y] = P(-90 + i * 360 / N, R0); drawAt(p.line(a1x, a1y, b1x, b1y, { sw: 2.6, stroke: TL_(.4) }), p, f3(T.tA + tu(.2)), tu(.3)); }
+    drawAt(p.circle(x, y, R0, { sw: 4.6 }), p, T.tA, tu(.6)); drawAt(p.circle(x, y, r0, { sw: 3, stroke: TL_(.6) }), p, f3(T.tA + tu(.1)), tu(.4)); litOn(p, T.H).circle(x, y, R0, { sw: 5.5, stroke: ACC1 });
+    const ang = T.stops.map(i => A(i)), hg = mvG(p, { px: x, py: y, r: [[0, ang[0]]].concat(stepK(T, ang, .4).slice(1)), o: [[0, 0], [f3(T.tA + tu(.3)), 0], [f3(T.tA + tu(.46)), 1]] });
+    const L = f1(r0 * .82); hg.path(`M ${f1(x - 10)} ${f1(y + 7)} L ${f1(x + L - 14)} ${f1(y + 4)} L ${f1(x + L)} ${y} L ${f1(x + L - 14)} ${f1(y - 4)} L ${f1(x - 10)} ${f1(y - 7)} Z`, { fill: C.ink, sw: 2, stroke: C.ink }); litOn(hg, T.H).path(`M ${f1(x - 10)} ${f1(y + 7)} L ${f1(x + L - 14)} ${f1(y + 4)} L ${f1(x + L)} ${y} L ${f1(x + L - 14)} ${f1(y - 4)} L ${f1(x - 10)} ${f1(y - 7)} Z`, { fill: ACC1, sw: 2, stroke: ACC1 });
+    hg.circle(x, y, 12, F(3.4));
+    if (o.word) { const [wx, wy, ws, wm] = o.word; T.stops.forEach((i, k) => { const it = T.items[i], str = it.X ? (LBLT(it.X) || (!picOf(it.X) ? null : null)) : null; if (!str) return;
+      const tIn = k ? f3(T.pass(k) - tu(.04)) : f3(T.tA + tu(.3)), tOut = k < T.stops.length - 1 ? f3(T.pass(k + 1) - tu(.3)) : null;
+      txt(mvG(p, { o: [[0, 0], [tIn, 0], [f3(tIn + tu(.16)), 1, 'io']].concat(tOut ? [[tOut, 1], [f3(tOut + tu(.12)), 0, 'io']] : []) }), str, wx, wy, { size: ws, maxW: wm, weight: 800, color: C.ink, wrap: 'mid' }); }); } }
+
+  /* a track that fills downwards (time runs down): sections stacked top → bottom */
+  function fillTrackDown(p, T, box) { const [x0, y0, w, h] = box, N = T.N, D = rrD(x0, y0, w, h, 40), b = atG(p, T.tA); b.path(D, NOFILL);
+    const cl = clipP(p, D), fr = [0].concat(T.stops.map(i => (i + 1) / N)), { g, r } = clipR(cl, x0, y0, w, h); const K = [[0, 0], [f3(T.pass(0) - tu(.34)), 0], [T.pass(0), f3(fr[1]), 'io']].concat(stepK(T, fr.slice(1), .4).slice(1));
+    on(r, p, 0, { ox: 0, oy: y0, sy: K }); R(g, x0, y0, w, h, 0, { fill: TL_(.12), sw: 0, stroke: 'none' }); R(litOn(g, T.H), x0, y0, w, h, 0, { fill: TA(.1), sw: 0, stroke: 'none' });
+    for (let i = 1; i < N; i++) drawAt(p.line(f1(x0 + 24), f1(y0 + h * i / N), f1(x0 + w - 24), f1(y0 + h * i / N), { sw: 2.6, stroke: TL_(.35) }), p, f3(T.tA + tu(.2)), tu(.3));
+    drawAt(p.path(D, { sw: 4.4 }), p, T.tA, tu(.6)); return i => [f1(x0 + w / 2), f1(y0 + h * (i + .5) / N)]; }
+  /* THE TIME AXIS (replaces the plain vertical list): an axis with an arrow at its foot (time runs down), a clock at its head; each moment a card
+     beside it; a "now" marker rides down the axis and stops where time stops — the cards it has reached come up full, the stop's card lights */
+  function axis(p, c, T, ax, y0, y1, cx, cw, ch, o = {}) { const N = T.N, ys = Array.from({ length: N }, (_, i) => f1(y0 + (y1 - y0) * (i + .5) / N)), top = f1(y0 - (o.head ?? 30));
+    put(p, c, { icon: 'clock' }, ax, f1(top - (o.cr ?? 30)), f1((o.cr ?? 30) * 2), null, { t: T.tA });
+    drawAt(p.line(ax, top, ax, f1(y1 + 6), { sw: 5, stroke: TL_(.4) }), p, T.tA, tu(.5)); const ah = o.ah ?? 16;
+    drawAt(p.path(`M ${f1(ax - ah)} ${f1(y1 - ah * .4)} L ${ax} ${f1(y1 + ah * .9)} L ${f1(ax + ah)} ${f1(y1 - ah * .4)}`, { sw: 5, stroke: TL_(.5) }), p, f3(T.tA + tu(.4)), tu(.2));
+    const pts = [[ax, top]].concat(ys.map(y => [ax, y])), tl = p.path(pathOf(pts, false), { sw: 7, stroke: ACC1 }), tot = ys[N - 1] - top;
+    on(tl, p, 0, { draw: [[0, 0], [f3(T.pass(0) - tu(.34)), 0], [T.pass(0), f3((ys[T.stops[0]] - top) / tot), 'io']].concat(stepK(T, T.stops.map(i => f3((ys[i] - top) / tot)), .4).slice(1)) });
+    T.items.forEach((it, i) => { const y = ys[i]; drawAt(p.line(ax, y, f1(cx - cw / 2), y, { sw: 3, stroke: TL_(.3) }), p, f3(T.tA + tu(.2 + .05 * i)), tu(.2));
+      mom(p, c, T, it, cx, y, { shape: 'card', w: cw, h: ch, ix: LBLT(it.X) ? f1(cx - cw / 2 + ch * .55) : (it.ghost ? f1(cx - cw / 2 + ch * .55) : cx), iw: f1(ch * .62), wx: f1(cx - cw / 2 + ch * 1.1), wy: f1(y + (o.ws || 44) * .36), ws: o.ws || 44, wa: 'start', wm: f1(cw - ch * 1.1 - 24), big: o.big || 46, bigW: cw - 40 }); });
+    const Y = T.stops.map(i => ys[i]), mk = mvG(p, { y: [[0, f1(Y[0] - top)]].concat(stepK(T, Y.map(v => f1(v - top)), .4).slice(1)).map(([u, v, e]) => e ? [u, v, e] : [u, v]), o: [[0, 0], [f3(T.pass(0) - tu(.2)), 0], [T.pass(0), 1]] });
+    const r = o.mr ?? 16; mk.circle(ax, top, r + 7, F(3)); mk.circle(ax, top, r - 2, { fill: C.ink, sw: 0, stroke: 'none' }); litOn(mk, T.H).circle(ax, top, r - 2, DOTF()); }
+
   /* ---------- SIZE 1 · 860 × 230 ---------- */
   /* 01 a timeline: the moments on a line, the line lights from one to the next as time runs; the result at the end */
   sd(1, 'line', 'เส้นเวลา', (d, c) => { const T = TS(d);
@@ -783,12 +832,10 @@
     art(c, p => { const N = T.N, w = f1((840 - (N - 1) * 22) / N), cs = Array.from({ length: N }, (_, i) => [f1(-420 + w / 2 + i * (w + 22)), 0]);
       T.items.forEach((it, i) => mom(p, c, T, it, cs[i][0], 0, { shape: 'card', w: f1(w - 18), h: 188, iy: LBLT(it.X) ? -26 : 0, iw: 104, wy: 62, ws: 36, wm: f1(w - 40), big: 44, bigW: w - 50 }));
       focus(p, T, cs, w, 210, 36); }); });
-  /* 03 a "now" card: one big card shows the moment time is at (it turns from one to the next); pips at its side mark where we are */
-  sd(1, 'now', 'การ์ดช่วงปัจจุบัน', (d, c) => { const T = TS(d);
-    art(c, p => { nowCard(p, c, T, -100, 0, 640, 214, { side: true, iw: 150, ws: 62, big: 62 }); const N = T.N, cs = Array.from({ length: N }, (_, i) => [f1(326 + (i - (N - 1) / 2) * 46), 0]); pips(p, T, cs, 14); }); });
+  sd(1, 'dial', 'หน้าปัดเวลา + การ์ดตอนนี้', (d, c) => { const T = TS(d); art(c, p => { dial(p, c, T, -322, 0, 106); nowCard(p, c, T, 120, 0, 600, 214, { side: true, iw: 150, ws: 62, big: 62 }); }); });
   /* 04 a carousel: the moments slide left through a fixed window, one step per moment, stopping with the moment where time stops in it */
   sd(1, 'scroll', 'เวลาเลื่อนผ่านช่อง', (d, c) => { const T = TS(d);
-    art(c, p => carousel(p, T, 0, 0, 270, 270, 212, (g, it, x, mv) => mom(g, c, T, it, x, -24, { shape: 'float', iw: it.ghost ? 100 : 120, wx: x, wy: 74, ws: 38, wm: 200, mv, big: 52, bigW: 220 }))); });
+    art(c, p => carousel(p, T, 0, 0, 290, 270, 212, (g, it, x, mv) => mom(g, c, T, it, x, -24, { shape: 'float', iw: it.ghost ? 100 : 120, wx: x, wy: 74, ws: 38, wm: 200, mv, big: 52, bigW: 220 }))); });
 
   /* 05 a track: one capsule cut into a section per moment; the fill runs through it section by section */
   sd(1, 'track', 'แถบเวลาเติมทีละช่วง', (d, c) => { const T = TS(d);
@@ -803,45 +850,41 @@
     art(c, p => { const N = T.N, w = f1((840 - (N - 1) * 22) / N), cs = Array.from({ length: N }, (_, i) => [f1(-420 + w / 2 + i * (w + 22)), 0]);
       T.items.forEach((it, i) => mom(p, c, T, it, cs[i][0], 0, { shape: 'card', w: f1(w - 20), h: 420, iy: LBLT(it.X) ? -50 : 0, iw: f1(Math.min(170, w * .7)), wy: 120, ws: 44, wm: f1(w - 44), big: 52, bigW: w - 50 }));
       focus(p, T, cs, w, 446, 40); }); });
-  sd(2, 'now', 'การ์ดช่วงปัจจุบัน + รายการ', (d, c) => { const T = TS(d);
-    art(c, p => { nowCard(p, c, T, -180, 0, 470, 450, { word: true, iw: 220, ws: 54 }); const N = T.N, rh = Math.min(104, 430 / N), cs = Array.from({ length: N }, (_, i) => [250, f1((i - (N - 1) / 2) * rh)]);
-      T.items.forEach((it, i) => mom(p, c, T, it, 150, cs[i][1], { r: f1(rh * .38), iw: f1(rh * .5), wx: 196, wy: f1(cs[i][1] + 14), ws: 38, wa: 'start', wm: 220, big: 30, bigW: 90 })); focus(p, T, cs.map(([x, y]) => [255, y]), 360, f1(rh - 8), 30); }); });
+  sd(2, 'dial', 'หน้าปัดเวลา + รายการ', (d, c) => { const T = TS(d);
+    art(c, p => { dial(p, c, T, -210, 0, 220); const N = T.N, rh = Math.min(104, 440 / N), cs = Array.from({ length: N }, (_, i) => [250, f1((i - (N - 1) / 2) * rh)]);
+      T.items.forEach((it, i) => mom(p, c, T, it, 120, cs[i][1], { r: f1(rh * .36), iw: f1(rh * .5), wx: 172, wy: f1(cs[i][1] + 14), ws: 38, wa: 'start', wm: 240, big: 26, bigW: 90 })); focus(p, T, cs.map(([x, y]) => [250, y]), 360, f1(rh - 8), 30); }); });
   sd(2, 'scroll', 'เวลาเลื่อนผ่านช่อง', (d, c) => { const T = TS(d);
-    art(c, p => carousel(p, T, 0, 0, 340, 330, 450, (g, it, x, mv) => mom(g, c, T, it, x, -40, { shape: 'float', iw: it.ghost ? 150 : 200, wx: x, wy: 150, ws: 52, wm: 300, mv, big: 64, bigW: 300 }))); });
+    art(c, p => carousel(p, T, 0, 0, 300, 290, 450, (g, it, x, mv) => mom(g, c, T, it, x, -40, { shape: 'float', iw: it.ghost ? 140 : 180, wx: x, wy: 150, ws: 48, wm: 230, mv, big: 56, bigW: 230 }))); });
 
   sd(2, 'track', 'แถบเวลาเติมทีละช่วง', (d, c) => { const T = TS(d);
     art(c, p => { const cAt = fillTrack(p, T, [-425, -150, 850, 300], false); T.items.forEach((it, i) => { const [x, y] = cAt(i), w = 850 / T.N;
       mom(p, c, T, it, x, f1(y - (LBLT(it.X) ? 30 : 0)), { shape: 'float', iw: Math.min(150, w * .62), wx: x, wy: y + 96, ws: 40, wm: f1(w - 40) }); }); }); });
 
   /* ---------- SIZE 3 · 560 × 490 ---------- */
-  /* 01 a time ring: an arc per moment round the "now": the arcs sweep in turn; the moment time is at shows big in the middle */
-  sd(3, 'ring', 'วงเวลา', (d, c) => { const T = TS(d);
-    art(c, p => { timeRing(p, T, 0, 0, 214, 30); nowCard2(p, c, T, 0, 0, 300); }); });
-  sd(3, 'spine', 'เส้นเวลาแนวตั้ง', (d, c) => { const T = TS(d);
-    art(c, p => { const N = T.N, ys = Array.from({ length: N }, (_, i) => f1(-176 + 352 * i / (N - 1))), x = -186; timeline(p, T, ys.map(y => [x, y]), { w: 6 });
-      T.items.forEach((it, i) => mom(p, c, T, it, x, ys[i], { r: it.ghost ? 30 : 62, wx: -98, wy: f1(ys[i] + 18), ws: 54, wa: 'start', wm: 360, big: 34, bigW: 110 })); }); });
+  sd(3, 'track', 'แถบเวลาเติมทีละช่วง', (d, c) => { const T = TS(d);
+    art(c, p => { const cAt = fillTrack(p, T, [-275, -220, 550, 440], false); T.items.forEach((it, i) => { const [x, y] = cAt(i), w = 550 / T.N;
+      mom(p, c, T, it, x, f1(y - (LBLT(it.X) ? 40 : 0)), { shape: 'float', iw: Math.min(110, w * .78), wx: x, wy: y + 96, ws: 38, wm: f1(w - 20), big: 36, bigW: w - 20 }); }); }); });
+  sd(3, 'axis', 'แกนเวลา', (d, c) => { const T = TS(d); art(c, p => axis(p, c, T, -232, -150, 236, 46, 440, 78, { ws: 44 })); });
   sd(3, 'grid', 'ตารางช่วงเวลา', (d, c) => { const T = TS(d);
     art(c, p => { const N = T.N, cs = N === 4 ? [[-138, -120], [138, -120], [-138, 120], [138, 120]] : [[-138, -120], [138, -120], [0, 120]], ws = N === 4 ? [256, 256, 256, 256] : [256, 256, 532];
       T.items.forEach((it, i) => mom(p, c, T, it, cs[i][0], cs[i][1], { shape: 'card', w: ws[i] - 16, h: 214, iy: LBLT(it.X) ? f1(cs[i][1] - 26) : cs[i][1], iw: 118, wy: f1(cs[i][1] + 76), ws: 38, wm: ws[i] - 50, big: 44, bigW: ws[i] - 60 }));
       focusVar(p, T, cs, ws, 236); }); });
-  sd(3, 'now', 'การ์ดช่วงปัจจุบัน', (d, c) => { const T = TS(d);
-    art(c, p => { nowCard(p, c, T, 0, -40, 540, 390, { word: true, iw: 200, ws: 52 }); const N = T.N, cs = Array.from({ length: N }, (_, i) => [f1((i - (N - 1) / 2) * 60), 210]); pips(p, T, cs, 15); }); });
+  sd(3, 'dial', 'หน้าปัดเวลา', (d, c) => { const T = TS(d); art(c, p => dial(p, c, T, 0, -36, 196, { word: [0, 222, 52, 520] })); });
   sd(3, 'zigzag', 'เส้นเวลาซิกแซก', (d, c) => { const T = TS(d);
     art(c, p => { const N = T.N, pts = N === 4 ? [[-180, -150], [180, -150], [-180, 110], [180, 110]] : [[-180, -150], [180, -150], [0, 110]]; timeline(p, T, pts);
       T.items.forEach((it, i) => mom(p, c, T, it, pts[i][0], pts[i][1], { r: it.ghost ? 30 : 66, wx: pts[i][0], wy: f1(pts[i][1] + 108), ws: 38, wm: 220 })); }); });
 
   /* ---------- SIZE 4 · 400 × 635 ---------- */
-  sd(4, 'spine', 'เส้นเวลาแนวตั้ง', (d, c) => { const T = TS(d);
-    art(c, p => { const N = T.N, ys = Array.from({ length: N }, (_, i) => f1(-240 + 480 * i / (N - 1))), x = -110; timeline(p, T, ys.map(y => [x, y]), { w: 6 });
-      T.items.forEach((it, i) => mom(p, c, T, it, x, ys[i], { r: it.ghost ? 30 : 62, wx: -30, wy: f1(ys[i] + 14), ws: 42, wa: 'start', wm: 220 })); }); });
-  sd(4, 'cards', 'การ์ดเรียงกับกรอบโฟกัส', (d, c) => { const T = TS(d);
-    art(c, p => { const N = T.N, h = f1((615 - (N - 1) * 16) / N), cs = Array.from({ length: N }, (_, i) => [0, f1(-307 + h / 2 + i * (h + 16))]);
-      T.items.forEach((it, i) => mom(p, c, T, it, 0, cs[i][1], { shape: 'card', w: 364, h: f1(h - 16), ix: LBLT(it.X) ? -100 : 0, iw: f1(Math.min(120, h * .62)), wx: -30, wy: f1(cs[i][1] + 14), ws: 42, wa: 'start', wm: 200, big: 46, bigW: 320 }));
-      focus(p, T, cs, 392, h, 32); }); });
-  sd(4, 'now', 'การ์ดช่วงปัจจุบัน', (d, c) => { const T = TS(d);
-    art(c, p => { nowCard(p, c, T, 0, -50, 380, 520, { word: true, iw: 230, ws: 50 }); const N = T.N, cs = Array.from({ length: N }, (_, i) => [f1((i - (N - 1) / 2) * 56), 270]); pips(p, T, cs, 15); }); });
-  sd(4, 'ring', 'วงเวลา', (d, c) => { const T = TS(d);
-    art(c, p => { timeRing(p, T, 0, 0, 178, 28); nowCard2(p, c, T, 0, 0, 252); }); });
+  sd(4, 'axis', 'แกนเวลา', (d, c) => { const T = TS(d); art(c, p => axis(p, c, T, -162, -220, 300, 36, 320, 104, { ws: 40, cr: 34, head: 34 })); });
+  /* a snake timeline: the moments zigzag down the box, the line lights from one to the next (tall sizes: not another stack of rows) */
+  sd(4, 'snake', 'เส้นเวลางูเลื้อย', (d, c) => { const T = TS(d);
+    art(c, p => { const N = T.N, pts = Array.from({ length: N }, (_, i) => [i % 2 ? 96 : -96, f1(-238 + (190 - -238) * i / (N - 1))]); timeline(p, T, pts, { w: 6 });
+      T.items.forEach((it, i) => mom(p, c, T, it, pts[i][0], pts[i][1], { r: it.ghost ? f1(62 * .6) : 62, wx: pts[i][0], wy: f1(pts[i][1] + 62 + 42), ws: 40, wm: 230 })); }); });
+  sd(4, 'dial', 'หน้าปัดเวลา', (d, c) => { const T = TS(d); art(c, p => dial(p, c, T, 0, -96, 190, { word: [0, 214, 52, 380] })); });
+  sd(4, 'grid', 'ตารางช่วงเวลา', (d, c) => { const T = TS(d);
+    art(c, p => { const N = T.N, hw = 192, hh = 312, cs = N === 4 ? [[-hw / 2, -hh / 2], [hw / 2, -hh / 2], [-hw / 2, hh / 2], [hw / 2, hh / 2]] : [[-hw / 2, -hh / 2], [hw / 2, -hh / 2], [0, hh / 2]], ws = N === 4 ? [hw, hw, hw, hw] : [hw, hw, hw * 2];
+      T.items.forEach((it, i) => mom(p, c, T, it, cs[i][0], cs[i][1], { shape: 'card', w: ws[i] - 16, h: hh - 16, iy: LBLT(it.X) ? f1(cs[i][1] - hh * .12) : cs[i][1], iw: f1(Math.min(hw * .56, hh * .46)), wy: f1(cs[i][1] + hh * .3), ws: 40, wm: ws[i] - 40, big: 40, bigW: ws[i] - 50 }));
+      focusVar(p, T, cs, ws, hh); }); });
   sd(4, 'track', 'แถบเวลาเติมขึ้น', (d, c) => { const T = TS(d);
     art(c, p => { const cAt = fillTrack(p, T, [-190, -310, 380, 620], true); T.items.forEach((it, i) => { const [x, y] = cAt(i), h = 620 / T.N, lab = LBLT(it.X);
       mom(p, c, T, it, lab ? -96 : 0, y, { shape: 'float', iw: Math.min(120, h * .6), wx: -20, wy: y + 14, ws: 40, wa: 'start', wm: 190 }); }); }); });
@@ -859,11 +902,11 @@
     art(c, p => { const N = T.N, cs = N === 4 ? [[-214, -174], [214, -174], [-214, 174], [214, 174]] : [[-214, -174], [214, -174], [0, 174]], ws = N === 4 ? [420, 420, 420, 420] : [420, 420, 848];
       T.items.forEach((it, i) => mom(p, c, T, it, cs[i][0], cs[i][1], { shape: 'card', w: ws[i] - 18, h: 330, ix: LBLT(it.X) ? f1(cs[i][0] - ws[i] / 2 + 120) : cs[i][0], iw: 170, wx: f1(cs[i][0] - ws[i] / 2 + 226), wy: f1(cs[i][1] + 16), ws: 52, wa: 'start', wm: f1(ws[i] - 260), big: 56, bigW: ws[i] - 80 }));
       focusVar(p, T, cs, ws, 350); }); });
-  sd(5, 'now', 'การ์ดช่วงปัจจุบัน + รายการ', (d, c) => { const T = TS(d);
-    art(c, p => { nowCard(p, c, T, -190, 0, 460, 690, { word: true, iw: 270, ws: 62 }); const N = T.N, rh = Math.min(160, 660 / N), cs = Array.from({ length: N }, (_, i) => [240, f1((i - (N - 1) / 2) * rh)]);
-      T.items.forEach((it, i) => mom(p, c, T, it, 120, cs[i][1], { r: f1(rh * .34), iw: f1(rh * .46), wx: 176, wy: f1(cs[i][1] + 16), ws: 44, wa: 'start', wm: 240, big: 34, bigW: 100 })); focus(p, T, cs.map(([x, y]) => [242, y]), 376, f1(rh - 12), 32); }); });
+  sd(5, 'dial', 'หน้าปัดเวลา + รายการ', (d, c) => { const T = TS(d);
+    art(c, p => { dial(p, c, T, -135, 0, 288); const N = T.N, rh = Math.min(160, 660 / N), cs = Array.from({ length: N }, (_, i) => [300, f1((i - (N - 1) / 2) * rh)]);
+      T.items.forEach((it, i) => mom(p, c, T, it, 222, cs[i][1], { r: f1(rh * .3), iw: f1(rh * .42), wx: 270, wy: f1(cs[i][1] + 14), ws: 40, wa: 'start', wm: 150, big: 30, bigW: 90 })); focus(p, T, cs.map(([x, y]) => [300, y]), 256, f1(rh - 12), 30); }); });
   sd(5, 'scroll', 'เวลาเลื่อนผ่านช่อง', (d, c) => { const T = TS(d);
-    art(c, p => carousel(p, T, 0, 0, 400, 380, 690, (g, it, x, mv) => mom(g, c, T, it, x, -60, { shape: 'float', iw: it.ghost ? 180 : 240, wx: x, wy: 220, ws: 62, wm: 330, mv, big: 76, bigW: 330 }))); });
+    art(c, p => carousel(p, T, 0, 0, 316, 296, 690, (g, it, x, mv) => mom(g, c, T, it, x, -60, { shape: 'float', iw: it.ghost ? 170 : 210, wx: x, wy: 210, ws: 58, wm: 236, mv, big: 64, bigW: 236 }))); });
 
   /* ---------- SIZE 6 · 860 × 965 ---------- */
   /* 01 (user: "ดีไซน์ใหม่ด้วยครับมันโล่งไป") a spine down the middle: the moments hang off it on alternate sides as big plates, their words on
@@ -878,27 +921,26 @@
     art(c, p => { const N = T.N, h = f1((945 - (N - 1) * 20) / N), cs = Array.from({ length: N }, (_, i) => [0, f1(-472 + h / 2 + i * (h + 20))]);
       T.items.forEach((it, i) => mom(p, c, T, it, 0, cs[i][1], { shape: 'card', w: 820, h: f1(h - 18), ix: LBLT(it.X) ? -270 : 0, iw: f1(Math.min(170, h * .7)), wx: -150, wy: f1(cs[i][1] + 20), ws: 62, wa: 'start', wm: 520, big: 64, bigW: 700 }));
       focus(p, T, cs, 852, h, 38); }); });
-  sd(6, 'ring', 'วงเวลา', (d, c) => { const T = TS(d);
-    art(c, p => { timeRing(p, T, 0, 0, 400, 44); nowCard2(p, c, T, 0, 0, 560); }); });
+  sd(6, 'zigzag', 'เส้นเวลาซิกแซก', (d, c) => { const T = TS(d);
+    art(c, p => { const N = T.N, pts = N === 4 ? [[-220, -260], [220, -260], [-220, 170], [220, 170]] : [[-220, -260], [220, -260], [0, 170]]; timeline(p, T, pts, { w: 7 });
+      T.items.forEach((it, i) => mom(p, c, T, it, pts[i][0], pts[i][1], { r: it.ghost ? 70 : 118, wx: pts[i][0], wy: f1(pts[i][1] + 190), ws: 60, wm: 380 })); }); });
   sd(6, 'grid', 'ตารางช่วงเวลา', (d, c) => { const T = TS(d);
     art(c, p => { const N = T.N, cs = N === 4 ? [[-214, -238], [214, -238], [-214, 238], [214, 238]] : [[-214, -238], [214, -238], [0, 238]], ws = N === 4 ? [420, 420, 420, 420] : [420, 420, 848];
       T.items.forEach((it, i) => mom(p, c, T, it, cs[i][0], cs[i][1], { shape: 'card', w: ws[i] - 18, h: 458, iy: LBLT(it.X) ? f1(cs[i][1] - 50) : cs[i][1], iw: 200, wy: f1(cs[i][1] + 140), ws: 56, wm: ws[i] - 60, big: 62, bigW: ws[i] - 80 }));
       focusVar(p, T, cs, ws, 478); }); });
-  sd(6, 'now', 'การ์ดช่วงปัจจุบัน', (d, c) => { const T = TS(d);
-    art(c, p => { nowCard(p, c, T, 0, -70, 840, 800, { word: true, iw: 380, ws: 80 }); const N = T.N, cs = Array.from({ length: N }, (_, i) => [f1((i - (N - 1) / 2) * 90), 420]); pips(p, T, cs, 22); }); });
+  sd(6, 'dial', 'หน้าปัดเวลา', (d, c) => { const T = TS(d); art(c, p => dial(p, c, T, 0, -96, 372, { word: [0, 392, 80, 800] })); });
 
   /* ---------- SIZE 7 · 400 × 500 ---------- */
-  sd(7, 'spine', 'เส้นเวลาแนวตั้ง', (d, c) => { const T = TS(d);
-    art(c, p => { const N = T.N, ys = Array.from({ length: N }, (_, i) => f1(-180 + 360 * i / (N - 1))), x = -110; timeline(p, T, ys.map(y => [x, y]));
-      T.items.forEach((it, i) => mom(p, c, T, it, x, ys[i], { r: it.ghost ? 26 : 52, wx: -40, wy: f1(ys[i] + 13), ws: 40, wa: 'start', wm: 220 })); }); });
-  sd(7, 'now', 'การ์ดช่วงปัจจุบัน', (d, c) => { const T = TS(d);
-    art(c, p => { nowCard(p, c, T, 0, -36, 380, 400, { word: true, iw: 190, ws: 48 }); const N = T.N, cs = Array.from({ length: N }, (_, i) => [f1((i - (N - 1) / 2) * 52), 208]); pips(p, T, cs, 14); }); });
-  sd(7, 'ring', 'วงเวลา', (d, c) => { const T = TS(d);
-    art(c, p => { timeRing(p, T, 0, 0, 176, 28); nowCard2(p, c, T, 0, 0, 250); }); });
-  sd(7, 'cards', 'การ์ดเรียงกับกรอบโฟกัส', (d, c) => { const T = TS(d);
-    art(c, p => { const N = T.N, h = f1((480 - (N - 1) * 14) / N), cs = Array.from({ length: N }, (_, i) => [0, f1(-240 + h / 2 + i * (h + 14))]);
-      T.items.forEach((it, i) => mom(p, c, T, it, 0, cs[i][1], { shape: 'card', w: 366, h: f1(h - 14), ix: LBLT(it.X) ? -110 : 0, iw: f1(Math.min(96, h * .66)), wx: -48, wy: f1(cs[i][1] + 13), ws: 38, wa: 'start', wm: 220, big: 40, bigW: 320 }));
-      focus(p, T, cs, 392, h, 28); }); });
+  sd(7, 'axis', 'แกนเวลา', (d, c) => { const T = TS(d); art(c, p => axis(p, c, T, -162, -158, 236, 36, 320, 82, { ws: 38, cr: 28 })); });
+  sd(7, 'dial', 'หน้าปัดเวลา', (d, c) => { const T = TS(d); art(c, p => dial(p, c, T, 0, -50, 182, { word: [0, 196, 48, 380] })); });
+  sd(7, 'grid', 'ตารางช่วงเวลา', (d, c) => { const T = TS(d);
+    art(c, p => { const N = T.N, hw = 192, hh = 244, cs = N === 4 ? [[-hw / 2, -hh / 2], [hw / 2, -hh / 2], [-hw / 2, hh / 2], [hw / 2, hh / 2]] : [[-hw / 2, -hh / 2], [hw / 2, -hh / 2], [0, hh / 2]], ws = N === 4 ? [hw, hw, hw, hw] : [hw, hw, hw * 2];
+      T.items.forEach((it, i) => mom(p, c, T, it, cs[i][0], cs[i][1], { shape: 'card', w: ws[i] - 16, h: hh - 16, iy: LBLT(it.X) ? f1(cs[i][1] - hh * .12) : cs[i][1], iw: f1(Math.min(hw * .56, hh * .46)), wy: f1(cs[i][1] + hh * .3), ws: 36, wm: ws[i] - 40, big: 40, bigW: ws[i] - 50 }));
+      focusVar(p, T, cs, ws, hh); }); });
+  /* a snake timeline: the moments zigzag down the box, the line lights from one to the next (tall sizes: not another stack of rows) */
+  sd(7, 'snake', 'เส้นเวลางูเลื้อย', (d, c) => { const T = TS(d);
+    art(c, p => { const N = T.N, pts = Array.from({ length: N }, (_, i) => [i % 2 ? 96 : -96, f1(-186 + (140 - -186) * i / (N - 1))]); timeline(p, T, pts, { w: 6 });
+      T.items.forEach((it, i) => mom(p, c, T, it, pts[i][0], pts[i][1], { r: it.ghost ? f1(52 * .6) : 52, wx: pts[i][0], wy: f1(pts[i][1] + 52 + 38), ws: 36, wm: 230 })); }); });
   sd(7, 'track', 'แถบเวลาเติมขึ้น', (d, c) => { const T = TS(d);
     art(c, p => { const cAt = fillTrack(p, T, [-190, -244, 380, 488], true); T.items.forEach((it, i) => { const [x, y] = cAt(i), h = 488 / T.N, lab = LBLT(it.X);
       mom(p, c, T, it, lab ? -100 : 0, y, { shape: 'float', iw: Math.min(96, h * .6), wx: -34, wy: y + 13, ws: 38, wa: 'start', wm: 200 }); }); }); });
