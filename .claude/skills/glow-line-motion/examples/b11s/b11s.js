@@ -951,6 +951,82 @@
   sd(7, 'side', 'การ์ดไอคอนบน', (d, c) => { const Q = MQ(d); art(c, p => { kindBox(p, c, Q, -100, -170, 150, Q.tIn); msgS(p, c, Q, 0, 60, 380, 260, { kind: Q.kind === 'review' ? 'review' : 'plain', tail: null, t: Q.tC(1), size: 62, k: .85 }); after(p, c, Q, 110, -170, 130, 110, -170, 160, 70, .8); }); });
   sd(7, 'ticks', 'ส่งแล้ว · อ่านแล้ว', (d, c) => { const Q = MQ(d); art(c, p => { const m = msgS(p, c, Q, 0, -50, 380, 330, { tail: null, size: 66, k: .9 }); ticks(p, 110, 186, f3(Q.H - tu(.1)), Q.gone ? f3(Q.H + tu(5)) : Q.H, 2); after(p, c, Q, -100, 188, 110, -80, 188, 200, 70, .8); }); });
 
+  /* ================= PILOT "Apple UI" (user: "บางอันมันล้นออกมานอกกรอบ · อยากได้คลีนๆ แต่ไม่โล่ง · Apple UI แต่เอามาปรับให้เข้ากับสไตล์ของเรา
+     ทำมาให้ดูก่อน 7 ขนาด ขนาดละอัน") — the calm system-UI grammar in our glow line: one corner radius family, generous even padding, a clear
+     hierarchy (one big bold message, small soft companions), shapes from the platform: a message bubble with a curled tail, a notification banner
+     with its app tile, a stack of banners, a widget card, a tapback badge on the bubble's corner, read ticks, the typing bubble. Everything is
+     placed inside the box (checked per size). ================= */
+  /* a message bubble with the curled tail at its bottom corner (side 'r' = sent, 'l' = received) */
+  function bubA(l, t, w, h, side) { const r = f1(Math.min(h / 2, 46)), R_ = l + w, b = t + h;
+    if (side === 'r') return `M ${f1(l + r)} ${t} L ${f1(R_ - r)} ${t} Q ${R_} ${t} ${R_} ${f1(t + r)} L ${R_} ${f1(b - 22)} Q ${R_} ${f1(b - 2)} ${f1(R_ + 16)} ${b} Q ${f1(R_ - 6)} ${f1(b + 1)} ${f1(R_ - 30)} ${b} L ${f1(l + r)} ${b} Q ${l} ${b} ${l} ${f1(b - r)} L ${l} ${f1(t + r)} Q ${l} ${t} ${f1(l + r)} ${t} Z`;
+    return `M ${f1(l + r)} ${t} L ${f1(R_ - r)} ${t} Q ${R_} ${t} ${R_} ${f1(t + r)} L ${R_} ${f1(b - r)} Q ${R_} ${b} ${f1(R_ - r)} ${b} L ${f1(l + 30)} ${b} Q ${f1(l + 6)} ${f1(b + 1)} ${f1(l - 16)} ${b} Q ${l} ${f1(b - 2)} ${l} ${f1(b - 22)} L ${l} ${f1(t + r)} Q ${l} ${t} ${f1(l + r)} ${t} Z`; }
+  /* the message as a bubble or a card: kind chat/comment → bubble (comment = received, with the person's photo beside) · review/message → card;
+     review: a small row of stars on top; words big. o.side forces the bubble side. Returns the box */
+  function msgA(p, c, Q, l, t, w, h, o = {}) { const k = o.k || 1, t0 = o.t ?? Q.tIn, kind = Q.kind, isB = kind === 'chat' || kind === 'comment', side = o.side || (kind === 'comment' ? 'l' : 'r');
+    const g0 = popAt(p, f1(l + w / 2), f1(t + h / 2), t0), g = mvG(g0, { px: f1(l + w / 2), py: f1(t + h / 2), s: [[0, 1], [Q.H, 1], [f3(Q.H + tu(.18)), 1.03, 'io'], [f3(Q.H + tu(.42)), 1, 'io']] }), rr = f1(Math.min(h * .24, 46 * k));
+    const shape = (q, st) => isB ? q.path(bubA(l, t, w, h, side), st) : R(q, l, t, w, h, rr, st);
+    shape(g, F(4)); shape(litOn(g, Q.H), { sw: 4.6, stroke: ACC1 });
+    let A = [l + 34 * k, t + 22 * k, l + w - 34 * k, t + h - 22 * k];
+    if (kind === 'review') { const sr = f1(Math.min(22 * k, (w - 80) / 13)), gap = f1(sr * 2.4), sx = f1(l + 34 * k + sr), sy = f1(t + 26 * k + sr), n = Q.mood === 'good' ? 5 : Q.mood === 'bad' ? 1 : 0;
+      for (let i = 0; i < 5; i++) { star5(g, f1(sx + i * gap), sy, sr, { sw: 2.6, stroke: TL_(.55), fill: C.fill }); if (i < n) star5(litOn(g, f3(lerp(Q.T0, Q.H, (i + 1) / n))), f1(sx + i * gap), sy, sr, { fill: ACC1, sw: 2.6, stroke: ACC1 }); }
+      A = [l + 34 * k, f1(sy + sr + 8), l + w - 34 * k, t + h - 18 * k]; }
+    if (kind === 'message') { const hh = f1(22 * k); g.circle(f1(l + 34 * k + 8), f1(t + 30 * k), f1(9 * k), DOTF()); R(g, f1(l + 34 * k + 28), f1(t + 30 * k - 7), f1(w * .3), 14, 7, GREY()); A = [l + 34 * k, f1(t + 30 * k + hh), l + w - 34 * k, t + h - 18 * k]; }
+    words11(g, p, Q, A, { size: o.size || 72 }); return { l, t, r: f1(l + w), b: f1(t + h) }; }
+  /* the tapback: a small round badge with the reaction icon, sitting on a corner of the message (inside the box) */
+  function tapA(p, c, Q, x, y, r) { if (Q.gone || !Q.rIcon) return; x = f1(Math.max(-BOX[0] / 2 + r + 8, Math.min(BOX[0] / 2 - r - 8, x))); y = f1(Math.max(-BOX[1] / 2 + r + 8, Math.min(BOX[1] / 2 - r - 8, y))); const g = popAt(p, x, y, Q.tR); g.circle(x, y, r, F(3.6)); litOn(g, Q.H).circle(x, y, r, { fill: TA(.14), sw: 4, stroke: ACC1 });
+    put(p, c, { icon: Q.rIcon }, x, y, f1(r * 1.25), null, { t: f3(Q.tR + tu(.04)), punch: f3(Q.tR + tu(.12)) }); }
+  /* the typing bubble (received side): its three dots pulse while waiting, then stop and stay faint (gone) — or it is the reply holding the reaction */
+  function typeA(p, c, Q, l, t, w, h) { if (Q.gone) { const tt = f3(Math.max(Q.tIn + tu(.3), Q.H - tu(.7))), g = atG(p, tt), cy = f1(t + h / 2), cx = f1(l + w / 2), dr = f1(h * .1);
+      g.path(bubA(l, t, w, h, 'l'), { fill: C.fill, sw: 3, stroke: TL_(.5) });
+      [-1, 0, 1].forEach(i => { const dg = sub(g); on(dg, p, 0, { o: [[0, 0], [f3(tt + tu(.1 + .08 * (i + 1))), 0], [f3(tt + tu(.18 + .08 * (i + 1))), .85], [Q.H, .85], [f3(Q.H + tu(.3)), .16, 'io']] }); dg.circle(f1(cx + i * dr * 3.2), cy, dr, { fill: C.soft, sw: 0, stroke: 'none' }); }); return; }
+    if (!Q.rIcon) return; const g = popAt(p, f1(l + w / 2), f1(t + h / 2), Q.tR); g.path(bubA(l, t, w, h, 'l'), F(3.6)); litOn(g, Q.H).path(bubA(l, t, w, h, 'l'), { sw: 4, stroke: ACC1 });
+    put(p, c, { icon: Q.rIcon }, f1(l + w / 2), f1(t + h / 2), f1(h * .62), null, { t: f3(Q.tR + tu(.04)), punch: f3(Q.tR + tu(.12)) }); }
+  /* an app tile (rounded square with the kind's icon) */
+  const tileA = (p, c, Q, x, y, s) => { const g = popAt(p, x, y, Q.tIn); R(g, f1(x - s / 2), f1(y - s / 2), s, s, f1(s * .26), F(3.6)); put(p, c, { icon: KICON[Q.kind] }, x, y, f1(s * .62), null, { t: f3(Q.tIn + tu(.04)) }); };
+  /* a faint earlier message (bars only) */
+  function oldA(p, Q, l, t, w, h, side, i = 0) { const g = popAt(p, f1(l + w / 2), f1(t + h / 2), Q.tC(i)); g.path(bubA(l, t, w, h, side), { fill: C.fill, sw: 3, stroke: TL_(.4) });
+    R(g, f1(l + 30), f1(t + h * .34), f1(w * .64), 14, 7, GREY()); R(g, f1(l + 30), f1(t + h * .58), f1(w * .4), 14, 7, GREY()); }
+  /* read ticks: sent lights on H, read lights on H (not when gone) */
+  const tickA = (p, Q, x, y, k) => ticks(p, f1(Math.min(x, BOX[0] / 2 - 14 - 54 * k)), y, f3(Q.H - tu(.1)), Q.gone ? f3(Q.H + tu(5)) : Q.H, k);
+  /* the comment's author: the person's photo beside the bubble */
+  const avatarA = (p, Q, x, y, r) => { if (Q.kind !== 'comment') return false; const g = popAt(p, x, y, Q.tIn); photo(g, x, y, r); return true; };
+
+  /* 1 · 860 × 230 — a notification banner: app tile, the message big, the tapback / typing on the right */
+  sd(1, 'apple', 'แบนเนอร์แจ้งเตือน', (d, c) => { const Q = MQ(d); art(c, p => { const g = popAt(p, 0, 0, Q.tIn); R(g, -422, -108, 844, 216, 52, F(4)); R(litOn(g, Q.H), -422, -108, 844, 216, 52, { sw: 4.4, stroke: ACC1 });
+    tileA(p, c, Q, -330, 0, 128); const A = Q.kind === 'review' ? [-240, -40, 230, 84] : [-240, -70, 230, 70];
+    if (Q.kind === 'review') { const n = Q.mood === 'good' ? 5 : Q.mood === 'bad' ? 1 : 0; for (let i = 0; i < 5; i++) { star5(g, -222 + i * 44, -62, 17, { sw: 2.4, stroke: TL_(.55), fill: C.fill }); if (i < n) star5(litOn(g, f3(lerp(Q.T0, Q.H, (i + 1) / n))), -222 + i * 44, -62, 17, { fill: ACC1, sw: 2.4, stroke: ACC1 }); } }
+    words11(g, p, Q, A, { size: 74 }); drawAt(p.line(262, -70, 262, 70, { sw: 2.4, stroke: TL_(.3) }), p, Q.tIn, tu(.3));
+    if (Q.gone) typeA(p, c, Q, 286, -42, 116, 84); else tapA(p, c, Q, 342, 0, 58); }); });
+  /* 2 · 860 × 470 — a conversation: an earlier received message, the message (sent bubble / comment / card), its tapback, read ticks, the reply */
+  sd(2, 'apple', 'บทสนทนา', (d, c) => { const Q = MQ(d); art(c, p => { oldA(p, Q, -410, -214, 360, 104, 'l', 0);
+    const av = avatarA(p, Q, -370, 14, 44), m = Q.kind === 'comment' ? msgA(p, c, Q, -300, -90, 560, 220, { side: 'l', size: 86, t: Q.tC(1) }) : msgA(p, c, Q, -110, -90, 500, 220, { size: 86, t: Q.tC(1) });
+    tapA(p, c, Q, m.r - 10, m.t + 2, 46); if (Q.kind !== 'comment') tickA(p, Q, 350, 146, 1.4); typeA(p, c, Q, -410, 130, 180, 92); }); });
+  /* 3 · 560 × 490 — a stack of notifications: two earlier banners tucked behind, the new one in front (tile + message), its tapback */
+  sd(3, 'apple', 'กองแจ้งเตือน', (d, c) => { const Q = MQ(d); art(c, p => { [[-212, 400, .3], [-190, 460, .45]].forEach(([y, w, a], i) => { const g = popAt(p, 0, y, Q.tC(i)); R(g, -w / 2, y - 30, w, 90, 34, { fill: C.fill, sw: 3, stroke: TL_(a) }); });
+    const g = popAt(p, 0, 50, Q.tC(2)); R(g, -270, -150, 540, 380, 50, F(4)); R(litOn(g, Q.H), -270, -150, 540, 380, 50, { sw: 4.4, stroke: ACC1 }); tileA(p, c, Q, -186, -66, 108);
+    if (Q.kind === 'review') { const n = Q.mood === 'good' ? 5 : Q.mood === 'bad' ? 1 : 0; for (let i = 0; i < 5; i++) { star5(g, -104 + i * 46, -66, 18, { sw: 2.6, stroke: TL_(.55), fill: C.fill }); if (i < n) star5(litOn(g, f3(lerp(Q.T0, Q.H, (i + 1) / n))), -104 + i * 46, -66, 18, { fill: ACC1, sw: 2.6, stroke: ACC1 }); } }
+    words11(g, p, Q, [-230, 10, 230, 170], { size: 84 }); if (Q.gone) typeA(p, c, Q, 110, -110, 120, 84); else tapA(p, c, Q, 184, -66, 56); }); });
+  /* 4 · 400 × 635 — a conversation column: earlier message, the message, its tapback and ticks, the reply below */
+  sd(4, 'apple', 'บทสนทนา', (d, c) => { const Q = MQ(d); art(c, p => { oldA(p, Q, -192, -306, 280, 120, 'l', 0);
+    const cm = Q.kind === 'comment', m = msgA(p, c, Q, cm ? -176 : -180, -150, 356, 290, { side: cm ? 'l' : 'r', size: 70, t: Q.tC(1) }); tapA(p, c, Q, m.r - 10, m.t + 2, 44);
+    if (!cm) tickA(p, Q, 150, 176, 1.3); typeA(p, c, Q, -176, 206, 200, 100); }); });
+  /* 5 · 860 × 710 — a widget: header (tile + stars), the message large, a footer with the reaction / typing */
+  sd(5, 'apple', 'วิดเจ็ตการ์ด', (d, c) => { const Q = MQ(d); art(c, p => { const g = popAt(p, 0, 0, Q.tIn); R(g, -424, -348, 848, 696, 64, F(4)); R(litOn(g, Q.H), -424, -348, 848, 696, 64, { sw: 4.4, stroke: ACC1 });
+    tileA(p, c, Q, -320, -244, 136); if (Q.kind === 'comment') { photo(g, 312, -244, 64); }
+    if (Q.kind === 'review') { const n = Q.mood === 'good' ? 5 : Q.mood === 'bad' ? 1 : 0; for (let i = 0; i < 5; i++) { star5(g, -196 + i * 70, -244, 27, { sw: 2.8, stroke: TL_(.55), fill: C.fill }); if (i < n) star5(litOn(g, f3(lerp(Q.T0, Q.H, (i + 1) / n))), -196 + i * 70, -244, 27, { fill: ACC1, sw: 2.8, stroke: ACC1 }); } }
+    words11(g, p, Q, [-360, -130, 360, 120], { size: 128 }); drawAt(p.line(-360, 186, 360, 186, { sw: 2.4, stroke: TL_(.3) }), p, Q.tIn, tu(.4));
+    if (Q.gone) typeA(p, c, Q, -360, 220, 200, 100); else if (Q.rIcon) { tapA(p, c, Q, -300, 268, 60); if (Q.kind !== 'comment' && Q.kind !== 'review') tickA(p, Q, 290, 268, 1.8); } else tickA(p, Q, 290, 268, 1.8); }); });
+  /* 6 · 860 × 965 — a full conversation: two earlier messages, the message large, its tapback, read ticks, the reply */
+  sd(6, 'apple', 'บทสนทนาเต็มจอ', (d, c) => { const Q = MQ(d); art(c, p => { oldA(p, Q, -400, -462, 500, 160, 'l', 0); oldA(p, Q, -110, -270, 500, 150, 'r', 1);
+    const cm = Q.kind === 'comment'; if (cm) avatarA(p, Q, -360, 140, 60); const m = cm ? msgA(p, c, Q, -270, -70, 690, 380, { side: 'l', size: 118, k: 1.4, t: Q.tC(2) }) : msgA(p, c, Q, -300, -70, 700, 380, { size: 118, k: 1.4, t: Q.tC(2) });
+    tapA(p, c, Q, m.r - 12, m.t + 4, 62); if (!cm) tickA(p, Q, 340, 350, 2); typeA(p, c, Q, -400, 366, 300, 130); }); });
+  /* 7 · 400 × 500 — a small widget: tile + stars, the message, the reaction / typing at the foot */
+  sd(7, 'apple', 'วิดเจ็ตการ์ด', (d, c) => { const Q = MQ(d); art(c, p => { const g = popAt(p, 0, 0, Q.tIn); R(g, -196, -246, 392, 492, 56, F(4)); R(litOn(g, Q.H), -196, -246, 392, 492, 56, { sw: 4.4, stroke: ACC1 });
+    tileA(p, c, Q, -116, -166, 104); if (Q.kind === 'comment') photo(g, 116, -166, 50);
+    if (Q.kind === 'review') { const n = Q.mood === 'good' ? 5 : Q.mood === 'bad' ? 1 : 0; for (let i = 0; i < 5; i++) { star5(g, -40 + i * 40, -166, 15, { sw: 2.4, stroke: TL_(.55), fill: C.fill }); if (i < n) star5(litOn(g, f3(lerp(Q.T0, Q.H, (i + 1) / n))), -40 + i * 40, -166, 15, { fill: ACC1, sw: 2.4, stroke: ACC1 }); } }
+    words11(g, p, Q, [-160, -80, 160, 90], { size: 76 }); drawAt(p.line(-160, 130, 160, 130, { sw: 2.4, stroke: TL_(.3) }), p, Q.tIn, tu(.4));
+    if (Q.gone) typeA(p, c, Q, -160, 154, 150, 72); else { tapA(p, c, Q, -116, 190, 42); tickA(p, Q, 120, 190, 1.2); } }); });
+
   /* ---------- sample data + stress ---------- */
   const SAMPLES = [
     { say: 'มีคนเขียนมาบอกว่าคิดถึง', kind: 'chat', quote: 'คิดถึงนะ', mood: 'good', react: 'heart' },
