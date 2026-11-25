@@ -748,41 +748,49 @@
   /* 01 MILE — one long capsule bar; the steps stand by it at their milestones; the fill runs the bar in one smooth trip, each milestone lights as it
      passes, the steps brighten as they are reached (they wait dim). Wide: bar under a row of steps · tall: bar left of a column of steps. */
   function MILE(p, c, d, W0, H0) { const Q = TRIP(d), n = Q.N, hz = W0 >= H0 * 1.1;
-    const L = hz ? W0 : H0, A = hz ? H0 : W0, bt = f1(Math.max(28, Math.min(96, A * .17))), g = f1(Math.max(18, A * .06)), ic = f1(Math.min(L / n * .86, A - bt - g, 330)), tot = ic + g + bt;
+    const L = hz ? W0 : H0, A = hz ? H0 : W0, alt = n >= 3 && A / L > .6, bt = f1(Math.max(28, Math.min(alt ? 120 : 96, A * (alt ? .16 : .17)))), g = f1(Math.max(18, A * .05)),
+      ic = f1(alt ? Math.min(L / n * 1.3, (A - bt) / 2 - g, 330) : Math.min(L / n * .86, A - bt - g, 330)), tot = alt ? 2 * (ic + g) + bt : ic + g + bt;   /* roomy squarish boxes: the steps alternate above / below the bar (D2) */
     const pad = 6, rr = f1(bt / 2), m0 = f1(-L / 2 + Math.max(rr, ic / 2)), m1 = f1(L / 2 - Math.max(rr, ic / 2)), at = i => n > 1 ? f1(lerp(m0, m1, i / (n - 1))) : 0;
     const P = (u, v) => hz ? [u, v] : [v, u], bc = f1(tot / 2 - bt / 2), sc = f1(-tot / 2 + ic / 2);   /* bar centre line / step centre line (across) */
-    const [bx, by] = P(0, hz ? bc : -bc); const tr = hz ? [-L / 2, f1(by - bt / 2), L, bt] : [f1(bx - bt / 2), -L / 2, bt, L];
+    const [bx, by] = alt ? [0, 0] : P(0, hz ? bc : -bc); const tr = hz ? [-L / 2, f1(by - bt / 2), L, bt] : [f1(bx - bt / 2), -L / 2, bt, L];
     R(sIn(p, bx, by, tu(.04)), ...tr, rr, F(4));
     const ib = f1(bt - 2 * pad), inL = f1(L - 2 * pad), cl = hz ? clipG(p, f1(-L / 2 + pad), f1(by - ib / 2), inL, ib, f1(ib / 2)) : clipG(p, f1(bx - ib / 2), f1(-L / 2 + pad), ib, inL, f1(ib / 2));
     const fr = u => { const pos = lerp(m0, m1, u); return (pos + L / 2 - pad + ib / 2) / inL; }, ful = u => f1(inL * (1 - Math.min(1, fr(u))));
     const K = hz ? { x: Q.sw(u => -ful(u)), o: fadeS(Q.tA, .2) } : { y: Q.sw(u => -ful(u)), o: fadeS(Q.tA, .2) };
     R(mvG(cl, K), ...(hz ? [f1(-L / 2 + pad), f1(by - ib / 2), inL, ib] : [f1(bx - ib / 2), f1(-L / 2 + pad), ib, inL]), f1(ib / 2), { fill: TA(.36), sw: 0, stroke: 'none' });
-    for (let i = 0; i < n; i++) { const [mx, my] = P(at(i), hz ? by : bx), t = Q.rch(i), [sx, sy] = P(at(i), hz ? sc : -sc);
+    for (let i = 0; i < n; i++) { const sd = i % 2 ? 1 : -1, sv = alt ? sd * (bt / 2 + g + ic / 2) : (hz ? sc : -sc), [mx, my] = P(at(i), hz ? by : bx), t = Q.rch(i), [sx, sy] = P(at(i), sv);
       const dot = sub(p); on(dot, p, 0, { ox: mx, oy: my, s: [[0, .5], [f3(t - tu(.1)), .5], [f3(t + tu(.26)), 1, 'io']], o: [[0, 0], [f3(t - tu(.1)), 0], [f3(t + tu(.2)), 1, 'io']] }); dot.circle(mx, my, f1(Math.max(7, ib * .22)), { fill: C.ink, sw: 0, stroke: 'none' });
       const O = [[0, 0], [Q.tI(i), 0], [f3(Q.tI(i) + tu(.32)), .4, 'io'], [f3(t - tu(.15)), .4], [f3(t + tu(.2)), 1, 'io']];
       stepT(p, c, Q, i, sx, sy, ic * .92, { o: O });
       if (i === Q.K && Q.HOW === 'light') { const h = sub(p); on(h, p, 0, { o: [[0, 0], [f3(Q.H - tu(.1)), 0], [f3(Q.H + tu(.4)), 1, 'io']] }); h.circle(sx, sy, f1(ic * .56), { fill: TA(.08), sw: 4, stroke: ACC1 }); } }
     R(litOn(p, Q.H), ...tr, rr, { fill: 'none', sw: 5, stroke: ACC1 });
-    const [kx, ky] = P(at(Q.K), hz ? sc : -sc); marks4(c, Q, f1(kx + ic * .4), f1(ky - ic * .4), MR(ic)); }
+    const [kx, ky] = P(at(Q.K), alt ? (Q.K % 2 ? 1 : -1) * (bt / 2 + g + ic / 2) : (hz ? sc : -sc)); marks4(c, Q, f1(kx + ic * .4), f1(ky - ic * .4), MR(ic)); }
 
-  /* 02 CHECK — a checklist: each step has its round-cornered box; the ticks draw themselves one after another on the trip (the marked x gets ✗).
-     Tall / square: rows [box · icon] · wide: columns [icon over box] · flat strip: pairs side by side. */
-  function CHECK(p, c, d, W0, H0) { const Q = TRIP(d), n = Q.N, mode = W0 / H0 > 2.6 ? 'pair' : W0 > H0 * 1.15 ? 'colm' : 'rows';
-    const box = (x, y, b, i) => { const t = Q.rch(i), xx = Q.HOW === 'x' && i === Q.K, g = sIn(p, x, y, Q.tI(i)); R(g, f1(x - b / 2), f1(y - b / 2), b, b, f1(b * .26), F(4));
-      const k = b / 64, tk = sub(p); if (xx) { const a = tk.line(f1(x - 15 * k), f1(y - 15 * k), f1(x + 15 * k), f1(y + 15 * k), { sw: 6, stroke: C.ink }), b2 = tk.line(f1(x - 15 * k), f1(y + 15 * k), f1(x + 15 * k), f1(y - 15 * k), { sw: 6, stroke: C.ink });
-        on(a, p, 0, { draw: [[0, 0], [f3(t - tu(.3)), 0], [f3(t - tu(.1)), 1, 'io']] }); on(b2, p, 0, { draw: [[0, 0], [f3(t - tu(.12)), 0], [f3(t + tu(.08)), 1, 'io']] }); }
-      else { const ck = tk.path(`M ${f1(x - 17 * k)} ${f1(y + 1 * k)} L ${f1(x - 5 * k)} ${f1(y + 13 * k)} L ${f1(x + 18 * k)} ${f1(y - 13 * k)}`, { sw: 6.4, stroke: ACC1, fill: 'none' });
-        on(ck, p, 0, { draw: [[0, 0], [f3(t - tu(.3)), 0], [f3(t + tu(.06)), 1, 'io']] }); }
-      R(litOn(p, f3(t + tu(.04))), f1(x - b / 2), f1(y - b / 2), b, b, f1(b * .26), xx ? { fill: 'none', sw: 4, stroke: TL_(.5) } : { fill: TA(.12), sw: 4.4, stroke: ACC1 });
-      if (Q.HOW === 'light' && i !== Q.K || xx) on(g, p, 0, { o: [[0, 1], [Q.H, 1], [f3(Q.H + tu(.5)), .4, 'io']] }); };
-    let K0 = null;
-    if (mode === 'rows') { const rh = H0 / n, ic = f1(Math.min(rh * .8, W0 * .45, 260)), b = f1(Math.min(rh * .56, ic * .7, 150)), g = f1(Math.max(26, ic * .22)), x0 = f1(-(b + g + ic) / 2);
-      for (let i = 0; i < n; i++) { const y = f1(-H0 / 2 + rh * (i + .5)); box(f1(x0 + b / 2), y, b, i); stepT(p, c, Q, i, f1(x0 + b + g + ic / 2), y, ic); if (i === Q.K) K0 = [f1(x0 + b + g + ic * .9), f1(y - ic * .36), MR(ic)]; } }
-    else if (mode === 'colm') { const cw = W0 / n, b = f1(Math.min(cw * .42, H0 * .26, 140)), g = f1(Math.max(20, H0 * .05)), ic = f1(Math.min(cw * .78, H0 - b - g, 280)), y0 = f1(-(ic + g + b) / 2);
-      for (let i = 0; i < n; i++) { const x = f1(-W0 / 2 + cw * (i + .5)); stepT(p, c, Q, i, x, f1(y0 + ic / 2), ic); box(x, f1(y0 + ic + g + b / 2), b, i); if (i === Q.K) K0 = [f1(x + ic * .42), f1(y0 + ic * .1), MR(ic)]; } }
-    else { const cw = W0 / n, ic = f1(Math.min(H0 * .8, cw * .5, 220)), b = f1(Math.min(H0 * .5, ic * .66)), g = f1(Math.max(14, cw * .05)), pw = b + g + ic;
-      for (let i = 0; i < n; i++) { const cx = f1(-W0 / 2 + cw * (i + .5)), x0 = f1(cx - pw / 2); box(f1(x0 + b / 2), 0, b, i); stepT(p, c, Q, i, f1(x0 + b + g + ic / 2), 0, ic); if (i === Q.K) K0 = [f1(x0 + b + g + ic * .92), f1(-ic * .38), MR(ic)]; } }
-    if (K0) marks4(c, Q, ...K0); }
+  /* 02 ROAD (user 2026-11-25: the checklist "ต่ำกว่ามาตรฐานเกินไป ออกแบบใหม่ทั้งหมด") — a winding road across the whole box; each step is a stop on it
+     (a round plate with its icon, waiting faint); a glowing traveller runs the road in one smooth trip, the road lighting behind it, each stop lighting
+     as it is reached, the last on H. Wide: the stops zigzag up / down · tall: left / right. */
+  function ROAD(p, c, d, W0, H0) { const Q = TRIP(d), n = Q.N, hz = W0 >= H0, L = hz ? W0 : H0, A = hz ? H0 : W0;
+    let ic = f1(Math.min(L / Math.max(1, n - 1) * .9, L / n * 1.3, A * (n > 2 ? .62 : .8), 330)), amp = 0;
+    for (let k = 0; k < 40; k++) { amp = n > 2 ? Math.max(0, (A - ic) / 2) : Math.max(0, (A - ic) / 2) * .6; const du = n > 1 ? (L - ic) / (n - 1) : 0, dist = Math.hypot(du, n > 1 ? 2 * amp : 0);
+      if (n < 2 || dist >= ic * 1.22) break; ic = f1(ic * .96); }   /* the stops never touch each other */
+    amp = f1(amp);
+    const P = (u, v) => hz ? [u, v] : [v, u], st = Array.from({ length: n }, (_, i) => P(f1(n > 1 ? lerp(-L / 2 + ic / 2, L / 2 - ic / 2, i / (n - 1)) : 0), f1((i % 2 ? 1 : -1) * amp)));
+    let dd = `M ${st[0][0]} ${st[0][1]}`; const segs = [];
+    for (let i = 1; i < n; i++) { const [x0, y0] = st[i - 1], [x1, y1] = st[i], c1 = hz ? `${f1((x0 + x1) / 2)} ${y0} ${f1((x0 + x1) / 2)} ${y1}` : `${x0} ${f1((y0 + y1) / 2)} ${x1} ${f1((y0 + y1) / 2)}`;
+      dd += ` C ${c1} ${x1} ${y1}`; segs.push(`M ${x0} ${y0} C ${c1} ${x1} ${y1}`); }
+    const bw = f1(Math.max(18, ic * .34)), band = p.path(dd, { sw: bw, stroke: TL_(.07), fill: 'none' }); on(band, p, 0, { draw: [[0, 0], [tu(.06), 0], [f3(Q.tI(Q.E) + tu(.3)), 1, 'io']] });
+    on(p.path(dd, { sw: 2.4, stroke: TL_(.28), fill: 'none' }), p, 0, { draw: [[0, 0], [tu(.06), 0], [f3(Q.tI(Q.E) + tu(.3)), 1, 'io']] });
+    const lens = segs.map(sd => { const e = p.path(sd, { sw: 0, stroke: 'none' }), l = e.getTotalLength(); e.remove(); return l; }), cum = [0]; lens.forEach(l => cum.push(cum[cum.length - 1] + l)); const tot = cum[n - 1] || 1;
+    const fAt = u => { const x = u * (n - 1), i = Math.min(n - 2, Math.floor(x)); return n < 2 ? 1 : (cum[i] + (cum[i + 1] - cum[i]) * (x - i)) / tot; };   /* index progress → length progress */
+    const prog = p.path(dd, { sw: 7, stroke: ACC1, fill: 'none' }); on(prog, p, 0, { draw: Q.sw(u => fAt(u), 40), o: fadeS(Q.tA, .2) });
+    const ref = p.path(dd, { sw: 0, stroke: 'none' }), fin = st[n - 1], ptAt = u => { const q = ref.getPointAtLength(fAt(u) * tot); return [q.x, q.y]; };
+    const tr = mvG(p, { px: fin[0], py: fin[1], x: Q.sw(u => f1(ptAt(u)[0] - fin[0]), 40), y: Q.sw(u => f1(ptAt(u)[1] - fin[1]), 40), o: fadeS(Q.tA, .2).concat([[Q.H, 1], [f3(Q.H + tu(.3)), 0, 'io']]) });
+    tr.circle(fin[0], fin[1], f1(Math.max(10, bw * .42)), KN4()); tr.circle(fin[0], fin[1], f1(Math.max(16, bw * .7)), { sw: 3, stroke: ACC1, fill: 'none' }); ref.remove();
+    for (let i = 0; i < n; i++) { const [x, y] = st[i], t = Q.rch(i), r = f1(ic / 2), g = sIn(p, x, y, Q.tI(i)); g.circle(x, y, r, F(4.2));
+      if (Q.dimO(i).length) on(g, p, 0, { o: [[0, 1], [Q.H, 1], [f3(Q.H + tu(.5)), .45, 'io']] });
+      litOn(p, t).circle(x, y, r, (Q.HOW === 'x' && i === Q.K) ? { fill: 'none', sw: 4, stroke: TL_(.5) } : { fill: TA(.1), sw: 4.6, stroke: ACC1 });
+      stepT(p, c, Q, i, x, y, f1(ic * .6), { o: [[0, 0], [Q.tI(i), 0], [f3(Q.tI(i) + tu(.32)), .45, 'io'], [f3(t - tu(.15)), .45], [f3(t + tu(.2)), 1, 'io']] });
+      if (i === Q.K) marks4(c, Q, f1(x + r * .72), f1(y - r * .72), MR(ic)); } }
 
   /* 03 REEL — one step at a time: a single frame in the middle; the steps sit on a reel that slides through it (wide: sideways · tall: up), the one
      in the frame big and bright, the ones beside small and faint, fading out before the box edge. One smooth trip from the first step to the last
@@ -799,41 +807,43 @@
     R(litOn(p, Q.H), f1(-S / 2), f1(-S / 2), S, S, f1(S * .24), { fill: Q.HOW === 'x' ? 'none' : TA(.08), sw: 5, stroke: Q.HOW === 'x' ? TL_(.5) : ACC1 });
     marks4(c, Q, f1(S / 2 - MR(S) * .9), f1(-S / 2 + MR(S) * .9), MR(S)); }
 
-  /* 04 CHEV — process arrows: the steps sit in arrow segments that point the way (wide: → · tall: ↓), joined edge to edge; a soft fill flows through
-     them in one trip and each arrow's edge lights as the flow passes its tip. */
-  function CHEV(p, c, d, W0, H0) { const Q = TRIP(d), n = Q.N, hz = W0 >= H0 * .9, L = hz ? W0 : H0, A0 = hz ? H0 : W0, A = f1(Math.min(A0, L / n * 1.55)), nt = f1(Math.min(A * .3, L / n * .32)), sl = f1((L - nt) / n);   /* fuller arrows on roomy boxes (D2) */   /* segment step length */
-    const P = (u, v) => hz ? [u, v] : [v, u], seg = i => { const u0 = -L / 2 + i * sl, u1 = u0 + sl, pts = [[u0, -A / 2], [u1, -A / 2], [u1 + nt, 0], [u1, A / 2], [u0, A / 2]]; if (i) pts.push([u0 + nt, 0]); return pts.map(([u, v]) => P(f1(u), f1(v))); };
-    const cid = 'b04chev' + (++CID), svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'); cp.id = cid; for (let i = 0; i < n; i++) { const q = document.createElementNS(NS, 'path'); q.setAttribute('d', pathOf(seg(i))); cp.appendChild(q); } (svg.querySelector('defs') || svg).appendChild(cp);
-    const cg = sub(p, { 'clip-path': `url(#${cid})` }), tipF = i => (i + 1) * sl / L + nt / L * (i === n - 1 ? 1 : .5), full = u => Math.min(1, u * 1.0);
-    const FL = hz ? { px: -L / 2, py: 0, sx: Q.sw(u => Math.max(.001, full(u))), o: fadeS(Q.tA, .2) } : { px: 0, py: -L / 2, sy: Q.sw(u => Math.max(.001, full(u))), o: fadeS(Q.tA, .2) };
-    R(mvG(cg, FL), ...(hz ? [-L / 2, -A / 2, L, A] : [-A / 2, -L / 2, A, L]), 0, { fill: TA(.16), sw: 0, stroke: 'none' });
-    const ic = f1(Math.min(A * .56, sl * .66, 300));
-    for (let i = 0; i < n; i++) { const sh = seg(i), [cx, cy] = P(f1(-L / 2 + i * sl + (sl + (i ? nt : 0)) / 2 + nt * .15), 0), t = ioAt2(Math.min(1, tipF(i) * .98), Q.tA, Q.H);
-      const g = sIn(p, cx, cy, Q.tI(i)); g.path(pathOf(sh), Object.assign(F(4), { 'stroke-linejoin': 'round' }));
-      const lit = litOn(p, i === n - 1 ? Q.H : t); lit.path(pathOf(sh), { fill: 'none', sw: 4.6, stroke: (Q.HOW === 'x' && i === Q.K) ? TL_(.5) : ACC1, 'stroke-linejoin': 'round' });
-      if (Q.dimO(i).length) on(g, p, 0, { o: [[0, 1], [Q.H, 1], [f3(Q.H + tu(.5)), .45, 'io']] });
-      stepT(p, c, Q, i, cx, cy, ic); if (i === Q.K) marks4(c, Q, f1(cx + (hz ? ic * .42 : ic * .5)), f1(cy - (hz ? A * .3 : ic * .42)), MR(ic)); } }
+  /* rows of steps: squarish roomy boxes take two rows (ceil(n/2) + the rest, centred) so the steps can be big (D2); else one row */
+  const rowsOf = (n, W0, H0) => n >= 3 && W0 / H0 > .7 && W0 / H0 < 1.65 ? [Array.from({ length: Math.ceil(n / 2) }, (_, i) => i), Array.from({ length: n - Math.ceil(n / 2) }, (_, i) => i + Math.ceil(n / 2))] : [Array.from({ length: n }, (_, i) => i)];
+  /* 04 CHEV — process arrows: the steps sit in arrow segments that point the way (→, or ↓ in a tall single column), joined edge to edge; a soft fill
+     flows through them (row by row) and each arrow's edge lights as the flow passes its tip. */
+  function CHEV(p, c, d, W0, H0) { const Q = TRIP(d), n = Q.N, RW = rowsOf(n, W0, H0), two = RW.length > 1, hz = two || W0 >= H0 * .9, gp = f1(Math.min(W0, H0) * .06);
+    const L = hz ? W0 : H0, A0 = two ? (H0 - gp) / 2 : hz ? H0 : W0, m = RW[0].length, A = f1(Math.min(A0, L / m * (two ? 1.2 : 1.55))), nt = f1(Math.min(A * .3, L / m * .32)), sl = f1((L - nt) / m);
+    const P = (u, v) => hz ? [u, v] : [v, u], ic = f1(Math.min(A * .56, sl * .66, 300)), tB = two ? f3(lerp(Q.tA, Q.H, RW[0].length / n)) : Q.H;
+    RW.forEach((row, r) => { const k = row.length, rl = k * sl + nt, u0 = -rl / 2, vc = two ? f1((r ? 1 : -1) * (A0 + gp) / 2) : 0, tS = r ? tB : Q.tA, tE = r || !two ? Q.H : tB;
+      const seg = j => { const a = u0 + j * sl, b2 = a + sl, pts = [[a, -A / 2], [b2, -A / 2], [b2 + nt, 0], [b2, A / 2], [a, A / 2]]; if (j) pts.push([a + nt, 0]); return pts.map(([u, v]) => P(f1(u), f1(v + vc))); };
+      const cid = 'b04chev' + (++CID), svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'); cp.id = cid; for (let j = 0; j < k; j++) { const q = document.createElementNS(NS, 'path'); q.setAttribute('d', pathOf(seg(j))); cp.appendChild(q); } (svg.querySelector('defs') || svg).appendChild(cp);
+      const cg = sub(p, { 'clip-path': `url(#${cid})` }), [ox, oy] = P(f1(u0), vc), FK = [[0, .001], [tS, .001], [tE, 1, 'io']];
+      R(mvG(cg, Object.assign({ px: ox, py: oy, o: fadeS(tS, .2) }, hz ? { sx: FK } : { sy: FK })), ...(hz ? [f1(u0), f1(vc - A / 2), f1(rl), A] : [f1(vc - A / 2), f1(u0), A, f1(rl)]), 0, { fill: TA(.16), sw: 0, stroke: 'none' });
+      row.forEach((i, j) => { const sh = seg(j), [cx, cy] = P(f1(u0 + j * sl + (sl + (j ? nt : 0)) / 2 + nt * .15), vc), tip = ((j + 1) * sl + nt * (j === k - 1 ? 1 : .5)) / rl, t = j === k - 1 ? tE : ioAt2(Math.min(1, tip), tS, tE);
+        const g = sIn(p, cx, cy, Q.tI(i)); g.path(pathOf(sh), Object.assign(F(4), { 'stroke-linejoin': 'round' }));
+        litOn(p, t).path(pathOf(sh), { fill: 'none', sw: 4.6, stroke: (Q.HOW === 'x' && i === Q.K) ? TL_(.5) : ACC1, 'stroke-linejoin': 'round' });
+        if (Q.dimO(i).length) on(g, p, 0, { o: [[0, 1], [Q.H, 1], [f3(Q.H + tu(.5)), .45, 'io']] });
+        stepT(p, c, Q, i, cx, cy, ic); if (i === Q.K) marks4(c, Q, f1(cx + (hz ? ic * .42 : ic * .5)), f1(cy - (hz ? A * .3 : ic * .42)), MR(ic)); }); }); }
 
-  /* 05 PUZ — jigsaw pieces: each step is a piece; one by one they slide in and lock into the one before (tab into socket) on the trip; each joint
-     lights as it locks, the last on H. Wide: a row (tabs →) · tall: a column (tabs ↓). */
-  function PUZ(p, c, d, W0, H0) { const Q = TRIP(d), n = Q.N, hz = W0 >= H0 * .9, L = hz ? W0 : H0, A0 = hz ? H0 : W0, dsl = f1(Math.min(70, L * .07));
-    const w = f1(Math.min((L - dsl) / n, A0 * 1.2)), h = f1(Math.min(A0 * .94, w * 1.45)), r = f1(Math.min(h, w) * .15), rr = f1(Math.min(h, w) * .14), tot = n * w, u00 = f1(-tot / 2 - dsl / 2);
+  /* 05 PUZ — jigsaw pieces: each step is a piece; one by one they slide in and lock into the one before (tab into socket) on the trip; each piece
+     lights as it locks, the last on H. Wide: a row (tabs →) · tall: a column (tabs ↓) · squarish: two rows. */
+  function PUZ(p, c, d, W0, H0) { const Q = TRIP(d), n = Q.N, RW = rowsOf(n, W0, H0), two = RW.length > 1, hz = two || W0 >= H0 * .9, gp = f1(Math.min(W0, H0) * .06);
+    const L = hz ? W0 : H0, A0 = two ? (H0 - gp) / 2 : hz ? H0 : W0, m = RW[0].length, dsl = f1(Math.min(70, L * .07));
+    const w = f1(Math.min((L - dsl) / m, A0 * 1.2)), h = f1(Math.min(A0 * .94, w * 1.45)), r = f1(Math.min(h, w) * .15), rr = f1(Math.min(h, w) * .14), ic = f1(Math.min(w * .62, h * .56, 300));
     const M = (u, v) => hz ? [u, v] : [-v, u];   /* rotation (no mirror): arcs keep their sweep */
-    const piece = (i) => { const u0 = u00 + i * w, u1 = u0 + w, v0 = -h / 2, v1 = h / 2, pt = (u, v) => M(f1(u), f1(v)).join(' '), arc = (rad_, sweep, u, v) => `A ${rad_} ${rad_} 0 0 ${sweep} ${pt(u, v)}`;
-      let dd = `M ${pt(u0 + rr, v0)} L ${pt(u1 - rr, v0)} ${arc(rr, 1, u1, v0 + rr)}`;
-      if (i < n - 1) dd += ` L ${pt(u1, -r)} ${arc(r, 1, u1, r)}`;   /* tab out */
-      dd += ` L ${pt(u1, v1 - rr)} ${arc(rr, 1, u1 - rr, v1)} L ${pt(u0 + rr, v1)} ${arc(rr, 1, u0, v1 - rr)}`;
-      if (i > 0) dd += ` L ${pt(u0, r)} ${arc(r, 0, u0, -r)}`;   /* socket in */
-      return dd + ` L ${pt(u0, v0 + rr)} ${arc(rr, 1, u0 + rr, v0)} Z`; };
-    const ic = f1(Math.min(w * .62, h * .56, 300));
-    for (let i = 0; i < n; i++) { const t = Q.rch(i), t0 = f3(i ? Math.max(Q.tI(i), Q.rch(i - 1)) : Q.tI(0)), [cx, cy] = M(f1(u00 + i * w + w / 2 - (i ? r * .3 : 0)), 0), [dx, dy] = M(i ? dsl : 0, 0);
-      const K = { px: cx, py: cy, x: [[0, dx], [t0, dx], [t, 0, 'io']], y: [[0, dy], [t0, dy], [t, 0, 'io']], o: fadeS(f3(Math.min(t0, t - tu(.34)))) };
-      const g = mvG(p, K); g.path(piece(i), F(4)); if (Q.dimO(i).length) on(g, p, 0, { o: [[0, 1], [Q.H, 1], [f3(Q.H + tu(.5)), .45, 'io']] });
-      litOn(p, t).path(piece(i), { fill: (Q.HOW === 'x' && i === Q.K) ? 'none' : TA(.1), sw: 4.4, stroke: (Q.HOW === 'x' && i === Q.K) ? TL_(.5) : ACC1 });
-      stepT(p, c, Q, i, cx, cy, ic, { x: K.x, y: K.y, o: fadeS(f3(Math.min(t0, t - tu(.34)))) }); if (i === Q.K) marks4(c, Q, f1(cx + ic * .5), f1(cy - ic * .5), MR(ic)); } }
+    RW.forEach((row, rI) => { const k = row.length, u00 = f1(-k * w / 2 - dsl / 2), vc = two ? f1((rI ? 1 : -1) * (A0 + gp) / 2) : 0;
+      const piece = j => { const u0 = u00 + j * w, u1 = u0 + w, v0 = vc - h / 2, v1 = vc + h / 2, pt = (u, v) => M(f1(u), f1(v)).join(' '), arc = (ra, sw, u, v) => `A ${ra} ${ra} 0 0 ${sw} ${pt(u, v)}`;
+        let dd = `M ${pt(u0 + rr, v0)} L ${pt(u1 - rr, v0)} ${arc(rr, 1, u1, v0 + rr)}`; if (j < k - 1) dd += ` L ${pt(u1, vc - r)} ${arc(r, 1, u1, vc + r)}`;
+        dd += ` L ${pt(u1, v1 - rr)} ${arc(rr, 1, u1 - rr, v1)} L ${pt(u0 + rr, v1)} ${arc(rr, 1, u0, v1 - rr)}`; if (j > 0) dd += ` L ${pt(u0, vc + r)} ${arc(r, 0, u0, vc - r)}`;
+        return dd + ` L ${pt(u0, v0 + rr)} ${arc(rr, 1, u0 + rr, v0)} Z`; };
+      row.forEach((i, j) => { const t = Q.rch(i), t0 = f3(i ? Math.max(Q.tI(i), Q.rch(i - 1)) : Q.tI(0)), [cx, cy] = M(f1(u00 + j * w + w / 2 - (j ? r * .3 : 0)), vc), [dx, dy] = M(i ? dsl : 0, 0);
+        const K = { px: cx, py: cy, x: [[0, dx], [t0, dx], [t, 0, 'io']], y: [[0, dy], [t0, dy], [t, 0, 'io']], o: fadeS(f3(Math.min(t0, t - tu(.34)))) };
+        const g = mvG(p, K); g.path(piece(j), F(4)); if (Q.dimO(i).length) on(g, p, 0, { o: [[0, 1], [Q.H, 1], [f3(Q.H + tu(.5)), .45, 'io']] });
+        litOn(p, t).path(piece(j), { fill: (Q.HOW === 'x' && i === Q.K) ? 'none' : TA(.1), sw: 4.4, stroke: (Q.HOW === 'x' && i === Q.K) ? TL_(.5) : ACC1 });
+        stepT(p, c, Q, i, cx, cy, ic, { x: K.x, y: K.y, o: fadeS(f3(Math.min(t0, t - tu(.34)))) }); if (i === Q.K) marks4(c, Q, f1(cx + ic * .5), f1(cy - ic * .5), MR(ic)); }); }); }
 
   function lay4(k, d, c, D) { const Wb = SIZES[k].w, Hb = SIZES[k].h, m = 14; art(c, p => D(p, c, d, Wb - 2 * m, Hb - 2 * m)); }
-  const SZD = {}; for (let k = 1; k <= 7; k++) SZD[k] = [{ id: 'mile', th: 'แถบเติมผ่านหมุด', fn: (d, c) => lay4(k, d, c, MILE) }, { id: 'check', th: 'เช็กลิสต์', fn: (d, c) => lay4(k, d, c, CHECK) },
+  const SZD = {}; for (let k = 1; k <= 7; k++) SZD[k] = [{ id: 'mile', th: 'แถบเติมผ่านหมุด', fn: (d, c) => lay4(k, d, c, MILE) }, { id: 'road', th: 'เส้นทาง', fn: (d, c) => lay4(k, d, c, ROAD) },
     { id: 'reel', th: 'ภาพหมุนทีละขั้น', fn: (d, c) => lay4(k, d, c, REEL) }, { id: 'chev', th: 'ลูกศรขั้นตอน', fn: (d, c) => lay4(k, d, c, CHEV) }, { id: 'puz', th: 'จิ๊กซอว์ต่อกัน', fn: (d, c) => lay4(k, d, c, PUZ) }];
   /* icons only (D15): a step keeps its word only when it has no icon */
   const noWords = d => d && Array.isArray(d.items) ? Object.assign({}, d, { items: d.items.map(X => X && X.icon && (G.icons[X.icon] || G.icons[X.icon + '-pro']) ? Object.assign({}, X, { label: undefined }) : X) }) : d;
