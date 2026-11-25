@@ -882,48 +882,380 @@
   /* from below a link's word (so the arrow never crosses it) */
   const below = (x, y, iw, Q, i, ws) => [x, f1(y + iw / 2 + (Q.LB(i) ? ws * 1.5 : 0) + 8)];
 
-  /* 1 · 860 × 230 — the causes along the left, each arching over to the next, the effect big on the right with its word */
-  sd(1, 'pilot', 'ทอดต่อทอดไปสู่ผล', (d, c) => { const Q = CQ(d), m = Q.L, str = Q.LB(Q.L);
-    art(c, p => { const EW = 196, ex = str ? 90 : 300, cw = f1((ex - EW / 2 - 40 + 424) / m), iw = f1(Math.min(150, cw * .66)), pts = Array.from({ length: m }, (_, i) => [f1(-424 + cw * (i + .5)), -22]);
-      pts.forEach(([x, y], i) => { linkIcon(p, c, Q, i, x, y, iw); linkWord(p, Q, i, x, 88, 36, f1(cw - 10)); });
-      const E = [ex, -4]; linkIcon(p, c, Q, Q.L, E[0], E[1], EW); if (str) linkWord(p, Q, Q.L, f1(ex + EW / 2 + 22), -4, 66, f1(426 - ex - EW / 2 - 28), 'start');
-      for (let i = 0; i < m; i++) { const A = pts[i], B = i + 1 < m ? pts[i + 1] : E; conn(p, Q, i, A, B, iw * .5, i + 1 < m ? iw * .5 : EW * .5, -.35, { head: 18 }); } }); });
-  /* 2 · 860 × 470 — the chain climbs: links rising left → right and growing, words under them, the effect largest at the top-right */
-  sd(2, 'pilot', 'ไต่ขึ้นสู่ผล', (d, c) => { const Q = CQ(d), n = Q.n, m = Q.L, str = Q.LB(Q.L);
-    art(c, p => { const EW = 250, E = [f1(str ? 150 : 270), f1(str ? -70 : -40)], cw = f1((E[0] - EW / 2 - 30 + 424) / m), iw = f1(Math.min(200, cw * .86)), P = Array.from({ length: m }, (_, i) => [f1(-424 + cw * (i + .5)), f1(120 - 140 * i / Math.max(1, m - 1))]);
-      P.forEach(([x, y], i) => { linkIcon(p, c, Q, i, x, y, iw); linkWord(p, Q, i, x, f1(y + iw / 2 + 34), 40, f1(cw - 10)); });
-      linkIcon(p, c, Q, Q.L, E[0], E[1], EW); if (str) linkWord(p, Q, Q.L, f1(E[0] + EW / 2 + 24), E[1], 70, f1(426 - E[0] - EW / 2 - 30), 'start');
-      for (let i = 0; i < m; i++) conn(p, Q, i, P[i], i + 1 < m ? P[i + 1] : E, iw * .52, i + 1 < m ? iw * .52 : EW * .52, .32, { head: 22 }); }); });
-  /* 3 · 560 × 490 — the causes across the top, one long arrow curls down from under the last of them into the effect, big at the bottom */
-  sd(3, 'pilot', 'วนลงสู่ผล', (d, c) => { const Q = CQ(d), m = Q.L, str = Q.LB(Q.L);
-    art(c, p => { const cw = 540 / m, iw = f1(Math.min(150, cw * .66)), y0 = -158, P = Array.from({ length: m }, (_, i) => [f1(-270 + cw * (i + .5)), y0]);
-      P.forEach(([x, y], i) => { linkIcon(p, c, Q, i, x, y, iw); linkWord(p, Q, i, x, f1(y + iw / 2 + 32), 38, f1(cw - 10)); if (i < m - 1) conn(p, Q, i, P[i], P[i + 1], iw * .5, iw * .5, -.4, { head: 16 }); });
-      const EW = 220, E = [str ? -120 : 0, 128]; linkIcon(p, c, Q, Q.L, E[0], E[1], EW); if (str) linkWord(p, Q, Q.L, f1(E[0] + EW / 2 + 22), E[1], 60, 250, 'start');
-      const A = below(P[m - 1][0], y0, iw, Q, m - 1, 38); flowArrow(p, Q, m - 1, A, edge(E[0], E[1], EW * .55, A[0], A[1]), -.3); }); });
-  /* 4 · 400 × 635 — a falling chain: links zig-zag down the column, each arrow swinging across to the next, the effect largest at the bottom */
-  sd(4, 'pilot', 'ไหลลงซิกแซก', (d, c) => { const Q = CQ(d), m = Q.L, str = Q.LB(Q.L);
-    art(c, p => { const top = -300, eh = str ? 270 : 230, step = (600 - eh) / Math.max(1, m), iw = f1(Math.min(130, step * .8)), P = Array.from({ length: m }, (_, i) => [i % 2 ? 76 : -76, f1(top + step * (i + .5))]);
-      P.forEach(([x, y], i) => { linkIcon(p, c, Q, i, x, y, iw); linkWord(p, Q, i, i % 2 ? f1(x - iw / 2 - 14) : f1(x + iw / 2 + 14), y, 38, 150, i % 2 ? 'end' : 'start'); });
-      const EW = 210, E = [0, f1(300 - eh + EW / 2)]; linkIcon(p, c, Q, Q.L, E[0], E[1], EW); if (str) linkWord(p, Q, Q.L, 0, f1(E[1] + EW / 2 + 36), 54, 370);
-      for (let i = 0; i < m; i++) conn(p, Q, i, P[i], i + 1 < m ? P[i + 1] : E, iw * .5, i + 1 < m ? iw * .5 : EW * .5, i % 2 ? .3 : -.3); }); });
-  /* 5 · 860 × 710 — a wave across the frame: the causes ride it from the left (words on the outer side), the effect big on the right */
-  sd(5, 'pilot', 'คลื่นส่งต่อสู่ผล', (d, c) => { const Q = CQ(d), m = Q.L, str = Q.LB(Q.L);
-    art(c, p => { const EW = 330, E = [f1(str ? 230 : 240), f1(str ? -50 : 0)], cw = f1((E[0] - EW / 2 - 20 + 424) / m), iw = f1(Math.min(200, cw * .78)), P = Array.from({ length: m }, (_, i) => [f1(-424 + cw * (i + .5)), i % 2 ? 130 : -110]);
-      P.forEach(([x, y], i) => { linkIcon(p, c, Q, i, x, y, iw); linkWord(p, Q, i, x, i % 2 ? f1(y + iw / 2 + 44) : f1(y - iw / 2 - 34), 48, f1(cw + 30)); });
-      linkIcon(p, c, Q, Q.L, E[0], E[1], EW); if (str) linkWord(p, Q, Q.L, E[0], f1(E[1] + EW / 2 + 64), 84, 380);
-      for (let i = 0; i < m; i++) conn(p, Q, i, P[i], i + 1 < m ? P[i + 1] : E, iw * .52, i + 1 < m ? iw * .52 : EW * .52, i % 2 ? -.3 : .3, { head: 26, sw: 4.6 }); }); });
-  /* 6 · 860 × 965 — the causes step down a zig-zag from the top, arrows swing between them, the effect huge at the bottom centre */
-  sd(6, 'pilot', 'ทอดลงสู่ผลใหญ่', (d, c) => { const Q = CQ(d), m = Q.L, str = Q.LB(Q.L);
-    art(c, p => { const EW = 330, E = [0, str ? 196 : 250], top = -460, zone = E[1] - EW / 2 - 40 - top, step = zone / Math.max(1, m), iw = f1(Math.min(200, step * .9)), P = Array.from({ length: m }, (_, i) => [f1(i % 2 ? 210 : -210), f1(top + step * (i + .5))]);
-      P.forEach(([x, y], i) => { linkIcon(p, c, Q, i, x, y, iw); linkWord(p, Q, i, i % 2 ? f1(x - iw / 2 - 24) : f1(x + iw / 2 + 24), y, 56, 300, i % 2 ? 'end' : 'start'); });
-      linkIcon(p, c, Q, Q.L, E[0], E[1], EW); if (str) linkWord(p, Q, Q.L, 0, f1(E[1] + EW / 2 + 56), 84, 760);
-      for (let i = 0; i < m; i++) conn(p, Q, i, P[i], i + 1 < m ? P[i + 1] : E, iw * .52, i + 1 < m ? iw * .52 : EW * .52, i % 2 ? -.3 : .3, { head: 28, sw: 4.8 }); }); });
-  /* 7 · 400 × 500 — the causes in a row at the top, an arrow drops from under them into the effect large below */
-  sd(7, 'pilot', 'เหตุบน ผลล่าง', (d, c) => { const Q = CQ(d), m = Q.L, str = Q.LB(Q.L);
-    art(c, p => { const cw = 384 / m, iw = f1(Math.min(120, cw * .66)), y0 = -180, P = Array.from({ length: m }, (_, i) => [f1(-192 + cw * (i + .5)), y0]);
-      P.forEach(([x, y], i) => { linkIcon(p, c, Q, i, x, y, iw); linkWord(p, Q, i, x, f1(y + iw / 2 + 30), 32, f1(cw - 8)); if (i < m - 1) conn(p, Q, i, P[i], P[i + 1], iw * .5, iw * .5, -.4, { head: 14, sw: 3.6 }); });
-      const EW = 176, E = [0, str ? 86 : 110]; linkIcon(p, c, Q, Q.L, E[0], E[1], EW); if (str) linkWord(p, Q, Q.L, 0, f1(E[1] + EW / 2 + 34), 48, 370);
-      const A = below(P[m - 1][0], y0, iw, Q, m - 1, 32); flowArrow(p, Q, m - 1, A, edge(E[0], E[1], EW * .55, A[0], A[1]), .3); }); });
+  /* ================= ROUND 3 (user 2026-11-25, after the round-2 pilot: "เริ่มออกแบบใหม่ได้ เอาไฟล์ที่แนบ ดูเป็น reference" + the videos of
+     B01T–B05T) — the template look: rounded tiles holding the icons, plain words, thin lines that draw themselves, an edge that lights when it is
+     reached, calm eased moves, the effect the biggest tile with a soft lit fill and its word in the accent. Five mechanisms, each one telling
+     "this sets off that": A DOMINO (tips over onto the next) · A′ CARD "เพราะ … จึง …" (the sizes that stand) · B GROW (each link is born out of
+     the one before, bigger) · C FILL (fills up, overflows into the next) · D ARROW (one big arrow carries the causes to the effect) · E RING
+     (charges round, shoots a dot to the next). Laid out for each size on its own. No ripples, no dashes, no stripes; everything inside the box. ================= */
+  const LONGW = 16, glyphs = s => [...String(s)].filter(ch => !/[ัิ-ฺ็-๎\s]/.test(ch)).length;
+  /* lesson 18: a word longer than 16 letters with an icon → no word (the clip says it anyway) */
+  const trimL = d => { if (!d) return d; const f = X => X && X.label && picOf(X) && glyphs(X.label) > LONGW ? { icon: X.icon } : X;
+    return Object.assign({}, d, { items: Array.isArray(d.items) ? d.items.map(f) : d.items, end: d.end ? f(d.end) : d.end }); };
+  const HB = () => [BOX[0] / 2, BOX[1] / 2], clv = (v, a, b) => Math.max(a, Math.min(b, v));
+  /* user 2026-11-25: "ลดการใช้ตัวหนังสือลงหน่อย เพราะเวลา motion graphics ขึ้น เสียงของ user ณ เวลานั้นก็พูดถึงเรื่องนี้อยู่แล้ว" → the causes are
+     their icons only; the effect keeps its word (the point of the line). A link with no icon still shows its word in its tile (the word is the picture).
+     CAUSE_WORDS = true brings the causes' words back (every layout keeps room for them) */
+  const CAUSE_WORDS = false;
+  const anyW = Q => CAUSE_WORDS && Q.N.slice(0, Q.L).some((X, i) => Q.LB(i));
+  /* user 2026-11-25: "พยายามอย่าจัดวางองค์ประกอบให้อยู่ฝั่งใดฝั่งหนึ่งมากเกินไป พยายาม balance ให้อยู่ตรงกลาง" — move the links (and the rects in ext,
+     e.g. the effect's word) so their bounding box sits in the middle of the box; ring = the links are discs with a ring round them */
+  const center = (P, ring, ext = []) => { let l = 1e9, t = 1e9, r = -1e9, b = -1e9;
+    P.forEach(q => { const h = ring ? q.s / 2 + 13 : q.s / 2; l = Math.min(l, q.x - h); r = Math.max(r, q.x + h); t = Math.min(t, q.y - h); b = Math.max(b, q.y + h); });
+    ext.forEach(([a, c, d, e]) => { l = Math.min(l, a); t = Math.min(t, c); r = Math.max(r, d); b = Math.max(b, e); });
+    const dx = f1(-(l + r) / 2), dy = f1(-(t + b) / 2); P.forEach(q => { q.x = f1(q.x + dx); q.y = f1(q.y + dy); }); return [dx, dy]; };
+  /* the rect a word takes: centred on (x, y) or starting / ending there */
+  const wRect = (p, str, sz, mw, x, y, an = 'middle') => { if (!str) return null; const w = Math.min(mw, tw(p, str, sz)), l = an === 'start' ? x : an === 'end' ? x - w : x - w / 2; return [l, y - sz * .6, l + w, y + sz * .6]; };
+  const spread = (n, a, b) => Array.from({ length: n }, (_, i) => f1(n > 1 ? lerp(a, b, i / (n - 1)) : (a + b) / 2));
+  /* a clip with rounded corners (a tile's inside) */
+  function clipRR(p, x, y, w, h, rx) { const svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), r = document.createElementNS(NS, 'rect');
+    cp.id = 'b12sclip' + (++CID); Object.entries({ x, y, width: w, height: h, rx, ry: rx }).forEach(([k, v]) => r.setAttribute(k, f1(v))); cp.appendChild(r);
+    (svg.querySelector('defs') || svg).appendChild(cp); return sub(p, { 'clip-path': `url(#${cp.id})` }); }
+  /* where the line from a box's centre toward (tx, ty) leaves the box (half sizes hw, hh) */
+  const boxEdge = (x, y, hw, hh, tx, ty) => { const dx = tx - x, dy = ty - y, k = Math.min(dx ? hw / Math.abs(dx) : 1e9, dy ? hh / Math.abs(dy) : 1e9); return [f1(x + dx * k), f1(y + dy * k)]; };
+  /* a cause's light is on from when it is reached until it has handed over (the next is reached), then goes; the effect's stays */
+  const handK = (Q, i, tf, keep) => keep || i === Q.L ? [[0, 0], [tf, 0], [f3(tf + tu(.06)), 1]]
+    : [[0, 0], [tf, 0], [f3(tf + tu(.06)), 1], [f3(Q.tF(i + 1) + tu(.12)), 1], [f3(Q.tF(i + 1) + tu(.42)), 0, 'io']];
+  /* a link as a tile: rounded box (o.w × o.h, or o.s square; o.shape 'circ') with its icon, its word inside when there is no icon, faint with a dot
+     when unnamed. Pops in at o.t (tI) unless o.g is given; on o.tf (tF) it bumps and its edge lights (handK); the effect gets a soft lit fill.
+     o.under(q) draws inside it (a level, a ring); o.mv = keys the icon rides when the tile moves */
+  function tileN(p, c, Q, i, x, y, o = {}) {
+    const w = o.w ?? o.s, h = o.h ?? o.s, sh = o.shape || 'box', t = o.t ?? Q.tI(i), tf = o.tf ?? Q.tF(i), eff = i === Q.L, X = Q.N[i], nm = has(X);
+    const g0 = o.g || popAt(p, x, y, t), g = o.bump === false ? g0 : mvG(g0, { px: x, py: y, s: bumpK(tf, eff ? 1.06 : 1.04) });
+    const draw = (q, st) => sh === 'circ' ? q.circle(x, y, w / 2, st) : R(q, f1(x - w / 2), f1(y - h / 2), w, h, f1(o.rx ?? Math.min(w, h) * .22), st);
+    draw(g, nm ? F(4) : { fill: C.fill, sw: 3, stroke: TL_(.4) }); if (o.under) o.under(g);
+    if (o.lit !== false) { const L = sub(g); on(L, g, 0, { o: handK(Q, i, tf, o.keep) }); if (eff) draw(L, { fill: TA(.08), sw: 0, stroke: 'none' }); draw(L, { fill: 'none', sw: 5, stroke: ACC1 }); }
+    if (!nm) { if (eff) star4(litOn(g, tf), x, y, f1(Math.min(w, h) * .2), DOTF()); else g.circle(x, y, 10, { fill: C.soft, sw: 0, stroke: 'none' }); return g; }
+    if (picOf(X)) put(p, c, X, x, y, f1(Math.min(w, h) * (o.ik ?? .64)), null, { t: o.it ?? f3(t + tu(.04)), punch: o.noPunch ? undefined : tf, mv: o.mv });
+    else { const sz = f1(clv(Math.min(w, h) * .3, 26, o.wsz ?? 64)); txt(g, X.label, x, f1(y + sz * .36), { size: sz, maxW: f1(w * .84), weight: 800, color: eff ? ACC1 : C.ink, wrap: 'mid' }); }
+    return g; }
+  /* a link's word (only with an icon) at (x, y), kept inside the box; the effect's in the accent, landing on the keyword; o.t = when */
+  function wordN(p, Q, i, x, y, sz, mw, anchor = 'middle', o = {}) { const str = Q.LB(i); if (!str || (i !== Q.L && !CAUSE_WORDS)) return; const eff = i === Q.L, t = o.t ?? (eff ? f3(Q.H + tu(.06)) : f3(Q.tI(i) + tu(.16)));
+    const [hx, hy] = HB(), m = 14, w0 = tw(p, str, sz), w = Math.min(mw, w0), two = w0 > mw && mw / w0 < .72;
+    const cx = anchor === 'start' ? clv(x, -hx + m, hx - m - w) : anchor === 'end' ? clv(x, -hx + m + w, hx - m) : clv(x, -hx + m + w / 2, hx - m - w / 2);
+    const hh = two ? sz * 1.1 : sz * .55, cy = clv(y, -hy + m + hh, hy - m - hh);
+    const g = popAt(p, f1(cx), f1(cy), t); txt(g, str, f1(cx), f1(two ? cy + sz * .34 : cy + sz * .34), { size: sz, maxW: mw, weight: 800, color: eff ? ACC1 : C.ink, anchor, wrap: two ? 'mid' : null }); }
+  /* a line that draws itself in (faint), and the push running along it t0 → t1 (accent, settles to half once it has handed over) */
+  const baseL = (p, dd, t, w = 3.4, a = .3) => drawAt(p.path(dd, { sw: w, stroke: TL_(a) }), p, t, tu(.26));
+  const pushL = (p, dd, t0, t1, w = 4.6, e = 'io') => { const g = sub(p); on(g, p, 0, { o: [[0, 1], [f3(t1 + tu(.2)), 1], [f3(t1 + tu(.5)), .45, 'io']] }); litP(g, dd, t0, t1, w, e); };
+  /* a small chevron at (x, y) turned a degrees; lit when the push passes (t) */
+  const chevL = (p, x, y, a, k, tIn, t) => { const g = rot(p, a, x, y), D = `M ${f1(x - 9 * k)} ${f1(y - 17 * k)} L ${f1(x + 9 * k)} ${y} L ${f1(x - 9 * k)} ${f1(y + 17 * k)}`;
+    drawAt(g.path(D, { sw: 4.4, stroke: TL_(.4) }), p, tIn, tu(.24)); const l = g.path(D, { sw: 5, stroke: ACC1 }); on(l, p, 0, { o: [[0, 0], [f3(t - tu(.1)), 0], [t, 1, 'io']] }); };
+
+  /* A · DOMINO — the causes are tall tiles standing on one line; from T0 the first tips over (faster and faster, 'in') and its top lands on the next
+     exactly when that one is reached (tF(i + 1)); that one lights and tips in turn; the last lands on the effect, which lights on the keyword (it does
+     not fall). D = { xs, w, h, yb (the line they stand on), E: { x, y, s } } — the effect stands on the same line, one gap after the last */
+  function domino(p, c, Q, D) { const m = Q.L;
+    for (let i = 0; i < m; i++) { const x = D.xs[i], nx = i + 1 < m ? D.xs[i + 1] - D.w / 2 : D.E.x - D.E.s / 2, px = f1(x + D.w / 2), th = f1(Math.asin(Math.min(.8, (nx - px) / D.h)) * 180 / Math.PI);
+      const cy = f1(D.yb - D.h / 2), t0 = Q.tF(i), t1 = Q.tF(i + 1), K = { px, py: D.yb, r: [[0, 0], [t0, 0], [t1, th, 'in']] };
+      tileN(p, c, Q, i, x, cy, { w: D.w, h: D.h, g: mvG(popAt(p, x, cy, Q.tI(i)), K), bump: false, mv: K, ik: .76, rx: f1(D.w * .22) }); }
+    tileN(p, c, Q, m, D.E.x, D.E.y, { s: D.E.s }); }
+  /* fit the dominoes into width W0: each cause .5 h wide with a .32 h gap, the effect kE·h square */
+  const domFit = (m, W0, hmax, kE = 1) => { const h = Math.min(hmax, W0 / (m * .82 + kE)); return { h: f1(h), w: f1(h * .5), g: f1(h * .32), s: f1(h * kE) }; };
+  /* lay the dominoes out from x0 standing on yb → { xs, E, right } */
+  const domLay = (F_, m, x0, yb) => { const xs = Array.from({ length: m }, (_, i) => f1(x0 + F_.w / 2 + i * (F_.w + F_.g))), l = x0 + m * (F_.w + F_.g);
+    return { xs, w: F_.w, h: F_.h, yb, E: { x: f1(l + F_.s / 2), y: f1(yb - F_.s / 2), s: F_.s }, right: l + F_.s }; };
+
+  /* B · GROW — every link is born out of the one before: it starts small at that one's centre, slides out along the line and grows to its own place,
+     arriving as it is reached (tF); each one bigger than the last, the effect the biggest. P = all links [{ x, y, s }] (the last = the effect) */
+  function grow(p, c, Q, P) {
+    P.forEach((d, i) => { if (!i) { tileN(p, c, Q, 0, d.x, d.y, { s: d.s }); return; }
+      const a = P[i - 1], t1 = Q.tF(i), t0 = f3(Math.max(Q.tF(i - 1) + tu(.02), t1 - tu(.46))), dx = f1(a.x - d.x), dy = f1(a.y - d.y), k0 = f3(Math.min(.6, a.s * .45 / d.s));
+      const A = boxEdge(a.x, a.y, a.s / 2, a.s / 2, d.x, d.y), B = boxEdge(d.x, d.y, d.s / 2, d.s / 2, a.x, a.y), ln = p.path(`M ${A[0]} ${A[1]} L ${B[0]} ${B[1]}`, { sw: 3.4, stroke: TL_(.36) });
+      on(ln, p, 0, { draw: [[0, 0], [t0, 0], [t1, 1, 'io']] });
+      const K = { px: d.x, py: d.y, x: [[0, dx], [t0, dx], [t1, 0, 'io']], y: [[0, dy], [t0, dy], [t1, 0, 'io']], s: [[0, k0], [t0, k0], [t1, 1, 'io']], o: [[0, 0], [t0, 0], [f3(t0 + tu(.06)), 1]] };
+      tileN(p, c, Q, i, d.x, d.y, { s: d.s, g: mvG(CL(p), K), t: t0, it: t0, mv: K }); }); }
+  /* when a grown link's word comes in (it arrives at tF) */
+  const gwT = (Q, i) => i ? f3(Q.tF(i) + tu(.06)) : undefined;
+
+  /* C · FILL — each link fills up from the bottom once it is reached; full, it overflows: a stream runs along the spout into the next, which starts
+     filling as the stream reaches it (tF). The effect fills last and lights on the keyword. P = all links [{ x, y, s }]; S[i] = the spout i → i + 1 */
+  function fillChain(p, c, Q, P, S) {
+    S.forEach((dd, i) => { if (!dd) return; baseL(p, dd, f3(Q.tI(i + 1) - tu(.04))); const t1 = Q.tF(i + 1); pushL(p, dd, f3(t1 - tu(.2)), t1, 4.6, 'in'); });
+    P.forEach((d, i) => { const eff = i === Q.L, a = Q.tF(i), b = eff ? f3(Q.H + tu(.45)) : f3(Q.tF(i + 1) - tu(.2)), ins = 7, hh = d.s - 2 * ins;
+      tileN(p, c, Q, i, d.x, d.y, { s: d.s, under: q => { if (!has(Q.N[i])) return; const cg = clipRR(q, d.x - d.s / 2 + ins, d.y - d.s / 2 + ins, hh, hh, d.s * .22 - ins * .6);
+        const lv = mvG(cg, { y: [[0, hh], [a, hh], [b, 0, eff ? 'out' : 'io']] }); R(lv, f1(d.x - d.s / 2), f1(d.y - d.s / 2), d.s, d.s, 0, { fill: TA(eff ? .13 : .09), sw: 0, stroke: 'none' }); } }); }); }
+  /* the spout from link a to link b: out of a's side near its top (toward b), into b's side near its top; o.v = vertical (out of the bottom side) */
+  const spout = (a, b, k = .3) => { const sd = Math.sign(b.x - a.x) || 1, ay = f1(a.y - a.s / 2 + a.s * k), by = f1(b.y - b.s / 2 + b.s * k), ax = f1(a.x + sd * a.s / 2), bx = f1(b.x - sd * b.s / 2), mx = f1((ax + bx) / 2);
+    return `M ${ax} ${ay} C ${mx} ${ay} ${mx} ${by} ${bx} ${by}`; };
+
+  /* a spout straight down: out of a's bottom, into b's top (an S when they are not in line) */
+  const spoutV = (a, b) => { const ay = f1(a.y + a.s / 2), by = f1(b.y - b.s / 2), my = f1((ay + by) / 2); return `M ${a.x} ${ay} C ${a.x} ${my} ${b.x} ${my} ${b.x} ${by}`; };
+  /* the biggest tile size that fits n tiles (and n − 1 gaps) into span */
+  /* the biggest disc D for n discs zig-zagging ±dx/2 down span (neighbours gap apart along the slant) → { D, v (the step down) } */
+  const fitZ = (n, span, dx, gap, dmax) => { for (let D = dmax; D > 30; D -= 2) { const v = Math.max(D * .62, Math.sqrt(Math.max(0, (D + gap) ** 2 - dx * dx))); if ((n - 1) * v + D <= span) return { D, v: f1(v) }; } return { D: 30, v: 30 }; };
+  const fitS = (n, span, gap, smax) => f1(Math.min(smax, (span - gap * (n - 1)) / Math.max(1, n)));
+  /* E · RING — round links; once reached a link's ring charges (draws itself round from the top); full → a dot shoots along the line to the next,
+     arriving as that one is reached (tF). The effect's ring closes on the keyword and it lights. P = all links [{ x, y, s }] (s = the disc);
+     the lines run ring edge to ring edge (o.bend = a curve) */
+  const ringR = d => f1(d.s / 2 + 13);
+  function ringChain(p, c, Q, P, o = {}) {
+    P.forEach((d, i) => { if (i + 1 >= P.length) return; const b = P[i + 1], A = edge(d.x, d.y, ringR(d) + 8, b.x, b.y), B = edge(b.x, b.y, ringR(b) + 8, d.x, d.y), bd = (o.bend && o.bend[i]) || 0;
+      const L = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1, cx = (A[0] + B[0]) / 2 + (B[1] - A[1]) / L * bd * L, cy = (A[1] + B[1]) / 2 - (B[0] - A[0]) / L * bd * L, pts = bd ? qP(A, [cx, cy], B, 18) : [A, B];
+      baseL(p, pathOf(pts, false), f3(Q.tI(i + 1) - tu(.04)), 3); const t1 = Q.tF(i + 1); orb(p, pts, f3(t1 - tu(.24)), t1, 9); });
+    P.forEach((d, i) => { const eff = i === Q.L, R0 = ringR(d), a = Q.tF(i), b = eff ? f3(Q.H + tu(.3)) : f3(Q.tF(i + 1) - tu(.26));
+      tileN(p, c, Q, i, d.x, d.y, { s: d.s, shape: 'circ', lit: eff, ik: .6, under: q => { q.circle(d.x, d.y, R0, { sw: 3, stroke: TL_(.22) });
+        const ar = q.path(arcD(d.x, d.y, R0, 1), { sw: 5, stroke: ACC1 }); on(ar, q, 0, { draw: [[0, 0], [a, 0], [b, 1, 'io']] }); } }); }); }
+
+  /* D · ARROW — one big hollow arrow carries the causes (their icons ride in the shaft, their words outside it) and points at the effect. From T0 the
+     shaft fills from the tail; each cause bumps as the fill reaches it (tF); the fill reaches the head and the effect lands, lit, on the keyword.
+     A = { d: centre line (path d), w: shaft width, hw: head half-width, hl: head length, iw: icon width, at: [fractions], wd: (i, pt, n) → word } */
+  function bigArrow(p, c, Q, A) { const m = Q.L, t = tu(.04), dd = A.d, el = p.path(dd, { sw: A.w }), Lt = el.getTotalLength(), P = u => { const q = el.getPointAtLength(Lt * u); return [f1(q.x), f1(q.y)]; };
+    /* flat ends (a round cap poked out under the head as an arc) + a round tail drawn on its own */
+    const s0 = P(0), s1 = P(Math.min(1, 3 / Lt)), sl = Math.hypot(s1[0] - s0[0], s1[1] - s0[1]) || 1, tx = (s1[0] - s0[0]) / sl, ty = (s1[1] - s0[1]) / sl, r2 = A.w / 2 - 1.75;
+    const ta = [f1(s0[0] - ty * r2), f1(s0[1] + tx * r2)], tb = [f1(s0[0] + ty * r2), f1(s0[1] - tx * r2)], tm = [f1(s0[0] - tx * r2), f1(s0[1] - ty * r2)];
+    const tail = p.path(`M ${ta[0]} ${ta[1]} A ${f1(r2)} ${f1(r2)} 0 0 1 ${tm[0]} ${tm[1]} A ${f1(r2)} ${f1(r2)} 0 0 1 ${tb[0]} ${tb[1]}`, { fill: C.fill, sw: 3.5 }); drawAt(tail, p, t, tu(.2));
+    const inn = p.path(dd, { sw: A.w - 7, stroke: C.fill }); [el, inn].forEach(e => e.setAttribute('stroke-linecap', 'butt')); drawAt(el, p, t, tu(.42)); drawAt(inn, p, t, tu(.42));
+    const end = P(1), pre = P(Math.max(0, 1 - 3 / Lt)), ul = Math.hypot(end[0] - pre[0], end[1] - pre[1]) || 1, dx = (end[0] - pre[0]) / ul, dy = (end[1] - pre[1]) / ul, nx = -dy, ny = dx;
+    const at = A.atL ? A.atL.map(v => clv(v / Lt, 0, .98)) : A.at || Array.from({ length: m }, (_, i) => (i + .5) / m), fr = [];
+    const nAt = u => { const a = P(Math.max(0, u - 2 / Lt)), b = P(Math.min(1, u + 2 / Lt)), l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1; return [-(b[1] - a[1]) / l, (b[0] - a[0]) / l]; };
+    const sw = p.path(dd + ' ', { sw: A.w - 18, stroke: TA(.09) }); sw.setAttribute('stroke-linecap', 'butt'); const K = [[0, 0], [f3(Q.tF(0) - tu(.3)), 0]]; at.forEach((u, i) => K.push([Q.tF(i), f3(u), 'io'])); K.push([f3(Q.H - tu(.06)), 1, 'io']); on(sw, p, 0, { draw: K });
+    const tf = p.path(`M ${ta[0]} ${ta[1]} A ${f1(r2)} ${f1(r2)} 0 0 1 ${tm[0]} ${tm[1]} A ${f1(r2)} ${f1(r2)} 0 0 1 ${tb[0]} ${tb[1]} Z`, { fill: TA(.09), sw: 0, stroke: 'none' }); on(tf, p, 0, { o: [[0, 0], [K[1][0], 0], [f3(K[1][0] + tu(.08)), 1]] });
+    const pt = (u, s) => [f1(end[0] + dx * u + nx * s), f1(end[1] + dy * u + ny * s)], tip = pt(A.hl, 0), c1 = pt(0, A.hw), c2 = pt(0, -A.hw), e1 = pt(0, A.w / 2), e2 = pt(0, -A.w / 2);
+    const hg = atG(p, f3(t + tu(.36))); shape(hg, [c1, tip, c2], { fill: C.fill, sw: 0, stroke: 'none' }); hg.path(pathOf([e1, c1, tip, c2, e2], false), { sw: 3.5 });
+    const hl = litOn(p, f3(Q.H - tu(.06))); shape(hl, [c1, tip, c2], { fill: TA(.1), sw: 0, stroke: 'none' }); hl.path(pathOf([e1, c1, tip, c2, e2], false), { sw: 5, stroke: ACC1 });
+    at.forEach((u, i) => { const [x, y] = P(u), X = Q.N[i], n = nAt(u); fr.push([x, y]);
+      if (!has(X)) { popAt(p, x, y, Q.tI(i)).circle(x, y, 12, { fill: C.soft, sw: 0, stroke: 'none' }); }
+      else if (picOf(X)) put(p, c, X, x, y, A.iw, null, { t: Q.tI(i), punch: Q.tF(i) });
+      else { const sz = f1(clv(A.w * .3, 26, 60)); txt(popAt(p, x, y, Q.tI(i)), X.label, x, f1(y + sz * .36), { size: sz, maxW: f1(Math.min(A.w * 1.3, A.seg || 1e9)), weight: 800, color: C.ink, wrap: 'mid' }); }
+      if (A.wd) A.wd(i, [x, y], n); });
+    return { tip, P, n: [nx, ny], dir: [dx, dy] }; }
+
+  /* A′ · CARD — "เพราะ … จึง …": one card fills the box; the causes along its top in small tiles with chevrons between (each lights in turn, the chevron
+     after it as the push passes), a divider with a round badge holding a down arrow that nods when the last cause hands over, and the effect big in
+     the lower part, landing lit on the keyword. K = { row: { y, s, xs }, ws (word size), split, E: { x, y, s }, ew: (p) → the effect's word } */
+  function card2(p, c, Q, K) { const [hx, hy] = HB(), m = Q.L, l = -hx + 8, tp = -hy + 8, W0 = BOX[0] - 16, H0 = BOX[1] - 16;
+    const cg = mvG(CL(p), rK(0, 0, tu(.02), 40)); R(cg, l, tp, W0, H0, Math.min(40, W0 * .08), F(3.6));
+    const rows = K.rows || [K.row];
+    let k = 0; rows.forEach(rw => rw.xs.forEach((x, j) => { const i = k++; if (i >= m) return; tileN(p, c, Q, i, x, rw.y, { s: rw.s });
+      if (K.ws) wordN(p, Q, i, x, f1(rw.y + rw.s / 2 + K.ws * .9), K.ws, f1(K.wm || rw.s + 30));
+      if (j + 1 < rw.xs.length && i + 1 < m) chevL(p, f1((x + rw.xs[j + 1]) / 2), rw.y, 0, K.ck || .8, f3(Q.tI(i + 1) - tu(.04)), Q.tF(i + 1)); }));
+    const sy = K.split, br = K.br || 30, bx = 0, tN = f3(Q.H - tu(.24));
+    [[l + 28, bx - br - 14], [bx + br + 14, l + W0 - 28]].forEach(([a, b]) => drawAt(p.line(a, sy, b, sy, { sw: 2.4, stroke: TL_(.4) }), p, tu(.2), tu(.3)));
+    const bg = mvG(popAt(p, bx, sy, tu(.24)), { y: [[0, 0], [tN, 0], [f3(tN + tu(.1)), 8, 'out'], [f3(tN + tu(.26)), 0, 'soft']] }); bg.circle(bx, sy, br, F(3.4));
+    const ar = `M ${bx} ${f1(sy - br * .45)} L ${bx} ${f1(sy + br * .45)} M ${f1(bx - br * .36)} ${f1(sy + br * .1)} L ${bx} ${f1(sy + br * .48)} L ${f1(bx + br * .36)} ${f1(sy + br * .1)}`;
+    bg.path(ar, { sw: 4 }); const lt = litOn(bg, tN); lt.circle(bx, sy, br, { fill: TA(.14), sw: 5, stroke: ACC1 }); lt.path(ar, { sw: 4.6, stroke: ACC1 });
+    tileN(p, c, Q, m, K.E.x, K.E.y, { s: K.E.s }); if (K.ew) K.ew(p); }
+
+  /* ---------- the designs, one size at a time ---------- */
+  const WS = [0, 30, 36, 32, 30, 44, 46, 28], ES = [0, 56, 56, 52, 48, 66, 72, 44];
+
+  /* ===== 1 · 860 × 230 — a flat strip: everything in one line, read left → right ===== */
+  sd(1, 'domino', 'โดมิโนล้มต่อกัน', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const ew = es ? Math.min(230, tw(p, es, ES[1])) : 0, F_ = domFit(m, 820 - (es ? ew + 26 : 0), cw ? 150 : 176, 1.02), yb = cw ? 52 : 88;
+      const tot = m * (F_.w + F_.g) + F_.s + (es ? ew + 26 : 0), D = domLay(F_, m, f1(-tot / 2), yb); domino(p, c, Q, D);
+      D.xs.forEach((x, i) => wordN(p, Q, i, x, yb + 32, WS[1], F_.w + F_.g - 6));
+      if (es) wordN(p, Q, m, f1(D.right + 26), D.E.y, ES[1], ew + 30, 'start'); }); });
+  sd(1, 'grow', 'แตกออกมา ใหญ่ขึ้นทีละทอด', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const ew = es ? Math.min(220, tw(p, es, ES[1])) : 0, ss = spread(m, cw ? 96 : 108, cw ? 140 : 156), gp = 52;
+      let SE = cw ? 176 : 196, sum = ss.reduce((a, v) => a + v, 0) + SE, room = 820 - gp * m - (es ? ew + 24 : 0), k = Math.min(1, room / sum);
+      const S2 = ss.map(v => f1(v * k)); SE = f1(SE * k); const tot = S2.reduce((a, v) => a + v, 0) + gp * m + SE + (es ? ew + 24 : 0); let x = -tot / 2;
+      const yc = cw ? -18 : 0, P = S2.map(s => { const o = { x: f1(x + s / 2), y: yc, s }; x += s + gp; return o; }); P.push({ x: f1(x + SE / 2), y: 0, s: SE }); grow(p, c, Q, P);
+      P.slice(0, m).forEach((q, i) => wordN(p, Q, i, q.x, f1(q.y + q.s / 2 + 26), WS[1], q.s + gp - 6, 'middle', { t: gwT(Q, i) }));
+      if (es) wordN(p, Q, m, f1(P[m].x + SE / 2 + 24), 0, ES[1], ew + 30, 'start'); }); });
+  sd(1, 'fill', 'เติมจนล้นไปทอดถัดไป', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const ew = es ? Math.min(220, tw(p, es, ES[1])) : 0, gp = 70; let s = cw ? 128 : 150, SE = cw ? 172 : 190;
+      const room = 820 - gp * m - (es ? ew + 24 : 0), k = Math.min(1, room / (s * m + SE)); s = f1(s * k); SE = f1(SE * k);
+      const tot = s * m + gp * m + SE + (es ? ew + 24 : 0), x0 = -tot / 2, yc = cw ? -16 : 0, P = Array.from({ length: m }, (_, i) => ({ x: f1(x0 + s / 2 + i * (s + gp)), y: f1(yc - (m > 1 ? 10 - 20 * i / (m - 1) : 0)), s }));
+      P.push({ x: f1(x0 + m * (s + gp) + SE / 2), y: f1(cw ? 0 : 0), s: SE }); fillChain(p, c, Q, P, P.slice(0, m).map((a, i) => spout(a, P[i + 1])));
+      P.slice(0, m).forEach((q, i) => wordN(p, Q, i, q.x, f1(q.y + q.s / 2 + 26), WS[1], s + gp - 6));
+      if (es) wordN(p, Q, m, f1(P[m].x + SE / 2 + 24), 0, ES[1], ew + 30, 'start'); }); });
+  sd(1, 'arrow', 'ลูกศรพาไปสู่ผล', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const ew = es ? Math.min(210, tw(p, es, ES[1])) : 0, SE = cw ? 160 : 178, y = cw ? -22 : 0, w = cw ? 116 : 140, hl = 62, x0 = -408;
+      const xe = f1(410 - (es ? ew + 24 : 0) - SE - 24 - hl), seg = (xe - x0) / m;
+      const A = bigArrow(p, c, Q, { d: `M ${x0 + w / 2} ${y} L ${xe} ${y}`, w, hw: f1(w / 2 + 26), hl, iw: f1(Math.min(w * .66, seg * .7)), seg, at: Array.from({ length: m }, (_, i) => (x0 + seg * (i + .5) - x0 - w / 2) / (xe - x0 - w / 2)),
+        wd: (i, [x, yy]) => wordN(p, Q, i, x, f1(yy + w / 2 + 28), WS[1], f1(seg - 8)) });
+      const E = { x: f1(A.tip[0] + 24 + SE / 2), y, s: SE }; tileN(p, c, Q, m, E.x, E.y, { s: SE }); if (es) wordN(p, Q, m, f1(E.x + SE / 2 + 24), y, ES[1], ew + 30, 'start'); }); });
+  sd(1, 'ring', 'ชาร์จเต็มแล้วส่งต่อ', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const ew = es ? Math.min(220, tw(p, es, ES[1])) : 0, gp = 64; let s = cw ? 112 : 132, SE = cw ? 160 : 176;
+      const room = 820 - gp * m - (es ? ew + 24 : 0) - 26 * (m + 1), k = Math.min(1, room / (s * m + SE)); s = f1(s * k); SE = f1(SE * k);
+      const tot = (s + 26) * m + gp * m + SE + 26 + (es ? ew + 24 : 0), x0 = -tot / 2, yc = cw ? -18 : 0, P = Array.from({ length: m }, (_, i) => ({ x: f1(x0 + 13 + s / 2 + i * (s + 26 + gp)), y: yc, s }));
+      P.push({ x: f1(x0 + m * (s + 26 + gp) + 13 + SE / 2), y: 0, s: SE }); ringChain(p, c, Q, P);
+      P.slice(0, m).forEach((q, i) => wordN(p, Q, i, q.x, f1(q.y + ringR(q) + 24), WS[1], s + gp + 12));
+      if (es) wordN(p, Q, m, f1(P[m].x + ringR(P[m]) + 22), 0, ES[1], ew + 30, 'start'); }); });
+
+  /* links on a diagonal: the causes (sizes ss) from the first centre A toward the effect E, the last one `gap` clear of it in x and at the share
+     ky of the way in y → all links */
+  const diag = (ss, A, E, gap, ky) => { const m = ss.length, ex = f1(E.x - Math.sign(E.x - A[0]) * (E.s / 2 + gap + ss[m - 1] / 2)), ey = f1(lerp(A[1], E.y, ky));
+    const xs = m > 1 ? spread(m, A[0], ex) : [f1((A[0] + ex) / 2)], ys = m > 1 ? spread(m, A[1], ey) : [f1((A[1] + ey) / 2)]; return xs.map((x, i) => ({ x, y: ys[i], s: ss[i] })).concat([E]); };
+  /* a word beside an arrow's shaft on the side n points to (off = from the centre line) */
+  const sideW = (p, Q, i, [x, y], n, off, sz, mw) => n[0] > .6 ? wordN(p, Q, i, f1(x + n[0] * off), f1(y + n[1] * off), sz, mw, 'start')
+    : n[0] < -.6 ? wordN(p, Q, i, f1(x + n[0] * off), f1(y + n[1] * off), sz, mw, 'end') : wordN(p, Q, i, f1(x + n[0] * off), f1(y + n[1] * (off + sz * .6)), sz, mw);
+
+  /* a straight arrow from A0 into the effect E (its head stops `gap` short of E's edge) → the arrow's centre line */
+  const toward = (A0, E, hl, gap = 26) => { const dx = E.x - A0[0], dy = E.y - A0[1], dl = Math.hypot(dx, dy), ux = dx / dl, uy = dy / dl, back = E.s / 2 * Math.min(1 / Math.abs(ux || 1e-6), 1 / Math.abs(uy || 1e-6)) + gap + hl;
+    const B = [f1(E.x - ux * back), f1(E.y - uy * back)]; return { d: `M ${f1(A0[0])} ${f1(A0[1])} L ${B[0]} ${B[1]}`, L: Math.hypot(B[0] - A0[0], B[1] - A0[1]) }; };
+  /* ===== 2 · 860 × 470 — wide: room for big tiles and words under them ===== */
+  sd(2, 'domino', 'โดมิโนล้มต่อกัน', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const F_ = domFit(m, 820, cw || es ? 260 : 300, 1.15), wh = cw || es ? 64 : 0, top = -(F_.s + wh) / 2, yb = f1(top + F_.s);
+      const tot = m * (F_.w + F_.g) + F_.s, D = domLay(F_, m, f1(-tot / 2), yb); domino(p, c, Q, D);
+      D.xs.forEach((x, i) => wordN(p, Q, i, x, yb + 40, WS[2], F_.w + F_.g - 6));
+      if (es) wordN(p, Q, m, D.E.x, yb + 44, ES[2], f1(Math.max(F_.s + 60, 300))); }); });
+  sd(2, 'grow', 'แตกออกมา ไต่ขึ้นสู่ผล', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const big = Q.n > 3, SE = big ? 230 : es ? 250 : 280, E = { x: f1(410 - SE / 2), y: f1(-230 + SE / 2 + (es ? 0 : 20)), s: SE }, ss = spread(m, big ? 110 : 150, big ? 140 : 190);
+      const P = diag(ss, [-410 + ss[0] / 2, f1(230 - ss[0] / 2 - (cw ? 52 : 8))], E, 50, .8); center(P, false, es ? [wRect(p, es, ES[2], 400, E.x, E.y + SE / 2 + 40)] : []); grow(p, c, Q, P);
+      P.slice(0, m).forEach((q, i) => wordN(p, Q, i, q.x, f1(q.y + q.s / 2 + 30), WS[2], f1(q.s + 40), 'middle', { t: gwT(Q, i) }));
+      if (es) wordN(p, Q, m, E.x, f1(E.y + SE / 2 + 40), ES[2], 400); }); });
+  sd(2, 'fill', 'เติมจนล้น ไหลลงขั้นถัดไป', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const big = Q.n > 3, SE = big ? 220 : 240, E = { x: f1(410 - SE / 2), y: f1(230 - SE / 2 - 4), s: SE }, s = big ? 120 : 150;
+      const P = diag(Array(m).fill(s), [-410 + s / 2, -230 + s / 2 + 4], E, 50, .72); center(P, false, es ? [wRect(p, es, ES[2], 300, E.x, E.y - SE / 2 - 34)] : []); fillChain(p, c, Q, P, P.slice(0, m).map((a, i) => spout(a, P[i + 1])));
+      P.slice(0, m).forEach((q, i) => wordN(p, Q, i, q.x, f1(q.y + s / 2 + 30), WS[2], s + 24));
+      if (es) wordN(p, Q, m, E.x, f1(E.y - SE / 2 - 34), ES[2], 300); }); });
+  sd(2, 'arrow', 'ลูกศรพาไปสู่ผล', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const SE = Q.n > 3 ? 206 : 230, y = cw ? -40 : 0, w = 200, hl = 90, x0 = -410, E = { x: f1(408 - SE / 2), y: es ? -36 : y, s: SE }, xe = f1(E.x - SE / 2 - 26 - hl), L0 = xe - x0 - w / 2;
+      const atL = m > 1 ? spread(m, 8, L0 - 70) : [L0 * .4], sp = m > 1 ? atL[1] - atL[0] : 300;
+      bigArrow(p, c, Q, { d: `M ${x0 + w / 2} ${y} L ${xe} ${y}`, w, hw: 140, hl, iw: f1(Math.min(124, sp * .72)), seg: sp, atL, wd: (i, [x, yy]) => wordN(p, Q, i, x, f1(yy + w / 2 + 34), WS[2], f1(sp - 6)) });
+      tileN(p, c, Q, m, E.x, E.y, { s: SE }); if (es) wordN(p, Q, m, E.x, f1(E.y + SE / 2 + 40), ES[2], 400); }); });
+  sd(2, 'ring', 'ชาร์จเต็มแล้วส่งต่อ เป็นคลื่น', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const big = Q.n > 3, SE = es ? 236 : 260, E = { x: 0, y: es ? -40 : 0, s: SE }; E.x = f1(410 - ringR(E)); const s = big ? 120 : 150, rr = s / 2 + 13, dv = m > 1 ? (cw ? 76 : 84) : 0;
+      const xs = spread(m, -410 + rr, E.x - ringR(E) - 50 - rr), P = xs.map((x, i) => ({ x, y: i % 2 ? dv : -dv, s })); P.push(E); center(P, true, es ? [wRect(p, es, ES[2], 400, E.x, E.y + ringR(E) + 32)] : []); ringChain(p, c, Q, P, { bend: P.map((q, i) => i % 2 ? .14 : -.14) });
+      P.slice(0, m).forEach((q, i) => wordN(p, Q, i, q.x, f1(i % 2 || m === 1 ? q.y + rr + 30 : q.y - rr - 26), WS[2], m > 1 ? f1(Math.min(260, (xs[1] - xs[0]) * 1.5)) : 300));
+      if (es) wordN(p, Q, m, E.x, f1(E.y + ringR(E) + 32), ES[2], 400); }); });
+
+  /* ===== 3 · 560 × 490 — nearly square ===== */
+  sd(3, 'card', 'การ์ด เพราะ → จึง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const s = m > 3 ? 92 : m === 3 ? 118 : m === 2 ? 136 : 150, gx = m > 3 ? 140 : m === 3 ? 170 : 200, y1 = f1(-245 + 24 + s / 2 + 8);
+      const rows = [{ y: y1, s, xs: spread(m, -gx * (m - 1) / 2, gx * (m - 1) / 2) }], wy = cw ? WS[3] * 1.6 : 0, sy = f1(y1 + s / 2 + wy + 28), room = 237 - sy;
+      const E = { x: 0, y: f1(sy + room / 2 + 8), s: f1(Math.min(es ? 180 : 200, room - 40)) }; if (es) E.x = f1(-(E.s + 26 + Math.min(230, tw(p, es, ES[3]))) / 2 + E.s / 2);
+      card2(p, c, Q, { rows, ws: WS[3], wm: f1(gx - 8), split: sy, E, ck: m > 3 ? .6 : .8, ew: q => { if (es) wordN(q, Q, m, f1(E.x + E.s / 2 + 26), E.y, ES[3], 230, 'start'); } }); }); });
+  sd(3, 'grow', 'แตกออกมา เลี้ยวลงเป็นผลใหญ่', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const big = m > 3, ss = spread(m, big ? 78 : 96, big ? 100 : 128), gp = big ? 34 : 44, tot = ss.reduce((a, v) => a + v, 0) + gp * (m - 1), k = Math.min(1, 524 / tot), S2 = ss.map(v => f1(v * k));
+      let x = -(S2.reduce((a, v) => a + v, 0) + gp * (m - 1)) / 2; const top = -235 + S2[m - 1] / 2, P = S2.map(s => { const o = { x: f1(x + s / 2), y: f1(top + (S2[m - 1] - s) / 2), s }; x += s + gp; return o; });
+      const wy = cw ? 52 : 0, SE = f1(Math.min(es ? 200 : 220, 470 - S2[m - 1] - wy - 50)), E = { x: es ? f1(-(SE + 24 + Math.min(250, tw(p, es, ES[3]))) / 2 + SE / 2) : 0, y: f1(235 - SE / 2 - 4), s: SE };
+      P.push(E); grow(p, c, Q, P); P.slice(0, m).forEach((q, i) => wordN(p, Q, i, q.x, f1(q.y + q.s / 2 + 26), WS[3], f1(q.s + gp - 6), 'middle', { t: gwT(Q, i) }));
+      if (es) wordN(p, Q, m, f1(E.x + SE / 2 + 24), E.y, ES[3], 250, 'start'); }); });
+  sd(3, 'fill', 'เติมจนล้น ไหลลงเป็นขั้น', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const big = Q.n > 3, SE = big ? 180 : 200, E = { x: f1(266 - SE / 2), y: f1(235 - SE / 2 - 4), s: SE }, s = big ? 96 : 116;
+      const P = diag(Array(m).fill(s), [-266 + s / 2, -235 + s / 2 + 4], E, 40, .7); center(P, false, es ? [wRect(p, es, ES[3], 250, E.x - SE / 2 - 22, E.y + SE / 2 - 30, 'end')] : []);
+      fillChain(p, c, Q, P, P.slice(0, m).map((q, i) => spout(q, P[i + 1])));
+      if (es) wordN(p, Q, m, f1(E.x - SE / 2 - 22), f1(E.y + SE / 2 - 30), ES[3], 250, 'end'); }); });
+  sd(3, 'arrow', 'ลูกศรเฉียงลงสู่ผล', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const w = 136, SE = es ? 176 : 196, E = { x: f1(266 - SE / 2), y: f1(235 - SE / 2 - 4), s: SE }, hl = 60, A = toward([-266 + w / 2, -235 + w / 2 + 4], E, hl);
+      const atL = m > 1 ? spread(m, 30, A.L - 50) : [A.L * .4], sp = m > 1 ? atL[1] - atL[0] : 200;
+      bigArrow(p, c, Q, { d: A.d, w, hw: 98, hl, iw: f1(Math.min(88, sp * .66)), seg: sp, atL });
+      tileN(p, c, Q, m, E.x, E.y, { s: SE }); if (es) wordN(p, Q, m, f1(E.x - SE / 2 - 22), f1(E.y + SE / 2 - 30), ES[3], 250, 'end'); }); });
+  sd(3, 'ring', 'ชาร์จต่อกันเป็นวงโค้ง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const s = m > 3 ? 80 : 100, rr = s / 2 + 13, SE = es ? 166 : 190, E = { x: 0, y: f1(235 - (SE / 2 + 13) - (es ? 64 : 4)), s: SE }, topY = -235 + rr + 4;
+      const ang = m === 1 ? [270] : m === 2 ? [236, 304] : spread(m, 200, 340), rx = 266 - rr, ry = E.y - topY, P = ang.map(a => ({ x: f1(rx * Math.cos(rad(a))), y: f1(E.y + ry * Math.sin(rad(a))), s }));
+      P.push(E); ringChain(p, c, Q, P, { bend: P.map((q, i) => i + 2 === P.length ? .16 : -.12) });
+      P.slice(0, m).forEach((q, i) => wordN(p, Q, i, q.x, f1(q.y + rr + 24), WS[3], 150));
+      if (es) wordN(p, Q, m, E.x, f1(E.y + ringR(E) + 30), ES[3], 360); }); });
+
+  /* ===== 4 · 400 × 635 — tall and narrow: read top → bottom ===== */
+  sd(4, 'card', 'การ์ด เพราะ → จึง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const two = m > 3, s = two ? 96 : m === 3 ? 92 : 112, gx = m > 1 ? (two ? 130 : m === 3 ? 122 : 150) : 0, y1 = f1(-317 + 26 + s / 2 + 8);
+      const wy = cw ? WS[4] * 1.7 : 0, rows = two ? [{ y: y1, s, xs: [-65, 65] }, { y: f1(y1 + s + wy + 26), s, xs: [-65, 65] }] : [{ y: y1, s, xs: spread(m, -gx * (m - 1) / 2, gx * (m - 1) / 2) }];
+      const lastY = rows[rows.length - 1].y, sy = f1(lastY + s / 2 + wy + 28), room = 309 - sy - (es ? ES[4] + 30 : 0), E = { x: 0, y: f1(sy + 30 + (room - 30) / 2), s: f1(Math.min(240, room - 50)) };
+      card2(p, c, Q, { rows, ws: WS[4], wm: two ? 124 : f1(gx - 6), split: sy, E, ck: .62, ew: q => { if (es) wordN(q, Q, m, 0, f1(E.y + E.s / 2 + 36), ES[4], 340); } }); }); });
+  sd(4, 'grow', 'แตกออกมา ลงมาเป็นผลใหญ่', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const SE = m > 2 ? 210 : 240, E = { x: 0, y: f1(310 - SE / 2 - (es ? 72 : 8)), s: SE }, span = E.y - SE / 2 - 30 + 310, k = fitS(m, span, 26, 112), ss = spread(m, f1(k * .82), f1(Math.min(k * 1.12, 124)));
+      const fit = Math.min(1, (span - 26 * (m - 1)) / ss.reduce((a, v) => a + v, 0)), S2 = ss.map(v => f1(v * fit)); let y = -310;
+      const P = S2.map((s, i) => { const o = { x: m > 1 ? (i % 2 ? 72 : -72) : 0, y: f1(y + s / 2), s }; y += s + 26; return o; }); P.push(E); grow(p, c, Q, P);
+      P.slice(0, m).forEach((q, i) => wordN(p, Q, i, f1(q.x + q.s / 2 + 16), q.y, WS[4], f1(186 - 16 - (q.x + q.s / 2 + 16) + 186), 'start', { t: gwT(Q, i) }));
+      if (es) wordN(p, Q, m, 0, f1(E.y + SE / 2 + 36), ES[4], 360); }); });
+  sd(4, 'fill', 'เติมจนล้น ไหลซิกแซกลง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const SE = m > 2 ? 200 : 230, E = { x: 0, y: f1(310 - SE / 2 - (es ? 72 : 6)), s: SE }, s = fitS(m, E.y - SE / 2 - 30 + 306, 30, 112);
+      const ys = spread(m, -306 + s / 2, E.y - SE / 2 - 30 - s / 2), P = ys.map((y, i) => ({ x: m > 1 ? (i % 2 ? 100 : -100) : 0, y, s })); P.push(E);
+      fillChain(p, c, Q, P, P.slice(0, m).map((a, i) => spoutV(a, P[i + 1])));
+      P.slice(0, m).forEach((q, i) => q.x <= 0 ? wordN(p, Q, i, f1(q.x + s / 2 + 14), q.y, WS[4], f1(186 - (q.x + s / 2 + 14)), 'start') : wordN(p, Q, i, f1(q.x - s / 2 - 14), q.y, WS[4], f1(q.x - s / 2 - 14 + 186), 'end'));
+      if (es) wordN(p, Q, m, 0, f1(E.y + SE / 2 + 34), ES[4], 360); }); });
+  sd(4, 'arrow', 'ลูกศรลงสู่ผล', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const w = 140, SE = es ? 200 : 230, E = { x: 0, y: f1(310 - SE / 2 - (es ? 72 : 6)), s: SE }, hl = 60, yEnd = f1(E.y - SE / 2 - 22 - hl), y0 = -310 + w / 2, Lv = yEnd - y0;
+      const atL = m > 1 ? spread(m, 0, Lv - 50) : [Lv * .3], sp = m > 1 ? atL[1] - atL[0] : 200;
+      bigArrow(p, c, Q, { d: `M 0 ${y0} L 0 ${yEnd}`, w, hw: 104, hl, iw: f1(Math.min(96, sp * .72)), seg: 160, atL });
+      tileN(p, c, Q, m, E.x, E.y, { s: SE }); if (es) wordN(p, Q, m, 0, f1(E.y + SE / 2 + 34), ES[4], 360); }); });
+  sd(4, 'ring', 'ชาร์จต่อกันลงมา', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const SE = m > 2 ? 180 : 210, E = { x: 0, y: f1(310 - (SE / 2 + 13) - (es ? 72 : 6)), s: SE }, span = E.y - ringR(E) - 34 + 310, Z = m > 1 ? fitZ(m, span, 150, 22, 130) : { D: 130, v: 0 }, D = Z.D, s = f1(D - 26);
+      const y0 = -310 + D / 2 + (span - ((m - 1) * Z.v + D)) / 2, P = Array.from({ length: m }, (_, i) => ({ x: m > 1 ? (i % 2 ? 75 : -75) : 0, y: f1(y0 + i * Z.v), s })); P.push(E);
+      ringChain(p, c, Q, P, { bend: P.map((q, i) => i % 2 ? .12 : -.12) });
+      if (es) wordN(p, Q, m, 0, f1(E.y + ringR(E) + 30), ES[4], 360); }); });
+  /* ===== 5 · 860 × 710 — full screen, landscape ===== */
+  sd(5, 'domino', 'โดมิโนล้มต่อกัน', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const F_ = domFit(m, 820, cw || es ? 330 : 380, 1.32), wh = cw || es ? 84 : 0, top = -(F_.s + wh) / 2, yb = f1(top + F_.s);
+      const tot = m * (F_.w + F_.g) + F_.s, D = domLay(F_, m, f1(-tot / 2), yb); domino(p, c, Q, D);
+      D.xs.forEach((x, i) => wordN(p, Q, i, x, yb + 46, WS[5], F_.w + F_.g - 6));
+      if (es) wordN(p, Q, m, D.E.x, yb + 54, ES[5], f1(Math.max(F_.s + 60, 360))); }); });
+  sd(5, 'grow', 'แตกออกมา ไต่ขึ้นสู่ผล', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const big = Q.n > 3, SE = big ? 270 : es ? 290 : 320, E = { x: f1(410 - SE / 2), y: f1(-350 + SE / 2 + (es ? 4 : 30)), s: SE }, ss = spread(m, big ? 124 : 160, big ? 164 : 214);
+      const P = diag(ss, [-410 + ss[0] / 2, f1(350 - ss[0] / 2 - (cw ? 70 : 10))], E, 64, .78); grow(p, c, Q, P);
+      P.slice(0, m).forEach((q, i) => wordN(p, Q, i, q.x, f1(q.y + q.s / 2 + 40), WS[5], f1(q.s + 50), 'middle', { t: gwT(Q, i) }));
+      if (es) wordN(p, Q, m, E.x, f1(E.y + SE / 2 + 52), ES[5], 420); }); });
+  sd(5, 'fill', 'เติมจนล้น ไหลลงเป็นขั้น', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const big = Q.n > 3, SE = big ? 270 : 300, E = { x: f1(410 - SE / 2), y: f1(350 - SE / 2 - 4), s: SE }, s = big ? 140 : 176;
+      const P = diag(Array(m).fill(s), [-410 + s / 2, -350 + s / 2 + 4], E, 64, .72); fillChain(p, c, Q, P, P.slice(0, m).map((a, i) => spout(a, P[i + 1])));
+      P.slice(0, m).forEach((q, i) => wordN(p, Q, i, q.x, f1(q.y + s / 2 + 40), WS[5], s + 24));
+      if (es) wordN(p, Q, m, E.x, f1(E.y - SE / 2 - 44), ES[5], 380); }); });
+  sd(5, 'arrow', 'ลูกศรเฉียงลงสู่ผล', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const w = 200, SE = es ? 260 : 290, E = { x: f1(410 - SE / 2), y: f1(350 - SE / 2 - 4), s: SE }, hl = 86, A0 = [-410 + w / 2, f1(-350 + w / 2 + 4)];
+      const dx = E.x - A0[0], dy = E.y - A0[1], dl = Math.hypot(dx, dy), ux = dx / dl, uy = dy / dl, back = SE / 2 * Math.min(1 / Math.abs(ux), 1 / Math.abs(uy)) + 26 + hl, B = [f1(E.x - ux * back), f1(E.y - uy * back)];
+      const L = Math.hypot(B[0] - A0[0], B[1] - A0[1]), atL = m > 1 ? spread(m, 60, L - 70) : [L * .4], sp = m > 1 ? atL[1] - atL[0] : 300;
+      bigArrow(p, c, Q, { d: `M ${A0[0]} ${A0[1]} L ${B[0]} ${B[1]}`, w, hw: 145, hl, iw: f1(Math.min(136, sp * .66)), seg: sp, atL, wd: (i, pt, n) => sideW(p, Q, i, pt, n, w / 2 + 22, WS[5], f1(Math.min(300, sp + 40))) });
+      tileN(p, c, Q, m, E.x, E.y, { s: SE }); if (es) wordN(p, Q, m, f1(E.x - SE / 2 - 26), f1(E.y + SE / 2 - 40), ES[5], 300, 'end'); }); });
+  sd(5, 'ring', 'ชาร์จต่อกันเป็นวงโค้ง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const s = m > 3 ? 120 : 140, SE = es ? 240 : 280, E = { x: 0, y: f1(340 - ringR({ s: SE }) - (es ? 84 : 10)), s: SE };
+      const xs = spread(m, -406 + s / 2 + 13, 406 - s / 2 - 13), P = xs.map(x => ({ x, y: f1(-200 + (m > 1 ? Math.pow(Math.abs(x) / 340, 2) * 150 : 0)), s }));
+      P.push(E); ringChain(p, c, Q, P, { bend: P.map((q, i) => i + 2 === P.length ? .16 : -.1) });
+      P.slice(0, m).forEach((q, i) => wordN(p, Q, i, q.x, f1(q.y - ringR(q) - 32), WS[5], m > 1 ? f1(Math.min(300, (xs[1] - xs[0]) * 1.2)) : 360));
+      if (es) wordN(p, Q, m, E.x, f1(E.y + ringR(E) + 44), ES[5], 420); }); });
+
+  /* ===== 6 · 860 × 965 — full screen, portrait ===== */
+  sd(6, 'card', 'การ์ด เพราะ → จึง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const s = m > 3 ? 150 : m === 3 ? 176 : 196, gx = m > 1 ? f1(Math.min(250, 760 / m)) : 0, y1 = f1(-482 + 40 + s / 2 + 10), wy = cw ? WS[6] * 1.7 : 0;
+      const rows = [{ y: y1, s, xs: spread(m, -gx * (m - 1) / 2, gx * (m - 1) / 2) }], sy = f1(y1 + s / 2 + wy + 40), room = 474 - sy - (es ? ES[6] + 44 : 0);
+      const E = { x: 0, y: f1(sy + 40 + (room - 40) / 2), s: f1(Math.min(420, room - 70)) };
+      card2(p, c, Q, { rows, ws: WS[6], wm: f1(gx - 10), split: sy, br: 40, E, ck: 1.1, ew: q => { if (es) wordN(q, Q, m, 0, f1(E.y + E.s / 2 + 50), ES[6], 700); } }); }); });
+  sd(6, 'grow', 'แตกออกมา ลงมาเป็นผลใหญ่', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const SE = es ? 370 : 420, E = { x: 0, y: f1(474 - SE / 2 - (es ? 104 : 10)), s: SE }, ss = spread(m, m > 3 ? 150 : 180, m > 3 ? 190 : 236), gp = 50;
+      const tot = ss.reduce((a, v) => a + v, 0) + gp * (m - 1), k = Math.min(1, 820 / tot), S2 = ss.map(v => f1(v * k)); let x = -(S2.reduce((a, v) => a + v, 0) + gp * (m - 1)) / 2;
+      const P = S2.map(s => { const o = { x: f1(x + s / 2), y: f1(-474 + S2[m - 1] / 2 + 10 + (S2[m - 1] - s) / 2), s }; x += s + gp; return o; });
+      P.push(E); grow(p, c, Q, P); P.slice(0, m).forEach((q, i) => wordN(p, Q, i, q.x, f1(q.y + q.s / 2 + 40), WS[6], f1(q.s + gp - 6), 'middle', { t: gwT(Q, i) }));
+      if (es) wordN(p, Q, m, 0, f1(E.y + SE / 2 + 56), ES[6], 700); }); });
+  sd(6, 'fill', 'เติมจนล้น ไหลซิกแซกลง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const SE = es ? 330 : 370, E = { x: 0, y: f1(474 - SE / 2 - (es ? 104 : 8)), s: SE }, s = fitS(m, E.y - SE / 2 - 40 + 470, 40, 196);
+      const ys = spread(m, -470 + s / 2, E.y - SE / 2 - 40 - s / 2), P = ys.map((y, i) => ({ x: m > 1 ? (i % 2 ? 220 : -220) : 0, y, s })); P.push(E);
+      fillChain(p, c, Q, P, P.slice(0, m).map((a, i) => spoutV(a, P[i + 1])));
+      P.slice(0, m).forEach((q, i) => q.x <= 0 ? wordN(p, Q, i, f1(q.x + s / 2 + 24), q.y, WS[6], 340, 'start') : wordN(p, Q, i, f1(q.x - s / 2 - 24), q.y, WS[6], 340, 'end'));
+      if (es) wordN(p, Q, m, 0, f1(E.y + SE / 2 + 54), ES[6], 700); }); });
+  sd(6, 'arrow', 'ลูกศรลงสู่ผล', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const w = 250, SE = es ? 300 : 340, E = { x: 0, y: f1(474 - SE / 2 - (es ? 104 : 8)), s: SE }, hl = 90, yEnd = f1(E.y - SE / 2 - 26 - hl), y0 = -474 + w / 2, Lv = yEnd - y0;
+      const atL = m > 1 ? spread(m, 0, Lv - 80) : [Lv * .3], sp = m > 1 ? atL[1] - atL[0] : 300;
+      bigArrow(p, c, Q, { d: `M 0 ${y0} L 0 ${yEnd}`, w, hw: 175, hl, iw: f1(Math.min(170, sp * .7)), seg: 300, atL, wd: (i, [x, y]) => wordN(p, Q, i, i % 2 ? f1(-w / 2 - 28) : f1(w / 2 + 28), y, WS[6], 270, i % 2 ? 'end' : 'start') });
+      tileN(p, c, Q, m, E.x, E.y, { s: SE }); if (es) wordN(p, Q, m, 0, f1(E.y + SE / 2 + 54), ES[6], 700); }); });
+  sd(6, 'ring', 'ชาร์จต่อกันสลับซ้ายขวา', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const SE = es ? 310 : 360, E = { x: 0, y: f1(474 - (SE / 2 + 13) - (es ? 106 : 6)), s: SE }, D = fitS(m, E.y - ringR(E) - 40 + 474, 24, 214), s = f1(D - 26), cx = cw ? 140 : 200;
+      const ys = spread(m, -474 + D / 2, E.y - ringR(E) - 40 - D / 2), P = ys.map((y, i) => ({ x: m > 1 ? (i % 2 ? cx : -cx) : 0, y, s }));
+      P.push(E); ringChain(p, c, Q, P, { bend: P.map((q, i) => i % 2 ? .14 : -.14) });
+      P.slice(0, m).forEach((q, i) => q.x < 0 || m === 1 ? wordN(p, Q, i, f1(q.x - D / 2 - 18), q.y, WS[6], f1(430 - 14 - (D / 2 + 18) + q.x), 'end') : wordN(p, Q, i, f1(q.x + D / 2 + 18), q.y, WS[6], f1(430 - 14 - D / 2 - 18 - q.x), 'start'));
+      if (es) wordN(p, Q, m, 0, f1(E.y + ringR(E) + 50), ES[6], 700); }); });
+
+  /* ===== 7 · 400 × 500 — small portrait ===== */
+  sd(7, 'card', 'การ์ด เพราะ → จึง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const two = m > 3, s = two ? 70 : m === 3 ? 84 : 100, gx = m > 1 ? (two ? 84 : m === 3 ? 116 : 140) : 0, y1 = f1(-250 + 22 + s / 2 + 6), wy = cw ? WS[7] * 1.7 : 0;
+      const rows = [{ y: y1, s, xs: two ? spread(4, -126, 126) : spread(m, -gx * (m - 1) / 2, gx * (m - 1) / 2) }], sy = f1(y1 + s / 2 + wy + 24), room = 242 - sy - (es ? ES[7] + 26 : 0);
+      const E = { x: 0, y: f1(sy + 30 + (room - 30) / 2), s: f1(Math.min(200, room - 46)) };
+      card2(p, c, Q, { rows, ws: WS[7], wm: two ? 86 : f1(gx - 4), split: sy, br: 26, E, ck: .55, ew: q => { if (es) wordN(q, Q, m, 0, f1(E.y + E.s / 2 + 30), ES[7], 340); } }); }); });
+  sd(7, 'grow', 'แตกออกมา ลงมาเป็นผลใหญ่', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const SE = es ? 176 : 226, E = { x: 0, y: f1(244 - SE / 2 - (es ? 68 : 4)), s: SE }, ss = spread(m, m > 3 ? 64 : 86, m > 3 ? 82 : 110), gp = m > 3 ? 22 : 30;
+      const tot = ss.reduce((a, v) => a + v, 0) + gp * (m - 1), k = Math.min(1, 372 / tot), S2 = ss.map(v => f1(v * k)); let x = -(S2.reduce((a, v) => a + v, 0) + gp * (m - 1)) / 2;
+      const P = S2.map(s => { const o = { x: f1(x + s / 2), y: f1(-244 + S2[m - 1] / 2 + (S2[m - 1] - s) / 2), s }; x += s + gp; return o; });
+      P.push(E); grow(p, c, Q, P); P.slice(0, m).forEach((q, i) => wordN(p, Q, i, q.x, f1(q.y + q.s / 2 + 22), WS[7], f1(q.s + gp - 2), 'middle', { t: gwT(Q, i) }));
+      if (es) wordN(p, Q, m, 0, f1(E.y + SE / 2 + 34), ES[7], 340); }); });
+  sd(7, 'fill', 'เติมจนล้น ไหลซิกแซกลง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const SE = es ? 156 : 190, E = { x: 0, y: f1(244 - SE / 2 - (es ? 68 : 4)), s: SE }, s = fitS(m, E.y - SE / 2 - 24 + 244, 24, 98);
+      const ys = spread(m, -244 + s / 2, E.y - SE / 2 - 24 - s / 2), P = ys.map((y, i) => ({ x: m > 1 ? (i % 2 ? 100 : -100) : 0, y, s })); P.push(E);
+      fillChain(p, c, Q, P, P.slice(0, m).map((a, i) => spoutV(a, P[i + 1])));
+      P.slice(0, m).forEach((q, i) => q.x <= 0 ? wordN(p, Q, i, f1(q.x + s / 2 + 12), q.y, WS[7], f1(186 - (q.x + s / 2 + 12)), 'start') : wordN(p, Q, i, f1(q.x - s / 2 - 12), q.y, WS[7], f1(q.x - s / 2 - 12 + 186), 'end'));
+      if (es) wordN(p, Q, m, 0, f1(E.y + SE / 2 + 32), ES[7], 340); }); });
+  sd(7, 'arrow', 'ลูกศรลงสู่ผล', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
+    art(c, p => { const w = 112, SE = es ? 140 : 156, x = es ? f1(-(SE + 18 + Math.min(200, tw(p, es, ES[7]))) / 2 + SE / 2) : cw ? -116 : 0, Ey = f1(244 - SE / 2), hl = 42, yEnd = f1(Ey - SE / 2 - 16 - hl), y0 = -244 + w / 2, Lv = yEnd - y0;
+      const atL = m > 1 ? spread(m, 0, Lv - 40) : [Lv * .3], sp = m > 1 ? atL[1] - atL[0] : 200;
+      bigArrow(p, c, Q, { d: `M ${x} ${y0} L ${x} ${yEnd}`, w, hw: 76, hl, iw: f1(Math.min(76, sp * .72)), seg: 140, atL, wd: (i, [xx, yy]) => wordN(p, Q, i, f1(xx + w / 2 + 16), yy, WS[7], 180, 'start') });
+      tileN(p, c, Q, m, x, Ey, { s: SE }); if (es) wordN(p, Q, m, f1(x + SE / 2 + 18), Ey, ES[7], 200, 'start'); }); });
+  sd(7, 'ring', 'ชาร์จต่อกันลงมา', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const SE = es ? 156 : 180, E = { x: 0, y: f1(244 - ringR({ s: SE }) - (es ? 60 : 4)), s: SE }, span = E.y - ringR(E) - 22 + 244, Z = m > 1 ? fitZ(m, span, 150, 18, 112) : { D: 112, v: 0 }, D = Z.D, s = f1(D - 26);
+      const y0 = -244 + D / 2 + (span - ((m - 1) * Z.v + D)) / 2, P = Array.from({ length: m }, (_, i) => ({ x: m > 1 ? (i % 2 ? 75 : -75) : 0, y: f1(y0 + i * Z.v), s })); P.push(E);
+      ringChain(p, c, Q, P, { bend: P.map((q, i) => i % 2 ? .12 : -.12) });
+      if (es) wordN(p, Q, m, 0, f1(E.y + ringR(E) + 30), ES[7], 340); }); });
 
   /* ---------- sample data + stress ---------- */
   const I = (icon, label) => label ? { icon, label } : { icon };
@@ -946,5 +1278,5 @@
 
   G.cats = G.cats || {};
   G.cats.B12S = { S: SZD, SIZES, SAMPLES, STRESS, theme, frame,
-    drawS: (k, i, d, c) => { setZ(c); CUR = 's' + k + '-' + SZD[k][i].id; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; SZD[k][i].fn(d || {}, c); }, CLAMPS };
+    drawS: (k, i, d, c) => { setZ(c); CUR = 's' + k + '-' + SZD[k][i].id; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; SZD[k][i].fn(trimL(d || {}), c); }, CLAMPS };
 })();
