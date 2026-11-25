@@ -850,13 +850,12 @@
     art(c, p => { const x = -100, pts = [[x, 220], [x, -150]], P = traveler(p, c, d, pts, { r: 64 }); lift(p, x, 300, -150, 150, P, 64);
       goalAt(p, c, d, 92, -150, { r: 92, big: 40, bigW: 160 }); gwordAt(p, d, 90, 60, { size: 48, maxW: 190 }); }); });
   /* 02 (user: "02 มันดูโล่งเกินไปอยากให้ทำเป็นแคปซูลใหญ่ให้เต็มขนาดเลย ดีไซน์ใหม่ให้ดีนะไม่ใช่แค่ขยาย") one big capsule fills the whole box:
-     the goal waits in its top dome, the goal's words sit at its foot; the level rises from the bottom with who floating on it, and on H the level reaches the mark right under the goal — the mark and the goal light */
+     the goal waits in its top dome, the goal's words sit at its foot; the level rises from the bottom with who floating on it, and on H the level reaches right under the goal — the goal lights (no mark line, user: "เอาเส้นขีดตรงกลางออก") */
   sd(4, 'tube', 'แคปซูลเติมจนถึงเป้า', (d, c) => { const A = GD(d), T = GT(), H = T.H;
     art(c, p => { const W = 380, Ht = 616, x0 = -190, y0 = -308, rr = 190, D = rrD(x0, y0, W, Ht, rr), r = 58, gy = -196, gr = 96, mark = f1(gy + gr + 12 + r * 2 + 6), L0 = 200;
       const b = atG(p, T.tA); b.path(D, NOFILL); b.path(rrD(x0 + 16, y0 + 16, W - 32, Ht - 32, rr - 16), S(1.4));
       const cl = clipP(p, D), lv = mvG(cl, { y: smK(T.tM0, H, f1(L0 - mark), 0, 24) });
       R(lv, x0, mark, W, Ht, 0, { fill: TL_(.13), sw: 0, stroke: 'none' }); R(litOn(lv, H), x0, mark, W, Ht, 0, { fill: TA(.2), sw: 0, stroke: 'none' }); lv.line(x0, mark, x0 + W, mark, { sw: 4, stroke: TL_(.75) });
-      const mk = drawAt(p.line(-140, mark, 140, mark, { sw: 3, stroke: TL_(.4) }), p, T.tA, tu(.4)); litOn(p, H).line(-140, mark, 140, mark, { sw: 5, stroke: ACC1 });
       drawAt(p.path(D, { sw: 4.6 }), p, T.tA, tu(.6));
       goalAt(p, c, d, 0, gy, { r: gr, big: 40, bigW: 160 }); gwordAt(p, d, 0, 262, { size: 54, maxW: 230 });
       traveler(p, c, d, [[0, f1(L0 - r - 6)], [0, f1(mark - r - 6)]], { r }); }); });
