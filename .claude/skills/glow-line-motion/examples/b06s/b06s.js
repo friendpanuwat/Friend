@@ -1196,7 +1196,7 @@
       if (X) { const lab = LBL(X); if (picOf(X)) put(p, c, { icon: X.icon }, 0, lab ? -50 : 0, lab ? 250 : 290, null, { t: tc, punch: f3(tz + tu(.02)) });
         const s0 = lab || (!picOf(X) && X.label); if (s0) txt(atG(p, f3(tc + tu(.08))), s0, 0, lab ? 160 : 30, { size: lab ? 64 : 80, maxW: 340, weight: 800, color: C.ink, wrap: 'mid' }); }
       else txt(atG(p, tc), '?', 0, 110, { size: 330, weight: 800, color: ACC1 });
-      ripple(p, 0, 0, 230, tz); }); });
+      }); });   /* no ring effect when it lands (user: "10 ไม่ต้องมีเอฟเฟควงกลมได้ไหม") */
 
   const outlineIn = (p, el, t) => drawAt(el, p, f3(Math.max(0, t - tu(.04))), tu(.34));
 
