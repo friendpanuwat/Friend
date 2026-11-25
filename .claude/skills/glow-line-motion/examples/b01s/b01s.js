@@ -12,7 +12,7 @@
   let GLASS = 'rgba(255,255,255,.07)', LIT = 'rgba(255,255,255,.2)'; const SOLID = (w = 2) => ({ fill: C.ink, sw: w });
 
   /* TIMING (same system as b01–b11): the keyword c.hit never moves; M = 1/speed but at most hit / HIT0; tu / bH / aH; kf() keeps keys in order */
-  const HIT0 = 1.5; let Z = null; const CLAMPS = {}; let CUR = '';
+  const HIT0 = 1.5; let NOBUMP = true; let Z = null; const CLAMPS = {}; let CUR = '';
   function setZ(c) { const sp = Math.min(20, Math.max(.05, +(c.speed ?? G.motion().speed ?? 1) || 1)), H = c.hit ?? HIT0, M = Math.max(.4, Math.min(1 / sp, H / HIT0));
     Z = { sp: 1 / M, want: sp, M, H }; }
   const tu = x => x * Z.M, bH = x => Z.H - x * Z.M, aH = x => Z.H + x * Z.M;
@@ -24,7 +24,7 @@
   const TR = ['x', 'y', 'r', 's', 'sx', 'sy', 'ky'];
   const sub = (p, a) => { const q = p.child(a || {}); q.H = p.H; q.motion = p.motion; return q; };
   const on = (q, p, t, spec) => { const t0 = p.t0 + t * p.ts, fade = q.og && !TR.some(n => spec[n]); kf(fade ? q.og : (q.g || q), t0, spec); };
-  const art = (c, fn) => { const f = p => { p.H = Z.H; fn(p); }; f.custom = true; f.dur = .35; f.exit = 'pop';
+  const art = (c, fn) => { const f = p => { p.H = Z.H; fn(p); }; f.custom = true; f.dur = .35; f.exit = NOBUMP ? 'fade' : 'pop';   /* fade = shrinks a touch in place: never grows past the box on the way out */
     const a = G.art(f, { x: c.x, y: c.y, s: c.s, at: c.at || 0, speed: 1  }); a.speed = Z.sp; return a; };
   const over = (c, fn) => art(Object.assign({}, c), fn);
   const atT = (g, p, t) => on(g, p, t, { o: [[0, 0], [tu(.12), 1]] });
@@ -84,7 +84,7 @@
     if (kind === 'rise') K.y = [[0, 50], [t, 50], [t + tu(.3), -5, 'out'], [t + tu(.4), 0, 'soft']];
     else if (kind === 'drop') K.y = [[0, -80], [t, -80], [t + tu(.24), 0, 'in'], [t + tu(.31), -8, 'out'], [t + tu(.4), 0, 'soft']];
     else if (kind === 'slide') K.x = [[0, -70], [t, -70], [t + tu(.32), 4, 'out'], [t + tu(.42), 0, 'soft']];
-    else K.s = [[0, .82], [t, .82], [t + tu(.24), 1.04, 'out'], [t + tu(.38), 1, 'soft']];
+    else K.s = [[0, .86], [t, .86], [t + tu(.32), 1, 'out']];   /* no overshoot (A4) */
     return mvG(p, K); }
   const SMG = .8, sm = u => .5 - .5 * Math.cos(Math.PI * Math.pow(Math.min(1, Math.max(0, u)), SMG));
   const smInv = f => Math.pow(Math.acos(1 - 2 * Math.min(1, Math.max(0, f))) / Math.PI, 1 / SMG);
@@ -105,16 +105,16 @@
   function haloH(q, x, y, r, t) { t = t ?? Z.H; const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .6], [t, .6], [t + tu(.3), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.1), 1]] }); halo(g, x, y, r); return g; }
   /* a ring that blooms out from (x, y) at t and fades (the "it happened" ripple) */
   function ripple(q, x, y, r, t) { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [t + tu(.45), 1.45, 'out']], o: [[0, 0], [t, 0], [t + tu(.04), .8], [t + tu(.45), 0]] }); g.circle(x, y, r, W(2.6)); }
-  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .3], [t, .3], [t + tu(.2), 1.1, 'out'], [t + tu(.34), 1, 'soft']], o: [[0, 0], [t, 0], [t + tu(.06), 1]] }); return g; };
+  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .6], [t, .6], [t + tu(.3), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.12), 1]] }); return g; };   /* smooth ease-out, no overshoot (A4) */
 
   /* a THING (it) at (x, y) width w (+ its label at (lx, ly)). o.t = when it comes in · o.mv = keys of the part it rides ({ px, py, x, y, r, s }) ·
      o.punch = a bump at that time (the moment it is reached) · o.r = a fixed tilt (with its holder) · o.lt = when the label comes in */
   function pic(it, cx, cy, wd, c, o = {}) {
     if (!it) return null; const at = c.at || 0, X = c.x + cx * c.s, Y = c.y + cy * c.s, fn = picOf(it), t = o.t ?? tu(.12);
     let a;
-    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp  });
+    if (fn) a = G.art(fn, NOBUMP ? { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp, exit: 'fade' } : { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp  });   /* B01S: exit in place (never leaves the box) */
     else { const str = it.label; if (!str) return null;
-      const f = q => txt(q, str, 0, wd * .11, { size: wd * .3, maxW: o.bigW || wd * 1.25, weight: 700, color: C.ink, wrap: 'mid' }); f.custom = true; f.dur = .3; f.exit = 'pop';
+      const f = q => txt(q, str, 0, wd * .11, { size: wd * .3, maxW: o.bigW || wd * 1.25, weight: 700, color: C.ink, wrap: 'mid' }); f.custom = true; f.dur = .3; f.exit = NOBUMP ? 'fade' : 'pop';
       a = G.art(f, { x: X, y: Y, s: c.s, at: at + t, speed: 1  }); a.speed = Z.sp; }
     const K = { ox: X, oy: Y }; let any = false;
     if (o.mv) { const m = o.mv; if (m.px != null) { K.ox = c.x + m.px * c.s; K.oy = c.y + m.py * c.s; }
@@ -122,7 +122,7 @@
     else if (o.r) { K.r = [[0, o.r]]; any = true; }
     if (o.o) { K.o = o.o; any = true; }
     if (any) kf(a.wrap, at, K);
-    if (o.punch != null) kf(a.g, at, { ox: X, oy: Y, s: [[0, 1], [o.punch, 1], [o.punch + tu(.07), 1.14, 'out'], [o.punch + tu(.3), 1, 'soft']] });
+    if (o.punch != null && !NOBUMP) kf(a.g, at, { ox: X, oy: Y, s: [[0, 1], [o.punch, 1], [o.punch + tu(.07), 1.14, 'out'], [o.punch + tu(.3), 1, 'soft']] });
     return a;
   }
   function put(q, c, it, x, y, w, ly, o = {}) { if (!it) return; const k = o.k ?? 0, t = o.t ?? tu(.12 + .08 * k);
@@ -446,15 +446,17 @@
   const ratioV = d => { const p = pctV(d); if (p != null) return p; const m = maxOf(d), n = numOf(d); return m > 0 && isFinite(n) ? clamp01(n / m) : null; };
   const frac = d => zeroV(d) ? 0 : ratioV(d) ?? (d.dir === 'up' ? .82 : d.dir === 'down' ? .28 : 1);
   function fmtVal(str, q) { const m = String(str).match(/^([^\d]*)([\d,]*\.?\d*)(.*)$/); if (!m || q >= 1 || !m[2]) return str;
-    const [, pre, nm, post] = m, n = parseFloat(nm.replace(/,/g, '')), dec = (nm.split('.')[1] || '').length; let s = (n * q).toFixed(dec);
+    const [, pre, nm, post] = m, n = parseFloat(nm.replace(/,/g, '')), dec = (nm.split('.')[1] || '').length, P = Math.pow(10, dec); let s = (NOBUMP ? Math.floor(n * q * P + 1e-6) / P : n * q).toFixed(dec);   /* floor: the digit never runs ahead of the picture */
     if (nm.includes(',')) { const [i, f] = s.split('.'); s = i.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (f ? '.' + f : ''); } return pre + s + post; }
   const tw = (q, s, size, weight = 800) => { const m = q.text(s, 0, -9999, { size, weight, anchor: 'start', dur: .01 }), w = m.getBBox().width; m.remove(); return w; };
   function num(p, q, v, x, y, o = {}) { if (!v) return null; const t0 = o.t0 ?? tu(.3), t1 = o.t1 ?? Z.H, anchor = o.anchor || 'middle';
     let size = o.size || 160; const w0 = tw(q, v, size); if (o.maxW && w0 > o.maxW) size *= o.maxW / w0; const w = Math.min(w0, o.maxW || 1e9);
     const cx = anchor === 'start' ? x + w / 2 : anchor === 'end' ? x - w / 2 : x, cy = y - size * .36;
-    const g = popAt(mvG(o.g || q, { px: cx, py: cy, s: bumpK(t1, o.punch ?? 1.12) }), cx, cy, t0);
+    const g = popAt(NOBUMP ? (o.g || q) : mvG(o.g || q, { px: cx, py: cy, s: bumpK(t1, o.punch ?? 1.12) }), cx, cy, t0);
     const e = g.text(v, x, y, { size: f1(size), weight: 800, anchor, color: o.color || ACC1, dur: .01 });
-    HOOKS.push(t => { const u = rel(p, t); e.textContent = u >= t1 ? v : fmtVal(v, eOut(clamp01((u - t0) / Math.max(.01, t1 - t0)))); });
+    /* the count runs on the fill's own clock and ease (TQ t0 → t1, 'io') so the number and the picture reach the amount together (A2) */
+    const c0 = NOBUMP ? TQ().t0 : t0, c1 = NOBUMP ? TQ().t1 : t1, ez = NOBUMP ? ioE : eOut;
+    HOOKS.push(t => { const u = rel(p, t); e.textContent = u >= c1 ? v : fmtVal(v, ez(clamp01((u - c0) / Math.max(.01, c1 - c0)))); });
     return { w, size, cx, cy, x0: cx - w / 2, x1: cx + w / 2, e }; }
   function numRow(p, q, v, u, x, y, o = {}) { if (!v) return null; const s0 = o.size || 160, us0 = o.us || Math.max(40, s0 * .3), gap0 = s0 * .1;
     const nw0 = tw(q, v, s0), uw0 = u ? tw(q, u, us0, 600) : 0, k = Math.min(1, (o.maxW || 800) / (nw0 + (u ? gap0 + uw0 : 0)));
@@ -465,7 +467,7 @@
   /* the unit: slides in just after the keyword H */
   /* the unit: comes in right with the number (user 2026-11-24: "หน่วย เล่ม ไม่ควรออกมาหลังสุด") — it slides in as the number pops, before the count ends */
   function unitIn(q, u, x, y, size, anchor = 'middle', maxW = 400, weight = 600, wrap = null) { if (!u) return; const g = sub(q); const tE = f3(tu(.38));
-    on(g, q, 0, { x: [[0, -24], [tE, -24], [f3(tE + tu(.2)), 0, 'out']], o: fadeIn(tE) }); txt(g, u, x, y, { size, weight: 800, anchor, color: ACC1, maxW, wrap }); }   /* same colour + weight as the number (user 2026-11-24: "เอาข้อ 1") */
+    on(g, q, 0, NOBUMP ? { y: [[0, 14], [tE, 14], [f3(tE + tu(.3)), 0, 'out']], o: fadeIn(tE, .14) } : { x: [[0, -24], [tE, -24], [f3(tE + tu(.2)), 0, 'out']], o: fadeIn(tE) }); txt(g, u, x, y, { size, weight: 800, anchor, color: ACC1, maxW, wrap }); }   /* same colour + weight as the number (user 2026-11-24: "เอาข้อ 1") */
   /* number + unit on one baseline across the room x0..x1 (user 2026-11-24: "ใช้คำว่าเล่มให้คุ้มกับพื้นที่หน่อย แต่ต้องรองรับข้อมูลทุกชนิดนะ"):
      the unit grows to fill what the number leaves (up to o.uMax), never under o.uMin (40); a long unit / long number shrinks the number first,
      then the unit (to uMin, then narrower). No unit → the number alone takes the room. anchor 'start' (from x0) or 'middle' (centred in x0..x1). */
@@ -506,7 +508,7 @@
   const ioAt = (f, t0, t1) => { let lo = 0, hi = 1; for (let k = 0; k < 30; k++) { const m = (lo + hi) / 2; if (ioE(m) < f) lo = m; else hi = m; } return f3(t0 + (t1 - t0) * lo); };
   const fillK = (t0, t1) => [[0, 0], [t0, 0], [t1, 1, 'io']];
   /* an icon box that drops in from just above the box, squashes on landing, kicks dust (from b01t) */
-  function dropBox(p, c, ic, x, y, s, t0, t1, o = {}) { if (!ic) return null; const by = y + s / 2, K = fallK(x, by, t0, t1, o.h ?? Math.max(120, by + 350));
+  function dropBox(p, c, ic, x, y, s, t0, t1, o = {}) { if (!ic) return null; if (NOBUMP) return ibox(p, c, { icon: ic }, x, y, s, t0); const by = y + s / 2, K = fallK(x, by, t0, t1, o.h ?? Math.max(120, by + 350));
     const g = mvG(CL(p), K); ibox(p, c, { icon: ic }, x, y, s, t0, { g, mv: K, punch: o.punch }); if (o.dust !== false) dust(p, x, by, t1, s / 220); return g; }
   const KN = () => ({ fill: ACC1, sw: 0, stroke: 'none' });
   /* a horizontal fill bar: the track pops in, the fill grows to fr (eases 'io' t0 → t1), a knob rides its end, a ripple on H */
@@ -514,13 +516,13 @@
     if (fr <= 0) return null; const pad = Math.max(7, h * .13), ih = h - 2 * pad, fw = Math.max(ih, (x1 - x0 - 2 * pad) * fr);
     R(mvG(p, { px: x0, py: y, sx: fillK(t0, t1), o: fadeIn(t0, .04) }), x0 + pad, y - ih / 2, fw, ih, ih / 2, FILL);
     const kr = o.kr ?? h * .62, kx = f1(x0 + pad + fw - ih / 2), dx = f1(x0 + pad + ih / 2 - kx), kn = mvG(p, { x: [[0, dx], [t0, dx], [t1, 0, 'io']], o: fadeIn(t0, .04) });
-    kn.circle(kx, y, kr, F(4.2)); kn.circle(kx, y, kr * .5, KN()); ripple(p, kx, y, kr + 16, Z.H); return { kx, x0: x0 + pad + ih / 2, x1: x1 - pad - ih / 2 }; }
+    kn.circle(kx, y, kr, F(4.2)); kn.circle(kx, y, kr * .5, KN()); if (NOBUMP) R(litAt(p, Z.H), x0, y - r, x1 - x0, h, r, { fill: 'none', sw: 5, stroke: ACC1 }); else ripple(p, kx, y, kr + 16, Z.H); return { kx, x0: x0 + pad + ih / 2, x1: x1 - pad - ih / 2 }; }
   /* a vertical fill bar (fills bottom → top) */
   function vbar(p, x, y0, y1, w, fr, t0, t1, o = {}) { const r = w / 2; R(inG(p, 'pop', x, (y0 + y1) / 2, o.tIn ?? tu(.1)), x - r, y0, w, y1 - y0, r, F(4));
     if (fr <= 0) return null; const pad = Math.max(7, w * .13), iw = w - 2 * pad, fh = Math.max(iw, (y1 - y0 - 2 * pad) * fr);
     R(mvG(p, { px: x, py: y1, sy: fillK(t0, t1), o: fadeIn(t0, .04) }), x - iw / 2, y1 - pad - fh, iw, fh, iw / 2, FILL);
     const kr = o.kr ?? w * .6, ky = f1(y1 - pad - fh + iw / 2), dy = f1(y1 - pad - iw / 2 - ky), kn = mvG(p, { y: [[0, dy], [t0, dy], [t1, 0, 'io']], o: fadeIn(t0, .04) });
-    kn.circle(x, ky, kr, F(4.2)); kn.circle(x, ky, kr * .5, KN()); ripple(p, x, ky, kr + 16, Z.H); return { ky, y0: y1 - pad - iw / 2, y1: y0 + pad + iw / 2 }; }
+    kn.circle(x, ky, kr, F(4.2)); kn.circle(x, ky, kr * .5, KN()); if (NOBUMP) R(litAt(p, Z.H), x - r, y0, w, y1 - y0, r, { fill: 'none', sw: 5, stroke: ACC1 }); else ripple(p, x, ky, kr + 16, Z.H); return { ky, y0: y1 - pad - iw / 2, y1: y0 + pad + iw / 2 }; }
   /* a row of ticks under a bar: drawn in early, each lights when the knob passes it (a = from x, b = to x of the knob's travel) */
   function ticksH(p, a, b, y, n, len, fr, t0, t1) { for (let k = 0; k < n; k++) { const f = k / (n - 1), x = f1(lerp(a, b, f)), L = k % 5 === 0 ? len : len * .55;
       drawAt(p.line(x, y, x, y + L, S(2.2)), p, tu(.12 + .01 * k), tu(.14)); if (fr > 0 && f <= fr + 1e-6) { const t = ioAt(f / fr, t0, t1); on(p.line(x, y, x, y + L, { sw: 4, stroke: ACC1 }), p, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] }); } } }
@@ -531,7 +533,7 @@
   function dotsV(p, x, yb, yt, n, r, fr, t0, t1) { for (let k = 0; k < n; k++) { const f = k / (n - 1), y = f1(lerp(yb, yt, f)); on(p.circle(x, y, r, S(2)), p, 0, { o: fadeIn(tu(.1 + .02 * k), .06) });
       if (fr > 0 && f <= fr + 1e-6) { const t = ioAt(f / fr, t0, t1); popAt(p, x, y, t).circle(x, y, r, KN()); } } }
   /* a free-floating icon (no box — user rule 3): drops in from just above, squashes on landing, kicks dust */
-  function flo(p, c, ic, x, y, w, t0, t1, o = {}) { if (!ic) return; const by = y + w / 2, K = fallK(x, by, t0, t1, o.h ?? Math.min(260, by + BOX[1] / 2));
+  function flo(p, c, ic, x, y, w, t0, t1, o = {}) { if (!ic) return; if (NOBUMP) return put(p, c, { icon: ic }, x, y, w, null, { t: t0 }); const by = y + w / 2, K = fallK(x, by, t0, t1, o.h ?? Math.min(260, by + BOX[1] / 2));
     put(p, c, { icon: ic }, x, y, w, null, { t: t0, mv: { px: K.px, py: K.py, y: K.y, sx: K.sx, sy: K.sy }, o: K.o, punch: o.punch }); dust(p, x, by, t1, w / 220); }
 
   /* the size's box drawn as a yellow outline (the sheets only — user 2026-11-24: "ทำกรอบของขนาดนั้นๆ มาให้ผมดูด้วย ใส่เส้นสีเหลือง") */
@@ -635,7 +637,7 @@
         R(q, x, y, cell, cell, rx, { fill: TA(.3), sw: 3, stroke: ACC1 }); } } }
   const GRID = (p, d, cols, rows, cell, gap) => { const w = cols * (cell + gap) - gap, h = rows * (cell + gap) - gap; return { w, h, at: (x, y) => gridV(p, f1(x - w / 2), f1(y - h / 2), cols, rows, cell, gap, frac(d)) }; };
   /* CARD — one card fills the box (rises in), its edge lights on the keyword; the caller lays the icon tile and the number inside */
-  function cardBox(p, rr = 40) { const [W0, H0] = BOX, w = W0 - 16, h = H0 - 16, g = mvG(CL(p), { px: 0, py: 0, y: [[0, 40], [tu(.02), 40], [f3(tu(.36)), 0, 'out']], o: fadeIn(tu(.02), .1) }); R(g, -w / 2, -h / 2, w, h, f1(Math.min(rr, h * .2)), F(3.6));
+  function cardBox(p, rr = 40) { const [W0, H0] = BOX, w = W0 - 16, h = H0 - 16, g = mvG(CL(p), { px: 0, py: 0, s: [[0, .96], [tu(.02), .96], [f3(tu(.36)), 1, 'out']], o: fadeIn(tu(.02), .14) }); R(g, -w / 2, -h / 2, w, h, f1(Math.min(rr, h * .2)), F(3.6));
     const L = litAt(p, Z.H); R(L, -w / 2, -h / 2, w, h, f1(Math.min(rr, h * .2)), { fill: TA(.05), sw: 5, stroke: ACC1 }); return { w, h }; }
 
   /* the four new designs for one size: R.ring / R.gauge / R.card / R.grid = (d, c) → draws */
