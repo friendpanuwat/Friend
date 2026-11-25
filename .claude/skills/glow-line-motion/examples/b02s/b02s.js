@@ -43,8 +43,8 @@
   const arcs = (q, x, y, dir, n = 3, r0 = 26, gap = 18, span = 38, o = W(2.4)) => { for (let k = 0; k < n; k++) { const r = r0 + k * gap, a = rad(span);
     q.path(`M ${f1(x + dir * r * Math.cos(a))} ${f1(y - r * Math.sin(a))} A ${r} ${r} 0 0 ${dir > 0 ? 1 : 0} ${f1(x + dir * r * Math.cos(a))} ${f1(y + r * Math.sin(a))}`, o); } };
   let CID = 0;
-  function clipG(p, x, y, w, h) { const svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), r = document.createElementNS(NS, 'rect');
-    cp.id = 'b02sclip' + (++CID); Object.entries({ x, y, width: w, height: h }).forEach(([k, v]) => r.setAttribute(k, v)); cp.appendChild(r);
+  function clipG(p, x, y, w, h, rx = 0) { const svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), r = document.createElementNS(NS, 'rect');
+    cp.id = 'b02sclip' + (++CID); Object.entries(rx ? { x, y, width: w, height: h, rx } : { x, y, width: w, height: h }).forEach(([k, v]) => r.setAttribute(k, v)); cp.appendChild(r);
     (svg.querySelector('defs') || svg).appendChild(cp); return sub(p, { 'clip-path': `url(#${cp.id})` }); }
   /* a label; too wide → smaller, or (wrap) two lines broken between Thai words */
   function txt(p, str, x, y, { size = 42, maxW = 1e9, weight = 600, anchor = 'middle', color = C.soft, wrap = null } = {}) {
@@ -489,7 +489,7 @@
   /* something that fills from t0 to t1: draw keys and the matching turn of a dot riding its end */
   const fillK = (t0, t1) => [[0, 0], [t0, 0], [t1, 1, 'io']];
   const ridK = (deg, t0, t1) => [[0, -deg], [t0, -deg], [t1, 0, 'io']];
-  const litOn = (q, t) => { const g = sub(q); on(g, q, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] }); return g; };
+  const litOn = (q, t) => { const g = sub(q); on(g, q, 0, { o: [[0, 0], [f3(t - tu(.12)), 0], [f3(t + tu(.18)), 1, 'io']] }); return g; };   /* glows up softly (user: "สมูทไปเลย") */
   let FILL = { fill: LIT, sw: 0, stroke: 'none' }, SOFTT = { sw: 14, stroke: 'rgba(255,255,255,.16)' };
 
   /* ---------- colour theme (user 2026-11-14: "ทำให้มันเปลี่ยนสีได้"): every colour comes from GL.C (line = ink, card fill, soft lines) plus one
@@ -703,6 +703,11 @@
     if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, f1(s), null, { t: o.t ?? tu(.1), mv, o: K.o });
     else { const g = mvG(CL(p), K), ts = f1(s * .86); R(g, f1(x - ts / 2), f1(y - ts / 2), ts, ts, f1(ts * .24), F(4)); txt(g, (X && X.label) || '', x, f1(y + ts * .08), { size: f1(ts * .24), maxW: f1(ts * .84), weight: 800, color: C.ink, wrap: 'mid' }); } }   /* no icon: the word in ONE rounded tile */
   const KN = () => ({ fill: ACC1, sw: 0, stroke: 'none' });
+  const ioE2 = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+  const ioAt2 = (f, t0, t1) => { let lo = 0, hi = 1; for (let k = 0; k < 30; k++) { const m = (lo + hi) / 2; if (ioE2(m) < f) lo = m; else hi = m; } return f3(t0 + (t1 - t0) * lo); };
+  /* ONE smooth trip (user 2026-11-25: "อยากให้อนิเมชั่นมันสมูทไปเลย"): the whole change runs on one io ease from TS(E) to H — no start-stop per step */
+  const TS = E => f3(Math.max(tu(.2), E.T0 - tu(.35)));
+  const sweepK = (t0, t1, g, n = 24) => { const K = [[0, g(0)], [t0, g(0)]]; for (let i = 1; i <= n; i++) { const u = i / n; K.push([f3(t0 + (t1 - t0) * u), f3(g(ioE2(u)))]); } return K; };   /* a track that follows g(progress) */
   const ioKs = (pts) => { const K = [[0, pts[0][1]]]; pts.forEach(([t, v], i) => K.push(i ? [t, v, 'io'] : [t, v])); return K; };   /* [[t, v], …] → keys with an io ease between */
 
   /* ARRIVE — the things themselves, big and floating: one by one they come in where they stand (up) · one by one they fade to a faint shadow (down) */
@@ -711,9 +716,9 @@
     const sz = f1(B.sz), g = f1(sz * .2), W0 = f1(B.cl * sz + (B.cl - 1) * g), H0 = f1(B.r * sz + (B.r - 1) * g);
     return { w: W0, h: H0, at: (cx, cy) => { for (let j = 0; j < n; j++) { const row = Math.floor(j / B.cl), inRow = Math.min(B.cl, n - row * B.cl), col = j - row * B.cl;
       const x = f1(cx + (col - (inRow - 1) / 2) * (sz + g)), y = f1(cy - H0 / 2 + sz / 2 + row * (sz + g)), t = E.at(j);
-      if (E.up) thing(p, c, X, x, y, sz, { px: x, py: y, o: fadeIn(f3(t - tu(.4)), .2) }, { t: f3(t - tu(.42)) });
+      if (E.up) thing(p, c, X, x, y, sz, { px: x, py: y, s: [[0, .9], [f3(t - tu(.5)), .9], [t, 1, 'out']], o: [[0, 0], [f3(t - tu(.5)), 0], [t, 1, 'io']] }, { t: f3(t - tu(.52)) });
       else { const t0 = f3(tu(.06 + .05 * j)), K = { px: x, py: y, o: fadeIn(t0, .12) };
-        if (t != null) { K.s = [[0, 1], [t, 1], [f3(t + tu(.4)), .86, 'out']]; K.o = K.o.concat([[t, 1], [f3(t + tu(.4)), .14]]); }   /* it fades to a faint shadow of itself */
+        if (t != null) { K.s = [[0, 1], [f3(t - tu(.3)), 1], [f3(t + tu(.2)), .88, 'io']]; K.o = K.o.concat([[f3(t - tu(.3)), 1], [f3(t + tu(.2)), .14, 'io']]); }   /* it fades to a faint shadow of itself */
         thing(p, c, X, x, y, sz, K, { t: t0 }); } } } }; }
 
   /* INTO — the owner (or, with no owner, the thing's own tile) is the receiver: the things wait in a line, then one by one travel along a curve
@@ -734,8 +739,7 @@
       R(LITE(p, Z.H), rx - Rs / 2, ry - Rs / 2, Rs, Rs, rr, { fill: 'none', sw: 5, stroke: ACC1 });
       const bx0 = f1(rx - Rs / 2), bw = Rs, by = f1(ry + Rs / 2 + gb + bh / 2), pad = 7, iw = bw - 2 * pad, ihh = bh - 2 * pad;
       R(sIn(p, rx, by, tu(.06)), bx0, by - bh / 2, bw, bh, bh / 2, F(4));
-      const fr0 = E.up ? 0 : 1, steps = [[0, fr0], [tu(.3), fr0]]; let fr = fr0; const ORDk = ORD(E);
-      ORDk.forEach(j => { const t = E.at(j); fr = E.up ? fr + 1 / n : fr - 1 / n; steps.push([f3(t - tu(.04)), fr], [f3(t + tu(.26)), fr]); });
+      const fr0 = E.up ? 0 : 1, frE = E.up ? 1 : E.keep / n, steps = [[0, fr0], [TS(E), fr0], [f3(E.H), frE]];   /* one smooth fill T0 → H */
       const fg = mvG(p, { px: bx0 + pad, py: by, sx: steps.map(([t, v], i) => i ? [t, Math.max(.0001, v), 'io'] : [t, Math.max(.0001, v)]), o: fadeIn(tu(.3), .06) }); R(fg, bx0 + pad, by - ihh / 2, iw, ihh, ihh / 2, FILL);
       const kr = f1(bh * .62), kg = mvG(p, { x: steps.map(([t, v], i) => i ? [t, f1(iw * (v - 1)), 'io'] : [t, f1(iw * (v - 1))]), o: fadeIn(tu(.3), .06) }); kg.circle(f1(bx0 + pad + iw - ihh / 2), by, kr, F(4.2)); kg.circle(f1(bx0 + pad + iw - ihh / 2), by, f1(kr * .5), KN());
       /* the travellers */
@@ -755,7 +759,7 @@
       if (Rv && picOf(Rv)) put(p, c, { icon: Rv.icon }, rx, ry, f1(Rs * .62), null, { t: tu(.08) }); else if (Rv) txt(g0, Rv.label || '', rx, f1(ry + Rs * .08), { size: f1(Rs * .2), maxW: f1(Rs * .8), weight: 800, color: C.ink, wrap: 'mid' });
       R(LITE(p, Z.H), rx - Rs / 2, ry - Rs / 2, Rs, Rs, rr, { fill: 'none', sw: 5, stroke: ACC1 });
       const bx0 = f1(rx - Rs / 2), by = f1(ry + Rs / 2 + gb + bh / 2), pad = 6, iw = Rs - 2 * pad, ihh = bh - 2 * pad; R(sIn(p, rx, by, tu(.06)), bx0, by - bh / 2, Rs, bh, bh / 2, F(4));
-      const fr0 = E.up ? 0 : 1, steps = [[0, fr0], [tu(.3), fr0]]; let fr = fr0; ORD(E).forEach(j => { const t = E.at(j); fr = E.up ? fr + 1 / n : fr - 1 / n; steps.push([f3(t - tu(.04)), fr], [f3(t + tu(.26)), fr]); });
+      const fr0 = E.up ? 0 : 1, frE = E.up ? 1 : E.keep / n, steps = [[0, fr0], [TS(E), fr0], [f3(E.H), frE]];   /* one smooth fill T0 → H */
       R(mvG(p, { px: bx0 + pad, py: by, sx: steps.map(([t, v], i) => i ? [t, Math.max(.0001, v), 'io'] : [t, Math.max(.0001, v)]), o: fadeIn(tu(.3), .06) }), bx0 + pad, by - ihh / 2, iw, ihh, ihh / 2, FILL);
       const kr = f1(bh * .62), kg = mvG(p, { x: steps.map(([t, v], i) => i ? [t, f1(iw * (v - 1)), 'io'] : [t, f1(iw * (v - 1))]), o: fadeIn(tu(.3), .06) }); kg.circle(f1(bx0 + pad + iw - ihh / 2), by, kr, F(4.2)); kg.circle(f1(bx0 + pad + iw - ihh / 2), by, f1(kr * .5), KN());
       if (E.up) { const T = Array.from({ length: n }, (_, j) => E.at(j));
@@ -775,32 +779,38 @@
   function TREND(p, c, X, E, d, w, h) { const n = E.n, up = E.up, T = evN(E), ic = f1(Math.min(h * (w / h > 2.5 ? .46 : .36), w * .3, 260)), m = n;
     return { w, h, at: (cx, cy) => { const x0 = f1(cx - w / 2 + ic * .5), x1 = f1(cx + w / 2 - ic * .5), yb = f1(cy + h / 2 - 8), yt = f1(cy - h / 2 + ic + 22), lo = f1(yb - (yb - yt) * .08);
       const P = Array.from({ length: m + 1 }, (_, i) => { const u = i / m, v = up ? u : 1 - u, wig = i && i < m && i % 2 ? .07 : 0; return [f1(lerp(x0, x1, u)), f1(lerp(lo, yt, Math.max(0, v - wig)))]; });
-      const t0 = f3(Math.max(tu(.15), T[0] - tu(.45))), TT = [t0].concat(T);
-      /* area under the line, revealed left → right with the line (a clip whose rect grows) */
+      const t0 = TS(E), t1 = E.H; let Ls = [0]; for (let i = 1; i <= m; i++) Ls.push(Ls[i - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]));
+      const tot = Ls[m], posAt = f => { const dd = f * tot; let i = 1; while (i < m && Ls[i] < dd) i++; const u = (dd - Ls[i - 1]) / ((Ls[i] - Ls[i - 1]) || 1); return [P[i - 1][0] + (P[i][0] - P[i - 1][0]) * u, P[i - 1][1] + (P[i][1] - P[i - 1][1]) * u]; };
+      /* area under the line, revealed left → right with the line's tip (a clip whose rect grows) */
       const cid = 'b02clip' + (++CID), svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), cr = document.createElementNS(NS, 'rect');
       Object.entries({ x: x0, y: f1(cy - h / 2), width: f1(x1 - x0), height: h }).forEach(([k, v]) => cr.setAttribute(k, v)); cp.id = cid; cp.appendChild(cr); (svg.querySelector('defs') || svg).appendChild(cp);
-      kf(cr, p.t0, { ox: x0, oy: 0, sx: ioKs(TT.map((t, i) => [t, Math.max(.001, i / m)])) });
+      kf(cr, p.t0, { ox: x0, oy: 0, sx: sweepK(t0, t1, f => Math.max(.001, (posAt(f)[0] - x0) / (x1 - x0))) });
       const ag = sub(p, { 'clip-path': `url(#${cid})` }); ag.path('M ' + P.map(v => v.join(' ')).join(' L ') + ` L ${x1} ${yb} L ${x0} ${yb} Z`, { fill: TA(.1), sw: 0, stroke: 'none' });
       on(p.line(x0, yb, x1, yb, S(2.2)), p, 0, { draw: [[0, 0], [tu(.06), 0], [tu(.4), 1, 'out']] });
-      let Ls = [0]; for (let i = 1; i <= m; i++) Ls.push(Ls[i - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]));
-      on(p.path('M ' + P.map(v => v.join(' ')).join(' L '), { sw: 6, stroke: ACC1, fill: 'none' }), p, 0, { draw: ioKs(TT.map((t, i) => [t, f3(Ls[i] / Ls[m])])), o: fadeIn(t0, .04) });
-      P.forEach(([x, y], i) => { const t = TT[i], g = sIn(p, x, y, t, .2); g.circle(x, y, 11, i ? KN() : F(3)); });
-      /* the rider: sits on the tip, above the line */
-      const lift = ic / 2 + 16, fin = P[m], K = { px: fin[0], py: fin[1] - lift, x: ioKs(TT.map((t, i) => [t, f1(P[i][0] - fin[0])])), y: ioKs(TT.map((t, i) => [t, f1(P[i][1] - fin[1])])), o: fadeIn(f3(t0 - tu(.1)), .14) };
-      thing(p, c, X, fin[0], f1(fin[1] - lift), ic, K, { t: f3(t0 - tu(.12)) });
+      on(p.path('M ' + P.map(v => v.join(' ')).join(' L '), { sw: 6, stroke: ACC1, fill: 'none' }), p, 0, { draw: [[0, 0], [t0, 0], [t1, 1, 'io']], o: fadeIn(t0, .04) });
+      P.forEach(([x, y], i) => { const t = i ? ioAt2(Ls[i] / tot, t0, t1) : t0, g = sIn(p, x, y, f3(t - tu(.06)), .24); g.circle(x, y, 11, i ? KN() : F(3)); });
+      /* the rider: sits on the tip, above the line, gliding with it */
+      const lift = ic / 2 + 16, fin = P[m], K = { px: fin[0], py: fin[1] - lift, x: sweepK(t0, t1, f => f1(posAt(f)[0] - fin[0]), 40), y: sweepK(t0, t1, f => f1(posAt(f)[1] - fin[1]), 40), o: fadeIn(f3(t0 - tu(.25)), .2) };
+      thing(p, c, X, fin[0], f1(fin[1] - lift), ic, K, { t: f3(t0 - tu(.3)) });
       } }; }
 
   /* DONUT — a ring cut into n parts round the big thing: the parts light one by one, sweeping round (up) · they go dark one by one (down) */
   function DONUT(p, c, X, E, d, w, h) { const n = E.n, R0 = f1(Math.min(w, h) / 2 * .98), bw = f1(R0 * .26), ga = n > 1 ? 9 : 0;
     return { w: 2 * R0, h: 2 * R0, at: (x, y) => { const Ri = R0 - bw, rm = f1(R0 - bw / 2), P = (r, a) => f1(x + r * Math.cos(rad(a))) + ' ' + f1(y + r * Math.sin(rad(a)));
       const sec = (a0, a1) => `M ${P(R0, a0)} A ${R0} ${R0} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${P(R0, a1)} L ${P(Ri, a1)} A ${Ri} ${Ri} 0 ${a1 - a0 > 180 ? 1 : 0} 0 ${P(Ri, a0)} Z`;
-      for (let k = 0; k < n; k++) { const a0 = -90 + k * 360 / n + ga / 2, a1 = -90 + (k + 1) * 360 / n - ga / 2, t = E.at(k), g = sIn(p, x, y, f3(tu(.04 + .04 * k)), .3);
+      const t0 = TS(E), t1 = E.H, f0 = E.up ? 0 : 1, f1v = E.up ? 1 : E.keep / n, fAt = u => f0 + (f1v - f0) * u;   /* lit amount, 0 → 1 of the ring */
+      for (let k = 0; k < n; k++) { const a0 = -90 + k * 360 / n + ga / 2, a1 = -90 + (k + 1) * 360 / n - ga / 2, g = sIn(p, x, y, f3(tu(.04 + .04 * k)), .3);
         g.path(sec(a0, a1), F(3.6));
-        const arc = p.path(`M ${P(rm, a0 + 4)} A ${rm} ${rm} 0 ${a1 - a0 > 188 ? 1 : 0} 1 ${P(rm, a1 - 4)}`, { sw: f1(bw - 16), stroke: TA(.3), fill: 'none' });
-        const on1 = E.up ? f3(t - tu(.4)) : f3(tu(.3 + .05 * k)), DK = [[0, 0], [on1, 0], [f3(on1 + tu(.4)), 1, 'io']].concat(!E.up && t != null ? [[t, 1], [f3(t + tu(.38)), 0, 'io']] : []);
-        on(arc, p, 0, { draw: DK });
-        const lit = sub(p), LK = E.up ? [[0, 0], [f3(t - tu(.05)), 0], [t, 1]] : [[0, 0], [f3(on1 + tu(.36)), 0], [f3(on1 + tu(.4)), 1]].concat(t != null ? [[t, 1], [f3(t + tu(.06)), 0]] : []);
-        on(lit, p, 0, { o: LK }); lit.path(sec(a0, a1), { fill: 'none', sw: 4.4, stroke: ACC1 }); }
+        const cid = 'b02sec' + (++CID), svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), cpath = document.createElementNS(NS, 'path');
+        cpath.setAttribute('d', sec(a0 + .6, a1 - .6)); cp.id = cid; cp.appendChild(cpath); (svg.querySelector('defs') || svg).appendChild(cp);
+        const cg = sub(p, { 'clip-path': `url(#${cid})` }), seg = u => clamp01(fAt(u) * n - k);
+        const arc = cg.path(`M ${P(rm, a0 - 3)} A ${rm} ${rm} 0 ${a1 - a0 > 174 ? 1 : 0} 1 ${P(rm, a1 + 3)}`, { sw: f1(bw + 6), stroke: TA(.3), fill: 'none' });   /* wider than the part, cut to it by the clip */
+        arc.setAttribute('stroke-linecap', 'butt');   /* a straight leading edge, no round tip */
+        const pre = E.up ? [] : [[f3(tu(.3)), 0], [f3(t0 - tu(.05)), 1, 'io']];
+        on(arc, p, 0, { draw: E.up ? sweepK(t0, t1, seg, 30) : [[0, 0]].concat(pre, sweepK(t0, t1, seg, 30).slice(2)) });
+        const done = E.up ? ioAt2((k + 1) / n, t0, t1) : null;
+        const lit = sub(p); on(lit, p, 0, { o: E.up ? [[0, 0], [f3(done - tu(.1)), 0], [f3(done + tu(.2)), 1, 'io']] : [[0, 0], [f3(t0 - tu(.2)), 0], [f3(t0), 1, 'io']].concat(k >= E.keep ? [[f3(ioAt2((n - k - 1) / (n - E.keep), t0, t1)), 1], [f3(ioAt2((n - k - .5) / (n - E.keep), t0, t1)), 0, 'io']] : []) });
+        lit.path(sec(a0, a1), { fill: 'none', sw: 4.4, stroke: ACC1 }); }
       thing(p, c, X, x, y, f1(Ri * 1.25), { px: x, py: y, o: fadeIn(tu(.1), .1) }, { t: tu(.1) }); } }; }
 
   /* STAIRS — the thing climbs the steps one by one (up: rising to the right) · walks down them (down: falling to the right); each step it reaches
@@ -813,13 +823,28 @@
       const at = k => [f1(xs(k) + tw / 2), f1(top(k) - ic / 2 - 16)], last = up ? n - 1 : Math.min(n - 1, E.m);
       for (let k = 0; k <= last; k++) { const t = ts[k]; if (t == null) continue; on(p.line(f1(xs(k) + 12), top(k), f1(xs(k + 1) - 12), top(k), { sw: 7, stroke: ACC1 }), p, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.08)), 1]] }); }
       const fin = at(last), XK = [], YK = []; for (let k = 0; k <= last; k++) { const [x, y] = at(k), t = ts[k]; if (!k) { XK.push([0, f1(x - fin[0])], [t, f1(x - fin[0])]); YK.push([0, f1(y - fin[1])], [t, f1(y - fin[1])]); continue; }
-        const [px, py] = at(k - 1), tm = f3(t - tu(.2)), t1 = f3(t - tu(.44));
+        const [px, py] = at(k - 1), t1 = f3(ts[k - 1] + tu(.02)), tm = f3(t1 + (t - t1) * .45);   /* the whole gap: no stop between steps */
         if (up) { XK.push([t1, f1(px - fin[0])], [tm, f1(px - fin[0])], [t, f1(x - fin[0]), 'io']); YK.push([t1, f1(py - fin[1])], [tm, f1(y - 22 - fin[1]), 'io'], [t, f1(y - fin[1]), 'io']); }   /* lift first, then step over */
         else { XK.push([t1, f1(px - fin[0])], [tm, f1(x - tw * .12 - fin[0]), 'io'], [t, f1(x - fin[0]), 'io']); YK.push([t1, f1(py - fin[1])], [tm, f1(py - 6 - fin[1]), 'io'], [t, f1(y - fin[1]), 'io']); } }
       const O = fadeIn(f3(ts[0] - tu(.3)), .14).concat(!up && E.keep === 0 ? [[f3(E.H + tu(.1)), 1], [f3(E.H + tu(.4)), .14]] : []);
       thing(p, c, X, fin[0], fin[1], ic, { px: fin[0], py: fin[1], x: XK, y: YK, o: O }, { t: f3(ts[0] - tu(.32)) }); } }; }
 
-  const SZD = {}; for (let k = 1; k <= 7; k++) SZD[k] = [{ id: 'arrive', th: 'ทยอยมา', fn: (d, c) => lay(k, d, c, ARRIVE) }, { id: 'into', th: 'เข้าเจ้าของ', fn: (d, c) => lay(k, d, c, INTO, { own: false }) },
+  /* LEVEL — replaces ARRIVE (user 2026-11-25, the plain row of icons: "ทุกขนาดที่ใช้ดีไซน์นี้ดีไซน์ใหม่ด้วย" → "ดีไซน์ใหม่ออกแบบใหม่คิดใหม่"):
+     ONE plate (a circle, or a capsule on flat rooms) with the thing big in the middle; inside it a soft level with a gently curved accent surface
+     rises to full (up) or drains to what is kept (down) — one smooth trip T0 → H. The surface fades while it passes behind the icon (no outline on it). */
+  function LEVEL(p, c, X, E, d, w, h) { const flat = w / h > 1.45, Hh = f1(Math.min(h, flat ? 560 : 620, flat ? w / 1.9 : w)), Ww = f1(flat ? Math.min(w, Hh * 1.9) : Hh), r = f1(Hh / 2);
+    return { w: Ww, h: Hh, at: (x, y) => { const x0 = f1(x - Ww / 2), y0 = f1(y - Hh / 2), t0 = TS(E), t1 = E.H, f0 = E.up ? .06 : 1, fE = E.up ? 1 : Math.max(.06, E.keep / E.n);
+      const pd = f1(Math.max(9, Hh * .035)), ix = x0 + pd, iy = y0 + pd, iw = Ww - 2 * pd, ih = Hh - 2 * pd, ir = f1(r - pd), lvl = f => f1(iy + ih * (1 - f));
+      R(sIn(p, x, y, tu(.04), .32), x0, y0, Ww, Hh, r, F(4.4));
+      const cg = clipG(p, ix, iy, iw, ih, ir), K = { y: sweepK(t0, t1, u => f1(lvl(f0 + (fE - f0) * u) - lvl(fE)), 30), o: fadeIn(f3(t0 - tu(.2)), .2) }, mg = mvG(cg, K), Ly = lvl(fE), bow = f1(Math.min(18, ih * .05));
+      mg.path(`M ${f1(ix - 4)} ${Ly} Q ${f1(ix + iw / 4)} ${f1(Ly - bow)} ${f1(ix + iw / 2)} ${Ly} T ${f1(ix + iw + 4)} ${Ly} L ${f1(ix + iw + 4)} ${f1(iy + ih + 4 + ih)} L ${f1(ix - 4)} ${f1(iy + ih + 4 + ih)} Z`, { fill: TA(.2), sw: 0, stroke: 'none' });
+      const surf = mg.path(`M ${f1(ix - 4)} ${Ly} Q ${f1(ix + iw / 4)} ${f1(Ly - bow)} ${f1(ix + iw / 2)} ${Ly} T ${f1(ix + iw + 4)} ${Ly}`, { sw: 6, stroke: ACC1, fill: 'none' });
+      const ic = f1(Math.min(ih * .62, iw * .62, 380)), band = [y - ic * .5 - 14, y + ic * .5 + 14];
+      HOOKS.push(t => { const u = rel(p, t), q = clamp01((u - t0) / Math.max(.01, t1 - t0)), yy = lvl(f0 + (fE - f0) * ioE2(q)), dd = Math.max(band[0] - yy, yy - band[1], 0); surf.setAttribute('opacity', f3(clamp01(dd / 30))); });
+      thing(p, c, X, x, y, ic, { px: x, py: y, o: fadeIn(tu(.1), .16) }, { t: tu(.1) });
+      R(LITE(p, Z.H), x0, y0, Ww, Hh, r, { fill: 'none', sw: 5, stroke: ACC1 }); } }; }
+
+  const SZD = {}; for (let k = 1; k <= 7; k++) SZD[k] = [{ id: 'level', th: 'ระดับในวง', fn: (d, c) => lay(k, d, c, LEVEL) }, { id: 'into', th: 'เข้าเจ้าของ', fn: (d, c) => lay(k, d, c, INTO, { own: false }) },
     { id: 'trend', th: 'เส้นเทรนด์', fn: (d, c) => lay(k, d, c, TREND) }, { id: 'donut', th: 'วงแบ่งช่อง', fn: (d, c) => lay(k, d, c, DONUT) }, { id: 'stairs', th: 'บันได', fn: (d, c) => lay(k, d, c, STAIRS) }];
   const ROUNDS = [null, R1];
   const SAMPLES = [
