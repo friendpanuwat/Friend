@@ -710,12 +710,12 @@
     if (ans && t >= T_.H - .01) return null;   /* answered: no late "?" */
     const keep = o.keep ?? Fd.ai >= 0;
     const pulse = [[0, 1]]; for (let u = T_.tD0, k = 0; u + tu(.5) <= T_.tD1; u += tu(.5), k++) pulse.push([f3(u), 1], [f3(u + tu(.25)), 1.04, 'io'], [f3(u + tu(.5)), 1, 'io']);   /* a slow breath */
-    const fin = ans ? [[T_.H, 1], [f3(T_.H + tu(.2)), keep ? .3 : 0]] : [];   /* answered by one of the options: the "?" stays, faint */
+    const eH = f3(T_.H - (o.early || 0)), fin = ans ? [[eH, 1], [f3(eH + tu(o.early ? .16 : .2)), keep ? .3 : 0]] : [];   /* o.early: an answered "?" leaves this much before H (shrinking) so the answer never lands on top of it */   /* answered by one of the options: the "?" stays, faint */
     if (!o.plain) { const gb = mvG(o.g || p, { o: [[0, 0], [t, 0], [f3(t + tu(.14)), 1]].concat(ans && !keep ? [[T_.H, 1], [f3(T_.H + tu(.2)), 0]] : []) }); gb.circle(x, y, r, { fill: C.fill, sw: 0, stroke: 'none' }); }   /* solid under the "?" (user: "รวมถึงเครื่องหมาย question mark ด้วย") */
-    const g0 = mvG(o.g || p, { px: x, py: y, s: [[0, .8], [t, .8], [f3(t + tu(.32)), 1, 'out']].concat(pulse.slice(1)).concat(ans ? [] : [[T_.H, 1], [f3(T_.H + tu(.36)), 1.08, 'io']]), o: [[0, 0], [t, 0], [f3(t + tu(.14)), 1]].concat(fin) });
+    const g0 = mvG(o.g || p, { px: x, py: y, s: [[0, .8], [t, .8], [f3(t + tu(.32)), 1, 'out']].concat(pulse.slice(1)).concat(ans ? (o.early ? [[eH, 1], [f3(eH + tu(.16)), .72, 'io']] : []) : [[T_.H, 1], [f3(T_.H + tu(.36)), 1.08, 'io']]), o: [[0, 0], [t, 0], [f3(t + tu(.14)), 1]].concat(fin) });
     if (!o.plain) { g0.circle(x, y, r, F(4)); if (!ans) litOn(g0, T_.H).circle(x, y, r, { fill: TA(.3), sw: 5, stroke: ACC1 }); }
     const gl = txt(g0, '?', x, f1(y + r * .42), { size: f1(r * 1.25), weight: 800, color: C.ink }); if (!ans) { const l2 = txt(litOn(g0, T_.H), '?', x, f1(y + r * .42), { size: f1(r * 1.25), weight: 800, color: ACC1 }); }
-    if (!ans) ripple(p, x, y, r + 14, f3(T_.H + tu(.06))); return g0; }
+    if (!ans && !o.noRip) ripple(p, x, y, r + 14, f3(T_.H + tu(.06))); return g0; }
   /* ✓-free answer badge: when the answer is apart and lands — a ring sweeps round it (no ✓ — an answer, not a verdict) */
   const sweepRing = (p, x, y, r, t) => { const a = p.path(arcD(x, y, r, 1), { sw: 6, stroke: ACC1 }); on(a, p, 0, { draw: [[0, 0], [t, 0], [f3(t + tu(.3)), 1, 'out']] }); };
   /* common: the answer apart lands at (x, y) with a ring sweeping round it; its word at o.wy (pill) */
@@ -1254,17 +1254,14 @@
   sd(5, 'blank', 'เติมคำในช่องว่าง', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
     art(c, p => { if (onlyN5(p, c, d)) return; const ob = F.hasO ? 290 : 0, zb = Y5 - (ob ? ob + 18 : 0), ay = f1((-Y5 + zb) / 2), ah = zb + Y5, aw = F.hasA ? 300 : 0;
       if (F.hasA) cell(p, c, d, 'a', 0, f1(-X5 + aw / 2), ay, aw, ah, { wideMin: 999, ws: 52, cap: 170, wrap: 'mid' });
-      const bx0 = f1(-X5 + aw + (aw ? 40 : 30)), bx1 = X5 - 30, bm = f1((bx0 + bx1) / 2), by = f1(zb - 34), bh = by + Y5, iw = f1(Math.min(220, bh * .62)), iy = f1(-Y5 + 16 + iw / 2);
+      const bx0 = f1(-X5 + aw + (aw ? 40 : 30)), bx1 = X5 - 30, bm = f1((bx0 + bx1) / 2), by = f1(zb - 34), X = ansOf(F), lab = X && (LBL(X) || (!picOf(X) && X.label)), top = -Y5 + 10, bot = by - 74, cy = f1((top + bot) / 2), ah2 = bot - top;
       drawAt(p.line(bx0, by, bx1, by, { sw: 6, stroke: TL_(.55) }), p, T_.tA, tu(.45));
-      const qg = mvG(p, { o: [[0, 0], [T_.tQ, 0], [f3(T_.tQ + tu(.12)), .45]].concat(F.hasO ? [[T_.tD0, .45], [f3(T_.tD0 + tu(.1)), 0]] : []).concat([[f3(H - tu(.1)), F.hasO ? 0 : .45], [H, F.answered ? 0 : 1]]) });
-      txt(qg, '?', bm, f1(by - 22), { size: f1(Math.min(260, bh * .8)), weight: 800, color: F.answered ? C.ink : ACC1 });
-      if (F.hasO) [0, 1].forEach(i => { const X = F.op[i], gk = scaleK(doubtK(T_, i), .38); if (picOf(X)) put(p, c, { icon: X.icon }, bm, iy, iw, null, { t: T_.tA, o: gk }); else txt(mvG(p, { o: gk }), X.label, bm, f1(by - 20), { size: 70, maxW: bx1 - bx0, weight: 800, color: C.ink }); });
-      const X = ansOf(F);
-      if (X) { const lab = LBL(X), big = !F.hasO, ay2 = f1((-Y5 + by - (lab ? 70 : 0)) / 2), aw2 = f1(Math.min(360, (by - (lab ? 70 : 0) + Y5) * .8));   /* no options: the answer's icon big, in the middle of the blank (user) */
-        if (picOf(X)) put(p, c, { icon: X.icon }, bm, big ? ay2 : lab ? iy : f1((-Y5 + by) / 2), big ? aw2 : lab ? iw : f1(Math.min(280, bh * .8)), null, { t: f3(H - tu(.04)), punch: H });
-        const s0 = lab || (!picOf(X) && X.label); if (s0) txt(atG(p, f3(H + tu(.06))), s0, bm, f1(by - 18), { size: lab ? 60 : 76, maxW: bx1 - bx0, weight: 800, color: C.ink });
-        if (!big) ripple(p, bm, f1((-Y5 + by) / 2), f1(Math.min(200, bh * .4)), f3(H + tu(.04))); }   /* no ring when the answer fills the blank on its own (user: "ลบเอฟเฟควงกลมออก") */   /* the ring grows to 1.3× — kept inside the box */
-      litOn(p, H).line(bx0, by, bx1, by, { sw: 6, stroke: ACC1 });
+      /* the "?" (user: "ตอนที่ question mark มันออกมามันดูเป็นงานลวกๆ" · "อยากให้ question mark อยู่ตรงกลาง"): it pops into the middle of the blank, breathes
+         slowly while in doubt (the options below glow in turn), then gives way to the answer — or, with no answer, lights. No ghosts, no ring. */
+      qmark(p, d, bm, f1(cy - ah2 * .04), f1(Math.min(170, ah2 * .58)), { plain: true, keep: false, noRip: true, early: .1 });
+      if (X) { if (picOf(X)) put(p, c, { icon: X.icon }, bm, cy, f1(Math.min(F.hasO ? 230 : 360, ah2 * .86)), null, { t: f3(H + tu(.06)), punch: f3(H + tu(.34)) });
+        if (lab) txt(atG(p, f3(H + tu(.1))), lab, bm, f1(by - 18), { size: picOf(X) ? 60 : 76, maxW: bx1 - bx0, weight: 800, color: C.ink }); }
+      on(p.line(bx0, by, bx1, by, { sw: 6, stroke: ACC1 }), p, 0, { draw: [[0, 0], [f3(H + tu(.04)), 0], [f3(H + tu(.34)), 1, 'io']] });
       if (ob) rowCells(p, c, d, -X5, X5, f1(Y5 - ob / 2), ob, 18, { wideMin: 300, ws: 54, cap: 160 }, [['o', 0], ['o', 1]]); }); });
 
   /* 05 a timed quiz: the question card across the top with the "?" in its corner, a time bar under it that runs down while in doubt, the options as
