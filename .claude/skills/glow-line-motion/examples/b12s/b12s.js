@@ -1197,9 +1197,10 @@
       bigArrow(p, c, Q, { d: `M ${A0[0]} ${A0[1]} L ${B[0]} ${B[1]}`, w, hw: 145, hl, iw: f1(Math.min(136, sp * .66)), seg: sp, atL, wd: (i, pt, n) => sideW(p, Q, i, pt, n, w / 2 + 22, WS[5], f1(Math.min(300, sp + 40))) });
       tileN(p, c, Q, m, E.x, E.y, { s: SE }); if (es) wordN(p, Q, m, f1(E.x - SE / 2 - 26), f1(E.y + SE / 2 - 40), ES[5], 300, 'end'); }); });
   sd(5, 'ring', 'ชาร์จต่อกันเป็นวงโค้ง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
-    art(c, p => { const s = m > 3 ? 120 : 140, SE = es ? 240 : 280, E = { x: 0, y: f1(340 - ringR({ s: SE }) - (es ? 84 : 10)), s: SE };
+    art(c, p => { const s = m > 3 ? 120 : m === 3 ? 144 : 168, SE = m > 2 ? (es ? 240 : 280) : (es ? 280 : 320), E = { x: 0, y: f1(340 - ringR({ s: SE }) - (es ? 84 : 10)), s: SE };
       const xs = spread(m, -406 + s / 2 + 13, 406 - s / 2 - 13), P = xs.map(x => ({ x, y: f1(-200 + (m > 1 ? Math.pow(Math.abs(x) / 340, 2) * 150 : 0)), s }));
-      P.push(E); ringChain(p, c, Q, P, { bend: P.map((q, i) => i + 2 === P.length ? .16 : -.1) });
+      P.push(E); center(P, true, es ? [wRect(p, es, ES[5], 420, E.x, E.y + ringR(E) + 44)] : []);   /* user: "ยังใช้พื้นที่ไม่คุ้ม … ทำให้ทั้งหมดมันขึ้นมาอยู่ตรงกึ่งกลาง" */
+      ringChain(p, c, Q, P, { bend: P.map((q, i) => i + 2 === P.length ? .16 : -.1) });
       P.slice(0, m).forEach((q, i) => wordN(p, Q, i, q.x, f1(q.y - ringR(q) - 32), WS[5], m > 1 ? f1(Math.min(300, (xs[1] - xs[0]) * 1.2)) : 360));
       if (es) wordN(p, Q, m, E.x, f1(E.y + ringR(E) + 44), ES[5], 420); }); });
 
