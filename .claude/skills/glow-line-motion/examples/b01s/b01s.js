@@ -45,8 +45,8 @@
   const arcs = (q, x, y, dir, n = 3, r0 = 26, gap = 18, span = 38, o = W(2.4)) => { for (let k = 0; k < n; k++) { const r = r0 + k * gap, a = rad(span);
     q.path(`M ${f1(x + dir * r * Math.cos(a))} ${f1(y - r * Math.sin(a))} A ${r} ${r} 0 0 ${dir > 0 ? 1 : 0} ${f1(x + dir * r * Math.cos(a))} ${f1(y + r * Math.sin(a))}`, o); } };
   let CID = 0;
-  function clipG(p, x, y, w, h) { const svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), r = document.createElementNS(NS, 'rect');
-    cp.id = 'b01sclip' + (++CID); Object.entries({ x, y, width: w, height: h }).forEach(([k, v]) => r.setAttribute(k, v)); cp.appendChild(r);
+  function clipG(p, x, y, w, h, rx = 0) { const svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), r = document.createElementNS(NS, 'rect');
+    cp.id = 'b01sclip' + (++CID); Object.entries(rx ? { x, y, width: w, height: h, rx } : { x, y, width: w, height: h }).forEach(([k, v]) => r.setAttribute(k, v)); cp.appendChild(r);
     (svg.querySelector('defs') || svg).appendChild(cp); return sub(p, { 'clip-path': `url(#${cp.id})` }); }
   /* a label; too wide → smaller, or (wrap) two lines broken between Thai words */
   function txt(p, str, x, y, { size = 42, maxW = 1e9, weight = 600, anchor = 'middle', color = C.soft, wrap = null } = {}) {
@@ -532,6 +532,22 @@
   /* a column of dots (bottom → top) that light as the knob passes — fills the room the icon would have used */
   function dotsV(p, x, yb, yt, n, r, fr, t0, t1) { for (let k = 0; k < n; k++) { const f = k / (n - 1), y = f1(lerp(yb, yt, f)); on(p.circle(x, y, r, S(2)), p, 0, { o: fadeIn(tu(.1 + .02 * k), .06) });
       if (fr > 0 && f <= fr + 1e-6) { const t = ioAt(f / fr, t0, t1); popAt(p, x, y, t).circle(x, y, r, KN()); } } }
+  /* SCALES instead of dot counters (user 2026-11-25: a row of dots that light reads as a count — "9 เล่ม" with 6 dots lit — and a count can't work
+     for millions → "เปลี่ยนขีดเป็นสเกลแต่ว่าลองดีไซน์ให้มันหลากหลายหน่อย"). Each size has its own kind of scale; none of them counts pieces. */
+  /* a ruler under a bar: a base line, ticks hanging from it (long every 5th), an accent progress line along it and a pointer riding its tip */
+  function scaleRule(p, a, b, y, fr, t0, t1) { drawAt(p.line(a - 16, y, b + 16, y, S(2.2)), p, tu(.1), tu(.3));
+    for (let k = 0; k <= 4; k++) { const x = f1(lerp(a, b, k / 4)); drawAt(p.line(x, y, x, y + (k % 2 ? 20 : 32), S(2.6)), p, f3(tu(.14 + .03 * k)), tu(.14)); }   /* quarters only (user: fewer small ticks) */
+    if (fr <= 0) return; const xe = f1(lerp(a, b, fr));
+    on(p.line(a, y, xe, y, { sw: 5, stroke: ACC1 }), p, 0, { draw: ioK(t0, t1, 0, 1), o: fadeIn(t0, .04) });
+    const g = mvG(p, { x: ioK(t0, t1, f1(a - xe), 0), o: fadeIn(t0, .04) }); shape(g, [[xe, y - 7], [xe - 15, y - 31], [xe + 15, y - 31]], KN()); }
+  /* a vertical ruler beside a bar: o.side = which way the ticks go (-1 left / 1 right) · o.wedge = ticks grow from L0 (bottom) to L1 (top)
+     — a "volume" wedge, each lights as the knob passes · else long every 5th. The progress runs up the rule in accent on the bar's clock. */
+  function scaleV(p, x, yb, yt, fr, t0, t1, o = {}) { const sd = o.side ?? -1, L0 = o.L0 ?? 14, L1 = o.L1 ?? 30, n = o.n ?? 20, mj = o.major ?? 5;
+    drawAt(p.line(x, yb, x, yt, S(2.2)), p, tu(.1), tu(.3));
+    for (let k = 0; k <= n; k++) { const f = k / n, y = f1(lerp(yb, yt, f)), L = o.wedge ? lerp(L0, L1, f) : (k % mj ? L0 : L1);
+      drawAt(p.line(x, y, f1(x + sd * L), y, S(o.wedge || !(k % mj) ? 2.6 : 2.2)), p, f3(tu(.14 + .008 * k)), tu(.12));
+      if (o.wedge && fr > 0 && f <= fr + 1e-6) { const t = ioAt(f / fr, t0, t1); on(p.line(x, y, f1(x + sd * L), y, { sw: 4, stroke: ACC1 }), p, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] }); } }
+    if (fr <= 0) return; on(p.line(x, yb, x, f1(lerp(yb, yt, fr)), { sw: 5, stroke: ACC1 }), p, 0, { draw: ioK(t0, t1, 0, 1), o: fadeIn(t0, .04) }); }
   /* a free-floating icon (no box — user rule 3): drops in from just above, squashes on landing, kicks dust */
   function flo(p, c, ic, x, y, w, t0, t1, o = {}) { if (!ic) return; if (NOBUMP) return put(p, c, { icon: ic }, x, y, w, null, { t: t0 }); const by = y + w / 2, K = fallK(x, by, t0, t1, o.h ?? Math.min(260, by + BOX[1] / 2));
     put(p, c, { icon: ic }, x, y, w, null, { t: t0, mv: { px: K.px, py: K.py, y: K.y, sx: K.sx, sy: K.sy }, o: K.o, punch: o.punch }); dust(p, x, by, t1, w / 220); }
@@ -559,11 +575,13 @@
     art(c, p => { dropBox(p, c, ic, -168, -140, 196, tu(.04), tu(.28));
       const nx = ic ? 104 : 0; num(p, p, v, nx, u ? -104 : -70, { size: u ? 160 : 190, maxW: ic ? 320 : 520, t0: tu(.3) });
       unitUnder(p, u, nx, -16, 74, ic ? 320 : 520);
-      hbar(p, -262, 262, 104, 100, fr, t0, t1, { kr: 62 }); dotsH(p, -230, 230, 212, 8, 14, fr, t0, t1); }); };
+      const b = hbar(p, -262, 262, 98, 100, fr, t0, t1, { kr: 62 }); scaleRule(p, b ? b.x0 : -212, b ? b.x1 : 212, 196, fr, t0, t1); }); };
   /* 4 · 400×635 tall narrow: a tall bar on the right fills up; number + unit at the top-left, the icon floats at the bottom-left */
   R1[4] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04)), cx = -56;
-    art(c, p => { vbar(p, 140, -300, 300, 96, fr, t0, t1, { kr: 56 }); num(p, p, v, cx, u ? -166 : -130, { size: 176, maxW: 270, t0: tu(.3) });
-      unitUnder(p, u, cx, -66, 84, 270); if (ic) flo(p, c, ic, cx, 140, 262, tu(.04), tu(.28)); else dotsV(p, cx, 270, -10, 6, 17, frac(d), t0, t1); }); };
+    art(c, p => { const b = vbar(p, 140, -300, 300, 96, fr, t0, t1, { kr: 56 });
+      if (ic) { num(p, p, v, cx, u ? -166 : -130, { size: 176, maxW: 270, t0: tu(.3) }); unitUnder(p, u, cx, -66, 84, 270); flo(p, c, ic, cx, 140, 262, tu(.04), tu(.28)); }
+      else { scaleV(p, 72, b ? b.y0 : 252, b ? b.y1 : -252, fr, t0, t1, { side: -1, L0: 22, L1: 40, n: 8, major: 4 });   /* no icon: a ruler beside the bar, the number in the middle of what is left */
+        num(p, p, v, -78, u ? 4 : 50, { size: 176, maxW: 222, t0: tu(.3) }); unitUnder(p, u, -78, 104, 84, 222); } }); };
   /* 5 · 860×710 full, landscape: icon box + huge number on top, a very thick bar, a long tick scale */
   R1[5] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04));
     art(c, p => { dropBox(p, c, ic, -310, -212, 220, tu(.04), tu(.28)); pairRow(p, v, u, ic ? -170 : -410, 410, -100, { size: 250, uMax: 170, anchor: ic ? 'start' : 'middle', t0: tu(.3) });
@@ -574,9 +592,10 @@
       hbar(p, -410, 410, 250, 170, fr, t0, t1, { kr: 100 }); ticksH(p, -340, 340, 396, 21, 58, fr, t0, t1); }); };
   /* 7 · 400×500 short narrow: a tall bar on the LEFT; the icon floats top-right, number + unit under it */
   R1[7] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04)), cx = 62;
-    art(c, p => { vbar(p, -142, -236, 236, 88, fr, t0, t1, { kr: 52 }); flo(p, c, ic, cx, -118, 210, tu(.04), tu(.28));
-      num(p, p, v, cx, ic ? (u ? 106 : 140) : -110, { size: 150, maxW: 260, t0: tu(.3) }); unitUnder(p, u, cx, ic ? 196 : -20, 70, 260);
-      if (!ic) dotsV(p, cx, 214, 30, 4, 17, frac(d), t0, t1); }); };
+    art(c, p => { const b = vbar(p, -142, -236, 236, 88, fr, t0, t1, { kr: 52 });
+      if (ic) { flo(p, c, ic, cx, -118, 210, tu(.04), tu(.28)); num(p, p, v, cx, u ? 106 : 140, { size: 150, maxW: 260, t0: tu(.3) }); unitUnder(p, u, cx, 196, 70, 260); }
+      else { scaleV(p, -84, b ? b.y0 : 192, b ? b.y1 : -192, fr, t0, t1, { side: 1, wedge: true, L0: 14, L1: 56, n: 8 });   /* no icon: a wedge scale grows up beside the bar */
+        num(p, p, v, 92, u ? 26 : 60, { size: 150, maxW: 200, t0: tu(.3) }); unitUnder(p, u, 92, 112, 70, 200); } }); };
 
   /* ================= ROUNDS 2–5 (user 2026-11-25 after B12: "กลับไปทำหมวด 1" → "ใช้แบบเดิม + ใหม่ 4") — seven sizes × five designs:
      01 = round 1 (the fill bar, passed) + four new ones in the template look of B01T (rounded tiles, thick bands that fill, a knob or a needle riding
@@ -636,6 +655,27 @@
       if (k < lit) { const t = ioAt((k + 1) / lit, T.t0, T.t1), q = sub(p); on(q, p, 0, { ox: f1(x + cell / 2), oy: f1(y + cell / 2), s: [[0, .6], [t, .6], [f3(t + tu(.12)), 1, 'out']], o: fadeIn(t, .05) });
         R(q, x, y, cell, cell, rx, { fill: TA(.3), sw: 3, stroke: ACC1 }); } } }
   const GRID = (p, d, cols, rows, cell, gap) => { const w = cols * (cell + gap) - gap, h = rows * (cell + gap) - gap; return { w, h, at: (x, y) => gridV(p, f1(x - w / 2), f1(y - h / 2), cols, rows, cell, gap, frac(d)) }; };
+  /* TANK — replaces the grid of lit squares (user 2026-11-25: "ตัวนับข้างล่างมันไม่สัมพันธ์กับเลข … ถ้าเลขหลักล้านจะทำยังไง … ดีไซน์ใหม่"):
+     a big rounded panel fills from the bottom up to the amount (a level, not pieces — any number works), an accent level line with a knob rides up,
+     a 0–100 scale along its inner left edge (ticks light as the level passes), the panel's edge lights on the keyword. */
+  function tankV(p, x, y, w, h, fr, o = {}) { const T = TQ(), L1 = f1(Math.max(30, Math.min(52, w * .13))), L0 = f1(L1 * .55), gap = 14, so = L1 + gap;   /* the scale sits outside, on the left */
+    const x0 = f1(x - w / 2 + so), y0 = f1(y - h / 2), tw_ = w - so, rx = f1(Math.min(tw_, h) * .1), pad = f1(Math.max(10, Math.min(tw_, h) * .04));
+    R(inG(p, 'pop', f1(x0 + tw_ / 2), y, T.tV), x0, y0, tw_, h, rx, F(3.6)); const ix = f1(x0 + pad), iy = f1(y0 + pad), iw = f1(tw_ - 2 * pad), ih = f1(h - 2 * pad), irx = f1(Math.max(6, rx - pad)), yb = iy + ih;
+    const ly = f1(yb - ih * fr), fh = f1(yb - ly), sx = f1(x0 - gap);
+    if (fr > 0) { const cg = clipG(p, ix, iy, iw, ih, irx), mg = mvG(cg, { y: ioK(T.t0, T.t1, f1(fh + 10), 0), o: fadeIn(T.t0, .04) });
+      R(mg, ix, ly, iw, f1(fh + 12), 0, FILL); mg.line(ix, ly, f1(ix + iw), ly, { sw: 7, stroke: ACC1 }); }
+    if (!o.bare) [.25, .5, .75].forEach((f, k) => drawAt(p.line(f1(ix + 12), f1(yb - ih * f), f1(ix + iw - 12), f1(yb - ih * f), { sw: f === .5 ? 2 : 1.6, stroke: TL_(.28) }), p, f3(T.tV + tu(.16 + .04 * k)), tu(.3)));   /* faint level marks across, matching the scale */
+    for (let k = 0; k <= 4; k++) { const f = k / 4, yy = f1(yb - ih * f), L = k % 2 ? L0 : L1;   /* only the main marks (user: "เอาขีดสเกลเล็กๆลงหน่อย") */
+      drawAt(p.line(sx, yy, f1(sx - L), yy, S(2.6)), p, f3(T.tV + tu(.1 + .03 * k)), tu(.14));
+      if (fr > 0 && f <= fr + 1e-6) { const t = ioAt(fr ? f / fr : 1, T.t0, T.t1); on(p.line(sx, yy, f1(sx - L), yy, { sw: 4.4, stroke: ACC1 }), p, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] }); } }
+    if (fr > 0) { const a = f1(Math.max(16, L1 * .52)), kn = mvG(p, { y: ioK(T.t0, T.t1, fh, 0), o: fadeIn(T.t0, .04) });   /* the pointer: rides up the scale with the level */
+      shape(kn, [[f1(x0 - 3), ly], [f1(x0 - 3 - a * 1.2), f1(ly - a * .75)], [f1(x0 - 3 - a * 1.2), f1(ly + a * .75)]], KN()); }
+    R(litAt(p, Z.H), x0, y0, tw_, h, rx, { fill: 'none', sw: 5, stroke: ACC1 }); return { cx: f1(x0 + tw_ / 2), cy: y, iw, ih }; }
+  const TANK = (p, d, w, h) => ({ w, h, at: (x, y) => tankV(p, x, y, w, h, frac(d)) });
+  /* the tank with its thing inside (user 2026-11-25: "เพิ่มขนาดของไอคอนให้มันเด่นที่สุดรองลงมาเป็นตัวเลข"): the icon big in the middle of the tank,
+     the level rises behind it · no icon → the number (n = NUM args) sits in the tank instead */
+  const TANKI = (p, c, d, w, h, iw, n) => ({ w, h, at: (x, y) => { const ic = ICN(d), r = tankV(p, x, y, w, h, frac(d), { bare: !ic });   /* no guide lines behind a number */
+    if (ic) put(p, c, { icon: ic }, r.cx, r.cy, iw, null, { t: TQ().tI }); else if (n) { const it = NUM(p, d, ...n); if (it) it.at(r.cx, r.cy); } } });
   /* CARD — one card fills the box (rises in), its edge lights on the keyword; the caller lays the icon tile and the number inside */
   function cardBox(p, rr = 40) { const [W0, H0] = BOX, w = W0 - 16, h = H0 - 16, g = mvG(CL(p), { px: 0, py: 0, s: [[0, .96], [tu(.02), .96], [f3(tu(.36)), 1, 'out']], o: fadeIn(tu(.02), .14) }); R(g, -w / 2, -h / 2, w, h, f1(Math.min(rr, h * .2)), F(3.6));
     const L = litAt(p, Z.H); R(L, -w / 2, -h / 2, w, h, f1(Math.min(rr, h * .2)), { fill: TA(.05), sw: 5, stroke: ACC1 }); return { w, h }; }
@@ -647,48 +687,55 @@
     ring: (d, c) => art(c, p => { const ic = ICN(d); hrow(ic ? [RING(p, c, d, 100, 28, 104), NUM(p, d, 140, 96, 540)] : [RINGV(p, d, 100, 28), UNI(p, d, 110, 520)], 44); }),
     gauge: (d, c) => art(c, p => { hrow([GAUGE(p, d, 176, 30), ICB(p, c, d, 116), NUM(p, d, 136, 92, ICN(d) ? 280 : 430)], 34); }),
     card: (d, c) => art(c, p => { cardBox(p); hrow([ICB(p, c, d, 150), NUM(p, d, ICN(d) ? 150 : 168, 104, ICN(d) ? 560 : 760)], 40); }),
-    grid: (d, c) => art(c, p => { hrow([GRID(p, d, 9, 4, 36, 9), ICB(p, c, d, 110), NUM(p, d, 132, 90, ICN(d) ? 250 : 390)], 30); }) };
+    grid: (d, c) => art(c, p => { hrow([GRID(p, d, 9, 4, 36, 9), ICB(p, c, d, 110), NUM(p, d, 132, 90, ICN(d) ? 250 : 390)], 30); }),
+    tank: (d, c) => art(c, p => { const ic = ICN(d); hrow(ic ? [TANKI(p, c, d, 380, 220, 192), NUM(p, d, 128, 88, 400)] : [TANKI(p, c, d, 700, 214, 0, [140, 96, 560])], 44); }) };
   /* 2 · 860 × 470 — wide: the visual on the left, the number on the right */
   NEW[2] = {
     ring: (d, c) => art(c, p => { hrow(ICN(d) ? [RING(p, c, d, 200, 44, 200), NUM(p, d, 210, 140, 360, 'stack')] : [RINGV(p, d, 210, 44), UNI(p, d, 150, 360)], 50); }),
     gauge: (d, c) => art(c, p => { hrow([GAUGE(p, d, 225, 44), asCol([ICB(p, c, d, 110), NUM(p, d, 160, 110, 300, 'stack')], 22)], 40); }),
     card: (d, c) => art(c, p => { cardBox(p); hrow([ICB(p, c, d, 250), NUM(p, d, 220, 150, ICN(d) ? 460 : 760, 'stack')], 50); }),
-    grid: (d, c) => art(c, p => { hrow([GRID(p, d, 9, 7, 40, 10), asCol([ICB(p, c, d, 104), NUM(p, d, 150, 100, 290, 'stack')], 20)], 40); }) };
+    grid: (d, c) => art(c, p => { hrow([GRID(p, d, 9, 7, 40, 10), asCol([ICB(p, c, d, 104), NUM(p, d, 150, 100, 290, 'stack')], 20)], 40); }),
+    tank: (d, c) => art(c, p => { const ic = ICN(d); hrow(ic ? [TANKI(p, c, d, 420, 456, 270), NUM(p, d, 200, 130, 360, 'stack')] : [TANKI(p, c, d, 780, 456, 0, [240, 160, 600, 'stack'])], 50); }) };
   /* 3 · 560 × 490 — nearly square: the number inside the ring · the dial over the number · tile over number · number over the grid */
   NEW[3] = {
     ring: (d, c) => art(c, p => { const R0 = 228, bw = 38, Ri = R0 - bw, ic = ICN(d); ringV(p, 0, 0, R0, bw, frac(d));
       vcol([ICB(p, c, d, 96) && { w: 96, h: 96, at: (x, y) => put(p, c, { icon: ic }, x, y, 96, null, { t: TQ().tI, punch: Z.H }) }, NUM(p, d, ic ? 120 : 150, 70, f1(1.22 * Ri), 'stack')], 18); }),
     gauge: (d, c) => art(c, p => { vcol([GAUGE(p, d, 246, 44), asRow([ICB(p, c, d, 104), NUM(p, d, 132, 90, ICN(d) ? 380 : 500)], 24)], 34); }),
     card: (d, c) => art(c, p => { cardBox(p); vcol([ICB(p, c, d, 180), NUM(p, d, ICN(d) ? 150 : 180, 100, 480)], 30); }),
-    grid: (d, c) => art(c, p => { vcol([asRow([ICB(p, c, d, 104), NUM(p, d, 132, 90, ICN(d) ? 380 : 500)], 24), GRID(p, d, 10, 5, 40, 9)], 34); }) };
+    grid: (d, c) => art(c, p => { vcol([asRow([ICB(p, c, d, 104), NUM(p, d, 132, 90, ICN(d) ? 380 : 500)], 24), GRID(p, d, 10, 5, 40, 9)], 34); }),
+    tank: (d, c) => art(c, p => { const ic = ICN(d); hrow(ic ? [TANKI(p, c, d, 280, 470, 190), NUM(p, d, 150, 90, 236, 'stack')] : [TANKI(p, c, d, 500, 470, 0, [190, 110, 360, 'stack'])], 30); }) };
   /* 4 · 400 × 635 — tall and narrow: top → bottom */
   NEW[4] = {
     ring: (d, c) => art(c, p => { vcol(ICN(d) ? [RING(p, c, d, 176, 36, 170), NUM(p, d, 140, 80, 360)] : [RINGV(p, d, 186, 38), UNI(p, d, 96, 360)], 44); }),
     gauge: (d, c) => art(c, p => { vcol([ICB(p, c, d, 130), GAUGE(p, d, 180, 36), NUM(p, d, 130, 76, 360)], 40); }),
     card: (d, c) => art(c, p => { cardBox(p); vcol([ICB(p, c, d, 200), NUM(p, d, 150, 84, 340, 'stack')], 40); }),
-    grid: (d, c) => art(c, p => { vcol([asRow([ICB(p, c, d, 84), NUM(p, d, 116, 70, ICN(d) ? 260 : 360)], 16), GRID(p, d, 6, 7, 46, 10)], 40); }) };
+    grid: (d, c) => art(c, p => { vcol([asRow([ICB(p, c, d, 84), NUM(p, d, 116, 70, ICN(d) ? 260 : 360)], 16), GRID(p, d, 6, 7, 46, 10)], 40); }),
+    tank: (d, c) => art(c, p => { const ic = ICN(d); vcol(ic ? [NUM(p, d, 130, 80, 360), TANKI(p, c, d, 384, 500, 240)] : [TANKI(p, c, d, 384, 610, 0, [170, 90, 270, 'stack'])], 30); }) };
   /* 5 · 860 × 710 — full screen, landscape */
   NEW[5] = {
     ring: (d, c) => art(c, p => { hrow(ICN(d) ? [RING(p, c, d, 250, 52, 240), NUM(p, d, 210, 140, 260, 'stack')] : [RINGV(p, d, 260, 54), UNI(p, d, 150, 260)], 44); }),
     gauge: (d, c) => art(c, p => { vcol([GAUGE(p, d, 340, 58), asRow([ICB(p, c, d, 150), NUM(p, d, 200, 140, ICN(d) ? 600 : 780)], 30)], 44); }),
     card: (d, c) => art(c, p => { cardBox(p); hrow([ICB(p, c, d, 320), NUM(p, d, 250, 160, ICN(d) ? 400 : 760, 'stack')], 56); }),
-    grid: (d, c) => art(c, p => { hrow([GRID(p, d, 10, 10, 42, 9), asCol([ICB(p, c, d, 130), NUM(p, d, 170, 110, 250, 'stack')], 26)], 40); }) };
+    grid: (d, c) => art(c, p => { hrow([GRID(p, d, 10, 10, 42, 9), asCol([ICB(p, c, d, 130), NUM(p, d, 170, 110, 250, 'stack')], 26)], 40); }),
+    tank: (d, c) => art(c, p => { const ic = ICN(d); hrow(ic ? [TANKI(p, c, d, 450, 690, 330), NUM(p, d, 230, 150, 350, 'stack')] : [TANKI(p, c, d, 820, 690, 0, [280, 180, 620, 'stack'])], 40); }) };
   /* 6 · 860 × 965 — full screen, portrait */
   NEW[6] = {
     ring: (d, c) => art(c, p => { vcol(ICN(d) ? [RING(p, c, d, 300, 60, 290), NUM(p, d, 250, 170, 800)] : [RINGV(p, d, 320, 62), UNI(p, d, 170, 760)], 56); }),
     gauge: (d, c) => art(c, p => { vcol([ICB(p, c, d, 200), GAUGE(p, d, 380, 64), NUM(p, d, 240, 160, 800)], 44); }),
     card: (d, c) => art(c, p => { cardBox(p); vcol([ICB(p, c, d, 330), NUM(p, d, 240, 170, 760, 'stack')], 60); }),
-    grid: (d, c) => art(c, p => { vcol([asRow([ICB(p, c, d, 170), NUM(p, d, 220, 150, ICN(d) ? 590 : 800)], 34), GRID(p, d, 10, 10, 56, 13)], 50); }) };
+    grid: (d, c) => art(c, p => { vcol([asRow([ICB(p, c, d, 170), NUM(p, d, 220, 150, ICN(d) ? 590 : 800)], 34), GRID(p, d, 10, 10, 56, 13)], 50); }),
+    tank: (d, c) => art(c, p => { const ic = ICN(d); vcol(ic ? [NUM(p, d, 230, 160, 800), TANKI(p, c, d, 820, 700, 470)] : [TANKI(p, c, d, 820, 940, 0, [330, 200, 620, 'stack'])], 44); }) };
   /* 7 · 400 × 500 — small portrait */
   NEW[7] = {
     ring: (d, c) => art(c, p => { const R0 = 186, bw = 32, Ri = R0 - bw, ic = ICN(d); ringV(p, 0, 0, R0, bw, frac(d));
       vcol([ic && { w: 74, h: 74, at: (x, y) => put(p, c, { icon: ic }, x, y, 74, null, { t: TQ().tI, punch: Z.H }) }, NUM(p, d, ic ? 100 : 124, 60, f1(1.22 * Ri), 'stack')], 12); }),
     gauge: (d, c) => art(c, p => { vcol([GAUGE(p, d, 178, 34), asRow([ICB(p, c, d, 86), NUM(p, d, 120, 70, ICN(d) ? 266 : 370)], 16)], 34); }),
     card: (d, c) => art(c, p => { cardBox(p); vcol([ICB(p, c, d, 156), NUM(p, d, 130, 76, 340, 'stack')], 30); }),
-    grid: (d, c) => art(c, p => { vcol([asRow([ICB(p, c, d, 86), NUM(p, d, 120, 70, ICN(d) ? 266 : 370)], 16), GRID(p, d, 8, 5, 36, 9)], 30); }) };
+    grid: (d, c) => art(c, p => { vcol([asRow([ICB(p, c, d, 86), NUM(p, d, 120, 70, ICN(d) ? 266 : 370)], 16), GRID(p, d, 8, 5, 36, 9)], 30); }),
+    tank: (d, c) => art(c, p => { const ic = ICN(d); vcol(ic ? [NUM(p, d, 120, 70, 370), TANKI(p, c, d, 384, 370, 210)] : [TANKI(p, c, d, 384, 484, 0, [150, 80, 270, 'stack'])], 22); }) };
   /* the five designs of each size (01 = round 1) */
   const SZD = {}; for (let k = 1; k <= 7; k++) SZD[k] = [{ id: 'bar', th: 'แถบเติม', fn: (d, c) => R1[k](d, c) }, { id: 'ring', th: 'วงแหวนเติม', fn: NEW[k].ring },
-    { id: 'gauge', th: 'หน้าปัดเข็ม', fn: NEW[k].gauge }, { id: 'card', th: 'การ์ดตัวเลข', fn: NEW[k].card }, { id: 'grid', th: 'ตารางช่องติดไฟ', fn: NEW[k].grid }];
+    { id: 'gauge', th: 'หน้าปัดเข็ม', fn: NEW[k].gauge }, { id: 'card', th: 'การ์ดตัวเลข', fn: NEW[k].card }, { id: 'tank', th: 'ถังเติมระดับ', fn: NEW[k].tank }];
 
   const ROUNDS = [null, R1];
   const SAMPLES = [
