@@ -1004,16 +1004,21 @@
     /* flat ends (a round cap poked out under the head as an arc) + a round tail drawn on its own */
     const s0 = P(0), s1 = P(Math.min(1, 3 / Lt)), sl = Math.hypot(s1[0] - s0[0], s1[1] - s0[1]) || 1, tx = (s1[0] - s0[0]) / sl, ty = (s1[1] - s0[1]) / sl, r2 = A.w / 2 - 1.75;
     const ta = [f1(s0[0] - ty * r2), f1(s0[1] + tx * r2)], tb = [f1(s0[0] + ty * r2), f1(s0[1] - tx * r2)], tm = [f1(s0[0] - tx * r2), f1(s0[1] - ty * r2)];
-    const tail = p.path(`M ${ta[0]} ${ta[1]} A ${f1(r2)} ${f1(r2)} 0 0 1 ${tm[0]} ${tm[1]} A ${f1(r2)} ${f1(r2)} 0 0 1 ${tb[0]} ${tb[1]}`, { fill: C.fill, sw: 3.5 }); drawAt(tail, p, t, tu(.2));
+    const ri = A.w / 2 - 3.5, Tp = (u, s) => [f1(s0[0] + tx * u - ty * s), f1(s0[1] + ty * u + tx * s)], tailD = r => { const a = Tp(0, r), m_ = Tp(-r, 0), b = Tp(0, -r), a2 = Tp(8, r), b2 = Tp(8, -r);
+      return `M ${a2[0]} ${a2[1]} L ${a[0]} ${a[1]} A ${f1(r)} ${f1(r)} 0 0 1 ${m_[0]} ${m_[1]} A ${f1(r)} ${f1(r)} 0 0 1 ${b[0]} ${b[1]} L ${b2[0]} ${b2[1]} Z`; };
+    const tailF = p.path(tailD(ri + .5), { fill: C.fill, sw: 0, stroke: 'none' }); on(tailF, p, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.1)), 1]] });
+    const tail = p.path(`M ${ta[0]} ${ta[1]} A ${f1(r2)} ${f1(r2)} 0 0 1 ${tm[0]} ${tm[1]} A ${f1(r2)} ${f1(r2)} 0 0 1 ${tb[0]} ${tb[1]}`, { sw: 3.5 }); drawAt(tail, p, t, tu(.2));
     const inn = p.path(dd, { sw: A.w - 7, stroke: C.fill }); [el, inn].forEach(e => e.setAttribute('stroke-linecap', 'butt')); drawAt(el, p, t, tu(.42)); drawAt(inn, p, t, tu(.42));
     const end = P(1), pre = P(Math.max(0, 1 - 3 / Lt)), ul = Math.hypot(end[0] - pre[0], end[1] - pre[1]) || 1, dx = (end[0] - pre[0]) / ul, dy = (end[1] - pre[1]) / ul, nx = -dy, ny = dx;
     const at = A.atL ? A.atL.map(v => clv(v / Lt, 0, .98)) : A.at || Array.from({ length: m }, (_, i) => (i + .5) / m), fr = [];
     const nAt = u => { const a = P(Math.max(0, u - 2 / Lt)), b = P(Math.min(1, u + 2 / Lt)), l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1; return [-(b[1] - a[1]) / l, (b[0] - a[0]) / l]; };
-    const sw = p.path(dd + ' ', { sw: A.w - 18, stroke: TA(.09) }); sw.setAttribute('stroke-linecap', 'butt'); const K = [[0, 0], [f3(Q.tF(0) - tu(.3)), 0]]; at.forEach((u, i) => K.push([Q.tF(i), f3(u), 'io'])); K.push([f3(Q.H - tu(.06)), 1, 'io']); on(sw, p, 0, { draw: K });
-    const tf = p.path(`M ${ta[0]} ${ta[1]} A ${f1(r2)} ${f1(r2)} 0 0 1 ${tm[0]} ${tm[1]} A ${f1(r2)} ${f1(r2)} 0 0 1 ${tb[0]} ${tb[1]} Z`, { fill: TA(.09), sw: 0, stroke: 'none' }); on(tf, p, 0, { o: [[0, 0], [K[1][0], 0], [f3(K[1][0] + tu(.08)), 1]] });
+    /* the soft fill of shaft, tail and head is one layer: drawn solid, the group faded (overlapping pieces no longer leave a hairline where they meet — user: "หัวลูกศรมันยังมีรอยต่อบางๆอยู่") */
+    const lg = sub(p); lg.g.setAttribute('opacity', '0.1'); const sw = lg.path(dd + ' ', { sw: A.w - 7, stroke: ACC1 }); sw.setAttribute('stroke-linecap', 'butt'); const K = [[0, 0], [f3(Q.tF(0) - tu(.3)), 0]]; at.forEach((u, i) => K.push([Q.tF(i), f3(u), 'io'])); K.push([f3(Q.H - tu(.06)), 1, 'io']); on(sw, p, 0, { draw: K });
+    const tf = lg.path(tailD(ri), { fill: ACC1, sw: 0, stroke: 'none' }); on(tf, p, 0, { o: [[0, 0], [K[1][0], 0], [f3(K[1][0] + tu(.08)), 1]] });
     const pt = (u, s) => [f1(end[0] + dx * u + nx * s), f1(end[1] + dy * u + ny * s)], tip = pt(A.hl, 0), c1 = pt(0, A.hw), c2 = pt(0, -A.hw), e1 = pt(0, A.w / 2), e2 = pt(0, -A.w / 2);
-    const hg = atG(p, f3(t + tu(.36))); shape(hg, [c1, tip, c2], { fill: C.fill, sw: 0, stroke: 'none' }); hg.path(pathOf([e1, c1, tip, c2, e2], false), { sw: 3.5 });
-    const hl = litOn(p, f3(Q.H - tu(.06))); shape(hl, [c1, tip, c2], { fill: TA(.1), sw: 0, stroke: 'none' }); hl.path(pathOf([e1, c1, tip, c2, e2], false), { sw: 5, stroke: ACC1 });
+    const hs = (A.w - 7) / 2, io = A.w / 2 - 3.5, b1 = pt(-8, io), b2 = pt(-8, -io), a1 = pt(0, io), a2 = pt(0, -io), f1_ = pt(-8, hs), f2_ = pt(-8, -hs), g1 = pt(0, hs), g2 = pt(0, -hs);
+    const hg = atG(p, f3(t + tu(.36))); shape(hg, [b1, a1, c1, tip, c2, a2, b2], { fill: C.fill, sw: 0, stroke: 'none' }); hg.path(pathOf([e1, c1, tip, c2, e2], false), { sw: 3.5 }); lg.g.parentNode.appendChild(lg.g);   /* the soft fill over the head's dark base */
+    shape(litOn(lg, f3(Q.H - tu(.06))), [f1_, g1, c1, tip, c2, g2, f2_], { fill: ACC1, sw: 0, stroke: 'none' }); const hl = litOn(p, f3(Q.H - tu(.06))); hl.path(pathOf([e1, c1, tip, c2, e2], false), { sw: 5, stroke: ACC1 });
     at.forEach((u, i) => { const [x, y] = P(u), X = Q.N[i], n = nAt(u); fr.push([x, y]);
       if (!has(X)) { popAt(p, x, y, Q.tI(i)).circle(x, y, 12, { fill: C.soft, sw: 0, stroke: 'none' }); }
       else if (picOf(X)) put(p, c, X, x, y, A.iw, null, { t: Q.tI(i), punch: Q.tF(i) });
@@ -1030,10 +1035,13 @@
     let k = 0; rows.forEach(rw => rw.xs.forEach((x, j) => { const i = k++; if (i >= m) return; tileN(p, c, Q, i, x, rw.y, { s: rw.s });
       if (K.ws) wordN(p, Q, i, x, f1(rw.y + rw.s / 2 + K.ws * .9), K.ws, f1(K.wm || rw.s + 30));
       if (j + 1 < rw.xs.length && i + 1 < m) chevL(p, f1((x + rw.xs[j + 1]) / 2), rw.y, 0, K.ck || .8, f3(Q.tI(i + 1) - tu(.04)), Q.tF(i + 1)); }));
-    const sy = K.split, br = K.br || 30, bx = 0, tN = f3(Q.H - tu(.24));
-    [[l + 28, bx - br - 14], [bx + br + 14, l + W0 - 28]].forEach(([a, b]) => drawAt(p.line(a, sy, b, sy, { sw: 2.4, stroke: TL_(.4) }), p, tu(.2), tu(.3)));
-    const bg = mvG(popAt(p, bx, sy, tu(.24)), { y: [[0, 0], [tN, 0], [f3(tN + tu(.1)), 8, 'out'], [f3(tN + tu(.26)), 0, 'soft']] }); bg.circle(bx, sy, br, F(3.4));
-    const ar = `M ${bx} ${f1(sy - br * .45)} L ${bx} ${f1(sy + br * .45)} M ${f1(bx - br * .36)} ${f1(sy + br * .1)} L ${bx} ${f1(sy + br * .48)} L ${f1(bx + br * .36)} ${f1(sy + br * .1)}`;
+    /* the divider: across (K.split = its y, the badge points down) or, in the wide sizes, upright (K.sx = its x, the badge points right) */
+    const vt = K.sx != null, sy = vt ? (K.by ?? 0) : K.split, bx = vt ? K.sx : 0, br = K.br || 30, tN = f3(Q.H - tu(.24)), nod = [[0, 0], [tN, 0], [f3(tN + tu(.1)), 8, 'out'], [f3(tN + tu(.26)), 0, 'soft']];
+    if (vt) [[tp + 24, sy - br - 14], [sy + br + 14, tp + H0 - 24]].forEach(([a, b]) => drawAt(p.line(bx, a, bx, b, { sw: 2.4, stroke: TL_(.4) }), p, tu(.2), tu(.3)));
+    else [[l + 28, bx - br - 14], [bx + br + 14, l + W0 - 28]].forEach(([a, b]) => drawAt(p.line(a, sy, b, sy, { sw: 2.4, stroke: TL_(.4) }), p, tu(.2), tu(.3)));
+    const bg = mvG(popAt(p, bx, sy, tu(.24)), vt ? { x: nod } : { y: nod }); bg.circle(bx, sy, br, F(3.4));
+    const ar = vt ? `M ${f1(bx - br * .45)} ${sy} L ${f1(bx + br * .45)} ${sy} M ${f1(bx + br * .1)} ${f1(sy - br * .36)} L ${f1(bx + br * .48)} ${sy} L ${f1(bx + br * .1)} ${f1(sy + br * .36)}`
+      : `M ${bx} ${f1(sy - br * .45)} L ${bx} ${f1(sy + br * .45)} M ${f1(bx - br * .36)} ${f1(sy + br * .1)} L ${bx} ${f1(sy + br * .48)} L ${f1(bx + br * .36)} ${f1(sy + br * .1)}`;
     bg.path(ar, { sw: 4 }); const lt = litOn(bg, tN); lt.circle(bx, sy, br, { fill: TA(.14), sw: 5, stroke: ACC1 }); lt.path(ar, { sw: 4.6, stroke: ACC1 });
     tileN(p, c, Q, m, K.E.x, K.E.y, { s: K.E.s }); if (K.ew) K.ew(p); }
 
@@ -1041,11 +1049,10 @@
   const WS = [0, 30, 36, 32, 30, 44, 46, 28], ES = [0, 56, 56, 52, 48, 66, 72, 44];
 
   /* ===== 1 · 860 × 230 — a flat strip: everything in one line, read left → right ===== */
-  sd(1, 'domino', 'โดมิโนล้มต่อกัน', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
-    art(c, p => { const ew = es ? Math.min(230, tw(p, es, ES[1])) : 0, F_ = domFit(m, 820 - (es ? ew + 26 : 0), cw ? 150 : 176, 1.02), yb = cw ? 52 : 88;
-      const tot = m * (F_.w + F_.g) + F_.s + (es ? ew + 26 : 0), D = domLay(F_, m, f1(-tot / 2), yb); domino(p, c, Q, D);
-      D.xs.forEach((x, i) => wordN(p, Q, i, x, yb + 32, WS[1], F_.w + F_.g - 6));
-      if (es) wordN(p, Q, m, f1(D.right + 26), D.E.y, ES[1], ew + 30, 'start'); }); });
+  sd(1, 'card', 'การ์ด เพราะ → จึง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const SE = 150, ew = es ? Math.min(220, tw(p, es, ES[1])) : 0, rw = SE + (es ? 22 + ew : 0), sx = f1(422 - 34 - rw - 46), lw = sx - 46 - (-422 + 30), gx = m > 1 ? f1(Math.min(170, lw / m)) : 0;
+      const s = f1(Math.min(130, m > 1 ? gx - 44 : 150)), cx0 = f1((-422 + 30 + sx - 46) / 2), E = { x: f1(sx + 46 + SE / 2), y: 0, s: SE };
+      card2(p, c, Q, { rows: [{ y: 0, s, xs: spread(m, cx0 - gx * (m - 1) / 2, cx0 + gx * (m - 1) / 2) }], sx, br: 28, E, ck: .7, ew: q => { if (es) wordN(q, Q, m, f1(E.x + SE / 2 + 22), 0, ES[1], ew + 30, 'start'); } }); }); });
   sd(1, 'grow', 'แตกออกมา ใหญ่ขึ้นทีละทอด', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
     art(c, p => { const ew = es ? Math.min(220, tw(p, es, ES[1])) : 0, ss = spread(m, cw ? 96 : 108, cw ? 140 : 156), gp = 52;
       let SE = cw ? 176 : 196, sum = ss.reduce((a, v) => a + v, 0) + SE, room = 820 - gp * m - (es ? ew + 24 : 0), k = Math.min(1, room / sum);
@@ -1086,11 +1093,10 @@
   const toward = (A0, E, hl, gap = 26) => { const dx = E.x - A0[0], dy = E.y - A0[1], dl = Math.hypot(dx, dy), ux = dx / dl, uy = dy / dl, back = E.s / 2 * Math.min(1 / Math.abs(ux || 1e-6), 1 / Math.abs(uy || 1e-6)) + gap + hl;
     const B = [f1(E.x - ux * back), f1(E.y - uy * back)]; return { d: `M ${f1(A0[0])} ${f1(A0[1])} L ${B[0]} ${B[1]}`, L: Math.hypot(B[0] - A0[0], B[1] - A0[1]) }; };
   /* ===== 2 · 860 × 470 — wide: room for big tiles and words under them ===== */
-  sd(2, 'domino', 'โดมิโนล้มต่อกัน', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
-    art(c, p => { const F_ = domFit(m, 820, cw || es ? 260 : 300, 1.15), wh = cw || es ? 64 : 0, top = -(F_.s + wh) / 2, yb = f1(top + F_.s);
-      const tot = m * (F_.w + F_.g) + F_.s, D = domLay(F_, m, f1(-tot / 2), yb); domino(p, c, Q, D);
-      D.xs.forEach((x, i) => wordN(p, Q, i, x, yb + 40, WS[2], F_.w + F_.g - 6));
-      if (es) wordN(p, Q, m, D.E.x, yb + 44, ES[2], f1(Math.max(F_.s + 60, 300))); }); });
+  sd(2, 'card', 'การ์ด เพราะ → จึง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const SE = es ? 240 : 270, sx = f1(422 - 36 - SE - 50), lw = sx - 50 - (-422 + 34), gx = m > 1 ? f1(Math.min(220, lw / m)) : 0;
+      const s = f1(Math.min(176, m > 1 ? gx - 52 : 200)), cx0 = f1((-422 + 34 + sx - 50) / 2), E = { x: f1(sx + 50 + SE / 2), y: es ? -34 : 0, s: SE };
+      card2(p, c, Q, { rows: [{ y: 0, s, xs: spread(m, cx0 - gx * (m - 1) / 2, cx0 + gx * (m - 1) / 2) }], sx, br: 34, E, ck: .9, ew: q => { if (es) wordN(q, Q, m, E.x, f1(E.y + SE / 2 + 40), ES[2], SE + 60); } }); }); });
   sd(2, 'grow', 'แตกออกมา ไต่ขึ้นสู่ผล', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
     art(c, p => { const big = Q.n > 3, SE = big ? 230 : es ? 250 : 280, E = { x: f1(410 - SE / 2), y: f1(-230 + SE / 2 + (es ? 0 : 20)), s: SE }, ss = spread(m, big ? 110 : 150, big ? 140 : 190);
       const P = diag(ss, [-410 + ss[0] / 2, f1(230 - ss[0] / 2 - (cw ? 52 : 8))], E, 50, .8); center(P, false, es ? [wRect(p, es, ES[2], 400, E.x, E.y + SE / 2 + 40)] : []); grow(p, c, Q, P);
@@ -1170,11 +1176,10 @@
       ringChain(p, c, Q, P, { bend: P.map((q, i) => i % 2 ? .12 : -.12) });
       if (es) wordN(p, Q, m, 0, f1(E.y + ringR(E) + 30), ES[4], 360); }); });
   /* ===== 5 · 860 × 710 — full screen, landscape ===== */
-  sd(5, 'domino', 'โดมิโนล้มต่อกัน', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
-    art(c, p => { const F_ = domFit(m, 820, cw || es ? 330 : 380, 1.32), wh = cw || es ? 84 : 0, top = -(F_.s + wh) / 2, yb = f1(top + F_.s);
-      const tot = m * (F_.w + F_.g) + F_.s, D = domLay(F_, m, f1(-tot / 2), yb); domino(p, c, Q, D);
-      D.xs.forEach((x, i) => wordN(p, Q, i, x, yb + 46, WS[5], F_.w + F_.g - 6));
-      if (es) wordN(p, Q, m, D.E.x, yb + 54, ES[5], f1(Math.max(F_.s + 60, 360))); }); });
+  sd(5, 'card', 'การ์ด เพราะ → จึง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
+    art(c, p => { const s = m > 3 ? 150 : m === 3 ? 180 : 200, gx = m > 1 ? f1(Math.min(270, 760 / m)) : 0, y1 = f1(-355 + 36 + s / 2 + 8), sy = f1(y1 + s / 2 + 40), room = 347 - sy - (es ? ES[5] + 40 : 0);
+      const E = { x: 0, y: f1(sy + 36 + (room - 36) / 2), s: f1(Math.min(340, room - 60)) };
+      card2(p, c, Q, { rows: [{ y: y1, s, xs: spread(m, -gx * (m - 1) / 2, gx * (m - 1) / 2) }], split: sy, br: 38, E, ck: 1.05, ew: q => { if (es) wordN(q, Q, m, 0, f1(E.y + E.s / 2 + 46), ES[5], 640); } }); }); });
   sd(5, 'grow', 'แตกออกมา ไต่ขึ้นสู่ผล', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
     art(c, p => { const big = Q.n > 3, SE = big ? 270 : es ? 290 : 320, E = { x: f1(410 - SE / 2), y: f1(-350 + SE / 2 + (es ? 4 : 30)), s: SE }, ss = spread(m, big ? 124 : 160, big ? 164 : 214);
       const P = diag(ss, [-410 + ss[0] / 2, f1(350 - ss[0] / 2 - (cw ? 70 : 10))], E, 64, .78); grow(p, c, Q, P);
