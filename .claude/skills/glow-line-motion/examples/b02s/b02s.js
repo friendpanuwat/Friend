@@ -649,7 +649,7 @@
         /* smooth, no bounce (user 2026-11-24: "อยากได้การขึ้นลงของกราฟที่มันสมูทไม่ใช่เด้งๆแบบนี้"): one 'io' ease up / down, no overshoot */
         if (E.up) R(mvG(p, { px: x + bw / 2, py: cy1, sy: [[0, 0], [f3(t - tu(.45)), 0], [t, 1, 'io']], o: fadeIn(f3(t - tu(.45)), .03) }), x, top, bw, bh, rr, lit);
         else { const t0 = tu(.1 + .05 * j), K = { px: x + bw / 2, py: cy1, sy: [[0, 0], [t0, 0], [f3(t0 + tu(.4)), 1, 'io']].concat(t == null ? [] : [[t, 1], [f3(t + tu(.45)), 0, 'io']]), o: fadeIn(t0, .03) };
-          R(mvG(p, K), x, top, bw, bh, rr, lit); if (t != null) { const g2 = sub(p); on(g2, p, 0, { o: [[0, 0], [f3(t + tu(.25)), 0], [f3(t + tu(.45)), 1]] }); R(g2, x, top, bw, bh, rr, DASH(.4)); } } }
+          R(mvG(p, K), x, top, bw, bh, rr, lit); if (t != null) { const g2 = sub(p); on(g2, p, 0, { o: [[0, 0], [f3(t + tu(.25)), 0], [f3(t + tu(.45)), 1]] }); R(g2, x, top, bw, bh, rr, { fill: 'none', sw: 2.4, stroke: TL_(.3) }); } } }
       centre(p, c, Cn, L || {}, E); const er = Math.max(48, Math.min(64, bw * .4)); endM(p, c, d, f1(Math.min(Wb / 2 - er - 6, cx0 + cw - er)), f1(Math.max(-Hb / 2 + er + 6, cy1 - ch + er)), er); }); }
   R1[1] = (d, c) => r1(d, c, 1, { cwhere: 'left', cfrac: .22, gI: 26 });
   R1[2] = (d, c) => r1(d, c, 2, { cwhere: 'left', cfrac: .24, gI: 34 });
@@ -658,15 +658,124 @@
   R1[5] = (d, c) => r1(d, c, 5, { band: .34, alone: 'side', gI: 36 });
   R1[6] = (d, c) => r1(d, c, 6, { band: .3, alone: 'top', gI: 40 });
   R1[7] = (d, c) => r1(d, c, 7, { cwhere: 'top', cfrac: .25, gI: 22 });
+
+  /* ================= ROUNDS 2–5 (user 2026-11-25 after B01 passed: "ผ่าน ทำหมวด 2 ต่อได้") — seven sizes × five designs:
+     01 = round 1 (แท่งโต, passed) + four new, each a different way to see "more / fewer" without words:
+     PILE กองซ้อน (cards land on a pile / are lifted off) · TREND เส้นเทรนด์ (a line draws itself up or down, the boxes on it grow or shrink) ·
+     LAYERS ชั้นซ้อนรอบ (rings round the thing light up outward / go dark) · CUP ภาชนะ (things drop into a U container / are lifted out).
+     Lessons from B01/B12: centred (D14) · the owner / thing as an icon, its word only when there is no icon (D15) · no dashed lines, no ripple,
+     no ruler ticks (D4, 32, D18) · smooth ease-out, no bounce (A4) · nothing outside the box (D12, A5) · the owner lights on the keyword. ================= */
+  const hrow = (items, gap, cx = 0, cy = 0) => { const L = items.filter(Boolean), tot = L.reduce((a, it) => a + it.w, 0) + gap * Math.max(0, L.length - 1); let x = cx - tot / 2; L.forEach(it => { it.at(f1(x + it.w / 2), cy); x += it.w + gap; }); return tot; };
+  const vcol = (items, gap, cx = 0, cy = 0) => { const L = items.filter(Boolean), tot = L.reduce((a, it) => a + it.h, 0) + gap * Math.max(0, L.length - 1); let y = cy - tot / 2; L.forEach(it => { it.at(cx, f1(y + it.h / 2)); y += it.h + gap; }); return tot; };
+  const sIn = (q, x, y, t, d = .28) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [f3(t + tu(d)), 1, 'out']], o: fadeIn(t, .12) }); return g; };   /* smooth, no overshoot */
+  const LITE = (q, t) => litOn(q, t);
+  /* a thing as a rounded tile + its icon (or its word when it has no icon). K = the tile's keys; o.io = the icon's own opacity keys; o.lit = edge lights at o.lt */
+  function tile(p, c, X, x, y, s, K, o = {}) { const g = mvG(CL(p), K), rr = f1(s * .24); R(g, x - s / 2, y - s / 2, s, s, rr, F(4));
+    if (o.lt != null) R(LITE(g, o.lt), x - s / 2, y - s / 2, s, s, rr, { fill: TA(.12), sw: 4.4, stroke: ACC1 });
+    const mv = Object.assign({}, K); delete mv.o;
+    if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, f1(s * .7), null, { t: o.it ?? tu(.1), mv, o: o.io || K.o });
+    else if (X && X.label) txt(o.io ? mvG(g, { o: o.io }) : g, X.label, x, f1(y + s * .08), { size: f1(s * .24), maxW: f1(s * .84), weight: 800, color: C.ink, wrap: 'mid' });   /* the word hides with the icon when covered */
+    else g.circle(x, y, f1(s * .1), { fill: ACC1, sw: 0, stroke: 'none' });
+    return g; }
+  /* the owner (center) as a big tile with its icon; its edge lights on the keyword */
+  const OWN = (p, c, Cn, s) => Cn ? { w: s, h: s, at: (x, y) => { const g = sIn(p, x, y, tu(.04)), rr = f1(s * .26); R(g, x - s / 2, y - s / 2, s, s, rr, F(4.4)); R(g, x - s / 2 + 14, y - s / 2 + 14, s - 28, s - 28, f1(s * .2), S(1.4));
+      if (picOf(Cn)) put(p, c, { icon: Cn.icon }, x, y, f1(s * .62), null, { t: tu(.08) }); else txt(g, Cn.label, x, f1(y + s * .08), { size: f1(s * .2), maxW: f1(s * .8), weight: 800, color: C.ink, wrap: 'mid' });
+      R(LITE(p, Z.H), x - s / 2, y - s / 2, s, s, rr, { fill: 'none', sw: 5, stroke: ACC1 }); } } : null;
+  /* the end sign (✗ / ✓ / an icon) after the last change — its own layer on top, no ripple */
+  const ENDI = (p, c, d, r) => d.end && r > 0 ? { w: 2 * r, h: 2 * r, at: (x, y) => over(c, q => { const t = f3(Z.H + tu(.1)), g = sIn(q, x, y, t); g.circle(x, y, r, F(3.4));
+      if (d.end === 'x') XX(g, x, y, r / 30); else if (/check/.test(d.end)) CHK(g, x, y, r / 30); else put(q, c, { icon: d.end }, x, y, f1(r * 1.3), null, { t }); }) } : null;
+  /* one size's layout: [owner] + design + [end sign] in a row (wide sizes) or a column (narrow), centred in the box */
+  function lay(k, d, c, D) { const X = ITM(d), E = EV(d), Cn = CEN(d), Wb = SIZES[k].w, Hb = SIZES[k].h, m = 14, aw = Wb - 2 * m, ah = Hb - 2 * m, wide = Wb / Hb > 1.05;
+    art(c, p => { const gap = f1(Math.max(22, Math.min(Wb, Hb) * .05)), er = d.end ? f1(Math.max(40, Math.min(62, (wide ? ah : aw) * .2))) : 0;
+      const os = Cn ? f1(wide ? Math.min(ah, aw * .31, 300) : Math.min(aw * .66, ah * .33, 280)) : 0;
+      const rw = wide ? aw - (Cn ? os + gap : 0) - (er ? 2 * er + gap : 0) : aw, rh = wide ? ah : ah - (Cn ? os + gap : 0) - (er ? 2 * er + gap : 0);
+      if ((!wide || Wb / Hb < 1.3) && Cn && er) { const top = { w: os + gap + 2 * er, h: Math.max(os, 2 * er), at: (x, y) => hrow([OWN(p, c, Cn, os), ENDI(p, c, d, er)], gap, x, y) };   /* narrow: owner + end sign side by side on top */
+        vcol([top, D(p, c, X, E, d, f1(aw), f1(ah - os - gap))], gap); return; }
+      (wide ? hrow : vcol)([OWN(p, c, Cn, os), D(p, c, X, E, d, f1(rw), f1(rh)), ENDI(p, c, d, er)], gap); }); }
+  const evN = E => Array.from({ length: E.n }, (_, j) => f3(E.n <= 1 ? E.H : lerp(E.T0, E.H, j / (E.n - 1))));   /* one time per place, the last on H */
+
+  /* PILE — the cards land one on another, the pile climbs (up) · the top card is lifted off, one by one (down). Only the top card shows its icon
+     (an icon is always on the top layer — the covered ones would show through, b02t lesson). A faint outline marks the pile's place. */
+  function PILE(p, c, X, E, d, w, h) { const n = E.n, a = w / h, f = a > 2.6 ? [Math.min(.6, Math.max(.46, (a / 1.12 - 1) / (n - 1))), -.08] : a > 1.6 ? [.46, -.1] : a < .85 ? [0, -.3] : [.3, -.24];
+    const s = f1(Math.min(w / (1 + (n - 1) * Math.abs(f[0])), h / (1 + (n - 1) * Math.abs(f[1])), 400) * .97), W0 = f1(s * (1 + (n - 1) * Math.abs(f[0]))), H0 = f1(s * (1 + (n - 1) * Math.abs(f[1])));
+    return { w: W0, h: H0, at: (cx, cy) => { const bx = cx - W0 / 2 + s / 2, by = cy + H0 / 2 - s / 2, P = j => [f1(bx + j * f[0] * s), f1(by + j * f[1] * s)];
+      R(atG(p, tu(.04)), f1(bx - s / 2), f1(by - s / 2), s, s, f1(s * .24), { fill: 'none', sw: 2.4, stroke: TL_(.25) });
+      for (let j = 0; j < n; j++) { const [x, y] = P(j), t = E.at(j); let K, io;
+        if (E.up) { const ts = f3(t - tu(.36)), nx = j < n - 1 ? E.at(j + 1) : null; K = { px: x, py: y, y: [[0, -80], [ts, -80], [t, 0, 'out']], o: fadeIn(ts, .14) };
+          io = nx == null ? K.o : K.o.concat([[f3(nx - tu(.16)), 1], [f3(nx - tu(.04)), 0]]); }
+        else { const t0 = f3(tu(.06 + .05 * j)), ab = j < n - 1 ? E.at(j + 1) : -1; K = { px: x, py: y, s: [[0, .7], [t0, .7], [f3(t0 + tu(.28)), 1, 'out']], o: fadeIn(t0, .12) };
+          if (t != null) { K.y = [[0, 0], [t, 0], [f3(t + tu(.34)), -90, 'in']]; K.o = K.o.concat([[f3(t + tu(.08)), 1], [f3(t + tu(.34)), 0]]); }
+          if (t != null) R(LITE(p, f3(t + tu(.3))), f1(x - s / 2), f1(y - s / 2), s, s, f1(s * .24), { fill: 'none', sw: 2.4, stroke: TL_(.25) });   /* where it was (no dashes) */
+          io = ab === -1 ? K.o : ab == null ? [[0, 0]] : [[0, 0], [f3(ab + tu(.14)), 0], [f3(ab + tu(.3)), 1]].concat(t != null ? [[f3(t + tu(.08)), 1], [f3(t + tu(.34)), 0]] : []); }
+        tile(p, c, X, x, y, s, K, { io, it: E.up ? f3(t - tu(.36)) : tu(.08), lt: (E.up ? j === n - 1 : (E.keep ? j === E.keep - 1 : null)) ? Z.H : null }); } } }; }
+
+  /* TREND — a line draws itself through n points, rising (up) or falling (down); a box comes up at each point as the line reaches it, the boxes
+     growing (up) or shrinking (down) along the line. Down to nothing (keep 0) → the last point is an empty outline. The last box lights on H. */
+  function TREND(p, c, X, E, d, w, h) { const n = E.n, up = E.up, T = evN(E), rk = j => .7 + .3 * (up ? j / (n - 1) : 1 - j / (n - 1)), gF = .26;
+    const sum = Array.from({ length: n }, (_, j) => rk(j)).reduce((a, b) => a + b, 0);
+    /* boxes apart side by side (wide rooms) or apart in height (narrow rooms) — whichever lets them be bigger; the points run corner to corner */
+    const sH = Math.min((w - 4) / (sum + (n - 1) * gF), h * (w / h > 2.6 ? .92 : .62), 300), sV = Math.min((h - 4) / (sum + (n - 1) * gF), w * .62, 300), vert = sV > sH * 1.1, sM = f1(vert ? sV : sH), g = sM * gF;
+    const Wt = vert ? w : f1(sM * sum + (n - 1) * g);
+    return { w: Wt, h, at: (cx, cy) => { const P = []; let x = cx - Wt / 2, yy = up ? cy + h / 2 : cy - h / 2;
+      for (let j = 0; j < n; j++) { const sj = sM * rk(j), u = j / (n - 1);
+        if (vert) { const yc = up ? yy - sj / 2 : yy + sj / 2; yy = up ? yy - sj - g : yy + sj + g; P.push([f1(lerp(cx - w / 2 + sM * rk(0) / 2, cx + w / 2 - sM * rk(n - 1) / 2, u)), f1(yc), f1(sj)]); }
+        else { P.push([f1(x + sj / 2), f1(up ? lerp(cy + h / 2 - sM * rk(0) / 2, cy - h / 2 + sM / 2, u) : lerp(cy - h / 2 + sM / 2, cy + h / 2 - sM * rk(n - 1) / 2, u)), f1(sj)]); x += sj + g; } }
+      if (vert) { const tot = P.reduce((a, q) => a + q[2], 0) + (n - 1) * g, off = up ? -(h - tot) / 2 : (h - tot) / 2; P.forEach(q => { q[1] = f1(q[1] + off); }); }   /* centred in height */
+      let dd = `M ${P[0][0]} ${P[0][1]}`, L = [0];
+      for (let j = 1; j < n; j++) { const [x0, y0] = P[j - 1], [x1, y1] = P[j], mx = f1((x0 + x1) / 2); dd += ` C ${mx} ${y0} ${mx} ${y1} ${x1} ${y1}`; L.push(L[j - 1] + Math.hypot(x1 - x0, y1 - y0) * 1.04); }
+      const tot = L[n - 1] || 1, DK = [[0, 0], [T[0], 0]]; for (let j = 1; j < n; j++) DK.push([T[j], f3(L[j] / tot), 'io']);
+      on(p.path(dd, { sw: 6, stroke: ACC1, fill: 'none' }), p, 0, { draw: DK, o: fadeIn(T[0], .04) });
+      P.forEach(([x, y, sj], j) => { const t = f3(Math.max(tu(.05), T[j] - tu(.06)));
+        if (!up && E.keep === 0 && j === n - 1) { R(atG(p, t), f1(x - sj / 2), f1(y - sj / 2), sj, sj, f1(sj * .24), { fill: C.fill, sw: 2.6, stroke: TL_(.35) }); return; }
+        tile(p, c, X, x, y, sj, { px: x, py: y, s: [[0, .7], [t, .7], [f3(t + tu(.28)), 1, 'out']], o: fadeIn(t, .12) }, { it: t, lt: j === n - 1 ? Z.H : null }); }); } }; }
+
+  /* LAYERS — the thing in the middle, rings (rounded squares) round it: they light up one by one outward (up) · they go dark from the outside in
+     (down; keep 0 → all dark and the thing dims). Each lit ring = one more. */
+  function LAYERS(p, c, X, E, d, w, h) { const n = E.n, flat = w / h > 1.4, tall = h / w > 1.3, Ho = f1(tall ? Math.min(h, Math.min(w, 760) * 1.5) : Math.min(h, w, 760)), Wo = f1(flat ? Math.min(w, Ho * 2.1) : Math.min(w, 760)),
+      qy = flat ? .62 : tall ? .42 : .46, qx = flat ? .42 : tall ? .62 : .46;   /* the long side steps in more, so the icon in the middle stays big */
+    const st = j => { const u = (n - 1 - j) / (n - 1); return [f1(Wo - u * (1 - qx) * Wo), f1(Ho - u * (1 - qy) * Ho)]; };   /* a strip: the rings step in more at the sides, so the icon stays big */
+    return { w: Wo, h: Ho, at: (x, y) => {
+      for (let j = n - 1; j >= 0; j--) { const [sw, sh] = st(j), rr = f1(sh * .24), t = E.at(j), g = sIn(p, x, y, f3(tu(.04 + .05 * (n - 1 - j))));
+        R(g, f1(x - sw / 2), f1(y - sh / 2), sw, sh, rr, { fill: C.fill, sw: 2.4, stroke: TL_(.3) });
+        const lk = E.up ? [[0, 0], [f3(t - tu(.1)), 0], [t, 1]] : t == null ? fadeIn(tu(.3), .1) : fadeIn(tu(.3), .1).concat([[f3(t - tu(.1)), 1], [t, 0]]), L2 = sub(p);
+        on(L2, p, 0, { o: lk }); R(L2, f1(x - sw / 2), f1(y - sh / 2), sw, sh, rr, { fill: TA(.12), sw: 4.4, stroke: ACC1 }); }
+      const s0 = st(0)[1], ic = f1(Math.min(s0 * .74, st(0)[0] * .74)), dim = !E.up && E.keep === 0 ? [[0, 1], [f3(E.H), 1], [f3(E.H + tu(.2)), .35]] : null;
+      if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, ic, null, { t: tu(.1), o: dim ? fadeIn(tu(.1), .1).concat(dim.slice(1)) : undefined });
+      else if (X && X.label) txt(dim ? mvG(p, { o: dim }) : p, X.label, x, f1(y + s0 * .07), { size: f1(s0 * .22), maxW: f1(st(0)[0] * .84), weight: 800, color: C.ink, wrap: 'mid' }); } }; }
+
+  /* CUP — a U container; the things drop into their places inside, bottom row first (up) · they are lifted out and fade (down). Faint outlines mark
+     the places, so an emptied cup still reads. The rim lights on H. */
+  function CUP(p, c, X, E, d, w, h) { const n = E.n, pad = 18, fit = r => { const cl = Math.ceil(n / r); return Math.min((w - 2 * pad - 10 - (cl - 1) * 16) / cl, (h - pad - 12 - (r - 1) * 16) / (r + .34), n <= 2 ? 340 : 300); };
+    const rows = n >= 3 && fit(2) > fit(1) * 1.08 ? 2 : 1, cols = Math.ceil(n / rows), s = f1(fit(rows)), g = f1(Math.max(14, s * .1));
+    const iw = f1(cols * s + (cols - 1) * g + 2 * pad), ih = f1(rows * s + (rows - 1) * g + pad + s * .1), head = f1(s * .24), Ht = f1(head + ih + 6);
+    return { w: f1(iw + 8), h: Ht, at: (cx, cy) => { const xl = f1(cx - iw / 2), xr = f1(cx + iw / 2), yt = f1(cy - Ht / 2 + head), yb = f1(yt + ih), r = f1(Math.min(46, s * .3));
+      const U = `M ${xl} ${yt} L ${xl} ${f1(yb - r)} Q ${xl} ${yb} ${f1(xl + r)} ${yb} L ${f1(xr - r)} ${yb} Q ${xr} ${yb} ${xr} ${f1(yb - r)} L ${xr} ${yt}`;
+      const g0 = sIn(p, cx, f1((yt + yb) / 2), tu(.04)); g0.path(U + ' Z', { fill: TL_(.04), sw: 0, stroke: 'none' }); g0.path(U, { sw: 4.4, fill: 'none' });
+      const pos = []; for (let rI = rows - 1; rI >= 0; rI--) { const inRow = Math.min(cols, n - pos.length), y = f1(yb - pad - s / 2 - (rows - 1 - rI) * (s + g)); for (let i = 0; i < inRow; i++) pos.push([f1(cx + (i - (inRow - 1) / 2) * (s + g)), y]); }
+      pos.forEach(([x, y]) => R(atG(p, tu(.1)), f1(x - s / 2), f1(y - s / 2), s, s, f1(s * .24), { fill: 'none', sw: 2.2, stroke: TL_(.22) }));
+      pos.forEach(([x, y], j) => { const t = E.at(j), dy = f1(yt - s * .45 - y); let K;
+        if (E.up) { const ts = f3(t - tu(.4)); K = { px: x, py: y, y: [[0, dy], [ts, dy], [t, 0, 'out']], o: fadeIn(ts, .14) }; }
+        else { const t0 = f3(tu(.08 + .05 * j)); K = { px: x, py: y, s: [[0, .7], [t0, .7], [f3(t0 + tu(.28)), 1, 'out']], o: fadeIn(t0, .12) };
+          if (t != null) { K.y = [[0, 0], [t, 0], [f3(t + tu(.4)), dy, 'in']]; K.o = K.o.concat([[f3(t + tu(.2)), 1], [f3(t + tu(.4)), 0]]); } }
+        tile(p, c, X, x, y, s, K, { it: E.up ? f3(t - tu(.4)) : tu(.1) }); });
+      LITE(p, Z.H).path(U, { sw: 5, fill: 'none', stroke: ACC1 }); } }; }
+
+  const DES = { pile: PILE, trend: TREND, layers: LAYERS, cup: CUP };
+  const SZD = {}; for (let k = 1; k <= 7; k++) SZD[k] = [{ id: 'bars', th: 'แท่งโต', fn: (d, c) => R1[k](d, c) }, { id: 'pile', th: 'กองซ้อน', fn: (d, c) => lay(k, d, c, PILE) },
+    { id: 'trend', th: 'เส้นเทรนด์', fn: (d, c) => lay(k, d, c, TREND) }, { id: 'layers', th: 'ชั้นซ้อนรอบ', fn: (d, c) => lay(k, d, c, LAYERS) }, { id: 'cup', th: 'ภาชนะ', fn: (d, c) => lay(k, d, c, CUP) }];
   const ROUNDS = [null, R1];
   const SAMPLES = [
     { say: 'ลูกค้าเข้าร้านมากขึ้น', dir: 'up', n: 4, item: { icon: 'user' }, center: { icon: 'store', label: 'ร้าน' } },
     { say: 'กินขนมน้อยลง (ไม่มีเจ้าของ)', dir: 'down', n: 4, keep: 1, item: { icon: 'cookie', label: 'ขนม' } },
+    { say: 'อีเมลเข้ามาเรื่อย ๆ (3 ชิ้น + เจ้าของไม่มีป้าย)', dir: 'up', n: 3, item: { icon: 'mail', label: 'อีเมล' }, center: { icon: 'inbox' } },
   ];
   const STRESS = [
     { say: 'ใจรักมากขึ้น (2 ชิ้น ไม่มีป้าย)', dir: 'up', n: 2, item: { icon: 'heart' } },
     { say: 'สมาชิกออกจากกลุ่มจนหมด (+ เจ้าของ + สัญลักษณ์จบ)', dir: 'down', n: 4, keep: 0, item: { icon: 'user', label: 'สมาชิก' }, center: { icon: 'users', label: 'กลุ่มเพื่อนสมัยเรียน' }, end: 'x' },
-    { say: 'อีเมลเข้ามาเรื่อย ๆ (3 ชิ้น + เจ้าของไม่มีป้าย)', dir: 'up', n: 3, item: { icon: 'mail', label: 'อีเมล' }, center: { icon: 'inbox' } },
+    { say: 'ค่าใช้จ่ายลดลง (ไม่มีไอคอน · เหลือ 2 จาก 3)', dir: 'down', n: 3, keep: 2, item: { label: 'ค่าใช้จ่าย' } },
+    { say: 'เงินเก็บเพิ่มขึ้น (+ สัญลักษณ์จบ ✓)', dir: 'up', n: 4, item: { icon: 'coins' }, end: 'check' },
+    { say: 'งานเสร็จมากขึ้น (ไม่มีไอคอน + เจ้าของ)', dir: 'up', n: 3, item: { label: 'งาน' }, center: { icon: 'briefcase', label: 'ทีม' } },
+    { say: 'ของในตะกร้าลดลง (2 ชิ้น เหลือ 1 + เจ้าของ)', dir: 'down', n: 2, keep: 1, item: { icon: 'package' }, center: { icon: 'shopping-bag' } },
   ];
 
   /* LONG WORDS (user 2026-11-24: "ถ้าคำยาวมากก็ไม่ต้องมีตัวอักษรเลย เพราะยังไงเสียในคลิปก็พูดถึงสิ่งนั้นอยู่แล้ว"): a label longer than LONGW
@@ -681,6 +790,7 @@
     if (Array.isArray(o.items)) o.items = o.items.map(thinT);
     if (typeof o.unit === 'string' && glen(o.unit) > LONGW) delete o.unit; return o; }
   G.cats = G.cats || {};
-  G.cats.B02S = { ROUNDS, SIZES, SAMPLES, STRESS, theme, frame,
+  G.cats.B02S = { ROUNDS, SIZES, SAMPLES, STRESS, theme, frame, S: SZD,
+    drawS: (k, i, d, c) => { d = trimLong(d); setZ(c); CUR = 's' + k + '-' + SZD[k][i].id; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; SZD[k][i].fn(d || {}, c); },
     draw: (r, k, d, c) => { d = trimLong(d); setZ(c); CUR = 'r' + r + 's' + k; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; ROUNDS[r][k](d || {}, c); }, CLAMPS };
 })();
