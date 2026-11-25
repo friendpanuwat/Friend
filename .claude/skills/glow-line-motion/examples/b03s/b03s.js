@@ -110,7 +110,7 @@
   function pic(it, cx, cy, wd, c, o = {}) {
     if (!it) return null; const at = c.at || 0, X = c.x + cx * c.s, Y = c.y + cy * c.s, fn = picOf(it), t = o.t ?? tu(.12);
     let a;
-    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp, exit: 'fade' });
+    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp, exit: 'fade', loop: false });   /* in, then still — no idle turning (user: ไม่หมุน); the comparison is the motion */
     else { const str = it.label; if (!str) return null;
       const f = q => txt(q, str, 0, wd * .11, { size: wd * .3, maxW: o.bigW || wd * 1.25, weight: 700, color: C.ink, wrap: 'mid' }); f.custom = true; f.dur = .3; f.exit = 'fade';
       a = G.art(f, { x: X, y: Y, s: c.s, at: at + t, speed: 1 }); a.speed = Z.sp; }
@@ -623,7 +623,8 @@
         /* keep clear of the disc on the seam (side-by-side halves: the inner edge) */
         if (!vert && (inner !== 'side' || !lab)) { const sh = s === 'a' ? -dr * .35 : dr * .35; ix = f1(ix + sh); wx = f1(wx + sh); }
         if (hasI) { if (st.box) sbox(p, c, d, s, ix, iy, ic, { t });
-          else put(p, c, { icon: X.icon }, ix, iy, ic * .9, null, { t, punch: win ? H : undefined, o: lose ? [[0, 0], [t, 0], [f3(t + tu(.1)), 1], [H, 1], [f3(H + tu(.2)), .38]] : undefined });
+          else { const oI = [[0, 0], [f3(t + tu(.14)), 0], [f3(t + tu(.36)), 1, 'io']];   /* fades in near its landing — the icon's own drop never crosses the disc / seam */
+            put(p, c, { icon: X.icon }, ix, iy, ic * .9, null, { t, o: lose ? oI.concat([[H, 1], [f3(H + tu(.3)), .38, 'io']]) : oI }); }
           if (lab) word(p, d, s, wx, wy, { size: wS, maxW: wMax, anchor: wAn, t: f3(t + tu(.14)), wrap: inner === 'side' ? 'mid' : 'down' }); }   /* under the icon: a second line goes down, never into the icon */
         else if (lab) { const g1 = popAt(p, px, py, t), g = lose ? dimG(g1, H) : g1; txt(g, lab, px, py + wS * .6, { size: wS * 1.5, maxW: hw - 2 * pad, weight: 800, color: C.ink, wrap: 'mid' }); }
       });
@@ -631,9 +632,9 @@
       const sx = vert ? 0 : 0, sy = 0; if (vert) drawAt(p.line(-Wb / 2 + 40, 0, Wb / 2 - 40, 0, { sw: 2, stroke: TL_(.3) }), p, tu(.02), tu(.3)); else drawAt(p.line(0, -Hb / 2 + 30, 0, Hb / 2 - 30, { sw: 2, stroke: TL_(.3) }), p, tu(.02), tu(.3));
       const lean = T.win && !T.change ? (T.win === 'a' ? -1 : 1) * 18 : 0, K = { px: sx, py: sy, s: [[0, .3], [tu(.3), .3], [tu(.5), 1, 'out']], o: fadeIn(tu(.3), .04) };
       if (lean) K[vert ? 'y' : 'x'] = [[0, 0], [H, 0], [f3(H + tu(.14)), lean, 'out'], [f3(H + tu(.4)), 0, 'io']];
-      const g = mvG(p, K); g.circle(sx, sy, dr, F(3.6));
-      if (T.change) { const gc = vert ? rot(g, 90, sx, sy) : g; chev(gc, sx, sy, dr / 54, { sw: 7, stroke: ACC1 }); }
-      else txt(g, 'VS', sx, sy + dr * .3, { size: f1(dr * .8), weight: 800, color: C.ink });
+      over(c, q => { const g = mvG(q, K); g.circle(sx, sy, dr, F(3.6));   /* the disc on its own top layer: an icon coming in never covers it */
+        if (T.change) { const gc = vert ? rot(g, 90, sx, sy) : g; chev(gc, sx, sy, dr / 54, { sw: 7, stroke: ACC1 }); }
+        else txt(g, 'VS', sx, sy + dr * .3, { size: f1(dr * .8), weight: 800, color: C.ink }); });
       const cr = (s, sd) => { const [px, py] = P[s], r0 = Math.max(48, Math.min(62, Math.min(hw, hh) * .18)); return [f1(px + hw / 2 - r0 - 10), f1(py - hh / 2 + r0 + 10)]; };
       VD = { a: cr('a'), b: cr('b') };
     }); if (VD) { const V2 = VD; over(c, q => verdict(q, d, V2)); } }   /* ✓ / ✗ on the top layer, above the icons */
