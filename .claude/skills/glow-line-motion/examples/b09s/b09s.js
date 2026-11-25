@@ -818,8 +818,8 @@
   sd(3, 'ring', 'วงเวลา', (d, c) => { const T = TS(d);
     art(c, p => { timeRing(p, T, 0, 0, 214, 30); nowCard2(p, c, T, 0, 0, 300); }); });
   sd(3, 'spine', 'เส้นเวลาแนวตั้ง', (d, c) => { const T = TS(d);
-    art(c, p => { const N = T.N, ys = Array.from({ length: N }, (_, i) => f1(-180 + 360 * i / (N - 1))), x = -150; timeline(p, T, ys.map(y => [x, y]));
-      T.items.forEach((it, i) => mom(p, c, T, it, x, ys[i], { r: it.ghost ? 28 : 54, wx: -70, wy: f1(ys[i] + 14), ws: 44, wa: 'start', wm: 330 })); }); });
+    art(c, p => { const N = T.N, ys = Array.from({ length: N }, (_, i) => f1(-176 + 352 * i / (N - 1))), x = -186; timeline(p, T, ys.map(y => [x, y]), { w: 6 });
+      T.items.forEach((it, i) => mom(p, c, T, it, x, ys[i], { r: it.ghost ? 30 : 62, wx: -98, wy: f1(ys[i] + 18), ws: 54, wa: 'start', wm: 360, big: 34, bigW: 110 })); }); });
   sd(3, 'grid', 'ตารางช่วงเวลา', (d, c) => { const T = TS(d);
     art(c, p => { const N = T.N, cs = N === 4 ? [[-138, -120], [138, -120], [-138, 120], [138, 120]] : [[-138, -120], [138, -120], [0, 120]], ws = N === 4 ? [256, 256, 256, 256] : [256, 256, 532];
       T.items.forEach((it, i) => mom(p, c, T, it, cs[i][0], cs[i][1], { shape: 'card', w: ws[i] - 16, h: 214, iy: LBLT(it.X) ? f1(cs[i][1] - 26) : cs[i][1], iw: 118, wy: f1(cs[i][1] + 76), ws: 38, wm: ws[i] - 50, big: 44, bigW: ws[i] - 60 }));
@@ -866,9 +866,14 @@
     art(c, p => carousel(p, T, 0, 0, 400, 380, 690, (g, it, x, mv) => mom(g, c, T, it, x, -60, { shape: 'float', iw: it.ghost ? 180 : 240, wx: x, wy: 220, ws: 62, wm: 330, mv, big: 76, bigW: 330 }))); });
 
   /* ---------- SIZE 6 · 860 × 965 ---------- */
-  sd(6, 'spine', 'เส้นเวลาแนวตั้ง', (d, c) => { const T = TS(d);
-    art(c, p => { const N = T.N, ys = Array.from({ length: N }, (_, i) => f1(-360 + 720 * i / (N - 1))), x = -250; timeline(p, T, ys.map(y => [x, y]), { w: 7 });
-      T.items.forEach((it, i) => mom(p, c, T, it, x, ys[i], { r: it.ghost ? 40 : it.r ? 104 : 92, wx: -120, wy: f1(ys[i] + 20), ws: 62, wa: 'start', wm: 520 })); }); });
+  /* 01 (user: "ดีไซน์ใหม่ด้วยครับมันโล่งไป") a spine down the middle: the moments hang off it on alternate sides as big plates, their words on
+     the other side of the spine; the spine lights down from one to the next and each one's arm lights as time reaches it */
+  sd(6, 'spine', 'เส้นเวลากลางสลับข้าง', (d, c) => { const T = TS(d);
+    art(c, p => { const N = T.N, ys = Array.from({ length: N }, (_, i) => f1(-350 + 700 * i / (N - 1))); timeline(p, T, ys.map(y => [0, y]), { w: 7 });
+      T.items.forEach((it, i) => { const sd_ = i % 2 ? 1 : -1, r = it.ghost ? 44 : it.r ? 126 : 112, cx = f1(sd_ * 250), y = ys[i];
+        const arm = p.line(0, y, f1(cx - sd_ * r), y, { sw: 5, stroke: TL_(.32) }); drawAt(arm, p, f3(T.tA + tu(.1 + .06 * i)), tu(.3)); if (it.on != null) { const l = p.line(0, y, f1(cx - sd_ * r), y, { sw: 6.5, stroke: ACC1 }); on(l, p, 0, { draw: [[0, 0], [f3(it.on - tu(.02)), 0], [f3(it.on + tu(.2)), 1, 'io']] }); }
+        const g = popAt(p, 0, y, T.tI(i)); g.circle(0, y, 15, F(3.4)); if (it.on != null) litOn(g, it.on).circle(0, y, 15, it.last ? DOTF() : { fill: C.ink, sw: 0, stroke: 'none' });
+        mom(p, c, T, it, cx, y, { r, wx: f1(-sd_ * 44), wy: f1(y + 22), ws: 64, wa: sd_ < 0 ? 'start' : 'end', wm: 340, big: 52, bigW: 210 }); }); }); });
   sd(6, 'cards', 'การ์ดเรียงกับกรอบโฟกัส', (d, c) => { const T = TS(d);
     art(c, p => { const N = T.N, h = f1((945 - (N - 1) * 20) / N), cs = Array.from({ length: N }, (_, i) => [0, f1(-472 + h / 2 + i * (h + 20))]);
       T.items.forEach((it, i) => mom(p, c, T, it, 0, cs[i][1], { shape: 'card', w: 820, h: f1(h - 18), ix: LBLT(it.X) ? -270 : 0, iw: f1(Math.min(170, h * .7)), wx: -150, wy: f1(cs[i][1] + 20), ws: 62, wa: 'start', wm: 520, big: 64, bigW: 700 }));
