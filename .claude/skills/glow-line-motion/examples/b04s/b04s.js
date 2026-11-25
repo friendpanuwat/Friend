@@ -22,7 +22,7 @@
   const TR = ['x', 'y', 'r', 's', 'sx', 'sy', 'ky'];
   const sub = (p, a) => { const q = p.child(a || {}); q.H = p.H; q.motion = p.motion; return q; };
   const on = (q, p, t, spec) => { const t0 = p.t0 + t * p.ts, fade = q.og && !TR.some(n => spec[n]); kf(fade ? q.og : (q.g || q), t0, spec); };
-  const art = (c, fn) => { const f = p => { p.H = Z.H; fn(p); }; f.custom = true; f.dur = .35; f.exit = 'pop';
+  const art = (c, fn) => { const f = p => { p.H = Z.H; fn(p); }; f.custom = true; f.dur = .35; f.exit = 'fade';
     const a = G.art(f, { x: c.x, y: c.y, s: c.s, at: c.at || 0, speed: 1 }); a.speed = Z.sp; return a; };
   const over = (c, fn) => art(Object.assign({}, c), fn);
   const atT = (g, p, t) => on(g, p, t, { o: [[0, 0], [tu(.12), 1]] });
@@ -43,8 +43,8 @@
   const arcs = (q, x, y, dir, n = 3, r0 = 26, gap = 18, span = 38, o = W(2.4)) => { for (let k = 0; k < n; k++) { const r = r0 + k * gap, a = rad(span);
     q.path(`M ${f1(x + dir * r * Math.cos(a))} ${f1(y - r * Math.sin(a))} A ${r} ${r} 0 0 ${dir > 0 ? 1 : 0} ${f1(x + dir * r * Math.cos(a))} ${f1(y + r * Math.sin(a))}`, o); } };
   let CID = 0;
-  function clipG(p, x, y, w, h) { const svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), r = document.createElementNS(NS, 'rect');
-    cp.id = 'b04sclip' + (++CID); Object.entries({ x, y, width: w, height: h }).forEach(([k, v]) => r.setAttribute(k, v)); cp.appendChild(r);
+  function clipG(p, x, y, w, h, rx = 0) { const svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), r = document.createElementNS(NS, 'rect');
+    cp.id = 'b04sclip' + (++CID); Object.entries(rx ? { x, y, width: w, height: h, rx } : { x, y, width: w, height: h }).forEach(([k, v]) => r.setAttribute(k, v)); cp.appendChild(r);
     (svg.querySelector('defs') || svg).appendChild(cp); return sub(p, { 'clip-path': `url(#${cp.id})` }); }
   /* a label; too wide → smaller, or (wrap) two lines broken between Thai words */
   function txt(p, str, x, y, { size = 42, maxW = 1e9, weight = 600, anchor = 'middle', color = C.soft, wrap = null } = {}) {
@@ -102,17 +102,17 @@
   const outG = (q, t, d = .08) => { const g = sub(q); on(g, q, 0, { o: [[0, 1], [t, 1], [t + tu(d), 0]] }); return g; };
   function haloH(q, x, y, r, t) { t = t ?? Z.H; const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .6], [t, .6], [t + tu(.3), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.1), 1]] }); halo(g, x, y, r); return g; }
   /* a ring that blooms out from (x, y) at t and fades (the "it happened" ripple) */
-  function ripple(q, x, y, r, t) { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [t + tu(.45), 1.45, 'out']], o: [[0, 0], [t, 0], [t + tu(.04), .8], [t + tu(.45), 0]] }); g.circle(x, y, r, W(2.6)); }
-  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .3], [t, .3], [t + tu(.2), 1.1, 'out'], [t + tu(.34), 1, 'soft']], o: [[0, 0], [t, 0], [t + tu(.06), 1]] }); return g; };
+  function ripple(q, x, y, r, t) { return;   /* no ripples */ const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [t + tu(.45), 1.45, 'out']], o: [[0, 0], [t, 0], [t + tu(.04), .8], [t + tu(.45), 0]] }); g.circle(x, y, r, W(2.6)); }
+  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .8], [t, .8], [t + tu(.36), 1, 'io']], o: [[0, 0], [t, 0], [t + tu(.32), 1, 'io']] }); return g; };   /* soft, no overshoot */
 
   /* a THING (it) at (x, y) width w (+ its label at (lx, ly)). o.t = when it comes in · o.mv = keys of the part it rides ({ px, py, x, y, r, s }) ·
      o.punch = a bump at that time (the moment it is reached) · o.r = a fixed tilt (with its holder) · o.lt = when the label comes in */
   function pic(it, cx, cy, wd, c, o = {}) {
     if (!it) return null; const at = c.at || 0, X = c.x + cx * c.s, Y = c.y + cy * c.s, fn = picOf(it), t = o.t ?? tu(.12);
     let a;
-    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp });
+    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp, exit: 'fade', loop: false });   /* in, then still */
     else { const str = it.label; if (!str) return null;
-      const f = q => txt(q, str, 0, wd * .11, { size: wd * .3, maxW: o.bigW || wd * 1.25, weight: 700, color: C.ink, wrap: 'mid' }); f.custom = true; f.dur = .3; f.exit = 'pop';
+      const f = q => txt(q, str, 0, wd * .11, { size: wd * .3, maxW: o.bigW || wd * 1.25, weight: 700, color: C.ink, wrap: 'mid' }); f.custom = true; f.dur = .3; f.exit = 'fade';
       a = G.art(f, { x: X, y: Y, s: c.s, at: at + t, speed: 1 }); a.speed = Z.sp; }
     iclip(a, c);
     const K = { ox: X, oy: Y }; let any = false;
@@ -121,7 +121,7 @@
     else if (o.r) { K.r = [[0, o.r]]; any = true; }
     if (o.o) { K.o = o.o; any = true; }
     if (any) kf(a.wrap, at, K);
-    if (o.punch != null) kf(a.g, at, { ox: X, oy: Y, s: [[0, 1], [o.punch, 1], [o.punch + tu(.07), 1.14, 'out'], [o.punch + tu(.3), 1, 'soft']] });
+    if (o.punch != null && false) kf(a.g, at, { ox: X, oy: Y, s: [[0, 1], [o.punch, 1], [o.punch + tu(.07), 1.14, 'out'], [o.punch + tu(.3), 1, 'soft']] });
     return a;
   }
   /* an icon is its own art on the stage — the canvas clip (CL) does not reach it, so a thing falling in from far above showed its icon over the design
@@ -497,7 +497,7 @@
   /* something that fills from t0 to t1: draw keys and the matching turn of a dot riding its end */
   const fillK = (t0, t1) => [[0, 0], [t0, 0], [t1, 1, 'io']];
   const ridK = (deg, t0, t1) => [[0, -deg], [t0, -deg], [t1, 0, 'io']];
-  const litOn = (q, t) => { const g = sub(q); on(g, q, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] }); return g; };
+  const litOn = (q, t) => { const g = sub(q); on(g, q, 0, { o: [[0, 0], [f3(t - tu(.2)), 0], [f3(t + tu(.3)), 1, 'io']] }); return g; };
   let FILL = { fill: LIT, sw: 0, stroke: 'none' }, SOFTT = { sw: 14, stroke: 'rgba(255,255,255,.16)' };
 
   /* ---------- colour theme (user 2026-11-14: "ทำให้มันเปลี่ยนสีได้"): every colour comes from GL.C (line = ink, card fill, soft lines) plus one
@@ -577,7 +577,7 @@
     else { R(g, x0, y - 11, w, 22, 11, GREY()); R(g, an === 'middle' ? x - w * .31 : x0, y + 33, f1(w * .62), 22, 11, GREY()); } }
   /* the verdict mark: stamps in just after H (big → small), ✓ in the accent, ✗ in the line colour */
   function stamp(p, kind, x, y, r = 58) { const t = f3(Z.H + tu(.1)), g = sub(p);
-    on(g, p, 0, { ox: x, oy: y, s: [[0, 1.8], [t, 1.8], [f3(t + tu(.14)), .9, 'in'], [f3(t + tu(.26)), 1.04], [f3(t + tu(.38)), 1, 'soft']], o: [[0, 0], [t, 0], [f3(t + tu(.06)), 1]] });
+    on(g, p, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [f3(t + tu(.36)), 1, 'io']], o: [[0, 0], [t, 0], [f3(t + tu(.32)), 1, 'io']] });
     g.circle(x, y, r, F(3.6)); const k = r / 32;
     if (kind === 'x') XX(g, x, y, k); else g.path(`M ${f1(x - 17 * k)} ${f1(y + 1 * k)} L ${f1(x - 5 * k)} ${f1(y + 13 * k)} L ${f1(x + 18 * k)} ${f1(y - 13 * k)}`, { sw: 5.4, stroke: ACC1 });
     ripple(p, x, y, r + 8, f3(t + tu(.14))); }
@@ -721,6 +721,122 @@
   R1[5] = (d, c) => r1(d, c, 5, { mode: 'zig', shape: 'box', wS: 54 });
   R1[6] = (d, c) => r1(d, c, 6, { mode: 'col', shape: 'circ', wS: 60 });
   R1[7] = (d, c) => r1(d, c, 7, { mode: 'snake', shape: 'float', wS: 40 });
+
+  /* ================= B04 seven sizes × five designs (user 2026-11-25 after B03 passed: "ผ่านครับ ทำหมวดที่ 4 ได้" + D14/D15 again
+     + "เรียนรู้จากบทเรียนที่พลาดมา · Design ให้สร้างสรรค์ แต่ไม่หลุดคอนเซปท์" → "ออกแบบใหม่ทั้งหมดเลย" — round 1 not kept).
+     01 MILE แถบเติมผ่านหมุด · 02 CHECK เช็กลิสต์ · 03 REEL ภาพหมุนทีละขั้น · 04 CHEV ลูกศรขั้นตอน · 05 PUZ จิ๊กซอว์ต่อกัน.
+     Rules: centred (D14) · icons only — a step's word only when it has no icon (D15) · no frame in a frame (D20) · no ruler ticks / counters (D18) ·
+     one smooth io trip T → H, no fade under .3 s, first key = where it starts (A9, A11) · ✓ / ✗ on the top layer (A10) · nothing past the box. ================= */
+  const ioE2 = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+  const ioAt2 = (f, t0, t1) => { if (f <= 0) return t0; if (f >= 1) return t1; let lo = 0, hi = 1; for (let k = 0; k < 30; k++) { const m = (lo + hi) / 2; if (ioE2(m) < f) lo = m; else hi = m; } return f3(t0 + (t1 - t0) * lo); };
+  const fadeS = (t, d = .32) => [[0, 0], [t, 0], [f3(t + tu(d)), 1, 'io']];
+  const sIn = (q, x, y, t, d = .36) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .82], [t, .82], [f3(t + tu(d)), 1, 'io']], o: fadeS(t) }); return g; };
+  /* the trip: the steps come in one after another, then the progress runs ONE io trip from tA to H; step i is reached at rch(i) (the last on H) */
+  function TRIP(d) { const Q = STP(d), tA = f3(Math.max(Q.tI(Q.E) + tu(.3), Q.H - tu(1.1))), rch = i => Q.E ? ioAt2(i / Q.E, tA, Q.H) : Q.H;
+    const dimO = i => (Q.HOW === 'light' && i !== Q.K) || (Q.HOW === 'x' && i === Q.K) ? [[Q.H, 1], [f3(Q.H + tu(.5)), .4, 'io']] : [];
+    const sw = (g, n = 30) => { const K = [[0, f3(g(0))], [tA, f3(g(0))]]; for (let i = 1; i <= n; i++) { const u = i / n; K.push([f3(tA + (Q.H - tA) * u), f3(g(ioE2(u)))]); } return K; };
+    return Object.assign(Q, { tA, rch, dimO, sw }); }
+  /* step i: its icon floating (or its word, big, when it has no icon). K = keys of its move ({ px, py, x, y, s, o }) */
+  function stepT(p, c, Q, i, x, y, sz, K = {}, o = {}) { const X = Q.it[i], KK = Object.assign({ px: x, py: y }, K); KK.o = (KK.o || fadeS(Q.tI(i))).concat(Q.dimO(i)); const mv = Object.assign({}, KK); delete mv.o;
+    if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, f1(sz), null, { t: o.t ?? Q.tI(i), mv, o: KK.o });
+    else if (X && X.label) txt(mvG(o.clip === false ? p : CL(p), KK), X.label, x, f1(y + sz * .1), { size: f1(Math.max(40, sz * .27)), maxW: f1(sz * 1.05), weight: 800, color: C.ink, wrap: 'mid' });
+    else mvG(p, KK).circle(x, y, f1(sz * .12), DOTF()); }
+  const marks4 = (c, Q, x, y, r) => { if (Q.HOW === 'check' || Q.HOW === 'x') { const M = [x, y, r]; over(c, q => stamp(q, Q.HOW, M[0], M[1], M[2])); } };
+  const MR = sz => f1(Math.max(22, Math.min(40, sz * .2)));
+  const KN4 = () => ({ fill: ACC1, sw: 0, stroke: 'none' });
+
+  /* 01 MILE — one long capsule bar; the steps stand by it at their milestones; the fill runs the bar in one smooth trip, each milestone lights as it
+     passes, the steps brighten as they are reached (they wait dim). Wide: bar under a row of steps · tall: bar left of a column of steps. */
+  function MILE(p, c, d, W0, H0) { const Q = TRIP(d), n = Q.N, hz = W0 >= H0 * 1.1;
+    const L = hz ? W0 : H0, A = hz ? H0 : W0, bt = f1(Math.max(28, Math.min(96, A * .17))), g = f1(Math.max(18, A * .06)), ic = f1(Math.min(L / n * .86, A - bt - g, 330)), tot = ic + g + bt;
+    const pad = 6, rr = f1(bt / 2), m0 = f1(-L / 2 + Math.max(rr, ic / 2)), m1 = f1(L / 2 - Math.max(rr, ic / 2)), at = i => n > 1 ? f1(lerp(m0, m1, i / (n - 1))) : 0;
+    const P = (u, v) => hz ? [u, v] : [v, u], bc = f1(tot / 2 - bt / 2), sc = f1(-tot / 2 + ic / 2);   /* bar centre line / step centre line (across) */
+    const [bx, by] = P(0, hz ? bc : -bc); const tr = hz ? [-L / 2, f1(by - bt / 2), L, bt] : [f1(bx - bt / 2), -L / 2, bt, L];
+    R(sIn(p, bx, by, tu(.04)), ...tr, rr, F(4));
+    const ib = f1(bt - 2 * pad), inL = f1(L - 2 * pad), cl = hz ? clipG(p, f1(-L / 2 + pad), f1(by - ib / 2), inL, ib, f1(ib / 2)) : clipG(p, f1(bx - ib / 2), f1(-L / 2 + pad), ib, inL, f1(ib / 2));
+    const fr = u => { const pos = lerp(m0, m1, u); return (pos + L / 2 - pad + ib / 2) / inL; }, ful = u => f1(inL * (1 - Math.min(1, fr(u))));
+    const K = hz ? { x: Q.sw(u => -ful(u)), o: fadeS(Q.tA, .2) } : { y: Q.sw(u => -ful(u)), o: fadeS(Q.tA, .2) };
+    R(mvG(cl, K), ...(hz ? [f1(-L / 2 + pad), f1(by - ib / 2), inL, ib] : [f1(bx - ib / 2), f1(-L / 2 + pad), ib, inL]), f1(ib / 2), { fill: TA(.36), sw: 0, stroke: 'none' });
+    for (let i = 0; i < n; i++) { const [mx, my] = P(at(i), hz ? by : bx), t = Q.rch(i), [sx, sy] = P(at(i), hz ? sc : -sc);
+      const dot = sub(p); on(dot, p, 0, { ox: mx, oy: my, s: [[0, .5], [f3(t - tu(.1)), .5], [f3(t + tu(.26)), 1, 'io']], o: [[0, 0], [f3(t - tu(.1)), 0], [f3(t + tu(.2)), 1, 'io']] }); dot.circle(mx, my, f1(Math.max(7, ib * .22)), { fill: C.ink, sw: 0, stroke: 'none' });
+      const O = [[0, 0], [Q.tI(i), 0], [f3(Q.tI(i) + tu(.32)), .4, 'io'], [f3(t - tu(.15)), .4], [f3(t + tu(.2)), 1, 'io']];
+      stepT(p, c, Q, i, sx, sy, ic * .92, { o: O });
+      if (i === Q.K && Q.HOW === 'light') { const h = sub(p); on(h, p, 0, { o: [[0, 0], [f3(Q.H - tu(.1)), 0], [f3(Q.H + tu(.4)), 1, 'io']] }); h.circle(sx, sy, f1(ic * .56), { fill: TA(.08), sw: 4, stroke: ACC1 }); } }
+    R(litOn(p, Q.H), ...tr, rr, { fill: 'none', sw: 5, stroke: ACC1 });
+    const [kx, ky] = P(at(Q.K), hz ? sc : -sc); marks4(c, Q, f1(kx + ic * .4), f1(ky - ic * .4), MR(ic)); }
+
+  /* 02 CHECK — a checklist: each step has its round-cornered box; the ticks draw themselves one after another on the trip (the marked x gets ✗).
+     Tall / square: rows [box · icon] · wide: columns [icon over box] · flat strip: pairs side by side. */
+  function CHECK(p, c, d, W0, H0) { const Q = TRIP(d), n = Q.N, mode = W0 / H0 > 2.6 ? 'pair' : W0 > H0 * 1.15 ? 'colm' : 'rows';
+    const box = (x, y, b, i) => { const t = Q.rch(i), xx = Q.HOW === 'x' && i === Q.K, g = sIn(p, x, y, Q.tI(i)); R(g, f1(x - b / 2), f1(y - b / 2), b, b, f1(b * .26), F(4));
+      const k = b / 64, tk = sub(p); if (xx) { const a = tk.line(f1(x - 15 * k), f1(y - 15 * k), f1(x + 15 * k), f1(y + 15 * k), { sw: 6, stroke: C.ink }), b2 = tk.line(f1(x - 15 * k), f1(y + 15 * k), f1(x + 15 * k), f1(y - 15 * k), { sw: 6, stroke: C.ink });
+        on(a, p, 0, { draw: [[0, 0], [f3(t - tu(.3)), 0], [f3(t - tu(.1)), 1, 'io']] }); on(b2, p, 0, { draw: [[0, 0], [f3(t - tu(.12)), 0], [f3(t + tu(.08)), 1, 'io']] }); }
+      else { const ck = tk.path(`M ${f1(x - 17 * k)} ${f1(y + 1 * k)} L ${f1(x - 5 * k)} ${f1(y + 13 * k)} L ${f1(x + 18 * k)} ${f1(y - 13 * k)}`, { sw: 6.4, stroke: ACC1, fill: 'none' });
+        on(ck, p, 0, { draw: [[0, 0], [f3(t - tu(.3)), 0], [f3(t + tu(.06)), 1, 'io']] }); }
+      R(litOn(p, f3(t + tu(.04))), f1(x - b / 2), f1(y - b / 2), b, b, f1(b * .26), xx ? { fill: 'none', sw: 4, stroke: TL_(.5) } : { fill: TA(.12), sw: 4.4, stroke: ACC1 });
+      if (Q.HOW === 'light' && i !== Q.K || xx) on(g, p, 0, { o: [[0, 1], [Q.H, 1], [f3(Q.H + tu(.5)), .4, 'io']] }); };
+    let K0 = null;
+    if (mode === 'rows') { const rh = H0 / n, ic = f1(Math.min(rh * .8, W0 * .45, 260)), b = f1(Math.min(rh * .56, ic * .7, 150)), g = f1(Math.max(26, ic * .22)), x0 = f1(-(b + g + ic) / 2);
+      for (let i = 0; i < n; i++) { const y = f1(-H0 / 2 + rh * (i + .5)); box(f1(x0 + b / 2), y, b, i); stepT(p, c, Q, i, f1(x0 + b + g + ic / 2), y, ic); if (i === Q.K) K0 = [f1(x0 + b + g + ic * .9), f1(y - ic * .36), MR(ic)]; } }
+    else if (mode === 'colm') { const cw = W0 / n, b = f1(Math.min(cw * .42, H0 * .26, 140)), g = f1(Math.max(20, H0 * .05)), ic = f1(Math.min(cw * .78, H0 - b - g, 280)), y0 = f1(-(ic + g + b) / 2);
+      for (let i = 0; i < n; i++) { const x = f1(-W0 / 2 + cw * (i + .5)); stepT(p, c, Q, i, x, f1(y0 + ic / 2), ic); box(x, f1(y0 + ic + g + b / 2), b, i); if (i === Q.K) K0 = [f1(x + ic * .42), f1(y0 + ic * .1), MR(ic)]; } }
+    else { const cw = W0 / n, ic = f1(Math.min(H0 * .8, cw * .5, 220)), b = f1(Math.min(H0 * .5, ic * .66)), g = f1(Math.max(14, cw * .05)), pw = b + g + ic;
+      for (let i = 0; i < n; i++) { const cx = f1(-W0 / 2 + cw * (i + .5)), x0 = f1(cx - pw / 2); box(f1(x0 + b / 2), 0, b, i); stepT(p, c, Q, i, f1(x0 + b + g + ic / 2), 0, ic); if (i === Q.K) K0 = [f1(x0 + b + g + ic * .92), f1(-ic * .38), MR(ic)]; } }
+    if (K0) marks4(c, Q, ...K0); }
+
+  /* 03 REEL — one step at a time: a single frame in the middle; the steps sit on a reel that slides through it (wide: sideways · tall: up), the one
+     in the frame big and bright, the ones beside small and faint, fading out before the box edge. One smooth trip from the first step to the last
+     (with a mark on an earlier step: on to the last, then back to it). */
+  function REEL(p, c, d, W0, H0) { const Q = TRIP(d), n = Q.N, hz = W0 >= H0, L = hz ? W0 : H0, A = hz ? H0 : W0, S = f1(Math.min(A * .96, L * .44, 420)), ic = f1(S * .66), D = f1(S / 2 + ic * .3 + 28);   /* neighbours close beside the frame, fully inside the box */
+    const P = (u, v) => hz ? [u, v] : [v, u], back = Q.K !== Q.E, pos = u => back ? (u < .72 ? Q.E * ioE2(u / .72) : Q.E + (Q.K - Q.E) * ioE2((u - .72) / .28)) : Q.E * u;   /* where the reel is (in steps) at trip progress u */
+    R(sIn(p, 0, 0, tu(.04)), f1(-S / 2), f1(-S / 2), S, S, f1(S * .24), F(4.4));
+    for (let i = 0; i < n; i++) { const off = u => (i - pos(u)) * D, sc = u => Math.max(.5, 1 - Math.abs(i - pos(u)) * .42), op = u => { const e = Math.abs(off(u)), room = L / 2 - e - ic * sc(u) / 2; return Math.max(0, Math.min(1, room / (ic * .3))) * (.5 + .5 * Math.max(0, 1 - Math.abs(i - pos(u)))); };   /* gone before it would touch the box edge (A5) */
+      const sw = g => { const K = [[0, f3(g(0))], [Q.tA, f3(g(0))]]; for (let k = 1; k <= 36; k++) { const u = k / 36; K.push([f3(Q.tA + (Q.H - Q.tA) * u), f3(g(back ? u : ioE2(u)))]); } return K; };
+      const [fx, fy] = P(f1(off(1)), 0), XK = sw(u => off(u) - off(1)), O = sw(op).map(([t, v], k) => [t, k < 2 ? v : v]);
+      O[0] = [0, 0]; O[1] = [Q.tI(i), 0]; O.splice(2, 0, [f3(Q.tI(i) + tu(.32)), f3(op(0)), 'io']);   /* fade in to its starting brightness, then follow the reel */
+      const K = Object.assign({ s: sw(sc), o: O }, hz ? { x: XK } : { y: XK });
+      stepT(p, c, Q, i, fx, fy, ic, K); }
+    R(litOn(p, Q.H), f1(-S / 2), f1(-S / 2), S, S, f1(S * .24), { fill: Q.HOW === 'x' ? 'none' : TA(.08), sw: 5, stroke: Q.HOW === 'x' ? TL_(.5) : ACC1 });
+    marks4(c, Q, f1(S / 2 - MR(S) * .9), f1(-S / 2 + MR(S) * .9), MR(S)); }
+
+  /* 04 CHEV — process arrows: the steps sit in arrow segments that point the way (wide: → · tall: ↓), joined edge to edge; a soft fill flows through
+     them in one trip and each arrow's edge lights as the flow passes its tip. */
+  function CHEV(p, c, d, W0, H0) { const Q = TRIP(d), n = Q.N, hz = W0 >= H0 * .9, L = hz ? W0 : H0, A0 = hz ? H0 : W0, A = f1(Math.min(A0, L / n * 1.55)), nt = f1(Math.min(A * .3, L / n * .32)), sl = f1((L - nt) / n);   /* fuller arrows on roomy boxes (D2) */   /* segment step length */
+    const P = (u, v) => hz ? [u, v] : [v, u], seg = i => { const u0 = -L / 2 + i * sl, u1 = u0 + sl, pts = [[u0, -A / 2], [u1, -A / 2], [u1 + nt, 0], [u1, A / 2], [u0, A / 2]]; if (i) pts.push([u0 + nt, 0]); return pts.map(([u, v]) => P(f1(u), f1(v))); };
+    const cid = 'b04chev' + (++CID), svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'); cp.id = cid; for (let i = 0; i < n; i++) { const q = document.createElementNS(NS, 'path'); q.setAttribute('d', pathOf(seg(i))); cp.appendChild(q); } (svg.querySelector('defs') || svg).appendChild(cp);
+    const cg = sub(p, { 'clip-path': `url(#${cid})` }), tipF = i => (i + 1) * sl / L + nt / L * (i === n - 1 ? 1 : .5), full = u => Math.min(1, u * 1.0);
+    const FL = hz ? { px: -L / 2, py: 0, sx: Q.sw(u => Math.max(.001, full(u))), o: fadeS(Q.tA, .2) } : { px: 0, py: -L / 2, sy: Q.sw(u => Math.max(.001, full(u))), o: fadeS(Q.tA, .2) };
+    R(mvG(cg, FL), ...(hz ? [-L / 2, -A / 2, L, A] : [-A / 2, -L / 2, A, L]), 0, { fill: TA(.16), sw: 0, stroke: 'none' });
+    const ic = f1(Math.min(A * .56, sl * .66, 300));
+    for (let i = 0; i < n; i++) { const sh = seg(i), [cx, cy] = P(f1(-L / 2 + i * sl + (sl + (i ? nt : 0)) / 2 + nt * .15), 0), t = ioAt2(Math.min(1, tipF(i) * .98), Q.tA, Q.H);
+      const g = sIn(p, cx, cy, Q.tI(i)); g.path(pathOf(sh), Object.assign(F(4), { 'stroke-linejoin': 'round' }));
+      const lit = litOn(p, i === n - 1 ? Q.H : t); lit.path(pathOf(sh), { fill: 'none', sw: 4.6, stroke: (Q.HOW === 'x' && i === Q.K) ? TL_(.5) : ACC1, 'stroke-linejoin': 'round' });
+      if (Q.dimO(i).length) on(g, p, 0, { o: [[0, 1], [Q.H, 1], [f3(Q.H + tu(.5)), .45, 'io']] });
+      stepT(p, c, Q, i, cx, cy, ic); if (i === Q.K) marks4(c, Q, f1(cx + (hz ? ic * .42 : ic * .5)), f1(cy - (hz ? A * .3 : ic * .42)), MR(ic)); } }
+
+  /* 05 PUZ — jigsaw pieces: each step is a piece; one by one they slide in and lock into the one before (tab into socket) on the trip; each joint
+     lights as it locks, the last on H. Wide: a row (tabs →) · tall: a column (tabs ↓). */
+  function PUZ(p, c, d, W0, H0) { const Q = TRIP(d), n = Q.N, hz = W0 >= H0 * .9, L = hz ? W0 : H0, A0 = hz ? H0 : W0, dsl = f1(Math.min(70, L * .07));
+    const w = f1(Math.min((L - dsl) / n, A0 * 1.2)), h = f1(Math.min(A0 * .94, w * 1.45)), r = f1(Math.min(h, w) * .15), rr = f1(Math.min(h, w) * .14), tot = n * w, u00 = f1(-tot / 2 - dsl / 2);
+    const M = (u, v) => hz ? [u, v] : [-v, u];   /* rotation (no mirror): arcs keep their sweep */
+    const piece = (i) => { const u0 = u00 + i * w, u1 = u0 + w, v0 = -h / 2, v1 = h / 2, pt = (u, v) => M(f1(u), f1(v)).join(' '), arc = (rad_, sweep, u, v) => `A ${rad_} ${rad_} 0 0 ${sweep} ${pt(u, v)}`;
+      let dd = `M ${pt(u0 + rr, v0)} L ${pt(u1 - rr, v0)} ${arc(rr, 1, u1, v0 + rr)}`;
+      if (i < n - 1) dd += ` L ${pt(u1, -r)} ${arc(r, 1, u1, r)}`;   /* tab out */
+      dd += ` L ${pt(u1, v1 - rr)} ${arc(rr, 1, u1 - rr, v1)} L ${pt(u0 + rr, v1)} ${arc(rr, 1, u0, v1 - rr)}`;
+      if (i > 0) dd += ` L ${pt(u0, r)} ${arc(r, 0, u0, -r)}`;   /* socket in */
+      return dd + ` L ${pt(u0, v0 + rr)} ${arc(rr, 1, u0 + rr, v0)} Z`; };
+    const ic = f1(Math.min(w * .62, h * .56, 300));
+    for (let i = 0; i < n; i++) { const t = Q.rch(i), t0 = f3(i ? Math.max(Q.tI(i), Q.rch(i - 1)) : Q.tI(0)), [cx, cy] = M(f1(u00 + i * w + w / 2 - (i ? r * .3 : 0)), 0), [dx, dy] = M(i ? dsl : 0, 0);
+      const K = { px: cx, py: cy, x: [[0, dx], [t0, dx], [t, 0, 'io']], y: [[0, dy], [t0, dy], [t, 0, 'io']], o: fadeS(f3(Math.min(t0, t - tu(.34)))) };
+      const g = mvG(p, K); g.path(piece(i), F(4)); if (Q.dimO(i).length) on(g, p, 0, { o: [[0, 1], [Q.H, 1], [f3(Q.H + tu(.5)), .45, 'io']] });
+      litOn(p, t).path(piece(i), { fill: (Q.HOW === 'x' && i === Q.K) ? 'none' : TA(.1), sw: 4.4, stroke: (Q.HOW === 'x' && i === Q.K) ? TL_(.5) : ACC1 });
+      stepT(p, c, Q, i, cx, cy, ic, { x: K.x, y: K.y, o: fadeS(f3(Math.min(t0, t - tu(.34)))) }); if (i === Q.K) marks4(c, Q, f1(cx + ic * .5), f1(cy - ic * .5), MR(ic)); } }
+
+  function lay4(k, d, c, D) { const Wb = SIZES[k].w, Hb = SIZES[k].h, m = 14; art(c, p => D(p, c, d, Wb - 2 * m, Hb - 2 * m)); }
+  const SZD = {}; for (let k = 1; k <= 7; k++) SZD[k] = [{ id: 'mile', th: 'แถบเติมผ่านหมุด', fn: (d, c) => lay4(k, d, c, MILE) }, { id: 'check', th: 'เช็กลิสต์', fn: (d, c) => lay4(k, d, c, CHECK) },
+    { id: 'reel', th: 'ภาพหมุนทีละขั้น', fn: (d, c) => lay4(k, d, c, REEL) }, { id: 'chev', th: 'ลูกศรขั้นตอน', fn: (d, c) => lay4(k, d, c, CHEV) }, { id: 'puz', th: 'จิ๊กซอว์ต่อกัน', fn: (d, c) => lay4(k, d, c, PUZ) }];
+  /* icons only (D15): a step keeps its word only when it has no icon */
+  const noWords = d => d && Array.isArray(d.items) ? Object.assign({}, d, { items: d.items.map(X => X && X.icon && (G.icons[X.icon] || G.icons[X.icon + '-pro']) ? Object.assign({}, X, { label: undefined }) : X) }) : d;
   const ROUNDS = [null, R1];
   const I = (icon, label) => label ? { icon, label } : { icon };
   const SAMPLES = [
@@ -780,6 +896,7 @@
     if (Array.isArray(o.items)) o.items = o.items.map(thinT);
     if (typeof o.unit === 'string' && glen(o.unit) > LONGW) delete o.unit; return o; }
   G.cats = G.cats || {};
-  G.cats.B04S = { ROUNDS, SIZES, SAMPLES, STRESS, theme, frame,
+  G.cats.B04S = { ROUNDS, SIZES, SAMPLES: [SAMPLES[0], SAMPLES[2], SAMPLES[1]], STRESS: [STRESS[11], STRESS[4], STRESS[2], STRESS[6], STRESS[5], STRESS[9]], ALL: SAMPLES, ALLS: STRESS, theme, frame, S: SZD,
+    drawS: (k, i, d, c) => { d = noWords(trimLong(d)); setZ(c); CUR = 's' + k + '-' + SZD[k][i].id; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; T_OFF = false; SZD[k][i].fn(d || {}, c); },
     draw: (r, k, d, c) => { d = trimLong(d); setZ(c); CUR = 'r' + r + 's' + k; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; T_OFF = false; ROUNDS[r][k](d || {}, c); }, CLAMPS };
 })();
