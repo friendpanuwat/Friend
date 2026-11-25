@@ -1004,6 +1004,10 @@
         const bar = mvG(p, { px: x, py: b1, sy: K, o: lose ? [[0, 1], [T_.H, 1], [f3(T_.H + tu(.3)), .4, 'io']] : undefined }), inset = 9, D = (q, st) => R(q, f1(x - bw / 2 + inset), f1(b0 + inset), bw - inset * 2, f1(b1 - b0 - inset * 2), 18, st);
         D(bar, { fill: TL_(.55), sw: 0, stroke: 'none' }); if (win) D(litOn(bar, T_.H), { fill: ACC1, sw: 0, stroke: 'none' });
         const ly = f1(Y1 - lh / 2); if (r === 'o') cell(p, c, d, r, i, x, ly, cw, lh, { shape: 'float', wideMin: 999, wrap: 'mid', ws: 40 }); else qslot(p, c, d, x, ly, cw, lh, { ans: true, r: 40, st: { shape: 'float', wideMin: 999, wrap: 'mid', ws: 40 } }); }); }); });
+  /* the hollow "?" glyph: a round hook (arc 160° → 32°) that flows on into the stem WITHOUT a kink — the curve leaves the arc along its own tangent
+     (user, size 6: "question mark มันไม่กลม" — the join used to turn sharply) */
+  const qGlyphD = (cx, hy, Rh, sTop, sBot) => { const P = a => [f1(cx + Rh * Math.cos(rad(a))), f1(hy + Rh * Math.sin(rad(a)))], [sx, sy] = P(160), [ex, ey] = P(32), tx = -Math.sin(rad(32)), ty = Math.cos(rad(32)), L1 = Rh * .62;
+    return `M ${sx} ${sy} A ${Rh} ${Rh} 0 1 1 ${ex} ${ey} C ${f1(ex + tx * L1)} ${f1(ey + ty * L1)} ${cx} ${f1(sTop - Rh * .5)} ${cx} ${sTop} L ${cx} ${sBot}`; };
   /* ---------- SIZE 4 · 400 × 635 (tall) — user after size 3: "ออกแบบให้มันมีหน้าตาที่แตกต่างขึ้นหน่อย สร้างสรรค์ขึ้นแต่ยังเรียบๆอยู่ มีอนิเมชั่นที่ต่างไป
      … เพราะรู้สึกว่ามันเหมือนๆกับหมวดอื่นเลย" → lay-outs that come from the question itself (the "?" glyph, a search being typed, a wait that fills),
      with motions no other category uses (light flowing along a line, typing, a ring filling). Pilot: 3 designs. ---------- */
@@ -1014,13 +1018,13 @@
      (no answer → the dot itself lights) */
   sd(4, 'glyph', 'ตัว ? เป็นโครง', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
     art(c, p => { const hx = 0, hy = -190, Rh = 102, P = a => [f1(hx + Rh * Math.cos(rad(a))), f1(hy + Rh * Math.sin(rad(a)))], [sx, sy] = P(160), [ex, ey] = P(32);
-      const D = `M ${sx} ${sy} A ${Rh} ${Rh} 0 1 1 ${ex} ${ey} C ${f1(ex - 8)} ${f1(ey + 50)} 0 ${hy + 120} 0 ${hy + 170} L 0 ${hy + 216}`, tw_ = 40, dy = 212, dr = 98;
+      const D = qGlyphD(0, hy, Rh, hy + 170, hy + 216), tw_ = 40, dy = 212, dr = 98;
       const o1 = p.path(D, { sw: tw_, stroke: TL_(.7) }), i1 = p.path(D, { sw: tw_ - 7, stroke: C.fill }); [o1, i1].forEach(e => drawAt(e, p, T_.tA, tu(.6)));
       const flow = p.path(D, { sw: tw_ - 7, stroke: TA(.4) }); on(flow, p, 0, { draw: [[0, 0], [f3(H - tu(.42)), 0], [H, 1, 'io']] });   /* the light runs down the "?" */
       const gd = popAt(p, 0, dy, f3(T_.tA + tu(.5))); gd.circle(0, dy, dr, { fill: C.fill, sw: 4, stroke: TL_(.7) });
       if (F.answered) echo(p, c, d, 0, dy, dr * 2, dr * 2, { shape: 'circ', n: true, ws: 36 });
       else { litOn(gd, H).circle(0, dy, dr, { fill: TA(.4), sw: 5, stroke: ACC1 }); ripple(p, 0, dy, dr + 10, f3(H + tu(.04))); }
-      if (F.hasA) cell(p, c, d, 'a', 0, hx, f1(hy - 8), 140, 164, { shape: 'float', wideMin: 999, cap: 74, ws: 34, wrap: 'down' });
+      if (F.hasA) cell(p, c, d, 'a', 0, hx, hy, 140, 140, { shape: 'float', wideMin: 999, cap: 104, noWord: true });   /* icon only in the hook (user: no words over the "?") */
       if (F.hasO) { cell(p, c, d, 'o', 0, -116, 0, 152, 186, { shape: 'float', wideMin: 999, cap: 86, ws: 34, wrap: 'down' }); cell(p, c, d, 'o', 1, 122, 0, 144, 186, { shape: 'float', wideMin: 999, cap: 86, ws: 34, wrap: 'down' }); } }); });
 
   /* 02 a search being typed: the field on top — what is asked is typed in letter by letter behind a blinking caret (no thing asked → "A หรือ B");
@@ -1207,13 +1211,13 @@
      On H a light runs down the "?" into the dot and the answer appears there (no options → the answer lands in a slot on the right, the dot lights) */
   sd(5, 'glyph', 'ตัว ? เป็นโครง', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
     art(c, p => { if (onlyN5(p, c, d)) return; const hx = -215, hy = -168, Rh = 128, P = a => [f1(hx + Rh * Math.cos(rad(a))), f1(hy + Rh * Math.sin(rad(a)))], [sx, sy] = P(160), [ex, ey] = P(32);
-      const D = `M ${sx} ${sy} A ${Rh} ${Rh} 0 1 1 ${ex} ${ey} C ${f1(ex - 10)} ${f1(ey + 60)} ${hx} ${hy + 130} ${hx} ${hy + 186} L ${hx} ${hy + 248}`, tw_ = 46, dy = 250, dr = 96;
+      const D = qGlyphD(hx, hy, Rh, hy + 186, hy + 248), tw_ = 46, dy = 250, dr = 96;
       const o1 = p.path(D, { sw: tw_, stroke: TL_(.7) }), i1 = p.path(D, { sw: tw_ - 7, stroke: C.fill }); [o1, i1].forEach(e => drawAt(e, p, T_.tA, tu(.6)));
       on(p.path(D, { sw: tw_ - 7, stroke: TA(.4) }), p, 0, { draw: [[0, 0], [f3(H - tu(.42)), 0], [H, 1, 'io']] });
       const gd = popAt(p, hx, dy, f3(T_.tA + tu(.5))); gd.circle(hx, dy, dr, { fill: C.fill, sw: 4, stroke: TL_(.7) });
       if (F.hasO && F.answered) echo(p, c, d, hx, dy, dr * 2, dr * 2, { shape: 'circ', n: true, ws: 40 });
       else { litOn(gd, H).circle(hx, dy, dr, { fill: TA(.4), sw: 5, stroke: ACC1 }); ripple(p, hx, dy, dr + 10, f3(H + tu(.04))); }
-      if (F.hasA) cell(p, c, d, 'a', 0, hx, f1(hy - 6), 170, 190, { shape: 'float', wideMin: 999, cap: 96, ws: 38, wrap: 'down' });
+      if (F.hasA) cell(p, c, d, 'a', 0, hx, hy, 170, 170, { shape: 'float', wideMin: 999, cap: 134, noWord: true });
       const rx = 45, rw = X5 - rx, rcx = f1(rx + rw / 2);
       if (F.hasO) { const L = [['o', 0], ['o', 1]], h = (Y5 * 2 - 18) / 2; L.forEach(([r, i], k) => cell(p, c, d, r, i, rcx, f1(-Y5 + h / 2 + k * (h + 18)), rw, h, { wideMin: 300, ws: 58, cap: 170 })); }
       else qslot(p, c, d, rcx, 0, rw, Y5 * 2, { ans: true, r: 110, st: { wideMin: 999, ws: 58, cap: 230 } }); }); });
@@ -1378,12 +1382,12 @@
      on H a light runs down the "?" into the dot and the answer appears there (no answer → the dot lights). No options → what is asked across the middle */
   sd(6, 'glyph', 'ตัว ? เป็นโครง', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
     art(c, p => { if (onlyN6(p, c, d)) return; const hy = -282, Rh = 162, P = a => [f1(Rh * Math.cos(rad(a))), f1(hy + Rh * Math.sin(rad(a)))], [sx, sy] = P(160), [ex, ey] = P(32);
-      const D = `M ${sx} ${sy} A ${Rh} ${Rh} 0 1 1 ${ex} ${ey} C ${f1(ex - 10)} ${f1(ey + 72)} 0 ${hy + 172} 0 ${hy + 232} L 0 ${hy + 300}`, tw_ = 54, dy = 342, dr = 122;
+      const D = qGlyphD(0, hy, Rh, hy + 232, hy + 300), tw_ = 54, dy = 342, dr = 122;
       [p.path(D, { sw: tw_, stroke: TL_(.7) }), p.path(D, { sw: tw_ - 7, stroke: C.fill })].forEach(e => drawAt(e, p, T_.tA, tu(.6)));
       on(p.path(D, { sw: tw_ - 7, stroke: TA(.4) }), p, 0, { draw: [[0, 0], [f3(H - tu(.42)), 0], [H, 1, 'io']] });
       const gd = popAt(p, 0, dy, f3(T_.tA + tu(.5))); gd.circle(0, dy, dr, { fill: C.fill, sw: 4, stroke: TL_(.7) });
       if (F.answered && F.hasO) echo(p, c, d, 0, dy, dr * 2, dr * 2, { shape: 'circ', n: true, ws: 46, noRip: true }); else litOn(gd, H).circle(0, dy, dr, { fill: TA(.4), sw: 5, stroke: ACC1 });
-      if (F.hasO) { if (F.hasA) cell(p, c, d, 'a', 0, 0, f1(hy - 6), 210, 220, { shape: 'float', wideMin: 999, cap: 120, ws: 44, wrap: 'down' });
+      if (F.hasO) { if (F.hasA) cell(p, c, d, 'a', 0, 0, hy, 220, 220, { shape: 'float', wideMin: 999, cap: 172, noWord: true });
         [0, 1].forEach(i => cell(p, c, d, 'o', i, i ? 242 : -242, 92, 346, 236, { wideMin: 999, cap: 130, ws: 48, wrap: 'mid' })); }
       else { cell(p, c, d, 'a', 0, -242, 92, 346, 236, { wideMin: 999, cap: 130, ws: 48, wrap: 'mid' });   /* no options: beside the stem, never across it (user: the "?" showed the card's lines) */
         qslot(p, c, d, 242, 92, 346, 236, { ans: true, r: 64, st: { wideMin: 999, cap: 130, ws: 48, wrap: 'mid' } }); } }); });
@@ -1554,6 +1558,196 @@
       if (X) { const lab = LBL(X); if (picOf(X)) put(p, c, { icon: X.icon }, 0, lab ? -80 : 0, lab ? 380 : 460, null, { t: tc, punch: f3(tz + tu(.02)) });
         const s0 = lab || (!picOf(X) && X.label); if (s0) txt(atG(p, f3(tc + tu(.08))), s0, 0, lab ? 230 : 40, { size: lab ? 90 : 120, maxW: 760, weight: 800, color: C.ink, wrap: 'mid' }); }
       else { const g = mvG(p, { px: 0, py: 0, s: [[0, .8], [tc, .8], [f3(tc + tu(.3)), 1, 'out']], o: [[0, 0], [tc, 0], [f3(tc + tu(.12)), 1]] }); txt(g, '?', 0, 170, { size: 480, weight: 800, color: ACC1 }); } }); });
+  /* ---------- SIZE 7 · 400 × 500 (narrow, short) — the last size (user: "ขนาดสุดท้ายทำดีๆได้บทเรียนมาเยอะแล้ว"). The ten ideas, packed for the small box,
+     with every lesson of this round: no landing rings (32) · the "?" is a qmark that leaves before the answer comes (33) · nothing across the hollow "?" (34) ·
+     no options → each design keeps its own look (30) and the answer's icon is big and centred. ---------- */
+  const X7 = 195, Y7 = 245;
+  const onlyN7 = (p, c, d) => { const F = QD(d); if (F.hasO || F.hasA) return false; if (F.hasN) qslot(p, c, d, 0, 0, X7 * 2, Y7 * 2, { ans: true, r: 100, st: { wideMin: 9999, ws: 52, cap: 230 } }); else qmark(p, d, 0, 0, 120, NR); return true; };
+  /* the answer alone in a box: its icon big and centred, its word under it (user, sizes 5–6) */
+  const BIG7 = (cap, ws) => ({ wideMin: 9999, cap, ws, wrap: 'mid' });
+
+  /* 01 the "?" is the picture: a hollow "?" — what is asked in its hook, the options either side of its stem, its dot the answer's place; on H a light
+     runs down the "?" into the dot. No options → what is asked beside the stem (left), the answer's slot beside it (right); the dot lights */
+  sd(7, 'glyph', 'ตัว ? เป็นโครง', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
+    art(c, p => { if (onlyN7(p, c, d)) return; const hy = -150, Rh = 88, P = a => [f1(Rh * Math.cos(rad(a))), f1(hy + Rh * Math.sin(rad(a)))], [sx, sy] = P(160), [ex, ey] = P(32);
+      const D = qGlyphD(0, hy, Rh, hy + 146, hy + 188), tw_ = 36, dy = 172, dr = 68;
+      [p.path(D, { sw: tw_, stroke: TL_(.7) }), p.path(D, { sw: tw_ - 7, stroke: C.fill })].forEach(e => drawAt(e, p, T_.tA, tu(.6)));
+      on(p.path(D, { sw: tw_ - 7, stroke: TA(.4) }), p, 0, { draw: [[0, 0], [f3(H - tu(.42)), 0], [H, 1, 'io']] });
+      const gd = popAt(p, 0, dy, f3(T_.tA + tu(.5))); gd.circle(0, dy, dr, { fill: C.fill, sw: 4, stroke: TL_(.7) });
+      if (F.answered && F.hasO) echo(p, c, d, 0, dy, dr * 2, dr * 2, { shape: 'circ', n: true, ws: 30, noRip: true }); else litOn(gd, H).circle(0, dy, dr, { fill: TA(.4), sw: 5, stroke: ACC1 });
+      const cx = 124, cw = 142, ch = 150, cy = 26;   /* clear of the hook's curve (lesson 34) */
+      if (F.hasO) { if (F.hasA) cell(p, c, d, 'a', 0, 0, hy, 112, 112, { shape: 'float', wideMin: 999, cap: 88, noWord: true });   /* icon only in the hook (user: no words over the "?") */
+        [0, 1].forEach(i => cell(p, c, d, 'o', i, i ? cx : -cx, f1(cy - 8), cw, ch, { shape: 'float', wideMin: 999, cap: 76, ws: 30, wrap: 'mid' })); }   /* two-line words stay clear of the dot */
+      else { cell(p, c, d, 'a', 0, -cx, cy, cw, ch, { wideMin: 999, cap: 78, ws: 32, wrap: 'down' }); qslot(p, c, d, cx, cy, cw, ch, { ans: true, r: 44, st: { wideMin: 999, cap: 78, ws: 32, wrap: 'down' } }); } }); });
+
+  /* 02 a search being typed: the field on top (what is asked typed in behind a blinking caret), the results as rows; a highlight steps between them
+     and stops on the answer. No options → one result fills the list: the answer's icon big in the middle, its word under it */
+  sd(7, 'type', 'ช่องค้นหาพิมพ์คำ', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
+    art(c, p => { if (onlyN7(p, c, d)) return; const fh = 92, fy = f1(-Y7 + fh / 2), tx0 = -X7 + 80, qx = X7 - 42, mw = qx - 36 - tx0;
+      R(atG(p, f3(T_.tA - tu(.02))), -X7, -Y7, X7 * 2, fh, fh / 2, BK); outlineIn(p, R(p, -X7, -Y7, X7 * 2, fh, fh / 2, OUT(.65)), T_.tA); put(p, c, { icon: 'search' }, -X7 + 44, fy, 54, null, { t: T_.tA });
+      let str = F.ab ? (F.ab.label || '') : F.hasO ? [F.op[0].label, F.op[1].label].filter(Boolean).join(' หรือ ') : '';
+      if (str && tw(p, str, 40) > mw * 1.2) str = (!F.ab && F.hasO) || !picOf(F.ab) ? (F.ab ? str : '') : '';
+      if (F.ab && !str && picOf(F.ab)) put(p, c, { icon: F.ab.icon }, tx0 + 32, fy, 62, null, { t: f3(T_.tA + tu(.2)) });
+      if (str) { const sz = 40, wT = Math.min(mw, tw(p, str, sz)), t0 = f3(T_.tA + tu(.25)), t1 = f3(Math.min(T_.tQ, t0 + tu(.05) * Math.max(4, [...str].length)));
+        txt(atG(p, T_.tA), str, tx0, f1(fy + 14), { size: sz, maxW: mw, weight: 800, color: C.ink, anchor: 'start' });
+        const cg = clipG(p, tx0 - 6, fy - 36, mw + 14, 72), cov = mvG(cg, { x: [[0, 0], [t0, 0], [t1, f1(wT + 8)]] }); R(cov, tx0 - 4, fy - 34, wT + 30, 68, 0, { fill: C.fill, sw: 0, stroke: 'none' });
+        const bl = [[0, 0], [T_.tA, 0], [f3(T_.tA + tu(.05)), 1]]; for (let t = t1 + tu(.25); t < H - tu(.1); t += tu(.5)) bl.push([f3(t), 1], [f3(t + .02), 0], [f3(t + tu(.25)), 0], [f3(t + tu(.25) + .02), 1]); bl.push([H, bl[bl.length - 1][1]], [f3(H + tu(.1)), 0]);
+        mvG(cov, { o: bl }).line(tx0 - 2, fy - 24, tx0 - 2, fy + 24, { sw: 3.2, stroke: C.ink }); }
+      qmark(p, d, qx, fy, 32, Object.assign({ keep: F.ai >= 0 }, NR));
+      const top = -Y7 + fh + 14, rows = (F.hasO ? [['o', 0], ['o', 1]] : []).concat(F.hasN || !F.hasO ? [['n', 0]] : []), n = rows.length, pad = 10, rh = (Y7 - top - pad * 2 - (n - 1) * 8) / n, ry = k => f1(top + pad + rh / 2 + k * (rh + 8));
+      outlineIn(p, R(p, -X7, top, X7 * 2, Y7 - top, 28, OUT(.45)), f3(T_.tO(0) - tu(.06)));
+      rows.forEach(([r, i], k) => { const y = ry(k), w = X7 * 2 - pad * 2; if (k) drawAt(p.line(-X7 + 20, f1(y - rh / 2 - 4), X7 - 20, f1(y - rh / 2 - 4), { sw: 2, stroke: TL_(.3) }), p, T_.tO(0), tu(.3));
+        if (r === 'n') qslot(p, c, d, 0, y, w, rh, { ans: true, r: f1(Math.min(n > 1 ? 40 : 90, rh * .3)), st: n > 1 ? { shape: 'float', wideMin: 300, ws: 38, cap: 100 } : Object.assign({ shape: 'float' }, BIG7(220, 46)) });
+        else cell(p, c, d, r, i, 0, y, w, rh, { shape: 'float', wideMin: 300, ws: 38, cap: 100 }); });
+      const fin = F.ai >= 0 ? ry(F.ai) : F.hasN && F.hasO ? ry(n - 1) : ry(0);
+      if (F.hasO) R(mvG(p, { y: swayK(d, k => ry(k), ry(0), fin), o: [[0, 0], [T_.tD0, 0], [f3(T_.tD0 + tu(.1)), 1], [H, 1], [f3(H + tu(.2)), 0]] }), -X7 + pad, f1(-rh / 2), X7 * 2 - pad * 2, f1(rh), 22, { fill: TA(.1), sw: 3, stroke: TL_(.6) }); }); });
+
+  /* 03 a wait that fills: what is asked on top, a ring with the "?" inside, the options along the bottom; the ring fills while in doubt, closes on H,
+     the "?" leaves and the answer appears inside. No options → a bigger ring, the answer's icon big in the middle */
+  sd(7, 'ring', 'วงโหลดรอคำตอบ', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
+    art(c, p => { if (onlyN7(p, c, d)) return; const top = F.hasA ? (F.hasO ? 92 : 100) : 0, ob = F.hasO ? 128 : 0, za = -Y7 + (top ? top + 12 : 0), zb = Y7 - (ob ? ob + 12 : 0), cy = f1((za + zb) / 2), Rr = f1(Math.min(X7 - 8, (zb - za) / 2 - 4));
+      if (top) cell(p, c, d, 'a', 0, 0, f1(-Y7 + top / 2), X7 * 2, top, { wideMin: 300, ws: 40, cap: 70 });
+      drawAt(p.circle(0, cy, Rr, { sw: 12, stroke: TL_(.16) }), p, T_.tA, tu(.4));
+      on(p.path(arcD(0, cy, Rr, 1), { sw: 12, stroke: C.ink }), p, 0, { draw: [[0, 0], [T_.tQ, 0], [T_.tD1, .8, 'io'], [f3(H + tu(.22)), 1, 'io']] });
+      on(p.path(arcD(0, cy, Rr, 1), { sw: 12, stroke: ACC1 }), p, 0, { o: [[0, 0], [f3(H + tu(.2)), 0], [f3(H + tu(.3)), 1]] });
+      qmark(p, d, 0, cy, f1(Rr * .6), { plain: true, keep: false, noRip: true, early: .1 });
+      echo(p, c, d, 0, cy, f1((Rr - 24) * 2), f1((Rr - 24) * 2), { shape: 'circ', n: true, ws: F.hasO ? 34 : 42, noRip: true, st: F.hasO ? { ws: 34 } : { cap: 230, ws: 42 } });
+      if (ob) rowCells(p, c, d, -X7, X7, f1(Y7 - ob / 2), ob, 12, { wideMin: 999, wrap: 'mid', ws: 34, cap: 66 }, [['o', 0], ['o', 1]]); }); });
+
+  /* 04 fill in the blank: what is asked on top, a blank line with the "?" waiting above it, the options along the bottom glowing in turn; on H the "?"
+     shrinks away and the answer fills the blank, its line lighting. No options → the answer's icon big over the line, its word on it */
+  sd(7, 'blank', 'เติมคำในช่องว่าง', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
+    art(c, p => { if (onlyN7(p, c, d)) return; const top = F.hasA ? 100 : 0, ob = F.hasO ? 128 : 0, za = -Y7 + (top ? top + 12 : 0), zb = Y7 - (ob ? ob + 12 : 0), by = f1(zb - 22);
+      if (top) cell(p, c, d, 'a', 0, 0, f1(-Y7 + top / 2), X7 * 2, top, { wideMin: 300, ws: 42, cap: 72 });
+      const X = ansOf(F), lab = X && (LBL(X) || (!picOf(X) && X.label)), t0 = za + 6, bot = by - 52, cy = f1((t0 + bot) / 2), ah2 = bot - t0;
+      drawAt(p.line(-X7 + 24, by, X7 - 24, by, { sw: 5, stroke: TL_(.55) }), p, T_.tA, tu(.45));
+      qmark(p, d, 0, f1(cy - ah2 * .04), f1(Math.min(120, ah2 * .55)), { plain: true, keep: false, noRip: true, early: .1 });
+      if (X) { if (picOf(X)) put(p, c, { icon: X.icon }, 0, cy, f1(Math.min(F.hasO ? 150 : 240, ah2 * .9)), null, { t: f3(H + tu(.06)), punch: f3(H + tu(.34)) });
+        if (lab) txt(atG(p, f3(H + tu(.1))), lab, 0, f1(by - 14), { size: picOf(X) ? 42 : 54, maxW: X7 * 2 - 60, weight: 800, color: C.ink }); }
+      on(p.line(-X7 + 24, by, X7 - 24, by, { sw: 5, stroke: ACC1 }), p, 0, { draw: [[0, 0], [f3(H + tu(.04)), 0], [f3(H + tu(.34)), 1, 'io']] });
+      if (ob) rowCells(p, c, d, -X7, X7, f1(Y7 - ob / 2), ob, 12, { wideMin: 999, wrap: 'mid', ws: 34, cap: 66 }, [['o', 0], ['o', 1]]); }); });
+
+  /* 05 a timed quiz: the question card on top, a time bar that runs down while in doubt, the options as answer cards; the bar runs out on H and the
+     chosen card lights. No options → the question card, the answer's slot, and a row of time blocks along the bottom that go out one by one */
+  sd(7, 'timer', 'จับเวลาตอบ', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
+    art(c, p => { if (onlyN7(p, c, d)) return;
+      if (!F.hasO) { const n = 5, gb = 10, bw = (X7 * 2 - (n - 1) * gb) / n, bh = 56, byy = f1(Y7 - bh / 2);
+        for (let k = 0; k < n; k++) { const x = f1(-X7 + bw / 2 + k * (bw + gb)), tOff = f3(T_.tQ + (H - T_.tQ) * (k + 1) / n), ta = f3(T_.tA + tu(.04 * k));
+          outlineIn(p, R(p, f1(x - bw / 2), f1(byy - bh / 2), f1(bw), bh, 16, OUT(.45)), ta);
+          R(mvG(p, { o: [[0, 0], [ta, 0], [f3(ta + tu(.1)), 1], [f3(tOff - tu(.12)), 1], [tOff, .1, 'io']] }), f1(x - bw / 2 + 7), f1(byy - bh / 2 + 7), f1(bw - 14), bh - 14, 10, { fill: TL_(.7), sw: 0, stroke: 'none' }); }
+        const ah = 150, sT = -Y7 + ah + 12, sB = Y7 - bh - 12;
+        cell(p, c, d, 'a', 0, 0, f1(-Y7 + ah / 2), X7 * 2, ah, { wideMin: 300, ws: 42, cap: 92 }); qmark(p, d, X7 - 30, f1(-Y7 + 30), 22, Object.assign({ keep: false }, NR));
+        qslot(p, c, d, 0, f1((sT + sB) / 2), X7 * 2, sB - sT, { ans: true, r: 64, st: { wideMin: 300, ws: 46, cap: 150 } }); return; }
+      const top = 130, ty = f1(-Y7 + top / 2), by = f1(-Y7 + top + 24);
+      outlineIn(p, R(p, -X7, -Y7, X7 * 2, top, 30, OUT(.55)), T_.tA);
+      if (F.hasA) { cell(p, c, d, 'a', 0, -18, ty, X7 * 2 - 36, top, { shape: 'float', wideMin: 300, ws: 44, cap: 86 }); qmark(p, d, X7 - 30, f1(-Y7 + 30), 22, Object.assign({ keep: F.ai >= 0 }, NR)); }
+      else qmark(p, d, 0, ty, 52, { plain: true, keep: true, noRip: true });
+      outlineIn(p, R(p, -X7, by - 12, X7 * 2, 24, 12, OUT(.45)), T_.tA);
+      R(mvG(p, { px: -X7 + 6, py: by, sx: [[0, 1], [T_.tQ, 1], [H, .001]], o: fadeIn(T_.tA, .1) }), -X7 + 6, by - 6, X7 * 2 - 12, 12, 6, { fill: TL_(.75), sw: 0, stroke: 'none' });
+      const a0 = by + 24, L = [['o', 0], ['o', 1]].concat(F.hasN ? [['n', 0]] : []), n = L.length, g = 12, rh = (Y7 - a0 - (n - 1) * g) / n;
+      L.forEach(([r, i], k) => { const y = f1(a0 + rh / 2 + k * (rh + g));
+        if (r === 'o') cell(p, c, d, r, i, 0, y, X7 * 2, rh, { wideMin: 300, ws: 40, cap: 90 });
+        else qslot(p, c, d, 0, y, X7 * 2, rh, { ans: true, rx: 26, r: f1(Math.min(50, rh * .3)), st: { wideMin: 300, ws: 40, cap: 90 } }); }); }); });
+
+  /* 06 the answer opens out: a header (what is asked, "?", a chevron), the options under it; on H the chevron turns and a panel opens down from the
+     header with the answer, pushing the options to the bottom. No options → a tall header with what is asked big; the panel shows the answer's icon over its word */
+  sd(7, 'faq', 'กางคำตอบ', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H, t1 = f3(H + tu(.42));
+    art(c, p => { if (onlyN7(p, c, d)) return; const hh = F.hasO ? 96 : 190, hy = f1(-Y7 + hh / 2), ob = F.hasO ? 132 : 0, pT = -Y7 + hh + 10, pB = Y7 - (ob ? ob + 10 : 0), oyF = f1(Y7 - ob / 2), oy0 = f1((pT + Y7) / 2), dy0 = f1(oy0 - oyF);
+      R(atG(p, f3(T_.tA - tu(.02))), -X7, -Y7, X7 * 2, hh, 26, BK); outlineIn(p, R(p, -X7, -Y7, X7 * 2, hh, 26, OUT(.65)), T_.tA);
+      if (F.hasA && F.hasO) { cell(p, c, d, 'a', 0, -46, hy, 290, hh, { shape: 'float', wideMin: 250, ws: 40, cap: 66 }); qmark(p, d, X7 - 84, hy, 22, Object.assign({ keep: true }, NR)); }
+      else if (F.hasA) { cell(p, c, d, 'a', 0, 0, f1(hy - 10), 320, hh - 20, { shape: 'float', wideMin: 9999, ws: 42, cap: 96 }); qmark(p, d, X7 - 30, f1(-Y7 + 30), 22, Object.assign({ keep: true }, NR)); }
+      else qmark(p, d, -30, hy, 40, { plain: true, keep: true, noRip: true });
+      const cvy = F.hasO ? hy : f1(-Y7 + hh - 30), cvx = F.hasO ? X7 - 38 : X7 - 32;
+      mvG(p, { px: cvx, py: cvy, r: [[0, 0], [H, 0], [t1, 180, 'io']], o: fadeIn(T_.tA, .1) }).path(`M ${cvx - 14} ${cvy - 7} L ${cvx} ${cvy + 7} L ${cvx + 14} ${cvy - 7}`, { sw: 4, stroke: C.ink });
+      R(mvG(p, { px: 0, py: pT, sy: [[0, .001], [H, .001], [t1, 1, 'io']], o: [[0, 0], [H, 0], [f3(H + tu(.04)), 1]] }), -X7, pT, X7 * 2, pB - pT, 26, F.answered ? { fill: TA(.1), sw: 4, stroke: ACC1 } : { fill: TL_(.05), sw: 3, stroke: TL_(.55) });
+      const X = ansOf(F), py = f1((pT + pB) / 2), ph = pB - pT, ta = f3(t1 - tu(.1));
+      if (X) { const lab = LBL(X), iw = f1(Math.min(ph * (lab ? .55 : .7), 200)); if (picOf(X)) put(p, c, { icon: X.icon }, 0, lab ? f1(py - ph * .12) : py, iw, null, { t: ta });
+        const s0 = lab || (!picOf(X) && X.label); if (s0) txt(atG(p, f3(ta + tu(.1))), s0, 0, f1(lab ? py + ph * .32 : py + 20), { size: lab ? 46 : 60, maxW: 360, weight: 800, color: C.ink, wrap: 'mid' }); }
+      else { const g = mvG(p, { px: 0, py, s: [[0, .8], [ta, .8], [f3(ta + tu(.3)), 1, 'out']], o: [[0, 0], [ta, 0], [f3(ta + tu(.12)), 1]] }); txt(g, '?', 0, f1(py + ph * .2), { size: f1(Math.min(200, ph * .6)), weight: 800, color: ACC1 }); }
+      if (ob) [0, 1].forEach(i => { const w = (X7 * 2 - 12) / 2, x = f1(-X7 + w / 2 + i * (w + 12)), K = { px: x, py: oyF, y: [[0, dy0], [H, dy0], [t1, 0, 'io']], o: fadeIn(T_.tO(i), .12) }, Xo = F.op[i], lab = LBL(Xo);
+        qthing(p, c, d, 'o', i, x, oyF, Math.min(w, ob), { K, draw: (q, st) => R(q, f1(x - w / 2), f1(oyF - ob / 2), f1(w), ob, 24, st), style: OUT(), litStyle: LIT2(), ix: x, iy: lab ? f1(oyF - ob * .14) : oyF, iw: f1(Math.min(ob * (lab ? .48 : .6), 80)), lw: w * .86, rip: false });
+        if (lab) qword(p, d, 'o', i, x, f1(oyF + ob * .34), { g: mvG(p, { y: K.y }), size: 34, maxW: w - 20, wrap: 'mid' }); }); }); });
+
+  /* 07 a picker wheel: what is asked on top; below, the options roll up through a selection band while in doubt and stop on the answer — an answer
+     apart, or a "?" when there is none, rolls in last. No options → it rolls through "?"s and stops on the answer */
+  sd(7, 'reel', 'วงล้อเลือก', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
+    art(c, p => { if (onlyN7(p, c, d)) return; const top = F.hasA ? 104 : 0;
+      if (top) cell(p, c, d, 'a', 0, 0, f1(-Y7 + top / 2), X7 * 2, top, { wideMin: 300, ws: 42, cap: 76 });
+      const za = -Y7 + (top ? top + 12 : 0), wy = f1((za + Y7) / 2), gap = 118, bh = 104, iw2 = X7 * 2 - 24, steps = []; let t = T_.tD0; while (t + tu(.36) <= T_.tD1) { steps.push(f3(t)); t += tu(.36); }
+      const last = 1 + steps.length, want = F.ai >= 0 ? F.ai : null, finalJ = want != null && last % 2 === want ? last : last + 1, special = want == null, tF0 = f3(Math.max(t, T_.tD1)), tF1 = f3(H + tu(.12));
+      const band = tt => { let b = 1; steps.forEach(ts => { b += sm((tt - ts) / tu(.28)); }); if (finalJ > last) b += sm((tt - tF0) / (tF1 - tF0)); return b; };
+      outlineIn(p, R(p, -X7, za, X7 * 2, Y7 - za, 28, OUT(.3)), T_.tA);
+      const TS = []; for (let u = 0; u <= tF1 + tu(.3); u += .04) TS.push(f3(u)); if (TS[TS.length - 1] < tF1) TS.push(tF1);
+      const keysOf = j => { const t0 = j <= 2 ? T_.tO(Math.min(1, Math.max(0, j - 1))) : T_.tA, Y = [], O = [];
+        TS.forEach(u => { const dj = j - band(u), a = Math.max(0, Math.min(1, 1 - Math.abs(dj) * .62)), app = Math.max(0, Math.min(1, (u - t0) / tu(.14))); Y.push([u, f1(dj * gap)]); O.push([u, f3(a * app)]); });
+        return { px: 0, py: wy, y: Y, o: O }; };
+      const LS = LIT2(), box = (q, st) => R(q, -iw2 / 2, f1(wy - bh / 2), iw2, bh, 24, st === LS ? st : { fill: C.fill, sw: 2.4, stroke: TL_(.4) });
+      const item = (role, i, K) => { const X = role === 'n' ? F.an : F.op[i], lab = LBL(X), ix = lab ? f1(-iw2 / 2 + 24 + 40) : 0;
+        qthing(p, c, d, role, i, 0, wy, bh, { K, draw: box, style: {}, litStyle: LS, ix, iy: wy, iw: lab ? 80 : 90, lw: 300, rip: false, io: K.o });
+        if (lab) qword(p, d, role, i, f1(ix + 40 + 20), f1(wy + 15), { g: mvG(p, { y: K.y, o: K.o }), size: 42, maxW: f1(iw2 / 2 - ix - 72), anchor: 'start', t: role === 'n' ? f3(H - tu(.04)) : undefined }); };
+      for (let j = 0; j <= finalJ + 1; j++) { const K = keysOf(j);
+        if (j === finalJ && special) { if (F.hasN) item('n', 0, K); else { const g = mvG(CL(p), K); box(g, {}); txt(g, '?', 0, f1(wy + 30), { size: 86, weight: 800, color: C.ink }); txt(litOn(g, H), '?', 0, f1(wy + 30), { size: 86, weight: 800, color: ACC1 }); } continue; }
+        if (!F.hasO) { const g = mvG(CL(p), K); box(g, {}); txt(g, '?', 0, f1(wy + 30), { size: 86, weight: 800, color: TL_(.6) }); continue; }
+        item('o', j % 2, K); }
+      const bt = f1(wy - bh / 2 - 8), bb = f1(wy + bh / 2 + 8), L0 = -X7 + 6, R0 = X7 - 6;
+      drawAt(p.path(`M ${L0} ${f1(bt + 24)} Q ${L0} ${bt} ${L0 + 24} ${bt} L ${R0 - 24} ${bt} Q ${R0} ${bt} ${R0} ${f1(bt + 24)} M ${L0} ${f1(bb - 24)} Q ${L0} ${bb} ${L0 + 24} ${bb} L ${R0 - 24} ${bb} Q ${R0} ${bb} ${R0} ${f1(bb - 24)}`, { sw: 3.6, stroke: TL_(.85) }), p, T_.tA, tu(.4)); }); });
+
+  /* 08 a line looks for the answer: what is asked on top, the options below; a line reaches out to one option, draws back, reaches to the other …;
+     on H it reaches the answer and stays, lit. No options → the line runs straight down into the answer's slot (its icon big, the word under it) */
+  sd(7, 'link', 'ลากเส้นหาคำตอบ', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
+    art(c, p => { if (onlyN7(p, c, d)) return; const aH = 134, aY = f1(-Y7 + aH / 2), sy = -Y7 + aH, nH = F.hasN && F.hasO ? 112 : 0, nY = f1(Y7 - nH / 2), oH = nH ? 140 : 170, ow = 178;
+      const oY = F.hasO ? (nH ? f1((sy + Y7 - nH) / 2 + 22) : f1(Y7 - oH / 2)) : 0;
+      if (F.hasA) cell(p, c, d, 'a', 0, 0, aY, 250, aH, { wideMin: 999, cap: 56, ws: 34, wrap: 'mid' }); else qmark(p, d, 0, aY, 56, { keep: true, noRip: true });
+      popAt(p, 0, sy, T_.tA).circle(0, sy, 8, { fill: C.ink, sw: 0, stroke: 'none' });
+      const path = i => i === 'n' ? `M 0 ${sy} L 0 ${f1(nY - nH / 2)}` : (() => { const x = i ? X7 - ow / 2 : -X7 + ow / 2, ty = f1(oY - oH / 2); return `M 0 ${sy} C 0 ${f1(sy + 50)} ${x} ${f1(ty - 50)} ${x} ${ty}`; })(), fin = F.ai >= 0 ? F.ai : F.hasN ? 'n' : null;
+      if (F.hasO) [0, 1].forEach(i => { const K = [[0, 0]]; let t = T_.tD0, k = 0; while (t + tu(.36) <= T_.tD1) { if (k % 2 === i) K.push([f3(t), 0], [f3(t + tu(.15)), 1, 'io'], [f3(t + tu(.32)), 0, 'io']); t += tu(.36); k++; }
+        if (fin === i) K.push([f3(H - tu(.12)), 0], [f3(H + tu(.16)), 1, 'io']); on(p.path(path(i), { sw: 4, stroke: TL_(.6) }), p, 0, { draw: K }); });
+      if (fin != null && F.hasO) on(p.path(path(fin), { sw: 5, stroke: ACC1 }), p, 0, { draw: [[0, 0], [f3(H - tu(.12)), 0], [f3(H + tu(.16)), 1, 'io']] });
+      if (F.hasA && F.hasO) qmark(p, d, 0, f1((sy + oY - oH / 2) / 2), 30, { keep: false, noRip: true, early: .1 });
+      if (F.hasO) [0, 1].forEach(i => cell(p, c, d, 'o', i, i ? f1(X7 - ow / 2) : f1(-X7 + ow / 2), oY, ow, oH, { wideMin: 999, wrap: 'mid', ws: 34, cap: 74 }));
+      if (nH) qslot(p, c, d, 0, nY, X7 * 2, nH, { ans: true, r: 36, st: { wideMin: 300, ws: 38, cap: 80 } });
+      if (!F.hasO) { const h2 = f1(Y7 - sy - 56), y2 = f1(Y7 - h2 / 2); if (F.hasN) on(p.path(`M 0 ${sy} L 0 ${f1(y2 - h2 / 2)}`, { sw: 5, stroke: ACC1 }), p, 0, { draw: [[0, 0], [f3(H - tu(.12)), 0], [f3(H + tu(.16)), 1, 'io']] });
+        qslot(p, c, d, 0, y2, X7 * 2, h2, { ans: true, r: 70, st: BIG7(170, 42) }); } }); });
+
+  /* 09 weighing it up: what is asked on top; a beam on a pivot carries the options on plates at its ends — it tips one way, then the other and settles
+     down on the answer's side; an answer apart (or the waiting "?") sits under the pivot. No options → what is asked on one plate, a plate with the "?"
+     on the other — the "?" leaves and the answer lands there, the beam tips its way */
+  sd(7, 'weigh', 'คานชั่งใจ', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
+    art(c, p => { if (onlyN7(p, c, d)) return; const top = F.hasA && F.hasO ? 100 : 0, cw = 168, xs = [-96, 96];
+      const py = F.hasO ? (top ? 112 : F.hasN ? 76 : 130) : 150, ch = F.hasO ? (top ? 190 : F.hasN ? 236 : 300) : 330, A1 = F.hasO ? (top ? 4 : 3.5) : 3,   /* an answer apart needs room under the pivot */ cy = f1(py - 10 - ch / 2);
+      if (top) cell(p, c, d, 'a', 0, 0, f1(-Y7 + top / 2), X7 * 2, top, { wideMin: 300, ws: 42, cap: 74 });
+      const side = F.hasO ? (F.ai === 0 ? -1 : F.ai === 1 ? 1 : 0) : (F.hasN ? 1 : 0), base = { px: 0, py, r: swayK(d, k => (k ? 1 : -1) * (A1 - .8), 0, side * A1) };
+      R(mvG(p, Object.assign({ o: fadeIn(T_.tA, .12) }, base)), -X7 + 6, py - 9, X7 * 2 - 12, 18, 9, { fill: C.fill, sw: 3.4, stroke: C.ink });
+      popAt(p, 0, py, T_.tA).path(rpoly([[0, py + 6], [42, py + 70], [-42, py + 70]], 10), { fill: C.fill, sw: 3.4, stroke: C.ink });
+      drawAt(p.line(-140, f1(py + 72), 140, f1(py + 72), { sw: 3, stroke: TL_(.4) }), p, T_.tA, tu(.35));
+      const plate = (role, i, x) => { const Xo = role === 'a' ? F.ab : role === 'o' ? F.op[i] : F.an, lab = LBL(Xo), t = role === 'o' ? T_.tO(i) : role === 'a' ? T_.tA : f3(H - tu(.02)), K = Object.assign({ o: fadeIn(t, .12) }, base), hh = Math.min(ch, 220);
+        qthing(p, c, d, role, i, x, cy, cw, { K, draw: (q, st) => R(q, f1(x - cw / 2), f1(cy - ch / 2), cw, ch, 26, st), style: OUT(), litStyle: LIT2(), ix: x, iy: lab ? f1(cy - hh * .13) : cy, iw: f1(Math.min(hh * (lab ? .5 : .62), 110)), lw: cw * .86, rip: false });
+        if (lab) qword(p, d, role, i, x, f1(cy + hh * .33), { g: mvG(p, base), size: 36, maxW: cw - 20, wrap: 'mid' }); };
+      if (F.hasO) { plate('o', 0, xs[0]); plate('o', 1, xs[1]);
+        if (top) { const by = f1((py + 72 + Y7) / 2 + 4), bh = Y7 - py - 82; if (F.hasN) qslot(p, c, d, 0, by, X7 * 2, bh, { ans: true, r: f1(Math.min(40, bh * .3)), st: { wideMin: 300, ws: 36, cap: 70 } }); else qmark(p, d, 0, by, f1(Math.min(44, bh * .36)), { plain: true, keep: true, noRip: true }); }
+        else { const by = f1((py + 72 + Y7) / 2 + 4), bh = Y7 - py - 82; if (F.hasN) qslot(p, c, d, 0, by, X7 * 2, bh, { ans: true, r: 30, st: { wideMin: 300, ws: 34, cap: 56 } }); else qmark(p, d, 0, by, f1(Math.min(36, bh * .4)), { plain: true, keep: true, noRip: true }); } }
+      else { if (F.hasA) plate('a', 0, xs[0]); else { const g1 = mvG(p, Object.assign({ o: fadeIn(T_.tA, .12) }, base)); R(g1, xs[0] - cw / 2, f1(cy - ch / 2), cw, ch, 26, OUT(.4)); txt(g1, '?', xs[0], f1(cy + 34), { size: 100, weight: 800, color: TL_(.5) }); }
+        const g0 = mvG(p, Object.assign({ o: fadeIn(T_.tA, .12) }, base)); R(g0, xs[1] - cw / 2, f1(cy - ch / 2), cw, ch, 26, OUT(.4));
+        qmark(p, d, xs[1], cy, 70, { plain: true, keep: false, noRip: true, early: .1, g: g0 }); if (F.hasN) plate('n', 0, xs[1]); } }); });
+
+  /* 10 zoom in on the answer: six tiles (2 × 3) — what is asked, the options and "?" tiles; the options glow in turn; on H the answer's tile grows to
+     fill the whole box (an answer apart comes out of a "?" tile; no answer → that "?" grows, lit). No ring */
+  sd(7, 'zoom', 'ซูมเข้าคำตอบ', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H, tz = f3(H + tu(.42));
+    art(c, p => { if (onlyN7(p, c, d)) return; const tw2 = 190, th = 156, P = [[-100, -167], [100, -167], [-100, 0], [100, 0], [-100, 167], [100, 167]], outK = t => [[0, 0], [t, 0], [f3(t + tu(.1)), 1], [H, 1], [f3(H + tu(.16)), 0]];
+      const slot = [F.hasA ? ['a', 0] : null, null, F.hasO ? ['o', 0] : null, F.hasO ? ['o', 1] : null, null, null], src = F.ai >= 0 ? 2 + F.ai : 5, [sx, sy] = P[src];
+      slot.forEach((s, k) => { const [x, y] = P[k], t = s ? (s[0] === 'a' ? T_.tA : T_.tO(s[1])) : f3(T_.tA + tu(.06 * k)), g = mvG(p, { o: outK(t) });
+        R(g, f1(x - tw2 / 2), f1(y - th / 2), tw2, th, 26, s ? { fill: C.fill, sw: 2.6, stroke: TL_(.55) } : { fill: C.fill, sw: 2.2, stroke: TL_(.25) });
+        if (!s) { txt(g, '?', x, f1(y + 28), { size: 80, weight: 800, color: TL_(.32) }); return; }
+        const X = s[0] === 'a' ? F.ab : F.op[s[1]], lab = LBL(X), ok = outK(t);
+        if (s[0] === 'o') { const lt = sub(g); on(lt, p, 0, { o: doubtK(T_, s[1]) }); R(lt, f1(x - tw2 / 2), f1(y - th / 2), tw2, th, 26, { fill: TA(.12), sw: 3, stroke: TL_(.6) }); }
+        if (picOf(X)) put(p, c, { icon: X.icon }, x, lab ? f1(y - 18) : y, lab ? 76 : 96, null, { t, o: ok });
+        if (lab) txt(g, lab, x, f1(y + 50), { size: 32, maxW: 170, weight: 800, color: C.ink }); else if (!picOf(X)) txt(g, X.label, x, f1(y + 14), { size: 40, maxW: 170, weight: 800, color: C.ink, wrap: 'mid' }); });
+      const kx = f3(tw2 / (X7 * 2)), ky = f3(th / (Y7 * 2)), Px = f1(sx / (1 - kx)), Py = f1(sy / (1 - ky));
+      const Z0 = mvG(p, { px: Px, py: Py, sx: [[0, kx], [H, kx], [tz, 1, 'io']], sy: [[0, ky], [H, ky], [tz, 1, 'io']], o: [[0, 0], [f3(H - tu(.02)), 0], [H, 1]] });
+      const X = ansOf(F), tc = f3(tz - tu(.14)); R(Z0, -X7, -Y7, X7 * 2, Y7 * 2, 30, BK); R(Z0, -X7, -Y7, X7 * 2, Y7 * 2, 30, X ? LIT2() : { fill: TA(.1), sw: 5, stroke: ACC1 });
+      if (X) { const lab = LBL(X); if (picOf(X)) put(p, c, { icon: X.icon }, 0, lab ? -40 : 0, lab ? 230 : 280, null, { t: tc, punch: f3(tz + tu(.02)) });
+        const s0 = lab || (!picOf(X) && X.label); if (s0) txt(atG(p, f3(tc + tu(.08))), s0, 0, lab ? 140 : 24, { size: lab ? 56 : 72, maxW: 350, weight: 800, color: C.ink, wrap: 'mid' }); }
+      else { const g = mvG(p, { px: 0, py: 0, s: [[0, .8], [tc, .8], [f3(tc + tu(.3)), 1, 'out']], o: [[0, 0], [tc, 0], [f3(tc + tu(.12)), 1]] }); txt(g, '?', 0, 110, { size: 320, weight: 800, color: ACC1 }); } }); });
   const outlineIn = (p, el, t) => drawAt(el, p, f3(Math.max(0, t - tu(.04))), tu(.34));
 
   const I = (icon, label) => label ? { icon, label } : { icon };
