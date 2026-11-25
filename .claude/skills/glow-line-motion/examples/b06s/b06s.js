@@ -1382,10 +1382,11 @@
       [p.path(D, { sw: tw_, stroke: TL_(.7) }), p.path(D, { sw: tw_ - 7, stroke: C.fill })].forEach(e => drawAt(e, p, T_.tA, tu(.6)));
       on(p.path(D, { sw: tw_ - 7, stroke: TA(.4) }), p, 0, { draw: [[0, 0], [f3(H - tu(.42)), 0], [H, 1, 'io']] });
       const gd = popAt(p, 0, dy, f3(T_.tA + tu(.5))); gd.circle(0, dy, dr, { fill: C.fill, sw: 4, stroke: TL_(.7) });
-      if (F.answered) echo(p, c, d, 0, dy, dr * 2, dr * 2, { shape: 'circ', n: true, ws: 46, noRip: true }); else litOn(gd, H).circle(0, dy, dr, { fill: TA(.4), sw: 5, stroke: ACC1 });
+      if (F.answered && F.hasO) echo(p, c, d, 0, dy, dr * 2, dr * 2, { shape: 'circ', n: true, ws: 46, noRip: true }); else litOn(gd, H).circle(0, dy, dr, { fill: TA(.4), sw: 5, stroke: ACC1 });
       if (F.hasO) { if (F.hasA) cell(p, c, d, 'a', 0, 0, f1(hy - 6), 210, 220, { shape: 'float', wideMin: 999, cap: 120, ws: 44, wrap: 'down' });
         [0, 1].forEach(i => cell(p, c, d, 'o', i, i ? 242 : -242, 92, 346, 236, { wideMin: 999, cap: 130, ws: 48, wrap: 'mid' })); }
-      else cell(p, c, d, 'a', 0, 0, 92, X6 * 2, 236, { wideMin: 300, cap: 170, ws: 64 }); }); });
+      else { cell(p, c, d, 'a', 0, -242, 92, 346, 236, { wideMin: 999, cap: 130, ws: 48, wrap: 'mid' });   /* no options: beside the stem, never across it (user: the "?" showed the card's lines) */
+        qslot(p, c, d, 242, 92, 346, 236, { ans: true, r: 64, st: { wideMin: 999, cap: 130, ws: 48, wrap: 'mid' } }); } }); });
 
   /* 02 a search being typed: the field on top (what is asked typed in behind a blinking caret), the results as rows below it; a highlight steps
      between them while in doubt and stops on the answer (answer apart = a third row); no answer → the "?" button lights */
@@ -1404,7 +1405,7 @@
       const top = -Y6 + fh + 18, rows = (F.hasO ? [['o', 0], ['o', 1]] : []).concat(F.hasN || !F.hasO ? [['n', 0]] : []), n = rows.length, pad = 14, rh = (Y6 - top - pad * 2 - (n - 1) * 12) / n, ry = k => f1(top + pad + rh / 2 + k * (rh + 12));
       outlineIn(p, R(p, -X6, top, X6 * 2, Y6 - top, 36, OUT(.45)), f3(T_.tO(0) - tu(.06)));
       rows.forEach(([r, i], k) => { const y = ry(k), w = X6 * 2 - pad * 2; if (k) drawAt(p.line(-X6 + 30, f1(y - rh / 2 - 6), X6 - 30, f1(y - rh / 2 - 6), { sw: 2.2, stroke: TL_(.3) }), p, T_.tO(0), tu(.3));
-        if (r === 'n') qslot(p, c, d, 0, y, w, rh, { ans: true, r: f1(Math.min(80, rh * .3)), st: { shape: 'float', wideMin: 300, ws: 58, cap: 200 } });
+        if (r === 'n') qslot(p, c, d, 0, y, w, rh, { ans: true, r: f1(Math.min(n > 1 ? 80 : 150, rh * .3)), st: n > 1 ? { shape: 'float', wideMin: 300, ws: 58, cap: 200 } : { shape: 'float', wideMin: 9999, ws: 70, cap: 340 } });   /* alone: icon big, centred, word under it (user) */
         else cell(p, c, d, r, i, 0, y, w, rh, { shape: 'float', wideMin: 300, ws: 58, cap: 200 }); });
       const fin = F.ai >= 0 ? ry(F.ai) : F.hasN && F.hasO ? ry(n - 1) : ry(0);
       if (F.hasO) R(mvG(p, { y: swayK(d, k => ry(k), ry(0), fin), o: [[0, 0], [T_.tD0, 0], [f3(T_.tD0 + tu(.1)), 1], [H, 1], [f3(H + tu(.2)), 0]] }), -X6 + pad, f1(-rh / 2), X6 * 2 - pad * 2, f1(rh), 28, { fill: TA(.1), sw: 3, stroke: TL_(.6) }); }); });
@@ -1418,7 +1419,7 @@
       on(p.path(arcD(0, cy, Rr, 1), { sw: 16, stroke: C.ink }), p, 0, { draw: [[0, 0], [T_.tQ, 0], [T_.tD1, .8, 'io'], [f3(H + tu(.22)), 1, 'io']] });
       on(p.path(arcD(0, cy, Rr, 1), { sw: 16, stroke: ACC1 }), p, 0, { o: [[0, 0], [f3(H + tu(.2)), 0], [f3(H + tu(.3)), 1]] });
       qmark(p, d, 0, cy, f1(Rr * .6), { plain: true, keep: false, noRip: true, early: .1 });
-      echo(p, c, d, 0, cy, f1((Rr - 34) * 2), f1((Rr - 34) * 2), { shape: 'circ', n: true, ws: 54, noRip: true });
+      echo(p, c, d, 0, cy, f1((Rr - 34) * 2), f1((Rr - 34) * 2), { shape: 'circ', n: true, ws: F.hasO ? 54 : 66, noRip: true, st: F.hasO ? { ws: 54 } : { cap: 380, ws: 66 } });   /* no options: the answer's icon big in the middle (user) */
       if (ob) rowCells(p, c, d, -X6, X6, f1(Y6 - ob / 2), ob, 18, { wideMin: 999, wrap: 'mid', ws: 50, cap: 130 }, [['o', 0], ['o', 1]]); }); });
 
   /* 04 fill in the blank: what is asked on top, a blank line in the middle with the "?" waiting above it (it pops in, breathes), the options along the
@@ -1437,7 +1438,14 @@
   /* 05 a timed quiz: the question card on top with the "?" in its corner, a time bar that runs down while in doubt, the options as big answer
      cards stacked below; the bar runs out on H and the chosen card lights (no answer → time is up and the "?" lights) */
   sd(6, 'timer', 'จับเวลาตอบ', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
-    art(c, p => { if (onlyN6(p, c, d)) return; const top = 260, ty = f1(-Y6 + top / 2), by = f1(-Y6 + top + 36);
+    art(c, p => { if (onlyN6(p, c, d)) return;
+      if (!F.hasO) { const cw2 = 160, lx = f1(-X6 + (X6 * 2 - cw2 - 20) / 2), lw = X6 * 2 - cw2 - 20, n = 6, gb = 14, bh = (Y6 * 2 - (n - 1) * gb) / n, bx = X6 - cw2 / 2;   /* user: 5 and 6 looked like 2 and like each other */
+        for (let k = 0; k < n; k++) { const y = f1(-Y6 + bh / 2 + k * (bh + gb)), tOff = f3(T_.tQ + (H - T_.tQ) * (k + 1) / n);
+          outlineIn(p, R(p, f1(bx - cw2 / 2), f1(y - bh / 2), cw2, f1(bh), 26, OUT(.45)), f3(T_.tA + tu(.04 * k)));
+          R(mvG(p, { o: [[0, 0], [f3(T_.tA + tu(.04 * k)), 0], [f3(T_.tA + tu(.04 * k + .1)), 1], [f3(tOff - tu(.12)), 1], [tOff, .1, 'io']] }), f1(bx - cw2 / 2 + 9), f1(y - bh / 2 + 9), cw2 - 18, f1(bh - 18), 18, { fill: TL_(.7), sw: 0, stroke: 'none' }); }
+        const ah = F.hasA ? 380 : 0; if (F.hasA) { cell(p, c, d, 'a', 0, lx, f1(-Y6 + ah / 2), lw, ah, { wideMin: 999, ws: 62, cap: 190, wrap: 'mid' }); qmark(p, d, f1(lx + lw / 2 - 46), f1(-Y6 + 46), 32, Object.assign({ keep: false }, NR)); }
+        const sh = Y6 * 2 - (ah ? ah + 18 : 0); qslot(p, c, d, lx, f1(Y6 - sh / 2), lw, sh, { ans: true, r: f1(Math.min(130, sh * .3)), st: { wideMin: 999, ws: 66, cap: 300 } }); return; }
+      const top = 260, ty = f1(-Y6 + top / 2), by = f1(-Y6 + top + 36);
       outlineIn(p, R(p, -X6, -Y6, X6 * 2, top, 38, OUT(.55)), T_.tA);
       if (F.hasA) { cell(p, c, d, 'a', 0, -30, ty, X6 * 2 - 60, top, { shape: 'float', wideMin: 300, ws: 70, cap: 180 }); qmark(p, d, X6 - 54, f1(-Y6 + 54), 36, Object.assign({ keep: F.ai >= 0 }, NR)); }
       else qmark(p, d, 0, ty, 86, { plain: true, keep: true, noRip: true });
@@ -1451,13 +1459,17 @@
   /* 06 the answer opens out: a header with what is asked, a "?" and a chevron; the options under it; on H the chevron turns, a panel opens down
      from the header with the answer in it, pushing the options to the bottom (the chosen one lit) */
   sd(6, 'faq', 'กางคำตอบ', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H, t1 = f3(H + tu(.42));
-    art(c, p => { if (onlyN6(p, c, d)) return; const hh = 150, hy = f1(-Y6 + hh / 2), ob = F.hasO ? 250 : 0, pT = -Y6 + hh + 14, pB = Y6 - (ob ? ob + 16 : 0), oyF = f1(Y6 - ob / 2), oy0 = f1((pT + Y6) / 2), dy0 = f1(oy0 - oyF);
+    art(c, p => { if (onlyN6(p, c, d)) return; const hh = F.hasO ? 150 : 340, hy = f1(-Y6 + hh / 2), ob = F.hasO ? 250 : 0, pT = -Y6 + hh + 14, pB = Y6 - (ob ? ob + 16 : 0), oyF = f1(Y6 - ob / 2), oy0 = f1((pT + Y6) / 2), dy0 = f1(oy0 - oyF);
       R(atG(p, f3(T_.tA - tu(.02))), -X6, -Y6, X6 * 2, hh, 34, BK); outlineIn(p, R(p, -X6, -Y6, X6 * 2, hh, 34, OUT(.65)), T_.tA);
-      if (F.hasA) { cell(p, c, d, 'a', 0, -90, hy, 640, hh, { shape: 'float', wideMin: 250, ws: 58, cap: 110 }); qmark(p, d, X6 - 134, hy, 34, Object.assign({ keep: true }, NR)); } else qmark(p, d, -40, hy, 58, { plain: true, keep: true, noRip: true });
-      mvG(p, { px: X6 - 56, py: hy, r: [[0, 0], [H, 0], [t1, 180, 'io']], o: fadeIn(T_.tA, .1) }).path(`M ${X6 - 77} ${hy - 10} L ${X6 - 56} ${hy + 11} L ${X6 - 35} ${hy - 10}`, { sw: 5, stroke: C.ink });
+      if (F.hasA && F.hasO) { cell(p, c, d, 'a', 0, -90, hy, 640, hh, { shape: 'float', wideMin: 250, ws: 58, cap: 110 }); qmark(p, d, X6 - 134, hy, 34, Object.assign({ keep: true }, NR)); }
+      else if (F.hasA) { cell(p, c, d, 'a', 0, -40, hy, 680, hh, { shape: 'float', wideMin: 9999, ws: 66, cap: 190 }); qmark(p, d, X6 - 56, f1(-Y6 + 56), 34, Object.assign({ keep: true }, NR)); }   /* no options: what is asked big in a tall header */
+      else qmark(p, d, -40, hy, 58, { plain: true, keep: true, noRip: true });
+      const cvy = F.hasO ? hy : f1(-Y6 + hh - 56); mvG(p, { px: X6 - 56, py: cvy, r: [[0, 0], [H, 0], [t1, 180, 'io']], o: fadeIn(T_.tA, .1) }).path(`M ${X6 - 77} ${cvy - 10} L ${X6 - 56} ${cvy + 11} L ${X6 - 35} ${cvy - 10}`, { sw: 5, stroke: C.ink });
       R(mvG(p, { px: 0, py: pT, sy: [[0, .001], [H, .001], [t1, 1, 'io']], o: [[0, 0], [H, 0], [f3(H + tu(.04)), 1]] }), -X6, pT, X6 * 2, pB - pT, 36, F.answered ? { fill: TA(.1), sw: 4, stroke: ACC1 } : { fill: TL_(.05), sw: 3, stroke: TL_(.55) });
       const X = ansOf(F), py = f1((pT + pB) / 2), ph = pB - pT, ta = f3(t1 - tu(.1));
-      if (X) { const lab = LBL(X), iw = f1(Math.min(ph * (lab ? .5 : .66), 320)); if (picOf(X)) put(p, c, { icon: X.icon }, 0, lab ? f1(py - ph * .1) : py, iw, null, { t: ta });
+      if (X && !F.hasO) { const lab = LBL(X), iw = f1(Math.min(ph * .62, 320)), ix = lab ? -170 : 0; if (picOf(X)) put(p, c, { icon: X.icon }, ix, py, iw, null, { t: ta });   /* no options: the answer as icon beside its word */
+        const s0 = lab || (!picOf(X) && X.label); if (s0) txt(atG(p, f3(ta + tu(.1))), s0, lab ? f1(ix + iw / 2 + 36) : 0, f1(py + 30), { size: lab ? 84 : 100, maxW: lab ? 400 : 760, weight: 800, color: C.ink, anchor: lab ? 'start' : 'middle', wrap: 'mid' }); }
+      else if (X) { const lab = LBL(X), iw = f1(Math.min(ph * (lab ? .5 : .66), 320)); if (picOf(X)) put(p, c, { icon: X.icon }, 0, lab ? f1(py - ph * .1) : py, iw, null, { t: ta });
         const s0 = lab || (!picOf(X) && X.label); if (s0) txt(atG(p, f3(ta + tu(.1))), s0, 0, f1(lab ? py + ph * .3 : py + 30), { size: lab ? 72 : 96, maxW: 760, weight: 800, color: C.ink, wrap: 'mid' }); }
       else { const g = mvG(p, { px: 0, py, s: [[0, .8], [ta, .8], [f3(ta + tu(.3)), 1, 'out']], o: [[0, 0], [ta, 0], [f3(ta + tu(.12)), 1]] }); txt(g, '?', 0, f1(py + ph * .2), { size: f1(Math.min(320, ph * .6)), weight: 800, color: ACC1 }); }
       if (ob) [0, 1].forEach(i => { const w = (X6 * 2 - 18) / 2, x = f1(-X6 + w / 2 + i * (w + 18)), K = { px: x, py: oyF, y: [[0, dy0], [H, dy0], [t1, 0, 'io']], o: fadeIn(T_.tO(i), .12) }, Xo = F.op[i], lab = LBL(Xo);
