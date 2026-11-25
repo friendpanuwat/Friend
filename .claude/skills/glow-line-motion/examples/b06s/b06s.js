@@ -1261,7 +1261,7 @@
       if (F.hasO) [0, 1].forEach(i => { const X = F.op[i], gk = scaleK(doubtK(T_, i), .38); if (picOf(X)) put(p, c, { icon: X.icon }, bm, iy, iw, null, { t: T_.tA, o: gk }); else txt(mvG(p, { o: gk }), X.label, bm, f1(by - 20), { size: 70, maxW: bx1 - bx0, weight: 800, color: C.ink }); });
       const X = ansOf(F);
       if (X) { const lab = LBL(X); if (picOf(X)) put(p, c, { icon: X.icon }, bm, lab ? iy : f1((-Y5 + by) / 2), lab ? iw : f1(Math.min(280, bh * .8)), null, { t: f3(H - tu(.04)), punch: H });
-        const s0 = lab || (!picOf(X) && X.label); if (s0) txt(atG(p, f3(H + tu(.06))), s0, bm, f1(by - 18), { size: lab ? 60 : 76, maxW: bx1 - bx0, weight: 800, color: C.ink }); ripple(p, bm, f1((-Y5 + by) / 2), f1(bh * .45), f3(H + tu(.04))); }
+        const s0 = lab || (!picOf(X) && X.label); if (s0) txt(atG(p, f3(H + tu(.06))), s0, bm, f1(by - 18), { size: lab ? 60 : 76, maxW: bx1 - bx0, weight: 800, color: C.ink }); ripple(p, bm, f1((-Y5 + by) / 2), f1(Math.min(200, bh * .4)), f3(H + tu(.04))); }   /* the ring grows to 1.3× — kept inside the box */
       litOn(p, H).line(bx0, by, bx1, by, { sw: 6, stroke: ACC1 });
       if (ob) rowCells(p, c, d, -X5, X5, f1(Y5 - ob / 2), ob, 18, { wideMin: 300, ws: 54, cap: 160 }, [['o', 0], ['o', 1]]); }); });
 
@@ -1288,7 +1288,7 @@
       R(mvG(p, { px: 0, py: pT, sy: [[0, .001], [H, .001], [t1, 1, 'io']], o: [[0, 0], [H, 0], [f3(H + tu(.04)), 1]] }), -X5, pT, X5 * 2, pB - pT, 34, F.answered ? { fill: TA(.1), sw: 4, stroke: ACC1 } : { fill: TL_(.05), sw: 3, stroke: TL_(.55) });
       const X = ansOf(F), py = f1((pT + pB) / 2), ph = pB - pT, ta = f3(t1 - tu(.1));
       if (X) { const lab = LBL(X), iw = f1(Math.min(ph * .7, 260)); if (picOf(X)) put(p, c, { icon: X.icon }, lab ? -150 : 0, py, iw, null, { t: ta });
-        const s0 = lab || (!picOf(X) && X.label); if (s0) txt(atG(p, f3(ta + tu(.1))), s0, lab ? f1(-150 + iw / 2 + 40) : 0, f1(py + 26), { size: lab ? 76 : 90, maxW: lab ? 400 : 760, weight: 800, color: C.ink, anchor: lab ? 'start' : 'middle', wrap: 'mid' }); ripple(p, 0, py, f1(ph * .45), f3(t1)); }
+        const s0 = lab || (!picOf(X) && X.label); if (s0) txt(atG(p, f3(ta + tu(.1))), s0, lab ? f1(-150 + iw / 2 + 40) : 0, f1(py + 26), { size: lab ? 76 : 90, maxW: lab ? 400 : 760, weight: 800, color: C.ink, anchor: lab ? 'start' : 'middle', wrap: 'mid' }); ripple(p, 0, py, f1(Math.min(200, ph * .4)), f3(t1)); }
       else txt(atG(p, ta), '?', 0, f1(py + ph * .22), { size: f1(Math.min(260, ph * .62)), weight: 800, color: ACC1 });
       if (ob) [0, 1].forEach(i => { const w = (X5 * 2 - 18) / 2, x = f1(-X5 + w / 2 + i * (w + 18)), K = { px: x, py: oyF, y: [[0, dy0], [H, dy0], [t1, 0, 'io']], o: fadeIn(T_.tO(i), .12) }, Xo = F.op[i], lab = LBL(Xo), iw = f1(Math.min(ob * .62, 140));
         qthing(p, c, d, 'o', i, x, oyF, Math.min(w, ob), { K, draw: (q, st) => R(q, f1(x - w / 2), f1(oyF - ob / 2), f1(w), ob, 34, st), style: OUT(), litStyle: LIT2(), ix: lab ? f1(x - w / 2 + 30 + iw / 2) : x, iy: oyF, iw, lw: w * .86, rip: false });
