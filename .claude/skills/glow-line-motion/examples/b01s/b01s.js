@@ -660,14 +660,22 @@
     const x0 = f1(x - w / 2 + so), y0 = f1(y - h / 2), tw_ = w - so, rx = f1(Math.min(tw_, h) * .1), pad = f1(Math.max(10, Math.min(tw_, h) * .04));
     R(inG(p, 'pop', f1(x0 + tw_ / 2), y, T.tV), x0, y0, tw_, h, rx, F(3.6)); const ix = f1(x0 + pad), iy = f1(y0 + pad), iw = f1(tw_ - 2 * pad), ih = f1(h - 2 * pad), irx = f1(Math.max(6, rx - pad)), yb = iy + ih;
     const ly = f1(yb - ih * fr), fh = f1(yb - ly), sx = f1(x0 - gap);
-    if (fr > 0) { const cg = clipG(p, ix, iy, iw, ih, irx), mg = mvG(cg, { y: ioK(T.t0, T.t1, f1(fh + 10), 0), o: fadeIn(T.t0, .04) });
-      R(mg, ix, ly, iw, f1(fh + 12), 0, FILL); mg.line(ix, ly, f1(ix + iw), ly, { sw: 7, stroke: ACC1 }); }
-    R(litAt(p, Z.H), x0, y0, tw_, h, rx, { fill: 'none', sw: 5, stroke: ACC1 }); return { cx: f1(x0 + tw_ / 2), cy: y, iw, ih, ly: fr > 0 ? ly : null }; }
+    let lg = null; if (fr > 0) { const K = () => ({ y: ioK(T.t0, T.t1, f1(fh + 10), 0), o: fadeIn(T.t0, .04) });
+      R(mvG(clipG(p, ix, iy, iw, ih, irx), K()), ix, ly, iw, f1(fh + 12), 0, FILL);
+      lg = clipG(p, ix, iy, iw, ih, irx); mvG(lg, K()).line(ix, ly, f1(ix + iw), ly, { sw: 7, stroke: ACC1 }); }   /* the level line in its own still group: a mask can cut a gap in it */
+    R(litAt(p, Z.H), x0, y0, tw_, h, rx, { fill: 'none', sw: 5, stroke: ACC1 }); return { cx: f1(x0 + tw_ / 2), cy: y, ix, iy, iw, ih, lg, ly, fh }; }
   const TANK = (p, d, w, h) => ({ w, h, at: (x, y) => tankV(p, x, y, w, h, frac(d)) });
   /* the tank with its thing inside (user 2026-11-25: "เพิ่มขนาดของไอคอนให้มันเด่นที่สุดรองลงมาเป็นตัวเลข"): the icon big in the middle of the tank,
      the level rises behind it · no icon → the number (n = NUM args) sits in the tank instead */
   const TANKI = (p, c, d, w, h, iw, n) => ({ w, h, at: (x, y) => { const ic = ICN(d), r = tankV(p, x, y, w, h, frac(d), { bare: !ic });   /* no guide lines behind a number */
-    if (ic) put(p, c, { icon: ic }, r.cx, r.cy, iw, null, { t: TQ().tI }); else if (n) { const it = NUM(p, d, ...n); if (it) it.at(r.cx, r.cy); } } });
+    if (ic) put(p, c, { icon: ic }, r.cx, r.cy, iw, null, { t: TQ().tI }); else if (n) { const it = NUM(p, d, ...n), seen = new Set(p.g.querySelectorAll('text')); if (!it) return; it.at(r.cx, r.cy);
+      /* the number sits in the tank: the level line fades out while it passes behind the number + unit and comes back once past them, so it never
+         runs through the letters (user 2026-11-25: "แก้ปัญหาโดยไม่ต้องทำขอบตัวอักษร") — no outline, the letters keep their glow */
+      if (!r.lg) return; let b = 1e9, e = -1e9;
+      p.g.querySelectorAll('text').forEach(t => { if (seen.has(t)) return; const q = t.getBBox(); b = Math.min(b, q.y); e = Math.max(e, q.y + q.height); });
+      if (b > e) return; const T = TQ(), L = r.ly, D = r.fh + 10, el = r.lg.g;
+      HOOKS.push(t => { const u = rel(p, t), y = L + D * (1 - ioE(clamp01((u - T.t0) / Math.max(.01, T.t1 - T.t0)))), dd = Math.max(b - 6 - y, y - e - 6, 0);
+        el.setAttribute('opacity', f3(clamp01(dd / 26))); }); } } });
   /* CARD — one card fills the box (rises in), its edge lights on the keyword; the caller lays the icon tile and the number inside */
   function cardBox(p, rr = 40) { const [W0, H0] = BOX, w = W0 - 16, h = H0 - 16, g = mvG(CL(p), { px: 0, py: 0, s: [[0, .96], [tu(.02), .96], [f3(tu(.36)), 1, 'out']], o: fadeIn(tu(.02), .14) }); R(g, -w / 2, -h / 2, w, h, f1(Math.min(rr, h * .2)), F(3.6));
     const L = litAt(p, Z.H); R(L, -w / 2, -h / 2, w, h, f1(Math.min(rr, h * .2)), { fill: TA(.05), sw: 5, stroke: ACC1 }); return { w, h }; }
