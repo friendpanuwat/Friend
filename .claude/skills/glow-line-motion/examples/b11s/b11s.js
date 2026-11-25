@@ -884,7 +884,12 @@
     else words11(g, p, Q, A, { size: o.size || 72, tWrite: o.tWrite });
     return { g, l, t, r: f1(l + w), b: f1(t + h) }; }
   /* the person's photo in a comment: the approved half-body user in a round frame (a whole body in a circle looked like a paper doll — D11) */
-  function photo(q, x, y, r) { q.circle(x, y, r, F(3.4)); const cl = clipG(q, x - r + 4, y - r + 4, 2 * r - 8, 2 * r - 8), s = f3(r * 1.5 / 362), w = cl.child({ transform: `translate(${x} ${f1(y + r * .2)}) scale(${s})` }, s); w.H = q.H; w.motion = q.motion; G.parts.bizUser(w, false); q.circle(x, y, r - 1, { sw: 3.4 }); }
+  /* (user, with a crop of it: "แก้ไขด้วย" — the shoulders stuck out of the circle at the bottom corners: the clip was a square) → the bust is clipped
+     by the circle itself, sits a little lower so the shoulders fill the bottom of the frame, and the ring is drawn last */
+  function photo(q, x, y, r) { q.circle(x, y, r, F(3.4)); const ri = f1(r - 3), cl = clipC(q, x, y, ri), s = f3(r * 1.62 / 362), w = cl.child({ transform: `translate(${x} ${f1(y + r * .3)}) scale(${s})` }, s);
+    w.H = q.H; w.motion = q.motion; G.parts.bizUser(w, false); q.circle(x, y, r, { sw: 3.4 }); }
+  function clipC(p, x, y, r) { const svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), e = document.createElementNS(NS, 'circle'); cp.id = 'b11sclip' + (++CID);
+    e.setAttribute('cx', x); e.setAttribute('cy', y); e.setAttribute('r', r); cp.appendChild(e); (svg.querySelector('defs') || svg).appendChild(cp); return sub(p, { 'clip-path': `url(#${cp.id})` }); }
   /* the reaction (react icon / smile / frown) on a round plate at (x, y) diameter s — nothing when gone or no mood */
   const reactS = (p, c, Q, x, y, s) => reactC(p, c, Q, x, y, s);
   /* nobody answers: a reply place (solid, faint) whose typing dots stop on H and stay faint */
@@ -991,7 +996,7 @@
     g.circle(x, y, r, F(3.4)); g.path(D, W(4)); const l = litOn(g, Q.H); l.circle(x, y, r, { fill: ACC1, sw: 3.4, stroke: ACC1 }); l.path(D, { sw: 4.6, stroke: C.fill }); }
   const plusA = (p, x, y, r, Q) => { const g = popAt(p, x, y, Q.tIn); g.circle(x, y, r, { fill: C.fill, sw: 3, stroke: TL_(.5) }); g.line(f1(x - r * .45), y, f1(x + r * .45), y, { sw: 3.4, stroke: TL_(.6) }); g.line(x, f1(y - r * .45), x, f1(y + r * .45), { sw: 3.4, stroke: TL_(.6) }); };
   /* the person who wrote it: the approved half-body user in a big round frame (lit ring on H) */
-  const avatarBig = (p, Q, x, y, r) => { const g = popAt(p, x, y, Q.tIn); photo(g, x, y, r); litOn(g, Q.H).circle(x, y, r, { sw: 4.4, stroke: ACC1 }); };
+  const avatarBig = (p, Q, x, y, r) => { y = f1(Math.max(-BOX[1] / 2 + r + 18, Math.min(BOX[1] / 2 - r - 18, y))); x = f1(Math.max(-BOX[0] / 2 + r + 18, Math.min(BOX[0] / 2 - r - 18, x))); const g = popAt(p, x, y, Q.tIn); photo(g, x, y, r); litOn(g, Q.H).circle(x, y, r, { sw: 4.4, stroke: ACC1 }); };
 
   /* BANNER [l, t, w, h] — tile · (stars) words · divider · tapback / typing */
   function bannerA(p, c, Q, l, t, w, h, o = {}) { const r = f1(Math.min(h * .26, 52)), g = cardA(p, Q, l, t, w, h, r), ts = f1(Math.min(h * .58, 140)), tx = f1(l + 26 + ts / 2), cy = f1(t + h / 2), rw = f1(Math.min(h * .82, 170));
