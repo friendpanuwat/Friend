@@ -568,34 +568,32 @@
       hbar(p, x0, 410, 66, 54, fr, t0, t1, { kr: 34 }); }); };
   /* 2 · 860×470 wide: big number top-left, floating icon top-right, a thick bar, ticks under it */
   R1[2] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04));
-    art(c, p => { flo(p, c, ic, 318, -116, 196, tu(.04), tu(.28)); pairRow(p, v, u, -410, ic ? 200 : 410, -36, { size: 210, uMax: 150, t0: tu(.3) });
-      const b = hbar(p, -410, 410, 100, 96, fr, t0, t1, { kr: 60 }); ticksH(p, -360, 360, 182, 17, 40, fr, t0, t1); }); };
+    art(c, p => { flo(p, c, ic, 318, -92, 200, tu(.04), tu(.28)); pairRow(p, v, u, -410, ic ? 200 : 410, -14, { size: 220, uMax: 156, t0: tu(.3) });
+      hbar(p, -410, 410, 136, 124, fr, t0, t1, { kr: 76 }); }); };   /* no ruler ticks (user 2026-11-25: "เอาขีดออก ขีดที่เป็นเหมือนไม้บรรทัดเอาออกให้หมดเลย") */
   /* 3 · 560×490 near-square: icon box dropped top-left, number + unit on its right, a fat bar, a dot row */
   R1[3] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04));
-    art(c, p => { dropBox(p, c, ic, -168, -140, 196, tu(.04), tu(.28));
-      const nx = ic ? 104 : 0; num(p, p, v, nx, u ? -104 : -70, { size: u ? 160 : 190, maxW: ic ? 320 : 520, t0: tu(.3) });
-      unitUnder(p, u, nx, -16, 74, ic ? 320 : 520);
-      const b = hbar(p, -262, 262, 98, 100, fr, t0, t1, { kr: 62 }); scaleRule(p, b ? b.x0 : -212, b ? b.x1 : 212, 196, fr, t0, t1); }); };
+    art(c, p => { dropBox(p, c, ic, -168, -100, 200, tu(.04), tu(.28));
+      const nx = ic ? 104 : 0; num(p, p, v, nx, u ? -62 : -28, { size: u ? 160 : 190, maxW: ic ? 320 : 520, t0: tu(.3) });
+      unitUnder(p, u, nx, 26, 74, ic ? 320 : 520);
+      hbar(p, -262, 262, 152, 124, fr, t0, t1, { kr: 74 }); }); };   /* no ruler ticks (user 2026-11-25: "เอาขีดออก ขีดที่เป็นเหมือนไม้บรรทัดเอาออกให้หมดเลย") */
   /* 4 · 400×635 tall narrow: a tall bar on the right fills up; number + unit at the top-left, the icon floats at the bottom-left */
   R1[4] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04)), cx = -56;
     art(c, p => { const b = vbar(p, 140, -300, 300, 96, fr, t0, t1, { kr: 56 });
       if (ic) { num(p, p, v, cx, u ? -166 : -130, { size: 176, maxW: 270, t0: tu(.3) }); unitUnder(p, u, cx, -66, 84, 270); flo(p, c, ic, cx, 140, 262, tu(.04), tu(.28)); }
-      else { scaleV(p, 72, b ? b.y0 : 252, b ? b.y1 : -252, fr, t0, t1, { side: -1, L0: 22, L1: 40, n: 8, major: 4 });   /* no icon: a ruler beside the bar, the number in the middle of what is left */
-        num(p, p, v, -78, u ? 4 : 50, { size: 176, maxW: 222, t0: tu(.3) }); unitUnder(p, u, -78, 104, 84, 222); } }); };
+      else { num(p, p, v, -56, u ? 30 : 80, { size: 250, maxW: 270, t0: tu(.3) }); unitUnder(p, u, -56, 138, 96, 270); } }); };   /* no icon: the number in the middle of its column (no ruler) */
   /* 5 · 860×710 full, landscape: icon box + huge number on top, a very thick bar, a long tick scale */
   R1[5] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04));
-    art(c, p => { dropBox(p, c, ic, -310, -212, 220, tu(.04), tu(.28)); pairRow(p, v, u, ic ? -170 : -410, 410, -100, { size: 250, uMax: 170, anchor: ic ? 'start' : 'middle', t0: tu(.3) });
-      hbar(p, -410, 410, 116, 150, fr, t0, t1, { kr: 90 }); ticksH(p, -350, 350, 248, 21, 54, fr, t0, t1); }); };
+    art(c, p => { dropBox(p, c, ic, -310, -178, 236, tu(.04), tu(.28)); pairRow(p, v, u, ic ? -164 : -410, 410, -62, { size: 260, uMax: 176, anchor: ic ? 'start' : 'middle', t0: tu(.3) });
+      hbar(p, -410, 410, 200, 190, fr, t0, t1, { kr: 112 }); }); };   /* no ruler ticks (user 2026-11-25: "เอาขีดออก ขีดที่เป็นเหมือนไม้บรรทัดเอาออกให้หมดเลย") */
   /* 6 · 860×965 full, portrait: a big floating icon on top, the number very large in the middle, the thickest bar, a tick scale */
   R1[6] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04));
-    art(c, p => { flo(p, c, ic, 0, -330, 260, tu(.04), tu(.28)); pairRow(p, v, u, -410, 410, ic ? 46 : -70, { size: ic ? 290 : 380, uMax: ic ? 190 : 240, anchor: 'middle', t0: tu(.3), under: ic ? null : { ny: -150, uy: 40, uMax: 130 } });
-      hbar(p, -410, 410, 250, 170, fr, t0, t1, { kr: 100 }); ticksH(p, -340, 340, 396, 21, 58, fr, t0, t1); }); };
+    art(c, p => { flo(p, c, ic, 0, -284, 300, tu(.04), tu(.28)); pairRow(p, v, u, -410, 410, ic ? 112 : -6, { size: ic ? 300 : 390, uMax: ic ? 196 : 240, anchor: 'middle', t0: tu(.3), under: ic ? null : { ny: -86, uy: 104, uMax: 130 } });
+      hbar(p, -410, 410, 322, 210, fr, t0, t1, { kr: 122 }); }); };   /* no ruler ticks (user 2026-11-25: "เอาขีดออก ขีดที่เป็นเหมือนไม้บรรทัดเอาออกให้หมดเลย") */
   /* 7 · 400×500 short narrow: a tall bar on the LEFT; the icon floats top-right, number + unit under it */
   R1[7] = (d, c) => { const v = VAL(d), u = UN(d), ic = ICN(d), H = Z.H, fr = frac(d), t0 = tu(.34), t1 = f3(H - tu(.04)), cx = 62;
     art(c, p => { const b = vbar(p, -142, -236, 236, 88, fr, t0, t1, { kr: 52 });
       if (ic) { flo(p, c, ic, cx, -118, 210, tu(.04), tu(.28)); num(p, p, v, cx, u ? 106 : 140, { size: 150, maxW: 260, t0: tu(.3) }); unitUnder(p, u, cx, 196, 70, 260); }
-      else { scaleV(p, -84, b ? b.y0 : 192, b ? b.y1 : -192, fr, t0, t1, { side: 1, wedge: true, L0: 14, L1: 56, n: 8 });   /* no icon: a wedge scale grows up beside the bar */
-        num(p, p, v, 92, u ? 26 : 60, { size: 150, maxW: 200, t0: tu(.3) }); unitUnder(p, u, 92, 112, 70, 200); } }); };
+      else { num(p, p, v, cx, u ? 40 : 76, { size: 210, maxW: 260, t0: tu(.3) }); unitUnder(p, u, cx, 132, 80, 260); } }); };   /* no icon: the number in the middle of its column (no ruler) */
 
   /* ================= ROUNDS 2–5 (user 2026-11-25 after B12: "กลับไปทำหมวด 1" → "ใช้แบบเดิม + ใหม่ 4") — seven sizes × five designs:
      01 = round 1 (the fill bar, passed) + four new ones in the template look of B01T (rounded tiles, thick bands that fill, a knob or a needle riding
@@ -658,19 +656,13 @@
   /* TANK — replaces the grid of lit squares (user 2026-11-25: "ตัวนับข้างล่างมันไม่สัมพันธ์กับเลข … ถ้าเลขหลักล้านจะทำยังไง … ดีไซน์ใหม่"):
      a big rounded panel fills from the bottom up to the amount (a level, not pieces — any number works), an accent level line with a knob rides up,
      a 0–100 scale along its inner left edge (ticks light as the level passes), the panel's edge lights on the keyword. */
-  function tankV(p, x, y, w, h, fr, o = {}) { const T = TQ(), L1 = f1(Math.max(30, Math.min(52, w * .13))), L0 = f1(L1 * .55), gap = 14, so = L1 + gap;   /* the scale sits outside, on the left */
+  function tankV(p, x, y, w, h, fr, o = {}) { const T = TQ(), so = 0, gap = 0;   /* no scale, no pointer, no guide lines (user: "ขีดที่เป็นเหมือนไม้บรรทัดเอาออกให้หมดเลย") */
     const x0 = f1(x - w / 2 + so), y0 = f1(y - h / 2), tw_ = w - so, rx = f1(Math.min(tw_, h) * .1), pad = f1(Math.max(10, Math.min(tw_, h) * .04));
     R(inG(p, 'pop', f1(x0 + tw_ / 2), y, T.tV), x0, y0, tw_, h, rx, F(3.6)); const ix = f1(x0 + pad), iy = f1(y0 + pad), iw = f1(tw_ - 2 * pad), ih = f1(h - 2 * pad), irx = f1(Math.max(6, rx - pad)), yb = iy + ih;
     const ly = f1(yb - ih * fr), fh = f1(yb - ly), sx = f1(x0 - gap);
     if (fr > 0) { const cg = clipG(p, ix, iy, iw, ih, irx), mg = mvG(cg, { y: ioK(T.t0, T.t1, f1(fh + 10), 0), o: fadeIn(T.t0, .04) });
       R(mg, ix, ly, iw, f1(fh + 12), 0, FILL); mg.line(ix, ly, f1(ix + iw), ly, { sw: 7, stroke: ACC1 }); }
-    if (!o.bare) [.25, .5, .75].forEach((f, k) => drawAt(p.line(f1(ix + 12), f1(yb - ih * f), f1(ix + iw - 12), f1(yb - ih * f), { sw: f === .5 ? 2 : 1.6, stroke: TL_(.28) }), p, f3(T.tV + tu(.16 + .04 * k)), tu(.3)));   /* faint level marks across, matching the scale */
-    for (let k = 0; k <= 4; k++) { const f = k / 4, yy = f1(yb - ih * f), L = k % 2 ? L0 : L1;   /* only the main marks (user: "เอาขีดสเกลเล็กๆลงหน่อย") */
-      drawAt(p.line(sx, yy, f1(sx - L), yy, S(2.6)), p, f3(T.tV + tu(.1 + .03 * k)), tu(.14));
-      if (fr > 0 && f <= fr + 1e-6) { const t = ioAt(fr ? f / fr : 1, T.t0, T.t1); on(p.line(sx, yy, f1(sx - L), yy, { sw: 4.4, stroke: ACC1 }), p, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] }); } }
-    if (fr > 0) { const a = f1(Math.max(16, L1 * .52)), kn = mvG(p, { y: ioK(T.t0, T.t1, fh, 0), o: fadeIn(T.t0, .04) });   /* the pointer: rides up the scale with the level */
-      shape(kn, [[f1(x0 - 3), ly], [f1(x0 - 3 - a * 1.2), f1(ly - a * .75)], [f1(x0 - 3 - a * 1.2), f1(ly + a * .75)]], KN()); }
-    R(litAt(p, Z.H), x0, y0, tw_, h, rx, { fill: 'none', sw: 5, stroke: ACC1 }); return { cx: f1(x0 + tw_ / 2), cy: y, iw, ih }; }
+    R(litAt(p, Z.H), x0, y0, tw_, h, rx, { fill: 'none', sw: 5, stroke: ACC1 }); return { cx: f1(x0 + tw_ / 2), cy: y, iw, ih, ly: fr > 0 ? ly : null }; }
   const TANK = (p, d, w, h) => ({ w, h, at: (x, y) => tankV(p, x, y, w, h, frac(d)) });
   /* the tank with its thing inside (user 2026-11-25: "เพิ่มขนาดของไอคอนให้มันเด่นที่สุดรองลงมาเป็นตัวเลข"): the icon big in the middle of the tank,
      the level rises behind it · no icon → the number (n = NUM args) sits in the tank instead */
