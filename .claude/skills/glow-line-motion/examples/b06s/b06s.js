@@ -1260,8 +1260,10 @@
       txt(qg, '?', bm, f1(by - 22), { size: f1(Math.min(260, bh * .8)), weight: 800, color: F.answered ? C.ink : ACC1 });
       if (F.hasO) [0, 1].forEach(i => { const X = F.op[i], gk = scaleK(doubtK(T_, i), .38); if (picOf(X)) put(p, c, { icon: X.icon }, bm, iy, iw, null, { t: T_.tA, o: gk }); else txt(mvG(p, { o: gk }), X.label, bm, f1(by - 20), { size: 70, maxW: bx1 - bx0, weight: 800, color: C.ink }); });
       const X = ansOf(F);
-      if (X) { const lab = LBL(X); if (picOf(X)) put(p, c, { icon: X.icon }, bm, lab ? iy : f1((-Y5 + by) / 2), lab ? iw : f1(Math.min(280, bh * .8)), null, { t: f3(H - tu(.04)), punch: H });
-        const s0 = lab || (!picOf(X) && X.label); if (s0) txt(atG(p, f3(H + tu(.06))), s0, bm, f1(by - 18), { size: lab ? 60 : 76, maxW: bx1 - bx0, weight: 800, color: C.ink }); ripple(p, bm, f1((-Y5 + by) / 2), f1(Math.min(200, bh * .4)), f3(H + tu(.04))); }   /* the ring grows to 1.3× — kept inside the box */
+      if (X) { const lab = LBL(X), big = !F.hasO, ay2 = f1((-Y5 + by - (lab ? 70 : 0)) / 2), aw2 = f1(Math.min(360, (by - (lab ? 70 : 0) + Y5) * .8));   /* no options: the answer's icon big, in the middle of the blank (user) */
+        if (picOf(X)) put(p, c, { icon: X.icon }, bm, big ? ay2 : lab ? iy : f1((-Y5 + by) / 2), big ? aw2 : lab ? iw : f1(Math.min(280, bh * .8)), null, { t: f3(H - tu(.04)), punch: H });
+        const s0 = lab || (!picOf(X) && X.label); if (s0) txt(atG(p, f3(H + tu(.06))), s0, bm, f1(by - 18), { size: lab ? 60 : 76, maxW: bx1 - bx0, weight: 800, color: C.ink });
+        if (!big) ripple(p, bm, f1((-Y5 + by) / 2), f1(Math.min(200, bh * .4)), f3(H + tu(.04))); }   /* no ring when the answer fills the blank on its own (user: "ลบเอฟเฟควงกลมออก") */   /* the ring grows to 1.3× — kept inside the box */
       litOn(p, H).line(bx0, by, bx1, by, { sw: 6, stroke: ACC1 });
       if (ob) rowCells(p, c, d, -X5, X5, f1(Y5 - ob / 2), ob, 18, { wideMin: 300, ws: 54, cap: 160 }, [['o', 0], ['o', 1]]); }); });
 
