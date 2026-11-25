@@ -745,9 +745,12 @@
       if (wl && vert) { x0 = f1(x0 + wsz * 1.4); lenF = f1(x1 - x0); }   /* the word under the icon needs its room above the frame edge */
       side(p, c, d, s, ix, iy, icx, null, vert ? { t: tIn(d, s), wy: f1(iy + icx / 2 + wsz * .6), ws: wsz, wmax: f1(thick * 1.1) } : { t: tIn(d, s) });
       const g0 = sIn(p, ...P(f1((x0 + x1) / 2), off), f3(tIn(d, s) + tu(.06)), .3), tr = vert ? [f1(off - bt / 2), f1(-x1), bt, lenF] : [x0, f1(off - bt / 2), lenF, bt];
-      R(g0, ...tr, f1(bt / 2), F(4)); const pad = f1(Math.max(7, bt * .13)), ib = f1(bt - 2 * pad), il = f1((lenF - 2 * pad) * amt), base = P(f1(x0 + pad), off);
-      const K = Object.assign({ px: base[0], py: base[1], o: fadeIn(ta, .06) }, vert ? { sy: [[0, .001], [ta, .001], [tb, 1, 'io']] } : { sx: [[0, .001], [ta, .001], [tb, 1, 'io']] });
-      R(mvG(p, K), ...(vert ? [f1(off - ib / 2), f1(-x0 - pad - il), ib, il] : [f1(x0 + pad), f1(off - ib / 2), il, ib]), f1(ib / 2), win ? { fill: TA(.36), sw: 0, stroke: 'none' } : { fill: TL_(.2), sw: 0, stroke: 'none' });
+      R(g0, ...tr, f1(bt / 2), F(4));
+      /* the tube fills the capsule's whole inside (user 2026-11-25: "ทำให้หลอดที่วิ่งมันเต็มแคปซูล"): clipped to the inside, a round-ended tube slides in
+         (no scaling — its round end keeps its shape) and stops at the side's amount */
+      const pad = 5, ib = f1(bt - 2 * pad), inL = f1(lenF - 2 * pad), il = f1(Math.max(ib, inL * amt)), cl = vert ? clipG(p, f1(off - ib / 2), f1(-x1 + pad), ib, inL, f1(ib / 2)) : clipG(p, f1(x0 + pad), f1(off - ib / 2), inL, ib, f1(ib / 2));
+      const K = Object.assign({ o: fadeIn(ta, .06) }, vert ? { y: [[0, il], [ta, il], [tb, 0, 'io']] } : { x: [[0, -il], [ta, -il], [tb, 0, 'io']] });
+      R(mvG(cl, K), ...(vert ? [f1(off - ib / 2), f1(-x0 - pad - il), ib, f1(il + ib)] : [f1(x0 + pad - ib), f1(off - ib / 2), f1(il + ib), ib]), f1(ib / 2), win ? { fill: TA(.36), sw: 0, stroke: 'none' } : { fill: TL_(.2), sw: 0, stroke: 'none' });
       if (win) R(litOn(p, Z.H), ...tr, f1(bt / 2), { fill: 'none', sw: 5, stroke: ACC1 });
       at[s] = vert ? [f1(off + thick * .3), f1(-along / 2 + 50)] : [f1(along / 2 - 50), f1(off - thick * .3)]; });
     return at; }
