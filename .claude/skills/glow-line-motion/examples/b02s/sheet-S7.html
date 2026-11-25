@@ -18,6 +18,6 @@ GL.run(() => {
     COLS.forEach((di, j) => { const x = X[j], d = data[di];
       if (FRAME) B.frame({ x, y: cy, s }, S.w, S.h); B.drawS(K, i, d, { x, y: cy, s, at: .3, hit: 1.6 });
       GL.text('“' + d.say + '”', { x, y: y0 + h + 68, size: 16, weight: 500, color: GL.C.mute, glow: false, maxW: w }); }); });
-  GL.finish({ hold: 2.4, out: true, stagger: .02 });
+  GL.finish({ hold: Math.max(.6, 4.9 - GL.end), out: true, stagger: .02 });   /* exits at 4.9 s whatever the icons' own motion (clip ~6 s) */
 });
 </script></body></html>

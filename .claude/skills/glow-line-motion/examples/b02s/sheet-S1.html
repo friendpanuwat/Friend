@@ -17,6 +17,6 @@ GL.run(() => {
     COLS.forEach((di, j) => { const d = data[di], ty = y0 + 44 + j * (h + gapL), cy = ty + gapL - 4 + h / 2;
       GL.text(HEAD[j] + ' · “' + d.say + '”', { x: x - w / 2, y: ty + gapL - 12, size: 17, weight: 600, color: GL.C.kicker, glow: false, anchor: 'start', maxW: w });
       if (FRAME) B.frame({ x, y: cy, s }, S.w, S.h); B.drawS(K, i, d, { x, y: cy, s, at: .3, hit: 1.6 }); }); });
-  GL.finish({ hold: 2.4, out: true, stagger: .02 });
+  GL.finish({ hold: Math.max(.6, 4.9 - GL.end), out: true, stagger: .02 });   /* exits at 4.9 s whatever the icons' own motion (clip ~6 s) */
 });
 </script></body></html>

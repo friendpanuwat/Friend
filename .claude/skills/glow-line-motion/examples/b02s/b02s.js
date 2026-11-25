@@ -22,7 +22,7 @@
   const TR = ['x', 'y', 'r', 's', 'sx', 'sy', 'ky'];
   const sub = (p, a) => { const q = p.child(a || {}); q.H = p.H; q.motion = p.motion; return q; };
   const on = (q, p, t, spec) => { const t0 = p.t0 + t * p.ts, fade = q.og && !TR.some(n => spec[n]); kf(fade ? q.og : (q.g || q), t0, spec); };
-  const art = (c, fn) => { const f = p => { p.H = Z.H; fn(p); }; f.custom = true; f.dur = .35; f.exit = 'pop';
+  const art = (c, fn) => { const f = p => { p.H = Z.H; fn(p); }; f.custom = true; f.dur = .35; f.exit = 'fade';   /* fade: shrinks a touch in place — never grows past the box on the way out (A6) */
     const a = G.art(f, { x: c.x, y: c.y, s: c.s, at: c.at || 0, speed: 1 }); a.speed = Z.sp; return a; };
   const over = (c, fn) => art(Object.assign({}, c), fn);
   const atT = (g, p, t) => on(g, p, t, { o: [[0, 0], [tu(.12), 1]] });
@@ -103,16 +103,16 @@
   function haloH(q, x, y, r, t) { t = t ?? Z.H; const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .6], [t, .6], [t + tu(.3), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.1), 1]] }); halo(g, x, y, r); return g; }
   /* a ring that blooms out from (x, y) at t and fades (the "it happened" ripple) */
   function ripple(q, x, y, r, t) { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [t + tu(.45), 1.45, 'out']], o: [[0, 0], [t, 0], [t + tu(.04), .8], [t + tu(.45), 0]] }); g.circle(x, y, r, W(2.6)); }
-  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .3], [t, .3], [t + tu(.2), 1.1, 'out'], [t + tu(.34), 1, 'soft']], o: [[0, 0], [t, 0], [t + tu(.06), 1]] }); return g; };
+  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .6], [t, .6], [t + tu(.3), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.12), 1]] }); return g; };   /* smooth, no overshoot (A4) */
 
   /* a THING (it) at (x, y) width w (+ its label at (lx, ly)). o.t = when it comes in · o.mv = keys of the part it rides ({ px, py, x, y, r, s }) ·
      o.punch = a bump at that time (the moment it is reached) · o.r = a fixed tilt (with its holder) · o.lt = when the label comes in */
   function pic(it, cx, cy, wd, c, o = {}) {
     if (!it) return null; const at = c.at || 0, X = c.x + cx * c.s, Y = c.y + cy * c.s, fn = picOf(it), t = o.t ?? tu(.12);
     let a;
-    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp });
+    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp, exit: 'fade' });   /* the icon leaves in place too */
     else { const str = it.label; if (!str) return null;
-      const f = q => txt(q, str, 0, wd * .11, { size: wd * .3, maxW: o.bigW || wd * 1.25, weight: 700, color: C.ink, wrap: 'mid' }); f.custom = true; f.dur = .3; f.exit = 'pop';
+      const f = q => txt(q, str, 0, wd * .11, { size: wd * .3, maxW: o.bigW || wd * 1.25, weight: 700, color: C.ink, wrap: 'mid' }); f.custom = true; f.dur = .3; f.exit = 'fade';
       a = G.art(f, { x: X, y: Y, s: c.s, at: at + t, speed: 1 }); a.speed = Z.sp; }
     const K = { ox: X, oy: Y }; let any = false;
     if (o.mv) { const m = o.mv; if (m.px != null) { K.ox = c.x + m.px * c.s; K.oy = c.y + m.py * c.s; }
@@ -120,7 +120,7 @@
     else if (o.r) { K.r = [[0, o.r]]; any = true; }
     if (o.o) { K.o = o.o; any = true; }
     if (any) kf(a.wrap, at, K);
-    if (o.punch != null) kf(a.g, at, { ox: X, oy: Y, s: [[0, 1], [o.punch, 1], [o.punch + tu(.07), 1.14, 'out'], [o.punch + tu(.3), 1, 'soft']] });
+    if (o.punch != null && false) kf(a.g, at, { ox: X, oy: Y, s: [[0, 1], [o.punch, 1], [o.punch + tu(.07), 1.14, 'out'], [o.punch + tu(.3), 1, 'soft']] });
     return a;
   }
   function put(q, c, it, x, y, w, ly, o = {}) { if (!it) return; const k = o.k ?? 0, t = o.t ?? tu(.12 + .08 * k);
@@ -805,16 +805,16 @@
 
   /* STAIRS — the thing climbs the steps one by one (up: rising to the right) · walks down them (down: falling to the right); each step it reaches
      lights. One step shape (no boxes on boxes). keep 0 → it fades at the bottom. */
-  function STAIRS(p, c, X, E, d, w, h) { const n = E.n, up = E.up, tw0 = w / n, ic = f1(Math.min(tw0 * .95, h * (w / h > 2.5 ? .5 : .42), 260)), rh = f1(Math.max(12, (h - ic - 20) / n)), Ht = f1(ic + 20 + rh * n);
+  function STAIRS(p, c, X, E, d, w, h) { const n = E.n, up = E.up, tw0 = w / n, ic = f1(Math.min(tw0 * .7, h * (w / h > 2.5 ? .5 : .42), 260)),   /* < a step's width: it never brushes the next riser */ rh = f1(Math.max(12, (h - ic - 20) / n)), Ht = f1(ic + 20 + rh * n);
     return { w, h: Ht, at: (cx, cy) => { const x0 = cx - w / 2, yb = cy + Ht / 2, tw = w / n, top = k => f1(yb - (up ? k + 1 : n - k) * rh), xs = k => f1(x0 + k * tw);
       let pts = [[f1(x0), yb]]; for (let k = 0; k < n; k++) pts.push([xs(k), top(k)], [xs(k + 1), top(k)]); pts.push([f1(x0 + w), yb]);
       const g0 = sIn(p, cx, f1(yb - rh * n / 2), tu(.04), .32); g0.path(pathOf(pts), { fill: C.fill, sw: 4, 'stroke-linejoin': 'round' });
       const ts = up ? Array.from({ length: n }, (_, k) => E.at(k)) : [f3(tu(.3))].concat(E.ts);   /* when it stands on step k */
-      const at = k => [f1(xs(k) + tw / 2), f1(top(k) - ic / 2 - 8)], last = up ? n - 1 : Math.min(n - 1, E.m);
+      const at = k => [f1(xs(k) + tw / 2), f1(top(k) - ic / 2 - 16)], last = up ? n - 1 : Math.min(n - 1, E.m);
       for (let k = 0; k <= last; k++) { const t = ts[k]; if (t == null) continue; on(p.line(f1(xs(k) + 12), top(k), f1(xs(k + 1) - 12), top(k), { sw: 7, stroke: ACC1 }), p, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.08)), 1]] }); }
       const fin = at(last), XK = [], YK = []; for (let k = 0; k <= last; k++) { const [x, y] = at(k), t = ts[k]; if (!k) { XK.push([0, f1(x - fin[0])], [t, f1(x - fin[0])]); YK.push([0, f1(y - fin[1])], [t, f1(y - fin[1])]); continue; }
         const [px, py] = at(k - 1), tm = f3(t - tu(.2)), t1 = f3(t - tu(.44));
-        if (up) { XK.push([t1, f1(px - fin[0])], [tm, f1(px + tw * .12 - fin[0]), 'io'], [t, f1(x - fin[0]), 'io']); YK.push([t1, f1(py - fin[1])], [tm, f1(y - 6 - fin[1]), 'io'], [t, f1(y - fin[1]), 'io']); }
+        if (up) { XK.push([t1, f1(px - fin[0])], [tm, f1(px - fin[0])], [t, f1(x - fin[0]), 'io']); YK.push([t1, f1(py - fin[1])], [tm, f1(y - 22 - fin[1]), 'io'], [t, f1(y - fin[1]), 'io']); }   /* lift first, then step over */
         else { XK.push([t1, f1(px - fin[0])], [tm, f1(x - tw * .12 - fin[0]), 'io'], [t, f1(x - fin[0]), 'io']); YK.push([t1, f1(py - fin[1])], [tm, f1(py - 6 - fin[1]), 'io'], [t, f1(y - fin[1]), 'io']); } }
       const O = fadeIn(f3(ts[0] - tu(.3)), .14).concat(!up && E.keep === 0 ? [[f3(E.H + tu(.1)), 1], [f3(E.H + tu(.4)), .14]] : []);
       thing(p, c, X, fin[0], fin[1], ic, { px: fin[0], py: fin[1], x: XK, y: YK, o: O }, { t: f3(ts[0] - tu(.32)) }); } }; }
