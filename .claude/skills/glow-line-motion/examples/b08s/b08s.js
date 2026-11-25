@@ -844,10 +844,21 @@
   sd(4, 'lift', 'ขึ้นลิฟต์ถึงเป้า', (d, c) => { const A = GD(d);
     art(c, p => { const x = -100, pts = [[x, 220], [x, -150]], P = traveler(p, c, d, pts, { r: 64 }); lift(p, x, 300, -150, 150, P, 64);
       goalAt(p, c, d, 92, -150, { r: 92, big: 40, bigW: 160 }); gwordAt(p, d, 90, 60, { size: 48, maxW: 190 }); }); });
-  /* 02 filling up a tube: who floats up on the level to the goal at the top of the tube */
-  sd(4, 'tube', 'เติมจนถึงขีด', (d, c) => { const A = GD(d);
-    art(c, p => { const x = -96, pts = [[x, 230], [x, -110]], P = traveler(p, c, d, pts, { r: 58 }); tubeFill(p, x, -300, 300, 172, -110 + 70, P);
-      goalAt(p, c, d, x, -222, { r: 62, big: 30, bigW: 104 }); gwordAt(p, d, 106, 0, { size: 46, maxW: 170 }); }); });
+  /* 02 (user: "02 มันดูโล่งเกินไปอยากให้ทำเป็นแคปซูลใหญ่ให้เต็มขนาดเลย ดีไซน์ใหม่ให้ดีนะไม่ใช่แค่ขยาย") one big capsule fills the whole box:
+     the goal waits in its top dome, the goal's words sit at its foot; the level rises from the bottom with who floating on it, the ticks on the
+     right light one by one as the level passes them, and on H the level reaches the mark right under the goal — the mark and the goal light */
+  sd(4, 'tube', 'แคปซูลเติมจนถึงเป้า', (d, c) => { const A = GD(d), T = GT(), H = T.H;
+    art(c, p => { const W = 380, Ht = 616, x0 = -190, y0 = -308, rr = 190, D = rrD(x0, y0, W, Ht, rr), r = 58, gy = -196, gr = 96, mark = f1(gy + gr + 12 + r * 2 + 6), L0 = 200;
+      const b = atG(p, T.tA); b.path(D, NOFILL); b.path(rrD(x0 + 16, y0 + 16, W - 32, Ht - 32, rr - 16), S(1.4));
+      const cl = clipP(p, D), lv = mvG(cl, { y: smK(T.tM0, H, f1(L0 - mark), 0, 24) });
+      R(lv, x0, mark, W, Ht, 0, { fill: TL_(.13), sw: 0, stroke: 'none' }); R(litOn(lv, H), x0, mark, W, Ht, 0, { fill: TA(.2), sw: 0, stroke: 'none' }); lv.line(x0, mark, x0 + W, mark, { sw: 4, stroke: TL_(.75) });
+      const mk = drawAt(p.line(-140, mark, 140, mark, { sw: 3, stroke: TL_(.4) }), p, T.tA, tu(.4)); litOn(p, H).line(-140, mark, 140, mark, { sw: 5, stroke: ACC1 });
+      for (let k = 0; k < 5; k++) { const y = f1(L0 + 70 - (L0 + 70 - mark) * k / 4), fr = Math.min(1, Math.max(0, (L0 - y) / (L0 - mark))), tl = y >= L0 ? T.tA : f3(T.tM0 + (H - T.tM0) * smInv(fr));
+        const g = atG(p, f3(T.tA + tu(.05 * k))); g.line(130, y, 162, y, { sw: 4, stroke: TL_(.5) }); const l = litOn(g, f3(Math.max(tl, T.tA + tu(.1)))); l.line(130, y, 162, y, { sw: 5, stroke: k === 4 ? ACC1 : C.ink }); }
+      drawAt(p.path(D, { sw: 4.6 }), p, T.tA, tu(.6));
+      goalAt(p, c, d, 0, gy, { r: gr, big: 40, bigW: 160 }); gwordAt(p, d, 0, 262, { size: 54, maxW: 230 });
+      traveler(p, c, d, [[0, f1(L0 - r - 6)], [0, f1(mark - r - 6)]], { r }); }); });
+
   /* 03 building up: blocks slide in under who, lifting it up to the goal at the top */
   sd(4, 'stack', 'ต่อขึ้นไปถึง', (d, c) => { const A = GD(d);
     art(c, p => { const x = -90, bw = 200, bh = 100, L = Array.from({ length: 4 }, (_, k) => [f1(x - bw / 2), f1(317 - bh * (k + 1)), bw, bh - 10]), lv = k => [x, f1(317 - bh * k - 10 - 60)];
