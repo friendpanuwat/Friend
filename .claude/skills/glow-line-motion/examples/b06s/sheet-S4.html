@@ -2,11 +2,11 @@
 <html><head><meta charset="utf-8"><title>B06S size 4</title>
 <script src="../../assets/glowline.js"></script><script src="b06s.js"></script></head>
 <body><script>
-/* B06S size 4 — pilot (3 designs), PER designs a page. Each row = one design, each column = one line of data (COLS = indexes into SET),
+/* B06S size 4 — 10 designs, PER designs a page (pilot 01–03 passed). Each row = one design, each column = one line of data (COLS = indexes into SET),
    so every design shows the doubt between two options, an answer that is one of them, and the fallback. Yellow = the size's box at 100 % (scaled s). */
 GL.run(() => {
   GL.stage();
-  const FRAME = true, PAGE = 1, PER = 3, K = 4, SET = 'A', COLS = SET === 'A' ? [3, 10, 1] : [8, 1, 4], B = GL.cats.B06S, data = SET === 'A' ? B.SAMPLES : B.STRESS, S = B.SIZES[K], list = B.S[K], s = .6, I0 = (PAGE - 1) * PER;
+  const FRAME = true, PAGE = 1, PER = 4, K = 4, SET = 'A', COLS = SET === 'A' ? [3, 10, 1] : [8, 1, 4], B = GL.cats.B06S, data = SET === 'A' ? B.SAMPLES : B.STRESS, S = B.SIZES[K], list = B.S[K], s = .45, I0 = (PAGE - 1) * PER;
   GL.text('B06 ขนาด ' + K + ' · ' + S.th + ' ' + S.w + '×' + S.h + ' · แบบ ' + String(I0 + 1).padStart(2, '0') + '–' + String(Math.min(list.length, I0 + PER)).padStart(2, '0'), { y: 66, size: 40, ls: 3, color: GL.C.kicker, glow: false });
   GL.text('แถว = แบบ · คอลัมน์ = ข้อมูลคนละแบบ', { y: 112, size: 28, weight: 500, color: GL.C.sub, glow: false });
   const w = S.w * s, h = S.h * s, rowH = h + 100, X = [200, 540, 880];
