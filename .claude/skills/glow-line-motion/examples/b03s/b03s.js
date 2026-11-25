@@ -103,7 +103,7 @@
   function haloH(q, x, y, r, t) { t = t ?? Z.H; const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .6], [t, .6], [t + tu(.3), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.1), 1]] }); halo(g, x, y, r); return g; }
   /* a ring that blooms out from (x, y) at t and fades (the "it happened" ripple) */
   function ripple(q, x, y, r, t) { return;   /* no ripples (user lesson 32) */ const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [t + tu(.45), 1.45, 'out']], o: [[0, 0], [t, 0], [t + tu(.04), .8], [t + tu(.45), 0]] }); g.circle(x, y, r, W(2.6)); }
-  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .6], [t, .6], [t + tu(.3), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.12), 1]] });   /* smooth, no overshoot (A4) */ return g; };
+  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .8], [t, .8], [t + tu(.36), 1, 'io']], o: [[0, 0], [t, 0], [t + tu(.32), 1, 'io']] });   /* smooth, no overshoot (A4) */ return g; };
 
   /* a THING (it) at (x, y) width w (+ its label at (lx, ly)). o.t = when it comes in · o.mv = keys of the part it rides ({ px, py, x, y, r, s }) ·
      o.punch = a bump at that time (the moment it is reached) · o.r = a fixed tilt (with its holder) · o.lt = when the label comes in */
@@ -422,7 +422,7 @@
   /* ---------- B05 data + small parts ---------- */
   const WR = d => d && has(d.wrong) ? d.wrong : null, RT = d => d && has(d.right) ? d.right : null;
   const TT = Q => { const tN = f3(Math.max(tu(.7), Q.H - tu(1.0))); return { H: Q.H, tN, tR: f3(tN + tu(.3)) }; };
-  const dimK = t => [[0, 1], [t, 1], [f3(t + tu(.2)), .38]];
+  const dimK = t => [[0, 1], [t, 1], [f3(t + tu(.5)), .38, 'io']];   /* the loser dims softly over .5 s */
   const dimG = (q, t) => mvG(q, { o: dimK(t) });
   const BK = { fill: C.fill, sw: 0, stroke: 'none' };   /* solid backing drawn under a part that dims (the duo() lesson) */
   /* a ✓ / ✗ badge that pops at t */
@@ -497,7 +497,7 @@
   /* something that fills from t0 to t1: draw keys and the matching turn of a dot riding its end */
   const fillK = (t0, t1) => [[0, 0], [t0, 0], [t1, 1, 'io']];
   const ridK = (deg, t0, t1) => [[0, -deg], [t0, -deg], [t1, 0, 'io']];
-  const litOn = (q, t) => { const g = sub(q); on(g, q, 0, { o: [[0, 0], [f3(t - tu(.12)), 0], [f3(t + tu(.18)), 1, 'io']] }); return g; };   /* glows up softly (A9) */
+  const litOn = (q, t) => { const g = sub(q); on(g, q, 0, { o: [[0, 0], [f3(t - tu(.2)), 0], [f3(t + tu(.3)), 1, 'io']] }); return g; };   /* glows up over .5 s */   /* glows up softly (A9) */
   let FILL = { fill: LIT, sw: 0, stroke: 'none' }, SOFTT = { sw: 14, stroke: 'rgba(255,255,255,.16)' };
 
   /* ---------- colour theme (user 2026-11-14: "ทำให้มันเปลี่ยนสีได้"): every colour comes from GL.C (line = ink, card fill, soft lines) plus one
@@ -611,7 +611,7 @@
     art(c, p => {
       SIDES.forEach(s => { const [px, py] = P[s], t = tIn(d, s), lose = s === T.lose, win = s === T.win && !T.off, X = XS(d, s), hasI = !!(X && picOf(X)), lab = X && X.label && (!hasI || needW(d)) ? String(X.label) : null;   /* fewer words (D15): only when the icons can't tell the sides apart */
         /* the panel: draws itself as the side comes in; loser dims, winner lights */
-        const g0 = atG(p, f3(t - tu(.04))), gP = lose ? dimG(g0, H) : g0;   /* outline only — a filled panel left dark bands when it dimmed */
+        const g0 = sub(p); on(g0, p, 0, { o: [[0, 0], [f3(t - tu(.04)), 0], [f3(t + tu(.32)), 1, 'io']] }); const gP = lose ? dimG(g0, H) : g0;   /* soft */   /* outline only — a filled panel left dark bands when it dimmed */
         drawAt(R(gP, px - hw / 2, py - hh / 2, hw, hh, rr, { sw: 2.6, stroke: TL_(.5) }), p, f3(t - tu(.04)), tu(.3));
         if (win) R(litOn(p, H), px - hw / 2, py - hh / 2, hw, hh, rr, { fill: TA(.07), sw: 4.4, stroke: ACC1 });
         /* the inside: icon + word, laid out for this half */
@@ -624,7 +624,7 @@
         if (!vert && (inner !== 'side' || !lab)) { const sh = s === 'a' ? -dr * .35 : dr * .35; ix = f1(ix + sh); wx = f1(wx + sh); }
         if (hasI) { if (st.box) sbox(p, c, d, s, ix, iy, ic, { t });
           else { const oI = [[0, 0], [f3(t + tu(.14)), 0], [f3(t + tu(.36)), 1, 'io']];   /* fades in near its landing — the icon's own drop never crosses the disc / seam */
-            put(p, c, { icon: X.icon }, ix, iy, ic * .9, null, { t, o: lose ? oI.concat([[H, 1], [f3(H + tu(.3)), .38, 'io']]) : oI }); }
+            put(p, c, { icon: X.icon }, ix, iy, ic * .9, null, { t, o: lose ? oI.concat([[H, 1], [f3(H + tu(.5)), .38, 'io']]) : oI }); }
           if (lab) word(p, d, s, wx, wy, { size: wS, maxW: wMax, anchor: wAn, t: f3(t + tu(.14)), wrap: inner === 'side' ? 'mid' : 'down' }); }   /* under the icon: a second line goes down, never into the icon */
         else if (lab) { const g1 = popAt(p, px, py, t), g = lose ? dimG(g1, H) : g1; txt(g, lab, px, py + wS * .6, { size: wS * 1.5, maxW: hw - 2 * pad, weight: 800, color: C.ink, wrap: 'mid' }); }
       });
@@ -651,15 +651,16 @@
      SCALE ตาชั่ง · BARS แถบคู่ · GROW โต-หด. Lessons: centred (D14) · words only where the icons alone can't tell the two apart (same icon /
      no icon — D15) · no frame in a frame (D20) · no ruler ticks (D18) · one smooth trip, edges glow up softly (A9) · nothing past the box. ================= */
   const ioE2 = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
-  const sIn = (q, x, y, t, d = .3) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [f3(t + tu(d)), 1, 'out']], o: fadeIn(t, .14) }); return g; };
+  const sIn = (q, x, y, t, d = .36) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .82], [t, .82], [f3(t + tu(d)), 1, 'io']], o: fadeS(t) }); return g; };
+  const fadeS = (t, d = .32) => [[0, 0], [t, 0], [f3(t + tu(d)), 1, 'io']];   /* soft fade (no pop) */
   const hrow = (items, gap, cx = 0, cy = 0) => { const L = items.filter(Boolean), tot = L.reduce((a, it) => a + it.w, 0) + gap * Math.max(0, L.length - 1); let x = cx - tot / 2; L.forEach(it => { it.at(f1(x + it.w / 2), cy); x += it.w + gap; }); return tot; };
   const vcol = (items, gap, cx = 0, cy = 0) => { const L = items.filter(Boolean), tot = L.reduce((a, it) => a + it.h, 0) + gap * Math.max(0, L.length - 1); let y = cy - tot / 2; L.forEach(it => { it.at(cx, f1(y + it.h / 2)); y += it.h + gap; }); return tot; };
   /* the words show only when the icons can't tell the sides apart (same icon on both, or no icon) */
   const needW = d => { const A = XS(d, 'a'), B = XS(d, 'b'); return !(A && B && picOf(A) && picOf(B) && A.icon !== B.icon); };
   const T0C = d => f3(tu(.5)), T1C = () => f3(Z.H);   /* the comparing motion: one smooth trip .5 → H */
   /* a side's thing: its icon floating (or its word, big, when it has no icon). K = keys of its move; o.dim = dims on H (loser) */
-  function side(p, c, d, s, x, y, sz, K, o = {}) { const X = XS(d, s), T = ST(d), t = o.t ?? tIn(d, s), dimO = s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.3)), .38, 'io']] : [];
-    const KK = Object.assign({ px: x, py: y }, K || {}); KK.o = (KK.o || fadeIn(t, .16)).concat(dimO); const mv = Object.assign({}, KK); delete mv.o;
+  function side(p, c, d, s, x, y, sz, K, o = {}) { const X = XS(d, s), T = ST(d), t = o.t ?? tIn(d, s), dimO = s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.5)), .38, 'io']] : [];
+    const KK = Object.assign({ px: x, py: y }, K || {}); KK.o = (KK.o || fadeS(t)).concat(dimO); const mv = Object.assign({}, KK); delete mv.o;
     if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, f1(sz), null, { t, mv, o: KK.o });
     else if (X && X.label) txt(mvG(CL(p), KK), X.label, x, f1(y + sz * .1), { size: f1(Math.max(40, sz * .28)), maxW: f1(sz * 1.1), weight: 800, color: C.ink, wrap: 'mid' });
     const lab = X && picOf(X) && X.label && needW(d) && o.wy != null ? X.label : null;
@@ -673,13 +674,13 @@
     const endF = T.change ? .3 : T.win ? (T.win === 'a' ? .64 : .36) : .5, startF = T.change ? .97 : .5, t0 = T0C(d), t1 = T1C(), hw = f1(Math.max(5, S2 * .022)), kr = f1(Math.max(20, Math.min(44, S2 * .1)));
     const pos = f => f1(-L / 2 + L * f), xy = (u, v) => vert ? [v, u] : [u, v];
     R(sIn(p, 0, 0, tu(.04), .32), -W0 / 2, -H0 / 2, W0, H0, r, F(4.4));
-    const sweep = n => { const K = [[0, 0], [t0, 0]]; for (let i = 1; i <= 24; i++) { const u = i / 24; K.push([f3(t0 + (t1 - t0) * u), f3(n(startF + (endF - startF) * ioE2(u)))]); } return K; };
+    const sweep = n => { const v0 = f3(n(startF)), K = [[0, v0], [t0, v0]];   /* start where the motion starts (it sat at its end before t0 and jumped) */ for (let i = 1; i <= 24; i++) { const u = i / 24; K.push([f3(t0 + (t1 - t0) * u), f3(n(startF + (endF - startF) * ioE2(u)))]); } return K; };
     /* the winner's part fills softly (clipped to the frame; grows with the divider) */
     const ws = T.change ? 'b' : T.win; if (ws && !T.off) { const cg = clipG(p, -W0 / 2 + 6, -H0 / 2 + 6, W0 - 12, H0 - 12, r - 6), side0 = ws === 'a' ? -1 : 1;
       const base = ws === 'a' ? -L / 2 : L / 2, K = sweep(f => (ws === 'a' ? L * f : L * (1 - f)) / L); const g = mvG(cg, Object.assign({ px: vert ? 0 : base, py: vert ? base : 0, o: [[0, 0], [t0, 0], [f3(t0 + tu(.3)), 1, 'io']] }, vert ? { sy: K } : { sx: K }));
       R(g, vert ? -W0 / 2 : -L / 2, vert ? -L / 2 : -H0 / 2, vert ? W0 : L, vert ? L : H0, 0, { fill: TA(.1), sw: 0, stroke: 'none' }); }   /* full length, scaled from its own end to the divider */
     /* the divider + handle */
-    const dK = sweep(f => pos(f) - pos(endF)), [dx, dy] = xy(pos(endF), 0), dg = mvG(p, Object.assign({ o: fadeIn(tu(.2), .14) }, vert ? { y: dK } : { x: dK }));
+    const dK = sweep(f => pos(f) - pos(endF)), [dx, dy] = xy(pos(endF), 0), dg = mvG(p, Object.assign({ o: fadeS(tu(.2)) }, vert ? { y: dK } : { x: dK }));
     if (vert) dg.line(-W0 / 2 + 8, dy, W0 / 2 - 8, dy, { sw: hw, stroke: ACC1 }); else dg.line(dx, -H0 / 2 + 8, dx, H0 / 2 - 8, { sw: hw, stroke: ACC1 });
     dg.circle(dx, dy, kr, F(4.2)); if (vert) { chev(rot(dg, -90, dx, dy - kr * .3), dx, f1(dy - kr * .3), kr / 90, W(3.2)); chev(rot(dg, 90, dx, dy + kr * .3), dx, f1(dy + kr * .3), kr / 90, W(3.2)); }
     else { chev(rot(dg, 180, dx - kr * .3, dy), f1(dx - kr * .3), dy, kr / 90, W(3.2)); chev(dg, f1(dx + kr * .3), dy, kr / 90, W(3.2)); }
@@ -705,10 +706,10 @@
     by = f1(-Ht / 2 + 22 + dy); const py = f1(Ht / 2 - baseH / 2);
     const gB = sIn(p, 0, py, tu(.04), .3); R(gB, f1(-arm * .3), f1(py - baseH / 2), f1(arm * .6), baseH, 9, F(3.6)); R(gB, -9, by, 18, f1(py - baseH / 2 - by), 6, F(3));   /* base + post */
     const angK = [[0, a0], [t0, a0]]; for (let i = 1; i <= 24; i++) { const u = i / 24; angK.push([f3(t0 + (t1 - t0) * u), f3(a0 + (ang - a0) * ioE2(u))]); }
-    const bg = mvG(p, { px: 0, py: by, r: angK, o: fadeIn(tu(.1), .14) }); R(bg, -arm - 14, f1(by - 7), f1(2 * arm + 28), 14, 7, F(3.4)); bg.circle(0, by, 16, F(3.6)); bg.circle(0, by, 6, KN2());
+    const bg = mvG(p, { px: 0, py: by, r: angK, o: fadeS(tu(.1)) }); R(bg, -arm - 14, f1(by - 7), f1(2 * arm + 28), 14, 7, F(3.4)); bg.circle(0, by, 16, F(3.6)); bg.circle(0, by, 6, KN2());
     SIDES.forEach(s => { const sd = s === 'a' ? -1 : 1, xe = sd * arm, end = a => [xe * Math.cos(rad(a)), xe * Math.sin(rad(a))], [fx, fy] = end(ang), win = s === T.win && !T.off;
       const XK = angK.map(([t, a]) => [t, f1(end(a)[0] - fx)]), YK = angK.map(([t, a]) => [t, f1(end(a)[1] - fy)]), ex = f1(fx), ey = f1(by + fy), pY = f1(ey + hang);
-      const pg = mvG(p, { px: ex, py: ey, x: XK, y: YK, o: fadeIn(tu(.14), .14) });
+      const pg = mvG(p, { px: ex, py: ey, x: XK, y: YK, o: fadeS(tu(.14)) });
       pg.line(ex, ey, f1(ex - panW * .46), pY, { sw: 2.2, stroke: TL_(.55) }); pg.line(ex, ey, f1(ex + panW * .46), pY, { sw: 2.2, stroke: TL_(.55) }); pg.circle(ex, ey, 7, F(2.6));
       const pan = `M ${f1(ex - panW / 2)} ${pY} Q ${ex} ${f1(pY + panW * .2)} ${f1(ex + panW / 2)} ${pY} Z`; pg.path(pan, F(3.6));
       if (win) litOn(pg, Z.H).path(pan, { fill: TA(.22), sw: 4.4, stroke: ACC1 });
@@ -722,35 +723,35 @@
     const by = f1(H0 / 2 - pv - 7);   /* the beam spans the strip, the sides as big as the height allows (user: size 1 ดูโล่ง) */
     const gB = sIn(p, 0, by, tu(.04), .3); gB.path(`M 0 ${by} L ${f1(pv * .8)} ${f1(H0 / 2)} L ${f1(-pv * .8)} ${f1(H0 / 2)} Z`, F(3.6));
     const angK = [[0, a0], [t0, a0]]; for (let i = 1; i <= 24; i++) { const u = i / 24; angK.push([f3(t0 + (t1 - t0) * u), f3(a0 + (ang - a0) * ioE2(u))]); }
-    const bg = mvG(p, { px: 0, py: by, r: angK, o: fadeIn(tu(.1), .14) }); R(bg, f1(-arm - ic * .6), f1(by - 7), f1(2 * arm + ic * 1.2), 14, 7, F(3.4)); bg.circle(0, by, 10, KN2());
+    const bg = mvG(p, { px: 0, py: by, r: angK, o: fadeS(tu(.1)) }); R(bg, f1(-arm - ic * .6), f1(by - 7), f1(2 * arm + ic * 1.2), 14, 7, F(3.4)); bg.circle(0, by, 10, KN2());
     SIDES.forEach(s => { const sd = s === 'a' ? -1 : 1, xe = sd * arm, end = a => [xe * Math.cos(rad(a)), xe * Math.sin(rad(a))], [fx, fy] = end(ang), win = s === T.win && !T.off;
       const XK = angK.map(([t, a]) => [t, f1(end(a)[0] - fx)]), YK = angK.map(([t, a]) => [t, f1(end(a)[1] - fy)]), ex = f1(fx), iy = f1(by + fy - 7 - ic / 2 - 4);
-      const plt = mvG(p, { px: ex, py: f1(by + fy), x: XK, y: YK, o: fadeIn(tu(.14), .14) }); R(plt, f1(ex - ic * .62), f1(by + fy - 18), f1(ic * 1.24), 16, 8, F(3.4));   /* a plate under each side */
+      const plt = mvG(p, { px: ex, py: f1(by + fy), x: XK, y: YK, o: fadeS(tu(.14)) }); R(plt, f1(ex - ic * .62), f1(by + fy - 18), f1(ic * 1.24), 16, 8, F(3.4));   /* a plate under each side */
       if (win) R(litOn(plt, Z.H), f1(ex - ic * .62), f1(by + fy - 18), f1(ic * 1.24), 16, 8, { fill: TA(.3), sw: 4.4, stroke: ACC1 });
       side(p, c, d, s, ex, f1(iy - 10), ic, { x: XK, y: YK }, {});
       const X = XS(d, s); if (wl && X && picOf(X) && X.label) { const wx = f1(ex - sd * (ic / 2 + 18)), mw = f1(arm - ic / 2 - 60);   /* the word on the inner side, filling the middle of the strip (user: ดูโล่ง) */
-        txt(mvG(CL(p), { px: wx, py: iy, x: XK, y: YK, o: fadeIn(f3(tIn(d, s) + tu(.1)), .16).concat(s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.3)), .38, 'io']] : []) }), X.label, wx, f1(iy - 10 + Math.min(56, ic * .4) * .36), { size: f1(Math.min(56, ic * .4)), maxW: mw, weight: 800, color: C.ink, anchor: sd < 0 ? 'start' : 'end', wrap: 'mid' }); }
+        txt(mvG(CL(p), { px: wx, py: iy, x: XK, y: YK, o: fadeS(f3(tIn(d, s) + tu(.1))).concat(s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.5)), .38, 'io']] : []) }), X.label, wx, f1(iy - 10 + Math.min(56, ic * .4) * .36), { size: f1(Math.min(56, ic * .4)), maxW: mw, weight: 800, color: C.ink, anchor: sd < 0 ? 'start' : 'end', wrap: 'mid' }); }
       at[s] = [f1(ex - sd * (ic * .5 + 46)), f1(-H0 / 2 + 40), 34]; });   /* small, on the inner top — clear of the side and its word */
     return at; }
   const KN2 = () => ({ fill: ACC1, sw: 0, stroke: 'none' });
 
   /* BARS — two long bars, one per side, its thing at the start: both fill on one smooth trip to their amount (v, or the winner fuller, or the same).
      The fuller / winning bar's edge glows on H. Wide boxes: rows; tall ones: columns rising from the bottom. change: a fills first, b after. */
-  function BARS(p, c, d, W0, H0) { const T = ST(d), vert = H0 > W0 * .95, t0 = T0C(d), t1 = T1C(), at = {};
+  function BARS(p, c, d, W0, H0) { const T = ST(d), tInB = s => T.change && s === 'b' ? f3(T0C(d) + (T1C() - T0C(d)) * .15) : tIn(d, s),   /* change: b's capsule comes early so its tube has time to run */ vert = H0 > W0 * .95, t0 = T0C(d), t1 = T1C(), at = {};
     const n2 = 2, gap = f1(Math.min(W0, H0) * (vert ? .1 : .12)), along = vert ? H0 : W0, across = vert ? W0 : H0, thick = f1((across - gap) / 2), ic = f1(Math.min(thick * .9, along * .3, 300)), bt = f1(Math.min(thick * (vert && W0 > 600 ? .78 : .62), vert && W0 > 600 ? 300 : 130));   /* big tall rooms: two thick pillars (user: size 6 ใช้พื้นที่ไม่คุ้ม) */
     SIDES.forEach((s, i) => { const off = f1(-across / 2 + thick / 2 + i * (thick + gap)), win = (s === T.big || s === T.win) && !T.off, amt = T.amt(s), x1 = f1(along / 2); let x0 = f1(-along / 2 + ic + 24), lenF = f1(x1 - x0);
-      const ta = T.change ? (s === 'a' ? t0 : f3(t0 + (t1 - t0) * .45)) : t0, tb = T.change ? (s === 'a' ? f3(t0 + (t1 - t0) * .55) : t1) : t1;
+      const ta = f3(Math.max(T.change ? (s === 'a' ? t0 : t0 + (t1 - t0) * .45) : t0, tInB(s) + tu(.36))),   /* the capsule is there before its tube runs */ tb = T.change ? (s === 'a' ? f3(t0 + (t1 - t0) * .55) : t1) : t1;
       const P = (u, v) => vert ? [v, f1(-u)] : [u, v], wl = needW(d) && XS(d, s) && picOf(XS(d, s)) && XS(d, s).label, wsz = f1(Math.max(40, Math.min(52, thick * .22))), icx = wl && vert ? f1(Math.min(ic, thick - wsz * 1.4)) : ic;
-      if (wl && !vert) { const ww = f1(Math.min(along * .24, tw(p, XS(d, s).label, wsz) + 4)); x0 = f1(x0 + ww + 18); lenF = f1(x1 - x0); txt(mvG(CL(p), { px: f1(-along / 2 + ic + 18), py: off, o: fadeIn(f3(tIn(d, s) + tu(.1)), .16).concat(s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.3)), .38, 'io']] : []) }), XS(d, s).label, f1(-along / 2 + ic + 18), f1(off + wsz * .36), { size: wsz, maxW: ww, weight: 800, color: C.ink, anchor: 'start' }); }
+      if (wl && !vert) { const ww = f1(Math.min(along * .24, tw(p, XS(d, s).label, wsz) + 4)); x0 = f1(x0 + ww + 18); lenF = f1(x1 - x0); txt(mvG(CL(p), { px: f1(-along / 2 + ic + 18), py: off, o: fadeS(f3(tInB(s) + tu(.1))).concat(s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.5)), .38, 'io']] : []) }), XS(d, s).label, f1(-along / 2 + ic + 18), f1(off + wsz * .36), { size: wsz, maxW: ww, weight: 800, color: C.ink, anchor: 'start' }); }
       const [ix, iy0] = P(f1(-along / 2 + ic / 2), off), iy = wl && vert ? f1(iy0 - wsz * 1.4) : iy0;
       if (wl && vert) { x0 = f1(x0 + wsz * 1.4); lenF = f1(x1 - x0); }   /* the word under the icon needs its room above the frame edge */
-      side(p, c, d, s, ix, iy, icx, null, vert ? { t: tIn(d, s), wy: f1(iy + icx / 2 + wsz * .6), ws: wsz, wmax: f1(thick * 1.1) } : { t: tIn(d, s) });
-      const g0 = sIn(p, ...P(f1((x0 + x1) / 2), off), f3(tIn(d, s) + tu(.06)), .3), tr = vert ? [f1(off - bt / 2), f1(-x1), bt, lenF] : [x0, f1(off - bt / 2), lenF, bt];
+      side(p, c, d, s, ix, iy, icx, null, vert ? { t: tInB(s), wy: f1(iy + icx / 2 + wsz * .6), ws: wsz, wmax: f1(thick * 1.1) } : { t: tInB(s) });
+      const g0 = sIn(p, ...P(f1((x0 + x1) / 2), off), f3(tInB(s) + tu(.06)), .3), tr = vert ? [f1(off - bt / 2), f1(-x1), bt, lenF] : [x0, f1(off - bt / 2), lenF, bt];
       R(g0, ...tr, f1(bt / 2), F(4));
       /* the tube fills the capsule's whole inside (user 2026-11-25: "ทำให้หลอดที่วิ่งมันเต็มแคปซูล"): clipped to the inside, a round-ended tube slides in
          (no scaling — its round end keeps its shape) and stops at the side's amount */
       const pad = 5, ib = f1(bt - 2 * pad), inL = f1(lenF - 2 * pad), il = f1(Math.max(ib, inL * amt)), cl = vert ? clipG(p, f1(off - ib / 2), f1(-x1 + pad), ib, inL, f1(ib / 2)) : clipG(p, f1(x0 + pad), f1(off - ib / 2), inL, ib, f1(ib / 2));
-      const K = Object.assign({ o: fadeIn(ta, .06) }, vert ? { y: [[0, il], [ta, il], [tb, 0, 'io']] } : { x: [[0, -il], [ta, -il], [tb, 0, 'io']] });
+      const K = Object.assign({ o: fadeS(ta) }, vert ? { y: [[0, il], [ta, il], [tb, 0, 'io']] } : { x: [[0, -il], [ta, -il], [tb, 0, 'io']] });
       R(mvG(cl, K), ...(vert ? [f1(off - ib / 2), f1(-x0 - pad - il), ib, f1(il + ib)] : [f1(x0 + pad - ib), f1(off - ib / 2), f1(il + ib), ib]), f1(ib / 2), win ? { fill: TA(.36), sw: 0, stroke: 'none' } : { fill: TL_(.2), sw: 0, stroke: 'none' });
       if (win) R(litOn(p, Z.H), ...tr, f1(bt / 2), { fill: 'none', sw: 5, stroke: ACC1 });
       at[s] = vert ? [f1(off + thick * .3), f1(-along / 2 + 50)] : [f1(along / 2 - 50), f1(off - thick * .3)]; });
@@ -764,11 +765,11 @@
     const tot = fin('a') + fin('b') + gap * 2 + chv; let u = -tot / 2; const C0 = {};
     ['a', 'b'].forEach((s, i) => { C0[s] = f1(u + fin(s) / 2); u += fin(s) + gap + (i ? 0 : chv + gap); });
     SIDES.forEach(s => { const sz = fin(s), [x, y] = vert ? [0, C0[s]] : [C0[s], 0], s0 = T.change ? (s === 'a' ? f3(big / small) : .5) : T.win && !T.off ? f3(Math.min(across, room, 460) / sz) : 1, rr = f1(sz * .24);
-      const tA = T.change && s === 'b' ? f3(t0 + (t1 - t0) * .35) : tIn(d, s), K = { px: x, py: y, s: [[0, s0], [t0, s0], [t1, 1, 'io']], o: T.change && s === 'b' ? fadeIn(tA, .3) : fadeIn(tIn(d, s), .14) }, win = s === T.win && !T.off;
-      const g = mvG(CL(p), K); R(g, f1(x - sz / 2), f1(y - sz / 2), sz, sz, rr, F(4.2)); if (s === T.lose && !T.off) on(g, p, 0, { o: [[0, 1], [Z.H, 1], [f3(Z.H + tu(.3)), .45, 'io']] });
+      const tA = T.change && s === 'b' ? f3(t0 + (t1 - t0) * .35) : tIn(d, s), K = { px: x, py: y, s: [[0, s0], [t0, s0], [t1, 1, 'io']], o: T.change && s === 'b' ? fadeS(tA, .4) : fadeS(tIn(d, s)) }, win = s === T.win && !T.off;
+      const g = mvG(CL(p), K); R(g, f1(x - sz / 2), f1(y - sz / 2), sz, sz, rr, F(4.2)); if (s === T.lose && !T.off) on(g, p, 0, { o: [[0, 1], [Z.H, 1], [f3(Z.H + tu(.5)), .45, 'io']] });
       if (win) R(litOn(g, Z.H), f1(x - sz / 2), f1(y - sz / 2), sz, sz, rr, { fill: TA(.1), sw: 4.8, stroke: ACC1 });
       const X = XS(d, s), wl = needW(d) && X && X.label && picOf(X), isz = f1(sz * (wl ? .5 : .68)), iy = wl ? f1(y - sz * .1) : y, mv = { px: x, py: y, s: K.s };
-      if (X && picOf(X)) put(p, c, { icon: X.icon }, x, iy, isz, null, { t: tA, mv, o: K.o.concat(s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.3)), .45, 'io']] : []) });
+      if (X && picOf(X)) put(p, c, { icon: X.icon }, x, iy, isz, null, { t: tA, mv, o: K.o.concat(s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.5)), .45, 'io']] : []) });
       if (X && X.label && (wl || !picOf(X))) txt(g, X.label, x, f1(wl ? y + sz * .3 : y + sz * .08), { size: f1(sz * (wl ? .15 : .2)), maxW: f1(sz * .84), weight: 800, color: C.ink, wrap: 'mid' });
       at[s] = [f1(x + sz / 2 - 30), f1(y - sz / 2 + 30)]; });
     if (T.change) { const cx = vert ? 0 : f1((C0.a + fin('a') / 2 + C0.b - fin('b') / 2) / 2), cy = vert ? f1((C0.a + fin('a') / 2 + C0.b - fin('b') / 2) / 2) : 0, g = sIn(p, cx, cy, f3(t0 + (t1 - t0) * .3));
@@ -783,7 +784,7 @@
     const wOf = s => f1(hOf(s) * asp), tot = wOf('a') + wOf('b') + 2 * gap + chv, C0 = { a: f1(-tot / 2 + wOf('a') / 2) }; C0.b = f1(C0.a + wOf('a') / 2 + gap + chv + gap + wOf('b') / 2);
     SIDES.forEach(s => { const h = hOf(s), w = wOf(s), x = C0[s], y = 0, rr = f1(h * .26), win = s === T.win && !T.off, lose = s === T.lose && !T.off, X = XS(d, s);
       const s0 = !dec ? 1 : T.change ? (s === 'a' ? f3(H0 / h) : .5) : f3(H0 * .9 / h), tA = T.change && s === 'b' ? f3(t0 + (t1 - t0) * .35) : tIn(d, s);
-      const dimO = lose ? [[Z.H, 1], [f3(Z.H + tu(.3)), .45, 'io']] : [], K = { px: x, py: y, s: [[0, s0], [t0, s0], [t1, 1, 'io']], o: (T.change && s === 'b' ? fadeIn(tA, .3) : fadeIn(tA, .14)).concat(dimO) };
+      const dimO = lose ? [[Z.H, 1], [f3(Z.H + tu(.5)), .45, 'io']] : [], K = { px: x, py: y, s: [[0, s0], [t0, s0], [t1, 1, 'io']], o: (T.change && s === 'b' ? fadeS(tA, .4) : fadeS(tA)).concat(dimO) };
       const g = mvG(CL(p), K); R(g, f1(x - w / 2), f1(y - h / 2), w, h, rr, F(4.2)); if (win) R(litOn(g, Z.H), f1(x - w / 2), f1(y - h / 2), w, h, rr, { fill: TA(.1), sw: 4.8, stroke: ACC1 });
       const hasI = X && picOf(X), lab = X && X.label && (!hasI || needW(d)), isz = f1(h * .66), ix = lab && hasI ? f1(x - w / 2 + h * .55) : x;
       if (hasI) put(p, c, { icon: X.icon }, ix, y, isz, null, { t: tA, mv: { px: x, py: y, s: K.s }, o: K.o });
