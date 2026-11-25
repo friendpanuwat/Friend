@@ -838,54 +838,98 @@
       const t1 = f3(Q.H - tu(.04)), t0 = f3(Math.max(Q.T0, t1 - tu(.6))); fig(p, x, fy, K, { g: mvG(g, { px: x, py: fy, s: [[0, f3(k / K)], [t0, f3(k / K)], [t1, 1, 'io']] }), lit: true }); });
     infoF(p, c, Q, ib, io); }
 
+  /* ---------- BUSTS (user: "ถ้าอันไหนมันดูแปลกใช้เป็น icon คนครึ่งตัวก็ได้ · ผมเห็นรูปแล้วหลายๆอันต่ำกว่ามาตรฐาน") — the approved half-body
+     person (GL.parts.bizUser, ±172 × −186…176) for crowds, the persona photo, the marker row and the one who stands out; whole bodies stay only
+     where the body does the move (an arm goes up, a step forward). bustP(q, x, bottom, s, o): o.g · o.dim (dark copy under, dims on H) · o.lit */
+  function bustP(q, x, by, s, o = {}) { const g = o.g || q, H = Z.H, cy = f1(by - 176 * s);
+    const draw = gg => { const w = gg.child({ transform: `translate(${f1(x)} ${cy}) scale(${s})` }, s); w.H = gg.H; w.motion = gg.motion; G.parts.bizUser(w, false); return w; };
+    if (o.dim) { const b = sub(g); draw(b); recolor(b, () => C.fill); }
+    const gd = o.dim ? mvG(g, { o: [[0, 1], [H, 1], [f3(H + tu(.25)), .36, 'io']] }) : g; draw(gd);
+    if (o.lit) { const l = litOn(g, H); draw(l); recolor(l, (a, v) => same(v, C.ink) || same(v, C.soft) ? ACC1 : null); } }
+  const inB = (p, x, by, s, t) => mvG(CL(p), rK(x, f1(by - 180 * s), t, 40));
+  const bustTop = (by, s) => f1(by - 362 * s);
+
+  /* 2 SCAN (busts) — an audience in rows ([x, bottom, s], back rows first); a rounded frame steps from one to the next and stops on the one */
+  function scanB(p, c, Q, P, ti, ib, io = {}) {
+    P.forEach(([x, by, s], i) => { const me = i === ti; bustP(p, x, by, s, { g: inB(p, x, by, s, Q.tC(i)), dim: !me, lit: me }); });
+    const box = ([x, by, s]) => [f1(x - 150 * s - 12), f1(bustTop(by, s) - 12), f1(300 * s + 24), f1(362 * s + 12)];
+    const B = P.slice(0, ti + 1).map(box), b0 = B[0], t0 = Q.T0, n = B.length - 1, tt = j => n ? f3(lerp(t0, Q.H, j / n)) : Q.H;
+    const K = f => { const v = B.map(f), out = [[0, v[0]]]; for (let j = 1; j <= n; j++) out.push([f3(Math.max(tt(j - 1) + tu(.04), tt(j) - tu(.3))), v[j - 1]], [tt(j), v[j], 'io']); return out; };
+    const g = mvG(CL(p), { x: K(b => f1(b[0] - b0[0])), y: K(b => f1(b[1] - b0[1])), o: [[0, 0], [f3(t0 - tu(.2)), 0], [t0, 1, 'io']] }), g2 = mvG(g, { px: b0[0], py: b0[1], sx: K(b => f3(b[2] / b0[2])), sy: K(b => f3(b[3] / b0[3])) });
+    R(g2, b0[0], b0[1], b0[2], b0[3], 28, { sw: 5, stroke: C.ink }); R(litOn(g2, Q.H), b0[0], b0[1], b0[2], b0[3], 28, { sw: 5.5, stroke: ACC1 });
+    infoF(p, c, Q, ib, io); }
+  /* 4 PERSONA (bust) — a profile card: the person's photo (a bust cropped by its panel), the words beside / under it */
+  function personaB(p, c, Q, card, pan, bx, bby, bs_, ib, io = {}) { const [cx0, cy0, cw, ch] = card, [x0, y0, w, h] = pan;
+    const g = mvG(CL(p), rK(0, 0, tu(.06), 50)); R(g, cx0, cy0, cw, ch, 40, F(4)); R(g, x0, y0, w, h, 30, { fill: TL_(.05), sw: 2.4, stroke: TL_(.45) }); R(litOn(g, Q.H), x0, y0, w, h, 30, { fill: TA(.08), sw: 4.4, stroke: ACC1 });
+    const cl = clipG(p, x0, y0, w, h); bustP(cl, bx, bby, bs_, { g: inB(cl, bx, bby, bs_, Q.tC(0)), lit: true }); infoF(p, c, Q, ib, io); }
+  /* 5 MARKER (busts) — a front row (o.back = a dim crowd behind); a marker with the label drops onto the one; tags / who box beside it */
+  function markerB(p, c, Q, xs, by, s, ti, ib, io = {}) {
+    (io.back || []).forEach(([x, bb, bsz], i) => bustP(p, x, bb, bsz, { g: inB(p, x, bb, bsz, Q.tC(i)), dim: true }));
+    xs.forEach((x, i) => { const me = i === ti; bustP(p, x, by, s, { g: inB(p, x, by, s, Q.tC(i)), dim: !me, lit: me }); });
+    const x = xs[ti], tip = f1(bustTop(by, s) - 10), t = f3(Q.H - tu(.12)), g = mvG(CL(p), { y: [[0, -70], [t, -70], [f3(t + tu(.34)), 0, 'out']], o: fadeIn(t, .1) });
+    if (Q.L) { const sz = io.msize || 48, Sz = labSize(p, Q.L, sz, io.mw || 420), lx = f1(Math.max(-BOX[0] / 2 + Sz.w / 2 + 8, Math.min(BOX[0] / 2 - Sz.w / 2 - 8, x))), cy = f1(tip - 22 - Sz.h / 2);
+      g.path(`M ${f1(x - 20)} ${f1(tip - 24)} L ${x} ${tip} L ${f1(x + 20)} ${f1(tip - 24)} Z`, { fill: ACC1, sw: 3, stroke: ACC1 }); lab(g, Q.L, lx, cy, { size: sz, maxW: io.mw || 420, lit: true, t: 0 });
+      const R0 = f1(lx + Sz.w / 2 + 22), L0 = f1(lx - Sz.w / 2 - 22), right = BOX[0] / 2 - 8 - R0 >= L0 + BOX[0] / 2 - 8, room = right ? BOX[0] / 2 - 8 - R0 : L0 + BOX[0] / 2 - 8, bs = io.bs || 176;
+      const need = (Q.badge ? Math.min(bs, 120) + 34 : 0) + Math.max(0, ...Q.Tg.map(tg => labSize(p, tg, 40, 999).w)), band = Math.max(Sz.h, Math.min(bs, 140)) / 2 + 10;
+      if (need <= room) infoF(p, c, Q, [right ? R0 : -BOX[0] / 2 + 8, f1(cy - band), right ? BOX[0] / 2 - 8 : L0, f1(cy + band)], Object.assign({}, io, { noLabel: true, align: right ? 'start' : 'end', badge: right ? 'left' : 'right' }));
+      else infoF(p, c, Q, [-BOX[0] / 2 + 8, -BOX[1] / 2 + 8, BOX[0] / 2 - 8, f1(cy - Sz.h / 2 - 16)], Object.assign({}, io, { noLabel: true, v: 'end', badge: 'left', row: true }));
+      return; }
+    const sz2 = io.ms || 40; g.path(`M ${f1(x - sz2)} ${f1(tip - sz2 * 1.3)} L ${f1(x + sz2)} ${f1(tip - sz2 * 1.3)} L ${x} ${tip} Z`, { fill: TA(.3), sw: 5, stroke: ACC1 });
+    infoF(p, c, Q, ib, Object.assign({ noLabel: true }, io)); }
+  /* 6 STAND OUT (busts) — a row; the one grows bigger from its base (drawn last, in front) while the others dim */
+  function tallB(p, c, Q, xs, by, s, ti, S2, ib, io = {}) {
+    xs.forEach((x, i) => { if (i !== ti) bustP(p, x, by, s, { g: inB(p, x, by, s, Q.tC(i)), dim: true }); });
+    const x = xs[ti], t1 = f3(Q.H - tu(.04)), t0 = f3(Math.max(Q.T0, t1 - tu(.6))), g = mvG(inB(p, x, by, S2, Q.tC(ti)), { px: x, py: by, s: [[0, f3(s / S2)], [t0, f3(s / S2)], [t1, 1, 'io']] });
+    bustP(p, x, by, S2, { g, lit: true }); infoF(p, c, Q, ib, io); }
+
   /* ---------- SIZE 1 · 860 × 230 ---------- */
-  sd(1, 'raise', 'ยกแขนขึ้น', (d, c) => { const Q = PQ(d, 4); art(c, p => raiseD(p, c, Q, [-372, -284, -196, -108], 114, .48, 2, [-40, -108, 425, 108], { bs: 150, size: 46, row: true })); });
-  sd(1, 'scan', 'กรอบค้นหาในฝูง', (d, c) => { const Q = PQ(d, 5); art(c, p => scanD(p, c, Q, [-372, -284, -196, -108, -20].map(x => [x, 104, .48]), 3, [44, -108, 425, 108], { bs: 140, size: 44 })); });
-  sd(1, 'forward', 'ก้าวออกมาข้างหน้า', (d, c) => { const Q = PQ(d, 5); art(c, p => forwardD(p, c, Q, [-398, -338, -278, -218, -158], 10, .3, 1, -70, 104, .56, [20, -108, 425, 108], { bs: 140, size: 46 })); });
-  sd(1, 'persona', 'การ์ดตัวตน', (d, c) => { const Q = PQ(d, 1); art(c, p => personaD(p, c, Q, [-428, -112, 856, 224], [-412, -96, 180, 192], -322, 196, .72, [-200, -100, 412, 100], { bs: 140, size: 46, row: true })); });
-  sd(1, 'tall', 'สูงเด่นขึ้นมา', (d, c) => { const Q = PQ(d, 4); art(c, p => tallD(p, c, Q, [-372, -282, -192, -102], 112, .42, 1, .6, [-40, -108, 425, 108], { bs: 150, size: 46, row: true })); });
+  sd(1, 'raise', 'ยกแขนขึ้น', (d, c) => { const Q = PQ(d, 4); art(c, p => raiseD(p, c, Q, [-372, -284, -196, -108], 102, .46, 2, [-40, -108, 425, 108], { bs: 150, size: 46, row: true })); });
+  sd(1, 'scan', 'กรอบค้นหาในฝูง', (d, c) => { const Q = PQ(d, 4); art(c, p => scanB(p, c, Q, [-362, -256, -150].map(x => [x, 112, .5]), 2, [-52, -108, 425, 108], { bs: 140, size: 46 })); });
+  sd(1, 'forward', 'ก้าวออกมาข้างหน้า', (d, c) => { const Q = PQ(d, 5); art(c, p => forwardD(p, c, Q, [-392, -334, -276, -218, -160], -2, .26, 1, -70, 100, .54, [20, -108, 425, 108], { bs: 140, size: 46 })); });
+  sd(1, 'persona', 'การ์ดตัวตน', (d, c) => { const Q = PQ(d, 1); art(c, p => personaB(p, c, Q, [-428, -112, 856, 224], [-412, -96, 190, 192], -317, 96, .5, [-196, -100, 412, 100], { bs: 140, size: 46, row: true })); });
+  sd(1, 'tall', 'โดดเด่นขึ้นมา', (d, c) => { const Q = PQ(d, 4); art(c, p => tallB(p, c, Q, [-368, -270, -172, -74], 112, .36, 1, .58, [10, -108, 425, 108], { bs: 140, size: 46 })); });
 
   /* ---------- SIZE 2 · 860 × 470 ---------- */
-  sd(2, 'raise', 'ยกแขนขึ้น', (d, c) => { const Q = PQ(d, 5); art(c, p => raiseD(p, c, Q, xsRow(5, 168), 228, .76, 3, [-425, -228, 425, -96], { v: 'end', size: 52, row: true })); });
-  sd(2, 'scan', 'กรอบค้นหาในฝูง', (d, c) => { const Q = PQ(d, 7); art(c, p => scanD(p, c, Q, [[-345, 40, .42], [-240, 40, .42], [-135, 40, .42], [-30, 40, .42], [-292, 228, .6], [-180, 228, .6], [-68, 228, .6]], 5, [80, -228, 425, 228], { badge: 'top', bs: 150, size: 50 })); });
-  sd(2, 'forward', 'ก้าวออกมาข้างหน้า', (d, c) => { const Q = PQ(d, 5); art(c, p => forwardD(p, c, Q, xsRow(5, 100, -230), -10, .38, 2, -230, 228, .86, [-20, -228, 425, 228], { badge: 'top', bs: 150, size: 52 })); });
-  sd(2, 'persona', 'การ์ดตัวตน', (d, c) => { const Q = PQ(d, 1); art(c, p => personaD(p, c, Q, [-428, -232, 856, 464], [-408, -212, 300, 424], -258, 210, .96, [-80, -212, 408, 212], { badge: 'top', bs: 160, size: 54 })); });
-  sd(2, 'marker', 'ป้ายชี้ตัว', (d, c) => { const Q = PQ(d, 5); art(c, p => markerD(p, c, Q, xsRow(5, 168), 228, .72, 1, [-425, -228, 425, -60], { bs: 140, msize: 54 })); });
+  sd(2, 'raise', 'ยกแขนขึ้น', (d, c) => { const Q = PQ(d, 5); art(c, p => raiseD(p, c, Q, xsRow(5, 168), 212, .72, 3, [-425, -228, 425, -90], { v: 'end', size: 52, row: true })); });
+  sd(2, 'scan', 'กรอบค้นหาในฝูง', (d, c) => { const Q = PQ(d, 7); art(c, p => scanB(p, c, Q, [[-350, 74, .44], [-230, 74, .44], [-110, 74, .44], [10, 74, .44], [-300, 230, .58], [-160, 230, .58], [-20, 230, .58]], 5, [110, -228, 425, 228], { badge: 'top', bs: 150, size: 50 })); });
+  sd(2, 'forward', 'ก้าวออกมาข้างหน้า', (d, c) => { const Q = PQ(d, 5); art(c, p => forwardD(p, c, Q, xsRow(5, 92, -200), -30, .32, 2, -210, 210, .78, [-10, -228, 425, 228], { badge: 'top', bs: 150, size: 52 })); });
+  sd(2, 'persona', 'การ์ดตัวตน', (d, c) => { const Q = PQ(d, 1); art(c, p => personaB(p, c, Q, [-428, -232, 856, 464], [-408, -212, 300, 424], -258, 212, 1.02, [-80, -212, 408, 212], { badge: 'top', bs: 160, size: 54 })); });
+  sd(2, 'marker', 'ป้ายชี้ตัว', (d, c) => { const Q = PQ(d, 5); art(c, p => markerB(p, c, Q, xsRow(5, 168), 232, .56, 1, [-425, -228, 425, -40], { bs: 130, msize: 54 })); });
 
   /* ---------- SIZE 3 · 560 × 490 ---------- */
-  sd(3, 'raise', 'ยกแขนขึ้น', (d, c) => { const Q = PQ(d, 4); art(c, p => raiseD(p, c, Q, xsRow(4, 132), 236, .6, 2, [-272, -236, 272, -30], { v: 'end', badge: 'left', bs: 140, size: 48 })); });
-  sd(3, 'scan', 'กรอบค้นหาในฝูง', (d, c) => { const Q = PQ(d, 6); art(c, p => scanD(p, c, Q, [[-214, 30, .42], [-108, 30, .42], [-2, 30, .42], [-232, 236, .6], [-116, 236, .6], [0, 236, .6]], 4, [62, -236, 272, 236], { badge: 'top', bs: 130, size: 44 })); });
-  sd(3, 'forward', 'ก้าวออกมาข้างหน้า', (d, c) => { const Q = PQ(d, 4); art(c, p => forwardD(p, c, Q, [-236, -158, -80, -2], -60, .3, 1, -120, 236, .66, [62, -236, 272, 236], { badge: 'top', bs: 130, size: 44 })); });
-  sd(3, 'persona', 'การ์ดตัวตน', (d, c) => { const Q = PQ(d, 1); art(c, p => personaD(p, c, Q, [-278, -243, 556, 486], [-262, -227, 230, 454], -147, 212, 1.02, [-16, -227, 262, 227], { badge: 'top', bs: 140, size: 46 })); });
-  sd(3, 'marker', 'ป้ายชี้ตัว', (d, c) => { const Q = PQ(d, 4); art(c, p => markerD(p, c, Q, xsRow(4, 132), 236, .66, 1, [-272, -236, 272, -110], { bs: 100, msize: 46, mw: 300 })); });
+  sd(3, 'raise', 'ยกแขนขึ้น', (d, c) => { const Q = PQ(d, 4); art(c, p => raiseD(p, c, Q, xsRow(4, 132), 230, .66, 2, [-272, -238, 272, -66], { v: 'end', badge: 'left', bs: 120, size: 46 })); });
+  sd(3, 'scan', 'กรอบค้นหาในฝูง', (d, c) => { const Q = PQ(d, 6); art(c, p => scanB(p, c, Q, xsRow(4, 132).map(x => [x, 150, .36]).concat(xsRow(3, 176).map(x => [x, 246, .48])), 5, [-272, -236, 272, -10], { badge: 'left', bs: 130, size: 46 })); });
+  sd(3, 'forward', 'ก้าวออกมาข้างหน้า', (d, c) => { const Q = PQ(d, 4); art(c, p => forwardD(p, c, Q, xsRow(5, 100), -120, .28, 1, -160, 222, .64, [-70, -60, 272, 236], { badge: 'top', bs: 120, size: 46 })); });
+  sd(3, 'persona', 'การ์ดตัวตน', (d, c) => { const Q = PQ(d, 1); art(c, p => personaB(p, c, Q, [-278, -243, 556, 486], [-262, -227, 240, 454], -142, 227, .96, [-6, -227, 262, 227], { badge: 'top', bs: 140, size: 46 })); });
+  sd(3, 'marker', 'ป้ายชี้ตัว', (d, c) => { const Q = PQ(d, 4); art(c, p => markerB(p, c, Q, xsRow(4, 132), 240, .5, 1, [-272, -236, 272, -60], { bs: 100, msize: 46, mw: 300 })); });
 
   /* ---------- SIZE 4 · 400 × 635 ---------- */
-  sd(4, 'raise', 'ยกแขนขึ้น', (d, c) => { const Q = PQ(d, 3); art(c, p => raiseD(p, c, Q, xsRow(3, 126), 306, .66, 1, [-192, -306, 192, -40], { v: 'end', badge: 'top', bs: 120, size: 46 })); });
-  sd(4, 'scan', 'กรอบค้นหาในฝูง', (d, c) => { const Q = PQ(d, 6); art(c, p => scanD(p, c, Q, [[-128, 70, .42], [0, 70, .42], [128, 70, .42], [-128, 306, .56], [0, 306, .56], [128, 306, .56]], 4, [-192, -306, 192, -90], { v: 'end', badge: 'top', bs: 120, size: 44 })); });
-  sd(4, 'forward', 'ก้าวออกมาข้างหน้า', (d, c) => { const Q = PQ(d, 3); art(c, p => forwardD(p, c, Q, [-128, 0, 128], -150, .34, 2, 0, 306, .76, [-192, -136, 192, 44], { badge: 'left', bs: 110, size: 44 })); });
-  sd(4, 'persona', 'การ์ดตัวตน', (d, c) => { const Q = PQ(d, 1); art(c, p => personaD(p, c, Q, [-198, -315, 396, 630], [-182, -299, 364, 330], 0, 24, .9, [-182, 46, 182, 299], { badge: 'top', bs: 120, size: 44 })); });
-  sd(4, 'tall', 'สูงเด่นขึ้นมา', (d, c) => { const Q = PQ(d, 3); art(c, p => tallD(p, c, Q, [-128, 0, 128], 306, .5, 1, .72, [-192, -306, 192, 40], { v: 'end', badge: 'top', bs: 130, size: 46 })); });
+  sd(4, 'raise', 'ยกแขนขึ้น', (d, c) => { const Q = PQ(d, 3); art(c, p => raiseD(p, c, Q, xsRow(3, 126), 298, .64, 1, [-192, -306, 192, -50], { v: 'end', badge: 'top', bs: 120, size: 46 })); });
+  sd(4, 'scan', 'กรอบค้นหาในฝูง', (d, c) => { const Q = PQ(d, 6); art(c, p => scanB(p, c, Q, [[-126, 120, .36], [0, 120, .36], [126, 120, .36], [-120, 310, .48], [0, 310, .48], [120, 310, .48]], 4, [-192, -306, 192, -30], { v: 'end', badge: 'top', bs: 120, size: 44 })); });
+  sd(4, 'forward', 'ก้าวออกมาข้างหน้า', (d, c) => { const Q = PQ(d, 3); art(c, p => forwardD(p, c, Q, [-128, 0, 128], -160, .32, 2, 0, 298, .74, [-192, -140, 192, 40], { badge: 'left', bs: 110, size: 44 })); });
+  sd(4, 'persona', 'การ์ดตัวตน', (d, c) => { const Q = PQ(d, 1); art(c, p => personaB(p, c, Q, [-198, -315, 396, 630], [-182, -299, 364, 330], 0, 31, .82, [-182, 46, 182, 299], { badge: 'top', bs: 120, size: 44 })); });
+  sd(4, 'tall', 'โดดเด่นขึ้นมา', (d, c) => { const Q = PQ(d, 3); art(c, p => tallB(p, c, Q, [-122, 0, 122], 310, .36, 1, .56, [-192, -306, 192, 90], { v: 'end', badge: 'top', bs: 130, size: 46 })); });
 
   /* ---------- SIZE 5 · 860 × 710 ---------- */
-  sd(5, 'raise', 'ยกแขนขึ้น', (d, c) => { const Q = PQ(d, 5); art(c, p => raiseD(p, c, Q, xsRow(5, 172), 346, .98, 3, [-425, -346, 425, -80], { v: 'end', size: 60, bs: 180, row: true })); });
-  sd(5, 'scan', 'กรอบค้นหาในฝูง', (d, c) => { const Q = PQ(d, 9); art(c, p => scanD(p, c, Q, xsRow(5, 172).map(x => [x, 40, .54]).concat(xsRow(4, 196).map(x => [x, 346, .78])), 7, [-425, -346, 425, -160], { v: 'end', size: 56, bs: 150, row: true })); });
-  sd(5, 'forward', 'ก้าวออกมาข้างหน้า', (d, c) => { const Q = PQ(d, 6); art(c, p => forwardD(p, c, Q, xsRow(6, 132, -100), -64, .4, 4, -190, 346, .92, [10, -40, 425, 346], { badge: 'top', bs: 170, size: 58 })); });
-  sd(5, 'persona', 'การ์ดตัวตน', (d, c) => { const Q = PQ(d, 1); art(c, p => personaD(p, c, Q, [-428, -352, 856, 704], [-408, -332, 390, 664], -213, 316, 1.48, [8, -332, 408, 332], { badge: 'top', bs: 180, size: 60 })); });
-  sd(5, 'marker', 'ป้ายชี้ตัว', (d, c) => { const Q = PQ(d, 5); art(c, p => markerD(p, c, Q, xsRow(5, 172), 346, .9, 1, [-425, -346, 425, -100], { bs: 160, msize: 60, mw: 460, back: xsRow(6, 140).map(x => [x, -30, .46]) })); });
+  sd(5, 'raise', 'ยกแขนขึ้น', (d, c) => { const Q = PQ(d, 5); art(c, p => raiseD(p, c, Q, xsRow(5, 172), 338, .94, 3, [-425, -346, 425, -80], { v: 'end', size: 60, bs: 170, row: true })); });
+  sd(5, 'scan', 'กรอบค้นหาในฝูง', (d, c) => { const Q = PQ(d, 9); art(c, p => scanB(p, c, Q, xsRow(5, 172).map(x => [x, 110, .54]).concat(xsRow(4, 196).map(x => [x, 350, .7])), 7, [-425, -346, 425, -100], { v: 'end', size: 58, bs: 150, row: true })); });
+  sd(5, 'forward', 'ก้าวออกมาข้างหน้า', (d, c) => { const Q = PQ(d, 6); art(c, p => forwardD(p, c, Q, xsRow(6, 140), -70, .54, 1, -190, 336, 1.0, [-40, -40, 425, 346], { badge: 'top', bs: 170, size: 60 })); });
+  sd(5, 'persona', 'การ์ดตัวตน', (d, c) => { const Q = PQ(d, 1); art(c, p => personaB(p, c, Q, [-428, -352, 856, 704], [-408, -332, 390, 664], -213, 332, 1.6, [8, -332, 408, 332], { badge: 'top', bs: 180, size: 60 })); });
+  sd(5, 'marker', 'ป้ายชี้ตัว', (d, c) => { const Q = PQ(d, 5); art(c, p => markerB(p, c, Q, xsRow(5, 172), 350, .64, 1, [-425, -346, 425, -100], { bs: 150, msize: 60, mw: 460, back: xsRow(6, 142).map(x => [x, 40, .4]) })); });
 
   /* ---------- SIZE 6 · 860 × 965 ---------- */
-  sd(6, 'raise', 'ยกแขนขึ้น', (d, c) => { const Q = PQ(d, 4); art(c, p => raiseD(p, c, Q, xsRow(4, 206), 474, 1.0, 2, [-425, -474, 425, 40], { v: 'end', badge: 'top', bs: 200, size: 66 })); });
-  sd(6, 'scan', 'กรอบค้นหาในฝูง', (d, c) => { const Q = PQ(d, 7); art(c, p => scanD(p, c, Q, xsRow(4, 206).map(x => [x, 40, .62]).concat(xsRow(3, 270).map(x => [x, 474, .9])), 5, [-425, -474, 425, -190], { v: 'end', size: 62, bs: 170, row: true })); });
-  sd(6, 'forward', 'ก้าวออกมาข้างหน้า', (d, c) => { const Q = PQ(d, 5); art(c, p => forwardD(p, c, Q, xsRow(5, 170), -100, .56, 3, 0, 474, 1.22, [-425, -474, 425, -300], { v: 'end', size: 60, bs: 160, row: true })); });
-  sd(6, 'persona', 'การ์ดตัวตน', (d, c) => { const Q = PQ(d, 1); art(c, p => personaD(p, c, Q, [-428, -480, 856, 960], [-408, -460, 816, 540], 0, 58, 1.42, [-408, 100, 408, 460], { badge: 'left', bs: 190, size: 64 })); });
-  sd(6, 'marker', 'ป้ายชี้ตัว', (d, c) => { const Q = PQ(d, 4); art(c, p => markerD(p, c, Q, xsRow(4, 206), 474, 1.15, 1, [-425, -474, 425, -240], { bs: 170, msize: 66, mw: 500, back: xsRow(5, 172).map(x => [x, -120, .62]) })); });
+  sd(6, 'raise', 'ยกแขนขึ้น', (d, c) => { const Q = PQ(d, 4); art(c, p => raiseD(p, c, Q, xsRow(4, 206), 466, 1.0, 2, [-425, -474, 425, 30], { v: 'end', badge: 'top', bs: 200, size: 66 })); });
+  sd(6, 'scan', 'กรอบค้นหาในฝูง', (d, c) => { const Q = PQ(d, 7); art(c, p => scanB(p, c, Q, xsRow(4, 206).map(x => [x, 230, .58]).concat(xsRow(3, 270).map(x => [x, 478, .8])), 5, [-425, -474, 425, -10], { v: 'end', size: 64, bs: 180, badge: 'top' })); });
+  sd(6, 'forward', 'ก้าวออกมาข้างหน้า', (d, c) => { const Q = PQ(d, 5); art(c, p => forwardD(p, c, Q, xsRow(5, 170), -110, .54, 3, 0, 466, 1.2, [-425, -474, 425, -306], { v: 'end', size: 60, bs: 150, row: true })); });
+  sd(6, 'persona', 'การ์ดตัวตน', (d, c) => { const Q = PQ(d, 1); art(c, p => personaB(p, c, Q, [-428, -480, 856, 960], [-408, -460, 816, 540], 0, 80, 1.46, [-408, 100, 408, 460], { badge: 'left', bs: 190, size: 64 })); });
+  sd(6, 'marker', 'ป้ายชี้ตัว', (d, c) => { const Q = PQ(d, 4); art(c, p => markerB(p, c, Q, xsRow(4, 206), 478, .86, 1, [-425, -474, 425, -200], { bs: 170, msize: 66, mw: 500, back: xsRow(5, 172).map(x => [x, 80, .54]) })); });
 
   /* ---------- SIZE 7 · 400 × 500 ---------- */
-  sd(7, 'raise', 'ยกแขนขึ้น', (d, c) => { const Q = PQ(d, 3); art(c, p => raiseD(p, c, Q, xsRow(3, 126), 242, .52, 1, [-192, -242, 192, 12], { v: 'end', badge: 'left', bs: 100, size: 42 })); });
-  sd(7, 'forward', 'ก้าวออกมาข้างหน้า', (d, c) => { const Q = PQ(d, 3); art(c, p => forwardD(p, c, Q, [-128, 0, 128], -146, .28, 0, 0, 242, .6, [-192, -132, 192, 36], { badge: 'left', bs: 96, size: 42 })); });
-  sd(7, 'persona', 'การ์ดตัวตน', (d, c) => { const Q = PQ(d, 1); art(c, p => personaD(p, c, Q, [-198, -248, 396, 496], [-182, -232, 364, 256], 0, 10, .68, [-182, 34, 182, 232], { badge: 'left', bs: 110, size: 42 })); });
-  sd(7, 'tall', 'สูงเด่นขึ้นมา', (d, c) => { const Q = PQ(d, 3); art(c, p => tallD(p, c, Q, [-128, 0, 128], 242, .42, 1, .6, [-192, -242, 192, 30], { v: 'end', badge: 'left', bs: 100, size: 42 })); });
-  sd(7, 'marker', 'ป้ายชี้ตัว', (d, c) => { const Q = PQ(d, 3); art(c, p => markerD(p, c, Q, [-128, 0, 128], 242, .56, 1, [-192, -242, 192, -100], { bs: 90, msize: 44, mw: 380 })); });
+  sd(7, 'raise', 'ยกแขนขึ้น', (d, c) => { const Q = PQ(d, 3); art(c, p => raiseD(p, c, Q, xsRow(3, 126), 234, .5, 1, [-192, -242, 192, 12], { v: 'end', badge: 'left', bs: 100, size: 42 })); });
+  sd(7, 'forward', 'ก้าวออกมาข้างหน้า', (d, c) => { const Q = PQ(d, 3); art(c, p => forwardD(p, c, Q, [-128, 0, 128], -150, .27, 0, 0, 234, .58, [-192, -132, 192, 36], { badge: 'left', bs: 96, size: 42 })); });
+  sd(7, 'persona', 'การ์ดตัวตน', (d, c) => { const Q = PQ(d, 1); art(c, p => personaB(p, c, Q, [-198, -248, 396, 496], [-182, -232, 364, 256], 0, 24, .7, [-182, 34, 182, 232], { badge: 'left', bs: 110, size: 42 })); });
+  sd(7, 'tall', 'โดดเด่นขึ้นมา', (d, c) => { const Q = PQ(d, 3); art(c, p => tallB(p, c, Q, [-122, 0, 122], 246, .34, 1, .5, [-192, -242, 192, 50], { v: 'end', badge: 'left', bs: 100, size: 42 })); });
+  sd(7, 'marker', 'ป้ายชี้ตัว', (d, c) => { const Q = PQ(d, 3); art(c, p => markerB(p, c, Q, [-128, 0, 128], 246, .4, 1, [-192, -242, 192, -40], { bs: 90, msize: 44, mw: 380 })); });
 
   /* ---------- sample data + stress ---------- */
   const I = (icon, label) => label ? { icon, label } : { icon };
