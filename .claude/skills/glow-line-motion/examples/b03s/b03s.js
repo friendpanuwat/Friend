@@ -22,7 +22,7 @@
   const TR = ['x', 'y', 'r', 's', 'sx', 'sy', 'ky'];
   const sub = (p, a) => { const q = p.child(a || {}); q.H = p.H; q.motion = p.motion; return q; };
   const on = (q, p, t, spec) => { const t0 = p.t0 + t * p.ts, fade = q.og && !TR.some(n => spec[n]); kf(fade ? q.og : (q.g || q), t0, spec); };
-  const art = (c, fn) => { const f = p => { p.H = Z.H; fn(p); }; f.custom = true; f.dur = .35; f.exit = 'pop';
+  const art = (c, fn) => { const f = p => { p.H = Z.H; fn(p); }; f.custom = true; f.dur = .35; f.exit = 'fade';   /* fade: never grows past the box on the way out (A6) */
     const a = G.art(f, { x: c.x, y: c.y, s: c.s, at: c.at || 0, speed: 1 }); a.speed = Z.sp; return a; };
   const over = (c, fn) => art(Object.assign({}, c), fn);
   const atT = (g, p, t) => on(g, p, t, { o: [[0, 0], [tu(.12), 1]] });
@@ -43,8 +43,8 @@
   const arcs = (q, x, y, dir, n = 3, r0 = 26, gap = 18, span = 38, o = W(2.4)) => { for (let k = 0; k < n; k++) { const r = r0 + k * gap, a = rad(span);
     q.path(`M ${f1(x + dir * r * Math.cos(a))} ${f1(y - r * Math.sin(a))} A ${r} ${r} 0 0 ${dir > 0 ? 1 : 0} ${f1(x + dir * r * Math.cos(a))} ${f1(y + r * Math.sin(a))}`, o); } };
   let CID = 0;
-  function clipG(p, x, y, w, h) { const svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), r = document.createElementNS(NS, 'rect');
-    cp.id = 'b03sclip' + (++CID); Object.entries({ x, y, width: w, height: h }).forEach(([k, v]) => r.setAttribute(k, v)); cp.appendChild(r);
+  function clipG(p, x, y, w, h, rx = 0) { const svg = p.g.ownerSVGElement, cp = document.createElementNS(NS, 'clipPath'), r = document.createElementNS(NS, 'rect');
+    cp.id = 'b03sclip' + (++CID); Object.entries(rx ? { x, y, width: w, height: h, rx } : { x, y, width: w, height: h }).forEach(([k, v]) => r.setAttribute(k, v)); cp.appendChild(r);
     (svg.querySelector('defs') || svg).appendChild(cp); return sub(p, { 'clip-path': `url(#${cp.id})` }); }
   /* a label; too wide → smaller, or (wrap) two lines broken between Thai words */
   function txt(p, str, x, y, { size = 42, maxW = 1e9, weight = 600, anchor = 'middle', color = C.soft, wrap = null } = {}) {
@@ -102,17 +102,17 @@
   const outG = (q, t, d = .08) => { const g = sub(q); on(g, q, 0, { o: [[0, 1], [t, 1], [t + tu(d), 0]] }); return g; };
   function haloH(q, x, y, r, t) { t = t ?? Z.H; const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .6], [t, .6], [t + tu(.3), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.1), 1]] }); halo(g, x, y, r); return g; }
   /* a ring that blooms out from (x, y) at t and fades (the "it happened" ripple) */
-  function ripple(q, x, y, r, t) { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [t + tu(.45), 1.45, 'out']], o: [[0, 0], [t, 0], [t + tu(.04), .8], [t + tu(.45), 0]] }); g.circle(x, y, r, W(2.6)); }
-  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .3], [t, .3], [t + tu(.2), 1.1, 'out'], [t + tu(.34), 1, 'soft']], o: [[0, 0], [t, 0], [t + tu(.06), 1]] }); return g; };
+  function ripple(q, x, y, r, t) { return;   /* no ripples (user lesson 32) */ const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [t + tu(.45), 1.45, 'out']], o: [[0, 0], [t, 0], [t + tu(.04), .8], [t + tu(.45), 0]] }); g.circle(x, y, r, W(2.6)); }
+  const popAt = (q, x, y, t) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .6], [t, .6], [t + tu(.3), 1, 'out']], o: [[0, 0], [t, 0], [t + tu(.12), 1]] });   /* smooth, no overshoot (A4) */ return g; };
 
   /* a THING (it) at (x, y) width w (+ its label at (lx, ly)). o.t = when it comes in · o.mv = keys of the part it rides ({ px, py, x, y, r, s }) ·
      o.punch = a bump at that time (the moment it is reached) · o.r = a fixed tilt (with its holder) · o.lt = when the label comes in */
   function pic(it, cx, cy, wd, c, o = {}) {
     if (!it) return null; const at = c.at || 0, X = c.x + cx * c.s, Y = c.y + cy * c.s, fn = picOf(it), t = o.t ?? tu(.12);
     let a;
-    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp });
+    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp, exit: 'fade' });
     else { const str = it.label; if (!str) return null;
-      const f = q => txt(q, str, 0, wd * .11, { size: wd * .3, maxW: o.bigW || wd * 1.25, weight: 700, color: C.ink, wrap: 'mid' }); f.custom = true; f.dur = .3; f.exit = 'pop';
+      const f = q => txt(q, str, 0, wd * .11, { size: wd * .3, maxW: o.bigW || wd * 1.25, weight: 700, color: C.ink, wrap: 'mid' }); f.custom = true; f.dur = .3; f.exit = 'fade';
       a = G.art(f, { x: X, y: Y, s: c.s, at: at + t, speed: 1 }); a.speed = Z.sp; }
     iclip(a, c);
     const K = { ox: X, oy: Y }; let any = false;
@@ -121,7 +121,7 @@
     else if (o.r) { K.r = [[0, o.r]]; any = true; }
     if (o.o) { K.o = o.o; any = true; }
     if (any) kf(a.wrap, at, K);
-    if (o.punch != null) kf(a.g, at, { ox: X, oy: Y, s: [[0, 1], [o.punch, 1], [o.punch + tu(.07), 1.14, 'out'], [o.punch + tu(.3), 1, 'soft']] });
+    if (o.punch != null && false) kf(a.g, at, { ox: X, oy: Y, s: [[0, 1], [o.punch, 1], [o.punch + tu(.07), 1.14, 'out'], [o.punch + tu(.3), 1, 'soft']] });
     return a;
   }
   /* an icon is its own art on the stage — the canvas clip (CL) does not reach it, so a thing falling in from far above showed its icon over the design
@@ -497,7 +497,7 @@
   /* something that fills from t0 to t1: draw keys and the matching turn of a dot riding its end */
   const fillK = (t0, t1) => [[0, 0], [t0, 0], [t1, 1, 'io']];
   const ridK = (deg, t0, t1) => [[0, -deg], [t0, -deg], [t1, 0, 'io']];
-  const litOn = (q, t) => { const g = sub(q); on(g, q, 0, { o: [[0, 0], [t, 0], [f3(t + tu(.04)), 1]] }); return g; };
+  const litOn = (q, t) => { const g = sub(q); on(g, q, 0, { o: [[0, 0], [f3(t - tu(.12)), 0], [f3(t + tu(.18)), 1, 'io']] }); return g; };   /* glows up softly (A9) */
   let FILL = { fill: LIT, sw: 0, stroke: 'none' }, SOFTT = { sw: 14, stroke: 'rgba(255,255,255,.16)' };
 
   /* ---------- colour theme (user 2026-11-14: "ทำให้มันเปลี่ยนสีได้"): every colour comes from GL.C (line = ink, card fill, soft lines) plus one
@@ -577,7 +577,7 @@
     else { R(g, x0, y - 11, w, 22, 11, GREY()); R(g, an === 'middle' ? x - w * .31 : x0, y + 33, f1(w * .62), 22, 11, GREY()); } }
   /* the verdict mark: stamps in just after H (big → small), ✓ in the accent, ✗ in the line colour */
   function stamp(p, kind, x, y, r = 58) { const t = f3(Z.H + tu(.1)), g = sub(p);
-    on(g, p, 0, { ox: x, oy: y, s: [[0, 1.8], [t, 1.8], [f3(t + tu(.14)), .9, 'in'], [f3(t + tu(.26)), 1.04], [f3(t + tu(.38)), 1, 'soft']], o: [[0, 0], [t, 0], [f3(t + tu(.06)), 1]] });
+    on(g, p, 0, { ox: x, oy: y, s: [[0, .6], [t, .6], [f3(t + tu(.3)), 1, 'out']], o: [[0, 0], [t, 0], [f3(t + tu(.14)), 1]] });   /* smooth, no stamp bounce */
     g.circle(x, y, r, F(3.6)); const k = r / 32;
     if (kind === 'x') XX(g, x, y, k); else g.path(`M ${f1(x - 17 * k)} ${f1(y + 1 * k)} L ${f1(x - 5 * k)} ${f1(y + 13 * k)} L ${f1(x + 18 * k)} ${f1(y - 13 * k)}`, { sw: 5.4, stroke: ACC1 });
     ripple(p, x, y, r + 8, f3(t + tu(.14))); }
@@ -638,11 +638,139 @@
     }); if (VD) { const V2 = VD; over(c, q => verdict(q, d, V2)); } }   /* ✓ / ✗ on the top layer, above the icons */
   R1[1] = (d, c) => r1(d, c, 1, { dir: 'h', inner: 'side', disc: 48, wordSize: 50, pad: 22 });
   R1[2] = (d, c) => r1(d, c, 2, { dir: 'h', inner: 'below', disc: 60, wordSize: 56 });
-  R1[3] = (d, c) => r1(d, c, 3, { dir: 'h', inner: 'below', disc: 50, wordSize: 48, box: true, pad: 24 });
+  R1[3] = (d, c) => r1(d, c, 3, { dir: 'h', inner: 'below', disc: 50, wordSize: 48, pad: 24 });
   R1[4] = (d, c) => r1(d, c, 4, { dir: 'v', inner: 'below', disc: 52, wordSize: 50, pad: 24 });
   R1[5] = (d, c) => r1(d, c, 5, { dir: 'h', inner: 'below', disc: 68, wordSize: 64 });
   R1[6] = (d, c) => r1(d, c, 6, { dir: 'v', inner: 'side', disc: 68, wordSize: 70, icMax: 380 });
-  R1[7] = (d, c) => r1(d, c, 7, { dir: 'v', inner: 'side', disc: 46, wordSize: 46, box: true, pad: 22 });
+  R1[7] = (d, c) => r1(d, c, 7, { dir: 'v', inner: 'side', disc: 46, wordSize: 46, pad: 22 });
+
+  /* ================= ROUNDS 2–5 (user 2026-11-25 after B02 passed: "ผ่าน ทำหมวดที่ 3 ต่อได้") — seven sizes × five designs.
+     01 = round 1 แบ่งครึ่ง (passed; now floating icons only — no box inside a panel, D20) + four new: SLIDER แถบเลื่อนก่อน/หลัง ·
+     SCALE ตาชั่ง · BARS แถบคู่ · GROW โต-หด. Lessons: centred (D14) · words only where the icons alone can't tell the two apart (same icon /
+     no icon — D15) · no frame in a frame (D20) · no ruler ticks (D18) · one smooth trip, edges glow up softly (A9) · nothing past the box. ================= */
+  const ioE2 = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+  const sIn = (q, x, y, t, d = .3) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .7], [t, .7], [f3(t + tu(d)), 1, 'out']], o: fadeIn(t, .14) }); return g; };
+  const hrow = (items, gap, cx = 0, cy = 0) => { const L = items.filter(Boolean), tot = L.reduce((a, it) => a + it.w, 0) + gap * Math.max(0, L.length - 1); let x = cx - tot / 2; L.forEach(it => { it.at(f1(x + it.w / 2), cy); x += it.w + gap; }); return tot; };
+  const vcol = (items, gap, cx = 0, cy = 0) => { const L = items.filter(Boolean), tot = L.reduce((a, it) => a + it.h, 0) + gap * Math.max(0, L.length - 1); let y = cy - tot / 2; L.forEach(it => { it.at(cx, f1(y + it.h / 2)); y += it.h + gap; }); return tot; };
+  /* the words show only when the icons can't tell the sides apart (same icon on both, or no icon) */
+  const needW = d => { const A = XS(d, 'a'), B = XS(d, 'b'); return !(A && B && picOf(A) && picOf(B) && A.icon !== B.icon); };
+  const T0C = d => f3(tu(.5)), T1C = () => f3(Z.H);   /* the comparing motion: one smooth trip .5 → H */
+  /* a side's thing: its icon floating (or its word, big, when it has no icon). K = keys of its move; o.dim = dims on H (loser) */
+  function side(p, c, d, s, x, y, sz, K, o = {}) { const X = XS(d, s), T = ST(d), t = o.t ?? tIn(d, s), dimO = s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.3)), .38, 'io']] : [];
+    const KK = Object.assign({ px: x, py: y }, K || {}); KK.o = (KK.o || fadeIn(t, .16)).concat(dimO); const mv = Object.assign({}, KK); delete mv.o;
+    if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, f1(sz), null, { t, mv, o: KK.o });
+    else if (X && X.label) txt(mvG(CL(p), KK), X.label, x, f1(y + sz * .1), { size: f1(Math.max(40, sz * .28)), maxW: f1(sz * 1.1), weight: 800, color: C.ink, wrap: 'mid' });
+    const lab = X && picOf(X) && X.label && needW(d) && o.wy != null ? X.label : null;
+    if (lab) { const KW = Object.assign({}, KK, { py: o.wy }); delete KW.s; txt(mvG(CL(p), KW), lab, x, f1(o.wy + (o.ws || 44) * .36), { size: o.ws || 44, maxW: o.wmax || sz * 1.3, weight: 800, color: C.ink, wrap: 'mid' }); } }
+  const marks = (c, d, at) => over(c, q => verdict(q, d, at));
+
+  /* SLIDER — one rounded frame, a divider with a handle splits it: a on one part, b on the other. On the trip the divider glides toward the
+     loser (versus: the winner's part grows and lights softly, the loser's icon shrinks a little) · change: it sweeps from the far end, b's part
+     opening up as a gives way. No winner → it rests in the middle. Wide boxes split left / right, tall ones top / bottom. */
+  function SLIDER(p, c, d, W0, H0) { const T = ST(d), vert = H0 > W0 * 1.1, L = vert ? H0 : W0, S2 = vert ? W0 : H0, r = f1(Math.min(46, S2 * .16));
+    const endF = T.change ? .3 : T.win ? (T.win === 'a' ? .64 : .36) : .5, startF = T.change ? .97 : .5, t0 = T0C(d), t1 = T1C(), hw = f1(Math.max(5, S2 * .022)), kr = f1(Math.max(20, Math.min(44, S2 * .1)));
+    const pos = f => f1(-L / 2 + L * f), xy = (u, v) => vert ? [v, u] : [u, v];
+    R(sIn(p, 0, 0, tu(.04), .32), -W0 / 2, -H0 / 2, W0, H0, r, F(4.4));
+    const sweep = n => { const K = [[0, 0], [t0, 0]]; for (let i = 1; i <= 24; i++) { const u = i / 24; K.push([f3(t0 + (t1 - t0) * u), f3(n(startF + (endF - startF) * ioE2(u)))]); } return K; };
+    /* the winner's part fills softly (clipped to the frame; grows with the divider) */
+    const ws = T.change ? 'b' : T.win; if (ws && !T.off) { const cg = clipG(p, -W0 / 2 + 6, -H0 / 2 + 6, W0 - 12, H0 - 12, r - 6), side0 = ws === 'a' ? -1 : 1;
+      const base = ws === 'a' ? -L / 2 : L / 2, K = sweep(f => (ws === 'a' ? L * f : L * (1 - f)) / L); const g = mvG(cg, Object.assign({ px: vert ? 0 : base, py: vert ? base : 0, o: [[0, 0], [t0, 0], [f3(t0 + tu(.3)), 1, 'io']] }, vert ? { sy: K } : { sx: K }));
+      R(g, vert ? -W0 / 2 : -L / 2, vert ? -L / 2 : -H0 / 2, vert ? W0 : L, vert ? L : H0, 0, { fill: TA(.1), sw: 0, stroke: 'none' }); }   /* full length, scaled from its own end to the divider */
+    /* the divider + handle */
+    const dK = sweep(f => pos(f) - pos(endF)), [dx, dy] = xy(pos(endF), 0), dg = mvG(p, Object.assign({ o: fadeIn(tu(.2), .14) }, vert ? { y: dK } : { x: dK }));
+    if (vert) dg.line(-W0 / 2 + 8, dy, W0 / 2 - 8, dy, { sw: hw, stroke: ACC1 }); else dg.line(dx, -H0 / 2 + 8, dx, H0 / 2 - 8, { sw: hw, stroke: ACC1 });
+    dg.circle(dx, dy, kr, F(4.2)); if (vert) { chev(rot(dg, -90, dx, dy - kr * .3), dx, f1(dy - kr * .3), kr / 90, W(3.2)); chev(rot(dg, 90, dx, dy + kr * .3), dx, f1(dy + kr * .3), kr / 90, W(3.2)); }
+    else { chev(rot(dg, 180, dx - kr * .3, dy), f1(dx - kr * .3), dy, kr / 90, W(3.2)); chev(dg, f1(dx + kr * .3), dy, kr / 90, W(3.2)); }
+    /* the two sides, each centred in its part all the way */
+    const ic = f1(Math.min(S2 * .62, L * .3, 330)), wsz = f1(Math.max(40, Math.min(60, ic * .24))), wl = needW(d), at = {};
+    SIDES.forEach(s => { const cen = f => s === 'a' ? (-L / 2 + pos(f)) / 2 : (pos(f) + L / 2) / 2, fin = cen(endF), Kc = sweep(f => f1(cen(f) - fin)), win = s === T.win && !T.off;
+      const sc = [[0, 1], [t0, 1]]; for (let i = 1; i <= 12; i++) { const u = i / 12, f = startF + (endF - startF) * ioE2(u), room = s === 'a' ? f : 1 - f; sc.push([f3(t0 + (t1 - t0) * u), f3(Math.max(.55, Math.min(1, room / .4)))]); }
+      const oy = wl ? -wsz * .7 : 0, [x, y] = xy(fin, vert ? oy * 0 : oy), K = vert ? { y: Kc, s: sc } : { x: Kc, s: sc };
+      side(p, c, d, s, x, vert ? f1(y + oy) : y, ic, K, { wy: vert ? f1(y + oy + ic / 2 + wsz * .7) : f1(y + ic / 2 + wsz * .7), ws: wsz, wmax: f1(vert ? W0 * .8 : L * .4) });
+      at[s] = vert ? [f1(W0 / 2 - 58), f1(fin - L * .12)] : [f1(fin + L * .14), f1(-H0 / 2 + 58)]; });
+    R(litOn(p, Z.H), -W0 / 2, -H0 / 2, W0, H0, r, { fill: 'none', sw: 5, stroke: ACC1 }); return at; }
+
+  /* SCALE — a balance: a pivot post, a beam, two pans hanging from its ends with the sides standing on them. On the trip the beam tips smoothly
+     toward the heavier side (v) or the winner (it lights); no winner and no v → it stays level. change: it tips from a to b. */
+  function SCALE(p, c, d, W0, H0) { if (W0 / H0 > 2.5) return SEESAW(p, c, d, W0, H0); const T = ST(d), t0 = T0C(d), t1 = T1C(), at = {}, wl = needW(d);
+    const heavy = T.hasV && T.va !== T.vb ? (T.va > T.vb ? 'a' : 'b') : T.win, sgn = heavy === 'a' ? -1 : heavy === 'b' ? 1 : 0, ang = sgn * Math.min(11, 6 + 14 * Math.abs((T.va ?? .5) - (T.vb ?? .5))), a0 = T.change ? -ang : 0;
+    /* sizes from the room: icon ic hangs in a pan below each end of the beam; the beam's ends move ± arm·sin(ang) */
+    const wsz = wl ? f1(Math.max(40, Math.min(54, H0 * .09))) : 0, baseH = 18;
+    let ic = f1(Math.min(W0 * .34, 320)), arm, panW, hang, by, dy, need;
+    for (let i = 0; i < 30; i++) { arm = f1(Math.min(W0 / 2 - ic * .62, ic * 1.5)); panW = f1(ic * 1.18); hang = f1(ic + 26 + wsz * 1.3); dy = arm * Math.sin(rad(Math.abs(ang) + 1));
+      need = 22 + dy + hang + panW * .2 + dy + 14 + baseH; if (need <= H0) break; ic = f1(ic * .94); }
+    const Ht = f1(Math.min(H0, need + Math.min(120, H0 * .12)));   /* tall boxes: a short post, the whole balance centred (no long empty pole) */
+    by = f1(-Ht / 2 + 22 + dy); const py = f1(Ht / 2 - baseH / 2);
+    const gB = sIn(p, 0, py, tu(.04), .3); R(gB, f1(-arm * .3), f1(py - baseH / 2), f1(arm * .6), baseH, 9, F(3.6)); R(gB, -9, by, 18, f1(py - baseH / 2 - by), 6, F(3));   /* base + post */
+    const angK = [[0, a0], [t0, a0]]; for (let i = 1; i <= 24; i++) { const u = i / 24; angK.push([f3(t0 + (t1 - t0) * u), f3(a0 + (ang - a0) * ioE2(u))]); }
+    const bg = mvG(p, { px: 0, py: by, r: angK, o: fadeIn(tu(.1), .14) }); R(bg, -arm - 14, f1(by - 7), f1(2 * arm + 28), 14, 7, F(3.4)); bg.circle(0, by, 16, F(3.6)); bg.circle(0, by, 6, KN2());
+    SIDES.forEach(s => { const sd = s === 'a' ? -1 : 1, xe = sd * arm, end = a => [xe * Math.cos(rad(a)), xe * Math.sin(rad(a))], [fx, fy] = end(ang), win = s === T.win && !T.off;
+      const XK = angK.map(([t, a]) => [t, f1(end(a)[0] - fx)]), YK = angK.map(([t, a]) => [t, f1(end(a)[1] - fy)]), ex = f1(fx), ey = f1(by + fy), pY = f1(ey + hang);
+      const pg = mvG(p, { px: ex, py: ey, x: XK, y: YK, o: fadeIn(tu(.14), .14) });
+      pg.line(ex, ey, f1(ex - panW * .46), pY, { sw: 2.2, stroke: TL_(.55) }); pg.line(ex, ey, f1(ex + panW * .46), pY, { sw: 2.2, stroke: TL_(.55) }); pg.circle(ex, ey, 7, F(2.6));
+      const pan = `M ${f1(ex - panW / 2)} ${pY} Q ${ex} ${f1(pY + panW * .2)} ${f1(ex + panW / 2)} ${pY} Z`; pg.path(pan, F(3.6));
+      if (win) litOn(pg, Z.H).path(pan, { fill: TA(.22), sw: 4.4, stroke: ACC1 });
+      const iy = f1(pY - 8 - wsz * 1.2 - ic / 2);
+      side(p, c, d, s, ex, iy, ic, { x: XK, y: YK }, { wy: f1(pY - 8 - wsz * .55), ws: wsz, wmax: f1(panW * 1.05) }); at[s] = [f1(ex + sd * panW * .45), f1(iy - ic * .3)]; });
+    return at; }
+  /* SEESAW (the balance on a flat strip): a beam on a low pivot, each side sitting on its end; the heavier / winning end goes down */
+  function SEESAW(p, c, d, W0, H0) { const T = ST(d), t0 = T0C(d), t1 = T1C(), at = {}, wl = needW(d);
+    const heavy = T.hasV && T.va !== T.vb ? (T.va > T.vb ? 'a' : 'b') : T.win, sgn = heavy === 'a' ? -1 : heavy === 'b' ? 1 : 0, ang = sgn * 4.5, a0 = T.change ? -ang : 0;
+    const arm = f1(W0 * .34), dy = arm * Math.sin(rad(5)), pv = f1(Math.min(34, H0 * .15)), ic = f1(Math.min(H0 - pv - 14 - 2 * dy - 10, W0 * .22)), by = f1(H0 / 2 - pv - 7);
+    const gB = sIn(p, 0, by, tu(.04), .3); gB.path(`M 0 ${by} L ${f1(pv * .8)} ${f1(H0 / 2)} L ${f1(-pv * .8)} ${f1(H0 / 2)} Z`, F(3.6));
+    const angK = [[0, a0], [t0, a0]]; for (let i = 1; i <= 24; i++) { const u = i / 24; angK.push([f3(t0 + (t1 - t0) * u), f3(a0 + (ang - a0) * ioE2(u))]); }
+    const bg = mvG(p, { px: 0, py: by, r: angK, o: fadeIn(tu(.1), .14) }); R(bg, f1(-arm - ic * .6), f1(by - 7), f1(2 * arm + ic * 1.2), 14, 7, F(3.4)); bg.circle(0, by, 10, KN2());
+    SIDES.forEach(s => { const sd = s === 'a' ? -1 : 1, xe = sd * arm, end = a => [xe * Math.cos(rad(a)), xe * Math.sin(rad(a))], [fx, fy] = end(ang), win = s === T.win && !T.off;
+      const XK = angK.map(([t, a]) => [t, f1(end(a)[0] - fx)]), YK = angK.map(([t, a]) => [t, f1(end(a)[1] - fy)]), ex = f1(fx), iy = f1(by + fy - 7 - ic / 2 - 4);
+      if (win) R(litOn(mvG(p, { px: ex, py: f1(by + fy), x: XK, y: YK }), Z.H), f1(ex - ic * .6), f1(by + fy - 8), f1(ic * 1.2), 16, 8, KN2());
+      side(p, c, d, s, ex, iy, ic, { x: XK, y: YK }, {});
+      const X = XS(d, s); if (wl && X && picOf(X) && X.label) { const wx = f1(ex - sd * (ic / 2 + 16)); txt(mvG(CL(p), { px: wx, py: iy, x: XK, y: YK, o: fadeIn(f3(tIn(d, s) + tu(.1)), .16).concat(s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.3)), .38, 'io']] : []) }), X.label, wx, f1(iy + 16), { size: 42, maxW: f1(ic * 1.1), weight: 800, color: C.ink, anchor: sd < 0 ? 'end' : 'start', wrap: 'mid' }); }
+      at[s] = [f1(ex + sd * ic * .45), f1(iy - ic * .3)]; });
+    return at; }
+  const KN2 = () => ({ fill: ACC1, sw: 0, stroke: 'none' });
+
+  /* BARS — two long bars, one per side, its thing at the start: both fill on one smooth trip to their amount (v, or the winner fuller, or the same).
+     The fuller / winning bar's edge glows on H. Wide boxes: rows; tall ones: columns rising from the bottom. change: a fills first, b after. */
+  function BARS(p, c, d, W0, H0) { const T = ST(d), vert = H0 > W0 * .95, t0 = T0C(d), t1 = T1C(), at = {};
+    const n2 = 2, gap = f1(Math.min(W0, H0) * (vert ? .1 : .12)), along = vert ? H0 : W0, across = vert ? W0 : H0, thick = f1((across - gap) / 2), ic = f1(Math.min(thick * .9, along * .3, 260)), bt = f1(Math.min(thick * .62, 130));
+    SIDES.forEach((s, i) => { const off = f1(-across / 2 + thick / 2 + i * (thick + gap)), win = (s === T.big || s === T.win) && !T.off, amt = T.amt(s), x1 = f1(along / 2); let x0 = f1(-along / 2 + ic + 24), lenF = f1(x1 - x0);
+      const ta = T.change ? (s === 'a' ? t0 : f3(t0 + (t1 - t0) * .45)) : t0, tb = T.change ? (s === 'a' ? f3(t0 + (t1 - t0) * .55) : t1) : t1;
+      const P = (u, v) => vert ? [v, f1(-u)] : [u, v], wl = needW(d) && XS(d, s) && picOf(XS(d, s)) && XS(d, s).label, wsz = f1(Math.max(40, Math.min(52, thick * .22))), icx = wl && vert ? f1(Math.min(ic, thick - wsz * 1.4)) : ic;
+      if (wl && !vert) { const ww = f1(Math.min(along * .24, tw(p, XS(d, s).label, wsz) + 4)); x0 = f1(x0 + ww + 18); lenF = f1(x1 - x0); txt(mvG(CL(p), { px: f1(-along / 2 + ic + 18), py: off, o: fadeIn(f3(tIn(d, s) + tu(.1)), .16).concat(s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.3)), .38, 'io']] : []) }), XS(d, s).label, f1(-along / 2 + ic + 18), f1(off + wsz * .36), { size: wsz, maxW: ww, weight: 800, color: C.ink, anchor: 'start' }); }
+      const [ix, iy0] = P(f1(-along / 2 + ic / 2), off), iy = wl && vert ? f1(iy0 - wsz * 1.4) : iy0;
+      if (wl && vert) { x0 = f1(x0 + wsz * 1.4); lenF = f1(x1 - x0); }   /* the word under the icon needs its room above the frame edge */
+      side(p, c, d, s, ix, iy, icx, null, vert ? { t: tIn(d, s), wy: f1(iy + icx / 2 + wsz * .6), ws: wsz, wmax: f1(thick * 1.1) } : { t: tIn(d, s) });
+      const g0 = sIn(p, ...P(f1((x0 + x1) / 2), off), f3(tIn(d, s) + tu(.06)), .3), tr = vert ? [f1(off - bt / 2), f1(-x1), bt, lenF] : [x0, f1(off - bt / 2), lenF, bt];
+      R(g0, ...tr, f1(bt / 2), F(4)); const pad = f1(Math.max(7, bt * .13)), ib = f1(bt - 2 * pad), il = f1((lenF - 2 * pad) * amt), base = P(f1(x0 + pad), off);
+      const K = Object.assign({ px: base[0], py: base[1], o: fadeIn(ta, .06) }, vert ? { sy: [[0, .001], [ta, .001], [tb, 1, 'io']] } : { sx: [[0, .001], [ta, .001], [tb, 1, 'io']] });
+      R(mvG(p, K), ...(vert ? [f1(off - ib / 2), f1(-x0 - pad - il), ib, il] : [f1(x0 + pad), f1(off - ib / 2), il, ib]), f1(ib / 2), win ? { fill: TA(.36), sw: 0, stroke: 'none' } : { fill: TL_(.2), sw: 0, stroke: 'none' });
+      if (win) R(litOn(p, Z.H), ...tr, f1(bt / 2), { fill: 'none', sw: 5, stroke: ACC1 });
+      at[s] = vert ? [f1(off + thick * .3), f1(-along / 2 + 50)] : [f1(along / 2 - 50), f1(off - thick * .3)]; });
+    return at; }
+
+  /* GROW — two tiles: on the trip the winner grows and lights, the loser shrinks and dims; no winner → both stay the same. change: a sits big
+     alone, then it shrinks aside as b grows in beside it, a chevron between them. Each tile = one frame with its thing (nothing nested). */
+  function GROW(p, c, d, W0, H0) { const T = ST(d), vert = H0 > W0 * 1.05, t0 = T0C(d), t1 = T1C(), at = {}, gap = f1(Math.min(W0, H0) * .08), chv = T.change ? f1(Math.min(W0, H0) * .14) : 0;
+    const along = vert ? H0 : W0, across = vert ? W0 : H0, room = (along - gap * 2 - chv) / 2, big = f1(Math.min(across, room * 1.25, 560)), small = f1(big * .6);
+    const fin = s => T.change ? (s === 'b' ? big : small) : T.win && !T.off ? (s === T.win ? big : small) : f1(Math.min(across, room, 460));
+    const tot = fin('a') + fin('b') + gap * 2 + chv; let u = -tot / 2; const C0 = {};
+    ['a', 'b'].forEach((s, i) => { C0[s] = f1(u + fin(s) / 2); u += fin(s) + gap + (i ? 0 : chv + gap); });
+    SIDES.forEach(s => { const sz = fin(s), [x, y] = vert ? [0, C0[s]] : [C0[s], 0], s0 = T.change ? (s === 'a' ? f3(big / small) : .5) : T.win && !T.off ? f3(Math.min(across, room, 460) / sz) : 1, rr = f1(sz * .24);
+      const tA = T.change && s === 'b' ? f3(t0 + (t1 - t0) * .35) : tIn(d, s), K = { px: x, py: y, s: [[0, s0], [t0, s0], [t1, 1, 'io']], o: T.change && s === 'b' ? fadeIn(tA, .3) : fadeIn(tIn(d, s), .14) }, win = s === T.win && !T.off;
+      const g = mvG(CL(p), K); R(g, f1(x - sz / 2), f1(y - sz / 2), sz, sz, rr, F(4.2)); if (s === T.lose && !T.off) on(g, p, 0, { o: [[0, 1], [Z.H, 1], [f3(Z.H + tu(.3)), .45, 'io']] });
+      if (win) R(litOn(g, Z.H), f1(x - sz / 2), f1(y - sz / 2), sz, sz, rr, { fill: TA(.1), sw: 4.8, stroke: ACC1 });
+      const X = XS(d, s), wl = needW(d) && X && X.label && picOf(X), isz = f1(sz * (wl ? .5 : .68)), iy = wl ? f1(y - sz * .1) : y, mv = { px: x, py: y, s: K.s };
+      if (X && picOf(X)) put(p, c, { icon: X.icon }, x, iy, isz, null, { t: tA, mv, o: K.o.concat(s === T.lose && !T.off ? [[Z.H, 1], [f3(Z.H + tu(.3)), .45, 'io']] : []) });
+      if (X && X.label && (wl || !picOf(X))) txt(g, X.label, x, f1(wl ? y + sz * .3 : y + sz * .08), { size: f1(sz * (wl ? .15 : .2)), maxW: f1(sz * .84), weight: 800, color: C.ink, wrap: 'mid' });
+      at[s] = [f1(x + sz / 2 - 30), f1(y - sz / 2 + 30)]; });
+    if (T.change) { const cx = vert ? 0 : f1((C0.a + fin('a') / 2 + C0.b - fin('b') / 2) / 2), cy = vert ? f1((C0.a + fin('a') / 2 + C0.b - fin('b') / 2) / 2) : 0, g = sIn(p, cx, cy, f3(t0 + (t1 - t0) * .3));
+      chev(vert ? rot(g, 90, cx, cy) : g, cx, cy, chv / 70, { sw: 7, stroke: ACC1 }); }
+    return at; }
+
+  /* one size's frame for a design: centred in the box, fills it (margin m) */
+  function layB(k, d, c, D) { const Wb = SIZES[k].w, Hb = SIZES[k].h, m = 10; art(c, p => { const at = D(p, c, d, Wb - 2 * m, Hb - 2 * m); if (at) { const A2 = at; marks(c, d, A2); } }); }
+  const SZD = {}; for (let k = 1; k <= 7; k++) SZD[k] = [{ id: 'split', th: 'แบ่งครึ่ง', fn: (d, c) => R1[k](d, c) }, { id: 'slider', th: 'แถบเลื่อน', fn: (d, c) => layB(k, d, c, SLIDER) },
+    { id: 'scale', th: 'ตาชั่ง', fn: (d, c) => layB(k, d, c, SCALE) }, { id: 'bars', th: 'แถบคู่', fn: (d, c) => layB(k, d, c, BARS) }, { id: 'grow', th: 'โต-หด', fn: (d, c) => layB(k, d, c, GROW) }];
   const ROUNDS = [null, R1];
   /* sample data (copied from b03t) */
   const B3SAMPLES = [
@@ -702,6 +830,7 @@
     if (Array.isArray(o.items)) o.items = o.items.map(thinT);
     if (typeof o.unit === 'string' && glen(o.unit) > LONGW) delete o.unit; return o; }
   G.cats = G.cats || {};
-  G.cats.B03S = { ROUNDS, SIZES, SAMPLES: B3SAMPLES, STRESS: B3STRESS, theme, frame,
+  G.cats.B03S = { ROUNDS, SIZES, SAMPLES: [B3SAMPLES[1], B3SAMPLES[5], B3SAMPLES[3]], STRESS: [B3STRESS[13], B3STRESS[1], B3STRESS[5], B3STRESS[0], B3STRESS[6], B3STRESS[9]], ALL: B3SAMPLES, ALLS: B3STRESS, theme, frame, S: SZD,
+    drawS: (k, i, d, c) => { d = trimLong(d); setZ(c); CUR = 's' + k + '-' + SZD[k][i].id; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; SZD[k][i].fn(d || {}, c); },
     draw: (r, k, d, c) => { d = trimLong(d); setZ(c); CUR = 'r' + r + 's' + k; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; ROUNDS[r][k](d || {}, c); }, CLAMPS };
 })();
