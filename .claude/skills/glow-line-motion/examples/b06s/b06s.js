@@ -1101,7 +1101,7 @@
   sd(4, 'faq', 'กางคำตอบ', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H, t1 = f3(H + tu(.42));
     art(c, p => { const hh = 126, hy = f1(-Y4 + hh / 2), ob = F.hasO ? 170 : 0, pT = -Y4 + hh + 12, pB = Y4 - (ob ? ob + 14 : 0), oyF = f1(Y4 - ob / 2), oy0 = f1((pT + Y4) / 2), dy0 = f1(oy0 - oyF);
       R(atG(p, f3(T_.tA - tu(.02))), -X4, -Y4, X4 * 2, hh, 30, BK); outlineIn(p, R(p, -X4, -Y4, X4 * 2, hh, 30, OUT(.65)), T_.tA);
-      if (F.hasA) cell(p, c, d, 'a', 0, -44, hy, 290, hh, { shape: 'float', wideMin: 250, ws: 46, cap: 84 }); else qmark(p, d, -40, hy, 44, { plain: true, keep: true });
+      if (F.hasA) cell(p, c, d, 'a', 0, -62, hy, 256, hh, { shape: 'float', wideMin: 250, ws: 46, cap: 84 }); else qmark(p, d, -40, hy, 44, { plain: true, keep: true });
       if (F.hasA) qmark(p, d, X4 - 104, hy, 26, { keep: true });
       mvG(p, { px: X4 - 44, py: hy, r: [[0, 0], [H, 0], [t1, 180, 'io']], o: fadeIn(T_.tA, .1) }).path(`M ${X4 - 60} ${hy - 7} L ${X4 - 44} ${hy + 9} L ${X4 - 28} ${hy - 7}`, { sw: 4.4, stroke: C.ink });
       const pn = mvG(p, { px: 0, py: pT, sy: [[0, .001], [H, .001], [t1, 1, 'io']], o: [[0, 0], [H, 0], [f3(H + tu(.04)), 1]] });
@@ -1120,7 +1120,6 @@
     art(c, p => { const top = F.hasA ? 150 : 0;
       if (top) cell(p, c, d, 'a', 0, 0, f1(-Y4 + top / 2), X4 * 2, top, { wideMin: 300, ws: 52, cap: 110 });
       const za = -Y4 + (top ? top + 16 : 0);
-      if (!F.hasO) { qslot(p, c, d, 0, f1((za + Y4) / 2), X4 * 2, Y4 - za, { ans: true, r: 90, st: { wideMin: 300, ws: 54 } }); return; }
       const wy = f1((za + Y4) / 2), gap = 150, bh = 132, steps = []; let t = T_.tD0; while (t + tu(.36) <= T_.tD1) { steps.push(f3(t)); t += tu(.36); }
       const last = 1 + steps.length, want = F.ai >= 0 ? F.ai : null, finalJ = want != null && last % 2 === want ? last : last + 1, special = want == null, tF0 = f3(Math.max(t, T_.tD1)), tF1 = f3(H + tu(.12));
       const band = tt => { let b = 1; steps.forEach(ts => { b += sm((tt - ts) / tu(.28)); }); if (finalJ > last) b += sm((tt - tF0) / (tF1 - tF0)); return b; };
@@ -1135,6 +1134,7 @@
             if (lab) qword(p, d, 'n', 0, -45, f1(wy + 17), { g: mvG(p, { y: K.y, o: K.o }), size: 48, maxW: 225, anchor: 'start', t: f3(H - tu(.04)) }); }
           else { const g = mvG(p, K); txt(g, '?', 0, f1(wy + 34), { size: 100, weight: 800, color: C.ink }); txt(litOn(g, H), '?', 0, f1(wy + 34), { size: 100, weight: 800, color: ACC1 }); }
           continue; }
+        if (!F.hasO) { txt(mvG(p, K), '?', 0, f1(wy + 34), { size: 100, weight: 800, color: TL_(.6) }); continue; }   /* no options: the wheel rolls through "?"s */
         const i = j % 2, X = F.op[i], lab = LBL(X);
         qthing(p, c, d, 'o', i, 0, wy, bh, { K, draw: (q, st) => st === LS ? R(q, -X4 + 10, f1(wy - bh / 2), X4 * 2 - 20, bh, 26, st) : null, style: {}, litStyle: LS, ix: lab ? -110 : 0, iy: wy, iw: lab ? 96 : 110, lw: 320, rip: false, io: K.o });
         if (lab) qword(p, d, 'o', i, -45, f1(wy + 17), { g: mvG(p, { y: K.y, o: K.o }), size: 48, maxW: 225, anchor: 'start' }); }
@@ -1157,29 +1157,25 @@
       if (F.hasN || !F.hasO) { const h2 = F.hasO ? nH : f1(Y4 - sy - 80), y2 = f1(Y4 - h2 / 2); if (!F.hasO && F.hasN) on(p.path(`M 0 ${sy} L 0 ${f1(y2 - h2 / 2)}`, { sw: 5, stroke: ACC1 }), p, 0, { draw: [[0, 0], [f3(H - tu(.12)), 0], [f3(H + tu(.16)), 1, 'io']] });
         qslot(p, c, d, 0, y2, X4 * 2, h2, { ans: true, r: f1(Math.min(80, h2 * .3)), st: { wideMin: 300, ws: 48 } }); } }); });
 
-  /* 09 the question as words: what is asked in big type with its "?" after it, the options as big words with their icons, "หรือ" between;
-     while in doubt the words brighten in turn; on H a line draws under the answer (an answer apart comes in under them) and the other word dims */
-  sd(4, 'words', 'ประโยคคำถาม', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
-    art(c, p => { const A = F.ab, al = A && A.label, ai = A && picOf(A);
-      if (A) { const dy2 = F.hasO ? 0 : 50; if (ai) put(p, c, { icon: A.icon }, 0, (al ? -238 : -212) + dy2, al ? 120 : 160, null, { t: T_.tA });
-        if (al) { const sz = 64, w = Math.min(290, tw(p, al, sz)); txt(atG(p, f3(T_.tA + tu(.1))), al, -34, -110 + dy2, { size: sz, maxW: 290, weight: 800, color: C.ink, wrap: 'mid' }); qmark(p, d, f1(Math.min(150, -34 + w / 2 + 46)), -130 + dy2, 40, { plain: true, keep: true }); }
-        else qmark(p, d, 140, -212, 46, { plain: true, keep: true }); }
-      else qmark(p, d, 0, -200, 110, { plain: true, keep: true });
-      const rowY = F.hasO ? (F.hasN ? [-6, 128] : [10, 178]) : [], X = ansOf(F);
-      const word = (Xo, y, ok, tIn, keyOf) => { const lab = Xo.label, hasI = !!picOf(Xo), mw = hasI ? 270 : 360, two = lab && tw(p, lab, 60) > mw * 1.25, sz = two ? 46 : 60, wx = hasI && lab ? -90 : 0, an = hasI && lab ? 'start' : 'middle', w = lab ? Math.min(mw, two ? mw : tw(p, lab, sz)) : 0;
-        if (hasI) put(p, c, { icon: Xo.icon }, lab ? -148 : 0, f1(y - 20), lab ? 84 : 120, null, { t: tIn, o: keyOf ? [[0, 0], [tIn, 0], [f3(tIn + tu(.1)), 1]].concat(keyOf.slice(2)) : undefined });
-        if (lab) txt(mvG(atG(p, tIn), keyOf ? { o: keyOf } : null), lab, wx, f1(y + 2), { size: sz, maxW: mw, weight: 800, color: C.ink, anchor: an, wrap: two ? 'mid' : null });
-        const x0 = lab ? (an === 'start' ? -190 : -w / 2 - 10) : -70, x1 = lab ? (an === 'start' ? wx + w + 8 : w / 2 + 10) : 70, uy = f1(y + (lab ? (two ? 52 : 26) : 50));
-        if (ok) { const e = p.line(f1(x0), uy, f1(x1), uy, { sw: 7, stroke: ACC1 }); on(e, p, 0, { draw: [[0, 0], [f3(H - tu(.04)), 0], [f3(H + tu(.24)), 1, 'io']] }); } };
-      if (F.hasO) { [0, 1].forEach(i => word(F.op[i], rowY[i], F.ai === i, T_.tO(i), qTurnK(T_, i, .45, F.ai >= 0 && F.ai !== i ? .35 : 1)));
-        txt(atG(p, T_.tO(1)), 'หรือ', 0, f1((rowY[0] + rowY[1]) / 2 + 12), { size: 34, weight: 600, color: C.soft }); }
-      if (F.hasN && F.hasO) { word(F.an, 262, true, f3(H - tu(.06)), null); ripple(p, 0, 262, 150, f3(H + tu(.04))); }
-      else if (F.hasN) { const X = F.an, lab = X.label, hasI = !!picOf(X), uy = 262;   /* no options: the answer fills the blank under the question — big icon, its word on the line */
-        drawAt(p.line(-160, uy, 160, uy, { sw: 5, stroke: TL_(.45) }), p, T_.tA, tu(.4)); on(p.line(-160, uy, 160, uy, { sw: 7, stroke: ACC1 }), p, 0, { draw: [[0, 0], [f3(H - tu(.04)), 0], [f3(H + tu(.24)), 1, 'io']] });
-        if (hasI) put(p, c, { icon: X.icon }, 0, lab ? 108 : 150, lab ? 170 : 210, null, { t: f3(H - tu(.06)), punch: H });
-        if (lab || !hasI) txt(atG(p, f3(H + tu(.04))), lab, 0, f1(uy - 20), { size: hasI ? 58 : 72, maxW: 340, weight: 800, color: C.ink }); ripple(p, 0, 150, 160, f3(H + tu(.04))); }
-      else if (!F.hasO) { drawAt(p.line(-160, 262, 160, 262, { sw: 5, stroke: TL_(.45) }), p, T_.tA, tu(.4));   /* nothing answers: a faint "?" waits on the blank and lights on H */
-        const g = mvG(p, { o: [[0, 0], [T_.tQ, 0], [f3(T_.tQ + tu(.12)), .35], [T_.H, .35], [f3(T_.H + tu(.12)), 1]] }); txt(g, '?', 0, 240, { size: 170, weight: 800, color: ACC1 }); ripple(p, 0, 180, 120, f3(T_.H + tu(.04))); } }); });
+  /* 09 weighing it up ("ชั่งใจ"; user: "ดีไซน์ 9 ใหม่"): what is asked on top; a beam on a pivot carries the two options at its ends — while in doubt
+     it tips slowly one way, then the other; on H it settles down on the answer's side (that card lights). An answer apart lands under the pivot
+     (the beam levels); no answer → the beam levels and the "?" under it lights. No options → what is asked and the answer's slot sit on the beam */
+  sd(4, 'weigh', 'คานชั่งใจ', (d, c) => { const F = QD(d), T_ = QT(d), H = T_.H;
+    art(c, p => { const top = F.hasA && F.hasO ? 150 : 0, px = 0, py = F.hasO ? (top ? 96 : 40) : 110, cw = 156, ch = F.hasO ? (top ? 168 : 230) : 260, cy = f1(py - 10 - ch / 2), xs = [-96, 96], A1 = F.hasO ? 6 : 4;   /* angles kept small so the tipped cards stay inside the box */
+      if (top) cell(p, c, d, 'a', 0, 0, f1(-Y4 + top / 2), X4 * 2, top, { wideMin: 300, ws: 52, cap: 110 });
+      const side = F.hasO ? (F.ai === 0 ? -1 : F.ai === 1 ? 1 : 0) : (F.hasN ? 1 : 0), fin = side * A1, rK = swayK(d, k => (k ? 1 : -1) * (A1 - 1), 0, fin), base = { px, py, r: rK };
+      const beam = mvG(p, Object.assign({ o: fadeIn(T_.tA, .12) }, base)); R(beam, -X4 + 6, py - 9, X4 * 2 - 12, 18, 9, { fill: C.fill, sw: 3.4, stroke: C.ink });
+      popAt(p, px, py, T_.tA).path(rpoly([[px, py + 6], [px + 44, py + 74], [px - 44, py + 74]], 12), { fill: C.fill, sw: 3.4, stroke: C.ink });
+      drawAt(p.line(-150, f1(py + 76), 150, f1(py + 76), { sw: 3, stroke: TL_(.4) }), p, T_.tA, tu(.35));
+      const plate = (role, i, x) => { const Xo = role === 'a' ? F.ab : role === 'o' ? F.op[i] : F.an, lab = LBL(Xo), t = role === 'o' ? T_.tO(i) : role === 'a' ? T_.tA : f3(H - tu(.08)), K = Object.assign({ o: fadeIn(t, .12) }, base);
+        qthing(p, c, d, role, i, x, cy, cw, { K, draw: (q, st) => R(q, f1(x - cw / 2), f1(cy - ch / 2), cw, ch, 28, st), style: OUT(), litStyle: LIT2(), ix: x, iy: lab ? f1(cy - ch * .13) : cy, iw: f1(Math.min(ch * (lab ? .48 : .62), 110)), lw: cw * .86, rip: false });
+        if (lab) qword(p, d, role, i, x, f1(cy + ch * .33), { g: mvG(p, base), size: 38, maxW: cw - 20, wrap: 'mid' }); };
+      const by = f1(py + 76 + (Y4 - py - 76) / 2), bh = Y4 - py - 92;
+      if (F.hasO) { plate('o', 0, xs[0]); plate('o', 1, xs[1]);
+        if (F.hasN) qslot(p, c, d, 0, by, X4 * 2, bh, { ans: true, r: f1(Math.min(56, bh * .3)), st: { wideMin: 300, ws: 46 } }); else qmark(p, d, 0, by, f1(Math.min(58, bh * .34)), { plain: true, keep: true }); }
+      else { if (F.hasA) plate('a', 0, xs[0]); else { const g1 = mvG(p, Object.assign({ o: fadeIn(T_.tA, .12) }, base)); R(g1, xs[0] - cw / 2, f1(cy - ch / 2), cw, ch, 28, OUT(.4)); txt(g1, '?', xs[0], f1(cy + 34), { size: 100, weight: 800, color: TL_(.5) }); }
+        const g0 = mvG(p, Object.assign({ o: fadeIn(T_.tA, .12) }, base)); R(g0, xs[1] - cw / 2, f1(cy - ch / 2), cw, ch, 28, OUT(.4)); txt(mvG(g0, { o: [[0, 1], [f3(H - tu(.1)), 1], [H, F.hasN ? 0 : 1]] }), '?', xs[1], f1(cy + 34), { size: 100, weight: 800, color: F.hasN ? C.ink : ACC1 });
+        if (F.hasN) plate('n', 0, xs[1]);} }); });
 
   /* 10 zoom in on the answer: six tiles — what is asked, the two options and "?" tiles (the unknown); while in doubt the options glow in turn;
      on H the answer's tile grows to fill the whole box (an answer apart comes out of a "?" tile; no answer → that "?" grows, lit) */
