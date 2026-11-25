@@ -1043,7 +1043,7 @@
     const ar = vt ? `M ${f1(bx - br * .45)} ${sy} L ${f1(bx + br * .45)} ${sy} M ${f1(bx + br * .1)} ${f1(sy - br * .36)} L ${f1(bx + br * .48)} ${sy} L ${f1(bx + br * .1)} ${f1(sy + br * .36)}`
       : `M ${bx} ${f1(sy - br * .45)} L ${bx} ${f1(sy + br * .45)} M ${f1(bx - br * .36)} ${f1(sy + br * .1)} L ${bx} ${f1(sy + br * .48)} L ${f1(bx + br * .36)} ${f1(sy + br * .1)}`;
     bg.path(ar, { sw: 4 }); const lt = litOn(bg, tN); lt.circle(bx, sy, br, { fill: TA(.14), sw: 5, stroke: ACC1 }); lt.path(ar, { sw: 4.6, stroke: ACC1 });
-    tileN(p, c, Q, m, K.E.x, K.E.y, { s: K.E.s }); if (K.ew) K.ew(p); }
+    tileN(p, c, Q, m, K.E.x, K.E.y, { s: K.E.s, t: f3(tN + tu(.02)) }); if (K.ew) K.ew(p); }   /* the effect comes in only as the badge nods (cause before effect, A1) */
 
   /* ---------- the designs, one size at a time ---------- */
   const WS = [0, 30, 36, 32, 30, 44, 46, 28], ES = [0, 56, 56, 52, 48, 66, 72, 44];
@@ -1072,7 +1072,7 @@
       const xe = f1(410 - (es ? ew + 24 : 0) - SE - 24 - hl), seg = (xe - x0) / m;
       const A = bigArrow(p, c, Q, { d: `M ${x0 + w / 2} ${y} L ${xe} ${y}`, w, hw: f1(w / 2 + 26), hl, iw: f1(Math.min(w * .66, seg * .7)), seg, at: Array.from({ length: m }, (_, i) => (x0 + seg * (i + .5) - x0 - w / 2) / (xe - x0 - w / 2)),
         wd: (i, [x, yy]) => wordN(p, Q, i, x, f1(yy + w / 2 + 28), WS[1], f1(seg - 8)) });
-      const E = { x: f1(A.tip[0] + 24 + SE / 2), y, s: SE }; tileN(p, c, Q, m, E.x, E.y, { s: SE }); if (es) wordN(p, Q, m, f1(E.x + SE / 2 + 24), y, ES[1], ew + 30, 'start'); }); });
+      const E = { x: f1(A.tip[0] + 24 + SE / 2), y, s: SE }; tileN(p, c, Q, m, E.x, E.y, { s: SE, t: f3(Q.H - tu(.32)) }); if (es) wordN(p, Q, m, f1(E.x + SE / 2 + 24), y, ES[1], ew + 30, 'start'); }); });
   sd(1, 'ring', 'ชาร์จเต็มแล้วส่งต่อ', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
     art(c, p => { const ew = es ? Math.min(220, tw(p, es, ES[1])) : 0, gp = 64; let s = cw ? 112 : 132, SE = cw ? 160 : 176;
       const room = 820 - gp * m - (es ? ew + 24 : 0) - 26 * (m + 1), k = Math.min(1, room / (s * m + SE)); s = f1(s * k); SE = f1(SE * k);
@@ -1111,7 +1111,7 @@
     art(c, p => { const SE = Q.n > 3 ? 206 : 230, y = cw ? -40 : 0, w = 200, hl = 90, x0 = -410, E = { x: f1(408 - SE / 2), y: es ? -36 : y, s: SE }, xe = f1(E.x - SE / 2 - 26 - hl), L0 = xe - x0 - w / 2;
       const atL = m > 1 ? spread(m, 8, L0 - 70) : [L0 * .4], sp = m > 1 ? atL[1] - atL[0] : 300;
       bigArrow(p, c, Q, { d: `M ${x0 + w / 2} ${y} L ${xe} ${y}`, w, hw: 140, hl, iw: f1(Math.min(124, sp * .72)), seg: sp, atL, wd: (i, [x, yy]) => wordN(p, Q, i, x, f1(yy + w / 2 + 34), WS[2], f1(sp - 6)) });
-      tileN(p, c, Q, m, E.x, E.y, { s: SE }); if (es) wordN(p, Q, m, E.x, f1(E.y + SE / 2 + 40), ES[2], 400); }); });
+      tileN(p, c, Q, m, E.x, E.y, { s: SE, t: f3(Q.H - tu(.32)) }); if (es) wordN(p, Q, m, E.x, f1(E.y + SE / 2 + 40), ES[2], 400); }); });
   sd(2, 'ring', 'ชาร์จเต็มแล้วส่งต่อ เป็นคลื่น', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
     art(c, p => { const big = Q.n > 3, SE = es ? 236 : 260, E = { x: 0, y: es ? -40 : 0, s: SE }; E.x = f1(410 - ringR(E)); const s = big ? 120 : 150, rr = s / 2 + 13, dv = m > 1 ? (cw ? 76 : 84) : 0;
       const xs = spread(m, -410 + rr, E.x - ringR(E) - 50 - rr), P = xs.map((x, i) => ({ x, y: i % 2 ? dv : -dv, s })); P.push(E); center(P, true, es ? [wRect(p, es, ES[2], 400, E.x, E.y + ringR(E) + 32)] : []); ringChain(p, c, Q, P, { bend: P.map((q, i) => i % 2 ? .14 : -.14) });
@@ -1139,7 +1139,7 @@
     art(c, p => { const w = 136, SE = es ? 176 : 196, E = { x: f1(266 - SE / 2), y: f1(235 - SE / 2 - 4), s: SE }, hl = 60, A = toward([-266 + w / 2, -235 + w / 2 + 4], E, hl);
       const atL = m > 1 ? spread(m, 30, A.L - 50) : [A.L * .4], sp = m > 1 ? atL[1] - atL[0] : 200;
       bigArrow(p, c, Q, { d: A.d, w, hw: 98, hl, iw: f1(Math.min(88, sp * .66)), seg: sp, atL });
-      tileN(p, c, Q, m, E.x, E.y, { s: SE }); if (es) wordN(p, Q, m, f1(E.x - SE / 2 - 22), f1(E.y + SE / 2 - 30), ES[3], 250, 'end'); }); });
+      tileN(p, c, Q, m, E.x, E.y, { s: SE, t: f3(Q.H - tu(.32)) }); if (es) wordN(p, Q, m, f1(E.x - SE / 2 - 22), f1(E.y + SE / 2 - 30), ES[3], 250, 'end'); }); });
   sd(3, 'ring', 'ชาร์จต่อกันเป็นวงโค้ง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
     art(c, p => { const s = m > 3 ? 80 : 100, rr = s / 2 + 13, SE = es ? 166 : 190, E = { x: 0, y: f1(235 - (SE / 2 + 13) - (es ? 64 : 4)), s: SE }, topY = -235 + rr + 4;
       const ang = m === 1 ? [270] : m === 2 ? [236, 304] : spread(m, 200, 340), rx = 266 - rr, ry = E.y - topY, P = ang.map(a => ({ x: f1(rx * Math.cos(rad(a))), y: f1(E.y + ry * Math.sin(rad(a))), s }));
@@ -1169,7 +1169,7 @@
     art(c, p => { const w = 140, SE = es ? 200 : 230, E = { x: 0, y: f1(310 - SE / 2 - (es ? 72 : 6)), s: SE }, hl = 60, yEnd = f1(E.y - SE / 2 - 22 - hl), y0 = -310 + w / 2, Lv = yEnd - y0;
       const atL = m > 1 ? spread(m, 0, Lv - 50) : [Lv * .3], sp = m > 1 ? atL[1] - atL[0] : 200;
       bigArrow(p, c, Q, { d: `M 0 ${y0} L 0 ${yEnd}`, w, hw: 104, hl, iw: f1(Math.min(96, sp * .72)), seg: 160, atL });
-      tileN(p, c, Q, m, E.x, E.y, { s: SE }); if (es) wordN(p, Q, m, 0, f1(E.y + SE / 2 + 34), ES[4], 360); }); });
+      tileN(p, c, Q, m, E.x, E.y, { s: SE, t: f3(Q.H - tu(.32)) }); if (es) wordN(p, Q, m, 0, f1(E.y + SE / 2 + 34), ES[4], 360); }); });
   sd(4, 'ring', 'ชาร์จต่อกันลงมา', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
     art(c, p => { const SE = m > 2 ? 180 : 210, E = { x: 0, y: f1(310 - (SE / 2 + 13) - (es ? 72 : 6)), s: SE }, span = E.y - ringR(E) - 34 + 310, Z = m > 1 ? fitZ(m, span, 150, 22, 130) : { D: 130, v: 0 }, D = Z.D, s = f1(D - 26);
       const y0 = -310 + D / 2 + (span - ((m - 1) * Z.v + D)) / 2, P = Array.from({ length: m }, (_, i) => ({ x: m > 1 ? (i % 2 ? 75 : -75) : 0, y: f1(y0 + i * Z.v), s })); P.push(E);
@@ -1195,7 +1195,7 @@
       const dx = E.x - A0[0], dy = E.y - A0[1], dl = Math.hypot(dx, dy), ux = dx / dl, uy = dy / dl, back = SE / 2 * Math.min(1 / Math.abs(ux), 1 / Math.abs(uy)) + 26 + hl, B = [f1(E.x - ux * back), f1(E.y - uy * back)];
       const L = Math.hypot(B[0] - A0[0], B[1] - A0[1]), atL = m > 1 ? spread(m, 60, L - 70) : [L * .4], sp = m > 1 ? atL[1] - atL[0] : 300;
       bigArrow(p, c, Q, { d: `M ${A0[0]} ${A0[1]} L ${B[0]} ${B[1]}`, w, hw: 145, hl, iw: f1(Math.min(136, sp * .66)), seg: sp, atL, wd: (i, pt, n) => sideW(p, Q, i, pt, n, w / 2 + 22, WS[5], f1(Math.min(300, sp + 40))) });
-      tileN(p, c, Q, m, E.x, E.y, { s: SE }); if (es) wordN(p, Q, m, f1(E.x - SE / 2 - 26), f1(E.y + SE / 2 - 40), ES[5], 300, 'end'); }); });
+      tileN(p, c, Q, m, E.x, E.y, { s: SE, t: f3(Q.H - tu(.32)) }); if (es) wordN(p, Q, m, f1(E.x - SE / 2 - 26), f1(E.y + SE / 2 - 40), ES[5], 300, 'end'); }); });
   sd(5, 'ring', 'ชาร์จต่อกันเป็นวงโค้ง', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
     art(c, p => { const s = m > 3 ? 120 : m === 3 ? 144 : 168, SE = m > 2 ? (es ? 240 : 280) : (es ? 280 : 320), E = { x: 0, y: f1(340 - ringR({ s: SE }) - (es ? 84 : 10)), s: SE };
       const xs = spread(m, -406 + s / 2 + 13, 406 - s / 2 - 13), P = xs.map(x => ({ x, y: f1(-200 + (m > 1 ? Math.pow(Math.abs(x) / 340, 2) * 150 : 0)), s }));
@@ -1226,7 +1226,7 @@
     art(c, p => { const w = 250, SE = es ? 300 : 340, E = { x: 0, y: f1(474 - SE / 2 - (es ? 104 : 8)), s: SE }, hl = 90, yEnd = f1(E.y - SE / 2 - 26 - hl), y0 = -474 + w / 2, Lv = yEnd - y0;
       const atL = m > 1 ? spread(m, 0, Lv - 80) : [Lv * .3], sp = m > 1 ? atL[1] - atL[0] : 300;
       bigArrow(p, c, Q, { d: `M 0 ${y0} L 0 ${yEnd}`, w, hw: 175, hl, iw: f1(Math.min(170, sp * .7)), seg: 300, atL, wd: (i, [x, y]) => wordN(p, Q, i, i % 2 ? f1(-w / 2 - 28) : f1(w / 2 + 28), y, WS[6], 270, i % 2 ? 'end' : 'start') });
-      tileN(p, c, Q, m, E.x, E.y, { s: SE }); if (es) wordN(p, Q, m, 0, f1(E.y + SE / 2 + 54), ES[6], 700); }); });
+      tileN(p, c, Q, m, E.x, E.y, { s: SE, t: f3(Q.H - tu(.32)) }); if (es) wordN(p, Q, m, 0, f1(E.y + SE / 2 + 54), ES[6], 700); }); });
   sd(6, 'ring', 'ชาร์จต่อกันสลับซ้ายขวา', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m), cw = anyW(Q);
     art(c, p => { const SE = es ? 310 : 360, E = { x: 0, y: f1(474 - (SE / 2 + 13) - (es ? 106 : 6)), s: SE }, D = fitS(m, E.y - ringR(E) - 40 + 474, 24, 214), s = f1(D - 26), cx = cw ? 140 : 200;
       const ys = spread(m, -474 + D / 2, E.y - ringR(E) - 40 - D / 2), P = ys.map((y, i) => ({ x: m > 1 ? (i % 2 ? cx : -cx) : 0, y, s }));
@@ -1256,7 +1256,7 @@
     art(c, p => { const w = 112, SE = es ? 140 : 156, x = es ? f1(-(SE + 18 + Math.min(200, tw(p, es, ES[7]))) / 2 + SE / 2) : cw ? -116 : 0, Ey = f1(244 - SE / 2), hl = 42, yEnd = f1(Ey - SE / 2 - 16 - hl), y0 = -244 + w / 2, Lv = yEnd - y0;
       const atL = m > 1 ? spread(m, 0, Lv - 40) : [Lv * .3], sp = m > 1 ? atL[1] - atL[0] : 200;
       bigArrow(p, c, Q, { d: `M ${x} ${y0} L ${x} ${yEnd}`, w, hw: 76, hl, iw: f1(Math.min(76, sp * .72)), seg: 140, atL, wd: (i, [xx, yy]) => wordN(p, Q, i, f1(xx + w / 2 + 16), yy, WS[7], 180, 'start') });
-      tileN(p, c, Q, m, x, Ey, { s: SE }); if (es) wordN(p, Q, m, f1(x + SE / 2 + 18), Ey, ES[7], 200, 'start'); }); });
+      tileN(p, c, Q, m, x, Ey, { s: SE, t: f3(Q.H - tu(.32)) }); if (es) wordN(p, Q, m, f1(x + SE / 2 + 18), Ey, ES[7], 200, 'start'); }); });
   sd(7, 'ring', 'ชาร์จต่อกันลงมา', (d, c) => { const Q = CQ(d), m = Q.L, es = Q.LB(m);
     art(c, p => { const SE = es ? 156 : 180, E = { x: 0, y: f1(244 - ringR({ s: SE }) - (es ? 60 : 4)), s: SE }, span = E.y - ringR(E) - 22 + 244, Z = m > 1 ? fitZ(m, span, 150, 18, 112) : { D: 112, v: 0 }, D = Z.D, s = f1(D - 26);
       const y0 = -244 + D / 2 + (span - ((m - 1) * Z.v + D)) / 2, P = Array.from({ length: m }, (_, i) => ({ x: m > 1 ? (i % 2 ? 75 : -75) : 0, y: f1(y0 + i * Z.v), s })); P.push(E);
