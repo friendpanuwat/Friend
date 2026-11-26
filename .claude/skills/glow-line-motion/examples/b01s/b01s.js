@@ -675,7 +675,7 @@
       p.g.querySelectorAll('text').forEach(t => { if (seen.has(t)) return; const q = t.getBBox(); b = Math.min(b, q.y); e = Math.max(e, q.y + q.height); });
       if (b > e) return; const T = TQ(), L = r.ly, D = r.fh + 10, el = r.lg.g;
       HOOKS.push(t => { const u = rel(p, t), y = L + D * (1 - ioE(clamp01((u - T.t0) / Math.max(.01, T.t1 - T.t0)))), dd = Math.max(b - 6 - y, y - e - 6, 0);
-        el.setAttribute('opacity', f3(clamp01(dd / 26))); }); } } });
+        el.setAttribute('opacity', f3(GL.op(clamp01(dd / 26)))); }); } } });
   /* CARD — one card fills the box (rises in), its edge lights on the keyword; the caller lays the icon tile and the number inside */
   function cardBox(p, rr = 40) { const [W0, H0] = BOX, w = W0 - 16, h = H0 - 16, g = mvG(CL(p), { px: 0, py: 0, s: [[0, .96], [tu(.02), .96], [f3(tu(.36)), 1, 'out']], o: fadeIn(tu(.02), .14) }); R(g, -w / 2, -h / 2, w, h, f1(Math.min(rr, h * .2)), F(3.6));
     const L = litAt(p, Z.H); R(L, -w / 2, -h / 2, w, h, f1(Math.min(rr, h * .2)), { fill: TA(.05), sw: 5, stroke: ACC1 }); return { w, h }; }

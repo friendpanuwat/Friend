@@ -274,7 +274,7 @@
     if (!g.id) g.id = 'gl' + (++uid);
     const anchor = g.parentNode.hasAttribute('filter') && g.parentNode.dataset.wrap ? g.parentNode : g;
     const u = document.createElementNS(NS, 'use');
-    u.setAttribute('href', '#' + g.id); u.setAttribute('filter', `url(#${filter})`); u.setAttribute('opacity', 0);
+    u.setAttribute('href', '#' + g.id); u.setAttribute('filter', `url(#${filter})`); u.setAttribute('opacity', .001);   // never 0 (time control: NEVER OPACITY 0)
     anchor.parentNode.insertBefore(u, anchor.nextSibling);
     items.push({ type: 'pulse', e: u, start, strength });
   }
@@ -626,6 +626,11 @@
   }
 
   /* ---------------- time control ---------------- */
+  /* NEVER OPACITY 0 (2026-11-26, chat ccr-5582374a-29hrcl · ผู้ใช้: "แก้ที่ต้นเหตุเลยครับ"): a part at opacity exactly 0 inside a group with a
+     filter (any filter, a blur alone too) is painted by Chrome as a black block over what is behind the drawing. On this skill's black
+     ground it never showed; in CutPack, over the video, it did (neon: 60 of 138 frames of a clip). 0.001 shows nothing (0.25 of 255,
+     rounded to 0) and draws no block, so a hidden part is written as 0.001 (GL.op for the drawings that write opacity themselves) */
+  const OP0 = .001, op = v => { v = +v; return v < OP0 ? OP0 : v; };
   window.setT = t => {
     for (const it of items) {
       if (it.type === 'draw' && it.static) {
@@ -639,11 +644,11 @@
         let u = t - it.start; u = u < 0 ? 0 : it.loop ? u % it.loop : u;
         const T = it.tracks, v = (k, d) => T[k] ? kv(T[k], u) : d, sc = v('s', 1);
         it.e.setAttribute('transform', `translate(${(it.ox + v('x', 0)).toFixed(2)} ${(it.oy + v('y', 0)).toFixed(2)}) rotate(${v('r', 0).toFixed(2)}) skewY(${v('ky', 0).toFixed(2)}) scale(${(v('sx', 1) * sc).toFixed(4)} ${(v('sy', 1) * sc).toFixed(4)}) translate(${-it.ox} ${-it.oy})`);
-        if (T.o) it.e.setAttribute('opacity', clamp(v('o', 1)).toFixed(3));
+        if (T.o) it.e.setAttribute('opacity', op(clamp(v('o', 1))).toFixed(3));
         if (T.draw) it.e.setAttribute('stroke-dashoffset', (1 - clamp(v('draw', 1))).toFixed(4));
       } else if (it.type === 'loop') {
         const u = it.hold != null ? (t > (it.start ?? 1e9) ? it.hold : 0) : t - (it.start ?? 1e9);   // hold = loop switched off (still)
-        if (u <= 0) { it.e.removeAttribute('transform'); if (it.kind === 'flash' || it.kind === 'rise') it.e.setAttribute('opacity', it.kind === 'rise' ? 0 : 1); continue; }
+        if (u <= 0) { it.e.removeAttribute('transform'); if (it.kind === 'flash' || it.kind === 'rise') it.e.setAttribute('opacity', it.kind === 'rise' ? OP0 : 1); continue; }
         const P = it.period || 2, k = clamp(u / .5), w = 2 * Math.PI * u / P + (it.phase || 0), A = (it.amp ?? 0) * k, ph = ((u / P + (it.phase || 0) / (2 * Math.PI)) % 1 + 1) % 1;
         let dx = 0, dy = 0, r = 0, sx = 1, sy = 1, ky = 0, o = null;
         switch (it.kind) {
@@ -665,7 +670,7 @@
         }
         const ps = it.ps || 1, ox = it.ox || 0, oy = it.oy || 0;
         it.e.setAttribute('transform', `translate(${(ox + dx * ps).toFixed(2)} ${(oy + dy * ps).toFixed(2)}) rotate(${r.toFixed(2)}) skewY(${ky.toFixed(2)}) scale(${sx.toFixed(4)} ${sy.toFixed(4)}) translate(${-ox} ${-oy})`);
-        if (o != null) it.e.setAttribute('opacity', o.toFixed(3));
+        if (o != null) it.e.setAttribute('opacity', op(o).toFixed(3));
       } else if (it.type === 'count') {
         const q = easeOut(clamp((t - it.start) / it.dur));
         it.e.textContent = it.fmt(it.from + (it.to - it.from) * q);
@@ -673,7 +678,7 @@
         const u = t - it.start;
         let o = 0;
         if (u > 0) o = u < .35 ? .9 * easeOut(u / .35) : .35 + .25 * Math.cos((u - .35) * 2.6) + .3 * Math.exp(-(u - .35) * 3);
-        it.e.setAttribute('opacity', Math.max(0, o * it.strength));
+        it.e.setAttribute('opacity', op(o * it.strength));
       }
     }
     for (const [e, list] of tweens) {
@@ -682,7 +687,7 @@
       const q = tw.ease(clamp((t - tw.start) / tw.dur));
       const v = (k, d) => { const a = tw.from[k] ?? tw.to[k] ?? d, b = tw.to[k] ?? a; return a + (b - a) * q; };
       const o = v('o', 1), s = v('s', 1), dx = v('dx', 0), dy = v('dy', 0), r = v('r', 0);
-      e.setAttribute('opacity', o.toFixed(3));
+      e.setAttribute('opacity', op(o).toFixed(3));
       e.setAttribute('transform', `translate(${dx + tw.cx} ${dy + tw.cy}) rotate(${r}) scale(${s}) translate(${-tw.cx} ${-tw.cy})`);
     }
   };
@@ -1232,7 +1237,7 @@
     'library-pro': 1.15, 'ticket-pro': 1.15, 'trophy-pro': 1.15, 'weight-pro': 1.15, 'package-open-pro': 1.25, 'pin-pro': 1.25,
     'clapperboard-pro': 1.3, 'credit-card-pro': 1.3, 'salad-pro': 1.3, 'id-card-pro': 1.35, 'bell-pro': 1.4, 'folder-open-pro': 1.45,
     'notify-pro': 1.45, 'thermometer-pro': 1.45 };
-  window.GL = { lineFloor: v => { LF = v; }, C, theme, get themeNow() { return THEME; }, stage, run, Pen, art, motion, tune, text, EXIT, leaveAll, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
+  window.GL = { lineFloor: v => { LF = v; }, op, C, theme, get themeNow() { return THEME; }, stage, run, Pen, art, motion, tune, text, EXIT, leaveAll, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
     parts, icons, pairs, pair, single, LOOP, MOTION, POSE, AMPMAX, kf, EASE, easeIO, easeOut, clamp, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
 
   /* beats.js (B01–B21 scene templates) loads next to this file */

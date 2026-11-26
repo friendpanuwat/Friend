@@ -840,7 +840,7 @@
       mg.path(`M ${f1(ix - 4)} ${Ly} Q ${f1(ix + iw / 4)} ${f1(Ly - bow)} ${f1(ix + iw / 2)} ${Ly} T ${f1(ix + iw + 4)} ${Ly} L ${f1(ix + iw + 4)} ${f1(iy + ih + 4 + ih)} L ${f1(ix - 4)} ${f1(iy + ih + 4 + ih)} Z`, { fill: TA(.2), sw: 0, stroke: 'none' });
       const surf = mg.path(`M ${f1(ix - 4)} ${Ly} Q ${f1(ix + iw / 4)} ${f1(Ly - bow)} ${f1(ix + iw / 2)} ${Ly} T ${f1(ix + iw + 4)} ${Ly}`, { sw: 6, stroke: ACC1, fill: 'none' });
       const ic = f1(Math.min(ih * .62, iw * .62, 380)), band = [y - ic * .5 - 14, y + ic * .5 + 14];
-      HOOKS.push(t => { const u = rel(p, t), q = clamp01((u - t0) / Math.max(.01, t1 - t0)), yy = lvl(f0 + (fE - f0) * ioE2(q)), dd = Math.max(band[0] - yy, yy - band[1], 0); surf.setAttribute('opacity', f3(clamp01(dd / 30))); });
+      HOOKS.push(t => { const u = rel(p, t), q = clamp01((u - t0) / Math.max(.01, t1 - t0)), yy = lvl(f0 + (fE - f0) * ioE2(q)), dd = Math.max(band[0] - yy, yy - band[1], 0); surf.setAttribute('opacity', f3(GL.op(clamp01(dd / 30)))); });
       thing(p, c, X, x, y, ic, { px: x, py: y, o: fadeIn(tu(.1), .16) }, { t: tu(.1) });
       R(LITE(p, Z.H), x0, y0, Ww, Hh, r, { fill: 'none', sw: 5, stroke: ACC1 }); } }; }
 

@@ -180,7 +180,7 @@
       chars.forEach(ch => {
         if (/\d/.test(ch)) { const E = sevenAll(dg, x, top, dw, dh, t), tgt = +ch, my = pi++, lock = tu(.35) + (bH(.35)) * (my + 1) / nd, l0 = tu(.3), lt = tu(.07);   // fixed at draw time (the hook runs later)
           HOOKS.push(tt => { const u = rel(p, tt), v = u < l0 ? -1 : u >= lock ? tgt : (tgt + Math.floor((u - l0) / lt) * 7 + my * 3) % 10;
-            for (const s in E) E[s].setAttribute('opacity', v >= 0 && SEG[v].includes(s) ? 1 : 0); });
+            for (const s in E) E[s].setAttribute('opacity', v >= 0 && SEG[v].includes(s) ? 1 : GL.op(0)); });
           x += dw + gap; }
         else if (ch === '%') { txt(sym, '%', x + 34 * k, top + dh, { size: dh * .62, anchor: 'start' }); x += 70 * k; }
         else if (ch === '.') { sym.rect(f1(x - gap / 2 - 2), f1(top + dh - t * .9), f1(t), f1(t), { rx: 2, fill: C.ink, sw: 1.2 }); x += sp; }
