@@ -1,0 +1,20 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>B13S pilot</title>
+<script src="../../assets/glowline.js"></script><script src="b13s.js"></script></head>
+<body><script>
+/* B13S round 2 pilot — design 01 (หีบเปิด) in all seven sizes, data DI of SET. Yellow = the size's box at 100 % (scaled s). */
+GL.run(() => {
+  GL.stage();
+  const FRAME = true, SET = 'A', DI = 0, B = GL.cats.B13S, d = (SET === 'A' ? B.SAMPLES : B.STRESS)[DI], s = .58;
+  GL.text('B13 นำร่อง · หีบเปิด · ครบ 7 ขนาด', { y: 66, size: 44, ls: 3, color: GL.C.kicker, glow: false });
+  GL.text('“' + d.say + '”', { y: 116, size: 30, weight: 500, color: GL.C.sub, glow: false, maxW: 1000 });
+  const cols = [[1, 2, 5, 4], [6, 3, 7]], X = [275, 810];
+  cols.forEach((list, ci) => { let y = 170;
+    list.forEach(k => { const S = B.SIZES[k], h = S.h * s, cy = y + h / 2, x = X[ci];
+      if (FRAME) B.frame({ x, y: cy, s }, S.w, S.h);
+      B.drawS(k, 0, d, { x, y: cy, s, at: .3, hit: 1.6 });
+      GL.text('ขนาด ' + k + ' · ' + S.th + ' ' + S.w + '×' + S.h, { x, y: y + h + 36, size: 24, weight: 700, color: GL.C.ink, glow: false });
+      y += h + 66; }); });
+  GL.finish({ hold: Math.max(.6, 4.9 - GL.end), out: true, stagger: .02 });
+});
+</script></body></html>

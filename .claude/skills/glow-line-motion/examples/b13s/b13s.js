@@ -690,12 +690,55 @@
     secretAt(p, c, T, gx, gy, f1(r * 1.15), { o: T.sw(u => cl01((u - .3) / .5)), s: T.sw(u => .82 + .18 * cl01((u - .2) / .7)) });
     litOn(p, T.H).path(glass, { fill: 'none', sw: 6, stroke: ACC1, 'stroke-linejoin': 'round' }); }
 
+  /* ===== B13 round 2 (user 2026-11-26: round 1 "ต่ำกว่ามาตรฐานไปมากๆสุดๆ … ทำงานลวก" → "ก็ดูตาม reference นั่นแหละ แต่ว่าอยากให้ทำเป็น template ที่ใช้ได้กับ
+     ทุกหมวดหมู่ทุกเนื้อหา"): real objects with structure and a working mechanism at the detail of the approved B13 (references: motion/glow-line-cats/b13),
+     neutral (they hold any secret). Pilot = CHEST, seven sizes. The object is drawn in its own local units and placed (scale k) in the box; the secret's
+     icon (a separate layer above) follows the same transform. ===== */
+  /* place a local-units object in the box: picks the layout (o.lay = [{ bw, bh, ox, oy }]) that gives the biggest scale; returns { k, X(u), Y(v), L } */
+  function fitL(W0, H0, lays) { let best = null; lays.forEach(L => { const k = Math.min(W0 / L.bw, H0 / L.bh); if (!best || k > best.k) best = { k, L }; });
+    const { k, L } = best; return { k, L, X: u => f1((u - L.cx) * k), Y: v => f1((v - L.cy) * k) }; }
+  /* the secret's plate: a solid disc (nothing behind shows through), a soft inner ring; it lights on H */
+  const plateS = (q, x, y, r) => { q.circle(x, y, r, F(4.4)); };   /* one outline (no ring in a ring, D20) */
+  /* 01 CHEST — a chest with iron bands, corner brackets and a lock plate. The hasp lifts, the lid swings open (closed lid folds down, the open lid
+     rises behind), the secret rises out of the chest on its plate (above the chest on tall rooms, out to the side on wide ones) and lights on H. */
+  function CHEST(p, c, d, W0, H0) { const T = TRS(d), flat = W0 / H0 > 2.6, Rr = flat ? 190 : 130, top = -150, side = W0 / H0 > 1.45, dx = 214 + Rr * .9, dy = top - Rr * .05;
+    const lays = [{ bw: 2 * dx + 2 * Rr + 20 - (dx - 250 > 0 ? 0 : 0), bh: 250 - (dy - Rr) + 10, cx: (-250 + dx + Rr) / 2, cy: (250 + dy - Rr) / 2, sx: dx, sy: dy },   /* the secret above-right of the chest */
+      { bw: 500, bh: 400 + 2 * Rr + 30, cx: 0, cy: (250 + top - 2 * Rr - 30) / 2, sx: 0, sy: top - Rr - 18 },
+      { bw: 500 + 2 * Rr + 50, bh: Math.max(410, 2 * Rr + 20), cx: (-250 + 250 + 2 * Rr + 50) / 2, cy: (top + 250) / 2 + 5, sx: 250 + 50 + Rr - 20, sy: (top + 250) / 2 + 5 }];   /* side: the secret level with the chest's middle */
+    lays[0].bw = dx + Rr + 260; const F_ = fitL(W0, H0, flat ? [lays[2]] : side ? [lays[0], lays[2]] : [lays[0], lays[1], lays[2]]), k = F_.k, L = F_.L, g = sub(p, { transform: `translate(${f1(-L.cx * k)} ${f1(-L.cy * k)}) scale(${f3(k)})` });
+    g.H = p.H; g.motion = p.motion; const sk = n => f1(n * k);
+    const t1 = f3(T.tA), tH = f3(T.tA + (T.H - T.tA) * .22), tL0 = f3(T.tA + (T.H - T.tA) * .18), tL1 = f3(T.tA + (T.H - T.tA) * .55), tS0 = f3(T.tA + (T.H - T.tA) * .42);
+    /* the open lid (behind): its inside face rises from the hinge line */
+    const lo = sub(g); on(lo, g, 0, { ox: 0, oy: 0, sy: [[0, .001], [tL0, .001], [tL1, 1, 'io']], o: [[0, 0], [f3(tL0 - .001), 0], [tL0, 1]] });
+    lo.path(pathOf([[-214, 0], [214, 0], [190, top], [-190, top]]), Object.assign(F(4.2), { 'stroke-linejoin': 'round' })); lo.path(pathOf([[-186, -14], [186, -14], [168, top + 16], [-168, top + 16]]), S(1.6));
+    [-120, 120].forEach(x => lo.line(x, -2, f1(x * .9), top + 2, S(2.2)));
+    /* the body */
+    const bd = sIn(g, 0, 125, T.tI);
+    R(bd, -214, 0, 428, 250, 18, F(4.6)); R(bd, -192, 40, 384, 188, 10, S(1.6));
+    [-128, 128].forEach(x => R(bd, x - 13, 2, 26, 246, 6, F(2.6)));   /* iron bands */
+    [[-214, 0, 1, 1], [214, 0, -1, 1], [-214, 250, 1, -1], [214, 250, -1, -1]].forEach(([x, y, a, b]) => bd.path(`M ${x + a * 4} ${y + b * 46} L ${x + a * 4} ${y + b * 4} L ${x + a * 46} ${y + b * 4}`, { sw: 4.6, 'stroke-linejoin': 'round' }));   /* corner brackets */
+    [[-128, 26], [-128, 224], [128, 26], [128, 224]].forEach(([x, y]) => screw(bd, x, y, 5));
+    R(bd, -46, 44, 92, 120, 16, F(3.6)); bd.circle(0, 90, 11, { fill: C.ink, sw: 0, stroke: 'none' }); bd.path('M -6 96 L 6 96 L 9 122 L -9 122 Z', { fill: C.ink, sw: 0, stroke: 'none' });
+    /* the closed lid: folds flat into the hinge as the open one rises */
+    const lc = sub(g); on(lc, g, 0, { ox: 0, oy: 0, sy: [[0, 1], [tL0, 1], [f3(tL0 + (tL1 - tL0) * .45), .001, 'in']], o: fadeS(T.tI).concat([[f3(tL0 + (tL1 - tL0) * .45), 1], [f3(tL0 + (tL1 - tL0) * .46), 0]]) });
+    lc.path(pathOf([[-214, 0], [214, 0], [240, -74], [-240, -74]]), Object.assign(F(4.4), { 'stroke-linejoin': 'round' })); [-128, 128].forEach(x => lc.line(x, -2, f1(x * 1.1), -72, { sw: 3 }));
+    /* the hasp: hangs over the lock plate, lifts away before the lid opens */
+    const hs = sub(g); on(hs, g, 0, { y: [[0, 0], [t1, 0], [tH, -70, 'io']], o: fadeS(T.tI).concat([[f3(tH - tu(.12)), 1], [tH, 0, 'io']]) }); R(hs, -26, -30, 52, 86, 12, F(3.6)); hs.circle(0, 34, 7, S(1.8));
+    /* the secret: rises out of the chest, then (wide) glides to its side; its plate is solid */
+    const s0 = [0, 70], s2 = [L.sx, L.sy], s1 = [0, Math.min(top - 30, s2[1])], at = u => { const m = 1 - u; return [m * m * s0[0] + 2 * m * u * s1[0] + u * u * s2[0], m * m * s0[1] + 2 * m * u * s1[1] + u * u * s2[1]]; };
+    const sw2 = fn => { const K = [[0, f3(fn(0))], [tS0, f3(fn(0))]]; for (let i = 1; i <= 30; i++) { const u = i / 30; K.push([f3(tS0 + (T.H - tS0) * u), f3(fn(ioE2(u)))]); } return K; };
+    const PX = sk(s2[0] - L.cx), PY = sk(s2[1] - L.cy), XK = sw2(u => sk(at(u)[0] - s2[0])), YK = sw2(u => sk(at(u)[1] - s2[1])), SK = sw2(u => .5 + .5 * u);
+    const OK = [[0, 0], [tS0, 0], [f3(tS0 + (T.H - tS0) * .3), 1, 'io']];
+    plateS(mvG(p, { px: PX, py: PY, x: XK, y: YK, s: SK, o: OK }), PX, PY, sk(Rr));
+    secretAt(p, c, T, PX, PY, sk(Rr * 1.22), { x: XK, y: YK, s: SK, o: OK });
+    litOn(p, T.H).circle(PX, PY, sk(Rr), { fill: 'none', sw: 5, stroke: ACC1 }); }
+
   /* ----- the sheets ----- */
   function frame(c, W0, H0) { const f = p => { p.rect(-W0 / 2, -H0 / 2, W0, H0, { sw: 3, stroke: '#ffd400' }); }; f.custom = true; f.dur = .01; f.exit = 'pop'; G.art(f, { x: c.x, y: c.y, s: c.s, at: 0, speed: 1 }); }
   const SIZES = [null, { w: 860, h: 230, th: 'แถบแบนยาว' }, { w: 860, h: 470, th: 'กว้าง' }, { w: 560, h: 490, th: 'เกือบจัตุรัส' }, { w: 400, h: 635, th: 'ตั้งแคบ' },
     { w: 860, h: 710, th: 'เต็มจอ ทรงนอน' }, { w: 860, h: 965, th: 'เต็มจอ ทรงตั้ง' }, { w: 400, h: 500, th: 'ตั้งแคบ สั้น' }];
   const lay = (k, d, c, D) => { const m = 14; art(c, p => D(p, c, d, SIZES[k].w - 2 * m, SIZES[k].h - 2 * m)); };
-  const SZD = {}; for (let k = 1; k <= 7; k++) SZD[k] = [{ id: 'mag', th: 'แว่นขยายส่องเจอ', fn: (d, c) => lay(k, d, c, MAG) }, { id: 'doors', th: 'บานเลื่อนเปิด', fn: (d, c) => lay(k, d, c, DOORS) },
+  const SZD = {}; for (let k = 1; k <= 7; k++) SZD[k] = [{ id: 'chest', th: 'หีบเปิด', fn: (d, c) => lay(k, d, c, CHEST) }, { id: 'mag', th: 'แว่นขยายส่องเจอ', fn: (d, c) => lay(k, d, c, MAG) }, { id: 'doors', th: 'บานเลื่อนเปิด', fn: (d, c) => lay(k, d, c, DOORS) },
     { id: 'sleeve', th: 'ซองเปิด การ์ดเลื่อนออก', fn: (d, c) => lay(k, d, c, SLEEVE) }, { id: 'tiles', th: 'แผ่นปิดเผยทีละแผ่น', fn: (d, c) => lay(k, d, c, TILES) }, { id: 'bulb', th: 'หลอดไฟสว่าง', fn: (d, c) => lay(k, d, c, BULB) }];
   const I = (icon, label) => label ? { icon, label } : { icon };
   const SAMPLES = [
