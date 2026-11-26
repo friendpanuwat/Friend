@@ -286,6 +286,10 @@ function glowDress(svg, P, base) {
     <linearGradient id="cpGloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34343B"/><stop offset=".5" stop-color="#1F1F24"/><stop offset="1" stop-color="#141417"/></linearGradient>
     <filter id="cpShadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#14213D" flood-opacity=".16"/></filter>`);
   const same = (v, c) => { if (!v || v === 'none' || v.startsWith('url')) return false; const a = glowRgba(v), b = glowRgba(c); return a[0] === b[0] && a[1] === b[1] && a[2] === b[2]; };
+  /* a line-coloured TINT keeps its see-through (2026-11-26, Friend: "แก้ก่อนแล้วค่อยเรนเดอร์"): same() matches the colour only, so a 12 % white
+     fill (B09S track: the filled part of the bar) took the body's ink at full strength and the bar turned a solid white slab, its white
+     words unreadable. The new colour now keeps the old alpha (a solid line stays solid, as before) */
+  const tint = (v, c) => { const a = glowRgba(v)[3]; if (!(a < 1) || String(c).startsWith('url')) return c; const m = glowRgba(c); return `rgba(${m[0]},${m[1]},${m[2]},${+(a * m[3]).toFixed(3)})`; };
   const root = svg.querySelector(':scope > g'), box = e => e.getBoundingClientRect(), area = r => r.width * r.height;
   const bodies = [...root.querySelectorAll('rect,circle,ellipse,path,polygon')].filter(e => same(e.getAttribute('fill'), P.fill) && !e.closest('clipPath') && area(box(e)) > 40);
   const icons = [...root.children].slice(1).filter(g => g.tagName === 'g').map(g => ({g, r: box(g)})).filter(o => area(o.r) > 0);   // after the layout group: one group per icon
@@ -327,7 +331,7 @@ function glowDress(svg, P, base) {
     t.setAttribute('fill', M.tile.fill); t.setAttribute('stroke', M.tile.stroke);
     g.querySelectorAll('[fill],[stroke]').forEach(e => ['fill', 'stroke'].forEach(a => { const v = e.getAttribute(a);
       if (same(v, P.fill)) e.setAttribute(a, solidOf(M.tile.fill));   // the icon's own bodies and cuts take the tile
-      else if (same(v, P.line) || same(v, P.soft)) e.setAttribute(a, M.icon); }));
+      else if (same(v, P.line) || same(v, P.soft)) e.setAttribute(a, tint(v, M.icon)); }));
   }
   /* lines and words over a body take the body's ink (card: navy on its white cards, also on a dark page) */
   order.forEach(e => {
@@ -336,7 +340,7 @@ function glowDress(svg, P, base) {
     const cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2, i = pos.get(e);
     if (!plain.some(o => o.i < i && inside(o.r, cx, cy))) return;
     for (const a of ['fill', 'stroke']) { const v = e.getAttribute(a);
-      if (same(v, P.line)) e.setAttribute(a, M.ink); else if (same(v, P.soft)) e.setAttribute(a, M.soft);
+      if (same(v, P.line)) e.setAttribute(a, tint(v, M.ink)); else if (same(v, P.soft)) e.setAttribute(a, tint(v, M.soft));
       else if (same(v, P.fill)) e.setAttribute(a, solidOf(M.body.fill));
       else if ((a === 'stroke' || e.tagName === 'text') && same(v, P.accent) && !M.body.fill.startsWith('url') && glowContrast(glowRgba(P.accent), glowRgba(M.body.fill)) < 2)
         e.setAttribute(a, M.ink); }                  // an accent line or word on a body it cannot be read on (lime on a white card 1.1:1): the body's ink
