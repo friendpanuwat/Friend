@@ -534,10 +534,24 @@ function glowDraw7(F, T, cat, i, d, box = F.stage) {
   const k = glowSizeOf(F, box), [SW, SH] = GLOW_STD[k], n = +cat.slice(1);
   if (box.dataset) box.dataset.seven = `${cat}S.${i}@${k}`;   // (which design at which size, for the checks)
   glowPaint(F, T, box, SW, SH, (at, hit) => { const c = {x: SW / 2, y: SH / 2, s: 1, at, hit};
-    if (n <= 12) GL.cats[cat + 'S'].drawS(k, i, d, c); else if (k <= 6) GL.cats.SG.draw(k, n - 13, d, c); else GL.cats.S7G.draw(n - 13, d, c); });
+    if (n <= 12) GL.cats[cat + 'S'].drawS(k, i, d, c); else if (k <= 6) GL.cats.SG.draw(k, n - 13, d, c); else GL.cats.S7G.draw(n - 13, d, c); }, true);
+}
+/* OWN IDS (2026-11-26, the first clip with the 7-size set: B04S chev's third icon was missing): the set's files name their clip paths
+   with a counter of their own file, and three of them share the names (b04s, sg and s7g all make "b04ticlip1, 2 …" and "b04sclip…").
+   On the skill's sheet one file draws alone; in a clip several drawings share the page, url(#b04ticlip2) took an EARLIER drawing's clip
+   (another place) and cut the icon away. Every id a drawing makes is renamed to its own (the ids the stage had before it are left). */
+let GLOW_UID = 0;
+function glowOwnIds(svg, had) {
+  const pre = `g7u${++GLOW_UID}_`, map = new Map();
+  svg.querySelectorAll('[id]').forEach(e => { if (had.has(e)) return; const n = pre + e.id; map.set(e.id, n); e.id = n; });
+  if (!map.size) return;
+  const url = /url\(#([^)]+)\)/g;
+  svg.querySelectorAll('*').forEach(e => { for (const a of [...e.attributes]) {
+    if ((a.name === 'href' || a.name === 'xlink:href') && a.value[0] === '#' && map.has(a.value.slice(1))) e.setAttribute(a.name, '#' + map.get(a.value.slice(1)));
+    else if (a.value.includes('url(#')) e.setAttribute(a.name, a.value.replace(url, (m, id) => map.has(id) ? `url(#${map.get(id)})` : m)); } });
 }
 /* draw one drawing (draw(at, hit) on a glow-line canvas cw × ch) into the box, in the style's colours */
-function glowPaint(F, T, box, cw, ch, draw) {
+function glowPaint(F, T, box, cw, ch, draw, ownIds = false) {
   const base = ST.id.split('-overlay')[0], W = parseFloat(box.style.width) || 1000, H = parseFloat(box.style.height) || 700;
   /* clipRoom (the neon style only, final 2026-11-18): the picture keeps its size and whatever of its motion runs past its box and the room
      around it (F.room: up to the words, the framed face, the safe zone) fades out over up to 28 px at that edge, so it never crosses them */
@@ -557,7 +571,9 @@ function glowPaint(F, T, box, cw, ch, draw) {
     host.appendChild(svg); svg.setAttribute('width', W); svg.setAttribute('height', H); svg.style.overflow = 'visible';
     const at = T.b[0];
     glowTagIcons();
+    const had = ownIds ? new Set(svg.querySelectorAll('[id]')) : null;
     draw(at, Math.max(.6, T.hit - at));
+    if (ownIds) glowOwnIds(svg, had);              // the 7-size set only (glowOwnIds above)
     GL.finish({hold: 0});                           // themeApply: every fixed glow-line colour → the style's
     glowDims(svg);
     window.setT(window.DURATION);                   // the end state again, with the dims lifted (the colour steps measure it)
