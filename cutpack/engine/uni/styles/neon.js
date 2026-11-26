@@ -150,6 +150,19 @@ STYLE('neon', {
   -webkit-backdrop-filter:blur(26px) saturate(170%);backdrop-filter:blur(26px) saturate(170%);border:1.5px solid rgba(255,255,255,.30);
   box-shadow:inset 0 1.5px 0 rgba(255,255,255,.45),inset 0 -1px 0 rgba(255,255,255,.10),inset 0 0 24px rgba(255,255,255,.05),0 24px 60px rgba(0,0,0,.38)}
 .n-glassvid{position:absolute;width:1080px;height:1920px;transform-origin:0 0;filter:blur(24px) saturate(160%) brightness(1.06);pointer-events:none}
+.n-liquid{background:linear-gradient(160deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,.02) 50%,rgba(150,210,255,.04) 100%);
+  -webkit-backdrop-filter:blur(2.5px) saturate(185%) brightness(1.12);backdrop-filter:blur(2.5px) saturate(185%) brightness(1.12);border:none;
+  box-shadow:inset 2.5px 3px 1.5px -1px rgba(255,255,255,.55),inset -2px -2.5px 1.5px -1px rgba(255,255,255,.28),inset 0 0 22px rgba(255,255,255,.10),inset 0 -14px 26px -18px rgba(170,220,255,.35),0 18px 44px rgba(0,0,0,.30)}
+.n-liquid::before{background:radial-gradient(120% 60% at 18% 0%,rgba(255,255,255,.20),rgba(255,255,255,0) 55%)}
+.n-liquid::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.6px;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.95) 0%,rgba(255,255,255,.28) 22%,rgba(255,255,255,.06) 50%,rgba(255,255,255,.22) 78%,rgba(255,255,255,.75) 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.n-lrim{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;
+  -webkit-mask:linear-gradient(180deg,#000 0,transparent 26px,transparent calc(100% - 26px),#000 100%),linear-gradient(90deg,#000 0,transparent 26px,transparent calc(100% - 26px),#000 100%);
+  mask:linear-gradient(180deg,#000 0,transparent 26px,transparent calc(100% - 26px),#000 100%),linear-gradient(90deg,#000 0,transparent 26px,transparent calc(100% - 26px),#000 100%)}
+.n-lrim.n-dark{-webkit-backdrop-filter:blur(7px) brightness(1.35) saturate(160%);backdrop-filter:blur(7px) brightness(1.35) saturate(160%)}
+.n-liquid .n-glassvid{filter:blur(2.5px) saturate(185%) brightness(1.1)}
+.n-lrim .n-glassvid{filter:blur(1px) saturate(200%) brightness(1.22)}
 .n-glass::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,0) 38%);pointer-events:none}
 .n-row{position:absolute;white-space:nowrap}
 .n-lead{font-family:"Anu";font-weight:500;font-size:48px;line-height:1.3;color:#EEF3F7;text-shadow:0 0 3px rgba(0,3,10,.95),0 0 8px rgba(0,3,10,.8),0 2px 18px rgba(0,3,10,.6)}
@@ -257,11 +270,16 @@ STYLE('neon', {
        standard size) and the picture sits inside it, NEON_PAD from each edge */
     const glass = typeof RUN !== 'undefined' && RUN.glassCard && L.stage && !L.over && !L.stages;
     let stage, card = null;
-    if (glass) { card = box(L.stage); card.className = 'n-glass';
+    const liquid = glass && RUN.glassCard === 'liquid';   // Friend 2026-11-26: "ขอแบบ liquid glass" (clear glass, a bright rim, the edge bends what is behind)
+    if (glass) { card = box(L.stage); card.className = 'n-glass' + (liquid ? ' n-liquid' : '');
       A(card, [{opacity: 0, transform: 'scale(.96)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0, .4, {e: EASE.smooth});
       /* over the speaker's video the card frosts the video itself: a blurred copy of the frame, lined up with it (the page's backdrop blur
          does not reach the video) · on the navy screens the screen behind is plain, the card's own glass is enough */
-      if (!L.screen) { const v = document.createElement('img'); v.className = 'n-glassvid'; v.style.left = -L.stage[0] + 'px'; v.style.top = -L.stage[1] + 'px'; card.appendChild(v);
+      const vid = (into, k) => { const w = document.createElement('div'); w.style.cssText = `position:absolute;left:0;top:0;width:${L.stage[2]}px;height:${L.stage[3]}px;transform-origin:50% 50%;scale:${k}`;
+        const v = document.createElement('img'); v.className = 'n-glassvid'; v.style.left = -L.stage[0] + 'px'; v.style.top = -L.stage[1] + 'px'; w.appendChild(v); into.appendChild(w); };
+      /* liquid: the edge band shows what is behind magnified (1.08 about the card's middle), as thick glass bends it at its rim */
+      if (liquid) { const rim = div('', card); rim.className = 'n-lrim' + (L.screen ? ' n-dark' : ''); if (!L.screen) vid(rim, 1.08); }
+      if (!L.screen) { vid(card, 1); if (liquid) card.appendChild(card.querySelector('.n-lrim'));
         if (!NEON.glassHook) { NEON.glassHook = true; HOOKS.push(() => document.querySelectorAll('.n-glassvid').forEach(g => { if (g.src !== V.src) g.src = V.src; g.style.translate = V.style.translate; g.style.scale = V.style.scale; })); } }
       stage = div(`left:${NEON_PAD}px;top:${NEON_PAD}px;width:${L.stage[2] - 2 * NEON_PAD}px;height:${L.stage[3] - 2 * NEON_PAD}px`, card); }
     else stage = L.stage ? box(L.stage) : box([0, 0, 1, 1]);
