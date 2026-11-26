@@ -14,6 +14,10 @@ SKILL = os.path.normpath(os.path.join(ENGINE, '..', '..', '.claude', 'skills', '
 GLOW_ASSETS = os.path.join(SKILL, 'assets')
 GLOW_CATS = sorted(f for f in glob.glob(os.path.join(SKILL, 'examples', 'b[0-9][0-9]*', '*.js'))
                    if re.fullmatch(r'b\d\dt?', os.path.basename(os.path.dirname(f))) and os.path.basename(f) == os.path.basename(os.path.dirname(f)) + '.js')
+# the 7-size set (ชุด 3, Friend 2026-11-26: "ตัดต่อโดยใช้ template ชุดฐาน 7 ขนาด"): B01S–B12S + SG (B13–B22, sizes 1–6) + S7G (size 7), after
+# the two old sets; drawn only where a plan names "<cat>S.<i>" (tools/clip_plan.py --seven, glow/bridge.js glowDraw7)
+GLOW_CATS += sorted(f for f in glob.glob(os.path.join(SKILL, 'examples', 'b[0-9][0-9]s', 'b[0-9][0-9]s.js')))
+GLOW_CATS += [f for f in (os.path.join(SKILL, 'examples', 'sg', 'sg.js'), os.path.join(SKILL, 'examples', 's7g', 's7g.js')) if os.path.exists(f)]
 
 
 def main():

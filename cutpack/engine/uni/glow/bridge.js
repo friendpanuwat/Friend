@@ -509,6 +509,35 @@ function glowLight(svg, P, base) {
    exactly). Several drawings per page work: each one gets its own GL stage, the runtime's clock drives them all. */
 let GLOW_HOOKED = false;
 function glowDraw(F, T, cat, i, d, box = F.stage) {
+  glowPaint(F, T, box, 1000, 700, (at, hit) => GL.cats[cat].draw(i, d, {x: 500, y: 350, s: 1, at, hit}));
+}
+/* THE 7-SIZE SET (ชุด 3 "Template ชุดฐาน 7 ขนาด", Friend 2026-11-26: "ตัดต่อโดยใช้ template ชุดฐาน 7 ขนาด โดยทำทั้ง 2 สไตล์คือสไตล์เขียวมะนาว
+   และสไตล์หน้าต่างแอป"): every design is drawn for one of the 7 standard sizes (style-rules/common.md 4.1) on its own canvas of that
+   size at 100 %, and the style's card or window already IS one of those sizes (F.L.std = [size, scale]) — so the card's size picks the
+   drawing's size, nothing reads the drawing's shape. Then the same steps as every drawing (colours, glow, fit to the box, line weight).
+   Sets of the skill (read only): B01S–B12S (GL.cats.BxxS.drawS(size, i, d, c), 5 or 10 designs a size) · B13–B22 in SG (sizes 1–6,
+   GL.cats.SG.draw(size, category, d, c)) and S7G (size 7), one design a size. A box with no standard size (a test page) takes the size
+   whose shape is nearest the box's. */
+const GLOW_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
+function glowSevenCount(cat) {                      // designs a size of a category in the 7-size set (0: none)
+  if (typeof GL === 'undefined' || !GL.cats) return 0;
+  const n = +cat.slice(1);
+  if (n <= 12) return GL.cats[cat + 'S']?.S?.[1]?.length ?? 0;
+  return n <= 22 && GL.cats.SG && GL.cats.S7G ? 1 : 0;
+}
+function glowSizeOf(F, box) {
+  const k = F.L?.std?.[0]; if (GLOW_STD[k]) return k;
+  const ar = (parseFloat(box.style.width) || 1000) / (parseFloat(box.style.height) || 700);
+  return +Object.keys(GLOW_STD).sort((a, b) => Math.abs(Math.log(GLOW_STD[a][0] / GLOW_STD[a][1] / ar)) - Math.abs(Math.log(GLOW_STD[b][0] / GLOW_STD[b][1] / ar)))[0];
+}
+function glowDraw7(F, T, cat, i, d, box = F.stage) {
+  const k = glowSizeOf(F, box), [SW, SH] = GLOW_STD[k], n = +cat.slice(1);
+  if (box.dataset) box.dataset.seven = `${cat}S.${i}@${k}`;   // (which design at which size, for the checks)
+  glowPaint(F, T, box, SW, SH, (at, hit) => { const c = {x: SW / 2, y: SH / 2, s: 1, at, hit};
+    if (n <= 12) GL.cats[cat + 'S'].drawS(k, i, d, c); else if (k <= 6) GL.cats.SG.draw(k, n - 13, d, c); else GL.cats.S7G.draw(n - 13, d, c); });
+}
+/* draw one drawing (draw(at, hit) on a glow-line canvas cw × ch) into the box, in the style's colours */
+function glowPaint(F, T, box, cw, ch, draw) {
   const base = ST.id.split('-overlay')[0], W = parseFloat(box.style.width) || 1000, H = parseFloat(box.style.height) || 700;
   /* clipRoom (the neon style only, final 2026-11-18): the picture keeps its size and whatever of its motion runs past its box and the room
      around it (F.room: up to the words, the framed face, the safe zone) fades out over up to 28 px at that edge, so it never crosses them */
@@ -521,14 +550,14 @@ function glowDraw(F, T, cat, i, d, box = F.stage) {
   window.GLOW_PENDING = (window.GLOW_PENDING || 0) + 1; window.GLOW_READY = false;
   GL.run(() => {
     const P = glowPalette(host, base);
-    GL.stage({w: 1000, h: 700, glow: 0});           // the style's glow is added below (glowLight); the engine's own white glow is off
+    GL.stage({w: cw, h: ch, glow: 0});              // the style's glow is added below (glowLight); the engine's own white glow is off
     GL.theme(P);                                    // after stage(): stage() sets the body fill back to its own black
     const svg = [...document.body.children].filter(e => e.tagName.toLowerCase() === 'svg').pop();
     svg.querySelector('rect[fill="url(#glbg)"]')?.remove();   // no glow-line background: the style's frame is the background
     host.appendChild(svg); svg.setAttribute('width', W); svg.setAttribute('height', H); svg.style.overflow = 'visible';
     const at = T.b[0];
     glowTagIcons();
-    GL.cats[cat].draw(i, d, {x: 500, y: 350, s: 1, at, hit: Math.max(.6, T.hit - at)});
+    draw(at, Math.max(.6, T.hit - at));
     GL.finish({hold: 0});                           // themeApply: every fixed glow-line colour → the style's
     glowDims(svg);
     window.setT(window.DURATION);                   // the end state again, with the dims lifted (the colour steps measure it)

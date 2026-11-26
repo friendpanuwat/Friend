@@ -21,4 +21,10 @@
       build: (K, c, T) => glowDraw(K.F, T, set, i, c),
     }));
   }
+  /* the 7-size set (ชุด 3, 2026-11-26): design i of a category is "<cat>S.<i>" (e.g. "B04S.2"), drawn at the size of the card it lands
+     in (glow/bridge.js glowDraw7). Only a plan made with tools/clip_plan.py --seven names these; pickVariant never takes them, and the
+     tools without a browser (drafts.js, tools/pick.js) do not list them (pick.js reads glow/seven.json in --seven), so every other
+     style and tool sees the library exactly as before. */
+  if (live) for (const cat of Object.keys(CATS)) for (let i = 0; i < glowSevenCount(cat); i++)
+    VARIANT(cat, `${cat}S.${i}`, {name: `${cat}S ${i + 1}`, seven: true, build: (K, c, T) => glowDraw7(K.F, T, cat, i, c)});
 })();

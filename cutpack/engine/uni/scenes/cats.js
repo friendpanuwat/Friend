@@ -18,7 +18,7 @@ const CATS = {};
 function CATEGORY(id, name, {text = false} = {}) { CATS[id] = {id, name, text, variants: []}; }
 function VARIANT(cat, id, v) {
   if (!CATS[cat]) throw new Error('unknown category ' + cat);
-  CATS[cat].variants.push({id, name: v.name, fits: v.fits ?? (() => true), build: v.build, small: v.small, ui: !!v.ui});
+  CATS[cat].variants.push({id, name: v.name, fits: v.fits ?? (() => true), build: v.build, small: v.small, ui: !!v.ui, seven: !!v.seven});   // seven: a design of the 7-size set (scenes/glow.js), only ever named by a plan, never picked here
 }
 [['B01', 'ตัวเลขเด่น'], ['B02', 'เพิ่มขึ้น / ลดลง'], ['B03', 'เปรียบเทียบ / ก่อนกับหลัง'], ['B04', 'ขั้นตอน / เช็กลิสต์'],
  ['B05', 'ถูกกับผิด / ไม่ใช่ X แต่เป็น Y'], ['B06', 'คำถาม / ความสงสัย'], ['B07', 'ปัญหา / คำเตือน'], ['B08', 'เป้าหมาย / ผลลัพธ์ / สำเร็จ'],
@@ -40,7 +40,7 @@ const hashOf = s => { let h = 2166136261; for (const c of String(s)) h = Math.im
    which Friend dropped 2026-11-11): when the category has such variants that fit, only those take turns; else every variant does */
 function pickVariant(cat, slots, seed = '', prefer = typeof ST !== 'undefined' && ST ? ST.prefer : undefined) {
   const C = CATS[cat]; if (!C) throw new Error('unknown category ' + cat);
-  let ok = C.variants.filter(v => v.fits(slots));
+  let ok = C.variants.filter(v => !v.seven && v.fits(slots));
   if (!ok.length) throw new Error(`no variant of ${cat} fits ${JSON.stringify(slots)}`);
   if (prefer && ok.some(v => v[prefer])) ok = ok.filter(v => v[prefer]);
   const used = PICKS[cat] ?? (PICKS[cat] = []), n = id => used.filter(u => u === id).length;

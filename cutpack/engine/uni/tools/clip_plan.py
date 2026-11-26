@@ -1,8 +1,9 @@
 """Turn the two AI answers (captions: Haiku · pictures: Sonnet) into a clip plan for the uni engine, by rule only (no choices).
-usage: tools/clip_plan.py <web_dir> <faces.json> [<style> …] [--seed N] [--history customer_history.json]
+usage: tools/clip_plan.py <web_dir> <faces.json> [<style> …] [--seed N] [--history customer_history.json] [--seven]
   (first try at step 4, 2026-11-11: a real clip with the web's two AI steps)
   --seed: the run's random number (default: a new one every run, printed; give it back to make the same plan again)
   --history: the customer's past runs (tools/pick.js stays away from their last 10; this run is added to the file)
+  --seven: the pictures from the 7-size set (ชุด 3, lime and window only; see SEVEN below)
   in  <web_dir>/captions.json (captions.py), <web_dir>/cats/report.json + sentences.js + camera.json (cat_ai.py check), lines.json
   out per style: <web_dir>/plan_<style>.js (FACES, CAPTIONS, ZOOMS, SENTENCE with no words: every word is in CAPTIONS)
       and then_<style>.txt (scenes for build.py); with no style: plan.js + then.txt by the old rule (one picture every 4–6 s)
@@ -33,6 +34,13 @@ def flag(name):
     i = args.index(name); v = args[i + 1]; del args[i:i + 2]; return v
 SEED = int(flag('--seed') or int.from_bytes(os.urandom(4), 'big') % 1000000)
 HISTORY = flag('--history')
+# --seven: the 7-size set (ชุด 3 "Template ชุดฐาน 7 ขนาด", Friend 2026-11-26: "ตัดต่อโดยใช้ template ชุดฐาน 7 ขนาด โดยทำทั้ง 2 สไตล์คือสไตล์
+# เขียวมะนาวและสไตล์หน้าต่างแอป"): every picture is a design of that set (tools/pick.js pickSeven, "<sentence>.<cat>S.<i>"), drawn at the
+# standard size of the card it lands in (glow/bridge.js glowDraw7). Only for the styles whose cards are the 7 standard sizes. No fit pick
+# (it measures the old sets' drawings: every design of the new set is drawn to fill its own size); a style's hook check still runs.
+SEVEN = '--seven' in args
+if SEVEN: args.remove('--seven')
+SEVEN_STYLES = {'lime', 'window'}
 W, FACES = args[0], args[1]
 STYLES = args[2:]
 UNI = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
@@ -273,6 +281,7 @@ def picks_for(sc, ov=()):
     """the drawing of each picture (tools/pick.js): random, kept in the plan; an overlay from the template set only"""
     ovid = {o[0]['id'] for o in ov}
     req = {'seed': SEED, 'history': PAST, 'scenes': [dict({'id': r['id'], 'cat': r['cat']}, **({'only': 'T'} if r['id'] in ovid else {})) for r, *_ in sorted(list(sc) + list(ov), key=lambda x: x[1])]}
+    if SEVEN: req['seven'] = True
     out = subprocess.run(['node', os.path.join(UNI, 'tools', 'pick.js'), '/dev/stdin'], input=json.dumps(req), capture_output=True, text=True, check=True)
     return json.loads(out.stdout)['picks']
 
@@ -283,6 +292,7 @@ def fit_picks(style, sc, open_, hook=False):
     the rules allow is drawn from the library with this clip's words and measured; one of those that fill the screen best, at random
     (tools/fit_pick.js). Falls back to picks_for when it fails."""
     order = sorted(sc, key=lambda x: x[1])
+    if SEVEN: order = order[:1]                  # --seven: only the hook check of the first picture (write); its picks come from picks_for
     pools = json.loads(subprocess.run(['node', os.path.join(UNI, 'tools', 'pick.js'), '/dev/stdin'], capture_output=True, text=True, check=True,
                                       input=json.dumps({'seed': SEED, 'history': PAST, 'pools': True, 'scenes': [{'id': r['id'], 'cat': r['cat']} for r, *_ in order]})).stdout)['pools']
     D = os.path.join(W, f'fit_{style}'); os.makedirs(D, exist_ok=True)
@@ -293,7 +303,7 @@ def fit_picks(style, sc, open_, hook=False):
     for r, t0, t1, n in order:
         hit = hit_of([r, t0, t1, n])
         if hit is None or not (t0 + .3 < hit < t1 - .3): hit = (t0 + t1) / 2
-        scenes.append({'id': r['id'], 't0': round(t0, 2), 't1': round(t1, 2), 'hit': round(hit, 2), 'pool': pools.get(r['id'], [])})
+        scenes.append({'id': r['id'], 't0': round(t0, 2), 't1': round(t1, 2), 'hit': round(hit, 2), 'pool': pools.get(r['id'], [])[:1] if SEVEN else pools.get(r['id'], [])})
     json.dump({'seed': SEED, 'scenes': scenes, **({'hook': True} if hook else {})}, open(os.path.join(D, 'job.json'), 'w'))
     try:
         res = subprocess.run(['node', os.path.join(UNI, 'tools', 'fit_pick.js'), D, style], capture_output=True, text=True, check=True, timeout=1200,
@@ -303,6 +313,7 @@ def fit_picks(style, sc, open_, hook=False):
         out = json.loads(res.stdout.strip().splitlines()[-1])
         if hook and out.get('hookFail'):
             global HOOK_FAIL; HOOK_FAIL = True; return {}
+        if SEVEN: return picks_for(sc)            # (the hook passed)
         print(f"{style}: fit pick (best % of the screen, picked %, kept / measured): " + ' · '.join(f"{k} {v[0]}/{v[1]} {v[2]}/{v[3]}" for k, v in out['sizes'].items()))
         if len(out['picks']) == len(order): return out['picks']
         missing = [r['id'] for r, *_ in order if r['id'] not in out['picks']]
@@ -319,7 +330,8 @@ def write(style, R, sc, zooms, suffix, ov=(), open_='speaker', hook=False):
     global HOOK_FAIL
     is_hook = bool(hook and sc and HOOK_AT is not None and abs(min(x[1] for x in sc) - HOOK_AT) < .01)
     HOOK_FAIL = False
-    then, picks = [], (fit_picks(style, sc, open_, is_hook) if R.get('fitPick') and not ov else picks_for(sc, ov))
+    fit = R.get('fitPick') and not ov and (not SEVEN or is_hook)   # --seven: fit_pick.js only for the hook check
+    then, picks = [], (fit_picks(style, sc, open_, is_hook) if fit else picks_for(sc, ov))
     if HOOK_FAIL: return False
     ovid = {o[0]['id'] for o in ov}
     for k, (r, t0, t1, n) in enumerate(sorted(list(sc) + list(ov), key=lambda x: x[1])):
@@ -348,6 +360,8 @@ def write(style, R, sc, zooms, suffix, ov=(), open_='speaker', hook=False):
 if not STYLES:                                   # the old rule (2026-11-11), for comparing
     R = dict(every=5.0, scene=(2.4, 99), cover=1.0, run=99, zoom=False)
     write('old', R, scenes_for(R), [], '')
+if SEVEN and set(STYLES) - SEVEN_STYLES:
+    sys.exit(f"--seven: only for {', '.join(sorted(SEVEN_STYLES))} (their cards are the 7 standard sizes); not {', '.join(sorted(set(STYLES) - SEVEN_STYLES))}")
 for st in STYLES:
     R = RULES[st]; op = opening(st, R)
     saved = with_hook(R) if R.get('hook') and op == 'speaker' else None

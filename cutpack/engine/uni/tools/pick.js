@@ -15,7 +15,7 @@
      5. among what is left: at random (seed of the run + the picture's id, so the same seed gives the same picks)
    usage: node tools/pick.js <in.json>   in = {"seed": 12345, "history": [{"picks": ["B04T.rail", …]}, …newest last],
                                                "scenes": [{"id": "s3", "cat": "B04", "only": "T"?}, …in clip order]}
-          only "T" = the template set only (an overlay on the speaker)
+          only "T" = the template set only (an overlay on the speaker) · "seven": true = the 7-size set (pickSeven, below)
           → stdout {"picks": {"s3": "B04T.rail", …}}
    ===================================================================== */
 const fs = require('fs'), vm = require('vm'), path = require('path');
@@ -27,7 +27,8 @@ const SHAPES = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'glow', 'sh
 function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const hash = s => { let h = 2166136261; for (const c of String(s)) h = Math.imul(h ^ c.codePointAt(0), 16777619) >>> 0; return h; };
 
-function pick({seed, history = [], scenes, pools: wantPools = false}) {
+function pick({seed, history = [], scenes, pools: wantPools = false, seven = false}) {
+  if (seven) return pickSeven({seed, history, scenes});
   /* pools (a style with fitPick, the neon style's final 2026-11-18): every picture's whole pool after rules 1 and 3 (the set, the
      customer's last runs), so tools/fit_pick.js can measure each drawing with the clip's words and keep the ones that fill the screen
      (Friend: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่"); it applies rules 2 and 5 itself */
@@ -60,6 +61,29 @@ function pick({seed, history = [], scenes, pools: wantPools = false}) {
     used.add(id); picks[sc.id] = id;
   }
   return wantPools ? {pools} : {picks};
+}
+
+/* THE 7-SIZE SET (ชุด 3 · tools/clip_plan.py --seven, Friend 2026-11-26: "ตัดต่อโดยใช้ template ชุดฐาน 7 ขนาด"): a picture's drawing is
+   design i of its category, "<cat>S.<i>" (glow/seven.json: designs a size), drawn later at the size of the card it lands in (the size
+   is the style's, so it is not known here and not needed: a category has the same designs at every size). Rules 2, 3 and 5 as above;
+   no rule 1 (one set) and no rule 4 (every design is drawn to fill its own size). A category with one design a size (B13–B21) shows
+   it again when the clip has two of them. */
+function pickSeven({seed, history = [], scenes}) {
+  const SEVEN = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'glow', 'seven.json'), 'utf8'));
+  const past = history.slice(-LAST), age = new Map();
+  past.forEach((run, k) => (run.picks || []).forEach(id => age.set(id, past.length - k)));
+  const used = new Set(), picks = {};
+  for (const sc of scenes) {
+    const n = SEVEN[sc.cat] || 0; if (!n) continue;
+    const mine = Array.from({length: n}, (_, i) => `${sc.cat}S.${i}`), r = rng(seed ^ hash(sc.id));
+    let pool = mine.filter(id => !used.has(id)); if (!pool.length) pool = mine;          // 2. not shown in this clip
+    const fresh = pool.filter(id => !age.has(id));                                        // 3. not in the last runs
+    if (fresh.length) pool = fresh;
+    else { const oldest = Math.max(...pool.map(id => age.get(id))); pool = pool.filter(id => age.get(id) === oldest); }
+    const id = pool[Math.floor(r() * pool.length)];                                       // 5. at random
+    used.add(id); picks[sc.id] = id;
+  }
+  return {picks};
 }
 
 if (require.main === module) process.stdout.write(JSON.stringify(pick(JSON.parse(fs.readFileSync(process.argv[2], 'utf8')))) + '\n');
