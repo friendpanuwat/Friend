@@ -291,7 +291,8 @@
         d.setAttribute('stroke-width', Math.max(0, W(fat) - (f.sw - m.sw) * k)); }
       else if (thin) { const gap = m.sw - thin._gl.sw; d.setAttribute('stroke-width', W(thin) + Math.max(gap, Math.min(gap, 3) * m.k)); } }
   }
-  function strokeK(s) { return s >= 1 ? 1 / Math.sqrt(s) : Math.max(1, .8 / s); }   // keeps lines ~2.4–4px on screen
+  let LF = .8;   /* line floor: below full size a line keeps at least sw × LF px on screen (LF = .8 → a 3 line stays 2.4 px however small) */
+  function strokeK(s) { return s >= 1 ? 1 / Math.sqrt(s) : Math.max(1, LF / s); }
   /* art: place a drawing. Motion mode (default): it pops in already complete, then plays its idle motion
      (fn.motion, or `idle`, or `float`). reveal: 'draw' keeps the self-drawing stroke for this one (lines, connectors). */
   /* exits ("ท่าออก") — every icon also leaves with a move that mirrors how it came in. Units: drawing px (× scale).
@@ -1225,7 +1226,7 @@
     'library-pro': 1.15, 'ticket-pro': 1.15, 'trophy-pro': 1.15, 'weight-pro': 1.15, 'package-open-pro': 1.25, 'pin-pro': 1.25,
     'clapperboard-pro': 1.3, 'credit-card-pro': 1.3, 'salad-pro': 1.3, 'id-card-pro': 1.35, 'bell-pro': 1.4, 'folder-open-pro': 1.45,
     'notify-pro': 1.45, 'thermometer-pro': 1.45 };
-  window.GL = { C, theme, get themeNow() { return THEME; }, stage, run, Pen, art, motion, tune, text, EXIT, leaveAll, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
+  window.GL = { lineFloor: v => { LF = v; }, C, theme, get themeNow() { return THEME; }, stage, run, Pen, art, motion, tune, text, EXIT, leaveAll, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
     parts, icons, pairs, pair, single, LOOP, MOTION, POSE, AMPMAX, kf, EASE, easeIO, easeOut, clamp, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
 
   /* beats.js (B01–B21 scene templates) loads next to this file */
