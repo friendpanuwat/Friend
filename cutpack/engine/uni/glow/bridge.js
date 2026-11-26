@@ -30,7 +30,8 @@ const GLOWLOOK = {
   cream: {acc: '--ac',     glow: {c: '#2F6FED', all: false},    weight: {k: 1.4, min: 3.4, floor: 2.2}, floatAlpha: .9},    // ครีมน้ำเงิน (Friend's 11th new sheet, 2026-11-18): the second light style, dark lines on the cream screen, only the blue lit part glows
   terminal: {acc: '--ac',  glow: {c: '#EE4444', self: true},    weight: {k: 1.6, min: 4.0, floor: 2.6}, floatAlpha: .62},   // เทอร์มินัลแดง (Friend's 9th new sheet, 2026-11-18): thick white glowing lines, the lit part red
   horizon: {acc: '--ac',   glow: {c: '#FB7A1A', self: true},    weight: {k: 1.8, min: 5.0, floor: 3.0}, floatAlpha: .6},    // ขอบฟ้าส้ม (Friend's 8th new sheet, 2026-11-18): thick warm-white lines (7 px on the full-size shot 04), the lit part orange   // เส้นชี้ HUD (Friend's 7th new sheet, 2026-11-18): the same glow-line look as the yellow style (the sheet draws them alike)   // ขั้นตอนเหลือง (Friend's 6th new sheet, 2026-11-18): near-black bodies, white lines glowing white, the lit part yellow    // การ์ดเขียวน้ำทะเล (Friend's 4th new sheet, 2026-11-18): the glass look in teal cards, teal light
-  lime:  {acc: '--ac',     glow: {c: '#B5EE38', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: 'whole'},   // 2026-11-24 (Friend: "แก้ที่มันออกนอกการ์ดมาด้วย" · "ย่อแล้วจัดองค์ประกอบให้มันอยู่ตรงกลาง"): a drawing whose motion leaves the card shrinks until all of it fits, centred (glowFit whole); styles/lime.js clips at the card as a safety net    // เขียวมะนาว (Friend's 2nd new sheet, 2026-11-18): the neon glass, lime light    // นีออนฟ้า (Friend's sheet 2): frosted grey glass, white lines with their own soft glow, the lit part blue and glowing hard
+  lime:  {acc: '--ac',     glow: {c: '#B5EE38', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: 'whole',
+    seven: {lines: 1.5, grey: .2}},   // set 3 (2026-11-26, Friend: "ทำ 1-3 ก่อน" · "เอาแบบใหม่ครับแต่ว่าอยากให้ลดการถมสีเทาลงหน่อย" · "เอา 1 ใน 5"): glowSeven below   // 2026-11-24 (Friend: "แก้ที่มันออกนอกการ์ดมาด้วย" · "ย่อแล้วจัดองค์ประกอบให้มันอยู่ตรงกลาง"): a drawing whose motion leaves the card shrinks until all of it fits, centred (glowFit whole); styles/lime.js clips at the card as a safety net    // เขียวมะนาว (Friend's 2nd new sheet, 2026-11-18): the neon glass, lime light    // นีออนฟ้า (Friend's sheet 2): frosted grey glass, white lines with their own soft glow, the lit part blue and glowing hard
 };
 /* what is really visible at the end of the drawing (not the things still hidden or gone: the getBBox of the whole drawing counted
    four hidden coins and made an overlay picture small), in the svg's user units */
@@ -550,8 +551,33 @@ function glowOwnIds(svg, had) {
     if ((a.name === 'href' || a.name === 'xlink:href') && a.value[0] === '#' && map.has(a.value.slice(1))) e.setAttribute(a.name, '#' + map.get(a.value.slice(1)));
     else if (a.value.includes('url(#')) e.setAttribute(a.name, a.value.replace(url, (m, id) => map.has(id) ? `url(#${map.get(id)})` : m)); } });
 }
+/* SET 3 IN A STYLE'S OWN LOOK (GLOWLOOK.<style>.seven · Friend 2026-11-26 after the first clip with set 3: "บางอันเวลาแบบมันย่ออ่ะเส้นมัน
+   ไม่ได้ย่อตามแล้วมันดูไม่รู้เรื่อง" · "การโปร่งแสงและเส้นทับซ้อนกัน" → "ทำ 1-3 ก่อน" → pictures → "เอาแบบใหม่ครับแต่ว่าอยากให้ลดการถมสีเทาลงหน่อย" → "เอา 1 ใน 5"):
+   glowThin  the lines keep the drawing's own proportions (glowWeight multiplied every line until the middle one reached 2.4 px on screen:
+             the smaller the picture, the thicker its lines, 1.7–2.8 × in clip 3, and they bloomed into a haze); only a line under `floor`
+             px on screen is raised to it (1.5, the skill's own rule for small icons)
+   glowSolid after the style has dressed the drawing (what is lit decided as before), every see-through body (the frosted glass, the lit
+             wash and bar, window's washed accent tile) turns solid in the colour it shows over the ground, so what the design puts under a
+             body (rings under a tile, flow lines into a jar) stays hidden, as in the skill; the frosted glass first keeps only `grey` of its
+             own alpha (1 = as it showed, .2 = a fifth: nearly the card's own colour). The lit colours are not touched. */
+function glowThin(svg, P, floor = 1.5) {
+  const fill = glowRgba(P.fill), px = e => { const m = e.getScreenCTM(); return m ? +e.getAttribute('stroke-width') * Math.hypot(m.a, m.b) : 0; };
+  svg.querySelectorAll('[stroke-width]').forEach(e => { const s = e.getAttribute('stroke') || 'none'; if (s === 'none') return;
+    const c = glowRgba(s); if (c[0] === fill[0] && c[1] === fill[1] && c[2] === fill[2]) return;   // (a body-colour cut stays as drawn)
+    const w = px(e); if (w > 0 && w < floor) e.setAttribute('stroke-width', (+e.getAttribute('stroke-width') * floor / w).toFixed(3)); });
+}
+function glowSolid(svg, P, base, grey = 1) {
+  const G = GLASSY[base]; if (!G || P.fillAlpha != null) return;   // (a drawing floating on the video keeps its glass)
+  const over = (c, g) => { const b = glowRgba(g), k = c[3]; return glowHex([0, 1, 2].map(i => c[i] * k + b[i] * (1 - k))); };
+  const fr = glowFrost(P), lit = new Set([G.lit, G.litBar].filter(Boolean)), acc = glowRgba(P.accent);
+  svg.querySelectorAll(':scope > g rect, :scope > g circle, :scope > g ellipse, :scope > g path, :scope > g polygon').forEach(e => {
+    const f = e.getAttribute('fill'); if (!f || f === 'none' || f.startsWith('url')) return; const c = glowRgba(f); if (!(c[3] > 0 && c[3] < 1)) return;
+    const washed = G.washLit && c[0] === acc[0] && c[1] === acc[1] && c[2] === acc[2] && c[3] >= .12 && c[3] < .9;
+    if (f === fr) e.setAttribute('fill', over([c[0], c[1], c[2], c[3] * grey], P.fill));
+    else if (lit.has(f) || washed) e.setAttribute('fill', over(c, P.fill)); });
+}
 /* draw one drawing (draw(at, hit) on a glow-line canvas cw × ch) into the box, in the style's colours */
-function glowPaint(F, T, box, cw, ch, draw, ownIds = false) {
+function glowPaint(F, T, box, cw, ch, draw, seven = false) {
   const base = ST.id.split('-overlay')[0], W = parseFloat(box.style.width) || 1000, H = parseFloat(box.style.height) || 700;
   /* clipRoom (the neon style only, final 2026-11-18): the picture keeps its size and whatever of its motion runs past its box and the room
      around it (F.room: up to the words, the framed face, the safe zone) fades out over up to 28 px at that edge, so it never crosses them */
@@ -571,15 +597,17 @@ function glowPaint(F, T, box, cw, ch, draw, ownIds = false) {
     host.appendChild(svg); svg.setAttribute('width', W); svg.setAttribute('height', H); svg.style.overflow = 'visible';
     const at = T.b[0];
     glowTagIcons();
-    const had = ownIds ? new Set(svg.querySelectorAll('[id]')) : null;
+    const had = seven ? new Set(svg.querySelectorAll('[id]')) : null;
     draw(at, Math.max(.6, T.hit - at));
-    if (ownIds) glowOwnIds(svg, had);              // the 7-size set only (glowOwnIds above)
+    if (seven) glowOwnIds(svg, had);               // the 7-size set only (glowOwnIds above)
     GL.finish({hold: 0});                           // themeApply: every fixed glow-line colour → the style's
     glowDims(svg);
     window.setT(window.DURATION);                   // the end state again, with the dims lifted (the colour steps measure it)
     glowReadable(svg, P);
     glowFirm(svg, P, base);
     glowDress(svg, P, base);
+    const S7 = seven && GLOWLOOK[base]?.seven;       // the style's own look for set 3 (glowSeven below), else as every drawing
+    if (S7) glowSolid(svg, P, base, S7.grey ?? 1);
     if (GLASSY[base]?.noPill) glowNoPill(svg);      // window + hud only (finals 2026-11-18): a word's own box goes, the word stays
     if (GLASSY[base]?.wordK) svg.querySelectorAll('text').forEach(t => { const f = parseFloat(getComputedStyle(t).fontSize); if (f) t.style.fontSize = (f * GLASSY[base].wordK).toFixed(2) + 'px'; });   // hud only (final 2026-11-18): the words bigger, from their own anchor
     if (GLASSY[base]?.centreBox) glowCentre(svg);  // neon only (final 2026-11-18): the icon and word of a text box in its middle
@@ -587,7 +615,7 @@ function glowPaint(F, T, box, cw, ch, draw, ownIds = false) {
     if (GLOWLOOK[base]?.motionFit) glowFit(svg, at, T.t1 ?? window.DURATION, W, H, F.room ?? null, GLOWLOOK[base].motionFit === 'whole' && (F.centre ?? 'motion'));   // window: what is really visible fills the box, and its motion stays in it
     else { const b = glowVisibleBox(svg), p = Math.max(b.width, b.height) * .03;      // the other styles: what is really visible at its end fills the box (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย")
       svg.setAttribute('viewBox', `${b.x - p} ${b.y - p} ${b.width + 2 * p} ${b.height + 2 * p}`); }
-    glowWeight(svg, P, base);                       // after the fit: the line weight is measured on screen
+    if (S7) glowThin(svg, P, S7.lines); else glowWeight(svg, P, base);   // after the fit: the line weight is measured on screen
     if (!GLOW_HOOKED) { GLOW_HOOKED = true; HOOKS.push(t => window.setT(t)); }
     window.GLOW_PENDING--; window.GLOW_READY = window.GLOW_PENDING === 0;
   });

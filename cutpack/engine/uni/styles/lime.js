@@ -190,8 +190,8 @@ STYLE('lime', {
    past its box, and the card cuts what still does (a part flying further than motionFit's 20 % margin) */
 .l-card,.l-clip{position:absolute;overflow:hidden;border-radius:38px}
 .l-clip{border:2px solid transparent}   /* the card's 2 px edge, unseen: the graphic sits and is cut exactly where the card's own one is (it was 2 px off) */
-.l-card{border-radius:38px;background:rgba(26,28,27,.8);border:2px solid rgba(255,255,255,.24);
-  box-shadow:0 22px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}   /* back to the solid card (final 2026-11-18, Friend: "กลับไปใช้การ์ดทึบแบบเดิม") */
+.l-card{border-radius:38px;background:rgb(26,28,27);border:2px solid rgba(255,255,255,.24);
+  box-shadow:0 22px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1)}   /* back to the solid card (final 2026-11-18, Friend: "กลับไปใช้การ์ดทึบแบบเดิม") · fully solid 2026-11-26 (Friend: "ทำ 1-3 ก่อน" → "เอาแบบใหม่ครับ"): at .8 with a blur behind, the speaker's T-shirt print showed through the card */
 .l-card.l-on-dark{border:2px solid rgba(201,246,75,.55);box-shadow:0 0 18px rgba(190,245,70,.28),0 22px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1)}   /* final 2026-11-18, Friend: the card blends into the dark screens → "ข" a thin lime glowing edge */
 .l-card::before{content:"";position:absolute;top:15px;left:50%;width:64px;height:7px;margin-left:-32px;border-radius:4px;background:rgba(255,255,255,.92)}
 .l-text{position:absolute;inset:0}
