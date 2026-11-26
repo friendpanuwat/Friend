@@ -771,7 +771,7 @@
   /* 02 ROAD (user 2026-11-25: the checklist "ต่ำกว่ามาตรฐานเกินไป ออกแบบใหม่ทั้งหมด") — a winding road across the whole box; each step is a stop on it
      (a round plate with its icon, waiting faint); a glowing traveller runs the road in one smooth trip, the road lighting behind it, each stop lighting
      as it is reached, the last on H. Wide: the stops zigzag up / down · tall: left / right. */
-  function ROAD(p, c, d, W0, H0) { const Q0 = STP(d), tR0 = f3(Q0.tI(Q0.E) + tu(.2)), tR1 = f3(tR0 + tu(.32)), Q = TRIP(d, f3(tR0 + tu(.12))),   /* the traveller starts behind the road's front, never overtakes it */ n = Q.N,   /* stops first, then the road joins them, then the traveller (user: "เส้นมันไม่ควรมาก่อน") */ hz = W0 >= H0, L = hz ? W0 : H0, A = hz ? H0 : W0;
+  function ROAD(p, c, d, W0, H0) { const Q = TRIP(d),   /* the traveller lays the road as it goes (user: "มันต้องวิ่งมาแบบตั้งแต่แรก") */ n = Q.N,   /* stops first, then the road joins them, then the traveller (user: "เส้นมันไม่ควรมาก่อน") */ hz = W0 >= H0, L = hz ? W0 : H0, A = hz ? H0 : W0;
     let ic = f1(Math.min(L / Math.max(1, n - 1) * .9, L / n * 1.3, A * (n > 2 ? .62 : .8), 330)), amp = 0;
     for (let k = 0; k < 40; k++) { amp = n > 2 ? Math.max(0, (A - ic) / 2) : Math.max(0, (A - ic) / 2) * .6; const du = n > 1 ? (L - ic) / (n - 1) : 0, dist = Math.hypot(du, n > 1 ? 2 * amp : 0);
       if (n < 2 || dist >= ic * 1.22) break; ic = f1(ic * .96); }   /* the stops never touch each other */
@@ -780,14 +780,13 @@
     let dd = `M ${st[0][0]} ${st[0][1]}`; const segs = [];
     for (let i = 1; i < n; i++) { const [x0, y0] = st[i - 1], [x1, y1] = st[i], c1 = hz ? `${f1((x0 + x1) / 2)} ${y0} ${f1((x0 + x1) / 2)} ${y1}` : `${x0} ${f1((y0 + y1) / 2)} ${x1} ${f1((y0 + y1) / 2)}`;
       dd += ` C ${c1} ${x1} ${y1}`; segs.push(`M ${x0} ${y0} C ${c1} ${x1} ${y1}`); }
-    const bw = f1(Math.max(18, ic * .34)), band = p.path(dd, { sw: bw, stroke: TL_(.07), fill: 'none' }); on(band, p, 0, { draw: [[0, 0], [tR0, 0], [tR1, 1, 'io']] });
-    on(p.path(dd, { sw: 2.4, stroke: TL_(.28), fill: 'none' }), p, 0, { draw: [[0, 0], [tR0, 0], [tR1, 1, 'io']] });
+    const bw = f1(Math.max(18, ic * .34));   /* the road is the line alone — no wide see-through band behind it (user: "ไม่ต้องมีขอบอันใหญ่ๆที่ใสๆอยู่ด้านหลัง") */
     const lens = segs.map(sd => { const e = p.path(sd, { sw: 0, stroke: 'none' }), l = e.getTotalLength(); e.remove(); return l; }), cum = [0]; lens.forEach(l => cum.push(cum[cum.length - 1] + l)); const tot = cum[n - 1] || 1;
     const fAt = u => { const x = u * (n - 1), i = Math.min(n - 2, Math.floor(x)); return n < 2 ? 1 : (cum[i] + (cum[i + 1] - cum[i]) * (x - i)) / tot; };   /* index progress → length progress */
-    const prog = p.path(dd, { sw: 7, stroke: ACC1, fill: 'none' }); on(prog, p, 0, { draw: Q.sw(u => fAt(u), 40), o: fadeS(Q.tA, .2) });
+    const prog = p.path(dd, { sw: 7, stroke: ACC1, fill: 'none' }), DK = Q.sw(u => fAt(u), 40); on(prog, p, 0, { draw: DK, o: fadeS(Q.tA, .2) });   /* the road appears behind the traveller */
     const ref = p.path(dd, { sw: 0, stroke: 'none' }), fin = st[n - 1], ptAt = u => { const q = ref.getPointAtLength(fAt(u) * tot); return [q.x, q.y]; };
     const tr = mvG(p, { px: fin[0], py: fin[1], x: Q.sw(u => f1(ptAt(u)[0] - fin[0]), 40), y: Q.sw(u => f1(ptAt(u)[1] - fin[1]), 40), o: fadeS(Q.tA, .2).concat([[Q.H, 1], [f3(Q.H + tu(.3)), 0, 'io']]) });
-    tr.circle(fin[0], fin[1], f1(Math.max(10, bw * .42)), KN4()); tr.circle(fin[0], fin[1], f1(Math.max(16, bw * .7)), { sw: 3, stroke: ACC1, fill: 'none' }); ref.remove();
+    tr.circle(fin[0], fin[1], f1(Math.max(5, Math.min(8, bw * .18))), KN4()); tr.circle(fin[0], fin[1], f1(Math.max(9, Math.min(14, bw * .32))), { sw: 2.6, stroke: ACC1, fill: 'none' }); ref.remove();   /* same dot + ring, small (user: "วงกลมที่วิ่งอยู่ตรงเส้นทำเป็นแค่อันเล็กๆก็พอ") */
     for (let i = 0; i < n; i++) { const [x, y] = st[i], t = Q.rch(i), r = f1(ic / 2);
       const tS = Q.tI(i), g = sIn(p, x, y, tS); g.circle(x, y, r, F(4.2));   /* the stops land on the road as it is drawn */
       litOn(p, t).circle(x, y, r, (Q.HOW === 'x' && i === Q.K) ? { fill: 'none', sw: 4, stroke: TL_(.5) } : { fill: TA(.1), sw: 4.6, stroke: ACC1 });
