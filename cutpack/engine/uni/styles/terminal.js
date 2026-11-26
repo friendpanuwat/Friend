@@ -31,11 +31,11 @@ const TRM = {
      pill at y 194–266 kept from 196; the notification of shot 03 at y 95 → 220; the speaker's windows from 140 → 220) and buttons
      (the words and the bar end at x 920; the windows themselves stay as wide as the sheet, behind the buttons). */
   layouts: {
-    talk:       {speaker: true, pill: {y: 1006}},                                                                                          // between pictures (shot 03's pill at the chest)
+    talk:       {speaker: true, pill: {y: 1440}},   // (2026-11-26, Friend: "มันอยู่กลางจอมันไม่ค่อยดี อยากให้ลงมาครึ่งของครึ่งข้างล่าง": 1006 → 1440, half of the lower half)                                                                                          // between pictures (shot 03's pill at the chest)
     term_plan:  {screen: true, noPic: true, need: 2, menu: true, pill: {y: 232}, wins: [[60, 360, 960, 0]], rows: {x: 98, cmdY: 521, y0: 626, step: 114, n: 5},
                  notif: [60, 0, 960, 170]},                                                                                               // shot 01 (the window grows with its rows, the notification under it)
     hero_chev:  {speaker: true, fit: 1150, pill: {y: 232}, wins: [[80, 1190, 920, 430]], pic: [200, 1290, 680, 300]},                     // shot 02
-    notif_top:  {speaker: true, noPic: true, need: 1, pill: {y: 1006}, notif: [60, 220, 960, 170], top: true},                         // shot 03
+    notif_top:  {speaker: true, noPic: true, need: 1, pill: {y: 1440}, notif: [60, 220, 960, 170], top: true},   // (pill 1006 → 1440 as talk, 2026-11-26)                         // shot 03
     win_speaker:{screen: true, menu: true, face: [150, 220, 780, 830],   /* (the sheet's 90–990: its video ran to 976, under the buttons) */ pill: {y: 1150}, wins: [[140, 1240, 800, 420]], pic: [280, 1330, 520, 300]},   // shot 04
     stack3:     {screen: true, menu: true, pill: {y: 232}, back: [[60, 300, 800, 1000], [120, 410, 800, 1000]], wins: [[180, 520, 820, 1140]], pic: [230, 650, 690, 920]},   // shot 05
     term_log:   {speaker: true, noPic: true, need: 2, fit: 1080, pill: {y: 232}, wins: [[80, 1120, 920, 530]], rows: {x: 118, cmdY: 1270, y0: 1372, step: 102, n: 3}},   // shot 06
@@ -285,7 +285,7 @@ STYLE('terminal', {
   /* between pictures: the pill at the chest, moved below the chin when the face is low */
   speakerFrame(a, b) {
     const root = div('', SC); root.className = 'm-root';
-    /* no room under the chin (the chin under about y 1534: a very close shot): the pill at the top, under the search bar, as the sheet's top
+    /* no room under the chin (the chin under about y 1534 · the pill sits at 1440, or 66 under the chin down to 1600: a very close shot): the pill at the top, under the search bar, as the sheet's top
        pill (y 232) · as lime, window and neon (Friend 2026-11-24: "ก") · it used to fall back to y 1006, on the face */
     return {root, cam: root, speaker: true, L: trmFit('talk', cpFaceBox(a, b)) ?? {speaker: true, pill: {y: 232}}, name: 'talk'};
   },
