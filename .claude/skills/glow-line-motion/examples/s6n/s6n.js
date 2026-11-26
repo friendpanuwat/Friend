@@ -675,7 +675,7 @@
     cardT(p, 0, 0, cw, ch, 44, T.tI); const chip = icOf(X) && lbOf(X), hx = chip ? -180 : 0;
     tbox(p, c, X, hx, hy, hs, { t: f3(T.tI + tu(.08)), size: 46 }); if (chip) pill(p, lbOf(X), 120, hy, { t: f3(T.tI + tu(.16)), size: 48, maxW: 300 });
     const dg = mvG(p, { px: 0, py: dy, sx: KW(T, 0, .2, u => Math.max(.001, u)), o: [[0, 0], [tAt(T, 0), 0], [f3(tAt(T, 0) + tu(.06)), 1]] }); dg.line(f1(-cw / 2 + 50), dy, f1(cw / 2 - 50), dy, { sw: 2.4, stroke: C.soft });
-    const rs = n === 3 ? 180 : 220, gp = 36, top = f1(dy + 50), rows = M.map((_, i) => f1(top + rs / 2 + i * (rs + gp))), rx = -150, bx = 80;
+    const gp = 30, avail = f1(ch / 2 - 44 - (dy + 40)), rs = f1(Math.min(n === 3 ? 180 : 220, (avail - (n - 1) * gp) / n)), top = f1(dy + 40 + (avail - (n * rs + (n - 1) * gp)) / 2), rows = M.map((_, i) => f1(top + rs / 2 + i * (rs + gp))), rx = -150, bx = 80;
     if (n > 1) wire(p, `M ${rx} ${rows[0]} L ${rx} ${rows[n - 1]}`, tAt(T, .15), tAt(T, .8), 3);
     M.forEach((m, i) => { const y = rows[i], a = .2 + .6 * i / n, last = i === n - 1; const dg2 = sub(p); on(dg2, p, 0, { o: inW(T, a, a + .15) }); dotT(dg2, rx, y, last ? 16 : 12, false); if (last) litOn(p, T.H).circle(rx, y, 16, { fill: ACC1, sw: 0, stroke: 'none' });
       wire(p, `M ${f1(rx + 16)} ${y} L ${f1(bx - rs / 2)} ${y}`, tAt(T, a), tAt(T, a + .12), 2.4); tbox(p, c, m, bx, y, rs, { t: tAt(T, a), mv: { s: pS6(T, a, a + .25) }, o: inW(T, a, a + .2), lit: last ? T.H : undefined, size: 36 }); }); }
@@ -702,7 +702,7 @@
 
   /* 19 ความรู้สึก — วงหน้าปัดอารมณ์: five mood discs along an arc (frown … laugh); a lit ring moves from the middle one to the feeling's side; the feeling's
      own box sits in the dial's middle; who (if said) under it. */
-  function L19(p, c, d, W, H) { const T = TQ(), good = d.mood !== 'bad', Wo = d.who && has(d.who) ? d.who : null, cx = 0, cy = Wo ? 0 : 60, Rr = 330, MO = ['frown', 'annoyed', 'meh', 'smile', 'laugh'], A = MO.map((_, i) => 200 + i * 35), k1 = good ? 3 : 1;
+  function L19(p, c, d, W, H) { const T = TQ(), good = d.mood !== 'bad', Wo = d.who && has(d.who) ? d.who : null, cx = 0, cy = Wo ? 0 : 60, Rr = 330, MO = ['frown', 'annoyed', 'meh', 'smile', 'laugh'], A = MO.map((_, i) => 200 + i * 35), k1 = good ? 3 : 0;
     const P = a => [f1(cx + Rr * Math.cos(a * Math.PI / 180)), f1(cy + Rr * Math.sin(a * Math.PI / 180))], arc = `M ${P(190).join(' ')} A ${Rr} ${Rr} 0 0 1 ${P(350).join(' ')}`;
     drawAt(p.path(arc, { sw: 4, stroke: C.soft }), p, T.tI, tu(.5));
     MO.forEach((ic, i) => { const [x, y] = P(A[i]); discT(p, x, y, 56, f3(T.tI + tu(.05 * i))); put(p, c, { icon: ic }, x, y, 64, null, { t: f3(T.tI + tu(.05 * i + .04)) }); });
@@ -712,13 +712,13 @@
 
   /* 20 ความสัมพันธ์ — สองวงซ้อน: a and b in two big circles that slide together and overlap (the shared part glows); a link disc under them, joined to the
      overlap; ended (cut) → the circles stay apart and a ✕ sits between them. */
-  function L20(p, c, d, W, H) { const T = TQ(), cut = d.cut === true, r = 215, cy = -90, dx = cut ? 0 : 0, x1 = cut ? 200 : 125, x0 = 270;
+  function L20(p, c, d, W, H) { const T = TQ(), cut = d.cut === true, r = 200, cy = -90, x1 = cut ? 202 : 118, x0 = 210;
     [[-1, d.a], [1, d.b]].forEach(([sd, X], i) => { const XK = KW(T, 0, .5, u => f1(sd * (x0 + (x1 - x0) * u))), g = mvG(p, { px: 0, py: cy, x: XK, o: fadeS(f3(T.tI + tu(.06 * i))) });
       g.circle(0, cy, r, { fill: TL_(.06), sw: 4.6 }); if (!cut) litOn(g, T.H).circle(0, cy, r, { fill: TA(.06), sw: 5, stroke: ACC1 });
-      thing(p, c, X, f1(sd * 70), cy, 150, { t: tu(.18 + .06 * i), mv: { px: 0, py: cy, x: XK }, size: 40, maxW: 190 }); });
+      thing(p, c, X, f1(sd * 66), cy, 140, { t: tu(.18 + .06 * i), mv: { px: 0, py: cy, x: XK }, size: 40, maxW: 190 }); });
     const ly = f1(cy + r + 150);
     if (cut) { const mg = popAt(p, 0, cy, tAt(T, .6)); mg.circle(0, cy, 44, F(4)); XX(mg, 0, cy, 1.1); }
-    else { wire(p, `M 0 ${f1(cy + Math.sqrt(r * r - 125 * 125))} L 0 ${f1(ly - 70)}`, tAt(T, .5), tAt(T, .7), 3); discT(p, 0, ly, 70, tAt(T, .6), { s: pS6(T, .6, .85), o: inW(T, .6, .8) });
+    else { wire(p, `M 0 ${f1(cy + Math.sqrt(r * r - 118 * 118))} L 0 ${f1(ly - 70)}`, tAt(T, .5), tAt(T, .7), 3); discT(p, 0, ly, 70, tAt(T, .6), { s: pS6(T, .6, .85), o: inW(T, .6, .8) });
       put(p, c, { icon: 'link' }, 0, ly, 84, null, { t: tAt(T, .6), o: inW(T, .6, .8), mv: { s: pS6(T, .6, .85) } }); litOn(p, T.H).circle(0, ly, 70, { fill: TA(.12), sw: 5, stroke: ACC1 }); } }
 
   /* 21 สถานที่ — การ์ดแผนที่ + รายการจุด: a map card with soft roads and a pin holding the place's icon; under it the spots as rows on a rail (dot + disc). */
