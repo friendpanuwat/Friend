@@ -20,7 +20,8 @@ const GLOWLOOK = {
   split: {acc: '--ac',     glow: null,                          weight: {k: 1.45, min: 2.6}},  // split: flat pastel, medium lines
   gold:  {acc: '--ac',     glow: {c: '#FF9A2E', all: false},    weight: {k: 1.3, min: 2.4}},   // gold: only the orange accent glows
   /* the new styles (Friend 2026-11-17 cancelled the 4 above and is replacing them with 12 sheets made with AI, copied 100%) */
-  neon:  {acc: '--ac',     glow: {c: '#2FA8F0', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, clipRoom: true},   // clipRoom: final 2026-11-18 (B06T radar's waves grew past its box onto the key word, test clip 24 s; shrinking the pictures to their motion took the first one from 17 % of the screen to 10 %)
+  neon:  {acc: '--ac',     glow: {c: '#2FA8F0', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, clipRoom: true, hideClear: true,
+    seven: {lines: 1.5, grey: .2}},   // set 3 as lime and window (2026-11-26, Claude's proposal for Friend's pictures: "ส่งรูปตอนที่ใส่ motion graphics template ชุดฐาน 7 ขนาด")   // clipRoom: final 2026-11-18 (B06T radar's waves grew past its box onto the key word, test clip 24 s; shrinking the pictures to their motion took the first one from 17 % of the screen to 10 %)
   window: {acc: '--ac',    glow: {c: '#3E86FF', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: 'whole',
     seven: {lines: 1.5, grey: .2}, lineGlow: true},   // lineGlow: glowLight (2026-11-26) · set 3 as lime (2026-11-26, Friend: "ทำ 1-3 ก่อน" · "เอา 1 ใน 5"): glowSeven    // หน้าต่างแอป (Friend's 3rd new sheet, 2026-11-18): the glass look in app windows, blue light · 'whole' 2026-11-24 (Friend: "ทั้ง 2 ข้อทำเหมือนกันครับ" as lime: a drawing whose motion leaves its window shrinks until all of it fits, centred; the window clips the rest)
   violet: {acc: '--ac',    glow: {c: '#8B5CF6', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},   // ม่วงคลื่นเสียง (Friend's 5th new sheet, 2026-11-18): the glass look in violet cards, violet light
@@ -470,7 +471,7 @@ function glowCentre(svg) {
   }
 }
 /* the style's glow: a soft halo of one colour around every line (glass) or around what took the accent (gold) */
-function glowLight(svg, P, base) {
+function glowLight(svg, P, base, seven = false) {
   const G = GLOWLOOK[base]?.glow; if (!G) return;
   const defs = svg.querySelector('defs');
   /* neon glows harder (Friend 2026-11-17: "ผมรู้สึกว่า motion graphics มันยังไม่เรืองแสงเท่ากับ reference"): a third, wide halo */
@@ -509,7 +510,7 @@ function glowLight(svg, P, base) {
      หรือเปล่า" → "เส้นที่มันไม่แสดงแล้วคุณแก้ไปแล้วอ่ะทำไมคุณไม่ใส่"): a filter's region is a share of its element's box, and a straight
      vertical or horizontal line has a box 0 wide (or high), so the glowing accent line was not drawn at all (the slider's divider, the
      bars' lit tops, the top step). Such a line takes a copy of the glow measured in its own units (400 round it), so it shows and glows. */
-  if (GLOWLOOK[base]?.lineGlow) { const own = svg.querySelector('#cpGlow');
+  if (GLOWLOOK[base]?.lineGlow || seven) { const own = svg.querySelector('#cpGlow');   // (every set-3 drawing: its straight lines are part of the design)
     if (own) root.querySelectorAll('[filter="url(#cpGlow)"]').forEach((e, k) => { if (e.tagName === 'g') return; const q = e.getBBox(); if (q.width >= .5 && q.height >= .5) return;
       const c = own.cloneNode(true); c.id = `cpGlowLine${++GLOW_LINE}`; c.setAttribute('filterUnits', 'userSpaceOnUse');
       Object.entries({x: q.x - 400, y: q.y - 400, width: q.width + 800, height: q.height + 800}).forEach(([n, v]) => c.setAttribute(n, v.toFixed(1)));
@@ -622,14 +623,24 @@ function glowPaint(F, T, box, cw, ch, draw, seven = false) {
     if (GLASSY[base]?.noPill) glowNoPill(svg);      // window + hud only (finals 2026-11-18): a word's own box goes, the word stays
     if (GLASSY[base]?.wordK) svg.querySelectorAll('text').forEach(t => { const f = parseFloat(getComputedStyle(t).fontSize); if (f) t.style.fontSize = (f * GLASSY[base].wordK).toFixed(2) + 'px'; });   // hud only (final 2026-11-18): the words bigger, from their own anchor
     if (GLASSY[base]?.centreBox) glowCentre(svg);  // neon only (final 2026-11-18): the icon and word of a text box in its middle
-    glowLight(svg, P, base);
+    glowLight(svg, P, base, seven);
     if (GLOWLOOK[base]?.motionFit) glowFit(svg, at, T.t1 ?? window.DURATION, W, H, F.room ?? null, GLOWLOOK[base].motionFit === 'whole' && (F.centre ?? 'motion'));   // window: what is really visible fills the box, and its motion stays in it
     else { const b = glowVisibleBox(svg), p = Math.max(b.width, b.height) * .03;      // the other styles: what is really visible at its end fills the box (Friend: "อันไหนมีขนาดเล็กเกินไป ขยายให้พอดีด้วย")
       svg.setAttribute('viewBox', `${b.x - p} ${b.y - p} ${b.width + 2 * p} ${b.height + 2 * p}`); }
     if (S7) glowThin(svg, P, S7.lines); else glowWeight(svg, P, base);   // after the fit: the line weight is measured on screen
-    if (!GLOW_HOOKED) { GLOW_HOOKED = true; HOOKS.push(t => window.setT(t)); }
+    if (!GLOW_HOOKED) { GLOW_HOOKED = true; HOOKS.push(t => { window.setT(t); if (GLOWLOOK[base]?.hideClear) glowHideClear(); }); }
     window.GLOW_PENDING--; window.GLOW_READY = window.GLOW_PENDING === 0;
   });
+}
+/* CLEAR = GONE (2026-11-26, chat ccr-5582374a-29hrcl): a part at opacity 0 inside a glow filter (cpGlowSelf) was drawn by the browser
+   as a black block (neon, clip 3: a black square over the speaker's mic where a hidden B17 part waited). Opacity 0 shows nothing anyway,
+   so after each frame a part at opacity 0 is taken out (display none) and put back the frame it shows again: no block, the rest as before
+   but for a faint shift at the glow's edges (the filter's region follows what is shown: 86 of 130 test stills of 11 styles moved by at
+   most 70 levels on a few hundred pixels). On for neon only (GLOWLOOK.neon.hideClear): the other styles wait for Friend (LESSONS 6.1) */
+function glowHideClear() {
+  document.querySelectorAll('.glow-host [opacity]').forEach(e => { const gone = +e.getAttribute('opacity') < .0005;
+    if (gone && e.style.display !== 'none') { e.style.display = 'none'; e.dataset.clear = 1; }
+    else if (!gone && e.dataset.clear) { e.style.display = ''; delete e.dataset.clear; } });
 }
 /* COLOUR CHECK (Friend 2026-11-17: "ยังมีเรื่องสีที่กลืนกันและมองยากอยู่ แก้ไขด้วย"): every line and word of the drawing against what is
    right behind it (the nearest filled shape drawn before it that covers its middle, else the frame's surface; on the video = dark grey),

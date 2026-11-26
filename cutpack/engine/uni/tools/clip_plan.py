@@ -40,7 +40,7 @@ HISTORY = flag('--history')
 # (it measures the old sets' drawings: every design of the new set is drawn to fill its own size); a style's hook check still runs.
 SEVEN = '--seven' in args
 if SEVEN: args.remove('--seven')
-SEVEN_STYLES = {'lime', 'window'}
+SEVEN_STYLES = {'lime', 'window', 'neon'}   # neon 2026-11-26 (its 7 sizes: styles/neon.js NEON_SIZE · Friend: "ส่งรูปตอนที่ใส่ motion graphics template ชุดฐาน 7 ขนาดมาให้ดูด้วยครับ")
 W, FACES = args[0], args[1]
 STYLES = args[2:]
 UNI = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
@@ -52,7 +52,7 @@ PAST = json.load(open(HISTORY)) if HISTORY and os.path.exists(HISTORY) else []
 RULES = {
     # 2026-11-17 Friend cancelled the 8 old styles (card, glass, split, gold and their overlays; their rules are in git history,
     # git show HEAD~1:cutpack/engine/uni/tools/clip_plan.py) for 12 new ones from sheets Friend made with AI. One by one:
-    'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft', openFace=True, fitPick=True),   # fitPick: the drawing that fills the free space (tools/fit_pick.js, final 2026-11-18: "ทดลองเฉพาะสไตล์นี้ก่อน")   # openFace: the style can open on a picture screen with the face (final 2026-11-18)
+    'neon':          dict(every=4.0, scene=(1.5, 9.9), cover=.8, run=4, cut='soft', openFace=True, fitPick=True, hook=(1.8, 3.2)),   # hook 2026-11-26 (Friend: "ให้ใส่ระบบฮุก ... เหมือนกับ 2 สไตล์ที่ทำไปแล้ว")   # fitPick: the drawing that fills the free space (tools/fit_pick.js, final 2026-11-18: "ทดลองเฉพาะสไตล์นี้ก่อน")   # openFace: the style can open on a picture screen with the face (final 2026-11-18)
     'lime':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True, hook=(1.8, 3.2)),   # hook: the first picture at 2–3 s (2026-11-19)
     'violet':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True),   # ม่วงคลื่นเสียง: 12 of 12 shots carry a picture (first guess)
     'teal':          dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True),   # การ์ดเขียวน้ำทะเล: 12 of 12 shots carry a picture or a card (first guess)

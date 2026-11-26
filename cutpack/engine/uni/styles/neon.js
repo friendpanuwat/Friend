@@ -49,9 +49,8 @@ const NEON = {
      picture is drawn from the run's seed (RUN.seed, written by tools/clip_plan.py), so a new run gives a new order and the same
      plan always gives the same clip. Rules: a call to action (B15) gets the closing screen, a punchline (B14) the big-word screen;
      every other picture takes one of `pool`, never the one before it; a screen with the picture on the speaker (hands, chest,
-     closing, top-left words) only where the speaker's face leaves it room (`neonRoom`). Among those, the SHAPE decides (Friend:
-     "ทำไมโมชั่นกราฟฟิกเล็กจังเลย"): each design's width / height is measured once (glow/shapes.json, glow/shapes.js) and only the
-     screens whose box shows this picture at least 75 % as big as the best one stay in; then the least used, then at random. */
+     closing, top-left words) only where the speaker's face leaves it room and a standard size fits (`neonFit`); then ก and ข as often,
+     the least used, then at random. (Until 2026-11-26 the drawing's shape picked among them, cpSizeKeep: gone, common.md 4.1 rule 8.) */
   pool: ['hands', 'square', 'chest', 'band', 'diag', 'window', 'side', 'word', 'cta'],   // + the call-to-action screen as any screen (Friend 2026-11-18: "ทำตามที่คุณแนะนำ" · the sheets are read for their layout only) ·   // 'word' joined 2026-11-17: its box is the biggest (Friend: "มันดูโล่งๆ")
   byCat: {B15: 'cta', B14: 'word'},
   used: {}, last: null,
@@ -72,7 +71,6 @@ function neonFree(L, face) {
   return {l: Math.max(0, x - 60 - 10), r: Math.max(0, (y + h <= 740 ? 1020 : 960) - x - w - 10), t: Math.max(0, y - above - 10), b: Math.max(0, below - y - h - 10)};
 }
 /* how big a picture of shape `ar` (width / height) comes out in a screen's box (px²) · does a screen show the face (full or framed) */
-function neonSize(n, ar) { const [, , w, h] = NEON.layouts[n].stage; return ar > w / h ? w * w / ar : h * h * ar; }
 function neonWithFace(n) { const Q = NEON.layouts[n]; return !!(Q.speaker || Q.square || Q.band || Q.win); }
 /* can this screen go over this face? (the picture and the words never on the face: a picture under the chin needs the chin above
    its top; the top-left words need the hair below them) */
@@ -84,6 +82,43 @@ function neonRoom(name, f) {
   if (L.stage) return chin + 30 < Math.min(L.stage[1], L.lead ? L.lead.y - 40 : 1e9);
   return chin + 20 < L.lead.y - 40;                                 // talk_low
 }
+/* THE 7 STANDARD SIZES (style-rules/common.md 4.1 · Friend 2026-11-26: "ไปทำสไตล์นีนอนฟ้า (อย่าเพิ่งเรนเดอร์คลิปนะ) ให้ใส่ระบบฮุก แล้วก็ขนาดทั้ง 7
+   เหมือนกับ 2 สไตล์ที่ทำไปแล้วก่อน"): neon has no card, so the picture box ITSELF is a standard size scaled from the corner, 65–100 % (common.md 4.1:
+   "สไตล์ไม่มีการ์ด: ตัวภาพ = ขนาดนี้"), the biggest that its room holds, the first size of the screen's order that reaches 65 %; none = the
+   screen does not come up in this clip. The room of a screen = its old box's place: x centred on 540, at most 840 wide (x 120–960, the
+   neon zone · final 2026-11-18 "ต้องอยู่กึ่งกลางเสมอ"), y from `y0` (under the chin on the speaker's screens: chin + 30) to `y1` (the
+   words below it, the old gap kept · or the zone's bottom 1660); the box sits at the top of the room, or in its middle (`at`). The words
+   do not move. Never by the drawing's shape (common.md 4.1 rules 4 and 8). */
+const NEON_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
+const NEON_MIN = .65;
+const NEON_SIZE = {
+  hands:  {order: [2, 3, 1], y0: 1250, y1: 1660, at: 'top'},                // shot 02: the picture at the hands, the words above it
+  chest:  {order: [2, 1], y0: 970, y1: L => L.lead.y - 80, at: 'top'},      // shot 03: across the chest, the words under it (old gap 120 to the lead)
+  diag:   {order: [3, 2, 1], y0: 1060, y1: 1660, at: 'top'},                // shot 09: under the chin, the words at the top
+  cta:    {order: [2, 3, 1], y0: 950, y1: L => L.lead.y - 60, at: 'top'},   // shot 12: the closing picture, the words under it
+  square: {order: [5, 2], y0: 740, y1: L => L.lead.y - 80, at: 'center'},  // shot 04: under the framed face (40 under its frame)
+  band:   {order: [2, 5], y0: 1130, y1: 1660, at: 'top'},                   // shot 05: under the band
+  window: {order: [2, 1], y0: 940, y1: L => L.lead.y - 60, at: 'center'},  // shot 08: under the window
+  side:   {order: [4, 6], y0: 380, y1: L => L.lead.y - 80, at: 'center'},  // shot 06: the tall picture in the middle
+  word:   {order: [6, 5], y0: 520, y1: 1660, at: 'top'},                    // shot 10: the big picture under the words
+};
+/* the screen fitted to this face (f = [x0, top, x1, chin], or null on a still): a copy of the layout with its standard box (stage, std =
+   [size, scale]), or null when the face leaves no room (neonRoom) or no size of its order reaches 65 % */
+function neonFit(name, f) {
+  const L0 = NEON.layouts[name], S = NEON_SIZE[name];
+  if (!S) return L0;
+  if (f && !neonRoom(name, f)) return null;
+  const L = JSON.parse(JSON.stringify(L0)), y1 = typeof S.y1 === 'function' ? S.y1(L) : S.y1;
+  const y0 = L.speaker && f ? Math.max(S.y0, Math.round(f[3] + 30)) : S.y0;
+  for (const k of S.order) {
+    const [W, H] = NEON_STD[k], s = Math.min(1, 840 / W, (y1 - y0) / H); if (s < NEON_MIN) continue;
+    const w = Math.round(W * s), h = Math.round(H * s), y = S.at === 'center' ? Math.round((y0 + y1 - h) / 2) : y0;
+    L.stage = [540 - Math.round(w / 2), y, w, h]; L.std = [k, s];
+    return L;
+  }
+  return null;
+}
+const neonFits = (n, f) => !!neonFit(n, f);
 
 STYLE('neon', {
   name: 'นีออนฟ้า',
@@ -130,15 +165,15 @@ STYLE('neon', {
        TikTok ขนาดนั้นก็ได้" · the right edge at x 960 below the buttons' top: "ใช้ได้ครับ"): every box is centred on x 540, so below y 740
        the right edge goes 24 into the button column (it starts at x 936, its icons at about x 960); the checks read the same edge */
     CP.safe = [60, 0, 960, 1660];
+    CP.speakerFloor = 0;   // no floor on the drawing inside the box (2026-11-26, as lime and window: the box's standard size decides · common.md 4.1 rule 8)
   },
-  realShapes: true,
   /* fitPick (final 2026-11-18, Friend: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" · "ทดลองเฉพาะสไตล์นี้ก่อน"): the share
      of the screen a picture of shape `ar` can take in this stretch, in the best screen the face leaves room for (tools/fit_pick.js) */
   fitSize(ar, t0, t1, opening) {
     const face = neonFaceBox(t0, t1);
-    let pool = NEON.pool.filter(n => neonRoom(n, face) && (!opening || neonWithFace(n)));
+    let pool = NEON.pool.filter(n => neonFits(n, face) && (!opening || neonWithFace(n)));
     if (!pool.length) pool = ['square', 'window', 'band'];
-    return cpFitSize(ar, pool, n => NEON.layouts[n].stage, .9, n => !!NEON.layouts[n].speaker);   // as frame() picks (was: the second best screen; the speaker's screens joined, 2026-11-18)
+    return cpFitSize(ar, pool, n => neonFit(n, face)?.stage, 0, n => !!NEON.layouts[n].speaker);   // the screens' standard boxes, no keep on size (2026-11-26, as lime: frame() no longer picks by the drawing's size)
   },
   fitSurface() { const r = div('', SC); r.className = 'n-root n-screen'; return r; },   // where fit_pick measures colours: the navy screen   // clip_all_styles.sh measures each picture's real shape on a first build (tools/real_shapes.js) and builds again with it
 
@@ -157,28 +192,26 @@ STYLE('neon', {
        แต่ต้องไม่ตายตัว ... ใช้สุ่มเหมือนเดิม"): tools/clip_plan.py draws RUN.open from the seed; 'face' = a picture from the first frame, on a
        screen with the face (full or framed) */
     const opening = typeof RUN !== 'undefined' && RUN.open === 'face' && t0 < .3, withFace = neonWithFace;
+    /* THE HOOK (2026-11-26, Friend: "ให้ใส่ระบบฮุก ... เหมือนกับ 2 สไตล์ที่ทำไปแล้ว" · lime.md 5, window.md 5.4): the clip's first picture (RUN.hook,
+       tools/clip_plan.py: the speaker alone, then the first picture at 2–3 s) takes a screen of the speaker full screen (hands, chest, diag,
+       cta); when the face leaves none of them room, a screen with the face in its frame (square, band, window: they always fit) */
+    const hook = index === 0 && typeof RUN !== 'undefined' && RUN.hook, spk = n => !!NEON.layouts[n].speaker;
     if (!name) {
       const want = NEON.byCat[meta.cat];
-      if (want && neonRoom(want, face) && (!opening || withFace(want))) name = want;
+      if (want && neonFits(want, face) && (!opening || withFace(want)) && (!hook || spk(want))) name = want;
       else {
-        let pool = NEON.pool.filter(n => n !== NEON.last && neonRoom(n, face) && (!opening || withFace(n)));
+        let pool = NEON.pool.filter(n => n !== NEON.last && neonFits(n, face) && (!opening || withFace(n)));
+        if (hook) { const a = pool.filter(spk), b = pool.filter(withFace); pool = a.length ? a : b.length ? b : ['square', 'window', 'band']; }
         if (!pool.length) pool = ['square', 'window', 'band'].filter(n => n !== NEON.last);
-        /* the picture's REAL shape (final 2026-11-18, Friend: "ฉากไหนที่ motion graphics มีขนาดเล็กจนจอดูโล่ง ให้ขยายด้วย"): a design drawn with this
-           clip's own words can come out another shape than with its sample (B06T.dial: 1.34 wide with its sample, 0.44 tall here, 6 % of the
-           screen in the square box) · REAL_SHAPES by the scene's start (tools/real_shapes.js), else the sample's (glow/shapes.json) */
-        const real = typeof REAL_SHAPES !== 'undefined' ? REAL_SHAPES[t0.toFixed(2)] : null;
-        const ar = real ?? (typeof GLOW_SHAPES !== 'undefined' && meta.variant ? GLOW_SHAPES[meta.variant] : null);
-        if (ar) {                                                            // how big the picture comes out in each screen's box
-          const size = n => neonSize(n, ar);
-          pool = cpSizeKeep(pool, size, .9, n => !!NEON.layouts[n].speaker);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
-        }
+        /* no keep on the drawing's size any more (2026-11-26, as lime and window, common.md 4.1 rule 8: "ต่อไปนี้จะเลิกวัดขนาดภาพ ... จะดูขนาด
+           มาตรฐานทั้ง 7 แบบที่เรากำหนดไว้แทน"): the box is a standard size, the screen is chosen by where a standard size fits */
         pool = cpBalance(pool, n => !!NEON.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
         const least = Math.min(...pool.map(n => NEON.used[n] ?? 0)); pool = pool.filter(n => (NEON.used[n] ?? 0) === least);
         name = pool[Math.floor(neonRand('screen' + index) * pool.length)];
       }
     }
     if (name !== 'over') { NEON.used[name] = (NEON.used[name] ?? 0) + 1; NEON.last = name; }
-    const L = overL ?? NEON.layouts[name] ?? NEON.layouts.square;
+    const L = overL ?? neonFit(name, meta.layout ? null : face) ?? NEON.layouts[name] ?? NEON.layouts.square;   // the standard box of this screen for this face
     const root = div('', SC); root.className = 'n-root' + (L.screen ? ' n-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     if (L.screen) {
@@ -203,6 +236,7 @@ STYLE('neon', {
     }
     A(root, [{opacity: 1}, {opacity: 0}], t1 - .01, .01, {f: 'forwards'});   // cut out on its last frame (it faded and blurred out over 0.3 s)
     const stage = L.stage ? box(L.stage) : box([0, 0, 1, 1]);
+    if (L.std) stage.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3);   // for tools/card_sizes.js (the box is the "card" of a style with none)
     if (L.over) A(stage, [{transform: 'scale(1.035)'}, {transform: 'none'}], t0, .45, {e: EASE.smooth});   // (an overlay: cut in and settle, as the editorial card)
     const stages = L.stages ? L.stages.map(s => box(s)) : null;
     return {root, stage, stages, cam: root, L, name, dark: !!L.screen, room: L.stage ? neonFree(L, face) : null};
