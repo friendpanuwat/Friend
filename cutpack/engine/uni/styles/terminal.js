@@ -73,6 +73,7 @@ function trmChunks(t0, t1) {
    picture keeps its sheet windows (the size rule is for the motion graphic). */
 const TRM_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
 const TRM_MIN = .65;
+const TRM_LOW = 1440, TRM_PILL_GAP = 66;   // the low pill of a speaker screen with a window at the hands (0 = the pill on top, as before 2026-11-26) · the window ends this far over the pill's centre
 const TRM_MENU = false;   // the dark screens' menu bar (off since 2026-11-26)
 const TRM_FADE = [120, 240];   // split_top's fade: the video starts 120 above its old line, fades in over 240 px
 const TRM_ORDER = {hero_chev: [2, 1], win_speaker: [2, 1], split_top: [2, 1], stack3: [6, 5]};
@@ -82,11 +83,12 @@ function trmShape(L, name, key) {
   let order = TRM_ORDER[name] ?? [2], X0 = 60, X1 = 920, Y0 = L.wins[0][1], Y1 = 1660, mid = false;
   if (name === 'big_win') { const first = key != null && cpRand(key) >= .6 ? 6 : 5; order = [first, 11 - first]; Y0 = 300; mid = true; }
   if (name === 'split_top') { Y0 = 310; Y1 = L.line - 40; mid = true; }     // over the red line, 40 clear of it
+  if (L.room) { [Y0, Y1] = L.room; }                                        // a window at the hands under the low pill (trmFit): on the pill's side
   if (name === 'stack3') X0 = 180;                                          // the front window right of the two behind it
   for (const k of order) {
     const [W, H] = TRM_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H); if (s < TRM_MIN) continue;
     const cw = Math.round(W * s), ch = Math.round(H * s);
-    const x = name === 'stack3' ? X1 - cw : Math.round(Math.min(Math.max(540 - cw / 2, X0), X1 - cw)), y = mid ? Math.round(Y0 + (Y1 - Y0 - ch) / 2) : Y0;
+    const x = name === 'stack3' ? X1 - cw : Math.round(Math.min(Math.max(540 - cw / 2, X0), X1 - cw)), y = mid ? Math.round(Y0 + (Y1 - Y0 - ch) / 2) : L.room ? Y1 - ch : Y0;
     L.wins[0] = [x, y, cw, ch]; L.pic = trmInner(L.wins[0]); L.std = [k, s];
     if (L.back) L.back = [[x - 120, y - 220, cw, ch], [x - 60, y - 110, cw, ch]];   // the two empty windows behind, as the sheet's steps
     return L;
@@ -98,6 +100,22 @@ function trmShape(L, name, key) {
 function trmFit(name, f) {
   const L = JSON.parse(JSON.stringify(TRM.layouts[name])); if (!L.speaker) return trmShape(L, name) ?? L;   // (a dark screen always fits: its standard window, big_win at size 5 for estimates)
   const [, top, , chin] = f;
+  /* a window at the hands (shots 02 06 08 10): the pill half way down the lower half (y 1440, or 66 under the chin down to 1600), as every
+     screen of the speaker alone (2026-11-26 Friend: "ถ้าเป็นฉากที่เป็นคลิปคนเต็มๆเลยอ่ะซับก็ควรจะอยู่ครึ่งของครึ่งล่างนะ เสมอเลย แต่ทั้งนี้ทั้งนั้นก็ต้องดูตาม scenario ทั้ง 3 ไป",
+     then "ก"): the window between the chin (30 under it) and the pill (TRM_PILL_GAP over it), on the pill's side; a picture's window a
+     standard size in that room, the other windows as on the sheet; no room (a close shot, or a tall window in a normal one) = null */
+  if (TRM_LOW && L.wins && L.pill.y < 600) {
+    const P = Math.max(TRM_LOW, chin + 66); if (P > 1600) return null; L.pill.y = P;
+    const Y0 = chin + 30, Y1 = P - TRM_PILL_GAP;
+    if (L.pic) { L.room = [Y0, Y1]; return trmShape(L, name); }
+    const w = L.wins[0];
+    while (L.rows && Y1 - Y0 < w[3] && L.rows.n > 2) { L.rows.n--; w[3] -= L.rows.step; }   // a terminal log: a row less (down to 2) before no room
+    if (Y1 - Y0 < w[3]) return null;
+    const d = Y1 - w[3] - w[1], mv = v => v + d; w[1] += d;
+    for (const s of L.slots ?? []) { s.y = mv(s.y); if (s.vy) s.vy = mv(s.vy); }
+    for (const b of L.btns ?? []) b[1] = mv(b[1]); if (L.bar) L.bar[1] = mv(L.bar[1]);
+    if (L.rows) { L.rows.cmdY = mv(L.rows.cmdY); L.rows.y0 = mv(L.rows.y0); }
+    return L; }
   if (L.pill.y < 600 && top < L.pill.y + 60) return null;                    // (the pill on top would sit on the face)
   if (L.top && top < 420) return null;                                       // (the notification on top)
   if (L.wins) { const w = L.wins[0], d = Math.max(0, chin + 30 - w[1]); if (w[1] + d + w[3] > 1660) return null;
@@ -212,7 +230,7 @@ STYLE('terminal', {
     }
     TRM.used[name] = (TRM.used[name] ?? 0) + 1; TRM.last = name; TRM.sinceNoPic = TRM.layouts[name].noPic ? 0 : TRM.sinceNoPic + 1;
     const copy = o => JSON.parse(JSON.stringify(o)), raw = TRM.layouts[name];
-    const L = (raw.speaker && !meta.layout ? trmFit(name, face) : trmShape(copy(raw), name, 'size' + index) ?? copy(raw)) ?? trmShape(copy(TRM.layouts.big_win), 'big_win', 'size' + index);   // the standard size (a dark screen from its room · a speaker screen from this face)
+    const L = (raw.speaker && (!meta.layout || TRM_LOW && raw.wins && raw.pill.y < 600) ? trmFit(name, face) ?? (meta.layout ? copy(raw) : null) : trmShape(copy(raw), name, 'size' + index) ?? copy(raw)) ?? trmShape(copy(TRM.layouts.big_win), 'big_win', 'size' + index);   // the standard size (a dark screen from its room · a speaker screen from this face)
     const screen = !L.speaker, root = div('', SC); root.className = 'm-root' + (screen ? ' m-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     const rise = (e, k, dy = 40) => A(e, [{opacity: 0, transform: `translateY(${dy}px) scale(.96)`, filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .04 + .1 * k, .45, {e: EASE.soft});
