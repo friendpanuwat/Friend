@@ -73,6 +73,7 @@ function trmChunks(t0, t1) {
    picture keeps its sheet windows (the size rule is for the motion graphic). */
 const TRM_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
 const TRM_MIN = .65;
+const TRM_FADE = [120, 240];   // split_top's fade: the video starts 120 above its old line, fades in over 240 px
 const TRM_ORDER = {hero_chev: [2, 1], win_speaker: [2, 1], split_top: [2, 1], stack3: [6, 5]};
 const trmInner = ([x, y, w, h]) => [x + 24, y + 84, w - 48, h - 108];   // the picture inside a window (under its 72-high title bar)
 function trmShape(L, name, key) {
@@ -223,9 +224,12 @@ STYLE('terminal', {
     if (L.menu) { const m = box([0, 0, 1080, 52]); m.className = 'm-menu';
       [[40, 86], [146, 34], [200, 34], [254, 44], [318, 70], [956, 84]].forEach(([x, w]) => { const s = div(`left:${x}px;top:20px;width:${w}px`, m); s.className = 'm-sk'; }); }
     /* the speaker's half (shot 07) and its red line */
-    if (L.half) { const [x, y, w, h, k, fy] = L.half, f = box([x, y, w, h]); f.className = 'm-half'; cpInset(f, w, h, t0, k, fy);
-      A(f, [{opacity: 0, transform: 'translateY(60px)'}, {opacity: 1, transform: 'none'}], t0, .45, {e: EASE.soft});
-      const ln = div(`top:${L.line}px`, root); ln.className = 'm-line'; A(ln, [{transform: 'scaleX(0)'}, {transform: 'scaleX(1)'}], t0 + .1, .45, {e: EASE.soft}); }
+    /* (2026-11-26 Friend: "อยากให้เปลี่ยนจากการแบ่งหน้าจอเป็นการเฟดแทนได้ไหม": no red line; the video starts TRM_FADE[0] higher and
+       fades in over its top TRM_FADE[1] px, the face stays where it was) */
+    if (L.half) { const [x, y0, w, h0, k, fy] = L.half, [up, fade] = TRM_FADE, y = y0 - up, h = h0 + up, f = box([x, y, w, h]); f.className = 'm-half';
+      cpInset(f, w, h, t0, k, (up + h0 * fy) / h);
+      f.style.webkitMaskImage = f.style.maskImage = `linear-gradient(180deg,rgba(0,0,0,0) 0px,rgba(0,0,0,.55) ${fade * .5}px,#000 ${fade}px)`;
+      A(f, [{opacity: 0, transform: 'translateY(60px)'}, {opacity: 1, transform: 'none'}], t0, .45, {e: EASE.soft}); }
     /* an app window: three dots, a thin line under its title bar (no title: "ROUTINE 01" is a small label) */
     const win = (b, k, cls = '') => { const e = box(b); e.className = 'm-win' + cls; rise(e, k);
       ['#FF5F57', '#FEBC2E', '#28C840'].forEach((c, i) => { const d = div(`left:${27 + 32 * i}px;background:${c}`, e); d.className = 'm-dot'; });
