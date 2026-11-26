@@ -718,6 +718,8 @@
     floorSG(p, T, W, H); const pd = sIn(p, 0, ey, T.tI), E = k => `M ${f1(-erx * k)} ${ey} A ${f1(erx * k)} ${f1(ery * k)} 0 1 0 ${f1(erx * k)} ${ey} A ${f1(erx * k)} ${f1(ery * k)} 0 1 0 ${f1(-erx * k)} ${ey} Z`; pd.path(E(1), { fill: C.fill, sw: 3.6 }); pd.path(E(.7), S(1.6));
     const top = f1(-H / 2 + 8), bot = f1(ey - 6), avH = bot - top; let L = [];
     if (s === 'flat' || s === 'wide') { const gp = 22, sz = f1(Math.min(avH * .96, (W * .92 - (n - 1) * gp) / n)); L = I.map((_, i) => [f1((i - (n - 1) / 2) * (sz + gp)), f1(bot - sz / 2), sz, true]); }
+    else if (n === 2) { const gp = 26, row = Math.min(avH * .96, (W * .92 - gp) / 2), col = Math.min((avH - gp) / 2, W * .9), sz = f1(Math.max(row, col));
+      L = row >= col ? I.map((_, i) => [f1((i - .5) * (sz + gp)), f1(bot - sz / 2), sz, true]) : I.map((_, i) => [0, f1(bot - sz / 2 - (1 - i) * (sz + gp)), sz, true]); }
     else if (n === 4) { const gp = 26, sz = f1(Math.min((avH - gp) / 2, (W * .9 - gp) / 2)); L = I.map((_, i) => [f1((i % 2 - .5) * (sz + gp)), f1(bot - sz / 2 - (1 - Math.floor(i / 2)) * (sz + gp)), sz, true]); }
     else if (n === 3) { const gp = 26, big = f1(Math.min(avH * .52, W * .6)), sm = f1(Math.min(avH - big - gp, (W * .9 - gp) / 2)); L = [[f1(-(sm + gp) / 2), f1(bot - big - gp - sm / 2), sm, false], [f1((sm + gp) / 2), f1(bot - big - gp - sm / 2), sm, false], [0, f1(bot - big / 2), big, true]]; }
     else if (s === 'tall') { const gp = 26, sz = f1(Math.min((avH - gp) / 2, W * .8)); L = I.map((_, i) => [0, f1(bot - sz / 2 - (1 - i) * (sz + gp)), sz, true]); }
@@ -817,11 +819,11 @@
     const g = sIn(p, 0, 0, T.tI); glassR(g, -cw / 2, -ch / 2, cw, ch, rr); R(litOn(p, T.H), -cw / 2, -ch / 2, cw, ch, rr, { fill: 'none', sw: 4.4, stroke: ACC1 });
     const RD = [`M ${f1(-cw / 2 + 6)} ${f1(ch * .22)} C ${f1(-cw * .2)} ${f1(ch * .05)}, ${f1(cw * .1)} ${f1(ch * .4)}, ${f1(cw / 2 - 6)} ${f1(ch * .14)}`, `M ${f1(-cw * .22)} ${f1(-ch / 2 + 6)} C ${f1(-cw * .18)} ${f1(-ch * .1)}, ${f1(-cw * .3)} ${f1(ch * .2)}, ${f1(-cw * .26)} ${f1(ch / 2 - 6)}`, `M ${f1(cw * .26)} ${f1(-ch / 2 + 6)} C ${f1(cw * .24)} ${f1(-ch * .1)}, ${f1(cw * .32)} ${f1(ch * .1)}, ${f1(cw * .3)} ${f1(ch / 2 - 6)}`];
     RD.forEach(dd => drawAt(p.path(dd, { sw: 3, stroke: C.soft }), p, f3(T.tI + tu(.1)), tu(.6)));
-    const r = f1(Math.min(ch * .9 / 2.9, cw * .14)), hy = f1(ch / 2 - 14 - r * 1.9), pk = { px: 0, py: hy, y: KW(T, 0, .45, u => f1(-30 * (1 - u))), o: inW(T, 0, .25) }, mg = mvG(p, pk);
+    const r = f1(Math.min(ch * .86 / 2.9, cw * .3)), hy = f1(-r * .45), pk = { px: 0, py: hy, y: KW(T, 0, .45, u => f1(-30 * (1 - u))), o: inW(T, 0, .25) }, mg = mvG(p, pk);
     mg.path(pinD(0, hy, r), F(4.8)); mg.circle(0, hy, f1(r * .72), S(1.6)); litOn(mg, T.H).path(pinD(0, hy, r), { fill: TA(.06), sw: 4.8, stroke: ACC1 });
     if (icOf(P)) put(p, c, { icon: P.icon }, 0, hy, f1(r * 1.1), null, { t: tAt(T, 0), o: pk.o, mv: { px: 0, py: hy, y: pk.y } });
-    else { mg.circle(0, hy, f1(r * .16), { fill: ACC1, sw: 0, stroke: 'none' }); if (nm) pill(p, nm, f1(r + 30 + Math.min(240, wordW(p, nm, 36)) / 2 + 30), hy, { t: tAt(T, .4), size: 36, maxW: 240 }); }
-    const sr = f1(r * .5); SPT.forEach((X, i) => { const x = f1(i ? cw * .3 : -cw * .26), y = f1(i ? -ch * .02 : ch * .1), shy = f1(y - sr * 1.9 + 6), a = .5 + .15 * i, gg = mvG(p, { px: x, py: shy, o: inW(T, a, a + .2) });
+    else { mg.circle(0, hy, f1(r * .16), { fill: ACC1, sw: 0, stroke: 'none' }); if (nm) { const tl = cw < ch; pill(p, nm, tl ? 0 : f1(r + 30 + Math.min(240, wordW(p, nm, 36)) / 2 + 30), tl ? f1(hy + r * 1.9 + 44) : hy, { t: tAt(T, .4), size: 36, maxW: 240 }); } }
+    const sr = f1(r * (cw < ch ? .36 : .5)); SPT.forEach((X, i) => { const tl = cw < ch, x = f1(tl ? (i ? 1 : -1) * cw * .28 : i ? cw * .3 : -cw * .26), y = f1(tl ? ch / 2 - 30 : i ? -ch * .02 : ch * .1), shy = f1(y - sr * 1.9 + 6), a = .5 + .15 * i, gg = mvG(p, { px: x, py: shy, o: inW(T, a, a + .2) });
       gg.path(pinD(x, shy, sr), F(3.6)); thing(p, c, X, x, shy, f1(sr * 1.15), { t: tAt(T, a), o: inW(T, a, a + .2), size: 16, maxW: f1(sr * 1.4) }); }); }
   /* 22 tall — ชุดเฟืองแนวตั้ง: the subject's gear at the top, the parts' gears meshed down the box, the result at the bottom */
   function R22T(p, c, d, W, H) { const T = TQ(), Cs = (Array.isArray(d.components) ? d.components.filter(has) : []).slice(0, 3), Rs = d.result && has(d.result) ? d.result : null, n = Math.max(2, Cs.length), fy = FLRG(H);
@@ -833,11 +835,44 @@
     if (Rs) { const ry = f1(py + R2 + 26 + rres), g = mvG(p, { px: 0, py: ry, s: pSG(T, .75, 1), o: inW(T, .75, .9) }); glassC(g, 0, ry, rres, 4); litOn(g, T.H).circle(0, ry, rres, { fill: 'none', sw: 4, stroke: ACC1 }); thing(p, c, Rs, 0, ry, f1(rres * 1.2), { t: tAt(T, .75), o: inW(T, .75, .95), mv: { s: pSG(T, .75, 1) }, size: 18, maxW: f1(rres * 1.5) }); } }
   const pick = (fn, alt) => (p, c, d, W, H) => (alt[shpG(W, H)] || fn)(p, c, d, W, H);
 
+  /* ===== round 2 of per-size redesigns (user marked: size 4 B20 B21 · size 1 B18 · B19 square boxes · B17 two items · size 1 B13 "แคปซูลยาวๆ ดูโล่งๆ แปลกๆ") ===== */
+  /* 13 flat — แถวช่องล็อก: a row of locked tiles fills the strip; the middle one unlocks, grows and shows the secret, the others dim */
+  function R13F(p, c, d, W, H) { const T = TQ(), n = 5, gp = 16, ts = f1(Math.min(H * .8, (W - (n - 1) * gp) / (n + .6))), kS = f1(Math.min(H * .96 / ts, 1.2)), step = f1(ts + gp), rr = f1(ts * .24);
+    for (let i = 0; i < n; i++) { if (i === 2) continue; const x = f1((i - 2) * step + (i < 2 ? -1 : 1) * ts * (kS - 1) / 2), t = f3(T.tI + tu(.04 * i));
+      glassR(mvG(p, { px: x, py: 0, o: fadeS(t).concat(KW(T, .2, .55, u => 1 - .65 * u, 8).slice(1)) }), f1(x - ts / 2), f1(-ts / 2), ts, ts, rr, 4);
+      put(p, c, { icon: 'lock' }, x, 0, f1(ts * .44), null, { t, o: fadeS(t).concat(KW(T, .2, .55, u => 1 - .7 * u, 8).slice(1)) }); }
+    const SK = KW(T, .2, .7, u => 1 + (kS - 1) * u), g = mvG(p, { px: 0, py: 0, s: SK, o: fadeS(T.tI) }); glassR(g, -ts / 2, -ts / 2, ts, ts, rr, 4); R(litOn(g, T.H), -ts / 2, -ts / 2, ts, ts, rr, { fill: TA(.1), sw: 4, stroke: ACC1 });
+    put(p, c, { icon: 'lock' }, 0, 0, f1(ts * .44), null, { t: T.tI, o: outAfter(T.tI, T, 0, .2) }); put(p, c, { icon: 'lock-open' }, 0, 0, f1(ts * .44), null, { t: tAt(T, 0), o: [[0, 0], [tAt(T, 0), 0], [tAt(T, .12), 1, 'io'], [tAt(T, .22), 1], [tAt(T, .38), 0, 'io']] });
+    thing(p, c, d.secret, 0, 0, f1(ts * kS * .72), { t: tAt(T, .45), o: inW(T, .45, .8), mv: { s: pSG(T, .45, .9) }, size: f1(ts * .3), maxW: f1(ts * kS * .9) }); }
+  /* 18 flat — เส้นเวลาพาดยาว: a time track across the whole strip with its nodes; the moment is a big disc in the middle; the time (if said) on a tag on the track */
+  function R18F(p, c, d, W, H) { const T = TQ(), when = d.when && String(d.when).trim(), dr = f1(H * .47), x0 = f1(-W / 2 + 10), x1 = f1(W / 2 - 10);
+    const tr = p.line(x0, 0, x1, 0, { sw: 4 }); on(tr, p, 0, { draw: [[0, 0], [T.tI, 0], [tAt(T, .3), 1, 'io']] });
+    [-.42, -.3, .3, .42].forEach((u, i) => { if (when && u === -.3) return; const g = sub(p); on(g, p, 0, { o: inW(T, .05 * i, .05 * i + .2) }); g.circle(f1(u * W), 0, 10, F(3)); });
+    [-.17, .17].forEach(u => { const g = sub(p); on(g, p, 0, { o: inW(T, .2, .4) }); g.circle(f1(u * W), 0, 14, F(3.4)); });
+    if (when) pill(p, when, f1(-W * .32), 0, { t: tAt(T, .1), size: 36, maxW: f1(W * .2) });
+    const g = mvG(p, { px: 0, py: 0, s: pSG(T, .3, .6), o: inW(T, .3, .5) }); glassC(g, 0, 0, dr, 5); g.circle(0, 0, f1(dr - 14), S(1.6)); litOn(g, T.H).circle(0, 0, dr, { fill: 'none', sw: 5, stroke: ACC1 });
+    thing(p, c, d.what, 0, 0, f1(dr * 1.2), { t: tAt(T, .35), o: inW(T, .35, .65), mv: { s: pSG(T, .35, .7) }, size: f1(dr * .34), maxW: f1(dr * 1.6) }); }
+  /* 19 square — วงสามในสี่: five segments wrap three-quarters round the feeling's disc, a frown and a smile in the gap at the bottom; the segments light toward the feeling's side */
+  function R19Q(p, c, d, W, H) { const T = TQ(), good = d.mood !== 'bad', Ro = f1(Math.min(W, H) * .47), Ri = f1(Ro * .8), dr = f1(Ri - 22), cy = f1(-Ro * .06), sp = 270 / 5;
+    const seg = i => { const a0 = 135 + i * sp + 3, a1 = a0 + sp - 6, P = (a, r) => f1(r * Math.cos(a * Math.PI / 180)) + ' ' + f1(cy + r * Math.sin(a * Math.PI / 180)); return `M ${P(a0, Ro)} A ${Ro} ${Ro} 0 0 1 ${P(a1, Ro)} L ${P(a1, Ri)} A ${Ri} ${Ri} 0 0 0 ${P(a0, Ri)} Z`; };
+    const lit = good ? [2, 3, 4] : [2, 1, 0];
+    [0, 1, 2, 3, 4].forEach(i => { const g = sIn(p, 0, cy, f3(T.tI + tu(.04 * i))); glassP(g, seg(i), cy - Ro, cy + Ro, 3.6); const k = lit.indexOf(i); if (k >= 0) litOn(p, tAt(T, .2 + .25 * k)).path(seg(i), { fill: TA(.4), sw: 3.6, stroke: ACC1 }); });
+    const es = f1(Ro * .26), ey = f1(cy + Ro * .84); [[-1, 'frown'], [1, 'smile']].forEach(([sd, ic]) => put(p, c, { icon: ic }, f1(sd * Ro * .5), ey, es, null, { t: tu(.2), o: [[0, 0], [tu(.2), 0], [tu(.5), .65, 'io']] }));
+    const g = sIn(p, 0, cy, f3(T.tI + tu(.1))); glassC(g, 0, cy, dr, 5); g.circle(0, cy, f1(dr - 14), S(1.6)); litOn(p, T.H).circle(0, cy, dr, { fill: TA(.08), sw: 5, stroke: ACC1 });
+    thing(p, c, d.feel, 0, cy, f1(dr * 1.3), { t: tAt(T, 0), o: inW(T, 0, .3), size: f1(dr * .34), maxW: f1(dr * 1.6) }); }
+  /* 20 tall — สองแผ่นบนล่าง: a at the top, b at the bottom; a thick link grows from both and meets at a link disc in the middle; ended → it stops short, ✕ */
+  function R20T(p, c, d, W, H) { const T = TQ(), cut = d.cut === true, r = f1(Math.min(W * .4, H * .18)), ya = f1(-H / 2 + r + 4), yb = f1(H / 2 - r - 4), nr = f1(r * .42), stop = cut ? f1(nr * .9) : 0, tw = f1(Math.max(12, r * .16));
+    [[ya, d.a], [yb, d.b]].forEach(([y, X], i) => { const g = sIn(p, 0, y, f3(T.tI + tu(.08 * i))); glassC(g, 0, y, r, 4.6); g.circle(0, y, f1(r - 12), S(1.6)); thing(p, c, X, 0, y, f1(r * 1.25), { t: tu(.18 + .08 * i), size: f1(r * .34), maxW: r * 1.6 }); });
+    [[f1(ya + r), 1], [f1(yb - r), -1]].forEach(([y, sd]) => { const len = f1(Math.max(4, Math.abs(y) - stop)), gg = mvG(p, { px: 0, py: y, sy: KW(T, 0, .45, v => Math.max(.001, v)), o: [[0, 0], [tAt(T, 0), 0], [f3(tAt(T, 0) + tu(.06)), 1]] });
+      glassR(gg, f1(-tw / 2), sd > 0 ? y : f1(y - len), tw, len, f1(tw / 2), 3.4); if (!cut) R(litOn(gg, T.H), f1(-tw / 2), sd > 0 ? y : f1(y - len), tw, len, f1(tw / 2), { fill: TA(.5), sw: 3.4, stroke: ACC1 }); });
+    if (cut) { const mg = popAt(p, 0, 0, tAt(T, .6)); mg.circle(0, 0, f1(nr * .7), F(4)); XX(mg, 0, 0, f1(nr / 40)); }
+    else { const g = mvG(p, { px: 0, py: 0, s: pSG(T, .42, .7), o: inW(T, .42, .62) }); glassC(g, 0, 0, nr, 4.4); litOn(g, T.H).circle(0, 0, nr, { fill: TA(.15), sw: 4.4, stroke: ACC1 }); put(p, c, { icon: 'link' }, 0, 0, f1(nr * 1.16), null, { t: tAt(T, .42), o: inW(T, .42, .62), mv: { s: pSG(T, .42, .7) } }); } }
+
   /* ----- the sheets ----- */
   function frame(c, W0, H0) { const f = p => { p.rect(-W0 / 2, -H0 / 2, W0, H0, { sw: 3, stroke: '#ffd400' }); }; f.custom = true; f.dur = .01; f.exit = 'pop'; G.art(f, { x: c.x, y: c.y, s: c.s, at: 0, speed: 1 }); }
   const SIZES = [null, { w: 860, h: 230, th: 'แถบแบนยาว' }, { w: 860, h: 470, th: 'กว้าง' }, { w: 560, h: 490, th: 'เกือบจัตุรัส' }, { w: 400, h: 635, th: 'ตั้งแคบ' }, { w: 860, h: 710, th: 'เต็มจอ ทรงนอน' }, { w: 860, h: 965, th: 'เต็มจอ ทรงตั้ง' }, { w: 400, h: 500, th: 'ตั้งแคบ สั้น' }];
   const I = (icon, label) => label ? { icon, label } : { icon };
-  const FN = [pick(Q13, { tall: R13T }), pick(Q14, { tall: R14T, flat: R14F }), Q15, Q16, Q17, Q18, pick(Q19, { flat: R19L, tall: R19L }), Q20, pick(Q21, { flat: R21M, wide: R21M }), pick(Q22, { tall: R22T })], TH = ['แคปซูลแยกออก', 'แท่นสองชั้น', 'ปุ่มวงแหวน', 'สองแผ่นเท่ากัน', 'แผ่นวงกับการ์ด', 'เส้นเวลาชี้จุดนั้น', 'วงวัดอารมณ์', 'สะพานแสง', 'หมุดเหนือแผ่นวง', 'ชุดเฟือง'];
+  const FN = [pick(Q13, { tall: R13T, flat: R13F }), pick(Q14, { tall: R14T, flat: R14F }), Q15, Q16, Q17, pick(Q18, { flat: R18F }), pick(Q19, { flat: R19L, tall: R19L, sq: R19Q }), pick(Q20, { tall: R20T }), pick(Q21, { flat: R21M, wide: R21M, tall: R21M }), pick(Q22, { tall: R22T })], TH = ['แคปซูลแยกออก', 'แท่นสองชั้น', 'ปุ่มวงแหวน', 'สองแผ่นเท่ากัน', 'แผ่นวงกับการ์ด', 'เส้นเวลาชี้จุดนั้น', 'วงวัดอารมณ์', 'สะพานแสง', 'หมุดเหนือแผ่นวง', 'ชุดเฟือง'];
   const D = [
     { cat: 'B13 เคล็ดลับ', th: TH[0], fn: FN[0], data: [{ say: 'เคล็ดลับคือใส่เกลือนิดเดียว', secret: I('cooking-pot', 'เกลือนิดเดียว') }, { say: 'ความลับคือจ่ายตัวเองก่อน', secret: I('piggy-bank') }, { say: 'วิธีลัดคือกด Ctrl+Z (ไม่มีไอคอน)', secret: { label: 'Ctrl+Z' } }] },
     { cat: 'B14 ประโยคเด็ด', th: TH[1], fn: FN[1], data: [{ say: 'เริ่มจากเล็กๆ แล้วจะไปได้ไกล', idea: I('sprout', 'เริ่มจากเล็กๆ') }, { say: 'ทำอะไรก็ทำด้วยใจ', idea: I('heart', 'ทำด้วยใจ') }, { say: 'ช้าแต่ชัวร์ (ไม่มีไอคอน)', idea: { label: 'ช้าแต่ชัวร์' } }] },
