@@ -22,7 +22,7 @@ const GLOWLOOK = {
   /* the new styles (Friend 2026-11-17 cancelled the 4 above and is replacing them with 12 sheets made with AI, copied 100%) */
   neon:  {acc: '--ac',     glow: {c: '#2FA8F0', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, clipRoom: true},   // clipRoom: final 2026-11-18 (B06T radar's waves grew past its box onto the key word, test clip 24 s; shrinking the pictures to their motion took the first one from 17 % of the screen to 10 %)
   window: {acc: '--ac',    glow: {c: '#3E86FF', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: 'whole',
-    seven: {lines: 1.5, grey: .2}},   // set 3 as lime (2026-11-26, Friend: "ทำ 1-3 ก่อน" · "เอา 1 ใน 5"): glowSeven    // หน้าต่างแอป (Friend's 3rd new sheet, 2026-11-18): the glass look in app windows, blue light · 'whole' 2026-11-24 (Friend: "ทั้ง 2 ข้อทำเหมือนกันครับ" as lime: a drawing whose motion leaves its window shrinks until all of it fits, centred; the window clips the rest)
+    seven: {lines: 1.5, grey: .2}, lineGlow: true},   // lineGlow: glowLight (2026-11-26) · set 3 as lime (2026-11-26, Friend: "ทำ 1-3 ก่อน" · "เอา 1 ใน 5"): glowSeven    // หน้าต่างแอป (Friend's 3rd new sheet, 2026-11-18): the glass look in app windows, blue light · 'whole' 2026-11-24 (Friend: "ทั้ง 2 ข้อทำเหมือนกันครับ" as lime: a drawing whose motion leaves its window shrinks until all of it fits, centred; the window clips the rest)
   violet: {acc: '--ac',    glow: {c: '#8B5CF6', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},   // ม่วงคลื่นเสียง (Friend's 5th new sheet, 2026-11-18): the glass look in violet cards, violet light
   teal:  {acc: '--ac',     glow: {c: '#3FCEBA', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: true},
   yellow: {acc: '--ac',    glow: {c: '#FFD600', self: true},    weight: {k: 1.6, min: 4.0, floor: 2.6}, floatAlpha: .62},   // the sheet's lines are 5 px where neon's are 3
@@ -32,7 +32,7 @@ const GLOWLOOK = {
   terminal: {acc: '--ac',  glow: {c: '#EE4444', self: true},    weight: {k: 1.6, min: 4.0, floor: 2.6}, floatAlpha: .62},   // เทอร์มินัลแดง (Friend's 9th new sheet, 2026-11-18): thick white glowing lines, the lit part red
   horizon: {acc: '--ac',   glow: {c: '#FB7A1A', self: true},    weight: {k: 1.8, min: 5.0, floor: 3.0}, floatAlpha: .6},    // ขอบฟ้าส้ม (Friend's 8th new sheet, 2026-11-18): thick warm-white lines (7 px on the full-size shot 04), the lit part orange   // เส้นชี้ HUD (Friend's 7th new sheet, 2026-11-18): the same glow-line look as the yellow style (the sheet draws them alike)   // ขั้นตอนเหลือง (Friend's 6th new sheet, 2026-11-18): near-black bodies, white lines glowing white, the lit part yellow    // การ์ดเขียวน้ำทะเล (Friend's 4th new sheet, 2026-11-18): the glass look in teal cards, teal light
   lime:  {acc: '--ac',     glow: {c: '#B5EE38', self: true},    weight: {k: 1.0, min: 2.4, floor: 2.0}, floatAlpha: .5, motionFit: 'whole',
-    seven: {lines: 1.5, grey: .2}},   // set 3 (2026-11-26, Friend: "ทำ 1-3 ก่อน" · "เอาแบบใหม่ครับแต่ว่าอยากให้ลดการถมสีเทาลงหน่อย" · "เอา 1 ใน 5"): glowSeven below   // 2026-11-24 (Friend: "แก้ที่มันออกนอกการ์ดมาด้วย" · "ย่อแล้วจัดองค์ประกอบให้มันอยู่ตรงกลาง"): a drawing whose motion leaves the card shrinks until all of it fits, centred (glowFit whole); styles/lime.js clips at the card as a safety net    // เขียวมะนาว (Friend's 2nd new sheet, 2026-11-18): the neon glass, lime light    // นีออนฟ้า (Friend's sheet 2): frosted grey glass, white lines with their own soft glow, the lit part blue and glowing hard
+    seven: {lines: 1.5, grey: .2}, lineGlow: true},   // lineGlow: glowLight (2026-11-26) · set 3 (2026-11-26, Friend: "ทำ 1-3 ก่อน" · "เอาแบบใหม่ครับแต่ว่าอยากให้ลดการถมสีเทาลงหน่อย" · "เอา 1 ใน 5"): glowSeven below   // 2026-11-24 (Friend: "แก้ที่มันออกนอกการ์ดมาด้วย" · "ย่อแล้วจัดองค์ประกอบให้มันอยู่ตรงกลาง"): a drawing whose motion leaves the card shrinks until all of it fits, centred (glowFit whole); styles/lime.js clips at the card as a safety net    // เขียวมะนาว (Friend's 2nd new sheet, 2026-11-18): the neon glass, lime light    // นีออนฟ้า (Friend's sheet 2): frosted grey glass, white lines with their own soft glow, the lit part blue and glowing hard
 };
 /* what is really visible at the end of the drawing (not the things still hidden or gone: the getBBox of the whole drawing counted
    four hidden coins and made an overlay picture small), in the svg's user units */
@@ -505,7 +505,17 @@ function glowLight(svg, P, base) {
     const hit = ['fill', 'stroke'].some(a => { const v = (e.getAttribute(a) || '').toLowerCase(); return v === hex || rgb.test(v); });
     if (hit && !e.closest('[filter="url(#cpGlow)"]') && !e.closest('[data-fig]')) e.setAttribute('filter', 'url(#cpGlow)');
   });
+  /* A STRAIGHT LINE KEEPS ITS GLOW (GLOWLOOK.<style>.lineGlow · 2026-11-26, Friend on clip 3's slider: "ทำไมอันนี้มันdesignแปลกๆต้นฉบับเป็นแบบนี้
+     หรือเปล่า" → "เส้นที่มันไม่แสดงแล้วคุณแก้ไปแล้วอ่ะทำไมคุณไม่ใส่"): a filter's region is a share of its element's box, and a straight
+     vertical or horizontal line has a box 0 wide (or high), so the glowing accent line was not drawn at all (the slider's divider, the
+     bars' lit tops, the top step). Such a line takes a copy of the glow measured in its own units (400 round it), so it shows and glows. */
+  if (GLOWLOOK[base]?.lineGlow) { const own = svg.querySelector('#cpGlow');
+    if (own) root.querySelectorAll('[filter="url(#cpGlow)"]').forEach((e, k) => { if (e.tagName === 'g') return; const q = e.getBBox(); if (q.width >= .5 && q.height >= .5) return;
+      const c = own.cloneNode(true); c.id = `cpGlowLine${++GLOW_LINE}`; c.setAttribute('filterUnits', 'userSpaceOnUse');
+      Object.entries({x: q.x - 400, y: q.y - 400, width: q.width + 800, height: q.height + 800}).forEach(([n, v]) => c.setAttribute(n, v.toFixed(1)));
+      own.parentNode.appendChild(c); e.setAttribute('filter', `url(#${c.id})`); }); }
 }
+let GLOW_LINE = 0;
 /* draw design i of category cat with data d into a box of the frame (F.stage, or another box the style gives, e.g. the recap's three
    rows). The drawing is fitted to the box by what it really shows (a style decides every box: Friend's sheets place each picture
    exactly). Several drawings per page work: each one gets its own GL stage, the runtime's clock drives them all. */
