@@ -1,6 +1,6 @@
 /* =====================================================================
    CutPack · uni · glow index (2026-11-17): the list of glow-line designs, for the tools that run without a browser
-   (drafts.js → tools/clip_plan.py, tools/pick.js), and glow/seven.json for the 7-size set (tools/pick.js --seven). The designs themselves are read-only in the skill
+   (drafts.js → tools/clip_plan.py, tools/pick.js), and glow/seven.json for the 7-size set (tools/pick.js, a set-3 plan). The designs themselves are read-only in the skill
    (.claude/skills/glow-line-motion/examples/b??/ and b??t/); this writes glow/index.json = {"B04T": [{"id", "th"}, …], …}.
    Run it again whenever the skill gets new designs: NODE_PATH=$(npm root -g) node glow/index.js
    ===================================================================== */
@@ -14,7 +14,7 @@ const sets = fs.readdirSync(EX).filter(d => /^b\d\dt?$/.test(d) && fs.existsSync
   for (const d of sets) await p.addScriptTag({path: path.join(EX, d, d + '.js')});
   const idx = await p.evaluate(() => Object.fromEntries(Object.entries(GL.cats).filter(([k]) => /^B\d\dT?$/.test(k)).sort()
     .map(([k, c]) => [k, c.variants.map(v => ({id: v.id, th: v.th}))])));
-  /* the 7-size set (ชุด 3, 2026-11-26) → glow/seven.json = {"B01": designs a size, …} for tools/pick.js --seven: B01S–B12S (the same
+  /* the 7-size set (ชุด 3, 2026-11-26) → glow/seven.json = {"B01": designs a size, …} for tools/pick.js (a set-3 plan): B01S–B12S (the same
      count at every size, checked here) and SG + S7G (B13–B22, one design a size; B22 is not a CutPack category yet) */
   for (const d of fs.readdirSync(EX).filter(d => /^b\d\ds$/.test(d)).sort().concat(['sg', 's7g']))
     if (fs.existsSync(path.join(EX, d, d + '.js'))) await p.addScriptTag({path: path.join(EX, d, d + '.js')});

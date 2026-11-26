@@ -1,9 +1,9 @@
 """Turn the two AI answers (captions: Haiku · pictures: Sonnet) into a clip plan for the uni engine, by rule only (no choices).
-usage: tools/clip_plan.py <web_dir> <faces.json> [<style> …] [--seed N] [--history customer_history.json] [--seven]
+usage: tools/clip_plan.py <web_dir> <faces.json> [<style> …] [--seed N] [--history customer_history.json] [--old-sets]
   (first try at step 4, 2026-11-11: a real clip with the web's two AI steps)
   --seed: the run's random number (default: a new one every run, printed; give it back to make the same plan again)
   --history: the customer's past runs (tools/pick.js stays away from their last 10; this run is added to the file)
-  --seven: the pictures from the 7-size set (ชุด 3, lime and window only; see SEVEN below)
+  --old-sets: sets 1–2 even for a style of SEVEN_STYLES (they take set 3 by default; see SEVEN below) · --seven: accepted, the default now
   in  <web_dir>/captions.json (captions.py), <web_dir>/cats/report.json + sentences.js + camera.json (cat_ai.py check), lines.json
   out per style: <web_dir>/plan_<style>.js (FACES, CAPTIONS, ZOOMS, SENTENCE with no words: every word is in CAPTIONS)
       and then_<style>.txt (scenes for build.py); with no style: plan.js + then.txt by the old rule (one picture every 4–6 s)
@@ -38,8 +38,12 @@ HISTORY = flag('--history')
 # เขียวมะนาวและสไตล์หน้าต่างแอป"): every picture is a design of that set (tools/pick.js pickSeven, "<sentence>.<cat>S.<i>"), drawn at the
 # standard size of the card it lands in (glow/bridge.js glowDraw7). Only for the styles whose cards are the 7 standard sizes. No fit pick
 # (it measures the old sets' drawings: every design of the new set is drawn to fill its own size); a style's hook check still runs.
-SEVEN = '--seven' in args
-if SEVEN: args.remove('--seven')
+# DEFAULT since 2026-11-26 (Friend: "ผมตั้งใจจะใช้ template ชุดฐาน 7 ขนาดเป็นหลักอยู่แล้วครับ" → "เปลี่ยนเลยครับ"): every style of SEVEN_STYLES takes
+# set 3 with no flag; the other styles (no 7 standard sizes yet) keep sets 1–2. SEVEN is set per style in the loop at the bottom.
+OLD_SETS = '--old-sets' in args
+for a in ('--old-sets', '--seven'):
+    if a in args: args.remove(a)
+SEVEN = False
 SEVEN_STYLES = {'lime', 'window', 'neon'}   # neon 2026-11-26 (its 7 sizes: styles/neon.js NEON_SIZE · Friend: "ส่งรูปตอนที่ใส่ motion graphics template ชุดฐาน 7 ขนาดมาให้ดูด้วยครับ")
 W, FACES = args[0], args[1]
 STYLES = args[2:]
@@ -360,9 +364,9 @@ def write(style, R, sc, zooms, suffix, ov=(), open_='speaker', hook=False):
 if not STYLES:                                   # the old rule (2026-11-11), for comparing
     R = dict(every=5.0, scene=(2.4, 99), cover=1.0, run=99, zoom=False)
     write('old', R, scenes_for(R), [], '')
-if SEVEN and set(STYLES) - SEVEN_STYLES:
-    sys.exit(f"--seven: only for {', '.join(sorted(SEVEN_STYLES))} (their cards are the 7 standard sizes); not {', '.join(sorted(set(STYLES) - SEVEN_STYLES))}")
 for st in STYLES:
+    SEVEN = st in SEVEN_STYLES and not OLD_SETS   # set 3 for this style (picks_for, fit_picks and write read it)
+    print(f"{st}: pictures from {'set 3 (Template ชุดฐาน 7 ขนาด)' if SEVEN else 'sets 1–2'}")
     R = RULES[st]; op = opening(st, R)
     saved = with_hook(R) if R.get('hook') and op == 'speaker' else None
     sc = scenes_for(R, op); ov = overlays_for(R, sc)

@@ -63,7 +63,7 @@ function pick({seed, history = [], scenes, pools: wantPools = false, seven = fal
   return wantPools ? {pools} : {picks};
 }
 
-/* THE 7-SIZE SET (ชุด 3 · tools/clip_plan.py --seven, Friend 2026-11-26: "ตัดต่อโดยใช้ template ชุดฐาน 7 ขนาด"): a picture's drawing is
+/* THE 7-SIZE SET (ชุด 3 · tools/clip_plan.py: the default of SEVEN_STYLES since 2026-11-26, request {seven: true} · Friend 2026-11-26: "ตัดต่อโดยใช้ template ชุดฐาน 7 ขนาด"): a picture's drawing is
    design i of its category, "<cat>S.<i>" (glow/seven.json: designs a size), drawn later at the size of the card it lands in (the size
    is the style's, so it is not known here and not needed: a category has the same designs at every size). Rules 2, 3 and 5 as above;
    no rule 1 (one set) and no rule 4 (every design is drawn to fill its own size). A category with one design a size (B13–B21) shows
