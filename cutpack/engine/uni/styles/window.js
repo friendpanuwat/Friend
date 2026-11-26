@@ -185,8 +185,8 @@ STYLE('window', {
 .w-light{filter:drop-shadow(0 0 6px rgba(225,238,255,.95))}
 .w-chip{position:absolute;width:54px;height:54px;background:#fff;border-radius:15px;box-shadow:0 0 8px rgba(255,255,255,.9),0 0 26px rgba(150,195,255,.6)}
 .w-chip::after{content:"";position:absolute;left:19px;top:19px;width:16px;height:16px;border-radius:5px;background:#2F6FEB}   /* 54 px: Friend "ลูกปัด ... ใหญ่ๆกว่านี้อีกนิดนึง" (was 42) */
-.w-win{position:absolute;border-radius:26px;background:rgba(13,17,27,.9);border:1.5px solid rgba(255,255,255,.14);
-  box-shadow:0 22px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);overflow:hidden}
+.w-win{position:absolute;border-radius:26px;background:rgb(13,17,27);border:1.5px solid rgba(255,255,255,.14);
+  box-shadow:0 22px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden}   /* fully solid 2026-11-26 (Friend: "ทำ 1-3 ก่อน" → "เอาแบบใหม่ครับ"): at .9 with a blur behind, the speaker's T-shirt print showed through the window */
 .w-bar{position:absolute;left:0;right:0;top:0;height:64px;border-bottom:1px solid rgba(255,255,255,.06)}
 .w-dot{position:absolute;top:25px;width:14px;height:14px;border-radius:50%}
 .w-skel{position:absolute;left:104px;top:24px;height:16px;border-radius:8px;background:rgba(230,237,248,.22)}
