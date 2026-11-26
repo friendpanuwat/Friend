@@ -96,7 +96,7 @@ function clipCaption(c, j) {
   if (b - a < .15) return;
   const sh = ST.capShift ?? .15;                               // how long after T.t0 the style's lead word comes in
   const T = {t0: a - sh, t1: b + (ST.capTail ?? 0), hit: Math.min(Math.max(kt, a + .05), b - .1), b: [a], after: b,   // capTail: a style that fades its words out early (split)
-    clip: true, acc: !!c.acc, look: c.look, end: b};                // a real clip's block: accent word? the big word's look (editorial)
+    clip: true, acc: !!c.acc, look: c.look, end: b, parts};         // a real clip's block: accent word? the big word's look (editorial) · parts: its phrases [words, time, l|k] (terminal: one phrase a pill, 2026-11-26)
   let F, own = true;
   if (ST.overlay) { F = {small: true, big: true, index: w?.index ?? CLIPWINS.length}; own = false; T.cut = [a, b]; T.lead = a; }
   else if (w) F = w.F;

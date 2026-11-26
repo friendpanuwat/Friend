@@ -296,6 +296,17 @@ STYLE('terminal', {
     const L = F.L ?? TRM.layouts.talk, el = div('', F.root ?? SC); el.className = 'm-text';
     const pill = (t, swap) => {
       if (swap && F.head) A(F.head, [{opacity: 1}, {opacity: 0}], t - .04, .12, {f: 'forwards'});
+      /* SHORT WORDS (2026-11-26, Friend: "ทำให้คำมันสั้นๆได้ไหมไม่ต้องขึ้นทีละประโยคยาว"): a block of two or more phrases shows them one at a time,
+         each phrase in its own pill from when it is said to when the next one is (the block's phrases from the subtitle step, T.parts) */
+      const P = T.clip ? (T.parts ?? []).filter(p => String(p[0] ?? '').trim()) : [];
+      if (P.length > 1 && L.pill) {
+        const a = swap ? t : T.b[0], b = T.end ?? T.t1, at = P.map((p, i) => i ? Math.min(Math.max(p[1], a + .25 * i), b - .1) : a);
+        P.forEach((p, i) => { if (i && at[i] <= at[i - 1] + .05) return;
+          const r = trmLine(el, String(p[0]).trim(), 'm-pill', {x: 540, y: L.pill.y, maxW: 860}), t0 = i ? at[i] : (swap ? t + .06 : T.t0 + .15);
+          A(r, [{opacity: 0, transform: 'translateY(12px) scale(.96)'}, {opacity: 1, transform: 'none'}], t0, i ? .2 : .35, {e: EASE.soft});
+          const nx = at.slice(i + 1).find(v => v > at[i] + .05); if (nx != null) A(r, [{opacity: 1}, {opacity: 0}], nx - .02, .02, {f: 'forwards'});
+          F.head = r; });
+        sfx('softswish', T.hit - .05, -21); return; }
       const txt = [lead, key].map(s => String(s ?? '').trim()).filter(Boolean); if (!txt.length || !L.pill) return;
       const r = trmLine(el, txt.join(' '), 'm-pill', {x: 540, y: L.pill.y, maxW: 860}); F.head = r;
       A(r, [{opacity: 0, transform: 'translateY(12px) scale(.96)'}, {opacity: 1, transform: 'none'}], swap ? t + .06 : T.t0 + .15, .35, {e: EASE.soft});
