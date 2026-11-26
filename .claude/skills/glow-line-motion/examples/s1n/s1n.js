@@ -1,5 +1,6 @@
-/* b13s.js — B13 "เคล็ดลับ / ความลับ" ชุด 7 ขนาด × 5 แบบ (user 2026-11-26: "ทำหมวด 13 ต่อเลย · อ่านนิยาม แล้วก็ออกแบบให้มันดีๆตั้งแต่แรก").
-   Header = the smoothed header of b04s.js (popAt io, fade exits, loop:false, no ripple / punch, litOn .5 s). Data = CutPack B13 { secret: THING }. */
+/* s1n.js — size 1 (แถบแบนยาว 860×230) · หมวด 13–22 · หมวดละ 1 แบบ (user 2026-11-26: "ขนาดที่ 1 ในหมวด 13–22 … หมวดละ 1 อัน").
+   Header = the smoothed header of b04s.js via b13s.js (popAt io, fade exits, loop:false, no ripple / punch, litOn .5 s). Template rules: graphic shapes
+   and light only (no real-world objects), standard = B01T–B09T + B05S/B06S. */
 (function () {
   const G = window.GL, C = G.C, NS = 'http://www.w3.org/2000/svg';
   const W = (w = 2) => ({ sw: w }), F = (w = 3.2) => ({ fill: C.fill, sw: w }), S = (w = 2) => ({ sw: w, stroke: C.soft });
@@ -595,289 +596,196 @@
     if (r) P.push([b, y - hh / 2], [x1, y], [b, y + hh / 2]); P.push([b, y + sh / 2], [a, y + sh / 2]); if (l) P.push([a, y + hh / 2], [x0, y], [a, y - hh / 2]); return pathOf(P); };
 
 
-  /* ================= B13S — เคล็ดลับ / ความลับ (Tip / Secret): the thing is hidden, then revealed =================
-     Every design reads "hidden → revealed" without words: 01 MAG แว่นขยายส่องเจอ · 02 DOORS บานเลื่อนเปิด · 03 SLEEVE ซองเปิด การ์ดเลื่อนออก ·
-     04 TILES แผ่นปิดเผยทีละแผ่น · 05 BULB หลอดไฟสว่าง. Lessons: centred, fills the box (D2 D14) · the icon alone — its word only when it has no
-     icon (D15) · no frame in a frame (D20) · no ruler ticks, no ripple, no bounce, no spin · props first, the reveal one smooth io trip tA → H (A9 A11 A12)
-     · nothing see-through over something else (D24) · nothing past the box. Icons are separate layers above the design: a hidden icon is hidden by its
-     own opacity, kept in step with the thing that uncovers it. */
-  const ioE2 = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+  /* ================= S1N — size 1 (860 × 230) · categories 13–22 · one design each (user 2026-11-26: "ขนาดที่ 1 ในหมวด 13–22 เอาแค่ขนาดที่ 1 ก่อน
+     10 หมวดนี้ หมวดละ 1 อัน" · standard "b01t–b09t" + B05S/B06S · template rules: graphic shapes and light, no real-world objects · new ideas, plain).
+     Lessons kept: centred (D14) · icons, words only for the main point or when there is no icon (D15) · no frame in a frame (D20) · flat strip = long
+     things, no square cards (D22) · no dashes, stripes, ripples, sparkles, bubbles (D4) · nothing see-through over something (D24) · one smooth io trip
+     tA → H, nothing shorter than ~.3 s, cause before effect (A1 A9 A11). Inner room W × H = 832 × 202 (14 margin). ================= */
+  const ioE2 = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2, cl01 = v => Math.max(0, Math.min(1, v));
   const fadeS = (t, d = .32) => [[0, 0], [t, 0], [f3(t + tu(d)), 1, 'io']];
-  const sIn = (q, x, y, t, d = .36) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .86], [t, .86], [f3(t + tu(d)), 1, 'io']], o: fadeS(t) }); return g; };
-  const cl01 = v => Math.max(0, Math.min(1, v));
-  function TRS(d) { const H = Z.H, tA = f3(Math.max(tu(.55), H - tu(1.1))); const X = d && has(d.secret) ? d.secret : null;
-    const sw = (g, n = 30) => { const K = [[0, f3(g(0))], [tA, f3(g(0))]]; for (let i = 1; i <= n; i++) { const u = i / n; K.push([f3(tA + (H - tA) * u), f3(g(ioE2(u)))]); } return K; };
-    return { H, tA, X, sw, tI: f3(tu(.06)) }; }
-  /* the secret at (x, y) size sz: its icon (or, with no icon, its word big). K = { o, s, x, y } keys (px/py = x, y) */
-  function secretAt(p, c, T, x, y, sz, K) { const X = T.X, KK = Object.assign({ px: x, py: y }, K), mv = Object.assign({}, KK); delete mv.o;
-    if (X && picOf(X)) put(p, c, { icon: X.icon }, x, y, f1(sz), null, { t: T.tI, mv, o: KK.o });
-    else if (X && X.label) txt(mvG(CL(p), KK), X.label, x, f1(y + sz * .1), { size: f1(Math.max(40, sz * .3)), maxW: f1(sz * 1.25), weight: 800, color: C.ink, wrap: 'mid' });
-    else mvG(p, KK).circle(x, y, f1(sz * .14), { fill: ACC1, sw: 0, stroke: 'none' }); }
-
-  /* 01 MAG — the secret sits small and faint (the thing people overlook); a magnifying glass glides over to it and there it is, big and clear */
-  function MAG(p, c, d, W0, H0) { const T = TRS(d), flat = W0 / H0 > 2.2, hz = W0 >= H0, a = rad(flat ? 18 : 45);
-    const kh = flat ? .95 : .85, fx = 1 + (1 + kh) * Math.cos(a) + .14, fy = 1 + (1 + kh) * Math.sin(a) + .14;   /* bounds per unit of lens radius: from the lens's far edge to the handle's end */
-    let Rl = f1(Math.min(W0 * .96 / fx, H0 * .96 / fy, 320)), hl = f1(Rl * kh), hw = f1(Math.max(22, Rl * .24));
-    const ex = (Rl + hl) * Math.cos(a), ey = (Rl + hl) * Math.sin(a), lx = f1(-(ex + hw * .4 - Rl) / 2 - Rl / 2 * 0), ly = f1(-(ey + hw * .4 - Rl) / 2);   /* centred by the real bounds */
-    const sx0 = hz ? f1(-W0 / 2 + Rl + 6) : lx, sy0 = hz ? ly : f1(-H0 / 2 + Rl + 6), dist = Math.hypot(sx0 - lx, sy0 - ly) || 1;
-    const XK = T.sw(u => f1((sx0 - lx) * (1 - u))), YK = T.sw(u => f1((sy0 - ly) * (1 - u)));
-    const g = mvG(p, { px: lx, py: ly, x: XK, y: YK, o: fadeS(T.tI) }), hx = f1(lx + Rl * .92 * Math.cos(a)), hy = f1(ly + Rl * .92 * Math.sin(a));
-    R(rot(g, a * 180 / Math.PI, hx, hy), hx, f1(hy - hw / 2), f1(hl + Rl * .08), hw, f1(hw / 2), F(4));   /* the handle */
-    g.circle(lx, ly, Rl, { fill: C.fill, sw: 6.4 });   /* the lens rim (solid inside: nothing shows through) */
-    /* the secret: faint and small until the lens reaches it, then bright and full size */
-    const near = u => cl01(1 - Math.hypot((sx0 - lx) * (1 - u), (sy0 - ly) * (1 - u)) / Math.max(Rl * .9, dist * .5));
-    secretAt(p, c, T, lx, ly, f1(Rl * 1.12), { o: [[0, 0], [T.tI, 0], [f3(T.tI + tu(.32)), .18, 'io']].concat(T.sw(u => .18 + .82 * near(u)).slice(1)), s: T.sw(u => .62 + .38 * near(u)) });
-    litOn(p, T.H).circle(lx, ly, Rl, { fill: 'none', sw: 5, stroke: ACC1 }); }
-
-  /* 02 DOORS — two sliding panels meet in the middle; they gather to the sides and the secret is there behind them */
-  function DOORS(p, c, d, W0, H0) { const T = TRS(d), w = f1(W0 * .98), h = f1(H0 * .98), rr = f1(Math.min(w, h) * .1), ic = f1(Math.min(w * .44, h * .8, 380));
-    R(sIn(p, 0, 0, T.tI), f1(-w / 2), f1(-h / 2), w, h, rr, { fill: TA(.1), sw: 0, stroke: 'none' });   /* the light behind the doors — it shows as they open */
-    secretAt(p, c, T, 0, 0, ic, { o: T.sw(u => cl01((u - .25) / .45)), s: T.sw(u => .8 + .2 * cl01((u - .2) / .6)) });
-    [-1, 1].forEach(sd => { const x0 = sd < 0 ? -w / 2 : 0, pw = f1(w / 2 + 2), ax = f1(sd * w / 2), K = { px: ax, py: 0, sx: T.sw(u => 1 - .74 * u), o: fadeS(T.tI) };
-      const g = mvG(p, K); R(g, f1(sd < 0 ? -w / 2 : -1), f1(-h / 2), pw, h, rr, F(4.2));
-      R(litOn(g, T.H), f1(sd < 0 ? -w / 2 : -1), f1(-h / 2), pw, h, rr, { fill: 'none', sw: 5, stroke: ACC1 }); }); }
-
-  /* 03 SLEEVE — a sleeve (an envelope) with a card inside: the flap opens, the card slides out and the secret is on it. Opens up (tall / square)
-     or to the right (wide), so the card always slides along the room's long side. */
-  function SLEEVE(p, c, d, W0, H0) { const T = TRS(d), hz = W0 / H0 > 1.35, L = hz ? W0 : H0, A = hz ? H0 : W0, M = (u, v) => hz ? [u, v] : [v, -u];
-    const sa = f1(Math.min(A * .9, 560)), sl = f1(Math.min(L * .573, sa * (hz ? 1.8 : .72))), cl = f1(sl * .9), ca = f1(sa * .82), sd = f1(cl * .75), tot = sl + sd, u0 = f1(-tot / 2), u1 = f1(u0 + sl);
-    const rr = f1(Math.min(sl, sa) * .08), fl = f1(Math.min(sl * .5, sa * .42));   /* flap depth */
-    const poly = pts => pathOf(pts.map(([u, v]) => M(f1(u), f1(v))));
-    const cardPts = [[u1 - cl, -ca / 2], [u1, -ca / 2], [u1, ca / 2], [u1 - cl, ca / 2]];
-    const tOpen = f3(T.tA + (T.H - T.tA) * .3), [dx, dy] = M(sd, 0);
-    /* the open flap (behind the card): flips out over the opening once the closed one has folded */
-    const [ox, oy] = M(u1, 0), fo = sub(p); on(fo, p, 0, Object.assign({ ox, oy, o: [[0, 0], [f3(tOpen - tu(.02)), 0], [tOpen, 1]] }, hz ? { sx: [[0, .001], [tOpen, .001], [f3(tOpen + tu(.25)), 1, 'out']] } : { sy: [[0, .001], [tOpen, .001], [f3(tOpen + tu(.25)), 1, 'out']] }));
-    fo.path(poly([[u1, -sa / 2], [u1 + fl, 0], [u1, sa / 2]]), Object.assign(F(4), { 'stroke-linejoin': 'round' }));
-    /* the card: inside, then out */
-    const CK = { x: [[0, 0], [tOpen, 0], [T.H, dx, 'io']], y: [[0, 0], [tOpen, 0], [T.H, dy, 'io']], o: fadeS(T.tI) }, cg = mvG(p, CK); cg.path(poly(cardPts), Object.assign(F(4), { rx: rr }));
-    R(litOn(p, T.H), 0, 0, 0, 0, 0, { fill: 'none', sw: 0, stroke: 'none' });
-    /* the sleeve's front (solid — the card inside never shows through) + the closed flap */
-    const body = sIn(p, ...M(f1((u0 + u1) / 2), 0), T.tI); body.path(poly([[u0, -sa / 2], [u1, -sa / 2], [u1, sa / 2], [u0, sa / 2]]), Object.assign(F(4.4), { 'stroke-linejoin': 'round' }));
-    const fc = sub(p); on(fc, p, 0, Object.assign({ ox, oy, o: fadeS(T.tI).concat([[f3(tOpen - tu(.01)), 1], [tOpen, 0]]) }, hz ? { sx: [[0, 1], [T.tA, 1], [tOpen, .001, 'in']] } : { sy: [[0, 1], [T.tA, 1], [tOpen, .001, 'in']] }));
-    fc.path(poly([[u1, -sa / 2], [u1 - fl, 0], [u1, sa / 2]]), Object.assign(F(4), { 'stroke-linejoin': 'round' }));
-    /* the secret on the card's part that comes out; the card's edge lights on H */
-    const [sx, sy] = M(f1(u1 + sd / 2 - (u1 - (u1 - cl + sd)) * 0), 0), ic = f1(Math.min(sd * .8, ca * .72, 320)), [fx, fy] = M(f1(u1 + sd / 2), 0);
-    secretAt(p, c, T, fx, fy, ic, { x: [[0, f1(-dx)], [tOpen, f1(-dx)], [T.H, 0, 'io']], y: [[0, f1(-dy)], [tOpen, f1(-dy)], [T.H, 0, 'io']], o: [[0, 0], [f3(tOpen + (T.H - tOpen) * .35), 0], [f3(T.H - tu(.05)), 1, 'io']] });
-    const lit = litOn(mvG(p, CK), T.H); lit.path(poly(cardPts), { fill: 'none', sw: 5, stroke: ACC1 }); }
-
-  /* 04 TILES — a wall of tiles over the box; they fold away from the middle outwards (each shrinks to nothing) and the secret is behind */
-  function TILES(p, c, d, W0, H0) { const T = TRS(d), flat = W0 / H0 > 2.2, ts0 = Math.min(W0, H0) / (flat ? 2 : 5), rows = Math.max(2, Math.round(H0 / ts0)), cols = Math.max(2, Math.round(W0 / ts0)), gp = f1(Math.max(8, Math.min(W0, H0) * .02));
-    const tw_ = f1((W0 - gp * (cols - 1)) / cols), th = f1((H0 - gp * (rows - 1)) / rows), rr = f1(Math.min(tw_, th) * .2), ic = f1(Math.min(W0 * .5, H0 * (flat ? .8 : .56), 360));
-    const wordOnly = !(T.X && picOf(T.X)), bx = ic * (wordOnly ? .66 : .52) + 12, by = ic * (wordOnly ? .4 : .52) + 12, ctr = [];   /* the opening: every tile that overlaps the secret's box (+ a margin) */
-    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) { const x = f1(-W0 / 2 + tw_ / 2 + i * (tw_ + gp)), y = f1(-H0 / 2 + th / 2 + j * (th + gp)); ctr.push([x, y, Math.abs(x) - tw_ / 2 < bx && Math.abs(y) - th / 2 < by ? Math.hypot(x / (bx + tw_), y / (by + th)) : 9]); }
-    secretAt(p, c, T, 0, 0, ic, { o: T.sw(u => cl01((u - .35) / .4)), s: T.sw(u => .85 + .15 * cl01((u - .3) / .6)) });
-    ctr.forEach(([x, y, dn], k) => { const hole = dn < 1, u0 = Math.min(.55, dn * .55), gone = u => hole ? cl01((u - u0) / .45) : 0, K = { px: x, py: y, s: T.sw(u => Math.max(.001, 1 - gone(u))), o: [[0, 0], [f3(T.tI + tu(.008 * k)), 0], [f3(T.tI + tu(.008 * k + .32)), 1, 'io']] };
-      R(mvG(p, K), f1(x - tw_ / 2), f1(y - th / 2), tw_, th, rr, F(3.6)); if (!hole) R(litOn(p, T.H), f1(x - tw_ / 2), f1(y - th / 2), tw_, th, rr, { fill: 'none', sw: 3.6, stroke: TL_(.75) }); }); }   /* the wall round the opening stays; its edges brighten */
-
-  /* 05 BULB — the tip: a light bulb; light fills it from the base up and the secret appears in its glow (lying on its side in a flat strip) */
-  function BULB(p, c, d, W0, H0) { const T = TRS(d), flat = W0 / H0 > 1.9, L = flat ? W0 : H0, A = flat ? H0 : W0, M = (u, v) => flat ? [-u, v] : [v, u];   /* u = along the bulb, base at +u */
-    const r = f1(Math.min(A * .46, L / 3.1, 300)), nk = f1(r * .46), bl = f1(r * .62), tot = 2 * r + r * .5 + bl, g0 = f1(-tot / 2 + r);   /* globe centre at u = g0 */
-    const neckU = f1(g0 + r * .86), baseU0 = f1(g0 + r + r * .45), baseU1 = f1(baseU0 + bl);
-    const P = (u, v) => M(f1(u), f1(v)).join(' ');
-    /* the glass: a circle that narrows into a neck (one outline) */
-    const ang = Math.acos(nk / r), du = r * Math.sin(ang);
-    const glass = `M ${P(g0 + du, -nk)} A ${r} ${r} 0 1 1 ${P(g0 + du, nk)} L ${P(baseU0, nk * .86)} L ${P(baseU0, -nk * .86)} Z`;
-    const [gx, gy] = M(g0, 0);
-    /* light rising inside the globe from the neck (clipped to the globe) */
-    const cg = clipG(p, f1(gx - r + 6), f1(gy - r + 6), f1(2 * r - 12), f1(2 * r - 12), f1(r - 6)), [lx0, ly0] = M(f1(g0 + r), 0), [ldx, ldy] = M(-2 * r, 0);
-    const LK = Object.assign({ o: fadeS(T.tA, .2) }, { x: T.sw(u => f1(ldx * u)), y: T.sw(u => f1(ldy * u)) });
-    const lg = mvG(cg, LK), fr = M(f1(g0 + r), 0); R(lg, ...(flat ? [f1(fr[0] - 2 * r - 4), f1(fr[1] - r), f1(2 * r + 4), f1(2 * r)] : [f1(fr[0] - r), f1(fr[1]), f1(2 * r), f1(2 * r + 4)]), 0, { fill: TA(.22), sw: 0, stroke: 'none' });
-    const gb = sIn(p, gx, gy, T.tI); gb.path(glass, { fill: 'none', sw: 5.4, 'stroke-linejoin': 'round' });
-    /* the base: a rounded collar + two thread lines + the tip */
-    const bb = sIn(p, ...M(f1((baseU0 + baseU1) / 2), 0), f3(T.tI + tu(.08))), bw2 = f1(nk * .95);
-    bb.path(`M ${P(baseU0, -bw2)} L ${P(baseU1 - bl * .2, -bw2)} Q ${P(baseU1, -bw2)} ${P(baseU1, -bw2 * .5)} L ${P(baseU1, bw2 * .5)} Q ${P(baseU1, bw2)} ${P(baseU1 - bl * .2, bw2)} L ${P(baseU0, bw2)} Z`, F(4.4));
-    [.36, .66].forEach(f => bb.path(`M ${P(baseU0 + bl * f, -bw2 + 4)} L ${P(baseU0 + bl * f, bw2 - 4)}`, W(2.6)));
-    secretAt(p, c, T, gx, gy, f1(r * 1.15), { o: T.sw(u => cl01((u - .3) / .5)), s: T.sw(u => .82 + .18 * cl01((u - .2) / .7)) });
-    litOn(p, T.H).path(glass, { fill: 'none', sw: 6, stroke: ACC1, 'stroke-linejoin': 'round' }); }
-
-  /* ===== B13 round 2 (user 2026-11-26: round 1 "ต่ำกว่ามาตรฐานไปมากๆสุดๆ … ทำงานลวก" → "ก็ดูตาม reference นั่นแหละ แต่ว่าอยากให้ทำเป็น template ที่ใช้ได้กับ
-     ทุกหมวดหมู่ทุกเนื้อหา"): real objects with structure and a working mechanism at the detail of the approved B13 (references: motion/glow-line-cats/b13),
-     neutral (they hold any secret). Pilot = CHEST, seven sizes. The object is drawn in its own local units and placed (scale k) in the box; the secret's
-     icon (a separate layer above) follows the same transform. ===== */
-  /* place a local-units object in the box: picks the layout (o.lay = [{ bw, bh, ox, oy }]) that gives the biggest scale; returns { k, X(u), Y(v), L } */
-  function fitL(W0, H0, lays) { let best = null; lays.forEach(L => { const k = Math.min(W0 / L.bw, H0 / L.bh); if (!best || k > best.k) best = { k, L }; });
-    const { k, L } = best; return { k, L, X: u => f1((u - L.cx) * k), Y: v => f1((v - L.cy) * k) }; }
-  /* the secret's plate: a solid disc (nothing behind shows through), a soft inner ring; it lights on H */
-  const plateS = (q, x, y, r) => { q.circle(x, y, r, F(4.4)); };   /* one outline (no ring in a ring, D20) */
-  /* 01 CHEST — designed for each size's own shape (user 2026-11-26: "อยากให้ดีไซน์ให้มันดูดีในขนาดของมันด้วย ไม่ใช่จะเอาแค่หน้าตาเหมือนกัน"): the chest's
-     proportions, its bands, brackets and lock follow the room — a long low trunk on flat strips, a long chest on wide rooms, a tall chest on narrow ones
-     — and the secret either rises out of the open lid (stack) or stands beside the chest (side). Mechanism: the hasp lifts, the closed lid folds down
-     as the open lid rises behind, the secret rises out of the chest and lights on H. CH[k] = { a: body width / height, m: 'stack' | 'side' }. */
-  const CH = { 1: { a: 3.3, m: 'side', R: .62 }, 2: { a: 2.1, m: 'side', R: .72 }, 3: { a: 1.55, m: 'stack', R: .56, o: 1 }, 4: { a: 1.05, m: 'stack', R: .6 },
-    5: { a: 2.0, m: 'stack', R: .56, o: 1 }, 6: { a: 1.35, m: 'stack', R: .6 }, 7: { a: 1.2, m: 'stack', R: .52 } };
-  let CURK = 1;
-  function CHEST(p, c, d, W0, H0) { const T = TRS(d), cf = CH[CURK] || CH[3], hb = 250, wb = f1(hb * cf.a), stack = cf.m === 'stack';
-    const lidC = f1(hb * .28), lidO = f1(hb * (stack ? .56 : .42)), Rr = f1(hb * cf.R * (stack ? 1 : 1)), gap = f1(hb * .1);
-    /* bounds in local units: body x ±wb/2 (+ lid overhang), y 0..hb; the open lid up to −lidO; the secret above (stack) or to the right (side) */
-    const ov = f1(hb * .1), xL = -wb / 2 - ov, xR0 = wb / 2 + ov;
-    const sx = stack ? 0 : f1(xR0 + gap + Rr), sy = stack ? (cf.o ? f1(-lidO * .3 - Rr) : f1(-lidO - gap * .6 - Rr)) : f1(hb / 2 - lidO / 2);   /* stack: above the open lid (tall rooms) or rising in front of it (squarish: o) */
-    const xR = stack ? Math.max(xR0, Rr) : sx + Rr, yT = stack ? Math.min(-lidO, sy - Rr) : Math.min(-lidO, sy - Rr), yB = stack ? hb : Math.max(hb, sy + Rr);
-    const xLL = stack ? Math.min(xL, -Rr) : xL, cx = (xLL + xR) / 2, cy = (yT + yB) / 2, k = Math.min(W0 / (xR - xLL), H0 / (yB - yT));
-    const g = sub(p, { transform: `translate(${f1(-cx * k)} ${f1(-cy * k)}) scale(${f3(k)})` }); g.H = p.H; g.motion = p.motion; const sk = n => f1(n * k);
-    const tA = T.tA, D = T.H - T.tA, tH = f3(tA + D * .22), tL0 = f3(tA + D * .18), tL1 = f3(tA + D * .55), tS0 = f3(tA + D * .42);
-    /* parts sized from the body */
-    const m = Math.min(wb, hb), bandW = f1(m * .1), nB = wb / hb > 2.6 ? 6 : wb / hb > 1.8 ? 4 : 2, lw = f1(Math.min(m * .36, 100)), lh = f1(lw * 1.3), br = f1(m * .18);
-    const bandX = Array.from({ length: nB }, (_, i) => { const half = nB / 2, j = i < half ? i : i - half, side = i < half ? -1 : 1, span = wb / 2 - lw / 2 - 24; return f1(side * (lw / 2 + 24 + span * (j + .5) / half)); });
-    /* the open lid (behind) */
-    const lo = sub(g); on(lo, g, 0, { ox: 0, oy: 0, sy: [[0, .001], [tL0, .001], [tL1, 1, 'io']], o: [[0, 0], [f3(tL0 - .001), 0], [tL0, 1]] });
-    const lt = f1(wb / 2 - m * .08); lo.path(pathOf([[-wb / 2 - 4, 0], [wb / 2 + 4, 0], [lt, -lidO], [-lt, -lidO]]), Object.assign(F(4.2), { 'stroke-linejoin': 'round' }));
-    lo.path(pathOf([[-wb / 2 + 24, -14], [wb / 2 - 24, -14], [lt - 18, -lidO + 16], [-lt + 18, -lidO + 16]]), S(1.6));
-    bandX.forEach(x => lo.line(x, -2, f1(x * lt / (wb / 2)), f1(-lidO + 2), S(2.2)));
-    /* the body */
-    const bd = sIn(g, 0, hb / 2, T.tI);
-    R(bd, -wb / 2, 0, wb, hb, f1(m * .07), F(4.6)); R(bd, f1(-wb / 2 + 22), f1(hb * .16), f1(wb - 44), f1(hb * .74), f1(m * .04), S(1.6));
-    bandX.forEach(x => { R(bd, f1(x - bandW / 2), 2, bandW, hb - 4, f1(bandW * .25), F(2.6)); [f1(hb * .1), f1(hb * .9)].forEach(y => screw(bd, x, y, f1(Math.max(4, bandW * .2)))); });
-    [[-wb / 2, 0, 1, 1], [wb / 2, 0, -1, 1], [-wb / 2, hb, 1, -1], [wb / 2, hb, -1, -1]].forEach(([x, y, a2, b2]) => bd.path(`M ${f1(x + a2 * 4)} ${f1(y + b2 * br)} L ${f1(x + a2 * 4)} ${f1(y + b2 * 4)} L ${f1(x + a2 * br)} ${f1(y + b2 * 4)}`, { sw: 4.6, 'stroke-linejoin': 'round' }));
-    R(bd, f1(-lw / 2), f1(hb * .17), lw, lh, f1(lw * .18), F(3.6)); const kr = f1(lw * .12), ky = f1(hb * .17 + lh * .4);
-    bd.circle(0, ky, kr, { fill: C.ink, sw: 0, stroke: 'none' }); bd.path(`M ${f1(-kr * .55)} ${f1(ky + kr * .5)} L ${f1(kr * .55)} ${f1(ky + kr * .5)} L ${f1(kr * .85)} ${f1(ky + kr * 2.6)} L ${f1(-kr * .85)} ${f1(ky + kr * 2.6)} Z`, { fill: C.ink, sw: 0, stroke: 'none' });
-    /* the closed lid: folds flat into the hinge as the open one rises */
-    const lc = sub(g), tF = f3(tL0 + (tL1 - tL0) * .45); on(lc, g, 0, { ox: 0, oy: 0, sy: [[0, 1], [tL0, 1], [tF, .001, 'in']], o: fadeS(T.tI).concat([[tF, 1], [f3(tF + .01), 0]]) });
-    lc.path(pathOf([[-wb / 2, 0], [wb / 2, 0], [wb / 2 + ov, -lidC], [-wb / 2 - ov, -lidC]]), Object.assign(F(4.4), { 'stroke-linejoin': 'round' })); bandX.forEach(x => lc.line(x, -2, f1(x * (wb / 2 + ov) / (wb / 2)), f1(-lidC + 2), { sw: 3 }));
-    /* the hasp: hangs over the lock plate, lifts away before the lid opens */
-    const hs = sub(g); on(hs, g, 0, { y: [[0, 0], [tA, 0], [tH, f1(-lidC * 1.2), 'io']], o: fadeS(T.tI).concat([[f3(tH - tu(.12)), 1], [tH, 0, 'io']]) });
-    R(hs, f1(-lw * .3), f1(-lidC * .5), f1(lw * .6), f1(lidC * .5 + hb * .17 + lh * .25), f1(lw * .12), F(3.6)); hs.circle(0, f1(hb * .17 + lh * .12), f1(lw * .08), S(1.8));
-    /* the secret: rises out of the chest (side: then glides beside it); its plate is solid */
-    const s0 = [0, hb * .3], s2 = [sx, sy], s1 = [0, Math.min(-lidO - gap, sy)], at = u => { const mm = 1 - u; return [mm * mm * s0[0] + 2 * mm * u * s1[0] + u * u * s2[0], mm * mm * s0[1] + 2 * mm * u * s1[1] + u * u * s2[1]]; };
-    const sw2 = fn => { const K = [[0, f3(fn(0))], [tS0, f3(fn(0))]]; for (let i = 1; i <= 30; i++) { const u = i / 30; K.push([f3(tS0 + (T.H - tS0) * u), f3(fn(ioE2(u)))]); } return K; };
-    const PX = sk(sx - cx), PY = sk(sy - cy), XK = sw2(u => sk(at(u)[0] - sx)), YK = sw2(u => sk(at(u)[1] - sy)), SK = sw2(u => .5 + .5 * u), OK = [[0, 0], [tS0, 0], [f3(tS0 + (T.H - tS0) * .3), 1, 'io']];
-    plateS(mvG(p, { px: PX, py: PY, x: XK, y: YK, s: SK, o: OK }), PX, PY, sk(Rr));
-    secretAt(p, c, T, PX, PY, sk(Rr * 1.22), { x: XK, y: YK, s: SK, o: OK });
-    litOn(p, T.H).circle(PX, PY, sk(Rr), { fill: 'none', sw: 5, stroke: ACC1 }); }
-
-  /* ===== B13 round 3 — TEMPLATE look (user 2026-11-26: "ให้ทำเป็น template ที่ใช้ได้กับทุกหมวดหมู่ ไม่ได้ทำอันที่มีความหมายเจาะจง" — real objects (chest,
-     safe, envelope …) carry their own meaning; the standard is the template sets B01T–B12T and the seven-size B05S/B06S: rounded tiles and cards with
-     thick glowing edges, a glass fill, capsules / switches, the category's symbol as the structure (B06: a big ?). Priority (user): 1 fits and looks good
-     in THIS size · 2 design standard · 3 animation. Five designs, each composed for each size:
-     LOCK กุญแจปลดล็อก · COVER แผ่นปิดเลื่อนออก · TOGGLE สวิตช์ซ่อน/แสดง · BULB หลอดไฟเป็นโครง · SPOT แสงส่องเจอ ===== */
-  const KWT = (T, a, b, fn, n = 24) => { const t0 = f3(T.tA + (T.H - T.tA) * a), t1 = f3(T.tA + (T.H - T.tA) * b), K = [[0, f3(fn(0))], [t0, f3(fn(0))]];
+  const sIn = (q, x, y, t, d = .36) => { const g = sub(q); on(g, q, 0, { ox: x, oy: y, s: [[0, .9], [t, .9], [f3(t + tu(d)), 1, 'io']], o: fadeS(t, d) }); return g; };
+  function TQ() { const H = Z.H, tA = f3(Math.max(tu(.55), H - tu(1.1))); return { H, tA, tI: f3(tu(.06)) }; }
+  const tAt = (T, a) => f3(T.tA + (T.H - T.tA) * a);
+  const KW = (T, a, b, fn, n = 20) => { const t0 = tAt(T, a), t1 = tAt(T, b), K = [[0, f3(fn(0))], [t0, f3(fn(0))]];
     for (let i = 1; i <= n; i++) { const u = i / n; K.push([f3(t0 + (t1 - t0) * u), f3(fn(ioE2(u)))]); } return K; };
-  const twT = (T, a) => f3(T.tA + (T.H - T.tA) * a);
-  const glassT = (q, x, y, w, h, rr, a = .07) => R(q, f1(x - w / 2), f1(y - h / 2), w, h, rr, { fill: TL_(a), sw: 0, stroke: 'none' });
-  const cardT = (q, x, y, w, h, rr, sw = 4.6) => R(q, f1(x - w / 2), f1(y - h / 2), w, h, rr, F(sw));
-  const litT = (p, T, x, y, w, h, rr, at) => R(litOn(p, at ?? T.H), f1(x - w / 2), f1(y - h / 2), w, h, rr, { fill: TA(.08), sw: 5, stroke: ACC1 });
-  const icoT = (p, c, name, x, y, sz, o) => put(p, c, { icon: name }, x, y, f1(sz), null, o);
-  /* the padlock glyph (the category's symbol, like B06's big ?): body bw × bh at (x, y) = body centre; shackle above; K = keys of the shackle lift */
-  function padlockT(q, x, y, bw, bh, sk) { const tt = f1(Math.max(14, bw * .1)), so = f1(bw * .3), hs = f1(bh * .62), y0 = f1(y - bh / 2 + tt * .6);
-    const d = `M ${f1(x - so)} ${y0} L ${f1(x - so)} ${f1(y0 - hs + so)} A ${so} ${so} 0 0 1 ${f1(x + so)} ${f1(y0 - hs + so)} L ${f1(x + so)} ${y0}`;
-    const sg = sk ? mvG(q, sk) : q; sg.path(d, { sw: tt + 7, fill: 'none' }); sg.path(d, { sw: tt, stroke: C.fill, fill: 'none' });
-    R(q, f1(x - bw / 2), f1(y - bh / 2), bw, bh, f1(Math.min(bw, bh) * .2), F(5)); return { hs, tt, top: f1(y - bh / 2 - hs + tt * .6) }; }
-  const keyholeT = (q, x, y, r) => { q.circle(x, f1(y - r * .35), r, { fill: C.ink, sw: 0, stroke: 'none' }); q.path(`M ${f1(x - r * .5)} ${f1(y)} L ${f1(x + r * .5)} ${f1(y)} L ${f1(x + r * .8)} ${f1(y + r * 1.9)} L ${f1(x - r * .8)} ${f1(y + r * 1.9)} Z`, { fill: C.ink, sw: 0, stroke: 'none' }); };
-  const secretInT = (p, c, T, x, y, sz, a, b, extra = {}) => secretAt(p, c, T, x, y, sz, Object.assign({ o: KWT(T, a, b, u => u), s: KWT(T, a, b, u => .82 + .18 * u) }, extra));
+  const inW = (T, a, b) => KW(T, a, b, u => u, 8);
+  const outAfter = (tIn, T, a, b) => fadeS(tIn).concat(KW(T, a, b, u => 1 - u, 8).slice(1));
+  const glassF = a => ({ fill: TL_(a), sw: 0, stroke: 'none' });
+  const icOf = X => X && picOf(X) ? X.icon : null, lbOf = X => X && X.label && String(X.label).trim() ? String(X.label).trim() : null;
+  const LONGW = 16, longW = s => s && s.replace(/[ัิ-ฺ็-๎\s]/g, '').length > LONGW;
+  /* a thing at (x, y) size sz: its icon, or (no icon) its word big. o = { t, o, mv, size, maxW } */
+  function thing(p, c, X, x, y, sz, o = {}) { if (!X) return null; const t = o.t ?? tu(.12);
+    if (icOf(X)) { put(p, c, { icon: X.icon }, x, y, f1(sz), null, { t, o: o.o, mv: o.mv }); return 'icon'; }
+    const s = lbOf(X); if (!s) return null; const fs = f1(o.size || Math.max(36, sz * .32));
+    const g = mvG(p, Object.assign({ px: x, py: y }, o.mv || {}, { o: o.o || fadeS(t) }));
+    txt(g, s, x, f1(y + fs * .36), { size: fs, maxW: f1(o.maxW || sz * 1.3), weight: 800, color: C.ink, wrap: 'mid' }); return 'word'; }
+  const litR = (p, at, x, y, w, h, rr) => R(litOn(p, at), f1(x - w / 2), f1(y - h / 2), w, h, rr, { fill: TA(.07), sw: 5, stroke: ACC1 });
+  const wordW = (p, s, size) => tw(p, s, size, 800);
 
-  /* 01 LOCK — flat: a capsule card with a padlock tile at its left; the shackle lifts, light sweeps along the card and the secret is there.
-     other sizes: the padlock IS the frame — the shackle lifts, the keyhole goes, the body lights and holds the secret (big). */
-  function LOCK(p, c, d, W0, H0) { const T = TRS(d), k = CURK;
-    if (k === 1) { const h = f1(H0 * .96), w = f1(W0 * .98), rr = f1(h / 2), lbh = f1((h - 30) / 1.9), lb = f1(lbh * 1.25), lx = f1(-w / 2 + h * .62), ly = f1(-h / 2 + 15 + lbh * .9 + lbh / 2);
-      const g = sIn(p, 0, 0, T.tI); cardT(g, 0, 0, w, h, rr);
-      const cg = clipG(p, f1(-w / 2 + 8), f1(-h / 2 + 8), f1(w - 16), f1(h - 16), f1(rr - 8)), sw = mvG(cg, { px: f1(-w / 2 + 8), py: 0, sx: KWT(T, .3, .85, u => Math.max(.001, u)), o: fadeS(twT(T, .3), .2) });
-      R(sw, f1(-w / 2 + 8), f1(-h / 2 + 8), f1(w - 16), f1(h - 16), 0, { fill: TA(.1), sw: 0, stroke: 'none' });
-      const lt = sIn(p, lx, ly, T.tI); padlockT(lt, lx, ly, lb, lbh, { y: KWT(T, 0, .3, u => f1(-lbh * .26 * u)) });
-      const kh = sub(p); on(kh, p, 0, { o: fadeS(T.tI).concat(KWT(T, .1, .3, u => 1 - u).slice(1)) }); keyholeT(kh, lx, f1(ly - lbh * .08), f1(lbh * .13));
-      secretInT(p, c, T, f1((lx + lb / 2 + w / 2) / 2), 0, f1(h * .7), .55, 1);
-      litT(p, T, 0, 0, w, h, rr); return; }
-    const ar = { 2: 1.75, 3: 1.25, 4: .88, 5: 1.45, 6: 1.02, 7: .9 }[k] || 1.2, tot = 1.62 + .16 + .05;   /* body + shackle above + its lift, as a share of the body's height */
-    const bh = f1(Math.min(H0 * .97 / tot, W0 * .96 / ar)), bw = f1(bh * ar), y = f1(H0 / 2 - bh / 2 - (H0 - bh * tot) / 2);
-    const g = sIn(p, 0, y, T.tI), P = padlockT(g, 0, y, bw, bh, { y: KWT(T, 0, .3, u => f1(-bh * .16 * u)) });
-    const gl = sub(p); on(gl, p, 0, { o: KWT(T, .25, .7, u => u) }); glassT(gl, 0, y, f1(bw - 10), f1(bh - 10), f1(Math.min(bw, bh) * .2 - 5), .1);
-    const kh = sub(p); on(kh, p, 0, { o: fadeS(T.tI).concat(KWT(T, .1, .32, u => 1 - u).slice(1)) }); keyholeT(kh, 0, f1(y - bh * .08), f1(Math.min(bw, bh) * .11));
-    secretInT(p, c, T, 0, y, f1(Math.min(bw * .7, bh * .72)), .45, 1);
-    litT(p, T, 0, y, bw, bh, f1(Math.min(bw, bh) * .2)); }
+  /* 13 เคล็ดลับ — ช่องรหัสเผยความลับ: a long field with the secret masked as ● ● ● ●, a lock at its left, an eye at its right. The eye opens, the lock
+     opens, the dots go one by one from the left and the secret is there, big. */
+  function D13(p, c, d, W, H) { const T = TQ(), X = d.secret, ch = f1(H * .84), cw = W, rr = f1(ch / 2), xL = f1(-cw / 2 + rr * .95), xR = f1(cw / 2 - rr * .95), is = f1(ch * .46);
+    const g = sIn(p, 0, 0, T.tI); R(g, -cw / 2, -ch / 2, cw, ch, rr, F(4.6)); R(g, f1(-cw / 2 + 8), f1(-ch / 2 + 8), f1(cw - 16), f1(ch - 16), f1(rr - 8), glassF(.05));
+    put(p, c, { icon: 'lock' }, xL, 0, is, null, { t: tu(.14), o: outAfter(tu(.14), T, .12, .32) });
+    put(p, c, { icon: 'lock-open' }, xL, 0, is, null, { t: tAt(T, .12), o: inW(T, .12, .36) });
+    put(p, c, { icon: 'eye-off' }, xR, 0, is, null, { t: tu(.2), o: outAfter(tu(.2), T, 0, .2) });
+    put(p, c, { icon: 'eye' }, xR, 0, is, null, { t: tAt(T, 0), o: inW(T, 0, .24) });
+    const n = 6, x0 = f1(xL + rr * 1.15), x1 = f1(xR - rr * 1.15), dr = f1(ch * .075);
+    for (let i = 0; i < n; i++) { const x = f1(x0 + (x1 - x0) * (i + .5) / n), a = .12 + .36 * i / n;
+      mvG(p, { px: x, py: 0, s: KW(T, a, a + .2, u => Math.max(.001, 1 - u)), o: fadeS(f3(tu(.2 + .04 * i))) }).circle(x, 0, dr, { fill: C.ink, sw: 0, stroke: 'none' }); }
+    thing(p, c, X, f1((x0 + x1) / 2), 0, f1(Math.min(ch * .86, (x1 - x0) * .5)), { t: tAt(T, .5), o: inW(T, .5, .82), mv: { s: KW(T, .5, 1, u => .86 + .14 * u) }, size: 64, maxW: f1((x1 - x0) * .9) });
+    litR(p, T.H, 0, 0, cw, ch, rr); }
 
-  /* 02 COVER — a card holding the secret under a cover (with the eye-off mark); the cover slides away (sideways on wide sizes, up on tall ones) inside
-     the card and the secret is there. Tall sizes get a header strip with a lock tile that opens. */
-  function COVER(p, c, d, W0, H0) { const T = TRS(d), k = CURK, tallH = k === 4 || k === 6 || k === 7, side = W0 / H0 > 1.3;
-    const hh = tallH ? f1(Math.min(H0 * .16, 120)) : 0, gp = tallH ? f1(H0 * .03) : 0, w = f1(W0 * .98), h = f1(H0 * .98 - hh - gp), rr = f1(Math.min(w, h) * (k === 1 ? .5 : .1)), cy = f1(H0 * .49 - h / 2);
-    if (tallH) { const hy = f1(-H0 * .49 + hh / 2), g0 = sIn(p, 0, hy, T.tI); cardT(g0, 0, hy, w, hh, f1(hh * .32));
-      const tS = f1(hh * .66), tx = f1(-w / 2 + hh * .5); icoT(p, c, 'lock-pro', tx, hy, tS * .9, { t: T.tI, o: fadeS(T.tI).concat(KWT(T, .1, .3, u => 1 - u).slice(1)) });
-      icoT(p, c, 'lock-open-pro', tx, hy, tS * .9, { t: twT(T, .28), o: KWT(T, .28, .45, u => u) }); }
-    const g = sIn(p, 0, cy, T.tI); cardT(g, 0, cy, w, h, rr); const ix = 0, iw = f1(w - 18), ih = f1(h - 18), irr = f1(Math.max(6, rr - 9));
-    const keep = side ? Math.min(.26, (ih * .9) / iw) : Math.min(.3, (iw * .9) / ih), cl = clipG(p, f1(-iw / 2), f1(cy - ih / 2), iw, ih, irr), K = side ? { x: KWT(T, .2, .75, u => f1(iw * (1 - keep) * u)) } : { y: KWT(T, .2, .75, u => f1(-ih * (1 - keep) * u)) };
-    const cv = mvG(cl, Object.assign({ o: fadeS(T.tI) }, K)); R(cv, f1(-iw / 2), f1(cy - ih / 2), iw, ih, 0, { fill: C.fill, sw: 0, stroke: 'none' }); R(cv, f1(-iw / 2), f1(cy - ih / 2), iw, ih, 0, { fill: TL_(.09), sw: 0, stroke: 'none' });
-    side ? cv.line(f1(-iw / 2 + 3), f1(cy - ih / 2), f1(-iw / 2 + 3), f1(cy + ih / 2), { sw: 5 }) : cv.line(f1(-iw / 2), f1(cy + ih / 2 - 3), f1(iw / 2), f1(cy + ih / 2 - 3), { sw: 5 });   /* the cover's leading edge */
-    /* the mark rides from the cover's middle to the middle of the strip that stays */
-    const es0 = f1(Math.min(iw, ih) * .34), es1 = f1(side ? Math.min(iw * keep * .7, ih * .5) : Math.min(ih * keep * .7, iw * .5)), mx = side ? f1(iw * (1 - keep) / 2 + iw * keep / 2 - 0) : 0, my = side ? 0 : f1(-ih / 2 + ih * keep / 2 - 0);
-    const MK = side ? { x: KWT(T, .2, .75, u => f1((iw / 2 - iw * keep / 2) * u)) } : { y: KWT(T, .2, .75, u => f1(-(ih / 2 - ih * keep / 2) * u)) }, SK2 = KWT(T, .2, .75, u => 1 - (1 - es1 / es0) * u);
-    icoT(p, c, 'eye-off-pro', 0, cy, es0, { t: T.tI, mv: Object.assign({ px: 0, py: cy, s: SK2 }, MK), o: fadeS(T.tI).concat(KWT(T, .55, .8, u => 1 - u).slice(1)) });
-    icoT(p, c, 'eye-pro', 0, cy, es0, { t: twT(T, .55), mv: Object.assign({ px: 0, py: cy, s: SK2 }, MK), o: KWT(T, .55, .85, u => u) });
-    const ox = side ? f1(-iw * keep / 2) : 0, oy = side ? 0 : f1(ih * keep / 2);   /* the open area's middle */
-    secretInT(p, c, T, ox, f1(cy + oy), f1(side ? Math.min(iw * (1 - keep) * .62, ih * .74) : Math.min(iw * .62, ih * (1 - keep) * .74)), .5, 1);
-    litT(p, T, 0, cy, w, h, rr); }
+  /* 14 ประโยคเด็ด — คำพูดในเครื่องหมายคำพูด: big quotation marks (“ top-left, ” bottom-right) hold the idea: its icon + the line itself; the line is
+     underlined in the accent as it lands, the marks light on H. A very long line → the icon alone, bigger. */
+  const q9 = (cx, cy, r) => `M ${f1(cx - r)} ${f1(cy)} A ${f1(r)} ${f1(r)} 0 0 1 ${f1(cx + r)} ${f1(cy)} Q ${f1(cx + r)} ${f1(cy + 1.5 * r)} ${f1(cx - .35 * r)} ${f1(cy + 2.3 * r)} Q ${f1(cx + .22 * r)} ${f1(cy + 1.45 * r)} ${f1(cx - .05 * r)} ${f1(cy + r)} A ${f1(r)} ${f1(r)} 0 0 1 ${f1(cx - r)} ${f1(cy)} Z`;
+  function quoteG(q, gx, gy, r, open, o) { const g = open ? rot(q, 180, gx, gy) : q, cy = f1(gy - .65 * r); [-1, 1].forEach(s => g.path(q9(f1(gx + s * 1.2 * r), cy, r), o)); }
+  function D14(p, c, d, W, H) { const T = TQ(), X = d.idea, r = f1(H * .15), gw = f1(4.4 * r), gxL = f1(-W / 2 + gw / 2 + 4), gxR = f1(W / 2 - gw / 2 - 4), gyO = f1(-H / 2 + 1.65 * r + 4), gyC = f1(H / 2 - 1.65 * r - 4);
+    [[gxL, gyO, true, -1], [gxR, gyC, false, 1]].forEach(([x, y, open, sd]) => { const g = mvG(p, { px: x, py: y, x: [[0, f1(-sd * 30)], [T.tI, f1(-sd * 30)], [f3(T.tI + tu(.4)), 0, 'io']], o: fadeS(T.tI, .4) }); quoteG(g, x, y, r, open, F(4.4));
+      quoteG(litOn(p, T.H), x, y, r, open, { fill: TA(.12), sw: 5, stroke: ACC1 }); });
+    const room = f1(W - 2 * (gw + 24)), s = lbOf(X), ic = icOf(X), showW = s && !(ic && longW(s));
+    if (!showW) { thing(p, c, X, 0, 0, f1(Math.min(H * .86, room * .5)), { t: tAt(T, 0), o: inW(T, 0, .35), size: 80, maxW: room }); return; }
+    const isz = ic ? f1(H * .66) : 0, gap = ic ? 26 : 0; let fs = ic ? 64 : 84; const w0 = wordW(p, s, fs), wMax = room - isz - gap; if (w0 > wMax) fs = f1(fs * wMax / w0);
+    const ww = Math.min(w0, wMax), tot = isz + gap + ww, x0 = f1(-tot / 2), by = f1(fs * .36), wx = f1(x0 + isz + gap);
+    if (ic) put(p, c, { icon: ic }, f1(x0 + isz / 2), 0, isz, null, { t: tAt(T, 0), o: inW(T, 0, .3) });
+    const tg = mvG(p, { px: f1(wx + ww / 2), py: 0, x: [[0, -20], [tAt(T, .2), -20], [tAt(T, .5), 0, 'io']], o: inW(T, .2, .5) }); txt(tg, s, wx, by, { size: fs, weight: 800, color: C.ink, anchor: 'start', maxW: ww });
+    const ul = p.line(wx, f1(by + 18), f1(wx + ww), f1(by + 18), { sw: 7, stroke: ACC1 }); on(ul, p, 0, { draw: [[0, 0], [tAt(T, .55), 0], [T.H, 1, 'io']] }); }
 
-  /* 03 TOGGLE — a hide / show switch: the knob (eye-off) slides across the track (eye), the track fills, and the card beside / above it shows the
-     secret. flat: switch left, card right · wide / square / tall: card on top, switch under it. */
-  function TOGGLE(p, c, d, W0, H0) { const T = TRS(d), k = CURK, row = k === 1;
-    let sw_, sh_, sx, sy, cw, ch, cx, cy;
-    if (row) { sh_ = f1(H0 * .62); sw_ = f1(sh_ * 1.9); ch = f1(H0 * .96); cw = f1(W0 * .98 - sw_ - 30); sx = f1(-W0 * .49 + sw_ / 2); sy = 0; cx = f1(W0 * .49 - cw / 2); cy = 0; }
-    else { sh_ = f1(Math.min(H0 * .24, W0 * .44, 200)); sw_ = f1(Math.min(W0 * .9, sh_ * 2.2)); const gp = f1(H0 * .05); ch = f1(H0 * .98 - sh_ - gp); cw = f1(W0 * .98); cx = 0; cy = f1(-H0 * .49 + ch / 2); sx = 0; sy = f1(H0 * .49 - sh_ / 2); }
-    const crr = f1(Math.min(cw, ch) * (row ? .5 : .12)), g = sIn(p, cx, cy, T.tI); cardT(g, cx, cy, cw, ch, crr);
-    secretInT(p, c, T, cx, cy, f1(Math.min(cw * .62, ch * .74)), .55, 1); litT(p, T, cx, cy, cw, ch, crr);
-    /* the switch */
-    const r = f1(sh_ / 2), gs = sIn(p, sx, sy, T.tI); R(gs, f1(sx - sw_ / 2), f1(sy - r), sw_, sh_, r, F(4.6));
-    const pad = 8, kr = f1(r - pad), kx0 = f1(sx - sw_ / 2 + r), kx1 = f1(sx + sw_ / 2 - r), XK = KWT(T, .1, .55, u => f1((kx0 - kx1) * (1 - u)));
-    const cl = clipG(p, f1(sx - sw_ / 2 + pad), f1(sy - r + pad), f1(sw_ - 2 * pad), f1(sh_ - 2 * pad), kr), fl = mvG(cl, { px: f1(sx - sw_ / 2 + pad), py: sy, sx: KWT(T, .1, .55, u => Math.max(.001, u)), o: fadeS(twT(T, .1), .2) });
-    R(fl, f1(sx - sw_ / 2 + pad), f1(sy - kr), f1(sw_ - 2 * pad), f1(2 * kr), kr, { fill: TA(.3), sw: 0, stroke: 'none' });
-    const kn = mvG(p, { px: kx1, py: sy, x: XK, o: fadeS(T.tI) }); kn.circle(kx1, sy, kr, F(4.4));
-    const mv = { px: kx1, py: sy, x: XK }; icoT(p, c, 'eye-off-pro', kx1, sy, f1(kr * 1.15), { t: T.tI, mv, o: fadeS(T.tI).concat(KWT(T, .3, .5, u => 1 - u).slice(1)) });
-    icoT(p, c, 'eye-pro', kx1, sy, f1(kr * 1.15), { t: twT(T, .35), mv, o: KWT(T, .35, .6, u => u) });
-    R(litOn(p, twT(T, .6)), f1(sx - sw_ / 2), f1(sy - r), sw_, sh_, r, { fill: 'none', sw: 5, stroke: ACC1 }); }
+  /* 15 ชวนทำ — ปุ่มกดแล้วติด: one big button (the action's icon + the words as said); a pointer glides in and presses it; the button lights and its icon
+     turns to the done state (follow → user-check, save → bookmark-check). No words → the icon alone in a shorter button. */
+  const ACT = { follow: ['user-plus', 'user-check'], like: ['heart', 'heart'], save: ['bookmark', 'bookmark-check'], share: ['share-2', 'share-2'], comment: ['message-circle', 'message-circle'] };
+  const cursorD = (x, y, k) => pathOf([[0, 0], [0, 56], [14, 43], [24, 64], [34, 59], [24, 39], [42, 39]].map(([a, b]) => [f1(x + a * k), f1(y + b * k)]));
+  function D15(p, c, d, W, H) { const T = TQ(), A = ACT[d.action] || ACT.follow, s = d.label && String(d.label).trim() ? String(d.label).trim() : null;
+    const bh = f1(H * .84), isz = f1(bh * (s ? .5 : .6)), pad = f1(bh * .3); let fs = 72, ww = s ? wordW(p, s, fs) : 0; const wMax = W * .9 - bh - pad * 2; if (ww > wMax) { fs = f1(fs * wMax / ww); ww = wMax; }
+    const bw = f1(s ? pad + isz + 26 + ww + pad * 1.4 : bh * 2.6), bx = 0, rr = f1(bh / 2), ix = f1(s ? -bw / 2 + pad + isz / 2 : 0), tP = tAt(T, .42), tR = tAt(T, .55);
+    const press = [[0, 1], [tP, 1], [tR, .95, 'io'], [tAt(T, .75), 1, 'io']], g = mvG(p, { px: 0, py: 0, s: press }), gi = sIn(g, 0, 0, T.tI); R(gi, -bw / 2, -bh / 2, bw, bh, rr, F(4.8));
+    const on1 = sub(g); on(on1, g, 0, { o: [[0, 0], [tR, 0], [tAt(T, .8), 1, 'io']] }); R(on1, f1(-bw / 2 + 6), f1(-bh / 2 + 6), f1(bw - 12), f1(bh - 12), f1(rr - 6), { fill: TA(.2), sw: 0, stroke: 'none' });
+    if (s) txt(atG(g, tu(.22)), s, f1(-bw / 2 + pad + isz + 26), f1(fs * .36), { size: fs, weight: 800, color: C.ink, anchor: 'start', maxW: ww });
+    const mv = { px: 0, py: 0, s: press }; put(p, c, { icon: A[0] }, ix, 0, isz, null, { t: tu(.16), o: A[0] === A[1] ? undefined : outAfter(tu(.16), T, .55, .78), mv });
+    if (A[0] !== A[1]) put(p, c, { icon: A[1] }, ix, 0, isz, null, { t: tAt(T, .55), o: inW(T, .55, .8), mv });
+    R(litOn(g, T.H), -bw / 2, -bh / 2, bw, bh, rr, { fill: 'none', sw: 5, stroke: ACC1 });
+    /* the pointer: above everything (its own layer), glides from the lower right onto the button and presses */
+    const k = 1.2, tx = f1(bw / 2 - 50), ty = 20, sx0 = f1(W / 2 - 52), sy0 = f1(H / 2 - 64 * k - 4);
+    over(c, q => { const cg = mvG(q, { px: tx, py: ty, x: [[0, f1(sx0 - tx)], [tAt(T, 0), f1(sx0 - tx)], [tP, 0, 'io']], y: [[0, f1(sy0 - ty)], [tAt(T, 0), f1(sy0 - ty)], [tP, 0, 'io']], s: [[0, 1], [tP, 1], [tR, .88, 'io'], [tAt(T, .75), 1, 'io']], o: fadeS(T.tA) });
+      cg.path(cursorD(tx, ty, k), Object.assign(F(4), {})); }); }
 
-  /* 04 BULB — the light bulb as the frame (the tip's symbol): light rises from the base, the glass lights, the secret glows inside. Lies on its side in
-     the flat strip. Proportions per size: a rounder globe on wide / square sizes, a taller neck on tall ones. */
-  function BULB2(p, c, d, W0, H0) { const T = TRS(d), k = CURK, flat = k === 1, L = flat ? W0 : H0, A = flat ? H0 : W0, M = (u, v) => flat ? [-u, v] : [v, u];
-    const nkR = k === 4 || k === 7 ? .5 : .44, bR = k === 4 || k === 7 ? .7 : .58;
-    const r = f1(Math.min(A * .48, L / (2 + .42 + bR * 1.05 + .06), 400)), nk = f1(r * nkR), bl = f1(r * bR), tot = f1(2 * r + r * .42 + bl), g0 = f1(-tot / 2 + r);
-    const baseU0 = f1(g0 + r + r * .42), baseU1 = f1(baseU0 + bl), P = (u, v) => M(f1(u), f1(v)).join(' '), ang = Math.acos(nk / r), du = r * Math.sin(ang);
-    const glassD = `M ${P(g0 + du, -nk)} A ${r} ${r} 0 1 1 ${P(g0 + du, nk)} L ${P(baseU0, nk * .9)} L ${P(baseU0, -nk * .9)} Z`, [gx, gy] = M(g0, 0);
-    const lg = sub(p); on(lg, p, 0, { o: KWT(T, .15, .6, u => u) }); lg.path(glassD, { fill: TA(.16), sw: 0, stroke: 'none' });
-    const gb = sIn(p, gx, gy, T.tI); gb.path(glassD, Object.assign(F(5.4), { 'stroke-linejoin': 'round' }));
-    const [bx, by] = M(f1((baseU0 + baseU1) / 2), 0), bb = sIn(p, bx, by, f3(T.tI + tu(.08))), bw2 = f1(nk * .96), n2 = 3;
-    for (let i = 0; i < n2; i++) { const u0 = baseU0 + bl * .78 * i / n2, u1 = u0 + bl * .78 / n2 - 4; bb.path(`M ${P(u0, -bw2)} L ${P(u1, -bw2)} L ${P(u1, bw2)} L ${P(u0, bw2)} Z`, Object.assign(F(4), { rx: 6 })); }
-    bb.path(`M ${P(baseU0 + bl * .8, -bw2 * .6)} L ${P(baseU1 - bl * .06, -bw2 * .3)} Q ${P(baseU1, 0)} ${P(baseU1 - bl * .06, bw2 * .3)} L ${P(baseU0 + bl * .8, bw2 * .6)} Z`, F(4));
-    secretInT(p, c, T, gx, gy, f1(r * 1.2), .4, 1);
-    litOn(p, T.H).path(glassD, { fill: 'none', sw: 6, stroke: ACC1, 'stroke-linejoin': 'round' }); }
+  /* 16 นิยาม — สมการคำ: [ the word ] = icon + icon. The term on a card (its icon small before the word), a big equals sign, then what it means.
+     The equals sign grows out of its middle, the meanings come one by one, the sign lights on H. Meanings without icons → word pills. */
+  function D16(p, c, d, W, H) { const T = TQ(), X = d.term || {}, M = (Array.isArray(d.means) ? d.means.filter(has) : []).slice(0, 3), s = lbOf(X) || '', ic = icOf(X);
+    const ch = f1(H * .72), isz = ic ? f1(ch * .5) : 0, eqW = 70, n = Math.max(1, M.length); let mi = f1(H * .62), pl = 50;
+    const mW = M.map(m => icOf(m) ? mi : Math.min(260, wordW(p, lbOf(m) || '', 36) + 56)), mTot = mW.reduce((a, b) => a + b, 0) + (n - 1) * pl;
+    let fs = 60; const cMax = W - mTot - eqW - 2 * 36 - 40 - isz; let ww = wordW(p, s, fs); if (ww > cMax) { fs = f1(fs * cMax / ww); ww = cMax; }
+    const cw = f1(40 + isz + (ic ? 20 : 0) + ww + 40), fit = Math.min(1, (W * .98 - cw - 72 - eqW) / mTot);   /* the meanings shrink to fit */
+    if (fit < 1) { mi = f1(mi * fit); pl = f1(pl * fit); mW.forEach((w, i) => { mW[i] = f1(w * fit); }); }
+    const mT2 = mW.reduce((a, b) => a + b, 0) + (n - 1) * pl, tot = cw + 36 + eqW + 36 + mT2, x0 = f1(-tot / 2), cx = f1(x0 + cw / 2);
+    const cg = sIn(p, cx, 0, T.tI); R(cg, f1(x0), f1(-ch / 2), cw, ch, f1(ch * .28), F(4.6)); R(cg, f1(x0 + 7), f1(-ch / 2 + 7), f1(cw - 14), f1(ch - 14), f1(ch * .28 - 7), glassF(.06));
+    if (ic) put(p, c, { icon: ic }, f1(x0 + 40 + isz / 2), 0, isz, null, { t: tu(.18) });
+    txt(atG(p, tu(.2)), s, f1(x0 + 40 + isz + (ic ? 20 : 0)), f1(fs * .36), { size: fs, weight: 800, color: C.ink, anchor: 'start', maxW: ww });
+    const ex = f1(x0 + cw + 36 + eqW / 2), eg = mvG(p, { px: ex, py: 0, sx: KW(T, 0, .3, u => Math.max(.001, u)), o: [[0, 0], [tAt(T, 0), 0], [f3(tAt(T, 0) + tu(.08)), 1]] });
+    [-16, 16].forEach(y => R(eg, f1(ex - eqW / 2), f1(y - 7), eqW, 14, 7, F(3.6))); const el = litOn(p, T.H); [-16, 16].forEach(y => R(el, f1(ex - eqW / 2), f1(y - 7), eqW, 14, 7, { fill: TA(.6), sw: 3.6, stroke: ACC1 }));
+    let x = f1(ex + eqW / 2 + 36); M.forEach((m, i) => { const a = .3 + .5 * i / n, w = mW[i], mx = f1(x + w / 2);
+      if (i) { const px_ = f1(x - pl / 2), pg = sub(p); on(pg, p, 0, { o: inW(T, a - .06, a + .1) }); R(pg, f1(px_ - 15), -5, 30, 10, 5, { fill: C.ink, sw: 0, stroke: 'none' }); R(pg, f1(px_ - 5), -15, 10, 30, 5, { fill: C.ink, sw: 0, stroke: 'none' }); }
+      if (icOf(m)) put(p, c, { icon: m.icon }, mx, 0, mi, null, { t: tAt(T, a), o: inW(T, a, a + .25), mv: { s: KW(T, a, a + .3, u => .86 + .14 * u) } });
+      else pill(p, lbOf(m), mx, 0, { t: tAt(T, a), size: 36, maxW: w - 60 });
+      x = f1(x + w + pl); }); }
 
-  /* 05 TABS — two tabs over one panel: "hidden" (lock) and "revealed" (sparkles); the highlight slides from the first tab to the second and the panel
-     changes to the secret. flat: the tabs are a column at the left, the panel right · other sizes: tabs on top, the panel under them. */
-  function TABS(p, c, d, W0, H0) { const T = TRS(d), k = CURK, col = k === 1;
-    let tx, ty, tw, th, px, py, pw, ph;
-    if (col) { th = f1(H0 * .96); tw = f1(Math.min(W0 * .22, th * .9)); pw = f1(W0 * .98 - tw - 24); ph = th; tx = f1(-W0 * .49 + tw / 2); ty = 0; px = f1(W0 * .49 - pw / 2); py = 0; }
-    else { th = f1(Math.min(H0 * .24, W0 * .36, 190)); tw = f1(W0 * .98); const gp = f1(H0 * .035); ph = f1(H0 * .98 - th - gp); pw = tw; tx = 0; ty = f1(-H0 * .49 + th / 2); px = 0; py = f1(H0 * .49 - ph / 2); }
-    const trr = f1(Math.min(tw, th) * .32), gT = sIn(p, tx, ty, T.tI); cardT(gT, tx, ty, tw, th, trr);
-    /* the two tab slots */
-    const sl = i => col ? [tx, f1(ty - th / 4 + i * th / 2), f1(tw - 20), f1(th / 2 - 16)] : [f1(tx - tw / 4 + i * tw / 2), ty, f1(tw / 2 - 16), f1(th - 20)];
-    const [x0, y0, sw0, sh0] = sl(0), [x1, y1] = sl(1), HK = col ? { y: KWT(T, .1, .5, u => f1((y0 - y1) * (1 - u))) } : { x: KWT(T, .1, .5, u => f1((x0 - x1) * (1 - u))) };
-    const hl = mvG(p, Object.assign({ px: x1, py: y1, o: fadeS(T.tI) }, HK)); R(hl, f1(x1 - sw0 / 2), f1(y1 - sh0 / 2), sw0, sh0, f1(Math.min(sw0, sh0) * .3), { fill: TA(.22), sw: 3.6, stroke: ACC1 });
-    const is = f1(Math.min(sw0, sh0) * .74); icoT(p, c, 'lock-pro', x0, y0, is, { t: T.tI, o: fadeS(T.tI).concat(KWT(T, .25, .5, u => 1 - .55 * u).slice(1)) }); icoT(p, c, 'sparkles-pro', x1, y1, is, { t: T.tI, o: [[0, 0], [T.tI, 0], [f3(T.tI + tu(.32)), .45, 'io']].concat(KWT(T, .25, .5, u => .45 + .55 * u).slice(2)) });
-    /* the panel: a lock mark first, then the secret */
-    const prr = f1(Math.min(pw, ph) * (col ? .3 : .1)), gP = sIn(p, px, py, T.tI); cardT(gP, px, py, pw, ph, prr);
-    const lm = sub(p); on(lm, p, 0, { o: fadeS(T.tI).concat(KWT(T, .25, .5, u => 1 - u).slice(1)) }); const lr = f1(Math.min(pw, ph) * .16); padlockT(lm, px, f1(py + lr * .3), f1(lr * 2), f1(lr * 1.5));
-    secretInT(p, c, T, px, py, f1(Math.min(pw * .62, ph * .74)), .5, 1);
-    litT(p, T, px, py, pw, ph, prr); }
+  /* 17 รายการ — ถาดแบ่งช่อง: one long tray split into a slot per item; the items rise into their slots one by one; the group's name (if said) is a tag
+     on the tray's top edge. Items without icons → their words in the slot. */
+  function D17(p, c, d, W, H) { const T = TQ(), I = (Array.isArray(d.items) ? d.items.filter(has) : []).slice(0, 4), n = Math.max(2, I.length), lb = d.label && String(d.label).trim() ? String(d.label).trim() : null;
+    const top = lb ? f1(-H / 2 + 26) : f1(-H * .44), bot = f1(lb ? H / 2 - 2 : H * .44), th = f1(bot - top), cy = f1((top + bot) / 2), rr = f1(th * .3), sw_ = f1(W / n);
+    const g = sIn(p, 0, cy, T.tI); R(g, -W / 2, top, W, th, rr, F(4.6)); R(g, f1(-W / 2 + 7), f1(top + 7), f1(W - 14), f1(th - 14), f1(rr - 7), glassF(.05));
+    for (let i = 1; i < n; i++) { const x = f1(-W / 2 + sw_ * i); drawAt(p.line(x, f1(top + th * .18), x, f1(bot - th * .18), S(2.2)), p, f3(T.tI + tu(.12)), tu(.36)); }
+    I.forEach((X, i) => { const x = f1(-W / 2 + sw_ * (i + .5)), a = .9 * i / n, b = a + .9 / n + .12, isz = f1(Math.min(th * .66, sw_ * .56));
+      thing(p, c, X, x, cy, isz, { t: tAt(T, a), o: inW(T, a, Math.min(1, b)), mv: { y: KW(T, a, Math.min(1, b), u => f1(22 * (1 - u))) }, size: 40, maxW: f1(sw_ * .84) }); });
+    litR(p, T.H, 0, cy, W, th, rr);
+    if (lb) { const fs = 30, w = Math.min(360, wordW(p, lb, fs)), tx = f1(-W / 2 + 34 + (w + 50) / 2), tg = sIn(p, tx, top, f3(T.tI + tu(.1)));
+      R(tg, f1(tx - (w + 50) / 2), f1(top - 24), f1(w + 50), 48, 24, F(3.4)); txt(tg, lb, tx, f1(top + 11), { size: fs, weight: 800, color: C.ink, maxW: w }); } }
+
+  /* 18 เหตุการณ์ — ช่องมองภาพจับเหตุการณ์: the four corners of a viewfinder frame the strip; who (if said) and what happened come into it, the time is a
+     tag at the top left with a dot; on H the shot is taken: a soft flash, the corners light. */
+  function D18(p, c, d, W, H) { const T = TQ(), Wh = d.what, Wo = d.who && has(d.who) ? d.who : null, when = d.when && String(d.when).trim() ? String(d.when).trim() : null;
+    const fw = f1(W - 8), fh = f1(H - 8), L = 50, cg = mvG(p, { px: 0, py: 0, s: [[0, .94], [T.tI, .94], [f3(T.tI + tu(.5)), 1, 'io']], o: fadeS(T.tI, .4) }), lg = litOn(p, T.H);
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sy]) => { const x = f1(sx * fw / 2), y = f1(sy * fh / 2), dd = `M ${x} ${f1(y - sy * L)} L ${x} ${y} L ${f1(x - sx * L)} ${y}`;
+      cg.path(dd, { sw: 7 }); lg.path(dd, { sw: 7, stroke: ACC1 }); });
+    const wsz = f1(H * .9), osz = f1(H * .66), gap = 44, tot = Wo ? osz + gap + wsz : wsz, x0 = f1(-tot / 2);
+    if (Wo) thing(p, c, Wo, f1(x0 + osz / 2), f1(H * .06), osz, { t: tAt(T, 0), o: inW(T, 0, .3), size: 40, maxW: 220 });
+    thing(p, c, Wh, f1(Wo ? x0 + osz + gap + wsz / 2 : 0), 0, wsz, { t: tAt(T, .2), o: inW(T, .2, .55), mv: { s: KW(T, .2, .7, u => .86 + .14 * u) }, size: 60, maxW: 420 });
+    if (when) { const fs = 28, w = Math.min(230, wordW(p, when, fs)), tx = f1(-fw / 2 + 30), ty = f1(-fh / 2 + 34), tg = sub(p); on(tg, p, 0, { o: inW(T, .4, .65) });
+      tg.circle(f1(tx + 9), ty, 9, { fill: ACC1, sw: 0, stroke: 'none' }); txt(tg, when, f1(tx + 28), f1(ty + 10), { size: fs, weight: 800, color: C.ink, anchor: 'start', maxW: w }); }
+    const fl = sub(p); on(fl, p, 0, { o: [[0, 0], [tAt(T, .86), 0], [f3(T.H + tu(.06)), 1, 'io'], [f3(T.H + tu(.6)), 0, 'io']] }); R(fl, -fw / 2, -fh / 2, fw, fh, 10, { fill: TA(.14), sw: 0, stroke: 'none' }); }
+
+  /* 19 ความรู้สึก — มาตรวัดอารมณ์: a track from bad (a small frown at its left end) to good (a small smile at its right end); the feeling's icon rides a
+     big knob from the middle to its side, the track fills behind it; who (if said) stands at the left. */
+  function D19(p, c, d, W, H) { const T = TQ(), F_ = d.feel, Wo = d.who && has(d.who) ? d.who : null, good = d.mood !== 'bad';
+    const osz = Wo ? f1(H * .6) : 0, xa = f1(-W / 2 + (Wo ? osz + 76 : 70)), xb = f1(W / 2 - 70), th = 30, kr = f1(H * .4), u = good ? .8 : .2, xk = f1(xa + (xb - xa) * u), xm = f1((xa + xb) / 2);
+    if (Wo) thing(p, c, Wo, f1(-W / 2 + osz / 2), 0, osz, { t: tu(.14), size: 38, maxW: 180 });
+    const tg = sIn(p, xm, 0, T.tI); R(tg, xa, -th / 2, f1(xb - xa), th, th / 2, F(4));
+    put(p, c, { icon: 'frown' }, f1(xa - 36), 0, 58, null, { t: tu(.2), o: [[0, 0], [tu(.2), 0], [f3(tu(.52)), .5, 'io']] }); put(p, c, { icon: 'smile' }, f1(xb + 36), 0, 58, null, { t: tu(.2), o: [[0, 0], [tu(.2), 0], [f3(tu(.52)), .5, 'io']] });
+    const cl = clipG(p, f1(xa + 5), f1(-th / 2 + 5), f1(xb - xa - 10), f1(th - 10), f1(th / 2 - 5)), fg = mvG(cl, { px: xm, py: 0, sx: KW(T, .05, 1, v => Math.max(.001, v)), o: fadeS(T.tA, .2) });
+    R(fg, Math.min(xm, xk), f1(-th / 2), f1(Math.abs(xk - xm)), th, 0, { fill: TA(.55), sw: 0, stroke: 'none' });
+    const XK = KW(T, .05, 1, v => f1((xk - xm) * v)), kg = mvG(p, { px: xm, py: 0, x: XK, o: fadeS(f3(T.tI + tu(.1))) }); kg.circle(xm, 0, kr, F(4.8)); kg.circle(xm, 0, f1(kr - 8), glassF(.06));
+    litOn(kg, T.H).circle(xm, 0, kr, { fill: TA(.1), sw: 5, stroke: ACC1 });
+    thing(p, c, F_, xm, 0, f1(kr * 1.2), { t: tu(.2), mv: { px: xm, py: 0, x: XK }, size: 34, maxW: f1(kr * 1.6) }); }
+
+  /* 20 ความสัมพันธ์ — สายเชื่อมสองฝ่าย: a and b on round plates at the two ends; a thick link grows out of both and joins in the middle, where the
+     relationship's word sits; ended (cut) → the two halves pull back, a ✕ in the gap, the word above. */
+  function D20(p, c, d, W, H) { const T = TQ(), A = d.a, B = d.b, lb = d.label && String(d.label).trim() ? String(d.label).trim() : null, cut = d.cut === true;
+    const R0 = f1(H * .44), xa = f1(-W / 2 + R0 + 4), xb = f1(W / 2 - R0 - 4), e0 = f1(xa + R0), e1 = f1(xb - R0), gap = cut ? 46 : 0;
+    [[xa, A], [xb, B]].forEach(([x, X], i) => { const g = sIn(p, x, 0, f3(T.tI + tu(.06 * i))); g.circle(x, 0, R0, F(4.6)); g.circle(x, 0, f1(R0 - 8), glassF(.05)); thing(p, c, X, x, 0, f1(R0 * 1.18), { t: tu(.16 + .06 * i), size: 36, maxW: f1(R0 * 1.6) }); });
+    [[e0, 1], [e1, -1]].forEach(([x, sd]) => { const len = f1(Math.abs(0 - x) - 2), back = cut ? f1(gap / len) : 0;
+      const g = mvG(p, { px: x, py: 0, sx: KW(T, 0, .45, v => Math.max(.001, v)).concat(cut ? KW(T, .6, .9, v => 1 - back * v).slice(2) : []), o: [[0, 0], [tAt(T, 0), 0], [f3(tAt(T, 0) + tu(.06)), 1]] });
+      R(g, sd > 0 ? x : f1(x - len), -9, len, 18, 9, cut ? F(3.4) : F(3.4)); if (!cut) R(litOn(g, T.H), sd > 0 ? x : f1(x - len), -9, len, 18, 9, { fill: TA(.5), sw: 3.4, stroke: ACC1 }); });
+    if (cut) { const mg = popAt(p, 0, 0, tAt(T, .8)); mg.circle(0, 0, 26, F(3.4)); XX(mg, 0, 0, .7); }
+    else if (!lb) { const kg = popAt(p, 0, 0, tAt(T, .42)); kg.circle(0, 0, 24, F(3.6)); litOn(kg, T.H).circle(0, 0, 24, { fill: TA(.4), sw: 3.6, stroke: ACC1 }); }
+    if (lb) pill(p, lb, 0, cut ? f1(-H * .3) : 0, { t: tAt(T, cut ? .3 : .42), size: cut ? 30 : 36, maxW: f1(e1 - e0 - 90) }); }
+
+  /* 21 สถานที่ — หมุดบนแผนที่: a map strip (a few soft roads); a big pin comes down onto it with the place's icon in its head, the place's name beside
+     it; spots (if said) are small pins on the map. */
+  function D21(p, c, d, W, H) { const T = TQ(), P = d.place || {}, nm = lbOf(P), ic = icOf(P), SPT = (Array.isArray(d.spots) ? d.spots.filter(has) : []).slice(0, 2);
+    const mh = f1(H * .98), rr = 26, g = sIn(p, 0, 0, T.tI); R(g, -W / 2, -mh / 2, W, mh, rr, F(4.6)); R(g, f1(-W / 2 + 7), f1(-mh / 2 + 7), f1(W - 14), f1(mh - 14), rr - 7, glassF(.04));
+    const roads = [`M ${-W / 2 + 8} 38 C -200 10, -60 90, 120 46 S 330 0, ${W / 2 - 8} 30`, `M -250 ${-mh / 2 + 8} C -230 -20, -300 40, -280 ${mh / 2 - 8}`, `M 260 ${-mh / 2 + 8} C 240 -10, 300 50, 330 ${mh / 2 - 8}`];
+    roads.forEach((dd, i) => drawAt(p.path(dd, { sw: i ? 10 : 14, stroke: TL_(.14) }), p, f3(T.tI + tu(.1)), tu(.6)));
+    const r = f1(H * .25), fs = 46, nw = nm ? Math.min(330, wordW(p, nm, fs)) : 0, tot = nm ? 2 * r + 28 + nw : 2 * r, px = f1(-tot / 2 + r), hy = f1(-r * .45 - 6);
+    const pk = { px, py: hy, y: [[0, -36], [tAt(T, 0), -36], [tAt(T, .35), 0, 'io']], o: inW(T, 0, .25) };
+    { const sh = sub(p); on(sh, p, 0, { ox: px, oy: f1(hy + r * 1.9), sx: KW(T, .1, .4, v => Math.max(.001, v)), o: inW(T, .1, .35) }); sh.path(`M ${f1(px - r * .7)} ${f1(hy + r * 1.9)} A ${f1(r * .7)} ${f1(r * .2)} 0 1 0 ${f1(px + r * .7)} ${f1(hy + r * 1.9)} A ${f1(r * .7)} ${f1(r * .2)} 0 1 0 ${f1(px - r * .7)} ${f1(hy + r * 1.9)} Z`, { fill: TL_(.16), sw: 0, stroke: 'none' });
+      const pg = mvG(p, pk); pg.path(pinD(px, hy, r), F(4.8)); pg.circle(px, hy, f1(r * .74), glassF(.06)); litOn(pg, T.H).path(pinD(px, hy, r), { fill: 'none', sw: 5, stroke: ACC1 });
+      if (ic) put(p, c, { icon: ic }, px, hy, f1(r * 1.1), null, { t: tAt(T, 0), o: inW(T, 0, .25), mv: { px, py: hy, y: pk.y } }); else pg.circle(px, hy, 10, { fill: ACC1, sw: 0, stroke: 'none' }); }
+    if (nm) { const nx = f1(px + r + 28), tg = mvG(p, { px: f1(nx + nw / 2), py: 0, x: [[0, -18], [tAt(T, .35), -18], [tAt(T, .65), 0, 'io']], o: inW(T, .35, .65) });
+      txt(tg, nm, nx, f1(hy + fs * .36), { size: fs, weight: 800, color: C.ink, anchor: 'start', maxW: nw }); }
+    SPT.forEach((X, i) => { const sx = f1(i ? W / 2 - 84 : -W / 2 + 84), sr = 40, sy = f1(-sr * .4); const a = .55 + .15 * i, sg = mvG(p, { px: sx, py: sy, y: [[0, -20], [tAt(T, a), -20], [tAt(T, a + .3), 0, 'io']], o: inW(T, a, a + .25) });
+      sg.path(pinD(sx, sy, sr), F(3.6)); if (icOf(X)) put(p, c, { icon: X.icon }, sx, sy, f1(sr * 1.15), null, { t: tAt(T, a), o: inW(T, a, a + .25), mv: { px: sx, py: sy, y: [[0, -20], [tAt(T, a), -20], [tAt(T, a + .3), 0, 'io']] } }); else sg.circle(sx, sy, 7, { fill: C.ink, sw: 0, stroke: 'none' }); }); }
+
+  /* 22 กลไก — เฟืองขบกัน: the parts are gears in a row, meshed (each holds its part's icon); the subject feeds in from the left, the gears turn (each
+     against its neighbour) and the result comes out at the right and lights on H. */
+  const gearD = (x, y, Rg, n, ph = 0) => { const r0 = Rg * .82, w = Math.PI / n * .5, P = []; for (let i = 0; i < n; i++) { const a = 2 * Math.PI * i / n + ph;
+    [[a - w * 1.3, r0], [a - w * .72, Rg], [a + w * .72, Rg], [a + w * 1.3, r0]].forEach(([b, rr]) => P.push([f1(x + rr * Math.cos(b)), f1(y + rr * Math.sin(b))])); } return pathOf(P); };
+  function D22(p, c, d, W, H) { const T = TQ(), Sb = d.subject, Cs = (Array.isArray(d.components) ? d.components.filter(has) : []).slice(0, 3), Rs = d.result && has(d.result) ? d.result : null, n = Math.max(2, Cs.length);
+    const ssz = Sb ? f1(H * .52) : 0, rsz = Rs ? f1(H * .62) : 0, aw = 64, gp = 16, side = (Sb ? ssz + 2 * gp + aw : 0) + (Rs ? rsz + 2 * gp + aw : 0);
+    const Rg = f1(Math.min(H * .44, (W * .98 - side) / (2 + 1.8 * (n - 1)))), nt = 10, dc = f1(Rg * 1.8), gW = f1(2 * Rg + (n - 1) * dc);
+    const tot = (Sb ? ssz + gp + aw + gp : 0) + gW + (Rs ? gp + aw + gp + rsz : 0), x0 = f1(-tot / 2); let x = x0;
+    if (Sb) { thing(p, c, Sb, f1(x + ssz / 2), 0, ssz, { t: tu(.14), size: 34, maxW: f1(ssz * 1.3) }); x += ssz + gp; arrowR(atG(p, tAt(T, 0)), f1(x + aw / 2), 0, 0, .95); x += aw + gp; }
+    for (let i = 0; i < n; i++) { const gx = f1(x + Rg + i * dc), sd = i % 2 ? -1 : 1, ph = i % 2 ? Math.PI / nt : 0, X = Cs[i];
+      const gg = mvG(p, { px: gx, py: 0, r: KW(T, .05, .8, v => f1(sd * 108 * v)), o: fadeS(f3(T.tI + tu(.06 * i))) }); gg.path(gearD(gx, 0, Rg, nt, ph), Object.assign(F(4.2), {}));
+      gg.circle(gx, 0, f1(Rg * .62), S(1.8)); if (X) thing(p, c, X, gx, 0, f1(Rg * .92), { t: tu(.18 + .06 * i), size: 30, maxW: f1(Rg * 1.1) }); }
+    x += gW; if (Rs) { x += gp; arrowR(atG(p, tAt(T, .55)), f1(x + aw / 2), 0, 0, .95); x += aw + gp; const rx = f1(x + rsz / 2), rg = sIn(p, rx, 0, tAt(T, .6), .4);
+      R(rg, f1(rx - rsz / 2), f1(-rsz / 2), rsz, rsz, f1(rsz * .26), F(4.6)); thing(p, c, Rs, rx, 0, f1(rsz * .64), { t: tAt(T, .62), o: inW(T, .62, .9), size: 32, maxW: f1(rsz * .9) }); litR(p, T.H, rx, 0, rsz, rsz, f1(rsz * .26)); } }
 
   /* ----- the sheets ----- */
   function frame(c, W0, H0) { const f = p => { p.rect(-W0 / 2, -H0 / 2, W0, H0, { sw: 3, stroke: '#ffd400' }); }; f.custom = true; f.dur = .01; f.exit = 'pop'; G.art(f, { x: c.x, y: c.y, s: c.s, at: 0, speed: 1 }); }
-  const SIZES = [null, { w: 860, h: 230, th: 'แถบแบนยาว' }, { w: 860, h: 470, th: 'กว้าง' }, { w: 560, h: 490, th: 'เกือบจัตุรัส' }, { w: 400, h: 635, th: 'ตั้งแคบ' },
-    { w: 860, h: 710, th: 'เต็มจอ ทรงนอน' }, { w: 860, h: 965, th: 'เต็มจอ ทรงตั้ง' }, { w: 400, h: 500, th: 'ตั้งแคบ สั้น' }];
-  const lay = (k, d, c, D) => { const m = 14; art(c, p => D(p, c, d, SIZES[k].w - 2 * m, SIZES[k].h - 2 * m)); };
-  const SZD = {}; for (let k = 1; k <= 7; k++) SZD[k] = [{ id: 'lock', th: 'กุญแจปลดล็อก', fn: (d, c) => lay(k, d, c, LOCK) }, { id: 'cover', th: 'แผ่นปิดเลื่อนออก', fn: (d, c) => lay(k, d, c, COVER) },
-    { id: 'toggle', th: 'สวิตช์ซ่อน / แสดง', fn: (d, c) => lay(k, d, c, TOGGLE) }, { id: 'bulb2', th: 'หลอดไฟเป็นโครง', fn: (d, c) => lay(k, d, c, BULB2) }, { id: 'tabs', th: 'แท็บเฉลย', fn: (d, c) => lay(k, d, c, TABS) }];
   const I = (icon, label) => label ? { icon, label } : { icon };
-  const SAMPLES = [
-    { say: 'เคล็ดลับคือใส่เกลือนิดเดียว', secret: I('cooking-pot', 'เกลือนิดเดียว') },
-    { say: 'ความลับของคนเก็บเงินได้คือจ่ายตัวเองก่อน', secret: I('piggy-bank', 'จ่ายตัวเองก่อน') },
-    { say: 'วิธีลัดคือกด Ctrl+Z (ไม่มีไอคอน)', secret: { label: 'Ctrl+Z' } },
+  const D = [
+    { cat: 'B13 เคล็ดลับ', th: 'ช่องรหัสเผยความลับ', fn: D13, data: [{ say: 'เคล็ดลับคือใส่เกลือนิดเดียว', secret: I('cooking-pot', 'เกลือนิดเดียว') }, { say: 'ความลับคือจ่ายตัวเองก่อน', secret: I('piggy-bank') }, { say: 'วิธีลัดคือกด Ctrl+Z (ไม่มีไอคอน)', secret: { label: 'Ctrl+Z' } }] },
+    { cat: 'B14 ประโยคเด็ด', th: 'คำพูดในเครื่องหมายคำพูด', fn: D14, data: [{ say: 'เริ่มจากเล็กๆ แล้วจะไปได้ไกล', idea: I('sprout', 'เริ่มจากเล็กๆ') }, { say: 'ทำอะไรก็ทำด้วยใจ', idea: I('heart', 'ทำด้วยใจ') }, { say: 'ช้าแต่ชัวร์ (ไม่มีไอคอน)', idea: { label: 'ช้าแต่ชัวร์' } }] },
+    { cat: 'B15 ชวนทำ', th: 'ปุ่มกดแล้วติด', fn: D15, data: [{ say: 'อย่าลืมกดติดตาม', action: 'follow', label: 'กดติดตาม' }, { say: 'เซฟเก็บไว้ (ไม่มีคำ)', action: 'save' }, { say: 'เม้นบอกหน่อยนะ', action: 'comment', label: 'เม้นบอกหน่อย' }] },
+    { cat: 'B16 นิยาม', th: 'สมการคำ', fn: D16, data: [{ say: 'ROI คือกำไรเทียบเงินลงทุน', term: { label: 'ROI' }, means: [I('coins', 'กำไร'), I('wallet', 'เงินลงทุน')] }, { say: 'โซลาร์เซลล์คือแดดเป็นไฟ', term: I('sun', 'โซลาร์เซลล์'), means: [I('zap', 'ไฟฟ้า')] }, { say: 'บุฟเฟต์คือจ่ายครั้งเดียวกินไม่อั้น', term: { label: 'บุฟเฟต์' }, means: [I('wallet', 'จ่ายครั้งเดียว'), I('utensils', 'กิน'), I('infinity', 'ไม่อั้น')] }] },
+    { cat: 'B17 รายการ', th: 'ถาดแบ่งช่อง', fn: D17, data: [{ say: 'เมนูเช้ามีกาแฟ ครัวซองต์ น้ำส้ม', items: [I('coffee'), I('croissant'), I('cup-soda')], label: 'เมนูเช้า' }, { say: 'ของที่ต้องพก 4 อย่าง', items: [I('wallet'), I('key'), I('book-open'), I('clock')] }, { say: 'สองอย่าง (ไม่มีไอคอน)', items: [{ label: 'ใจเย็น' }, { label: 'ฟังให้จบ' }] }] },
+    { cat: 'B18 เหตุการณ์', th: 'ช่องมองภาพจับเหตุการณ์', fn: D18, data: [{ say: 'ปี 2020 ผมเปิดร้านแรก', what: I('store', 'เปิดร้าน'), who: I('user'), when: 'ปี 2020' }, { say: 'แล้วเขาก็ย้ายไปต่างประเทศ', what: I('plane', 'ย้ายประเทศ') }, { say: 'ตอน ม.6 สอบตก (ไม่มีไอคอน)', what: { label: 'สอบตก' }, when: 'ตอน ม.6' }] },
+    { cat: 'B19 ความรู้สึก', th: 'มาตรวัดอารมณ์', fn: D19, data: [{ say: 'ดีใจมากเลย', feel: I('smile', 'ดีใจ'), mood: 'good' }, { say: 'ลูกค้าเสียใจมาก', feel: I('heart-crack', 'เสียใจ'), mood: 'bad', who: I('user') }, { say: 'หงุดหงิดทุกครั้ง', feel: I('annoyed', 'หงุดหงิด'), mood: 'bad' }] },
+    { cat: 'B20 ความสัมพันธ์', th: 'สายเชื่อมสองฝ่าย', fn: D20, data: [{ say: 'เขาเป็นลูกค้าประจำร้าน', a: I('user'), b: I('store'), label: 'ลูกค้าประจำ' }, { say: 'เราเป็นเพื่อนกัน (ไม่มีคำ)', a: I('user'), b: I('user') }, { say: 'เลิกกับแฟนเก่าแล้ว', a: I('user'), b: I('heart'), label: 'แฟนเก่า', cut: true }] },
+    { cat: 'B21 สถานที่', th: 'หมุดบนแผนที่', fn: D21, data: [{ say: 'ร้านอยู่ตลาดน้อย ใกล้ร้านกาแฟ', place: I('store', 'ตลาดน้อย'), spots: [I('coffee')] }, { say: 'ไปดอยอินทนนท์', place: I('mountain', 'ดอยอินทนนท์') }, { say: 'ที่สยาม มีร้านเสื้อกับร้านอาหาร', place: { label: 'สยาม' }, spots: [I('shopping-bag'), I('utensils')] }] },
+    { cat: 'B22 กลไก', th: 'เฟืองขบกัน', fn: D22, data: [{ say: 'โซลาร์เซลล์ทำงานยังไง', subject: I('sun', 'โซลาร์เซลล์'), components: [I('sun'), I('zap'), I('plug')], result: I('house') }, { say: 'ระบบผ่อนจ่าย (2 ชิ้น)', subject: { label: 'ผ่อนจ่าย' }, components: [I('wallet'), I('calendar')], result: I('house') }, { say: 'ฝึก พัก กิน (ไม่มีไอคอน ไม่มีผล)', subject: I('dumbbell'), components: [{ label: 'ฝึก' }, { label: 'พัก' }, { label: 'กิน' }] }] },
   ];
-  const STRESS = [
-    { say: 'ไม่มีไอคอน ป้ายยาว', secret: { label: 'ดื่มน้ำก่อนกินข้าว' } },
-    { say: 'ไอคอนอย่างเดียว', secret: I('key') },
-    { say: 'ไอคอน + ป้าย (ป้ายไม่แสดง)', secret: I('moon', 'ปิดจอก่อนนอน') },
-    { say: 'ไม่มีไอคอน คำสั้นมาก', secret: { label: 'ฟัง' } },
-    { say: 'ไอคอนแนวนอน', secret: I('keyboard', 'คีย์ลัด') },
-    { say: 'ไอคอนสูง', secret: I('glass-water', 'ดื่มน้ำ') },
-  ];
-  /* icons only (D15): the word stays only when there is no icon; very long words are kept (they are the picture) */
-  const noWord = d => { if (!d || !d.secret) return d; const X = d.secret; return X.icon && (G.icons[X.icon] || G.icons[X.icon + '-pro']) ? Object.assign({}, d, { secret: { icon: X.icon } }) : d; };
   G.cats = G.cats || {};
-  G.cats.B13S = { SIZES, SAMPLES, STRESS, theme, frame, S: SZD,
-    drawS: (k, i, d, c) => { d = noWord(d); setZ(c); CURK = k; CUR = 's' + k + '-' + SZD[k][i].id; BOX = [SIZES[k].w, SIZES[k].h]; tokens(); EMPTY = false; BLUE = false; SZD[k][i].fn(d || {}, c); }, CLAMPS };
+  G.cats.S1N = { D, theme, frame, SIZE: { w: 860, h: 230 },
+    draw: (i, d, c) => { setZ(c); CUR = 's1n-' + i; BOX = [860, 230]; tokens(); EMPTY = false; BLUE = false; art(c, p => D[i].fn(p, c, d || {}, 832, 202)); }, CLAMPS };
 })();
