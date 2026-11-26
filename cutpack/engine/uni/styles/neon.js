@@ -265,12 +265,14 @@ STYLE('neon', {
       sfx('whoosh', t0 - .1, -20);
     }
     A(root, [{opacity: 1}, {opacity: 0}], t1 - .01, .01, {f: 'forwards'});   // cut out on its last frame (it faded and blurred out over 0.3 s)
-    /* GLASS CARD (TRIAL 2026-11-26, Friend: "ลองให้สไตล์นี้มีกรอบเหมือนกับอีก 2 สไตล์ได้ไหมแต่ขอเป็นกรอบแบบกระจกแบบ glass UI apple อะอยากได้ฟิลแบบนี้ ทำรูปมาให้ดูก่อน"):
-       only when the plan says RUN.glassCard (off: neon as before). The standard box becomes a frosted glass card (as lime's card is the
-       standard size) and the picture sits inside it, NEON_PAD from each edge */
-    const glass = typeof RUN !== 'undefined' && RUN.glassCard && L.stage && !L.over && !L.stages;
+    /* GLASS CARD (Friend 2026-11-26: "ลองให้สไตล์นี้มีกรอบเหมือนกับอีก 2 สไตล์ได้ไหมแต่ขอเป็นกรอบแบบกระจกแบบ glass UI apple" → "ขอแบบ liquid glass" →
+       "เอาแบบ liquid glass เฉพาะฉากที่มัน ต้องทับตัวคนอะ ฉากที่มีฉากหลังไม่ต้องมีกรอบ"): a picture over the speaker (hands, chest, diag, cta) sits on
+       a liquid glass card the size of its standard box (as lime's card), the picture inside it NEON_PAD from each edge · a navy screen (its own
+       background) keeps its picture with no frame. RUN.glassCard: false = no card anywhere · 'frost' = the frosted trial (for comparing) */
+    const gMode = typeof RUN !== 'undefined' && RUN.glassCard !== undefined ? RUN.glassCard : 'liquid';
+    const glass = !!gMode && !!L.speaker && !!L.stage && !L.over && !L.stages && !L.screen;
     let stage, card = null;
-    const liquid = glass && RUN.glassCard === 'liquid';   // Friend 2026-11-26: "ขอแบบ liquid glass" (clear glass, a bright rim, the edge bends what is behind)
+    const liquid = glass && gMode === 'liquid';   // clear glass, a bright rim, the edge bends what is behind
     if (glass) { card = box(L.stage); card.className = 'n-glass' + (liquid ? ' n-liquid' : '');
       A(card, [{opacity: 0, transform: 'scale(.96)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0, .4, {e: EASE.smooth});
       /* over the speaker's video the card frosts the video itself: a blurred copy of the frame, lined up with it (the page's backdrop blur
