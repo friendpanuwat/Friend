@@ -91,6 +91,7 @@ function neonRoom(name, f) {
    do not move. Never by the drawing's shape (common.md 4.1 rules 4 and 8). */
 const NEON_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
 const NEON_MIN = .65;
+const NEON_PAD = 28;   // the glass card's padding round the picture (trial, frame RUN.glassCard)
 const NEON_SIZE = {
   hands:  {order: [2, 3, 1], y0: 1250, y1: 1660, at: 'top'},                // shot 02: the picture at the hands, the words above it
   chest:  {order: [2, 1], y0: 970, y1: L => L.lead.y - 80, at: 'top'},      // shot 03: across the chest, the words under it (old gap 120 to the lead)
@@ -145,6 +146,11 @@ STYLE('neon', {
 .n-frame{position:absolute;overflow:hidden;border:3px solid #5DB9EC;box-shadow:0 0 10px rgba(80,180,255,.6),0 0 26px rgba(60,160,255,.25)}
 .n-band{position:absolute;overflow:hidden;border-top:3px solid #6CC4FF;border-bottom:3px solid #6CC4FF;box-shadow:0 0 16px rgba(80,180,255,.7),0 0 36px rgba(60,160,255,.3)}
 .n-text{position:absolute;inset:0}
+.n-glass{position:absolute;border-radius:40px;overflow:hidden;background:linear-gradient(150deg,rgba(255,255,255,.17) 0%,rgba(255,255,255,.07) 45%,rgba(160,210,255,.06) 100%);
+  -webkit-backdrop-filter:blur(26px) saturate(170%);backdrop-filter:blur(26px) saturate(170%);border:1.5px solid rgba(255,255,255,.30);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.45),inset 0 -1px 0 rgba(255,255,255,.10),inset 0 0 24px rgba(255,255,255,.05),0 24px 60px rgba(0,0,0,.38)}
+.n-glassvid{position:absolute;width:1080px;height:1920px;transform-origin:0 0;filter:blur(24px) saturate(160%) brightness(1.06);pointer-events:none}
+.n-glass::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,0) 38%);pointer-events:none}
 .n-row{position:absolute;white-space:nowrap}
 .n-lead{font-family:"Anu";font-weight:500;font-size:48px;line-height:1.3;color:#EEF3F7;text-shadow:0 0 3px rgba(0,3,10,.95),0 0 8px rgba(0,3,10,.8),0 2px 18px rgba(0,3,10,.6)}
 .n-lead i{font-family:"NeonSerif";font-style:italic;font-weight:400;font-size:1.22em;color:#DCEBFF;margin:0 .08em}
@@ -246,11 +252,23 @@ STYLE('neon', {
       sfx('whoosh', t0 - .1, -20);
     }
     A(root, [{opacity: 1}, {opacity: 0}], t1 - .01, .01, {f: 'forwards'});   // cut out on its last frame (it faded and blurred out over 0.3 s)
-    const stage = L.stage ? box(L.stage) : box([0, 0, 1, 1]);
-    if (L.std) stage.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3);   // for tools/card_sizes.js (the box is the "card" of a style with none)
+    /* GLASS CARD (TRIAL 2026-11-26, Friend: "ลองให้สไตล์นี้มีกรอบเหมือนกับอีก 2 สไตล์ได้ไหมแต่ขอเป็นกรอบแบบกระจกแบบ glass UI apple อะอยากได้ฟิลแบบนี้ ทำรูปมาให้ดูก่อน"):
+       only when the plan says RUN.glassCard (off: neon as before). The standard box becomes a frosted glass card (as lime's card is the
+       standard size) and the picture sits inside it, NEON_PAD from each edge */
+    const glass = typeof RUN !== 'undefined' && RUN.glassCard && L.stage && !L.over && !L.stages;
+    let stage, card = null;
+    if (glass) { card = box(L.stage); card.className = 'n-glass';
+      A(card, [{opacity: 0, transform: 'scale(.96)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0, .4, {e: EASE.smooth});
+      /* over the speaker's video the card frosts the video itself: a blurred copy of the frame, lined up with it (the page's backdrop blur
+         does not reach the video) · on the navy screens the screen behind is plain, the card's own glass is enough */
+      if (!L.screen) { const v = document.createElement('img'); v.className = 'n-glassvid'; v.style.left = -L.stage[0] + 'px'; v.style.top = -L.stage[1] + 'px'; card.appendChild(v);
+        if (!NEON.glassHook) { NEON.glassHook = true; HOOKS.push(() => document.querySelectorAll('.n-glassvid').forEach(g => { if (g.src !== V.src) g.src = V.src; g.style.translate = V.style.translate; g.style.scale = V.style.scale; })); } }
+      stage = div(`left:${NEON_PAD}px;top:${NEON_PAD}px;width:${L.stage[2] - 2 * NEON_PAD}px;height:${L.stage[3] - 2 * NEON_PAD}px`, card); }
+    else stage = L.stage ? box(L.stage) : box([0, 0, 1, 1]);
+    if (L.std) (card ?? stage).dataset.std = L.std[0] + ':' + L.std[1].toFixed(3);   // for tools/card_sizes.js (the box, or the glass card, is the style's card)
     if (L.over) A(stage, [{transform: 'scale(1.035)'}, {transform: 'none'}], t0, .45, {e: EASE.smooth});   // (an overlay: cut in and settle, as the editorial card)
     const stages = L.stages ? L.stages.map(s => box(s)) : null;
-    return {root, stage, stages, cam: root, L, name, dark: !!L.screen, room: L.stage ? neonFree(L, face) : null};
+    return {root, stage, stages, cam: root, L, name, dark: !!L.screen, ...(card ? {card, room: {l: NEON_PAD, t: NEON_PAD, r: NEON_PAD, b: NEON_PAD}} : {room: L.stage ? neonFree(L, face) : null})};
   },
   /* between pictures (a real clip): the speaker talks with the words low (shot 01) or split top / middle (shot 07); one of the two
      for each stretch between pictures, at random from the run's seed (two in three low), never over the face */
