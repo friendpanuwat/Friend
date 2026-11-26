@@ -73,6 +73,7 @@ function trmChunks(t0, t1) {
    picture keeps its sheet windows (the size rule is for the motion graphic). */
 const TRM_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
 const TRM_MIN = .65;
+const TRM_MENU = false;   // the dark screens' menu bar (off since 2026-11-26)
 const TRM_FADE = [120, 240];   // split_top's fade: the video starts 120 above its old line, fades in over 240 px
 const TRM_ORDER = {hero_chev: [2, 1], win_speaker: [2, 1], split_top: [2, 1], stack3: [6, 5]};
 const trmInner = ([x, y, w, h]) => [x + 24, y + 84, w - 48, h - 108];   // the picture inside a window (under its 72-high title bar)
@@ -220,8 +221,8 @@ STYLE('terminal', {
       sfx('whoosh', t0 - .1, -20);
     }
     A(root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t1 - .3, .3, {e: EASE.out, f: 'forwards'});
-    /* the menu bar: its words and clock as a skeleton (not spoken) */
-    if (L.menu) { const m = box([0, 0, 1080, 52]); m.className = 'm-menu';
+    /* the menu bar: none (2026-11-26 Friend: "ฉากที่เป็นจอสีแดงมันจะมีแถบข้างบนอยู่อ่ะผมอยากให้เอาแถบข้างบนออกด้วยครับ"; TRM_MENU = true draws it again) */
+    if (L.menu && TRM_MENU) { const m = box([0, 0, 1080, 52]); m.className = 'm-menu';
       [[40, 86], [146, 34], [200, 34], [254, 44], [318, 70], [956, 84]].forEach(([x, w]) => { const s = div(`left:${x}px;top:20px;width:${w}px`, m); s.className = 'm-sk'; }); }
     /* the speaker's half (shot 07) and its red line */
     /* (2026-11-26 Friend: "อยากให้เปลี่ยนจากการแบ่งหน้าจอเป็นการเฟดแทนได้ไหม": no red line; the video starts TRM_FADE[0] higher and
