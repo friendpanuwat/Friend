@@ -108,7 +108,7 @@
   function pic(it, cx, cy, wd, c, o = {}) {
     if (!it) return null; const at = c.at || 0, X = c.x + cx * c.s, Y = c.y + cy * c.s, fn = picOf(it), t = o.t ?? tu(.12);
     let a;
-    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp, exit: 'fade', loop: false });   /* in, then still */
+    if (fn) a = G.art(fn, { x: X, y: Y, w: wd * c.s, at: at + t, speed: Z.sp, exit: 'fade', amp: .7 });   /* in, then its own idle motion (user: "ไอคอนของเราเป็นอนิเมชั่นไอคอน") */
     if (fn && TRK) { a.__lb = [cx, cy, wd]; TRK.push(a); }   /* an icon's art box is bigger than what it draws — measure it by its nominal size */
     else { const str = it.label; if (!str) return null;
       const f = q => txt(q, str, 0, wd * .11, { size: wd * .3, maxW: o.bigW || wd * 1.25, weight: 700, color: C.ink, wrap: 'mid' }); f.custom = true; f.dur = .3; f.exit = 'fade';
@@ -889,6 +889,43 @@
     if (cut) { const mg = popAt(p, 0, 0, tAt(T, .6)); mg.circle(0, 0, f1(nr * .8), F(4)); XX(mg, 0, 0, f1(nr / 36)); }
     else { const g = mvG(p, { px: 0, py: 0, s: pSG(T, .42, .7), o: inW(T, .42, .62) }); glassC(g, 0, 0, nr, 4.4); litOn(g, T.H).circle(0, 0, nr, { fill: TA(.15), sw: 4.4, stroke: ACC1 }); put(p, c, { icon: 'link' }, 0, 0, f1(nr * 1.16), null, { t: tAt(T, .42), o: inW(T, .42, .62), mv: { s: pSG(T, .42, .7) } }); } }
 
+  /* ===== meshing gears (user: "ฟันเฟืองมันต้องขบกันพอดี"): one tooth pitch for every gear (radius ∝ tooth count), each gear's phase set so its gap meets its
+     neighbour's tooth on the line between them, and each turns at −(parent's teeth ÷ its teeth) of its parent's speed — the teeth stay in mesh all the way ===== */
+  const gearT = (x, y, R, n, ph) => { const P = 2 * Math.PI / n, m = Math.PI * R / n * .62, pts = [];
+    for (let i = 0; i < n; i++) { const a = ph + i * P; [[a - .27 * P, R - m], [a - .14 * P, R + m], [a + .14 * P, R + m], [a + .27 * P, R - m]].forEach(([b, r]) => pts.push([f1(x + r * Math.cos(b)), f1(y + r * Math.sin(b))])); } return pathOf(pts); };
+  /* gs = [{ x, y, n, par, X }] (gear 0 = the driver); pitch = arc between teeth. Draws the gears + their icons; returns them with R and the tooth height m */
+  function gearTrain(p, c, T, gs, pitch, deg = 150) { const m = pitch * .31;
+    gs.forEach((g, k) => { g.R = g.n * pitch / (2 * Math.PI); if (!k) { g.ph = 0; g.w = 1; return; } const q = gs[g.par], a = Math.atan2(g.y - q.y, g.x - q.x);
+      g.ph = a + Math.PI + (-q.n * (q.ph - a) + Math.PI) / g.n; g.w = -q.w * q.n / g.n; });
+    gs.forEach((g, k) => { const gg = mvG(p, { px: g.x, py: g.y, r: KW(T, 0, .85, v => f1(deg * g.w * v), 40), o: fadeS(f3(T.tI + tu(.06 * k))) });
+      glassP(gg, gearT(g.x, g.y, g.R, g.n, g.ph), g.y - g.R, g.y + g.R, k ? 3.8 : 4.2); gg.circle(g.x, g.y, f1((g.R - m) * .78), S(1.6));
+      if (k) litOn(p, tAt(T, Math.min(.85, .3 + .2 * (k - 1)))).circle(g.x, g.y, f1((g.R - m) * .78), { fill: TA(.14), sw: 0, stroke: 'none' });
+      if (g.X) thing(p, c, g.X, g.x, g.y, f1((g.R - m) * 1.25), { t: tu(.18 + .06 * k), size: f1(Math.max(16, g.R * .3)), maxW: f1((g.R - m) * 1.4) }); });
+    return { gs, m }; }
+  /* the result: a big lit disc — the thing the mechanism makes */
+  function gearResult(p, c, T, X, x, y, r) { const g = mvG(p, { px: x, py: y, s: KW(T, .72, 1, u => .8 + .2 * u), o: inW(T, .72, .9) }); glassC(g, x, y, r, 5); g.circle(x, y, f1(r - 12), S(1.6));
+    litOn(g, T.H).circle(x, y, r, { fill: TA(.16), sw: 5, stroke: ACC1 }); thing(p, c, X, x, y, f1(r * 1.3), { t: tAt(T, .72), o: inW(T, .72, .95), mv: { s: KW(T, .72, 1, u => .8 + .2 * u) }, size: f1(r * .36), maxW: f1(r * 1.6) }); }
+  const N0 = 14, NSG = 9;
+  /* star: the parts' gears round the driver; the result below-left */
+  function gearStar(p, c, T, d, W, H) { const Cs = (Array.isArray(d.components) ? d.components.filter(has) : []).slice(0, 3), Rs = d.result && has(d.result) ? d.result : null, n = Math.max(2, Cs.length);
+    const AN = n === 3 ? [-40, 30, 100] : [-20, 70], q = NSG / N0, mm = .139, rq = q * 1.5, aR = 160 * Math.PI / 180;
+    /* the layout in units of the driver's pitch radius, then scaled to fill the box and centred */
+    const U = [[0, 0, 1 + mm]].concat(AN.map(a => [(1 + q) * Math.cos(a * Math.PI / 180), (1 + q) * Math.sin(a * Math.PI / 180), q + mm]));
+    const dR = 1 + mm + .14 + rq; if (Rs) U.push([dR * Math.cos(aR), dR * Math.sin(aR), rq]);
+    const x0 = Math.min(...U.map(u => u[0] - u[2])), x1 = Math.max(...U.map(u => u[0] + u[2])), y0 = Math.min(...U.map(u => u[1] - u[2])), y1 = Math.max(...U.map(u => u[1] + u[2]));
+    const R0 = f1(Math.min(W * .97 / (x1 - x0), H * .97 / (y1 - y0))), ox = -(x0 + x1) / 2, oy = -(y0 + y1) / 2, P = (u, v) => [f1((u + ox) * R0), f1((v + oy) * R0)];
+    const pitch = 2 * Math.PI * R0 / N0, gs = [{ n: N0, X: d.subject }]; [gs[0].x, gs[0].y] = P(0, 0);
+    AN.forEach((a, i) => { const g = { n: NSG, par: 0, X: Cs[i] }; [g.x, g.y] = P(U[i + 1][0], U[i + 1][1]); gs.push(g); });
+    gearTrain(p, c, T, gs, pitch); if (Rs) { const [x, y] = P(U[U.length - 1][0], U[U.length - 1][1]); gearResult(p, c, T, Rs, x, y, f1(rq * R0)); } }
+  /* chain: driver → the parts in a row (horizontal, or vertical in tall boxes) → the result */
+  function gearChain(p, c, T, d, W, H, vert) { const Cs = (Array.isArray(d.components) ? d.components.filter(has) : []).slice(0, 3), Rs = d.result && has(d.result) ? d.result : null, k = Math.max(2, Cs.length);
+    const L = vert ? H : W, A = vert ? W : H, q = NSG / N0, mm = .139, coef = (1 + mm) + (1 + q) + (k - 1) * 2 * q + (q + mm) + (Rs ? 2 * q * 1.5 : 0);
+    const R0 = f1(Math.min(A * .96 / (2 * (1 + mm)), (L * .96 - (Rs ? 30 : 0)) / coef)), pitch = 2 * Math.PI * R0 / N0, rS = R0 * q, P = u => vert ? [0, u] : [u, 0];
+    let u = 0; const gs = [{ n: N0, X: d.subject, u: 0 }]; u = R0 + rS; Cs.forEach((X, i) => { gs.push({ n: NSG, X, u, par: i }); u += 2 * rS; });
+    gs.forEach(g => { [g.x, g.y] = P(f1(g.u)); }); const { m } = gearTrain(p, c, T, gs, pitch);
+    if (Rs) { const rr = f1(rS * 1.5), last = gs[gs.length - 1], uu = f1(last.u + rS + m + 30 + rr); gearResult(p, c, T, Rs, ...P(uu), rr); } }
+  function G22(p, c, d, W, H) { const T = TQ(), s = shpG(W, H); if (s === 'sq') gearStar(p, c, T, d, W, H); else gearChain(p, c, T, d, W, H, s === 'tall'); }
+
   /* centre a whole design (art + its icons + over-arts) in its box, and report anything past the box */
   function centreAll(q, c, k, i, S) { const inv = q.g.getScreenCTM().inverse(), svg = q.g.ownerSVGElement, pt = svg.createSVGPoint(); let b = null;
     const add = el => { if (!el) return; const r = el.getBoundingClientRect(); if (!r.width && !r.height) return; [[r.left, r.top], [r.right, r.bottom]].forEach(([x, y]) => { pt.x = x; pt.y = y; const l = pt.matrixTransform(inv);
@@ -903,7 +940,7 @@
   function frame(c, W0, H0) { const f = p => { p.rect(-W0 / 2, -H0 / 2, W0, H0, { sw: 3, stroke: '#ffd400' }); }; f.custom = true; f.dur = .01; f.exit = 'pop'; G.art(f, { x: c.x, y: c.y, s: c.s, at: 0, speed: 1 }); }
   const SIZES = [null, { w: 860, h: 230, th: 'แถบแบนยาว' }, { w: 860, h: 470, th: 'กว้าง' }, { w: 560, h: 490, th: 'เกือบจัตุรัส' }, { w: 400, h: 635, th: 'ตั้งแคบ' }, { w: 860, h: 710, th: 'เต็มจอ ทรงนอน' }, { w: 860, h: 965, th: 'เต็มจอ ทรงตั้ง' }, { w: 400, h: 500, th: 'ตั้งแคบ สั้น' }];
   const I = (icon, label) => label ? { icon, label } : { icon };
-  const FN = [pick(Q13, { tall: R13T, flat: R13S }), pick(Q14, { tall: R14T, flat: R14F }), Q15, Q16, Q17, pick(Q18, { flat: R18F }), pick(Q19, { flat: R19L, tall: R19L, sq: R19Q }), pick(Q20, { tall: R20T, flat: R20F }), pick(Q21, { flat: R21M, wide: R21M, tall: R21M }), pick(Q22, { tall: R22T })], TH = ['แคปซูลแยกออก', 'แท่นสองชั้น', 'ปุ่มวงแหวน', 'สองแผ่นเท่ากัน', 'แผ่นวงกับการ์ด', 'เส้นเวลาชี้จุดนั้น', 'วงวัดอารมณ์', 'สะพานแสง', 'หมุดเหนือแผ่นวง', 'ชุดเฟือง'];
+  const FN = [pick(Q13, { tall: R13T, flat: R13S }), pick(Q14, { tall: R14T, flat: R14F }), Q15, Q16, Q17, pick(Q18, { flat: R18F }), pick(Q19, { flat: R19L, tall: R19L, sq: R19Q }), pick(Q20, { tall: R20T, flat: R20F }), pick(Q21, { flat: R21M, wide: R21M, tall: R21M }), G22], TH = ['แคปซูลแยกออก', 'แท่นสองชั้น', 'ปุ่มวงแหวน', 'สองแผ่นเท่ากัน', 'แผ่นวงกับการ์ด', 'เส้นเวลาชี้จุดนั้น', 'วงวัดอารมณ์', 'สะพานแสง', 'หมุดเหนือแผ่นวง', 'ชุดเฟือง'];
   const D = [
     { cat: 'B13 เคล็ดลับ', th: TH[0], fn: FN[0], data: [{ say: 'เคล็ดลับคือใส่เกลือนิดเดียว', secret: I('cooking-pot', 'เกลือนิดเดียว') }, { say: 'ความลับคือจ่ายตัวเองก่อน', secret: I('piggy-bank') }, { say: 'วิธีลัดคือกด Ctrl+Z (ไม่มีไอคอน)', secret: { label: 'Ctrl+Z' } }] },
     { cat: 'B14 ประโยคเด็ด', th: TH[1], fn: FN[1], data: [{ say: 'เริ่มจากเล็กๆ แล้วจะไปได้ไกล', idea: I('sprout', 'เริ่มจากเล็กๆ') }, { say: 'ทำอะไรก็ทำด้วยใจ', idea: I('heart', 'ทำด้วยใจ') }, { say: 'ช้าแต่ชัวร์ (ไม่มีไอคอน)', idea: { label: 'ช้าแต่ชัวร์' } }] },
