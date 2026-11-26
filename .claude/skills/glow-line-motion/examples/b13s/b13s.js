@@ -744,13 +744,123 @@
     secretAt(p, c, T, PX, PY, sk(Rr * 1.22), { x: XK, y: YK, s: SK, o: OK });
     litOn(p, T.H).circle(PX, PY, sk(Rr), { fill: 'none', sw: 5, stroke: ACC1 }); }
 
+  /* ===== B13 round 3 — TEMPLATE look (user 2026-11-26: "ให้ทำเป็น template ที่ใช้ได้กับทุกหมวดหมู่ ไม่ได้ทำอันที่มีความหมายเจาะจง" — real objects (chest,
+     safe, envelope …) carry their own meaning; the standard is the template sets B01T–B12T and the seven-size B05S/B06S: rounded tiles and cards with
+     thick glowing edges, a glass fill, capsules / switches, the category's symbol as the structure (B06: a big ?). Priority (user): 1 fits and looks good
+     in THIS size · 2 design standard · 3 animation. Five designs, each composed for each size:
+     LOCK กุญแจปลดล็อก · COVER แผ่นปิดเลื่อนออก · TOGGLE สวิตช์ซ่อน/แสดง · BULB หลอดไฟเป็นโครง · SPOT แสงส่องเจอ ===== */
+  const KWT = (T, a, b, fn, n = 24) => { const t0 = f3(T.tA + (T.H - T.tA) * a), t1 = f3(T.tA + (T.H - T.tA) * b), K = [[0, f3(fn(0))], [t0, f3(fn(0))]];
+    for (let i = 1; i <= n; i++) { const u = i / n; K.push([f3(t0 + (t1 - t0) * u), f3(fn(ioE2(u)))]); } return K; };
+  const twT = (T, a) => f3(T.tA + (T.H - T.tA) * a);
+  const glassT = (q, x, y, w, h, rr, a = .07) => R(q, f1(x - w / 2), f1(y - h / 2), w, h, rr, { fill: TL_(a), sw: 0, stroke: 'none' });
+  const cardT = (q, x, y, w, h, rr, sw = 4.6) => R(q, f1(x - w / 2), f1(y - h / 2), w, h, rr, F(sw));
+  const litT = (p, T, x, y, w, h, rr, at) => R(litOn(p, at ?? T.H), f1(x - w / 2), f1(y - h / 2), w, h, rr, { fill: TA(.08), sw: 5, stroke: ACC1 });
+  const icoT = (p, c, name, x, y, sz, o) => put(p, c, { icon: name }, x, y, f1(sz), null, o);
+  /* the padlock glyph (the category's symbol, like B06's big ?): body bw × bh at (x, y) = body centre; shackle above; K = keys of the shackle lift */
+  function padlockT(q, x, y, bw, bh, sk) { const tt = f1(Math.max(14, bw * .1)), so = f1(bw * .3), hs = f1(bh * .62), y0 = f1(y - bh / 2 + tt * .6);
+    const d = `M ${f1(x - so)} ${y0} L ${f1(x - so)} ${f1(y0 - hs + so)} A ${so} ${so} 0 0 1 ${f1(x + so)} ${f1(y0 - hs + so)} L ${f1(x + so)} ${y0}`;
+    const sg = sk ? mvG(q, sk) : q; sg.path(d, { sw: tt + 7, fill: 'none' }); sg.path(d, { sw: tt, stroke: C.fill, fill: 'none' });
+    R(q, f1(x - bw / 2), f1(y - bh / 2), bw, bh, f1(Math.min(bw, bh) * .2), F(5)); return { hs, tt, top: f1(y - bh / 2 - hs + tt * .6) }; }
+  const keyholeT = (q, x, y, r) => { q.circle(x, f1(y - r * .35), r, { fill: C.ink, sw: 0, stroke: 'none' }); q.path(`M ${f1(x - r * .5)} ${f1(y)} L ${f1(x + r * .5)} ${f1(y)} L ${f1(x + r * .8)} ${f1(y + r * 1.9)} L ${f1(x - r * .8)} ${f1(y + r * 1.9)} Z`, { fill: C.ink, sw: 0, stroke: 'none' }); };
+  const secretInT = (p, c, T, x, y, sz, a, b, extra = {}) => secretAt(p, c, T, x, y, sz, Object.assign({ o: KWT(T, a, b, u => u), s: KWT(T, a, b, u => .82 + .18 * u) }, extra));
+
+  /* 01 LOCK — flat: a capsule card with a padlock tile at its left; the shackle lifts, light sweeps along the card and the secret is there.
+     other sizes: the padlock IS the frame — the shackle lifts, the keyhole goes, the body lights and holds the secret (big). */
+  function LOCK(p, c, d, W0, H0) { const T = TRS(d), k = CURK;
+    if (k === 1) { const h = f1(H0 * .96), w = f1(W0 * .98), rr = f1(h / 2), lbh = f1((h - 30) / 1.9), lb = f1(lbh * 1.25), lx = f1(-w / 2 + h * .62), ly = f1(-h / 2 + 15 + lbh * .9 + lbh / 2);
+      const g = sIn(p, 0, 0, T.tI); cardT(g, 0, 0, w, h, rr);
+      const cg = clipG(p, f1(-w / 2 + 8), f1(-h / 2 + 8), f1(w - 16), f1(h - 16), f1(rr - 8)), sw = mvG(cg, { px: f1(-w / 2 + 8), py: 0, sx: KWT(T, .3, .85, u => Math.max(.001, u)), o: fadeS(twT(T, .3), .2) });
+      R(sw, f1(-w / 2 + 8), f1(-h / 2 + 8), f1(w - 16), f1(h - 16), 0, { fill: TA(.1), sw: 0, stroke: 'none' });
+      const lt = sIn(p, lx, ly, T.tI); padlockT(lt, lx, ly, lb, lbh, { y: KWT(T, 0, .3, u => f1(-lbh * .26 * u)) });
+      const kh = sub(p); on(kh, p, 0, { o: fadeS(T.tI).concat(KWT(T, .1, .3, u => 1 - u).slice(1)) }); keyholeT(kh, lx, f1(ly - lbh * .08), f1(lbh * .13));
+      secretInT(p, c, T, f1((lx + lb / 2 + w / 2) / 2), 0, f1(h * .7), .55, 1);
+      litT(p, T, 0, 0, w, h, rr); return; }
+    const ar = { 2: 1.75, 3: 1.25, 4: .88, 5: 1.45, 6: 1.02, 7: .9 }[k] || 1.2, tot = 1.62 + .16 + .05;   /* body + shackle above + its lift, as a share of the body's height */
+    const bh = f1(Math.min(H0 * .97 / tot, W0 * .96 / ar)), bw = f1(bh * ar), y = f1(H0 / 2 - bh / 2 - (H0 - bh * tot) / 2);
+    const g = sIn(p, 0, y, T.tI), P = padlockT(g, 0, y, bw, bh, { y: KWT(T, 0, .3, u => f1(-bh * .16 * u)) });
+    const gl = sub(p); on(gl, p, 0, { o: KWT(T, .25, .7, u => u) }); glassT(gl, 0, y, f1(bw - 10), f1(bh - 10), f1(Math.min(bw, bh) * .2 - 5), .1);
+    const kh = sub(p); on(kh, p, 0, { o: fadeS(T.tI).concat(KWT(T, .1, .32, u => 1 - u).slice(1)) }); keyholeT(kh, 0, f1(y - bh * .08), f1(Math.min(bw, bh) * .11));
+    secretInT(p, c, T, 0, y, f1(Math.min(bw * .7, bh * .72)), .45, 1);
+    litT(p, T, 0, y, bw, bh, f1(Math.min(bw, bh) * .2)); }
+
+  /* 02 COVER — a card holding the secret under a cover (with the eye-off mark); the cover slides away (sideways on wide sizes, up on tall ones) inside
+     the card and the secret is there. Tall sizes get a header strip with a lock tile that opens. */
+  function COVER(p, c, d, W0, H0) { const T = TRS(d), k = CURK, tallH = k === 4 || k === 6 || k === 7, side = W0 / H0 > 1.3;
+    const hh = tallH ? f1(Math.min(H0 * .16, 120)) : 0, gp = tallH ? f1(H0 * .03) : 0, w = f1(W0 * .98), h = f1(H0 * .98 - hh - gp), rr = f1(Math.min(w, h) * (k === 1 ? .5 : .1)), cy = f1(H0 * .49 - h / 2);
+    if (tallH) { const hy = f1(-H0 * .49 + hh / 2), g0 = sIn(p, 0, hy, T.tI); cardT(g0, 0, hy, w, hh, f1(hh * .32));
+      const tS = f1(hh * .66), tx = f1(-w / 2 + hh * .5); icoT(p, c, 'lock-pro', tx, hy, tS * .9, { t: T.tI, o: fadeS(T.tI).concat(KWT(T, .1, .3, u => 1 - u).slice(1)) });
+      icoT(p, c, 'lock-open-pro', tx, hy, tS * .9, { t: twT(T, .28), o: KWT(T, .28, .45, u => u) }); }
+    const g = sIn(p, 0, cy, T.tI); cardT(g, 0, cy, w, h, rr); const ix = 0, iw = f1(w - 18), ih = f1(h - 18), irr = f1(Math.max(6, rr - 9));
+    const keep = side ? Math.min(.26, (ih * .9) / iw) : Math.min(.3, (iw * .9) / ih), cl = clipG(p, f1(-iw / 2), f1(cy - ih / 2), iw, ih, irr), K = side ? { x: KWT(T, .2, .75, u => f1(iw * (1 - keep) * u)) } : { y: KWT(T, .2, .75, u => f1(-ih * (1 - keep) * u)) };
+    const cv = mvG(cl, Object.assign({ o: fadeS(T.tI) }, K)); R(cv, f1(-iw / 2), f1(cy - ih / 2), iw, ih, 0, { fill: C.fill, sw: 0, stroke: 'none' }); R(cv, f1(-iw / 2), f1(cy - ih / 2), iw, ih, 0, { fill: TL_(.09), sw: 0, stroke: 'none' });
+    side ? cv.line(f1(-iw / 2 + 3), f1(cy - ih / 2), f1(-iw / 2 + 3), f1(cy + ih / 2), { sw: 5 }) : cv.line(f1(-iw / 2), f1(cy + ih / 2 - 3), f1(iw / 2), f1(cy + ih / 2 - 3), { sw: 5 });   /* the cover's leading edge */
+    /* the mark rides from the cover's middle to the middle of the strip that stays */
+    const es0 = f1(Math.min(iw, ih) * .34), es1 = f1(side ? Math.min(iw * keep * .7, ih * .5) : Math.min(ih * keep * .7, iw * .5)), mx = side ? f1(iw * (1 - keep) / 2 + iw * keep / 2 - 0) : 0, my = side ? 0 : f1(-ih / 2 + ih * keep / 2 - 0);
+    const MK = side ? { x: KWT(T, .2, .75, u => f1((iw / 2 - iw * keep / 2) * u)) } : { y: KWT(T, .2, .75, u => f1(-(ih / 2 - ih * keep / 2) * u)) }, SK2 = KWT(T, .2, .75, u => 1 - (1 - es1 / es0) * u);
+    icoT(p, c, 'eye-off-pro', 0, cy, es0, { t: T.tI, mv: Object.assign({ px: 0, py: cy, s: SK2 }, MK), o: fadeS(T.tI).concat(KWT(T, .55, .8, u => 1 - u).slice(1)) });
+    icoT(p, c, 'eye-pro', 0, cy, es0, { t: twT(T, .55), mv: Object.assign({ px: 0, py: cy, s: SK2 }, MK), o: KWT(T, .55, .85, u => u) });
+    const ox = side ? f1(-iw * keep / 2) : 0, oy = side ? 0 : f1(ih * keep / 2);   /* the open area's middle */
+    secretInT(p, c, T, ox, f1(cy + oy), f1(side ? Math.min(iw * (1 - keep) * .62, ih * .74) : Math.min(iw * .62, ih * (1 - keep) * .74)), .5, 1);
+    litT(p, T, 0, cy, w, h, rr); }
+
+  /* 03 TOGGLE — a hide / show switch: the knob (eye-off) slides across the track (eye), the track fills, and the card beside / above it shows the
+     secret. flat: switch left, card right · wide / square / tall: card on top, switch under it. */
+  function TOGGLE(p, c, d, W0, H0) { const T = TRS(d), k = CURK, row = k === 1;
+    let sw_, sh_, sx, sy, cw, ch, cx, cy;
+    if (row) { sh_ = f1(H0 * .62); sw_ = f1(sh_ * 1.9); ch = f1(H0 * .96); cw = f1(W0 * .98 - sw_ - 30); sx = f1(-W0 * .49 + sw_ / 2); sy = 0; cx = f1(W0 * .49 - cw / 2); cy = 0; }
+    else { sh_ = f1(Math.min(H0 * .24, W0 * .44, 200)); sw_ = f1(Math.min(W0 * .9, sh_ * 2.2)); const gp = f1(H0 * .05); ch = f1(H0 * .98 - sh_ - gp); cw = f1(W0 * .98); cx = 0; cy = f1(-H0 * .49 + ch / 2); sx = 0; sy = f1(H0 * .49 - sh_ / 2); }
+    const crr = f1(Math.min(cw, ch) * (row ? .5 : .12)), g = sIn(p, cx, cy, T.tI); cardT(g, cx, cy, cw, ch, crr);
+    secretInT(p, c, T, cx, cy, f1(Math.min(cw * .62, ch * .74)), .55, 1); litT(p, T, cx, cy, cw, ch, crr);
+    /* the switch */
+    const r = f1(sh_ / 2), gs = sIn(p, sx, sy, T.tI); R(gs, f1(sx - sw_ / 2), f1(sy - r), sw_, sh_, r, F(4.6));
+    const pad = 8, kr = f1(r - pad), kx0 = f1(sx - sw_ / 2 + r), kx1 = f1(sx + sw_ / 2 - r), XK = KWT(T, .1, .55, u => f1((kx0 - kx1) * (1 - u)));
+    const cl = clipG(p, f1(sx - sw_ / 2 + pad), f1(sy - r + pad), f1(sw_ - 2 * pad), f1(sh_ - 2 * pad), kr), fl = mvG(cl, { px: f1(sx - sw_ / 2 + pad), py: sy, sx: KWT(T, .1, .55, u => Math.max(.001, u)), o: fadeS(twT(T, .1), .2) });
+    R(fl, f1(sx - sw_ / 2 + pad), f1(sy - kr), f1(sw_ - 2 * pad), f1(2 * kr), kr, { fill: TA(.3), sw: 0, stroke: 'none' });
+    const kn = mvG(p, { px: kx1, py: sy, x: XK, o: fadeS(T.tI) }); kn.circle(kx1, sy, kr, F(4.4));
+    const mv = { px: kx1, py: sy, x: XK }; icoT(p, c, 'eye-off-pro', kx1, sy, f1(kr * 1.15), { t: T.tI, mv, o: fadeS(T.tI).concat(KWT(T, .3, .5, u => 1 - u).slice(1)) });
+    icoT(p, c, 'eye-pro', kx1, sy, f1(kr * 1.15), { t: twT(T, .35), mv, o: KWT(T, .35, .6, u => u) });
+    R(litOn(p, twT(T, .6)), f1(sx - sw_ / 2), f1(sy - r), sw_, sh_, r, { fill: 'none', sw: 5, stroke: ACC1 }); }
+
+  /* 04 BULB — the light bulb as the frame (the tip's symbol): light rises from the base, the glass lights, the secret glows inside. Lies on its side in
+     the flat strip. Proportions per size: a rounder globe on wide / square sizes, a taller neck on tall ones. */
+  function BULB2(p, c, d, W0, H0) { const T = TRS(d), k = CURK, flat = k === 1, L = flat ? W0 : H0, A = flat ? H0 : W0, M = (u, v) => flat ? [-u, v] : [v, u];
+    const nkR = k === 4 || k === 7 ? .5 : .44, bR = k === 4 || k === 7 ? .7 : .58;
+    const r = f1(Math.min(A * .48, L / (2 + .42 + bR * 1.05 + .06), 400)), nk = f1(r * nkR), bl = f1(r * bR), tot = f1(2 * r + r * .42 + bl), g0 = f1(-tot / 2 + r);
+    const baseU0 = f1(g0 + r + r * .42), baseU1 = f1(baseU0 + bl), P = (u, v) => M(f1(u), f1(v)).join(' '), ang = Math.acos(nk / r), du = r * Math.sin(ang);
+    const glassD = `M ${P(g0 + du, -nk)} A ${r} ${r} 0 1 1 ${P(g0 + du, nk)} L ${P(baseU0, nk * .9)} L ${P(baseU0, -nk * .9)} Z`, [gx, gy] = M(g0, 0);
+    const lg = sub(p); on(lg, p, 0, { o: KWT(T, .15, .6, u => u) }); lg.path(glassD, { fill: TA(.16), sw: 0, stroke: 'none' });
+    const gb = sIn(p, gx, gy, T.tI); gb.path(glassD, Object.assign(F(5.4), { 'stroke-linejoin': 'round' }));
+    const [bx, by] = M(f1((baseU0 + baseU1) / 2), 0), bb = sIn(p, bx, by, f3(T.tI + tu(.08))), bw2 = f1(nk * .96), n2 = 3;
+    for (let i = 0; i < n2; i++) { const u0 = baseU0 + bl * .78 * i / n2, u1 = u0 + bl * .78 / n2 - 4; bb.path(`M ${P(u0, -bw2)} L ${P(u1, -bw2)} L ${P(u1, bw2)} L ${P(u0, bw2)} Z`, Object.assign(F(4), { rx: 6 })); }
+    bb.path(`M ${P(baseU0 + bl * .8, -bw2 * .6)} L ${P(baseU1 - bl * .06, -bw2 * .3)} Q ${P(baseU1, 0)} ${P(baseU1 - bl * .06, bw2 * .3)} L ${P(baseU0 + bl * .8, bw2 * .6)} Z`, F(4));
+    secretInT(p, c, T, gx, gy, f1(r * 1.2), .4, 1);
+    litOn(p, T.H).path(glassD, { fill: 'none', sw: 6, stroke: ACC1, 'stroke-linejoin': 'round' }); }
+
+  /* 05 TABS — two tabs over one panel: "hidden" (lock) and "revealed" (sparkles); the highlight slides from the first tab to the second and the panel
+     changes to the secret. flat: the tabs are a column at the left, the panel right · other sizes: tabs on top, the panel under them. */
+  function TABS(p, c, d, W0, H0) { const T = TRS(d), k = CURK, col = k === 1;
+    let tx, ty, tw, th, px, py, pw, ph;
+    if (col) { th = f1(H0 * .96); tw = f1(Math.min(W0 * .22, th * .9)); pw = f1(W0 * .98 - tw - 24); ph = th; tx = f1(-W0 * .49 + tw / 2); ty = 0; px = f1(W0 * .49 - pw / 2); py = 0; }
+    else { th = f1(Math.min(H0 * .24, W0 * .36, 190)); tw = f1(W0 * .98); const gp = f1(H0 * .035); ph = f1(H0 * .98 - th - gp); pw = tw; tx = 0; ty = f1(-H0 * .49 + th / 2); px = 0; py = f1(H0 * .49 - ph / 2); }
+    const trr = f1(Math.min(tw, th) * .32), gT = sIn(p, tx, ty, T.tI); cardT(gT, tx, ty, tw, th, trr);
+    /* the two tab slots */
+    const sl = i => col ? [tx, f1(ty - th / 4 + i * th / 2), f1(tw - 20), f1(th / 2 - 16)] : [f1(tx - tw / 4 + i * tw / 2), ty, f1(tw / 2 - 16), f1(th - 20)];
+    const [x0, y0, sw0, sh0] = sl(0), [x1, y1] = sl(1), HK = col ? { y: KWT(T, .1, .5, u => f1((y0 - y1) * (1 - u))) } : { x: KWT(T, .1, .5, u => f1((x0 - x1) * (1 - u))) };
+    const hl = mvG(p, Object.assign({ px: x1, py: y1, o: fadeS(T.tI) }, HK)); R(hl, f1(x1 - sw0 / 2), f1(y1 - sh0 / 2), sw0, sh0, f1(Math.min(sw0, sh0) * .3), { fill: TA(.22), sw: 3.6, stroke: ACC1 });
+    const is = f1(Math.min(sw0, sh0) * .74); icoT(p, c, 'lock-pro', x0, y0, is, { t: T.tI, o: fadeS(T.tI).concat(KWT(T, .25, .5, u => 1 - .55 * u).slice(1)) }); icoT(p, c, 'sparkles-pro', x1, y1, is, { t: T.tI, o: [[0, 0], [T.tI, 0], [f3(T.tI + tu(.32)), .45, 'io']].concat(KWT(T, .25, .5, u => .45 + .55 * u).slice(2)) });
+    /* the panel: a lock mark first, then the secret */
+    const prr = f1(Math.min(pw, ph) * (col ? .3 : .1)), gP = sIn(p, px, py, T.tI); cardT(gP, px, py, pw, ph, prr);
+    const lm = sub(p); on(lm, p, 0, { o: fadeS(T.tI).concat(KWT(T, .25, .5, u => 1 - u).slice(1)) }); const lr = f1(Math.min(pw, ph) * .16); padlockT(lm, px, f1(py + lr * .3), f1(lr * 2), f1(lr * 1.5));
+    secretInT(p, c, T, px, py, f1(Math.min(pw * .62, ph * .74)), .5, 1);
+    litT(p, T, px, py, pw, ph, prr); }
+
   /* ----- the sheets ----- */
   function frame(c, W0, H0) { const f = p => { p.rect(-W0 / 2, -H0 / 2, W0, H0, { sw: 3, stroke: '#ffd400' }); }; f.custom = true; f.dur = .01; f.exit = 'pop'; G.art(f, { x: c.x, y: c.y, s: c.s, at: 0, speed: 1 }); }
   const SIZES = [null, { w: 860, h: 230, th: 'แถบแบนยาว' }, { w: 860, h: 470, th: 'กว้าง' }, { w: 560, h: 490, th: 'เกือบจัตุรัส' }, { w: 400, h: 635, th: 'ตั้งแคบ' },
     { w: 860, h: 710, th: 'เต็มจอ ทรงนอน' }, { w: 860, h: 965, th: 'เต็มจอ ทรงตั้ง' }, { w: 400, h: 500, th: 'ตั้งแคบ สั้น' }];
   const lay = (k, d, c, D) => { const m = 14; art(c, p => D(p, c, d, SIZES[k].w - 2 * m, SIZES[k].h - 2 * m)); };
-  const SZD = {}; for (let k = 1; k <= 7; k++) SZD[k] = [{ id: 'chest', th: 'หีบเปิด', fn: (d, c) => lay(k, d, c, CHEST) }, { id: 'mag', th: 'แว่นขยายส่องเจอ', fn: (d, c) => lay(k, d, c, MAG) }, { id: 'doors', th: 'บานเลื่อนเปิด', fn: (d, c) => lay(k, d, c, DOORS) },
-    { id: 'sleeve', th: 'ซองเปิด การ์ดเลื่อนออก', fn: (d, c) => lay(k, d, c, SLEEVE) }, { id: 'tiles', th: 'แผ่นปิดเผยทีละแผ่น', fn: (d, c) => lay(k, d, c, TILES) }, { id: 'bulb', th: 'หลอดไฟสว่าง', fn: (d, c) => lay(k, d, c, BULB) }];
+  const SZD = {}; for (let k = 1; k <= 7; k++) SZD[k] = [{ id: 'lock', th: 'กุญแจปลดล็อก', fn: (d, c) => lay(k, d, c, LOCK) }, { id: 'cover', th: 'แผ่นปิดเลื่อนออก', fn: (d, c) => lay(k, d, c, COVER) },
+    { id: 'toggle', th: 'สวิตช์ซ่อน / แสดง', fn: (d, c) => lay(k, d, c, TOGGLE) }, { id: 'bulb2', th: 'หลอดไฟเป็นโครง', fn: (d, c) => lay(k, d, c, BULB2) }, { id: 'tabs', th: 'แท็บเฉลย', fn: (d, c) => lay(k, d, c, TABS) }];
   const I = (icon, label) => label ? { icon, label } : { icon };
   const SAMPLES = [
     { say: 'เคล็ดลับคือใส่เกลือนิดเดียว', secret: I('cooking-pot', 'เกลือนิดเดียว') },
