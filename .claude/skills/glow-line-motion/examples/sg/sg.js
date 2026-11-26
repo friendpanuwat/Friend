@@ -891,10 +891,10 @@
 
   /* ===== meshing gears (user: "ฟันเฟืองมันต้องขบกันพอดี"): one tooth pitch for every gear (radius ∝ tooth count), each gear's phase set so its gap meets its
      neighbour's tooth on the line between them, and each turns at −(parent's teeth ÷ its teeth) of its parent's speed — the teeth stay in mesh all the way ===== */
-  const gearT = (x, y, R, n, ph) => { const P = 2 * Math.PI / n, m = Math.PI * R / n * .62, pts = [];
-    for (let i = 0; i < n; i++) { const a = ph + i * P; [[a - .27 * P, R - m], [a - .14 * P, R + m], [a + .14 * P, R + m], [a + .27 * P, R - m]].forEach(([b, r]) => pts.push([f1(x + r * Math.cos(b)), f1(y + r * Math.sin(b))])); } return pathOf(pts); };
+  const gearT = (x, y, R, n, ph) => { const P = 2 * Math.PI / n, m = Math.PI * R / n * .36, pts = [];   /* short, stubby teeth (user: "กิ่งที่ยื่นออกมาสั้นๆ") */
+    for (let i = 0; i < n; i++) { const a = ph + i * P; [[a - .29 * P, R - m], [a - .18 * P, R + m], [a + .18 * P, R + m], [a + .29 * P, R - m]].forEach(([b, r]) => pts.push([f1(x + r * Math.cos(b)), f1(y + r * Math.sin(b))])); } return pathOf(pts); };
   /* gs = [{ x, y, n, par, X }] (gear 0 = the driver); pitch = arc between teeth. Draws the gears + their icons; returns them with R and the tooth height m */
-  function gearTrain(p, c, T, gs, pitch, deg = 150) { const m = pitch * .31;
+  function gearTrain(p, c, T, gs, pitch, deg = 150) { const m = pitch * .18;
     gs.forEach((g, k) => { g.R = g.n * pitch / (2 * Math.PI); if (!k) { g.ph = 0; g.w = 1; return; } const q = gs[g.par], a = Math.atan2(g.y - q.y, g.x - q.x);
       g.ph = a + Math.PI + (-q.n * (q.ph - a) + Math.PI) / g.n; g.w = -q.w * q.n / g.n; });
     gs.forEach((g, k) => { const gg = mvG(p, { px: g.x, py: g.y, r: KW(T, 0, .85, v => f1(deg * g.w * v), 40), o: fadeS(f3(T.tI + tu(.06 * k))) });
@@ -908,7 +908,7 @@
   const N0 = 14, NSG = 9;
   /* star: the parts' gears round the driver; the result below-left */
   function gearStar(p, c, T, d, W, H) { const Cs = (Array.isArray(d.components) ? d.components.filter(has) : []).slice(0, 3), Rs = d.result && has(d.result) ? d.result : null, n = Math.max(2, Cs.length);
-    const AN = n === 3 ? [-40, 30, 100] : [-20, 70], q = NSG / N0, mm = .139, rq = q * 1.5, aR = 160 * Math.PI / 180;
+    const AN = n === 3 ? [-40, 30, 100] : [-20, 70], q = NSG / N0, mm = .081, rq = q * 1.5, aR = 160 * Math.PI / 180;
     /* the layout in units of the driver's pitch radius, then scaled to fill the box and centred */
     const U = [[0, 0, 1 + mm]].concat(AN.map(a => [(1 + q) * Math.cos(a * Math.PI / 180), (1 + q) * Math.sin(a * Math.PI / 180), q + mm]));
     const dR = 1 + mm + .14 + rq; if (Rs) U.push([dR * Math.cos(aR), dR * Math.sin(aR), rq]);
@@ -919,7 +919,7 @@
     gearTrain(p, c, T, gs, pitch); if (Rs) { const [x, y] = P(U[U.length - 1][0], U[U.length - 1][1]); gearResult(p, c, T, Rs, x, y, f1(rq * R0)); } }
   /* chain: driver → the parts in a row (horizontal, or vertical in tall boxes) → the result */
   function gearChain(p, c, T, d, W, H, vert) { const Cs = (Array.isArray(d.components) ? d.components.filter(has) : []).slice(0, 3), Rs = d.result && has(d.result) ? d.result : null, k = Math.max(2, Cs.length);
-    const L = vert ? H : W, A = vert ? W : H, q = NSG / N0, mm = .139, coef = (1 + mm) + (1 + q) + (k - 1) * 2 * q + (q + mm) + (Rs ? 2 * q * 1.5 : 0);
+    const L = vert ? H : W, A = vert ? W : H, q = NSG / N0, mm = .081, coef = (1 + mm) + (1 + q) + (k - 1) * 2 * q + (q + mm) + (Rs ? 2 * q * 1.5 : 0);
     const R0 = f1(Math.min(A * .96 / (2 * (1 + mm)), (L * .96 - (Rs ? 30 : 0)) / coef)), pitch = 2 * Math.PI * R0 / N0, rS = R0 * q, P = u => vert ? [0, u] : [u, 0];
     let u = 0; const gs = [{ n: N0, X: d.subject, u: 0 }]; u = R0 + rS; Cs.forEach((X, i) => { gs.push({ n: NSG, X, u, par: i }); u += 2 * rS; });
     gs.forEach(g => { [g.x, g.y] = P(f1(g.u)); }); const { m } = gearTrain(p, c, T, gs, pitch);
