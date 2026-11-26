@@ -690,18 +690,18 @@
     thing(p, c, d.idea, 0, iy, ic, { t: tAt(T, .1), o: inW(T, .1, .45), mv: { s: pSG(T, .1, .5), y: KW(T, .1, .55, u => f1(26 * (1 - u))) }, size: f1(Math.max(40, ic * .3)), maxW: f1(W * .9) }); }
 
   /* 15 ชวนทำ — ปุ่มวงแหวน (wide / flat: the button with two pairs of bars each side that light outward) */
-  function Q15(p, c, d, W, H) { const T = TQ(), s = shpG(W, H), A = ACTS[d.action] || ACTS.follow, hz = s === 'flat' || s === 'wide', tP = tAt(T, .2), tR = tAt(T, .32);
+  function Q15(p, c, d, W, H) { const T = TQ(), s = shpG(W, H), A = ACTS[d.action] || ACTS.follow, hz = s === 'flat' || s === 'wide', tP = tAt(T, .2), tR = tAt(T, .5);
     const fy = FLRG(H), cy = hz ? f1((-H / 2 + fy) / 2) : f1(-14), rb = f1(hz ? Math.min((fy + H / 2) * .36, W * .16) : Math.min(W, H) * .33);
     floorSG(p, T, W, H);
     if (hz) { const bh = f1(rb * .5), x0 = f1(rb + 26), bw = f1(Math.min((W / 2 - x0 - 30) / 2, rb * 1.3));
       [-1, 1].forEach(sd => [0, 1].forEach(i => { const x = f1(sd * (x0 + i * (bw + 16)) - (sd < 0 ? bw : 0)), g = sIn(p, f1(x + bw / 2), cy, f3(T.tI + tu(.05 * i))); glassR(g, x, f1(cy - bh / 2), bw, bh, f1(bh / 2), 3.6); R(litOn(p, tAt(T, .4 + .25 * i)), x, f1(cy - bh / 2), bw, bh, f1(bh / 2), { fill: TA(.35), sw: 3.6, stroke: ACC1 }); })); }
     else { const Ro = f1(Math.min(W, H) * .49), Ri = f1(Ro * .82); [0, 1, 2, 3].forEach(i => { const a0 = -90 + i * 90 + 6, a1 = a0 + 78, P = (a, r) => f1(r * Math.cos(a * Math.PI / 180)) + ' ' + f1(cy + r * Math.sin(a * Math.PI / 180)), dd = `M ${P(a0, Ro)} A ${Ro} ${Ro} 0 0 1 ${P(a1, Ro)} L ${P(a1, Ri)} A ${Ri} ${Ri} 0 0 0 ${P(a0, Ri)} Z`;
       const g = sIn(p, 0, cy, f3(T.tI + tu(.05 * i))); glassP(g, dd, cy - Ro, cy + Ro, 3.6); litOn(p, tAt(T, .35 + .13 * i)).path(dd, { fill: TA(.35), sw: 3.6, stroke: ACC1 }); }); }
-    const press = [[0, 1], [tP, 1], [tR, .93, 'io'], [tAt(T, .5), 1, 'io']], g = mvG(p, { px: 0, py: cy, s: press }), gi = sIn(g, 0, cy, f3(T.tI + tu(.1))); glassC(gi, 0, cy, rb, 5); gi.circle(0, cy, f1(rb - 14), S(1.6));
+    const press = [[0, 1], [tP, 1], [tR, .95, 'io'], [tAt(T, .85), 1, 'io']]   /* a slow, soft press (≥ .3 s each way — A11) */, g = mvG(p, { px: 0, py: cy, s: press }), gi = sIn(g, 0, cy, f3(T.tI + tu(.1))); glassC(gi, 0, cy, rb, 5); gi.circle(0, cy, f1(rb - 14), S(1.6));
     litOn(g, T.H).circle(0, cy, rb, { fill: TA(.08), sw: 5, stroke: ACC1 });
     const mv = { px: 0, py: cy, s: press }, isz = f1(rb * 1.2); put(p, c, { icon: A[0] }, 0, cy, isz, null, { t: tu(.2), mv, o: A[0] === A[1] ? undefined : outAfter(tu(.2), T, .35, .55) }); if (A[0] !== A[1]) put(p, c, { icon: A[1] }, 0, cy, isz, null, { t: tAt(T, .35), mv, o: inW(T, .35, .58) });
     const k = f1(Math.max(.8, Math.min(1.5, rb / 90))), tx = f1(rb * .58), ty = f1(cy + rb * .5), sx0 = f1(Math.min(W / 2 - 46 * k, tx + 120)), sy0 = f1(Math.min(fy - 64 * k - 8, ty + 80));
-    over(c, q => { const cg = mvG(q, { px: tx, py: ty, x: [[0, f1(sx0 - tx)], [tAt(T, 0), f1(sx0 - tx)], [tP, 0, 'io']], y: [[0, f1(sy0 - ty)], [tAt(T, 0), f1(sy0 - ty)], [tP, 0, 'io']], s: [[0, 1], [tP, 1], [tR, .88, 'io'], [tAt(T, .5), 1, 'io']], o: fadeS(T.tA) }); cg.path(cursor6(tx, ty, k), F(4)); }); }
+    over(c, q => { const cg = mvG(q, { px: tx, py: ty, x: [[0, f1(sx0 - tx)], [tAt(T, 0), f1(sx0 - tx)], [tP, 0, 'io']], y: [[0, f1(sy0 - ty)], [tAt(T, 0), f1(sy0 - ty)], [tP, 0, 'io']], s: [[0, 1], [tP, 1], [tR, .9, 'io'], [tAt(T, .85), 1, 'io']], o: fadeS(T.tA) }); cg.path(cursor6(tx, ty, k), F(4)); }); }
 
   /* 16 นิยาม — สองแผ่นเท่ากัน (wide / flat: side by side) */
   function Q16(p, c, d, W, H) { const T = TQ(), s = shpG(W, H), X = d.term || {}, M = (Array.isArray(d.means) ? d.means.filter(has) : []).slice(0, 3), n = Math.max(1, M.length), hz = s === 'flat' || s === 'wide';

@@ -683,15 +683,15 @@
     thing(p, c, d.idea, 0, iy, 250, { t: tAt(T, .1), o: inW(T, .1, .45), mv: { s: pS7(T, .1, .5), y: KW(T, .1, .55, u => f1(30 * (1 - u))) }, size: 54, maxW: 300 }); }
 
   /* 15 ชวนทำ — ปุ่มวงแหวน: a glass button sits in a ring of four segments; a pointer presses it, the segments light round one by one and the icon turns done. */
-  function P15(p, c, d, W, H) { const T = TQ(), A = ACTS[d.action] || ACTS.follow, cy = 0, Ro = 182, Ri = 150, rb = 120, tP = tAt(T, .2), tR = tAt(T, .32);
+  function P15(p, c, d, W, H) { const T = TQ(), A = ACTS[d.action] || ACTS.follow, cy = 0, Ro = 182, Ri = 150, rb = 120, tP = tAt(T, .2), tR = tAt(T, .5);
     floorG(p, T, FY7 + 20);
     [0, 1, 2, 3].forEach(i => { const a0 = -90 + i * 90 + 6, a1 = a0 + 78, P = (a, r) => f1(r * Math.cos(a * Math.PI / 180)) + ' ' + f1(cy + r * Math.sin(a * Math.PI / 180)), dd = `M ${P(a0, Ro)} A ${Ro} ${Ro} 0 0 1 ${P(a1, Ro)} L ${P(a1, Ri)} A ${Ri} ${Ri} 0 0 0 ${P(a0, Ri)} Z`;
       const g = sIn(p, 0, cy, f3(T.tI + tu(.05 * i))); glassP(g, dd, cy - Ro, cy + Ro, 3.6); const a = .35 + .13 * i; litOn(p, tAt(T, a)).path(dd, { fill: TA(.35), sw: 3.6, stroke: ACC1 }); });
-    const press = [[0, 1], [tP, 1], [tR, .93, 'io'], [tAt(T, .5), 1, 'io']], g = mvG(p, { px: 0, py: cy, s: press }), gi = sIn(g, 0, cy, f3(T.tI + tu(.1))); glassC(gi, 0, cy, rb, 5); gi.circle(0, cy, f1(rb - 14), S(1.6));
+    const press = [[0, 1], [tP, 1], [tR, .95, 'io'], [tAt(T, .85), 1, 'io']]   /* a slow, soft press (≥ .3 s each way — A11) */, g = mvG(p, { px: 0, py: cy, s: press }), gi = sIn(g, 0, cy, f3(T.tI + tu(.1))); glassC(gi, 0, cy, rb, 5); gi.circle(0, cy, f1(rb - 14), S(1.6));
     litOn(g, T.H).circle(0, cy, rb, { fill: TA(.08), sw: 5, stroke: ACC1 });
     const mv = { px: 0, py: cy, s: press }; put(p, c, { icon: A[0] }, 0, cy, 140, null, { t: tu(.2), mv, o: A[0] === A[1] ? undefined : outAfter(tu(.2), T, .35, .55) }); if (A[0] !== A[1]) put(p, c, { icon: A[1] }, 0, cy, 140, null, { t: tAt(T, .35), mv, o: inW(T, .35, .58) });
     const k = 1.2, tx = 62, ty = f1(cy + 52), sx0 = 120, sy0 = f1(FY7 - 64 * k - 30);
-    over(c, q => { const cg = mvG(q, { px: tx, py: ty, x: [[0, f1(sx0 - tx)], [tAt(T, 0), f1(sx0 - tx)], [tP, 0, 'io']], y: [[0, f1(sy0 - ty)], [tAt(T, 0), f1(sy0 - ty)], [tP, 0, 'io']], s: [[0, 1], [tP, 1], [tR, .88, 'io'], [tAt(T, .5), 1, 'io']], o: fadeS(T.tA) }); cg.path(cursor6(tx, ty, k), F(4)); }); }
+    over(c, q => { const cg = mvG(q, { px: tx, py: ty, x: [[0, f1(sx0 - tx)], [tAt(T, 0), f1(sx0 - tx)], [tP, 0, 'io']], y: [[0, f1(sy0 - ty)], [tAt(T, 0), f1(sy0 - ty)], [tP, 0, 'io']], s: [[0, 1], [tP, 1], [tR, .9, 'io'], [tAt(T, .85), 1, 'io']], o: fadeS(T.tA) }); cg.path(cursor6(tx, ty, k), F(4)); }); }
 
   /* 16 นิยาม — สองแผ่นเท่ากัน: the term on a glass plate above, a bold equals sign, what it means on a plate below. */
   function P16(p, c, d, W, H) { const T = TQ(), X = d.term || {}, M = (Array.isArray(d.means) ? d.means.filter(has) : []).slice(0, 3), n = Math.max(1, M.length), pw = 368, ph = 196, ty = -134, my = 134;
