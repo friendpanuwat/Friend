@@ -7,7 +7,7 @@
 GL.run(() => {
   GL.stage();
   const FRAME = true, PAGE = 1, SET = 'A', s = .56, B = GL.cats.S7G, list = PAGE === 1 ? [0, 1, 2, 3, 4] : [5, 6, 7, 8, 9];
-  GL.text('ขนาด 7 ทดลอง 2 (ไม่มีของจริง) · 400×500 · หมวด ' + (PAGE === 1 ? '13–17' : '18–22'), { y: 62, size: 38, ls: 3, color: GL.C.kicker, glow: false });
+  GL.text('ขนาด 7 ทดลอง 2 · ไม่มีแรงเงา · 400×500 · หมวด ' + (PAGE === 1 ? '13–17' : '18–22'), { y: 62, size: 38, ls: 3, color: GL.C.kicker, glow: false });
   GL.text('แถว = หมวด (หมวดละ 1 แบบ) · คอลัมน์ = ข้อมูล 3 ชุด', { y: 98, size: 22, weight: 500, color: GL.C.sub, glow: false });
   const w = 400 * s, h = 500 * s, X = [230, 540, 850], rowH = h + 62;
   list.forEach((di, i) => { const v = B.D[di], y0 = 130 + i * rowH, cy = y0 + h / 2;

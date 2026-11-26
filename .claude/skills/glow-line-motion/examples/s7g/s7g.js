@@ -644,76 +644,77 @@
   const badge = (p, c, ic, x, y, r, t, o = {}) => { discT(p, x, y, r, t, o.mv); put(p, c, { icon: ic }, x, y, f1(r * 1.15), null, { t: f3(t + tu(.04)), o: o.o, mv: o.mv }); };
 
   /* ================= S7G — size 7 · graphic "glass stage" look. Inner room W × H = 372 × 472. ================= */
-  const FY7 = 160;
+  const FY7 = 200;
   /* a vertical silver-glass gradient (ink colour, bright at the top) in the user space of the shape that uses it */
   function gradV(p, y1, y2, a1 = .2, a2 = .03) { const svg = p.g.ownerSVGElement, lg = document.createElementNS(NS, 'linearGradient'); lg.id = 's7gg' + (++CID);
     Object.entries({ gradientUnits: 'userSpaceOnUse', x1: 0, y1, x2: 0, y2 }).forEach(([k, v]) => lg.setAttribute(k, v));
     [[0, a1], [1, a2]].forEach(([o, a]) => { const s = document.createElementNS(NS, 'stop'); s.setAttribute('offset', o); s.setAttribute('stop-color', C.ink); s.setAttribute('stop-opacity', a); lg.appendChild(s); });
     (svg.querySelector('defs') || svg).appendChild(lg); return `url(#${lg.id})`; }
   /* solid first (nothing behind shows through), then the silver glass, then the edge */
-  const glassR = (q, x, y, w, h, rr, sw = 4.4) => { R(q, x, y, w, h, rr, { fill: C.fill, sw: 0, stroke: 'none' }); R(q, x, y, w, h, rr, { fill: gradV(q, y, y + h), sw }); };
-  const glassC = (q, x, y, r, sw = 4.4) => { q.circle(x, y, r, { fill: C.fill, sw: 0, stroke: 'none' }); q.circle(x, y, r, { fill: gradV(q, y - r, y + r), sw }); };
-  const glassP = (q, d, y1, y2, sw = 4.4) => { q.path(d, { fill: C.fill, sw: 0, stroke: 'none' }); q.path(d, { fill: gradV(q, y1, y2), sw }); };
+  /* user: "ไม่เอาแรงเงา" — flat fill, no gradient / beam / reflection / halo */
+  const glassR = (q, x, y, w, h, rr, sw = 4.4) => R(q, x, y, w, h, rr, { fill: C.fill, sw });
+  const glassC = (q, x, y, r, sw = 4.4) => q.circle(x, y, r, { fill: C.fill, sw });
+  const glassP = (q, d, y1, y2, sw = 4.4) => q.path(d, { fill: C.fill, sw });
   const floorG = (p, T, y = FY7, a = -176, b = 176) => { const e = p.line(a, y, b, y, { sw: 3.4 }); on(e, p, 0, { draw: [[0, 0], [T.tI, 0], [f3(T.tI + tu(.5)), 1, 'io']] }); };
   /* the reflection: what fn draws, mirrored in the floor, faint and only in a short band under it */
-  const refl = (p, T, fn, y = FY7, band = 70) => { const cl = clipG(p, -186, y + 3, 372, band), g = cl.child({ transform: `matrix(1 0 0 -1 0 ${f1(2 * y)})` }); g.H = p.H; g.motion = p.motion; const r = mvG(g, { o: [[0, 0], [T.tI, 0], [f3(T.tI + tu(.4)), .16, 'io']] }); fn(r); };
+  const refl = () => {}, reflOld = (p, T, fn, y = FY7, band = 70) => { const cl = clipG(p, -186, y + 3, 372, band), g = cl.child({ transform: `matrix(1 0 0 -1 0 ${f1(2 * y)})` }); g.H = p.H; g.motion = p.motion; const r = mvG(g, { o: [[0, 0], [T.tI, 0], [f3(T.tI + tu(.4)), .16, 'io']] }); fn(r); };
   /* light from above: a soft beam narrowing to the top */
-  const beamG = (p, T, x, w0, w1, y0, y1, a, b) => { const g = sub(p); on(g, p, 0, { o: inW(T, a, b) }); g.path(pathOf([[x - w0 / 2, y0], [x + w0 / 2, y0], [x + w1 / 2, y1], [x - w1 / 2, y1]]), { fill: gradV(g, y0, y1, .16, .02), sw: 0, stroke: 'none' }); };
-  const halo7 = (p, T, x, y, r, a) => { const g = sub(p); on(g, p, 0, { o: inW(T, a, Math.min(1, a + .3)) }); g.circle(x, y, f1(r * 1.3), { fill: TA(.05), sw: 0, stroke: 'none' }); g.circle(x, y, r, { fill: TA(.09), sw: 0, stroke: 'none' }); };
+  const beamG = () => {}, beamOld = (p, T, x, w0, w1, y0, y1, a, b) => { const g = sub(p); on(g, p, 0, { o: inW(T, a, b) }); g.path(pathOf([[x - w0 / 2, y0], [x + w0 / 2, y0], [x + w1 / 2, y1], [x - w1 / 2, y1]]), { fill: gradV(g, y0, y1, .16, .02), sw: 0, stroke: 'none' }); };
+  const halo7 = () => {}, haloOld = (p, T, x, y, r, a) => { const g = sub(p); on(g, p, 0, { o: inW(T, a, Math.min(1, a + .3)) }); g.circle(x, y, f1(r * 1.3), { fill: TA(.05), sw: 0, stroke: 'none' }); g.circle(x, y, r, { fill: TA(.09), sw: 0, stroke: 'none' }); };
   const gearG = (x, y, Rg, n, ph = 0) => { const r0 = Rg * .8, w = Math.PI / n * .5, P = []; for (let i = 0; i < n; i++) { const a = 2 * Math.PI * i / n + ph;
     [[a - w * 1.3, r0], [a - w * .72, Rg], [a + w * .72, Rg], [a + w * 1.3, r0]].forEach(([b, rr]) => P.push([f1(x + rr * Math.cos(b)), f1(y + rr * Math.sin(b))])); } return pathOf(P); };
 
   /* 13 เคล็ดลับ — แคปซูลแยกออก: a glass capsule stands on the floor under a beam; its two halves slide apart and the secret is inside, lit. */
-  function P13(p, c, d, W, H) { const T = TQ(), cw = 200, ch = 300, cy = f1(FY7 - ch / 2), mv = 82;
+  function P13(p, c, d, W, H) { const T = TQ(), cw = 200, ch = 420, cy = f1(FY7 - ch / 2), mv = 84;
     floorG(p, T); beamG(p, T, 0, 60, 230, -236, FY7, .2, .5); halo7(p, T, 0, f1(cy - 6), 78, .35);
     const halfD = sd => sd < 0 ? `M 0 ${f1(cy - ch / 2)} L ${f1(-cw / 2 + 100)} ${f1(cy - ch / 2)} A 100 100 0 0 0 ${-cw / 2} ${f1(cy - ch / 2 + 100)} L ${-cw / 2} ${f1(cy + ch / 2 - 100)} A 100 100 0 0 0 ${f1(-cw / 2 + 100)} ${f1(cy + ch / 2)} L 0 ${f1(cy + ch / 2)} Z`
       : `M 0 ${f1(cy - ch / 2)} L ${f1(cw / 2 - 100)} ${f1(cy - ch / 2)} A 100 100 0 0 1 ${cw / 2} ${f1(cy - ch / 2 + 100)} L ${cw / 2} ${f1(cy + ch / 2 - 100)} A 100 100 0 0 1 ${f1(cw / 2 - 100)} ${f1(cy + ch / 2)} L 0 ${f1(cy + ch / 2)} Z`;
     const XK = sd => KW(T, .05, .5, u => f1(sd * mv * u));
     [-1, 1].forEach(sd => { const g = mvG(p, { px: 0, py: cy, x: XK(sd), o: fadeS(T.tI) }); glassP(g, halfD(sd), f1(cy - ch / 2), f1(cy + ch / 2)); g.line(f1(sd * 30), f1(cy - ch / 2 + 40), f1(sd * 30), f1(cy + ch / 2 - 40), S(1.6));
       refl(p, T, r => { const rg = mvG(r, { px: 0, py: cy, x: XK(sd) }); glassP(rg, halfD(sd), f1(cy - ch / 2), f1(cy + ch / 2)); }); });
-    thing(p, c, d.secret, 0, f1(cy - 6), 140, { t: tAt(T, .35), o: inW(T, .35, .75), mv: { s: pS7(T, .35, .85) }, size: 44, maxW: 150 });
-    litOn(p, T.H).circle(0, f1(cy - 6), 78, { fill: 'none', sw: 4, stroke: ACC1 }); }
+    thing(p, c, d.secret, 0, f1(cy - 6), 156, { t: tAt(T, .35), o: inW(T, .35, .75), mv: { s: pS7(T, .35, .85) }, size: 44, maxW: 150 });
+    litOn(p, T.H).circle(0, f1(cy - 6), 80, { fill: 'none', sw: 4, stroke: ACC1 }); }
 
   /* 14 ประโยคเด็ด — แท่นสองชั้น: the idea floats in a beam over a two-step glass stage; the stage's front edge lights on H. */
-  function P14(p, c, d, W, H) { const T = TQ(), iy = -50;
+  function P14(p, c, d, W, H) { const T = TQ(), iy = -40;
     floorG(p, T); beamG(p, T, 0, 70, 250, -236, FY7, 0, .35); halo7(p, T, 0, iy, 112, .2);
-    const st = g => { glassR(g, -160, f1(FY7 - 40), 320, 40, 10); glassR(g, -112, f1(FY7 - 72), 224, 32, 10); g.line(-140, f1(FY7 - 20), 140, f1(FY7 - 20), S(1.6)); };
-    st(sIn(p, 0, FY7, T.tI)); refl(p, T, st); R(litOn(p, T.H), -160, f1(FY7 - 40), 320, 40, 10, { fill: 'none', sw: 4.4, stroke: ACC1 });
-    thing(p, c, d.idea, 0, iy, 180, { t: tAt(T, .1), o: inW(T, .1, .45), mv: { s: pS7(T, .1, .5), y: KW(T, .1, .55, u => f1(30 * (1 - u))) }, size: 54, maxW: 300 }); }
+    const st = g => { glassR(g, -180, f1(FY7 - 46), 360, 46, 12); glassR(g, -126, f1(FY7 - 84), 252, 38, 12); g.line(-156, f1(FY7 - 23), 156, f1(FY7 - 23), S(1.6)); };
+    st(sIn(p, 0, FY7, T.tI)); refl(p, T, st); R(litOn(p, T.H), -180, f1(FY7 - 46), 360, 46, 12, { fill: 'none', sw: 4.4, stroke: ACC1 });
+    thing(p, c, d.idea, 0, iy, 250, { t: tAt(T, .1), o: inW(T, .1, .45), mv: { s: pS7(T, .1, .5), y: KW(T, .1, .55, u => f1(30 * (1 - u))) }, size: 54, maxW: 300 }); }
 
   /* 15 ชวนทำ — ปุ่มวงแหวน: a glass button sits in a ring of four segments; a pointer presses it, the segments light round one by one and the icon turns done. */
-  function P15(p, c, d, W, H) { const T = TQ(), A = ACTS[d.action] || ACTS.follow, cy = -20, Ro = 160, Ri = 132, rb = 104, tP = tAt(T, .2), tR = tAt(T, .32);
+  function P15(p, c, d, W, H) { const T = TQ(), A = ACTS[d.action] || ACTS.follow, cy = 0, Ro = 182, Ri = 150, rb = 120, tP = tAt(T, .2), tR = tAt(T, .32);
     floorG(p, T, FY7 + 20);
     [0, 1, 2, 3].forEach(i => { const a0 = -90 + i * 90 + 6, a1 = a0 + 78, P = (a, r) => f1(r * Math.cos(a * Math.PI / 180)) + ' ' + f1(cy + r * Math.sin(a * Math.PI / 180)), dd = `M ${P(a0, Ro)} A ${Ro} ${Ro} 0 0 1 ${P(a1, Ro)} L ${P(a1, Ri)} A ${Ri} ${Ri} 0 0 0 ${P(a0, Ri)} Z`;
       const g = sIn(p, 0, cy, f3(T.tI + tu(.05 * i))); glassP(g, dd, cy - Ro, cy + Ro, 3.6); const a = .35 + .13 * i; litOn(p, tAt(T, a)).path(dd, { fill: TA(.35), sw: 3.6, stroke: ACC1 }); });
     const press = [[0, 1], [tP, 1], [tR, .93, 'io'], [tAt(T, .5), 1, 'io']], g = mvG(p, { px: 0, py: cy, s: press }), gi = sIn(g, 0, cy, f3(T.tI + tu(.1))); glassC(gi, 0, cy, rb, 5); gi.circle(0, cy, f1(rb - 14), S(1.6));
     litOn(g, T.H).circle(0, cy, rb, { fill: TA(.08), sw: 5, stroke: ACC1 });
-    const mv = { px: 0, py: cy, s: press }; put(p, c, { icon: A[0] }, 0, cy, 120, null, { t: tu(.2), mv, o: A[0] === A[1] ? undefined : outAfter(tu(.2), T, .35, .55) }); if (A[0] !== A[1]) put(p, c, { icon: A[1] }, 0, cy, 120, null, { t: tAt(T, .35), mv, o: inW(T, .35, .58) });
+    const mv = { px: 0, py: cy, s: press }; put(p, c, { icon: A[0] }, 0, cy, 140, null, { t: tu(.2), mv, o: A[0] === A[1] ? undefined : outAfter(tu(.2), T, .35, .55) }); if (A[0] !== A[1]) put(p, c, { icon: A[1] }, 0, cy, 140, null, { t: tAt(T, .35), mv, o: inW(T, .35, .58) });
     const k = 1.2, tx = 62, ty = f1(cy + 52), sx0 = 120, sy0 = f1(FY7 - 64 * k - 30);
     over(c, q => { const cg = mvG(q, { px: tx, py: ty, x: [[0, f1(sx0 - tx)], [tAt(T, 0), f1(sx0 - tx)], [tP, 0, 'io']], y: [[0, f1(sy0 - ty)], [tAt(T, 0), f1(sy0 - ty)], [tP, 0, 'io']], s: [[0, 1], [tP, 1], [tR, .88, 'io'], [tAt(T, .5), 1, 'io']], o: fadeS(T.tA) }); cg.path(cursor6(tx, ty, k), F(4)); }); }
 
   /* 16 นิยาม — สองแผ่นเท่ากัน: the term on a glass plate above, a bold equals sign, what it means on a plate below. */
-  function P16(p, c, d, W, H) { const T = TQ(), X = d.term || {}, M = (Array.isArray(d.means) ? d.means.filter(has) : []).slice(0, 3), n = Math.max(1, M.length), pw = 330, ph = 158, ty = -138, my = 130;
+  function P16(p, c, d, W, H) { const T = TQ(), X = d.term || {}, M = (Array.isArray(d.means) ? d.means.filter(has) : []).slice(0, 3), n = Math.max(1, M.length), pw = 368, ph = 196, ty = -134, my = 134;
     const plate = (y, t) => { const g = sIn(p, 0, y, t); glassR(g, -pw / 2, f1(y - ph / 2), pw, ph, 26); R(g, f1(-pw / 2 + 12), f1(y - ph / 2 + 12), pw - 24, ph - 24, 16, S(1.6)); return g; };
-    plate(ty, T.tI); thing(p, c, X, 0, ty, 112, { t: tu(.2), size: 52, maxW: 290 });
+    plate(ty, T.tI); thing(p, c, X, 0, ty, 140, { t: tu(.2), size: 52, maxW: 290 });
     const eg = mvG(p, { px: 0, py: 0, sx: KW(T, 0, .25, u => Math.max(.001, u)), o: [[0, 0], [tAt(T, 0), 0], [f3(tAt(T, 0) + tu(.06)), 1]] }); [-15, 15].forEach(y => R(eg, -46, f1(y - 8), 92, 16, 8, F(3.6)));
     const el = litOn(p, T.H); [-15, 15].forEach(y => R(el, -46, f1(y - 8), 92, 16, 8, { fill: TA(.6), sw: 3.6, stroke: ACC1 }));
-    plate(my, tAt(T, .2)); const ms = n === 3 ? 76 : n === 2 ? 96 : 116, gp = n === 3 ? 18 : 30; M.forEach((m, i) => { const x = f1((i - (n - 1) / 2) * (ms + gp)), a = .3 + .5 * i / n; thing(p, c, m, x, my, ms, { t: tAt(T, a), o: inW(T, a, a + .2), mv: { s: pS7(T, a, a + .25) }, size: 26, maxW: 100 }); }); }
+    plate(my, tAt(T, .2)); const ms = n === 3 ? 90 : n === 2 ? 120 : 140, gp = n === 3 ? 20 : 36; M.forEach((m, i) => { const x = f1((i - (n - 1) / 2) * (ms + gp)), a = .3 + .5 * i / n; thing(p, c, m, x, my, ms, { t: tAt(T, a), o: inW(T, a, a + .2), mv: { s: pS7(T, a, a + .25) }, size: 26, maxW: 100 }); }); }
 
   /* 17 รายการ — วงหมุนแสดงของ: the items stand round a glass turntable — the front one big and lit, the others smaller toward the back. */
-  function P17(p, c, d, W, H) { const T = TQ(), I = (Array.isArray(d.items) ? d.items.filter(has) : []).slice(0, 4), n = Math.max(2, I.length), ey = 112, erx = 170, ery = 42;
+  function P17(p, c, d, W, H) { const T = TQ(), I = (Array.isArray(d.items) ? d.items.filter(has) : []).slice(0, 4), n = Math.max(2, I.length), ey = 150, erx = 180, ery = 46;
     floorG(p, T, FY7 + 30); const pd = g => { g.path(`M ${-erx} ${ey} A ${erx} ${ery} 0 1 0 ${erx} ${ey} A ${erx} ${ery} 0 1 0 ${-erx} ${ey} Z`, { fill: C.fill, sw: 0, stroke: 'none' }); g.path(`M ${-erx} ${ey} A ${erx} ${ery} 0 1 0 ${erx} ${ey} A ${erx} ${ery} 0 1 0 ${-erx} ${ey} Z`, { fill: gradV(g, ey - ery, ey + ery, .14, .03), sw: 3.6 }); g.path(`M ${f1(-erx * .7)} ${ey} A ${f1(erx * .7)} ${f1(ery * .7)} 0 1 0 ${f1(erx * .7)} ${ey} A ${f1(erx * .7)} ${f1(ery * .7)} 0 1 0 ${f1(-erx * .7)} ${ey} Z`, S(1.6)); };
     pd(sIn(p, 0, ey, T.tI));
-    const SL = { 2: [[-88, 0, .94], [88, 0, .94]], 3: [[-128, -26, .6], [128, -26, .6], [0, 10, .84]], 4: [[-138, -22, .5], [138, -22, .5], [-48, 6, .56], [48, 6, .56]] }[n];   /* no tile over another (icons sit above every tile) */
+    const SL = { 2: [[-90, -40, 1.12], [90, -40, 1.12]], 3: [[-118, -196, .7], [118, -196, .7], [0, 0, 1.1]], 4: [[-92, -190, .8], [92, -190, .8], [-92, 0, .8], [92, 0, .8]] }[n];   /* stacked up the box — nothing overlaps (icons sit above every tile) */   /* no tile over another (icons sit above every tile) */
     const order = SL.map((s, i) => i);
     order.forEach(i => { const [x, dy, k] = SL[i], s = f1(150 * k), y = f1(ey - 10 + dy - s / 2), a = .85 * i / n, g = mvG(p, { px: x, py: y, s: KW(T, a, a + .3, u => .8 + .2 * u), o: inW(T, a, a + .25) });
       glassR(g, f1(x - s / 2), f1(y - s / 2), s, s, f1(s * .24), 4.2); R(g, f1(x - s / 2 + 10), f1(y - s / 2 + 10), f1(s - 20), f1(s - 20), f1(s * .24 - 10), S(1.4));
-      if (k >= .84 || n === 2 || (n === 4 && k > .52)) R(litOn(p, T.H), f1(x - s / 2), f1(y - s / 2), s, s, f1(s * .24), { fill: 'none', sw: 4.2, stroke: ACC1 });
+      if (k >= 1 || n !== 3) R(litOn(p, T.H), f1(x - s / 2), f1(y - s / 2), s, s, f1(s * .24), { fill: 'none', sw: 4.2, stroke: ACC1 });
       thing(p, c, I[i], x, y, f1(s * .6), { t: tAt(T, a), o: inW(T, a, a + .25), mv: { s: KW(T, a, a + .3, u => .8 + .2 * u) }, size: f1(26 * k + 6), maxW: f1(s * .86) }); }); }
 
   /* 18 เหตุการณ์ — เส้นเวลาชี้จุดนั้น: a time beam runs down the left with three nodes; from the middle node a line leads to what happened — a big glass disc that
      lights on H; the time (if said) heads the frame. */
-  function P18(p, c, d, W, H) { const T = TQ(), when = d.when && String(d.when).trim(), bx = -136, y0 = -170, y1 = 190, ny = [y0 + 40, 10, y1 - 40], dx = 52, dr = 122;
+  function P18(p, c, d, W, H) { const T = TQ(), when = d.when && String(d.when).trim(), bx = -160, y0 = -170, y1 = 224, ny = [y0 + 40, 20, y1 - 40], dx = 40, dr = 144;
     if (when) txt(atG(p, tu(.12)), when, 40, -196, { size: 30, weight: 800, color: C.kicker, maxW: 260 });
     const bm = p.line(bx, y0, bx, y1, { sw: 4 }); on(bm, p, 0, { draw: [[0, 0], [T.tI, 0], [f3(T.tI + tu(.5)), 1, 'io']] });
     ny.forEach((y, i) => { const g = sub(p); on(g, p, 0, { o: fadeS(f3(T.tI + tu(.1 * i))) }); g.circle(bx, y, i === 1 ? 16 : 10, i === 1 ? F(4) : F(3)); });
@@ -723,16 +724,16 @@
 
   /* 19 ความรู้สึก — วงวัดอารมณ์: five glass segments arc over the feeling's disc, a frown at the left end and a smile at the right; the segments light from the
      middle to the feeling's side. */
-  function P19(p, c, d, W, H) { const T = TQ(), good = d.mood !== 'bad', cy = 40, Ro = 172, Ri = 136, dr = 96;
+  function P19(p, c, d, W, H) { const T = TQ(), good = d.mood !== 'bad', cy = 60, Ro = 184, Ri = 144, dr = 112;
     floorG(p, T, FY7 + 30); const seg = i => { const a0 = 180 + i * 36 + 3, a1 = a0 + 30, P = (a, r) => f1(r * Math.cos(a * Math.PI / 180)) + ' ' + f1(cy + r * Math.sin(a * Math.PI / 180)); return `M ${P(a0, Ro)} A ${Ro} ${Ro} 0 0 1 ${P(a1, Ro)} L ${P(a1, Ri)} A ${Ri} ${Ri} 0 0 0 ${P(a0, Ri)} Z`; };
     const lit = good ? [2, 3, 4] : [2, 1, 0];
     [0, 1, 2, 3, 4].forEach(i => { const g = sIn(p, 0, cy, f3(T.tI + tu(.04 * i))); glassP(g, seg(i), cy - Ro, cy, 3.4); const k = lit.indexOf(i); if (k >= 0) litOn(p, tAt(T, .2 + .25 * k)).path(seg(i), { fill: TA(.4), sw: 3.4, stroke: ACC1 }); });
     [[-1, 'frown'], [1, 'smile']].forEach(([sd, ic]) => put(p, c, { icon: ic }, f1(sd * (Ro + Ri) / 2), f1(cy + 40), 50, null, { t: tu(.2), o: [[0, 0], [tu(.2), 0], [tu(.5), .6, 'io']] }));
     const g = sIn(p, 0, cy, f3(T.tI + tu(.1))); glassC(g, 0, cy, dr, 5); g.circle(0, cy, f1(dr - 14), S(1.6)); litOn(p, T.H).circle(0, cy, dr, { fill: TA(.08), sw: 5, stroke: ACC1 });
-    thing(p, c, d.feel, 0, cy, 130, { t: tAt(T, 0), o: inW(T, 0, .3), size: 40, maxW: 160 }); }
+    thing(p, c, d.feel, 0, cy, 150, { t: tAt(T, 0), o: inW(T, 0, .3), size: 40, maxW: 160 }); }
 
   /* 20 ความสัมพันธ์ — สะพานแสง: a and b on glass discs on the floor; an arch of light grows from both and meets at a link node over them; ended → it stops short, ✕. */
-  function P20(p, c, d, W, H) { const T = TQ(), cut = d.cut === true, r = 74, ax = -104, bx = 104, dy = f1(FY7 - r - 6), ay = f1(dy - r), apy = -130, rx = 104, ry = f1(ay - apy);
+  function P20(p, c, d, W, H) { const T = TQ(), cut = d.cut === true, r = 88, ax = -96, bx = 96, dy = f1(FY7 - r - 6), ay = f1(dy - r), apy = -170, rx = 96, ry = f1(ay - apy);
     floorG(p, T); [[ax, d.a], [bx, d.b]].forEach(([x, X], i) => { const st = g => { glassC(g, x, dy, r, 4.6); g.circle(x, dy, f1(r - 12), S(1.6)); }; st(sIn(p, x, dy, f3(T.tI + tu(.08 * i)))); refl(p, T, st); thing(p, c, X, x, dy, f1(r * 1.25), { t: tu(.18 + .08 * i), size: 30, maxW: r * 1.6 }); });
     [[ax, 1], [bx, 0]].forEach(([x, sw_]) => { const dd = `M ${x} ${ay} A ${rx} ${ry} 0 0 ${sw_} 0 ${apy}`, end = cut ? .78 : 1; [[16, C.ink], [8, C.fill]].forEach(([w, col]) => { const e = p.path(dd, { sw: w, stroke: col }); on(e, p, 0, { draw: [[0, 0], [tAt(T, 0), 0], [tAt(T, .45), end, 'io']] }); }); if (!cut) litOn(p, T.H).path(dd, { sw: 8, stroke: TA(.7) }); });
     if (cut) { const mg = popAt(p, 0, apy, tAt(T, .6)); mg.circle(0, apy, 30, F(4)); XX(mg, 0, apy, .8); }
@@ -740,23 +741,23 @@
 
   /* 21 สถานที่ — หมุดเหนือแผ่นวง: a glass marker hovers over a round pad on the floor (two rings on it); the place's icon is in its head, its shadow on the pad;
      the spots are small markers at the pad's sides. */
-  function P21(p, c, d, W, H) { const T = TQ(), P = d.place || {}, SPT = (Array.isArray(d.spots) ? d.spots.filter(has) : []).slice(0, 2), ey = 132, erx = 166, ery = 44, r = 76, hy = -82;
+  function P21(p, c, d, W, H) { const T = TQ(), P = d.place || {}, SPT = (Array.isArray(d.spots) ? d.spots.filter(has) : []).slice(0, 2), ey = 168, erx = 180, ery = 50, r = 96, hy = -76;
     const ell2 = (g, k, o) => g.path(`M ${f1(-erx * k)} ${ey} A ${f1(erx * k)} ${f1(ery * k)} 0 1 0 ${f1(erx * k)} ${ey} A ${f1(erx * k)} ${f1(ery * k)} 0 1 0 ${f1(-erx * k)} ${ey} Z`, o);
     const pg0 = sIn(p, 0, ey, T.tI); ell2(pg0, 1, { fill: C.fill, sw: 0, stroke: 'none' }); ell2(pg0, 1, { fill: gradV(pg0, ey - ery, ey + ery, .14, .03), sw: 3.6 }); ell2(pg0, .66, S(1.6)); ell2(pg0, .36, S(1.6));
     const sh = sub(p); on(sh, p, 0, { ox: 0, oy: ey, sx: KW(T, .1, .45, v => Math.max(.001, v)), o: inW(T, .1, .4) }); ell(sh, 0, ey, 40, 11, { fill: TA(.3), sw: 0, stroke: 'none' });
     const pk = { px: 0, py: hy, y: KW(T, 0, .45, u => f1(-40 * (1 - u))), o: inW(T, 0, .25) }, mg = mvG(p, pk); glassP(mg, pinD(0, hy, r), f1(hy - r), f1(hy + r * 1.9), 4.8); mg.circle(0, hy, f1(r * .72), S(1.6)); litOn(mg, T.H).path(pinD(0, hy, r), { fill: TA(.06), sw: 4.8, stroke: ACC1 });
-    if (icOf(P)) put(p, c, { icon: P.icon }, 0, hy, f1(r * 1.1), null, { t: tAt(T, 0), o: pk.o, mv: { px: 0, py: hy, y: pk.y } }); else { mg.circle(0, hy, 14, { fill: ACC1, sw: 0, stroke: 'none' }); if (lbOf(P)) pill(p, lbOf(P), 0, -200, { t: tAt(T, .4), size: 30, maxW: 260 }); }
+    if (icOf(P)) put(p, c, { icon: P.icon }, 0, hy, f1(r * 1.1), null, { t: tAt(T, 0), o: pk.o, mv: { px: 0, py: hy, y: pk.y } }); else { mg.circle(0, hy, 14, { fill: ACC1, sw: 0, stroke: 'none' }); if (lbOf(P)) pill(p, lbOf(P), 0, -210, { t: tAt(T, .4), size: 30, maxW: 260 }); }
     SPT.forEach((X, i) => { const x = i ? 124 : -124, sr = 32, shy = f1(ey - 18 - sr * 1.9), a = .5 + .15 * i, g = mvG(p, { px: x, py: shy, o: inW(T, a, a + .2) }); glassP(g, pinD(x, shy, sr), shy - sr, shy + sr * 1.9, 3.6); thing(p, c, X, x, shy, 38, { t: tAt(T, a), o: inW(T, a, a + .2), size: 16, maxW: 44 }); }); }
 
   /* 22 กลไก — ชุดเฟืองแก้ว: a big glass gear (the subject) meshes with the parts' smaller gears; they turn together; the result lights in a disc at the side. */
   function P22(p, c, d, W, H) { const T = TQ(), Cs = (Array.isArray(d.components) ? d.components.filter(has) : []).slice(0, 3), Rs = d.result && has(d.result) ? d.result : null, n = Math.max(2, Cs.length);
-    const gx = -28, gy = -40, R1 = 104, R2 = 54, AN = n === 3 ? [-40, 30, 100] : [-20, 70];
+    const gx = -24, gy = -36, R1 = 118, R2 = 58, AN = n === 3 ? [-42, 28, 98] : [-24, 66];
     floorG(p, T, FY7 + 40);
     const g1 = mvG(p, { px: gx, py: gy, r: KW(T, 0, .85, v => f1(120 * v)), o: fadeS(T.tI) }); glassP(g1, gearG(gx, gy, R1, 14), gy - R1, gy + R1, 4.2); g1.circle(gx, gy, f1(R1 * .62), S(1.6));
     thing(p, c, d.subject, gx, gy, 96, { t: tu(.18), size: 24, maxW: 100 });
     AN.forEach((a, i) => { const dd = R1 + R2 * .82, x2 = f1(gx + dd * Math.cos(a * Math.PI / 180)), y2 = f1(gy + dd * Math.sin(a * Math.PI / 180)), g2 = mvG(p, { px: x2, py: y2, r: KW(T, 0, .85, v => f1(-120 * R1 / R2 * v)), o: fadeS(f3(T.tI + tu(.06 * (i + 1)))) });
       glassP(g2, gearG(x2, y2, R2, 9, Math.PI / 9), y2 - R2, y2 + R2, 3.8); thing(p, c, Cs[i], x2, y2, 52, { t: tu(.2 + .06 * i), size: 18, maxW: 60 }); litOn(p, tAt(T, .3 + .2 * i)).circle(x2, y2, f1(R2 * .8), { fill: TA(.12), sw: 0, stroke: 'none' }); });
-    if (Rs) { const rx = 140, ry = 154; halo7(p, T, rx, ry, 40, .75); const g = mvG(p, { px: rx, py: ry, s: pS7(T, .75, 1), o: inW(T, .75, .9) }); glassC(g, rx, ry, 40, 4); litOn(g, T.H).circle(rx, ry, 40, { fill: 'none', sw: 4, stroke: ACC1 }); thing(p, c, Rs, rx, ry, 50, { t: tAt(T, .75), o: inW(T, .75, .95), mv: { s: pS7(T, .75, 1) }, size: 18, maxW: 70 }); } }
+    if (Rs) { const rx = 132, ry = 170; halo7(p, T, rx, ry, 40, .75); const g = mvG(p, { px: rx, py: ry, s: pS7(T, .75, 1), o: inW(T, .75, .9) }); glassC(g, rx, ry, 40, 4); litOn(g, T.H).circle(rx, ry, 40, { fill: 'none', sw: 4, stroke: ACC1 }); thing(p, c, Rs, rx, ry, 50, { t: tAt(T, .75), o: inW(T, .75, .95), mv: { s: pS7(T, .75, 1) }, size: 18, maxW: 70 }); } }
 
   /* ----- the sheets ----- */
   function frame(c, W0, H0) { const f = p => { p.rect(-W0 / 2, -H0 / 2, W0, H0, { sw: 3, stroke: '#ffd400' }); }; f.custom = true; f.dur = .01; f.exit = 'pop'; G.art(f, { x: c.x, y: c.y, s: c.s, at: 0, speed: 1 }); }
