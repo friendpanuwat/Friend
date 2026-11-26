@@ -813,7 +813,7 @@
   sd(2, 'stack', 'ต่อขึ้นไปถึง', (d, c) => { const A = GD(d);
     art(c, p => { const x = -130, bw = 230, bh = 78, L = Array.from({ length: 4 }, (_, k) => [f1(x - bw / 2), f1(235 - bh * (k + 1)), bw, bh - 10]), lv = k => [x, f1(235 - bh * k - 10 - 60)];
       const pts = [lv(1), lv(2), lv(3), lv(4)], P = traveler(p, c, d, pts, { r: 56, hops: true }); stack(p, L, P);
-      goalAt(p, c, d, 156, lv(4)[1], { r: 98, big: 42, bigW: 170 }); gwordAt(p, d, 330, 110, { size: 62, maxW: 180 }); }); });
+      goalAt(p, c, d, 156, lv(4)[1], { r: 98, big: 42, bigW: 170 }); gwordAt(p, d, 156, 95, { size: 62, maxW: 240 }); }); });   // the word centred under the goal (user 2026-11-26: "ทำไมตัวหนังสือไม่อยู่ข้างล่าง icon และทำไมไม่อยู่กึ่งกลาง icon" · was x 330, y 110: beside it, lower)
   /* 04 checkpoints on a rising arc: who passes three rings (each lights) and arrives at the goal */
   sd(2, 'checks', 'ด่านระหว่างทาง', (d, c) => { const A = GD(d);
     art(c, p => { const pts = bez3([-390, 170], [-240, 190], [-60, -60], [150, -110], 24); track(p, pts, { w: 4 }); const P = traveler(p, c, d, pts, { r: 54 });
