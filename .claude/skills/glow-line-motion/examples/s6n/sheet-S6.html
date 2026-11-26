@@ -7,7 +7,7 @@ GL.run(() => {
   GL.stage();
   const FRAME = true, PAGE = 1, SET = 'A', DI = 0, s = .31, B = GL.cats.S6N;
   GL.text('ขนาด 6 · เต็มจอ ทรงตั้ง 860×965 · หมวด 13–22', { y: 62, size: 40, ls: 3, color: GL.C.kicker, glow: false });
-  GL.text('หมวดละ 1 แบบ · ทำจากไฟล์สกิลอย่างเดียว', { y: 100, size: 24, weight: 500, color: GL.C.sub, glow: false });
+  GL.text('หมวดละ 1 แบบ · รอบ 2 · หน้าตาแบบ BxT', { y: 100, size: 24, weight: 500, color: GL.C.sub, glow: false });
   const w = 860 * s, h = 965 * s, X = [180, 540, 900], rowH = h + 66;
   B.D.forEach((v, i) => { const r = Math.floor(i / 3), x = i === 9 ? 540 : X[i % 3], cy = 140 + r * rowH + h / 2, d = v.data[DI];
     if (FRAME) B.frame({ x, y: cy, s }, 860, 965); B.draw(i, d, { x, y: cy, s, at: .3, hit: 1.6 });

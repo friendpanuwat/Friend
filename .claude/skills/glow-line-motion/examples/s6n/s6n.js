@@ -1,5 +1,5 @@
-/* s6n.js — size 6 (เต็มจอ ทรงตั้ง 860×965) · หมวด 13–22 · หมวดละ 1 แบบ (user 2026-11-26: "รอบนี้ไม่ให้ดู reference อ่านแค่ไฟล์สกิลอย่างเดียว ทำมาให้ดูแค่ 1 รูปก่อน").
-   Built only from SKILL.md + references/style.md + drawing.md + beats.md (each category's picture follows beats.md). Header + tbox/discT/wire = s5n.js. */
+/* s6n.js — size 6 (เต็มจอ ทรงตั้ง 860×965) · หมวด 13–22 · หมวดละ 1 แบบ — round 2 (user 2026-11-26: round 1 from the skill files only "ทดสอบไม่ผ่าน" →
+   "อยากได้แบบงาน professional จริงๆ เหมือนที่เคยทำมาก่อนหน้านี้ หมายถึง BxT"). BxT vocabulary: UI cards (tabs, segmented toggles, rails with dots, dial rings with icon discs), icon boxes, wires. Header + tbox/discT/wire = s5n.js. */
 (function () {
   const G = window.GL, C = G.C, NS = 'http://www.w3.org/2000/svg';
   const W = (w = 2) => ({ sw: w }), F = (w = 3.2) => ({ fill: C.fill, sw: w }), S = (w = 2) => ({ sw: w, stroke: C.soft });
@@ -632,115 +632,120 @@
   const discT = (p, x, y, r, t, mv) => { const g = mvG(p, Object.assign({ px: x, py: y, o: fadeS(t) }, mv || { s: [[0, .86], [t, .86], [f3(t + tu(.36)), 1, 'io']] })); g.circle(x, y, r, F(4.4)); g.circle(x, y, f1(r - 7), glassF(.1)); return g; };
   const wire = (p, dd, t0, t1, w = 3) => { const e = p.path(dd, { sw: w, stroke: C.soft }); on(e, p, 0, { draw: [[0, 0], [t0, 0], [t1, 1, 'io']] }); return e; };
 
-  /* ================= S6N — size 6 (860 × 965) · categories 13–22 · from the skill files only. Inner room W × H = 832 × 937.
-     style.md §4: ≥ 40 % empty, main picture 35–60 % of the frame, centred, one focus at a time, brightness = importance; §2–3 outline + dark fill,
-     rounded corners; beats.md: each category's picture. ================= */
-  const q9 = (cx, cy, r) => `M ${f1(cx - r)} ${f1(cy)} A ${f1(r)} ${f1(r)} 0 0 1 ${f1(cx + r)} ${f1(cy)} Q ${f1(cx + r)} ${f1(cy + 1.5 * r)} ${f1(cx - .35 * r)} ${f1(cy + 2.3 * r)} Q ${f1(cx + .22 * r)} ${f1(cy + 1.45 * r)} ${f1(cx - .05 * r)} ${f1(cy + r)} A ${f1(r)} ${f1(r)} 0 0 1 ${f1(cx - r)} ${f1(cy)} Z`;
-  const ACT6 = [['follow', 'user-plus', 'user-check'], ['like', 'heart', 'heart'], ['comment', 'message-circle', 'message-circle'], ['share', 'share-2', 'share-2'], ['save', 'bookmark', 'bookmark-check']];
-  const cursor6 = (x, y, k) => pathOf([[0, 0], [0, 56], [14, 43], [24, 64], [34, 59], [24, 39], [42, 39]].map(([a, b]) => [f1(x + a * k), f1(y + b * k)]));
+  /* ================= S6N round 2 — size 6 (860 × 965) · BxT look. Inner room W × H = 832 × 937. ================= */
   const pS6 = (T, a, b) => KW(T, a, b, u => .82 + .18 * u);
+  const cardT = (p, x, y, w, h, rr, t) => { const g = sIn(p, x, y, t); R(g, f1(x - w / 2), f1(y - h / 2), w, h, rr, F(4.6)); R(g, f1(x - w / 2 + 8), f1(y - h / 2 + 8), f1(w - 16), f1(h - 16), rr - 8, glassF(.035)); return g; };
+  const dotT = (q, x, y, r, lit) => q.circle(x, y, r, lit ? { fill: C.ink, sw: 0, stroke: 'none' } : F(3));
+  const ACTS = { follow: ['user-plus', 'user-check'], like: ['heart', 'heart'], save: ['bookmark', 'bookmark-check'], share: ['share-2', 'share-2'], comment: ['message-circle', 'message-circle'] };
+  const cursor6 = (x, y, k) => pathOf([[0, 0], [0, 56], [14, 43], [24, 64], [34, 59], [24, 39], [42, 39]].map(([a, b]) => [f1(x + a * k), f1(y + b * k)]));
 
-  /* 13 เคล็ดลับ (beats: ที่ปิดอยู่เปิด แสงพุ่ง ไอคอนลอยขึ้น) — a closed container at the bottom; its lid swings open, light rises out of it and the secret
-     floats up into a disc above, which lights on H. */
-  function K13(p, c, d, W, H) { const T = TQ(), cw = 540, ch = 280, cy = f1(H / 2 - ch / 2 - 8), top = f1(cy - ch / 2), lw = cw + 24, lh = 40, dr = 180, dy = f1(-H / 2 + dr + 40);
-    const lt = sub(p); on(lt, p, 0, { o: inW(T, .25, .55) }); lt.path(pathOf([[-cw * .36, top], [cw * .36, top], [dr * .9, dy], [-dr * .9, dy]]), { fill: TA(.08), sw: 0, stroke: 'none' });
-    discT(p, 0, dy, dr, tAt(T, .3), { s: pS6(T, .3, .6), o: inW(T, .3, .55) }); litOn(p, T.H).circle(0, dy, dr, { fill: TA(.1), sw: 5, stroke: ACC1 });
-    const g = sIn(p, 0, cy, T.tI); R(g, -cw / 2, top, cw, ch, 34, F(4.8)); R(g, f1(-cw / 2 + 8), f1(top + 8), f1(cw - 16), f1(ch - 16), 26, glassF(.06)); R(g, -50, f1(cy - 30), 100, 60, 16, F(3.4)); g.circle(0, f1(cy - 6), 9, { fill: C.ink, sw: 0, stroke: 'none' });
-    [-1, 1].forEach(sd => { const hx = f1(sd * lw / 2), lg = mvG(p, { px: hx, py: f1(top - lh / 2), r: KW(T, 0, .3, u => f1(sd * 76 * u)), o: fadeS(T.tI) }); R(lg, sd < 0 ? hx : f1(hx - lw / 2 - 1), f1(top - lh), f1(lw / 2 + 1), lh, f1(lh / 2), F(4.4)); });   /* two half lids swing out to the sides */
-    thing(p, c, d.secret, 0, dy, f1(dr * 1.25), { t: tAt(T, .35), o: inW(T, .35, .65), mv: { px: 0, py: dy, y: KW(T, .35, .9, u => f1((cy - dy) * (1 - u))), s: KW(T, .35, .9, u => .6 + .4 * u) }, size: 60, maxW: f1(dr * 1.6) }); }
+  /* 13 เคล็ดลับ — การ์ดสวิตช์ซ่อน/เผย: a card; on top a two-way toggle (hidden · shown) whose highlight slides across; the big box under it holds a lock,
+     then the secret. */
+  function L13(p, c, d, W, H) { const T = TQ(), cw = 700, ch = 880, ty = f1(-ch / 2 + 100), pw = 440, ph = 104, bs = 470, by = 80;
+    cardT(p, 0, 0, cw, ch, 44, T.tI);
+    const tg = sIn(p, 0, ty, f3(T.tI + tu(.08))); R(tg, -pw / 2, f1(ty - ph / 2), pw, ph, f1(ph / 2), F(4)); const hw = f1(pw / 2 - 14), hx0 = f1(-pw / 4), hx1 = f1(pw / 4);
+    const hl = mvG(p, { px: hx1, py: ty, x: KW(T, 0, .35, u => f1((hx0 - hx1) * (1 - u))), o: fadeS(f3(T.tI + tu(.1))) }); R(hl, f1(hx1 - hw / 2), f1(ty - ph / 2 + 10), hw, f1(ph - 20), f1((ph - 20) / 2), { fill: TA(.2), sw: 3.4, stroke: ACC1 });
+    put(p, c, { icon: 'eye-off' }, hx0, ty, 62, null, { t: tu(.2), o: fadeS(tu(.2)).concat(KW(T, .1, .35, u => 1 - .55 * u, 8).slice(1)) }); put(p, c, { icon: 'eye' }, hx1, ty, 62, null, { t: tu(.24), o: [[0, 0], [tu(.24), 0], [tu(.56), .45, 'io']].concat(KW(T, .1, .35, u => .45 + .55 * u, 8).slice(2)) });
+    tbox(p, c, null, 0, by, bs, { t: f3(T.tI + tu(.14)), lit: T.H });
+    put(p, c, { icon: 'lock' }, 0, by, f1(bs * .4), null, { t: tu(.2), o: outAfter(tu(.2), T, .3, .45) });
+    thing(p, c, d.secret, 0, by, f1(bs * .62), { t: tAt(T, .48), o: inW(T, .48, .82), mv: { s: pS6(T, .48, .9) }, size: 70, maxW: f1(bs * .86) }); }
 
-  /* 14 ประโยคเด็ด (beats: เครื่องหมายคำพูด + ข้อความ + เส้นใต้) — a big opening quote mark above, the idea's icon large in the middle, an accent underline
-     draws itself under it on H. */
-  function K14(p, c, d, W, H) { const T = TQ(), r = 44, qy = f1(-H / 2 + 120), g = mvG(p, { px: 0, py: qy, o: fadeS(T.tI, .4), s: [[0, .86], [T.tI, .86], [f3(T.tI + tu(.4)), 1, 'io']] }), rg = rot(g, 180, 0, qy);
-    [-1, 1].forEach(s => rg.path(q9(f1(s * 1.2 * r), f1(qy - .65 * r), r), F(4.4))); const lq = rot(litOn(p, T.H), 180, 0, qy); [-1, 1].forEach(s => lq.path(q9(f1(s * 1.2 * r), f1(qy - .65 * r), r), { fill: TA(.15), sw: 4.4, stroke: ACC1 }));
-    thing(p, c, d.idea, 0, 20, 430, { t: tAt(T, 0), o: inW(T, 0, .35), mv: { s: pS6(T, 0, .45) }, size: 110, maxW: W * .86 });
-    const ly = f1(H / 2 - 120), ul = p.line(-150, ly, 150, ly, { sw: 9, stroke: ACC1 }); on(ul, p, 0, { draw: [[0, 0], [tAt(T, .5), 0], [T.H, 1, 'io']] }); }
+  /* 14 ประโยคเด็ด — การ์ดใจความ: a card with a quote box at its top left, the idea's box large in the middle and an accent line that fills under it. */
+  function L14(p, c, d, W, H) { const T = TQ(), cw = 700, ch = 880, qs = 120, bs = 420, by = -30, ly = f1(ch / 2 - 120), lw = 420;
+    cardT(p, 0, 0, cw, ch, 44, T.tI); tbox(p, c, { icon: 'quote' }, f1(-cw / 2 + 40 + qs / 2), f1(-ch / 2 + 40 + qs / 2), qs, { t: f3(T.tI + tu(.1)) });
+    tbox(p, c, d.idea, 0, by, bs, { t: tAt(T, 0), mv: { s: pS6(T, 0, .4) }, o: inW(T, 0, .3), lit: T.H, size: 80 });
+    const tr = sIn(p, 0, ly, f3(T.tI + tu(.14))); R(tr, -lw / 2, f1(ly - 16), lw, 32, 16, F(3.4));
+    const cl = clipG(p, f1(-lw / 2 + 6), f1(ly - 10), lw - 12, 20, 10), fl = mvG(cl, { px: f1(-lw / 2), py: ly, sx: KW(T, .4, .95, u => Math.max(.001, u)), o: fadeS(tAt(T, .4), .2) }); R(fl, f1(-lw / 2), f1(ly - 16), lw, 32, 0, { fill: TA(.6), sw: 0, stroke: 'none' }); }
 
-  /* 15 ชวนทำ (beats: ปุ่มกลมเรียง ปุ่มที่ชวนถูกกด) — the five round buttons stacked; a pointer comes in and taps the one asked for: it grows, fills and
-     turns done; the others dim. */
-  function K15(p, c, d, W, H) { const T = TQ(), k0 = Math.max(0, ACT6.findIndex(a => a[0] === d.action)), r = 74, gp = 28, tot = 5 * 2 * r + 4 * gp, tP = tAt(T, .4), tR = tAt(T, .52);
-    const ys = ACT6.map((_, i) => f1(-tot / 2 + r + i * (2 * r + gp)));
-    ACT6.forEach(([id, a, b], i) => { const y = ys[i], me = i === k0, t = f3(T.tI + tu(.05 * i)), SK = me ? [[0, 1], [tP, 1], [tR, .9, 'io'], [tAt(T, .75), 1.25, 'io']] : null;
-      const g = mvG(p, Object.assign({ px: 0, py: y, o: me ? fadeS(t) : fadeS(t).concat(KW(T, .45, .7, u => 1 - .65 * u, 8).slice(1)) }, SK ? { s: SK } : {})); g.circle(0, y, r, F(4.6)); g.circle(0, y, r - 7, glassF(.08));
-      if (me) { const f = sub(g); on(f, g, 0, { o: inW(T, .52, .75) }); f.circle(0, y, r - 7, { fill: TA(.22), sw: 0, stroke: 'none' }); litOn(g, T.H).circle(0, y, r, { fill: 'none', sw: 5, stroke: ACC1 }); }
-      const mv = Object.assign({ px: 0, py: y }, SK ? { s: SK } : {}), isz = f1(r * 1.1);
-      put(p, c, { icon: a }, 0, y, isz, null, { t: f3(t + tu(.04)), mv, o: me ? (a === b ? undefined : outAfter(f3(t + tu(.04)), T, .55, .75)) : fadeS(f3(t + tu(.04))).concat(KW(T, .45, .7, u => 1 - .65 * u, 8).slice(1)) });
-      if (me && a !== b) put(p, c, { icon: b }, 0, y, isz, null, { t: tAt(T, .55), mv, o: inW(T, .55, .78) }); });
-    const k = 1.6, tx = f1(r * .45), ty = f1(ys[k0] + r * .35), sx0 = f1(W / 2 - 80), sy0 = f1(Math.min(H / 2 - 64 * k - 8, ty + 160));
-    over(c, q => { const cg = mvG(q, { px: tx, py: ty, x: [[0, f1(sx0 - tx)], [tAt(T, 0), f1(sx0 - tx)], [tP, 0, 'io']], y: [[0, f1(sy0 - ty)], [tAt(T, 0), f1(sy0 - ty)], [tP, 0, 'io']], s: [[0, 1], [tP, 1], [tR, .88, 'io'], [tAt(T, .7), 1, 'io']], o: fadeS(T.tA) }); cg.path(cursor6(tx, ty, k), F(4)); }); }
+  /* 15 ชวนทำ — การ์ดโปรไฟล์: a profile card — the avatar at the top, the other actions as small round buttons, and the asked-for action as the big
+     button at the bottom; a pointer taps it, it fills and turns done (✓ on its end). */
+  function L15(p, c, d, W, H) { const T = TQ(), key = ACTS[d.action] ? d.action : 'follow', A = ACTS[key], others = Object.keys(ACTS).filter(k => k !== key).slice(0, 4), cw = 680, ch = 880, ay = -250, ry = -40, bw = 500, bh = 150, by = 210, tP = tAt(T, .35), tR = tAt(T, .47);
+    cardT(p, 0, 0, cw, ch, 44, T.tI); discT(p, 0, ay, 120, f3(T.tI + tu(.08))); put(p, c, { icon: 'user' }, 0, ay, 150, null, { t: tu(.18) });
+    others.forEach((k, i) => { const x = f1((i - 1.5) * 120); discT(p, x, ry, 46, f3(T.tI + tu(.12 + .04 * i))); put(p, c, { icon: ACTS[k][0] }, x, ry, 52, null, { t: tu(.2 + .04 * i), o: [[0, 0], [tu(.2 + .04 * i), 0], [f3(tu(.52 + .04 * i)), .55, 'io']] }); });
+    const press = [[0, 1], [tP, 1], [tR, .95, 'io'], [tAt(T, .65), 1, 'io']], g = mvG(p, { px: 0, py: by, s: press }), gi = sIn(g, 0, by, f3(T.tI + tu(.16))); R(gi, -bw / 2, f1(by - bh / 2), bw, bh, f1(bh / 2), F(5));
+    const f = sub(g); on(f, g, 0, { o: inW(T, .47, .7) }); R(f, f1(-bw / 2 + 8), f1(by - bh / 2 + 8), f1(bw - 16), f1(bh - 16), f1(bh / 2 - 8), { fill: TA(.22), sw: 0, stroke: 'none' }); R(litOn(g, T.H), -bw / 2, f1(by - bh / 2), bw, bh, f1(bh / 2), { fill: 'none', sw: 5, stroke: ACC1 });
+    const mv = { px: 0, py: by, s: press }; put(p, c, { icon: A[0] }, 0, by, 96, null, { t: tu(.2), mv, o: A[0] === A[1] ? undefined : outAfter(tu(.2), T, .5, .68) }); if (A[0] !== A[1]) put(p, c, { icon: A[1] }, 0, by, 96, null, { t: tAt(T, .5), mv, o: inW(T, .5, .7) });
+    const k = 1.6, tx = 120, ty = f1(by + 20), sx0 = 300, sy0 = f1(H / 2 - 64 * k - 10);
+    over(c, q => { const cg = mvG(q, { px: tx, py: ty, x: [[0, f1(sx0 - tx)], [tAt(T, 0), f1(sx0 - tx)], [tP, 0, 'io']], y: [[0, f1(sy0 - ty)], [tAt(T, 0), f1(sy0 - ty)], [tP, 0, 'io']], s: [[0, 1], [tP, 1], [tR, .88, 'io'], [tAt(T, .65), 1, 'io']], o: fadeS(T.tA) }); cg.path(cursor6(tx, ty, k), F(4));
+      const bx = f1(bw / 2 - 10), bgy = f1(by - bh / 2 + 8), bg = popAt(q, bx, bgy, tAt(T, .72)); bg.circle(bx, bgy, 42, F(4)); CHK(bg, bx, bgy, 1.1); litOn(bg, T.H).circle(bx, bgy, 42, { fill: TA(.3), sw: 4, stroke: ACC1 }); }); }
 
-  /* 16 นิยาม (beats: คำในกรอบเรืองแสง → ความหมายแตกกิ่งทีละข้อ) — the term's box at the top (its word on a chip), branches grow down from it and the
-     meanings come in one by one at the bottom. */
-  function K16(p, c, d, W, H) { const T = TQ(), X = d.term || {}, M = (Array.isArray(d.means) ? d.means.filter(has) : []).slice(0, 3), n = Math.max(1, M.length), ts = 280, chip = icOf(X) && lbOf(X);
-    const ty = f1(-H / 2 + ts / 2 + 30), by = f1(ty + ts / 2 + (chip ? 96 : 20)), ms = n === 3 ? 210 : 240, my = f1(H / 2 - ms / 2 - 30), xs = M.map((_, i) => f1(n === 1 ? 0 : (i - (n - 1) / 2) * (W * .96 - ms) / (n - 1)));
-    xs.forEach((x, i) => wire(p, `M 0 ${by} C 0 ${f1(by + 120)}, ${x} ${f1(my - ms / 2 - 120)}, ${x} ${f1(my - ms / 2)}`, tAt(T, .05 + .08 * i), tAt(T, .4 + .08 * i), 3.6));
-    tbox(p, c, X, 0, ty, ts, { t: T.tI, lit: T.H, size: 60 }); if (chip) pill(p, lbOf(X), 0, f1(ty + ts / 2 + 50), { t: f3(T.tI + tu(.2)), size: 44, maxW: 420 });
-    M.forEach((m, i) => { const a = .4 + .45 * i / n; tbox(p, c, m, xs[i], my, ms, { t: tAt(T, a), mv: { s: pS6(T, a, a + .25) }, o: inW(T, a, a + .2), size: 40 }); }); }
+  /* 16 นิยาม — การ์ดพจนานุกรม: the term's box + its word on a chip in the card's header, a divider, then what it means as rows on a rail (dot + box),
+     one by one; the last row lights on H. */
+  function L16(p, c, d, W, H) { const T = TQ(), X = d.term || {}, M = (Array.isArray(d.means) ? d.means.filter(has) : []).slice(0, 3), n = Math.max(1, M.length), cw = 720, ch = 890, hs = 190, hy = f1(-ch / 2 + 40 + hs / 2), dy = f1(hy + hs / 2 + 40);
+    cardT(p, 0, 0, cw, ch, 44, T.tI); const chip = icOf(X) && lbOf(X), hx = chip ? -180 : 0;
+    tbox(p, c, X, hx, hy, hs, { t: f3(T.tI + tu(.08)), size: 46 }); if (chip) pill(p, lbOf(X), 120, hy, { t: f3(T.tI + tu(.16)), size: 48, maxW: 300 });
+    const dg = mvG(p, { px: 0, py: dy, sx: KW(T, 0, .2, u => Math.max(.001, u)), o: [[0, 0], [tAt(T, 0), 0], [f3(tAt(T, 0) + tu(.06)), 1]] }); dg.line(f1(-cw / 2 + 50), dy, f1(cw / 2 - 50), dy, { sw: 2.4, stroke: C.soft });
+    const rs = n === 3 ? 180 : 220, gp = 36, top = f1(dy + 50), rows = M.map((_, i) => f1(top + rs / 2 + i * (rs + gp))), rx = -150, bx = 80;
+    if (n > 1) wire(p, `M ${rx} ${rows[0]} L ${rx} ${rows[n - 1]}`, tAt(T, .15), tAt(T, .8), 3);
+    M.forEach((m, i) => { const y = rows[i], a = .2 + .6 * i / n, last = i === n - 1; const dg2 = sub(p); on(dg2, p, 0, { o: inW(T, a, a + .15) }); dotT(dg2, rx, y, last ? 16 : 12, false); if (last) litOn(p, T.H).circle(rx, y, 16, { fill: ACC1, sw: 0, stroke: 'none' });
+      wire(p, `M ${f1(rx + 16)} ${y} L ${f1(bx - rs / 2)} ${y}`, tAt(T, a), tAt(T, a + .12), 2.4); tbox(p, c, m, bx, y, rs, { t: tAt(T, a), mv: { s: pS6(T, a, a + .25) }, o: inW(T, a, a + .2), lit: last ? T.H : undefined, size: 36 }); }); }
 
-  /* 17 รายการ (beats: ชื่อกลุ่ม + วงเล็บแตกกิ่ง + ของ 2–4 ชิ้น) — the group's name on a chip, a brace opens under it, the items' boxes come in under the
-     brace one by one (two rows when there are four). */
-  function K17(p, c, d, W, H) { const T = TQ(), I = (Array.isArray(d.items) ? d.items.filter(has) : []).slice(0, 4), n = Math.max(2, I.length), lb = d.label && String(d.label).trim() ? String(d.label).trim() : null;
-    const rows = n === 4 ? 2 : 1, per = n === 4 ? 2 : n, s = n === 4 ? 250 : n === 3 ? 230 : 280, gp = 40, headH = 170, totH = headH + rows * s + (rows - 1) * gp, y0 = f1(-totH / 2), bw = f1(Math.min(W * .9, per * s + (per - 1) * gp + 40)), bY = f1(y0 + 110);
-    if (lb) pill(p, lb, 0, f1(y0 + 34), { t: T.tI, size: 46, maxW: 420 }); else discT(p, 0, f1(y0 + 34), 34, T.tI);
-    const hb = bw / 2, br = `M ${f1(-hb)} ${f1(bY + 40)} Q ${f1(-hb)} ${bY} ${f1(-hb + 40)} ${bY} L -40 ${bY} Q 0 ${bY} 0 ${f1(bY - 40)} Q 0 ${bY} 40 ${bY} L ${f1(hb - 40)} ${bY} Q ${f1(hb)} ${bY} ${f1(hb)} ${f1(bY + 40)}`;
-    const e = p.path(br, { sw: 4 }); on(e, p, 0, { draw: [[0, 0], [f3(T.tI + tu(.1)), 0], [tAt(T, .15), 1, 'io']] }); litOn(p, T.H).path(br, { sw: 4, stroke: ACC1 });
-    I.forEach((X, i) => { const rI = Math.floor(i / per), cI = i % per, x = f1((cI - (per - 1) / 2) * (s + gp)), y = f1(y0 + headH + s / 2 + rI * (s + gp)), a = .15 + .7 * i / n;
+  /* 17 รายการ — แฟ้มรวมของ: a folder card — the group's name on its tab — and the items' boxes laid out inside (two columns), coming in one by one. */
+  function L17(p, c, d, W, H) { const T = TQ(), I = (Array.isArray(d.items) ? d.items.filter(has) : []).slice(0, 4), n = Math.max(2, I.length), lb = d.label && String(d.label).trim() ? String(d.label).trim() : null;
+    const cw = 720, ch = 790, cy = 40, top = f1(cy - ch / 2), tw = lb ? Math.min(360, wordW(p, lb, 42) + 80) : 200, th = 84, tx = f1(-cw / 2 + 30 + tw / 2);
+    const tg = sIn(p, tx, f1(top - th / 2 + 20), T.tI); R(tg, f1(tx - tw / 2), f1(top - th + 20), tw, th, 26, F(4.4)); if (lb) txt(tg, lb, tx, f1(top - th / 2 + 34), { size: 42, weight: 800, color: C.ink, maxW: tw - 50 }); else put(p, c, { icon: 'layers' }, tx, f1(top - th / 2 + 18), 50, null, { t: tu(.18) });
+    cardT(p, 0, cy, cw, ch, 44, f3(T.tI + tu(.04))); litR(p, T.H, 0, cy, cw, ch, 44);
+    const s = n === 2 ? 270 : 250, gp = 50, rowsN = n > 2 ? 2 : 1, ys = rowsN === 2 ? [f1(cy - (s + gp) / 2), f1(cy + (s + gp) / 2)] : [cy];
+    I.forEach((X, i) => { const r = Math.floor(i / 2), inRow = r === 1 && n === 3 ? 1 : 2, cI = i % 2, x = inRow === 1 ? 0 : f1((cI - .5) * (s + gp)), y = ys[r], a = .85 * i / n;
       tbox(p, c, X, x, y, s, { t: tAt(T, a), mv: { y: KW(T, a, a + .3, u => f1(-26 * (1 - u))) }, o: inW(T, a, a + .25), size: 40 }); }); }
 
-  /* 18 เหตุการณ์ (beats: ป้ายเวลา + ปฏิทิน · กรอบมุมเหมือนภาพบันทึกความทรงจำ · คน → สิ่งที่เกิด) — four photo corners frame what happened; a calendar
-     box sits on the top corner when the time is said; who stands on a disc under the frame, a wire up into it. */
-  function K18(p, c, d, W, H) { const T = TQ(), Wo = d.who && has(d.who) ? d.who : null, when = d.when && String(d.when).trim(), wr = 96, fw = 660, fh = Wo ? 560 : 680, fy = f1(Wo ? -H / 2 + fh / 2 + 70 : 0), L = 64;
-    const cg = mvG(p, { px: 0, py: fy, s: [[0, .94], [T.tI, .94], [f3(T.tI + tu(.5)), 1, 'io']], o: fadeS(T.tI, .4) }), lg = litOn(p, T.H);
-    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sy]) => { const x = f1(sx * fw / 2), y = f1(fy + sy * fh / 2), dd = `M ${x} ${f1(y - sy * L)} L ${x} ${y} L ${f1(x - sx * L)} ${y}`; cg.path(dd, { sw: 7 }); lg.path(dd, { sw: 7, stroke: ACC1 }); });
-    thing(p, c, d.what, 0, fy, f1(Math.min(fw, fh) * .62), { t: tAt(T, .3), o: inW(T, .3, .6), mv: { s: pS6(T, .3, .7) }, size: 80, maxW: fw * .8 });
-    if (when) tbox(p, c, { icon: 'calendar' }, f1(fw / 2 - 30), f1(fy - fh / 2 + 30), 130, { t: tAt(T, .05), mv: { s: pS6(T, .05, .3) }, o: inW(T, .05, .25) });
-    if (Wo) { const wy = f1(H / 2 - wr - 6); wire(p, `M 0 ${f1(wy - wr)} L 0 ${f1(fy + fh / 2 + 6)}`, tAt(T, .1), tAt(T, .3)); discT(p, 0, wy, wr, T.tI); thing(p, c, Wo, 0, wy, f1(wr * 1.2), { t: tu(.16), size: 32, maxW: wr * 1.6 }); } }
+  /* 18 เหตุการณ์ — การ์ดบันทึกช่วงเวลา: a card; the calendar box at its top corner (when said); what happened large in the middle; at the bottom a time
+     track from who (a disc) through two passing dots to the moment — a big dot that lights on H. */
+  function L18(p, c, d, W, H) { const T = TQ(), Wo = d.who && has(d.who) ? d.who : null, when = d.when && String(d.when).trim(), cw = 720, ch = 880, ws = 400, wy = -90, ly = 290, x0 = -250, x1 = 250;
+    cardT(p, 0, 0, cw, ch, 44, T.tI);
+    if (when) tbox(p, c, { icon: 'calendar' }, f1(-cw / 2 + 40 + 60), f1(-ch / 2 + 40 + 60), 120, { t: f3(T.tI + tu(.1)) });
+    tbox(p, c, d.what, 0, wy, ws, { t: tAt(T, .45), mv: { s: pS6(T, .45, .8) }, o: inW(T, .45, .7), lit: T.H, size: 70 });
+    const xa = Wo ? f1(x0 + 70) : x0; wire(p, `M ${xa} ${ly} L ${x1} ${ly}`, tAt(T, 0), tAt(T, .5), 3);
+    [.33, .66].forEach((u, i) => { const g = sub(p); on(g, p, 0, { o: inW(T, .1 + .15 * i, .25 + .15 * i) }); dotT(g, f1(xa + (x1 - xa) * u), ly, 11, false); });
+    const mg = popAt(p, x1, ly, tAt(T, .5)); mg.circle(x1, ly, 26, F(4)); litOn(p, T.H).circle(x1, ly, 26, { fill: ACC1, sw: 4, stroke: ACC1 });
+    if (Wo) { discT(p, x0, ly, 70, f3(T.tI + tu(.12))); thing(p, c, Wo, x0, ly, 84, { t: tu(.2), size: 26, maxW: 110 }); } }
 
-  /* 19 ความรู้สึก (beats: หน้าใหญ่ + อารมณ์) — the feeling's icon big on a disc; under it a mood bar from a frown to a smile, its marker slides to the
-     feeling's side; who (if said) on a small disc at the top left. */
-  function K19(p, c, d, W, H) { const T = TQ(), good = d.mood !== 'bad', Wo = d.who && has(d.who) ? d.who : null, dr = 250, dy = -100, by = 300, bw = 520, u = good ? .82 : .18, xk = f1(-bw / 2 + bw * u);
-    discT(p, 0, dy, dr, T.tI); litOn(p, T.H).circle(0, dy, dr, { fill: TA(.1), sw: 5, stroke: ACC1 }); thing(p, c, d.feel, 0, dy, f1(dr * 1.25), { t: tAt(T, 0), o: inW(T, 0, .3), size: 60, maxW: dr * 1.6 });
-    const bg = sIn(p, 0, by, T.tI); R(bg, -bw / 2, by - 15, bw, 30, 15, F(4)); [[f1(-bw / 2 - 50), 'frown'], [f1(bw / 2 + 50), 'smile']].forEach(([x, ic]) => put(p, c, { icon: ic }, x, by, 64, null, { t: tu(.2), o: [[0, 0], [tu(.2), 0], [tu(.5), .6, 'io']] }));
-    const cl = clipG(p, f1(-bw / 2 + 5), f1(by - 10), bw - 10, 20, 10), fg = mvG(cl, { px: 0, py: by, sx: KW(T, .1, .9, v => Math.max(.001, v)), o: fadeS(T.tA, .2) }); R(fg, Math.min(0, xk), f1(by - 15), Math.abs(xk), 30, 0, { fill: TA(.55), sw: 0, stroke: 'none' });
-    const kg = mvG(p, { px: 0, py: by, x: KW(T, .1, .9, v => f1(xk * v)), o: fadeS(f3(T.tI + tu(.1))) }); kg.circle(0, by, 34, F(4.4)); litOn(kg, T.H).circle(0, by, 34, { fill: TA(.5), sw: 4.4, stroke: ACC1 });
-    if (Wo) { const x = f1(-W / 2 + 80), y = f1(-H / 2 + 80); discT(p, x, y, 70, tu(.14)); thing(p, c, Wo, x, y, 84, { t: tu(.16), size: 26, maxW: 100 }); } }
+  /* 19 ความรู้สึก — วงหน้าปัดอารมณ์: five mood discs along an arc (frown … laugh); a lit ring moves from the middle one to the feeling's side; the feeling's
+     own box sits in the dial's middle; who (if said) under it. */
+  function L19(p, c, d, W, H) { const T = TQ(), good = d.mood !== 'bad', Wo = d.who && has(d.who) ? d.who : null, cx = 0, cy = Wo ? 0 : 60, Rr = 330, MO = ['frown', 'annoyed', 'meh', 'smile', 'laugh'], A = MO.map((_, i) => 200 + i * 35), k1 = good ? 3 : 1;
+    const P = a => [f1(cx + Rr * Math.cos(a * Math.PI / 180)), f1(cy + Rr * Math.sin(a * Math.PI / 180))], arc = `M ${P(190).join(' ')} A ${Rr} ${Rr} 0 0 1 ${P(350).join(' ')}`;
+    drawAt(p.path(arc, { sw: 4, stroke: C.soft }), p, T.tI, tu(.5));
+    MO.forEach((ic, i) => { const [x, y] = P(A[i]); discT(p, x, y, 56, f3(T.tI + tu(.05 * i))); put(p, c, { icon: ic }, x, y, 64, null, { t: f3(T.tI + tu(.05 * i + .04)) }); });
+    const ang = u => A[2] + (A[k1] - A[2]) * u, ring = mvG(p, { px: 0, py: 0, x: KW(T, .1, .7, u => f1(P(ang(u))[0])), y: KW(T, .1, .7, u => f1(P(ang(u))[1])), o: fadeS(tAt(T, .05)) }); ring.circle(0, 0, 72, { fill: 'none', sw: 6, stroke: ACC1 });
+    tbox(p, c, d.feel, cx, f1(cy + 20), 280, { t: tAt(T, .45), mv: { s: pS6(T, .45, .8) }, o: inW(T, .45, .7), lit: T.H, size: 50 });
+    if (Wo) { const y = f1(cy + 280); discT(p, 0, y, 80, f3(T.tI + tu(.1))); thing(p, c, Wo, 0, y, 96, { t: tu(.2), size: 28, maxW: 120 }); } }
 
-  /* 20 ความสัมพันธ์ (beats: เส้นเชื่อม 2 คน + ความสัมพันธ์; ขาด = broken) — a at the top left, b at the bottom right on discs; the link grows from both and
-     meets at a link disc in the middle; ended → it stops short and a ✕ sits in the gap. */
-  function K20(p, c, d, W, H) { const T = TQ(), cut = d.cut === true, r = 160, ax = -220, ay = -280, bx = 220, by = 280, a = Math.atan2(by - ay, bx - ax), ux = Math.cos(a), uy = Math.sin(a);
-    [[ax, ay, d.a], [bx, by, d.b]].forEach(([x, y, X], i) => { discT(p, x, y, r, f3(T.tI + tu(.08 * i))); thing(p, c, X, x, y, f1(r * 1.2), { t: tu(.16 + .08 * i), size: 40, maxW: r * 1.6 }); });
-    [[ax, ay, 1], [bx, by, -1]].forEach(([x, y, sd]) => { const x0 = f1(x + sd * ux * r), y0 = f1(y + sd * uy * r), stop = cut ? 70 : 0, L = Math.hypot(x0, y0) - stop, x1 = f1(x0 + sd * ux * L), y1 = f1(y0 + sd * uy * L), dd = `M ${x0} ${y0} L ${x1} ${y1}`;
-      const e1 = p.path(dd, { sw: 22 }), e2 = p.path(dd, { sw: 13, stroke: C.fill }); [e1, e2].forEach(e => on(e, p, 0, { draw: [[0, 0], [tAt(T, 0), 0], [tAt(T, .45), 1, 'io']] })); if (!cut) litOn(p, T.H).path(dd, { sw: 13, stroke: TA(.6) }); });
-    if (cut) { const mg = popAt(p, 0, 0, tAt(T, .6)); mg.circle(0, 0, 44, F(4)); XX(mg, 0, 0, 1.1); }
-    else { discT(p, 0, 0, 66, tAt(T, .42), { s: pS6(T, .42, .7), o: inW(T, .42, .62) }); put(p, c, { icon: 'link' }, 0, 0, 80, null, { t: tAt(T, .42), o: inW(T, .42, .62), mv: { s: pS6(T, .42, .7) } }); litOn(p, T.H).circle(0, 0, 66, { fill: TA(.12), sw: 5, stroke: ACC1 }); } }
+  /* 20 ความสัมพันธ์ — สองวงซ้อน: a and b in two big circles that slide together and overlap (the shared part glows); a link disc under them, joined to the
+     overlap; ended (cut) → the circles stay apart and a ✕ sits between them. */
+  function L20(p, c, d, W, H) { const T = TQ(), cut = d.cut === true, r = 215, cy = -90, dx = cut ? 0 : 0, x1 = cut ? 200 : 125, x0 = 270;
+    [[-1, d.a], [1, d.b]].forEach(([sd, X], i) => { const XK = KW(T, 0, .5, u => f1(sd * (x0 + (x1 - x0) * u))), g = mvG(p, { px: 0, py: cy, x: XK, o: fadeS(f3(T.tI + tu(.06 * i))) });
+      g.circle(0, cy, r, { fill: TL_(.06), sw: 4.6 }); if (!cut) litOn(g, T.H).circle(0, cy, r, { fill: TA(.06), sw: 5, stroke: ACC1 });
+      thing(p, c, X, f1(sd * 70), cy, 150, { t: tu(.18 + .06 * i), mv: { px: 0, py: cy, x: XK }, size: 40, maxW: 190 }); });
+    const ly = f1(cy + r + 150);
+    if (cut) { const mg = popAt(p, 0, cy, tAt(T, .6)); mg.circle(0, cy, 44, F(4)); XX(mg, 0, cy, 1.1); }
+    else { wire(p, `M 0 ${f1(cy + Math.sqrt(r * r - 125 * 125))} L 0 ${f1(ly - 70)}`, tAt(T, .5), tAt(T, .7), 3); discT(p, 0, ly, 70, tAt(T, .6), { s: pS6(T, .6, .85), o: inW(T, .6, .8) });
+      put(p, c, { icon: 'link' }, 0, ly, 84, null, { t: tAt(T, .6), o: inW(T, .6, .8), mv: { s: pS6(T, .6, .85) } }); litOn(p, T.H).circle(0, ly, 70, { fill: TA(.12), sw: 5, stroke: ACC1 }); } }
 
-  /* 21 สถานที่ (beats: สถานที่ + จุดย่อยบนผัง) — the place's box at the top; a wire down to its floor plan (rooms in thin lines); pins drop into the rooms
-     for the spots (one pin in the middle when none are said). */
-  function K21(p, c, d, W, H) { const T = TQ(), P = d.place || {}, SPT = (Array.isArray(d.spots) ? d.spots.filter(has) : []).slice(0, 2), bs = 230, by = f1(-H / 2 + bs / 2 + 20), pw = 700, ph = 500, py = f1(H / 2 - ph / 2 - 20), pt = f1(py - ph / 2);
-    wire(p, `M 0 ${f1(by + bs / 2)} L 0 ${pt}`, T.tI, f3(T.tI + tu(.3))); tbox(p, c, P, 0, by, bs, { t: T.tI, lit: T.H, size: 48 });
-    const g = sIn(p, 0, py, f3(T.tI + tu(.1))); R(g, -pw / 2, pt, pw, ph, 30, F(4.6)); R(g, f1(-pw / 2 + 8), f1(pt + 8), f1(pw - 16), f1(ph - 16), 22, glassF(.04));
-    [`M -60 ${f1(pt + 8)} L -60 ${f1(py + 40)}`, `M ${f1(-pw / 2 + 8)} ${f1(py + 40)} L 120 ${f1(py + 40)}`, `M 120 ${f1(py + 40)} L 120 ${f1(py + ph / 2 - 8)}`, `M 120 ${f1(pt + 140)} L ${f1(pw / 2 - 8)} ${f1(pt + 140)}`].forEach(dd => drawAt(p.path(dd, { sw: 3, stroke: C.soft }), p, f3(T.tI + tu(.2)), tu(.4)));
-    const spots = SPT.length ? SPT : [null], at = [[-210, f1(pt + 150)], [230, f1(py + 120)]], pr = 46;
-    spots.forEach((X, i) => { const [x, y0] = SPT.length ? at[i] : [0, f1(py - 30)], hy = f1(y0 - pr * .5), a = .35 + .2 * i, pk = { px: x, py: hy, y: [[0, -30], [tAt(T, a), -30], [tAt(T, a + .3), 0, 'io']], o: inW(T, a, a + .2) }, pg = mvG(p, pk);
-      pg.path(pinD(x, hy, pr), F(4.4)); litOn(pg, T.H).path(pinD(x, hy, pr), { fill: TA(.1), sw: 4.4, stroke: ACC1 });
-      if (X && icOf(X)) put(p, c, { icon: X.icon }, x, hy, f1(pr * 1.15), null, { t: tAt(T, a), o: pk.o, mv: { px: x, py: hy, y: pk.y } }); else pg.circle(x, hy, 12, { fill: ACC1, sw: 0, stroke: 'none' }); }); }
+  /* 21 สถานที่ — การ์ดแผนที่ + รายการจุด: a map card with soft roads and a pin holding the place's icon; under it the spots as rows on a rail (dot + disc). */
+  function L21(p, c, d, W, H) { const T = TQ(), P = d.place || {}, SPT = (Array.isArray(d.spots) ? d.spots.filter(has) : []).slice(0, 2), mw = 720, mh = SPT.length ? 520 : 700, my = SPT.length ? f1(-H / 2 + mh / 2 + 10) : 0;
+    cardT(p, 0, my, mw, mh, 40, T.tI);
+    [`M ${f1(-mw / 2 + 10)} ${f1(my + 90)} C -150 ${f1(my + 20)}, 60 ${f1(my + 170)}, ${f1(mw / 2 - 10)} ${f1(my + 60)}`, `M -170 ${f1(my - mh / 2 + 10)} C -120 ${f1(my - 60)}, -230 ${f1(my + 100)}, -180 ${f1(my + mh / 2 - 10)}`].forEach(dd => drawAt(p.path(dd, { sw: 16, stroke: TL_(.12) }), p, f3(T.tI + tu(.1)), tu(.6)));
+    const r = 92, px = 60, hy = f1(my - r * .45 - 20), ty = f1(hy + r * 1.9), sh = sub(p); on(sh, p, 0, { ox: px, oy: ty, sx: KW(T, .1, .4, v => Math.max(.001, v)), o: inW(T, .1, .35) }); ell(sh, px, ty, f1(r * .8), f1(r * .2), { fill: TL_(.16), sw: 0, stroke: 'none' });
+    const pk = { px, py: hy, y: [[0, -34], [tAt(T, 0), -34], [tAt(T, .35), 0, 'io']], o: inW(T, 0, .22) }, pg = mvG(p, pk); pg.path(pinD(px, hy, r), F(5)); pg.circle(px, hy, f1(r * .76), glassF(.08)); litOn(pg, T.H).path(pinD(px, hy, r), { fill: TA(.08), sw: 5, stroke: ACC1 });
+    if (icOf(P)) put(p, c, { icon: P.icon }, px, hy, f1(r * 1.15), null, { t: tAt(T, 0), o: pk.o, mv: { px, py: hy, y: pk.y } }); else { pg.circle(px, hy, 16, { fill: ACC1, sw: 0, stroke: 'none' }); if (lbOf(P)) pill(p, lbOf(P), px, f1(ty + 56), { t: tAt(T, .4), size: 42, maxW: 360 }); }
+    if (SPT.length) { const y0 = f1(my + mh / 2 + 90), rx = -130, ys = SPT.map((_, i) => f1(y0 + i * 150)); if (SPT.length > 1) wire(p, `M ${rx} ${ys[0]} L ${rx} ${ys[1]}`, tAt(T, .4), tAt(T, .7), 3);
+      SPT.forEach((X, i) => { const y = ys[i], a = .45 + .2 * i, g = sub(p); on(g, p, 0, { o: inW(T, a, a + .15) }); dotT(g, rx, y, 12, false); wire(p, `M ${rx + 12} ${y} L 18 ${y}`, tAt(T, a), tAt(T, a + .1), 2.4);
+        discT(p, 80, y, 62, tAt(T, a), { s: pS6(T, a, a + .25), o: inW(T, a, a + .2) }); thing(p, c, X, 80, y, 76, { t: tAt(T, a), o: inW(T, a, a + .2), mv: { s: pS6(T, a, a + .25) }, size: 26, maxW: 100 }); }); } }
 
-  /* 22 กลไก — the subject's box at the top feeds a panel where the parts' boxes work in a row (small arrows between); the panel feeds the result's box at
-     the bottom. The current runs down the wires and through the parts in turn; the result lights on H. */
-  function K22(p, c, d, W, H) { const T = TQ(), Cs = (Array.isArray(d.components) ? d.components.filter(has) : []).slice(0, 3), Rs = d.result && has(d.result) ? d.result : null, n = Math.max(2, Cs.length);
-    const ss = 200, sy = f1(-H / 2 + ss / 2 + 20), pw = 760, ph = 260, py = Rs ? 0 : f1(H / 2 - ph / 2 - 60), cs = n === 3 ? 170 : 190, gp = f1((pw - 40 - n * cs) / (n - 1)), xs = Cs.map((_, i) => f1(-pw / 2 + 20 + cs / 2 + i * (cs + gp))), ry = f1(H / 2 - ss / 2 - 20);
-    const g = sIn(p, 0, py, T.tI); R(g, -pw / 2, f1(py - ph / 2), pw, ph, 36, F(4.4)); R(g, f1(-pw / 2 + 8), f1(py - ph / 2 + 8), f1(pw - 16), f1(ph - 16), 28, glassF(.03));
-    const w1 = `M 0 ${f1(sy + ss / 2)} L 0 ${f1(py - ph / 2)}`; wire(p, w1, T.tI, f3(T.tI + tu(.3))); const f1e = p.path(w1, { sw: 6, stroke: ACC1 }); on(f1e, p, 0, { draw: [[0, 0], [tAt(T, 0), 0], [tAt(T, .2), 1, 'io']] });
-    tbox(p, c, d.subject, 0, sy, ss, { t: T.tI, size: 40 });
-    xs.forEach((x, i) => { const a = .2 + .55 * i / n; tbox(p, c, Cs[i], x, py, cs, { t: f3(T.tI + tu(.06 * (i + 1))), lit: tAt(T, Math.min(.92, a + .1)), size: 34 });
-      if (i) arrowR(atG(p, f3(T.tI + tu(.2))), f1((xs[i - 1] + x) / 2), py, 0, .6); });
-    if (Rs) { const w2 = `M 0 ${f1(py + ph / 2)} L 0 ${f1(ry - ss / 2)}`; wire(p, w2, T.tI, f3(T.tI + tu(.3))); const f2e = p.path(w2, { sw: 6, stroke: ACC1 }); on(f2e, p, 0, { draw: [[0, 0], [tAt(T, .75), 0], [tAt(T, .92), 1, 'io']] });
-      tbox(p, c, Rs, 0, ry, ss, { t: tAt(T, .8), mv: { s: pS6(T, .8, 1) }, o: inW(T, .8, .95), lit: T.H, size: 40 }); } }
+  /* 22 กลไก — วงจรหมุนเวียน: the parts' boxes sit around a ring with the subject's box in the middle; a light runs once round the ring through each part
+     (each lights as it passes); then a wire drops from the ring to the result's box, which lights on H. */
+  function L22(p, c, d, W, H) { const T = TQ(), Cs = (Array.isArray(d.components) ? d.components.filter(has) : []).slice(0, 3), Rs = d.result && has(d.result) ? d.result : null, n = Math.max(2, Cs.length);
+    const cx = 0, cy = Rs ? -110 : 0, Rr = 270, AN = n === 3 ? [-90, 30, 150] : [180, 0], cs = 180, P = a => [f1(cx + Rr * Math.cos(a * Math.PI / 180)), f1(cy + Rr * Math.sin(a * Math.PI / 180))];
+    const ring = `M ${cx + Rr} ${cy} A ${Rr} ${Rr} 0 1 1 ${cx - Rr} ${cy} A ${Rr} ${Rr} 0 1 1 ${cx + Rr} ${cy}`; drawAt(p.path(ring, { sw: 4, stroke: C.soft }), p, T.tI, tu(.6));
+    const a0 = AN[0], ang = u => a0 + 360 * u, dg = mvG(p, { px: 0, py: 0, x: KW(T, 0, .75, u => f1(P(ang(u))[0]), 40), y: KW(T, 0, .75, u => f1(P(ang(u))[1]), 40), o: [[0, 0], [tAt(T, 0), 0], [f3(tAt(T, 0) + tu(.1)), 1], [tAt(T, .72), 1], [tAt(T, .8), 0]] }); dg.circle(0, 0, 14, { fill: ACC1, sw: 0, stroke: 'none' });
+    tbox(p, c, d.subject, cx, cy, 220, { t: T.tI, size: 40 });
+    AN.forEach((a, i) => { const [x, y] = P(a), frac = ((a - a0 + 360) % 360) / 360 * .75; tbox(p, c, Cs[i], x, y, cs, { t: f3(T.tI + tu(.06 * (i + 1))), lit: tAt(T, Math.min(.9, frac + .04)), size: 34 }); });
+    if (Rs) { const ry = f1(H / 2 - 110); wire(p, `M 0 ${f1(cy + Rr)} L 0 ${f1(ry - 100)}`, tAt(T, .75), tAt(T, .88), 3.4); tbox(p, c, Rs, 0, ry, 200, { t: tAt(T, .8), mv: { s: pS6(T, .8, 1) }, o: inW(T, .8, .95), lit: T.H, size: 36 }); } }
 
   /* ----- the sheet ----- */
   function frame(c, W0, H0) { const f = p => { p.rect(-W0 / 2, -H0 / 2, W0, H0, { sw: 3, stroke: '#ffd400' }); }; f.custom = true; f.dur = .01; f.exit = 'pop'; G.art(f, { x: c.x, y: c.y, s: c.s, at: 0, speed: 1 }); }
   const I = (icon, label) => label ? { icon, label } : { icon };
-  const FN = [K13, K14, K15, K16, K17, K18, K19, K20, K21, K22], TH = ['ที่ปิดเปิด ความลับลอยขึ้น', 'เครื่องหมายคำพูด + เส้นใต้', 'ปุ่มกลมเรียง กดปุ่มที่ชวน', 'คำ → ความหมายแตกกิ่ง', 'ชื่อกลุ่ม + วงเล็บ + ของ', 'กรอบภาพความทรงจำ', 'หน้าใหญ่ + แถบอารมณ์', 'เส้นเชื่อมสองฝ่าย', 'สถานที่ + ผังจุดย่อย', 'กล่องส่งต่อเป็นทอด'];
+  const FN = [L13, L14, L15, L16, L17, L18, L19, L20, L21, L22], TH = ['การ์ดสวิตช์ซ่อน/เผย', 'การ์ดใจความ', 'การ์ดโปรไฟล์', 'การ์ดพจนานุกรม', 'แฟ้มรวมของ', 'การ์ดบันทึกช่วงเวลา', 'วงหน้าปัดอารมณ์', 'สองวงซ้อน', 'การ์ดแผนที่ + รายการจุด', 'วงจรหมุนเวียน'];
   const D = [
     { cat: 'B13 เคล็ดลับ', th: TH[0], fn: FN[0], data: [{ say: 'เคล็ดลับคือใส่เกลือนิดเดียว', secret: I('cooking-pot', 'เกลือนิดเดียว') }, { say: 'ความลับคือจ่ายตัวเองก่อน', secret: I('piggy-bank') }, { say: 'วิธีลัดคือกด Ctrl+Z (ไม่มีไอคอน)', secret: { label: 'Ctrl+Z' } }] },
     { cat: 'B14 ประโยคเด็ด', th: TH[1], fn: FN[1], data: [{ say: 'เริ่มจากเล็กๆ แล้วจะไปได้ไกล', idea: I('sprout', 'เริ่มจากเล็กๆ') }, { say: 'ทำอะไรก็ทำด้วยใจ', idea: I('heart', 'ทำด้วยใจ') }, { say: 'ช้าแต่ชัวร์ (ไม่มีไอคอน)', idea: { label: 'ช้าแต่ชัวร์' } }] },
