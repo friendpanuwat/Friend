@@ -1,0 +1,18 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>S6N size 6 · categories 13–22</title>
+<script src="../../assets/glowline.js"></script><script src="s6n.js"></script></head>
+<body><script>
+/* S6N — size 6 (860×965), categories 13–22, one design each, ONE line of data each (DI) — one picture. Yellow = the size's box at 100 % (scaled s). */
+GL.run(() => {
+  GL.stage();
+  const FRAME = true, PAGE = 1, SET = 'A', DI = 0, s = .31, B = GL.cats.S6N;
+  GL.text('ขนาด 6 · เต็มจอ ทรงตั้ง 860×965 · หมวด 13–22', { y: 62, size: 40, ls: 3, color: GL.C.kicker, glow: false });
+  GL.text('หมวดละ 1 แบบ · รอบ 2 · หน้าตาแบบ BxT', { y: 100, size: 24, weight: 500, color: GL.C.sub, glow: false });
+  const w = 860 * s, h = 965 * s, X = [180, 540, 900], rowH = h + 66;
+  B.D.forEach((v, i) => { const r = Math.floor(i / 3), x = i === 9 ? 540 : X[i % 3], cy = 140 + r * rowH + h / 2, d = v.data[DI];
+    if (FRAME) B.frame({ x, y: cy, s }, 860, 965); B.draw(i, d, { x, y: cy, s, at: .3, hit: 1.6 });
+    GL.text(v.cat + ' · ' + v.th, { x, y: cy + h / 2 + 30, size: 19, weight: 700, color: GL.C.ink, glow: false, maxW: w + 60 });
+    GL.text('“' + d.say + '”', { x, y: cy + h / 2 + 54, size: 14, weight: 500, color: GL.C.mute, glow: false, maxW: w + 40 }); });
+  GL.finish({ hold: Math.max(.6, 4.9 - GL.end), out: true, stagger: .02 });
+});
+</script></body></html>

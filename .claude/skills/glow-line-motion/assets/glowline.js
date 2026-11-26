@@ -186,6 +186,10 @@
         <feGaussianBlur in="SourceGraphic" stdDeviation="${2 * glow}" result="a"/>
         <feGaussianBlur in="SourceGraphic" stdDeviation="${6 * glow}" result="b"/>
         <feMerge><feMergeNode in="b"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="glowI" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="${1.4 * glow}" result="a"/>
+        <feGaussianBlur in="SourceGraphic" stdDeviation="${4.5 * glow}" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="a"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       <linearGradient id="glsilver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#727272"/><stop offset=".45" stop-color="#454545"/><stop offset="1" stop-color="#262626"/></linearGradient>
       <filter id="bloom" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="${16 * glow}"/></filter>
       <filter id="bloomS" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="${8 * glow}"/></filter>`;
@@ -291,7 +295,9 @@
         d.setAttribute('stroke-width', Math.max(0, W(fat) - (f.sw - m.sw) * k)); }
       else if (thin) { const gap = m.sw - thin._gl.sw; d.setAttribute('stroke-width', W(thin) + Math.max(gap, Math.min(gap, 3) * m.k)); } }
   }
-  function strokeK(s) { return s >= 1 ? 1 / Math.sqrt(s) : Math.max(1, .8 / s); }   // keeps lines ~2.4–4px on screen
+  let LF = .5, SMALLW = 170;   /* user 2026-11-26: thinner lines on small icons ("เวลาย่อเส้นต้องเล็กลงด้วย" → 1.5 px) and a tight, bright glow on icons under SMALLW px
+     ("ไม่อยากให้ไอคอนมืดลง ไม่อยากให้แสงฟุ้งจนกลบ"). line floor: below full size a line keeps at least sw × LF px on screen (LF = .8 → a 3 line stays 2.4 px however small) */
+  function strokeK(s) { return s >= 1 ? 1 / Math.sqrt(s) : Math.max(1, LF / s); }
   /* art: place a drawing. Motion mode (default): it pops in already complete, then plays its idle motion
      (fn.motion, or `idle`, or `float`). reveal: 'draw' keeps the self-drawing stroke for this one (lines, connectors). */
   /* exits ("ท่าออก") — every icon also leaves with a move that mirrors how it came in. Units: drawing px (× scale).
@@ -330,6 +336,7 @@
   }
   function art(fn, { x, y, s = 1, w, at = 0, ts = 1, filter = 'glow', parent = cur, float, idle, reveal, out, exit, speed, amp, loop, still, pose, ampMax } = {}) {
     if (w) s = w / 400;                                   // w = on-screen width of the ±200 drawing box
+    if (filter === 'glow' && 400 * s * (parent && parent.getCTM ? Math.sqrt(Math.abs(parent.getCTM().a * parent.getCTM().d)) || 1 : 1) < SMALLW) filter = 'glowI';   /* small icon → tight bright glow */
     const custom = !!fn.custom, pop = !custom && (reveal ? reveal === 'pop' : MODE === 'motion');
     /* motion controls: this call > GL.tune(icon) > GL.stage / GL.motion defaults. pose: this call > tune > fn.pose (set on rigs whose loop starts empty) */
     const mv = Object.assign({}, MOVE, fn.tune, normMove({ speed, amp, loop, still }));
@@ -1225,7 +1232,7 @@
     'library-pro': 1.15, 'ticket-pro': 1.15, 'trophy-pro': 1.15, 'weight-pro': 1.15, 'package-open-pro': 1.25, 'pin-pro': 1.25,
     'clapperboard-pro': 1.3, 'credit-card-pro': 1.3, 'salad-pro': 1.3, 'id-card-pro': 1.35, 'bell-pro': 1.4, 'folder-open-pro': 1.45,
     'notify-pro': 1.45, 'thermometer-pro': 1.45 };
-  window.GL = { C, theme, get themeNow() { return THEME; }, stage, run, Pen, art, motion, tune, text, EXIT, leaveAll, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
+  window.GL = { lineFloor: v => { LF = v; }, C, theme, get themeNow() { return THEME; }, stage, run, Pen, art, motion, tune, text, EXIT, leaveAll, title, rows, grid, hero, steps, spot, flow, versus, stat, counter, connect, page, finish, tween, fade, pulse, hline, vline, midArrow,
     parts, icons, pairs, pair, single, LOOP, MOTION, POSE, AMPMAX, kf, EASE, easeIO, easeOut, clamp, rnd, rr, get W() { return W; }, get H() { return H; }, get end() { return lastEnd; } };
 
   /* beats.js (B01–B21 scene templates) loads next to this file */

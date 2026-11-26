@@ -1,0 +1,27 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>SG sizes 1–7 · categories 13–22</title>
+<script src="../../assets/glowline.js"></script><script src="sg.js"></script></head>
+<body><script>
+/* SG — one size (K), five categories (PAGE 1 = B13–B17 · 2 = B18–B22), each with its three lines of data. The layout of the sheet is picked for the
+   size's shape (biggest frames that fit). Render with --scale 2. Yellow = the size's box at 100 % (scaled s). */
+GL.run(() => {
+  GL.stage();
+  const FRAME = true, K = 1, PAGE = 1, SET = 'A', B = GL.cats.SG, S = B.SIZES[K], list = PAGE === 1 ? [0, 1, 2, 3, 4] : [5, 6, 7, 8, 9];
+  GL.text('ขนาด ' + K + ' · ' + S.th + ' ' + S.w + '×' + S.h + ' · หมวด ' + (PAGE === 1 ? '13–17' : '18–22'), { y: 56, size: 36, ls: 3, color: GL.C.kicker, glow: false });
+  const AW = 1040, AH = 1760, top = 96, cap = 40, gx = 16, gy = 14;
+  const opts = [{ c: 3, r: 5, blk: false }, { c: 5, r: 3, blk: false, cats: 'cols' }, { c: 2, r: 3, blk: true }].map(o => { const fw = (AW - (o.c - 1) * gx) / o.c;
+    if (o.blk) { const fh = (AH - 3 * (cap + 3 * (gy + 20))) / 9; return Object.assign(o, { s: Math.min(fw / S.w, fh / S.h) }); }
+    const fh = (AH - o.r * (cap + gy)) / o.r; return Object.assign(o, { s: Math.min(fw / S.w, fh / S.h) }); });
+  const L = opts.sort((a, b) => b.s - a.s)[0], s = L.s * .98, w = S.w * s, h = S.h * s;
+  const cell = (di, j, x, cy) => { const d = B.D[di].data[j]; if (FRAME) B.frame({ x, y: cy, s }, S.w, S.h); B.draw(K, di, d, { x, y: cy, s, at: .3, hit: 1.6 }); GL.text('“' + d.say + '”', { x, y: cy + h / 2 + 18, size: 13, weight: 500, color: GL.C.mute, glow: false, maxW: w + 20 }); };
+  if (L.blk) { list.forEach((di, i) => { const col = i % 2, row = Math.floor(i / 2), x = list.length % 2 && i === list.length - 1 ? 540 : 20 + w / 2 + col * (w + gx + (AW - 2 * w - gx)), bh = cap + 3 * (h + gy + 20), y0 = top + row * bh;
+      GL.text(B.D[di].cat + ' · ' + B.D[di].th, { x, y: y0 + 28, size: 22, weight: 700, color: GL.C.ink, glow: false, maxW: w });
+      [0, 1, 2].forEach(j => cell(di, j, x, y0 + cap + j * (h + gy + 20) + h / 2)); }); }
+  else if (L.cats === 'cols') { const x0 = 540 - (5 * w + 4 * gx) / 2 + w / 2; list.forEach((di, i) => { const x = x0 + i * (w + gx); GL.text(B.D[di].cat.split(' ')[0], { x, y: top + 22, size: 26, weight: 800, color: GL.C.ink, glow: false });
+      [0, 1, 2].forEach(j => cell(di, j, x, top + cap + j * (h + gy + 26) + h / 2)); }); }
+  else { const X = [0, 1, 2].map(j => 540 + (j - 1) * (w + gx + 20)); list.forEach((di, i) => { const y0 = top + i * (h + cap + gy), cy = y0 + cap - 8 + h / 2;
+      GL.text(B.D[di].cat + ' · ' + B.D[di].th, { x: 540, y: y0 + 22, size: 22, weight: 700, color: GL.C.ink, glow: false });
+      [0, 1, 2].forEach(j => cell(di, j, X[j], cy)); }); }
+  GL.finish({ hold: Math.max(.6, 4.9 - GL.end), out: true, stagger: .02 });
+});
+</script></body></html>

@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>B12S pilot P2</title>
+<script src="../../assets/glowline.js"></script><script src="b12s.js"></script></head>
+<body><script>
+/* B11S pilot "Apple UI" (user: "Apple UI แต่เอามาปรับให้เข้ากับสไตล์ของเรา ทำมาให้ดูก่อน 7 ขนาด ขนาดละอัน") — one design per size, three lines of data
+   per row (columns labelled with what the data holds). The still is the moment everything is shown. Yellow = the size's box. */
+GL.run(() => {
+  GL.stage();
+  const FRAME = true, KS = [4,5,6], SC = [.52,.38,.33], B = GL.cats.B12S, data = B.SAMPLES, COLS = [0, 1, 2], X = [180, 540, 900];
+  GL.text('B12 ตัวอย่างแนวใหม่ · ขนาด ' + KS.join(' · '), { y: 66, size: 40, ls: 3, color: GL.C.kicker, glow: false });
+  ['สามทอด (ผล = ทอดสุดท้าย)', 'สามทอด + ไอคอนผล (end)', 'สามทอด ไม่มีคำ'].forEach((t, j) => GL.text(t, { x: X[j], y: 112, size: 26, weight: 700, color: GL.C.kicker, glow: false }));
+  let y = 140; KS.forEach((K, r) => { const S = B.SIZES[K], s = SC[r], h = S.h * s, list = B.S[K], i = list.findIndex(v => v.id === 'pilot'), cy = y + h / 2;
+    COLS.forEach((di, j) => { if (FRAME) B.frame({ x: X[j], y: cy, s }, S.w, S.h); B.drawS(K, i, data[di], { x: X[j], y: cy, s, at: .3, hit: 1.6 }); });
+    GL.text('ขนาด ' + K + ' · ' + S.th + ' ' + S.w + '×' + S.h + ' — ' + list[i].th, { x: 540, y: y + h + 36, size: 26, weight: 700, color: GL.C.ink, glow: false }); y += h + 70; });
+  GL.finish({ hold: 2.4, out: true, stagger: .02 });
+});
+</script></body></html>
