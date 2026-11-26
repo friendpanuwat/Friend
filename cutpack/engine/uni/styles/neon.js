@@ -120,6 +120,17 @@ function neonFit(name, f) {
 }
 const neonFits = (n, f) => !!neonFit(n, f);
 
+/* THE KEY WORD'S ZOOM STAYS IN THE SAFE ZONE (2026-11-26, the 3-scenario test of Friend's "ระวังอย่าให้เกิดบั๊ค"): a long key word is fitted to the
+   room between the safe zone's edges (cpLine) and then came in from 1.16 times, so for its first 0.1 s it ran 2–3 px past the zone
+   (tools/picture_sizes.js: OUTSIDE words, read 0.35 s before the scene ends, when the word landed late). A word that would pass the room
+   starts its zoom at room / width instead (just under 1: it grows into place); every shorter word keeps 1.16, as before. After cpLine's
+   own fit (FITS run in order) */
+function neonKeyIn(row, P, anim) {
+  FITS.push(() => { const w = row.firstChild.offsetWidth * (+row.style.scale || 1); if (!w) return;
+    const x1 = P.y + (P.half ?? 120) < CP.safeTop.y ? CP.safeTop.x1 : CP.safe[2], room = 2 * Math.min(P.x - CP.safe[0], x1 - P.x);   // (as cpLine)
+    const k = Math.min(1.16, (room - 2) / w);
+    if (k < 1.16) anim.effect.setKeyframes([{opacity: 0, transform: `scale(${k.toFixed(4)})`, filter: 'blur(14px)'}, {opacity: 1, transform: 'scale(1)', filter: 'blur(0)'}]); });
+}
 STYLE('neon', {
   name: 'นีออนฟ้า',
   layouts: NEON.layouts,
@@ -247,8 +258,14 @@ STYLE('neon', {
     const gap = CLIPWINS.filter(x => x.t1 <= a + .05).length, face = neonFaceBox(a, b);
     let name = neonRand('talk' + gap) < .67 ? 'talk_low' : 'talk_split';
     if (!neonRoom(name, face)) name = name === 'talk_low' ? 'talk_split' : 'talk_low';
+    let L = NEON.layouts[name];
+    /* NO ROOM UNDER THE CHIN FOR EITHER (2026-11-26, the 3-scenario test: a close shot, the chin under about y 1345 with the zoom's margin):
+       it fell back to the other place without asking, so the words sat on the mouth. As lime and window (Friend 2026-11-24: "ก", the words
+       at the top when there is no room under the chin): the words at the top, at neon's own top place (band, word: lead y 280, key y 400,
+       Friend 2026-11-18: "อยากให้ subtitles มีอยู่บ้านบน ลงมาหน่อย"), over the hair rather than the mouth */
+    if (!neonRoom(name, face)) { name = 'talk_top'; L = {speaker: true, lead: {x: 540, y: 280}, key: {x: 540, y: 400}}; }
     const root = div('', SC); root.className = 'n-root';
-    return {root, cam: root, speaker: true, L: NEON.layouts[name], name};
+    return {root, cam: root, speaker: true, L, name};
   },
   /* the lead fades in out of a blur; the key word comes in on its word and lights up */
   text(F, T, lead, key) {
@@ -261,7 +278,8 @@ STYLE('neon', {
       /* the old editorial style's key word (styles/card.js, deleted 2026-11-17 in d221565: motion.key) · final 2026-11-18, Friend: "เอาแบบสไตล์
          editorial เก่าที่เราลบไปอะครับ (ให้ดูแค่ทรานซิชั่นนะ) ทุกอย่างยังเหมือนเดิม": from 1.16 times and a 14 px blur to sharp, 0.26 s, on its word
          (was: from 0.9 times, blurred and twice as bright, 0.45 s) */
-      A(r, [{opacity: 0, transform: 'scale(1.16)', filter: 'blur(14px)'}, {opacity: 1, transform: 'scale(1)', filter: 'blur(0)'}], T.hit, .26, {e: EASE.smooth});
+      const a = A(r, [{opacity: 0, transform: 'scale(1.16)', filter: 'blur(14px)'}, {opacity: 1, transform: 'scale(1)', filter: 'blur(0)'}], T.hit, .26, {e: EASE.smooth});
+      neonKeyIn(r, L.key, a);
       sfx('softswish', T.hit - .05, -21);
     }
     if (F.speaker && T.clip) {                     // a real clip between pictures: cut in and out on the words (core.js clipCaption)
