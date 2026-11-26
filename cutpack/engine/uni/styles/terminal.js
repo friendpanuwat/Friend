@@ -47,7 +47,7 @@ const TRM = {
                  slots: [{k: 'stat', x: 476, y: 1305, vy: 1425, maxW: 440}], bar: [476, 1571, 444, 18]},                                    // shot 10 (the label = the subtitle's lead, the number = its key word)
     recap3:     {screen: true, still: true, menu: true, pill: {y: 232}, three: [[60, 300, 960, 430], [60, 770, 960, 430], [60, 1250, 960, 410]],
                  pics: [[230, 385, 620, 300], [230, 855, 620, 300]], rows: {x: 98, cmdY: 1385, y0: 1462, step: 78, n: 3}},                 // shot 11 (three windows: stills only)
-    cta:        {screen: true, noPic: true, need: 2, menu: true, pill: {y: 232}, face: [190, 290, 700, 760], wins: [[90, 1150, 900, 410]],
+    cta:        {screen: true, noPic: true, need: 2, menu: true, pill: {y: 232}, face: [190, 360, 700, 690],   /* (290 → 360, 2026-11-26: under the top pill's second line) */ wins: [[90, 1150, 900, 410]],
                  slots: [{k: 'title', x: 540, y: 1297, maxW: 780}, {k: 'sub', x: 540, y: 1371, maxW: 780}], btns: [[126, 1443, 402, 88], [552, 1443, 368, 88]]},   // shot 12
   },
   /* RANDOM, as the other styles: a call to action (B15) gets shot 12 first (it is in the pool for any picture too), a number (B01) the number card when one is said; every other
@@ -73,6 +73,7 @@ function trmChunks(t0, t1) {
    picture keeps its sheet windows (the size rule is for the motion graphic). */
 const TRM_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
 const TRM_MIN = .65;
+const TRM_KEY_DY = 66;   // a top pill: the key word's pill this far under the lead (y 232 → 298) · a low pill: the lead 70 over the pill
 const TRM_ORDER = {hero_chev: [2, 1], win_speaker: [2, 1], split_top: [2, 1], stack3: [6, 5]};
 const trmInner = ([x, y, w, h]) => [x + 24, y + 84, w - 48, h - 108];   // the picture inside a window (under its 72-high title bar)
 function trmShape(L, name, key) {
@@ -80,7 +81,7 @@ function trmShape(L, name, key) {
   let order = TRM_ORDER[name] ?? [2], X0 = 60, X1 = 920, Y0 = L.wins[0][1], Y1 = 1660, mid = false;
   if (name === 'big_win') { const first = key != null && cpRand(key) >= .6 ? 6 : 5; order = [first, 11 - first]; Y0 = 300; mid = true; }
   if (name === 'split_top') { Y0 = 310; Y1 = L.line - 40; mid = true; }     // over the red line, 40 clear of it
-  if (name === 'stack3') X0 = 180;                                          // the front window right of the two behind it
+  if (name === 'stack3') { X0 = 180; Y0 = 580; }                            // the front window right of the two behind it · 580: the back windows (− 220) clear of the top pill's second line
   for (const k of order) {
     const [W, H] = TRM_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H); if (s < TRM_MIN) continue;
     const cw = Math.round(W * s), ch = Math.round(H * s);
@@ -96,14 +97,14 @@ function trmShape(L, name, key) {
 function trmFit(name, f) {
   const L = JSON.parse(JSON.stringify(TRM.layouts[name])); if (!L.speaker) return trmShape(L, name) ?? L;   // (a dark screen always fits: its standard window, big_win at size 5 for estimates)
   const [, top, , chin] = f;
-  if (L.pill.y < 600 && top < L.pill.y + 60) return null;                    // (the pill on top would sit on the face)
+  if (L.pill.y < 600 && top < L.pill.y + TRM_KEY_DY + 60) return null;      // (the lead and the pill on top would sit on the face)
   if (L.top && top < 420) return null;                                       // (the notification on top)
   if (L.wins) { const w = L.wins[0], d = Math.max(0, chin + 30 - w[1]); if (w[1] + d + w[3] > 1660) return null;
     const mv = v => v + d; w[1] = mv(w[1]); if (L.pic) L.pic[1] = mv(L.pic[1]);
     for (const s of L.slots ?? []) { s.y = mv(s.y); if (s.vy) s.vy = mv(s.vy); }
     for (const b of L.btns ?? []) b[1] = mv(b[1]); if (L.bar) L.bar[1] = mv(L.bar[1]);
     if (L.rows) { L.rows.cmdY = mv(L.rows.cmdY); L.rows.y0 = mv(L.rows.y0); } }
-  else if (L.pill.y > 600) { const d = Math.max(0, chin + 66 - L.pill.y); if (L.pill.y + d > 1600) return null; L.pill.y += d; }
+  else if (L.pill.y > 600) { const d = Math.max(0, chin + 66 + 70 - L.pill.y); if (L.pill.y + d > 1600) return null; L.pill.y += d; }   // (the lead 70 over the pill, under the chin too)
   return trmShape(L, name);                                                 // a picture's window: a standard size in the room under the chin
 }
 /* one line of words at (x, y) left / centre, shrunk (never wrapped) to maxW and the safe zone (a .cp-row: checked) */
@@ -146,6 +147,7 @@ STYLE('terminal', {
 .m-text{position:absolute;inset:0}
 .m-row{position:absolute;white-space:nowrap}
 .m-row i{font-style:normal}
+.m-lead{font-family:"TrmText";font-weight:400;font-size:38px;line-height:1.3;color:#F6F6F8;text-shadow:0 0 3px rgba(0,0,0,.9),0 0 10px rgba(0,0,0,.7),0 2px 16px rgba(0,0,0,.55)}
 .m-pill{display:inline-block;background:#FFFFFF;border-radius:36px;padding:3px 26px 7px;font-family:"TrmBold";font-weight:600;font-size:48px;line-height:1.3;color:#111113;box-shadow:0 6px 24px rgba(0,0,0,.35)}
 .m-cmd{font-family:"TrmMono","TrmText";font-weight:500;font-size:46px;line-height:1.3;color:#EE4444}
 .m-box{font-family:"TrmMono";font-weight:500;font-size:44px;line-height:1.3;color:#6E6E76}
@@ -285,7 +287,7 @@ STYLE('terminal', {
   /* between pictures: the pill at the chest, moved below the chin when the face is low */
   speakerFrame(a, b) {
     const root = div('', SC); root.className = 'm-root';
-    /* no room under the chin (the chin under about y 1534 · the pill sits at 1440, or 66 under the chin down to 1600: a very close shot): the pill at the top, under the search bar, as the sheet's top
+    /* no room under the chin (the chin under about y 1464 · the pill sits at 1440, its lead 70 over it, both under the chin, the pill down to 1600: a very close shot): the pill at the top, under the search bar, as the sheet's top
        pill (y 232) · as lime, window and neon (Friend 2026-11-24: "ก") · it used to fall back to y 1006, on the face */
     return {root, cam: root, speaker: true, L: trmFit('talk', cpFaceBox(a, b)) ?? {speaker: true, pill: {y: 232}}, name: 'talk'};
   },
@@ -296,17 +298,19 @@ STYLE('terminal', {
     const L = F.L ?? TRM.layouts.talk, el = div('', F.root ?? SC); el.className = 'm-text';
     const pill = (t, swap) => {
       if (swap && F.head) A(F.head, [{opacity: 1}, {opacity: 0}], t - .04, .12, {f: 'forwards'});
-      /* SHORT WORDS (2026-11-26, Friend: "ทำให้คำมันสั้นๆได้ไหมไม่ต้องขึ้นทีละประโยคยาว"): a block of two or more phrases shows them one at a time,
-         each phrase in its own pill from when it is said to when the next one is (the block's phrases from the subtitle step, T.parts) */
-      const P = T.clip ? (T.parts ?? []).filter(p => String(p[0] ?? '').trim()) : [];
-      if (P.length > 1 && L.pill) {
-        const a = swap ? t : T.b[0], b = T.end ?? T.t1, at = P.map((p, i) => i ? Math.min(Math.max(p[1], a + .25 * i), b - .1) : a);
-        P.forEach((p, i) => { if (i && at[i] <= at[i - 1] + .05) return;
-          const r = trmLine(el, String(p[0]).trim(), 'm-pill', {x: 540, y: L.pill.y, maxW: 860}), t0 = i ? at[i] : (swap ? t + .06 : T.t0 + .15);
-          A(r, [{opacity: 0, transform: 'translateY(12px) scale(.96)'}, {opacity: 1, transform: 'none'}], t0, i ? .2 : .35, {e: EASE.soft});
-          const nx = at.slice(i + 1).find(v => v > at[i] + .05); if (nx != null) A(r, [{opacity: 1}, {opacity: 0}], nx - .02, .02, {f: 'forwards'});
-          F.head = r; });
-        sfx('softswish', T.hit - .05, -21); return; }
+      /* THE WORDS CUT AS THE 3 PASSED STYLES (2026-11-26, Friend: "ทำให้คำมันสั้นๆได้ไหมไม่ต้องขึ้นทีละประโยคยาว" → "ตัดคำให้มันเหมือนกับ 3 สไตล์ที่ผ่านมา"):
+         a real clip's block shows its lead small (white, no pill) and its key word in the white pill, the lead first, the key word coming in
+         on its word, both staying to the block's end, as lime, window and neon show their lead and key word. A low pill: the lead over it
+         (70 above) · a top pill: the lead at the pill's place (y 232) and the pill under it (TRM_KEY_DY lower) */
+      if (T.clip && L.pill) {
+        const top = L.pill.y < 600, ky = top ? L.pill.y + TRM_KEY_DY : L.pill.y, ly = top ? L.pill.y : L.pill.y - 70;
+        const g = div('', el); g.style.cssText = 'position:absolute;inset:0';
+        const ld = String(lead ?? '').trim(), kw = String(key ?? '').trim() || ld, t0 = swap ? t + .06 : T.t0 + .15;
+        if (ld && kw !== ld) { const lr = trmLine(g, ld, 'm-lead', {x: 540, y: ly, maxW: 820});
+          A(lr, [{opacity: 0, transform: 'translateY(10px)'}, {opacity: 1, transform: 'none'}], t0, .3, {e: EASE.soft}); }
+        if (kw) { const kr = trmLine(g, kw, 'm-pill', {x: 540, y: ky, maxW: 860}), kt = ld && kw !== ld ? Math.max(T.hit - .05, t0 + .05) : t0;
+          A(kr, [{opacity: 0, transform: 'translateY(12px) scale(.96)'}, {opacity: 1, transform: 'none'}], kt, .3, {e: EASE.soft}); }
+        F.head = g; sfx('softswish', T.hit - .05, -21); return; }
       const txt = [lead, key].map(s => String(s ?? '').trim()).filter(Boolean); if (!txt.length || !L.pill) return;
       const r = trmLine(el, txt.join(' '), 'm-pill', {x: 540, y: L.pill.y, maxW: 860}); F.head = r;
       A(r, [{opacity: 0, transform: 'translateY(12px) scale(.96)'}, {opacity: 1, transform: 'none'}], swap ? t + .06 : T.t0 + .15, .35, {e: EASE.soft});
