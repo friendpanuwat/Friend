@@ -752,9 +752,9 @@
 
   /* 20 ความสัมพันธ์ — สะพานแสง */
   function Q20(p, c, d, W, H) { const T = TQ(), cut = d.cut === true, fy = FLRG(H), r = f1(Math.min(H * .2, W * .22, Math.min(W, H) * .23)), ax = f1(-W / 2 + r + 10), bx = f1(W / 2 - r - 10), dy = f1(fy - r - 6), ay = f1(dy - r), nr = f1(Math.max(30, Math.min(r * .55, 64))), rx = f1((bx - ax) / 2), ry = f1(Math.min(ay - (-H / 2 + nr + 12), rx * 1.5)), apy = f1(ay - ry);   /* no hairpin arch in tall boxes */
-    floorSG(p, T, W, H); [[ax, d.a], [bx, d.b]].forEach(([x, X], i) => { const g = sIn(p, x, dy, f3(T.tI + tu(.08 * i))); glassC(g, x, dy, r, 4.6); g.circle(x, dy, f1(r - 12), S(1.6)); thing(p, c, X, x, dy, f1(r * 1.25), { t: tu(.18 + .08 * i), size: f1(Math.max(26, r * .34)), maxW: r * 1.6 }); });
-    const tw = f1(Math.max(10, Math.min(18, r * .18)));
+    floorSG(p, T, W, H); const tw = f1(Math.max(10, Math.min(18, r * .18)));
     [[ax, 1], [bx, 0]].forEach(([x, sw_]) => { const dd = `M ${x} ${ay} A ${rx} ${ry} 0 0 ${sw_} 0 ${apy}`, end = cut ? .8 : 1; [[tw, C.ink], [f1(tw * .5), C.fill]].forEach(([w, col]) => { const e = p.path(dd, { sw: w, stroke: col }); on(e, p, 0, { draw: [[0, 0], [tAt(T, 0), 0], [tAt(T, .45), end, 'io']] }); }); if (!cut) litOn(p, T.H).path(dd, { sw: f1(tw * .5), stroke: TA(.7) }); });
+    [[ax, d.a], [bx, d.b]].forEach(([x, X], i) => { const g = sIn(p, x, dy, f3(T.tI + tu(.08 * i))); glassC(g, x, dy, r, 4.6); g.circle(x, dy, f1(r - 12), S(1.6)); thing(p, c, X, x, dy, f1(r * 1.25), { t: tu(.18 + .08 * i), size: f1(Math.max(26, r * .34)), maxW: r * 1.6 }); });
     if (cut) { const mg = popAt(p, 0, apy, tAt(T, .6)); mg.circle(0, apy, f1(nr * .7), F(4)); XX(mg, 0, apy, f1(nr / 40)); }
     else { const g = mvG(p, { px: 0, py: apy, s: pSG(T, .42, .7), o: inW(T, .42, .62) }); glassC(g, 0, apy, nr, 4.4); litOn(g, T.H).circle(0, apy, nr, { fill: TA(.15), sw: 4.4, stroke: ACC1 }); put(p, c, { icon: 'link' }, 0, apy, f1(nr * 1.16), null, { t: tAt(T, .42), o: inW(T, .42, .62), mv: { s: pSG(T, .42, .7) } }); } }
 
@@ -864,9 +864,9 @@
     thing(p, c, d.feel, 0, cy, f1(dr * 1.3), { t: tAt(T, 0), o: inW(T, 0, .3), size: f1(dr * .34), maxW: f1(dr * 1.6) }); }
   /* 20 tall — สองแผ่นบนล่าง: a at the top, b at the bottom; a thick link grows from both and meets at a link disc in the middle; ended → it stops short, ✕ */
   function R20T(p, c, d, W, H) { const T = TQ(), cut = d.cut === true, r = f1(Math.min(W * .4, H * .18)), ya = f1(-H / 2 + r + 4), yb = f1(H / 2 - r - 4), nr = f1(r * .42), stop = cut ? f1(nr * .9) : 0, tw = f1(Math.max(12, r * .16));
-    [[ya, d.a], [yb, d.b]].forEach(([y, X], i) => { const g = sIn(p, 0, y, f3(T.tI + tu(.08 * i))); glassC(g, 0, y, r, 4.6); g.circle(0, y, f1(r - 12), S(1.6)); thing(p, c, X, 0, y, f1(r * 1.25), { t: tu(.18 + .08 * i), size: f1(r * .34), maxW: r * 1.6 }); });
     [[f1(ya + r), 1], [f1(yb - r), -1]].forEach(([y, sd]) => { const len = f1(Math.max(4, Math.abs(y) - stop)), gg = mvG(p, { px: 0, py: y, sy: KW(T, 0, .45, v => Math.max(.001, v)), o: [[0, 0], [tAt(T, 0), 0], [f3(tAt(T, 0) + tu(.06)), 1]] });
       glassR(gg, f1(-tw / 2), sd > 0 ? y : f1(y - len), tw, len, f1(tw / 2), 3.4); if (!cut) R(litOn(gg, T.H), f1(-tw / 2), sd > 0 ? y : f1(y - len), tw, len, f1(tw / 2), { fill: TA(.5), sw: 3.4, stroke: ACC1 }); });
+    [[ya, d.a], [yb, d.b]].forEach(([y, X], i) => { const g = sIn(p, 0, y, f3(T.tI + tu(.08 * i))); glassC(g, 0, y, r, 4.6); g.circle(0, y, f1(r - 12), S(1.6)); thing(p, c, X, 0, y, f1(r * 1.25), { t: tu(.18 + .08 * i), size: f1(r * .34), maxW: r * 1.6 }); });
     if (cut) { const mg = popAt(p, 0, 0, tAt(T, .6)); mg.circle(0, 0, f1(nr * .7), F(4)); XX(mg, 0, 0, f1(nr / 40)); }
     else { const g = mvG(p, { px: 0, py: 0, s: pSG(T, .42, .7), o: inW(T, .42, .62) }); glassC(g, 0, 0, nr, 4.4); litOn(g, T.H).circle(0, 0, nr, { fill: TA(.15), sw: 4.4, stroke: ACC1 }); put(p, c, { icon: 'link' }, 0, 0, f1(nr * 1.16), null, { t: tAt(T, .42), o: inW(T, .42, .62), mv: { s: pSG(T, .42, .7) } }); } }
 
@@ -883,9 +883,9 @@
     const mv = { px: x0, py: 0, x: XK }; put(p, c, { icon: 'lock' }, x0, 0, f1(kr * 1.1), null, { t: tu(.16), mv, o: outAfter(tu(.16), T, .62, .76) }); put(p, c, { icon: 'lock-open' }, x0, 0, f1(kr * 1.1), null, { t: tAt(T, .62), mv, o: inW(T, .62, .8) }); }
   /* 20 flat — สองแผ่นใหญ่สุดปลาย: a and b on big discs at the two ends; a thick link grows from both and meets at a link disc in the middle; ended → it stops short, ✕ */
   function R20F(p, c, d, W, H) { const T = TQ(), cut = d.cut === true, r = f1(H * .46), ax = f1(-W / 2 + r + 4), bx = f1(W / 2 - r - 4), nr = f1(r * .56), stop = cut ? f1(nr * 1.1) : 0, tw = f1(Math.max(14, r * .2));
-    [[ax, d.a], [bx, d.b]].forEach(([x, X], i) => { const g = sIn(p, x, 0, f3(T.tI + tu(.08 * i))); glassC(g, x, 0, r, 4.6); g.circle(x, 0, f1(r - 12), S(1.6)); thing(p, c, X, x, 0, f1(r * 1.25), { t: tu(.18 + .08 * i), size: f1(r * .34), maxW: r * 1.6 }); });
     [[f1(ax + r), 1], [f1(bx - r), -1]].forEach(([x, sd]) => { const len = f1(Math.max(4, Math.abs(x) - stop + (cut ? 0 : 2))), gg = mvG(p, { px: x, py: 0, sx: KW(T, 0, .45, v => Math.max(.001, v)), o: [[0, 0], [tAt(T, 0), 0], [f3(tAt(T, 0) + tu(.06)), 1]] });
       glassR(gg, sd > 0 ? x : f1(x - len), f1(-tw / 2), len, tw, f1(tw / 2), 3.4); if (!cut) R(litOn(gg, T.H), sd > 0 ? x : f1(x - len), f1(-tw / 2), len, tw, f1(tw / 2), { fill: TA(.5), sw: 3.4, stroke: ACC1 }); });
+    [[ax, d.a], [bx, d.b]].forEach(([x, X], i) => { const g = sIn(p, x, 0, f3(T.tI + tu(.08 * i))); glassC(g, x, 0, r, 4.6); g.circle(x, 0, f1(r - 12), S(1.6)); thing(p, c, X, x, 0, f1(r * 1.25), { t: tu(.18 + .08 * i), size: f1(r * .34), maxW: r * 1.6 }); });
     if (cut) { const mg = popAt(p, 0, 0, tAt(T, .6)); mg.circle(0, 0, f1(nr * .8), F(4)); XX(mg, 0, 0, f1(nr / 36)); }
     else { const g = mvG(p, { px: 0, py: 0, s: pSG(T, .42, .7), o: inW(T, .42, .62) }); glassC(g, 0, 0, nr, 4.4); litOn(g, T.H).circle(0, 0, nr, { fill: TA(.15), sw: 4.4, stroke: ACC1 }); put(p, c, { icon: 'link' }, 0, 0, f1(nr * 1.16), null, { t: tAt(T, .42), o: inW(T, .42, .62), mv: { s: pSG(T, .42, .7) } }); } }
 
