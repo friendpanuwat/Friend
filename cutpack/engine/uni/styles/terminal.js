@@ -64,10 +64,37 @@ function trmChunks(t0, t1) {
   return CAPTIONS.filter(c => Math.min(c.t1, t1) - Math.max(c.t0, t0) >= .15).map(c => { const n = c.parts.length, k = (p, i) => p[2] ?? (i === n - 1 ? 'k' : 'l');
     return {t0: c.t0, t1: c.t1, words: c.parts.map(p => p[0]).join(' '), lead: c.parts.filter((p, i) => k(p, i) === 'l').map(p => p[0]).join(' '), key: c.parts.filter((p, i) => k(p, i) === 'k').map(p => p[0]).join(' ')}; });
 }
+/* THE 7 STANDARD SIZES (style-rules/common.md 4.1 · Friend 2026-11-26: "เอาสไตล์เทอร์มินอลแดงมาทำ เริ่มที่ใส่ระบบ hook ใส่ระบบ motion graphic 7 ขนาด
+   (เหมือนทั้ง 3 สไตล์ที่ผ่านมา) และใช้ template ชุดฐาน 7 ขนาด"): as the app-window style, the WINDOW that holds the picture (its title bar included)
+   is the standard size scaled from the corner, 65–100 %, its shape exact; the picture inside it under the title bar (trmInner). Each picture
+   screen has its room and its order of sizes (TRM_ORDER); the first size that reaches 65 % in the room; none = null (a speaker screen: not
+   this screen · a dark screen keeps its sheet window). big_win: 5 or 6 at random 60 : 40, as lime's and the window style's big screen. Inside
+   60–920 (TikTok's buttons start at 936), as lime and window. Never by the drawing's shape (common.md 4.1 rules 4 and 8). A screen without a
+   picture keeps its sheet windows (the size rule is for the motion graphic). */
+const TRM_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
+const TRM_MIN = .65;
+const TRM_ORDER = {hero_chev: [2, 1], win_speaker: [2, 1], split_top: [2, 1], stack3: [6, 5]};
+const trmInner = ([x, y, w, h]) => [x + 24, y + 84, w - 48, h - 108];   // the picture inside a window (under its 72-high title bar)
+function trmShape(L, name, key) {
+  if (!L.pic || !L.wins) return L;
+  let order = TRM_ORDER[name] ?? [2], X0 = 60, X1 = 920, Y0 = L.wins[0][1], Y1 = 1660, mid = false;
+  if (name === 'big_win') { const first = key != null && cpRand(key) >= .6 ? 6 : 5; order = [first, 11 - first]; Y0 = 300; mid = true; }
+  if (name === 'split_top') { Y0 = 310; Y1 = L.line - 40; mid = true; }     // over the red line, 40 clear of it
+  if (name === 'stack3') X0 = 180;                                          // the front window right of the two behind it
+  for (const k of order) {
+    const [W, H] = TRM_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H); if (s < TRM_MIN) continue;
+    const cw = Math.round(W * s), ch = Math.round(H * s);
+    const x = name === 'stack3' ? X1 - cw : Math.round(Math.min(Math.max(540 - cw / 2, X0), X1 - cw)), y = mid ? Math.round(Y0 + (Y1 - Y0 - ch) / 2) : Y0;
+    L.wins[0] = [x, y, cw, ch]; L.pic = trmInner(L.wins[0]); L.std = [k, s];
+    if (L.back) L.back = [[x - 120, y - 220, cw, ch], [x - 60, y - 110, cw, ch]];   // the two empty windows behind, as the sheet's steps
+    return L;
+  }
+  return null;
+}
 /* fit a speaker screen to this face [x0, top, x1, chin]: the windows at the hands move down so their top is 30 under the chin (at
    most to 1660); the top pill moves under the chin when the forehead is higher than it; null = no room. Screens: always fit. */
 function trmFit(name, f) {
-  const L = JSON.parse(JSON.stringify(TRM.layouts[name])); if (!L.speaker) return L;
+  const L = JSON.parse(JSON.stringify(TRM.layouts[name])); if (!L.speaker) return trmShape(L, name) ?? L;   // (a dark screen always fits: its standard window, big_win at size 5 for estimates)
   const [, top, , chin] = f;
   if (L.pill.y < 600 && top < L.pill.y + 60) return null;                    // (the pill on top would sit on the face)
   if (L.top && top < 420) return null;                                       // (the notification on top)
@@ -77,7 +104,7 @@ function trmFit(name, f) {
     for (const b of L.btns ?? []) b[1] = mv(b[1]); if (L.bar) L.bar[1] = mv(L.bar[1]);
     if (L.rows) { L.rows.cmdY = mv(L.rows.cmdY); L.rows.y0 = mv(L.rows.y0); } }
   else if (L.pill.y > 600) { const d = Math.max(0, chin + 66 - L.pill.y); if (L.pill.y + d > 1600) return null; L.pill.y += d; }
-  return L;
+  return trmShape(L, name);                                                 // a picture's window: a standard size in the room under the chin
 }
 /* one line of words at (x, y) left / centre, shrunk (never wrapped) to maxW and the safe zone (a .cp-row: checked) */
 function trmLine(parent, txt, cls, {x, y, align = 'center', maxW = 820}) {
@@ -149,12 +176,12 @@ STYLE('terminal', {
     glow:  {kf: [{opacity: 0, filter: 'blur(16px)'}, {opacity: 1, filter: 'blur(0)'}], d: .7, e: EASE.soft},
   },
   sound: {hit: ['softswish', -22], cross: ['swipe', -24], key: ['softswish', -21]},
-  setup() { BGL.style.background = '#000'; HOOKS.push(cpInsetHook); },
+  setup() { BGL.style.background = '#000'; HOOKS.push(cpInsetHook); CP.speakerFloor = 0; },   // (no floor on the drawing's size: the window's standard size decides, as lime · 2026-11-26)
 
   /* FIT PICK (Friend 2026-11-18: "motion graphic ที่ระบบจะสุ่มเลือกมาต้องเหมาะสมกับพื้นที่ว่างที่มีอยู่" → every style: "ข"): the pictures' real shapes
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
-  realShapes: true,
-  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, TRM.pool.filter(n => !TRM.layouts[n].noPic && !TRM.layouts[n].num && trmFit(n, face)), n => trmFit(n, face)?.pic, TRM.keep, n => !!TRM.layouts[n].speaker); },
+  /* (realShapes and the keep on the drawing's size: gone 2026-11-26, as lime, window and neon · common.md 4.1 rule 8) */
+  fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, TRM.pool.filter(n => !TRM.layouts[n].noPic && !TRM.layouts[n].num && trmFit(n, face)), n => trmFit(n, face)?.pic, 0, n => !!TRM.layouts[n].speaker); },
   fitSurface() { const r = div('', SC); r.className = 'm-root m-screen'; return r; },
 
   frame(t0, t1, {index, scene}) {
@@ -165,22 +192,25 @@ STYLE('terminal', {
       const ok = n => { const L = TRM.layouts[n]; if (L.noPic && (more < (L.need ?? 2) || index === 0 || TRM.sinceNoPic < TRM.noPicGap)) return false;
         if (L.num && !num) return false; return !!trmFit(n, face); };
       const want = TRM.byCat[String(meta.cat ?? '').slice(0, 3)];
-      if (want && ok(want)) name = want;
+      /* THE HOOK (2026-11-26, as lime.md 5 · window.md 5.4 · neon.md 6): the clip's first picture (RUN.hook, tools/clip_plan.py: the speaker
+         alone, then the first picture at 1.8–3.2 s) takes the speaker's screen with a picture (hero_chev); when the face leaves it no room (a
+         close-up), a dark screen that shows the speaker (win_speaker: the face in a window · split_top: the speaker's half) */
+      const hook = index === 0 && typeof RUN !== 'undefined' && RUN.hook, spkPic = n => !!TRM.layouts[n].speaker && !TRM.layouts[n].noPic, shows = n => !!(TRM.layouts[n].face || TRM.layouts[n].half);
+      if (want && ok(want) && (!hook || spkPic(want))) name = want;
       else {
         let pool = TRM.pool.filter(n => n !== TRM.last && ok(n));
+        if (hook) { const a = pool.filter(spkPic), b = pool.filter(shows); pool = a.length ? a : b.length ? b : pool; }
         if (!pool.length) pool = ['big_win', 'stack3', 'split_top'].filter(n => n !== TRM.last);
-        const ar = cpShape(meta.variant, t0);   // the picture's shape in this clip (REAL_SHAPES), else the sample's (fit pick, 2026-11-18)
-        if (ar) {
-          const size = n => { const p = trmFit(n, face)?.pic; if (!p) return 0; const [, , w, h] = p; return ar > w / h ? w * w / ar : h * h * ar; };
-          pool = cpSizeKeep(pool, size, TRM.keep, n => !!TRM.layouts[n].speaker, n => !!TRM.layouts[n].noPic);   // the speaker's screens with a picture: a floor, no race on size (Friend 2026-11-18: "อยากให้ ก ขึ้นบ้าง (ทุกสไตล์เลยนะ)")
-        }
+        /* no keep on the drawing's size any more (2026-11-26, common.md 4.1 rule 8: "ต่อไปนี้จะเลิกวัดขนาดภาพ ... จะดูขนาดมาตรฐานทั้ง 7 แบบ"):
+           a screen comes up where its window reaches a standard size (trmFit → trmShape) */
         pool = cpBalance(pool, n => !!TRM.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
         const least = Math.min(...pool.map(n => TRM.used[n] ?? 0)); pool = pool.filter(n => (TRM.used[n] ?? 0) === least);
         name = pool[Math.floor(cpRand('screen' + index) * pool.length)];
       }
     }
     TRM.used[name] = (TRM.used[name] ?? 0) + 1; TRM.last = name; TRM.sinceNoPic = TRM.layouts[name].noPic ? 0 : TRM.sinceNoPic + 1;
-    const L = (meta.layout ? JSON.parse(JSON.stringify(TRM.layouts[name])) : trmFit(name, face)) ?? JSON.parse(JSON.stringify(TRM.layouts.big_win));
+    const copy = o => JSON.parse(JSON.stringify(o)), raw = TRM.layouts[name];
+    const L = (raw.speaker && !meta.layout ? trmFit(name, face) : trmShape(copy(raw), name, 'size' + index) ?? copy(raw)) ?? trmShape(copy(TRM.layouts.big_win), 'big_win', 'size' + index);   // the standard size (a dark screen from its room · a speaker screen from this face)
     const screen = !L.speaker, root = div('', SC); root.className = 'm-root' + (screen ? ' m-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     const rise = (e, k, dy = 40) => A(e, [{opacity: 0, transform: `translateY(${dy}px) scale(.96)`, filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .04 + .1 * k, .45, {e: EASE.soft});
@@ -217,7 +247,8 @@ STYLE('terminal', {
       return e; };
     if (L.rows && !L.three) { const wb = L.wins[0]; termIn(wb, L.rows);
       if (L.notif && !L.top) { L.notif[1] = wb[1] + wb[3] + 120; } }
-    else (L.wins ?? []).forEach((b, i) => win(b, i + (L.back?.length ?? 0), L.speaker ? ' m-float' : ''));
+    else (L.wins ?? []).forEach((b, i) => { const e = win(b, i + (L.back?.length ?? 0), L.speaker ? ' m-float' : '');
+      if (i === 0 && L.std) { e.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3); L.card = e; } });   // the picture's window = its standard size (tools/card_sizes.js)
     if (L.three) { L.three.forEach((b, i) => { if (i < 2) win(b, i); }); termIn(L.three[2], L.rows); }
     /* the notification (shots 01, 03): a red icon (a bell: the sheet's "A" / "C" belong to the small labels), the spoken words */
     if (L.notif && (L.top || L.notif[1])) { const w = words(k); if (w) { const nb = box(L.notif); nb.className = 'm-notif'; rise(nb, 1, L.top ? -30 : 30);
@@ -236,7 +267,10 @@ STYLE('terminal', {
     /* the picture(s) */
     let stages = null;
     if (L.pics) stages = L.pics.map(b => box(b));
-    const stage = L.pic ? box(L.pic) : box([540, 960, 1, 1]);
+    /* the picture INSIDE its window (2026-11-26, common.md 4.1 rule 9: the motion graphic stays in its card the whole time, as lime and window):
+       the window clips it; glow/bridge.js fits the drawing's whole motion into the box (GLOWLOOK.terminal.motionFit) */
+    if (L.card && L.pic) L.card.style.overflow = 'hidden';
+    const stage = L.card && L.pic ? box([L.pic[0] - L.wins[0][0], L.pic[1] - L.wins[0][1], L.pic[2], L.pic[3]], L.card) : L.pic ? box(L.pic) : box([540, 960, 1, 1]);
     if (!L.pic) stage.style.visibility = 'hidden';
     else A(stage, [{opacity: 0, transform: 'translateY(24px) scale(.94)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .08, .45, {e: EASE.soft});
     /* the lines come in with their windows, grey until said (a still: as the sheet, said) */
@@ -244,14 +278,16 @@ STYLE('terminal', {
       q.parts.forEach(p => { if (q.box) p.style.color = '#FFFFFF'; });
       if (ch) q.parts.forEach(p => { p.style.color = '#7C7C84'; });
       else if (q.box) { q.box.textContent = '[x]'; q.box.style.color = '#EE4444'; } });
-    const F = {root, stage, stages, cam: root, L, name, dark: screen, t1, n: 0, meta, lines};
+    const F = {root, stage, stages, cam: root, L, name, dark: screen, t1, n: 0, meta, lines, ...(L.card ? {card: L.card} : {})};
     if ((typeof CAPTIONS === 'undefined' || !CAPTIONS.length) && meta.rows) F.stillRows = meta.rows;
     return F;
   },
   /* between pictures: the pill at the chest, moved below the chin when the face is low */
   speakerFrame(a, b) {
     const root = div('', SC); root.className = 'm-root';
-    return {root, cam: root, speaker: true, L: trmFit('talk', cpFaceBox(a, b)) ?? TRM.layouts.talk, name: 'talk'};
+    /* no room under the chin (the chin under about y 1534: a very close shot): the pill at the top, under the search bar, as the sheet's top
+       pill (y 232) · as lime, window and neon (Friend 2026-11-24: "ก") · it used to fall back to y 1006, on the face */
+    return {root, cam: root, speaker: true, L: trmFit('talk', cpFaceBox(a, b)) ?? {speaker: true, pill: {y: 232}}, name: 'talk'};
   },
   /* the words: the picture's first subtitle (and every one between pictures) is the pill, its key word coming in on its word; each
      next one lights the next line ("[ ]" → "[x]" red, the words white; the terminal's "> " line red; the notification, the dialog,
