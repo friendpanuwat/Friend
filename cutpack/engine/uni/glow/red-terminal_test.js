@@ -6,6 +6,6 @@
 const MS = i => GL.cats.B04T.SAMPLES[i];
 GLOWSCENE('m02', 'B04T', 1, MS(1), ['เช้าแบบ', 'ไม่ต้องพึ่งแรงใจ'], {layout: 'hero_chev'});
 GLOWSCENE('m04', 'B04T', 3, MS(3), ['ตั้งแอปจับเวลา', 'ไว้ครั้งเดียว'], {layout: 'win_speaker'});
-GLOWSCENE('m05', 'B04T', 7, MS(7), ['งานชิ้นแรก', 'ทำทีละหน้าต่าง'], {layout: 'stack3'});
+GLOWSCENE('m05', 'B04T', 7, MS(7), ['งานชิ้นแรก', 'ทำทีละหน้าต่าง'], {layout: 'big_win'});   // (stack3 merged into big_win 2026-11-27)
 GLOWSCENE('m07', 'B04T', 5, MS(5), ['บ่ายสองโมง', 'ทบทวนก่อนลุยต่อ'], {layout: 'split_top'});
 GLOWSCENE('m09', 'B04T', 9, MS(9), ['6 โมงเย็น', 'ปิดวันให้จบ'], {layout: 'big_win'});

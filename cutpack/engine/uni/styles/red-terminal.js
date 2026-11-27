@@ -28,13 +28,13 @@ const TRM = {
     talk:       {speaker: true, pill: {y: 1440}},   // (2026-11-26, Friend: "มันอยู่กลางจอมันไม่ค่อยดี อยากให้ลงมาครึ่งของครึ่งข้างล่าง": 1006 → 1440, half of the lower half)                                                                                          // between pictures (shot 03's pill at the chest)
     hero_chev:  {speaker: true, fit: 1150, pill: {y: 232}, wins: [[80, 1190, 920, 430]], pic: [200, 1290, 680, 300]},                     // shot 02
     win_speaker:{screen: true, menu: true, face: [150, 220, 780, 830],   /* (the sheet's 90–990: its video ran to 976, under the buttons) */ pill: {y: 1150}, wins: [[140, 1240, 800, 420]], pic: [280, 1330, 520, 300]},   // shot 04
-    stack3:     {screen: true, menu: true, pill: {y: 232}, wins: [[180, 520, 820, 1140]], pic: [230, 650, 690, 920]},   // shot 05: ONE window now, no two behind it (2026-11-27 Friend: "ตรงนี้อยากให้เปลี่ยนจากแถบ 3 ชั้นเป็นชั้นเดียว")
     split_top:  {screen: true, menu: true, pill: {y: 232}, wins: [[60, 310, 960, 570]], pic: [170, 410, 740, 420], half: [0, 768, 1080, 1152, .34, .42], line: 768},   // (2026-11-27 Friend: "ฉากนี้ผมไม่อยากให้แบ่ง 50:50 ผมอยากให้ 40:60 (คลิปคน60)": the speaker's half from y 962 → 768)   // shot 07
     big_win:    {screen: true, menu: true, pill: {y: 232}, wins: [[43, 300, 994, 1360]], pic: [130, 470, 790, 1100]},                      // shot 09
   },
   /* RANDOM, as the other styles: every picture takes one of `pool` (never the one before it) where the face leaves room (trmFit), the
      speaker (ก) and a graphic screen (ข) as often, then the least used, then at random from the run's seed */
-  pool: ['hero_chev', 'win_speaker', 'stack3', 'split_top', 'big_win'],   // only screens with a picture (2026-11-27 Friend: "มันไม่ใช่ motion graphic ของเรานิ" → "เอา 6 จอนี้ออกจากรายการที่ระบบสุ่ม ... แก้ตามนี้" · "ลบเลยผมไม่กลับไปใช้แล้ว ผมจะใช้ motion graphic ของผมเท่านั้น")
+  pool: ['hero_chev', 'win_speaker', 'split_top', 'big_win'],   // stack3 (shot 05, one window since 2026-11-27) merged into big_win (2026-11-27 Friend: "รวมเป็นฉากเดียวกันเลย")
+    // only screens with a picture (2026-11-27 Friend: "มันไม่ใช่ motion graphic ของเรานิ" → "เอา 6 จอนี้ออกจากรายการที่ระบบสุ่ม ... แก้ตามนี้" · "ลบเลยผมไม่กลับไปใช้แล้ว ผมจะใช้ motion graphic ของผมเท่านั้น")
   used: {}, last: null,
 };
 /* THE 7 STANDARD SIZES (style-rules/common.md 4.1 · Friend 2026-11-26: "เอาสไตล์เทอร์มินอลแดงมาทำ เริ่มที่ใส่ระบบ hook ใส่ระบบ motion graphic 7 ขนาด
@@ -51,10 +51,28 @@ const TRM_ROOM = {l: 20, t: 8, r: 20, b: 20};   // the window's padding round it
    TRM_X s ending on its cut, fast then settling; it goes out over the TRM_X s before its end, slow then fast, so two screens in a row
    cross with almost nothing of the video between them; no blur, no scale; the pill changes in TRM_PX s */
 const TRM_X = .25, TRM_PX = .12, TRM_IN = 'cubic-bezier(.25,.6,.4,1)', TRM_OUT = 'cubic-bezier(.6,0,.75,.4)';
+/* AMBIENT BACKGROUND (2026-11-27 Friend: "ผมอยากให้ background มันเคลื่อนไหวได้ด้วย สามารถทำได้ไหมครับ เป็นแอมเบี้ยนก็ได้ / ถ้ามีฉากที่มี background ต่อกัน background ต้องเล่นต่อเนื่องนะ"): the dark screens' background is ONE layer behind a run of dark screens in a row (TRM.amb), so it never
+   cuts or fades between them: it fades in with the run's first screen, out with its last; only the windows cross. Its dim red lights
+   drift slowly and breathe on the CLIP's clock (not the screen's), so the same moment always looks the same. */
+const TRM_AMB = [   // a soft red light: centre (x, y), radius r, drift ax / ay over px / py s, breath over pb s, phase ph
+  {c: 'rgba(150,28,40,.30)', x: 540, y: 1250, r: 760, ax: 150, ay: 120, px: 26, py: 20, pb: 14, ph: 0},
+  {c: 'rgba(120,22,36,.20)', x: 250, y: 560, r: 560, ax: 130, ay: 170, px: 20, py: 28, pb: 17, ph: 2.1},
+  {c: 'rgba(100,18,32,.18)', x: 860, y: 860, r: 520, ax: 120, ay: 150, px: 28, py: 17, pb: 11, ph: 4.2},
+];
+function trmAmbient() {
+  const a = div('', SC); a.className = 'm-amb', D = (typeof DURATION !== 'undefined' ? DURATION : 90) + 1, tau = 2 * Math.PI;
+  for (const L of TRM_AMB) { const b = document.createElement('b'); a.appendChild(b);
+    Object.assign(b.style, {left: `${L.x - L.r}px`, top: `${L.y - L.r}px`, width: `${2 * L.r}px`, height: `${2 * L.r}px`, background: `radial-gradient(closest-side,${L.c},rgba(0,0,0,0))`});
+    const kf = []; for (let t = 0; t <= D + 1e-6; t += .5) kf.push({offset: Math.min(1, t / D),
+      transform: `translate(${(L.ax * Math.sin(tau * t / L.px + L.ph)).toFixed(1)}px,${(L.ay * Math.sin(tau * t / L.py + L.ph * .7)).toFixed(1)}px) scale(${(1 + .08 * Math.sin(tau * t / L.pb + L.ph)).toFixed(3)})`,
+      opacity: (.8 + .2 * Math.sin(tau * t / L.pb + L.ph + 1)).toFixed(3)});
+    A(b, kf, 0, D, {e: 'linear'}); }
+  return a;
+}
 const TRM_MENU = false;   // the dark screens' menu bar (off since 2026-11-26)
 const TRM_FADE = [120, 240];   // split_top's fade: the video starts 120 above its old line, fades in over 240 px
 const TRM_SPLIT50 = {half: [0, 962, 1080, 958, .34, .42], line: 962};   // split_top in a close shot: 50 : 50 (the sheet's split)
-const TRM_ORDER = {hero_chev: [2, 1], win_speaker: [2, 1], split_top: [2, 1], stack3: [6, 5]};
+const TRM_ORDER = {hero_chev: [2, 1], win_speaker: [2, 1], split_top: [2, 1]};
 /* NO TITLE BAR (2026-11-27 Friend: "ลบแถบออกเหลือไว้แค่จุด 3 สีก็พอ แค่นี้ก็ได้พื้นที่คืนมาแล้ว"): a window keeps only its three dots (top 23–41); the picture starts TRM_HEAD under the window's top
    (was 84, under a 72-high bar and its line): a size-1 window at 65 % now holds a picture 78 high, not 42 */
 const TRM_HEAD = 48;
@@ -119,8 +137,9 @@ STYLE('red-terminal', {   // (the id was 'terminal' until 2026-11-27, Friend: "�
 @font-face{font-family:"TrmBold";src:url(fonts/Kanit-600-thai.woff);font-weight:600;unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
 @font-face{font-family:"TrmBold";src:url(fonts/Kanit-600-latin.woff);font-weight:600;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F}
 .m-root{position:absolute;inset:0;--ink:#F6F6F8;--ac:#EE4444;--lw:5;--sd:#F6F6F8;--fl:rgba(16,16,18,.85);--text:#F6F6F8}
-.m-screen{background:radial-gradient(ellipse 720px 820px at 540px 1250px,rgba(150,28,40,.24) 0%,rgba(110,22,34,.12) 50%,rgba(0,0,0,0) 100%),
-  linear-gradient(180deg,#141014 0%,#161116 40%,#1b1419 100%);background-color:#161116;overflow:hidden}
+.m-screen{overflow:hidden}
+.m-amb{position:absolute;inset:0;overflow:hidden;background:linear-gradient(180deg,#141014 0%,#161116 40%,#1b1419 100%);background-color:#161116}
+.m-amb b{position:absolute;border-radius:50%;will-change:transform}
 .m-menu{position:absolute;left:0;top:0;width:1080px;height:52px;background:#1D1C22}
 .m-sk{position:absolute;height:12px;border-radius:6px;background:rgba(210,208,220,.32)}
 .m-win{position:absolute;border-radius:28px;background:#111113;box-shadow:0 30px 70px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.035)}
@@ -154,7 +173,7 @@ STYLE('red-terminal', {   // (the id was 'terminal' until 2026-11-27, Friend: "�
      (tools/real_shapes.js, a second build) and how much of the screen a shape can take here (tools/fit_pick.js), as the neon style */
   /* (realShapes and the keep on the drawing's size: gone 2026-11-26, as lime, window and neon · common.md 4.1 rule 8) */
   fitSize(ar, t0, t1) { const face = cpFaceBox(t0, t1); return cpFitSize(ar, TRM.pool.filter(n => trmFit(n, face)), n => trmFit(n, face)?.pic, 0, n => !!TRM.layouts[n].speaker); },
-  fitSurface() { const r = div('', SC); r.className = 'm-root m-screen'; return r; },
+  fitSurface() { const r = div('', SC); r.className = 'm-root m-screen'; div('', r).className = 'm-amb'; return r; },
 
   frame(t0, t1, {index, scene}) {
     const meta = SCENES[scene]?.meta ?? {}, face = cpFaceBox(t0, t1);
@@ -168,7 +187,7 @@ STYLE('red-terminal', {   // (the id was 'terminal' until 2026-11-27, Friend: "�
       {
         let pool = TRM.pool.filter(n => n !== TRM.last && ok(n));
         if (hook) { const a = pool.filter(spkPic), b = pool.filter(shows); pool = a.length ? a : b.length ? b : pool; }
-        if (!pool.length) pool = ['big_win', 'stack3', 'split_top'].filter(n => n !== TRM.last);
+        if (!pool.length) pool = ['big_win', 'split_top'].filter(n => n !== TRM.last);
         /* no keep on the drawing's size any more (2026-11-26, common.md 4.1 rule 8: "ต่อไปนี้จะเลิกวัดขนาดภาพ ... จะดูขนาดมาตรฐานทั้ง 7 แบบ"):
            a screen comes up where its window reaches a standard size (trmFit → trmShape) */
         pool = cpBalance(pool, n => !!TRM.layouts[n].speaker, index);   // ก (the speaker full screen) and ข (a graphic screen) as often (Friend 2026-11-18)
@@ -194,8 +213,13 @@ STYLE('red-terminal', {   // (the id was 'terminal' until 2026-11-27, Friend: "�
       if (!done) { const L50 = trmShape(Object.assign(copy(raw), TRM_SPLIT50), name);
         done = (L50 && fit(copy(L50))) ?? trmShape(Object.assign(copy(raw), TRM_SPLIT50, {room: [300, TRM_SPLIT50.line - 40]}), name); }   // (the pill on top at 232: the window from 300)
       if (done) { for (const k of Object.keys(L)) delete L[k]; Object.assign(L, done); } }
-    if ((name === 'big_win' || name === 'stack3') && L.wins) L.pill = {y: Math.max(232, L.wins[0][1] - 62)};   // the pill just over its window, not at the top of the screen (2026-11-27 Friend: "ฉากนี้อยากให้ subtitles ลงมาอยู่ใกล้กรอบ motion graphics หน่อย")
-    const screen = !L.speaker, root = div('', SC); root.className = 'm-root' + (screen ? ' m-screen' : '');
+    if (name === 'big_win' && L.wins) L.pill = {y: Math.max(232, L.wins[0][1] - 62)};   // the pill just over its window, not at the top of the screen (2026-11-27 Friend: "ฉากนี้อยากให้ subtitles ลงมาอยู่ใกล้กรอบ motion graphics หน่อย")
+    const screen = !L.speaker;
+    if (screen) {   // the ambient layer: the run's one (a dark screen right after a dark screen keeps it running), else a new one
+      if (TRM.amb && Math.abs(TRM.amb.t1 - t0) < .08) { TRM.amb.out.effect?.updateTiming({delay: ms(t1 - TRM_X)}); TRM.amb.t1 = t1; }
+      else { const el = trmAmbient(); A(el, [{opacity: 0}, {opacity: 1}], t0 - TRM_X, TRM_X, {e: TRM_IN});
+        TRM.amb = {el, t1, out: A(el, [{opacity: 1}, {opacity: 0}], t1 - TRM_X, TRM_X, {e: TRM_OUT, f: 'forwards'})}; } }
+    const root = div('', SC); root.className = 'm-root' + (screen ? ' m-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     const rise = e => { if (!screen) A(e, [{opacity: 0}, {opacity: 1}], t0 - TRM_X, TRM_X, {e: TRM_IN}); };   // (a dark screen's windows come in with it; over the speaker, they fade in on the cut)
     if (screen) {
