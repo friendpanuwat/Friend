@@ -73,11 +73,18 @@ function trmChunks(t0, t1) {
    picture keeps its sheet windows (the size rule is for the motion graphic). */
 const TRM_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
 const TRM_MIN = .65;
-const TRM_LOW = 1440, TRM_PILL_GAP = 66;   // the low pill of a speaker screen with a window at the hands (0 = the pill on top, as before 2026-11-26) · the window ends this far over the pill's centre
+const TRM_LOW = 1440, TRM_PILL_GAP = 66, TRM_PILL_MAX = 1616;   // TRM_PILL_MAX: the lowest pill centre (its foot 36 under it, inside the safe zone's 1660) · the low pill of a speaker screen with a window at the hands (0 = the pill on top, as before 2026-11-26) · the window ends this far over the pill's centre
 const TRM_MENU = false;   // the dark screens' menu bar (off since 2026-11-26)
 const TRM_FADE = [120, 240];   // split_top's fade: the video starts 120 above its old line, fades in over 240 px
 const TRM_ORDER = {hero_chev: [2, 1], win_speaker: [2, 1], split_top: [2, 1], stack3: [6, 5]};
 const trmInner = ([x, y, w, h]) => [x + 24, y + 84, w - 48, h - 108];   // the picture inside a window (under its 72-high title bar)
+/* where the top of the speaker's head lands in split_top's half (as cpInset places the video with TRM_FADE: the face box's top less a quarter of
+   its height for the hair) */
+function trmHalfHead(L, t, face) {
+  const [, y0, w, h0, k, fy] = L.half, up = TRM_FADE[0], y = y0 - up, h = h0 + up, f = cpFace(t);
+  const s = Math.max(w / 1080, h / 1920, k * w / (f.w || 320)), top = Math.min(0, Math.max(h - 1920 * s, h * ((up + h0 * fy) / h) - f.y * s));
+  return y + top + (face[1] - .25 * (face[3] - face[1])) * s;
+}
 function trmShape(L, name, key) {
   if (!L.pic || !L.wins) return L;
   let order = TRM_ORDER[name] ?? [2], X0 = 60, X1 = 920, Y0 = L.wins[0][1], Y1 = 1660, mid = false;
@@ -105,7 +112,7 @@ function trmFit(name, f) {
      then "ก"): the window between the chin (30 under it) and the pill (TRM_PILL_GAP over it), on the pill's side; a picture's window a
      standard size in that room, the other windows as on the sheet; no room (a close shot, or a tall window in a normal one) = null */
   if (TRM_LOW && L.wins && L.pill.y < 600) {
-    const P = Math.max(TRM_LOW, chin + 66); if (P > 1600) return null; L.pill.y = P;
+    const P = Math.max(TRM_LOW, chin + 66); if (P > TRM_PILL_MAX) return null; L.pill.y = P;
     const Y0 = chin + 30, Y1 = P - TRM_PILL_GAP;
     if (L.pic) { L.room = [Y0, Y1]; return trmShape(L, name); }
     const w = L.wins[0];
@@ -123,7 +130,7 @@ function trmFit(name, f) {
     for (const s of L.slots ?? []) { s.y = mv(s.y); if (s.vy) s.vy = mv(s.vy); }
     for (const b of L.btns ?? []) b[1] = mv(b[1]); if (L.bar) L.bar[1] = mv(L.bar[1]);
     if (L.rows) { L.rows.cmdY = mv(L.rows.cmdY); L.rows.y0 = mv(L.rows.y0); } }
-  else if (L.pill.y > 600) { const d = Math.max(0, chin + 66 - L.pill.y); if (L.pill.y + d > 1600) return null; L.pill.y += d; }
+  else if (L.pill.y > 600) { const d = Math.max(0, chin + 66 - L.pill.y); if (L.pill.y + d > TRM_PILL_MAX) return null; L.pill.y += d; }
   return trmShape(L, name);                                                 // a picture's window: a standard size in the room under the chin
 }
 /* one line of words at (x, y) left / centre, shrunk (never wrapped) to maxW and the safe zone (a .cp-row: checked) */
@@ -231,6 +238,13 @@ STYLE('terminal', {
     TRM.used[name] = (TRM.used[name] ?? 0) + 1; TRM.last = name; TRM.sinceNoPic = TRM.layouts[name].noPic ? 0 : TRM.sinceNoPic + 1;
     const copy = o => JSON.parse(JSON.stringify(o)), raw = TRM.layouts[name];
     const L = (raw.speaker && (!meta.layout || TRM_LOW && raw.wins && raw.pill.y < 600) ? trmFit(name, face) ?? (meta.layout ? copy(raw) : null) : trmShape(copy(raw), name, 'size' + index) ?? copy(raw)) ?? trmShape(copy(TRM.layouts.big_win), 'big_win', 'size' + index);   // the standard size (a dark screen from its room · a speaker screen from this face)
+    /* the dark screens that show the speaker: the pill under the window, never over them (2026-11-27 Friend: "ไม่อยากให้ซับมันไปอยู่บนหัวอ่ะ ... อยู่ข้างล่างมันอ่านง่ายกว่าอยู่ข้างบน",
+       "เฉพาะฉากที่เห็นคน") · split_top: 60 under the picture's window (over the faded top of the speaker's half) · cta: 50 under the speaker's window */
+    if (name === 'split_top' && L.wins && L.half) {   // the pill 30 over the head (its foot), the window 60 over the pill: a smaller standard size when it must; no room (a close shot: the head fills the half) = the pill stays on top, over the dark screen, not on the hair
+      const maxY = trmHalfHead(L, t0, face) - 36 - 30, bot = L.wins[0][1] + L.wins[0][3];
+      if (bot + 60 <= maxY) L.pill = {y: bot + 60};
+      else { const L2 = trmShape(Object.assign(copy(raw), {room: [310, maxY - 60]}), name); if (L2) { Object.assign(L, L2); L.pill = {y: L.wins[0][1] + L.wins[0][3] + 60}; } } }
+    if (name === 'cta' && L.face) L.pill = {y: L.face[1] + L.face[3] + 50};
     const screen = !L.speaker, root = div('', SC); root.className = 'm-root' + (screen ? ' m-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     const rise = (e, k, dy = 40) => A(e, [{opacity: 0, transform: `translateY(${dy}px) scale(.96)`, filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .04 + .1 * k, .45, {e: EASE.soft});
@@ -308,9 +322,9 @@ STYLE('terminal', {
   /* between pictures: the pill at the chest, moved below the chin when the face is low */
   speakerFrame(a, b) {
     const root = div('', SC); root.className = 'm-root';
-    /* no room under the chin (the chin under about y 1534 · the pill sits at 1440, or 66 under the chin down to 1600: a very close shot): the pill at the top, under the search bar, as the sheet's top
-       pill (y 232) · as lime, window and neon (Friend 2026-11-24: "ก") · it used to fall back to y 1006, on the face */
-    return {root, cam: root, speaker: true, L: trmFit('talk', cpFaceBox(a, b)) ?? {speaker: true, pill: {y: 232}}, name: 'talk'};
+    /* no room under the chin (a very close shot: the chin under about y 1550): the pill as low as the safe zone lets it (TRM_PILL_MAX), never
+       over the head (2026-11-27 Friend: "ไม่อยากให้ซับมันไปอยู่บนหัวอ่ะมันอ่านยากผมว่าอยู่ข้างล่างมันอ่านง่ายกว่าอยู่ข้างบน", then "เฉพาะฉากที่เห็นคน"); lime, window and neon keep their words on top there (Friend 2026-11-24: "ก") */
+    return {root, cam: root, speaker: true, L: trmFit('talk', cpFaceBox(a, b)) ?? {speaker: true, pill: {y: TRM_PILL_MAX}}, name: 'talk'};
   },
   /* the words: the picture's first subtitle (and every one between pictures) is the pill, its key word coming in on its word; each
      next one lights the next line ("[ ]" → "[x]" red, the words white; the terminal's "> " line red; the notification, the dialog,
