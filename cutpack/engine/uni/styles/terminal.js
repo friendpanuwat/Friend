@@ -51,7 +51,6 @@ const TRM_ROOM = {l: 20, t: 8, r: 20, b: 20};   // the window's padding round it
    TRM_X s ending on its cut, fast then settling; it goes out over the TRM_X s before its end, slow then fast, so two screens in a row
    cross with almost nothing of the video between them; no blur, no scale; the pill changes in TRM_PX s */
 const TRM_X = .25, TRM_PX = .12, TRM_IN = 'cubic-bezier(.25,.6,.4,1)', TRM_OUT = 'cubic-bezier(.6,0,.75,.4)';
-let TRM_TIGHT = 'keep';   // TRIAL: a speaker screen whose window gets only size 1: 'keep' (as is) · 'skip' (not this screen) · 'swap' (pill under the chin, window under it)
 const TRM_MENU = false;   // the dark screens' menu bar (off since 2026-11-26)
 const TRM_FADE = [120, 240];   // split_top's fade: the video starts 120 above its old line, fades in over 240 px
 const TRM_SPLIT50 = {half: [0, 962, 1080, 958, .34, .42], line: 962};   // split_top in a close shot: 50 : 50 (the sheet's split)
@@ -95,12 +94,7 @@ function trmFit(name, f) {
      standard size in that room; no room (a close shot) = null */
   if (TRM_LOW && L.wins && L.pic && L.pill.y < 600) {
     const P = Math.max(TRM_LOW, chin + 66); if (P > TRM_PILL_MAX) return null;
-    const A = trmShape(Object.assign(JSON.parse(JSON.stringify(L)), {pill: {y: P}, room: [chin + 30, P - TRM_PILL_GAP]}), name);
-    if (A && (A.std[0] >= 2 || TRM_TIGHT === 'keep')) return A;
-    if (TRM_TIGHT === 'swap') {   // the pill under the chin, the window under it down to the safe zone's 1660 (as lime, window and neon)
-      const P2 = chin + 66, B = trmShape(Object.assign(JSON.parse(JSON.stringify(L)), {pill: {y: P2}, room: [P2 + 36 + 30, 1660]}), name);
-      return B && B.std[0] >= 2 ? B : null; }
-    return null; }
+    L.pill.y = P; L.room = [chin + 30, P - TRM_PILL_GAP]; return trmShape(L, name); }   // (a size-1 window when the chin is low: kept, 2026-11-27 Friend: "ปล่อยไว้แบบนี้")
   if (L.pill.y < 600 && top < L.pill.y + 60) return null;                    // (the pill on top would sit on the face)
   if (L.wins) { const w = L.wins[0], d = Math.max(0, chin + 30 - w[1]); if (w[1] + d + w[3] > 1660) return null;
     w[1] += d; if (L.pic) L.pic[1] += d; }
