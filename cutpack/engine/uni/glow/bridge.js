@@ -156,7 +156,8 @@ const GLASSY = {
   cream: {lit: 'rgba(47,111,237,.07)', litBar: 'rgba(47,111,237,.14)', litIcon: '#2F6FED', litBody: '#FFFFFF', mark: '#FFFFFF', halo: '#FFFFFF', outlineLit: true, glow: 1, fig: '#55534F', washLit: true,
     frost: ['rgba(255,255,255,.98)', 'rgba(255,255,255,.95)'], solid: '#FFFFFF', litMark: '#FFFFFF', litWord: true, noEdge: true},
   terminal: {lit: 'rgba(70,14,16,.7)', litBar: 'rgba(110,22,26,.7)', litIcon: '#F04848', litBody: '#3A0C0E', mark: '#2A0808', halo: '#FFFFFF', outlineLit: true, glow: 1.3, fig: '#80808A', washLit: true,
-    frost: ['rgba(14,14,16,.86)', 'rgba(12,12,14,.62)'], solid: '#18181B', litMark: '#FFC9C9', litWord: true},
+    frost: ['rgba(14,14,16,.86)', 'rgba(12,12,14,.62)'], solid: '#18181B', litMark: '#FFC9C9', litWord: true,
+    noPill: true, noEdge: true},   // 2026-11-27 (Friend: "ลบกรอบของตัวหนังสือออกด้วย"): as the window style's final 2026-11-18, no box round a word alone, no dark edge under the words
   horizon: {lit: 'rgba(90,38,8,.45)', litBar: 'rgba(110,48,10,.55)', litIcon: '#FB7A1A', litBody: '#3A1C08', mark: '#2A1204', halo: '#FFE6CC', outlineLit: true, glow: 1.3, fig: '#8A7A70', washLit: true,
     frost: ['rgba(78,56,42,.5)', 'rgba(30,20,15,.6)'], solid: '#2A1C14', litMark: '#FFD9B0', litWord: true},
   /* lime final (2026-11-18, Friend's picture of three steps: "อยากให้ทำ motion graphic ให้เรืองแสงและมีสีเหมือนรูปที่แนบไป" · "ลบขอบของตัวหนังสือออกด้วย"):
