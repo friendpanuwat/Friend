@@ -37,13 +37,34 @@ const GLOWLOOK = {
 };
 /* what is really visible at the end of the drawing (not the things still hidden or gone: the getBBox of the whole drawing counted
    four hidden coins and made an overlay picture small), in the svg's user units */
+/* what of a part really shows (2026-11-27, red-terminal clip 2 at 69.2 s, Friend: "ทำไม motion graphics มันเล็กแบบนี้" → "แก้เรื่องขนาดด้วย
+   เช็คให้หมดทุกขนาด และเช็คของ 3 สไตล์ที่ผ่านแล้วด้วย"): a part inside a clip-path (B02 level: the water that drops out of its pill) only
+   shows inside the clip, but getBoundingClientRect gives its whole box, so the water's way down counted as motion and the picture
+   shrank to a third. Its screen box cut to every clip-path round it (userSpaceOnUse: the clip's shapes in the user space of the element
+   that names it); null when nothing of it is inside */
+function glowClipRect(e, svg, r) {
+  let x0 = r.left, y0 = r.top, x1 = r.right, y1 = r.bottom;
+  for (let x = e; x && x !== svg; x = x.parentElement) {
+    const ref = x.getAttribute?.('clip-path'), id = ref && (ref.match(/url\(\s*['"]?#([^'")\s]+)/) || [])[1]; if (!id) continue;
+    const cp = svg.querySelector(`clipPath[id="${id}"]`) ?? document.getElementById(id); if (!cp || cp.getAttribute('clipPathUnits') === 'objectBoundingBox') continue;
+    const M = x.getScreenCTM(); if (!M) continue;
+    let c0 = 1e9, d0 = 1e9, c1 = -1e9, d1 = -1e9;
+    for (const c of cp.children) { let b; try { b = c.getBBox(); } catch (err) { continue; }
+      const m = c.transform?.baseVal?.numberOfItems ? M.multiply(c.transform.baseVal.consolidate().matrix) : M;
+      for (const [px, py] of [[b.x, b.y], [b.x + b.width, b.y], [b.x, b.y + b.height], [b.x + b.width, b.y + b.height]]) {
+        const q = new DOMPoint(px, py).matrixTransform(m); c0 = Math.min(c0, q.x); d0 = Math.min(d0, q.y); c1 = Math.max(c1, q.x); d1 = Math.max(d1, q.y); } }
+    if (c1 < c0) continue;
+    x0 = Math.max(x0, c0); y0 = Math.max(y0, d0); x1 = Math.min(x1, c1); y1 = Math.min(y1, d1);
+    if (x1 <= x0 || y1 <= y0) return null; }
+  return {left: x0, top: y0, right: x1, bottom: y1, width: x1 - x0, height: y1 - y0};
+}
 function glowVisibleBox(svg, fallback = true) {
   const root = svg.querySelector(':scope > g'), inv = svg.getScreenCTM().inverse(), pt = svg.createSVGPoint();
   const seen = e => { for (let x = e; x && x !== svg; x = x.parentElement) { const cs = getComputedStyle(x); if (cs.display === 'none' || +cs.opacity < .05) return false; } return true; };
   let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
   root.querySelectorAll('path,line,polyline,polygon,rect,circle,ellipse,text,image').forEach(e => {
     if (e.closest('clipPath,defs') || !seen(e)) return;
-    const r = e.getBoundingClientRect(); if (r.width < .5 && r.height < .5) return;
+    const r = glowClipRect(e, svg, e.getBoundingClientRect()); if (!r || (r.width < .5 && r.height < .5)) return;
     for (const [sx, sy] of [[r.left, r.top], [r.right, r.bottom]]) { pt.x = sx; pt.y = sy; const p = pt.matrixTransform(inv);
       x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); }
   });
