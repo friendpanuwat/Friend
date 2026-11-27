@@ -1,5 +1,7 @@
 # สกิล "เทอร์มินัลแดง" (Red Terminal · `terminal`)
 
+ไฟล์นี้ชื่อ `red-terminal.md` (เดิม `terminal.md` · Friend 2026-11-27: "เปลี่ยนชื่อ skill ด้วย เดี๋ยวงงถ้าเขียนแค่ terminal") · ชื่อสไตล์ในโค้ดยังเป็น `terminal` (`styles/terminal.js` `GLOWLOOK.terminal` `RULES['terminal']`)
+
 **อ่านคู่กับ `common.md` เสมอ** (ขั้นตอนทำคลิป 8 ขั้น งาน AI 2 งาน กฎโซนปุ่ม ภาพ ซับ กล้อง เสียง) ไฟล์นี้บอกเฉพาะของเทอร์มินัลแดง
 สร้างคลิปสไตล์นี้: ทำตาม `common.md` โดยใส่ `<สไตล์>` = `terminal`
 
