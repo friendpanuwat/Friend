@@ -39,7 +39,7 @@ const TRM = {
     win_speaker:{screen: true, menu: true, face: [150, 220, 780, 830],   /* (the sheet's 90–990: its video ran to 976, under the buttons) */ pill: {y: 1150}, wins: [[140, 1240, 800, 420]], pic: [280, 1330, 520, 300]},   // shot 04
     stack3:     {screen: true, menu: true, pill: {y: 232}, back: [[60, 300, 800, 1000], [120, 410, 800, 1000]], wins: [[180, 520, 820, 1140]], pic: [230, 650, 690, 920]},   // shot 05
     term_log:   {speaker: true, noPic: true, need: 2, fit: 1080, pill: {y: 232}, wins: [[80, 1120, 920, 530]], rows: {x: 118, cmdY: 1270, y0: 1372, step: 102, n: 3}},   // shot 06
-    split_top:  {screen: true, menu: true, pill: {y: 232}, wins: [[60, 310, 960, 570]], pic: [170, 410, 740, 420], half: [0, 962, 1080, 958, .34, .42], line: 958},   // shot 07
+    split_top:  {screen: true, menu: true, pill: {y: 232}, wins: [[60, 310, 960, 570]], pic: [170, 410, 740, 420], half: [0, 768, 1080, 1152, .34, .42], line: 768},   // (2026-11-27 Friend: "ฉากนี้ผมไม่อยากให้แบ่ง 50:50 ผมอยากให้ 40:60 (คลิปคน60)": the speaker's half from y 962 → 768)   // shot 07
     dialog:     {speaker: true, noPic: true, need: 2, fit: 1120, pill: {y: 232}, wins: [[120, 1160, 840, 420]],
                  slots: [{k: 'title', x: 540, y: 1297, maxW: 720}, {k: 'sub', x: 540, y: 1377, maxW: 720}], btns: [[156, 1463, 372, 88], [552, 1463, 368, 88]]},   // shot 08
     big_win:    {screen: true, menu: true, pill: {y: 232}, wins: [[43, 300, 994, 1360]], pic: [130, 470, 790, 1100]},                      // shot 09
@@ -73,7 +73,7 @@ function trmChunks(t0, t1) {
    picture keeps its sheet windows (the size rule is for the motion graphic). */
 const TRM_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
 const TRM_MIN = .65;
-const TRM_LOW = 1440, TRM_PILL_GAP = 66, TRM_PILL_MAX = 1616;   // TRM_PILL_MAX: the lowest pill centre (its foot 36 under it, inside the safe zone's 1660) · the low pill of a speaker screen with a window at the hands (0 = the pill on top, as before 2026-11-26) · the window ends this far over the pill's centre
+const TRM_LOW = 1580, TRM_PILL_GAP = 66, TRM_PILL_MAX = 1616;   // TRM_LOW 1440 → 1580 (2026-11-27 Friend on shot 02: "subtitles กับกรอบ motion graphics มันอยู่สูงเกินไป เหลือพื้นที่ด้านล่างเยอะ อยากให้เอาลงมาอีก") · TRM_PILL_MAX: the lowest pill centre (its foot 36 under it, inside the safe zone's 1660) · the low pill of a speaker screen with a window at the hands (0 = the pill on top, as before 2026-11-26) · the window ends this far over the pill's centre
 const TRM_ROOM = {l: 20, t: 8, r: 20, b: 20};   // the window's padding round its picture (trmInner) the motion may use: glowFit's room (centre 'end' needs one, as the window style's)
 const TRM_MENU = false;   // the dark screens' menu bar (off since 2026-11-26)
 const TRM_FADE = [120, 240];   // split_top's fade: the video starts 120 above its old line, fades in over 240 px
@@ -90,7 +90,7 @@ function trmShape(L, name, key) {
   if (!L.pic || !L.wins) return L;
   let order = TRM_ORDER[name] ?? [2], X0 = 60, X1 = 920, Y0 = L.wins[0][1], Y1 = 1660, mid = false;
   if (name === 'big_win') { const first = key != null && cpRand(key) >= .6 ? 6 : 5; order = [first, 11 - first]; Y0 = 300; mid = true; }
-  if (name === 'split_top') { Y0 = 310; Y1 = L.line - 40; mid = true; }     // over the red line, 40 clear of it
+  if (name === 'split_top') { Y0 = 260; Y1 = L.line - 40; mid = true; }     // over the speaker's 60 %, 40 clear of its line (from 260: the pill goes under the window; with the pill on top, frame() gives a room from 300)
   if (L.room) { [Y0, Y1] = L.room; }                                        // a window at the hands under the low pill (trmFit): on the pill's side
   if (name === 'stack3') X0 = 180;                                          // the front window right of the two behind it
   for (const k of order) {
@@ -108,7 +108,7 @@ function trmShape(L, name, key) {
 function trmFit(name, f) {
   const L = JSON.parse(JSON.stringify(TRM.layouts[name])); if (!L.speaker) return trmShape(L, name) ?? L;   // (a dark screen always fits: its standard window, big_win at size 5 for estimates)
   const [, top, , chin] = f;
-  /* a window at the hands (shots 02 06 08 10): the pill half way down the lower half (y 1440, or 66 under the chin down to 1600), as every
+  /* a window at the hands (shots 02 06 08 10): the pill low (TRM_LOW, or 66 under the chin down to TRM_PILL_MAX), as every
      screen of the speaker alone (2026-11-26 Friend: "ถ้าเป็นฉากที่เป็นคลิปคนเต็มๆเลยอ่ะซับก็ควรจะอยู่ครึ่งของครึ่งล่างนะ เสมอเลย แต่ทั้งนี้ทั้งนั้นก็ต้องดูตาม scenario ทั้ง 3 ไป",
      then "ก"): the window between the chin (30 under it) and the pill (TRM_PILL_GAP over it), on the pill's side; a picture's window a
      standard size in that room, the other windows as on the sheet; no room (a close shot, or a tall window in a normal one) = null */
@@ -244,8 +244,10 @@ STYLE('terminal', {
     if (name === 'split_top' && L.wins && L.half) {   // the pill 30 over the head (its foot), the window 60 over the pill: a smaller standard size when it must; no room (a close shot: the head fills the half) = the pill stays on top, over the dark screen, not on the hair
       const maxY = trmHalfHead(L, t0, face) - 36 - 30, bot = L.wins[0][1] + L.wins[0][3];
       if (bot + 60 <= maxY) L.pill = {y: bot + 60};
-      else { const L2 = trmShape(Object.assign(copy(raw), {room: [310, maxY - 60]}), name); if (L2) { Object.assign(L, L2); L.pill = {y: L.wins[0][1] + L.wins[0][3] + 60}; } } }
+      else { const L2 = trmShape(Object.assign(copy(raw), {room: [260, maxY - 60]}), name); if (L2) { Object.assign(L, L2); L.pill = {y: L.wins[0][1] + L.wins[0][3] + 60}; }
+        else { const L3 = trmShape(Object.assign(copy(raw), {room: [300, L.line - 40]}), name); if (L3) Object.assign(L, L3); } } }   // (the pill on top at 232: the window from 300)
     if (name === 'cta' && L.face) L.pill = {y: L.face[1] + L.face[3] + 50};
+    if (name === 'big_win' && L.wins) L.pill = {y: Math.max(232, L.wins[0][1] - 62)};   // the pill just over its window, not at the top of the screen (2026-11-27 Friend: "ฉากนี้อยากให้ subtitles ลงมาอยู่ใกล้กรอบ motion graphics หน่อย")
     const screen = !L.speaker, root = div('', SC); root.className = 'm-root' + (screen ? ' m-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     const rise = (e, k, dy = 40) => A(e, [{opacity: 0, transform: `translateY(${dy}px) scale(.96)`, filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .04 + .1 * k, .45, {e: EASE.soft});
