@@ -5,22 +5,23 @@
    the face). The pictures: the glow-line template set first, white lines glowing, the lit part red (GLASSY.terminal).
    EVERY SCREEN SHOWS ONE OF FRIEND'S MOTION GRAPHICS (2026-11-27 Friend: "มันไม่ใช่ motion graphic ของเรานิ" → "เอา 6 จอนี้ออกจากรายการที่ระบบสุ่ม ... แก้ตามนี้" · "ลบเลยผมไม่กลับไปใช้แล้ว ผมจะใช้ motion graphic ของผมเท่านั้น"): the 6 screens of the sheet
    without a picture (a terminal of rows 01, a notification 03, a terminal log 06, a dialog 08, a number card 10, the call to action 12)
-   are gone, code and all. The white pill = the subtitles (one phrase at a time); the recap of three windows (shot 11) is a still only.
+   are gone, code and all, and the recap of three windows (shot 11, a still with a terminal of subtitles) (2026-11-27 Friend: "ลบ"). The white pill = the subtitles
+   (one phrase at a time).
    The 7-item form:
    1 frame    one of 5 screens in clips (TRM.pool, named after Friend's shots): the speaker full screen with a window at the hands (02),
               the speaker's window over a picture's window (04), three windows stacked (05), the speaker's 60 % fading up under a
-              picture's window (07), one big window (09); between pictures the speaker with the pill; a recap of three windows (11, stills only)
+              picture's window (07), one big window (09); between pictures the speaker with the pill
    2 surface  near-black with a dim red glow; app windows near-black, rounded 28, a title bar with three dots and a thin line
    3 drawing  the glow-line pictures: thick white glowing lines, dark bodies, the lit part a red outline, icon and word
    4 colours  near-black · white · one red (#EE4444)
-   5 words    the pill (white, Kanit 600 48, black words); the recap still's rows Kanit 400 44, JetBrains Mono for ">" "[ ]" "[x]"
+   5 words    the pill (white, Kanit 600 48, black words)
    6 motion   screens fade in out of a blur, windows rise, the picture rises in its window, each phrase of the pill comes in when said
    7 sound    whoosh on a screen cut, a soft swish on the key word
    ===================================================================== */
 const TRM = {
   /* boxes [x, y, w, h] · pill {y (centre)} · wins = app windows [x, y, w, h] (the first is the one with words; back = empty ones
      behind it) · pic = the picture box · face = the speaker's window [x, y, w, h] (its video under a title bar) · half = the video
-     half of a split screen · rows = {x, y0, step, n} (the "[ ]" rows of the recap still's terminal) · menu = the menu bar (off).
+     half of a split screen · menu = the menu bar (off).
      Moved where Friend's shots ran under TikTok's search bar (the pill at y 194–266 kept from 196; the speaker's windows from 140 → 220)
      and buttons (the windows themselves stay as wide as the sheet, behind the buttons). */
   layouts: {
@@ -30,19 +31,12 @@ const TRM = {
     stack3:     {screen: true, menu: true, pill: {y: 232}, back: [[60, 300, 800, 1000], [120, 410, 800, 1000]], wins: [[180, 520, 820, 1140]], pic: [230, 650, 690, 920]},   // shot 05
     split_top:  {screen: true, menu: true, pill: {y: 232}, wins: [[60, 310, 960, 570]], pic: [170, 410, 740, 420], half: [0, 768, 1080, 1152, .34, .42], line: 768},   // (2026-11-27 Friend: "ฉากนี้ผมไม่อยากให้แบ่ง 50:50 ผมอยากให้ 40:60 (คลิปคน60)": the speaker's half from y 962 → 768)   // shot 07
     big_win:    {screen: true, menu: true, pill: {y: 232}, wins: [[43, 300, 994, 1360]], pic: [130, 470, 790, 1100]},                      // shot 09
-    recap3:     {screen: true, still: true, menu: true, pill: {y: 232}, three: [[60, 300, 960, 430], [60, 770, 960, 430], [60, 1250, 960, 410]],
-                 pics: [[230, 385, 620, 300], [230, 855, 620, 300]], rows: {x: 98, cmdY: 1385, y0: 1462, step: 78, n: 3}},                 // shot 11 (three windows: stills only)
   },
   /* RANDOM, as the other styles: every picture takes one of `pool` (never the one before it) where the face leaves room (trmFit), the
      speaker (ก) and a graphic screen (ข) as often, then the least used, then at random from the run's seed */
   pool: ['hero_chev', 'win_speaker', 'stack3', 'split_top', 'big_win'],   // only screens with a picture (2026-11-27 Friend: "มันไม่ใช่ motion graphic ของเรานิ" → "เอา 6 จอนี้ออกจากรายการที่ระบบสุ่ม ... แก้ตามนี้" · "ลบเลยผมไม่กลับไปใช้แล้ว ผมจะใช้ motion graphic ของผมเท่านั้น")
   used: {}, last: null,
 };
-function trmChunks(t0, t1) {
-  if (typeof CAPTIONS === 'undefined' || !CAPTIONS.length) return null;
-  return CAPTIONS.filter(c => Math.min(c.t1, t1) - Math.max(c.t0, t0) >= .15).map(c => { const n = c.parts.length, k = (p, i) => p[2] ?? (i === n - 1 ? 'k' : 'l');
-    return {t0: c.t0, t1: c.t1, words: c.parts.map(p => p[0]).join(' '), lead: c.parts.filter((p, i) => k(p, i) === 'l').map(p => p[0]).join(' '), key: c.parts.filter((p, i) => k(p, i) === 'k').map(p => p[0]).join(' ')}; });
-}
 /* THE 7 STANDARD SIZES (style-rules/common.md 4.1 · Friend 2026-11-26: "เอาสไตล์เทอร์มินอลแดงมาทำ เริ่มที่ใส่ระบบ hook ใส่ระบบ motion graphic 7 ขนาด
    (เหมือนทั้ง 3 สไตล์ที่ผ่านมา) และใช้ template ชุดฐาน 7 ขนาด"): as the app-window style, the WINDOW that holds the picture (its title bar included)
    is the standard size scaled from the corner, 65–100 %, its shape exact; the picture inside it under the title bar (trmInner). Each picture
@@ -121,7 +115,6 @@ STYLE('terminal', {
 @font-face{font-family:"TrmText";src:url(fonts/Kanit-400-latin.woff);font-weight:400;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F}
 @font-face{font-family:"TrmBold";src:url(fonts/Kanit-600-thai.woff);font-weight:600;unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
 @font-face{font-family:"TrmBold";src:url(fonts/Kanit-600-latin.woff);font-weight:600;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F}
-@font-face{font-family:"TrmMono";src:url(fonts/JetBrainsMono-500-latin.woff);font-weight:500}
 .m-root{position:absolute;inset:0;--ink:#F6F6F8;--ac:#EE4444;--lw:5;--sd:#F6F6F8;--fl:rgba(16,16,18,.85);--text:#F6F6F8}
 .m-screen{background:radial-gradient(ellipse 720px 820px at 540px 1250px,rgba(150,28,40,.24) 0%,rgba(110,22,34,.12) 50%,rgba(0,0,0,0) 100%),
   linear-gradient(180deg,#141014 0%,#161116 40%,#1b1419 100%);background-color:#161116;overflow:hidden}
@@ -138,9 +131,6 @@ STYLE('terminal', {
 .m-row{position:absolute;white-space:nowrap}
 .m-row i{font-style:normal}
 .m-pill{display:inline-block;background:#FFFFFF;border-radius:36px;padding:3px 26px 7px;font-family:"TrmBold";font-weight:600;font-size:48px;line-height:1.3;color:#111113;box-shadow:0 6px 24px rgba(0,0,0,.35)}
-.m-cmd{font-family:"TrmMono","TrmText";font-weight:500;font-size:46px;line-height:1.3;color:#EE4444}
-.m-box{font-family:"TrmMono";font-weight:500;font-size:44px;line-height:1.3;color:#6E6E76}
-.m-rt{font-family:"TrmText";font-weight:400;font-size:44px;line-height:1.3;color:#FFFFFF}
 `,
   motion: {
     pop:   {kf: [{opacity: 0, transform: 'translateY(30px) scale(.8)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], d: .5, e: EASE.soft},
@@ -165,8 +155,7 @@ STYLE('terminal', {
   fitSurface() { const r = div('', SC); r.className = 'm-root m-screen'; return r; },
 
   frame(t0, t1, {index, scene}) {
-    const meta = SCENES[scene]?.meta ?? {}, face = cpFaceBox(t0, t1), ch = trmChunks(t0, t1);
-    const more = ch ? Math.max(0, ch.length - 1) : (meta.rows?.length ?? 0);
+    const meta = SCENES[scene]?.meta ?? {}, face = cpFaceBox(t0, t1);
     let name = meta.layout;
     if (!name) {
       const ok = n => !!trmFit(n, face);
@@ -221,39 +210,19 @@ STYLE('terminal', {
     (L.back ?? []).forEach((b, k) => win(b, k, ' m-back'));
     if (L.face) { const [x, y, w, h] = L.face, wn = win(L.face, 0), f = box([14, 86, w - 28, h - 100], wn); f.className = 'm-face cp-frame';
       cpInset(f, w - 28, h - 100, t0, .4, .4); }
-    /* the recap still's terminal (shot 11): a "> " line and "[ ]" rows from the subtitles */
-    const lines = [];                                            // [{kind, parts}] in the order the subtitles fill them
-    const words = k => ch ? ch[k + 1]?.words : (Array.isArray(meta.rows?.[k]) ? meta.rows[k].join(' ') : meta.rows?.[k]);
-    let k = 0;
-    const termIn = (wb, R) => { const n = Math.max(0, Math.min(R.n, (ch ? more : (meta.rows?.length ?? 0)) - 1));
-      const e = win(wb, 0);
-      const w0 = words(k); if (w0) { const r = trmLine(root, '> ' + w0, 'm-cmd', {x: R.x, y: R.cmdY, align: 'left', maxW: 920 - R.x}); lines.push({kind: 'cmd', parts: [r.firstChild]}); k++; }
-      for (let i = 0; i < n; i++) { const w = words(k); if (!w) break; const y = R.y0 + i * R.step;
-        const b = trmLine(root, '[ ]', 'm-box', {x: R.x + 5, y, align: 'left', maxW: 140}), r = trmLine(root, w, 'm-rt', {x: R.x + 145, y, align: 'left', maxW: 920 - R.x - 145});
-        lines.push({kind: 'row', parts: [r.firstChild], box: b.firstChild}); k++; }
-      return e; };
     (L.wins ?? []).forEach((b, i) => { const e = win(b, i + (L.back?.length ?? 0), L.speaker ? ' m-float' : '');
       if (i === 0 && L.std) { e.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3); L.card = e; } });   // the picture's window = its standard size (tools/card_sizes.js)
-    if (L.three) { L.three.forEach((b, i) => { if (i < 2) win(b, i); }); termIn(L.three[2], L.rows); }
     /* the picture(s) */
-    let stages = null;
-    if (L.pics) stages = L.pics.map(b => box(b));
     /* the picture INSIDE its window (2026-11-26, common.md 4.1 rule 9: the motion graphic stays in its card the whole time, as lime and window):
        the window clips it; glow/bridge.js fits the drawing's whole motion into the box (GLOWLOOK.terminal.motionFit) */
     if (L.card && L.pic) L.card.style.overflow = 'hidden';
     const stage = L.card && L.pic ? box([L.pic[0] - L.wins[0][0], L.pic[1] - L.wins[0][1], L.pic[2], L.pic[3]], L.card) : L.pic ? box(L.pic) : box([540, 960, 1, 1]);
     if (!L.pic) stage.style.visibility = 'hidden';
     else if (!L.card) rise(stage);                                  // (in its window: it comes in with the window)
-    /* the lines come in with their windows, grey until said (a still: as the sheet, said) */
-    lines.forEach((q, i) => { [q.parts[0].parentElement, q.box?.parentElement].filter(Boolean).forEach(host => rise(host));   // (the "[ ]" too: a speaker screen's root does not fade in, it showed before its picture)
-      q.parts.forEach(p => { if (q.box) p.style.color = '#FFFFFF'; });
-      if (ch) q.parts.forEach(p => { p.style.color = '#7C7C84'; });
-      else if (q.box) { q.box.textContent = '[x]'; q.box.style.color = '#EE4444'; } });
     /* centre 'end': a drawing whose motion leaves its window keeps its END drawing in the middle of the window, the view widening evenly round it
        until all of the motion fits (as the window style's dark screens · 2026-11-27 Friend: "ฉากจอแบ่งอ่ะทำไม motion graphic มันไม่อยู่กึ่งกลางล่ะมันมากองอยู่ข้างล่างทำไม";
        was 'motion': the whole motion centred, so a drawing with motion above it sat low in its window) */
-    const F = {root, stage, stages, cam: root, L, name, dark: screen, t1, n: 0, meta, lines, centre: 'end', room: TRM_ROOM, ...(L.card ? {card: L.card} : {})};
-    if ((typeof CAPTIONS === 'undefined' || !CAPTIONS.length) && meta.rows) F.stillRows = meta.rows;
+    const F = {root, stage, cam: root, L, name, dark: screen, t1, n: 0, meta, centre: 'end', room: TRM_ROOM, ...(L.card ? {card: L.card} : {})};
     return F;
   },
   /* between pictures: the pill at the chest, moved below the chin when the face is low */
@@ -263,8 +232,7 @@ STYLE('terminal', {
        over the head (2026-11-27 Friend: "ไม่อยากให้ซับมันไปอยู่บนหัวอ่ะมันอ่านยากผมว่าอยู่ข้างล่างมันอ่านง่ายกว่าอยู่ข้างบน", then "เฉพาะฉากที่เห็นคน"); lime, window and neon keep their words on top there (Friend 2026-11-24: "ก") */
     return {root, cam: root, speaker: true, L: trmFit('talk', cpFaceBox(a, b)) ?? {speaker: true, pill: {y: TRM_PILL_MAX}}, name: 'talk'};
   },
-  /* the words: every subtitle is the pill (one phrase at a time); on the recap still, each next one lights the next line of its
-     terminal ("[ ]" → "[x]" red, the words white; the "> " line red) */
+  /* the words: every subtitle is the pill (one phrase at a time) */
   text(F, T, lead, key) {
     const L = F.L ?? TRM.layouts.talk, el = div('', F.root ?? SC); el.className = 'm-text';
     const pill = (t, swap) => {
@@ -296,16 +264,9 @@ STYLE('terminal', {
       return el;
     }
     const words = [lead, key].map(s => String(s ?? '').trim()).filter(Boolean).join(' ');
-    if (!words && !(F.stillRows && T.clip !== true)) return null;
-    const n = F.n++, start = T.b[0] - .02, q = F.lines[n - 1];
-    if (n === 0) pill(T.t0);
-    else if (q) {
-      const to = q.kind === 'cmd' ? '#EE4444' : '#FFFFFF';
-      q.parts.forEach(p => A(p, [{color: '#7C7C84'}, {color: to}], start, .25, {f: 'forwards'}));
-      if (q.box) { A(q.box, [{color: '#6E6E76'}, {color: '#EE4444'}], start, .2, {f: 'forwards'}); const b = q.box; A(b, [{opacity: 1}, {opacity: 1}], start, .001);
-        HOOKS.push(t => { b.textContent = t >= start ? '[x]' : '[ ]'; }); }
-      sfx('softswish', start, -26); }
-    else pill(start, true);
+    if (!words) return null;
+    const n = F.n++, start = T.b[0] - .02;
+    if (n === 0) pill(T.t0); else pill(start, true);
     if (T.clip) { A(el, [{opacity: 0}, {opacity: 1}], start - TRM_PX / 2, TRM_PX); return null; }
     return el;
   },
