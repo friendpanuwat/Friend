@@ -28,7 +28,7 @@ const TRM = {
     talk:       {speaker: true, pill: {y: 1440}},   // (2026-11-26, Friend: "มันอยู่กลางจอมันไม่ค่อยดี อยากให้ลงมาครึ่งของครึ่งข้างล่าง": 1006 → 1440, half of the lower half)                                                                                          // between pictures (shot 03's pill at the chest)
     hero_chev:  {speaker: true, fit: 1150, pill: {y: 232}, wins: [[80, 1190, 920, 430]], pic: [200, 1290, 680, 300]},                     // shot 02
     win_speaker:{screen: true, menu: true, face: [150, 220, 780, 830],   /* (the sheet's 90–990: its video ran to 976, under the buttons) */ pill: {y: 1150}, wins: [[140, 1240, 800, 420]], pic: [280, 1330, 520, 300]},   // shot 04
-    stack3:     {screen: true, menu: true, pill: {y: 232}, back: [[60, 300, 800, 1000], [120, 410, 800, 1000]], wins: [[180, 520, 820, 1140]], pic: [230, 650, 690, 920]},   // shot 05
+    stack3:     {screen: true, menu: true, pill: {y: 232}, wins: [[180, 520, 820, 1140]], pic: [230, 650, 690, 920]},   // shot 05: ONE window now, no two behind it (2026-11-27 Friend: "ตรงนี้อยากให้เปลี่ยนจากแถบ 3 ชั้นเป็นชั้นเดียว")
     split_top:  {screen: true, menu: true, pill: {y: 232}, wins: [[60, 310, 960, 570]], pic: [170, 410, 740, 420], half: [0, 768, 1080, 1152, .34, .42], line: 768},   // (2026-11-27 Friend: "ฉากนี้ผมไม่อยากให้แบ่ง 50:50 ผมอยากให้ 40:60 (คลิปคน60)": the speaker's half from y 962 → 768)   // shot 07
     big_win:    {screen: true, menu: true, pill: {y: 232}, wins: [[43, 300, 994, 1360]], pic: [130, 470, 790, 1100]},                      // shot 09
   },
@@ -72,11 +72,10 @@ function trmShape(L, name, key) {
   if (name === 'big_win') { const first = key != null && cpRand(key) >= .6 ? 6 : 5; order = [first, 11 - first]; Y0 = 300; mid = true; }
   if (name === 'split_top') { Y0 = 260; Y1 = L.line - 40; mid = true; }     // over the speaker's 60 %, 40 clear of its line (from 260: the pill goes under the window; with the pill on top, frame() gives a room from 300)
   if (L.room) { [Y0, Y1] = L.room; }                                        // a window at the hands under the low pill (trmFit): on the pill's side
-  if (name === 'stack3') X0 = 180;                                          // the front window right of the two behind it
   for (const k of order) {
     const [W, H] = TRM_STD[k], s = Math.min(1, (X1 - X0) / W, (Y1 - Y0) / H); if (s < TRM_MIN) continue;
     const cw = Math.round(W * s), ch = Math.round(H * s);
-    const x = name === 'stack3' ? X1 - cw : Math.round(Math.min(Math.max(540 - cw / 2, X0), X1 - cw)), y = mid ? Math.round(Y0 + (Y1 - Y0 - ch) / 2) : L.room ? Y1 - ch : Y0;
+    const x = Math.round(Math.min(Math.max(540 - cw / 2, X0), X1 - cw)), y = mid ? Math.round(Y0 + (Y1 - Y0 - ch) / 2) : L.room ? Y1 - ch : Y0;
     L.wins[0] = [x, y, cw, ch]; L.pic = trmInner(L.wins[0]); L.std = [k, s];
     if (L.back) L.back = [[x - 120, y - 220, cw, ch], [x - 60, y - 110, cw, ch]];   // the two empty windows behind, as the sheet's steps
     return L;
@@ -195,7 +194,7 @@ STYLE('red-terminal', {   // (the id was 'terminal' until 2026-11-27, Friend: "�
       if (!done) { const L50 = trmShape(Object.assign(copy(raw), TRM_SPLIT50), name);
         done = (L50 && fit(copy(L50))) ?? trmShape(Object.assign(copy(raw), TRM_SPLIT50, {room: [300, TRM_SPLIT50.line - 40]}), name); }   // (the pill on top at 232: the window from 300)
       if (done) { for (const k of Object.keys(L)) delete L[k]; Object.assign(L, done); } }
-    if (name === 'big_win' && L.wins) L.pill = {y: Math.max(232, L.wins[0][1] - 62)};   // the pill just over its window, not at the top of the screen (2026-11-27 Friend: "ฉากนี้อยากให้ subtitles ลงมาอยู่ใกล้กรอบ motion graphics หน่อย")
+    if ((name === 'big_win' || name === 'stack3') && L.wins) L.pill = {y: Math.max(232, L.wins[0][1] - 62)};   // the pill just over its window, not at the top of the screen (2026-11-27 Friend: "ฉากนี้อยากให้ subtitles ลงมาอยู่ใกล้กรอบ motion graphics หน่อย")
     const screen = !L.speaker, root = div('', SC); root.className = 'm-root' + (screen ? ' m-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
     const rise = e => { if (!screen) A(e, [{opacity: 0}, {opacity: 1}], t0 - TRM_X, TRM_X, {e: TRM_IN}); };   // (a dark screen's windows come in with it; over the speaker, they fade in on the cut)
