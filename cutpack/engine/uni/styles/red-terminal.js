@@ -1,8 +1,8 @@
 /* =====================================================================
-   STYLE · terminal — "เทอร์มินัลแดง" (Red Terminal) (Friend 2026-11-18, the 9th of the new sheets: "สไตล์ต่อไป", the 12 shots full
+   STYLE · red-terminal — "เทอร์มินัลแดง" (Red Terminal) (Friend 2026-11-18, the 9th of the new sheets: "สไตล์ต่อไป", the 12 shots full
    size). Every place, size and colour is measured on those 1080 × 1920 shots, then held to the rules every style shares
    (styles/common.js: safe zone, frames below the search bar, centred words, the video filling its frame, seeded random, never over
-   the face). The pictures: the glow-line template set first, white lines glowing, the lit part red (GLASSY.terminal).
+   the face). The pictures: the glow-line template set first, white lines glowing, the lit part red (GLASSY['red-terminal']).
    EVERY SCREEN SHOWS ONE OF FRIEND'S MOTION GRAPHICS (2026-11-27 Friend: "มันไม่ใช่ motion graphic ของเรานิ" → "เอา 6 จอนี้ออกจากรายการที่ระบบสุ่ม ... แก้ตามนี้" · "ลบเลยผมไม่กลับไปใช้แล้ว ผมจะใช้ motion graphic ของผมเท่านั้น"): the 6 screens of the sheet
    without a picture (a terminal of rows 01, a notification 03, a terminal log 06, a dialog 08, a number card 10, the call to action 12)
    are gone, code and all, and the recap of three windows (shot 11, a still with a terminal of subtitles) (2026-11-27 Friend: "ลบ"). The white pill = the subtitles
@@ -111,7 +111,7 @@ function trmLine(parent, txt, cls, {x, y, align = 'center', maxW = 820}) {
   return row;
 }
 
-STYLE('terminal', {
+STYLE('red-terminal', {   // (the id was 'terminal' until 2026-11-27, Friend: "อยากให้เปลี่ยนเป็น red-terminal ทั้งระบบ")
   name: 'เทอร์มินัลแดง',
   layouts: TRM.layouts,
   css: `
@@ -225,7 +225,7 @@ STYLE('terminal', {
       if (i === 0 && L.std) { e.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3); L.card = e; } });   // the picture's window = its standard size (tools/card_sizes.js)
     /* the picture(s) */
     /* the picture INSIDE its window (2026-11-26, common.md 4.1 rule 9: the motion graphic stays in its card the whole time, as lime and window):
-       the window clips it; glow/bridge.js fits the drawing's whole motion into the box (GLOWLOOK.terminal.motionFit) */
+       the window clips it; glow/bridge.js fits the drawing's whole motion into the box (GLOWLOOK['red-terminal'].motionFit) */
     if (L.card && L.pic) L.card.style.overflow = 'hidden';
     const stage = L.card && L.pic ? box([L.pic[0] - L.wins[0][0], L.pic[1] - L.wins[0][1], L.pic[2], L.pic[3]], L.card) : L.pic ? box(L.pic) : box([540, 960, 1, 1]);
     if (!L.pic) stage.style.visibility = 'hidden';

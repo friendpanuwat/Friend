@@ -44,7 +44,7 @@ OLD_SETS = '--old-sets' in args
 for a in ('--old-sets', '--seven'):
     if a in args: args.remove(a)
 SEVEN = False
-SEVEN_STYLES = {'lime', 'window', 'neon', 'terminal'}   # terminal 2026-11-26 (Friend: "เอาสไตล์เทอร์มินอลแดงมาทำ ... และใช้ template ชุดฐาน 7 ขนาด" · its 7 sizes: styles/terminal.js TRM_ORDER)
+SEVEN_STYLES = {'lime', 'window', 'neon', 'red-terminal'}   # terminal 2026-11-26 (Friend: "เอาสไตล์เทอร์มินอลแดงมาทำ ... และใช้ template ชุดฐาน 7 ขนาด" · its 7 sizes: styles/terminal.js TRM_ORDER)
 _SEVEN_OLD_NOTE = None   # neon 2026-11-26 (its 7 sizes: styles/neon.js NEON_SIZE · Friend: "ส่งรูปตอนที่ใส่ motion graphics template ชุดฐาน 7 ขนาดมาให้ดูด้วยครับ")
 W, FACES = args[0], args[1]
 STYLES = args[2:]
@@ -64,7 +64,7 @@ RULES = {
     'yellow':        dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # ขั้นตอนเหลือง: 12 of 12 shots carry a picture or step chips; pictures of 3.5 s or more so a screen holds its chips (trial after Friend: "ดูโล่งๆมากกว่าต้นแบบเยอะ", the first clip's 1.5–3 s screens held 1–2 chips and 45 % of it was the speaker alone)
     'pink':          dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # การ์ดชมพู: as the styles 6–9 that passed (LESSONS 66)
     'cream':         dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft'),   # ครีมน้ำเงิน: as the styles 6–10 that passed (LESSONS 66)   # (merged from PR #35: no fitPick yet — cream.js has no fitSize; the all-style rules of chat ccr-103ebebc-89alfv still to add)
-    'terminal':      dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True, hook=(1.8, 3.2)),   # hook 2026-11-26 (Friend: "เริ่มที่ใส่ระบบ hook")   # เทอร์มินัลแดง: as the styles 6–8 that passed (LESSONS 66)
+    'red-terminal':  dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True, hook=(1.8, 3.2)),   # hook 2026-11-26 (Friend: "เริ่มที่ใส่ระบบ hook")   # เทอร์มินัลแดง: as the styles 6–8 that passed (LESSONS 66)
     'horizon':       dict(every=4.0, scene=(3.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # ขอบฟ้าส้ม: as the yellow and HUD styles that passed (LESSONS 66)
     'hud':           dict(every=4.0, scene=(1.5, 9.9), cover=.85, run=4, cut='soft', fitPick=True),   # เส้นชี้ HUD: as the yellow style that passed · final 2026-11-18: scenes from 1.5 s (was 3.5 so the notes filled, LESSONS 66; no notes now) (Friend: "อยากให้มีฉากโอเวอร์เลย์เยอะกว่านี้หน่อยแต่ไม่ต้องเยอะมากจนดูจุกจิก")
     'window':        dict(every=4.0, scene=(1.5, 9.9), cover=.75, run=4, cut='soft', fitPick=True, hook=(1.8, 3.2)),   # หน้าต่างแอป · hook (Friend 2026-11-19: "ใส่ระบบ hook ให้สไตล์นี้")

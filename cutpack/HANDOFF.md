@@ -160,7 +160,7 @@ NODE_PATH=$(npm root -g) node $U/tools/page_frames.js $W/bo <out> --at 3,6,12   
 | 6 | ขั้นตอนเหลือง (Yellow Steps) | `yellow` | ดราฟแรกผ่าน (แชทนี้) | `style-rules/yellow.md` |
 | 7 | เส้นชี้ HUD (HUD Callout) | `hud` | ดราฟแรกผ่าน (แชทนี้) | `style-rules/hud.md` |
 | 8 | ขอบฟ้าส้ม (Orange Horizon) | `horizon` | ดราฟแรกผ่าน (แชทนี้) | `style-rules/horizon.md` |
-| 9 | เทอร์มินัลแดง (Red Terminal) | `terminal` | ดราฟแรกผ่าน (แชทนี้) | `style-rules/red-terminal.md` |
+| 9 | เทอร์มินัลแดง (Red Terminal) | `red-terminal` | ดราฟแรกผ่าน (แชทนี้) | `style-rules/red-terminal.md` |
 | 10 | การ์ดชมพู (Pink Cards) | `pink` | ดราฟแรกผ่าน (แชทนี้) · สไตล์พื้นสว่างแบบแรก | `style-rules/pink.md` |
 | 11 | ครีมน้ำเงิน (Cream Blue) | `cream` | ดราฟแรกผ่าน (แชทนี้ หลัง PR #34 merge) · พื้นสว่างแบบที่ 2 | `style-rules/cream.md` |
 
