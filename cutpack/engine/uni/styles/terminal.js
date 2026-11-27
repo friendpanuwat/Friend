@@ -53,6 +53,10 @@ const TRM_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: 
 const TRM_MIN = .65;
 const TRM_LOW = 1580, TRM_PILL_GAP = 66, TRM_PILL_MAX = 1616;   // TRM_LOW 1440 → 1580 (2026-11-27 Friend on shot 02: "subtitles กับกรอบ motion graphics มันอยู่สูงเกินไป เหลือพื้นที่ด้านล่างเยอะ อยากให้เอาลงมาอีก") · TRM_PILL_MAX: the lowest pill centre (its foot 36 under it, inside the safe zone's 1660) · the low pill of a speaker screen with a window at the hands (0 = the pill on top, as before 2026-11-26) · the window ends this far over the pill's centre
 const TRM_ROOM = {l: 20, t: 8, r: 20, b: 20};   // the window's padding round its picture (trmInner) the motion may use: glowFit's room (centre 'end' needs one, as the window style's)
+/* TRANSITIONS (2026-11-27 Friend: "ทรานซิชั่นที่เป็นฉากผมอยากทำให้มันดูเป็นมืออาชีพแล้วก็ smooth กว่านี้หน่อยอันนี้มันตัดๆแบบกระตุกๆแบบแปลกๆอ่ะ" → "ค": a plain fade, no blur): every screen comes in as one piece (its windows and its picture with it, no empty window first) over
+   TRM_X s ending on its cut, fast then settling; it goes out over the TRM_X s before its end, slow then fast, so two screens in a row
+   cross with almost nothing of the video between them; no blur, no scale; the pill changes in TRM_PX s */
+const TRM_X = .25, TRM_PX = .12, TRM_IN = 'cubic-bezier(.25,.6,.4,1)', TRM_OUT = 'cubic-bezier(.6,0,.75,.4)';
 const TRM_MENU = false;   // the dark screens' menu bar (off since 2026-11-26)
 const TRM_FADE = [120, 240];   // split_top's fade: the video starts 120 above its old line, fades in over 240 px
 const TRM_ORDER = {hero_chev: [2, 1], win_speaker: [2, 1], split_top: [2, 1], stack3: [6, 5]};
@@ -194,12 +198,12 @@ STYLE('terminal', {
     if (name === 'big_win' && L.wins) L.pill = {y: Math.max(232, L.wins[0][1] - 62)};   // the pill just over its window, not at the top of the screen (2026-11-27 Friend: "ฉากนี้อยากให้ subtitles ลงมาอยู่ใกล้กรอบ motion graphics หน่อย")
     const screen = !L.speaker, root = div('', SC); root.className = 'm-root' + (screen ? ' m-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
-    const rise = (e, k, dy = 40) => A(e, [{opacity: 0, transform: `translateY(${dy}px) scale(.96)`, filter: 'blur(10px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .04 + .1 * k, .45, {e: EASE.soft});
+    const rise = e => { if (!screen) A(e, [{opacity: 0}, {opacity: 1}], t0 - TRM_X, TRM_X, {e: TRM_IN}); };   // (a dark screen's windows come in with it; over the speaker, they fade in on the cut)
     if (screen) {
-      A(root, [{opacity: 0, filter: 'blur(14px)', transform: 'scale(1.03)'}, {opacity: 1, filter: 'blur(0)', transform: 'none'}], t0 - .04, .35, {e: EASE.smooth});
+      A(root, [{opacity: 0}, {opacity: 1}], t0 - TRM_X, TRM_X, {e: TRM_IN});
       sfx('whoosh', t0 - .1, -20);
     }
-    A(root, [{opacity: 1, filter: 'blur(0)'}, {opacity: 0, filter: 'blur(10px)'}], t1 - .3, .3, {e: EASE.out, f: 'forwards'});
+    A(root, [{opacity: 1}, {opacity: 0}], t1 - TRM_X, TRM_X, {e: TRM_OUT, f: 'forwards'});
     /* the menu bar: none (2026-11-26 Friend: "ฉากที่เป็นจอสีแดงมันจะมีแถบข้างบนอยู่อ่ะผมอยากให้เอาแถบข้างบนออกด้วยครับ"; TRM_MENU = true draws it again) */
     if (L.menu && TRM_MENU) { const m = box([0, 0, 1080, 52]); m.className = 'm-menu';
       [[40, 86], [146, 34], [200, 34], [254, 44], [318, 70], [956, 84]].forEach(([x, w]) => { const s = div(`left:${x}px;top:20px;width:${w}px`, m); s.className = 'm-sk'; }); }
@@ -209,7 +213,7 @@ STYLE('terminal', {
     if (L.half) { const [x, y0, w, h0, k, fy] = L.half, [up, fade] = TRM_FADE, y = y0 - up, h = h0 + up, f = box([x, y, w, h]); f.className = 'm-half';
       cpInset(f, w, h, t0, k, (up + h0 * fy) / h);
       f.style.webkitMaskImage = f.style.maskImage = `linear-gradient(180deg,rgba(0,0,0,0) 0px,rgba(0,0,0,.55) ${fade * .5}px,#000 ${fade}px)`;
-      A(f, [{opacity: 0, transform: 'translateY(60px)'}, {opacity: 1, transform: 'none'}], t0, .45, {e: EASE.soft}); }
+    }   // (it comes in with its screen)
     /* an app window: three dots, a thin line under its title bar (no title: "ROUTINE 01" is a small label) */
     const win = (b, k, cls = '') => { const e = box(b); e.className = 'm-win' + cls; rise(e, k);
       ['#FF5F57', '#FEBC2E', '#28C840'].forEach((c, i) => { const d = div(`left:${27 + 32 * i}px;background:${c}`, e); d.className = 'm-dot'; });
@@ -239,9 +243,9 @@ STYLE('terminal', {
     if (L.card && L.pic) L.card.style.overflow = 'hidden';
     const stage = L.card && L.pic ? box([L.pic[0] - L.wins[0][0], L.pic[1] - L.wins[0][1], L.pic[2], L.pic[3]], L.card) : L.pic ? box(L.pic) : box([540, 960, 1, 1]);
     if (!L.pic) stage.style.visibility = 'hidden';
-    else A(stage, [{opacity: 0, transform: 'translateY(24px) scale(.94)', filter: 'blur(8px)'}, {opacity: 1, transform: 'none', filter: 'blur(0)'}], t0 + .08, .45, {e: EASE.soft});
+    else if (!L.card) rise(stage);                                  // (in its window: it comes in with the window)
     /* the lines come in with their windows, grey until said (a still: as the sheet, said) */
-    lines.forEach((q, i) => { [q.parts[0].parentElement, q.box?.parentElement].filter(Boolean).forEach(host => A(host, [{opacity: 0, transform: 'translateY(10px)'}, {opacity: 1, transform: 'none'}], t0 + .3 + .08 * i, .35, {e: EASE.soft}));   // (the "[ ]" too: a speaker screen's root does not fade in, it showed before its picture)
+    lines.forEach((q, i) => { [q.parts[0].parentElement, q.box?.parentElement].filter(Boolean).forEach(host => rise(host));   // (the "[ ]" too: a speaker screen's root does not fade in, it showed before its picture)
       q.parts.forEach(p => { if (q.box) p.style.color = '#FFFFFF'; });
       if (ch) q.parts.forEach(p => { p.style.color = '#7C7C84'; });
       else if (q.box) { q.box.textContent = '[x]'; q.box.style.color = '#EE4444'; } });
@@ -264,7 +268,7 @@ STYLE('terminal', {
   text(F, T, lead, key) {
     const L = F.L ?? TRM.layouts.talk, el = div('', F.root ?? SC); el.className = 'm-text';
     const pill = (t, swap) => {
-      if (swap && F.head) A(F.head, [{opacity: 1}, {opacity: 0}], t - .04, .12, {f: 'forwards'});
+      if (swap && F.head) A(F.head, [{opacity: 1}, {opacity: 0}], t - TRM_PX / 2, TRM_PX, {f: 'forwards'});
       /* SHORT WORDS (2026-11-26, Friend: "ทำให้คำมันสั้นๆได้ไหมไม่ต้องขึ้นทีละประโยคยาว"): a block of two or more phrases shows them one at a time,
          each phrase in its own pill from when it is said to when the next one is (the block's phrases from the subtitle step, T.parts) */
       const P = T.clip ? (T.parts ?? []).filter(p => String(p[0] ?? '').trim()) : [];
@@ -272,13 +276,13 @@ STYLE('terminal', {
         const a = swap ? t : T.b[0], b = T.end ?? T.t1, at = P.map((p, i) => i ? Math.min(Math.max(p[1], a + .25 * i), b - .1) : a);
         P.forEach((p, i) => { if (i && at[i] <= at[i - 1] + .05) return;
           const r = trmLine(el, String(p[0]).trim(), 'm-pill', {x: 540, y: L.pill.y, maxW: 860}), t0 = i ? at[i] : (swap ? t + .06 : T.t0 + .15);
-          A(r, [{opacity: 0, transform: 'translateY(12px) scale(.96)'}, {opacity: 1, transform: 'none'}], t0, i ? .2 : .35, {e: EASE.soft});
-          const nx = at.slice(i + 1).find(v => v > at[i] + .05); if (nx != null) A(r, [{opacity: 1}, {opacity: 0}], nx - .02, .02, {f: 'forwards'});
+          A(r, [{opacity: 0}, {opacity: 1}], i ? t0 - TRM_PX / 2 : t0, TRM_PX);
+          const nx = at.slice(i + 1).find(v => v > at[i] + .05); if (nx != null) A(r, [{opacity: 1}, {opacity: 0}], nx - TRM_PX / 2, TRM_PX, {f: 'forwards'});   // (the next phrase fades in over it)
           F.head = r; });
         sfx('softswish', T.hit - .05, -21); return; }
       const txt = [lead, key].map(s => String(s ?? '').trim()).filter(Boolean); if (!txt.length || !L.pill) return;
       const r = trmLine(el, txt.join(' '), 'm-pill', {x: 540, y: L.pill.y, maxW: 860}); F.head = r;
-      A(r, [{opacity: 0, transform: 'translateY(12px) scale(.96)'}, {opacity: 1, transform: 'none'}], swap ? t + .06 : T.t0 + .15, .35, {e: EASE.soft});
+      A(r, [{opacity: 0}, {opacity: 1}], swap ? t - TRM_PX / 2 : T.t0 + .15, TRM_PX);
       if (key && lead) { const sp = r.firstChild, all = sp.textContent, cut = all.lastIndexOf(String(key).trim());
         if (cut > 0) { sp.textContent = all.slice(0, cut); const kk = document.createElement('span'); kk.textContent = all.slice(cut); sp.appendChild(kk);
           A(kk, [{color: '#B4B4BA'}, {color: '#111113'}], T.hit - .05, .25, {e: EASE.soft}); } }   // (light grey until said: an empty space in the pill read as a gap)
@@ -286,7 +290,7 @@ STYLE('terminal', {
     if (F.speaker || !F.L) {
       pill(T.t0);
       if (F.speaker && T.clip) {
-        A(el, [{visibility: 'hidden'}, {visibility: 'visible'}], T.b[0] - .02, .001); A(el, [{visibility: 'visible'}, {visibility: 'hidden'}], T.end - .021, .001, {f: 'forwards'});
+        A(el, [{opacity: 0}, {opacity: 1}], T.b[0] - .02 - TRM_PX / 2, TRM_PX); A(el, [{opacity: 1}, {opacity: 0}], T.end - TRM_PX / 2, TRM_PX, {f: 'forwards'});
         return null;
       }
       return el;
@@ -302,7 +306,7 @@ STYLE('terminal', {
         HOOKS.push(t => { b.textContent = t >= start ? '[x]' : '[ ]'; }); }
       sfx('softswish', start, -26); }
     else pill(start, true);
-    if (T.clip) { A(el, [{visibility: 'hidden'}, {visibility: 'visible'}], start, .001); return null; }
+    if (T.clip) { A(el, [{opacity: 0}, {opacity: 1}], start - TRM_PX / 2, TRM_PX); return null; }
     return el;
   },
 });
