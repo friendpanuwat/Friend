@@ -53,6 +53,7 @@ const TRM_ROOM = {l: 20, t: 8, r: 20, b: 20};   // the window's padding round it
 const TRM_X = .25, TRM_PX = .12, TRM_IN = 'cubic-bezier(.25,.6,.4,1)', TRM_OUT = 'cubic-bezier(.6,0,.75,.4)';
 const TRM_MENU = false;   // the dark screens' menu bar (off since 2026-11-26)
 const TRM_FADE = [120, 240];   // split_top's fade: the video starts 120 above its old line, fades in over 240 px
+const TRM_SPLIT50 = {half: [0, 962, 1080, 958, .34, .42], line: 962};   // split_top in a close shot: 50 : 50 (the sheet's split)
 const TRM_ORDER = {hero_chev: [2, 1], win_speaker: [2, 1], split_top: [2, 1], stack3: [6, 5]};
 /* NO TITLE BAR (2026-11-27 Friend: "ลบแถบออกเหลือไว้แค่จุด 3 สีก็พอ แค่นี้ก็ได้พื้นที่คืนมาแล้ว"): a window keeps only its three dots (top 23–41); the picture starts TRM_HEAD under the window's top
    (was 84, under a 72-high bar and its line): a size-1 window at 65 % now holds a picture 78 high, not 42 */
@@ -181,11 +182,19 @@ STYLE('terminal', {
     const L = (raw.speaker && (!meta.layout || TRM_LOW && raw.wins && raw.pill.y < 600) ? trmFit(name, face) ?? (meta.layout ? copy(raw) : null) : trmShape(copy(raw), name, 'size' + index) ?? copy(raw)) ?? trmShape(copy(TRM.layouts.big_win), 'big_win', 'size' + index);   // the standard size (a dark screen from its room · a speaker screen from this face)
     /* the dark screens that show the speaker: the pill under the window, never over them (2026-11-27 Friend: "ไม่อยากให้ซับมันไปอยู่บนหัวอ่ะ ... อยู่ข้างล่างมันอ่านง่ายกว่าอยู่ข้างบน",
        "เฉพาะฉากที่เห็นคน") · split_top: 60 under the picture's window (over the faded top of the speaker's half) */
-    if (name === 'split_top' && L.wins && L.half) {   // the pill 30 over the head (its foot), the window 60 over the pill: a smaller standard size when it must; no room (a close shot: the head fills the half) = the pill stays on top, over the dark screen, not on the hair
-      const maxY = trmHalfHead(L, t0, face) - 36 - 30, bot = L.wins[0][1] + L.wins[0][3];
-      if (bot + 60 <= maxY) L.pill = {y: bot + 60};
-      else { const L2 = trmShape(Object.assign(copy(raw), {room: [260, maxY - 60]}), name); if (L2) { Object.assign(L, L2); L.pill = {y: L.wins[0][1] + L.wins[0][3] + 60}; }
-        else { const L3 = trmShape(Object.assign(copy(raw), {room: [300, L.line - 40]}), name); if (L3) Object.assign(L, L3); } } }   // (the pill on top at 232: the window from 300)
+    if (name === 'split_top' && L.wins && L.half) {   // the pill 30 over the head (its foot), the window 60 over the pill, a standard size 2 (a smaller size 2 when it must)
+      /* a CLOSE shot (2026-11-27 Friend: "ถ้าเจอคลิปถ่ายใกล้ ให้แบ่งจอเป็น 50:50 (แค่ซินนารีโอนี้เท่านั้นนะ อีก 2 scenarioเหมือนเดิมเพราะว่ามันไม่มีปัญหา)"):
+         when the 40 : 60 split leaves no size-2 window over the head (the head fills the speaker's 60 %: only close shots, the normal
+         and far clips all got size 2), the split is 50 : 50 (TRM_SPLIT50: the speaker's half from y 962, as the sheet); there too the
+         pill goes under the window when a size 2 fits over the head, else on top over the dark screen with a full window under it */
+      const fit = Lx => { const maxY = trmHalfHead(Lx, t0, face) - 36 - 30, bot = Lx.wins[0][1] + Lx.wins[0][3];
+        if (Lx.std?.[0] === 2 && bot + 60 <= maxY) return Object.assign(Lx, {pill: {y: bot + 60}});
+        const L2 = trmShape(Object.assign(copy(Lx), {room: [260, maxY - 60]}), name);
+        return L2 && L2.std[0] === 2 ? Object.assign(L2, {pill: {y: L2.wins[0][1] + L2.wins[0][3] + 60}}) : null; };
+      let done = fit(copy(L));
+      if (!done) { const L50 = trmShape(Object.assign(copy(raw), TRM_SPLIT50), name);
+        done = (L50 && fit(copy(L50))) ?? trmShape(Object.assign(copy(raw), TRM_SPLIT50, {room: [300, TRM_SPLIT50.line - 40]}), name); }   // (the pill on top at 232: the window from 300)
+      if (done) { for (const k of Object.keys(L)) delete L[k]; Object.assign(L, done); } }
     if (name === 'big_win' && L.wins) L.pill = {y: Math.max(232, L.wins[0][1] - 62)};   // the pill just over its window, not at the top of the screen (2026-11-27 Friend: "ฉากนี้อยากให้ subtitles ลงมาอยู่ใกล้กรอบ motion graphics หน่อย")
     const screen = !L.speaker, root = div('', SC); root.className = 'm-root' + (screen ? ' m-screen' : '');
     const box = ([x, y, w, h], parent = root) => div(`left:${x}px;top:${y}px;width:${w}px;height:${h}px`, parent);
