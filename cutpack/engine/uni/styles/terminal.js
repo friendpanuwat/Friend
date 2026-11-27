@@ -39,7 +39,7 @@ const TRM = {
 };
 /* THE 7 STANDARD SIZES (style-rules/common.md 4.1 · Friend 2026-11-26: "เอาสไตล์เทอร์มินอลแดงมาทำ เริ่มที่ใส่ระบบ hook ใส่ระบบ motion graphic 7 ขนาด
    (เหมือนทั้ง 3 สไตล์ที่ผ่านมา) และใช้ template ชุดฐาน 7 ขนาด"): as the app-window style, the WINDOW that holds the picture (its title bar included)
-   is the standard size scaled from the corner, 65–100 %, its shape exact; the picture inside it under the title bar (trmInner). Each picture
+   is the standard size scaled from the corner, 65–100 %, its shape exact; the picture inside it under its three dots (trmInner). Each picture
    screen has its room and its order of sizes (TRM_ORDER); the first size that reaches 65 % in the room; none = null (a speaker screen: not
    this screen · a dark screen keeps its sheet window). big_win: 5 or 6 at random 60 : 40, as lime's and the window style's big screen. Inside
    60–920 (TikTok's buttons start at 936), as lime and window. Never by the drawing's shape (common.md 4.1 rules 4 and 8). */
@@ -54,7 +54,10 @@ const TRM_X = .25, TRM_PX = .12, TRM_IN = 'cubic-bezier(.25,.6,.4,1)', TRM_OUT =
 const TRM_MENU = false;   // the dark screens' menu bar (off since 2026-11-26)
 const TRM_FADE = [120, 240];   // split_top's fade: the video starts 120 above its old line, fades in over 240 px
 const TRM_ORDER = {hero_chev: [2, 1], win_speaker: [2, 1], split_top: [2, 1], stack3: [6, 5]};
-const trmInner = ([x, y, w, h]) => [x + 24, y + 84, w - 48, h - 108];   // the picture inside a window (under its 72-high title bar)
+/* NO TITLE BAR (2026-11-27 Friend: "ลบแถบออกเหลือไว้แค่จุด 3 สีก็พอ แค่นี้ก็ได้พื้นที่คืนมาแล้ว"): a window keeps only its three dots (top 23–41); the picture starts TRM_HEAD under the window's top
+   (was 84, under a 72-high bar and its line): a size-1 window at 65 % now holds a picture 78 high, not 42 */
+const TRM_HEAD = 48;
+const trmInner = ([x, y, w, h]) => [x + 24, y + TRM_HEAD, w - 48, h - TRM_HEAD - 24];   // the picture inside a window (under its three dots)
 /* where the top of the speaker's head lands in split_top's half (as cpInset places the video with TRM_FADE: the face box's top less a quarter of
    its height for the hair) */
 function trmHalfHead(L, t, face) {
@@ -123,7 +126,6 @@ STYLE('terminal', {
 .m-win{position:absolute;border-radius:28px;background:#111113;box-shadow:0 30px 70px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.035)}
 .m-win.m-float{background:rgba(16,16,18,.86)}
 .m-win.m-back{background:#101012;box-shadow:0 20px 50px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.03)}
-.m-sep{position:absolute;left:0;right:0;top:72px;height:1.5px;background:#34343B}
 .m-dot{position:absolute;top:23px;width:18px;height:18px;border-radius:50%}
 .m-face{position:absolute;overflow:hidden;border-radius:22px}
 .m-half{position:absolute;overflow:hidden}
@@ -203,13 +205,13 @@ STYLE('terminal', {
       cpInset(f, w, h, t0, k, (up + h0 * fy) / h);
       f.style.webkitMaskImage = f.style.maskImage = `linear-gradient(180deg,rgba(0,0,0,0) 0px,rgba(0,0,0,.55) ${fade * .5}px,#000 ${fade}px)`;
     }   // (it comes in with its screen)
-    /* an app window: three dots, a thin line under its title bar (no title: "ROUTINE 01" is a small label) */
+    /* an app window: its three dots only (no title bar, no line: 2026-11-27) */
     const win = (b, k, cls = '') => { const e = box(b); e.className = 'm-win' + cls; rise(e, k);
       ['#FF5F57', '#FEBC2E', '#28C840'].forEach((c, i) => { const d = div(`left:${27 + 32 * i}px;background:${c}`, e); d.className = 'm-dot'; });
-      const s = div('', e); s.className = 'm-sep'; return e; };
+      return e; };   // (no title bar and no line under it: the three dots only)
     (L.back ?? []).forEach((b, k) => win(b, k, ' m-back'));
-    if (L.face) { const [x, y, w, h] = L.face, wn = win(L.face, 0), f = box([14, 86, w - 28, h - 100], wn); f.className = 'm-face cp-frame';
-      cpInset(f, w - 28, h - 100, t0, .4, .4); }
+    if (L.face) { const [x, y, w, h] = L.face, wn = win(L.face, 0), f = box([14, TRM_HEAD, w - 28, h - TRM_HEAD - 14], wn); f.className = 'm-face cp-frame';
+      cpInset(f, w - 28, h - TRM_HEAD - 14, t0, .4, .4); }
     (L.wins ?? []).forEach((b, i) => { const e = win(b, i + (L.back?.length ?? 0), L.speaker ? ' m-float' : '');
       if (i === 0 && L.std) { e.dataset.std = L.std[0] + ':' + L.std[1].toFixed(3); L.card = e; } });   // the picture's window = its standard size (tools/card_sizes.js)
     /* the picture(s) */
