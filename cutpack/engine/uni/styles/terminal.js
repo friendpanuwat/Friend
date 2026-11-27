@@ -74,6 +74,7 @@ function trmChunks(t0, t1) {
 const TRM_STD = {1: [860, 230], 2: [860, 470], 3: [560, 490], 4: [400, 635], 5: [860, 710], 6: [860, 965], 7: [400, 500]};
 const TRM_MIN = .65;
 const TRM_LOW = 1440, TRM_PILL_GAP = 66, TRM_PILL_MAX = 1616;   // TRM_PILL_MAX: the lowest pill centre (its foot 36 under it, inside the safe zone's 1660) · the low pill of a speaker screen with a window at the hands (0 = the pill on top, as before 2026-11-26) · the window ends this far over the pill's centre
+const TRM_ROOM = {l: 20, t: 8, r: 20, b: 20};   // the window's padding round its picture (trmInner) the motion may use: glowFit's room (centre 'end' needs one, as the window style's)
 const TRM_MENU = false;   // the dark screens' menu bar (off since 2026-11-26)
 const TRM_FADE = [120, 240];   // split_top's fade: the video starts 120 above its old line, fades in over 240 px
 const TRM_ORDER = {hero_chev: [2, 1], win_speaker: [2, 1], split_top: [2, 1], stack3: [6, 5]};
@@ -315,7 +316,10 @@ STYLE('terminal', {
       q.parts.forEach(p => { if (q.box) p.style.color = '#FFFFFF'; });
       if (ch) q.parts.forEach(p => { p.style.color = '#7C7C84'; });
       else if (q.box) { q.box.textContent = '[x]'; q.box.style.color = '#EE4444'; } });
-    const F = {root, stage, stages, cam: root, L, name, dark: screen, t1, n: 0, meta, lines, ...(L.card ? {card: L.card} : {})};
+    /* centre 'end': a drawing whose motion leaves its window keeps its END drawing in the middle of the window, the view widening evenly round it
+       until all of the motion fits (as the window style's dark screens · 2026-11-27 Friend: "ฉากจอแบ่งอ่ะทำไม motion graphic มันไม่อยู่กึ่งกลางล่ะมันมากองอยู่ข้างล่างทำไม";
+       was 'motion': the whole motion centred, so a drawing with motion above it sat low in its window) */
+    const F = {root, stage, stages, cam: root, L, name, dark: screen, t1, n: 0, meta, lines, centre: 'end', room: TRM_ROOM, ...(L.card ? {card: L.card} : {})};
     if ((typeof CAPTIONS === 'undefined' || !CAPTIONS.length) && meta.rows) F.stillRows = meta.rows;
     return F;
   },
